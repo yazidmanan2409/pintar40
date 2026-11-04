@@ -70,7 +70,7 @@ export type HleEvent =
   | "laporan.metrik.diganti" | "laporan.metrik.belum_cukup_data"
   | "laporan.metrik.belum_ada_bukti"
   | "laporan.kelas.judul" | "laporan.institusi.judul"
-  | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak"
+  | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak" | "laporan.metrik.tanpa_nama"
   | "laporan.cakupan.kelas" | "laporan.cakupan.sekolah"
   // ── WP4. The Management surface. `pimpinan` is Indonesian for the people who
   // lead a part of a school — the word the approved Management design uses for
@@ -2601,6 +2601,8 @@ const table: Table = {
   "laporan.kelas.judul": { default: "Ringkasan Kelas", en: "Class Summary" },
   "laporan.institusi.judul": { default: "Ringkasan Sekolah", en: "School Summary" },
   "laporan.cetak": { default: "Cetak laporan", en: "Print report" },
+  // E-C1-1/3: a measure whose name the copy table does not have yet (pending Dr Gladys)
+  "laporan.metrik.tanpa_nama": { default: "Ukuran ini belum punya nama", en: "This measure has no name yet" },
   // W3.8 (RV-11): what a report's figures cover and when they were calculated, under its heading and on the paper
   "laporan.cakupan.kelas": { default: "Angka dihitung {waktu} dari semua bukti kelas ini sampai saat itu.", en: "Figures calculated {waktu} from all of this class's evidence up to then." },
   "laporan.cakupan.sekolah": { default: "Angka dihitung {waktu} dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu.", en: "Figures calculated {waktu} from all of this school's evidence, in every school year, up to then." },

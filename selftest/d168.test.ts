@@ -51,6 +51,10 @@
  *              refusal says who it is for; a PD participant has no academic per-learner page (adaBuktiSoal) and the
  *              rosters do not link one; no Mengajar refusal that returns to a class page, «Lihat bukti» or the Uji Cepat
  *              calls its button «Mengajar».
+ *   D168-C1-2  a figure is named, never by a key and never by nothing (E-C1-1, E-C1-3): labelMetrik gives a known key's
+ *              words and, for a key the copy table lacks or no key, the one «no name yet» sentence; every surface that
+ *              names a report entry asks it (no `label_key ? … : ""` left, no empty heading); every metric label key the
+ *              database's migrations and seed define has words in both languages.
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -59,6 +63,7 @@ import { Checks, type SelfTest } from "./lib";
 import { allKeys, t, type HleEvent } from "../src/lib/hle";
 import { judulAsesmen } from "../src/lib/judul-asesmen";
 import { cangkangStaf } from "../src/components/lapor/cangkang";
+import { labelMetrik } from "../src/components/bukti/label";
 import { render } from "./ux2.test";
 
 const kode = (x: string) => x.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
@@ -365,6 +370,38 @@ export const d168Tests: SelfTest[] = [
         }
       }
       return c.verdict("the shell, the persona and the way back follow the working context and name their destinations; a PD participant has the record, not an academic page");
+    },
+  },
+  {
+    id: "D168-C1-2",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const tanpa = t("laporan.metrik.tanpa_nama" as HleEvent, "staff", { locale: "id" });
+      c.expect(labelMetrik({ label_key: "metrik.peserta.label" }, "staff", "id") === t("metrik.peserta.label" as HleEvent, "staff", { locale: "id" }), "a known measure is not named by its words");
+      for (const e of [{ label_key: "metrik.belum_ada.label" }, { label_key: null }, {}]) {
+        const id = labelMetrik(e, "staff", "id");
+        const en = labelMetrik(e, "educator", "en");
+        c.expect(id === tanpa && en === t("laporan.metrik.tanpa_nama" as HleEvent, "staff", { locale: "en" }) && id.trim() !== "" && !/[a-z]+(\.[a-z_]+)+/.test(id + en),
+          `an unnamed measure (${JSON.stringify(e)}) reads «${id}» / «${en}»`);
+      }
+      const SURFACE = ["src/app/edukator/ringkasan/page.tsx", "src/app/dekan/ringkasan/page.tsx", "src/components/bukti/KartuKetiadaan.tsx",
+        "src/components/bukti/AngkaBerdiri.tsx", "src/components/pimpinan/AngkaTerkelola.tsx", "src/app/mengajar/[kelas]/bukti/page.tsx"];
+      for (const f of SURFACE) {
+        const src = kode(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(/labelMetrik\(/.test(src) && !/label_key \? [^:]*: ""/.test(src) && !/\{s\((entry|e|siap)\.label_key\)\}/.test(src), `${f} names an entry without labelMetrik, or draws nothing in its place`);
+      }
+      for (const f of ["src/app/edukator/ringkasan/page.tsx", "src/app/dekan/ringkasan/page.tsx"]) {
+        c.expect(/<h2 className="font-medium">\{labelMetrik\(e, (untuk|"staff"), locale\)\}<\/h2>/.test(kode(readFileSync(join(repoRoot, f), "utf8"))), `${f}: an entry's heading can be empty`);
+      }
+      const kunci = new Set(allKeys() as string[]);
+      const db: string[] = [];
+      const jalan = (d: string) => { for (const e of readdirSync(join(repoRoot, d), { withFileTypes: true })) { const f = `${d}/${e.name}`; if (e.isDirectory()) jalan(f); else if (f.endsWith(".sql")) db.push(f); } };
+      jalan("supabase/migrations"); jalan("supabase/seed");
+      const label = new Set(db.flatMap((f) => [...readFileSync(join(repoRoot, f), "utf8").matchAll(/'(metrik\.[a-z_]+\.(label|arti))'/g)].map((m) => m[1])));
+      // a probe measure is planted and removed by the migrations' own checks; it never reaches a reader
+      const tanpaKata = [...label].filter((k) => !k.startsWith("metrik.probe.") && !kunci.has(k));
+      c.expect(label.size >= 30 && tanpaKata.length === 0, `metric keys the database defines without words: ${tanpaKata.join(", ")} (of ${label.size})`);
+      return c.verdict(`every report entry is named through labelMetrik (no key, no empty heading); the ${label.size} metric keys the database defines all have words`);
     },
   },
 ];

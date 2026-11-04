@@ -8,7 +8,7 @@ import { tanggal } from "@/lib/tanggal";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
 import { navKonteks } from "@/components/NavKonteks";
 import KakiPintar from "@/components/KakiPintar";
-import { BarisLingkup, kalimatJumlah } from "@/components/bukti";
+import { BarisLingkup, kalimatJumlah, labelMetrik } from "@/components/bukti";
 import { kunciMuncul } from "@/components/bukti/muncul";
 import NilaiLaporan from "@/components/bukti/NilaiLaporan";
 import AksiLaporan from "@/components/laporan/AksiLaporan";
@@ -112,7 +112,7 @@ export default async function RingkasanKelas({
                   {/* A metric the viewer may not see carries NO label: the
                       refusal must not disclose what it withheld. */}
                   {e.status === "ok" || e.status === "below_minimum" || e.status === "deprecated" ? (
-                    <h2 className="font-medium">{e.label_key ? s(e.label_key, untuk, locale) : ""}</h2>
+                    <h2 className="font-medium">{labelMetrik(e, untuk, locale)}</h2>
                   ) : null}
 
                   {e.status === "ok" ? (

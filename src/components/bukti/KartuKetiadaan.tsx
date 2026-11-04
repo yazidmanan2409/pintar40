@@ -2,6 +2,7 @@ import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import type { Envelope } from "./types";
 import { kunciMuncul, SYARAT_METRIK } from "./muncul";
 import type { JenisAnggota } from "@/lib/mengajar";
+import { labelMetrik } from "./label";
 
 /**
  * KartuKetiadaan — the absence card, in four variants.
@@ -100,7 +101,7 @@ export default function KartuKetiadaan({
     <div className="pin-metric">
       {/* No heading for `tidak_untuk_anda`: see the note above. */}
       {variant !== "tidak_untuk_anda" && entry.label_key ? (
-        <span className="pin-ml">{s(entry.label_key)}</span>
+        <span className="pin-ml">{labelMetrik(entry, persona, locale)}</span>
       ) : null}
       <span className="pin-abs">{base}</span>
       {jumlah ? <span className="pin-ma">{jumlah}</span> : null}

@@ -10,6 +10,7 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { AngkaBerdiri, BarisKesiapan, BarisLingkup, KartuKetiadaan, KeadaanHariIni, PopulasiKelas } from "@/components/bukti";
 import { nilaiMetrik, urutkanPita } from "@/lib/nilai-metrik";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { labelMetrik } from "@/components/bukti/label";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/bukti");
 
@@ -211,7 +212,7 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
 
           {siap && siap.status === "ok" && sebaran.length > 0 ? (
             <div className="pin-metric">
-              <span className="pin-ml">{siap.label_key ? t(siap.label_key as HleEvent, "educator", { locale }) : ""}</span>
+              <span className="pin-ml">{labelMetrik(siap, "educator", locale)}</span>
               <div className="pin-readiness">
                 {sebaran.map(([tier, n]) => (
                   <BarisKesiapan key={tier} tierKey={tier} count={Number(n)} total={totalSiap} locale={locale} />
