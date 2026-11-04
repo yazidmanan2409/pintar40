@@ -20,7 +20,7 @@
 | P3 | **The header slot's size with today's logo.** The slot is 120 × 40 px; today's email logo is 104 × 58 (`BERKAS_LOGO`, pinned by DAISY-19-EMAIL-02 at 208 × 116). Sized by height, it draws at about 72 × 40. Is that the intended interim, or does the slot keep 104 × 58 until F-11? | The logo's geometry is a pinned test | Daisy |
 | P4 | **The card block's border `#D9D6CE` has no token.** DAISY-19-EMAIL-01 allows exactly one colour without a token (the code box's border). The guard is **not** widened; the border takes a token (`--line` / `--line-strong`, as the frame's hairline does) or Daisy names the token | A guard would go red | Daisy |
 | P5 | **The context line's wording** («Akun PINTAR Anda di …»): with Dr Gladys (a PINTAR ID is the person's own, not a school's) | Not a build blocker: the line is built under its key (`email.bingkai.konteks`) with the drawn words, and final terminology acceptance waits on her | Dr Gladys |
-| P6 | **The manual protocol's send path.** The protocol needs real Gmail and Outlook inboxes. Locally, email goes only to the mail sink. Reaching a real inbox needs a configured sender (staging's Email uji, or a local SMTP to a test account), which is a staging or credentials action | Not authorised by any current ruling | Owner, at the time of the manual run |
+| P6 | **The manual protocol's send path and inboxes.** HTML email renders differently in mail clients than in a browser, so the real-client check is required, not optional. Locally, email goes only to the mail sink. Reaching a real inbox needs a configured sender (staging's Email uji, or a local SMTP to a test account), which is a staging or credentials action. **The inboxes are dedicated synthetic test accounts** (owner, 4 Nov): never Dr Gladys's account, and never a real school, person or identity | Not authorised by any current ruling | Owner, at the time of the manual run |
 | P7 | **The owner's approval** of the design and of this test plan | Brief §8, step 7 | Owner |
 
 ## 2. Automated tests: written red first, then the build makes them green
@@ -78,7 +78,10 @@ Daisy's four [manual] lines, run as the brief §8 sets out and recorded per emai
 3. **Recognition, provisional:** who, why and what within 5 seconds at 320 px, in at least 4 of 5 attempts per email, each attempt a different reader new to that email. **It cannot establish brand recognition.**
 4. **Recognition, final:** after F-11, with the approved artwork.
 
-It needs P6 (a send path to real inboxes) and the owner's go at that time. No real person's address or data is used; the specimens use synthetic people.
+It needs P6 (a send path to real inboxes) and the owner's go at that time.
+- **Accounts (owner, 4 Nov):** dedicated synthetic test accounts in Gmail and Outlook, created for this check. **Never Dr Gladys's account, and never a real school's or person's identity.** The emails carry synthetic people and synthetic schools only.
+- **No credentials in the evidence:** the test accounts' passwords and the sender's credentials are never committed or logged; screenshots are cropped to the email.
+- **Where it counts:** the results are part of **Batch 6's physical and cross-client acceptance evidence**, alongside F-11's physical print proofs (A4, CR80, the QR on two phones). D1 is not closed, and Batch 6's email item is not accepted, until this protocol has passed.
 
 ## 6. Order of work, once authorised
 
