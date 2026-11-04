@@ -33,7 +33,7 @@ Every email has the same regions, top to bottom. The «D1» rows are new; the re
 
 | Part | Specification |
 |---|---|
-| Form | One table, at most 440 px wide and 100% of the card's width below that; radius 12; border 1 px `#D9D6CE`. Paper `#FBFAF7` in light **and dark**: the card is an artifact, so it keeps its own paper, as the physical and digital card do. |
+| Form | One table, at most 440 px wide and 100% of the card's width below that; radius 12; border 1 px, the frame's `garis` (`--line`, `#E2E4E5`), kept in dark because the paper is kept (P4). Paper `#FBFAF7` in light **and dark**: the card is an artifact, so it keeps its own paper, as the physical and digital card do. |
 | Header | The card's own wordmark slot: **96 × 32 px**, the same placeholder at 9 px, inset 14 16 10 16 |
 | Gold line | A 2 px full-width rule, `#C09C4F`, under the header (D-074's line, scaled for email) |
 | Name | 18/24 600, `#1F2A33`, inset 14 16 4 |
@@ -156,7 +156,7 @@ No application token changes.
 - [auto] The context line is present when the email's data carries a place, and **absent, with no substitute text, when it does not**. The tests cover the card with one place, the card with two, and each of the other five emails with none.
 - [auto] The context line names every place, alphabetically, joined by «, » and «dan», and names no role.
 - [auto] The card email's roles render in alphabetical order by their Terminology v1 names. The band colour is the first role's family. A Dekan, Guru and Kepala departemen person renders in the order «Dekan», «Guru», «Kepala departemen», in Dekan's `#515E83` (D-074(5), (4) addendum).
-- [auto] The card block is table HTML with no `<img>`, no back and no QR.
+- [auto] The card block is table HTML with no back and no QR. Its only image is the wordmark slot: the placeholder in these specimens; in the build until F-11, today's logo (D-160(a); P2).
 - [auto] The wordmark slot is 120 × 40 in the header and 96 × 32 on the card, and every placeholder label reads «Pintar (master pending F-11)». After F-11 this line is replaced by the master's own check.
 - [auto] The card's top edge is 3 px `#C09C4F` in light and dark; the card is `#FBFAF7` in light.
 - [auto] At 320 px there is no sideways scroll, no text under 13 px except the placeholder label, every button is at least 44 px, and **the reason line is above the fold** (within the first 900 px).
@@ -180,3 +180,10 @@ No application token changes.
 ## Missing evidence
 
 None relied on. The card email's data and its alphabetical order are engineering's at `9b52b51` (D-164(b)); this design does not depend on them.
+
+## Implementation answers (owner's questions, 4 Nov)
+
+- **P2 · The card's wordmark slot until F-11:** (a) today's logo as the block's one image (D-160(a)), with `alt="Pintar"`; the card's live text still carries who and what with images blocked.
+- **P3 · The header slot until F-11:** keep it at today's pinned 104 × 58 and do not rescale the logo; 120 × 40 is the slot for the F-11 master.
+- **P4 · The card border:** `--line`, the frame's existing `garis` (`#E2E4E5`). The `#D9D6CE` in step 2 was an untokened value of mine, now corrected in `bingkai-d1.mts`; the renders are regenerated.
+

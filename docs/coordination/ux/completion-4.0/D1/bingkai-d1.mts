@@ -226,7 +226,7 @@ export function slotMerek(w: number, h: number, ukuranHuruf: number, kelas: stri
 function kartuHtml(k: KartuEmail): string {
   const baris = k.baris.map((r) => `<p style="margin:0;font-family:${HURUF};font-size:13px;line-height:19px;color:#FBFAF7;"><strong style="font-weight:600;">${esc(r.peran)}</strong>${r.sekolah ? ` · ${esc(r.sekolah)}` : ""}</p>`).join("");
   return `<table class="pin-kartu-pintar" role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;margin:8px 0 20px 0;max-width:440px;">
-<tr><td bgcolor="#FBFAF7" style="background-color:#FBFAF7;border:1px solid #D9D6CE;border-radius:12px;padding:0;">
+<tr><td bgcolor="#FBFAF7" style="background-color:#FBFAF7;border:1px solid ${T.garis};border-radius:12px;padding:0;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr><td style="padding:14px 16px 10px 16px;">${slotMerek(SLOT_MEREK.kartu.w, SLOT_MEREK.kartu.h, 9, "pin-slot-kartu")}</td></tr>
 <tr><td height="2" bgcolor="${T.emas}" style="height:2px;line-height:2px;font-size:0;background-color:${T.emas};">&nbsp;</td></tr>
