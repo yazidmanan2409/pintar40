@@ -886,6 +886,7 @@ export type HleEvent =
   | "studio.paket.riwayat.judul"
   | "studio.paket.riwayat.asli"
   | "studio.paket.riwayat.belum_terbit"
+  | "studio.paket.riwayat.versi_pertama"
   | "studio.paket.riwayat.oleh"
   | "studio.paket.riwayat.ini"
   | "studio.paket.riwayat.buka"
@@ -893,6 +894,7 @@ export type HleEvent =
   | "studio.beranda.tak_ada_tugas"
   | "studio.state.explain.TERBIT"
   | "studio.temuan.judul"
+  | "studio.temuan.orang_kedua"
   | "studio.temuan.lokasi"
   | "studio.temuan.mengapa"
   | "studio.temuan.cara"
@@ -3185,7 +3187,7 @@ const table: Table = {
   "config.kesehatan.cek.malformed_jalur": { default: "Setiap jalur kurikulum berbentuk benar", en: "Every curriculum path is well formed" },
   "config.card.cohorts": { default: "Kelas aktif", en: "Active classes" },
   "config.environment": { default: "Lingkungan", en: "Environment" },
-  "config.refused": { default: "Halaman ini hanya untuk Admin sekolah atau Admin platform.", en: "This page is for system administrators only." },
+  "config.refused": { default: "Halaman ini hanya untuk Admin sekolah atau Admin platform.", en: "This page is for school administrators and platform administrators only." },
   "config.section.rollover": { default: "Pergantian tahun ajaran", en: "Academic-year rollover" },
   "config.section.transfers": { default: "Perpindahan murid", en: "Student transfers" },
   "config.section.pindah": { default: "Pindah kelas", en: "Move a student to another class" },
@@ -3698,7 +3700,7 @@ const table: Table = {
   "studio.langkah.terbitkan.tombol": { default: "Terbitkan", en: "Publish" },
   "studio.langkah.terbit.judul": { default: "Terbit", en: "Published" },
   "studio.langkah.terbit.sejak": { default: "Terbit sejak", en: "Published since" },
-  "studio.langkah.terbit.nanti": { default: "Paket ini terbit setelah langkah 7.", en: "This package is published after step 7." },
+  "studio.langkah.terbit.nanti": { default: "Paket ini terbit setelah langkah Terbitkan.", en: "This package is published after the Publish step." },
   "studio.langkah.ditarik.judul": { default: "Ditarik", en: "Withdrawn" },
   "studio.langkah.ditarik.arti": { default: "Terbitan ini sudah ditarik dari peredaran. Untuk memperbaikinya, buat salinan paket di bawah.", en: "This release has been withdrawn from circulation. To correct it, make a copy of the package below." },
   "studio.langkah.tarik.alasan": { default: "Alasan penarikan", en: "Reason for withdrawal" },
@@ -3988,6 +3990,8 @@ const table: Table = {
   "studio.paket.riwayat.judul": { default: "Riwayat perbaikan", en: "Correction history" },
   "studio.paket.riwayat.asli": { default: "Versi pertama", en: "First version" },
   "studio.paket.riwayat.belum_terbit": { default: "belum terbit", en: "not yet published" },
+  // A5 B9 (D-173): the never-released first version has a name; pending copy approval
+  "studio.paket.riwayat.versi_pertama": { default: "Versi pertama", en: "First version" },
   "studio.paket.riwayat.oleh": { default: "oleh", en: "by" },
   "studio.paket.riwayat.ini": { default: "halaman ini", en: "this page" },
   "studio.paket.riwayat.buka": { default: "Buka", en: "Open" },
@@ -3996,6 +4000,8 @@ const table: Table = {
   "studio.state.explain.TERBIT": { default: "Paket ini sudah terbit. Guru dapat menyediakannya untuk kelas mereka.", en: "This package is published. Teachers can make it available to their classes." },
   // polish batch 2 (UX-14): the section is named what both steps call it
   "studio.temuan.judul": { default: "Temuan", en: "Findings" },
+  // A5 B11 (D-173): said to the author only; pending copy approval
+  "studio.temuan.orang_kedua": { default: "Temuan ditinjau oleh orang kedua, bukan oleh penyusun paket.", en: "Findings are reviewed by a second person, not by the package's author." },
   "studio.temuan.lokasi": { default: "Lokasi", en: "Where" },
   "studio.temuan.mengapa": { default: "Mengapa penting", en: "Why it matters" },
   "studio.temuan.cara": { default: "Cara memperbaiki", en: "How to fix it" },
@@ -4054,7 +4060,7 @@ const table: Table = {
   "studio.unggah.buku.arti": { default: "Isi templat Excel, lalu unggah di sini. PINTAR memeriksa setiap baris lebih dulu dan tidak menyimpan apa pun sebelum semuanya benar.", en: "Fill in the Excel template, then upload it here. PINTAR checks every row first and saves nothing until everything is right." },
   "studio.unggah.templat": { default: "Unduh templat Excel", en: "Download the Excel template" },
   "studio.unggah.templat_arti": { default: "Lembar Cara mengisi di dalamnya menjelaskan setiap kolom dan batasnya.", en: "Its Cara mengisi sheet explains every column and its limits." },
-  "studio.unggah.contoh": { default: "Unduh contoh isian", en: "Download a filled example" },
+  "studio.unggah.contoh": { default: "Unduh contoh isian", en: "Download a filled-in example" },
   "studio.unggah.contoh_arti": { default: "Templat yang sama, sudah terisi satu bab contoh agar terlihat cara mengisi setiap lembar. Isinya karangan untuk contoh ini saja: bukan materi sekolah dan bukan soal yang dikerjakan murid.", en: "The same template, filled with one example chapter so you can see how each sheet is filled in. Its content is made up for this example alone: it is not school material and not questions students take." },
   "studio.unggah.sekolah": { default: "Sekolah", en: "School" },
   "studio.unggah.tanpa_sekolah": { default: "Anda belum dapat menyusun materi di sekolah mana pun.", en: "You cannot prepare material for any school yet." },
@@ -4231,7 +4237,7 @@ const table: Table = {
   "galat.transfer_rejected": { default: "Perpindahan ditolak.", en: "Transfer rejected." },
   "galat.step_taken": { default: "Paket ini maju ke langkah berikutnya.", en: "This package has moved on to its next step." },
   "galat.check_run": { default: "Pemeriksaan isi selesai. Temuannya ada di bawah.", en: "The content check is done. Its findings are below." },
-  "galat.findings_acknowledged": { default: "Temuan sejenis sudah diakui sekaligus. Jumlahnya:", en: "The findings of one kind are acknowledged together. Count:" },
+  "galat.findings_acknowledged": { default: "Temuan sejenis sudah ditinjau sekaligus. Jumlahnya:", en: "The findings of one kind are marked reviewed together. Count:" },
   "galat.finding_acknowledged": { default: "Temuan itu sudah diakui.", en: "That finding has been acknowledged." },
   "galat.revision_created": { default: "Salinan baru paket ini dibuat, dan Anda sekarang melihatnya.", en: "A new copy of this package was made, and you are now looking at it." },
   "galat.assignment_moved": { default: "Penugasan itu sekarang memakai terbitan ini.", en: "That assignment now uses this release." },
@@ -5026,7 +5032,7 @@ const table: Table = {
   "studio.definisi.f.jumlah": { default: "Jumlah soal", en: "Number of questions" },
   "studio.definisi.f.keselamatan": { default: "Minimum soal keselamatan", en: "Minimum safety questions" },
   "studio.definisi.f.ragu": { default: "Jendela ragu (detik)", en: "Hesitation window (seconds)" },
-  "studio.definisi.f.tenggang": { default: "Tenggang kirim (detik)", en: "Send grace (seconds)" },
+  "studio.definisi.f.tenggang": { default: "Tenggang kirim (detik)", en: "Late-submission grace (seconds)" },
   "studio.definisi.f.percobaan": { default: "Batas percobaan", en: "Attempt limit" },
   "studio.definisi.f.acak": { default: "Urutan", en: "Order" },
   "studio.definisi.f.jeda": { default: "Boleh dijeda", en: "May be paused" },
@@ -5040,7 +5046,7 @@ const table: Table = {
   "studio.definisi.unit.menit": { default: "menit", en: "minutes" },
   "studio.definisi.kata.antara": { default: "antara", en: "between" },
   "studio.definisi.kata.dan": { default: "dan", en: "and" },
-  "studio.definisi.f.tenggang_menit": { default: "Tenggang kirim (menit)", en: "Send grace (minutes)" },
+  "studio.definisi.f.tenggang_menit": { default: "Tenggang kirim (menit)", en: "Late-submission grace (minutes)" },
   "studio.definisi.f.komposisi": { default: "Jumlah soal per tingkat kesulitan", en: "Questions per difficulty" },
   "studio.definisi.f.selama": { default: "Selama mengerjakan", en: "While it is being taken" },
   "studio.definisi.petunjuk.jumlah": { default: "Berapa soal yang dikerjakan setiap murid; boleh", en: "How many questions each student answers; allowed" },

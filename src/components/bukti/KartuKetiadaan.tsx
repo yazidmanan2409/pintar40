@@ -56,7 +56,9 @@ const STATEMENT: Record<Variant, string> = {
 export function kalimatJumlah(entry: Envelope, locale: Locale = "id", persona: "educator" | "staff" = "educator", jenis: JenisAnggota = "LEARNER"): string | null {
   const syarat = entry.metric_id ? SYARAT_METRIK[entry.metric_id] : undefined;
   const hitungMurid = syarat === "penilaian" || syarat === "akhir" || syarat === "awal_akhir";
-  if (variantOf(entry) !== "belum_cukup" || entry.needed == null || !hitungMurid) return null;
+  if (variantOf(entry) !== "belum_cukup" || entry.needed == null || !hitungMurid) {
+    return null;
+  }
   return kalimatJumlahOrang(entry.have ?? 0, entry.needed, jenis, locale, persona);
 }
 

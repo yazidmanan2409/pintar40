@@ -10229,11 +10229,13 @@ export const experienceTests: SelfTest[] = [
             c.expect(menunjuk(kalimat, judul, locale), `(${locale}) ${kode} does not send the reader to the "${judul}" step by its name: ${kalimat}`);
           }
           // RESTATED FOR TERMINOLOGY v1 (D-068 ruling 2, rows D1–D23; applied under D-138(c)): in Indonesian the Studio
-          // object is now «Paket Pembelajaran», «paket» once the context is set, and «kursus» is the word replaced; the
-          // English copy is not part of v1 and still says "course", never "package"
+          // object is now «Paket Pembelajaran», «paket» once the context is set, and «kursus» is the word replaced.
+          // RESTATED AGAIN FOR D-171(c) (owner, 4 Nov: «Indonesian: Paket Pembelajaran · English: Learning Package»): the
+          // English copy now follows v1 too, so «course» is the word replaced and «package» the word kept — the same
+          // strictness, in the ruled direction (X12 T1; D168-X12-1 holds it across the whole copy table)
           for (const k of allKeys().filter((k) => k.startsWith("studio.konten.kode."))) {
             const v = t(k as HleEvent, "staff", { locale });
-            c.expect(locale === "id" ? !/\bkursus\b/i.test(v) : !/\bpackage/i.test(v),
+            c.expect(locale === "id" ? !/\bkursus\b/i.test(v) : !/\bcourses?\b/i.test(v),
               `(${locale}) ${k} names the Studio object by a word v1 replaced: ${v}`);
           }
         }
@@ -11411,9 +11413,10 @@ export const experienceTests: SelfTest[] = [
         for (const k of kunci) {
           const v = t(k, "staff", { locale });
           c.expect(v !== TANPA_SALINAN && v.trim() !== "", `(${locale}) ${k} has no words`);
-          // (Terminology v1, D-068 ruling 2: in Indonesian the Studio object is «paket» and «kursus» the replaced word;
-          // English, outside v1, still says "course")
-          c.expect(!MESIN.test(v) && (locale === "id" ? !/\bkursus\b/i.test(v) : !PAKET.test(v)), `(${locale}) ${k} names the machinery or a word v1 replaced: ${v}`);
+          // (Terminology v1, D-068 ruling 2: in Indonesian the Studio object is «paket» and «kursus» the replaced word.
+          // RESTATED FOR D-171(c): the English follows v1 too, «package» kept and «course» replaced — same strictness,
+          // in the ruled direction)
+          c.expect(!MESIN.test(v) && (locale === "id" ? !/\bkursus\b/i.test(v) : !/\bcourses?\b/i.test(v)), `(${locale}) ${k} names the machinery or a word v1 replaced: ${v}`);
           c.expect(!INTERNAL_WORDS.some((w) => new RegExp(`\\b${w}\\b`).test(v)), `(${locale}) ${k} carries an internal word: ${v}`);
         }
         for (const [kode, langkah] of Object.entries(LANGKAH_DISEBUT)) {
@@ -11476,7 +11479,7 @@ export const experienceTests: SelfTest[] = [
 
       return c.verdict(
         `every blocker the catalogue names (${KODE.length} codes, ${POLA.length} patterns and the general lines) reads in both ` +
-        "languages as the steps speak: of the course, never the package; no code, ERROR, WARNING, pattern name or internal " +
+        "languages as the steps speak: of the package, never the course (D-171(c)); no code, ERROR, WARNING, pattern name or internal " +
         "word; and a line that sends the reader to a step names it by that step's exact title. Composed as the Terbit step shows " +
         "it, each code reads as its words with the lesson it names and a question's pattern in words; a planted unknown code, " +
         "bare sentence and unknown pattern read as the copy table's general line, never themselves. From the SOURCE, an unknown " +

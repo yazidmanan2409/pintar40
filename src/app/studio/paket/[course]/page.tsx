@@ -324,6 +324,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
       <section className="pin-studio-halaman" id="temuan">
         {/* Polish batch 2 (UX-14): named «Temuan», as both steps above call it */}
         <h3 className="pin-studio-h3">{s("studio.temuan.judul")}</h3>
+        {typeof saya === "string" && saya === course.author_person_id ? <p className="pin-meta" data-temuan-orang-kedua="">{s("studio.temuan.orang_kedua")}</p> : null}
         {can(inst, "CAN_DRAFT") && !tersegel ? (
           <form action={runValidationAction} className="pin-baris-aksi">
             <input type="hidden" name="course" value={courseId} />
@@ -351,7 +352,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
               return (
                 <li key={id} className="pin-riwayat" data-versi={id}>
                   <p className="pin-judul-baris">
-                    {r?.version_label ?? "—"}
+                    {r?.version_label ?? sl("studio.paket.riwayat.versi_pertama")}
                     {" · "}
                     {r?.published_at ? when(r.published_at as string) : sl("studio.paket.riwayat.belum_terbit")}
                     {" · "}
