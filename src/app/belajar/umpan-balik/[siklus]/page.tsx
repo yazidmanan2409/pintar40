@@ -56,7 +56,6 @@ export default async function BeriUmpanBalik({
         persona={personaPembelajaran(await peranSaya())}
         locale={locale}
         backHref="/belajar"
-        backKey="umpanbalik.kembali"
       />
     );
   }
@@ -65,7 +64,7 @@ export default async function BeriUmpanBalik({
     <>
       <CangkangPengalaman locale={locale} current="belajar" />
       <main id="isi" tabIndex={-1} className="pin-col">
-        <Link className="pin-back" href="/belajar">← {s("umpanbalik.kembali")}</Link>
+        <Link className="pin-back" href="/belajar">← {s("nav.belajar")}</Link>
 
         <div className="pin-head">
           <p className="pin-eyebrow">{s("umpanbalik.murid.judul")}</p>

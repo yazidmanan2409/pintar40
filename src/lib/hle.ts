@@ -70,8 +70,7 @@ export type HleEvent =
   | "laporan.metrik.diganti" | "laporan.metrik.belum_cukup_data"
   | "laporan.metrik.belum_ada_bukti"
   | "laporan.kelas.judul" | "laporan.institusi.judul"
-  | "laporan.kosong" | "laporan.tak_ada_angka"
-  | "laporan.kembali" | "laporan.cetak"
+  | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak"
   | "laporan.cakupan.kelas" | "laporan.cakupan.sekolah"
   // ── WP4. The Management surface. `pimpinan` is Indonesian for the people who
   // lead a part of a school — the word the approved Management design uses for
@@ -80,7 +79,7 @@ export type HleEvent =
   // legitimately says "Menunggu tinjauan" about a queue where the same word on a
   // learner's screen would be the system telling a child to wait.
   | "pimpinan.eyebrow" | "pimpinan.judul" | "pimpinan.batas" | "pimpinan.urutan"
-  | "pimpinan.memutuskan" | "pimpinan.ditolak" | "pimpinan.kembali"
+  | "pimpinan.memutuskan" | "pimpinan.ditolak"
   | "pimpinan.menunggu.nihil" | "pimpinan.menunggu.satu" | "pimpinan.menunggu.banyak"
   | "pimpinan.menunggu.judul" | "pimpinan.perlu_diketahui" | "pimpinan.perlu_diketahui.sub"
   | "pimpinan.lingkup.judul" | "pimpinan.lingkup.pilih" | "pimpinan.lingkup.kosong"
@@ -472,8 +471,8 @@ export type HleEvent =
   | "config.struktur.contoh.KELAS"
   | "config.struktur.tahun"
   | "config.struktur.tahun_ikut"
-  | "config.struktur.untuk" | "config.struktur.untuk.murid" | "config.struktur.untuk.guru" | "config.struktur.untuk.arti" | "config.struktur.untuk_guru" | "config.struktur.peserta.satu" | "config.struktur.peserta.banyak" | "config.section.peserta" | "config.peserta.arti" | "config.peserta.orang" | "config.peserta.tempat" | "config.peserta.daftarkan" | "config.peserta.tanpa_tempat" | "config.peserta.catatan" | "galat.pd_not_allowed" | "galat.pd_place_invalid" | "galat.pd_place_not_for_educators" | "galat.pd_person_not_staff" | "galat.pd_already_enrolled" | "galat.pd_other_purpose" | "galat.pd_input_incomplete" | "galat.pd_enrolled" | "mengajar.sedia.kode.assign_context_mismatch" | "mengajar.cepat.tolak.konteks" | "mengajar.fakta.peserta" | "mengajar.peserta.judul" | "mengajar.peserta.kosong" | "mengajar.bukti.peserta" | "mengajar.siap.terdaftar_peserta" | "mengajar.siapa.kosong_peserta" | "mengajar.kelas.catatan_pengembangan" | "pengembangan.eyebrow" | "pengembangan.judul" | "pengembangan.arti" | "pengembangan.arti_terbatas" | "pengembangan.kosong" | "pengembangan.paket_kosong" | "pengembangan.kolom.paket" | "pengembangan.kolom.mulai" | "pengembangan.kolom.pelajaran" | "pengembangan.kolom.pemetaan" | "pengembangan.kolom.penguasaan" | "pengembangan.kolom.selesai" | "pengembangan.kolom.hasil" | "pengembangan.status.BELUM" | "pengembangan.status.SEDANG" | "pengembangan.status.SELESAI" | "pengembangan.ya" | "pengembangan.belum" | "pengembangan.tercapai" | "pengembangan.belum_tercapai" | "pengembangan.daftar.ACTIVE" | "pengembangan.daftar.PENDING" | "pengembangan.buka" | "pengembangan.kembali"
-  | "nav.lapor" | "lapor.eyebrow" | "lapor.judul" | "lapor.arti" | "lapor.murid" | "lapor.kembali" | "lapor.halaman" | "lapor.halaman.awal" | "lapor.halaman.lain" | "lapor.rujukan" | "lapor.lakukan" | "lapor.harapan" | "lapor.terjadi" | "lapor.hentikan" | "lapor.hentikan.singkat" | "lapor.tangkapan" | "lapor.tangkapan.arti" | "lapor.tangkapan.naik" | "lapor.tangkapan.siap" | "lapor.tangkapan.gagal" | "lapor.tangkapan.besar" | "lapor.kirim" | "lapor.privasi" | "lapor.diterima" | "lapor.saya.judul" | "lapor.saya.arti" | "lapor.saya.kosong" | "lapor.saya.buka" | "lapor.langkah" | "lapor.langkah.awal" | "lapor.langkah.awal_kelas" | "lapor.status.DITERIMA" | "lapor.status.DITANGANI" | "lapor.status.SELESAI" | "lapor.kode.report_not_staff" | "lapor.kode.report_input_invalid" | "lapor.kode.report_not_allowed" | "lapor.kode.report_status_invalid" | "lapor.kode.report_next_step_required" | "lapor.kode.report_failed" | "config.section.laporan_masalah" | "lapor.triase.arti" | "lapor.triase.kosong" | "lapor.triase.ubah" | "lapor.triase.langkah" | "lapor.triase.simpan" | "lapor.triase.tangkapan" | "lapor.triase.ok"
+  | "config.struktur.untuk" | "config.struktur.untuk.murid" | "config.struktur.untuk.guru" | "config.struktur.untuk.arti" | "config.struktur.untuk_guru" | "config.struktur.peserta.satu" | "config.struktur.peserta.banyak" | "config.section.peserta" | "config.peserta.arti" | "config.peserta.orang" | "config.peserta.tempat" | "config.peserta.daftarkan" | "config.peserta.tanpa_tempat" | "config.peserta.catatan" | "galat.pd_not_allowed" | "galat.pd_place_invalid" | "galat.pd_place_not_for_educators" | "galat.pd_person_not_staff" | "galat.pd_already_enrolled" | "galat.pd_other_purpose" | "galat.pd_input_incomplete" | "galat.pd_enrolled" | "mengajar.sedia.kode.assign_context_mismatch" | "mengajar.cepat.tolak.konteks" | "mengajar.fakta.peserta" | "mengajar.peserta.judul" | "mengajar.peserta.kosong" | "mengajar.bukti.peserta" | "mengajar.siap.terdaftar_peserta" | "mengajar.siapa.kosong_peserta" | "mengajar.kelas.catatan_pengembangan" | "pengembangan.eyebrow" | "pengembangan.judul" | "pengembangan.arti" | "pengembangan.arti_terbatas" | "pengembangan.kosong" | "pengembangan.paket_kosong" | "pengembangan.kolom.paket" | "pengembangan.kolom.mulai" | "pengembangan.kolom.pelajaran" | "pengembangan.kolom.pemetaan" | "pengembangan.kolom.penguasaan" | "pengembangan.kolom.selesai" | "pengembangan.kolom.hasil" | "pengembangan.status.BELUM" | "pengembangan.status.SEDANG" | "pengembangan.status.SELESAI" | "pengembangan.ya" | "pengembangan.belum" | "pengembangan.tercapai" | "pengembangan.belum_tercapai" | "pengembangan.daftar.ACTIVE" | "pengembangan.daftar.PENDING" | "pengembangan.buka"
+  | "nav.lapor" | "lapor.eyebrow" | "lapor.judul" | "lapor.arti" | "lapor.murid" | "lapor.halaman" | "lapor.halaman.awal" | "lapor.halaman.lain" | "lapor.rujukan" | "lapor.lakukan" | "lapor.harapan" | "lapor.terjadi" | "lapor.hentikan" | "lapor.hentikan.singkat" | "lapor.tangkapan" | "lapor.tangkapan.arti" | "lapor.tangkapan.naik" | "lapor.tangkapan.siap" | "lapor.tangkapan.gagal" | "lapor.tangkapan.besar" | "lapor.kirim" | "lapor.privasi" | "lapor.diterima" | "lapor.saya.judul" | "lapor.saya.arti" | "lapor.saya.kosong" | "lapor.saya.buka" | "lapor.langkah" | "lapor.langkah.awal" | "lapor.langkah.awal_kelas" | "lapor.status.DITERIMA" | "lapor.status.DITANGANI" | "lapor.status.SELESAI" | "lapor.kode.report_not_staff" | "lapor.kode.report_input_invalid" | "lapor.kode.report_not_allowed" | "lapor.kode.report_status_invalid" | "lapor.kode.report_next_step_required" | "lapor.kode.report_failed" | "config.section.laporan_masalah" | "lapor.triase.arti" | "lapor.triase.kosong" | "lapor.triase.ubah" | "lapor.triase.langkah" | "lapor.triase.simpan" | "lapor.triase.tangkapan" | "lapor.triase.ok"
   // #148 (D-094, D-100): maintenance and notices
   | "pemeliharaan.zona" | "pemeliharaan.pita.dalam" | "pemeliharaan.pita.menit" | "pemeliharaan.pita.pukul" | "pemeliharaan.pita.selesai_kira" | "pemeliharaan.pita.asesmen" | "pemeliharaan.pita.biasa" | "pemeliharaan.pita.asesmen_baru" | "pemeliharaan.pita.berlangsung" | "pemeliharaan.pita.berjalan" | "pemeliharaan.pita.menguasai" | "pemeliharaan.pita.pengumuman" | "pemeliharaan.judul" | "pemeliharaan.sejak" | "pemeliharaan.kira" | "pemeliharaan.kira_belum" | "pemeliharaan.pesan" | "pemeliharaan.terkumpul" | "pemeliharaan.aman" | "pemeliharaan.langkah" | "pemeliharaan.menjelang.judul" | "pemeliharaan.menjelang.arti" | "pemeliharaan.darurat.judul" | "pemeliharaan.darurat.arti" | "pemeliharaan.darurat.aman" | "pemeliharaan.darurat.asesmen" | "pemeliharaan.darurat.langkah" | "pemeliharaan.kembali.judul" | "pemeliharaan.kembali.arti" | "pemeliharaan.kembali.tautan" | "config.section.pemeliharaan" | "config.pemeliharaan.arti" | "config.pemeliharaan.cakupan" | "config.pemeliharaan.platform" | "config.pemeliharaan.mulai" | "config.pemeliharaan.selesai" | "config.pemeliharaan.periksa" | "config.pemeliharaan.tabrakan.perhatian" | "config.pemeliharaan.tabrakan.jumlah" | "config.pemeliharaan.tabrakan.terakhir" | "config.pemeliharaan.tabrakan.saran" | "config.pemeliharaan.tabrakan.nihil" | "config.pemeliharaan.pesan" | "config.pemeliharaan.alasan" | "config.pemeliharaan.umumkan" | "config.pemeliharaan.jadwalkan" | "config.pemeliharaan.daftar" | "config.pemeliharaan.kosong" | "config.pemeliharaan.keadaan.TERJADWAL" | "config.pemeliharaan.keadaan.MENJELANG" | "config.pemeliharaan.keadaan.AKTIF" | "config.pemeliharaan.keadaan.BERAKHIR" | "config.pemeliharaan.jenis.PLANNED" | "config.pemeliharaan.jenis.EMERGENCY" | "config.pemeliharaan.hingga" | "config.pemeliharaan.tanpa_akhir" | "config.pemeliharaan.mulai_sekarang" | "config.pemeliharaan.akhiri" | "config.pemeliharaan.batalkan" | "config.pemeliharaan.pengumuman" | "config.pemeliharaan.pengumuman.arti" | "config.pemeliharaan.pengumuman.pesan" | "config.pemeliharaan.pengumuman.terbit" | "config.pemeliharaan.pengumuman.sampai" | "config.pemeliharaan.pengumuman.terbitkan" | "config.pemeliharaan.pengumuman.tarik" | "config.pemeliharaan.pengumuman.ditarik" | "config.pemeliharaan.pengumuman.kosong" | "config.pemeliharaan.darurat.judul" | "config.pemeliharaan.darurat.arti" | "config.pemeliharaan.darurat.ketik" | "config.pemeliharaan.darurat.tombol" | "galat.maintenance_not_allowed" | "galat.maintenance_input_invalid" | "galat.maintenance_not_open" | "galat.maintenance_confirmation" | "galat.maintenance_no_new_start" | "galat.notice_input_invalid" | "galat.notice_not_open" | "galat.maintenance_active" | "galat.maintenance_scheduled" | "galat.maintenance_started" | "galat.maintenance_ended" | "galat.maintenance_stopped" | "galat.notice_published" | "galat.notice_withdrawn"
   | "config.struktur.murid.satu"
@@ -675,6 +674,7 @@ export type HleEvent =
   | "transfer.REJECTED"
   | "transfer.CANCELLED"
   | "entry.title"
+  | "kembali.riwayat"
   | "entry.learner"
   | "entry.educator"
   | "entry.staff"
@@ -1437,8 +1437,7 @@ export type HleEvent =
   | "umpanbalik.guru.judul" | "umpanbalik.guru.intro" | "umpanbalik.guru.kosong"
   | "umpanbalik.guru.buka" | "umpanbalik.guru.guna"
   | "umpanbalik.pimpinan.judul" | "umpanbalik.pimpinan.sub" | "umpanbalik.pimpinan.kosong"
-  | "umpanbalik.pimpinan.buka"
-  | "umpanbalik.kembali" | "umpanbalik.ditolak"
+  | "umpanbalik.pimpinan.buka" | "umpanbalik.ditolak"
   // ── WP7D. Management operating a round. Staff-read, but under the same
   // prefix and the same register as everything else here: this surface is
   // about a named person, so the calmest available words are correct for it.
@@ -1463,8 +1462,7 @@ export type HleEvent =
   // (STAFF_ONLY_PREFIXES), because an administrator's screen legitimately says
   // a job is "Menunggu" where the same word on a learner's screen would be the
   // system telling a child to wait.
-  | "pendataan.eyebrow" | "pendataan.judul" | "pendataan.intro" | "pendataan.ditolak"
-  | "pendataan.kembali" | "pendataan.sekolah" | "pendataan.nomor.arti"
+  | "pendataan.eyebrow" | "pendataan.judul" | "pendataan.intro" | "pendataan.ditolak" | "pendataan.sekolah" | "pendataan.nomor.arti"
   | "pendataan.kode.judul" | "pendataan.kode.belum" | "pendataan.kode.arti"
   | "pendataan.kode.bentuk" | "pendataan.kode.contoh" | "pendataan.kode.peringatan"
   | "pendataan.kode.simpan" | "pendataan.kode.beku" | "pendataan.kode.gagal" | "pendataan.kode.label"
@@ -2602,7 +2600,6 @@ const table: Table = {
   "laporan.metrik.belum_ada_bukti": { default: "Belum ada bukti yang memenuhi syarat untuk angka ini.", en: "No qualifying evidence for this figure yet." },
   "laporan.kelas.judul": { default: "Ringkasan Kelas", en: "Class Summary" },
   "laporan.institusi.judul": { default: "Ringkasan Sekolah", en: "School Summary" },
-  "laporan.kembali": { default: "Kembali", en: "Back" },
   "laporan.cetak": { default: "Cetak laporan", en: "Print report" },
   // W3.8 (RV-11): what a report's figures cover and when they were calculated, under its heading and on the paper
   "laporan.cakupan.kelas": { default: "Angka dihitung {waktu} dari semua bukti kelas ini sampai saat itu.", en: "Figures calculated {waktu} from all of this class's evidence up to then." },
@@ -2627,7 +2624,6 @@ const table: Table = {
   "pimpinan.urutan": { default: "Urutannya: yang paling lama menunggu lebih dulu. Ini urutan, bukan peringkat.", en: "Ordered by what has waited longest. It is an order, not a ranking." },
   "pimpinan.memutuskan": { default: "PINTAR mengusulkan, manusia memutuskan.", en: "PINTAR proposes, a human decides." },
   "pimpinan.ditolak": { default: "Halaman ini untuk Kepala departemen dan Dekan, dalam lingkup yang mereka pimpin.", en: "This page is for heads of department and deans, over the part of the school they lead." },
-  "pimpinan.kembali": { default: "Kembali", en: "Back" },
 
   // A TRUTHFUL NOTHING. An empty queue is a real and good answer, not a failure
   // and not an empty container explaining that it is empty.
@@ -2750,7 +2746,6 @@ const table: Table = {
   "pendataan.judul": { default: "Menambahkan orang", en: "Adding people" },
   "pendataan.intro": { default: "Unggah daftar dari spreadsheet. PINTAR memeriksanya, menunjukkan apa yang akan terjadi, lalu meminta persetujuan Anda sebelum mencatat siapa pun.", en: "Upload a list from a spreadsheet. PINTAR checks it, shows you what will happen, then asks for your approval before it records anybody." },
   "pendataan.ditolak": { default: "Halaman ini untuk Admin sekolah.", en: "This page is for school administrators." },
-  "pendataan.kembali": { default: "Kembali", en: "Back" },
   "pendataan.sekolah": { default: "Sekolah", en: "School" },
   // §3. THE NUMBER IDENTIFIES A PERSON AT A SCHOOL AND NOTHING ELSE. Said on
   // the page, because a six-digit sequence invites a reader to believe ranges
@@ -3405,14 +3400,12 @@ const table: Table = {
   "pengembangan.belum_tercapai": { default: "Belum tercapai", en: "Not reached yet" },
   "pengembangan.daftar.ACTIVE": { default: "Terdaftar", en: "Enrolled" },
   "pengembangan.daftar.PENDING": { default: "Terdaftar, akun belum diaktifkan", en: "Enrolled, account not activated yet" },
-  "pengembangan.kembali": { default: "Kembali", en: "Back" },
   "pengembangan.buka": { default: "Buka catatan", en: "Open the record" },
   "nav.lapor": { default: "Laporkan masalah", en: "Report a problem" },
   "lapor.eyebrow": { default: "Bantuan", en: "Help" },
   "lapor.judul": { default: "Laporkan masalah", en: "Report a problem" },
   "lapor.arti": { default: "Ceritakan apa yang terjadi. PINTAR menyertakan halaman ini, peran dan sekolah Anda, versi aplikasi, waktu dan perangkat Anda secara otomatis.", en: "Tell us what happened. PINTAR attaches this page, your role and school, the app version, the time and your device automatically." },
   "lapor.murid": { default: "Murid menceritakan masalah kepada gurunya, dan guru dapat melaporkannya di sini.", en: "Students tell their teacher about a problem, and the teacher can report it here." },
-  "lapor.kembali": { default: "Kembali", en: "Back" },
   "lapor.halaman": { default: "Halaman:", en: "Page:" },
   "lapor.halaman.awal": { default: "Halaman awal", en: "Start page" },
   "lapor.halaman.lain": { default: "Halaman lain di PINTAR", en: "Another PINTAR page" },
@@ -3749,6 +3742,8 @@ const table: Table = {
   "transfer.REJECTED": { default: "Ditolak", en: "Declined" },
   "transfer.CANCELLED": { default: "Dibatalkan", en: "Cancelled" },
   "entry.title": { default: "Mau ke mana hari ini?", en: "Where would you like to go today?" },
+  // E-K1 (D-173(d)): the history-back, named as one (pending Dr Gladys)
+  "kembali.riwayat": { default: "Kembali ke halaman sebelumnya", en: "Back to the previous page" },
   "entry.learner": { default: "Saya mau belajar", en: "I want to learn" },
   "entry.educator": { default: "Saya mengajar", en: "I teach" },
   "entry.staff": { default: "Saya mengelola sekolah", en: "I run the school" },
@@ -5407,7 +5402,6 @@ const table: Table = {
   "umpanbalik.pimpinan.kosong": { default: "Belum ada putaran umpan balik dalam lingkup ini.", en: "No round of feedback has been held in this part of the school yet." },
   "umpanbalik.pimpinan.buka": { default: "Buka umpan balik kelas", en: "Open class feedback" },
 
-  "umpanbalik.kembali": { default: "Kembali", en: "Back" },
   "umpanbalik.ditolak": { default: "Umpan balik ini bukan milik Anda untuk dibaca.", en: "This feedback is not yours to read." },
 
   // ── WP7D. CLOSING A ROUND, AND SAYING WHAT THAT MEANS WITHOUT SAYING WHAT

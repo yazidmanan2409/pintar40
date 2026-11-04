@@ -59,7 +59,6 @@ export default async function UmpanBalikLingkup({
         persona="staff"
         locale={locale}
         backHref="/pimpinan"
-        backKey="umpanbalik.kembali"
       />
     );
   }
@@ -77,7 +76,7 @@ export default async function UmpanBalikLingkup({
       <CangkangPengalaman locale={locale} kind="pimpinan" current="pimpinan" />
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/pimpinan/${encodeURIComponent(node.id)}`}>
-          ← {s("umpanbalik.kembali")}
+          ← {node.nama}
         </Link>
 
         <div className="pin-head">

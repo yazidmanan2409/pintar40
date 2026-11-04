@@ -52,7 +52,6 @@ export default async function SimpulPimpinan({
         persona="staff"
         locale={locale}
         backHref="/pimpinan"
-        backKey="pimpinan.kembali"
       />
     );
   }
@@ -73,7 +72,7 @@ export default async function SimpulPimpinan({
       <CangkangPengalaman locale={locale} kind="pimpinan" current="pimpinan" />
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href="/pimpinan">
-          ← {s("pimpinan.kembali")}
+          ← {s("nav.pimpinan")}
         </Link>
         <BarisLingkup scope={{ path: [node.nama] }} locale={locale} />
 

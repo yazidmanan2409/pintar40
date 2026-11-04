@@ -1,5 +1,6 @@
 import { kataHalaman } from "@/lib/kata-halaman";
 import Link from "next/link";
+import { namaTempat, KEMBALI_RIWAYAT } from "@/lib/nama-tempat";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { peranSaya } from "@/lib/tur-negara";
@@ -42,7 +43,10 @@ export default async function Lapor({ searchParams }: { searchParams: Promise<{ 
     <>
       <CangkangPengalaman locale={locale} kind={kind} halamanKini="lapor" />
       <main id="isi" tabIndex={-1} className="pin-col">
-        <Link className="pin-back" href={halaman === "/" ? kembali : halaman}>← {s("lapor.kembali")}</Link>
+        {/* E-K1: back to the page the report was started from is the history-back, named as one; from no page, the place */}
+        <Link className="pin-back" href={halaman === "/" ? kembali : halaman} data-kembali={halaman === "/" ? "tempat" : "riwayat"}>
+          ← {s(halaman === "/" ? namaTempat(kembali) ?? "entry.title" : KEMBALI_RIWAYAT)}
+        </Link>
         <div className="pin-head">
           <p className="pin-eyebrow">{s("lapor.eyebrow")}</p>
           <h1 className="pin-h1">{s("lapor.judul")}</h1>

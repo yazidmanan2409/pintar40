@@ -1,5 +1,6 @@
 import { kataHalaman } from "@/lib/kata-halaman";
 import Link from "next/link";
+import { namaTempat } from "@/lib/nama-tempat";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { peranSaya } from "@/lib/tur-negara";
@@ -31,7 +32,7 @@ export default async function LaporanSaya({ searchParams }: { searchParams: Prom
     <>
       <CangkangPengalaman locale={locale} kind={kind} halamanKini="lapor" />
       <main id="isi" tabIndex={-1} className="pin-col">
-        <Link className="pin-back" href={kembali}>← {s("lapor.kembali")}</Link>
+        <Link className="pin-back" href={kembali}>← {s(namaTempat(kembali) ?? "entry.title")}</Link>
         <div className="pin-head">
           <p className="pin-eyebrow">{s("lapor.eyebrow")}</p>
           <h1 className="pin-h1">{s("lapor.saya.judul")}</h1>

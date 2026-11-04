@@ -57,7 +57,6 @@ export default async function RincianMuridPimpinan({
         persona="staff"
         locale={locale}
         backHref="/pimpinan"
-        backKey="pimpinan.kembali"
       />
     );
   }
@@ -70,7 +69,7 @@ export default async function RincianMuridPimpinan({
         persona="staff"
         locale={locale}
         backHref={`/pimpinan/${encodeURIComponent(node.id)}/murid`}
-        backKey="pimpinan.kembali"
+        backKey="pimpinan.murid.judul"
       />
     );
   }

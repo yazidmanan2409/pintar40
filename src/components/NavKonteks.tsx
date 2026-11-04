@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LABEL_TEMPAT } from "@/lib/nama-tempat";
 import TandaTautan from "@/components/TandaTautan";
 import { t, type HleEvent, type Locale, type Persona } from "@/lib/hle";
 import { permukaanKonteks } from "@/lib/konteks";
@@ -8,16 +9,8 @@ import { istilah } from "@/lib/istilah-menunggu";
 import TabTempat, { tawarkanStudio, tempatDariPeran, type Tempat } from "./TabTempat";
 import ItemNav from "./ItemNav";
 
-/** Each surface's existing tab word (no new words, D-128(g)). */
-const LABEL: Record<string, HleEvent> = {
-  "/belajar": "nav.belajar",
-  "/mengajar": "nav.kelas",
-  "/pimpinan": "nav.pimpinan",
-  "/konfigurasi": "nav.konfigurasi",
-  "/pendataan": "nav.pendataan",
-  "/aktivasi": "nav.aktivasi",
-  "/studio": "nav.studio",
-};
+/** Each surface's existing tab word (no new words, D-128(g)): the one table back links read too (E-K1). */
+const LABEL: Readonly<Record<string, HleEvent>> = LABEL_TEMPAT;
 
 /**
  * L3 · THE SHELL'S NAVIGATION, FROM THE WORKING CONTEXT (CR-83; D-127 Q1; D-132 §2.4, §2.6).

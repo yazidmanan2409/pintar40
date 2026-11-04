@@ -26,6 +26,11 @@
  *              list that pages passes its rows' noun, its count and the reader's language; rendered, page 1 of a keyset
  *              list shows «Menampilkan 1–20 …», «Halaman 1» and a DISABLED «Sebelumnya» (never hidden), page 2 links
  *              both ways, no pager says «Kembali», and a list with a known total shows it («… dari 45 …»).
+ *   D168-K1-1  a back link names where it goes (E-K1, D-173(d)): no copy key reads only «Kembali» / «Back» but the step
+ *              controls (the tour's, a sitting's previous question); no `pin-back` link and no refusal page's `backKey` draws such a word; a link to a place takes
+ *              its word from the one table (LABEL_TEMPAT) the navigation reads; the refusal page names its destination
+ *              from it; a return that depends on how the reader arrived is declared `data-kembali="riwayat"` and named
+ *              KEMBALI_RIWAYAT («Kembali ke halaman sebelumnya»).
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -181,6 +186,41 @@ export const d168Tests: SelfTest[] = [
       c.expect(/Menampilkan 21–40 dari 45 laporan/.test(teks(ber)) && /Halaman 2 dari 3/.test(teks(ber)), `a known total is not shown: ${teks(ber)}`);
       c.expect(html.every((x) => !/>\s*(Kembali|Back)\s*</.test(x)), "a pager says «Kembali»");
       return c.verdict("one pager (the Collection's) for every paged list: the count line, the position, «Sebelumnya» disabled on page 1, no «Kembali», the total only where the list has it");
+    },
+  },
+  {
+    id: "D168-K1-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const telanjang = allKeys().filter((k) => (["id", "en"] as const).some((l) => /^(Kembali|Back)$/.test(t(k as HleEvent, "staff", { locale: l }).trim())));
+      // a step control moves back one step in a sequence (the tour, the questions of a sitting); it goes to no place
+      const LANGKAH = ["pretest.back", "tur.kembali"];
+      c.expect(JSON.stringify(telanjang) === JSON.stringify(LANGKAH), `copy keys that read only «Kembali» besides the step controls: ${telanjang.filter((k) => !LANGKAH.includes(k)).join(", ")}`);
+      const semua: string[] = [];
+      const jalan = (d: string) => { for (const e of readdirSync(join(repoRoot, d), { withFileTypes: true })) { const f = `${d}/${e.name}`; if (e.isDirectory()) jalan(f); else if (f.endsWith(".tsx")) semua.push(f); } };
+      jalan("src/app"); jalan("src/components");
+      let tautan = 0;
+      for (const f of semua) {
+        const src = kode(readFileSync(join(repoRoot, f), "utf8"));
+        for (const m of src.matchAll(/className="pin-back[^"]*"[\s\S]*?<\/Link>/g)) {
+          tautan++;
+          for (const k of m[0].matchAll(/\bs\("([a-z0-9_.]+)"/g)) c.expect(!(telanjang as string[]).includes(k[1]), `${f}: a back link reads only «Kembali» (${k[1]})`);
+        }
+        for (const k of src.matchAll(/backKey="([a-z0-9_.]+)"/g)) c.expect(!(telanjang as string[]).includes(k[1]) && (allKeys() as string[]).includes(k[1]), `${f}: a refusal's way back reads only «Kembali» (${k[1]})`);
+        if (/data-kembali="riwayat"|data-kembali=\{/.test(src)) c.expect(/KEMBALI_RIWAYAT/.test(src) || /AksiLaporan\.tsx$/.test(f), `${f}: a history-back is not named as one`);
+      }
+      c.expect(tautan >= 30, `only ${tautan} back links found`);
+      const nav = kode(readFileSync(join(repoRoot, "src/components/NavKonteks.tsx"), "utf8"));
+      c.expect(/const LABEL: Readonly<Record<string, HleEvent>> = LABEL_TEMPAT;/.test(nav), "the navigation does not read the one place table");
+      const tolak = kode(readFileSync(join(repoRoot, "src/components/HalamanPenolakan.tsx"), "utf8"));
+      c.expect(/namaTempat\(backHref\)/.test(tolak), "the refusal page does not name its destination from the place table");
+      const aksi = kode(readFileSync(join(repoRoot, "src/components/laporan/AksiLaporan.tsx"), "utf8"));
+      c.expect(/window\.history\.back\(\)/.test(aksi) && /data-kembali="riwayat"/.test(aksi), "the report's history-back is not declared as one");
+      for (const f of ["src/app/edukator/ringkasan/page.tsx", "src/app/dekan/ringkasan/page.tsx"]) {
+        c.expect(/<AksiLaporan kembali=\{s\(KEMBALI_RIWAYAT, /.test(kode(readFileSync(join(repoRoot, f), "utf8"))), `${f}: the report's way back is not named as the history-back`);
+      }
+      c.expect(t("kembali.riwayat" as HleEvent, "staff", { locale: "id" }) === "Kembali ke halaman sebelumnya" && t("nav.pimpinan" as HleEvent, "staff", { locale: "id" }) === "Pimpinan", "the words are not the table's");
+      return c.verdict(`no back link (${tautan} drawn) or refusal reads only «Kembali»; places are named from the one table the navigation reads; the history-back is declared and named as one`);
     },
   },
 ];

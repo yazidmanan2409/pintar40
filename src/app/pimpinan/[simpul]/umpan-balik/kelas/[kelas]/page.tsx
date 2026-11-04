@@ -64,7 +64,6 @@ export default async function KelasUmpanBalik({
         persona="staff"
         locale={locale}
         backHref="/pimpinan"
-        backKey="umpanbalik.kembali"
       />
     );
   }
@@ -83,7 +82,7 @@ export default async function KelasUmpanBalik({
       <CangkangPengalaman locale={locale} kind="pimpinan" current="pimpinan" />
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/pimpinan/${encodeURIComponent(node.id)}/umpan-balik`}>
-          ← {s("umpanbalik.kembali")}
+          ← {s("umpanbalik.pimpinan.judul")}
         </Link>
 
         <div className="pin-head">

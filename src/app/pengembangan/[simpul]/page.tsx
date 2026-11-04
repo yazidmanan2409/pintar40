@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { namaTempat } from "@/lib/nama-tempat";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { peranSaya } from "@/lib/tur-negara";
@@ -39,7 +40,7 @@ export default async function CatatanPengembangan({ params }: { params: Promise<
   const kind = peran?.includes("EDUCATOR") ? "pengajar" : peran?.some((p) => p === "HEAD_OF_DEPARTMENT" || p === "DEAN") ? "pimpinan" : "focus";
   const kembali = kind === "pengajar" ? "/mengajar" : kind === "pimpinan" ? "/pimpinan" : "/konfigurasi";
   if (!isi) {
-    return <HalamanPenolakan locale={locale} persona="staff" backHref={kembali} backKey="pengembangan.kembali" />;
+    return <HalamanPenolakan locale={locale} persona="staff" backHref={kembali} />;
   }
 
   const ringkas = (p: PaketPeserta): string[] => {
@@ -62,7 +63,7 @@ export default async function CatatanPengembangan({ params }: { params: Promise<
     <>
       <CangkangPengalaman locale={locale} kind={kind} />
       <main id="isi" tabIndex={-1} className="pin-col">
-        <Link className="pin-back" href={kembali}>← {s("pengembangan.kembali")}</Link>
+        <Link className="pin-back" href={kembali}>← {s(namaTempat(kembali) ?? "nav.konfigurasi")}</Link>
         <div className="pin-head">
           <p className="pin-eyebrow">{s("pengembangan.eyebrow")} · {isi.nama}</p>
           <h1 className="pin-h1">{s("pengembangan.judul")}</h1>

@@ -64,7 +64,6 @@ export default async function SatuPendataan({
         persona="staff"
         locale={locale}
         backHref="/pendataan"
-        backKey="pendataan.kembali"
       />
     );
   }
@@ -94,7 +93,7 @@ export default async function SatuPendataan({
     <>
       <CangkangPengalaman locale={locale} kind="pendataan" current="pendataan" />
       <main id="isi" tabIndex={-1} className="pin-col">
-        <Link className="pin-back" href="/pendataan">← {s("pendataan.kembali")}</Link>
+        <Link className="pin-back" href="/pendataan">← {s("nav.pendataan")}</Link>
 
         <div className="pin-head">
           <p className="pin-eyebrow">{s("pendataan.eyebrow")}</p>

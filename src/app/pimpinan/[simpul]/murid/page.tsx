@@ -50,7 +50,6 @@ export default async function DaftarMuridPimpinan({
         persona="staff"
         locale={locale}
         backHref="/pimpinan"
-        backKey="pimpinan.kembali"
       />
     );
   }

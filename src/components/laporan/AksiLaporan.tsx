@@ -18,6 +18,7 @@ export default function AksiLaporan({ kembali, cetak }: { kembali: string; cetak
       <Link
         href="/"
         className="pin-btn pin-quiet"
+        data-kembali="riwayat"
         onClick={(e) => {
           if (window.history.length > 1) {
             e.preventDefault();

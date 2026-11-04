@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { KEMBALI_RIWAYAT } from "@/lib/nama-tempat";
 import { tawarkanSekolahLain } from "@/lib/konteks-server";
 import { kepalaLaporan, namaTempat, templatUntuk } from "@/lib/laporan";
 import { currentLocale } from "@/lib/locale";
@@ -86,7 +87,7 @@ export default async function RingkasanKelas({
             </p>
           ) : null}
         </div>
-        <AksiLaporan kembali={s("laporan.kembali", "educator", locale)} cetak={s("laporan.cetak", "educator", locale)} />
+        <AksiLaporan kembali={s(KEMBALI_RIWAYAT, "educator", locale)} cetak={s("laporan.cetak", "educator", locale)} />
 
         {!template || !kelas ? (
           <p className={card}>{s("laporan.kosong", "educator", locale)}</p>

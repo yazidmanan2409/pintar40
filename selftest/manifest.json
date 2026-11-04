@@ -4212,6 +4212,11 @@
       "proves": "Terminology v1 ruling 2 (X12 T1; D-171(c)), selftest/d168.test.ts: over the rendered copy table, no Indonesian string says «kursus» and no English string says «course(s)» for the Studio object, except an allow-list that is the decision itself: the workbook's structure (ruling 14), the JSON format's language (ruling 13) and the certificate list's column (X12 T4, pending); the full term is «Paket Pembelajaran» / «Learning Package»."
     },
     {
+      "id": "D168-K1-1",
+      "runner": "static",
+      "proves": "E-K1 (D-173(d)), selftest/d168.test.ts, over the rendered copy table and the source of every src/app and src/components .tsx file: no key reads only «Kembali»/«Back» except the two step controls (the tour's, a sitting's previous question); no pin-back link and no refusal backKey draws such a word; the navigation and the refusal page read the one place table (LABEL_TEMPAT in src/lib/nama-tempat.ts); the report's history-back is declared data-kembali=\"riwayat\" and named KEMBALI_RIWAYAT."
+    },
+    {
       "id": "D168-K2-1",
       "runner": "static",
       "proves": "E-K2 (D-173(d), one pagination grammar), selftest/d168.test.ts: reading the source, Penomoran renders the Collection's pager (HalamanKoleksi) and every one of the 10 paged staff lists passes its rows' noun, count and the reader's language; rendered (react-dom/server), page 1 of a keyset list shows «Menampilkan 1–20 laporan», «Halaman 1» and a disabled «Sebelumnya», page 2 links both ways, the last page in English, a one-page list draws nothing, a known total is shown, and no pager says «Kembali»."

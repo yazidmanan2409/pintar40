@@ -60,7 +60,6 @@ export default async function UmpanBalikKelas({
         persona="educator"
         locale={locale}
         backHref="/mengajar"
-        backKey="umpanbalik.kembali"
       />
     );
   }
@@ -73,7 +72,7 @@ export default async function UmpanBalikKelas({
       <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/mengajar/${encodeURIComponent(kelas)}`}>
-          ← {s("umpanbalik.kembali")}
+          ← {konteks.ini.nama}
         </Link>
 
         <div className="pin-head">
