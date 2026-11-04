@@ -1,7 +1,7 @@
 # B2 · UX-09: «nomor induk» → **Nomor Registrasi Sekolah**
 
 **Form T.** Register entry B2.
-**Status: the owner's ruling, 4 Nov (final):**
+**Status: DESIGN ACCEPTED (owner, 4 Nov).** The ruling:
 - **Nomor Registrasi Sekolah** · **School Registration Number** · short label **No. Registrasi Sekolah**.
 - It replaces the ambiguous «nomor induk» and my proposed «nomor anggota», wherever the field is a person's registration identifier at a particular school.
 - This README applies it. B2 moves to DESIGN ACCEPTED once incorporated. Engineering's implementation and end-to-end verification are separate gates.
@@ -23,10 +23,7 @@ The ruling stands «subject only to verification of the field's existing data se
 | **NIS / NISN** | the official student identifiers, separate from PINTAR | the school's and the nation's own names; PINTAR does not issue them |
 | **Keanggotaan Kelas** | membership of one class, not an identifier | the class's own words (Pindah kelas, the rollover); never called a number |
 
-**Note on «ID PINTAR».** The ruling's table and explanation write «ID PINTAR». The product's established term, on the frozen card, in account recovery and in Akun saya, is **«PINTAR ID»**, and «ID PINTAR» appears in no copy key.
-- Under D-172 (one name for one thing), this README writes the explanation with **«PINTAR ID»**.
-- A rename of the PINTAR ID itself is not part of this ruling. It would be an X12-scale terminology change for the owner and Dr Gladys.
-- If the owner intends «ID PINTAR» everywhere, it is one consolidated change across those 39 keys, not a change here.
+**«PINTAR ID» is the canonical identifier name throughout PINTAR (owner, 4 Nov; recorded against D-174).** No alternative order is introduced. The ruling's first wording of the explanation used the reversed order; the approved explanation below uses «PINTAR ID».
 
 ## The explanation, said where clarification is needed
 
@@ -76,5 +73,5 @@ Elsewhere the term alone.
 - [auto] The explanation appears in `pendataan.nomor.arti` and as the help line of Aktivasi's search, and nowhere it isn't needed.
 - [auto] The term is never shown where the value is the PINTAR ID, a NIS/NISN, the school's «Kode sekolah», or a class membership.
 - [auto] No identifier value, format, column or permission changes; the intake workbook is unchanged.
-- [manual] The owner's choice between «PINTAR ID» (the product's term, used here) and «ID PINTAR» (the ruling's wording) recorded, if a change is intended (X12-scale).
+- [auto] «PINTAR ID» is the only name for the PINTAR ID in every key; the reversed order appears nowhere (D-174).
 - [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): one name for one thing across Pendataan, Aktivasi and exports; the explanation as a field's help line (FormLayout).
