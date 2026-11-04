@@ -4322,6 +4322,11 @@
       "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every light colour the frame and the card block use is a token's value but the code box's border (DAISY-19-EMAIL-01, unwidened; P4)."
     },
     {
+      "id": "R2-TANGGAL-01",
+      "runner": "static",
+      "proves": "Retrospective R2-3 (E3 #15, DS/10-dates), selftest/retro.test.ts, reading the source of every .tsx file under src/app and src/components: no screen writes a date in the formal form (\u00ab9 Oktober 2026\u00bb: tanggal/when with \"resmi\" or \"resmiJam\", or format.date); emails, printed letters and the certificate's own frozen form keep it."
+    },
+    {
       "id": "R0-PIN-01",
       "runner": "static",
       "proves": "Retrospective R0-1 (W0.2), selftest/retro.test.ts, reading every workflow file under .github/workflows: each job that installs or drives a browser (Playwright install, a walk or the crawl) runs on ubuntu-24.04, where Playwright 1.55 has a browser build (run 41377378758); a planted job on ubuntu-latest is caught."

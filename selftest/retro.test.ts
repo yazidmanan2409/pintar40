@@ -5,6 +5,9 @@
  *   R0-PIN-01  (R0-1, W0.2) every workflow job that installs or launches a browser runs on ubuntu-24.04: Playwright 1.55
  *              has no browser build for ubuntu-latest (26.04; run 41377378758). Batch 0 pinned seventeen jobs; nothing
  *              held a new job to it, so a walk added on ubuntu-latest would fail only when CI first ran it.
+ *   R2-TANGGAL-01 (R2-3, E3 #15, DS/10-dates) no on-screen date takes the formal form («9 Oktober 2026»): it is for
+ *              emails and printed letters, and the certificate keeps its own (frozen). Daisy answered E3 on her branch; its
+ *              «[auto] no on-screen date uses the formal form» was never made a test, and a screen took the form again.
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -27,6 +30,11 @@ export function jobsAlurKerja(yml: string): Array<{ nama: string; isi: string }>
 
 const PERAMBAN = /playwright install|chromium\.launch|node (?:crawl|journey|studio-ujung|admin-ujung|b5-ujung|b6-cetak|b5-fokus|e1-navigasi|d1-email|c12)\.mjs/;
 
+/** Every .tsx file under a directory, recursively. */
+function tsx(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? tsx(join(dir, e.name)) : e.name.endsWith(".tsx") ? [join(dir, e.name)] : []);
+}
+
 export const retroTests: SelfTest[] = [
   {
     id: "R0-PIN-01",
@@ -47,6 +55,27 @@ export const retroTests: SelfTest[] = [
       const tanam = jobsAlurKerja("on: push\njobs:\n  walk:\n    runs-on: ubuntu-latest\n    steps:\n      - run: npx playwright install chromium\n");
       c.expect(tanam.length === 1 && PERAMBAN.test(tanam[0].isi) && /runs-on:\s*ubuntu-latest/.test(tanam[0].isi), "the check cannot see a planted browser job on ubuntu-latest");
       return c.verdict(`every workflow job that installs or drives a browser (${dilihat}) runs on ubuntu-24.04, where Playwright 1.55 has its browser build (W0.2)`);
+    },
+  },
+  {
+    id: "R2-TANGGAL-01",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // the certificate keeps its own form (frozen; DS/10-dates); emails are not screens
+      const BOLEH = [/src\/components\/sertifikat\//, /src\/components\/email\//, /src\/app\/sertifikat\//];
+      const RESMI = /tanggal\([^)]*,\s*"resmi(?:Jam)?"|when\([^)]*,\s*"resmi(?:Jam)?"|format\.date\(/;
+      let dibaca = 0;
+      for (const f of [...tsx(join(repoRoot, "src", "app")), ...tsx(join(repoRoot, "src", "components"))]) {
+        const rel = f.slice(repoRoot.length + 1).replace(/\\/g, "/");
+        if (BOLEH.some((b) => b.test(rel))) continue;
+        dibaca++;
+        const src = readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+        const m = RESMI.exec(src);
+        c.expect(!m, `${rel} writes a date in the formal form on screen (${m?.[0]})`);
+      }
+      c.expect(dibaca > 100, `only ${dibaca} screen files read`);
+      c.expect(RESMI.test('when(p.starts_on, "resmi")') && RESMI.test("format.date(x, locale)") && !RESMI.test('when(p.starts_on, "baca")'), "the check cannot tell the formal form from the readable one");
+      return c.verdict(`no screen file (${dibaca}) writes a date in the formal form; it stays with emails, printed letters and the certificate's own frozen form (E3 #15, DS/10-dates)`);
     },
   },
 ];

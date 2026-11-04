@@ -822,7 +822,7 @@ export const d168Tests: SelfTest[] = [
       // Sistem: read-only rows; «aktif»/«nonaktif» and «data uji» as badges; a school year's dates in words, never ISO
       const sistem = bagian("system");
       c.expect(/className=\{`pin-pill \$\{i\.is_active \? "pin-ok" : "pin-neutral"\}`\}/.test(sistem) && /<span className="pin-pill pin-info">\{s\("config\.sekolah\.sintetis"\)\}<\/span>/.test(sistem)
-        && /when\(p\.starts_on, "resmi"\)\} – \$\{when\(p\.ends_on, "resmi"\)\}/.test(sistem) && !/\$\{p\.starts_on\}/.test(sistem) && !/<form/.test(sistem), "Sistem & Konfigurasi's schools are not read-only rows with their badges and their years in words");
+        && /when\(p\.starts_on, "baca"\)\} – \$\{when\(p\.ends_on, "baca"\)\}/.test(sistem) && !/\$\{p\.starts_on\}/.test(sistem) && !/<form/.test(sistem), "Sistem & Konfigurasi's schools are not read-only rows with their badges and their years in words");
       // Pergantian tahun ajaran: a panel per school under its name, «Dari» and «Ke» sharing a row
       const roll = bagian("rollover");
       c.expect(/<h2 className="text-sm font-medium">\{inst\.name\}<\/h2>\s*<div className="pin-baris-isian">\s*<label className=\{label\}>\{s\("config\.label\.period_from"\)\}/.test(roll), "Pergantian tahun ajaran's «Dari» and «Ke» do not share a row under the school's name");

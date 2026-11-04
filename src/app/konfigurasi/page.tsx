@@ -1289,7 +1289,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     <span className={`pin-pill ${i.is_active ? "pin-ok" : "pin-neutral"}`}>{s(i.is_active ? "config.sekolah.aktif" : "config.sekolah.nonaktif")}</span>
                   </div>
                   <p className="mt-1 text-xs text-ink-3">
-                    {(periods ?? []).filter((p) => p.institution_id === i.id).map((p) => `${p.name} (${when(p.starts_on, "resmi")} – ${when(p.ends_on, "resmi")})`).join(" · ") || s("config.empty")}
+                    {(periods ?? []).filter((p) => p.institution_id === i.id).map((p) => `${p.name} (${when(p.starts_on, "baca")} – ${when(p.ends_on, "baca")})`).join(" · ") || s("config.empty")}
                   </p>
                 </li>
               ))}
