@@ -615,7 +615,7 @@ export const d168Tests: SelfTest[] = [
       c.expect(/<span class="pin-nav-label">Studio<\/span><span class="pin-nav-tip" aria-hidden="true">Studio<\/span>/.test(r.html), `a place's word or its tooltip is not as specified: ${r.html.slice(0, 240)}`);
       c.expect(!/aria-label=|title=/.test(r.html) && /aria-current="page"/.test(r.html), "a place carries an aria-label or a title, or the current place is not marked");
       // the rail: by default from 1024 to 1279 px unless expanded, and at 1280 px and up when collapsed; 72 px; words visually hidden
-      const blok = (q: string, akhir = false) => { const i = akhir ? css.lastIndexOf(q) : css.indexOf(q); if (i < 0) return ""; let d = 0, j = css.indexOf("{", i); for (let k = j; k < css.length; k++) { if (css[k] === "{") d++; else if (css[k] === "}" && --d === 0) return css.slice(j, k); } return ""; };
+      const blok = (q: string, akhir = false) => { const i = akhir ? css.lastIndexOf(q) : css.indexOf(q); if (i < 0) return ""; const j = css.indexOf("{", i); let d = 0; for (let k = j; k < css.length; k++) { if (css[k] === "{") d++; else if (css[k] === "}" && --d === 0) return css.slice(j, k); } return ""; };
       const rentang = blok("@media (min-width: 1024px) and (max-width: 1279px)");
       const lebar = blok("@media (min-width: 1280px)", true);
       for (const [nama, isi, pilih] of [["1024-1279 px", rentang, '.pin-shell.pin-staf:not([data-ciut="tidak"])'], ["1280 px and up", lebar, '.pin-shell.pin-staf[data-ciut="ya"]']] as const) {
