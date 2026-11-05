@@ -20,6 +20,11 @@
  * a server action states ({ ok: true …}) is conditional on the error of the call before it: a ternary on error, an
  * earlier if (error …) / if (!… .ok) exit, or a try whose engine throws on every database error
  * (src/lib/assessment-engine/index.ts). A planted unguarded success and an unread ok are caught.
+ *
+ * X.8 (P1, BOB26-A02): NO INTERNALS REACH THE PERSON. No server action and no API route answers the browser with an
+ * error's own text (.message): a database or platform message can name tables, constraints or functions. What crosses
+ * is a stable code (and its detail where the code defines one); the words come from the copy table. Logged text is not
+ * an answer. A planted answer carrying .message is caught.
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -215,6 +220,45 @@ aturanTests.push({
       `read the live schema (${bolehGagal.size} functions can answer ok other than true) and the source of every file under src: all ` +
       `${nPanggil} calls of those functions read ok; in the ${nAksi} server-action files every one of the ${nSukses} success literals ` +
       `is conditional on the call's error (a ternary, an earlier exit, or the engine's throwing helper); planted controls are caught`);
+  },
+});
+
+/** The lines of one server source that hand an error's own text to the browser. */
+export function teksGalatKeluar(teks: string): number[] {
+  const baris = teks.split("\n");
+  const keluar: number[] = [];
+  baris.forEach((l, i) => {
+    if (/^\s*(\*|\/\/)/.test(l) || /console\.|catatGalat|\blog\w*\(/.test(l)) return;
+    // an answer object or JSON body carrying an error's .message
+    // (an object handed to a function inside the server, galatPemeliharaan({ … message … }), is not an answer)
+    if ((/\breturn\b[^\n]*\bmessage:\s*[^,}]*\.message\b/.test(l) && !/\w\(\{[^}]*message:/.test(l))
+        || /\b(?:NextResponse\.json|Response\.json)\([^)]*\.message\b/.test(l)) keluar.push(i + 1);
+  });
+  return keluar;
+}
+
+aturanTests.push({
+  id: "X08-DALAM-01",
+  run: async (ctx) => {
+    const c = new Checks();
+    const root = ctx.repoRoot;
+    let nAksi = 0, nRute = 0;
+    for (const f of semuaSumber(join(root, "src", "app"))) {
+      const rel = f.slice(root.length + 1).replace(/\\/g, "/");
+      const teks = readFileSync(f, "utf8");
+      const aksi = /^\s*["']use server["']/m.test(teks.slice(0, 400));
+      const rute = /\/route\.ts$/.test(rel);
+      if (!aksi && !rute) continue;
+      if (aksi) nAksi++; else nRute++;
+      for (const n of teksGalatKeluar(teks)) c.expect(false, `${rel}:${n} answers the browser with an error's own text (X.8)`);
+    }
+    c.expect(teksGalatKeluar('} catch (e) {\n  return { ok: false as const, message: (e as Error).message };\n}').length === 1, "a planted answer carrying .message is not caught");
+    c.expect(teksGalatKeluar('console.error("x", e.message);\nreturn { ok: false, code: "X" };').length === 0, "a logged message is taken for an answer");
+    c.expect(teksGalatKeluar('if (galatPemeliharaan({ code: err.code, message: (e as Error).message })) redirect("/x");').length === 0, "a message handed to a server-side check is taken for an answer");
+    return c.verdict(
+      `read the source of the ${nAksi} server-action files and ${nRute} API routes under src/app: none answers the browser with an ` +
+      `error's own text; what crosses is a stable code and its defined detail, and logged text is not an answer; a planted ` +
+      `answer carrying .message is caught`);
   },
 });
 

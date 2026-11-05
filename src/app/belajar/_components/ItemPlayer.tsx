@@ -60,12 +60,12 @@ export type ItemPlayerProps = {
   actions: {
     submitAnswer: (presentedItemId: string, clientSeq: number, value: Answer,
                    receiptMode?: "LIVE" | "REPLAYED" | "LATE_SYNC") =>
-      Promise<{ ok: true; outcome: string } | { ok: false; message: string; code: string | null; detail: string | null }>;
+      Promise<{ ok: true; outcome: string } | { ok: false; code: string | null; detail: string | null }>;
     noteView: (presentedItemId: string) => Promise<{ ok: true; dwellSeconds: number | null } | { ok: false }>;
     assistance: (presentedItemId: string) =>
-      Promise<{ ok: true; state: AssistanceState } | { ok: false; message: string }>;
+      Promise<{ ok: true; state: AssistanceState } | { ok: false; code: string | null; detail: string | null }>;
     openAssistance: (presentedItemId: string, level: number) =>
-      Promise<{ ok: true; level: AssistanceLevel } | { ok: false; message: string }>;
+      Promise<{ ok: true; level: AssistanceLevel } | { ok: false; code: string | null; detail: string | null }>;
     dismissAssistance: (presentedItemId: string) => Promise<{ ok: boolean }>;
     pauseSession: (sessionId: string) => Promise<{ ok: boolean }>;
     resumeSession: (sessionId: string) => Promise<{ ok: boolean }>;
@@ -73,7 +73,7 @@ export type ItemPlayerProps = {
                     category: "VISIBILITY_CHANGE" | "RECONNECT" | "RAPID_OPTION_CHANGE",
                     observation: Record<string, number | string>) => Promise<{ ok: boolean }>;
     finishSession: (sessionId: string, manifest: Record<string, number>) =>
-      Promise<{ ok: true; resultId: string } | { ok: false; message: string; code: string | null; detail: string | null }>;
+      Promise<{ ok: true; resultId: string } | { ok: false; code: string | null; detail: string | null }>;
   };
 };
 
