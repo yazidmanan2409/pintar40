@@ -33,4 +33,4 @@ All ten are `is_synthetic = false`, not the bootstrap tenant, with no declared e
 2. Keep the ten as they are, and move staging's test work to the synthetic replacement chapters (`docs/onboarding/konten-sintetis/`). After deployment, they keep working for everything except the exposed chapters.
 3. A one-off reclassification by the database owner, audited by the existing trigger. A staging data change: needs authorisation.
 
-Until the owner decides, the migration is not deployed (D-183(3), D-184).
+**Decided (D-185, 5 Nov): option 2.** The ten schools and their 106 sittings stay unchanged; their staging tests use the synthetic replacement chapters (held by `D185-SINTETIS-01`); every staging record is test data and is never promoted into production. The migration is still not deployed: no deployment is authorised (D-183(3), D-184, D-185(6)).

@@ -1964,6 +1964,11 @@
       "proves": "BOB-04 (D-008). my_cycle_state answers PR050 CYCLE_NOT_ASSIGNED, never the cycle, to a DEAN asking about a learner's assignment and to a learner asking about an unknown one."
     },
     {
+      "id": "D185-SINTETIS-01",
+      "runner": "static",
+      "proves": "D-185 (E-K6-4, option 2). Read from migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql and the source files under docs/onboarding/konten-sintetis/*.paket.json and audit/fixtures/*.paket.json: no title and no Pemetaan Awal or Cek penguasaan question of any synthetic package matches one of the 20 title or 240 question marks, computed as exposure_fingerprint() computes them, so staging's test schools can use the synthetic replacement chapters under the F-4(f) guard; a positive control finds an exposed title in another case and spacing."
+    },
+    {
       "id": "BOB04-K01",
       "runner": "static",
       "proves": "BOB-04 (D-008, D-011, D-014). Read from the migration source and the source files src/lib/penugasan-kontrak.ts, src/app/mengajar/actions.ts, src/app/mengajar/[kelas]/siapkan/page.tsx and the learner pages src/app/belajar/[tugas]/pemetaan/page.tsx and penguasaan/page.tsx: the codes assign_refuse raises for assigning are exactly the contract's and each is raised (with the seal's, the boundary's and, since D-183, the exposure guard's code read from migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql); every code has a copy key in both languages without machinery words; sediakanMateri calls assign_release with its declared arguments; the review page shows a refused code's sentence; and neither learner test page can answer 404."
