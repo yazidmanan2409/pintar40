@@ -267,8 +267,17 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
       .is("revoked_at", null).order("created_at", { ascending: false }).order("id"),
     // L4 (CR-88): one page of the trail at a time, the newest first, never a fixed 50 with no way past them
     // (the newest 50 a page, as CR-39 / J1.6 has read them since the audit reader was built; then the next 50)
-    (platformIni ? jejak : jejak.in("institution_id", sekolahIni)).order("at", { ascending: false }).order("id")
-      .range(...rentang(halamanDiminta(sp.hal_jejak), UKURAN_JEJAK)),
+    // W6.2 (U-PERF, staging 5 Nov): since B1 only «Jejak audit»'s own page draws the trail, so only that page reads it.
+    // Read on every render, it was the slowest request of every Konfigurasi page (2,271 ms for the synthetic school's
+    // admin, journey run 42105894283), and the reads after the batch waited for it
+    bagianIni !== "audit"
+      ? tanpaBaris
+      // and one school is named with eq, not in: PostgREST sends a prepared statement, and its generic plan for
+      // `institution_id = any($1)` cannot use (institution_id, at desc)'s order, so it read all 6,386 of the school's rows,
+      // the row policy on each, to keep 51 (2,538 ms); `= $1` stops at the page (21 ms). Read-only EXPLAIN, staging
+      : (platformIni ? jejak : satuSekolah ? jejak.eq("institution_id", satuSekolah) : jejak.in("institution_id", sekolahIni))
+          .order("at", { ascending: false }).order("id")
+          .range(...rentang(halamanDiminta(sp.hal_jejak), UKURAN_JEJAK)),
     // BOB-18 (D-046): the schema lint runs when an operator asks for it, never
     // on an ordinary load -- it reads the whole catalogue, and every sign-in of
     // the platform admin lands here.

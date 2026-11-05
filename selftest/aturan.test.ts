@@ -363,3 +363,27 @@ aturanTests.push({
     return c.verdict("in src/lib/hle.ts no Indonesian string uses «ditugaskan / menugaskan» for giving a package to a class (the verb is «menyediakan» / «disediakan»); it stays only in the four staff-placement strings, each still saying it; a planted one is caught");
   },
 });
+
+// W6.2 (U-PERF, staging 5 Nov): Konfigurasi reads the audit trail only on «Jejak audit»'s own page, and names one school
+// with eq. Read on every render with `in`, it was the slowest request of every Konfigurasi page (2,271 ms; the generic
+// plan PostgREST's prepared statement gets for `= any($1)` read the school's whole trail through the row policy)
+export function jejakBoros(src: string): string[] {
+  const salah: string[] = [];
+  const i = src.indexOf('supabase.from("audit_log")');
+  const baca = src.slice(src.indexOf("const [", i), src.indexOf("]);", src.indexOf("const [", i)));
+  if (!/bagianIni !== "audit"\s*\?\s*tanpaBaris/.test(baca)) salah.push("the trail is read on a page that does not draw it");
+  if (!/satuSekolah \? jejak\.eq\("institution_id", satuSekolah\)/.test(baca)) salah.push("one school's trail is not named with eq");
+  return salah;
+}
+aturanTests.push({
+  id: "W62-JEJAK-01",
+  run: async (ctx) => {
+    const c = new Checks();
+    const konf = readFileSync(join(ctx.repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8");
+    const salah = jejakBoros(konf);
+    c.expect(salah.length === 0, `Konfigurasi's audit read: ${salah.join("; ")}`);
+    const lama = konf.replace('bagianIni !== "audit"', "false").replace('jejak.eq("institution_id", satuSekolah)', 'jejak.in("institution_id", sekolahIni)');
+    c.expect(jejakBoros(lama).length === 2, "the read as it was (every render, `in`) is not caught");
+    return c.verdict("src/app/konfigurasi/page.tsx reads the audit trail only when the page drawn is «Jejak audit» (every other Konfigurasi page reads none), and a school's context names its one school with eq, which keeps (institution_id, at desc)'s order under PostgREST's prepared statement; the read as it was is caught");
+  },
+});
