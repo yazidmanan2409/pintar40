@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 203,
+  "version": 204,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -4530,6 +4530,11 @@
       "id": "F27-X06",
       "runner": "db",
       "proves": "D-183, selftest/db/fable27.sql, migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql: exposed_content_marks holds 20 TITLE and 240 STEM marks of TERPAPAR_2026_11_02, each a 64-hex sha256 fingerprint and no text; an update or delete is refused EXPOSURE_MARK_FIXED; a signed-in school admin cannot read the table."
+    },
+    {
+      "id": "F28-J311",
+      "runner": "db",
+      "proves": "J3.11 (ADM-20, U-AUDIT; W6.1, CR-59; D-186), selftest/db/fable28.sql over the live schema: every client-callable function in client_rpc_registry that writes either writes the audit trail, calls a function that does, writes a table whose trigger does, writes a declared record of the act naming its person (set from current_person_id(); no signed-in client can insert, update or delete it), or is declared not a consequential staff act with its reason (a learner's own state, the sitting as its own evidence record, an automated check, the anonymous class feedback); none is left over; every declaration still matches a writing function; a planted writing function with no trace, registered inside the rolled-back block, is caught."
     },
     {
       "id": "B5C-MURID-K01",
