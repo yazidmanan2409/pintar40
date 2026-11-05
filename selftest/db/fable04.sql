@@ -50,6 +50,7 @@ begin
   perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
   select m.post_test_assignment into aa from public.my_learning_assignments() m limit 1;
   if aa is null then raise exception 'the bootstrap learner sees no post-test assignment'; end if;
+  perform selftest.pre_finished_for(aa);   -- W6.10: the Uji Penguasaan waits for the Pemetaan Awal
   s := public.start_learning_session(aa);
   n := selftest.answer_paper(s, p_all_correct);
   if n = 0 then raise exception 'the bootstrap attempt answered nothing'; end if;
@@ -732,6 +733,7 @@ begin
   perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
   declare v_aa uuid; v_pi uuid; v_p int; begin
     select m.post_test_assignment into v_aa from public.my_learning_assignments() m limit 1;
+    perform selftest.pre_finished_for(v_aa);   -- W6.10: the Uji Penguasaan waits for the Pemetaan Awal
     v_sess := public.start_learning_session(v_aa);
     select pp.presented_item_id into v_pi from public.session_paper(v_sess) pp limit 1;
     v_p := selftest.pick_position(v_sess, v_pi, true);
@@ -1008,13 +1010,17 @@ begin
   ok := true; detail := '';
   select s2.id into v_sess from public.assessment_sessions s2
     join public.institutions i on i.id = s2.institution_id
-   where i.is_synthetic and s2.status = 'FINALIZED' limit 1;
+   where i.is_synthetic and s2.status = 'FINALIZED'
+     -- a formal stage, so its evidence class is the only reason left to refuse it: since W6.10 every learner with an
+     -- Uji Penguasaan has a finished Pemetaan Awal too, which is refused for its stage before its class is asked
+     and s2.mode = 'POST_TEST' limit 1;
   if v_sess is null then
     -- run one on the synthetic cycle fixture so the negative half is real
     perform selftest.as_user('siklus-email@synthetic.pintar.test');
     declare v_aa2 uuid; begin
       select m.post_test_assignment into v_aa2 from public.my_learning_assignments() m limit 1;
       if v_aa2 is not null then
+        perform selftest.pre_finished_for(v_aa2);   -- W6.10: the Uji Penguasaan waits for the Pemetaan Awal
         v_sess := public.start_learning_session(v_aa2);
         -- answer_paper, not an inline loop: the cycle fixture carries
         -- MCQ_MULTI items and the multi shape is {"posisi": [n, ...]}

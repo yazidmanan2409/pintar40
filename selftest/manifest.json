@@ -4537,6 +4537,11 @@
       "proves": "J3.11 (ADM-20, U-AUDIT; W6.1, CR-59; D-186), selftest/db/fable28.sql over the live schema: every client-callable function in client_rpc_registry that writes either writes the audit trail, calls a function that does, writes a table whose trigger does, writes a declared record of the act naming its person (set from current_person_id(); no signed-in client can insert, update or delete it), or is declared not a consequential staff act with its reason (a learner's own state, the sitting as its own evidence record, an automated check, the anonymous class feedback); none is left over; every declaration still matches a writing function; a planted writing function with no trace, registered inside the rolled-back block, is caught."
     },
     {
+      "id": "F29-S01",
+      "runner": "db",
+      "proves": "W6.10 (D-186; ADM-15), selftest/db/fable29.sql, migration 20261229100000_the_mastery_check_waits_for_the_mapping.sql: in a chapter given whole in the synthetic learning-cycle school, the learner's Uji Penguasaan is refused PRE_TEST_NOT_FINALIZED by may_start_assessment before the Pemetaan Awal is begun and while it runs; start_learning_session opens nothing and assessment_orientation offers nothing; once the Pemetaan Awal is finished the Uji Penguasaan starts, one session."
+    },
+    {
       "id": "D060-J78-01",
       "runner": "static",
       "proves": "J7.8 (D-060; W6.1, CR-59; D-186), selftest/aturan.test.ts read over every migration under supabase/migrations from 29 Sep: each that changes a metric's meaning (a calc_* body, an official_/academic_/scoped_/service_ source view, evidence_readiness) publishes a new catalogue version or states the catalogue unchanged in its header; each that changes the engine's meaning (grade_response, record_answer, assemble_session, evaluate_session, finalize_session, option_display_order, eligible_items_for_definition) bumps pintar-engine/N or states it unchanged; the catalogue labels published rise strictly in migration order; three applied migrations are recorded exceptions with their reason, and a stale exception fails; a planted calculator and engine change with neither is caught."
