@@ -157,9 +157,19 @@ async function keKonfigurasi(page) {
   if (new URL(page.url()).pathname === "/konfigurasi") { await page.reload({ waitUntil: "networkidle" }); await closeTour(page); }
   else await klikTautan(page, "/konfigurasi");
 }
-async function bacaPersiapan(page) {
-  await page.reload({ waitUntil: "networkidle" });
+// B1 (c4e2ffe3): Konfigurasi is an index and one page per section; a person opens a section by its row on the index
+async function keBagian(page, bagian) {
+  await keKonfigurasi(page);
+  const a = page.locator(`a[data-bagian-ke="${bagian}"]:visible`).first();
+  await a.waitFor({ state: "visible", timeout: SLOW });
+  await a.click();
+  await page.waitForURL((u) => u.pathname === `/konfigurasi/${bagian}`, { timeout: SLOW });
+  await page.waitForLoadState("networkidle");
   await closeTour(page);
+}
+// «Persiapan sekolah» is on the index (B1), read afresh there
+async function bacaPersiapan(page) {
+  await keKonfigurasi(page);
   const out = {};
   for (const li of await page.locator("#persiapan li[data-langkah]").all()) {
     out[await li.getAttribute("data-langkah")] = (await li.getAttribute("data-selesai")) === "ya";
@@ -236,6 +246,7 @@ if (!masuk) { await browser.close(); log("RED: A1"); process.exit(1); }
 await step("A2", `GS-04 (J3.3): on Konfigurasi → Struktur sekolah the admin builds «${BAGIAN}» → «${TINGKAT}» → «${KELAS}»; no hidden level shows; «Persiapan sekolah» says the Kelas is there`, async (rec) => {
   const sudah = simpul("CLASS", KELAS);
   const jejak = [];
+  await keBagian(A, "struktur");
   if (sudah) { rec.verdict = "NOTE"; jejak.push("the structure already exists; nothing built"); }
   else {
     await A.locator("#struktur").scrollIntoViewIfNeeded();
@@ -296,7 +307,7 @@ await step("A3", "GS-06 (J3.5): the teacher, the head of department and the dean
   const akun = STAF.filter((p) => akunSurel(mail(p.kunci))).length;
   jejak.push(`accounts by email ${akun}/3`);
   // 3. roles on Konfigurasi → Peran & akses
-  await klikTautan(A, "/konfigurasi");
+  await keBagian(A, "roles");
   for (const p of STAF) {
     const tempatNama = p.tempat ?? S.nama;
     const tempatNode = p.tempat ? tempatId[p.tempat] : S.id;
@@ -419,7 +430,7 @@ await step("A7", `GS-05 (J3.8): back to Konfigurasi by Studio's own link; on Bat
      and not exists (select 1 from public.school_pass_marks n where n.supersedes_id = m.id)`);
   const sudah = sekarang();
   if (sudah) { rec.verdict = "NOTE"; return `already set, nothing changed: ${sudah}`; }
-  await keKonfigurasi(A);
+  await keBagian(A, "ketuntasan");
   const baris = A.locator(`#ketuntasan li[data-pelajaran="${kursus}"]`);
   await A.locator("#ketuntasan").scrollIntoViewIfNeeded().catch(() => {});
   if (!(await baris.count())) {

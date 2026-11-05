@@ -452,12 +452,23 @@ await step("L4", "GS-17 the school admin: signs in → Konfigurasi → «Laporan
   const out = [];
   const di = await masukSurel(p, mail("admin"));
   if (di !== "/konfigurasi") throw new Error(`landed on ${di}, not /konfigurasi`);
-  await klikTautan(p, `/dekan/ringkasan?simpul=${S.akar}`);
+  // B1 (c4e2ffe3, 7863d71b): Konfigurasi is an index; the summaries are on its «Laporan» section, their links carry dari=konfigurasi
+  const keLaporan = async () => {
+    const r = p.locator('a[data-bagian-ke="laporan"]:visible').first();
+    await r.waitFor({ state: "visible", timeout: SLOW });
+    await r.click();
+    await p.waitForURL((u) => u.pathname === "/konfigurasi/laporan", { timeout: SLOW });
+    await p.waitForLoadState("networkidle");
+    await closeTour(p);
+  };
+  await keLaporan();
+  await klikTautan(p, `/dekan/ringkasan?simpul=${S.akar}&dari=konfigurasi`);
   const lap = await angka(p.locator("main"));
   await shot(p, "l4-admin-sekolah");
   out.push(`school summary: ${harus(lap, "Peserta", { nilai: ANGKA.format(S.peserta) })}, ${harus(lap, "Sertifikat terbit", { nilai: ANGKA.format(S.terbit) })}`);
   await buka(p, "/konfigurasi");
-  await klikTautan(p, `/edukator/ringkasan?kelas=${S.kelas}`);
+  await keLaporan();
+  await klikTautan(p, `/edukator/ringkasan?kelas=${S.kelas}&dari=konfigurasi`);
   const kls = await angka(p.locator("main"));
   await shot(p, "l4-admin-kelas");
   out.push(`«${KELAS}» summary: ${[harus(kls, "Peserta", { nilai: ANGKA.format(S.peserta) }),
