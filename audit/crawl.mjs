@@ -97,6 +97,45 @@ const SEMPIT = () => {
   return { lebar, halaman: d.scrollWidth, sebab };
 };
 
+// W6.4 (X.6): CLIPPING as well as overflow. A box that hides what overflows it (overflow hidden or clip, on either axis)
+// and holds text wider or taller than itself cuts the words off where nobody can scroll to them. Designed truncation is
+// allowed only when the whole text is still reachable from the element (a title or an aria-label holding it);
+// visually hidden text (the skip link, labels for screen readers: 1 px or clip-path/clip), aria-hidden parts and
+// scrolling boxes (overflow auto or scroll) are not clipping.
+const KLIP = () => {
+  const nama = (el) => el.tagName.toLowerCase() + (el.id ? `#${el.id}` : "") +
+    [...el.classList].slice(0, 3).map((c) => `.${c}`).join("");
+  const tersembunyi = (el) => {
+    for (let a = el; a && a !== document.body; a = a.parentElement) {
+      if (a.getAttribute("aria-hidden") === "true") return true;
+      const c = getComputedStyle(a);
+      if (c.display === "none" || c.visibility === "hidden") return true;
+      const r = a.getBoundingClientRect();
+      if (r.width <= 1 || r.height <= 1) return true;
+      if (c.clipPath && c.clipPath !== "none") return true;
+      if (c.clip && c.clip !== "auto") return true;
+    }
+    return false;
+  };
+  const sebab = [];
+  for (const el of document.querySelectorAll("body *")) {
+    const c = getComputedStyle(el);
+    const xs = c.overflowX, ys = c.overflowY;
+    const potongX = xs === "hidden" || xs === "clip", potongY = ys === "hidden" || ys === "clip";
+    if (!potongX && !potongY) continue;
+    const teks = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent.trim()).join(" ").trim()
+      || (el.children.length === 0 ? (el.textContent ?? "").trim() : "");
+    if (!teks) continue;
+    const lebih = (potongX && el.scrollWidth > el.clientWidth + 1) || (potongY && el.scrollHeight > el.clientHeight + 1);
+    if (!lebih || tersembunyi(el)) continue;
+    const utuh = [el.getAttribute("title"), el.getAttribute("aria-label")].some((t) => t && t.replace(/\s+/g, " ").trim().includes(teks.replace(/\s+/g, " ").slice(0, 40)));
+    if (utuh) continue;
+    sebab.push(`${nama(el)} «${teks.replace(/\s+/g, " ").slice(0, 40)}» (${el.scrollWidth}×${el.scrollHeight} in ${el.clientWidth}×${el.clientHeight})`);
+    if (sebab.length >= 4) break;
+  }
+  return sebab.length ? { sebab } : null;
+};
+
 function internal(href) {
   try {
     const u = new URL(href, APP);
@@ -160,15 +199,24 @@ async function crawl(browser, p) {
       rec.mentah = body.match(MENTAH)?.[0] ?? null; // W9: read over the whole page, not the 700 characters kept
       rec.shot = `${String(n).padStart(2, "0")}${path.replace(/[^a-z0-9]+/gi, "_").slice(0, 60)}.png`;
       await page.screenshot({ path: join(dir, rec.shot), fullPage: true }).catch(() => (rec.shot = null));
+      // W6.4: no text clipped at 1280 px either
+      rec.klip = await page.evaluate(KLIP).catch((e) => ({ sebab: [`the clipping check failed: ${String(e.message ?? e).slice(0, 160)}`] }));
       // X.6 (U-DEVICE, D-046): the same page at 320 px wide scrolls only downwards. A page wider than the window is
       // measured, and what sticks out of a box that fits is named (a part inside its own scrolling box is not).
       await page.setViewportSize({ width: 320, height: 720 });
       await page.waitForTimeout(200);
       rec.sempit = await page.evaluate(SEMPIT).catch((e) => ({ gagal: String(e.message ?? e).slice(0, 200) }));
+      rec.klipSempit = await page.evaluate(KLIP).catch((e) => ({ sebab: [`the clipping check failed: ${String(e.message ?? e).slice(0, 160)}`] }));
       // The application pass (D-138) reviews every page at both widths, so the 320 px picture is kept for every
       // page, not only for one that failed. A failing page is still named by `sempit`, as before.
       rec.shotSempit = rec.shot?.replace(/\.png$/, "-320.png") ?? null;
       if (rec.shotSempit) await page.screenshot({ path: join(dir, rec.shotSempit), fullPage: true }).catch(() => (rec.shotSempit = null));
+      // W6.4 (X.6; E1's rail range, 1024–1279 px): at 1024 px, the narrowest window the rail is drawn in, the page
+      // neither scrolls sideways nor clips text
+      await page.setViewportSize({ width: 1024, height: 768 });
+      await page.waitForTimeout(200);
+      rec.rel = await page.evaluate(SEMPIT).catch((e) => ({ gagal: String(e.message ?? e).slice(0, 200) }));
+      rec.klipRel = await page.evaluate(KLIP).catch((e) => ({ sebab: [`the clipping check failed: ${String(e.message ?? e).slice(0, 160)}`] }));
       await page.setViewportSize({ width: 1280, height: 900 });
       if (A11Y !== "0" && !rec.refusal && !rec.errorPage) {
         const k = layarKunci(rec.finalPath ?? path);
@@ -253,6 +301,8 @@ for (const r of all) {
     for (const c of x.consoleErrors.slice(0, 3)) console.log(`      console: ${c.text.slice(0, 200)}`);
     for (const f of x.failedRequests.slice(0, 3)) console.log(`      failed: ${f.status} ${f.url}`);
     if (x.error) console.log(`      nav-error: ${x.error}`);
+    if (x.rel) console.log(`      1024px: ${x.rel.gagal ?? `the page is ${x.rel.halaman} px wide; ${x.rel.sebab.join("; ") || "no single part named"}`}`);
+    for (const [w, k] of [["1280", x.klip], ["1024", x.klipRel], ["320", x.klipSempit]]) if (k) console.log(`      ${w}px clips: ${k.sebab.join("; ")}`);
     if (x.sempit) console.log(`      320px: ${x.sempit.gagal ?? `the page is ${x.sempit.halaman} px wide; ${x.sempit.sebab.join("; ") || "no single part named"}`}`);
   }
 }
@@ -308,6 +358,10 @@ for (const r of all) {
 // X.6 (U-DEVICE, D-046): responsive is part of PASS. A page wider than a 320 px window, for any role, is broken.
 for (const r of all) {
   for (const x of r.pages) {
+    if (x.rel) broken.push(`${r.persona} ${x.path} at 1024 px: ${x.rel.gagal ?? `${x.rel.halaman} px wide (${x.rel.sebab.join("; ") || "no single part named"})`}`);
+    for (const [w, k] of [["1280", x.klip], ["1024", x.klipRel], ["320", x.klipSempit]]) {
+      if (k) broken.push(`${r.persona} ${x.path} at ${w} px clips text: ${k.sebab.join("; ")}`);
+    }
     if (x.sempit) broken.push(`${r.persona} ${x.path} at 320 px: ${x.sempit.gagal ?? `${x.sempit.halaman} px wide (${x.sempit.sebab.join("; ") || "no single part named"})`}`);
   }
 }
