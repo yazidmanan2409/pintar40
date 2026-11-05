@@ -25,6 +25,12 @@
  * error's own text (.message): a database or platform message can name tables, constraints or functions. What crosses
  * is a stable code (and its detail where the code defines one); the words come from the copy table. Logged text is not
  * an answer. A planted answer carrying .message is caught.
+ *
+ * X.1 (CR-78): EVERY SCREEN BY CLICKING. Every page under src/app is linked from another file, in an href, a navigation
+ * table or a named constant used in an href, not only reached by a redirect; or it is one of the declared entrances that
+ * are not a click by design (the email sign-in callback, the card's QR page, the maintenance and locked screens, which
+ * PINTAR sends the person to), each checked at the place that sends the person there. A planted page with no link is
+ * caught.
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -259,6 +265,72 @@ aturanTests.push({
       `read the source of the ${nAksi} server-action files and ${nRute} API routes under src/app: none answers the browser with an ` +
       `error's own text; what crosses is a stable code and its defined detail, and logged text is not an answer; a planted ` +
       `answer carrying .message is caught`);
+  },
+});
+
+/** The declared entrances that are not a click, each with the file and pattern that sends the person there. */
+export const PINTU_BUKAN_KLIK: Record<string, { alasan: string; berkas: string; pola: RegExp }> = {
+  "/auth/callback": { alasan: "the sign-in email's link", berkas: "src/app/masuk/actions.ts", pola: /emailRedirectTo:[^\n]*\/auth\/callback/ },
+  "/id/[pintarId]": { alasan: "a PINTAR card's QR and the identity email's link", berkas: "src/app/api/_email/identitas.ts", pola: /\/id\/\$\{/ },
+  "/pemeliharaan": { alasan: "PINTAR sends everyone there when maintenance starts", berkas: "src/components/pemeliharaan/PengingatPemeliharaan.tsx", pola: /location\.replace\(HALAMAN_PEMELIHARAAN\)/ },
+  "/terkunci": { alasan: "the idle guard locks the session there", berkas: "src/components/PenjagaSesi.tsx", pola: /location\.replace\(`\$\{HALAMAN_TERKUNCI\}/ },
+};
+
+function ruteDari(rel: string): string {
+  const r = rel.replace(/^src\/app/, "").replace(/\/page\.tsx$/, "").replace(/\/\([^)]+\)/g, "");
+  return r === "" ? "/" : r;
+}
+
+/** Whether some other file links route r by clicking: a literal not inside a redirect, or a constant used in an href. */
+export function adaTautan(r: string, sumber: Array<{ rel: string; teks: string }>, kecuali: string): boolean {
+  const bagian = r.split("/").filter(Boolean).map((b) => (b.startsWith("[") ? "[^/?#`\"']+" : b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  const pola = new RegExp(`["'\`]/${bagian.join("/")}(?:[/?#"'\`]|$)`);
+  const konstanta: string[] = [];
+  for (const { rel, teks } of sumber) {
+    if (rel === kecuali) continue;
+    for (const baris of teks.split("\n")) {
+      const b = baris.replace(/\$\{[^}]*\}/g, "X");
+      if (!pola.test(b)) continue;
+      const k = /export const (\w+)\s*=/.exec(baris);
+      if (k) { konstanta.push(k[1]); continue; }
+      // a link is an href, a <Link>, or a navigation table's entry (["/…", label]); a list of paths a filter reads is not
+      if (!/\b(redirect|replace|push|back)\(/.test(baris) && /\bhref\b|<Link\b|\[\s*["'`]\//.test(baris)) return true;
+    }
+  }
+  return konstanta.some((k) => sumber.some(({ rel, teks }) => rel !== kecuali
+    && new RegExp(`href=\\{[^}]*\\b${k}\\b|href:\\s*\`?\\$?\\{?${k}\\b`).test(teks)));
+}
+
+aturanTests.push({
+  id: "X01-KLIK-01",
+  run: async (ctx) => {
+    const c = new Checks();
+    const root = ctx.repoRoot;
+    const sumber = semuaSumber(join(root, "src")).map((f) => ({ rel: f.slice(root.length + 1).replace(/\\/g, "/"), teks: readFileSync(f, "utf8") }));
+    const halaman = sumber.filter((x) => /^src\/app\/.*page\.tsx$|^src\/app\/page\.tsx$/.test(x.rel));
+    let nKlik = 0;
+    const dipakai = new Set<string>();
+    for (const h of halaman) {
+      const r = ruteDari(h.rel);
+      if (r === "/") continue;
+      if (adaTautan(r, sumber, h.rel)) { nKlik++; continue; }
+      const pintu = PINTU_BUKAN_KLIK[r];
+      if (pintu) {
+        const asal = sumber.find((x) => x.rel === pintu.berkas);
+        c.expect(Boolean(asal && pintu.pola.test(asal.teks)), `${r} is declared as reached by ${pintu.alasan}, but ${pintu.berkas} no longer sends anyone there`);
+        dipakai.add(r);
+        continue;
+      }
+      c.expect(false, `${r} (${h.rel}) is linked from nowhere: no href, navigation table or constant reaches it by clicking (X.1)`);
+    }
+    for (const r of Object.keys(PINTU_BUKAN_KLIK)) c.expect(dipakai.has(r), `${r} is declared as an entrance that is not a click, but is linked or gone: remove its line`);
+    c.expect(!adaTautan("/f27-tidak-ada", sumber, ""), "a planted page with no link is taken as linked");
+    c.expect(adaTautan("/studio/bank", sumber, "src/app/studio/bank/page.tsx"), "a page linked from a navigation table is not found");
+    return c.verdict(
+      `read the source of every file under src: of ${halaman.length - 1} pages besides «/», ${nKlik} are linked from another file by ` +
+      `an href, a navigation table or a constant used in an href, and ${dipakai.size} are the declared entrances that are not a ` +
+      `click (the sign-in email's callback, the card's QR page, the maintenance and locked screens), each checked where PINTAR ` +
+      `sends the person; a planted page with no link is caught`);
   },
 });
 

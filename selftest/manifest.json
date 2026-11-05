@@ -4560,6 +4560,11 @@
       "proves": "X.8 (P1, BOB26-A02; W6.1, CR-59; D-186), selftest/aturan.test.ts read over the source of every server-action file and API route under src/app: none answers the browser with an error's own text (.message), which can name tables, constraints or functions; what crosses is a stable code and its defined detail, the words coming from the copy table; logged text is not an answer; a planted answer carrying .message is caught."
     },
     {
+      "id": "X01-KLIK-01",
+      "runner": "static",
+      "proves": "X.1 (CR-78; W6.1, CR-59; D-186), selftest/aturan.test.ts read over the source of every file under src: every page under src/app other than «/» is linked from another file by an href, a navigation table or a named constant used in an href, not only by a redirect; or it is a declared entrance that is not a click by design (the sign-in email's /auth/callback, the card's QR page /id/[pintarId], /pemeliharaan and /terkunci), each checked in the file that sends the person there; a stale declaration fails; a planted page with no link is caught."
+    },
+    {
       "id": "B5C-MURID-K01",
       "runner": "static",
       "proves": "W2.18 · J5.13 (Batch 5), selftest/b5c.test.ts, from the source, the migration and the copy table: the teacher's view of one learner (src/app/mengajar/[kelas]/murid/[orang]/page.tsx) lists, under «Tujuan pembelajaran yang belum tercapai», each objective the learner has not yet reached by its statement (the learner's result's rows, DAISY-29), with no figure and an empty state; pengajar.tujuanBelum asks only tujuan_belum_tercapai (supabase/migrations/20261225100000_a_teacher_sees_the_objectives_a_learner_has_not_yet_reached.sql), a SECURITY DEFINER function returning the objective and its statement only, which checks the reader's teaching role (learner.result's staff audience) over the class and the learner's placement in it, reads the class's own official Uji Penguasaan against the mark sealed on each attempt, and reads no item, response or key; the words say «belum», never failure (X.5), in both languages."
