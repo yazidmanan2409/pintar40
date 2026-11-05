@@ -25,6 +25,9 @@ on:
         default: wave
         type: choice
         options: [seed, wave, browser]
+      label:
+        description: "the Tingkat «Tingkat Beban <label>» and its learners (L1 = the L1 load's own; another label = classes of its own, for a fresh window)"
+        default: "L1"
       total:
         description: "seed: learners in all (L1 = 1000)"
         default: "1000"
@@ -103,6 +106,7 @@ jobs:
         env:
           STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
           TOTAL: ${{ inputs.total }}
+          LABEL: ${{ inputs.label }}
           KELAS: ${{ inputs.kelas }}
         run: node seed-l1.mjs
 
@@ -130,6 +134,7 @@ jobs:
         env:
           STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
           SHARD: ${{ matrix.shard }}
+          LABEL: ${{ inputs.label }}
           SHARDS: ${{ inputs.shards }}
           PER_SHARD: ${{ inputs.per_shard }}
           T0: ${{ needs.plan.outputs.t0 }}
@@ -174,6 +179,7 @@ jobs:
         env:
           STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
           SHARD: ${{ matrix.shard }}
+          LABEL: ${{ inputs.label }}
           SHARDS: ${{ inputs.shards }}
           PER_SHARD: ${{ inputs.per_shard }}
           T0: ${{ needs.plan.outputs.t0 }}

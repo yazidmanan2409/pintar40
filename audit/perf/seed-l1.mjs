@@ -35,7 +35,13 @@ const WINDOW_DAYS = Number(process.env.WINDOW_DAYS ?? 14);
 const PARALLEL = Number(process.env.CARD_PARALLEL ?? 4);
 const SCHOOL = "Sekolah Uji Kinerja (sintetis)";
 const BAGIAN = "Bagian Uji Kinerja";
-const TINGKAT = "Tingkat Beban L1";
+// LABEL names a separate Tingkat and its learners (default «L1», the L1 load's own). A test after the L1 classes'
+// windows have closed needs classes of its own: assign_release gives a release to a class once (ASSIGN_EXISTS), and
+// PINTAR has no operation that ends an assignment, so a fresh window is a fresh Tingkat, never a direct write.
+const LABEL = process.env.LABEL || "L1";
+if (!/^[A-Za-z0-9]{1,8}$/.test(LABEL)) throw new Error("LABEL: 1-8 letters or digits");
+const TINGKAT = `Tingkat Beban ${LABEL}`;
+const AWALAN = LABEL === "L1" ? "" : `${LABEL} `;
 if (!DB.includes(REF) || DB.includes(PRODUCTION_REF) || !APP.includes("staging") || SB.includes(PRODUCTION_REF)) throw new Error("not staging");
 if (!(TOTAL > 0 && TOTAL <= 5000 && KELAS > 0 && KELAS <= 100)) throw new Error("TOTAL or KELAS out of range");
 
@@ -100,7 +106,7 @@ const perKelas = Math.ceil(TOTAL / KELAS);
 const ingin = [];
 for (let n = 0; n < TOTAL; n++) {
   const k = kelas[Math.floor(n / perKelas)];
-  ingin.push({ display_name: `Murid Beban ${k.nama.slice(-2)}-${pad((n % perKelas) + 1, 3)}`, node_id: k.id, role: "STUDENT" });
+  ingin.push({ display_name: `Murid Beban ${AWALAN}${k.nama.slice(-2)}-${pad((n % perKelas) + 1, 3)}`, node_id: k.id, role: "STUDENT" });
 }
 const sudah = new Set(rows(`select p.display_name from public.memberships m join public.enrollments e on e.id = m.enrollment_id
   join public.persons p on p.id = e.person_id where m.node_id in (${kelas.map((k) => uuid(k.id)).join(",")}) and m.valid_to is null`).map((r) => r[0]));

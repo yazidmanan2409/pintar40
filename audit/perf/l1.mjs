@@ -53,13 +53,15 @@ const norm = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
 const log = (o) => console.log(JSON.stringify({ shard: SHARD, ...o }));
 
 // ── setup (read only): the learners, their open Uji Penguasaan, the chapter's keys
+const TINGKAT_LABEL = process.env.LABEL || "L1";   // the Tingkat seed-l1.mjs made (LABEL)
+if (!/^[A-Za-z0-9]{1,8}$/.test(TINGKAT_LABEL)) throw new Error("LABEL: 1-8 letters or digits");
 const SID = sql(`select id from public.institutions where name = $q$${SCHOOL}$q$ and is_synthetic`);
 uuid(SID);
 const semua = rows(`
   with kelas as (
     select n.id from public.org_nodes n join public.org_nodes t on t.id = n.parent_id
      where n.institution_id = ${uuid(SID)} and n.kind = 'CLASS' and n.is_active and n.name like 'Kelas Beban %'
-       and t.name = 'Tingkat Beban L1'),
+       and t.name = 'Tingkat Beban ${TINGKAT_LABEL}'),
   pa as (
     select distinct on (aa.node_id) aa.node_id, aa.id as aa_id, la.course_id, aa.learning_assignment_id as la_id
       from public.assessment_assignments aa join public.learning_assignments la on la.id = aa.learning_assignment_id
