@@ -213,3 +213,4 @@ The 138 «[auto]» lines of the accepted designs, read against the tests (`docs/
 | D-183 | F-4(f): the exposure flag, in principle, with three conditions; deployment only through the protected gates | E-K6-3, E-K6-4, E-K6-2 |
 | D-184 | F-4(f) accepted for branch development, subject to CI and journeys; not deployed; no staging bypass; staging's classification a deployment dependency | E-K6-3, E-K6-4 |
 | D-185 | E-K6-4 by option 2: staging schools unchanged; synthetic replacement chapters for their tests; staging records are test data, never promoted; no migration or deployment authorised | E-K6-4 |
+| D-186 | resume development: the next unblocked Batch 7–9 work on the branch; K1–K7 block only their own features; no merge, deployment, promotion or real data | none of its own: a way of working; the work packages carry their own tests (W6.1 first) |
