@@ -4562,6 +4562,11 @@
       "proves": "J7.8 (D-060; W6.1, CR-59; D-186), selftest/aturan.test.ts read over every migration under supabase/migrations from 29 Sep: each that changes a metric's meaning (a calc_* body, an official_/academic_/scoped_/service_ source view, evidence_readiness) publishes a new catalogue version or states the catalogue unchanged in its header; each that changes the engine's meaning (grade_response, record_answer, assemble_session, evaluate_session, finalize_session, option_display_order, eligible_items_for_definition) bumps pintar-engine/N or states it unchanged; the catalogue labels published rise strictly in migration order; three applied migrations are recorded exceptions with their reason, and a stale exception fails; a planted calculator and engine change with neither is caught."
     },
     {
+      "id": "W214-KATA-01",
+      "runner": "static",
+      "proves": "W2.14 (UX-19, D-135(d), D-191 K1), selftest/aturan.test.ts over the copy table (src/lib/hle.ts, its Indonesian text): giving a package to a class has one verb, «menyediakan» (the teacher) and «disediakan untuk Anda» (the learner); no Indonesian string, stage variants included, says «ditugaskan / menugaskan» for it; the verb stays only in the four staff-placement strings (config.struktur.galat.masih_ada_staf, config.struktur.intro, tur.pg.2.kosong, mengajar.kelas.intro), each checked to still say it; a planted string is caught."
+    },
+    {
       "id": "X11-KLIEN-01",
       "runner": "static",
       "proves": "X.11 (DAISY-17, D-046(e); W6.1, CR-59; D-186), selftest/aturan.test.ts read over the source of every .tsx under src/app and src/components: every client component that calls the server itself (fetch or .rpc) disables its trigger while the call is pending, or is declared with its reason (src/components/PenjagaSesi.tsx, the heartbeat; src/components/pelajaran/TautanBerkas.tsx, a read-only check; src/components/lapor/TangkapanLayar.tsx, whose upload holds the report's own send, walked as audit/e1-navigasi.mjs N8); forms are held by DAISY-17-KIRIM-01; a stale declaration fails and a planted unguarded component is caught."

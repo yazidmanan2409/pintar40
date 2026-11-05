@@ -2430,7 +2430,7 @@ const stageTable: Partial<Record<HleEvent, Partial<Record<Stage, { id: string; e
   },
   "cycle.none": {
     SD: { id: "Belum ada yang perlu dikerjakan hari ini.", en: "There is nothing to do today yet." },
-    UNIVERSITAS: { id: "Belum ada materi yang ditugaskan untuk Anda.", en: "Nothing has been assigned to you yet." },
+    UNIVERSITAS: { id: "Belum ada materi yang disediakan untuk Anda.", en: "Nothing has been made available to you yet." },
   },
   "pretest.intro": {
     SD: {
@@ -3791,7 +3791,7 @@ const table: Table = {
 
   // ---------------------------------------------------------------- FABLE-03
   "cycle.title": { default: "Perjalanan belajar Anda", en: "Your learning journey" },
-  "cycle.none": { default: "Belum ada materi yang ditugaskan untuk Anda.", en: "Nothing has been assigned to you yet." },
+  "cycle.none": { default: "Belum ada materi yang disediakan untuk Anda.", en: "Nothing has been made available to you yet." },
   "cycle.step.pretest": { default: "Pemetaan Awal", en: "Initial Mapping" },
   "cycle.step.map": { default: "Peta Bacaan Personal", en: "Personal Reading Map" },
   "cycle.step.lesson": { default: "Pelajaran", en: "Lesson" },
@@ -3962,7 +3962,7 @@ const table: Table = {
   "siklus.terbuka_kini": { default: "Yang terbuka untuk Anda sekarang.", en: "What is open to you now." },
   "siklus.habis.judul": { default: "Tidak ada lagi yang menunggu", en: "Nothing else is waiting" },
   // DAISY-25 (D-019): PINTAR sends a learner no notification and cannot know whether more is coming, so the line says where new work would appear, and nothing more
-  "siklus.habis.isi": { default: "Semua yang ditugaskan sudah selesai. Materi baru, jika ada, akan muncul di halaman Belajar.", en: "Everything assigned to you is finished. Anything new will appear on your Learning page." },
+  "siklus.habis.isi": { default: "Semua yang disediakan untuk Anda sudah selesai. Materi baru, jika ada, akan muncul di halaman Belajar.", en: "Everything assigned to you is finished. Anything new will appear on your Learning page." },
   "siklus.lihat_sertifikat": { default: "Lihat sertifikat", en: "See the certificate" },
 
   "sync.offline": { default: "Sedang luring. Jawaban Anda disimpan dan dikirim saat tersambung lagi.", en: "You are offline. Your answers are saved and sent once you are back on." },
@@ -4164,10 +4164,11 @@ const table: Table = {
   "studio.tinjau.penulis": { default: "Penyusun", en: "Author" },
   "studio.tinjau.bukan_penulis": { default: "Anda menyusun bagian ini, jadi orang lain yang meninjaunya.", en: "You wrote this part, so somebody else reviews it." },
   "studio.kanonik.judul": { default: "Pustaka PINTAR", en: "PINTAR Library" },
-  "studio.kanonik.penjelasan": { default: "Paket yang disusun PINTAR dan diizinkan untuk sekolah Anda. Bisa ditugaskan, tidak bisa disunting.", en: "Packages PINTAR wrote and opened to your school. They can be assigned; they cannot be edited." },
+  // W2.14 (UX-19): giving a package to a class has one verb, «menyediakan untuk kelas», as Siapkan → Sediakan and studio.langkah.terbitkan.arti say it
+  "studio.kanonik.penjelasan": { default: "Paket yang disusun PINTAR dan diizinkan untuk sekolah Anda. Bisa disediakan untuk kelas, tidak bisa disunting.", en: "Packages PINTAR wrote and opened to your school. They can be made available to classes; they cannot be edited." },
   "studio.kanonik.kosong": { default: "Belum ada paket PINTAR yang diizinkan untuk sekolah Anda.", en: "No PINTAR package has been opened to your school yet." },
   "studio.kanonik.ditarik": { default: "Izin untuk paket ini sudah berakhir. Murid yang sedang mengerjakan tetap bisa menyelesaikannya; pengerjaan baru tidak dibuka lagi.", en: "The permission for this package has ended. Students already working on it can finish; no new attempt opens." },
-  "studio.kanonik.hanya_baca": { default: "Hanya dapat dibaca dan ditugaskan.", en: "Readable and assignable only." },
+  "studio.kanonik.hanya_baca": { default: "Hanya dapat dibaca dan disediakan untuk kelas.", en: "Readable, and can be made available to classes only." },
   // W1.14 (Batch 3): a lesson's two counts each say what they count, never «3 · 8»
   "studio.kanonik.unit.tujuan": { default: "tujuan pembelajaran", en: "learning objectives" },
   "studio.definisi.judul": { default: "Aturan Asesmen", en: "Assessment Rules" },
@@ -4956,8 +4957,8 @@ const table: Table = {
 
   // ── Belajar · Netral (§C2) — the executable learner variant
   "tur.nt.1.judul": { default: "Mulai dari daftar ini", en: "Start from this list" },
-  "tur.nt.1.isi": { default: "Semua yang ditugaskan ada di sini, sudah diurutkan. Yang paling atas dikerjakan lebih dulu; tombolnya membuka langkah berikutnya.", en: "Everything assigned is here, already in order. Begin with the one at the top — its button opens the next step." },
-  "tur.nt.1.kosong": { default: "Saat ada materi yang ditugaskan, kartunya muncul di sini, lengkap dengan tombol untuk memulai.", en: "When something is assigned, its card appears here, with a button to begin." },
+  "tur.nt.1.isi": { default: "Semua yang disediakan untuk Anda ada di sini, sudah diurutkan. Yang paling atas dikerjakan lebih dulu; tombolnya membuka langkah berikutnya.", en: "Everything assigned is here, already in order. Begin with the one at the top — its button opens the next step." },
+  "tur.nt.1.kosong": { default: "Saat ada materi yang disediakan untuk Anda, kartunya muncul di sini, lengkap dengan tombol untuk memulai.", en: "When something is assigned, its card appears here, with a button to begin." },
   "tur.nt.2.judul": { default: "Setiap materi punya lima langkah", en: "Every assignment has five steps" },
   "tur.nt.2.isi": { default: "Pemetaan Awal, Peta Bacaan, Pelajaran, Uji Penguasaan, lalu Hasil. Satu langkah terbuka pada satu waktu; Pemetaan Awal bukan ujian. Uji Cepat dari guru berada di luar lima langkah ini dan muncul di daftar Belajar.", en: "Initial Mapping, Reading Map, Lessons, Mastery Check, then Results. One step is open at a time; the Initial Mapping is not a test. A Quick Assessment from a teacher sits outside these five steps and appears in the Learning list." },
   "tur.nt.3.judul": { default: "Tempat membaca dan menonton", en: "Where you read and watch" },
@@ -4991,8 +4992,8 @@ const table: Table = {
 
   // ── Belajar · Menengah (§C) — dormant until a legitimate stage signal exists
   "tur.sm.1.judul": { default: "Yang perlu dikerjakan", en: "What to do" },
-  "tur.sm.1.isi": { default: "Materi yang ditugaskan ada di sini, sudah diurutkan. Mulai dari yang paling atas; tombolnya membawa ke langkah berikutnya.", en: "Everything assigned is here, already in order. Start at the top — its button takes you to the next step." },
-  "tur.sm.1.kosong": { default: "Materi yang ditugaskan akan muncul di sini, sudah diurutkan. Yang paling atas dikerjakan lebih dulu.", en: "Assigned work will appear here, already in order. The one at the top comes first." },
+  "tur.sm.1.isi": { default: "Materi yang disediakan untuk Anda ada di sini, sudah diurutkan. Mulai dari yang paling atas; tombolnya membawa ke langkah berikutnya.", en: "Everything assigned is here, already in order. Start at the top — its button takes you to the next step." },
+  "tur.sm.1.kosong": { default: "Materi yang disediakan untuk Anda akan muncul di sini, sudah diurutkan. Yang paling atas dikerjakan lebih dulu.", en: "Assigned work will appear here, already in order. The one at the top comes first." },
   "tur.sm.2.judul": { default: "Lima langkah di setiap materi", en: "Five steps in every assignment" },
   "tur.sm.2.isi": { default: "Pemetaan Awal, Peta Bacaan, Pelajaran, Uji Penguasaan, lalu Hasil. Hanya satu langkah yang terbuka pada satu waktu. Pemetaan Awal bukan ujian.", en: "Initial Mapping, Reading Map, Lessons, Mastery Check, then Results. Only one step is open at a time. The Initial Mapping is not a test." },
   "tur.sm.3.judul": { default: "Tempat belajar", en: "Where you learn" },

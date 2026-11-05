@@ -334,3 +334,32 @@ aturanTests.push({
   },
 });
 
+
+/**
+ * W2.14 (UX-19, D-135(d), D-191 K1): ONE VERB FOR GIVING A PACKAGE TO A CLASS. The teacher «menyediakan» it (Siapkan →
+ * Sediakan; studio.langkah.terbitkan.arti), and the learner meets what is «disediakan untuk Anda». «Tugaskan» stays only
+ * where the school places STAFF (a teacher placed in a Kelas, the school assigning a teacher to a scope): a different act.
+ */
+export const PENEMPATAN_STAF = new Set(["config.struktur.galat.masih_ada_staf", "config.struktur.intro", "tur.pg.2.kosong", "mengajar.kelas.intro"]);
+export function kataTugaskan(hle: string): string[] {
+  const out: string[] = [];
+  for (const m of hle.matchAll(/^\s*"([a-z0-9_.]+)": \{ default: "([^"]*)"/gm)) {
+    // the verb in its forms: tugaskan, ditugaskan, menugaskan(nya) (Indonesian drops the t after «me-»)
+    if (/\b(?:di)?tugaskan\b|\bmenugaskan(?:nya)?\b/i.test(m[2]) && !PENEMPATAN_STAF.has(m[1])) out.push(m[1]);
+  }
+  for (const m of hle.matchAll(/\b[A-Z]+: \{ id: "([^"]*)"/g)) if (/\bditugaskan\b/i.test(m[1])) out.push(`(stage variant) ${m[1].slice(0, 40)}`);
+  return out;
+}
+aturanTests.push({
+  id: "W214-KATA-01",
+  run: async (ctx) => {
+    const c = new Checks();
+    const hle = readFileSync(join(ctx.repoRoot, "src", "lib", "hle.ts"), "utf8");
+    const salah = kataTugaskan(hle);
+    c.expect(salah.length === 0, `«ditugaskan / menugaskan» names giving a package to a class in: ${salah.join(", ")}`);
+    for (const k of PENEMPATAN_STAF) c.expect(new RegExp(`"${k.replace(/\./g, "\\.")}": \\{ default: "[^"]*(?:tugaskan|menugaskan)`).test(hle), `${k} is declared as staff placement but no longer says it: remove its line`);
+    c.expect(kataTugaskan(`  "x.ditanam": { default: "Belum ada materi yang ditugaskan untuk Anda.", en: "x" },`).length === 1
+      && kataTugaskan(`  "x.ditanam": { default: "Guru dapat menugaskannya ke kelas.", en: "x" },`).length === 1, "a planted «ditugaskan» or «menugaskannya» is not caught");
+    return c.verdict("in src/lib/hle.ts no Indonesian string uses «ditugaskan / menugaskan» for giving a package to a class (the verb is «menyediakan» / «disediakan»); it stays only in the four staff-placement strings, each still saying it; a planted one is caught");
+  },
+});
