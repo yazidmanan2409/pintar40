@@ -3569,9 +3569,11 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-opsi-daftar .pin-opsi-kunci { border-left-color: var(--pintar-primary); background: var(--pintar-primary-soft); }
 .pin-opsi-huruf { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: var(--radius-pill); border: 1px solid var(--line-strong); font-weight: var(--weight-strong); color: var(--ink-2); }
 .pin-opsi-daftar .pin-opsi-kunci .pin-opsi-huruf { background: var(--pintar-primary); border-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
-.pin-opsi-isi { display: grid; gap: var(--space-1); min-width: 0; }
+.pin-opsi-isi { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-1); min-width: 0; }  /* W6.4: one shrinkable column; an auto track grew past its box at 320 px */
 .pin-opsi-teks { margin: 0; overflow-wrap: anywhere; }
 .pin-opsi-alasan { margin: 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); overflow-wrap: anywhere; }
+/* W6.4: in an option's reason the misconception code may break at its hyphens (never inside a segment), so a 24-character code fits the 125 px column at 320 px instead of leaving the page */
+.pin-opsi-alasan .pin-kode { white-space: normal; overflow-wrap: break-word; max-width: 100%; }
 @media (max-width: 560px) {
   .pin-soal-daftar > .pin-soal > article { padding: var(--space-4); }
   .pin-opsi-daftar .pin-opsi { grid-template-columns: 24px minmax(0, 1fr); }

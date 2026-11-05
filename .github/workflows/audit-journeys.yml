@@ -133,6 +133,16 @@ jobs:
           APP_DIR: ${{ github.workspace }}/app
           OUT_DIR: ${{ github.workspace }}/audit-out/crawl
         run: node crawl.mjs
+      # W6.2 (CR-58, U-PERF): each role's first screens, timed in the browser (worst of three ≤ 3 s). On the runner
+      # with the stack beside it this is a regression gate, not the staging measurement of record. Only reads.
+      - name: Time each role's first screen (W6.2)
+        if: ${{ !cancelled() }}
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/layar-pertama
+        run: node perf/layar-pertama.mjs
       # W6.5 (Batch 3): the whole Studio path by the screens in the seeded world: a Guru's never-imported chapter, a
       # failed upload fixed, one send-back and resubmission, approval by the head of department, publication by the
       # admin, assignment and the learner opening it. Runs after the crawl (which only reads), even when the crawl
