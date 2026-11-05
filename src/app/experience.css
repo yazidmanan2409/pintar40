@@ -3072,9 +3072,12 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
   }
   .pin-staf .pin-merek { height: var(--logo-height-phone); }
   .pin-staf-kepala { order: 0; display: flex; align-items: center; min-height: var(--shell-bar); }
+  /* W6.4: the page's name wraps onto a second line rather than being cut off: at 320 px, beside the logo and the menu
+     button, it has about 78 px, and «Laporkan masalah», «Konfigurasi» or «Ringkasan Kelas» lost their ends */
   .pin-staf .pin-bar-tempat {
     order: 1; flex: 1; min-width: 0;
-    font-weight: var(--weight-strong); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-weight: var(--weight-strong); white-space: normal; overflow-wrap: anywhere; line-height: var(--leading-tight);
+    padding-block: var(--space-1);
   }
   .pin-staf .pin-sesi { order: 2; width: auto; border: 0; padding: 0; flex-wrap: nowrap; }
   .pin-staf .pin-sesi-ket, .pin-staf .pin-sesi-akun { display: none; }

@@ -128,7 +128,12 @@ const KLIP = () => {
     if (!teks) continue;
     const lebih = (potongX && el.scrollWidth > el.clientWidth + 1) || (potongY && el.scrollHeight > el.clientHeight + 1);
     if (!lebih || tersembunyi(el)) continue;
-    const utuh = [el.getAttribute("title"), el.getAttribute("aria-label")].some((t) => t && t.replace(/\s+/g, " ").trim().includes(teks.replace(/\s+/g, " ").slice(0, 40)));
+    // the whole text reachable from the element or the control or label holding it (three levels up): its title or aria-label
+    const cari = teks.replace(/\s+/g, " ").slice(0, 40);
+    let utuh = false;
+    for (let a = el, i = 0; a && i < 4 && !utuh; a = a.parentElement, i++) {
+      utuh = [a.getAttribute("title"), a.getAttribute("aria-label")].some((t) => t && t.replace(/\s+/g, " ").trim().includes(cari));
+    }
     if (utuh) continue;
     sebab.push(`${nama(el)} «${teks.replace(/\s+/g, " ").slice(0, 40)}» (${el.scrollWidth}×${el.scrollHeight} in ${el.clientWidth}×${el.clientHeight})`);
     if (sebab.length >= 4) break;
