@@ -19,11 +19,11 @@ request. Production is out of scope entirely.
 
 | # | Check | Answer | Where |
 |---|---|---|---|
-| 1 | CI and full journeys GREEN on the final promotion revision | **Pending on the final head.** CI and journeys are dispatched on the revision that carries this page; the recommendation in §9 holds only if both are green on that exact SHA. The previous code heads, `c9fec859` and `20238a22`, are green and are not counted as this head's evidence. | §9 |
+| 1 | CI and full journeys GREEN on the final promotion revision | **b097b747 was NOT green:** journeys 41982416596 green (both jobs), but CI 41982412257 failed three tests (UX1-S1-KAKI-01, B6K-QR-01, BOB51-S01). P-2's new sentence wrote the domain into the copy table, and BOB51-S01 counted four reasons. Fixed in the following commit: the sentence names «alamat milik PINTAR» instead, and BOB51-S01 is restated to five reasons, the held one asserted to show **no** send-log reference. The whole suite is green locally on a reset database (841 passed, 0 failed). CI and journeys run again on the new head; only that head's runs count. | §9 |
 | 2 | The Batch 6 gate (D-159) reconciled; any unmet mandatory condition | Conditions (a)–(g) are met on the branch. **No mandatory condition blocks staging.** Two items remain **acceptance** items, not staging blockers: F-11 (with the print proofs) and the D1 real-client protocol (P5/P6). D1 leaves the branch only by P-1. | §5 |
 | 3 | Rollback covers migration bookkeeping and partial failure | **Yes, tested.** Each of the three states a deployment can leave (193, 194 only, 195) was tested locally from its real state, and so was running the script twice. Each ends at exactly 193 recorded migrations with 193's schema, and a re-apply restores 195. | §7 |
 | 4 | 96 versus 106 sittings | **96 is authoritative** (read-only count by slug: all OFFICIAL, all over the exposed chapter, the newest of 9 Oct). «106» was an arithmetic slip, corrected in D-184's evidence page and E-K6-4, and marked *sic* in D-185's row. | `evidence/staging-96-sesi.md` |
-| 5 | Email isolation or an enforceable synthetic-recipient allowlist; no unrestricted real-inbox sending | **Built and tested** (`17763949`). Outside production's origin, PINTAR sends only to its own domain or to reserved test domains, unless a reviewed change names an address. Anything else is held: not sent, not logged. | §4 |
+| 5 | Email isolation or an enforceable synthetic-recipient allowlist; no unrestricted real-inbox sending | **Built and tested** (`17763949`); **selected as built by D-187**. Outside production's origin, PINTAR sends only to its own domain or to reserved test domains, unless a reviewed change names an address. Anything else is held: not sent, not logged. | §4 |
 | 6 | K1/K2 provisional wording and staging-only records, never represented as accepted production data | **Kept provisional and recorded as such.** No word is marked accepted; staging records stay on staging. | §6 |
 
 ## 1. What would be promoted
@@ -244,7 +244,9 @@ locally on 5 Nov, each from its real state:
 
 ## 9. Go/no-go recommendation
 
-**Revision:** the head that carries this page (named in the covering report). Its CI and journeys runs are dispatched.
+**Revision:** the head that carries this revision of the page (named in the covering report), after `b097b747`'s CI failure was fixed. Its CI and journeys runs are dispatched.
+
+**D-188 adds a condition:** a recoverable staging Storage backup, restored in an isolated test, before P-1 (owner actions O3–O6, then the coordinator's runs; the staging path proof is already green, run 41985505792).
 
 **Recommendation: GO for P-1, staging only, conditional on:**
 - CI and both journeys jobs green on that exact SHA;
