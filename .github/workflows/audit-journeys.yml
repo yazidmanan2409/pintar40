@@ -99,6 +99,14 @@ jobs:
           export NEXT_PUBLIC_APP_URL="http://127.0.0.1:${APP_PORT}"
           export CARD_PEPPER=synthetic-card-pepper-fable01-32plus CARD_EMAIL_DOMAIN=cards.synthetic.pintar.test
           export CERT_SECRET_KEY_V1=synthetic-certificate-key-fable04-32plus PINTAR_BUILD_SHA="$RELEASE_SHA"
+          # W6.10 J2.18: «Lupa password» queues a real code, so PINTAR's own email goes to a sink, as in job B. Without
+          # it both code screens answer «sedang tidak dapat memproses» alike (run 41968151150). The stack's Mailpit
+          # already holds 54324 here, so this sink takes its own ports; nothing leaves the runner.
+          docker run -d --name pintar-mailpit -p 127.0.0.1:54335:1025 -p 127.0.0.1:54334:8025 axllent/mailpit:v1.31.3 \
+            --smtp-auth-accept-any --smtp-auth-allow-insecure --disable-version-check
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:54334/api/v1/info >/dev/null && break; sleep 1; done
+          curl -sf http://127.0.0.1:54334/api/v1/info >/dev/null
+          export PINTAR_SMTP_HOST=127.0.0.1 PINTAR_SMTP_PORT=54335 PINTAR_SMTP_USER=noreply@pintarselalu.test PINTAR_SMTP_PASSWORD=sink-accepts-any
           npm run build > "$RUNNER_TEMP/build.log" 2>&1 || { tail -40 "$RUNNER_TEMP/build.log"; exit 1; }
           nohup npx next start -p "$APP_PORT" -H 127.0.0.1 > "$RUNNER_TEMP/app.log" 2>&1 &
           for i in $(seq 1 60); do curl -fsS -o /dev/null "http://127.0.0.1:${APP_PORT}/masuk" && break; sleep 2; done
