@@ -21,6 +21,7 @@ import { strukturTests } from "./struktur.test";
 import { unggahTests } from "./unggah.test";
 import { terbitanTests } from "./terbitan.test";
 import { penugasanTests } from "./penugasan.test";
+import { aturanTests } from "./aturan.test";
 import { sesiTests } from "./sesi.test";
 import { bob06Tests } from "./bob06.test";
 import { galatTests } from "./galat.test";
@@ -2119,6 +2120,7 @@ export const staticTests: SelfTest[] = [
   ...unggahTests,
   ...terbitanTests,
   ...penugasanTests,
+  ...aturanTests,
   ...sesiTests,
   ...bob06Tests,
   ...galatTests,

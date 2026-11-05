@@ -116,7 +116,7 @@ Status per screen: the design reconciliation found **J2, J5 and J6 not applied**
 
 | Id | Item | Source | Who | Batch | Status |
 |---|---|---|---|---|---|
-| W6.1 | **Universal rules as rule-level tests**: X.1, X.3, X.8, X.11, J3.11, J7.8 | CR-59 | E | 8 | IN PROGRESS (D-186, 5 Nov): J3.11 held by F28-J311 (`selftest/db/fable28.sql`) |
+| W6.1 | **Universal rules as rule-level tests**: X.1, X.3, X.8, X.11, J3.11, J7.8 | CR-59 | E | 8 | IN PROGRESS (D-186, 5 Nov): J3.11 held by F28-J311 (`selftest/db/fable28.sql`); J7.8 by D060-J78-01 (`selftest/aturan.test.ts`; three applied migrations recorded as exceptions: drawing or finalization changed with old behaviour kept, stated outside D-060(d)'s form) |
 | W6.2 | U-PERF re-measured after L3 and the shell (≤ 3 s first screen; clicks < 3 s; p95) | CR-58, X.10 | E | 8 | NOT STARTED |
 | W6.3 | Level 3 coverage added: network loss (CR-30), educator as learner (J9), rollover, class move | CR-30, J6.8, J9 | E | 8 | NOT STARTED |
 | W6.4 | Crawl: clipping as well as overflow; axe; 1024–1279 px | X.6 | E | 0 / 8 | NOT STARTED |
