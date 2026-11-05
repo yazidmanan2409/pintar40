@@ -16,7 +16,7 @@ Each check names where it was run. The levels are kept apart:
 | **W6.4** the crawl: overflow and clipping at 320 / 640 / 1024 / 1280 px, axe, titles, skip link, keyboard focus | X.6 (U-DEVICE), L-a11y | local, `715f6f7d` + the fix below | **GREEN**: 14 personas, 55 distinct screens, 0 broken; 0 axe violations (WCAG 2.0–2.2 A and AA); every screen has a title and a skip link; no invisible or stuck focus; 0 overflow and 0 clipping at every width | §1 |
 | W6.4 | the same | CI journeys 42007065865 on `715f6f7d` | **GREEN** (before the fix: the runner's fonts kept the one overflow below the 1 px threshold) | the run |
 | **W6.2** first screen per role ≤ 3 s | U-PERF, X.10 | local pre-check | **GREEN**: worst of three at most 488 ms on 15 first screens across 6 roles | §2 |
-| W6.2 | U-PERF | staging | **PENDING P-1**: `perf-staging.yml` `journey` and `probe` on the promoted candidate | — |
+| W6.2 | U-PERF | staging, `main` 38d7e701, from GitHub's runner | **MEASURED, NOT MET for the admin**: the teacher's first screen 2.4–3.2 s; the admin's 4.6–5.7 s, and four admin steps over 3 s. The server answers in 0.36–0.61 s warm (TTFB). See §2b | §2b |
 | **W6.8** the 50-student test through the real app | CAP-02 at 50, STU-* | staging | **PENDING P-1**: `perf-l1.yml` `mode=browser` writes synthetic sittings on staging; today it would measure Batch 5 | — |
 | **W6.12** 200 % zoom, keyboard, contrast | L-a11y | local | **GREEN** at 640 px (1280 at 200 %) and the keyboard walk (§1); colour vision §3 | §1, §3 |
 | W6.12 NVDA (Windows) and TalkBack (Android) | L-a11y | human, devices | **NEEDS DEVICES**: this environment has neither; see §4 | — |
@@ -61,6 +61,43 @@ It now runs in CI's journeys after the crawl, as a regression gate.
 
 **What this does not prove:** staging's network, Vercel's cold starts and Supabase's compute tier. The U-PERF row stays
 on its staging evidence until the promoted candidate is measured.
+
+## 2b · W6.2 on staging (5 Nov, after P-1)
+
+**Probe** (`perf-staging.yml` `probe`, run 42064343924):
+- the server code runs in `sin1` (Singapore), beside Supabase;
+- time to first byte on `/masuk`, `/masuk?peran=staf` and `/`: 0.36–0.61 s warm; 1.55 s on the first, cold request.
+
+**Journey** (`perf-staging.yml` `journey`, run 42105894283, three reps):
+- timed from a click (or the sign-in) to a usable page (its h1 shown);
+- synthetic staff only (D-046(c)).
+
+| Role | Step | rep 1, 2, 3 (ms) |
+|---|---|---|
+| admin | sign-in → Konfigurasi | 5729, 4575, 4972 |
+| admin | click Aktivasi akun | 1824, 1833, 1828 |
+| admin | click Studio · Buat Paket · Antrean Tinjauan · Bank Soal | 52–64 · 1309–1739 · 531–1133 · 1187–1360 |
+| admin | open Konfigurasi | 3298, 3414, 3293 |
+| admin | click Laporan (the section page) | 4304, 4986, 3468 |
+| admin | click Ringkasan sekolah | 1397, 2476, 1075 |
+| admin | save «Ubah nama», click → result line (click → «saving» 2–4 ms) | 4404, 4913, 3909 |
+| guru | sign-in → Mengajar | 3216, 2976, 2358 |
+| guru | click the class · click Siapkan | 1320–1813 · 1223–1269 |
+
+**What it shows:**
+- **The teacher's first screen:** at or under 3 s on reps 2 and 3.
+- **The admin's first screen:** over 3 s on every rep (4.6–5.7 s). So are these admin steps:
+  - the Konfigurasi index (3.3–3.4 s);
+  - its «Laporan» section (3.5–5.0 s);
+  - a save's result line (3.9–4.9 s). The save acknowledges the click at once, within 4 ms (D-046(e)).
+- **Where the time goes:** the server's own first byte is fast (above). The rest is page work and the round trips from GitHub's runner, which is not in Indonesia. These figures are upper bounds for a reader beside the server.
+- **The verdict:** it is not ours to soften. **U-PERF stays open for the admin's Konfigurasi pages.** The next step is to measure from a browser in the region, or to profile what the Konfigurasi index and «Laporan» load per request.
+
+**Harness defects fixed to get these figures:**
+1. The synthetic staff were held at the activation wizard (BOB-26) since the identity foundation. Every earlier journey timed out at sign-in, and the job still read green (run 42064350172).
+   - `lib.mjs` `settle()` now answers the wizard once, by its own screens, before anything is timed.
+   - The journey is now red when a step fails.
+2. The school summary moved to Konfigurasi's «Laporan» section (B1). The journey clicks it there (run 42104311580).
 
 ## 3 · W6.12: colour vision (local, 5 Nov)
 
