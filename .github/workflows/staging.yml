@@ -105,7 +105,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"   # W9.18: the production apply job runs the same (Node 20 is past end of life)
 
       - name: Install the pinned Supabase CLI
         run: npm i -g supabase@2.117.0

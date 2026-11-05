@@ -113,7 +113,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'   # W9.18: Node 20 is past end of life; staging.yml and restore-rehearsal.yml run the same, so staging proves it first
 
       - name: Install the pinned Supabase CLI
         run: npm i -g supabase@2.117.0
