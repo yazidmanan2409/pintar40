@@ -1,0 +1,8 @@
+# D-183 · selftest/db/fable27.sql against the database without the migration's objects (dropped inside a rolled-back transaction), 4 Nov. X05 (synthetic schools keep working) is green before and after: it guards condition (2).
+F27-X01|f|3 problem(s): a real school given an exposed chapter answered ok -- it was assigned; the refused assignment left a learning assignment behind; the exposed title in another case and spacing answered ok -- it was assigned
+F27-X02|f|1 problem(s): the test could not run: relation "public.exposed_content_marks" does not exist
+F27-X03|f|1 problem(s): the test could not run: relation "public.exposed_content_marks" does not exist
+F27-X04|f|1 problem(s): a real learner starting an exposed Pemetaan Awal answered ok -- it started
+F27-X05|t|while the school was synthetic, «Matematika Kelas 5 · Bab 6: Sudut» was assigned to its class and its learner started the Pemetaan Awal as SYNTHETIC evidence
+F27-X06|f|1 problem(s): the test could not run: relation "public.exposed_content_marks" does not exist
+F27-DONE|t|FABLE-27 suite complete; every row rolled back

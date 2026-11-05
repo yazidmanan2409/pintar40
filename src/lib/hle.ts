@@ -1510,7 +1510,7 @@ export type HleEvent =
   | "mengajar.sedia.kode.assign_post_test_too_short"
   | "mengajar.sedia.kode.assign_cycle_overlap"
   | "mengajar.siap.asal.pintar" | "mengajar.siap.asal.sekolah"
-  | "mengajar.sedia.kode.assign_pass_mark_missing" | "mengajar.sedia.batas" | "mengajar.sedia.batas_belum"
+  | "mengajar.sedia.kode.assign_pass_mark_missing" | "mengajar.sedia.kode.assign_exposed_content" | "mengajar.sedia.batas" | "mengajar.sedia.batas_belum"
   | "mengajar.sedia.kode.assign_input_invalid"
   | "mengajar.sedia.kode.assign_failed"
   | "cycle.pemetaan.belum_ada"
@@ -5508,6 +5508,8 @@ const table: Table = {
   "mengajar.sedia.kode.assign_pre_test_too_short": { default: "Soal Pemetaan awal di materi ini kurang dari yang diminta.", en: "This material has fewer Initial Mapping questions than it asks for." },
   "mengajar.sedia.kode.assign_post_test_too_short": { default: "Soal Cek penguasaan di materi ini kurang dari yang diminta.", en: "This material has fewer Mastery Check questions than it asks for." },
   "mengajar.sedia.kode.assign_cycle_overlap": { default: "Soal Cek penguasaan berada di kelompok paralel yang sama dengan soal Pemetaan awal, sehingga tidak bisa dipakai. Pisahkan kelompoknya lalu terbitkan ulang.", en: "The Mastery Check questions share a parallel group with the Initial Mapping questions, so they cannot be used. Separate the groups and publish again." },
+  // D-183 (F-4(f)): proposed words, awaiting Dr Gladys (K1 B35)
+  "mengajar.sedia.kode.assign_exposed_content": { default: "Soal Pemetaan Awal dan Cek penguasaan pelajaran ini pernah terbuka untuk umum, jadi tidak dapat dipakai sebagai penilaian di sekolah. Gunakan versi pelajaran yang soalnya sudah diganti.", en: "This lesson's Pemetaan Awal and Cek penguasaan questions were once made public, so they cannot be used as an assessment in a school. Use a version of the lesson whose questions have been replaced." },
   "mengajar.sedia.kode.assign_pass_mark_missing": { default: "Batas ketuntasan pelajaran ini belum ditetapkan, jadi pelajaran ini belum bisa disediakan untuk kelas. Admin sekolah menetapkannya di Konfigurasi → Batas ketuntasan.", en: "This lesson has no pass mark yet, so it cannot be given to a class. The school admin sets it in Configuration → Pass mark." },
   "mengajar.sedia.batas": { default: "Batas ketuntasan:", en: "Pass mark:" },
   "mengajar.siap.asal.pintar": { default: "Materi PINTAR", en: "PINTAR material" },

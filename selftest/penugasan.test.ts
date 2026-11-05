@@ -34,11 +34,16 @@ export const penugasanTests: SelfTest[] = [
       // assignment tables (enforce_assignment_context), which every path that gives a place material passes through
       const batas = readFileSync(join(root, "supabase", "migrations", "20261118100000_an_educator_learns_as_a_participant.sql"), "utf8");
       const dariBatas = /create or replace function public\.enforce_assignment_context[\s\S]*?assign_refuse\('(ASSIGN_[A-Z_]+)'\)/.exec(batas)?.[1];
-      const semuaDb = [...dariDb, ...(dariSegel ? [dariSegel] : []), ...(dariBatas ? [dariBatas] : [])].sort();
+      // RESTATED FOR D-183 (a new requirement, F-4(f)): one more, raised by the exposure guard on the assessment
+      // assignment (refuse_exposed_assignment), which every path that gives a class a Pemetaan Awal or Cek penguasaan
+      // passes through. The code is read from the guard's own source, so a renamed or removed code fails here
+      const paparan = readFileSync(join(root, "supabase", "migrations", "20261228100000_exposed_questions_never_give_a_real_verdict.sql"), "utf8");
+      const dariPaparan = /create or replace function public\.refuse_exposed_assignment[\s\S]*?errcode = 'PR050', detail = '(ASSIGN_[A-Z_]+)'/.exec(paparan)?.[1];
+      const semuaDb = [...dariDb, ...(dariSegel ? [dariSegel] : []), ...(dariBatas ? [dariBatas] : []), ...(dariPaparan ? [dariPaparan] : [])].sort();
       c.expect(JSON.stringify(semuaDb) === JSON.stringify([...KODE_PENUGASAN_DB].sort()),
         `assign_refuse and the assignment's seal know ${semuaDb.join(",")} and the contract names ${KODE_PENUGASAN_DB.join(",")}`);
       const assign = /create function public\.assign_release[\s\S]*?end \$\$;/.exec(sql)?.[0] ?? "";
-      for (const k of KODE_PENUGASAN_DB.filter((x) => x !== dariSegel && x !== dariBatas)) {
+      for (const k of KODE_PENUGASAN_DB.filter((x) => x !== dariSegel && x !== dariBatas && x !== dariPaparan)) {
         c.expect(assign.includes(`assign_refuse('${k}')`), `the contract names ${k} and assign_release never raises it`);
       }
       c.expect(/assign_refuse\('CYCLE_NOT_ASSIGNED'\)/.test(

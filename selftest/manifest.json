@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 202,
+  "version": 203,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1966,7 +1966,7 @@
     {
       "id": "BOB04-K01",
       "runner": "static",
-      "proves": "BOB-04 (D-008, D-011, D-014). Read from the migration source and the source files src/lib/penugasan-kontrak.ts, src/app/mengajar/actions.ts, src/app/mengajar/[kelas]/siapkan/page.tsx and the learner pages src/app/belajar/[tugas]/pemetaan/page.tsx and penguasaan/page.tsx: the codes assign_refuse raises for assigning are exactly the contract's and each is raised; every code has a copy key in both languages without machinery words; sediakanMateri calls assign_release with its declared arguments; the review page shows a refused code's sentence; and neither learner test page can answer 404."
+      "proves": "BOB-04 (D-008, D-011, D-014). Read from the migration source and the source files src/lib/penugasan-kontrak.ts, src/app/mengajar/actions.ts, src/app/mengajar/[kelas]/siapkan/page.tsx and the learner pages src/app/belajar/[tugas]/pemetaan/page.tsx and penguasaan/page.tsx: the codes assign_refuse raises for assigning are exactly the contract's and each is raised (with the seal's, the boundary's and, since D-183, the exposure guard's code read from migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql); every code has a copy key in both languages without machinery words; sediakanMateri calls assign_release with its declared arguments; the review page shows a refused code's sentence; and neither learner test page can answer 404."
     },
     {
       "id": "F12-N03",
@@ -4495,6 +4495,36 @@
       "id": "F26-W01",
       "runner": "db",
       "proves": "W2.10 (Batch 5; D-153; M7 and CR-91 kept), selftest/db/fable26.sql, migration 20261224100000: persons_awaiting_account_page answers 20 then 3 of 23 waiting by name with the total, by part of a name and by nomor induk, «%» as a word, nothing narrowed to another school, a staff member with no card; kelas_menunggu_akun counts the Kelas and no Tingkat; orang_kelas_menunggu_akun names exactly the 23 waiting learners each once in name order, not one with an account, an ENDED enrolment, a Tingkat membership or a staff role; a Guru and another school's admin read none of it; anon cannot run them."
+    },
+    {
+      "id": "F27-X01",
+      "runner": "db",
+      "proves": "D-183(1) (F-4(f); K6), selftest/db/fable27.sql, migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql: in the learning-cycle school made real (is_synthetic false, production environment), the teacher's assign_release of a published lesson carrying one of the 20 exposed chapter titles is refused PR050 ASSIGN_EXPOSED_CONTENT by assessment_assignments_zz_exposed_is_not_assessed and leaves no learning assignment; the title in another case and spacing is refused too; an ordinary lesson is given in the same school."
+    },
+    {
+      "id": "F27-X02",
+      "runner": "db",
+      "proves": "D-183(1), selftest/db/fable27.sql, migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql: a lesson under a new title whose Pemetaan Awal question carries an exposed fingerprint (exposure_fingerprint: lowercased, trimmed, white space collapsed, sha256), and a correction of an exposed course that keeps such a question, are each refused ASSIGN_EXPOSED_CONTENT in a real school (course_is_exposed)."
+    },
+    {
+      "id": "F27-X03",
+      "runner": "db",
+      "proves": "D-183, selftest/db/fable27.sql, migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql: a regenerated chapter, a correction of the exposed course through the correction line (ingest_batches.revises_course_id) under the same title with new questions, is assigned normally in a real school."
+    },
+    {
+      "id": "F27-X04",
+      "runner": "db",
+      "proves": "D-183(1), selftest/db/fable27.sql, migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql: a Pemetaan Awal of an exposed chapter assigned while the school was synthetic cannot be sat once the school is real: the learner's start_learning_session is refused ASSIGN_EXPOSED_CONTENT by assessment_sessions_zz_exposed_is_not_assessed (OFFICIAL Pemetaan Awal and Cek penguasaan only)."
+    },
+    {
+      "id": "F27-X05",
+      "runner": "db",
+      "proves": "D-183(2), selftest/db/fable27.sql, migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql: synthetic schools keep working: in the synthetic learning-cycle school an exposed chapter is assigned to its class and its learner starts the Pemetaan Awal as SYNTHETIC evidence."
+    },
+    {
+      "id": "F27-X06",
+      "runner": "db",
+      "proves": "D-183, selftest/db/fable27.sql, migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql: exposed_content_marks holds 20 TITLE and 240 STEM marks of TERPAPAR_2026_11_02, each a 64-hex sha256 fingerprint and no text; an update or delete is refused EXPOSURE_MARK_FIXED; a signed-in school admin cannot read the table."
     },
     {
       "id": "B5C-MURID-K01",

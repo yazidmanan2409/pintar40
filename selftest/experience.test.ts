@@ -2078,7 +2078,11 @@ export const experienceTests: SelfTest[] = [
       // MOVED 192 -> 193 for Batch 5 (agent B, UX-40): 20261227100000 adds result_views (that a learner has opened their
       // own finished result: session, person, when) and two learner functions. Read against §3 first: it is not a mark, a
       // logo, a crest or a theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 193, `${migrations.length} migrations; the frozen baseline has 193`);
+      // MOVED 193 -> 194 for D-183 (F-4(f)): 20261228100000 adds exposed_content_marks (kind, fingerprint, exposure,
+      // recorded_at: the fingerprints of exposed chapter titles and questions) and the guards that refuse them as a real
+      // assessment. Read against §3 first: it is not a mark, a logo, a crest or a theme, so the Q-7 source still does not
+      // exist.
+      c.expect(migrations.length === 194, `${migrations.length} migrations; the frozen baseline has 194`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3890,7 +3894,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 189 -> 192 for Batch 5 (lead): certificate revocation, the integrity review and the paged waiting list touch
       // no tour RPC.
       // MOVED 192 -> 193 for Batch 5 (agent B, UX-40): a result's «seen» (result_views) touches no tour RPC.
-      c.expect(migs.length === 193, `${migs.length} migrations; the baseline has 193`);
+      // MOVED 193 -> 194 for D-183 (F-4(f)): the exposure marks and their two assignment and sitting guards touch no tour RPC.
+      c.expect(migs.length === 194, `${migs.length} migrations; the baseline has 194`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

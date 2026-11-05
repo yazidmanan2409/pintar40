@@ -197,6 +197,7 @@ In the card email: «Akun PINTAR Anda di {sekolah}.» But a PINTAR ID belongs to
 | B32 | `config.kelompok.*` | Sekolah dan tahun ajaran · Murid · Staf dan akses · Laporan dan templat · Dukungan | School and school year · Students · Staff and access · Reports and templates · Support | the group names in the staff navigation and Konfigurasi |
 | B33 | `config.pemeliharaan.tabrakan.*` | «Perhatian.» · «{n} asesmen dijadwalkan berlangsung selama periode ini.» · «Asesmen terakhir diperkirakan selesai …» · «Pertimbangkan memulai pemeliharaan setelah …» · «Tidak ada asesmen yang dijadwalkan selama periode ini.» | «Please note.» · «{n} assessments are scheduled to run during this period.» · «The last assessment is expected to finish on …» · «Consider starting maintenance after …» · «No assessment is scheduled during this period.» | scheduling maintenance over assessments (H19) |
 | B34 | `mengajar.cepat.hasil.belum` | Belum ada nilai. Rata-rata nilai kelas muncul di sini setelah ada yang mengumpulkan. | today «… The class average appears here …»; proposed «The class average score appears here once someone has handed in.», to match B4 (minor finding 1, `04-REKONSILIASI-BALIK.md` §7) | Uji Cepat result, before any score |
+| B35 | `mengajar.sedia.kode.assign_exposed_content` (D-183, added 4 Nov) | Soal Pemetaan Awal dan Cek penguasaan pelajaran ini pernah terbuka untuk umum, jadi tidak dapat dipakai sebagai penilaian di sekolah. Gunakan versi pelajaran yang soalnya sudah diganti. | This lesson's Pemetaan Awal and Cek penguasaan questions were once made public, so they cannot be used as an assessment in a school. Use a version of the lesson whose questions have been replaced. | Siapkan, when a teacher gives a class an exposed chapter |
 
 Already settled, nothing to answer: the school registration number («Nomor Registrasi Sekolah», D-174 / D-175), and «PINTAR ID» as the identifier's name.
 
@@ -211,6 +212,6 @@ Already settled, nothing to answer: the school registration number («Nomor Regi
 | A5, A6 | the Studio words (A4) and the application-wide terminology fix (X12) |
 | A7, A10 | the professional-learning page (C2) and the identity emails (D1) |
 | A8, A9 | Konfigurasi's platform view (B1) and the sign-in message |
-| Part B | every new word in the accepted designs, and E4, Daisy's last open item; B28–B31 the words the retrospective built or changed; B32–B34 the keys found missing from this pack |
+| Part B | every new word in the accepted designs, and E4, Daisy's last open item; B28–B31 the words the retrospective built or changed; B32–B34 the keys found missing from this pack; B35 the exposure refusal (D-183) |
 
 **Gate 2 (Terminology final, G:81) needs every A and B answered.** A placeholder left anywhere is a NO-GO.
