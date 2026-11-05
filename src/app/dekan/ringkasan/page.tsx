@@ -1,4 +1,6 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import Kosong from "@/components/Kosong";
+import { asalLaporan } from "@/lib/nama-tempat";
 import { tawarkanSekolahLain } from "@/lib/konteks-server";
 import { kepalaLaporan, namaTempat, templatUntuk } from "@/lib/laporan";
 import { currentLocale } from "@/lib/locale";
@@ -6,7 +8,7 @@ import { tanggal } from "@/lib/tanggal";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
 import { navKonteks } from "@/components/NavKonteks";
 import KakiPintar from "@/components/KakiPintar";
-import { BarisLingkup, kalimatJumlah } from "@/components/bukti";
+import { BarisLingkup, kalimatJumlah, labelMetrik } from "@/components/bukti";
 import { kunciMuncul } from "@/components/bukti/muncul";
 import NilaiLaporan from "@/components/bukti/NilaiLaporan";
 import AksiLaporan from "@/components/laporan/AksiLaporan";
@@ -40,9 +42,11 @@ export const dynamic = "force-dynamic";
 export default async function RingkasanSekolah({
   searchParams,
 }: {
-  searchParams: Promise<{ simpul?: string }>;
+  searchParams: Promise<{ simpul?: string; dari?: string }>;
 }) {
-  const { simpul } = await searchParams;
+  const { simpul, dari } = await searchParams;
+  // H9: the way back is named by the place the report was opened from
+  const asal = asalLaporan(dari);
   const supabase = await supabaseServer();
   // L3 (§2.6): a report of another school's place is never shown in this context; the chooser offers that school
   if (simpul) {
@@ -90,12 +94,12 @@ export default async function RingkasanSekolah({
             </p>
           ) : null}
         </div>
-        <AksiLaporan kembali={s("laporan.kembali", "staff", locale)} cetak={s("laporan.cetak", "staff", locale)} />
+        <AksiLaporan kembali={s(asal.nama, "staff", locale)} ke={asal.ke} cetak={s("laporan.cetak", "staff", locale)} />
 
         {!template || !simpul ? (
-          <p className={card}>{s("laporan.kosong", "staff", locale)}</p>
+          <Kosong jenis="belum" kalimat={s("laporan.kosong", "staff", locale)} />
         ) : entries.length === 0 ? (
-          <p className={card}>{s("laporan.kosong", "staff", locale)}</p>
+          <Kosong jenis="belum" kalimat={s("laporan.kosong", "staff", locale)} />
         ) : (
           <>
             {/* P3 -- an all-omitted report is a valid report. It renders its
@@ -110,12 +114,12 @@ export default async function RingkasanSekolah({
                   {/* A metric the viewer may not see carries NO label: the
                       refusal must not disclose what it withheld. */}
                   {e.status === "ok" || e.status === "below_minimum" || e.status === "deprecated" ? (
-                    <h2 className="font-medium">{e.label_key ? s(e.label_key, "staff", locale) : ""}</h2>
+                    <h2 className="font-medium">{labelMetrik(e, "staff", locale)}</h2>
                   ) : null}
 
                   {e.status === "ok" ? (
                     <>
-                      <NilaiLaporan entry={e} locale={locale} tempat={tempat} />
+                      <NilaiLaporan entry={e} locale={locale} tempat={tempat} persona="staff" />
                       {/* S-3: the sentence is not optional and not conditional. */}
                       <p className="mt-2 text-sm text-black/70">{actionText(e, locale)}</p>
                     </>

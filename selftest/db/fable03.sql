@@ -181,6 +181,37 @@ revoke all on function selftest.answer_paper(uuid, boolean, boolean) from public
 grant execute on function selftest.cycle_fixture() to authenticated;
 grant execute on function selftest.answer_paper(uuid, boolean, boolean) to authenticated;
 
+-- W6.10 (20261229100000): the Uji Penguasaan waits for the learner's Pemetaan Awal to be finished, as the screens
+-- always had it. A test about the Uji Penguasaan alone first sits the Pemetaan Awal through, as the signed-in learner,
+-- all right; it asserts nothing about that sitting.
+create or replace function selftest.pre_finished(p_aa_pre uuid)
+returns uuid language plpgsql set search_path = public, pg_temp as $$
+declare v_s uuid;
+begin
+  v_s := public.start_learning_session(p_aa_pre);
+  perform selftest.answer_paper(v_s, true);
+  perform public.finish_my_session(v_s);
+  return v_s;
+end $$;
+revoke all on function selftest.pre_finished(uuid) from public;
+grant execute on function selftest.pre_finished(uuid) to authenticated;
+
+-- The same, from the Uji Penguasaan: when the database says it waits for the learner's Pemetaan Awal
+-- (PRE_TEST_NOT_FINALIZED), that Pemetaan Awal is sat through first; otherwise nothing is done.
+create or replace function selftest.pre_finished_for(p_aa_post uuid)
+returns uuid language plpgsql set search_path = public, pg_temp as $$
+declare v_pre uuid;
+begin
+  if (select e.reason from public.may_start_assessment(p_aa_post) e) is distinct from 'PRE_TEST_NOT_FINALIZED' then
+    return null;
+  end if;
+  select m.pre_test_assignment into v_pre from public.my_learning_assignments() m where m.post_test_assignment = p_aa_post;
+  if v_pre is null then raise exception 'the Uji Penguasaan waits for a Pemetaan Awal the learner is not given'; end if;
+  return selftest.pre_finished(v_pre);
+end $$;
+revoke all on function selftest.pre_finished_for(uuid) from public;
+grant execute on function selftest.pre_finished_for(uuid) to authenticated;
+
 
 -- Backdate the server-stamped first view so the hesitation window can be
 -- tested with a fast-forwarded clock rather than a real wait (§6's acceptance
@@ -516,6 +547,7 @@ begin
   perform selftest.purge_cycle_evidence();
   ok := true; detail := '';
   perform selftest.as_user('siklus-email@synthetic.pintar.test');
+  perform selftest.pre_finished(f.aa_pre);   -- W6.10: the Uji Penguasaan waits for the Pemetaan Awal
   s_post := public.start_learning_session(f.aa_post);
   perform selftest.answer_paper(s_post, true, true);   -- everything right except the safety-critical
   perform public.finish_my_session(s_post);
@@ -551,6 +583,7 @@ begin
   perform selftest.purge_cycle_evidence();
   ok := true; detail := '';
   perform selftest.as_user('siklus-email@synthetic.pintar.test');
+  perform selftest.pre_finished(f.aa_pre);   -- W6.10: the Uji Penguasaan waits for the Pemetaan Awal
   s_post := public.start_learning_session(f.aa_post);
   perform selftest.answer_paper(s_post, true);
   perform public.finish_my_session(s_post);
@@ -607,6 +640,7 @@ begin
   perform selftest.purge_cycle_evidence();
   ok := true; detail := ''; n2 := 0;
   perform selftest.as_user('siklus-email@synthetic.pintar.test');
+  perform selftest.pre_finished(f.aa_pre);   -- W6.10: the Uji Penguasaan waits for the Pemetaan Awal
   s := public.start_learning_session(f.aa_post);
   for r in select p.id as pid from public.presented_items p where p.session_id = s loop
     perform public.note_item_view(r.pid);          -- the view must exist before it can be aged
@@ -772,14 +806,12 @@ begin
   perform selftest.purge_cycle_evidence();
   ok := true; detail := '';
   perform selftest.as_user('siklus-email@synthetic.pintar.test');
-  s_pre := public.start_learning_session(f.aa_pre);
-  s_post := public.start_learning_session(f.aa_post);
   -- a pause is from IN_PROGRESS (doc 04 §2: CREATED → IN_PROGRESS at the first accepted answer), so each sitting is
-  -- begun with one answer, as the learner does; an untouched sitting is refused by the transition allow-list
-  v_pi := selftest.first_presented_of_type(s_post, 'MCQ_SINGLE');
-  perform public.record_answer(v_pi, 1, jsonb_build_object('posisi', selftest.pick_position(s_post, v_pi, true)));
-  v_pi2 := selftest.first_presented_of_type(s_pre, 'MCQ_SINGLE');
-  perform public.record_answer(v_pi2, 1, jsonb_build_object('posisi', selftest.pick_position(s_pre, v_pi2, true)));
+  -- begun with an answer, as the learner does; an untouched sitting is refused by the transition allow-list.
+  -- W6.10 (20261229100000): the Uji Penguasaan waits for the Pemetaan Awal to be finished, so the Pemetaan Awal is
+  -- answered and asked to pause while it runs, then finished, and only then is the Uji Penguasaan begun
+  s_pre := public.start_learning_session(f.aa_pre);
+  perform selftest.answer_paper(s_pre, true);
   begin
     perform public.pause_session(s_pre);
     ok := false; detail := detail || 'the Pemetaan Awal, whose definition does not allow pausing, was paused; ';
@@ -788,6 +820,10 @@ begin
       ok := false; detail := detail || 'the Pemetaan Awal''s pause was refused for another reason: ' || left(sqlerrm, 80) || '; ';
     end if;
   end;
+  perform public.finish_my_session(s_pre);
+  s_post := public.start_learning_session(f.aa_post);
+  v_pi := selftest.first_presented_of_type(s_post, 'MCQ_SINGLE');
+  perform public.record_answer(v_pi, 1, jsonb_build_object('posisi', selftest.pick_position(s_post, v_pi, true)));
   begin
     v_txt := public.pause_session(s_post)::text;
     if v_txt <> 'PAUSED' then ok := false; detail := detail || format('pausing the Uji Penguasaan answered %s; ', v_txt); end if;

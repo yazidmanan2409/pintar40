@@ -15,6 +15,10 @@
  * of how many are in the class now (M9: a learner who has moved away is in neither). With no score yet there is no
  * figure, never a zero standing in for one.
  *
+ * D-176 (O3 (a)): THE FIGURE NEEDS AT LEAST `AMBANG_NILAI_KELAS` SCORES. Below it the mean is not computed at all (it
+ * cannot leak into the page or its attributes); the page says how far it is. Each learner's own score is unaffected:
+ * the threshold governs the class figure only.
+ *
  * Pure, so a test drives exactly what the page shows.
  */
 
@@ -31,7 +35,7 @@ export type BarisHasilMurid = {
 
 export type HasilUjiCepat = {
   kelas: {
-    /** The mean of the scores shown (0..1); null when no learner has one. */
+    /** The mean of the scores shown (0..1); null below the threshold (D-176) and when no learner has one. */
     nilai: number | null;
     /** How many learners' scores make it. */
     dinilai: number;
@@ -43,6 +47,9 @@ export type HasilUjiCepat = {
 };
 
 export type SesiHasil = { id: string; person_id: string; status: string };
+
+/** D-176: the one place the Uji Cepat class figure's threshold is defined. */
+export const AMBANG_NILAI_KELAS = 5;
 
 const DIKUMPULKAN = new Set(["SUBMITTED", "FINALIZED"]);
 
@@ -71,7 +78,7 @@ export function susunHasilUjiCepat(
   const ada = murid.map((m) => m.nilai).filter((v): v is number => v !== null);
   return {
     kelas: {
-      nilai: ada.length === 0 ? null : ada.reduce((a, b) => a + b, 0) / ada.length,
+      nilai: ada.length < AMBANG_NILAI_KELAS ? null : ada.reduce((a, b) => a + b, 0) / ada.length,
       dinilai: ada.length,
       terdaftar: roster.length,
     },

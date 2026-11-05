@@ -12,6 +12,7 @@ import { BarisLingkup } from "@/components/bukti";
 import { mintaBacaUlang } from "../../actions";
 import { bacaKodeUlang } from "@/lib/ulang-kontrak";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { tanggal } from "@/lib/tanggal";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/ulang");
 
@@ -49,7 +50,8 @@ export default async function UlangKelas({
   const ctx = await ajar.kelas(id);
   const bahan = ctx && sp.penugasan ? await ajar.bahanUlang(id, ctx.ini.institusi, sp.penugasan) : null;
   if (!ctx || !bahan) {
-    return <HalamanPenolakan locale={locale} persona="educator" backHref={ctx ? `/mengajar/${id}/bukti` : "/mengajar"} backKey="mengajar.kembali" />;
+    return <HalamanPenolakan locale={locale} persona="educator" backHref={ctx ? `/mengajar/${id}/bukti` : "/mengajar"}
+      backKey={ctx ? "mengajar.soal.kembali" : "mengajar.kembali"} />;
   }
   // from a learner's record: that learner ticked; otherwise those under the target
   const dariMurid = sp.murid && bahan.murid.some((m) => m.id === sp.murid) ? sp.murid : null;
@@ -147,7 +149,7 @@ export default async function UlangKelas({
                 <div key={r.id} data-permintaan={r.orang}>
                   <dt>{r.nama}</dt>
                   <dd>
-                    {format.date(r.kapan, locale)} · {n(r.dibaca)} {s("mengajar.soal.dari")} {n(r.jumlah)} {s("mengajar.ulang.dibaca")}
+                    {tanggal(r.kapan, "baca", locale)} · {n(r.dibaca)} {s("mengajar.soal.dari")} {n(r.jumlah)} {s("mengajar.ulang.dibaca")}
                   </dd>
                 </div>
               ))}

@@ -168,7 +168,10 @@ export const bob51Tests: SelfTest[] = [
       const galatRute = [...rute.matchAll(/galat: "([A-Z_]+)"/g)].map((m) => m[1]);
       const alasan = [...(/alasan: ([^;]+);/.exec(kirim)?.[1] ?? "").matchAll(/"([A-Z_]+)"/g)].map((m) => m[1]);
       const kodePengaturan = [...(/export type KodeGalatPengaturan = ([^;]+);/.exec(pengaturan)?.[1] ?? "").matchAll(/"([A-Z_]+)"/g)].map((m) => m[1]);
-      c.expect(galatRute.length >= 5 && alasan.length === 4 && kodePengaturan.length === 3,
+      // MOVED 4 -> 5 reasons for P-2 (staging promotion, owner 5 Nov): DITAHAN_UJI, a send held outside production. It is
+      // never logged, so it is the one reason that must show NO send-log reference (asserted below), where the other
+      // four must each show theirs.
+      c.expect(galatRute.length >= 5 && alasan.length === 5 && alasan.includes("DITAHAN_UJI") && kodePengaturan.length === 3,
         `the route's answers were not all found (${galatRute.length} codes, ${alasan.length} reasons, ${kodePengaturan.length} setting codes)`);
       const rujukan = "3f2b8c1e-6a4d-4f7b-9c2e-1d5a7b9e0f12";
       const kunci = new Set<HleEvent>();
@@ -177,7 +180,8 @@ export const bob51Tests: SelfTest[] = [
       kunci.add(terkirim.kunci);
       for (const a of alasan) {
         const h = bacaHasilUji(502, { terkirim: false, alasan: a, rujukan }, NAMA);
-        c.expect(h.nada === "gagal" && h.kunci.startsWith("emailuji.alasan.") && h.rujukan === rujukan, `reason ${a} reads ${JSON.stringify(h)}`);
+        const rujukanBenar = a === "DITAHAN_UJI" ? h.rujukan === undefined : h.rujukan === rujukan;
+        c.expect(h.nada === "gagal" && h.kunci.startsWith("emailuji.alasan.") && rujukanBenar, `reason ${a} reads ${JSON.stringify(h)}`);
         kunci.add(h.kunci);
       }
       for (const g of kodePengaturan) {

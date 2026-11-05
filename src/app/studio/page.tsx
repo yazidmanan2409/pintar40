@@ -3,9 +3,12 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import { format, t, type HleEvent } from "@/lib/hle";
 import { card, studioInstitutions, tabSaya } from "./_lib";
+import { kalimatHasil } from "@/lib/galat-kontrak";
+import HasilDi from "@/components/HasilDi";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { posisiPaket, kunciSalinan } from "@/components/studio/langkah";
 import Kosong from "@/components/Kosong";
+import Ikon from "@/components/Ikon";
 import TandaTautan from "@/components/TandaTautan";
 import type { TabStudio } from "@/lib/studio-tab";
 
@@ -28,7 +31,7 @@ export const generateMetadata = judulHalaman("/studio");
 type Daftar = "ACTION_REQUIRED" | "BLOCKED";
 const DAFTAR: readonly Daftar[] = ["ACTION_REQUIRED", "BLOCKED"];
 
-export default async function StudioBeranda({ searchParams }: { searchParams: Promise<{ daftar?: string }> }) {
+export default async function StudioBeranda({ searchParams }: { searchParams: Promise<{ daftar?: string; bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string }> }) {
   const sp = await searchParams;
   const daftar = (DAFTAR as readonly string[]).includes(sp.daftar ?? "") ? sp.daftar as Daftar : null;
   const supabase = await supabaseServer();
@@ -69,6 +72,13 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
     : { data: [] as Array<{ course_id: string; status: string; published_at: string | null; created_at: string }> };
   const rilis = new Map(((rilisRows ?? []) as Array<{ course_id: string; status: string; published_at: string | null }>)
     .map((r) => [r.course_id, r]));
+  // A5 C1 (D-173(a)): a package a reviewer sent back carries why it is back, beside the step it is at; its latest review
+  // outcome, read under the reader's own row security as the package page reads it (W1.8)
+  const { data: tinjauanRows } = kursusIds.length > 0
+    ? await supabase.from("content_review_outcomes").select("course_id, outcome, decided_at").in("course_id", kursusIds)
+      .order("decided_at", { ascending: true })
+    : { data: [] as Array<{ course_id: string; outcome: string; decided_at: string }> };
+  const tinjauanTerakhir = new Map(((tinjauanRows ?? []) as Array<{ course_id: string; outcome: string }>).map((o) => [o.course_id, o.outcome]));
 
   const rows = ((buckets ?? []) as Array<{ bucket: string; institution_id: string; count: number }>)
     .filter((r) => byId.has(r.institution_id));
@@ -95,6 +105,9 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
 
   return (
     <div className="pin-studio-halaman">
+      {/* E-K4: an action that arrived without its package (a broken or stale form) comes back here, and is answered
+          here rather than nowhere */}
+      <HasilDi q={sp} bagian={["paket", "temuan", "koreksi"]} kalimat={kalimatHasil(sp, s, { ok: "studio.hasil.ok", gagal: "studio.hasil.gagal" })} />
       {/* RV-10 (D-140): no task waiting is not «no package»; the packages are listed below */}
       {rows.length === 0 ? (
         <p className={card}>{s("studio.beranda.tak_ada_tugas")}</p>
@@ -132,8 +145,10 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
               const r = rilis.get(c.id as string) ?? null;
               const posisi = posisiPaket({ statusKursus: c.status as string, terbitan: r ? { status: r.status } : null });
               // Daisy, Badge: one per row, the word carries it; a published package is done (✓), a withdrawn one neutral
-              const lencana = posisi.kini === "terbit" ? <span className="pin-pill pin-ok">{s("studio.langkah.terbit.judul")}</span>
-                : posisi.kini === "ditarik" ? <span className="pin-pill pin-neutral">{s("studio.langkah.ditarik.judul")}</span>
+              // one badge, drawn twice: beside the row, and as its marked narrow copy in the meta line (R3-LENCANA-01)
+              const lencana = (sempit: boolean) => posisi.kini === "terbit"
+                ? <span className="pin-pill pin-ok" data-salinan-sempit={sempit ? "" : undefined}>{s("studio.langkah.terbit.judul")}</span>
+                : posisi.kini === "ditarik" ? <span className="pin-pill pin-neutral" data-salinan-sempit={sempit ? "" : undefined}>{s("studio.langkah.ditarik.judul")}</span>
                 : null;
               return (
                 <Link key={c.id} href={`/studio/paket/${c.id}`} className="pin-row" data-posisi={posisi.kini ?? ""}>
@@ -142,10 +157,12 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
                     <span>{c.subject} · {c.grade_label} · {byId.get(c.institution_id) ?? "\u2014"}</span>
                     {posisi.kini && posisi.kini !== "terbit" && posisi.kini !== "ditarik"
                       ? <span>{s("studio.langkah.keadaan.kini")}: {s(kunciSalinan(posisi.kini, "judul"))}</span> : null}
-                    {/* under 640 px the row's badge sits in its meta line (experience.css) */}
-                    {lencana}
+                    {c.status === "VALIDATION_FAILED" && tinjauanTerakhir.get(c.id as string) === "SENT_BACK"
+                      ? <span className="pin-pill pin-attention pin-pill-ikon" data-dikembalikan=""><Ikon nama="triangle-alert" />{s("studio.paket.riwayat.dikembalikan")}</span> : null}
+                    {/* under 560 px the row's badge sits in its meta line (experience.css) */}
+                    {lencana(true)}
                   </span>
-                  {lencana}
+                  {lencana(false)}
                 </Link>
               );
             })}

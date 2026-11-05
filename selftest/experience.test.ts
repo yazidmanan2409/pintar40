@@ -54,6 +54,8 @@
  *   UX1-UB-TUTUP-01          Management ends collection; the backend decides what it became
  *   UX1-UB-BUKA-01           discovery names a teacher; opening re-decides, every time
  */
+import { tanggal as tanggalHelper } from "../src/lib/tanggal";
+const tanggalBaca = (x: string) => tanggalHelper(x, "baca", "id");
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -140,6 +142,16 @@ function teksPohon(n: Simpul, keluar: string[] = []): string[] {
   return keluar;
 }
 
+/** The text a screen reader takes as the name: an `aria-hidden` part (E1's rail tooltip, an avatar) is not read. */
+function namaPohon(n: Simpul, keluar: string[] = []): string[] {
+  if (n === null || n === undefined) return keluar;
+  if (typeof n === "string" || typeof n === "number") { keluar.push(String(n)); return keluar; }
+  const props = (n as { props?: Record<string, unknown> }).props;
+  if (props?.["aria-hidden"] === "true" || props?.["aria-hidden"] === true) return keluar;
+  for (const k of anakDari(n)) namaPohon(k, keluar);
+  return keluar;
+}
+
 function gayaPohon(n: Simpul, keluar: string[] = []): string[] {
   if (n === null || n === undefined || typeof n === "string" || typeof n === "number") return keluar;
   const gaya = (n.props ?? {}).style;
@@ -207,8 +219,10 @@ const WORD = /\b[a-z]+\b/gi;
  * (`CangkangStaf`, Konfigurasi and Studio). The guards that read the shell's branches read its own render here, and
  * the staff layout separately, so a check on one branch can never be satisfied by text in another.
  */
+// (E1: shellStaf became async when it began to draw the context control; located either way)
+const awalShellStaf = (src: string) => src.search(/\n(?:async )?function shellStaf\(/);
 function intiCangkang(src: string): string {
-  const i = src.indexOf("\nfunction shellStaf(");
+  const i = awalShellStaf(src);
   return i > 0 ? src.slice(0, i) : src;
 }
 function cabangCangkang(src: string, k: string): string {
@@ -219,7 +233,7 @@ function cabangCangkang(src: string, k: string): string {
   return inti.slice(i, akhir.length > 0 ? Math.min(...akhir) : inti.length);
 }
 function shellStafSrc(src: string): string {
-  const i = src.indexOf("\nfunction shellStaf(");
+  const i = awalShellStaf(src);
   const j = src.indexOf("\nexport async function CangkangStaf(");
   return i > 0 && j > i ? src.slice(i, j) : "";
 }
@@ -347,6 +361,8 @@ const RESET_SURFACES = [
   // «Keamanan akun», on the same shell and pin-* classes as «Kirim email uji».
   "src/app/id/[pintarId]/page.tsx",
   "src/app/konfigurasi/keamanan/page.tsx",
+  // B1: a section's page draws Konfigurasi's own page for one section; it holds no style of its own
+  "src/app/konfigurasi/[bagian]/page.tsx",
   // BOB-51: the platform admin's «Kirim email uji», on the same shell and pin-* classes as Aktivasi.
   "src/app/konfigurasi/email-uji/page.tsx",
   // BOB-29 (Gate 6): «PINTAR terkunci» and «Komputer siapa ini?», on the sign-in stage, built on the token set.
@@ -394,14 +410,15 @@ const PENDING_SURFACES: Record<string, string> = {
  * file, a literal and one line saying why.
  */
 const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
+  { file: "src/app/experience.css", literal: "220px",
+    reason: "B1 FormLayout: the design system's own pds-grid-2 column floor (components/bundle.css, written there as the same literal); a field pair's breakpoint, not a scale step, and B1 adds no token." },
   { file: "src/app/experience.css", literal: "794px",
     reason: "A4 is 210mm; at 96dpi that is 794px. It is the paper, not a scale step." },
-  { file: "src/app/experience.css", literal: "1123px",
-    reason: "A4 is 297mm; at 96dpi that is 1123px. Same reason as the width." },
+  // RESTATED, B6C (Batch 6, Daisy's sertifikat/ronde-2): the sheet is now set in millimetres (210 x 297 mm, a 20 mm
+  // text margin), so its 1123px height and its 72px padding are gone from the stylesheet and their exemptions with
+  // them. 794px stays: the sheet's box on screen is still capped at the paper's width.
   { file: "src/app/experience.css", literal: "96px",
     reason: "The QR is square and printed at a fixed size a camera can resolve." },
-  { file: "src/app/experience.css", literal: "72px",
-    reason: "The printed sheet's margin, chosen for paper rather than for a screen rhythm." },
   { file: "src/app/experience.css", literal: "56px",
     reason: "The shell header's height: one control row, sized by the 40px control plus its padding." },
   { file: "src/app/experience.css", literal: "44px",
@@ -472,6 +489,12 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The staff shell's breakpoint, bp-large (tokens.json): CSS cannot read a custom property inside @media." },
   { file: "src/app/experience.css", literal: "1023px",
     reason: "The staff shell's breakpoint, bp-large less one pixel (tokens.json): CSS cannot read a custom property inside @media." },
+  { file: "src/app/experience.css", literal: "1280px",
+    reason: "E1 (D-170(c)): bp-wide (tokens.json), where the staff navigation is expanded and the reader may collapse it to the rail; CSS cannot read a custom property inside @media." },
+  { file: "src/app/experience.css", literal: "1279px",
+    reason: "E1 (D-170(c)): bp-wide less one pixel (tokens.json), the top of the rail's range (1024-1279 px); CSS cannot read a custom property inside @media." },
+  { file: "src/app/experience.css", literal: "64px",
+    reason: "E2 (D-169(c)): the chooser's door is at least 64 px high (E2 §1, «Height at least 64 px»), one step above control-xl (60): a door holds two lines, the purpose and its place." },
   { file: "src/app/experience.css", literal: "639px",
     reason: "W3.4/W3.5: bp-medium (640, tokens.json) less one pixel, as the design system writes it: the Collection's narrow layout (bundle.css @container) and the Dialog's stacked actions; CSS cannot read a custom property inside @container or @media." },
   { file: "src/app/experience.css", literal: "16ch",
@@ -592,7 +615,9 @@ const CERT_FROZEN: Array<[string, boolean, string]> = [
   [".pin-cert .pin-name", false, "40px"], [".pin-cert .pin-course", false, "20px"],
   [".pin-cert .pin-name", true, "32px"], [".pin-cert .pin-course", true, "18px"],
   [".pin-sheet .pin-name", false, "44px"], [".pin-sheet .pin-course", false, "22px"],
-  [".pin-sheet .pin-inst", false, "15px"],
+  // RESTATED, B6C (Batch 6): Daisy's sertifikat/ronde-2 (D-076, frozen under D-120 Q16) sets the school in the band
+  // at 16.5 pt (22 px), «Diterbitkan oleh» above it; the 15 px line belonged to the round-1 sheet it replaces.
+  [".pin-sheet .pin-inst", false, "22px"],
 ];
 const RAW_COLOUR = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\s*\(/g;
 const RAW_LENGTH = /(?<![\w.-])\d+(?:\.\d+)?(?:px|rem|em|ch|%)/g;
@@ -1496,69 +1521,50 @@ export const experienceTests: SelfTest[] = [
     requires: [],
     run: async ({ repoRoot }) => {
       const c = new Checks();
-      const rel = "public/brand/pintar-selalu-logo.png";
-      const file = join(repoRoot, rel);
-      c.expect(existsSync(file), `the supplied logo asset is missing: ${rel}`);
-      if (!existsSync(file)) return c.verdict("the mark");
-
-      // 1. IT IS THE SUPPLIED FILE, BYTE FOR BYTE. Not redrawn, not recoloured,
-      //    not cropped, not re-encoded, not "optimised". A digest is the only
-      //    check that catches a well-meant recompression, which is exactly the
-      //    kind of change that looks like nothing and alters artwork somebody
-      //    else owns.
-      const bytes = readFileSync(file);
-      const SUPPLIED_SHA256 = "0e85e80fb232b299016f3d363102823686a7489e86cb957cfbe0e48128a86463";
-      const sha = createHash("sha256").update(bytes).digest("hex");
-      c.expect(
-        sha === SUPPLIED_SHA256,
-        `the logo asset is not the file Yazid supplied:\n  expected ${SUPPLIED_SHA256}\n  found    ${sha}`,
-      );
-
-      // 2. and its intrinsic geometry, read from the PNG header rather than
-      //    trusted, so a resize is caught even if somebody updates the digest
-      c.expect(bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])),
-        "the logo asset is not a PNG");
-      const w = bytes.readUInt32BE(16);
-      const h = bytes.readUInt32BE(20);
-      c.expect(w === 766 && h === 429, `the artwork is ${w}x${h}; the supplied file is 766x429`);
-      const ratio = w / h;
-
-      // 3. THE RENDERING CANNOT DISTORT IT. The rule sets a height and never a
-      //    width; the intrinsic ratio supplies the rest. A rule that set both
-      //    could squash the letterforms, and no amount of care in review
-      //    catches a squash of a few per cent.
+      // RESTATED FOR D-192 (owner, 5 Nov 2026: «STOP using the previously supplied PINTAR SELALU logo… Replace it
+      // with a text-only PINTAR wordmark… Arial… #075056… Do not introduce new logo images, paid fonts or licensing
+      // dependencies»). Steps 1–3 guarded the supplied artwork byte for byte; it is retired, so they now guard what
+      // replaced it: the artwork is gone from the tree, the mark is the word «PINTAR» as text, in the device's Arial
+      // stack (no font file bundled), bold, #075056, sized from one token so no surface can squash or recolour it.
+      const w = 0, h = 0, ratio = 0;
+      const bytes = Buffer.alloc(0);
+      c.expect(!existsSync(join(repoRoot, "public", "brand", "pintar-selalu-logo.png"))
+        && !existsSync(join(repoRoot, "public", "brand", "pintar-email-logo.png")), "the supplied logo artwork is still in public/brand/");
       const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
+      const globals = readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8");
+      c.expect(/--font-wordmark: Arial, Helvetica, sans-serif;/.test(globals) && /--merek-warna: #075056;/.test(globals),
+        "the wordmark's face is not the device's Arial stack, or its colour is not #075056");
+      const fonts = walk(join(repoRoot, "public")).filter((f) => /\.(woff2?|ttf|otf|eot)$/i.test(f)).map((f) => relative(repoRoot, f));
+      c.expect(fonts.every((f) => /plus-jakarta-sans|ibm-plex-mono/.test(f)), `a font file other than the two OFL faces is shipped: ${fonts.join(", ")}`);
       const rule = /\.pin-merek\s*\{([^}]*)\}/.exec(css);
       c.expect(rule !== null, "there is no .pin-merek rule to check");
       if (rule) {
-        c.expect(/height:\s*var\(--logo-height\)/.test(rule[1]), ".pin-merek does not take its height from a token");
-        c.expect(/width:\s*auto/.test(rule[1]), ".pin-merek does not leave its width to the artwork");
-        // Every width declaration in the rule must be `auto`. A negative
-        // lookahead here reads well and is wrong: `\s*` backtracks to zero and
-        // the guard passes on `width: auto` itself, so the check never fires.
-        const widths = [...rule[1].matchAll(/width:\s*([^;]+)/g)].map((m) => m[1].trim());
-        c.expect(
-          widths.every((v) => v === "auto"),
-          `.pin-merek sets a width (${widths.join(", ")}); the artwork would be distorted`,
-        );
+        c.expect(/--merek-tinggi:\s*var\(--logo-height\)/.test(rule[1]) && /font-size:\s*calc\(var\(--merek-tinggi\) \* 0\.5\)/.test(rule[1]),
+          ".pin-merek does not size its letters from the one token");
+        c.expect(/font-family:\s*var\(--font-wordmark\)/.test(rule[1]) && /color:\s*var\(--merek-warna\)/.test(rule[1]) && /font-weight:\s*700/.test(rule[1]),
+          ".pin-merek is not the wordmark's face, weight and teal");
+        const widths = [...rule[1].matchAll(/(?:^|[;\s])width:\s*([^;]+)/g)].map((m) => m[1].trim());
+        c.expect(widths.every((v) => v === "auto"), `.pin-merek sets a width (${widths.join(", ")}); the letters would be squeezed`);
       }
       const component = code(readFileSync(join(repoRoot, "src", "components", "MerekPintar.tsx"), "utf8"));
       c.expect(!/style=\{\{/.test(component), "the mark carries an inline style; sizing belongs in the token rule");
-      c.expect(/alt=\{NAMA\}/.test(component) && /NAMA = "PINTAR SELALU"/.test(component),
-        "the mark does not carry its own name as alternative text");
-      // the intrinsic attributes must match the file, or the reserved box is
-      // the wrong shape and the header shifts as the image lands
-      c.expect(new RegExp(`INTRINSIC_WIDTH = ${w}\\b`).test(component)
-        && new RegExp(`INTRINSIC_HEIGHT = ${h}\\b`).test(component),
-        `the component's intrinsic dimensions do not match the file's ${w}x${h}`);
+      c.expect(/NAMA_MEREK = "PINTAR"/.test(component) && /\{NAMA_MEREK\}/.test(component) && !/<img\b|brand\//.test(component),
+        "the mark is not the text «PINTAR», or still draws an image");
 
-      // 4. IT IS NOT ON THE CREDENTIAL. The certificate's issuer is the
-      //    INSTITUTION. A software vendor's mark on the same sheet would be a
-      //    second claimant to the provenance of the evidence.
-      const card = readFileSync(
-        join(repoRoot, "src", "components", "sertifikat", "KartuSertifikat.tsx"), "utf8");
+      // 4. NOT AS THE CREDENTIAL'S ISSUER. The certificate's issuer is the
+      //    INSTITUTION, named in «Diterbitkan oleh». RESTATED, B6C (Batch 6):
+      //    D-120 Q16 puts PINTAR's wordmark in the certificate's header, and
+      //    D-160(a) places today's approved logo in that one slot until the
+      //    licensed master exists. So the card still never renders the shell
+      //    mark (MerekPintar, .pin-merek) or names the asset itself; PINTAR
+      //    reaches the sheet only through the one wordmark-slot component,
+      //    exactly once, and the sheet's rules reference no brand asset.
+      const card = code(readFileSync(
+        join(repoRoot, "src", "components", "sertifikat", "KartuSertifikat.tsx"), "utf8"));
       c.expect(!/MerekPintar|pin-merek|brand\//.test(card),
-        "the credential card renders the PINTAR SELALU mark; the certificate's issuer is the institution");
+        "the credential card renders the shell's PINTAR SELALU mark; PINTAR reaches the certificate only through its wordmark slot");
+      c.expect((card.match(/<MerekSertifikat \/>/g) ?? []).length === 1,
+        "the certificate's wordmark is not drawn once, by its one slot component");
       const sheet = /\.pin-sheet\b[^{]*\{([^}]*)\}/.exec(css);
       c.expect(sheet === null || !/brand\//.test(sheet[1]), "the printed sheet references the brand asset");
 
@@ -1569,12 +1575,13 @@ export const experienceTests: SelfTest[] = [
         .map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
       c.expect(mounts.length >= 2, `the mark is mounted on only ${mounts.length} surface(s)`);
 
-      c.note(`${w}x${h}, ratio ${ratio.toFixed(4)}, ${bytes.length} bytes, digest verified, ${mounts.length} mount(s)`);
+      void w; void h; void ratio; void bytes;
+      c.note(`text wordmark, ${mounts.length} mount(s)`);
       return c.verdict(
-        "the mark rendered by the application is the supplied artwork in public/brand/pintar-selalu-logo.png " +
-          "byte for byte -- verified by sha256, so a recompression or a resize fails -- its intrinsic geometry " +
-          "is read from the PNG header rather than trusted, the style rule sets a height and never a width so " +
-          "the letterforms cannot be squashed, and it appears on no surface that prints a credential",
+        "the mark rendered by the application is the text wordmark «PINTAR» (D-192): the supplied artwork is gone from public/brand/, " +
+          "the face is the device's Arial stack with no font file bundled beyond the two OFL faces, the colour is #075056, the " +
+          "letters are sized from one token and never given a width, and a printed credential carries it only in its one wordmark slot " +
+          "(D-120 Q16), never as the shell mark or the issuer",
       );
     },
   },
@@ -2045,7 +2052,17 @@ export const experienceTests: SelfTest[] = [
       // MOVED 192 -> 193 for Batch 5 (agent B, UX-40): 20261227100000 adds result_views (that a learner has opened their
       // own finished result: session, person, when) and two learner functions. Read against §3 first: it is not a mark, a
       // logo, a crest or a theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 193, `${migrations.length} migrations; the frozen baseline has 193`);
+      // MOVED 193 -> 194 for D-183 (F-4(f)): 20261228100000 adds exposed_content_marks (kind, fingerprint, exposure,
+      // recorded_at: the fingerprints of exposed chapter titles and questions) and the guards that refuse them as a real
+      // assessment. Read against §3 first: it is not a mark, a logo, a crest or a theme, so the Q-7 source still does not
+      // exist.
+      // MOVED 194 -> 195 for W6.10 (D-186): 20261229100000 re-emits may_start_assessment with one added refusal (the Uji
+      // Penguasaan waits for the Pemetaan Awal); no table, no column. Read against §3 first: it is not a mark, a logo, a
+      // crest or a theme, so the Q-7 source still does not exist.
+      // MOVED 195 -> 196 for W2.17 (FD-4 at 10x staging): 20261230100000 adds school_people_page, a read of a school's
+      // active enrolments with the person's name; no table, no column. Read against §3 first: it is not a mark, a logo, a
+      // crest or a theme, so the Q-7 source still does not exist.
+      c.expect(migrations.length === 196, `${migrations.length} migrations; the frozen baseline has 196`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2102,14 +2119,16 @@ export const experienceTests: SelfTest[] = [
       // 4. and the default is still the default: one component renders the
       //    shell identity, so the future substitution has one place to happen
       const mark = readFileSync(join(repoRoot, "src", "components", "MerekPintar.tsx"), "utf8");
-      c.expect(/pintar-selalu-logo\.png/.test(mark), "the default mark is no longer the PINTAR SELALU logo");
+      // RESTATED FOR D-192: the default is the text wordmark; MerekPintar is still its one renderer (the certificate and
+      // the card take its word from it), so an institution mark would still substitute in one place
+      c.expect(/export const NAMA_MEREK = "PINTAR"/.test(mark), "the default mark is no longer the PINTAR wordmark");
       const renderers = experience
         .filter((f) => /\.tsx$/.test(f))
-        .filter((f) => /brand\/[a-z-]+\.png/.test(code(readFileSync(f, "utf8"))))
+        .filter((f) => /className=\{?[`"]pin-merek\b/.test(code(readFileSync(f, "utf8"))) || /brand\/[a-z-]+\.png/.test(code(readFileSync(f, "utf8"))))
         .map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
       c.expect(
         renderers.length === 1 && renderers[0] === "src/components/MerekPintar.tsx",
-        `the brand asset is referenced from ${renderers.length} component(s); the shell identity must have ` +
+        `the shell mark is drawn by ${renderers.length} component(s); the shell identity must have ` +
           `exactly one renderer so an institution mark substitutes in one place: ${renderers.join(", ")}`,
       );
 
@@ -2327,7 +2346,11 @@ export const experienceTests: SelfTest[] = [
         // gap that is not there
         stacked += r.sel.split(",").length;
       }
-      c.expect(sheet === 1, `${sheet} sheet exception(s); the paper is the one thing that does not narrow`);
+      // RESTATED, B6C (Batch 6): the sheet no longer draws its record with .pin-facts (Daisy's ronde-2 record is its own
+      // block on the page's axis), so there is no sheet exception to keep. The rule it guarded is held more strongly:
+      // no phone rule reaches into the sheet at all, so nothing narrows the paper.
+      c.expect(sheet === 0, `${sheet} sheet rule(s) narrow .pin-facts; the sheet has no fact summary to keep`);
+      c.expect(!/\.pin-sheet|\.pin-s-/.test(phone), "a phone rule reaches into the A4 sheet, which is scaled whole and never reflowed");
 
       // 3. every selector that narrows .pin-facts anywhere is covered above,
       //    including the ones that outrank the plain class
@@ -3853,7 +3876,10 @@ export const experienceTests: SelfTest[] = [
       // MOVED 189 -> 192 for Batch 5 (lead): certificate revocation, the integrity review and the paged waiting list touch
       // no tour RPC.
       // MOVED 192 -> 193 for Batch 5 (agent B, UX-40): a result's «seen» (result_views) touches no tour RPC.
-      c.expect(migs.length === 193, `${migs.length} migrations; the baseline has 193`);
+      // MOVED 193 -> 194 for D-183 (F-4(f)): the exposure marks and their two assignment and sitting guards touch no tour RPC.
+      // MOVED 194 -> 195 for W6.10 (D-186): the Uji Penguasaan waiting for the Pemetaan Awal touches no tour RPC.
+      // MOVED 195 -> 196 for W2.17 (FD-4 at 10x staging): a page of a school's people, found by name, touches no tour RPC.
+      c.expect(migs.length === 196, `${migs.length} migrations; the baseline has 196`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -8033,9 +8059,10 @@ export const experienceTests: SelfTest[] = [
         for (const s of scopes) {
           pad = padInline(aturan(".pin-auth", s)) ?? pad;
           measure = aturan(".pin-form", s)["max-width"] ?? measure;
-          logo = aturan(".pin-authtop .pin-merek", s).height ?? logo;
+          // RESTATED FOR D-192: the text wordmark's box is set by --merek-tinggi (it was the artwork's height)
+          logo = aturan(".pin-authtop .pin-merek", s)["--merek-tinggi"] ?? logo;
         }
-        logo ??= aturan(".pin-merek", null).height;
+        logo ??= aturan(".pin-merek", null)["--merek-tinggi"];
 
         let col = W;
         if (W >= 1024) {
@@ -8125,7 +8152,7 @@ export const experienceTests: SelfTest[] = [
           const grup = els.find((e) => e.props?.role === "group");
           c.expect(form?.props?.action === "/keluar" && form?.props?.method === "post",
             `(${locale}) the ${apa} strip's way out is not a POST form to /keluar`);
-          c.expect(tombol?.props?.type === "submit" && teksPohon(tombol as Simpul).join("") === t("sesi.keluar", persona, { locale }),
+          c.expect(tombol?.props?.type === "submit" && namaPohon(tombol as Simpul).join("") === t("sesi.keluar", persona, { locale }),
             `(${locale}) the ${apa} strip has no submit button named "${t("sesi.keluar", persona, { locale })}"`);
           const ket = els.find((e) => e.props?.id === tombol?.props?.["aria-describedby"]);
           c.expect(Boolean(ket) && teksPohon(ket as Simpul).join("").trim().length > 0,
@@ -8556,7 +8583,8 @@ export const experienceTests: SelfTest[] = [
         "the home page greets with the raw display name instead of namaSapaan's");
       c.expect(/await Promise\.all\(\[currentViewer\(\), peranSaya\(\), currentLocale\(\)\]\)/.test(beranda), "the home page reads the viewer, roles and language in sequence");
       // L3 (D-128(g)): each door in the words the signed-out doors already use, by its purpose and home
-      const LABEL = /function labelPintu\([^)]*\): string \{([\s\S]*?)\n\}/.exec(beranda)?.[1] ?? "";
+      // (E2: the door draws its purpose and its place apart, bagianPintu; the purpose's words are the same rule)
+      const LABEL = /function bagianPintu\([^)]*\): \{[^}]*\} \{([\s\S]*?)\n\}/.exec(beranda)?.[1] ?? "";
       c.expect(/p\.tujuan === "BELAJAR" \? "entry\.learner"\s*: p\.tujuan === "MENGAJAR" \? "entry\.educator"\s*: berandaPasangan\(p\) === "\/pimpinan" \? "entry\.pimpinan" : "entry\.staff"/.test(LABEL),
         "the chooser's doors are not labelled with the purpose's own words (entry.learner, entry.educator, entry.pimpinan, entry.staff)");
       for (const kunci of ["entry.learner", "entry.educator", "entry.pimpinan", "entry.staff"]) {
@@ -9027,7 +9055,11 @@ export const experienceTests: SelfTest[] = [
       // L3: the menu is every section's entry (navSemua), less the school-shaped ones in «Seluruh platform»
       c.expect(/const navSemua: Array<\[string, string\]> = \[\s*\["struktur"/.test(konfig) && /const nav = navSemua\.filter\(\(\[bagian\]\) => tampil\(bagian\)\);/.test(konfig),
         "Struktur sekolah is not the first entry in Konfigurasi's menu");
-      c.expect(/<div className="grid gap-4">\s*(?:\{\s*\}\s*)*<section id="struktur"/.test(konfig), "Struktur sekolah is not the first section");
+      // (B1: the sections' container carries the section a page draws; Struktur is still its first, and the index's first row)
+      // (B1: each section is drawn only on its own page, behind tampilDi)
+      c.expect(/<div className="grid gap-4" data-bagian-ini=\{bagianIni \?\? undefined\}>\s*(?:\{\s*\}\s*)*\{tampilDi\("struktur"\) \? \(\s*<section id="struktur"/.test(konfig), "Struktur sekolah is not the first section");
+      const { KELOMPOK_KONFIGURASI } = await import("../src/lib/bagian-konfigurasi");
+      c.expect(KELOMPOK_KONFIGURASI[0]?.bagian[0] === "struktur", "Struktur sekolah is not the index's first row");
       // L3 (D-132 C7): on offer is the working context's school (an evaluation persona: as before, C10)
       c.expect(/const dikelola = \(id: string\) => \(lama && isSys === true\) \|\| sekolahIni\.includes\(id\);/.test(konfig)
         && /const sekolahKu = sekolahDitawarkan\(institutions \?\? \[\], dikelola\);/.test(konfig)
@@ -9501,7 +9533,9 @@ export const experienceTests: SelfTest[] = [
           c.expect(JSON.stringify(opsi) === JSON.stringify([["sd", true, SEKOLAH[0].name], ["sma", false, SEKOLAH[1].name]]),
             `(${locale}) the picker offers ${JSON.stringify(opsi)}`);
           c.expect(/<input id="ung-berkas" type="file" accept="\.xlsx[^"]*"/.test(x), `(${locale}) there is no file input for an .xlsx workbook`);
-          c.expect(x.includes(`disabled="">${s("studio.unggah.langkah.periksa")}</button>`), `(${locale}) the check can be pressed before a file is chosen`);
+          // RESTATED FOR E3 #4 (Daisy): still disabled before a file is chosen, and now it says why beside it
+          c.expect(x.includes(`disabled="" aria-describedby="periksa-alasan">${s("studio.unggah.langkah.periksa")}</button>`)
+            && x.includes(`<p class="pin-alasan" id="periksa-alasan">${s("alasan.nonaktif.periksa" as HleEvent)}</p>`), `(${locale}) the check can be pressed before a file is chosen, or does not say why not`);
         });
         const tanpa = html[2];
         c.expect(tanpa.includes(t("studio.unggah.tanpa_sekolah", "staff")) && !/type="file"/.test(tanpa), "with no school on offer the panel still offers an upload");
@@ -9949,7 +9983,7 @@ export const experienceTests: SelfTest[] = [
       const cangkang = intiCangkang(cangkangPenuh);
       c.expect(/const studio = tawarkanStudio\(peran\);/.test(cangkang) && (cangkang.match(/peranSaya\(\)/g) ?? []).length === 1,
         "the shell does not decide the Studio tab from its one roles answer");
-      c.expect(!/studio|TabTempat|navKonteks/.test(cangkangPenuh.slice(cangkangPenuh.indexOf("\nfunction shellStaf("))),
+      c.expect(!/studio|TabTempat|navKonteks/.test(cangkangPenuh.slice(cangkangPenuh.search(/\n(?:async )?function shellStaf\(/))),
         "the staff layout or CangkangStaf decides a Studio tab of its own");
       // D-138 step 3: a branch runs to the next one (the staff branches return through shellStaf, no header of their own)
       const cabang = (k: string) => cabangCangkang(cangkang, k);
@@ -10168,7 +10202,7 @@ export const experienceTests: SelfTest[] = [
         c.expect(tombolDi(R["beku-kaprodi"]).length === 0 && R["beku-kaprodi"].includes(sId("studio.langkah.tunggu.wewenang")),
           "a head of department is offered to publish, which needs CAN_PUBLISH");
         c.expect(JSON.stringify(tombolDi(R["beku-penyusun"])) === JSON.stringify([tb("terbitkan")]), "the school administrator is not offered to publish a locked release");
-        c.expect(R["terbit-penyusun"].includes(`${sId("studio.langkah.terbit.sejak")} ${format.date("2026-09-25T02:00:00Z", "id")}`)
+        c.expect(R["terbit-penyusun"].includes(`${sId("studio.langkah.terbit.sejak")} ${tanggalBaca("2026-09-25T02:00:00Z")}`) // RESTATED FOR E3 #15: a record's date in the human-readable form
           && R["terbit-penyusun"].includes(`<span class="pin-meta">${sId("studio.langkah.tarik.alasan")}</span>`)
           && JSON.stringify(tombolDi(R["terbit-penyusun"])) === JSON.stringify([sId("studio.paket.tarik")]),
           "a published course does not say since when, or offers no labelled withdrawal to its publisher");
@@ -10216,11 +10250,13 @@ export const experienceTests: SelfTest[] = [
             c.expect(menunjuk(kalimat, judul, locale), `(${locale}) ${kode} does not send the reader to the "${judul}" step by its name: ${kalimat}`);
           }
           // RESTATED FOR TERMINOLOGY v1 (D-068 ruling 2, rows D1–D23; applied under D-138(c)): in Indonesian the Studio
-          // object is now «Paket Pembelajaran», «paket» once the context is set, and «kursus» is the word replaced; the
-          // English copy is not part of v1 and still says "course", never "package"
+          // object is now «Paket Pembelajaran», «paket» once the context is set, and «kursus» is the word replaced.
+          // RESTATED AGAIN FOR D-171(c) (owner, 4 Nov: «Indonesian: Paket Pembelajaran · English: Learning Package»): the
+          // English copy now follows v1 too, so «course» is the word replaced and «package» the word kept — the same
+          // strictness, in the ruled direction (X12 T1; D168-X12-1 holds it across the whole copy table)
           for (const k of allKeys().filter((k) => k.startsWith("studio.konten.kode."))) {
             const v = t(k as HleEvent, "staff", { locale });
-            c.expect(locale === "id" ? !/\bkursus\b/i.test(v) : !/\bpackage/i.test(v),
+            c.expect(locale === "id" ? !/\bkursus\b/i.test(v) : !/\bcourses?\b/i.test(v),
               `(${locale}) ${k} names the Studio object by a word v1 replaced: ${v}`);
           }
         }
@@ -10494,7 +10530,8 @@ export const experienceTests: SelfTest[] = [
       for (const hal of [["dekan", "ringkasan"], ["edukator", "ringkasan"]]) {
         const src = code(readFileSync(join(repoRoot, "src", "app", ...hal, "page.tsx"), "utf8"));
         // RESTATED FOR W3.8 (Batch 5): the sentence is now asked in the reader's language (persona and locale passed)
-        c.expect(/kunciMuncul\(e\) \? <p[^>]*>\{s\(kunciMuncul\(e\)!, "(?:educator|staff)", locale\)\}<\/p> : null/.test(src), `/${hal.join("/")} does not say what will make a figure appear`);
+        // RESTATED FOR E-C1-2 (D-132): the class report's persona is the working context's (`untuk`)
+        c.expect(/kunciMuncul\(e\) \? <p[^>]*>\{s\(kunciMuncul\(e\)!, (?:"educator"|"staff"|untuk), locale\)\}<\/p> : null/.test(src), `/${hal.join("/")} does not say what will make a figure appear`);
       }
       // Pimpinan's own links. Their condition leans on a refusal never reaching
       // `bukti` or a class's list, so that is checked where it is decided.
@@ -10503,10 +10540,11 @@ export const experienceTests: SelfTest[] = [
         && /return out\.filter\(terbaca\);/.test(pimLib) && /bukti: bukti\.filter\(terbaca\)/.test(pimLib),
         "a refusal can reach Pimpinan's figures, so a figure there no longer means the reader may read it");
       c.expect(/const bacaSekolah = bukti\.some\(\(e\) => e\.metric_id\?\.startsWith\("institution\."\)\);/.test(pimpinan)
-        && /\{bacaSekolah \? \(\s*<Link className="pin-btn" href=\{`\/dekan\/ringkasan\?simpul=\$\{encodeURIComponent\(dipilih\.id\)\}`\}>\s*\{s\("pimpinan\.laporan\.sekolah"\)\}/.test(pimpinan),
+        // RESTATED FOR H9 (Daisy, C1): each link also says where the report was opened from (`dari`), so its way back is named
+        && /\{bacaSekolah \? \(\s*<Link className="pin-btn" href=\{`\/dekan\/ringkasan\?simpul=\$\{encodeURIComponent\(dipilih\.id\)\}&dari=pimpinan`\}>\s*\{s\("pimpinan\.laporan\.sekolah"\)\}/.test(pimpinan),
         "Pimpinan does not link the school summary exactly where the reader may read a school figure");
       c.expect(/const bacaKelas = diKelas && bukti\.some\(\(e\) => e\.metric_id\?\.startsWith\("class\."\)\);/.test(pimpinan)
-        && /\{bacaKelas \? \(\s*<Link className="pin-btn" href=\{`\/edukator\/ringkasan\?kelas=\$\{encodeURIComponent\(dipilih\.id\)\}`\}>\s*\{s\("pimpinan\.laporan\.kelas"\)\}/.test(pimpinan),
+        && /\{bacaKelas \? \(\s*<Link className="pin-btn" href=\{`\/edukator\/ringkasan\?kelas=\$\{encodeURIComponent\(dipilih\.id\)\}&dari=pimpinan`\}>\s*\{s\("pimpinan\.laporan\.kelas"\)\}/.test(pimpinan),
         "Pimpinan, standing at a class the reader may read, does not link that class's summary");
       {
         // inside a class's disclosure only when it has figures the reader may read
@@ -10514,23 +10552,24 @@ export const experienceTests: SelfTest[] = [
         // from the condition to its own close, the last `) : null}` before the class's </details>
         const b = pimpinan.lastIndexOf(") : null}", pimpinan.indexOf("</details>", a));
         const isi = a >= 0 && b > a ? pimpinan.slice(a, b) : "";
-        c.expect(/<Link className="pin-btn pin-quiet" href=\{`\/edukator\/ringkasan\?kelas=\$\{encodeURIComponent\(kelas\.id\)\}`\}>\s*\{s\("pimpinan\.laporan\.kelas"\)\}/.test(isi),
+        c.expect(/<Link className="pin-btn pin-quiet" href=\{`\/edukator\/ringkasan\?kelas=\$\{encodeURIComponent\(kelas\.id\)\}&dari=pimpinan`\}>\s*\{s\("pimpinan\.laporan\.kelas"\)\}/.test(isi),
           "a class the reader may read does not link its own summary inside its disclosure");
         c.expect((pimpinan.match(/\/edukator\/ringkasan\?/g) ?? []).length === 2 && (pimpinan.match(/\/dekan\/ringkasan\?/g) ?? []).length === 1,
           "Pimpinan links a summary somewhere other than the three places named");
       }
       const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
       c.expect(/from\("org_nodes"\)\.select\("id"\)\.eq\("institution_id", sekolahStruktur\.id\)\.eq\("kind", "INSTITUTION"\)/.test(konfig)
-        && /href=\{`\/dekan\/ringkasan\?simpul=\$\{\(akar as \{ id: string \}\)\.id\}`\}/.test(konfig),
+        && /href=\{`\/dekan\/ringkasan\?simpul=\$\{\(akar as \{ id: string \}\)\.id\}&dari=konfigurasi`\}/.test(konfig),
         "Konfigurasi does not link the chosen school's summary at its own root node");
       c.expect(/struktur\.rows\.filter\(\(r\) => r\.level === "KELAS" && r\.is_active\)/.test(konfig)
-        && /href=\{`\/edukator\/ringkasan\?kelas=\$\{k\.node_id\}`\}/.test(konfig), "Konfigurasi does not link each active Kelas's summary");
+        && /href=\{`\/edukator\/ringkasan\?kelas=\$\{k\.node_id\}&dari=konfigurasi`\}/.test(konfig), "Konfigurasi does not link each active Kelas's summary");
       c.expect(/\["laporan", s\("config\.laporan\.judul"\)\]/.test(konfig), "the Laporan section is not in Konfigurasi's index");
       // each link carries the parameter its summary actually reads (the class
       // summary reads ?kelas=, the school summary ?simpul=)
       for (const [hal, param] of [["edukator", "kelas"], ["dekan", "simpul"]] as const) {
         const src = code(readFileSync(join(repoRoot, "src", "app", hal, "ringkasan", "page.tsx"), "utf8"));
-        const dibaca = /searchParams: Promise<\{ (\w+)\?: string \}>/.exec(src)?.[1];
+        // RESTATED FOR H9: the page also reads `dari` (where it was opened from), and every link sends it
+        const dibaca = /searchParams: Promise<\{ (\w+)\?: string; dari\?: string \}>/.exec(src)?.[1];
         for (const [nama, sumber] of [["Konfigurasi", konfig], ["Pimpinan", pimpinan]] as const) {
           c.expect(dibaca === param && new RegExp(`href=\\{\`\\/${hal}\\/ringkasan\\?${param}=`).test(sumber),
             `/${hal}/ringkasan reads ?${dibaca ?? "nothing"}=; ${nama} must link it with ?${param}=, and does not`);
@@ -11324,8 +11363,9 @@ export const experienceTests: SelfTest[] = [
         && (adminPertama.match(/"persons_awaiting_first_role"/g) ?? []).length === 1
         && /\.from\("institutional_identities"\)\.select\("person_id"\)/.test(adminPertama)
         && /return error \? true : /.test(adminPertama)
-        && /if \(sekolahPeran && !\(await orangSekolah\(supabase, sekolahPeran, person!\)\)\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}\);/.test(aksiKonf)
-        && /if \(isSys !== true\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}\);\s*if \(await adaAdminSekolah\(supabase, sekolah!\)\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}\);\s*if \(!\(await calonAdminPertama\(supabase\)\)\.some\(\(p\) => p\.person_id === person\)\) back/.test(aksiKonf)
+        // RESTATED FOR E-K4 (D-173(d)): each refusal returns with its form (`, fd`), so it is said at the form that sent it
+        && /if \(sekolahPeran && !\(await orangSekolah\(supabase, sekolahPeran, person!\)\)\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}, fd\);/.test(aksiKonf)
+        && /if \(isSys !== true\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}, fd\);\s*if \(await adaAdminSekolah\(supabase, sekolah!\)\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}, fd\);\s*if \(!\(await calonAdminPertama\(supabase\)\)\.some\(\(p\) => p\.person_id === person\)\) back/.test(aksiKonf)
         && /p_role: "INSTITUTION_ADMIN", p_scope_node: akar,/.test(aksiKonf)
         && /const adminPlatformDiSekolah = !lama && isSys === true && kh !== null && !kh\.platform && kh\.peran\.includes\("SYSTEM_ADMIN"\);/.test(konf)
         && /\.\.\.\(platformIni \? \[\] : sekolahIni\.map\(\(sekolah\) => supabase\.rpc\("persons_awaiting_first_role_at", \{ p_institution: sekolah \}\)\)\)/.test(konf)
@@ -11398,9 +11438,10 @@ export const experienceTests: SelfTest[] = [
         for (const k of kunci) {
           const v = t(k, "staff", { locale });
           c.expect(v !== TANPA_SALINAN && v.trim() !== "", `(${locale}) ${k} has no words`);
-          // (Terminology v1, D-068 ruling 2: in Indonesian the Studio object is «paket» and «kursus» the replaced word;
-          // English, outside v1, still says "course")
-          c.expect(!MESIN.test(v) && (locale === "id" ? !/\bkursus\b/i.test(v) : !PAKET.test(v)), `(${locale}) ${k} names the machinery or a word v1 replaced: ${v}`);
+          // (Terminology v1, D-068 ruling 2: in Indonesian the Studio object is «paket» and «kursus» the replaced word.
+          // RESTATED FOR D-171(c): the English follows v1 too, «package» kept and «course» replaced — same strictness,
+          // in the ruled direction)
+          c.expect(!MESIN.test(v) && (locale === "id" ? !/\bkursus\b/i.test(v) : !/\bcourses?\b/i.test(v)), `(${locale}) ${k} names the machinery or a word v1 replaced: ${v}`);
           c.expect(!INTERNAL_WORDS.some((w) => new RegExp(`\\b${w}\\b`).test(v)), `(${locale}) ${k} carries an internal word: ${v}`);
         }
         for (const [kode, langkah] of Object.entries(LANGKAH_DISEBUT)) {
@@ -11463,7 +11504,7 @@ export const experienceTests: SelfTest[] = [
 
       return c.verdict(
         `every blocker the catalogue names (${KODE.length} codes, ${POLA.length} patterns and the general lines) reads in both ` +
-        "languages as the steps speak: of the course, never the package; no code, ERROR, WARNING, pattern name or internal " +
+        "languages as the steps speak: of the package, never the course (D-171(c)); no code, ERROR, WARNING, pattern name or internal " +
         "word; and a line that sends the reader to a step names it by that step's exact title. Composed as the Terbit step shows " +
         "it, each code reads as its words with the lesson it names and a question's pattern in words; a planted unknown code, " +
         "bare sentence and unknown pattern read as the copy table's general line, never themselves. From the SOURCE, an unknown " +
@@ -12036,7 +12077,8 @@ export const experienceTests: SelfTest[] = [
        *    heading, in each language.
        */
       const paket = baca("src", "app", "studio", "paket", "[course]", "page.tsx");
-      c.expect(/<h3 className="pin-studio-h3">\{s\("studio\.temuan\.judul"\)\}<\/h3>/.test(paket) && !/studio\.temuan\.masalah/.test(paket),
+      // restated at A5 B10 (retrospective R3): the package title is the page's h1, so its sections are h2
+      c.expect(/<h2 className="pin-studio-h3">\{s\("studio\.temuan\.judul"\)\}<\/h2>/.test(paket) && !/studio\.temuan\.masalah/.test(paket),
         "the findings section is not headed with its own name");
       for (const locale of LOCALES) {
         const judul = t("studio.temuan.judul", "staff", { locale });
@@ -12051,7 +12093,7 @@ export const experienceTests: SelfTest[] = [
        *    its picker names the release to move to, its button says «Pindahkan»,
        *    and each form names the class it moves.
        */
-      c.expect(/<h3 className="pin-studio-h3">\{s\("studio\.paket\.pindah\.judul"\)\}<\/h3>/.test(paket)
+      c.expect(/<h2 className="pin-studio-h3">\{s\("studio\.paket\.pindah\.judul"\)\}<\/h2>/.test(paket)
         && /<span>\{s\("studio\.paket\.pindah\.tujuan"\)\}<\/span>/.test(paket)
         && /\{s\("studio\.paket\.pindah\.tombol"\)\}<\/TombolKirim>/.test(paket)
         && /\{namaKelas\.get\(a\.node_id as string\) \?\? "—"\}/.test(paket) && !/studio\.paket\.tugaskan/.test(paket),
@@ -12652,8 +12694,9 @@ export const experienceTests: SelfTest[] = [
         "    const T = t.default?.default ? t.default : t;" +
         "    const TeksBlok = T.default ?? t.default, TeksBaris = T.TeksBaris ?? t.TeksBaris;" +
         "    for (const p of paket) for (const l of p.lessons) out.korpus.push({ f: p.f, judul: l.title, md: l.body_markdown, html: renderToStaticMarkup(h(TeksBlok, { teks: l.body_markdown })) });" +
-        "    out.baris = JSON.parse(process.env.BARIS).map((s) => renderToStaticMarkup(h(TeksBaris, { teks: s })));" +
-        '    out.blok = renderToStaticMarkup(h(TeksBlok, { teks: "Akibatnya:\\n- satu\\n- **dua**\\n  - dua a\\n  - dua b\\n██ 6\\n███ 8" }));' +
+        "    out.bungkus = renderToStaticMarkup(h(TeksBaris, { teks: 'a' })) === '<span data-isi-materi=\"\">a</span>';" +
+        "    out.baris = JSON.parse(process.env.BARIS).map((s) => renderToStaticMarkup(h(TeksBaris, { teks: s })).replace(/^<span data-isi-materi=\"\">([\\s\\S]*)<\\/span>$/, '$1'));" +
+        '    out.blok = renderToStaticMarkup(h(TeksBlok, { teks: "Akibatnya:\\n- satu\\n- **dua**\\n  - dua a\\n  - dua b\\n██ 6\\n███ 8" })).replace(/^<div data-isi-materi="" class="pin-isi-materi">([\\s\\S]*)<\\/div>$/, "$1");' +
         "  }" +
         "  process.stdout.write(JSON.stringify(out));" +
         "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
@@ -12669,7 +12712,7 @@ export const experienceTests: SelfTest[] = [
           "x_{0} + y_{1}", "nilai_akhir dan data_set", "isi _ di sini", "__init__", "(_catatan_)", "_**Coba:** a^{2}_",
         ]) },
       });
-      type Hasil = { halaman: number; faktor: string[]; smax: string; korpus: { f: string; judul: string; md: string; html: string }[]; baris: string[]; blok: string; galat?: string };
+      type Hasil = { halaman: number; faktor: string[]; smax: string; korpus: { f: string; judul: string; md: string; html: string }[]; baris: string[]; blok: string; bungkus?: boolean; galat?: string };
       let o: Hasil | null = null;
       try { o = JSON.parse(anak.stdout) as Hasil; } catch { /* reported below */ }
       if (c.expect(anak.status === 0 && o !== null, `the lesson player could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 2).join(" ")}`)) {
@@ -12726,6 +12769,8 @@ export const experienceTests: SelfTest[] = [
           c.expect(tabel === pemisah && tabel === 6, `${pemisah} tables are written in the packages, ${tabel} drawn`);
           c.expect(tr + pemisah === baris, `${baris} table lines are written, ${tr} rows drawn beside ${pemisah} separators`);
           // (d) inline: marks, what stays literal, and escaping
+          // authored content is marked as such (data-isi-materi), around exactly the line it draws
+          c.expect(x.bungkus === true, "TeksBaris does not mark its content as the author's");
           const [smax, terbuka, sup, turus, sisip, periksa, tag, lebih, air, bersarang] = x.baris;
           c.expect(/a<sup>m\/n<\/sup>/.test(smax), "a stem's a^{m/n} is not a superscript");
           c.expect(terbuka === "**tebal" && sup === "^{ tanpa tutup", "a mark left open is not drawn literally");
@@ -12879,12 +12924,22 @@ export const experienceTests: SelfTest[] = [
       // the record now writes it as the timestamp form, «9 Okt 2026, 07.30 WIB», whose year and «WIB» TANGGAL-01 proves.
       c.expect(/: kataAksiAudit\(aksi, locale\)\)/.test(catatan) && !/: aksi\)\);/.test(catatan) && /tanggal\(iso, "cap", locale\)/.test(catatan),
         "the security record shows an event by its code, or a moment without its year or time zone");
-      // RV-3: one order of places, Daisy's, whichever is open
+      // RV-3, RESTATED FOR O12 (D-170(d)): one order of places, whichever is open, and it is the DOM's: the staff shell
+      // sorts its items by URUTAN_TEMPAT (executed on items arriving in pieces), so the keyboard meets them in the
+      // order the eye does (WCAG 2.4.3); CSS `order` no longer reorders them on screen only
       const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
-      const URUT = ["/mengajar", "/pimpinan", "/konfigurasi", "/pendataan", "/aktivasi", "/studio", "/konfigurasi/keamanan", "/konfigurasi/email-uji", "/belajar"];
-      const nilai = URUT.map((h) => Number(new RegExp(`\\.pin-staf \\.pin-tabs > a\\[href="${h.replace(/\//g, "\\/")}"\\] \\{ order: (\\d+); \\}`).exec(css)?.[1] ?? NaN));
-      c.expect(nilai.every((n, i) => Number.isFinite(n) && (i === 0 || n > nilai[i - 1])), `the places have no fixed order: ${JSON.stringify(nilai)}`);
-      c.expect(/\.pin-staf \.pin-tabs > \* \{ order: 20; \}/.test(css), "the context's name and the chooser are not after the places");
+      const { URUTAN_TEMPAT } = await import("../src/lib/nama-tempat");
+      const { urutkanNav } = await import("../src/components/urutan-nav");
+      const { createElement: el, Fragment: F } = await import("react");
+      const URUT = ["/mengajar", "/pimpinan", "/konfigurasi", "/pendataan", "/aktivasi", "/studio", "/konfigurasi/keamanan", "/konfigurasi/email-uji", "/konfigurasi/sertifikat", "/belajar"];
+      c.expect(JSON.stringify(URUTAN_TEMPAT) === JSON.stringify(URUT), `the places' order is not O12's: ${JSON.stringify(URUTAN_TEMPAT)}`);
+      const potong = el(F, null, el("a", { href: "/konfigurasi" }), el("a", { href: "/konfigurasi/email-uji" }), el("a", { href: "/konfigurasi/sertifikat" }),
+        el(F, null, el("a", { href: "/konfigurasi/keamanan" }), el("span", { id: "lain" }), el("a", { href: "/aktivasi" })));
+      const urut = urutkanNav(potong).map((n) => (n as { props: { href?: string; id?: string } }).props.href ?? (n as { props: { id?: string } }).props.id);
+      c.expect(JSON.stringify(urut) === JSON.stringify(["/konfigurasi", "/aktivasi", "/konfigurasi/keamanan", "/konfigurasi/email-uji", "/konfigurasi/sertifikat", "lain"]),
+        `the shell does not put «Seluruh platform»'s places in O12's order: ${JSON.stringify(urut)}`);
+      c.expect(/\{urutkanNav\(nav\)\}/.test(baca("src", "components", "CangkangPengalaman.tsx")), "the staff shell draws its items unsorted");
+      c.expect(!/\.pin-tabs > [^{]*\{[^}]*\border:/.test(css), "CSS still reorders the places on screen only");
       // RV-3/RV-4: a page that is not a place names itself in the phone bar and marks its parent
       for (const [f, h] of [["konfigurasi/keamanan/page.tsx", "keamanan"], ["konfigurasi/email-uji/page.tsx", "emailuji"], ["akun/page.tsx", "akun"], ["lapor/page.tsx", "lapor"], ["lapor/saya/page.tsx", "lapor"]]) {
         c.expect(new RegExp(`<CangkangPengalaman [^>]*halamanKini="${h}"`).test(baca("src", "app", ...f.split("/"))), `${f} does not name itself to the shell`);

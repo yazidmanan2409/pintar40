@@ -13,6 +13,7 @@ import { galatPemeliharaan, HALAMAN_PEMELIHARAAN, jalurSaatPemeliharaan } from "
 import { HEADER_JALUR } from "@/lib/konteks";
 import { aturTanda, COOKIE_HADIR, COOKIE_SELESAI, opsiTanda } from "@/lib/tanda-keluar";
 import { NextResponse, type NextRequest } from "next/server";
+import { adalahBagian, alamatBagian, bagianDariParameter } from "@/lib/bagian-konfigurasi";
 
 /**
  * Server-side route protection (FABLE-01 §4/§10; INV-37). Every
@@ -63,9 +64,27 @@ const PUBLIC_PATHS = new Set(["/", "/masuk", "/masuk/kartu", "/masuk/password", 
 // BOB-28 (Gate 5, IDENTITY-4.0 §5): "/id/" is the page a PINTAR card's QR
 // opens, the same page for every ID. It reads nothing; its recovery is the
 // /masuk/lupa/pin door above. Its own row in public_surface_registry.
+/** E-B1-1: where an older Konfigurasi address now is, or null when it is current. */
+function alamatKonfigurasiBaru(url: URL): string | null {
+  if (url.pathname === "/konfigurasi") {
+    const sp = Object.fromEntries(url.searchParams.entries());
+    const b = bagianDariParameter(sp);
+    return b ? alamatBagian(b, url.searchParams) : null;
+  }
+  const m = /^\/konfigurasi\/([^/]+)\/?$/.exec(url.pathname);
+  if (m && !adalahBagian(m[1]) && !["keamanan", "email-uji", "sertifikat"].includes(m[1])) return "/konfigurasi";
+  return null;
+}
+
 const PUBLIC_PREFIXES = ["/verifikasi/", "/api/verifikasi/", "/id/"];
 
 export async function proxy(request: NextRequest) {
+  // E-B1-1 (B1, D-166(a)): an older Konfigurasi address goes to its section's page before anything is drawn (the page
+  // streams behind its loading state, so a redirect inside it would reach the browser late, as a refresh): one that
+  // names a section by its parameters (every action's result before B1, a section's own GET forms and pagers), with
+  // every parameter; a section's page that does not exist, to the index. Never a server action.
+  const keKonfigurasi = request.method === "GET" && !request.headers.get("next-action") ? alamatKonfigurasiBaru(request.nextUrl) : null;
+  if (keKonfigurasi) return NextResponse.redirect(new URL(keKonfigurasi, request.url), 307);
   let response = NextResponse.next({ request: { headers: denganJalur(request) } });
 
   const supabase = createServerClient(
@@ -283,9 +302,11 @@ function alamatTerkunci(request: NextRequest): URL {
   return url;
 }
 
-// public/brand and public/fonts are what the anonymous pages themselves load.
-// Gated, a stranger at /masuk was redirected instead of sent the logo and fonts.
-// The trailing slashes keep the exemption to those two folders (F01-R08).
+// public/fonts is what the anonymous pages themselves load (and the learner's
+// offline probe, ALAMAT_PERIKSA). Gated, a stranger at /masuk was redirected
+// instead of sent the fonts. The trailing slash keeps the exemption to that one
+// folder (F01-R08). D-192: public/brand held the logo artwork, now gone, so its
+// exemption is gone too.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand/|fonts/).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|fonts/).*)"],
 };

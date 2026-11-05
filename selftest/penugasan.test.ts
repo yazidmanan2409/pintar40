@@ -4,7 +4,8 @@
  * that the contract, the copy table, the teacher's action and page, and the
  * learner's two test pages agree with the migration.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { t, LOCALES } from "../src/lib/hle";
@@ -34,11 +35,16 @@ export const penugasanTests: SelfTest[] = [
       // assignment tables (enforce_assignment_context), which every path that gives a place material passes through
       const batas = readFileSync(join(root, "supabase", "migrations", "20261118100000_an_educator_learns_as_a_participant.sql"), "utf8");
       const dariBatas = /create or replace function public\.enforce_assignment_context[\s\S]*?assign_refuse\('(ASSIGN_[A-Z_]+)'\)/.exec(batas)?.[1];
-      const semuaDb = [...dariDb, ...(dariSegel ? [dariSegel] : []), ...(dariBatas ? [dariBatas] : [])].sort();
+      // RESTATED FOR D-183 (a new requirement, F-4(f)): one more, raised by the exposure guard on the assessment
+      // assignment (refuse_exposed_assignment), which every path that gives a class a Pemetaan Awal or Cek penguasaan
+      // passes through. The code is read from the guard's own source, so a renamed or removed code fails here
+      const paparan = readFileSync(join(root, "supabase", "migrations", "20261228100000_exposed_questions_never_give_a_real_verdict.sql"), "utf8");
+      const dariPaparan = /create or replace function public\.refuse_exposed_assignment[\s\S]*?errcode = 'PR050', detail = '(ASSIGN_[A-Z_]+)'/.exec(paparan)?.[1];
+      const semuaDb = [...dariDb, ...(dariSegel ? [dariSegel] : []), ...(dariBatas ? [dariBatas] : []), ...(dariPaparan ? [dariPaparan] : [])].sort();
       c.expect(JSON.stringify(semuaDb) === JSON.stringify([...KODE_PENUGASAN_DB].sort()),
         `assign_refuse and the assignment's seal know ${semuaDb.join(",")} and the contract names ${KODE_PENUGASAN_DB.join(",")}`);
       const assign = /create function public\.assign_release[\s\S]*?end \$\$;/.exec(sql)?.[0] ?? "";
-      for (const k of KODE_PENUGASAN_DB.filter((x) => x !== dariSegel && x !== dariBatas)) {
+      for (const k of KODE_PENUGASAN_DB.filter((x) => x !== dariSegel && x !== dariBatas && x !== dariPaparan)) {
         c.expect(assign.includes(`assign_refuse('${k}')`), `the contract names ${k} and assign_release never raises it`);
       }
       c.expect(/assign_refuse\('CYCLE_NOT_ASSIGNED'\)/.test(
@@ -84,6 +90,55 @@ export const penugasanTests: SelfTest[] = [
         "both languages without machinery words; sediakanMateri in the source file src/app/mengajar/actions.ts calls " +
         "assign_release with exactly its declared arguments and reads a refusal as its code; the review page shows the " +
         "code's sentence; and neither /belajar/[tugas]/pemetaan nor /penguasaan can answer 404");
+    },
+  },
+  {
+    // =======================================================================
+    // D185-SINTETIS-01 — STAGING'S TEST CHAPTERS NEVER MEET THE EXPOSURE GUARD (D-185, E-K6-4 option 2).
+    // Staging's ten founded test schools are not synthetic, so the F-4(f) guard (D-183) refuses them the exposed
+    // chapters. The owner's ruling: their tests use the synthetic replacement chapters instead. This holds that those
+    // chapters stay usable: no title and no Pemetaan Awal or Cek penguasaan question of any synthetic package matches
+    // a mark in the migration, computed the way exposure_fingerprint() computes it (lowercase, trim, collapse
+    // Postgres's \s class, sha256). A positive control proves the comparison finds a mark when one is there.
+    // =======================================================================
+    id: "D185-SINTETIS-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const root = ctx.repoRoot;
+      const sidik = (x: string) => createHash("sha256")
+        .update(x.replace(/^[ \t\n\r\f\v]+|[ \t\n\r\f\v]+$/g, "").replace(/[ \t\n\r\f\v]+/g, " ").toLowerCase(), "utf8").digest("hex");
+      const mig = readFileSync(join(root, "supabase", "migrations", "20261228100000_exposed_questions_never_give_a_real_verdict.sql"), "utf8");
+      const judul = new Set([...mig.matchAll(/\('TITLE', public\.exposure_fingerprint\('((?:[^']|'')*)'\)\)/g)].map((m) => sidik(m[1].replace(/''/g, "'"))));
+      const soal = new Set([...mig.matchAll(/\('STEM', '([0-9a-f]{64})'\)/g)].map((m) => m[1]));
+      c.expect(judul.size === 20 && soal.size === 240, `the migration holds ${judul.size} title and ${soal.size} question marks; expected 20 and 240`);
+      // positive control: an exposed title, in another case and spacing, is found
+      c.expect(judul.has(sidik("  matematika kelas x ·  bab 7: PELUANG ")), "the comparison does not find an exposed title: it would pass vacuously");
+
+      const berkas = [
+        ...readdirSync(join(root, "docs", "onboarding", "konten-sintetis")).filter((f) => f.endsWith(".paket.json")).map((f) => join("docs", "onboarding", "konten-sintetis", f)),
+        ...readdirSync(join(root, "audit", "fixtures")).filter((f) => f.endsWith(".paket.json")).map((f) => join("audit", "fixtures", f)),
+      ];
+      let nPaket = 0, nSoal = 0;
+      type Butir = { stem?: string; use?: string };
+      type Paket = { courses?: { title?: string; modules?: { lessons?: { items?: Butir[] }[] }[] }[] };
+      for (const f of berkas) {
+        const p = JSON.parse(readFileSync(join(root, f), "utf8")) as Paket;
+        for (const k of p.courses ?? []) {
+          nPaket++;
+          c.expect(!judul.has(sidik(k.title ?? "")), `${f}: «${k.title}» carries an exposed title`);
+          for (const m of k.modules ?? []) for (const l of m.lessons ?? []) for (const b of l.items ?? []) {
+            if (b.use !== "PRE_TEST" && b.use !== "POST_TEST") continue;
+            nSoal++;
+            c.expect(!soal.has(sidik(b.stem ?? "")), `${f}: a ${b.use} question carries an exposed fingerprint`);
+          }
+        }
+      }
+      c.expect(berkas.some((f) => f.includes("konten-sintetis")) && nSoal > 0, "no synthetic replacement chapter was read");
+      return c.verdict(
+        `read the 20 title and 240 question marks of migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql and the ` +
+        `${berkas.length} packages under docs/onboarding/konten-sintetis and audit/fixtures (${nPaket} course(s), ${nSoal} Pemetaan Awal ` +
+        `and Cek penguasaan questions): none carries an exposed title or question fingerprint, so staging's test schools can use them ` +
+        `under the F-4(f) guard (D-185); the comparison finds an exposed title in another case and spacing`);
     },
   },
 ];

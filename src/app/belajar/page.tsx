@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { redirect } from "next/navigation";
 import Ikon from "@/components/Ikon";
 import { t, format, type HleEvent, type Persona } from "@/lib/hle";
@@ -20,6 +21,8 @@ import KartuTugas from "@/components/siklus/KartuTugas";
 import PanelLanjut from "@/components/siklus/PanelLanjut";
 import { labelTujuan } from "@/components/siklus/aksi";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { judulAsesmen } from "@/lib/judul-asesmen";
+import { tanggal } from "@/lib/tanggal";
 
 export const generateMetadata = judulHalaman("/belajar");
 
@@ -323,11 +326,11 @@ export default async function Belajar({
               // it fill. Nothing on this path mentions permission, an account,
               // or anything the educator is supposed to go and do.
               <>
-                <p className="pin-empty">{s("pembelajaran.kosong")}</p>
+                <Kosong jenis="belum" kalimat={s("pembelajaran.kosong")} />
                 <p className="pin-mm">{s("pembelajaran.kosong_arti")}</p>
               </>
             ) : (
-              <p className="pin-empty">{s("cycle.none")}</p>
+              <Kosong jenis="belum" kalimat={s("cycle.none")} />
             )
           ) : (
             [...(utama ? [utama] : []), ...sisa].map((k) => (
@@ -378,11 +381,11 @@ export default async function Belajar({
             <h2>{s("siklus.terbuka")}</h2>
             {terbuka.map((a) => (
               <div className="pin-tugas" key={a.assessment_assignment_id}>
-                <span className="pin-ttitle">{a.title}</span>
+                <span className="pin-ttitle">{judulAsesmen({ judul: a.title, mode: a.mode, dibuka: a.opens_at }, locale)}</span>
                 <div className="pin-tfoot">
                   <span className="pin-tstatus">
                     {format.number(a.item_count, locale)} {s("siklus.soal")} · {a.node_name}
-                    {a.closes_at ? ` · ${s("siklus.ditutup")} ${format.date(a.closes_at, locale)}` : ""}
+                    {a.closes_at ? ` · ${s("siklus.ditutup")} ${tanggal(a.closes_at, "hari", locale)}` : ""}
                   </span>
                   <Link className="pin-btn" href={`/belajar/asesmen/${a.assessment_assignment_id}`}>
                     {s("siklus.buka")}

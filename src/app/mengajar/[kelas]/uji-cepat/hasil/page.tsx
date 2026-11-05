@@ -8,10 +8,11 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import Kosong from "@/components/Kosong";
 import Koleksi from "@/components/koleksi/Koleksi";
 import { halamanKoleksi, kueriDiminta, saringDiminta, susunKoleksi } from "@/components/koleksi/aturan";
-import { BarisLingkup } from "@/components/bukti";
-import { kataAnggota } from "@/lib/mengajar";
-import type { KeadaanHasil } from "@/lib/hasil-ujicepat";
+import { BarisLingkup, kalimatJumlahOrang } from "@/components/bukti";
+import { adaBuktiSoal, kataAnggota } from "@/lib/mengajar";
+import { AMBANG_NILAI_KELAS, type KeadaanHasil } from "@/lib/hasil-ujicepat";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { judulAsesmen } from "@/lib/judul-asesmen";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/uji-cepat/hasil");
 
@@ -56,7 +57,8 @@ export default async function HasilUjiCepat({
   const ctx = await ajar.kelas(id);
   const baca = ctx && sp.penugasan ? await ajar.hasilUjiCepat(id, ctx.ini.institusi, sp.penugasan) : null;
   if (!ctx || !baca) {
-    return <HalamanPenolakan locale={locale} persona="educator" backHref={ctx ? `/mengajar/${id}/uji-cepat` : "/mengajar"} backKey="mengajar.kembali" />;
+    return <HalamanPenolakan locale={locale} persona="educator" backHref={ctx ? `/mengajar/${id}/uji-cepat` : "/mengajar"}
+      backKey={ctx ? "mengajar.cepat.judul" : "mengajar.kembali"} />;
   }
   const { tugas, hasil } = baca;
   const benda = s(kataAnggota("mengajar.bukti.murid", ctx.ini.jenis));
@@ -84,13 +86,23 @@ export default async function HasilUjiCepat({
           locale={locale}
         />
         <div className="pin-head">
-          <p className="pin-eyebrow">{s("mengajar.cepat.eyebrow")} · {tugas.judul}</p>
+          <p className="pin-eyebrow">{judulAsesmen(tugas, locale)}</p>
           <h1 className="pin-h1">{s("mengajar.cepat.hasil.judul")}</h1>
         </div>
 
-        {/* THE CLASS FIRST: the figure, and always its base */}
-        {hasil.kelas.nilai === null ? (
+        {/* THE CLASS FIRST: the figure, and always its base. D-176: the figure needs AMBANG_NILAI_KELAS scores */}
+        {hasil.kelas.dinilai === 0 ? (
           <Kosong jenis="belum" kalimat={s("mengajar.cepat.hasil.belum")} />
+        ) : hasil.kelas.nilai === null ? (
+          <div className="pin-metric pin-cepat-kelas" data-dinilai={hasil.kelas.dinilai} data-terdaftar={hasil.kelas.terdaftar} data-ambang={AMBANG_NILAI_KELAS}>
+            <span className="pin-ml">{s("mengajar.cepat.hasil.kelas")}</span>
+            <span className="pin-abs">{s("mengajar.cepat.hasil.belum_cukup")}</span>
+            <span className="pin-ma">{kalimatJumlahOrang(hasil.kelas.dinilai, AMBANG_NILAI_KELAS, ctx.ini.jenis, locale)}</span>
+            <span className="pin-ma">{isi("mengajar.cepat.hasil.muncul", { benda })}</span>
+            <span className="pin-mm">
+              {isi("mengajar.cepat.hasil.dasar", { n: n(hasil.kelas.dinilai), total: n(hasil.kelas.terdaftar), benda })}
+            </span>
+          </div>
         ) : (
           <div className="pin-metric pin-cepat-kelas" data-dinilai={hasil.kelas.dinilai} data-terdaftar={hasil.kelas.terdaftar}>
             <span className="pin-ml">{s("mengajar.cepat.hasil.kelas")}</span>
@@ -102,13 +114,16 @@ export default async function HasilUjiCepat({
           </div>
         )}
 
-        <div className="pin-actions">
-          <Link className="pin-btn" href={`/mengajar/${id}/soal?penugasan=${tugas.id}`}>{s("mengajar.bukti.per_soal")}</Link>
-        </div>
+        {/* E-C2-3: offered only where the per-question page answers (adaBuktiSoal; a PD class's is refused) */}
+        {adaBuktiSoal(ctx.ini.jenis) ? (
+          <div className="pin-actions">
+            <Link className="pin-btn" href={`/mengajar/${id}/soal?penugasan=${tugas.id}`}>{s("mengajar.bukti.per_soal")}</Link>
+          </div>
+        ) : null}
 
         {/* ONE STEP BELOW: each learner, alphabetical, a list and not a ranking */}
         <section className="pin-sec" aria-labelledby="pin-cepat-rincian">
-          <h2 id="pin-cepat-rincian">{s("mengajar.cepat.hasil.rincian")}</h2>
+          <h2 id="pin-cepat-rincian" className="pin-cepat-rincian-judul">{s("mengajar.cepat.hasil.rincian")}</h2>
           <p className="pin-sub">{s("mengajar.cepat.hasil.rincian.arti")}</p>
           <Koleksi
             id="pin-cepat-murid"

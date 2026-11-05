@@ -35,9 +35,10 @@ import {
  * nobody named), and draws its sentence from the copy table. The database's
  * own words go to the server log beside the same reference, never to the page.
  */
-function back(path: string, section: string, h: HasilAksi): never {
-  // a path may carry its own query (L4: the page and the row a refused edit came from), joined, never replaced
-  redirect(`${path}${path.includes("?") ? "&" : "?"}${queryHasil(section, h).toString()}#${section}`);
+function back(path: string, section: string, h: HasilAksi, fd?: FormData): never {
+  // a path may carry its own query (L4: the page and the row a refused edit came from), joined, never replaced;
+  // E-K4: with the form, the row it acted on comes back too (queryHasil)
+  redirect(`${path}${path.includes("?") ? "&" : "?"}${queryHasil(section, h, fd).toString()}#${section}`);
 }
 
 /** A refusal as its code; one nobody named is logged with the reference the page shows. */
@@ -276,12 +277,14 @@ export async function moveReleaseAction(fd: FormData): Promise<void> {
   const assignment = uuidOrNull(str(fd, "assignment"));
   const release = uuidOrNull(str(fd, "release"));
   if (!course || !assignment || !release) back("/studio", "koreksi", KURANG);
-  await wajibDalamKonteks({ sekolah: await sekolahDari("kursus", course) }, `koreksi-${assignment}`);
+  // E-K4: the section the package page reads («koreksi»; `koreksi-<id>` matched nothing)
+  await wajibDalamKonteks({ sekolah: await sekolahDari("kursus", course) }, "koreksi");
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("move_learning_assignment_release", {
     p_assignment: assignment, p_to_release: release, p_reason: str(fd, "alasan"),
   });
-  back(`/studio/paket/${course}`, "koreksi", error ? ditolak("move_learning_assignment_release", error) : { ok: true, kode: "ASSIGNMENT_MOVED" });
+  fd.set("baris", assignment!);
+  back(`/studio/paket/${course}`, "koreksi", error ? ditolak("move_learning_assignment_release", error) : { ok: true, kode: "ASSIGNMENT_MOVED" }, fd);
 }
 
 // ------------------------------------------------------------- distribution
@@ -289,19 +292,20 @@ export async function moveReleaseAction(fd: FormData): Promise<void> {
 export async function grantDistributionAction(fd: FormData): Promise<void> {
   const release = uuidOrNull(str(fd, "release"));
   const institution = uuidOrNull(str(fd, "institution"));
-  if (!release || !institution) back("/studio/kanonik", "izin", KURANG);
+  if (!release || !institution) back("/studio/kanonik", "izin-beri", KURANG);
   // L3 (§2.11, C7): giving the library is the library's act, in Pustaka PINTAR's context; the school is named here
   await wajibDalamKonteks({ sekolah: await sekolahDari("terbitan", release) }, "izin-beri");
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("grant_release_distribution", {
     p_release: release, p_institution: institution, p_reason: str(fd, "alasan") || null,
   });
-  back("/studio/kanonik", "izin", error ? ditolak("grant_release_distribution", error) : { ok: true, kode: "DISTRIBUTION_GRANTED" });
+  // E-K4: each form is answered at itself (its CONTEXT_OTHER_PLACE return already named it, «izin-beri» / «izin-tarik»)
+  back("/studio/kanonik", "izin-beri", error ? ditolak("grant_release_distribution", error) : { ok: true, kode: "DISTRIBUTION_GRANTED" });
 }
 
 export async function withdrawDistributionAction(fd: FormData): Promise<void> {
   const distribution = uuidOrNull(str(fd, "distribusi"));
-  if (!distribution) back("/studio/kanonik", "izin", TIDAK_DIKENALI);
+  if (!distribution) back("/studio/kanonik", "izin-tarik", TIDAK_DIKENALI);
   {
     const { data: izin } = await (await supabaseServer()).from("release_distributions").select("plp_release_id").eq("id", distribution).limit(1);
     await wajibDalamKonteks({ sekolah: await sekolahDari("terbitan", (izin?.[0] as { plp_release_id?: string } | undefined)?.plp_release_id) }, "izin-tarik");
@@ -310,7 +314,7 @@ export async function withdrawDistributionAction(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc("withdraw_release_distribution", {
     p_distribution: distribution, p_reason: str(fd, "alasan"),
   });
-  back("/studio/kanonik", "izin", error ? ditolak("withdraw_release_distribution", error) : { ok: true, kode: "DISTRIBUTION_WITHDRAWN" });
+  back("/studio/kanonik", "izin-tarik", error ? ditolak("withdraw_release_distribution", error) : { ok: true, kode: "DISTRIBUTION_WITHDRAWN" });
 }
 
 // ----------------------------------------------------------------- ingestion
@@ -518,9 +522,11 @@ export async function saveDefinitionAction(fd: FormData): Promise<void> {
       hal: String(Number.isInteger(hal) && hal >= 1 ? hal : 1), ...(error ? { ubah: existing } : {}),
     }).toString()}`
     : "/studio/definisi";
-  back(kembali, "definisi", error
+  // E-K4: an edit is answered in its row ("definisi-baris"), a new rule under the new-rule form ("definisi")
+  if (existing) fd.set("baris", existing);
+  back(kembali, existing ? "definisi-baris" : "definisi", error
     ? ditolak("save_assessment_definition", error, kodeGalatKonten(error))
-    : { ok: true, kode: row?.created_new_version ? "DEFINITION_NEW_VERSION" : "DEFINITION_KEPT" });
+    : { ok: true, kode: row?.created_new_version ? "DEFINITION_NEW_VERSION" : "DEFINITION_KEPT" }, fd);
 }
 
 export async function recordIntegrityReviewAction(fd: FormData): Promise<void> {
@@ -531,7 +537,8 @@ export async function recordIntegrityReviewAction(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc("record_integrity_review", {
     p_signal: signal, p_decision: str(fd, "keputusan"), p_note: str(fd, "catatan") || null,
   });
-  back("/studio/integritas", "integritas", error ? ditolak("record_integrity_review", error) : { ok: true, kode: "REVIEW_RECORDED" });
+  if (signal) fd.set("baris", signal);
+  back("/studio/integritas", "integritas", error ? ditolak("record_integrity_review", error) : { ok: true, kode: "REVIEW_RECORDED" }, fd);
 }
 
 export async function recordQuestionHealthReviewAction(fd: FormData): Promise<void> {
@@ -542,7 +549,8 @@ export async function recordQuestionHealthReviewAction(fd: FormData): Promise<vo
   const { error } = await supabase.rpc("record_question_health_review", {
     p_item: item, p_decision: str(fd, "keputusan"), p_note: str(fd, "catatan") || null,
   });
-  back("/studio/bank", "kesehatan", error ? ditolak("record_question_health_review", error) : { ok: true, kode: "REVIEW_RECORDED" });
+  if (item) fd.set("baris", item);
+  back("/studio/bank", "kesehatan", error ? ditolak("record_question_health_review", error) : { ok: true, kode: "REVIEW_RECORDED" }, fd);
 }
 
 // CR-84 (D-127 Q4): Studio's own Uji Cepat launcher and its certificate layout picker left the human UI with their

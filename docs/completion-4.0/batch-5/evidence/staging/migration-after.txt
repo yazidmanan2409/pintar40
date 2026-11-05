@@ -1,0 +1,11 @@
+Batch 5 on staging, AFTER the merge (read-only transactions via the Supabase MCP, project keijhmdtsgrfvnvocfvk), 3 Nov 2026 ~20:00 UTC
+Merge: PR #8 → main 34120759602e6d438707db6bed37fd738c8bd451, pinned to the verified head 469dde2 (mergeable_state clean)
+Triggered on main: ci 41707829722 and staging.yml 41707829723 (success, the migration). No production workflow started.
+migrations 193 / 20261227100000; versions digest fb01f70314e07f1451712c7e6436b59c
+functions (SECURITY DEFINER, search_path=public, pg_temp; anon cannot execute):
+  authenticated may execute: integrity_reviews_recorded, integrity_signals_awaiting_review, kelas_menunggu_akun, my_new_results,
+    note_result_seen, orang_kelas_menunggu_akun, persons_awaiting_account_page, record_integrity_review, sertifikat_sekolah, tujuan_belum_tercapai
+  internal (authenticated may NOT execute): integrity_signal_decided, kelas_menunggu_akun_anggota, menunggu_akun_boleh
+result_views: row security on, 0 policies; 1330 rows = every FINALIZED POST_TEST sitting (1330), 0 missing (193's back-fill)
+client_rpc_registry rows for the new client functions: 8
+PINTAR's triggers on auth.users: 4 (intact)

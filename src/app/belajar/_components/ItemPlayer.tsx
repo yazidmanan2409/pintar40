@@ -33,6 +33,7 @@ import type { PaperEntry, AssistanceState, AssistanceLevel } from "@/lib/assessm
 import { TeksBaris } from "@/components/teks/Teks";
 import { belumDisimpan, sameAnswer, soalAwal, type Answer, type Entry } from "@/lib/kumpulkan";
 import { ALAMAT_PERIKSA, dijawabDiHalaman, jedaAwal, jedaBantuan, periksaSaatLuring } from "@/lib/bantuan-terjadwal";
+import AlasanNonaktif from "@/components/AlasanNonaktif";
 
 export type ItemPlayerProps = {
   sessionId: string;
@@ -59,12 +60,12 @@ export type ItemPlayerProps = {
   actions: {
     submitAnswer: (presentedItemId: string, clientSeq: number, value: Answer,
                    receiptMode?: "LIVE" | "REPLAYED" | "LATE_SYNC") =>
-      Promise<{ ok: true; outcome: string } | { ok: false; message: string; code: string | null; detail: string | null }>;
+      Promise<{ ok: true; outcome: string } | { ok: false; code: string | null; detail: string | null }>;
     noteView: (presentedItemId: string) => Promise<{ ok: true; dwellSeconds: number | null } | { ok: false }>;
     assistance: (presentedItemId: string) =>
-      Promise<{ ok: true; state: AssistanceState } | { ok: false; message: string }>;
+      Promise<{ ok: true; state: AssistanceState } | { ok: false; code: string | null; detail: string | null }>;
     openAssistance: (presentedItemId: string, level: number) =>
-      Promise<{ ok: true; level: AssistanceLevel } | { ok: false; message: string }>;
+      Promise<{ ok: true; level: AssistanceLevel } | { ok: false; code: string | null; detail: string | null }>;
     dismissAssistance: (presentedItemId: string) => Promise<{ ok: boolean }>;
     pauseSession: (sessionId: string) => Promise<{ ok: boolean }>;
     resumeSession: (sessionId: string) => Promise<{ ok: boolean }>;
@@ -72,7 +73,7 @@ export type ItemPlayerProps = {
                     category: "VISIBILITY_CHANGE" | "RECONNECT" | "RAPID_OPTION_CHANGE",
                     observation: Record<string, number | string>) => Promise<{ ok: boolean }>;
     finishSession: (sessionId: string, manifest: Record<string, number>) =>
-      Promise<{ ok: true; resultId: string } | { ok: false; message: string; code: string | null; detail: string | null }>;
+      Promise<{ ok: true; resultId: string } | { ok: false; code: string | null; detail: string | null }>;
   };
 };
 
@@ -659,6 +660,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
                 <button
                   type="button"
                   disabled={!chosen || committed}
+                  aria-describedby={!chosen && !committed ? "jawab-alasan" : undefined}
                   onClick={() => chosen && void send(current, chosen)}
                   className="pin-btn pin-primary"
                 >
@@ -673,6 +675,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
                 </button>
               </div>
             )}
+            {/* E3 #4: the answer button, disabled before a choice, says why */}
+            {formal && !chosen && !committed ? <AlasanNonaktif id="jawab-alasan">{kata("alasan.nonaktif.jawab")}</AlasanNonaktif> : null}
             {/* W3.10 (J4Murid): after a saved answer, how many are answered, in words («Sudah dijawab: 7 dari 10.») */}
             {formal && (
               <p className="pin-meta" role="status" data-dijawab="">

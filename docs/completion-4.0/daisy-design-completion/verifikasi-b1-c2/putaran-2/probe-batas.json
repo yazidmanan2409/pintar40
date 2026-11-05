@@ -1,0 +1,279 @@
+{
+ "adm": {
+  "assessment_results": 0,
+  "responses": 0,
+  "presented_items": 0,
+  "integrity_signals": 0,
+  "session_row": [
+   {
+    "id": "5868adf3-6ff2-41b5-9cbe-16d778ac7f9f",
+    "status": "FINALIZED",
+    "mode": "POST_TEST"
+   }
+  ],
+  "record": {
+   "columns": "COMPLETION",
+   "peserta": [
+    {
+     "nama": "Dekan Alpha (sintetis)",
+     "paket": [
+      {
+       "result": "(none)",
+       "keys": [
+        "title",
+        "started",
+        "pre_test",
+        "completed",
+        "post_test",
+        "learning_assignment_id"
+       ]
+      }
+     ]
+    },
+    {
+     "nama": "Kaprodi Alpha (sintetis)",
+     "paket": [
+      {
+       "result": "(none)",
+       "keys": [
+        "title",
+        "started",
+        "pre_test",
+        "completed",
+        "post_test",
+        "learning_assignment_id"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "metric_learner_result": {
+   "status": "not_permitted",
+   "value": null
+  },
+  "generate_report_kelas": {
+   "punya_1_0": false,
+   "entri": [
+    "class.participants:below_minimum",
+    "class.comprehension:below_minimum",
+    "class.net_gain:below_minimum",
+    "class.readiness_distribution:below_minimum",
+    "class.topic_mastery:below_minimum",
+    "class.misconceptions:below_minimum"
+   ]
+  },
+  "generate_report_sekolah": {
+   "punya_1_0": false,
+   "entri": [
+    "institution.participants:below_minimum",
+    "institution.net_gain:below_minimum",
+    "institution.safety_gate_pass_rate:below_minimum",
+    "institution.verified_credentials:below_minimum",
+    "institution.competency_outcomes:below_minimum",
+    "institution.cohort_comparison:below_minimum"
+   ]
+  }
+ },
+ "fas": {
+  "assessment_results": 1,
+  "responses": 0,
+  "presented_items": 0,
+  "integrity_signals": 0,
+  "session_row": [
+   {
+    "id": "5868adf3-6ff2-41b5-9cbe-16d778ac7f9f",
+    "status": "FINALIZED",
+    "mode": "POST_TEST"
+   }
+  ],
+  "record": {
+   "columns": "FULL",
+   "peserta": [
+    {
+     "nama": "Dekan Alpha (sintetis)",
+     "paket": [
+      {
+       "result": "(none)",
+       "keys": [
+        "title",
+        "result",
+        "started",
+        "pre_test",
+        "completed",
+        "post_test",
+        "lessons_done",
+        "lessons_total",
+        "learning_assignment_id"
+       ]
+      }
+     ]
+    },
+    {
+     "nama": "Kaprodi Alpha (sintetis)",
+     "paket": [
+      {
+       "result": "(none)",
+       "keys": [
+        "title",
+        "result",
+        "started",
+        "pre_test",
+        "completed",
+        "post_test",
+        "lessons_done",
+        "lessons_total",
+        "learning_assignment_id"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "metric_learner_result": {
+   "status": "below_minimum",
+   "value": null
+  },
+  "generate_report_kelas": {
+   "punya_1_0": false,
+   "entri": [
+    "class.participants:below_minimum",
+    "class.comprehension:below_minimum",
+    "class.net_gain:below_minimum",
+    "class.readiness_distribution:below_minimum",
+    "class.topic_mastery:below_minimum",
+    "class.misconceptions:below_minimum"
+   ]
+  },
+  "generate_report_sekolah": {
+   "punya_1_0": false,
+   "entri": [
+    "undefined:not_permitted",
+    "undefined:not_permitted",
+    "undefined:not_permitted",
+    "undefined:not_permitted",
+    "undefined:not_permitted",
+    "undefined:not_permitted"
+   ]
+  }
+ },
+ "hod": {
+  "assessment_results": 0,
+  "responses": 0,
+  "presented_items": 0,
+  "integrity_signals": 0,
+  "session_row": [],
+  "record": {
+   "error": "PR090",
+   "detail": "PD_RECORD_NOT_ALLOWED"
+  },
+  "metric_learner_result": {
+   "status": "not_permitted",
+   "value": null
+  },
+  "generate_report_kelas": {
+   "punya_1_0": false,
+   "entri": [
+    "undefined:not_permitted",
+    "undefined:not_permitted",
+    "undefined:not_permitted",
+    "undefined:not_permitted",
+    "undefined:not_permitted",
+    "undefined:not_permitted"
+   ]
+  },
+  "generate_report_sekolah": {
+   "punya_1_0": false,
+   "entri": [
+    "undefined:not_permitted",
+    "undefined:not_permitted",
+    "undefined:not_permitted",
+    "undefined:not_permitted",
+    "undefined:not_permitted",
+    "undefined:not_permitted"
+   ]
+  }
+ },
+ "dean": {
+  "assessment_results": 1,
+  "responses": 2,
+  "presented_items": 2,
+  "integrity_signals": 0,
+  "session_row": [
+   {
+    "id": "5868adf3-6ff2-41b5-9cbe-16d778ac7f9f",
+    "status": "FINALIZED",
+    "mode": "POST_TEST"
+   }
+  ],
+  "record": {
+   "columns": "FULL",
+   "peserta": [
+    {
+     "nama": "Dekan Alpha (sintetis)",
+     "paket": [
+      {
+       "result": "(none)",
+       "keys": [
+        "title",
+        "result",
+        "started",
+        "pre_test",
+        "completed",
+        "post_test",
+        "lessons_done",
+        "lessons_total",
+        "learning_assignment_id"
+       ]
+      }
+     ]
+    },
+    {
+     "nama": "Kaprodi Alpha (sintetis)",
+     "paket": [
+      {
+       "result": "(none)",
+       "keys": [
+        "title",
+        "result",
+        "started",
+        "pre_test",
+        "completed",
+        "post_test",
+        "lessons_done",
+        "lessons_total",
+        "learning_assignment_id"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "metric_learner_result": {
+   "status": "below_minimum",
+   "value": null
+  },
+  "generate_report_kelas": {
+   "punya_1_0": false,
+   "entri": [
+    "class.participants:below_minimum",
+    "class.comprehension:below_minimum",
+    "class.net_gain:below_minimum",
+    "class.readiness_distribution:below_minimum",
+    "class.topic_mastery:below_minimum",
+    "class.misconceptions:below_minimum"
+   ]
+  },
+  "generate_report_sekolah": {
+   "punya_1_0": false,
+   "entri": [
+    "institution.participants:below_minimum",
+    "institution.net_gain:below_minimum",
+    "institution.safety_gate_pass_rate:below_minimum",
+    "institution.verified_credentials:below_minimum",
+    "institution.competency_outcomes:below_minimum",
+    "institution.cohort_comparison:below_minimum"
+   ]
+  }
+ }
+}

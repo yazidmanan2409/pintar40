@@ -73,5 +73,6 @@ export function dijawabDiHalaman(
   return diterima[itemId] !== undefined || tertahan.some((e) => e.presentedItemId === itemId);
 }
 
-/** A static file outside the proxy's matcher (src/proxy.ts excludes /brand/): no session check, no database. */
-export const ALAMAT_PERIKSA = "/brand/pintar-selalu-logo.png";
+/** A static file outside the proxy's matcher (src/proxy.ts excludes /fonts/): no session check, no database. D-192: the
+ * logo artwork it used to fetch is gone; the font licence text is small, static and always shipped. */
+export const ALAMAT_PERIKSA = "/fonts/OFL-PlusJakartaSans.txt";

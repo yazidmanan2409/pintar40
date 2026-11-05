@@ -30,7 +30,7 @@ mostly not done.
 |---|---|---|---|---|
 | G5, G6, G7, G10 (the earlier #150 gates) | — | yes: DR-S01–S06, DR-D01; CI 37390261594 | rehearsal 37389380945; watch 37391618155 | G6 refuses every production apply until C1 exists (O2) |
 | B3: the backups-read token C1 | WP-A | yes: DR-S05–S07; CI 37401454517 | none | **O2** (owner), then the isolation run |
-| B4 + B9: independent database and Storage files | WP-B | yes: DR-S08, S09, S14, S15, S16, DR-D02 | migration 162 on staging, profile equal (§4) | staging path proof (pooler value); O3–O6; a real staging run and drill |
+| B4 + B9: independent database and Storage files | WP-B | yes: DR-S08, S09, S14, S15, S16, DR-D02 | migration 162 on staging, profile equal (§4) | ~~staging path proof~~ (green, run 41985505792); O3–O6; a real staging run and drill |
 | B5: durable-secret escrow | WP-B | yes, against stand-ins: DR-S01–S03, DR-S10 | none | fingerprints recorded; O3–O4; **R2 and both custodians' proofs**; O7 |
 | B8: reconstruction in a new environment | WP-C | **WP-C.1 and WP-C.2 built**: the runbook, the guarded repointing, the Auth read-back, files after a native restore (DR-S12, DR-S13, DR-D02; CI 37421222152 on `f49280e`, 35/35); the rehearsal's workflow and guards and the four functional checks (DR-S17, DR-D03; DR-S11 and DR-S13 restated; CI 37425505226 on `9631bf6`, 35/35) | G2: native **database** restore, 24/24, 8 min 03 s (staging scale) | the hosted rehearsal (O8), after WP-B's first staging bundle |
 | B6/A6: recovery authority | WP-D | **not started** | none | custodian B and R2 (now before production backups, D-109(c)); second administrators (O9) |
@@ -155,6 +155,7 @@ restated; red on `f707464`, green on `9631bf6` (CI 37425505226, 35/35, 592 tests
 | Migration 162 applied to staging | `staging.yml` run 37414019844 | 161 → 162, equal to the repository; the migration's own assertions passed on staging |
 | `pintar_backup` on staging (read only, Supabase connector) | JOURNEY-LOG 43 | **16 of 16 profile lines equal the proven local profile** (`docs/recovery/pintar-backup-profile.expected`); extensions equal the baseline; no test-harness schema; no password set |
 | The staging path check | `staging-backup-path.yml` run 37414154468 | **stopped at step 1**: Supabase refused the pooler configuration to staging's token (HTTP 403); `verify-full`, the shared snapshot and the profile through the pooler not yet run |
+| The staging path check, completed | `staging-backup-path.yml` run 41985505792 (5 Nov, from `main` `3412075`) | **GREEN, steps 1–4**: the owner's dashboard values (host `aws-0-ap-southeast-1.pooler.supabase.com`, port 5432, user `postgres.keijhmdtsgrfvnvocfvk`) as inputs; `verify-full` against Supabase's root CA; one snapshot shared through the pooler; `pintar_backup`'s profile and the extensions equal. Read only. D-111(c)(1) met; (c)(2), O2, deferred for the staging-only exercise by D-188 |
 
 Production: untouched by WP-A and WP-B. No migration, credential, key, bucket or escrow exists for it.
 

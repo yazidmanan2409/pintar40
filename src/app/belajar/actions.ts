@@ -32,10 +32,13 @@ export async function submitAnswer(
   }
 }
 
-/** The database's refusal, with its stable code (R1) so the client never parses prose. */
-function refusal(e: unknown): { message: string; code: string | null; detail: string | null } {
+/**
+ * The database's refusal, with its stable code (R1) so the client never parses prose. X.8: the code and its defined
+ * detail cross to the browser, never the error's own text, which can name tables, constraints or functions.
+ */
+function refusal(e: unknown): { code: string | null; detail: string | null } {
   const err = e as Partial<engine.EngineError> & Error;
-  return { message: err.message, code: err.code ?? null, detail: err.detail ?? null };
+  return { code: err.code ?? null, detail: err.detail ?? null };
 }
 
 export async function noteView(presentedItemId: string) {
@@ -46,7 +49,7 @@ export async function noteView(presentedItemId: string) {
     const sejak = Date.parse(at);
     return { ok: true as const, at, dwellSeconds: Number.isFinite(sejak) ? Math.max(0, (Date.now() - sejak) / 1000) : null };
   } catch (e) {
-    return { ok: false as const, message: (e as Error).message };
+    return { ok: false as const, ...refusal(e) };
   }
 }
 
@@ -54,7 +57,7 @@ export async function assistance(presentedItemId: string) {
   try {
     return { ok: true as const, state: await engine.assistanceState(await db(), presentedItemId) };
   } catch (e) {
-    return { ok: false as const, message: (e as Error).message };
+    return { ok: false as const, ...refusal(e) };
   }
 }
 
@@ -62,7 +65,7 @@ export async function openAssistance(presentedItemId: string, level: number) {
   try {
     return { ok: true as const, level: await engine.openAssistance(await db(), presentedItemId, level) };
   } catch (e) {
-    return { ok: false as const, message: (e as Error).message };
+    return { ok: false as const, ...refusal(e) };
   }
 }
 
@@ -71,7 +74,7 @@ export async function dismissAssistance(presentedItemId: string) {
     await engine.dismissAssistance(await db(), presentedItemId);
     return { ok: true as const };
   } catch (e) {
-    return { ok: false as const, message: (e as Error).message };
+    return { ok: false as const, ...refusal(e) };
   }
 }
 
@@ -98,7 +101,7 @@ export async function pauseSession(sessionId: string) {
   try {
     return { ok: true as const, status: await engine.pause(await db(), sessionId) };
   } catch (e) {
-    return { ok: false as const, message: (e as Error).message };
+    return { ok: false as const, ...refusal(e) };
   }
 }
 
@@ -106,7 +109,7 @@ export async function resumeSession(sessionId: string) {
   try {
     return { ok: true as const, status: await engine.resume(await db(), sessionId) };
   } catch (e) {
-    return { ok: false as const, message: (e as Error).message };
+    return { ok: false as const, ...refusal(e) };
   }
 }
 
@@ -128,7 +131,7 @@ export async function saveLessonProgress(
     const klien = (await supabaseServer({ tulisJikaBerubah: true })) as unknown as engine.EngineClient;
     return { ok: true as const, furthest: await engine.recordProgress(klien, learningAssignmentId, lessonId, position, total) };
   } catch (e) {
-    return { ok: false as const, message: (e as Error).message };
+    return { ok: false as const, ...refusal(e) };
   }
 }
 

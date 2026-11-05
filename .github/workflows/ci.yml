@@ -50,6 +50,8 @@ on:
       - "!docs/deployment/**/*.csv"
       - "!docs/deployment/**/*.txt"
       - "!docs/deployment/**/*.html"
+      # read by a test (R-PROSES-01, D-180), so never skipped: a ruling recorded alone runs CI
+      - "docs/coordination/DECISIONS.md"
   pull_request:
   # A phase is not done until this workflow is green on a pushed commit, and
   # until now it could only run on main or on a pull request — so work on a

@@ -64,7 +64,6 @@ export default async function SatuPendataan({
         persona="staff"
         locale={locale}
         backHref="/pendataan"
-        backKey="pendataan.kembali"
       />
     );
   }
@@ -94,7 +93,7 @@ export default async function SatuPendataan({
     <>
       <CangkangPengalaman locale={locale} kind="pendataan" current="pendataan" />
       <main id="isi" tabIndex={-1} className="pin-col">
-        <Link className="pin-back" href="/pendataan">← {s("pendataan.kembali")}</Link>
+        <Link className="pin-back" href="/pendataan">← {s("nav.pendataan")}</Link>
 
         <div className="pin-head">
           <p className="pin-eyebrow">{s("pendataan.eyebrow")}</p>
@@ -112,7 +111,6 @@ export default async function SatuPendataan({
         {fase === "menunggu_konfirmasi" && pratinjau ? (
           <section className="pin-sec" aria-labelledby="pin-pratinjau">
             <h2 id="pin-pratinjau">{s("pendataan.pratinjau.judul")}</h2>
-            {sp.galat === "konfirmasi" ? <BarisHasil nada="gagal">{s("pendataan.konfirmasi.gagal")}</BarisHasil> : null}
 
             {/* WP5A'S OWN NUMBERS. Nothing here is recomputed from the rows:
                 the preview is what a human is deciding on, so it has to be the
@@ -174,6 +172,8 @@ export default async function SatuPendataan({
               <>
                 <DaftarNama locale={locale} nama={nama!} />
                 <p className="pin-mm">{s("pendataan.pratinjau.tanya")}</p>
+                {/* E-K4: a refused confirmation is said at its button, not above the whole preview */}
+                {sp.galat === "konfirmasi" ? <BarisHasil nada="gagal">{s("pendataan.konfirmasi.gagal")}</BarisHasil> : null}
                 {/* A PLAIN FORM. The consequential act needs no script to work, and
                     it calls WP5A's confirmation rather than moving a flag here.
                     UX-08: its press also starts the recording (IsianSetuju). */}
@@ -194,7 +194,6 @@ export default async function SatuPendataan({
             <h2 id="pin-pilot">{s("pendataan.percontohan.judul")}</h2>
             <p className="pin-lede">{s("pendataan.percontohan.nyata")}</p>
             <p className="pin-mm">{s("pendataan.percontohan.arti")}</p>
-            {sp.galat === "percontohan" ? <BarisHasil nada="gagal">{s("pendataan.percontohan.gagal")}</BarisHasil> : null}
 
             {/* THE CHECK IS ONLY REAL IF THERE IS SOMETHING TO CHECK. Each of
                 the fifty with the identity number PINTAR generated for them. */}
@@ -213,6 +212,8 @@ export default async function SatuPendataan({
               {s("pendataan.percontohan.sisa")}
             </p>
 
+            {/* E-K4: a refused check is said at its button, below the fifty it is about */}
+            {sp.galat === "percontohan" ? <BarisHasil nada="gagal">{s("pendataan.percontohan.gagal")}</BarisHasil> : null}
             {/* UX-08: «lanjutkan sisanya» continues the recording itself. */}
             <form action={periksaPercontohanAksi}>
               <IsianSetuju pekerjaan={pekerjaan} />

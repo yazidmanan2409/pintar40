@@ -68,7 +68,7 @@ const GURU_ROUND = [
 ];
 
 async function putNameBack(p) {
-  await p.goto(`${APP}/konfigurasi#struktur`, { timeout: SLOW });
+  await p.goto(`${APP}/konfigurasi/struktur#struktur`, { timeout: SLOW });
   await usable(p, "/konfigurasi");
   const moved = p.locator("strong.pin-str-nama", { hasText: new RegExp(`^${esc(SEMENTARA)}$`) });
   if (await moved.count()) await rename(p, SEMENTARA, BAGIAN);
@@ -105,7 +105,7 @@ async function run(browser, i) {
     }
     if (writer && r % 4 === 0 && Date.now() < closes) {
       await think();
-      await page.goto(`${APP}/konfigurasi#struktur`, { timeout: SLOW }).then(() => usable(page, "/konfigurasi")).catch(() => {});
+      await page.goto(`${APP}/konfigurasi/struktur#struktur`, { timeout: SLOW }).then(() => usable(page, "/konfigurasi")).catch(() => {});
       await timed(s, role, "save: Ubah nama", () => rename(page, BAGIAN, SEMENTARA))
         && await timed(s, role, "save: Ubah nama back", () => rename(page, SEMENTARA, BAGIAN));
     }

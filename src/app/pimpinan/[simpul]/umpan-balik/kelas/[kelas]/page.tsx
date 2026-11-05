@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as pim from "@/lib/pimpinan";
@@ -64,7 +65,6 @@ export default async function KelasUmpanBalik({
         persona="staff"
         locale={locale}
         backHref="/pimpinan"
-        backKey="umpanbalik.kembali"
       />
     );
   }
@@ -73,6 +73,14 @@ export default async function KelasUmpanBalik({
   // node outside it is nameless here and refused by the endpoint below.
   const bawah = await pim.cabang([node.id]);
   const ini = bawah.find((n) => n.id === kelas && n.kind === "CLASS");
+  // H24 (Daisy C1 part B §8): a class outside the reader's branch has no name here; it is refused, never drawn with an
+  // empty heading
+  if (!ini) {
+    return (
+      <HalamanPenolakan messageKey="umpanbalik.buka.tanpa_wewenang" persona="staff" locale={locale}
+        backHref={`/pimpinan/${encodeURIComponent(node.id)}/umpan-balik`} backKey="umpanbalik.pimpinan.judul" />
+    );
+  }
   const [subjek, siklus] = await Promise.all([
     ub.subjekKelas(kelas),
     ub.siklusKelas([kelas]),
@@ -83,12 +91,12 @@ export default async function KelasUmpanBalik({
       <CangkangPengalaman locale={locale} kind="pimpinan" current="pimpinan" />
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/pimpinan/${encodeURIComponent(node.id)}/umpan-balik`}>
-          ← {s("umpanbalik.kembali")}
+          ← {s("umpanbalik.pimpinan.judul")}
         </Link>
 
         <div className="pin-head">
           <p className="pin-eyebrow">{s("umpanbalik.pimpinan.judul")}</p>
-          <h1 className="pin-h1">{ini?.nama ?? ""}</h1>
+          <h1 className="pin-h1">{ini.nama}</h1>
         </div>
 
         {/* ── WHAT THIS CLASS HAS ALREADY BEEN ASKED ─────────────────────
@@ -98,7 +106,7 @@ export default async function KelasUmpanBalik({
         <section className="pin-sec" aria-labelledby="pin-ub-ada">
           <h2 id="pin-ub-ada">{s("umpanbalik.kelas.putaran")}</h2>
           {siklus.length === 0 ? (
-            <p className="pin-empty">{s("umpanbalik.pimpinan.kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("umpanbalik.pimpinan.kosong")} />
           ) : (
             <ul className="pin-list pin-ub-riwayat">
               {siklus.map((c) => {
@@ -123,7 +131,8 @@ export default async function KelasUmpanBalik({
         <section className="pin-sec" aria-labelledby="pin-ub-mulai">
           <h2 id="pin-ub-mulai">{s("umpanbalik.buka.judul")}</h2>
           {subjek === null ? (
-            <p className="pin-empty">{s("umpanbalik.buka.tanpa_wewenang")}</p>
+            // R2-5: «not yours» is a refusal, never drawn as an empty state (Kosong's own rule; S-2)
+            <p className="pin-meta" data-tolak-bagian="">{s("umpanbalik.buka.tanpa_wewenang")}</p>
           ) : (
             <MulaiPutaran
               kelas={kelas}

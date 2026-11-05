@@ -39,7 +39,12 @@ export const UNREAD_DIRS = /^docs\/(coordination|reports|deployment)\//;
 export const INERT = /\.(md|pdf|png|jpe?g|gif|webp|docx|xlsx|pptx|csv|txt|html?)$/i;
 const REQUEST = /^\.github\/staging-[a-z-]+-request\.txt$/;
 
-export const unread = (p) => REQUEST.test(p) || (UNREAD_DIRS.test(p) && INERT.test(p));
+/**
+ * Documents a test reads are never unread (as docs/audit and docs/onboarding are not). The decision log is one since
+ * D-180: R-PROSES-01 reconciles every ruling to its obligations, so a ruling recorded alone must run CI, not reuse it.
+ */
+export const READ_DOCS = /^docs\/coordination\/DECISIONS\.md$/;
+export const unread = (p) => !READ_DOCS.test(p) && (REQUEST.test(p) || (UNREAD_DIRS.test(p) && INERT.test(p)));
 /** Same code when every changed path is unread (no change at all is the same code too). */
 export const sameCode = (changed) => changed.every(unread);
 /** The arguments that list changed paths: a rename counts as its old and its new path. */

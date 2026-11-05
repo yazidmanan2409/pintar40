@@ -54,10 +54,12 @@ export default function TombolBantuan({
   }
 
   return (
-    <button type="button" className="pin-bantuan-tombol" data-tur="bantuan" onClick={buka}>
+    <button type="button" className="pin-bantuan-tombol" data-tur="bantuan" data-tip-host="" onClick={buka}>
       {/* The glyph repeats the label; it never replaces it (§K-11). */}
       <span className="pin-bantuan-glif" aria-hidden="true">?</span>
-      {t("nav.bantuan", persona, { locale })}
+      {/* E1: in the staff rail the word is visually hidden and stays the button's name; the glyph is what shows */}
+      <span className="pin-rail-teks">{t("nav.bantuan", persona, { locale })}</span>
+      <span className="pin-nav-tip" aria-hidden="true">{t("nav.bantuan", persona, { locale })}</span>
     </button>
   );
 }

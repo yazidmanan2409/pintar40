@@ -1,12 +1,16 @@
 import { supabaseServer } from "@/lib/supabase/server";
-import { tawarkanSekolahLain } from "@/lib/konteks-server";
+import { jenisAnggota, type JenisAnggota } from "@/lib/mengajar";
+import Kosong from "@/components/Kosong";
+import { asalLaporan } from "@/lib/nama-tempat";
+import { konteksSaya, tawarkanSekolahLain } from "@/lib/konteks-server";
+import type { Persona } from "@/lib/hle";
 import { kepalaLaporan, namaTempat, templatUntuk } from "@/lib/laporan";
 import { currentLocale } from "@/lib/locale";
 import { tanggal } from "@/lib/tanggal";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
 import { navKonteks } from "@/components/NavKonteks";
 import KakiPintar from "@/components/KakiPintar";
-import { BarisLingkup, kalimatJumlah } from "@/components/bukti";
+import { BarisLingkup, kalimatJumlah, labelMetrik } from "@/components/bukti";
 import { kunciMuncul } from "@/components/bukti/muncul";
 import NilaiLaporan from "@/components/bukti/NilaiLaporan";
 import AksiLaporan from "@/components/laporan/AksiLaporan";
@@ -36,14 +40,19 @@ export const dynamic = "force-dynamic";
 export default async function RingkasanKelas({
   searchParams,
 }: {
-  searchParams: Promise<{ kelas?: string }>;
+  searchParams: Promise<{ kelas?: string; dari?: string }>;
 }) {
-  const { kelas } = await searchParams;
+  const { kelas, dari } = await searchParams;
+  // H9: the way back is named by the place the report was opened from
+  const asal = asalLaporan(dari);
   const supabase = await supabaseServer();
   // L3 (§2.6): a report of another school's place is never shown in this context; the chooser offers that school
+  // E-A3-1: the class's kind decides who the «how far» line names (murid or peserta), read with the reader's own access
+  let jenis: JenisAnggota = "LEARNER";
   if (kelas) {
-    const { data: tempat } = await supabase.from("org_nodes").select("institution_id").eq("id", kelas).limit(1);
+    const { data: tempat } = await supabase.from("org_nodes").select("institution_id, member_kind").eq("id", kelas).limit(1);
     await tawarkanSekolahLain((tempat?.[0] as { institution_id?: string } | undefined)?.institution_id);
+    jenis = jenisAnggota((tempat?.[0] as { member_kind?: string } | undefined)?.member_kind);
   }
 
   // BOB-06 (B6b): the template of the school this node belongs to -- its own
@@ -69,7 +78,11 @@ export default async function RingkasanKelas({
   const tempat = await namaTempat(shown.flatMap((e) => (Array.isArray(e.value) ? (e.value as Array<{ cohort_node_id?: unknown }>) : [])
     .map((r) => r.cohort_node_id).filter((x): x is string => typeof x === "string")));
   const kepala = await kepalaNanti;
-  const judul = s("laporan.kelas.judul", "educator", locale);
+  // E-C1-2: the words of the reader's own work — a teacher's in Mengajar, staff wording for a Kepala departemen, a
+  // Dekan or an Admin sekolah who opens the class report from Mengelola (D-132: by the working context, not by role)
+  const k = await konteksSaya();
+  const untuk: Persona = k?.keadaan === "ADA" && k.tujuan === "MENGAJAR" ? "educator" : "staff";
+  const judul = s("laporan.kelas.judul", untuk, locale);
 
   return (
     <>
@@ -82,22 +95,22 @@ export default async function RingkasanKelas({
           <h1 className="pin-h1">{kepala?.tempat ?? judul}</h1>
           {report ? (
             <p className="pin-intro">
-              {s("laporan.cakupan.kelas", "educator", locale).replace("{waktu}", tanggal(dihitung, "cap", locale))}
+              {s("laporan.cakupan.kelas", untuk, locale).replace("{waktu}", tanggal(dihitung, "cap", locale))}
             </p>
           ) : null}
         </div>
-        <AksiLaporan kembali={s("laporan.kembali", "educator", locale)} cetak={s("laporan.cetak", "educator", locale)} />
+        <AksiLaporan kembali={s(asal.nama, untuk, locale)} ke={asal.ke} cetak={s("laporan.cetak", untuk, locale)} />
 
         {!template || !kelas ? (
-          <p className={card}>{s("laporan.kosong", "educator", locale)}</p>
+          <Kosong jenis="belum" kalimat={s("laporan.kosong", untuk, locale)} />
         ) : entries.length === 0 ? (
-          <p className={card}>{s("laporan.kosong", "educator", locale)}</p>
+          <Kosong jenis="belum" kalimat={s("laporan.kosong", untuk, locale)} />
         ) : (
           <>
             {/* P3 -- an all-omitted report is a valid report. It renders its
                 statements and says so, rather than refusing. */}
             {shown.length === 0 ? (
-              <p className={card}>{s("laporan.tak_ada_angka", "educator", locale)}</p>
+              <p className={card}>{s("laporan.tak_ada_angka", untuk, locale)}</p>
             ) : null}
 
             <section className="grid gap-4">
@@ -106,12 +119,12 @@ export default async function RingkasanKelas({
                   {/* A metric the viewer may not see carries NO label: the
                       refusal must not disclose what it withheld. */}
                   {e.status === "ok" || e.status === "below_minimum" || e.status === "deprecated" ? (
-                    <h2 className="font-medium">{e.label_key ? s(e.label_key, "educator", locale) : ""}</h2>
+                    <h2 className="font-medium">{labelMetrik(e, untuk, locale)}</h2>
                   ) : null}
 
                   {e.status === "ok" ? (
                     <>
-                      <NilaiLaporan entry={e} locale={locale} tempat={tempat} />
+                      <NilaiLaporan entry={e} locale={locale} tempat={tempat} persona={untuk} />
                       {/* S-3: the sentence is not optional and not conditional. */}
                       <p className="mt-2 text-sm text-black/70">{actionText(e, locale)}</p>
                     </>
@@ -119,9 +132,9 @@ export default async function RingkasanKelas({
                     <>
                       <p className="text-sm text-black/70">{omissionText(e, locale)}</p>
                       {/* W3.9 (RV-9; CR-46): how far, as a sentence, never «(0/5)» */}
-                      {kalimatJumlah(e, locale) ? <p className="mt-1 text-sm text-black/70">{kalimatJumlah(e, locale)}</p> : null}
+                      {kalimatJumlah(e, locale, untuk, jenis) ? <p className="mt-1 text-sm text-black/70">{kalimatJumlah(e, locale, untuk, jenis)}</p> : null}
                       {/* DAISY-07: and what will make it appear, when it is short of evidence */}
-                      {kunciMuncul(e) ? <p className="mt-1 text-sm text-black/70">{s(kunciMuncul(e)!, "educator", locale)}</p> : null}
+                      {kunciMuncul(e) ? <p className="mt-1 text-sm text-black/70">{s(kunciMuncul(e)!, untuk, locale)}</p> : null}
                     </>
                   )}
                 </article>

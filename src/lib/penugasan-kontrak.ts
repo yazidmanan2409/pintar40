@@ -38,6 +38,9 @@ export const KODE_PENUGASAN_DB = [
   "ASSIGN_PASS_MARK_MISSING",
   // BOB-43: raised by the assignment boundary (enforce_assignment_context) on both assignment tables, same SQLSTATE
   "ASSIGN_CONTEXT_MISMATCH",
+  // D-183 (F-4(f)): raised by the exposure guard (assessment_assignments_zz_exposed_is_not_assessed) when a school that is
+  // not synthetic is given a Pemetaan Awal or Cek penguasaan whose questions were publicly exposed, same SQLSTATE
+  "ASSIGN_EXPOSED_CONTENT",
 ] as const;
 
 /**

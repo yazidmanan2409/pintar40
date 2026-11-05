@@ -21,7 +21,7 @@
  *            school administrator. (The policies return the same rows either way; unnamed, every row of every school
  *            is checked: 1,979 ms against 15 ms for the audit trail as gs-001's administrator on staging.)
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import * as terjadwal from "../src/lib/bantuan-terjadwal";
 import { ALAMAT_PERIKSA, SELISIH_MS, jedaAwal, jedaBantuan, periksaSaatLuring } from "../src/lib/bantuan-terjadwal";
@@ -74,7 +74,9 @@ export const effTests: SelfTest[] = [
       stop3();
       c.expect(gagal >= 2 && pulih2 === 0, "a probe that throws is taken as recovery or stops the probing");
       const proxy = readFileSync(join(repoRoot, "src", "proxy.ts"), "utf8");
-      c.expect(ALAMAT_PERIKSA.startsWith("/brand/") && /\(\?!_next\/static\|_next\/image\|favicon\.ico\|brand\/\|fonts\/\)/.test(proxy),
+      // RESTATED FOR D-192: the logo it fetched is gone and /brand/ is no longer exempt; the probe is a file in public/fonts/
+      c.expect(ALAMAT_PERIKSA.startsWith("/fonts/") && existsSync(join(repoRoot, "public", ALAMAT_PERIKSA))
+        && /\(\?!_next\/static\|_next\/image\|favicon\.ico\|fonts\/\)/.test(proxy),
         "the probe is not a static file outside the proxy's matcher (it would cost a session check)");
 
       // 2b. item 17: an answer the page holds sends no help check; holding it is not a receipt
@@ -141,16 +143,21 @@ export const effTests: SelfTest[] = [
     run: async ({ repoRoot }) => {
       const c = new Checks();
       const halaman = readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8");
-      for (const [nama, tabel] of [["enrolmen", "enrollments"], ["jejak", "audit_log"]] as const) {
-        c.expect(new RegExp(`const ${nama} = supabase\\.from\\("${tabel}"\\)`).test(halaman),
-          `Konfigurasi does not read ${tabel} through «${nama}»`);
-        c.expect((halaman.match(new RegExp(`from\\("${tabel}"\\)`, "g")) ?? []).length === 1,
-          `Konfigurasi reads ${tabel} more than once`);
-      }
+      // RESTATED FOR W2.17 (FD-4 at 10x staging): the enrolments are no longer read through the table's policy, which ran
+      // on every enrolment a school ever had and passed the statement timeout at 13,300; they are read once, through
+      // school_people_page (migration 20261230100000), which names the schools and decides access once per school
+      c.expect(!/from\("enrollments"\)/.test(halaman), "Konfigurasi reads enrollments through the table's policy");
+      c.expect((halaman.match(/\.rpc\("school_people_page"/g) ?? []).length === 1, "Konfigurasi does not read the enrolments once through school_people_page");
+      c.expect(new RegExp('const jejak = supabase\\.from\\("audit_log"\\)').test(halaman), "Konfigurasi does not read audit_log through «jejak»");
+      c.expect((halaman.match(/from\("audit_log"\)/g) ?? []).length === 1, "Konfigurasi reads audit_log more than once");
       // RESTATED FOR L3 (D-132 C7) and FD-4: named by the working context's school (sekolahIni). The enrolments are
       // read for no school at all in «Seluruh platform», whose sections are not school-shaped, and unnamed only for an
-      // evaluation persona as before (C10); the platform's audit stays the platform administrator's, its newest 50
-      c.expect(/semuaSekolah \? enrolmen\.order\("created_at"\)\s*: sekolahIni\.length > 0 \? enrolmen\.in\("institution_id", sekolahIni\)\.order\("created_at"\) : tanpaBaris,/.test(halaman)
+      // evaluation persona as before (C10); the platform's audit stays the platform administrator's, its newest 50.
+      // RESTATED FOR W2.17: a page of UKURAN_ORANG (50), searchable by name; null names every school, which the
+      // function grants the platform administrator alone
+      c.expect(/semuaSekolah \? enrolmen\(null\) : sekolahIni\.length > 0 \? enrolmen\(sekolahIni\) : tanpaBaris,/.test(halaman)
+        && /p_institutions: sekolah, p_search: cariOrang\.length >= 2 \? cariOrang : null, p_limit: UKURAN_ORANG/.test(halaman)
+        && /const UKURAN_ORANG = 50;/.test(halaman)
         && /const semuaSekolah = lama && isSys === true;/.test(halaman),
         "Konfigurasi reads enrollments without naming the administrator's schools");
       // RESTATED FOR L4 (CR-88): the trail is read a page at a time (rentang) instead of a fixed newest 50; the schools named are unchanged

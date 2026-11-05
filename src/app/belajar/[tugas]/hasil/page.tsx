@@ -83,7 +83,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
         </div>
 
         {/* The result, and what it is out of. */}
-        <section className="pin-hasil">
+        <section className="pin-capaian">
           <p className="pin-eyebrow">{s("hasil.mastery")}</p>
           <p className="pin-big2 pin-num">{pct == null ? "—" : format.percent(pct, locale)}</p>
           <p className="pin-mean">

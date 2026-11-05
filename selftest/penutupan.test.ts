@@ -684,12 +684,14 @@ export const penutupanTests: SelfTest[] = [
       // CR-94: Konfigurasi's roles list — a row may wrap, so the revoke form goes below the name, not past the window
       const konf = baca("src", "app", "konfigurasi", "page.tsx");
       const peran = konf.slice(konf.indexOf('<section id="roles"'), konf.indexOf("</section>", konf.indexOf('<section id="roles"')));
-      const baris = /<li key=\{a\.id\} className="([^"]*)"/.exec(peran)?.[1] ?? "";
+      // (B1: the row's classes are a template now, its ground following whether its action is open)
+      const baris = (/<li key=\{a\.id\}[^>]*?className=(?:"([^"]*)"|\{`([^`]*)`\})/.exec(peran)?.slice(1).find((x) => x !== undefined) ?? "").replace(/\$\{[^}]*\}/g, " ");
       const kelas = baris.split(/\s+/);
       c.expect(kelas.includes("flex") && kelas.includes("flex-wrap"),
         `a role's row cannot wrap («${baris}»): its revoke form runs past a 320 px window (CR-94: 374 px)`);
       c.expect(kelas.includes("sm:flex-nowrap"), `a role's row also wraps from 640 px up («${baris}»), where it did not before`);
-      c.expect(/<form action=\{revokeRoleAction\} className="flex flex-wrap items-center gap-2">/.test(peran),
+      // (B1: opened in place, the form is also named like its action; its layout is CR-94's)
+      c.expect(/<form action=\{revokeRoleAction\} className="flex flex-wrap items-center gap-2"(?: aria-label=\{`[^`]*`\})?>/.test(peran),
         "the revoke form itself changed");
       return c.verdict("the report form's file field may shrink to its column and keeps its own width where it fits (CR-93); a role's "
         + "row in Konfigurasi wraps below 640 px, so its revoke form goes below the name, and from 640 px up stays as it was (CR-94). The seeded crawl measures both "

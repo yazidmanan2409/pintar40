@@ -116,6 +116,28 @@
   --status-blocked: #8C3B3B;   --status-blocked-soft: #F6E4E4;
   --status-info: #3D5A80;      --status-info-soft: #E7EDF5;
 
+  /* the PINTAR Digital Card (W3.20 / DAISY-24; kartu-pintar ronde-2, frozen by
+     D-120 Q16). The card's own values, used by .pin-kd only: the six family
+     colours (D-074(1)) and the ochre line (D-074(2): the identity and artifact
+     language only, NEVER a UI accent); the screen card's narrowest and widest
+     size (Daisy's measured 266 and 440 px cards, ronde-2 §3); and §8's leading
+     and tracking. Lengths on the card itself are millimetres (experience.css). */
+  --kartu-emas: #C09C4F;
+  --kartu-murid: #725471;
+  --kartu-guru: #446A4B;
+  --kartu-kadep: #2E6973;
+  --kartu-dekan: #515E83;
+  --kartu-admin-sekolah: #7A5648;
+  --kartu-admin-platform: #5E6062;
+  --kartu-layar-min: 266px;
+  --kartu-layar-maks: 440px;
+  --kartu-nama-lh: 1.15; --kartu-nama-ls: -0.01em;
+  --kartu-id-lh: 1.2; --kartu-id-ls: 0.06em;
+  --kartu-bab-lh: 1.3; --kartu-bab-ls: 0.005em;
+  --kartu-petunjuk-lh: 1.35;
+  --kartu-situs-lh: 1.3; --kartu-situs-ls: 0.02em;
+  --kartu-kata: 0.06em;
+
   /* shape ----------------------------------------------------------------- */
   --radius-1: var(--radius-md);   /* v2 alias */
   --radius-2: var(--radius-lg);   /* v2 alias */
@@ -148,6 +170,24 @@
      onto t-subsection 18 with the rest of the product. */
   --type-cert-course: 20px;
   --type-chip: 12.5px;    /* the mono verification link, a single element */
+  /* THE PRINTED CERTIFICATE (Daisy, sertifikat/ronde-2 §5-6; D-076, D-160). Its accent is the learning context's,
+     never the reader's role: plum (the Murid family) for academic, sage (the Guru family) for professional learning,
+     one lightness so neither is the louder. The gold is the card's, for the one line at 176 mm. The leading and
+     tracking are the grammar's (sertifikat2.mts GAYA), named so the sheet's rules carry no free value. */
+  --cert-akademik: #725471;
+  --cert-profesi: #446A4B;
+  --cert-emas: var(--kartu-emas); /* the card's gold line (Daisy, sertifikat ronde-2 §6: «0.75 mm, the card's») */
+  --cert-lh-kepala: 1.15;
+  --cert-lh-teks: 1.25;
+  --cert-lh-arti: 1.5;
+  --cert-ls-kepala: 0.12em;
+  --cert-ls-label: 0.14em;
+  --cert-ls-nama: -0.018em;
+  --cert-ls-kursus: -0.005em;
+  --cert-ls-nomor: 0.02em;
+  --cert-ls-arti: 0.005em;
+  --cert-ws-label: 0.1em;
+  --cert-ws-arti: 0.05em;
   /* The question stem. The most-read text in the product: a learner reads it
      with full attention and nothing on the screen competes, so it sits one
      step above the reading size and one below the smallest subhead. */
@@ -158,6 +198,7 @@
   --tracking-eyebrow: 0.06em;
   --tracking-wordmark: 0.14em;
   --tracking-tight: -0.02em;
+  --leading-none: 1;     /* D-192: a single line set to its own size (the text wordmark in a slot) */
   --leading-tight: 1.15;
   --leading-body: 1.5;
   /* Sustained reading is looser than interface text; a heading between the
@@ -217,7 +258,7 @@
   --motion-fast: var(--duration-base);   /* v2 alias */
 
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    "Segoe UI", Roboto, Arial, Helvetica, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* ==================================================================== v3
@@ -304,7 +345,8 @@
   --t-identifier: 14px; --t-identifier-lh: 20px; --t-identifier-ls: 0.02em;
   --t-stem: 21px; --t-stem-lh: 32px;
   --t-stem-compact: 19px; --t-stem-compact-lh: 28px;
-  --font-wordmark: "Helvetica Neue", "Neue Helvetica", Helvetica, Arial, sans-serif;
+  --font-wordmark: Arial, Helvetica, sans-serif; /* D-192: the device's own fonts only; no file is bundled */
+  --merek-warna: #075056; /* D-192: the brand teal, the wordmark's colour on every surface */
 }
 
 @theme inline {
@@ -362,6 +404,10 @@ body {
 a { color: var(--pintar-primary); text-decoration: none; }
 a:hover { text-decoration: underline; }
 *:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+/* E-B1-4: a native date field's last Tab stop is the browser's calendar button, inside the field, which no selector
+   reaches (Chromium styles neither ::-webkit-calendar-picker-indicator:focus nor :focus-visible) and which leaves the
+   field itself neither :focus nor :focus-visible. The field still holds focus within, so the field carries the ring. */
+input:is([type="date"], [type="datetime-local"], [type="time"]):focus-within:not(:focus) { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
 /* X.6 (U-DEVICE, D-046): NOTHING IS WIDER THAN A 320 PX WINDOW. A grid item may

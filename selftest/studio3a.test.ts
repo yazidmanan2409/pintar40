@@ -121,7 +121,8 @@ export const studio3aTests: SelfTest[] = [
           "a step's sentence is drawn in the list, not only the current step's in its panel");
         const p = panel(tinjau);
         c.expect((tinjau.match(/class="pin-lt-panel"/g) ?? []).length === 1, "not exactly one panel");
-        c.expect(new RegExp(`<p class="pin-eyebrow">${s("studio.langkah.keadaan.kini")}</p><h4 id="lt-kini" class="pin-lt-panel-judul">${JUDUL[3]}`).test(p),
+        // restated at A5 B10 (retrospective R3-3): the package title is the page's h1, so the panel's heading is h3
+        c.expect(new RegExp(`<p class="pin-eyebrow">${s("studio.langkah.keadaan.kini")}</p><h3 id="lt-kini" class="pin-lt-panel-judul">${JUDUL[3]}`).test(p),
           `the panel does not open with «${s("studio.langkah.keadaan.kini")}» and the current step's name`);
         c.expect(p.includes(s("studio.langkah.setujui.arti")) && p.includes(s("studio.langkah.oleh"))
           && tombolKirim(p).includes(s("studio.langkah.setujui.tombol")), "the panel does not hold the step's sentence, who takes it and its action");
@@ -239,7 +240,8 @@ export const studio3aTests: SelfTest[] = [
         const p = panel(html[0]);
         const isi = teks(p);
         // the state: the release is created («Buat terbitan · Selesai») and the current step is «Kunci terbitan»
-        c.expect(new RegExp(`<h4 id="lt-kini" class="pin-lt-panel-judul">${s("studio.langkah.kunci.judul")}</h4>`).test(p),
+        // restated at A5 B10 (retrospective R3-3): h3 under the package title's h1
+        c.expect(new RegExp(`<h3 id="lt-kini" class="pin-lt-panel-judul">${s("studio.langkah.kunci.judul")}</h3>`).test(p),
           `the current step is not «${s("studio.langkah.kunci.judul")}»`);
         c.expect(isi.includes(`${s("studio.langkah.buat.judul")} · ${s("studio.langkah.keadaan.selesai")}`),
           "the panel does not say the release was created");
@@ -445,7 +447,8 @@ export const studio3aTests: SelfTest[] = [
         "studio_home's own buckets changed; the narrowed lists must follow them");
       // every package says where it stands
       c.expect(/posisiPaket\(\{ statusKursus: c\.status as string, terbitan: r \? \{ status: r\.status \} : null \}\)/.test(beranda)
-        && /posisi\.kini === "terbit" \? <span className="pin-pill pin-ok">\{s\("studio\.langkah\.terbit\.judul"\)\}<\/span>/.test(beranda)
+        // restated (R3-LENCANA-01): the badge is one function, drawn beside the row and as its marked narrow copy
+        && /posisi\.kini === "terbit"\s*\? <span className="pin-pill pin-ok" data-salinan-sempit=\{sempit \? "" : undefined\}>\{s\("studio\.langkah\.terbit\.judul"\)\}<\/span>/.test(beranda)
         && /<span>\{s\("studio\.langkah\.keadaan\.kini"\)\}: \{s\(kunciSalinan\(posisi\.kini, "judul"\)\)\}<\/span>/.test(beranda),
         "a package in the list does not say where it stands («✓ Terbit», or «Sekarang:» and its step)");
       const r = render(ctx.repoRoot, "src/components/Kosong.tsx", { jenis: "tidak_cocok", kalimat: "Belum ada paket di sini.", aksi: { href: "/studio#paket", label: "Semua" } });

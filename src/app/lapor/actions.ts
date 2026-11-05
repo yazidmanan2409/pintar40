@@ -2,7 +2,8 @@
 
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
+import { alamatBagian } from "@/lib/bagian-konfigurasi";
 import { supabaseServer } from "@/lib/supabase/server";
 import { rujukan } from "@/lib/galat-kontrak";
 import { halamanLaporan, kodeGalatLaporan, rujukanLaporan } from "@/lib/lapor-masalah-kontrak";
@@ -21,7 +22,8 @@ export async function kirimLaporanAksi(fd: FormData): Promise<void> {
   const ref = rujukanLaporan(str(fd, "ref"));
   const balik = (q: Record<string, string>): never => {
     const p = new URLSearchParams({ dari: halaman, ...(ref ? { ref } : {}), ...q });
-    redirect(`/lapor?${p.toString()}`);
+    // replaces the form's history entry, so the history-back still returns to the page the report was started from
+    redirect(`/lapor?${p.toString()}`, RedirectType.replace);
   };
   const lakukan = str(fd, "lakukan"), harapan = str(fd, "harapan"), terjadi = str(fd, "terjadi");
   if (!lakukan || !harapan || !terjadi) balik({ kode: "REPORT_INPUT_INVALID" });
@@ -48,8 +50,15 @@ export async function pindahkanLaporanAksi(fd: FormData): Promise<void> {
   const laporan = str(fd, "laporan");
   const status = str(fd, "status");
   const langkah = str(fd, "langkah");
+  // E-K4: the answer comes back to the report's own row, on the list's page it was moved from
+  const hal = str(fd, "hal_lapor");
+  const baris = /^[0-9a-f-]{36}$/i.test(laporan) ? laporan : null;
   const balik = (q: Record<string, string>): never => {
-    redirect(`/konfigurasi?${new URLSearchParams({ bagian: "laporan-masalah", ...q }).toString()}#laporan-masalah`);
+    const u = new URLSearchParams({ bagian: "laporan-masalah", ...q });
+    if (baris) u.set("baris", baris);
+    if (/^[1-9]\d{0,4}$/.test(hal)) u.set("hal_lapor", hal);
+    // B1: on the problem reports' own page, at the report's row
+    redirect(alamatBagian("laporan-masalah", u, baris ? `laporan-${baris}` : "laporan-masalah"));
   };
   if (!/^[0-9a-f-]{36}$/i.test(laporan)) balik({ lapor: "REPORT_NOT_ALLOWED" });
   const supabase = await supabaseServer();

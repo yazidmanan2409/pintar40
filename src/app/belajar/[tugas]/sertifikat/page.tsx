@@ -16,12 +16,14 @@ import KartuSertifikat from "@/components/sertifikat/KartuSertifikat";
 import LembarA4 from "@/components/sertifikat/LembarA4";
 import SalinTautan from "@/components/sertifikat/SalinTautan";
 import AksiCetak from "@/components/sertifikat/AksiCetak";
+import type { KonteksSertifikat } from "@/lib/sertifikat-lembar";
 import {
   certificateForSession, myCertificates, institutionNames, replacementFor, issueIfEligible,
   rendersCredential, rendersVerification, layoutFor,
 } from "@/lib/sertifikat";
 import KakiPintar from "@/components/KakiPintar";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { namaBerkas } from "@/lib/nama-berkas";
 
 export const generateMetadata = judulHalaman("/belajar/[tugas]/sertifikat");
 
@@ -49,8 +51,9 @@ export const generateMetadata = judulHalaman("/belajar/[tugas]/sertifikat");
  * applied to its result too, not only to the list's.
  *
  * The A4 sheet is rendered for ISSUED only, and print is where the sheet
- * becomes the page: the shell, the actions and the well step aside under
- * `@media print` and one A4 leaves the printer with the name from the snapshot.
+ * becomes the page: the shell, the on-screen card, the actions and the well
+ * step aside under `@media print` and exactly one A4 leaves the printer with
+ * the name from the snapshot (DAISY-36; Daisy's cetak-usulan.css).
  */
 export const dynamic = "force-dynamic";
 
@@ -147,6 +150,16 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
 
   const replacement = row ? replacementFor(row, all) : null;
 
+  // The sheet's accent follows the kind of learning (Daisy §5: plum academic, sage professional learning). NO READ
+  // THIS PAGE MAKES SAYS WHICH KIND IT WAS, and the Experience is held never to know it (UX1-AJAR-KONTEKS-01): the
+  // certificate's own eleven fields do not carry it, the learner's assignments do not, and a learner reads no course
+  // row. So every sheet takes the academic plum, the courses' own default, until the certificate's sealed record
+  // carries its accent (registered in the B6C hand-off, not decided here).
+  const konteks: KonteksSertifikat = "akademik";
+  // DAISY-36(3): the saved PDF's name, in the certificate's language; the course, never the person
+  // E-D2-1: the title the saved PDF is named by, made a name every system can hold (namaBerkas)
+  const judulBerkas = namaBerkas(t("sertifikat.berkas", "learner", { locale: bahasaSertifikat }).replace("{kursus}", course));
+
   return (
     <>
       <CangkangPengalaman locale={locale} current="sertifikat" />
@@ -190,30 +203,36 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
           </div>
         ) : null}
 
-        <KartuSertifikat cred={cred} locale={bahasaSertifikat} />
+        {/* the on-screen card steps aside in print wherever the sheet is printed (DAISY-36): one copy, the sheet */}
+        <div className={issued ? "pin-noprint" : undefined}>
+          <KartuSertifikat cred={cred} locale={bahasaSertifikat} />
+        </div>
 
         {issued ? (
           <>
             <div className="pin-actions pin-noprint">
-              <AksiCetak label={s("sertifikat.cetak")} />
+              <AksiCetak label={s("sertifikat.cetak")} judulBerkas={judulBerkas} />
               <SalinTautan url={verificationUrl!} locale={locale} />
             </div>
 
-            <div className="pin-head" style={{ marginTop: "var(--space-9)" }}>
+            <div className="pin-head pin-noprint" style={{ marginTop: "var(--space-9)" }}>
               <p className="pin-eyebrow pin-noprint">{s("sertifikat.cetak.eyebrow")}</p>
               <h2 className="pin-h1 pin-noprint">{s("sertifikat.cetak.judul")}</h2>
               <p className="pin-intro pin-noprint">{s("sertifikat.cetak.arti")}</p>
             </div>
             <LembarA4>
-              <KartuSertifikat cred={cred} locale={bahasaSertifikat} variant="sheet" />
+              <KartuSertifikat cred={cred} locale={bahasaSertifikat} variant="sheet" konteks={konteks} />
             </LembarA4>
           </>
         ) : null}
 
-        <BarisLingkup scope={{ institution }} locale={locale} />
+        <div className="pin-noprint">
+          <BarisLingkup scope={{ institution }} locale={locale} />
+        </div>
 
-        {/* pin-noprint: the printed sheet carries the issuing institution's
-            identity, never the software vendor's. */}
+        {/* pin-noprint: the printed sheet is only the sheet. Its issuer is the school, named in «Diterbitkan oleh»;
+            PINTAR appears on it once, as the wordmark in its frozen slot (D-120 Q16, D-160(a)), never as this
+            corporate footer. */}
         <KakiPintar className="pin-noprint" />
       </main>
     </>

@@ -128,7 +128,8 @@ const diKelas = (kelas) => sql(`select count(distinct e.person_id) from public.m
 async function klikTautan(page, href) {
   // D-138 step 3 (AppShell): under 1024 px the staff places and «Akun saya» sit in the menu; a person opens it first
   if (!(await page.locator(`a[href="${href}"]:visible`).count())) {
-    const menu = page.locator('label[for="pin-laci"]');
+    // E1: «Buka menu» (TombolLaci) once script has loaded; the checkbox's label before it
+    const menu = page.locator('[data-laci-tombol]:visible, label[for="pin-laci"]:visible').first();
     if (await menu.isVisible().catch(() => false)) await menu.click();
   }
   // W3.5 (Batch 2, JQ2(a)): Akun saya and Laporan saya sit in the account menu, opened by the staff member's name
@@ -427,6 +428,9 @@ await step("A7", `GS-05 (J3.8): back to Konfigurasi by Studio's own link; on Bat
     return `Batas ketuntasan lists no such chapter: "${norm(await A.locator("#ketuntasan").innerText().catch(() => "")).slice(0, 300)}"`;
   }
   const sebelum = norm(await baris.innerText());
+  // B1: a record's one action opens its short form in place first
+  await baris.locator("[data-buka-ubah]").click();
+  await baris.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
   await baris.locator('input[name="persen"]').fill(BATAS.persen);
   await baris.locator('input[name="alasan"]').fill(BATAS.alasan);
   await baris.getByRole("button", { name: "Tetapkan", exact: true }).click();

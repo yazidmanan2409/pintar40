@@ -1,9 +1,11 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { currentViewer } from "@/lib/auth";
 import { currentLocale } from "@/lib/locale";
 import { peranSaya } from "@/lib/tur-negara";
 import SesiSaya from "@/components/SesiSaya";
+import Ikon from "@/components/Ikon";
 import TombolKirim from "@/components/TombolKirim";
 import { namaSapaan } from "@/components/sesi";
 import { berandaPasangan, bacaPermintaan, kunciPasangan, pintuPilihan, samaPasangan, type Pasangan } from "@/lib/konteks";
@@ -99,16 +101,28 @@ export default async function Entry({
               <form key={kunciPasangan(p)} action={pilihKonteks}>
                 <input type="hidden" name="pasangan" value={kunciPasangan(p)} />
                 {minta.lanjut ? <input type="hidden" name="lanjut" value={minta.lanjut} /> : null}
-                <TombolKirim className={`${PINTU} w-full text-left${di ? " font-semibold" : ""}`} sibuk={s("tombol.memproses")}
+                {/* E2 (D-169(c)): the purpose in 18/26 600, the place under it, a chevron; the current door is marked
+                    four ways (a check for the chevron, the primary edge, the primary-soft ground, aria-current), never by
+                    weight alone. Its name stays «purpose · place» (the separator is read, not drawn). */}
+                <TombolKirim className={`${PINTU} pin-pintu w-full text-left`} sibuk={s("tombol.memproses")}
                   aria-current={di ? "true" : undefined} data-konteks={kunciPasangan(p)}>
-                  {labelPintu(p, locale)}
+                  <span className="pin-pintu-teks">
+                    <span className="pin-pintu-tujuan">{bagianPintu(p, locale).tujuan}</span>
+                    {bagianPintu(p, locale).tempat ? (
+                      <>
+                        <span className="pin-sr"> · </span>
+                        <span className="pin-pintu-tempat">{bagianPintu(p, locale).tempat}</span>
+                      </>
+                    ) : null}
+                  </span>
+                  <Ikon nama={di ? "check" : "chevron-right"} />
                 </TombolKirim>
               </form>
             );
           })}
         </div>
       ) : (
-        <p className="mt-8 text-ink-2">{s("entry.kosong")}</p>
+        <Kosong jenis="belum" kalimat={s("entry.kosong")} />
       )}
     </main>
   );
@@ -119,10 +133,10 @@ export default async function Entry({
  * (data), or «Seluruh platform» (D-128(g): no new words; the purpose's short name in the shell is
  * context.manage_label's, still Dr Gladys's).
  */
-function labelPintu(p: Pasangan, locale: Locale): string {
+function bagianPintu(p: Pasangan, locale: Locale): { tujuan: string; tempat: string | null } {
   const kata = p.tujuan === "BELAJAR" ? "entry.learner"
     : p.tujuan === "MENGAJAR" ? "entry.educator"
     : berandaPasangan(p) === "/pimpinan" ? "entry.pimpinan" : "entry.staff";
   const tempat = p.platform ? t("config.pemeliharaan.platform", "staff", { locale }) : p.nama;
-  return tempat ? `${t(kata, "public", { locale })} · ${tempat}` : t(kata, "public", { locale });
+  return { tujuan: t(kata, "public", { locale }), tempat: tempat || null };
 }

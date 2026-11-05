@@ -15,10 +15,14 @@
  * that school may already read; anyone else reads nothing.
  */
 
+import { pitaKesulitan } from "@/lib/unggah-kontrak";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Db = any;
 
-export type OpsiTinjauan = { label: string; isi: string; kunci: boolean; alasan: string };
+/** E-A1-1: the misconception an option is coded with, named as the school's taxonomy names it (the code when unnamed). */
+export type MiskonsepsiOpsi = { kode: string; nama: string | null };
+export type OpsiTinjauan = { label: string; isi: string; kunci: boolean; alasan: string; miskonsepsi?: MiskonsepsiOpsi };
 export type SoalTinjauan = {
   id: string;
   /** PRE_TEST / POST_TEST when the item belongs to the cycle's tests, else null */
@@ -26,14 +30,16 @@ export type SoalTinjauan = {
   bank: string;
   stimulus: string | null;
   pertanyaan: string;
+  /** E-A1-1: the author's predicted difficulty as its band (the database's rule, pitaKesulitan), never the number. */
+  pita: "MUDAH" | "SEDANG" | "SULIT" | null;
   opsi: OpsiTinjauan[];
 };
 export type PelajaranTinjauan = { id: string; judul: string; soal: SoalTinjauan[] };
 
 type Modul = { id: string; ordinal: number };
 type Pelajaran = { id: string; module_id: string; ordinal: number; title: string };
-type Item = { id: string; lesson_id: string; cycle_role: string | null; bank_type: string; stimulus: string | null; stem: string; created_at: string };
-type Opsi = { item_id: string; label: string; body: string; is_correct: boolean; rationale: string };
+type Item = { id: string; lesson_id: string; cycle_role: string | null; bank_type: string; stimulus: string | null; stem: string; created_at: string; predicted_difficulty?: number | null };
+type Opsi = { item_id: string; label: string; body: string; is_correct: boolean; rationale: string; misconception_code?: string | null };
 
 const PERAN_URUT: Record<string, number> = { PRE_TEST: 0, POST_TEST: 1 };
 
@@ -49,6 +55,8 @@ export function susunSoal(
   pelajaran: readonly Pelajaran[],
   item: readonly Item[],
   opsi: readonly Opsi[],
+  /** The school's misconception names by code, as the reader may read them. */
+  namaMiskonsepsi: ReadonlyMap<string, string> = new Map(),
 ): PelajaranTinjauan[] {
   const urutModul = new Map(modul.map((m) => [m.id, m.ordinal]));
   const opsiPer = new Map<string, Opsi[]>();
@@ -68,33 +76,64 @@ export function susunSoal(
           bank: i.bank_type,
           stimulus: i.stimulus,
           pertanyaan: i.stem,
+          pita: pitaKesulitan(i.predicted_difficulty),
           opsi: (opsiPer.get(i.id) ?? [])
             .sort((a, b) => a.label.localeCompare(b.label))
-            .map((o) => ({ label: o.label, isi: o.body, kunci: o.is_correct, alasan: o.rationale })),
+            .map((o) => ({
+              label: o.label, isi: o.body, kunci: o.is_correct, alasan: o.rationale,
+              miskonsepsi: o.misconception_code ? { kode: o.misconception_code, nama: namaMiskonsepsi.get(o.misconception_code) ?? null } : undefined,
+            })),
         })),
-    }))
-    .filter((l) => l.soal.length > 0);
+    }));
+  // A1 (D-166(b)): a lesson with no question stays, listed as «(0 soal)», so the reviewer sees the whole package
 }
 
 function rows<T>(data: unknown): T[] {
   return Array.isArray(data) ? (data as T[]) : [];
 }
 
-/** The package's questions under the reader's own row security (CAN_DRAFT in the school). */
-export async function soalPaket(c: Db, course: string): Promise<PelajaranTinjauan[]> {
-  const modul = rows<Modul>((await c.from("modules").select("id, ordinal").eq("course_id", course)).data);
-  if (modul.length === 0) return [];
-  const pelajaran = rows<Pelajaran>((await c.from("lessons").select("id, module_id, ordinal, title")
-    .in("module_id", modul.map((m) => m.id))).data);
-  if (pelajaran.length === 0) return [];
-  const item = rows<Item>((await c.from("items").select("id, lesson_id, cycle_role, bank_type, stimulus, stem, created_at")
-    .in("lesson_id", pelajaran.map((l) => l.id)).limit(2000)).data);
+/**
+ * The package's questions under the reader's own row security (CAN_DRAFT in the school).
+ *
+ * R3 (A1's «gagal» state): a read that fails is said to have failed, never shown as a shorter list, since «a partial
+ * list could be mistaken for the whole» and the reviewer approves what they were shown. Every query's error is
+ * checked, and the questions are read a thousand at a time, so no package is cut at a limit.
+ */
+export type HasilSoalPaket = { ok: true; pelajaran: PelajaranTinjauan[] } | { ok: false };
+export async function soalPaket(c: Db, course: string): Promise<HasilSoalPaket> {
+  const gagal: HasilSoalPaket = { ok: false };
+  const m = await c.from("modules").select("id, ordinal").eq("course_id", course);
+  if (m.error) return gagal;
+  const modul = rows<Modul>(m.data);
+  if (modul.length === 0) return { ok: true, pelajaran: [] };
+  const p = await c.from("lessons").select("id, module_id, ordinal, title").in("module_id", modul.map((x) => x.id));
+  if (p.error) return gagal;
+  const pelajaran = rows<Pelajaran>(p.data);
+  if (pelajaran.length === 0) return { ok: true, pelajaran: [] };
+  const item: Item[] = [];
+  for (let dari = 0; ; dari += 1000) {
+    const r = await c.from("items").select("id, lesson_id, cycle_role, bank_type, stimulus, stem, created_at, predicted_difficulty")
+      .in("lesson_id", pelajaran.map((l) => l.id)).order("id").range(dari, dari + 999);
+    if (r.error) return gagal;
+    const isi = rows<Item>(r.data);
+    item.push(...isi);
+    if (isi.length < 1000) break;
+  }
   const opsi: Opsi[] = [];
   // the option rows are read a hundred questions at a time, so the request stays short however big the package
   for (let i = 0; i < item.length; i += 100) {
-    const potong = item.slice(i, i + 100).map((x) => x.id);
-    opsi.push(...rows<Opsi>((await c.from("item_options").select("item_id, label, body, is_correct, rationale")
-      .in("item_id", potong)).data));
+    const r = await c.from("item_options").select("item_id, label, body, is_correct, rationale, misconception_code")
+      .in("item_id", item.slice(i, i + 100).map((x) => x.id));
+    if (r.error) return gagal;
+    opsi.push(...rows<Opsi>(r.data));
   }
-  return susunSoal(modul, pelajaran, item, opsi);
+  // E-A1-1: the codes' names, from the school's taxonomy under the same row security (CAN_DRAFT in the school)
+  const kode = [...new Set(opsi.map((o) => o.misconception_code).filter((x): x is string => typeof x === "string" && x !== ""))];
+  const nama = new Map<string, string>();
+  for (let i = 0; i < kode.length; i += 100) {
+    const r = await c.from("misconception_taxonomy").select("code, label").in("code", kode.slice(i, i + 100));
+    if (r.error) return gagal;
+    for (const x of rows<{ code: string; label: string }>(r.data)) nama.set(x.code, x.label);
+  }
+  return { ok: true, pelajaran: susunSoal(modul, pelajaran, item, opsi, nama) };
 }

@@ -206,12 +206,13 @@ export async function sasaranDalamKonteks(sasaran: Sasaran): Promise<boolean> {
  * the form's own part (`bagian`), so what the person typed is kept (CR-84 (3)). Never called from a system path,
  * which uses its governed scope and no device session.
  */
-export async function wajibDalamKonteks(sasaran: Sasaran, bagian?: string): Promise<void> {
+export async function wajibDalamKonteks(sasaran: Sasaran, bagian?: string, tetap: Record<string, string> = {}): Promise<void> {
   if (await sasaranDalamKonteks(sasaran)) return;
   const jalur = (await jalurIni()).split(/[?#]/)[0];
-  const kembali = bagian
-    ? `${jalur}?${queryHasil(bagian, { ok: false, kode: "CONTEXT_OTHER_PLACE" }).toString()}#${bagian}`
-    : jalur;
+  // E-K4: what the form's page needs to draw the form again (the certificate it was revoking) comes back with the answer
+  const q = bagian ? queryHasil(bagian, { ok: false, kode: "CONTEXT_OTHER_PLACE" }) : null;
+  for (const [k, v] of Object.entries(tetap)) if (q && /^[a-z_]{1,20}$/.test(k) && /^[0-9a-zA-Z-]{1,64}$/.test(v)) q.set(k, v);
+  const kembali = q ? `${jalur}?${q.toString()}#${bagian}` : jalur;
   await alihkan(alamatPilih({
     tempat: sekolahSasaran(sasaran)[0] ?? null, platform: Boolean(sasaran.platform), alasan: "lain", lanjut: kembali,
   }));

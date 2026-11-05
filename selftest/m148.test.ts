@@ -402,7 +402,7 @@ export const m148Tests: SelfTest[] = [
         "the maintenance page does not tell planned from emergency, acknowledge a handed-in sitting, explain a refused start, or offer leaving");
       const konf = baca("src", "app", "konfigurasi", "page.tsx");
       c.expect(/<section id="pemeliharaan"/.test(konf) && /rpc\("maintenance_collisions"/.test(konf) && /action=\{jadwalkanPemeliharaanAction\}/.test(konf)
-        && /\{platformIni \? \(\s*<div[^>]*data-hentikan="1"/.test(konf) && /action=\{hentikanSekarangAction\}/.test(konf),
+        && /\{platformIni \? \(\s*<section[^>]*data-hentikan="1"/.test(konf) && /action=\{hentikanSekarangAction\}/.test(konf),
         "Konfigurasi does not check the window against the assessments before scheduling, or offers «Hentikan sekarang» beyond Admin platform");
       // the schools a window or notice may name are the school picker's own (sekolahDitawarkan): never the national library
       const bagian148 = konf.slice(konf.indexOf('<section id="pemeliharaan"'), konf.indexOf("</section>", konf.indexOf('data-hentikan="1"')));

@@ -59,21 +59,29 @@ export const b5aTests: SelfTest[] = [
     run: async (ctx) => {
       const c = new Checks();
       const HAL = [
-        { f: "src/app/edukator/ringkasan/page.tsx", judul: "laporan.kelas.judul", cakupan: "laporan.cakupan.kelas", param: "kelas", persona: "educator" },
+        { f: "src/app/edukator/ringkasan/page.tsx", judul: "laporan.kelas.judul", cakupan: "laporan.cakupan.kelas", param: "kelas", persona: "untuk" },
         { f: "src/app/dekan/ringkasan/page.tsx", judul: "laporan.institusi.judul", cakupan: "laporan.cakupan.sekolah", param: "simpul", persona: "staff" },
       ] as const;
       for (const h of HAL) {
         const src = kode(baca(ctx.repoRoot, h.f));
+        // RESTATED FOR E-C1-2 (D-132): the class report speaks the reader's working context — a teacher's words in
+        // Mengajar, staff words otherwise — so its persona is the variable `untuk`, decided from the context here
+        const P = h.persona === "untuk" ? "untuk" : `"${h.persona}"`;
+        if (h.persona === "untuk") {
+          c.expect(/const untuk: Persona = k\?\.keadaan === "ADA" && k\.tujuan === "MENGAJAR" \? "educator" : "staff";/.test(src) && !/"educator", locale\)/.test(src),
+            `${h.f} does not choose its words by the working context`);
+        }
         c.expect(/<CangkangStaf locale=\{locale\} kini=\{judul\} nav=\{await navKonteks\(\{ locale, persona: "staff", bentuk: "nav" \}\)\} \/>/.test(src),
           `${h.f} is not inside the staff shell with the working context's places`);
         c.expect(!/<SesiSaya\b/.test(src) && !/<header\b/.test(src), `${h.f} still draws its own bare header and signed-in strip`);
-        c.expect(new RegExp(`const judul = s\\("${h.judul.replace(/\./g, "\\.")}", "${h.persona}", locale\\);`).test(src)
+        c.expect(new RegExp(`const judul = s\\("${h.judul.replace(/\./g, "\\.")}", ${P}, locale\\);`).test(src)
           && /<p className="pin-eyebrow">\{judul\}<\/p>/.test(src), `${h.f} does not name the report above its heading`);
         c.expect(new RegExp(`\\? kepalaLaporan\\(${h.param}\\)`).test(src), `${h.f} does not read what the report is of`);
-        c.expect(new RegExp(`s\\("${h.cakupan.replace(/\./g, "\\.")}", "${h.persona}", locale\\)\\.replace\\("\\{waktu\\}", tanggal\\(dihitung, "cap", locale\\)\\)`).test(src)
+        c.expect(new RegExp(`s\\("${h.cakupan.replace(/\./g, "\\.")}", ${P}, locale\\)\\.replace\\("\\{waktu\\}", tanggal\\(dihitung, "cap", locale\\)\\)`).test(src)
           && /const dihitung = new Date\(\);/.test(src), `${h.f} does not say what the figures cover and when they were calculated`);
-        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\("laporan\\.kembali", "${h.persona}", locale\\)\\} cetak=\\{s\\("laporan\\.cetak", "${h.persona}", locale\\)\\} />`).test(src),
-          `${h.f} lost «Kembali» or «Cetak»`);
+        // RESTATED FOR E-K1 (D-173(d)): the way back is the history-back, named as one
+        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\(asal\\.nama, ${P}, locale\\)\\} ke=\\{asal\\.ke\\} cetak=\\{s\\("laporan\\.cetak", ${P}, locale\\)\\} />`).test(src),
+          `${h.f} lost its way back (named by its origin, H9) or «Cetak»`);
         c.expect(/<KakiPintar className="pin-noprint" \/>/.test(src), `${h.f} has no footer, or prints it`);
         c.expect(/await tawarkanSekolahLain\(/.test(src) && src.indexOf("tawarkanSekolahLain(") < src.indexOf("generate_report"),
           `${h.f} no longer offers another school's report through the chooser before reading it`);

@@ -158,7 +158,8 @@ export const l4Tests: SelfTest[] = [
       // Konfigurasi: the transfers and the audit trail one page at a time
       const konf = baca("src", "app", "konfigurasi", "page.tsx");
       c.expect(/daftarPindah\.map\(/.test(konf) && (konf.match(/\.range\(\.\.\.rentang\(halPindah\)\)/g) ?? []).length === 2
-        && /tautanHalaman\("\/konfigurasi", sp, "hal_pindah", n, "transfers"\)/.test(konf) && /tautanHalaman\("\/konfigurasi", sp, "hal_jejak", n, "audit"\)/.test(konf)
+        && /tautanHalaman\(jalanIni, sp, "hal_pindah", n, "transfers"\)/.test(konf) && /tautanHalaman\(jalanIni, sp, "hal_jejak", n, "audit"\)/.test(konf)
+        && /const jalanIni = bagianIni \? alamatBagian\(bagianIni\) : "\/konfigurasi";/.test(konf)
         && /\.range\(\.\.\.rentang\(halamanDiminta\(sp\.hal_jejak\), UKURAN_JEJAK\)\)/.test(konf) && /const UKURAN_JEJAK = 50;/.test(konf) && !/order\("at", \{ ascending: false \}\)\.limit\(50\)/.test(konf),
         "Konfigurasi's transfers or audit trail is not one page at a time");
       // the re-review's N1: a listed transfer past the newest 50 is named from its own row, and its schools are read
@@ -262,7 +263,7 @@ export const l4Tests: SelfTest[] = [
         "Peran & akses still draws every active role, each with a revoke form");
       c.expect(/\.is\("revoked_at", null\)\.order\("created_at", \{ ascending: false \}\)\.order\("id"\)/.test(konf),
         "the roles are not in a stable order, so a page boundary can repeat or drop one");
-      c.expect(/<Penomoran halaman=\{halPeran\} lagi=\{lagiPeran\} ke=\{\(n\) => tautanHalaman\("\/konfigurasi", sp, "hal_peran", n, "roles"\)\} \/>/.test(konf),
+      c.expect(/<Penomoran halaman=\{halPeran\} lagi=\{lagiPeran\} ke=\{\(n\) => tautanHalaman\(jalanIni, sp, "hal_peran", n, "roles"\)\} locale=\{locale\}\s+benda=\{sl\("koleksi\.benda\.peran"\)\} jumlah=\{daftarPeran\.length\} ukuran=\{UKURAN_PERAN\} \/>/.test(konf),
         "the roles list has no way to its next page");
       c.expect(/persiapanSekolah\(struktur\.rows, \(assignments \?\? \[\]\)/.test(konf) && /jumlahAdminSekolah\(\(assignments \?\? \[\]\)/.test(konf),
         "the school's readiness or its admin count is no longer taken from every active role");

@@ -166,6 +166,10 @@ const DB_RUNNERS = [
   { file: "fable24.sql", fn: "selftest.run_fable24()", done: "F24-DONE", emits: ["F24-"] },
   { file: "fable25.sql", fn: "selftest.run_fable25()", done: "F25-DONE", emits: ["F25-"] },
   { file: "fable26.sql", fn: "selftest.run_fable26()", done: "F26-DONE", emits: ["F26-"] },
+  { file: "fable27.sql", fn: "selftest.run_fable27()", done: "F27-DONE", emits: ["F27-"] },
+  { file: "fable28.sql", fn: "selftest.run_fable28()", done: "F28-DONE", emits: ["F28-"] },
+  { file: "fable29.sql", fn: "selftest.run_fable29()", done: "F29-DONE", emits: ["F29-"] },
+  { file: "fable30.sql", fn: "selftest.run_fable30()", done: "F30-DONE", emits: ["F30-"] },
 ] as const;
 
 /**

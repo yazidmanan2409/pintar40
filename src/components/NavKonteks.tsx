@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LABEL_TEMPAT } from "@/lib/nama-tempat";
 import TandaTautan from "@/components/TandaTautan";
 import { t, type HleEvent, type Locale, type Persona } from "@/lib/hle";
 import { permukaanKonteks } from "@/lib/konteks";
@@ -7,17 +8,10 @@ import { peranSaya } from "@/lib/tur-negara";
 import { istilah } from "@/lib/istilah-menunggu";
 import TabTempat, { tawarkanStudio, tempatDariPeran, type Tempat } from "./TabTempat";
 import ItemNav from "./ItemNav";
+import Ikon from "./Ikon";
 
-/** Each surface's existing tab word (no new words, D-128(g)). */
-const LABEL: Record<string, HleEvent> = {
-  "/belajar": "nav.belajar",
-  "/mengajar": "nav.kelas",
-  "/pimpinan": "nav.pimpinan",
-  "/konfigurasi": "nav.konfigurasi",
-  "/pendataan": "nav.pendataan",
-  "/aktivasi": "nav.aktivasi",
-  "/studio": "nav.studio",
-};
+/** Each surface's existing tab word (no new words, D-128(g)): the one table back links read too (E-K1). */
+const LABEL: Readonly<Record<string, HleEvent>> = LABEL_TEMPAT;
 
 /**
  * L3 · THE SHELL'S NAVIGATION, FROM THE WORKING CONTEXT (CR-83; D-127 Q1; D-132 §2.4, §2.6).
@@ -69,20 +63,13 @@ export async function navKonteks({
   const tempat = k.platform ? t("config.pemeliharaan.platform", "staff", { locale }) : k.nama;
   const namaTujuan = k.tujuan === "MENGELOLA" ? istilah("context.manage_label") : null;
   if (bentuk === "nav") {
+    // E2 (D-169(c)): in the staff shell the context's place and the chooser are the context control at the top of the
+    // navigation (blokKonteks), drawn by the shell; the navigation's items are the places alone.
     return (
       <>
         {permukaanKonteks(k).filter((x) => !kecuali.includes(x)).map((href) => (
           <ItemNav key={href} href={href} label={t(LABEL[href], persona, { locale })} kini={href === kini} />
         ))}
-        {tempat || namaTujuan ? (
-          <span className="pin-nav-tempat" data-konteks-tempat="">{[namaTujuan, tempat].filter(Boolean).join(" · ")}</span>
-        ) : null}
-        {lain ? (
-          <Link href="/" className="pin-nav-pilih" data-konteks-pilih="">
-            {t("entry.title", "public", { locale })}
-            <TandaTautan />
-          </Link>
-        ) : null}
       </>
     );
   }
@@ -104,5 +91,56 @@ export async function navKonteks({
         </Link>
       ) : null}
     </>
+  );
+}
+
+/** The place's initials for the rail's context item: drawn, never read (the full name is the item's name). */
+export function inisialTempat(nama: string): string {
+  const kata = nama.split(/\s+/).map((w) => w.replace(/[^\p{L}\p{N}]/gu, "")).filter(Boolean);
+  return kata.slice(0, 2).map((w) => w[0]!.toLocaleUpperCase("id")).join("");
+}
+
+/**
+ * E2 (D-169(c)) with E1 (D-170(c)): THE CONTEXT CONTROL, at the top of every staff shell's navigation.
+ *
+ * Expanded, one quiet block: the purpose's short name as an eyebrow («Mengajar» `nav.kelas`, «Belajar»
+ * `nav.pembelajaran`; for Mengelola G1's slot `context.manage_label`, which draws nothing until Dr Gladys's words
+ * exist), the place (the school, or «Seluruh platform»), and «Mau ke mana hari ini?» to `/` only for a person who holds
+ * more than one context: the one way to change it.
+ *
+ * In the rail, one 44 px item: the place's initials (drawn, `aria-hidden`), its own visually hidden text and tooltip
+ * «Mau ke mana hari ini? · {purpose} · {place}», the chooser link. For a person with one context it is absent (E1 §1).
+ * Without a working context (an evaluation persona, C10) there is no control, as before.
+ */
+export async function blokKonteks({ locale }: { locale: Locale }) {
+  const k = await konteksSaya();
+  if (k?.keadaan !== "ADA") return null;
+  const lain = (await tempatSaya()).length > 1;
+  const tempat = k.platform ? t("config.pemeliharaan.platform", "staff", { locale }) : k.nama;
+  const tujuan = k.tujuan === "MENGELOLA" ? istilah("context.manage_label")
+    : t(k.tujuan === "BELAJAR" ? "nav.pembelajaran" : "nav.kelas", "educator", { locale });
+  const pilih = t("entry.title", "public", { locale });
+  const railNama = [pilih, tujuan, tempat].filter(Boolean).join(" · ");
+  return (
+    <div className="pin-konteks-kontrol" data-konteks-blok="">
+      <div className="pin-konteks-blok">
+        {tujuan ? <span className="pin-konteks-tujuan">{tujuan}</span> : null}
+        {tempat ? <strong className="pin-konteks-tempat" data-konteks-tempat="">{tempat}</strong> : null}
+        {lain ? (
+          <Link href="/" className="pin-konteks-pilih" data-konteks-pilih="">
+            {pilih}
+            <Ikon nama="chevron-right" />
+            <TandaTautan />
+          </Link>
+        ) : null}
+      </div>
+      {lain ? (
+        <Link href="/" className="pin-nav-item pin-konteks-rail" data-tip-host="" data-konteks-rail="">
+          <span className="pin-konteks-inisial" aria-hidden="true">{inisialTempat(tempat ?? "")}</span>
+          <span className="pin-nav-label">{railNama}</span>
+          <span className="pin-nav-tip" aria-hidden="true">{railNama}</span>
+        </Link>
+      ) : null}
+    </div>
   );
 }

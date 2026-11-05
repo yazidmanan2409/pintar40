@@ -7,6 +7,7 @@ import { currentLocale } from "@/lib/locale";
 import { navKonteks } from "@/components/NavKonteks";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
 import ItemNav from "@/components/ItemNav";
+import KepalaStudio from "@/components/studio/KepalaStudio";
 import { t } from "@/lib/hle";
 
 /**
@@ -74,11 +75,14 @@ export default async function StudioLayout({ children }: { children: React.React
     {/* W1.14 (Batch 3): the reading column at the stage width, the page head (eyebrow and title) and the tabs, as the
         other staff pages draw them (.pin-col, .pin-head); no Tailwind composition */}
     <main id="isi" tabIndex={-1} className="pin-col pin-wide">
-      <header className="pin-head">
-        <p className="pin-eyebrow">{s("app.name")}</p>
-        <h1 className="pin-h1">{s("studio.title")}</h1>
-        <div className="pin-studio-nav"><TabStudioNav tab={nav} label={s("studio.title")} /></div>
-      </header>
+      {/* A5 B10: Studio's head on Studio's own pages; a package's page draws its own (KepalaStudio) */}
+      <KepalaStudio>
+        <header className="pin-head">
+          {/* E-K7 (D-173(d)): no app-name eyebrow inside the shell */}
+          <h1 className="pin-h1">{s("studio.title")}</h1>
+          <div className="pin-studio-nav"><TabStudioNav tab={nav} label={s("studio.title")} /></div>
+        </header>
+      </KepalaStudio>
       {children}
     </main>
     </>

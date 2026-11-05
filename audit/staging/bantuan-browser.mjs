@@ -45,7 +45,7 @@ if (!DB.includes(REF) || DB.includes(PRODUCTION_REF) || !APP.includes("staging")
 mkdirSync(join(OUT, "shots"), { recursive: true });
 
 const SEKOLAH = "Sekolah Uji Kinerja (sintetis)", KELAS = "Kelas Uji Kinerja A";
-const PROBE = "/brand/pintar-selalu-logo.png";
+const PROBE = "/fonts/OFL-PlusJakartaSans.txt"; // the player's offline probe (ALAMAT_PERIKSA; D-192 retired the logo it fetched)
 const OFFER = "section.pin-bantuan";
 const TUTUP = "Sudah cukup, terima kasih";
 const LURING = "Sedang luring";

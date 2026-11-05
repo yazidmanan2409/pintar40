@@ -13,6 +13,7 @@ import { bacaPenjagaan, HALAMAN_PERANGKAT } from "@/lib/penjaga-sesi-kontrak";
 import { konteksSaya } from "@/lib/konteks-server";
 import { berandaPasangan } from "@/lib/konteks";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { evaluationState } from "@/lib/evaluation";
 
 export const generateMetadata = judulHalaman("/akun");
 
@@ -37,6 +38,12 @@ export default async function Akun() {
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const peran = await peranSaya();
   const staf = Boolean(peran?.some((p) => PERAN_STAF.includes(p)));
+  // J1.8 (W6.10), before the staff check, so a learner persona meets it too: an evaluation persona is kept out of
+  // identity. Its account is not the viewer's, so the page is not a dead end («belum bisa dimuat») beside a photo
+  // upload: it says why, and the way back is the demonstration room
+  if (await evaluationState()) {
+    return <HalamanPenolakan messageKey="evaluasi.akun_tidak_ada" persona="staff" locale={locale} backHref="/evaluasi" backKey="evaluasi.kembali" />;
+  }
   if (!staf) {
     return <HalamanPenolakan messageKey="auth.not_yet" persona="public" locale={locale} backHref="/" backKey="galat.beranda" />;
   }

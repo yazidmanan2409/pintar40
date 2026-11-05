@@ -21,6 +21,8 @@ import Ikon from "@/components/Ikon";
  * «Belum ada tanggal.» («Tanpa batas akhir» under Siapkan's «Sampai»). `galat` is the server's own sentence about
  * this field, drawn under it with the alert icon: the field is marked invalid and names the sentence after its echo,
  * focus is put on the field when the page arrives with it, and correcting the date clears it.
+ *
+ * E-K9: `disabled` means the value is fixed (Siapkan after «Disediakan»): it is drawn as text, not as a field.
  */
 export default function TanggalDenganGema({
   jenis = "date", id: idLuar, name, defaultValue, required, min, max, disabled, className = "pin-input",
@@ -63,6 +65,18 @@ export default function TanggalDenganGema({
     if (galat) setDiubah(true);
   };
   const dijelaskan = [idGema, salah ? idGalat : "", keterangan ?? ""].filter(Boolean).join(" ");
+
+  // E-K9 (D-173(d)): a date that can no longer change is a fact, not a field. It is said as text through the date
+  // helper (the echo's words), never drawn as a disabled field showing the computer's format of a value nobody can
+  // change. <output> keeps the caller's <label htmlFor> valid; a disabled field was never sent, so nothing is lost.
+  if (disabled) {
+    return (
+      <p className="pin-gema" data-tetap="">
+        <Ikon nama="calendar" />
+        <output id={id} className={kata ? undefined : "is-kosong"}>{kata || kosong || t("tanggal.belum", untuk, { locale })}</output>
+      </p>
+    );
+  }
 
   return (
     <>

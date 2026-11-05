@@ -1,5 +1,7 @@
 import { kataHalaman } from "@/lib/kata-halaman";
 import Link from "next/link";
+import TautanKembali from "@/components/TautanKembali";
+import { namaTempat, KEMBALI_RIWAYAT } from "@/lib/nama-tempat";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { peranSaya } from "@/lib/tur-negara";
@@ -12,6 +14,7 @@ import TombolKirim from "@/components/TombolKirim";
 import TangkapanLayar from "@/components/lapor/TangkapanLayar";
 import { cangkangStaf } from "@/components/lapor/cangkang";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { konteksSaya } from "@/lib/konteks-server";
 
 export const generateMetadata = judulHalaman("/lapor");
 
@@ -31,7 +34,8 @@ export default async function Lapor({ searchParams }: { searchParams: Promise<{ 
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const peran = await peranSaya();
   const staf = (peran ?? []).some((p) => p !== "STUDENT");
-  const { kind, kembali } = cangkangStaf(peran);
+  const k = await konteksSaya();
+  const { kind, kembali } = cangkangStaf(peran, k?.keadaan === "ADA" ? k : null);
   const halaman = halamanLaporan(q.dari);
   const ref = rujukanLaporan(q.ref);
   const kode = q.kode ? kodeGalatLaporan({ code: "PR100", details: q.kode }) : null;
@@ -42,7 +46,15 @@ export default async function Lapor({ searchParams }: { searchParams: Promise<{ 
     <>
       <CangkangPengalaman locale={locale} kind={kind} halamanKini="lapor" />
       <main id="isi" tabIndex={-1} className="pin-col">
-        <Link className="pin-back" href={halaman === "/" ? kembali : halaman}>← {s("lapor.kembali")}</Link>
+        {/* E-K1: back to the page the report was started from is the history-back, named as one; from no page, the place */}
+        {/* R0-4: it goes back in the history, so the page returns with its query and state (an assignment's /siapa,
+            a revision's upload, an opened record); the address it carries is the fallback, the path alone, since the
+            report itself never keeps the query */}
+        {halaman === "/" ? (
+          <Link className="pin-back" href={kembali} data-kembali="tempat">← {s(namaTempat(kembali) ?? "entry.title")}</Link>
+        ) : (
+          <TautanKembali className="pin-back" href={halaman} jenis="riwayat">← {s(KEMBALI_RIWAYAT)}</TautanKembali>
+        )}
         <div className="pin-head">
           <p className="pin-eyebrow">{s("lapor.eyebrow")}</p>
           <h1 className="pin-h1">{s("lapor.judul")}</h1>

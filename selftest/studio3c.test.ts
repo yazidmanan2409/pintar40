@@ -80,8 +80,8 @@ export const studio3cTests: SelfTest[] = [
       c.expect(/<span className=\{`pin-pill \$\{ajar\.nadaMateri\(ajar\.statusMateri\(x\)\)\}`\}>\{s\(ajar\.statusMateri\(x\)\)\}<\/span>/.test(kelas)
         && !/<span className="pin-pill pin-neutral">\{s\(ajar\.statusMateri\(x\)\)\}<\/span>/.test(kelas),
         "the class page's material rows do not draw «Tersedia» as the done Badge");
-      c.expect(/\{x\.mulai \? <span>\{s\("mengajar\.siap\.mulai"\)\} \{format\.date\(x\.mulai, locale\)\}<\/span> : null\}/.test(kelas)
-        && /<span>\{x\.sampai \? `\$\{s\("mengajar\.siap\.sampai"\)\} \$\{format\.date\(x\.sampai, locale\)\}` : s\("mengajar\.siap\.sampai\.kosong"\)\}<\/span>/.test(kelas),
+      c.expect(/\{x\.mulai \? <span>\{s\("mengajar\.siap\.mulai"\)\} \{tanggal\(x\.mulai, "hari", locale\)\}<\/span> : null\}/.test(kelas)
+        && /<span>\{x\.sampai \? `\$\{s\("mengajar\.siap\.sampai"\)\} \$\{tanggal\(x\.sampai, "hari", locale\)\}` : s\("mengajar\.siap\.sampai\.kosong"\)\}<\/span>/.test(kelas),
         "the class page's material rows do not give their window in words («Mulai … · Sampai …» or «Tanpa batas akhir»)");
       const css = baca(ctx.repoRoot, "src/app/experience.css");
       c.expect(/\.pin-pill\.pin-ok::before \{ content: "✓";/.test(css), "the ok Badge no longer draws its ✓");

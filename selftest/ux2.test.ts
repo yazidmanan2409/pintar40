@@ -137,6 +137,8 @@ export const ux2Tests: SelfTest[] = [
       const BERSAMA: Record<string, string> = {
         HalamanPenolakan: "src/components/HalamanPenolakan.tsx",
         PermukaanAsesmen: "src/app/belajar/_components/PermukaanAsesmen.tsx",
+        // B1: a Konfigurasi section's page draws Konfigurasi's own page, which holds the main
+        Konfigurasi: "src/app/konfigurasi/page.tsx",
       };
       for (const [nama, f] of Object.entries(BERSAMA)) {
         c.expect(/<main id="isi"/.test(readFileSync(join(ctx.repoRoot, f), "utf8")), `${nama} renders no <main id="isi">`);
@@ -214,7 +216,8 @@ export const ux2Tests: SelfTest[] = [
       const belajar = baca("src/app/belajar/page.tsx");
       const alert = [...belajar.matchAll(/<div className="pin-perhatian"[^>]*>\s*(<[^>]+>)/g)].map((m) => m[1]);
       c.expect(alert.length >= 2 && alert.every((x) => /<Ikon nama="triangle-alert" kelas="pin-perhatian-ikon" \/>/.test(x)), "the attention alert has no icon");
-      c.expect(/<Ikon nama="log-out" \/>\s*\{s\("sesi\.keluar"\)\}/.test(baca("src/components/BarisSesi.tsx")), "«Keluar» has no log-out icon");
+      // (E1: in the staff rail the word is visually hidden beside the icon, pin-rail-teks; still the button's own text)
+      c.expect(/<Ikon nama="log-out" \/>\s*(?:<span className="pin-rail-teks">)?\{s\("sesi\.keluar"\)\}/.test(baca("src/components/BarisSesi.tsx")), "«Keluar» has no log-out icon");
       let rinci = 0;
       for (const f of berkas(join(ctx.repoRoot, "src"), /\.tsx$/)) {
         const s = readFileSync(f, "utf8");
@@ -268,7 +271,7 @@ export const ux2Tests: SelfTest[] = [
         const mu = render(ctx.repoRoot, "src/components/BarisSesi.tsx", { locale, persona: "learner", nama: null });
         if (!c.expect(st.ok && mu.ok, `the strip could not be rendered: ${st.galat || mu.galat}`)) continue;
         const x = st.html, s = (k: Parameters<typeof t>[0]) => t(k, "staff", { locale });
-        c.expect(/<button type="button" class="pin-menu-tombol" aria-haspopup="menu" aria-expanded="false" aria-controls="pin-menu-akun"><strong>Rina Kartika<\/strong>/.test(x),
+        c.expect(/<button type="button" class="pin-menu-tombol" aria-haspopup="menu" aria-expanded="false" aria-controls="pin-menu-akun">(?:<span class="pin-avatar" aria-hidden="true">RK<\/span>)?<strong>Rina Kartika<\/strong>/.test(x),
           `(${locale}) the staff member's name is not the menu's button`);
         const menu = x.match(/<div id="pin-menu-akun" class="pin-menu" role="menu" aria-label="Rina Kartika" hidden="">([\s\S]*?)<\/div>/)?.[1] ?? "";
         const butir = [...menu.matchAll(/role="menuitem"[^>]*>([^<]+)</g)].map((m) => m[1]);
@@ -311,9 +314,10 @@ export const ux2Tests: SelfTest[] = [
       c.expect(tata.indexOf("<PenjagaSesi") > -1 && tata.indexOf("<PenjagaSesi") < tata.indexOf("{children}"), "the warning is not mounted before the page (the top)");
       const css = readFileSync(join(ctx.repoRoot, "src/app/experience.css"), "utf8");
       const r = css.match(/\n\.pin-jaga \{([^}]*)\}/)?.[1] ?? "";
-      c.expect(/background: var\(--status-attention-soft\)/.test(r) && !/position:\s*fixed/.test(r) && !/z-index/.test(r), "the warning is not on the attention ground, or it floats over the work");
+      // RESTATED FOR E3 #3 (Daisy): kept in view at the top (sticky, in the flow), never fixed over the work
+      c.expect(/background: var\(--status-attention-soft\)/.test(r) && !/position:\s*fixed/.test(r) && /position: sticky; top: var\(--space-2\); z-index: var\(--z-sticky\);/.test(r), "the warning is not on the attention ground, does not stay in view, or floats over the work");
       c.expect(!/setInterval\([^)]*1_?000\)|detik|seconds/i.test(src.split("if (!peringatan) return null;")[1] ?? ""), "the warning counts down");
-      return c.verdict("the idle warning is an alert at the top of the page, in the flow, with the clock and «PINTAR akan terkunci dalam 1 menit», on the attention ground, without a countdown");
+      return c.verdict("the idle warning is an alert at the top of the page, in the flow and kept in view (sticky), with the clock and «PINTAR akan terkunci dalam 1 menit», on the attention ground, without a countdown");
     },
   },
 ];

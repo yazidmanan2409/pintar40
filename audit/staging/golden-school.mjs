@@ -127,7 +127,7 @@ await step("G3", "GS-02: the operator gives «Admin sekolah» at the school's ro
   if (hibah(S.id) !== "0") { rec.verdict = "NOTE"; return "the administrator already holds «Admin sekolah» here; nothing to grant"; }
   // L3 (D-132 C7; J1.4): the school's first administrator is appointed in the school's own context, chosen on the chooser
   await pilihKonteks(O, { tujuan: "MENGELOLA", nama: S.nama });
-  await O.goto(`${APP}/konfigurasi?muat=${Date.now()}#roles`, { waitUntil: "networkidle", timeout: SLOW });
+  await O.goto(`${APP}/konfigurasi/roles?muat=${Date.now()}#roles`, { waitUntil: "networkidle", timeout: SLOW });
   await closeTour(O);
   // BOB19-K01 (the owner's ruling of 8 Oct, Option B; selectors only): a school with no administrator draws «Menunjuk
   // admin sekolah pertama»: the person (recorded at no school), the date, «Berikan peran», and on the second step «Ya,

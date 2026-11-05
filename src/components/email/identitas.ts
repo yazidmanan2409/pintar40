@@ -21,12 +21,14 @@
  * (IDENTITY-4.0 §4). The card as a designed object is DAISY-24's; this email
  * carries its facts and the way to Akun saya, where the QR is.
  */
-import { format, t, type HleEvent } from "@/lib/hle";
+import { format } from "@/lib/hle";
 import { tanggal } from "@/lib/tanggal";
 import type { Templat } from "@/lib/email/templat";
 import type { DataEmailKartu, DataEmailKode, DataEmailPasswordDiubah } from "@/lib/email/identitas";
 import { tampilPintarId } from "@/lib/aktivasi-kontrak";
-import { bingkaiEmail, kata, type Blok } from "./bingkai";
+import { susunKartu } from "@/lib/kartu-pintar";
+import { barisKonteks } from "@/lib/email/konteks";
+import { bingkaiEmail, kata, WARNA, WARNA_KELUARGA, type Blok } from "./bingkai";
 
 /** KODE_AKTIVASI, or KODE_ULANG when `ulang`: a code the person asked for again. */
 export const templatKode: Templat<DataEmailKode & { ulang: boolean }> = (data, konteks) => {
@@ -51,13 +53,12 @@ export const templatKode: Templat<DataEmailKode & { ulang: boolean }> = (data, k
   );
 };
 
-/** KARTU_DIGITAL: the PINTAR Card's facts, and the way to Akun saya. */
+/** KARTU_DIGITAL: the PINTAR Card as live text, and the way to Akun saya. */
 export const templatKartu: Templat<DataEmailKartu> = (data, konteks) => {
   const nama = data.nama.trim();
-  const peran = data.konteks.map((k): [string, string] => [
-    kata("email.kartu.peran"),
-    `${t(`role.${k.peran}` as HleEvent, "public", { locale: "id" })}${k.institusi ? ` · ${k.institusi}` : ""}`,
-  ]);
+  // D-074(5), D-164, P1: the Digital Card's own lines and order (susunKartu), never a second layout of the roles
+  const susunan = susunKartu(data.konteks);
+  const warna = (susunan.keluarga && WARNA_KELUARGA[susunan.keluarga]) || WARNA.terang.tinta2;
   return bingkaiEmail(
     {
       subjek: kata("email.kartu.subjek"),
@@ -66,11 +67,12 @@ export const templatKartu: Templat<DataEmailKartu> = (data, konteks) => {
       isi: [
         ...(nama ? [{ jenis: "paragraf" as const, teks: `${kata("email.kode.halo")} ${nama}.` }] : []),
         { jenis: "paragraf", teks: kata("email.kartu.isi") },
-        { jenis: "rincian", baris: [[kata("email.kartu.nama"), nama], [kata("email.kartu.id"), tampilPintarId(data.pintarId)], ...peran] },
+        { jenis: "kartu", kartu: { nama, pintarId: tampilPintarId(data.pintarId), baris: susunan.baris, warna } },
         { jenis: "paragraf", teks: kata("email.kartu.bukan_rahasia") },
         { jenis: "tombol", teks: kata("email.kartu.tombol"), href: data.tautanAkun, cadangan: true },
       ],
       alasan: kata("email.kartu.alasan"),
+      konteks: barisKonteks(susunan.urut.map((k) => k.institusi), { awal: kata("email.bingkai.konteks"), dan: kata("email.bingkai.konteks.dan") }),
     },
     konteks,
   );

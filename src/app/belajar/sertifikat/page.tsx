@@ -1,6 +1,7 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { redirect } from "next/navigation";
-import { t, format, type HleEvent } from "@/lib/hle";
+import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -11,6 +12,7 @@ import { myCertificates, institutionNames, type CertificateRow } from "@/lib/ser
 import KakiPintar from "@/components/KakiPintar";
 import { petaSesi } from "@/components/sertifikat/asalSertifikat";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { tanggal } from "@/lib/tanggal";
 
 export const generateMetadata = judulHalaman("/belajar/sertifikat");
 
@@ -79,7 +81,7 @@ export default async function DaftarSertifikat() {
         </div>
 
         {rows.length === 0 ? (
-          <p className="pin-metric">{s("sertifikat.daftar.kosong")}</p>
+          <Kosong jenis="belum" kalimat={s("sertifikat.daftar.kosong")} />
         ) : (
           <div className="pin-list">
             {rows.map((row) => {
@@ -91,8 +93,8 @@ export default async function DaftarSertifikat() {
               );
               const when =
                 row.status === "ELIGIBLE"
-                  ? `${s("sertifikat.daftar.selesai")} · ${format.date(row.issued_at_iso, locale)}`
-                  : `${s("sertifikat.daftar.terbit")} ${format.date(row.issued_at_iso, locale)}`;
+                  ? `${s("sertifikat.daftar.selesai")} · ${tanggal(row.issued_at_iso, "baca", locale)}`
+                  : `${s("sertifikat.daftar.terbit")} ${tanggal(row.issued_at_iso, "baca", locale)}`;
               const isi = (
                 <>
                   <span className="pin-eyebrow">

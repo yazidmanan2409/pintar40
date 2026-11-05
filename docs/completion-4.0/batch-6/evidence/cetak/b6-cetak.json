@@ -1,0 +1,75 @@
+{
+  "app": "http://127.0.0.1:3999",
+  "tag": "fb071e",
+  "langkah": [
+    {
+      "id": "P1",
+      "judul": "the staff shell in print: no part of the application reaches the paper (/konfigurasi, /aktivasi, /mengajar)",
+      "verdict": "PASS",
+      "catatan": [
+        "ok /konfigurasi shows its shell on screen (the check can see it)",
+        "ok /konfigurasi in print shows no shell part",
+        "ok /aktivasi shows its shell on screen (the check can see it)",
+        "ok /aktivasi in print shows no shell part",
+        "ok /mengajar shows its shell on screen (the check can see it)",
+        "ok /mengajar in print shows no shell part"
+      ],
+      "berkas": [
+        "staf-konfigurasi-cetak.png",
+        "staf-konfigurasi.pdf",
+        "staf-aktivasi-cetak.png",
+        "staf-aktivasi.pdf",
+        "staf-mengajar-cetak.png",
+        "staf-mengajar.pdf"
+      ]
+    },
+    {
+      "id": "P2",
+      "judul": "the learner shell in print: no part of the application reaches the paper (/belajar)",
+      "verdict": "PASS",
+      "catatan": [
+        "ok /belajar shows its shell on screen (the check can see it)",
+        "ok /belajar in print shows no shell part"
+      ],
+      "berkas": [
+        "murid-belajar-cetak.png",
+        "murid-belajar.pdf"
+      ]
+    },
+    {
+      "id": "P3",
+      "judul": "the class-card sheet in print: only the set, two across, no card split («5A»)",
+      "verdict": "PASS",
+      "catatan": [
+        "ok Aktivasi offers the class's cards",
+        "ok «5A» is offered",
+        "ok the sheet holds 3 cards (the three waiting learners at least)",
+        "ok the three learners now hold class cards",
+        "ok in print nothing outside the sheet shows",
+        "ok two cards across (2 column(s))",
+        "ok no card is split across pages (break-inside: avoid on every card)",
+        "ok the sheet's own print button does not print",
+        "ok the cut line prints (dashed)",
+        "ok the A4 PDF has 1 page(s) for 3 cards"
+      ],
+      "berkas": [
+        "lembar-kartu-cetak.png",
+        "lembar-kartu.pdf"
+      ]
+    },
+    {
+      "id": "P4",
+      "judul": "the Digital Card on «Akun saya» printed: each face CR80 at actual size, no shell part",
+      "verdict": "PASS",
+      "catatan": [
+        "ok «Akun saya» shows the card's two faces (2)",
+        "ok printed, the faces are 85.6 and 85.6 mm wide (CR80 is 85.6)",
+        "ok «Akun saya» in print shows no shell part"
+      ],
+      "berkas": [
+        "kartu-pintar-cetak.png",
+        "kartu-pintar.pdf"
+      ]
+    }
+  ]
+}

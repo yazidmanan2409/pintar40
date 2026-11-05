@@ -11,6 +11,7 @@ import { kunciKode, type HasilAksi } from "@/lib/galat-kontrak";
 import {
   advanceContentAction, buatTerbitanAksi, kembalikanPaketAksi, kunciTerbitanAksi, tarikTerbitanAksi, terbitkanAksi,
 } from "@/app/studio/actions";
+import { tanggal } from "@/lib/tanggal";
 import {
   LANGKAH, bolehMengambil, keadaanLangkah, kunciSalinan, posisiPaket,
   type FaktaPaket, type KunciLangkah, type Langkah,
@@ -260,9 +261,9 @@ export default function LangkahTerbit({
     return (
       <div className="pin-lt-panel" aria-labelledby="lt-kini">
         <p className="pin-eyebrow">{s("studio.langkah.keadaan.kini")}</p>
-        <h4 id="lt-kini" className="pin-lt-panel-judul">
+        <h3 id="lt-kini" className="pin-lt-panel-judul">
           {s(kunciSalinan(l.kunci, "judul"))}{gabung ? ` · ${s(kunciSalinan("kunci", "judul"))}` : null}
-        </h4>
+        </h3>
         {kabarBaris}
         <p>{s(kunciSalinan(l.kunci, "arti"))}</p>
         {gabung ? <p>{s(kunciSalinan("kunci", "arti"))}</p> : null}
@@ -303,7 +304,7 @@ export default function LangkahTerbit({
   const selesaiSemua = posisi.kini === "terbit" || posisi.kini === "ditarik";
   return (
     <section className="pin-lt" aria-labelledby="lt-judul">
-      <h3 id="lt-judul" className="pin-lt-kepala">{s("studio.langkah.judul")}</h3>
+      <h2 id="lt-judul" className="pin-lt-kepala">{s("studio.langkah.judul")}</h2>
       <p className="pin-hint">{s("studio.langkah.arti")}</p>
       {/* Daisy, Progress («Named steps») as J1Terbit draws them: a word each, done ones read as «Selesai» */}
       <ol className="pin-lt-daftar" aria-label={s("studio.langkah.judul")}>
@@ -322,12 +323,12 @@ export default function LangkahTerbit({
       {kini ? panelLangkah(kini) : posisi.kini === "terbit" ? (
         <div className="pin-lt-panel" aria-labelledby="lt-kini">
           <p className="pin-eyebrow">{s("studio.langkah.keadaan.kini")}</p>
-          <h4 id="lt-kini" className="pin-lt-panel-judul">{s("studio.langkah.terbit.judul")}</h4>
+          <h3 id="lt-kini" className="pin-lt-panel-judul">{s("studio.langkah.terbit.judul")}</h3>
           {kabarBaris}
           {(() => {
             const kalimat = (
               <p>
-                {terbitan?.terbitPada ? `${s("studio.langkah.terbit.sejak")} ${format.date(terbitan.terbitPada, locale)}. ` : ""}
+                {terbitan?.terbitPada ? `${s("studio.langkah.terbit.sejak")} ${tanggal(terbitan.terbitPada, "baca", locale)}. ` : ""}
                 {s("studio.paket.terbit_bukan_tugas")}
               </p>
             );
@@ -354,7 +355,7 @@ export default function LangkahTerbit({
       ) : posisi.kini === "ditarik" ? (
         <div className="pin-lt-panel" aria-labelledby="lt-kini">
           <p className="pin-eyebrow">{s("studio.langkah.keadaan.kini")}</p>
-          <h4 id="lt-kini" className="pin-lt-panel-judul">{s("studio.langkah.ditarik.judul")}</h4>
+          <h3 id="lt-kini" className="pin-lt-panel-judul">{s("studio.langkah.ditarik.judul")}</h3>
           {kabarBaris}
           {kabar?.jenis === "tarik"
             ? <BarisHasil nada="ok">{s("studio.langkah.ditarik.arti")}</BarisHasil>

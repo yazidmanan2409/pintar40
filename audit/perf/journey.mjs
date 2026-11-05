@@ -61,7 +61,7 @@ async function admin(browser, rep) {
   });
   // the save: rename the synthetic school's Bagian and rename it back (Konfigurasi → Struktur sekolah)
   const BAGIAN = "Bagian Uji Kinerja", SEMENTARA = "Bagian Uji Kinerja (diukur)";
-  await page.goto(`${APP}/konfigurasi#struktur`, { timeout: SLOW });
+  await page.goto(`${APP}/konfigurasi/struktur#struktur`, { timeout: SLOW });
   await usable(page, "/konfigurasi");
   await step(page, seen, R, rep, "save: Ubah nama", () => rename(page, BAGIAN, SEMENTARA));
   await step(page, seen, R, rep, "save: Ubah nama back", () => rename(page, SEMENTARA, BAGIAN));

@@ -6,7 +6,9 @@
  * evidence forwarded from the CI workflow's own jobs.
  */
 import { pilihKonteksCookie, pintuDi, tersusun } from "./konteks-uji";
+import { tanpaIsiMateri } from "./isi-materi";
 import { spawnSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createServerClient } from "@supabase/ssr";
 import { Checks, visibleText, type SelfTest, type Context } from "./lib";
@@ -290,7 +292,8 @@ function bagianUmpanBalik(raw: string): string {
 }
 
 function noInternalWords(c: Checks, html: string, where: string) {
-  const text = visibleText(html);
+  // PINTAR's own words on the page, not the author's content (selftest/isi-materi.ts; D168-KATA-1 proves the line)
+  const text = visibleText(tanpaIsiMateri(html));
   c.expect(!/PINTAR\s*4\.0/i.test(text), `${where} shows the internal version string`);
   for (const w of INTERNAL_WORDS) {
     if (w === "PINTAR 4.0") continue;
@@ -424,11 +427,12 @@ export const appTests: SelfTest[] = [
     run: async (ctx) => {
       const c = new Checks();
       const base = ctx.appUrl!;
+      // RESTATED FOR D-192: the logo artwork is gone (the wordmark is text), so /masuk loads only the fonts, and /brand/ is
+      // no longer exempt from the session check. The sign-in page must show the text wordmark and load no /brand/ file.
       const html = await (await get(`${base}/masuk`)).text();
-      c.expect(html.includes("/brand/pintar-selalu-logo.png"),
-        "/masuk no longer references /brand/pintar-selalu-logo.png, so this test would prove nothing");
+      c.expect(/<span class="pin-merek[^"]*">PINTAR<\/span>/.test(html) && !html.includes("/brand/"),
+        "/masuk does not show the text wordmark, or still loads a /brand/ file");
       const assets: Array<[string, RegExp]> = [
-        ["/brand/pintar-selalu-logo.png", /^image\/png/],
         ["/fonts/plus-jakarta-sans-latin.woff2", /font\/woff2|octet-stream/],
         ["/fonts/plus-jakarta-sans-latin-ext.woff2", /font\/woff2|octet-stream/],
         ["/fonts/ibm-plex-mono-500-latin.woff2", /font\/woff2|octet-stream/],
@@ -441,16 +445,16 @@ export const appTests: SelfTest[] = [
           `anonymous GET ${path} → ${r.status} ${r.headers.get("location") ?? ""}; expected the file itself`);
         c.expect(type.test(ct), `anonymous GET ${path} served ${ct || "no content-type"}`);
       }
-      // the exemption is those two folders and nothing that merely starts with their names
-      for (const path of ["/brandx", "/fontsx/a", "/konfigurasi", "/studio"]) {
+      // the exemption is that one folder and nothing that merely starts with its name; /brand/ is no longer exempt (D-192)
+      for (const path of ["/brand/pintar-selalu-logo.png", "/fontsx/a", "/konfigurasi", "/studio"]) {
         const r = await get(`${base}${path}`);
         const loc = r.headers.get("location") ?? "";
         c.expect([302, 303, 307, 308].includes(r.status) && /\/masuk(\?|$)/.test(loc),
           `anonymous ${path} → ${r.status} ${loc || "(no redirect)"}; expected a redirect to /masuk`);
       }
       return c.verdict(
-        "an anonymous visitor receives the logo and all four fonts the sign-in page loads, and the exemption " +
-          "stops at public/brand/ and public/fonts/: neighbouring paths and protected routes still redirect to /masuk",
+        "the sign-in page shows the text wordmark and loads no /brand/ file (D-192); an anonymous visitor receives all four fonts it loads, " +
+          "and the exemption stops at public/fonts/: /brand/, a neighbouring path and protected routes redirect to /masuk",
       );
     },
   },
@@ -480,7 +484,9 @@ export const appTests: SelfTest[] = [
       const asAdmin = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
       const adminHtml = visibleText(await asAdmin.text());
       c.expect(asAdmin.status === 200, `INSTITUTION_ADMIN /konfigurasi → ${asAdmin.status}`);
-      c.expect(adminHtml.includes(t("config.title", "staff")) && adminHtml.includes(healthCard), "INSTITUTION_ADMIN did not get the Config Studio");
+      // (B1: the health panel is Admin platform's alone; a school administrator's Konfigurasi is its index of sections)
+      c.expect(adminHtml.includes(t("config.title", "staff")) && adminHtml.includes(t("config.section.struktur", "staff")) && adminHtml.includes(t("config.section.audit", "staff")),
+        "INSTITUTION_ADMIN did not get the Config Studio");
       c.expect(adminHtml.includes("Sekolah Sintetis Alpha"), "Alpha admin does not see Alpha");
       c.expect(!adminHtml.includes("Sekolah Sintetis Beta"), "Alpha admin sees Beta (INV-13 at the app layer)");
       return c.verdict("DEAN and STUDENT refused cleanly; INSTITUTION_ADMIN sees own institution only");
@@ -559,7 +565,6 @@ export const appTests: SelfTest[] = [
     run: async (ctx) => {
       const c = new Checks();
       const base = ctx.appUrl!;
-      const healthCard = t("config.card.health", "staff");
 
       // Control: an unrelated live session, so a later refusal is attributable
       // to the sign-out and not to a broken endpoint or bad credentials.
@@ -574,7 +579,8 @@ export const appTests: SelfTest[] = [
       const before = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
       const beforeHtml = visibleText(await before.text());
       c.expect(before.status === 200, `signed-in /konfigurasi → ${before.status}, expected 200`);
-      c.expect(beforeHtml.includes(healthCard), "signed-in /konfigurasi did not render the Config Studio");
+      // (B1: the index of sections is what a signed-in administrator's Konfigurasi renders; the health panel is the platform's)
+      c.expect(beforeHtml.includes(t("config.section.struktur", "staff")), "signed-in /konfigurasi did not render the Config Studio");
 
       // 2. sign out through the route the UI posts to
       const out = await get(`${base}/keluar`, { method: "POST", headers: { cookie: admin.cookie } });
@@ -769,7 +775,8 @@ export const appTests: SelfTest[] = [
 
       const alpha = await signIn(ctx, PERSONA.alphaAdmin);
       const k = new URLSearchParams({ bagian: "roles", hasil: "gagal", kode: "ROLE_SCOPE_REQUIRED", detail: "permission denied for function grant_role" });
-      const rk = await get(`${base}/konfigurasi?${k}`, { headers: { cookie: alpha.cookie } });
+      // (B1: an action's result is said on its section's own page, where Konfigurasi's actions now return)
+      const rk = await get(`${base}/konfigurasi/roles?${k}`, { headers: { cookie: alpha.cookie } });
       const tk = visibleText(await rk.text());
       c.expect(rk.status === 200, `/konfigurasi → ${rk.status}`);
       c.expect(tk.includes(`${t("config.result.failed", "staff")} ${t("galat.role_scope_required", "staff")}`),
@@ -1204,7 +1211,8 @@ export const appTests: SelfTest[] = [
         const r = await fetch(`${base}/konfigurasi`, { method: "POST", body: fd, headers: { cookie, origin: base }, redirect: "manual" });
         return r.headers.get("location") ?? `(${r.status})`;
       };
-      const halaman = async (cookie: string, q = "") => tersusun(await (await get(`${base}/konfigurasi${q}`, { headers: { cookie } })).text());
+      // (B1: the first appointment is Peran & akses's, on its own page)
+      const halaman = async (cookie: string, q = "") => tersusun(await (await get(`${base}/konfigurasi/roles${q}`, { headers: { cookie } })).text());
       // the first-appointment section: from its marker to the end of its own form
       const bagianPertama = (html: string) => /data-admin-pertama=""/.test(html) ? html.split('data-admin-pertama=""')[1].split(/<\/form>/)[0] : "";
       const pilihanDi = (html: string, nama: string) => new RegExp(`<option value="[^"]*">${nama}</option>`).test(html);
@@ -1277,7 +1285,8 @@ export const appTests: SelfTest[] = [
 
       // 8. recovery: the last administrator revoked, the exception is back and appoints again
       const id = psql(`select id from public.role_assignments where institution_id = '${S}' and person_id = '${P1}' and revoked_at is null`);
-      const h4 = await halaman(op.cookie);
+      // (B1: a role's revocation opens in its row, ?ubah=)
+      const h4 = await halaman(op.cookie, `?ubah=${id}`);
       const formCabut = formDengan(h4, new RegExp(`name="assignment" value="${id}"`));
       const cabut = formCabut ? await kirim(op.cookie, formCabut, { assignment: id, alasan: `F22-A02 ${tag}` }) : "-";
       c.expect(/hasil=ok/.test(cabut) && adminAktif() === "0", `revoking the last administrator answered ${cabut}; active ${adminAktif()}`);
@@ -2268,11 +2277,12 @@ export const appTests: SelfTest[] = [
       const c = new Checks();
       const base = ctx.appUrl!;
       const admin = await signIn(ctx, PERSONA.alphaAdmin);
-      const res = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
+      // (B1: each section is drawn on its own page only; Struktur sekolah is /konfigurasi/struktur)
+      const res = await get(`${base}/konfigurasi/struktur`, { headers: { cookie: admin.cookie } });
       c.expect(res.status === 200, `INSTITUTION_ADMIN /konfigurasi → ${res.status}`);
       const raw = await res.text();
       const i = raw.indexOf('id="struktur"');
-      const j = raw.indexOf('id="system"', i);
+      const j = raw.indexOf("</section>", i);
       const bagian = i >= 0 && j > i ? raw.slice(i, j) : "";
       if (!c.expect(bagian.length > 0, "Konfigurasi has no Struktur sekolah section")) return c.verdict("");
       const teks = visibleText(bagian);
@@ -2298,12 +2308,12 @@ export const appTests: SelfTest[] = [
       const kanon = "PINTAR Kurikulum Nasional";
       const sys = await signIn(ctx, PERSONA.sysadmin);
       await pilihKonteksCookie(base, sys.cookie, { tujuan: "MENGELOLA", nama: "Sekolah Sintetis Alpha" });
-      for (const alamat of ["/konfigurasi", "/konfigurasi?sekolah=00000000-0000-0000-0000-000000000000"]) {
+      for (const alamat of ["/konfigurasi/struktur", "/konfigurasi/struktur?sekolah=00000000-0000-0000-0000-000000000000"]) {
         const r = await get(`${base}${alamat}`, { headers: { cookie: sys.cookie } });
         c.expect(r.status === 200, `SYSTEM_ADMIN ${alamat} → ${r.status}`);
         const html = await r.text();
         const a = html.indexOf('id="struktur"');
-        const b = html.indexOf('id="system"', a);
+        const b = html.indexOf("</section>", a);
         const sec = a >= 0 && b > a ? html.slice(a, b) : "";
         c.expect(sec.length > 0 && !/role="alert"/.test(sec), `SYSTEM_ADMIN ${alamat}: the structure section is missing or could not be read`);
         c.expect(!visibleText(sec).includes(kanon), `SYSTEM_ADMIN ${alamat}: the school picker offers or opens the national library`);
@@ -2313,15 +2323,16 @@ export const appTests: SelfTest[] = [
         headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${sys.accessToken}` },
       }).then((x) => x.json() as Promise<Array<{ id: string }>>).catch(() => [] as Array<{ id: string }>);
       if (c.expect(Array.isArray(idKanon) && idKanon.length > 0, "the national library's tenant could not be read, so the check below proves nothing")) {
-        const r = await get(`${base}/konfigurasi?sekolah=${idKanon[0].id}`, { headers: { cookie: sys.cookie } });
+        const r = await get(`${base}/konfigurasi/struktur?sekolah=${idKanon[0].id}`, { headers: { cookie: sys.cookie } });
         const html = await r.text();
         const a = html.indexOf('id="struktur"');
-        const sec = a >= 0 ? html.slice(a, html.indexOf('id="system"', a)) : "";
+        const sec = a >= 0 ? html.slice(a, html.indexOf("</section>", a)) : "";
         c.expect(sec.length > 0 && !visibleText(sec).includes(kanon), "asking for the national library by address opens it in the structure section");
       }
       await pilihKonteksCookie(base, sys.cookie, "MENGELOLA:PLATFORM");
       const platform = await (await get(`${base}/konfigurasi`, { headers: { cookie: sys.cookie } })).text();
-      c.expect(/<section id="struktur" hidden=""/.test(platform) && !/<a [^>]*href="#struktur"/.test(platform),
+      // (B1: a section the context does not draw is not in the page at all, and the index offers no row to it)
+      c.expect(!/<section id="struktur"/.test(platform) && !/<a [^>]*href="#struktur"/.test(platform) && !/data-bagian-ke="struktur"/.test(platform),
         "«Seluruh platform» draws or offers a school's structure");
       return c.verdict(
         "the school administrator's Konfigurasi opens on their school's structure, read from the database: the seeded Bagian, " +
@@ -2492,7 +2503,7 @@ export const appTests: SelfTest[] = [
         c.expect(nav.length > 0, `${peran} ${jalan}: the page has no tabs`);
         // DAISY-18: a menu link carries its working dot, an empty span at rest. D-138 step 3: in the staff navigation the
         // place is an ItemNav, its hidden icon, then its word, which is the link's name
-        c.expect(new RegExp(`<a [^>]*href="/studio"[^>]*>(?:<svg [^>]*aria-hidden="true"[^>]*>[\\s\\S]*?</svg>)?(?:<span class="pin-nav-label">)?${t("nav.studio", "staff")}(?:</span>)?(?:<span aria-hidden="true" class="pin-tanda-tautan"></span>)?</a>`).test(nav),
+        c.expect(new RegExp(`<a [^>]*href="/studio"[^>]*>(?:<svg [^>]*aria-hidden="true"[^>]*>[\\s\\S]*?</svg>)?(?:<span class="pin-nav-label">)?${t("nav.studio", "staff")}(?:</span>)?(?:<span class="pin-nav-tip" aria-hidden="true">${t("nav.studio", "staff")}</span>)?(?:<span aria-hidden="true" class="pin-tanda-tautan"></span>)?</a>`).test(nav),
           `${peran} ${jalan}: no Studio tab`);
       }
       const dekan = await signIn(ctx, PERSONA.dean);
@@ -2588,15 +2599,17 @@ export const appTests: SelfTest[] = [
       const rest = (q: string) => fetch(`${ctx.supabaseUrl}/rest/v1/${q}`, {
         headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${admin.accessToken}` },
       }).then((r) => r.json() as Promise<Array<Record<string, string | null>>>).catch(() => []);
-      const k = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
+      const k = await get(`${base}/konfigurasi/laporan`, { headers: { cookie: admin.cookie } });
       c.expect(k.status === 200, `INSTITUTION_ADMIN /konfigurasi → ${k.status}`);
-      const html = await k.text();
+      // the page as the browser puts it together: a streamed-late part is timing, not the page's shape
+      const html = tersusun(await k.text());
       const a = html.indexOf('id="laporan"');
       const b = html.indexOf("</section>", a);
       const bagian = a >= 0 && b > a ? html.slice(a, b) : "";
       if (!c.expect(bagian.length > 0, "Konfigurasi has no Laporan section")) return c.verdict("");
-      const sekolah = [...bagian.matchAll(/href="\/dekan\/ringkasan\?simpul=([0-9a-f-]{36})"/g)].map((m) => m[1]);
-      const kelas = [...bagian.matchAll(/href="\/edukator\/ringkasan\?kelas=([0-9a-f-]{36})"/g)].map((m) => m[1]);
+      // D-172 K1 / H9: each link names where it came from (&dari=konfigurasi), so the summary's way back is «Konfigurasi»
+      const sekolah = [...bagian.matchAll(/href="\/dekan\/ringkasan\?simpul=([0-9a-f-]{36})&amp;dari=konfigurasi"/g)].map((m) => m[1]);
+      const kelas = [...bagian.matchAll(/href="\/edukator\/ringkasan\?kelas=([0-9a-f-]{36})&amp;dari=konfigurasi"/g)].map((m) => m[1]);
       c.expect(sekolah.length === 1, `the Laporan section links ${sekolah.length} school summaries, expected 1`);
       c.expect(kelas.length >= 1, "the Laporan section links no class summary, though Alpha's seed has active classes");
       const simpul = await rest(`org_nodes?select=id,kind,institution_id&id=in.(${[...sekolah, ...kelas].join(",")})`);
@@ -2609,7 +2622,7 @@ export const appTests: SelfTest[] = [
       for (const [jalan, judul] of [[`/dekan/ringkasan?simpul=${sekolah[0]}`, "laporan.institusi.judul"], [`/edukator/ringkasan?kelas=${kelas[0]}`, "laporan.kelas.judul"]] as const) {
         if (!sekolah[0] || !kelas[0]) break;
         const r = await get(`${base}${jalan}`, { headers: { cookie: admin.cookie } });
-        const x = await r.text();
+        const x = tersusun(await r.text());
         const teks = visibleText(x);
         c.expect(r.status === 200 && teks.includes(t(judul, "staff")), `${jalan} → ${r.status} without its title`);
         c.expect(!teks.includes(t("laporan.kosong", "staff")), `${jalan} finds no report for the administrator's own school`);
@@ -2621,7 +2634,7 @@ export const appTests: SelfTest[] = [
         const sesi = await signIn(ctx, orang);
         const r = await get(`${base}/pimpinan`, { headers: { cookie: sesi.cookie } });
         if (!c.expect(r.status === 200, `${peran} /pimpinan → ${r.status}`)) continue;
-        const x = await r.text();
+        const x = tersusun(await r.text());
         const i = x.indexOf('id="pin-perkelas"');
         if (!c.expect(i >= 0, `${peran}: Pimpinan has no class-by-class section above the classes`)) continue;
         const sec = x.slice(i, x.indexOf("</section>", i));
@@ -2642,22 +2655,24 @@ export const appTests: SelfTest[] = [
           "metrik.perbandingan_kohort.label", "metrik.kompetensi.label", "metrik.kredensial.label"].map((k) => t(k as HleEvent, "staff"));
         const adaSekolah = labelSekolah.some((l) => figur.includes(l));
         const lanjut = x.slice(x.indexOf('id="pin-lanjut"'));
-        const keSekolah = [...lanjut.matchAll(/href="(\/dekan\/ringkasan\?simpul=[0-9a-f-]{36})"/g)].map((m) => m[1]);
+        const keSekolah = [...lanjut.matchAll(/href="(\/dekan\/ringkasan\?simpul=[0-9a-f-]{36}&amp;dari=pimpinan)"/g)].map((m) => m[1]);
         c.expect(keSekolah.length === (adaSekolah ? 1 : 0), `${peran}: ${keSekolah.length} school-summary link(s) while Pimpinan ${adaSekolah ? "shows" : "shows no"} school figure`);
         if (peran === "DEAN") c.expect(adaSekolah && keSekolah.length === 1, "DEAN at Alpha's root is not offered the school summary from Pimpinan");
         const perKelas = [...sec.matchAll(/<details[^>]*class="pin-kelas-bukti"[^>]*>([\s\S]*?)<\/details>/g)].map((m) => m[1]);
         const tandaKelas = (d: string) => (/<span class="pin-kelas-tanda">([^<]+)<\/span>/.exec(d)?.[1] ?? "").replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
         const bolehKelas = perKelas.filter((d) => tandaKelas(d) !== t("laporan.metrik.bukan_untuk_anda", "staff"));
-        const keKelas = perKelas.map((d) => /href="(\/edukator\/ringkasan\?kelas=[0-9a-f-]{36})"/.exec(d)?.[1]);
+        const keKelas = perKelas.map((d) => /href="(\/edukator\/ringkasan\?kelas=[0-9a-f-]{36}&amp;dari=pimpinan)"/.exec(d)?.[1]?.replace(/&amp;/g, "&"));
         c.expect(perKelas.every((d, i) => Boolean(keKelas[i]) === bolehKelas.includes(d)),
-          `${peran}: a class links its summary other than exactly when its figures are the reader's`);
+          `${peran}: a class links its summary other than exactly when its figures are the reader's (` +
+          perKelas.filter((d, i) => Boolean(keKelas[i]) !== bolehKelas.includes(d))
+            .map((d) => `${/pin-kelas-nama">([^<]+)/.exec(d)?.[1] ?? "?"}: ${tandaKelas(d)}; ${(d.match(/href="[^"]*ringkasan[^"]*"/g) ?? []).join(" ") || "no link"}`).join(" / ") + ")");
         const tujuan: Array<[string, HleEvent]> = [];
         if (keSekolah[0]) tujuan.push([keSekolah[0].replace(/&amp;/g, "&"), "laporan.institusi.judul"]);
         const kelasPertama = keKelas.find(Boolean);
         if (kelasPertama) tujuan.push([kelasPertama, "laporan.kelas.judul"]);
         for (const [jalan, judul] of tujuan) {
           const r2 = await get(`${base}${jalan}`, { headers: { cookie: sesi.cookie } });
-          const x2 = await r2.text();
+          const x2 = tersusun(await r2.text());
           const teks = visibleText(x2);
           c.expect(r2.status === 200 && teks.includes(t(judul, "staff")), `${peran} ${jalan} → ${r2.status} without its title`);
           c.expect(!teks.includes(t("laporan.kosong", "staff")), `${peran} ${jalan} finds no report`);
@@ -2673,6 +2688,144 @@ export const appTests: SelfTest[] = [
         "summarised as having figures, none yet, or not theirs; from Pimpinan the dean opens the school summary, which is " +
         "linked exactly when a school figure is theirs, and each readable class opens its own summary, never a page of refusals",
       );
+    },
+  },
+  {
+    id: "D168-B1-1",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // E-B1-1 (B1, D-166(a)): every older Konfigurasi address keeps working once it is an index and a page per section.
+      // Over real HTTP against the seed: each older address lands on its section's page with every parameter it carried
+      // (one redirect), that page draws its section and only it, under its own h1, with the same result line; the index
+      // lists exactly the sections the context draws; a school-shaped section asked for in «Seluruh platform», and a
+      // section that does not exist, go to the index. A fragment is forwarded by the index in the browser (TerusBagian;
+      // the walks open those addresses).
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const { BAGIAN_KONFIGURASI, bagianDariJangkar } = await import("../src/lib/bagian-konfigurasi");
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+      const sys = await signIn(ctx, PERSONA.sysadmin);
+      await pilihKonteksCookie(base, sys.cookie, "MENGELOLA:PLATFORM");
+      const lompat = async (cookie: string, jalan: string) => {
+        const r = await get(`${base}${jalan}`, { headers: { cookie } });
+        const html = r.status === 200 ? await r.text() : "";
+        // a redirect from inside the streamed page arrives as the framework's refresh, after the loading state
+        const segar = /<meta[^>]*http-equiv="refresh"[^>]*content="\d+;url=([^"]+)"/.exec(html)?.[1]?.replace(/&amp;/g, "&");
+        return { status: r.status, ke: r.headers.get("location") ?? segar ?? "", segar: Boolean(segar), html: tersusun(html) };
+      };
+      const terlihat = (html: string) => [...html.matchAll(/<section id="([a-z-]+)"(?![^>]*\bhidden\b)[^>]*>/g)].map((m) => m[1]).filter((id) => (BAGIAN_KONFIGURASI as readonly string[]).includes(id));
+      // 1. the older addresses, from the actions, the walks and the pages' own forms and pagers
+      const LAMA: Array<[string, string]> = [
+        ["/konfigurasi?bagian=roles&hasil=ok&kode=ROLE_GRANTED", "/konfigurasi/roles?bagian=roles&hasil=ok&kode=ROLE_GRANTED"],
+        ["/konfigurasi?bagian=transfers&cari_sekolah=Beta", "/konfigurasi/transfers?bagian=transfers&cari_sekolah=Beta"],
+        ["/konfigurasi?bagian=ketuntasan&hasil=gagal&kode=X&asal=tetapkan", "/konfigurasi/ketuntasan?bagian=ketuntasan&hasil=gagal&kode=X&asal=tetapkan"],
+        ["/konfigurasi?bagian=laporan-masalah&lapor=MOVED&hal_lapor=2", "/konfigurasi/laporan-masalah?bagian=laporan-masalah&lapor=MOVED&hal_lapor=2"],
+        ["/konfigurasi?angkat=x&lingkup=y&sampai=2027-01-01", "/konfigurasi/roles?angkat=x&lingkup=y&sampai=2027-01-01"],
+        ["/konfigurasi?hal_jejak=2", "/konfigurasi/audit?hal_jejak=2"],
+        ["/konfigurasi?dari=abc", "/konfigurasi/pindah?dari=abc"],
+        ["/konfigurasi?pm_cek=1&pm_sekolah=s", "/konfigurasi/pemeliharaan?pm_cek=1&pm_sekolah=s"],
+      ];
+      for (const [lama, harap] of LAMA) {
+        const r = await lompat(admin.cookie, lama);
+        c.expect([307, 308].includes(r.status) && new URL(r.ke, base).pathname + new URL(r.ke, base).search === harap, `${lama} → ${r.status} ${r.ke}, not ${harap}`);
+      }
+      // 2. the result line is said on the section's page, and the section is the page's only one, under its own h1
+      const hasil = await lompat(admin.cookie, "/konfigurasi/roles?bagian=roles&hasil=ok&kode=ROLE_GRANTED");
+      c.expect(hasil.status === 200 && JSON.stringify(terlihat(hasil.html)) === JSON.stringify(["roles"]), `/konfigurasi/roles draws ${JSON.stringify(terlihat(hasil.html))}`);
+      c.expect(new RegExp(`<h1[^>]*>${t("config.section.roles", "staff").replace("&", "&amp;")}</h1>`).test(hasil.html), "the section's page is not headed by its section");
+      c.expect(visibleText(hasil.html).includes(t("config.result.ok", "staff")), "the saved grant's result line is not on Peran & akses's page");
+      c.expect(/<a class="pin-back pin-noprint" href="\/konfigurasi">← /.test(hasil.html), "the section's page has no way back to Konfigurasi");
+      // 3. every section the school's context draws has its page; the index lists exactly them, each opening its page
+      const indeks = await lompat(admin.cookie, "/konfigurasi");
+      const baris = [...indeks.html.matchAll(/data-bagian-ke="([a-z-]+)"/g)].map((m) => m[1]);
+      c.expect(indeks.status === 200 && terlihat(indeks.html).length === 0 && baris.length === BAGIAN_KONFIGURASI.length, `the school's index lists ${baris.length} sections and draws ${terlihat(indeks.html).join(", ") || "none"}`);
+      for (const b of baris) {
+        const r = await lompat(admin.cookie, `/konfigurasi/${b}`);
+        c.expect(r.status === 200 && JSON.stringify(terlihat(r.html)) === JSON.stringify([b]), `/konfigurasi/${b} → ${r.status}, draws ${JSON.stringify(terlihat(r.html))}`);
+      }
+      // 4. «Seluruh platform»: the index lists the platform's sections only; a school-shaped one, or none, goes to the index
+      const pIndeks = await lompat(sys.cookie, "/konfigurasi");
+      const pBaris = [...pIndeks.html.matchAll(/data-bagian-ke="([a-z-]+)"/g)].map((m) => m[1]).sort();
+      c.expect(JSON.stringify(pBaris) === JSON.stringify(["audit", "laporan-masalah", "pemeliharaan", "roles", "system"]), `«Seluruh platform» lists ${pBaris.join(", ")}`);
+      for (const jalan of ["/konfigurasi/struktur", "/konfigurasi/transfers", "/konfigurasi/bukan-bagian"]) {
+        const r = await lompat(sys.cookie, jalan);
+        // the context is the session's, read by the page: its redirect is the framework's (a 307, or the refresh once streamed)
+        c.expect(([307, 308].includes(r.status) || r.segar) && r.ke !== "" && new URL(r.ke, base).pathname === "/konfigurasi" && !terlihat(r.html).length,
+          `«Seluruh platform» ${jalan} → ${r.status} ${r.ke}, not the index`);
+      }
+      // 5. the fragments the index forwards
+      for (const [h, b] of [["#struktur", "struktur"], ["#roles", "roles"], ["#laporan-0ad39ff1-7075-4da7-b264-f542b9eea0e3", "laporan-masalah"], ["#persiapan", null], ["#isi", null]] as const) {
+        c.expect(bagianDariJangkar(h) === b, `the index forwards ${h} to ${bagianDariJangkar(h)}, not ${b}`);
+      }
+      c.expect(/<TerusBagian \/>/.test(readFileSync(`${ctx.repoRoot}/src/app/konfigurasi/page.tsx`, "utf8")), "the index does not forward an older fragment");
+      return c.verdict("every older Konfigurasi address (the actions' results, a section's own parameters, its pagers) lands on its section's page with every parameter; that page draws its section alone under its own h1, with its result line and the way back; the school's index lists every section and each opens its page; «Seluruh platform» lists its five and sends a school-shaped or unknown section to the index; older fragments are forwarded");
+    },
+  },
+  {
+    id: "D168-B1-6",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // B1 §1 «Pemeliharaan dan pengumuman» and the tree (§4): a section page's h1 names the section, so its parts are
+      // h2s and no heading skips a level; Pemeliharaan is a two-step form, then the windows as records, then the
+      // notices, then (Admin platform only) «Hentikan sekarang», last and set apart; a window's and a notice's one
+      // action opens its reason in place (?ubah=), named with its record.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const { BAGIAN_KONFIGURASI } = await import("../src/lib/bagian-konfigurasi");
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+      const sys = await signIn(ctx, PERSONA.sysadmin);
+      await pilihKonteksCookie(base, sys.cookie, "MENGELOLA:PLATFORM");
+      const halaman = async (cookie: string, jalan: string) => {
+        const r = await get(`${base}${jalan}`, { headers: { cookie } });
+        return r.status === 200 ? tersusun(await r.text()) : "";
+      };
+      const tingkat = (html: string) => {
+        const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
+        // the section's own first h2 is not drawn (display: none, it names the region); what is drawn starts at h1
+        return [...main.matchAll(/<h([1-6])\b[^>]*>/g)].map((m) => Number(m[1]));
+      };
+      let dilihat = 0;
+      for (const [nama, cookie] of [["Admin sekolah", admin.cookie], ["Admin platform", sys.cookie]] as const) {
+        for (const b of BAGIAN_KONFIGURASI) {
+          const html = await halaman(cookie, `/konfigurasi/${b}`);
+          if (!new RegExp(`<section id="${b}"`).test(html)) continue;
+          dilihat++;
+          const t = tingkat(html);
+          c.expect(t[0] === 1 && t.slice(1).every((n) => n === 2), `${nama}: /konfigurasi/${b}'s headings run ${t.join(",")}; after its h1 every part is an h2`);
+        }
+      }
+      c.expect(dilihat >= 18, `only ${dilihat} section pages were read`);
+      // Pemeliharaan's parts in order, «Hentikan sekarang» last and only Admin platform's
+      const urutan = (html: string) => [...html.matchAll(/<section[^>]*aria-labelledby="(pin-pm-[a-z]+)"/g)].map((m) => m[1]);
+      const pSys = await halaman(sys.cookie, "/konfigurasi/pemeliharaan");
+      const pAdm = await halaman(admin.cookie, "/konfigurasi/pemeliharaan");
+      c.expect(JSON.stringify(urutan(pSys)) === JSON.stringify(["pin-pm-jadwal", "pin-pm-daftar", "pin-pm-umum", "pin-pm-henti"]), `Admin platform's Pemeliharaan reads ${urutan(pSys).join(", ")}`);
+      c.expect(JSON.stringify(urutan(pAdm)) === JSON.stringify(["pin-pm-jadwal", "pin-pm-daftar", "pin-pm-umum"]) && !/data-hentikan/.test(pAdm), `Admin sekolah's Pemeliharaan reads ${urutan(pAdm).join(", ")}`);
+      const henti = pSys.slice(pSys.indexOf('aria-labelledby="pin-pm-henti"'));
+      c.expect(/\brequired\b/.test(/<input[^>]*name="konfirmasi"[^>]*>/.exec(henti)?.[0] ?? "") && /pin-str-bahaya/.test(henti.slice(0, henti.indexOf("</form>"))), "«Hentikan sekarang» has no typed phrase or no destructive button");
+      // step 1 alone draws no schedule form; step 2 draws it with the collision line
+      c.expect(!/name="asal" value="jadwal"/.test(pAdm), "the schedule form is drawn before the time is checked");
+      const sekolahId = /name="pm_sekolah" value="([0-9a-f-]{36})"/.exec(pAdm)?.[1];
+      const langkah2 = sekolahId ? await halaman(admin.cookie, `/konfigurasi/pemeliharaan?pm_cek=1&pm_sekolah=${sekolahId}&pm_mulai=2030-01-05T19:00&pm_selesai=2030-01-05T21:00`) : "";
+      const blok2 = langkah2.slice(langkah2.indexOf('data-tabrakan="1"'), langkah2.indexOf('value="jadwal"'));
+      c.expect(/name="asal" value="jadwal"/.test(langkah2) && /role="status"/.test(blok2), `step 2 does not draw the schedule form after its collision line: ${visibleText(blok2).slice(0, 300)}`);
+      // the records, from the source: one action at the row's end, named with its record, opened in place
+      const src = readFileSync(`${ctx.repoRoot}/src/app/konfigurasi/page.tsx`, "utf8");
+      const pm = src.slice(src.indexOf('<section id="pemeliharaan"'), src.indexOf('aria-labelledby="pin-pm-henti"'));
+      for (const [rec, aksi] of [["w", "ubahPemeliharaanAction"], ["n", "tarikPengumumanAction"]] as const) {
+        c.expect(new RegExp(`ubah !== ${rec}\\.id \\? \\(\\s*<div>\\s*<Link href=\\{tautanUbah\\(${rec}\\.id, [^)]*\\)\\} className=\\{button\\} data-buka-ubah="">\\s*\\{kata\\}<span className="pin-sr"> · \\{nama\\}</span>`).test(pm),
+          `${aksi}: the row's action is not a link opening it in place, named with its record`);
+        c.expect(new RegExp(`<form action=\\{${aksi}\\}[^>]*aria-label=\\{\`\\$\\{kata\\} · \\$\\{nama\\}\`\\}`).test(pm) && (pm.match(new RegExp(`<form action=\\{${aksi}\\}`, "g")) ?? []).length === 1,
+          `${aksi}: the opened form is not named like its action, or is drawn more than once`);
+        c.expect(new RegExp(`ubah === ${rec}\\.id \\? "bg-surface-2"`).test(pm), `${aksi}: the opened row does not take surface-2`);
+      }
+      c.expect((pm.match(/\{s\("config\.angkat\.batal"\)\}<\/Link>/g) ?? []).length === 2, "an opened window or notice has no «Batal»");
+      c.expect(/<div className="pin-banner pin-attention" role="status" data-tabrakan-perhatian="">\s*<Ikon nama="triangle-alert" \/>/.test(pm), "the collision is not the attention alert with its icon");
+      c.expect(/"sekolah", "hal_peran", "hal_lapor", "hal_pindah", "hal_jendela", "hal_pengumuman"/.test(src), "opening a window or notice loses its list's page");
+      const css = readFileSync(`${ctx.repoRoot}/src/app/experience.css`, "utf8");
+      c.expect(/\.pin-baris-isian \{ display: grid; grid-template-columns: repeat\(auto-fit, minmax\(min\(100%, 220px\), 1fr\)\);/.test(css) && (pm.match(/className="pin-baris-isian"/g) ?? []).length === 2,
+        "two short fields do not share a row (FormLayout, auto-fit at 220 px)");
+      return c.verdict("every Konfigurasi section page, for Admin sekolah and Admin platform, runs h1 then h2s only; Pemeliharaan is the two-step schedule (no form before the check, the collision line before it), the windows, the notices and, for Admin platform alone, «Hentikan sekarang» last with its typed phrase and destructive button; a window's and a notice's one action opens its reason in place, named with its record, on surface-2 with «Batal», keeping its list's page; two short fields share a row");
     },
   },
   {
@@ -2784,8 +2937,9 @@ export const appTests: SelfTest[] = [
         c.expect(k.n("/rest/v1/rpc/platform_schema_lint") === 0, `${peran} /konfigurasi ran the schema lint on an ordinary load`);
       }
       // (e) the page "Berikan peran" returns to once the grant is saved
-      const kembali = await klik(sys.cookie, "/konfigurasi?bagian=roles&hasil=ok");
-      sekali("SYSTEM_ADMIN", "/konfigurasi?bagian=roles&hasil=ok", kembali);
+      // (B1: a saved grant returns to Peran & akses's own page)
+      const kembali = await klik(sys.cookie, "/konfigurasi/roles?bagian=roles&hasil=ok");
+      sekali("SYSTEM_ADMIN", "/konfigurasi/roles?bagian=roles&hasil=ok", kembali);
       c.expect(kembali.n("/rest/v1/rpc/platform_schema_lint") === 0, "the page a saved grant returns to ran the schema lint");
       const diminta = await klik(sys.cookie, "/konfigurasi?periksa=skema");
       sekali("SYSTEM_ADMIN", "/konfigurasi?periksa=skema", diminta);
@@ -2983,8 +3137,10 @@ export const appTests: SelfTest[] = [
       const sekolah = await klik(admin.cookie, "/konfigurasi");
       c.expect(sekolah.status === 200 && sekolah.n("/rest/v1/rpc/persons_awaiting_first_role") === 0,
         `the school administrator's Konfigurasi still asks persons_awaiting_first_role (${sekolah.n("/rest/v1/rpc/persons_awaiting_first_role")} times), which the database refuses`);
-      c.expect(kartu(sekolah.html).includes(s("config.kesehatan.bukan_admin")) && sekolah.n("/rest/v1/rpc/platform_schema_lint") === 0,
-        "the school administrator's card does not say who runs the checks");
+      // RESTATED FOR B1 (D-166(a), RV-24): Konfigurasi's health panel is Admin platform's alone; a school administrator's
+      // index draws no tile for a check they cannot run, and still never runs the lint
+      c.expect(kartu(sekolah.html) === "" && !visibleText(sekolah.html).includes(s("config.card.health")) && sekolah.n("/rest/v1/rpc/platform_schema_lint") === 0,
+        "the school administrator's Konfigurasi draws a health panel for checks it cannot run, or runs the lint");
 
       // and Studio is a school's: the platform administrator's, in the learning-cycle school's working context
       await pilihKonteksCookie(base, sys.cookie, { tujuan: "MENGELOLA", nama: "Sekolah Sintetis Siklus" });
@@ -3164,7 +3320,7 @@ export const appTests: SelfTest[] = [
         c.expect(tanya.status === 307 && (tanya.headers.get("location") ?? "").startsWith("/?lanjut="),
           `with two schools held, /konfigurasi did not ask which (${tanya.status} ${tanya.headers.get("location")})`);
         await pilihKonteksCookie(base, admin.cookie, `MENGELOLA:${S}`);
-        const hal = await get(`${base}/konfigurasi?sekolah=${S}`, { headers: { cookie: admin.cookie } });
+        const hal = await get(`${base}/konfigurasi/roles?sekolah=${S}`, { headers: { cookie: admin.cookie } });
         const html = await hal.text();
         const teks = visibleText(html);
         c.expect(hal.status === 200, `the school admin's /konfigurasi → ${hal.status}`);
@@ -3317,4 +3473,118 @@ export const appTests: SelfTest[] = [
   ...bob50AppTests,
   // BOB-51 (D-057, REL-08): «Kirim email uji», the platform admin's delivery proof, through the running app
   ...bob51AppTests,
+  {
+    id: "R0-MEDIA-01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // R0-5 (W2.12, RV-8; Batch 0's «/api/assets/read-url» observation, never triaged): a lesson's medium whose file is
+      // not there is offered by no address. A recording already said so in words; a PDF was still drawn as «Buka
+      // ringkasan» and opened the route's raw {"error":"not_found"}. Rendered against the seed, with the object absent
+      // and then placed, so the check is shown to tell the two apart.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      if (!c.expect(Boolean(ctx.supabaseServiceRoleKey), "no service-role key to place or remove the media object")) return c.verdict("");
+      const murid = await signIn(ctx, PERSONA.cycleLearner);
+      const rpc = async (nama: string, body: unknown) => {
+        const r = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/${nama}`, { method: "POST",
+          headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${murid.accessToken}`, "content-type": "application/json" }, body: JSON.stringify(body) });
+        return r.ok ? ((await r.json()) as unknown) : null;
+      };
+      let tugas = "", pelajaran = "", jalur = "";
+      for (const a of ((await rpc("my_learning_assignments", {})) ?? []) as Array<{ learning_assignment_id: string }>) {
+        for (const l of ((await rpc("learner_lessons", { p_learning_assignment: a.learning_assignment_id })) ?? []) as
+          Array<{ lesson_id: string; media: Array<{ jenis: string; path: string }> | null }>) {
+          const m = (l.media ?? []).find((x) => x.jenis === "pdf");
+          if (m && !jalur) { tugas = a.learning_assignment_id; pelajaran = l.lesson_id; jalur = m.path; }
+        }
+      }
+      if (!c.expect(jalur !== "", "the seeded learner has no lesson with a PDF, so this test would prove nothing")) return c.verdict("");
+      const layanan = { apikey: ctx.supabaseServiceRoleKey!, authorization: `Bearer ${ctx.supabaseServiceRoleKey!}` };
+      const hapus = () => fetch(`${ctx.supabaseUrl}/storage/v1/object/assets`, { method: "DELETE", headers: { ...layanan, "content-type": "application/json" }, body: JSON.stringify({ prefixes: [jalur] }) });
+      const tautan = `/api/assets/read-url?path=${encodeURIComponent(jalur)}&amp;alih=1`;
+      const lihat = async () => (await get(`${base}/belajar/${tugas}/pelajaran/${pelajaran}`, { headers: { cookie: murid.cookie } })).text();
+      // RESTATED (R0-5 moved into the route, INV-37: the service role never leaves src/app/api/): the page draws the PDF
+      // through TautanBerkas, which asks the read route; the route answers 404 for an absent file and the address for
+      // a placed one. The withdrawal in a browser is the Batch 5 walk's B5-W8.
+      const json = tautan.replace(/&amp;alih=1/, "");
+      await hapus();
+      const tanpa = await get(`${base}${json}`, { headers: { cookie: murid.cookie } });
+      c.expect(tanpa.status === 404, `with the file absent the route answers ${tanpa.status}, not 404`);
+      const put = await fetch(`${ctx.supabaseUrl}/storage/v1/object/assets/${jalur}`, { method: "POST",
+        headers: { ...layanan, "content-type": "application/pdf", "x-upsert": "true" }, body: "%PDF-1.4 R0-5" });
+      c.expect(put.ok, `placing the PDF at ${jalur} failed (${put.status})`);
+      const dengan = await get(`${base}${json}`, { headers: { cookie: murid.cookie } });
+      c.expect(dengan.status === 200 && typeof ((await dengan.json()) as { url?: string }).url === "string", `with the file placed the route answers ${dengan.status}`);
+      await hapus();
+      const html = await lihat();
+      c.expect(html.includes(tautan) && html.includes('data-berkas=""'), "the lesson does not draw its PDF through TautanBerkas");
+      const sumber = (f: string) => readFileSync(`${ctx.repoRoot}/${f}`, "utf8");
+      for (const f of ["src/app/belajar/_components/LessonPlayer.tsx", "src/app/studio/pratinjau/[pelajaran]/page.tsx"]) {
+        const x = sumber(f);
+        c.expect(/<TautanBerkas href=/.test(x) && !/<a href=\{(?:entry|m)\.url!?\}/.test(x), `${f} draws a lesson file's link of its own`);
+      }
+      const tb = sumber("src/components/pelajaran/TautanBerkas.tsx");
+      c.expect(/href\.replace\(\/&alih=1\\b\/, ""\)/.test(tb) && /r\.status === 404\) setAda\(false\)/.test(tb) && !/supabase/i.test(tb), "TautanBerkas does not ask the route, or reaches storage itself");
+      return c.verdict("for the seeded learner's PDF the read route answers 404 while its file is absent and its address once placed; both the learner's lesson and Studio's preview draw lesson files through TautanBerkas, which asks that route and withdraws the link on a 404, never reaching storage itself (INV-37); the browser half is B5-W8");
+    },
+  },
+  {
+    // W2.17 (FD-4, R.5): NAMES AND READS AT TEN TIMES STAGING'S ENROLMENTS. Staging held 1,323 active enrolments when
+    // FD-4 was found; this seeds 13,300 more into the synthetic Alpha school, then opens the two Konfigurasi pickers that
+    // list a school's people (the transfer form's «from enrolment» and the roles form's person) as Alpha's admin.
+    // Each must find a person by name wherever they lie in the school (the API's 1,000-row cap must not hide anyone),
+    // list no more than a page of 50, and name every option, never an id fragment. The seeded rows are removed after.
+    id: "W217-SKALA-01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const db = process.env.SUPABASE_DB_URL!;
+      const sql = (q: string) => {
+        const r = spawnSync("psql", ["-q", "-v", "ON_ERROR_STOP=1", "-At", "-c", q, db], { encoding: "utf8" });
+        if (r.status !== 0) throw new Error(`psql: ${(r.stderr || "").trim().split("\n").pop()}`);
+        return r.stdout.trim();
+      };
+      const tag = randomBytes(3).toString("hex");
+      const N = 13300;
+      const [sekolah, periode] = sql(`select i.id, (select p.id from public.academic_periods p where p.institution_id = i.id order by p.starts_on desc limit 1)
+        from public.institutions i where i.slug like '%alpha%' and i.is_synthetic order by i.created_at limit 1`).split("|");
+      if (!c.expect(!!sekolah && !!periode, "the synthetic Alpha school or its school year is not seeded")) return c.verdict("");
+      const pola = `W217 ${tag}`;
+      const terakhir = `${pola} ${String(N).padStart(5, "0")}`;
+      try {
+        sql(`with p as (insert into public.persons (display_name) select '${pola} ' || lpad(g::text, 5, '0') from generate_series(1, ${N}) g returning id)
+             insert into public.enrollments (person_id, institution_id, academic_period_id, status) select id, '${sekolah}', '${periode}', 'ACTIVE' from p`);
+        c.expect(Number(sql(`select count(*) from public.enrollments where institution_id = '${sekolah}' and status = 'ACTIVE'`)) > N, "the 13,300 enrolments were not seeded");
+        const admin = await signIn(ctx, PERSONA.alphaAdmin);
+        const pilihan = (html: string, nama: string) => {
+          const m = new RegExp(`<select[^>]*name="${nama}"[^>]*>([\\s\\S]*?)</select>`).exec(html);
+          return m ? [...m[1].matchAll(/<option[^>]*value="([^"]+)"[^>]*>([\s\S]*?)<\/option>/g)].map((x) => visibleText(x[2]).trim()) : null;
+        };
+        for (const [alamat, nama] of [["/konfigurasi/transfers", "from_enrollment"], ["/konfigurasi/roles", "person"]] as const) {
+          const t0 = Date.now();
+          // the transfer form is drawn once its destination school is found by its exact name (W2.15)
+          const tujuan = alamat.endsWith("transfers") ? `&cari_sekolah=${encodeURIComponent("Sekolah Sintetis Beta")}` : "";
+          const r = await get(`${base}${alamat}?cari_orang=${encodeURIComponent(terakhir)}${tujuan}`, { headers: { cookie: admin.cookie } });
+          const ms = Date.now() - t0;
+          const html = await r.text();
+          const o = pilihan(html, nama);
+          c.expect(r.status === 200 && o !== null, `${alamat} → ${r.status}, ${o === null ? `no «${nama}» picker` : "a picker"}`);
+          if (!o) continue;
+          c.expect(o.some((x) => x.startsWith(terakhir)), `${alamat}: the 13,300th person, searched by name, is not offered (${o.length} options; the API's 1,000-row cap hides them)`);
+          c.expect(o.length <= 50, `${alamat}: the picker lists ${o.length} people; at most a page of 50`);
+          c.expect(o.every((x) => !/^[0-9a-f]{8}\b/.test(x)), `${alamat}: an option is named by an id fragment`);
+          const semua = await get(`${base}${alamat}${tujuan.replace(/^&/, "?")}`, { headers: { cookie: admin.cookie } });
+          const os = pilihan(await semua.text(), nama) ?? [];
+          c.expect(os.length <= 50, `${alamat} without a search lists ${os.length} people; at most a page of 50`);
+          console.log(`  W217-SKALA-01 ${alamat}: ${ms} ms with ${N} more enrolments; ${o.length} offered for the name, ${os.length} unsearched`);
+        }
+      } finally {
+        // enrolments are append-only (INV-23): the seeded ones are ended, the one transition allowed, so no later test meets them
+        sql(`update public.enrollments set status = 'ENDED', end_reason = 'WITHDRAWN' where status = 'ACTIVE'
+             and person_id in (select id from public.persons where display_name like '${pola} %')`);
+      }
+      return c.verdict("with 13,300 more active enrolments in one school (10× staging's 1,323), both Konfigurasi pickers that list a school's people (the transfer form's enrolment and the roles form's person) find the last one seeded by name, list at most a page of 50 with or without a search, and name every option, never an id fragment; the seeded enrolments are ended after (append-only, INV-23)");
+    },
+  },
 ];

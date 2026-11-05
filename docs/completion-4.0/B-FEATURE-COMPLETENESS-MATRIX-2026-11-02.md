@@ -68,8 +68,8 @@
 | J2.12 | ID + PIN recovery; ladder; assisted reset (D-101(1)) | A | VERIFIED | BOB28-*, D101-A02; GS R3 | Ladder and assisted reset not walked → W6.10 |
 | J2.13 | Security notices to owner and platform admin | A | VERIFIED | BOB28-A01; GS R3 | — |
 | J2.14 | Identity emails through PINTAR's path | A | VERIFIED (staging) | F17-*, BOB25-*; every GS activation | Production SMTP, SPF/DKIM/DMARC → W9.13 |
-| J2.15 | Every identity email to the standard | B (final DAISY-37) | IN PROG | `api/_email/identitas.ts` | CR-22; font licence → W3.20, F-11 |
-| J2.16 | PINTAR ID; staff Digital Card | A | VERIFIED (core) | F16-I01; GS R2, R3 | Final card CR-21 → W3.20 |
+| J2.15 | Every identity email to the standard | B (final DAISY-37) | IN PROG | `api/_email/identitas.ts`; B6E-* | CR-22: AWAITING DAISY-37 (no composition) and F-11 (wordmark). Batch 6: the send status says only what PINTAR can prove (D-160(d)) |
+| J2.16 | PINTAR ID; staff Digital Card | A | IMPL (final card on the branch) | F16-I01; GS R2, R3; `kartu/KartuPintar`; B6K-*; print walk P4 | Batch 6: DAISY-24's frozen card (W3.20); wordmark AWAITING F-11; D-074(10) >2 pairs UNRESOLVED |
 | J2.17 | Username rules; correction audited | E (CR-15 «no screen needed» vs REL-02 zero operator steps) | IMPL | `correct_username`; Batch 4 «Koreksi data orang», walk B4-W2 | Closed in Batch 4 (W2.3, F-8); promotion pending |
 | J2.18 | Resend countdown; same with or without identity | A | IMPL | `kode-ulang-walk` 37483810708 (**older SHA**) | Re-walk on current code → W6.10 |
 | J2.19 | Students by class card + PIN; refusal under load said | A | VERIFIED (core) | BOB12-A01; S11; GS M2, M6, C2, N1 | Under load: CAP-01 → W9.4 |
@@ -126,7 +126,7 @@
 | J5.10 | Assistive «what next» | A | VERIFIED | BOB40-K01; S26d | — |
 | J5.11 | HOD assigns and runs Uji Cepat in the Bagian | A | VERIFIED | S27h | — |
 | J5.12 | Learners below target; reassign reading | A | VERIFIED | M3R-S01; S22b | — |
-| J5.13 | Teacher's view of one learner incl. objectives struggled with | B (is «Hasil resmi» the M4 record) | IMPL | `murid/[orang]`; M4-K01; S22; B5C-MURID-K01, F25-T01/T02, walk B5-W5 | Batch 5 (D-156): the objectives not yet reached, by statement (W2.18); on the branch, promotion pending |
+| J5.13 | Teacher's view of one learner incl. objectives struggled with | B (is «Hasil resmi» the M4 record) | IMPL | `murid/[orang]`; M4-K01; S22; B5C-MURID-K01, F25-T01/T02, walk B5-W5 | Batch 5 (D-156): the objectives not yet reached, by statement (W2.18); on staging (D-158) |
 | J5.14 | Question-level results after close | A | VERIFIED | D088K-S01, C12-D01; S22, S26e | — |
 
 ## J6 · Learning
@@ -170,7 +170,7 @@
 | J8.1 | Eligibility from sealed mark + official + gate | A | VERIFIED | GS-18 | — |
 | J8.2 | Learner sees state; rendering never issues | A | VERIFIED | S21i; GS-18 | — |
 | J8.3 | Sealed at issuance | A | VERIFIED | mig 20261201100000 (CR-02); GS-18 | — |
-| J8.4 | Certificate as designed, A4, QR (CR-03/04) | B (frozen design needs font licence, institution mark column, print proof) | BLK-OWNER | `KartuSertifikat`, `LembarA4`, `KodeVerifikasi` | Wordmark licence and physical proof → F-11; then W3.19 |
+| J8.4 | Certificate as designed, A4, QR (CR-03/04) | B (frozen design; wordmark and print proof → F-11) | IMPL (on the branch) | `KartuSertifikat` (`LembarSertifikat`), `MerekSertifikat`, `KodeVerifikasi`; B6C-*; journey STU17 print | Batch 6 (W3.19; D-160(b)(c): 43-char token, QR level Q, no school logo). AWAITING F-11: the licensed wordmark, the physical print proof (gold line, phone scan) |
 | J8.5 | Template and **revocation**; numbers never collide | A | IMPL | ADM18-K01/K02; GS-18; B5-CABUT-K01, F26-C01/C02, walk B5-W1 | Batch 5: revocation on a screen (CR-05, W2.5); promotion pending |
 | J8.6 | Anonymous verification | A | VERIFIED | P1; GS-19 | Production DNS (CR-11) → W9.15 |
 | J8.7 | Production signing key and pepper; escrow | A (REL) | BLK-EXT | keyring; DR-S01..S10 | #150 B5 → W9.6 |

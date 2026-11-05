@@ -31,23 +31,19 @@
   border-bottom: 1px solid var(--line);
   background: var(--surface-1);
 }
-/* ------------------------------------------------------------------- the mark
-   THE SUPPLIED ARTWORK, UNTOUCHED. 766 x 429, fully opaque, two full-bleed
-   bands — pale above, dark below. It carries its own ground, so it reads as a
-   block on any surface; that is the logo, not a mistake to design around, and
-   clear space is what makes a block read as a mark rather than as a stray
-   image.
-
-   HEIGHT ONLY, NEVER WIDTH. The intrinsic ratio supplies the width, so there
-   is no pair of values here that could drift apart and squash the letterforms.
-   UX1-BRAND-01 fails if this rule ever sets both. */
+/* THE WORDMARK (D-192): the word «PINTAR», text only, in the device's sans-serif, bold, teal #075056, with the
+   wordmark's tracking. Each surface sets the box it had (--merek-tinggi, the height the artwork filled); the letters
+   are half of it and centred in it by its line, so no caller's layout moves. The tracking after the last letter is
+   taken back (margin-right), so the word's box ends at the R. UX1-BRAND-01 holds these. */
 .pin-merek {
-  height: var(--logo-height);
-  width: auto;
-  display: block;
-  flex: none;
+  --merek-tinggi: var(--logo-height);
+  display: block; flex: none; width: auto;
+  height: var(--merek-tinggi); line-height: var(--merek-tinggi);
+  font-family: var(--font-wordmark); font-size: calc(var(--merek-tinggi) * 0.5); font-weight: 700;
+  letter-spacing: var(--tracking-wordmark); margin-right: calc(var(--tracking-wordmark) * -1);
+  color: var(--merek-warna); white-space: nowrap;
 }
-.pin-merek-standalone { height: var(--logo-height-standalone); }
+.pin-merek-standalone { --merek-tinggi: var(--logo-height-standalone); }
 
 .pin-wordmark {
   font-size: var(--type-fine); font-weight: var(--weight-strong);
@@ -76,6 +72,9 @@
    has loaded on a slow classroom tablet. */
 .pin-sesi { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
 .pin-sesi-ket {
+  /* a flex row, so the name's menu button shrinks inside it and truncates its own name; as a clipped inline box the
+     button was cut away whole on a narrow screen and lay under «Keluar» (rb-ujung RB9) */
+  display: inline-flex; align-items: center;
   min-width: 0; max-width: var(--measure-sesi);
   font-size: var(--type-fine); color: var(--ink-2);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -293,7 +292,9 @@
   font-size: var(--type-meta); color: var(--ink-3);
 }
 .pin-row > .pin-pill { grid-column: 2; grid-row: 1 / span 3; }
-.pin-row .pin-rowmeta .pin-pill { display: none; }
+/* a row's badge is shown once: only its marked narrow copy (data-salinan-sempit) waits for a narrow screen; any other
+   badge in a meta line is the row's only one and always shows (A5 C1, RV-20) */
+.pin-row .pin-rowmeta .pin-pill[data-salinan-sempit] { display: none; }
 
 /* -------------------------------------------------------------- certificate */
 .pin-cert { border: 1px solid var(--line); border-radius: var(--radius-2); padding: var(--space-6); background: var(--surface-1); }
@@ -407,38 +408,165 @@
 .pin-foot { font-size: var(--type-meta); color: var(--ink-3); margin-top: var(--space-5); max-width: 56ch; }
 
 /* ------------------------------------------------------------- A4 print sheet
-   794 × 1123 px is 210 × 297 mm at 96 dpi. It is the paper, not a scale step:
-   the sheet never reflows, it is scaled whole. */
+   THE CERTIFICATE AS DESIGNED (Daisy, sertifikat/ronde-2; D-076, D-120 Q16, D-160). 210 × 297 mm is the paper,
+   not a scale step: the sheet never reflows, it is scaled whole on screen (LembarA4) and printed at 100%. Every
+   position below is the frozen grid, in millimetres (src/lib/sertifikat-lembar.ts holds the same numbers; B6C-SHEET-01
+   holds the two together); every size is a step of the app's ladder, written in points as the design writes it.
+     header 22 · achievement 36 → the record · record ends 16 above the line · the line at 176, 0.75 ·
+     the band 176-210, inset 10 · verification at 236: 92 + 12 + 26 = 130, centred */
 .pin-printwell { background: var(--surface-2); border-radius: var(--radius-2); padding: var(--space-5); }
 .pin-sheetbox { position: relative; margin: 0 auto; max-width: 794px; }
 .pin-sheet {
-  width: 794px; height: 1123px; background: var(--surface-1);
+  --cert-aksen: var(--cert-akademik);
+  width: 210mm; height: 297mm; overflow: hidden; background: var(--surface-0);
   box-shadow: 0 1px 0 var(--line), 0 0 0 1px var(--line);
   transform-origin: top left; position: absolute; left: 0; top: 0;
-  padding: 72px; display: flex; flex-direction: column;
-  font-size: var(--type-body); color: var(--ink-1);
+  font-family: var(--font-sans); font-kerning: normal; color: var(--ink-1);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.pin-sheet .pin-s-top { flex: 0 0 auto; }
-.pin-sheet .pin-s-mid { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: var(--space-3); }
-.pin-sheet .pin-s-low { flex: 0 0 auto; display: grid; gap: 28px; }
-.pin-sheet .pin-inst { font-size: 15px; font-weight: var(--weight-strong); margin: 0; }
-.pin-sheet .pin-rule { width: 40px; height: 2px; background: var(--pintar-primary); margin: 14px 0 0; }
+/* the accent, by learning context and never by role (Daisy §5): plum academic, sage professional learning */
+.pin-sheet.pin-s-akademik { --cert-aksen: var(--cert-akademik); }
+.pin-sheet.pin-s-profesi { --cert-aksen: var(--cert-profesi); }
+.pin-sheet * { box-sizing: border-box; margin: 0; }
+
+/* HEADER: the title upper left in the accent; the wordmark slot upper right on its baseline (MerekSertifikat) */
+.pin-sheet .pin-s-kepala {
+  position: absolute; left: 20mm; right: 20mm; top: 22mm;
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.pin-sheet .pin-s-jenis {
+  font-size: 12pt; font-weight: var(--weight-strong); line-height: var(--cert-lh-kepala);
+  letter-spacing: var(--cert-ls-kepala); word-spacing: var(--cert-ws-label); text-transform: uppercase;
+  white-space: nowrap; color: var(--cert-aksen);
+}
+/* The slot is the wordmark (D-192): «PINTAR» as text, its size set by MerekSertifikat (--merek-ukuran, 3.15 mm of
+   cap height), on the title's baseline by the header's baseline alignment. */
+.pin-sheet .pin-s-merek {
+  display: block; flex: none; white-space: nowrap;
+  font-family: var(--font-wordmark); font-size: var(--merek-ukuran); line-height: var(--leading-none); font-weight: 700;
+  letter-spacing: var(--tracking-wordmark); margin-right: calc(var(--tracking-wordmark) * -1);
+  color: var(--merek-warna);
+}
+
+/* ACHIEVEMENT: centred between the header and the record; only this block re-centres */
+.pin-sheet .pin-s-capaian {
+  position: absolute; left: 20mm; width: 170mm; top: 36mm; bottom: 167.375mm;
+  display: flex; flex-direction: column; justify-content: center; text-align: center;
+}
 .pin-sheet .pin-name {
   font-size: var(--type-name-print); font-weight: var(--weight-strong); line-height: 1.05;
-  letter-spacing: var(--tracking-tight); margin: var(--space-3) 0 var(--space-5);
+  letter-spacing: var(--cert-ls-nama); overflow-wrap: break-word; text-wrap: balance;
 }
-.pin-sheet .pin-done { font-size: var(--type-body); color: var(--ink-2); margin: 0; }
-.pin-sheet .pin-course { font-size: var(--type-subhead); font-weight: var(--weight-strong); line-height: 1.3; margin: 6px 0 0; }
-.pin-sheet .pin-verify { background: transparent; padding: var(--space-5) 0 0; border-top: 1px solid var(--line); border-radius: 0; }
+.pin-sheet .pin-done { font-size: 12pt; line-height: var(--cert-lh-teks); color: var(--ink-2); margin-top: 6mm; }
+.pin-sheet .pin-course {
+  font-size: var(--type-subhead); font-weight: var(--weight-strong); line-height: var(--cert-lh-teks);
+  letter-spacing: var(--cert-ls-kursus); overflow-wrap: break-word; text-wrap: balance; margin-top: 2mm;
+}
 
-/* The sheet is the page when printed: the shell, the actions and the well all
-   step aside, and one A4 leaves the printer. */
+/* RECORD: one block, labels right-aligned to the page's axis, values from it; it ends 16 mm above the line
+   (297 - 176 + 0.375 + 16 = 137.375 mm from the foot). The value column is 1fr with the number's own width as its
+   minimum, so a long number moves the axis left instead of wrapping. */
+.pin-sheet .pin-s-rekam {
+  position: absolute; left: 20mm; width: 170mm; bottom: 137.375mm;
+  display: grid; grid-template-columns: 1fr 1fr; column-gap: 8mm; row-gap: 5mm; align-items: baseline;
+}
+.pin-sheet .pin-s-rekam > div { display: contents; }
+.pin-sheet .pin-s-rekam dt {
+  text-align: right; font-size: 9pt; font-weight: var(--weight-strong); line-height: var(--cert-lh-kepala);
+  letter-spacing: var(--cert-ls-label); word-spacing: var(--cert-ws-label); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-sheet .pin-s-rekam dd { font-size: 12.75pt; font-weight: var(--weight-strong); line-height: var(--cert-lh-teks); color: var(--ink-1); }
+/* THE NUMBER NEVER BREAKS (ruling 2): one value, «/» included; it steps 12 → 10.5 → 9.75 pt only when long */
+.pin-sheet .pin-s-rekam dd.pin-s-nomor {
+  font-family: var(--font-mono); font-weight: 500; font-size: 12pt; letter-spacing: var(--cert-ls-nomor);
+  white-space: nowrap; overflow-wrap: normal; word-break: keep-all;
+}
+.pin-sheet .pin-s-rekam dd.pin-s-nomor-105 { font-size: 10.5pt; }
+.pin-sheet .pin-s-rekam dd.pin-s-nomor-975 { font-size: 9.75pt; }
+
+/* THE LINE AND THE BAND: the gold line centred at 176 mm, 0.75 mm, lying on the band's top edge; the band inset
+   10 mm each side, 176 to 210 mm, in the accent; «Diterbitkan oleh» over the school's name as recorded */
+.pin-sheet .pin-s-garis {
+  position: absolute; z-index: 1; left: 10mm; width: 190mm; top: 175.625mm; height: 0.75mm; background: var(--cert-emas);
+}
+.pin-sheet .pin-s-pita {
+  position: absolute; left: 10mm; width: 190mm; top: 176mm; height: 34mm; background: var(--cert-aksen);
+  display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+  padding: 3.375mm 16mm 3mm; color: var(--surface-0);
+}
+.pin-sheet .pin-s-label {
+  font-size: 9pt; font-weight: var(--weight-strong); line-height: var(--cert-lh-kepala);
+  letter-spacing: var(--cert-ls-label); word-spacing: var(--cert-ws-label); text-transform: uppercase; color: var(--surface-0);
+}
+.pin-sheet .pin-inst {
+  font-size: var(--type-subhead); font-weight: var(--weight-strong); line-height: var(--cert-lh-teks);
+  letter-spacing: var(--cert-ls-kursus); overflow-wrap: break-word; text-wrap: balance; color: var(--surface-0); margin-top: 2.2mm;
+}
+
+/* VERIFICATION: one centred group at 236 mm, 130 mm wide (left 40 mm): a 92 mm text column, a 12 mm gap, the 26 mm
+   QR; its 4-module quiet zone is clear paper. The printed link may wrap inside its column (D-160(b)). */
+.pin-sheet .pin-s-periksa {
+  position: absolute; left: 40mm; top: 236mm; width: 130mm;
+  display: grid; grid-template-columns: 92mm 26mm; column-gap: 12mm; align-items: start;
+}
+.pin-sheet .pin-s-teks h3 {
+  font-size: 9pt; font-weight: var(--weight-strong); line-height: var(--cert-lh-kepala);
+  letter-spacing: var(--cert-ls-label); word-spacing: var(--cert-ws-label); text-transform: uppercase; color: var(--ink-1);
+}
+.pin-sheet .pin-s-teks p {
+  font-size: 9pt; line-height: var(--cert-lh-arti); letter-spacing: var(--cert-ls-arti); word-spacing: var(--cert-ws-arti);
+  text-wrap: pretty; color: var(--ink-2); margin-top: 2mm;
+}
+.pin-sheet .pin-s-teks p.pin-s-tautan {
+  font-family: var(--font-mono); font-weight: 500; font-size: 9pt; line-height: var(--cert-lh-teks);
+  letter-spacing: normal; word-spacing: normal; overflow-wrap: anywhere; color: var(--ink-1); margin-top: 2.6mm;
+}
+.pin-sheet .pin-s-qr { width: 26mm; height: 26mm; }
+.pin-sheet .pin-s-qr svg { width: 26mm; height: 26mm; display: block; }
+
+/* PRINT: ONE CLEAN A4 PAGE (DAISY-36; Daisy's cetak-usulan.css, proved in her G). The sheet's own named page, A4
+   portrait with no margin, so the browser's date, title, address and page numbers have no room; it applies only
+   where the sheet is, never to another page of PINTAR someone prints. */
+@page sertifikat {
+  size: A4 portrait;
+  margin: 0;
+}
+
+/* The sheet is the page when printed: the shell, the on-screen card, the actions and the well all step aside, and
+   one A4 leaves the printer. */
 @media print {
   .pin-noprint { display: none !important; }
-  .pin-printwell { background: none; padding: 0; }
-  .pin-sheetbox { max-width: none; height: auto !important; }
-  .pin-sheet { position: static; transform: none !important; box-shadow: none; width: 100%; height: 100vh; }
   .pin-col { padding: 0; max-width: none; }
+
+  /* A page that holds the sheet prints the sheet and nothing else: whatever else it carries (the on-screen card,
+     the print heading, a banner, the scope line, anything added later) steps aside, so no second copy prints ahead
+     of the sheet and nothing pushes it onto a second page. */
+  body:has(.pin-printwell) { margin: 0; padding: 0; min-height: 0; background: none; }
+  body:has(.pin-printwell) > :not(:has(.pin-printwell)) { display: none !important; }
+  .pin-col:has(> .pin-printwell) { margin: 0; padding: 0; }
+  .pin-col:has(> .pin-printwell) > :not(.pin-printwell) { display: none !important; }
+
+  .pin-printwell { background: none; padding: 0; border-radius: 0; }
+  .pin-sheetbox { max-width: none; height: auto !important; margin: 0; }
+
+  .pin-sheet {
+    page: sertifikat;
+    position: relative;
+    transform: none !important;
+    box-shadow: none;
+    background: none;
+    /* the paper, exactly: never a second page. If a reader overrides the margins in the dialog, the sheet shrinks
+       to the printable area rather than spilling onto a second page. */
+    width: 210mm;
+    height: 297mm;
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden;
+    break-inside: avoid;
+    /* its colours are part of the certificate: the band and the gold line print with «Background graphics» off */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
 
 /* --------------------------------------------------------- product provenance
@@ -553,7 +681,7 @@
   /* One step down on a phone: the header row here carries only the mark and
      the language switch, and 36px made the row taller than the tab strip below
      it without buying any legibility. */
-  .pin-top .pin-merek { height: var(--logo-height-phone); margin-block: 10px; }
+  .pin-top .pin-merek { --merek-tinggi: var(--logo-height-phone); margin-block: 10px; }
   .pin-top .pin-lang { margin-left: auto; }
   .pin-top .pin-sub { display: none; }
   /* The session strip gets its own row, between the mark and the tabs, so it
@@ -598,8 +726,7 @@
   .pin-h1 { font-size: var(--t-page-compact); line-height: var(--t-page-compact-lh); letter-spacing: var(--t-page-compact-ls); }
   .pin-scope { margin-bottom: 28px; }
   .pin-row { grid-template-columns: 1fr; padding: var(--space-4); }
-  .pin-row > .pin-pill { display: none; }
-  .pin-row .pin-rowmeta .pin-pill { display: inline-flex; }
+  .pin-row .pin-rowmeta .pin-pill[data-salinan-sempit] { display: inline-flex; }
   .pin-cert { padding: var(--space-5); }
   .pin-cert .pin-name { font-size: 32px; }
   .pin-cert .pin-course { font-size: 18px; }
@@ -641,10 +768,9 @@
   .pin-grid2 { grid-template-columns: 1fr; }
   .pin-kaki { margin-top: var(--space-8); }
   .pin-commit, .pin-refusal { padding: var(--space-5); }
-  /* The sheet is the one exception, and it is not a narrow surface: A4 is
-     794px of paper scaled whole and never reflowed, so the viewport's width
-     is not the sheet's width. Its facts keep the printed row. */
-  .pin-sheet .pin-facts { grid-template-columns: repeat(3, 1fr); }
+  /* The sheet is not a narrow surface and nothing here touches it: A4 is
+     210 mm of paper scaled whole and never reflowed, so the viewport's width
+     is not the sheet's width (B6C-SHEET-01). */
 }
 
 /* ═══════════════════════════════════════════ UX-1 Slice 2 · the learner cycle
@@ -926,17 +1052,19 @@
 .pin-daftar li { display: contents; }
 
 /* ------------------------------------------------------------------- result */
-.pin-hasil {
+/* E-K3 (D-168): the learner's result card has its own name. It used to share `.pin-hasil` with the result line of a
+   save (BarisHasil), whose ✓ the card's grid then put on a line of its own */
+.pin-capaian {
   background: var(--surface-2); border-radius: var(--radius-2); padding: var(--space-6);
   display: grid; gap: var(--space-2); margin-bottom: var(--space-5);
 }
-.pin-hasil .pin-big2 {
+.pin-capaian .pin-big2 {
   font-size: var(--type-hero); font-weight: var(--weight-strong); line-height: 1.05;
   letter-spacing: var(--tracking-tight); font-variant-numeric: tabular-nums; margin: 0;
 }
 /* A NUMBER NEVER STANDS ALONE: the figure is always followed by what it is out
    of and what the threshold is, and both come from the engine. */
-.pin-hasil .pin-mean { font-size: var(--type-body); color: var(--ink-2); max-width: 56ch; margin: 0; }
+.pin-capaian .pin-mean { font-size: var(--type-body); color: var(--ink-2); max-width: 56ch; margin: 0; }
 .pin-domain { display: grid; gap: var(--space-2); }
 .pin-drow {
   display: grid; grid-template-columns: 1fr auto; gap: var(--space-3); align-items: center;
@@ -1011,7 +1139,7 @@
     padding-block: var(--space-2);
   }
   .pin-nrow { grid-template-columns: 1fr; }
-  .pin-hasil { padding: var(--space-5); }
+  .pin-capaian { padding: var(--space-5); }
 }
 
 /* ═══════════════════════════════════════ UX-1 Slice 3 · the educator's surface
@@ -1733,7 +1861,7 @@ a.pin-tautan { display: inline-flex; align-items: center; }
   }
   /* The mark at the size the verification page already uses. At 36px the
      artwork drew about 64px wide, small for the one screen everybody sees. */
-  .pin-authtop .pin-merek { height: var(--logo-height-standalone); }
+  .pin-authtop .pin-merek { --merek-tinggi: var(--logo-height-standalone); }
   .pin-form, .pin-phonesay { max-width: var(--measure-auth-wide); }
   .pin-phonesay { display: none; }
   .pin-vis { display: block; order: 2; min-height: var(--vis-band); }
@@ -2470,24 +2598,141 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-akt-selamat .pin-disc { justify-self: start; }
 .pin-akt-keluar { display: flex; justify-content: center; margin-top: var(--space-5); }
 
-/* THE PINTAR ID, 4 + 4, with its QR (Akun saya and the welcome). The ID never
-   breaks across its space; the QR is the certificate page's own box. On the
-   narrowest phones the QR goes under the text rather than squeezing it. */
-.pin-idn {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-4); align-items: start;
-  padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+/* THE PINTAR ID (Akun saya and the welcome): since W3.20 the panel is the
+   PINTAR Digital Card itself (below), with the line of what the ID means. */
+.pin-idn { display: grid; gap: var(--space-3); min-width: 0; }
+.pin-idn > .pin-meta { margin: 0; }
+
+/* W3.20 / DAISY-24 — THE PINTAR DIGITAL CARD, front and back, to the frozen
+   design (kartu-pintar ronde-2 §K, §5–§8, §L; D-074; D-120 Q16).
+   ONE UNIT. Every length is the design's own millimetres times --kp-mm, which
+   is the face's width over 85.6 (container query units). Printed, the face is
+   85.6 mm wide, so --kp-mm is exactly 1 mm (CR80 at actual size); on screen the
+   same numbers scale with the column. Type sizes are points: pt × 0.352778 mm.
+   THE COLOURS are the card's own (D-074(1), (2)): the --kartu-* tokens in
+   globals.css, read here and nowhere else. The ochre belongs to the identity
+   and artifact language only, never a UI accent. Paper, ink, PINTAR green and
+   the tile are the app's own tokens. */
+.pin-kd {
+  --kp-kertas: var(--surface-0);
+  --kp-tinta: var(--ink-1);
+  --kp-tinta2: var(--ink-2);
+  --kp-tinta3: var(--ink-3);
+  --kp-hijau: var(--pintar-primary);
+  --kp-ubin: var(--pintar-primary-soft);
+  --kp-emas: var(--kartu-emas);
+  --kp-murid: var(--kartu-murid);
+  --kp-guru: var(--kartu-guru);
+  --kp-kadep: var(--kartu-kadep);
+  --kp-dekan: var(--kartu-dekan);
+  --kp-admin-sekolah: var(--kartu-admin-sekolah);
+  --kp-admin-platform: var(--kartu-admin-platform);
+  --kp-pt: 0.352778;
+  display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: flex-start; min-width: 0;
 }
-.pin-idn-teks { display: grid; gap: var(--space-1); min-width: 0; }
-.pin-idn-teks p { margin: 0; }
-.pin-idn-nama { font-size: var(--type-card); font-weight: var(--weight-strong); overflow-wrap: anywhere; }
-.pin-idn-id {
-  font-family: var(--font-mono); font-size: var(--type-subhead); font-weight: var(--weight-strong);
-  font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink-1);
+/* Each face is its own container. On screen it is at most 440 px wide and at
+   least 266 px where the column allows (Daisy's measured screen cards, ronde-2
+   §3); a narrower column shrinks it, so a 320 px phone never scrolls sideways. */
+.pin-kd-wadah { container-type: inline-size; flex: 1 1 var(--kartu-layar-min); max-width: var(--kartu-layar-maks); min-width: 0; }
+/* NOTHING IS CUT: the face has no overflow clip (the lower field carries its
+   own corners), so text that outgrows its field — the unresolved exception of
+   more than two pairs, D-074(10) — shows instead of being silently truncated. */
+.pin-kd-muka {
+  --kp-mm: calc(100cqi / 85.6);
+  position: relative; width: 100%; aspect-ratio: 85.6 / 53.98;
+  background: var(--kp-kertas); color: var(--kp-tinta);
+  border-radius: calc(var(--kp-mm) * 3.18);
+  font-family: var(--font-sans); font-kerning: normal;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.pin-idn-konteks { margin: 0; padding: 0; list-style: none; font-size: var(--type-meta); color: var(--ink-2); }
-.pin-idn-qr { flex: none; }
+/* on screen, the app's one hairline round the trim, so the paper reads on a light page */
+.pin-kd-muka::after {
+  content: ""; position: absolute; inset: 0; border: 1px solid var(--line); border-radius: inherit; pointer-events: none;
+}
+.pin-kd-muka p, .pin-kd-muka ul { margin: 0; padding: 0; }
+/* the family colour below the line (front only), from the first role in the card's order */
+.pin-kd-depan[data-keluarga="murid"] { --kp-warna: var(--kp-murid); }
+.pin-kd-depan[data-keluarga="guru"] { --kp-warna: var(--kp-guru); }
+.pin-kd-depan[data-keluarga="kadep"] { --kp-warna: var(--kp-kadep); }
+.pin-kd-depan[data-keluarga="dekan"] { --kp-warna: var(--kp-dekan); }
+.pin-kd-depan[data-keluarga="admin-sekolah"] { --kp-warna: var(--kp-admin-sekolah); }
+.pin-kd-depan[data-keluarga="admin-platform"] { --kp-warna: var(--kp-admin-platform); }
+.pin-kd-bidang {
+  position: absolute; left: 0; right: 0; bottom: 0; top: calc(var(--kp-mm) * 32);
+  background: var(--kp-warna, transparent); border-radius: 0 0 calc(var(--kp-mm) * 3.18) calc(var(--kp-mm) * 3.18);
+}
+/* the ochre line: its centre at 32 mm on BOTH faces, 0.75 mm, full width */
+.pin-kd-garis {
+  position: absolute; left: 0; right: 0;
+  top: calc(var(--kp-mm) * (32 - 0.75 / 2)); height: calc(var(--kp-mm) * 0.75);
+  background: var(--kp-emas);
+}
+/* THE WORDMARK SLOT (§L): the 6 mm margin, cap top 5.57 mm, cap height 2.9 mm,
+   about 16.4 mm wide. The text wordmark (D-192) is set at that cap height:
+   Arial's capitals are 0.716 of its size (2.9 / 0.716 = 4.05 mm), and the
+   line is drawn up by the space above its capitals (0.13 of the size) so the
+   cap top meets the slot's top. MerekKartu.tsx is the one-file swap. */
+.pin-kd-merek {
+  position: absolute; left: calc(var(--kp-mm) * 6); top: calc(var(--kp-mm) * 5.57);
+  width: calc(var(--kp-mm) * 16.4); height: calc(var(--kp-mm) * 2.9);
+  display: flex; align-items: flex-start;
+}
+.pin-kd-merek .pin-merek { height: auto; line-height: var(--leading-none); font-size: calc(var(--kp-mm) * 4.05); margin-top: -0.13em; }
+/* above the line, what is permanent: the name and the PINTAR ID stand 4.4 mm over the line and grow upward */
+.pin-kd-orang {
+  position: absolute; left: calc(var(--kp-mm) * 6); width: calc(var(--kp-mm) * (85.6 - 2 * 6));
+  bottom: calc(var(--kp-mm) * (53.98 - 32 + 0.75 / 2 + 4.4));
+}
+.pin-kd-nama {
+  font-weight: 600; font-size: calc(var(--kp-mm) * 12 * var(--kp-pt)); line-height: var(--kartu-nama-lh); letter-spacing: var(--kartu-nama-ls);
+  color: var(--kp-tinta); overflow-wrap: break-word;
+}
+.pin-kd-id {
+  font-family: var(--font-mono); font-weight: 500; font-size: calc(var(--kp-mm) * 9 * var(--kp-pt));
+  line-height: var(--kartu-id-lh); letter-spacing: var(--kartu-id-ls); white-space: nowrap; color: var(--kp-tinta2);
+}
+.pin-kd-orang .pin-kd-id { margin-top: calc(var(--kp-mm) * 1.3); }
+/* below the line, the current chapter: it hangs 4.0 mm under the line */
+.pin-kd-bab {
+  position: absolute; left: calc(var(--kp-mm) * 6); width: calc(var(--kp-mm) * (85.6 - 2 * 6));
+  top: calc(var(--kp-mm) * (32 + 0.75 / 2 + 4)); list-style: none; color: var(--kp-kertas);
+}
+.pin-kd-bab-baris {
+  font-weight: 400; font-size: calc(var(--kp-mm) * 8 * var(--kp-pt)); line-height: var(--kartu-bab-lh);
+  letter-spacing: var(--kartu-bab-ls); word-spacing: var(--kartu-kata);
+}
+.pin-kd-peran { font-weight: 600; letter-spacing: 0; }
+/* THE BACK: the PINTAR tile (§7), 22.125 × 26.025 mm, centred, top 3.6 mm, its
+   bottom 2 mm above the line; the symbol and its 4-module quiet zone fill the
+   square, the ID beneath the quiet zone, never in it */
+.pin-kd-ubin {
+  position: absolute; left: calc(var(--kp-mm) * (85.6 - 22.125) / 2); top: calc(var(--kp-mm) * 3.6);
+  width: calc(var(--kp-mm) * 22.125); height: calc(var(--kp-mm) * 26.025);
+  background: var(--kp-ubin); border-radius: calc(var(--kp-mm) * 1.6); overflow: hidden; color: var(--kp-hijau);
+}
+.pin-kd-ubin svg { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+.pin-kd-id-ubin {
+  position: absolute; left: 0; right: 0; top: calc(var(--kp-mm) * (22.125 + 0.15));
+  text-align: center; padding-left: var(--kartu-id-ls); color: var(--kp-hijau);
+}
+.pin-kd-petunjuk {
+  position: absolute; left: calc(var(--kp-mm) * 6); width: calc(var(--kp-mm) * (85.6 - 2 * 6));
+  top: calc(var(--kp-mm) * (32 + 0.75 / 2 + 4)); text-align: center;
+  font-weight: 400; font-size: calc(var(--kp-mm) * 8 * var(--kp-pt)); line-height: var(--kartu-petunjuk-lh);
+  letter-spacing: var(--kartu-bab-ls); word-spacing: var(--kartu-kata); color: var(--kp-tinta);
+}
+.pin-kd-situs {
+  position: absolute; left: calc(var(--kp-mm) * 6); width: calc(var(--kp-mm) * (85.6 - 2 * 6));
+  bottom: calc(var(--kp-mm) * (6 - 0.4)); text-align: center;
+  font-weight: 400; font-size: calc(var(--kp-mm) * 6.5 * var(--kp-pt)); line-height: var(--kartu-situs-lh);
+  letter-spacing: var(--kartu-situs-ls); color: var(--kp-tinta3);
+}
+@media print {
+  /* on paper each face is CR80 at actual size, so --kp-mm is exactly 1 mm */
+  .pin-kd-wadah { flex: none; width: 85.6mm; max-width: none; break-inside: avoid; }
+  .pin-kd-muka::after { border-width: 0.2mm; }
+}
 @media (max-width: 360px) {
-  .pin-idn { grid-template-columns: minmax(0, 1fr); }
   /* With «Akun saya» beside «Keluar», a 320 px row left the staff name «Na…»,
      and the strip exists so the name can be read. On the narrowest phones the
      name takes the whole line and the two doors sit together under it, on the
@@ -2518,14 +2763,17 @@ a.pin-tautan { display: inline-flex; align-items: center; }
   list-style: none; margin: 0; padding: 0;
   display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5);
 }
+/* E-K8 (A5 B12, final 4 Nov, Daisy `78b680d5`; X-KONSISTENSI K8): the design system's named steps. Every marker is
+   filled, so the list never reads as radio buttons (an open circle beside a filled one, or a ring round a dot), and it
+   is never a segment (a bar reads as a count). Done: an ink-1 dot; current: a pintar-primary pill, its name at 600,
+   aria-current="step"; to come: a line-control dot, its name in ink-2. The state is also said in words. */
 .pin-lt-langkah { display: inline-flex; align-items: center; gap: var(--space-2); min-width: 0; }
 .pin-lt-langkah::before {
-  content: ""; flex: none; width: var(--icon-md); height: var(--icon-md); border-radius: var(--radius-pill);
-  border: var(--border-hairline) solid var(--line-control); background: var(--surface-1);
+  content: ""; flex: none; width: var(--space-3); height: var(--space-3); margin: var(--space-1); border-radius: 50%; background: var(--line-control);
 }
-.pin-lt-langkah.pin-lt-selesai::before { border-color: var(--ink-2); background: var(--ink-2); }
-.pin-lt-langkah[aria-current="step"]::before { border: calc(var(--space-1) + var(--border-focus)) solid var(--pintar-primary); background: var(--surface-1); }
-.pin-lt-judul { margin: 0; font-size: var(--t-small); line-height: var(--leading-body); color: var(--ink-3); }
+.pin-lt-langkah.pin-lt-selesai::before { background: var(--ink-1); }
+.pin-lt-langkah[aria-current="step"]::before { width: var(--space-5); border-radius: var(--radius-pill); background: var(--pintar-primary); }
+.pin-lt-judul { margin: 0; font-size: var(--t-small); line-height: var(--leading-body); color: var(--ink-2); }
 .pin-lt-selesai .pin-lt-judul { color: var(--ink-2); }
 .pin-lt-langkah[aria-current="step"] .pin-lt-judul { color: var(--ink-1); font-weight: var(--weight-strong); }
 .pin-lt-panel {
@@ -2627,9 +2875,11 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 }
 
 /* The result line of a save, next to its form. */
-.pin-hasil { margin-top: var(--space-2); }
+.pin-msg.pin-hasil { margin-top: var(--space-2); }
 .pin-msg.pin-hasil-ok { background: var(--status-ok-soft); color: var(--status-ok); }
 .pin-centang { font-weight: var(--weight-strong); margin-right: var(--space-1); }
+/* E-K3: the mark and its words share a line, also when the words come as a paragraph */
+.pin-msg.pin-hasil > .pin-centang + p { display: inline; margin: 0; }
 .pin-msg.pin-hasil-gagal { background: var(--status-blocked-soft); color: var(--status-blocked); }
 .pin-msg.pin-hasil-netral { background: var(--surface-2); color: var(--ink-2); }
 
@@ -2677,7 +2927,10 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-perangkat-pilihan input { margin-top: var(--space-1); }
 .pin-perangkat-dipilih { border-color: var(--pintar-primary); box-shadow: inset 0 0 0 1px var(--pintar-primary); }
 .pin-jaga {
-  /* W3.14 (Daisy, IdleWarning): attention, not error — the attention ground and the clock, at the top, in the flow */
+  /* W3.14 (Daisy, IdleWarning): attention, not error — the attention ground and the clock, at the top, in the flow.
+     E3 #3 (Daisy): kept in view while the page is scrolled (sticky, never fixed), below the shell's own sticky bar,
+     so a person who has scrolled while reading still sees it; it never takes focus */
+  position: sticky; top: var(--space-2); z-index: var(--z-sticky);
   display: grid; grid-template-columns: var(--icon-md) minmax(0, 1fr); column-gap: var(--space-3); align-items: start;
   margin: var(--space-3) auto; max-width: var(--measure-read); padding: var(--space-4) var(--space-5);
   background: var(--status-attention-soft); color: var(--ink-1); border: 0; border-radius: var(--radius-lg);
@@ -2766,18 +3019,9 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
 }
 .pin-staf .pin-tabs a.pin-nav-item[aria-current="page"] .pin-ikon { color: var(--pintar-primary); }
 .pin-staf .pin-tabs a.pin-nav-item:focus-visible { outline-offset: -2px; }
-/* D-140 (review RV-3): the places keep one order, Daisy's (bundle.js PERSONA), whichever of them is open; the page
-   you are on is marked, never moved to the top. The context's name and the chooser follow the places. */
-.pin-staf .pin-tabs > * { order: 20; }
-.pin-staf .pin-tabs > a[href="/mengajar"] { order: 1; }
-.pin-staf .pin-tabs > a[href="/pimpinan"] { order: 2; }
-.pin-staf .pin-tabs > a[href="/konfigurasi"] { order: 3; }
-.pin-staf .pin-tabs > a[href="/pendataan"] { order: 4; }
-.pin-staf .pin-tabs > a[href="/aktivasi"] { order: 5; }
-.pin-staf .pin-tabs > a[href="/studio"] { order: 6; }
-.pin-staf .pin-tabs > a[href="/konfigurasi/keamanan"] { order: 7; }
-.pin-staf .pin-tabs > a[href="/konfigurasi/email-uji"] { order: 8; }
-.pin-staf .pin-tabs > a[href="/belajar"] { order: 9; }
+/* D-140 (review RV-3), O12 (D-170(d)): the places keep one order whichever of them is open, the page you are on marked,
+   never moved to the top. The order is the DOM's (urutkanNav, URUTAN_TEMPAT), never CSS `order`, so the keyboard meets
+   the places in the order the eye does (WCAG 2.4.3). */
 .pin-nav-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* The working context's place, and the one way to change it (L3, D-132). */
 .pin-staf .pin-nav-tempat {
@@ -2815,17 +3059,21 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
   .pin-staf .pin-sesi form, .pin-staf .pin-sesi-keluar { width: 100%; }
 }
 @media (max-width: 1023px) {
+  .pin-jaga { top: calc(var(--shell-bar) + var(--space-2)); }
   .pin-staf {
     position: sticky; top: 0; z-index: var(--z-sticky);
     display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-2);
     height: auto; min-height: var(--shell-bar); padding: 0 var(--space-2) 0 var(--space-4);
     background: var(--surface-0);
   }
-  .pin-staf .pin-merek { height: var(--logo-height-phone); }
+  .pin-staf .pin-merek { --merek-tinggi: var(--logo-height-phone); }
   .pin-staf-kepala { order: 0; display: flex; align-items: center; min-height: var(--shell-bar); }
+  /* W6.4: the page's name wraps onto a second line rather than being cut off: at 320 px, beside the logo and the menu
+     button, it has about 78 px, and «Laporkan masalah», «Konfigurasi» or «Ringkasan Kelas» lost their ends */
   .pin-staf .pin-bar-tempat {
     order: 1; flex: 1; min-width: 0;
-    font-weight: var(--weight-strong); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-weight: var(--weight-strong); white-space: normal; overflow-wrap: anywhere; line-height: var(--leading-tight);
+    padding-block: var(--space-1);
   }
   .pin-staf .pin-sesi { order: 2; width: auto; border: 0; padding: 0; flex-wrap: nowrap; }
   .pin-staf .pin-sesi-ket, .pin-staf .pin-sesi-akun { display: none; }
@@ -2919,9 +3167,9 @@ select:not([multiple]):not([size]) {
 /* the menu hangs from the whole identity strip (the foot of the navigation or drawer), not from the name inside it,
    so it is never wider than the place it opens from */
 .pin-sesi:has(.pin-menu-induk) { position: relative; }
-.pin-menu-induk { position: static; display: inline-block; }
+.pin-menu-induk { position: static; display: inline-block; min-width: 0; max-width: 100%; }
 .pin-menu-tombol {
-  display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-md); padding: 0 var(--space-2);
+  display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-md); min-width: 0; padding: 0 var(--space-2);
   border: 0; background: none; color: var(--ink-1); font: inherit; cursor: pointer; max-width: 100%;
 }
 .pin-menu-tombol strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -2970,6 +3218,8 @@ select:not([multiple]):not([size]) {
    on the quiet stripe (option A: table-row and table-row-alt), and the pager that never hides the total. Below 640 px
    the low-priority columns step back and the pager says «2 / 16» beside its two arrows. There is no card view. */
 .pin-koleksi { container-type: inline-size; display: grid; gap: var(--space-3); min-width: 0; }
+/* E-K2: the same pager outside a Collection (Penomoran) is its own container, so it folds the same way */
+.pin-penomoran { container-type: inline-size; min-width: 0; margin-top: var(--space-2); }
 .pin-koleksi > * { min-width: 0; }
 .pin-koleksi-alat { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
 .pin-cari { position: relative; display: block; flex: 1 1 calc(var(--space-5) * 10); max-width: calc(var(--space-5) * 15); }
@@ -3016,7 +3266,9 @@ select:not([multiple]):not([size]) {
   .pin-cari { max-width: none; }
   .pin-lebar-saja { display: none; }
   .pin-sempit-saja { display: block; }
-  .pin-pager-teks, .pin-pager-lebar { display: none; }
+  /* H2 (Daisy, D-172 S1): a pager button's word steps out of sight on a phone but stays its name, never display: none */
+  .pin-pager-teks { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .pin-pager-lebar { display: none; }
   .pin-pager-kecil { display: inline; }
 }
 
@@ -3035,9 +3287,14 @@ select:not([multiple]):not([size]) {
 /* W3.17 · RV-20: a list row's badge is never lost at a narrow width; it moves under the row's words instead */
 @media (max-width: 560px) {
   .pin-row > .pin-pill { display: inline-flex; grid-column: 1; grid-row: auto; justify-self: start; }
+  .pin-row:has(.pin-rowmeta .pin-pill[data-salinan-sempit]) > .pin-pill { display: none; }
 }
 /* W2.4: the class's Uji Cepat figure stands alone above its learners; a learner with no score says so quietly */
 .pin-cepat-kelas { margin-bottom: var(--space-5); }
+/* A2 K4: the class figure's base is read with the figure, at body size in ink-1 (the shared meta line stays elsewhere) */
+.pin-cepat-kelas .pin-mm { font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--ink-1); }
+/* A2 K6: «Rincian nilai» is the page's section heading, not the section eyebrow */
+.pin-sec > h2.pin-cepat-rincian-judul { font-size: var(--t-section); line-height: var(--t-section-lh); letter-spacing: var(--t-section-ls); text-transform: none; color: var(--ink-1); }
 .pin-cepat-tanpa { color: var(--ink-3); }
 
 /* ───────────────────────────── W1.14 / W3.18 · Studio's pages on the v3 primitives (Batch 3; Daisy, 08-migration:
@@ -3124,3 +3381,197 @@ select:not([multiple]):not([size]) {
 .pin-foto { width: 96px; height: 96px; border-radius: var(--radius-2); object-fit: cover; border: 1px solid var(--line); background: var(--surface-2); flex: none; }
 .pin-foto-kosong { display: block; }
 .pin-foto-aksi { display: grid; gap: var(--space-2); flex: 1 1 calc(var(--space-9) * 4); min-width: 0; }
+
+/* ══════════════════════════════════════ E1 + E2: ONE NAVIGATION (D-169, D-170(c), D-171(a))
+   The design system's AppShell under L3: expanded (shell-nav, 248 px) from 1280 px; the rail (shell-rail, 72 px) from
+   1024 to 1279 px; the top bar and the menu under 1024 px. The reader may collapse to the rail at 1280 and up
+   (`data-ciut="ya"`, TombolCiut) and expand in the rail range (`data-ciut="tidak"`). In the rail each link keeps its
+   own text, visually hidden (never display: none, never an aria-label: E-E1-1), and its tooltip (aria-hidden, the same
+   words) shows on hover and at once on keyboard focus, only while the shell is the rail. */
+.pin-nav-tip { display: none; }
+/* the tooltip's place beside its item, set by the shell's script on hover or focus (TombolCiut) */
+[data-tip-host] { --tip-x: 0; --tip-y: 0; }
+.pin-avatar { display: none; }
+.pin-rail-ikon { display: none; }
+.pin-konteks-rail { display: none; }
+.pin-ciut {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: var(--control-md); height: var(--control-md); padding: 0; border: 0; border-radius: var(--radius-md);
+  background: none; color: var(--ink-2); cursor: pointer;
+}
+.pin-ciut[hidden] { display: none; }
+.pin-ciut:hover { background: var(--surface-2); color: var(--ink-1); }
+/* The context control (E2): one quiet block at the top of the navigation, and of the opened menu */
+.pin-konteks-blok {
+  display: grid; gap: var(--space-1); padding: var(--space-3);
+  background: var(--surface-2); border-radius: var(--radius-md);
+}
+.pin-konteks-tujuan { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-3); }
+.pin-konteks-tempat { font-size: var(--t-small); line-height: var(--t-small-lh); font-weight: var(--weight-strong); color: var(--ink-1); overflow-wrap: anywhere; }
+a.pin-konteks-pilih {
+  display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-sm); width: fit-content;
+  font-size: var(--t-small); font-weight: var(--weight-strong); color: var(--pintar-primary); text-decoration: none;
+}
+a.pin-konteks-pilih:hover { text-decoration: underline; }
+a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
+.pin-konteks-inisial {
+  display: inline-grid; place-items: center; width: var(--control-sm); height: var(--control-sm);
+  border-radius: var(--radius-md); background: var(--surface-2); color: var(--ink-1);
+  font-size: var(--t-small); font-weight: var(--weight-strong);
+}
+.pin-avatar {
+  place-items: center; flex: none; width: var(--control-sm); height: var(--control-sm); border-radius: 50%;
+  background: var(--surface-2); color: var(--ink-2); font-size: var(--t-small); font-weight: var(--weight-strong);
+}
+.pin-nav-tip {
+  position: fixed; z-index: var(--z-overlay); left: var(--tip-x); top: var(--tip-y); translate: 0 -50%;
+  padding: var(--space-1) var(--space-2); border-radius: var(--radius-md);
+  background: var(--surface-1); color: var(--ink-1); box-shadow: var(--shadow-overlay);
+  font-size: var(--t-small); line-height: var(--t-small-lh); font-weight: var(--weight-normal); white-space: nowrap; pointer-events: none;
+}
+/* hover waits 400 ms before showing (the DS's delay); keyboard focus shows it at once */
+@keyframes pin-tip-tunda { from { visibility: hidden; } to { visibility: visible; } }
+@media (min-width: 1024px) {
+  .pin-staf-kepala { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+  .pin-staf .pin-rail-ikon { display: inline-block; }
+  .pin-staf .pin-bantuan-tombol { display: inline-flex; align-items: center; gap: var(--space-2); }
+}
+@media (max-width: 1023px) {
+  .pin-ciut { display: none; }
+  .pin-staf .pin-konteks-rail { display: none; }
+}
+/* The rail: by default from 1024 to 1279 px, unless the reader expanded it */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) { width: var(--shell-rail); padding-inline: var(--space-3); align-items: center; }
+  body:has(.pin-shell.pin-staf:not([data-ciut="tidak"])) { padding-left: calc(var(--shell-rail) + var(--gutter)); }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-merek { display: none; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-staf-kepala { flex-direction: column; padding: 0 0 var(--space-3); }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-laci { align-items: center; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-tabs { justify-items: center; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-tabs a.pin-nav-item, .pin-shell.pin-staf:not([data-ciut="tidak"]) a.pin-konteks-rail { width: var(--control-md); padding: 0; justify-content: center; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) :is(.pin-nav-label, .pin-rail-teks, .pin-sesi-ket strong) {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-konteks-blok { display: none; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) a.pin-konteks-rail { display: flex; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) [data-tip-host][data-tip-xy]:hover:not([data-tip-tutup]) > .pin-nav-tip { display: block; animation: pin-tip-tunda 400ms steps(1, end); }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) [data-tip-host][data-tip-xy]:focus-visible:not([data-tip-tutup]) > .pin-nav-tip { display: block; animation: none; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-avatar { display: inline-grid; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-staf-bawah { justify-items: center; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) :is(.pin-bantuan-tombol, .pin-sesi-keluar) { width: var(--control-md); min-height: var(--control-md); padding: 0; justify-content: center; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-lang { flex-direction: column; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-sesi { align-items: center; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-sesi form { width: auto; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-menu-tombol .pin-chevron { display: none; }
+}
+/* The rail at 1280 px and up, when the reader collapsed it */
+@media (min-width: 1280px) {
+  .pin-shell.pin-staf[data-ciut="ya"] { width: var(--shell-rail); padding-inline: var(--space-3); align-items: center; }
+  body:has(.pin-shell.pin-staf[data-ciut="ya"]) { padding-left: calc(var(--shell-rail) + var(--gutter)); }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-merek { display: none; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-staf-kepala { flex-direction: column; padding: 0 0 var(--space-3); }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-laci { align-items: center; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-tabs { justify-items: center; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-tabs a.pin-nav-item, .pin-shell.pin-staf[data-ciut="ya"] a.pin-konteks-rail { width: var(--control-md); padding: 0; justify-content: center; }
+  .pin-shell.pin-staf[data-ciut="ya"] :is(.pin-nav-label, .pin-rail-teks, .pin-sesi-ket strong) {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-konteks-blok { display: none; }
+  .pin-shell.pin-staf[data-ciut="ya"] a.pin-konteks-rail { display: flex; }
+  .pin-shell.pin-staf[data-ciut="ya"] [data-tip-host][data-tip-xy]:hover:not([data-tip-tutup]) > .pin-nav-tip { display: block; animation: pin-tip-tunda 400ms steps(1, end); }
+  .pin-shell.pin-staf[data-ciut="ya"] [data-tip-host][data-tip-xy]:focus-visible:not([data-tip-tutup]) > .pin-nav-tip { display: block; animation: none; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-avatar { display: inline-grid; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-staf-bawah { justify-items: center; }
+  .pin-shell.pin-staf[data-ciut="ya"] :is(.pin-bantuan-tombol, .pin-sesi-keluar) { width: var(--control-md); min-height: var(--control-md); padding: 0; justify-content: center; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-lang { flex-direction: column; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-sesi { align-items: center; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-sesi form { width: auto; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-menu-tombol .pin-chevron { display: none; }
+}
+.pin-konteks-kontrol { display: grid; width: 100%; }
+.pin-laci-js { display: none; }
+@media (min-width: 1024px) {
+  /* the drawer's controls do nothing at this width: neither is drawn, nor a Tab stop */
+  .pin-staf .pin-laci-saklar { display: none; }
+  .pin-shell.pin-staf :is(a.pin-konteks-rail) { margin-inline: auto; }
+}
+@media (max-width: 1023px) {
+  /* once the button is mounted it is the one control (TombolLaci); the checkbox served only until then */
+  .pin-staf[data-laci-js] :is(.pin-laci-saklar, .pin-laci-tombol) { display: none; }
+  .pin-staf .pin-laci-js {
+    order: 3; display: inline-flex; align-items: center; justify-content: center;
+    width: var(--control-md); height: var(--control-md); padding: 0; border: 0; border-radius: var(--radius-md);
+    background: none; color: var(--ink-1); cursor: pointer;
+  }
+  .pin-staf:not([data-laci-js]) .pin-laci-js { display: none; }
+  .pin-staf .pin-laci-js:hover { background: var(--surface-2); }
+  .pin-staf[data-laci="buka"] .pin-laci { display: grid; gap: var(--space-3); }
+  .pin-staf[data-laci="buka"] .pin-sesi { order: 5; width: 100%; flex-wrap: wrap; padding-bottom: var(--space-3); }
+  .pin-staf[data-laci="buka"] .pin-sesi :is(.pin-sesi-ket, .pin-sesi-akun) { display: inline-flex; align-items: center; }
+  /* open, the drawer is a modal sheet over the page (the page behind is inert), in E1's order: the context control and
+     the places, then Bantuan, «Laporkan masalah» and the language, then the reader and «Keluar» */
+  .pin-staf[data-laci="buka"] { position: fixed; inset: 0; z-index: var(--z-overlay); align-content: start; overflow-y: auto; }
+  .pin-staf .pin-laci > .pin-tabs { order: 0; }
+  .pin-staf .pin-laci > .pin-staf-bawah { order: 1; }
+}
+/* E2: the chooser's door (D-169(c)) */
+.pin-pintu { display: flex; align-items: center; gap: var(--space-3); min-height: 64px; }
+.pin-pintu-teks { display: grid; flex: 1; min-width: 0; }
+.pin-pintu-tujuan { font-size: var(--t-subsection); line-height: var(--t-subsection-lh); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-pintu-tempat { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); overflow-wrap: anywhere; }
+.pin-pintu > .pin-ikon { color: var(--ink-3); }
+.pin-pintu[aria-current="true"] {
+  background: var(--pintar-primary-soft); border-color: var(--pintar-primary);
+  box-shadow: inset var(--border-focus, 2px) 0 0 var(--pintar-primary);
+}
+.pin-pintu[aria-current="true"] > .pin-ikon { color: var(--pintar-primary); }
+/* B1: on a Konfigurasi section's page the page's h1 is the section's title, so the section's own first heading, the
+   same words, is not drawn a second time (it still names the section for aria-labelledby) */
+[data-bagian-ini] > section > h2:first-child { display: none; }
+/* B1 (TableRows): a table's stripes reach the paper */
+@media print { .pin-tabel tbody tr > * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+/* B1: a badge that carries its own icon (attention, «Menghentikan kelas») draws no dot as well */
+.pin-pill.pin-pill-ikon::before { display: none; }
+.pin-pill.pin-pill-ikon .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
+/* authored content (TeksBaris, TeksBlok) is marked for the learner-surface check; the mark draws nothing */
+.pin-isi-materi { display: contents; }
+/* B1 FormLayout: two short fields share a row, the design system's pds-grid-2 (auto-fit at 220 px, never wider than
+   the column), one column below it */
+.pin-baris-isian { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: var(--space-2) var(--space-4); align-items: start; }
+/* R5-CETAK-01: a back link is navigation, and navigation is never on paper, on any page (the shell and the skip link
+   are .pin-noprint) */
+@media print { .pin-back { display: none !important; } }
+/* B1 §2 A4: a Konfigurasi section page prints its content only: every form, a record's action and the pager stay off
+   the paper */
+@media print { [data-bagian-ini] form, [data-bagian-ini] [data-buka-ubah], [data-bagian-ini] [data-penomoran] { display: none !important; } }
+/* A1 (D-166(b)): the question review, one lesson at a time; scoped to the review's own lists */
+.pin-soal-lompat { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2) var(--space-3); margin-top: var(--space-3); }
+.pin-soal-lompat label { flex-basis: 100%; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-soal-lompat select { min-width: 0; max-width: 100%; flex: 1 1 auto; }
+.pin-soal-pelajaran { margin-top: var(--space-5); display: grid; gap: var(--space-3); }
+.pin-soal-pelajaran-judul { margin: 0; font-size: var(--t-subsection); line-height: var(--t-subsection-lh); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-soal-pelajaran-judul:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+.pin-soal-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+.pin-soal-daftar > .pin-soal > article { display: grid; gap: var(--space-3); padding: var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface-1); }
+.pin-soal-meta { margin: 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); }
+.pin-soal-bacaan { display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--surface-2); }
+.pin-soal-bacaan-label { margin: 0; font-size: var(--t-small); font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-soal-bacaan p { margin: 0; overflow-wrap: anywhere; }
+.pin-soal-stem { margin: 0; font-size: var(--type-stem-phone); font-weight: var(--weight-strong); color: var(--ink-1); overflow-wrap: anywhere; }
+.pin-opsi-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.pin-opsi-daftar .pin-opsi { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: var(--space-3); max-width: none; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); border-left: 3px solid transparent; }
+.pin-opsi-daftar .pin-opsi-kunci { border-left-color: var(--pintar-primary); background: var(--pintar-primary-soft); }
+.pin-opsi-huruf { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: var(--radius-pill); border: 1px solid var(--line-strong); font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-opsi-daftar .pin-opsi-kunci .pin-opsi-huruf { background: var(--pintar-primary); border-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pin-opsi-isi { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-1); min-width: 0; }  /* W6.4: one shrinkable column; an auto track grew past its box at 320 px */
+.pin-opsi-teks { margin: 0; overflow-wrap: anywhere; }
+.pin-opsi-alasan { margin: 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); overflow-wrap: anywhere; }
+/* W6.4: in an option's reason the misconception code may break at its hyphens (never inside a segment), so a 24-character code fits the 125 px column at 320 px instead of leaving the page */
+.pin-opsi-alasan .pin-kode { white-space: normal; overflow-wrap: break-word; max-width: 100%; }
+@media (max-width: 560px) {
+  .pin-soal-daftar > .pin-soal > article { padding: var(--space-4); }
+  .pin-opsi-daftar .pin-opsi { grid-template-columns: 24px minmax(0, 1fr); }
+  .pin-opsi-huruf { width: 24px; height: 24px; }
+}

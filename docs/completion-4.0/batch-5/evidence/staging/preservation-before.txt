@@ -1,0 +1,14 @@
+Batch 5 staging preservation, BEFORE the merge (read-only transaction via the Supabase MCP, project keijhmdtsgrfvnvocfvk), read at 2026-11-03 19:55:00 UTC
+demo_roles 4 | demo_results 10 | demo_official 10 | demo_certificates 3 | demo_enrolments 5 | demo_courses 1 | demo_audit 91 (6860)
+demo_people bd41b3c9605519cffb916d0352b5148d
+demo_accounts 7deebf17f87ba3ee6bd192f776db01fb
+results_outside_tests 2440c371b31c77a0b5cf3333122858de
+official_outside_tests a14f4a405d09b0ee2daec14292a4777b
+certificates_outside_tests ffa43edd2b15583ffb5fe2eae3dd9bf9
+all results/official/certificates/courses/transfers 1580/154/42/47/1
+integrity_signals_outside_tests 666ff1abe21158fec6af2bf1a9567ba2
+management_decisions_all d41d8cd98f00b204e9800998ecf8427e (none)
+all integrity signals/management decisions 15/0
+migrations 188 / 20261221100000; versions digest 776956cb650c4edd0a859490a9da7713 (= the repository's first 188)
+replaced bodies: integrity_signals_awaiting_review=e1cd1099dc3412b7501a7e8704730fa3 record_integrity_review=14e24ea3ae9c8e929d128b3fc64c46c3
+189-193 functions present: 0; public.result_views: absent

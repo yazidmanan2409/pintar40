@@ -372,8 +372,29 @@ export function kunciKode(kode: string): HleEvent {
 // ------------------------------------------------------------------ transport
 
 /** The query a redirect carries: hasil, kode, ref, n, masalah. Codes only. */
-export function queryHasil(bagian: string, h: HasilAksi): URLSearchParams {
+/**
+ * E-K4 (D-173(d)): A RESULT IS SAID WHERE ITS ACTION WAS. A section with more than one form (a list whose rows each
+ * act, a confirmation panel, a separate «Hentikan sekarang») used to say every result once for the whole section, so a
+ * row's revoke was answered under another form. Each such form now names itself in a hidden `asal` («cabut», «jendela»)
+ * and posts the page of its list (`hal_*`); the action sends both back with the result, and the page draws the line
+ * only at the form that matches. Validated here, so nothing typed into an address reaches the page as an origin.
+ */
+export const ASAL_HASIL = /^[a-z][a-z0-9-]{0,30}$/;
+export function asalHasil(v: unknown): string | null {
+  return typeof v === "string" && ASAL_HASIL.test(v) ? v : null;
+}
+
+export function queryHasil(bagian: string, h: HasilAksi, fd?: FormData): URLSearchParams {
   const q = new URLSearchParams({ bagian, hasil: h.ok ? "ok" : "gagal" });
+  const asal = asalHasil(fd?.get("asal"));
+  if (asal) q.set("asal", asal);
+  // and the row it acted on, so a list draws the answer in that row
+  const baris = fd?.get("baris");
+  if (typeof baris === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(baris)) q.set("baris", baris);
+  // the list's page comes back with its answer, so a row on page 2 is still on screen
+  for (const [k, v] of fd ? [...fd.entries()] : []) {
+    if (/^hal(_[a-z]+)?$/.test(k) && typeof v === "string" && /^[1-9]\d{0,4}$/.test(v)) q.set(k, v);
+  }
   if (h.kode) q.set("kode", h.kode);
   if (h.ok && typeof h.n === "number" && Number.isFinite(h.n)) q.set("n", String(Math.trunc(h.n)));
   if (!h.ok && h.ref) q.set("ref", h.ref);

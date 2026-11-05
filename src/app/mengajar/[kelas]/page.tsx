@@ -11,9 +11,10 @@ import { BarisLingkup } from "@/components/bukti";
 import PemilihKelas from "@/components/mengajar/PemilihKelas";
 import Koleksi from "@/components/koleksi/Koleksi";
 import { halamanKoleksi, kueriDiminta, susunKoleksi } from "@/components/koleksi/aturan";
-import { kataAnggota } from "@/lib/mengajar";
+import { adaBuktiSoal, kataAnggota } from "@/lib/mengajar";
 import { alamatCatatan } from "@/lib/pengembangan-kontrak";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { tanggal } from "@/lib/tanggal";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]");
 
@@ -159,7 +160,7 @@ export default async function Kelas({
                 <div key={b.id} className="pin-row">
                   <span className="pin-title">{b.judul}</span>
                   <span className="pin-rowmeta">
-                    {b.ditutup ? <span>{format.date(b.ditutup, locale)}</span> : null}
+                    {b.ditutup ? <span>{tanggal(b.ditutup, "hari", locale)}</span> : null}
                     <span>
                       {format.number(b.mengumpulkan, locale)}/
                       {format.number(fakta.murid.length, locale)}{" "}
@@ -188,8 +189,8 @@ export default async function Kelas({
                   {/* Batch 3 closure (Daisy, J1Terbit step 7): the window in words, «Mulai … · Sampai …» or «Tanpa batas
                       akhir», and «Tersedia» as the done Badge (✓); a scheduled or finished material stays neutral */}
                   <span className="pin-rowmeta">
-                    {x.mulai ? <span>{s("mengajar.siap.mulai")} {format.date(x.mulai, locale)}</span> : null}
-                    <span>{x.sampai ? `${s("mengajar.siap.sampai")} ${format.date(x.sampai, locale)}` : s("mengajar.siap.sampai.kosong")}</span>
+                    {x.mulai ? <span>{s("mengajar.siap.mulai")} {tanggal(x.mulai, "hari", locale)}</span> : null}
+                    <span>{x.sampai ? `${s("mengajar.siap.sampai")} ${tanggal(x.sampai, "hari", locale)}` : s("mengajar.siap.sampai.kosong")}</span>
                   </span>
                   <span className={`pin-pill ${ajar.nadaMateri(ajar.statusMateri(x))}`}>{s(ajar.statusMateri(x))}</span>
                 </div>
@@ -207,7 +208,7 @@ export default async function Kelas({
                     <span className="pin-rowmeta">
                       {r.terbitPada ? (
                         <span>
-                          {s("mengajar.siap.diterbitkan")} {format.date(r.terbitPada, locale)}
+                          {s("mengajar.siap.diterbitkan")} {tanggal(r.terbitPada, "baca", locale)}
                         </span>
                       ) : null}
                     </span>
@@ -224,7 +225,7 @@ export default async function Kelas({
             {format.number(fakta.murid.length, locale)} {s(kataAnggota("mengajar.fakta.murid", ctx.ini.jenis)).toLowerCase()}.{" "}
             {s("mengajar.murid.sub")}
             {fakta.rosterBerubah
-              ? ` ${s("mengajar.fakta.berubah")} ${format.date(fakta.rosterBerubah, locale)}.`
+              ? ` ${s("mengajar.fakta.berubah")} ${tanggal(fakta.rosterBerubah, "baca", locale)}.`
               : ""}
           </p>
           {/* W3.5 (Batch 4; Daisy, J2Kelas): the class's learners as a Table: alphabetical, searchable, paged with the
@@ -237,7 +238,7 @@ export default async function Kelas({
               nama={`${s(kataAnggota("mengajar.murid.judul", ctx.ini.jenis))} · ${ctx.ini.nama}`}
               benda={s(kataAnggota("mengajar.bukti.murid", ctx.ini.jenis))}
               kolom={[{ judul: s("mengajar.cepat.hasil.kolom.nama") }]}
-              baris={rosterHalaman.isi.map((m) => ({ kunci: m.id, nama: <Link href={`/mengajar/${id}/murid/${m.id}`}>{m.nama}</Link>, sel: [] }))}
+              baris={rosterHalaman.isi.map((m) => ({ kunci: m.id, nama: adaBuktiSoal(ctx.ini.jenis) ? <Link href={`/mengajar/${id}/murid/${m.id}`}>{m.nama}</Link> : m.nama, sel: [] }))}
               posisi={rosterHalaman.posisi}
               totalSemua={rosterHalaman.totalSemua}
               kosong={<Kosong jenis="belum" kalimat={s(kataAnggota("mengajar.murid.kosong", ctx.ini.jenis))} />}

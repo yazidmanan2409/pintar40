@@ -61,22 +61,30 @@ const semua = rows(`
      where n.institution_id = ${uuid(SID)} and n.kind = 'CLASS' and n.is_active and n.name like 'Kelas Beban %'
        and t.name = 'Tingkat Beban L1'),
   pa as (
-    select distinct on (aa.node_id) aa.node_id, aa.id as aa_id, la.course_id
+    select distinct on (aa.node_id) aa.node_id, aa.id as aa_id, la.course_id, aa.learning_assignment_id as la_id
       from public.assessment_assignments aa join public.learning_assignments la on la.id = aa.learning_assignment_id
       join public.assessment_definitions d on d.id = aa.assessment_definition_id
      where aa.node_id in (select id from kelas) and d.mode = 'POST_TEST' and aa.status = 'OPEN'
        and (aa.closes_at is null or aa.closes_at > now() + interval '30 minutes')
+     order by aa.node_id, aa.created_at desc),
+  -- W6.10 (migration 20261229100000): the Uji Penguasaan waits for the learner's Pemetaan Awal, so the class's
+  -- Pemetaan Awal of the same chapter is sat in setup, as perf/l1-browser.mjs has always done
+  pre as (
+    select distinct on (aa.node_id) aa.node_id, aa.id as aa_id, aa.learning_assignment_id as la_id
+      from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
+     where aa.node_id in (select id from kelas) and d.mode = 'PRE_TEST' and aa.status = 'OPEN'
      order by aa.node_id, aa.created_at desc)
-  select p.id, u.email, pa.aa_id, pa.course_id
+  select p.id, u.email, pa.aa_id, pa.course_id, coalesce(pre.aa_id::text, '')
     from public.memberships m join public.enrollments e on e.id = m.enrollment_id and e.status = 'ACTIVE'
     join public.persons p on p.id = e.person_id
     join public.accounts a on a.person_id = p.id join auth.users u on u.id = a.auth_user_id
     join pa on pa.node_id = m.node_id
+    left join pre on pre.node_id = m.node_id and pre.la_id = pa.la_id
    where m.valid_to is null
      and not exists (select 1 from public.assessment_sessions s where s.person_id = p.id and s.assessment_assignment_id = pa.aa_id)
    order by p.id`);
 const mine = semua.filter((_, i) => i % SHARDS === SHARD).slice(0, LIMIT)
-  .map(([person, email, aa, course]) => ({ person, email, aa, course }));
+  .map(([person, email, aa, course, pre]) => ({ person, email, aa, course, pre: pre || null }));
 const courses = [...new Set(mine.map((m) => m.course))];
 const KUNCI = new Map(); // item_id -> { right: Set(body), wrong: Set(body) }
 for (const c of courses) {
@@ -132,6 +140,38 @@ for (const m of mine) {
   if (!m.token) mintFail++;
 }
 log({ phase: "mint", minted, failed: mintFail, ready_in_s: Math.round((T0 - Date.now()) / 1000) });
+
+// ── SETUP, untimed and kept out of `calls`: each learner's Pemetaan Awal, sat and finished through the learner RPCs
+// with the learner's own token, before the wave (W6.10). The wave itself is unchanged.
+async function setupRpc(token, fn, args) {
+  const r = await fetch(`${SB}/rest/v1/rpc/${fn}`, { method: "POST",
+    headers: { apikey: ANON, Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(args) });
+  const body = await r.json().catch(() => null);
+  if (!r.ok) throw new Error(`${fn}: HTTP ${r.status} ${JSON.stringify(body).slice(0, 160)}`);
+  return body;
+}
+let preDone = 0, preFail = 0, preNone = 0;
+for (const m of mine.filter((x) => x.token)) {
+  if (!m.pre) { preNone++; continue; }
+  try {
+    const selesai = sql(`select count(*) from public.assessment_sessions where person_id = ${uuid(m.person)}
+      and assessment_assignment_id = ${uuid(m.pre)} and status = 'FINALIZED'`);
+    if (selesai === "0") {
+      const sid = await setupRpc(m.token, "start_learning_session", { p_assessment_assignment: m.pre });
+      const paper = await setupRpc(m.token, "session_paper", { p_session: sid });
+      const manifest = {};
+      for (const q of paper) {
+        const posisi = q.muatan?.opsi?.[0]?.posisi ?? 1;
+        await setupRpc(m.token, "record_answer", { p_presented_item: q.presented_item_id, p_client_seq: 1, p_jawaban: { posisi },
+          p_client_asserted_at: null, p_receipt_mode: "LIVE" });
+        manifest[q.presented_item_id] = 1;
+      }
+      await setupRpc(m.token, "finish_my_session", { p_session: sid, p_manifest: manifest });
+    }
+    preDone++;
+  } catch (e) { preFail++; log({ phase: "pre", error: String(e.message).slice(0, 200) }); }
+}
+log({ phase: "pre-done", pre_done: preDone, pre_failed: preFail, no_pre_assignment: preNone, ready_in_s: Math.round((T0 - Date.now()) / 1000) });
 
 // ── one sitting
 const ledger = []; // acknowledged answers: { sid, pid, seq }

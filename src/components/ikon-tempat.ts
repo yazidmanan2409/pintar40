@@ -15,4 +15,6 @@ export const IKON_TEMPAT: Record<string, NamaIkon> = {
   "/studio": "square-pen",
   "/konfigurasi/keamanan": "shield",
   "/konfigurasi/email-uji": "mail",
+  // E1: in the rail a place is its icon, so every place has one (Sertifikat sekolah had none and drew nothing there)
+  "/konfigurasi/sertifikat": "award",
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { t, type Locale } from "@/lib/hle";
 import { BATAS_TANGKAPAN, namaTangkapan } from "@/lib/lapor-masalah-kontrak";
@@ -16,8 +16,21 @@ export default function TangkapanLayar({ locale }: { locale: Locale }) {
   const s = (k: Parameters<typeof t>[0]) => t(k, "staff", { locale });
   const [jalur, setJalur] = useState<string>("");
   const [keadaan, setKeadaan] = useState<"kosong" | "naik" | "siap" | "gagal" | "besar">("kosong");
+  // X.11 (W6.1): only the latest pick may finish. A slower earlier upload that completes after a newer pick is ignored,
+  // so the screenshot attached is always the one last chosen.
+  const giliran = useRef(0);
+
+  // X.11: the report is never sent while its screenshot is uploading. The file field itself is invalid meanwhile, so the
+  // browser's own form validation holds «Kirim laporan» and says why on the field; it is valid again the moment the
+  // upload ends, either way (the screenshot is optional, and a failed upload is already said on screen).
+  useEffect(() => {
+    const el = document.getElementById("lapor-tangkapan") as HTMLInputElement | null;
+    el?.setCustomValidity(keadaan === "naik" ? s("lapor.tangkapan.naik") : "");
+  });
 
   async function pilih(f: File | undefined) {
+    const ini = ++giliran.current;
+    const masihIni = () => ini === giliran.current;
     setJalur("");
     if (!f) { setKeadaan("kosong"); return; }
     const nama = namaTangkapan(crypto.randomUUID(), f.type);
@@ -28,22 +41,24 @@ export default function TangkapanLayar({ locale }: { locale: Locale }) {
       const r = await fetch("/api/assets/upload-url", {
         method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ path: nama }),
       });
+      if (!masihIni()) return;
       if (!r.ok) { setKeadaan("gagal"); return; }
       const { path, token } = (await r.json()) as { path: string; token: string };
       const klien = supabaseBrowser();
       const { error } = await klien.storage.from("assets").uploadToSignedUrl(path, token, f, { contentType: f.type });
+      if (!masihIni()) return;
       if (error) { setKeadaan("gagal"); return; }
       setJalur(path);
       setKeadaan("siap");
     } catch {
-      setKeadaan("gagal");
+      if (masihIni()) setKeadaan("gagal");
     }
   }
 
   return (
     <div className="pin-lapor-isian">
       {/* W3.3 / the /lapor axe finding (`label`, critical): the field's own label now names the input */}
-      <BidangBerkas id="lapor-tangkapan" label={s("lapor.tangkapan")} locale={locale}
+      <BidangBerkas id="lapor-tangkapan" label={s("lapor.tangkapan")} opsional={s("bentuk.opsional")} locale={locale}
         accept="image/png,image/jpeg,image/webp" onPilih={(fs) => pilih(fs[0])} />
       <input type="hidden" name="tangkapan" value={jalur} />
       <p className="pin-hint" aria-live="polite">

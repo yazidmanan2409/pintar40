@@ -55,7 +55,29 @@ export function catatanLayanan(): CatatanKirim {
 
 export type HasilKirim =
   | { terkirim: true; rujukan: string }
-  | { terkirim: false; alasan: "BATAS_ALAMAT" | "BATAS_UMUM" | "DITOLAK_SERVER" | "GAGAL_KIRIM"; rujukan: string };
+  | { terkirim: false; alasan: "BATAS_ALAMAT" | "BATAS_UMUM" | "DITOLAK_SERVER" | "GAGAL_KIRIM" | "DITAHAN_UJI"; rujukan: string };
+
+/**
+ * P-2 (staging promotion proposal; owner, 5 Nov: «No unrestricted real-inbox sending»). OUTSIDE PRODUCTION'S ORIGIN
+ * PINTAR SENDS ONLY TO AN ADDRESS IT CONTROLS OR TO A RESERVED TEST DOMAIN:
+ *   - PINTAR's own domain, exactly (no subdomain, no lookalike): its mailboxes are PINTAR's;
+ *   - the reserved names of RFC 2606 / RFC 6761 (.test, .invalid, .example, .localhost, example.com/.net/.org),
+ *     which no real person can hold;
+ *   - an address named in PENERIMA_UJI_TAMBAHAN, which only a reviewed change can add: the dedicated synthetic test
+ *     inboxes of D1's real-client check (P6), when the owner authorises them. Empty until then.
+ * Anything else is held: not sent, not logged, no budget spent. The identity routes answer before they send and only
+ * log the outcome, so a held send reads on the screen exactly as a stranger's request does. Production's origin is
+ * not restricted: production sends to the people it serves.
+ */
+export const DOMAIN_PINTAR = "pintarselalu.com";
+export const PENERIMA_UJI_TAMBAHAN: readonly string[] = [];
+const DOMAIN_CADANGAN = new Set(["example.com", "example.net", "example.org"]);
+export function penerimaBolehDiUji(alamat: string): boolean {
+  const a = normalisasiAlamat(alamat);
+  if (PENERIMA_UJI_TAMBAHAN.includes(a)) return true;
+  const domain = a.slice(a.lastIndexOf("@") + 1);
+  return domain === DOMAIN_PINTAR || DOMAIN_CADANGAN.has(domain) || /\.(test|invalid|example|localhost)$/.test(domain);
+}
 
 export function periksaEmailJadi(email: EmailJadi): void {
   if (typeof email?.subjek !== "string" || email.subjek.trim() === "") throw new GalatEmail("the email has no subject");
@@ -104,6 +126,11 @@ export async function kirimEmail(
   const alamat = normalisasiAlamat(ke);
   const email = susun({ asal: p.asal, staging: p.staging });
   periksaEmailJadi(email);
+
+  if (p.staging && !penerimaBolehDiUji(alamat)) {
+    console.error("[email] held: outside production an address outside PINTAR's own and the test domains is not sent", { jenis });
+    return { terkirim: false, alasan: "DITAHAN_UJI", rujukan: "" };
+  }
 
   const izin = await catatan.cadang(jenis, hashAlamat(alamat));
   const rujukan = String(izin.log_id);

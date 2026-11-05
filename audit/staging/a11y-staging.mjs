@@ -172,7 +172,8 @@ nilaiKah("JUDUL-NAMA", namaOrang.length > 0 && bocor.length === 0, `${judulDilih
         nilaiKah("PAPAN-DIALOG-2", tutup && /pin-menu-tombol/.test(a.cls) && new URL(page.url()).pathname === di, `Esc: closed ${tutup}, focus on ${a.cls}, still signed in on ${new URL(page.url()).pathname}`);
       }
       if (lebar === 320) {
-        const laci = page.locator('label[for="pin-laci"]');
+        // E1: «Buka menu» (TombolLaci) once script has loaded; the checkbox's label before it
+        const laci = page.locator('[data-laci-tombol]:visible, label[for="pin-laci"]:visible').first();
         if (await laci.isVisible().catch(() => false)) { await laci.click(); await page.waitForTimeout(200); }
         await page.locator("button.pin-menu-tombol:visible").first().click();
         await page.waitForTimeout(200);

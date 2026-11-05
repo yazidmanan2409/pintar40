@@ -44,7 +44,7 @@ export const generateMetadata = judulHalaman("/studio/definisi");
  * a segmented control or radios instead»); the two switches are checkboxes with their explanation under them. The
  * names the action reads are unchanged. W1.9: every word in the reader's language.
  */
-type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; hal?: string; ubah?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; hal?: string; ubah?: string; baris?: string }>;
 
 /** The shuffle policies the database accepts, each said in words (studio.definisi.acak.*). */
 const ACAK = ["NONE", "ITEMS", "ITEMS_AND_OPTIONS"] as const;
@@ -87,7 +87,8 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
   // W1.3: each number's hint and limit in words, from the bounds of the two modes this form offers
   const namaMode = (m: string) => enumLabel("mode", m, locale);
   const petunjuk = petunjukAturan(modeSiklus, s, namaMode);
-  const opsional = s("studio.definisi.opsional");
+  // A4 (C3, D7): «(opsional)» is one shared key wherever an optional field is marked
+  const opsional = s("bentuk.opsional");
 
   // the definition's two outcomes are whole sentences of their own
   const banner = sp.hasil === "ok" && (sp.kode === "DEFINITION_NEW_VERSION" || sp.kode === "DEFINITION_KEPT")
@@ -204,6 +205,8 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
       </section>
 
       <section className="pin-studio-halaman">
+        {/* E-K4: a saved edit makes a new version, whose row is not the one edited: it is answered above the list */}
+        <HasilDi q={sp} bagian="definisi-baris" kalimat={banner} barisDiHalaman={(definitions ?? []).map((d) => d.id)} />
         <ul className="pin-daftar">
           {(definitions ?? []).map((d) => {
             const bab = d.course_id ? judulBab.get(d.course_id) : undefined;
@@ -230,6 +233,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
                     <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
                   </form>
                 ) : null}
+                {/* E-K4: an edit is answered in its own row */}<HasilDi q={sp} bagian="definisi-baris" baris={d.id} kalimat={banner} />
                 {bab?.status === "INGESTED" && bukaUbah(d.id) ? <SimpanIsian form={`definisi-${d.id}`} ditolak={ditolak("definisi")} pemilik={pemilik} /> : null}
               </li>
             );
@@ -237,7 +241,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
         </ul>
         {/* a page past the last says so, rather than an empty list (the Second Eye's finding 5); W3.2: the Empty state */}
         {definitions.length === 0 && halaman > 1 ? <Kosong jenis="tidak_cocok" kalimat={s("config.empty")} /> : null}
-        <Penomoran halaman={halaman} lagi={lagi} ke={ke} locale={locale} />
+        <Penomoran halaman={halaman} lagi={lagi} ke={ke} locale={locale} benda={s("koleksi.benda.definisi")} jumlah={definitions.length} />
       </section>
     </div>
   );

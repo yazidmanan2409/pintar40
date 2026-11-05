@@ -1,5 +1,6 @@
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import type { Envelope } from "./types";
+import { labelMetrik } from "./label";
 
 /**
  * AngkaBerdiri — a figure with its standing.
@@ -35,7 +36,7 @@ export default function AngkaBerdiri({
 
   return (
     <div className="pin-metric">
-      {entry.label_key ? <span className="pin-ml">{s(entry.label_key)}</span> : null}
+      <span className="pin-ml">{labelMetrik(entry, persona, locale)}</span>
       <span className="pin-mv pin-num">{value}</span>
       {entry.meaning_key ? <span className="pin-mm">{s(entry.meaning_key)}</span> : null}
       {sample != null ? (

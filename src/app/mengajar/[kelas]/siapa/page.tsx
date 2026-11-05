@@ -9,7 +9,7 @@ import { BarisLingkup } from "@/components/bukti";
 import Kosong from "@/components/Kosong";
 import Koleksi from "@/components/koleksi/Koleksi";
 import { halamanKoleksi, kueriDiminta, saringDiminta, susunKoleksi } from "@/components/koleksi/aturan";
-import { kataAnggota } from "@/lib/mengajar";
+import { adaBuktiSoal, kataAnggota } from "@/lib/mengajar";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/siapa");
@@ -80,7 +80,7 @@ export default async function Siapa({
   ]);
   const ini = semua.find((b) => b.id === tugasId);
   if (!ini) {
-    return <HalamanPenolakan locale={locale} persona="educator" backHref={`/mengajar/${id}`} backKey="mengajar.kembali" />;
+    return <HalamanPenolakan locale={locale} persona="educator" backHref={`/mengajar/${id}`} backLabel={ctx.ini.nama} />;
   }
 
   const { sudah, sedang, belum } = await ajar.siapa(tugasId, fakta.murid);
@@ -129,7 +129,7 @@ export default async function Siapa({
             ]}
             baris={halaman.isi.map((m) => ({
               kunci: m.id,
-              nama: <Link href={`/mengajar/${id}/murid/${m.id}`}>{m.nama}</Link>,
+              nama: adaBuktiSoal(ctx.ini.jenis) ? <Link href={`/mengajar/${id}/murid/${m.id}`}>{m.nama}</Link> : m.nama,
               sel: [<span key="k" className={KEADAAN[m.keadaan].badge} data-keadaan={m.keadaan}>{s(KEADAAN[m.keadaan].kunci)}</span>],
             }))}
             posisi={halaman.posisi}

@@ -99,6 +99,14 @@ jobs:
           export NEXT_PUBLIC_APP_URL="http://127.0.0.1:${APP_PORT}"
           export CARD_PEPPER=synthetic-card-pepper-fable01-32plus CARD_EMAIL_DOMAIN=cards.synthetic.pintar.test
           export CERT_SECRET_KEY_V1=synthetic-certificate-key-fable04-32plus PINTAR_BUILD_SHA="$RELEASE_SHA"
+          # W6.10 J2.18: «Lupa password» queues a real code, so PINTAR's own email goes to a sink, as in job B. Without
+          # it both code screens answer «sedang tidak dapat memproses» alike (run 41968151150). The stack's Mailpit
+          # already holds 54324 here, so this sink takes its own ports; nothing leaves the runner.
+          docker run -d --name pintar-mailpit -p 127.0.0.1:54335:1025 -p 127.0.0.1:54334:8025 axllent/mailpit:v1.31.3 \
+            --smtp-auth-accept-any --smtp-auth-allow-insecure --disable-version-check
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:54334/api/v1/info >/dev/null && break; sleep 1; done
+          curl -sf http://127.0.0.1:54334/api/v1/info >/dev/null
+          export PINTAR_SMTP_HOST=127.0.0.1 PINTAR_SMTP_PORT=54335 PINTAR_SMTP_USER=noreply@pintarselalu.test PINTAR_SMTP_PASSWORD=sink-accepts-any
           npm run build > "$RUNNER_TEMP/build.log" 2>&1 || { tail -40 "$RUNNER_TEMP/build.log"; exit 1; }
           nohup npx next start -p "$APP_PORT" -H 127.0.0.1 > "$RUNNER_TEMP/app.log" 2>&1 &
           for i in $(seq 1 60); do curl -fsS -o /dev/null "http://127.0.0.1:${APP_PORT}/masuk" && break; sleep 2; done
@@ -125,6 +133,16 @@ jobs:
           APP_DIR: ${{ github.workspace }}/app
           OUT_DIR: ${{ github.workspace }}/audit-out/crawl
         run: node crawl.mjs
+      # W6.2 (CR-58, U-PERF): each role's first screens, timed in the browser (worst of three ≤ 3 s). On the runner
+      # with the stack beside it this is a regression gate, not the staging measurement of record. Only reads.
+      - name: Time each role's first screen (W6.2)
+        if: ${{ !cancelled() }}
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/layar-pertama
+        run: node perf/layar-pertama.mjs
       # W6.5 (Batch 3): the whole Studio path by the screens in the seeded world: a Guru's never-imported chapter, a
       # failed upload fixed, one send-back and resubmission, approval by the head of department, publication by the
       # admin, assignment and the learner opening it. Runs after the crawl (which only reads), even when the crawl
@@ -162,6 +180,16 @@ jobs:
           APP_DIR: ${{ github.workspace }}/app
           OUT_DIR: ${{ github.workspace }}/audit-out/b5-ujung
         run: node b5-ujung.mjs
+      # Batch 6 (D-159; W3.22, Daisy's 08-migration §Print): each printable surface at A4 in a real browser: the staff
+      # and learner shells print no shell part; the class-card sheet prints only the set, two across, no card split.
+      - name: Walk the A4 print of each surface (Batch 6)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/b6-cetak
+        run: node b6-cetak.mjs
       # Batch 5 promotion gate (owner, 3 Nov): leaving MODE PERAGAAN returns the evaluator to the Hub as themselves and
       # signing out ends both sessions; the guided tour is non-modal and works by keyboard (Tab in and out, Enter
       # continues, «Kembali», Esc dismisses).
@@ -173,6 +201,48 @@ jobs:
           APP_DIR: ${{ github.workspace }}/app
           OUT_DIR: ${{ github.workspace }}/audit-out/b5-fokus
         run: node b5-fokus.mjs
+      # E-E1-2 (D-170(e)): E1 + E2 as one navigation, tested together: role and context transitions, the places and
+      # their one order (O12), the chooser, the rail, collapse, the drawer, accessibility and refusals, at 1280, 1279,
+      # 1100, 1024, 1023, 820, 390 and 320 px.
+      - name: Walk the integrated navigation (E1 + E2)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/e1-navigasi
+        run: node e1-navigasi.mjs
+      # D1 step 2 (DAISY-37; 05-D1 test plan §4): the eight identity emails from the real templates, at 600 and 320 px,
+      # light and dark, and with images blocked: K09, K13 and the keyboard order in a real browser. Nothing is sent.
+      - name: Walk the identity emails (D1)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/d1-email
+        run: node d1-email.mjs
+      # Reverse reconciliation (D-179(e), D-180, D-181): the accepted surfaces at Daisy's widths with axe and the keyboard
+      # judged, B2's explanation rendered, and the chooser's doors and session row (E-RB-1, -2, -3, -5, -9)
+      - name: Walk the reverse reconciliation's closure (E-RB)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/rb-ujung
+        run: node rb-ujung.mjs
+      # W6.10 (Batch 8): the journeys a static reading cannot hold, walked in a browser: one same sentence for every
+      # wrong sign-in (J2.1), sign out everywhere (J2.9), the idle lock and its PIN (J2.20, J2.10), help only after
+      # hesitation (J6.4), save, pause and resume (J6.7), maintenance (J1.6), the resend countdown (J2.18), an evaluation
+      # persona kept out of identity (J1.8) and the recovery ladder (J2.12, last: it suspends its own account)
+      - name: Walk the Batch 8 journeys (W6.10)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/b8-jalan
+        run: node b8-jalan.mjs
       - name: Server log (errors only)
         if: always()
         run: grep -iE 'error|exception|fail' "$RUNNER_TEMP/app.log" | grep -v 'evaluation_state' | head -80 || true

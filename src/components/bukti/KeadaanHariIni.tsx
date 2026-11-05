@@ -1,5 +1,7 @@
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
-import { kataAnggota, type JenisAnggota } from "@/lib/mengajar";
+import { adaBuktiSoal, kataAnggota, type JenisAnggota } from "@/lib/mengajar";
+import { judulAsesmen } from "@/lib/judul-asesmen";
+import { tanggal } from "@/lib/tanggal";
 
 /** What a row needs of an assessment assignment: a subset of `Berjalan` (src/lib/pengajar.ts). */
 export type AsesmenKelas = {
@@ -8,6 +10,8 @@ export type AsesmenKelas = {
   /** OPEN or CLOSED, as the assignment carries it. Never rendered as a word. */
   keadaan: string;
   mode: string;
+  /** When it opened: an Uji Cepat is named by it (judulAsesmen). */
+  dibuka: string | null;
   ditutup: string | null;
   mengumpulkan: number;
   /** W8: learners with a session of any state, so at least those who submitted. */
@@ -85,7 +89,7 @@ export default function KeadaanHariIni({
     <div className="pin-keadaan">
       {tampil.map((a) => ({ a, k: hitungKeadaan(a, murid) })).map(({ a, k }) => (
         <div className="pin-keadaan-baris" key={a.id}>
-          <p className="pin-keadaan-judul">{a.judul}</p>
+          <p className="pin-keadaan-judul">{judulAsesmen(a, locale)}</p>
           <dl className="pin-facts">
             <div>
               <dt>{s("mengajar.bukti.kumpul")}</dt>
@@ -95,7 +99,7 @@ export default function KeadaanHariIni({
             </div>
             <div>
               <dt>{s("mengajar.bukti.jendela")}</dt>
-              <dd>{a.ditutup ? format.date(a.ditutup, locale) : "—"}</dd>
+              <dd>{a.ditutup ? tanggal(a.ditutup, "hari", locale) : "—"}</dd>
             </div>
             <div>
               <dt>{s("mengajar.bukti.mulai")}</dt>
@@ -114,9 +118,9 @@ export default function KeadaanHariIni({
           </dl>
           {kelas ? (
             <p className="pin-keadaan-siapa">
-              <a href={`/mengajar/${kelas}/siapa?penugasan=${a.id}`}>{s("mengajar.bukti.siapa")}</a>
+              <a href={`/mengajar/${kelas}/siapa?penugasan=${a.id}`}>{s(kataAnggota("mengajar.bukti.siapa", jenis))}</a>
               {/* D-088(k), M5: once something has been handed in, which questions the class found hard */}
-              {k.kumpul > 0 ? (
+              {k.kumpul > 0 && adaBuktiSoal(jenis) ? (
                 <> · <a href={`/mengajar/${kelas}/soal?penugasan=${a.id}`}>{s("mengajar.bukti.per_soal")}</a></>
               ) : null}
               {/* D-085 M3 (J5.12): once an Uji Penguasaan is handed in, the teacher may ask some learners to read again */}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { t, format, type Locale } from "@/lib/hle";
 import type { Orientation } from "@/lib/assessment-engine/types";
+import { tanggal } from "@/lib/tanggal";
 
 /**
  * SCREEN D — ORIENTATION BEFORE COMMITMENT.
@@ -85,7 +86,7 @@ export default function OrientasiAsesmen({
           {orientasi.closes_at ? (
             <div>
               <dt>{s("siklus.ditutup")}</dt>
-              <dd className="pin-num">{format.date(orientasi.closes_at, locale)}</dd>
+              <dd className="pin-num">{tanggal(orientasi.closes_at, "hari", locale)}</dd>
             </div>
           ) : null}
         </dl>

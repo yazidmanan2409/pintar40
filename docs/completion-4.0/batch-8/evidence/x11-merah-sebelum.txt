@@ -1,0 +1,2 @@
+# W6.1 X.11 · audit/e1-navigasi.mjs N8 against the build WITHOUT the fix (TangkapanLayar.tsx as at a998d833), 5 Nov
+FAIL · !! pressing «Kirim laporan» mid-upload sent the report without its screenshot (now on /lapor/saya)

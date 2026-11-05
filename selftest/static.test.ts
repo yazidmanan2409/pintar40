@@ -12,6 +12,8 @@ import { Checks, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
 import { emailTests } from "./email.test";
+import { d1Tests } from "./d1.test";
+import { retroTests } from "./retro.test";
 import { aktifkanTests } from "./aktifkan.test";
 import { daisy40Tests } from "./daisy40.test";
 import { loginTests } from "./login.test";
@@ -19,6 +21,7 @@ import { strukturTests } from "./struktur.test";
 import { unggahTests } from "./unggah.test";
 import { terbitanTests } from "./terbitan.test";
 import { penugasanTests } from "./penugasan.test";
+import { aturanTests } from "./aturan.test";
 import { sesiTests } from "./sesi.test";
 import { bob06Tests } from "./bob06.test";
 import { galatTests } from "./galat.test";
@@ -103,9 +106,13 @@ import { studio3aTests } from "./studio3a.test";
 import { studio3cTests } from "./studio3c.test";
 import { b4Tests } from "./b4.test";
 import { b5Tests } from "./b5.test";
+import { b6eTests } from "./b6e.test";
 import { b5aTests } from "./b5a.test";
 import { b5cTests } from "./b5c.test";
 import { b5bTests } from "./b5b.test";
+import { b6cTests } from "./b6c.test";
+import { b6kTests } from "./b6k.test";
+import { d168Tests } from "./d168.test";
 import { studio3bTests } from "./studio3b.test";
 import { penutupanTests } from "./penutupan.test";
 import { fable22Tests } from "./fable22.test";
@@ -1743,7 +1750,7 @@ export const staticTests: SelfTest[] = [
         { file: "src/app/konfigurasi/page.tsx", rule: "id_fragment", contains: "l.build.slice(0, 7)",
           why: "kept exception (investigation §E item 22): the build, in the platform operator's triage only (platformIni)" },
         { file: "src/app/konfigurasi/page.tsx", rule: "id_fragment", contains: "short(r.build_sha)",
-          why: "Jejak audit: the build of each audited act, drawn for the platform operator only (platformIni), as l.build is" },
+          why: "Jejak audit: the build of each audited act, drawn for the platform operator only and only when a row on the page carries one (adaVersi, B1 / RV-24), as l.build is" },
         { file: "src/app/belajar/_components/LessonPlayer.tsx", rule: "unit_suffix", contains: "{r}×",
           why: "kept: the media player's playback speeds (0.75× … 2×) under its own label «Kecepatan» (lesson.speed), the convention every player uses" },
         { file: "src/app/studio/bank/page.tsx", rule: "raw_key_column", contains: "i.empirical_difficulty",
@@ -2098,6 +2105,8 @@ export const staticTests: SelfTest[] = [
   // no case that existed at the frozen baseline is touched by appending them.
   ...experienceTests,
   ...emailTests,
+  ...d1Tests,
+  ...retroTests,
   ...aktifkanTests,
   ...daisy40Tests,
   // LOGIN CONTRACT — L-1 and L-2. Same rule as the Experience cases above:
@@ -2111,6 +2120,7 @@ export const staticTests: SelfTest[] = [
   ...unggahTests,
   ...terbitanTests,
   ...penugasanTests,
+  ...aturanTests,
   ...sesiTests,
   ...bob06Tests,
   ...galatTests,
@@ -2198,7 +2208,11 @@ export const staticTests: SelfTest[] = [
   ...studio3cTests,
   ...b4Tests,
   ...b5Tests,
+  ...b6eTests,
   ...b5aTests,
   ...b5cTests,
   ...b5bTests,
+  ...b6cTests,
+  ...b6kTests,
+  ...d168Tests,
 ];

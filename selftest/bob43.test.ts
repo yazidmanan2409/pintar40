@@ -387,6 +387,35 @@ begin
                                              'kelas_a', public.metric_evaluate('class.participants', c.cls_a, c.inst, v_cat) - 'catalogue_version');
   perform selftest.as_owner();
   v := v || jsonb_build_object('akademik', v_before);
+  -- ── E-C1-7 (D-069(b), D-167): every OTHER path to the PD participant's result, as Admin sekolah, then a planted leak
+  perform selftest.as_owner();
+  v := v || jsonb_build_object('sapu_hasil_ada', (select count(*) from public.assessment_results r where r.session_id = ps),
+                               'sapu_sertifikat_ada', (select count(*) from public.certificates x where x.session_id = ps));
+  perform selftest.as_user_uid(c.adm_u);
+  v := v || jsonb_build_object(
+    'sapu_hasil', (select count(*) from public.assessment_results r where r.session_id = ps),
+    'sapu_hasil_orang', (select count(*) from public.assessment_results r where r.person_id = c.edu),
+    'sapu_sertifikat', (select count(*) from public.certificates x where x.session_id = ps or x.person_id = c.edu));
+  j := public.metric_evaluate('learner.result', c.edu, c.inst, v_cat);
+  v := v || jsonb_build_object('sapu_metrik', j ->> 'status',
+    'sapu_metrik_baris', coalesce(jsonb_array_length(case when jsonb_typeof(j -> 'value') = 'array' then j -> 'value' end), 0));
+  -- every standard report at the PD Kelas, its Bagian and the school: no entry names the session or the participant
+  n := 0; n2 := 0;
+  for t in select x.id::text from public.report_templates x where x.institution_id = c.inst or x.is_standard loop
+    for j in select public.generate_report(t::uuid, z) from unnest(array[pdk, pdb, c.inst]) z loop
+      n := n + 1;
+      if j::text like '%' || ps::text || '%' or j::text like '%' || c.edu::text || '%' or j::text like '%0.92%' then n2 := n2 + 1; end if;
+    end loop;
+  end loop;
+  v := v || jsonb_build_object('sapu_laporan', n, 'sapu_laporan_bocor', n2);
+  -- the planted control: one permissive read for every signed-in reader, inside this rolled-back transaction; the
+  -- same sweep must now see the result, or it could not see a leak at all
+  perform selftest.as_owner();
+  execute 'create policy eal_bocor_ditanam on public.assessment_results for select to authenticated using (true)';
+  perform selftest.as_user_uid(c.adm_u);
+  v := v || jsonb_build_object('sapu_tanam', (select count(*) from public.assessment_results r where r.session_id = ps));
+  perform selftest.as_owner();
+  execute 'drop policy eal_bocor_ditanam on public.assessment_results';
   raise notice 'EAL %', v;
 end $eal$;
 rollback;
@@ -519,7 +548,10 @@ export const bob43Tests: SelfTest[] = [
       c.expect(/node:org_nodes\(member_kind\)/.test(pim) && /\.filter\(\(m\) => m\.node\?\.member_kind !== "PARTICIPANT"\)/.test(pim),
         "«Murid pada bagian ini» still lists professional-learning participants");
       const konf = baca("src", "app", "konfigurasi", "page.tsx");
-      c.expect(/status, member_kind, persons\(display_name\)"\)\.eq\("status", "ACTIVE"\)/.test(konf) && /&& e\.member_kind !== "PARTICIPANT"\)\.map\(\(e\) => \(/.test(konf),
+      // RESTATED FOR W2.17: the enrolments come from school_people_page (ACTIVE only, each with its member_kind; migration
+      // 20261230100000) instead of the table's policy, which timed out at 10x staging; the picker's filter is unchanged
+      c.expect(/\.rpc\("school_people_page"/.test(konf) && /status: string; member_kind: string; display_name: string/.test(konf)
+        && /&& e\.member_kind !== "PARTICIPANT"\)\.map\(\(e\) => \(/.test(konf),
         "the transfer picker still lists professional-learning enrolments");
       c.expect(/<section id="peserta"/.test(konf) && /formulirPeserta\(sekolahStruktur\.id\)/.test(konf) && /action=\{daftarkanPesertaAction\}/.test(konf),
         "Konfigurasi has no enrol form on the database's two reads");
@@ -615,6 +647,13 @@ export const bob43Tests: SelfTest[] = [
         && tolak(v.catatan_murid, "PD_RECORD_NOT_ALLOWED") && tolak(v.catatan_akademik, "PD_RECORD_NOT_ALLOWED") && v.pintu === true,
         `refused: another Guru ${v.catatan_guru_lain}, another Bagian's head ${v.catatan_kaprodi_lain}, a student ${v.catatan_murid}, an academic Kelas ${v.catatan_akademik}; the links ${v.pintu}`);
       c.expect(v.kunci_tertutup === "tertutup", `the gate's key stayed open after the read: ${v.kunci_tertutup}`);
+      // E-C1-7: Admin sekolah reaches the PD result by no other path; the planted permissive policy is seen by the same sweep
+      c.expect(Number(v.sapu_hasil_ada) >= 1, `the world holds no PD result to protect (${v.sapu_hasil_ada})`);
+      c.expect(Number(v.sapu_hasil) === 0 && Number(v.sapu_hasil_orang) === 0 && Number(v.sapu_sertifikat) === 0,
+        `Admin sekolah reads the PD result: assessment_results ${v.sapu_hasil} by session, ${v.sapu_hasil_orang} by person; certificates ${v.sapu_sertifikat} (of ${v.sapu_sertifikat_ada})`);
+      c.expect(v.sapu_metrik !== "ok" && Number(v.sapu_metrik_baris) === 0, `metric_evaluate('learner.result') gives Admin sekolah ${v.sapu_metrik} with ${v.sapu_metrik_baris} row(s)`);
+      c.expect(Number(v.sapu_laporan) >= 3 && Number(v.sapu_laporan_bocor) === 0, `generate_report: ${v.sapu_laporan_bocor} of ${v.sapu_laporan} reports at the PD Kelas, its Bagian or the school name the PD result`);
+      c.expect(Number(v.sapu_tanam) >= 1, `the planted permissive policy was not seen by the sweep (${v.sapu_tanam}): it cannot detect a leak`);
       c.expect(v.kelas_pd !== "ok" && v.kelas_pd_pemahaman !== "ok" && v.evaluator_fasilitator === 0,
         `figures at the PD Kelas: participants ${v.kelas_pd}, comprehension ${v.kelas_pd_pemahaman}; the ordinary evaluator gives the facilitator ${v.evaluator_fasilitator} PD row(s)`);
       const a = v.akademik ?? {};

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as pim from "@/lib/pimpinan";
@@ -50,7 +51,6 @@ export default async function DaftarMuridPimpinan({
         persona="staff"
         locale={locale}
         backHref="/pimpinan"
-        backKey="pimpinan.kembali"
       />
     );
   }
@@ -76,7 +76,7 @@ export default async function DaftarMuridPimpinan({
 
         <section className="pin-sec">
           {murid.length === 0 ? (
-            <p className="pin-empty">{s("pimpinan.murid.kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("pimpinan.murid.kosong")} />
           ) : (
             <ul className="pin-list pin-nama-list">
               {murid.map((m) => (

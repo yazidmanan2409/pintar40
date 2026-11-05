@@ -17,6 +17,7 @@
 //   B4-W8  alpha's admin sees «Yang menunggu» on Konfigurasi with a count that opens Aktivasi
 //   B4-W9  the platform admin sees the stuck sends on «Email uji» and the schools paged on Konfigurasi
 //   B4-W10 a staff member adds a profile photo on «Akun saya» and removes it (persons.photo_path set, then cleared)
+//   B4-W11 alpha's admin schedules a maintenance window in two steps, opens it in place and cancels it (B1 §1)
 //
 // Local or CI stack with the synthetic seed: APP_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
 // SUPABASE_DB_URL. Writes OUT_DIR/admin-ujung.json and screenshots; exits 1 on any FAIL.
@@ -234,7 +235,7 @@ const siswaNama = sql(`select display_name from public.persons where id = '${sis
 let transfer = "";
 await step("B4-W6", "alpha's admin finds beta by its exact name and asks for a learner's transfer, with a reason; both are audited", async (rec) => {
   const sejak = jejakSejak();
-  await buka(A, `/konfigurasi?bagian=transfers&cari_sekolah=${encodeURIComponent(betaNama)}#transfers`);
+  await buka(A, `/konfigurasi/transfers?bagian=transfers&cari_sekolah=${encodeURIComponent(betaNama)}#transfers`);
   const keluar = A.locator('[data-pindah="keluar"]');
   await keluar.waitFor({ timeout: SLOW });
   harus(rec, (await keluar.locator('input[name="to_institution"]').count()) === 1, `the directory finds exactly one school for «${betaNama}»`);
@@ -245,8 +246,13 @@ await step("B4-W6", "alpha's admin finds beta by its exact name and asks for a l
   await keluar.locator('input[name="reason"]').fill("Pindah domisili mengikuti orang tua");
   await keluar.getByRole("button", { name: /Ajukan|Minta|perpindahan/i }).last().click();
   await A.waitForLoadState("networkidle");
+  // the request is a server action: wait for its row rather than for the network to go quiet
+  const cariTransfer = () => sql(`select coalesce((select id::text from public.transfers where person_id = '${siswa}' order by created_at desc limit 1), '')`);
+  for (let i = 0; i < 40 && !cariTransfer(); i++) await A.waitForTimeout(500);
+  await A.waitForLoadState("networkidle");
   await shot(A, rec, "pindah-minta");
-  transfer = sql(`select id from public.transfers where person_id = '${siswa}' order by created_at desc limit 1`);
+  transfer = cariTransfer();
+  if (!harus(rec, !!transfer, "the request is saved")) return;
   harus(rec, sql(`select status from public.transfers where id = '${transfer}'`) === "REQUESTED", "the transfer is REQUESTED, with no school year yet");
   harus(rec, Number(jejak(sejak, "directory.school_searched")) >= 1, "the search is audited (directory.school_searched)");
   harus(rec, Number(jejak(sejak, "transfer.requested", transfer)) >= 1, "the request is audited (transfer.requested)");
@@ -254,7 +260,7 @@ await step("B4-W6", "alpha's admin finds beta by its exact name and asks for a l
 await step("B4-W7", "beta's admin accepts the request into beta's school year and executes it; the enrolments move and both acts are audited", async (rec) => {
   if (!transfer) { rec.verdict = "BLOCKED"; rec.catatan.push("no transfer from B4-W6"); gagal = true; return; }
   const sejak = jejakSejak();
-  await buka(B, "/konfigurasi?bagian=transfers#transfers");
+  await buka(B, "/konfigurasi/transfers?bagian=transfers#transfers");
   const masuk = B.locator(`form[data-pindah-masuk="${transfer}"]`);
   await masuk.waitFor({ timeout: SLOW });
   harus(rec, norm(await masuk.innerText()).includes(siswaNama), "the request shows the learner's name");
@@ -265,7 +271,7 @@ await step("B4-W7", "beta's admin accepts the request into beta's school year an
   await B.waitForLoadState("networkidle");
   for (let i = 0; i < 20 && sql(`select status from public.transfers where id = '${transfer}'`) === "REQUESTED"; i++) await B.waitForTimeout(500);
   harus(rec, sql(`select status from public.transfers where id = '${transfer}'`) === "AUTHORIZED", "accepted: the transfer is AUTHORIZED into beta's year");
-  await buka(B, "/konfigurasi?bagian=transfers#transfers");
+  await buka(B, "/konfigurasi/transfers?bagian=transfers#transfers");
   const baris = B.locator("#transfers li", { hasText: siswaNama }).first();
   await baris.getByRole("button", { name: "Laksanakan" }).click();
   await B.waitForLoadState("networkidle");
@@ -300,7 +306,7 @@ await step("B4-W9", "the platform admin sees a stuck send on «Email uji» and t
   const teks = norm(await S.locator("main").innerText());
   await shot(S, rec, "email-tertahan");
   harus(rec, /Belum dijawab selama\s*\d+/.test(teks), "the stuck send is listed with how long it has waited");
-  await buka(S, "/konfigurasi#system");
+  await buka(S, "/konfigurasi/system#system");
   const sekolah = await S.locator("#system li").count();
   harus(rec, sekolah >= 1 && sekolah <= 21, `the system section lists ${sekolah} school row(s), at most a page`);
 });
@@ -327,6 +333,53 @@ await step("B4-W10", "a staff member adds a profile photo on «Akun saya», sees
   await A.getByRole("button", { name: "Hapus foto" }).click();
   await A.getByText("Foto profil dihapus dari profil Anda.").waitFor({ timeout: SLOW });
   harus(rec, sql(`select coalesce(photo_path, '') from public.persons where id = '${aku}'`) === "", "removed: the person has no photo");
+});
+
+// ── B4-W11: Pemeliharaan, composed (B1 §1): the two-step schedule, then the window as a record opened in place
+await step("B4-W11", "alpha's admin checks a time, schedules a window in step 2, opens it in place by its named action and cancels it with a reason; both acts are audited", async (rec) => {
+  const sejak = jejakSejak();
+  const alasan = `Pembaruan walk ${TAG}`;
+  await buka(A, "/konfigurasi/pemeliharaan");
+  harus(rec, (await A.locator('form input[name="asal"][value="jadwal"]').count()) === 0, "step 1 draws no schedule form");
+  const jadwal = A.locator('section[aria-labelledby="pin-pm-jadwal"]');
+  await jadwal.locator(`input[name="pm_sekolah"][value="${alphaId}"]`).check();
+  await jadwal.locator("#cfg-pm-mulai").fill("2031-03-01T19:00");
+  await jadwal.locator("#cfg-pm-selesai").fill("2031-03-01T21:00");
+  await jadwal.getByRole("button", { name: "Periksa waktu ini" }).click();
+  await A.waitForURL((u) => u.searchParams.get("pm_cek") === "1", { timeout: SLOW });
+  await A.waitForLoadState("networkidle");
+  const langkah2 = A.locator('[data-tabrakan="1"]');
+  await langkah2.waitFor({ timeout: SLOW });
+  const kabar = langkah2.locator('[role="status"]');
+  harus(rec, (await kabar.count()) >= 1 && norm(await kabar.first().innerText()).length > 0,
+    `step 2 says what the window would meet before anything is saved («${norm(await kabar.first().innerText().catch(() => ""))}», ${await kabar.count()} line(s))`);
+  await langkah2.locator('input[name="alasan"]').fill(alasan);
+  await langkah2.getByRole("button", { name: "Jadwalkan pemeliharaan" }).click();
+  await A.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
+  await A.waitForLoadState("networkidle");
+  const jendela = sql(`select id from public.maintenance_windows where reason = '${esc(alasan)}' order by created_at desc limit 1`);
+  if (!harus(rec, !!jendela, "the window is saved")) return;
+  harus(rec, Number(jejak(sejak, "maintenance.scheduled", jendela)) >= 1, "scheduling is audited (maintenance.scheduled)");
+  const baris = A.locator(`li[data-jendela="${jendela}"]`);
+  harus(rec, (await baris.locator("form").count()) === 0, "the closed row draws no form");
+  const aksi = baris.locator("[data-buka-ubah]");
+  const nama = norm(await aksi.evaluate((el) => el.textContent));
+  harus(rec, /^Batalkan · .+/.test(nama), `the row's one action is named with its window («${nama}»)`);
+  await aksi.click();
+  await A.waitForURL((u) => u.searchParams.get("ubah") === jendela, { timeout: SLOW });
+  await A.waitForLoadState("networkidle");
+  const terbuka = A.locator(`li[data-jendela="${jendela}"][data-terbuka]`);
+  harus(rec, (await terbuka.count()) === 1, "the row opens in place, carried in the address (?ubah=)");
+  harus(rec, await terbuka.locator('input[name="alasan"]').evaluate((el) => el === document.activeElement), "focus is on the reason");
+  await shot(A, rec, "pemeliharaan-terbuka");
+  await terbuka.locator('input[name="alasan"]').fill("Jadwal diganti");
+  await terbuka.locator('button[name="aksi"][value="AKHIRI"]').click();
+  await A.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
+  await A.waitForLoadState("networkidle");
+  for (let i = 0; i < 20 && !sql(`select coalesce(ended_at::text, '') from public.maintenance_windows where id = '${jendela}'`); i++) await A.waitForTimeout(500);
+  harus(rec, !!sql(`select coalesce(ended_at::text, '') from public.maintenance_windows where id = '${jendela}'`), "the window is cancelled");
+  harus(rec, Number(jejak(sejak, "maintenance.cancelled", jendela)) >= 1, "the cancellation is audited (maintenance.cancelled)");
+  harus(rec, (await A.locator(`li[data-jendela="${jendela}"][data-terbuka]`).count()) === 0, "after the save the row is closed again");
 });
 
 await browser.close();

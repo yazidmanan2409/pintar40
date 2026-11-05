@@ -67,7 +67,7 @@ const LABEL_TINJAUAN = {
   ACTION_TAKEN: "studio.bank.tindakan",
 } as const;
 
-type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; bank?: string; tingkat?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; bank?: string; tingkat?: string; baris?: string }>;
 
 export default async function Bank({ searchParams }: { searchParams: Search }) {
   // CR-87: a tab not this person's sends them to Studio's home (src/lib/studio-tab.ts); the database still decides
@@ -147,7 +147,8 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
       <h2 className="pin-studio-h2">{s("studio.bank.judul")}</h2>
       <p className="pin-ket">{s("studio.bank.intro")}</p>
       {/* DAISY-18: one form per item; the answer heads the list it came from */}
-      <HasilDi q={sp} bagian="kesehatan" kalimat={banner} />
+      {/* E-K4: a review is answered in its question's row; here only when that row is not on this page */}
+      <HasilDi q={sp} bagian="kesehatan" kalimat={banner} barisDiHalaman={items.map((i) => i.id)} />
 
       {/* CR-52: narrow the list; a GET form, so the choice is in the address and the list is read again */}
       <form method="get" action="/studio/bank" className="pin-baris-aksi">
@@ -169,8 +170,12 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
       </form>
 
       {items.length === 0 ? (
-        // W3.2 (Empty state): «nothing matches» when narrowed, «not yet» otherwise; no action is offered (Daisy, open)
-        <Kosong jenis={bank || tingkat ? "tidak_cocok" : "belum"} kalimat={s(bank || tingkat ? "studio.bank.saring.kosong" : "studio.paket.kosong")} />
+        // W3.2 (Empty state); A5 C6 (Daisy, accepted D-173(a)): narrowed, the Collection's own «nothing matches» with its
+        // one way back, «Hapus pencarian dan saringan» (P12, no new key); not narrowed, «not yet»
+        bank || tingkat ? (
+          <Kosong jenis="tidak_cocok" kalimat={s("koleksi.kosong.judul").replace("{benda}", s("studio.soal.jumlah"))}
+            aksi={{ href: "/studio/bank", label: s("koleksi.kosong.reset") }} />
+        ) : <Kosong jenis="belum" kalimat={s("studio.paket.kosong")} />
       ) : (
         <ul className="pin-daftar">
           {items.map((i) => {
@@ -218,10 +223,11 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                         ))}
                       </select>
                     </label>
-                    <label className={label}><span>{s("studio.paket.catatan")}</span><input className={field} name="catatan" /></label>
+                    <label className={label}><span>{s("studio.paket.catatan")} <span className="pin-opsional">{s("bentuk.opsional")}</span></span><input className={field} name="catatan" /></label>
                     <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.integritas.catat")}</TombolKirim>
                   </form>
                 ) : null}
+                <HasilDi q={sp} bagian="kesehatan" baris={i.id} kalimat={banner} />
                 {pilihan.length > 0 && sehatDi.has(i.institution_id)
                   ? <SimpanIsian form={`kesehatan-${i.id}`} ditolak={ditolak("kesehatan")} pemilik={pemilik} /> : null}
               </li>

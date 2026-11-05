@@ -32,7 +32,7 @@ import { Checks, type SelfTest } from "./lib";
 import { t, format, allKeys, telling, INTERNAL_WORDS, type HleEvent } from "../src/lib/hle";
 import type { KonteksEmail, Templat } from "../src/lib/email/templat";
 import {
-  bingkaiEmail, tampilKode, tautanAman, logoEmail, BERKAS_LOGO, WARNA, KONTAK, RANAH, BADAN_HUKUM, type Email,
+  bingkaiEmail, tampilKode, tautanAman, asalEmail, WARNA_MEREK, WARNA, KONTAK, RANAH, BADAN_HUKUM, type Email,
 } from "../src/components/email/bingkai";
 import { templatUjiPengiriman } from "../src/components/email/uji";
 import { templatKode, templatKartu } from "../src/components/email/identitas";
@@ -108,7 +108,7 @@ const pindai = (teks: string): string[] =>
   TERLARANG.filter((w) => new RegExp(`(?<![\\p{L}\\p{N}_])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}\\p{N}_])`, "iu").test(teks));
 
 /** The prototype's structural checks. */
-const struktur = (html: string, lokal = false): string[] => {
+export const struktur = (html: string, lokal = false): string[] => {
   const masalah: string[] = [];
   if (!/<html lang="id"/.test(html)) masalah.push("no lang=\"id\" on <html>");
   if (!/role="article"[^>]*lang="id"/.test(html)) masalah.push("no lang=\"id\" on the article wrapper");
@@ -203,10 +203,14 @@ export const emailTests: SelfTest[] = [
       // the company is a proper noun: the frame's constant, the footer's string, never a copy-table key (UX1-S1-KAKI-01)
       c.expect(html.includes(BADAN_HUKUM) && hasil[0].e.teks.includes(BADAN_HUKUM), "the footer does not name the company");
       c.expect(!kunci.some((k) => [BADAN_HUKUM, KONTAK, RANAH].includes(telling(k as HleEvent).default)), "an email key carries a proper noun");
-      c.expect(html.includes(CONTOH.kode.alasan!), "an email's own reason does not reach the footer");
+      // RESTATED, D1 step 2 (DAISY-37 (1)): the reason is directly under the <h1>, and the footer no longer repeats it
+      const sesudahJudul = html.slice(html.indexOf("</h1>") + 5).trimStart();
+      c.expect(sesudahJudul.startsWith('<p class="pin-alasan"') && sesudahJudul.slice(0, 600).includes(CONTOH.kode.alasan!)
+        && !html.slice(html.indexOf('class="pin-kaki"')).includes(CONTOH.kode.alasan!), "an email's own reason is not directly under its heading, or the footer still repeats it");
       c.expect(hasil[2].e.html.includes(t("email.bingkai.alasan", "public")), "an email without its own reason does not get the frame's default");
       c.expect(hasil[2].e.html.includes(t("email.bingkai.cadangan", "public")), "the button's copy-the-address line is not the copy table's");
-      c.expect(/alt="PINTAR"/.test(html) && t("email.bingkai.merek", "public") === "PINTAR", "the logo's alt is not the wordmark");
+      // RESTATED FOR D-192: the header is the text wordmark itself, not an image's alternative text
+      c.expect(/<span class="pin-merek-teks"[^>]*>PINTAR<\/span>/.test(html) && t("email.bingkai.merek", "public") === "PINTAR", "the header is not the wordmark «PINTAR»");
       c.expect(html.includes(`mailto:${KONTAK}`), "the footer does not give PINTAR's address");
 
       // 4. AA CONTRAST for every text pair, light and dark (the staging line too)
@@ -234,7 +238,9 @@ export const emailTests: SelfTest[] = [
       //    so the frame writes the values; they must be the tokens' own.
       const tok = tokens(readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8"));
       const SAMA: Array<[keyof typeof L, string]> = [
-        ["latar", "--surface-2"], ["kartu", "--surface-1"], ["tinta", "--ink-1"], ["tinta2", "--ink-2"], ["tinta3", "--ink-3"],
+        // RESTATED, D1 step 2 (DAISY-37): the card is the artifacts' warm white (--surface-0, was --surface-1), and its top
+        // edge the warm-gold line (--kartu-emas); both are tokens, so the one untokened colour stays the code box's border
+        ["latar", "--surface-2"], ["kartu", "--surface-0"], ["emas", "--kartu-emas"], ["tinta", "--ink-1"], ["tinta2", "--ink-2"], ["tinta3", "--ink-3"],
         ["utama", "--pintar-primary"], ["utamaTinta", "--pintar-primary-ink"], ["utamaLembut", "--pintar-primary-soft"],
         ["perhatian", "--status-attention"], ["perhatianLembut", "--status-attention-soft"],
         ["netral", "--status-info"], ["netralLembut", "--status-info-soft"],
@@ -303,19 +309,21 @@ export const emailTests: SelfTest[] = [
       const bingkaiSrc = readFileSync(join(repoRoot, "src", "components", "email", "bingkai.ts"), "utf8");
       c.expect(!/process\.env|server-only|nodemailer|kirimEmail/.test(bingkaiSrc + src), "the frame reads configuration or sends");
 
-      // 2. THE LOGO IS THE ENVIRONMENT'S OWN (ruling 2), and it exists
-      c.expect(logoEmail(STAGING) === `https://staging.pintarselalu.com${BERKAS_LOGO}`, `staging's logo is ${logoEmail(STAGING)}`);
-      c.expect(logoEmail(PRODUKSI) === `https://app.pintarselalu.com${BERKAS_LOGO}`, `production's logo is ${logoEmail(PRODUKSI)}`);
-      c.expect(logoEmail({ asal: "https://staging.pintarselalu.com/", staging: true }) === `https://staging.pintarselalu.com${BERKAS_LOGO}`, "a trailing slash doubles the path");
-      c.expect(uji({ waktu: WAKTU }, STAGING).html.includes(`src="https://staging.pintarselalu.com${BERKAS_LOGO}"`) && !uji({ waktu: WAKTU }, STAGING).html.includes("app.pintarselalu.com/brand"),
-        "a staging email loads a logo that is not staging's");
-      const berkas = join(repoRoot, "public", BERKAS_LOGO);
-      if (c.expect(existsSync(berkas), `${BERKAS_LOGO} is not in public/`)) {
-        const png = readFileSync(berkas);
-        const [w, h] = [png.readUInt32BE(16), png.readUInt32BE(20)];
-        c.expect(png.subarray(1, 4).toString() === "PNG" && w === 208 && h === 116, `the email logo is ${w} × ${h}, not 208 × 116 (2× its 104 × 58)`);
-        c.expect(png.length < 20_000, `the email logo is ${png.length} bytes; it should be small`);
+      // 2. RESTATED FOR D-192 (owner, 5 Nov: the supplied logo is no longer used; a text-only PINTAR wordmark, Arial,
+      // #075056). Ruling 2's environment logo is gone with it: the header is the text wordmark, no email loads an image,
+      // and no logo file is left in public/ to load. The frame still checks the environment's origin (asalEmail).
+      for (const [nama, e] of Object.entries(CONTOH)) {
+        for (const k of [STAGING, PRODUKSI]) {
+          const h = bingkaiEmail(e, k).html;
+          c.expect(!/<img\b/.test(h) && !/\/brand\//.test(h), `${nama}: an email loads an image or a /brand/ file`);
+          c.expect(new RegExp(`<span class="pin-merek-teks" style="[^"]*font-family:Arial, Helvetica, sans-serif;[^"]*font-weight:700;[^"]*color:${WARNA_MEREK};">PINTAR</span>`).test(h),
+            `${nama}: the header is not the text wordmark «PINTAR» in Arial and ${WARNA_MEREK}`);
+        }
       }
+      c.expect(WARNA_MEREK === "#075056", `the wordmark's colour is ${WARNA_MEREK}, not #075056`);
+      c.expect(!existsSync(join(repoRoot, "public", "brand", "pintar-email-logo.png")) && !existsSync(join(repoRoot, "public", "brand", "pintar-selalu-logo.png")),
+        "the supplied logo files are still in public/brand/");
+      c.expect(asalEmail({ asal: "https://staging.pintarselalu.com/", staging: true }) === "https://staging.pintarselalu.com/", "a trailing slash doubles");
 
       // 3. THE TEST LINE (ruling 3): on every staging email, in both bodies; never on production
       const garisUji = t("email.bingkai.uji", "public");
@@ -340,14 +348,14 @@ export const emailTests: SelfTest[] = [
       for (const buruk of ["http://pintarselalu.com/masuk", "javascript:alert(1)", "//app.pintarselalu.com", "https://app pintar"]) {
         c.expect(menolak(() => tautanAman(buruk)), `the unsafe link ${buruk} is accepted`);
       }
-      c.expect(menolak(() => logoEmail({ asal: "http://staging.pintarselalu.com", staging: true })), "a plain-http origin that is not local is accepted");
-      c.expect(!menolak(() => logoEmail(LOKAL)) && !menolak(() => tautanAman("http://localhost:3000/masuk")), "the local sink's origin is refused");
+      c.expect(menolak(() => bingkaiEmail(CONTOH.kode, { asal: "http://staging.pintarselalu.com", staging: true })), "a plain-http origin that is not local is accepted");
+      c.expect(!menolak(() => bingkaiEmail(CONTOH.kode, LOKAL)) && !menolak(() => tautanAman("http://localhost:3000/masuk")), "the local sink's origin is refused");
 
       return c.verdict(
         "templatUjiPengiriman is BOB-25's Templat (src/lib/email/templat.ts) and returns a one-line subject and both bodies in " +
         "its own copy table words, its send time as a row; the sending module's UJI_PENGIRIMAN (src/app/api/_email/uji.ts, the proof " +
-        "route's import) is this framed template and holds no email of its own; nothing in src/components/email reads configuration or sends; the logo is " +
-        `${BERKAS_LOGO} on the environment's own origin (208 × 116 PNG, small), never production's on staging; every staging ` +
+        "route's import) is this framed template and holds no email of its own; nothing in src/components/email reads configuration or sends; the header is " +
+        "the text wordmark «PINTAR» in Arial and #075056 and no email loads an image (D-192; no logo file left in public/); every staging " +
         "email carries the test line at the top of both bodies and no production email does; a code arrives spaced or not " +
         "and is shown «482 913» (4 + 4 for eight digits); a subject with a line break, an empty subject, a non-https link " +
         "and a plain-http origin other than the local sink are all refused",
@@ -418,7 +426,10 @@ export const emailTests: SelfTest[] = [
         && k.teks.includes(t("role.SYSTEM_ADMIN", "public", { locale: "id" })) && !k.teks.includes("· null"),
         "the card email does not state each context line as the data gives it (the platform role has no school)");
       const lain = kartu({ ...KARTU, konteks: [{ peran: "DEAN", institusi: "Universitas Contoh" }] }, PRODUKSI);
-      c.expect(rata(lain.teks).includes(`${t("role.DEAN", "public", { locale: "id" })} · Universitas Contoh`) && !lain.teks.includes("SMA Negeri 1 Contoh"),
+      // RESTATED, D1 step 2: one role at one school is the card's own two lines (the role, the school beneath, susunKartu),
+      // and the context line names the place; a planted change still shows in both, and the old school in neither
+      c.expect(/\n {4}Dekan\n {4}Universitas Contoh\n/.test(lain.teks.replace(t("role.DEAN", "public", { locale: "id" }), "Dekan"))
+        && rata(lain.teks).includes(`${kata("email.bingkai.konteks")} Universitas Contoh.`) && !lain.teks.includes("SMA Negeri 1 Contoh") && !lain.html.includes("SMA Negeri 1 Contoh"),
         "the context lines are not read from the data at send time (a planted change does not show)");
       c.expect(k.html.includes(`href="${KARTU.tautanAkun}"`) && k.teks.includes(KARTU.tautanAkun), "the card email does not lead to Akun saya");
       c.expect(rata(k.teks).includes(kata("email.kartu.bukan_rahasia")) && k.html.includes(kata("email.kartu.alasan")), "the card email does not say the ID is not a secret, or does not give its reason");

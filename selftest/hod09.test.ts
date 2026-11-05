@@ -33,22 +33,26 @@ export const hod09Tests: SelfTest[] = [
         c.expect(/^<div class="[^"]*\bpin-noprint\b/.test(html), "the report's controls are printed with it");
       }
       const buang = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+      // RESTATED, R0-4: the history-back is the shared TautanKembali (also «Laporkan masalah»'s); AksiLaporan uses it
       const aksi = buang(readFileSync(join(ctx.repoRoot, "src", "components", "laporan", "AksiLaporan.tsx"), "utf8"));
-      c.expect(/if \(window\.history\.length > 1\) \{\s*e\.preventDefault\(\);\s*window\.history\.back\(\);/.test(aksi) && /window\.print\(\)/.test(aksi),
+      const kembali = buang(readFileSync(join(ctx.repoRoot, "src", "components", "TautanKembali.tsx"), "utf8"));
+      c.expect(/if \(window\.history\.length > 1\) \{\s*e\.preventDefault\(\);\s*window\.history\.back\(\);/.test(kembali) && /<TautanKembali href=\{ke\}/.test(aksi) && /window\.print\(\)/.test(aksi),
         "«Kembali» does not return where the reader came from (else their doors), or print is not the browser's print of this page");
-      for (const [hal, persona] of [["edukator", "educator"], ["dekan", "staff"]] as const) {
+      for (const [hal, persona] of [["edukator", "untuk"], ["dekan", "\"staff\""]] as const) { // E-C1-2: the class report's persona is the context's (`untuk`)
         const src = buang(readFileSync(join(ctx.repoRoot, "src", "app", hal, "ringkasan", "page.tsx"), "utf8"));
         // RESTATED FOR W3.8 (Batch 5, RV-11): the signed-in strip is the staff shell's now, whose header is
         // `pin-noprint` (asserted on shellStaf below), so the page draws no strip of its own to keep off the paper
-        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\("laporan\\.kembali", "${persona}", locale\\)\\} cetak=\\{s\\("laporan\\.cetak", "${persona}", locale\\)\\} />`).test(src)
+        // RESTATED FOR E-K1 (D-173(d)): the way back is the history-back, named as one (KEMBALI_RIWAYAT), never a bare «Kembali»
+        // RESTATED FOR H9 (Daisy, C1): named by the place it was opened from (asalLaporan), the history-back otherwise
+        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\(asal\\.nama, ${persona}, locale\\)\\} ke=\\{asal\\.ke\\} cetak=\\{s\\("laporan\\.cetak", ${persona}, locale\\)\\} />`).test(src)
           && /<CangkangStaf locale=\{locale\}/.test(src) && !/<SesiSaya\b/.test(src),
           `/${hal}/ringkasan offers no way back or print, or prints the signed-in strip`);
       }
       const shell = buang(readFileSync(join(ctx.repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
-      c.expect(/<header className="pin-top pin-shell pin-noprint pin-staf">[\s\S]*?\{sesi\}\s*<\/header>/.test(shell.slice(shell.indexOf("function shellStaf("))),
+      c.expect(/<header className="pin-top pin-shell pin-noprint pin-staf">[\s\S]*?\{sesi\}\s*(?:(?:\{\s*\}|\{\/\*[\s\S]*?\*\/\})\s*)?(?:<TombolLaci [^>]*\/>\s*)?<\/header>/.test(shell.slice(shell.indexOf("function shellStaf("))),
         "the staff shell's signed-in strip is printed with the report");
       for (const locale of ["id", "en"] as const) {
-        c.expect(t("laporan.cetak", "staff", { locale }) !== t("laporan.kembali", "staff", { locale }), `(${locale}) the report's two controls read alike`);
+        c.expect(t("laporan.cetak", "staff", { locale }) !== t("kembali.riwayat", "staff", { locale }), `(${locale}) the report's two controls read alike`);
       }
       return c.verdict(
         "AksiLaporan (rendered output): «← Kembali» and «Cetak laporan», in a row that does not print; its source returns to " +

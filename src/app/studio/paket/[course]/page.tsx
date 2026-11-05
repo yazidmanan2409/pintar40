@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import HalamanPenolakan from "@/components/HalamanPenolakan";
 import Link from "next/link";
 import Ikon from "@/components/Ikon";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -15,12 +16,14 @@ import {
 } from "../../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
+import BarisHasil from "@/components/BarisHasil";
 import Kosong from "@/components/Kosong";
 import TemuanKelompok from "@/components/studio/TemuanKelompok";
 import type { Temuan } from "@/lib/temuan";
 import SimpanIsian from "@/components/SimpanIsian";
 import { TeksBaris } from "@/components/teks/Teks";
 import { soalPaket } from "@/lib/soal-tinjauan";
+import FokusSoal from "@/components/studio/FokusSoal";
 import { akarGaris } from "@/lib/pengajar";
 import { jalurIni, konteksHalaman, tempatSaya } from "@/lib/konteks-server";
 import { alamatPilih, melayani } from "@/lib/konteks";
@@ -65,7 +68,7 @@ export const generateMetadata = judulHalaman("/studio/paket/[course]");
  */
 
 type Params = Promise<{ course: string }>;
-type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; baris?: string; pelajaran?: string }>;
 
 type Finding = Temuan;
 
@@ -87,7 +90,9 @@ export default async function Paket({ params, searchParams }: { params: Params; 
     .eq("id", courseId).maybeSingle();
 
   if (!course) {
-    return <p className={card}>{s("studio.paket.kosong")}</p>;
+    // a package that is not there, or not this reader's (row security hides both alike), is refused, never said as
+    // empty (Kosong's rule; the same answer Mengajar gives a class it cannot read)
+    return <HalamanPenolakan locale={locale} persona="staff" backHref="/studio" backKey="studio.nav.beranda" />;
   }
 
   const [institutions, { data: saya }] = await Promise.all([
@@ -171,7 +176,12 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
   // D-088(h): the package's questions with their key and rationale, read under the reader's own row security
   // (CAN_DRAFT in the school, which every reviewer holds), so the person who approves sees what they approve
-  const soal = can(inst, "CAN_DRAFT") ? await soalPaket(supabase, courseId) : [];
+  const soal = can(inst, "CAN_DRAFT") ? await soalPaket(supabase, courseId) : null;
+  // A1 (D-166(b)): one whole lesson on screen at a time, carried in the address (?pelajaran=n#soal)
+  const pelajaranSoal = soal?.ok ? soal.pelajaran : [];
+  const totalSoal = pelajaranSoal.reduce((n, l) => n + l.soal.length, 0);
+  const iniPelajaran = Math.min(Math.max(1, Number.parseInt(sp.pelajaran ?? "1", 10) || 1), Math.max(1, pelajaranSoal.length));
+  const sebelumIni = pelajaranSoal.slice(0, iniPelajaran - 1).reduce((n, l) => n + l.soal.length, 0);
 
   const state = (Array.isArray(stateRows) ? stateRows[0] : stateRows) as
     | { surface_state: string; reasons: Hambatan[]; preview_lesson_id: string | null } | undefined;
@@ -218,10 +228,13 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
   return (
     <div className="pin-studio-halaman">
-      <section className={card} id="paket">
-        {/* J1Terbit: the way back names its destination */}
+      {/* A5 B10 (J1Terbit): the package's own head, the back link «Studio» above its title as the page's one h1;
+          Studio's head and tabs are Studio's index pages' (KepalaStudio). Every heading below is one level under it. */}
+      <header className="pin-head">
         <p><Link className="pin-back" href="/studio"><Ikon nama="chevron-left" />{s("studio.nav.beranda")}</Link></p>
-        <h2 className="pin-studio-h3">{course.title}</h2>
+        <h1 className="pin-h1">{course.title}</h1>
+      </header>
+      <section className={card} id="paket" aria-label={course.title}>
         <p className="pin-ket-3">{course.subject} · {course.stage} · {course.grade_label}</p>
         {course.supersedes_course_id ? (
           <p className="pin-ket">
@@ -270,39 +283,108 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
       {/* D-088(h): before the steps, so «Setujui» comes after the questions were in front of the reviewer. The
           learner preview above stays the sanitised learner view (§5); this is the Studio staff's own view. */}
-      {can(inst, "CAN_DRAFT") ? (
-        <section className={card} id="soal">
-          <h3 className="pin-studio-h3">{sl("studio.soal.judul")}</h3>
+      {can(inst, "CAN_DRAFT") && soal ? (
+        <section className={card} id="soal" aria-labelledby="pin-soal-judul">
+          <h2 id="pin-soal-judul" className="pin-studio-h3">{sl("studio.soal.judul")}</h2>
           <p className="pin-ket">{sl("studio.soal.arti")}</p>
-          {soal.length === 0 ? (
-            <p className="pin-ket">{sl("studio.soal.kosong")}</p>
-          ) : (
-            <div className="pin-daftar">
-              {soal.map((l, li) => (
-                <details key={l.id} className="pin-soal-pelajaran pin-disclosure" open={li === 0}>
-                  <summary className="pin-judul-baris">{l.judul} · {format.number(l.soal.length, locale)} {sl("studio.soal.jumlah")}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
-                  <ol className="pin-daftar-titik">
-                    {l.soal.map((q) => (
-                      <li key={q.id} className="pin-soal">
-                        <p className="pin-ket-3">{q.peran ? enumLabel("mode", q.peran, locale) : enumLabel("bank", q.bank, locale)}</p>
-                        {q.stimulus ? <p className="pin-ket"><TeksBaris teks={q.stimulus} /></p> : null}
-                        <p><TeksBaris teks={q.pertanyaan} /></p>
-                        <ul className="pin-daftar-rapat">
-                          {q.opsi.map((o) => (
-                            <li key={o.label} className={o.kunci ? "pin-opsi pin-opsi-kunci" : "pin-opsi"}>
-                              <span className={o.kunci ? "pin-judul-baris" : undefined}>{o.label}. <TeksBaris teks={o.isi} /></span>
-                              {o.kunci ? <span className="pin-studio-kunci">· {sl("studio.soal.kunci")}</span> : null}
-                              <p className="pin-ket">{sl("studio.soal.alasan")}: <TeksBaris teks={o.alasan} /></p>
-                            </li>
-                          ))}
-                        </ul>
-                      </li>
+          {!soal.ok ? (
+            // A1 «gagal»: a read that failed is said so; no partial list, which could be mistaken for the whole
+            <BarisHasil nada="gagal">{sl("studio.soal.gagal")}</BarisHasil>
+          ) : totalSoal === 0 ? (
+            <Kosong jenis="belum" kalimat={sl("studio.soal.kosong")} />
+          ) : (() => {
+            const l = pelajaranSoal[iniPelajaran - 1];
+            const ke = (n: number) => `/studio/paket/${encodeURIComponent(courseId)}?pelajaran=${n}#pin-soal-pelajaran`;
+            const isi = (k: HleEvent, v: Record<string, string>) => Object.entries(v).reduce((x, [a, b]) => x.split(`{${a}}`).join(b), sl(k));
+            const gerak = (arah: "sebelum" | "sesudah") => {
+              const n = arah === "sebelum" ? iniPelajaran - 1 : iniPelajaran + 1;
+              const kata = sl(arah === "sebelum" ? "koleksi.sebelumnya" : "koleksi.berikutnya");
+              const tanda = arah === "sebelum"
+                ? <><Ikon nama="chevron-left" /><span className="pin-pager-teks">{kata}</span></>
+                : <><span className="pin-pager-teks">{kata}</span><Ikon nama="chevron-right" /></>;
+              return n >= 1 && n <= pelajaranSoal.length
+                ? <Link href={ke(n)} className="pin-btn" aria-label={kata} rel={arah === "sebelum" ? "prev" : "next"} data-pager={arah}>{tanda}</Link>
+                : <a role="link" aria-disabled="true" className="pin-btn" aria-label={kata} data-pager={arah}>{tanda}</a>;
+            };
+            return (
+              <>
+                <p className="pin-meta" data-soal-ringkas="">{isi("studio.soal.ringkas", { soal: format.number(totalSoal, locale), pelajaran: format.number(pelajaranSoal.length, locale) })}</p>
+                {/* the jump: a labelled Select and a button (never on change, WCAG 3.2.2); a plain GET to this page, so it works
+                    with no script; FokusSoal then puts focus on the lesson's heading */}
+                <form method="get" className="pin-soal-lompat">
+                  <label htmlFor="pin-soal-pilih">{sl("studio.soal.pelajaran_label")}</label>
+                  <select id="pin-soal-pilih" name="pelajaran" className={field} defaultValue={String(iniPelajaran)}>
+                    {pelajaranSoal.map((x, n) => (
+                      <option key={x.id} value={String(n + 1)}>{x.judul} ({format.number(x.soal.length, locale)} {sl("studio.soal.jumlah")})</option>
                     ))}
-                  </ol>
-                </details>
-              ))}
-            </div>
-          )}
+                  </select>
+                  <button type="submit" className={button}>{sl("studio.soal.buka")}</button>
+                </form>
+                {sp.pelajaran ? <FokusSoal pelajaran={iniPelajaran} /> : null}
+                <section className="pin-soal-pelajaran" aria-labelledby="pin-soal-pelajaran">
+                  <h3 id="pin-soal-pelajaran" tabIndex={-1} className="pin-soal-pelajaran-judul">
+                    {l.judul} <span className="pin-meta">· {format.number(l.soal.length, locale)} {sl("studio.soal.jumlah")}</span>
+                  </h3>
+                  {l.soal.length === 0 ? <p className="pin-ket">{sl("studio.soal.kosong")}</p> : (
+                    <ol className="pin-soal-daftar">
+                      {l.soal.map((q, qi) => {
+                        const posisi = isi("studio.soal.posisi", { i: format.number(sebelumIni + qi + 1, locale), n: format.number(totalSoal, locale) });
+                        return (
+                          <li key={q.id} className="pin-soal">
+                            <article aria-labelledby={`pin-soal-${q.id}`}>
+                              {/* package-wide numbering, the use and the band as text (A1 decisions 1 and 5) */}
+                              <p className="pin-soal-meta">
+                                {posisi} · {q.peran ? enumLabel("mode", q.peran, locale) : enumLabel("bank", q.bank, locale)}
+                                {q.pita ? <> · {sl(`mengajar.cepat.tingkat.${q.pita}` as HleEvent)}</> : null}
+                              </p>
+                              {q.stimulus ? (
+                                <div className="pin-soal-bacaan"><p className="pin-soal-bacaan-label">{sl("studio.soal.bacaan")}</p><p><TeksBaris teks={q.stimulus} /></p></div>
+                              ) : null}
+                              <h4 id={`pin-soal-${q.id}`} className="pin-soal-stem"><TeksBaris teks={q.pertanyaan} /></h4>
+                              <ol className="pin-opsi-daftar" aria-label={posisi}>
+                                {q.opsi.map((o) => (
+                                  <li key={o.label} className={o.kunci ? "pin-opsi pin-opsi-kunci" : "pin-opsi"}>
+                                    <span className="pin-opsi-huruf" aria-hidden="true">{o.label}</span>
+                                    <div className="pin-opsi-isi">
+                                      <p className="pin-opsi-teks">
+                                        <span className="pin-sr">{o.label}. </span><TeksBaris teks={o.isi} />
+                                        {/* the key: icon, word, edge and ground; never colour alone (A1 decision 2) */}
+                                        {o.kunci ? <> <strong className="pin-pill pin-ok pin-pill-ikon pin-studio-kunci"><Ikon nama="check" />{sl("studio.soal.kunci")}</strong></> : null}
+                                      </p>
+                                      <p className="pin-opsi-alasan">{sl("studio.soal.alasan")}: <TeksBaris teks={o.alasan} /></p>
+                                      {/* E-A1-1: the misconception the option is coded with, by its name in the school's taxonomy */}
+                                      {o.miskonsepsi ? (
+                                        <p className="pin-opsi-alasan" data-miskonsepsi={o.miskonsepsi.kode}>
+                                          {sl("studio.soal.miskonsepsi")}: {o.miskonsepsi.nama ?? o.miskonsepsi.kode}
+                                          {o.miskonsepsi.nama ? <> <span className="pin-kode">{o.miskonsepsi.kode}</span></> : null}
+                                        </p>
+                                      ) : null}
+                                    </div>
+                                  </li>
+                                ))}
+                              </ol>
+                            </article>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  )}
+                </section>
+                {pelajaranSoal.length > 1 ? (
+                  // the pager's narrow form (its words out of sight, still its name) is a container rule, as Penomoran's
+                  <div className="pin-penomoran">
+                  <nav className="pin-pager" aria-label={sl("studio.soal.pager_label")} data-soal-pager="">
+                    <span className="pin-pager-gerak">
+                      {gerak("sebelum")}
+                      <span className="pin-pager-posisi" aria-live="polite">{isi("studio.soal.pelajaran_dari", { i: format.number(iniPelajaran, locale), n: format.number(pelajaranSoal.length, locale) })}</span>
+                      {gerak("sesudah")}
+                    </span>
+                  </nav>
+                  </div>
+                ) : null}
+              </>
+            );
+          })()}
         </section>
       ) : null}
 
@@ -323,7 +405,8 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
       <section className="pin-studio-halaman" id="temuan">
         {/* Polish batch 2 (UX-14): named «Temuan», as both steps above call it */}
-        <h3 className="pin-studio-h3">{s("studio.temuan.judul")}</h3>
+        <h2 className="pin-studio-h3">{s("studio.temuan.judul")}</h2>
+        {typeof saya === "string" && saya === course.author_person_id ? <p className="pin-meta" data-temuan-orang-kedua="">{s("studio.temuan.orang_kedua")}</p> : null}
         {can(inst, "CAN_DRAFT") && !tersegel ? (
           <form action={runValidationAction} className="pin-baris-aksi">
             <input type="hidden" name="course" value={courseId} />
@@ -343,7 +426,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
       {urutGaris.length > 1 || tinjauan.length > 0 ? (
         <section className={card} id="riwayat">
-          <h3 className="pin-studio-h3">{sl("studio.paket.riwayat.judul")}</h3>
+          <h2 className="pin-studio-h3">{sl("studio.paket.riwayat.judul")}</h2>
           <ol className="pin-daftar">
             {urutGaris.map((id, i) => {
               const r = (rilisGaris ?? []).filter((x) => x.course_id === id).at(-1);
@@ -351,7 +434,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
               return (
                 <li key={id} className="pin-riwayat" data-versi={id}>
                   <p className="pin-judul-baris">
-                    {r?.version_label ?? "—"}
+                    {r?.version_label ?? sl("studio.paket.riwayat.versi_pertama")}
                     {" · "}
                     {r?.published_at ? when(r.published_at as string) : sl("studio.paket.riwayat.belum_terbit")}
                     {" · "}
@@ -395,7 +478,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
       {can(inst, "CAN_DRAFT") && terkunci && !penerus ? (
         <section className={card} id="revisi">
-          <h3 className="pin-studio-h3">{s("studio.paket.revisi")}</h3>
+          <h2 className="pin-studio-h3">{s("studio.paket.revisi")}</h2>
           <p className="pin-ket">{s("studio.paket.revisi_penjelasan")}</p>
           <p>
             <Link className={button} href={`/studio/unggah?revisi=${courseId}#buku-kerja`}>{sl("studio.paket.revisi_unggah")}</Link>
@@ -408,8 +491,9 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         <section className={card} id="koreksi">
           {/* Polish batch 2 (UX-16): this moves an assignment that exists, and
               each form says which class it moves and where that class is now. */}
-          <h3 className="pin-studio-h3">{s("studio.paket.pindah.judul")}</h3>
-          <HasilDi q={sp} bagian="koreksi" kalimat={banner} />
+          <h2 className="pin-studio-h3">{s("studio.paket.pindah.judul")}</h2>
+          {/* E-K4: a move is answered in its assignment's block; here only when it names none on this page */}
+          <HasilDi q={sp} bagian="koreksi" kalimat={banner} barisDiHalaman={(assignments ?? []).map((a) => a.id as string)} />
           {(assignments ?? []).map((a) => (
             <div key={a.id}>
             <form action={moveReleaseAction} id={`koreksi-${a.id}`} className="pin-baris-aksi">
@@ -437,6 +521,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
               <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.paket.pindah.tombol")}</TombolKirim>
             </form>
             <SimpanIsian form={`koreksi-${a.id}`} ditolak={ditolak("koreksi")} pemilik={pemilik} />
+            <HasilDi q={sp} bagian="koreksi" baris={a.id as string} kalimat={banner} />
             </div>
           ))}
         </section>

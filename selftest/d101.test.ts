@@ -548,8 +548,10 @@ export const d101AppTests: SelfTest[] = [
       const html = await halaman.text();
       c.expect(halaman.status === 200 && html.includes("Keamanan akun") && !html.includes("pin-keamanan-catatan"),
         `Keamanan akun for a School Admin: ${halaman.status}; the security record shown ${html.includes("pin-keamanan-catatan")}`);
+      // B1: the role list is Peran & akses's own page; the way to Keamanan akun is the shell's, on every Konfigurasi page
       const konf = await (await sekar.halaman("/konfigurasi")).text();
-      c.expect(konf.includes('href="/konfigurasi/keamanan"') && konf.includes('value="INSTITUTION_ADMIN"') && !konf.includes('value="SYSTEM_ADMIN"'),
+      const peran = await (await sekar.halaman("/konfigurasi/roles")).text();
+      c.expect(konf.includes('href="/konfigurasi/keamanan"') && peran.includes('href="/konfigurasi/keamanan"') && peran.includes('value="INSTITUTION_ADMIN"') && !peran.includes('value="SYSTEM_ADMIN"'),
         "Konfigurasi does not give a School Admin Keamanan akun and «Admin sekolah», or offers Admin platform");
       return c.verdict(
         "a teacher was refused a lookup; a School Admin looked up and reset a teacher of her school through Keamanan akun's route (a new PIN "

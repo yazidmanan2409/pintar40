@@ -8,6 +8,7 @@ import { buktiSoal, susunBuktiSoal } from "@/lib/soal-kelas";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
+import { adaBuktiSoal } from "@/lib/mengajar";
 import { BarisLingkup } from "@/components/bukti";
 import { TeksBaris } from "@/components/teks/Teks";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -48,11 +49,15 @@ export default async function SoalKelas({
   if (!ctx || !tugasId) {
     return <HalamanPenolakan locale={locale} persona="educator" backHref="/mengajar" backKey="mengajar.kembali" />;
   }
+  // E-C2-3: the same rule that decides whether «Lihat per soal» is offered (adaBuktiSoal; D-069(b))
+  if (!adaBuktiSoal(ctx.ini.jenis)) {
+    return <HalamanPenolakan locale={locale} persona="educator" backHref={`/mengajar/${id}/bukti`} backKey="mengajar.soal.kembali" />;
+  }
   const semua = await ajar.berjalan([id], ["OPEN", "CLOSED"]);
   const ini = semua.find((b) => b.id === tugasId);
   const bukti = ini ? await buktiSoal(await supabaseServer(), tugasId, id) : null;
   if (!ini || !bukti) {
-    return <HalamanPenolakan locale={locale} persona="educator" backHref={`/mengajar/${id}`} backKey="mengajar.kembali" />;
+    return <HalamanPenolakan locale={locale} persona="educator" backHref={`/mengajar/${id}`} backLabel={ctx.ini.nama} />;
   }
   const soal = susunBuktiSoal(bukti);
 

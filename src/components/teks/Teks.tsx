@@ -35,7 +35,10 @@ import { Fragment, type ReactNode } from "react";
 /** Inline marks: **bold**, _italic_, ^{sup}, _{sub}. For a stem, an option, a line. */
 export function TeksBaris({ teks }: { teks: string | null | undefined }) {
   if (!teks) return null;
-  return <>{sebaris(teks)}</>;
+  // AUTHORED CONTENT IS MARKED AS SUCH (data-isi-materi): a question's stem, its options, a lesson's words are the
+  // author's, and may say «salah satu» as any Indonesian text may. The learner-surface check that PINTAR's own words
+  // never carry a verdict («Salah», «Incorrect») reads the page around this content, never the content itself.
+  return <span data-isi-materi="">{sebaris(teks)}</span>;
 }
 
 /**
@@ -51,7 +54,8 @@ export default function TeksBlok({
   sisip?: (baris: string) => ReactNode | null;
 }) {
   if (!teks) return null;
-  return <>{blok(teks, sisip)}</>;
+  // authored content, marked as such (see TeksBaris); display: contents, so the wrapper changes no layout
+  return <div data-isi-materi="" className="pin-isi-materi">{blok(teks, sisip)}</div>;
 }
 
 export type Blok =

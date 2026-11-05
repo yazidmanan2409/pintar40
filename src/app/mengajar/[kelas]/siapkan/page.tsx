@@ -1,4 +1,5 @@
 import Link from "next/link";
+import JendelaTinjau from "@/components/mengajar/JendelaTinjau";
 import { t, format, hariIniSekolah, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
@@ -150,7 +151,7 @@ export default async function Siapkan({
                   {/* DAISY-26 (UX-20): the date says which release; its version number means nothing to a teacher */}
                   <span className="pin-rowmeta">
                     {r.terbitPada ? (
-                      <span>{s("mengajar.siap.diterbitkan")} {format.date(r.terbitPada, locale)}</span>
+                      <span>{s("mengajar.siap.diterbitkan")} {tanggal(r.terbitPada, "baca", locale)}</span>
                     ) : null}
                   </span>
                   <span className="pin-pill pin-info">{s("mengajar.status.siap")}</span>
@@ -200,7 +201,7 @@ export default async function Siapkan({
           </div>
           <p className="pin-meta">
             {/* DAISY-26 (UX-20): no version number; the date says which release */}
-            {dipilih.terbitPada ? `${s("mengajar.siap.diterbitkan")} ${format.date(dipilih.terbitPada, locale)} · ` : ""}
+            {dipilih.terbitPada ? `${s("mengajar.siap.diterbitkan")} ${tanggal(dipilih.terbitPada, "baca", locale)} · ` : ""}
             {`${format.number(isi.pelajaran, locale)} ${s("mengajar.siap.pelajaran")}`}
             {` · ${format.number(isi.soal, locale)} ${s("mengajar.siap.soal")}`}
           </p>
@@ -276,6 +277,11 @@ export default async function Siapkan({
                 {s("mengajar.siap.disediakan")} <b>{ctx.ini.nama}</b>
                 {" · "}{format.number(fakta.murid.length, locale)} {s("mengajar.siap.terdaftar")}
               </p>
+              {/* A5 J5 (D-173(a)): the window being confirmed, before «Sediakan»; after it, the result line says it */}
+              {sudah ? null : (
+                <JendelaTinjau idMulai="pin-mulai" idSampai="pin-sampai" mulai={mulaiAwal} sampai={sampaiAwal} locale={locale}
+                  kata={{ jendela: s("mengajar.siap.jendela"), mulai: s("mengajar.siap.mulai"), sampai: s("mengajar.siap.sampai"), tanpaAkhir: s("mengajar.siap.sampai.kosong") }} />
+              )}
               <p className="pin-akibat">
                 {s("mengajar.siap.akibat.1")}{" "}
                 <b>

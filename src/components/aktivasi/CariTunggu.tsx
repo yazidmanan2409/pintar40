@@ -16,8 +16,9 @@ export default function CariTunggu({ locale, total, dicari }: { locale: Locale; 
       <label className="pin-akt-isian">
         <span className="pin-meta">{s("aktivasi.tunggu.cari")}</span>
         <input className="pin-input" type="search" value={cari} onChange={(e) => setCari(e.target.value)}
-          autoComplete="off" spellCheck={false} />
+          autoComplete="off" spellCheck={false} aria-describedby="pin-cari-tunggu-arti" />
       </label>
+      <p id="pin-cari-tunggu-arti" className="pin-meta">{s("aktivasi.tunggu.cari_arti")}</p>
       <p className="pin-meta" aria-live="polite" data-jumlah-tunggu={total}>
         {s(dicari ? "aktivasi.tunggu.cocok" : "aktivasi.tunggu.jumlah").replace("{n}", String(total))}
       </p>

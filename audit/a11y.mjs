@@ -87,8 +87,19 @@ export async function periksa(page) {
 
   // skip link and keyboard walk, from the top of the page
   try {
-    await page.evaluate(() => { document.activeElement?.blur?.(); window.scrollTo(0, 0); });
-    await page.locator("body").focus().catch(() => {});
+    // FROM THE DOCUMENT'S START, really: blur() leaves the browser's focus starting point where focus was (the
+    // first-visit tour's headline, which W3.15 focuses on open), so the next Tab continued from there and the skip
+    // link read as missing (R0-3). Focusing <body> as a focusable element moves the starting point to the top.
+    // W6.4/W6.12: the walk reads each stop on the frame it is focused, so a stop that slides into view (the skip link's
+    // transition) read as off screen on every page. With reduced motion it is where it ends; restored after the walk.
+    await page.emulateMedia({ reducedMotion: "reduce" }).catch(() => {});
+    await page.evaluate(() => {
+      document.activeElement?.blur?.(); window.scrollTo(0, 0);
+      const ada = document.body.hasAttribute("tabindex");
+      if (!ada) document.body.setAttribute("tabindex", "-1");
+      document.body.focus({ preventScroll: true });
+      if (!ada) document.body.removeAttribute("tabindex");
+    });
     const langkah = [];
     let macet = 0, tubuh = 0, tanpaTanda = 0, luar = 0;
     for (let i = 0; i < 40; i++) {
@@ -109,6 +120,7 @@ export async function periksa(page) {
     const pertama = langkah[0];
     const sasaran = pertama?.href?.startsWith("#") ? await page.evaluate((h) => !!document.getElementById(decodeURIComponent(h.slice(1))), pertama.href) : false;
     hasil.lompat = { ada: Boolean(pertama?.href?.startsWith("#") && sasaran), pertama: pertama?.tubuh ? "(body)" : pertama ? `${pertama.tag} «${pertama.teks}»` : null };
+    await page.emulateMedia({ reducedMotion: null }).catch(() => {});
     hasil.papan = { berhenti: langkah.filter((l) => !l.tubuh && !l.ulang).length, tanpaTanda, luar, macet: macet >= 3, tanpaBerhenti: langkah.filter((l) => !l.tubuh && !l.ulang).length === 0,
       tanpaTandaContoh: langkah.filter((l) => l.terlihat === false).slice(0, 3).map((l) => `${l.tag} «${l.teks}»`) };
   } catch (e) { hasil.gagal.push(`keyboard: ${String(e.message ?? e).slice(0, 160)}`); }

@@ -3,6 +3,7 @@
 import { sekolahDari, wajibDalamKonteks } from "@/lib/konteks-server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { adalahBagian, alamatBagian } from "@/lib/bagian-konfigurasi";
 import { supabaseServer } from "@/lib/supabase/server";
 import { adaAdminSekolah, akarSekolah, calonAdminPertama, orangSekolah } from "@/lib/admin-pertama";
 import { kodeGalatStruktur, rujukanGalat, type HasilStruktur } from "@/lib/struktur-kontrak";
@@ -23,8 +24,10 @@ import { KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan-kontrak";
  * beside the reference the reader is shown.
  */
 
-function back(section: string, h: HasilAksi): never {
-  redirect(`/konfigurasi?${queryHasil(section, h).toString()}#${section}`);
+function back(section: string, h: HasilAksi, fd?: FormData): never {
+  // E-K4: the sending form's origin and its list's page come back with the result (queryHasil)
+  // B1: the answer is said on the section's own page (alamatBagian), at its form or row
+  redirect(adalahBagian(section) ? alamatBagian(section, queryHasil(section, h, fd), section) : `/konfigurasi?${queryHasil(section, h, fd).toString()}#${section}`);
 }
 
 /** A refusal as its code; one nobody named is logged with the reference the page shows. */
@@ -76,7 +79,7 @@ export async function transferRequestAction(fd: FormData): Promise<void> {
   const toProgramme = uuidOrNull(str(fd, "to_programme"));
   const reason = str(fd, "reason");
   if (!fromEnrollment || !toInstitution || !toPeriod) {
-    back("transfers", { ok: false, kode: "TRANSFER_INPUT_INCOMPLETE" });
+    back("transfers", { ok: false, kode: "TRANSFER_INPUT_INCOMPLETE" }, fd);
   }
   const supabase = await supabaseServer();
   {
@@ -91,7 +94,7 @@ export async function transferRequestAction(fd: FormData): Promise<void> {
     p_reason: reason || null,
     p_consent: {},
   });
-  back("transfers", error ? ditolak("transfer_request", error) : { ok: true, kode: "TRANSFER_REQUESTED" });
+  back("transfers", error ? ditolak("transfer_request", error) : { ok: true, kode: "TRANSFER_REQUESTED" }, fd);
 }
 
 /** W2.15: a transfer refusal by its DETAIL (PR040), else the general rule. */
@@ -109,14 +112,14 @@ export async function transferMintaAction(fd: FormData): Promise<void> {
   const fromEnrollment = uuidOrNull(str(fd, "from_enrollment"));
   const toInstitution = uuidOrNull(str(fd, "to_institution"));
   const reason = str(fd, "reason");
-  if (!fromEnrollment || !toInstitution) back("transfers", { ok: false, kode: "TRANSFER_INPUT_INCOMPLETE" });
+  if (!fromEnrollment || !toInstitution) back("transfers", { ok: false, kode: "TRANSFER_INPUT_INCOMPLETE" }, fd);
   const supabase = await supabaseServer();
   {
     const { data: asal } = await supabase.from("enrollments").select("institution_id").eq("id", fromEnrollment).limit(1);
     await wajibDalamKonteks({ sekolah: (asal?.[0] as { institution_id?: string } | undefined)?.institution_id ?? null }, "transfers");
   }
   const { error } = await supabase.rpc("transfer_minta", { p_from_enrollment: fromEnrollment, p_to_institution: toInstitution, p_reason: reason });
-  back("transfers", error ? ditolakPindah("transfer_minta", error) : { ok: true, kode: "TRANSFER_REQUESTED" });
+  back("transfers", error ? ditolakPindah("transfer_minta", error) : { ok: true, kode: "TRANSFER_REQUESTED" }, fd);
 }
 
 /** W2.15: THE RECEIVING SCHOOL ACCEPTS A REQUEST INTO ONE OF ITS OWN SCHOOL YEARS (transfer_terima decides). */
@@ -124,38 +127,38 @@ export async function transferTerimaAction(fd: FormData): Promise<void> {
   const id = uuidOrNull(str(fd, "transfer"));
   const period = uuidOrNull(str(fd, "to_period"));
   const programme = uuidOrNull(str(fd, "to_programme"));
-  if (!id || !period) back("transfers", { ok: false, kode: "TRANSFER_INPUT_INCOMPLETE" });
+  if (!id || !period) back("transfers", { ok: false, kode: "TRANSFER_INPUT_INCOMPLETE" }, fd);
   const supabase = await supabaseServer();
   await wajibDalamKonteks({ sekolah: await sekolahTransfer(supabase, id) }, "transfers");
   const { error } = await supabase.rpc("transfer_terima", { p_transfer: id, p_to_period: period, p_to_programme: programme });
-  back("transfers", error ? ditolakPindah("transfer_terima", error) : { ok: true, kode: "TRANSFER_ACCEPTED" });
+  back("transfers", error ? ditolakPindah("transfer_terima", error) : { ok: true, kode: "TRANSFER_ACCEPTED" }, fd);
 }
 
 export async function transferAuthorizeAction(fd: FormData): Promise<void> {
   const id = uuidOrNull(str(fd, "transfer"));
-  if (!id) back("transfers", { ok: false, kode: "ACTION_NOT_FOUND" });
+  if (!id) back("transfers", { ok: false, kode: "ACTION_NOT_FOUND" }, fd);
   const supabase = await supabaseServer();
   await wajibDalamKonteks({ sekolah: await sekolahTransfer(supabase, id) }, "transfers");
   const { error } = await supabase.rpc("transfer_authorize", { p_transfer: id, p_consent: {} });
-  back("transfers", error ? ditolak("transfer_authorize", error) : { ok: true, kode: "TRANSFER_AUTHORIZED" });
+  back("transfers", error ? ditolak("transfer_authorize", error) : { ok: true, kode: "TRANSFER_AUTHORIZED" }, fd);
 }
 
 export async function transferExecuteAction(fd: FormData): Promise<void> {
   const id = uuidOrNull(str(fd, "transfer"));
-  if (!id) back("transfers", { ok: false, kode: "ACTION_NOT_FOUND" });
+  if (!id) back("transfers", { ok: false, kode: "ACTION_NOT_FOUND" }, fd);
   const supabase = await supabaseServer();
   await wajibDalamKonteks({ sekolah: await sekolahTransfer(supabase, id) }, "transfers");
   const { error } = await supabase.rpc("transfer_execute", { p_transfer: id });
-  back("transfers", error ? ditolakPindah("transfer_execute", error) : { ok: true, kode: "TRANSFER_EXECUTED" });
+  back("transfers", error ? ditolakPindah("transfer_execute", error) : { ok: true, kode: "TRANSFER_EXECUTED" }, fd);
 }
 
 export async function transferRejectAction(fd: FormData): Promise<void> {
   const id = uuidOrNull(str(fd, "transfer"));
-  if (!id) back("transfers", { ok: false, kode: "ACTION_NOT_FOUND" });
+  if (!id) back("transfers", { ok: false, kode: "ACTION_NOT_FOUND" }, fd);
   const supabase = await supabaseServer();
   await wajibDalamKonteks({ sekolah: await sekolahTransfer(supabase, id) }, "transfers");
   const { error } = await supabase.rpc("transfer_reject", { p_transfer: id, p_reason: str(fd, "reason") || null });
-  back("transfers", error ? ditolak("transfer_reject", error) : { ok: true, kode: "TRANSFER_REJECTED" });
+  back("transfers", error ? ditolak("transfer_reject", error) : { ok: true, kode: "TRANSFER_REJECTED" }, fd);
 }
 
 /** L3: a transfer belongs to both its schools; in the context when either is. */
@@ -175,23 +178,23 @@ export async function grantRoleAction(fd: FormData): Promise<void> {
   const scope = uuidOrNull(str(fd, "scope"));
   const until = str(fd, "valid_until");
   if (!person || !GRANTABLE.has(role) || !/^\d{4}-\d{2}-\d{2}$/.test(until)) {
-    back("roles", { ok: false, kode: "ROLE_INPUT_INCOMPLETE" });
+    back("roles", { ok: false, kode: "ROLE_INPUT_INCOMPLETE" }, fd);
   }
-  if (role !== "SYSTEM_ADMIN" && !scope) back("roles", { ok: false, kode: "ROLE_SCOPE_REQUIRED" });
+  if (role !== "SYSTEM_ADMIN" && !scope) back("roles", { ok: false, kode: "ROLE_SCOPE_REQUIRED" }, fd);
   // L3 (§2.11, C7): a school's role in that school's context; Admin platform's own, in «Seluruh platform»
   const sekolahPeran = role === "SYSTEM_ADMIN" ? null : await sekolahDari("simpul", scope);
   await wajibDalamKonteks(role === "SYSTEM_ADMIN" ? { platform: true } : { sekolah: sekolahPeran }, "roles");
   const supabase = await supabaseServer();
   // BOB19-K01 (the owner's ruling, 8 Oct, Option B): a school role names one of the school's own people, whoever asks.
   // The platform's list of people without a role serves only a school's first administrator, by its own action below
-  if (sekolahPeran && !(await orangSekolah(supabase, sekolahPeran, person!))) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" });
+  if (sekolahPeran && !(await orangSekolah(supabase, sekolahPeran, person!))) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" }, fd);
   // D-101 (2): a School Admin appoints another explicitly. «Admin sekolah» named on the form comes back to Peran &
   // akses once, saying what it will do, and is granted on that second press; the Platform Admin's grant is as before.
   if (role === "INSTITUTION_ADMIN" && str(fd, "yakin") !== "ya") {
     const { data: isSys } = await supabase.rpc("is_system_admin");
     if (isSys !== true) {
       const q = new URLSearchParams({ bagian: "roles", angkat: person ?? "", lingkup: scope ?? "", sampai: until });
-      redirect(`/konfigurasi?${q.toString()}#roles`);
+      redirect(alamatBagian("roles", q, "roles"));
     }
   }
   const { error } = await supabase.rpc("grant_role", {
@@ -200,7 +203,7 @@ export async function grantRoleAction(fd: FormData): Promise<void> {
     p_scope_node: role === "SYSTEM_ADMIN" ? null : scope,
     p_valid_until: `${until}T23:59:59+07:00`,
   });
-  back("roles", error ? ditolak("grant_role", error) : { ok: true, kode: "ROLE_GRANTED" });
+  back("roles", error ? ditolak("grant_role", error) : { ok: true, kode: "ROLE_GRANTED" }, fd);
 }
 
 /**
@@ -214,31 +217,31 @@ export async function tunjukAdminPertamaAction(fd: FormData): Promise<void> {
   const person = uuidOrNull(str(fd, "person"));
   const sekolah = uuidOrNull(str(fd, "sekolah"));
   const until = str(fd, "valid_until");
-  if (!person || !sekolah || !/^\d{4}-\d{2}-\d{2}$/.test(until)) back("roles", { ok: false, kode: "ROLE_INPUT_INCOMPLETE" });
+  if (!person || !sekolah || !/^\d{4}-\d{2}-\d{2}$/.test(until)) back("roles", { ok: false, kode: "ROLE_INPUT_INCOMPLETE" }, fd);
   await wajibDalamKonteks({ sekolah }, "roles");
   const supabase = await supabaseServer();
   const { data: isSys } = await supabase.rpc("is_system_admin");
-  if (isSys !== true) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" });
-  if (await adaAdminSekolah(supabase, sekolah!)) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" });
-  if (!(await calonAdminPertama(supabase)).some((p) => p.person_id === person)) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" });
+  if (isSys !== true) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" }, fd);
+  if (await adaAdminSekolah(supabase, sekolah!)) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" }, fd);
+  if (!(await calonAdminPertama(supabase)).some((p) => p.person_id === person)) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" }, fd);
   const akar = await akarSekolah(supabase, sekolah!);
-  if (!akar) back("roles", { ok: false, kode: "ACTION_NOT_FOUND" });
+  if (!akar) back("roles", { ok: false, kode: "ACTION_NOT_FOUND" }, fd);
   if (str(fd, "yakin") !== "ya") {
     const q = new URLSearchParams({ bagian: "roles", pertama: person!, sampai: until });
-    redirect(`/konfigurasi?${q.toString()}#roles`);
+    redirect(alamatBagian("roles", q, "roles"));
   }
   const { error } = await supabase.rpc("grant_role", {
     p_person: person, p_role: "INSTITUTION_ADMIN", p_scope_node: akar, p_valid_until: `${until}T23:59:59+07:00`,
   });
-  back("roles", error ? ditolak("grant_role", error) : { ok: true, kode: "ROLE_GRANTED" });
+  back("roles", error ? ditolak("grant_role", error) : { ok: true, kode: "ROLE_GRANTED" }, fd);
 }
 
 export async function revokeRoleAction(fd: FormData): Promise<void> {
   const id = uuidOrNull(str(fd, "assignment"));
   // D-097(a): a revocation states why; the database asks again (revoke_role)
   const alasan = str(fd, "alasan");
-  if (!id) back("roles", { ok: false, kode: "ACTION_NOT_FOUND" });
-  if (!alasan || alasan.length > 300) back("roles", { ok: false, kode: "ROLE_REASON_REQUIRED" });
+  if (!id) back("roles", { ok: false, kode: "ACTION_NOT_FOUND" }, fd);
+  if (!alasan || alasan.length > 300) back("roles", { ok: false, kode: "ROLE_REASON_REQUIRED" }, fd);
   const supabase = await supabaseServer();
   {
     const { data: hibah } = await supabase.from("role_assignments").select("role, institution_id").eq("id", id).limit(1);
@@ -246,7 +249,7 @@ export async function revokeRoleAction(fd: FormData): Promise<void> {
     if (h) await wajibDalamKonteks(h.role === "SYSTEM_ADMIN" ? { platform: true } : { sekolah: h.institution_id ?? null }, "roles");
   }
   const { error } = await supabase.rpc("revoke_role", { p_assignment: id, p_reason: alasan });
-  back("roles", error ? ditolak("revoke_role", error) : { ok: true, kode: "ROLE_REVOKED" });
+  back("roles", error ? ditolak("revoke_role", error) : { ok: true, kode: "ROLE_REVOKED" }, fd);
 }
 
 /**
@@ -265,7 +268,7 @@ export async function pindahKelasAction(fd: FormData): Promise<void> {
     const q = queryHasil("pindah", h);
     if (tampil) q.set("dari", tampil);
     if (sekolah) q.set("sekolah", sekolah);
-    redirect(`/konfigurasi?${q.toString()}#pindah`);
+    redirect(alamatBagian("pindah", q, "pindah"));
   };
   if (!penempatan || !kelas) kembali({ ok: false, kode: "MOVE_INPUT_INCOMPLETE" }, dari);
   await wajibDalamKonteks({ sekolah: await sekolahDari("simpul", kelas) }, "pindah");
@@ -288,7 +291,7 @@ export async function daftarkanPesertaAction(fd: FormData): Promise<void> {
   const kembali = (h: HasilAksi): never => {
     const q = queryHasil("peserta", h);
     if (sekolah) q.set("sekolah", sekolah);
-    redirect(`/konfigurasi?${q.toString()}#peserta`);
+    redirect(alamatBagian("peserta", q, "peserta"));
   };
   if (!orang || !tempat) kembali({ ok: false, kode: "PD_INPUT_INCOMPLETE" });
   await wajibDalamKonteks({ sekolah: await sekolahDari("simpul", tempat) }, "peserta");
@@ -312,7 +315,7 @@ export async function tetapkanBatasAction(fd: FormData): Promise<void> {
   const kembali = (h: HasilAksi): never => {
     const q = queryHasil("ketuntasan", h);
     if (sekolah) q.set("sekolah", sekolah);
-    redirect(`/konfigurasi?${q.toString()}#ketuntasan`);
+    redirect(alamatBagian("ketuntasan", q, "ketuntasan"));
   };
   if (!sekolah || !pelajaran || persen === null || !alasan || alasan.length > 300) {
     kembali({ ok: false, kode: "PASS_MARK_INPUT_INCOMPLETE" });
@@ -468,7 +471,7 @@ function cakupan(fd: FormData): { platform: boolean; sekolah: string[] } {
   return { platform: str(fd, "platform") === "1", sekolah: Array.from(new Set(sekolah)) };
 }
 
-const kembaliPemeliharaan = (h: HasilAksi): never => back("pemeliharaan", h);
+const kembaliPemeliharaan = (h: HasilAksi, fd?: FormData): never => back("pemeliharaan", h, fd);
 
 /** L3 (§2.11, C7): the platform's maintenance in «Seluruh platform»; each school's in that school's context. */
 async function cakupanDalamKonteks(c: { platform: boolean; sekolah: readonly string[] }): Promise<void> {
@@ -490,7 +493,7 @@ export async function jadwalkanPemeliharaanAction(fd: FormData): Promise<void> {
   const mulai = mulaiTeks ? waktuWib(mulaiTeks) : null;
   const selesai = waktuWib(str(fd, "selesai"));
   if ((mulaiTeks && !mulai) || (!platform && sekolah.length === 0) || !str(fd, "alasan")) {
-    kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" });
+    kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" }, fd);
   }
   await cakupanDalamKonteks({ platform, sekolah });
   const supabase = await supabaseServer();
@@ -498,39 +501,39 @@ export async function jadwalkanPemeliharaanAction(fd: FormData): Promise<void> {
     p_platform: platform, p_institutions: platform ? [] : sekolah, p_starts_at: mulai, p_ends_at: selesai,
     p_message: str(fd, "pesan") || null, p_reason: str(fd, "alasan"), p_notice: str(fd, "umumkan") === "1",
   });
-  if (error) kembaliPemeliharaan(ditolak("schedule_maintenance", error));
+  if (error) kembaliPemeliharaan(ditolak("schedule_maintenance", error), fd);
   revalidatePath("/konfigurasi");
-  kembaliPemeliharaan({ ok: true, kode: "MAINTENANCE_SCHEDULED" });
+  kembaliPemeliharaan({ ok: true, kode: "MAINTENANCE_SCHEDULED" }, fd);
 }
 
 export async function ubahPemeliharaanAction(fd: FormData): Promise<void> {
   const jendela = uuidOrNull(str(fd, "jendela"));
   const aksi = str(fd, "aksi");
   if (!jendela || (aksi !== "MULAI" && aksi !== "AKHIRI") || !str(fd, "alasan")) {
-    kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" });
+    kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" }, fd);
   }
   const supabase = await supabaseServer();
   await cakupanDalamKonteks(await cakupanBaris(supabase, "maintenance_windows", jendela));
   const { error } = await supabase.rpc("change_maintenance", { p_window: jendela, p_action: aksi, p_reason: str(fd, "alasan") });
-  if (error) kembaliPemeliharaan(ditolak("change_maintenance", error));
+  if (error) kembaliPemeliharaan(ditolak("change_maintenance", error), fd);
   revalidatePath("/konfigurasi");
-  kembaliPemeliharaan({ ok: true, kode: aksi === "MULAI" ? "MAINTENANCE_STARTED" : "MAINTENANCE_ENDED" });
+  kembaliPemeliharaan({ ok: true, kode: aksi === "MULAI" ? "MAINTENANCE_STARTED" : "MAINTENANCE_ENDED" }, fd);
 }
 
 /** «Hentikan sekarang» (D-094(h), D-100(c)): Admin platform only, a reason and the typed phrase. */
 export async function hentikanSekarangAction(fd: FormData): Promise<void> {
   const { platform, sekolah } = cakupan(fd);
   if ((!platform && sekolah.length === 0) || !str(fd, "alasan") || str(fd, "konfirmasi") !== KONFIRMASI_HENTIKAN) {
-    kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_CONFIRMATION" });
+    kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_CONFIRMATION" }, fd);
   }
   await cakupanDalamKonteks({ platform, sekolah });
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("stop_pintar_now", {
     p_platform: platform, p_institutions: platform ? [] : sekolah, p_reason: str(fd, "alasan"), p_confirmation: str(fd, "konfirmasi"),
   });
-  if (error) kembaliPemeliharaan(ditolak("stop_pintar_now", error));
+  if (error) kembaliPemeliharaan(ditolak("stop_pintar_now", error), fd);
   revalidatePath("/konfigurasi");
-  kembaliPemeliharaan({ ok: true, kode: "MAINTENANCE_STOPPED" });
+  kembaliPemeliharaan({ ok: true, kode: "MAINTENANCE_STOPPED" }, fd);
 }
 
 export async function terbitkanPengumumanAction(fd: FormData): Promise<void> {
@@ -539,25 +542,25 @@ export async function terbitkanPengumumanAction(fd: FormData): Promise<void> {
   const terbit = terbitTeks ? waktuWib(terbitTeks) : null;
   const sampai = waktuWib(str(fd, "sampai"));
   if ((terbitTeks && !terbit) || !sampai || !str(fd, "pesan") || (!platform && sekolah.length === 0)) {
-    kembaliPemeliharaan({ ok: false, kode: "NOTICE_INPUT_INVALID" });
+    kembaliPemeliharaan({ ok: false, kode: "NOTICE_INPUT_INVALID" }, fd);
   }
   await cakupanDalamKonteks({ platform, sekolah });
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("publish_notice", {
     p_platform: platform, p_institutions: platform ? [] : sekolah, p_message: str(fd, "pesan"), p_publish_at: terbit, p_expires_at: sampai,
   });
-  if (error) kembaliPemeliharaan(ditolak("publish_notice", error));
+  if (error) kembaliPemeliharaan(ditolak("publish_notice", error), fd);
   revalidatePath("/konfigurasi");
-  kembaliPemeliharaan({ ok: true, kode: "NOTICE_PUBLISHED" });
+  kembaliPemeliharaan({ ok: true, kode: "NOTICE_PUBLISHED" }, fd);
 }
 
 export async function tarikPengumumanAction(fd: FormData): Promise<void> {
   const pengumuman = uuidOrNull(str(fd, "pengumuman"));
-  if (!pengumuman || !str(fd, "alasan")) kembaliPemeliharaan({ ok: false, kode: "NOTICE_INPUT_INVALID" });
+  if (!pengumuman || !str(fd, "alasan")) kembaliPemeliharaan({ ok: false, kode: "NOTICE_INPUT_INVALID" }, fd);
   const supabase = await supabaseServer();
   await cakupanDalamKonteks(await cakupanBaris(supabase, "broadcast_notices", pengumuman));
   const { error } = await supabase.rpc("withdraw_notice", { p_notice: pengumuman, p_reason: str(fd, "alasan") });
-  if (error) kembaliPemeliharaan(ditolak("withdraw_notice", error));
+  if (error) kembaliPemeliharaan(ditolak("withdraw_notice", error), fd);
   revalidatePath("/konfigurasi");
-  kembaliPemeliharaan({ ok: true, kode: "NOTICE_WITHDRAWN" });
+  kembaliPemeliharaan({ ok: true, kode: "NOTICE_WITHDRAWN" }, fd);
 }

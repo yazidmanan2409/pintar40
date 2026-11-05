@@ -1,10 +1,11 @@
-import { t, format, type HleEvent, type Locale } from "@/lib/hle";
+import { t, type HleEvent, type Locale } from "@/lib/hle";
 import {
   HASIL_KUNCI, HASIL_SEMUA, KEADAAN_KUNCI, KELUARGA_KUNCI, RANTAI,
   langkahBerikut, menungguOrangLain, nada, type Keputusan,
 } from "@/lib/pimpinan-kontrak";
 import TombolKirim from "@/components/TombolKirim";
 import BarisHasil from "@/components/BarisHasil";
+import { tanggal } from "@/lib/tanggal";
 
 /**
  * ONE MANAGEMENT DECISION, AS SOMETHING A HUMAN CAN ACT ON.
@@ -72,7 +73,7 @@ export default function KartuKeputusan({
           </p>
         ) : null}
         <p className="pin-meta">
-          {s("pimpinan.sejak")} {format.date(k.diangkatPada, locale)}
+          {s("pimpinan.sejak")} {tanggal(k.diangkatPada, "baca", locale)}
           {sumberKunci ? <> · {s(sumberKunci)}</> : null}
         </p>
       </header>
@@ -99,7 +100,7 @@ export default function KartuKeputusan({
             {k.diputuskanPada ? (
               <span className="pin-meta">
                 {" "}
-                · {s("pimpinan.diputuskan")} {format.date(k.diputuskanPada, locale)}
+                · {s("pimpinan.diputuskan")} {tanggal(k.diputuskanPada, "baca", locale)}
               </span>
             ) : null}
           </p>
@@ -119,7 +120,7 @@ export default function KartuKeputusan({
         ) : null}
 
         {aksi && berikut.includes("UNDER_REVIEW") ? (
-          <form action={aksi} className="pin-kp-ambil">
+          <form action={aksi} className="pin-kp-ambil pin-noprint">
             <input type="hidden" name="keputusan" value={k.id} />
             <input type="hidden" name="ke" value="UNDER_REVIEW" />
             <TombolKirim className="pin-btn" sibuk={s("tombol.memproses")}>
@@ -129,7 +130,7 @@ export default function KartuKeputusan({
         ) : null}
 
         {aksi && berikut.includes("DECIDED") ? (
-          <form action={aksi} className="pin-kp-form">
+          <form action={aksi} className="pin-kp-form pin-noprint">
             <input type="hidden" name="keputusan" value={k.id} />
             <input type="hidden" name="ke" value="DECIDED" />
             <div className="pin-isian">

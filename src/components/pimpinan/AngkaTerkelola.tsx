@@ -1,5 +1,6 @@
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import type { Envelope } from "@/components/bukti";
+import { labelMetrik } from "@/components/bukti/label";
 
 /**
  * A GOVERNED FIGURE ON THE MANAGEMENT SURFACE — label, value, meaning, sample.
@@ -46,7 +47,7 @@ export default function AngkaTerkelola({
 
   return (
     <div className="pin-metric">
-      {entry.label_key ? <span className="pin-ml">{s(entry.label_key)}</span> : null}
+      <span className="pin-ml">{labelMetrik(entry, "staff", locale)}</span>
       {rincian ?? <span className="pin-mv pin-num">{value}</span>}
       {entry.meaning_key ? <span className="pin-mm">{s(entry.meaning_key)}</span> : null}
       {typeof sample === "number" ? (

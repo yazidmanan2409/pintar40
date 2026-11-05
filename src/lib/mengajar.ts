@@ -90,7 +90,18 @@ export const KATA_PESERTA = {
   "mengajar.bukti.murid": "mengajar.bukti.peserta",
   "mengajar.siap.terdaftar": "mengajar.siap.terdaftar_peserta",
   "mengajar.siapa.kosong": "mengajar.siapa.kosong_peserta",
+  "mengajar.bukti.siapa": "mengajar.bukti.siapa_peserta",
 } as const satisfies Record<string, HleEvent>;
+
+/**
+ * E-C2-3 (D-168; D-069(b)): A CLASS HAS PER-QUESTION EVIDENCE FOR ITS TEACHER ONLY WHEN ITS PEOPLE ARE LEARNERS. The
+ * database gives a professional-learning facilitator no participant's answers (BOB43-D01: «answers … no school
+ * role»), so the per-question page has nothing to show there. This one rule decides both whether «Lihat per soal» is
+ * offered and whether the page admits the reader: a link can never lead to a page that refuses.
+ */
+export function adaBuktiSoal(jenis: JenisAnggota): boolean {
+  return jenis === "LEARNER";
+}
 
 /** The word for this class's people: the learner key as it is, or its participant form. */
 export function kataAnggota(kunci: keyof typeof KATA_PESERTA, jenis: JenisAnggota): HleEvent {

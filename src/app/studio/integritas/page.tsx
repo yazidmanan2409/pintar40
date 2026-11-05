@@ -40,7 +40,7 @@ export const generateMetadata = judulHalaman("/studio/integritas");
  *    pimpinan → Diputuskan) and its state in words; once decided, the outcome, when, and the decision's note; while
  *    waiting, who decides (CR-76: another leader, or nobody yet). Only where the database lets this reader see the case.
  */
-type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; hal_tinjau?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; hal_tinjau?: string; baris?: string }>;
 
 type Menunggu = { signal_id: string; session_id: string; institution_id: string; category: string; observed_at: string; may_refer: boolean };
 
@@ -118,7 +118,8 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
         <p className="pin-ket">{s("studio.integritas.penjelasan")}</p>
       </div>
       {/* DAISY-18: one form per item; the answer heads the list it came from */}
-      <HasilDi q={sp} bagian="integritas" kalimat={banner} />
+      {/* E-K4: a decision is answered in its observation's row; a decided one leaves the list, and is answered here */}
+      <HasilDi q={sp} bagian="integritas" kalimat={banner} barisDiHalaman={rows.map((r) => r.id)} />
 
       <section aria-labelledby="integritas-menunggu" className="pin-studio-halaman">
         <h3 id="integritas-menunggu" className="pin-studio-h3">{s("studio.integritas.menunggu.judul")}</h3>
@@ -148,6 +149,7 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
                           label={s("studio.paket.catatan")} opsional={s("bentuk.opsional")} petunjuk={s("studio.integritas.catatan.arti")} />
                         <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.integritas.catat")}</TombolKirim>
                       </form>
+                      <HasilDi q={sp} bagian="integritas" baris={g.id} kalimat={banner} />
                       <SimpanIsian form={`integritas-sinyal-${g.id}`} ditolak={ditolak("integritas")} pemilik={pemilik} />
                     </li>
                   ))}
@@ -184,7 +186,8 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
             ))}
           </ul>
         )}
-        <Penomoran locale={locale} halaman={halTinjau} lagi={lagiTinjau} ke={(n) => tautanHalaman("/studio/integritas", sp, "hal_tinjau", n, "ditinjau")} />
+        <Penomoran locale={locale} halaman={halTinjau} lagi={lagiTinjau} ke={(n) => tautanHalaman("/studio/integritas", sp, "hal_tinjau", n, "ditinjau")}
+          benda={s("koleksi.benda.tinjauan")} jumlah={sudahBySession.size} />
       </section>
     </div>
   );

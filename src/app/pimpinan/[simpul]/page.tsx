@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as pim from "@/lib/pimpinan";
@@ -52,7 +53,6 @@ export default async function SimpulPimpinan({
         persona="staff"
         locale={locale}
         backHref="/pimpinan"
-        backKey="pimpinan.kembali"
       />
     );
   }
@@ -73,7 +73,7 @@ export default async function SimpulPimpinan({
       <CangkangPengalaman locale={locale} kind="pimpinan" current="pimpinan" />
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href="/pimpinan">
-          ← {s("pimpinan.kembali")}
+          ← {s("nav.pimpinan")}
         </Link>
         <BarisLingkup scope={{ path: [node.nama] }} locale={locale} />
 
@@ -85,7 +85,7 @@ export default async function SimpulPimpinan({
         <section className="pin-sec" aria-labelledby="pin-bukti">
           <h2 id="pin-bukti">{s("pimpinan.bukti.judul")}</h2>
           {bukti.length === 0 ? (
-            <p className="pin-empty">{s("pimpinan.bukti.kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("pimpinan.bukti.kosong")} />
           ) : (
             // W3.9 (RV-9): the figures and the absence cards under them are spaced by the layout gap, never touching
             <div className="pin-bukti-tumpuk">
@@ -96,7 +96,7 @@ export default async function SimpulPimpinan({
                       key={e.metric_id ?? `angka-${i}`}
                       entry={e}
                       value={nilaiMetrik(e.metric_id, e.value, locale)}
-                      rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} /> : undefined}
+                      rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} persona="staff" /> : undefined}
                       locale={locale}
                     />
                   ))}

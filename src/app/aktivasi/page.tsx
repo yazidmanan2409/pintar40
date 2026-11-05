@@ -109,7 +109,7 @@ export default async function Aktivasi({ searchParams }: { searchParams: Promise
         <FormAktivasi locale={locale} orang={orang} adminSistem={platformIni} kelas={kelas} dicari={cariTunggu}
           pencarian={orang.length > 0 || cariTunggu ? <CariTunggu locale={locale} total={totalTunggu} dicari={cariTunggu} /> : null}
           penomoran={<Penomoran locale={locale} halaman={halTunggu} lagi={halTunggu * 20 < totalTunggu}
-            ke={(n) => halamanTunggu(cariTunggu, n)} />} />
+            ke={(n) => halamanTunggu(cariTunggu, n)} benda={s("orang.benda")} jumlah={orang.length} total={totalTunggu} />} />
         <KartuUlang locale={locale} pemegang={pemegangUlang} ada={adaPemegang} dicari={cariKartu} />
         {/* D-152(a): a card learner who becomes staff gets an email account first, as the same person (CR-91) */}
         <KartuJadiEmail locale={locale} pemegang={pemegangStaf} ada={adaPemegang} dicari={cariStaf} />

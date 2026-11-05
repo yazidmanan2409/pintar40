@@ -1,0 +1,89 @@
+{
+  "lembar": {
+    "lebar": 210,
+    "tinggi": 297
+  },
+  "kepala": {
+    "kiri": 20,
+    "atas": 22,
+    "lebar": 170,
+    "tinggi": 4.87
+  },
+  "jenis": {
+    "kiri": 20,
+    "atas": 22,
+    "lebar": 64.01,
+    "tinggi": 4.87
+  },
+  "merek": {
+    "kiri": 172.4,
+    "atas": 22.82,
+    "lebar": 17.6,
+    "tinggi": 3.15
+  },
+  "merekImg": {
+    "kiri": 170.57,
+    "atas": 21.16,
+    "lebar": 21.54,
+    "tinggi": 12.06
+  },
+  "nama": {
+    "kiri": 0,
+    "atas": 0,
+    "lebar": 0,
+    "tinggi": 0
+  },
+  "rekam": {
+    "kiri": 20,
+    "atas": 133.09,
+    "lebar": 170,
+    "tinggi": 26.53
+  },
+  "nomor": {
+    "kiri": 109,
+    "atas": 154.33,
+    "lebar": 81,
+    "tinggi": 5.29
+  },
+  "garis": {
+    "kiri": 10,
+    "atas": 175.62,
+    "lebar": 190,
+    "tinggi": 0.75
+  },
+  "pita": {
+    "kiri": 10,
+    "atas": 176,
+    "lebar": 190,
+    "tinggi": 34
+  },
+  "periksa": {
+    "kiri": 40,
+    "atas": 236,
+    "lebar": 130,
+    "tinggi": 30.47
+  },
+  "tautan": {
+    "kiri": 40,
+    "atas": 258.53,
+    "lebar": 92,
+    "tinggi": 7.94
+  },
+  "qr": {
+    "kiri": 143.99,
+    "atas": 236,
+    "lebar": 26,
+    "tinggi": 26
+  },
+  "nomorBaris": 1,
+  "fonts": [
+    "\"Plus Jakarta Sans\"",
+    "\"IBM Plex Mono\""
+  ],
+  "fontsLoaded": [
+    "Plus Jakarta Sans 200 800",
+    "IBM Plex Mono 500"
+  ],
+  "tampakDiLuarLembar": [],
+  "title": "Sertifikat · PINTAR"
+}

@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import TautanBerkas from "@/components/pelajaran/TautanBerkas";
 import { currentLocale } from "@/lib/locale";
 import { card, kataStudio } from "../../_lib";
 import Kosong from "@/components/Kosong";
@@ -106,9 +107,9 @@ export default async function Pratinjau({ params, searchParams }: { params: Para
           {m.jenis === "video" ? <video controls preload="metadata" src={m.url!} className="pin-media" /> : null}
           {m.jenis === "audio" ? <audio controls preload="metadata" src={m.url!} className="pin-media" /> : null}
           {m.jenis === "pdf" ? (
-            <a href={m.url!} target="_blank" rel="noreferrer" className="pin-tautan">
+            <TautanBerkas href={m.url!} className="pin-tautan">
               {s("lesson.pdf")}
-            </a>
+            </TautanBerkas>
           ) : null}
           {m.transcript ? <p className="pin-ket">{m.transcript}</p> : null}
         </div>

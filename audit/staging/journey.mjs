@@ -403,13 +403,16 @@ let tugas = null;
 await step("J05b", "the school admin sets the lesson's pass mark on Konfigurasi → Batas ketuntasan (D-088(b), BOB-49)", ["ADM-11", "X-05"], async (rec) => {
   rec.page = A;
   if (!release || !course) return blocked(rec, "J05 published nothing");
-  await lihat(A, `/konfigurasi?sekolah=${SID}#ketuntasan`);
+  await lihat(A, `/konfigurasi/ketuntasan?sekolah=${SID}#ketuntasan`);
   const baris = A.locator(`#ketuntasan li[data-pelajaran="${course}"]`);
   if (!(await baris.count())) {
     rec.verdict = "FAIL";
     return `Konfigurasi lists no such lesson under Batas ketuntasan: ${norm(await A.locator("#ketuntasan").innerText().catch(() => "")).slice(0, 300)}`;
   }
   const sebelum = norm(await baris.innerText());
+  // B1: a record's one action opens its short form in place first
+  await baris.locator("[data-buka-ubah]").click();
+  await baris.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
   await baris.locator('input[name="persen"]').fill("60");
   await baris.locator('input[name="alasan"]').fill("Keputusan rapat guru (uji staging)");
   await baris.getByRole("button", { name: "Tetapkan", exact: true }).click();
