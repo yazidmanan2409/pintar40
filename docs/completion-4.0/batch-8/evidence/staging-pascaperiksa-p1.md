@@ -34,6 +34,7 @@ Each walk ran only after the one before it was green.
 | The students | GS-07 cards, GS-12 to GS-16 | 42046058740 | **GREEN** |
 | Reports, certificate, recovery, shared computer, public check | GS-17 to GS-21 | 42049795788 | **GREEN** |
 | The administration journey (D-153), receiving school Sekolah Uji B5 1104 | Batch 4 | 42054817245 | **GREEN** |
+| Studio end to end and the Uji Cepat score | W6.5, W6.7 | 42057142327 | **GREEN** |
 
 **Walk defects found and fixed (not product defects; the assertions are unchanged):**
 - **A2, A3, A7 (run 42039104715):** the walk read Konfigurasi as one page. Since B1 (c4e2ffe3) it is an index with
