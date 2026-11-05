@@ -18,6 +18,19 @@
 --     the order). Both are the state staging is in today, at 193.
 -- The two schema_migrations rows are removed too, so that `supabase migration up` (staging.yml) re-applies 194-195
 -- cleanly later.
+--
+-- EVERY STATE A DEPLOYMENT CAN LEAVE. `supabase db push` (staging.yml) applies each migration file in its own
+-- transaction together with its schema_migrations row, and stops at the first failure. So staging can only be at 193
+-- (194 failed), at 194 (195 failed: 195's function change and its row are both rolled back) or at 195. Tested locally
+-- on 5 Nov, each from its real state:
+--   195 -> this script -> 193, the checks pass;
+--   194 only (made by a planted failure at the end of 195: «division by zero», 195 not recorded, may_start_assessment
+--     still 193's md5, 260 marks present) -> this script -> 193, the checks pass;
+--   193 -> this script again -> no change, the checks pass (it is safe to run twice or on an untouched database);
+--   then `supabase migration up` -> 195, 260 marks, the order rule present.
+-- The script itself is one transaction: if any check fails, nothing it did is kept.
+-- It names no environment (staging's platform_environment reads «production», D-184), so the operator chooses the
+-- target by its connection string. Its last check (exactly 193 migrations) makes it refuse any database not at 193-195.
 
 begin;
 
