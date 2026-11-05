@@ -11,9 +11,9 @@
  *   - its words come from the copy table (`email.bingkai.*`, D-014), in Bahasa
  *     Indonesia, as every email is;
  *   - it takes BOB-25's `KonteksEmail`, and from it alone decides two things a
- *     template can therefore never get wrong: the logo is the environment's own
- *     small email logo, `${asal}/brand/pintar-email-logo.png` (ruling 2), and a
- *     staging email carries a slim test line in its body (ruling 3);
+ *     template can therefore never get wrong: the links are the environment's
+ *     own origin, and a staging email carries a slim test line in its body
+ *     (ruling 3);
  *   - a code is shown grouped, «482 913» (ruling 1). Accepting it with or
  *     without the space is the code screen's job (DAISY-20, BOB-26);
  *   - it refuses what the sending module would refuse anyway: an empty subject
@@ -35,9 +35,9 @@
  * - Bahasa Indonesia: lang="id" on the document and on the article wrapper,
  *   which webmail keeps when it drops <html>. One <h1>; layout tables are
  *   role="presentation".
- * - The header is the PINTAR logo. Its alt text is styled as the wordmark, so
- *   with images blocked (Outlook's default) the reader still sees "PINTAR" in
- *   the brand colour.
+ * - The header is the text wordmark «PINTAR» (D-192), in Arial, bold, teal
+ *   #075056. No image is sent, so a client that blocks images (Outlook's
+ *   default) shows the same header.
  * - The footer says why the person received the email, that PINTAR never asks
  *   for a PIN or password by email, where to write, and who sends it.
  * - Every text an email supplies is escaped. Links must be https, except a
@@ -110,8 +110,8 @@ export const kata = (k: HleEvent) => t(k, "public", { locale: "id" });
 export const BADAN_HUKUM = "PT ZAYD PINTAR SELALU";
 export const KONTAK = "info@pintarselalu.com";
 export const RANAH = "pintarselalu.com";
-/** The small email logo in public/brand/ (ruling 2): 208 × 116, shown at 104 × 58. */
-export const BERKAS_LOGO = "/brand/pintar-email-logo.png";
+/** D-192: the wordmark is text, «PINTAR», in the brand teal; no image is sent. */
+export const WARNA_MEREK = "#075056";
 
 /** Colours: the token set's values (globals.css), plus a dark set used only where a client honours prefers-color-scheme. */
 export const WARNA = {
@@ -129,7 +129,9 @@ export const WARNA = {
   },
 } as const;
 
-const HURUF = "'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+const HURUF = "'Segoe UI', Roboto, Arial, Helvetica, sans-serif";
+/** D-192: the wordmark's face, the device's own (no font file). */
+const HURUF_MEREK = "Arial, Helvetica, sans-serif";
 const HURUF_KODE = "Consolas, 'SF Mono', Menlo, 'Courier New', monospace";
 
 /** HTML-escape everything an email supplies. */
@@ -162,7 +164,7 @@ export function tampilKode(kode: string): string {
 
 const T = WARNA.terang;
 
-function blokHtml(b: Blok, gambar: { logo: string; merek: string }): string {
+function blokHtml(b: Blok, gambar: { merek: string }): string {
   switch (b.jenis) {
     case "paragraf":
       return `<p class="pin-teks" style="margin:0 0 16px 0;font-family:${HURUF};font-size:16px;line-height:26px;color:${T.tinta};">${esc(b.teks)}</p>`;
@@ -206,16 +208,16 @@ export const WARNA_KELUARGA: Readonly<Record<string, string>> = {
 
 /**
  * D1: the card, as live-text table HTML: its own paper (kept on dark, as the physical and digital card keep theirs),
- * its wordmark slot (96 × 32; today's logo, sized by its height, until F-11: P2 (a)), the 2 px gold line, the person,
+ * its wordmark slot (96 × 32; the text wordmark «PINTAR» in #075056, D-192), the 2 px gold line, the person,
  * and one band in the first role's family colour with each line «Peran · Sekolah» (D-074(6)).
  */
-function kartuHtml(k: KartuEmail, gambar: { logo: string; merek: string }): string {
+function kartuHtml(k: KartuEmail, gambar: { merek: string }): string {
   const kertas = T.kartu;
   const baris = k.baris.map((r) => `<p class="pin-kartu-baris" style="margin:0;font-family:${HURUF};font-size:13px;line-height:19px;color:${kertas};">${r.peran ? `<strong style="font-weight:600;">${esc(r.peran)}</strong>` : ""}${r.peran && r.sekolah ? " · " : ""}${r.sekolah ? esc(r.sekolah) : ""}</p>`).join("");
   return `<table class="pin-kartu-pintar" role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;margin:8px 0 20px 0;max-width:440px;">
 <tr><td bgcolor="${kertas}" style="background-color:${kertas};border:1px solid ${T.garis};border-radius:12px;padding:0;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-<tr><td style="padding:14px 16px 10px 16px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="pin-slot-kartu" width="96" height="32" align="left" valign="middle" style="width:96px;height:32px;"><img src="${esc(gambar.logo)}" width="57" height="32" alt="${esc(gambar.merek)}" style="display:block;border:0;outline:none;text-decoration:none;width:57px;height:32px;font-family:${HURUF};font-size:13px;line-height:16px;font-weight:700;letter-spacing:2px;color:${T.utama};"></td></tr></table></td></tr>
+<tr><td style="padding:14px 16px 10px 16px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="pin-slot-kartu" width="96" height="32" align="left" valign="middle" style="width:96px;height:32px;"><span class="pin-merek-kartu" style="display:block;font-family:${HURUF_MEREK};font-size:13px;line-height:16px;font-weight:700;letter-spacing:2px;color:${WARNA_MEREK};">${esc(gambar.merek)}</span></td></tr></table></td></tr>
 <tr><td height="2" bgcolor="${T.emas}" style="height:2px;line-height:2px;font-size:0;background-color:${T.emas};">&nbsp;</td></tr>
 <tr><td style="padding:14px 16px 4px 16px;font-family:${HURUF};font-size:18px;line-height:24px;font-weight:600;color:${T.tinta};">${esc(k.nama)}</td></tr>
 <tr><td style="padding:0 16px 14px 16px;font-family:${HURUF_KODE};font-size:14px;line-height:20px;letter-spacing:1px;color:${T.tinta2};">${esc(k.pintarId)}</td></tr>
@@ -260,21 +262,25 @@ function gaya(): string {
 </style>`;
 }
 
-/** The environment's own email logo (ruling 2), from BOB-25's context alone. */
-export function logoEmail(konteks: KonteksEmail): string {
-  return tautanAman(`${konteks.asal.replace(/\/+$/, "")}${BERKAS_LOGO}`);
+
+/**
+ * The environment's own origin, checked as a link the frame may draw (https, or a local sink), from BOB-25's context
+ * alone. D-192 removed the email logo that used to be built from it; the check stays, so a frame for a plain-http origin
+ * that is not local is still refused before anything is sent.
+ */
+export function asalEmail(konteks: KonteksEmail): string {
+  return tautanAman(`${konteks.asal.replace(/\/+$/, "")}/`);
 }
 
 export function bingkaiEmail(e: Email, konteks: KonteksEmail): EmailJadi {
   // what the sending module refuses, refused here first: a template bug surfaces
   // when the template is written, not as a send that never happens
   if (!e.subjek.trim() || /[\r\n]/.test(e.subjek)) throw new Error("an email subject must be one non-empty line");
-  const logo = logoEmail(konteks);
+  asalEmail(konteks);
   const merek = kata("email.bingkai.merek");
   const alasan = e.alasan ?? kata("email.bingkai.alasan");
-  // the alt text is styled as the wordmark: with images blocked, "PINTAR" still reads in the brand colour
-  // the alt text takes the dark wordmark colour where a client honours dark mode (.pin-merek-teks)
-  const kepala = `<img class="pin-merek-teks" src="${esc(logo)}" width="104" height="58" alt="${esc(merek)}" style="display:block;border:0;outline:none;text-decoration:none;width:104px;height:58px;font-family:${HURUF};font-size:22px;line-height:28px;font-weight:700;letter-spacing:3px;color:${T.utama};">`;
+  // D-192: the header is the text wordmark; in a client's dark mode it takes the light teal (.pin-merek-teks)
+  const kepala = `<span class="pin-merek-teks" style="display:block;font-family:${HURUF_MEREK};font-size:22px;line-height:28px;font-weight:700;letter-spacing:3px;color:${WARNA_MEREK};">${esc(merek)}</span>`;
   // the inbox preview, then filler so the client does not pull body text into it
   const isiPratinjau = `${esc(e.pratinjau)}${"&#847;&zwnj;&nbsp;".repeat(40)}`;
 
@@ -304,7 +310,7 @@ ${gaya()}
 <tr><td class="pin-kartu" bgcolor="${T.kartu}" style="background-color:${T.kartu};border:1px solid ${T.garis};border-top:3px solid ${T.emas};border-radius:12px;padding:32px 32px 16px 32px;">
 ${konteks.staging ? barisUji() : ""}<h1 class="pin-judul" style="margin:0 0 8px 0;font-family:${HURUF};font-size:24px;line-height:32px;font-weight:600;color:${T.tinta};">${esc(e.judul)}</h1>
 <p class="pin-alasan" style="margin:0 0 ${e.konteks ? 4 : 20}px 0;font-family:${HURUF};font-size:14px;line-height:21px;color:${T.tinta2};">${esc(alasan)}</p>
-${e.konteks ? `<p class="pin-konteks" style="margin:0 0 20px 0;font-family:${HURUF};font-size:14px;line-height:21px;font-weight:600;color:${T.tinta2};">${esc(e.konteks)}</p>\n` : ""}${e.isi.map((b) => blokHtml(b, { logo, merek })).join("\n")}
+${e.konteks ? `<p class="pin-konteks" style="margin:0 0 20px 0;font-family:${HURUF};font-size:14px;line-height:21px;font-weight:600;color:${T.tinta2};">${esc(e.konteks)}</p>\n` : ""}${e.isi.map((b) => blokHtml(b, { merek })).join("\n")}
 </td></tr>
 <tr><td class="pin-kaki" style="padding:20px 4px 8px 4px;font-family:${HURUF};font-size:13px;line-height:20px;color:${T.tinta3};">
 <p style="margin:0 0 8px 0;font-family:${HURUF};font-size:13px;line-height:20px;font-weight:600;color:${T.tinta3};">${esc(kata("email.bingkai.tidak_pernah"))}</p>

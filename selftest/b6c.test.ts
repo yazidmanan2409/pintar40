@@ -207,22 +207,25 @@ export const b6cTests: SelfTest[] = [
       c.expect(jenis["font-size"] === "12pt" && jenis["text-transform"] === "uppercase" && jenis.color === "var(--cert-aksen)" && jenis["white-space"] === "nowrap",
         `«SERTIFIKAT PENGUASAAN» is not 12 pt capitals in the accent: ${JSON.stringify(jenis)}`);
 
-      // the wordmark slot: one component, the cap height 3.15 mm, at least 15 mm wide, one width and never a height
-      const merek = baca(ctx.repoRoot, "src/components/sertifikat/MerekSertifikat.tsx");
-      const lebarSlot = parseFloat(slot.SLOT_MEREK["--merek-slot-lebar"]);
-      const tinggiSlot = parseFloat(slot.SLOT_MEREK["--merek-slot-tinggi"]);
-      c.expect(slot.TINGGI_HURUF_MM === 3.15 && Math.abs(tinggiSlot - 3.15) < 0.001, `the wordmark slot's cap height is ${tinggiSlot} mm, not 3.15`);
-      c.expect(lebarSlot >= 15, `the wordmark slot is ${lebarSlot} mm wide, under the 15 mm print minimum`);
-      c.note(`wordmark slot ${lebarSlot} × ${tinggiSlot} mm`);
-      const merekPintar = kode(baca(ctx.repoRoot, "src/components/MerekPintar.tsx"));
-      c.expect(/import \{ BERKAS_MEREK \} from "@\/components\/MerekPintar"/.test(kode(merek)) && /const BERKAS = BERKAS_MEREK;/.test(kode(merek))
-        && /export const BERKAS_MEREK = \{ src: "\/brand\/pintar-selalu-logo\.png"/.test(merekPintar) && /alt="PINTAR"/.test(kode(merek)),
-        "the slot does not place today's approved logo, named PINTAR (D-160(a))");
+      // the wordmark slot: one component, the cap height 3.15 mm, at least 15 mm wide.
+      // RESTATED FOR D-192 (owner, 5 Nov: a text-only PINTAR wordmark, Arial, #075056; the supplied artwork no longer
+      // used): the slot is «PINTAR» as live text at the size that gives the 3.15 mm cap height (Arial's capitals are
+      // 0.716 of the size), its width measured as Arial's six capitals plus the tracking, never an image
+      const merek = kode(baca(ctx.repoRoot, "src/components/sertifikat/MerekSertifikat.tsx"));
+      const tinggiHuruf = slot.UKURAN_MEREK_MM * slot.RASIO_HURUF_KAPITAL;
+      // Arial Bold's advance widths for P I N T A R (units of the size), plus 0.14 em of tracking between letters
+      const lebarSlot = slot.UKURAN_MEREK_MM * ([0.667, 0.278, 0.722, 0.611, 0.722, 0.722].reduce((x, y) => x + y, 0) + 5 * 0.14);
+      c.expect(slot.TINGGI_HURUF_MM === 3.15 && Math.abs(tinggiHuruf - 3.15) < 0.01, `the wordmark's cap height is ${tinggiHuruf.toFixed(3)} mm, not 3.15`);
+      c.expect(lebarSlot >= 15, `the wordmark is ${lebarSlot.toFixed(1)} mm wide, under the 15 mm print minimum`);
+      c.note(`wordmark ${lebarSlot.toFixed(1)} mm wide, cap height ${tinggiHuruf.toFixed(2)} mm`);
+      c.expect(/import \{ NAMA_MEREK \} from "@\/components\/MerekPintar"/.test(merek) && /\{NAMA_MEREK\}/.test(merek) && !/<img\b|\/brand\//.test(merek),
+        "the slot does not set the text wordmark «PINTAR» (D-192), or still places an image");
       const mk = dari(".pin-sheet .pin-s-merek");
-      const mki = dari(".pin-sheet .pin-s-merek img");
-      c.expect(mk.width === "var(--merek-slot-lebar)" && mk.height === "var(--merek-slot-tinggi)" && mk.display === "block",
-        `the slot's box is not the wordmark's: ${JSON.stringify(mk)}`);
-      c.expect(mki.width === "var(--merek-lebar)" && mki.height === "auto", `the artwork is not sized by one width only: ${JSON.stringify(mki)}`);
+      c.expect(mk["font-family"] === "var(--font-wordmark)" && mk["font-size"] === "var(--merek-ukuran)" && mk.color === "var(--merek-warna)"
+        && mk["font-weight"] === "700" && mk.display === "block",
+        `the slot is not the wordmark in its face, size and teal: ${JSON.stringify(mk)}`);
+      c.expect(/--font-wordmark: Arial, Helvetica, sans-serif;/.test(globals) && /--merek-warna: #075056;/.test(globals),
+        "the wordmark's face is not the device's Arial stack, or its colour is not #075056 (D-192)");
       const kartu = kode(baca(ctx.repoRoot, KARTU));
       c.expect(/import MerekSertifikat from "\.\/MerekSertifikat"/.test(kartu) && (kartu.match(/<MerekSertifikat \/>/g) ?? []).length === 1
         && !/<img\b/.test(kartu) && !/MerekPintar|KakiPintar/.test(kartu),
@@ -392,8 +395,9 @@ export const b6cTests: SelfTest[] = [
       if (!c.expect(galat === "", `the sheet could not be rendered: ${galat}`)) return c.verdict("");
       const a = html[0];
       const img = [...a.matchAll(/<img\b[^>]*>/g)].map((m) => m[0]);
-      c.expect(img.length === 1 && /src="\/brand\/pintar-selalu-logo\.png"/.test(img[0]) && a.indexOf("<img") > a.indexOf("pin-s-merek"),
-        `the sheet's images are not the wordmark slot alone: ${JSON.stringify(img)}`);
+      // RESTATED FOR D-192: the wordmark is text, so the sheet draws no image at all (no photograph, no school mark, no logo)
+      c.expect(img.length === 0 && /<span class="pin-s-merek"[^>]*>PINTAR<\/span>/.test(a),
+        `the sheet draws an image, or its wordmark is not the text «PINTAR»: ${JSON.stringify(img)}`);
       const svg = [...a.matchAll(/<svg\b[^>]*>/g)];
       c.expect(svg.length === 1 && a.lastIndexOf("<svg") > a.indexOf("pin-s-qr"), "the sheet draws a picture other than the QR");
       c.expect(!/logo\.png"[^>]*sekolah|sekolah\.example|bagas\.jpg|<image\b|<picture\b|<canvas\b|background-image/.test(a), "the sheet carries a school logo or a photograph");

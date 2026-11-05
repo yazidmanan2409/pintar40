@@ -31,23 +31,19 @@
   border-bottom: 1px solid var(--line);
   background: var(--surface-1);
 }
-/* ------------------------------------------------------------------- the mark
-   THE SUPPLIED ARTWORK, UNTOUCHED. 766 x 429, fully opaque, two full-bleed
-   bands — pale above, dark below. It carries its own ground, so it reads as a
-   block on any surface; that is the logo, not a mistake to design around, and
-   clear space is what makes a block read as a mark rather than as a stray
-   image.
-
-   HEIGHT ONLY, NEVER WIDTH. The intrinsic ratio supplies the width, so there
-   is no pair of values here that could drift apart and squash the letterforms.
-   UX1-BRAND-01 fails if this rule ever sets both. */
+/* THE WORDMARK (D-192): the word «PINTAR», text only, in the device's sans-serif, bold, teal #075056, with the
+   wordmark's tracking. Each surface sets the box it had (--merek-tinggi, the height the artwork filled); the letters
+   are half of it and centred in it by its line, so no caller's layout moves. The tracking after the last letter is
+   taken back (margin-right), so the word's box ends at the R. UX1-BRAND-01 holds these. */
 .pin-merek {
-  height: var(--logo-height);
-  width: auto;
-  display: block;
-  flex: none;
+  --merek-tinggi: var(--logo-height);
+  display: block; flex: none; width: auto;
+  height: var(--merek-tinggi); line-height: var(--merek-tinggi);
+  font-family: var(--font-wordmark); font-size: calc(var(--merek-tinggi) * 0.5); font-weight: 700;
+  letter-spacing: var(--tracking-wordmark); margin-right: calc(var(--tracking-wordmark) * -1);
+  color: var(--merek-warna); white-space: nowrap;
 }
-.pin-merek-standalone { height: var(--logo-height-standalone); }
+.pin-merek-standalone { --merek-tinggi: var(--logo-height-standalone); }
 
 .pin-wordmark {
   font-size: var(--type-fine); font-weight: var(--weight-strong);
@@ -443,15 +439,13 @@
   letter-spacing: var(--cert-ls-kepala); word-spacing: var(--cert-ws-label); text-transform: uppercase;
   white-space: nowrap; color: var(--cert-aksen);
 }
-/* The slot is the wordmark's letters (3.15 mm cap height, ≥ 15 mm wide); its box has no text, so its baseline is
-   its bottom edge, on the title's. The artwork's own ground lies outside it. One width, never a height. */
+/* The slot is the wordmark (D-192): «PINTAR» as text, its size set by MerekSertifikat (--merek-ukuran, 3.15 mm of
+   cap height), on the title's baseline by the header's baseline alignment. */
 .pin-sheet .pin-s-merek {
-  position: relative; display: block; flex: none;
-  width: var(--merek-slot-lebar); height: var(--merek-slot-tinggi);
-}
-.pin-sheet .pin-s-merek img {
-  position: absolute; left: var(--merek-kiri); top: var(--merek-atas);
-  width: var(--merek-lebar); height: auto; max-width: none; display: block;
+  display: block; flex: none; white-space: nowrap;
+  font-family: var(--font-wordmark); font-size: var(--merek-ukuran); line-height: var(--leading-none); font-weight: 700;
+  letter-spacing: var(--tracking-wordmark); margin-right: calc(var(--tracking-wordmark) * -1);
+  color: var(--merek-warna);
 }
 
 /* ACHIEVEMENT: centred between the header and the record; only this block re-centres */
@@ -687,7 +681,7 @@
   /* One step down on a phone: the header row here carries only the mark and
      the language switch, and 36px made the row taller than the tab strip below
      it without buying any legibility. */
-  .pin-top .pin-merek { height: var(--logo-height-phone); margin-block: 10px; }
+  .pin-top .pin-merek { --merek-tinggi: var(--logo-height-phone); margin-block: 10px; }
   .pin-top .pin-lang { margin-left: auto; }
   .pin-top .pin-sub { display: none; }
   /* The session strip gets its own row, between the mark and the tabs, so it
@@ -1867,7 +1861,7 @@ a.pin-tautan { display: inline-flex; align-items: center; }
   }
   /* The mark at the size the verification page already uses. At 36px the
      artwork drew about 64px wide, small for the one screen everybody sees. */
-  .pin-authtop .pin-merek { height: var(--logo-height-standalone); }
+  .pin-authtop .pin-merek { --merek-tinggi: var(--logo-height-standalone); }
   .pin-form, .pin-phonesay { max-width: var(--measure-auth-wide); }
   .pin-phonesay { display: none; }
   .pin-vis { display: block; order: 2; min-height: var(--vis-band); }
@@ -2674,14 +2668,16 @@ a.pin-tautan { display: inline-flex; align-items: center; }
   background: var(--kp-emas);
 }
 /* THE WORDMARK SLOT (§L): the 6 mm margin, cap top 5.57 mm, cap height 2.9 mm,
-   16.4 mm wide. Today's approved logo sits in it at the slot's height, its
-   width its own (D-160(a)); MerekKartu.tsx is the one-file swap. */
+   about 16.4 mm wide. The text wordmark (D-192) is set at that cap height:
+   Arial's capitals are 0.716 of its size (2.9 / 0.716 = 4.05 mm), and the
+   line is drawn up by the space above its capitals (0.13 of the size) so the
+   cap top meets the slot's top. MerekKartu.tsx is the one-file swap. */
 .pin-kd-merek {
   position: absolute; left: calc(var(--kp-mm) * 6); top: calc(var(--kp-mm) * 5.57);
   width: calc(var(--kp-mm) * 16.4); height: calc(var(--kp-mm) * 2.9);
   display: flex; align-items: flex-start;
 }
-.pin-kd-merek .pin-merek { height: 100%; }
+.pin-kd-merek .pin-merek { height: auto; line-height: var(--leading-none); font-size: calc(var(--kp-mm) * 4.05); margin-top: -0.13em; }
 /* above the line, what is permanent: the name and the PINTAR ID stand 4.4 mm over the line and grow upward */
 .pin-kd-orang {
   position: absolute; left: calc(var(--kp-mm) * 6); width: calc(var(--kp-mm) * (85.6 - 2 * 6));
@@ -3070,7 +3066,7 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
     height: auto; min-height: var(--shell-bar); padding: 0 var(--space-2) 0 var(--space-4);
     background: var(--surface-0);
   }
-  .pin-staf .pin-merek { height: var(--logo-height-phone); }
+  .pin-staf .pin-merek { --merek-tinggi: var(--logo-height-phone); }
   .pin-staf-kepala { order: 0; display: flex; align-items: center; min-height: var(--shell-bar); }
   /* W6.4: the page's name wraps onto a second line rather than being cut off: at 320 px, beside the logo and the menu
      button, it has about 78 px, and «Laporkan masalah», «Konfigurasi» or «Ringkasan Kelas» lost their ends */

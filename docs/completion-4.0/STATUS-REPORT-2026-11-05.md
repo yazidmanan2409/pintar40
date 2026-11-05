@@ -104,7 +104,8 @@ authorisation.
 ### 3.2 Waiting on the owner (decisions and actions)
 
 **K1–K7 are closed for development (D-191, 5 Nov).** What still needs an outside party is tracked on its own item
-(§3.3, F-11 at release, E-K6-1 and E-K6-2 for real content).
+(§3.3, E-K6-1 and E-K6-2 for real content). K4 and F-11 are closed by D-192: the wordmark is text, Arial and #075056, no font
+or asset to buy.
 
 | # | Decision or action | What it unblocks | Where |
 |---|---|---|---|

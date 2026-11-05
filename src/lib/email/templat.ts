@@ -55,8 +55,8 @@ export const JENIS_EMAIL: readonly JenisEmail[] = [
 export type KonteksEmail = {
   /**
    * The app's own origin, e.g. "https://staging.pintarselalu.com", with no
-   * trailing slash. Absolute links and each environment's own email logo are
-   * built from it (DAISY-19 ruling 2): `${konteks.asal}/brand/...`.
+   * trailing slash. Absolute links are built from it. (D-192: the email logo it
+   * once also built is gone; the header is the text wordmark.)
    */
   readonly asal: string;
   /**

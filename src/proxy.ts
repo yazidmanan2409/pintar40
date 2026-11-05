@@ -302,9 +302,11 @@ function alamatTerkunci(request: NextRequest): URL {
   return url;
 }
 
-// public/brand and public/fonts are what the anonymous pages themselves load.
-// Gated, a stranger at /masuk was redirected instead of sent the logo and fonts.
-// The trailing slashes keep the exemption to those two folders (F01-R08).
+// public/fonts is what the anonymous pages themselves load (and the learner's
+// offline probe, ALAMAT_PERIKSA). Gated, a stranger at /masuk was redirected
+// instead of sent the fonts. The trailing slash keeps the exemption to that one
+// folder (F01-R08). D-192: public/brand held the logo artwork, now gone, so its
+// exemption is gone too.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand/|fonts/).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|fonts/).*)"],
 };

@@ -294,21 +294,25 @@ export const b6kTests: SelfTest[] = [
       if (!c.expect(kartu.length > 0 && merek.length > 0, "there is no Digital Card component or wordmark slot (src/components/kartu/)")) return c.verdict("");
       c.expect((kartu.match(/<MerekKartu \/>/g) ?? []).length === 1 && /import MerekKartu from "\.\/MerekKartu";/.test(kartu), "the card does not draw the wordmark through MerekKartu, once");
       c.expect(!/MerekPintar|<img|brand\//.test(kartu), "the card names the logo itself instead of the slot component");
-      c.expect(/<span className="pin-kd-merek">\s*<MerekPintar \/>\s*<\/span>/.test(merek), "the slot does not hold today's approved logo (MerekPintar)");
+      c.expect(/<span className="pin-kd-merek">\s*<MerekPintar \/>\s*<\/span>/.test(merek), "the slot does not hold the wordmark (MerekPintar)");
       const mounts = jalan(join(repoRoot, "src")).filter((f) => /\.tsx$/.test(f) && /<MerekKartu/.test(kode(readFileSync(f, "utf8")))).map((f) => relative(repoRoot, f));
       c.expect(mounts.length === 1, `the wordmark slot is mounted in ${mounts.join(", ")}`);
       const css = CSS(repoRoot);
       const slot = aturan(css, ".pin-kd-merek");
       c.expect(ada(slot, /left: calc\(var\(--kp-mm\) \* 6\); top: calc\(var\(--kp-mm\) \* 5\.57\)/) && ada(slot, /width: calc\(var\(--kp-mm\) \* 16\.4\); height: calc\(var\(--kp-mm\) \* 2\.9\)/),
         "the slot is not the wordmark's (6 mm, cap top 5.57 mm, 16.4 × 2.9 mm)");
-      const img = aturan(css, ".pin-kd-merek .pin-merek");
-      c.expect(ada(img, /height: 100%/) && !/width/.test(img), "the logo in the slot is not sized by height alone (its ratio would be distorted)");
+      // RESTATED FOR D-192 (owner, 5 Nov: a text-only PINTAR wordmark replaces the supplied logo on every surface, the
+      // Digital Card named): the slot holds the text «PINTAR» at the slot's cap height (2.9 mm / Arial's 0.716 = 4.05 mm),
+      // its cap top drawn to the slot's top, never given a width; no image
+      const mk = aturan(css, ".pin-kd-merek .pin-merek");
+      c.expect(ada(mk, /font-size: calc\(var\(--kp-mm\) \* 4\.05\)/) && ada(mk, /margin-top: -0\.13em/) && !/width/.test(mk),
+        `the wordmark in the slot is not set at the slot's cap height: ${mk}`);
       const { html, galat } = gambar(repoRoot, [{ komponen: "KartuPintar", props: { locale: "id", kartu: KARTU } }]);
       if (c.expect(galat === "", `the card could not be rendered: ${galat}`)) {
-        c.expect(/<span class="pin-kd-merek"><img src="\/brand\/pintar-selalu-logo\.png"/.test(html[0]), "the rendered slot does not hold the approved logo");
-        c.expect(!/>PINTAR</.test(html[0]) && !/>PINTAR SELALU</.test(html[0]), "the wordmark is set as live text on the card");
+        c.expect(/<span class="pin-kd-merek"><span class="pin-merek">PINTAR<\/span><\/span>/.test(html[0]), "the rendered slot does not hold the text wordmark «PINTAR»");
+        c.expect(!/<img\b|\/brand\//.test(html[0]), "the card still draws the retired logo image");
       }
-      return c.verdict("the card's wordmark is one replaceable component (MerekKartu), mounted once, holding today's approved logo in the wordmark's exact slot (6 mm, cap top 5.57 mm, 16.4 × 2.9 mm), sized by height alone; never live text");
+      return c.verdict("the card's wordmark is one replaceable component (MerekKartu), mounted once, holding the text wordmark «PINTAR» (D-192) in the wordmark's exact slot (6 mm, cap top 5.57 mm, 16.4 × 2.9 mm) at its cap height, never given a width; no image");
     },
   },
   {
@@ -329,11 +333,12 @@ export const b6kTests: SelfTest[] = [
       if (c.expect(galat === "", `the card could not be rendered: ${galat}`)) {
         const x = html[0];
         const img = [...x.matchAll(/<img\b[^>]*>/g)].map((m) => m[0]);
-        c.expect(img.length === 1 && /src="\/brand\/pintar-selalu-logo\.png"/.test(img[0]), `the card draws an image other than the wordmark slot's: ${img.join(" ")}`);
+        // RESTATED FOR D-192: the wordmark is text, so the card draws no image at all
+        c.expect(img.length === 0, `the card draws an image: ${img.join(" ")}`);
         c.expect((x.match(/<svg\b/g) ?? []).length === 1 && !/<image\b|<picture\b|background-image|url\(/.test(x), "the card draws something other than the QR");
         c.expect(!/foto|profile\//.test(x), "a photograph planted in the data reaches the card");
       }
-      return c.verdict("no card file reaches a photograph, the card takes only the page's language and the card's data, and rendered (even with a photograph planted in its data) its only image is the wordmark slot's logo and its only drawing the QR");
+      return c.verdict("no card file reaches a photograph, the card takes only the page's language and the card's data, and rendered (even with a photograph planted in its data) it draws no image (its wordmark is text, D-192) and its only drawing is the QR");
     },
   },
   {

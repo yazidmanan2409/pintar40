@@ -1521,61 +1521,35 @@ export const experienceTests: SelfTest[] = [
     requires: [],
     run: async ({ repoRoot }) => {
       const c = new Checks();
-      const rel = "public/brand/pintar-selalu-logo.png";
-      const file = join(repoRoot, rel);
-      c.expect(existsSync(file), `the supplied logo asset is missing: ${rel}`);
-      if (!existsSync(file)) return c.verdict("the mark");
-
-      // 1. IT IS THE SUPPLIED FILE, BYTE FOR BYTE. Not redrawn, not recoloured,
-      //    not cropped, not re-encoded, not "optimised". A digest is the only
-      //    check that catches a well-meant recompression, which is exactly the
-      //    kind of change that looks like nothing and alters artwork somebody
-      //    else owns.
-      const bytes = readFileSync(file);
-      const SUPPLIED_SHA256 = "0e85e80fb232b299016f3d363102823686a7489e86cb957cfbe0e48128a86463";
-      const sha = createHash("sha256").update(bytes).digest("hex");
-      c.expect(
-        sha === SUPPLIED_SHA256,
-        `the logo asset is not the file Yazid supplied:\n  expected ${SUPPLIED_SHA256}\n  found    ${sha}`,
-      );
-
-      // 2. and its intrinsic geometry, read from the PNG header rather than
-      //    trusted, so a resize is caught even if somebody updates the digest
-      c.expect(bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])),
-        "the logo asset is not a PNG");
-      const w = bytes.readUInt32BE(16);
-      const h = bytes.readUInt32BE(20);
-      c.expect(w === 766 && h === 429, `the artwork is ${w}x${h}; the supplied file is 766x429`);
-      const ratio = w / h;
-
-      // 3. THE RENDERING CANNOT DISTORT IT. The rule sets a height and never a
-      //    width; the intrinsic ratio supplies the rest. A rule that set both
-      //    could squash the letterforms, and no amount of care in review
-      //    catches a squash of a few per cent.
+      // RESTATED FOR D-192 (owner, 5 Nov 2026: «STOP using the previously supplied PINTAR SELALU logo… Replace it
+      // with a text-only PINTAR wordmark… Arial… #075056… Do not introduce new logo images, paid fonts or licensing
+      // dependencies»). Steps 1–3 guarded the supplied artwork byte for byte; it is retired, so they now guard what
+      // replaced it: the artwork is gone from the tree, the mark is the word «PINTAR» as text, in the device's Arial
+      // stack (no font file bundled), bold, #075056, sized from one token so no surface can squash or recolour it.
+      const w = 0, h = 0, ratio = 0;
+      const bytes = Buffer.alloc(0);
+      c.expect(!existsSync(join(repoRoot, "public", "brand", "pintar-selalu-logo.png"))
+        && !existsSync(join(repoRoot, "public", "brand", "pintar-email-logo.png")), "the supplied logo artwork is still in public/brand/");
       const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
+      const globals = readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8");
+      c.expect(/--font-wordmark: Arial, Helvetica, sans-serif;/.test(globals) && /--merek-warna: #075056;/.test(globals),
+        "the wordmark's face is not the device's Arial stack, or its colour is not #075056");
+      const fonts = walk(join(repoRoot, "public")).filter((f) => /\.(woff2?|ttf|otf|eot)$/i.test(f)).map((f) => relative(repoRoot, f));
+      c.expect(fonts.every((f) => /plus-jakarta-sans|ibm-plex-mono/.test(f)), `a font file other than the two OFL faces is shipped: ${fonts.join(", ")}`);
       const rule = /\.pin-merek\s*\{([^}]*)\}/.exec(css);
       c.expect(rule !== null, "there is no .pin-merek rule to check");
       if (rule) {
-        c.expect(/height:\s*var\(--logo-height\)/.test(rule[1]), ".pin-merek does not take its height from a token");
-        c.expect(/width:\s*auto/.test(rule[1]), ".pin-merek does not leave its width to the artwork");
-        // Every width declaration in the rule must be `auto`. A negative
-        // lookahead here reads well and is wrong: `\s*` backtracks to zero and
-        // the guard passes on `width: auto` itself, so the check never fires.
-        const widths = [...rule[1].matchAll(/width:\s*([^;]+)/g)].map((m) => m[1].trim());
-        c.expect(
-          widths.every((v) => v === "auto"),
-          `.pin-merek sets a width (${widths.join(", ")}); the artwork would be distorted`,
-        );
+        c.expect(/--merek-tinggi:\s*var\(--logo-height\)/.test(rule[1]) && /font-size:\s*calc\(var\(--merek-tinggi\) \* 0\.5\)/.test(rule[1]),
+          ".pin-merek does not size its letters from the one token");
+        c.expect(/font-family:\s*var\(--font-wordmark\)/.test(rule[1]) && /color:\s*var\(--merek-warna\)/.test(rule[1]) && /font-weight:\s*700/.test(rule[1]),
+          ".pin-merek is not the wordmark's face, weight and teal");
+        const widths = [...rule[1].matchAll(/(?:^|[;\s])width:\s*([^;]+)/g)].map((m) => m[1].trim());
+        c.expect(widths.every((v) => v === "auto"), `.pin-merek sets a width (${widths.join(", ")}); the letters would be squeezed`);
       }
       const component = code(readFileSync(join(repoRoot, "src", "components", "MerekPintar.tsx"), "utf8"));
       c.expect(!/style=\{\{/.test(component), "the mark carries an inline style; sizing belongs in the token rule");
-      c.expect(/alt=\{NAMA\}/.test(component) && /NAMA = "PINTAR SELALU"/.test(component),
-        "the mark does not carry its own name as alternative text");
-      // the intrinsic attributes must match the file, or the reserved box is
-      // the wrong shape and the header shifts as the image lands
-      c.expect(new RegExp(`INTRINSIC_WIDTH = ${w}\\b`).test(component)
-        && new RegExp(`INTRINSIC_HEIGHT = ${h}\\b`).test(component),
-        `the component's intrinsic dimensions do not match the file's ${w}x${h}`);
+      c.expect(/NAMA_MEREK = "PINTAR"/.test(component) && /\{NAMA_MEREK\}/.test(component) && !/<img\b|brand\//.test(component),
+        "the mark is not the text «PINTAR», or still draws an image");
 
       // 4. NOT AS THE CREDENTIAL'S ISSUER. The certificate's issuer is the
       //    INSTITUTION, named in «Diterbitkan oleh». RESTATED, B6C (Batch 6):
@@ -1601,13 +1575,13 @@ export const experienceTests: SelfTest[] = [
         .map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
       c.expect(mounts.length >= 2, `the mark is mounted on only ${mounts.length} surface(s)`);
 
-      c.note(`${w}x${h}, ratio ${ratio.toFixed(4)}, ${bytes.length} bytes, digest verified, ${mounts.length} mount(s)`);
+      void w; void h; void ratio; void bytes;
+      c.note(`text wordmark, ${mounts.length} mount(s)`);
       return c.verdict(
-        "the mark rendered by the application is the supplied artwork in public/brand/pintar-selalu-logo.png " +
-          "byte for byte -- verified by sha256, so a recompression or a resize fails -- its intrinsic geometry " +
-          "is read from the PNG header rather than trusted, the style rule sets a height and never a width so " +
-          "the letterforms cannot be squashed, and a printed credential carries it only in its one wordmark slot (D-120 Q16, D-160(a)), " +
-          "never as the shell mark or the issuer",
+        "the mark rendered by the application is the text wordmark «PINTAR» (D-192): the supplied artwork is gone from public/brand/, " +
+          "the face is the device's Arial stack with no font file bundled beyond the two OFL faces, the colour is #075056, the " +
+          "letters are sized from one token and never given a width, and a printed credential carries it only in its one wordmark slot " +
+          "(D-120 Q16), never as the shell mark or the issuer",
       );
     },
   },
@@ -2145,14 +2119,16 @@ export const experienceTests: SelfTest[] = [
       // 4. and the default is still the default: one component renders the
       //    shell identity, so the future substitution has one place to happen
       const mark = readFileSync(join(repoRoot, "src", "components", "MerekPintar.tsx"), "utf8");
-      c.expect(/pintar-selalu-logo\.png/.test(mark), "the default mark is no longer the PINTAR SELALU logo");
+      // RESTATED FOR D-192: the default is the text wordmark; MerekPintar is still its one renderer (the certificate and
+      // the card take its word from it), so an institution mark would still substitute in one place
+      c.expect(/export const NAMA_MEREK = "PINTAR"/.test(mark), "the default mark is no longer the PINTAR wordmark");
       const renderers = experience
         .filter((f) => /\.tsx$/.test(f))
-        .filter((f) => /brand\/[a-z-]+\.png/.test(code(readFileSync(f, "utf8"))))
+        .filter((f) => /className=\{?[`"]pin-merek\b/.test(code(readFileSync(f, "utf8"))) || /brand\/[a-z-]+\.png/.test(code(readFileSync(f, "utf8"))))
         .map((f) => relative(repoRoot, f).replace(/\\/g, "/"));
       c.expect(
         renderers.length === 1 && renderers[0] === "src/components/MerekPintar.tsx",
-        `the brand asset is referenced from ${renderers.length} component(s); the shell identity must have ` +
+        `the shell mark is drawn by ${renderers.length} component(s); the shell identity must have ` +
           `exactly one renderer so an institution mark substitutes in one place: ${renderers.join(", ")}`,
       );
 
@@ -8083,9 +8059,10 @@ export const experienceTests: SelfTest[] = [
         for (const s of scopes) {
           pad = padInline(aturan(".pin-auth", s)) ?? pad;
           measure = aturan(".pin-form", s)["max-width"] ?? measure;
-          logo = aturan(".pin-authtop .pin-merek", s).height ?? logo;
+          // RESTATED FOR D-192: the text wordmark's box is set by --merek-tinggi (it was the artwork's height)
+          logo = aturan(".pin-authtop .pin-merek", s)["--merek-tinggi"] ?? logo;
         }
-        logo ??= aturan(".pin-merek", null).height;
+        logo ??= aturan(".pin-merek", null)["--merek-tinggi"];
 
         let col = W;
         if (W >= 1024) {

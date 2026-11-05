@@ -21,7 +21,7 @@
  *            school administrator. (The policies return the same rows either way; unnamed, every row of every school
  *            is checked: 1,979 ms against 15 ms for the audit trail as gs-001's administrator on staging.)
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import * as terjadwal from "../src/lib/bantuan-terjadwal";
 import { ALAMAT_PERIKSA, SELISIH_MS, jedaAwal, jedaBantuan, periksaSaatLuring } from "../src/lib/bantuan-terjadwal";
@@ -74,7 +74,9 @@ export const effTests: SelfTest[] = [
       stop3();
       c.expect(gagal >= 2 && pulih2 === 0, "a probe that throws is taken as recovery or stops the probing");
       const proxy = readFileSync(join(repoRoot, "src", "proxy.ts"), "utf8");
-      c.expect(ALAMAT_PERIKSA.startsWith("/brand/") && /\(\?!_next\/static\|_next\/image\|favicon\.ico\|brand\/\|fonts\/\)/.test(proxy),
+      // RESTATED FOR D-192: the logo it fetched is gone and /brand/ is no longer exempt; the probe is a file in public/fonts/
+      c.expect(ALAMAT_PERIKSA.startsWith("/fonts/") && existsSync(join(repoRoot, "public", ALAMAT_PERIKSA))
+        && /\(\?!_next\/static\|_next\/image\|favicon\.ico\|fonts\/\)/.test(proxy),
         "the probe is not a static file outside the proxy's matcher (it would cost a session check)");
 
       // 2b. item 17: an answer the page holds sends no help check; holding it is not a receipt

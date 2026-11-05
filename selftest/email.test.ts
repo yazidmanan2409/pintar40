@@ -32,7 +32,7 @@ import { Checks, type SelfTest } from "./lib";
 import { t, format, allKeys, telling, INTERNAL_WORDS, type HleEvent } from "../src/lib/hle";
 import type { KonteksEmail, Templat } from "../src/lib/email/templat";
 import {
-  bingkaiEmail, tampilKode, tautanAman, logoEmail, BERKAS_LOGO, WARNA, KONTAK, RANAH, BADAN_HUKUM, type Email,
+  bingkaiEmail, tampilKode, tautanAman, asalEmail, WARNA_MEREK, WARNA, KONTAK, RANAH, BADAN_HUKUM, type Email,
 } from "../src/components/email/bingkai";
 import { templatUjiPengiriman } from "../src/components/email/uji";
 import { templatKode, templatKartu } from "../src/components/email/identitas";
@@ -209,7 +209,8 @@ export const emailTests: SelfTest[] = [
         && !html.slice(html.indexOf('class="pin-kaki"')).includes(CONTOH.kode.alasan!), "an email's own reason is not directly under its heading, or the footer still repeats it");
       c.expect(hasil[2].e.html.includes(t("email.bingkai.alasan", "public")), "an email without its own reason does not get the frame's default");
       c.expect(hasil[2].e.html.includes(t("email.bingkai.cadangan", "public")), "the button's copy-the-address line is not the copy table's");
-      c.expect(/alt="PINTAR"/.test(html) && t("email.bingkai.merek", "public") === "PINTAR", "the logo's alt is not the wordmark");
+      // RESTATED FOR D-192: the header is the text wordmark itself, not an image's alternative text
+      c.expect(/<span class="pin-merek-teks"[^>]*>PINTAR<\/span>/.test(html) && t("email.bingkai.merek", "public") === "PINTAR", "the header is not the wordmark «PINTAR»");
       c.expect(html.includes(`mailto:${KONTAK}`), "the footer does not give PINTAR's address");
 
       // 4. AA CONTRAST for every text pair, light and dark (the staging line too)
@@ -308,19 +309,21 @@ export const emailTests: SelfTest[] = [
       const bingkaiSrc = readFileSync(join(repoRoot, "src", "components", "email", "bingkai.ts"), "utf8");
       c.expect(!/process\.env|server-only|nodemailer|kirimEmail/.test(bingkaiSrc + src), "the frame reads configuration or sends");
 
-      // 2. THE LOGO IS THE ENVIRONMENT'S OWN (ruling 2), and it exists
-      c.expect(logoEmail(STAGING) === `https://staging.pintarselalu.com${BERKAS_LOGO}`, `staging's logo is ${logoEmail(STAGING)}`);
-      c.expect(logoEmail(PRODUKSI) === `https://app.pintarselalu.com${BERKAS_LOGO}`, `production's logo is ${logoEmail(PRODUKSI)}`);
-      c.expect(logoEmail({ asal: "https://staging.pintarselalu.com/", staging: true }) === `https://staging.pintarselalu.com${BERKAS_LOGO}`, "a trailing slash doubles the path");
-      c.expect(uji({ waktu: WAKTU }, STAGING).html.includes(`src="https://staging.pintarselalu.com${BERKAS_LOGO}"`) && !uji({ waktu: WAKTU }, STAGING).html.includes("app.pintarselalu.com/brand"),
-        "a staging email loads a logo that is not staging's");
-      const berkas = join(repoRoot, "public", BERKAS_LOGO);
-      if (c.expect(existsSync(berkas), `${BERKAS_LOGO} is not in public/`)) {
-        const png = readFileSync(berkas);
-        const [w, h] = [png.readUInt32BE(16), png.readUInt32BE(20)];
-        c.expect(png.subarray(1, 4).toString() === "PNG" && w === 208 && h === 116, `the email logo is ${w} × ${h}, not 208 × 116 (2× its 104 × 58)`);
-        c.expect(png.length < 20_000, `the email logo is ${png.length} bytes; it should be small`);
+      // 2. RESTATED FOR D-192 (owner, 5 Nov: the supplied logo is no longer used; a text-only PINTAR wordmark, Arial,
+      // #075056). Ruling 2's environment logo is gone with it: the header is the text wordmark, no email loads an image,
+      // and no logo file is left in public/ to load. The frame still checks the environment's origin (asalEmail).
+      for (const [nama, e] of Object.entries(CONTOH)) {
+        for (const k of [STAGING, PRODUKSI]) {
+          const h = bingkaiEmail(e, k).html;
+          c.expect(!/<img\b/.test(h) && !/\/brand\//.test(h), `${nama}: an email loads an image or a /brand/ file`);
+          c.expect(new RegExp(`<span class="pin-merek-teks" style="[^"]*font-family:Arial, Helvetica, sans-serif;[^"]*font-weight:700;[^"]*color:${WARNA_MEREK};">PINTAR</span>`).test(h),
+            `${nama}: the header is not the text wordmark «PINTAR» in Arial and ${WARNA_MEREK}`);
+        }
       }
+      c.expect(WARNA_MEREK === "#075056", `the wordmark's colour is ${WARNA_MEREK}, not #075056`);
+      c.expect(!existsSync(join(repoRoot, "public", "brand", "pintar-email-logo.png")) && !existsSync(join(repoRoot, "public", "brand", "pintar-selalu-logo.png")),
+        "the supplied logo files are still in public/brand/");
+      c.expect(asalEmail({ asal: "https://staging.pintarselalu.com/", staging: true }) === "https://staging.pintarselalu.com/", "a trailing slash doubles");
 
       // 3. THE TEST LINE (ruling 3): on every staging email, in both bodies; never on production
       const garisUji = t("email.bingkai.uji", "public");
@@ -345,14 +348,14 @@ export const emailTests: SelfTest[] = [
       for (const buruk of ["http://pintarselalu.com/masuk", "javascript:alert(1)", "//app.pintarselalu.com", "https://app pintar"]) {
         c.expect(menolak(() => tautanAman(buruk)), `the unsafe link ${buruk} is accepted`);
       }
-      c.expect(menolak(() => logoEmail({ asal: "http://staging.pintarselalu.com", staging: true })), "a plain-http origin that is not local is accepted");
-      c.expect(!menolak(() => logoEmail(LOKAL)) && !menolak(() => tautanAman("http://localhost:3000/masuk")), "the local sink's origin is refused");
+      c.expect(menolak(() => bingkaiEmail(CONTOH.kode, { asal: "http://staging.pintarselalu.com", staging: true })), "a plain-http origin that is not local is accepted");
+      c.expect(!menolak(() => bingkaiEmail(CONTOH.kode, LOKAL)) && !menolak(() => tautanAman("http://localhost:3000/masuk")), "the local sink's origin is refused");
 
       return c.verdict(
         "templatUjiPengiriman is BOB-25's Templat (src/lib/email/templat.ts) and returns a one-line subject and both bodies in " +
         "its own copy table words, its send time as a row; the sending module's UJI_PENGIRIMAN (src/app/api/_email/uji.ts, the proof " +
-        "route's import) is this framed template and holds no email of its own; nothing in src/components/email reads configuration or sends; the logo is " +
-        `${BERKAS_LOGO} on the environment's own origin (208 × 116 PNG, small), never production's on staging; every staging ` +
+        "route's import) is this framed template and holds no email of its own; nothing in src/components/email reads configuration or sends; the header is " +
+        "the text wordmark «PINTAR» in Arial and #075056 and no email loads an image (D-192; no logo file left in public/); every staging " +
         "email carries the test line at the top of both bodies and no production email does; a code arrives spaced or not " +
         "and is shown «482 913» (4 + 4 for eight digits); a subject with a line break, an empty subject, a non-https link " +
         "and a plain-http origin other than the local sink are all refused",

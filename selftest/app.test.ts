@@ -427,11 +427,12 @@ export const appTests: SelfTest[] = [
     run: async (ctx) => {
       const c = new Checks();
       const base = ctx.appUrl!;
+      // RESTATED FOR D-192: the logo artwork is gone (the wordmark is text), so /masuk loads only the fonts, and /brand/ is
+      // no longer exempt from the session check. The sign-in page must show the text wordmark and load no /brand/ file.
       const html = await (await get(`${base}/masuk`)).text();
-      c.expect(html.includes("/brand/pintar-selalu-logo.png"),
-        "/masuk no longer references /brand/pintar-selalu-logo.png, so this test would prove nothing");
+      c.expect(/<span class="pin-merek[^"]*">PINTAR<\/span>/.test(html) && !html.includes("/brand/"),
+        "/masuk does not show the text wordmark, or still loads a /brand/ file");
       const assets: Array<[string, RegExp]> = [
-        ["/brand/pintar-selalu-logo.png", /^image\/png/],
         ["/fonts/plus-jakarta-sans-latin.woff2", /font\/woff2|octet-stream/],
         ["/fonts/plus-jakarta-sans-latin-ext.woff2", /font\/woff2|octet-stream/],
         ["/fonts/ibm-plex-mono-500-latin.woff2", /font\/woff2|octet-stream/],
@@ -444,16 +445,16 @@ export const appTests: SelfTest[] = [
           `anonymous GET ${path} → ${r.status} ${r.headers.get("location") ?? ""}; expected the file itself`);
         c.expect(type.test(ct), `anonymous GET ${path} served ${ct || "no content-type"}`);
       }
-      // the exemption is those two folders and nothing that merely starts with their names
-      for (const path of ["/brandx", "/fontsx/a", "/konfigurasi", "/studio"]) {
+      // the exemption is that one folder and nothing that merely starts with its name; /brand/ is no longer exempt (D-192)
+      for (const path of ["/brand/pintar-selalu-logo.png", "/fontsx/a", "/konfigurasi", "/studio"]) {
         const r = await get(`${base}${path}`);
         const loc = r.headers.get("location") ?? "";
         c.expect([302, 303, 307, 308].includes(r.status) && /\/masuk(\?|$)/.test(loc),
           `anonymous ${path} → ${r.status} ${loc || "(no redirect)"}; expected a redirect to /masuk`);
       }
       return c.verdict(
-        "an anonymous visitor receives the logo and all four fonts the sign-in page loads, and the exemption " +
-          "stops at public/brand/ and public/fonts/: neighbouring paths and protected routes still redirect to /masuk",
+        "the sign-in page shows the text wordmark and loads no /brand/ file (D-192); an anonymous visitor receives all four fonts it loads, " +
+          "and the exemption stops at public/fonts/: /brand/, a neighbouring path and protected routes redirect to /masuk",
       );
     },
   },

@@ -198,6 +198,7 @@
   --tracking-eyebrow: 0.06em;
   --tracking-wordmark: 0.14em;
   --tracking-tight: -0.02em;
+  --leading-none: 1;     /* D-192: a single line set to its own size (the text wordmark in a slot) */
   --leading-tight: 1.15;
   --leading-body: 1.5;
   /* Sustained reading is looser than interface text; a heading between the
@@ -257,7 +258,7 @@
   --motion-fast: var(--duration-base);   /* v2 alias */
 
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    "Segoe UI", Roboto, Arial, Helvetica, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* ==================================================================== v3
@@ -344,7 +345,8 @@
   --t-identifier: 14px; --t-identifier-lh: 20px; --t-identifier-ls: 0.02em;
   --t-stem: 21px; --t-stem-lh: 32px;
   --t-stem-compact: 19px; --t-stem-compact-lh: 28px;
-  --font-wordmark: "Helvetica Neue", "Neue Helvetica", Helvetica, Arial, sans-serif;
+  --font-wordmark: Arial, Helvetica, sans-serif; /* D-192: the device's own fonts only; no file is bundled */
+  --merek-warna: #075056; /* D-192: the brand teal, the wordmark's colour on every surface */
 }
 
 @theme inline {

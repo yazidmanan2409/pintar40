@@ -28,7 +28,7 @@ import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { format, t, type HleEvent } from "../src/lib/hle";
 import type { KonteksEmail } from "../src/lib/email/templat";
-import { WARNA, logoEmail } from "../src/components/email/bingkai";
+import { WARNA, WARNA_MEREK } from "../src/components/email/bingkai";
 import { templatKode, templatKartu, templatPemulihan, templatPasswordDiubah } from "../src/components/email/identitas";
 import { templatKeamanan } from "../src/components/email/keamanan";
 import type { DataEmailKartu } from "../src/lib/email/identitas";
@@ -171,13 +171,14 @@ export const d1Tests: SelfTest[] = [
         const blok = kartuBlok(e.html);
         c.expect(/^<table class="pin-kartu-pintar" role="presentation"/.test(blok), "the card is not a presentation table");
         const gambar = [...blok.matchAll(/<img\b[^>]*>/g)].map((m) => m[0]);
-        c.expect(gambar.length === 1 && gambar[0].includes(`src="${logoEmail(PRODUKSI)}"`) && gambar[0].includes(`alt="${kata("email.bingkai.merek")}"`),
-          `the card block draws ${gambar.length} image(s), not today's logo alone with its alt «PINTAR»`);
+        // RESTATED FOR D-192: the card's wordmark is the text «PINTAR» in #075056; the block draws no image at all
+        c.expect(gambar.length === 0 && new RegExp(`<span class="pin-merek-kartu" style="[^"]*color:${WARNA_MEREK};">${kata("email.bingkai.merek")}</span>`).test(blok),
+          `the card block draws ${gambar.length} image(s), or its wordmark is not the text «PINTAR» in ${WARNA_MEREK}`);
         c.expect(!/qr|<svg|data:image|tautanId|\/id\/A14CD7ST/i.test(blok), "the card block carries a QR, a drawing or the QR's target");
         c.expect(!/rincian/.test(setelahJudul(e.html).slice(0, e.html.indexOf('class="pin-kaki"'))), "the card email still lays its facts out as detail rows");
         c.expect(teksDari(blok).includes(NAMA) && teksDari(blok).includes("A14C D7ST"), "the card block does not carry the name and the ID 4 + 4 as text");
       }
-      return c.verdict("the card in the email is one presentation table of live text (name, ID 4 + 4, the roles): no QR, no back, no QR target, and no image but today's logo with its alt «PINTAR» (P2 (a)); the detail rows are gone");
+      return c.verdict("the card in the email is one presentation table of live text (name, ID 4 + 4, the roles): no QR, no back, no QR target, and no image: its wordmark is the text «PINTAR» in #075056 (D-192); the detail rows are gone");
     },
   },
   {
@@ -186,13 +187,14 @@ export const d1Tests: SelfTest[] = [
     run: async () => {
       const c = new Checks();
       for (const s of spesimen()) {
-        c.expect(/<img class="pin-merek-teks" src="[^"]+pintar-email-logo\.png" width="104" height="58"/.test(s.e.html), `${s.nama}: the header's logo is not today's 104 × 58 (P3)`);
+        // RESTATED FOR D-192: P3's header logo is replaced by the text wordmark
+        c.expect(/<span class="pin-merek-teks" [^>]*>PINTAR<\/span>/.test(s.e.html) && !/<img\b/.test(s.e.html), `${s.nama}: the header is not the text wordmark «PINTAR», or an image is sent`);
         c.expect(!/master pending|F-11|placeholder/i.test(s.e.html) && !/master pending|F-11/i.test(s.e.teks), `${s.nama}: a design-time placeholder label is sent`);
       }
       const blok = kartuBlok(templatKartu(SATU, PRODUKSI).html);
       c.expect(/<td class="pin-slot-kartu" width="96" height="32"[^>]*style="[^"]*width:96px;height:32px;/.test(blok), "the card's wordmark slot is not 96 × 32");
-      c.expect(/<img [^>]*height="32"[^>]*style="[^"]*height:32px;/.test(blok), "today's logo is not sized by the slot's height");
-      return c.verdict("every email's header keeps today's 104 × 58 logo (P3); the card's slot is 96 × 32 with today's logo sized by its height; no «master pending F-11» label reaches any HTML or plain text");
+      c.expect(/<td class="pin-slot-kartu"[^>]*><span class="pin-merek-kartu" style="[^"]*font-size:13px;line-height:16px;font-weight:700;/.test(blok), "the card's slot does not hold the text wordmark (D-192)");
+      return c.verdict("every email's header is the text wordmark «PINTAR» and no image is sent (D-192); the card's slot is 96 × 32 holding the text wordmark; no «master pending F-11» label reaches any HTML or plain text");
     },
   },
   {
