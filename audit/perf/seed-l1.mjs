@@ -78,7 +78,7 @@ if (!bagian) throw new Error(`no «${BAGIAN}» in the synthetic school (staging-
 const tingkat = node("COHORT", TINGKAT) || await rpc("create_tingkat", { p_bagian_node: bagian, p_name: TINGKAT, p_academic_year: YEAR });
 const kelas = [];
 for (let i = 1; i <= KELAS; i++) {
-  const nama = `Kelas Beban ${pad(i, 2)}`;
+  const nama = `Kelas Beban ${AWALAN}${pad(i, 2)}`;   // class names are unique among siblings (STRUCTURE_NAME_TAKEN, run 42107287870)
   kelas.push({ nama, id: node("CLASS", nama, tingkat) || await rpc("create_kelas", { p_tingkat_node: tingkat, p_name: nama }) });
 }
 say(`structure: «${TINGKAT}» with ${kelas.length} Kelas («${kelas[0].nama}» … «${kelas.at(-1).nama}»)`);
