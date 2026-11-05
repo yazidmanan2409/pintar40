@@ -45,6 +45,11 @@ const ADMIN_ROUND = [
   ["click Antrean Tinjauan", (p) => clickTo(p, "/studio/tinjau")],
   ["click Bank Soal", (p) => clickTo(p, "/studio/bank")],
   ["open Konfigurasi", openKonfigurasi],
+  // B1 (c4e2ffe3, 7863d71b): the school's summary is on Konfigurasi's «Laporan» section, a page of its own
+  ["click Laporan", async (p) => {
+    const a = p.locator('a[data-bagian-ke="laporan"]').first();
+    await a.waitFor({ state: "visible", timeout: SLOW }); await a.click(); await usable(p, "/konfigurasi/laporan");
+  }],
   ["click Ringkasan sekolah", async (p) => {
     const a = p.locator('a[href^="/dekan/ringkasan"]').first();
     await a.waitFor({ state: "visible", timeout: SLOW }); await a.click(); await usable(p, "/dekan/ringkasan");
@@ -69,7 +74,7 @@ const GURU_ROUND = [
 
 async function putNameBack(p) {
   await p.goto(`${APP}/konfigurasi/struktur#struktur`, { timeout: SLOW });
-  await usable(p, "/konfigurasi");
+  await usable(p, "/konfigurasi/struktur");
   const moved = p.locator("strong.pin-str-nama", { hasText: new RegExp(`^${esc(SEMENTARA)}$`) });
   if (await moved.count()) await rename(p, SEMENTARA, BAGIAN);
 }
@@ -105,7 +110,7 @@ async function run(browser, i) {
     }
     if (writer && r % 4 === 0 && Date.now() < closes) {
       await think();
-      await page.goto(`${APP}/konfigurasi/struktur#struktur`, { timeout: SLOW }).then(() => usable(page, "/konfigurasi")).catch(() => {});
+      await page.goto(`${APP}/konfigurasi/struktur#struktur`, { timeout: SLOW }).then(() => usable(page, "/konfigurasi/struktur")).catch(() => {});
       await timed(s, role, "save: Ubah nama", () => rename(page, BAGIAN, SEMENTARA))
         && await timed(s, role, "save: Ubah nama back", () => rename(page, SEMENTARA, BAGIAN));
     }

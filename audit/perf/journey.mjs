@@ -55,6 +55,11 @@ async function admin(browser, rep) {
   await step(page, seen, R, rep, "click Antrean Tinjauan", () => clickTo(page, "/studio/tinjau"));
   await step(page, seen, R, rep, "click Bank Soal", () => clickTo(page, "/studio/bank"));
   await step(page, seen, R, rep, "open Konfigurasi", async () => { await page.goto(`${APP}/konfigurasi`, { timeout: SLOW }); await usable(page, "/konfigurasi"); });
+  // B1 (c4e2ffe3, 7863d71b): the school's summary is on Konfigurasi's «Laporan» section, a page of its own
+  await step(page, seen, R, rep, "click Laporan", async () => {
+    const a = page.locator('a[data-bagian-ke="laporan"]').first();
+    await a.waitFor({ state: "visible", timeout: SLOW }); await a.click(); await usable(page, "/konfigurasi/laporan");
+  });
   await step(page, seen, R, rep, "click Ringkasan sekolah", async () => {
     const a = page.locator('a[href^="/dekan/ringkasan"]').first();
     await a.waitFor({ state: "visible", timeout: SLOW }); await a.click(); await usable(page, "/dekan/ringkasan");
@@ -62,7 +67,7 @@ async function admin(browser, rep) {
   // the save: rename the synthetic school's Bagian and rename it back (Konfigurasi → Struktur sekolah)
   const BAGIAN = "Bagian Uji Kinerja", SEMENTARA = "Bagian Uji Kinerja (diukur)";
   await page.goto(`${APP}/konfigurasi/struktur#struktur`, { timeout: SLOW });
-  await usable(page, "/konfigurasi");
+  await usable(page, "/konfigurasi/struktur");
   await step(page, seen, R, rep, "save: Ubah nama", () => rename(page, BAGIAN, SEMENTARA));
   await step(page, seen, R, rep, "save: Ubah nama back", () => rename(page, SEMENTARA, BAGIAN));
   await ctx.close();
