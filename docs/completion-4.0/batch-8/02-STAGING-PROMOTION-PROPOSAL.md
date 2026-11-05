@@ -3,6 +3,12 @@
 **Status: PROPOSAL ONLY.** Nothing here is authorised yet: no merge, migration or deployment, and no promotion pull
 request. Production is out of scope entirely.
 
+**ADDED 5 Nov, after the review (development resumed, D-190): the branch now carries a third migration, 196**
+(`20261230100000`, W2.17: one new read-only function, `school_people_page`; no table, no column, no row written). If
+the promotion is taken from the current head, staging goes 193 → 196 and the counts below read 196, not 195.
+`ROLLBACK-194-195.sql` now also removes 196 and was re-tested from 196 (196 → 193, re-run no change, `migration up` → 196).
+The rest of this proposal is unchanged; the owner chooses the head.
+
 **Authority:**
 - Owner, 5 Nov: «Authorize preparation of one consolidated staging promotion proposal … Do not authorize the actual
   merge, migration or deployment until that proposal is reviewed.»

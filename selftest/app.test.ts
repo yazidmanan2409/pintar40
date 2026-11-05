@@ -8,6 +8,7 @@
 import { pilihKonteksCookie, pintuDi, tersusun } from "./konteks-uji";
 import { tanpaIsiMateri } from "./isi-materi";
 import { spawnSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createServerClient } from "@supabase/ssr";
 import { Checks, visibleText, type SelfTest, type Context } from "./lib";
@@ -3524,6 +3525,65 @@ export const appTests: SelfTest[] = [
       const tb = sumber("src/components/pelajaran/TautanBerkas.tsx");
       c.expect(/href\.replace\(\/&alih=1\\b\/, ""\)/.test(tb) && /r\.status === 404\) setAda\(false\)/.test(tb) && !/supabase/i.test(tb), "TautanBerkas does not ask the route, or reaches storage itself");
       return c.verdict("for the seeded learner's PDF the read route answers 404 while its file is absent and its address once placed; both the learner's lesson and Studio's preview draw lesson files through TautanBerkas, which asks that route and withdraws the link on a 404, never reaching storage itself (INV-37); the browser half is B5-W8");
+    },
+  },
+  {
+    // W2.17 (FD-4, R.5): NAMES AND READS AT TEN TIMES STAGING'S ENROLMENTS. Staging held 1,323 active enrolments when
+    // FD-4 was found; this seeds 13,300 more into the synthetic Alpha school, then opens the two Konfigurasi pickers that
+    // list a school's people (the transfer form's «from enrolment» and the roles form's person) as Alpha's admin.
+    // Each must find a person by name wherever they lie in the school (the API's 1,000-row cap must not hide anyone),
+    // list no more than a page of 50, and name every option, never an id fragment. The seeded rows are removed after.
+    id: "W217-SKALA-01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const db = process.env.SUPABASE_DB_URL!;
+      const sql = (q: string) => {
+        const r = spawnSync("psql", ["-q", "-v", "ON_ERROR_STOP=1", "-At", "-c", q, db], { encoding: "utf8" });
+        if (r.status !== 0) throw new Error(`psql: ${(r.stderr || "").trim().split("\n").pop()}`);
+        return r.stdout.trim();
+      };
+      const tag = randomBytes(3).toString("hex");
+      const N = 13300;
+      const [sekolah, periode] = sql(`select i.id, (select p.id from public.academic_periods p where p.institution_id = i.id order by p.starts_on desc limit 1)
+        from public.institutions i where i.slug like '%alpha%' and i.is_synthetic order by i.created_at limit 1`).split("|");
+      if (!c.expect(!!sekolah && !!periode, "the synthetic Alpha school or its school year is not seeded")) return c.verdict("");
+      const pola = `W217 ${tag}`;
+      const terakhir = `${pola} ${String(N).padStart(5, "0")}`;
+      try {
+        sql(`with p as (insert into public.persons (display_name) select '${pola} ' || lpad(g::text, 5, '0') from generate_series(1, ${N}) g returning id)
+             insert into public.enrollments (person_id, institution_id, academic_period_id, status) select id, '${sekolah}', '${periode}', 'ACTIVE' from p`);
+        c.expect(Number(sql(`select count(*) from public.enrollments where institution_id = '${sekolah}' and status = 'ACTIVE'`)) > N, "the 13,300 enrolments were not seeded");
+        const admin = await signIn(ctx, PERSONA.alphaAdmin);
+        const pilihan = (html: string, nama: string) => {
+          const m = new RegExp(`<select[^>]*name="${nama}"[^>]*>([\\s\\S]*?)</select>`).exec(html);
+          return m ? [...m[1].matchAll(/<option[^>]*value="([^"]+)"[^>]*>([\s\S]*?)<\/option>/g)].map((x) => visibleText(x[2]).trim()) : null;
+        };
+        for (const [alamat, nama] of [["/konfigurasi/transfers", "from_enrollment"], ["/konfigurasi/roles", "person"]] as const) {
+          const t0 = Date.now();
+          // the transfer form is drawn once its destination school is found by its exact name (W2.15)
+          const tujuan = alamat.endsWith("transfers") ? `&cari_sekolah=${encodeURIComponent("Sekolah Sintetis Beta")}` : "";
+          const r = await get(`${base}${alamat}?cari_orang=${encodeURIComponent(terakhir)}${tujuan}`, { headers: { cookie: admin.cookie } });
+          const ms = Date.now() - t0;
+          const html = await r.text();
+          const o = pilihan(html, nama);
+          c.expect(r.status === 200 && o !== null, `${alamat} → ${r.status}, ${o === null ? `no «${nama}» picker` : "a picker"}`);
+          if (!o) continue;
+          c.expect(o.some((x) => x.startsWith(terakhir)), `${alamat}: the 13,300th person, searched by name, is not offered (${o.length} options; the API's 1,000-row cap hides them)`);
+          c.expect(o.length <= 50, `${alamat}: the picker lists ${o.length} people; at most a page of 50`);
+          c.expect(o.every((x) => !/^[0-9a-f]{8}\b/.test(x)), `${alamat}: an option is named by an id fragment`);
+          const semua = await get(`${base}${alamat}${tujuan.replace(/^&/, "?")}`, { headers: { cookie: admin.cookie } });
+          const os = pilihan(await semua.text(), nama) ?? [];
+          c.expect(os.length <= 50, `${alamat} without a search lists ${os.length} people; at most a page of 50`);
+          console.log(`  W217-SKALA-01 ${alamat}: ${ms} ms with ${N} more enrolments; ${o.length} offered for the name, ${os.length} unsearched`);
+        }
+      } finally {
+        // enrolments are append-only (INV-23): the seeded ones are ended, the one transition allowed, so no later test meets them
+        sql(`update public.enrollments set status = 'ENDED', end_reason = 'WITHDRAWN' where status = 'ACTIVE'
+             and person_id in (select id from public.persons where display_name like '${pola} %')`);
+      }
+      return c.verdict("with 13,300 more active enrolments in one school (10× staging's 1,323), both Konfigurasi pickers that list a school's people (the transfer form's enrolment and the roles form's person) find the last one seeded by name, list at most a page of 50 with or without a search, and name every option, never an id fragment; the seeded enrolments are ended after (append-only, INV-23)");
     },
   },
 ];

@@ -2085,7 +2085,10 @@ export const experienceTests: SelfTest[] = [
       // MOVED 194 -> 195 for W6.10 (D-186): 20261229100000 re-emits may_start_assessment with one added refusal (the Uji
       // Penguasaan waits for the Pemetaan Awal); no table, no column. Read against §3 first: it is not a mark, a logo, a
       // crest or a theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 195, `${migrations.length} migrations; the frozen baseline has 195`);
+      // MOVED 195 -> 196 for W2.17 (FD-4 at 10x staging): 20261230100000 adds school_people_page, a read of a school's
+      // active enrolments with the person's name; no table, no column. Read against §3 first: it is not a mark, a logo, a
+      // crest or a theme, so the Q-7 source still does not exist.
+      c.expect(migrations.length === 196, `${migrations.length} migrations; the frozen baseline has 196`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3899,7 +3902,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 192 -> 193 for Batch 5 (agent B, UX-40): a result's «seen» (result_views) touches no tour RPC.
       // MOVED 193 -> 194 for D-183 (F-4(f)): the exposure marks and their two assignment and sitting guards touch no tour RPC.
       // MOVED 194 -> 195 for W6.10 (D-186): the Uji Penguasaan waiting for the Pemetaan Awal touches no tour RPC.
-      c.expect(migs.length === 195, `${migs.length} migrations; the baseline has 195`);
+      // MOVED 195 -> 196 for W2.17 (FD-4 at 10x staging): a page of a school's people, found by name, touches no tour RPC.
+      c.expect(migs.length === 196, `${migs.length} migrations; the baseline has 196`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

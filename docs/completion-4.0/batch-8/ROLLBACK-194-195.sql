@@ -7,6 +7,8 @@
 --   * 194 created only new objects (exposed_content_marks and its append-only trigger, exposure_fingerprint,
 --     course_is_exposed, real_assessment_possible, and the two refusal triggers on assessment_assignments and
 --     assessment_sessions); they are removed.
+--   * ADDED 5 Nov for W2.17: 196 (20261230100000) created one new read-only function, school_people_page; it is removed.
+--     A database at 196 returns to 193 as well; one at 195 or below is unchanged by this line.
 -- Run as the database owner in one transaction, only on the owner's say. The physical backup remains the recovery point
 -- for data; this script is the schema's way back without a restore.
 --
@@ -28,6 +30,8 @@
 --     still 193's md5, 260 marks present) -> this script -> 193, the checks pass;
 --   193 -> this script again -> no change, the checks pass (it is safe to run twice or on an untouched database);
 --   then `supabase migration up` -> 195, 260 marks, the order rule present.
+-- and again after 196 was added (5 Nov): 196 -> this script -> 193, the checks pass; run again -> no change;
+--   `supabase migration up` -> 196, 260 marks, school_people_page present.
 -- The script itself is one transaction: if any check fails, nothing it did is kept.
 -- It names no environment (staging's platform_environment reads «production», D-184), so the operator chooses the
 -- target by its connection string. Its last check (exactly 193 migrations) makes it refuse any database not at 193-195.
@@ -82,6 +86,9 @@ end $function$;
 revoke all on function public.may_start_assessment(uuid) from public, anon;
 grant execute on function public.may_start_assessment(uuid) to authenticated, service_role;
 
+-- 196: a school's people are found by name, a page at a time (W2.17)
+drop function if exists public.school_people_page(uuid[], text, integer);
+
 -- 194: exposed questions never give a real verdict (D-183)
 drop trigger if exists assessment_sessions_zz_exposed_is_not_assessed on public.assessment_sessions;
 drop trigger if exists assessment_assignments_zz_exposed_is_not_assessed on public.assessment_assignments;
@@ -93,7 +100,7 @@ drop table if exists public.exposed_content_marks;
 drop function if exists public.exposed_content_marks_append_only();
 drop function if exists public.exposure_fingerprint(text);
 
-delete from supabase_migrations.schema_migrations where version in ('20261228100000', '20261229100000');
+delete from supabase_migrations.schema_migrations where version in ('20261228100000', '20261229100000', '20261230100000');
 
 -- the check: 193's schema for every object 194-195 touched, or nothing is committed
 do $$
@@ -105,6 +112,9 @@ begin
   if to_regclass('public.exposed_content_marks') is not null or to_regprocedure('public.course_is_exposed(uuid)') is not null
      or exists (select 1 from pg_trigger where tgname like '%zz_exposed_is_not_assessed') then
     raise exception 'rollback: an object of 194 remains';
+  end if;
+  if to_regprocedure('public.school_people_page(uuid[],text,integer)') is not null then
+    raise exception 'rollback: an object of 196 remains';
   end if;
   if (select count(*) from supabase_migrations.schema_migrations) <> 193 then
     raise exception 'rollback: % migrations recorded, expected 193', (select count(*) from supabase_migrations.schema_migrations);

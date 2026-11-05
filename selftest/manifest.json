@@ -4547,6 +4547,16 @@
       "proves": "P-2 (staging promotion proposal; owner 5 Nov: no unrestricted real-inbox sending), selftest/bob25.test.ts through the source of src/app/api/_email/kirim.ts against the database's send log and the Mailpit sink: outside production's origin kirimEmail holds every address outside PINTAR's own domain (pintarselalu.com exactly; lookalikes and subdomains included) and the reserved test domains (.test, .invalid, .example, .localhost, example.com/.net/.org), unless named in PENERIMA_UJI_TAMBAHAN: not sent, not logged, no budget spent, answered DITAHAN_UJI; the allowed addresses are sent; production's origin is not restricted; «Kirim email uji» names the reason from the copy table."
     },
     {
+      "id": "F30-S01",
+      "runner": "db",
+      "proves": "W2.17 (FD-4 at 10x staging), selftest/db/fable30.sql, migration 20261230100000_a_school_s_people_are_found_by_name.sql: school_people_page gives a school's administrator a page of at most 50 of the school's ACTIVE enrolments (a limit asked above 50 is held at 50), the newest first and each named, finds a person by part of the name in any case and white space, never an ENDED enrolment; it gives nothing for a school the caller does not administer (another school's administrator, the school's educator, a learner), nothing for «every school» except to the platform administrator, nothing to a signed-in role with no person, and anon may not call it."
+    },
+    {
+      "id": "W217-SKALA-01",
+      "runner": "app",
+      "proves": "W2.17 (FD-4, R.5), selftest/app.test.ts through the running app against the database: with 13,300 more active enrolments seeded into one synthetic school (10× staging's 1,323), the source of src/app/konfigurasi/page.tsx draws both pickers that list a school's people (the transfer form's enrolment, the roles form's person) so that the last person seeded is found by name, at most a page of 50 is listed with or without a search, and every option is a name, never an id fragment; the seeded enrolments are ended after (append-only, INV-23)."
+    },
+    {
       "id": "D060-J78-01",
       "runner": "static",
       "proves": "J7.8 (D-060; W6.1, CR-59; D-186), selftest/aturan.test.ts read over every migration under supabase/migrations from 29 Sep: each that changes a metric's meaning (a calc_* body, an official_/academic_/scoped_/service_ source view, evidence_readiness) publishes a new catalogue version or states the catalogue unchanged in its header; each that changes the engine's meaning (grade_response, record_answer, assemble_session, evaluate_session, finalize_session, option_display_order, eligible_items_for_definition) bumps pintar-engine/N or states it unchanged; the catalogue labels published rise strictly in migration order; three applied migrations are recorded exceptions with their reason, and a stale exception fails; a planted calculator and engine change with neither is caught."

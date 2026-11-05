@@ -7,6 +7,8 @@ import Penomoran, { UKURAN, halamanDiminta, rentang, satuHalaman, tautanHalaman 
 
 // L4 (CR-88): the audit trail's page is the newest 50, the size CR-39 (J1.6) reads; other staff lists are 20 a page
 const UKURAN_JEJAK = 50;
+/** W2.17: the people pickers offer at most this many, the newest or those a name search finds. */
+const UKURAN_ORANG = 50;
 import { asalHasil, kalimatHasil, rujukan } from "@/lib/galat-kontrak";
 import { nilaiSkema } from "@/lib/kesehatan-skema";
 import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/KartuKesehatan";
@@ -121,6 +123,7 @@ type SearchParams = Promise<{
   baris?: string;
   // W2.15 (F-10): the directory search, a plain GET
   cari_sekolah?: string;
+  cari_orang?: string;
   // #148: the first step of scheduling, asked by a plain GET so the second step can show what the window would meet
   pm_cek?: string; pm_platform?: string; pm_sekolah?: string | string[]; pm_mulai?: string; pm_selesai?: string;
   // D-101 (2): «Admin sekolah» named on Peran & akses, waiting for its second press
@@ -210,8 +213,19 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const halJendela = halamanDiminta(sp.hal_jendela);
   const halPengumuman = halamanDiminta(sp.hal_pengumuman);
   const tanpaBaris = Promise.resolve({ data: [] as never[] });
-  const enrolmen = supabase.from("enrollments")
-    .select("id, person_id, institution_id, academic_period_id, status, member_kind, persons(display_name)").eq("status", "ACTIVE");
+  // W2.17 (FD-4 at 10× staging): the enrolments the two people pickers offer are a page of at most UKURAN_ORANG, the
+  // newest, or those whose name holds what was searched (cari_orang), read by school_people_page (migration
+  // 20261230100000). Through the enrolments policy, which runs on every enrolment a school ever had before ACTIVE can
+  // prune, a school of 13,300 ran past the statement timeout even for a page of 50, and the page drew both pickers empty.
+  const cariOrang = typeof sp.cari_orang === "string" ? sp.cari_orang.trim().replace(/\s+/g, " ").slice(0, 80) : "";
+  const enrolmen = (sekolah: string[] | null) => supabase
+    .rpc("school_people_page", { p_institutions: sekolah, p_search: cariOrang.length >= 2 ? cariOrang : null, p_limit: UKURAN_ORANG })
+    .then(({ data, error }) => ({
+      error,
+      data: ((data ?? []) as Array<{ id: string; person_id: string; institution_id: string; academic_period_id: string;
+        status: string; member_kind: string; display_name: string }>)
+        .map(({ display_name, ...e }) => ({ ...e, persons: { display_name } })),
+    }));
   const jejak = supabase.from("audit_log").select("id, at, action, target_table, target_id, institution_id, build_sha");
 
   const [
@@ -237,8 +251,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
       : platformKonteks
         ? tanpaBaris
         : supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active, jalur").order("name"),
-    semuaSekolah ? enrolmen.order("created_at")
-      : sekolahIni.length > 0 ? enrolmen.in("institution_id", sekolahIni).order("created_at") : tanpaBaris,
+    semuaSekolah ? enrolmen(null) : sekolahIni.length > 0 ? enrolmen(sekolahIni) : tanpaBaris,
     satuSekolah
       ? supabase.from("transfers").select(KOLOM_PINDAH)
           .or(`from_institution_id.eq.${satuSekolah},to_institution_id.eq.${satuSekolah}`).order("created_at", { ascending: false }).limit(50)
@@ -558,6 +571,19 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const judulBagian = (b: string) => navSemua.find(([k]) => k === b)?.[1] ?? sl("config.title");
   const namaKonteks = platformKonteks ? sl("config.pemeliharaan.platform")
     : satuSekolah ? ((institutions ?? []) as Array<{ id: string; name: string }>).find((i) => i.id === satuSekolah)?.name ?? null : null;
+
+  // W2.17: the people pickers search by name; the list is a page of at most UKURAN_ORANG (the newest when nothing is searched)
+  const cariOrangForm = (bagian: "transfers" | "roles", tetap: Record<string, string> = {}) => (
+    <form method="get" className="flex flex-wrap items-end gap-2" data-cari-orang={bagian}>
+      <input type="hidden" name="bagian" value={bagian} />
+      {Object.entries(tetap).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
+      <label className={label}>{s("config.cari_orang.label")}
+        <input name="cari_orang" className={field} defaultValue={cariOrang} minLength={2} maxLength={80} autoComplete="off" />
+      </label>
+      <button type="submit" className={button}>{s("config.cari_orang.tombol")}</button>
+      <p className="w-full text-xs text-ink-3">{s("config.cari_orang.arti")}</p>
+    </form>
+  );
 
   return (
     <>
@@ -1448,6 +1474,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 </form>
                 {cariSekolah && galatCari ? <BarisHasil nada="gagal">{s("galat.transfer_search_short")}</BarisHasil> : null}
                 {cariSekolah && !galatCari && tujuanDitemukan.length === 0 ? <Kosong jenis="tidak_cocok" kalimat={s("pindah.cari.kosong")} /> : null}
+                {tujuanDitemukan.length > 0 ? cariOrangForm("transfers", { cari_sekolah: cariSekolah }) : null}
                 {tujuanDitemukan.length > 0 ? (
                   <form action={transferMintaAction} className="grid gap-2 sm:grid-cols-2">
                     <fieldset className="sm:col-span-2 grid gap-1">
@@ -1611,6 +1638,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               </div>
             ) : null}
             {result("roles", "pertama")}
+            <div className="mt-3">{cariOrangForm("roles")}</div>
             <form action={grantRoleAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2">
               <label className={label}>{s("config.label.person")}
                 <select name="person" className={field} required defaultValue="">

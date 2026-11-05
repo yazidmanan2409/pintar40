@@ -1097,6 +1097,9 @@ export type HleEvent =
   | "pindah.keluar.judul"
   | "pindah.keluar.arti"
   | "pindah.cari.label"
+  | "config.cari_orang.label"
+  | "config.cari_orang.tombol"
+  | "config.cari_orang.arti"
   | "pindah.cari.tombol"
   | "pindah.cari.kosong"
   | "pindah.tujuan"
@@ -4261,6 +4264,9 @@ const table: Table = {
   "pindah.keluar.judul": { default: "Ajukan perpindahan ke sekolah lain", en: "Request a transfer to another school" },
   "pindah.keluar.arti": { default: "Cari sekolah tujuan dengan nama lengkapnya atau kodenya. Sekolah tujuan yang menerima perpindahan dan memilih tahun ajarannya.", en: "Find the receiving school by its full name or its code. The receiving school accepts the transfer and chooses the school year." },
   "pindah.cari.label": { default: "Nama lengkap atau kode sekolah tujuan", en: "The receiving school's full name or code" },
+  "config.cari_orang.label": { default: "Cari orang menurut nama", en: "Find a person by name" },
+  "config.cari_orang.tombol": { default: "Cari orang", en: "Find the person" },
+  "config.cari_orang.arti": { default: "Daftar di bawah memuat paling banyak 50 orang: yang terbaru terdaftar, atau yang namanya cocok dengan pencarian.", en: "The list below holds at most 50 people: the most recently enrolled, or those whose name matches the search." },
   "pindah.cari.tombol": { default: "Cari sekolah", en: "Find the school" },
   "pindah.cari.kosong": { default: "Tidak ada sekolah aktif dengan nama atau kode itu. Periksa ejaannya: nama harus lengkap dan sama persis.", en: "No active school has that name or code. Check the spelling: the name must be complete and exact." },
   "pindah.tujuan": { default: "Sekolah tujuan", en: "Receiving school" },
