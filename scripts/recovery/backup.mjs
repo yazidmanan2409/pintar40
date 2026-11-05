@@ -58,7 +58,6 @@ import { dirname, join, relative } from "node:path";
 import { createInterface } from "node:readline";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { s3Client } from "./s3.mjs";
-import { gdriveFromEnv } from "./gdrive.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -667,35 +666,8 @@ export function placement(target, now) {
   return out;
 }
 
-/**
- * D-189: the same conditions 7-9 on Google Drive. Each copy is uploaded, its SHA-256 read back from Drive and compared,
- * its success record last; then the copies whose retention has passed are deleted, never the one just made. Drive has
- * no object lock, so the record says the bundle is NOT immutable (D-189(9)).
- */
-async function uploadDrive(file, record, target, now) {
-  need(["GDRIVE_CLIENT_ID", "GDRIVE_CLIENT_SECRET", "GDRIVE_REFRESH_TOKEN"]);
-  const client = gdriveFromEnv();
-  const done = [];
-  for (const p of placement(target, now)) {
-    const r = await client.putFile(p.key, file, { retainUntil: p.retainUntil });
-    if (!r.ok) throw new Error(`the bundle's upload to ${p.key} was refused: ${r.error}`);
-    if (r.sha256 !== record.bundle.sha256) throw new Error(`the bundle changed on disk while it was uploaded to ${p.key}`);
-    const rec = join(dirname(file), `${p.key.split("/").pop()}.success.json`);
-    writeFileSync(rec, JSON.stringify({ ...record, key: p.key, retain_until: p.retainUntil, destination: `google-drive:${client.store}`,
-      immutable: false, immutability: "none: Google Drive has no object lock; retention is enforced by pruning, and Drive's trash is not protection (D-189(9))" }, null, 2) + "\n");
-    const s = await client.putFile(`${p.key}.success.json`, rec, { retainUntil: p.retainUntil });
-    if (!s.ok) throw new Error(`the success record's upload to ${p.key}.success.json was refused: ${s.error}`);
-    done.push(p.key);
-  }
-  const pruned = await client.prune(`${target}/`, now, done);
-  if (pruned.length) console.log(`retention: deleted ${pruned.length} expired file(s): ${pruned.join(", ")}`);
-  return done;
-}
-
 /** Conditions 7-9: each copy uploaded with its checksum and its lock, its success record last. */
 export async function upload(file, record, target, now) {
-  if (process.env.BACKUP_DESTINATION === "gdrive") return uploadDrive(file, record, target, now);
-  if (process.env.BACKUP_DESTINATION && process.env.BACKUP_DESTINATION !== "s3") throw new Error(`unknown BACKUP_DESTINATION ${process.env.BACKUP_DESTINATION}`);
   need(["BACKUP_S3_REGION", "BACKUP_S3_BUCKET", "BACKUP_S3_KEY_ID", "BACKUP_S3_SECRET"]);
   const region = process.env.BACKUP_S3_REGION;
   const client = s3Client({ endpoint: process.env.BACKUP_S3_ENDPOINT || `https://s3.${region}.amazonaws.com`, region,

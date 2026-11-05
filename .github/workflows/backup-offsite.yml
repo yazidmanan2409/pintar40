@@ -126,8 +126,7 @@ jobs:
           else api -X POST "$repo/issues" -d "$(jq -n --arg t "$ISSUE_TITLE" --arg b "$msg" '{title: $t, body: $b}')" | jq -r '"opened #\(.number)"'; fi
 
   staging:
-    # D-189: staging's schedule has its own switch, PINTAR_OFFSITE_BACKUP_STAGING, so turning it on never starts production's job
-    if: github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && inputs.target != 'production') || (github.event_name == 'schedule' && (vars.PINTAR_OFFSITE_BACKUP == 'on' || vars.PINTAR_OFFSITE_BACKUP_STAGING == 'on')))
+    if: github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && inputs.target != 'production') || (github.event_name == 'schedule' && vars.PINTAR_OFFSITE_BACKUP == 'on'))
     name: staging, encrypted to R1, R2 and the drill key R3
     runs-on: ubuntu-latest
     timeout-minutes: 120
@@ -154,13 +153,6 @@ jobs:
         env:
           BACKUP_TARGET: staging
           BACKUP_RECIPIENTS: ${{ vars.PINTAR_BACKUP_RECIPIENTS_STAGING }}
-          # D-189: Google Drive in place of S3 while PINTAR_BACKUP_DESTINATION is gdrive (drive.file scope only; the owner's
-          # OAuth client and refresh token live only in the `backup` environment)
-          BACKUP_DESTINATION: ${{ vars.PINTAR_BACKUP_DESTINATION || 's3' }}
-          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
-          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
-          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
-          GDRIVE_STORE: pintar-staging
           PGHOST: ${{ env.STAGING_POOLER_HOST }}
           PGPORT: "5432"
           PGDATABASE: postgres
@@ -178,20 +170,6 @@ jobs:
           BACKUP_S3_SECRET: ${{ secrets.AWS_BACKUP_WRITER_SECRET }}
           RELEASE_SHA: ${{ github.sha }}
         run: node scripts/recovery/backup.mjs run
-      - name: A failed staging backup opens (or comments on) the staging backup issue (D-189(6))
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TITLE: "Staging backup: the offsite staging backup failed"
-        run: |
-          set -euo pipefail
-          api() { curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$@"; }
-          repo="https://api.github.com/repos/${{ github.repository }}"
-          run="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          open=$(api "$repo/issues?state=open&per_page=100" | jq -r --arg t "$TITLE" '[.[] | select(.title == $t and (.pull_request | not))][0].number // empty')
-          msg="The staging backup failed at $(date -u +%FT%TZ); no success record was written. Run: $run"
-          if [ -n "$open" ]; then api -X POST "$repo/issues/$open/comments" -d "$(jq -n --arg b "$msg" '{body: $b}')" > /dev/null; echo "commented on #$open"
-          else api -X POST "$repo/issues" -d "$(jq -n --arg t "$TITLE" --arg b "$msg" '{title: $t, body: $b}')" | jq -r '"opened #\(.number)"'; fi
       - name: A bundle at 80 % of the 5 GiB limit or more raises the backup-size issue (D-109(d))
         if: always() && steps.backup.outputs.size_warning != ''
         env:

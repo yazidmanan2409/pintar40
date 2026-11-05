@@ -20,7 +20,6 @@ import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { checkRecipients, encrypt, keyInfo, recipientsFor } from "./backup.mjs";
 import { s3Client } from "./s3.mjs";
-import { gdriveFromEnv } from "./gdrive.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const keysDir = () => process.env.RECIPIENTS_DIR || join(ROOT, "docs/recovery/keys");
@@ -35,8 +34,6 @@ export function latestComplete(keys, target) {
 }
 
 function client() {
-  // D-189: the same reads from Google Drive (drive.file scope), when the bundles are kept there
-  if (process.env.DRILL_DESTINATION === "gdrive") return gdriveFromEnv();
   const region = process.env.DRILL_S3_REGION;
   return s3Client({ endpoint: process.env.DRILL_S3_ENDPOINT || `https://s3.${region}.amazonaws.com`, region, keyId: process.env.DRILL_S3_KEY_ID,
     secret: process.env.DRILL_S3_SECRET, bucket: process.env.DRILL_S3_BUCKET, pathStyle: process.env.DRILL_S3_PATH_STYLE === "1" });

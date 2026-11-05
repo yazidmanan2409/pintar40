@@ -246,7 +246,7 @@ locally on 5 Nov, each from its real state:
 
 **Revision:** the head that carries this revision of the page (named in the covering report), after `b097b747`'s CI failure was fixed. Its CI and journeys runs are dispatched.
 
-**D-188 adds a condition:** a recoverable staging Storage backup, restored in an isolated test, before P-1 (owner actions O3–O6, then the coordinator's runs; the staging path proof is already green, run 41985505792).
+**D-188's backup condition is withdrawn by D-190** (owner, 5 Nov: the backup project is stopped; the environment is a development environment with the owner as sole tester). P-1 rests on the existing safeguards: Supabase's daily physical backup of the database, confirmed by the owner from the dashboard; `ROLLBACK-194-195.sql`; the read-only fingerprint of staging's 29 Storage files (`166f7a3b…`), compared after the deployment, which the promotion does not touch. Storage files have no independent backup; this is recorded, not marked met (D-190(4)).
 
 **Recommendation: GO for P-1, staging only, conditional on:**
 - CI and both journeys jobs green on that exact SHA;

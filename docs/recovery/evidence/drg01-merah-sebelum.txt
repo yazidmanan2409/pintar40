@@ -1,3 +1,0 @@
-DR-G01 before the Google Drive destination (gdrive.mjs absent, backup.mjs/drill.mjs as on b5755c10), 2026-11-05T08:00:17Z
-DR-G01      FAIL    scripts/recovery/gdrive.mjs is missing: there is no Google Drive destination
-0 passed, 1 failed, 0 skipped, 0 contract problem(s) → RED
