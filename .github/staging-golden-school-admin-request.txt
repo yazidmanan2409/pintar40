@@ -22,4 +22,5 @@ slug: sekolah-uji-l3
 # 4 Nov (WIB), Batch 5 staging verification (D-157): Sekolah Uji B5 1104; staging at 193, main 3412075 (after run 41709137424)
 # 5 Nov, Batch 8 staging verification (P-1, owner 5 Nov; migrations 194-196): Sekolah Uji B8 1105; staging at 196, main 38d7e701 (after run 42037667705)
 # 5 Nov, re-run after run 42039104715 (the walk still read Konfigurasi as one page; it now opens each section from the index, B1 c4e2ffe3)
+# 5 Nov, re-run after run 42041265308 (10 PASS, A9 red: the walk read one lesson's questions; it now reads every lesson by the pager)
 slug: sekolah-uji-b8-1105
