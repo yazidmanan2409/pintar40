@@ -213,6 +213,18 @@ jobs:
           APP_DIR: ${{ github.workspace }}/app
           OUT_DIR: ${{ github.workspace }}/audit-out/rb-ujung
         run: node rb-ujung.mjs
+      # W6.10 (Batch 8): the journeys a static reading cannot hold, walked in a browser: one same sentence for every
+      # wrong sign-in (J2.1), sign out everywhere (J2.9), the idle lock and its PIN (J2.20, J2.10), help only after
+      # hesitation (J6.4), save, pause and resume (J6.7), maintenance (J1.6), the resend countdown (J2.18), an evaluation
+      # persona kept out of identity (J1.8) and the recovery ladder (J2.12, last: it suspends its own account)
+      - name: Walk the Batch 8 journeys (W6.10)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/b8-jalan
+        run: node b8-jalan.mjs
       - name: Server log (errors only)
         if: always()
         run: grep -iE 'error|exception|fail' "$RUNNER_TEMP/app.log" | grep -v 'evaluation_state' | head -80 || true

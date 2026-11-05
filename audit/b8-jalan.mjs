@@ -17,6 +17,8 @@ import { createRequire } from "node:module";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+// J2.18: the resend countdown helpers proven on staging (red on two plants, then green, 6 Oct), used as they are
+import { mintaKodePemulihan, periksaHitungMundur } from "./staging/kode-ulang.mjs";
 
 const APP = process.env.APP_URL ?? "http://127.0.0.1:3999";
 const SB = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -30,6 +32,8 @@ const { createServerClient } = require("@supabase/ssr");
 
 const GURU = { email: "alpha-guru@synthetic.pintar.test", password: "Sintetis-AlphaGuru-52!", pin: "2817" };
 const HOD = { email: "alpha-hod@synthetic.pintar.test", password: "Sintetis-AlphaHod-48!" };
+const ADMIN = { email: "alpha-admin@synthetic.pintar.test", password: "Sintetis-AlphaAdmin-27!" };
+const PENILAI = { email: "penilai@evaluasi.pintar.test", password: "Penilai-Evaluasi-4417!" };
 // the learning-cycle school's learner, whose class holds an open Uji Penguasaan that allows a pause (allows_pause) and
 // offers help after its hesitation window; b5-ujung reads only this learner's lessons, and this walk runs last
 const MURID = { email: "siklus-email@synthetic.pintar.test", password: "Sintetis-SiklusEmail-84!" };
@@ -256,6 +260,201 @@ await step("J6.7", "the learner pauses the Uji Penguasaan with «Simpan & Jeda»
   harus(rec, keadaan() === "IN_PROGRESS", `after «Lanjutkan mengerjakan» the sitting is ${keadaan()} and the question is still there`);
   await shot(page, rec, "jeda");
   await sesiMurid.context.close();
+});
+
+await step("J1.6", "maintenance as people meet it: the school's teacher is told in advance, is sent to the maintenance page when it starts, and works again when it ends", async (rec) => {
+  const a = await masuk(browser, ADMIN);
+  const g = await masuk(browser, GURU);
+  const alpha = sql(`select i.id from public.institutions i join public.role_assignments r on r.institution_id = i.id
+    join public.accounts ac on ac.person_id = r.person_id join auth.users u on u.id = ac.auth_user_id
+    where u.email = ${lit(ADMIN.email)} and r.role = 'INSTITUTION_ADMIN' limit 1`);
+  const jkt = (menit) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+    .format(new Date(Date.now() + menit * 60000)).replace(" ", "T");
+  const alasan = `W6.10 J1.6 ${Date.now()}`;
+  // the school admin schedules a window that starts in 30 minutes
+  await a.page.goto(`${APP}/konfigurasi/pemeliharaan`, { waitUntil: "networkidle" });
+  const jadwal = a.page.locator('section[aria-labelledby="pin-pm-jadwal"]');
+  await jadwal.locator(`input[name="pm_sekolah"][value="${alpha}"]`).check();
+  await jadwal.locator("#cfg-pm-mulai").fill(jkt(30));
+  await jadwal.locator("#cfg-pm-selesai").fill(jkt(90));
+  await jadwal.getByRole("button", { name: "Periksa waktu ini" }).click();
+  await a.page.waitForURL((u) => u.searchParams.get("pm_cek") === "1", { timeout: SLOW });
+  const langkah2 = a.page.locator('[data-tabrakan="1"]');
+  await langkah2.waitFor({ timeout: SLOW });
+  await langkah2.locator('input[name="alasan"]').fill(alasan);
+  await langkah2.getByRole("button", { name: "Jadwalkan pemeliharaan" }).click();
+  await a.page.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
+  const jendela = sql(`select id from public.maintenance_windows where reason = ${lit(alasan)} order by created_at desc limit 1`);
+  if (!harus(rec, Boolean(jendela), "the window is scheduled")) return;
+  try {
+    // the teacher, in advance
+    await g.page.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
+    const pita = g.page.locator('[data-pemeliharaan="1"]').first();
+    harus(rec, await pita.isVisible().catch(() => false), `the teacher is told in advance («${(await pita.innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 140)}»)`);
+    // the admin starts it now
+    await a.page.goto(`${APP}/konfigurasi/pemeliharaan`, { waitUntil: "networkidle" });
+    await a.page.locator(`li[data-jendela="${jendela}"] [data-buka-ubah]`).click();
+    await a.page.waitForURL((u) => u.searchParams.get("ubah") === jendela, { timeout: SLOW });
+    const terbuka = a.page.locator(`li[data-jendela="${jendela}"][data-terbuka]`);
+    await terbuka.locator('input[name="alasan"]').fill("Mulai lebih awal (W6.10)");
+    await terbuka.locator('button[name="aksi"][value="MULAI"]').click();
+    await a.page.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
+    harus(rec, sql(`select (starts_at <= now())::text from public.maintenance_windows where id = ${lit(jendela)}`) === "true", "the window has started");
+    // the teacher's next page
+    await g.page.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
+    await g.page.waitForURL((u) => u.pathname === "/pemeliharaan", { timeout: 15000 }).catch(() => {});
+    const judul = (await g.page.locator("h1").first().innerText().catch(() => "")).trim();
+    harus(rec, jalan(g.page) === "/pemeliharaan" || /pemeliharaan/i.test(judul), `while it runs the teacher meets the maintenance page (${jalan(g.page)}, «${judul}»)`);
+    await shot(g.page, rec, "pemeliharaan-berjalan");
+    // the admin ends it
+    await a.page.goto(`${APP}/konfigurasi/pemeliharaan?ubah=${jendela}#jendela-${jendela}`, { waitUntil: "networkidle" });
+    const lagi = a.page.locator(`li[data-jendela="${jendela}"][data-terbuka]`);
+    await lagi.locator('input[name="alasan"]').fill("Selesai (W6.10)");
+    await lagi.locator('button[name="aksi"][value="AKHIRI"]').click();
+    await a.page.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
+    harus(rec, sql(`select (ended_at is not null)::text from public.maintenance_windows where id = ${lit(jendela)}`) === "true", "the window has ended");
+    await g.page.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
+    harus(rec, jalan(g.page) === "/mengajar", `after it ends the teacher works again (${jalan(g.page)})`);
+  } finally {
+    // never leave a window open for the rest of the run
+    try { if (sql(`select (ended_at is null)::text from public.maintenance_windows where id = ${lit(jendela)}`) === "true") sql(`update public.maintenance_windows set ended_at = now(), end_reason = 'W6.10 cleanup' where id = ${lit(jendela)}`); } catch (e) { rec.catatan.push(`!! cleanup: ${e.message}`); }
+    await a.context.close(); await g.context.close();
+  }
+});
+
+await step("J2.18", "«Lupa password»: the resend countdown, for a real account beside a name nobody holds, holds then frees «Kirim ulang kode», and a resend starts it again, alike", async (rec) => {
+  const buka = async () => { const c = await browser.newContext({ viewport: { width: 1280, height: 860 }, locale: "id-ID" }); return { c, page: await c.newPage() }; };
+  const nyata = await buka();
+  const asing = await buka();
+  try {
+    await mintaKodePemulihan(nyata.page, APP, GURU.email);
+    await mintaKodePemulihan(asing.page, APP, `tidak-ada-${Date.now()}`);
+    const r = await periksaHitungMundur([{ nama: "real account", page: nyata.page }, { nama: "nobody", page: asing.page }]);
+    for (const j of r.jejak) rec.catatan.push(`.. ${j}`);
+    harus(rec, r.ok && r.masalah.length === 0, r.masalah.length ? r.masalah.join("; ") : "the two screens held, counted down, came free and answered a resend alike");
+    await shot(nyata.page, rec, "kirim-ulang");
+  } finally { await nyata.c.close(); await asing.c.close(); }
+});
+
+await step("J1.8", "an evaluation persona is kept out of identity: viewing as each persona the Hub offers, no page asks a device question or shows a password, a PIN, a username, a PINTAR ID or activation", async (rec) => {
+  sql("update public.evaluation_sessions set ended_at = now(), ended_reason = 'EXITED' where ended_at is null");
+  const s = await masuk(browser, PENILAI);
+  await s.page.goto(`${APP}/evaluasi`, { waitUntil: "networkidle" });
+  const n = await s.page.locator('form[action*="/api/evaluation/assume"] button').count();
+  if (!harus(rec, n >= 1, `the Hub offers ${n} persona(s) to view as`)) return;
+  const IDENTITAS = /PINTAR ID|Nama pengguna|Username|Komputer siapa ini|Buat PIN|PIN pribadi|Aktifkan akun/i;
+  for (let i = 0; i < n; i++) {
+    await s.page.goto(`${APP}/evaluasi`, { waitUntil: "networkidle" });
+    const tombol = s.page.locator('form[action*="/api/evaluation/assume"] button').nth(i);
+    const siapa = (await tombol.innerText()).replace(/\s+/g, " ").trim().slice(0, 60);
+    await tombol.click();
+    await s.page.waitForURL((u) => u.pathname !== "/evaluasi", { timeout: SLOW });
+    await s.page.waitForLoadState("networkidle");
+    const rumah = jalan(s.page);
+    const temuan = [];
+    for (const ke of ["/", rumah, "/akun", "/perangkat"]) {
+      await s.page.goto(`${APP}${ke}`, { waitUntil: "networkidle" });
+      const di = jalan(s.page);
+      const teks = (await s.page.locator("main").innerText().catch(() => "")).replace(/\s+/g, " ");
+      const sandi = await s.page.locator('input[type="password"], #pin, input[name="pin"], input[name="username"]').count();
+      const keAktivasi = await s.page.locator('a[href^="/aktifkan"]').count();
+      if (di === "/perangkat") temuan.push(`${ke} asks the device question`);
+      if (sandi > 0) temuan.push(`${ke} → ${di} draws ${sandi} identity field(s)`);
+      if (keAktivasi > 0) temuan.push(`${ke} → ${di} links to activation`);
+      if (ke === "/akun") {
+        // the account page refuses, and says why (its own sentence names what a persona has none of)
+        if (!/tidak tersedia dalam MODE PERAGAAN/.test(teks)) temuan.push(`/akun → ${di} is not the demonstration refusal: «${teks.slice(0, 160)}»`);
+        continue;
+      }
+      const m = IDENTITAS.exec(teks);
+      if (m) temuan.push(`${ke} → ${di} says «${m[0]}»: «${teks.slice(Math.max(0, m.index - 80), m.index + 120)}»`);
+    }
+    harus(rec, temuan.length === 0, `as «${siapa}» (home ${rumah}): ${temuan.length ? temuan.join("; ") : "no device question, identity field or link to activation on /, the home or /perangkat, and /akun refuses with its reason"}`);
+    await s.page.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+    const band = s.page.locator('[role="region"][aria-label="MODE PERAGAAN"]');
+    if (await band.count()) {
+      await band.getByRole("button", { name: "Keluar dari peragaan" }).click();
+      await s.page.waitForURL((u) => u.pathname === "/evaluasi", { timeout: SLOW }).catch(() => {});
+    } else {
+      sql("update public.evaluation_sessions set ended_at = now(), ended_reason = 'EXITED' where ended_at is null");
+    }
+  }
+  await shot(s.page, rec, "persona");
+  await s.context.close();
+});
+
+// LAST: it changes the head of department's recovery and ends their sessions; nothing after it needs them
+await step("J2.12", "the PIN recovery ladder (an hour, four hours, suspended) by the screens, then the school admin's assisted reset on Keamanan akun ends the person's session", async (rec) => {
+  const id = sql(`select p.pintar_id from auth.users u join public.accounts a on a.auth_user_id = u.id join public.persons p on p.id = a.person_id where u.email = ${lit(HOD.email)}`);
+  if (!harus(rec, /^[A-Z0-9]{8}$/.test(id), `the head of department's PINTAR ID is known (${id})`)) return;
+  const lewat = () => sql(`update public.recovery_ladder set locked_until = clock_timestamp() - interval '1 second' where typed_id = ${lit(id)}`);
+  const tetap = await masuk(browser, HOD);
+  await tetap.page.goto(`${APP}/pimpinan`, { waitUntil: "networkidle" });
+  harus(rec, jalan(tetap.page) === "/pimpinan", `the head of department is signed in elsewhere (${jalan(tetap.page)})`);
+  const c = await browser.newContext({ viewport: { width: 1280, height: 860 }, locale: "id-ID" });
+  const page = await c.newPage();
+  await page.goto(`${APP}/masuk/lupa`, { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Pakai PINTAR ID dan PIN" }).click();
+  // three wrong PINs. The device's own pace («Tunggu N detik/menit») is a separate safeguard, not the ladder this step
+  // walks: it is cleared before each try (as BOB28-A02 asks each try from its own address), and if it still answers, it
+  // is waited out and the try made again
+  const tiga = async () => {
+    let teks = "";
+    for (let i = 0; i < 3; i++) {
+      for (let ulang = 0; ulang < 4; ulang++) {
+        sql("delete from public.identity_attempts where scope = 'RECOVERY_PIN'");
+        if (!(await page.locator("#pin").isVisible().catch(() => false))) {
+          await shot(page, rec, "tangga-tanpa-pin");
+          rec.catatan.push(`.. no PIN field on the screen: «${(await page.locator("main").innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 200)}» buttons: ${(await page.locator("main button").evaluateAll((xs) => xs.map((x) => x.textContent.trim()))).join(" | ")}`);
+          throw new Error("the PIN field is gone");
+        }
+        await page.locator("#id").fill(id, { timeout: SLOW });
+        await page.locator("#pin").fill("0000", { timeout: SLOW });
+        await page.getByRole("button", { name: "Lanjut", exact: true }).click({ timeout: SLOW });
+        await page.locator("#pin-err").waitFor({ timeout: SLOW });
+        await page.waitForTimeout(300);
+        teks = (await page.locator("#pin-err").innerText()).trim();
+        // only the device's own pace; the ladder's lock speaks of its hours too, and is what this step counts
+        const tunggu = /^Terlalu banyak percobaan dari perangkat ini/.test(teks) ? /Tunggu (\d+) (detik|menit)/.exec(teks) : null;
+        if (!tunggu) break;
+        rec.catatan.push(`.. the device's pace: «${teks.slice(0, 80)}», waited`);
+        await page.waitForTimeout((Number(tunggu[1]) * (tunggu[2] === "menit" ? 60 : 1) + 1) * 1000);
+      }
+    }
+    return teks;
+  };
+  const tangga = () => sql(`select level || '|' || coalesce((locked_until > now())::text, 'f') || '|' || (suspended_at is not null)::text from public.recovery_ladder where typed_id = ${lit(id)}`);
+  const satu = await tiga();
+  const t1 = tangga();
+  harus(rec, t1 === "1|true|false", `three wrong PINs lock it for the first rung (ladder ${t1}): «${satu.slice(0, 120)}»`);
+  lewat();
+  const dua = await tiga();
+  const t2 = tangga();
+  harus(rec, t2 === "2|true|false", `after that lock passes, three more lock it for the second, longer rung (ladder ${t2}): «${dua.slice(0, 120)}»`);
+  lewat();
+  const tigaKali = await tiga();
+  const t3 = tangga();
+  harus(rec, t3.endsWith("|true") && t3.split("|")[2] === "true", `three more suspend it (ladder ${t3}): «${tigaKali.slice(0, 120)}»`);
+  harus(rec, await page.getByRole("button", { name: /email/i }).first().isVisible().catch(() => false) || /email/i.test(tigaKali), "the screen points to email recovery, which always works");
+  await shot(page, rec, "tangga-pin");
+  await c.close();
+  // the school admin's assisted reset
+  const a = await masuk(browser, ADMIN);
+  await a.page.goto(`${APP}/konfigurasi/keamanan`, { waitUntil: "networkidle" });
+  const kotak = a.page.locator('section[aria-labelledby="pin-keamanan-pin"]');
+  await kotak.locator('input[name="id"]').fill(id);
+  await kotak.getByRole("button", { name: "Lihat", exact: true }).click();
+  await kotak.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
+  rec.catatan.push(`.. the record: «${(await kotak.locator("p").first().innerText()).replace(/\s+/g, " ").slice(0, 140)}»`);
+  await kotak.locator('input[name="alasan"]').fill("Pemiliknya meminta bantuan (W6.10)");
+  await kotak.getByRole("button", { name: "Atur ulang pemulihan PIN" }).click();
+  const hasil = a.page.getByText(/sudah diatur ulang/);
+  await hasil.waitFor({ timeout: SLOW }).catch(() => {});
+  harus(rec, await hasil.isVisible().catch(() => false), "the admin is told the recovery is reset and every session of its owner ended");
+  await shot(a.page, rec, "atur-ulang");
+  await tetap.page.goto(`${APP}/pimpinan`, { waitUntil: "networkidle" });
+  harus(rec, jalan(tetap.page) === "/masuk", `the head of department's other session is ended (${jalan(tetap.page)})`);
+  await a.context.close(); await tetap.context.close();
 });
 
 await browser.close();

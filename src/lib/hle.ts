@@ -837,7 +837,7 @@ export type HleEvent =
   | "evaluasi.berakhir"
   | "evaluasi.sesi_habis"
   | "evaluasi.gagal"
-  | "evaluasi.kembali"
+  | "evaluasi.akun_tidak_ada" | "evaluasi.kembali"
   | "studio.refused"
   | "studio.nav.beranda"
   | "studio.nav.unggah"
@@ -3978,6 +3978,8 @@ const table: Table = {
   "evaluasi.berakhir": { default: "Sesi peragaan berakhir", en: "The demonstration session has ended" },
   "evaluasi.sesi_habis": { default: "Waktu peragaan sudah habis. Kembali ke ruang peragaan untuk mulai lagi.", en: "The demonstration time is up. Go back to the demonstration room to start again." },
   "evaluasi.gagal": { default: "Sudut pandang itu tidak bisa dibuka sekarang.", en: "That point of view cannot be opened right now." },
+  // J1.8 (W6.10): proposed words, awaiting Dr Gladys (K1 B36)
+  "evaluasi.akun_tidak_ada": { default: "Halaman akun tidak tersedia dalam MODE PERAGAAN. Sudut pandang peragaan tidak punya akun, PIN, atau PINTAR ID sendiri.", en: "The account page is not available in DEMONSTRATION MODE. A demonstration point of view has no account, PIN or PINTAR ID of its own." },
   "evaluasi.kembali": { default: "Kembali ke ruang peragaan", en: "Back to the demonstration room" },
   "studio.refused": { default: "Anda tidak memiliki akses ke Studio.", en: "This page is for content staff. Your account does not have access to the Studio yet." },
   "studio.nav.beranda": { default: "Studio", en: "Home" },

@@ -1,0 +1,7 @@
+# W6.10 J1.8 · audit/b8-jalan.mjs J1.8 against the build WITHOUT the fix (src/app/akun/page.tsx as at 26661b8c), 5 Nov
+FAIL  J1.8 an evaluation persona is kept out of identity: viewing as each persona the Hub offers, no page asks a device question or shows a password, a PIN, a username, a PINTAR ID or activation
+      !! as «Lihat sebagai» (home /): /akun → /akun is not the demonstration refusal: «Halaman ini belum tersedia untuk akun Anda. Jika ini keliru, tanyakan kepada guru Anda. Ke halaman awal Bukan akun Anda? Keluar Dr. dr. Gladys DT Tubarad, M.Pd.»
+      !! as «Lihat sebagai» (home /): /akun → /akun is not the demonstration refusal: «Akun saya PINTAR ID dan Kartu PINTAR Anda. Data akun Anda belum bisa dimuat. Muat ulang halaman ini. FOTO PROFIL Foto ini hanya tampil di profil Anda. Foto tida»
+      !! as «Lihat sebagai» (home /): /akun → /akun is not the demonstration refusal: «Akun saya PINTAR ID dan Kartu PINTAR Anda. Data akun Anda belum bisa dimuat. Muat ulang halaman ini. FOTO PROFIL Foto ini hanya tampil di profil Anda. Foto tida»
+      !! as «Lihat sebagai» (home /): /akun → /akun is not the demonstration refusal: «Akun saya PINTAR ID dan Kartu PINTAR Anda. Data akun Anda belum bisa dimuat. Muat ulang halaman ini. FOTO PROFIL Foto ini hanya tampil di profil Anda. Foto tida»
+      !! as «Lihat sebagai» (home /): /akun → /akun is not the demonstration refusal: «Akun saya PINTAR ID dan Kartu PINTAR Anda. Data akun Anda belum bisa dimuat. Muat ulang halaman ini. FOTO PROFIL Foto ini hanya tampil di profil Anda. Foto tida»
