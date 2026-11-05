@@ -5,7 +5,7 @@
 // coordinator can count Supabase requests per step from the log, and the Vercel function
 // responses seen in the browser during the step (x-vercel-id ::sin1::).
 import { chromium } from "playwright";
-import { APP, SLOW, clickTo, closeTour, rename, signIn, usable } from "./lib.mjs";
+import { APP, SLOW, clickTo, closeTour, rename, settle, signIn, usable } from "./lib.mjs";
 
 const REPS = Number(process.env.REPS || 2);
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
@@ -94,6 +94,11 @@ async function guru(browser, rep) {
 }
 
 const browser = await chromium.launch();
+// not timed: a held set-up is answered once before the first timed sign-in (lib.mjs settle)
+for (const [role, email, landing] of [["admin", ADMIN_EMAIL, "/konfigurasi"], ["guru", GURU_EMAIL, "/mengajar"]]) {
+  const note = await settle(browser, email, landing).catch((e) => `FAILED: ${String(e.message || e).slice(0, 200)}`);
+  line({ role, step: "set-up (not timed)", ok: !note.startsWith("FAILED"), note });
+}
 for (let rep = 1; rep <= REPS; rep++) {
   await admin(browser, rep).catch((e) => line({ role: "admin", rep, step: "journey", ok: false, note: String(e.message || e).slice(0, 200) }));
   await guru(browser, rep).catch((e) => line({ role: "guru", rep, step: "journey", ok: false, note: String(e.message || e).slice(0, 200) }));
@@ -106,3 +111,6 @@ for (const o of out.filter((x) => x.ms !== undefined)) {
   const k = `${o.role} | ${o.step}`; if (!by.has(k)) by.set(k, []); by.get(k).push(o.ok ? o.ms : `FAIL(${o.ms})`);
 }
 for (const [k, v] of by) console.log(`${k.padEnd(48)} ${v.join(", ")}`);
+// a journey whose steps failed measured nothing: the job says so (it read green with every sign-in failed, run 42064350172)
+const gagal = out.filter((o) => o.ok === false);
+if (gagal.length) { console.log(`\nRED: ${gagal.length} step(s) failed`); process.exitCode = 1; }
