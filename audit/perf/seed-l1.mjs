@@ -131,6 +131,14 @@ const tanpa = rows(`select distinct p.id from public.memberships m join public.e
   and not exists (select 1 from public.accounts a where a.person_id = p.id)`).map((r) => r[0]);
 const api = await request.newContext({ baseURL: APP, extraHTTPHeaders: { Origin: APP },
   storageState: { cookies: sessionCookies(adminSess).map((c) => ({ ...c, expires: -1 })), origins: [] } });
+// E2 (§2.11): «Buat kartu» is a context-bound act; outside the school's working context the card route answers
+// CONTEXT_OTHER_PLACE (409; run 42108870255, all 50). A person chooses the context at the door; the seed opens one
+// page as the admin (the proxy records the session) and chooses Mengelola · this school with the chooser's own
+// function (konteks_tetapkan, the caller's own session, a pair they hold). Never a direct write.
+await api.get("/konfigurasi", { maxRedirects: 0 }).catch(() => null);
+const pilih = await rpc("konteks_tetapkan", { p_tujuan: "MENGELOLA", p_tempat: SID, p_platform: false, p_sebab: "PILIHAN" })
+  .then(() => "chosen", (e) => `not chosen: ${String(e.message || e).slice(0, 160)}`);
+say(`working context Mengelola · the synthetic school: ${pilih}`);
 let dibuat = 0, ditolak = 0;
 const galat = new Map();
 let antre = tanpa.slice();
