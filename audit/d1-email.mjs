@@ -4,7 +4,7 @@
 //
 //   E1  at 320 px (K09): no sideways scroll; no text under 13 px; every button at least 44 px high; the reason line
 //       within the first 900 px; at 600 and 320, light and dark, the card's gold top edge is kept, and the header's
-//       alt text (what reads with images blocked) is the wordmark colour, the dark one on dark
+//       text wordmark «PINTAR» (D-192: no image) is #075056, the light teal on dark
 //   E2  images blocked (K13; the owner's images-blocked addendum): with every image removed, each email still says
 //       who («PINTAR» in the heading or the reason, «PT ZAYD PINTAR SELALU» in the footer), why (the reason line under
 //       the heading) and what (the heading with its code or its action); the card's facts survive as text
@@ -57,13 +57,15 @@ await step("E1", "at 320 px: no sideways scroll, no text under 13 px, buttons at
         const tombol = [...document.querySelectorAll(".pin-tombol-a")].map((a) => a.getBoundingClientRect().height);
         const alasan = document.querySelector(".pin-alasan")?.getBoundingClientRect().top ?? Infinity;
         const kartu = document.querySelector(".pin-kartu");
-        const merek = document.querySelector("img.pin-merek-teks");
-        return { geser: document.documentElement.scrollWidth - document.documentElement.clientWidth, kecil, tombol, alasan, emas: kartu ? getComputedStyle(kartu).borderTopColor : "", merek: merek ? getComputedStyle(merek).color : "" };
+        const merek = document.querySelector(".pin-merek-teks");
+        return { geser: document.documentElement.scrollWidth - document.documentElement.clientWidth, kecil, tombol, alasan, emas: kartu ? getComputedStyle(kartu).borderTopColor : "", merek: merek ? getComputedStyle(merek).color : "", merekTeks: merek ? `${merek.tagName}:${merek.textContent.trim()}` : "" };
       });
       const nama = `${s.kode} ${lebar}${gelap ? " dark" : ""}`;
       harus(rec, ukur.emas === "rgb(192, 156, 79)", `${nama}: the card's top edge is gold (${ukur.emas})`);
-      // with images blocked the header reads as its alt «PINTAR»: in the wordmark colour, the dark one on dark
-      harus(rec, ukur.merek === (gelap ? "rgb(134, 207, 191)" : "rgb(36, 95, 85)"), `${nama}: the header's alt text is the ${gelap ? "dark " : ""}wordmark colour (${ukur.merek})`);
+      // RESTATED FOR D-192: the header is the text wordmark «PINTAR» (no image), in #075056, and the light teal on a
+      // client's dark mode (bingkai.ts .pin-merek-teks), so it reads the same with images blocked or not
+      harus(rec, ukur.merekTeks === "SPAN:PINTAR" && ukur.merek === (gelap ? "rgb(134, 207, 191)" : "rgb(7, 80, 86)"),
+        `${nama}: the header is the text wordmark in the ${gelap ? "dark-mode " : ""}wordmark colour (${ukur.merekTeks}, ${ukur.merek})`);
       if (lebar === 320) {
         harus(rec, ukur.geser <= 0, `${nama}: no sideways scroll (${ukur.geser} px over)`);
         harus(rec, ukur.kecil.length === 0, `${nama}: no text under 13 px${ukur.kecil.length ? `: ${ukur.kecil.slice(0, 3).join(", ")}` : ""}`);

@@ -16,8 +16,10 @@ import { join } from "node:path";
 const APP = process.env.APP_URL, SB = process.env.SUPABASE_URL, ANON = process.env.SUPABASE_ANON_KEY;
 if (!APP || !SB || !ANON) throw new Error("APP_URL, SUPABASE_URL and SUPABASE_ANON_KEY are required");
 if (/pintarselalu\.com/.test(new URL(APP).hostname) && !/staging/.test(new URL(APP).hostname)) throw new Error("never production");
+// Playwright is the harness's own (audit/package.json), as crawl.mjs imports it; Supabase's client is the app's
+const harness = createRequire(import.meta.url);
+const { chromium } = harness("playwright");
 const require = createRequire(join(process.env.APP_DIR ?? process.cwd(), "package.json"));
-const { chromium } = require("playwright");
 const { createServerClient } = require("@supabase/ssr");
 const OUT = process.env.OUT_DIR ?? "audit-out/layar-pertama";
 const RUNS = Number(process.env.RUNS ?? 3);
