@@ -16,6 +16,15 @@
 
 **The source of each item** is the register (`01-REGISTER.md`) and the summary (`02-RINGKASAN.md` §4). **Nothing here is decided by engineering.** No answer is assumed because a recommendation exists: K4–K7 are open until the owner answers them.
 
+> **CLOSED FOR DEVELOPMENT (D-191, owner, 5 Nov 2026).** K1–K7 are ruled for PINTAR 4.0 development and are not
+> asked again. What still needs an outside party is tracked on its own work item, not here:
+> - Dr Gladys's explicitly required wording approvals: her pack and E-B1-2, E-B1-3, E-A1-2, E-A4-1, E-A5-1;
+> - Daisy's missing compositions: W1.2, W3.8, W3.21;
+> - the print proofs: F-11, at release;
+> - real-content safeguards: E-K6-1, E-K6-2;
+> - the staging human account's address: Batch 0 §4.1.
+> The tables below are kept as history.
+
 ## 1. What is asked, of whom, in one round
 
 | # | Decision | Decides | Where it is asked | Register rows |

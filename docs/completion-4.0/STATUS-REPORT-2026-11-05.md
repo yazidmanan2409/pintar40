@@ -103,14 +103,13 @@ authorisation.
 
 ### 3.2 Waiting on the owner (decisions and actions)
 
+**K1–K7 are closed for development (D-191, 5 Nov).** What still needs an outside party is tracked on its own item
+(§3.3, F-11 at release, E-K6-1 and E-K6-2 for real content).
+
 | # | Decision or action | What it unblocks | Where |
 |---|---|---|---|
 | **P-1** | **Authorise the consolidated staging promotion** (merge, migrations 194–196, deploy) | Batch 6 onward reaching staging; W6.5 on staging; staging walks | `batch-8/02-STAGING-PROMOTION-PROPOSAL.md` |
 | W5.3 | Branch protection on `main`: the register still says BLOCKED, though Batches 1–5 were merged through protected PRs. **Confirm it is in force** | the record | register W5.3 |
-| K4 / F-11 | The wordmark master and the font licence; physical print proofs | the wordmark in the shell and emails (D5); certificate print proof | F-11 |
-| K5 | D1's manual client protocol: a send path and synthetic inboxes | the identity emails' client check | `05-D1-IMPLEMENTATION-TEST-PLAN.md` |
-| K6 / F-4 | The six content-security questions (where private content lives, who reads it, enforcement, retirement, regeneration, backups); residency stays interim, pending counsel (D-182) | E-K6-1, E-K6-2: real assessment content | `03-LINTASAN-KEPUTUSAN.md` §1a |
-| K7 | The personal address in three files: keep it, or use a role address | R1-7 | Batch 0 security report §4.1 |
 | F-5 | How production reaches migration 162, then the candidate | the production upgrade (W9.10) | F-5 |
 | F-6 | Name the second production SYSTEM_ADMIN and custodian B | J1.2, J1.5, W6.6 (the PINTAR-standard chain), W9.7 | F-6 |
 | F-9 | A production school-founding path | W2.20 | F-9 |
@@ -128,7 +127,7 @@ authorisation.
 
 | Who | What | Blocks |
 |---|---|---|
-| **Dr Gladys** (K1, K2) | The question pack: Part A A1–A10, Part B B1–B38 (B38, the «Cari orang» words, added today); X12 «paket / kursus / course» | E-B1-2, E-B1-3, E-A1-2, E-A4-1, E-A5-1, W2.13 (UX-09), W2.14, W4.2, W4.3. Her walkthrough comes after the internal gates (D-186) |
+| **Dr Gladys** (approvals explicitly required, D-191) | The question pack: Part A A1–A10, Part B B1–B38 (B38, the «Cari orang» words, added today); X12 «paket / kursus / course» | E-B1-2, E-B1-3, E-A1-2, E-A4-1, E-A5-1, W2.13 (UX-09), W2.14, W4.2, W4.3. Her walkthrough comes after the internal gates (D-186) |
 | **Daisy** | W1.2 the question-review layout; W3.8 the report body and its A4 composition (C1); W3.21 republishing the Design System page; the E2 chooser's words with Dr Gladys | W1.2, W3.8 (partial), W3.21 |
 | **Counsel** (F-16) | UU PDP, PSE registration, controller and processor, retention, parental consent; content rights | **W9.11, the legal gate before any real school**; K6 residency |
 
@@ -142,7 +141,7 @@ authorisation.
    - re-run the journeys against staging.
 3. **The words and the remaining designs land** (Dr Gladys, Daisy). Each lands as copy keys in `src/lib/hle.ts` plus the
    tests already waiting for it; the screens are built.
-4. **Internal acceptance gates pass:** the 138 acceptance lines (D-181), with K1–K7 closed where they apply. Then Dr
+4. **Internal acceptance gates pass:** the 138 acceptance lines (D-181), with K1–K7 ruled for development (D-191). Then Dr
    Gladys's walkthrough.
 5. **Batch 9–10, release readiness:**
    - capacity (F-15);
@@ -155,7 +154,7 @@ authorisation.
    - the production watch.
 6. **Production release:** a separate owner authorisation, after all of the above.
 
-**Critical path:** P-1, then the Dr Gladys pack (K1, K2), then counsel (F-16), then capacity and recovery
+**Critical path:** P-1, then Dr Gladys's required approvals, then counsel (F-16), then capacity and recovery
 (F-15, F-6, F-14). Engineering is not the bottleneck: what is left to build is small and unblocked; what is left to
 decide is not.
 
@@ -167,7 +166,7 @@ decide is not.
   uploaded files do not.
 - **The branch is 161 commits and three migrations ahead of staging.** The longer P-1 waits, the larger the single
   promotion. The rollback is tested; the risk is the size of the change, not an untested path.
-- **Real assessment content stays blocked** until K6 is answered. The exposure flag (D-183) keeps the exposed chapters
+- **Real assessment content stays blocked** until the real-content safeguards are verified (D-191 K6; E-K6-1, E-K6-2). The exposure flag (D-183) keeps the exposed chapters
   from ever giving a real verdict, but there is no regenerated content yet.
 - **Dependency hygiene:** fixed today (Next.js critical). 8 moderate advisories remain in the lint tooling only, which
   never ships.
