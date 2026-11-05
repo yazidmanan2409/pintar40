@@ -33,6 +33,7 @@ Each walk ran only after the one before it was green.
 | The school admin's setup and the chapter's publication | GS-04 to GS-11 | 42039104715 red (A2), 42041265308 red (A9), **42043970344** | **GREEN** on the third: both reds were walk defects, see below |
 | The students | GS-07 cards, GS-12 to GS-16 | 42046058740 | **GREEN** |
 | Reports, certificate, recovery, shared computer, public check | GS-17 to GS-21 | 42049795788 | **GREEN** |
+| The administration journey (D-153), receiving school Sekolah Uji B5 1104 | Batch 4 | 42054817245 | **GREEN** |
 
 **Walk defects found and fixed (not product defects; the assertions are unchanged):**
 - **A2, A3, A7 (run 42039104715):** the walk read Konfigurasi as one page. Since B1 (c4e2ffe3) it is an index with
