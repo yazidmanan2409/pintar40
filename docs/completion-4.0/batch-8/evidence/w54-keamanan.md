@@ -17,7 +17,7 @@ So W5.4 is the whole manifest on the candidate, and the readiness check beside i
 | Full selftest, reset database | c256cd69 (W2.17) | **843 passed, 0 failed**, 1 justified local skip |
 | Full selftest, reset database | c256cd69 + Next 16.4.5 and the audit fixes | **781 passed**; 62 failed «fetch failed» when the local Docker shims died mid-run (database, auth, storage and realtime containers restarted; no out-of-memory kill) |
 | The 62, re-run on a fresh stack | same tree | **all 62 pass** (166 rows, the db suites reporting whole). F22-K06 is red only in that targeted run: its persona is seeded by a suite the targeted run does not execute; it passed in the full run |
-| CI (`ci.yml`) on the pushed head | this commit | dispatched; the clean single full run of record |
+| CI (`ci.yml`) on the pushed head | `715f6f7d` | **GREEN**: CI 42007060565 and journeys 42007065865, both success (5 Nov), the full run of record |
 
 The first full run of W2.17 was **red, 10 rows**, and those rows are the security suite doing its work: the new
 SECURITY DEFINER function `school_people_page` had no exposure class (F01-T13, F03-T10, F04-T14, F05-T21, F06-P08,
