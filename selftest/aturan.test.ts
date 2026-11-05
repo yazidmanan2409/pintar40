@@ -8,8 +8,13 @@
  * evaluate_session, finalize_session, option_display_order, or the draw, eligible_items_for_definition) bumps
  * pintar-engine/N, or states that the engine is unchanged and why. The catalogue labels a migration publishes rise
  * strictly in migration order. Recorded exceptions are named with their reason; a stale one fails.
+ *
+ * X.11 (DAISY-17, D-046(e)): IDLE → WORKING → SUCCESS / ERROR, NEVER TWICE. Forms are held by DAISY-17-KIRIM-01 (every
+ * <form action> submits through TombolKirim). This holds the rest: every client component that calls the server itself
+ * (fetch or .rpc) disables its trigger while the call is pending (a disabled={…} bound to its own state), or is declared
+ * with its reason. A stale declaration fails; a planted component with neither is caught.
  */
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 
@@ -87,3 +92,53 @@ export const aturanTests: SelfTest[] = [
     },
   },
 ];
+
+/** Client components that call the server and need no disabled trigger, each with its reason. */
+export const KLIEN_TANPA_TOMBOL: Record<string, string> = {
+  "src/components/PenjagaSesi.tsx": "the idle warning's heartbeat and expiry: no person presses anything",
+  "src/components/pelajaran/TautanBerkas.tsx": "a read-only check that a lesson file exists before it opens; it changes nothing",
+  "src/components/lapor/TangkapanLayar.tsx": "the screenshot upload: the file field is invalid while it uploads, so the report's own TombolKirim cannot send (X.11, audit/e1-navigasi.mjs N8), and only the latest pick may finish",
+};
+
+/** Whether a client component's source calls the server and guards its trigger. */
+export function periksaX11(teks: string): { klien: boolean; panggil: boolean; jaga: boolean } {
+  const klien = /^\s*["']use client["']/m.test(teks);
+  const panggil = /\bfetch\(|\.rpc\(/.test(teks);
+  const jaga = /disabled=\{[^}]*\b(sibuk|pending|isPending|keadaan|langkah|committed|finishing|memuat|kirim)\b/.test(teks);
+  return { klien, panggil, jaga };
+}
+
+function semuaTsx(dir: string): string[] {
+  return readdirSync(dir).flatMap((n) => {
+    const p = join(dir, n);
+    return statSync(p).isDirectory() ? semuaTsx(p) : p.endsWith(".tsx") ? [p] : [];
+  });
+}
+
+aturanTests.push({
+  id: "X11-KLIEN-01",
+  run: async (ctx) => {
+    const c = new Checks();
+    const root = ctx.repoRoot;
+    const berkas = [...semuaTsx(join(root, "src", "app")), ...semuaTsx(join(root, "src", "components"))];
+    let n = 0, nJaga = 0;
+    const dipakai = new Set<string>();
+    for (const f of berkas) {
+      const rel = f.slice(root.length + 1).replace(/\\/g, "/");
+      const v = periksaX11(readFileSync(f, "utf8"));
+      if (!v.klien || !v.panggil) continue;
+      n++;
+      if (v.jaga) { nJaga++; continue; }
+      if (KLIEN_TANPA_TOMBOL[rel]) { dipakai.add(rel); continue; }
+      c.expect(false, `${rel} calls the server from the client and disables no trigger while the call is pending (X.11)`);
+    }
+    for (const f of Object.keys(KLIEN_TANPA_TOMBOL)) c.expect(dipakai.has(f), `${f} is declared for X.11 but no longer needs it: remove its line`);
+    const tanam = periksaX11('"use client";\nexport default function X() { return <button onClick={() => fetch("/api/x", { method: "POST" })}>Kirim</button>; }');
+    c.expect(tanam.klien && tanam.panggil && !tanam.jaga, "a planted client component that posts from an unguarded button is not caught");
+    return c.verdict(
+      `read every .tsx under src/app and src/components: ${n} client components call the server themselves (fetch or .rpc); ${nJaga} ` +
+      `disable their trigger while the call is pending, and ${dipakai.size} are declared with their reason (a heartbeat, a read-only ` +
+      `check, the screenshot upload that holds the report's own send); forms are DAISY-17-KIRIM-01's; a planted unguarded one is caught`);
+  },
+});
+

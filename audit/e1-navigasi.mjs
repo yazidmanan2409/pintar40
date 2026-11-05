@@ -16,6 +16,10 @@
 //   N5  A transition: the teacher who also learns chooses Belajar on «/»; the navigation is then Belajar's, and back.
 //   N7  «Laporkan masalah» from a page that needs its query (an assignment's /siapa) and back: the same page and
 //       query, never a refusal (R0-4; the way back is the history-back, TautanKembali)
+//   N8  X.11 (W6.1; D-186): a report is never sent while its screenshot is still uploading, and a second pick wins. With
+//       the upload held in flight, «Kirim laporan» does not send (the page stays on /lapor; the file field says it is
+//       uploading); a second, faster pick is the one attached even when the first finishes after it; once the upload is
+//       done the report is sent and received.
 //   N6  A page of another context is not drawn inside this one: a teacher in Mengajar opening /konfigurasi is refused
 //       or sent to «/», never shown Konfigurasi with its places.
 //
@@ -300,6 +304,43 @@ await step("N7", "«Laporkan masalah» from a page that needs its query, and bac
   harus(rec, kini.search === asal.search, `back on ${kini.pathname}${kini.search}, the page as it was left (${asal.search})`);
   harus(rec, !/belum tersedia untuk akun Anda/.test(judul), `the page is drawn, not refused («${judul}»)`);
   await shot(page, rec, "lapor-kembali");
+});
+
+await step("N8", "X.11: a report is never sent while its screenshot uploads, and a second pick wins", async (rec) => {
+  const { page } = sesi["guru-dua"];
+  await page.setViewportSize({ width: 1280, height: 860 });
+  await page.goto(`${APP}/lapor?dari=/mengajar`, { waitUntil: "networkidle" });
+  // the first upload's signed-URL request is held until released; every other request goes through
+  let lepas; const ditahan = new Promise((r) => { lepas = r; });
+  let pertama = true;
+  await page.route("**/api/assets/upload-url", async (route) => {
+    if (pertama) { pertama = false; await ditahan; }
+    await route.continue().catch(() => {});   // released after the step ended: nothing left to continue
+  });
+  const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=", "base64");
+  for (const n of ["lakukan", "harapan", "terjadi"]) await page.locator(`textarea[name="${n}"]`).fill(`X.11 walk: ${n}`);
+  await page.setInputFiles("#lapor-tangkapan", { name: "satu.png", mimeType: "image/png", buffer: png });
+  await page.waitForFunction(() => /Mengunggah/.test(document.querySelector(".pin-lapor-isian .pin-hint")?.textContent ?? ""), null, { timeout: 10000 });
+  // pressing send while it uploads does not send
+  await page.getByRole("button", { name: "Kirim laporan" }).click();
+  await page.waitForTimeout(1500);
+  const masih = new URL(page.url()).pathname;
+  if (!harus(rec, masih === "/lapor", masih === "/lapor" ? "pressing «Kirim laporan» mid-upload sent nothing: the page stayed on /lapor" : `pressing «Kirim laporan» mid-upload sent the report without its screenshot (now on ${masih})`)) { lepas(); await page.unroute("**/api/assets/upload-url"); return; }
+  const pesan = await page.locator("#lapor-tangkapan").evaluate((el) => el.validationMessage, null, { timeout: 5000 });
+  harus(rec, /Mengunggah/.test(pesan), `the file field says why it cannot be sent yet («${pesan}»)`);
+  // a second, faster pick; then the first finishes after it
+  await page.setInputFiles("#lapor-tangkapan", { name: "dua.jpg", mimeType: "image/jpeg", buffer: png });
+  await page.waitForFunction(() => /\.jpg$/.test(document.querySelector('input[name="tangkapan"]')?.value ?? ""), null, { timeout: SLOW }).catch(() => {});
+  lepas();
+  await page.waitForTimeout(2500);
+  const jalur = await page.locator('input[name="tangkapan"]').inputValue();
+  harus(rec, /^laporan\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.jpg$/.test(jalur), `the attached screenshot is the second pick (${jalur || "none"})`);
+  // once done, the report is sent and received
+  await page.getByRole("button", { name: "Kirim laporan" }).click();
+  await page.waitForURL((u) => u.pathname === "/lapor/saya", { timeout: SLOW }).catch(() => {});
+  harus(rec, new URL(page.url()).pathname === "/lapor/saya", `after the upload the report was sent (${new URL(page.url()).pathname})`);
+  await page.unroute("**/api/assets/upload-url");
+  await shot(page, rec, "lapor-tangkapan");
 });
 
 await browser.close();
