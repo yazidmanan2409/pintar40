@@ -1851,6 +1851,7 @@ export type HleEvent =
   | "emailuji.alasan.batas_umum"
   | "emailuji.alasan.ditolak_server"
   | "emailuji.alasan.gagal_kirim"
+  | "emailuji.alasan.ditahan_uji"
   | "emailuji.pengaturan.hilang"
   | "emailuji.pengaturan.tidak_sah"
   | "emailuji.pengaturan.tidak_aman"
@@ -4354,6 +4355,7 @@ const table: Table = {
   "emailuji.alasan.batas_umum": { default: "Belum terkirim: PINTAR sudah mencapai batas pengirimannya untuk saat ini. Coba lagi nanti.", en: "Not sent: PINTAR has reached its sending limit for now. Try again later." },
   "emailuji.alasan.ditolak_server": { default: "Belum terkirim: server email menolak pesan ini.", en: "Not sent: the email server refused this message." },
   "emailuji.alasan.gagal_kirim": { default: "Belum terkirim: PINTAR tidak dapat tersambung ke server email.", en: "Not sent: PINTAR could not connect to the email server." },
+  "emailuji.alasan.ditahan_uji": { default: "Tidak dikirim: di luar PINTAR produksi, email hanya dikirim ke alamat pintarselalu.com atau alamat uji.", en: "Not sent: outside production PINTAR, email goes only to pintarselalu.com addresses or test addresses." },
   "emailuji.pengaturan.hilang": { default: "Belum terkirim: sebuah pengaturan email belum diisi.", en: "Not sent: an email setting has not been filled in." },
   "emailuji.pengaturan.tidak_sah": { default: "Belum terkirim: sebuah pengaturan email isinya tidak sah.", en: "Not sent: an email setting does not hold a valid value." },
   "emailuji.pengaturan.tidak_aman": { default: "Belum terkirim: pengaturan email tidak memakai sambungan yang aman.", en: "Not sent: the email settings do not use a secure connection." },

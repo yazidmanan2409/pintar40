@@ -314,6 +314,62 @@ export const bob25Tests: SelfTest[] = [
     },
   },
   {
+    // P-2 (staging promotion proposal, owner 5 Nov: «No unrestricted real-inbox sending»). Outside production's origin,
+    // kirimEmail sends only to an address PINTAR controls (pintarselalu.com, exactly) or to a reserved test domain
+    // (RFC 2606 / 6761: .test, .invalid, .example, .localhost, example.com/.net/.org), or to an address named in
+    // PENERIMA_UJI_TAMBAHAN by a reviewed change. Anything else is held: not sent, not logged, no budget spent.
+    // Production's origin is not restricted.
+    id: "P2-PENERIMA-01",
+    requires: ["db", "mailsink"],
+    run: async () => {
+      const c = new Checks();
+      let k: Kirim | null = null;
+      try { k = await import("../src/app/api/_email/kirim"); } catch { k = null; }
+      if (!c.expect(!!k?.kirimEmail, "src/app/api/_email/kirim.ts has no kirimEmail")) return c.verdict("");
+      const tag = randomBytes(5).toString("hex");
+      const env = { PINTAR_SMTP_HOST: SINK_SMTP.host, PINTAR_SMTP_PORT: SINK_SMTP.port, PINTAR_SMTP_USER: "noreply@pintarselalu.com",
+        PINTAR_SMTP_PASSWORD: "sink-accepts-any", NEXT_PUBLIC_APP_URL: "https://staging.pintarselalu.com" };
+      const surel = () => ({ subjek: `P2 ${tag}`, teks: `P2 ${tag}`, html: `<p>P2 ${tag}</p>` });
+      const kirim = (ke: string) => k!.kirimEmail({ ke, jenis: "UJI_PENGIRIMAN", susun: surel }, catatanPsql());
+      const baris = (a: string) => Number(psql(`select count(*) from public.email_send_log where recipient_hash = '${k!.hashAlamat(a)}'`));
+      const ditahan = [`p2-${tag}@gmail.com`, `  P2-${tag}@OUTLOOK.COM `, `p2-${tag}@example.co`, `p2-${tag}@pintarselalu.com.evil.io`,
+        `p2-${tag}@evilpintarselalu.com`, `p2-${tag}@staging.pintarselalu.com`];
+      const boleh = [`goldenschool+p2-${tag}@pintarselalu.com`, `p2-${tag}@synthetic.pintar.test`, `p2-${tag}@local.invalid`, `p2-${tag}@example.com`];
+      const terlihat: string[] = [];
+      await sinkChaos(null);
+      await denganEnv(env, async () => {
+        for (const a of ditahan) {
+          const n = a.trim().toLowerCase();
+          const { hasil } = await tangkapKonsol(() => kirim(a));
+          c.expect(hasil.terkirim === false && (hasil as { alasan?: string }).alasan === "DITAHAN_UJI",
+            `outside production, ${n} was answered ${JSON.stringify(hasil)}, not held`);
+          c.expect((await sinkCari(n)).length === 0, `outside production, ${n} reached the sink`);
+          c.expect(baris(n) === 0, `a held send to ${n} was logged or spent the budget`);
+        }
+        for (const a of boleh) {
+          const { hasil } = await tangkapKonsol(() => kirim(a));
+          c.expect(hasil.terkirim === true, `outside production, ${a} (allowed) was answered ${JSON.stringify(hasil)}`);
+          c.expect((await sinkCari(a)).length === 1, `outside production, ${a} (allowed) did not reach the sink`);
+          terlihat.push(a);
+        }
+        // production's origin is not restricted: a real-looking address goes (to the sink, here)
+        await denganEnv({ NEXT_PUBLIC_APP_URL: "https://app.pintarselalu.com" }, async () => {
+          const a = `prod-p2-${tag}@gmail.com`;
+          const { hasil } = await tangkapKonsol(() => kirim(a));
+          c.expect(hasil.terkirim === true, `on production's origin, ${a} was answered ${JSON.stringify(hasil)}`);
+          c.expect((await sinkCari(a)).length === 1, "on production's origin the send did not reach the sink");
+        });
+      });
+      // the screen's sentence for a held send names the reason, from the copy table
+      const { bacaHasilUji } = await import("../src/components/email-uji/hasil");
+      const h = bacaHasilUji(502, { terkirim: false, alasan: "DITAHAN_UJI", rujukan: "" }, []);
+      c.expect(h.kunci === "emailuji.alasan.ditahan_uji", `«Kirim email uji» reads a held send as ${JSON.stringify(h)}`);
+      return c.verdict(`outside production's origin ${ditahan.length} addresses outside PINTAR's own domain and the reserved test `
+        + `domains (lookalikes included) were held: not sent, not logged; ${terlihat.length} allowed addresses were sent; production's `
+        + "origin is not restricted; «Kirim email uji» names the reason");
+    },
+  },
+  {
     id: "BOB25-A01",
     requires: ["network", "db", "mailsink"],
     run: async (ctx) => {

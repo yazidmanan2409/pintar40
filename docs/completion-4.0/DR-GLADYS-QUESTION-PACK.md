@@ -199,6 +199,7 @@ In the card email: «Akun PINTAR Anda di {sekolah}.» But a PINTAR ID belongs to
 | B34 | `mengajar.cepat.hasil.belum` | Belum ada nilai. Rata-rata nilai kelas muncul di sini setelah ada yang mengumpulkan. | today «… The class average appears here …»; proposed «The class average score appears here once someone has handed in.», to match B4 (minor finding 1, `04-REKONSILIASI-BALIK.md` §7) | Uji Cepat result, before any score |
 | B35 | `mengajar.sedia.kode.assign_exposed_content` (D-183, added 4 Nov) | Soal Pemetaan Awal dan Cek penguasaan pelajaran ini pernah terbuka untuk umum, jadi tidak dapat dipakai sebagai penilaian di sekolah. Gunakan versi pelajaran yang soalnya sudah diganti. | This lesson's Pemetaan Awal and Cek penguasaan questions were once made public, so they cannot be used as an assessment in a school. Use a version of the lesson whose questions have been replaced. | Siapkan, when a teacher gives a class an exposed chapter |
 | B36 | `evaluasi.akun_tidak_ada` (W6.10 J1.8, added 5 Nov) | Halaman akun tidak tersedia dalam MODE PERAGAAN. Sudut pandang peragaan tidak punya akun, PIN, atau PINTAR ID sendiri. | The account page is not available in DEMONSTRATION MODE. A demonstration point of view has no account, PIN or PINTAR ID of its own. | Mode Peragaan, when a persona opens /akun |
+| B37 | `emailuji.alasan.ditahan_uji` (P-2, added 5 Nov) | Tidak dikirim: di luar PINTAR produksi, email hanya dikirim ke alamat pintarselalu.com atau alamat uji. | Not sent: outside production PINTAR, email goes only to pintarselalu.com addresses or test addresses. | Konfigurasi › Kirim email uji, platform administrator only, never on production |
 
 Already settled, nothing to answer: the school registration number («Nomor Registrasi Sekolah», D-174 / D-175), and «PINTAR ID» as the identifier's name.
 
@@ -213,6 +214,6 @@ Already settled, nothing to answer: the school registration number («Nomor Regi
 | A5, A6 | the Studio words (A4) and the application-wide terminology fix (X12) |
 | A7, A10 | the professional-learning page (C2) and the identity emails (D1) |
 | A8, A9 | Konfigurasi's platform view (B1) and the sign-in message |
-| Part B | every new word in the accepted designs, and E4, Daisy's last open item; B28–B31 the words the retrospective built or changed; B32–B34 the keys found missing from this pack; B35 the exposure refusal (D-183); B36 the demonstration-mode account refusal (W6.10 J1.8) |
+| Part B | every new word in the accepted designs, and E4, Daisy's last open item; B28–B31 the words the retrospective built or changed; B32–B34 the keys found missing from this pack; B35 the exposure refusal (D-183); B36 the demonstration-mode account refusal (W6.10 J1.8); B37 the test-email hold outside production (P-2) |
 
 **Gate 2 (Terminology final, G:81) needs every A and B answered.** A placeholder left anywhere is a NO-GO.

@@ -55,6 +55,7 @@ export function bacaHasilUji(status: number | null, jawaban: unknown, namaSah: r
     case "BATAS_UMUM": return { nada: "gagal", kunci: "emailuji.alasan.batas_umum", rujukan };
     case "DITOLAK_SERVER": return { nada: "gagal", kunci: "emailuji.alasan.ditolak_server", rujukan };
     case "GAGAL_KIRIM": return { nada: "gagal", kunci: "emailuji.alasan.gagal_kirim", rujukan };
+    case "DITAHAN_UJI": return { nada: "gagal", kunci: "emailuji.alasan.ditahan_uji" };
   }
 
   const nama = typeof j.variabel === "string" && namaSah.includes(j.variabel) ? j.variabel : undefined;

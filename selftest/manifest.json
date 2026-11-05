@@ -4542,6 +4542,11 @@
       "proves": "W6.10 (D-186; ADM-15), selftest/db/fable29.sql, migration 20261229100000_the_mastery_check_waits_for_the_mapping.sql: in a chapter given whole in the synthetic learning-cycle school, the learner's Uji Penguasaan is refused PRE_TEST_NOT_FINALIZED by may_start_assessment before the Pemetaan Awal is begun and while it runs; start_learning_session opens nothing and assessment_orientation offers nothing; once the Pemetaan Awal is finished the Uji Penguasaan starts, one session."
     },
     {
+      "id": "P2-PENERIMA-01",
+      "runner": "static",
+      "proves": "P-2 (staging promotion proposal; owner 5 Nov: no unrestricted real-inbox sending), selftest/bob25.test.ts through the source of src/app/api/_email/kirim.ts against the database's send log and the Mailpit sink: outside production's origin kirimEmail holds every address outside PINTAR's own domain (pintarselalu.com exactly; lookalikes and subdomains included) and the reserved test domains (.test, .invalid, .example, .localhost, example.com/.net/.org), unless named in PENERIMA_UJI_TAMBAHAN: not sent, not logged, no budget spent, answered DITAHAN_UJI; the allowed addresses are sent; production's origin is not restricted; «Kirim email uji» names the reason from the copy table."
+    },
+    {
       "id": "D060-J78-01",
       "runner": "static",
       "proves": "J7.8 (D-060; W6.1, CR-59; D-186), selftest/aturan.test.ts read over every migration under supabase/migrations from 29 Sep: each that changes a metric's meaning (a calc_* body, an official_/academic_/scoped_/service_ source view, evidence_readiness) publishes a new catalogue version or states the catalogue unchanged in its header; each that changes the engine's meaning (grade_response, record_answer, assemble_session, evaluate_session, finalize_session, option_display_order, eligible_items_for_definition) bumps pintar-engine/N or states it unchanged; the catalogue labels published rise strictly in migration order; three applied migrations are recorded exceptions with their reason, and a stale exception fails; a planted calculator and engine change with neither is caught."
