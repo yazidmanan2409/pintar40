@@ -16,10 +16,11 @@ Each check names where it was run. The levels are kept apart:
 | **W6.4** the crawl: overflow and clipping at 320 / 640 / 1024 / 1280 px, axe, titles, skip link, keyboard focus | X.6 (U-DEVICE), L-a11y | local, `715f6f7d` + the fix below | **GREEN**: 14 personas, 55 distinct screens, 0 broken; 0 axe violations (WCAG 2.0–2.2 A and AA); every screen has a title and a skip link; no invisible or stuck focus; 0 overflow and 0 clipping at every width | §1 |
 | W6.4 | the same | CI journeys 42007065865 on `715f6f7d` | **GREEN** (before the fix: the runner's fonts kept the one overflow below the 1 px threshold) | the run |
 | **W6.2** first screen per role ≤ 3 s | U-PERF, X.10 | local pre-check | **GREEN**: worst of three at most 488 ms on 15 first screens across 6 roles | §2 |
-| W6.2 | U-PERF | staging, `main` 38d7e701, from GitHub's runner | **MEASURED, NOT MET for the admin**: the teacher's first screen 2.4–3.2 s; the admin's 4.6–5.7 s, and four admin steps over 3 s. The server answers in 0.36–0.61 s warm (TTFB). See §2b | §2b |
+| W6.2 | U-PERF | staging, `main` 38d7e701, from GitHub's runner | **OPEN — MEASURED, NOT MET for the admin; the cause found and fixed on the branch, awaiting promotion and re-measurement**: the teacher's first screen 2.4–3.2 s; the admin's 4.6–5.7 s, and four admin steps over 3 s. The server answers in 0.36–0.61 s warm (TTFB). See §2b | §2b |
 | **W6.8** the 50-student test through the real app | CAP-02 at 50, STU-* | staging | **PENDING P-1**: `perf-l1.yml` `mode=browser` writes synthetic sittings on staging; today it would measure Batch 5 | — |
 | **W6.12** 200 % zoom, keyboard, contrast | L-a11y | local | **GREEN** at 640 px (1280 at 200 %) and the keyboard walk (§1); colour vision §3 | §1, §3 |
-| W6.12 NVDA (Windows) and TalkBack (Android) | L-a11y | human, devices | **NEEDS DEVICES**: this environment has neither; see §4 | — |
+| W6.12 · **NVDA** (Windows, a recent NVDA with Chrome or Firefox) | L-a11y | human, device | **OUTSTANDING — DEVICE RUN NOT DONE**: needs a person with a Windows machine; script §4 | — |
+| W6.12 · **TalkBack** (Android, a recent TalkBack with Chrome) | L-a11y | human, device | **OUTSTANDING — DEVICE RUN NOT DONE**: needs a person with an Android phone; script §4 | — |
 
 ## 1 · W6.4: the crawl (local, 5 Nov)
 
@@ -92,6 +93,16 @@ on its staging evidence until the promoted candidate is measured.
   - a save's result line (3.9–4.9 s). The save acknowledges the click at once, within 4 ms (D-046(e)).
 - **Where the time goes:** the server's own first byte is fast (above). The rest is page work and the round trips from GitHub's runner, which is not in Indonesia. These figures are upper bounds for a reader beside the server.
 - **The verdict:** it is not ours to soften. **U-PERF stays open for the admin's Konfigurasi pages.** The next step is to measure from a browser in the region, or to profile what the Konfigurasi index and «Laporan» load per request.
+
+**Profiled (5 Nov, evening), from Supabase's own edge log of that journey's windows (read-only):**
+- **What a Konfigurasi render does.** The index and «Laporan» alike make about 20 parallel reads. **`GET audit_log` answered in 2,271 ms on both renders**; every other read answered in 7–145 ms. The page's second batch of reads (structure, transfers, pass marks, …) starts only after it.
+- **Why.** The same query, EXPLAINed read-only as the synthetic school's admin:
+  - as a plain query: 21 ms;
+  - as PostgREST sends it, a prepared statement under a generic plan, with `institution_id = any($1)`: **2,538 ms**. That plan cannot use the `(institution_id, at desc)` order, so it reads all 6,386 of the school's trail rows through the row policy to keep 51;
+  - with `institution_id = $1`: 21 ms.
+- **Fixed on the branch** (not yet on staging): Konfigurasi reads the trail only on «Jejak audit»'s own page, which since B1 is the only page that draws it, and names one school with `eq`. Held by **W62-JEJAK-01**: a planted copy of the old read is caught.
+- **The second cost: Auth round trips.** Every page load also makes several `GET /auth/v1/user` calls at about 200 ms each, against 7–15 ms for database reads. This is W9.19's Auth round trip, still open. It weighs most on sign-in, when the proxy, the page and the shell each ask.
+- **From the region:** **not measured.** No runner or host in Indonesia is available to this work, and this container cannot reach staging. The row stays open until the fix is on staging and the journey is re-measured. If the target is to be judged from the region, a regional probe is an owner provision.
 
 **Harness defects fixed to get these figures:**
 1. The synthetic staff were held at the activation wizard (BOB-26) since the identity foundation. Every earlier journey timed out at sign-in, and the job still read green (run 42064350172).
