@@ -78,7 +78,7 @@ async function step(id, title, fn) {
 async function klikTautan(page, href) {
   // D-138 step 3 (AppShell): under 1024 px the staff places and «Akun saya» sit in the menu; a person opens it first
   if (!(await page.locator(`a[href="${href}"]:visible`).count())) {
-    const menu = page.locator('label[for="pin-laci"]');
+    const menu = page.locator('[data-laci-tombol]:visible, label[for="pin-laci"]:visible').first();
     if (await menu.isVisible().catch(() => false)) await menu.click();
   }
   // W3.5 (Batch 2, JQ2(a)): Akun saya and Laporan saya sit in the account menu, opened by the staff member's name
