@@ -11,3 +11,10 @@ Run through the Supabase connector on `pintar-staging` (`keijhmdtsgrfvnvocfvk`),
 | 196's function (`school_people_page`) | absent | absent | ✓ |
 | Preservation digests (`batch-5/evidence/staging/preservation.sql`) | Batch 5's after-values | every value identical: demo 4/10/10/3/5/1, audit 91 (6860), people `bd41b3c9…`, accounts `7deebf17…`, results `2440c371…`, official `a14f4a40…`, certificates `ffa43edd…`, all 1592/166/45/50/1, signals `666ff1ab…`, decisions none, 15/0 | ✓ |
 | The ten D-184 schools' sittings (`staging-96-sesi.md`) | 96; the newest on 9 Oct | 10 + 0 + 10 + 10 + 11 × 6 = **96**, the newest on 9 Oct | ✓ |
+
+**Step 2, the backup (owner, 5 Nov, from the Supabase dashboard, Database › Backups › Scheduled backups):**
+- the newest is a PHYSICAL backup of 04 Nov 2026 23:40:22 (+0000), about 12 hours before the merge window: inside the
+  24 hours step 2 asks;
+- daily physical backups are held back to 29 Oct, each restorable;
+- the dashboard's own note stands: Storage objects are not included (D-190 records it; no Storage file is touched by
+  194–196).
