@@ -13,9 +13,17 @@
  * <form action> submits through TombolKirim). This holds the rest: every client component that calls the server itself
  * (fetch or .rpc) disables its trigger while the call is pending (a disabled={…} bound to its own state), or is declared
  * with its reason. A stale declaration fails; a planted component with neither is caught.
+ *
+ * X.3 (EMAILJUJUR, D-098(c)): SUCCESS ONLY AFTER A REAL CHANGE. (a) Every call, anywhere under src, of a database function
+ * whose JSON answer can carry ok other than true (read from the live schema) reads that ok before saying anything; a
+ * function that only ever answers ok: true refuses by raising, which the caller's error check catches. (b) Every success
+ * a server action states ({ ok: true …}) is conditional on the error of the call before it: a ternary on error, an
+ * earlier if (error …) / if (!… .ok) exit, or a try whose engine throws on every database error
+ * (src/lib/assessment-engine/index.ts). A planted unguarded success and an unread ok are caught.
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { spawnSync } from "node:child_process";
 import { Checks, type SelfTest } from "./lib";
 
 const DARI = "20260929";
@@ -139,6 +147,74 @@ aturanTests.push({
       `read every .tsx under src/app and src/components: ${n} client components call the server themselves (fetch or .rpc); ${nJaga} ` +
       `disable their trigger while the call is pending, and ${dipakai.size} are declared with their reason (a heartbeat, a read-only ` +
       `check, the screenshot upload that holds the report's own send); forms are DAISY-17-KIRIM-01's; a planted unguarded one is caught`);
+  },
+});
+
+function semuaSumber(dir: string): string[] {
+  return readdirSync(dir).flatMap((n) => {
+    const p = join(dir, n);
+    return statSync(p).isDirectory() ? semuaSumber(p) : /\.(ts|tsx)$/.test(p) ? [p] : [];
+  });
+}
+
+/** The success literals of one server-action source that no visible guard conditions. */
+export function suksesTanpaJaga(teks: string): number[] {
+  const baris = teks.split("\n");
+  const tanpa: number[] = [];
+  baris.forEach((l, i) => {
+    if (!/\bok:\s*true\b/.test(l) || /^\s*(\*|\/\/)/.test(l) || /\|\s*\{\s*ok:\s*false/.test(l)) return;
+    const jendela = baris.slice(Math.max(0, i - 12), i + 1).join("\n");
+    const dijaga = /\berror\b[^\n]*\?/.test(jendela) || /if\s*\(\s*!?\s*\(?\s*[\w.]*error/.test(jendela)
+      || /if\s*\(\s*!?[\w.]*\bok\b/.test(jendela) || /\btry\s*\{/.test(jendela);
+    if (!dijaga) tanpa.push(i + 1);
+  });
+  return tanpa;
+}
+
+/** Whether the code after a call reads the answer's ok. */
+export function bacaOk(potongan: string): boolean {
+  return /[.]ok[^\w]|\bok\s*[!=]==|[{ ,]ok[,} ]/.test(potongan);
+}
+
+aturanTests.push({
+  id: "X03-BERHASIL-01",
+  requires: ["db"],
+  run: async (ctx) => {
+    const c = new Checks();
+    const root = ctx.repoRoot;
+    const sql = "select string_agg(distinct p.proname, ' ') from pg_proc p join pg_namespace n on n.oid = p.pronamespace and n.nspname = 'public' "
+      + "where p.prokind = 'f' and p.prorettype = 'jsonb'::regtype and exists (select 1 from regexp_matches(p.prosrc, '''ok''\\s*,\\s*([a-z_.0-9]+)', 'gi') m where lower(m[1]) <> 'true')";
+    const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, process.env.SUPABASE_DB_URL!], { encoding: "utf8" });
+    if (!c.expect(r.status === 0, `the live schema could not be read: ${(r.stderr || "").trim().split("\n").pop()}`)) return c.verdict("");
+    const bolehGagal = new Set(r.stdout.trim().split(/\s+/).filter(Boolean));
+    c.expect(bolehGagal.size >= 3, `only ${bolehGagal.size} functions read as able to answer ok other than true: the reading is broken`);
+    // engine's single helper throws on every database error, which makes a try's catch the refusal path
+    const mesin = readFileSync(join(root, "src", "lib", "assessment-engine", "index.ts"), "utf8");
+    c.expect(/if \(error\) throw new EngineError/.test(mesin), "the engine's database helper no longer throws on an error: its callers' try is no guard");
+
+    let nPanggil = 0, nSukses = 0, nAksi = 0;
+    for (const f of semuaSumber(join(root, "src"))) {
+      const rel = f.slice(root.length + 1).replace(/\\/g, "/");
+      const teks = readFileSync(f, "utf8");
+      for (const m of teks.matchAll(/\.rpc\(\s*"([a-z_0-9]+)"/g)) {
+        if (!bolehGagal.has(m[1])) continue;
+        nPanggil++;
+        c.expect(bacaOk(teks.slice(m.index!, m.index! + 1500)), `${rel}:${teks.slice(0, m.index!).split("\n").length} calls ${m[1]}, which can answer ok: false, and never reads ok (X.3)`);
+      }
+      if (/^\s*["']use server["']/m.test(teks.slice(0, 400))) {
+        nAksi++;
+        nSukses += (teks.match(/\bok:\s*true\b/g) ?? []).length;
+        for (const n of suksesTanpaJaga(teks)) c.expect(false, `${rel}:${n} states success with no guard on the call before it (X.3)`);
+      }
+    }
+    // positive controls
+    c.expect(suksesTanpaJaga('const { error } = await s.rpc("x");\nreturn { ok: true };').length === 1, "a planted unguarded success is not caught");
+    c.expect(suksesTanpaJaga('const { error } = await s.rpc("x");\nreturn error ? { ok: false } : { ok: true };').length === 0, "a guarded success is refused");
+    c.expect(!bacaOk('const { data } = await s.rpc("confirm_ingest_batch", {});\nredirect("/selesai");'), "a call that ignores ok is not caught");
+    return c.verdict(
+      `read the live schema (${bolehGagal.size} functions can answer ok other than true) and the source of every file under src: all ` +
+      `${nPanggil} calls of those functions read ok; in the ${nAksi} server-action files every one of the ${nSukses} success literals ` +
+      `is conditional on the call's error (a ternary, an earlier exit, or the engine's throwing helper); planted controls are caught`);
   },
 });
 
