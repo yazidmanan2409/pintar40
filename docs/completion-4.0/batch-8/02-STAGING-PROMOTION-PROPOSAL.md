@@ -226,12 +226,13 @@ locally on 5 Nov, each from its real state:
    - Batch 5's preservation digests (`batch-5/evidence/staging/preservation-before.txt`);
    - the 96 sittings by slug (`evidence/staging-96-sesi.md`).
 5. **Merge:** a merge commit pinned to the verified head (`expectedHeadSha`).
-6. **Watch** `staging.yml` (194, 195; count = 195), `ci` on `main` and the Vercel staging build. No production
+6. **Watch** `staging.yml` (194, 195, 196; count = 196), `ci` on `main` and the Vercel staging build. No production
    workflow may start.
 7. **Read-only post-check:**
-   - 195 migrations;
+   - 196 migrations;
    - 20 + 240 marks;
    - the order rule present;
+   - `school_people_page` present (196);
    - the preservation digests unchanged;
    - the 96 sittings unchanged.
 8. **Staging walks with the existing tools:** a fresh synthetic test school (`found-school.yml`), GS-01 to GS-21,
