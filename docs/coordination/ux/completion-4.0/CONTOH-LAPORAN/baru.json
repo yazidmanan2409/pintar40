@@ -1,0 +1,391 @@
+[
+ {
+  "laporan": "murid",
+  "teks": "Dua dari tiga bab sudah mencapai target. Di IPA Bab 1 masih ada bagian yang perlu dipelajari lagi.",
+  "catatan": "learner copy: no pronoun, no comparison with anyone"
+ },
+ {
+  "laporan": "murid",
+  "teks": "pelajari lagi"
+ },
+ {
+  "laporan": "murid",
+  "teks": "Hasil belajar"
+ },
+ {
+  "laporan": "murid",
+  "teks": "Halo, Bagas"
+ },
+ {
+  "laporan": "murid",
+  "teks": "Semua bab yang sudah dikerjakan di TA 2026/2027, sampai 6 Nov 2026, 07.30 WIB."
+ },
+ {
+  "laporan": "murid",
+  "teks": "Pelajari lagi: Massa jenis serta Campuran dan larutan."
+ },
+ {
+  "laporan": "murid",
+  "teks": "Bagian per bab"
+ },
+ {
+  "laporan": "murid",
+  "teks": "Setiap kotak satu soal yang dijawab tepat pada Uji Penguasaan."
+ },
+ {
+  "laporan": "murid",
+  "teks": "Target setiap bab ditetapkan sekolah: 15 dari 20 soal."
+ },
+ {
+  "laporan": "murid",
+  "teks": "Apa berikutnya",
+  "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Target bab ini ditetapkan sekolah: 75% (15 dari 20 soal)."
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Dua dari lima topik masih di bawah target: Penjumlahan dan pengurangan pecahan serta Pecahan campuran.",
+  "catatan": "lead sentence, composed from metrik.topik and the chapter's target"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "24 dari 29 murid sudah berada di pita Mantap atau Berkembang; 5 murid perlu penguatan. Rata-rata penguasaan kelas 75%."
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "di bawah target"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "soal tepat dari 20"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Setiap titik satu murid, diwarnai menurut pitanya."
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "poin"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Dihitung dari 29 murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan."
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Rata-rata kelas"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Contoh jawaban: 1/2 + 1/3 = 2/5"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "dari 29"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Saran penanganan"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Murid di pita Perlu penguatan"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Pelajari lagi"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "soal wajib belum tepat"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Menurut abjad. Ini daftar bagian yang perlu dipelajari lagi, bukan penilaian atas muridnya."
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Apa berikutnya",
+  "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
+ },
+ {
+  "laporan": "guru-7E",
+  "teks": "Target bab ini ditetapkan sekolah: 75% (15 dari 20 soal)."
+ },
+ {
+  "laporan": "guru-7E",
+  "teks": "Belum cukup bukti untuk menyimpulkan apa pun tentang Kelas 7E · Matematika."
+ },
+ {
+  "laporan": "guru-7E",
+  "teks": "Baru 4 dari 33 murid mengerjakan Uji Penguasaan Bab 2 · Pecahan. Angka kelas muncul setelah paling sedikit 5 murid mengerjakannya."
+ },
+ {
+  "laporan": "guru-7E",
+  "teks": "Angka kelas"
+ },
+ {
+  "laporan": "guru-7E",
+  "teks": "Apa berikutnya",
+  "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
+ },
+ {
+  "laporan": "kadep",
+  "teks": "Penjumlahan dan pengurangan pecahan serta Pecahan campuran di bawah target di keempat kelas yang datanya cukup.",
+  "catatan": "lead: a pattern across classes, from metrik.topik per class"
+ },
+ {
+  "laporan": "kadep",
+  "teks": "Pola yang sama di banyak kelas menunjuk ke topiknya, bukan ke satu kelas. Kelas 7E belum cukup data."
+ },
+ {
+  "laporan": "kadep",
+  "teks": "Topik"
+ },
+ {
+  "laporan": "kadep",
+  "teks": "di bawah target"
+ },
+ {
+  "laporan": "kadep",
+  "teks": "poin"
+ },
+ {
+  "laporan": "kadep",
+  "teks": "Garis tegak di setiap sel: target 75%. Angka berwarna jingga: di bawah target. Tanda —: belum cukup data."
+ },
+ {
+  "laporan": "kadep",
+  "teks": "Bab 2 · Pecahan di 5 kelas. Angka dihitung 6 Nov 2026, 07.30 WIB dari semua bukti sampai saat itu."
+ },
+ {
+  "laporan": "kadep",
+  "teks": "Setiap angka dihitung per kelas, sama dengan Ringkasan Kelas tiap kelas."
+ },
+ {
+  "laporan": "kadep",
+  "teks": "Kelas disebut menurut namanya, tidak menurut gurunya. Angka menunjukkan keadaan, bukan penilaian atas guru."
+ },
+ {
+  "laporan": "kadep",
+  "teks": "Apa berikutnya",
+  "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "Penguasaan murid naik rata-rata 19 poin sejak Pemetaan Awal. Listrik dan magnet serta Geometri dan pengukuran masih di pita Perlu penguatan.",
+  "catatan": "lead: kenaikan_institusi, then the ranah under 60% (or the lowest)"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "6 dari 8 ranah berada di pita Berkembang atau Mantap."
+ },
+ {
+  "laporan": "dekan",
+  "teks": "1.176 jawaban"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "1.764 jawaban"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "1.936 jawaban"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "3.020 jawaban"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "1.072 jawaban"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "2.952 jawaban"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "2.400 jawaban"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "Angka sekolah"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "dari 468 murid terdaftar"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "poin"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "dari 836 hasil dengan Pemetaan Awal dan Uji Penguasaan"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "726 dari 836 hasil Uji Penguasaan"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "dari 836 hasil Uji Penguasaan"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "Angkatan 2026 (kelas 7)"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "242 hasil"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "Angkatan 2025 (kelas 8)"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "294 hasil"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "Angkatan 2024 (kelas 9)"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "300 hasil"
+ },
+ {
+  "laporan": "dekan",
+  "teks": "Angkatan berbeda mempelajari bab yang berbeda, jadi ini perbandingan keadaan, bukan peringkat."
+ },
+ {
+  "laporan": "dekan",
+  "teks": "Angka sekolah ini tidak menilai guru atau kelas mana pun."
+ },
+ {
+  "laporan": "dekan",
+  "teks": "Apa berikutnya",
+  "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "Target tercapai: 17 dari 20 soal tepat, naik dari 10 pada Pemetaan Awal."
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "Paling kuat: Tujuan pembelajaran yang dapat diukur, Merancang soal diagnostik dan Menindaklanjuti hasil. Pelajari lagi: Membaca bukti belajar."
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "Langkah Anda"
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "Pelajaran (5 dari 5)"
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "Hasil Anda sendiri, sampai 6 Nov 2026, 07.30 WIB."
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "pelajari lagi"
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "Tentang hasil ini"
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "Hasil ini terlihat oleh Anda, fasilitator, Kepala departemen, dan Dekan. Jawaban Anda tidak ditampilkan kepada siapa pun selain Anda."
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "Target paket ini: 75% (15 dari 20 soal); per bagian, 3 dari 4."
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "Apa berikutnya",
+  "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
+ },
+ {
+  "laporan": "fasilitator",
+  "teks": "10 dari 12 peserta sudah mulai; 6 sudah selesai. Gilang Ramadhan dan Imam Syafii belum mulai.",
+  "catatan": "participation only: never an aggregate of results (D-069(b))"
+ },
+ {
+  "laporan": "fasilitator",
+  "teks": "Peserta menurut abjad. Hasil terlihat per orang, tidak dijumlahkan dan tidak diurutkan."
+ },
+ {
+  "laporan": "fasilitator",
+  "teks": "Peserta"
+ },
+ {
+  "laporan": "fasilitator",
+  "teks": "Merancang Asesmen Formatif di Kelas · 12 peserta · sampai 6 Nov 2026, 07.30 WIB."
+ },
+ {
+  "laporan": "fasilitator",
+  "teks": "Tentang catatan ini"
+ },
+ {
+  "laporan": "fasilitator",
+  "teks": "Jawaban peserta dan catatan integritas tidak ditampilkan di sini."
+ },
+ {
+  "laporan": "fasilitator",
+  "teks": "Tanda —: belum ada."
+ },
+ {
+  "laporan": "fasilitator",
+  "teks": "Apa berikutnya",
+  "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
+ },
+ {
+  "laporan": "admin",
+  "teks": "12 orang belum bisa masuk: 11 murid di 7 kelas, dan 1 guru. Selebihnya sudah siap."
+ },
+ {
+  "laporan": "admin",
+  "teks": "Di 8 dari 15 kelas, semua murid sudah punya akun."
+ },
+ {
+  "laporan": "admin",
+  "teks": "murid sudah punya akun"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Pekerjaan administrasi yang belum selesai, sampai 6 Nov 2026, 07.30 WIB."
+ },
+ {
+  "laporan": "admin",
+  "teks": "Yang belum bisa masuk"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Pengembangan profesi guru: yang belum selesai"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Buka Aktivasi akun"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Buka Pendataan"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Laporan ini mengumpulkan yang sudah ada di Konfigurasi, Aktivasi akun, Pendataan, dan catatan pengembangan profesi."
+ },
+ {
+  "laporan": "admin",
+  "teks": "Apa berikutnya",
+  "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
+ }
+]

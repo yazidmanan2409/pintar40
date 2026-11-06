@@ -1,0 +1,147 @@
+/* CONTOH LAPORAN · the seven sample reports. Loads on top of the design system (tokens.css, bundle.css).
+   Tokens only, plus the three band steps of PINTAR teal (validated as an ordinal ramp: monotone, visible
+   steps, the light end 2.3:1 on white). Specimen styles, not application code. */
+.cl { --cl-pita-penguatan: #86B3A9; --cl-pita-berkembang: #4F8478; --cl-pita-mantap: #245F55;
+  --cl-batang: #5F6A73; --cl-sorot: var(--pintar-primary); --cl-jalur: var(--surface-2); }
+.cl .pds-main-isi { max-width: 1000px; }
+.cl-isi { display: grid; gap: var(--space-8); }
+.cl-kepala { display: grid; gap: var(--space-2); }
+.cl-kepala .pds-title { margin: 0; }
+.cl-cakupan { margin: 0; color: var(--ink-2); font-size: 14px; line-height: 20px; }
+
+/* The specimen mark: on screen at the top, on paper in every page's header. */
+.cl-contoh { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-3); margin: 0; padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md); background: var(--status-attention-soft); color: var(--ink-1); font-size: 14px; line-height: 20px; }
+.cl-contoh strong { font-weight: 600; letter-spacing: 0.06em; }
+
+/* The lead: the one sentence the page exists to say, then its one picture. */
+.cl-inti { display: grid; gap: var(--space-5); padding: var(--space-6); background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); }
+.cl-kalimat { margin: 0; font-size: 22px; line-height: 30px; font-weight: 600; color: var(--ink-1); text-wrap: balance; max-width: 46ch; }
+.cl-kalimat-sub { margin: calc(var(--space-3) * -1) 0 0; color: var(--ink-2); font-size: 16px; line-height: 24px; max-width: 70ch; }
+
+.cl-bagian { display: grid; gap: var(--space-4); }
+.cl-bagian > h2 { margin: 0; font-size: 22px; line-height: 28px; font-weight: 600; }
+.cl-arti { margin: 0; color: var(--ink-2); font-size: 14px; line-height: 20px; max-width: 70ch; }
+.cl-dua .cl-baris li, .cl-dua .cl-skala { grid-template-columns: minmax(0, 7rem) minmax(0, 1fr) 6.5rem; }
+.cl-dua { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: var(--space-8) var(--space-6); align-items: start; }
+
+/* Headline figures (the catalogue's «Angka utama»): the number, its base, its meaning. */
+.cl-angka-baris { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: var(--space-4); }
+.cl-angka { display: grid; gap: var(--space-1); padding: var(--space-4) var(--space-5); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); background: var(--surface-1); align-content: start; }
+.cl-angka h3 { margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-2); }
+.cl-angka-nilai { margin: 0; font-size: 30px; line-height: 36px; font-weight: 600; color: var(--ink-1); }
+.cl-angka-nilai small { font-size: 16px; font-weight: 400; color: var(--ink-2); }
+.cl-angka p:not(.cl-angka-nilai) { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.cl-belum { color: var(--ink-1); font-weight: 600; }
+
+/* Bands over their base: one bar, three steps of one hue, the count in words beside each. */
+.cl-pita { display: grid; gap: var(--space-3); }
+.cl-pita-batang { display: flex; gap: 2px; height: 28px; }
+.cl-pita-batang span { display: grid; place-items: center; min-width: 0; color: #fff; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cl-pita-batang span:first-child { border-radius: 4px 0 0 4px; } .cl-pita-batang span:last-child { border-radius: 0 4px 4px 0; }
+.cl-pita-batang [data-pita="penguatan"] { background: var(--cl-pita-penguatan); color: var(--ink-1); }
+.cl-pita-batang [data-pita="berkembang"] { background: var(--cl-pita-berkembang); }
+.cl-pita-batang [data-pita="mantap"] { background: var(--cl-pita-mantap); }
+.cl-pita-ket { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); margin: 0; padding: 0; list-style: none; font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.cl-pita-ket li { display: inline-flex; align-items: center; gap: var(--space-2); }
+.cl-pita-ket i { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+.cl-pita-ket strong { color: var(--ink-1); font-weight: 600; }
+
+/* Ranked or ordered rows on one 0–100 scale, with the target line. */
+.cl-baris { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.cl-h3 { margin: 0; font-size: 18px; line-height: 24px; font-weight: 600; }
+.cl-baris li { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) 9.5rem; gap: var(--space-4); align-items: center; font-size: 14px; line-height: 20px; }
+.cl-baris .cl-nama { color: var(--ink-1); }
+.cl-jalur { position: relative; height: 20px; }
+.cl-jalur::before { content: ""; position: absolute; left: 0; right: 0; top: 9px; height: 2px; background: var(--cl-jalur); border-radius: 1px; }
+.cl-isi-batang { position: absolute; left: 0; top: 4px; height: 12px; border-radius: 0 4px 4px 0; background: var(--cl-batang); }
+li[data-sorot] .cl-isi-batang { background: var(--cl-sorot); }
+.cl-target { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: var(--ink-1); }
+.cl-nilai { font-variant-numeric: tabular-nums; color: var(--ink-1); font-weight: 600; }
+.cl-nilai small { display: block; font-weight: 400; color: var(--ink-2); }
+.cl-bawah { color: var(--status-attention); font-weight: 600; }
+.cl-skala { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) 9.5rem; gap: var(--space-4); font-size: 12px; line-height: 16px; color: var(--ink-3); }
+.cl-skala-garis { position: relative; height: 16px; }
+.cl-skala-garis span { position: absolute; transform: translateX(-50%); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.cl-skala-garis span.cl-skala-target { color: var(--ink-1); font-weight: 600; }
+.cl-skala-garis span:first-child { transform: none; }
+
+/* A dot on a scale with PINTAR's band zones: the zones are named once, above. */
+.cl-titik { position: absolute; top: 3px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--ink-2); box-shadow: 0 0 0 2px var(--surface-0); }
+li[data-sorot] .cl-titik { background: var(--cl-sorot); }
+.cl-titik-awal { position: absolute; top: 5px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--line-control); box-shadow: 0 0 0 2px var(--surface-0); }
+.cl-garis-naik { position: absolute; top: 9px; height: 2px; background: var(--line-control); }
+.cl-zona { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--line-strong); }
+
+/* SVG figures: type from the system, ink from tokens. */
+.cl-svg { width: 100%; height: auto; display: block; overflow: visible; font-family: var(--font-sans); }
+.cl-svg text { fill: var(--ink-2); font-size: 12px; }
+.cl-svg .cl-t1 { fill: var(--ink-1); font-weight: 600; }
+.cl-svg .cl-t3 { fill: var(--ink-3); }
+
+/* A grid of classes × parts (the Kepala departemen's pattern). */
+.cl-kisi-wadah { overflow-x: auto; }
+.cl-kisi { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; line-height: 20px; }
+.cl-kisi th, .cl-kisi td { padding: var(--space-3); text-align: left; border-bottom: var(--border-hairline) solid var(--line); vertical-align: middle; }
+.cl-kisi thead th { color: var(--ink-2); font-weight: 600; vertical-align: bottom; }
+.cl-kisi thead th small { display: block; font-weight: 400; color: var(--ink-3); }
+.cl-kisi tbody th { font-weight: 400; color: var(--ink-1); }
+.cl-sel { display: grid; gap: 4px; min-width: 5.5rem; }
+.cl-sel b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.cl-sel .cl-mini { position: relative; height: 6px; border-radius: 3px; background: var(--cl-jalur); }
+.cl-sel .cl-mini i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--cl-batang); }
+.cl-sel .cl-mini u { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink-1); text-decoration: none; }
+.cl-sel[data-bawah] b { color: var(--status-attention); }
+.cl-sel[data-bawah] .cl-mini i { background: var(--status-attention); }
+.cl-sel-kosong { color: var(--ink-3); }
+
+/* Step marks (a person's way through a package): filled when done, a dash when not yet. */
+.cl-langkah { display: inline-flex; align-items: center; gap: var(--space-2); white-space: nowrap; }
+.cl-langkah::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--pintar-primary); flex: none; }
+.cl-langkah[data-belum] { color: var(--ink-3); } .cl-langkah[data-belum]::before { width: 10px; height: 2px; border-radius: 1px; background: var(--line-control); }
+.cl-segmen { display: inline-flex; gap: 2px; vertical-align: middle; margin-right: var(--space-2); }
+.cl-segmen i { width: 10px; height: 10px; border-radius: 2px; background: var(--surface-3); }
+.cl-segmen i[data-isi] { background: var(--pintar-primary); }
+
+.cl-daftar { margin: 0; padding: 0; list-style: none; display: grid; }
+.cl-daftar li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-2) var(--space-4); padding: var(--space-3) 0; border-bottom: var(--border-hairline) solid var(--line); font-size: 14px; line-height: 20px; }
+.cl-daftar li:first-child { border-top: var(--border-hairline) solid var(--line); }
+.cl-daftar small { color: var(--ink-2); }
+.cl-rantai { display: grid; gap: var(--space-3); margin: 0; }
+.cl-rantai div { display: grid; grid-template-columns: 12rem minmax(0, 1fr); gap: var(--space-4); font-size: 14px; line-height: 20px; }
+.cl-rantai dt { font-weight: 600; color: var(--ink-1); } .cl-rantai dd { margin: 0; color: var(--ink-2); }
+.cl-aksi { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.cl-kaki { display: grid; gap: var(--space-2); padding-top: var(--space-4); border-top: var(--border-hairline) solid var(--line); font-size: 12px; line-height: 16px; color: var(--ink-2); }
+.cl-kaki p { margin: 0; max-width: 90ch; }
+
+@media (max-width: 639px) {
+  .cl-lebar-saja { display: none; }
+  .cl-baris li, .cl-skala { grid-template-columns: minmax(0, 1fr) 5.5rem; }
+  .cl-baris .cl-nama { grid-column: 1 / -1; }
+  .cl-skala > span:first-child { display: none; }
+  .cl-rantai div { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .cl-kalimat { font-size: 18px; line-height: 26px; }
+  .cl-inti { padding: var(--space-4); }
+}
+
+/* A4. The specimen mark and the report's name in every page's header; the page counter in its footer. */
+@page { size: A4 portrait; margin: 18mm 15mm;
+  @top-left { content: "CONTOH LAPORAN — DATA SIMULASI"; font: 600 8pt/1.3 "Plus Jakarta Sans", sans-serif; color: #8A5F00; letter-spacing: 0.06em; vertical-align: bottom; padding-bottom: 3mm; }
+  @top-right { font: 400 8pt/1.3 "Plus Jakarta Sans", sans-serif; color: #4E5A64; vertical-align: bottom; padding-bottom: 3mm; }
+  @bottom-right { content: "Halaman " counter(page) " dari " counter(pages); font: 400 8pt/1.3 "Plus Jakarta Sans", sans-serif; color: #4E5A64; vertical-align: top; padding-top: 3mm; } }
+@media print {
+  html, body, .pds, .pds-shell, .pds-shell-host, .pds-main, .pds-main-isi, .pds-topshell { background: #fff !important; }
+  .pds-nav, .pds-bar, .pds-top, .pds-lewati, .cl-aksi, .cl-layar-saja { display: none !important; }
+  .pds-shell, .pds-shell-host, .pds-main, .pds-topshell { display: block; container-type: normal; }
+  .pds-main-isi { padding: 0; margin: 0; max-width: none; }
+  .cl-isi { gap: 7mm; font-size: 10pt; }
+  .cl-inti { padding: 5mm; break-inside: avoid; }
+  .cl-kalimat { font-size: 15pt; line-height: 1.3; }
+  .cl-angka, .cl-kisi tr, .cl-baris li, .cl-daftar li, .cl-pita, .cl-svg, .cl-angka-baris, .cl-rantai div { break-inside: avoid; }
+  .cl-arti { break-after: avoid; }
+  .cl-bagian > h2 { font-size: 14pt; break-after: avoid; }
+  .cl-angka-nilai { font-size: 20pt; line-height: 1.2; }
+  .pds-title { font-size: 20pt; line-height: 1.2; }
+  .cl-contoh { padding: 2mm 3mm; }
+  .cl-pita-batang span, .cl-isi-batang, .cl-titik, .cl-segmen i, .cl-langkah::before, .cl-sel .cl-mini i, .cl-pita-ket i, .cl-contoh { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

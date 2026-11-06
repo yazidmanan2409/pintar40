@@ -1,0 +1,17 @@
+8 reports, 1280 and 390 px, A4: 0 with a failure
+1-murid: 2 A4 pages
+ok   1-murid
+2-guru: 3 A4 pages
+ok   2-guru
+2b-guru-belum-cukup: 2 A4 pages
+ok   2b-guru-belum-cukup
+3-kadep: 3 A4 pages
+ok   3-kadep
+4-dekan: 3 A4 pages
+ok   4-dekan
+5-peserta-pd: 1 A4 pages
+ok   5-peserta-pd
+6-fasilitator: 3 A4 pages
+ok   6-fasilitator
+7-admin: 2 A4 pages
+ok   7-admin

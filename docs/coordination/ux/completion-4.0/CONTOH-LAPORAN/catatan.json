@@ -1,0 +1,233 @@
+[
+ {
+  "kode": "1-murid",
+  "judul": "Hasil belajar · murid",
+  "pembaca": "Murid",
+  "tigaPuluh": "Which chapters are done and reached their target, what is still in progress, and exactly which parts to study again: no score is compared with anyone else's.",
+  "peta": [
+   "Each chapter's result page, `/belajar/[tugas]/hasil`: «Penguasaan», «Target untuk bab ini», «Target tercapai» / «Belum mencapai target», «Pelajari lagi:»",
+   "Pemetaan Awal against Uji Penguasaan: `siklus.delta_arti`",
+   "Chapter in progress: `siklus.di.pelajaran` on `/belajar`",
+   "**A page that gathers every chapter does not exist today**: this specimen lays the existing per-chapter results side by side (see the questions)."
+  ],
+  "visual": [
+   [
+    "Lead: one row per chapter, Pemetaan Awal (small grey dot) to Uji Penguasaan (filled dot), the target line through every row",
+    "**Candidate VI-C7** (a student's own path): progress against the chapter's own target, never against classmates. The chapter in progress shows only what is known."
+   ],
+   [
+    "Per chapter: each part as four small squares, one per question answered right",
+    "A count the learner already sees question by question on the result page; the squares make «3 dari 4» readable without a percentage."
+   ]
+  ],
+  "privasi": [
+   "Only Bagas's own work. No class average, no rank, no peer. First name only in the greeting (D-020); the bar says «Bukan akun Anda?» (S15)."
+  ],
+  "tanya": [
+   "Owner: a learner's page that gathers all chapters is new presentation over existing results. Wanted, or keep results per chapter?",
+   "The title «Hasil belajar» and the greeting are new words. Dr Gladys: the title (G6 covers report titles)."
+  ]
+ },
+ {
+  "kode": "2-guru",
+  "judul": "Ringkasan Kelas · 7A",
+  "pembaca": "Guru",
+  "tigaPuluh": "Which parts of the chapter the class has and has not yet got (2 of 5 topics under the target), how the class spreads across PINTAR's bands, the one recurring misunderstanding with what to do about it, and who to help first.",
+  "peta": [
+   "`/edukator/ringkasan?kelas=…` (Ringkasan Kelas, C1): `metrik.topik`, `metrik.kesiapan`, `metrik.kenaikan`, `metrik.miskonsepsi`, `metrik.peserta`, `metrik.pemahaman`",
+   "The students in the lowest band: the class's own students, as the teacher already sees them in «Lihat bukti» (`/mengajar/[kelas]/bukti`) and the student page (`mengajar.murid1.*`)",
+   "«Pelajari lagi» per student: `mengajar.murid1.tujuan_arti` («tujuan yang penguasaannya masih di bawah target»)"
+  ],
+  "visual": [
+   [
+    "Lead: «Penguasaan per topik» as rows on one 0–100% scale with the target line through every row",
+    "Existing display «Diagram batang» / «Daftar». Answers «which part needs attention» in one look: the bars that stop short of the line. The weakest topic carries the one accent; «di bawah target» is said in words, not colour alone."
+   ],
+   [
+    "Population line, then the bands as one bar over the students who took it",
+    "Existing «Sebaran» (`pds-populasi`, D-121(c)): «Belum mengerjakan» is a count, never a band."
+   ],
+   [
+    "One dot per student on the score line, with the band zones and the target",
+    "**Candidate VI-C1** (distribution strip): shows the class's real shape (here two groups, not one bell) that an average hides. Needs per-student scores on this page; the teacher already holds them in «Lihat bukti»."
+   ],
+   [
+    "Kenaikan: the number, then the class's average before and after on the same scale",
+    "Existing «Angka utama»; the before→after pair is the same figure drawn at both ends (the same students in both)."
+   ],
+   [
+    "Recurring misunderstanding: one row with its count, an example answer and the remedy",
+    "Existing «Daftar» (`metrik.miskonsepsi`, which carries its remedy)."
+   ]
+  ],
+  "privasi": [
+   "Only this teacher's class. Students are listed by name only in the lowest band, alphabetically, never ranked, with what to study again (as `mengajar.murid1.*` already does)."
+  ],
+  "tanya": [
+   "The page-level lead sentence is new: PINTAR would compose it from the figures below it, with no cause or advice. Owner: should reports carry one?",
+   "«Penguasaan per topik» (this report, `metrik.topik.label`) and «Penguasaan per bagian» («Lihat bukti», `mengajar.bukti.bagian`, UX-41) name nearly the same figure on two pages. Dr Gladys: one name, or keep both?",
+   "«poin» for Kenaikan (a difference in percentage points). Dr Gladys: «poin», «poin persentase», or no unit?",
+   "The report title is G6 (Dr Gladys); «Ringkasan Kelas» is today's copy (`laporan.kelas.judul`)."
+  ]
+ },
+ {
+  "kode": "2b-guru-belum-cukup",
+  "judul": "Ringkasan Kelas · 7E (belum cukup data)",
+  "pembaca": "Guru",
+  "tigaPuluh": "The same report on a class whose Mastery Check is still being held: there is nothing to conclude yet, and the page says so before anything else. Every figure stays in its place with how far it is from appearing.",
+  "peta": [
+   "`/edukator/ringkasan?kelas=…` (Ringkasan Kelas, C1)",
+   "The «not yet» state: `laporan.metrik.belum_cukup_data`, `ketiadaan.jumlah.murid`, `laporan.muncul.*` (P14)"
+  ],
+  "visual": [
+   [
+    "Population line",
+    "Existing (`pds-populasi`): who the report covers and who is missing, before any figure."
+   ],
+   [
+    "Headline figures in their «not yet» form",
+    "Existing «Angka utama»: the figure's place is kept, so the page does not change shape when the data arrives."
+   ]
+  ],
+  "privasi": [
+   "Nothing about individual students; under the minimum sample no class figure is drawn."
+  ],
+  "tanya": []
+ },
+ {
+  "kode": "3-kadep",
+  "judul": "Matematika · kelas 7",
+  "pembaca": "Kepala Departemen",
+  "tigaPuluh": "Whether a difficulty is a pattern across the department or one class: here Penjumlahan dan pengurangan pecahan and Pecahan campuran sit under the target in most classes, so the follow-up is about the topic. One class has too little evidence to say anything.",
+  "peta": [
+   "`/pimpinan/[simpul]` for the Matematika node: «Yang didukung bukti» (figures per class, `pimpinan.bukti.di_kelas`), «Kesiapan bukti» (`pimpinan.kesiapan.*`), the evidence chain words (`pimpinan.rantai.*`)",
+   "Each cell is that class's own `metrik.topik` figure, the same as its teacher's Ringkasan Kelas (7A matches report 2)"
+  ],
+  "visual": [
+   [
+    "Lead: a grid of topics × classes, each cell its value, a short bar and the target tick",
+    "**Candidate VI-C4** (competency grid), drawn with no colour ramp: the number, a bar and the word carry the value, so it needs no new token. Reading across a row shows a pattern; reading down a column shows one class."
+   ],
+   [
+    "Evidence chain: supported / not yet known / possible step",
+    "Existing (`pimpinan.rantai.*`): keeps the pattern apart from any explanation of it."
+   ],
+   [
+    "Evidence readiness per class",
+    "Existing «Kesiapan bukti»: missing evidence is stated, never drawn as a low value."
+   ]
+  ],
+  "privasi": [
+   "Classes only, named by class, never by teacher (Visual Intelligence: a class's results are not its teacher's rating). No student here: students are a separate, recorded action (`pimpinan.murid.sub`)."
+  ],
+  "tanya": [
+   "Owner: the grid is a new display (VI-C4) over existing per-class figures. Adopt for `/pimpinan/[simpul]`?"
+  ]
+ },
+ {
+  "kode": "4-dekan",
+  "judul": "Ringkasan Sekolah",
+  "pembaca": "Dekan / Pimpinan",
+  "tigaPuluh": "Learning is moving up across the school (+19 points since the Pemetaan Awal), and attention belongs to Listrik dan magnet serta Geometri dan pengukuran, the domains still under 60%. Every figure states its base; readiness of evidence is stated, not hidden.",
+  "peta": [
+   "`/dekan/ringkasan?simpul=…` (Ringkasan Sekolah, C1): `metrik.kompetensi`, `metrik.peserta_institusi`, `metrik.kenaikan_institusi`, `metrik.gerbang_keselamatan`, `metrik.kredensial`, `metrik.perbandingan_kohort`; the coverage line `laporan.cakupan.sekolah` (every school year, no year claimed)",
+   "Evidence readiness per class: `/pimpinan` («Kesiapan bukti»)"
+  ],
+  "visual": [
+   [
+    "Lead: «Capaian kompetensi», one dot per domain on a 0–100% scale, PINTAR's band zones named once",
+    "A dot plot instead of bars: the question is «where on the scale is each domain», and the band zones answer «is it a concern» without a legend. Sorted high to low; the lowest carries the one accent."
+   ],
+   [
+    "Headline figures, each with its base",
+    "Existing «Angka utama»: four numbers a leader needs, none standing alone («Numbers never stand alone»)."
+   ],
+   [
+    "Perbandingan angkatan on the same zoned scale",
+    "Existing figure, same visual as the lead so the eye does not relearn it; captioned as a comparison of states, not a ranking."
+   ]
+  ],
+  "privasi": [
+   "School aggregates only: no class, teacher or student is named in the figures. The only class names are where evidence is not yet enough."
+  ],
+  "tanya": [
+   "«Sertifikat terbit» here counts Mastery Check results at the target with every required item right; the real rule is the certificate service's. Engineering: confirm the figure's definition before any comparison.",
+   "«Angkatan 2026 (kelas 7)»: is «angkatan» by entry year the school's usage? Dr Gladys."
+  ]
+ },
+ {
+  "kode": "5-peserta-pd",
+  "judul": "Hasil pengembangan profesi · peserta",
+  "pembaca": "Pendidik sebagai peserta",
+  "tigaPuluh": "The package is finished and its target reached; each part shows where the educator started and ended, and the one part to study again is named. It is the educator's own record, never a performance rating.",
+  "peta": [
+   "The educator's own result in «Pembelajaran Saya» (`/belajar/[tugas]/hasil` for a PD package): Pemetaan Awal, Uji Penguasaan, target, «Pelajari lagi»; the record's meaning `pengembangan.arti`",
+   "Steps: the named steps (`pds-steps`, corrected 4 Nov)"
+  ],
+  "visual": [
+   [
+    "Named steps, all done",
+    "Existing step list: where the educator is in the package."
+   ],
+   [
+    "Lead: per part, Pemetaan Awal → Uji Penguasaan on a 0–4 scale with the target at 3",
+    "**Candidate VI-C7**, the same as the learner's report so one grammar serves both: growth against the package's own target, nothing else."
+   ]
+  ],
+  "privasi": [
+   "The educator's own result. The page says who else may see the result (D-069(b)) and that answers are shown to no one else."
+  ],
+  "tanya": [
+   "The sentence on who may see the result is new; owner: is it right to state it here (D-069(b), (c))?"
+  ]
+ },
+ {
+  "kode": "6-fasilitator",
+  "judul": "Catatan pengembangan profesi · fasilitator",
+  "pembaca": "Fasilitator",
+  "tigaPuluh": "Who has started, who is part-way and who has finished, person by person, and who has not begun. Results are there for each person (as the facilitator is entitled), never added up or ranked.",
+  "peta": [
+   "`/pengembangan/[simpul]` for the facilitator: the columns «Sudah mulai · Pemetaan Awal · Pelajaran selesai · Uji Penguasaan · Hasil · Selesai» (`pengembangan.kolom.*`), «Terdaftar, akun belum diaktifkan»"
+  ],
+  "visual": [
+   [
+    "Lead: one row per participant, one column per step; a filled dot when done, a short dash when not yet; lessons as five small squares",
+    "**Candidate VI-C5** (progression path), as a table: the pattern of the group is visible at a glance (the empty right-hand side), while every cell stays a person's own fact. No column totals."
+   ]
+  ],
+  "privasi": [
+   "Individual results for the facilitator (D-069(b)); no answers, no integrity signals (D-069(c)); alphabetical, never ordered by result."
+  ],
+  "tanya": [
+   "**Owner (D-069(b)):** the lead sentence counts participation («10 dari 12 sudah mulai; 6 sudah selesai»). It is not a result, but it is an aggregate on a page ruled «never an aggregate figure». Allowed for participation, or remove it?"
+  ]
+ },
+ {
+  "kode": "7-admin",
+  "judul": "Pekerjaan administrasi · Admin sekolah",
+  "pembaca": "Admin Sekolah",
+  "tigaPuluh": "Who cannot sign in yet (12 people, named, by class), what else waits on the administrator, and who has not finished the professional-learning package: each with the one action that resolves it.",
+  "peta": [
+   "Konfigurasi's «Yang menunggu» (`config.menunggu.*`, B1, UX-33)",
+   "Aktivasi akun: who waits for an account, per class (`aktivasi.kelas.*`), «Buat kartu kelas», «Aktifkan dengan email»",
+   "`/pengembangan/[simpul]` for Admin sekolah: enrolment, participation and completion only (`pengembangan.arti_terbatas`)",
+   "**One page that gathers these does not exist today**: this specimen places existing lists side by side (see the questions)."
+  ],
+  "visual": [
+   [
+    "Lead: the «Yang menunggu» rows, each a count that opens where the work is done",
+    "Existing (B1). An exception summary: only what waits is shown; «Selebihnya sudah siap» says the rest in one line."
+   ],
+   [
+    "Per class, only the classes with someone waiting, the names and the one action",
+    "An exception list instead of a chart of 15 classes: the administrator's question is «who», and a name is more useful than a bar."
+   ]
+  ],
+  "privasi": [
+   "No assessment result, score or answer. The professional-learning part shows enrolment, start and Pemetaan Awal status only (D-069(b): Admin sekolah sees enrolment, participation and completion)."
+  ],
+  "tanya": [
+   "Owner: a single administration summary is new presentation over existing pages. Wanted, or keep Konfigurasi's «Yang menunggu» as the summary?"
+  ]
+ }
+]
