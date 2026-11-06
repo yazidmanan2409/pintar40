@@ -122,15 +122,17 @@ export async function transferMintaAction(fd: FormData): Promise<void> {
   back("transfers", error ? ditolakPindah("transfer_minta", error) : { ok: true, kode: "TRANSFER_REQUESTED" }, fd);
 }
 
-/** W2.15: THE RECEIVING SCHOOL ACCEPTS A REQUEST INTO ONE OF ITS OWN SCHOOL YEARS (transfer_terima decides). */
+/** W2.15: THE RECEIVING SCHOOL ACCEPTS A REQUEST INTO ONE OF ITS OWN SCHOOL YEARS AND NAMES THE KELAS OR TINGKAT THE
+ * LEARNER IS PLACED IN (transfer_terima decides; 20261231100000: without a place the learner stood in no class). */
 export async function transferTerimaAction(fd: FormData): Promise<void> {
   const id = uuidOrNull(str(fd, "transfer"));
   const period = uuidOrNull(str(fd, "to_period"));
   const programme = uuidOrNull(str(fd, "to_programme"));
-  if (!id || !period) back("transfers", { ok: false, kode: "TRANSFER_INPUT_INCOMPLETE" }, fd);
+  const place = uuidOrNull(str(fd, "to_place"));
+  if (!id || !period || !place) back("transfers", { ok: false, kode: "TRANSFER_INPUT_INCOMPLETE" }, fd);
   const supabase = await supabaseServer();
   await wajibDalamKonteks({ sekolah: await sekolahTransfer(supabase, id) }, "transfers");
-  const { error } = await supabase.rpc("transfer_terima", { p_transfer: id, p_to_period: period, p_to_programme: programme });
+  const { error } = await supabase.rpc("transfer_terima", { p_transfer: id, p_to_period: period, p_to_programme: programme, p_to_place: place });
   back("transfers", error ? ditolakPindah("transfer_terima", error) : { ok: true, kode: "TRANSFER_ACCEPTED" }, fd);
 }
 

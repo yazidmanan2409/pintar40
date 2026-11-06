@@ -266,6 +266,10 @@ await step("B4-W7", "beta's admin accepts the request into beta's school year an
   harus(rec, norm(await masuk.innerText()).includes(siswaNama), "the request shows the learner's name");
   const tahun = await masuk.locator('select[name="to_period"] option').evaluateAll((os) => os.map((o) => o.value).filter(Boolean));
   await masuk.locator('select[name="to_period"]').selectOption(tahun[0]);
+  // the class the learner arrives in (20261231100000): the first Kelas beta offers
+  const tempat = await masuk.locator('select[name="to_place"] option').evaluateAll((os) => os.map((o) => o.value).filter(Boolean));
+  if (!harus(rec, tempat.length >= 1, "the acceptance offers beta's Kelas for the learner")) return;
+  await masuk.locator('select[name="to_place"]').selectOption(tempat[0]);
   await masuk.getByRole("button", { name: "Terima perpindahan" }).click();
   await B.waitForURL((u) => u.searchParams.has("hasil") || u.searchParams.has("kode") || u.hash === "#transfers", { timeout: SLOW }).catch(() => {});
   await B.waitForLoadState("networkidle");
@@ -281,6 +285,17 @@ await step("B4-W7", "beta's admin accepts the request into beta's school year an
   const beta = sql("select id from public.institutions where slug like 'synth-beta-%' limit 1");
   harus(rec, sql(`select count(*) from public.enrollments where person_id = '${siswa}' and institution_id = '${beta}' and status = 'ACTIVE'`) === "1", "the learner is enrolled at beta");
   harus(rec, sql(`select count(*) from public.enrollments where person_id = '${siswa}' and institution_id = '${alphaId}' and status = 'ACTIVE'`) === "0", "the alpha enrolment is no longer active");
+  // CROSS-BATCH (6 Nov): the learner arrives IN A CLASS: one open placement, the chosen Kelas; and beta's admin finds
+  // them on «Pindah kelas» for that Kelas, the screen that reads placements (before 20261231100000 it read nobody)
+  harus(rec, sql(`select count(*) from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+     where e.person_id = '${siswa}' and m.valid_to is null`) === "1"
+    && sql(`select count(*) from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+     where e.person_id = '${siswa}' and e.institution_id = '${beta}' and m.node_id = '${tempat[0]}' and m.valid_to is null`) === "1",
+    "the learner has one open placement, in the Kelas beta named");
+  await buka(B, `/konfigurasi/pindah?bagian=pindah&dari=${tempat[0]}#pindah`);
+  await B.locator("#pindah").waitFor({ timeout: SLOW });
+  harus(rec, norm(await B.locator("#pindah").innerText()).includes(siswaNama), "beta's admin sees the learner in that Kelas on «Pindah kelas»");
+  await shot(B, rec, "pindah-tiba-di-kelas");
   harus(rec, Number(jejak(sejak, "transfer.authorized", transfer)) >= 1 && Number(jejak(sejak, "transfer.executed", transfer)) >= 1,
     "the acceptance and the execution are audited (transfer.authorized, transfer.executed)");
 });

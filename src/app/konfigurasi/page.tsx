@@ -1463,6 +1463,16 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         ))}
                       </select>
                     </label>
+                    {/* the place the learner is placed in on arrival (20261231100000): an active Kelas or Tingkat of this
+                        school; transfer_terima refuses one outside the chosen school year (PLACE_INVALID) */}
+                    <label className={label}>{s("pindah.masuk.kelas")}
+                      <select name="to_place" className={field} required defaultValue="">
+                        <option value="" disabled>—</option>
+                        {(nodes ?? []).filter((n) => (n.kind === "CLASS" || n.kind === "COHORT") && n.is_active && n.institution_id === satuSekolah).map((n) => (
+                          <option key={n.id} value={n.id}>{n.name}</option>
+                        ))}
+                      </select>
+                    </label>
                     <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("pindah.masuk.terima")}</TombolKirim></div>
                   </form>
                 ))}

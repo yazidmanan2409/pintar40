@@ -18,6 +18,7 @@
 //   P5  the school admin finds the receiving school by its exact name and asks for a learner's transfer with a reason
 //       (directory.school_searched, transfer.requested) (W2.15, F-10).
 //   P6  the receiving school's admin sees the request with the learner's name, accepts it into its own school year
+//       and its «Kelas 5A» (20261231100000: the learner arrives in a class; its Guru finds them on the class page)
 //       and executes it (transfer.authorized, transfer.executed); the learner is enrolled there and the sending
 //       enrolment is ENDED, kept; the learner's identity rows are unchanged.
 //   P7  the school admin's Konfigurasi shows «Yang menunggu» exactly when something waits, each count opening its
@@ -119,7 +120,7 @@ await step("P0", `read only: «${SLUG}» and «${TUJUAN}», «${KELAS}», the pe
   if (!harus(rec, !!t, `the receiving school «${TUJUAN}» is active`)) return;
   const [tid, tnama, tahun] = t.split("|");
   harus(rec, Number(tahun) >= 1, `«${tnama}» has ${tahun} school year(s)`);
-  for (const [who, slug] of [["admin", SLUG], ["guru", SLUG], ["dekan", SLUG], ["admin", TUJUAN]]) {
+  for (const [who, slug] of [["admin", SLUG], ["guru", SLUG], ["dekan", SLUG], ["admin", TUJUAN], ["guru", TUJUAN]]) {
     harus(rec, keadaanDari(sql, lit)(mail(who, slug)) !== null, `${who} of ${slug} has an account`);
   }
   harus(rec, keadaanDari(sql, lit)(OPERATOR) !== null, "the Platform Operator has an account");
@@ -278,6 +279,10 @@ await step("P6", `«${T.nama}»'s admin accepts the request into its own school 
   harus(rec, norm(await masukForm.innerText()).includes(PINDAH), "the request shows the learner's name");
   const tahun = await masukForm.locator('select[name="to_period"] option').evaluateAll((os) => os.map((o) => o.value).filter(Boolean));
   await masukForm.locator('select[name="to_period"]').selectOption(tahun[0]);
+  // the place the learner arrives in (20261231100000): the receiving school's «Kelas 5A»
+  const tempat = await masukForm.locator('select[name="to_place"] option').evaluateAll((os, k) => os.filter((o) => o.value && (o.textContent ?? "").trim() === k).map((o) => o.value), KELAS);
+  if (!harus(rec, tempat.length === 1, `the acceptance offers «${KELAS}» of «${T.nama}» as the learner's class`)) return;
+  await masukForm.locator('select[name="to_place"]').selectOption(tempat[0]);
   await masukForm.getByRole("button", { name: "Terima perpindahan" }).click();
   harus(rec, await tunggu(() => sql(`select status from public.transfers where id = '${uuid(transfer)}'`) === "AUTHORIZED"), "accepted: AUTHORIZED into its own year");
   await buka(B, "/konfigurasi/transfers?bagian=transfers#transfers");
@@ -291,6 +296,23 @@ await step("P6", `«${T.nama}»'s admin accepts the request into its own school 
     && sql(`select count(*) from public.enrollments where person_id = '${uuid(dimas)}' and institution_id = '${S.id}' and status = 'ACTIVE'`) === "0",
     "the sending enrolment is kept as ENDED history");
   harus(rec, identitas(dimas) === identitasSebelum, "the learner's nomor induk, PINTAR ID and official results are unchanged");
+  // CROSS-BATCH (6 Nov): the learner arrives IN A CLASS, and the receiving school's teacher finds them on the class page
+  harus(rec, sql(`select count(*) from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+     where e.person_id = '${uuid(dimas)}' and m.valid_to is null`) === "1"
+    && sql(`select count(*) from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+     where e.person_id = '${uuid(dimas)}' and e.institution_id = '${T.id}' and m.node_id = '${uuid(tempat[0])}' and m.valid_to is null`) === "1",
+    `the learner has one open placement: «${KELAS}» of «${T.nama}»`);
+  const TG = await (await browser.newContext(konteks())).newPage();
+  try {
+    await masuk(TG, mail("guru", TUJUAN));
+    await pilihKonteks(TG, { tujuan: "MENGAJAR", nama: T.nama }).catch(() => {});
+    await buka(TG, `/mengajar/${uuid(tempat[0])}`);
+    const tabel = TG.locator("#pin-kelas-murid");
+    await tabel.waitFor({ timeout: SLOW });
+    const nama = await tabel.locator('tbody th[scope="row"]').evaluateAll((ths) => ths.map((t) => (t.textContent ?? "").trim()));
+    await shot(TG, "pindah-kelas-tujuan");
+    harus(rec, nama.includes(PINDAH), `«${T.nama}»'s Guru sees «${PINDAH}» on «${KELAS}»'s class page`);
+  } finally { await TG.context().close(); }
   harus(rec, jejak(sejak, "transfer.authorized", transfer) >= 1 && jejak(sejak, "transfer.executed", transfer) >= 1, "transfer.authorized and transfer.executed are audited");
 });
 
