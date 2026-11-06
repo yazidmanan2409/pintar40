@@ -13,14 +13,14 @@ This file is what Gate 6 asks to be "current" (`G-FINAL-ACCEPTANCE-MATRIX` §4) 
 
 | | |
 |---|---|
-| Accepted candidate (commit) | **not yet named**: the head that passes Gates 1–5 |
+| Accepted candidate (commit) | **not yet named**: the head that passes Gates 1–5. Staging serves `main` `d672a94a` (P-4) |
 | `RELEASE_SHA` in `deploy-supabase-production.yml` and `deploy-vercel-production.yml` | still the earlier releases' (`c358f586…`, `5b5b68d4…`). Set to the accepted candidate **in the release commit only** (DR-S05) |
 | CI on that commit | — (both deploy workflows refuse without a successful `ci.yml` run on `RELEASE_SHA`) |
 | Production database | not read in 4.0 (F-5: how production reaches migration 162, then the candidate) |
 
 ## Gate 6 items
 
-| # | Item | Evidence from | State (6 Nov) |
+| # | Item | Evidence from | State (6 Nov, PM) |
 |---|---|---|---|
 | 1 | The exact production baseline | the upgrade rehearsal's read of production (W9.10, with the owner's permission) | NOT STARTED: F-5, F-18 |
 | 2 | Rehearsed upgrade on a representative copy | W9.10 on a scratch copy (`batch-0/07-MIGRATION-162-BRIEF.md`) | NOT STARTED: F-18 (billable restore) |
@@ -29,7 +29,7 @@ This file is what Gate 6 asks to be "current" (`G-FINAL-ACCEPTANCE-MATRIX` §4) 
 | 5 | Staff transition done; magic link retired | W9.14 | STAGING VERIFIED (6 Nov): J2.7 run 42163941604, 15/15; the magic link is off in the candidate. Open: the rehearsal on a copy of production (W9.10) |
 | 6 | Backup verified (off-platform; escrow; second administrators) | W9.5, W9.6, W9.7 | BLOCKED: owner and external (#150) |
 | 7 | DNS live (`verifikasi.pintarselalu.com`) | W9.15 | BLOCKED: owner |
-| 8 | Release checklist v2.8 | W6.9 (`batch-8/evidence/w69-bukti-pemeriksaan.md`) | IN PROGRESS: rows marked only with staging evidence |
+| 8 | Release checklist v2.8 | W6.9 (`batch-8/evidence/w69-bukti-pemeriksaan.md`) | v2.8 RENDERED (6 Nov) from staging evidence only: P0 77 of 84; open U-PERF, CAP-01/02/08, release-day rows |
 | 9 | Capacity at the chosen tier (CAP-01, CAP-02, CAP-07, CAP-08) | W9.3, W9.4; W6.8 measured on staging's current tier | BLOCKED: owner (F-15) |
 | 10 | Legal gate | W9.11 (counsel, F-16) | BLOCKED: external |
 | 11 | Production watch on | W9.8, `production-watch.yml` | NOT STARTED (at release) |
@@ -44,3 +44,11 @@ This file is what Gate 6 asks to be "current" (`G-FINAL-ACCEPTANCE-MATRIX` §4) 
 - The production apply job, `staging.yml` and the restore rehearsal run the **same toolchain**: Node 22 and Supabase CLI 2.117.0.
   - **Node 22 (5 Nov):** Node 20 is past its end of life.
   - **Proven on staging (6 Nov):** `staging.yml` run 42159507039 and the restore rehearsal run 42174482669, both green on `main` `12d357ce`. The production apply job runs only at the release.
+
+## Candidate identity (6 Nov)
+
+The journeys that gate a candidate now audit only an exact commit:
+- `audit-journeys.yml` requires `ref` as a full 40-character SHA, verifies the checkout, and records it in the job summary and `audit-out/AUDITED_SHA`.
+- Before the release commit counts, `scripts/release/kandidat-sama.sh <audited> <release>` must say SAME.
+- Held by KANDIDAT-SHA-01/02.
+- First used for P-4: audited `5a78d979`, promoted `d672a94a`, SAME.
