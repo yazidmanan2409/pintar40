@@ -310,14 +310,15 @@ export const emailTests: SelfTest[] = [
       c.expect(!/process\.env|server-only|nodemailer|kirimEmail/.test(bingkaiSrc + src), "the frame reads configuration or sends");
 
       // 2. RESTATED FOR D-192 (owner, 5 Nov: the supplied logo is no longer used; a text-only PINTAR wordmark, Arial,
-      // #075056). Ruling 2's environment logo is gone with it: the header is the text wordmark, no email loads an image,
+      // #075056; D-193, 7 Nov: Inter first, Arial where the reader's device lacks it, since an email sends no font).
+      // Ruling 2's environment logo is gone with it: the header is the text wordmark, no email loads an image,
       // and no logo file is left in public/ to load. The frame still checks the environment's origin (asalEmail).
       for (const [nama, e] of Object.entries(CONTOH)) {
         for (const k of [STAGING, PRODUKSI]) {
           const h = bingkaiEmail(e, k).html;
           c.expect(!/<img\b/.test(h) && !/\/brand\//.test(h), `${nama}: an email loads an image or a /brand/ file`);
-          c.expect(new RegExp(`<span class="pin-merek-teks" style="[^"]*font-family:Arial, Helvetica, sans-serif;[^"]*font-weight:700;[^"]*color:${WARNA_MEREK};">PINTAR</span>`).test(h),
-            `${nama}: the header is not the text wordmark «PINTAR» in Arial and ${WARNA_MEREK}`);
+          c.expect(new RegExp(`<span class="pin-merek-teks" style="[^"]*font-family:Inter, Arial, Helvetica, sans-serif;[^"]*font-weight:700;[^"]*color:${WARNA_MEREK};">PINTAR</span>`).test(h),
+            `${nama}: the header is not the text wordmark «PINTAR» in Inter (Arial fallback) and ${WARNA_MEREK}`);
         }
       }
       c.expect(WARNA_MEREK === "#075056", `the wordmark's colour is ${WARNA_MEREK}, not #075056`);
@@ -355,7 +356,7 @@ export const emailTests: SelfTest[] = [
         "templatUjiPengiriman is BOB-25's Templat (src/lib/email/templat.ts) and returns a one-line subject and both bodies in " +
         "its own copy table words, its send time as a row; the sending module's UJI_PENGIRIMAN (src/app/api/_email/uji.ts, the proof " +
         "route's import) is this framed template and holds no email of its own; nothing in src/components/email reads configuration or sends; the header is " +
-        "the text wordmark «PINTAR» in Arial and #075056 and no email loads an image (D-192; no logo file left in public/); every staging " +
+        "the text wordmark «PINTAR» in Inter (Arial where the device lacks it) and #075056 and no email loads an image (D-192; no logo file left in public/); every staging " +
         "email carries the test line at the top of both bodies and no production email does; a code arrives spaced or not " +
         "and is shown «482 913» (4 + 4 for eight digits); a subject with a line break, an empty subject, a non-https link " +
         "and a plain-http origin other than the local sink are all refused",

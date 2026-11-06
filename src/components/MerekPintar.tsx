@@ -1,8 +1,9 @@
 /**
- * The PINTAR wordmark: TEXT ONLY (owner directive, 5 Nov 2026, D-192).
+ * The PINTAR wordmark: TEXT ONLY (owner directive, 5 Nov 2026, D-192), in Inter (owner directive, 7 Nov 2026, D-193).
  *
  * The supplied PINTAR SELALU artwork is no longer used anywhere in the application. The wordmark is the word «PINTAR»,
- * set in the device's own sans-serif (`--font-wordmark`: Arial, Helvetica, sans-serif; no font file is bundled), bold,
+ * set in Inter Bold (`--font-wordmark`: Inter, Arial, Helvetica, sans-serif; Inter 700 is self-hosted under the OFL in
+ * public/fonts/, Arial only while it loads), bold,
  * in the brand teal #075056 (`--merek-warna`), with the wordmark's tracking. Nothing here is an image, so nothing can
  * be squashed, re-encoded or licensed.
  *

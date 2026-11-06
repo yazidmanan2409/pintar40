@@ -35,7 +35,8 @@
  * - Bahasa Indonesia: lang="id" on the document and on the article wrapper,
  *   which webmail keeps when it drops <html>. One <h1>; layout tables are
  *   role="presentation".
- * - The header is the text wordmark «PINTAR» (D-192), in Arial, bold, teal
+ * - The header is the text wordmark «PINTAR» (D-192), in Inter where the
+ *   reader's device has it, else Arial (D-193; no font file is sent), bold, teal
  *   #075056. No image is sent, so a client that blocks images (Outlook's
  *   default) shows the same header.
  * - The footer says why the person received the email, that PINTAR never asks
@@ -130,8 +131,8 @@ export const WARNA = {
 } as const;
 
 const HURUF = "'Segoe UI', Roboto, Arial, Helvetica, sans-serif";
-/** D-192: the wordmark's face, the device's own (no font file). */
-const HURUF_MEREK = "Arial, Helvetica, sans-serif";
+/** D-193: the wordmark's face, Inter first; an email sends no font file, so a reader without Inter sees Arial. */
+const HURUF_MEREK = "Inter, Arial, Helvetica, sans-serif";
 const HURUF_KODE = "Consolas, 'SF Mono', Menlo, 'Courier New', monospace";
 
 /** HTML-escape everything an email supplies. */

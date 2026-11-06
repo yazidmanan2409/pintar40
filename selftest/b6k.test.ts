@@ -303,9 +303,11 @@ export const b6kTests: SelfTest[] = [
         "the slot is not the wordmark's (6 mm, cap top 5.57 mm, 16.4 × 2.9 mm)");
       // RESTATED FOR D-192 (owner, 5 Nov: a text-only PINTAR wordmark replaces the supplied logo on every surface, the
       // Digital Card named): the slot holds the text «PINTAR» at the slot's cap height (2.9 mm / Arial's 0.716 = 4.05 mm),
-      // its cap top drawn to the slot's top, never given a width; no image
+      // its cap top drawn to the slot's top, never given a width; no image.
+      // RESTATED FOR D-193 (owner, 7 Nov: Inter): the same cap height from Inter's 0.7275 (2.9 / 0.7275 = 3.99 mm),
+      // its cap top 0.14 of the size below the line's top at line-height 1
       const mk = aturan(css, ".pin-kd-merek .pin-merek");
-      c.expect(ada(mk, /font-size: calc\(var\(--kp-mm\) \* 4\.05\)/) && ada(mk, /margin-top: -0\.13em/) && !/width/.test(mk),
+      c.expect(ada(mk, /font-size: calc\(var\(--kp-mm\) \* 3\.99\)/) && ada(mk, /margin-top: -0\.14em/) && !/width/.test(mk),
         `the wordmark in the slot is not set at the slot's cap height: ${mk}`);
       const { html, galat } = gambar(repoRoot, [{ komponen: "KartuPintar", props: { locale: "id", kartu: KARTU } }]);
       if (c.expect(galat === "", `the card could not be rendered: ${galat}`)) {
