@@ -4582,6 +4582,16 @@
       "proves": "W9.19 reversed, selftest/w919.test.ts over the source of src/proxy.ts and src/lib/pengguna-proksi.ts: who is signed in is read only through penggunaTerverifikasi, which asks Auth's server (auth.getUser()) and never verifies the token locally (getClaims); the database's session check (sesi_periksa) is still asked on every signed-in request but a prefetch and a PERSONAL session; a planted getClaims() and a planted removal of the session check are each caught."
     },
     {
+      "id": "KANDIDAT-SHA-01",
+      "runner": "static",
+      "proves": "The journeys audit the exact candidate (6 Nov: runs 42179347500 and 42198619759, dispatched without a ref, audited an older main), selftest/kandidat.test.ts over the workflow file .github/workflows/audit-journeys.yml: `ref` is required with no default; RELEASE_SHA is taken from it alone; both jobs' «Check out the candidate» refuse anything but a full 40-character SHA, refuse a checkout that is not that commit, and record it in audit-out/AUDITED_SHA and the job summary; a planted default and a planted branch fallback are each caught."
+    },
+    {
+      "id": "KANDIDAT-SHA-02",
+      "runner": "static",
+      "proves": "The promotion matches the audited commit, selftest/kandidat.test.ts executing the source file scripts/release/kandidat-sama.sh on a scratch git repository: the same commit, and a merge commit carrying the audited tree, are SAME (exit 0); a commit with other content is DIFFERENT (exit 1); a short SHA and a branch name are refused (exit 2)."
+    },
+    {
       "id": "X11-KLIEN-01",
       "runner": "static",
       "proves": "X.11 (DAISY-17, D-046(e); W6.1, CR-59; D-186), selftest/aturan.test.ts read over the source of every .tsx under src/app and src/components: every client component that calls the server itself (fetch or .rpc) disables its trigger while the call is pending, or is declared with its reason (src/components/PenjagaSesi.tsx, the heartbeat; src/components/pelajaran/TautanBerkas.tsx, a read-only check; src/components/lapor/TangkapanLayar.tsx, whose upload holds the report's own send, walked as audit/e1-navigasi.mjs N8); forms are held by DAISY-17-KIRIM-01; a stale declaration fails and a planted unguarded component is caught."
