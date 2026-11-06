@@ -1,0 +1,7 @@
+# Edit this file on the coordinator's branch to run .github/workflows/staging-peralihan-staf.yml once (STAGING ONLY).
+# J2.7 (W9.14): the existing staff of the school named on the last line make the transition to 4.0's sign-in.
+# Authorised by the owner on 6 Nov 2026. One code email per person still to make the transition.
+#
+# 6 Nov, P-2 (main 12d357ce): SD Golden School GS-001 (found-school.yml run 36959472214), whose four staff hold
+# accounts from 2 Oct, before the identity foundation, signed in then by the email link, and are REQUIRED now
+slug: gs-001
