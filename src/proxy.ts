@@ -1,4 +1,5 @@
 import { createServerClient, DEFAULT_COOKIE_OPTIONS } from "@supabase/ssr";
+import { penggunaTerverifikasi } from "@/lib/pengguna-proksi";
 import { adalahAlamatKartu, adalahCookieSesi, COOKIE_GESER, perluGeserSesi } from "@/lib/sesi";
 import { COOKIE_SIAP, jalurBebasSaatAktivasi, nilaiSiap, siapTersimpan } from "@/lib/penahan-aktivasi";
 import { HALAMAN_AKTIVASI } from "@/lib/aktivasi-kontrak";
@@ -106,7 +107,10 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  // W9.19: the session's token verified (locally with an asymmetric key; by Auth's server with a symmetric one), not
+  // a call to Auth's server on every request (src/lib/pengguna-proksi.ts). Whether the session is still alive stays
+  // sesi_periksa's answer below.
+  const user = await penggunaTerverifikasi(supabase);
   const path = request.nextUrl.pathname;
   const aman = request.nextUrl.protocol === "https:";
 
