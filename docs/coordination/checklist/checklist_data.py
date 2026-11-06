@@ -1416,6 +1416,52 @@ CHANGES_V21.append("6 Oct (v2.7): status pinned to the Dr Gladys walkthrough spe
                    "(B4–B6, M5, M7, M9, Capacity) and the certificate-number conflict added; CAP-01's stale reason replaced. STU-01, STU-19, REL-01 and REL-03 brought to current "
                    "evidence; ADM-19 PASS → PARTIAL (its evidence was the class move, not the transfer it checks; P2). P0 PASS stays 77 of 84. From 6 Oct evening the application is frozen for the walkthrough (D-117).")
 
+# --- 6 Nov: v2.8, Batch 8 on staging (W6.9): rows marked only with staging evidence; local or CI proof stays as cited ---
+
+META["version"] = "v2.8 — 6 November 2026 (status on main 4d325a33, the P-3 promotion on staging; v2 of 24 Sep kept as the baseline)"
+NOW.update({
+    "sha": "4d325a33",
+    "date": "6 Nov 2026",
+    "label": "staging after P-3 (P-1 5 Nov, P-2 and P-3 6 Nov), main",
+    "evidence": ("CI 42191185691 green on main 4d325a33 (and 42182579645 on PR #12's head d54b90a7); journeys 42179347500 green. "
+                 "Staging at 196 migrations, read-only pre- and post-checks identical (batch-8/evidence/staging-pascaperiksa-p2.md). The "
+                 "Golden School walks of «Sekolah Uji B8 1105» on main 38d7e701 (5 Nov), all green: GS-01 to GS-21 (runs 42037667705, "
+                 "42043970344, 42046058740, 42049795788), administration 42054817245, Studio and Uji Cepat 42057142327, Batch 5 "
+                 "42059820670, accessibility 42062130434. The existing-staff transition J2.7 (run 42163941604, 15/15, main 12d357ce); "
+                 "the restore rehearsal from main (run 42174482669, launch readiness 24/24); U-PERF journeys 42174494519 and 42192239336; "
+                 "the 50-learner test 42110164855. Ledger: docs/completion-4.0/batch-8/evidence/w69-bukti-pemeriksaan.md."),
+})
+CURRENT.update({
+    "U-PERF": ("FAIL on staging, by little (6 Nov, main 4d325a33, journey run 42192239336 from GitHub's runner in the US): every click "
+               "and save is under 3 s, most under 2 s (Konfigurasi 1.25–1.35 s, «Laporan» 1.34–1.87 s, saves 1.34–1.84 s); the first "
+               "screen after sign-in is usable in 2.5–3.2 s (1 of 6 under 3 s; the gate's 5 s is met). Fixed on the way: the "
+               "Konfigurasi audit read (2,538 → 21 ms; W62-JEJAK-01) and the proxy's Auth call (W9.19, 348 → 0 per journey; "
+               "W919-KLAIM-01/02). What remains is the proxy's session check crossing from the runner's region (p50 776 ms through "
+               "IAD, 34 ms through SIN). Kept as it is by the owner (6 Nov, option (a)). The row stays FAIL until regional evidence "
+               "exists; none is provided for now (owner, 6 Nov)."),
+    "CAP-02": ("FAIL on staging at 50 learners (W6.8, perf-l1.yml run 42110164855, main 38d7e701): every correctness criterion met "
+               "(50 of 50 finished, 0 answers lost or duplicated, every sitting has its result, 0 server errors of 2,261, p99 2,328 ms "
+               "under 3 s, back to baseline in 180 s); the answer-save p95 is 1,828 ms against 1 s (record_answer itself 11 ms p50, "
+               "20 ms p95; the rest is distance from the US runner). Staging is not on production's tier (CAP-08); the 1,000 cohort "
+               "is not run."),
+    "CAP-07": ("PASS at 50 on staging: back to baseline in 180 s after the W6.8 wave (run 42110164855); not shown at 1,000."),
+    "REL-01": ("PASS for main's current code: CI 42191185691 green on main 4d325a33. The release commit, when there is one, needs "
+               "its own run."),
+    "REL-03": ("main and staging carry 196 migrations (P-3 post-check, 6 Nov). Production is not read in 4.0 (F-5); it moves only "
+               "through the rehearsed upgrade (W9.10), and G6 refuses a production migration without a recent backup."),
+})
+VERDICT_NOW = ("NO-GO. What stands, by kind: capacity and responsiveness (U-PERF and CAP-02 not met on staging from a US runner; "
+               "regional evidence not provided, owner 6 Nov; CAP-01 and the 1,000 cohort not run; CAP-08 production's tier, F-15); "
+               "two screen-reader device runs (NVDA, TalkBack: a person with the devices); real assessment content (K6: residency, "
+               "the owner after counsel, and E-K6-2); the release-day rows and Gate 6 (docs/completion-4.0/batch-9/RELEASE-EVIDENCE-PACK.md: "
+               "the production baseline and rehearsed upgrade W9.10, mail by received headers W9.13, DNS, support, backup escrow, "
+               "counsel F-16); and human acceptance.")
+CHANGES_V21.append("6 Nov (v2.8): status moved to main 4d325a33 on staging (P-1, P-2, P-3). Rows marked only with staging evidence (W6.9): "
+                   "U-PERF PASS → FAIL by little (the v2.4 PASS was the lesson page's save loop; on 6 Nov the staging journey measures a 2.5–3.2 s first screen; clicks and saves under 3 s), CAP-02 FAIL at 50 (save p95 1,828 ms; "
+                   "correctness met), CAP-07 N-T → PASS at 50, REL-01 and REL-03 refreshed. Proven only locally or in CI and so not marked "
+                   "here: the 320–1280 px crawl and axe (W6.4), zoom, keyboard and colour vision (W6.12). NVDA and TalkBack stay "
+                   "outstanding until the device runs are done. The P0 count stays 77 of 84 (one down, one up).")
+
 def as_dict():
     g = globals()
     return {
