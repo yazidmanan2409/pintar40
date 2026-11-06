@@ -117,7 +117,7 @@ Status per screen: the design reconciliation found **J2, J5 and J6 not applied**
 > - **E-K6-1, residency:** where production data, files and backups reside. Owner, pending counsel (D-182(3); F-16, W9.11). No migration or hosting commitment until then.
 > - **E-K6-2, no reuse:** the private store, its named readers (K6.2), access enforced and audited with a refusal test (K6.3), regeneration as new identities (K6.5) and confidential backups and exports (K6.6). Engineering applies these once the store's location (E-K6-1) is decided. Until then only synthetic content is used, and the repository guard keeps keyed material out of the tree.
 >
-> Done and on staging: E-K6-3 (the exposure flag, migration 194) and E-K6-4 (D-185). **Also reconciled:** D-191's K4 wording (the wordmark in Helvetica, the supplied artwork) is superseded by **D-192** (a text-only «PINTAR» in the Arial / Helvetica / sans-serif stack, #075056; the PNG artwork removed). The status reports' listing of «K6 / F-4» as an open owner decision is superseded by this note.
+> Done and on staging: E-K6-3 (the exposure flag, migration 194) and E-K6-4 (D-185). **Also reconciled:** D-191's K4 wording (the wordmark in Helvetica, the supplied artwork) is superseded by **D-192** (a text-only «PINTAR» in the Arial / Helvetica / sans-serif stack, #075056; the PNG artwork removed). **D-193 (7 Nov)** supersedes D-192's face only: the wordmark is self-hosted **Inter Bold** (OFL, `public/fonts/OFL-Inter.txt`), #075056, Arial only while it loads; branch `561c17d4`, not yet on staging. The status reports' listing of «K6 / F-4» as an open owner decision is superseded by this note.
 
 ## W6 · Regression, evidence, accessibility
 
