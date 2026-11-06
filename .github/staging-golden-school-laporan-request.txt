@@ -21,4 +21,5 @@ slug: sekolah-uji-l3
 # 3 Nov, Batch 4 staging verification (D-153, D-154): Sekolah Uji B4 1103; main 31e456d (after run 41603061215)
 # 4 Nov (WIB), Batch 5 staging verification (D-157): Sekolah Uji B5 1104; main 3412075 (after run 41711982035)
 # 5 Nov, Batch 8 staging verification (P-1; migrations 194-196): Sekolah Uji B8 1105; main 38d7e701 (after run 42046058740)
+# 6 Nov, W9.19 session regression after P-3 (main 4d325a33; the proxy verifies the token locally): Sekolah Uji B8 1105 again; GS-20 lock, R2/R3 ended sessions, X1
 slug: sekolah-uji-b8-1105
