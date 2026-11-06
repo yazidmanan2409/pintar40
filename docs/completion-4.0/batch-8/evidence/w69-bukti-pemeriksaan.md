@@ -16,7 +16,7 @@ Each check names where it was run. The levels are kept apart:
 | **W6.4** the crawl: overflow and clipping at 320 / 640 / 1024 / 1280 px, axe, titles, skip link, keyboard focus | X.6 (U-DEVICE), L-a11y | local, `715f6f7d` + the fix below | **GREEN**: 14 personas, 55 distinct screens, 0 broken; 0 axe violations (WCAG 2.0–2.2 A and AA); every screen has a title and a skip link; no invisible or stuck focus; 0 overflow and 0 clipping at every width | §1 |
 | W6.4 | the same | CI journeys 42007065865 on `715f6f7d` | **GREEN** (before the fix: the runner's fonts kept the one overflow below the 1 px threshold) | the run |
 | **W6.2** first screen per role ≤ 3 s | U-PERF, X.10 | local pre-check | **GREEN**: worst of three at most 488 ms on 15 first screens across 6 roles | §2 |
-| W6.2 | U-PERF | staging, `main` 12d357ce, from GitHub's runner | **OPEN — NOT MET**: after the audit-read fix (run 42174494519), Konfigurasi, «Laporan» and saves are under 3 s; the first screen after sign-in is not (admin 3.0–5.1 s, teacher 3.5–3.9 s). What remains is the proxy's Auth call from the US (p50 733 ms through IAD against 16 ms through SIN). No regional measurement (owner, 6 Nov). See §2b | §2b |
+| W6.2 | U-PERF | staging, `main` 4d325a33, from GitHub's runner | **OPEN — NOT MET, by little**: with W9.19 live (run 42192239336), every click and save is under 3 s (most under 2 s); the first screen is usable in 2.5–3.2 s (1 of 6 under 3 s). The proxy's Auth calls from the US are gone (348 → 0); what remains is its session check from the US (`sesi_periksa` p50 776 ms through IAD, 34 ms through SIN). No regional measurement (owner, 6 Nov). See §2b | §2b |
 | **W6.8** the 50-student test through the real app | CAP-02 at 50, STU-* | staging, `main` 38d7e701, harness `4becbb1d` | **NOT MET (D-031): every correctness criterion met; the answer-save p95 1,828 ms against 1 s** (`perf-l1.yml` run 42110164855) | §2c |
 | **W6.12** 200 % zoom, keyboard, contrast | L-a11y | local | **GREEN** at 640 px (1280 at 200 %) and the keyboard walk (§1); colour vision §3 | §1, §3 |
 | W6.12 · **NVDA** (Windows, a recent NVDA with Chrome or Firefox) | L-a11y | human, device | **OUTSTANDING — DEVICE RUN NOT DONE**: needs a person with a Windows machine; script §4 | — |
@@ -133,6 +133,55 @@ on its staging evidence until the promoted candidate is measured.
   - The 5 Nov window measured the same call at about 200 ms through SJC and IAD, so the US route's cost varies from run to run.
 - **No regional measurement:** the owner decided on 6 Nov that no test machine in Indonesia will be provided for now. A user in Indonesia would likely reach the proxy near Singapore, where the call costs about 16 ms. **This is inferred, not measured.**
 - **The verdict:** U-PERF is **not met on this evidence**: neither role's first screen is under 3 s from the runner. **The row stays open.**
+
+**Re-measured after P-3 (6 Nov, `main` `4d325a33`, W9.19 live):** journey run **42192239336**, three repetitions, from GitHub's runner.
+
+| Step | 6 Nov, P-2 (run 42174494519) | 6 Nov, P-3 (run 42192239336) |
+|---|---|---|
+| Admin: home usable after opening it | 3.5 / 3.2 / 2.4 s | 3.15 / 3.20 / 2.48 s |
+| Teacher: home usable after opening it | 3.3 / 2.4 / 2.7 s | 3.13 / 3.04 / 3.03 s |
+| Admin: sign-in step as timed (includes the harness's own session-making through Auth's admin link, which a person never does) | 5.1 / 4.3 / 3.0 s | 4.2 / 3.8 / 3.1 s |
+| Admin: Konfigurasi | 1.6–2.3 s | 1.25–1.35 s |
+| Admin: «Laporan» | 1.6–2.1 s | 1.34–1.87 s |
+| Admin: Antrean Tinjauan / Bank Soal | 0.8–2.1 / 1.1–1.6 s | 0.38–0.64 / 0.56–0.64 s |
+| Teacher: a class / Siapkan | 1.8–2.3 / 1.9–2.0 s | 1.33–1.83 / 1.15–1.96 s |
+| A save, click → result | 1.8–2.8 s | 1.34–1.84 s |
+
+**Supabase's edge log for the window (09:04:50–09:07:15 UTC):**
+- **The proxy no longer calls Auth:** `GET /auth/v1/user` through IAD **0** (was 348 at P-2).
+- **The key set:** `/auth/v1/.well-known/jwks.json` was fetched 4 times. **Staging signs with an asymmetric key**, so the token is verified locally.
+- **The page renders:** `GET /auth/v1/user` through SIN 58 times at p50 16 ms.
+- **What is left on each page load is the database session check from the proxy:** `rpc/sesi_periksa` through IAD 12 times at p50 776 ms, against 34 ms through SIN. In the database it takes 1.1 ms (5 Nov).
+
+**The verdict:**
+- **Not met:** the first screen is usable in 2.5–3.2 s, only 1 of 6 under 3 s.
+- **Met:** every click and save is under 3 s, most under 2 s.
+- **The row stays open.** Two ways forward remain:
+  - a measurement from the region, where the remaining call would be SIN's 34 ms (the owner decided against a test machine for now);
+  - answering the session check without the round trip from the US (W9.19's next item).
+
+**Traced (6 Nov): where `sesi_periksa` runs, and why it takes the US route.**
+- **Where:**
+  - in the proxy (`src/proxy.ts`), on every signed-in request but a prefetch;
+  - a REST call to Supabase (`rpc/sesi_periksa`), made with the request's own token;
+  - it is the only remaining remote call the proxy makes on a page load. The Auth call went with W9.19, and `my_setup_state` is skipped while the set-up cookie holds.
+- **Why the US route:** the proxy does not run in the project's function region (`sin1`, `vercel.json`).
+  - **Next.js 16 gives it no region:** `proxy.ts` always runs on Node.js. The build writes its config to `functions-config-manifest` as `/_middleware` with only `runtime` and `matchers` (`next/dist/build/index.js`, `build/adapter/build-complete.js`). A `regions` value is read from the config but is not carried to the Node proxy's output, so there is nothing for Vercel to pin.
+  - **Vercel runs it near the requester:** in every window measured, the proxy's calls entered Supabase's network in the US (IAD on 6 Nov; SJC and IAD on 5 Nov, when the runners were spread over several US regions), never at SIN. The pages, which do run in `sin1`, enter at SIN.
+  - Vercel's own documentation could not be read from this session (vercel.com is outside its network); the placement is inferred from these logs.
+- **What it means:**
+  - **From a US runner:** each page load makes one crossing of the Pacific in the proxy, and then another to the page in `sin1`.
+  - **From Indonesia:** the proxy would run at Vercel's nearest region, and the check would cost about SIN's figure. **Inferred, not measured.**
+
+| `rpc/sesi_periksa` through the proxy | P-2 (run 42174494519, 06:28–06:30 UTC) | P-3 (run 42192239336, 09:04–09:07 UTC) |
+|---|---|---|
+| through IAD | n 9, p50 288 ms, p95 839 ms | n 12, p50 776 ms, p95 828 ms |
+| through SIN (the same call from `sin1`) | n 1, 27 ms | n 2, p50 34 ms |
+| in the database (`pg_stat_statements`, 5 Nov) | 1.1 ms mean | — |
+
+**Reading the numbers:** the median rose after W9.19. My reading, not verified: the removed Auth call used to open the proxy's connection across the Pacific, and now the session check pays for opening it. The request as a whole still saves one crossing (the first screen went from 3.5 / 3.2 / 2.4 s to 3.15 / 3.20 / 2.48 s; every click was faster).
+
+**What would avoid the crossing:** no change to placement alone is available (no region setting for the proxy). Every way left changes where or how often the session is enforced. It is brought to the owner as a decision; the register's W9.19 row names the options.
 
 **Harness defects fixed to get these figures:**
 1. The synthetic staff were held at the activation wizard (BOB-26) since the identity foundation. Every earlier journey timed out at sign-in, and the job still read green (run 42064350172).

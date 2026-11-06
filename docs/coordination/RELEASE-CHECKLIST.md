@@ -2,7 +2,7 @@
 
 > **RETIRED AS THE READINESS MEASURE, 1 Oct 2026 (D-084). The rows below stay as engineering detail. Their PASS counts are not a readiness measure. PINTAR's status is the journey status on docs/recovery/RECOVERY-BOARD.md under docs/recovery/EVIDENCE-MODEL.md, summarised in docs/reports/PINTAR-4.0-COMPLETE-STATUS-2026-10-06.md; go-live is Phase 8 of docs/recovery/RECOVERY-CHARTER.md.**
 
-**v2.7 — 6 October 2026 (status on the Dr Gladys walkthrough specimen 12b480b, application code = 3a7501b; v2 of 24 Sep kept as the baseline).** Rendered from `docs/coordination/checklist/checklist_data.py`; edit there and re-render. The Word copy for Yazid comes from the same data.
+**v2.8 — 6 November 2026 (status on main 4d325a33, the P-3 promotion on staging; v2 of 24 Sep kept as the baseline).** Rendered from `docs/coordination/checklist/checklist_data.py`; edit there and re-render. The Word copy for Yazid comes from the same data.
 
 | | |
 |---|---|
@@ -14,15 +14,15 @@
 
 > Calm on the surface. Rigorous underneath. One meaningful next action is obvious, while authorization, evidence and state transitions stay correct.
 
-## Row counts (engineering detail, not a readiness measure) (the Dr Gladys walkthrough specimen, application code = 3a7501b `12b480b`, 6 Oct 2026)
+## Row counts (engineering detail, not a readiness measure) (staging after P-3 (P-1 5 Nov, P-2 and P-3 6 Nov), main `4d325a33`, 6 Nov 2026)
 
 P0 checks only; each must be PASS on the release candidate before any push to live. The baseline of 24 Sep 2026 (main `78b0f55`) is kept beside each row.
 
-**Evidence now:** CI 37430770665 (35/35, 595 tests) on 3a7501b, whose application code 12b480b carries unchanged; 165 migrations. Staging machine-read GREEN by environment-facts.yml run 37438389611 (deployment dpl_4f9zxVXUnTPmQ3WcxzysR3hf3Yar, 165 of 165); staging.yml run 37437241796 green (the sign-in boundary, the email sender and the identity settings read back). The Level 3 Golden School walk of «Sekolah Demo PINTAR» on 6 Oct, GS-01 to GS-21, every step PASS, unaided except GS-16, where the four extra students open their tests by typed address (declared in the walk; a bypass under the evidence model; it maps to no inventory line) (C1 run 37431278133; runs 37431385287, 37432707928, 37433910433, 37434862707; JOURNEY-LOG 48).
+**Evidence now:** CI 42191185691 green on main 4d325a33 (and 42182579645 on PR #12's head d54b90a7); journeys 42179347500 green. Staging at 196 migrations, read-only pre- and post-checks identical (batch-8/evidence/staging-pascaperiksa-p2.md). The Golden School walks of «Sekolah Uji B8 1105» on main 38d7e701 (5 Nov), all green: GS-01 to GS-21 (runs 42037667705, 42043970344, 42046058740, 42049795788), administration 42054817245, Studio and Uji Cepat 42057142327, Batch 5 42059820670, accessibility 42062130434. The existing-staff transition J2.7 (run 42163941604, 15/15, main 12d357ce); the restore rehearsal from main (run 42174482669, launch readiness 24/24); U-PERF journeys 42174494519 and 42192239336; the 50-learner test 42110164855. Ledger: docs/completion-4.0/batch-8/evidence/w69-bukti-pemeriksaan.md.
 
 | Section | P0 checks | PASS | PARTIAL | FAIL | BLOCKED | N-I | N-T | PASS at baseline |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Student / Murid | 15 | 14 | 1 | 0 | 0 | 0 | 0 | 1 |
+| Student / Murid | 15 | 13 | 2 | 0 | 0 | 0 | 0 | 1 |
 | Educator / Guru | 8 | 8 | 0 | 0 | 0 | 0 | 0 | 1 |
 | Head of department / Kepala departemen | 8 | 8 | 0 | 0 | 0 | 0 | 0 | 1 |
 | Dean / Dekan | 5 | 5 | 0 | 0 | 0 | 0 | 0 | 1 |
@@ -30,13 +30,13 @@ P0 checks only; each must be PASS on the release candidate before any push to li
 | System admin / Admin platform | 3 | 3 | 0 | 0 | 0 | 0 | 0 | 2 |
 | Anonymous visitor and certificate verifier | 5 | 5 | 0 | 0 | 0 | 0 | 0 | 4 |
 | The cross-role scenario | 12 | 11 | 1 | 0 | 0 | 0 | 0 | 0 |
-| Capacity | 4 | 0 | 2 | 1 | 0 | 0 | 1 | 0 |
-| Universal checks | 10 | 10 | 0 | 0 | 0 | 0 | 0 | 2 |
-| **Total** | **84** | **77** | **5** | **1** | **0** | **0** | **1** | **13** |
+| Capacity | 4 | 1 | 1 | 1 | 0 | 0 | 1 | 0 |
+| Universal checks | 10 | 9 | 0 | 1 | 0 | 0 | 0 | 2 |
+| **Total** | **84** | **76** | **5** | **2** | **0** | **0** | **1** | **13** |
 
 **Baseline, for comparison:** 13 PASS · 11 PARTIAL · 33 FAIL · 22 BLOCKED · 1 N-I · 3 N-T. **Evidence at baseline:** Audit journeys run 35952344955 (harness 39ad60e, app main 78b0f55): Gladys's path from an empty production-like database, 15 PASS · 5 FAIL · 1 BLOCKED · 1 note, with one operator (SQL) step (W1); the seeded-world crawl of 14 personas; the public probes P1–P3. Plus CI, selftests and read-only production checks, as cited per row.
 
-**Verdict now:** 77 of 84 P0 checks pass (baseline 13). NO-GO. What stands, by kind: media playback (STU-11, ADM-10, X-07) is out of scope for the first testing phases (D-050); capacity (CAP-01, CAP-02, CAP-07, CAP-08) waits on Yazid's compute decision (D-089) and the forwarding key (D-092(c), BOB-12's staging acceptance); the release-day rows REL-02, REL-08, REL-09 and REL-13; #150, NOT PASS (D-104(d)); and human acceptance: Dr Gladys walks staging on 7 Oct (D-116, D-117), and no journey is HUMAN-ACCEPTED yet. Code work left without a screen: none. Work that needs a screen (the UI lane, after the walkthrough's findings are reviewed and Daisy's grammar is APPLICATION READY, D-117(h)): ADM-18's layout on the printed sheet, EDU-10 after a ruling on where the score appears, ADM-08's email correction, ADM-18's revocation, EDU-11, DEA-04's briefings and CAP-10's paging.
+**Verdict now:** 76 of 84 P0 checks pass (baseline 13). NO-GO. What stands, by kind: capacity and responsiveness (U-PERF and CAP-02 not met on staging from a US runner; regional evidence not provided, owner 6 Nov; CAP-01 and the 1,000 cohort not run; CAP-08 production's tier, F-15); the W9.19 session regression (STU-19; fixed on the branch, not yet promoted); two screen-reader device runs (NVDA, TalkBack: a person with the devices); real assessment content (K6: residency, the owner after counsel, and E-K6-2); the release-day rows and Gate 6 (docs/completion-4.0/batch-9/RELEASE-EVIDENCE-PACK.md: the production baseline and rehearsed upgrade W9.10, mail by received headers W9.13, DNS, support, backup escrow, counsel F-16); and human acceptance.
 
 ## 1. How to use this checklist
 
@@ -74,7 +74,7 @@ Landings follow D-010 as built. The older specification's three-door routes (/ke
 
 From sign-in to result and certificate state, on a shared tablet.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (12b480b) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (4d325a33) |
 |---|---|---|---|---|---|---|
 | STU-01 | Sign in by email link or class card. | The intended account gets in. A wrong or expired link gives a clear, localized way back, which names the same-device rule. | AUTO · RUN | P0 | **PASS**: email link and class card both sign in (journey S1, S11); the expired-link screen names the same-device rule (DAISY-01). Cross-device links fail by design (M1, P1). | **PASS**: a student signs in with the class card and PIN, the one student model since D-085 M2 (staging GS-12, GS-16, GS-20, runs 37433910433 and 37434862707; BOB12-A01, DAISY-13-KARTU-01, DAISY-13-KARTU-02); a wrong card says what happened. The email-link half of this check is retired: students have no email sign-in (M2), and staff's magic link gave way to Gates 3 and 4. |
 | STU-02 | Arrive after sign-in. | Lands on /belajar (D-010), not a generic page. | AUTO | P0 | **FAIL**: lands on / (journey S11). BOB-06, DAISY-03. | **PASS**: lands on /belajar (S11, BOB-06). |
@@ -94,14 +94,14 @@ From sign-in to result and certificate state, on a shared tablet.
 | STU-16 | Review feedback. | Permitted review only; no internals. | RUN | P1 | **BLOCKED** by B4. | **PASS**: from her home («Lihat hasil») Ani reviews her finished Bab 1: the 8 questions of her Uji Penguasaan, her own answers and each question's explanation; no other learner, no internal word, no identifier (audit S21h, run 37267985806). |
 | STU-17 | Certificate state. | Not eligible → no certificate; eligible → 'being prepared'; issued → actions. Rendering never issues one. | AUTO · RUN | P1 | **BLOCKED** by B4. The lifecycle is covered by selftests (F04). Real certificates now, since the schools are real (D-003). | **PASS**: above the target the certificate is listed «Berlaku» and opens issued, with «Cetak atau simpan PDF» and its verification link; below the target the list says there is none, the chapter's page shows no credential, and opening it twice creates none (audit S21i, run 37267985806). The lifecycle is covered by selftests (F04). |
 | STU-18 | Finish all work. | An honest 'nothing more to do', or the next expectation. | RUN | P0 | **BLOCKED** | **PASS**: on staging: "Apa berikutnya" after the result lists what is open next (run 12, J12). Since v2.3 (J6.13): with every chapter finished and nothing waiting, the home says «Tidak ada lagi yang menunggu» and where new work will appear, instead of «Ini yang sedang berjalan hari ini.» (S21f, runs 36950730580 and 36952453693; J613-K01). |
-| STU-19 | Sign out on a shared tablet. | Keluar on every screen; ends this device's session only; Back and refresh do not resume. Class-card sessions end after 60 minutes idle (D-009). | AUTO · RUN | P0 | **FAIL**: no Keluar on /belajar (S11). DAISY-02, BOB-05. | **PASS**: on one computer, «Keluar» ends this device's session and the next student finds only their own home (S21c, W2; staging GS-20 U1 and X1, run 37434862707). The check's 60-minute idle rule is replaced by D-085 T1 and Gate 6: the session locks after 5 idle minutes and the PIN resumes it at the same page (walked: locked at 302 s, resumed at page 5/5), and a much longer idle ends it (BOB29-A02, tested, not walked). |
+| STU-19 | Sign out on a shared tablet. | Keluar on every screen; ends this device's session only; Back and refresh do not resume. Class-card sessions end after 60 minutes idle (D-009). | AUTO · RUN | P0 | **FAIL**: no Keluar on /belajar (S11). DAISY-02, BOB-05. | **PARTIAL**: on staging (6 Nov, main 4d325a33): the idle lock holds (GS-20 U1: «PINTAR terkunci» at 302 s, the PIN resumes the same page; U2: the shared computer locked by the server at 664 s, run 42195722895), but a session ended elsewhere on a PERSONAL computer stayed usable (GS-21 R2/R3, the same run: W9.19's local token check). The fix is on the branch (78df95e1, W919-CABUT-01, red against the defect), not yet on staging. On 5 Nov (main 38d7e701) the whole of GS-17–21 passed (run 42049795788). |
 | STU-20 | Switch language. | Every learner screen switches ID ↔ EN; content is not translated. | AUTO | P1 | **PARTIAL**: the ID/EN switch is on every learner screen (crawl); the English rendering has not been walked. | **PASS**: «EN» switches the home, the lesson's page counter and buttons, and the test's controls; the lesson's text is unchanged; «ID» switches back (S21g, run 36957344279). The first walk found the lesson and test players Indonesian whatever the reader chose (fixed in batch 7: J614-K01). |
 
 ## 4. Educator / Guru — the teaching journey
 
 Prepare, assign, run Uji Cepat and read class evidence.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (12b480b) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (4d325a33) |
 |---|---|---|---|---|---|---|
 | EDU-01 | Sign in. | Lands on /mengajar (D-010), with no management or admin leakage. | AUTO | P0 | **FAIL**: lands on / (S13). BOB-06, DAISY-03. | **PASS**: lands on /mengajar (S13, BOB-06). |
 | EDU-02 | Educator home. | One meaningful next action; honest empty states. | RUN | P1 | **PARTIAL**: the empty state is clear; not walked with live work. | **PASS**: walked with live work: «Keadaan hari ini», «Lihat bukti», «Lihat nama murid» (S21b, S22; staging J14). |
@@ -122,7 +122,7 @@ Prepare, assign, run Uji Cepat and read class evidence.
 
 Review and freeze sound work; read department evidence.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (12b480b) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (4d325a33) |
 |---|---|---|---|---|---|---|
 | HOD-01 | Sign in and land. | Lands on /pimpinan; /studio/tinjau is one click away. | AUTO | P0 | **FAIL**: lands on /; /pimpinan is not linked (M15). DAISY-03, BOB-06. | **PASS**: lands on /pimpinan (S16, BOB-06); Studio is a tab on it (DAISY-11). |
 | HOD-02 | See their scope. | The Bagian is shown; outside it is refused. | AUTO · RUN | P0 | **PARTIAL**: /pimpinan shows 'Kelas Rendah' (S16); the cross-scope address is not re-walked. | **PASS**: /pimpinan shows the department, its roster lists every learner (S23, W10); the school's root and the other school, typed as addresses, refuse the head of department (S23, HOD-02). |
@@ -140,7 +140,7 @@ Review and freeze sound work; read department evidence.
 
 Read school evidence and reports; seniority grants no capability.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (12b480b) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (4d325a33) |
 |---|---|---|---|---|---|---|
 | DEA-01 | Sign in and land. | Lands on /pimpinan (D-010). | AUTO | P0 | **FAIL**: lands on /; /pimpinan is not linked (M15, crawl). | **PASS**: lands on /pimpinan (BOB06-R01, every role redirected home; CI #191). |
 | DEA-02 | School summary. | A few numbers, each with its standing. | RUN | P0 | **BLOCKED**: no evidence yet. | **PASS**: a dean onboarded by the school admin's screens (Pendataan, Aktivasi, «Dekan» at the school) signs in by the email link, reads the school on /pimpinan, opens «Buka ringkasan sekolah» by clicking (no raw decimal), and Konfigurasi, Aktivasi, Studio and Pendataan refuse the dean (S23d, runs 36954714221 and 36957344279). |
@@ -154,7 +154,7 @@ Read school evidence and reports; seniority grants no capability.
 
 The journey Gladys and each school admin make first. Every step must work without SQL.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (12b480b) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (4d325a33) |
 |---|---|---|---|---|---|---|
 | ADM-01 | Receive the role; sign in. | Given by Gladys; lands on /konfigurasi. | AUTO | P0 | **PARTIAL**: the grant works (S4) and the admin signs in (S5), but lands on /. BOB-06. | **PASS**: the grant works (S4) and the school admin lands on /konfigurasi (S5, BOB-06). |
 | ADM-02 | What needs doing. | Home shows the remaining setup. | RUN | P1 | **N-I**: Konfigurasi is a set of sections, with no readiness list. | **PASS**: «Persiapan sekolah» on Konfigurasi says what is done and what remains: Kelas, students placed, every Kelas with a teacher (S7, S12b). |
@@ -183,7 +183,7 @@ The journey Gladys and each school admin make first. Every step must work withou
 
 Operate the platform. Today this is Gladys alone (D-001).
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (12b480b) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (4d325a33) |
 |---|---|---|---|---|---|---|
 | SYS-01 | Sign in and land. | Lands on /konfigurasi. | AUTO | P0 | **PARTIAL**: signs in (S1) but lands on /. BOB-06. | **PASS**: lands on /konfigurasi (S1, BOB-06). |
 | SYS-02 | Platform state. | Health, environment and schools, within platform scope. | RUN | P1 | **PARTIAL**: Konfigurasi shows system health and environment. | **PARTIAL**: Konfigurasi shows the environment and, on «Jalankan pemeriksaan», «Semua pemeriksaan lolos» (S2, walked). Whether each school's administrator has signed in needs a new cross-school read of sign-in facts: waiting for Yazid. |
@@ -199,7 +199,7 @@ Operate the platform. Today this is Gladys alone (D-001).
 
 What a stranger can see and do, and what they must never learn.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (12b480b) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (4d325a33) |
 |---|---|---|---|---|---|---|
 | PUB-01 | Open /masuk as a stranger. | The page, logo and fonts load. | AUTO · PROD | P0 | **PASS**: F01-R08; front-door check this morning (run 35935767367). | **PASS** (unchanged) |
 | PUB-02 | Try to sign up. | Refused; no alternate path. | AUTO · PROD | P0 | **PASS**: disable_signup verified at deploy; harness probe P2. | **PASS** (unchanged) |
@@ -213,7 +213,7 @@ What a stranger can see and do, and what they must never learn.
 
 One lesson, end to end, through the app (D-005). Run it last, after the role journeys.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (12b480b) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (4d325a33) |
 |---|---|---|---|---|---|---|
 | X-01 | The admin prepares the school. | Structure, staff, students and roles, with no SQL or typed addresses. | AUTO · RUN | P0 | **FAIL**: structure needs SQL (B1). | **PASS**: structure, staff roles, cards and intake without SQL (S3-S12); a place that is not a Kelas or Tingkat and a staff row are refused at intake with reasons (BOB-01, BOB-10); a school admin sees and names their own staff and finds a newly recorded teacher in their own waiting list (BOB-20, D-048), and grants only to a person with a relationship with that school (BOB-21, D-049: F10-G01, G02). A teacher moving from another school waits for the staff-link workflow (backlog, D-049); the platform admin's grant covers it meanwhile. |
 | X-02 | Get a lesson into PINTAR. | The import succeeds, with problems per row. | AUTO · RUN | P0 | **FAIL** (B2). | **PASS**: the workbook upload (S14) and the real SD 5 Bab 1 whole (S15c). |
@@ -233,22 +233,22 @@ One lesson, end to end, through the app (D-005). Run it last, after the role jou
 
 Run on the staging project (D-036) with production's compute tier, never on production. Rows marked Onboarding block registrations beyond that point until they pass: 1,000 students by 1 Nov, 5,000 by 1 Dec.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (12b480b) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (4d325a33) |
 |---|---|---|---|---|---|---|
 | CAP-01 | The 1 Nov morning: 1,000 students sign in with class cards within 10 minutes (L1, D-035). | Every valid card gets in; a refusal for load says so plainly, never 'wrong card or PIN'; no student is locked out by another school's traffic. | LOAD | P0 | **N-T**: no load harness or staging project yet (C-06). Risk found at review: sign-in and session refresh reach Supabase Auth from PINTAR's server, so all students share that address's limit (bursts of 30), and the card screen reports a 429 as a wrong PIN. BOB-12. | **N-T**: the load harness exists and ran L1 on staging (perf-l1.yml run 36964437916, D-089); the 1,000-card sign-in burst itself has not been run. Until IP forwarding and the forwarding key are on, every sign-in through PINTAR shares one IP's Auth allowance (D-092(c), BOB-12's staging acceptance, Yazid); compute waits on D-089. |
-| CAP-02 | The 1 Nov cohort (1,000 students) sits a synchronized assessment (L1): start, answer, change answers, sync, lose and regain the network, submit, results, teachers open reports. | No answer lost or duplicated; server errors < 0.1%; answer save p95 < 1 s, p99 < 3 s; no pool exhaustion. | LOAD | P0 | **N-T**: needs BOB-04 (the assessment exists) and C-06. | **FAIL**: on staging: L1 NOT MET (perf-l1.yml run 36964437916, 1,000 synthetic learners in 16 shards, sessions made ahead). 0 answers lost, 0 duplicated, every finished sitting has its result; but answer save p95 11,664 ms (limit 1 s) and p99 29,660 ms (limit 3 s); server errors 73 of 54,812 calls = 0.133% (limit 0.1%), 504s while waiting for a database connection (PostgREST PGRST003: the pool was exhausted); 996 of 1,000 finished (4 refused PR006 after a failed save the harness does not resend). The database's CPU reached 98%; the assistance poll is 36% of calls. The 10-learner trial before it was clean (run 36963146820). Staging is not production's tier (CAP-08); the card sign-in wave (CAP-01) and teachers' reports during the wave were not part of this run. AT 50 AT ONCE (the initial-testing limit, D-089(d); the efficiency audit, docs/reports/PINTAR-4.0-EFFICIENCY-AUDIT-2026-10-02.md): three synchronized runs on the same Micro, every learner sat and handed in, 0 answers lost or duplicated, every result present, 0 server errors, no pool timeout, the database's CPU at most 18%. Through the RPC journey D-031 is met (run 36969517374 before the changes: save p95 327 ms; run 36982765324 after: 289 ms). Through the real app in Chromium (run 36979562623) the save p95 is 1,366 ms from GitHub's US runners (limit 1 s; 1,830 ms with 4 learners, the database at 3%): not met as measured; not measured from where learners are. CAP-02 (1,000) stays FAIL. |
+| CAP-02 | The 1 Nov cohort (1,000 students) sits a synchronized assessment (L1): start, answer, change answers, sync, lose and regain the network, submit, results, teachers open reports. | No answer lost or duplicated; server errors < 0.1%; answer save p95 < 1 s, p99 < 3 s; no pool exhaustion. | LOAD | P0 | **N-T**: needs BOB-04 (the assessment exists) and C-06. | **FAIL**: on staging at 50 learners (W6.8, perf-l1.yml run 42110164855, main 38d7e701): every correctness criterion met (50 of 50 finished, 0 answers lost or duplicated, every sitting has its result, 0 server errors of 2,261, p99 2,328 ms under 3 s, back to baseline in 180 s); the answer-save p95 is 1,828 ms against 1 s (record_answer itself 11 ms p50, 20 ms p95; the rest is distance from the US runner). Staging is not on production's tier (CAP-08); the 1,000 cohort is not run. |
 | CAP-03 | The 1 Dec cohort at once (L2: 5,000 students, 10 schools). | The D-031 pass criteria hold. | LOAD | Onboarding: 1 Dec | **N-T** | **N-T** (unchanged) |
 | CAP-04 | L3: 10,000 students at once. | The D-031 pass criteria hold. | LOAD | Onboarding: >5,000 students | **N-T** | **N-T** (unchanged) |
 | CAP-05 | L4: 20,000 students at once. | The D-031 pass criteria hold. | LOAD | Onboarding: >10,000 students | **N-T** | **N-T** (unchanged) |
 | CAP-06 | L5: 60,000 students at once (150 schools). | Where PINTAR degrades is found and recorded, with the fix or tier that moves it. | LOAD | Onboarding: >20,000 students | **N-T** | **N-T** (unchanged) |
-| CAP-07 | Recovery after each spike. | The database returns to its baseline within 10 minutes; queued answers sync; nobody is signed out by the spike. | LOAD | P0 | **N-T** | **PARTIAL**: after the 1,000-learner wave the database was back at its baseline in 194 s (limit 10 minutes; CPU 98% → about 1%, backends 34 → 24; run 36964437916). Queued answers syncing after the spike and nobody being signed out were not measured: the harness does not run the player's outbox, and sessions were made ahead. At 50: back at baseline in 89 s (RPC, before the changes) and 25 s (the real app). The RPC run after the changes (36982765324) reads 'not seen': the CPU was back at idle, but PostgREST kept 5 connections opened during the wave, idle, and the harness's rule counts connections (recorded as read; the rule counting idle pooled connections is noted for the owner). |
+| CAP-07 | Recovery after each spike. | The database returns to its baseline within 10 minutes; queued answers sync; nobody is signed out by the spike. | LOAD | P0 | **N-T** | **PASS**: at 50 on staging: back to baseline in 180 s after the W6.8 wave (run 42110164855); not shown at 1,000. |
 | CAP-08 | Where the load runs. | A staging Supabase project on production's compute tier; never production (D-013). | CODE · PROD | P0 | **N-I**: no staging project yet (Yazid; C-06, C-07, D-036). | **PARTIAL**: staging (pintar-staging) and production are both on Micro (60 connections, 1 GB, 2 shared cores; staging read 2 Oct). The L1 run on staging's Micro failed D-031 at 1,000 learners (run 36964437916). The tier is a pre-production capacity decision, made on capacity testing before production; the upgrade follows a successful result (D-089). Initial testing is held to 50 people at once. |
 | CAP-09 | Hot paths are index-backed. | pg_stat_statements and the Performance Advisor show no unindexed or per-row query on sign-in, assessment write, learner home or teacher class view (README gate rule 9). | CODE · LOAD | P1 | **N-T** (BOB-13). | **PARTIAL**: the efficiency audit of 2 Oct read the advisors and pg_stat_statements; the draw and Konfigurasi now use indexes (20261109100000, EFF-K02). Left as they are: row security on rosters, session_paper's one query per question, /pimpinan computed live, an Auth round trip per request. Measured at 50 at once, not under load. |
 | CAP-10 | Lists that grow with schools. | Konfigurasi and Pendataan lists page; nothing loads every person at once (M14). | RUN · CODE | Onboarding: >10 schools | **N-I** (BOB-13). | **N-I** (unchanged) |
 
 ## 12. Universal checks (every flow)
 
-| ID | Check | Gate | Baseline | Now (12b480b) |
+| ID | Check | Gate | Baseline | Now (4d325a33) |
 |---|---|---|---|---|
 | U-NAV | Navigation: every intended screen is reachable by clicking. | P0 | **FAIL**: Aktivasi, Studio and Pimpinan are unlinked (M3, M15). | **PASS**: Aktivasi, Studio, Pimpinan (S2, DAISY-03, DAISY-11) and now the report pages (DAISY-07) are reached by clicking. |
 | U-AUTH | Authorization: a direct address outside role or scope fails closed; navigation is never the security boundary. | P0 | **PASS**: every destination refuses server-side (gate review of DAISY-02/03); RLS everywhere. | **PASS** (unchanged) |
@@ -261,17 +261,17 @@ Run on the staging project (D-036) with production's compute tier, never on prod
 | U-PRIV | Privacy: no existence oracle; no keys or integrity internals for learners; no learner full name on shared screens (D-020). | P0 | **PARTIAL**: the greeting uses the full name; the staff strip could name a learner (caught at the gate, DAISY-02). | **PASS**: no learner full name on / or /belajar (DAISY-10-SAPA-02); no existence oracle (P1). |
 | U-RECOVER | Recovery without SQL where the product claims self-service. | P1 | **FAIL**: account corrections (M6). | **PARTIAL**: as ADM-08: card re-issue, the PIN reset and one's own recovery are built and walked (Gates 4 and 5, D-101); correcting a wrong email is not. |
 | U-ERR | Error pages are PINTAR's own and show a reference, never a stack trace. | P0 | **FAIL**: framework defaults (P3). DAISY-04. | **PASS**: PINTAR's own error and not-found pages with a reference (DAISY-04). |
-| U-PERF | Responsiveness on staging: sign-in acknowledges at once and reaches a usable first screen in 3 s or less (gate: under 5 s); a typical menu click takes 1.5 s or less, and 95% take under 3 s; no timeout or error with 30 active staff sessions for 10 minutes; no pathological repeated requests (request counts recorded); auth, RLS and permission decisions unchanged. A click that saves is acknowledged at once and cannot be submitted twice; representative writes are timed. | P0 | **NOT VERIFIED** (added 27 Sep, D-046). | **PASS** (again): the lesson page's save loop is gone since BOB-23 (accepted on staging run 14; runs 15 and 16: nothing in the second idle window, J09). The rest stands from 28 Sep, after BOB-18: the page usable 1.0-3.3 s after sign-in, clicks median 1.16 s and all under 3 s (run 36359917724); 30 sessions for 10 minutes, 2,429 clicks, 0 failed, click p95 1.2-1.5 s (run 36361820806); a menu click answers within 100 ms (DAISY-18). Those runs did not hold a lesson page open; BOB-23's acceptance covers that page. |
+| U-PERF | Responsiveness on staging: sign-in acknowledges at once and reaches a usable first screen in 3 s or less (gate: under 5 s); a typical menu click takes 1.5 s or less, and 95% take under 3 s; no timeout or error with 30 active staff sessions for 10 minutes; no pathological repeated requests (request counts recorded); auth, RLS and permission decisions unchanged. A click that saves is acknowledged at once and cannot be submitted twice; representative writes are timed. | P0 | **NOT VERIFIED** (added 27 Sep, D-046). | **FAIL**: on staging, by little (6 Nov, main 4d325a33, journey run 42192239336 from GitHub's runner in the US): every click and save is under 3 s, most under 2 s (Konfigurasi 1.25–1.35 s, «Laporan» 1.34–1.87 s, saves 1.34–1.84 s); the first screen after sign-in is usable in 2.5–3.2 s (1 of 6 under 3 s; the gate's 5 s is met). Fixed on the way: the Konfigurasi audit read (2,538 → 21 ms; W62-JEJAK-01). The proxy's Auth call (W9.19, 348 → 0 per journey) is reversed on the branch (78df95e1): it let an ended PERSONAL session through (GS-21 R2/R3, run 42195722895), so these figures overstate the code to be promoted. What remains is the proxy's session check crossing from the runner's region (p50 776 ms through IAD, 34 ms through SIN). Kept as it is by the owner (6 Nov, option (a)). The row stays FAIL until regional evidence exists; none is provided for now (owner, 6 Nov). |
 
 ## 13. Release-day checks (production, read-only)
 
 Run after the migrations and the deploy of the release candidate. None of them writes to production.
 
-| ID | Check | Gate | At baseline | Now (12b480b) |
+| ID | Check | Gate | At baseline | Now (4d325a33) |
 |---|---|---|---|---|
-| REL-01 | CI is green on the exact release commit, strict selftest included. | P0 | **PASS** for the live release 5b5b68d (run 35850275026). | **PASS** for main's current code: CI 37430770665 (35/35, 595 tests) on 3a7501b, whose application code the walkthrough specimen 12b480b carries unchanged. The release commit, when there is one, needs its own run. |
+| REL-01 | CI is green on the exact release commit, strict selftest included. | P0 | **PASS** for the live release 5b5b68d (run 35850275026). | **PASS** for main's current code: CI 42191185691 green on main 4d325a33. The release commit, when there is one, needs its own run. |
 | REL-02 | The audit journeys pass on the release candidate with zero operator (SQL) steps, and every P0 flow check above is PASS. | P0 | **FAIL**: on main 78b0f55 (this baseline). | **FAIL**: not every P0 check passes yet (see the summary). |
-| REL-03 | Migrations are applied to production before the app, in order; the count equals the repository's. | P0 | **PASS** for the live release: production 111 = release 5b5b68d. main has 112 (BOB-01), applied with the sprint 1 release. | **PASS** for the live release (production 111 = 5b5b68d). main and staging carry 165 (environment-facts run 37438389611). Production moves from 111 to 165 only through the rehearsed upgrade (Phase 8), and G6 refuses any production migration without a recent backup read through C1. |
+| REL-03 | Migrations are applied to production before the app, in order; the count equals the repository's. | P0 | **PASS** for the live release: production 111 = release 5b5b68d. main has 112 (BOB-01), applied with the sprint 1 release. | **N-T**: n and staging carry 196 migrations (P-3 post-check, 6 Nov). Production is not read in 4.0 (F-5); it moves only through the rehearsed upgrade (W9.10), and G6 refuses a production migration without a recent backup. |
 | REL-04 | Launch readiness is 17/17, and every assert_* passes (including the evaluation boundary, canonical tenants and official bootstrap). | P0 | **PASS**: this morning, on production. | **PASS** (unchanged) |
 | REL-05 | Every functional step of the deploy is green: front door, closed verification 404, activation refusal, Auth boundary. | P0 | **PASS**: deploy 013. | **PASS** (unchanged) |
 | REL-06 | The external front-door check says FRONT DOOR OK. | P0 | **PASS**: run 35935767367. | **PASS** (unchanged) |
@@ -380,3 +380,4 @@ The acceptance scenario, in order: set up a school → add classes and people �
 - 5 Oct: the five recorded unwalked checks walked green in the audit (run 37267985806, 57 PASS): STU-16, STU-17, HOD-07, HOD-08 and X-11 N-T → PASS. All are P1; P0 PASS unchanged.
 - 6 Oct (v2.6): every row not PASS re-checked against main 808ae6e. N8 and N5 fixed (20261126100000, 20261127100000), and ADM-18's prefix applied (20261128100000). PASS: X-09 (P0), ADM-04, DEA-05, SYS-06, STU-12. ADM-18 N-T → PARTIAL; ADM-08, U-RECOVER, EDU-10, REL-08, REL-13 and CAP-09 to PARTIAL; EDU-11 N-T → N-I; SYS-07 PARTIAL → N-T (flags out of scope, D-097(c)); DEA-04's stale text corrected. P0 PASS 76 → 77.
 - 6 Oct (v2.7): status pinned to the Dr Gladys walkthrough specimen 12b480b (application code = 3a7501b, CI 37430770665; staging machine-read GREEN, run 37438389611) and to the full Golden School walk of Sekolah Demo PINTAR (GS-01 to GS-21, 41 of 41 PASS). Evidence refreshed on X-09, DEA-05, ADM-18 and REL-08; REL-09 read against D-107 D8 (escrow, not an offline plaintext copy); REL-12 notes Phase 6. The findings list (§14) brought up to date (B4–B6, M5, M7, M9, Capacity) and the certificate-number conflict added; CAP-01's stale reason replaced. STU-01, STU-19, REL-01 and REL-03 brought to current evidence; ADM-19 PASS → PARTIAL (its evidence was the class move, not the transfer it checks; P2). P0 PASS stays 77 of 84. From 6 Oct evening the application is frozen for the walkthrough (D-117).
+- 6 Nov (v2.8): status moved to main 4d325a33 on staging (P-1, P-2, P-3). Rows marked only with staging evidence (W6.9): U-PERF PASS → FAIL by little (the v2.4 PASS was the lesson page's save loop; on 6 Nov the staging journey measures a 2.5–3.2 s first screen; clicks and saves under 3 s), CAP-02 FAIL at 50 (save p95 1,828 ms; correctness met), CAP-07 N-T → PASS at 50, REL-01 and REL-03 refreshed. Proven only locally or in CI and so not marked here: the 320–1280 px crawl and axe (W6.4), zoom, keyboard and colour vision (W6.12). NVDA and TalkBack stay outstanding until the device runs are done. The P0 count goes from 77 to 76 of 84: U-PERF down, CAP-07 up, and STU-19 PASS → PARTIAL (W9.19's session regression on staging, fixed on the branch).

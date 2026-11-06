@@ -12,9 +12,8 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: "Commit or branch of the application to audit (the gate runs it on a candidate before release)"
-        required: false
-        default: "main"
+        description: "The exact 40-character commit SHA of the candidate to audit (no branch, no default: a branch moves, and 6 Nov showed a default auditing an older main)"
+        required: true
       plant:
         description: "Controlled red (EVIDENCE-MODEL §5): plant one failure in the crawl or the journey, to prove the job turns red"
         required: false
@@ -33,7 +32,7 @@ concurrency:
 
 env:
   # The application under audit: the dispatched ref, else the release in production.
-  RELEASE_SHA: ${{ inputs.ref || '5b5b68d4c77700976904fdee5a2fb52e46f8221e' }}
+  RELEASE_SHA: ${{ inputs.ref }}
   APP_PORT: "3999"
   # Any FAIL or BLOCKED step, or any broken page, turns its job red (D-087).
   AUDIT_PLANT: ${{ inputs.plant || 'none' }}
@@ -53,14 +52,20 @@ jobs:
         with:
           path: app
           fetch-depth: 0
-      # The candidate by branch, tag, full SHA or short SHA: actions/checkout
-      # accepts only the first three, so the ref is resolved here and the full
-      # SHA that was audited is printed for the record.
+      # The candidate is named by its exact commit, never a branch (6 Nov: a run dispatched without one audited an older
+      # main). The commit checked out must be that commit; it is recorded in the job summary and in audit-out/AUDITED_SHA
+      # (the artifact), so the promotion can match the audited commit against the one it merges (scripts/release/
+      # kandidat-sama.sh).
       - name: Check out the candidate
         run: |
           set -euo pipefail
-          git -C app checkout --quiet --detach "$RELEASE_SHA" 2>/dev/null || git -C app checkout --quiet --detach "origin/$RELEASE_SHA"
-          echo "auditing $(git -C app rev-parse HEAD)"
+          [[ "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::ref must be the candidate's full 40-character commit SHA, got '$RELEASE_SHA'"; exit 1; }
+          git -C app checkout --quiet --detach "$RELEASE_SHA"
+          AUDITED="$(git -C app rev-parse HEAD)"
+          [ "$AUDITED" = "$RELEASE_SHA" ] || { echo "::error::checked out $AUDITED, not the candidate $RELEASE_SHA"; exit 1; }
+          mkdir -p audit-out && echo "$AUDITED" > audit-out/AUDITED_SHA
+          echo "auditing $AUDITED"
+          echo "Audited commit: \`$AUDITED\`" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -267,14 +272,20 @@ jobs:
         with:
           path: app
           fetch-depth: 0
-      # The candidate by branch, tag, full SHA or short SHA: actions/checkout
-      # accepts only the first three, so the ref is resolved here and the full
-      # SHA that was audited is printed for the record.
+      # The candidate is named by its exact commit, never a branch (6 Nov: a run dispatched without one audited an older
+      # main). The commit checked out must be that commit; it is recorded in the job summary and in audit-out/AUDITED_SHA
+      # (the artifact), so the promotion can match the audited commit against the one it merges (scripts/release/
+      # kandidat-sama.sh).
       - name: Check out the candidate
         run: |
           set -euo pipefail
-          git -C app checkout --quiet --detach "$RELEASE_SHA" 2>/dev/null || git -C app checkout --quiet --detach "origin/$RELEASE_SHA"
-          echo "auditing $(git -C app rev-parse HEAD)"
+          [[ "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::ref must be the candidate's full 40-character commit SHA, got '$RELEASE_SHA'"; exit 1; }
+          git -C app checkout --quiet --detach "$RELEASE_SHA"
+          AUDITED="$(git -C app rev-parse HEAD)"
+          [ "$AUDITED" = "$RELEASE_SHA" ] || { echo "::error::checked out $AUDITED, not the candidate $RELEASE_SHA"; exit 1; }
+          mkdir -p audit-out && echo "$AUDITED" > audit-out/AUDITED_SHA
+          echo "auditing $AUDITED"
+          echo "Audited commit: \`$AUDITED\`" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

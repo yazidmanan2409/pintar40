@@ -107,9 +107,8 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  // W9.19: the session's token verified (locally with an asymmetric key; by Auth's server with a symmetric one), not
-  // a call to Auth's server on every request (src/lib/pengguna-proksi.ts). Whether the session is still alive stays
-  // sesi_periksa's answer below.
+  // Auth's server decides who is signed in (src/lib/pengguna-proksi.ts). On a PERSONAL computer the session check
+  // below is skipped, so Auth's answer is what refuses a session ended elsewhere (W919-CABUT-01).
   const user = await penggunaTerverifikasi(supabase);
   const path = request.nextUrl.pathname;
   const aman = request.nextUrl.protocol === "https:";

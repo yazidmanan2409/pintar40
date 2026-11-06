@@ -4572,14 +4572,24 @@
       "proves": "W6.2 (U-PERF, D-046; staging 5 Nov, journey run 42105894283), selftest/aturan.test.ts over the source of src/app/konfigurasi/page.tsx: the audit trail (audit_log) is read only when the page drawn is «Jejak audit», so the index and every other section read none; a school's context names its one school with eq, not in (PostgREST's prepared statement gets a generic plan for = any($1) that read the school's whole trail through the row policy, 2,538 ms, against 21 ms for = $1, read-only EXPLAIN on staging); the read as it was is caught."
     },
     {
-      "id": "W919-KLAIM-01",
+      "id": "W919-CABUT-01",
       "runner": "static",
-      "proves": "W9.19 (CAP-09; W6.2 U-PERF, journey run 42174494519: the proxy's GET /auth/v1/user at p50 733 ms through IAD against 16 ms through SIN), selftest/w919.test.ts, which executes the source file src/lib/pengguna-proksi.ts through the real Supabase client against a recording fake of Auth with really signed tokens: an ES256 token signed by the published key is read locally as its subject and address with no GET /auth/v1/user, the key set fetched at most once and a second client asking nothing; another key's signature under the same kid and a payload altered after signing are nobody and are not sent to Auth to vouch; an HS256 token is still decided by Auth's server (accepted when it accepts, nobody when it refuses); an expired token is refreshed first and its cookies written; no session and no subject are nobody."
+      "proves": "W9.19 reversed (6 Nov; the staging walk's GS-21 R2 and R3, run 42195722895 on main 4d325a33: an ended PERSONAL session reached /mengajar because its token still verified locally), selftest/w919.test.ts, which executes the source file src/lib/pengguna-proksi.ts through the real Supabase client against a recording fake of Auth with an ES256 token really signed by the project's published key: when Auth's server reports the session gone the reader is nobody although the token verifies; when Auth accepts it the reader is its subject and address; Auth's server is asked on every read; no session is nobody with no call. Red against the getClaims() read."
     },
     {
-      "id": "W919-KLAIM-02",
+      "id": "W919-CABUT-02",
       "runner": "static",
-      "proves": "W9.19, selftest/w919.test.ts over the source of src/proxy.ts: who is signed in is read only through penggunaTerverifikasi (src/lib/pengguna-proksi.ts), never auth.getUser(), and the database's session check (sesi_periksa: ended, locked, maintenance) is still asked on every signed-in request but a prefetch; a planted getUser() and a planted removal of the session check are each caught."
+      "proves": "W9.19 reversed, selftest/w919.test.ts over the source of src/proxy.ts and src/lib/pengguna-proksi.ts: who is signed in is read only through penggunaTerverifikasi, which asks Auth's server (auth.getUser()) and never verifies the token locally (getClaims); the database's session check (sesi_periksa) is still asked on every signed-in request but a prefetch and a PERSONAL session; a planted getClaims() and a planted removal of the session check are each caught."
+    },
+    {
+      "id": "KANDIDAT-SHA-01",
+      "runner": "static",
+      "proves": "The journeys audit the exact candidate (6 Nov: runs 42179347500 and 42198619759, dispatched without a ref, audited an older main), selftest/kandidat.test.ts over the workflow file .github/workflows/audit-journeys.yml: `ref` is required with no default; RELEASE_SHA is taken from it alone; both jobs' «Check out the candidate» refuse anything but a full 40-character SHA, refuse a checkout that is not that commit, and record it in audit-out/AUDITED_SHA and the job summary; a planted default and a planted branch fallback are each caught."
+    },
+    {
+      "id": "KANDIDAT-SHA-02",
+      "runner": "static",
+      "proves": "The promotion matches the audited commit, selftest/kandidat.test.ts executing the source file scripts/release/kandidat-sama.sh on a scratch git repository: the same commit, and a merge commit carrying the audited tree, are SAME (exit 0); a commit with other content is DIFFERENT (exit 1); a short SHA and a branch name are refused (exit 2)."
     },
     {
       "id": "X11-KLIEN-01",

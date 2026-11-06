@@ -1,4 +1,4 @@
-# PINTAR 4.0: consolidated status (6 Nov 2026, 07:30 UTC)
+# PINTAR 4.0: consolidated status (6 Nov 2026, 07:30 UTC; addendum 09:20 UTC at the end)
 
 This update is measured against the evening update of 5 Nov (`STATUS-UPDATE-2026-11-05-PM.md`).
 
@@ -151,3 +151,32 @@ This update is measured against the evening update of 5 Nov (`STATUS-UPDATE-2026
   - counsel (F-16);
   - residency for K6;
   - DNS, support, backup escrow.
+
+---
+
+## Addendum, 09:20 UTC: P-3 and W9.19 on staging
+
+**P-3:** PR #12 merged as `main` **`4d325a33`**, after its CI and both journey jobs were green. Job B's first attempt was cut off by a slow runner; its one re-run was green.
+- **No migrations.**
+- **The read-only post-check:** identical.
+
+**W9.19: verified on staging.**
+- **Staging signs with an asymmetric key.** The proxy now verifies the token locally.
+- **The proxy's Auth calls through the US:** 348 → **0**.
+- **No owner action is needed on staging.**
+- **Production's key type is not known** (production is not read); it is a release-time check.
+
+**W6.2** (journey run 42192239336):
+
+| Step | Now | Under 3 s |
+|---|---|---|
+| Every click and save | under 3 s, most under 2 s (Konfigurasi 1.3 s, Antrean Tinjauan 0.4–0.6 s, saves 1.3–1.8 s) | yes |
+| The first screen | usable in 2.5–3.2 s | 1 of 6 |
+
+- **The row stays OPEN, but the remaining gap is small.**
+- **What remains:** the proxy's database session check (`sesi_periksa`) crossing from the US, at 776 ms, against 34 ms through Singapore.
+
+**Next options:**
+1. **W6.8:** re-run the 50 learners to see how far the save p95 dropped. The save time was dominated by the same two proxy calls, and one of them is now gone.
+2. **W9.19's next item:** avoid the session check's round trip on every page, a security-sensitive design.
+3. **A regional measurement:** the owner declined a test machine for now.
