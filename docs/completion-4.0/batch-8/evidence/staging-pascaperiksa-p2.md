@@ -108,3 +108,38 @@ This is the case the transition meets in production: an account, a person and ro
 - **What it costs:** the 348 → 0 drop in the proxy's Auth calls is given back. This is how immediate enforcement is kept (the owner's ruling of 6 Nov).
 
 **Staging until then:** it still runs `4d325a33`. On a PERSONAL computer, a session ended elsewhere stays usable until its token expires (Auth's default lifetime is one hour). Staging only: production runs the old release and is untouched.
+
+## P-4 (6 Nov): the session fix promoted and verified on staging — GREEN
+
+**The audited commit and the promoted commit:**
+- **Audited:** journeys run **42202855039** on `5a78d979`, with `ref` pinned by the corrected workflow. Both jobs printed `auditing 5a78d979e9800473c7dc36273f31fc99d455bbdf`.
+  - **Job A:** 9 of 9 Batch 8 steps PASS, including J2.9 «Keluar dari semua perangkat», J2.12 (the assisted reset ends the other session), and J2.20 (the idle lock, wrong and right PIN, three wrong end it, 60 minutes locked ends it).
+  - **Job B:** green.
+- **CI on PR #13's head `5a78d979`:** green, including W919-CABUT-01/02 and KANDIDAT-SHA-01/02.
+- **Promoted:** PR #13 merged as `main` **`d672a94a`**. `scripts/release/kandidat-sama.sh 5a78d979… d672a94a…` answered **SAME**: tree `033ac770…`, the audited code exactly.
+
+**Post-check:** read-only, against the P-2 baselines; every value identical.
+- migrations 196;
+- the demo school 4/10/10/3/5/1, audit 91 (6860), people `bd41b3c9…`;
+- non-synthetic results `f4fbb8c0…` and official results `a14f4a40…`;
+- certificates outside the test schools `ffa43edd…`;
+- management decisions 0.
+
+**On the deployed app:** a fresh school, «Sekolah Uji B8 1106» (`found-school.yml` run 42199073235). Every walk's GS-00 machine-read staging serving `main` `d672a94a`.
+
+| Walk | Run | Result |
+|---|---|---|
+| GS-01 to GS-03, first administrator | 42211714233 | GREEN |
+| GS-04 to GS-11, setup and publication | 42213701786 | GREEN |
+| GS-07, GS-12 to GS-16, the students | 42217292476 | GREEN |
+| **GS-17 to GS-21, reports, certificate, recovery, shared computer, public check** | **42220729346** | **GREEN, 18 of 18** |
+
+**The session steps of the last walk:**
+- **R2:** the teacher replaced her password on another browser. **The L1 browser → `/masuk`**; sessions ended `KREDENSIAL_DIGANTI` × 2.
+- **R3:** recovery by PINTAR ID and PIN on a third browser. **R2's browser → `/masuk`**; the J2.13 notice reached the owner's mailbox, with the PINTAR ID and without the PIN.
+- **U1:** the class card shows «Saya masih di sini» at 240 s and «PINTAR terkunci» at 303 s; the PIN resumes the same page; «Bukan akun Anda?» → «Keluar»; the next card holder gets only her own session.
+- **U2:** the shared computer is locked by the server after 653 s; the PIN resumes `/pimpinan`.
+- **R1:** a lost card and a damaged card reissued; the old cards' sessions end (1 → 0); results kept.
+- **X1:** every session the run opened is ended; none open.
+
+**Verdict:** the tested code and the deployed code match, and the session journeys pass through the real staging application. W9.19's regression is closed on staging.
