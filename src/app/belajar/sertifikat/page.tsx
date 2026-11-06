@@ -8,7 +8,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import { BarisLingkup } from "@/components/bukti";
-import { myCertificates, institutionNames, type CertificateRow } from "@/lib/sertifikat";
+import { myCertificates, institutionNames, tugasSertifikatSaya, type CertificateRow } from "@/lib/sertifikat";
 import KakiPintar from "@/components/KakiPintar";
 import { petaSesi } from "@/components/sertifikat/asalSertifikat";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -53,9 +53,13 @@ export default async function DaftarSertifikat() {
   // certificate page itself uses: each of the learner's assignments' Uji
   // Penguasaan session (my_cycle_state), mapped back to that assignment. A row
   // whose assignment this learner can no longer read, or whose session is no
-  // assignment's current one, keeps its date and its status, loses only its
-  // title, and is not a link: there is no page that would open it.
-  const [institutions, bySession] = await Promise.all([
+  // assignment's current one, keeps its date and its status and loses only its
+  // title. Cross-batch (6 Nov): it is still a link, to the chapter its own
+  // sitting belongs to (tugasSertifikatSaya), because the certificate page now
+  // opens the learner's own certificate after the chapter stops being assigned
+  // (a new school year, a transfer). Only a row with no sitting of theirs is not
+  // a link.
+  const [institutions, bySession, tugasDari] = await Promise.all([
     institutionNames(rows.map((r) => r.institution_id)),
     rows.length === 0
       ? Promise.resolve(petaSesi([]))
@@ -64,6 +68,7 @@ export default async function DaftarSertifikat() {
             assignment,
             postSession: (await engine.cycleState(db, assignment.learning_assignment_id).catch(() => null))?.post_session ?? null,
           }))))),
+    tugasSertifikatSaya(rows.map((r) => r.session_id)),
   ]);
 
   const institution = rows.length > 0 ? institutions.get(rows[0].institution_id) ?? null : null;
@@ -108,8 +113,9 @@ export default async function DaftarSertifikat() {
                   {pill}
                 </>
               );
-              return meta ? (
-                <Link key={row.id} className="pin-row" href={`/belajar/${meta.tugas}/sertifikat`}>{isi}</Link>
+              const ke = meta?.tugas ?? tugasDari.get(row.session_id);
+              return ke ? (
+                <Link key={row.id} className="pin-row" href={`/belajar/${ke}/sertifikat`}>{isi}</Link>
               ) : (
                 <div key={row.id} className="pin-row pin-row-diam">{isi}</div>
               );

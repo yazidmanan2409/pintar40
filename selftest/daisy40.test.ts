@@ -5,7 +5,9 @@
  *                           through its session, by the read the certificate
  *                           page itself uses (my_cycle_state's post_session),
  *                           so its title shows and its link opens that page; a
- *                           row with no such assignment is not a link. The old
+ *                           row whose assignment is no longer current links
+ *                           through the learner's own sitting (cross-batch,
+ *                           6 Nov); only a row with neither is not a link. The old
  *                           keying (the map by learning_assignment_id, looked
  *                           up by session_id) is kept as the control: it finds
  *                           nothing, which is the defect.
@@ -66,15 +68,26 @@ export const daisy40Tests: SelfTest[] = [
       c.expect(/petaSesi\(/.test(hal) && /engine\.cycleState\(db, assignment\.learning_assignment_id\)[\s\S]{0,80}\?\.post_session/.test(hal),
         "the list does not map sessions through the certificate page's own read (my_cycle_state's post_session)");
       c.expect(/const meta = bySession\.get\(row\.session_id\);/.test(hal), "a row is not looked up by its session");
+      // RESTATED (cross-batch, 6 Nov): a row whose assignment is no longer current (a new school year, a transfer) still
+      // links, to the chapter its own sitting belongs to (tugasSertifikatSaya); the current assignment wins when there is one
       const tautan = [...hal.matchAll(/href=\{`([^`]*)`\}/g)].map((m) => m[1]);
-      c.expect(tautan.length === 1 && tautan[0] === "/belajar/${meta.tugas}/sertifikat", `the list links somewhere other than the found assignment's page: ${tautan.join(", ")}`);
+      c.expect(tautan.length === 1 && tautan[0] === "/belajar/${ke}/sertifikat"
+        && /const ke = meta\?\.tugas \?\? tugasDari\.get\(row\.session_id\);/.test(hal) && /tugasSertifikatSaya\(rows\.map\(\(r\) => r\.session_id\)\)/.test(hal),
+        `the list links somewhere other than the found assignment's page, or not through the learner's own sitting: ${tautan.join(", ")}`);
       c.expect(!/row\.session_id\}\/sertifikat|\?\? row\.session_id/.test(hal), "a row still links to /belajar/<session id>/sertifikat");
-      c.expect(/return meta \? \(\s*<Link key=\{row\.id\} className="pin-row"[\s\S]*?\) : \(\s*<div key=\{row\.id\} className="pin-row pin-row-diam">/.test(hal),
-        "a row with no assignment is still drawn as a link");
+      c.expect(/return ke \? \(\s*<Link key=\{row\.id\} className="pin-row"[\s\S]*?\) : \(\s*<div key=\{row\.id\} className="pin-row pin-row-diam">/.test(hal),
+        "a row with neither a current assignment nor a sitting of the learner's is still drawn as a link");
       // the certificate page it opens reads the same session from the same place
       const detail = code(readFileSync(join(repoRoot, "src", "app", "belajar", "[tugas]", "sertifikat", "page.tsx"), "utf8"));
-      c.expect(/const state = await engine\.cycleState\(db, tugas\);\s*const sessionId = state\.post_session;/.test(detail),
-        "the certificate page no longer finds its session by my_cycle_state's post_session, so the list's inverse is no longer its inverse");
+      // RESTATED (cross-batch, 6 Nov): my_cycle_state first, as before; when it answers nothing (the chapter no longer
+      // assigned), the learner's own certificate whose own sitting belongs to this chapter (tugasSertifikatSaya)
+      c.expect(/const state = await engine\.cycleState\(db, tugas\)\.catch\(\(\) => null\);\s*let sessionId = state\?\.post_session \?\? null;/.test(detail)
+        && /if \(!sessionId\) \{[\s\S]{0,260}tugasSertifikatSaya\(milik\.map\(\(c\) => c\.session_id\)\)[\s\S]{0,160}tugasDari\.get\(c\.session_id\) === tugas/.test(detail),
+        "the certificate page no longer finds its session by my_cycle_state's post_session first and the learner's own sitting after, so the list's links no longer open it");
+      // the helper reads only the learner's own sessions, by the ids of their own certificates
+      const lib = code(readFileSync(join(repoRoot, "src", "lib", "sertifikat.ts"), "utf8"));
+      c.expect(/export async function tugasSertifikatSaya\(sessionIds: string\[\]\)[\s\S]{0,400}\.from\("assessment_sessions"\)\.select\("id, learning_assignment_id"\)\.in\("id", ids\)/.test(lib),
+        "tugasSertifikatSaya does not read the learner's sessions by their certificates' session ids");
       // the ten-column read is untouched (Q-11)
       c.expect(!/\.select\(/.test(hal), "the list page reads certificates itself instead of through myCertificates");
 
