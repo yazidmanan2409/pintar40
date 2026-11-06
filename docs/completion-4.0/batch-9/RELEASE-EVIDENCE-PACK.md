@@ -24,7 +24,7 @@ This file is what Gate 6 asks to be "current" (`G-FINAL-ACCEPTANCE-MATRIX` §4) 
 |---|---|---|---|
 | 1 | The exact production baseline | the upgrade rehearsal's read of production (W9.10, with the owner's permission) | NOT STARTED: F-5, F-18 |
 | 2 | Rehearsed upgrade on a representative copy | W9.10 on a scratch copy (`batch-0/07-MIGRATION-162-BRIEF.md`) | NOT STARTED: F-18 (billable restore) |
-| 3 | Recovery path for every migration | the rollback scripts per batch (`batch-8/ROLLBACK-194-195.sql`, tested from 193–196) and the restore readiness (W9.12) | PARTIAL: rollbacks tested; W9.12's six restore findings open |
+| 3 | Recovery path for every migration | the rollback scripts per batch (`batch-8/ROLLBACK-194-195.sql`, tested from 193–196) and the restore readiness (W9.12) | PARTIAL: rollbacks tested; W9.12 VERIFIED on staging's restore (run 42174482669: 24 PASS, 0 FAIL after the corrected steps). Production's restore is not rehearsed |
 | 4 | Auth and mail verified by received headers | W9.13 | IN PROGRESS: SMTP, SPF/DKIM/DMARC owner actions |
 | 5 | Staff transition done; magic link retired | W9.14 | STAGING VERIFIED (6 Nov): J2.7 run 42163941604, 15/15; the magic link is off in the candidate. Open: the rehearsal on a copy of production (W9.10) |
 | 6 | Backup verified (off-platform; escrow; second administrators) | W9.5, W9.6, W9.7 | BLOCKED: owner and external (#150) |
@@ -43,4 +43,4 @@ This file is what Gate 6 asks to be "current" (`G-FINAL-ACCEPTANCE-MATRIX` §4) 
 - Both refuse unless the checked-out commit is `RELEASE_SHA` and `ci.yml` succeeded on it.
 - The production apply job, `staging.yml` and the restore rehearsal run the **same toolchain**: Node 22 and Supabase CLI 2.117.0.
   - **Node 22 (5 Nov):** Node 20 is past its end of life.
-  - **Staging proves it first:** it is the first of the three to run after the change reaches `main`.
+  - **Proven on staging (6 Nov):** `staging.yml` run 42159507039 and the restore rehearsal run 42174482669, both green on `main` `12d357ce`. The production apply job runs only at the release.

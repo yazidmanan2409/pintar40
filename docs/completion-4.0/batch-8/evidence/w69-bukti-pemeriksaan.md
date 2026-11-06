@@ -16,7 +16,7 @@ Each check names where it was run. The levels are kept apart:
 | **W6.4** the crawl: overflow and clipping at 320 / 640 / 1024 / 1280 px, axe, titles, skip link, keyboard focus | X.6 (U-DEVICE), L-a11y | local, `715f6f7d` + the fix below | **GREEN**: 14 personas, 55 distinct screens, 0 broken; 0 axe violations (WCAG 2.0–2.2 A and AA); every screen has a title and a skip link; no invisible or stuck focus; 0 overflow and 0 clipping at every width | §1 |
 | W6.4 | the same | CI journeys 42007065865 on `715f6f7d` | **GREEN** (before the fix: the runner's fonts kept the one overflow below the 1 px threshold) | the run |
 | **W6.2** first screen per role ≤ 3 s | U-PERF, X.10 | local pre-check | **GREEN**: worst of three at most 488 ms on 15 first screens across 6 roles | §2 |
-| W6.2 | U-PERF | staging, `main` 38d7e701, from GitHub's runner | **OPEN — MEASURED, NOT MET for the admin; the cause found and fixed on the branch, awaiting promotion and re-measurement**: the teacher's first screen 2.4–3.2 s; the admin's 4.6–5.7 s, and four admin steps over 3 s. The server answers in 0.36–0.61 s warm (TTFB). See §2b | §2b |
+| W6.2 | U-PERF | staging, `main` 12d357ce, from GitHub's runner | **OPEN — NOT MET**: after the audit-read fix (run 42174494519), Konfigurasi, «Laporan» and saves are under 3 s; the first screen after sign-in is not (admin 3.0–5.1 s, teacher 3.5–3.9 s). What remains is the proxy's Auth call from the US (p50 733 ms through IAD against 16 ms through SIN). No regional measurement (owner, 6 Nov). See §2b | §2b |
 | **W6.8** the 50-student test through the real app | CAP-02 at 50, STU-* | staging, `main` 38d7e701, harness `4becbb1d` | **NOT MET (D-031): every correctness criterion met; the answer-save p95 1,828 ms against 1 s** (`perf-l1.yml` run 42110164855) | §2c |
 | **W6.12** 200 % zoom, keyboard, contrast | L-a11y | local | **GREEN** at 640 px (1280 at 200 %) and the keyboard walk (§1); colour vision §3 | §1, §3 |
 | W6.12 · **NVDA** (Windows, a recent NVDA with Chrome or Firefox) | L-a11y | human, device | **OUTSTANDING — DEVICE RUN NOT DONE**: needs a person with a Windows machine; script §4 | — |
@@ -110,6 +110,29 @@ on its staging evidence until the promoted candidate is measured.
   - **So the cost is distance, not work.** The pages run in `sin1` (`vercel.json`), but the proxy (`src/proxy.ts`, no runtime or region set) runs near the requester, here GitHub's runner in the US. Each of its two calls crosses the Pacific.
   - **What it means for a user in Indonesia:** the proxy would likely run near Singapore and the two calls would cost about what they cost through SIN. **This is inferred, not measured.** Only a measurement from the region settles it.
 - **From the region:** **not measured.** No runner or host in Indonesia is available to this work, and this container cannot reach staging. The row stays open until the fix is on staging and the journey is re-measured. If the target is to be judged from the region, a regional probe is an owner provision.
+
+**Re-measured after P-2 (6 Nov, `main` `12d357ce`, the audit-read fix on staging):** `perf-staging.yml` journey, run **42174494519**, three repetitions, from GitHub's runner (not in the region).
+
+| Step | 5 Nov (run 42105894283) | 6 Nov (run 42174494519) | Under 3 s |
+|---|---|---|---|
+| Admin: sign-in → Konfigurasi | 4.6–5.7 s | 5.1 / 4.3 / 3.0 s | **no** (0 of 3) |
+| Teacher: sign-in → Mengajar | 2.4–3.2 s | 3.9 / 3.5 / 3.8 s | **no** (0 of 3) |
+| Admin: open Konfigurasi | 3.3–3.4 s | 2.3 / 1.6 / 1.8 s | yes |
+| Admin: «Laporan» section | 3.5–5.0 s | 1.9 / 1.6 / 2.1 s | yes |
+| Admin: «Ringkasan sekolah» | — | 2.1 / 1.7 / 2.7 s | yes |
+| Admin: a save, click → result | 3.9–4.9 s | 1.8–2.8 s (6 saves) | yes |
+| Every other click, both roles | — | 0.8–3.0 s (Aktivasi akun 2.2 / 2.7 / 3.0) | yes (all under 3 s but one at exactly 3.0 s) |
+
+**What it shows:**
+- **The fix holds:** Supabase's edge log for the window (06:28–06:30:30 UTC) has no `audit_log` read at all. The journey never opens «Jejak audit», and no other page reads the trail now.
+- **Konfigurasi, «Laporan» and saves are now under 3 s from the runner.**
+- **What is left is sign-in, and it is distance.** In the same window:
+  - `GET /auth/v1/user` was called 348 times through Cloudflare IAD (US) at p50 733 ms, p95 800 ms;
+  - the same call through SIN took p50 16 ms (n 52);
+  - the proxy (`src/proxy.ts`) runs near the requester (here GitHub's runner) and asks Auth on every request, prefetches included.
+  - The 5 Nov window measured the same call at about 200 ms through SJC and IAD, so the US route's cost varies from run to run.
+- **No regional measurement:** the owner decided on 6 Nov that no test machine in Indonesia will be provided for now. A user in Indonesia would likely reach the proxy near Singapore, where the call costs about 16 ms. **This is inferred, not measured.**
+- **The verdict:** U-PERF is **not met on this evidence**: neither role's first screen is under 3 s from the runner. **The row stays open.**
 
 **Harness defects fixed to get these figures:**
 1. The synthetic staff were held at the activation wizard (BOB-26) since the identity foundation. Every earlier journey timed out at sign-in, and the job still read green (run 42064350172).
