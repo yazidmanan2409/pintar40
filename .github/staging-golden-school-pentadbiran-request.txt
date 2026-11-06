@@ -1,4 +1,5 @@
 # 3 Nov, Batch 4 staging verification (D-153, D-154): Sekolah Uji B4 1103 after GS-01 to GS-21 and the Studio walk (run 41608632487); main 31e456d; the receiving Golden School: Sekolah Uji B3C 1103
 # 5 Nov, Batch 8 staging verification (P-1; migrations 194-196): Sekolah Uji B8 1105 after GS-01 to GS-21 (run 42049795788); main 38d7e701; the receiving Golden School: Sekolah Uji B5 1104
-other: sekolah-uji-b5-1104
-slug: sekolah-uji-b8-1105
+# 6 Nov, integrated verification on main d672a94a (P-4): Sekolah Uji B8 1106 after GS-01 to GS-21 (run 42220729346); the receiving Golden School: Sekolah Uji B8 1105
+other: sekolah-uji-b8-1105
+slug: sekolah-uji-b8-1106
