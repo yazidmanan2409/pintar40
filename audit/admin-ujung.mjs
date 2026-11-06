@@ -197,6 +197,14 @@ await step("B4-W4", "alpha's admin makes a class card on Aktivasi for a learner 
 const EMAIL_STAF = `walk-staf-${TAG}@local.invalid`;
 await step("B4-W5", "the platform admin turns the learner's class card into an email account on Aktivasi, with a reason, and it is audited", async (rec) => {
   const sejak = jejakSejak();
+  // CROSS-BATCH (6 Nov): the person's learning history and school standing, before the conversion, to be kept by it
+  const riwayat = () => sql(`select md5(coalesce((select string_agg(e.id::text || ':' || e.status::text, ',' order by e.id) from public.enrollments e where e.person_id = '${muridKartu}'), '')
+    || '|' || coalesce((select string_agg(m.id::text, ',' order by m.id) from public.memberships m join public.enrollments e on e.id = m.enrollment_id where e.person_id = '${muridKartu}' and m.valid_to is null), '')
+    || '|' || coalesce((select string_agg(x.id::text, ',' order by x.id) from public.assessment_sessions x where x.person_id = '${muridKartu}'), '')
+    || '|' || coalesce((select string_agg(x.id::text, ',' order by x.id) from public.official_results x where x.person_id = '${muridKartu}'), '')
+    || '|' || coalesce((select string_agg(x.id::text || ':' || x.status::text, ',' order by x.id) from public.certificates x where x.person_id = '${muridKartu}'), '')
+    || '|' || coalesce((select p.pintar_id from public.persons p where p.id = '${muridKartu}'), ''))`);
+  const riwayatSebelum = riwayat();
   await buka(S, `/aktivasi?cari_staf=${encodeURIComponent(MURID_KARTU)}`);
   const bagian = S.locator("#jadi-staf");
   const baris = bagian.locator(`li[data-orang="${muridKartu}"]`);
@@ -212,6 +220,7 @@ await step("B4-W5", "the platform admin turns the learner's class card into an e
   harus(rec, sql(`select lower(u.email) from auth.users u join public.accounts a on a.auth_user_id = u.id where a.person_id = '${muridKartu}'`) === EMAIL_STAF,
     "the Auth user carries the new address");
   harus(rec, jejak(sejak, "account.card_converted_to_email", muridKartu) === "1", "account.card_converted_to_email is in the audit log");
+  harus(rec, riwayat() === riwayatSebelum, "the conversion keeps the person's enrolments, open class placement, sittings, official results, certificates and PINTAR ID");
 });
 
 // ── B4-W3: the converted person (not yet activated) has the wrong address: the email correction
