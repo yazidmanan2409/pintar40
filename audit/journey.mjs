@@ -693,8 +693,18 @@ await step("S13", "the teacher signs in and opens the class", async (rec) => {
     rec.shots.push(await shot(t, "teacher-siapkan"));
     siapkan = (await bodyText(t)).slice(0, 260);
   }
-  if (!sees) rec.verdict = "FAIL";
-  return `landed on ${r.landed}; sees Kelas 1A: ${sees}; sign-out control: ${await hasSignOut(t)}; siapkan says: ${siapkan}`;
+  // CROSS-BATCH (6 Nov): the role S12 granted on Peran & akses reaches the teacher's own Digital Card on Akun saya
+  // (D-059: the card's lines are read from the current role assignments), named with its school
+  const sekolahSd = sql(`select name from public.institutions where id='${ids.sd}'`).trim();
+  await t.goto(`${APP}/akun`, { waitUntil: "networkidle" });
+  const kartu = t.locator(".pin-kd-peran").first();
+  const adaKartu = await kartu.waitFor({ timeout: 15000 }).then(() => true).catch(() => false);
+  const kartuTeks = adaKartu ? (await t.locator(".pin-idn").innerText()).replace(/\s+/g, " ") : "";
+  rec.shots.push(await shot(t, "teacher-kartu-digital"));
+  const kartuBenar = adaKartu && /\bGuru\b/.test(kartuTeks) && kartuTeks.includes(sekolahSd);
+  if (!sees || !kartuBenar) rec.verdict = "FAIL";
+  return `landed on ${r.landed}; sees Kelas 1A: ${sees}; sign-out control: ${await hasSignOut(t)}; siapkan says: ${siapkan}; `
+    + `the Digital Card names «Guru» at «${sekolahSd}»: ${kartuBenar}`;
 });
 
 // SD's course and lesson counts (a declaration, so S14 can use it before `hitung` below exists)

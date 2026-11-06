@@ -227,6 +227,16 @@ await step("B5-W1", "W2.5: the platform admin revokes a certificate on «Sertifi
   harus(rec, sql(`select count(*) from public.audit_log where id > ${sejak} and action = 'certificate.revoked' and target_id = '${sertifikat}' and summary->>'reason' = '${esc(alasan)}'`) === "1",
     "certificate.revoked is audited with the reason");
   harus(rec, sql(`select validity from public.verify_certificate('${token}')`) === "DICABUT", "the public check says DICABUT");
+  // CROSS-BATCH (6 Nov): the public check THROUGH THE PAGE, as a stranger opens the certificate's own link: anonymous,
+  // no session, «Dicabut oleh penerbit» with its meaning, and none of the BERLAKU wording
+  const asing = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "id-ID", timezoneId: "Asia/Jakarta" });
+  try {
+    const V = await asing.newPage();
+    await V.goto(`${APP}/verifikasi/${token}`, { waitUntil: "networkidle" });
+    const isi = norm(await V.locator("main").innerText());
+    await shot(V, rec, "verifikasi-dicabut");
+    harus(rec, isi.includes("Dicabut oleh penerbit") && isi.includes("tidak lagi berlaku"), "the public page, opened anonymously by the certificate's link, says «Dicabut oleh penerbit»");
+  } finally { await asing.close(); }
   await buka(S, `/konfigurasi/sertifikat?cari=${encodeURIComponent(nomor)}`);
   harus(rec, /Dicabut/.test(norm(await S.locator("#pin-sertifikat").textContent())), "the list says «Dicabut»");
   await aksesibel(rec, S, "/konfigurasi/sertifikat");
