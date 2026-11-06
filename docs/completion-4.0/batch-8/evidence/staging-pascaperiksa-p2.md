@@ -50,3 +50,28 @@ This is the case the transition meets in production: an account, a person and ro
 - **The Auth setting:** the email link is retired at PINTAR's door (`TAUTAN_MASUK_CADANGAN = false`; `sendMagicLink` sends nothing). Supabase Auth's own email-link setting was not read here.
 
 **What it touched:** four code emails to the test mailbox, and the four accounts' set-up, written through PINTAR's own screens. Nothing else.
+
+## P-3 (6 Nov): W9.19 promoted
+
+**Merge:** PR #12 merged into `main` as `4d325a33`, pinned to the head `d54b90a7`, after:
+- all of its CI checks were green;
+- CI run 42179337901 was green on `8d951655`;
+- journeys run 42179347500 was green.
+  - **Job A:** green on its first attempt.
+  - **Job B:** green on its second attempt. The first was cancelled at its 60-minute limit after a 46-minute browser install on that runner, with no test failed.
+
+**No migrations:** `staging.yml` did not run; the app reached staging through Vercel's build of `main`.
+
+**Post-check:** read-only, against the P-2 baselines.
+
+| Check | Read | Result |
+|---|---|---|
+| Migrations | 196 | ✓ |
+| The demo school | 4/10/10/3/5/1, audit 91 (6860), people `bd41b3c9…` | ✓ identical |
+| Non-synthetic results and official results | `f4fbb8c0…`, `a14f4a40…` | ✓ identical |
+| Certificates outside the test schools | `ffa43edd…` | ✓ identical |
+| Management decisions | 0 | ✓ |
+
+**W9.19 on staging:** journey run 42192239336 (`w69-bukti-pemeriksaan.md` §2b).
+- `jwks.json` was fetched 4 times.
+- The proxy's `GET /auth/v1/user` through the US went from 348 to 0.
