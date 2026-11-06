@@ -4101,6 +4101,61 @@ await step("S27h", "a head of department assigns and runs an Uji Cepat within th
 });
 
 
+// CROSS-BATCH (6 Nov): a certificate the school revokes, as everyone then meets it. Last of the S steps on purpose: the
+// reports and figures above count S21i's certificate as issued. The school admin revokes Ani's certificate on
+// «Sertifikat sekolah» with a reason; Ani, signing in by her card, sees «Dicabut» in her list and the revoked banner on
+// the certificate itself; and a stranger opening its link sees «Dicabut oleh penerbit».
+await step("S27v", "the school revokes a learner's certificate: the learner's list and certificate page say so, and so does its public link (W2.5, STU-17)", async (rec) => {
+  const lulus = kartuKelas.find((k) => k.nama === MURID[0]);
+  const tugas = tugasBab();
+  const c = lulus ? sql(`select c.id || '|' || c.certificate_number || '|' || c.verification_token from public.certificates c join public.persons p on p.id = c.person_id
+     where p.display_name = '${lulus.nama}' and c.institution_id = '${ids.sd}' and c.status = 'ISSUED' order by c.issued_at desc limit 1`).trim() : "";
+  if (!c) { rec.verdict = "BLOCKED"; return "no issued certificate from S21i"; }
+  const [id, nomor, token] = c.split("|");
+  const notes = [];
+  await a.goto(`${APP}/konfigurasi/sertifikat?cari=${encodeURIComponent(nomor)}`, { waitUntil: "networkidle" });
+  await a.locator(`a[data-cabut-sertifikat="${id}"]`).click();
+  await a.locator("#cabut").waitFor({ timeout: SLOW });
+  await a.locator("#cabut-alasan").fill("Diterbitkan untuk murid yang salah (uji perjalanan)");
+  await a.getByRole("button", { name: "Lanjutkan" }).click();
+  await a.getByRole("button", { name: `Cabut sertifikat ${nomor}` }).click();
+  await a.getByText(`Sertifikat ${nomor} sudah dicabut`).first().waitFor({ timeout: SLOW });
+  rec.shots.push(await shot(a, "s27v-dicabut-admin"));
+  const status = sql(`select status from public.certificates where id='${id}'`).trim();
+  notes.push(`revoked on screen: ${status}`);
+  if (status !== "REVOKED") rec.verdict = "FAIL";
+  // the learner
+  const lc = await ctx();
+  const l = await lc.newPage();
+  try {
+    await masukKartu(l, lulus);
+    await l.goto(`${APP}/belajar/sertifikat`, { waitUntil: "networkidle" });
+    await tutupTur(l);
+    const daftar = norm(await bodyText(l));
+    rec.shots.push(await shot(l, "s27v-daftar-murid"));
+    const diDaftar = /Dicabut/.test(daftar);
+    await l.goto(`${APP}/belajar/${tugas}/sertifikat`, { waitUntil: "networkidle" });
+    await l.getByText(/dicabut oleh penerbitnya|tidak ditemukan|tidak tersedia/i).first().waitFor({ timeout: SLOW }).catch(() => {});
+    const isi = norm(await bodyText(l));
+    rec.shots.push(await shot(l, "s27v-sertifikat-murid"));
+    const banner = /Sertifikat ini sudah dicabut oleh penerbitnya/.test(isi);
+    notes.push(`the learner's list says «Dicabut»: ${diDaftar}; her certificate page shows the revoked banner: ${banner}`);
+    if (!diDaftar || !banner) rec.verdict = "FAIL";
+  } finally { await lc.close(); }
+  // a stranger, by the certificate's own link
+  const vc = await ctx();
+  const v = await vc.newPage();
+  try {
+    await v.goto(`${APP}/verifikasi/${token}`, { waitUntil: "networkidle" });
+    const pub = norm(await bodyText(v));
+    rec.shots.push(await shot(v, "s27v-verifikasi"));
+    const ok = /Dicabut oleh penerbit/.test(pub);
+    notes.push(`its public link says «Dicabut oleh penerbit»: ${ok}`);
+    if (!ok) rec.verdict = "FAIL";
+  } finally { await vc.close(); }
+  return notes.join("; ");
+});
+
 await step("P1", "PUB-04: a random certificate token answers the closed not-found, anonymously", async (rec) => {
   const tok = `acak${Date.now()}`;
   const api = await fetch(`${APP}/api/verifikasi/${tok}`, { redirect: "manual" });

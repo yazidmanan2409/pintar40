@@ -309,6 +309,29 @@ await step("B4-W7", "beta's admin accepts the request into beta's school year an
     "the acceptance and the execution are audited (transfer.authorized, transfer.executed)");
 });
 
+// ── B4-W7b (cross-batch, 6 Nov): the transferred learner signs in afterwards. Their learning page opens; what it offers
+//    is what their open placement at beta entitles (my_learning_assignments reads enrolment + open placement); nothing
+//    released to the alpha class they left is offered, and the session holds no school context of alpha's.
+await step("B4-W7b", "the transferred learner signs in afterwards: the learning page opens and offers nothing of the alpha class they left", async (rec) => {
+  if (!transfer || sql(`select status from public.transfers where id = '${transfer}'`) !== "EXECUTED") {
+    rec.verdict = "BLOCKED"; rec.catatan.push("no executed transfer from B4-W7"); gagal = true; return;
+  }
+  const kelasLama = sql(`select string_agg(distinct m.node_id::text, ',') from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+     where e.person_id = '${siswa}' and e.institution_id = '${alphaId}' and m.close_reason = 'ENROLLMENT_ENDED'`);
+  const judulLama = kelasLama ? sql(`select coalesce(string_agg(distinct c.title, '\n'), '') from public.learning_assignments la
+     join public.courses c on c.id = la.course_id where la.node_id = any (string_to_array('${kelasLama}', ',')::uuid[])
+       and la.status = 'ACTIVE'`).split("\n").filter(Boolean) : [];
+  const m = await masuk(browser, { key: "siswa", tujuan: "BELAJAR", email: "alpha-siswa-1@synthetic.pintar.test", password: "Sintetis-AlphaSiswa1-76!" });
+  try {
+    await buka(m.page, "/belajar");
+    harus(rec, new URL(m.page.url()).pathname === "/belajar" && (await m.page.locator("main h1").count()) >= 1, `the learning page opens (${new URL(m.page.url()).pathname})`);
+    const isi = norm(await m.page.locator("main").innerText());
+    await shot(m.page, rec, "pindah-murid-belajar");
+    const bocor = judulLama.filter((j) => isi.includes(j));
+    harus(rec, bocor.length === 0, `nothing released to the alpha class they left is offered (${judulLama.length} title(s) checked${bocor.length ? `; shown: ${bocor.join(", ")}` : ""})`);
+  } finally { await m.context.close(); }
+});
+
 // ── B4-W8: what waits, on alpha's Konfigurasi
 await step("B4-W8", "alpha's admin sees «Yang menunggu» on Konfigurasi with a count that opens Aktivasi", async (rec) => {
   catatMurid(BELUM);
