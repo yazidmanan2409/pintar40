@@ -193,7 +193,7 @@ export const d1Tests: SelfTest[] = [
       }
       const blok = kartuBlok(templatKartu(SATU, PRODUKSI).html);
       c.expect(/<td class="pin-slot-kartu" width="96" height="32"[^>]*style="[^"]*width:96px;height:32px;/.test(blok), "the card's wordmark slot is not 96 × 32");
-      c.expect(/<td class="pin-slot-kartu"[^>]*><span class="pin-merek-kartu" style="[^"]*font-size:13px;line-height:16px;font-weight:700;/.test(blok), "the card's slot does not hold the text wordmark (D-192)");
+      c.expect(/<td class="pin-slot-kartu"[^>]*><span class="pin-merek-kartu" style="[^"]*font-size:16px;line-height:20px;font-weight:700;/.test(blok), "the card's slot does not hold the text wordmark at the ladder's smallest size, 16 px (D-192; RESTATED FOR Daisy's H27, 6 Nov: 13 px was under it)");
       return c.verdict("every email's header is the text wordmark «PINTAR» and no image is sent (D-192); the card's slot is 96 × 32 holding the text wordmark; no «master pending F-11» label reaches any HTML or plain text");
     },
   },
