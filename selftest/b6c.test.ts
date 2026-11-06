@@ -208,13 +208,15 @@ export const b6cTests: SelfTest[] = [
         `«SERTIFIKAT PENGUASAAN» is not 12 pt capitals in the accent: ${JSON.stringify(jenis)}`);
 
       // the wordmark slot: one component, the cap height 3.15 mm, at least 15 mm wide.
+      // RESTATED FOR D-193 (owner, 7 Nov: the wordmark in Inter, free and self-hosted): the same rule, measured with
+      // Inter Bold's cap height (0.7275) and advance widths instead of Arial's.
       // RESTATED FOR D-192 (owner, 5 Nov: a text-only PINTAR wordmark, Arial, #075056; the supplied artwork no longer
       // used): the slot is «PINTAR» as live text at the size that gives the 3.15 mm cap height (Arial's capitals are
       // 0.716 of the size), its width measured as Arial's six capitals plus the tracking, never an image
       const merek = kode(baca(ctx.repoRoot, "src/components/sertifikat/MerekSertifikat.tsx"));
       const tinggiHuruf = slot.UKURAN_MEREK_MM * slot.RASIO_HURUF_KAPITAL;
-      // Arial Bold's advance widths for P I N T A R (units of the size), plus 0.14 em of tracking between letters
-      const lebarSlot = slot.UKURAN_MEREK_MM * ([0.667, 0.278, 0.722, 0.611, 0.722, 0.722].reduce((x, y) => x + y, 0) + 5 * 0.14);
+      // Inter Bold's advance widths for P I N T A R (units of the size, from the shipped file), plus 0.14 em of tracking
+      const lebarSlot = slot.UKURAN_MEREK_MM * ([0.6479, 0.2808, 0.7622, 0.6675, 0.7466, 0.6567].reduce((x, y) => x + y, 0) + 5 * 0.14);
       c.expect(slot.TINGGI_HURUF_MM === 3.15 && Math.abs(tinggiHuruf - 3.15) < 0.01, `the wordmark's cap height is ${tinggiHuruf.toFixed(3)} mm, not 3.15`);
       c.expect(lebarSlot >= 15, `the wordmark is ${lebarSlot.toFixed(1)} mm wide, under the 15 mm print minimum`);
       c.note(`wordmark ${lebarSlot.toFixed(1)} mm wide, cap height ${tinggiHuruf.toFixed(2)} mm`);
@@ -224,8 +226,9 @@ export const b6cTests: SelfTest[] = [
       c.expect(mk["font-family"] === "var(--font-wordmark)" && mk["font-size"] === "var(--merek-ukuran)" && mk.color === "var(--merek-warna)"
         && mk["font-weight"] === "700" && mk.display === "block",
         `the slot is not the wordmark in its face, size and teal: ${JSON.stringify(mk)}`);
-      c.expect(/--font-wordmark: Arial, Helvetica, sans-serif;/.test(globals) && /--merek-warna: #075056;/.test(globals),
-        "the wordmark's face is not the device's Arial stack, or its colour is not #075056 (D-192)");
+      c.expect(/--font-wordmark: Inter, Arial, Helvetica, sans-serif;/.test(globals) && /--merek-warna: #075056;/.test(globals)
+        && Math.abs(slot.RASIO_HURUF_KAPITAL - 0.7275) < 0.0005,
+        "the wordmark's face is not Inter (D-193), its size is not computed from Inter's cap height, or its colour is not #075056");
       const kartu = kode(baca(ctx.repoRoot, KARTU));
       c.expect(/import MerekSertifikat from "\.\/MerekSertifikat"/.test(kartu) && (kartu.match(/<MerekSertifikat \/>/g) ?? []).length === 1
         && !/<img\b/.test(kartu) && !/MerekPintar|KakiPintar/.test(kartu),

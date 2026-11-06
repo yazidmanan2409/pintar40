@@ -437,6 +437,8 @@ export const appTests: SelfTest[] = [
         ["/fonts/plus-jakarta-sans-latin-ext.woff2", /font\/woff2|octet-stream/],
         ["/fonts/ibm-plex-mono-500-latin.woff2", /font\/woff2|octet-stream/],
         ["/fonts/ibm-plex-mono-500-latin-ext.woff2", /font\/woff2|octet-stream/],
+        ["/fonts/inter-700-latin.woff2", /font\/woff2|octet-stream/],
+        ["/fonts/inter-700-latin-ext.woff2", /font\/woff2|octet-stream/],
       ];
       for (const [path, type] of assets) {
         const r = await get(`${base}${path}`);

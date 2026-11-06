@@ -35,7 +35,8 @@
  * - Bahasa Indonesia: lang="id" on the document and on the article wrapper,
  *   which webmail keeps when it drops <html>. One <h1>; layout tables are
  *   role="presentation".
- * - The header is the text wordmark «PINTAR» (D-192), in Arial, bold, teal
+ * - The header is the text wordmark «PINTAR» (D-192), in Inter where the
+ *   reader's device has it, else Arial (D-193; no font file is sent), bold, teal
  *   #075056. No image is sent, so a client that blocks images (Outlook's
  *   default) shows the same header.
  * - The footer says why the person received the email, that PINTAR never asks
@@ -130,8 +131,8 @@ export const WARNA = {
 } as const;
 
 const HURUF = "'Segoe UI', Roboto, Arial, Helvetica, sans-serif";
-/** D-192: the wordmark's face, the device's own (no font file). */
-const HURUF_MEREK = "Arial, Helvetica, sans-serif";
+/** D-193: the wordmark's face, Inter first; an email sends no font file, so a reader without Inter sees Arial. */
+const HURUF_MEREK = "Inter, Arial, Helvetica, sans-serif";
 const HURUF_KODE = "Consolas, 'SF Mono', Menlo, 'Courier New', monospace";
 
 /** HTML-escape everything an email supplies. */
@@ -217,7 +218,7 @@ function kartuHtml(k: KartuEmail, gambar: { merek: string }): string {
   return `<table class="pin-kartu-pintar" role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;margin:8px 0 20px 0;max-width:440px;">
 <tr><td bgcolor="${kertas}" style="background-color:${kertas};border:1px solid ${T.garis};border-radius:12px;padding:0;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-<tr><td style="padding:14px 16px 10px 16px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="pin-slot-kartu" width="96" height="32" align="left" valign="middle" style="width:96px;height:32px;"><span class="pin-merek-kartu" style="display:block;font-family:${HURUF_MEREK};font-size:13px;line-height:16px;font-weight:700;letter-spacing:2px;color:${WARNA_MEREK};">${esc(gambar.merek)}</span></td></tr></table></td></tr>
+<tr><td style="padding:14px 16px 10px 16px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="pin-slot-kartu" width="96" height="32" align="left" valign="middle" style="width:96px;height:32px;"><span class="pin-merek-kartu" style="display:block;font-family:${HURUF_MEREK};font-size:16px;line-height:20px;font-weight:700;letter-spacing:2px;color:${WARNA_MEREK};">${esc(gambar.merek)}</span></td></tr></table></td></tr>
 <tr><td height="2" bgcolor="${T.emas}" style="height:2px;line-height:2px;font-size:0;background-color:${T.emas};">&nbsp;</td></tr>
 <tr><td style="padding:14px 16px 4px 16px;font-family:${HURUF};font-size:18px;line-height:24px;font-weight:600;color:${T.tinta};">${esc(k.nama)}</td></tr>
 <tr><td style="padding:0 16px 14px 16px;font-family:${HURUF_KODE};font-size:14px;line-height:20px;letter-spacing:1px;color:${T.tinta2};">${esc(k.pintarId)}</td></tr>

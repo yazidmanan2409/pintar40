@@ -197,6 +197,14 @@ await step("B4-W4", "alpha's admin makes a class card on Aktivasi for a learner 
 const EMAIL_STAF = `walk-staf-${TAG}@local.invalid`;
 await step("B4-W5", "the platform admin turns the learner's class card into an email account on Aktivasi, with a reason, and it is audited", async (rec) => {
   const sejak = jejakSejak();
+  // CROSS-BATCH (6 Nov): the person's learning history and school standing, before the conversion, to be kept by it
+  const riwayat = () => sql(`select md5(coalesce((select string_agg(e.id::text || ':' || e.status::text, ',' order by e.id) from public.enrollments e where e.person_id = '${muridKartu}'), '')
+    || '|' || coalesce((select string_agg(m.id::text, ',' order by m.id) from public.memberships m join public.enrollments e on e.id = m.enrollment_id where e.person_id = '${muridKartu}' and m.valid_to is null), '')
+    || '|' || coalesce((select string_agg(x.id::text, ',' order by x.id) from public.assessment_sessions x where x.person_id = '${muridKartu}'), '')
+    || '|' || coalesce((select string_agg(x.id::text, ',' order by x.id) from public.official_results x where x.person_id = '${muridKartu}'), '')
+    || '|' || coalesce((select string_agg(x.id::text || ':' || x.status::text, ',' order by x.id) from public.certificates x where x.person_id = '${muridKartu}'), '')
+    || '|' || coalesce((select p.pintar_id from public.persons p where p.id = '${muridKartu}'), ''))`);
+  const riwayatSebelum = riwayat();
   await buka(S, `/aktivasi?cari_staf=${encodeURIComponent(MURID_KARTU)}`);
   const bagian = S.locator("#jadi-staf");
   const baris = bagian.locator(`li[data-orang="${muridKartu}"]`);
@@ -212,6 +220,7 @@ await step("B4-W5", "the platform admin turns the learner's class card into an e
   harus(rec, sql(`select lower(u.email) from auth.users u join public.accounts a on a.auth_user_id = u.id where a.person_id = '${muridKartu}'`) === EMAIL_STAF,
     "the Auth user carries the new address");
   harus(rec, jejak(sejak, "account.card_converted_to_email", muridKartu) === "1", "account.card_converted_to_email is in the audit log");
+  harus(rec, riwayat() === riwayatSebelum, "the conversion keeps the person's enrolments, open class placement, sittings, official results, certificates and PINTAR ID");
 });
 
 // ── B4-W3: the converted person (not yet activated) has the wrong address: the email correction
@@ -266,6 +275,10 @@ await step("B4-W7", "beta's admin accepts the request into beta's school year an
   harus(rec, norm(await masuk.innerText()).includes(siswaNama), "the request shows the learner's name");
   const tahun = await masuk.locator('select[name="to_period"] option').evaluateAll((os) => os.map((o) => o.value).filter(Boolean));
   await masuk.locator('select[name="to_period"]').selectOption(tahun[0]);
+  // the class the learner arrives in (20261231100000): the first Kelas beta offers
+  const tempat = await masuk.locator('select[name="to_place"] option').evaluateAll((os) => os.map((o) => o.value).filter(Boolean));
+  if (!harus(rec, tempat.length >= 1, "the acceptance offers beta's Kelas for the learner")) return;
+  await masuk.locator('select[name="to_place"]').selectOption(tempat[0]);
   await masuk.getByRole("button", { name: "Terima perpindahan" }).click();
   await B.waitForURL((u) => u.searchParams.has("hasil") || u.searchParams.has("kode") || u.hash === "#transfers", { timeout: SLOW }).catch(() => {});
   await B.waitForLoadState("networkidle");
@@ -281,8 +294,42 @@ await step("B4-W7", "beta's admin accepts the request into beta's school year an
   const beta = sql("select id from public.institutions where slug like 'synth-beta-%' limit 1");
   harus(rec, sql(`select count(*) from public.enrollments where person_id = '${siswa}' and institution_id = '${beta}' and status = 'ACTIVE'`) === "1", "the learner is enrolled at beta");
   harus(rec, sql(`select count(*) from public.enrollments where person_id = '${siswa}' and institution_id = '${alphaId}' and status = 'ACTIVE'`) === "0", "the alpha enrolment is no longer active");
+  // CROSS-BATCH (6 Nov): the learner arrives IN A CLASS: one open placement, the chosen Kelas; and beta's admin finds
+  // them on «Pindah kelas» for that Kelas, the screen that reads placements (before 20261231100000 it read nobody)
+  harus(rec, sql(`select count(*) from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+     where e.person_id = '${siswa}' and m.valid_to is null`) === "1"
+    && sql(`select count(*) from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+     where e.person_id = '${siswa}' and e.institution_id = '${beta}' and m.node_id = '${tempat[0]}' and m.valid_to is null`) === "1",
+    "the learner has one open placement, in the Kelas beta named");
+  await buka(B, `/konfigurasi/pindah?bagian=pindah&dari=${tempat[0]}#pindah`);
+  await B.locator("#pindah").waitFor({ timeout: SLOW });
+  harus(rec, norm(await B.locator("#pindah").innerText()).includes(siswaNama), "beta's admin sees the learner in that Kelas on «Pindah kelas»");
+  await shot(B, rec, "pindah-tiba-di-kelas");
   harus(rec, Number(jejak(sejak, "transfer.authorized", transfer)) >= 1 && Number(jejak(sejak, "transfer.executed", transfer)) >= 1,
     "the acceptance and the execution are audited (transfer.authorized, transfer.executed)");
+});
+
+// ── B4-W7b (cross-batch, 6 Nov): the transferred learner signs in afterwards. Their learning page opens; what it offers
+//    is what their open placement at beta entitles (my_learning_assignments reads enrolment + open placement); nothing
+//    released to the alpha class they left is offered, and the session holds no school context of alpha's.
+await step("B4-W7b", "the transferred learner signs in afterwards: the learning page opens and offers nothing of the alpha class they left", async (rec) => {
+  if (!transfer || sql(`select status from public.transfers where id = '${transfer}'`) !== "EXECUTED") {
+    rec.verdict = "BLOCKED"; rec.catatan.push("no executed transfer from B4-W7"); gagal = true; return;
+  }
+  const kelasLama = sql(`select string_agg(distinct m.node_id::text, ',') from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+     where e.person_id = '${siswa}' and e.institution_id = '${alphaId}' and m.close_reason = 'ENROLLMENT_ENDED'`);
+  const judulLama = kelasLama ? sql(`select coalesce(string_agg(distinct c.title, '\n'), '') from public.learning_assignments la
+     join public.courses c on c.id = la.course_id where la.node_id = any (string_to_array('${kelasLama}', ',')::uuid[])
+       and la.status = 'ACTIVE'`).split("\n").filter(Boolean) : [];
+  const m = await masuk(browser, { key: "siswa", tujuan: "BELAJAR", email: "alpha-siswa-1@synthetic.pintar.test", password: "Sintetis-AlphaSiswa1-76!" });
+  try {
+    await buka(m.page, "/belajar");
+    harus(rec, new URL(m.page.url()).pathname === "/belajar" && (await m.page.locator("main h1").count()) >= 1, `the learning page opens (${new URL(m.page.url()).pathname})`);
+    const isi = norm(await m.page.locator("main").innerText());
+    await shot(m.page, rec, "pindah-murid-belajar");
+    const bocor = judulLama.filter((j) => isi.includes(j));
+    harus(rec, bocor.length === 0, `nothing released to the alpha class they left is offered (${judulLama.length} title(s) checked${bocor.length ? `; shown: ${bocor.join(", ")}` : ""})`);
+  } finally { await m.context.close(); }
 });
 
 // ── B4-W8: what waits, on alpha's Konfigurasi

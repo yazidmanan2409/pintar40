@@ -1532,10 +1532,16 @@ export const experienceTests: SelfTest[] = [
         && !existsSync(join(repoRoot, "public", "brand", "pintar-email-logo.png")), "the supplied logo artwork is still in public/brand/");
       const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
       const globals = readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8");
-      c.expect(/--font-wordmark: Arial, Helvetica, sans-serif;/.test(globals) && /--merek-warna: #075056;/.test(globals),
-        "the wordmark's face is not the device's Arial stack, or its colour is not #075056");
+      // RESTATED FOR D-193 (owner, 7 Nov: «Inter, a free commercially usable font»): the face is self-hosted Inter Bold,
+      // shipped beside its OFL licence, still the only addition to the two OFL text faces; nothing paid or remote
+      c.expect(/--font-wordmark: Inter, Arial, Helvetica, sans-serif;/.test(globals) && /--merek-warna: #075056;/.test(globals),
+        "the wordmark's face is not Inter (D-193), or its colour is not #075056");
+      c.expect(/font-family: "Inter";\s*font-style: normal;\s*font-weight: 700;[^}]*src: url\("\/fonts\/inter-700-latin\.woff2"\)/.test(globals)
+        && existsSync(join(repoRoot, "public", "fonts", "OFL-Inter.txt"))
+        && /SIL Open Font License, Version 1\.1/.test(readFileSync(join(repoRoot, "public", "fonts", "OFL-Inter.txt"), "utf8")),
+        "Inter Bold is not self-hosted from public/fonts/ with its OFL licence beside it");
       const fonts = walk(join(repoRoot, "public")).filter((f) => /\.(woff2?|ttf|otf|eot)$/i.test(f)).map((f) => relative(repoRoot, f));
-      c.expect(fonts.every((f) => /plus-jakarta-sans|ibm-plex-mono/.test(f)), `a font file other than the two OFL faces is shipped: ${fonts.join(", ")}`);
+      c.expect(fonts.every((f) => /plus-jakarta-sans|ibm-plex-mono|inter-700/.test(f)), `a font file other than the three OFL faces is shipped: ${fonts.join(", ")}`);
       const rule = /\.pin-merek\s*\{([^}]*)\}/.exec(css);
       c.expect(rule !== null, "there is no .pin-merek rule to check");
       if (rule) {
@@ -1579,7 +1585,7 @@ export const experienceTests: SelfTest[] = [
       c.note(`text wordmark, ${mounts.length} mount(s)`);
       return c.verdict(
         "the mark rendered by the application is the text wordmark «PINTAR» (D-192): the supplied artwork is gone from public/brand/, " +
-          "the face is the device's Arial stack with no font file bundled beyond the two OFL faces, the colour is #075056, the " +
+          "the face is self-hosted Inter Bold (D-193) beside its OFL licence, no font file beyond the three OFL faces, the colour is #075056, the " +
           "letters are sized from one token and never given a width, and a printed credential carries it only in its one wordmark slot " +
           "(D-120 Q16), never as the shell mark or the issuer",
       );
@@ -2062,7 +2068,10 @@ export const experienceTests: SelfTest[] = [
       // MOVED 195 -> 196 for W2.17 (FD-4 at 10x staging): 20261230100000 adds school_people_page, a read of a school's
       // active enrolments with the person's name; no table, no column. Read against §3 first: it is not a mark, a logo, a
       // crest or a theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 196, `${migrations.length} migrations; the frozen baseline has 196`);
+      // MOVED 196 -> 197 for the cross-batch integration (6 Nov): 20261231100000 adds transfers.to_node_id (the Kelas or
+      // Tingkat a transferred learner is placed in) and re-emits transfer_terima and transfer_execute. Read against §3
+      // first: it is a place reference, not a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
+      c.expect(migrations.length === 197, `${migrations.length} migrations; the frozen baseline has 197`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3879,7 +3888,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 193 -> 194 for D-183 (F-4(f)): the exposure marks and their two assignment and sitting guards touch no tour RPC.
       // MOVED 194 -> 195 for W6.10 (D-186): the Uji Penguasaan waiting for the Pemetaan Awal touches no tour RPC.
       // MOVED 195 -> 196 for W2.17 (FD-4 at 10x staging): a page of a school's people, found by name, touches no tour RPC.
-      c.expect(migs.length === 196, `${migs.length} migrations; the baseline has 196`);
+      // MOVED 196 -> 197 for the cross-batch integration (6 Nov): a transferred learner placed in a class touches no tour RPC.
+      c.expect(migs.length === 197, `${migs.length} migrations; the baseline has 197`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

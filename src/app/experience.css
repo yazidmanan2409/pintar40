@@ -31,7 +31,7 @@
   border-bottom: 1px solid var(--line);
   background: var(--surface-1);
 }
-/* THE WORDMARK (D-192): the word «PINTAR», text only, in the device's sans-serif, bold, teal #075056, with the
+/* THE WORDMARK (D-192): the word «PINTAR», text only, in Inter Bold (D-193, self-hosted; Arial while it loads), teal #075056, with the
    wordmark's tracking. Each surface sets the box it had (--merek-tinggi, the height the artwork filled); the letters
    are half of it and centred in it by its line, so no caller's layout moves. The tracking after the last letter is
    taken back (margin-right), so the word's box ends at the R. UX1-BRAND-01 holds these. */
@@ -2668,16 +2668,16 @@ a.pin-tautan { display: inline-flex; align-items: center; }
   background: var(--kp-emas);
 }
 /* THE WORDMARK SLOT (§L): the 6 mm margin, cap top 5.57 mm, cap height 2.9 mm,
-   about 16.4 mm wide. The text wordmark (D-192) is set at that cap height:
-   Arial's capitals are 0.716 of its size (2.9 / 0.716 = 4.05 mm), and the
-   line is drawn up by the space above its capitals (0.13 of the size) so the
-   cap top meets the slot's top. MerekKartu.tsx is the one-file swap. */
+   18.0 mm wide (Daisy H28, 6 Nov: the Inter word is 17.1 mm of ink). The text wordmark (D-192), in Inter Bold (D-193), is set
+   at that cap height: Inter's capitals are 0.7275 of its size (2.9 / 0.7275 =
+   3.99 mm), and the line is drawn up by the space above its capitals (0.14 of
+   the size at line-height 1) so the cap top meets the slot's top. MerekKartu.tsx is the one-file swap. */
 .pin-kd-merek {
   position: absolute; left: calc(var(--kp-mm) * 6); top: calc(var(--kp-mm) * 5.57);
-  width: calc(var(--kp-mm) * 16.4); height: calc(var(--kp-mm) * 2.9);
+  width: calc(var(--kp-mm) * 18); height: calc(var(--kp-mm) * 2.9);
   display: flex; align-items: flex-start;
 }
-.pin-kd-merek .pin-merek { height: auto; line-height: var(--leading-none); font-size: calc(var(--kp-mm) * 4.05); margin-top: -0.13em; }
+.pin-kd-merek .pin-merek { height: auto; line-height: var(--leading-none); font-size: calc(var(--kp-mm) * 3.99); margin-top: -0.14em; }
 /* above the line, what is permanent: the name and the PINTAR ID stand 4.4 mm over the line and grow upward */
 .pin-kd-orang {
   position: absolute; left: calc(var(--kp-mm) * 6); width: calc(var(--kp-mm) * (85.6 - 2 * 6));

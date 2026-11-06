@@ -28,7 +28,7 @@
  *                   tautanId; the instruction is Daisy's «Pindai untuk membuka halaman masuk PINTAR.» and the address
  *                   «pintarselalu.com» (the instruction from the copy table; the address, a proper noun, a constant).
  *  B6K-MEREK-01     the wordmark through one replaceable component: KartuPintar draws <MerekKartu />, which alone mounts
- *                   today's approved logo (MerekPintar) in the slot (6 mm, cap top 5.57 mm, cap height 2.9 mm, 16.4 mm
+ *                   today's approved logo (MerekPintar) in the slot (6 mm, cap top 5.57 mm, cap height 2.9 mm, 18.0 mm
  *                   wide), sized by height only; the wordmark is never live text on the card.
  *  B6K-FOTO-01      no photograph (D-085 T4, D-086(e), D-159(d)): no card file names photo_path, a photo or an avatar; the
  *                   card takes only locale and the card's data; rendered, its only image is the wordmark slot's logo and
@@ -299,20 +299,23 @@ export const b6kTests: SelfTest[] = [
       c.expect(mounts.length === 1, `the wordmark slot is mounted in ${mounts.join(", ")}`);
       const css = CSS(repoRoot);
       const slot = aturan(css, ".pin-kd-merek");
-      c.expect(ada(slot, /left: calc\(var\(--kp-mm\) \* 6\); top: calc\(var\(--kp-mm\) \* 5\.57\)/) && ada(slot, /width: calc\(var\(--kp-mm\) \* 16\.4\); height: calc\(var\(--kp-mm\) \* 2\.9\)/),
-        "the slot is not the wordmark's (6 mm, cap top 5.57 mm, 16.4 × 2.9 mm)");
+      c.expect(ada(slot, /left: calc\(var\(--kp-mm\) \* 6\); top: calc\(var\(--kp-mm\) \* 5\.57\)/) && ada(slot, /width: calc\(var\(--kp-mm\) \* 18\); height: calc\(var\(--kp-mm\) \* 2\.9\)/)
+        && 3.99 * (0.6479 + 0.2808 + 0.7622 + 0.6675 + 0.7466 + 0.6567 + 5 * 0.14) <= 18,
+        "the slot is not the wordmark's (6 mm, cap top 5.57 mm, 18.0 × 2.9 mm; RESTATED FOR Daisy's H28, 6 Nov: the Inter word, 17.1 mm of ink, did not fit 16.4 mm)");
       // RESTATED FOR D-192 (owner, 5 Nov: a text-only PINTAR wordmark replaces the supplied logo on every surface, the
       // Digital Card named): the slot holds the text «PINTAR» at the slot's cap height (2.9 mm / Arial's 0.716 = 4.05 mm),
-      // its cap top drawn to the slot's top, never given a width; no image
+      // its cap top drawn to the slot's top, never given a width; no image.
+      // RESTATED FOR D-193 (owner, 7 Nov: Inter): the same cap height from Inter's 0.7275 (2.9 / 0.7275 = 3.99 mm),
+      // its cap top 0.14 of the size below the line's top at line-height 1
       const mk = aturan(css, ".pin-kd-merek .pin-merek");
-      c.expect(ada(mk, /font-size: calc\(var\(--kp-mm\) \* 4\.05\)/) && ada(mk, /margin-top: -0\.13em/) && !/width/.test(mk),
+      c.expect(ada(mk, /font-size: calc\(var\(--kp-mm\) \* 3\.99\)/) && ada(mk, /margin-top: -0\.14em/) && !/width/.test(mk),
         `the wordmark in the slot is not set at the slot's cap height: ${mk}`);
       const { html, galat } = gambar(repoRoot, [{ komponen: "KartuPintar", props: { locale: "id", kartu: KARTU } }]);
       if (c.expect(galat === "", `the card could not be rendered: ${galat}`)) {
         c.expect(/<span class="pin-kd-merek"><span class="pin-merek">PINTAR<\/span><\/span>/.test(html[0]), "the rendered slot does not hold the text wordmark «PINTAR»");
         c.expect(!/<img\b|\/brand\//.test(html[0]), "the card still draws the retired logo image");
       }
-      return c.verdict("the card's wordmark is one replaceable component (MerekKartu), mounted once, holding the text wordmark «PINTAR» (D-192) in the wordmark's exact slot (6 mm, cap top 5.57 mm, 16.4 × 2.9 mm) at its cap height, never given a width; no image");
+      return c.verdict("the card's wordmark is one replaceable component (MerekKartu), mounted once, holding the text wordmark «PINTAR» (D-192) in the wordmark's exact slot (6 mm, cap top 5.57 mm, 18.0 × 2.9 mm) at its cap height, never given a width; no image");
     },
   },
   {

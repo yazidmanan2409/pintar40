@@ -57,7 +57,7 @@ declare
   v_snap text; v_snap2 text;
   v_a uuid; v_node uuid; v_murid uuid; v_lain uuid; v_akun public.accounts; v_akun2 public.accounts; v_uid uuid;
   v_err text; v_n int; v_b boolean; v_kartu text; v_email text; v_jejak jsonb; v_ra uuid; v_pid text; v_guru uuid;
-  v_adm_b uuid; v_w_b uuid; v_enrol int; v_beta uuid; v_beta_per uuid; v_alpha_per uuid; v_en uuid; v_tf uuid; v_siswa uuid; v_bnama text;
+  v_adm_b uuid; v_w_b uuid; v_enrol int; v_beta uuid; v_beta_per uuid; v_alpha_per uuid; v_en uuid; v_tf uuid; v_siswa uuid; v_bnama text; v_bkelas uuid; v_akelas uuid;
 begin
   begin
     select i.id into v_a from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
@@ -429,10 +429,34 @@ begin
       if v_err is null or v_err not like '42501%' then
         v_probs := selftest.f24_note(v_probs, 'F24-P02', 'the receiving school asked for another school''s learner: ' || coalesce(v_err, 'done'));
       end if;
-      -- the receiving school accepts into its own year; then it is executed
-      perform public.transfer_terima(v_tf, v_beta_per, null);
+      -- the receiving school accepts into its own year AND names the Kelas the learner is placed in (cross-batch
+      -- integration, 6 Nov: an executed transfer used to leave the learner in no class at all); a place of the
+      -- sending school, or none, is refused
+      perform selftest.as_owner();
+      select n.id into v_bkelas from public.org_nodes n where n.institution_id = v_beta and n.kind = 'CLASS' and n.is_active
+         and coalesce(n.academic_period_id, v_beta_per) = v_beta_per order by n.name limit 1;
+      select n.id into v_akelas from public.org_nodes n where n.institution_id = v_a and n.kind = 'CLASS' and n.is_active limit 1;
+      if v_bkelas is null or v_akelas is null then raise exception 'the fixture lacks an active Kelas in beta''s year or in alpha'; end if;
+      perform selftest.as_user('beta-admin@synthetic.pintar.test');
+      v_err := selftest.f23_raised(format('select public.transfer_terima(%L::uuid, %L::uuid, null, %L::uuid)', v_tf, v_beta_per, v_akelas));
+      if v_err is distinct from 'PR040 PLACE_INVALID' then
+        v_probs := selftest.f24_note(v_probs, 'F24-P02', 'accepting into the sending school''s Kelas answered ' || coalesce(v_err, 'done'));
+      end if;
+      v_err := selftest.f23_raised(format('select public.transfer_terima(%L::uuid, %L::uuid)', v_tf, v_beta_per));
+      if v_err is distinct from 'PR040 PLACE_INVALID' then
+        v_probs := selftest.f24_note(v_probs, 'F24-P02', 'accepting with no Kelas answered ' || coalesce(v_err, 'done'));
+      end if;
+      perform public.transfer_terima(v_tf, v_beta_per, null, v_bkelas);
       perform public.transfer_execute(v_tf);
       perform selftest.as_owner();
+      -- the learner stands in exactly one open placement, the chosen Kelas, on the new enrolment, in beta's year
+      select count(*) into v_n from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+       where e.person_id = v_siswa and m.valid_to is null;
+      if v_n <> 1 or not exists (select 1 from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+                                  where e.person_id = v_siswa and e.institution_id = v_beta and m.node_id = v_bkelas
+                                    and m.academic_period_id = v_beta_per and m.valid_to is null) then
+        v_probs := selftest.f24_note(v_probs, 'F24-P01', format('after execution the learner has %s open placement(s), not one in beta''s chosen Kelas', v_n));
+      end if;
       if not exists (select 1 from public.enrollments e where e.person_id = v_siswa and e.institution_id = v_beta and e.status = 'ACTIVE'
                         and e.academic_period_id = v_beta_per)
          or not exists (select 1 from public.enrollments e where e.id = v_en and e.status = 'ENDED' and e.end_reason = 'TRANSFERRED_OUT') then

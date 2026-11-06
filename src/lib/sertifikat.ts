@@ -90,6 +90,26 @@ export function replacementFor(row: CertificateRow, all: CertificateRow[]): Cert
   return current === row ? null : current;
 }
 
+/**
+ * THE LEARNER'S OWN CERTIFICATES, BY THE CHAPTER THEY WERE EARNED IN: each of their certificates' sessions mapped to
+ * its learning assignment, read from their own sessions (assessment_sessions_select: the person's own rows).
+ *
+ * Cross-batch (6 Nov): the certificate page found its session only through my_cycle_state, which answers only while
+ * the chapter is still assigned to the learner. A new school year (the class carried into next year's Kelas) or a
+ * transfer ends that, and the learner could no longer open their own certificate, issued or revoked. A certificate is
+ * the person's own sealed record (D-077(d), D-078(c)), so the way to it is their own sitting, not today's
+ * assignment. The session ids come from their own certificates (certificates_select: holder only), and the
+ * certificate itself is still read by my_certificate, which refuses a session that is not theirs.
+ */
+export async function tugasSertifikatSaya(sessionIds: string[]): Promise<Map<string, string>> {
+  const ids = [...new Set(sessionIds.filter(Boolean))];
+  if (ids.length === 0) return new Map();
+  const db = await supabaseServer();
+  const { data } = await db.from("assessment_sessions").select("id, learning_assignment_id").in("id", ids);
+  return new Map(((data ?? []) as Array<{ id: string; learning_assignment_id: string | null }>)
+    .filter((r) => !!r.learning_assignment_id).map((r) => [r.id, r.learning_assignment_id as string]));
+}
+
 export async function certificateForSession(sessionId: string): Promise<CertificateDetail | null> {
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
   return (await engine.myCertificate(db, sessionId)) as CertificateDetail | null;

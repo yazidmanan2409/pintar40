@@ -19,7 +19,7 @@ import AksiCetak from "@/components/sertifikat/AksiCetak";
 import type { KonteksSertifikat } from "@/lib/sertifikat-lembar";
 import {
   certificateForSession, myCertificates, institutionNames, replacementFor, issueIfEligible,
-  rendersCredential, rendersVerification, layoutFor,
+  rendersCredential, rendersVerification, layoutFor, tugasSertifikatSaya,
 } from "@/lib/sertifikat";
 import KakiPintar from "@/components/KakiPintar";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -66,8 +66,17 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
   const s = (k: HleEvent) => t(k, "learner", { locale });
 
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
-  const state = await engine.cycleState(db, tugas);
-  const sessionId = state.post_session;
+  // my_cycle_state answers while the chapter is still assigned to the learner. Once it is not (a new school year
+  // carried the class on, or a transfer), the learner's own certificate for this chapter is found through their own
+  // sitting (tugasSertifikatSaya, cross-batch 6 Nov), never through today's assignment: it stays theirs to open, issued
+  // or revoked. No certificate is issued on that path (it only opens one that exists).
+  const state = await engine.cycleState(db, tugas).catch(() => null);
+  let sessionId = state?.post_session ?? null;
+  if (!sessionId) {
+    const milik = await myCertificates();
+    const tugasDari = await tugasSertifikatSaya(milik.map((c) => c.session_id));
+    sessionId = milik.find((c) => tugasDari.get(c.session_id) === tugas)?.session_id ?? null;
+  }
 
   // No session, no certificate, and no way to tell the two apart from here:
   // the same refusal as an assignment that is not this learner's (P7).
