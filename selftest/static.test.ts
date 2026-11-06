@@ -69,6 +69,7 @@ import { pitaTests } from "./pita.test";
 import { d006Tests } from "./d006.test";
 import { w16Tests } from "./w16.test";
 import { bob12Tests } from "./bob12.test";
+import { w919Tests } from "./w919.test";
 import { bob32Tests } from "./bob32.test";
 import { bob34Tests } from "./bob34.test";
 import { bob38Tests } from "./bob38.test";
@@ -2168,6 +2169,7 @@ export const staticTests: SelfTest[] = [
   ...w16Tests,
   ...bob23Tests,
   ...bob12Tests,
+  ...w919Tests,
   ...bob32Tests,
   ...bob34Tests,
   ...bob38Tests,

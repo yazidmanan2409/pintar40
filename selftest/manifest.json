@@ -4572,6 +4572,16 @@
       "proves": "W6.2 (U-PERF, D-046; staging 5 Nov, journey run 42105894283), selftest/aturan.test.ts over the source of src/app/konfigurasi/page.tsx: the audit trail (audit_log) is read only when the page drawn is «Jejak audit», so the index and every other section read none; a school's context names its one school with eq, not in (PostgREST's prepared statement gets a generic plan for = any($1) that read the school's whole trail through the row policy, 2,538 ms, against 21 ms for = $1, read-only EXPLAIN on staging); the read as it was is caught."
     },
     {
+      "id": "W919-KLAIM-01",
+      "runner": "static",
+      "proves": "W9.19 (CAP-09; W6.2 U-PERF, journey run 42174494519: the proxy's GET /auth/v1/user at p50 733 ms through IAD against 16 ms through SIN), selftest/w919.test.ts, which executes the source file src/lib/pengguna-proksi.ts through the real Supabase client against a recording fake of Auth with really signed tokens: an ES256 token signed by the published key is read locally as its subject and address with no GET /auth/v1/user, the key set fetched at most once and a second client asking nothing; another key's signature under the same kid and a payload altered after signing are nobody and are not sent to Auth to vouch; an HS256 token is still decided by Auth's server (accepted when it accepts, nobody when it refuses); an expired token is refreshed first and its cookies written; no session and no subject are nobody."
+    },
+    {
+      "id": "W919-KLAIM-02",
+      "runner": "static",
+      "proves": "W9.19, selftest/w919.test.ts over the source of src/proxy.ts: who is signed in is read only through penggunaTerverifikasi (src/lib/pengguna-proksi.ts), never auth.getUser(), and the database's session check (sesi_periksa: ended, locked, maintenance) is still asked on every signed-in request but a prefetch; a planted getUser() and a planted removal of the session check are each caught."
+    },
+    {
       "id": "X11-KLIEN-01",
       "runner": "static",
       "proves": "X.11 (DAISY-17, D-046(e); W6.1, CR-59; D-186), selftest/aturan.test.ts read over the source of every .tsx under src/app and src/components: every client component that calls the server itself (fetch or .rpc) disables its trigger while the call is pending, or is declared with its reason (src/components/PenjagaSesi.tsx, the heartbeat; src/components/pelajaran/TautanBerkas.tsx, a read-only check; src/components/lapor/TangkapanLayar.tsx, whose upload holds the report's own send, walked as audit/e1-navigasi.mjs N8); forms are held by DAISY-17-KIRIM-01; a stale declaration fails and a planted unguarded component is caught."
