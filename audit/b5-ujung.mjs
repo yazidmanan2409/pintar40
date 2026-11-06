@@ -25,6 +25,7 @@
 // Local or CI stack with the synthetic seed: APP_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
 // SUPABASE_DB_URL. Writes OUT_DIR/b5-ujung.json and screenshots; exits 1 on any FAIL.
 import { chromium } from "playwright";
+import { createHmac } from "node:crypto";
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -139,8 +140,20 @@ const alphaId = sql("select id from public.institutions where slug like 'synth-a
 // (a) an issued certificate of alpha's: prepared and sealed as issuance would (the signature is a fixture's)
 const sesiSertifikat = sql(`select s.id from public.assessment_sessions s, lateral public.certificate_eligibility(s.id) e
    where e.eligible and not exists (select 1 from public.certificates c where c.session_id = s.id) order by s.created_at limit 1`);
-let sertifikat = sesiSertifikat ? sql(`select x.certificate_id from public.certificate_prepare('${sesiSertifikat}'::uuid, 1::smallint) x`) : "";
-if (sertifikat) sql(`select public.certificate_seal('${sertifikat}'::uuid, 1::smallint, repeat('b5w', 30))`);
+// sealed as the app's issue route seals (src/app/api/certificates/issue/route.ts, src/lib/certificates/sign.ts): HMAC-SHA256
+// over the canonical payload with key V1, the key the app runs with in this job. A planted signature made the public
+// page answer «tidak sah» for the revoked certificate (run 42288431495): the page re-verifies every signature, so the
+// walk's certificate must be genuinely signed for B5-W1 to see revocation, not tampering.
+const KUNCI_V1 = process.env.CERT_SECRET_KEY_V1;
+if (!KUNCI_V1) { console.error("CERT_SECRET_KEY_V1 is not set: B5-W1 seals its certificate as the app does"); process.exit(1); }
+const kanonik = (v) => Array.isArray(v) ? v.map(kanonik)
+  : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, kanonik(v[k])])) : v;
+const siap = sesiSertifikat ? sql(`select x.certificate_id || '|' || x.canonical_payload::text from public.certificate_prepare('${sesiSertifikat}'::uuid, 1::smallint) x`) : "";
+let sertifikat = siap ? siap.slice(0, siap.indexOf("|")) : "";
+if (sertifikat) {
+  const tanda = createHmac("sha256", KUNCI_V1).update(JSON.stringify(kanonik(JSON.parse(siap.slice(siap.indexOf("|") + 1))))).digest("hex");
+  sql(`select public.certificate_seal('${sertifikat}'::uuid, 1::smallint, '${tanda}')`);
+}
 // (a re-run whose eligible sitting already holds a certificate revokes another issued one)
 if (!sertifikat) sertifikat = sql("select id from public.certificates where status = 'ISSUED' order by issued_at desc limit 1");
 // (b) two integrity observations an alpha sitting raised. A fresh seed holds no alpha sitting (none of alpha's learners

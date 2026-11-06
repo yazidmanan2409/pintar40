@@ -184,6 +184,9 @@ jobs:
           APP_URL: http://127.0.0.1:3999
           APP_DIR: ${{ github.workspace }}/app
           OUT_DIR: ${{ github.workspace }}/audit-out/b5-ujung
+          # the job's synthetic certificate key (the app is started with it above): B5-W1 seals its certificate as the
+          # app does, so the public page verifies it and shows the revocation
+          CERT_SECRET_KEY_V1: synthetic-certificate-key-fable04-32plus
         run: node b5-ujung.mjs
       # Batch 6 (D-159; W3.22, Daisy's 08-migration §Print): each printable surface at A4 in a real browser: the staff
       # and learner shells print no shell part; the class-card sheet prints only the set, two across, no card split.
