@@ -102,6 +102,13 @@ on its staging evidence until the promoted candidate is measured.
   - with `institution_id = $1`: 21 ms.
 - **Fixed on the branch** (not yet on staging): Konfigurasi reads the trail only on «Jejak audit»'s own page, which since B1 is the only page that draws it, and names one school with `eq`. Held by **W62-JEJAK-01**: a planted copy of the old read is caught.
 - **The second cost: Auth round trips.** Every page load also makes several `GET /auth/v1/user` calls at about 200 ms each, against 7–15 ms for database reads. This is W9.19's Auth round trip, still open. It weighs most on sign-in, when the proxy, the page and the shell each ask.
+- **Where the 200 ms comes from (6 Nov, Supabase's edge log, read-only).** The Auth and session calls are slow only when they come from the proxy:
+  - the proxy's `GET /auth/v1/user` arrives through Cloudflare SJC and IAD (US): p50 200 ms (n 1,931) and 289 ms (n 485);
+  - its `rpc/sesi_periksa` the same way: p50 200 ms (n 1,932) and 279 ms (n 485);
+  - the same two calls arriving through SIN, from the page renders in `sin1`: 10–12 ms;
+  - `sesi_periksa` in the database: 1.1 ms mean over 14,610 calls (`pg_stat_statements`).
+  - **So the cost is distance, not work.** The pages run in `sin1` (`vercel.json`), but the proxy (`src/proxy.ts`, no runtime or region set) runs near the requester, here GitHub's runner in the US. Each of its two calls crosses the Pacific.
+  - **What it means for a user in Indonesia:** the proxy would likely run near Singapore and the two calls would cost about what they cost through SIN. **This is inferred, not measured.** Only a measurement from the region settles it.
 - **From the region:** **not measured.** No runner or host in Indonesia is available to this work, and this container cannot reach staging. The row stays open until the fix is on staging and the journey is re-measured. If the target is to be judged from the region, a regional probe is an owner provision.
 
 **Harness defects fixed to get these figures:**
@@ -144,8 +151,9 @@ on its staging evidence until the promoted candidate is measured.
 - **The save-time criterion is not met.**
 - **What the figure includes:** a save is timed from the press to «Tersimpan». That covers the round trip from GitHub's runner, which is not in Indonesia, and the Next.js server. The database stayed far from saturation (19 %).
 - **Against October's baseline** (50 learners, 2 Oct, the same harness kind): p95 1,366 ms. So this run is **slower by about 460 ms at p95**.
-- **What it does not settle:** staging is not on production's compute tier (CAP-08). Nothing here says how much of the gap is network.
-- **Next:** the same measurement from the region, and the save's own server time from Supabase's log (the cut W6.2 made for Konfigurasi).
+- **What it does not settle:** staging is not on production's compute tier (CAP-08). The cut below shows most of it is outside the database.
+- **The save's own server time (6 Nov, Supabase's edge log for the wave, read-only):** `rpc/record_answer` 11 ms p50, 20 ms p95. The rest of the 1,828 ms is outside the database. The largest part found is the proxy's two calls from the US (§2b): about 200–290 ms each on every request, against 10–12 ms from SIN. The remainder is the action itself, from the runner to `sin1` and back.
+- **Next:** the same measurement from the region. If the target is to be judged there, a regional probe is an owner provision.
 - **This row is not marked PASS.**
 
 ## 3 · W6.12: colour vision (local, 5 Nov)
