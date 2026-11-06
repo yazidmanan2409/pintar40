@@ -75,3 +75,36 @@ This is the case the transition meets in production: an account, a person and ro
 **W9.19 on staging:** journey run 42192239336 (`w69-bukti-pemeriksaan.md` §2b).
 - `jwks.json` was fetched 4 times.
 - The proxy's `GET /auth/v1/user` through the US went from 348 to 0.
+
+## W9.19's session regression (6 Nov): RED, the cause, the fix on the branch
+
+**The run:** `staging-golden-school-laporan.yml` run **42195722895**, GS-17 to GS-21 on Sekolah Uji B8 1105, against staging serving `main` `4d325a33`: 7 PASS, 11 FAIL.
+
+**Real: a session regression from W9.19 (GS-21 R2 and R3)**
+- **R2:** the teacher replaced her password on another browser. The database recorded the old sessions ended (`KREDENSIAL_DIGANTI` × 6), **but the old browser still reached `/mengajar`**.
+- **R3:** the same with «Pakai PINTAR ID dan PIN»: R2's browser still reached `/mengajar`.
+- **Before W9.19:** on 5 Nov, `main` 38d7e701, the same steps passed (run 42049795788).
+- **The cause:**
+  - On a computer marked PERSONAL, the proxy skips `sesi_periksa` (`pribadiTersimpan`, a cookie this server signs).
+  - There, Auth's answer to `getUser()` was what refused a session ended elsewhere.
+  - W9.19's `getClaims()` verified the token locally instead, so the ended session passed until its token expired.
+
+**Passed in the same run, on the W9.19 code:**
+- U1: a class card locks after 5 idle minutes (302 s), and the PIN resumes it at the same page;
+- U2a, U2: the shared computer is locked by the server after 664 s;
+- R1: the card reissue;
+- L4, C3, V2.
+
+**The walk's own re-run state, not the product:** the walk is built to run once per school.
+- **L0 to L3, C1:** six learners now, not five; N1 added one on the first run.
+- **C2, V1:** one certificate is «Dicabut», revoked by the Batch 5 walk.
+- **N1:** runs once per school.
+- **X1:** the head of department's and the dean's sessions are open only because L2 and L3 stopped before their «Keluar».
+
+**The fix:** on the branch at `78df95e1`, **not on staging**; promoting it needs the owner's authorisation.
+- `penggunaTerverifikasi` asks `auth.getUser()` again, exactly the read before W9.19.
+- **Held by W919-CABUT-01:** through the real client, an ES256 token signed by the project's own key, whose session Auth reports gone, is nobody. It is red against the `getClaims()` read.
+- **Held by W919-CABUT-02:** a static check.
+- **What it costs:** the 348 → 0 drop in the proxy's Auth calls is given back. This is how immediate enforcement is kept (the owner's ruling of 6 Nov).
+
+**Staging until then:** it still runs `4d325a33`. On a PERSONAL computer, a session ended elsewhere stays usable until its token expires (Auth's default lifetime is one hour). Staging only: production runs the old release and is untouched.

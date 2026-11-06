@@ -1435,8 +1435,9 @@ CURRENT.update({
     "U-PERF": ("FAIL on staging, by little (6 Nov, main 4d325a33, journey run 42192239336 from GitHub's runner in the US): every click "
                "and save is under 3 s, most under 2 s (Konfigurasi 1.25–1.35 s, «Laporan» 1.34–1.87 s, saves 1.34–1.84 s); the first "
                "screen after sign-in is usable in 2.5–3.2 s (1 of 6 under 3 s; the gate's 5 s is met). Fixed on the way: the "
-               "Konfigurasi audit read (2,538 → 21 ms; W62-JEJAK-01) and the proxy's Auth call (W9.19, 348 → 0 per journey; "
-               "W919-KLAIM-01/02). What remains is the proxy's session check crossing from the runner's region (p50 776 ms through "
+               "Konfigurasi audit read (2,538 → 21 ms; W62-JEJAK-01). The proxy's Auth call (W9.19, 348 → 0 per journey) is "
+               "reversed on the branch (78df95e1): it let an ended PERSONAL session through (GS-21 R2/R3, run 42195722895), so these "
+               "figures overstate the code to be promoted. What remains is the proxy's session check crossing from the runner's region (p50 776 ms through "
                "IAD, 34 ms through SIN). Kept as it is by the owner (6 Nov, option (a)). The row stays FAIL until regional evidence "
                "exists; none is provided for now (owner, 6 Nov)."),
     "CAP-02": ("FAIL on staging at 50 learners (W6.8, perf-l1.yml run 42110164855, main 38d7e701): every correctness criterion met "
@@ -1450,8 +1451,14 @@ CURRENT.update({
     "REL-03": ("main and staging carry 196 migrations (P-3 post-check, 6 Nov). Production is not read in 4.0 (F-5); it moves only "
                "through the rehearsed upgrade (W9.10), and G6 refuses a production migration without a recent backup."),
 })
+CURRENT["STU-19"] = ("PARTIAL on staging (6 Nov, main 4d325a33): the idle lock holds (GS-20 U1: «PINTAR terkunci» at 302 s, the PIN resumes "
+                     "the same page; U2: the shared computer locked by the server at 664 s, run 42195722895), but a session ended "
+                     "elsewhere on a PERSONAL computer stayed usable (GS-21 R2/R3, the same run: W9.19's local token check). The "
+                     "fix is on the branch (78df95e1, W919-CABUT-01, red against the defect), not yet on staging. On 5 Nov (main "
+                     "38d7e701) the whole of GS-17–21 passed (run 42049795788).")
 VERDICT_NOW = ("NO-GO. What stands, by kind: capacity and responsiveness (U-PERF and CAP-02 not met on staging from a US runner; "
                "regional evidence not provided, owner 6 Nov; CAP-01 and the 1,000 cohort not run; CAP-08 production's tier, F-15); "
+               "the W9.19 session regression (STU-19; fixed on the branch, not yet promoted); "
                "two screen-reader device runs (NVDA, TalkBack: a person with the devices); real assessment content (K6: residency, "
                "the owner after counsel, and E-K6-2); the release-day rows and Gate 6 (docs/completion-4.0/batch-9/RELEASE-EVIDENCE-PACK.md: "
                "the production baseline and rehearsed upgrade W9.10, mail by received headers W9.13, DNS, support, backup escrow, "
@@ -1460,7 +1467,7 @@ CHANGES_V21.append("6 Nov (v2.8): status moved to main 4d325a33 on staging (P-1,
                    "U-PERF PASS → FAIL by little (the v2.4 PASS was the lesson page's save loop; on 6 Nov the staging journey measures a 2.5–3.2 s first screen; clicks and saves under 3 s), CAP-02 FAIL at 50 (save p95 1,828 ms; "
                    "correctness met), CAP-07 N-T → PASS at 50, REL-01 and REL-03 refreshed. Proven only locally or in CI and so not marked "
                    "here: the 320–1280 px crawl and axe (W6.4), zoom, keyboard and colour vision (W6.12). NVDA and TalkBack stay "
-                   "outstanding until the device runs are done. The P0 count stays 77 of 84 (one down, one up).")
+                   "outstanding until the device runs are done. The P0 count goes from 77 to 76 of 84: U-PERF down, CAP-07 up, and STU-19 PASS → PARTIAL (W9.19's session regression on staging, fixed on the branch).")
 
 def as_dict():
     g = globals()
