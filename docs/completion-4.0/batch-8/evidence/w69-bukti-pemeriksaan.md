@@ -160,6 +160,29 @@ on its staging evidence until the promoted candidate is measured.
   - a measurement from the region, where the remaining call would be SIN's 34 ms (the owner decided against a test machine for now);
   - answering the session check without the round trip from the US (W9.19's next item).
 
+**Traced (6 Nov): where `sesi_periksa` runs, and why it takes the US route.**
+- **Where:**
+  - in the proxy (`src/proxy.ts`), on every signed-in request but a prefetch;
+  - a REST call to Supabase (`rpc/sesi_periksa`), made with the request's own token;
+  - it is the only remaining remote call the proxy makes on a page load. The Auth call went with W9.19, and `my_setup_state` is skipped while the set-up cookie holds.
+- **Why the US route:** the proxy does not run in the project's function region (`sin1`, `vercel.json`).
+  - **Next.js 16 gives it no region:** `proxy.ts` always runs on Node.js. The build writes its config to `functions-config-manifest` as `/_middleware` with only `runtime` and `matchers` (`next/dist/build/index.js`, `build/adapter/build-complete.js`). A `regions` value is read from the config but is not carried to the Node proxy's output, so there is nothing for Vercel to pin.
+  - **Vercel runs it near the requester:** in every window measured, the proxy's calls entered Supabase's network in the US (IAD on 6 Nov; SJC and IAD on 5 Nov, when the runners were spread over several US regions), never at SIN. The pages, which do run in `sin1`, enter at SIN.
+  - Vercel's own documentation could not be read from this session (vercel.com is outside its network); the placement is inferred from these logs.
+- **What it means:**
+  - **From a US runner:** each page load makes one crossing of the Pacific in the proxy, and then another to the page in `sin1`.
+  - **From Indonesia:** the proxy would run at Vercel's nearest region, and the check would cost about SIN's figure. **Inferred, not measured.**
+
+| `rpc/sesi_periksa` through the proxy | P-2 (run 42174494519, 06:28–06:30 UTC) | P-3 (run 42192239336, 09:04–09:07 UTC) |
+|---|---|---|
+| through IAD | n 9, p50 288 ms, p95 839 ms | n 12, p50 776 ms, p95 828 ms |
+| through SIN (the same call from `sin1`) | n 1, 27 ms | n 2, p50 34 ms |
+| in the database (`pg_stat_statements`, 5 Nov) | 1.1 ms mean | — |
+
+**Reading the numbers:** the median rose after W9.19. My reading, not verified: the removed Auth call used to open the proxy's connection across the Pacific, and now the session check pays for opening it. The request as a whole still saves one crossing (the first screen went from 3.5 / 3.2 / 2.4 s to 3.15 / 3.20 / 2.48 s; every click was faster).
+
+**What would avoid the crossing:** no change to placement alone is available (no region setting for the proxy). Every way left changes where or how often the session is enforced. It is brought to the owner as a decision; the register's W9.19 row names the options.
+
 **Harness defects fixed to get these figures:**
 1. The synthetic staff were held at the activation wizard (BOB-26) since the identity foundation. Every earlier journey timed out at sign-in, and the job still read green (run 42064350172).
    - `lib.mjs` `settle()` now answers the wizard once, by its own screens, before anything is timed.
