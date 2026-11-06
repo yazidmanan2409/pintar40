@@ -4107,11 +4107,12 @@ await step("S27h", "a head of department assigns and runs an Uji Cepat within th
 // the certificate itself; and a stranger opening its link sees «Dicabut oleh penerbit».
 await step("S27v", "the school revokes a learner's certificate: the learner's list and certificate page say so, and so does its public link (W2.5, STU-17)", async (rec) => {
   const lulus = kartuKelas.find((k) => k.nama === MURID[0]);
-  const tugas = tugasBab();
-  const c = lulus ? sql(`select c.id || '|' || c.certificate_number || '|' || c.verification_token from public.certificates c join public.persons p on p.id = c.person_id
+  // the chapter is the certificate's own sitting's (S27h gave Bab 1 to another class since, so tugasBab() is not hers)
+  const c = lulus ? sql(`select c.id || '|' || c.certificate_number || '|' || c.verification_token || '|' || s.learning_assignment_id
+     from public.certificates c join public.persons p on p.id = c.person_id join public.assessment_sessions s on s.id = c.session_id
      where p.display_name = '${lulus.nama}' and c.institution_id = '${ids.sd}' and c.status = 'ISSUED' order by c.issued_at desc limit 1`).trim() : "";
   if (!c) { rec.verdict = "BLOCKED"; return "no issued certificate from S21i"; }
-  const [id, nomor, token] = c.split("|");
+  const [id, nomor, token, tugas] = c.split("|");
   const notes = [];
   await a.goto(`${APP}/konfigurasi/sertifikat?cari=${encodeURIComponent(nomor)}`, { waitUntil: "networkidle" });
   await a.locator(`a[data-cabut-sertifikat="${id}"]`).click();
@@ -4134,7 +4135,14 @@ await step("S27v", "the school revokes a learner's certificate: the learner's li
     const daftar = norm(await bodyText(l));
     rec.shots.push(await shot(l, "s27v-daftar-murid"));
     const diDaftar = /Dicabut/.test(daftar);
-    await l.goto(`${APP}/belajar/${tugas}/sertifikat`, { waitUntil: "networkidle" });
+    // as she would: the certificate's own row in her list opens it (after S27's new school year the chapter is no
+    // longer assigned to her; the row still links, through her own sitting)
+    const barisnya = l.locator(`a[href="/belajar/${tugas}/sertifikat"]`);
+    const adaTautan = (await barisnya.count()) > 0;
+    notes.push(`her list links that certificate: ${adaTautan}`);
+    if (!adaTautan) rec.verdict = "FAIL";
+    if (adaTautan) await barisnya.first().click(); else await l.goto(`${APP}/belajar/${tugas}/sertifikat`, { waitUntil: "networkidle" });
+    await l.waitForURL((u) => u.pathname === `/belajar/${tugas}/sertifikat`, { timeout: SLOW }).catch(() => {});
     await l.getByText(/dicabut oleh penerbitnya|tidak ditemukan|tidak tersedia/i).first().waitFor({ timeout: SLOW }).catch(() => {});
     const isi = norm(await bodyText(l));
     rec.shots.push(await shot(l, "s27v-sertifikat-murid"));
