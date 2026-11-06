@@ -35,7 +35,13 @@ const WINDOW_DAYS = Number(process.env.WINDOW_DAYS ?? 14);
 const PARALLEL = Number(process.env.CARD_PARALLEL ?? 4);
 const SCHOOL = "Sekolah Uji Kinerja (sintetis)";
 const BAGIAN = "Bagian Uji Kinerja";
-const TINGKAT = "Tingkat Beban L1";
+// LABEL names a separate Tingkat and its learners (default «L1», the L1 load's own). A test after the L1 classes'
+// windows have closed needs classes of its own: assign_release gives a release to a class once (ASSIGN_EXISTS), and
+// PINTAR has no operation that ends an assignment, so a fresh window is a fresh Tingkat, never a direct write.
+const LABEL = process.env.LABEL || "L1";
+if (!/^[A-Za-z0-9]{1,8}$/.test(LABEL)) throw new Error("LABEL: 1-8 letters or digits");
+const TINGKAT = `Tingkat Beban ${LABEL}`;
+const AWALAN = LABEL === "L1" ? "" : `${LABEL} `;
 if (!DB.includes(REF) || DB.includes(PRODUCTION_REF) || !APP.includes("staging") || SB.includes(PRODUCTION_REF)) throw new Error("not staging");
 if (!(TOTAL > 0 && TOTAL <= 5000 && KELAS > 0 && KELAS <= 100)) throw new Error("TOTAL or KELAS out of range");
 
@@ -72,7 +78,7 @@ if (!bagian) throw new Error(`no «${BAGIAN}» in the synthetic school (staging-
 const tingkat = node("COHORT", TINGKAT) || await rpc("create_tingkat", { p_bagian_node: bagian, p_name: TINGKAT, p_academic_year: YEAR });
 const kelas = [];
 for (let i = 1; i <= KELAS; i++) {
-  const nama = `Kelas Beban ${pad(i, 2)}`;
+  const nama = `Kelas Beban ${AWALAN}${pad(i, 2)}`;   // class names are unique among siblings (STRUCTURE_NAME_TAKEN, run 42107287870)
   kelas.push({ nama, id: node("CLASS", nama, tingkat) || await rpc("create_kelas", { p_tingkat_node: tingkat, p_name: nama }) });
 }
 say(`structure: «${TINGKAT}» with ${kelas.length} Kelas («${kelas[0].nama}» … «${kelas.at(-1).nama}»)`);
@@ -100,7 +106,7 @@ const perKelas = Math.ceil(TOTAL / KELAS);
 const ingin = [];
 for (let n = 0; n < TOTAL; n++) {
   const k = kelas[Math.floor(n / perKelas)];
-  ingin.push({ display_name: `Murid Beban ${k.nama.slice(-2)}-${pad((n % perKelas) + 1, 3)}`, node_id: k.id, role: "STUDENT" });
+  ingin.push({ display_name: `Murid Beban ${AWALAN}${k.nama.slice(-2)}-${pad((n % perKelas) + 1, 3)}`, node_id: k.id, role: "STUDENT" });
 }
 const sudah = new Set(rows(`select p.display_name from public.memberships m join public.enrollments e on e.id = m.enrollment_id
   join public.persons p on p.id = e.person_id where m.node_id in (${kelas.map((k) => uuid(k.id)).join(",")}) and m.valid_to is null`).map((r) => r[0]));
@@ -125,6 +131,14 @@ const tanpa = rows(`select distinct p.id from public.memberships m join public.e
   and not exists (select 1 from public.accounts a where a.person_id = p.id)`).map((r) => r[0]);
 const api = await request.newContext({ baseURL: APP, extraHTTPHeaders: { Origin: APP },
   storageState: { cookies: sessionCookies(adminSess).map((c) => ({ ...c, expires: -1 })), origins: [] } });
+// E2 (§2.11): «Buat kartu» is a context-bound act; outside the school's working context the card route answers
+// CONTEXT_OTHER_PLACE (409; run 42108870255, all 50). A person chooses the context at the door; the seed opens one
+// page as the admin (the proxy records the session) and chooses Mengelola · this school with the chooser's own
+// function (konteks_tetapkan, the caller's own session, a pair they hold). Never a direct write.
+await api.get("/konfigurasi", { maxRedirects: 0 }).catch(() => null);
+const pilih = await rpc("konteks_tetapkan", { p_tujuan: "MENGELOLA", p_tempat: SID, p_platform: false, p_sebab: "PILIHAN" })
+  .then(() => "chosen", (e) => `not chosen: ${String(e.message || e).slice(0, 160)}`);
+say(`working context Mengelola · the synthetic school: ${pilih}`);
 let dibuat = 0, ditolak = 0;
 const galat = new Map();
 let antre = tanpa.slice();

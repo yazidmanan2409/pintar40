@@ -194,7 +194,8 @@ await step("K3", "W2.10: the Platform Operator reads Aktivasi's waiting list a p
   }
   const jumlah = Number(jumlahAttr);
   harus(rec, n1 <= 20 && n1 === Math.min(20, jumlah), `page 1 draws ${n1} of ${jumlah} waiting (a page is 20)`);
-  const lanjut = O.locator("[data-penomoran] a", { hasText: "Berikutnya" });
+  // E-K2: the pager always draws «Berikutnya»; only a possible move is a real link (rel=next), an impossible one aria-disabled
+  const lanjut = O.locator('[data-penomoran] a[data-pager="sesudah"][rel="next"]');
   if (jumlah > 20) {
     if (!harus(rec, (await lanjut.count()) >= 1, "«Berikutnya» is offered")) return;
     await lanjut.first().click();

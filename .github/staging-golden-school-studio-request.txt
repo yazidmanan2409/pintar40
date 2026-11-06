@@ -3,5 +3,6 @@
 # 3 Nov, Batch 3 closure staging verification (D-150; T7a superseded version, T10 «✓ Tersedia», T10b F-7 Bank Soal): Sekolah Uji B3C 1103 after GS-01 to GS-21 (run 41566279263); main cb1ff3e; another school whose administrator must be told nobody: Sekolah Uji B2 1102
 # 3 Nov, Batch 4 staging verification (D-153, D-154): Sekolah Uji B4 1103 after GS-01 to GS-21 (run 41605789257); main 31e456d; another school whose administrator must be told nobody: Sekolah Uji B3C 1103
 # 4 Nov (WIB), Batch 5 staging verification (D-157): Sekolah Uji B5 1104 after GS-01 to GS-21 (run 41713430814); main 3412075; another school whose administrator must be told nobody: Sekolah Uji B4 1103
-other: sekolah-uji-b4-1103
-slug: sekolah-uji-b5-1104
+# 5 Nov, Batch 8 staging verification (P-1; migrations 194-196): Sekolah Uji B8 1105 after GS-01 to GS-21 (run 42049795788) and the administration walk (run 42054817245); main 38d7e701; another school whose administrator must be told nobody: Sekolah Uji B5 1104
+other: sekolah-uji-b5-1104
+slug: sekolah-uji-b8-1105

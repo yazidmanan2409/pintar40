@@ -157,9 +157,19 @@ async function keKonfigurasi(page) {
   if (new URL(page.url()).pathname === "/konfigurasi") { await page.reload({ waitUntil: "networkidle" }); await closeTour(page); }
   else await klikTautan(page, "/konfigurasi");
 }
-async function bacaPersiapan(page) {
-  await page.reload({ waitUntil: "networkidle" });
+// B1 (c4e2ffe3): Konfigurasi is an index and one page per section; a person opens a section by its row on the index
+async function keBagian(page, bagian) {
+  await keKonfigurasi(page);
+  const a = page.locator(`a[data-bagian-ke="${bagian}"]:visible`).first();
+  await a.waitFor({ state: "visible", timeout: SLOW });
+  await a.click();
+  await page.waitForURL((u) => u.pathname === `/konfigurasi/${bagian}`, { timeout: SLOW });
+  await page.waitForLoadState("networkidle");
   await closeTour(page);
+}
+// «Persiapan sekolah» is on the index (B1), read afresh there
+async function bacaPersiapan(page) {
+  await keKonfigurasi(page);
   const out = {};
   for (const li of await page.locator("#persiapan li[data-langkah]").all()) {
     out[await li.getAttribute("data-langkah")] = (await li.getAttribute("data-selesai")) === "ya";
@@ -236,6 +246,7 @@ if (!masuk) { await browser.close(); log("RED: A1"); process.exit(1); }
 await step("A2", `GS-04 (J3.3): on Konfigurasi → Struktur sekolah the admin builds «${BAGIAN}» → «${TINGKAT}» → «${KELAS}»; no hidden level shows; «Persiapan sekolah» says the Kelas is there`, async (rec) => {
   const sudah = simpul("CLASS", KELAS);
   const jejak = [];
+  await keBagian(A, "struktur");
   if (sudah) { rec.verdict = "NOTE"; jejak.push("the structure already exists; nothing built"); }
   else {
     await A.locator("#struktur").scrollIntoViewIfNeeded();
@@ -296,7 +307,7 @@ await step("A3", "GS-06 (J3.5): the teacher, the head of department and the dean
   const akun = STAF.filter((p) => akunSurel(mail(p.kunci))).length;
   jejak.push(`accounts by email ${akun}/3`);
   // 3. roles on Konfigurasi → Peran & akses
-  await klikTautan(A, "/konfigurasi");
+  await keBagian(A, "roles");
   for (const p of STAF) {
     const tempatNama = p.tempat ?? S.nama;
     const tempatNode = p.tempat ? tempatId[p.tempat] : S.id;
@@ -419,7 +430,7 @@ await step("A7", `GS-05 (J3.8): back to Konfigurasi by Studio's own link; on Bat
      and not exists (select 1 from public.school_pass_marks n where n.supersedes_id = m.id)`);
   const sudah = sekarang();
   if (sudah) { rec.verdict = "NOTE"; return `already set, nothing changed: ${sudah}`; }
-  await keKonfigurasi(A);
+  await keBagian(A, "ketuntasan");
   const baris = A.locator(`#ketuntasan li[data-pelajaran="${kursus}"]`);
   await A.locator("#ketuntasan").scrollIntoViewIfNeeded().catch(() => {});
   if (!(await baris.count())) {
@@ -522,9 +533,42 @@ await step("A8", `GS-09, the reviewer: the head of department «${KABAG.nama}» 
   return `${jalanMasuk.get(mail(KABAG.kunci))}, landed on ${di}; chose Mengelola → ${ke}`;
 });
 
+// D-088(h): the reviewer reads every question, its key and every option's reason on the package page (read only);
+// true when every one in the database was on screen
+async function bacaSoal(jejak) {
+  await H.reload({ waitUntil: "networkidle" });
+  // the package page shows one lesson's questions at a time (the lesson pager, «Berikutnya»): the reviewer reads
+  // every lesson in turn, as a person does, and the counts are summed over the lessons
+  let diLayar = 0, kunciLayar = 0, opsiLayar = 0, dibaca = 0;
+  for (let n = 1; n <= 50; n++) {
+    diLayar += await H.locator("#soal li.pin-soal").count();
+    kunciLayar += await H.locator("#soal li.pin-opsi-kunci").count();
+    opsiLayar += await H.locator("#soal li.pin-opsi").count();
+    dibaca = n;
+    const lanjut = H.locator('#soal a[data-pager="sesudah"][rel="next"]').first();
+    if (!(await lanjut.count())) break;
+    await lanjut.click();
+    await H.waitForURL((u) => u.searchParams.get("pelajaran") === String(n + 1), { timeout: SLOW });
+    await H.waitForLoadState("networkidle");
+  }
+  jejak.push(`the reviewer reads ${dibaca} lesson(s) by the lesson pager`);
+  const [soal, opsi, kunciDb] = sql(`select (select count(*) from public.items i join public.lessons x on x.id = i.lesson_id join public.modules m on m.id = x.module_id where m.course_id = '${kursus}')
+    || '|' || (select count(*) from public.item_options o join public.items i on i.id = o.item_id join public.lessons x on x.id = i.lesson_id join public.modules m on m.id = x.module_id where m.course_id = '${kursus}')
+    || '|' || (select count(*) from public.item_options o join public.items i on i.id = o.item_id join public.lessons x on x.id = i.lesson_id join public.modules m on m.id = x.module_id where m.course_id = '${kursus}' and o.is_correct)`).split("|").map(Number);
+  await shot(H, "a9-soal-ditinjau");
+  jejak.push(`the head of department reads ${diLayar}/${soal} questions, ${opsiLayar}/${opsi} options with their reason, ${kunciLayar}/${kunciDb} keys`);
+  return Boolean(soal) && diLayar === soal && opsiLayar === opsi && kunciLayar === kunciDb;
+}
+
 await step("A9", "GS-09 (J4.3–J4.5): the seven steps by two people. The admin, its author, composes, checks and submits it; the head of department finds it in «Antrean Tinjauan», reads every question with its key and reasons, approves, makes and locks the release and reviews any finding; the admin is never offered the second person's steps; the admin publishes", async (rec) => {
   if (!kursus) { rec.verdict = "FAIL"; return "no chapter in the school (A6)"; }
-  if (keadaan().terbitan === "PUBLISHED") { rec.verdict = "NOTE"; return `already published (${teksKeadaan()})`; }
+  if (keadaan().terbitan === "PUBLISHED") {
+    // nothing to do but the reading, which writes nothing: the reviewer still reads every question on the package page
+    rec.verdict = "NOTE";
+    const jejak = [`already published (${teksKeadaan()})`];
+    if (kabagMasuk) { await kePaket(H, "beranda"); if (!(await bacaSoal(jejak))) rec.verdict = "FAIL"; }
+    return jejak.join("; ");
+  }
   if (!kabagMasuk) { rec.verdict = "FAIL"; return "the head of department is not signed in (A8)"; }
   const jejak = [`from ${teksKeadaan()}`];
   const halaman = { admin: A, kabag: H };
@@ -541,16 +585,7 @@ await step("A9", "GS-09 (J4.3–J4.5): the seven steps by two people. The admin,
     }
     // D-088(h): before approving, the reviewer reads every question, its key and every option's reason
     if (l.kunci === "setujui") {
-      await H.reload({ waitUntil: "networkidle" });
-      const diLayar = await H.locator("#soal li.pin-soal").count();
-      const kunciLayar = await H.locator("#soal li.pin-opsi-kunci").count();
-      const opsiLayar = await H.locator("#soal li.pin-opsi").count();
-      const [soal, opsi, kunciDb] = sql(`select (select count(*) from public.items i join public.lessons x on x.id = i.lesson_id join public.modules m on m.id = x.module_id where m.course_id = '${kursus}')
-        || '|' || (select count(*) from public.item_options o join public.items i on i.id = o.item_id join public.lessons x on x.id = i.lesson_id join public.modules m on m.id = x.module_id where m.course_id = '${kursus}')
-        || '|' || (select count(*) from public.item_options o join public.items i on i.id = o.item_id join public.lessons x on x.id = i.lesson_id join public.modules m on m.id = x.module_id where m.course_id = '${kursus}' and o.is_correct)`).split("|").map(Number);
-      await shot(H, "a9-soal-ditinjau");
-      jejak.push(`the head of department reads ${diLayar}/${soal} questions, ${opsiLayar}/${opsi} options with their reason, ${kunciLayar}/${kunciDb} keys`);
-      if (!soal || diLayar !== soal || opsiLayar !== opsi || kunciLayar !== kunciDb) rec.verdict = "FAIL";
+      if (!(await bacaSoal(jejak))) rec.verdict = "FAIL";
     }
     // publishing wants every WARNING finding reviewed by a second person (publish_readiness; never the author)
     if (l.kunci === "terbitkan") {

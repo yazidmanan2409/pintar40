@@ -161,7 +161,9 @@ export const effTests: SelfTest[] = [
         && /const semuaSekolah = lama && isSys === true;/.test(halaman),
         "Konfigurasi reads enrollments without naming the administrator's schools");
       // RESTATED FOR L4 (CR-88): the trail is read a page at a time (rentang) instead of a fixed newest 50; the schools named are unchanged
-      c.expect(/\(platformIni \? jejak : jejak\.in\("institution_id", sekolahIni\)\)\.order\("at", \{ ascending: false \}\)\.order\("id"\)\s*\.range\(\.\.\.rentang\(halamanDiminta\(sp\.hal_jejak\), UKURAN_JEJAK\)\)/.test(halaman) && /const UKURAN_JEJAK = 50;/.test(halaman),
+      // RESTATED FOR W6.2 (W62-JEJAK-01): read only on «Jejak audit»'s page; one school is named with eq (its index's order
+      // survives PostgREST's generic plan), several with in; never unnamed for a school administrator
+      c.expect(/bagianIni !== "audit"\s*\?\s*tanpaBaris\s*:\s*\(platformIni \? jejak : satuSekolah \? jejak\.eq\("institution_id", satuSekolah\) : jejak\.in\("institution_id", sekolahIni\)\)\s*\.order\("at", \{ ascending: false \}\)\.order\("id"\)\s*\.range\(\.\.\.rentang\(halamanDiminta\(sp\.hal_jejak\), UKURAN_JEJAK\)\)/.test(halaman.replace(/^\s*\/\/.*$/gm, "")) && /const UKURAN_JEJAK = 50;/.test(halaman),
         "Konfigurasi reads audit_log without naming the administrator's schools");
       return c.verdict(
         "reads Konfigurasi (src/app/konfigurasi/page.tsx): a school administrator's enrolments and audit trail are read " +

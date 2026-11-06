@@ -10,6 +10,8 @@
 #   - whether it reproduces what PINTAR keeps outside its own tables: the triggers on auth.users (account creation,
 #     the password-write guard, the card-email guard), PostgREST's pre-request on the authenticator role (session
 #     ends, the shared-computer lock), the functions, their grants, the policies, and the launch-readiness checks;
+#   - whether, once PINTAR's client rights and Storage bucket rows are re-applied from staging's own catalog, the copy
+#     passes every launch-readiness check (W9.12; this is the job's verdict, red otherwise);
 #   - what it cannot restore: Storage files (counted from their metadata) and the secrets kept outside the database;
 #   - how long the backup and the restore took, and how large the backup is.
 #
@@ -83,7 +85,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"   # W9.18: as staging.yml and the production apply job
 
       - name: Install the pinned Supabase CLI
         run: npm i -g supabase@${SUPABASE_CLI}
@@ -203,6 +205,35 @@ jobs:
           echo "launch readiness on the copy after the corrected step: $(printf '%s\n' "$out" | grep -c '^PASS') PASS, $(printf '%s\n' "$out" | grep -c '^FAIL') FAIL"
           printf '%s\n' "$out" | grep -E '^FAIL|ERROR' | cut -c1-240
 
+      # W9.12 (docs/recovery/W9.12-RESTORE-POSTURE.md). The documented backup carries each object's rights only relative
+      # to Postgres's built-in default, while the empty stack's default privileges grant anon, authenticated and
+      # service_role everything on every object postgres creates in public; the backup's own closed-by-default (migration
+      # 20260912004158's ALTER DEFAULT PRIVILEGES) arrives after the objects. The storage.buckets row does not load into
+      # the runner's Storage version. This step restores both from staging's catalog and is the job's verdict: red unless
+      # every launch-readiness row is PASS and the copy's rights and buckets equal staging's.
+      - name: The second corrected step - PINTAR's privileges and the private bucket, re-applied from staging's own catalog, then the launch-readiness checks again
+        env:
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set +e -uo pipefail
+          # staging is only read; the copy is written; counts, kinds and names only (scripts/recovery/restore-posture.sh)
+          bash scripts/recovery/restore-posture.sh "$DB" "$LOKAL_DB" "$RUNNER_TEMP/sikap"
+          rp=$?
+          echo "the copy's client rights and buckets equal staging's afterwards: $([ "$rp" = 0 ] && echo yes || echo NO)"
+          PGOPTIONS='-c default_transaction_read_only=on' psql "$LOKAL_DB" -At -F '|' -f audit/restore/fakta.sql > "$RUNNER_TEMP/pulih3.txt" 2>/dev/null
+          echo "after the second corrected step:"
+          bash audit/restore/banding.sh "$RUNNER_TEMP/sesudah.txt" "$RUNNER_TEMP/sebelum.txt" "$RUNNER_TEMP/pulih3.txt" | grep -E 'auth.users triggers|public function grants|^functions:|^table rights|^tables:'
+          out=$(PGOPTIONS='-c default_transaction_read_only=on' psql "$LOKAL_DB" -At -F ' | ' -f docs/audit/launch-readiness.sql 2>&1); rr=$?
+          pass=$(printf '%s\n' "$out" | grep -c '^PASS'); fail=$(printf '%s\n' "$out" | grep -c '^FAIL')
+          echo "launch readiness on the copy after the second corrected step: $pass PASS, $fail FAIL (psql exit $rr)"
+          printf '%s\n' "$out" | grep -E '^FAIL|ERROR' | cut -c1-240
+          bad=0
+          if [ "$rr" != 0 ] || [ "$fail" != 0 ] || [ "$pass" = 0 ] || printf '%s\n' "$out" | grep -q 'ERROR'; then
+            echo "::error::the restored copy is not launch-ready after PINTAR's privileges and buckets were re-applied ($pass PASS, $fail FAIL)"; bad=1
+          fi
+          [ "$rp" = 0 ] || { echo "::error::the restored copy's client rights or Storage buckets still differ from staging's (see above)"; bad=1; }
+          exit $bad
+
       - name: Discard the backup
         if: always()
-        run: rm -rf "$RUNNER_TEMP/cadangan" "$RUNNER_TEMP"/sebelum.txt "$RUNNER_TEMP"/sesudah.txt "$RUNNER_TEMP"/pulih*.txt "$RUNNER_TEMP"/pemicu.*; echo discarded
+        run: rm -rf "$RUNNER_TEMP/cadangan" "$RUNNER_TEMP/sikap" "$RUNNER_TEMP"/sebelum.txt "$RUNNER_TEMP"/sesudah.txt "$RUNNER_TEMP"/pulih*.txt "$RUNNER_TEMP"/pemicu.*; echo discarded

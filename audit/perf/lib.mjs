@@ -97,8 +97,39 @@ export async function rename(page, from, to) {
   return save(page, form.getByRole("button", { name: "Simpan" }), page.getByRole("status").filter({ hasText: new RegExp(`${esc(to)}\\.?\\s*$`) }).first());
 }
 
+// BOB-26: a signed-in email account whose set-up is REQUIRED is held to the activation wizard. The synthetic staff were
+// marked REQUIRED when the identity foundation arrived (20261021100000), so since then every timed sign-in landed on
+// /aktifkan and timed out. settle() answers the wizard ONCE, by its own screens, with the same derived credentials and
+// helper the Golden School walks use (../staging/masuk.mjs: username, PIN, password, the name, «Komputer siapa ini?»),
+// before anything is timed. It needs GS_MAILBOX_PASSWORD (the derivation's key); nothing is printed unmasked.
+// An account already settled is left alone. Returns what it did, for the log.
+export async function settle(browser, email, landing) {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  try {
+    await ctx.addCookies(sessionCookies(await session(email)));
+    await page.goto(`${APP}${landing}`, { timeout: SLOW });
+    await page.waitForLoadState("networkidle").catch(() => {});
+    const di = new URL(page.url()).pathname;
+    let catatan = `already settled (${di})`;
+    if (di === "/aktifkan" || di === "/perangkat") {
+      const { kredensial, selesaikan } = await import("../staging/masuk.mjs");
+      const lewat = await selesaikan(page, kredensial(email));
+      catatan = `answered once (${lewat.join(" → ")}), now at ${new URL(page.url()).pathname}`;
+    }
+    // BOB-29: «Komputer siapa ini?» is asked of a browser that has not answered it, and every timed rep is a new
+    // context. The answer is this browser's cookie (a random id; the database keeps its hash per person), carried into
+    // each rep as a person's own browser keeps it, so a rep times a returning person's sign-in, not the question.
+    const alat = (await ctx.cookies()).find((c) => c.name === "pintar_perangkat");
+    if (alat) perangkat.set(email.toLowerCase(), alat);
+    return `${catatan}; this browser ${alat ? "remembered" : "NOT remembered"}`;
+  } finally { await ctx.close(); }
+}
+const perangkat = new Map();
+
 export async function signIn(page, email, landing) {
-  await page.context().addCookies(sessionCookies(await session(email)));
+  const alat = perangkat.get(email.toLowerCase());
+  await page.context().addCookies([...sessionCookies(await session(email)), ...(alat ? [alat] : [])]);
   const t = Date.now();
   // where the callback's own redirect (tujuanMasuk) sends this reader; "/" itself does not redirect
   await page.goto(`${APP}${landing}`, { timeout: SLOW });

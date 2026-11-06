@@ -1,2 +1,3 @@
 # 4 Nov (WIB), Batch 5 staging verification (D-157): Sekolah Uji B5 1104 after GS-01 to GS-21 (run 41713430814) and the Studio walk (run 41717420070); main 3412075
-slug: sekolah-uji-b5-1104
+# 5 Nov, Batch 8 staging verification (P-1; migrations 194-196): Sekolah Uji B8 1105 after GS-01 to GS-21 (run 42049795788) and the Studio walk (run 42057142327); main 38d7e701
+slug: sekolah-uji-b8-1105

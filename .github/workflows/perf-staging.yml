@@ -116,6 +116,8 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       ADMIN_EMAIL: uji-kinerja-admin@example.co
       GURU_EMAIL: uji-kinerja-guru@example.com
+      # the wizard's derived credentials (audit/staging/masuk.mjs), for a held set-up answered once (lib.mjs settle)
+      GS_MAILBOX_PASSWORD: ${{ secrets.GS_MAILBOX_PASSWORD }}
       REPS: ${{ inputs.reps }}
     steps:
       - uses: actions/checkout@v4

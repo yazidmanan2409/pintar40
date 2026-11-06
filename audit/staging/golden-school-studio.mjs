@@ -94,7 +94,7 @@ const terhalang = (rec, sebab) => { rec.verdict = "BLOCKED"; rec.catatan.push(se
 
 async function klikTautan(page, href) {
   if (!(await page.locator(`a[href="${href}"]:visible`).count())) {
-    const menu = page.locator('label[for="pin-laci"]');
+    const menu = page.locator('[data-laci-tombol]:visible, label[for="pin-laci"]:visible').first();
     if (await menu.isVisible().catch(() => false)) await menu.click();
   }
   const a = page.locator(`a[href="${href}"]:visible`).first();
@@ -563,7 +563,8 @@ await step("T15", "W6.7: «Lihat hasil»: the class figure on its base first, th
   rec.catatan.push(`the class figure reads «${teksKelas}»`);
   harus(rec, dinilai === "1" && (await kelas.getAttribute("data-ambang").catch(() => null)) === "5" && !/%/.test(teksKelas) && /Sekarang 1 murid; perlu 5/.test(teksKelas) && new RegExp(`1 dari ${terdaftar} murid`).test(teksKelas), `D-176: one score of ${terdaftar} is below the threshold of five — no class average, the not-yet line «Sekarang 1 murid; perlu 5» and the base`);
   const halaman = norm(await G.locator("main").innerText());
-  harus(rec, halaman.includes(PELAJAR) && halaman.indexOf("Nilai kelas") < halaman.indexOf(PELAJAR), "the learner is listed below the figure");
+  const angkaDi = halaman.indexOf("Rata-rata nilai kelas");   // hle mengajar.cepat.hasil.kelas
+  harus(rec, halaman.includes(PELAJAR) && angkaDi !== -1 && angkaDi < halaman.indexOf(PELAJAR), "the learner is listed below the figure");
 });
 
 // ─────────────────────────────── T16 · who the history may name (read only)
