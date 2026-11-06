@@ -12,7 +12,7 @@
   ],
   "visual": [
    [
-    "Lead: one row per chapter, Pemetaan Awal (small grey dot) to Uji Penguasaan (filled dot), the target line through every row",
+    "Lead: one row per chapter, Pemetaan Awal (small light dot) to Uji Penguasaan (dark dot, amber when it stops short of the target), the target line through every row",
     "**Candidate VI-C7** (a student's own path): progress against the chapter's own target, never against classmates. The chapter in progress shows only what is known."
    ],
    [
@@ -41,7 +41,7 @@
   "visual": [
    [
     "Lead: «Penguasaan per topik» as rows on one 0–100% scale with the target line through every row",
-    "Existing display «Diagram batang» / «Daftar». Answers «which part needs attention» in one look: the bars that stop short of the line. The weakest topic carries the one accent; «di bawah target» is said in words, not colour alone."
+    "Existing display «Diagram batang» / «Daftar». Answers «which part needs attention» in one look: the bars that stop short of the line. Bars are grey; a bar below the target is amber and says «di bawah target» in words, so colour is never alone and the meaning survives greyscale (G-03)."
    ],
    [
     "Population line, then the bands as one bar over the students who took it",
@@ -131,12 +131,13 @@
   "tigaPuluh": "Learning is moving up across the school (+19 points since the Pemetaan Awal), and attention belongs to Listrik dan magnet serta Geometri dan pengukuran, the domains still under 60%. Every figure states its base; readiness of evidence is stated, not hidden.",
   "peta": [
    "`/dekan/ringkasan?simpul=…` (Ringkasan Sekolah, C1): `metrik.kompetensi`, `metrik.peserta_institusi`, `metrik.kenaikan_institusi`, `metrik.gerbang_keselamatan`, `metrik.kredensial`, `metrik.perbandingan_kohort`; the coverage line `laporan.cakupan.sekolah` (every school year, no year claimed)",
-   "Evidence readiness per class: `/pimpinan` («Kesiapan bukti»)"
+   "Evidence readiness per class: `/pimpinan` («Kesiapan bukti»)",
+   "«Sertifikat terbit» is MC-1 (`calc_institution_verified_credentials`): certificates issued and not revoked, out of all issued (R4-03). Issuance itself is the certificate service's; the simulation stands in for it."
   ],
   "visual": [
    [
     "Lead: «Capaian kompetensi», one dot per domain on a 0–100% scale, PINTAR's band zones named once",
-    "A dot plot instead of bars: the question is «where on the scale is each domain», and the band zones answer «is it a concern» without a legend. Sorted high to low; the lowest carries the one accent."
+    "A dot plot instead of bars: the question is «where on the scale is each domain», and the band zones answer «is it a concern» without a legend. Sorted high to low; a domain below 60% is amber and names its band. The band names are a legend above the scale (R4-01), and a value that rounding would carry across a boundary shows one decimal (59,6%, R4-02)."
    ],
    [
     "Headline figures, each with its base",
@@ -151,7 +152,6 @@
    "School aggregates only: no class, teacher or student is named in the figures. The only class names are where evidence is not yet enough."
   ],
   "tanya": [
-   "«Sertifikat terbit» here counts Mastery Check results at the target with every required item right; the real rule is the certificate service's. Engineering: confirm the figure's definition before any comparison.",
    "«Angkatan 2026 (kelas 7)»: is «angkatan» by entry year the school's usage? Dr Gladys."
   ]
  },
@@ -206,7 +206,7 @@
   "kode": "7-admin",
   "judul": "Pekerjaan administrasi · Admin sekolah",
   "pembaca": "Admin Sekolah",
-  "tigaPuluh": "Who cannot sign in yet (12 people, named, by class), what else waits on the administrator, and who has not finished the professional-learning package: each with the one action that resolves it.",
+  "tigaPuluh": "Who cannot sign in yet (12 people) and why, grouped by reason with the one remedy for each; what else waits on the administrator, and who has not finished the professional-learning package: each with the one action that resolves it.",
   "peta": [
    "Konfigurasi's «Yang menunggu» (`config.menunggu.*`, B1, UX-33)",
    "Aktivasi akun: who waits for an account, per class (`aktivasi.kelas.*`), «Buat kartu kelas», «Aktifkan dengan email»",
@@ -216,18 +216,23 @@
   "visual": [
    [
     "Lead: the «Yang menunggu» rows, each a count that opens where the work is done",
-    "Existing (B1). An exception summary: only what waits is shown; «Selebihnya sudah siap» says the rest in one line."
+    "Existing (B1). An exception summary: only what waits is shown."
    ],
    [
-    "Per class, only the classes with someone waiting, the names and the one action",
-    "An exception list instead of a chart of 15 classes: the administrator's question is «who», and a name is more useful than a bar."
+    "«Yang belum bisa masuk», one group per reason (R7-04)",
+    "No card yet · a card not used yet · data still in Pendataan · a teacher's email account not activated. A class card is the remedy for the first group only, and the page says so."
+   ],
+   [
+    "The bulk card selection (R7-02)",
+    "«Pilih semua» and one checkbox per class, the number selected and who is excluded and why, then one action and one printed batch. On paper it becomes the same instruction as text (R7-03, G-06)."
    ]
   ],
   "privasi": [
    "No assessment result, score or answer. The professional-learning part shows enrolment, start and Pemetaan Awal status only (D-069(b): Admin sekolah sees enrolment, participation and completion)."
   ],
   "tanya": [
-   "Owner: a single administration summary is new presentation over existing pages. Wanted, or keep Konfigurasi's «Yang menunggu» as the summary?"
+   "Owner: a single administration summary is new presentation over existing pages. Wanted, or keep Konfigurasi's «Yang menunggu» as the summary?",
+   "**Engineering (hand-off H30):** today one press makes the cards for every student without an account in **one** class (`aktivasi.kelas.arti`) and prints them as a batch. Choosing several classes at once, «Pilih semua», and the selected/excluded counts extend that same workflow; no second card system. The four sign-in states shown here must be read from the real account and Pendataan states."
   ]
  }
 ]

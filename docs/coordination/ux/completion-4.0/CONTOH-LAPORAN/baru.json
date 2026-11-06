@@ -6,6 +6,10 @@
  },
  {
   "laporan": "murid",
+  "teks": "di bawah target"
+ },
+ {
+  "laporan": "murid",
   "teks": "pelajari lagi"
  },
  {
@@ -26,6 +30,10 @@
  },
  {
   "laporan": "murid",
+  "teks": "Hasil per bab"
+ },
+ {
+  "laporan": "murid",
   "teks": "Bagian per bab"
  },
  {
@@ -42,6 +50,21 @@
   "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
  },
  {
+  "laporan": "murid",
+  "teks": "Lanjutkan Matematika Bab 3 · Perbandingan di Belajar.",
+  "catatan": "printed in place of the buttons (G-06)"
+ },
+ {
+  "laporan": "murid",
+  "teks": "Pelajari lagi bagian IPA Bab 1 yang ditandai, lalu tanyakan kepada guru langkah berikutnya.",
+  "catatan": "printed in place of the buttons (G-06)"
+ },
+ {
+  "laporan": "murid",
+  "teks": "Sertifikat bab yang targetnya tercapai ada di Sertifikat.",
+  "catatan": "printed in place of the buttons (G-06)"
+ },
+ {
   "laporan": "guru-7A",
   "teks": "Target bab ini ditetapkan sekolah: 75% (15 dari 20 soal)."
  },
@@ -52,11 +75,15 @@
  },
  {
   "laporan": "guru-7A",
-  "teks": "24 dari 29 murid sudah berada di pita Mantap atau Berkembang; 5 murid perlu penguatan. Rata-rata penguasaan kelas 75%."
+  "teks": "24 dari 29 murid sudah berada di pita «Mantap» atau «Berkembang»; 5 murid perlu penguatan. Rata-rata penguasaan kelas 74,8%."
  },
  {
   "laporan": "guru-7A",
   "teks": "di bawah target"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Jingga: di bawah target."
  },
  {
   "laporan": "guru-7A",
@@ -92,7 +119,8 @@
  },
  {
   "laporan": "guru-7A",
-  "teks": "Murid di pita Perlu penguatan"
+  "teks": "Murid yang perlu penguatan",
+  "catatan": "R2-02: the band's own name stays where the band is named"
  },
  {
   "laporan": "guru-7A",
@@ -104,12 +132,26 @@
  },
  {
   "laporan": "guru-7A",
-  "teks": "Menurut abjad. Ini daftar bagian yang perlu dipelajari lagi, bukan penilaian atas muridnya."
+  "teks": "soal tepat"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Murid di pita «Perlu penguatan», menurut abjad. Ini daftar bagian yang perlu dipelajari lagi, bukan penilaian atas muridnya."
  },
  {
   "laporan": "guru-7A",
   "teks": "Apa berikutnya",
   "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Di PINTAR: Kelas 7A › «Lihat bukti» memuat jawaban setiap murid per soal.",
+  "catatan": "printed in place of the buttons (G-06)"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Saran penanganan untuk pemahaman keliru ada di bagian D.",
+  "catatan": "printed in place of the buttons (G-06)"
  },
  {
   "laporan": "guru-7E",
@@ -131,6 +173,11 @@
   "laporan": "guru-7E",
   "teks": "Apa berikutnya",
   "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
+ },
+ {
+  "laporan": "guru-7E",
+  "teks": "Di PINTAR, angka kelas muncul sendiri setelah paling sedikit 5 murid mengerjakan Uji Penguasaan. Tidak ada yang perlu dilakukan sekarang.",
+  "catatan": "printed in place of the buttons (G-06)"
  },
  {
   "laporan": "kadep",
@@ -163,6 +210,10 @@
  },
  {
   "laporan": "kadep",
+  "teks": "Penguasaan per topik per kelas"
+ },
+ {
+  "laporan": "kadep",
   "teks": "Setiap angka dihitung per kelas, sama dengan Ringkasan Kelas tiap kelas."
  },
  {
@@ -175,13 +226,23 @@
   "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
  },
  {
+  "laporan": "kadep",
+  "teks": "Di PINTAR: Pimpinan › Matematika › «Lihat lebih rinci» memuat angka setiap kelas.",
+  "catatan": "printed in place of the buttons (G-06)"
+ },
+ {
+  "laporan": "kadep",
+  "teks": "Membicarakannya dengan guru dalam lingkup ini, atau mengamati satu siklus lagi sebelum menyimpulkan apa pun.",
+  "catatan": "printed in place of the buttons (G-06)"
+ },
+ {
   "laporan": "dekan",
-  "teks": "Penguasaan murid naik rata-rata 19 poin sejak Pemetaan Awal. Listrik dan magnet serta Geometri dan pengukuran masih di pita Perlu penguatan.",
+  "teks": "Penguasaan murid naik rata-rata 19 poin sejak Pemetaan Awal. Listrik dan magnet serta Geometri dan pengukuran masih di pita «Perlu penguatan».",
   "catatan": "lead: kenaikan_institusi, then the ranah under 60% (or the lowest)"
  },
  {
   "laporan": "dekan",
-  "teks": "6 dari 8 ranah berada di pita Berkembang atau Mantap."
+  "teks": "6 dari 8 ranah berada di pita «Berkembang» atau «Mantap»."
  },
  {
   "laporan": "dekan",
@@ -213,6 +274,14 @@
  },
  {
   "laporan": "dekan",
+  "teks": "Batas pita: di bawah 60% «Perlu penguatan» · 60–79% «Berkembang» · 80% ke atas «Mantap»."
+ },
+ {
+  "laporan": "dekan",
+  "teks": "Jingga: di pita «Perlu penguatan»."
+ },
+ {
+  "laporan": "dekan",
   "teks": "Angka sekolah"
  },
  {
@@ -233,7 +302,7 @@
  },
  {
   "laporan": "dekan",
-  "teks": "dari 836 hasil Uji Penguasaan"
+  "teks": "dari 411 yang pernah terbit; 3 dicabut"
  },
  {
   "laporan": "dekan",
@@ -273,6 +342,11 @@
   "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
  },
  {
+  "laporan": "dekan",
+  "teks": "Di PINTAR: Pimpinan › «Lihat lebih rinci» memuat angka setiap bagian sekolah, sampai ke kelas.",
+  "catatan": "printed in place of the buttons (G-06)"
+ },
+ {
   "laporan": "peserta-pd",
   "teks": "Target tercapai: 17 dari 20 soal tepat, naik dari 10 pada Pemetaan Awal."
  },
@@ -298,6 +372,14 @@
  },
  {
   "laporan": "peserta-pd",
+  "teks": "di bawah target"
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "Langkah dan hasil per bagian"
+ },
+ {
+  "laporan": "peserta-pd",
   "teks": "Tentang hasil ini"
  },
  {
@@ -312,6 +394,16 @@
   "laporan": "peserta-pd",
   "teks": "Apa berikutnya",
   "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "Di PINTAR: Pembelajaran Saya › Merancang Asesmen Formatif di Kelas › «Lihat bagian yang perlu dipelajari lagi».",
+  "catatan": "printed in place of the buttons (G-06)"
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "Sertifikat paket ini ada di Sertifikat.",
+  "catatan": "printed in place of the buttons (G-06)"
  },
  {
   "laporan": "fasilitator",
@@ -332,6 +424,10 @@
  },
  {
   "laporan": "fasilitator",
+  "teks": "Langkah setiap peserta"
+ },
+ {
+  "laporan": "fasilitator",
   "teks": "Tentang catatan ini"
  },
  {
@@ -348,16 +444,69 @@
   "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
  },
  {
-  "laporan": "admin",
-  "teks": "12 orang belum bisa masuk: 11 murid di 7 kelas, dan 1 guru. Selebihnya sudah siap."
+  "laporan": "fasilitator",
+  "teks": "Di PINTAR: «Buka catatan» pada setiap peserta memuat langkahnya satu per satu.",
+  "catatan": "printed in place of the buttons (G-06)"
  },
  {
   "laporan": "admin",
-  "teks": "Di 8 dari 15 kelas, semua murid sudah punya akun."
+  "teks": "12 orang belum bisa masuk: 6 murid belum punya kartu kelas, 3 murid belum memakai kartunya, 2 murid menunggu Pendataan, dan 1 guru belum mengaktifkan akun emailnya."
  },
  {
   "laporan": "admin",
-  "teks": "murid sudah punya akun"
+  "teks": "Di 8 dari 15 kelas, semua murid sudah bisa masuk."
+ },
+ {
+  "laporan": "admin",
+  "teks": "Kelas untuk dibuatkan kartu"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Pilih semua"
+ },
+ {
+  "laporan": "admin",
+  "teks": "6 murid di 5 kelas"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Dipilih: 6 murid di 5 kelas. Tidak termasuk: 3 murid yang sudah punya kartu dan 2 murid yang datanya masih di Pendataan. Setiap kartu tetap dibuat dan dicatat untuk muridnya masing-masing; semua kartu dicetak dalam satu lembar."
+ },
+ {
+  "laporan": "admin",
+  "teks": "Buat kartu untuk 6 murid"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Di PINTAR: Aktivasi akun › pilih kelasnya, lalu buat kartu untuk 6 murid sekaligus dan cetak dalam satu lembar."
+ },
+ {
+  "laporan": "admin",
+  "teks": "Belum punya kartu kelas (6 murid)"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Datanya sudah lengkap; yang dibutuhkan hanya kartunya."
+ },
+ {
+  "laporan": "admin",
+  "teks": "Sudah punya kartu, belum dipakai untuk masuk (3 murid)"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Kartu baru tidak diperlukan. Akun mereka aktif saat mereka masuk pertama kali dengan nomor kartu dan PIN-nya."
+ },
+ {
+  "laporan": "admin",
+  "teks": "Menunggu Pendataan (2 murid)"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Kartu belum bisa dibuat sampai pendataannya disetujui di Pendataan."
+ },
+ {
+  "laporan": "admin",
+  "teks": "Guru: akun email belum diaktifkan (1)"
  },
  {
   "laporan": "admin",
@@ -387,5 +536,20 @@
   "laporan": "admin",
   "teks": "Apa berikutnya",
   "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Di PINTAR: Aktivasi akun › kartu kelas untuk 6 murid, dibuat sekaligus.",
+  "catatan": "printed in place of the buttons (G-06)"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Di PINTAR: Pendataan › 1 pendataan menunggu persetujuan (2 murid).",
+  "catatan": "printed in place of the buttons (G-06)"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Di PINTAR: Studio › 3 paket menunggu tindakan atau tinjauan.",
+  "catatan": "printed in place of the buttons (G-06)"
  }
 ]

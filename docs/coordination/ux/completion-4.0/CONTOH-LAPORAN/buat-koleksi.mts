@@ -27,6 +27,27 @@ const TANYA_PEMBACA: Record<string, string> = {
 };
 const KUNCI_BARU: Record<string, string> = { "1-murid": "murid", "2-guru": "guru-7A", "2b-guru-belum-cukup": "guru-7E", "3-kadep": "kadep", "4-dekan": "dekan", "5-peserta-pd": "peserta-pd", "6-fasilitator": "fasilitator", "7-admin": "admin" };
 const PRIORITAS = new Set(["2-guru", "4-dekan"]);
+/** The owner's consolidated review of 7 Nov: each item, what changed, and how it was checked. */
+const KOREKSI: Array<[string, string, string]> = [
+  ["R3-01", "Kelas 7E clipped in the Kepala departemen grid", "On paper the grid is a fixed-width table that fits the printable width (topic 24%, each class its share); headers wrap. All five classes print. The cause was the screen's horizontal-scroll container, which clips on paper. Checked in the A4 text and image."],
+  ["R4-01", "Band names overlapping above the Dekan's scale", "The names are a one-line legend above the scale («Batas pita: di bawah 60% …»); the boundaries stay drawn at 60 and 80."],
+  ["R4-02", "«60%» shown for a result in «Perlu penguatan»", "Listrik dan magnet is 59,6%: rounding showed 60%. A value that rounding would carry across 60, 75 or 80 now shows one decimal, in every report. No band definition changed; the mandatory-item rule did not apply to it."],
+  ["R6-01, R7-01, R2-04", "Headings colliding with the rows before them", "The cause was the page body laid out as a grid, which Chromium can overlap where it breaks across pages. On paper the body flows as blocks; every heading keeps space above and stays with its first line."],
+  ["R6-03, R6-04", "Facilitator columns clipped; fields at risk", "All seven fields print, each with a set share of the width; statuses wrap between words, never inside one. «Paket» is stated above the table (one package, the same for every row)."],
+  ["R3-02, R6-05", "Nearly empty first pages", "The lead box no longer refuses to break, so a large table starts on page 1; single rows, figures and keys stay whole."],
+  ["G-01", "PINTAR branding", "«PINTAR» in Inter Bold, #075056, in every A4 page's header, with the report, the institution and the period; the specimen mark and «Halaman n dari m» in the footer. On screen the shell carries it, as built."],
+  ["G-02", "Section references", "Every major section has its letter (A, B, C …), the same square on screen and paper, restarting at A in each report; «Apa berikutnya» is the last letter. The running header does not name the current section: this print engine cannot carry a heading into the page header (no running strings), so the letter is on each section's own heading."],
+  ["G-03", "Colour meaning", "One rule for all eight: grey for an ordinary value; amber, always with its words, for below the target or in «Perlu penguatan»; teal only for the bands and for progress. The amber is darker than the grey, so greyscale keeps them apart. The green «Pecahan campuran» bar is now amber like every other value below target."],
+  ["G-04", "Zebra striping", "The design system's own stripe (table-row-alt) on the two long multi-column tables only: the Kepala departemen's grid and the facilitator's participants. Not on lists or charts. It carries across page breaks."],
+  ["G-05", "A4 pagination", "Header row repeated on every page of a table; figures, rows and keys never split; no clipping; body text 10 pt."],
+  ["G-06", "No buttons on paper", "Every «Apa berikutnya» prints its steps as text («Di PINTAR: …»); the admin's card selection prints as the list and the instruction."],
+  ["R1-01, R1-02", "Murid: chapter groups", "Each chapter's parts sit on their own light ground under the chapter's name, so where one chapter ends and the next begins is plain, in greyscale too."],
+  ["R2-02, R2-03", "Guru: heading and figures", "«Murid yang perlu penguatan» (the band's formal name stays where the band is named, in «»); the figures in one right-aligned column of fixed width, each with the same kind of note under it."],
+  ["R7-02, R7-03, R7-04", "Admin: cards and reasons", "Four groups by the real reason (no card · card not used · data in Pendataan · teacher's email not activated); one selection across classes with «Pilih semua», counts selected and excluded, one action, one printed batch. Today's workflow already makes a whole class's cards in one press; choosing several classes extends it (hand-off H30). «Yang menunggu» now counts 10 in Aktivasi, not 12: the two in Pendataan are not there yet."],
+  ["R4-03", "Certificate count", "«Sertifikat terbit» uses MC-1 exactly: certificates issued and not revoked, out of all issued («408 dari 411 yang pernah terbit; 3 dicabut»). The earlier base (Mastery Check results) was wrong."],
+  ["Also", "Found while checking", "Two primary buttons on the admin screen (P1: one) — the page button is now secondary."],
+];
+const DIKOREKSI: Record<string, string> = { "1-murid": "R1-01, R1-02", "2-guru": "R2-01 to R2-04", "2b-guru-belum-cukup": "common corrections; 2 pages", "3-kadep": "R3-01, R3-02", "4-dekan": "R4-01 to R4-03", "5-peserta-pd": "approved; common grammar only", "6-fasilitator": "R6-01 to R6-05", "7-admin": "R7-01 to R7-04" };
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 // The notes use `code` and **bold** in Markdown; on the page they become <code> and <strong>.
 const md = (s: string) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
@@ -46,6 +67,14 @@ const readme = `# CONTOH LAPORAN · seven sample reports (owner's review)
 **Files:** \`<kode>.html\` (open in a browser); \`render/<kode>-1280.png\`, \`render/<kode>-390.png\` (screen); \`render/<kode>-a4.pdf\` and \`render/<kode>-a4-<n>.png\` (A4). Rebuild: \`npx tsx docs/coordination/ux/completion-4.0/CONTOH-LAPORAN/buat-contoh.mts\`.
 
 **The visual grammar, the same in all eight:** one sentence first (what the reader should see), then one picture that shows it; a scale is always 0–100% from zero; the target is a labelled black line; PINTAR's three bands are three steps of one teal, always with their names; the one value the page is about carries the teal accent, everything else is ink; «di bawah target» is a word in the attention colour, never colour alone; missing evidence is a sentence in the figure's place. Every chart has a text equivalent in the page.
+
+## Corrections after the owner's review (7 Nov)
+
+**DESIGN DIRECTION APPROVED — TARGETED CORRECTIONS REQUIRED.** Same data, same layouts and interpretations; only the defects and the common grammar changed. Every A4 page re-checked at print size (image and extracted text).
+
+| Item | What was wrong | What changed |
+|---|---|---|
+${KOREKSI.map(([a, b, c]) => `| ${a} | ${b} | ${c} |`).join("\n")}
 
 ${catatan.map((c) => `## ${c.kode} · ${c.judul}
 
@@ -105,7 +134,7 @@ const kartu = catatan.map((c, i) => `
 <article class="kartu" id="r-${c.kode}">
   <a class="gambar" href="laporan/${c.kode}.html" aria-label="Buka ${esc(c.judul)}"><img src="gambar/${c.kode}-1280.png" alt="Tampilan layar ${esc(c.judul)}" loading="${i < 2 ? "eager" : "lazy"}" width="1280" height="900"></a>
   <div class="teks">
-    <p class="alis">${esc(c.kode.replace(/-.*/, ""))} · ${esc(c.pembaca)}${PRIORITAS.has(c.kode) ? ` <span class="mulai">Start here</span>` : ""}</p>
+    <p class="alis">${esc(c.kode.replace(/-.*/, ""))} · ${esc(c.pembaca)} <span class="mulai">${esc(DIKOREKSI[c.kode])}</span></p>
     <h2>${esc(c.judul)}</h2>
     <p class="tanya" lang="id">«${esc(TANYA_PEMBACA[c.kode])}»</p>
     <p class="aksi"><a class="tombol utama" href="laporan/${c.kode}.html">Open the report</a><a class="tombol" href="pdf/${c.kode}-a4.pdf">A4 PDF (${halamanA4(c.kode)} p.)</a></p>
@@ -157,6 +186,14 @@ details p, details ul, details dl { margin: 0; }
 details ul { padding-left: 18px; } details dd { margin: 0 0 8px; } details dt { color: var(--tinta); font-weight: 600; }
 code { font: 500 12.5px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--kanvas); padding: 1px 4px; border-radius: 4px; overflow-wrap: anywhere; }
 .kata li { margin: 2px 0; }
+.koreksi { background: var(--kertas); border: 1px solid var(--garis); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: var(--tinta-2); }
+.gulir { overflow-x: auto; }
+header > *, .koreksi { min-width: 0; }
+.koreksi table { width: 100%; min-width: 560px; border-collapse: collapse; margin-top: 8px; }
+.koreksi th, .koreksi td { text-align: left; vertical-align: top; padding: 8px 10px 8px 0; border-top: 1px solid var(--garis); }
+.koreksi thead th { border-top: 0; color: var(--tinta); }
+.koreksi tbody th { color: var(--tinta); white-space: nowrap; font-weight: 600; }
+.koreksi tbody tr:nth-child(even) > * { background: var(--kanvas); }
 footer { font-size: 14px; color: var(--tinta-2); border-top: 1px solid var(--garis); padding-top: 16px; max-width: 80ch; }
 @media (max-width: 820px) { .kartu { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
@@ -165,8 +202,9 @@ footer { font-size: 14px; color: var(--tinta-2); border-top: 1px solid var(--gar
 <header>
   <p class="merek">PINTAR</p>
   <p class="tanda"><strong>CONTOH LAPORAN — DATA SIMULASI</strong> · every name, class and figure is invented.</p>
-  <h1>Seven sample reports, one per reader</h1>
+  <h1>Seven sample reports, one per reader · corrected</h1>
   <p class="intro">For your review of the Indonesian, the infographics, the hierarchy, the usefulness, the consistency and the A4 print. Each report is drawn over what PINTAR already reports to that reader, on one invented school whose figures agree across all eight. Report 2b is the Guru report when the evidence is not yet enough.</p>
+  <details class="koreksi" open><summary>What changed after your review of 7 Nov</summary><div class="gulir"><table><thead><tr><th scope="col">Item</th><th scope="col">What was wrong</th><th scope="col">What changed</th></tr></thead><tbody>${KOREKSI.map(([a, b, c]) => `<tr><th scope="row">${esc(a)}</th><td>${md(b)}</td><td>${md(c)}</td></tr>`).join("")}</tbody></table></div></details>
   <ol class="cara">
     <li><b>1 · Look for 30 seconds</b>Open a report without reading the notes. What does it tell you?</li>
     <li><b>2 · Read the Indonesian</b>Every heading, label and sentence. Mark anything unnatural, vague or technical.</li>

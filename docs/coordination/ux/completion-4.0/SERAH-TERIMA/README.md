@@ -54,6 +54,7 @@ Nothing here changes policy, calculations, certificate integrity, permissions, i
 | H27 | D-192/D-193 · the card in an email | `src/components/email/bingkai.ts` `kartuHtml`: the wordmark `font-size:13px` is under the ladder's smallest (16 px); set it to 16 px, tracking 2 px; it fits the 96 × 32 slot | ladder, «Wordmark (text)» |
 | H28 | D-192/D-193 · the Digital Card | `src/app/experience.css` `.pin-kd-merek`: the slot is `16.4` mm wide, but the word at 3.99 mm is 17.1 mm of ink (18.0 mm box); make the slot 18.0 mm. Nothing on the front moves | ladder, «Wordmark (text)» |
 | H29 | D-192/D-193 · every surface | Clear space X (the cap height) on every side of the letters' ink, checked on staging once D-193 is there | [manual] |
+| H30 | Owner's report review R7-02 · Aktivasi akun, class cards | Today `aktivasi.kelas.*` makes the cards for every student without an account in **one** class in one press and prints them as a batch. Extend that same workflow, without a second card system: choose several classes (or students) with «Pilih semua»; show how many are selected, eligible and excluded, and why (data still in Pendataan; a card already made); create the eligible cards in one operation and print them as one batch. Keep every card created and recorded per student, the one-time PIN, and no duplicate issue. Read the four sign-in states (no card · card not used · data in Pendataan · email not activated) from the real account and Pendataan states | `CONTOH-LAPORAN/` report 7 |
 
 ## 5. Still gated (not hand-off)
 

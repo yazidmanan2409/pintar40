@@ -68,7 +68,10 @@ function namaBaru(): string { for (;;) { const n = `${DEPAN[Math.floor(acak() * 
 // ── answers ──────────────────────────────────────────────────────────────────
 export type Lembar = { benar: boolean[]; keliru: boolean[] /* chose the coded misconception, per item */ };
 export type HasilMurid = { paket: Paket; awal?: Lembar; akhir?: Lembar };
-export type Murid = { nama: string; kelas: string; akun: boolean; hasil: Record<string, HasilMurid> };
+/** Why someone cannot sign in yet, as PINTAR knows it: their data still waits in Pendataan; no class card has been
+ *  made; or a card exists and its first sign-in has not happened (the account is still waiting to be activated). */
+export type Alasan = "data" | "kartu" | "aktivasi";
+export type Murid = { nama: string; kelas: string; akun: boolean; alasan?: Alasan; hasil: Record<string, HasilMurid> };
 export type Kelas = { nama: string; tingkat: number; murid: Murid[] };
 
 function kerjakan(p: Paket, kemampuan: number): Lembar {
@@ -115,6 +118,10 @@ export const KELAS: Kelas[] = Object.entries(KELAS_RENCANA).map(([nama, r]) => {
   murid.sort(() => acak() - 0.5);
   return { nama, tingkat, murid };
 });
+
+// Reasons for the students who cannot sign in, in class order: two wait on one Pendataan import, three have a card
+// they have not used yet, and the rest have no card yet.
+KELAS.flatMap((k) => k.murid.filter((m) => !m.akun)).forEach((m, i) => { m.alasan = i < 2 ? "data" : i < 5 ? "aktivasi" : "kartu"; });
 
 // Bagas, the learner of report 1, is in 7A. His papers are written out, so his report reads as it should.
 const tulis = (p: Paket, perTopik: number[], wajibTepat = true): Lembar => {
@@ -203,7 +210,9 @@ export function ringkasSekolah() {
     terdaftar: semua.length, peserta,
     kenaikan: rata(dua.map((h) => persen(h.akhir!) - persen(h.awal!))), keduanya: dua.length,
     wajib: { tepat: akhir.filter((h) => wajibTepat(h.akhir!, h.paket)).length, dari: akhir.length },
-    sertifikat: akhir.filter((h) => persen(h.akhir!) >= TARGET && wajibTepat(h.akhir!, h.paket)).length,
+    // MC-1 (calc_institution_verified_credentials): issued and not revoked, of all issued. The certificate service
+    // decides issuance; here a simulated stand-in issues one for a result at the target with every required item right.
+    sertifikat: (() => { const terbit = akhir.filter((h) => persen(h.akhir!) >= TARGET && wajibTepat(h.akhir!, h.paket)).length; return { berlaku: terbit - 3, terbit, dicabut: 3 }; })(),
     angkatan, ranah, kesiapan,
   };
 }
