@@ -20,13 +20,13 @@ This file is what Gate 6 asks to be "current" (`G-FINAL-ACCEPTANCE-MATRIX` §4) 
 
 ## Gate 6 items
 
-| # | Item | Evidence from | State (5 Nov) |
+| # | Item | Evidence from | State (6 Nov) |
 |---|---|---|---|
 | 1 | The exact production baseline | the upgrade rehearsal's read of production (W9.10, with the owner's permission) | NOT STARTED: F-5, F-18 |
 | 2 | Rehearsed upgrade on a representative copy | W9.10 on a scratch copy (`batch-0/07-MIGRATION-162-BRIEF.md`) | NOT STARTED: F-18 (billable restore) |
 | 3 | Recovery path for every migration | the rollback scripts per batch (`batch-8/ROLLBACK-194-195.sql`, tested from 193–196) and the restore readiness (W9.12) | PARTIAL: rollbacks tested; W9.12's six restore findings open |
 | 4 | Auth and mail verified by received headers | W9.13 | IN PROGRESS: SMTP, SPF/DKIM/DMARC owner actions |
-| 5 | Staff transition done; magic link retired | W9.14 | NOT STARTED |
+| 5 | Staff transition done; magic link retired | W9.14 | PARTIAL (6 Nov): the magic link is off in the candidate; the rehearsal waits on the owner (J2.7 on staging, W9.10 on a copy) |
 | 6 | Backup verified (off-platform; escrow; second administrators) | W9.5, W9.6, W9.7 | BLOCKED: owner and external (#150) |
 | 7 | DNS live (`verifikasi.pintarselalu.com`) | W9.15 | BLOCKED: owner |
 | 8 | Release checklist v2.8 | W6.9 (`batch-8/evidence/w69-bukti-pemeriksaan.md`) | IN PROGRESS: rows marked only with staging evidence |
