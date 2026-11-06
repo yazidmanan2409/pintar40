@@ -1,16 +1,16 @@
-<!-- @dsCard group="Brand" height=1360 width=1040 subtitle="SUPERSEDED (D-161, D-163(a)): kept for the record. The public wordmark is «Pintar» in #075056, master pending F-11." -->
-<p style="margin:0 0 16px;padding:12px 16px;border-radius:8px;background:var(--status-attention-soft);color:var(--ink-1);font:600 14px/20px var(--font-sans)">SUPERSEDED (D-161, D-163(a), 4 Nov). Kept for the record, not removed. The public wordmark is «Pintar» in #075056 in every slot once its master exists (F-11); until then each slot holds the placeholder «Pintar (master pending F-11)». Nothing below is current.</p>
+<!-- @dsCard group="Brand" height=1360 width=1040 subtitle="SUPERSEDED (D-161, then D-192 and D-193): kept for the record. The wordmark is «Wordmark (text)»." -->
+<p style="margin:0 0 16px;padding:12px 16px;border-radius:8px;background:var(--status-attention-soft);color:var(--ink-1);font:600 14px/20px var(--font-sans)">SUPERSEDED (D-161, D-163(a), then D-192 and D-193). Kept for the record, not removed. The wordmark is «PINTAR» as live text in Inter Bold, #075056: see «Wordmark (text)». Neither this card's Helvetica master nor D-161's «Pintar» placeholder is used. Nothing below is current.</p>
 <style>
   .wm-pahlawan { display: grid; justify-items: center; gap: var(--space-4); padding: var(--space-8) var(--space-5); background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); }
   .wm-ruang { --merek-tinggi: 56px; position: relative; padding: var(--merek-tinggi); outline: 1px dashed var(--line-control); outline-offset: 0; }
   .wm-ruang::before { content: ""; position: absolute; inset: var(--merek-tinggi); outline: 1px solid var(--line); }
-  .wm-ruang .pds-merek { --merek-tinggi: 56px; }
+  .wm-ruang .pds-merek-lama { --merek-tinggi: 56px; }
   .wm-x { position: absolute; left: 0; top: 0; width: var(--merek-tinggi); height: var(--merek-tinggi); display: grid; place-items: center; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ink-3); background: repeating-linear-gradient(45deg, transparent 0 6px, var(--surface-2) 6px 7px); }
   .wm-ket { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-2); text-align: center; max-width: 60ch; }
   .wm-versi { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: var(--space-4); }
   .wm-versi figure { margin: 0; display: grid; gap: var(--space-2); }
   .wm-dasar { display: grid; place-items: center; min-height: 140px; border-radius: var(--radius-lg); border: var(--border-hairline) solid var(--line); }
-  .wm-dasar .pds-merek { --merek-tinggi: 28px; }
+  .wm-dasar .pds-merek-lama { --merek-tinggi: 28px; }
   .wm-versi figcaption { font-size: 14px; line-height: 20px; color: var(--ink-2); }
   .wm-versi figcaption b { display: block; color: var(--ink-1); font-weight: 600; }
   .wm-ukuran { display: grid; gap: var(--space-3); }
@@ -21,25 +21,25 @@
   .wm-ikon .kotak { background: var(--pintar-primary); border-radius: 18.75%; }
   .wm-ikon .penuh { border-radius: 0; }
   .wm-ikon-ket { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-2); max-width: 70ch; }
-  @media (max-width: 639px) { .wm-ukuran div { grid-template-columns: minmax(0, 1fr); } .wm-ruang, .wm-ruang .pds-merek { --merek-tinggi: 32px; } }
+  @media (max-width: 639px) { .wm-ukuran div { grid-template-columns: minmax(0, 1fr); } .wm-ruang, .wm-ruang .pds-merek-lama { --merek-tinggi: 32px; } }
 </style>
 <div class="pds">
   <section class="wm-pahlawan" aria-labelledby="wm-judul">
     <h2 id="wm-judul" class="pds-sr">Wordmark PINTAR dan ruang kosongnya</h2>
-    <div class="wm-ruang"><span class="wm-x" aria-hidden="true">X</span><span class="pds-merek" role="img" aria-label="PINTAR">PINTAR</span></div>
+    <div class="wm-ruang"><span class="wm-x" aria-hidden="true">X</span><span class="pds-merek-lama" role="img" aria-label="PINTAR">PINTAR</span></div>
     <p class="wm-ket">X is the cap height. The clear space is X on every side (the dashed line), and nothing enters it. In the product's own navigation and top bar, at least ½ X.</p>
   </section>
 
   <section class="pds-stack" aria-labelledby="wm-versi">
     <h2 id="wm-versi" class="pds-demo-label">The four versions</h2>
     <div class="wm-versi">
-      <figure><div class="wm-dasar" style="background: var(--surface-1)"><span class="pds-merek" role="img" aria-label="PINTAR">PINTAR</span></div>
+      <figure><div class="wm-dasar" style="background: var(--surface-1)"><span class="pds-merek-lama" role="img" aria-label="PINTAR">PINTAR</span></div>
         <figcaption><b>PINTAR green on light</b>The default. 7.39 : 1 on white, 7.08 on the canvas.</figcaption></figure>
-      <figure><div class="wm-dasar" style="background: var(--pintar-primary); border-color: var(--pintar-primary)"><span class="pds-merek pds-merek-putih" role="img" aria-label="PINTAR">PINTAR</span></div>
+      <figure><div class="wm-dasar" style="background: var(--pintar-primary); border-color: var(--pintar-primary)"><span class="pds-merek-lama pds-merek-putih" role="img" aria-label="PINTAR">PINTAR</span></div>
         <figcaption><b>White on PINTAR green</b>A solid green field, X clear round the word. 7.39 : 1.</figcaption></figure>
-      <figure><div class="wm-dasar" style="background: #fff"><span class="pds-merek pds-merek-hitam" role="img" aria-label="PINTAR">PINTAR</span></div>
+      <figure><div class="wm-dasar" style="background: #fff"><span class="pds-merek-lama pds-merek-hitam" role="img" aria-label="PINTAR">PINTAR</span></div>
         <figcaption><b>Black</b>One-colour print, photocopies, faxes, engraving. 21 : 1.</figcaption></figure>
-      <figure><div class="wm-dasar" style="background: #000; border-color: #000"><span class="pds-merek pds-merek-putih" role="img" aria-label="PINTAR">PINTAR</span></div>
+      <figure><div class="wm-dasar" style="background: #000; border-color: #000"><span class="pds-merek-lama pds-merek-putih" role="img" aria-label="PINTAR">PINTAR</span></div>
         <figcaption><b>White</b>Black or deep-ink grounds. 21 : 1 on black, 14.61 on <code>ink-1</code>.</figcaption></figure>
     </div>
   </section>
@@ -47,10 +47,10 @@
   <section class="pds-stack" aria-labelledby="wm-ukuran">
     <h2 id="wm-ukuran" class="pds-demo-label">Sizes in PINTAR, drawn at size (cap height)</h2>
     <div class="wm-ukuran">
-      <div><span><code>wordmark-standalone</code> 24 px · about 132 px wide · above a task: sign-in, the lock, an error page</span><span class="pds-merek" style="--merek-tinggi: var(--wordmark-standalone)" role="img" aria-label="PINTAR">PINTAR</span></div>
-      <div><span><code>wordmark-nav</code> 18 px · about 99 px wide · the staff navigation</span><span class="pds-merek" style="--merek-tinggi: var(--wordmark-nav)" role="img" aria-label="PINTAR">PINTAR</span></div>
-      <div><span><code>wordmark-bar</code> 16 px · about 88 px wide · every top bar</span><span class="pds-merek" style="--merek-tinggi: var(--wordmark-bar)" role="img" aria-label="PINTAR">PINTAR</span></div>
-      <div><span><code>wordmark-min</code> 12 px · about 66 px wide · the smallest on screen (in print, 15 mm wide)</span><span class="pds-merek" style="--merek-tinggi: var(--wordmark-min)" role="img" aria-label="PINTAR">PINTAR</span></div>
+      <div><span><code>wordmark-standalone</code> 24 px · about 132 px wide · above a task: sign-in, the lock, an error page</span><span class="pds-merek-lama" style="--merek-tinggi: var(--wordmark-standalone)" role="img" aria-label="PINTAR">PINTAR</span></div>
+      <div><span><code>wordmark-nav</code> 18 px · about 99 px wide · the staff navigation</span><span class="pds-merek-lama" style="--merek-tinggi: var(--wordmark-nav)" role="img" aria-label="PINTAR">PINTAR</span></div>
+      <div><span><code>wordmark-bar</code> 16 px · about 88 px wide · every top bar</span><span class="pds-merek-lama" style="--merek-tinggi: var(--wordmark-bar)" role="img" aria-label="PINTAR">PINTAR</span></div>
+      <div><span><code>wordmark-min</code> 12 px · about 66 px wide · the smallest on screen (in print, 15 mm wide)</span><span class="pds-merek-lama" style="--merek-tinggi: var(--wordmark-min)" role="img" aria-label="PINTAR">PINTAR</span></div>
     </div>
   </section>
 

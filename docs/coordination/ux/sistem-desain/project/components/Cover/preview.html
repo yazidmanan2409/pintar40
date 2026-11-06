@@ -11,8 +11,8 @@
   /* The wordmark alone: no tagline is ever attached to it (canonical wordmark ruling, 5 Oct). */
   .sampul .nama-blok { position: absolute; left: var(--space-8); bottom: var(--space-8); max-width: 440px; }
   .sampul .nama { display: block; margin: 0; }
-  .sampul .slot-merek { display: inline-flex; align-items: baseline; gap: 8px; padding: 12px 20px; border: 1px dashed var(--line-control); border-radius: var(--radius-md); font: 600 44px/1 var(--font-sans); color: #075056; }
-  .sampul .slot-merek small { font: 400 14px/1.2 var(--font-sans); color: var(--ink-2); }
+  /* The wordmark (D-192, D-193): «PINTAR», Inter Bold, #075056; its clear space is the block's own margin. */
+  .sampul .nama.pds-merek { --merek-ukuran: 56px; }
 </style>
 <div class="sampul">
   <!--
@@ -51,6 +51,6 @@
   </svg>
   <!-- 4 Nov (D-161, D-163(a)): the wordmark slot holds the placeholder until the master exists (F-11). -->
   <div class="nama-blok">
-    <span class="nama slot-merek" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span>
+    <span class="nama pds-merek">PINTAR</span>
   </div>
 </div>

@@ -41,7 +41,7 @@ The correction: in the rail, a link's own text stays in the accessibility tree, 
 
 ### The navigation, top to bottom (expanded: 248 px)
 
-1. **The wordmark slot** (the placeholder; master pending F-11) and **the collapse control** («Ciutkan navigasi», `panel-left-close`, `aria-expanded="true"`).
+1. **The wordmark** (`.pds-merek`, «PINTAR» in Inter Bold, `#075056`, 18 px; D-192, D-193; re-rendered 6 Nov) and **the collapse control** («Ciutkan navigasi», `panel-left-close`, `aria-expanded="true"`).
 2. **The context control** (E2): the purpose's short name, the place, and the chooser link.
    - **The purpose's short name:** «Mengajar» or «Belajar»; for Mengelola, **G1's slot `context.manage_label`**.
    - **The place:** the school, or «Seluruh platform».

@@ -14,8 +14,7 @@ The accessibility tree
   - link "Langsung ke isi":
     - /url: "#e2-isi"
   - navigation "Tempat kerja Anda":
-    - img "Pintar (master pending F-11)"
-    - text: "[G1 · context.manage_label]"
+    - text: PINTAR [G1 · context.manage_label]
     - strong: SMP Cahaya Kaliandra
     - link "Mau ke mana hari ini?":
       - /url: "#"

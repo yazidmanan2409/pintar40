@@ -177,7 +177,7 @@ No frozen term is touched. «Murid» as a group label is the approved role word 
 
 **Tokens only:** `--surface-1/2`, `--ink-1/2/3`, `--line`, `--line-control`, `--pintar-primary`, `--space-*`, `--radius-md`, `--measure-narrow/auth`, `--font-mono`. **No new token, no palette change.**
 
-**The wordmark** is the provisional placeholder: a box at the slot's size, labelled «Pintar (master pending F-11)».
+**The wordmark** is the design system's `.pds-merek`: «PINTAR» as live text in Inter Bold, `#075056` (D-192, D-193). *(6 Nov: it was the placeholder «Pintar (master pending F-11)» until F-11 closed; re-rendered.)*
 
 ## 7. Navigation and outcomes
 

@@ -9,8 +9,7 @@ The accessibility tree
   - link "Langsung ke isi":
     - /url: "#e2-isi"
   - navigation "Tempat kerja Anda":
-    - img "Pintar (master pending F-11)"
-    - text: Mengajar
+    - text: PINTAR Mengajar
     - strong: SMP Cahaya Kaliandra
     - list:
       - listitem:

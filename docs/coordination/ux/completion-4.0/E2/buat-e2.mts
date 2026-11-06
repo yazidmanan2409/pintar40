@@ -27,7 +27,7 @@ const kata = (k: string, persona = "public") => {
 };
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const ikon = (n: string) => `<i data-ikon="${n}"></i>`;
-const slotMerek = `<span class="c1-slot" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span>`;
+const slotMerek = `<span class="pds-merek">PINTAR</span>`;
 /** G1 (D-132(m)): a labelled slot naming the semantic key. Never words. */
 const slot = (k: string) => `<span class="c1-slot-kata e2-slot" data-slot="G1" data-kunci="${k}">[G1 · ${k}]</span>`;
 

@@ -35,7 +35,7 @@ const angka = (n: number) => hle.format.number(n, "id");
 const persen = (x: number) => hle.format.percent(x, "id");
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const ikon = (n: string) => `<i data-ikon="${n}"></i>`;
-const slotMerek = `<span class="c1-slot" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span>`;
+const slotMerek = `<span class="pds-merek">PINTAR</span>`;
 const SEKOLAH = "SMP Cahaya Kaliandra";
 
 // ── the shell ────────────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-**SUPERSEDED (D-161, D-163(a), 4 Nov): kept for the record, not removed.** The public wordmark is «Pintar» in `#075056`; its slots are provisional (D5, «Completion 4.0») and the master is pending (F-11). This card's «PINTAR» capitals in `#245F55` no longer apply.
+**SUPERSEDED (D-161, D-163(a), then D-192 and D-193): kept for the record, not removed.** The wordmark is «PINTAR» as live text in Inter Bold (700, OFL), `#075056`, with its size ladder, clear space and versions in «Wordmark (text)». Neither this card's Helvetica Neue master (F-11, closed without one) nor D-161's «Pintar» placeholder applies. This card's «PINTAR» capitals in `#245F55`, its sizes (`wordmark-*`) and its master files no longer apply.
 
 PINTAR's canonical wordmark is the name in Helvetica Neue 65 Medium capitals, in PINTAR green, with nothing added.
 

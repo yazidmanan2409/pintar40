@@ -9,7 +9,7 @@ The accessibility tree
 - region "Konfigurasi":
   - link "Langsung ke isi":
     - /url: "#e2-isi"
-  - img "Pintar (master pending F-11)"
+  - text: PINTAR
   - strong: SMP Cahaya Kaliandra
   - button "Keluar"
   - button "Menu"

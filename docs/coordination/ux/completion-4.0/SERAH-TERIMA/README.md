@@ -51,6 +51,9 @@ Nothing here changes policy, calculations, certificate integrity, permissions, i
 | H24 | C1 part B | The §8 defects listed in `C1/PIMPINAN.md` | accepted |
 | H25 | D2 | The certificate file name «Sertifikat Penguasaan · {package title}», sanitised, no learner name, in the certificate's issued language (as built) | accepted |
 | H26 | E3 | The idle warning stays until dismissed; the two disabled reasons are said | accepted |
+| H27 | D-192/D-193 · the card in an email | `src/components/email/bingkai.ts` `kartuHtml`: the wordmark `font-size:13px` is under the ladder's smallest (16 px); set it to 16 px, tracking 2 px; it fits the 96 × 32 slot | ladder, «Wordmark (text)» |
+| H28 | D-192/D-193 · the Digital Card | `src/app/experience.css` `.pin-kd-merek`: the slot is `16.4` mm wide, but the word at 3.99 mm is 17.1 mm of ink (18.0 mm box); make the slot 18.0 mm. Nothing on the front moves | ladder, «Wordmark (text)» |
+| H29 | D-192/D-193 · every surface | Clear space X (the cap height) on every side of the letters' ink, checked on staging once D-193 is there | [manual] |
 
 ## 5. Still gated (not hand-off)
 

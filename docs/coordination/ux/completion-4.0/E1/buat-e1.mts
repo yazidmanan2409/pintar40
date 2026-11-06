@@ -49,7 +49,7 @@ function halaman(s: Sajian, ciut?: "ya" | "tidak"): string {
       <a href="#" class="pds-nav-item">${ikon("triangle-alert")}<span class="pds-nav-label">${kata("nav.lapor")}</span></a>
       <div class="pds-identity" style="cursor:default"><span class="pds-avatar" aria-hidden="true">${s.orang.inisial}</span><div><strong>${esc(s.orang.nama)}</strong><small>${esc(s.orang.peran)}</small></div></div>
       <button type="button" class="pds-nav-item pds-nav-keluar">${ikon("log-out")}<span class="pds-nav-label">${kata("sesi.keluar")}</span></button>`;
-  const merek = `<span class="c1-slot pds-merek-penuh" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span>`;
+  const merek = `<span class="pds-merek pds-merek-penuh">PINTAR</span>`;
   const tombolCiut = ciut === "ya" ? `<button type="button" class="pds-btn pds-btn-icon" data-shell-ciut aria-label="${DSKATA.lebar}" aria-expanded="false">${ikon("panel-left-open")}</button>`
     : `<button type="button" class="pds-btn pds-btn-icon e1-ciut" data-shell-ciut aria-label="${DSKATA.ciut}" aria-expanded="true">${ikon("panel-left-close")}</button>`;
   return `<div class="pds pds-jalan e1">
@@ -63,11 +63,11 @@ function halaman(s: Sajian, ciut?: "ya" | "tidak"): string {
       <div class="pds-nav-bawah">${bawah(false)}</div>
     </nav>
     <div class="pds-main">
-      <header class="pds-bar"><span class="c1-slot" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span><span class="e2-bar-konteks"><strong>${esc(k.tempat)}</strong></span><button type="button" class="pds-btn pds-btn-secondary">${kata("sesi.keluar")}</button><button type="button" class="pds-btn pds-btn-icon" aria-label="${DSKATA.buka}" data-dialog-buka="e1-laci">${ikon("menu")}</button></header>
+      <header class="pds-bar"><span class="pds-merek">PINTAR</span><span class="e2-bar-konteks"><strong>${esc(k.tempat)}</strong></span><button type="button" class="pds-btn pds-btn-secondary">${kata("sesi.keluar")}</button><button type="button" class="pds-btn pds-btn-icon" aria-label="${DSKATA.buka}" data-dialog-buka="e1-laci">${ikon("menu")}</button></header>
       <main class="pds-main-isi" id="e1-isi" tabindex="-1"><div class="pds-pagehead"><div><h1 class="pds-title">${esc(s.h1)}</h1><p class="pds-intro">${esc(s.intro)}</p></div></div></main>
     </div></div></div></section></div>
   <div class="pds"><dialog class="pds-drawer" id="e1-laci" aria-label="${kata("nav.menu")}" data-tutup-luar>
-    <div class="pds-drawer-kepala"><span class="c1-slot" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span><button type="button" class="pds-btn pds-btn-icon" aria-label="${DSKATA.tutup}" data-dialog-tutup>${ikon("x")}</button></div>
+    <div class="pds-drawer-kepala"><span class="pds-merek">PINTAR</span><button type="button" class="pds-btn pds-btn-icon" aria-label="${DSKATA.tutup}" data-dialog-tutup>${ikon("x")}</button></div>
     <nav class="pds-drawer-isi" aria-label="${kata("nav.tempat")}">${blok.replace('data-konteks-tempat=""', 'data-konteks-tempat="laci"')}<ul class="pds-nav-daftar">${tempat}</ul><div class="pds-nav-bawah">${bawah(true)}</div></nav>
   </dialog></div>`;
 }

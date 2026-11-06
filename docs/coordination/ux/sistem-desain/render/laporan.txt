@@ -1,4 +1,4 @@
-60 previews, 0 with a failure
+61 previews, 0 with a failure
 
 ok   Accent @960 (height 760px, card 760)
 ok   ActionFeedback @960 (height 1080px, card 1080)
@@ -47,6 +47,7 @@ ok   Hierarchy @960 (height 1160px, card 1160)
 ok   Icons @960 (height 860px, card 860)
 ok   Identity @960 (height 400px, card 400)
 ok   Identity [menu] @960 (height 400px, card 400)
+      note, under 44px: a.pds-menu-item "English" 212x44
 ok   IdleWarning @960 (height 300px, card 300)
 ok   InteractionStates @1100 (height 520px, card 520)
 ok   J1Terbit @1280 (height 1060px, card 1060)
@@ -139,7 +140,7 @@ ok   J4Murid [b@1280] @1280 (height 960px, card 960)
       note, under 44px: button "1 · Beranda" 96x32; button "2 · Lesson" 92x32; button "3 · Question" 105x32; button "4 · Result" 85x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J4Murid [b@1024] @1024 (height 960px, card 960)
       note, under 44px: button "1 · Beranda" 96x32; button "2 · Lesson" 92x32; button "3 · Question" 105x32; button "4 · Result" 85x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J4Murid [b@390] @390 (height 1037px, card 960)
+ok   J4Murid [b@390] @390 (height 1032px, card 960)
       note, under 44px: button "1 · Beranda" 96x32; button "2 · Lesson" 92x32; button "3 · Question" 105x32; button "4 · Result" 85x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J4Murid [c@1280] @1280 (height 960px, card 960)
       note, under 44px: button "1 · Beranda" 96x32; button "2 · Lesson" 91x32; button "3 · Question" 107x32; button "4 · Result" 85x32; input.pds-check "" 134x32; button "Start again" 95x32
@@ -167,7 +168,7 @@ ok   J6Peragaan [a@1280] @1280 (height 910px, card 910)
       note, under 44px: button "1 · Ruang Peragaan" 151x32; button "2 · Viewing as a learner" 172x32; button "3 · Left" 70x32; input.pds-check "" 134x32; button "Start again" 95x32; a.pds-btn "Lihat sebagai Murid · Ke" 115x36; a.pds-btn "Lihat sebagai Guru · Kel" 115x36; a.pds-btn "Lihat sebagai Kepala dep" 115x36; a.pds-btn "Lihat sebagai Dekan" 115x36; a.pds-btn "Lihat sebagai Admin seko" 115x36
 ok   J6Peragaan [a@1024] @1024 (height 910px, card 910)
       note, under 44px: button "1 · Ruang Peragaan" 151x32; button "2 · Viewing as a learner" 172x32; button "3 · Left" 70x32; input.pds-check "" 134x32; button "Start again" 95x32; a.pds-btn "Lihat sebagai Murid · Ke" 115x36; a.pds-btn "Lihat sebagai Guru · Kel" 115x36; a.pds-btn "Lihat sebagai Kepala dep" 115x36; a.pds-btn "Lihat sebagai Dekan" 115x36; a.pds-btn "Lihat sebagai Admin seko" 115x36
-ok   J6Peragaan [a@390] @390 (height 1076px, card 910)
+ok   J6Peragaan [a@390] @390 (height 1068px, card 910)
       note, under 44px: button "1 · Ruang Peragaan" 151x32; button "2 · Viewing as a learner" 172x32; button "3 · Left" 70x32; input.pds-check "" 134x32; button "Start again" 95x32; a.pds-btn "Lihat sebagai Murid · Ke" 115x36; a.pds-btn "Lihat sebagai Guru · Kel" 115x36; a.pds-btn "Lihat sebagai Kepala dep" 115x36; a.pds-btn "Lihat sebagai Dekan" 115x36; a.pds-btn "Lihat sebagai Admin seko" 115x36
 ok   J6Peragaan [b@1280] @1280 (height 910px, card 910)
       note, under 44px: button "1 · Ruang Peragaan" 148x32; button "2 · Viewing as a learner" 176x32; button "3 · Left" 70x32; input.pds-check "" 134x32; button "Start again" 95x32
@@ -199,13 +200,13 @@ ok   J7Kunci [c@1280] @1280 (height 900px, card 900)
       note, under 44px: button "1 · Working" 95x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 95x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J7Kunci [c@1024] @1024 (height 900px, card 900)
       note, under 44px: button "1 · Working" 95x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 95x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J7Kunci [c@390] @390 (height 948px, card 900)
+ok   J7Kunci [c@390] @390 (height 940px, card 900)
       note, under 44px: button "1 · Working" 95x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 95x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J7Kunci [d@1280] @1280 (height 900px, card 900)
       note, under 44px: button "1 · Working" 95x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 116x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J7Kunci [d@1024] @1024 (height 900px, card 900)
       note, under 44px: button "1 · Working" 95x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 116x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J7Kunci [d@390] @390 (height 976px, card 900)
+ok   J7Kunci [d@390] @390 (height 968px, card 900)
       note, under 44px: button "1 · Working" 95x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 116x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   LayoutGrid @1200 (height 760px, card 760)
 ok   LearnerShell @1040 (height 760px, card 760)
@@ -255,3 +256,4 @@ ok   Textarea @960 (height 460px, card 460)
 ok   Tooltip @960 (height 200px, card 200)
 ok   Tooltip [fokus] @960 (height 200px, card 200)
 ok   Wordmark @1040 (height 1438px, card 1360)
+ok   WordmarkText @1040 (height 1240px, card 1240)

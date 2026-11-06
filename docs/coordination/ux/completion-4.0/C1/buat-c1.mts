@@ -35,7 +35,7 @@ const angka = (n: number) => hle.format.number(n, "id");
 const persen = (x: number) => hle.format.percent(x, "id");
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const ikon = (n: string) => `<i data-ikon="${n}"></i>`;
-const slotMerek = `<span class="c1-slot" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span>`;
+const slotMerek = `<span class="pds-merek">PINTAR</span>`;
 /** G6 (D-135(e)): the report's title is Dr Gladys's. A labelled slot, never filled. */
 const SLOT_JUDUL = { kelas: "[G6 · judul laporan kelas]", sekolah: "[G6 · judul laporan sekolah]" };
 const slotJudul = (j: "kelas" | "sekolah") => `<span class="c1-slot-kata" data-slot="G6">${SLOT_JUDUL[j]}</span>`;

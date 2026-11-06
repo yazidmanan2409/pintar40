@@ -9,7 +9,7 @@ Belajar · the same Guru, learning (staff shell, JQ3) at 1280 px (penuh): the Ta
 
 The navigation's accessibility tree
 - navigation "Tempat kerja Anda":
-  - img "Pintar (master pending F-11)"
+  - text: PINTAR
   - button "Ciutkan navigasi" [expanded]
   - text: Belajar
   - strong: SMP Cahaya Kaliandra

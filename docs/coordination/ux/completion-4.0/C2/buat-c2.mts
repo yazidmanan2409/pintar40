@@ -35,7 +35,7 @@ const kata = (k: string) => {
 const angka = (n: number) => hle.format.number(n, "id");
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const ikon = (n: string) => `<i data-ikon="${n}"></i>`;
-const slotMerek = `<span class="c1-slot" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span>`;
+const slotMerek = `<span class="pds-merek">PINTAR</span>`;
 const SEKOLAH = "SMP Cahaya Kaliandra";
 
 type Asesmen = { judul: string; kumpul: number; jendela: string; sedang: number; belum: number };

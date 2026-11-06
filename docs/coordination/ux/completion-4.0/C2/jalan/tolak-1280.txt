@@ -4,7 +4,7 @@ Refusal · a class this facilitator does not teach at 1280 px: the Tab order fro
 
 The accessibility tree of the main region
 - main:
-  - img "Pintar (master pending F-11)"
+  - text: PINTAR
   - heading "Halaman ini belum tersedia untuk akun Anda." [level=1]
   - paragraph: Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.
   - link "Mengajar":

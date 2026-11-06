@@ -4,7 +4,7 @@ Belajar · the same Guru, learning (staff shell, JQ3) at 390 px (bar): the Tab o
  3. button «Buka menu»
 
 The navigation's accessibility tree
-- img "Pintar (master pending F-11)"
+- text: PINTAR
 - strong: SMP Cahaya Kaliandra
 - button "Keluar"
 - button "Buka menu"

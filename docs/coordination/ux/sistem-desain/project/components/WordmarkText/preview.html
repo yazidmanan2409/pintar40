@@ -1,0 +1,61 @@
+<!-- @dsCard group="Brand" height=1240 width=1040 subtitle="SETTLED (D-192, D-193): «PINTAR» as live text, Inter Bold, #075056" -->
+<style>
+  .wt { display: grid; gap: var(--space-6); font-family: var(--font-sans); color: var(--ink-1); }
+  .wt-status { margin: 0; padding: 12px 16px; border-radius: var(--radius-md); background: var(--pintar-primary-soft); font: 600 14px/20px var(--font-sans); }
+  .wt-pahlawan { display: grid; justify-items: center; gap: var(--space-4); padding: var(--space-8) var(--space-5); background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); }
+  /* Clear space: X (the cap height) on every side of the ink. At 64 px, X = 46.6 px. */
+  .wt-ruang { --x: 46.6px; position: relative; padding: var(--x); outline: 1px dashed var(--line-control); }
+  .wt-ruang .pds-merek { --merek-ukuran: 64px; display: block; }
+  .wt-ruang::before { content: ""; position: absolute; inset: var(--x); outline: 1px solid var(--line); pointer-events: none; }
+  .wt-x { position: absolute; left: 0; top: 0; width: var(--x); height: var(--x); display: grid; place-items: center; font: 600 12px/16px var(--font-sans); color: var(--ink-3); }
+  .wt-ket { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-2); text-align: center; max-width: 60ch; }
+  .wt-h { margin: 0 0 var(--space-3); font: 600 18px/24px var(--font-sans); }
+  .wt-tangga { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 20px; }
+  .wt-tangga th, .wt-tangga td { text-align: left; padding: var(--space-3) var(--space-3); border-bottom: var(--border-hairline) solid var(--line); vertical-align: middle; }
+  .wt-tangga th { color: var(--ink-2); font-weight: 600; }
+  .wt-tangga td.wt-angka { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .wt-tangga .wt-contoh { min-width: 140px; }
+  .wt-koreksi { color: var(--status-attention); font-weight: 600; }
+  .wt-versi { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: var(--space-4); }
+  .wt-versi figure { margin: 0; display: grid; gap: var(--space-2); }
+  .wt-dasar { height: 120px; display: grid; place-items: center; border-radius: var(--radius-lg); border: var(--border-hairline) solid var(--line); }
+  .wt-dasar .pds-merek { --merek-ukuran: 28px; }
+  .wt-versi figcaption { font-size: 14px; line-height: 20px; color: var(--ink-2); }
+  @media (max-width: 639px) { .wt-ruang { --x: 23.3px; } .wt-ruang .pds-merek { --merek-ukuran: 32px; } .wt-tangga .wt-contoh { min-width: 0; } }
+</style>
+<div class="wt">
+  <p class="wt-status">SETTLED (owner: D-192, then D-193 for the face). «PINTAR» as live text in Inter Bold, #075056, tracked 0.14 em. It replaces the supplied PINTAR SELALU artwork everywhere and supersedes the 5 Oct Wordmark card, which is kept below it for the record.</p>
+
+  <div class="wt-pahlawan">
+    <div class="wt-ruang"><span class="wt-x" aria-hidden="true">X</span><span class="pds-merek">PINTAR</span></div>
+    <p class="wt-ket">Clear space: at least X, the cap height, on every side of the letters' ink. Nothing comes nearer: no text, line, edge or control.</p>
+  </div>
+
+  <section aria-labelledby="wt-tangga-h">
+    <h2 class="wt-h" id="wt-tangga-h">The size ladder</h2>
+    <table class="wt-tangga">
+      <thead><tr><th scope="col">Where</th><th scope="col">Size</th><th scope="col">Cap height</th><th scope="col">Width</th><th scope="col">At this size</th></tr></thead>
+      <tbody>
+        <tr><td>Above a task: sign-in, activation, the lock, error pages</td><td class="wt-angka">22 px</td><td class="wt-angka">16.0 px</td><td class="wt-angka">99 px</td><td class="wt-contoh"><span class="pds-merek" style="--merek-ukuran:22px">PINTAR</span></td></tr>
+        <tr><td>The staff navigation; a top bar at 1024 px and wider</td><td class="wt-angka">18 px</td><td class="wt-angka">13.1 px</td><td class="wt-angka">81 px</td><td class="wt-contoh"><span class="pds-merek" style="--merek-ukuran:18px">PINTAR</span></td></tr>
+        <tr><td>A top bar under 1024 px; the drawer. <strong>The smallest on screen</strong></td><td class="wt-angka">16 px</td><td class="wt-angka">11.6 px</td><td class="wt-angka">72 px</td><td class="wt-contoh"><span class="pds-merek" style="--merek-ukuran:16px">PINTAR</span></td></tr>
+        <tr><td>The email header</td><td class="wt-angka">22 px</td><td class="wt-angka">16.0 px</td><td class="wt-angka">99 px</td><td class="wt-contoh"><span class="pds-merek" style="--merek-ukuran:22px">PINTAR</span></td></tr>
+        <tr><td>The card in an email (slot 96 × 32 px) <span class="wt-koreksi">· built at 13 px; corrected to 16 px</span></td><td class="wt-angka">16 px</td><td class="wt-angka">11.6 px</td><td class="wt-angka">72 px</td><td class="wt-contoh"><span class="pds-merek" style="--merek-ukuran:16px">PINTAR</span></td></tr>
+        <tr><td>The printed certificate, on the title's baseline</td><td class="wt-angka">4.33 mm</td><td class="wt-angka">3.15 mm</td><td class="wt-angka">19.5 mm</td><td class="wt-contoh"><span class="pds-merek" style="--merek-ukuran:4.33mm">PINTAR</span></td></tr>
+        <tr><td>The Digital Card, front <span class="wt-koreksi">· slot 16.4 mm; corrected to 18.0 mm</span>. <strong>The smallest in print</strong></td><td class="wt-angka">3.99 mm</td><td class="wt-angka">2.90 mm</td><td class="wt-angka">18.0 mm</td><td class="wt-contoh"><span class="pds-merek" style="--merek-ukuran:3.99mm">PINTAR</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section aria-labelledby="wt-versi-h">
+    <h2 class="wt-h" id="wt-versi-h">Versions</h2>
+    <div class="wt-versi">
+      <figure><div class="wt-dasar" style="background:var(--surface-0)"><span class="pds-merek">PINTAR</span></div><figcaption>#075056 on a light ground · 8.8 : 1</figcaption></figure>
+      <figure><div class="wt-dasar" style="background:#075056;border-color:#075056"><span class="pds-merek pds-merek-putih">PINTAR</span></div><figcaption>White on deep teal · 9.2 : 1</figcaption></figure>
+      <figure><div class="wt-dasar" style="background:#0F1417;border-color:#0F1417"><span class="pds-merek pds-merek-gelap">PINTAR</span></div><figcaption>#86CFBF on dark: only in an email client's dark mode · 10.3 : 1</figcaption></figure>
+      <figure><div class="wt-dasar" style="background:#FFFFFF"><span class="pds-merek pds-merek-hitam">PINTAR</span></div><figcaption>Black, for one-colour print</figcaption></figure>
+    </div>
+  </section>
+
+  <p class="wt-ket" style="text-align:left;max-width:none">Never an image, an outline, a shadow, a gradient or motion; never another face, weight, case or tracking; never «SELALU», a tagline or a symbol; never #245F55, a status colour or a family colour; never on a photograph; never #075056 on a dark ground (2.0 : 1). Inter is for the wordmark only.</p>
+</div>

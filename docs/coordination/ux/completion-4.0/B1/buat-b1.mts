@@ -49,7 +49,7 @@ const kata = (k: string, isi: Record<string, string | number> = {}) => {
 };
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const ikon = (n: string) => `<i data-ikon="${n}"></i>`;
-const slotMerek = `<span class="b1-slot" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span>`;
+const slotMerek = `<span class="pds-merek">PINTAR</span>`;
 
 // ── who is looking ───────────────────────────────────────────────────────────
 type Pembaca = "sekolah" | "platform";

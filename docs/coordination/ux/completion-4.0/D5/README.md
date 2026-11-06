@@ -1,5 +1,7 @@
 # D5 · The brand and wordmark slots (re-scoped by D-161)
 
+> **SUPERSEDED (6 Nov) by D-192 and D-193; kept as the record.** F-11 closed without a master: the wordmark is «PINTAR» as live text in Inter Bold, `#075056`. The slots are now the text wordmark's size ladder, clear space and versions, in «Wordmark (text)» in the design system. One correction carries over from this geometry: the Digital Card's slot is **18.0 mm** wide (the word at 3.99 mm is 17.1 mm of ink), not 16.4 mm, which was drawn for «Pintar». The placeholder below is no longer drawn anywhere.
+
 **Form C (geometry only).** Register entry D5.
 **Reconciled (D-163(a)):** the wordmark is **«Pintar» in `#075056`** in every slot once the master exists. The interface palette is unchanged (`--pintar-primary` `#245F55`).
 **Never here:** the artwork, a master, or anything that would freeze one (F-11). Every slot holds **the provisional placeholder, a box at the slot's exact size and position, labelled «Pintar (master pending F-11)»**.

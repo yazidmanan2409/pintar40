@@ -5,7 +5,7 @@
 
 The accessibility tree
 - banner:
-  - img "Pintar (master pending F-11)"
+  - text: PINTAR
   - paragraph:
     - text: Masuk sebagai
     - strong: Citra Lestari

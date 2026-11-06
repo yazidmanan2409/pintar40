@@ -3,7 +3,7 @@ The staff shell: a sticky left navigation with the person's places above and the
 **Status: NEW, APPROVED (question 1, 5 Oct).** It replaces the staff header of today's CangkangPengalaman in the application pass, which waits for the authorised UI/UX stage. Its order and grouping are kept (question 11) and validated in composed journeys before anything changes further. Its places are today's, derived from roles and journeys; nothing about who may go where changes.
 
 **Anatomy**
-- The PINTAR wordmark (`wordmark-nav`, an 18 px cap height), and the collapse button.
+- The PINTAR wordmark (D-192, D-193: «PINTAR» in Inter Bold, `#075056`, 18 px; «Wordmark (text)»), and the collapse button.
 - The places, from today's place map (see Navigation), with a group label only for an educator who also learns.
 - At the bottom: Bantuan where a tour exists, the identity block (avatar, their own name, role and school) opening a menu with Akun saya and the language, and «Keluar», always visible.
 - The main area: the page header (scope line, `t-page` title, the one primary action) and the page at its measure.
@@ -19,6 +19,6 @@ The staff shell: a sticky left navigation with the person's places above and the
 **Rules**
 - The navigation shows only places the person holds today; it decides nothing, and every page still checks on arrival.
 - No counts, badges or dashboards in the navigation.
-- The wordmark is never below `wordmark-min` (12 px cap height) and is not shown in the rail: 72 px cannot hold it with its clear space.
+- The wordmark is 18 px in the navigation and 16 px in the top bar, never smaller (its ladder, «Wordmark (text)»). It is not shown in the rail: 72 px cannot hold its 81 px with its clear space.
 
 **Try it.** In the preview, change the person and the width, collapse the navigation, and open the identity menu.

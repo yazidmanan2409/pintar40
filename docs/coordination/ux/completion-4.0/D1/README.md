@@ -1,5 +1,7 @@
 # D1 step 1 · the email frame: covered / missing (CR-22, DAISY-37)
 
+> **Update (6 Nov), D-192 and D-193:** the wordmark slot is no longer a placeholder or an image. The header and the card carry «PINTAR» as live text in Inter (Arial where the reader has no Inter), `#075056`, and `#86CFBF` in a client's dark mode, as built in `bingkai.ts`. Rows 3a and 10a are met by live text, and row 5 (recognition) can now be tested with the real mark. One correction: the card's wordmark is set at 13 px, under the smallest size; it becomes 16 px (tracking 2 px), which fits its 96 × 32 slot. See «Wordmark (text)» in the design system.
+
 **Accepted by the owner, 4 Nov (D-164).** Step 2 is in `STEP-2.md`. Row references corrected in step 2's commit.
 
 **Form K.** One row per requirement, as the brief asks (§5).

@@ -9,7 +9,7 @@ Mengajar · one context only (no chooser link) at 1280 px (penuh): the Tab order
 
 The navigation's accessibility tree
 - navigation "Tempat kerja Anda":
-  - img "Pintar (master pending F-11)"
+  - text: PINTAR
   - button "Ciutkan navigasi" [expanded]
   - text: Mengajar
   - strong: SMP Cahaya Kaliandra

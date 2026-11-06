@@ -4,7 +4,7 @@ Refusal · a Guru opens Konfigurasi at 320 px: the Tab order from the top of the
 
 The accessibility tree of the main region
 - main:
-  - img "Pintar (master pending F-11)"
+  - text: PINTAR
   - heading "Halaman ini hanya untuk Admin sekolah atau Admin platform." [level=1]
   - paragraph: Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.
   - link "Ke halaman awal":

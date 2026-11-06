@@ -1,5 +1,7 @@
 # D1 step 2 · the six identity emails, in the DAISY-19 frame (DAISY-37)
 
+> **Update (6 Nov), D-192 and D-193:** every «placeholder» and «until F-11» line below is resolved. The slots hold the text wordmark «PINTAR» (Inter, Arial fallback, `#075056`; `#86CFBF` on dark), with no image, so P2 and P3 no longer apply. The card's wordmark is 16 px, not the built 13 px. See D1's README and «Wordmark (text)».
+
 **Accepted for design by the owner, 4 Nov.** Two notes recorded: the card block is built from `susunKartu`'s lines (§1); «Akun PINTAR Anda di …» awaits Dr Gladys (§5).
 
 **Form C (composition), in the email matrix.**

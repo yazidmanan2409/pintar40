@@ -52,8 +52,8 @@ const kata = (k: string, isi: Record<string, string | number> = {}) => {
 const angka = (n: number) => hle.format.number(n, "id");
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const ikon = (n: string) => `<i data-ikon="${n}"></i>`;
-/** The wordmark: a placeholder at the slot's size (the commission §4; master pending F-11). */
-const slotMerek = `<span class="a1-slot" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span>`;
+/** The wordmark (D-192, D-193): the design system's .pds-merek, «PINTAR» in Inter Bold, #075056. */
+const slotMerek = `<span class="pds-merek">PINTAR</span>`;
 
 // ── invented content (sample content, not copy) ────────────────────────────
 type Opsi = { label: string; isi: string; kunci: boolean; alasan: string; miskonsepsi?: string };
