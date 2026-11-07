@@ -26,4 +26,5 @@ slug: sekolah-uji-b5-1104
 # 7 Nov, P-5 staging verification (main ebc53ee2 = audited 727f65d2; migration 197): Sekolah Uji P5 1107 (found-school.yml); staging at 197
 # 7 Nov, evaluation school for Dr Gladys's team (synthetic): Sekolah Uji Evaluasi B (found-school.yml); staging main ebc53ee2, migration 197
 # 7 Nov, evaluation school for Dr Gladys's team (synthetic): Sekolah Uji Evaluasi A (found-school.yml); B's GS-01-21 green (last run 42336620831); staging main ebc53ee2, migration 197
-slug: sekolah-uji-evaluasi-a
+# 7 Nov, P-7 staging verification (main c4944fab = audited d18e24e4, SAME; migrations 199-200): Sekolah Uji P7 1107 (found-school.yml run 42418290195); staging at 200
+slug: sekolah-uji-p7-1107
