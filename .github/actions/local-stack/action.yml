@@ -33,7 +33,17 @@ runs:
         if [ -n "$(docker ps -q --filter name=supabase_db_)" ]; then
           echo "The job's stack is running: reused. The reset below gives this use a fresh database."
         else
-          npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit
+          npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit || {
+            # 7 Nov (CI 42376999983, 42377635978): on a fresh runner Docker refused the database's host port 54322 as
+            # «already in use» before anything of ours ran. Say who holds it, clear the half-started stack, try once more;
+            # a second refusal fails the step as before.
+            echo "::warning::supabase start failed; the ports and containers as found, then one retry"
+            (ss -ltnp 2>/dev/null | grep -E ':543[0-9][0-9]\b' || true)
+            (docker ps -a --format '{{.Names}} {{.Status}} {{.Ports}}' || true)
+            npx --no-install supabase stop --no-backup || true
+            sleep 10
+            npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit
+          }
         fi
     - name: Reset database (clean install of every migration + synthetic seed)
       shell: bash
