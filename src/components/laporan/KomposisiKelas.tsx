@@ -78,7 +78,12 @@ export function persenJujur(x: number, locale: Locale, garis: ReadonlyArray<numb
     : format.percent(x, locale);
 }
 
-export default function KomposisiKelas({ entries, locale, persona, jenis, target, namaKelas, buktiHref, tempat = {}, penguatan = null, muridHref = null }: {
+/** KESETIAAN #7: the pair beside Kenaikan, one decimal each, so its difference reads as the gain it is (never 43% → 73% beside +31). */
+export function persenSatu(x: number, locale: Locale): string {
+  return new Intl.NumberFormat(locale === "en" ? "en-GB" : "id-ID", { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(x);
+}
+
+export default function KomposisiKelas({ entries, locale, persona, jenis, target, namaKelas, buktiHref, tempat = {}, penguatan = null, muridHref = null, titik = null, awalAkhir = null }: {
   entries: readonly Envelope[];
   locale: Locale;
   persona: Persona;
@@ -94,6 +99,10 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
   penguatan?: ReadonlyArray<{ id: string; nama: string; ulang: readonly string[]; benar?: number | null; total?: number | null; soalWajibTepat?: boolean | null }> | null;
   /** The teacher's view of one learner, as `${muridHref}/${id}`; null: names are not links. */
   muridHref?: string | null;
+  /** KESETIAAN #6: the class's score line, one anonymous dot per assessed learner (the teacher's only); null draws none. */
+  titik?: ReadonlyArray<{ mastery: number; pita: "mantap" | "berkembang" | "penguatan" }> | null;
+  /** KESETIAAN #7: the before → after pair behind Kenaikan, or «TIDAK» when it cannot be compared yet; null draws none. */
+  awalAkhir?: { awal: number; akhir: number; pasangan?: number } | "TIDAK" | null;
 }) {
   const s = (k: string, p: Persona = persona, l: Locale = locale) => t(k as HleEvent, p, { locale: l });
   const untuk = persona === "educator" || persona === "staff" ? persona : "staff";
@@ -175,6 +184,18 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
   const hPenguatan = adaPenguatan ? huruf() : "";
   const hLain = lain.length > 0 ? huruf() : "";
   const hBerikut = huruf();
+  // KESETIAAN #6: the dots stack where learners share a score (2% steps), so every learner is one visible dot
+  const tumpuk = (() => {
+    const isi = new Map<number, number>();
+    return [...(titik ?? [])].sort((a, b) => a.mastery - b.mastery).map((d) => {
+      // 4% steps: wide enough that a phone keeps every dot apart; each dot is drawn at its step's centre
+      const langkah = Math.round(Math.max(0, Math.min(1, d.mastery)) * 25);
+      const ke = isi.get(langkah) ?? 0;
+      isi.set(langkah, ke + 1);
+      return { ...d, ke, x: langkah / 25 };
+    });
+  })();
+  const tinggiTumpuk = tumpuk.reduce((m, d) => Math.max(m, d.ke + 1), 0);
   // the ticks the target label would sit on are left out (#10: the label is on the scale, at the target line)
   const centang = [0, 0.2, 0.4, 0.6, 0.8, 1].filter((x) => target === null || Math.abs(x - target) >= 0.1);
 
@@ -210,7 +231,8 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
                   <span />
                   <div className="pin-lk-skala-garis">
                     {centang.map((x) => (
-                      <span key={x} style={{ left: `${x * 100}%` }} data-antara={x > 0 && x < 1 ? "" : undefined}>{persen(x)}</span>
+                      <span key={x} style={{ left: `${x * 100}%` }} data-antara={x > 0 && x < 1 ? "" : undefined}
+                        data-dekat={target !== null && Math.abs(x - target) < 0.3 ? "" : undefined}>{persen(x)}</span>
                     ))}
                     {target !== null ? (
                       <span className="pin-lk-skala-target" style={{ left: `${target * 100}%` }}>
@@ -265,6 +287,21 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
                     .replace("{n}", format.number(Number(c), locale)).replace("{p}", persen(Number(c) / dinilai))}</strong></li>
                 ))}
               </ul>
+              {tumpuk.length > 0 ? (
+                <div className="pin-lk-gambar" data-lk-titik="">
+                  <div className="pin-lk-strip" aria-hidden="true" style={{ height: `calc(var(--lk-titik) * ${tinggiTumpuk} + var(--space-2))` }}>
+                    {[0.6, 0.8].map((z) => <span key={z} className="pin-lk-zona" style={{ left: `${z * 100}%` }} />)}
+                    {target !== null ? <span className="pin-lk-target" style={{ left: `${target * 100}%` }} /> : null}
+                    {tumpuk.map((d, i) => (
+                      <i key={i} data-pita={d.pita} style={{ left: `${d.x * 100}%`, bottom: `calc(var(--lk-titik) * ${d.ke})` }} />
+                    ))}
+                  </div>
+                  <div className="pin-lk-skala-garis pin-lk-strip-skala" aria-hidden="true">
+                    {[0, 0.2, 0.4, 0.6, 0.8, 1].map((x) => <span key={x} style={{ left: `${x * 100}%` }} data-antara={x > 0 && x < 1 ? "" : undefined}>{persen(x)}</span>)}
+                  </div>
+                  <p className="pin-lk-arti">{s("laporan.komposisi.titik_arti").replace("{n}", format.number(tumpuk.length, locale))}</p>
+                </div>
+              ) : null}
               <p className="pin-lk-arti">{s("kesiapan.catatan")}</p>
             </div>
           ) : pita.status === "ok" ? null : tiada(pita)}
@@ -285,6 +322,27 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
               </div>
             </div>
           ) : naik.status === "ok" ? null : tiada(naik)}
+          {/* KESETIAAN #7: the class's mean before and after, over Kenaikan's own pairs; never a figure that cannot be compared */}
+          {naik.status === "ok" && awalAkhir === "TIDAK" ? (
+            <p className="pin-lk-arti" data-lk-awal-akhir="tidak">{s("laporan.komposisi.awal_akhir_tidak")}</p>
+          ) : null}
+          {naik.status === "ok" && awalAkhir && awalAkhir !== "TIDAK" ? (
+            <div className="pin-lk-gambar" data-lk-awal-akhir="">
+              <ul className="pin-lk-baris pin-lk-baris-pasangan">
+                <li>
+                  <span className="pin-lk-nama">{s("laporan.komposisi.awal_akhir_label")}</span>
+                  <span className="pin-lk-jalur" aria-hidden="true">
+                    <span className="pin-lk-sambung" style={{ left: `${Math.min(awalAkhir.awal, awalAkhir.akhir) * 100}%`, width: `${Math.abs(awalAkhir.akhir - awalAkhir.awal) * 100}%` }} />
+                    {target !== null ? <span className="pin-lk-target" style={{ left: `${target * 100}%` }} /> : null}
+                    <span className="pin-lk-titik" data-awal="" style={{ left: `${Math.max(0, Math.min(1, awalAkhir.awal)) * 100}%` }} />
+                    <span className="pin-lk-titik" style={{ left: `${Math.max(0, Math.min(1, awalAkhir.akhir)) * 100}%` }} />
+                  </span>
+                  <span className="pin-lk-nilai">{persenSatu(awalAkhir.awal, locale)} → {persenSatu(awalAkhir.akhir, locale)}</span>
+                </li>
+              </ul>
+              <p className="pin-lk-arti">{s("laporan.komposisi.awal_akhir_arti")}</p>
+            </div>
+          ) : null}
         </section>
       ) : null}
 

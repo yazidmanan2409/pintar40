@@ -14,7 +14,7 @@ import { BarisLingkup } from "@/components/bukti";
 import AksiLaporan from "@/components/laporan/AksiLaporan";
 import KomposisiKelas from "@/components/laporan/KomposisiKelas";
 import KepalaCetak from "@/components/laporan/KepalaCetak";
-import { perluPenguatan, targetKelas } from "@/lib/pengajar";
+import { awalAkhirKelas, perluPenguatan, sebaranKelas, targetKelas } from "@/lib/pengajar";
 import { s, card, type Entry } from "../../_intel";
 import { judulHalaman } from "@/lib/judul-halaman";
 
@@ -87,7 +87,13 @@ export default async function RingkasanKelas({
   const untuk: Persona = k?.keadaan === "ADA" && k.tujuan === "MENGAJAR" ? "educator" : "staff";
   const judul = s("laporan.kelas.judul", untuk, locale);
   // D-195(5): section E, the learners in the lowest band by name, for the teacher of the class only
-  const penguatan = untuk === "educator" && kelas ? await perluPenguatan(kelas) : null;
+  // KESETIAAN #6: the class's score line, one anonymous dot per learner, for the class's teacher only (the database
+  // answers nobody else); #7: the before → after pair, which the database gives any reader whose own Kenaikan is shown
+  const [penguatan, titik, awalAkhir] = await Promise.all([
+    untuk === "educator" && kelas ? perluPenguatan(kelas) : Promise.resolve(null),
+    untuk === "educator" && kelas ? sebaranKelas(kelas) : Promise.resolve(null),
+    kelas ? awalAkhirKelas(kelas) : Promise.resolve(null),
+  ]);
 
   return (
     <>
@@ -121,7 +127,7 @@ export default async function RingkasanKelas({
             {/* CONTOH LAPORAN 2-guru / 2b (approved 7 Nov): one composition over the same envelopes */}
             <KomposisiKelas entries={entries} locale={locale} persona={untuk} jenis={jenis} target={target}
               namaKelas={kepala?.tempat ?? judul} buktiHref={untuk === "educator" ? `/mengajar/${kelas}/bukti` : null} tempat={tempat}
-              penguatan={penguatan} muridHref={untuk === "educator" ? `/mengajar/${kelas}/murid` : null} />
+              penguatan={penguatan} muridHref={untuk === "educator" ? `/mengajar/${kelas}/murid` : null} titik={titik} awalAkhir={awalAkhir} />
           </>
         )}
       </main>

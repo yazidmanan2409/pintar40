@@ -3,6 +3,7 @@ import Kosong from "@/components/Kosong";
 import { asalLaporan } from "@/lib/nama-tempat";
 import { tawarkanSekolahLain } from "@/lib/konteks-server";
 import { kepalaLaporan, namaTempat, templatUntuk } from "@/lib/laporan";
+import { kesiapanPerMapel } from "@/lib/pimpinan";
 import KepalaCetak from "@/components/laporan/KepalaCetak";
 import { currentLocale } from "@/lib/locale";
 import { tanggal } from "@/lib/tanggal";
@@ -78,6 +79,8 @@ export default async function RingkasanSekolah({
     .map((r) => r.cohort_node_id).filter((x): x is string => typeof x === "string")));
   const kepala = await kepalaNanti;
   const judul = s("laporan.institusi.judul", "staff", locale);
+  // KESETIAAN #18: evidence readiness per subject and class, for the node the summary is of
+  const kesiapanMapel = simpul ? await kesiapanPerMapel(simpul) : null;
 
   return (
     <>
@@ -110,7 +113,7 @@ export default async function RingkasanSekolah({
             ) : null}
 
             {/* CONTOH LAPORAN 4-dekan (approved 7 Nov): one composition over the same envelopes */}
-            <KomposisiSekolah entries={entries} locale={locale} tempat={tempat} />
+            <KomposisiSekolah entries={entries} locale={locale} tempat={tempat} kesiapanMapel={kesiapanMapel} />
           </>
         )}
       </main>

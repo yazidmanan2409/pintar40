@@ -83,6 +83,9 @@ export type HleEvent =
   | "laporan.komposisi.lainnya"
   | "pengembangan.tentang" | "pengembangan.siapa_melihat"
   | "laporan.bagian"
+  | "laporan.komposisi.titik_arti" | "laporan.komposisi.awal_akhir_label" | "laporan.komposisi.awal_akhir_arti" | "laporan.komposisi.awal_akhir_tidak"
+  | "laporan.sekolah.mapel_cukup" | "laporan.sekolah.mapel_belum_ada" | "laporan.sekolah.mapel_belum_cukup"
+  | "aktivasi.kelas.banyak.tidak_termasuk" | "aktivasi.kelas.banyak.akun" | "aktivasi.kelas.banyak.staf" | "aktivasi.kelas.banyak.pendataan"
   | "laporan.sekolah.naik" | "laporan.sekolah.ranah_baik"
   | "laporan.kisi.dasar" | "laporan.kisi.kunci"
   | "laporan.komposisi.tertahan_judul" | "laporan.komposisi.tertahan" | "laporan.komposisi.tertahan_sub" | "laporan.komposisi.berikutnya_tertahan"
@@ -2682,6 +2685,17 @@ const table: Table = {
   "laporan.kisi.kunci": { default: "Garis tegak di setiap sel: target kelas itu. Angka berwarna jingga: di bawah target. Tanda —: belum cukup data.", en: "The upright line in each cell: that class's target. An amber figure: below target. A dash: not enough data yet." },
   "laporan.sekolah.naik": { default: "Kenaikan penguasaan rata-rata sejak Pemetaan Awal: {nilai}.", en: "The average gain in mastery since the Initial Mapping: {nilai}." },
   "laporan.sekolah.ranah_baik": { default: "{n} dari {m} ranah berada di pita «{berkembang}» atau «{mantap}».", en: "{n} of {m} domains are in the «{berkembang}» or «{mantap}» band." },
+  "laporan.komposisi.titik_arti": { default: "Setiap titik satu murid ({n} murid), diwarnai menurut pitanya, menurut Uji Penguasaan terakhirnya di kelas ini. Garis tegak: batas pita 60% dan 80%, dan target kelas.", en: "Each dot is one learner ({n} learners), coloured by their band, from their latest Mastery Check in this class. Upright lines: the band boundaries at 60% and 80%, and the class's target." },
+  "laporan.komposisi.awal_akhir_label": { default: "Rata-rata kelas", en: "Class average" },
+  "laporan.komposisi.awal_akhir_arti": { default: "Rata-rata Pemetaan Awal → rata-rata Uji Penguasaan, dari murid dan bab yang sama dengan Kenaikan.", en: "The average Initial Mapping → the average Mastery Check, over the same learners and chapters as the Gain." },
+  "laporan.komposisi.awal_akhir_tidak": { default: "Rata-rata sebelum dan sesudah belum dapat dibandingkan.", en: "The averages before and after cannot be compared yet." },
+  "laporan.sekolah.mapel_cukup": { default: "{mapel}: {n} dari {m} kelas cukup untuk ditafsirkan.", en: "{mapel}: {n} of {m} classes are enough to interpret." },
+  "laporan.sekolah.mapel_belum_ada": { default: "{kelas}: belum ada", en: "{kelas}: none yet" },
+  "laporan.sekolah.mapel_belum_cukup": { default: "{kelas}: sudah ada, belum cukup ({ada} dari {perlu} murid)", en: "{kelas}: some, not enough yet ({ada} of {perlu} learners)" },
+  "aktivasi.kelas.banyak.tidak_termasuk": { default: "Tidak termasuk: {daftar}.", en: "Not included: {daftar}." },
+  "aktivasi.kelas.banyak.akun": { default: "{n} yang sudah punya akun", en: "{n} who already have an account" },
+  "aktivasi.kelas.banyak.staf": { default: "{n} yang memegang peran staf", en: "{n} who hold a staff role" },
+  "aktivasi.kelas.banyak.pendataan": { default: "{n} murid yang datanya masih menunggu di Pendataan", en: "{n} learners whose data still waits in Pendataan" },
   "laporan.bagian": { default: "Bagian", en: "Section" },
   "laporan.komposisi.lainnya": { default: "Angka lain", en: "Other figures" },
   "laporan.komposisi.penguatan_judul": { default: "Murid yang perlu penguatan", en: "Learners who need strengthening" },

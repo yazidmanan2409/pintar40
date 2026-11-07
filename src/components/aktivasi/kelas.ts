@@ -8,7 +8,19 @@
  * Each card is still issued one person at a time through `/api/akun/aktivasi`, where the database decides and audits
  * per person: one press, one request per learner.
  */
-export type KelasKartu = { id: string; label: string; jumlah: number };
+export type KelasKartu = {
+  id: string; label: string; jumlah: number;
+  /** KESETIAAN #21 (kelas_dikecualikan_kartu): who in the class is not offered a card, by one reason each. */
+  dikecualikan?: Partial<Record<AlasanKecuali, number>>;
+};
+export type AlasanKecuali = "AKUN" | "STAF" | "PENDATAAN";
+
+/** The chosen classes' exclusions, summed per reason (each person is counted once in their class, by one reason). */
+export function jumlahDikecualikan(kelas: ReadonlyArray<KelasKartu>): Record<AlasanKecuali, number> {
+  const out: Record<AlasanKecuali, number> = { AKUN: 0, STAF: 0, PENDATAAN: 0 };
+  for (const k of kelas) for (const a of ["AKUN", "STAF", "PENDATAAN"] as const) out[a] += Number(k.dikecualikan?.[a] ?? 0);
+  return out;
+}
 
 /** One learner of a class's run, as orang_kelas_menunggu_akun answers. */
 export type AnggotaKelas = { person_id: string; display_name: string; institutional_id: string };

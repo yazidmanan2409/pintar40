@@ -5,7 +5,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { sekolahPendataan } from "@/lib/pendataan";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { pilihanTempat, type SimpulPohon } from "@/lib/struktur-kontrak";
-import { kelasDitawarkan, type KelasKartu } from "@/components/aktivasi/kelas";
+import { kelasDitawarkan, type AlasanKecuali, type KelasKartu } from "@/components/aktivasi/kelas";
 import Penomoran, { halamanDiminta } from "@/components/koleksi/Penomoran";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
@@ -90,7 +90,12 @@ export default async function Aktivasi({ searchParams }: { searchParams: Promise
 
   // M7 (D-085): the Kelas with learners waiting for an account, so a whole class's cards are one press. W2.10: counted
   // by the database (kelas_menunggu_akun; CR-91: learners who may hold a card only), the learners read at the run
-  const kelas = await kelasMenunggu(supabase, lingkupTunggu);
+  const kelasTawar = await kelasMenunggu(supabase, lingkupTunggu);
+  // KESETIAAN #21: per offered class, who is not offered a card and why (counted by the database, one reason each)
+  const { data: kecuali } = kelasTawar.length > 0
+    ? await supabase.rpc("kelas_dikecualikan_kartu", { p_classes: kelasTawar.map((k) => k.id) })
+    : { data: [] };
+  const kelas = susunDikecualikan(kelasTawar, kecuali);
 
   return (
     <>
@@ -148,4 +153,15 @@ function halamanTunggu(cari: string, n: number): string {
   if (n > 1) q.set("hal_tunggu", String(n));
   const x = q.toString();
   return x ? `/aktivasi?${x}` : "/aktivasi";
+}
+
+/** The database's exclusion counts on each offered class; an unread answer leaves them out (no count is guessed). */
+function susunDikecualikan(kelas: KelasKartu[], data: unknown): KelasKartu[] {
+  const baris = (Array.isArray(data) ? data : []) as Array<{ node_id: string; alasan: string; jumlah: number }>;
+  return kelas.map((k) => {
+    const milik = baris.filter((b) => String(b.node_id) === k.id && ["AKUN", "STAF", "PENDATAAN"].includes(b.alasan));
+    return milik.length > 0
+      ? { ...k, dikecualikan: Object.fromEntries(milik.map((b) => [b.alasan as AlasanKecuali, Number(b.jumlah)])) }
+      : { ...k, dikecualikan: Array.isArray(data) ? {} : undefined };
+  });
 }

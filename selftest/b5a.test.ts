@@ -357,7 +357,7 @@ export const b5aTests: SelfTest[] = [
       c.expect(/c\.rpc\("murid_perlu_penguatan", \{ p_class: kelasId \}\)/.test(fn) && /if \(error\) return null;/.test(fn) && /tujuanBelum\(kelasId, o\.person_id\)/.test(fn) && !/\.from\(/.test(fn),
         "pengajar.perluPenguatan does not ask the database's murid_perlu_penguatan and tujuan_belum_tercapai alone, or says «nobody» for an unread answer");
       const halaman = kode(baca(ctx.repoRoot, "src/app/edukator/ringkasan/page.tsx"));
-      c.expect(/const penguatan = untuk === "educator" && kelas \? await perluPenguatan\(kelas\) : null;/.test(halaman) && /penguatan=\{penguatan\}/.test(halaman),
+      c.expect(/untuk === "educator" && kelas \? perluPenguatan\(kelas\) : Promise\.resolve\(null\)/.test(halaman) && /penguatan=\{penguatan\}/.test(halaman),
         "Ringkasan Kelas asks for the names for a reader who does not teach the class, or does not pass them");
       const mig = baca(ctx.repoRoot, "supabase/migrations/20270102100000_a_teacher_names_the_learners_who_need_reinforcement.sql");
       c.expect(/create or replace function public\.murid_perlu_penguatan\(p_class uuid\)\s*returns table \(person_id uuid, display_name text, benar integer, total integer, soal_wajib_tepat boolean\)\s*language plpgsql stable security definer set search_path = public, pg_temp/.test(mig)
@@ -505,6 +505,118 @@ export const b5aTests: SelfTest[] = [
         "Uji Penguasaan on one scale against the chapter's own target, below it amber and in words, a chapter under way said and continued; the parts per chapter as " +
         "squares with «pelajari lagi»; each chapter's own result page and the certificates linked; no class figure, average, rank or peer; the page reads only the " +
         "learner's own engine reads and is linked from Belajar");
+    },
+  },
+  {
+    // KESETIAAN #6 and #7 (owner GO, 7 Nov): the score line for the teacher; the before → after pair over Kenaikan's own pairs
+    id: "LAPORAN-KELAS-03",
+    run: async (ctx) => {
+      const c = new Checks();
+      const pita = { status: "ok", readiness: "SUFFICIENT_EVIDENCE", metric_id: "class.readiness_distribution", label_key: "metrik.kesiapan.label",
+        value: { "kesiapan.butuh_pendampingan": 2, "kesiapan.perlu_review": 1, "kesiapan.siap_sertifikasi": 2 }, population: { placed: 6, assessed: 5, not_yet: 1 } };
+      const naik = { status: "ok", readiness: "SUFFICIENT_EVIDENCE", metric_id: "class.net_gain", label_key: "metrik.kenaikan.label", value: 0.3083, sample: 6 };
+      const titik = [{ mastery: 0.4, pita: "penguatan" }, { mastery: 0.9, pita: "penguatan" }, { mastery: 0.7, pita: "berkembang" }, { mastery: 0.85, pita: "mantap" }, { mastery: 0.851, pita: "mantap" }];
+      const r = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiKelas.tsx");' +
+        "const K = m.default?.default ?? m.default; const [a, b, d] = JSON.parse(process.env.ENTRI);" +
+        "const p = { locale: 'id', persona: 'educator', jenis: 'LEARNER', namaKelas: 'Kelas 7A', buktiHref: null, target: 0.75, entries: [a, b] };" +
+        "process.stdout.write(JSON.stringify([renderToStaticMarkup(h(K, { ...p, titik: d, awalAkhir: { awal: 0.425, akhir: 0.7333, pasangan: 6 } }))," +
+        " renderToStaticMarkup(h(K, { ...p, titik: null, awalAkhir: 'TIDAK' })), renderToStaticMarkup(h(K, { ...p, titik: null, awalAkhir: null }))]));",
+        { ENTRI: JSON.stringify([pita, naik, titik]) });
+      if (c.expect(r.ok, `the composition could not be rendered: ${r.err}`)) {
+        let x: string[] = [];
+        try { x = JSON.parse(r.out); } catch { /* reported below */ }
+        const teks = (h: string) => (h ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const [ada, tidak, tanpa] = x;
+        const strip = ada.slice(ada.indexOf('data-lk-titik=""'), ada.indexOf('data-lk-titik=""') + 4000);
+        // #6: one dot per learner, in its band's step, the two that share 85% stacked, the picture hidden and said in words
+        c.expect((strip.match(/<i data-pita="/g) ?? []).length === 5 && (strip.match(/<i data-pita="penguatan"/g) ?? []).length === 2
+          && /<div class="pin-lk-strip" aria-hidden="true"/.test(strip) && /bottom:calc\(var\(--lk-titik\) \* 1\)/.test(strip),
+          "the score line does not draw one dot per learner in its band, stacked where scores meet, as a hidden picture");
+        c.expect(teks(ada).includes("Setiap titik satu murid (5 murid), diwarnai menurut pitanya"), "the score line has no text equivalent naming how many learners");
+        c.expect(!/data-lk-titik/.test(tidak) && !/data-lk-titik/.test(tanpa), "a strip is drawn for a reader given no dots");
+        // #7: the pair over Kenaikan's own pairs, R4-02's decimal; «Belum dapat dibandingkan» when not comparable; nothing unread
+        c.expect(teks(ada).includes("Rata-rata kelas 42,5% → 73,3%") && teks(ada).includes("dari murid dan bab yang sama dengan Kenaikan")
+          && (ada.match(/data-lk-awal-akhir=""/g) ?? []).length === 1, `the before → after pair is not drawn: ${teks(ada).slice(0, 300)}`);
+        c.expect(teks(tidak).includes("Rata-rata sebelum dan sesudah belum dapat dibandingkan.") && !/→/.test(teks(tidak)), "an incomparable pair shows a figure, or says nothing");
+        c.expect(!/data-lk-awal-akhir/.test(tanpa), "an unread pair is drawn");
+      }
+      const halaman = kode(baca(ctx.repoRoot, "src/app/edukator/ringkasan/page.tsx"));
+      c.expect(/untuk === "educator" && kelas \? sebaranKelas\(kelas\) : Promise\.resolve\(null\)/.test(halaman) && /kelas \? awalAkhirKelas\(kelas\) : Promise\.resolve\(null\)/.test(halaman)
+        && /titik=\{titik\} awalAkhir=\{awalAkhir\}/.test(halaman), "Ringkasan Kelas asks for the dots for a reader who does not teach the class, or does not pass the pair");
+      const lib = kode(baca(ctx.repoRoot, "src/lib/pengajar.ts"));
+      c.expect(/c\.rpc\("sebaran_murid_kelas", \{ p_class: kelasId \}\)/.test(lib) && /c\.rpc\("kenaikan_awal_akhir", \{ p_class: kelasId \}\)/.test(lib)
+        && /if \(!r \|\| r\.awal == null \|\| r\.akhir == null\) return "TIDAK";/.test(lib), "the lib does not ask the two reads, or turns an empty answer into a figure");
+      const mig = baca(ctx.repoRoot, "supabase/migrations/20270103100000_the_report_reads_daisy_asked_for.sql");
+      c.expect(/create or replace function public\.sebaran_murid_kelas\(p_class uuid\)\s*returns table \(mastery numeric, tier_key text\)/.test(mig)
+        && /v_ok := public\.metric_evaluate\('class\.net_gain', p_class, v_inst\) ->> 'status';/.test(mig), "the dots carry more than mastery and band, or the pair is not gated by the reader's own Kenaikan");
+      return c.verdict("renders the score line (#6): one dot per learner in its band, stacked where scores meet, hidden from a screen reader and said in words, for the "
+        + "teacher only; and the before → after pair (#7) over Kenaikan's own pairs, one decimal each, «belum dapat dibandingkan» when not comparable, nothing unread");
+    },
+  },
+  {
+    // KESETIAAN #18: the Dekan's evidence readiness per subject and class
+    id: "LAPORAN-SEKOLAH-02",
+    run: async (ctx) => {
+      const c = new Checks();
+      const mapel = [
+        { mapel: "Matematika", kelasId: "a", kelas: "Kelas 7A", ada: 29, perlu: 5 }, { mapel: "Matematika", kelasId: "e", kelas: "Kelas 7E", ada: 4, perlu: 5 },
+        { mapel: "IPA", kelasId: "a", kelas: "Kelas 7A", ada: 0, perlu: 5 } ];
+      const r = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiSekolah.tsx");' +
+        "const K = m.default?.default ?? m.default; const d = JSON.parse(process.env.MAPEL);" +
+        "const e = [{ status: 'below_minimum', readiness: 'INSUFFICIENT_EVIDENCE', metric_id: 'institution.participants', label_key: 'metrik.peserta_institusi.label', have: 1, needed: 10 }];" +
+        "process.stdout.write(JSON.stringify([renderToStaticMarkup(h(K, { entries: e, locale: 'id', kesiapanMapel: d })), renderToStaticMarkup(h(K, { entries: e, locale: 'id', kesiapanMapel: null }))]));",
+        { MAPEL: JSON.stringify(mapel) });
+      if (c.expect(r.ok, `the school composition could not be rendered: ${r.err}`)) {
+        let x: string[] = [];
+        try { x = JSON.parse(r.out); } catch { /* reported below */ }
+        const teks = (h: string) => (h ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const [ada, tanpa] = x;
+        c.expect(teks(ada).includes("Matematika: 1 dari 2 kelas cukup untuk ditafsirkan.") && teks(ada).includes("Kelas 7E: sudah ada, belum cukup (4 dari 5 murid)")
+          && teks(ada).includes("IPA: 0 dari 1 kelas cukup untuk ditafsirkan.") && teks(ada).includes("Kelas 7A: belum ada"),
+          `the readiness per subject is not said with its denominator and the classes not yet: ${teks(ada).slice(0, 300)}`);
+        c.expect(/data-lk-kesiapan-mapel=""/.test(ada) && /id="pin-kesiapan"/.test(ada) && /<span class="pin-sr">Bagian <\/span>/.test(ada), "the section is not lettered and named");
+        c.expect(!/data-lk-kesiapan-mapel/.test(tanpa) && /data-lk="kesiapan"/.test(tanpa), "an unread answer does not fall back to the readiness by figure");
+      }
+      const hal = kode(baca(ctx.repoRoot, "src/app/dekan/ringkasan/page.tsx"));
+      c.expect(/const kesiapanMapel = simpul \? await kesiapanPerMapel\(simpul\) : null;/.test(hal) && /kesiapanMapel=\{kesiapanMapel\}/.test(hal)
+        && /c\.rpc\("kesiapan_kelas_per_mapel", \{ p_node: node \}\)/.test(kode(baca(ctx.repoRoot, "src/lib/pimpinan.ts"))), "Ringkasan Sekolah does not ask kesiapan_kelas_per_mapel for its node");
+      return c.verdict("renders «Kesiapan bukti» per subject (#18): «n dari m kelas cukup untuk ditafsirkan» over every class the subject is assigned to, the classes not "
+        + "yet by how far («belum ada»; «sudah ada, belum cukup (4 dari 5 murid)»); the readiness by figure when unread; Ringkasan Sekolah asks for its node");
+    },
+  },
+  {
+    // KESETIAAN #21 (H30): the several-classes cards say how many are not included, by one reason each
+    id: "AKTIVASI-KECUALI-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const r = render(ctx.repoRoot,
+        'const m = await import("file://" + process.cwd() + "/src/components/aktivasi/kelas.ts");' +
+        "const f = m.jumlahDikecualikan ?? m.default?.jumlahDikecualikan;" +
+        "process.stdout.write(JSON.stringify([f([{ id: 'a', label: 'A', jumlah: 3, dikecualikan: { AKUN: 2, PENDATAAN: 1 } }, { id: 'b', label: 'B', jumlah: 1, dikecualikan: { STAF: 1, AKUN: 1 } }]), f([])]));");
+      if (c.expect(r.ok, `the sum could not be run: ${r.err}`)) {
+        let x: unknown[] = [];
+        try { x = JSON.parse(r.out); } catch { /* reported below */ }
+        c.expect(JSON.stringify(x[0]) === JSON.stringify({ AKUN: 3, STAF: 1, PENDATAAN: 1 }) && JSON.stringify(x[1]) === JSON.stringify({ AKUN: 0, STAF: 0, PENDATAAN: 0 }),
+          `the chosen classes' exclusions are not summed per reason: ${r.out}`);
+      }
+      const form = kode(baca(ctx.repoRoot, "src/components/aktivasi/FormAktivasi.tsx"));
+      c.expect(/const terbaca = kelasBanyak\.length > 0 && kelasBanyak\.every\(\(k\) => k\.dikecualikan !== undefined\);/.test(form)
+        && /\{terbaca && bagianKecuali\.length > 0 \? \(/.test(form) && /daftarKata\(bagianKecuali, locale\)/.test(form), "the form draws a count it did not read, or not as a sentence");
+      const hal = kode(baca(ctx.repoRoot, "src/app/aktivasi/page.tsx"));
+      c.expect(/supabase\.rpc\("kelas_dikecualikan_kartu", \{ p_classes: kelasTawar\.map\(\(k\) => k\.id\) \}\)/.test(hal) && /dikecualikan: Array\.isArray\(data\) \? \{\} : undefined/.test(hal),
+        "Aktivasi does not ask kelas_dikecualikan_kartu for the classes it offers, or guesses on an unread answer");
+      for (const [k, re] of [["akun", /yang sudah punya akun/], ["staf", /yang memegang peran staf/], ["pendataan", /masih menunggu di Pendataan/]] as const) {
+        c.expect(re.test(t(`aktivasi.kelas.banyak.${k}` as HleEvent, "staff", { locale: "id" })) && !t(`aktivasi.kelas.banyak.${k}` as HleEvent, "staff", { locale: "en" }).startsWith("aktivasi."),
+          `aktivasi.kelas.banyak.${k} does not name its reason in both languages`);
+      }
+      return c.verdict("the several-classes cards (#21): the chosen classes' exclusions summed per reason (AKUN, STAF, PENDATAAN, one reason each) and said as one "
+        + "sentence («Tidak termasuk: …»), only when the database answered for every chosen class; Aktivasi asks kelas_dikecualikan_kartu for the classes it offers");
     },
   },
   {

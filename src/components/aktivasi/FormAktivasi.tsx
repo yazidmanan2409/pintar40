@@ -6,7 +6,8 @@ import { isianKurang, kunciGagal, type JawabanAktivasi, type ModeAktivasi } from
 import HasilAktivasi from "./HasilAktivasi";
 import BarisHasil from "@/components/BarisHasil";
 import LembarKartu, { type KartuCetak } from "./LembarKartu";
-import { bolehKartu, type KelasKartu } from "./kelas";
+import { bolehKartu, jumlahDikecualikan, type KelasKartu } from "./kelas";
+import { daftarKata } from "@/components/laporan/tata";
 import { anggotaKelasMenungguAksi } from "@/app/aktivasi/actions";
 
 type Orang = { person_id: string; display_name: string; institutional_id: string; institution_id: string; boleh_kartu: boolean };
@@ -180,6 +181,11 @@ export default function FormAktivasi({ locale, orang, adminSistem, kelas = [], p
   };
   const kelasBanyak = kelas.filter((k) => banyak.has(k.id));
   const muridBanyak = kelasBanyak.reduce((n, k) => n + k.jumlah, 0);
+  // KESETIAAN #21 (H30): how many of the chosen classes are not included, and why; no count when the database did not answer
+  const terbaca = kelasBanyak.length > 0 && kelasBanyak.every((k) => k.dikecualikan !== undefined);
+  const kecuali = jumlahDikecualikan(kelasBanyak);
+  const bagianKecuali = ([["AKUN", "aktivasi.kelas.banyak.akun"], ["STAF", "aktivasi.kelas.banyak.staf"], ["PENDATAAN", "aktivasi.kelas.banyak.pendataan"]] as const)
+    .filter(([a]) => kecuali[a] > 0).map(([a, k]) => s(k).replace("{n}", String(kecuali[a])));
   const isi = (k: HleEvent, n: Record<string, number>) =>
     Object.entries(n).reduce((t0, [a, v]) => t0.replaceAll(`{${a}}`, String(v)), s(k));
 
@@ -234,6 +240,11 @@ export default function FormAktivasi({ locale, orang, adminSistem, kelas = [], p
               <p className="pin-meta" aria-live="polite" data-akt-banyak-jumlah="">
                 {isi("aktivasi.kelas.banyak.terpilih", { murid: muridBanyak, kelas: kelasBanyak.length })}
               </p>
+              {terbaca && bagianKecuali.length > 0 ? (
+                <p className="pin-meta" aria-live="polite" data-akt-banyak-kecuali="">
+                  {s("aktivasi.kelas.banyak.tidak_termasuk").replace("{daftar}", daftarKata(bagianKecuali, locale))}
+                </p>
+              ) : null}
               <p className="pin-meta">{s("aktivasi.kelas.banyak.dikecualikan")}</p>
               <div className="pin-actions">
                 <button type="button" className="pin-btn pin-primary" disabled={sibuk !== null || muridBanyak === 0}

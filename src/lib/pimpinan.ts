@@ -369,6 +369,22 @@ function terbaca(e: Envelope): boolean {
   return e.status !== "not_permitted" && e.status !== "unavailable";
 }
 
+/**
+ * KESETIAAN #18: EVIDENCE READINESS PER SUBJECT AND CLASS (kesiapan_kelas_per_mapel, 20270103100000), for a reader of
+ * the class figures at or above the node: per subject, every active class with an active academic assignment of it
+ * (the denominator), and how many learners there hold an official Uji Penguasaan of its chapters against the class
+ * distribution's minimum. Counts only. Unread is null (the page falls back to the readiness by figure).
+ */
+export type KesiapanMapel = { mapel: string; kelasId: string; kelas: string; ada: number; perlu: number };
+
+export async function kesiapanPerMapel(node: string): Promise<KesiapanMapel[] | null> {
+  const c = await db();
+  const { data, error } = await c.rpc("kesiapan_kelas_per_mapel", { p_node: node });
+  if (error || !Array.isArray(data)) return null;
+  return (data as Array<{ subject: string; class_id: string; class_name: string; have: number; needed: number }>)
+    .map((r) => ({ mapel: String(r.subject), kelasId: String(r.class_id), kelas: String(r.class_name), ada: Number(r.have), perlu: Number(r.needed) }));
+}
+
 export async function buktiPimpinan(node: string, institusi: string): Promise<Envelope[]> {
   return buktiPimpinanDari(await db(), node, institusi);
 }

@@ -5,6 +5,7 @@ import { kunciMuncul } from "@/components/bukti/muncul";
 import NilaiLaporan from "@/components/bukti/NilaiLaporan";
 import { daftarKata, JudulBagian } from "@/components/laporan/tata";
 import RingkasKesiapan, { adaKesiapan } from "@/components/pimpinan/RingkasKesiapan";
+import KesiapanMapel from "@/components/pimpinan/KesiapanMapel";
 import { persenJujur } from "@/components/laporan/KomposisiKelas";
 
 /**
@@ -54,9 +55,11 @@ export function pilahSekolah(entries: readonly Envelope[]) {
   return { per, lain };
 }
 
-export default function KomposisiSekolah({ entries, locale, tempat = {} }: {
+export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapanMapel = null }: {
   entries: readonly Envelope[];
   locale: Locale;
+  /** KESETIAAN #18: evidence readiness per subject and class (kesiapan_kelas_per_mapel); null falls back to per figure. */
+  kesiapanMapel?: ReadonlyArray<{ mapel: string; kelasId: string; kelas: string; ada: number; perlu: number }> | null;
   /** The visible name of each cohort a row names, by id. */
   tempat?: Readonly<Record<string, string>>;
 }) {
@@ -111,7 +114,12 @@ export default function KomposisiSekolah({ entries, locale, tempat = {} }: {
   const hKomp = komp ? huruf() : "";
   const hAngka = angka.length > 0 ? huruf() : "";
   const hKohort = kohort ? huruf() : "";
-  const hKesiapan = adaKesiapan(entries) ? huruf() : "";
+  const perMapel = kesiapanMapel && kesiapanMapel.length > 0 ? kesiapanMapel : null;
+  const hKesiapan = perMapel || adaKesiapan(entries) ? huruf() : "";
+  const mapel = perMapel ? [...new Set(perMapel.map((r) => r.mapel))].map((m) => {
+    const kelas = perMapel.filter((r) => r.mapel === m);
+    return { mapel: m, cukup: kelas.filter((r) => r.ada >= r.perlu).length, semua: kelas.length, belum: kelas.filter((r) => r.ada < r.perlu) };
+  }) : [];
   const hLain = lain.length > 0 ? huruf() : "";
   const naik = per.get("institution.net_gain");
   const baik = urut.filter((d) => Number(d.mean_score) >= ZONA[0]).length;
@@ -195,7 +203,11 @@ export default function KomposisiSekolah({ entries, locale, tempat = {} }: {
         </section>
       ) : null}
 
-      {hKesiapan ? <div className="pin-lk-bagian" data-lk="kesiapan"><RingkasKesiapan entries={entries} locale={locale} huruf={hKesiapan} /></div> : null}
+      {/* KESETIAAN #18: per subject, how many of its classes are enough to interpret (the denominator: every active class
+          with the subject assigned), and the classes not yet, by how far; else the readiness by figure, as Pimpinan draws it */}
+      {hKesiapan && perMapel ? (
+        <KesiapanMapel mapel={mapel} locale={locale} huruf={hKesiapan} />
+      ) : hKesiapan ? <div className="pin-lk-bagian" data-lk="kesiapan"><RingkasKesiapan entries={entries} locale={locale} huruf={hKesiapan} /></div> : null}
 
       {lain.length > 0 ? (
         <section className="pin-lk-bagian" data-lk="lain">

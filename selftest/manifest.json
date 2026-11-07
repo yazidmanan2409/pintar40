@@ -4582,6 +4582,26 @@
       "proves": "D-195(4), CONTOH LAPORAN 5-peserta, selftest/db/fable32.sql: jenis_belajar_saya tells a learner placed under one of their own learning assignments whether that course is professional learning (a boolean, so src never names the context), and a learner not under it nothing."
     },
     {
+      "id": "F33-S01",
+      "runner": "db",
+      "proves": "KESETIAAN #6, selftest/db/fable33.sql against supabase/migrations/20270103100000_the_report_reads_daisy_asked_for.sql: in a class of its own, sebaran_murid_kelas gives the class's teacher one row per learner with an official Uji Penguasaan in the class (one who has since left included, a placed learner with none not), each band equal to calc_class_readiness_distribution's count, and only mastery and band (no identity); a Kepala departemen over the school, the Dekan, a teacher of another class and an anonymous caller get nothing. With the safety-gate clause removed the bands differ and it fails."
+    },
+    {
+      "id": "F33-K01",
+      "runner": "db",
+      "proves": "KESETIAAN #7, selftest/db/fable33.sql: kenaikan_awal_akhir over six (Pemetaan Awal, Uji Penguasaan) pairs of one chapter and a learner whose two tests are of different chapters gives 0.4250 → 0.7333 over 6 pairs of 6 people, and akhir − awal equals calc_class_net_gain's value; the Dekan (a Kenaikan audience) is given it, a teacher of another class nothing, and a class with four pairs (under the minimum) nothing (the page then says «Belum dapat dibandingkan»). Counting a pre-test without its post-test makes it fail."
+    },
+    {
+      "id": "F33-R01",
+      "runner": "db",
+      "proves": "KESETIAAN #18, selftest/db/fable33.sql: kesiapan_kelas_per_mapel gives the Dekan, for every (subject, class), exactly the active classes with an active academic assignment of the subject, «have» equal to an independent count of learners with an official Uji Penguasaan of the subject's chapters in the class, and «needed» the class distribution's minimum; a class of its own whose six learners hold seven results counts 6; the class's teacher and another school's Dekan get nothing. Counting results instead of learners, or dropping the subject match, makes it fail."
+    },
+    {
+      "id": "F33-A01",
+      "runner": "db",
+      "proves": "KESETIAAN #21, selftest/db/fable33.sql: kelas_dikecualikan_kartu gives the school's administrator, for a class of its own, AKUN 1 (a member with an account), STAF 1 (a member with no account and a staff role), PENDATAAN 2 (learner rows of an import waiting for its go), and does not count the member offered a card, a completed import's row, a staff row, or a row naming a person already placed; a teacher gets nothing. Without the placed-person exclusion it counts that person twice and fails."
+    },
+    {
       "id": "LAPORAN-KELAS-01",
       "runner": "static",
       "proves": "CONTOH LAPORAN 2-guru/2b (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov), selftest/b5a.test.ts: src/components/laporan/KomposisiKelas.tsx rendered over envelopes shaped like the specimen's: the lead sentence counted from the topic rows («2 dari 4 topik masih di bawah target: …»), the bands and comprehension under it with R4-02's one decimal (74,8% against a 75% target), rows below the target amber and in words against a labelled target line (G-03), the class's population said apart from the bands, which are drawn over the assessed in the legend's order, the gain with the people it is computed from (MC-8), the misunderstanding with its remedy and the pointer to it, sections lettered A–F (G-02), «Lihat bukti» linked for the teacher, an action sentence under each figure (S-3); the not-yet report (2b) keeps each figure's place with how far it is from appearing; a class with no one sealed target draws no line and names the lowest topic; R4-02 rounding (59,6%, 62%); and Ringkasan Kelas draws it over generate_report's envelopes and the class's sealed target (targetKelas)."
@@ -4595,6 +4615,21 @@
       "id": "LAPORAN-CETAK-01",
       "runner": "static",
       "proves": "KESETIAAN #3 and #15 (Daisy's fidelity check, 8cfc75b5), selftest/b5a.test.ts, from the source of src/app/experience.css and the rendered src/components/laporan/KepalaCetak.tsx: @page laporan (A4 portrait) and laporan-lebar (A4 landscape) carry the PINTAR wordmark in --merek-warna at the top left, the header line's type, and «Halaman n dari m»; a page holding a report prints on that page, as blocks on white, a heading kept with its chart and a chart never split; the wide topics × classes grid prints on the landscape page with a fixed name column and its header and «di bawah target» kept whole; KepalaCetak writes report · place · period as one escaped CSS string, and Ringkasan Kelas, Ringkasan Sekolah and Pimpinan each write theirs."
+    },
+    {
+      "id": "LAPORAN-KELAS-03",
+      "runner": "static",
+      "proves": "KESETIAAN #6 and #7 (owner GO, 7 Nov), selftest/b5a.test.ts, rendered src/components/laporan/KomposisiKelas.tsx and the source of the page, the lib and migration 20270103100000: the score line draws one dot per learner in its band's step of teal, stacked where scores meet, as a hidden picture with a text equivalent naming how many learners, only when given dots (the page asks only for the class's teacher; the read returns mastery and band, no identity); the before → after pair («Rata-rata kelas 42,5% → 73,3%», one decimal each so the difference reads as the gain) over Kenaikan's own pairs, «Rata-rata sebelum dan sesudah belum dapat dibandingkan.» when not comparable, nothing when unread; the pair's read is gated by the reader's own class.net_gain."
+    },
+    {
+      "id": "LAPORAN-SEKOLAH-02",
+      "runner": "static",
+      "proves": "KESETIAAN #18, selftest/b5a.test.ts, rendered src/components/laporan/KomposisiSekolah.tsx and the source of the page and lib: «Kesiapan bukti» per subject says «n dari m kelas cukup untuk ditafsirkan» over every class the subject is assigned to, and the classes not yet by how far («belum ada»; «sudah ada, belum cukup (4 dari 5 murid)»), lettered and named; an unread answer falls back to the readiness by figure; Ringkasan Sekolah asks kesiapan_kelas_per_mapel for its node."
+    },
+    {
+      "id": "AKTIVASI-KECUALI-01",
+      "runner": "static",
+      "proves": "KESETIAAN #21 (H30), selftest/b5a.test.ts, executes src/components/aktivasi/kelas.ts and reads the source of FormAktivasi, the Aktivasi page and the copy table: the chosen classes' exclusions are summed per reason (AKUN, STAF, PENDATAAN, one reason each, from kelas_dikecualikan_kartu) and said as one sentence («Tidak termasuk: …») only when the database answered for every chosen class; each reason's words in both languages."
     },
     {
       "id": "PEMILIH-KESETIAAN-01",

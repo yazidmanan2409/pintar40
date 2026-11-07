@@ -955,6 +955,42 @@ export async function perluPenguatan(kelasId: string): Promise<MuridPenguatan[] 
   }));
 }
 
+/**
+ * KESETIAAN #6: THE CLASS'S SCORE LINE, ONE DOT PER LEARNER, for the class's teacher only (sebaran_murid_kelas,
+ * 20270103100000): each learner's latest official Uji Penguasaan mastery and band, by the readiness calculator's own
+ * rule, with no identity at all. Unread is null (no strip drawn).
+ */
+export type TitikMurid = { mastery: number; pita: "mantap" | "berkembang" | "penguatan" };
+const PITA_TIER: Record<string, TitikMurid["pita"]> = {
+  "kesiapan.siap_sertifikasi": "mantap", "kesiapan.perlu_review": "berkembang", "kesiapan.butuh_pendampingan": "penguatan",
+};
+
+export async function sebaranKelas(kelasId: string): Promise<TitikMurid[] | null> {
+  const c = await db();
+  const { data, error } = await c.rpc("sebaran_murid_kelas", { p_class: kelasId });
+  if (error) return null;
+  return rows<{ mastery: number | string; tier_key: string }>(data)
+    .map((r) => ({ mastery: Number(r.mastery), pita: PITA_TIER[r.tier_key] }))
+    .filter((r): r is TitikMurid => Number.isFinite(r.mastery) && Boolean(r.pita));
+}
+
+/**
+ * KESETIAAN #7: THE BEFORE → AFTER PAIR BEHIND «KENAIKAN» (kenaikan_awal_akhir, 20270103100000): the mean Pemetaan Awal
+ * and the mean Uji Penguasaan over exactly the (learner, chapter) pairs class.net_gain reads, given only when the
+ * reader's own Kenaikan evaluates «ok». «TIDAK» when the database answers with no pair: the page then says the two
+ * cannot be compared yet, never a figure; null when the read failed (nothing drawn).
+ */
+export type AwalAkhir = { awal: number; akhir: number; pasangan: number } | "TIDAK";
+
+export async function awalAkhirKelas(kelasId: string): Promise<AwalAkhir | null> {
+  const c = await db();
+  const { data, error } = await c.rpc("kenaikan_awal_akhir", { p_class: kelasId });
+  if (error) return null;
+  const r = rows<{ awal: number | string | null; akhir: number | string | null; pasangan: number }>(data)[0];
+  if (!r || r.awal == null || r.akhir == null) return "TIDAK";
+  return { awal: Number(r.awal), akhir: Number(r.akhir), pasangan: Number(r.pasangan) };
+}
+
 // ═══════════════════════════════════════════════════ 5. the quick assessment
 
 export type BatasUjiCepat = {
