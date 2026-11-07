@@ -3,5 +3,7 @@
 # 6 Nov, integrated verification on main d672a94a (P-4): Sekolah Uji B8 1106 after GS-01 to GS-21 (run 42220729346); the receiving Golden School: Sekolah Uji B8 1105
 # 7 Nov, P-5 verification (main ebc53ee2; migration 197): Sekolah Uji P5 1107 after GS-01 to GS-21 (run 42320850695); the receiving Golden School: Sekolah Uji B8 1106 (P6: its Guru must find the learner)
 # 7 Nov, evaluation school (synthetic): Sekolah Uji Evaluasi A after GS-17-21 (run 42350628901), receiving school Sekolah Uji Evaluasi B; staging main 002852ab
+# 7 Nov, owner «DIMAS TRANSFER»: B's admin executes the accepted transfer a0d0ab7e (A → B) by «Laksanakan», then the read-back
+lanjut: a0d0ab7e-d7cf-4d6c-803f-aeb8312d5044
 other: sekolah-uji-evaluasi-b
 slug: sekolah-uji-evaluasi-a
