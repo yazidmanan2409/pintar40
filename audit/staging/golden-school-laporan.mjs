@@ -199,7 +199,12 @@ async function angka(scope) {
       ...[...e.querySelectorAll(".pin-rrow")].map((r) => [...r.querySelectorAll("span")].slice(0, 2).map(t)),
       ...[...e.querySelectorAll("dl.pin-lap-isi > div")].map((r) => [t(r.querySelector("dt")), t(r.querySelector("dd"))]),
       ...[...e.querySelectorAll("ul.pin-lap-baris > li")].map((r) => [...r.querySelectorAll("span")].slice(0, 2).map(t)),
-      ...[...e.querySelectorAll(".pin-lk-pita-ket > li")].map((r) => [t(r).replace(/\s*\d[\d.]*$/, ""), t(r.querySelector("strong"))]),
+      // the legend row is «{band} <strong>{n} murid ({p}%)</strong>» since the legend amendment (a2291edf): the band is the
+      // row's words without its <strong>, the count the strong's first number (not every digit, which would read 2 and 40% as 240)
+      ...[...e.querySelectorAll(".pin-lk-pita-ket > li")].map((r) => {
+        const kuat = t(r.querySelector("strong"));
+        return [t(r).slice(0, kuat ? t(r).lastIndexOf(kuat) : undefined).replace(/\s*\d[\d.]*$/, "").trim(), kuat.match(/\d[\d.]*/)?.[0] ?? kuat];
+      }),
     ];
     const lk = e.getAttribute("data-lk-entri");
     return { label: lk !== null ? lk : t(e.querySelector(".pin-ml, h2")), nilai: t(e.querySelector(".pin-mv, .pin-lap-satu, .pin-lk-angka-nilai")), teks: t(e), baris };
