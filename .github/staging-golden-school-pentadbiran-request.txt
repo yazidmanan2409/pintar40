@@ -2,5 +2,6 @@
 # 5 Nov, Batch 8 staging verification (P-1; migrations 194-196): Sekolah Uji B8 1105 after GS-01 to GS-21 (run 42049795788); main 38d7e701; the receiving Golden School: Sekolah Uji B5 1104
 # 6 Nov, integrated verification on main d672a94a (P-4): Sekolah Uji B8 1106 after GS-01 to GS-21 (run 42220729346); the receiving Golden School: Sekolah Uji B8 1105
 # 7 Nov, P-5 verification (main ebc53ee2; migration 197): Sekolah Uji P5 1107 after GS-01 to GS-21 (run 42320850695); the receiving Golden School: Sekolah Uji B8 1106 (P6: its Guru must find the learner)
-other: sekolah-uji-b8-1106
-slug: sekolah-uji-p5-1107
+# 7 Nov, evaluation school (synthetic): Sekolah Uji Evaluasi A after GS-17-21 (run 42350628901), receiving school Sekolah Uji Evaluasi B; staging main 002852ab
+other: sekolah-uji-evaluasi-b
+slug: sekolah-uji-evaluasi-a
