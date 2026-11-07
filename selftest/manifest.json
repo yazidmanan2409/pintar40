@@ -4557,6 +4557,11 @@
       "proves": "W2.17 (FD-4 at 10x staging), selftest/db/fable30.sql, migration 20261230100000_a_school_s_people_are_found_by_name.sql: school_people_page gives a school's administrator a page of at most 50 of the school's ACTIVE enrolments (a limit asked above 50 is held at 50), the newest first and each named, finds a person by part of the name in any case and white space, never an ENDED enrolment; it gives nothing for a school the caller does not administer (another school's administrator, the school's educator, a learner), nothing for «every school» except to the platform administrator, nothing to a signed-in role with no person, and anon may not call it."
     },
     {
+      "id": "F31-K01",
+      "runner": "db",
+      "proves": "H31 (MC-8), selftest/db/fable31.sql, migration 20270101100000_a_gain_pairs_each_learners_pre_and_post_test_of_the_same_chapter.sql: in a class of its own, a learner who sat Bab 1 (pre 30%, post 80%) and Bab 2 (pre 70%, post 75%) and another who sat only Bab 1's pre-test and Bab 2's post-test make calc_class_net_gain return 0.275 (the mean of the first learner's per-chapter gains), not 0.10 or 0.40, with a sample of 1 person; calc_institution_net_gain equals the same per-learner, per-chapter pairing computed independently from the official sessions and results, with its sample in people. Against the person-only grouping it answers 0.40 over 2 and fails."
+    },
+    {
       "id": "W217-SKALA-01",
       "runner": "app",
       "proves": "W2.17 (FD-4, R.5), selftest/app.test.ts through the running app against the database: with 13,300 more active enrolments seeded into one synthetic school (10× staging's 1,323), the source of src/app/konfigurasi/page.tsx draws both pickers that list a school's people (the transfer form's enrolment, the roles form's person) so that the last person seeded is found by name, at most a page of 50 is listed with or without a search, and every option is a name, never an id fragment; the seeded enrolments are ended after (append-only, INV-23)."
