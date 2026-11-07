@@ -60,3 +60,35 @@ Checked against `fa76781b`. `KomposisiPengembangan` was rendered with specimen 6
 | X5-7 | A4 | Page 1 holds only the frame and the sentence. All of A moves to page 2, leaving page 1 blank under the sentence | A starts under the frame. The table may break between rows, with its thead repeated | In print, `break-inside: auto` on the A card and on `[data-pd-paket]`, and `break-inside: avoid` on `tr` only |
 | X5-8 | A4 · headers | **PASS**: the headers wrap between words («Sudah / mulai», «Pelajaran / selesai») and no word breaks mid-word. This applies equally to `/pengembangan/[kelas]`, which uses the same rules | — | — |
 | X5-9 | Refused reader or empty class | **PASS**: one line in words. Nothing implies figures will come | — | — |
+
+### X5 · owner ruling (7 Nov): all nine approved; the corrections, prepared and verified
+
+The owner approved X5-1 to X5-9 as presentation corrections: X5-2 in the natural sentence, and X5-5 with the percentage removed. No escalation is needed.
+
+This lane does not commit to `src/`, so the corrections come as one patch against `fa76781b`: **`X5-koreksi.patch`** (5 files, +41 −15). Engineering applies it on `claude/awesome-rubin-bqxp6p`, and Second Eye verifies it there.
+
+| # | Correction in the patch | Verified here |
+|---|---|---|
+| X5-1 | The owner's sentence as `<p className="pin-intro">` under the h1, verbatim. The alert is removed; there is no letter | Rendered (`render/x5-*`) |
+| X5-2 | `pengembangan.belum_mulai` = «{daftar} belum mulai.», with the list joined by `daftarKata` («Gilang Ramadhan dan Imam Syafii belum mulai.») | Rendered; test updated |
+| X5-3 | A not-yet step is a 2 px dash in `ink-3`, with its words in `ink-2` | Rendered at 1280, 390 and A4 |
+| X5-4 | The mark and its first word in one nowrap span; «n dari m» whole | Rendered; no mark is separated from its word |
+| X5-5 | Hasil shows «Tercapai» / «Belum tercapai» only; with no decision it shows «—» | Rendered; test asserts no `%` |
+| X5-6 | The record table at `--t-small`, collapsed borders, hairline dividers and the DS stripe | Rendered |
+| X5-7 | In print, the section, card and table may break between rows; each row stays whole and the thead repeats. Print measures (8.5 pt, 2 × 1.6 mm) keep seven columns inside the card | A4: page 1 carries the frame and twelve rows; page 2 repeats the header row |
+| X5-8 | Header wrapping (engineering's own fix) kept | A4 PASS |
+| X5-9 | Unchanged | PASS |
+| + | `.pin-actions + .pin-lk` margin `--space-7`: a report's first section stands clear of «Cetak laporan». This is shared with the academic Ringkasan Kelas, which had the same tight gap | Rendered |
+
+**Checks run on the patched tree:**
+- `tsc --noEmit`: clean.
+- `LAPORAN-KELAS-PD-01` and `LAPORAN-FASILITATOR-01`: PASS, updated to the approved behaviour.
+- Full `selftest`: 420 passed and 2 failed. The two failures, `UX1-S0-MUAT-01` (needs `next build`) and `BOB26-K01` (needs `CARD_PEPPER`), fail identically on the unpatched `fa76781b`, so they come from this environment, not the patch.
+- axe at 1280: no violations.
+- 390 and 1280: no sideways page scroll.
+
+**Not verified here, so not yet resolved:**
+- The running application, signed in as the facilitator, the Kepala departemen, the Dekan and Admin sekolah. That needs staging or a local stack with Supabase, which the design lane cannot reach. The renders use the page's own frame components (`KepalaCetak`, `BarisLingkup`, `AksiLaporan`) and the built `KomposisiPengembangan`; only the session shell is absent.
+- The DB suites (F33-P01 among them), which were skipped for lack of a database.
+
+Each X5 row is **resolved** only after engineering applies the patch and Second Eye confirms the C12f2 walk (`c12-x5-*`) and the A4 print on the real pages.

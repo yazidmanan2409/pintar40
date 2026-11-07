@@ -1,0 +1,157 @@
+diff --git a/selftest/b5a.test.ts b/selftest/b5a.test.ts
+index cfef8b41..2e895e2f 100644
+--- a/selftest/b5a.test.ts
++++ b/selftest/b5a.test.ts
+@@ -428,7 +428,7 @@ export const b5aTests: SelfTest[] = [
+       const awal = halaman.indexOf("async function RingkasanPengembangan(");
+       const fn = awal >= 0 ? halaman.slice(awal) : "";
+       c.expect(fn.length > 0 && /catatan\(kelas\)/.test(fn) && /<KomposisiPengembangan isi=\{isi\} locale=\{locale\} \/>/.test(fn)
+-        && /s\("laporan\.kelas\.pd_arti", "staff", locale\)/.test(fn) && /data-pd-arti=""/.test(fn) && /pin-banner pin-info/.test(fn),
++        && /s\("laporan\.kelas\.pd_arti", "staff", locale\)/.test(fn) && /<p className="pin-intro" data-pd-arti="">/.test(fn) && !/pin-banner/.test(fn),
+         "the PD summary does not draw the sentence and the professional-learning record");
+       c.expect(!/KomposisiKelas|perluPenguatan|sebaranKelas|awalAkhirKelas|targetKelas|generate_report|kunciMuncul|laporan\.muncul|tak_ada_angka/.test(fn),
+         "the PD summary draws or asks for an academic figure, a band, a score line, «Perlu penguatan» or a promise that figures will come");
+@@ -483,9 +483,9 @@ export const b5aTests: SelfTest[] = [
+         const tf = teks(f), ta = teks(a);
+         // alphabetical, never by result; the row's own facts in words
+         c.expect(/Andi Nugroho[\s\S]*Citra Lestari[\s\S]*Imam Syafii/.test(tf), "the participants are not in alphabetical order");
+-        c.expect(/<th scope="col">Pelajaran selesai<\/th>/.test(f) && /<th scope="col">Hasil<\/th>/.test(f) && tf.includes("5 dari 5") && tf.includes("Tercapai · 85%") && tf.includes("4 dari 5"),
++        c.expect(/<th scope="col">Pelajaran selesai<\/th>/.test(f) && /<th scope="col">Hasil<\/th>/.test(f) && tf.includes("5 dari 5") && tf.includes("Tercapai") && !/\d+\s?%/.test(tf) && tf.includes("4 dari 5"),
+           "the facilitator's columns (lessons, result) are not drawn per person");
+-        c.expect(tf.includes("Terdaftar, akun belum diaktifkan") && tf.includes("Belum mulai: Imam Syafii.") && tf.includes("Belum diberi paket: Eko Prasetyo."),
++        c.expect(tf.includes("Terdaftar, akun belum diaktifkan") && tf.includes("Imam Syafii belum mulai.") && tf.includes("Belum diberi paket: Eko Prasetyo."),
+           "who has not begun, who has no package, or an account not activated, is not said by name");
+         // D-069(b): no participant count, no total, no headline figure
+         c.expect(!/\d+\s*(dari\s*\d+\s*)?(peserta|orang|sudah mulai|sudah selesai)/i.test(tf) && !/data-lk-entri/.test(f) && !/<tfoot/.test(f),
+diff --git a/src/app/edukator/ringkasan/page.tsx b/src/app/edukator/ringkasan/page.tsx
+index 91183a5b..2456b8cd 100644
+--- a/src/app/edukator/ringkasan/page.tsx
++++ b/src/app/edukator/ringkasan/page.tsx
+@@ -167,9 +167,11 @@ async function RingkasanPengembangan({ kelas, asal }: { kelas: string; asal: Ret
+         <div className="pin-head">
+           <p className="pin-eyebrow">{judul}</p>
+           <h1 className="pin-h1">{kepala?.tempat ?? judul}</h1>
++          {/* X5-1 (owner, 7 Nov): the owner's words are this report's scope line, as «Angka dihitung…» is the academic one's;
++              not an alert (a state to notice) and not a lettered section */}
++          <p className="pin-intro" data-pd-arti="">{s("laporan.kelas.pd_arti", "staff", locale)}</p>
+         </div>
+         <AksiLaporan kembali={s(asal.nama, "staff", locale)} ke={asal.ke} cetak={s("laporan.cetak", "staff", locale)} />
+-        <div className="pin-banner pin-info" role="note" data-pd-arti="">{s("laporan.kelas.pd_arti", "staff", locale)}</div>
+         {isi === null ? (
+           <Kosong jenis="belum" kalimat={s("pengembangan.ditolak", "staff", locale)} />
+         ) : isi.peserta.length === 0 ? (
+diff --git a/src/app/experience.css b/src/app/experience.css
+index 859f29de..5752c900 100644
+--- a/src/app/experience.css
++++ b/src/app/experience.css
+@@ -224,6 +224,8 @@
+ .pin-lambat:empty { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+ .pin-lambat { display: block; flex-basis: 100%; margin: var(--space-1) 0 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); }
+ .pin-actions { display: flex; gap: var(--space-3); margin-top: var(--space-5); flex-wrap: wrap; align-items: center; }
++/* a report's first section stands clear of the frame's actions, as in CONTOH LAPORAN (X5, 7 Nov) */
++.pin-actions + .pin-lk { margin-top: var(--space-7); }
+ .pin-back {
+   display: inline-flex; gap: var(--space-1) 6px; align-items: center; min-height: var(--control-md);
+   font-size: var(--t-small); font-weight: var(--weight-strong);
+@@ -3677,6 +3679,14 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
+ .pin-lk-kisi-tabel tbody th small { display: block; font-size: var(--t-eyebrow); line-height: var(--t-eyebrow-lh); color: var(--ink-2); }
+ .pin-lk-tanda { display: inline-block; width: var(--space-2); height: var(--space-2); margin-right: var(--space-2); border-radius: var(--radius-pill); border: var(--border-hairline) solid var(--ink-3); vertical-align: middle; }
+ .pin-lk-tanda[data-selesai] { background: var(--pintar-primary); border-color: var(--pintar-primary); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
++/* X5 (owner, 7 Nov; 6-fasilitator): a step not yet done is a short dash, as the legend «Tanda —» says; its words quieter */
++.pin-lk-tanda:not([data-selesai]) { height: var(--border-selected); border: 0; border-radius: 0; background: var(--ink-3); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
++.pin-lk-status[data-belum] { color: var(--ink-2); }
++.pin-lk-status-awal { white-space: nowrap; }
++/* the record's word table: compact rows, hairline dividers, the DS stripe (not the numeric grid's tiles) */
++[data-pd-paket] .pin-lk-kisi-tabel { width: 100%; border-collapse: collapse; font-size: var(--t-small); line-height: var(--t-small-lh); }
++[data-pd-paket] .pin-lk-kisi-tabel th, [data-pd-paket] .pin-lk-kisi-tabel td { padding: var(--space-3); border-bottom: var(--border-hairline) solid var(--line); }
++[data-pd-paket] .pin-lk-kisi-tabel thead th { border-bottom-color: var(--line-strong); }
+ .pin-lk-sel { display: grid; gap: var(--space-1); min-width: var(--lk-kolom-sempit); }
+ .pin-lk-sel b { font-weight: 600; font-variant-numeric: tabular-nums; }
+ .pin-lk-mini { position: relative; height: var(--space-1); border-radius: var(--radius-sm); background: var(--lk-alur); }
+@@ -3708,6 +3718,12 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
+   [data-pd-paket] .pin-lk-kisi-tabel { table-layout: auto; }
+   [data-pd-paket] .pin-lk-kisi-tabel thead th { white-space: normal; }
+   [data-pd-paket] .pin-lk-kisi-tabel th, [data-pd-paket] .pin-lk-kisi-tabel td { overflow-wrap: normal; word-break: normal; hyphens: manual; }
++  /* X5-7: the record may run past a page: it breaks between rows (each row whole, the header repeated), never pushing
++     the whole section to the next page */
++  .pin-lk-bagian:has([data-pd-paket]), .pin-lk-bagian:has([data-pd-paket]) .pin-lk-inti, [data-pd-paket] { break-inside: auto; }
++  /* the record's compact screen rows keep the paper's measures, so seven columns fit inside the card */
++  [data-pd-paket] .pin-lk-kisi-tabel { font-size: 8.5pt; line-height: var(--leading-tight); }
++  [data-pd-paket] .pin-lk-kisi-tabel th, [data-pd-paket] .pin-lk-kisi-tabel td { padding: 2mm 1.6mm; }
+   .pin-lk-kisi-tabel tbody tr:nth-child(even) { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+ }
+ @media (max-width: 639px) {
+diff --git a/src/components/laporan/KomposisiPengembangan.tsx b/src/components/laporan/KomposisiPengembangan.tsx
+index a7e36b44..cfbc3c0e 100644
+--- a/src/components/laporan/KomposisiPengembangan.tsx
++++ b/src/components/laporan/KomposisiPengembangan.tsx
+@@ -1,5 +1,5 @@
+ import { format, t, type HleEvent, type Locale } from "@/lib/hle";
+-import { JudulBagian } from "@/components/laporan/tata";
++import { daftarKata, JudulBagian } from "@/components/laporan/tata";
+ import type { CatatanPengembangan, KeadaanUji, PaketPeserta, PesertaCatatan } from "@/lib/pengembangan-kontrak";
+ 
+ /**
+@@ -37,9 +37,16 @@ export default function KomposisiPengembangan({ isi, locale }: { isi: CatatanPen
+   const s = (k: string) => t(k as HleEvent, "staff", { locale });
+   const { paket, tanpaPaket } = susunCatatan(isi);
+   const penuh = isi.kolom === "FULL";
+-  const tanda = (selesai: boolean, teks: string) => (
+-    <><i className="pin-lk-tanda" data-selesai={selesai ? "" : undefined} aria-hidden="true" />{teks}</>
+-  );
++  // X5-3/4 (owner, 7 Nov): a filled dot when done, a short dash when not yet; the mark and its first word never part
++  const tanda = (selesai: boolean, teks: string, utuh = false) => {
++    const [awal, ...sisa] = utuh ? [teks] : teks.split(" ");
++    return (
++      <span className="pin-lk-status" data-belum={selesai ? undefined : ""}>
++        <span className="pin-lk-status-awal"><i className="pin-lk-tanda" data-selesai={selesai ? "" : undefined} aria-hidden="true" />{awal}</span>
++        {sisa.length ? ` ${sisa.join(" ")}` : null}
++      </span>
++    );
++  };
+   const uji = (k: KeadaanUji) => tanda(k === "SELESAI", s(`pengembangan.status.${k}`));
+   const belumMulai = [...new Set(isi.peserta.filter((o) => o.paket.length > 0 && o.paket.every((p) => !p.mulai)).map((o) => o.nama))];
+ 
+@@ -49,7 +56,7 @@ export default function KomposisiPengembangan({ isi, locale }: { isi: CatatanPen
+         <JudulBagian huruf={"A"} judul={s("pengembangan.langkah")} id="pd-a" persona={"staff"} locale={locale} />
+         <div className="pin-lk-inti">
+         {belumMulai.length > 0 ? (
+-          <p className="pin-lk-kalimat" data-lk-kalimat="">{s("pengembangan.belum_mulai").replace("{daftar}", belumMulai.join(", "))}</p>
++          <p className="pin-lk-kalimat" data-lk-kalimat="">{s("pengembangan.belum_mulai").replace("{daftar}", daftarKata(belumMulai, locale))}</p>
+         ) : null}
+         <p className="pin-lk-arti">{s(penuh ? "pengembangan.urutan_hasil" : "pengembangan.urutan")}</p>
+         {paket.map(({ judul, baris }) => (
+@@ -80,14 +87,15 @@ export default function KomposisiPengembangan({ isi, locale }: { isi: CatatanPen
+                     {penuh ? (
+                       <td>{p.pelajaran
+                         ? tanda(p.pelajaran.jumlah > 0 && p.pelajaran.selesai >= p.pelajaran.jumlah,
+-                          s("pengembangan.pelajaran_dari").replace("{n}", format.number(p.pelajaran.selesai, locale)).replace("{m}", format.number(p.pelajaran.jumlah, locale)))
+-                        : "—"}</td>
++                          s("pengembangan.pelajaran_dari").replace("{n}", format.number(p.pelajaran.selesai, locale)).replace("{m}", format.number(p.pelajaran.jumlah, locale)), true)
++                        : <span className="pin-lk-sel-kosong">—</span>}</td>
+                     ) : null}
+                     <td>{uji(p.penguasaan)}</td>
+                     {penuh ? (
+-                      <td>{p.hasil
+-                        ? <>{p.hasil.tercapai === null ? null : <>{s(p.hasil.tercapai ? "pengembangan.tercapai" : "pengembangan.belum_tercapai")} · </>}{format.percent(p.hasil.penguasaan, locale)}</>
+-                        : "—"}</td>
++                      <td>{/* X5-5 (owner, 7 Nov): the result in its approved words, never a percentage */}
++                        {p.hasil && p.hasil.tercapai !== null
++                        ? s(p.hasil.tercapai ? "pengembangan.tercapai" : "pengembangan.belum_tercapai")
++                        : <span className="pin-lk-sel-kosong">—</span>}</td>
+                     ) : null}
+                     <td>{tanda(p.selesai, s(p.selesai ? "pengembangan.ya" : "pengembangan.belum"))}</td>
+                   </tr>
+diff --git a/src/lib/hle.ts b/src/lib/hle.ts
+index c675c84a..ab60d711 100644
+--- a/src/lib/hle.ts
++++ b/src/lib/hle.ts
+@@ -3533,7 +3533,7 @@ const table: Table = {
+   "hasilbelajar.buka": { default: "Lihat hasil belajar", en: "See your learning results" },
+   "hasilbelajar.buka_arti": { default: "Semua bab yang sudah Anda kerjakan dalam satu halaman, dengan bagian yang perlu dipelajari lagi.", en: "Every chapter you have worked on, on one page, with the parts to study again." },
+   "pengembangan.langkah": { default: "Langkah setiap peserta", en: "Each participant's steps" },
+-  "pengembangan.belum_mulai": { default: "Belum mulai: {daftar}.", en: "Not started yet: {daftar}." },
++  "pengembangan.belum_mulai": { default: "{daftar} belum mulai.", en: "Not started yet: {daftar}." },
+   "pengembangan.urutan": { default: "Peserta menurut abjad.", en: "Participants in alphabetical order." },
+   "pengembangan.urutan_hasil": { default: "Peserta menurut abjad. Hasil terlihat per orang, tidak dijumlahkan dan tidak diurutkan.", en: "Participants in alphabetical order. Each result is that person's own, never added up or ranked." },
+   "pengembangan.kolom.peserta": { default: "Peserta", en: "Participant" },
