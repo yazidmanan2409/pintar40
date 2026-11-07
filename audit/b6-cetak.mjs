@@ -156,16 +156,17 @@ sql(`do $$ declare v uuid; e uuid; contoh record; begin
     update public.enrollments set status = 'ACTIVE' where id = e;
   end loop; end $$`);
 
-// H30: two more of alpha's classes, each with two learners waiting for an account, for the several-classes run (P3b)
-const kelasLain = sql(`select string_agg(x.id || '|' || x.name, ';') from (select distinct n.id, n.name, n.created_at from public.org_nodes n
-   join public.memberships m on m.node_id = n.id and m.valid_to is null join public.enrollments e on e.id = m.enrollment_id and e.status = 'ACTIVE'
-  where n.institution_id = '${alphaId}' and n.kind = 'CLASS' and n.is_active and n.id <> '${kelasId}' order by n.created_at limit 2) x`)
-  .split(";").filter(Boolean).map((r) => r.split("|"));
+// H30: two more of alpha's classes, each with two learners waiting for an account, for the several-classes run (P3b).
+// The seeded alpha has one class with learners (5A), so the walk makes its own two beside it: same cohort, same year.
+const kelasLain = sql(`with dasar as (select n.institution_id, n.parent_id, n.academic_period_id from public.org_nodes n where n.id = '${kelasId}')
+  insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+  select d.institution_id, d.parent_id, 'CLASS', 'Banyak ${TAG} ' || g, d.academic_period_id from dasar d, generate_series(1, 2) g
+  returning id || '|' || name`).split("\n").filter((r) => r.includes("|")).map((r) => r.split("|"));
 for (const [kid] of kelasLain) {
   sql(`do $$ declare v uuid; e uuid; contoh record; begin
     perform set_config('app.seed_intent', 'synthetic', true);
     select en.academic_period_id, en.programme_id into contoh from public.enrollments en join public.memberships m on m.enrollment_id = en.id
-     where m.node_id = '${kid}' and m.valid_to is null limit 1;
+     where m.node_id = '${kelasId}' and m.valid_to is null limit 1;
     for i in 1..2 loop
       insert into public.persons (display_name) values ('Banyak Walk ${TAG} ' || substr('${kid}', 1, 4) || ' ' || i) returning id into v;
       perform public.issue_institutional_id(v, '${alphaId}');
@@ -208,7 +209,7 @@ await step("P3", `the class-card sheet in print: only the set, two across, no ca
   const nilai = await pilih.locator("option").evaluateAll((os, id) => os.find((o) => o.value === id)?.value ?? null, kelasId);
   if (!harus(rec, nilai === kelasId, `«${kelasNama}» is offered`)) return;
   await pilih.selectOption(kelasId);
-  await A.locator("section.pin-akt-kelas button.pin-primary").click();
+  await A.locator("section.pin-akt-kelas button.pin-primary:not(fieldset.pin-akt-banyak button)").click();
   await A.locator(".pin-akt-lembar .pin-akt-kartu").first().waitFor({ timeout: SLOW * 2 });
   await A.waitForLoadState("networkidle");
   const kartu = await A.locator(".pin-akt-lembar .pin-akt-kartu").count();
