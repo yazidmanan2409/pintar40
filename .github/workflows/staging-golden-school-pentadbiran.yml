@@ -62,7 +62,11 @@ jobs:
           other=$(sed -n 's/^other: *\([a-z0-9][a-z0-9-]*\) *$/\1/p' "$f" | tail -n 1)
           echo "GS_SLUG=$slug" >> "$GITHUB_ENV"
           echo "GS_OTHER_SLUG=$other" >> "$GITHUB_ENV"
-          echo "school: $slug; another school: ${other:-none}"
+          # owner, 7 Nov («DIMAS TRANSFER»): a line "lanjut: <transfer id>" runs only golden-school-pindah-lanjut.mjs, the
+          # receiving school's «Laksanakan» on that already accepted transfer and the read-back, never the whole walk
+          lanjut=$(tail -n 3 "$f" | sed -n 's/^lanjut: *\([0-9a-f-]\{36\}\) *$/\1/p' | tail -n 1)
+          echo "GS_LANJUT_PINDAH=$lanjut" >> "$GITHUB_ENV"
+          echo "school: $slug; another school: ${other:-none}; continue transfer: ${lanjut:-none}"
       - name: Playwright (the audit harness's version)
         working-directory: audit/staging
         run: |
@@ -85,7 +89,8 @@ jobs:
           OUT_DIR: ${{ github.workspace }}/out
           # read by ../perf/lib.mjs at import (its server-made session is never used here, and no key is given)
           SUPABASE_URL: https://${{ env.STAGING_SUPABASE_PROJECT_REF }}.supabase.co
-        run: node golden-school-pentadbiran.mjs
+        run: |
+          if [ -n "${GS_LANJUT_PINDAH:-}" ]; then node golden-school-pindah-lanjut.mjs; else node golden-school-pentadbiran.mjs; fi
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
