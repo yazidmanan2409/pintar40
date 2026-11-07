@@ -1,3 +1,4 @@
+import { targetKelasDari } from "@/lib/target-kelas";
 import "server-only";
 import { bagianJakarta } from "@/lib/tanggal";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -731,30 +732,10 @@ export async function berjalan(
   return pilihBerjalan(buka, rows<BarisSesiAsesmen>(sesi), keadaan, Date.now(), anggota);
 }
 
-/**
- * CONTOH LAPORAN 2-guru (approved 7 Nov): THE CLASS'S TARGET, AS ITS UJI PENGUASAAN SEALED IT. A class report draws
- * the target line only where there is one target to draw: every Uji Penguasaan given to the class carries the same
- * sealed mark (D-085 M3: the mark is the assignment's, copied unchanged into every attempt). Two chapters with two
- * marks, or none set, draw no line (null): a line that stood for only one of them would mislead. Read with the
- * reader's own access, so a reader who may not see the class's assignments gets no line either.
- */
-export function satuTarget(tanda: ReadonlyArray<number | string | null | undefined>): number | null {
-  const ada = tanda.filter((x) => x !== null && x !== undefined && x !== "").map(Number).filter((x) => Number.isFinite(x));
-  if (ada.length === 0 || ada.length !== tanda.length) return null;
-  return ada.every((x) => x === ada[0]) ? ada[0] : null;
-}
-
+/** CONTOH LAPORAN (approved 7 Nov): the class's one sealed Uji Penguasaan mark (src/lib/target-kelas.ts). */
+export { satuTarget } from "@/lib/target-kelas";
 export async function targetKelas(nodeId: string): Promise<number | null> {
-  const c = await db();
-  const { data, error } = await c
-    .from("assessment_assignments")
-    .select("pass_mark, definition:assessment_definitions(mode)")
-    .eq("node_id", nodeId)
-    .in("status", ["OPEN", "CLOSED"]);
-  if (error) return null;
-  const uji = rows<{ pass_mark: number | string | null; definition: { mode: string } | null }>(data)
-    .filter((r) => r.definition?.mode === "POST_TEST");
-  return satuTarget(uji.map((r) => r.pass_mark));
+  return targetKelasDari(await db(), nodeId);
 }
 
 /**

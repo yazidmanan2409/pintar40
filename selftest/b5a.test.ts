@@ -223,7 +223,7 @@ export const b5aTests: SelfTest[] = [
     id: "LAPORAN-KELAS-01",
     run: async (ctx) => {
       const c = new Checks();
-      const ok = (o: Record<string, unknown>) => ({ status: "ok", readiness: "SUFFICIENT_EVIDENCE", ...o });
+      const ok = (o: Record<string, unknown>): Record<string, unknown> => ({ status: "ok", readiness: "SUFFICIENT_EVIDENCE", ...o });
       const penuh = [
         ok({ metric_id: "class.participants", label_key: "metrik.peserta.label", meaning_key: "metrik.peserta.arti", value: 29, sample: 29 }),
         ok({ metric_id: "class.comprehension", label_key: "metrik.pemahaman.label", meaning_key: "metrik.pemahaman.arti", value: 0.748, sample: 29 }),
