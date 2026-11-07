@@ -15,7 +15,7 @@ Owner decision «EVALUATOR ACCESS», Option 1:
 | | Sekolah Uji Evaluasi A | Sekolah Uji Evaluasi B |
 |---|---|---|
 | Structure | Bagian «Kelas Tinggi» → Tingkat «Kelas 5» → «Kelas 5A» | the same |
-| Learners (all synthetic, «… Murid SEKOLAH-UJI-EVALUASI-…») | 6 active | 6 active |
+| Learners (all synthetic, «… Murid SEKOLAH-UJI-EVALUASI-…») | 5 active (Dimas moved to B) | 7 active (Dimas among them) |
 | Official results / certificates | 12 / 3 | 11 / 3 |
 | Chapter | «Matematika Kelas 5 · Bab 1: Pola Bilangan», published | the same |
 | Staff roles held now (by the walks' own accounts) | Admin sekolah, Dekan, Kepala departemen («Kelas Tinggi»), Guru («Kelas 5A») | the same |

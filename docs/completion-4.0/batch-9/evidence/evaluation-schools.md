@@ -45,13 +45,27 @@ Every write in the walks is a press of PINTAR's own buttons.
 
 The fixed walk has not yet run on staging: its steps run once per school (P0 needs Eka's class card, which P3 converted to an email account), so it cannot re-run on A.
 
-**Left on staging.**
-- Transfer `a0d0ab7e`, A → B, is **AUTHORIZED and not executed**.
-- B's «Perpindahan murid» shows it with «Laksanakan». Pressing it moves Dimas to B's «Kelas 5A».
+**Left on staging after the walk** (since completed; see the next section).
+- Transfer `a0d0ab7e`, A → B, was AUTHORIZED and not executed.
 - The walk also converted Eka's class card to an email account (P3). It corrected the Dekan's name and username and then restored them (P2).
+
+### The transfer completed afterwards: separate evidence (owner, 7 Nov, «DIMAS TRANSFER»)
+The administration walk above stays recorded as **8/9**, with its timing failure.
+
+On the owner's decision, transfer `a0d0ab7e` was then completed through the existing authorised action, with no direct write to the database:
+- **Script:** `golden-school-pindah-lanjut.mjs`, selected by `lanjut: <transfer>` in the administration request.
+- **Run:** 42357873628, **GREEN, 3/3**.
+- **The press:** B's admin pressed «Laksanakan» on the learner's row in «Perpindahan murid». The transfer was EXECUTED at 09:02:21 UTC.
+
+| Check | Read back (run 42357873628, and read-only SQL afterwards) |
+|---|---|
+| (1) Dimas is in B's «Kelas 5A» | One open placement: «Kelas 5A» at Sekolah Uji Evaluasi B, on an ACTIVE enrolment |
+| (2) His A placement ended correctly | A's enrolment is ENDED (TRANSFERRED_OUT), with no open placement. A's «Kelas 5A» placement is CLOSED (ENROLLMENT_ENDED) and kept as history |
+| (3) The receiving teacher sees him | B's Guru sees «Dimas Murid SEKOLAH-UJI-EVALUASI-A» on «Kelas 5A»'s class page (7 learners) |
+| (4) His learner record is consistent | His institutional identities, PINTAR ID and official results are unchanged (the fingerprint before the press equals the one after) |
+| (5) The audit trail is intact | transfer.requested, transfer.authorized and transfer.executed, each recorded twice (two rows per act), in order |
 
 ## Not yet done before invitations
 - An evaluator-style staff account activated and signed in on staging, through the existing email verification.
 - H29: the staff-bar gap below 1024 px, seen by a person on staging.
-- The evaluator account list and document, with no passwords, authentication secrets or PINs. Addresses are collected only when the evaluation is ready.
-- The open transfer `a0d0ab7e`: the owner decides whether to leave it for the evaluators or have it executed first.
+- The evaluator account plan filled in (roles and places). The document and the evaluator sheet are drafted in `../evaluator-accounts.md`, with no passwords, authentication secrets or PINs. Addresses are collected only when the evaluation is ready.
