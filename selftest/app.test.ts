@@ -2631,7 +2631,9 @@ export const appTests: SelfTest[] = [
         c.expect(r.status === 200 && teks.includes(t(judul, "staff")), `${jalan} → ${r.status} without its title`);
         c.expect(!teks.includes(t("laporan.kosong", "staff")), `${jalan} finds no report for the administrator's own school`);
         if (teks.includes(t("laporan.tak_ada_angka", "staff"))) {
-          c.expect(muncul.some((m) => teks.includes(m)), `${jalan} has no figure yet and does not say what will make one appear`);
+          // a figure's own «Angka ini muncul setelah …», or the class report's 2b lead (KESETIAAN #11), which says it once for all
+          const lead = new RegExp(t("laporan.komposisi.tertahan_sub" as HleEvent, "staff").replace(/[.*+?^$()|[\]\\]/g, "\\$&").replace(/\{(n|m|perlu)\}/g, "[0-9.]+"));
+          c.expect(muncul.some((m) => teks.includes(m)) || lead.test(teks), `${jalan} has no figure yet and does not say what will make one appear`);
         }
       }
       for (const [peran, orang] of [["HEAD_OF_DEPARTMENT", PERSONA.alphaHod], ["DEAN", PERSONA.dean]] as const) {

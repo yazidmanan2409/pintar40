@@ -9,12 +9,13 @@ import type { Populasi } from "./types";
  * many have sat the Uji Penguasaan and how many have not, and it is said whether or not the bands may be shown yet.
  * Counts only: nobody is named and no performance is implied. The presentation is Daisy's (S6).
  */
-export default function PopulasiKelas({ populasi, locale = "id" }: { populasi?: Populasi | null; locale?: Locale }) {
+export default function PopulasiKelas({ populasi, locale = "id", entri }: { populasi?: Populasi | null; locale?: Locale; entri?: string }) {
   if (!populasi) return null;
   const s = (k: string) => t(k as HleEvent, "educator", { locale });
   const n = (x: number) => format.number(Number(x) || 0, locale);
   return (
-    <p className="pin-meta">
+    // entri: where a report draws its participants figure as this line, the figure's label (data-lk-entri)
+    <p className="pin-meta" data-lk-entri={entri || undefined}>
       {n(populasi.placed)} {s("kesiapan.populasi.murid")} · {n(populasi.assessed)} {s("kesiapan.populasi.sudah")} ·{" "}
       {n(populasi.not_yet)} {s("kesiapan.populasi.belum")}
     </p>

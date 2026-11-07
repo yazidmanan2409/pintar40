@@ -121,6 +121,9 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
   const adaPopulasi = Boolean(pita?.population);
   const lain = sisa.filter((e) => !(e === paham && dalamKalimat)
     && !(adaPopulasi && (e.metric_id === "class.participants" || e.label_key === "metrik.peserta.label")));
+  // …and the participants figure is that line: it keeps its labelled place there (the template's entries stay countable)
+  const peserta = adaPopulasi ? sisa.find((e) => e.metric_id === "class.participants" || e.label_key === "metrik.peserta.label") : undefined;
+  const entriPeserta = peserta && ["ok", "below_minimum", "deprecated"].includes(peserta.status) ? labelMetrik(peserta, untuk, locale) : undefined;
   let n = 0;
   const huruf = () => HURUF[n++] ?? "";
 
@@ -130,10 +133,13 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
   const semuaTertahan = komposisi.length > 0 && komposisi.every(tertahan) && [...lain].every((e) => e.status !== "ok");
   const pop = pita?.population as { placed?: number; assessed?: number } | undefined;
   const perlu = komposisi.map((e) => e.needed).find((x): x is number => typeof x === "number");
+  // the lead's «how far» line says what makes the figures appear (DAISY-07); without its counts each figure says it
+  const leadJauh = typeof pop?.assessed === "number" && typeof pop?.placed === "number" && typeof perlu === "number";
 
   // the absence in a figure's place: what it is, how far, what makes it appear (P14; 2b) — one line when the lead says the rest
   const tiada = (e: Envelope) => semuaTertahan ? (
-    <p className="pin-lk-arti" data-lk-tiada="">{[s(e.statement_key ?? "laporan.metrik.tidak_dikenal"), kalimatJumlah(e, locale, untuk, jenis)].filter(Boolean).join(" ")}</p>
+    <p className="pin-lk-arti" data-lk-tiada="">{[s(e.statement_key ?? "laporan.metrik.tidak_dikenal"), kalimatJumlah(e, locale, untuk, jenis),
+      leadJauh || !kunciMuncul(e) ? null : s(kunciMuncul(e)!, untuk, locale)].filter(Boolean).join(" ")}</p>
   ) : (
     <>
       <p className="pin-lk-arti">{s(e.statement_key ?? "laporan.metrik.tidak_dikenal")}</p>
@@ -206,11 +212,11 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
           {kepala(hLead, s("laporan.komposisi.tertahan_judul"), "lk-tertahan")}
           <div className="pin-lk-inti">
             <p className="pin-lk-kalimat" data-lk-kalimat="">{s("laporan.komposisi.tertahan").replace("{kelas}", namaKelas)}</p>
-            {typeof pop?.assessed === "number" && typeof pop?.placed === "number" && typeof perlu === "number" ? (
-              <p className="pin-lk-kalimat-sub">{s("laporan.komposisi.tertahan_sub").replace("{n}", format.number(pop.assessed, locale))
-                .replace("{m}", format.number(pop.placed, locale)).replace("{perlu}", format.number(perlu, locale))}</p>
+            {leadJauh && typeof perlu === "number" ? (
+              <p className="pin-lk-kalimat-sub">{s("laporan.komposisi.tertahan_sub").replace("{n}", format.number(Number(pop?.assessed), locale))
+                .replace("{m}", format.number(Number(pop?.placed), locale)).replace("{perlu}", format.number(perlu, locale))}</p>
             ) : null}
-            {pita ? <PopulasiKelas populasi={pita.population} locale={locale} /> : null}
+            {pita ? <PopulasiKelas populasi={pita.population} locale={locale} entri={entriPeserta} /> : null}
           </div>
         </section>
       ) : null}
@@ -272,7 +278,7 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
         <section className="pin-lk-bagian" data-lk="pita" data-lk-entri={labelMetrik(pita, untuk, locale)}>
           {kepala(hPita, labelMetrik(pita, untuk, locale))}
           {pita.meaning_key && !semuaTertahan ? <p className="pin-lk-arti">{s(pita.meaning_key)}</p> : null}
-          {semuaTertahan ? null : <PopulasiKelas populasi={pita.population} locale={locale} />}
+          {semuaTertahan ? null : <PopulasiKelas populasi={pita.population} locale={locale} entri={entriPeserta} />}
           {pita.status === "ok" && dinilai > 0 ? (
             <div className="pin-lk-pita">
               <p className="pin-lk-arti">{s("kesiapan.pita.judul").replace("{n}", format.number(dinilai, locale))}</p>

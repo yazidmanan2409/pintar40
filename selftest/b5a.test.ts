@@ -285,6 +285,9 @@ export const b5aTests: SelfTest[] = [
         c.expect((isi.match(/<span class="pin-lk-huruf"><span class="pin-sr">Bagian <\/span>[A-E]<\/span>/g) ?? []).length === 5 && !/aria-hidden="true">[A-F]</.test(isi)
           && !/class="pin-lk-inti"[^>]*>\s*<h2/.test(isi), "a section letter is hidden from a screen reader, or a heading sits inside its card");
         c.expect(!/data-lk="lain"/.test(isi) && !/Peserta 29/.test(t1), "a «Peserta» tile repeats the population line");
+        // …and the participants figure IS that line: it keeps its labelled place, so the template's entries stay countable (journey S23t)
+        c.expect((isi.match(/data-lk-entri="Peserta"/g) ?? []).length === 1 && /<p class="pin-meta" data-lk-entri="Peserta">31 murid di kelas ini/.test(isi),
+          "the population line does not carry the participants figure's label");
         // KESETIAAN #2: no advice line under any figure
         c.expect(!/data-lk-tindakan/.test(isi) && !/Tidak perlu diulang|Fokuskan waktu tambahan/.test(t1), "an advice line is drawn under a figure");
         // 2b: every figure keeps its place, with how far and what makes it appear; no figure, no lead
