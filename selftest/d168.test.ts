@@ -452,14 +452,18 @@ export const d168Tests: SelfTest[] = [
         c.expect(id === tanpa && en === t("laporan.metrik.tanpa_nama" as HleEvent, "staff", { locale: "en" }) && id.trim() !== "" && !/[a-z]+(\.[a-z_]+)+/.test(id + en),
           `an unnamed measure (${JSON.stringify(e)}) reads «${id}» / «${en}»`);
       }
-      const SURFACE = ["src/components/laporan/KomposisiKelas.tsx", "src/app/dekan/ringkasan/page.tsx", "src/components/bukti/KartuKetiadaan.tsx",
+      const SURFACE = ["src/components/laporan/KomposisiKelas.tsx", "src/components/laporan/KomposisiSekolah.tsx", "src/components/bukti/KartuKetiadaan.tsx",
         "src/components/bukti/AngkaBerdiri.tsx", "src/components/pimpinan/AngkaTerkelola.tsx", "src/app/mengajar/[kelas]/bukti/page.tsx"];
       for (const f of SURFACE) {
         const src = kode(readFileSync(join(repoRoot, f), "utf8"));
         c.expect(/labelMetrik\(/.test(src) && !/label_key \? [^:]*: ""/.test(src) && !/\{s\((entry|e|siap)\.label_key\)\}/.test(src), `${f} names an entry without labelMetrik, or draws nothing in its place`);
       }
-      for (const f of ["src/app/dekan/ringkasan/page.tsx"]) {
-        c.expect(/<h2 className="font-medium">\{labelMetrik\(e, (untuk|"staff"), locale\)\}<\/h2>/.test(kode(readFileSync(join(repoRoot, f), "utf8"))), `${f}: an entry's heading can be empty`);
+      // CONTOH LAPORAN 4-dekan (approved 7 Nov): the school report's sections are its composition's (KomposisiSekolah)
+      {
+        const f = "src/components/laporan/KomposisiSekolah.tsx";
+        const src = kode(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(/<h2 className="pin-lk-h"><span className="pin-lk-huruf" aria-hidden="true">\{h\}<\/span><span>\{labelMetrik\(e, untuk, locale\)\}<\/span><\/h2>/.test(src)
+          && /\{labelMetrik\(e, untuk, locale\)\}<\/h3>/.test(src), `${f}: an entry's heading can be empty`);
       }
       // CONTOH LAPORAN (approved 7 Nov): the class report's every section heading is its letter and the figure's words,
       // through labelMetrik (an unnamed measure reads «tanpa nama», never empty); «Angka lain» names each of its figures so

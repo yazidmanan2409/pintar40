@@ -10544,7 +10544,7 @@ export const experienceTests: SelfTest[] = [
       for (const hal of [["dekan", "ringkasan"], ["edukator", "ringkasan"]]) {
         // CONTOH LAPORAN (approved 7 Nov): the class report's body is its composition (KomposisiKelas)
         const src = code(readFileSync(join(repoRoot, "src", "app", ...hal, "page.tsx"), "utf8")
-          + (hal[0] === "edukator" ? readFileSync(join(repoRoot, "src/components/laporan/KomposisiKelas.tsx"), "utf8") : ""));
+          + readFileSync(join(repoRoot, hal[0] === "edukator" ? "src/components/laporan/KomposisiKelas.tsx" : "src/components/laporan/KomposisiSekolah.tsx"), "utf8"));
         // RESTATED FOR W3.8 (Batch 5): the sentence is now asked in the reader's language (persona and locale passed)
         // RESTATED FOR E-C1-2 (D-132): the class report's persona is the working context's (`untuk`)
         c.expect(/kunciMuncul\(e\) \? <p[^>]*>\{s\(kunciMuncul\(e\)!, (?:"educator"|"staff"|untuk), locale\)\}<\/p> : null/.test(src), `/${hal.join("/")} does not say what will make a figure appear`);

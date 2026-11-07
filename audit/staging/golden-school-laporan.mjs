@@ -190,15 +190,19 @@ async function pamit(page, siapa, rumah) {
 
 // Every figure on a page, as a person reads it: its label, its value, its sample line, and any rows (a readiness
 // tier and its count, a topic and its share). Covers the evidence cards (.pin-metric) and the report pages (article).
+// CONTOH LAPORAN (approved 7 Nov): the class and school summaries are compositions, where each drawn figure carries its
+// label in data-lk-entri (empty for a refusal); its value is the figure's own number, its bands the legend's named rows
 async function angka(scope) {
-  return scope.locator(".pin-metric, main article").evaluateAll((els) => els.map((e) => {
+  return scope.locator(".pin-metric, main article, [data-lk-entri]").evaluateAll((els) => els.map((e) => {
     const t = (x) => (x?.textContent ?? "").replace(/\s+/g, " ").trim();
     const baris = [
       ...[...e.querySelectorAll(".pin-rrow")].map((r) => [...r.querySelectorAll("span")].slice(0, 2).map(t)),
       ...[...e.querySelectorAll("dl.pin-lap-isi > div")].map((r) => [t(r.querySelector("dt")), t(r.querySelector("dd"))]),
       ...[...e.querySelectorAll("ul.pin-lap-baris > li")].map((r) => [...r.querySelectorAll("span")].slice(0, 2).map(t)),
+      ...[...e.querySelectorAll(".pin-lk-pita-ket > li")].map((r) => [t(r).replace(/\s*\d[\d.]*$/, ""), t(r.querySelector("strong"))]),
     ];
-    return { label: t(e.querySelector(".pin-ml, h2")), nilai: t(e.querySelector(".pin-mv, .pin-lap-satu")), teks: t(e), baris };
+    const lk = e.getAttribute("data-lk-entri");
+    return { label: lk !== null ? lk : t(e.querySelector(".pin-ml, h2")), nilai: t(e.querySelector(".pin-mv, .pin-lap-satu, .pin-lk-angka-nilai")), teks: t(e), baris };
   }));
 }
 // one figure, by its label, must read as expected; returns a line for the log, or throws

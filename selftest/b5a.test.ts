@@ -165,7 +165,8 @@ export const b5aTests: SelfTest[] = [
           && x[2] === "0 students so far; 10 needed.", `the absence reads ${JSON.stringify(x)}`);
       }
       // CONTOH LAPORAN (approved 7 Nov): the class report's body is its composition, src/components/laporan/KomposisiKelas.tsx
-      const KOMPOSISI: Record<string, string> = { "src/app/edukator/ringkasan/page.tsx": "src/components/laporan/KomposisiKelas.tsx" };
+      const KOMPOSISI: Record<string, string> = { "src/app/edukator/ringkasan/page.tsx": "src/components/laporan/KomposisiKelas.tsx",
+        "src/app/dekan/ringkasan/page.tsx": "src/components/laporan/KomposisiSekolah.tsx" };
       for (const f of ["src/app/edukator/ringkasan/page.tsx", "src/app/dekan/ringkasan/page.tsx"]) {
         c.expect(/\{kalimatJumlah\(e, locale[^)]*\) \? <p[^>]*>\{kalimatJumlah\(e, locale[^)]*\)\}<\/p> : null\}/.test(kode(baca(ctx.repoRoot, f) + (KOMPOSISI[f] ? baca(ctx.repoRoot, KOMPOSISI[f]) : ""))),
           `${f} does not say how far a figure is from appearing`);
@@ -336,6 +337,61 @@ export const b5aTests: SelfTest[] = [
       return c.verdict("renders KisiTopik (CONTOH LAPORAN 3-kadep): each class the reader may see as its own column (a refused class absent without a word), each cell that class's own topic figure " +
         "against its own sealed target, amber and in words below it, R4-02's decimal; a class without enough evidence says so in its cells; the lead names the topics below target in most classes; " +
         "a table with row and column headers; and /pimpinan draws it from each class's own envelope and target");
+    },
+  },
+  {
+    // CONTOH LAPORAN 4-dekan (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov): the school summary is one composition
+    id: "LAPORAN-SEKOLAH-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const ok = (o: Record<string, unknown>): Record<string, unknown> => ({ status: "ok", readiness: "SUFFICIENT_EVIDENCE", ...o });
+      const penuh = [
+        ok({ metric_id: "institution.participants", label_key: "metrik.peserta_institusi.label", value: 420, sample: 420 }),
+        ok({ metric_id: "institution.net_gain", label_key: "metrik.kenaikan_institusi.label", value: 0.19, sample: 380 }),
+        ok({ metric_id: "institution.safety_gate_pass_rate", label_key: "metrik.gerbang_keselamatan.label", value: 0.84, sample: 836 }),
+        ok({ metric_id: "institution.verified_credentials", label_key: "metrik.kredensial.label", value: 408, sample: 411 }),
+        ok({ metric_id: "institution.competency_outcomes", label_key: "metrik.kompetensi.label", value: [
+          { objective_id: "a", competency: "Listrik dan magnet", mean_score: 0.596, learners: 200 },
+          { objective_id: "b", competency: "Bilangan", mean_score: 0.82, learners: 210 },
+          { objective_id: "c", competency: "Geometri dan pengukuran", mean_score: 0.55, learners: 205 } ] }),
+        ok({ metric_id: "institution.cohort_comparison", label_key: "metrik.perbandingan_kohort.label", value: [
+          { cohort_node_id: "k7", learners: 150, mean_mastery: 0.71 }, { cohort_node_id: "k8", learners: 140, mean_mastery: 0.66 } ] }),
+      ];
+      const kurang = penuh.map((e) => ({ status: "below_minimum", readiness: "INSUFFICIENT_EVIDENCE", metric_id: e.metric_id, label_key: e.label_key,
+        statement_key: "laporan.metrik.belum_cukup_data", have: 4, needed: 10 }));
+      const r = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiSekolah.tsx");' +
+        "const K = m.default?.default ?? m.default; const [a, b] = JSON.parse(process.env.ENTRI);" +
+        "const tempat = { k7: 'Angkatan 2026 (kelas 7)', k8: 'Angkatan 2025 (kelas 8)' };" +
+        "process.stdout.write(JSON.stringify([renderToStaticMarkup(h(K, { entries: a, locale: 'id', tempat })), renderToStaticMarkup(h(K, { entries: b, locale: 'id', tempat }))]));",
+        { ENTRI: JSON.stringify([penuh, kurang]) });
+      if (c.expect(r.ok, `the school composition could not be rendered: ${r.err}`)) {
+        let x: string[] = [];
+        try { x = JSON.parse(r.out); } catch { /* reported below */ }
+        const teks = (h: string) => (h ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const [isi, belum] = x;
+        const t1 = teks(isi);
+        c.expect(t1.includes("Perhatian ada pada Listrik dan magnet; Geometri dan pengukuran: masih di bawah 60%."), `the lead reads «${t1.slice(0, 200)}»`);
+        // R4-01: the zones named once above the scale; R4-02: 59,6%, not «60%»; sorted high to low; below 60% amber and names its band
+        c.expect(t1.includes("Batas pita: di bawah 60% «Perlu penguatan» · 60–79% «Berkembang» · 80% ke atas «Mantap».") && t1.includes("59,6%")
+          && /Bilangan[\s\S]*Listrik dan magnet[\s\S]*Geometri dan pengukuran/.test(t1)
+          && (isi.match(/<li data-bawah="">/g) ?? []).length === 2 && (isi.match(/class="pin-lk-bawah">Perlu penguatan</g) ?? []).length === 2
+          && (isi.match(/class="pin-lk-zona"/g) ?? []).length === 10, "the domain dot plot does not follow R4-01, R4-02 or G-03");
+        // B: every headline figure with its base; R4-03: issued and not revoked out of all issued
+        c.expect(t1.includes("408 dari 411 yang pernah terbit; 3 dicabut.") && t1.includes("Dari 836 hasil Uji Penguasaan.")
+          && t1.includes("Dihitung dari 380 murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan bab yang sama."), "a headline figure stands without its base");
+        // C: the cohorts by name on the same scale, captioned as states, not a ranking
+        c.expect(t1.includes("Angkatan 2026 (kelas 7)") && t1.includes("Ini perbandingan keadaan, bukan peringkat."), "the cohort comparison is not named or captioned");
+        c.expect(/>A<[\s\S]*>B<[\s\S]*>C<[\s\S]*>D</.test(isi) && (isi.match(/data-lk-tindakan=""/g) ?? []).length >= 6, "the sections are not lettered, or a figure lacks its action sentence");
+        const t2 = teks(belum);
+        c.expect(!/data-lk-kalimat/.test(belum) && (t2.match(/Sekarang 4 murid; perlu 10\./g) ?? []).length >= 3, `the not-yet school report does not keep each figure's place: ${t2.slice(0, 200)}`);
+      }
+      c.expect(/<KomposisiSekolah entries=\{entries\}/.test(kode(baca(ctx.repoRoot, "src/app/dekan/ringkasan/page.tsx"))), "Ringkasan Sekolah does not draw the composition");
+      return c.verdict("renders KomposisiSekolah (CONTOH LAPORAN 4-dekan): the lead names the domains below 60%; the dot plot high to low with PINTAR's zones named once above (R4-01), " +
+        "R4-02's 59,6%, below 60% amber and naming its band; each headline figure with its base, «Sertifikat terbit» issued and not revoked out of all issued (R4-03); " +
+        "the cohorts by name on the same scale captioned as states, not a ranking; lettered sections, an action sentence under each figure; the not-yet report keeps each place");
     },
   },
 ];

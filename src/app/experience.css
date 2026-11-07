@@ -3639,6 +3639,10 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-lk-daftar li:first-child { border-top: var(--border-hairline) solid var(--line); }
 .pin-lk-daftar small { grid-column: 1 / -1; color: var(--ink-2); }
 .pin-lk-langkah { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-2); font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-1); }
+/* 4-dekan: a dot on the 0–100 scale with PINTAR's band zones (60%, 80%), the zones named once above */
+.pin-lk-titik { position: absolute; top: calc((var(--lk-jalur) - var(--t-small)) / 2); width: var(--t-small); height: var(--t-small); margin-left: calc(var(--t-small) / -2); border-radius: var(--radius-pill); background: var(--ink-1); box-shadow: 0 0 0 var(--border-selected) var(--surface-1); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pin-lk-baris li[data-bawah] .pin-lk-titik { background: var(--lk-bawah); }
+.pin-lk-zona { position: absolute; top: calc(var(--space-1) * -1); bottom: calc(var(--space-1) * -1); width: var(--border-hairline); background: var(--line-strong); }
 /* 3-kadep: topics × classes; each cell a value, a short bar and its class's target tick; no colour ramp */
 .pin-lk-kisi-wadah { overflow-x: auto; }
 .pin-lk-kisi-tabel thead th { color: var(--ink-2); font-weight: 600; vertical-align: bottom; text-align: left; }

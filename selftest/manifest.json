@@ -4572,6 +4572,11 @@
       "proves": "CONTOH LAPORAN 3-kadep (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov), selftest/b5a.test.ts: src/components/laporan/KisiTopik.tsx rendered over six classes: each class the reader may see is its own column and a refused class is left out without a word; each cell is that class's own «Penguasaan per topik» figure against that class's own sealed target, amber and in words below it, with R4-02's decimal (69,6% against 70%); a class without enough evidence says so in its cells, never as a low value; a class with no one target draws no tick and no verdict; the lead names the topics below target in most classes that have a target; the grid is a table with row and column headers; and /pimpinan draws it from each class's own envelope (buktiPerKelas) and its sealed target (targetKelasDari)."
     },
     {
+      "id": "LAPORAN-SEKOLAH-01",
+      "runner": "static",
+      "proves": "CONTOH LAPORAN 4-dekan (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov), selftest/b5a.test.ts: src/components/laporan/KomposisiSekolah.tsx rendered over envelopes shaped like the specimen's: the lead names the competency domains below 60%; the domains as dots on 0–100% high to low with PINTAR's band zones named once above the scale (R4-01), R4-02's one decimal (59,6%), a domain below 60% amber and naming its band (G-03); every headline figure with its base, «Sertifikat terbit» as issued and not revoked out of all issued («408 dari 411 yang pernah terbit; 3 dicabut», R4-03); the cohorts by name on the same scale, captioned as a comparison of states, not a ranking; lettered sections and an action sentence under each figure; the not-yet report keeps each figure's place with how far it is; and Ringkasan Sekolah draws it."
+    },
+    {
       "id": "W217-SKALA-01",
       "runner": "app",
       "proves": "W2.17 (FD-4, R.5), selftest/app.test.ts through the running app against the database: with 13,300 more active enrolments seeded into one synthetic school (10× staging's 1,323), the source of src/app/konfigurasi/page.tsx draws both pickers that list a school's people (the transfer form's enrolment, the roles form's person) so that the last person seeded is found by name, at most a page of 50 is listed with or without a search, and every option is a name, never an id fragment; the seeded enrolments are ended after (append-only, INV-23)."

@@ -82,6 +82,8 @@ export type HleEvent =
   | "laporan.komposisi.kolom_topik" | "laporan.komposisi.kolom_nilai" | "laporan.komposisi.kolom_pita"
   | "laporan.komposisi.lainnya"
   | "laporan.kisi.pola" | "laporan.kisi.tanpa_pola" | "laporan.kisi.arti" | "laporan.kisi.belum"
+  | "laporan.sekolah.zona" | "laporan.sekolah.perhatian" | "laporan.sekolah.semua_cukup" | "laporan.sekolah.angka"
+  | "laporan.sekolah.dasar_gerbang" | "laporan.sekolah.dasar_sertifikat" | "laporan.sekolah.kohort_arti" | "laporan.sekolah.berikutnya_kesiapan"
   // ── WP4. The Management surface. `pimpinan` is Indonesian for the people who
   // lead a part of a school — the word the approved Management design uses for
   // the role, and the one this surface is named after. Every key below is
@@ -2655,6 +2657,14 @@ const table: Table = {
   "laporan.kisi.tanpa_pola": { default: "Tidak ada topik yang di bawah target di sebagian besar kelas.", en: "No topic is below target in most classes." },
   "laporan.kisi.arti": { default: "Setiap sel adalah angka «Penguasaan per topik» kelas itu sendiri, terhadap target kelas itu. Baca mendatar untuk melihat pola; baca menurun untuk melihat satu kelas.", en: "Each cell is that class's own «Mastery by topic» figure, against that class's target. Read across for a pattern; read down for one class." },
   "laporan.kisi.belum": { default: "Belum cukup bukti", en: "Not enough evidence yet" },
+  "laporan.sekolah.zona": { default: "Batas pita: di bawah 60% «{penguatan}» · 60–79% «{berkembang}» · 80% ke atas «{mantap}».", en: "Band limits: below 60% «{penguatan}» · 60–79% «{berkembang}» · 80% and above «{mantap}»." },
+  "laporan.sekolah.perhatian": { default: "Perhatian ada pada {daftar}: masih di bawah 60%.", en: "Attention belongs to {daftar}: still below 60%." },
+  "laporan.sekolah.semua_cukup": { default: "Semua bidang kompetensi berada di 60% ke atas.", en: "Every competency domain is at 60% or above." },
+  "laporan.sekolah.angka": { default: "Angka utama", en: "Headline figures" },
+  "laporan.sekolah.dasar_gerbang": { default: "Dari {n} hasil Uji Penguasaan.", en: "Out of {n} Mastery Check results." },
+  "laporan.sekolah.dasar_sertifikat": { default: "{v} dari {n} yang pernah terbit; {d} dicabut.", en: "{v} of {n} ever issued; {d} revoked." },
+  "laporan.sekolah.kohort_arti": { default: "Penguasaan rata-rata tiap angkatan pada skala yang sama. Ini perbandingan keadaan, bukan peringkat.", en: "Each cohort's average mastery on the same scale. A comparison of states, not a ranking." },
+  "laporan.sekolah.berikutnya_kesiapan": { default: "Di PINTAR: Pimpinan › «Kesiapan bukti» menyebut kelas yang buktinya belum cukup.", en: "In PINTAR: Leadership › «Evidence readiness» names the classes whose evidence is not yet enough." },
   "laporan.kosong": { default: "Belum ada angka yang bisa ditampilkan untuk Anda di sini.", en: "There are no figures to show you here yet." },
   "laporan.tak_ada_angka": { default: "Tidak ada angka pada laporan ini, tetapi keterangan di bawah menjelaskan alasannya satu per satu.", en: "This report carries no figures, but the notes below say why, one by one." },
 
