@@ -51,7 +51,7 @@ export default function KomposisiPengembangan({ isi, locale }: { isi: CatatanPen
         ) : null}
         <p className="pin-lk-arti">{s(penuh ? "pengembangan.urutan_hasil" : "pengembangan.urutan")}</p>
         {paket.map(({ judul, baris }) => (
-          <div key={judul} className="pin-lk-kisi-wadah" data-pd-paket="">
+          <div key={judul} className="pin-lk-kisi-wadah" data-pd-paket="" role="region" tabIndex={0} aria-label={`${s("pengembangan.kolom.paket")}: ${judul}`}>
             <p className="pin-lk-arti"><strong>{s("pengembangan.kolom.paket")}:</strong> {judul}</p>
             <table className="pin-lk-tabel pin-lk-kisi-tabel">
               <caption className="pin-sr">{s("pengembangan.judul")} · {judul}</caption>

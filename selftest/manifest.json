@@ -4042,7 +4042,7 @@
     {
       "id": "B4-MENUNGGU-K02",
       "runner": "static",
-      "proves": "D-195(2), CONTOH LAPORAN 7-admin, selftest/b4.test.ts: src/app/konfigurasi/page.tsx keeps the administrator's report inside «Yang menunggu» (no second dashboard): the people waiting for an account are split, counted not listed, by persons_awaiting_account's own boleh_kartu into those a class card serves (one class or several at once) and those who hold a staff role and need email (CR-91), each with its remedy, under the count that still opens Aktivasi; the import waiting carries its reason; every sentence in both languages; the journey audit/admin-ujung.mjs B4-W8 checks the reasons add up to the count."
+      "proves": "D-195(2), CONTOH LAPORAN 7-admin, selftest/b4.test.ts, from the source and the copy table: src/app/konfigurasi/page.tsx keeps the administrator's report inside «Yang menunggu» (no second dashboard): the people waiting for an account are split, counted not listed, by persons_awaiting_account's own boleh_kartu into those a class card serves (one class or several at once) and those who hold a staff role and need email (CR-91), each with its remedy, under the count that still opens Aktivasi; the import waiting carries its reason; every sentence in both languages; the journey audit/admin-ujung.mjs B4-W8 checks the reasons add up to the count."
     },
     {
       "id": "B4-J2-K01",

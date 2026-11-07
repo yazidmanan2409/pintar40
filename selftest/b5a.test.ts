@@ -418,6 +418,8 @@ export const b5aTests: SelfTest[] = [
           `an aggregate is drawn: ${tf.slice(0, 200)}`);
         c.expect(tf.includes("Jawaban peserta dan catatan integritas tidak ditampilkan di sini.") && tf.includes("tidak dijumlahkan dan tidak diurutkan"), "the record does not say answers and integrity are not shown, or that nothing is added up");
         c.expect((f.match(/data-selesai=""/g) ?? []).length >= 4 && /<caption class="pin-sr">/.test(f), "done steps are not marked, or the table has no caption");
+        // RB1-C1 (journey, 7 Nov): a sideways-scrolling table is a focusable, named region (axe scrollable-region-focusable)
+        c.expect(/class="pin-lk-kisi-wadah" data-pd-paket="" role="region" tabindex="0" aria-label="Paket: /.test(f), "the scrolling table is not a focusable, named region");
         // COMPLETION (Admin sekolah): what came back only
         c.expect(!/Pelajaran selesai/.test(ta) && !/Hasil/.test(ta.replace("Tentang catatan ini", "")) && !/85%/.test(ta) && /<th scope="col">Selesai<\/th>/.test(a)
           && ta.includes("Peserta menurut abjad.") && !ta.includes("tidak dijumlahkan"),
@@ -519,6 +521,8 @@ export const b5aTests: SelfTest[] = [
           "a cell below its class's target is not marked in words and amber (expected 7A, 7B Pecahan campuran and 7C Pecahan senilai)");
         c.expect(teks.includes("69,6%") && teks.includes("57%") && (html.match(/<u /g) ?? []).length === 6, "R4-02 or the target ticks are wrong");
         c.expect(/<table[\s\S]*<th scope="col">Topik<\/th>[\s\S]*<th scope="row">Pecahan campuran<\/th>/.test(html), "the grid is not a table with row and column headers (its own text equivalent)");
+        // RB1-C1 (journey, 7 Nov, axe scrollable-region-focusable at 320 px): the sideways-scrolling grid is a focusable, named region
+        c.expect(/<div class="pin-lk-kisi-wadah" role="region" tabindex="0" aria-labelledby="pin-kisi">/.test(html), "the scrolling grid cannot be reached by keyboard");
       }
       const hal = kode(baca(ctx.repoRoot, "src/app/pimpinan/page.tsx"));
       const lib = kode(baca(ctx.repoRoot, "src/lib/pimpinan.ts"));

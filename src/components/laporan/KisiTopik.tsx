@@ -58,7 +58,8 @@ export default function KisiTopik({ kolom, locale }: { kolom: readonly KolomKisi
           </p>
         ) : null}
         <p className="pin-lk-arti">{s("laporan.kisi.arti")}</p>
-        <div className="pin-lk-kisi-wadah">
+        {/* a narrow screen scrolls the grid sideways: the region takes keyboard focus so it can be scrolled without a mouse (axe scrollable-region-focusable) */}
+        <div className="pin-lk-kisi-wadah" role="region" tabIndex={0} aria-labelledby="pin-kisi">
           <table className="pin-lk-tabel pin-lk-kisi-tabel">
             <thead>
               <tr>
