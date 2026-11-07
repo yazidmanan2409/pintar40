@@ -46,7 +46,22 @@ The case that does change, two chapters for one learner, is measured by F31-K01 
 ## Staging walks on the deployed `main`
 | Walk | Run | Result |
 |---|---|---|
-| GS-17–21 (reports, certificate, recovery, shared computer, sessions ended elsewhere), Sekolah Uji Evaluasi B | (pending) | |
+| GS-17–21, Sekolah Uji Evaluasi B, its **second** run | 42347750742 | **Not valid as verification** (13 PASS, 5 FAIL; see below) |
+| GS-07, GS-12–16, then GS-17–21, Sekolah Uji Evaluasi A (a school that has not run GS-22) | (pending) | |
+
+**Why B's second run does not count.** GS-17–21 runs once per school: its last step, GS-22 (N1), adds a learner, Fajar. B's first run (42336620831, green, before P-6) already added Fajar, so B now holds 6 learners and 5 post-tests. On this second run that broke:
+- L0, the read-only recipe: 6 learners where it expects 5;
+- L1, the teacher's «Mengumpulkan»: 6/6 and 5/6;
+- N1, which refuses to add Fajar a second time;
+- X1, which then had no session of Fajar's to check;
+- C1, which crashed reading `batas` (most likely the same sixth learner, who has no sitting; to be confirmed on A).
+
+Choosing an already-walked school was my error. Every step that reads the figures P-6 touches still passed on B:
+- the head of department, the dean and the school admin saw «Kenaikan» +38 poin and «Pemahaman» 78% for «Kelas 5A»;
+- the school's «Kenaikan» and «Soal wajib» stayed withheld below the minimum sample;
+- the certificate, card re-issue, recovery, shared-computer and public-check steps all passed.
+
+The verification of record is GS-17–21 on school A.
 
 ## Not claimed
 - Production is unchanged.
