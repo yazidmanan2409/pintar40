@@ -428,7 +428,7 @@ export const b5aTests: SelfTest[] = [
       const awal = halaman.indexOf("async function RingkasanPengembangan(");
       const fn = awal >= 0 ? halaman.slice(awal) : "";
       c.expect(fn.length > 0 && /catatan\(kelas\)/.test(fn) && /<KomposisiPengembangan isi=\{isi\} locale=\{locale\} \/>/.test(fn)
-        && /s\("laporan\.kelas\.pd_arti", "staff", locale\)/.test(fn) && /data-pd-arti=""/.test(fn) && /pin-banner pin-info/.test(fn),
+        && /s\("laporan\.kelas\.pd_arti", "staff", locale\)/.test(fn) && /<p className="pin-intro" data-pd-arti="">/.test(fn) && !/pin-banner/.test(fn),
         "the PD summary does not draw the sentence and the professional-learning record");
       c.expect(!/KomposisiKelas|perluPenguatan|sebaranKelas|awalAkhirKelas|targetKelas|generate_report|kunciMuncul|laporan\.muncul|tak_ada_angka/.test(fn),
         "the PD summary draws or asks for an academic figure, a band, a score line, «Perlu penguatan» or a promise that figures will come");
@@ -483,15 +483,28 @@ export const b5aTests: SelfTest[] = [
         const tf = teks(f), ta = teks(a);
         // alphabetical, never by result; the row's own facts in words
         c.expect(/Andi Nugroho[\s\S]*Citra Lestari[\s\S]*Imam Syafii/.test(tf), "the participants are not in alphabetical order");
-        c.expect(/<th scope="col">Pelajaran selesai<\/th>/.test(f) && /<th scope="col">Hasil<\/th>/.test(f) && tf.includes("5 dari 5") && tf.includes("Tercapai · 85%") && tf.includes("4 dari 5"),
+        c.expect(/<th scope="col">Pelajaran selesai<\/th>/.test(f) && /<th scope="col">Hasil<\/th>/.test(f) && tf.includes("5 dari 5") && tf.includes("Tercapai") && !/Tercapai ·|85%/.test(tf) && tf.includes("4 dari 5"),
           "the facilitator's columns (lessons, result) are not drawn per person");
-        c.expect(tf.includes("Terdaftar, akun belum diaktifkan") && tf.includes("Belum mulai: Imam Syafii.") && tf.includes("Belum diberi paket: Eko Prasetyo."),
+        c.expect(tf.includes("Terdaftar, akun belum diaktifkan") && tf.includes("Imam Syafii belum mulai.") && tf.includes("Belum diberi paket: Eko Prasetyo."),
           "who has not begun, who has no package, or an account not activated, is not said by name");
         // D-069(b): no participant count, no total, no headline figure
         c.expect(!/\d+\s*(dari\s*\d+\s*)?(peserta|orang|sudah mulai|sudah selesai)/i.test(tf) && !/data-lk-entri/.test(f) && !/<tfoot/.test(f),
           `an aggregate is drawn: ${tf.slice(0, 200)}`);
         c.expect(tf.includes("Jawaban peserta dan catatan integritas tidak ditampilkan di sini.") && tf.includes("tidak dijumlahkan dan tidak diurutkan"), "the record does not say answers and integrity are not shown, or that nothing is added up");
         c.expect((f.match(/data-selesai=""/g) ?? []).length >= 4 && /<caption class="pin-sr">/.test(f), "done steps are not marked, or the table has no caption");
+        // X5-4 (Daisy, c4011570): the mark and its first word in one unbreakable span, done and not done alike
+        c.expect(/<span class="pin-lk-tanda-kata"><i class="pin-lk-tanda" aria-hidden="true"><\/i>Belum<\/span> dikerjakan/.test(f)
+          && /<span class="pin-lk-tanda-kata"><i class="pin-lk-tanda" data-selesai="" aria-hidden="true"><\/i>Sudah<\/span> dikumpulkan/.test(f),
+          "a status mark can wrap away from its word");
+        {
+          // X5-3: «not yet» is the legend's dash; X5-6: a record table; X5-7: on A4 the record breaks between rows, not before A
+          const css = baca(ctx.repoRoot, "src/app/experience.css");
+          c.expect(/\.pin-lk-tanda:not\(\[data-selesai\]\) \{[^}]*border-radius: 0;[^}]*background: var\(--ink-3\)/.test(css)
+            && /\.pin-lk-tanda-kata \{ white-space: nowrap; \}/.test(css)
+            && /\[data-pd-paket\] \.pin-lk-kisi-tabel \{[^}]*border-collapse: collapse;[^}]*font-size: var\(--t-small\)/.test(css)
+            && /\.pin-lk-bagian:has\(\[data-pd-paket\]\), \.pin-lk-bagian:has\(\[data-pd-paket\]\) \.pin-lk-inti, \[data-pd-paket\] \{ break-inside: auto; \}/.test(css),
+            "the record's not-done mark, its table grammar or its A4 breaking is not Daisy's");
+        }
         // RB1-C1 (journey, 7 Nov): a sideways-scrolling table is a focusable, named region (axe scrollable-region-focusable)
         c.expect(/class="pin-lk-kisi-wadah" data-pd-paket="" role="region" tabindex="0" aria-label="Paket: /.test(f), "the scrolling table is not a focusable, named region");
         // COMPLETION (Admin sekolah): what came back only

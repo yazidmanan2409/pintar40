@@ -3533,7 +3533,8 @@ const table: Table = {
   "hasilbelajar.buka": { default: "Lihat hasil belajar", en: "See your learning results" },
   "hasilbelajar.buka_arti": { default: "Semua bab yang sudah Anda kerjakan dalam satu halaman, dengan bagian yang perlu dipelajari lagi.", en: "Every chapter you have worked on, on one page, with the parts to study again." },
   "pengembangan.langkah": { default: "Langkah setiap peserta", en: "Each participant's steps" },
-  "pengembangan.belum_mulai": { default: "Belum mulai: {daftar}.", en: "Not started yet: {daftar}." },
+  // X5-2 (Daisy, c4011570): the people first, joined as a sentence («A dan B belum mulai.»)
+  "pengembangan.belum_mulai": { default: "{daftar} belum mulai.", en: "Not started yet: {daftar}." },
   "pengembangan.urutan": { default: "Peserta menurut abjad.", en: "Participants in alphabetical order." },
   "pengembangan.urutan_hasil": { default: "Peserta menurut abjad. Hasil terlihat per orang, tidak dijumlahkan dan tidak diurutkan.", en: "Participants in alphabetical order. Each result is that person's own, never added up or ranked." },
   "pengembangan.kolom.peserta": { default: "Peserta", en: "Participant" },

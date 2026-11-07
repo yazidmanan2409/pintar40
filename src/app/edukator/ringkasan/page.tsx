@@ -167,9 +167,11 @@ async function RingkasanPengembangan({ kelas, asal }: { kelas: string; asal: Ret
         <div className="pin-head">
           <p className="pin-eyebrow">{judul}</p>
           <h1 className="pin-h1">{kepala?.tempat ?? judul}</h1>
+          {/* X5-1 (Daisy, c4011570): the owner's sentence is the scope line, where the academic report says what its
+              figures cover; it is the class's ordinary nature, not a state to notice, and takes no letter */}
+          <p className="pin-intro" data-pd-arti="">{s("laporan.kelas.pd_arti", "staff", locale)}</p>
         </div>
         <AksiLaporan kembali={s(asal.nama, "staff", locale)} ke={asal.ke} cetak={s("laporan.cetak", "staff", locale)} />
-        <div className="pin-banner pin-info" role="note" data-pd-arti="">{s("laporan.kelas.pd_arti", "staff", locale)}</div>
         {isi === null ? (
           <Kosong jenis="belum" kalimat={s("pengembangan.ditolak", "staff", locale)} />
         ) : isi.peserta.length === 0 ? (

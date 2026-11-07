@@ -1,5 +1,5 @@
 import { format, t, type HleEvent, type Locale } from "@/lib/hle";
-import { JudulBagian } from "@/components/laporan/tata";
+import { daftarKata, JudulBagian } from "@/components/laporan/tata";
 import type { CatatanPengembangan, KeadaanUji, PaketPeserta, PesertaCatatan } from "@/lib/pengembangan-kontrak";
 
 /**
@@ -37,9 +37,14 @@ export default function KomposisiPengembangan({ isi, locale }: { isi: CatatanPen
   const s = (k: string) => t(k as HleEvent, "staff", { locale });
   const { paket, tanpaPaket } = susunCatatan(isi);
   const penuh = isi.kolom === "FULL";
-  const tanda = (selesai: boolean, teks: string) => (
-    <><i className="pin-lk-tanda" data-selesai={selesai ? "" : undefined} aria-hidden="true" />{teks}</>
-  );
+  // X5-4 (Daisy, c4011570): the mark and its first word never part, whatever the width
+  const tanda = (selesai: boolean, teks: string) => {
+    const i = teks.indexOf(" ");
+    const [awal, sisa] = i < 0 ? [teks, ""] : [teks.slice(0, i), teks.slice(i)];
+    return (
+      <><span className="pin-lk-tanda-kata"><i className="pin-lk-tanda" data-selesai={selesai ? "" : undefined} aria-hidden="true" />{awal}</span>{sisa}</>
+    );
+  };
   const uji = (k: KeadaanUji) => tanda(k === "SELESAI", s(`pengembangan.status.${k}`));
   const belumMulai = [...new Set(isi.peserta.filter((o) => o.paket.length > 0 && o.paket.every((p) => !p.mulai)).map((o) => o.nama))];
 
@@ -49,7 +54,7 @@ export default function KomposisiPengembangan({ isi, locale }: { isi: CatatanPen
         <JudulBagian huruf={"A"} judul={s("pengembangan.langkah")} id="pd-a" persona={"staff"} locale={locale} />
         <div className="pin-lk-inti">
         {belumMulai.length > 0 ? (
-          <p className="pin-lk-kalimat" data-lk-kalimat="">{s("pengembangan.belum_mulai").replace("{daftar}", belumMulai.join(", "))}</p>
+          <p className="pin-lk-kalimat" data-lk-kalimat="">{s("pengembangan.belum_mulai").replace("{daftar}", daftarKata(belumMulai, locale))}</p>
         ) : null}
         <p className="pin-lk-arti">{s(penuh ? "pengembangan.urutan_hasil" : "pengembangan.urutan")}</p>
         {paket.map(({ judul, baris }) => (
@@ -78,15 +83,18 @@ export default function KomposisiPengembangan({ isi, locale }: { isi: CatatanPen
                     <td>{tanda(p.mulai, s(p.mulai ? "pengembangan.ya" : "pengembangan.belum"))}</td>
                     <td>{uji(p.pemetaan)}</td>
                     {penuh ? (
-                      <td>{p.pelajaran
+                      <td className="pin-lk-utuh">{p.pelajaran
                         ? tanda(p.pelajaran.jumlah > 0 && p.pelajaran.selesai >= p.pelajaran.jumlah,
                           s("pengembangan.pelajaran_dari").replace("{n}", format.number(p.pelajaran.selesai, locale)).replace("{m}", format.number(p.pelajaran.jumlah, locale)))
                         : "—"}</td>
                     ) : null}
                     <td>{uji(p.penguasaan)}</td>
+                    {/* X5-5: the result in words, as 6-fasilitator draws it; only a package with no sealed mark, where
+                        there is no «reached», says its share */}
                     {penuh ? (
                       <td>{p.hasil
-                        ? <>{p.hasil.tercapai === null ? null : <>{s(p.hasil.tercapai ? "pengembangan.tercapai" : "pengembangan.belum_tercapai")} · </>}{format.percent(p.hasil.penguasaan, locale)}</>
+                        ? p.hasil.tercapai === null ? format.percent(p.hasil.penguasaan, locale)
+                          : s(p.hasil.tercapai ? "pengembangan.tercapai" : "pengembangan.belum_tercapai")
                         : "—"}</td>
                     ) : null}
                     <td>{tanda(p.selesai, s(p.selesai ? "pengembangan.ya" : "pengembangan.belum"))}</td>

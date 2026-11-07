@@ -3677,6 +3677,15 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-lk-kisi-tabel tbody th small { display: block; font-size: var(--t-eyebrow); line-height: var(--t-eyebrow-lh); color: var(--ink-2); }
 .pin-lk-tanda { display: inline-block; width: var(--space-2); height: var(--space-2); margin-right: var(--space-2); border-radius: var(--radius-pill); border: var(--border-hairline) solid var(--ink-3); vertical-align: middle; }
 .pin-lk-tanda[data-selesai] { background: var(--pintar-primary); border-color: var(--pintar-primary); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+/* X5-3 (Daisy, c4011570): «not yet» is the legend's dash («Tanda —: belum ada.»), not an open circle */
+.pin-lk-tanda:not([data-selesai]) { width: var(--lk-titik); height: calc(var(--border-hairline) * 2); border: 0; border-radius: 0; background: var(--ink-3); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+/* X5-4: the mark and its first word stay on one line */
+.pin-lk-tanda-kata { white-space: nowrap; }
+/* a count is one value («5 dari 5»): it never wraps */
+.pin-lk-utuh { white-space: nowrap; }
+/* X5-6: the professional-learning record is a record table (6-fasilitator): 14 px rows, hairline dividers, the stripe */
+[data-pd-paket] .pin-lk-kisi-tabel { width: 100%; border-collapse: collapse; font-size: var(--t-small); line-height: var(--t-small-lh); }
+[data-pd-paket] .pin-lk-kisi-tabel th, [data-pd-paket] .pin-lk-kisi-tabel td { padding: var(--space-2) var(--space-3); border-bottom: var(--border-hairline) solid var(--line-1); }
 .pin-lk-sel { display: grid; gap: var(--space-1); min-width: var(--lk-kolom-sempit); }
 .pin-lk-sel b { font-weight: 600; font-variant-numeric: tabular-nums; }
 .pin-lk-mini { position: relative; height: var(--space-1); border-radius: var(--radius-sm); background: var(--lk-alur); }
@@ -3749,6 +3758,9 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
   /* a section shorter than a page stays whole: a heading never ends a page apart from its figure (Chromium splits a
      longer one where it must) */
   .pin-lk-bagian { break-inside: avoid; }
+  /* X5-7: the record starts under the frame and breaks between rows (its thead repeats, a row never splits); a long
+     record kept whole would push all of Section A to page 2 and leave page 1 blank */
+  .pin-lk-bagian:has([data-pd-paket]), .pin-lk-bagian:has([data-pd-paket]) .pin-lk-inti, [data-pd-paket] { break-inside: auto; }
   .pin-lk-gambar, .pin-lk-pita, .pin-lk-kelompok { break-inside: avoid; }
 }
 @media print {

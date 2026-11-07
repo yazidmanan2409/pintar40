@@ -539,10 +539,10 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => /^\d+\|/.tes
     const admin = await bukaCatatan(a, `/konfigurasi/peserta?muat=${Date.now()}#peserta`, kelasPd);
     rec.shots.push(await shot(a, "c12-catatan-admin"));
     // CONTOH LAPORAN 6-fasilitator (D-195(3)): the Guru is a row in each package's table. FULL: per Bab, «Pelajaran selesai»
-    // «2 dari 2» and «Hasil» «Tercapai · <n> %» (both Bab passed); COMPLETION: «Selesai» «Ya», and neither column at all
+    // «2 dari 2» and «Hasil» «Tercapai», in words (X5-5; both Bab passed); COMPLETION: «Selesai» «Ya», and neither column at all
     const nama = (x) => x.teks.toLowerCase().includes(people.guru.name.toLowerCase());
     const penuh = (x) => x.di === `/pengembangan/${C.kelasA}` && nama(x) && (x.baris ?? []).length === 2
-      && x.baris.every((r) => /^2 dari 2$/.test(r["Pelajaran selesai"] ?? "") && /^Tercapai · \d[\d.,]*\s?%$/.test(r["Hasil"] ?? ""));
+      && x.baris.every((r) => /^2 dari 2$/.test(r["Pelajaran selesai"] ?? "") && /^Tercapai$/.test(r["Hasil"] ?? ""));
     const terbatas = admin.di === `/pengembangan/${C.kelasA}` && nama(admin) && (admin.baris ?? []).length === 2
       && admin.baris.every((r) => r["Selesai"] === "Ya" && !("Pelajaran selesai" in r) && !("Hasil" in r));
     const ringkas = (x) => (x.di ? JSON.stringify(x.baris ?? []).slice(0, 300) : `not reached: ${x.teks}`);
