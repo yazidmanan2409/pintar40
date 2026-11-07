@@ -7,5 +7,6 @@
 # 6 Nov, integrated verification on main d672a94a (P-4): Sekolah Uji B8 1106 after GS-01 to GS-21 (run 42220729346) and the administration walk (run 42272721594); another school whose administrator must be told nobody: Sekolah Uji B8 1105
 # 7 Nov, P-5 verification (main ebc53ee2): Sekolah Uji P5 1107 after GS-01 to GS-21 (run 42320850695) and the administration walk (run 42323858693); another school whose administrator must be told nobody: Sekolah Uji B8 1106
 # 7 Nov, evaluation school (synthetic): Sekolah Uji Evaluasi A, Studio end to end; other school Sekolah Uji Evaluasi B; staging main 002852ab
-other: sekolah-uji-evaluasi-b
-slug: sekolah-uji-evaluasi-a
+# 7 Nov, P-7 staging verification, second school (main c4944fab = audited d18e24e4, SAME; migrations 199-200): Sekolah Uji P7B 1107 after GS-01 to GS-21 (run 42424027157), Studio end to end; other school Sekolah Uji P7 1107
+other: sekolah-uji-p7-1107
+slug: sekolah-uji-p7b-1107
