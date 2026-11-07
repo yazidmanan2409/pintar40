@@ -2679,7 +2679,9 @@ export const appTests: SelfTest[] = [
           c.expect(r2.status === 200 && teks.includes(t(judul, "staff")), `${peran} ${jalan} → ${r2.status} without its title`);
           c.expect(!teks.includes(t("laporan.kosong", "staff")), `${peran} ${jalan} finds no report`);
           // a labelled figure: a refusal carries no label, so a page of refusals has none
-          c.expect(/<h2 class="font-medium">[^<]+<\/h2>/.test(x2), `${peran} ${jalan} is a page of refusals`);
+          // RESTATED (CONTOH LAPORAN, approved 7 Nov): the class report is one composition, where each drawn figure carries its
+          // label (data-lk-entri, empty for a refusal); the school summary keeps its headed cards
+          c.expect(/<h2 class="font-medium">[^<]+<\/h2>/.test(x2) || /data-lk-entri="[^"]+"/.test(x2), `${peran} ${jalan} is a page of refusals`);
         }
         c.note(`${peran}: ${ringkas.length} class(es), ${bolehKelas.length} readable; school summary ${keSekolah.length ? "linked" : "not linked"}`);
       }
