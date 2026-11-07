@@ -396,6 +396,17 @@ export default async function Belajar({
           </section>
         ) : null}
 
+        {/* D-195(1), CONTOH LAPORAN 1-murid: every chapter's result on one page, once a chapter has one */}
+        {capaian.size > 0 ? (
+          <section className="pin-sec" data-hasil-belajar="">
+            <h2>{s("hasilbelajar.judul")}</h2>
+            <p className="pin-mm">{s("hasilbelajar.buka_arti")}</p>
+            <div className="pin-actions">
+              <Link className="pin-btn" href="/belajar/hasil">{s("hasilbelajar.buka")}</Link>
+            </div>
+          </section>
+        ) : null}
+
         {/* THEIR CERTIFICATES, THROUGH THE ONE CERTIFICATE ARCHITECTURE.
             The learner's shell gives this a tab; somebody who also teaches
             reaches it from inside their learning, because for them it is one

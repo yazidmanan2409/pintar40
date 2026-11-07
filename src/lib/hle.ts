@@ -82,6 +82,13 @@ export type HleEvent =
   | "laporan.komposisi.kolom_topik" | "laporan.komposisi.kolom_nilai" | "laporan.komposisi.kolom_pita"
   | "laporan.komposisi.lainnya"
   | "pengembangan.tentang" | "pengembangan.siapa_melihat"
+  | "config.menunggu.alasan.kartu" | "config.menunggu.alasan.email" | "config.menunggu.alasan.pendataan"
+  | "hasilbelajar.judul" | "hasilbelajar.cakupan" | "hasilbelajar.a" | "hasilbelajar.b" | "hasilbelajar.b_arti"
+  | "hasilbelajar.belum_ada" | "hasilbelajar.semua_capai" | "hasilbelajar.capai" | "hasilbelajar.selesai" | "hasilbelajar.ulang"
+  | "hasilbelajar.serta" | "hasilbelajar.awal" | "hasilbelajar.akhir" | "hasilbelajar.target" | "hasilbelajar.berjalan"
+  | "hasilbelajar.nilai" | "hasilbelajar.tercapai" | "hasilbelajar.belum_capai" | "hasilbelajar.pelajari_lagi"
+  | "hasilbelajar.lanjutkan" | "hasilbelajar.berikutnya_ulang" | "hasilbelajar.buka_bab" | "hasilbelajar.sertifikat"
+  | "hasilbelajar.buka" | "hasilbelajar.buka_arti" | "hasilbelajar.kosong"
   | "pengembangan.langkah" | "pengembangan.belum_mulai" | "pengembangan.urutan" | "pengembangan.urutan_hasil"
   | "pengembangan.kolom.peserta" | "pengembangan.pelajaran_dari" | "pengembangan.tanpa_paket" | "pengembangan.tanda"
   | "pengembangan.tentang_catatan" | "pengembangan.tanpa_jawaban"
@@ -3226,6 +3233,9 @@ const table: Table = {
   "config.menunggu.judul": { default: "Yang menunggu", en: "Waiting" },
   "config.menunggu.pendataan": { default: "pendataan menunggu persetujuan Anda di Pendataan", en: "imports waiting for your go-ahead in Pendataan" },
   "config.menunggu.aktivasi": { default: "orang menunggu akun di Aktivasi", en: "people waiting for an account in Aktivasi" },
+  "config.menunggu.alasan.kartu": { default: "orang tanpa peran staf: buat kartu kelas di Aktivasi, untuk satu kelas atau beberapa kelas sekaligus.", en: "people with no staff role: make class cards in Aktivasi, for one class or several at once." },
+  "config.menunggu.alasan.email": { default: "orang yang memegang peran staf: aktifkan dengan email di Aktivasi; kartu kelas hanya untuk murid. Orangnya lalu meminta sendiri kode aktivasinya.", en: "people who hold a staff role: activate them with email in Aktivasi; class cards are for learners only. The person then asks for their own activation code." },
+  "config.menunggu.alasan.pendataan": { default: "Orang di dalamnya belum bisa dibuatkan akun sampai pendataannya disetujui.", en: "No account can be made for the people in it until the import is approved." },
   "config.menunggu.studio": { default: "paket menunggu tindakan atau tinjauan Anda di Studio", en: "packages waiting for your action or review in Studio" },
   "config.section.system": { default: "Sistem & Konfigurasi", en: "System & Configuration" },
   "config.section.intelligence": { default: "Inteligensi & Laporan", en: "Intelligence & Reports" },
@@ -3463,6 +3473,32 @@ const table: Table = {
   "pengembangan.arti": { default: "Catatan baca-saja per peserta dan paket. Bukan penilaian kinerja dan bukan peringkat.", en: "A read-only record per participant and package. It is not a performance appraisal and not a ranking." },
   "pengembangan.tentang": { default: "Tentang hasil ini", en: "About this result" },
   "pengembangan.siapa_melihat": { default: "Hasil ini terlihat oleh Anda, fasilitator kegiatan ini, Kepala departemen yang menaungi tempat pengembangan profesi ini, dan Dekan. Admin sekolah hanya melihat pendaftaran, keikutsertaan, dan penyelesaian Anda, tidak hasilnya. Guru lain tidak melihatnya. Jawaban Anda tidak ditampilkan kepada siapa pun selain Anda, dan catatan integritas tidak ditampilkan kepada fasilitator maupun pimpinan sekolah.", en: "This result is seen by you, the facilitator of this activity, the Head of department over this professional-learning place, and the Dean. The school administrator sees only your enrolment, participation and completion, not the result. Other teachers do not see it. Your answers are shown to no one but you, and integrity observations are not shown to the facilitator or the school's leadership." },
+  "hasilbelajar.judul": { default: "Hasil belajar", en: "Learning results" },
+  "hasilbelajar.cakupan": { default: "Semua bab yang sudah Anda kerjakan, sampai {waktu}. Hanya hasil Anda sendiri.", en: "Every chapter you have worked on, up to {waktu}. Your own results only." },
+  "hasilbelajar.a": { default: "Hasil per bab", en: "Results by chapter" },
+  "hasilbelajar.b": { default: "Bagian per bab", en: "Parts of each chapter" },
+  "hasilbelajar.b_arti": { default: "Setiap kotak satu soal yang dijawab tepat pada Uji Penguasaan.", en: "Each square is one question answered right in the Mastery Check." },
+  "hasilbelajar.belum_ada": { default: "Belum ada bab yang selesai. Bab yang sedang dikerjakan ada di bawah.", en: "No chapter is finished yet. The chapters under way are below." },
+  "hasilbelajar.semua_capai": { default: "Semua bab yang selesai sudah mencapai target.", en: "Every finished chapter has reached its target." },
+  "hasilbelajar.capai": { default: "{n} dari {m} bab yang selesai sudah mencapai target.", en: "{n} of {m} finished chapters have reached their target." },
+  "hasilbelajar.selesai": { default: "{n} bab sudah selesai.", en: "{n} chapters are finished." },
+  "hasilbelajar.ulang": { default: "Pelajari lagi: {daftar}.", en: "Study again: {daftar}." },
+  "hasilbelajar.serta": { default: " serta ", en: " and " },
+  "hasilbelajar.awal": { default: "Pemetaan Awal", en: "Initial Mapping" },
+  "hasilbelajar.akhir": { default: "Uji Penguasaan", en: "Mastery Check" },
+  "hasilbelajar.target": { default: "Target bab ini", en: "This chapter's target" },
+  "hasilbelajar.berjalan": { default: "Sedang dikerjakan", en: "Under way" },
+  "hasilbelajar.nilai": { default: "{b} dari {t} soal", en: "{b} of {t} questions" },
+  "hasilbelajar.tercapai": { default: "target tercapai", en: "target reached" },
+  "hasilbelajar.belum_capai": { default: "belum mencapai target", en: "target not reached yet" },
+  "hasilbelajar.pelajari_lagi": { default: "pelajari lagi", en: "study again" },
+  "hasilbelajar.lanjutkan": { default: "Lanjutkan {judul}", en: "Continue {judul}" },
+  "hasilbelajar.berikutnya_ulang": { default: "Pelajari lagi bagian yang ditandai «pelajari lagi» ({daftar}), lalu tanyakan kepada guru langkah berikutnya.", en: "Study again the parts marked «study again» ({daftar}), then ask your teacher for the next step." },
+  "hasilbelajar.buka_bab": { default: "Hasil lengkap {judul}", en: "Full result of {judul}" },
+  "hasilbelajar.sertifikat": { default: "Sertifikat bab yang targetnya tercapai ada di Sertifikat.", en: "The certificates of chapters whose target you reached are in Certificates." },
+  "hasilbelajar.kosong": { default: "Belum ada bab yang Anda kerjakan. Mulai dari Belajar.", en: "You have not worked on a chapter yet. Start from Learning." },
+  "hasilbelajar.buka": { default: "Lihat hasil belajar", en: "See your learning results" },
+  "hasilbelajar.buka_arti": { default: "Semua bab yang sudah Anda kerjakan dalam satu halaman, dengan bagian yang perlu dipelajari lagi.", en: "Every chapter you have worked on, on one page, with the parts to study again." },
   "pengembangan.langkah": { default: "Langkah setiap peserta", en: "Each participant's steps" },
   "pengembangan.belum_mulai": { default: "Belum mulai: {daftar}.", en: "Not started yet: {daftar}." },
   "pengembangan.urutan": { default: "Peserta menurut abjad.", en: "Participants in alphabetical order." },

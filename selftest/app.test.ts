@@ -100,6 +100,8 @@ const ROUTE_INVENTORY = [
   // it here. Leaving it out would have meant a route nobody scans for internal
   // words, which is the opposite of the rule's intent.
   "/belajar/sertifikat",
+  // D-195(1): «Hasil belajar», the learner's chapters on one page
+  "/belajar/hasil",
   "/konfigurasi",
   "/evaluasi",
   "/edukator/ringkasan",

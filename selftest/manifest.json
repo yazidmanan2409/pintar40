@@ -4040,6 +4040,11 @@
       "proves": "W2.13 / UX-33 (Batch 4), selftest/b4.test.ts, reading the source: Konfigurasi's landing (src/app/konfigurasi/page.tsx) shows what waits with a count, only where the reader may act in the working context: the school's imports waiting for a person's go (import_jobs in AWAITING_CONFIRMATION or AWAITING_PILOT_VERIFICATION, counted), its people waiting for an account (persons_awaiting_account, counted; every school's in «Seluruh platform»), its packages waiting on the reader (studio_home's ACTION_REQUIRED and AWAITING_MY_REVIEW); each opens where it is done; nothing is drawn when nothing waits; every sentence in both languages."
     },
     {
+      "id": "B4-MENUNGGU-K02",
+      "runner": "static",
+      "proves": "D-195(2), CONTOH LAPORAN 7-admin, selftest/b4.test.ts: src/app/konfigurasi/page.tsx keeps the administrator's report inside «Yang menunggu» (no second dashboard): the people waiting for an account are split, counted not listed, by persons_awaiting_account's own boleh_kartu into those a class card serves (one class or several at once) and those who hold a staff role and need email (CR-91), each with its remedy, under the count that still opens Aktivasi; the import waiting carries its reason; every sentence in both languages; the journey audit/admin-ujung.mjs B4-W8 checks the reasons add up to the count."
+    },
+    {
       "id": "B4-J2-K01",
       "runner": "static",
       "proves": "W3.5 (Batch 4; Daisy, J2Kelas), selftest/b4.test.ts, reading the source: /mengajar/[kelas]/siapa is one Collection (Table, Search, Segmented filter), each learner once with the name opening their record and their state's Badge in the words «Lihat bukti» counts under, no score or rank; the class page's roster (/mengajar/[kelas]) is a Table of names alone, each opening the learner's record, searched and paged with the total."
@@ -4589,12 +4594,17 @@
     {
       "id": "LAPORAN-PESERTA-01",
       "runner": "static",
-      "proves": "D-195(4), CONTOH LAPORAN 5-peserta, selftest/b5a.test.ts: the result page (src/app/belajar/[tugas]/hasil/page.tsx) of a professional-learning package only (engine.isProfessionalLearning, jenis_belajar_saya) says «Tentang hasil ini»: the record's meaning and who sees it — the facilitator, the Kepala departemen over the place and the Dekan the result; Admin sekolah enrolment, participation and completion, not the result; other teachers nothing; the answers no one but the participant; integrity not shown to the facilitator or leadership (D-069(b),(c)) — in both languages, checked against professional_learning_record's audiences (FACILITATOR, HEAD, DEAN full; ADMIN limited) and the administrator's own page."
+      "proves": "D-195(4), CONTOH LAPORAN 5-peserta, selftest/b5a.test.ts, from the source, the migration and the copy table: the result page (src/app/belajar/[tugas]/hasil/page.tsx) of a professional-learning package only (engine.isProfessionalLearning, jenis_belajar_saya) says «Tentang hasil ini»: the record's meaning and who sees it — the facilitator, the Kepala departemen over the place and the Dekan the result; Admin sekolah enrolment, participation and completion, not the result; other teachers nothing; the answers no one but the participant; integrity not shown to the facilitator or leadership (D-069(b),(c)) — in both languages, checked against professional_learning_record's audiences (FACILITATOR, HEAD, DEAN full; ADMIN limited) and the administrator's own page."
     },
     {
       "id": "LAPORAN-FASILITATOR-01",
       "runner": "static",
       "proves": "D-195(3), CONTOH LAPORAN 6-fasilitator, selftest/b5a.test.ts: src/components/laporan/KomposisiPengembangan.tsx rendered over professional_learning_record's shapes: a table per package, participants alphabetical (never by result), each step in words with a mark when done, the facilitator's «Pelajaran selesai» («5 dari 5») and «Hasil» («Tercapai · 85%») per person, an account not activated said, who has not begun and who has no package named; no participant count, column total or headline figure (D-069(b)); answers and integrity said not shown (D-069(c)); the administrator's COMPLETION record draws neither lessons nor result; /pengembangan/[simpul] draws it over catatan(simpul)."
+    },
+    {
+      "id": "LAPORAN-MURID-01",
+      "runner": "static",
+      "proves": "D-195(1), CONTOH LAPORAN 1-murid, selftest/b5a.test.ts: src/components/laporan/KomposisiMurid.tsx rendered over three chapters: the lead counted from the learner's own finished chapters («1 dari 2 bab yang selesai sudah mencapai target.») naming what to study again with its chapter; per chapter the Pemetaan Awal mark and the Uji Penguasaan bar on one 0–100% scale against the chapter's own sealed target, «18 dari 20 soal · target tercapai», below the target amber and in words (G-03), with a text equivalent; a chapter under way said with no figure and continued; the parts per chapter as one square per question, filled when right, with «pelajari lagi»; each chapter's own result page and the certificates linked (the chapter-level details kept); no class figure, average, rank or peer; nothing finished, no figure. /belajar/hasil draws it over hasilBelajar (src/lib/hasil-belajar.ts), which makes only the learner's own engine reads and takes the verdict from ketuntasan and the parts from bagianUlang; /belajar links it."
     },
     {
       "id": "LAPORAN-KISI-01",

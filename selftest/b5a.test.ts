@@ -385,7 +385,7 @@ export const b5aTests: SelfTest[] = [
     id: "LAPORAN-FASILITATOR-01",
     run: async (ctx) => {
       const c = new Checks();
-      const pkt = (o: Record<string, unknown>) => ({ id: "la1", judul: "Merancang Asesmen Formatif", mulai: true, pemetaan: "SELESAI", penguasaan: "SELESAI", selesai: true, ...o });
+      const pkt = (o: Record<string, unknown>): Record<string, unknown> => ({ id: "la1", judul: "Merancang Asesmen Formatif", mulai: true, pemetaan: "SELESAI", penguasaan: "SELESAI", selesai: true, ...o });
       const peserta = [
         { id: "p3", nama: "Citra Lestari", terdaftar: "ACTIVE", paket: [pkt({ id: "la3", penguasaan: "BELUM", selesai: false, pelajaran: { selesai: 4, jumlah: 5 }, hasil: null })] },
         { id: "p1", nama: "Andi Nugroho", terdaftar: "ACTIVE", paket: [pkt({ pelajaran: { selesai: 5, jumlah: 5 }, hasil: { penguasaan: 0.85, tercapai: true } })] },
@@ -393,7 +393,7 @@ export const b5aTests: SelfTest[] = [
         { id: "p5", nama: "Eko Prasetyo", terdaftar: "ACTIVE", paket: [] },
       ];
       const penuh = { simpul: "n", nama: "Kelas PD", kolom: "FULL", peserta };
-      const terbatas = { ...penuh, kolom: "COMPLETION", peserta: peserta.map((o) => ({ ...o, paket: o.paket.map(({ pelajaran: _p, hasil: _h, ...x }) => x) })) };
+      const terbatas = { ...penuh, kolom: "COMPLETION", peserta: peserta.map((o) => ({ ...o, paket: o.paket.map((p) => Object.fromEntries(Object.entries(p).filter(([k]) => k !== "pelajaran" && k !== "hasil"))) })) };
       const r = render(ctx.repoRoot,
         'const { createElement: h } = await import("react");' +
         'const { renderToStaticMarkup } = await import("react-dom/server");' +
@@ -428,6 +428,60 @@ export const b5aTests: SelfTest[] = [
       return c.verdict("renders the professional-learning record (D-195(3), 6-fasilitator): a table per package, participants alphabetical, each step in words with a mark " +
         "when done, the facilitator's lessons and result per person, who has not begun and who has no package by name; no count, total or headline figure (D-069(b)); " +
         "answers and integrity said not shown; the administrator's record draws only enrolment, participation and completion");
+    },
+  },
+  {
+    // D-195(1), CONTOH LAPORAN 1-murid: every chapter the learner has worked on, on one page, their own work only
+    id: "LAPORAN-MURID-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const bab = [
+        { tugas: "t1", judul: "Matematika · Bab 1", keadaan: "SELESAI", awal: 0.45, akhir: 0.9, ambang: 0.75, tercapai: "TERCAPAI", benar: 18, total: 20,
+          bagian: [{ kode: "A", nama: "Bilangan bulat", benar: 4, total: 4, ulang: false }], ulang: [] },
+        { tugas: "t2", judul: "IPA · Bab 1", keadaan: "SELESAI", awal: null, akhir: 0.65, ambang: 0.75, tercapai: "BELUM", benar: 13, total: 20,
+          bagian: [{ kode: "M", nama: "Massa jenis", benar: 1, total: 4, ulang: true }, { kode: "W", nama: "Wujud zat", benar: 4, total: 4, ulang: false }],
+          ulang: ["Massa jenis", "Campuran dan larutan"] },
+        { tugas: "t3", judul: "Matematika · Bab 3", keadaan: "BERJALAN", awal: null, akhir: null, ambang: null, tercapai: null, benar: 0, total: 0, bagian: [], ulang: [] },
+      ];
+      const r = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiMurid.tsx");' +
+        "const K = m.default?.default ?? m.default; const [a] = JSON.parse(process.env.ENTRI);" +
+        "process.stdout.write(JSON.stringify([renderToStaticMarkup(h(K, { bab: a, locale: 'id' })), renderToStaticMarkup(h(K, { bab: [a[2]], locale: 'id' }))]));",
+        { ENTRI: JSON.stringify([bab]) });
+      if (c.expect(r.ok, `the composition could not be rendered: ${r.err}`)) {
+        let x: string[] = [];
+        try { x = JSON.parse(r.out); } catch { /* reported below */ }
+        const teks = (h: string) => (h ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const [isi, belum] = x;
+        const t1 = teks(isi);
+        c.expect(t1.includes("1 dari 2 bab yang selesai sudah mencapai target.") && t1.includes("Pelajari lagi: Massa jenis serta Campuran dan larutan (IPA · Bab 1)."),
+          `the lead is not counted from the learner's own chapters, or does not name what to study again: ${t1.slice(0, 250)}`);
+        c.expect(t1.includes("18 dari 20 soal") && t1.includes("target tercapai") && /class="pin-lk-bawah">belum mencapai target</.test(isi) && (isi.match(/<li data-bawah="">/g) ?? []).length >= 2,
+          "a chapter's count, its verdict, or below-the-target in words and amber is missing (G-03)");
+        c.expect(/data-awal="" style="left:45%"/.test(isi) && /class="pin-lk-target" style="left:75%"/.test(isi) && t1.includes("Pemetaan Awal: 45%.") && t1.includes("Uji Penguasaan: 90%."),
+          "the Pemetaan Awal mark, the chapter's own target line, or the row's text equivalent is missing");
+        c.expect(/data-keadaan="berjalan"/.test(isi) && t1.includes("Sedang dikerjakan") && /href="\/belajar\/t3">Lanjutkan Matematika · Bab 3</.test(isi),
+          "a chapter under way is not said, with no figure, and continued from here");
+        c.expect(/data-hb-bab=""/.test(isi) && t1.includes("Massa jenis") && t1.includes("1 dari 4 soal") && /class="pin-lk-bawah">pelajari lagi</.test(isi) && (isi.match(/<i data-isi=""/g) ?? []).length === 9,
+          "the parts per chapter (one square per question, filled when right; «pelajari lagi») are not drawn");
+        c.expect(/href="\/belajar\/t1\/hasil">Hasil lengkap Matematika · Bab 1</.test(isi) && /href="\/belajar\/t2\/hasil"/.test(isi) && /href="\/belajar\/sertifikat"/.test(isi),
+          "each chapter's own result page, or the certificates, is not linked: the chapter-level details are not kept");
+        c.expect(!/kelas|rata-rata|peringkat|teman/i.test(t1), "a class figure, an average, a rank or a peer appears on the learner's own report");
+        c.expect(/>A<[\s\S]*>B<[\s\S]*>C</.test(isi) && /data-lk-kalimat/.test(isi), "the sections are not lettered A–C");
+        c.expect(teks(belum).includes("Belum ada bab yang selesai.") && !/data-lk="bagian"/.test(belum) && /data-awal|data-bawah/.test(belum) === false, "a learner with nothing finished is shown figures");
+      }
+      const halaman = kode(baca(ctx.repoRoot, "src/app/belajar/hasil/page.tsx"));
+      const lib = kode(baca(ctx.repoRoot, "src/lib/hasil-belajar.ts"));
+      c.expect(/await hasilBelajar\(db\)/.test(halaman) && /<KomposisiMurid bab=\{bab\}/.test(halaman), "/belajar/hasil does not draw the composition over hasilBelajar");
+      c.expect(/engine\.myAssignments\(db\)/.test(lib) && /engine\.outcome\(db, state\.post_session\)/.test(lib) && /ketuntasan\(outcome\)/.test(lib) && /bagianUlang\(/.test(lib) && !/\.from\(|\.rpc\(/.test(lib),
+        "hasilBelajar reads anything but the learner's own engine reads, or decides a verdict of its own");
+      c.expect(/href="\/belajar\/hasil"/.test(kode(baca(ctx.repoRoot, "src/app/belajar/page.tsx"))), "Belajar does not link the learner's report");
+      return c.verdict("renders «Hasil belajar» (D-195(1), 1-murid): the lead counted from the learner's own chapters with what to study again, per chapter Pemetaan Awal and " +
+        "Uji Penguasaan on one scale against the chapter's own target, below it amber and in words, a chapter under way said and continued; the parts per chapter as " +
+        "squares with «pelajari lagi»; each chapter's own result page and the certificates linked; no class figure, average, rank or peer; the page reads only the " +
+        "learner's own engine reads and is linked from Belajar");
     },
   },
   {

@@ -3642,6 +3642,17 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 /* 4-dekan: a dot on the 0–100 scale with PINTAR's band zones (60%, 80%), the zones named once above */
 .pin-lk-titik { position: absolute; top: calc((var(--lk-jalur) - var(--t-small)) / 2); width: var(--t-small); height: var(--t-small); margin-left: calc(var(--t-small) / -2); border-radius: var(--radius-pill); background: var(--ink-1); box-shadow: 0 0 0 var(--border-selected) var(--surface-1); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .pin-lk-baris li[data-bawah] .pin-lk-titik { background: var(--lk-bawah); }
+/* 1-murid: Pemetaan Awal a light ring on the Uji Penguasaan bar, each chapter's own target its line; parts on a light ground */
+.pin-lk-baris li .pin-lk-titik[data-awal] { background: var(--surface-1); box-shadow: inset 0 0 0 var(--border-selected) var(--ink-2); }
+.pin-lk-titik-ket { width: var(--lk-ket); height: var(--lk-ket); border-radius: var(--radius-pill); background: var(--lk-isi); }
+.pin-lk-titik-ket[data-awal] { background: var(--surface-1); box-shadow: inset 0 0 0 var(--border-selected) var(--ink-2); }
+.pin-lk-pita-ket .pin-lk-garis-ket { width: var(--border-selected); height: var(--lk-ket); border-radius: 0; background: var(--ink-1); }
+.pin-lk-kelompok { display: grid; gap: var(--space-2); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--surface-2); -webkit-print-color-adjust: exact; print-color-adjust: exact; break-inside: avoid; }
+.pin-lk-kelompok h3 { margin: 0; font-size: var(--t-body); line-height: var(--t-body-lh); font-weight: 600; color: var(--ink-1); }
+.pin-lk-kotak { display: inline-flex; gap: var(--border-selected); margin-right: var(--space-2); vertical-align: middle; }
+.pin-lk-kotak i { width: var(--space-2); height: var(--space-2); border-radius: var(--border-hairline); box-shadow: inset 0 0 0 var(--border-hairline) var(--ink-3); }
+.pin-lk-kotak i[data-isi] { background: var(--lk-isi); box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pin-lk-daftar li[data-bawah] .pin-lk-kotak i[data-isi] { background: var(--lk-bawah); }
 .pin-lk-zona { position: absolute; top: calc(var(--space-1) * -1); bottom: calc(var(--space-1) * -1); width: var(--border-hairline); background: var(--line-strong); }
 /* 3-kadep: topics × classes; each cell a value, a short bar and its class's target tick; no colour ramp */
 .pin-lk-kisi-wadah { overflow-x: auto; }

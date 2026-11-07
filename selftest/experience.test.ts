@@ -296,6 +296,8 @@ const RESET_SURFACES = [
   "src/app/belajar/page.tsx",
   "src/app/belajar/[tugas]/page.tsx",
   "src/app/belajar/[tugas]/hasil/page.tsx",
+  // D-195(1): «Hasil belajar», every chapter on one page (CONTOH LAPORAN 1-murid), on the pin-lk grammar's tokens
+  "src/app/belajar/hasil/page.tsx",
   "src/app/belajar/[tugas]/peta/page.tsx",
   "src/app/belajar/[tugas]/pemetaan/page.tsx",
   "src/app/belajar/[tugas]/penguasaan/page.tsx",

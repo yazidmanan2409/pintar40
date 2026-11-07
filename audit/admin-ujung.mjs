@@ -341,6 +341,11 @@ await step("B4-W8", "alpha's admin sees «Yang menunggu» on Konfigurasi with a 
   await shot(A, rec, "menunggu");
   const akun = blok.locator('[data-menunggu-jenis="akun"] a');
   harus(rec, (await akun.count()) === 1 && Number(norm(await akun.locator(".pin-num").innerText())) >= 1, "a count of people waiting for an account is shown");
+  // D-195(2), CONTOH LAPORAN 7-admin: under the count, each reason with its remedy, and the reasons add up to it
+  const total = Number(norm(await akun.locator(".pin-num").innerText()));
+  const alasan = await blok.locator('[data-menunggu-jenis="akun"] [data-alasan]').evaluateAll((li) => li.map((x) => ({ k: x.getAttribute("data-alasan"), n: Number((x.querySelector(".pin-num")?.textContent ?? "").replace(/\D/g, "")) })));
+  harus(rec, alasan.length >= 1 && alasan.every((x) => x.k === "kartu" || x.k === "email") && alasan.reduce((a, x) => a + x.n, 0) === total,
+    `the reasons under the count add up to it (${total}: ${alasan.map((x) => `${x.k} ${x.n}`).join(", ") || "none"})`);
   await akun.click();
   await A.waitForURL((u) => u.pathname === "/aktivasi", { timeout: SLOW });
   harus(rec, true, "the count opens Aktivasi");
