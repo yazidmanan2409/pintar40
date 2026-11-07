@@ -524,8 +524,21 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
           .reduce((n, r) => n + Number(r.count ?? 0), 0))
       : Promise.resolve(0),
   ]);
-  const menunggu: Array<{ k: string; href: string; kunci: HleEvent; n: number }> = [
-    { k: "impor", href: "/pendataan", kunci: "config.menunggu.pendataan" as HleEvent, n: nImpor },
+  // D-195(2), CONTOH LAPORAN 7-admin: inside this same «Yang menunggu», never a second dashboard: the people waiting for
+  // an account by their real reason, each with its one remedy. The database says which may be given a class card
+  // (persons_awaiting_account's boleh_kartu: no staff role) and which need an email account (a staff role, CR-91);
+  // counted, never listed
+  const nMurid = nAkun > 0
+    ? await (satuSekolah
+        ? supabase.rpc("persons_awaiting_account", {}, { count: "exact", head: true }).eq("institution_id", satuSekolah).eq("boleh_kartu", true)
+        : supabase.rpc("persons_awaiting_account", {}, { count: "exact", head: true }).eq("boleh_kartu", true)).then((r) => r.count ?? null)
+    : 0;
+  const alasanAkun: Array<{ k: string; kunci: HleEvent; n: number }> = nMurid === null ? [] : [
+    { k: "kartu", kunci: "config.menunggu.alasan.kartu" as HleEvent, n: nMurid },
+    { k: "email", kunci: "config.menunggu.alasan.email" as HleEvent, n: Math.max(0, nAkun - nMurid) },
+  ].filter((x) => x.n > 0);
+  const menunggu: Array<{ k: string; href: string; kunci: HleEvent; n: number; alasan?: HleEvent }> = [
+    { k: "impor", href: "/pendataan", kunci: "config.menunggu.pendataan" as HleEvent, n: nImpor, alasan: "config.menunggu.alasan.pendataan" as HleEvent },
     { k: "akun", href: "/aktivasi", kunci: "config.menunggu.aktivasi" as HleEvent, n: nAkun },
     { k: "studio", href: "/studio", kunci: "config.menunggu.studio" as HleEvent, n: nStudio },
   ].filter((m) => m.n > 0);
@@ -645,6 +658,15 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             {menunggu.map((m) => (
               <li key={m.k} data-menunggu-jenis={m.k}>
                 <Link className="pin-tautan" href={m.href}><span className="pin-num">{m.n}</span> {s(m.kunci)}</Link>
+                {m.alasan ? <p className="pin-meta">{s(m.alasan)}</p> : null}
+                {/* D-195(2): why each cannot sign in yet, and the one thing that resolves it */}
+                {m.k === "akun" && alasanAkun.length > 0 ? (
+                  <ul className="pin-meta" data-menunggu-alasan="">
+                    {alasanAkun.map((x) => (
+                      <li key={x.k} data-alasan={x.k}><span className="pin-num">{x.n}</span> {s(x.kunci)}</li>
+                    ))}
+                  </ul>
+                ) : null}
               </li>
             ))}
           </ul>

@@ -296,6 +296,8 @@ const RESET_SURFACES = [
   "src/app/belajar/page.tsx",
   "src/app/belajar/[tugas]/page.tsx",
   "src/app/belajar/[tugas]/hasil/page.tsx",
+  // D-195(1): «Hasil belajar», every chapter on one page (CONTOH LAPORAN 1-murid), on the pin-lk grammar's tokens
+  "src/app/belajar/hasil/page.tsx",
   "src/app/belajar/[tugas]/peta/page.tsx",
   "src/app/belajar/[tugas]/pemetaan/page.tsx",
   "src/app/belajar/[tugas]/penguasaan/page.tsx",
@@ -2074,7 +2076,13 @@ export const experienceTests: SelfTest[] = [
       // MOVED 197 -> 198 for H31 (7 Nov): 20270101100000 copies the catalogue to MC-8 and re-emits class.net_gain and
       // institution.net_gain, pairing each learner's two tests within one chapter. Read against §3 first: it is not a mark,
       // a logo, a crest or a theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 198, `${migrations.length} migrations; the frozen baseline has 198`);
+      // MOVED 198 -> 199 for D-195 (7 Nov): 20270102100000 adds murid_perlu_penguatan (a class's learners in the lowest
+      // band, identity and name only) and jenis_belajar_saya (whether one's own assignment is professional learning). Read
+      // against §3 first: two reads, not a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
+      // MOVED 199 -> 200 for KESETIAAN #6/#7/#18/#21 (owner GO, 7 Nov): 20270103100000 adds four report reads (a class's score
+      // line without identity, Kenaikan's before → after pair, readiness per subject, the card exclusions). Read against
+      // §3 first: reads, not a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
+      c.expect(migrations.length === 200, `${migrations.length} migrations; the frozen baseline has 200`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3893,7 +3901,9 @@ export const experienceTests: SelfTest[] = [
       // MOVED 195 -> 196 for W2.17 (FD-4 at 10x staging): a page of a school's people, found by name, touches no tour RPC.
       // MOVED 196 -> 197 for the cross-batch integration (6 Nov): a transferred learner placed in a class touches no tour RPC.
       // MOVED 197 -> 198 for H31 (7 Nov): the gain paired within one chapter and catalogue MC-8 touch no tour RPC.
-      c.expect(migs.length === 198, `${migs.length} migrations; the baseline has 198`);
+      // MOVED 198 -> 199 for D-195 (7 Nov): the learners in the lowest band and the own-assignment context touch no tour RPC.
+      // MOVED 199 -> 200 for KESETIAAN (7 Nov): the four report reads touch no tour RPC.
+      c.expect(migs.length === 200, `${migs.length} migrations; the baseline has 200`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -10542,7 +10552,9 @@ export const experienceTests: SelfTest[] = [
       c.expect(/<details key=\{kelas\.id\} className="pin-kelas-bukti">/.test(pimpinan) && /<KartuKetiadaan key=\{e\.metric_id/.test(pimpinan)
         && /bk\.length === 0 \? "laporan\.metrik\.bukan_untuk_anda"/.test(pimpinan), "a class is not drawn with its figures, its absences, or one refusal line");
       for (const hal of [["dekan", "ringkasan"], ["edukator", "ringkasan"]]) {
-        const src = code(readFileSync(join(repoRoot, "src", "app", ...hal, "page.tsx"), "utf8"));
+        // CONTOH LAPORAN (approved 7 Nov): the class report's body is its composition (KomposisiKelas)
+        const src = code(readFileSync(join(repoRoot, "src", "app", ...hal, "page.tsx"), "utf8")
+          + readFileSync(join(repoRoot, hal[0] === "edukator" ? "src/components/laporan/KomposisiKelas.tsx" : "src/components/laporan/KomposisiSekolah.tsx"), "utf8"));
         // RESTATED FOR W3.8 (Batch 5): the sentence is now asked in the reader's language (persona and locale passed)
         // RESTATED FOR E-C1-2 (D-132): the class report's persona is the working context's (`untuk`)
         c.expect(/kunciMuncul\(e\) \? <p[^>]*>\{s\(kunciMuncul\(e\)!, (?:"educator"|"staff"|untuk), locale\)\}<\/p> : null/.test(src), `/${hal.join("/")} does not say what will make a figure appear`);

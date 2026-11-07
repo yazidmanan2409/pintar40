@@ -1,4 +1,7 @@
 import Link from "next/link";
+import KisiTopik, { susunKisi, type KolomKisi } from "@/components/laporan/KisiTopik";
+import { JudulBagian } from "@/components/laporan/tata";
+import KepalaCetak from "@/components/laporan/KepalaCetak";
 import Kosong from "@/components/Kosong";
 import Ikon from "@/components/Ikon";
 import { t, format, type HleEvent } from "@/lib/hle";
@@ -12,7 +15,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import KartuKeputusan from "@/components/pimpinan/KartuKeputusan";
-import RingkasKesiapan from "@/components/pimpinan/RingkasKesiapan";
+import RingkasKesiapan, { adaKesiapan } from "@/components/pimpinan/RingkasKesiapan";
 import { BarisLingkup, KartuKetiadaan } from "@/components/bukti";
 import AngkaTerkelola from "@/components/pimpinan/AngkaTerkelola";
 import BarisHasil from "@/components/BarisHasil";
@@ -107,10 +110,23 @@ export default async function Pimpinan({
   const bacaSekolah = bukti.some((e) => e.metric_id?.startsWith("institution."));
   const bacaKelas = diKelas && bukti.some((e) => e.metric_id?.startsWith("class."));
 
+  // CONTOH LAPORAN 3-kadep: the grid's columns, each class's own envelopes
+  const kolomKisi: KolomKisi[] = perKelas.map(({ kelas, topik, target, bukti: bk }) => ({
+            id: kelas.id, nama: kelas.nama, topik, target,
+            // KESETIAAN #14: each class's base and its Kenaikan, from the envelopes this page already holds
+            populasi: (bk.find((e) => e.metric_id === "class.readiness_distribution")?.population ?? null) as { placed?: number; assessed?: number } | null,
+            kenaikan: bk.find((e) => e.metric_id === "class.net_gain") ?? null,
+          }));
+  // KESETIAAN #4 (G-02): every section of the page lettered A… in reading order, the letter read aloud
+  let nHuruf = 0;
+  const huruf = () => "ABCDEFGHIJ"[nHuruf++] ?? "";
+  const judulBagian = (id: string, judul: string) => <JudulBagian huruf={huruf()} judul={judul} id={id} locale={locale} />;
+
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pimpinan" current="pimpinan" />
       <main id="isi" tabIndex={-1} className="pin-col">
+        <KepalaCetak bagian={[s("pimpinan.judul"), dipilih.nama]} />
         {/* ── A. MANAGEMENT CONTEXT ─────────────────────────────────────── */}
         <BarisLingkup scope={{ path: [dipilih.nama] }} locale={locale} />
 
@@ -146,7 +162,7 @@ export default async function Pimpinan({
 
         {/* ── B. NEEDS ATTENTION ────────────────────────────────────────── */}
         <section className="pin-sec" aria-labelledby="pin-antre">
-          <h2 id="pin-antre">{s("pimpinan.menunggu.judul")}</h2>
+          {judulBagian("pin-antre", s("pimpinan.menunggu.judul"))}
 
           {/* A TRUTHFUL NOTHING. An empty queue reads as a finished sentence,
               not as an empty container apologising for itself. */}
@@ -186,7 +202,7 @@ export default async function Pimpinan({
 
         {/* ── C. WHAT THE EVIDENCE SUPPORTS ─────────────────────────────── */}
         <section className="pin-sec" aria-labelledby="pin-bukti">
-          <h2 id="pin-bukti">{s("pimpinan.bukti.judul")}</h2>
+          {judulBagian("pin-bukti", s("pimpinan.bukti.judul"))}
           {bukti.length === 0 ? (
             // W10: a head of department reads no school-wide figure, but the classes below may have theirs
             <Kosong jenis="belum" kalimat={s(perKelas.some(({ bukti: bk }) => bk.some((e) => e.status === "ok")) ? "pimpinan.bukti.di_kelas" : "pimpinan.bukti.kosong")} />
@@ -227,9 +243,14 @@ export default async function Pimpinan({
             whether it has any figure yet, and inside, every absent figure says
             what will make it appear. A class whose figures are not the
             reader's says so once, without counting what was withheld. */}
+        {/* CONTOH LAPORAN 3-kadep (approved 7 Nov): above the classes, the topics × classes grid, each cell that class's own
+            figure; a pattern across the branch, or one class */}
+        {!diKelas && susunKisi(kolomKisi).kolom.length > 0 ? (
+          <KisiTopik huruf={huruf()} kolom={kolomKisi} locale={locale} />
+        ) : null}
         {!diKelas ? (
           <section className="pin-sec" aria-labelledby="pin-perkelas">
-            <h2 id="pin-perkelas">{s("pimpinan.kelas.judul")}</h2>
+            {judulBagian("pin-perkelas", s("pimpinan.kelas.judul"))}
             <p className="pin-mm">{s("pimpinan.kelas.arti")}</p>
             {perKelas.length === 0 ? (
               <Kosong jenis="belum" kalimat={s("pimpinan.kelas.kosong")} />
@@ -275,11 +296,11 @@ export default async function Pimpinan({
         ) : null}
 
         {/* ── D. EVIDENCE READINESS ─────────────────────────────────────── */}
-        <RingkasKesiapan entries={bukti} locale={locale} />
+        {adaKesiapan(bukti) ? <RingkasKesiapan entries={bukti} locale={locale} huruf={huruf()} /> : null}
 
         {/* ── E. DELIBERATELY DEEPER ────────────────────────────────────── */}
         <section className="pin-sec" aria-labelledby="pin-lanjut">
-          <h2 id="pin-lanjut">{s("pimpinan.perlu_diketahui")}</h2>
+          {judulBagian("pin-lanjut", s("pimpinan.perlu_diketahui"))}
           <p className="pin-mm">{s("pimpinan.perlu_diketahui.sub")}</p>
           <div className="pin-actions">
             <Link className="pin-btn" href={`/pimpinan/${encodeURIComponent(dipilih.id)}`}>
@@ -302,7 +323,7 @@ export default async function Pimpinan({
             Outside the decision queue and the figures: a link to each record, read-only. */}
         {catatanPd.length > 0 ? (
           <section className="pin-sec" aria-labelledby="pin-pengembangan">
-            <h2 id="pin-pengembangan">{s("config.peserta.catatan")}</h2>
+            {judulBagian("pin-pengembangan", s("config.peserta.catatan"))}
             <div className="pin-actions">
               {catatanPd.map((k) => (
                 <Link key={k.id} className="pin-btn" href={alamatCatatan(k.id)}>

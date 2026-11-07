@@ -564,7 +564,9 @@ export const bob43Tests: SelfTest[] = [
       c.expect(/tempatCatatan\(\)/.test(rumah) && /── F\. EDUCATORS' PROFESSIONAL LEARNING/.test(rumah) && !/alamatCatatan|tempatCatatan|catatanPd/.test(antre),
         "/pimpinan does not link the records, or links them inside the decision queue");
       // src never names the context (R10, UX1-AJAR-KONTEKS-01's words)
-      for (const f of ["src/lib/pengembangan.ts", "src/lib/pengembangan-kontrak.ts", "src/app/pengembangan/[simpul]/page.tsx", "src/lib/mengajar.ts"]) {
+      for (const f of ["src/lib/pengembangan.ts", "src/lib/pengembangan-kontrak.ts", "src/app/pengembangan/[simpul]/page.tsx", "src/lib/mengajar.ts",
+        // D-195(4): the result page and the engine ask whether an assignment is professional learning as a boolean
+        "src/lib/assessment-engine/index.ts", "src/app/belajar/[tugas]/hasil/page.tsx"]) {
         c.expect(!/learning_context|PROFESSIONAL_DEVELOPMENT/.test(baca(f)), `${f} names the context`);
       }
       const mig = baca(MIGRASI);

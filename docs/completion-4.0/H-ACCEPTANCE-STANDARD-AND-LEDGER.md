@@ -70,6 +70,31 @@ The evidence already gathered is preserved; nothing proven is reopened. «Not ye
 
 **No batch is fully GREEN.** Cross-feature UX consistency (D-172) is now a gate for every batch and has not yet been assessed for any. Batch 0 passes only as infrastructure.
 
+## 3b. The ledger brought up to date (7 Nov), from evidence only
+
+**Owner, 7 Nov:** «Update the acceptance ledger using actual evidence. Do not mark human acceptance complete based solely on automated journeys.»
+
+Each cell names its evidence. A gate with partial evidence is **partial** (§1). **No integration dossier in §2's form exists for any batch.** So no integration gate is passed, whatever the walks show.
+
+| Batch | Engineering verified | Integration verified | UX consistency (D-172) | Design accepted | Human journey accepted | Fully accepted |
+|---|---|---|---|---|---|---|
+| **0** | **passed** (D-145) | n/a (infrastructure) | n/a | n/a | n/a | **passed (as infrastructure)** |
+| **1** | **passed**: on staging (D-147) and in `main` | **partial**: CR-91 is enforced at the database and walked (W5.1); no dossier | **partial**: E-RB closure (D-181); no Daisy comparison for this batch | partial: wording is Dr Gladys's (W4.1, terminology v1 open) | **not accepted**: no recorded walk by a person | **no** |
+| **2** | **passed** (D-148); on staging | **partial**: shell primitives used across pages (UX2-*, E-RB-1..10); no dossier | **partial**: shared components in use (Kosong, Koleksi, Dialog); no per-pattern comparison recorded | partial: the fifteen Batch 2 questions unanswered (E3) | **not accepted** | **no** |
+| **3** | **passed** (D-149, D-151); on staging | **partial**: Studio end to end (W6.5, `studio-ujung.mjs`) and the PD course through Studio (C-12); no dossier | **partial** | partial: A1 accepted (D-166) and now built and verified (W1.2, 7 Nov); A2–A5 open | **not accepted** (D-141) | **no** |
+| **4** | **passed** (D-155, D-156(a)); on staging | **partial**: Konfigurasi links (E-B1-1), the identity-email contract (D1), the administration walk (`admin-ujung.mjs`); no dossier | **partial**: B1 provisional | partial: D-156(a) keeps product acceptance open | **not accepted** | **no** |
+| **5** | **passed** (D-158); on staging | **partial**: the PD boundary per role at the database (C-12 C12f, BOB43-*), now with F33-P01; no dossier | **partial** | partial: C1 accepted (D-167); C2 provisional; C3 is Dr Gladys's | **not accepted** | **no** |
+| **6** | **passed**: promoted 5 Nov (PR #10, `main` `38d7e701`) | **partial**: the card and email order fixed at source (D-164, B6K-URUTAN-02); no dossier | **partial** | partial: D1 accepted; F-11, DAISY-37 final and W3.21 open | **not accepted**: the cross-client email protocol and the physical proofs not run | **no** |
+| **8** · proofs (W6.x) | **partial**: W6.4 crawl, W6.9 checklist v2.8. W6.2 and W6.8 **NOT MET as measured**: the app and database open every first screen in ≤ 492 ms on one runner, and the delay is the distance from GitHub's US runner (`batch-8/evidence/w69-bukti-pemeriksaan.md` §2d) | n/a (measurements) | n/a | n/a | **not accepted**: no regional measurement; W6.12 needs screen-reader passes by a person | **no** |
+| **9** · reports (D-195, KESETIAAN, X5), evaluator access | **passed on the branch, not on staging**: CI 42383219451 and journeys 42383221915 green on `bd4c2c06`; F32/F33 database suites, each shown red without its rule; P-6 (migration 198) on staging (`batch-9/evidence/staging-p6.md`) | **partial**: authorisation at the database per audience (F32-E02, F33-S01/K01/R01/A01, F33-P01); the PD class's report per audience and as the refused (journey C12f2); the participants figure counted with the template (S23t); no dossier | **partial**: Daisy's fidelity reviews of the built reports (#1–#28, X5-1–X5-9) reconciled, and her X5 patch (`d86f61b3`) integrated against newer engineering work, in `batch-9/kesetiaan-implementasi.md`; rendered at 1280, 390 and A4 (12 and 30 participants, the header repeated across pages); Second Eye's look at staging still open; the shared grammar (JudulBagian, daftarKata, KepalaCetak) | partial: the design direction approved (D-195); Dr Gladys's report titles and words open (G6, B10, B28) | **not accepted**: no recorded walk by a person | **no** |
+
+**Still true after this update: no batch is fully accepted.**
+
+What would move the gates:
+- **Integration:** a §2 dossier per module, built from the evidence above. Most of it is gathering what the walks and database suites already show, plus checks 2 and 9 where nothing is recorded.
+- **UX consistency:** Daisy's side-by-side comparison per batch, as she did for the reports.
+- **Human journey:** the owner's or an evaluator's recorded walks on staging.
+
 ## 4. Known cross-component inconsistencies
 
 Each is traced to its source. Status: fixed, or where it waits.
@@ -84,7 +109,7 @@ Each is traced to its source. Status: fixed, or where it waits.
 | X13 | **Hiding the rail's labels visually would have switched its tooltips off:** the shell's tooltip tests the label's `display` | the rail's names (E-E1-1) and its tooltips | one property carried two meanings | Daisy found it (`a3cef3bb`); E-E1-1: the tooltip follows the rail's state |
 | X14 | **«nomor anggota» (B2's proposal for «nomor induk») against «Keanggotaan»**, which already means **class membership** in 8 strings (the audit's «Keanggotaan dibuat / diakhiri», «Keanggotaan kelas», the rollover's «Keanggotaan kelas yang dipindahkan…») | Pendataan, Aktivasi, the intake workbook vs the audit trail and the rollover | a new word reusing a root that already names another concept | **Ruled (D-174): «Nomor Registrasi Sekolah»**; «nomor anggota» withdrawn; the data semantics verified (person × school) |
 | X4 | The PD footnote says the Kepala departemen reviews PD integrity signals | the PD class's «Lihat bukti» vs the integrity boundary (D-069(c)) | the ordinary page's footnote is reused | Daisy (C2), words Dr Gladys |
-| X5 | A PD class's Ringkasan Kelas lays out the academic class metrics | `/edukator/ringkasan` vs D-070 | the report has no PD state | **the owner's question**, then Daisy |
+| X5 | A PD class's Ringkasan Kelas lays out the academic class metrics | `/edukator/ringkasan` vs D-070 | the report has no PD state | **Owner-decided (D-196, 7 Nov)**; built: a class of participants gets the owner's sentence and the professional-learning record (LAPORAN-KELAS-PD-01, journey C12f2, F33-P01); Daisy's grammar pass requested (`08-X5-RINGKASAN-KELAS-PD.md`) |
 | X6 | The Admin platform navigation and sections: Daisy's specimen had «Studio» (corrected, `740ffc50`); «Perpindahan murid» is drawn in «Seluruh platform» although L3 hides school-shaped sections | B1 vs the real platform shell and `tampil()` | «Studio»: the specimen was drawn from code without the live screen. «Perpindahan murid»: **the section omits the rule its menu follows** (`konfigurasi/page.tsx:495` vs `:1198`) | «Studio» corrected by Daisy; «Perpindahan murid»: **L3 preserved (D-169(a))**; E-B1-5 at source, with the menu-equals-sections regression check |
 | X7 | «staf sekolah Anda» in «Seluruh platform» | Konfigurasi's «Laporan masalah» across contexts | one string for two contexts | Daisy (B1), words Dr Gladys |
 | X8 | The identity emails' context line: no school in the activation, recovery and password data | the email data contract vs DAISY-37 (2) | the data contract | **not changed** (D-164(a)): the line is shown only where authoritative data exists |

@@ -100,6 +100,8 @@ const ROUTE_INVENTORY = [
   // it here. Leaving it out would have meant a route nobody scans for internal
   // words, which is the opposite of the rule's intent.
   "/belajar/sertifikat",
+  // D-195(1): «Hasil belajar», the learner's chapters on one page
+  "/belajar/hasil",
   "/konfigurasi",
   "/evaluasi",
   "/edukator/ringkasan",
@@ -1574,8 +1576,15 @@ export const appTests: SelfTest[] = [
       //    exist.
       const curi = await lihat(PERSONA.alphaStudent, `/belajar/umpan-balik/${siklusId}`);
       const hantu = await lihat(PERSONA.alphaStudent, "/belajar/umpan-balik/00000000-0000-0000-0000-000000000000");
+      // where they part, so a failure says what differs (a leak and a page-wide detail read very differently)
+      const beda = (() => {
+        let i = 0;
+        while (i < curi.html.length && curi.html[i] === hantu.html[i]) i++;
+        const dari = Math.max(0, i - 60);
+        return `at ${i}: not yours «${curi.html.slice(dari, i + 100)}» | does not exist «${hantu.html.slice(dari, i + 100)}»`;
+      })();
       c.expect(curi.html === hantu.html,
-        "a round that is not yours reads differently from one that does not exist");
+        `a round that is not yours reads differently from one that does not exist (${beda})`);
 
       // ── 3. THE SHEET: five closed questions, and nowhere to type.
       const lembar = await lihat(PERSONA.cycleLearner, `/belajar/umpan-balik/${siklusId}`);
@@ -2629,7 +2638,9 @@ export const appTests: SelfTest[] = [
         c.expect(r.status === 200 && teks.includes(t(judul, "staff")), `${jalan} → ${r.status} without its title`);
         c.expect(!teks.includes(t("laporan.kosong", "staff")), `${jalan} finds no report for the administrator's own school`);
         if (teks.includes(t("laporan.tak_ada_angka", "staff"))) {
-          c.expect(muncul.some((m) => teks.includes(m)), `${jalan} has no figure yet and does not say what will make one appear`);
+          // a figure's own «Angka ini muncul setelah …», or the class report's 2b lead (KESETIAAN #11), which says it once for all
+          const lead = new RegExp(t("laporan.komposisi.tertahan_sub" as HleEvent, "staff").replace(/[.*+?^$()|[\]\\]/g, "\\$&").replace(/\{(n|m|perlu)\}/g, "[0-9.]+"));
+          c.expect(muncul.some((m) => teks.includes(m)) || lead.test(teks), `${jalan} has no figure yet and does not say what will make one appear`);
         }
       }
       for (const [peran, orang] of [["HEAD_OF_DEPARTMENT", PERSONA.alphaHod], ["DEAN", PERSONA.dean]] as const) {
@@ -2679,7 +2690,9 @@ export const appTests: SelfTest[] = [
           c.expect(r2.status === 200 && teks.includes(t(judul, "staff")), `${peran} ${jalan} → ${r2.status} without its title`);
           c.expect(!teks.includes(t("laporan.kosong", "staff")), `${peran} ${jalan} finds no report`);
           // a labelled figure: a refusal carries no label, so a page of refusals has none
-          c.expect(/<h2 class="font-medium">[^<]+<\/h2>/.test(x2), `${peran} ${jalan} is a page of refusals`);
+          // RESTATED (CONTOH LAPORAN, approved 7 Nov): the class report is one composition, where each drawn figure carries its
+          // label (data-lk-entri, empty for a refusal); the school summary keeps its headed cards
+          c.expect(/<h2 class="font-medium">[^<]+<\/h2>/.test(x2) || /data-lk-entri="[^"]+"/.test(x2), `${peran} ${jalan} is a page of refusals`);
         }
         c.note(`${peran}: ${ringkas.length} class(es), ${bolehKelas.length} readable; school summary ${keSekolah.length ? "linked" : "not linked"}`);
       }

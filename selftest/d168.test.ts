@@ -413,7 +413,9 @@ export const d168Tests: SelfTest[] = [
         const src = baca(f);
         c.expect(/cangkangStaf\(peran, k\?\.keadaan === "ADA" \? k : null\)/.test(src) && !/peran\?\.(includes|some)\(/.test(src), `${f} chooses its shell from role names, not the working context`);
       }
-      const ringkas = baca("src/app/edukator/ringkasan/page.tsx");
+      // CONTOH LAPORAN (approved 7 Nov): the class report is its page and its composition (KomposisiKelas), which the page
+      // hands the reader's persona (untuk) and the class's kind (jenis)
+      const ringkas = baca("src/app/edukator/ringkasan/page.tsx") + baca("src/components/laporan/KomposisiKelas.tsx");
       c.expect(/const untuk: Persona = k\?\.keadaan === "ADA" && k\.tujuan === "MENGAJAR" \? "educator" : "staff";/.test(ringkas) && !/"educator", locale\)/.test(ringkas)
         // restated (R3-PESERTA-01, E-A3-1): the line also takes the class's kind; the reader's persona is still the one passed
         && /kalimatJumlah\(e, locale, untuk, jenis\)/.test(ringkas), "the class report does not speak the reader's working context");
@@ -450,14 +452,30 @@ export const d168Tests: SelfTest[] = [
         c.expect(id === tanpa && en === t("laporan.metrik.tanpa_nama" as HleEvent, "staff", { locale: "en" }) && id.trim() !== "" && !/[a-z]+(\.[a-z_]+)+/.test(id + en),
           `an unnamed measure (${JSON.stringify(e)}) reads «${id}» / «${en}»`);
       }
-      const SURFACE = ["src/app/edukator/ringkasan/page.tsx", "src/app/dekan/ringkasan/page.tsx", "src/components/bukti/KartuKetiadaan.tsx",
+      const SURFACE = ["src/components/laporan/KomposisiKelas.tsx", "src/components/laporan/KomposisiSekolah.tsx", "src/components/bukti/KartuKetiadaan.tsx",
         "src/components/bukti/AngkaBerdiri.tsx", "src/components/pimpinan/AngkaTerkelola.tsx", "src/app/mengajar/[kelas]/bukti/page.tsx"];
       for (const f of SURFACE) {
         const src = kode(readFileSync(join(repoRoot, f), "utf8"));
         c.expect(/labelMetrik\(/.test(src) && !/label_key \? [^:]*: ""/.test(src) && !/\{s\((entry|e|siap)\.label_key\)\}/.test(src), `${f} names an entry without labelMetrik, or draws nothing in its place`);
       }
-      for (const f of ["src/app/edukator/ringkasan/page.tsx", "src/app/dekan/ringkasan/page.tsx"]) {
-        c.expect(/<h2 className="font-medium">\{labelMetrik\(e, (untuk|"staff"), locale\)\}<\/h2>/.test(kode(readFileSync(join(repoRoot, f), "utf8"))), `${f}: an entry's heading can be empty`);
+      // the shared heading draws its title whole and its letter read aloud (KESETIAAN #4)
+      const tata = kode(readFileSync(join(repoRoot, "src/components/laporan/tata.tsx"), "utf8"));
+      const judulBersama = /<span className="pin-lk-huruf"><span className="pin-sr">\{t\("laporan\.bagian" as HleEvent, persona, \{ locale \}\)\} <\/span>\{huruf\}<\/span>\s*<span>\{judul\}<\/span>/.test(tata);
+      // CONTOH LAPORAN 4-dekan (approved 7 Nov): the school report's sections are its composition's (KomposisiSekolah)
+      {
+        const f = "src/components/laporan/KomposisiSekolah.tsx";
+        const src = kode(readFileSync(join(repoRoot, f), "utf8"));
+        // restated (KESETIAAN #4, 7 Nov): every section heading is the shared JudulBagian, its title the figure's words
+        c.expect(/const judul = \(e: Envelope, h: string\) => kepala\(h, labelMetrik\(e, untuk, locale\)\);/.test(src)
+          && /\{labelMetrik\(e, untuk, locale\)\}<\/h3>/.test(src) && judulBersama, `${f}: an entry's heading can be empty`);
+      }
+      // CONTOH LAPORAN (approved 7 Nov): the class report's every section heading is its letter and the figure's words,
+      // through labelMetrik (an unnamed measure reads «tanpa nama», never empty); «Angka lain» names each of its figures so
+      {
+        const f = "src/components/laporan/KomposisiKelas.tsx";
+        const src = kode(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(/kepala\(hTopik, labelMetrik\(topik, untuk, locale\), "lk-a"\)/.test(src) && /kepala\(hPita, labelMetrik\(pita, untuk, locale\)\)/.test(src)
+          && /kepala\(hNaik, labelMetrik\(naik, untuk, locale\)\)/.test(src) && /\{labelMetrik\(e, untuk, locale\)\}<\/h3>/.test(src) && judulBersama, `${f}: an entry's heading can be empty`);
       }
       const kunci = new Set(allKeys() as string[]);
       const db: string[] = [];

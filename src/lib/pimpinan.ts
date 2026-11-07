@@ -4,6 +4,7 @@ import { alamatPilih, melayani } from "@/lib/konteks";
 import { alihkan, jalurIni, konteksHalaman, tempatSaya } from "@/lib/konteks-server";
 import { dalamLingkup, type Simpul } from "@/lib/mengajar";
 import type { Envelope } from "@/components/bukti";
+import { targetKelasDari } from "@/lib/target-kelas";
 import type {
   HasilKeputusan, KeadaanKeputusan, KeluargaKeputusan, Keputusan,
 } from "@/lib/pimpinan-kontrak";
@@ -368,6 +369,22 @@ function terbaca(e: Envelope): boolean {
   return e.status !== "not_permitted" && e.status !== "unavailable";
 }
 
+/**
+ * KESETIAAN #18: EVIDENCE READINESS PER SUBJECT AND CLASS (kesiapan_kelas_per_mapel, 20270103100000), for a reader of
+ * the class figures at or above the node: per subject, every active class with an active academic assignment of it
+ * (the denominator), and how many learners there hold an official Uji Penguasaan of its chapters against the class
+ * distribution's minimum. Counts only. Unread is null (the page falls back to the readiness by figure).
+ */
+export type KesiapanMapel = { mapel: string; kelasId: string; kelas: string; ada: number; perlu: number };
+
+export async function kesiapanPerMapel(node: string): Promise<KesiapanMapel[] | null> {
+  const c = await db();
+  const { data, error } = await c.rpc("kesiapan_kelas_per_mapel", { p_node: node });
+  if (error || !Array.isArray(data)) return null;
+  return (data as Array<{ subject: string; class_id: string; class_name: string; have: number; needed: number }>)
+    .map((r) => ({ mapel: String(r.subject), kelasId: String(r.class_id), kelas: String(r.class_name), ada: Number(r.have), perlu: Number(r.needed) }));
+}
+
 export async function buktiPimpinan(node: string, institusi: string): Promise<Envelope[]> {
   return buktiPimpinanDari(await db(), node, institusi);
 }
@@ -414,7 +431,13 @@ export async function buktiPimpinanDari(c: Db, node: string, institusi: string):
  * when the roster could not be read. Never subtracted from a figure: the
  * figures pool every official session, the roster is today's.
  */
-export type BuktiKelas = { kelas: SimpulPimpinan; bukti: Envelope[]; murid: number | null };
+export type BuktiKelas = {
+  kelas: SimpulPimpinan; bukti: Envelope[]; murid: number | null;
+  /** CONTOH LAPORAN 3-kadep (approved 7 Nov): the class's own «Penguasaan per topik», for the topic × class grid. */
+  topik?: Envelope | null;
+  /** The class's one sealed Uji Penguasaan mark, or null (src/lib/target-kelas.ts). */
+  target?: number | null;
+};
 
 /**
  * BOB-06 (B6c): THE CLASS FIGURES OF EACH CLASS IN THIS BRANCH, asked of that
@@ -433,11 +456,14 @@ export async function buktiPerKelasDari(c: Db, node: string): Promise<BuktiKelas
   return Promise.all(
     kelas.map(async (k) => {
       const minta = mintaDari(c, k.institusi);
-      const [bukti, murid] = await Promise.all([
+      const [bukti, murid, topik, target] = await Promise.all([
         Promise.all(METRIK_SIMPUL.map((m) => minta(m, k.id))),
         daftarMuridDari(c, k.id).then((d) => d.length, () => null),
+        // CONTOH LAPORAN 3-kadep: each class's own topic figure, the same envelope its teacher's report reads
+        minta("class.topic_mastery", k.id),
+        targetKelasDari(c, k.id).catch(() => null),
       ]);
-      return { kelas: k, bukti: bukti.filter(terbaca), murid };
+      return { kelas: k, bukti: bukti.filter(terbaca), murid, topik: terbaca(topik) ? topik : null, target };
     }),
   );
 }

@@ -1,3 +1,4 @@
+import { targetKelasDari } from "@/lib/target-kelas";
 import "server-only";
 import { bagianJakarta } from "@/lib/tanggal";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -731,6 +732,12 @@ export async function berjalan(
   return pilihBerjalan(buka, rows<BarisSesiAsesmen>(sesi), keadaan, Date.now(), anggota);
 }
 
+/** CONTOH LAPORAN (approved 7 Nov): the class's one sealed Uji Penguasaan mark (src/lib/target-kelas.ts). */
+export { satuTarget } from "@/lib/target-kelas";
+export async function targetKelas(nodeId: string): Promise<number | null> {
+  return targetKelasDari(await db(), nodeId);
+}
+
 /**
  * UX-37: WHAT WAITS ON THE TEACHER IN ONE CLASS — the acts of «Yang bisa Anda lakukan sekarang» (/langkah) that the
  * class's state puts there, and only those: an open assessment some of the class has not submitted yet (f1, the
@@ -917,6 +924,71 @@ export async function tujuanBelum(kelasId: string, orang: string): Promise<Tujua
   return rows<{ objective_id: string | null; statement: string }>(data)
     .filter((r) => typeof r.statement === "string" && r.statement.trim() !== "")
     .map((r) => ({ id: r.objective_id, pernyataan: r.statement }));
+}
+
+/**
+ * D-195(5), CONTOH LAPORAN 2-guru section E: THE LEARNERS OF THIS CLASS IN THE LOWEST BAND, BY NAME, for the teacher
+ * who teaches it. The database answers who (murid_perlu_penguatan, 20270102100000: calc_class_readiness_distribution's
+ * own band rule, the learner's identity and name only, nothing to a reader who does not teach the class), and
+ * tujuan_belum_tercapai what each is to study again. No figure, no item, no answer. Unread is null (no section drawn),
+ * so a failed read never says «nobody».
+ */
+export type MuridPenguatan = {
+  id: string; nama: string; ulang: string[];
+  /** The latest Uji Penguasaan's questions right out of its questions (KESETIAAN #5); null when not recorded. */
+  benar: number | null; total: number | null;
+  /** false: a required question was not right (the safety gate, which alone places a learner in this band). */
+  soalWajibTepat: boolean | null;
+};
+
+export async function perluPenguatan(kelasId: string): Promise<MuridPenguatan[] | null> {
+  const c = await db();
+  const { data, error } = await c.rpc("murid_perlu_penguatan", { p_class: kelasId });
+  if (error) return null;
+  const orang = rows<{ person_id: string; display_name: string | null; benar: number | null; total: number | null; soal_wajib_tepat: boolean | null }>(data)
+    .filter((r) => typeof r.person_id === "string");
+  const ulang = await Promise.all(orang.map((o) => tujuanBelum(kelasId, o.person_id)));
+  return orang.map((o, i) => ({
+    id: o.person_id, nama: o.display_name ?? "", ulang: ulang[i].map((u) => u.pernyataan),
+    benar: typeof o.total === "number" && o.total > 0 ? o.benar : null, total: typeof o.total === "number" && o.total > 0 ? o.total : null,
+    soalWajibTepat: typeof o.soal_wajib_tepat === "boolean" ? o.soal_wajib_tepat : null,
+  }));
+}
+
+/**
+ * KESETIAAN #6: THE CLASS'S SCORE LINE, ONE DOT PER LEARNER, for the class's teacher only (sebaran_murid_kelas,
+ * 20270103100000): each learner's latest official Uji Penguasaan mastery and band, by the readiness calculator's own
+ * rule, with no identity at all. Unread is null (no strip drawn).
+ */
+export type TitikMurid = { mastery: number; pita: "mantap" | "berkembang" | "penguatan" };
+const PITA_TIER: Record<string, TitikMurid["pita"]> = {
+  "kesiapan.siap_sertifikasi": "mantap", "kesiapan.perlu_review": "berkembang", "kesiapan.butuh_pendampingan": "penguatan",
+};
+
+export async function sebaranKelas(kelasId: string): Promise<TitikMurid[] | null> {
+  const c = await db();
+  const { data, error } = await c.rpc("sebaran_murid_kelas", { p_class: kelasId });
+  if (error) return null;
+  return rows<{ mastery: number | string; tier_key: string }>(data)
+    .map((r) => ({ mastery: Number(r.mastery), pita: PITA_TIER[r.tier_key] }))
+    .filter((r): r is TitikMurid => Number.isFinite(r.mastery) && Boolean(r.pita));
+}
+
+/**
+ * KESETIAAN #7: THE BEFORE → AFTER PAIR BEHIND «KENAIKAN» (kenaikan_awal_akhir, 20270103100000): the mean Pemetaan Awal
+ * and the mean Uji Penguasaan over exactly the (learner, chapter) pairs class.net_gain reads, given only when the
+ * reader's own Kenaikan evaluates «ok». «TIDAK» when the database answers with no pair: the page then says the two
+ * cannot be compared yet, never a figure; null when the read failed (nothing drawn).
+ */
+export type AwalAkhir = { awal: number; akhir: number; pasangan: number } | "TIDAK";
+
+export async function awalAkhirKelas(kelasId: string): Promise<AwalAkhir | null> {
+  const c = await db();
+  const { data, error } = await c.rpc("kenaikan_awal_akhir", { p_class: kelasId });
+  if (error) return null;
+  const r = rows<{ awal: number | string | null; akhir: number | string | null; pasangan: number }>(data)[0];
+  if (!r || r.awal == null || r.akhir == null) return "TIDAK";
+  return { awal: Number(r.awal), akhir: Number(r.akhir), pasangan: Number(r.pasangan) };
 }
 
 // ═══════════════════════════════════════════════════ 5. the quick assessment

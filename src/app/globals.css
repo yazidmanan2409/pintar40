@@ -135,6 +135,13 @@
   /* status — each pair passes AA against its own soft ground -------------- */
   --status-ok: #2F6E4A;        --status-ok-soft: #E4F2EA;
   --status-attention: #8A5F00; --status-attention-soft: #F7EED8;
+  /* CONTOH LAPORAN (Daisy, approved 7 Nov; G-03): PINTAR's three performance bands as three steps of one teal, validated
+     as an ordinal ramp (monotone, visible steps, the light end 2.3:1 on white); always drawn with their names */
+  --pita-penguatan: #86B3A9; --pita-berkembang: #4F8478; --pita-mantap: var(--pintar-primary);
+  /* the compositions' geometry (contoh.css): the name, track and figure columns, the track and bar heights, the measures */
+  --lk-kolom-nama: 12rem; --lk-kolom-nilai: 6.5rem; --lk-kolom-sempit: 5.5rem;
+  --lk-jalur: 20px; --lk-batang: 12px; --lk-pita-tinggi: 28px; --lk-ket: 12px; --lk-titik: 10px;
+  --lk-kalimat: 46ch; --lk-arti: 70ch; --lk-kaki: 90ch; --lk-angka-min: min(100%, 200px);
   --status-blocked: #8C3B3B;   --status-blocked-soft: #F6E4E4;
   --status-info: #3D5A80;      --status-info-soft: #E7EDF5;
 

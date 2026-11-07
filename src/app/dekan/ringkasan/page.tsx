@@ -3,16 +3,17 @@ import Kosong from "@/components/Kosong";
 import { asalLaporan } from "@/lib/nama-tempat";
 import { tawarkanSekolahLain } from "@/lib/konteks-server";
 import { kepalaLaporan, namaTempat, templatUntuk } from "@/lib/laporan";
+import { kesiapanPerMapel } from "@/lib/pimpinan";
+import KepalaCetak from "@/components/laporan/KepalaCetak";
 import { currentLocale } from "@/lib/locale";
 import { tanggal } from "@/lib/tanggal";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
 import { navKonteks } from "@/components/NavKonteks";
 import KakiPintar from "@/components/KakiPintar";
-import { BarisLingkup, kalimatJumlah, labelMetrik } from "@/components/bukti";
-import { kunciMuncul } from "@/components/bukti/muncul";
-import NilaiLaporan from "@/components/bukti/NilaiLaporan";
+import { BarisLingkup } from "@/components/bukti";
 import AksiLaporan from "@/components/laporan/AksiLaporan";
-import { s, card, omissionText, actionText, type Entry } from "../../_intel";
+import KomposisiSekolah from "@/components/laporan/KomposisiSekolah";
+import { s, card, type Entry } from "../../_intel";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/dekan/ringkasan");
@@ -78,11 +79,14 @@ export default async function RingkasanSekolah({
     .map((r) => r.cohort_node_id).filter((x): x is string => typeof x === "string")));
   const kepala = await kepalaNanti;
   const judul = s("laporan.institusi.judul", "staff", locale);
+  // KESETIAAN #18: evidence readiness per subject and class, for the node the summary is of
+  const kesiapanMapel = simpul ? await kesiapanPerMapel(simpul) : null;
 
   return (
     <>
       <CangkangStaf locale={locale} kini={judul} nav={await navKonteks({ locale, persona: "staff", bentuk: "nav" })} />
       <main id="isi" tabIndex={-1} className="pin-col">
+        <KepalaCetak bagian={[judul, kepala?.sekolah, kepala?.periode]} />
         {/* W3.8: whose report; printed with it */}
         <BarisLingkup scope={{ institution: kepala?.sekolah }} locale={locale} />
         <div className="pin-head">
@@ -108,33 +112,8 @@ export default async function RingkasanSekolah({
               <p className={card}>{s("laporan.tak_ada_angka", "staff", locale)}</p>
             ) : null}
 
-            <section className="grid gap-4">
-              {entries.map((e, i) => (
-                <article key={e.ordinal ?? i} className={card}>
-                  {/* A metric the viewer may not see carries NO label: the
-                      refusal must not disclose what it withheld. */}
-                  {e.status === "ok" || e.status === "below_minimum" || e.status === "deprecated" ? (
-                    <h2 className="font-medium">{labelMetrik(e, "staff", locale)}</h2>
-                  ) : null}
-
-                  {e.status === "ok" ? (
-                    <>
-                      <NilaiLaporan entry={e} locale={locale} tempat={tempat} persona="staff" />
-                      {/* S-3: the sentence is not optional and not conditional. */}
-                      <p className="mt-2 text-sm text-black/70">{actionText(e, locale)}</p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-sm text-black/70">{omissionText(e, locale)}</p>
-                      {/* W3.9 (RV-9; CR-46): how far, as a sentence, never «(0/10)» */}
-                      {kalimatJumlah(e, locale, "staff") ? <p className="mt-1 text-sm text-black/70">{kalimatJumlah(e, locale, "staff")}</p> : null}
-                      {/* DAISY-07: and what will make it appear, when it is short of evidence */}
-                      {kunciMuncul(e) ? <p className="mt-1 text-sm text-black/70">{s(kunciMuncul(e)!, "staff", locale)}</p> : null}
-                    </>
-                  )}
-                </article>
-              ))}
-            </section>
+            {/* CONTOH LAPORAN 4-dekan (approved 7 Nov): one composition over the same envelopes */}
+            <KomposisiSekolah entries={entries} locale={locale} tempat={tempat} kesiapanMapel={kesiapanMapel} />
           </>
         )}
       </main>

@@ -12,7 +12,7 @@
  *                in with their password; a staff role is then accepted where it was refused (CR-91); the conversion is
  *                audited with its reason, the old card and the new address.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
@@ -208,6 +208,36 @@ export const b4Tests: SelfTest[] = [
         + "where the reader may act in this context: the school's imports waiting for a go, its people waiting for an account (every "
         + "school's in «Seluruh platform»), its packages waiting on the reader (studio_home); each opens where it is done; nothing when "
         + "nothing waits; every sentence in both languages");
+    },
+  },
+  {
+    // D-195(2), CONTOH LAPORAN 7-admin: the administrator's report lives inside Konfigurasi's «Yang menunggu», never a second dashboard
+    id: "B4-MENUNGGU-K02",
+    run: async (ctx) => {
+      const c = new Checks();
+      const konf = kode(baca(ctx.repoRoot, "src/app/konfigurasi/page.tsx"));
+      c.expect(/rpc\("persons_awaiting_account", \{\}, \{ count: "exact", head: true \}\)\.eq\("institution_id", satuSekolah\)\.eq\("boleh_kartu", true\)/.test(konf)
+        && /n: Math\.max\(0, nAkun - nMurid\)/.test(konf), "the people waiting are not split by the database's own card rule (boleh_kartu), counted not listed");
+      c.expect(/m\.k === "akun" && alasanAkun\.length > 0 \?/.test(konf) && /data-alasan=\{x\.k\}/.test(konf) && /\{ k: "akun", href: "\/aktivasi"/.test(konf),
+        "the reasons are not drawn under the account count, or the count no longer opens Aktivasi");
+      c.expect(/alasan: "config\.menunggu\.alasan\.pendataan"/.test(konf), "the import waiting is not given its reason");
+      // no competing dashboard: no new administration route
+      const ada = (p: string) => { try { return statSync(join(ctx.repoRoot, p)).isDirectory(); } catch { return false; } };
+      c.expect(!ada("src/app/administrasi") && !ada("src/app/konfigurasi/menunggu") && !ada("src/app/admin"), "a separate administration dashboard exists");
+      for (const k of ["alasan.kartu", "alasan.email", "alasan.pendataan"]) {
+        for (const locale of ["id", "en"] as const) {
+          const kata = t(`config.menunggu.${k}` as HleEvent, "staff", { locale });
+          c.expect(!!kata && !kata.startsWith("config."), `config.menunggu.${k} has no sentence in ${locale}`);
+        }
+      }
+      c.expect(/beberapa kelas sekaligus/.test(t("config.menunggu.alasan.kartu" as HleEvent, "staff", { locale: "id" }))
+        && /kartu kelas hanya untuk murid/.test(t("config.menunggu.alasan.email" as HleEvent, "staff", { locale: "id" })),
+        "a reason does not name its remedy (the bulk class cards; email for a staff role, CR-91)");
+      const jalan = baca(ctx.repoRoot, "audit/admin-ujung.mjs");
+      c.expect(/\[data-alasan\]/.test(jalan) && /reduce\(\(a, x\) => a \+ x\.n, 0\) === total/.test(jalan), "the journey does not check that the reasons add up to the count");
+      return c.verdict("Konfigurasi's «Yang menunggu» carries the administrator's report (D-195(2)): the people waiting for an account split by the database's "
+        + "card rule into those a class card serves (one class or several at once) and those who need email (a staff role), each with its remedy; the import's "
+        + "reason; the count still opens Aktivasi; no second dashboard; both languages; the journey checks the reasons add up to the count");
     },
   },
   {

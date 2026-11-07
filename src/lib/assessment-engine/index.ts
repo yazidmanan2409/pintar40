@@ -95,6 +95,19 @@ export async function myAssignments(db: EngineClient): Promise<AssignmentEntry[]
   return rows<AssignmentEntry>(await call(db, "my_learning_assignments"));
 }
 
+/**
+ * D-195(4): whether one of the caller's OWN learning assignments is professional learning (jenis_belajar_saya,
+ * 20270102100000): true, false for a school's curriculum, null for anything else or an unread answer.
+ */
+export async function isProfessionalLearning(db: EngineClient, learningAssignmentId: string): Promise<boolean | null> {
+  try {
+    const v = await call(db, "jenis_belajar_saya", { p_learning_assignment: learningAssignmentId });
+    return typeof v === "boolean" ? v : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function lessons(db: EngineClient, learningAssignmentId: string): Promise<LessonEntry[]> {
   return rows<LessonEntry>(await call(db, "learner_lessons", { p_learning_assignment: learningAssignmentId }));
 }

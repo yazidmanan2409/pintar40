@@ -433,7 +433,8 @@ export const retroTests: SelfTest[] = [
       const { kalimatJumlahOrang } = await import("../src/components/bukti/KartuKetiadaan");
       c.expect(/peserta/.test(kalimatJumlahOrang(2, 5, "PARTICIPANT", "id")) && /murid/.test(kalimatJumlahOrang(2, 5, "LEARNER", "id")),
         "the shared line does not name participants for a professional-learning place");
-      const kelas = readFileSync(join(repoRoot, "src/app/edukator/ringkasan/page.tsx"), "utf8");
+      // CONTOH LAPORAN (approved 7 Nov): the page reads the kind and hands it to its composition, which draws the line
+      const kelas = readFileSync(join(repoRoot, "src/app/edukator/ringkasan/page.tsx"), "utf8") + readFileSync(join(repoRoot, "src/components/laporan/KomposisiKelas.tsx"), "utf8");
       c.expect(/from\("org_nodes"\)\.select\("institution_id, member_kind"\)\.eq\("id", kelas\)/.test(kelas) && /jenis = jenisAnggota\(/.test(kelas)
         && /kalimatJumlah\(e, locale, untuk, jenis\)/.test(kelas) && !/kalimatJumlah\(e, locale, untuk\)/.test(kelas),
         "Ringkasan Kelas does not pass its class's kind to the «how far» line");

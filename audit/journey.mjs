@@ -2979,8 +2979,10 @@ await step("S23t", "the school admin assembles the school's own class report on 
     // W3.8 (Batch 5): «Ringkasan Kelas» is the eyebrow; the heading names the class
     await h.locator("main .pin-head .pin-eyebrow", { hasText: "Ringkasan Kelas" }).waitFor({ timeout: SLOW });
     await h.waitForLoadState("networkidle");
-    return { n: await h.locator("main > section > article").count(),                                    // edukator/ringkasan/page.tsx:97-99
-      judul: (await h.locator("main > section > article > h2").allTextContents()).map(norm) };           // :102-104
+    // RESTATED (CONTOH LAPORAN, approved 7 Nov): the report is one composition; each figure it draws carries its label
+    // (data-lk-entri, KomposisiKelas), wherever the composition places it, so the figures are read by what they are
+    const entri = h.locator("main [data-lk-entri]");
+    return { n: await entri.count(), judul: (await entri.evaluateAll((els) => els.map((el) => el.getAttribute("data-lk-entri") ?? ""))).map(norm) };
   };
   try {
     // 1. before: the head of department opens Kelas 1A's summary from /pimpinan (S23's path, journey.mjs:2145-2167)
@@ -3055,7 +3057,7 @@ await step("S23t", "the school admin assembles the school's own class report on 
     notes.push(`after: the summary shows ${akhir.n} entr(ies) ${JSON.stringify(akhir.judul)} from the school's own template ${lapAkhir[0] === milik[0]} ` +
       `(version ${lapAkhir[1]}, ${lapAkhir[3]}); PINTAR's standard template unchanged ${bakuAkhir === bakuAwal}`);
     if (lapAkhir[0] !== milik[0] || lapAkhir[1] !== "1" || lapAkhir[3] !== PILIH.join(",") || akhir.n !== PILIH.length
-        || JSON.stringify(akhir.judul) !== JSON.stringify(["Pemahaman", "Kenaikan"]) || bakuAkhir !== bakuAwal) rec.verdict = "FAIL";
+        || JSON.stringify([...akhir.judul].sort()) !== JSON.stringify(["Kenaikan", "Pemahaman"]) || bakuAkhir !== bakuAwal) rec.verdict = "FAIL";
   } catch (e) {
     rec.verdict = "FAIL";
     rec.shots.push(await shot(h, "cr40-berhenti"));
