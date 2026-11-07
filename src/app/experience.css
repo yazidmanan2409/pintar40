@@ -224,6 +224,8 @@
 .pin-lambat:empty { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .pin-lambat { display: block; flex-basis: 100%; margin: var(--space-1) 0 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); }
 .pin-actions { display: flex; gap: var(--space-3); margin-top: var(--space-5); flex-wrap: wrap; align-items: center; }
+/* a report's first section stands clear of the frame's actions, as in CONTOH LAPORAN (X5, 7 Nov; Daisy's patch) */
+.pin-actions + .pin-lk { margin-top: var(--space-7); }
 .pin-back {
   display: inline-flex; gap: var(--space-1) 6px; align-items: center; min-height: var(--control-md);
   font-size: var(--t-small); font-weight: var(--weight-strong);
@@ -3677,15 +3679,15 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-lk-kisi-tabel tbody th small { display: block; font-size: var(--t-eyebrow); line-height: var(--t-eyebrow-lh); color: var(--ink-2); }
 .pin-lk-tanda { display: inline-block; width: var(--space-2); height: var(--space-2); margin-right: var(--space-2); border-radius: var(--radius-pill); border: var(--border-hairline) solid var(--ink-3); vertical-align: middle; }
 .pin-lk-tanda[data-selesai] { background: var(--pintar-primary); border-color: var(--pintar-primary); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-/* X5-3 (Daisy, c4011570): «not yet» is the legend's dash («Tanda —: belum ada.»), not an open circle */
-.pin-lk-tanda:not([data-selesai]) { width: var(--lk-titik); height: calc(var(--border-hairline) * 2); border: 0; border-radius: 0; background: var(--ink-3); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-/* X5-4: the mark and its first word stay on one line */
-.pin-lk-tanda-kata { white-space: nowrap; }
-/* a count is one value («5 dari 5»): it never wraps */
-.pin-lk-utuh { white-space: nowrap; }
-/* X5-6: the professional-learning record is a record table (6-fasilitator): 14 px rows, hairline dividers, the stripe */
+/* X5 (owner, 7 Nov; 6-fasilitator; Daisy's patch d86f61b3): a step not yet done is a short dash, as the legend «Tanda —»
+   says; its words quieter */
+.pin-lk-tanda:not([data-selesai]) { height: var(--border-selected); border: 0; border-radius: 0; background: var(--ink-3); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pin-lk-status[data-belum] { color: var(--ink-2); }
+.pin-lk-status-awal { white-space: nowrap; }
+/* the record's word table: compact rows, hairline dividers, the DS stripe (not the numeric grid's tiles) */
 [data-pd-paket] .pin-lk-kisi-tabel { width: 100%; border-collapse: collapse; font-size: var(--t-small); line-height: var(--t-small-lh); }
-[data-pd-paket] .pin-lk-kisi-tabel th, [data-pd-paket] .pin-lk-kisi-tabel td { padding: var(--space-2) var(--space-3); border-bottom: var(--border-hairline) solid var(--line-1); }
+[data-pd-paket] .pin-lk-kisi-tabel th, [data-pd-paket] .pin-lk-kisi-tabel td { padding: var(--space-3); border-bottom: var(--border-hairline) solid var(--line); }
+[data-pd-paket] .pin-lk-kisi-tabel thead th { border-bottom-color: var(--line-strong); }
 .pin-lk-sel { display: grid; gap: var(--space-1); min-width: var(--lk-kolom-sempit); }
 .pin-lk-sel b { font-weight: 600; font-variant-numeric: tabular-nums; }
 .pin-lk-mini { position: relative; height: var(--space-1); border-radius: var(--radius-sm); background: var(--lk-alur); }
@@ -3717,6 +3719,9 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
   [data-pd-paket] .pin-lk-kisi-tabel { table-layout: auto; }
   [data-pd-paket] .pin-lk-kisi-tabel thead th { white-space: normal; }
   [data-pd-paket] .pin-lk-kisi-tabel th, [data-pd-paket] .pin-lk-kisi-tabel td { overflow-wrap: normal; word-break: normal; hyphens: manual; }
+  /* the record's compact screen rows keep the paper's measures, so seven columns fit inside the card (Daisy's patch) */
+  [data-pd-paket] .pin-lk-kisi-tabel { font-size: 8.5pt; line-height: var(--leading-tight); }
+  [data-pd-paket] .pin-lk-kisi-tabel th, [data-pd-paket] .pin-lk-kisi-tabel td { padding: 2mm 1.6mm; }
   .pin-lk-kisi-tabel tbody tr:nth-child(even) { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 @media (max-width: 639px) {

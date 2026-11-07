@@ -37,12 +37,15 @@ export default function KomposisiPengembangan({ isi, locale }: { isi: CatatanPen
   const s = (k: string) => t(k as HleEvent, "staff", { locale });
   const { paket, tanpaPaket } = susunCatatan(isi);
   const penuh = isi.kolom === "FULL";
-  // X5-4 (Daisy, c4011570): the mark and its first word never part, whatever the width
-  const tanda = (selesai: boolean, teks: string) => {
-    const i = teks.indexOf(" ");
-    const [awal, sisa] = i < 0 ? [teks, ""] : [teks.slice(0, i), teks.slice(i)];
+  // X5-3/4 (Daisy's patch d86f61b3): a filled dot when done, a short dash when not yet, the words of a step not yet done
+  // quieter; the mark and its first word never part, and a count («5 dari 5», `utuh`) is one value that never wraps
+  const tanda = (selesai: boolean, teks: string, utuh = false) => {
+    const [awal, ...sisa] = utuh ? [teks] : teks.split(" ");
     return (
-      <><span className="pin-lk-tanda-kata"><i className="pin-lk-tanda" data-selesai={selesai ? "" : undefined} aria-hidden="true" />{awal}</span>{sisa}</>
+      <span className="pin-lk-status" data-belum={selesai ? undefined : ""}>
+        <span className="pin-lk-status-awal"><i className="pin-lk-tanda" data-selesai={selesai ? "" : undefined} aria-hidden="true" />{awal}</span>
+        {sisa.length ? ` ${sisa.join(" ")}` : null}
+      </span>
     );
   };
   const uji = (k: KeadaanUji) => tanda(k === "SELESAI", s(`pengembangan.status.${k}`));
@@ -83,19 +86,18 @@ export default function KomposisiPengembangan({ isi, locale }: { isi: CatatanPen
                     <td>{tanda(p.mulai, s(p.mulai ? "pengembangan.ya" : "pengembangan.belum"))}</td>
                     <td>{uji(p.pemetaan)}</td>
                     {penuh ? (
-                      <td className="pin-lk-utuh">{p.pelajaran
+                      <td>{p.pelajaran
                         ? tanda(p.pelajaran.jumlah > 0 && p.pelajaran.selesai >= p.pelajaran.jumlah,
-                          s("pengembangan.pelajaran_dari").replace("{n}", format.number(p.pelajaran.selesai, locale)).replace("{m}", format.number(p.pelajaran.jumlah, locale)))
-                        : "—"}</td>
+                          s("pengembangan.pelajaran_dari").replace("{n}", format.number(p.pelajaran.selesai, locale)).replace("{m}", format.number(p.pelajaran.jumlah, locale)), true)
+                        : <span className="pin-lk-sel-kosong">—</span>}</td>
                     ) : null}
                     <td>{uji(p.penguasaan)}</td>
-                    {/* X5-5: the result in words, as 6-fasilitator draws it; only a package with no sealed mark, where
-                        there is no «reached», says its share */}
                     {penuh ? (
-                      <td>{p.hasil
-                        ? p.hasil.tercapai === null ? format.percent(p.hasil.penguasaan, locale)
-                          : s(p.hasil.tercapai ? "pengembangan.tercapai" : "pengembangan.belum_tercapai")
-                        : "—"}</td>
+                      <td>{/* X5-5 (owner, 7 Nov; Daisy's patch): the result in its approved words, never a percentage; with no
+                          decision (no sealed mark) it says nothing has been decided: «—» */}
+                        {p.hasil && p.hasil.tercapai !== null
+                        ? s(p.hasil.tercapai ? "pengembangan.tercapai" : "pengembangan.belum_tercapai")
+                        : <span className="pin-lk-sel-kosong">—</span>}</td>
                     ) : null}
                     <td>{tanda(p.selesai, s(p.selesai ? "pengembangan.ya" : "pengembangan.belum"))}</td>
                   </tr>
