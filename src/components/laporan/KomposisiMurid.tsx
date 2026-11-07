@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { format, t, type HleEvent, type Locale, type Persona } from "@/lib/hle";
 import type { BabHasil } from "@/lib/hasil-belajar";
 import { persenJujur } from "@/components/laporan/KomposisiKelas";
@@ -14,7 +15,7 @@ import { daftarKata, JudulBagian } from "@/components/laporan/tata";
  * B «Bagian per bab»: each chapter's parts on their own light ground (R1-01), one square per question, filled when
  * answered right; a part below the target says «pelajari lagi».
  * C «Apa berikutnya»: continue the chapter under way; each chapter's own result page, kept as it is; the certificates.
- * Never a class figure, a peer or a rank. Plain markup (no next/link), so its test renders it outside Next.
+ * Never a class figure, a peer or a rank. Its links are next/link (the learner's own pages).
  */
 export default function KomposisiMurid({ bab, locale, persona = "learner" }: { bab: readonly BabHasil[]; locale: Locale; persona?: Persona }) {
   const s = (k: string) => t(k as HleEvent, persona, { locale });
@@ -114,13 +115,13 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
         <JudulBagian huruf={selesai.some((b) => b.bagian.length > 0) ? "C" : "B"} judul={s("laporan.komposisi.berikutnya")} persona={persona} locale={locale} />
         <ul className="pin-lk-langkah">
           {berjalan.map((b) => (
-            <li key={b.tugas}><a href={`/belajar/${b.tugas}`}>{s("hasilbelajar.lanjutkan").replace("{judul}", b.judul)}</a></li>
+            <li key={b.tugas}><Link href={`/belajar/${b.tugas}`}>{s("hasilbelajar.lanjutkan").replace("{judul}", b.judul)}</Link></li>
           ))}
           {ulang.length > 0 ? <li>{s("hasilbelajar.berikutnya_ulang").replace("{daftar}", ulang.map((b) => b.judul).join(", "))}</li> : null}
           {selesai.map((b) => (
-            <li key={b.tugas}><a href={`/belajar/${b.tugas}/hasil`}>{s("hasilbelajar.buka_bab").replace("{judul}", b.judul)}</a></li>
+            <li key={b.tugas}><Link href={`/belajar/${b.tugas}/hasil`}>{s("hasilbelajar.buka_bab").replace("{judul}", b.judul)}</Link></li>
           ))}
-          {capai > 0 ? <li><a href="/belajar/sertifikat">{s("hasilbelajar.sertifikat")}</a></li> : null}
+          {capai > 0 ? <li><Link href="/belajar/sertifikat">{s("hasilbelajar.sertifikat")}</Link></li> : null}
         </ul>
       </section>
     </div>
