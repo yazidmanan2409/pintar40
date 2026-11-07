@@ -37,5 +37,6 @@ Sekolah Uji P5 1107 (found-school.yml run 42316257437), then the walks in order.
 | GS-07, GS-12–16 (students) | 42319445341 | GREEN |
 | GS-17–21 (reports, certificate, recovery, shared computer, sessions ended elsewhere) | 42320850695 | GREEN |
 | Administration P0–P8, receiving school Sekolah Uji B8 1106 | 42323858693 | GREEN |
+| Studio end to end, Uji Cepat score | 42325413782 | GREEN |
 
 **Migration 197 on staging, read-only:** the walk's transfer (P5 1107 → B8 1106) is EXECUTED with `to_node_id` = «Kelas 5A» (CLASS); the learner has exactly 1 open placement, in that Kelas; P6 also required B8 1106's Guru to find them on the class page. The transfer of 6 Nov (B8 1106 → B8 1105, made before the fix) still shows the defect: that synthetic learner has 0 open placements. It is test data and is left as the record of the defect.
