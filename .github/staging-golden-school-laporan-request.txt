@@ -24,4 +24,5 @@ slug: sekolah-uji-l3
 # 6 Nov, W9.19 session regression after P-3 (main 4d325a33; the proxy verifies the token locally): Sekolah Uji B8 1105 again; GS-20 lock, R2/R3 ended sessions, X1
 # 6 Nov, P-4 session verification (main d672a94a = audited 5a78d979): Sekolah Uji B8 1106 (after run 42217292476); R2/R3, U1/U2, X1 are the verdict
 # 7 Nov, P-5 verification (main ebc53ee2): Sekolah Uji P5 1107 after GS-07, GS-12-16 (run 42319445341)
-slug: sekolah-uji-p5-1107
+# 7 Nov, evaluation school (synthetic): Sekolah Uji Evaluasi B after GS-07, GS-12-16 (run 42335711337)
+slug: sekolah-uji-evaluasi-b
