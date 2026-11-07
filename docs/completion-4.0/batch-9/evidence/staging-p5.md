@@ -29,3 +29,13 @@ Two earlier candidates were not promoted: `328a3906` (S27v found a learner could
 
 ## Staging walks on the deployed `main`
 Sekolah Uji P5 1107 (found-school.yml run 42316257437), then the walks in order. Results are recorded below as they complete.
+
+| Walk | Run | Result |
+|---|---|---|
+| GS-01–03 (first administrator) | 42316340902 | GREEN |
+| GS-04–11 (setup, Studio publication) | 42318052262 | GREEN |
+| GS-07, GS-12–16 (students) | 42319445341 | GREEN |
+| GS-17–21 (reports, certificate, recovery, shared computer, sessions ended elsewhere) | 42320850695 | GREEN |
+| Administration P0–P8, receiving school Sekolah Uji B8 1106 | 42323858693 | GREEN |
+
+**Migration 197 on staging, read-only:** the walk's transfer (P5 1107 → B8 1106) is EXECUTED with `to_node_id` = «Kelas 5A» (CLASS); the learner has exactly 1 open placement, in that Kelas; P6 also required B8 1106's Guru to find them on the class page. The transfer of 6 Nov (B8 1106 → B8 1105, made before the fix) still shows the defect: that synthetic learner has 0 open placements. It is test data and is left as the record of the defect.
