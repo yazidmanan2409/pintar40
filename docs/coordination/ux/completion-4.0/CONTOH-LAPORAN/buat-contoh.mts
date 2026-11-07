@@ -123,7 +123,9 @@ const populasi = (terdaftar: number, sudah: number, persona: Persona) => `<p cla
 /* ONE COLOUR GRAMMAR FOR EVERY REPORT (G-03): grey for an ordinary value; amber, always with its words, for a value
    below its target or in «Perlu penguatan»; PINTAR teal only for the bands and for progress (steps, lessons). The
    two greys and the amber differ in lightness too, so the meaning survives a greyscale print. */
-const kunciBawah = (ada: boolean, teks = "di bawah target") => ada ? `<p class="cl-kunci"><i class="cl-kunci-bawah" aria-hidden="true"></i>${esc(baru(`Jingga: ${teks}.`))}</p>` : "";
+// Explain once, show consistently: amber is named in one legend per figure; each amber value carries the same words
+// only for assistive technology (pds-sr), and on paper or in greyscale the bar or dot still stops short of its line.
+const kunciBawah = (ada: boolean, teks = "di bawah target") => ada ? `<p class="cl-kunci"><i class="cl-kunci-bawah" aria-hidden="true"></i>${esc(baru(`Angka berwarna jingga menunjukkan penguasaan ${teks}.`))}</p>` : "";
 /** Rows on one 0–100 scale: a bar per row, the target line through every row, the value and its base at the end. */
 function barisSkala(rows: Array<{ nama: string; nilai: number | null; sub?: string }>, o: { target?: number; tandaBawah?: boolean } = {}): string {
   const t = o.target;
@@ -132,7 +134,7 @@ function barisSkala(rows: Array<{ nama: string; nilai: number | null; sub?: stri
   const isi = rows.map((r) => {
     if (r.nilai == null) return `<li><span class="cl-nama">${esc(r.nama)}</span><span class="cl-arti">${esc(kata("laporan.metrik.belum_cukup_data"))}</span><span></span></li>`;
     const bawah = !!(o.tandaBawah && t != null && r.nilai < t); adaBawah ||= bawah;
-    return `<li${bawah ? " data-bawah" : ""}><span class="cl-nama">${esc(r.nama)}</span><span class="cl-jalur" aria-hidden="true"><span class="cl-isi-batang" style="width:${r.nilai}%"></span>${t != null ? `<span class="cl-target" style="left:${t}%"></span>` : ""}</span><span class="cl-nilai">${pct(r.nilai)}${bawah ? `<small class="cl-bawah">${esc(baru("di bawah target"))}</small>` : r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span></li>`;
+    return `<li${bawah ? " data-bawah" : ""}><span class="cl-nama">${esc(r.nama)}</span><span class="cl-jalur" aria-hidden="true"><span class="cl-isi-batang" style="width:${r.nilai}%"></span>${t != null ? `<span class="cl-target" style="left:${t}%"></span>` : ""}</span><span class="cl-nilai">${pct(r.nilai)}${bawah ? `<span class="pds-sr"> ${esc(baru("di bawah target"))}</span>` : ""}${r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span></li>`;
   }).join("");
   return `<div class="cl-gambar">${skala}<ol class="cl-baris">${isi}</ol>${kunciBawah(adaBawah)}</div>`;
 }
@@ -142,7 +144,7 @@ function titikZona(rows: Array<{ nama: string; nilai: number; sub?: string }>): 
   const skala = `<div class="cl-skala" aria-hidden="true"><span></span><div class="cl-skala-garis">${[0, 20, 40, 60, 80, 100].map((v) => `<span style="left:${v}%">${v}%</span>`).join("")}</div><span></span></div>`;
   let adaBawah = false;
   const isi = rows.map((r) => { const bawah = r.nilai < D.PITA.berkembang; adaBawah ||= bawah;
-    return `<li${bawah ? " data-bawah" : ""}><span class="cl-nama">${esc(r.nama)}</span><span class="cl-jalur" aria-hidden="true"><span class="cl-zona" style="left:60%"></span><span class="cl-zona" style="left:80%"></span><span class="cl-titik" style="left:${r.nilai}%"></span></span><span class="cl-nilai">${pct(r.nilai)}${bawah ? `<small class="cl-bawah">${esc(NAMA_PITA.penguatan)}</small>` : r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span></li>`; }).join("");
+    return `<li${bawah ? " data-bawah" : ""}><span class="cl-nama">${esc(r.nama)}</span><span class="cl-jalur" aria-hidden="true"><span class="cl-zona" style="left:60%"></span><span class="cl-zona" style="left:80%"></span><span class="cl-titik" style="left:${r.nilai}%"></span></span><span class="cl-nilai">${pct(r.nilai)}${bawah ? `<span class="pds-sr"> ${esc(NAMA_PITA.penguatan)}</span>` : ""}${r.sub ? `<small>${esc(r.sub)}</small>` : ""}</span></li>`; }).join("");
   return `<div class="cl-gambar">${legenda}<ol class="cl-baris">${isi}</ol>${skala}${kunciBawah(adaBawah, `di pita ${pitaKata("penguatan")}`)}</div>`;
 }
 /** Before and after on one scale: the small light dot is Pemetaan Awal, the dark dot Uji Penguasaan (amber when it stops short of the target). */
@@ -154,7 +156,7 @@ function awalAkhir(rows: Array<{ nama: string; awal: number | null; akhir: numbe
     const bawah = r.akhir != null && r.target != null && r.akhir < r.target; adaBawah ||= bawah;
     return `<li${bawah ? " data-bawah" : ""}><span class="cl-nama">${esc(r.nama)}</span><span class="cl-jalur" aria-hidden="true">${a != null && b != null ? `<span class="cl-garis-naik" style="left:${Math.min(a, b)}%;width:${Math.abs(b - a)}%"></span>` : ""}${r.target != null ? `<span class="cl-target" style="left:${x(r.target)}%"></span>` : ""}${a != null ? `<span class="cl-titik-awal" style="left:${a}%"></span>` : ""}${b != null ? `<span class="cl-titik" style="left:${b}%"></span>` : ""}</span><span class="cl-nilai">${esc(r.sub)}</span></li>`;
   }).join("");
-  return `<div class="cl-gambar"><ul class="cl-pita-ket" style="margin-bottom:var(--space-3)"><li><i class="cl-kunci-awal" aria-hidden="true"></i>${esc(kata("jenis.mode.PRE_TEST"))}</li><li><i class="cl-kunci-akhir" aria-hidden="true"></i>${esc(kata("jenis.mode.POST_TEST"))}</li><li><i style="background:var(--ink-1);width:2px;border-radius:0" aria-hidden="true"></i>${esc(labelTarget)}</li>${adaBawah ? `<li><i class="cl-kunci-bawah" style="border-radius:50%" aria-hidden="true"></i>${esc(baru("di bawah target"))}</li>` : ""}</ul><ol class="cl-baris">${isi}</ol></div>`;
+  return `<div class="cl-gambar"><ul class="cl-pita-ket" style="margin-bottom:var(--space-3)"><li><i class="cl-kunci-awal" aria-hidden="true"></i>${esc(kata("jenis.mode.PRE_TEST"))}</li><li><i class="cl-kunci-akhir" aria-hidden="true"></i>${esc(kata("jenis.mode.POST_TEST"))}</li><li><i style="background:var(--ink-1);width:2px;border-radius:0" aria-hidden="true"></i>${esc(labelTarget)}</li>${adaBawah ? `<li><i class="cl-kunci-bawah" style="border-radius:50%" aria-hidden="true"></i>${esc(baru("Titik berwarna jingga menunjukkan penguasaan di bawah target."))}</li>` : ""}</ul><ol class="cl-baris">${isi}</ol></div>`;
 }
 /** One dot per student on the score line (0–20 correct), stacked where scores are equal; the band zones and the target named. */
 function sebaranTitik(skor: number[], pitaDari: (i: number) => D.Pita, maks = 20, target = 15): string {
@@ -308,7 +310,7 @@ function laporanKadep(): Laporan {
     <thead><tr><th scope="col">${esc(baru("Topik"))}</th>${rs.map((r) => `<th scope="col">Kelas ${r.kelas.nama}<small>${r.pemahaman == null ? esc(kata("ketiadaan.jumlah.murid", persona, { have: r.peserta, needed: D.MIN_SAMPEL })) : `${r.peserta} ${esc(kata("siklus.dari"))} ${r.terdaftar} murid`}</small></th>`).join("")}</tr></thead>
     <tbody>${paket.topik.map((t, i) => `<tr><th scope="row">${esc(t.nama)}</th>${rs.map((r) => `<td>${sel(r.topik[i])}</td>`).join("")}</tr>`).join("")}
     <tr><th scope="row"><strong>${esc(kata("metrik.kenaikan.label"))}</strong></th>${rs.map((r) => `<td>${r.kenaikan == null ? `<span class="cl-sel-kosong">—</span>` : `<b>+${bulat(r.kenaikan)}</b> ${esc(baru("poin"))}`}</td>`).join("")}</tr></tbody></table></div>
-    <p class="cl-arti">${esc(baru(`Garis tegak di setiap sel: target ${D.TARGET}%. Angka berwarna jingga: di bawah target. Tanda —: belum cukup data.`))}</p>`;
+    <p class="cl-arti">${esc(baru(`Garis tegak di setiap sel: target ${D.TARGET}%. Angka berwarna jingga menunjukkan penguasaan di bawah target. Tanda — berarti data belum cukup.`))}</p>`;
   const kesiapan = `<ul class="cl-daftar">${rs.map((r) => `<li><span>Kelas ${r.kelas.nama}</span><span>${esc(r.pemahaman != null ? kata("pimpinan.kesiapan.cukup") : r.peserta > 0 ? kata("pimpinan.kesiapan.belum_cukup") : kata("pimpinan.kesiapan.belum_ada"))}</span></li>`).join("")}</ul><p class="cl-arti">${esc(kata("pimpinan.kesiapan.catatan"))}</p>`;
   const rantai = `<dl class="cl-rantai"><div><dt>${esc(kata("pimpinan.rantai.didukung"))}</dt><dd>${esc(kalimat)}</dd></div><div><dt>${esc(kata("pimpinan.rantai.belum"))}</dt><dd>${esc(kata("pimpinan.rantai.pembelajaran.belum"))}</dd></div><div><dt>${esc(kata("pimpinan.rantai.langkah"))}</dt><dd>${esc(kata("pimpinan.rantai.pembelajaran.langkah"))}</dd></div></dl>`;
   const html = shellStaf(KADEP, "Matematika", halaman({ lingkup: [D.SEKOLAH, "Matematika", D.TAHUN], alis: kata("pimpinan.eyebrow"), h1: `Matematika · kelas 7`, cakupan: baru(`${paket.bab} di ${rs.length} kelas. Angka dihitung ${D.WAKTU} dari semua bukti sampai saat itu.`),

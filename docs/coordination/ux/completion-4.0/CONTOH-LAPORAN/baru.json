@@ -6,7 +6,7 @@
  },
  {
   "laporan": "murid",
-  "teks": "di bawah target"
+  "teks": "Titik berwarna jingga menunjukkan penguasaan di bawah target."
  },
  {
   "laporan": "murid",
@@ -83,7 +83,7 @@
  },
  {
   "laporan": "guru-7A",
-  "teks": "Jingga: di bawah target."
+  "teks": "Angka berwarna jingga menunjukkan penguasaan di bawah target."
  },
  {
   "laporan": "guru-7A",
@@ -104,6 +104,10 @@
  {
   "laporan": "guru-7A",
   "teks": "Rata-rata kelas"
+ },
+ {
+  "laporan": "guru-7A",
+  "teks": "Titik berwarna jingga menunjukkan penguasaan di bawah target."
  },
  {
   "laporan": "guru-7A",
@@ -202,7 +206,7 @@
  },
  {
   "laporan": "kadep",
-  "teks": "Garis tegak di setiap sel: target 75%. Angka berwarna jingga: di bawah target. Tanda —: belum cukup data."
+  "teks": "Garis tegak di setiap sel: target 75%. Angka berwarna jingga menunjukkan penguasaan di bawah target. Tanda — berarti data belum cukup."
  },
  {
   "laporan": "kadep",
@@ -278,7 +282,7 @@
  },
  {
   "laporan": "dekan",
-  "teks": "Jingga: di pita «Perlu penguatan»."
+  "teks": "Angka berwarna jingga menunjukkan penguasaan di pita «Perlu penguatan»."
  },
  {
   "laporan": "dekan",
@@ -381,7 +385,7 @@
  },
  {
   "laporan": "peserta-pd",
-  "teks": "di bawah target"
+  "teks": "Titik berwarna jingga menunjukkan penguasaan di bawah target."
  },
  {
   "laporan": "peserta-pd",
