@@ -45,7 +45,7 @@
 | G-06 | No buttons on paper | Every «Apa berikutnya» prints its steps as text («Di PINTAR: …»); the admin's card selection prints as the list and the instruction. |
 | R1-01, R1-02 | Murid: chapter groups | Each chapter's parts sit on their own light ground under the chapter's name, so where one chapter ends and the next begins is plain, in greyscale too. |
 | R2-02, R2-03 | Guru: heading and figures | «Murid yang perlu penguatan» (the band's formal name stays where the band is named, in «»); the figures in one right-aligned column of fixed width, each with the same kind of note under it. |
-| R7-02, R7-03, R7-04 | Admin: cards and reasons | Four groups by the real reason (no card · card not used · data in Pendataan · teacher's email not activated). The multi-class selection is marked as a proposal (H30) on screen; on paper the steps are today's («Buat kartu untuk kelas ini» once per class, then «Cetak kartu kelas»). «Yang menunggu» counts 10 in Aktivasi, not 12: the two in Pendataan are not there yet. |
+| R7-02, R7-03, R7-04 | Admin: cards and reasons | Four groups by the real reason (no card · card not used · data in Pendataan · teacher's email not activated). The multi-class selection is shown as shipped on `main` (H30, 7 Nov: «Beberapa kelas sekaligus», «Pilih semua», «Buat kartu untuk {n} murid», «Cetak kartu kelas»); the proposal frame is gone. «Yang menunggu» counts 10 in Aktivasi, not 12: the two in Pendataan are not there yet. |
 | R4-03 | Certificate count | «Sertifikat terbit» uses MC-1 exactly: certificates issued and not revoked, out of all issued («408 dari 411 yang pernah terbit; 3 dicabut»). The earlier base (Mastery Check results) was wrong. |
 | Also | Found while checking | Two primary buttons on the admin screen (P1: one) — the page button is now secondary. |
 
@@ -191,7 +191,7 @@
 **Privacy and permissions:** The educator's own result. The page says who else may see the result (D-069(b)) and that answers are shown to no one else.
 
 **Questions for the owner or Dr Gladys**
-- The sentence on who may see the result is new; owner: is it right to state it here (D-069(b), (c))?
+- The sentence on who may see the result states D-069(b) exactly (7 Nov): the facilitator, the responsible Kepala departemen, the Dekan; Admin sekolah enrolment, participation and completion only; no other Guru.
 
 ## 6-fasilitator · Catatan pengembangan profesi · fasilitator
 

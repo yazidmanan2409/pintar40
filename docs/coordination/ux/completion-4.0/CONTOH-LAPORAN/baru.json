@@ -393,7 +393,8 @@
  },
  {
   "laporan": "peserta-pd",
-  "teks": "Hasil ini terlihat oleh Anda, fasilitator, Kepala departemen, dan Dekan. Jawaban Anda tidak ditampilkan kepada siapa pun selain Anda."
+  "teks": "Hasil ini terlihat oleh Anda, fasilitator paket ini, Kepala departemen yang membawahi pengembangan profesi, dan Dekan. Admin sekolah hanya melihat pendaftaran, keikutsertaan, dan penyelesaian; guru lain tidak melihatnya. Jawaban Anda per soal tidak ditampilkan kepada mereka.",
+  "catatan": "who may see the result, as ruled (D-069(b)); integrity signals are not shown to anyone (D-069(c))"
  },
  {
   "laporan": "peserta-pd",
@@ -416,8 +417,8 @@
  },
  {
   "laporan": "fasilitator",
-  "teks": "10 dari 12 peserta sudah mulai; 6 sudah selesai. Gilang Ramadhan dan Imam Syafii belum mulai.",
-  "catatan": "participation only: never an aggregate of results (D-069(b))"
+  "teks": "Gilang Ramadhan dan Imam Syafii belum mulai.",
+  "catatan": "owner, 7 Nov: no aggregate participation headline (D-069(b)); the lead names who has not begun"
  },
  {
   "laporan": "fasilitator",
@@ -467,36 +468,11 @@
  },
  {
   "laporan": "admin",
-  "teks": "Di PINTAR hari ini: Aktivasi akun › «Kartu untuk satu kelas»: tekan «Buat kartu untuk kelas ini» sekali untuk setiap kelas (7E, 8B, 8D, 9B, 9D), lalu «Cetak kartu kelas».",
-  "catatan": "today's workflow, one class at a time (aktivasi.kelas.*)"
- },
- {
-  "laporan": "admin",
-  "teks": "Usulan · H30"
- },
- {
-  "laporan": "admin",
-  "teks": "Belum tersedia di PINTAR: memilih beberapa kelas sekaligus. Ini gambaran usulan untuk engineering."
- },
- {
-  "laporan": "admin",
-  "teks": "Kelas untuk dibuatkan kartu"
- },
- {
-  "laporan": "admin",
-  "teks": "Pilih semua"
- },
- {
-  "laporan": "admin",
   "teks": "6 murid di 5 kelas"
  },
  {
   "laporan": "admin",
   "teks": "Dipilih: 6 murid di 5 kelas. Tidak termasuk: 3 murid yang sudah punya kartu dan 2 murid yang datanya masih di Pendataan. Setiap kartu tetap dibuat dan dicatat untuk muridnya masing-masing; semua kartu dicetak dalam satu lembar."
- },
- {
-  "laporan": "admin",
-  "teks": "Buat kartu untuk 6 murid"
  },
  {
   "laporan": "admin",
@@ -554,6 +530,11 @@
   "laporan": "admin",
   "teks": "Apa berikutnya",
   "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Di PINTAR: Aktivasi akun › «Beberapa kelas sekaligus»: «Pilih semua» (7E, 8B, 8D, 9B, 9D), lalu «Buat kartu untuk 6 murid» dan «Cetak kartu kelas».",
+  "catatan": "printed in place of the buttons (G-06)"
  },
  {
   "laporan": "admin",
