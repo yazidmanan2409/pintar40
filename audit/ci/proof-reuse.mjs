@@ -22,6 +22,7 @@
 //        lies: tsconfig compiles every **/*.ts and **/*.mts, and lint reads every script, docs/ included. Renames
 //        count as both of their paths (--no-renames).
 //    CI-W02 keeps this true: it fails if anything CI executes starts reading these paths.
+//    Never for a pull request into main: that run is the merge gate, and main's ruleset requires its own verdict.
 //
 // THE RULE: an outcome of this job is never success with skipped proof. DEFERRED and ALREADY PROVEN both cancel the
 // run, so its conclusion is `cancelled`. If the cancellation does not take hold within 90 s, this job fails, so the
@@ -62,7 +63,10 @@ export function starved(jobs, now, minutes = 10) {
  * May this commit cite `candidate` instead of running? Only if every condition holds; `why` says which failed.
  * candidate: { run, selftestConclusion, changed }
  */
-export function reusable({ onMain, run, selftestConclusion, changed, now, maxAgeHours = 72 }) {
+export function reusable({ onMain, mergeGate = false, run, selftestConclusion, changed, now, maxAgeHours = 72 }) {
+  // P-6 (7 Nov): a pull request into main is the merge gate. main's ruleset requires this run's own «verdict», so a run
+  // that stood down as ALREADY PROVEN left the required check cancelled and the merge refused (PR #15). It runs in full.
+  if (mergeGate) return { ok: false, why: "a pull request into main is the merge gate: its required verdict is its own full run" };
   // E1 (D-128): on main, only the identical commit. A commit that differs even in an unread document runs in full, so
   // every commit main runs keeps a successful run on its own exact head_sha, the one the deploy gates look for.
   if (onMain && !(Array.isArray(changed) && changed.length === 0)) return { ok: false, why: "main: only the identical commit, already proven, is not run again" };
@@ -121,6 +125,7 @@ async function main() {
 
   // 2. already proven. On main (E1, D-128) only a successful run on this exact commit qualifies; elsewhere, as before.
   const onMain = GITHUB_REF_NAME === "main";
+  const mergeGate = process.env.GITHUB_EVENT_NAME === "pull_request" && process.env.GITHUB_BASE_REF === "main";
   const done = await api(onMain
     ? `/actions/workflows/ci.yml/runs?status=success&head_sha=${GITHUB_SHA}&per_page=30`
     : `/actions/workflows/ci.yml/runs?status=success&per_page=30`);
@@ -132,7 +137,7 @@ async function main() {
     try {
       changed = execFileSync("git", DIFF_ARGS(run.head_sha, GITHUB_SHA), { encoding: "utf8" }).split("\n").filter(Boolean);
     } catch { /* that commit is not in this checkout's history */ }
-    const v = reusable({ onMain, run, selftestConclusion, changed, now: Date.now(), maxAgeHours });
+    const v = reusable({ onMain, mergeGate, run, selftestConclusion, changed, now: Date.now(), maxAgeHours });
     if (v.ok) {
       say(`**ALREADY PROVEN** by CI run ${run.id} on \`${run.head_sha.slice(0, 7)}\` (${run.html_url}), whose strict selftest ran ` +
           `and succeeded: this commit ${v.why}. This run cancels itself and is not evidence; run ${run.id} is.`);

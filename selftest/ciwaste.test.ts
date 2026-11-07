@@ -153,6 +153,8 @@ export const ciwasteTests: SelfTest[] = [
         // a pull request run tests the merge of its head with the base, so its head_sha was never itself proven
         ["a pull request run", { run: { conclusion: "success", event: "pull_request", created_at: "2026-10-06T10:00:00Z" } }],
         ["a run of unknown event", { run: { conclusion: "success", created_at: "2026-10-06T10:00:00Z" } }],
+        // P-6: a pull request into main is the merge gate; main's ruleset requires its own verdict, so it never stands down
+        ["a pull request run into main (the merge gate)", { mergeGate: true }],
         ["a commit outside this history", { changed: null }],
         ["a code change", { changed: ["docs/reports/a.md", "src/x.ts"] }],
       ] as const) {
@@ -173,6 +175,9 @@ export const ciwasteTests: SelfTest[] = [
       const cancelSelf = src.slice(src.indexOf("async function cancelSelf"), src.indexOf("out(\"proven\", \"false\")"));
       c.expect(/\/cancel`, "POST"\)[\s\S]*process\.exit\(1\)/.test(cancelSelf), "cancelSelf does not end in a failure when the cancellation does not take hold");
       c.expect(/DEFERRED · NOT PROVEN[\s\S]{0,400}await cancelSelf\(\)/.test(src), "the starved outcome does not cancel the run");
+      // P-6: the merge gate is read from the run itself, and handed to reusable
+      c.expect(/GITHUB_EVENT_NAME === "pull_request" && process\.env\.GITHUB_BASE_REF === "main"/.test(src)
+        && /reusable\(\{ onMain, mergeGate,/.test(src), "a pull request into main is not recognised as the merge gate");
       c.expect(/ALREADY PROVEN[\s\S]{0,500}await cancelSelf\(\)/.test(src), "the proven outcome does not cancel the run");
 
       // 5. nothing CI executes reads the unread paths (comments may name them)
