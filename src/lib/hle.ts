@@ -81,6 +81,9 @@ export type HleEvent =
   | "laporan.komposisi.berikutnya_bukti" | "laporan.komposisi.berikutnya_keliru" | "laporan.komposisi.teks_grafik"
   | "laporan.komposisi.kolom_topik" | "laporan.komposisi.kolom_nilai" | "laporan.komposisi.kolom_pita"
   | "laporan.komposisi.lainnya"
+  | "pengembangan.tentang" | "pengembangan.siapa_melihat"
+  | "laporan.komposisi.penguatan_judul" | "laporan.komposisi.penguatan_arti" | "laporan.komposisi.penguatan_nihil"
+  | "laporan.komposisi.penguatan_ulang" | "laporan.komposisi.berikutnya_penguatan"
   | "laporan.kisi.pola" | "laporan.kisi.tanpa_pola" | "laporan.kisi.arti" | "laporan.kisi.belum"
   | "laporan.sekolah.zona" | "laporan.sekolah.perhatian" | "laporan.sekolah.semua_cukup" | "laporan.sekolah.angka"
   | "laporan.sekolah.dasar_gerbang" | "laporan.sekolah.dasar_sertifikat" | "laporan.sekolah.kohort_arti" | "laporan.sekolah.berikutnya_kesiapan"
@@ -2653,6 +2656,11 @@ const table: Table = {
   "laporan.komposisi.kolom_nilai": { default: "Penguasaan rata-rata", en: "Average mastery" },
   "laporan.komposisi.kolom_pita": { default: "Pita", en: "Band" },
   "laporan.komposisi.lainnya": { default: "Angka lain", en: "Other figures" },
+  "laporan.komposisi.penguatan_judul": { default: "Murid yang perlu penguatan", en: "Learners who need strengthening" },
+  "laporan.komposisi.penguatan_arti": { default: "Murid kelas ini di pita «{pita}», menurut abjad. Ini daftar bagian yang perlu dipelajari lagi, bukan penilaian atas muridnya.", en: "This class's learners in the «{pita}» band, in alphabetical order. It lists what to study again; it is not a judgement of the learner." },
+  "laporan.komposisi.penguatan_nihil": { default: "Saat ini tidak ada murid kelas ini di pita «{pita}».", en: "No learner of this class is in the «{pita}» band now." },
+  "laporan.komposisi.penguatan_ulang": { default: "Pelajari lagi: {daftar}", en: "Study again: {daftar}" },
+  "laporan.komposisi.berikutnya_penguatan": { default: "Mulai dari murid di bagian {huruf}: buka namanya untuk melihat hasil dan bagian yang perlu dipelajari lagi.", en: "Start with the learners in section {huruf}: open a name to see their results and what to study again." },
   "laporan.kisi.pola": { default: "{daftar} di bawah target di sebagian besar kelas.", en: "{daftar}: below target in most classes." },
   "laporan.kisi.tanpa_pola": { default: "Tidak ada topik yang di bawah target di sebagian besar kelas.", en: "No topic is below target in most classes." },
   "laporan.kisi.arti": { default: "Setiap sel adalah angka «Penguasaan per topik» kelas itu sendiri, terhadap target kelas itu. Baca mendatar untuk melihat pola; baca menurun untuk melihat satu kelas.", en: "Each cell is that class's own «Mastery by topic» figure, against that class's target. Read across for a pattern; read down for one class." },
@@ -3450,6 +3458,8 @@ const table: Table = {
   "pengembangan.eyebrow": { default: "Pengembangan profesi guru", en: "Educators' professional learning" },
   "pengembangan.judul": { default: "Catatan pengembangan profesi", en: "Professional-learning record" },
   "pengembangan.arti": { default: "Catatan baca-saja per peserta dan paket. Bukan penilaian kinerja dan bukan peringkat.", en: "A read-only record per participant and package. It is not a performance appraisal and not a ranking." },
+  "pengembangan.tentang": { default: "Tentang hasil ini", en: "About this result" },
+  "pengembangan.siapa_melihat": { default: "Hasil ini terlihat oleh Anda, fasilitator kegiatan ini, Kepala departemen yang menaungi tempat pengembangan profesi ini, dan Dekan. Admin sekolah hanya melihat pendaftaran, keikutsertaan, dan penyelesaian Anda, tidak hasilnya. Guru lain tidak melihatnya. Jawaban Anda tidak ditampilkan kepada siapa pun selain Anda, dan catatan integritas tidak ditampilkan kepada fasilitator maupun pimpinan sekolah.", en: "This result is seen by you, the facilitator of this activity, the Head of department over this professional-learning place, and the Dean. The school administrator sees only your enrolment, participation and completion, not the result. Other teachers do not see it. Your answers are shown to no one but you, and integrity observations are not shown to the facilitator or the school's leadership." },
   "pengembangan.arti_terbatas": { default: "Anda melihat pendaftaran, keikutsertaan dan penyelesaian. Kemajuan dan hasil hanya untuk fasilitator, Kepala departemen dan Dekan.", en: "You see enrolment, participation and completion. Progress and results are for the facilitator, the head of department and the dean only." },
   "pengembangan.kosong": { default: "Belum ada peserta di tempat ini.", en: "There is no participant here yet." },
   "pengembangan.paket_kosong": { default: "Belum ada paket yang diberikan.", en: "No package has been given yet." },

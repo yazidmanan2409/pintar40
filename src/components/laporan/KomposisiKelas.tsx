@@ -73,7 +73,7 @@ export function persenJujur(x: number, locale: Locale, garis: ReadonlyArray<numb
     : format.percent(x, locale);
 }
 
-export default function KomposisiKelas({ entries, locale, persona, jenis, target, namaKelas, buktiHref, tempat = {} }: {
+export default function KomposisiKelas({ entries, locale, persona, jenis, target, namaKelas, buktiHref, tempat = {}, penguatan = null, muridHref = null }: {
   entries: readonly Envelope[];
   locale: Locale;
   persona: Persona;
@@ -85,6 +85,10 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
   buktiHref: string | null;
   /** The visible name of each place a row names (cohort rows), by id. */
   tempat?: Readonly<Record<string, string>>;
+  /** D-195(5): the class's learners in the lowest band, by name (the teacher's only); null draws no section E. */
+  penguatan?: ReadonlyArray<{ id: string; nama: string; ulang: readonly string[] }> | null;
+  /** The teacher's view of one learner, as `${muridHref}/${id}`; null: names are not links. */
+  muridHref?: string | null;
 }) {
   const s = (k: string, p: Persona = persona, l: Locale = locale) => t(k as HleEvent, p, { locale: l });
   const untuk = persona === "educator" || persona === "staff" ? persona : "staff";
@@ -150,6 +154,9 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
   const hPita = pita ? huruf() : "";
   const hNaik = naik ? huruf() : "";
   const hKeliru = keliru ? huruf() : "";
+  // E: only beside a band figure that is shown, so a name never appears where the class's bands do not
+  const adaPenguatan = penguatan !== null && pita?.status === "ok" && dinilai > 0;
+  const hPenguatan = adaPenguatan ? huruf() : "";
   const hLain = lain.length > 0 ? huruf() : "";
   const hBerikut = huruf();
 
@@ -277,6 +284,26 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
         </section>
       ) : null}
 
+      {adaPenguatan && penguatan ? (
+        <section className="pin-lk-bagian" data-lk="penguatan" aria-labelledby="lk-penguatan">
+          <h2 className="pin-lk-h" id="lk-penguatan"><span className="pin-lk-huruf" aria-hidden="true">{hPenguatan}</span><span>{s("laporan.komposisi.penguatan_judul")}</span></h2>
+          <p className="pin-lk-arti">{s("laporan.komposisi.penguatan_arti").replace("{pita}", s("kesiapan.butuh_pendampingan"))}</p>
+          {penguatan.length === 0 ? (
+            <p className="pin-lk-arti">{s("laporan.komposisi.penguatan_nihil").replace("{pita}", s("kesiapan.butuh_pendampingan"))}</p>
+          ) : (
+            <ul className="pin-lk-daftar" data-lk-penguatan="">
+              {penguatan.map((o) => (
+                <li key={o.id}>
+                  <span>{muridHref ? <a href={`${muridHref}/${o.id}`}>{o.nama}</a> : o.nama}</span>
+                  {o.ulang.length > 0
+                    ? <small>{s("laporan.komposisi.penguatan_ulang").replace("{daftar}", o.ulang.join(", "))}</small> : null}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ) : null}
+
       {lain.length > 0 ? (
         <section className="pin-lk-bagian" data-lk="lain">
           <h2 className="pin-lk-h"><span className="pin-lk-huruf" aria-hidden="true">{hLain}</span><span>{s("laporan.komposisi.lainnya")}</span></h2>
@@ -308,6 +335,8 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
           </li>
           {keliru?.status === "ok" && Array.isArray(keliru.value) && keliru.value.length > 0
             ? <li>{s("laporan.komposisi.berikutnya_keliru").replace("{huruf}", hKeliru)}</li> : null}
+          {adaPenguatan && penguatan && penguatan.length > 0
+            ? <li>{s("laporan.komposisi.berikutnya_penguatan").replace("{huruf}", hPenguatan)}</li> : null}
         </ul>
       </section>
     </div>

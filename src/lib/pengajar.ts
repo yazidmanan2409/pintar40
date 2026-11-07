@@ -926,6 +926,25 @@ export async function tujuanBelum(kelasId: string, orang: string): Promise<Tujua
     .map((r) => ({ id: r.objective_id, pernyataan: r.statement }));
 }
 
+/**
+ * D-195(5), CONTOH LAPORAN 2-guru section E: THE LEARNERS OF THIS CLASS IN THE LOWEST BAND, BY NAME, for the teacher
+ * who teaches it. The database answers who (murid_perlu_penguatan, 20270102100000: calc_class_readiness_distribution's
+ * own band rule, the learner's identity and name only, nothing to a reader who does not teach the class), and
+ * tujuan_belum_tercapai what each is to study again. No figure, no item, no answer. Unread is null (no section drawn),
+ * so a failed read never says «nobody».
+ */
+export type MuridPenguatan = { id: string; nama: string; ulang: string[] };
+
+export async function perluPenguatan(kelasId: string): Promise<MuridPenguatan[] | null> {
+  const c = await db();
+  const { data, error } = await c.rpc("murid_perlu_penguatan", { p_class: kelasId });
+  if (error) return null;
+  const orang = rows<{ person_id: string; display_name: string | null }>(data)
+    .filter((r) => typeof r.person_id === "string");
+  const ulang = await Promise.all(orang.map((o) => tujuanBelum(kelasId, o.person_id)));
+  return orang.map((o, i) => ({ id: o.person_id, nama: o.display_name ?? "", ulang: ulang[i].map((u) => u.pernyataan) }));
+}
+
 // ═══════════════════════════════════════════════════ 5. the quick assessment
 
 export type BatasUjiCepat = {

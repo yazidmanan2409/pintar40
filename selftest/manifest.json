@@ -4562,9 +4562,34 @@
       "proves": "H31 (MC-8), selftest/db/fable31.sql, migration 20270101100000_a_gain_pairs_each_learners_pre_and_post_test_of_the_same_chapter.sql: in a class of its own, a learner who sat Bab 1 (pre 30%, post 80%) and Bab 2 (pre 70%, post 75%) and another who sat only Bab 1's pre-test and Bab 2's post-test make calc_class_net_gain return 0.275 (the mean of the first learner's per-chapter gains), not 0.10 or 0.40, with a sample of 1 person; calc_institution_net_gain equals the same per-learner, per-chapter pairing computed independently from the official sessions and results, with its sample in people. Against the person-only grouping it answers 0.40 over 2 and fails."
     },
     {
+      "id": "F32-E01",
+      "runner": "db",
+      "proves": "D-195(5), CONTOH LAPORAN 2-guru section E, selftest/db/fable32.sql against supabase/migrations/20270102100000_a_teacher_names_the_learners_who_need_reinforcement.sql: in a class of its own, murid_perlu_penguatan names for the class's teacher exactly the learners placed in it now whose band under calc_class_readiness_distribution's rule is the lowest (40%; 90% with a failed safety gate; 85% then a later 30%), and not 70%, 30% then a later 85%, a learner with no Uji Penguasaan, or one who has left; the calculator's lowest-band count is the three named plus the one who left; the answer is the identity and the name only. With the safety-gate clause removed it names A and D only and fails."
+    },
+    {
+      "id": "F32-E02",
+      "runner": "db",
+      "proves": "D-195(5), selftest/db/fable32.sql: murid_perlu_penguatan gives a teacher of another class of the school, the school admin with no teaching role, the learner themselves and the class's teacher asking under another class an empty answer, and refuses an anonymous caller."
+    },
+    {
+      "id": "F32-J01",
+      "runner": "db",
+      "proves": "D-195(4), CONTOH LAPORAN 5-peserta, selftest/db/fable32.sql: jenis_belajar_saya tells a learner placed under one of their own learning assignments whether that course is professional learning (a boolean, so src never names the context), and a learner not under it nothing."
+    },
+    {
       "id": "LAPORAN-KELAS-01",
       "runner": "static",
       "proves": "CONTOH LAPORAN 2-guru/2b (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov), selftest/b5a.test.ts: src/components/laporan/KomposisiKelas.tsx rendered over envelopes shaped like the specimen's: the lead sentence counted from the topic rows («2 dari 4 topik masih di bawah target: …»), the bands and comprehension under it with R4-02's one decimal (74,8% against a 75% target), rows below the target amber and in words against a labelled target line (G-03), the class's population said apart from the bands, which are drawn over the assessed in the legend's order, the gain with the people it is computed from (MC-8), the misunderstanding with its remedy and the pointer to it, sections lettered A–F (G-02), «Lihat bukti» linked for the teacher, an action sentence under each figure (S-3); the not-yet report (2b) keeps each figure's place with how far it is from appearing; a class with no one sealed target draws no line and names the lowest topic; R4-02 rounding (59,6%, 62%); and Ringkasan Kelas draws it over generate_report's envelopes and the class's sealed target (targetKelas)."
+    },
+    {
+      "id": "LAPORAN-KELAS-02",
+      "runner": "static",
+      "proves": "D-195(5), CONTOH LAPORAN 2-guru section E, selftest/b5a.test.ts: src/components/laporan/KomposisiKelas.tsx rendered with the class's learners in the lowest band names each, in the order given, linked to the teacher's view of that learner, with «Pelajari lagi» only where something is recorded below the target and no figure beside a name; an empty list is said («Saat ini tidak ada murid kelas ini di pita «Perlu penguatan».»); no section for a reader given no list or where the class's bands are not shown; the section is lettered after the bands and «Apa berikutnya» points to it; pengajar.perluPenguatan asks only murid_perlu_penguatan and tujuan_belum_tercapai and returns null for an unread answer; Ringkasan Kelas asks only for the class's teacher; the migration's function is SECURITY DEFINER and returns the identity and name only."
+    },
+    {
+      "id": "LAPORAN-PESERTA-01",
+      "runner": "static",
+      "proves": "D-195(4), CONTOH LAPORAN 5-peserta, selftest/b5a.test.ts: the result page (src/app/belajar/[tugas]/hasil/page.tsx) of a professional-learning package only (engine.isProfessionalLearning, jenis_belajar_saya) says «Tentang hasil ini»: the record's meaning and who sees it — the facilitator, the Kepala departemen over the place and the Dekan the result; Admin sekolah enrolment, participation and completion, not the result; other teachers nothing; the answers no one but the participant; integrity not shown to the facilitator or leadership (D-069(b),(c)) — in both languages, checked against professional_learning_record's audiences (FACILITATOR, HEAD, DEAN full; ADMIN limited) and the administrator's own page."
     },
     {
       "id": "LAPORAN-KISI-01",

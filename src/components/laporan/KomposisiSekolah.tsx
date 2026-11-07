@@ -34,11 +34,14 @@ const LABEL: Record<string, string> = {
   "metrik.gerbang_keselamatan.label": "institution.safety_gate_pass_rate", "metrik.kredensial.label": "institution.verified_credentials",
 };
 
+/** The catalogue id an entry carries, or the one its label names (a refusal carries neither). */
+const idMetrik = (e: Envelope): string | undefined => e.metric_id ?? (e.label_key ? LABEL[e.label_key] : undefined);
+
 export function pilahSekolah(entries: readonly Envelope[]) {
   const per = new Map<string, Envelope>();
   const lain: Envelope[] = [];
   for (const e of entries) {
-    const id = e.metric_id ?? (e.label_key ? LABEL[e.label_key] : undefined);
+    const id = idMetrik(e);
     if (id && Object.values(LABEL).includes(id) && !per.has(id)) per.set(id, e);
     else lain.push(e);
   }

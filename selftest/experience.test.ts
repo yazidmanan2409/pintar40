@@ -2074,7 +2074,10 @@ export const experienceTests: SelfTest[] = [
       // MOVED 197 -> 198 for H31 (7 Nov): 20270101100000 copies the catalogue to MC-8 and re-emits class.net_gain and
       // institution.net_gain, pairing each learner's two tests within one chapter. Read against §3 first: it is not a mark,
       // a logo, a crest or a theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 198, `${migrations.length} migrations; the frozen baseline has 198`);
+      // MOVED 198 -> 199 for D-195 (7 Nov): 20270102100000 adds murid_perlu_penguatan (a class's learners in the lowest
+      // band, identity and name only) and jenis_belajar_saya (whether one's own assignment is professional learning). Read
+      // against §3 first: two reads, not a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
+      c.expect(migrations.length === 199, `${migrations.length} migrations; the frozen baseline has 199`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3893,7 +3896,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 195 -> 196 for W2.17 (FD-4 at 10x staging): a page of a school's people, found by name, touches no tour RPC.
       // MOVED 196 -> 197 for the cross-batch integration (6 Nov): a transferred learner placed in a class touches no tour RPC.
       // MOVED 197 -> 198 for H31 (7 Nov): the gain paired within one chapter and catalogue MC-8 touch no tour RPC.
-      c.expect(migs.length === 198, `${migs.length} migrations; the baseline has 198`);
+      // MOVED 198 -> 199 for D-195 (7 Nov): the learners in the lowest band and the own-assignment context touch no tour RPC.
+      c.expect(migs.length === 199, `${migs.length} migrations; the baseline has 199`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

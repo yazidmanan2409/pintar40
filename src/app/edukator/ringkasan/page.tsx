@@ -13,7 +13,7 @@ import KakiPintar from "@/components/KakiPintar";
 import { BarisLingkup } from "@/components/bukti";
 import AksiLaporan from "@/components/laporan/AksiLaporan";
 import KomposisiKelas from "@/components/laporan/KomposisiKelas";
-import { targetKelas } from "@/lib/pengajar";
+import { perluPenguatan, targetKelas } from "@/lib/pengajar";
 import { s, card, type Entry } from "../../_intel";
 import { judulHalaman } from "@/lib/judul-halaman";
 
@@ -85,6 +85,8 @@ export default async function RingkasanKelas({
   const k = await konteksSaya();
   const untuk: Persona = k?.keadaan === "ADA" && k.tujuan === "MENGAJAR" ? "educator" : "staff";
   const judul = s("laporan.kelas.judul", untuk, locale);
+  // D-195(5): section E, the learners in the lowest band by name, for the teacher of the class only
+  const penguatan = untuk === "educator" && kelas ? await perluPenguatan(kelas) : null;
 
   return (
     <>
@@ -116,7 +118,8 @@ export default async function RingkasanKelas({
             ) : null}
             {/* CONTOH LAPORAN 2-guru / 2b (approved 7 Nov): one composition over the same envelopes */}
             <KomposisiKelas entries={entries} locale={locale} persona={untuk} jenis={jenis} target={target}
-              namaKelas={kepala?.tempat ?? judul} buktiHref={untuk === "educator" ? `/mengajar/${kelas}/bukti` : null} tempat={tempat} />
+              namaKelas={kepala?.tempat ?? judul} buktiHref={untuk === "educator" ? `/mengajar/${kelas}/bukti` : null} tempat={tempat}
+              penguatan={penguatan} muridHref={untuk === "educator" ? `/mengajar/${kelas}/murid` : null} />
           </>
         )}
       </main>

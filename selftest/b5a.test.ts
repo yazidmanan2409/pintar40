@@ -295,6 +295,92 @@ export const b5aTests: SelfTest[] = [
     },
   },
   {
+    // D-195(5), CONTOH LAPORAN 2-guru section E: the learners in the lowest band, by name, for the class's teacher
+    id: "LAPORAN-KELAS-02",
+    run: async (ctx) => {
+      const c = new Checks();
+      const pita = { status: "ok", readiness: "SUFFICIENT_EVIDENCE", metric_id: "class.readiness_distribution", label_key: "metrik.kesiapan.label",
+        meaning_key: "metrik.kesiapan.arti", value: { "kesiapan.butuh_pendampingan": 2, "kesiapan.siap_sertifikasi": 5 }, population: { placed: 7, assessed: 7, not_yet: 0 } };
+      const sedikit = { ...pita, status: "below_minimum", readiness: "INSUFFICIENT_EVIDENCE", value: undefined, statement_key: "laporan.metrik.belum_cukup_data", have: 3, needed: 5 };
+      const orang = [{ id: "o1", nama: "Ayu Tanjung", ulang: ["Pecahan campuran", "Membandingkan pecahan"] }, { id: "o2", nama: "Hana Siregar", ulang: [] }];
+      const r = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiKelas.tsx");' +
+        "const K = m.default?.default ?? m.default; const [a, b, o] = JSON.parse(process.env.ENTRI);" +
+        "const p = { locale: 'id', persona: 'educator', jenis: 'LEARNER', namaKelas: 'Kelas 7A', buktiHref: '/mengajar/k/bukti', target: 0.75 };" +
+        "process.stdout.write(JSON.stringify([renderToStaticMarkup(h(K, { ...p, entries: [a], penguatan: o, muridHref: '/mengajar/k/murid' }))," +
+        " renderToStaticMarkup(h(K, { ...p, entries: [a], penguatan: [], muridHref: '/mengajar/k/murid' }))," +
+        " renderToStaticMarkup(h(K, { ...p, entries: [a], penguatan: null }))," +
+        " renderToStaticMarkup(h(K, { ...p, entries: [b], penguatan: o, muridHref: '/mengajar/k/murid' }))]));",
+        { ENTRI: JSON.stringify([pita, sedikit, orang]) });
+      if (c.expect(r.ok, `the composition could not be rendered: ${r.err}`)) {
+        let x: string[] = [];
+        try { x = JSON.parse(r.out); } catch { /* reported below */ }
+        const teks = (h: string) => (h ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const [ada, kosong, tanpa, belum] = x;
+        const t1 = teks(ada);
+        c.expect(t1.includes("Murid yang perlu penguatan") && t1.includes("Murid kelas ini di pita «Perlu penguatan», menurut abjad.")
+          && /data-lk-penguatan=""/.test(ada) && /href="\/mengajar\/k\/murid\/o1">Ayu Tanjung</.test(ada) && /href="\/mengajar\/k\/murid\/o2">Hana Siregar</.test(ada)
+          && t1.includes("Pelajari lagi: Pecahan campuran, Membandingkan pecahan"), `section E does not name the learners with what to study again: ${t1.slice(0, 300)}`);
+        c.expect((ada.match(/Pelajari lagi:/g) ?? []).length === 1, "a learner with nothing recorded below the target is given an empty «Pelajari lagi»");
+        c.expect(/>A<[\s\S]*>B<[\s\S]*>C</.test(ada) && t1.includes("Mulai dari murid di bagian B:"), "section E is not lettered after the bands, or «Apa berikutnya» does not point to it");
+        c.expect(!/\d+(,\d+)?%/.test(teks(ada.slice(ada.indexOf('data-lk="penguatan"'), ada.indexOf('data-lk="berikutnya"')))), "section E shows a figure beside a name");
+        c.expect(teks(kosong).includes("Saat ini tidak ada murid kelas ini di pita «Perlu penguatan».") && !/data-lk-penguatan/.test(kosong), "an empty list is not said");
+        c.expect(!/data-lk="penguatan"/.test(tanpa), "a reader given no list (not the class's teacher, or an unread answer) is shown section E");
+        c.expect(!/data-lk="penguatan"/.test(belum) && !/Ayu Tanjung/.test(belum), "names appear where the class's bands are not shown");
+      }
+      const lib = kode(baca(ctx.repoRoot, "src/lib/pengajar.ts"));
+      const awal = lib.indexOf("export async function perluPenguatan");
+      const fn = lib.slice(awal, lib.indexOf("export ", awal + 10));
+      c.expect(/c\.rpc\("murid_perlu_penguatan", \{ p_class: kelasId \}\)/.test(fn) && /if \(error\) return null;/.test(fn) && /tujuanBelum\(kelasId, o\.person_id\)/.test(fn) && !/\.from\(/.test(fn),
+        "pengajar.perluPenguatan does not ask the database's murid_perlu_penguatan and tujuan_belum_tercapai alone, or says «nobody» for an unread answer");
+      const halaman = kode(baca(ctx.repoRoot, "src/app/edukator/ringkasan/page.tsx"));
+      c.expect(/const penguatan = untuk === "educator" && kelas \? await perluPenguatan\(kelas\) : null;/.test(halaman) && /penguatan=\{penguatan\}/.test(halaman),
+        "Ringkasan Kelas asks for the names for a reader who does not teach the class, or does not pass them");
+      const mig = baca(ctx.repoRoot, "supabase/migrations/20270102100000_a_teacher_names_the_learners_who_need_reinforcement.sql");
+      c.expect(/create or replace function public\.murid_perlu_penguatan\(p_class uuid\)\s*returns table \(person_id uuid, display_name text\)\s*language plpgsql stable security definer set search_path = public, pg_temp/.test(mig)
+        && !/responses|answer_key|item_responses/.test(mig.slice(0, mig.indexOf("create or replace function public.jenis_belajar_saya"))),
+        "murid_perlu_penguatan is not a SECURITY DEFINER function returning the identity and name only, or reads answers");
+      return c.verdict("renders section E (D-195(5)): the class's learners in «Perlu penguatan» by name, linked to the teacher's view of each, with what to study again " +
+        "and no figure; an empty list said; nothing for a reader given no list or where the bands are not shown; lettered after the bands and pointed to by «Apa berikutnya»; " +
+        "the names come from murid_perlu_penguatan, for the class's teacher only");
+    },
+  },
+  {
+    // D-195(4), CONTOH LAPORAN 5-peserta: a professional-learning result says who else may see it, exactly as the database decides
+    id: "LAPORAN-PESERTA-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const id = t("pengembangan.siapa_melihat" as HleEvent, "learner", { locale: "id" });
+      const en = t("pengembangan.siapa_melihat" as HleEvent, "learner", { locale: "en" });
+      // the audiences of professional_learning_record: the full record for the facilitator, the Kepala departemen and the Dekan; enrolment,
+      // participation and completion only for Admin sekolah (D-069(b)); answers to no one else; integrity not surfaced (D-069(c))
+      const mig = baca(ctx.repoRoot, "supabase/migrations/20261118100000_an_educator_learns_as_a_participant.sql");
+      c.expect(/v_full := v_aud && array\['FACILITATOR', 'HEAD', 'DEAN'\];/.test(mig) && /array\['FACILITATOR', 'HEAD', 'DEAN', 'ADMIN'\]/.test(mig),
+        "the professional-learning record's audiences are no longer the ones the sentence states: restate the sentence with the change");
+      c.expect(/fasilitator kegiatan ini, Kepala departemen yang menaungi [^.]*, dan Dekan\./.test(id) && /Admin sekolah hanya melihat pendaftaran, keikutsertaan, dan penyelesaian Anda, tidak hasilnya\./.test(id)
+        && /Guru lain tidak melihatnya\./.test(id) && /Jawaban Anda tidak ditampilkan kepada siapa pun selain Anda/.test(id) && /catatan integritas tidak ditampilkan kepada fasilitator maupun pimpinan sekolah/.test(id),
+        `the Indonesian sentence does not state D-069(b),(c): «${id}»`);
+      c.expect(/facilitator[\s\S]*Head of department[\s\S]*Dean[\s\S]*school administrator sees only your enrolment, participation and completion, not the result[\s\S]*answers are shown to no one but you/.test(en),
+        `the English sentence does not say the same: «${en}»`);
+      c.expect(/hanya untuk fasilitator, Kepala departemen dan Dekan/.test(t("pengembangan.arti_terbatas" as HleEvent, "staff", { locale: "id" })),
+        "the administrator's own page (pengembangan.arti_terbatas) no longer agrees with the participant's sentence");
+      const halaman = kode(baca(ctx.repoRoot, "src/app/belajar/[tugas]/hasil/page.tsx"));
+      c.expect(/engine\.isProfessionalLearning\(db, tugas\)/.test(halaman) && /\{pengembangan === true \? \(/.test(halaman)
+        && /s\("pengembangan\.siapa_melihat"\)/.test(halaman) && /s\("pengembangan\.arti"\)/.test(halaman),
+        "the result page does not say it for a professional-learning package only");
+      const eng = kode(baca(ctx.repoRoot, "src/lib/assessment-engine/index.ts"));
+      c.expect(/call\(db, "jenis_belajar_saya", \{ p_learning_assignment: learningAssignmentId \}\)/.test(eng), "the engine does not ask jenis_belajar_saya");
+      const baru = baca(ctx.repoRoot, "supabase/migrations/20270102100000_a_teacher_names_the_learners_who_need_reinforcement.sql");
+      c.expect(/create or replace function public\.jenis_belajar_saya\(p_learning_assignment uuid\)\s*returns boolean[\s\S]*?from public\.my_learning_assignments\(\) m/.test(baru),
+        "jenis_belajar_saya does not answer for the caller's own learning assignments only");
+      return c.verdict("a professional-learning result page (only) says who sees it: the facilitator, the Kepala departemen and the Dekan the result; Admin sekolah enrolment, " +
+        "participation and completion, not the result; other teachers nothing; answers no one but the participant; integrity not shown (D-069(b),(c)), matching " +
+        "professional_learning_record's audiences and the administrator's own page, in both languages");
+    },
+  },
+  {
     // CONTOH LAPORAN 3-kadep (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov): topics × classes on /pimpinan
     id: "LAPORAN-KISI-01",
     run: async (ctx) => {

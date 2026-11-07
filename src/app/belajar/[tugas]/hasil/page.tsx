@@ -42,7 +42,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
   const state = await engine.cycleState(db, tugas);
   if (!state.post_session || state.post_status !== "FINALIZED") notFound();
 
-  const [outcome, review, delta, mine, peta, pelajaran] = await Promise.all([
+  const [outcome, review, delta, mine, peta, pelajaran, pengembangan] = await Promise.all([
     engine.outcome(db, state.post_session),
     engine.review(db, state.post_session),
     engine.delta(db, tugas),
@@ -53,6 +53,8 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
     engine.readingMap(db, state.post_session).catch(() => []),
     // M3: the chapter's lessons, so a part below the target links to the lesson to read again
     engine.lessons(db, tugas).catch(() => []),
+    // D-195(4): an educator's own professional-learning package says who else may see this result (D-069(b),(c))
+    engine.isProfessionalLearning(db, tugas),
   ]);
   if (!outcome) notFound();
   // UX-40: this result has now been seen, so Belajar's home stops offering it as the next step. Not evidence; a
@@ -188,6 +190,16 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
             </div>
           ) : null}
         </section>
+
+        {/* D-195(4), CONTOH LAPORAN 5-peserta: a professional-learning result is the educator's own record, and the page
+            says exactly who else sees it, as the database decides (D-069(b),(c)); a chapter's result says nothing here */}
+        {pengembangan === true ? (
+          <section className="pin-sec" data-pd-siapa="">
+            <h2>{s("pengembangan.tentang")}</h2>
+            <p>{s("pengembangan.arti")}</p>
+            <p>{s("pengembangan.siapa_melihat")}</p>
+          </section>
+        ) : null}
 
         <div className="pin-actions">
           <Link className="pin-btn pin-primary" href={`/belajar/${tugas}/lanjut`}>
