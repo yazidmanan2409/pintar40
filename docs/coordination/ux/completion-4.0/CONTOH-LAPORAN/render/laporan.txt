@@ -9,7 +9,7 @@ ok   2b-guru-belum-cukup
 ok   3-kadep
 4-dekan: 3 A4 pages
 ok   4-dekan
-5-peserta-pd: 2 A4 pages
+5-peserta-pd: 1 A4 pages
 ok   5-peserta-pd
 6-fasilitator: 2 A4 pages
 ok   6-fasilitator

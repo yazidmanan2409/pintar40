@@ -12,6 +12,19 @@
 
 **The visual grammar, the same in all eight:** one sentence first (what the reader should see), then one picture that shows it; a scale is always 0–100% from zero; the target is a labelled black line; PINTAR's three bands are three steps of one teal, always with their names; the one value the page is about carries the teal accent, everything else is ink; «di bawah target» is a word in the attention colour, never colour alone; missing evidence is a sentence in the figure's place. Every chart has a text equivalent in the page.
 
+## Corrections after the independent review of `d6eff55a`
+
+| Item | What was wrong | What changed |
+|---|---|---|
+| 1 (blocking) | Report 7 showed the multi-class selection as today's PINTAR | On screen: framed, labelled «Usulan · H30 · belum tersedia», controls disabled, today's way stated above it. On paper, sections B and D: «tekan «Buat kartu untuk kelas ini» sekali untuk setiap kelas (7E, 8B, 8D, 9B, 9D), lalu «Cetak kartu kelas»». |
+| 2 | Report 7, section A: chevrons on paper | The «Yang menunggu» chevrons do not print. |
+| 3 | Report 2, section E: «9 dari 20 / soal wajib belum tepat» | «9 dari 20 soal tepat», with «soal wajib belum tepat» under it only where it applies (Ayu Tanjung, Hana Siregar). |
+| 4 | Report 1: «Pecahan campuran» in B but not in A | Section A names every part marked «pelajari lagi», with its chapter: «Pecahan campuran (Matematika Bab 2); Massa jenis serta Campuran dan larutan (IPA Bab 1)». The next step names both chapters. |
+| 5 | Report 4, section B: «Bagian murid …» over 836 results | «Bagian hasil yang menjawab benar seluruh soal wajib.» The real calculation counts results too; the copy table's own words say «murid» (hand-off H31). |
+| 6 | Report 5: two pages; steps like a legend; «Target untuk bab ini» | One A4 page; the steps numbered 1–4 and joined in order; «Target paket ini». |
+| 7 | Page breaks | Report 2 B: the band bar and the dot plot stay together. Report 2b C and report 4 D stay whole. «Angkatan 2026 (kelas 7)» never wraps. Also: an explanation line never splits, so a heading always keeps its first lines, and the closing «CONTOH LAPORAN» line is screen-only (every page footer carries it), so no report ends on a near-empty page. |
+| 8 | H30: authorisation | Added: the provisioning permission, the database's per-learner decision, its audit record, and its refusal to issue cards to staff stay as they are. |
+
 ## Corrections after the owner's review (7 Nov)
 
 **DESIGN DIRECTION APPROVED — TARGETED CORRECTIONS REQUIRED.** Same data, same layouts and interpretations; only the defects and the common grammar changed. Every A4 page re-checked at print size (image and extracted text).
@@ -32,7 +45,7 @@
 | G-06 | No buttons on paper | Every «Apa berikutnya» prints its steps as text («Di PINTAR: …»); the admin's card selection prints as the list and the instruction. |
 | R1-01, R1-02 | Murid: chapter groups | Each chapter's parts sit on their own light ground under the chapter's name, so where one chapter ends and the next begins is plain, in greyscale too. |
 | R2-02, R2-03 | Guru: heading and figures | «Murid yang perlu penguatan» (the band's formal name stays where the band is named, in «»); the figures in one right-aligned column of fixed width, each with the same kind of note under it. |
-| R7-02, R7-03, R7-04 | Admin: cards and reasons | Four groups by the real reason (no card · card not used · data in Pendataan · teacher's email not activated); one selection across classes with «Pilih semua», counts selected and excluded, one action, one printed batch. Today's workflow already makes a whole class's cards in one press; choosing several classes extends it (hand-off H30). «Yang menunggu» now counts 10 in Aktivasi, not 12: the two in Pendataan are not there yet. |
+| R7-02, R7-03, R7-04 | Admin: cards and reasons | Four groups by the real reason (no card · card not used · data in Pendataan · teacher's email not activated). The multi-class selection is marked as a proposal (H30) on screen; on paper the steps are today's («Buat kartu untuk kelas ini» once per class, then «Cetak kartu kelas»). «Yang menunggu» counts 10 in Aktivasi, not 12: the two in Pendataan are not there yet. |
 | R4-03 | Certificate count | «Sertifikat terbit» uses MC-1 exactly: certificates issued and not revoked, out of all issued («408 dari 411 yang pernah terbit; 3 dicabut»). The earlier base (Mastery Check results) was wrong. |
 | Also | Found while checking | Two primary buttons on the admin screen (P1: one) — the page button is now secondary. |
 
@@ -160,7 +173,7 @@
 
 ## 5-peserta-pd · Hasil pengembangan profesi · peserta
 
-**Reader:** Pendidik sebagai peserta. **Their question:** «Apa perkembangan saya? Apa yang sudah baik dan apa yang perlu saya tingkatkan?» **A4:** 2 pages.
+**Reader:** Pendidik sebagai peserta. **Their question:** «Apa perkembangan saya? Apa yang sudah baik dan apa yang perlu saya tingkatkan?» **A4:** 1 page.
 
 **In 30 seconds:** The package is finished and its target reached; each part shows where the educator started and ended, and the one part to study again is named. It is the educator's own record, never a performance rating.
 
@@ -238,14 +251,14 @@ Every visible string that is not already in PINTAR's copy table. Numbers inside 
 | murid | Hasil belajar |  |
 | murid | Halo, Bagas |  |
 | murid | Semua bab yang sudah dikerjakan di TA 2026/2027, sampai 6 Nov 2026, 07.30 WIB. |  |
-| murid | Pelajari lagi: Massa jenis serta Campuran dan larutan. |  |
+| murid | Pelajari lagi: Pecahan campuran (Matematika Bab 2); Massa jenis serta Campuran dan larutan (IPA Bab 1). |  |
 | murid | Hasil per bab |  |
 | murid | Bagian per bab |  |
 | murid | Setiap kotak satu soal yang dijawab tepat pada Uji Penguasaan. |  |
 | murid | Target setiap bab ditetapkan sekolah: 15 dari 20 soal. |  |
 | murid | Apa berikutnya | siklus.berikutnya is the learner's; the staff pages reuse it |
 | murid | Lanjutkan Matematika Bab 3 · Perbandingan di Belajar. | printed in place of the buttons (G-06) |
-| murid | Pelajari lagi bagian IPA Bab 1 yang ditandai, lalu tanyakan kepada guru langkah berikutnya. | printed in place of the buttons (G-06) |
+| murid | Pelajari lagi bagian yang ditandai «pelajari lagi» (Matematika Bab 2, IPA Bab 1), lalu tanyakan kepada guru langkah berikutnya. | printed in place of the buttons (G-06) |
 | murid | Sertifikat bab yang targetnya tercapai ada di Sertifikat. | printed in place of the buttons (G-06) |
 | guru-7A | Target bab ini ditetapkan sekolah: 75% (15 dari 20 soal). |  |
 | guru-7A | Dua dari lima topik masih di bawah target: Penjumlahan dan pengurangan pecahan serta Pecahan campuran. | lead sentence, composed from metrik.topik and the chapter's target |
@@ -262,8 +275,8 @@ Every visible string that is not already in PINTAR's copy table. Numbers inside 
 | guru-7A | Saran penanganan |  |
 | guru-7A | Murid yang perlu penguatan | R2-02: the band's own name stays where the band is named |
 | guru-7A | Pelajari lagi |  |
-| guru-7A | soal wajib belum tepat |  |
 | guru-7A | soal tepat |  |
+| guru-7A | soal wajib belum tepat |  |
 | guru-7A | Murid di pita «Perlu penguatan», menurut abjad. Ini daftar bagian yang perlu dipelajari lagi, bukan penilaian atas muridnya. |  |
 | guru-7A | Apa berikutnya | siklus.berikutnya is the learner's; the staff pages reuse it |
 | guru-7A | Di PINTAR: Kelas 7A › «Lihat bukti» memuat jawaban setiap murid per soal. | printed in place of the buttons (G-06) |
@@ -303,12 +316,13 @@ Every visible string that is not already in PINTAR's copy table. Numbers inside 
 | dekan | poin |  |
 | dekan | dari 836 hasil dengan Pemetaan Awal dan Uji Penguasaan |  |
 | dekan | 726 dari 836 hasil Uji Penguasaan |  |
+| dekan | Bagian hasil yang menjawab benar seluruh soal wajib. | the catalogue's metrik.gerbang_keselamatan.arti says «murid»; the calculation counts Uji Penguasaan results (H31) |
 | dekan | dari 411 yang pernah terbit; 3 dicabut |  |
-| dekan | Angkatan 2026 (kelas 7) |  |
+| dekan | Angkatan 2026 (kelas 7) |  |
 | dekan | 242 hasil |  |
-| dekan | Angkatan 2025 (kelas 8) |  |
+| dekan | Angkatan 2025 (kelas 8) |  |
 | dekan | 294 hasil |  |
-| dekan | Angkatan 2024 (kelas 9) |  |
+| dekan | Angkatan 2024 (kelas 9) |  |
 | dekan | 300 hasil |  |
 | dekan | Angkatan berbeda mempelajari bab yang berbeda, jadi ini perbandingan keadaan, bukan peringkat. |  |
 | dekan | Angka sekolah ini tidak menilai guru atau kelas mana pun. |  |
@@ -320,6 +334,7 @@ Every visible string that is not already in PINTAR's copy table. Numbers inside 
 | peserta-pd | Pelajaran (5 dari 5) |  |
 | peserta-pd | Hasil Anda sendiri, sampai 6 Nov 2026, 07.30 WIB. |  |
 | peserta-pd | pelajari lagi |  |
+| peserta-pd | Target paket ini |  |
 | peserta-pd | di bawah target |  |
 | peserta-pd | Langkah dan hasil per bagian |  |
 | peserta-pd | Tentang hasil ini |  |
@@ -340,12 +355,14 @@ Every visible string that is not already in PINTAR's copy table. Numbers inside 
 | fasilitator | Di PINTAR: «Buka catatan» pada setiap peserta memuat langkahnya satu per satu. | printed in place of the buttons (G-06) |
 | admin | 12 orang belum bisa masuk: 6 murid belum punya kartu kelas, 3 murid belum memakai kartunya, 2 murid menunggu Pendataan, dan 1 guru belum mengaktifkan akun emailnya. |  |
 | admin | Di 8 dari 15 kelas, semua murid sudah bisa masuk. |  |
+| admin | Di PINTAR hari ini: Aktivasi akun › «Kartu untuk satu kelas»: tekan «Buat kartu untuk kelas ini» sekali untuk setiap kelas (7E, 8B, 8D, 9B, 9D), lalu «Cetak kartu kelas». | today's workflow, one class at a time (aktivasi.kelas.*) |
+| admin | Usulan · H30 |  |
+| admin | Belum tersedia di PINTAR: memilih beberapa kelas sekaligus. Ini gambaran usulan untuk engineering. |  |
 | admin | Kelas untuk dibuatkan kartu |  |
 | admin | Pilih semua |  |
 | admin | 6 murid di 5 kelas |  |
 | admin | Dipilih: 6 murid di 5 kelas. Tidak termasuk: 3 murid yang sudah punya kartu dan 2 murid yang datanya masih di Pendataan. Setiap kartu tetap dibuat dan dicatat untuk muridnya masing-masing; semua kartu dicetak dalam satu lembar. |  |
 | admin | Buat kartu untuk 6 murid |  |
-| admin | Di PINTAR: Aktivasi akun › pilih kelasnya, lalu buat kartu untuk 6 murid sekaligus dan cetak dalam satu lembar. |  |
 | admin | Belum punya kartu kelas (6 murid) |  |
 | admin | Datanya sudah lengkap; yang dibutuhkan hanya kartunya. |  |
 | admin | Sudah punya kartu, belum dipakai untuk masuk (3 murid) |  |
@@ -360,7 +377,6 @@ Every visible string that is not already in PINTAR's copy table. Numbers inside 
 | admin | Buka Pendataan |  |
 | admin | Laporan ini mengumpulkan yang sudah ada di Konfigurasi, Aktivasi akun, Pendataan, dan catatan pengembangan profesi. |  |
 | admin | Apa berikutnya | siklus.berikutnya is the learner's; the staff pages reuse it |
-| admin | Di PINTAR: Aktivasi akun › kartu kelas untuk 6 murid, dibuat sekaligus. | printed in place of the buttons (G-06) |
 | admin | Di PINTAR: Pendataan › 1 pendataan menunggu persetujuan (2 murid). | printed in place of the buttons (G-06) |
 | admin | Di PINTAR: Studio › 3 paket menunggu tindakan atau tinjauan. | printed in place of the buttons (G-06) |
 

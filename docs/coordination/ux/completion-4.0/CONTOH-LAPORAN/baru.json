@@ -26,7 +26,7 @@
  },
  {
   "laporan": "murid",
-  "teks": "Pelajari lagi: Massa jenis serta Campuran dan larutan."
+  "teks": "Pelajari lagi: Pecahan campuran (Matematika Bab 2); Massa jenis serta Campuran dan larutan (IPA Bab 1)."
  },
  {
   "laporan": "murid",
@@ -56,7 +56,7 @@
  },
  {
   "laporan": "murid",
-  "teks": "Pelajari lagi bagian IPA Bab 1 yang ditandai, lalu tanyakan kepada guru langkah berikutnya.",
+  "teks": "Pelajari lagi bagian yang ditandai «pelajari lagi» (Matematika Bab 2, IPA Bab 1), lalu tanyakan kepada guru langkah berikutnya.",
   "catatan": "printed in place of the buttons (G-06)"
  },
  {
@@ -128,11 +128,11 @@
  },
  {
   "laporan": "guru-7A",
-  "teks": "soal wajib belum tepat"
+  "teks": "soal tepat"
  },
  {
   "laporan": "guru-7A",
-  "teks": "soal tepat"
+  "teks": "soal wajib belum tepat"
  },
  {
   "laporan": "guru-7A",
@@ -302,11 +302,16 @@
  },
  {
   "laporan": "dekan",
+  "teks": "Bagian hasil yang menjawab benar seluruh soal wajib.",
+  "catatan": "the catalogue's metrik.gerbang_keselamatan.arti says «murid»; the calculation counts Uji Penguasaan results (H31)"
+ },
+ {
+  "laporan": "dekan",
   "teks": "dari 411 yang pernah terbit; 3 dicabut"
  },
  {
   "laporan": "dekan",
-  "teks": "Angkatan 2026 (kelas 7)"
+  "teks": "Angkatan 2026 (kelas 7)"
  },
  {
   "laporan": "dekan",
@@ -314,7 +319,7 @@
  },
  {
   "laporan": "dekan",
-  "teks": "Angkatan 2025 (kelas 8)"
+  "teks": "Angkatan 2025 (kelas 8)"
  },
  {
   "laporan": "dekan",
@@ -322,7 +327,7 @@
  },
  {
   "laporan": "dekan",
-  "teks": "Angkatan 2024 (kelas 9)"
+  "teks": "Angkatan 2024 (kelas 9)"
  },
  {
   "laporan": "dekan",
@@ -369,6 +374,10 @@
  {
   "laporan": "peserta-pd",
   "teks": "pelajari lagi"
+ },
+ {
+  "laporan": "peserta-pd",
+  "teks": "Target paket ini"
  },
  {
   "laporan": "peserta-pd",
@@ -458,6 +467,19 @@
  },
  {
   "laporan": "admin",
+  "teks": "Di PINTAR hari ini: Aktivasi akun › «Kartu untuk satu kelas»: tekan «Buat kartu untuk kelas ini» sekali untuk setiap kelas (7E, 8B, 8D, 9B, 9D), lalu «Cetak kartu kelas».",
+  "catatan": "today's workflow, one class at a time (aktivasi.kelas.*)"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Usulan · H30"
+ },
+ {
+  "laporan": "admin",
+  "teks": "Belum tersedia di PINTAR: memilih beberapa kelas sekaligus. Ini gambaran usulan untuk engineering."
+ },
+ {
+  "laporan": "admin",
   "teks": "Kelas untuk dibuatkan kartu"
  },
  {
@@ -475,10 +497,6 @@
  {
   "laporan": "admin",
   "teks": "Buat kartu untuk 6 murid"
- },
- {
-  "laporan": "admin",
-  "teks": "Di PINTAR: Aktivasi akun › pilih kelasnya, lalu buat kartu untuk 6 murid sekaligus dan cetak dalam satu lembar."
  },
  {
   "laporan": "admin",
@@ -536,11 +554,6 @@
   "laporan": "admin",
   "teks": "Apa berikutnya",
   "catatan": "siklus.berikutnya is the learner's; the staff pages reuse it"
- },
- {
-  "laporan": "admin",
-  "teks": "Di PINTAR: Aktivasi akun › kartu kelas untuk 6 murid, dibuat sekaligus.",
-  "catatan": "printed in place of the buttons (G-06)"
  },
  {
   "laporan": "admin",

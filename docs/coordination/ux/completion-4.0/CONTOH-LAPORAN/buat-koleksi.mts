@@ -43,9 +43,20 @@ const KOREKSI: Array<[string, string, string]> = [
   ["G-06", "No buttons on paper", "Every «Apa berikutnya» prints its steps as text («Di PINTAR: …»); the admin's card selection prints as the list and the instruction."],
   ["R1-01, R1-02", "Murid: chapter groups", "Each chapter's parts sit on their own light ground under the chapter's name, so where one chapter ends and the next begins is plain, in greyscale too."],
   ["R2-02, R2-03", "Guru: heading and figures", "«Murid yang perlu penguatan» (the band's formal name stays where the band is named, in «»); the figures in one right-aligned column of fixed width, each with the same kind of note under it."],
-  ["R7-02, R7-03, R7-04", "Admin: cards and reasons", "Four groups by the real reason (no card · card not used · data in Pendataan · teacher's email not activated); one selection across classes with «Pilih semua», counts selected and excluded, one action, one printed batch. Today's workflow already makes a whole class's cards in one press; choosing several classes extends it (hand-off H30). «Yang menunggu» now counts 10 in Aktivasi, not 12: the two in Pendataan are not there yet."],
+  ["R7-02, R7-03, R7-04", "Admin: cards and reasons", "Four groups by the real reason (no card · card not used · data in Pendataan · teacher's email not activated). The multi-class selection is marked as a proposal (H30) on screen; on paper the steps are today's («Buat kartu untuk kelas ini» once per class, then «Cetak kartu kelas»). «Yang menunggu» counts 10 in Aktivasi, not 12: the two in Pendataan are not there yet."],
   ["R4-03", "Certificate count", "«Sertifikat terbit» uses MC-1 exactly: certificates issued and not revoked, out of all issued («408 dari 411 yang pernah terbit; 3 dicabut»). The earlier base (Mastery Check results) was wrong."],
   ["Also", "Found while checking", "Two primary buttons on the admin screen (P1: one) — the page button is now secondary."],
+];
+/** The independent review of d6eff55a (7 Nov): FAIL on one blocking item, minor corrections otherwise. */
+const RONDE2: Array<[string, string, string]> = [
+  ["1 (blocking)", "Report 7 showed the multi-class selection as today's PINTAR", "On screen: framed, labelled «Usulan · H30 · belum tersedia», controls disabled, today's way stated above it. On paper, sections B and D: «tekan «Buat kartu untuk kelas ini» sekali untuk setiap kelas (7E, 8B, 8D, 9B, 9D), lalu «Cetak kartu kelas»»."],
+  ["2", "Report 7, section A: chevrons on paper", "The «Yang menunggu» chevrons do not print."],
+  ["3", "Report 2, section E: «9 dari 20 / soal wajib belum tepat»", "«9 dari 20 soal tepat», with «soal wajib belum tepat» under it only where it applies (Ayu Tanjung, Hana Siregar)."],
+  ["4", "Report 1: «Pecahan campuran» in B but not in A", "Section A names every part marked «pelajari lagi», with its chapter: «Pecahan campuran (Matematika Bab 2); Massa jenis serta Campuran dan larutan (IPA Bab 1)». The next step names both chapters."],
+  ["5", "Report 4, section B: «Bagian murid …» over 836 results", "«Bagian hasil yang menjawab benar seluruh soal wajib.» The real calculation counts results too; the copy table's own words say «murid» (hand-off H31)."],
+  ["6", "Report 5: two pages; steps like a legend; «Target untuk bab ini»", "One A4 page; the steps numbered 1–4 and joined in order; «Target paket ini»."],
+  ["7", "Page breaks", "Report 2 B: the band bar and the dot plot stay together. Report 2b C and report 4 D stay whole. «Angkatan 2026 (kelas 7)» never wraps. Also: an explanation line never splits, so a heading always keeps its first lines, and the closing «CONTOH LAPORAN» line is screen-only (every page footer carries it), so no report ends on a near-empty page."],
+  ["8", "H30: authorisation", "Added: the provisioning permission, the database's per-learner decision, its audit record, and its refusal to issue cards to staff stay as they are."],
 ];
 const DIKOREKSI: Record<string, string> = { "1-murid": "R1-01, R1-02", "2-guru": "R2-01 to R2-04", "2b-guru-belum-cukup": "common corrections; 2 pages", "3-kadep": "R3-01, R3-02", "4-dekan": "R4-01 to R4-03", "5-peserta-pd": "approved; common grammar only", "6-fasilitator": "R6-01 to R6-05", "7-admin": "R7-01 to R7-04" };
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -67,6 +78,12 @@ const readme = `# CONTOH LAPORAN · seven sample reports (owner's review)
 **Files:** \`<kode>.html\` (open in a browser); \`render/<kode>-1280.png\`, \`render/<kode>-390.png\` (screen); \`render/<kode>-a4.pdf\` and \`render/<kode>-a4-<n>.png\` (A4). Rebuild: \`npx tsx docs/coordination/ux/completion-4.0/CONTOH-LAPORAN/buat-contoh.mts\`.
 
 **The visual grammar, the same in all eight:** one sentence first (what the reader should see), then one picture that shows it; a scale is always 0–100% from zero; the target is a labelled black line; PINTAR's three bands are three steps of one teal, always with their names; the one value the page is about carries the teal accent, everything else is ink; «di bawah target» is a word in the attention colour, never colour alone; missing evidence is a sentence in the figure's place. Every chart has a text equivalent in the page.
+
+## Corrections after the independent review of \`d6eff55a\`
+
+| Item | What was wrong | What changed |
+|---|---|---|
+${RONDE2.map(([a, b, c]) => `| ${a} | ${b} | ${c} |`).join("\n")}
 
 ## Corrections after the owner's review (7 Nov)
 
@@ -204,7 +221,8 @@ footer { font-size: 14px; color: var(--tinta-2); border-top: 1px solid var(--gar
   <p class="tanda"><strong>CONTOH LAPORAN — DATA SIMULASI</strong> · every name, class and figure is invented.</p>
   <h1>Seven sample reports, one per reader · corrected</h1>
   <p class="intro">For your review of the Indonesian, the infographics, the hierarchy, the usefulness, the consistency and the A4 print. Each report is drawn over what PINTAR already reports to that reader, on one invented school whose figures agree across all eight. Report 2b is the Guru report when the evidence is not yet enough.</p>
-  <details class="koreksi" open><summary>What changed after your review of 7 Nov</summary><div class="gulir"><table><thead><tr><th scope="col">Item</th><th scope="col">What was wrong</th><th scope="col">What changed</th></tr></thead><tbody>${KOREKSI.map(([a, b, c]) => `<tr><th scope="row">${esc(a)}</th><td>${md(b)}</td><td>${md(c)}</td></tr>`).join("")}</tbody></table></div></details>
+  <details class="koreksi"><summary>What changed after your review of 7 Nov</summary><div class="gulir"><table><thead><tr><th scope="col">Item</th><th scope="col">What was wrong</th><th scope="col">What changed</th></tr></thead><tbody>${KOREKSI.map(([a, b, c]) => `<tr><th scope="row">${esc(a)}</th><td>${md(b)}</td><td>${md(c)}</td></tr>`).join("")}</tbody></table></div></details>
+  <details class="koreksi" open><summary>Independent review of d6eff55a: the eight corrections</summary><div class="gulir"><table><thead><tr><th scope="col">Item</th><th scope="col">What was wrong</th><th scope="col">What changed</th></tr></thead><tbody>${RONDE2.map(([a, b, c]) => `<tr><th scope="row">${esc(a)}</th><td>${md(b)}</td><td>${md(c)}</td></tr>`).join("")}</tbody></table></div></details>
   <ol class="cara">
     <li><b>1 · Look for 30 seconds</b>Open a report without reading the notes. What does it tell you?</li>
     <li><b>2 · Read the Indonesian</b>Every heading, label and sentence. Mark anything unnatural, vague or technical.</li>

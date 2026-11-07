@@ -1267,6 +1267,17 @@ li[data-bawah] .cl-titik { background: var(--cl-bawah); }
 .cl-pilih fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
 .cl-pilih { display: grid; gap: var(--space-3); }
 .cl-cetak-saja { display: none; }
+/* A proposal drawn inside a report (H30): framed and labelled, its control disabled, so it never reads as today's PINTAR. */
+.cl-usulan { display: grid; gap: var(--space-3); padding: var(--space-4); border: var(--border-hairline) dashed var(--line-control); border-radius: var(--radius-md); background: var(--surface-1); }
+.cl-usulan-tanda { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-1); }
+.cl-usulan fieldset[disabled] { opacity: 1; }
+/* Steps in their order (report 5): joined by a line, so they read as a sequence, not as a legend. */
+.cl-urutan { gap: var(--space-2) 0; }
+.cl-urutan { flex-wrap: nowrap; }
+.cl-urutan li { white-space: nowrap; }
+.cl-urutan li:not(:last-child)::after { content: ""; width: 20px; height: 2px; margin: 0 var(--space-2); background: var(--line-control); border-radius: 1px; }
+.cl-urutan-no { font-weight: 600; color: var(--ink-1); margin-right: 2px; }
+@media (max-width: 639px) { .cl-urutan { flex-wrap: wrap; } }
 .cl-aksi-bagian .cl-cetak-saja { margin: 0; padding-left: 1.2em; font-size: 14px; line-height: 20px; }
 
 /* A4 (G-01, G-05, G-06). Header: the PINTAR wordmark, then the report, the institution and the period. Footer: the
@@ -1293,8 +1304,20 @@ li[data-bawah] .cl-titik { background: var(--cl-bawah); }
   .cl-kalimat { font-size: 14pt; line-height: 1.3; }
   .cl-h { font-size: 13pt; line-height: 1.3; break-after: avoid; }
   .cl-h3 { font-size: 11.5pt; break-after: avoid; }
-  .cl-arti { break-after: avoid; }
+  .cl-arti { break-after: avoid; break-inside: avoid; }
+  .cl-h + .cl-arti + * { break-before: avoid; }
   .cl-h + *, .cl-h3 + * { break-before: avoid; }
+  .pds-list-row svg, .pds-list-row [data-ikon] { display: none !important; }
+  .cl-utuh { break-inside: avoid; }
+  .cl-ringkas > * + * { margin-top: 5mm !important; }
+  .cl-ringkas .cl-inti { padding: 4mm 5mm; }
+  .cl-ringkas .cl-baris { gap: 1.5mm; }
+  .cl-ringkas .cl-inti > * + * { margin-top: 2.5mm; }
+  .cl-ringkas .cl-kaki { padding-top: 2mm; gap: 1mm; }
+  .cl-ringkas .cl-urutan { margin-bottom: 2mm; }
+  .cl-urutan { flex-wrap: wrap; }
+  .cl-urutan li { font-size: 9.5pt; }
+  .cl-urutan li:not(:last-child)::after { width: 4mm; margin: 0 1.5mm; }
   .cl-angka, .cl-baris li, .cl-daftar li, .cl-pita, .cl-svg, .cl-angka-baris, .cl-rantai div, .cl-gambar, .cl-kunci, .pds-list li { break-inside: avoid; }
   .cl-grup { padding: 4mm 5mm; }
   .cl-grup + .cl-grup { margin-top: 4mm; }
@@ -1320,7 +1343,7 @@ li[data-bawah] .cl-titik { background: var(--cl-bawah); }
   .cl-langkah[data-belum]::before { margin-top: 2.2mm; }
   .cl-segmen i { width: 1.7mm; height: 1.7mm; }
   .cl-kisi-pd td:nth-child(4) { padding-right: 3mm; }
-  .cl-baris li, .cl-skala { grid-template-columns: 40mm minmax(0, 1fr) 30mm; }
+  .cl-baris li, .cl-skala { grid-template-columns: 44mm minmax(0, 1fr) 30mm; }
   .cl-dua .cl-baris li, .cl-dua .cl-skala { grid-template-columns: 30mm minmax(0, 1fr) 30mm; }
   .cl-pita-batang span, .cl-isi-batang, .cl-titik, .cl-titik-awal, .cl-segmen i, .cl-langkah::before, .cl-sel .cl-mini i, .cl-pita-ket i, .cl-contoh, .cl-huruf, .cl-grup, .cl-zebra tbody tr > *, .cl-kunci i, .cl-inti { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
@@ -2107,9 +2130,9 @@ li[data-bawah] .cl-titik { background: var(--cl-bawah); }
         <div class="cl-angka"><h3>Peserta</h3><p class="cl-angka-nilai">4</p><p>Banyaknya murid yang mengerjakan asesmen di kelas ini.</p></div>
         <div class="cl-angka"><h3>Pemahaman</h3><p class="cl-belum">Belum cukup data untuk menampilkan angka ini.</p><p>Sekarang 4 murid; perlu 5.</p><p>Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.</p></div>
         <div class="cl-angka"><h3>Kenaikan</h3><p class="cl-belum">Belum cukup data untuk menampilkan angka ini.</p><p>Sekarang 4 murid; perlu 5.</p><p>Angka ini muncul setelah cukup murid menyelesaikan Pemetaan Awal dan Uji Penguasaan. Hanya murid yang menyelesaikan keduanya yang dihitung.</p></div></div></section>
-<section class="cl-bagian" aria-labelledby="cl-pita-h"><h2 id="cl-pita-h" class="cl-h"><span class="cl-huruf">C</span><span>Sebaran hasil Uji Penguasaan</span></h2><p class="cl-belum">Belum cukup data untuk menampilkan angka ini.</p><p class="cl-arti">Sekarang 4 murid; perlu 5. Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.</p></section>
+<section class="cl-bagian cl-utuh" aria-labelledby="cl-pita-h"><h2 id="cl-pita-h" class="cl-h"><span class="cl-huruf">C</span><span>Sebaran hasil Uji Penguasaan</span></h2><p class="cl-belum">Belum cukup data untuk menampilkan angka ini.</p><p class="cl-arti">Sekarang 4 murid; perlu 5. Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.</p></section>
 <section class="cl-bagian" aria-labelledby="cl-topik-h"><h2 id="cl-topik-h" class="cl-h"><span class="cl-huruf">D</span><span>Penguasaan per topik</span></h2><p class="cl-belum">Belum cukup data untuk menampilkan angka ini.</p><p class="cl-arti">Sekarang 4 murid; perlu 5.</p></section>
   <section class="cl-bagian cl-aksi-bagian" aria-labelledby="cl-berikut"><h2 id="cl-berikut" class="cl-h"><span class="cl-huruf">E</span><span>Apa berikutnya</span></h2><div class="cl-aksi"><a href="#" class="pds-btn pds-btn-primary">Lihat bukti</a></div><ul class="cl-cetak-saja"><li>Di PINTAR, angka kelas muncul sendiri setelah paling sedikit 5 murid mengerjakan Uji Penguasaan. Tidak ada yang perlu dilakukan sekarang.</li></ul></section>
-  <footer class="cl-kaki"><p>Pita tetap PINTAR: 80% ke atas, 60–79%, dan di bawah 60% atau soal wajib belum tepat. Bukan batas ketuntasan sekolah dan tidak menentukan sertifikat.</p><p>Target bab ini ditetapkan sekolah: 75% (15 dari 20 soal).</p><p>CONTOH LAPORAN — DATA SIMULASI.</p></footer></div></main>
+  <footer class="cl-kaki"><p>Pita tetap PINTAR: 80% ke atas, 60–79%, dan di bawah 60% atau soal wajib belum tepat. Bukan batas ketuntasan sekolah dan tidak menentukan sertifikat.</p><p>Target bab ini ditetapkan sekolah: 75% (15 dari 20 soal).</p><p class="cl-layar-saja">CONTOH LAPORAN — DATA SIMULASI.</p></footer></div></main>
     </div>
   </div></div></section></div><script>Pintar.siapkan();</script></body></html>
