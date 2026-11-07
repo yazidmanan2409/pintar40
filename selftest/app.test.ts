@@ -1576,8 +1576,15 @@ export const appTests: SelfTest[] = [
       //    exist.
       const curi = await lihat(PERSONA.alphaStudent, `/belajar/umpan-balik/${siklusId}`);
       const hantu = await lihat(PERSONA.alphaStudent, "/belajar/umpan-balik/00000000-0000-0000-0000-000000000000");
+      // where they part, so a failure says what differs (a leak and a page-wide detail read very differently)
+      const beda = (() => {
+        let i = 0;
+        while (i < curi.html.length && curi.html[i] === hantu.html[i]) i++;
+        const dari = Math.max(0, i - 60);
+        return `at ${i}: not yours «${curi.html.slice(dari, i + 100)}» | does not exist «${hantu.html.slice(dari, i + 100)}»`;
+      })();
       c.expect(curi.html === hantu.html,
-        "a round that is not yours reads differently from one that does not exist");
+        `a round that is not yours reads differently from one that does not exist (${beda})`);
 
       // ── 3. THE SHEET: five closed questions, and nowhere to type.
       const lembar = await lihat(PERSONA.cycleLearner, `/belajar/umpan-balik/${siklusId}`);
