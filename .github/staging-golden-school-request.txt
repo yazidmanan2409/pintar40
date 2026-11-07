@@ -23,4 +23,5 @@
 slug: sekolah-uji-b5-1104
 # 5 Nov, Batch 8 staging verification (P-1, owner 5 Nov; migrations 194-196): Sekolah Uji B8 1105 (found-school.yml run 42037509318); staging at 196, main 38d7e701
 # 6 Nov, P-4 session verification (main d672a94a = audited 5a78d979): Sekolah Uji B8 1106 (found-school.yml run 42199073235); staging at 196
-slug: sekolah-uji-b8-1106
+# 7 Nov, P-5 staging verification (main ebc53ee2 = audited 727f65d2; migration 197): Sekolah Uji P5 1107 (found-school.yml); staging at 197
+slug: sekolah-uji-p5-1107
