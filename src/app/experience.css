@@ -3582,3 +3582,76 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
   .pin-opsi-daftar .pin-opsi { grid-template-columns: 24px minmax(0, 1fr); }
   .pin-opsi-huruf { width: 24px; height: 24px; }
 }
+
+/* ═══ CONTOH LAPORAN (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov): THE REPORT COMPOSITIONS' ONE GRAMMAR.
+   One sentence first, then one picture that shows it; a scale is 0–100% from zero; the target is a labelled ink line;
+   PINTAR's three bands are three steps of one teal, always named; grey is an ordinary value; amber is below the target,
+   always with its words (G-03), darker than the grey so greyscale keeps them apart; missing evidence is a sentence in the
+   figure's place; every chart has its text equivalent. Section letters A, B, C… (G-02), the same square on screen and
+   paper. Ported from the specimens' contoh.css; tokens only, plus the three band steps of PINTAR teal. */
+.pin-lk { --lk-pita-penguatan: var(--pita-penguatan); --lk-pita-berkembang: var(--pita-berkembang); --lk-pita-mantap: var(--pita-mantap);
+  --lk-isi: var(--line-control); --lk-bawah: var(--status-attention); --lk-alur: var(--surface-2);
+  display: grid; gap: var(--space-8); }
+.pin-lk-h { display: flex; align-items: center; gap: var(--space-3); margin: 0; font-size: var(--t-section); line-height: var(--t-section-lh); font-weight: 600; color: var(--ink-1); }
+.pin-lk-huruf { flex: none; display: inline-grid; place-items: center; width: var(--space-6); height: var(--space-6); border-radius: var(--radius-md); background: var(--pintar-primary-soft); color: var(--pintar-primary); font-size: var(--t-body); line-height: var(--leading-none); font-weight: 700; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pin-lk-inti { display: grid; gap: var(--space-5); padding: var(--space-6); background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); }
+.pin-lk-inti .pin-lk-h { font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--ink-2); }
+.pin-lk-kalimat { margin: 0; font-size: var(--t-section); line-height: var(--t-section-lh); font-weight: 600; color: var(--ink-1); text-wrap: balance; max-width: var(--lk-kalimat); }
+.pin-lk-kalimat-sub { margin: calc(var(--space-3) * -1) 0 0; color: var(--ink-2); font-size: var(--t-body); line-height: var(--t-body-lh); max-width: var(--lk-arti); }
+.pin-lk-bagian { display: grid; gap: var(--space-4); }
+.pin-lk-arti { margin: 0; color: var(--ink-2); font-size: var(--t-small); line-height: var(--t-small-lh); max-width: var(--lk-arti); }
+.pin-lk-baris { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.pin-lk-baris li, .pin-lk-skala { display: grid; grid-template-columns: minmax(0, var(--lk-kolom-nama)) minmax(0, 1fr) var(--lk-kolom-nilai); gap: var(--space-4); align-items: center; font-size: var(--t-small); line-height: var(--t-small-lh); }
+.pin-lk-nama { color: var(--ink-1); }
+.pin-lk-jalur { position: relative; height: var(--lk-jalur); }
+.pin-lk-jalur::before { content: ""; position: absolute; left: 0; right: 0; top: calc((var(--lk-jalur) - var(--border-selected)) / 2); height: var(--border-selected); background: var(--lk-alur); border-radius: var(--border-hairline); }
+.pin-lk-isi { position: absolute; left: 0; top: calc((var(--lk-jalur) - var(--lk-batang)) / 2); height: var(--lk-batang); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: var(--lk-isi); }
+.pin-lk-baris li[data-bawah] .pin-lk-isi { background: var(--lk-bawah); }
+.pin-lk-target { position: absolute; top: calc(var(--space-1) * -1); bottom: calc(var(--space-1) * -1); width: var(--border-selected); margin-left: calc(var(--border-hairline) * -1); background: var(--ink-1); }
+.pin-lk-nilai { font-variant-numeric: tabular-nums; color: var(--ink-1); font-weight: 600; text-align: right; }
+.pin-lk-nilai small { display: block; font-weight: 400; color: var(--ink-2); }
+.pin-lk-bawah { color: var(--status-attention); font-weight: 600; }
+.pin-lk-skala { font-size: var(--t-eyebrow); line-height: var(--t-eyebrow-lh); color: var(--ink-3); }
+.pin-lk-skala-garis { position: relative; height: var(--t-eyebrow-lh); }
+.pin-lk-skala-garis span { position: absolute; transform: translateX(-50%); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pin-lk-skala-garis span:first-child { transform: none; }
+.pin-lk-skala-garis span:last-child { transform: translateX(-100%); }
+.pin-lk-skala-garis span.pin-lk-skala-target { color: var(--ink-1); font-weight: 600; }
+.pin-lk-pita { display: grid; gap: var(--space-3); }
+.pin-lk-pita-batang { display: flex; gap: var(--border-selected); height: var(--lk-pita-tinggi); }
+.pin-lk-pita-batang span { display: grid; place-items: center; min-width: 0; color: var(--pintar-primary-ink); font-size: var(--t-small); font-weight: 600; font-variant-numeric: tabular-nums; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pin-lk-pita-batang span:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.pin-lk-pita-batang span:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.pin-lk [data-pita="penguatan"] { background: var(--lk-pita-penguatan); color: var(--ink-1); }
+.pin-lk [data-pita="berkembang"] { background: var(--lk-pita-berkembang); }
+.pin-lk [data-pita="mantap"] { background: var(--lk-pita-mantap); }
+.pin-lk-pita-ket { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); margin: 0; padding: 0; list-style: none; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); }
+.pin-lk-pita-ket li { display: inline-flex; align-items: center; gap: var(--space-2); }
+.pin-lk-pita-ket i { width: var(--lk-ket); height: var(--lk-ket); border-radius: var(--radius-sm); flex: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pin-lk-pita-ket strong { color: var(--ink-1); font-weight: 600; }
+.pin-lk-angka-baris { display: grid; grid-template-columns: repeat(auto-fit, minmax(var(--lk-angka-min), 1fr)); gap: var(--space-4); }
+.pin-lk-angka { display: grid; gap: var(--space-1); padding: var(--space-4) var(--space-5); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); background: var(--surface-1); align-content: start; }
+.pin-lk-angka-nilai { margin: 0; font-size: var(--t-stat); line-height: var(--t-stat-lh); font-weight: 600; color: var(--ink-1); font-variant-numeric: tabular-nums; }
+.pin-lk-angka p:not(.pin-lk-angka-nilai), .pin-lk-angka h3 { margin: 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); }
+.pin-lk-angka h3 { font-weight: 600; }
+.pin-lk-daftar { margin: 0; padding: 0; list-style: none; display: grid; }
+.pin-lk-daftar li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: var(--space-2) var(--space-4); padding: var(--space-3) 0; border-bottom: var(--border-hairline) solid var(--line); font-size: var(--t-small); line-height: var(--t-small-lh); }
+.pin-lk-daftar li:first-child { border-top: var(--border-hairline) solid var(--line); }
+.pin-lk-daftar small { grid-column: 1 / -1; color: var(--ink-2); }
+.pin-lk-langkah { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-2); font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-1); }
+@media (max-width: 639px) {
+  .pin-lk-baris li, .pin-lk-skala { grid-template-columns: minmax(0, 1fr) var(--lk-kolom-sempit); }
+  .pin-lk-baris .pin-lk-nama { grid-column: 1 / -1; }
+  .pin-lk-skala > span:first-child { display: none; }
+  .pin-lk-skala-garis span[data-antara] { display: none; }
+  .pin-lk-kalimat { font-size: var(--t-subsection); line-height: var(--t-subsection-lh); }
+  .pin-lk-inti { padding: var(--space-4); }
+}
+@media print {
+  /* G-05: figures, rows and keys never split; a heading stays with its first lines; text 10 pt */
+  .pin-lk { gap: 14pt; font-size: 10pt; }
+  .pin-lk-h { break-after: avoid; }
+  .pin-lk-baris li, .pin-lk-pita, .pin-lk-angka, .pin-lk-daftar li { break-inside: avoid; }
+  .pin-lk-isi, .pin-lk-target { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .pin-lk-skala-garis span[data-antara] { display: none; }
+}

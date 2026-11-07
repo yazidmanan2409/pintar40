@@ -10,11 +10,11 @@ import { tanggal } from "@/lib/tanggal";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
 import { navKonteks } from "@/components/NavKonteks";
 import KakiPintar from "@/components/KakiPintar";
-import { BarisLingkup, kalimatJumlah, labelMetrik } from "@/components/bukti";
-import { kunciMuncul } from "@/components/bukti/muncul";
-import NilaiLaporan from "@/components/bukti/NilaiLaporan";
+import { BarisLingkup } from "@/components/bukti";
 import AksiLaporan from "@/components/laporan/AksiLaporan";
-import { s, card, omissionText, actionText, type Entry } from "../../_intel";
+import KomposisiKelas from "@/components/laporan/KomposisiKelas";
+import { targetKelas } from "@/lib/pengajar";
+import { s, card, type Entry } from "../../_intel";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/edukator/ringkasan");
@@ -69,6 +69,8 @@ export default async function RingkasanKelas({
     report = data as Report;
   }
   const dihitung = new Date();
+  // the class's one sealed Uji Penguasaan mark, read with the reader's own access (none: no target line)
+  const target = kelas ? await targetKelas(kelas) : null;
 
   const entries = (report?.entries ?? []) as Entry[];
   const shown = entries.filter((e) => e.status === "ok");
@@ -112,34 +114,9 @@ export default async function RingkasanKelas({
             {shown.length === 0 ? (
               <p className={card}>{s("laporan.tak_ada_angka", untuk, locale)}</p>
             ) : null}
-
-            <section className="grid gap-4">
-              {entries.map((e, i) => (
-                <article key={e.ordinal ?? i} className={card}>
-                  {/* A metric the viewer may not see carries NO label: the
-                      refusal must not disclose what it withheld. */}
-                  {e.status === "ok" || e.status === "below_minimum" || e.status === "deprecated" ? (
-                    <h2 className="font-medium">{labelMetrik(e, untuk, locale)}</h2>
-                  ) : null}
-
-                  {e.status === "ok" ? (
-                    <>
-                      <NilaiLaporan entry={e} locale={locale} tempat={tempat} persona={untuk} />
-                      {/* S-3: the sentence is not optional and not conditional. */}
-                      <p className="mt-2 text-sm text-black/70">{actionText(e, locale)}</p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-sm text-black/70">{omissionText(e, locale)}</p>
-                      {/* W3.9 (RV-9; CR-46): how far, as a sentence, never «(0/5)» */}
-                      {kalimatJumlah(e, locale, untuk, jenis) ? <p className="mt-1 text-sm text-black/70">{kalimatJumlah(e, locale, untuk, jenis)}</p> : null}
-                      {/* DAISY-07: and what will make it appear, when it is short of evidence */}
-                      {kunciMuncul(e) ? <p className="mt-1 text-sm text-black/70">{s(kunciMuncul(e)!, untuk, locale)}</p> : null}
-                    </>
-                  )}
-                </article>
-              ))}
-            </section>
+            {/* CONTOH LAPORAN 2-guru / 2b (approved 7 Nov): one composition over the same envelopes */}
+            <KomposisiKelas entries={entries} locale={locale} persona={untuk} jenis={jenis} target={target}
+              namaKelas={kepala?.tempat ?? judul} buktiHref={untuk === "educator" ? `/mengajar/${kelas}/bukti` : null} tempat={tempat} />
           </>
         )}
       </main>

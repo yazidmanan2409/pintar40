@@ -10542,7 +10542,9 @@ export const experienceTests: SelfTest[] = [
       c.expect(/<details key=\{kelas\.id\} className="pin-kelas-bukti">/.test(pimpinan) && /<KartuKetiadaan key=\{e\.metric_id/.test(pimpinan)
         && /bk\.length === 0 \? "laporan\.metrik\.bukan_untuk_anda"/.test(pimpinan), "a class is not drawn with its figures, its absences, or one refusal line");
       for (const hal of [["dekan", "ringkasan"], ["edukator", "ringkasan"]]) {
-        const src = code(readFileSync(join(repoRoot, "src", "app", ...hal, "page.tsx"), "utf8"));
+        // CONTOH LAPORAN (approved 7 Nov): the class report's body is its composition (KomposisiKelas)
+        const src = code(readFileSync(join(repoRoot, "src", "app", ...hal, "page.tsx"), "utf8")
+          + (hal[0] === "edukator" ? readFileSync(join(repoRoot, "src/components/laporan/KomposisiKelas.tsx"), "utf8") : ""));
         // RESTATED FOR W3.8 (Batch 5): the sentence is now asked in the reader's language (persona and locale passed)
         // RESTATED FOR E-C1-2 (D-132): the class report's persona is the working context's (`untuk`)
         c.expect(/kunciMuncul\(e\) \? <p[^>]*>\{s\(kunciMuncul\(e\)!, (?:"educator"|"staff"|untuk), locale\)\}<\/p> : null/.test(src), `/${hal.join("/")} does not say what will make a figure appear`);

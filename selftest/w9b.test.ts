@@ -65,7 +65,8 @@ export const w9bTests: SelfTest[] = [
       const buang = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "").replace(/\{\s*\}/g, "");
       const baca = (...p: string[]) => buang(readFileSync(join(ctx.repoRoot, ...p), "utf8"));
       for (const p of [["src", "app", "dekan", "ringkasan", "page.tsx"], ["src", "app", "edukator", "ringkasan", "page.tsx"]]) {
-        const src = baca(...p);
+        // CONTOH LAPORAN (approved 7 Nov): the class report's body is its composition (KomposisiKelas); the page still names the places
+        const src = baca(...p) + (p[2] === "edukator" ? baca("src", "components", "laporan", "KomposisiKelas.tsx") : "");
         c.expect(/<NilaiLaporan entry=\{e\} locale=\{locale\} tempat=\{tempat\} persona=(\{untuk\}|"staff") \/>/ /* RESTATED FOR H24: in the reader's words */.test(src) && !/function Value\(/.test(src) && /await namaTempat\(/.test(src),
           `${p.join("/")} still draws a figure by itself, or does not name the places its rows name`);
       }

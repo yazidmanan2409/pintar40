@@ -732,6 +732,32 @@ export async function berjalan(
 }
 
 /**
+ * CONTOH LAPORAN 2-guru (approved 7 Nov): THE CLASS'S TARGET, AS ITS UJI PENGUASAAN SEALED IT. A class report draws
+ * the target line only where there is one target to draw: every Uji Penguasaan given to the class carries the same
+ * sealed mark (D-085 M3: the mark is the assignment's, copied unchanged into every attempt). Two chapters with two
+ * marks, or none set, draw no line (null): a line that stood for only one of them would mislead. Read with the
+ * reader's own access, so a reader who may not see the class's assignments gets no line either.
+ */
+export function satuTarget(tanda: ReadonlyArray<number | string | null | undefined>): number | null {
+  const ada = tanda.filter((x) => x !== null && x !== undefined && x !== "").map(Number).filter((x) => Number.isFinite(x));
+  if (ada.length === 0 || ada.length !== tanda.length) return null;
+  return ada.every((x) => x === ada[0]) ? ada[0] : null;
+}
+
+export async function targetKelas(nodeId: string): Promise<number | null> {
+  const c = await db();
+  const { data, error } = await c
+    .from("assessment_assignments")
+    .select("pass_mark, definition:assessment_definitions(mode)")
+    .eq("node_id", nodeId)
+    .in("status", ["OPEN", "CLOSED"]);
+  if (error) return null;
+  const uji = rows<{ pass_mark: number | string | null; definition: { mode: string } | null }>(data)
+    .filter((r) => r.definition?.mode === "POST_TEST");
+  return satuTarget(uji.map((r) => r.pass_mark));
+}
+
+/**
  * UX-37: WHAT WAITS ON THE TEACHER IN ONE CLASS — the acts of «Yang bisa Anda lakukan sekarang» (/langkah) that the
  * class's state puts there, and only those: an open assessment some of the class has not submitted yet (f1, the
  * first such), and published material the class may be given but does not have (f4, the newest). The Uji Cepat,

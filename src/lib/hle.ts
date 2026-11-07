@@ -73,6 +73,14 @@ export type HleEvent =
   | "laporan.kelas.judul" | "laporan.institusi.judul"
   | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak" | "laporan.metrik.tanpa_nama"
   | "laporan.cakupan.kelas" | "laporan.cakupan.sekolah"
+  // CONTOH LAPORAN (Daisy, approved 7 Nov): the report compositions' own sentences, composed from the figures below
+  // them with no cause or advice; every figure keeps its existing label and meaning
+  | "laporan.komposisi.topik_di_bawah" | "laporan.komposisi.topik_semua" | "laporan.komposisi.topik_terendah"
+  | "laporan.komposisi.pita_ringkas" | "laporan.komposisi.rata_rata" | "laporan.komposisi.target"
+  | "laporan.komposisi.target_arti" | "laporan.komposisi.kenaikan_dari" | "laporan.komposisi.berikutnya"
+  | "laporan.komposisi.berikutnya_bukti" | "laporan.komposisi.berikutnya_keliru" | "laporan.komposisi.teks_grafik"
+  | "laporan.komposisi.kolom_topik" | "laporan.komposisi.kolom_nilai" | "laporan.komposisi.kolom_pita"
+  | "laporan.komposisi.lainnya"
   // ── WP4. The Management surface. `pimpinan` is Indonesian for the people who
   // lead a part of a school — the word the approved Management design uses for
   // the role, and the one this surface is named after. Every key below is
@@ -2626,6 +2634,22 @@ const table: Table = {
   // W3.8 (RV-11): what a report's figures cover and when they were calculated, under its heading and on the paper
   "laporan.cakupan.kelas": { default: "Angka dihitung {waktu} dari semua bukti kelas ini sampai saat itu.", en: "Figures calculated {waktu} from all of this class's evidence up to then." },
   "laporan.cakupan.sekolah": { default: "Angka dihitung {waktu} dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu.", en: "Figures calculated {waktu} from all of this school's evidence, in every school year, up to then." },
+  "laporan.komposisi.topik_di_bawah": { default: "{n} dari {m} topik masih di bawah target: {daftar}.", en: "{n} of {m} topics are still below target: {daftar}." },
+  "laporan.komposisi.topik_semua": { default: "Semua topik sudah mencapai target {target}.", en: "Every topic has reached the {target} target." },
+  "laporan.komposisi.topik_terendah": { default: "Penguasaan terendah ada pada {nama}.", en: "Mastery is lowest in {nama}." },
+  "laporan.komposisi.pita_ringkas": { default: "{baik} dari {n} murid sudah berada di pita «{mantap}» atau «{berkembang}»; {kurang} murid perlu penguatan.", en: "{baik} of {n} students are in the «{mantap}» or «{berkembang}» band; {kurang} need strengthening." },
+  "laporan.komposisi.rata_rata": { default: "{label} kelas: {nilai}.", en: "Class {label}: {nilai}." },
+  "laporan.komposisi.target": { default: "Target {p}", en: "Target {p}" },
+  "laporan.komposisi.target_arti": { default: "Target ditetapkan sekolah pada Uji Penguasaan kelas ini: {p}.", en: "The target the school set on this class's Mastery Check: {p}." },
+  "laporan.komposisi.kenaikan_dari": { default: "Dihitung dari {n} murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan bab yang sama.", en: "Calculated from {n} students who took the Pre-assessment and the Mastery Check of the same chapter." },
+  "laporan.komposisi.berikutnya": { default: "Apa berikutnya", en: "What next" },
+  "laporan.komposisi.berikutnya_bukti": { default: "Di PINTAR: {kelas} › «Lihat bukti» memuat jawaban setiap murid per soal.", en: "In PINTAR: {kelas} › «See evidence» holds each student's answer to each question." },
+  "laporan.komposisi.berikutnya_keliru": { default: "Saran penanganan untuk pemahaman keliru ada di bagian {huruf}.", en: "The suggested remedy for each misunderstanding is in section {huruf}." },
+  "laporan.komposisi.teks_grafik": { default: "Angka yang sama dalam tabel", en: "The same figures as a table" },
+  "laporan.komposisi.kolom_topik": { default: "Topik", en: "Topic" },
+  "laporan.komposisi.kolom_nilai": { default: "Penguasaan rata-rata", en: "Average mastery" },
+  "laporan.komposisi.kolom_pita": { default: "Pita", en: "Band" },
+  "laporan.komposisi.lainnya": { default: "Angka lain", en: "Other figures" },
   "laporan.kosong": { default: "Belum ada angka yang bisa ditampilkan untuk Anda di sini.", en: "There are no figures to show you here yet." },
   "laporan.tak_ada_angka": { default: "Tidak ada angka pada laporan ini, tetapi keterangan di bawah menjelaskan alasannya satu per satu.", en: "This report carries no figures, but the notes below say why, one by one." },
 

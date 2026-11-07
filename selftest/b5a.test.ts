@@ -164,8 +164,10 @@ export const b5aTests: SelfTest[] = [
         c.expect(x[0] === t("laporan.metrik.belum_cukup_data", "educator") && x[1] === "Sekarang 0 murid; perlu 5."
           && x[2] === "0 students so far; 10 needed.", `the absence reads ${JSON.stringify(x)}`);
       }
+      // CONTOH LAPORAN (approved 7 Nov): the class report's body is its composition, src/components/laporan/KomposisiKelas.tsx
+      const KOMPOSISI: Record<string, string> = { "src/app/edukator/ringkasan/page.tsx": "src/components/laporan/KomposisiKelas.tsx" };
       for (const f of ["src/app/edukator/ringkasan/page.tsx", "src/app/dekan/ringkasan/page.tsx"]) {
-        c.expect(/\{kalimatJumlah\(e, locale[^)]*\) \? <p[^>]*>\{kalimatJumlah\(e, locale[^)]*\)\}<\/p> : null\}/.test(kode(baca(ctx.repoRoot, f))),
+        c.expect(/\{kalimatJumlah\(e, locale[^)]*\) \? <p[^>]*>\{kalimatJumlah\(e, locale[^)]*\)\}<\/p> : null\}/.test(kode(baca(ctx.repoRoot, f) + (KOMPOSISI[f] ? baca(ctx.repoRoot, KOMPOSISI[f]) : ""))),
           `${f} does not say how far a figure is from appearing`);
       }
       const intel = kode(baca(ctx.repoRoot, "src/app/_intel.ts"));
@@ -214,6 +216,81 @@ export const b5aTests: SelfTest[] = [
       return c.verdict("no copy outside the audit trail's names for past rows speaks of a briefing (mengajar.langkah.quiet is gone); the class's " +
         "«Langkah» page draws no such footnote; no source under src/app, src/components or src/lib reads the briefings table or promises a " +
         "briefings surface; the class report's unused exposure-caveat predicate is gone");
+    },
+  },
+  {
+    // CONTOH LAPORAN 2-guru / 2b (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov): the class report is one composition
+    id: "LAPORAN-KELAS-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const ok = (o: Record<string, unknown>) => ({ status: "ok", readiness: "SUFFICIENT_EVIDENCE", ...o });
+      const penuh = [
+        ok({ metric_id: "class.participants", label_key: "metrik.peserta.label", meaning_key: "metrik.peserta.arti", value: 29, sample: 29 }),
+        ok({ metric_id: "class.comprehension", label_key: "metrik.pemahaman.label", meaning_key: "metrik.pemahaman.arti", value: 0.748, sample: 29 }),
+        ok({ metric_id: "class.net_gain", label_key: "metrik.kenaikan.label", meaning_key: "metrik.kenaikan.arti", value: 0.2, sample: 29 }),
+        ok({ metric_id: "class.readiness_distribution", label_key: "metrik.kesiapan.label", meaning_key: "metrik.kesiapan.arti",
+          value: { "kesiapan.butuh_pendampingan": 5, "kesiapan.siap_sertifikasi": 17, "kesiapan.perlu_review": 7, "kesiapan.belum_post_test": 2 },
+          population: { placed: 31, assessed: 29, not_yet: 2 } }),
+        ok({ metric_id: "class.topic_mastery", label_key: "metrik.topik.label", meaning_key: "metrik.topik.arti", value: [
+          { objective_id: "1", competency: "Pecahan campuran", mean_score: 0.57, learners: 29 },
+          { objective_id: "2", competency: "Penjumlahan dan pengurangan pecahan", mean_score: 0.61, learners: 29 },
+          { objective_id: "3", competency: "Membandingkan pecahan", mean_score: 0.79, learners: 29 },
+          { objective_id: "4", competency: "Pecahan senilai", mean_score: 0.87, learners: 29 } ] }),
+        ok({ metric_id: "class.misconceptions", label_key: "metrik.miskonsepsi.label", meaning_key: "metrik.miskonsepsi.arti",
+          value: [{ code: "M1", label: "Menjumlahkan pembilang dan penyebut", remediation: "Samakan penyebut dulu.", occurrences: 13 }] }),
+      ];
+      const kurang = penuh.map((e) => ({ status: "below_minimum", readiness: "INSUFFICIENT_EVIDENCE", metric_id: e.metric_id, label_key: e.label_key,
+        meaning_key: e.meaning_key, statement_key: "laporan.metrik.belum_cukup_data", have: 3, needed: 5,
+        ...(e.metric_id === "class.readiness_distribution" ? { population: { placed: 30, assessed: 3, not_yet: 27 } } : {}) }));
+      const r = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiKelas.tsx");' +
+        "const K = m.default?.default ?? m.default; const J = m.persenJujur ?? m.default?.persenJujur;" +
+        "const [a, b] = JSON.parse(process.env.ENTRI);" +
+        "const p = { locale: 'id', persona: 'educator', jenis: 'LEARNER', namaKelas: 'Kelas 7A', buktiHref: '/mengajar/k/bukti' };" +
+        "process.stdout.write(JSON.stringify([renderToStaticMarkup(h(K, { ...p, entries: a, target: 0.75 })), renderToStaticMarkup(h(K, { ...p, entries: b, target: 0.75 }))," +
+        " renderToStaticMarkup(h(K, { ...p, entries: a, target: null })), J(0.596, 'id'), J(0.62, 'id'), J(0.748, 'id', [0.75]), J(0.748, 'id')]));",
+        { ENTRI: JSON.stringify([penuh, kurang]) });
+      if (c.expect(r.ok, `the composition could not be rendered: ${r.err}`)) {
+        let x: string[] = [];
+        try { x = JSON.parse(r.out); } catch { /* reported below */ }
+        const teks = (h: string) => (h ?? "").replace(/<[^>]+>/g, " ").replace(/&quot;/g, '"').replace(/\s+/g, " ").trim();
+        const [isi, belum, tanpaTarget, j1, j2, j3, j4] = x;
+        const t1 = teks(isi);
+        // the lead: counted from the rows, naming the topics below the target; the bands and the comprehension under it
+        c.expect(t1.includes("2 dari 4 topik masih di bawah target: Pecahan campuran; Penjumlahan dan pengurangan pecahan."), `the lead reads «${t1.slice(0, 200)}»`);
+        c.expect(t1.includes("24 dari 29 murid sudah berada di pita «Mantap» atau «Berkembang»; 5 murid perlu penguatan.") && t1.includes("Pemahaman kelas: 74,8%."),
+          "the bands and the comprehension are not said under the lead (R4-02: 74,8% against a 75% target)");
+        // G-03: below the target is amber AND in words; the target is a labelled line; colour never alone
+        c.expect((isi.match(/<li data-bawah="">/g) ?? []).length === 2 && (isi.match(/class="pin-lk-bawah">di bawah target</g) ?? []).length === 2 && /class="pin-lk-target"/.test(isi) && t1.includes("Target 75%"),
+          "the rows below the target are not marked in words and amber, or the target line is missing");
+        // B: the population line, then the bands over the assessed in the legend's order; «belum mengerjakan» is a count, never a band
+        c.expect(/31 murid di kelas ini · 29 sudah mengerjakan Uji Penguasaan · 2 belum mengerjakan/.test(t1) && t1.includes("Hasil 29 murid yang sudah mengerjakan")
+          && /data-pita="mantap"[^>]*>17<[\s\S]*data-pita="berkembang"[^>]*>7<[\s\S]*data-pita="penguatan"[^>]*>5</.test(isi) && !/data-pita="[a-z]*"[^>]*>2</.test(isi),
+          "the bands are not drawn over the assessed, in order, apart from who has not sat");
+        // C, D, letters, the next step, the action sentence (S-3)
+        c.expect(t1.includes("+20 poin") && t1.includes("Dihitung dari 29 murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan bab yang sama."), "the gain or its base is missing");
+        c.expect(t1.includes("13 kali") && t1.includes("Samakan penyebut dulu.") && t1.includes("Saran penanganan untuk pemahaman keliru ada di bagian D."), "the misunderstanding, its remedy or the pointer to it is missing");
+        c.expect(/>A<[\s\S]*>B<[\s\S]*>C<[\s\S]*>D<[\s\S]*>E<[\s\S]*>F</.test(isi) && /href="\/mengajar\/k\/bukti"/.test(isi), "the sections are not lettered A–F, or «Lihat bukti» is not linked");
+        c.expect((isi.match(/data-lk-tindakan=""/g) ?? []).length >= 4, "a figure is drawn without its action sentence (S-3)");
+        // 2b: every figure keeps its place, with how far and what makes it appear; no figure, no lead
+        const t2 = teks(belum);
+        c.expect(!/data-lk-kalimat/.test(belum) && (t2.match(/Sekarang 3 murid; perlu 5\./g) ?? []).length >= 4 && /30 murid di kelas ini · 3 sudah/.test(t2) && !/data-pita/.test(belum.replace(/<i data-pita[^>]*>/g, "")),
+          `the not-yet report does not keep each figure's place: ${t2.slice(0, 200)}`);
+        // no target: no line, no «di bawah target», the lowest named instead
+        const t3 = teks(tanpaTarget);
+        c.expect(!/pin-lk-target/.test(tanpaTarget) && !/di bawah target/.test(t3) && t3.includes("Penguasaan terendah ada pada Pecahan campuran."), "a class with no one target still draws a target or says «di bawah target»");
+        // R4-02: a value rounding would carry across 60%, 80% or the target shows one decimal; others whole
+        c.expect(j1 === "59,6%" && j2 === "62%" && j3 === "74,8%" && j4 === "75%", `R4-02 rounding reads ${JSON.stringify([j1, j2, j3, j4])}`);
+      }
+      const halaman = kode(baca(ctx.repoRoot, "src/app/edukator/ringkasan/page.tsx"));
+      c.expect(/<KomposisiKelas entries=\{entries\}/.test(halaman) && /await targetKelas\(kelas\)/.test(halaman) && /supabase\.rpc\("generate_report"/.test(halaman),
+        "Ringkasan Kelas does not draw the composition over generate_report's envelopes and the class's sealed target");
+      return c.verdict("renders KomposisiKelas (CONTOH LAPORAN 2-guru/2b): the lead counted from the rows, the bands and comprehension under it with R4-02's decimal, " +
+        "rows below the target amber and in words against a labelled target line, the population apart from the bands drawn in order over the assessed, the gain with its base, " +
+        "the remedy, letters A–F, an action sentence under each figure; the not-yet report keeps each figure's place with how far; no target, no line; " +
+        "and Ringkasan Kelas draws it over generate_report and the sealed target");
     },
   },
 ];
