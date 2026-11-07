@@ -114,55 +114,74 @@ export default function FormAktivasi({ locale, orang, adminSistem, kelas = [], p
   const [pilihKelas, setPilihKelas] = useState(kelas[0]?.id ?? "");
   const [kemajuan, setKemajuan] = useState<{ selesai: number; total: number } | null>(null);
   const [lembar, setLembar] = useState<{ kelas: string; kartu: KartuCetak[]; gagal: Array<{ nama: string; kunci: HleEvent }> } | null>(null);
+  // H30 (Daisy, owner's report review R7-02): several classes in one run, the same run as one class, class after class
+  const [banyak, setBanyak] = useState<Set<string>>(() => new Set());
 
   /**
-   * Each learner of the class who has no account yet, one request each, in
-   * turn: the database decides and audits every card on its own. A session
+   * Each learner of each chosen class who has no account yet, one request each,
+   * in turn: the database decides and audits every card on its own (H30 adds
+   * nothing to that: the classes are only taken one after another). A session
    * that has ended or a network that has gone stops the run; whoever was not
    * reached is named, and keeps their own row below.
    */
-  async function kartuSatuKelas() {
-    const k = kelas.find((x) => x.id === pilihKelas);
-    if (!k || berjalan.current) return;
+  async function kartuKelas(daftar: KelasKartu[], kunciSibuk: string) {
+    if (daftar.length === 0 || berjalan.current) return;
     berjalan.current = true;
-    setSibuk(`kelas:${k.id}`);
+    setSibuk(kunciSibuk);
     setLembar(null);
     const kartu: KartuCetak[] = [];
     const gagal: Array<{ nama: string; kunci: HleEvent }> = [];
+    const total = daftar.reduce((n, k) => n + k.jumlah, 0);
+    let selesai = 0;
     try {
-      // W2.10 (D-153): the class's own learners, read now, for this class alone (never every waiting person)
-      const anggota = await anggotaKelasMenungguAksi(k.id);
-      if (!anggota) {
-        gagal.push({ nama: k.label, kunci: kunciGagal("CLASSROOM_CARD", null) });
-        return;
-      }
-      const siapa = new Map(anggota.map((o) => [o.person_id, o]));
-      const giliran = anggota.map((o) => o.person_id).filter((p) => !hasil[p]?.jawaban?.ok);
-      setKemajuan({ selesai: 0, total: giliran.length });
-      for (let i = 0; i < giliran.length; i++) {
-        const p = giliran[i];
-        const o = siapa.get(p);
-        const jawaban = await minta("CLASSROOM_CARD", { person_id: p });
-        setHasil((h) => ({ ...h, [p]: { mode: "CLASSROOM_CARD", jawaban } }));
-        if (jawaban?.ok && jawaban.card && jawaban.pin) {
-          kartu.push({ nama: o?.display_name ?? "", nomorInduk: o?.institutional_id ?? "", card: jawaban.card, pin: jawaban.pin });
-        } else {
-          const kunci = kunciGagal("CLASSROOM_CARD", jawaban);
-          gagal.push({ nama: o?.display_name ?? "", kunci });
-          if (!jawaban || jawaban.error === "unauthenticated") {
-            for (const q of giliran.slice(i + 1)) gagal.push({ nama: siapa.get(q)?.display_name ?? "", kunci });
-            break;
-          }
+      setKemajuan({ selesai: 0, total });
+      for (const k of daftar) {
+        // W2.10 (D-153): the class's own learners, read now, for this class alone (never every waiting person)
+        const anggota = await anggotaKelasMenungguAksi(k.id);
+        if (!anggota) {
+          gagal.push({ nama: k.label, kunci: kunciGagal("CLASSROOM_CARD", null) });
+          continue;
         }
-        setKemajuan({ selesai: i + 1, total: giliran.length });
+        const siapa = new Map(anggota.map((o) => [o.person_id, o]));
+        const giliran = anggota.map((o) => o.person_id).filter((p) => !hasil[p]?.jawaban?.ok);
+        let berhenti = false;
+        for (let i = 0; i < giliran.length; i++) {
+          const p = giliran[i];
+          const o = siapa.get(p);
+          const jawaban = await minta("CLASSROOM_CARD", { person_id: p });
+          setHasil((h) => ({ ...h, [p]: { mode: "CLASSROOM_CARD", jawaban } }));
+          if (jawaban?.ok && jawaban.card && jawaban.pin) {
+            kartu.push({ nama: o?.display_name ?? "", nomorInduk: o?.institutional_id ?? "", card: jawaban.card, pin: jawaban.pin,
+              kelas: daftar.length > 1 ? k.label : undefined });
+          } else {
+            const kunci = kunciGagal("CLASSROOM_CARD", jawaban);
+            gagal.push({ nama: o?.display_name ?? "", kunci });
+            if (!jawaban || jawaban.error === "unauthenticated") {
+              for (const q of giliran.slice(i + 1)) gagal.push({ nama: siapa.get(q)?.display_name ?? "", kunci });
+              berhenti = true;
+              break;
+            }
+          }
+          selesai++;
+          setKemajuan({ selesai, total });
+        }
+        if (berhenti) break;
       }
     } finally {
       berjalan.current = false;
       setSibuk(null);
       setKemajuan(null);
-      setLembar({ kelas: k.label, kartu, gagal });
+      setLembar({ kelas: daftar.map((k) => k.label).join(", "), kartu, gagal });
     }
   }
+  const kartuSatuKelas = () => {
+    const k = kelas.find((x) => x.id === pilihKelas);
+    return kartuKelas(k ? [k] : [], `kelas:${k?.id}`);
+  };
+  const kelasBanyak = kelas.filter((k) => banyak.has(k.id));
+  const muridBanyak = kelasBanyak.reduce((n, k) => n + k.jumlah, 0);
+  const isi = (k: HleEvent, n: Record<string, number>) =>
+    Object.entries(n).reduce((t0, [a, v]) => t0.replaceAll(`{${a}}`, String(v)), s(k));
 
   const kelasDipilih = kelas.find((x) => x.id === pilihKelas);
   return (
@@ -184,9 +203,49 @@ export default function FormAktivasi({ locale, orang, adminSistem, kelas = [], p
             <button type="button" className="pin-btn pin-primary" disabled={sibuk !== null || !kelasDipilih}
               aria-busy={sibuk?.startsWith("kelas:") ? "true" : undefined}
               onClick={() => void kartuSatuKelas()}>
-              {kemajuan ? `${s("aktivasi.kelas.membuat")} ${kemajuan.selesai}/${kemajuan.total}` : s("aktivasi.kelas.tombol")}
+              {kemajuan && sibuk?.startsWith("kelas:") ? `${s("aktivasi.kelas.membuat")} ${kemajuan.selesai}/${kemajuan.total}` : s("aktivasi.kelas.tombol")}
             </button>
           </div>
+          {kelas.length > 1 ? (
+            /* H30: several classes at once. Only what the database counted is offered: learners of these classes who wait
+               for an account and may hold a card; the run below is the same per-learner run as one class's */
+            <fieldset className="pin-akt-banyak" disabled={sibuk !== null}>
+              <legend>{s("aktivasi.kelas.banyak.judul")}</legend>
+              <label className="pin-akt-pilih-semua">
+                <input type="checkbox" checked={banyak.size === kelas.length}
+                  onChange={(e) => { setBanyak(e.target.checked ? new Set(kelas.map((k) => k.id)) : new Set()); setLembar(null); }} />
+                {s("aktivasi.kelas.banyak.semua")}
+              </label>
+              <ul className="pin-akt-banyak-daftar">
+                {kelas.map((k) => (
+                  <li key={k.id}>
+                    <label>
+                      <input type="checkbox" name="kelas_banyak" value={k.id} checked={banyak.has(k.id)}
+                        onChange={(e) => {
+                          const n = new Set(banyak);
+                          if (e.target.checked) n.add(k.id); else n.delete(k.id);
+                          setBanyak(n); setLembar(null);
+                        }} />
+                      {k.label} <span className="pin-meta">({k.jumlah} {s("aktivasi.kelas.murid")})</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+              <p className="pin-meta" aria-live="polite" data-akt-banyak-jumlah="">
+                {isi("aktivasi.kelas.banyak.terpilih", { murid: muridBanyak, kelas: kelasBanyak.length })}
+              </p>
+              <p className="pin-meta">{s("aktivasi.kelas.banyak.dikecualikan")}</p>
+              <div className="pin-actions">
+                <button type="button" className="pin-btn pin-primary" disabled={sibuk !== null || muridBanyak === 0}
+                  aria-busy={sibuk?.startsWith("banyak") ? "true" : undefined}
+                  onClick={() => void kartuKelas(kelasBanyak, "banyak")}>
+                  {kemajuan && sibuk === "banyak"
+                    ? `${s("aktivasi.kelas.membuat")} ${kemajuan.selesai}/${kemajuan.total}`
+                    : isi("aktivasi.kelas.banyak.tombol", { murid: muridBanyak })}
+                </button>
+              </div>
+            </fieldset>
+          ) : null}
         </section>
       ) : null}
       {lembar ? <LembarKartu locale={locale} kelas={lembar.kelas} kartu={lembar.kartu} gagal={lembar.gagal} /> : null}

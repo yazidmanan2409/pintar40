@@ -32,6 +32,7 @@ const ANON = process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_A
 const DB = process.env.SUPABASE_DB_URL;
 const OUT = process.env.OUT_DIR ?? "audit-out/b6-cetak";
 const SLOW = 30000;
+const norm = (s) => (s ?? "").replace(/\s+/g, " ").trim();
 const require = createRequire(join(process.env.APP_DIR ?? process.cwd(), "package.json"));
 const { createServerClient } = require("@supabase/ssr");
 
@@ -155,6 +156,27 @@ sql(`do $$ declare v uuid; e uuid; contoh record; begin
     update public.enrollments set status = 'ACTIVE' where id = e;
   end loop; end $$`);
 
+// H30: two more of alpha's classes, each with two learners waiting for an account, for the several-classes run (P3b).
+// The seeded alpha has one class with learners (5A), so the walk makes its own two beside it: same cohort, same year.
+const kelasLain = sql(`with dasar as (select n.institution_id, n.parent_id, n.academic_period_id from public.org_nodes n where n.id = '${kelasId}')
+  insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+  select d.institution_id, d.parent_id, 'CLASS', 'Banyak ${TAG} ' || g, d.academic_period_id from dasar d, generate_series(1, 2) g
+  returning id || '|' || name`).split("\n").filter((r) => r.includes("|")).map((r) => r.split("|"));
+for (const [kid] of kelasLain) {
+  sql(`do $$ declare v uuid; e uuid; contoh record; begin
+    perform set_config('app.seed_intent', 'synthetic', true);
+    select en.academic_period_id, en.programme_id into contoh from public.enrollments en join public.memberships m on m.enrollment_id = en.id
+     where m.node_id = '${kelasId}' and m.valid_to is null limit 1;
+    for i in 1..2 loop
+      insert into public.persons (display_name) values ('Banyak Walk ${TAG} ' || substr('${kid}', 1, 4) || ' ' || i) returning id into v;
+      perform public.issue_institutional_id(v, '${alphaId}');
+      insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+        values (v, '${alphaId}', contoh.academic_period_id, contoh.programme_id, 'PENDING') returning id into e;
+      insert into public.memberships (enrollment_id, node_id, academic_period_id) values (e, '${kid}', contoh.academic_period_id);
+      update public.enrollments set status = 'ACTIVE' where id = e;
+    end loop; end $$`);
+}
+
 const browser = await chromium.launch();
 const A = (await masuk(browser, ORANG.alpha)).page;
 const G = (await masuk(browser, ORANG.guru)).page;
@@ -187,7 +209,7 @@ await step("P3", `the class-card sheet in print: only the set, two across, no ca
   const nilai = await pilih.locator("option").evaluateAll((os, id) => os.find((o) => o.value === id)?.value ?? null, kelasId);
   if (!harus(rec, nilai === kelasId, `«${kelasNama}» is offered`)) return;
   await pilih.selectOption(kelasId);
-  await A.locator("section.pin-akt-kelas button.pin-primary").click();
+  await A.locator("section.pin-akt-kelas button.pin-primary:not(fieldset.pin-akt-banyak button)").click();
   await A.locator(".pin-akt-lembar .pin-akt-kartu").first().waitFor({ timeout: SLOW * 2 });
   await A.waitForLoadState("networkidle");
   const kartu = await A.locator(".pin-akt-lembar .pin-akt-kartu").count();
@@ -217,6 +239,36 @@ await step("P3", `the class-card sheet in print: only the set, two across, no ca
   await A.emulateMedia({ media: "screen" });
 });
 
+
+await step("P3b", "H30: several classes' cards in one press: «Pilih semua» or each class, the selected count, one run, one sheet naming each card's class", async (rec) => {
+  if (!harus(rec, kelasLain.length === 2, `two more of alpha's classes with learners (${kelasLain.length})`)) return;
+  await buka(A, "/aktivasi");
+  const fs = A.locator("section.pin-akt-kelas fieldset.pin-akt-banyak");
+  if (!harus(rec, (await fs.count()) === 1, "Aktivasi offers «Beberapa kelas sekaligus»")) return;
+  let diharap = 0;
+  for (const [kid, nama] of kelasLain) {
+    const kotak = fs.locator(`input[name="kelas_banyak"][value="${kid}"]`);
+    if (!harus(rec, (await kotak.count()) === 1, `«${nama}» is offered`)) return;
+    await kotak.check();
+    const teks = norm(await kotak.locator("xpath=..").innerText());
+    diharap += Number((/\((\d+)/.exec(teks) ?? [])[1] ?? 0);
+  }
+  const jumlah = norm(await fs.locator("[data-akt-banyak-jumlah]").innerText());
+  harus(rec, jumlah === `Dipilih: ${diharap} murid di 2 kelas.`, `the count reads «${jumlah}» (the two classes offer ${diharap})`);
+  harus(rec, diharap >= 4, `the two classes count their four new learners at least (${diharap})`);
+  await fs.getByRole("button", { name: `Buat kartu untuk ${diharap} murid` }).click();
+  await A.locator(".pin-akt-lembar .pin-akt-kartu").first().waitFor({ timeout: SLOW * 2 });
+  await A.waitForFunction(() => !document.querySelector("fieldset.pin-akt-banyak button[aria-busy='true']"), null, { timeout: SLOW * 3 });
+  await A.waitForLoadState("networkidle");
+  const n = Number(sql(`select count(*) from public.accounts a join public.persons p on p.id = a.person_id
+     where p.display_name like 'Banyak Walk ${TAG} %' and a.kind = 'CLASSROOM_CARD'`));
+  harus(rec, n === 4, `the four learners of the two classes now hold class cards (${n})`);
+  const judul = norm(await A.locator("#pin-akt-lembar-judul").innerText());
+  harus(rec, kelasLain.every(([, nama]) => judul.includes(nama)), `the one sheet names both classes («${judul}»)`);
+  const kartuKelas = await A.locator(".pin-akt-lembar .pin-akt-kartu").evaluateAll((ks) => ks.map((k) => (k.textContent ?? "").replace(/\s+/g, " ")));
+  harus(rec, kelasLain.every(([, nama]) => kartuKelas.some((t) => t.includes(nama))), "each class's cards name their class");
+  await A.screenshot({ path: join(OUT, "lembar-banyak-kelas.png"), fullPage: true });
+});
 await step("P4", "the Digital Card on «Akun saya» printed: each face CR80 at actual size, no shell part", async (rec) => {
   await buka(A, "/akun");
   const muka = A.locator(".pin-kd-muka");

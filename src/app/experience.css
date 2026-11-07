@@ -2540,6 +2540,11 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 
 /* M7: a whole class's cards, and the printable class set (two across, none split; only the set prints) */
 .pin-akt-kelas { margin-top: var(--space-5); }
+/* H30: several classes at once, under the one-class control */
+.pin-akt-banyak { margin: var(--space-4) 0 0; padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-md); }
+.pin-akt-banyak legend { padding: 0 var(--space-1); font-weight: var(--weight-strong); }
+.pin-akt-banyak-daftar { list-style: none; margin: var(--space-2) 0; padding: 0; display: grid; gap: var(--space-1); }
+.pin-akt-banyak label, .pin-akt-pilih-semua { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-md); }
 .pin-akt-lembar { margin-top: var(--space-5); display: grid; gap: var(--space-3); }
 .pin-akt-lembar > h2 { margin: 0; font-size: var(--type-card); font-weight: var(--weight-strong); }
 .pin-akt-kartu-set { list-style: none; margin: 0; padding: 0; }
@@ -3062,7 +3067,9 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
   .pin-jaga { top: calc(var(--shell-bar) + var(--space-2)); }
   .pin-staf {
     position: sticky; top: 0; z-index: var(--z-sticky);
-    display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-2);
+    /* H29 (Daisy, 7 Nov): the wordmark's clear space is at least its cap height (11.6 px here), so the gap after it is
+       --space-3 (12 px), not --space-2 */
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-3);
     height: auto; min-height: var(--shell-bar); padding: 0 var(--space-2) 0 var(--space-4);
     background: var(--surface-0);
   }

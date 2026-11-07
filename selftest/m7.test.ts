@@ -125,4 +125,50 @@ export const m7Tests: SelfTest[] = [
       );
     },
   },
+  {
+    id: "M7-K02",
+    run: async (ctx) => {
+      const c = new Checks();
+      // H30 (Daisy, the owner's report review R7-02, 7 Nov): several classes in one run, extending M7's run, never a
+      // second card system. Executed: the printable set names each card's class when the run spans classes. Read: one
+      // function runs both the single class and the chosen classes, class after class, through the same per-learner
+      // request; the offer is only what the database counted; and the per-class control stays as it was.
+      const buang = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+      const form = buang(readFileSync(join(ctx.repoRoot, "src", "components", "aktivasi", "FormAktivasi.tsx"), "utf8"));
+      c.expect(/async function kartuKelas\(daftar: KelasKartu\[\], kunciSibuk: string\)/.test(form)
+        && /for \(const k of daftar\) \{[\s\S]*?const anggota = await anggotaKelasMenungguAksi\(k\.id\);[\s\S]*?await minta\("CLASSROOM_CARD", \{ person_id: p \}\)/.test(form),
+        "the chosen classes are not run class after class through each learner's own request");
+      c.expect(/const kartuSatuKelas = \(\) => \{[\s\S]*?return kartuKelas\(k \? \[k\] : \[\]/.test(form)
+        && /onClick=\{\(\) => void kartuKelas\(kelasBanyak, "banyak"\)\}/.test(form),
+        "the single class and the chosen classes do not share one run");
+      c.expect(/const kelasBanyak = kelas\.filter\(\(k\) => banyak\.has\(k\.id\)\);/.test(form)
+        && /const muridBanyak = kelasBanyak\.reduce\(\(n, k\) => n \+ k\.jumlah, 0\);/.test(form),
+        "the multi-class offer is not the database's counted classes, or its count is not theirs");
+      c.expect(/aktivasi\.kelas\.banyak\.semua/.test(form) && /aktivasi\.kelas\.banyak\.terpilih/.test(form) && /aktivasi\.kelas\.banyak\.dikecualikan/.test(form)
+        && /disabled=\{sibuk !== null \|\| muridBanyak === 0\}/.test(form),
+        "«Pilih semua», the selected count, the exclusions or the empty-selection guard is missing");
+      c.expect(/section\.pin-akt-kelas|className="pin-akt-orang pin-akt-kelas pin-noprint"/.test(form) && /<select className="pin-input" value=\{pilihKelas\}/.test(form)
+        && /s\("aktivasi\.kelas\.tombol"\)/.test(form),
+        "the per-class control (select and «Buat kartu untuk kelas ini») is no longer there");
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/aktivasi/LembarKartu.tsx");' +
+        "  const L = m.default?.default ?? m.default;" +
+        "  process.stdout.write(renderToStaticMarkup(h(L, JSON.parse(process.env.M7_KASUS))));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: ctx.repoRoot, encoding: "utf8",
+        env: { ...process.env, NEXT_PUBLIC_APP_URL: "https://staging.pintarselalu.com", M7_KASUS: JSON.stringify({ locale: "id", kelas: "Kelas 7E, Kelas 8B", gagal: [],
+          kartu: [{ nama: "Budi Murid", nomorInduk: "UJK-002", card: "4821930571", pin: "038214", kelas: "Kelas 7E" },
+                  { nama: "Citra Murid", nomorInduk: "UJK-003", card: "5512093384", pin: "771020", kelas: "Kelas 8B" }] }) },
+      });
+      if (c.expect(anak.status === 0, `the multi-class set could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
+        const kartu = [...anak.stdout.matchAll(/<li class="pin-akt-kartu">([\s\S]*?)<\/li>/g)].map((m) => m[1]);
+        c.expect(kartu.length === 2 && kartu[0].includes("Kelas 7E") && kartu[1].includes("Kelas 8B") && /Kelas 7E, Kelas 8B/.test(anak.stdout),
+          "a card of a multi-class set does not name its class, or the set does not name its classes");
+      }
+      return c.verdict("H30: several classes in one press, «Pilih semua» and the selected count, run class after class through the same per-learner request as one class (the database decides and audits each card); the offer and count are the database's; the per-class control is kept; each card of a multi-class set names its class");
+    },
+  },
 ];
