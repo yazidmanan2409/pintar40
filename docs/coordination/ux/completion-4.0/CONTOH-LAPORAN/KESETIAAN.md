@@ -40,3 +40,23 @@ This note lists deviations only. It adds no requirement. **PASS** means the item
 | 28 | `/` chooser · doors | **PASS**: 64 px tall, 12 px gaps, purpose 18/26 600, place 14/20, current door marked four ways | — | — |
 
 **Changed in the lane today:** specimens 5, 6 and 7 as described in #20, #22 and #23; every specimen's section A heading (#4b); the below-target labels (#4c). They were rebuilt with `buat-contoh.mts`. Nothing else in the dataset or the metrics changed.
+
+## X5 · Ringkasan Kelas of a PD class (D-196), read against `6-fasilitator.html`
+
+Checked against `fa76781b`. `KomposisiPengembangan` was rendered with specimen 6's twelve participants, with full and completion-only columns, at 1280, 390 and A4. axe reported no violations at 1280, and there is no sideways page scroll at 390, where the table scrolls inside its labelled region.
+
+**The two grammar questions**
+- **Q1, the owner's sentence:** neither the alert nor the lead. It belongs in the scope line under the h1 (`pin-intro`), the slot where the academic Ringkasan Kelas states what its figures cover. An info alert signals a state the reader must notice. This is the ordinary nature of the class, and the alert's coloured box is the heaviest thing above the record. The lead stays Section A's own sentence (who has not begun). Keep the words verbatim.
+- **Q2:** nothing goes between the frame and A, and the sentence takes no letter. Letters name sections a reader refers to («lihat Bagian A»), and a scope line is not one.
+
+| # | Where | Deviation | Expected (approved) | Smallest correction |
+|---|---|---|---|---|
+| X5-1 | Frame | The owner's sentence sits in `pin-banner pin-info` | The scope line under the h1 | `<p className="pin-intro">` with the same key; remove the banner |
+| X5-2 | A · lead | «Belum mulai: Gilang Ramadhan, Imam Syafii.» | «Gilang Ramadhan dan Imam Syafii belum mulai.», with the list joined as in #1 | Reword `pengembangan.belum_mulai` to «{daftar} belum mulai.» and use the list helper. This is a grammar change; send it to Dr Gladys if the key counts as copy |
+| X5-3 | A · not-done mark | An open circle | A short dash, matching the legend «Tanda —: belum ada.» (the open circle is not in the legend) | Draw `.pin-lk-tanda:not([data-selesai])` as a 10 × 2 px dash in `ink-3` |
+| X5-4 | A · mark and word | The mark wraps away from its word («○ / Belum», «○ / Belum dikerjakan») at 1280, 390 and A4 | The mark and its first word stay on one line (D-172 K3) | Wrap the mark and its word in one `white-space: nowrap` span |
+| X5-5 | A · Hasil | «Tercapai · 85%» | «Tercapai» / «Belum tercapai» in words, with no percentage | Drop `format.percent` in that cell. If the percentage is intended (D-069(b) allows the facilitator to see it), that is a change to the approved composition and goes to the owner |
+| X5-6 | A · table | 16 px cells, separated tiles with gaps, and every two-word status wrapping onto two lines | 14 px rows with hairline dividers and the DS stripe, as in specimen 6 | Give `[data-pd-paket] .pin-lk-kisi-tabel` the record-table style (`--t-small`, `border-collapse: collapse`, `table-row-alt`) instead of the numeric grid's |
+| X5-7 | A4 | Page 1 holds only the frame and the sentence. All of A moves to page 2, leaving page 1 blank under the sentence | A starts under the frame. The table may break between rows, with its thead repeated | In print, `break-inside: auto` on the A card and on `[data-pd-paket]`, and `break-inside: avoid` on `tr` only |
+| X5-8 | A4 · headers | **PASS**: the headers wrap between words («Sudah / mulai», «Pelajaran / selesai») and no word breaks mid-word. This applies equally to `/pengembangan/[kelas]`, which uses the same rules | — | — |
+| X5-9 | Refused reader or empty class | **PASS**: one line in words. Nothing implies figures will come | — | — |
