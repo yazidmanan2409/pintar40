@@ -228,6 +228,58 @@ on its staging evidence until the promoted candidate is measured.
 - **Next:** the same measurement from the region. If the target is to be judged there, a regional probe is an owner provision.
 - **This row is not marked PASS.**
 
+## 2d · W6.2 and W6.8: where the time goes (7 Nov, owner: «identify whether the measured delays arise from the application, database, network, or US-runner environment»)
+
+The targets are unchanged: a first screen in ≤ 3 s, and an answer saved at p95 ≤ 1 s.
+
+**1. The application and database, with no distance (measured).** Journeys run **42383221915**, job A, step «Time each role's first screen (W6.2)», branch head `bd4c2c06`. The browser, the release in production mode and the database all run on one GitHub runner. Each figure is the worst of three:
+
+| role | screen | worst |
+|---|---|---|
+| sysadmin | /konfigurasi, /system, /audit, /aktivasi | 452–484 ms |
+| school admin | /konfigurasi, /roles, /transfers, /pendataan, /aktivasi | 448–484 ms |
+| dean | /pimpinan | 448 ms |
+| head of department | /pimpinan, /studio | 220–448 ms |
+| teacher | /mengajar, /studio | 280–480 ms |
+| learner | /belajar | 492 ms |
+
+Every first screen is under 0.5 s when nothing is far away. The first byte (server rendering, database included) is 60–184 ms. The application and the database are not what makes staging's screens 2.5–3.2 s.
+
+**2. The database (measured, §2b and §2c).**
+- The proxy's session check: `sesi_periksa` takes 1.1 ms in the database.
+- The answer save: `record_answer` takes 11 ms at p50 and 20 ms at p95 (Supabase's log of the 50-learner wave).
+- The database is not the cause.
+
+**3. The network between the requester and the proxy (measured from the US; inferred for Indonesia).**
+- **On staging from GitHub's runner:**
+  - The proxy's `sesi_periksa` entered Supabase through IAD: p50 776 ms, against 34 ms for the same call from `sin1` (§2b).
+  - Before W9.19, the proxy's two Auth calls cost 200–733 ms each the same way.
+  - The pages themselves render in `sin1`, beside the database.
+- **Why:** the proxy runs near whoever is asking (Next.js 16 gives it no region; §2b). Each request from the US therefore crosses the Pacific in the proxy, and again to reach the page.
+- **Accounting for staging's first screen:**
+  - 0.4–0.5 s for the application and database (point 1);
+  - about 0.8 s for the proxy's crossing (`sesi_periksa` from IAD);
+  - the rest is the browser's own round trips from the US to `sin1` for the page and its assets.
+- **W6.8:** of the 1,828 ms p95, the database is 20 ms. The rest is the proxy's crossing and the action's round trip from the US runner to `sin1`.
+
+**4. The US runner (the environment of the measurement).** Every staging figure in §2b and §2c was taken from GitHub's runners in the US. Taken there, they include the crossings in point 3, which a user in Indonesia would not make if the proxy runs near them. **That last step is inferred, not measured.**
+
+**What a regional measurement needs, and why it was not taken here.**
+- The owner allowed it on 7 Nov, in a controlled non-production environment.
+- This work has no machine in the region:
+  - GitHub's hosted runners are in the US;
+  - this container cannot reach staging (the network policy refuses it).
+- R0-PIN-01 keeps every browser job on `ubuntu-24.04`, where the pinned Playwright browser exists. Pointing the perf workflows at another runner would need that guard restated for a named regional runner. That is a decision, not a routine fix.
+- **Two ways, each an owner provision:**
+  - (a) A self-hosted GitHub runner in Singapore or Jakarta (Ubuntu 24.04), registered to the repository under a named label. `perf-staging.yml` (`journey`, `probe`) and `perf-l1.yml` (`browser`) would then run there unchanged apart from the runner. R0-PIN-01 would be restated to accept that one label.
+  - (b) A person in Indonesia times the same steps by hand in a browser, against the staging build that carries this candidate. This is human-style, with fewer repetitions.
+- Either way it measures staging. So it waits for the authorised promotion of the candidate, or it measures the current `main` and says so.
+
+**Verdict:**
+- **W6.2 and W6.8 stay OPEN (NOT MET as measured).**
+- The delay is not the application's or the database's. It is the distance between the requester and the proxy. That is measured from the US, and only inferred to disappear from Indonesia.
+- Nothing has been changed to make a figure green.
+
 ## 3 · W6.12: colour vision (local, 5 Nov)
 
 Method: Chromium's vision-deficiency emulation (deuteranopia, protanopia, achromatopsia) on the first screens of the

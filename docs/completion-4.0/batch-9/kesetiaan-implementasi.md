@@ -28,3 +28,21 @@ Each fix was checked against the approved specimen and rendered at 1280 px, 390 
 | 12, 16, 19, 20, 22, 24, 25, 28 | PASS in the review | unchanged | — |
 
 **Boundary found during integration (7 Nov).** The score line (#6) and Section E (D-195(5)) were built for a class of learners. A facilitator over a professional-learning class could have been given the class's participants by name in the lowest band, and as dots. Measured: F33-P01 failed against the earlier functions («1 participant by name in the lowest band; 3 as dots»). D-069 lists participants alphabetically and never by result. `murid_perlu_penguatan` and `sebaran_murid_kelas` now answer only for a class whose `member_kind` is LEARNER, and Ringkasan Kelas asks for neither on a class of participants (LAPORAN-KELAS-02/-03). Academic classes are unchanged (F32-E01/E02, F33-S01 green). How a PD class's Ringkasan Kelas should read at all is still X5, an owner question: it shows the generic «not yet» lead, which under D-070(h) never resolves.
+
+## X5 · Ringkasan Kelas of a PD class (Daisy's fidelity pass, `ux-1/daisy-experience` `c4011570`, against `fa76781b`)
+
+Reconciled on the branch after `bd4c2c06`. Rendered with specimen 6's twelve participants, full and completion-only, at 1280, 390 and A4.
+
+| # | Finding | Status | Held by |
+|---|---|---|---|
+| X5-1 | The owner's sentence as the scope line under the h1, not an alert; no letter (Q1, Q2) | DONE: `<p className="pin-intro">`, the banner removed | LAPORAN-KELAS-PD-01 |
+| X5-2 | «Gilang Ramadhan dan Imam Syafii belum mulai.» | DONE: `pengembangan.belum_mulai` reads «{daftar} belum mulai.», joined by the shared list helper (`daftarKata`). This reorders approved words; no new term. Listed for Dr Gladys's copy review with the other report sentences | LAPORAN-FASILITATOR-01 |
+| X5-3 | «Not yet» as the legend's dash, not an open circle | DONE: `.pin-lk-tanda:not([data-selesai])`, a 10 × 2 px bar in `ink-3`, printed | LAPORAN-FASILITATOR-01 |
+| X5-4 | The mark never parts from its word | DONE: the mark and the first word sit in one nowrap span. The lesson count («5 dari 5») is one value and never wraps, which was found on A4 after the fix | LAPORAN-FASILITATOR-01 |
+| X5-5 | «Hasil» in words, with no percentage | DONE, as the approved composition draws it. One case is not in the specimen: a package with no sealed mark has no «reached», so its cell shows the share, the only result there is. This is raised to Daisy, not decided | LAPORAN-FASILITATOR-01; journey C12f2 reads «Tercapai» |
+| X5-6 | A record table: 14 px rows, hairline dividers, the stripe | DONE: `[data-pd-paket] .pin-lk-kisi-tabel` with `--t-small`, `border-collapse`, hairline rows, the existing stripe | LAPORAN-FASILITATOR-01 |
+| X5-7 | A4: A starts under the frame; the table breaks between rows | DONE: in print, `break-inside: auto` on the section, its card and the record, with rows kept whole and the header repeated. Twelve participants: page 1 holds the frame, the sentence and nine rows; page 2 repeats the header | LAPORAN-FASILITATOR-01 |
+| X5-8 | A4 headers wrap between words | PASS (unchanged) | LAPORAN-KELAS-PD-01 |
+| X5-9 | Refused or empty in one line | PASS (unchanged) | LAPORAN-KELAS-PD-01, journey C12f2 |
+
+Every change applies equally to `/pengembangan/[kelas]`, which draws the same composition.
