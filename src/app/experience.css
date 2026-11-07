@@ -3650,6 +3650,10 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-lk-kisi-tabel tbody th { font-weight: 400; color: var(--ink-1); text-align: left; }
 .pin-lk-kisi-tabel td { text-align: left; vertical-align: middle; }
 .pin-lk-kisi-tabel tbody tr:nth-child(even) { background: var(--table-row-alt); }
+/* 6-fasilitator: each cell one person's own step; a filled mark when done (teal: progress, G-03), words always beside it */
+.pin-lk-kisi-tabel tbody th small { display: block; font-size: var(--t-eyebrow); line-height: var(--t-eyebrow-lh); color: var(--ink-2); }
+.pin-lk-tanda { display: inline-block; width: var(--space-2); height: var(--space-2); margin-right: var(--space-2); border-radius: var(--radius-pill); border: var(--border-hairline) solid var(--ink-3); vertical-align: middle; }
+.pin-lk-tanda[data-selesai] { background: var(--pintar-primary); border-color: var(--pintar-primary); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .pin-lk-sel { display: grid; gap: var(--space-1); min-width: var(--lk-kolom-sempit); }
 .pin-lk-sel b { font-weight: 600; font-variant-numeric: tabular-nums; }
 .pin-lk-mini { position: relative; height: var(--space-1); border-radius: var(--radius-sm); background: var(--lk-alur); }

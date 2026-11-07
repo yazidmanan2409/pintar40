@@ -381,6 +381,56 @@ export const b5aTests: SelfTest[] = [
     },
   },
   {
+    // D-195(3), CONTOH LAPORAN 6-fasilitator: each participant's steps, person by person, nothing added up (D-069(b))
+    id: "LAPORAN-FASILITATOR-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const pkt = (o: Record<string, unknown>) => ({ id: "la1", judul: "Merancang Asesmen Formatif", mulai: true, pemetaan: "SELESAI", penguasaan: "SELESAI", selesai: true, ...o });
+      const peserta = [
+        { id: "p3", nama: "Citra Lestari", terdaftar: "ACTIVE", paket: [pkt({ id: "la3", penguasaan: "BELUM", selesai: false, pelajaran: { selesai: 4, jumlah: 5 }, hasil: null })] },
+        { id: "p1", nama: "Andi Nugroho", terdaftar: "ACTIVE", paket: [pkt({ pelajaran: { selesai: 5, jumlah: 5 }, hasil: { penguasaan: 0.85, tercapai: true } })] },
+        { id: "p9", nama: "Imam Syafii", terdaftar: "PENDING", paket: [pkt({ id: "la9", mulai: false, pemetaan: "BELUM", penguasaan: "BELUM", selesai: false, pelajaran: { selesai: 0, jumlah: 5 }, hasil: null })] },
+        { id: "p5", nama: "Eko Prasetyo", terdaftar: "ACTIVE", paket: [] },
+      ];
+      const penuh = { simpul: "n", nama: "Kelas PD", kolom: "FULL", peserta };
+      const terbatas = { ...penuh, kolom: "COMPLETION", peserta: peserta.map((o) => ({ ...o, paket: o.paket.map(({ pelajaran: _p, hasil: _h, ...x }) => x) })) };
+      const r = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiPengembangan.tsx");' +
+        "const K = m.default?.default ?? m.default; const [a, b] = JSON.parse(process.env.ENTRI);" +
+        "process.stdout.write(JSON.stringify([renderToStaticMarkup(h(K, { isi: a, locale: 'id' })), renderToStaticMarkup(h(K, { isi: b, locale: 'id' }))]));",
+        { ENTRI: JSON.stringify([penuh, terbatas]) });
+      if (c.expect(r.ok, `the composition could not be rendered: ${r.err}`)) {
+        let x: string[] = [];
+        try { x = JSON.parse(r.out); } catch { /* reported below */ }
+        const teks = (h: string) => (h ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const [f, a] = x;
+        const tf = teks(f), ta = teks(a);
+        // alphabetical, never by result; the row's own facts in words
+        c.expect(/Andi Nugroho[\s\S]*Citra Lestari[\s\S]*Imam Syafii/.test(tf), "the participants are not in alphabetical order");
+        c.expect(/<th scope="col">Pelajaran selesai<\/th>/.test(f) && /<th scope="col">Hasil<\/th>/.test(f) && tf.includes("5 dari 5") && tf.includes("Tercapai · 85%") && tf.includes("4 dari 5"),
+          "the facilitator's columns (lessons, result) are not drawn per person");
+        c.expect(tf.includes("Terdaftar, akun belum diaktifkan") && tf.includes("Belum mulai: Imam Syafii.") && tf.includes("Belum diberi paket: Eko Prasetyo."),
+          "who has not begun, who has no package, or an account not activated, is not said by name");
+        // D-069(b): no participant count, no total, no headline figure
+        c.expect(!/\d+\s*(dari\s*\d+\s*)?(peserta|orang|sudah mulai|sudah selesai)/i.test(tf) && !/data-lk-entri/.test(f) && !/<tfoot/.test(f),
+          `an aggregate is drawn: ${tf.slice(0, 200)}`);
+        c.expect(tf.includes("Jawaban peserta dan catatan integritas tidak ditampilkan di sini.") && tf.includes("tidak dijumlahkan dan tidak diurutkan"), "the record does not say answers and integrity are not shown, or that nothing is added up");
+        c.expect((f.match(/data-selesai=""/g) ?? []).length >= 4 && /<caption class="pin-sr">/.test(f), "done steps are not marked, or the table has no caption");
+        // COMPLETION (Admin sekolah): what came back only
+        c.expect(!/Pelajaran selesai/.test(ta) && !/Hasil/.test(ta.replace("Tentang catatan ini", "")) && !/85%/.test(ta) && /<th scope="col">Selesai<\/th>/.test(a)
+          && ta.includes("Peserta menurut abjad.") && !ta.includes("tidak dijumlahkan"),
+          `the administrator's record draws a column the database did not return: ${ta.slice(0, 200)}`);
+      }
+      const halaman = kode(baca(ctx.repoRoot, "src/app/pengembangan/[simpul]/page.tsx"));
+      c.expect(/<KomposisiPengembangan isi=\{isi\} locale=\{locale\} \/>/.test(halaman) && /catatan\(simpul\)/.test(halaman), "the record page does not draw the composition over professional_learning_record");
+      return c.verdict("renders the professional-learning record (D-195(3), 6-fasilitator): a table per package, participants alphabetical, each step in words with a mark " +
+        "when done, the facilitator's lessons and result per person, who has not begun and who has no package by name; no count, total or headline figure (D-069(b)); " +
+        "answers and integrity said not shown; the administrator's record draws only enrolment, participation and completion");
+    },
+  },
+  {
     // CONTOH LAPORAN 3-kadep (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov): topics × classes on /pimpinan
     id: "LAPORAN-KISI-01",
     run: async (ctx) => {

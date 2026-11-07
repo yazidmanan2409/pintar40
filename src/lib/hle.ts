@@ -82,6 +82,9 @@ export type HleEvent =
   | "laporan.komposisi.kolom_topik" | "laporan.komposisi.kolom_nilai" | "laporan.komposisi.kolom_pita"
   | "laporan.komposisi.lainnya"
   | "pengembangan.tentang" | "pengembangan.siapa_melihat"
+  | "pengembangan.langkah" | "pengembangan.belum_mulai" | "pengembangan.urutan" | "pengembangan.urutan_hasil"
+  | "pengembangan.kolom.peserta" | "pengembangan.pelajaran_dari" | "pengembangan.tanpa_paket" | "pengembangan.tanda"
+  | "pengembangan.tentang_catatan" | "pengembangan.tanpa_jawaban"
   | "laporan.komposisi.penguatan_judul" | "laporan.komposisi.penguatan_arti" | "laporan.komposisi.penguatan_nihil"
   | "laporan.komposisi.penguatan_ulang" | "laporan.komposisi.berikutnya_penguatan"
   | "laporan.kisi.pola" | "laporan.kisi.tanpa_pola" | "laporan.kisi.arti" | "laporan.kisi.belum"
@@ -3460,6 +3463,16 @@ const table: Table = {
   "pengembangan.arti": { default: "Catatan baca-saja per peserta dan paket. Bukan penilaian kinerja dan bukan peringkat.", en: "A read-only record per participant and package. It is not a performance appraisal and not a ranking." },
   "pengembangan.tentang": { default: "Tentang hasil ini", en: "About this result" },
   "pengembangan.siapa_melihat": { default: "Hasil ini terlihat oleh Anda, fasilitator kegiatan ini, Kepala departemen yang menaungi tempat pengembangan profesi ini, dan Dekan. Admin sekolah hanya melihat pendaftaran, keikutsertaan, dan penyelesaian Anda, tidak hasilnya. Guru lain tidak melihatnya. Jawaban Anda tidak ditampilkan kepada siapa pun selain Anda, dan catatan integritas tidak ditampilkan kepada fasilitator maupun pimpinan sekolah.", en: "This result is seen by you, the facilitator of this activity, the Head of department over this professional-learning place, and the Dean. The school administrator sees only your enrolment, participation and completion, not the result. Other teachers do not see it. Your answers are shown to no one but you, and integrity observations are not shown to the facilitator or the school's leadership." },
+  "pengembangan.langkah": { default: "Langkah setiap peserta", en: "Each participant's steps" },
+  "pengembangan.belum_mulai": { default: "Belum mulai: {daftar}.", en: "Not started yet: {daftar}." },
+  "pengembangan.urutan": { default: "Peserta menurut abjad.", en: "Participants in alphabetical order." },
+  "pengembangan.urutan_hasil": { default: "Peserta menurut abjad. Hasil terlihat per orang, tidak dijumlahkan dan tidak diurutkan.", en: "Participants in alphabetical order. Each result is that person's own, never added up or ranked." },
+  "pengembangan.kolom.peserta": { default: "Peserta", en: "Participant" },
+  "pengembangan.pelajaran_dari": { default: "{n} dari {m}", en: "{n} of {m}" },
+  "pengembangan.tanpa_paket": { default: "Belum diberi paket: {daftar}.", en: "No package given yet: {daftar}." },
+  "pengembangan.tanda": { default: "Tanda terisi: sudah. Tanda —: belum ada.", en: "A filled mark: done. A dash: none yet." },
+  "pengembangan.tentang_catatan": { default: "Tentang catatan ini", en: "About this record" },
+  "pengembangan.tanpa_jawaban": { default: "Jawaban peserta dan catatan integritas tidak ditampilkan di sini.", en: "Participants' answers and integrity observations are not shown here." },
   "pengembangan.arti_terbatas": { default: "Anda melihat pendaftaran, keikutsertaan dan penyelesaian. Kemajuan dan hasil hanya untuk fasilitator, Kepala departemen dan Dekan.", en: "You see enrolment, participation and completion. Progress and results are for the facilitator, the head of department and the dean only." },
   "pengembangan.kosong": { default: "Belum ada peserta di tempat ini.", en: "There is no participant here yet." },
   "pengembangan.paket_kosong": { default: "Belum ada paket yang diberikan.", en: "No package has been given yet." },

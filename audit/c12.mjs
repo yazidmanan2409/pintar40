@@ -514,7 +514,13 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => /^\d+\|/.tes
       await l.click();
       await p.waitForURL((u) => u.pathname === `/pengembangan/${C.kelasA}`, { timeout: SLOW }).catch(() => {});
       await p.getByRole("heading", { name: "Catatan pengembangan profesi" }).first().waitFor({ timeout: SLOW }).catch(() => {});
-      return { di: new URL(p.url()).pathname, teks: norm(await p.locator("main").innerText().catch(() => "")) };
+      // CONTOH LAPORAN 6-fasilitator (D-195(3)): a table per package; the Guru's row in each, cell by column heading
+      const baris = await p.evaluate((siapa) => [...document.querySelectorAll("[data-pd-paket] table")].flatMap((tb) => {
+        const kolom = [...tb.querySelectorAll("thead th")].map((th) => th.textContent.trim());
+        return [...tb.querySelectorAll("tbody tr")].filter((tr) => (tr.querySelector("th")?.textContent ?? "").toLowerCase().includes(siapa))
+          .map((tr) => Object.fromEntries([...tr.children].map((c, i) => [kolom[i], c.textContent.replace(/\s+/g, " ").trim()])));
+      }), people.guru.name.toLowerCase()).catch(() => []);
+      return { di: new URL(p.url()).pathname, teks: norm(await p.locator("main").innerText().catch(() => "")), baris };
     };
     const kelasPd = (p) => p.locator(`a[href="/pengembangan/${C.kelasA}"]`).first();
     const f = await masuk("fasilitator", ORANG_PD.fasilitator.email);
@@ -532,15 +538,14 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => /^\d+\|/.tes
     await dc.close();
     const admin = await bukaCatatan(a, `/konfigurasi/peserta?muat=${Date.now()}#peserta`, kelasPd);
     rec.shots.push(await shot(a, "c12-catatan-admin"));
-    // a participant's name is a section heading, drawn in capitals (.pin-sec > h2): compared without case. FULL: per Bab,
-    // «Pelajaran selesai: 2/2» and «Hasil: <n> % · Tercapai» (both Bab passed); COMPLETION: «Selesai: Ya», neither of those
+    // CONTOH LAPORAN 6-fasilitator (D-195(3)): the Guru is a row in each package's table. FULL: per Bab, «Pelajaran selesai»
+    // «2 dari 2» and «Hasil» «Tercapai · <n> %» (both Bab passed); COMPLETION: «Selesai» «Ya», and neither column at all
     const nama = (x) => x.teks.toLowerCase().includes(people.guru.name.toLowerCase());
-    const hitung = (x, re) => (x.teks.match(re) ?? []).length;
-    const penuh = (x) => x.di === `/pengembangan/${C.kelasA}` && nama(x) && hitung(x, /Pelajaran selesai: 2\/2/gi) === 2
-      && hitung(x, /Hasil: \d[\d.,]*\s?% · Tercapai/gi) === 2;
-    const terbatas = admin.di === `/pengembangan/${C.kelasA}` && nama(admin) && hitung(admin, /Selesai: Ya/gi) === 2
-      && !/Pelajaran selesai/i.test(admin.teks) && !/Hasil:/i.test(admin.teks);
-    const ringkas = (x) => (x.di ? x.teks.slice(x.teks.toLowerCase().indexOf(people.guru.name.toLowerCase()), undefined).slice(0, 300) : `not reached: ${x.teks}`);
+    const penuh = (x) => x.di === `/pengembangan/${C.kelasA}` && nama(x) && (x.baris ?? []).length === 2
+      && x.baris.every((r) => /^2 dari 2$/.test(r["Pelajaran selesai"] ?? "") && /^Tercapai · \d[\d.,]*\s?%$/.test(r["Hasil"] ?? ""));
+    const terbatas = admin.di === `/pengembangan/${C.kelasA}` && nama(admin) && (admin.baris ?? []).length === 2
+      && admin.baris.every((r) => r["Selesai"] === "Ya" && !("Pelajaran selesai" in r) && !("Hasil" in r));
+    const ringkas = (x) => (x.di ? JSON.stringify(x.baris ?? []).slice(0, 300) : `not reached: ${x.teks}`);
     const pesertaJudul = judulKelas.includes("peserta"), muridJudul = judulKelas.includes("murid");
     notes.push(`on screen: the facilitator ${penuh(fasil)}, the PD Kepala departemen ${penuh(kepala)}, the Dekan ${penuh(dekan)} (full columns); the school admin ${terbatas} (completion only); ` +
       `the facilitator's Kelas heads its list «Peserta» ${pesertaJudul}, «Murid» ${muridJudul}, and names the Guru ${kelasTeks.toLowerCase().includes(people.guru.name.toLowerCase())}` +
