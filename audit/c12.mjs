@@ -589,7 +589,8 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => /^\d+\|/.tes
     const akademik = /data-lk="(topik|pita|kenaikan|keliru|tertahan|penguatan)"|data-lk-titik|data-lk-awal-akhir/;
     const baca = async (p) => {
       await p.getByText("Ringkasan Kelas").first().waitFor({ timeout: SLOW }).catch(() => {});
-      const html = await p.locator("main").innerHTML().catch(() => "");
+      // outerHTML: the summary's mark is on <main> itself (data-ringkasan), which innerHTML leaves out
+      const html = await p.locator("main").first().evaluate((el) => el.outerHTML).catch(() => "");
       const teks = norm(await p.locator("main").innerText().catch(() => ""));
       const kolom = await p.evaluate(() => [...document.querySelectorAll("[data-pd-paket] thead th")].map((th) => th.textContent.trim())).catch(() => []);
       const urut = await p.evaluate(() => [...document.querySelectorAll("[data-pd-paket]")].map((w) =>
