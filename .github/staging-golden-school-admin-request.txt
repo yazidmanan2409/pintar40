@@ -25,4 +25,5 @@ slug: sekolah-uji-l3
 # 5 Nov, re-run after run 42041265308 (10 PASS, A9 red: the walk read one lesson's questions; it now reads every lesson by the pager)
 # 6 Nov, P-4 session verification (main d672a94a): Sekolah Uji B8 1106 (after run 42211714233)
 # 7 Nov, P-5 verification (main ebc53ee2): Sekolah Uji P5 1107 after GS-01-03 (run 42316340902)
-slug: sekolah-uji-p5-1107
+# 7 Nov, evaluation school (synthetic): Sekolah Uji Evaluasi B after GS-01-03 (run 42334120019)
+slug: sekolah-uji-evaluasi-b
