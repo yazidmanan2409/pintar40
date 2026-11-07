@@ -293,4 +293,49 @@ export const b5aTests: SelfTest[] = [
         "and Ringkasan Kelas draws it over generate_report and the sealed target");
     },
   },
+  {
+    // CONTOH LAPORAN 3-kadep (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov): topics × classes on /pimpinan
+    id: "LAPORAN-KISI-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const topik = (r: Array<[string, string, number]>) => ({ status: "ok", metric_id: "class.topic_mastery", label_key: "metrik.topik.label",
+        value: r.map(([id, nama, v]) => ({ objective_id: id, competency: nama, mean_score: v, learners: 25 })) });
+      const kolom = [
+        { id: "7a", nama: "7A", target: 0.75, topik: topik([["p", "Pecahan campuran", 0.57], ["s", "Pecahan senilai", 0.87]]) },
+        { id: "7b", nama: "7B", target: 0.75, topik: topik([["p", "Pecahan campuran", 0.62], ["s", "Pecahan senilai", 0.9]]) },
+        { id: "7c", nama: "7C", target: 0.7, topik: topik([["p", "Pecahan campuran", 0.81], ["s", "Pecahan senilai", 0.696]]) },
+        { id: "7d", nama: "7D", target: null, topik: topik([["p", "Pecahan campuran", 0.5]]) },
+        { id: "7e", nama: "7E", target: 0.75, topik: { status: "below_minimum", readiness: "INSUFFICIENT_EVIDENCE", have: 2, needed: 5 } },
+        { id: "7f", nama: "7F", target: 0.75, topik: { status: "not_permitted" } },
+      ];
+      const r = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KisiTopik.tsx");' +
+        "const K = m.default?.default ?? m.default;" +
+        "process.stdout.write(renderToStaticMarkup(h(K, { kolom: JSON.parse(process.env.KOLOM), locale: 'id' })));",
+        { KOLOM: JSON.stringify(kolom) });
+      if (c.expect(r.ok, `the grid could not be rendered: ${r.err}`)) {
+        const html = r.out;
+        const teks = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        // the lead counts the topics below their own target in most classes that have a target (7A, 7B of 7A–7C)
+        c.expect(teks.includes("Pecahan campuran di bawah target di sebagian besar kelas."), `the lead reads «${teks.slice(0, 220)}»`);
+        // each class its own column; the refused one is absent without a word; the short one says so in its place
+        c.expect(/>7A<[\s\S]*>7B<[\s\S]*>7C<[\s\S]*>7D<[\s\S]*>7E</.test(html) && !/>7F</.test(html), "the columns are not the classes the reader may see");
+        c.expect((teks.match(/Belum cukup bukti/g) ?? []).length === 2, "a class without enough evidence does not say so in its cells");
+        // cells: below the class's own target amber and in words; R4-02 (69,6% against 70%); no target, no tick and no verdict
+        c.expect((html.match(/data-bawah=""/g) ?? []).length === 3 && (html.match(/class="pin-lk-bawah">di bawah target</g) ?? []).length === 3,
+          "a cell below its class's target is not marked in words and amber (expected 7A, 7B Pecahan campuran and 7C Pecahan senilai)");
+        c.expect(teks.includes("69,6%") && teks.includes("57%") && (html.match(/<u /g) ?? []).length === 6, "R4-02 or the target ticks are wrong");
+        c.expect(/<table[\s\S]*<th scope="col">Topik<\/th>[\s\S]*<th scope="row">Pecahan campuran<\/th>/.test(html), "the grid is not a table with row and column headers (its own text equivalent)");
+      }
+      const hal = kode(baca(ctx.repoRoot, "src/app/pimpinan/page.tsx"));
+      const lib = kode(baca(ctx.repoRoot, "src/lib/pimpinan.ts"));
+      c.expect(/<KisiTopik kolom=\{perKelas\.map\(/.test(hal) && /minta\("class\.topic_mastery", k\.id\)/.test(lib) && /targetKelasDari\(c, k\.id\)/.test(lib),
+        "/pimpinan does not draw the grid from each class's own figure and sealed target");
+      return c.verdict("renders KisiTopik (CONTOH LAPORAN 3-kadep): each class the reader may see as its own column (a refused class absent without a word), each cell that class's own topic figure " +
+        "against its own sealed target, amber and in words below it, R4-02's decimal; a class without enough evidence says so in its cells; the lead names the topics below target in most classes; " +
+        "a table with row and column headers; and /pimpinan draws it from each class's own envelope and target");
+    },
+  },
 ];

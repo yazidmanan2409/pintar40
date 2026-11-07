@@ -1,4 +1,5 @@
 import Link from "next/link";
+import KisiTopik from "@/components/laporan/KisiTopik";
 import Kosong from "@/components/Kosong";
 import Ikon from "@/components/Ikon";
 import { t, format, type HleEvent } from "@/lib/hle";
@@ -227,6 +228,11 @@ export default async function Pimpinan({
             whether it has any figure yet, and inside, every absent figure says
             what will make it appear. A class whose figures are not the
             reader's says so once, without counting what was withheld. */}
+        {/* CONTOH LAPORAN 3-kadep (approved 7 Nov): above the classes, the topics × classes grid, each cell that class's own
+            figure; a pattern across the branch, or one class */}
+        {!diKelas ? (
+          <KisiTopik kolom={perKelas.map(({ kelas, topik, target }) => ({ id: kelas.id, nama: kelas.nama, topik, target }))} locale={locale} />
+        ) : null}
         {!diKelas ? (
           <section className="pin-sec" aria-labelledby="pin-perkelas">
             <h2 id="pin-perkelas">{s("pimpinan.kelas.judul")}</h2>

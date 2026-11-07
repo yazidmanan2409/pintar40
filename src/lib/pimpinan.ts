@@ -4,6 +4,7 @@ import { alamatPilih, melayani } from "@/lib/konteks";
 import { alihkan, jalurIni, konteksHalaman, tempatSaya } from "@/lib/konteks-server";
 import { dalamLingkup, type Simpul } from "@/lib/mengajar";
 import type { Envelope } from "@/components/bukti";
+import { targetKelasDari } from "@/lib/target-kelas";
 import type {
   HasilKeputusan, KeadaanKeputusan, KeluargaKeputusan, Keputusan,
 } from "@/lib/pimpinan-kontrak";
@@ -414,7 +415,13 @@ export async function buktiPimpinanDari(c: Db, node: string, institusi: string):
  * when the roster could not be read. Never subtracted from a figure: the
  * figures pool every official session, the roster is today's.
  */
-export type BuktiKelas = { kelas: SimpulPimpinan; bukti: Envelope[]; murid: number | null };
+export type BuktiKelas = {
+  kelas: SimpulPimpinan; bukti: Envelope[]; murid: number | null;
+  /** CONTOH LAPORAN 3-kadep (approved 7 Nov): the class's own «Penguasaan per topik», for the topic × class grid. */
+  topik?: Envelope | null;
+  /** The class's one sealed Uji Penguasaan mark, or null (src/lib/target-kelas.ts). */
+  target?: number | null;
+};
 
 /**
  * BOB-06 (B6c): THE CLASS FIGURES OF EACH CLASS IN THIS BRANCH, asked of that
@@ -433,11 +440,14 @@ export async function buktiPerKelasDari(c: Db, node: string): Promise<BuktiKelas
   return Promise.all(
     kelas.map(async (k) => {
       const minta = mintaDari(c, k.institusi);
-      const [bukti, murid] = await Promise.all([
+      const [bukti, murid, topik, target] = await Promise.all([
         Promise.all(METRIK_SIMPUL.map((m) => minta(m, k.id))),
         daftarMuridDari(c, k.id).then((d) => d.length, () => null),
+        // CONTOH LAPORAN 3-kadep: each class's own topic figure, the same envelope its teacher's report reads
+        minta("class.topic_mastery", k.id),
+        targetKelasDari(c, k.id).catch(() => null),
       ]);
-      return { kelas: k, bukti: bukti.filter(terbaca), murid };
+      return { kelas: k, bukti: bukti.filter(terbaca), murid, topik: terbaca(topik) ? topik : null, target };
     }),
   );
 }
