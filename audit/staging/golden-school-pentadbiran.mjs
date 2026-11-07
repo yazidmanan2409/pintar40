@@ -284,10 +284,17 @@ await step("P6", `«${T.nama}»'s admin accepts the request into its own school 
   if (!harus(rec, tempat.length === 1, `the acceptance offers «${KELAS}» of «${T.nama}» as the learner's class`)) return;
   await masukForm.locator('select[name="to_place"]').selectOption(tempat[0]);
   await masukForm.getByRole("button", { name: "Terima perpindahan" }).click();
+  // 7 Nov (run 42352462155): the database says AUTHORIZED before the browser has finished the action's redirect, so a
+  // reload at that moment raced it and «Laksanakan» was pressed on a page the redirect then replaced; no execute reached
+  // the server. As admin-ujung B4-W7 does: wait for the answer's address and a quiet network before moving on.
+  await B.waitForURL((u) => u.searchParams.has("hasil") || u.searchParams.has("kode"), { timeout: SLOW }).catch(() => {});
+  await B.waitForLoadState("networkidle");
   harus(rec, await tunggu(() => sql(`select status from public.transfers where id = '${uuid(transfer)}'`) === "AUTHORIZED"), "accepted: AUTHORIZED into its own year");
-  await buka(B, "/konfigurasi/transfers?bagian=transfers#transfers");
+  await buka(B, "/konfigurasi/transfers?bagian=transfers&ulang=1#transfers");
   const baris = B.locator("#transfers li", { hasText: PINDAH }).first();
   await baris.getByRole("button", { name: "Laksanakan" }).click();
+  await B.waitForURL((u) => u.searchParams.has("hasil") || u.searchParams.has("kode"), { timeout: SLOW }).catch(() => {});
+  await B.waitForLoadState("networkidle");
   harus(rec, await tunggu(() => sql(`select status from public.transfers where id = '${uuid(transfer)}'`) === "EXECUTED"), "the transfer is EXECUTED");
   await shot(B, "pindah-laksana");
   harus(rec, sql(`select count(*) from public.enrollments where person_id = '${uuid(dimas)}' and institution_id = '${T.id}' and status = 'ACTIVE'`) === "1",
