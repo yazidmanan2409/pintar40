@@ -5,7 +5,7 @@ import BarisHasil from "@/components/BarisHasil";
 import { KeMasuk } from "./HasilAktivasi";
 import { alamatMasuk } from "./alamat";
 
-export type KartuCetak = { nama: string; nomorInduk: string; card: string; pin: string };
+export type KartuCetak = { nama: string; nomorInduk: string; card: string; pin: string; kelas?: string };
 
 /**
  * M7 (D-085) — A CLASS'S CARDS AS A PRACTICAL PRINTABLE SET.
@@ -44,7 +44,7 @@ export default function LembarKartu({ locale, kelas, kartu, gagal }: {
           <ul className="pin-grid2 pin-akt-kartu-set">
             {kartu.map((k) => (
               <li key={k.card} className="pin-akt-kartu">
-                <p><strong>{k.nama}</strong> · <span className="pin-num">{k.nomorInduk}</span></p>
+                <p><strong>{k.nama}</strong> · <span className="pin-num">{k.nomorInduk}</span>{k.kelas ? <> · {k.kelas}</> : null}</p>
                 <dl className="pin-akt-kartu-isi">
                   <div><dt>{s("aktivasi.kelas.nomor")}</dt><dd className="pin-num">{k.card}</dd></div>
                   <div><dt>PIN</dt><dd className="pin-num">{k.pin}</dd></div>

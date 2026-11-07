@@ -1884,6 +1884,7 @@ export type HleEvent =
   | "aktivasi.dengan_surel"
   | "aktivasi.dengan_kartu"
   | "aktivasi.kelas.judul" | "aktivasi.kelas.arti" | "aktivasi.kelas.pilih" | "aktivasi.kelas.murid" | "aktivasi.kelas.tombol"
+  | "aktivasi.kelas.banyak.judul" | "aktivasi.kelas.banyak.semua" | "aktivasi.kelas.banyak.terpilih" | "aktivasi.kelas.banyak.dikecualikan" | "aktivasi.kelas.banyak.tombol"
   | "aktivasi.kelas.membuat" | "aktivasi.kelas.lembar" | "aktivasi.kelas.sekali" | "aktivasi.kelas.cetak" | "aktivasi.kelas.nomor" | "aktivasi.kelas.belum"
   | "aktivasi.kartu_dibuat"
   | "aktivasi.gagal"
@@ -4402,6 +4403,11 @@ const table: Table = {
   "aktivasi.kelas.pilih": { default: "Kelas", en: "Class" },
   "aktivasi.kelas.murid": { default: "murid belum punya akun", en: "learners without an account" },
   "aktivasi.kelas.tombol": { default: "Buat kartu untuk kelas ini", en: "Make cards for this class" },
+  "aktivasi.kelas.banyak.judul": { default: "Beberapa kelas sekaligus", en: "Several classes at once" },
+  "aktivasi.kelas.banyak.semua": { default: "Pilih semua", en: "Select all" },
+  "aktivasi.kelas.banyak.terpilih": { default: "Dipilih: {murid} murid di {kelas} kelas.", en: "Selected: {murid} learners in {kelas} classes." },
+  "aktivasi.kelas.banyak.dikecualikan": { default: "Tidak dihitung: murid yang sudah punya kartu atau akun, murid yang memegang peran staf, dan murid yang datanya masih menunggu di Pendataan.", en: "Not counted: learners who already have a card or an account, learners who hold a staff role, and learners whose data still waits in Pendataan." },
+  "aktivasi.kelas.banyak.tombol": { default: "Buat kartu untuk {murid} murid", en: "Make cards for {murid} learners" },
   "aktivasi.kelas.membuat": { default: "Membuat kartu…", en: "Making cards…" },
   "aktivasi.kelas.lembar": { default: "Kartu kelas", en: "Class cards" },
   "aktivasi.kelas.sekali": { default: "Kartu dibuat. Cetak atau catat sekarang: PIN hanya ditampilkan sekali dan tidak bisa ditampilkan lagi setelah halaman ini ditutup.", en: "Cards made. Print them or write them down now: the PINs are shown only once and cannot be shown again once this page is closed." },
