@@ -2565,7 +2565,7 @@ const table: Table = {
   "metrik.kenaikan_institusi.label": { default: "Kenaikan", en: "Gain" },
   "metrik.kenaikan_institusi.arti": { default: "Rata-rata kenaikan penguasaan murid di sekolah ini.", en: "The average gain in mastery across this school's students." },
   "metrik.gerbang_keselamatan.label": { default: "Soal wajib", en: "Required items" },
-  "metrik.gerbang_keselamatan.arti": { default: "Bagian murid yang menjawab benar seluruh soal wajib.", en: "The share of students who answered every required item correctly." },
+  "metrik.gerbang_keselamatan.arti": { default: "Bagian hasil Uji Penguasaan yang menjawab benar seluruh soal wajib.", en: "The share of Uji Penguasaan results with every required item answered correctly." },
   "metrik.perbandingan_kohort.label": { default: "Perbandingan angkatan", en: "Cohort comparison" },
   "metrik.perbandingan_kohort.arti": { default: "Penguasaan rata-rata tiap angkatan di sekolah ini.", en: "The average mastery of each cohort in this school." },
   "metrik.kompetensi.label": { default: "Capaian kompetensi", en: "Competency attainment" },

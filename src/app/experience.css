@@ -3062,7 +3062,9 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
   .pin-jaga { top: calc(var(--shell-bar) + var(--space-2)); }
   .pin-staf {
     position: sticky; top: 0; z-index: var(--z-sticky);
-    display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-2);
+    /* H29 (Daisy, 7 Nov): the wordmark's clear space is at least its cap height (11.6 px here), so the gap after it is
+       --space-3 (12 px), not --space-2 */
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-3);
     height: auto; min-height: var(--shell-bar); padding: 0 var(--space-2) 0 var(--space-4);
     background: var(--surface-0);
   }

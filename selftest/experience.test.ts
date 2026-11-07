@@ -2071,7 +2071,10 @@ export const experienceTests: SelfTest[] = [
       // MOVED 196 -> 197 for the cross-batch integration (6 Nov): 20261231100000 adds transfers.to_node_id (the Kelas or
       // Tingkat a transferred learner is placed in) and re-emits transfer_terima and transfer_execute. Read against §3
       // first: it is a place reference, not a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 197, `${migrations.length} migrations; the frozen baseline has 197`);
+      // MOVED 197 -> 198 for H31 (7 Nov): 20270101100000 copies the catalogue to MC-8 and re-emits class.net_gain and
+      // institution.net_gain, pairing each learner's two tests within one chapter. Read against §3 first: it is not a mark,
+      // a logo, a crest or a theme, so the Q-7 source still does not exist.
+      c.expect(migrations.length === 198, `${migrations.length} migrations; the frozen baseline has 198`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3889,7 +3892,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 194 -> 195 for W6.10 (D-186): the Uji Penguasaan waiting for the Pemetaan Awal touches no tour RPC.
       // MOVED 195 -> 196 for W2.17 (FD-4 at 10x staging): a page of a school's people, found by name, touches no tour RPC.
       // MOVED 196 -> 197 for the cross-batch integration (6 Nov): a transferred learner placed in a class touches no tour RPC.
-      c.expect(migs.length === 197, `${migs.length} migrations; the baseline has 197`);
+      // MOVED 197 -> 198 for H31 (7 Nov): the gain paired within one chapter and catalogue MC-8 touch no tour RPC.
+      c.expect(migs.length === 198, `${migs.length} migrations; the baseline has 198`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
