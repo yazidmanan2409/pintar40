@@ -1,4 +1,5 @@
 import { format, t, type HleEvent, type Locale } from "@/lib/hle";
+import { JudulBagian } from "@/components/laporan/tata";
 import type { CatatanPengembangan, KeadaanUji, PaketPeserta, PesertaCatatan } from "@/lib/pengembangan-kontrak";
 
 /**
@@ -44,8 +45,9 @@ export default function KomposisiPengembangan({ isi, locale }: { isi: CatatanPen
 
   return (
     <div className="pin-lk">
-      <section className="pin-lk-inti" aria-labelledby="pd-a" data-lk="langkah">
-        <h2 className="pin-lk-h" id="pd-a"><span className="pin-lk-huruf" aria-hidden="true">A</span><span>{s("pengembangan.langkah")}</span></h2>
+      <section className="pin-lk-bagian" aria-labelledby="pd-a" data-lk="langkah">
+        <JudulBagian huruf={"A"} judul={s("pengembangan.langkah")} id="pd-a" persona={"staff"} locale={locale} />
+        <div className="pin-lk-inti">
         {belumMulai.length > 0 ? (
           <p className="pin-lk-kalimat" data-lk-kalimat="">{s("pengembangan.belum_mulai").replace("{daftar}", belumMulai.join(", "))}</p>
         ) : null}
@@ -98,10 +100,11 @@ export default function KomposisiPengembangan({ isi, locale }: { isi: CatatanPen
           <p className="pin-lk-arti" data-pd-tanpa-paket="">{s("pengembangan.tanpa_paket").replace("{daftar}", tanpaPaket.map((o) => o.nama).join(", "))}</p>
         ) : null}
         <p className="pin-lk-arti">{s("pengembangan.tanda")}</p>
+        </div>
       </section>
 
       <section className="pin-lk-bagian" data-lk="tentang">
-        <h2 className="pin-lk-h"><span className="pin-lk-huruf" aria-hidden="true">B</span><span>{s("pengembangan.tentang_catatan")}</span></h2>
+        <JudulBagian huruf={"B"} judul={s("pengembangan.tentang_catatan")} persona={"staff"} locale={locale} />
         <p className="pin-lk-arti">{s(penuh ? "pengembangan.arti" : "pengembangan.arti_terbatas")}</p>
         <p className="pin-lk-arti">{s("pengembangan.tanpa_jawaban")}</p>
       </section>

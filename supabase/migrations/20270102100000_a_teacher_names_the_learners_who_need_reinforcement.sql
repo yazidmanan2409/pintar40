@@ -4,7 +4,11 @@
 --     the lowest band, by name and in alphabetical order. Nothing PINTAR already gave a teacher answered it: the class's
 --     bands come as counts (class.readiness_distribution), and the teacher's view of one learner gives that learner's
 --     results but no band. murid_perlu_penguatan(class) returns ONLY the learner's identity and name, for the learners
---     whose band is the lowest one. No figure, no score, no item, no answer, no other personal information.
+--     whose band is the lowest one, with what that band was decided on: the latest Uji Penguasaan's questions answered
+--     right out of its questions (summed from the result's own per-objective record), and whether every required
+--     question was right (the safety gate, which alone can place a learner in this band). The teacher already reads that
+--     result (learner.result's audience); nothing else: no item, no answer, no other personal information.
+--     (KESETIAAN #5, 7 Nov: «9 dari 20 soal tepat», «soal wajib belum tepat».)
 --
 --     THE BAND IS PINTAR'S APPROVED RULE, NOT A SECOND ONE: exactly calc_class_readiness_distribution's (D-095(c),
 --     D-121(c), migration 20261130100000): the learner's latest official Uji Penguasaan (POST_TEST) result in this class,
@@ -27,7 +31,7 @@
 -- METRIC CATALOGUE AND ENGINE: unchanged. No calculator, no catalogue version, no new figure, no grant widened.
 
 create or replace function public.murid_perlu_penguatan(p_class uuid)
-returns table (person_id uuid, display_name text)
+returns table (person_id uuid, display_name text, benar integer, total integer, soal_wajib_tepat boolean)
 language plpgsql stable security definer set search_path = public, pg_temp as $$
 declare
   v_me uuid; v_inst uuid; v_jalur uuid[]; v_cat text; v_aud public.app_role[]; v_lowest text;
@@ -69,14 +73,14 @@ begin
     return query
       with learner as (
         -- calc_class_readiness_distribution's reading: the latest official Uji Penguasaan result in this class
-        select distinct on (s.person_id) s.person_id, r.mastery, r.safety_gate_passed
+        select distinct on (s.person_id) s.person_id, r.mastery, r.safety_gate_passed, r.per_domain
           from public.scoped_official_sessions s
           join public.scoped_official_results r on r.session_id = s.id
          where s.institution_id = v_inst and s.class_node_id = p_class
            and s.mode = 'POST_TEST'::public.assessment_mode
          order by s.person_id, r.computed_at desc
       ), banded as (
-        select l.person_id,
+        select l.person_id, l.safety_gate_passed, l.per_domain,
                coalesce((select t2.tier_key from public.readiness_tiers t2
                           where t2.catalogue_version = v_cat and t2.min_mastery is not null
                             and l.mastery >= t2.min_mastery and l.mastery < t2.max_mastery
@@ -84,7 +88,12 @@ begin
                           limit 1), v_lowest) as tier_key
           from learner l
       )
-      select b.person_id, p.display_name
+      select b.person_id, p.display_name,
+             (select coalesce(sum((kv.value ->> 'benar')::int), 0)::int from jsonb_each(coalesce(b.per_domain, '{}'::jsonb)) kv
+               where jsonb_typeof(kv.value) = 'object' and jsonb_typeof(kv.value -> 'benar') = 'number'),
+             (select coalesce(sum((kv.value ->> 'total')::int), 0)::int from jsonb_each(coalesce(b.per_domain, '{}'::jsonb)) kv
+               where jsonb_typeof(kv.value) = 'object' and jsonb_typeof(kv.value -> 'total') = 'number'),
+             b.safety_gate_passed
         from banded b
         join public.persons p on p.id = b.person_id
        where b.tier_key = v_lowest
@@ -118,7 +127,8 @@ grant execute on function public.jenis_belajar_saya(uuid) to authenticated;
 
 insert into public.client_rpc_registry (function_name, exposure, note, authorization_kind, authorization_requirement) values
   ('murid_perlu_penguatan', 'STAFF', 'D-195(5), CONTOH LAPORAN 2-guru section E: the learners placed in this class now '
-   || 'whose band (calc_class_readiness_distribution''s rule) is the lowest, by identity and name only. For a holder of '
+   || 'whose band (calc_class_readiness_distribution''s rule) is the lowest: identity, name, the latest Uji Penguasaan''s '
+   || 'questions right out of its questions, and whether every required question was right. For a holder of '
    || 'learner.result''s staff audience (EDUCATOR) scoped over the class; anyone else gets nothing. No figure, no item, '
    || 'no answer.', 'SCOPE', 'EDUCATOR'),
   ('jenis_belajar_saya', 'LEARNER', 'D-195(4), CONTOH LAPORAN 5-peserta: whether one of the caller''s own learning '

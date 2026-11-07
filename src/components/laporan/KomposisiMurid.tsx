@@ -1,6 +1,7 @@
 import { format, t, type HleEvent, type Locale, type Persona } from "@/lib/hle";
 import type { BabHasil } from "@/lib/hasil-belajar";
 import { persenJujur } from "@/components/laporan/KomposisiKelas";
+import { daftarKata, JudulBagian } from "@/components/laporan/tata";
 
 /**
  * CONTOH LAPORAN 1-murid (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov; owner D-195(1)): EVERY CHAPTER, ONE PAGE, THE
@@ -28,12 +29,13 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
   else if (dinilai.length > 0 && capai === dinilai.length) kalimat = s("hasilbelajar.semua_capai");
   else if (dinilai.length > 0) kalimat = s("hasilbelajar.capai").replace("{n}", format.number(capai, locale)).replace("{m}", format.number(dinilai.length, locale));
   else kalimat = s("hasilbelajar.selesai").replace("{n}", format.number(selesai.length, locale));
-  const daftarUlang = ulang.map((b) => `${b.ulang.join(s("hasilbelajar.serta"))} (${b.judul})`).join("; ");
+  const daftarUlang = ulang.map((b) => `${daftarKata(b.ulang, locale)} (${b.judul})`).join("; ");
 
   return (
     <div className="pin-lk">
-      <section className="pin-lk-inti" aria-labelledby="hb-a" data-lk="bab">
-        <h2 className="pin-lk-h" id="hb-a"><span className="pin-lk-huruf" aria-hidden="true">A</span><span>{s("hasilbelajar.a")}</span></h2>
+      <section className="pin-lk-bagian" aria-labelledby="hb-a" data-lk="bab">
+        <JudulBagian huruf={"A"} judul={s("hasilbelajar.a")} id="hb-a" persona={persona} locale={locale} />
+        <div className="pin-lk-inti">
         <p className="pin-lk-kalimat" data-lk-kalimat="">{kalimat}</p>
         {daftarUlang ? <p className="pin-lk-kalimat-sub">{s("hasilbelajar.ulang").replace("{daftar}", daftarUlang)}</p> : null}
         {selesai.length > 0 ? (
@@ -79,11 +81,12 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
           })}
         </ul>
         <p className="pin-lk-arti">{s("siklus.delta_arti")}</p>
+        </div>
       </section>
 
       {selesai.some((b) => b.bagian.length > 0) ? (
         <section className="pin-lk-bagian" data-lk="bagian">
-          <h2 className="pin-lk-h"><span className="pin-lk-huruf" aria-hidden="true">B</span><span>{s("hasilbelajar.b")}</span></h2>
+          <JudulBagian huruf={"B"} judul={s("hasilbelajar.b")} persona={persona} locale={locale} />
           <p className="pin-lk-arti">{s("hasilbelajar.b_arti")}</p>
           {selesai.filter((b) => b.bagian.length > 0).map((b) => (
             <div key={b.tugas} className="pin-lk-kelompok" data-hb-bab="">
@@ -108,7 +111,7 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
       ) : null}
 
       <section className="pin-lk-bagian" data-lk="berikutnya">
-        <h2 className="pin-lk-h"><span className="pin-lk-huruf" aria-hidden="true">{selesai.some((b) => b.bagian.length > 0) ? "C" : "B"}</span><span>{s("laporan.komposisi.berikutnya")}</span></h2>
+        <JudulBagian huruf={selesai.some((b) => b.bagian.length > 0) ? "C" : "B"} judul={s("laporan.komposisi.berikutnya")} persona={persona} locale={locale} />
         <ul className="pin-lk-langkah">
           {berjalan.map((b) => (
             <li key={b.tugas}><a href={`/belajar/${b.tugas}`}>{s("hasilbelajar.lanjutkan").replace("{judul}", b.judul)}</a></li>

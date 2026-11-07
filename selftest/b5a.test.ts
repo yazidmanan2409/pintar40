@@ -260,7 +260,8 @@ export const b5aTests: SelfTest[] = [
         const [isi, belum, tanpaTarget, j1, j2, j3, j4] = x;
         const t1 = teks(isi);
         // the lead: counted from the rows, naming the topics below the target; the bands and the comprehension under it
-        c.expect(t1.includes("2 dari 4 topik masih di bawah target: Pecahan campuran; Penjumlahan dan pengurangan pecahan."), `the lead reads «${t1.slice(0, 200)}»`);
+        // KESETIAAN #1: the list said as a sentence, «serta» before the last because a name already holds «dan»
+        c.expect(t1.includes("2 dari 4 topik masih di bawah target: Pecahan campuran serta Penjumlahan dan pengurangan pecahan."), `the lead reads «${t1.slice(0, 200)}»`);
         c.expect(t1.includes("24 dari 29 murid sudah berada di pita «Mantap» atau «Berkembang»; 5 murid perlu penguatan.") && t1.includes("Pemahaman kelas: 74,8%."),
           "the bands and the comprehension are not said under the lead (R4-02: 74,8% against a 75% target)");
         // G-03: below the target is amber AND in words; the target is a labelled line; colour never alone
@@ -270,15 +271,30 @@ export const b5aTests: SelfTest[] = [
         c.expect(/31 murid di kelas ini · 29 sudah mengerjakan Uji Penguasaan · 2 belum mengerjakan/.test(t1) && t1.includes("Hasil 29 murid yang sudah mengerjakan")
           && /data-pita="mantap"[^>]*>17<[\s\S]*data-pita="berkembang"[^>]*>7<[\s\S]*data-pita="penguatan"[^>]*>5</.test(isi) && !/data-pita="[a-z]*"[^>]*>2</.test(isi),
           "the bands are not drawn over the assessed, in order, apart from who has not sat");
+        // KESETIAAN #6: the legend says how many learners and their share
+        c.expect(t1.includes("Mantap 17 murid (59%)") && t1.includes("Perlu penguatan 5 murid (17%)"), "the band legend does not say «17 murid (59%)»");
+        // KESETIAAN #10: the target's label sits on the scale at its line, in the one scale row
+        c.expect((isi.match(/class="pin-lk-skala"/g) ?? []).length === 1 && /<div class="pin-lk-skala-garis">[^]*?class="pin-lk-skala-target" style="left:75%"/.test(isi),
+          "the target's label is not on the scale at the target line");
         // C, D, letters, the next step, the action sentence (S-3)
         c.expect(t1.includes("+20 poin") && t1.includes("Dihitung dari 29 murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan bab yang sama."), "the gain or its base is missing");
-        c.expect(t1.includes("13 kali") && t1.includes("Samakan penyebut dulu.") && t1.includes("Saran penanganan untuk pemahaman keliru ada di bagian D."), "the misunderstanding, its remedy or the pointer to it is missing");
-        c.expect(/>A<[\s\S]*>B<[\s\S]*>C<[\s\S]*>D<[\s\S]*>E<[\s\S]*>F</.test(isi) && /href="\/mengajar\/k\/bukti"/.test(isi), "the sections are not lettered A–F, or «Lihat bukti» is not linked");
-        c.expect((isi.match(/data-lk-tindakan=""/g) ?? []).length >= 4, "a figure is drawn without its action sentence (S-3)");
+        c.expect(t1.includes("13 kali") && /class="pin-lk-saran">Saran penanganan: Samakan penyebut dulu\.</.test(isi) && t1.includes("Saran penanganan untuk pemahaman keliru ada di bagian D."), "the misunderstanding, its labelled remedy (#8) or the pointer to it is missing");
+        // KESETIAAN #4/#4b: every section lettered A–E with the letter read («Bagian A»), each heading outside its card;
+        // #9: no «Peserta» tile repeats B's population line
+        c.expect(/>A<[\s\S]*>B<[\s\S]*>C<[\s\S]*>D<[\s\S]*>E</.test(isi) && !/>F</.test(isi) && /href="\/mengajar\/k\/bukti"/.test(isi), "the sections are not lettered A–E, or «Lihat bukti» is not linked");
+        c.expect((isi.match(/<span class="pin-lk-huruf"><span class="pin-sr">Bagian <\/span>[A-E]<\/span>/g) ?? []).length === 5 && !/aria-hidden="true">[A-F]</.test(isi)
+          && !/class="pin-lk-inti"[^>]*>\s*<h2/.test(isi), "a section letter is hidden from a screen reader, or a heading sits inside its card");
+        c.expect(!/data-lk="lain"/.test(isi) && !/Peserta 29/.test(t1), "a «Peserta» tile repeats the population line");
+        // KESETIAAN #2: no advice line under any figure
+        c.expect(!/data-lk-tindakan/.test(isi) && !/Tidak perlu diulang|Fokuskan waktu tambahan/.test(t1), "an advice line is drawn under a figure");
         // 2b: every figure keeps its place, with how far and what makes it appear; no figure, no lead
         const t2 = teks(belum);
-        c.expect(!/data-lk-kalimat/.test(belum) && (t2.match(/Sekarang 3 murid; perlu 5\./g) ?? []).length >= 4 && /30 murid di kelas ini · 3 sudah/.test(t2) && !/data-pita/.test(belum.replace(/<i data-pita[^>]*>/g, "")),
-          `the not-yet report does not keep each figure's place: ${t2.slice(0, 200)}`);
+        // KESETIAAN #11: one lead says how far (once), each figure keeps its place on one line, nothing to do now
+        c.expect(t2.includes("Belum cukup bukti untuk menyimpulkan apa pun tentang Kelas 7A.") && t2.includes("Baru 3 dari 30 murid mengerjakan Uji Penguasaan. Angka kelas muncul setelah paling sedikit 5 murid mengerjakannya.")
+          && t2.includes("Tidak ada yang perlu dilakukan sekarang.") && /30 murid di kelas ini · 3 sudah/.test(t2) && (t2.match(/30 murid di kelas ini/g) ?? []).length === 1,
+          `the not-yet report has no single lead: ${t2.slice(0, 260)}`);
+        c.expect((belum.match(/data-lk-tiada=""/g) ?? []).length >= 4 && (t2.match(/Sekarang 3 murid; perlu 5\./g) ?? []).length >= 4 && !/data-pita/.test(belum.replace(/<i data-pita[^>]*>/g, ""))
+          && !/class="pin-lk-arti">Angka ini muncul/.test(belum), `the not-yet figures are not one line each: ${t2.slice(0, 200)}`);
         // no target: no line, no «di bawah target», the lowest named instead
         const t3 = teks(tanpaTarget);
         c.expect(!/pin-lk-target/.test(tanpaTarget) && !/di bawah target/.test(t3) && t3.includes("Penguasaan terendah ada pada Pecahan campuran."), "a class with no one target still draws a target or says «di bawah target»");
@@ -290,7 +306,8 @@ export const b5aTests: SelfTest[] = [
         "Ringkasan Kelas does not draw the composition over generate_report's envelopes and the class's sealed target");
       return c.verdict("renders KomposisiKelas (CONTOH LAPORAN 2-guru/2b): the lead counted from the rows, the bands and comprehension under it with R4-02's decimal, " +
         "rows below the target amber and in words against a labelled target line, the population apart from the bands drawn in order over the assessed, the gain with its base, " +
-        "the remedy, letters A–F, an action sentence under each figure; the not-yet report keeps each figure's place with how far; no target, no line; " +
+        "the labelled remedy, letters A–E read aloud, no advice line, no duplicated participants tile, the legend in learners and share, the target label on the scale; " +
+        "the not-yet report one lead with how far, each figure one line, nothing to do now; no target, no line; " +
         "and Ringkasan Kelas draws it over generate_report and the sealed target");
     },
   },
@@ -302,7 +319,8 @@ export const b5aTests: SelfTest[] = [
       const pita = { status: "ok", readiness: "SUFFICIENT_EVIDENCE", metric_id: "class.readiness_distribution", label_key: "metrik.kesiapan.label",
         meaning_key: "metrik.kesiapan.arti", value: { "kesiapan.butuh_pendampingan": 2, "kesiapan.siap_sertifikasi": 5 }, population: { placed: 7, assessed: 7, not_yet: 0 } };
       const sedikit = { ...pita, status: "below_minimum", readiness: "INSUFFICIENT_EVIDENCE", value: undefined, statement_key: "laporan.metrik.belum_cukup_data", have: 3, needed: 5 };
-      const orang = [{ id: "o1", nama: "Ayu Tanjung", ulang: ["Pecahan campuran", "Membandingkan pecahan"] }, { id: "o2", nama: "Hana Siregar", ulang: [] }];
+      const orang = [{ id: "o1", nama: "Ayu Tanjung", ulang: ["Pecahan campuran", "Membandingkan pecahan"], benar: 9, total: 20, soalWajibTepat: false },
+        { id: "o2", nama: "Hana Siregar", ulang: [], benar: 11, total: 20, soalWajibTepat: true }];
       const r = render(ctx.repoRoot,
         'const { createElement: h } = await import("react");' +
         'const { renderToStaticMarkup } = await import("react-dom/server");' +
@@ -324,8 +342,11 @@ export const b5aTests: SelfTest[] = [
           && /data-lk-penguatan=""/.test(ada) && /href="\/mengajar\/k\/murid\/o1">Ayu Tanjung</.test(ada) && /href="\/mengajar\/k\/murid\/o2">Hana Siregar</.test(ada)
           && t1.includes("Pelajari lagi: Pecahan campuran, Membandingkan pecahan"), `section E does not name the learners with what to study again: ${t1.slice(0, 300)}`);
         c.expect((ada.match(/Pelajari lagi:/g) ?? []).length === 1, "a learner with nothing recorded below the target is given an empty «Pelajari lagi»");
+        // KESETIAAN #5: each with «N dari M soal tepat», and «soal wajib belum tepat» only where the gate failed
+        c.expect(t1.includes("9 dari 20 soal tepat") && t1.includes("11 dari 20 soal tepat") && (ada.match(/class="pin-lk-bawah">soal wajib belum tepat</g) ?? []).length === 1,
+          "the learners' counts or the required-question note are missing");
         c.expect(/>A<[\s\S]*>B<[\s\S]*>C</.test(ada) && t1.includes("Mulai dari murid di bagian B:"), "section E is not lettered after the bands, or «Apa berikutnya» does not point to it");
-        c.expect(!/\d+(,\d+)?%/.test(teks(ada.slice(ada.indexOf('data-lk="penguatan"'), ada.indexOf('data-lk="berikutnya"')))), "section E shows a figure beside a name");
+        c.expect(!/\d+(,\d+)?%/.test(teks(ada.slice(ada.indexOf('data-lk="penguatan"'), ada.indexOf('data-lk="berikutnya"')))), "section E shows a percentage beside a name");
         c.expect(teks(kosong).includes("Saat ini tidak ada murid kelas ini di pita «Perlu penguatan».") && !/data-lk-penguatan/.test(kosong), "an empty list is not said");
         c.expect(!/data-lk="penguatan"/.test(tanpa), "a reader given no list (not the class's teacher, or an unread answer) is shown section E");
         c.expect(!/data-lk="penguatan"/.test(belum) && !/Ayu Tanjung/.test(belum), "names appear where the class's bands are not shown");
@@ -339,9 +360,9 @@ export const b5aTests: SelfTest[] = [
       c.expect(/const penguatan = untuk === "educator" && kelas \? await perluPenguatan\(kelas\) : null;/.test(halaman) && /penguatan=\{penguatan\}/.test(halaman),
         "Ringkasan Kelas asks for the names for a reader who does not teach the class, or does not pass them");
       const mig = baca(ctx.repoRoot, "supabase/migrations/20270102100000_a_teacher_names_the_learners_who_need_reinforcement.sql");
-      c.expect(/create or replace function public\.murid_perlu_penguatan\(p_class uuid\)\s*returns table \(person_id uuid, display_name text\)\s*language plpgsql stable security definer set search_path = public, pg_temp/.test(mig)
+      c.expect(/create or replace function public\.murid_perlu_penguatan\(p_class uuid\)\s*returns table \(person_id uuid, display_name text, benar integer, total integer, soal_wajib_tepat boolean\)\s*language plpgsql stable security definer set search_path = public, pg_temp/.test(mig)
         && !/responses|answer_key|item_responses/.test(mig.slice(0, mig.indexOf("create or replace function public.jenis_belajar_saya"))),
-        "murid_perlu_penguatan is not a SECURITY DEFINER function returning the identity and name only, or reads answers");
+        "murid_perlu_penguatan is not a SECURITY DEFINER function returning the identity, the name, the count and the gate only, or reads answers");
       return c.verdict("renders section E (D-195(5)): the class's learners in «Perlu penguatan» by name, linked to the teacher's view of each, with what to study again " +
         "and no figure; an empty list said; nothing for a reader given no list or where the bands are not shown; lettered after the bands and pointed to by «Apa berikutnya»; " +
         "the names come from murid_perlu_penguatan, for the class's teacher only");
@@ -359,10 +380,10 @@ export const b5aTests: SelfTest[] = [
       const mig = baca(ctx.repoRoot, "supabase/migrations/20261118100000_an_educator_learns_as_a_participant.sql");
       c.expect(/v_full := v_aud && array\['FACILITATOR', 'HEAD', 'DEAN'\];/.test(mig) && /array\['FACILITATOR', 'HEAD', 'DEAN', 'ADMIN'\]/.test(mig),
         "the professional-learning record's audiences are no longer the ones the sentence states: restate the sentence with the change");
-      c.expect(/fasilitator kegiatan ini, Kepala departemen yang menaungi [^.]*, dan Dekan\./.test(id) && /Admin sekolah hanya melihat pendaftaran, keikutsertaan, dan penyelesaian Anda, tidak hasilnya\./.test(id)
-        && /Guru lain tidak melihatnya\./.test(id) && /Jawaban Anda tidak ditampilkan kepada siapa pun selain Anda/.test(id) && /catatan integritas tidak ditampilkan kepada fasilitator maupun pimpinan sekolah/.test(id),
-        `the Indonesian sentence does not state D-069(b),(c): «${id}»`);
-      c.expect(/facilitator[\s\S]*Head of department[\s\S]*Dean[\s\S]*school administrator sees only your enrolment, participation and completion, not the result[\s\S]*answers are shown to no one but you/.test(en),
+      // KESETIAAN #23: Daisy's corrected sentence (5-peserta-pd.html, 8cfc75b5), word for word
+      c.expect(id === "Hasil ini terlihat oleh Anda, fasilitator paket ini, Kepala departemen yang membawahi pengembangan profesi, dan Dekan. Admin sekolah hanya melihat pendaftaran, keikutsertaan, dan penyelesaian; guru lain tidak melihatnya. Jawaban Anda per soal tidak ditampilkan kepada mereka.",
+        `the Indonesian sentence is not Daisy's corrected one (D-069(b)): «${id}»`);
+      c.expect(/facilitator[\s\S]*Head of department[\s\S]*Dean[\s\S]*school administrator sees only enrolment, participation and completion; other teachers do not see it[\s\S]*answers to each question are not shown to them/.test(en),
         `the English sentence does not say the same: «${en}»`);
       c.expect(/hanya untuk fasilitator, Kepala departemen dan Dekan/.test(t("pengembangan.arti_terbatas" as HleEvent, "staff", { locale: "id" })),
         "the administrator's own page (pengembangan.arti_terbatas) no longer agrees with the participant's sentence");
@@ -375,8 +396,8 @@ export const b5aTests: SelfTest[] = [
       const baru = baca(ctx.repoRoot, "supabase/migrations/20270102100000_a_teacher_names_the_learners_who_need_reinforcement.sql");
       c.expect(/create or replace function public\.jenis_belajar_saya\(p_learning_assignment uuid\)\s*returns boolean[\s\S]*?from public\.my_learning_assignments\(\) m/.test(baru),
         "jenis_belajar_saya does not answer for the caller's own learning assignments only");
-      return c.verdict("a professional-learning result page (only) says who sees it: the facilitator, the Kepala departemen and the Dekan the result; Admin sekolah enrolment, " +
-        "participation and completion, not the result; other teachers nothing; answers no one but the participant; integrity not shown (D-069(b),(c)), matching " +
+      return c.verdict("a professional-learning result page (only) says who sees it in Daisy's corrected words: the facilitator, the Kepala departemen and the Dekan the result; Admin sekolah enrolment, " +
+        "participation and completion only; other teachers nothing; the answers per question not shown to them (D-069(b)), matching " +
         "professional_learning_record's audiences and the administrator's own page, in both languages");
     },
   },
@@ -487,6 +508,64 @@ export const b5aTests: SelfTest[] = [
     },
   },
   {
+    // KESETIAAN #3 (G-01, G-05): a report on paper — wordmark, report · place · period, page counter, blocks on white
+    id: "LAPORAN-CETAK-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const css = baca(ctx.repoRoot, "src/app/experience.css");
+      const halaman = (n: string) => css.match(new RegExp(`@page ${n} \\{[\\s\\S]*?\\n\\}`))?.[0] ?? "";
+      for (const n of ["laporan", "laporan-lebar"]) {
+        const h = halaman(n);
+        c.expect(/@top-left \{ content: "PINTAR";[^}]*color: var\(--merek-warna\)/.test(h) && /@bottom-right \{ content: "Halaman " counter\(page\) " dari " counter\(pages\)/.test(h)
+          && /@top-right \{ font:/.test(h), `@page ${n} does not carry the wordmark, the header line's type and «Halaman n dari m»`);
+      }
+      c.expect(/size: A4 portrait/.test(halaman("laporan")) && /size: A4 landscape/.test(halaman("laporan-lebar")), "the report pages are not A4 (portrait; landscape for a wide grid)");
+      c.expect(/body:has\(\.pin-lk\) \{ page: laporan; background: var\(--surface-1\) !important; \}/.test(css)
+        && /\.pin-lk, \.pin-lk-bagian, \.pin-lk-inti, \.pin-lk-gambar \{ display: block; \}/.test(css) && /\.pin-lk-h \+ \* \{ break-before: avoid; \}/.test(css)
+        && /\.pin-lk-gambar, \.pin-lk-pita, \.pin-lk-kelompok \{ break-inside: avoid; \}/.test(css), "a report does not print as blocks on white with each heading kept with its chart");
+      c.expect(/\[data-kisi-lebar\] \{ page: laporan-lebar; \}/.test(css) && /\.pin-lk-kisi-tabel thead th, \.pin-lk-kisi-tabel \.pin-lk-bawah \{ white-space: nowrap; \}/.test(css)
+        && /\.pin-lk-kisi-tabel \.pin-lk-kol-nama \{ width: var\(--lk-kolom-nama\); \}/.test(css), "the grid does not print with a fixed name column, whole words, or a landscape page when wide (#15)");
+      const r = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KepalaCetak.tsx");' +
+        "const K = m.default?.default ?? m.default;" +
+        "process.stdout.write(renderToStaticMarkup(h(K, { bagian: JSON.parse(process.env.BAGIAN) })));", { BAGIAN: JSON.stringify(["Ringkasan Kelas", "Kelas 7A", null, 'TA 2026/2027 "</style>']) });
+      if (c.expect(r.ok, `KepalaCetak could not be rendered: ${r.err}`)) {
+        const harap = String.raw`@page laporan { @top-right { content: "Ringkasan Kelas · Kelas 7A · TA 2026/2027 \"\3C /style>"; } }`;
+        c.expect(r.out.includes(harap) && r.out.includes("@page laporan-lebar") && r.out.split("</style>").length === 2,
+          `the header line is not one escaped CSS string: ${r.out.slice(0, 240)}`);
+      }
+      for (const [f, re] of [
+        ["src/app/edukator/ringkasan/page.tsx", /<KepalaCetak bagian=\{\[judul, kepala\?\.tempat, kepala\?\.sekolah, kepala\?\.periode\]\} \/>/],
+        ["src/app/dekan/ringkasan/page.tsx", /<KepalaCetak bagian=\{\[judul, kepala\?\.sekolah, kepala\?\.periode\]\} \/>/],
+        ["src/app/pimpinan/page.tsx", /<KepalaCetak bagian=\{\[s\("pimpinan\.judul"\), dipilih\.nama\]\} \/>/],
+      ] as Array<[string, RegExp]>) {
+        c.expect(re.test(kode(baca(ctx.repoRoot, f))), `${f} does not write its report · place · period into the A4 header`);
+      }
+      return c.verdict("the reports print on A4 (KESETIAAN #3): the PINTAR wordmark in the brand teal, the report · place · period line each report page writes (escaped as "
+        + "one CSS string), «Halaman n dari m»; the body as blocks on white, a heading kept with its chart, a chart never split; the wide grid on a landscape page with a "
+        + "fixed name column and whole words (#15)");
+    },
+  },
+  {
+    // KESETIAAN #26, #27 (E2 §1.1): the chooser's head is the wordmark; the reason is an info alert; «choose a place» names the doors
+    id: "PEMILIH-KESETIAAN-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const src = kode(baca(ctx.repoRoot, "src/app/page.tsx"));
+      c.expect((src.match(/<p className="pin-pemilih-merek"><MerekPintar \/><\/p>/g) ?? []).length === 2 && !/s\("app\.name"\)/.test(src),
+        "the chooser's head line is not the wordmark, signed in and signed out");
+      c.expect(/\{alasan \? \(\s*<div className="pin-banner pin-info mt-4" role="status">\s*<Ikon nama="info" \/>\s*<p>\{alasan\}<\/p>/.test(src)
+        && /const alasan = minta\.alasan === "tidak_dipegang" \? istilah\("context\.not_held"\)/.test(src) && !/role="status">\{kalimat\}/.test(src),
+        "the reason is not an info alert above the doors");
+      c.expect(/\{pilihTempat \? <h2 id="pin-pilih-tempat"[^>]*>\{pilihTempat\}<\/h2> : null\}/.test(src)
+        && /aria-labelledby=\{pilihTempat \? "pin-pilih-tempat" : undefined\}/.test(src), "«choose a place» is not the heading that names the door list");
+      return c.verdict("the chooser (src/app/page.tsx, from the source) heads with the PINTAR wordmark signed in and out; why the reader was sent is an info alert above "
+        + "the doors; «choose a place» is an h2 naming the door list (aria-labelledby); both still draw nothing until their words arrive (D-132(m))");
+    },
+  },
+  {
     // CONTOH LAPORAN 3-kadep (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov): topics × classes on /pimpinan
     id: "LAPORAN-KISI-01",
     run: async (ctx) => {
@@ -494,11 +573,12 @@ export const b5aTests: SelfTest[] = [
       const topik = (r: Array<[string, string, number]>) => ({ status: "ok", metric_id: "class.topic_mastery", label_key: "metrik.topik.label",
         value: r.map(([id, nama, v]) => ({ objective_id: id, competency: nama, mean_score: v, learners: 25 })) });
       const kolom = [
-        { id: "7a", nama: "7A", target: 0.75, topik: topik([["p", "Pecahan campuran", 0.57], ["s", "Pecahan senilai", 0.87]]) },
+        { id: "7a", nama: "7A", target: 0.75, topik: topik([["p", "Pecahan campuran", 0.57], ["s", "Pecahan senilai", 0.87]]),
+          populasi: { placed: 32, assessed: 29 }, kenaikan: { status: "ok", metric_id: "class.net_gain", value: 0.2 } },
         { id: "7b", nama: "7B", target: 0.75, topik: topik([["p", "Pecahan campuran", 0.62], ["s", "Pecahan senilai", 0.9]]) },
         { id: "7c", nama: "7C", target: 0.7, topik: topik([["p", "Pecahan campuran", 0.81], ["s", "Pecahan senilai", 0.696]]) },
         { id: "7d", nama: "7D", target: null, topik: topik([["p", "Pecahan campuran", 0.5]]) },
-        { id: "7e", nama: "7E", target: 0.75, topik: { status: "below_minimum", readiness: "INSUFFICIENT_EVIDENCE", have: 2, needed: 5 } },
+        { id: "7e", nama: "7E", target: 0.75, topik: { status: "below_minimum", metric_id: "class.topic_mastery", readiness: "INSUFFICIENT_EVIDENCE", have: 2, needed: 5 } },
         { id: "7f", nama: "7F", target: 0.75, topik: { status: "not_permitted" } },
       ];
       const r = render(ctx.repoRoot,
@@ -515,18 +595,28 @@ export const b5aTests: SelfTest[] = [
         c.expect(teks.includes("Pecahan campuran di bawah target di sebagian besar kelas."), `the lead reads «${teks.slice(0, 220)}»`);
         // each class its own column; the refused one is absent without a word; the short one says so in its place
         c.expect(/>7A<[\s\S]*>7B<[\s\S]*>7C<[\s\S]*>7D<[\s\S]*>7E</.test(html) && !/>7F</.test(html), "the columns are not the classes the reader may see");
-        c.expect((teks.match(/Belum cukup bukti/g) ?? []).length === 2, "a class without enough evidence does not say so in its cells");
+        // KESETIAAN #13: a class without enough evidence says so once, in its header («Sekarang 2 murid; perlu 5.»), no target there, «—» in its cells
+        const kepala7e = html.slice(html.indexOf('data-kisi-kelas="7e"'), html.indexOf("</th>", html.indexOf('data-kisi-kelas="7e"')));
+        c.expect(/data-kisi-belum="">Sekarang 2 murid; perlu 5\.</.test(kepala7e) && !/Target/.test(kepala7e) && !/Belum cukup bukti/.test(teks),
+          `a class without enough evidence is not said once in its header: ${kepala7e.slice(0, 200)}`);
+        // KESETIAAN #14: the class's base under its name, and the Kenaikan row at the foot
+        c.expect(/data-kisi-dasar="">29 dari 32 murid</.test(html) && /<tfoot><tr data-kisi-kenaikan=""><th scope="row">Kenaikan<\/th><td><b>\+20 poin<\/b><\/td>/.test(html),
+          "the class's base or the Kenaikan row is missing");
+        // KESETIAAN #1, #4: the lead's list said as a sentence; the section lettered and read
+        c.expect(/<span class="pin-lk-huruf"><span class="pin-sr">Bagian <\/span>A<\/span>/.test(html) && /data-kisi-lebar=""/.test(html) === false, "the grid's letter is not read, or six classes print landscape");
         // cells: below the class's own target amber and in words; R4-02 (69,6% against 70%); no target, no tick and no verdict
         c.expect((html.match(/data-bawah=""/g) ?? []).length === 3 && (html.match(/class="pin-lk-bawah">di bawah target</g) ?? []).length === 3,
           "a cell below its class's target is not marked in words and amber (expected 7A, 7B Pecahan campuran and 7C Pecahan senilai)");
         c.expect(teks.includes("69,6%") && teks.includes("57%") && (html.match(/<u /g) ?? []).length === 6, "R4-02 or the target ticks are wrong");
-        c.expect(/<table[\s\S]*<th scope="col">Topik<\/th>[\s\S]*<th scope="row">Pecahan campuran<\/th>/.test(html), "the grid is not a table with row and column headers (its own text equivalent)");
+        c.expect(/<table[\s\S]*<th scope="col" class="pin-lk-kol-nama">Topik<\/th>[\s\S]*<th scope="row">Pecahan campuran<\/th>/.test(html), "the grid is not a table with row and column headers (its own text equivalent)");
         // RB1-C1 (journey, 7 Nov, axe scrollable-region-focusable at 320 px): the sideways-scrolling grid is a focusable, named region
         c.expect(/<div class="pin-lk-kisi-wadah" role="region" tabindex="0" aria-labelledby="pin-kisi">/.test(html), "the scrolling grid cannot be reached by keyboard");
       }
       const hal = kode(baca(ctx.repoRoot, "src/app/pimpinan/page.tsx"));
       const lib = kode(baca(ctx.repoRoot, "src/lib/pimpinan.ts"));
-      c.expect(/<KisiTopik kolom=\{perKelas\.map\(/.test(hal) && /minta\("class\.topic_mastery", k\.id\)/.test(lib) && /targetKelasDari\(c, k\.id\)/.test(lib),
+      c.expect(/const kolomKisi: KolomKisi\[\] = perKelas\.map\(/.test(hal) && /<KisiTopik huruf=\{huruf\(\)\} kolom=\{kolomKisi\}/.test(hal)
+        && /e\.metric_id === "class\.readiness_distribution"\)\?\.population/.test(hal) && /e\.metric_id === "class\.net_gain"/.test(hal)
+        && /minta\("class\.topic_mastery", k\.id\)/.test(lib) && /targetKelasDari\(c, k\.id\)/.test(lib),
         "/pimpinan does not draw the grid from each class's own figure and sealed target");
       return c.verdict("renders KisiTopik (CONTOH LAPORAN 3-kadep): each class the reader may see as its own column (a refused class absent without a word), each cell that class's own topic figure " +
         "against its own sealed target, amber and in words below it, R4-02's decimal; a class without enough evidence says so in its cells; the lead names the topics below target in most classes; " +
@@ -567,7 +657,9 @@ export const b5aTests: SelfTest[] = [
         const teks = (h: string) => (h ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
         const [isi, belum] = x;
         const t1 = teks(isi);
-        c.expect(t1.includes("Perhatian ada pada Listrik dan magnet; Geometri dan pengukuran: masih di bawah 60%."), `the lead reads «${t1.slice(0, 200)}»`);
+        // KESETIAAN #17, #1: the lead says the Kenaikan and the domains in «Perlu penguatan» as a sentence; the sub line counts the rest
+        c.expect(t1.includes("Kenaikan penguasaan rata-rata sejak Pemetaan Awal: +19 poin. Listrik dan magnet serta Geometri dan pengukuran masih di pita «Perlu penguatan».")
+          && /1 dari 3 ranah berada di pita «Berkembang» atau «Mantap»\./.test(t1), `the lead reads «${t1.slice(0, 260)}»`);
         // R4-01: the zones named once above the scale; R4-02: 59,6%, not «60%»; sorted high to low; below 60% amber and names its band
         c.expect(t1.includes("Batas pita: di bawah 60% «Perlu penguatan» · 60–79% «Berkembang» · 80% ke atas «Mantap».") && t1.includes("59,6%")
           && /Bilangan[\s\S]*Listrik dan magnet[\s\S]*Geometri dan pengukuran/.test(t1)
@@ -578,7 +670,10 @@ export const b5aTests: SelfTest[] = [
           && t1.includes("Dihitung dari 380 murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan bab yang sama."), "a headline figure stands without its base");
         // C: the cohorts by name on the same scale, captioned as states, not a ranking
         c.expect(t1.includes("Angkatan 2026 (kelas 7)") && t1.includes("Ini perbandingan keadaan, bukan peringkat."), "the cohort comparison is not named or captioned");
-        c.expect(/>A<[\s\S]*>B<[\s\S]*>C<[\s\S]*>D</.test(isi) && (isi.match(/data-lk-tindakan=""/g) ?? []).length >= 6, "the sections are not lettered, or a figure lacks its action sentence");
+        // KESETIAAN #2, #4, #18: no advice line; every letter read aloud; «Kesiapan bukti» drawn as a section of its own
+        c.expect(/>A<[\s\S]*>B<[\s\S]*>C<[\s\S]*>D</.test(isi) && !/data-lk-tindakan/.test(isi) && !/aria-hidden="true">[A-F]</.test(isi)
+          && /<span class="pin-sr">Bagian <\/span>A</.test(isi), "the sections are not lettered and read, or an advice line is drawn");
+        c.expect(/data-lk="kesiapan"[\s\S]*?<h2 class="pin-lk-h" id="pin-kesiapan">[\s\S]*?Kesiapan bukti/.test(isi), "«Kesiapan bukti» is not a section of the school report");
         const t2 = teks(belum);
         c.expect(!/data-lk-kalimat/.test(belum) && (t2.match(/Sekarang 4 murid; perlu 10\./g) ?? []).length >= 3, `the not-yet school report does not keep each figure's place: ${t2.slice(0, 200)}`);
       }

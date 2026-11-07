@@ -33,7 +33,7 @@ declare
   v_inst uuid; v_tmpl record; v_cls uuid; v_other uuid; v_cat text; v_lowest text;
   m record; v_p uuid; v_e uuid; v_new uuid; v_people jsonb := '{}'::jsonb;
   v_guru uuid; v_guru2 uuid; v_adm uuid; v_ua uuid; v_ub uuid; v_pa uuid;
-  v_got text[]; v_n int; v_cols int; v_calc jsonb; v_err text; v_la record; v_ctx text;
+  v_got text[]; v_n int; v_cols int; v_ben int; v_tot int; v_calc jsonb; v_err text; v_la record; v_ctx text;
 begin
   perform selftest.as_owner();
   begin
@@ -49,6 +49,10 @@ begin
        and exists (select 1 from public.assessment_results x where x.session_id = s.id)
      order by s.id limit 1;
     if v_tmpl.id is null then raise exception 'the demonstration tenant holds no finalized official Uji Penguasaan to copy'; end if;
+    -- every copied result carries the template's per_domain: its own sums are what each learner must be given
+    select coalesce(sum((kv.value ->> 'benar')::int), 0), coalesce(sum((kv.value ->> 'total')::int), 0) into v_ben, v_tot
+      from public.assessment_results x, jsonb_each(x.per_domain) kv
+     where x.session_id = v_tmpl.id and jsonb_typeof(kv.value) = 'object';
     insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
     select v_inst, o.parent_id, 'CLASS', 'Kelas F32 ' || v_tag, o.academic_period_id
       from public.org_nodes o where o.id = v_tmpl.class_node_id
@@ -132,7 +136,15 @@ begin
       select count(*) into v_cols from information_schema.routines rt
         join information_schema.parameters pa on pa.specific_name = rt.specific_name and pa.parameter_mode = 'OUT'
        where rt.routine_schema = 'public' and rt.routine_name = 'murid_perlu_penguatan';
-      if v_cols <> 2 then e01 := e01 || format('the answer has %s columns, not the identity and the name', v_cols); end if;
+      if v_cols <> 5 then e01 := e01 || format('the answer has %s columns, not the identity, the name, the count and the gate', v_cols); end if;
+      -- the count is the latest result's own (per_domain summed), the gate its own: C (90%%, gate failed) is named with it
+      perform selftest.as_user_uid(v_guru);
+      select count(*) filter (where p.soal_wajib_tepat is false and p.display_name like 'Murid F32 C %'),
+             count(*) filter (where p.total is distinct from v_tot or p.benar is distinct from v_ben)
+        into v_n, v_cols from public.murid_perlu_penguatan(v_cls) p;
+      perform selftest.as_owner();
+      if v_n <> 1 then e01 := e01 || 'C is not named with «soal wajib belum tepat»'::text; end if;
+      if v_cols <> 0 then e01 := e01 || format('%s learner(s) given a count that is not their result''s own', v_cols); end if;
     exception when others then
       perform selftest.as_owner();
       e01 := e01 || ('threw: ' || sqlerrm);
@@ -204,8 +216,8 @@ begin
   for m in select * from (values
       ('F32-E01', 'D-195(5) -- the learners who need reinforcement, by name', e01,
        'the class''s teacher is given exactly the learners placed in the class whose band under the readiness '
-       || 'calculator''s rule is the lowest (a failed gate included, the latest result deciding), by identity and name '
-       || 'only; the calculator''s lowest-band count agrees'),
+       || 'calculator''s rule is the lowest (a failed gate included, the latest result deciding), with the latest result''s '
+       || 'count and gate; the calculator''s lowest-band count agrees'),
       ('F32-E02', 'D-195(5) -- the same question, isolated', e02,
        'a teacher of another class, the school admin, the learner and the teacher asking under another class get an '
        || 'empty answer; an anonymous caller is refused'),

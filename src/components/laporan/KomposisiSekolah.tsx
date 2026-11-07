@@ -3,7 +3,8 @@ import { nilaiMetrik } from "@/lib/nilai-metrik";
 import { kalimatJumlah, labelMetrik, type Envelope } from "@/components/bukti";
 import { kunciMuncul } from "@/components/bukti/muncul";
 import NilaiLaporan from "@/components/bukti/NilaiLaporan";
-import { actionText } from "@/app/_intel";
+import { daftarKata, JudulBagian } from "@/components/laporan/tata";
+import RingkasKesiapan, { adaKesiapan } from "@/components/pimpinan/RingkasKesiapan";
 import { persenJujur } from "@/components/laporan/KomposisiKelas";
 
 /**
@@ -15,7 +16,12 @@ import { persenJujur } from "@/components/laporan/KomposisiKelas";
  *   B the headline figures, each with its base («numbers never stand alone»): «Sertifikat terbit» is MC-1, the
  *     certificates issued and not revoked out of all issued (R4-03).
  *   C «Perbandingan angkatan» on the same zoned scale, captioned as a comparison of states, not a ranking.
+ *   D «Kesiapan bukti»: the figures by evidence state, as Pimpinan draws them (KESETIAAN #18).
  *   … every other figure of the school's template; «Apa berikutnya».
+ *
+ * KESETIAAN (7 Nov): no advice line under a figure (#2); the lead says the Kenaikan and the domains in «Perlu
+ * penguatan», then how many domains are in «Berkembang» or «Mantap» (#17); lists said as sentences (#1); one heading
+ * grammar, the letter read aloud (#4, #4b).
  *
  * School aggregates only: no class, teacher or student is named. Every value is the evaluator's envelope from
  * `generate_report`, re-authorized for this reader; a figure not shown keeps its place with how far it is and what
@@ -70,9 +76,8 @@ export default function KomposisiSekolah({ entries, locale, tempat = {} }: {
       {kunciMuncul(e) ? <p className="pin-lk-arti">{s(kunciMuncul(e)!, untuk, locale)}</p> : null}
     </>
   );
-  const judul = (e: Envelope, h: string) => (
-    <h2 className="pin-lk-h"><span className="pin-lk-huruf" aria-hidden="true">{h}</span><span>{labelMetrik(e, untuk, locale)}</span></h2>
-  );
+  const kepala = (h: string, j: string, id?: string) => <JudulBagian huruf={h} judul={j} id={id} locale={locale} />;
+  const judul = (e: Envelope, h: string) => kepala(h, labelMetrik(e, untuk, locale));
   // the band zones, named once, above the scale (R4-01)
   const zona = (
     <p className="pin-lk-arti">{s("laporan.sekolah.zona")
@@ -106,7 +111,17 @@ export default function KomposisiSekolah({ entries, locale, tempat = {} }: {
   const hKomp = komp ? huruf() : "";
   const hAngka = angka.length > 0 ? huruf() : "";
   const hKohort = kohort ? huruf() : "";
+  const hKesiapan = adaKesiapan(entries) ? huruf() : "";
   const hLain = lain.length > 0 ? huruf() : "";
+  const naik = per.get("institution.net_gain");
+  const baik = urut.filter((d) => Number(d.mean_score) >= ZONA[0]).length;
+  const kalimat = [
+    naik?.status === "ok" && Number.isFinite(Number(naik.value))
+      ? s("laporan.sekolah.naik").replace("{nilai}", nilaiMetrik("institution.net_gain", Number(naik.value), locale)) : null,
+    rendah.length > 0
+      ? s("laporan.sekolah.perhatian").replace("{daftar}", daftarKata(rendah.map((d) => d.competency ?? ""), locale)).replace("{pita}", s("kesiapan.butuh_pendampingan"))
+      : s("laporan.sekolah.semua_cukup"),
+  ].filter(Boolean).join(" ");
   const hBerikut = huruf();
 
   const dasar = (e: Envelope): string | null => {
@@ -127,26 +142,25 @@ export default function KomposisiSekolah({ entries, locale, tempat = {} }: {
   return (
     <div className="pin-lk">
       {komp ? (
-        <section className="pin-lk-inti" aria-labelledby="lk-sekolah-a" data-lk="kompetensi" data-lk-entri={labelMetrik(komp, untuk, locale)}>
-          <h2 className="pin-lk-h" id="lk-sekolah-a"><span className="pin-lk-huruf" aria-hidden="true">{hKomp}</span><span>{labelMetrik(komp, untuk, locale)}</span></h2>
+        <section className="pin-lk-bagian" aria-labelledby="lk-sekolah-a" data-lk="kompetensi" data-lk-entri={labelMetrik(komp, untuk, locale)}>
+          {kepala(hKomp, labelMetrik(komp, untuk, locale), "lk-sekolah-a")}
           {komp.status === "ok" && urut.length > 0 ? (
-            <>
-              <p className="pin-lk-kalimat" data-lk-kalimat="">
-                {rendah.length > 0
-                  ? s("laporan.sekolah.perhatian").replace("{daftar}", rendah.map((d) => d.competency ?? "").filter(Boolean).join("; "))
-                  : s("laporan.sekolah.semua_cukup")}
-              </p>
+            <div className="pin-lk-inti">
+              <p className="pin-lk-kalimat" data-lk-kalimat="">{kalimat}</p>
+              <p className="pin-lk-kalimat-sub">{s("laporan.sekolah.ranah_baik").replace("{n}", format.number(baik, locale)).replace("{m}", format.number(urut.length, locale))
+                .replace("{berkembang}", s("kesiapan.perlu_review")).replace("{mantap}", s("kesiapan.siap_sertifikasi"))}</p>
               {zona}
-              {titik(urut.map((d, i) => ({ kunci: d.objective_id ?? d.code ?? String(i), nama: d.competency ?? "—", v: Number(d.mean_score) })))}
-              <p className="pin-lk-arti" data-lk-tindakan="">{actionText(komp, locale)}</p>
-            </>
+              <div className="pin-lk-gambar">
+                {titik(urut.map((d, i) => ({ kunci: d.objective_id ?? d.code ?? String(i), nama: d.competency ?? "—", v: Number(d.mean_score) })))}
+              </div>
+            </div>
           ) : komp.status === "ok" ? null : tiada(komp)}
         </section>
       ) : null}
 
       {angka.length > 0 ? (
         <section className="pin-lk-bagian" data-lk="angka">
-          <h2 className="pin-lk-h"><span className="pin-lk-huruf" aria-hidden="true">{hAngka}</span><span>{s("laporan.sekolah.angka")}</span></h2>
+          {kepala(hAngka, s("laporan.sekolah.angka"))}
           <div className="pin-lk-angka-baris">
             {angka.map((e, i) => (
               <div key={e.metric_id ?? i} className="pin-lk-angka"
@@ -156,7 +170,6 @@ export default function KomposisiSekolah({ entries, locale, tempat = {} }: {
                   <>
                     <p className="pin-lk-angka-nilai">{nilaiMetrik(e.metric_id, e.value, locale)}</p>
                     {dasar(e) ? <p>{dasar(e)}</p> : null}
-                    <p data-lk-tindakan="">{actionText(e, locale)}</p>
                   </>
                 ) : tiada(e)}
               </div>
@@ -177,15 +190,16 @@ export default function KomposisiSekolah({ entries, locale, tempat = {} }: {
                 v: Number(r.mean_mastery),
                 sub: typeof r.learners === "number" ? `${format.number(r.learners, locale)} ${s("mengajar.bukti.murid")}` : undefined,
               })))}
-              <p className="pin-lk-arti" data-lk-tindakan="">{actionText(kohort, locale)}</p>
             </>
           ) : kohort.status === "ok" ? null : tiada(kohort)}
         </section>
       ) : null}
 
+      {hKesiapan ? <div className="pin-lk-bagian" data-lk="kesiapan"><RingkasKesiapan entries={entries} locale={locale} huruf={hKesiapan} /></div> : null}
+
       {lain.length > 0 ? (
         <section className="pin-lk-bagian" data-lk="lain">
-          <h2 className="pin-lk-h"><span className="pin-lk-huruf" aria-hidden="true">{hLain}</span><span>{s("laporan.komposisi.lainnya")}</span></h2>
+          {kepala(hLain, s("laporan.komposisi.lainnya"))}
           <div className="pin-lk-angka-baris">
             {lain.map((e, i) => (
               <div key={e.metric_id ?? e.ordinal ?? i} className="pin-lk-angka"
@@ -194,7 +208,6 @@ export default function KomposisiSekolah({ entries, locale, tempat = {} }: {
                 {e.status === "ok" ? (
                   <>
                     <NilaiLaporan entry={e} locale={locale} tempat={tempat} persona="staff" />
-                    <p data-lk-tindakan="">{actionText(e, locale)}</p>
                   </>
                 ) : tiada(e)}
               </div>
@@ -204,7 +217,7 @@ export default function KomposisiSekolah({ entries, locale, tempat = {} }: {
       ) : null}
 
       <section className="pin-lk-bagian" data-lk="berikutnya">
-        <h2 className="pin-lk-h"><span className="pin-lk-huruf" aria-hidden="true">{hBerikut}</span><span>{s("laporan.komposisi.berikutnya")}</span></h2>
+        {kepala(hBerikut, s("laporan.komposisi.berikutnya"))}
         <ul className="pin-lk-langkah">
           <li>{s("laporan.sekolah.berikutnya_kesiapan")}</li>
         </ul>

@@ -458,20 +458,24 @@ export const d168Tests: SelfTest[] = [
         const src = kode(readFileSync(join(repoRoot, f), "utf8"));
         c.expect(/labelMetrik\(/.test(src) && !/label_key \? [^:]*: ""/.test(src) && !/\{s\((entry|e|siap)\.label_key\)\}/.test(src), `${f} names an entry without labelMetrik, or draws nothing in its place`);
       }
+      // the shared heading draws its title whole and its letter read aloud (KESETIAAN #4)
+      const tata = kode(readFileSync(join(repoRoot, "src/components/laporan/tata.tsx"), "utf8"));
+      const judulBersama = /<span className="pin-lk-huruf"><span className="pin-sr">\{t\("laporan\.bagian" as HleEvent, persona, \{ locale \}\)\} <\/span>\{huruf\}<\/span>\s*<span>\{judul\}<\/span>/.test(tata);
       // CONTOH LAPORAN 4-dekan (approved 7 Nov): the school report's sections are its composition's (KomposisiSekolah)
       {
         const f = "src/components/laporan/KomposisiSekolah.tsx";
         const src = kode(readFileSync(join(repoRoot, f), "utf8"));
-        c.expect(/<h2 className="pin-lk-h"><span className="pin-lk-huruf" aria-hidden="true">\{h\}<\/span><span>\{labelMetrik\(e, untuk, locale\)\}<\/span><\/h2>/.test(src)
-          && /\{labelMetrik\(e, untuk, locale\)\}<\/h3>/.test(src), `${f}: an entry's heading can be empty`);
+        // restated (KESETIAAN #4, 7 Nov): every section heading is the shared JudulBagian, its title the figure's words
+        c.expect(/const judul = \(e: Envelope, h: string\) => kepala\(h, labelMetrik\(e, untuk, locale\)\);/.test(src)
+          && /\{labelMetrik\(e, untuk, locale\)\}<\/h3>/.test(src) && judulBersama, `${f}: an entry's heading can be empty`);
       }
       // CONTOH LAPORAN (approved 7 Nov): the class report's every section heading is its letter and the figure's words,
       // through labelMetrik (an unnamed measure reads «tanpa nama», never empty); «Angka lain» names each of its figures so
       {
         const f = "src/components/laporan/KomposisiKelas.tsx";
         const src = kode(readFileSync(join(repoRoot, f), "utf8"));
-        c.expect(/<h2 className="pin-lk-h"><span className="pin-lk-huruf" aria-hidden="true">\{h\}<\/span><span>\{labelMetrik\(e, untuk, locale\)\}<\/span><\/h2>/.test(src)
-          && /<span>\{labelMetrik\(topik, untuk, locale\)\}<\/span>/.test(src) && /\{labelMetrik\(e, untuk, locale\)\}<\/h3>/.test(src), `${f}: an entry's heading can be empty`);
+        c.expect(/kepala\(hTopik, labelMetrik\(topik, untuk, locale\), "lk-a"\)/.test(src) && /kepala\(hPita, labelMetrik\(pita, untuk, locale\)\)/.test(src)
+          && /kepala\(hNaik, labelMetrik\(naik, untuk, locale\)\)/.test(src) && /\{labelMetrik\(e, untuk, locale\)\}<\/h3>/.test(src) && judulBersama, `${f}: an entry's heading can be empty`);
       }
       const kunci = new Set(allKeys() as string[]);
       const db: string[] = [];

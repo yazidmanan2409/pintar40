@@ -4569,7 +4569,7 @@
     {
       "id": "F32-E01",
       "runner": "db",
-      "proves": "D-195(5), CONTOH LAPORAN 2-guru section E, selftest/db/fable32.sql against supabase/migrations/20270102100000_a_teacher_names_the_learners_who_need_reinforcement.sql: in a class of its own, murid_perlu_penguatan names for the class's teacher exactly the learners placed in it now whose band under calc_class_readiness_distribution's rule is the lowest (40%; 90% with a failed safety gate; 85% then a later 30%), and not 70%, 30% then a later 85%, a learner with no Uji Penguasaan, or one who has left; the calculator's lowest-band count is the three named plus the one who left; the answer is the identity and the name only. With the safety-gate clause removed it names A and D only and fails."
+      "proves": "D-195(5), CONTOH LAPORAN 2-guru section E, selftest/db/fable32.sql against supabase/migrations/20270102100000_a_teacher_names_the_learners_who_need_reinforcement.sql: in a class of its own, murid_perlu_penguatan names for the class's teacher exactly the learners placed in it now whose band under calc_class_readiness_distribution's rule is the lowest (40%; 90% with a failed safety gate; 85% then a later 30%), and not 70%, 30% then a later 85%, a learner with no Uji Penguasaan, or one who has left; the calculator's lowest-band count is the three named plus the one who left; the answer is the identity, the name, the latest result's own questions right out of its questions (per_domain summed) and whether every required question was right (C, 90% with a failed gate, is given «soal wajib belum tepat»), and nothing else. With the safety-gate clause removed it names A and D only and fails."
     },
     {
       "id": "F32-E02",
@@ -4589,12 +4589,22 @@
     {
       "id": "LAPORAN-KELAS-02",
       "runner": "static",
-      "proves": "D-195(5), CONTOH LAPORAN 2-guru section E, selftest/b5a.test.ts: src/components/laporan/KomposisiKelas.tsx rendered with the class's learners in the lowest band names each, in the order given, linked to the teacher's view of that learner, with «Pelajari lagi» only where something is recorded below the target and no figure beside a name; an empty list is said («Saat ini tidak ada murid kelas ini di pita «Perlu penguatan».»); no section for a reader given no list or where the class's bands are not shown; the section is lettered after the bands and «Apa berikutnya» points to it; pengajar.perluPenguatan asks only murid_perlu_penguatan and tujuan_belum_tercapai and returns null for an unread answer; Ringkasan Kelas asks only for the class's teacher; the migration's function is SECURITY DEFINER and returns the identity and name only."
+      "proves": "D-195(5), CONTOH LAPORAN 2-guru section E, selftest/b5a.test.ts: src/components/laporan/KomposisiKelas.tsx rendered with the class's learners in the lowest band names each, in the order given, linked to the teacher's view of that learner, with «Pelajari lagi» only where something is recorded below the target, «N dari M soal tepat», and «soal wajib belum tepat» only where the gate failed (KESETIAAN #5), no percentage beside a name; an empty list is said («Saat ini tidak ada murid kelas ini di pita «Perlu penguatan».»); no section for a reader given no list or where the class's bands are not shown; the section is lettered after the bands and «Apa berikutnya» points to it; pengajar.perluPenguatan asks only murid_perlu_penguatan and tujuan_belum_tercapai and returns null for an unread answer; Ringkasan Kelas asks only for the class's teacher; the migration's function is SECURITY DEFINER and returns the identity, the name, the count and the gate only."
+    },
+    {
+      "id": "LAPORAN-CETAK-01",
+      "runner": "static",
+      "proves": "KESETIAAN #3 and #15 (Daisy's fidelity check, 8cfc75b5), selftest/b5a.test.ts, from the source of src/app/experience.css and the rendered src/components/laporan/KepalaCetak.tsx: @page laporan (A4 portrait) and laporan-lebar (A4 landscape) carry the PINTAR wordmark in --merek-warna at the top left, the header line's type, and «Halaman n dari m»; a page holding a report prints on that page, as blocks on white, a heading kept with its chart and a chart never split; the wide topics × classes grid prints on the landscape page with a fixed name column and its header and «di bawah target» kept whole; KepalaCetak writes report · place · period as one escaped CSS string, and Ringkasan Kelas, Ringkasan Sekolah and Pimpinan each write theirs."
+    },
+    {
+      "id": "PEMILIH-KESETIAAN-01",
+      "runner": "static",
+      "proves": "KESETIAAN #26 and #27 (E2 §1.1), selftest/b5a.test.ts, from the source of src/app/page.tsx: the chooser's head line is the PINTAR wordmark (MerekPintar) signed in and signed out, not the «PINTAR» text eyebrow; why the reader was sent here (context.not_held, invalid, other_context) is an info alert above the doors; context.choose_place is an h2 that names the door list through aria-labelledby; both draw nothing until their words arrive (D-132(m))."
     },
     {
       "id": "LAPORAN-PESERTA-01",
       "runner": "static",
-      "proves": "D-195(4), CONTOH LAPORAN 5-peserta, selftest/b5a.test.ts, from the source, the migration and the copy table: the result page (src/app/belajar/[tugas]/hasil/page.tsx) of a professional-learning package only (engine.isProfessionalLearning, jenis_belajar_saya) says «Tentang hasil ini»: the record's meaning and who sees it — the facilitator, the Kepala departemen over the place and the Dekan the result; Admin sekolah enrolment, participation and completion, not the result; other teachers nothing; the answers no one but the participant; integrity not shown to the facilitator or leadership (D-069(b),(c)) — in both languages, checked against professional_learning_record's audiences (FACILITATOR, HEAD, DEAN full; ADMIN limited) and the administrator's own page."
+      "proves": "D-195(4), CONTOH LAPORAN 5-peserta, selftest/b5a.test.ts, from the source, the migration and the copy table: the result page (src/app/belajar/[tugas]/hasil/page.tsx) of a professional-learning package only (engine.isProfessionalLearning, jenis_belajar_saya) says «Tentang hasil ini»: the record's meaning and who sees it in Daisy's corrected words (KESETIAAN #23) — the facilitator, the Kepala departemen over professional learning and the Dekan the result; Admin sekolah enrolment, participation and completion only; other teachers nothing; the answers per question not shown to them (D-069(b)) — in both languages, checked against professional_learning_record's audiences (FACILITATOR, HEAD, DEAN full; ADMIN limited) and the administrator's own page."
     },
     {
       "id": "LAPORAN-FASILITATOR-01",

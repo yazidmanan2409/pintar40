@@ -3589,13 +3589,13 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
    always with its words (G-03), darker than the grey so greyscale keeps them apart; missing evidence is a sentence in the
    figure's place; every chart has its text equivalent. Section letters A, B, C… (G-02), the same square on screen and
    paper. Ported from the specimens' contoh.css; tokens only, plus the three band steps of PINTAR teal. */
+.pin-pemilih-merek { margin: 0; --merek-tinggi: var(--logo-height-phone); }
 .pin-lk { --lk-pita-penguatan: var(--pita-penguatan); --lk-pita-berkembang: var(--pita-berkembang); --lk-pita-mantap: var(--pita-mantap);
   --lk-isi: var(--line-control); --lk-bawah: var(--status-attention); --lk-alur: var(--surface-2);
   display: grid; gap: var(--space-8); }
 .pin-lk-h { display: flex; align-items: center; gap: var(--space-3); margin: 0; font-size: var(--t-section); line-height: var(--t-section-lh); font-weight: 600; color: var(--ink-1); }
 .pin-lk-huruf { flex: none; display: inline-grid; place-items: center; width: var(--space-6); height: var(--space-6); border-radius: var(--radius-md); background: var(--pintar-primary-soft); color: var(--pintar-primary); font-size: var(--t-body); line-height: var(--leading-none); font-weight: 700; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .pin-lk-inti { display: grid; gap: var(--space-5); padding: var(--space-6); background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); }
-.pin-lk-inti .pin-lk-h { font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--ink-2); }
 .pin-lk-kalimat { margin: 0; font-size: var(--t-section); line-height: var(--t-section-lh); font-weight: 600; color: var(--ink-1); text-wrap: balance; max-width: var(--lk-kalimat); }
 .pin-lk-kalimat-sub { margin: calc(var(--space-3) * -1) 0 0; color: var(--ink-2); font-size: var(--t-body); line-height: var(--t-body-lh); max-width: var(--lk-arti); }
 .pin-lk-bagian { display: grid; gap: var(--space-4); }
@@ -3616,7 +3616,7 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-lk-skala-garis span { position: absolute; transform: translateX(-50%); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .pin-lk-skala-garis span:first-child { transform: none; }
 .pin-lk-skala-garis span:last-child { transform: translateX(-100%); }
-.pin-lk-skala-garis span.pin-lk-skala-target { color: var(--ink-1); font-weight: 600; }
+.pin-lk-skala-garis span.pin-lk-skala-target { color: var(--ink-1); font-weight: 600; transform: translateX(-50%); }
 .pin-lk-pita { display: grid; gap: var(--space-3); }
 .pin-lk-pita-batang { display: flex; gap: var(--border-selected); height: var(--lk-pita-tinggi); }
 .pin-lk-pita-batang span { display: grid; place-items: center; min-width: 0; color: var(--pintar-primary-ink); font-size: var(--t-small); font-weight: 600; font-variant-numeric: tabular-nums; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -3638,6 +3638,10 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-lk-daftar li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: var(--space-2) var(--space-4); padding: var(--space-3) 0; border-bottom: var(--border-hairline) solid var(--line); font-size: var(--t-small); line-height: var(--t-small-lh); }
 .pin-lk-daftar li:first-child { border-top: var(--border-hairline) solid var(--line); }
 .pin-lk-daftar small { grid-column: 1 / -1; color: var(--ink-2); }
+/* KESETIAAN #8: the remedy is labelled and read at the small size; #5: a learner's «Pelajari lagi» under their name */
+.pin-lk-daftar li > .pin-lk-saran { grid-column: 1 / -1; margin: 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-1); }
+.pin-lk-daftar li > span > small { display: block; color: var(--ink-2); }
+.pin-lk-gambar { display: grid; gap: var(--space-3); }
 .pin-lk-langkah { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-2); font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-1); }
 /* 4-dekan: a dot on the 0–100 scale with PINTAR's band zones (60%, 80%), the zones named once above */
 .pin-lk-titik { position: absolute; top: calc((var(--lk-jalur) - var(--t-small)) / 2); width: var(--t-small); height: var(--t-small); margin-left: calc(var(--t-small) / -2); border-radius: var(--radius-pill); background: var(--ink-1); box-shadow: 0 0 0 var(--border-selected) var(--surface-1); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -3675,9 +3679,20 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-lk-sel small { font-size: var(--t-eyebrow); line-height: var(--t-eyebrow-lh); }
 .pin-lk-sel-kosong { color: var(--ink-3); }
 @media print {
-  /* R3-01: on paper the grid is a fixed table that fits the printable width; nothing clipped by a scroll container */
+  /* R3-01: on paper the grid is a fixed table that fits the printable width; nothing clipped by a scroll container.
+     KESETIAAN #15: a fixed name column, the header's and the cell's words kept whole; many classes, a landscape page */
   .pin-lk-kisi-wadah { overflow: visible; }
-  .pin-lk-kisi-tabel { table-layout: fixed; }
+  .pin-lk-kisi-tabel { table-layout: fixed; width: 100%; font-size: 8.5pt; line-height: var(--leading-tight); }
+  .pin-lk-kisi-tabel .pin-lk-kol-nama { width: var(--lk-kolom-nama); }
+  .pin-lk-kisi-tabel thead th, .pin-lk-kisi-tabel .pin-lk-bawah { white-space: nowrap; }
+  .pin-lk-kisi-tabel thead th small[data-kisi-belum] { white-space: normal; }
+  .pin-lk-kisi-tabel th, .pin-lk-kisi-tabel td { padding: 2mm 1.6mm; overflow-wrap: break-word; }
+  .pin-lk-kisi-tabel tfoot { display: table-footer-group; }
+  .pin-lk-sel { min-width: 0; }
+  .pin-lk-kisi-tabel small { font-size: 6.5pt; line-height: var(--leading-tight); }
+  [data-kisi-lebar] { page: laporan-lebar; }
+  [data-kisi-lebar] .pin-lk-kisi-tabel .pin-lk-kol-nama { width: 30mm; }
+  [data-kisi-lebar] .pin-lk-kisi-tabel th, [data-kisi-lebar] .pin-lk-kisi-tabel td { padding: 1.5mm 1mm; }
   .pin-lk-kisi-tabel thead { display: table-header-group; }
   .pin-lk-kisi-tabel tr { break-inside: avoid; }
   .pin-lk-kisi-tabel tbody tr:nth-child(even) { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -3689,6 +3704,37 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
   .pin-lk-skala-garis span[data-antara] { display: none; }
   .pin-lk-kalimat { font-size: var(--t-subsection); line-height: var(--t-subsection-lh); }
   .pin-lk-inti { padding: var(--space-4); }
+}
+/* KESETIAAN #3 (G-01, G-05): a report on paper. The header carries the PINTAR wordmark, then the report, the place and
+   the period (written by each report page, KepalaCetak); the footer the page counter. The body prints as blocks on
+   white, a heading stays with its chart, a chart is never split. The margin boxes take the tokens (Chromium resolves the
+   root's custom properties there); the header line's text alone comes from the page. */
+@page laporan {
+  size: A4 portrait; margin: 20mm 15mm 18mm;
+  @top-right { font: 400 8pt/1.3 "Plus Jakarta Sans", Arial, sans-serif; color: var(--ink-2); vertical-align: bottom; padding-bottom: 4mm; }
+  @top-left { content: "PINTAR"; font: 700 10pt/1 Inter, Arial, sans-serif; letter-spacing: var(--tracking-wordmark); color: var(--merek-warna); vertical-align: bottom; padding-bottom: 4mm; }
+  @bottom-right { content: "Halaman " counter(page) " dari " counter(pages); font: 400 8pt/1.3 "Plus Jakarta Sans", Arial, sans-serif; color: var(--ink-2); vertical-align: top; padding-top: 3mm; }
+}
+@page laporan-lebar {
+  size: A4 landscape; margin: 15mm 15mm 15mm;
+  @top-right { font: 400 8pt/1.3 "Plus Jakarta Sans", Arial, sans-serif; color: var(--ink-2); vertical-align: bottom; padding-bottom: 4mm; }
+  @top-left { content: "PINTAR"; font: 700 10pt/1 Inter, Arial, sans-serif; letter-spacing: var(--tracking-wordmark); color: var(--merek-warna); vertical-align: bottom; padding-bottom: 4mm; }
+  @bottom-right { content: "Halaman " counter(page) " dari " counter(pages); font: 400 8pt/1.3 "Plus Jakarta Sans", Arial, sans-serif; color: var(--ink-2); vertical-align: top; padding-top: 3mm; }
+}
+@media print {
+  body:has(.pin-lk) { page: laporan; background: var(--surface-1) !important; }
+  body:has(.pin-lk) main, body:has(.pin-lk) .pin-col { background: var(--surface-1) !important; }
+  .pin-lk, .pin-lk-bagian, .pin-lk-inti, .pin-lk-gambar { display: block; }
+  .pin-lk > * + * { margin-top: 8mm; }
+  .pin-lk-bagian > * + *, .pin-lk-inti > * + *, .pin-lk-gambar > * + * { margin-top: 3.5mm; }
+  .pin-lk-inti { padding: 5mm; }
+  .pin-lk-h { font-size: 13pt; line-height: 1.3; }
+  .pin-lk-h + * { break-before: avoid; }
+  .pin-lk-h + .pin-lk-arti + * { break-before: avoid; }
+  /* a section shorter than a page stays whole: a heading never ends a page apart from its figure (Chromium splits a
+     longer one where it must) */
+  .pin-lk-bagian { break-inside: avoid; }
+  .pin-lk-gambar, .pin-lk-pita, .pin-lk-kelompok { break-inside: avoid; }
 }
 @media print {
   /* G-05: figures, rows and keys never split; a heading stays with its first lines; text 10 pt */

@@ -82,10 +82,15 @@ export type HleEvent =
   | "laporan.komposisi.kolom_topik" | "laporan.komposisi.kolom_nilai" | "laporan.komposisi.kolom_pita"
   | "laporan.komposisi.lainnya"
   | "pengembangan.tentang" | "pengembangan.siapa_melihat"
+  | "laporan.bagian"
+  | "laporan.sekolah.naik" | "laporan.sekolah.ranah_baik"
+  | "laporan.kisi.dasar" | "laporan.kisi.kunci"
+  | "laporan.komposisi.tertahan_judul" | "laporan.komposisi.tertahan" | "laporan.komposisi.tertahan_sub" | "laporan.komposisi.berikutnya_tertahan"
+  | "laporan.komposisi.pita_ket" | "laporan.komposisi.saran" | "laporan.komposisi.penguatan_soal" | "laporan.komposisi.soal_wajib_belum"
   | "config.menunggu.alasan.kartu" | "config.menunggu.alasan.email" | "config.menunggu.alasan.pendataan"
   | "hasilbelajar.judul" | "hasilbelajar.cakupan" | "hasilbelajar.a" | "hasilbelajar.b" | "hasilbelajar.b_arti"
   | "hasilbelajar.belum_ada" | "hasilbelajar.semua_capai" | "hasilbelajar.capai" | "hasilbelajar.selesai" | "hasilbelajar.ulang"
-  | "hasilbelajar.serta" | "hasilbelajar.awal" | "hasilbelajar.akhir" | "hasilbelajar.target" | "hasilbelajar.berjalan"
+  | "hasilbelajar.awal" | "hasilbelajar.akhir" | "hasilbelajar.target" | "hasilbelajar.berjalan"
   | "hasilbelajar.nilai" | "hasilbelajar.tercapai" | "hasilbelajar.belum_capai" | "hasilbelajar.pelajari_lagi"
   | "hasilbelajar.lanjutkan" | "hasilbelajar.berikutnya_ulang" | "hasilbelajar.buka_bab" | "hasilbelajar.sertifikat"
   | "hasilbelajar.buka" | "hasilbelajar.buka_arti" | "hasilbelajar.kosong"
@@ -2665,6 +2670,19 @@ const table: Table = {
   "laporan.komposisi.kolom_topik": { default: "Topik", en: "Topic" },
   "laporan.komposisi.kolom_nilai": { default: "Penguasaan rata-rata", en: "Average mastery" },
   "laporan.komposisi.kolom_pita": { default: "Pita", en: "Band" },
+  "laporan.komposisi.tertahan_judul": { default: "Peserta", en: "Participants" },
+  "laporan.komposisi.tertahan": { default: "Belum cukup bukti untuk menyimpulkan apa pun tentang {kelas}.", en: "There is not yet enough evidence to conclude anything about {kelas}." },
+  "laporan.komposisi.tertahan_sub": { default: "Baru {n} dari {m} murid mengerjakan Uji Penguasaan. Angka kelas muncul setelah paling sedikit {perlu} murid mengerjakannya.", en: "Only {n} of {m} learners have sat the Mastery Check. The class figures appear once at least {perlu} have." },
+  "laporan.komposisi.berikutnya_tertahan": { default: "Di PINTAR, angka kelas muncul sendiri setelah paling sedikit {perlu} murid mengerjakan Uji Penguasaan. Tidak ada yang perlu dilakukan sekarang.", en: "In PINTAR, the class figures appear by themselves once at least {perlu} learners have sat the Mastery Check. Nothing needs doing now." },
+  "laporan.komposisi.pita_ket": { default: "{n} murid ({p})", en: "{n} learners ({p})" },
+  "laporan.komposisi.saran": { default: "Saran penanganan: {saran}", en: "Suggested remedy: {saran}" },
+  "laporan.komposisi.penguatan_soal": { default: "{b} dari {t} soal tepat", en: "{b} of {t} questions right" },
+  "laporan.komposisi.soal_wajib_belum": { default: "soal wajib belum tepat", en: "a required question not right yet" },
+  "laporan.kisi.dasar": { default: "{n} dari {m} murid", en: "{n} of {m} learners" },
+  "laporan.kisi.kunci": { default: "Garis tegak di setiap sel: target kelas itu. Angka berwarna jingga: di bawah target. Tanda —: belum cukup data.", en: "The upright line in each cell: that class's target. An amber figure: below target. A dash: not enough data yet." },
+  "laporan.sekolah.naik": { default: "Kenaikan penguasaan rata-rata sejak Pemetaan Awal: {nilai}.", en: "The average gain in mastery since the Initial Mapping: {nilai}." },
+  "laporan.sekolah.ranah_baik": { default: "{n} dari {m} ranah berada di pita «{berkembang}» atau «{mantap}».", en: "{n} of {m} domains are in the «{berkembang}» or «{mantap}» band." },
+  "laporan.bagian": { default: "Bagian", en: "Section" },
   "laporan.komposisi.lainnya": { default: "Angka lain", en: "Other figures" },
   "laporan.komposisi.penguatan_judul": { default: "Murid yang perlu penguatan", en: "Learners who need strengthening" },
   "laporan.komposisi.penguatan_arti": { default: "Murid kelas ini di pita «{pita}», menurut abjad. Ini daftar bagian yang perlu dipelajari lagi, bukan penilaian atas muridnya.", en: "This class's learners in the «{pita}» band, in alphabetical order. It lists what to study again; it is not a judgement of the learner." },
@@ -2676,7 +2694,7 @@ const table: Table = {
   "laporan.kisi.arti": { default: "Setiap sel adalah angka «Penguasaan per topik» kelas itu sendiri, terhadap target kelas itu. Baca mendatar untuk melihat pola; baca menurun untuk melihat satu kelas.", en: "Each cell is that class's own «Mastery by topic» figure, against that class's target. Read across for a pattern; read down for one class." },
   "laporan.kisi.belum": { default: "Belum cukup bukti", en: "Not enough evidence yet" },
   "laporan.sekolah.zona": { default: "Batas pita: di bawah 60% «{penguatan}» · 60–79% «{berkembang}» · 80% ke atas «{mantap}».", en: "Band limits: below 60% «{penguatan}» · 60–79% «{berkembang}» · 80% and above «{mantap}»." },
-  "laporan.sekolah.perhatian": { default: "Perhatian ada pada {daftar}: masih di bawah 60%.", en: "Attention belongs to {daftar}: still below 60%." },
+  "laporan.sekolah.perhatian": { default: "{daftar} masih di pita «{pita}».", en: "{daftar}: still in the «{pita}» band." },
   "laporan.sekolah.semua_cukup": { default: "Semua bidang kompetensi berada di 60% ke atas.", en: "Every competency domain is at 60% or above." },
   "laporan.sekolah.angka": { default: "Angka utama", en: "Headline figures" },
   "laporan.sekolah.dasar_gerbang": { default: "Dari {n} hasil Uji Penguasaan.", en: "Out of {n} Mastery Check results." },
@@ -3472,7 +3490,7 @@ const table: Table = {
   "pengembangan.judul": { default: "Catatan pengembangan profesi", en: "Professional-learning record" },
   "pengembangan.arti": { default: "Catatan baca-saja per peserta dan paket. Bukan penilaian kinerja dan bukan peringkat.", en: "A read-only record per participant and package. It is not a performance appraisal and not a ranking." },
   "pengembangan.tentang": { default: "Tentang hasil ini", en: "About this result" },
-  "pengembangan.siapa_melihat": { default: "Hasil ini terlihat oleh Anda, fasilitator kegiatan ini, Kepala departemen yang menaungi tempat pengembangan profesi ini, dan Dekan. Admin sekolah hanya melihat pendaftaran, keikutsertaan, dan penyelesaian Anda, tidak hasilnya. Guru lain tidak melihatnya. Jawaban Anda tidak ditampilkan kepada siapa pun selain Anda, dan catatan integritas tidak ditampilkan kepada fasilitator maupun pimpinan sekolah.", en: "This result is seen by you, the facilitator of this activity, the Head of department over this professional-learning place, and the Dean. The school administrator sees only your enrolment, participation and completion, not the result. Other teachers do not see it. Your answers are shown to no one but you, and integrity observations are not shown to the facilitator or the school's leadership." },
+  "pengembangan.siapa_melihat": { default: "Hasil ini terlihat oleh Anda, fasilitator paket ini, Kepala departemen yang membawahi pengembangan profesi, dan Dekan. Admin sekolah hanya melihat pendaftaran, keikutsertaan, dan penyelesaian; guru lain tidak melihatnya. Jawaban Anda per soal tidak ditampilkan kepada mereka.", en: "This result is seen by you, the facilitator of this package, the Head of department over professional learning, and the Dean. The school administrator sees only enrolment, participation and completion; other teachers do not see it. Your answers to each question are not shown to them." },
   "hasilbelajar.judul": { default: "Hasil belajar", en: "Learning results" },
   "hasilbelajar.cakupan": { default: "Semua bab yang sudah Anda kerjakan, sampai {waktu}. Hanya hasil Anda sendiri.", en: "Every chapter you have worked on, up to {waktu}. Your own results only." },
   "hasilbelajar.a": { default: "Hasil per bab", en: "Results by chapter" },
@@ -3483,7 +3501,6 @@ const table: Table = {
   "hasilbelajar.capai": { default: "{n} dari {m} bab yang selesai sudah mencapai target.", en: "{n} of {m} finished chapters have reached their target." },
   "hasilbelajar.selesai": { default: "{n} bab sudah selesai.", en: "{n} chapters are finished." },
   "hasilbelajar.ulang": { default: "Pelajari lagi: {daftar}.", en: "Study again: {daftar}." },
-  "hasilbelajar.serta": { default: " serta ", en: " and " },
   "hasilbelajar.awal": { default: "Pemetaan Awal", en: "Initial Mapping" },
   "hasilbelajar.akhir": { default: "Uji Penguasaan", en: "Mastery Check" },
   "hasilbelajar.target": { default: "Target bab ini", en: "This chapter's target" },

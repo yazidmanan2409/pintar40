@@ -3,6 +3,7 @@ import Kosong from "@/components/Kosong";
 import { asalLaporan } from "@/lib/nama-tempat";
 import { tawarkanSekolahLain } from "@/lib/konteks-server";
 import { kepalaLaporan, namaTempat, templatUntuk } from "@/lib/laporan";
+import KepalaCetak from "@/components/laporan/KepalaCetak";
 import { currentLocale } from "@/lib/locale";
 import { tanggal } from "@/lib/tanggal";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
@@ -82,6 +83,7 @@ export default async function RingkasanSekolah({
     <>
       <CangkangStaf locale={locale} kini={judul} nav={await navKonteks({ locale, persona: "staff", bentuk: "nav" })} />
       <main id="isi" tabIndex={-1} className="pin-col">
+        <KepalaCetak bagian={[judul, kepala?.sekolah, kepala?.periode]} />
         {/* W3.8: whose report; printed with it */}
         <BarisLingkup scope={{ institution: kepala?.sekolah }} locale={locale} />
         <div className="pin-head">

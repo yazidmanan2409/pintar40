@@ -933,16 +933,26 @@ export async function tujuanBelum(kelasId: string, orang: string): Promise<Tujua
  * tujuan_belum_tercapai what each is to study again. No figure, no item, no answer. Unread is null (no section drawn),
  * so a failed read never says «nobody».
  */
-export type MuridPenguatan = { id: string; nama: string; ulang: string[] };
+export type MuridPenguatan = {
+  id: string; nama: string; ulang: string[];
+  /** The latest Uji Penguasaan's questions right out of its questions (KESETIAAN #5); null when not recorded. */
+  benar: number | null; total: number | null;
+  /** false: a required question was not right (the safety gate, which alone places a learner in this band). */
+  soalWajibTepat: boolean | null;
+};
 
 export async function perluPenguatan(kelasId: string): Promise<MuridPenguatan[] | null> {
   const c = await db();
   const { data, error } = await c.rpc("murid_perlu_penguatan", { p_class: kelasId });
   if (error) return null;
-  const orang = rows<{ person_id: string; display_name: string | null }>(data)
+  const orang = rows<{ person_id: string; display_name: string | null; benar: number | null; total: number | null; soal_wajib_tepat: boolean | null }>(data)
     .filter((r) => typeof r.person_id === "string");
   const ulang = await Promise.all(orang.map((o) => tujuanBelum(kelasId, o.person_id)));
-  return orang.map((o, i) => ({ id: o.person_id, nama: o.display_name ?? "", ulang: ulang[i].map((u) => u.pernyataan) }));
+  return orang.map((o, i) => ({
+    id: o.person_id, nama: o.display_name ?? "", ulang: ulang[i].map((u) => u.pernyataan),
+    benar: typeof o.total === "number" && o.total > 0 ? o.benar : null, total: typeof o.total === "number" && o.total > 0 ? o.total : null,
+    soalWajibTepat: typeof o.soal_wajib_tepat === "boolean" ? o.soal_wajib_tepat : null,
+  }));
 }
 
 // ═══════════════════════════════════════════════════ 5. the quick assessment

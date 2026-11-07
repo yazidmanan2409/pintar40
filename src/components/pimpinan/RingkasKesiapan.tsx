@@ -1,6 +1,10 @@
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import type { Envelope } from "@/components/bukti";
 import { KESIAPAN_KUNCI, KESIAPAN_URUT, hitungKesiapan } from "@/lib/pimpinan-kontrak";
+import { JudulBagian } from "@/components/laporan/tata";
+
+/** Whether the section has anything to draw (a page letters it only then). */
+export const adaKesiapan = (entries: readonly Envelope[]) => KESIAPAN_URUT.some((k) => hitungKesiapan(entries)[k] > 0);
 
 /**
  * EVIDENCE READINESS — three states, told apart, and none of them a result.
@@ -28,9 +32,12 @@ import { KESIAPAN_KUNCI, KESIAPAN_URUT, hitungKesiapan } from "@/lib/pimpinan-ko
 export default function RingkasKesiapan({
   entries,
   locale = "id",
+  huruf,
 }: {
   entries: readonly Envelope[];
   locale?: Locale;
+  /** KESETIAAN #4: the section's letter on a lettered page (Pimpinan, Ringkasan Sekolah). */
+  huruf?: string;
 }) {
   const s = (key: string) => t(key as HleEvent, "staff", { locale });
   const hitung = hitungKesiapan(entries);
@@ -40,7 +47,7 @@ export default function RingkasKesiapan({
 
   return (
     <section className="pin-sec pin-kesiapan" aria-labelledby="pin-kesiapan">
-      <h2 id="pin-kesiapan">{s("pimpinan.kesiapan.judul")}</h2>
+      {huruf ? <JudulBagian huruf={huruf} judul={s("pimpinan.kesiapan.judul")} id="pin-kesiapan" locale={locale} /> : <h2 id="pin-kesiapan">{s("pimpinan.kesiapan.judul")}</h2>}
       <ul className="pin-kesiapan-list">
         {ada.map((k) => (
           <li key={k}>

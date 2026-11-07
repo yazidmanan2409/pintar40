@@ -6,6 +6,7 @@ import { currentLocale } from "@/lib/locale";
 import { peranSaya } from "@/lib/tur-negara";
 import SesiSaya from "@/components/SesiSaya";
 import Ikon from "@/components/Ikon";
+import MerekPintar from "@/components/MerekPintar";
 import TombolKirim from "@/components/TombolKirim";
 import { namaSapaan } from "@/components/sesi";
 import { berandaPasangan, bacaPermintaan, kunciPasangan, pintuPilihan, samaPasangan, type Pasangan } from "@/lib/konteks";
@@ -49,7 +50,7 @@ export default async function Entry({
   if (!viewer) {
     return (
       <main id="isi" tabIndex={-1} className="mx-auto max-w-xl py-16">
-        <p className="text-sm text-ink-3">{s("app.name")}</p>
+        <p className="pin-pemilih-merek"><MerekPintar /></p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight">{s("entry.title")}</h1>
         <div className="mt-8 grid gap-3">
           {/* L3 (D-127 Q1, D-132): each door carries a PURPOSE to the sign-in, never a role. After signing in, the
@@ -75,15 +76,17 @@ export default async function Entry({
   const pintu = pintuPilihan(tempat, minta);
   const kini = k?.keadaan === "ADA" ? k : null;
   // D-132(m): the sentence for why the person is here is a semantic key awaiting Dr Gladys's words; until then none
-  const kalimat = minta.alasan === "tidak_dipegang" ? istilah("context.not_held")
+  // KESETIAAN #27 (E2 §1.1): why the reader was sent here is an info alert above the doors; «choose a place» is the
+  // heading that names the door list. Both draw nothing until Dr Gladys's words arrive (D-132(m))
+  const alasan = minta.alasan === "tidak_dipegang" ? istilah("context.not_held")
     : minta.alasan === "tidak_berlaku" ? istilah("context.invalid")
-    : minta.alasan === "lain" ? istilah("context.other_context")
-    : minta.untuk && pintu.length > 1 ? istilah("context.choose_place") : null;
+    : minta.alasan === "lain" ? istilah("context.other_context") : null;
+  const pilihTempat = !minta.alasan && minta.untuk && pintu.length > 1 ? istilah("context.choose_place") : null;
 
   return (
     <main id="isi" tabIndex={-1} className="mx-auto max-w-xl py-16">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-ink-3">{s("app.name")}</p>
+        <p className="pin-pemilih-merek"><MerekPintar /></p>
         <SesiSaya locale={locale} persona="public" viewer={viewer} peran={peran} />
       </div>
       <h1 className="mt-2 text-3xl font-semibold tracking-tight">{s("entry.title")}</h1>
@@ -91,10 +94,16 @@ export default async function Entry({
         {s("entry.halo")}
         {nama ? `, ${nama}` : ""}.
       </p>
-      {kalimat ? <p className="mt-4 text-ink-2" role="status">{kalimat}</p> : null}
+      {alasan ? (
+        <div className="pin-banner pin-info mt-4" role="status">
+          <Ikon nama="info" />
+          <p>{alasan}</p>
+        </div>
+      ) : null}
+      {pilihTempat ? <h2 id="pin-pilih-tempat" className="mt-6 text-lg font-semibold">{pilihTempat}</h2> : null}
 
       {pintu.length > 0 ? (
-        <div className="mt-8 grid gap-3" data-pemilih="konteks">
+        <div className="mt-8 grid gap-3" data-pemilih="konteks" role={pilihTempat ? "group" : undefined} aria-labelledby={pilihTempat ? "pin-pilih-tempat" : undefined}>
           {pintu.map((p) => {
             const di = kini !== null && samaPasangan(kini, p);
             return (

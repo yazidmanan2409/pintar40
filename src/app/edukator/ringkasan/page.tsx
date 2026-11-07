@@ -13,6 +13,7 @@ import KakiPintar from "@/components/KakiPintar";
 import { BarisLingkup } from "@/components/bukti";
 import AksiLaporan from "@/components/laporan/AksiLaporan";
 import KomposisiKelas from "@/components/laporan/KomposisiKelas";
+import KepalaCetak from "@/components/laporan/KepalaCetak";
 import { perluPenguatan, targetKelas } from "@/lib/pengajar";
 import { s, card, type Entry } from "../../_intel";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -92,6 +93,7 @@ export default async function RingkasanKelas({
     <>
       <CangkangStaf locale={locale} kini={judul} nav={await navKonteks({ locale, persona: "staff", bentuk: "nav" })} />
       <main id="isi" tabIndex={-1} className="pin-col">
+        <KepalaCetak bagian={[judul, kepala?.tempat, kepala?.sekolah, kepala?.periode]} />
         {/* W3.8: whose report, and which school year; printed with it */}
         <BarisLingkup scope={{ institution: kepala?.sekolah, path: kepala?.tempat ? [kepala.tempat] : [], period: kepala?.periode }} locale={locale} />
         <div className="pin-head">
