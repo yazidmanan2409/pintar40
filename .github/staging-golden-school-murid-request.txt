@@ -19,4 +19,5 @@ slug: sekolah-uji-l3
 # 6 Nov, P-4 session verification (main d672a94a): Sekolah Uji B8 1106 (after run 42213701786)
 # 7 Nov, P-5 verification (main ebc53ee2): Sekolah Uji P5 1107 after GS-04-11 (run 42318052262)
 # 7 Nov, evaluation school (synthetic): Sekolah Uji Evaluasi B after GS-04-11 (run 42334669314)
-slug: sekolah-uji-evaluasi-b
+# 7 Nov, evaluation school (synthetic): Sekolah Uji Evaluasi A after GS-04-11 (run 42341128822); staging main 002852ab, migration 198
+slug: sekolah-uji-evaluasi-a
