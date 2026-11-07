@@ -25,4 +25,5 @@ slug: sekolah-uji-l3
 # 6 Nov, P-4 session verification (main d672a94a = audited 5a78d979): Sekolah Uji B8 1106 (after run 42217292476); R2/R3, U1/U2, X1 are the verdict
 # 7 Nov, P-5 verification (main ebc53ee2): Sekolah Uji P5 1107 after GS-07, GS-12-16 (run 42319445341)
 # 7 Nov, evaluation school (synthetic): Sekolah Uji Evaluasi B after GS-07, GS-12-16 (run 42335711337)
+# 7 Nov, P-6 staging verification (main 002852ab = audited 7cd6ec18, SAME; migration 198, MC-8 live): Sekolah Uji Evaluasi B
 slug: sekolah-uji-evaluasi-b
