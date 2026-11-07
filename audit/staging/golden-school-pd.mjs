@@ -95,8 +95,13 @@ async function buka(page, jalan) {
 const keadaan = keadaanDari(sql, lit);
 const masuk = async (page, email) => (await masukStaf(page, email, keadaan)).di;
 // read only, for the steps' evidence
-const simpul = (kind, nama, induk = null) => sql(`select id from public.org_nodes where institution_id = '${S.id}' and kind = '${kind}'
-    and name = ${lit(nama)} and is_active ${induk ? `and parent_id = '${uuid(induk)}'` : ""} limit 1`);
+// under `induk` anywhere below it: Struktur sekolah keeps hidden levels between those it shows (a Tingkat sits under the
+// Bagian's «Reguler» programme, run 42426680421), so the parent a person chose is an ancestor, not always the parent
+const simpul = (kind, nama, induk = null) => sql(`with recursive bawah as (
+      select id from public.org_nodes where id = ${induk ? `'${uuid(induk)}'` : `'${S.id}'`}
+      union all select o.id from public.org_nodes o join bawah b on o.parent_id = b.id)
+    select n.id from public.org_nodes n where n.institution_id = '${S.id}' and n.kind = '${kind}' and n.name = ${lit(nama)} and n.is_active
+      and n.id in (select id from bawah) and n.id <> ${induk ? `'${uuid(induk)}'` : `'${S.id}'`} limit 1`);
 const orang = (nama) => sql(`select p.id from public.persons p join public.institutional_identities ii on ii.person_id = p.id
     where ii.institution_id = '${S.id}' and p.display_name = ${lit(nama)} limit 1`);
 const akunSurel = (email) => sql(`select count(*) from public.accounts a join auth.users u on u.id = a.auth_user_id
