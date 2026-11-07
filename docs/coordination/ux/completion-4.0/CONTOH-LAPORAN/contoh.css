@@ -4,8 +4,7 @@
 /* G-02: a major section's letter, the same square on screen and paper, so «see Section C» finds it at a glance. */
 .cl-h { display: flex; align-items: center; gap: var(--space-3); margin: 0; font-size: 22px; line-height: 28px; font-weight: 600; color: var(--ink-1); }
 .cl-huruf { flex: none; display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius-md); background: var(--pintar-primary-soft); color: var(--pintar-primary); font-size: 16px; line-height: 1; font-weight: 700; }
-.cl-inti .cl-h { font-size: 16px; line-height: 24px; color: var(--ink-2); }
-.cl-inti .cl-h .cl-huruf { width: 28px; height: 28px; font-size: 14px; }
+/* One heading grammar for every section (A included): letter and title outside the card, 22/28 600. Only A's content sits in a card. */
 .cl { --cl-pita-penguatan: #86B3A9; --cl-pita-berkembang: #4F8478; --cl-pita-mantap: #245F55;
   /* G-03: grey = an ordinary value (line-control, 3.5:1); amber = below its target or in «Perlu penguatan», always
      with its words; teal = the bands and progress only. The amber is darker than the grey, so a greyscale print keeps them apart. */

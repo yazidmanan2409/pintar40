@@ -35,6 +35,7 @@ This note lists deviations only. It adds no requirement. **PASS** means the item
 | 25 | `/mulai` → landing | **PASS**: one context goes straight to its home; several contexts go to the chooser | — | — |
 | 26 | `/` chooser · head | The head line is a plain «PINTAR» text eyebrow, signed in and signed out | E2 §1.1: the wordmark at the start of the head line | `<MerekPintar />` in place of the `app.name` paragraph |
 | 27 | `/` chooser · reason and place question | The reason and `context.choose_place` share one plain `<p role="status">` | The reason is an info alert above the doors; `choose_place` is the h2 that names the door list | Split them: `pds-alert-info` for the three reasons; an `h2` (with `aria-labelledby` on the list) for `choose_place` |
+| 4b | All reports · section A heading (7 Nov, owner) | A's letter and title sit inside its card, at 16 px `ink-2`, unlike B, C and D | One heading grammar for every section: the letter and title outside the card, 22/28 600. A's summary and its rows stay in the card (specimens corrected) | In `.pin-lk`, render A's heading before its card, as for the other sections; delete the smaller A-heading override |
 | 28 | `/` chooser · doors | **PASS**: 64 px tall, 12 px gaps, purpose 18/26 600, place 14/20, current door marked four ways | — | — |
 
-**Changed in the lane today:** specimens 5, 6 and 7 as described in #20, #22 and #23. They were rebuilt with `buat-contoh.mts`. Nothing else in the dataset or the metrics changed.
+**Changed in the lane today:** specimens 5, 6 and 7 as described in #20, #22 and #23; every specimen's section A heading (#4b). They were rebuilt with `buat-contoh.mts`. Nothing else in the dataset or the metrics changed.
