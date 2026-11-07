@@ -2,4 +2,5 @@
 # 5 Nov, Batch 8 staging verification (P-1; migrations 194-196): Sekolah Uji B8 1105 after GS-01 to GS-21 (run 42049795788) and the Studio walk (run 42057142327); main 38d7e701
 # 6 Nov, integrated verification on main d672a94a (P-4): Sekolah Uji B8 1106 after GS-01 to GS-21 (run 42220729346), administration (run 42272721594) and Studio (run 42276302384)
 # 7 Nov, P-5 verification (main ebc53ee2): Sekolah Uji P5 1107 after GS-01 to GS-21, administration (run 42323858693) and Studio (run 42325413782)
-slug: sekolah-uji-p5-1107
+# 7 Nov, evaluation school (synthetic): Sekolah Uji Evaluasi A, Batch 5 walk, after Studio (run 42354502062); staging main 002852ab
+slug: sekolah-uji-evaluasi-a
