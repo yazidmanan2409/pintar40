@@ -47,14 +47,15 @@ The case that does change, two chapters for one learner, is measured by F31-K01 
 | Walk | Run | Result |
 |---|---|---|
 | GS-17–21, Sekolah Uji Evaluasi B, its **second** run | 42347750742 | **Not valid as verification** (13 PASS, 5 FAIL; see below) |
-| GS-07, GS-12–16, then GS-17–21, Sekolah Uji Evaluasi A (a school that has not run GS-22) | (pending) | |
+| GS-07, GS-12–16, Sekolah Uji Evaluasi A | 42349448056 | GREEN |
+| **GS-17–21, Sekolah Uji Evaluasi A: the verification of record** | **42350628901** | **GREEN, 18 PASS, 0 FAIL** (C1 passed; GS-22 added «Fajar» and she sat her Pemetaan Awal; every session this run opened was ended) |
 
 **Why B's second run does not count.** GS-17–21 runs once per school: its last step, GS-22 (N1), adds a learner, Fajar. B's first run (42336620831, green, before P-6) already added Fajar, so B now holds 6 learners and 5 post-tests. On this second run that broke:
 - L0, the read-only recipe: 6 learners where it expects 5;
 - L1, the teacher's «Mengumpulkan»: 6/6 and 5/6;
 - N1, which refuses to add Fajar a second time;
 - X1, which then had no session of Fajar's to check;
-- C1, which crashed reading `batas` (most likely the same sixth learner, who has no sitting; to be confirmed on A).
+- C1, which crashed reading `batas`: the same sixth learner, who has no sitting. Confirmed: C1 passed on A.
 
 Choosing an already-walked school was my error. Every step that reads the figures P-6 touches still passed on B:
 - the head of department, the dean and the school admin saw «Kenaikan» +38 poin and «Pemahaman» 78% for «Kelas 5A»;
@@ -62,6 +63,9 @@ Choosing an already-walked school was my error. Every step that reads the figure
 - the certificate, card re-issue, recovery, shared-computer and public-check steps all passed.
 
 The verification of record is GS-17–21 on school A.
+
+## Verdict
+**P-6 is staging-verified within this coverage:** the promoted code equals the audited code, migration 198 and MC-8 are live, and GS-17–21 is green on a school walked from GS-01.
 
 ## Not claimed
 - Production is unchanged.
