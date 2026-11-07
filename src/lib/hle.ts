@@ -71,7 +71,7 @@ export type HleEvent =
   | "laporan.metrik.diganti" | "laporan.metrik.belum_cukup_data"
   | "laporan.metrik.belum_ada_bukti"
   | "laporan.kelas.judul" | "laporan.institusi.judul"
-  | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak" | "laporan.metrik.tanpa_nama"
+  | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak" | "laporan.metrik.tanpa_nama" | "laporan.kelas.pd_arti"
   | "laporan.cakupan.kelas" | "laporan.cakupan.sekolah"
   // CONTOH LAPORAN (Daisy, approved 7 Nov): the report compositions' own sentences, composed from the figures below
   // them with no cause or advice; every figure keeps its existing label and meaning
@@ -2716,6 +2716,8 @@ const table: Table = {
   "laporan.sekolah.kohort_arti": { default: "Penguasaan rata-rata tiap angkatan pada skala yang sama. Ini perbandingan keadaan, bukan peringkat.", en: "Each cohort's average mastery on the same scale. A comparison of states, not a ranking." },
   "laporan.sekolah.berikutnya_kesiapan": { default: "Di PINTAR: Pimpinan › «Kesiapan bukti» menyebut kelas yang buktinya belum cukup.", en: "In PINTAR: Leadership › «Evidence readiness» names the classes whose evidence is not yet enough." },
   "laporan.kosong": { default: "Belum ada angka yang bisa ditampilkan untuk Anda di sini.", en: "There are no figures to show you here yet." },
+  // X5 (owner, 7 Nov): the owner's words, verbatim
+  "laporan.kelas.pd_arti": { default: "Kelas pengembangan profesional tidak menggunakan ringkasan penguasaan akademik murid.", en: "A professional-development class does not use the academic mastery summary for learners." },
   "laporan.tak_ada_angka": { default: "Tidak ada angka pada laporan ini, tetapi keterangan di bawah menjelaskan alasannya satu per satu.", en: "This report carries no figures, but the notes below say why, one by one." },
 
   // ═══════════════════════════════════════════════════ WP4 — the Management surface

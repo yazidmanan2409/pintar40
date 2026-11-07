@@ -3703,6 +3703,11 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
   [data-kisi-lebar] .pin-lk-kisi-tabel th, [data-kisi-lebar] .pin-lk-kisi-tabel td { padding: 1.5mm 1mm; }
   .pin-lk-kisi-tabel thead { display: table-header-group; }
   .pin-lk-kisi-tabel tr { break-inside: avoid; }
+  /* the professional-learning record (6-fasilitator; X5): six word columns, not a numeric grid; its headers wrap
+     between words and a cell never breaks inside a word */
+  [data-pd-paket] .pin-lk-kisi-tabel { table-layout: auto; }
+  [data-pd-paket] .pin-lk-kisi-tabel thead th { white-space: normal; }
+  [data-pd-paket] .pin-lk-kisi-tabel th, [data-pd-paket] .pin-lk-kisi-tabel td { overflow-wrap: normal; word-break: normal; hyphens: manual; }
   .pin-lk-kisi-tabel tbody tr:nth-child(even) { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 @media (max-width: 639px) {

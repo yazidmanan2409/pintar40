@@ -406,6 +406,55 @@ export const b5aTests: SelfTest[] = [
     },
   },
   {
+    // X5 (owner, 7 Nov): a professional-learning class's Ringkasan Kelas is its own summary, never an academic report
+    // waiting for figures that will not come (D-070(h)); its participants alphabetical, nothing added up (D-069)
+    id: "LAPORAN-KELAS-PD-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const id = t("laporan.kelas.pd_arti" as HleEvent, "staff", { locale: "id" });
+      const en = t("laporan.kelas.pd_arti" as HleEvent, "staff", { locale: "en" });
+      c.expect(id === "Kelas pengembangan profesional tidak menggunakan ringkasan penguasaan akademik murid.", `the sentence is not the owner's: «${id}»`);
+      c.expect(/professional-development class does not use the academic mastery summary/.test(en) && !/muncul|appear|yet/i.test(id + en),
+        `the English sentence does not say the same, or a sentence promises figures: «${en}»`);
+      const halaman = kode(baca(ctx.repoRoot, "src/app/edukator/ringkasan/page.tsx"));
+      // 1. the class's kind is decided first, and a class of participants leaves before any academic read
+      const cabang = halaman.indexOf('if (kelas && jenis === "PARTICIPANT") return <RingkasanPengembangan kelas={kelas} asal={asal} />;');
+      const jenisDibaca = halaman.indexOf("jenis = jenisAnggota(");
+      const akademikPertama = Math.min(...["templatUntuk(", "generate_report", "targetKelas(kelas)", "perluPenguatan(kelas)", "sebaranKelas(kelas)", "awalAkhirKelas(kelas)"]
+        .map((x) => { const i = halaman.indexOf(x); return i < 0 ? Infinity : i; }));
+      c.expect(jenisDibaca > 0 && cabang > jenisDibaca && cabang < akademikPertama,
+        "Ringkasan Kelas reads an academic figure, the score line, the pair or «Perlu penguatan» before it knows the class is one of participants");
+      // 2-6. the PD summary: the same frame, the sentence, the record this reader is given, and none of the academic parts
+      const awal = halaman.indexOf("async function RingkasanPengembangan(");
+      const fn = awal >= 0 ? halaman.slice(awal) : "";
+      c.expect(fn.length > 0 && /catatan\(kelas\)/.test(fn) && /<KomposisiPengembangan isi=\{isi\} locale=\{locale\} \/>/.test(fn)
+        && /s\("laporan\.kelas\.pd_arti", "staff", locale\)/.test(fn) && /data-pd-arti=""/.test(fn) && /pin-banner pin-info/.test(fn),
+        "the PD summary does not draw the sentence and the professional-learning record");
+      c.expect(!/KomposisiKelas|perluPenguatan|sebaranKelas|awalAkhirKelas|targetKelas|generate_report|kunciMuncul|laporan\.muncul|tak_ada_angka/.test(fn),
+        "the PD summary draws or asks for an academic figure, a band, a score line, «Perlu penguatan» or a promise that figures will come");
+      c.expect(/isi === null \? \(\s*<Kosong jenis="belum" kalimat=\{s\("pengembangan\.ditolak", "staff", locale\)\} \/>/.test(fn)
+        && /isi\.peserta\.length === 0 \? \(\s*<Kosong jenis="belum" kalimat=\{s\("pengembangan\.kosong", "staff", locale\)\} \/>/.test(fn),
+        "a refused reader or a class with no participant is not said in words");
+      c.expect(/<KepalaCetak bagian=/.test(fn) && /<BarisLingkup /.test(fn) && /<AksiLaporan /.test(fn) && /<p className="pin-eyebrow">\{judul\}<\/p>/.test(fn),
+        "the PD summary lost the report's frame (whose report, the way back, print)");
+      // the record's own rule decides who sees what: no role is checked on the page
+      c.expect(!/peranSaya|role_assignments|\.role\b|"(EDUCATOR|HEAD_OF_DEPARTMENT|DEAN|INSTITUTION_ADMIN)"/.test(fn), "the PD summary decides access itself instead of professional_learning_record");
+      // on A4 the record's word columns wrap between words, never inside one (the grid's numeric print rules are not theirs)
+      const css = baca(ctx.repoRoot, "src/app/experience.css");
+      const cetak = css.slice(css.indexOf(".pin-lk-kisi-tabel tr { break-inside: avoid; }"));
+      c.expect(cetak.includes("[data-pd-paket] .pin-lk-kisi-tabel thead th { white-space: normal; }")
+        && cetak.includes("[data-pd-paket] .pin-lk-kisi-tabel th, [data-pd-paket] .pin-lk-kisi-tabel td { overflow-wrap: normal; word-break: normal; hyphens: manual; }"),
+        "on A4 the professional-learning record's headers run together or its words break mid-word");
+      // the academic report is untouched for a class of learners
+      c.expect(/<KomposisiKelas entries=\{entries\}/.test(halaman) && /const murid = untuk === "educator" && kelas && jenis === "LEARNER";/.test(halaman),
+        "the academic report for a class of learners has changed");
+      return c.verdict("Ringkasan Kelas decides the class's kind first; a class of participants gets the owner's sentence and the " +
+        "professional-learning record as the database gives this reader (alphabetical, nothing added up), a refusal or an empty class " +
+        "in words, the report's frame and print, and no academic figure, score line, band, «Perlu penguatan» or promise; a class of " +
+        "learners keeps the academic report");
+    },
+  },
+  {
     // D-195(3), CONTOH LAPORAN 6-fasilitator: each participant's steps, person by person, nothing added up (D-069(b))
     id: "LAPORAN-FASILITATOR-01",
     run: async (ctx) => {

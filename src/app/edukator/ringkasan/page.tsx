@@ -17,6 +17,8 @@ import KepalaCetak from "@/components/laporan/KepalaCetak";
 import { awalAkhirKelas, perluPenguatan, sebaranKelas, targetKelas } from "@/lib/pengajar";
 import { s, card, type Entry } from "../../_intel";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { catatan } from "@/lib/pengembangan";
+import KomposisiPengembangan from "@/components/laporan/KomposisiPengembangan";
 
 export const generateMetadata = judulHalaman("/edukator/ringkasan");
 
@@ -55,6 +57,11 @@ export default async function RingkasanKelas({
     await tawarkanSekolahLain((tempat?.[0] as { institution_id?: string } | undefined)?.institution_id);
     jenis = jenisAnggota((tempat?.[0] as { member_kind?: string } | undefined)?.member_kind);
   }
+
+  // X5 (owner, 7 Nov): a professional-learning class has its own summary. No academic figure, score line, band or
+  // «Perlu penguatan» is read for it; its participants are listed as professional_learning_record gives them to this
+  // reader (alphabetical, nothing added up: D-069, D-070), with one sentence saying why there are no mastery figures.
+  if (kelas && jenis === "PARTICIPANT") return <RingkasanPengembangan kelas={kelas} asal={asal} />;
 
   // BOB-06 (B6b): the template of the school this node belongs to -- its own
   // latest assembly, else PINTAR's standard one -- never another school's.
@@ -132,6 +139,43 @@ export default async function RingkasanKelas({
               namaKelas={kepala?.tempat ?? judul} buktiHref={untuk === "educator" ? `/mengajar/${kelas}/bukti` : null} tempat={tempat}
               penguatan={penguatan} muridHref={untuk === "educator" ? `/mengajar/${kelas}/murid` : null} titik={titik} awalAkhir={awalAkhir} />
           </>
+        )}
+      </main>
+      <KakiPintar className="pin-noprint" />
+    </>
+  );
+}
+
+/**
+ * X5: Ringkasan Kelas of a professional-learning class. The same page frame (whose report, which school year, print),
+ * then the reason in words, then the record the database gives this reader: the facilitator, the Kepala departemen and
+ * the Dekan each participant's steps and result, Admin sekolah enrolment, participation and completion only, anyone
+ * else nothing. It never says figures will come: there are none to come (D-070(h)).
+ */
+async function RingkasanPengembangan({ kelas, asal }: { kelas: string; asal: ReturnType<typeof asalLaporan> }) {
+  const locale = await currentLocale();
+  const [isi, kepala, nav] = await Promise.all([
+    catatan(kelas), kepalaLaporan(kelas), navKonteks({ locale, persona: "staff", bentuk: "nav" }),
+  ]);
+  const judul = s("laporan.kelas.judul", "staff", locale);
+  return (
+    <>
+      <CangkangStaf locale={locale} kini={judul} nav={nav} />
+      <main id="isi" tabIndex={-1} className="pin-col" data-ringkasan="pengembangan">
+        <KepalaCetak bagian={[judul, kepala?.tempat, kepala?.sekolah, kepala?.periode]} />
+        <BarisLingkup scope={{ institution: kepala?.sekolah, path: kepala?.tempat ? [kepala.tempat] : [], period: kepala?.periode }} locale={locale} />
+        <div className="pin-head">
+          <p className="pin-eyebrow">{judul}</p>
+          <h1 className="pin-h1">{kepala?.tempat ?? judul}</h1>
+        </div>
+        <AksiLaporan kembali={s(asal.nama, "staff", locale)} ke={asal.ke} cetak={s("laporan.cetak", "staff", locale)} />
+        <div className="pin-banner pin-info" role="note" data-pd-arti="">{s("laporan.kelas.pd_arti", "staff", locale)}</div>
+        {isi === null ? (
+          <Kosong jenis="belum" kalimat={s("pengembangan.ditolak", "staff", locale)} />
+        ) : isi.peserta.length === 0 ? (
+          <Kosong jenis="belum" kalimat={s("pengembangan.kosong", "staff", locale)} />
+        ) : (
+          <KomposisiPengembangan isi={isi} locale={locale} />
         )}
       </main>
       <KakiPintar className="pin-noprint" />

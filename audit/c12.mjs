@@ -580,6 +580,87 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => /^\d+\|/.tes
     return notes.join("; ");
   });
 
+  // ───────────────────────────── C12f2 (X5)
+  await step("C12f2", "C-12 X5 (owner, 7 Nov): the PD Kelas's Ringkasan Kelas is a professional-learning summary — the owner's sentence, the participants alphabetical with each audience's own columns, no academic figure, score line, band or «Perlu penguatan», nothing promised; the school admin reaches it from Konfigurasi «Laporan»; another Guru and a student see no participant; at 390 px nothing spills sideways", async (rec) => {
+    const notes = [];
+    const KALIMAT = "Kelas pengembangan profesional tidak menggunakan ringkasan penguasaan akademik murid.";
+    const alamat = `/edukator/ringkasan?kelas=${C.kelasA}`;
+    // nothing academic is drawn, and nothing says a figure will come (D-070(h))
+    const akademik = /data-lk="(topik|pita|kenaikan|keliru|tertahan|penguatan)"|data-lk-titik|data-lk-awal-akhir/;
+    const baca = async (p) => {
+      await p.getByText("Ringkasan Kelas").first().waitFor({ timeout: SLOW }).catch(() => {});
+      const html = await p.locator("main").innerHTML().catch(() => "");
+      const teks = norm(await p.locator("main").innerText().catch(() => ""));
+      const kolom = await p.evaluate(() => [...document.querySelectorAll("[data-pd-paket] thead th")].map((th) => th.textContent.trim())).catch(() => []);
+      const urut = await p.evaluate(() => [...document.querySelectorAll("[data-pd-paket]")].map((w) =>
+        [...w.querySelectorAll("tbody th[scope=row]")].map((th) => (th.childNodes[0]?.textContent ?? "").trim()))).catch(() => []);
+      return { pd: html.includes('data-ringkasan="pengembangan"'), kalimat: teks.includes(KALIMAT), akademik: akademik.test(html),
+        janji: /muncul setelah|Perlu penguatan|Sebaran hasil|Penguasaan per topik/.test(teks), guru: teks.toLowerCase().includes(people.guru.name.toLowerCase()),
+        kolom, abjad: urut.every((xs) => xs.join("|") === [...xs].sort((x, y) => x.localeCompare(y, "id", { sensitivity: "base" })).join("|")) };
+    };
+    const lihat = async (p, siapa) => {
+      await p.goto(`${APP}${alamat}`, { waitUntil: "networkidle" });
+      await tutupTur(p);
+      const r = await baca(p);
+      rec.shots.push(await shot(p, `c12-x5-${siapa}`));
+      return r;
+    };
+    const ok = (r) => r.pd && r.kalimat && !r.akademik && !r.janji && r.abjad;
+    const PENUH = ["Pelajaran selesai", "Hasil"];
+    const f = await masuk("fasilitator", ORANG_PD.fasilitator.email);
+    const fas = await lihat(f, "fasilitator");
+    const kp = await masuk("kepalaPd", ORANG_PD.kepalaPd.email, KELOLA_SD);
+    const kep = await lihat(kp, "kepala");
+    const dc = await ctx(); const dk = await dc.newPage(); await magicSignIn(dk, people.dekan.email);
+    const dek = await lihat(dk, "dekan");
+    await dc.close();
+    // the school admin by the way a person goes: Konfigurasi «Laporan» lists every active Kelas, the PD Kelas among them
+    await a.goto(`${APP}/konfigurasi/laporan?muat=${Date.now()}#laporan`, { waitUntil: "networkidle" });
+    await tutupTur(a);
+    const tautan = a.locator(`#laporan a[href="${alamat}&dari=konfigurasi"]`).first();
+    const adaTautan = (await tautan.count()) > 0;
+    if (adaTautan) { await tautan.click(); await a.waitForURL((u) => u.pathname === "/edukator/ringkasan", { timeout: SLOW }).catch(() => {}); }
+    else await a.goto(`${APP}${alamat}`, { waitUntil: "networkidle" });
+    const adm = await baca(a);
+    rec.shots.push(await shot(a, "c12-x5-admin"));
+    for (const [siapa, r, penuh] of [["the facilitator", fas, true], ["the PD Kepala departemen", kep, true], ["the Dekan", dek, true], ["the school admin", adm, false]]) {
+      const kolomOk = penuh ? PENUH.every((k) => r.kolom.includes(k)) : PENUH.every((k) => !r.kolom.includes(k)) && r.kolom.includes("Selesai");
+      notes.push(`${siapa}: summary ${r.pd}, the sentence ${r.kalimat}, academic marks ${r.akademik}, a promise or band ${r.janji}, names the Guru ${r.guru}, ` +
+        `alphabetical ${r.abjad}, columns ${JSON.stringify([...new Set(r.kolom)])}`);
+      if (!ok(r) || !r.guru || !kolomOk) rec.verdict = "FAIL";
+    }
+    notes.push(`Konfigurasi «Laporan» links the PD Kelas's summary ${adaTautan}`);
+    if (!adaTautan) rec.verdict = "FAIL";
+    // the refused: the same address names nobody
+    for (const [siapa, email, pakaiKartu] of [["another Guru", ORANG_PD.guruLain.email, false], ["a student", null, true]]) {
+      const c = await ctx(); const p = await c.newPage();
+      try {
+        if (pakaiKartu) await masukKartu(p, kartuKelas[0]); else await magicSignIn(p, email);
+        await p.goto(`${APP}${alamat}`, { waitUntil: "networkidle" });
+        const teks = norm(await bodyText(p));
+        const html = await p.content();
+        const bersih = !teks.toLowerCase().includes(people.guru.name.toLowerCase()) && !akademik.test(html);
+        notes.push(`${siapa} at the summary's address: no participant and no academic figure ${bersih}`);
+        if (!bersih) rec.verdict = "FAIL";
+      } finally { await c.close(); }
+    }
+    // at 390 px the summary stays inside the page: a wide table scrolls in its own named region (RB1-C1)
+    const pc = await ctx();
+    const pp = await pc.newPage();
+    try {
+      await magicSignIn(pp, ORANG_PD.fasilitator.email);
+      await pp.setViewportSize({ width: 390, height: 844 });
+      await pp.goto(`${APP}${alamat}`, { waitUntil: "networkidle" });
+      await tutupTur(pp);
+      const lebar = await pp.evaluate(() => ({ dok: document.documentElement.scrollWidth, layar: window.innerWidth,
+        wilayah: [...document.querySelectorAll("[data-pd-paket]")].every((w) => w.getAttribute("role") === "region" && w.tabIndex === 0) }));
+      rec.shots.push(await shot(pp, "c12-x5-390"));
+      notes.push(`at 390 px: page ${lebar.dok} px wide in ${lebar.layar}, each table a focusable region ${lebar.wilayah}`);
+      if (lebar.dok > lebar.layar || !lebar.wilayah) rec.verdict = "FAIL";
+    } finally { await pc.close(); }
+    return notes.join("; ");
+  });
+
   // ───────────────────────────── C12g (P6)
   await step("C12g", "C-12 P6 integrity per D-069(c): the observation is recorded; no school role sees it in Studio «Tinjauan Integritas»; referring it is refused, to the school and to the platform", async (rec) => {
     const notes = [];
