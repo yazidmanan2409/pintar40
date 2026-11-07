@@ -44,7 +44,8 @@ declare
 begin
   v_me := public.current_person_id();
   if v_me is null or p_class is null then return; end if;
-  select n.institution_id, n.jalur into v_inst, v_jalur from public.org_nodes n where n.id = p_class and n.kind = 'CLASS';
+  select n.institution_id, n.jalur into v_inst, v_jalur from public.org_nodes n where n.id = p_class and n.kind = 'CLASS'
+     and n.member_kind = 'LEARNER';   -- a class of learners only (D-069: a PD class is never drawn by result)
   if v_inst is null then return; end if;
   v_cat := public.current_metric_catalogue();
   select array(select a from unnest(m.allowed_audiences) a where a <> 'STUDENT') into v_aud

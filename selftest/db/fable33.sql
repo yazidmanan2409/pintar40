@@ -20,6 +20,9 @@
 --            account and a staff role is STAF, a member with neither is not counted (they are offered a card), a
 --            learner row of an import waiting for its go is PENDATAAN, and neither a completed import's row, a staff
 --            row nor a row naming a learner already placed is counted; each person once. A teacher gets nothing.
+--   F33-P01  D-069: the facilitator of a professional-learning class (participants, not learners) whose participants
+--            hold official results, one in the lowest band, is given no name by murid_perlu_penguatan and no dot by
+--            sebaran_murid_kelas: a PD class is never named or drawn by result.
 --
 -- EVERY ROW IS ROLLED BACK.
 
@@ -92,6 +95,7 @@ declare
   v_guru uuid; v_guru2 uuid; v_kadep uuid; v_dekan uuid; v_dekan_x uuid; v_x uuid; v_adm uuid;
   m record; v_p uuid; v_n int; v_n2 int; v_calc jsonb; v_cols int; v_job uuid; v_err text;
   v_awal numeric; v_akhir numeric; v_pas int; v_org int; v_val numeric; v_beda int;
+  p01 text[] := array[]::text[]; v_pd uuid; v_pdk uuid; v_fas uuid; v_uidp uuid;
 begin
   perform selftest.as_owner();
   begin
@@ -296,6 +300,50 @@ begin
     exception when others then perform selftest.as_owner(); a01 := a01 || ('threw: ' || sqlerrm);
     end;
 
+    -- ═════════════════════════════════════════════════════════════════════ F33-P01 a PD class is never drawn by result
+    begin
+      -- a professional-learning Bagian beside the demonstration school's own, its Programme, Angkatan and Kelas
+      insert into public.org_nodes (institution_id, parent_id, kind, name, learning_context)
+      select v_inst, d.parent_id, 'DEPARTMENT', 'Pengembangan F33 ' || v_tag, 'PROFESSIONAL_DEVELOPMENT'
+        from public.org_nodes d, public.org_nodes o
+       where o.id = v_tmpl.class_node_id and o.jalur @> array[d.id] and d.kind = 'DEPARTMENT'
+       limit 1 returning org_nodes.id into v_pd;
+      insert into public.org_nodes (institution_id, parent_id, kind, name) values (v_inst, v_pd, 'PROGRAMME', 'Program F33 ' || v_tag)
+        returning org_nodes.id into v_pd;
+      insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+      select v_inst, v_pd, 'COHORT', 'Guru F33 ' || v_tag, o.academic_period_id from public.org_nodes o where o.id = v_tmpl.class_node_id
+        returning org_nodes.id into v_pd;
+      insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+      select v_inst, v_pd, 'CLASS', 'Kelas PD F33 ' || v_tag, o.academic_period_id from public.org_nodes o where o.id = v_tmpl.class_node_id
+        returning org_nodes.id into v_pdk;
+      if (select n.member_kind from public.org_nodes n where n.id = v_pdk) is distinct from 'PARTICIPANT' then
+        p01 := p01 || 'the constructed class is not a class of participants'::text;
+      end if;
+      v_fas := selftest.f11_user('f33-fas-' || v_tag || '@local.invalid', 'EDUCATOR', v_pdk);
+      -- three participants placed in it, each with an official result there, one in the lowest band
+      for m in select * from (values ('P', 0.30, true), ('Q', 0.70, true), ('R', 0.90, true)) x(w, ms, gate) loop
+        -- a participant is a teacher of the school (D-070(c)), placed in the PD class
+        v_uidp := selftest.f11_user('f33-peserta-' || lower(m.w) || '-' || v_tag || '@local.invalid', 'EDUCATOR', v_kls3);
+        select a.person_id into v_p from public.accounts a where a.auth_user_id = v_uidp;
+        update public.persons pp set display_name = 'Peserta F33 ' || m.w || ' ' || v_tag where pp.id = v_p;
+        insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+        select v_p, v_inst, e.academic_period_id, e.programme_id, 'ACTIVE' from public.enrollments e where e.id = v_tmpl.enrollment_id
+        returning enrollments.id into v_job;
+        insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_job, v_pdk, v_tmpl.academic_period_id);
+        perform selftest.f33_sesi(v_tmpl.id, v_p, v_pdk, null, 'POST_TEST', m.ms, m.gate);
+      end loop;
+      -- the same evidence the reads would otherwise draw (as owner: three results in the class)
+      select count(*) into v_n from public.official_sessions s where s.class_node_id = v_pdk and s.mode = 'POST_TEST';
+      if v_n <> 3 then p01 := p01 || format('the PD class holds %s official results, not the 3 planted', v_n); end if;
+      perform selftest.as_user_uid(v_fas);
+      select count(*) into v_n from public.murid_perlu_penguatan(v_pdk);
+      select count(*) into v_n2 from public.sebaran_murid_kelas(v_pdk);
+      perform selftest.as_owner();
+      if v_n <> 0 then p01 := p01 || format('the facilitator was given %s participant(s) by name in the lowest band', v_n); end if;
+      if v_n2 <> 0 then p01 := p01 || format('the facilitator was given %s participant(s) as dots on the score line', v_n2); end if;
+    exception when others then perform selftest.as_owner(); p01 := p01 || ('threw: ' || sqlerrm);
+    end;
+
     raise exception 'F33_ROLLBACK';
   exception when others then
     perform set_config('pintar.metric_boundary_node', '', true);
@@ -314,7 +362,10 @@ begin
        || 'catalogue''s; a teacher and another school''s Dekan are given nothing'),
       ('F33-A01', 'KESETIAAN #21 -- who is not offered a card, by one reason each', a01,
        'AKUN, STAF and PENDATAAN counted once each, the offered learner, a completed import, a staff row and a placed '
-       || 'person not; a teacher is given nothing'))
+       || 'person not; a teacher is given nothing'),
+      ('F33-P01', 'D-069 -- a professional-learning class is never named or drawn by result', p01,
+       'the facilitator of a PD class whose participants have official results, one in the lowest band, is given no '
+       || 'name and no dot'))
     t(tid, tarea, tprobs, tdetail) loop
     id := m.tid; area := m.tarea;
     if v_fatal <> '' then ok := false; detail := 'the suite aborted before this test could report: ' || left(v_fatal, 200);

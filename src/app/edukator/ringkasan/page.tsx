@@ -89,9 +89,12 @@ export default async function RingkasanKelas({
   // D-195(5): section E, the learners in the lowest band by name, for the teacher of the class only
   // KESETIAAN #6: the class's score line, one anonymous dot per learner, for the class's teacher only (the database
   // answers nobody else); #7: the before → after pair, which the database gives any reader whose own Kenaikan is shown
+  // Neither is asked for a professional-learning class: its participants are never drawn or named by result (D-069);
+  // the database answers nothing for one either
+  const murid = untuk === "educator" && kelas && jenis === "LEARNER";
   const [penguatan, titik, awalAkhir] = await Promise.all([
-    untuk === "educator" && kelas ? perluPenguatan(kelas) : Promise.resolve(null),
-    untuk === "educator" && kelas ? sebaranKelas(kelas) : Promise.resolve(null),
+    murid ? perluPenguatan(kelas) : Promise.resolve(null),
+    murid ? sebaranKelas(kelas) : Promise.resolve(null),
     kelas ? awalAkhirKelas(kelas) : Promise.resolve(null),
   ]);
 

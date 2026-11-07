@@ -360,8 +360,9 @@ export const b5aTests: SelfTest[] = [
       c.expect(/c\.rpc\("murid_perlu_penguatan", \{ p_class: kelasId \}\)/.test(fn) && /if \(error\) return null;/.test(fn) && /tujuanBelum\(kelasId, o\.person_id\)/.test(fn) && !/\.from\(/.test(fn),
         "pengajar.perluPenguatan does not ask the database's murid_perlu_penguatan and tujuan_belum_tercapai alone, or says «nobody» for an unread answer");
       const halaman = kode(baca(ctx.repoRoot, "src/app/edukator/ringkasan/page.tsx"));
-      c.expect(/untuk === "educator" && kelas \? perluPenguatan\(kelas\) : Promise\.resolve\(null\)/.test(halaman) && /penguatan=\{penguatan\}/.test(halaman),
-        "Ringkasan Kelas asks for the names for a reader who does not teach the class, or does not pass them");
+      // the class's teacher, and a class of learners only: a PD class's participants are never named by result (D-069; F33-P01)
+      c.expect(/const murid = untuk === "educator" && kelas && jenis === "LEARNER";/.test(halaman) && /murid \? perluPenguatan\(kelas\) : Promise\.resolve\(null\)/.test(halaman) && /penguatan=\{penguatan\}/.test(halaman),
+        "Ringkasan Kelas asks for the names for a reader who does not teach the class, or in a class of participants, or does not pass them");
       const mig = baca(ctx.repoRoot, "supabase/migrations/20270102100000_a_teacher_names_the_learners_who_need_reinforcement.sql");
       c.expect(/create or replace function public\.murid_perlu_penguatan\(p_class uuid\)\s*returns table \(person_id uuid, display_name text, benar integer, total integer, soal_wajib_tepat boolean\)\s*language plpgsql stable security definer set search_path = public, pg_temp/.test(mig)
         && !/responses|answer_key|item_responses/.test(mig.slice(0, mig.indexOf("create or replace function public.jenis_belajar_saya"))),
@@ -547,8 +548,8 @@ export const b5aTests: SelfTest[] = [
         c.expect(!/data-lk-awal-akhir/.test(tanpa), "an unread pair is drawn");
       }
       const halaman = kode(baca(ctx.repoRoot, "src/app/edukator/ringkasan/page.tsx"));
-      c.expect(/untuk === "educator" && kelas \? sebaranKelas\(kelas\) : Promise\.resolve\(null\)/.test(halaman) && /kelas \? awalAkhirKelas\(kelas\) : Promise\.resolve\(null\)/.test(halaman)
-        && /titik=\{titik\} awalAkhir=\{awalAkhir\}/.test(halaman), "Ringkasan Kelas asks for the dots for a reader who does not teach the class, or does not pass the pair");
+      c.expect(/const murid = untuk === "educator" && kelas && jenis === "LEARNER";/.test(halaman) && /murid \? sebaranKelas\(kelas\) : Promise\.resolve\(null\)/.test(halaman) && /kelas \? awalAkhirKelas\(kelas\) : Promise\.resolve\(null\)/.test(halaman)
+        && /titik=\{titik\} awalAkhir=\{awalAkhir\}/.test(halaman), "Ringkasan Kelas asks for the dots for a reader who does not teach the class, or in a class of participants, or does not pass the pair");
       const lib = kode(baca(ctx.repoRoot, "src/lib/pengajar.ts"));
       c.expect(/c\.rpc\("sebaran_murid_kelas", \{ p_class: kelasId \}\)/.test(lib) && /c\.rpc\("kenaikan_awal_akhir", \{ p_class: kelasId \}\)/.test(lib)
         && /if \(!r \|\| r\.awal == null \|\| r\.akhir == null\) return "TIDAK";/.test(lib), "the lib does not ask the two reads, or turns an empty answer into a figure");

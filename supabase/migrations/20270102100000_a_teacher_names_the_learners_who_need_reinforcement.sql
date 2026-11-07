@@ -40,7 +40,8 @@ begin
   if v_me is null or p_class is null then return; end if;
 
   select n.institution_id, n.jalur into v_inst, v_jalur
-    from public.org_nodes n where n.id = p_class and n.kind = 'CLASS';
+    from public.org_nodes n where n.id = p_class and n.kind = 'CLASS'
+     and n.member_kind = 'LEARNER';   -- a class of learners: a PD class's participants are never named by band (D-069)
   if v_inst is null then return; end if;
 
   -- the audiences the catalogue gives a learner's record, less the learner's own

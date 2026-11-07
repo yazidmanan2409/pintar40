@@ -4602,6 +4602,11 @@
       "proves": "KESETIAAN #21, selftest/db/fable33.sql: kelas_dikecualikan_kartu gives the school's administrator, for a class of its own, AKUN 1 (a member with an account), STAF 1 (a member with no account and a staff role), PENDATAAN 2 (learner rows of an import waiting for its go), and does not count the member offered a card, a completed import's row, a staff row, or a row naming a person already placed; a teacher gets nothing. Without the placed-person exclusion it counts that person twice and fails."
     },
     {
+      "id": "F33-P01",
+      "runner": "db",
+      "proves": "D-069 against D-195(5) and KESETIAAN #6, selftest/db/fable33.sql: in a professional-learning class constructed under a PROFESSIONAL_DEVELOPMENT Bagian (member_kind PARTICIPANT), whose three participants hold official Uji Penguasaan results there, one in the lowest band, the class's facilitator (EDUCATOR over it) is given no name by murid_perlu_penguatan and no dot by sebaran_murid_kelas. Without the class-of-learners condition in either read the facilitator is given the participant by name, or the dots, and it fails."
+    },
+    {
       "id": "LAPORAN-KELAS-01",
       "runner": "static",
       "proves": "CONTOH LAPORAN 2-guru/2b (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov), selftest/b5a.test.ts: src/components/laporan/KomposisiKelas.tsx rendered over envelopes shaped like the specimen's: the lead sentence counted from the topic rows («2 dari 4 topik masih di bawah target: …»), the bands and comprehension under it with R4-02's one decimal (74,8% against a 75% target), rows below the target amber and in words against a labelled target line (G-03), the class's population said apart from the bands, which are drawn over the assessed in the legend's order, the gain with the people it is computed from (MC-8), the misunderstanding with its remedy and the pointer to it, sections lettered A–F (G-02), «Lihat bukti» linked for the teacher, an action sentence under each figure (S-3); the not-yet report (2b) keeps each figure's place with how far it is from appearing; a class with no one sealed target draws no line and names the lowest topic; R4-02 rounding (59,6%, 62%); and Ringkasan Kelas draws it over generate_report's envelopes and the class's sealed target (targetKelas)."
