@@ -1,0 +1,91 @@
+# STAGING ONLY. X5 (D-196) on deployed staging: in a Golden School that GS-01 to GS-21 have walked, the school admin
+# builds a professional-development place on Struktur sekolah, records and appoints its facilitator and Kepala
+# departemen, and enrols two staff as participants; then the PD Kelas's Ringkasan Kelas is read by each audience and by
+# the refused, at 390 px and in A4 print (audit/staging/golden-school-pd.mjs). Staging held no professional-development
+# class before this walk (P-7, 7 Nov).
+# Runs once per edit of .github/staging-golden-school-pd-request.txt on the coordinator's branch; the request's last
+# line names the school ("slug: <slug>").
+#
+# NEVER: production (staging's ref and database URL are checked first; production's keys are never read); any direct
+# write to the database (it is read in read-only transactions); a service-role key or a server-made session; Dr Gladys's
+# school (the slug must be a sekolah-uji-* Golden School).
+
+name: staging · Golden School, X5 the professional-development class summary (D-196)
+
+on:
+  push:
+    branches:
+      - claude/awesome-rubin-bqxp6p
+    paths:
+      - .github/staging-golden-school-pd-request.txt
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+
+jobs:
+  gs00:
+    name: GS-00 · staging runs main's commit and migrations
+    uses: ./.github/workflows/environment-facts.yml
+    with:
+      scope: staging
+    secrets:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+
+  pd:
+    name: the PD class summary by each audience, each act read back
+    needs: [gs00]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: The school named by the request
+        run: |
+          set -euo pipefail
+          f=.github/staging-golden-school-pd-request.txt
+          slug=$(tail -n 1 "$f" | sed -n 's/^slug: *\([a-z0-9][a-z0-9-]*\) *$/\1/p')
+          [ -n "$slug" ] || { echo "::error::the request's last line is not 'slug: <slug>'"; exit 1; }
+          case "$slug" in sekolah-uji-*) ;; *) echo "::error::the school is not a Golden School test school"; exit 1;; esac
+          echo "GS_SLUG=$slug" >> "$GITHUB_ENV"
+          echo "school: $slug"
+      - name: Playwright (the audit harness's version)
+        working-directory: audit/staging
+        run: |
+          npm init -y >/dev/null
+          npm i --no-save --no-audit --no-fund playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+      - name: Staging's database URL (checked, never printed)
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          [ "$STAGING_SUPABASE_PROJECT_REF" != "$PRODUCTION_SUPABASE_PROJECT_REF" ]
+          case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_SUPABASE_PROJECT_REF"*) echo "::error::the database URL names production"; exit 1;; esac
+          case "$STAGING_SUPABASE_DB_URL" in *"$STAGING_SUPABASE_PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::the database URL does not name staging's project"; exit 1;; esac
+      - name: X5 by each audience (every write a press of PINTAR's buttons)
+        working-directory: audit/staging
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          GS_MAILBOX_PASSWORD: ${{ secrets.GS_MAILBOX_PASSWORD }}
+          OUT_DIR: ${{ github.workspace }}/out
+          # read by ../perf/lib.mjs at import (its server-made session is never used here, and no key is given)
+          SUPABASE_URL: https://${{ env.STAGING_SUPABASE_PROJECT_REF }}.supabase.co
+        run: node golden-school-pd.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: staging-golden-school-pd
+          path: out/
+          if-no-files-found: ignore
