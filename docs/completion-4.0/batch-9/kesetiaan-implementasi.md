@@ -29,20 +29,52 @@ Each fix was checked against the approved specimen and rendered at 1280 px, 390 
 
 **Boundary found during integration (7 Nov).** The score line (#6) and Section E (D-195(5)) were built for a class of learners. A facilitator over a professional-learning class could have been given the class's participants by name in the lowest band, and as dots. Measured: F33-P01 failed against the earlier functions («1 participant by name in the lowest band; 3 as dots»). D-069 lists participants alphabetically and never by result. `murid_perlu_penguatan` and `sebaran_murid_kelas` now answer only for a class whose `member_kind` is LEARNER, and Ringkasan Kelas asks for neither on a class of participants (LAPORAN-KELAS-02/-03). Academic classes are unchanged (F32-E01/E02, F33-S01 green). How a PD class's Ringkasan Kelas should read at all is still X5, an owner question: it shows the generic «not yet» lead, which under D-070(h) never resolves.
 
-## X5 · Ringkasan Kelas of a PD class (Daisy's fidelity pass, `ux-1/daisy-experience` `c4011570`, against `fa76781b`)
+## X5 · Ringkasan Kelas of a PD class (Daisy's findings `c4011570`; her patch `d86f61b3` integrated)
 
-Reconciled on the branch after `bd4c2c06`. Rendered with specimen 6's twelve participants, full and completion-only, at 1280, 390 and A4.
+**Source.** `ux-1/daisy-experience` `d86f61b3`, `CONTOH-LAPORAN/X5-koreksi.patch` (5 files, against `fa76781b`). It was reconciled on `claude/awesome-rubin-bqxp6p` against newer engineering work, not applied blindly:
+
+- **Kept from engineering:** the PD class's own branch (D-196) and its frame; the A4 header wrapping (X5-8); the break rules; the journey C12f2; the extra test assertions.
+- **Taken from the patch:** where the two differed:
+  - the status wrapper `pin-lk-status`, with «not yet» quieter in `ink-2`;
+  - the dash at `--border-selected`;
+  - the count kept whole (`utuh`);
+  - `—` in an empty cell;
+  - «Hasil» never a percentage: with no decision it shows «—». This replaces engineering's interim, which showed the share; Daisy decided it;
+  - the record table's padding and its `line-strong` header rule;
+  - the A4 measures (8.5 pt, 2 × 1.6 mm);
+  - the shared `.pin-actions + .pin-lk` gap, which also corrects the academic Ringkasan Kelas.
+- **Already the same on both sides:** X5-1's scope line, X5-2's sentence and its key, and the test restatements (`!/\d+\s?%/`).
 
 | # | Finding | Status | Held by |
 |---|---|---|---|
-| X5-1 | The owner's sentence as the scope line under the h1, not an alert; no letter (Q1, Q2) | DONE: `<p className="pin-intro">`, the banner removed | LAPORAN-KELAS-PD-01 |
-| X5-2 | «Gilang Ramadhan dan Imam Syafii belum mulai.» | DONE: `pengembangan.belum_mulai` reads «{daftar} belum mulai.», joined by the shared list helper (`daftarKata`). This reorders approved words; no new term. Listed for Dr Gladys's copy review with the other report sentences | LAPORAN-FASILITATOR-01 |
-| X5-3 | «Not yet» as the legend's dash, not an open circle | DONE: `.pin-lk-tanda:not([data-selesai])`, a 10 × 2 px bar in `ink-3`, printed | LAPORAN-FASILITATOR-01 |
-| X5-4 | The mark never parts from its word | DONE: the mark and the first word sit in one nowrap span. The lesson count («5 dari 5») is one value and never wraps, which was found on A4 after the fix | LAPORAN-FASILITATOR-01 |
-| X5-5 | «Hasil» in words, with no percentage | DONE, as the approved composition draws it. One case is not in the specimen: a package with no sealed mark has no «reached», so its cell shows the share, the only result there is. This is raised to Daisy, not decided | LAPORAN-FASILITATOR-01; journey C12f2 reads «Tercapai» |
-| X5-6 | A record table: 14 px rows, hairline dividers, the stripe | DONE: `[data-pd-paket] .pin-lk-kisi-tabel` with `--t-small`, `border-collapse`, hairline rows, the existing stripe | LAPORAN-FASILITATOR-01 |
-| X5-7 | A4: A starts under the frame; the table breaks between rows | DONE: in print, `break-inside: auto` on the section, its card and the record, with rows kept whole and the header repeated. Twelve participants: page 1 holds the frame, the sentence and nine rows; page 2 repeats the header | LAPORAN-FASILITATOR-01 |
-| X5-8 | A4 headers wrap between words | PASS (unchanged) | LAPORAN-KELAS-PD-01 |
-| X5-9 | Refused or empty in one line | PASS (unchanged) | LAPORAN-KELAS-PD-01, journey C12f2 |
+| X5-1 | The owner's sentence as the scope line, not an alert, no letter | DONE | LAPORAN-KELAS-PD-01 |
+| X5-2 | «Gilang Ramadhan dan Imam Syafii belum mulai.» | DONE (`pengembangan.belum_mulai`, `daftarKata`). Listed for Dr Gladys's copy review | LAPORAN-FASILITATOR-01 |
+| X5-3 | «Not yet» as the legend's dash; its words quieter | DONE (the patch) | LAPORAN-FASILITATOR-01 (markup and CSS) |
+| X5-4 | The mark never parts from its word; a count is whole | DONE (the patch) | LAPORAN-FASILITATOR-01 |
+| X5-5 | «Hasil» in words, never a percentage | DONE (the patch). No decision shows «—» | LAPORAN-FASILITATOR-01 (no `%` anywhere); journey C12f2 reads «Tercapai» |
+| X5-6 | A record table | DONE (the patch) | LAPORAN-FASILITATOR-01 |
+| X5-7 | A4: A under the frame; breaks between rows with the header repeated | DONE. Rendered with 12 participants (one page) and with 30 (three pages, the header row repeated on page 2, each row whole) | LAPORAN-FASILITATOR-01 |
+| X5-8 | A4 headers wrap between words | PASS | LAPORAN-KELAS-PD-01 |
+| X5-9 | Refused or empty in one line | PASS | LAPORAN-KELAS-PD-01, journey C12f2 |
+| + | The report's first section clear of its actions | DONE (the patch; shared with the academic report) | LAPORAN-FASILITATOR-01 |
 
-Every change applies equally to `/pengembangan/[kelas]`, which draws the same composition.
+**Daisy's two environment failures.** Both pass in the engineering environment (LAPORAN suite run, 11/11), so neither is an application defect:
+- UX1-S0-MUAT-01 needs `next build`.
+- BOB26-K01 needs `CARD_PEPPER`.
+
+**This environment's own local failures, reproduced rather than assumed (7 Nov).**
+- F01-R07 failed in local runs that gave the app no Supabase address. With the local stack's address and keys it passes (24/24).
+- With the database, the app and the network all wired in, the local suite ran 853 and failed 5: TOUR-P01, BOB06-R01, F22-K01, D101-D01 and D102-D01. Each reads accounts or sessions in the shared seeded school, which earlier local work had changed. After `supabase db reset` to the clean seed, four pass outright. F22-K01 passes when the FABLE-05 suite runs before it, as in a full run.
+- None is an application defect. CI runs the whole manifest in order on a freshly reset database.
+
+**The real application.** The journey's C12f2 opens the PD class's Ringkasan Kelas on the built release, against a database the walk filled through the product's own screens. It does so as:
+- the facilitator;
+- the PD Kepala departemen;
+- the Dekan;
+- the school admin, by the click from Konfigurasi «Laporan».
+
+It checks each audience's columns, the alphabetical order, no academic mark, and 390 px. Another Guru and a student see no participant. C-12's C12f reads the same composition on `/pengembangan/[kelas]`. The run of record is on the final commit; see the ledger.
+
+**Rendered here** (the built components with the app's own CSS): 1280, 390 and A4 for full and completion-only columns, and the academic Ringkasan Kelas with the shared gap.
+
+**Still open.** Second Eye's look at the real pages on staging (the staging host is not reachable from this environment), and Daisy's own rows in `KESETIAAN.md` on her branch.
