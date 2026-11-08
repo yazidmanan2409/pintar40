@@ -18,21 +18,32 @@
 //       «Kelas 5A» (a participant, not its facilitator): no participant named, no academic mark.
 //   D6  at 390 px (the facilitator): the page is no wider than the screen.
 //   D7  A4 (the facilitator): printed, no navigation shows, the sentence is there; the PDF is kept for Daisy's review.
+//   D9  the PD package: the school admin uploads the professional-learning workbook (audit/staging/fixtures/
+//       PD-Sintetis-Bab1.xlsx, «Konteks: Pengembangan profesi») on Studio's upload page, checked and saved as a draft;
+//       the course is PROFESSIONAL_DEVELOPMENT.
+//   D10 the seven steps by two people: the admin composes, checks and submits; the PD Kepala departemen reads every
+//       question with its key and reasons, approves, makes and locks the release, reviews any finding; the admin is
+//       never offered the second person's steps; the admin publishes.
+//   D11 the admin sets the package's pass mark on Batas ketuntasan.
+//   D12 the facilitator gives it to the PD Kelas on Siapkan; the PD Kelas's Siapkan does not offer the academic chapter.
+//   D13 the record's per-package table by each audience: the facilitator, the PD Kepala departemen and the Dekan see the
+//       steps and the result columns; the admin sees enrolment and completion only; both participants, alphabetical.
 //   D8  the platform administrator's report boundary (D-132(g), D-195(5), D-069(b); F33-PA01 at the database): the
 //       Platform Operator (SYSTEM_ADMIN, no role at the school), in «Seluruh platform», at «Kelas 5A»'s report reads
 //       the class's figures and no learner by name, no score-line dot; at the PD Kelas's summary, no participant.
 //   X1  everyone signs out.
 //
-// Not covered here, and why: the record's per-package table (steps, results) needs a published professional-learning
-// package sat by a participant; that path is walked on the exact candidate in CI's journeys (job B, C12c–C12f2). This
-// walk shows the participants «Belum diberi paket».
+// Not covered here, and why: a participant sitting the PD package (its steps done and its result) needs the answers
+// and the player; that path is walked on the exact candidate in CI's journeys (job B, C12d–C12f2). Here the record's
+// table shows the participants given the package and not yet started.
 //
 // NEVER production: staging's ref, database URL and origin are checked first. Never Dr Gladys's school: the school
 // must be a «sekolah-uji-*» Golden School. A step that cannot run because an earlier one failed is BLOCKED.
 import { chromium } from "playwright";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, appendFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, appendFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { APP, SLOW, closeTour } from "../perf/lib.mjs";
 import { keadaanDari, masukStaf, pilihKonteks } from "./masuk.mjs";
 import { catat as catatDi } from "./pendataan.mjs";
@@ -351,6 +362,217 @@ await step("D7", "A4 (the facilitator): printed, no navigation shows, the owner'
   const halamanPdf = (pdf.toString("latin1").match(/\/Type\s*\/Page[^s]/g) ?? []).length;
   harus(rec, halamanPdf >= 1, `the A4 PDF has ${halamanPdf} page(s) (d7-ringkasan-pengembangan-a4.pdf, in the artifact)`);
   await p.emulateMedia({ media: "screen" });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════ D9–D13 the PD package
+const BUKU_PD = fileURLToPath(new URL("./fixtures/PD-Sintetis-Bab1.xlsx", import.meta.url));
+const JUDUL_PD = "[UJI INTERNAL] Pengembangan Profesi · Bab 1: Mengajarkan Pola Bilangan";
+const BATAS_PD = { persen: "60", alasan: "Ketentuan uji pengembangan profesi" };
+let kursusPd = null;
+const babPd = () => { const r = sql(`select c.id || '|' || c.learning_context::text || '|' || c.status::text from public.courses c
+    where c.institution_id = '${S.id}' and c.title = ${lit(JUDUL_PD)} order by c.created_at desc limit 1`); return r ? r.split("|") : null; };
+const keadaanPd = () => {
+  const [k, t] = sql(`select c.status::text || '|' || coalesce((select r.status::text from public.plp_releases r where r.course_id = c.id
+      order by r.created_at desc limit 1), '-') from public.courses c where c.id = '${kursusPd}'`).split("|");
+  return { kursus: k, terbitan: t };
+};
+const teksPd = () => { const k = keadaanPd(); return `${k.kursus}/${k.terbitan}`; };
+// the step the package page offers next, and whose it is (as the admin walk's A9: langkah.ts)
+const langkahPd = () => {
+  const k = keadaanPd();
+  if (k.terbitan === "PUBLISHED") return null;
+  if (k.terbitan === "FROZEN") return { kunci: "terbitkan", tombol: "Terbitkan", siapa: "admin" };
+  if (k.terbitan !== "-") return { kunci: "kunci", tombol: "Kunci terbitan", siapa: "kepalapd" };
+  return {
+    INGESTED: { kunci: "susun", tombol: "Tandai sudah tersusun", siapa: "admin" },
+    VALIDATION_FAILED: { kunci: "susun", tombol: "Tandai sudah tersusun", siapa: "admin" },
+    STRUCTURED: { kunci: "periksa", tombol: "Tandai lolos pemeriksaan", siapa: "admin" },
+    VALIDATED: { kunci: "ajukan", tombol: "Ajukan untuk ditinjau", siapa: "admin" },
+    IN_REVIEW: { kunci: "setujui", tombol: "Setujui isi", siapa: "kepalapd" },
+    APPROVED: { kunci: "buat", tombol: "Buat terbitan", siapa: "kepalapd" },
+  }[k.kursus] ?? null;
+};
+async function tekanPd(page, tombol) {
+  await page.reload({ waitUntil: "networkidle" });
+  await closeTour(page).catch(() => {});
+  let b = page.getByRole("button", { name: tombol, exact: true });
+  const gabung = tombol === "Buat terbitan" && !(await b.count());
+  if (gabung) b = page.getByRole("button", { name: "Kunci terbitan", exact: true });
+  if (!(await b.count())) return { tidakAda: true };
+  const sebelum = teksPd();
+  await b.first().click();
+  let sesudah = sebelum;
+  for (let i = 0; i < 40 && sesudah === sebelum; i++) { await page.waitForTimeout(500); sesudah = teksPd(); }
+  for (let i = 0; gabung && i < 40 && keadaanPd().terbitan !== "FROZEN"; i++) { await page.waitForTimeout(500); sesudah = teksPd(); }
+  await page.waitForLoadState("networkidle");
+  return { sesudah: sesudah === sebelum ? null : sesudah };
+}
+
+await step("D9", `the PD package: the school admin uploads «${JUDUL_PD}» from the professional-learning workbook, checked, saved to Studio as a draft`, async (rec) => {
+  if (!adminMasuk) return terhalang(rec, "the admin is not signed in (D1)");
+  if (!harus(rec, existsSync(BUKU_PD), "the workbook is in the walk's fixtures")) return;
+  const ada = babPd();
+  if (ada) { kursusPd = ada[0]; rec.catatan.push(`already in the school, nothing uploaded: ${ada[1]} ${ada[2]}`); harus(rec, ada[1] === "PROFESSIONAL_DEVELOPMENT", "the course is professional development"); return; }
+  await buka(A, "/studio/unggah");
+  const sel = A.locator("#ung-sekolah");
+  const v = await sel.locator("option").filter({ hasText: S.nama }).first().getAttribute("value").catch(() => null);
+  if (!harus(rec, !!v, `«${S.nama}» is offered on the upload page`)) return;
+  await sel.selectOption(v);
+  await A.locator("#ung-berkas").setInputFiles(BUKU_PD);
+  await A.getByRole("button", { name: "Periksa buku kerja", exact: true }).click();
+  const lolos = await A.getByText("Buku kerja lolos pemeriksaan.").waitFor({ timeout: SLOW }).then(() => true).catch(() => false);
+  await shot(A, "d9-periksa");
+  if (!harus(rec, lolos, `«Periksa buku kerja» passes`)) { rec.catatan.push(norm(await A.locator(".pin-ung").innerText().catch(() => "")).slice(0, 300)); return; }
+  await A.getByRole("button", { name: "Simpan ke Studio", exact: true }).click();
+  const simpan = await A.getByText("Tersimpan di Studio sebagai draf.").waitFor({ timeout: SLOW }).then(() => true).catch(() => false);
+  await shot(A, "d9-tersimpan");
+  harus(rec, simpan, "«Tersimpan di Studio sebagai draf.»");
+  const b = babPd();
+  if (!harus(rec, !!b, "the course is in the school")) return;
+  kursusPd = b[0];
+  harus(rec, b[1] === "PROFESSIONAL_DEVELOPMENT", `the course is professional development (${b[1]}, ${b[2]})`);
+});
+
+await step("D10", "the seven steps by two people: the admin composes, checks, submits and publishes; the PD Kepala departemen reads every question, approves, makes and locks the release", async (rec) => {
+  if (!kursusPd) return terhalang(rec, "no PD package (D9)");
+  const halamanPd = { admin: A, kepalapd: halaman.kepalapd };
+  if (!halamanPd.kepalapd) return terhalang(rec, "the PD Kepala departemen is not signed in (D4)");
+  rec.catatan.push(`from ${teksPd()}`);
+  const alamatPaket = `/studio/paket/${kursusPd}`;
+  for (let n = 0; n < 9; n++) {
+    const l = langkahPd();
+    if (!l) break;
+    const page = halamanPd[l.siapa];
+    if (new URL(page.url()).pathname !== alamatPaket) await buka(page, alamatPaket);
+    if (["setujui", "kunci"].includes(l.kunci)) {
+      if (new URL(A.url()).pathname !== alamatPaket) await buka(A, alamatPaket); else await A.reload({ waitUntil: "networkidle" });
+      harus(rec, !(await A.getByRole("button", { name: l.tombol, exact: true }).count()), `the author is not offered «${l.tombol}»`);
+    }
+    if (l.kunci === "setujui") {
+      // D-088(h): the reviewer reads every lesson's questions, keys and reasons, a lesson at a time
+      let diLayar = 0;
+      for (let i = 1; i <= 50; i++) {
+        diLayar += await page.locator("#soal li.pin-soal").count();
+        const lanjut = page.locator('#soal a[data-pager="sesudah"][rel="next"]').first();
+        if (!(await lanjut.count())) break;
+        await lanjut.click();
+        await page.waitForURL((u) => u.searchParams.get("pelajaran") === String(i + 1), { timeout: SLOW });
+        await page.waitForLoadState("networkidle");
+      }
+      const soal = Number(sql(`select count(*) from public.items i join public.lessons x on x.id = i.lesson_id join public.modules m on m.id = x.module_id where m.course_id = '${kursusPd}'`));
+      harus(rec, soal > 0 && diLayar === soal, `the PD Kepala departemen reads ${diLayar}/${soal} questions`);
+    }
+    if (l.kunci === "terbitkan") {
+      const siap = () => sql(`select status || ' | ' || coalesce(blockers::text, '') from public.publish_readiness('${kursusPd}')`);
+      if (siap().startsWith("BLOCKED")) { harus(rec, false, `readiness ${siap().slice(0, 160)}`); break; }
+      if (!siap().startsWith("READY")) {
+        const H = halamanPd.kepalapd;
+        await buka(H, alamatPaket);
+        let ditinjau = 0;
+        for (let i = 0; i < 80; i++) {
+          await H.reload({ waitUntil: "networkidle" });
+          const ack = H.getByRole("button", { name: /^Sudah saya tinjau( semuanya)?$/ });
+          if (!(await ack.count())) break;
+          const terbuka = () => Number(sql(`select (select count(*) from public.mcq_quality_findings where course_id = '${kursusPd}' and acknowledged_at is null)
+            + (select count(*) from public.coaching_findings where course_id = '${kursusPd}' and acknowledged_at is null)`));
+          const n0 = terbuka();
+          await ack.first().click();
+          for (let k = 0; k < 20 && terbuka() === n0; k++) await H.waitForTimeout(300);
+          ditinjau += 1;
+        }
+        rec.catatan.push(`the PD Kepala departemen reviewed ${ditinjau} finding(s); readiness ${siap().slice(0, 80)}`);
+      }
+      if (new URL(A.url()).pathname !== alamatPaket) await buka(A, alamatPaket);
+    }
+    const t = await tekanPd(page, l.tombol);
+    await shot(page, `d10-${l.kunci}`);
+    if (t.tidakAda || !t.sesudah) {
+      harus(rec, false, `${l.kunci}: «${l.tombol}» ${t.tidakAda ? "not offered" : "moved nothing"} for ${l.siapa} (${teksPd()})`);
+      break;
+    }
+    rec.catatan.push(`«${l.tombol}» by ${l.siapa === "admin" ? "the admin" : "the PD Kepala departemen"} → ${t.sesudah}`);
+  }
+  const r = sql(`select r.status::text || '|' || (r.content_sha256 is not null)::text || '|' || coalesce(v.display_name, '-')
+      from public.plp_releases r left join public.persons v on v.id = r.reviewed_by_person_id where r.course_id = '${kursusPd}' order by r.created_at desc limit 1`);
+  const [status, segel, peninjau] = (r || "-|-|-").split("|");
+  harus(rec, status === "PUBLISHED" && segel === "true" && peninjau === BARU[1].nama, `the release ${status}, sealed ${segel}, reviewed by «${peninjau}»`);
+});
+
+await step("D11", `the admin sets the PD package's pass mark (${BATAS_PD.persen}%) on Batas ketuntasan`, async (rec) => {
+  if (!kursusPd || keadaanPd().terbitan !== "PUBLISHED") return terhalang(rec, "the PD package is not published (D10)");
+  const ditetapkan = () => sql(`select m.percent::text from public.school_pass_marks m where m.institution_id = '${S.id}'
+      and m.course_id = public.course_lineage_root('${kursusPd}') and not exists (select 1 from public.school_pass_marks n where n.supersedes_id = m.id)`);
+  if (ditetapkan()) { rec.catatan.push(`already set: ${ditetapkan()}%`); return; }
+  await buka(A, `/konfigurasi/ketuntasan?sekolah=${S.id}&muat=${Date.now()}#ketuntasan`);
+  const baris = A.locator(`#ketuntasan li[data-pelajaran="${kursusPd}"]`);
+  if (!harus(rec, (await baris.count()) > 0, "Batas ketuntasan lists the PD package")) return;
+  await baris.locator("[data-buka-ubah]").click();
+  await baris.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
+  await baris.locator('input[name="persen"]').fill(BATAS_PD.persen);
+  await baris.locator('input[name="alasan"]').fill(BATAS_PD.alasan);
+  await baris.getByRole("button", { name: "Tetapkan", exact: true }).click();
+  await A.waitForURL((u) => u.searchParams.get("bagian") === "ketuntasan", { timeout: SLOW }).catch(() => {});
+  await A.waitForLoadState("networkidle");
+  await shot(A, "d11-ketuntasan");
+  harus(rec, ditetapkan() === BATAS_PD.persen, `the pass mark reads ${ditetapkan() || "none"}%`);
+});
+
+await step("D12", `the facilitator gives the PD package to «${PD.kelas}» on Siapkan; the academic chapter is not offered there`, async (rec) => {
+  if (!kursusPd || keadaanPd().terbitan !== "PUBLISHED") return terhalang(rec, "the PD package is not published (D10)");
+  const F = halaman.fasilitator;
+  if (!F) return terhalang(rec, "the facilitator is not signed in (D4)");
+  const tugas = () => sql(`select count(*) from public.learning_assignments where course_id = '${kursusPd}' and node_id = '${C.kelas}'`);
+  if (tugas() !== "0") { rec.catatan.push("the PD Kelas already has the package"); return; }
+  await buka(F, `/mengajar/${C.kelas}/siapkan`);
+  const daftar = norm(await F.locator("main").innerText().catch(() => ""));
+  harus(rec, !/Matematika Kelas 5/.test(daftar), "the PD Kelas's Siapkan does not offer the academic chapter");
+  const baris = F.locator(`a.pin-row[href^="/mengajar/${C.kelas}/siapkan?terbitan="]`).filter({ hasText: "Pengembangan Profesi" }).first();
+  if (!harus(rec, (await baris.count()) > 0, "Siapkan offers the PD package")) { rec.catatan.push(daftar.slice(0, 240)); return; }
+  await baris.click();
+  await F.waitForURL((u) => u.searchParams.has("terbitan"), { timeout: SLOW });
+  await F.waitForLoadState("networkidle");
+  const sampai = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(Date.now() + 30 * 86400000));
+  await F.locator("#pin-sampai").fill(sampai).catch(() => {});
+  const batas = norm(await F.locator(".pin-batas").first().innerText().catch(() => ""));
+  harus(rec, new RegExp(`${BATAS_PD.persen}\\s?%`).test(batas), `Siapkan shows the school's pass mark («${batas.slice(0, 80)}»)`);
+  await F.locator('form:has(input[name="terbitan"]) button[type="submit"]').first().click();
+  await F.waitForLoadState("networkidle");
+  for (let i = 0; i < 20 && tugas() === "0"; i++) await F.waitForTimeout(500);
+  await shot(F, "d12-siapkan");
+  const segel = sql(`select coalesce(string_agg(d.mode::text || ':' || coalesce(aa.pass_mark::text, '-'), ',' order by d.mode::text), '-')
+      from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
+      join public.learning_assignments la on la.id = aa.learning_assignment_id where la.course_id = '${kursusPd}' and la.node_id = '${C.kelas}'`);
+  harus(rec, tugas() !== "0" && /POST_TEST:0\.60/.test(segel), `the PD Kelas has the package (${tugas()}); tests sealed ${segel}`);
+});
+
+await step("D13", "the record's per-package table by each audience: steps and result for the facilitator, the PD Kepala departemen and the Dekan; completion only for the admin", async (rec) => {
+  if (!kursusPd || sql(`select count(*) from public.learning_assignments where course_id = '${kursusPd}' and node_id = '${C.kelas}'`) === "0")
+    return terhalang(rec, "the PD Kelas has no package (D12)");
+  const PENUH = ["Pelajaran selesai", "Hasil"];
+  for (const [siapa, p, penuh] of [["the facilitator", halaman.fasilitator, true], ["the PD Kepala departemen", halaman.kepalapd, true], ["the Dekan", halaman.dekan, true], ["the school admin", A, false]]) {
+    if (!p) { harus(rec, false, `${siapa} is not signed in (D4)`); continue; }
+    await buka(p, alamat());
+    const r = await p.evaluate(() => ({
+      tabel: document.querySelectorAll("[data-pd-paket]").length,
+      kolom: [...new Set([...document.querySelectorAll("[data-pd-paket] thead th")].map((th) => th.textContent.trim()))],
+      baris: [...document.querySelectorAll("[data-pd-paket] tbody th[scope=row]")].map((th) => (th.childNodes[0]?.textContent ?? "").trim()),
+    }));
+    const html = await p.locator("main").first().evaluate((el) => el.outerHTML).catch(() => "");
+    await shot(p, `d13-${siapa.split(" ").pop().toLowerCase()}`);
+    const abjad = [...r.baris].sort((x, y) => x.localeCompare(y, "id", { sensitivity: "base" }));
+    const kolomOk = penuh ? PENUH.every((k) => r.kolom.includes(k)) : PENUH.every((k) => !r.kolom.includes(k)) && r.kolom.includes("Selesai");
+    harus(rec, r.tabel >= 1 && r.baris.length === 2 && JSON.stringify(r.baris) === JSON.stringify(abjad) && kolomOk && !AKADEMIK.test(html),
+      `${siapa}: ${r.tabel} table(s), rows ${JSON.stringify(r.baris)}, columns ${JSON.stringify(r.kolom)}, academic marks ${AKADEMIK.test(html)}`);
+  }
+  // the A4 print of the record with its table, kept for Daisy (the multipage header is walked in CI's journeys)
+  const F = halaman.fasilitator;
+  if (F) {
+    await buka(F, alamat());
+    await F.emulateMedia({ media: "print" });
+    writeFileSync(join(OUT, "d13-catatan-pengembangan-a4.pdf"), await F.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true }));
+    await F.emulateMedia({ media: "screen" });
+    rec.catatan.push("the record with its table printed to d13-catatan-pengembangan-a4.pdf");
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════════════ D8
