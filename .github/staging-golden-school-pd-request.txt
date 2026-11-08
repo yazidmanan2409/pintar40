@@ -3,4 +3,5 @@
 # 7 Nov, P-7 staging verification (main c4944fab = audited d18e24e4, SAME; migrations 199-200): Sekolah Uji P7B 1107 after GS-01 to GS-21 (run 42424027157), Studio (42425742473) and the Batch 5 walk (42426258818)
 # 7 Nov, the same school again after run 42426680421 (D1: the Tingkat was made under the Bagian's hidden «Reguler» programme; the walk looked only at direct children; fixed in the walk, nothing rebuilt)
 # 8 Nov, the same school again after run 42427201822 (the two Kepala departemen landed on the chooser and the walk had not chosen Mengelola; fixed in the walk)
+# 8 Nov, the same school with D8: the platform administrator's report boundary (F33-PA01 at the database)
 slug: sekolah-uji-p7b-1107

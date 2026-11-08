@@ -18,6 +18,9 @@
 //       «Kelas 5A» (a participant, not its facilitator): no participant named, no academic mark.
 //   D6  at 390 px (the facilitator): the page is no wider than the screen.
 //   D7  A4 (the facilitator): printed, no navigation shows, the sentence is there; the PDF is kept for Daisy's review.
+//   D8  the platform administrator's report boundary (D-132(g), D-195(5), D-069(b); F33-PA01 at the database): the
+//       Platform Operator (SYSTEM_ADMIN, no role at the school), in «Seluruh platform», at «Kelas 5A»'s report reads
+//       the class's figures and no learner by name, no score-line dot; at the PD Kelas's summary, no participant.
 //   X1  everyone signs out.
 //
 // Not covered here, and why: the record's per-package table (steps, results) needs a published professional-learning
@@ -348,6 +351,38 @@ await step("D7", "A4 (the facilitator): printed, no navigation shows, the owner'
   const halamanPdf = (pdf.toString("latin1").match(/\/Type\s*\/Page[^s]/g) ?? []).length;
   harus(rec, halamanPdf >= 1, `the A4 PDF has ${halamanPdf} page(s) (d7-ringkasan-pengembangan-a4.pdf, in the artifact)`);
   await p.emulateMedia({ media: "screen" });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════ D8
+const OPERATOR = "goldenschool+operator@pintarselalu.com";
+await step("D8", "the platform administrator in «Seluruh platform»: the class's figures, no learner by name or dot; the PD Kelas, no participant", async (rec) => {
+  if (!C.kelas) return terhalang(rec, "no PD Kelas (D1)");
+  if (!harus(rec, keadaan(OPERATOR) !== null, "the Platform Operator has an account")) return;
+  const p = await (await browser.newContext(konteks())).newPage();
+  halaman.operator = p; terbuka.push(["operator", p]);
+  await masukStaf(p, OPERATOR, keadaan);
+  const di = await pilihKonteks(p, { tujuan: "MENGELOLA", platform: true });
+  rec.catatan.push(`«Seluruh platform» chosen, landed ${di}`);
+  // the academic class report, as the database answers this reader: figures (D-132(g)), nothing personal (D-195(5))
+  await buka(p, `/edukator/ringkasan?kelas=${S.kelas}`);
+  const jalan = new URL(p.url()).pathname;
+  const html = await p.locator("main").first().evaluate((el) => el.outerHTML).catch(() => "");
+  const teks = norm(await p.locator("main").innerText().catch(() => ""));
+  await shot(p, "d8-operator-kelas");
+  const murid = sql(`select string_agg(p.display_name, '|') from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+      join public.persons p on p.id = e.person_id where m.node_id = '${S.kelas}' and m.valid_to is null`).split("|").filter(Boolean);
+  const disebut = murid.filter((n) => teks.toLowerCase().includes(n.toLowerCase()));
+  harus(rec, jalan === "/edukator/ringkasan", `the class report's address is read (${jalan})`);
+  harus(rec, disebut.length === 0, `no learner of «${KELAS}» is named (${murid.length} placed; named ${JSON.stringify(disebut)})`);
+  harus(rec, !/data-lk-titik/.test(html), "no dot of the score line is drawn");
+  rec.catatan.push(`the class's figures drawn: ${/data-lk="(topik|pita|kenaikan)"/.test(html)} (D-132(g): the platform's authority is broad; recorded)`);
+  // the PD Kelas: D-069(b), no PD analytics for the platform
+  await buka(p, alamat());
+  const teksPd = norm(await p.locator("main").innerText().catch(() => ""));
+  await shot(p, "d8-operator-pd");
+  const pdDisebut = PESERTA.filter((n) => teksPd.toLowerCase().includes(n.toLowerCase()));
+  harus(rec, pdDisebut.length === 0, `the PD Kelas names no participant to the platform (${JSON.stringify(pdDisebut)})`);
+  harus(rec, !AKADEMIK.test(await p.content()), "and draws no academic mark");
 });
 
 // ═══════════════════════════════════════════════════════════════════════════ X1

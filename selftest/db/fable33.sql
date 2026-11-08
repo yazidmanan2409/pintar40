@@ -23,6 +23,12 @@
 --   F33-P01  D-069: the facilitator of a professional-learning class (participants, not learners) whose participants
 --            hold official results, one in the lowest band, is given no name by murid_perlu_penguatan and no dot by
 --            sebaran_murid_kelas: a PD class is never named or drawn by result.
+--   F33-PA01 the platform administrator (SYSTEM_ADMIN, no role at the school), over the same fixtures: D-132(g)
+--            «Admin Platform authority remains broad», so Kenaikan's pair, which is the class's aggregate Kenaikan
+--            (metric_evaluate admits the platform), is given; D-195(5) and KESETIAAN #6 (the class's teacher only)
+--            and D-069(b) («existing operational/support/security access only; no new PD analytics») give it no
+--            learner by name, no dot, no readiness per subject (the school's leadership audiences only) and no
+--            professional-learning record (refused). The card exclusions (Aktivasi's operational read) are recorded.
 --
 -- EVERY ROW IS ROLLED BACK.
 
@@ -96,6 +102,7 @@ declare
   m record; v_p uuid; v_n int; v_n2 int; v_calc jsonb; v_cols int; v_job uuid; v_err text;
   v_awal numeric; v_akhir numeric; v_pas int; v_org int; v_val numeric; v_beda int;
   p01 text[] := array[]::text[]; v_pd uuid; v_pdk uuid; v_fas uuid; v_uidp uuid;
+  pa01 text[] := array[]::text[]; v_pa uuid; v_pa_note text := '';
 begin
   perform selftest.as_owner();
   begin
@@ -344,6 +351,32 @@ begin
     exception when others then perform selftest.as_owner(); p01 := p01 || ('threw: ' || sqlerrm);
     end;
 
+    -- ═════════════════════════════════════════════════════════════════════ F33-PA01 the platform administrator
+    begin
+      v_pa := selftest.f11_user('f33-pa-' || v_tag || '@local.invalid', 'SYSTEM_ADMIN', null);
+      perform selftest.as_user_uid(v_pa);
+      if not public.is_system_admin() then pa01 := pa01 || 'the constructed reader is not a platform administrator'::text; end if;
+      select count(*) into v_n from public.murid_perlu_penguatan(v_kls);
+      if v_n <> 0 then pa01 := pa01 || format('was given %s learner(s) by name in the lowest band', v_n); end if;
+      select count(*) into v_n from public.sebaran_murid_kelas(v_kls);
+      if v_n <> 0 then pa01 := pa01 || format('was given %s dot(s) on the score line', v_n); end if;
+      select count(*) into v_n from public.kesiapan_kelas_per_mapel(v_inst);
+      if v_n <> 0 then pa01 := pa01 || format('was given %s readiness-per-subject row(s)', v_n); end if;
+      v_err := null;
+      begin perform public.professional_learning_record(v_pdk); v_err := 'answered';
+      exception when others then v_err := sqlerrm; end;
+      if v_err = 'answered' then pa01 := pa01 || 'was given the professional-learning record'::text; end if;
+      select k.awal, k.akhir into v_awal, v_akhir from public.kenaikan_awal_akhir(v_kls2) k;
+      if v_awal is distinct from 0.4250 or v_akhir is distinct from 0.7333 then
+        pa01 := pa01 || format('Kenaikan''s pair reads %s → %s, not the class''s 0.4250 → 0.7333', v_awal, v_akhir);
+      end if;
+      select count(*) into v_n from public.kelas_dikecualikan_kartu(array[v_kls4]);
+      perform selftest.as_owner();
+      v_pa_note := format('; the card exclusions (Aktivasi''s operational read): %s reason row(s); the PD record refused with «%s»',
+                          v_n, left(coalesce(v_err, '-'), 60));
+    exception when others then perform selftest.as_owner(); pa01 := pa01 || ('threw: ' || sqlerrm);
+    end;
+
     raise exception 'F33_ROLLBACK';
   exception when others then
     perform set_config('pintar.metric_boundary_node', '', true);
@@ -365,7 +398,10 @@ begin
        || 'person not; a teacher is given nothing'),
       ('F33-P01', 'D-069 -- a professional-learning class is never named or drawn by result', p01,
        'the facilitator of a PD class whose participants have official results, one in the lowest band, is given no '
-       || 'name and no dot'))
+       || 'name and no dot'),
+      ('F33-PA01', 'D-132(g), D-195(5), D-069(b) -- the platform administrator''s report boundary', pa01,
+       'a platform administrator with no role at the school is given Kenaikan''s aggregate pair and nothing personal: '
+       || 'no name, no dot, no readiness per subject, no professional-learning record' || v_pa_note))
     t(tid, tarea, tprobs, tdetail) loop
     id := m.tid; area := m.tarea;
     if v_fatal <> '' then ok := false; detail := 'the suite aborted before this test could report: ' || left(v_fatal, 200);
