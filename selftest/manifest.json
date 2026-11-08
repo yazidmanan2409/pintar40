@@ -2554,7 +2554,7 @@
     {
       "id": "SIAP-FOKUS-01",
       "runner": "static",
-      "proves": "Readiness (8 Nov; owner: check every instance of the shared pattern): when a press replaces part of the screen, focus is moved on purpose. Every client component under src/app and src/components that draws an in-place panel (role=\"group\" aria-labelledby) moves focus; the ten components known to swap a button for a question or a small form (KonfirmasiBahaya, FormCabut, KeluarSemua, TutupPutaran, PanelStruktur, LangkahTerbit, KartuUlang, KartuJadiEmail, the item player's finish question, the lesson's worked example) move it both ways, into the panel on open and back to the opener on leaving; a planted KeluarSemua without its focus calls is caught. Walked by keyboard in audit/siap-jalan.mjs R4 and R7."
+      "proves": "Readiness (8 Nov; owner: check every instance of the shared pattern), read over the source of every .tsx file under src/app and src/components: when a press replaces part of the screen, focus is moved on purpose. Every client component under src/app and src/components that draws an in-place panel (role=\"group\" aria-labelledby) moves focus; the ten components known to swap a button for a question or a small form (KonfirmasiBahaya, FormCabut, KeluarSemua, TutupPutaran, PanelStruktur, LangkahTerbit, KartuUlang, KartuJadiEmail, the item player's finish question, the lesson's worked example) move it both ways, into the panel on open and back to the opener on leaving; a planted KeluarSemua without its focus calls is caught. Walked by keyboard in audit/siap-jalan.mjs R4 and R7."
     },
     {
       "id": "DAISY-17-KIRIM-02",

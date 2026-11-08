@@ -9010,7 +9010,7 @@ export const experienceTests: SelfTest[] = [
           for (const nama of ["Kelas Rendah", "Kelas 1", "1A"]) {
             const r = baris(x, nama);
             c.expect(r.includes(`<button type="button" class="pin-btn pin-quiet">${s("config.struktur.ubah_nama")}</button>`)
-              && r.includes(`<button type="button" class="pin-btn pin-quiet">${s("config.struktur.nonaktifkan")}</button>`),
+              && r.includes(`<button type="button" class="pin-btn pin-bahaya">${s("config.struktur.nonaktifkan")}</button>`), // restated for Daisy F2 (8 Nov): deactivation is a destructive act's opener, red words, «red twice»
               `(${locale}) the active ${nama} does not offer rename and deactivate as plain buttons`);
           }
           for (const nama of ["Bagian Lama", "Kelas 0", "1 Lama"]) {
@@ -9040,7 +9040,7 @@ export const experienceTests: SelfTest[] = [
             `(${locale}) the question does not name the level and the place: "${tampil}"`);
           c.expect(tampil.includes(s("config.struktur.konfirmasi.arti")), `(${locale}) the question does not say it cannot be undone here`);
           c.expect(x.includes('name="simpul" value="k1"') && /<button\b(?=[^>]*\bclass="pin-btn pin-str-bahaya")(?=[^>]*\btype="submit")[^>]*>([^<]+)<\/button>/.exec(x)?.[1] === s("config.struktur.konfirmasi.ya")
-            && x.includes(`<button type="button" class="pin-btn">${s("config.struktur.batal")}</button>`),
+            && x.includes(`<button type="button" class="pin-btn pin-quiet">${s("config.struktur.batal")}</button>`), // restated (8 Nov): «Batal» after a destructive act is quiet (P2; Daisy)
             `(${locale}) the question is not the form that sends the deactivation, with a way back`);
         });
       }
