@@ -1,0 +1,81 @@
+diff --git a/src/app/mengajar/[kelas]/page.tsx b/src/app/mengajar/[kelas]/page.tsx
+index 7c51586e..8768790b 100644
+--- a/src/app/mengajar/[kelas]/page.tsx
++++ b/src/app/mengajar/[kelas]/page.tsx
+@@ -131,6 +131,12 @@ export default async function Kelas({
+           <Link className="pin-btn" href={`/mengajar/${id}/bukti`}>
+             {s("mengajar.aksi.bukti")}
+           </Link>
++          {/* Readiness A2 (Daisy, 8 Nov): the teacher's own Ringkasan Kelas (CONTOH LAPORAN 2-guru) is reached from the class */}
++          {ctx.ini.jenis !== "PARTICIPANT" ? (
++            <Link className="pin-btn" href={`/edukator/ringkasan?kelas=${encodeURIComponent(id)}&dari=kelas`}>
++              {s("laporan.kelas.judul")}
++            </Link>
++          ) : null}
+           {/* DAISY-34 (D-070(a)): a professional-learning Kelas's record, for its facilitator; the database decides again */}
+           {ctx.ini.jenis === "PARTICIPANT" ? (
+             <Link className="pin-btn" href={alamatCatatan(id)}>
+diff --git a/src/components/teks/Teks.tsx b/src/components/teks/Teks.tsx
+index e23f05ad..c16a0815 100644
+--- a/src/components/teks/Teks.tsx
++++ b/src/components/teks/Teks.tsx
+@@ -153,7 +153,8 @@ function blok(teks: string, sisip?: (baris: string) => ReactNode | null): ReactN
+         );
+       case "tabel":
+         return (
+-          <div key={k} className="pin-ttabel">
++          // Readiness A3 (Daisy, 8 Nov): a table wider than the screen scrolls in a focusable, named region (WCAG 2.1.1)
++          <div key={k} className="pin-ttabel" role="region" tabIndex={0} aria-label={x.kepala.join(", ") || undefined}>
+             <table>
+               <thead>
+                 <tr>{x.kepala.map((c, j) => <th key={j} scope="col">{sebaris(c)}</th>)}</tr>
+diff --git a/src/lib/hle.ts b/src/lib/hle.ts
+index 96ca45e0..97052f74 100644
+--- a/src/lib/hle.ts
++++ b/src/lib/hle.ts
+@@ -2888,7 +2888,7 @@ const table: Table = {
+   "pendataan.unggah.terbaca": { default: "baris terbaca", en: "rows read" },
+ 
+   "pendataan.peta.judul": { default: "Kolom mana untuk apa", en: "Which column is which" },
+-  "pendataan.peta.sub": { default: "PINTAR menebak dari nama kolom. Ubah bila tebakannya keliru.", en: "PINTAR guesses from the column names. Change it where the guess is wrong." },
++  "pendataan.peta.sub": { default: "PINTAR menebak dari nama kolom. Ubah bila tebakannya keliru. Kelas dipilih pada Tempat dengan «Satu pilihan untuk semua»: satu daftar untuk setiap kelas.", en: "PINTAR guesses from the column names. Change it where the guess is wrong. The class is chosen under Place with «One choice for everyone»: one list per class." },
+   "pendataan.peta.tidak": { default: "Tidak dipakai", en: "Not used" },
+   "pendataan.peta.kolom": { default: "Kolom", en: "Column" },
+   "pendataan.peta.sama": { default: "Satu pilihan untuk semua", en: "One choice for everyone" },
+@@ -2921,7 +2921,7 @@ const table: Table = {
+   "pendataan.masalah.orang_bentuk": { default: "Kolom orang yang sudah terdaftar tidak berisi penanda yang sah.", en: "The already-registered column does not hold a valid marker." },
+   "pendataan.masalah.orang_asing": { default: "Orang itu tidak bisa Anda tunjuk dari sini.", en: "That person is not one you can name from here." },
+   "pendataan.masalah.orang_sudah": { default: "Orang itu sudah punya nomor registrasi sekolah di sekolah ini.", en: "That person already has a school registration number at this school." },
+-  "pendataan.masalah.tempat_bentuk": { default: "Kolom tempat tidak berisi penanda yang sah.", en: "The place column does not hold a valid marker." },
++  "pendataan.masalah.tempat_bentuk": { default: "Kolom Tempat berisi nama kelas, bukan penanda PINTAR. Pada Tempat, pilih «Satu pilihan untuk semua» lalu kelasnya, dan unggah satu daftar untuk setiap kelas.", en: "The Place column holds class names, not PINTAR's marker. Under Place, choose «One choice for everyone» and then the class, and upload one list per class." },
+   "pendataan.masalah.tempat_asing": { default: "Tempat itu bukan bagian dari sekolah ini.", en: "That place is not part of this school." },
+   "pendataan.masalah.tempat_luar": { default: "Tempat itu di luar wewenang Anda.", en: "That place is outside your authority." },
+   "pendataan.masalah.peran_asing": { default: "Peran itu tidak dikenal.", en: "That role is not one PINTAR has." },
+diff --git a/src/lib/nama-tempat.ts b/src/lib/nama-tempat.ts
+index 4b95f4e4..12e7486b 100644
+--- a/src/lib/nama-tempat.ts
++++ b/src/lib/nama-tempat.ts
+@@ -34,6 +34,8 @@ export const ASAL_LAPORAN: Readonly<Record<string, { ke: string; nama: HleEvent
+   pimpinan: { ke: "/pimpinan", nama: "nav.pimpinan" },
+   // B1: Konfigurasi's «Laporan» is its own page
+   konfigurasi: { ke: "/konfigurasi/laporan", nama: "config.laporan.judul" },
++  // Readiness A2 (Daisy, 8 Nov): the Guru opens their class's Ringkasan Kelas from Mengajar
++  kelas: { ke: "/mengajar", nama: "nav.kelas" },
+ };
+ export function asalLaporan(dari: unknown): { ke: string; nama: HleEvent } {
+   return (typeof dari === "string" && Object.hasOwn(ASAL_LAPORAN, dari) ? ASAL_LAPORAN[dari] : null) ?? { ke: "/", nama: KEMBALI_RIWAYAT };
+diff --git a/src/lib/pendataan-kontrak.ts b/src/lib/pendataan-kontrak.ts
+index 81cf7031..27388918 100644
+--- a/src/lib/pendataan-kontrak.ts
++++ b/src/lib/pendataan-kontrak.ts
+@@ -128,7 +128,9 @@ export type Pemetaan = Partial<Record<Medan, Sumber>>;
+ const PETUNJUK: Record<Medan, RegExp> = {
+   display_name: /^(nama|nama lengkap|nama siswa|nama murid|nama peserta|name|full ?name|student ?name)$/i,
+   person_id: /^(person[ _]?id|id orang)$/i,
+-  node_id: /^(kelas|rombel|node[ _]?id|class|group)$/i,
++  // Readiness A1 (Daisy, 8 Nov): a school's «Kelas» column holds names («7A»), never PINTAR's place id, so it is not
++  // guessed as the place: the class is chosen by name with «Satu pilihan untuk semua» (see §5 of its test)
++  node_id: /^(node[ _]?id)$/i,
+   role: /^(peran|role|jabatan)$/i,
+   programme_id: /^(program|programme|program[ _]?id|programme[ _]?id)$/i,
+ };
