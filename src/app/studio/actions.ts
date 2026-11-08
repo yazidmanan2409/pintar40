@@ -82,6 +82,24 @@ export async function advanceContentAction(fd: FormData): Promise<void> {
   // time, with the same expectations, and a refusal or a shortfall undoes all of it. The reviewer of record is the
   // caller (APPROVED); enforce_content_status still decides every edge.
   const supabase = await supabaseServer();
+  // Daisy F8 (8 Nov), UX-01's approved fix: «Tandai lolos pemeriksaan» runs the content check itself, so a package is
+  // never marked passed without its check, and the findings are there before «Setujui isi». The step's own words
+  // («Perbaiki yang wajib diperbaiki, lalu tandai lolos pemeriksaan») hold it while an ERROR is open; an ERROR is
+  // repaired, never acknowledged away (acknowledge_finding), and it already holds the release (READINESS_*_ERROR)
+  if (to === "VALIDATED") {
+    const a = await supabase.rpc("validate_course_content", { p_course: course });
+    if (a.error) back(`/studio/paket/${course}`, "temuan", ditolak("validate_course_content", a.error));
+    const b = await supabase.rpc("run_mcq_quality", { p_course: course });
+    if (b.error) back(`/studio/paket/${course}`, "temuan", ditolak("run_mcq_quality", b.error));
+    const [isi, soal] = await Promise.all([
+      supabase.from("coaching_findings").select("id", { count: "exact", head: true })
+        .eq("course_id", course).eq("severity", "ERROR").is("acknowledged_at", null),
+      supabase.from("mcq_quality_findings").select("id", { count: "exact", head: true })
+        .eq("course_id", course).eq("severity", "ERROR").is("acknowledged_at", null),
+    ]);
+    if (isi.error || soal.error) back(`/studio/paket/${course}`, "temuan", ditolak("findings", isi.error ?? soal.error));
+    if ((isi.count ?? 0) + (soal.count ?? 0) > 0) back(`/studio/paket/${course}`, "temuan", { ok: false, kode: "CONTENT_CHECK_ERRORS" });
+  }
   const { error } = await supabase.rpc("langkah_konten", { p_course: course, p_ke: to });
   // BOB-07: the content step's refusal, named (DAISY-06's step list shows it); a shortfall is ACTION_UNCHANGED (F-05)
   if (error) back(`/studio/paket/${course}`, "paket", ditolak("langkah_konten", error, kodeGalatKonten(error)));

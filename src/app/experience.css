@@ -3212,6 +3212,11 @@ select:not([multiple]):not([size]) {
 .pin-dialog-isi p { margin: 0; color: var(--ink-2); }
 .pin-dialog-aksi { display: flex; gap: var(--space-3); justify-content: flex-end; flex-wrap: wrap; }
 @media (max-width: 639px) { .pin-dialog-aksi { flex-direction: column-reverse; align-items: stretch; } }
+/* a destructive act's opener: red words on white; it opens the confirmation, «red twice, never once» (components/Button
+   pds-btn-destructive; Daisy F2, 8 Nov) */
+.pin-btn.pin-bahaya { background: var(--surface-1); color: var(--status-blocked); border-color: var(--line-strong); }
+.pin-btn.pin-bahaya:hover:not(:disabled) { background: var(--status-blocked-soft); }
+.pin-btn.pin-bahaya:active:not(:disabled) { background: var(--status-blocked-soft); border-color: var(--status-blocked); }
 /* the one solid red in PINTAR: a destructive confirmation's own button (components/Button) */
 .pin-btn.pin-bahaya-pasti { background: var(--status-blocked); border-color: var(--status-blocked); color: var(--pintar-primary-ink); }
 .pin-btn.pin-bahaya-pasti:hover { background: var(--status-blocked-hover); border-color: var(--status-blocked-hover); }
@@ -3675,7 +3680,8 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-lk-sambung { position: absolute; top: calc((var(--lk-jalur) - var(--border-selected)) / 2); height: var(--border-selected); background: var(--ink-2); }
 .pin-lk-zona { position: absolute; top: calc(var(--space-1) * -1); bottom: calc(var(--space-1) * -1); width: var(--border-hairline); background: var(--line-strong); }
 /* 3-kadep: topics × classes; each cell a value, a short bar and its class's target tick; no colour ramp */
-.pin-lk-kisi-wadah { overflow-x: auto; }
+/* position: the read-only words (.pin-sr, absolute) stay inside the scroll region, so a phone page keeps its width (Daisy F3, 8 Nov) */
+.pin-lk-kisi-wadah { overflow-x: auto; position: relative; }
 .pin-lk-kisi-tabel thead th { color: var(--ink-2); font-weight: 600; vertical-align: bottom; text-align: left; }
 .pin-lk-kisi-tabel thead th small { display: block; font-weight: 400; color: var(--ink-3); }
 .pin-lk-kisi-tabel tbody th { font-weight: 400; color: var(--ink-1); text-align: left; }

@@ -42,7 +42,7 @@ export default function KonfirmasiBahaya({
 
   if (!yakin) {
     return (
-      <button ref={lanjut} type="button" className="pin-btn" data-bahaya-buka=""
+      <button ref={lanjut} type="button" className="pin-btn pin-bahaya" data-bahaya-buka=""
         onClick={(e) => { if (e.currentTarget.form?.reportValidity() ?? true) setYakin(true); }}>
         {tombol}
       </button>

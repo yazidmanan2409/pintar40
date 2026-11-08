@@ -40,7 +40,7 @@ export const dynamic = "force-dynamic";
 export default async function Pendataan({
   searchParams,
 }: {
-  searchParams: Promise<{ sekolah?: string; galat?: string }>;
+  searchParams: Promise<{ sekolah?: string; galat?: string; kode?: string }>;
 }) {
   const sp = await searchParams;
   const locale = await currentLocale();
@@ -115,24 +115,28 @@ export default async function Pendataan({
                   it can help. */}
               <p className="pin-msg pin-msg-note">{s("pendataan.kode.peringatan")}</p>
               {sp.galat === "kode" ? <BarisHasil nada="gagal">{s("pendataan.kode.gagal")}</BarisHasil> : null}
+              {sp.kode === "tersimpan" && dipilih.kode ? <BarisHasil nada="ok">{s("pendataan.kode.tersimpan")}</BarisHasil> : null}
               {/* W3.7 (Batch 4; RV-22): Daisy's TextField: the label in sentence case, the hint directly under it and named
                   by the field, the field and its button on one row at the same height */}
               <form action={simpanKodeAksi} className="pin-baris-aksi">
                 <input type="hidden" name="institusi" value={dipilih.id} />
                 <BidangTeks id="pin-kode-isi" name="kode" label={s("pendataan.kode.label")} petunjuk={s("pendataan.kode.bentuk")}
                   defaultValue={dipilih.kode ?? ""} maxLength={3} size={3} autoComplete="off" spellCheck={false} />
-                <TombolKirim className="pin-btn" sibuk={s("tombol.menyimpan")}>{s("pendataan.kode.simpan")}</TombolKirim>
+                <TombolKirim className={dipilih.kode ? "pin-btn" : "pin-btn pin-primary"} sibuk={s("tombol.menyimpan")}>{s("pendataan.kode.simpan")}</TombolKirim>
               </form>
             </>
           )}
 
+          {/* §3. The number says who, at this school. It does not say what. Daisy (8 Nov): said beside the example number
+              it explains; before a code exists there is no number for «orang ini» to name */}
           {dipilih.kode ? (
-            <p className="pin-meta">
-              {s("pendataan.kode.contoh")}: <span className="pin-mono">{dipilih.kode}000001AB</span>
-            </p>
+            <>
+              <p className="pin-meta">
+                {s("pendataan.kode.contoh")}: <span className="pin-mono">{dipilih.kode}000001AB</span>
+              </p>
+              <p className="pin-mm">{s("pendataan.nomor.arti")}</p>
+            </>
           ) : null}
-          {/* §3. The number says who, at this school. It does not say what. */}
-          <p className="pin-mm">{s("pendataan.nomor.arti")}</p>
         </section>
 
         {/* ── WHAT IS ALREADY RUNNING ───────────────────────────────────── */}

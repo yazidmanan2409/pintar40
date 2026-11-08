@@ -39,7 +39,7 @@ export default function FormCabut({ locale, id, nomor }: { locale: Locale; id: s
             <TombolKirim className="pin-btn pin-bahaya-pasti" sibuk={s("tombol.memproses")}>
               {s("sertifikat.cabut.tombol").replace("{nomor}", nomor)}
             </TombolKirim>
-            <button ref={batal} type="button" className="pin-btn"
+            <button ref={batal} type="button" className="pin-btn pin-quiet"
               onClick={() => { setYakin(false); requestAnimationFrame(() => lanjut.current?.focus()); }}>
               {s("sertifikat.cabut.batal")}
             </button>
@@ -47,7 +47,7 @@ export default function FormCabut({ locale, id, nomor }: { locale: Locale; id: s
         </div>
       ) : (
         <span className="pin-actions">
-          <button ref={lanjut} type="button" className="pin-btn pin-primary"
+          <button ref={lanjut} type="button" className="pin-btn pin-bahaya"
             onClick={() => { if (form.current?.reportValidity()) setYakin(true); }}>
             {s("sertifikat.cabut.lanjut")}
           </button>

@@ -273,8 +273,11 @@ export default async function Paket({ params, searchParams }: { params: Params; 
             : state ? (terbitSiap ? s("studio.state.explain.TERBIT") : s(`studio.state.explain.${state.surface_state}` as never)) : ""}
         </p>
 
-        {/* what is left to finish is said to the one who can finish it; a reader waiting on another reads the steps */}
-        {state && state.reasons.length > 0 && !menunggu ? (
+        {/* what is left to finish is said to the one who can finish it; a reader waiting on another reads the steps.
+            Daisy F4 (8 Nov): publish readiness speaks only once a release exists. Before it, the steps below are the
+            one next step («Setujui isi», then «Buat terbitan»); the reasons («… menunggu langkah Setujui isi», «mulai
+            dari langkah Buat terbitan») would compete with it */}
+        {state && state.reasons.length > 0 && !menunggu && terakhir !== null ? (
           <>
             <p className="pin-judul-baris">{sl("studio.paket.alasan")}</p>
             <ul className="pin-daftar-titik pin-ket">

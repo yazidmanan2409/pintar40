@@ -1170,6 +1170,7 @@ export type HleEvent =
   | "studio.konten.kode.content_reviewer_required"
   | "studio.konten.kode.content_author_unknown"
   | "studio.konten.kode.content_reviewer_is_author"
+  | "studio.konten.kode.content_check_errors"
   | "studio.konten.kode.content_reviewer_not_caller"
   | "studio.konten.kode.content_seal_not_allowed"
   | "studio.konten.kode.content_publish_not_allowed"
@@ -1505,11 +1506,11 @@ export type HleEvent =
   | "pendataan.eyebrow" | "pendataan.judul" | "pendataan.intro" | "pendataan.ditolak" | "pendataan.sekolah" | "pendataan.nomor.arti"
   | "pendataan.kode.judul" | "pendataan.kode.belum" | "pendataan.kode.arti"
   | "pendataan.kode.bentuk" | "pendataan.kode.contoh" | "pendataan.kode.peringatan"
-  | "pendataan.kode.simpan" | "pendataan.kode.beku" | "pendataan.kode.gagal" | "pendataan.kode.label"
+  | "pendataan.kode.simpan" | "pendataan.kode.tersimpan" | "pendataan.kode.beku" | "pendataan.kode.gagal" | "pendataan.kode.label"
   | "pendataan.unggah.judul" | "pendataan.unggah.berkas" | "pendataan.unggah.tempel"
   | "pendataan.unggah.bentuk" | "pendataan.unggah.kosong" | "pendataan.unggah.terbaca" | "pendataan.unggah.contoh_arti" | "pendataan.unggah.contoh_label" | "pendataan.unggah.contoh"
   | "pendataan.peta.judul" | "pendataan.peta.sub" | "pendataan.peta.tidak" | "pendataan.peta.kolom"
-  | "pendataan.peta.sama" | "pendataan.peta.wajib" | "pendataan.peta.lanjut" | "pendataan.peta.pratayang"
+  | "pendataan.peta.sama" | "pendataan.peta.wajib" | "pendataan.peta.tanpa_kelas" | "pendataan.peta.tanpa_kelas_ya" | "pendataan.peta.lanjut" | "pendataan.peta.pratayang"
   | "pendataan.medan.display_name" | "pendataan.medan.person_id" | "pendataan.medan.node_id"
   | "pendataan.medan.role" | "pendataan.medan.programme_id"
   | "pendataan.periksa.judul" | "pendataan.periksa.mulai" | "pendataan.periksa.jalan"
@@ -2882,6 +2883,7 @@ const table: Table = {
   // administrator who learns that afterwards has learned it too late.
   "pendataan.kode.peringatan": { default: "Setelah nomor registrasi sekolah pertama diterbitkan, kode ini tidak bisa diubah lagi.", en: "Once the first school registration number has been issued, this code can no longer be changed." },
   "pendataan.kode.simpan": { default: "Simpan kode", en: "Save the code" },
+  "pendataan.kode.tersimpan": { default: "Kode sekolah tersimpan. Daftar orang sekarang bisa diunggah di bawah.", en: "The school code is saved. The list of people can now be uploaded below." },
   "pendataan.kode.beku": { default: "Kode ini sudah dipakai pada nomor registrasi sekolah yang diterbitkan, jadi tidak bisa diubah lagi.", en: "This code is already part of issued school registration numbers, so it can no longer be changed." },
   "pendataan.kode.gagal": { default: "Kode itu tidak bisa dipakai. Mungkin sudah dipakai sekolah lain, atau bentuknya tidak sesuai.", en: "That code cannot be used. It may already belong to another school, or its shape is wrong." },
   "pendataan.kode.label": { default: "Kode", en: "Code" },
@@ -2902,6 +2904,8 @@ const table: Table = {
   "pendataan.peta.kolom": { default: "Kolom", en: "Column" },
   "pendataan.peta.sama": { default: "Satu pilihan untuk semua", en: "One choice for everyone" },
   "pendataan.peta.wajib": { default: "Kolom nama harus dipilih.", en: "A name column must be chosen." },
+  "pendataan.peta.tanpa_kelas": { default: "{n} baris belum punya kelas. Murid tanpa kelas bisa masuk, tetapi tidak menerima materi apa pun. Untuk daftar murid, pilih kelasnya pada Tempat («Satu pilihan untuk semua»).", en: "{n} rows have no class yet. A learner without a class can sign in but receives no material. For a list of learners, choose their class under Place («One choice for everyone»)." },
+  "pendataan.peta.tanpa_kelas_ya": { default: "Ini daftar guru atau staf: catat tanpa kelas. Perannya diberikan sesudahnya di Peran & akses.", en: "This is a list of teachers or staff: record them without a class. Their role is given afterwards on Peran & akses." },
   "pendataan.peta.lanjut": { default: "Lanjut ke pemeriksaan", en: "Continue to the check" },
   "pendataan.peta.pratayang": { default: "Beberapa baris pertama", en: "The first few rows" },
   "pendataan.medan.display_name": { default: "Nama", en: "Name" },
@@ -2919,7 +2923,7 @@ const table: Table = {
   // §6. NO ROW IS QUIETLY DISCARDED, and the sentence says so: an
   // administrator whose file had three bad rows out of a thousand must not
   // discover later that PINTAR recorded nine hundred and ninety-seven people.
-  "pendataan.periksa.perbaiki": { default: "Perbaiki berkas Anda, lalu mulai pendataan baru. Tidak ada yang dicatat sampai seluruh baris bisa dibaca.", en: "Correct your file, then start a new intake. Nothing is recorded until every row can be read." },
+  "pendataan.periksa.perbaiki": { default: "Perbaiki berkas atau pilihan kolomnya, lalu mulai pendataan baru. Tidak ada yang dicatat sampai seluruh baris bisa dibaca.", en: "Correct the file or its column choices, then start a new intake. Nothing is recorded until every row can be read." },
   "pendataan.periksa.gagal": { default: "Pemeriksaan tidak bisa dijalankan sekarang. Coba sekali lagi.", en: "The check could not run just now. Try once more." },
   // E-K4: the intake file could not be opened (pending Dr Gladys)
   "pendataan.buka.gagal": { default: "Berkas itu belum bisa dibuka sebagai pendataan. Periksa isinya, lalu coba lagi.", en: "That file could not be opened as an intake. Check its contents, then try again." },
@@ -4202,7 +4206,7 @@ const table: Table = {
   "studio.paket.riwayat.ini": { default: "halaman ini", en: "this page" },
   "studio.paket.riwayat.buka": { default: "Buka", en: "Open" },
   "studio.paket.kosong": { default: "Belum ada paket di sini.", en: "There is nothing here yet." },
-  "studio.beranda.tak_ada_tugas": { default: "Tidak ada yang menunggu tindakan Anda di Studio.", en: "Nothing in the Studio is waiting for you." },
+  "studio.beranda.tak_ada_tugas": { default: "Hitungan di atas belum mencakup paket yang sudah disetujui atau sedang dibuat terbitannya. Lihat daftar paket di bawah: setiap paket menyebut langkahnya sekarang.", en: "The counts above do not yet include packages that are approved or whose release is being made. See the package list below: each package names its step now." },
   "studio.state.explain.TERBIT": { default: "Paket ini sudah terbit. Guru dapat menyediakannya untuk kelas mereka.", en: "This package is published. Teachers can make it available to their classes." },
   // polish batch 2 (UX-14): the section is named what both steps call it
   "studio.temuan.judul": { default: "Temuan", en: "Findings" },
@@ -4284,7 +4288,7 @@ const table: Table = {
   "studio.unggah.sibuk.media": { default: "Mengunggah…", en: "Uploading…" },
   "studio.unggah.sibuk.simpan": { default: "Menyimpan…", en: "Saving…" },
   "studio.unggah.lolos": { default: "Buku kerja lolos pemeriksaan.", en: "The workbook passed the check." },
-  "studio.unggah.hitung.courses": { default: "Kursus", en: "Courses" },
+  "studio.unggah.hitung.courses": { default: "Paket", en: "Packages" },
   "studio.unggah.hitung.modules": { default: "Bab", en: "Chapters" },
   "studio.unggah.hitung.lessons": { default: "Pelajaran", en: "Lessons" },
   "studio.unggah.hitung.items": { default: "Soal", en: "Questions" },
@@ -4463,6 +4467,7 @@ const table: Table = {
   "studio.konten.kode.content_reviewer_required": { default: "Persetujuan belum tercatat atas nama Anda. Muat ulang halaman, lalu setujui sekali lagi.", en: "The approval was not recorded under your name. Reload the page and approve once more." },
   "studio.konten.kode.content_author_unknown": { default: "PINTAR tidak tahu siapa penyusun paket ini, jadi tidak dapat memastikan bahwa persetujuannya dari orang lain. Sampaikan kepada yang mengurus PINTAR di sekolah Anda.", en: "PINTAR does not know who wrote this package, so it cannot confirm that the approval comes from someone else. Tell whoever looks after PINTAR at your school." },
   "studio.konten.kode.content_reviewer_is_author": { default: "Anda menyusun paket ini, jadi persetujuannya harus dari orang lain. Minta rekan yang disebut di langkah Setujui isi.", en: "You wrote this package, so the approval must come from someone else. Ask a colleague named at the Approve the content step." },
+  "studio.konten.kode.content_check_errors": { default: "Pemeriksaan isi sudah dijalankan dan menemukan hal yang wajib diperbaiki, jadi paket belum ditandai lolos. Lihat Temuan di bawah: perbaiki yang wajib diperbaiki, lalu tandai lolos pemeriksaan lagi.", en: "The content check has run and found things that must be fixed, so the package is not marked as passed yet. See Findings below: fix what must be fixed, then mark the check as passed again." },
   "studio.konten.kode.content_reviewer_not_caller": { default: "Persetujuan hanya dapat dicatat atas nama Anda sendiri, bukan atas nama orang lain.", en: "An approval can only be recorded in your own name, not in someone else\u2019s." },
   "studio.konten.kode.content_seal_not_allowed": { default: "Mengunci terbitan bukan wewenang Anda di sekolah ini. Minta orang yang disebut di langkah Kunci terbitan.", en: "Locking the release is not yours to do in this school. Ask someone named at the Lock the release step." },
   "studio.konten.kode.content_publish_not_allowed": { default: "Menerbitkan bukan wewenang Anda di sekolah ini. Minta orang yang disebut di langkah Terbitkan.", en: "Publishing is not yours to do in this school. Ask someone named at the Publish step." },

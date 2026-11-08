@@ -63,7 +63,7 @@ export const b5Tests: SelfTest[] = [
       const form = kode(baca(ctx.repoRoot, "src/components/sertifikat/FormCabut.tsx"));
       c.expect(/action=\{cabutSertifikatAksi\}/.test(form), "the form does not post to cabutSertifikatAksi");
       c.expect(/<textarea id="cabut-alasan" name="alasan"[^>]*required/.test(form), "the reason is not a required field of the form");
-      c.expect(/onClick=\{\(\) => \{ if \(form\.current\?\.reportValidity\(\)\) setYakin\(true\); \}\}/.test(form) && /type="button"[^>]*className="pin-btn pin-primary"/.test(form),
+      c.expect(/onClick=\{\(\) => \{ if \(form\.current\?\.reportValidity\(\)\) setYakin\(true\); \}\}/.test(form) && /type="button"[^>]*className="pin-btn pin-bahaya"/.test(form), // restated for Daisy F2 (8 Nov): the opener of a destructive act is red words, «red twice»
         "«Lanjutkan» is not a plain button that only shows the confirmation once the reason is written");
       c.expect(/className="pin-konfirmasi pin-konfirmasi-bahaya" role="group" aria-labelledby="cabut-tanya"/.test(form),
         "the confirmation is not the destructive in-page Confirmation, named by its question");

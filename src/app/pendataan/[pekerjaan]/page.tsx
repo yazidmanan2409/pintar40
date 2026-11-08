@@ -179,7 +179,7 @@ export default async function SatuPendataan({
                     UX-08: its press also starts the recording (IsianSetuju). */}
                 <form action={konfirmasiAksi}>
                   <IsianSetuju pekerjaan={pekerjaan} />
-                  <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memproses")}>{s("pendataan.pratinjau.setuju")}</TombolKirim>
+                  <TombolKirim className="pin-btn pin-primary pin-go pin-data-btn" sibuk={s("tombol.memproses")}>{s("pendataan.pratinjau.setuju")}</TombolKirim>
                 </form>
               </>
             ) : (
@@ -217,7 +217,7 @@ export default async function SatuPendataan({
             {/* UX-08: «lanjutkan sisanya» continues the recording itself. */}
             <form action={periksaPercontohanAksi}>
               <IsianSetuju pekerjaan={pekerjaan} />
-              <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memeriksa")}>{s("pendataan.percontohan.tanya")}</TombolKirim>
+              <TombolKirim className="pin-btn pin-primary pin-go pin-data-btn" sibuk={s("tombol.memeriksa")}>{s("pendataan.percontohan.tanya")}</TombolKirim>
             </form>
           </section>
         ) : null}

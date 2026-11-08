@@ -1514,6 +1514,9 @@ async function catatLewatLayar(page, nama, shots, { kelas = "Kelas 1A", peran = 
     jejak.push(`pasted ${nama.length} name(s); Tempat «${k.t}» for every row`);
   } else {
     jejak.push(`pasted ${nama.length} name(s); no Tempat`);
+    // Daisy F1 (8 Nov): a list with no class is recorded only once the administrator says it is a staff list
+    await page.getByLabel("Ini daftar guru atau staf", { exact: false }).check();
+    jejak.push("«Ini daftar guru atau staf» ticked");
   }
   if (peran) await page.locator("#pin-medan-role").selectOption(`t:${peran}`);
   shots.push(await shot(page, "pendataan-petakan"));

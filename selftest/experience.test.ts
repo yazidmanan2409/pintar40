@@ -12924,7 +12924,7 @@ export const experienceTests: SelfTest[] = [
         && /terbitSiap \? s\("studio\.langkah\.terbit\.judul"\) : s\(`studio\.state\.\$\{state\.surface_state\}`/.test(paket)
         && /terbitSiap \? s\("studio\.state\.explain\.TERBIT"\) : s\(`studio\.state\.explain\.\$\{state\.surface_state\}`/.test(paket),
         "a published package with nothing to fix still reads «Siap · Paket ini siap diterbitkan»");
-      for (const [k, harap] of [["studio.beranda.tak_ada_tugas", "Tidak ada yang menunggu tindakan Anda di Studio."], ["studio.state.explain.TERBIT", "Paket ini sudah terbit. Guru dapat menyediakannya untuk kelas mereka."], ["studio.langkah.terbit.judul", "Terbit"]] as const) {
+      for (const [k, harap] of [["studio.beranda.tak_ada_tugas", "Hitungan di atas belum mencakup paket yang sudah disetujui atau sedang dibuat terbitannya. Lihat daftar paket di bawah: setiap paket menyebut langkahnya sekarang."] /* restated for Daisy F10 (8 Nov): until studio_home counts every state (W1.16), the zero line says what it leaves out */, ["studio.state.explain.TERBIT", "Paket ini sudah terbit. Guru dapat menyediakannya untuk kelas mereka."], ["studio.langkah.terbit.judul", "Terbit"]] as const) {
         c.expect(t(k as never, "staff") === harap && t(k as never, "staff", { locale: "en" }) !== harap, `the copy table's ${k} is not «${harap}» with its English`);
       }
       return c.verdict("Studio's home and a published package's headline agree with what is listed and published (RV-10)");
@@ -13094,6 +13094,23 @@ export const experienceTests: SelfTest[] = [
       const tanam = readFileSync(join(repoRoot, "src/components/sesi/KeluarSemua.tsx"), "utf8").replace(/\S*\.focus\(\);?/g, "");
       c.expect(arah(tanam) < 2, "a KeluarSemua without its focus calls is not caught");
       return c.verdict(`${KENAL.length} swapping component(s) move focus as declared (${KENAL.filter(([, n]) => n === 2).length} both ways, the rest once); ${panel} client in-place panel(s) move focus; the planted copy is caught`);
+    },
+  },
+  {
+    id: "SIAP-LEBAR-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // Daisy F3 (8 Nov): «explain once» put .pin-sr words (position: absolute) inside the topics x classes grid; its scroll
+      // region was not positioned, so they escaped it and a 390 px phone page grew to 481-1005 px. The region is
+      // positioned, so the words stay inside what scrolls. A planted copy without it is the control.
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      const aturan = (src: string) => /\.pin-lk-kisi-wadah\s*\{[^}]*position:\s*relative/.test(src);
+      c.expect(aturan(css), "the grid's scroll region is not positioned, so its read-only words widen a phone page");
+      c.expect(/pin-lk-kisi-wadah/.test(readFileSync(join(repoRoot, "src/components/laporan/KisiTopik.tsx"), "utf8")),
+        "the grid no longer uses its scroll region");
+      c.expect(!aturan(css.replace(/position:\s*relative;?/g, "")), "a stylesheet without the rule is not caught");
+      return c.verdict("the topics x classes scroll region is positioned, so its read-only words stay inside it; the planted copy is caught");
     },
   },
 ];

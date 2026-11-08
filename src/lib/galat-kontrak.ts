@@ -140,6 +140,9 @@ export const KODE_KONTEN = [
   "CONTENT_WITHDRAW_NOT_ALLOWED",
   "CONTENT_AUTHOR_IMMUTABLE",
   "CONTENT_CREATED_NOT_INGESTED",
+  // Daisy F8 (8 Nov; UX-01): «Tandai lolos pemeriksaan» runs the content check first, and an ERROR it finds holds the
+  // step: an ERROR is repaired, never acknowledged away (acknowledge_finding)
+  "CONTENT_CHECK_ERRORS",
 ] as const;
 
 /** A form the reader has to complete; each says what is missing. */

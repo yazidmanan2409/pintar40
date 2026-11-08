@@ -349,7 +349,7 @@ function BarisSimpul({ simpul, locale }: { simpul: SimpulStruktur; locale: Local
             <button ref={tombolUbah} type="button" className="pin-btn pin-quiet" onClick={() => { setNamaBaru(simpul.name); setMode("ubah"); }}>
               {s("config.struktur.ubah_nama")}
             </button>
-            <button ref={tombolNonaktif} type="button" className="pin-btn pin-quiet" onClick={() => setMode("tanya")}>
+            <button ref={tombolNonaktif} type="button" className="pin-btn pin-bahaya" onClick={() => setMode("tanya")}>
               {s("config.struktur.nonaktifkan")}
             </button>
           </span>

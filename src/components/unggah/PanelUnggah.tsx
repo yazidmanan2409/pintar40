@@ -296,9 +296,11 @@ export default function PanelUnggah({
             <p className="pin-hint">{s("studio.unggah.ringkasan_arti")}</p>
           </div>
         )}
+        {/* Daisy F7 (8 Nov): «Periksa buku kerja» is the page's next step only until the check passes; then the next
+            step (media, or «Simpan ke Studio») is the one primary */}
         <button
           type="button"
-          className="pin-btn pin-primary"
+          className={periksa?.ok ? "pin-btn" : "pin-btn pin-primary"}
           onClick={() => void jalankanPeriksa()}
           disabled={!berkas || sibuk !== null || tersimpan}
           aria-describedby={!berkas ? "periksa-alasan" : undefined}

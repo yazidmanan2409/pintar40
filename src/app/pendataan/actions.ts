@@ -65,7 +65,8 @@ export async function simpanKodeAksi(formData: FormData): Promise<void> {
   // guessing here.
   if (error) redirect(`/pendataan?galat=kode&kenapa=${encodeURIComponent(kode)}`);
   revalidatePath("/pendataan");
-  redirect("/pendataan");
+  // Daisy (8 Nov): a saved code says so, and where the list goes next
+  redirect("/pendataan?kode=tersimpan");
 }
 
 /**

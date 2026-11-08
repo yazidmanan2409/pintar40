@@ -283,14 +283,16 @@ export default function FormAktivasi({ locale, orang, adminSistem, kelas = [], p
                         <input className="pin-input" type="email" value={alamat}
                           onChange={(e) => setSurel((x) => ({ ...x, [o.person_id]: e.target.value }))} />
                       </label>
-                      <button type="button" className="pin-btn pin-primary" disabled={sibuk !== null}
+                      {/* Daisy F6 (8 Nov): one primary per row (D-140), the act this person is most likely to need: the class
+                          card where they may have one (a learner), else email */}
+                      <button type="button" className={bolehKartu(o) ? "pin-btn" : "pin-btn pin-primary"} disabled={sibuk !== null}
                         aria-busy={sibuk === `${o.person_id}:EMAIL` ? "true" : undefined}
                         onClick={() => void kirim(o.person_id, "EMAIL", { person_id: o.person_id, email: alamat.trim() }, { surel: alamat })}>
                         {sibuk === `${o.person_id}:EMAIL` ? s("tombol.mengaktifkan") : s("aktivasi.dengan_surel")}
                       </button>
                       {/* CR-91 (D-145(a)): a class card only for a learner; staff activate with email */}
                       {bolehKartu(o) ? (
-                        <button type="button" className="pin-btn" disabled={sibuk !== null}
+                        <button type="button" className="pin-btn pin-primary" disabled={sibuk !== null}
                           aria-busy={sibuk === `${o.person_id}:CLASSROOM_CARD` ? "true" : undefined}
                           onClick={() => void kirim(o.person_id, "CLASSROOM_CARD", { person_id: o.person_id }, {})}>
                           {sibuk === `${o.person_id}:CLASSROOM_CARD` ? s("tombol.mengaktifkan") : s("aktivasi.dengan_kartu")}

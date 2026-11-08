@@ -47,7 +47,7 @@ export default function KeluarSemua({ locale }: { locale: Locale }) {
         </div>
       ) : (
         <div className="pin-actions">
-          <button ref={buka} type="button" className="pin-btn" onClick={() => setLangkah("yakin")}>{s("akun.semua.tombol")}</button>
+          <button ref={buka} type="button" className="pin-btn pin-bahaya" onClick={() => setLangkah("yakin")}>{s("akun.semua.tombol")}</button>
         </div>
       )}
       {langkah === "gagal" ? <BarisHasil nada="gagal">{s("akun.semua.gagal")}</BarisHasil> : null}

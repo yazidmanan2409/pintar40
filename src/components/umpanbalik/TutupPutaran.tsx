@@ -117,7 +117,7 @@ export default function TutupPutaran({
         </div>
       ) : (
         <div className="pin-actions">
-          <button ref={pembuka} type="button" className="pin-btn pin-ub-btn" onClick={() => setTanya(true)}>
+          <button ref={pembuka} type="button" className="pin-btn pin-bahaya pin-ub-btn" onClick={() => setTanya(true)}>
             {s("umpanbalik.tutup.aksi")}
           </button>
         </div>
