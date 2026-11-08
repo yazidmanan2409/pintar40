@@ -8,7 +8,8 @@
  * `next build` reads next to the bundle it built, and reuses `.next` only when
  * that fingerprint matches exactly:
  *
- *   source     every file under src/ and public/ (path and content)
+ *   source     every file under src/ and public/ (path and content), and any
+ *              file outside them that those import by relative path
  *   config     next.config.*, tsconfig.json, postcss.config.*, package.json
  *   lockfile   package-lock.json
  *   installed  node_modules/.package-lock.json (the tree npm actually installed)
@@ -25,8 +26,8 @@
  */
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { dirname, join, relative, sep } from "node:path";
 
 export const BUILD_DIR = ".next";
 export const FINGERPRINT_FILE = "pintar-selftest-build.json";
@@ -72,13 +73,47 @@ function hashFiles(root: string, rels: string[]): string {
   return sha(h);
 }
 
+// A relative module specifier in an import, a dynamic import, a require or a CSS @import.
+const RELATIVE_SPECIFIER = /(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+|\brequire\s*\(\s*|@import\s+(?:url\(\s*)?)["'](\.{1,2}\/[^"']+)["']/g;
+const RESOLVE_SUFFIXES = ["", ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".json", ".css", "/index.ts", "/index.tsx", "/index.js"];
+const SCANNED = /\.(m?[jt]sx?|cjs|css)$/;
+
+/**
+ * Files outside src/ and public/ that the build pulls in by relative import
+ * (src/lib/pengaturan-auth.ts imports ../../supabase/auth-identitas.json),
+ * followed transitively. Packages are covered by the lockfile and installed tree.
+ */
+function importedFromOutside(root: string, source: string[]): string[] {
+  const inside = (rel: string) => SOURCE_DIRS.some((d) => rel === d || rel.startsWith(`${d}/`));
+  const found = new Set<string>();
+  const queue = source.filter((f) => SCANNED.test(f));
+  const seen = new Set(queue);
+  while (queue.length) {
+    const file = queue.pop()!;
+    for (const m of readFileSync(join(root, file), "utf8").matchAll(RELATIVE_SPECIFIER)) {
+      const base = join(dirname(join(root, file)), m[1].replace(/[?#].*$/, ""));
+      const hit = RESOLVE_SUFFIXES.map((x) => base + x).find((c) => existsSync(c) && statSync(c).isFile());
+      if (!hit) continue;
+      const rel = relative(root, hit).split(sep).join("/");
+      if (inside(rel) || rel.startsWith("node_modules/") || found.has(rel)) continue;
+      found.add(rel);
+      if (SCANNED.test(rel) && !seen.has(rel)) {
+        seen.add(rel);
+        queue.push(rel);
+      }
+    }
+  }
+  return [...found];
+}
+
 function gitRevision(root: string): string {
   const r = spawnSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" });
   return r.status === 0 ? r.stdout.trim() : "no-git";
 }
 
 export function computeBuildIdentity(root: string, env: NodeJS.ProcessEnv): BuildIdentity {
-  const source = SOURCE_DIRS.flatMap((d) => filesUnder(root, d));
+  const tree = SOURCE_DIRS.flatMap((d) => filesUnder(root, d));
+  const source = [...tree, ...importedFromOutside(root, tree)];
   const config = readdirSync(root, { withFileTypes: true }).filter((e) => e.isFile() && CONFIG_FILE.test(e.name)).map((e) => e.name);
 
   const names = new Set<string>(["NODE_ENV", ...Object.keys(env).filter((k) => k.startsWith("NEXT_PUBLIC_"))]);

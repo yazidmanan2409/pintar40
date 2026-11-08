@@ -36,6 +36,8 @@ function fixture() {
   put("package.json", '{ "name": "f" }\n');
   put("package-lock.json", '{ "lockfileVersion": 3 }\n');
   put("README.md", "fixture\n");
+  put("src/lib/auth.ts", 'import K from "../../shared/kanonik.json";\nexport default K;\n');
+  put("shared/kanonik.json", '{ "a": 1 }\n');
   git(root, "init", "-q");
   git(root, "add", "-A");
   git(root, "commit", "-qm", "A");
@@ -90,7 +92,7 @@ test("unchanged inputs: reuses without building, even after a touch", () => {
   }
 });
 
-test("changed source: a file edited, added or deleted under src/ or public/ rebuilds", () => {
+test("changed source: a file edited, added or deleted under src/ or public/, or imported from outside them, rebuilds", () => {
   const f = fixture();
   try {
     f.run();
@@ -100,6 +102,8 @@ test("changed source: a file edited, added or deleted under src/ or public/ rebu
       () => rmSync(join(f.root, "src/lib/new.ts")),
       () => f.put("src/app/globals.css", "body { margin: 1px }\n"),
       () => f.put("public/logo.svg", "<svg></svg>\n"),
+      // outside src/, but imported by it (as src/lib/pengaturan-auth.ts imports supabase/auth-identitas.json)
+      () => f.put("shared/kanonik.json", '{ "a": 2 }\n'),
     ]) {
       change();
       const r = f.run();
