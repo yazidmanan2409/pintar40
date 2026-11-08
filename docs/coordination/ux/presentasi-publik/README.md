@@ -100,3 +100,24 @@ The demonstration school has one learner, so it cannot show a class with enough 
 
 1. **B: Ringkasan Kelas on the demonstration class says «Baru 1 dari 0 murid … 0 murid di kelas ini».** One learner has a result, but the population reads 0. That screen is not used in the presentation.
 2. **C: a lead sentence ends «…dengan membagi..».** A learning objective's own full stop is kept before the sentence's. The simulated data leaves the full stop out, so the preview does not show it.
+
+## Owner decisions (9 Nov) and the review sequence
+
+**Status:** READY FOR OWNER REVIEW, NOT YET APPROVED FOR PUBLICATION. No redesign is to be made before the owner has looked at the result.
+
+| Question | Decision | Applied |
+|---|---|---|
+| Demonstration names | Keep them. Frames read «Contoh sekolah · data simulasi» / «Example school · simulated data». Authentic screenshots are not altered; the question panel's note explains «(peraga)» | Version 2 of the preview |
+| Contact email | Provisionally yes: info@pintarselalu.com | **Open:** confirm that the mailbox is active and monitored before publication |
+| Illustrations | None for now; the typography-led opening and closing are deliberate | No change |
+
+**Review order**
+1. **The owner's visual review** of the preview, in Indonesian and English, especially screens 5 and 6.
+2. **Second Eye's factual verification,** within its 4.0 reporting-quality work:
+   - the screen-8 access statements;
+   - certificate verification;
+   - the two application defects below.
+3. **Dr Gladys's editorial review** of the educational language, at the appropriate stage. This does not start the postponed 4.0 walkthrough.
+4. **The publication decision,** only after the claims, screenshots, language and 4.0 release status are verified.
+
+**Defect 1 is a reporting-integrity defect** (owner, 9 Nov). «Baru 1 dari 0 murid» must be resolved before the reporting acceptance gate can pass. Second Eye should check the population definition, the aggregation, and every report that uses the same calculation.
