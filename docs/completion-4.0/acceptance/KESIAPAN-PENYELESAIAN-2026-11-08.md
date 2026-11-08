@@ -65,6 +65,9 @@ Terminology:
 - **C10:** «asesmen» replaces «penilaian» where the word means the assessment (4 keys).
 - **C10:** «terbitkan ulang» named a step that doesn't exist (3 keys reworded).
 
+Workflow guidance:
+- «Yang menunggu» counted a teacher without a role under «buat kartu kelas». The line now says to give their role first; class cards are for learners only (`3928fda0`).
+
 **Deferred, each with its reason**
 
 | Finding | Why it waits | Does it block a first-time user? |
@@ -77,7 +80,7 @@ Terminology:
 | C7: typography outside tokens | Cosmetic | No |
 | C9: PD refusal drawn two ways | Kept: Daisy closed X5-9 on the current drawing | No |
 | C11: «Kembali» as "previous"; emoji as icons; Dialog's close button; etc. | Cosmetic, per Daisy's class C | No |
-| `studio_home` omits VALIDATED, APPROVED and FROZEN | Needs a database migration to the RPC. The B1 label now names what it does count, and the package page names who acts | No, but a package can wait unseen on the Studio home count. Listed for the next migration batch |
+| **`studio_home` omits VALIDATED, APPROVED and FROZEN: an OPEN USABILITY DEFECT, register W1.16** | Needs a database migration to the RPC, which is held out of this candidate. Mitigated only: the count is renamed to what it counts («Draf yang belum diajukan»), and rows and the package page say «Menunggu orang lain» and who acts | **It can mislead.** Studio home may show «0» while a package waits at one of those steps. The owner should know before the walkthrough |
 | Lowercase «admin sekolah» (16 keys) | The approved strings are quoted verbatim by walks; to be done in Dr Gladys's copy pass | No |
 | «Cek penguasaan» in the workbook help | Kept: it is the workbook's own value, which the author types | No |
 | Persiapan's «murid» step is not a link | Kept: DAISY-17 forbids a link to a page the step cannot open | No |
@@ -92,13 +95,26 @@ Terminology:
 | Typecheck (`tsc`) | Clean on `a10d5650` |
 | `next build` | Clean |
 | Targeted selftests on `a10d5650` | LAPORAN-*, DAISY-*, STUDIO3*, D168, UX1-DATA-*, UX2-MENU-01, BOB29-*, F22-*: all green |
-| Full local selftest on the fresh build | _pending: see below_ |
-| Readiness walk `audit/siap-jalan.mjs` (W) | **6/6 PASS** on a fresh build of the candidate |
+| Full local selftest on a fresh build of `a10d5650` | 840 passed, 19 failed. **One was a real defect of this work:** D168-B1-6, the grant form's heading was an h3 where a section page's parts are h2; fixed in `b41aeeed`. The other 18 (F18-*, BOB28-D01, D101/D102-D01, DR-D02/D03, TOUR-P01, UX1-UB-ALUR/KELOLA-01) read accumulated local database state; none appears on CI's fresh database (next row) |
+| Readiness walk `audit/siap-jalan.mjs` (W) | **7/7 PASS** on a fresh build of `b41aeeed` (R7: Struktur by keyboard) |
+| SIAP-FOKUS-01 (focus sweep) | Green: every client in-place panel moves focus, the ten swapping components move it as declared, and the planted copy is caught |
 | Grid print render (R) | 10 classes: 1 landscape page; 5 classes: 1 portrait page |
-| Exact-commit CI (`ci.yml` on `a10d5650`) | _pending_ |
-| Journeys (`audit-journeys.yml`, ref `a10d5650…`) | _pending_ |
+| CI on `a10d5650` (run 42433800520) | **874 passed, 1 failed: D168-B1-6** (above, fixed in `b41aeeed`). All 16 other jobs green. Investigated, not re-run |
+| Journeys on `a10d5650` (run 42433803149) | _pending_ |
+| **Exact-commit CI and journeys on the final candidate** | _to be dispatched once, on the final head, after Sharon's selftest change is integrated_ |
 
 **Found during verification:** the local selftest reuses any existing `.next` build, so an earlier local run on 8 Nov tested a bundle from 7 Nov. That run's app-level results are not counted here. CI always builds fresh and is unaffected.
+
+## 4a. The focus pattern, swept (owner, 8 Nov)
+
+The walk found «Keluar dari semua» dropping keyboard focus when its question opened (`a10d5650`). On the owner's instruction, every client component that swaps a button for a question or small form was checked. Six more lost focus, and all now move it (`3928fda0`):
+- «Tutup putaran»;
+- Struktur «Ubah nama» and «Nonaktifkan»;
+- Aktivasi «Kartu hilang» and «Jadikan akun email»;
+- the learner's finish question;
+- the last step of a lesson's worked example.
+
+The rule: opening moves focus to the safe choice, or to the field the panel asks for; leaving returns it to the button that opened it. Server-rendered panels opened by an address (Konfigurasi `?angkat`, the first admin) are page loads, not in-place swaps, and are outside this rule. SIAP-FOKUS-01 now holds the rule.
 
 ## 5. Outstanding human accessibility checks
 
