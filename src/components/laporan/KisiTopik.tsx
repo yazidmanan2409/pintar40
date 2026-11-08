@@ -54,12 +54,17 @@ export function susunKisi(kolom: readonly KolomKisi[]) {
     const bawah = ukur.filter((k) => nilai.get(k.id)!.get(kunci)! < (k.target as number));
     return ukur.length >= 2 && bawah.length * 2 > ukur.length;
   }).map(([, nama]) => nama);
-  return { kolom: ada, baris: [...baris.entries()], nilai, pola, berangka: berangka.length };
+  // Reporting Quality Gate (9 Nov): the lead sentence may say «no topic is below target» only where it could have found
+  // one: at least two classes with the figure AND a target this reader can read. A Dekan reads no class's target
+  // (assessment_assignments is the authors' and assigners' read), and was told «Tidak ada topik yang di bawah target»
+  // over cells that were below it.
+  const bertarget = berangka.filter((k) => typeof k.target === "number").length;
+  return { kolom: ada, baris: [...baris.entries()], nilai, pola, berangka: berangka.length, bertarget };
 }
 
 export default function KisiTopik({ kolom, locale, huruf = "A" }: { kolom: readonly KolomKisi[]; locale: Locale; huruf?: string }) {
   const s = (k: string) => t(k as HleEvent, "staff", { locale });
-  const { kolom: ada, baris, nilai, pola, berangka } = susunKisi(kolom);
+  const { kolom: ada, baris, nilai, pola, berangka, bertarget } = susunKisi(kolom);
   if (ada.length === 0) return null;
   const adaKenaikan = ada.some((k) => k.kenaikan?.status === "ok");
   return (
@@ -68,7 +73,7 @@ export default function KisiTopik({ kolom, locale, huruf = "A" }: { kolom: reado
       <div className="pin-lk-bagian">
         <JudulBagian huruf={huruf} judul={s("metrik.topik.label")} id="pin-kisi" locale={locale} />
         <div className="pin-lk-inti">
-          {berangka > 0 ? (
+          {berangka > 0 && bertarget >= 2 ? (
             <p className="pin-lk-kalimat" data-lk-kalimat="">
               {pola.length > 0 ? s("laporan.kisi.pola").replace("{daftar}", daftarKata(pola, locale)) : s("laporan.kisi.tanpa_pola")}
             </p>

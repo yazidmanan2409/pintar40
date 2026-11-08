@@ -818,6 +818,47 @@ export const b5aTests: SelfTest[] = [
     },
   },
   {
+    // Reporting Quality Gate (owner, 9 Nov): the grid's lead never claims what its reader could not have found. A Dekan
+    // reads no class's target (assessment_assignments is the authors' and assigners' read) and was told «Tidak ada topik
+    // yang di bawah target di sebagian besar kelas» over cells below the target.
+    id: "LAPORAN-KISI-02",
+    run: async (ctx) => {
+      const c = new Checks();
+      const topik = (r: Array<[string, string, number]>) => ({ status: "ok", metric_id: "class.topic_mastery", label_key: "metrik.topik.label",
+        value: r.map(([id, nama, v]) => ({ objective_id: id, competency: nama, mean_score: v, learners: 25 })) });
+      const kasus = (target: number | null, t2: number | null) => [
+        // objectives are named by their statements, which end in a full stop (it must not survive into the lead)
+        { id: "5b", nama: "5B", target, topik: topik([["p", "Pola bilangan.", 0.38], ["q", "Pola berkurang.", 0.39], ["s", "Modus.", 0.82]]) },
+        { id: "5c", nama: "5C", target: t2, topik: topik([["p", "Pola bilangan.", 0.21], ["q", "Pola berkurang.", 0.43], ["s", "Modus.", 0.86]]) },
+      ];
+      const lihat = (kolom: unknown) => render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KisiTopik.tsx");' +
+        "const K = m.default?.default ?? m.default;" +
+        "process.stdout.write(renderToStaticMarkup(h(K, { kolom: JSON.parse(process.env.KOLOM), locale: 'id' })));",
+        { KOLOM: JSON.stringify(kolom) });
+      const teks = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      const tanpa = lihat(kasus(null, null));
+      if (c.expect(tanpa.ok, `the grid could not be rendered: ${tanpa.err}`)) {
+        c.expect(!/data-lk-kalimat/.test(tanpa.out) && !teks(tanpa.out).includes("Tidak ada topik"),
+          `with no target readable the lead still judges the topics: «${teks(tanpa.out).slice(0, 200)}»`);
+        c.expect(teks(tanpa.out).includes("38%") && teks(tanpa.out).includes("21%"), "the cells are not drawn without a target");
+      }
+      const satu = lihat(kasus(0.7, null));
+      if (c.expect(satu.ok, `the grid could not be rendered: ${satu.err}`)) {
+        c.expect(!/data-lk-kalimat/.test(satu.out), "with one class's target readable the lead still speaks of «most classes»");
+      }
+      const dua = lihat(kasus(0.7, 0.7));
+      if (c.expect(dua.ok, `the grid could not be rendered: ${dua.err}`)) {
+        c.expect(teks(dua.out).includes("Pola bilangan dan Pola berkurang di bawah target di sebagian besar kelas."),
+          `with both targets the lead reads «${teks(dua.out).slice(0, 200)}» (a statement's full stop inside the list?)`);
+      }
+      return c.verdict("KisiTopik's lead judges «below target in most classes» only over at least two classes whose figure and target its reader can read; "
+        + "with none or one it says nothing (a Dekan reads no target) and the cells are still drawn; with two it names the pattern");
+    },
+  },
+  {
     // CONTOH LAPORAN 4-dekan (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov): the school summary is one composition
     id: "LAPORAN-SEKOLAH-01",
     run: async (ctx) => {

@@ -2086,7 +2086,10 @@ export const experienceTests: SelfTest[] = [
       // (two functions over enrolment and membership) and makes Studio's home count every step (studio_home and
       // studio_langkah_terbitan). Read against §3 first: a placement and counts, not a mark, a logo, a crest or a theme,
       // so the Q-7 source still does not exist.
-      c.expect(migrations.length === 201, `${migrations.length} migrations; the frozen baseline has 201`);
+      // MOVED 201 -> 202 for the Reporting Quality Gate (9 Nov): 20270111100000 resolves a Studio chapter's objectives in
+      // the three topic readers (catalogue MC-9). Read against §3 first: a calculator's lookup, not a mark, a logo, a crest
+      // or a theme, so the Q-7 source still does not exist.
+      c.expect(migrations.length === 202, `${migrations.length} migrations; the frozen baseline has 202`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3909,7 +3912,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 198 -> 199 for D-195 (7 Nov): the learners in the lowest band and the own-assignment context touch no tour RPC.
       // MOVED 199 -> 200 for KESETIAAN (7 Nov): the four report reads touch no tour RPC.
       // MOVED 200 -> 201 for owner decisions 1 and 3 (8 Nov): placing a classless learner and Studio's counts touch no tour RPC.
-      c.expect(migs.length === 201, `${migs.length} migrations; the baseline has 201`);
+      // MOVED 201 -> 202 for the Reporting Quality Gate (9 Nov): a Studio chapter's topic names (MC-9) touch no tour RPC.
+      c.expect(migs.length === 202, `${migs.length} migrations; the baseline has 202`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

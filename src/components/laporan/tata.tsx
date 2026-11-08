@@ -11,7 +11,9 @@ import { t, type HleEvent, type Locale, type Persona } from "@/lib/hle";
  * and the letter is READ, not hidden: a screen reader hears «Bagian C, Kenaikan» (G-02).
  */
 export function daftarKata(xs: readonly string[], locale: Locale): string {
-  const isi = xs.filter((x) => x.trim() !== "");
+  // Reporting Quality Gate (9 Nov): a topic is named by its objective's statement, which is a sentence ending in a
+  // full stop; inside a list it is a phrase (never «…barisannya., Kalian…» or «…barisannya. di bawah target»)
+  const isi = xs.map((x) => x.trim().replace(/[.;:]+$/, "")).filter((x) => x !== "");
   if (isi.length <= 1) return isi.join("");
   const dan = locale === "en" ? "and" : "dan";
   const sambung = locale !== "en" && isi.some((x) => / dan /.test(x)) ? "serta" : dan;

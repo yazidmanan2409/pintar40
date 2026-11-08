@@ -6460,8 +6460,9 @@ begin
       -- RESTATED FOR CR-81 (D-123(3)): the live catalogue is MC-7, MC-6 copied forward with the readiness distribution's
       -- bands and floor over the assessed and its population beside them (its migration, F20-N01 and F20-N02)
       -- RESTATED FOR H31 (7 Nov): MC-8 is MC-7 copied forward with the gain paired within one chapter
-      if v_cat is distinct from 'MC-8' then
-        bad := bad || array[format('the live metric catalogue is %s, not MC-8', coalesce(v_cat, 'none'))];
+      -- RESTATED FOR THE REPORTING QUALITY GATE (9 Nov): MC-9 is MC-8 copied forward (a Studio chapter's topic names)
+      if v_cat is distinct from 'MC-9' then
+        bad := bad || array[format('the live metric catalogue is %s, not MC-9', coalesce(v_cat, 'none'))];
       else
         if exists (select 1 from (select * from public.metric_definitions where catalogue_version = 'MC-4') d4
                     full join (select * from public.metric_definitions where catalogue_version = 'MC-3') d3

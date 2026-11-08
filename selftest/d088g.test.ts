@@ -133,7 +133,9 @@ export const d088gTests: SelfTest[] = [
       // RESTATED FOR D-121(c): MC-6 is MC-5 copied forward (the readiness distribution's not-yet state), topics unchanged.
       // RESTATED FOR CR-81 (D-123(3)): MC-7 is MC-6 copied forward (the distribution's bands and floor over the assessed)
       // RESTATED FOR H31 (7 Nov): MC-8 is MC-7 copied forward (the gain paired within one chapter); the bands are unchanged
-      c.expect(kelas.katalog === "MC-8" && h?.catalogue_version === "MC-8", `the live catalogue is ${kelas.katalog}; expected MC-8`);
+      // RESTATED FOR THE REPORTING QUALITY GATE (9 Nov): MC-9 is MC-8 copied forward (a Studio chapter's topics named by
+      // their objectives); the bands are unchanged
+      c.expect(kelas.katalog === "MC-9" && h?.catalogue_version === "MC-9", `the live catalogue is ${kelas.katalog}; expected MC-9`);
       c.expect(h?.status === "ok", `the class's per-topic mastery did not show for ten learners: ${JSON.stringify(h)}`);
       const baris = (Array.isArray(h?.value) ? h.value : []) as Array<{ objective_id: string | null; code: string; competency: string; mean_score: number; learners: number }>;
       const [o1, o2] = kelas.objektif as string[];

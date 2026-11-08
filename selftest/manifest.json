@@ -4632,6 +4632,21 @@
       "proves": "Owner decision 3 (W1.16), selftest/db/fable34.sql through the real lifecycle (create_course_revision, langkah_konten, create_release, freeze_release, publish_release, each as the persona whose step it is): a correction at «Ajukan» (VALIDATED) is the author's «Draf yang belum diajukan»; approved, it is «Buat terbitan» for CAN_FREEZE_RELEASE (Kepala departemen, Admin sekolah) and nothing for the Guru; created, «Kunci» for them; frozen, «Terbitkan» for CAN_PUBLISH only; published, nobody's. At every stage studio_home's RELEASE_STEP count equals studio_langkah_terbitan's rows (the list it opens) for that reader and school. It failed (8 Nov) on a rule that required an approved release for «Kunci», which create_release never produces."
     },
     {
+      "id": "F35-T01",
+      "runner": "db",
+      "proves": "Reporting Quality Gate (owner directive, 9 Nov), selftest/db/fable35.sql against supabase/migrations/20270111100000_a_chapter_written_in_studio_names_its_topics.sql: two chapters whose Uji Penguasaan are course-level definitions (the shape Studio's intake makes) and whose objectives share the code X1 stay two topics, each named by its own objective's statement with its own five learners, for the class's teacher (class.topic_mastery) and the school's Dekan (institution.competency_outcomes); tujuan_belum_tercapai names the one objective a learner is under the mark on by its statement. It failed before the migration: the objective was looked for only in a module-level definition, so a Studio chapter's topics were bare codes and equal codes were averaged as one."
+    },
+    {
+      "id": "F35-S01",
+      "runner": "db",
+      "proves": "Reporting Quality Gate (9 Nov), selftest/db/fable35.sql against 20270111100000: the 5-learner minimum counts learners, not results (H31's rule for Kenaikan, extended to class.comprehension, class.topic_mastery and institution.competency_outcomes). Five learners who sat ten Uji Penguasaan are a «Pemahaman» sample of five, and three learners who sat two chapters (six results) are under the minimum for «Pemahaman» and «Penguasaan per topik», counted as three. Before the migration the six results cleared the minimum and the class of 24 read «Dari 36 murid»."
+    },
+    {
+      "id": "F35-A01",
+      "runner": "db",
+      "proves": "Reporting Quality Gate (9 Nov), selftest/db/fable35.sql against 20270111100000: sittings that recorded no cohort (start_learning_session records one only for a membership of the COHORT node, and every placement PINTAR makes is a membership of a Kelas) are counted by institution.cohort_comparison in the Angkatan above their Kelas, and no row is unnamed. Before the migration «Perbandingan angkatan» named its only row «—»."
+    },
+    {
       "id": "LAPORAN-KELAS-01",
       "runner": "static",
       "proves": "CONTOH LAPORAN 2-guru/2b (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov), selftest/b5a.test.ts: src/components/laporan/KomposisiKelas.tsx rendered over envelopes shaped like the specimen's: the lead sentence counted from the topic rows («2 dari 4 topik masih di bawah target: …»), the bands and comprehension under it with R4-02's one decimal (74,8% against a 75% target), rows below the target amber and in words against a labelled target line (G-03), the class's population said apart from the bands, which are drawn over the assessed in the legend's order, the gain with the people it is computed from (MC-8), the misunderstanding with its remedy and the pointer to it, sections lettered A–F (G-02), «Lihat bukti» linked for the teacher, an action sentence under each figure (S-3); the not-yet report (2b) keeps each figure's place with how far it is from appearing; a class with no one sealed target draws no line and names the lowest topic; R4-02 rounding (59,6%, 62%); and Ringkasan Kelas draws it over generate_report's envelopes and the class's sealed target (targetKelas)."
@@ -4690,6 +4705,11 @@
       "id": "LAPORAN-KISI-01",
       "runner": "static",
       "proves": "CONTOH LAPORAN 3-kadep (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov), selftest/b5a.test.ts: src/components/laporan/KisiTopik.tsx rendered over six classes: each class the reader may see is its own column and a refused class is left out without a word; each cell is that class's own «Penguasaan per topik» figure against that class's own sealed target, amber and in words below it, with R4-02's decimal (69,6% against 70%); a class without enough evidence says so in its cells, never as a low value; a class with no one target draws no tick and no verdict; the lead names the topics below target in most classes that have a target; the grid is a table with row and column headers; and /pimpinan draws it from each class's own envelope (buktiPerKelas) and its sealed target (targetKelasDari)."
+    },
+    {
+      "id": "LAPORAN-KISI-02",
+      "runner": "static",
+      "proves": "Reporting Quality Gate (9 Nov), rendered: KisiTopik's lead sentence judges topics «below target in most classes» only over at least two classes whose figure and target the reader can read. A Dekan reads no class's target and had been told «Tidak ada topik yang di bawah target di sebagian besar kelas» over cells below it; with no target or one, the lead is now absent and the cells are still drawn."
     },
     {
       "id": "LAPORAN-SEKOLAH-01",
