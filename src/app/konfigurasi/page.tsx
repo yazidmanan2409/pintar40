@@ -1690,7 +1690,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             {result("roles", "pertama")}
             <div className="mt-3">{cariOrangForm("roles")}</div>
             <form action={grantRoleAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2" aria-labelledby="pin-beri-peran">
-              <h3 id="pin-beri-peran" className="font-medium sm:col-span-2">{s("config.action.grant")}</h3>
+              <h2 id="pin-beri-peran" className="font-medium sm:col-span-2">{s("config.action.grant")}</h2>
               <label className={label}>{s("config.label.person")}
                 <select name="person" className={field} required defaultValue="">
                   <option value="" disabled>—</option>

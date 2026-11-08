@@ -125,7 +125,7 @@ await step("R3", "Admin: Peran & akses intro, form heading, scope and date hints
   await buka(page, "/konfigurasi/roles");
   const teks = norm(await page.locator("main").textContent());
   harus(rec, /aktivasi/i.test(teks), "Peran & akses mentions activation");
-  harus(rec, (await page.locator("main h3").count()) > 0, "the grant form has a heading");
+  harus(rec, (await page.locator("main #pin-beri-peran").count()) === 1, "the grant form has a heading");
   const lingkup = page.locator('main select[name*="node"], main select[name*="lingkup"], main select[name*="scope"]');
   if (await lingkup.count()) {
     harus(rec, await lingkup.first().evaluate((e) => e.required), "the scope field is required");
