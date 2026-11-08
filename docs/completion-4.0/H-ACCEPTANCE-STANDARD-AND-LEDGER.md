@@ -95,6 +95,23 @@ What would move the gates:
 - **UX consistency:** Daisy's side-by-side comparison per batch, as she did for the reports.
 - **Human journey:** the owner's or an evaluator's recorded walks on staging.
 
+## 3c. Reconciled 8 Nov against the integration dossiers (owner, 8 Nov: «Reconcile the acceptance ledger against actual evidence. Never equate automated success with human acceptance.»)
+
+Every batch now has an integration dossier in §2's form (`batch-N/INTEGRATION-DOSSIER.md`). Each cites only evidence that exists: every test id it names is in `selftest/manifest.json`, checked mechanically. Each gap is named. The dossiers correct §3b where §3b was out of date; nothing here moves a gate without its evidence.
+
+| Batch | Integration verified | Corrections to §3b, from the dossier | Human journey accepted |
+|---|---|---|---|
+| **1** | **partial**: checks 1, 6, 7 evidenced; 2, 3, 4, 5, 8, 9 carry gaps | UX consistency: its evidence is Daisy's matched patterns P8, P15 and P21, not the E-RB closure (only E-RB-10 touches a Batch 1 surface). Stays partial | not accepted |
+| **2** | **partial**: checks 1, 6, 8 evidenced; 3 n/a at the database (no migration), its leak checks evidenced; 2, 4, 5, 7, 9 carry gaps | Design: the fifteen E3 questions are **answered by Daisy** and implemented (R2-1, R2-3, R2-4, R2-8, R2-9); the owner's acceptance is not recorded; `alasan.nonaktif.jawab` waits on Dr Gladys. Stays partial | not accepted |
+| **3** | **partial**: checks 1, 6, 8 complete; 2, 3, 4, 5, 7, 9 carry gaps | Design: A2 (D-170(a)), A3 (D-176), A4 (D-171(b)) and A5 (D-173(a)) are **accepted and built**; only copy is open (C3, C9, B7/B9/B11's words, B28). Stays partial | not accepted |
+| **4** | **partial**: checks 1, 6, 8 complete; 2, 3, 4, 5, 7, 9 carry gaps | Design: B1 is **accepted** (D-166(a)) and built (`c4e2ffe3`); W2.10 complete (F26-W01, D-158). Open for copy only: E-B1-2, E-B1-3, X7, X9. Its staging walk of record is `golden-school-pentadbiran.mjs`, last run P-5 (42323858693) | not accepted |
+| **5** | **partial**: checks 1–3 and 6–8 evidenced; 4, 5, 9 carry gaps | W2.7's per-observation decision and W2.10's populated pager are proven in CI only, not on staging | not accepted |
+| **6** | **partial**: checks 1, 6–8 evidenced; 2, 3, 4, 5, 9 carry gaps | Design: F-11 is closed for development (D-192, D-193); DAISY-37 is built as D1 (`be8a68c2`); W3.21 stage 2 is published (version 26). Open: the physical print proofs, P5/P6, B4, H29, the PD accent on a certificate | not accepted |
+| **8** | **n/a** (measurements) | Engineering: also W5.4 (CI 42007060565) and W6.10 (journeys 41972261935) verified; J2.7 walked on staging 15/15 (42163941604). W6.2 and W6.8 stay NOT MET as measured; the regional run is ready (`perf-regional.yml`) and waits on a machine in Indonesia; W6.12's screen-reader passes wait on a person (`acceptance/SCREEN-READER-SCRIPT.md`) | not accepted |
+| **9** | **evidence complete for checks 1–8**; check 9 waits on a person's screen-reader pass | On staging since P-7. Check 5's platform-administrator gap closed 8 Nov: F33-PA01 (shown red with a teacher's role: 2 names, 6 dots) and staging D8. The PD package journey walked on staging (D9–D13, run 42430362995) | not accepted |
+
+**Still true: no batch is fully accepted, and no human journey is accepted.** The journeys a person walks are written (`acceptance/HUMAN-ACCEPTANCE-JOURNEYS.md`, H1–H20). Only their recorded sessions move the last column.
+
 ## 4. Known cross-component inconsistencies
 
 Each is traced to its source. Status: fixed, or where it waits.
