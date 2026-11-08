@@ -118,6 +118,9 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      # The selftest's own bundle check (selftest/build-identity.ts): which .next
+      # it may reuse, and that every test reading .next declares it.
+      - run: npm run -s selftest:build-identity
       - name: Production build (placeholder public env; nothing secret)
         env:
           NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
@@ -2052,9 +2055,11 @@ jobs:
              "migrations-clean":"${{ needs.migrations-clean.result }}",
              "migrations-upgrade-path":"${{ needs.migrations-upgrade-path.result }}",
              "red-case":"${{ needs.red-case.result }}"}
-        run: |
-          npm run build
-          npm run selftest
+        # The selftest owns the build: it runs `next build` with this step's env,
+        # records the bundle's fingerprint, and verifies it before any test reads
+        # it (selftest/build-identity.ts). A separate `npm run build` here would
+        # carry no fingerprint and be built a second time.
+        run: npm run selftest
 
   # The run is green only when every job ran and succeeded (D-119): a skipped,
   # failed or cancelled job makes this fail. On a cancelled run (superseded,

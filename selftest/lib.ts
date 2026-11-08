@@ -9,7 +9,15 @@
  * skips.
  */
 
-export type Facility = "db" | "app" | "network" | "ci" | "mailsink";
+import { join } from "node:path";
+
+/**
+ * `build`: the production bundle in `.next` was checked against the working
+ * tree's fingerprint this run (selftest/build-identity.ts). A test that reads
+ * the compiled bundle declares it and reaches the bundle only through
+ * compiledBundle() below.
+ */
+export type Facility = "db" | "app" | "network" | "ci" | "mailsink" | "build";
 
 export type Verdict = { ok: boolean; detail: string };
 
@@ -32,7 +40,35 @@ export type Context = {
   ciUpstream: Record<string, string> | null;
   /** BOB-18: the running app's Supabase calls, one `METHOD /path` line each (present with facility `app`). */
   fetchLog?: string | null;
+  /**
+   * The verified `.next` directory, given only to a test that declares
+   * `requires: ["build"]` (the runner sets it per test). Read it through
+   * compiledBundle(), never by joining ".next" yourself.
+   */
+  bundleDir?: string | null;
 };
+
+/**
+ * The one way a test reaches the compiled bundle. It throws for a test that did
+ * not declare `requires: ["build"]`, because the runner then never checked that
+ * `.next` was built from the tree under test.
+ */
+export function compiledBundle(ctx: Context, ...parts: string[]): string {
+  if (!ctx.bundleDir) {
+    throw new Error('this test reads the compiled bundle but does not declare requires: ["build"], so .next was never checked against the working tree');
+  }
+  return join(ctx.bundleDir, ...parts);
+}
+
+/** True when a selected test reads the compiled bundle (the runner then verifies or builds it first). */
+export function selectionNeedsBuild(tests: SelfTest[], selected: (t: SelfTest) => boolean): boolean {
+  return tests.some((t) => selected(t) && (t.requires ?? []).includes("build"));
+}
+
+/** The context one test runs with: the bundle only for a test that declared `build`. */
+export function contextFor(test: SelfTest, ctx: Context): Context {
+  return { ...ctx, bundleDir: (test.requires ?? []).includes("build") ? ctx.bundleDir ?? null : null };
+}
 
 export function pass(detail: string): Verdict {
   return { ok: true, detail };

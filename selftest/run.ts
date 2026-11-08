@@ -23,7 +23,8 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { staticTests } from "./static.test";
 import { appTests } from "./app.test";
-import type { Context, Facility, SelfTest, Verdict } from "./lib";
+import { BUILD_DIR, ensureFreshBuild } from "./build-identity";
+import { contextFor, selectionNeedsBuild, type Context, type Facility, type SelfTest, type Verdict } from "./lib";
 
 type ManifestTest = { id: string; runner: "db" | "static" | "app"; proves: string; skip_justification?: string };
 type Manifest = { contract: string; version: number; phase: string; tests: ManifestTest[] };
@@ -864,12 +865,9 @@ async function runDbConcurrency(dbUrl: string): Promise<Outcome> {
 
 // ---------------------------------------------------------------- app process
 const FETCH_LOG = join(tmpdir(), `pintar-selftest-fetch-${process.pid}.log`);
+
+/** Starts `next start` on the bundle main() has just verified (facility `build`). */
 async function startApp(port: number): Promise<{ child: ChildProcess; url: string }> {
-  if (!existsSync(join(repoRoot, ".next", "BUILD_ID"))) {
-    log("  building production bundle (.next/BUILD_ID missing)…");
-    const b = spawnSync(process.execPath, [NEXT_BIN, "build"], { cwd: repoRoot, stdio: "inherit", env: process.env });
-    if (b.status !== 0) throw new Error("next build failed");
-  }
   // BOB-18 (D-046): the app's calls to Supabase are counted, path only, into
   // FETCH_LOG, so a test can read what one click cost (selftest/hitung-fetch.cjs).
   writeFileSync(FETCH_LOG, "");
@@ -915,7 +913,7 @@ async function runTests(tests: SelfTest[], runner: string, ctx: Context, facilit
     }
     let v: Verdict;
     try {
-      v = await test.run(ctx);
+      v = await test.run(contextFor(test, ctx));
     } catch (e) {
       v = { ok: false, detail: `threw: ${(e as Error).message}` };
     }
@@ -970,8 +968,25 @@ async function main() {
   // static + app
   const port = Number(process.env.SELFTEST_APP_PORT ?? 3999);
   let app: { child: ChildProcess; url: string } | null = null;
-  const needsApp = !only || appTests.some((t) => only.includes(t.id) && (t.requires ?? []).includes("app"));
-  if (needsApp) {
+  const selected = (t: SelfTest) => !only || only.includes(t.id);
+  const needsApp = appTests.some((t) => selected(t) && (t.requires ?? []).includes("app"));
+  const needsBuild = needsApp || selectionNeedsBuild([...staticTests, ...appTests], selected);
+  if (needsBuild) {
+    log("\n[build] production bundle for the selected tests");
+    try {
+      ensureFreshBuild({
+        root: repoRoot,
+        env: process.env,
+        log,
+        build: () => spawnSync(process.execPath, [NEXT_BIN, "build"], { cwd: repoRoot, stdio: "inherit", env: process.env }).status === 0,
+      });
+      facilities.add("build");
+    } catch (e) {
+      log(`  ${(e as Error).message}`);
+    }
+  }
+  if (needsApp && !facilities.has("build")) facilities.delete("app"); // nothing verified to start
+  if (needsApp && facilities.has("app")) {
     try {
       log("\n[app] starting production-mode app");
       app = await startApp(port);
@@ -988,6 +1003,7 @@ async function main() {
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? null,
     ciUpstream,
     fetchLog: app ? FETCH_LOG : null,
+    bundleDir: facilities.has("build") ? join(repoRoot, BUILD_DIR) : null,
   };
   try {
     log("\n[static] selftest/static.test.ts");

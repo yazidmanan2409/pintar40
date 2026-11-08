@@ -8,7 +8,7 @@ import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { spawnSync } from "node:child_process";
 import { join, relative, basename } from "node:path";
-import { Checks, type SelfTest } from "./lib";
+import { Checks, compiledBundle, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
 import { emailTests } from "./email.test";
@@ -206,11 +206,13 @@ export const staticTests: SelfTest[] = [
   },
   {
     id: "F01-S03",
-    run: async ({ repoRoot }) => {
+    requires: ["build"],
+    run: async (ctx) => {
+      const { repoRoot } = ctx;
       const c = new Checks();
       // (a) client bundle scan
-      const staticDir = join(repoRoot, ".next", "static");
-      if (!c.expect(existsSync(staticDir), ".next/static missing — production build required before the static runner")) {
+      const staticDir = compiledBundle(ctx, "static");
+      if (!c.expect(existsSync(staticDir), "the compiled bundle has no static/ directory — production build required before the static runner")) {
         return c.verdict("");
       }
       const forbidden = ["SUPABASE_SERVICE_ROLE_KEY", "service_role", "CARD_PEPPER", "supabaseService", "deriveCardSecret",

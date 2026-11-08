@@ -61,7 +61,7 @@ import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { join, relative } from "node:path";
 import jsQR from "jsqr";
-import { Checks, type SelfTest } from "./lib";
+import { Checks, compiledBundle, type SelfTest } from "./lib";
 import { allKeys, telling, renderAll, t, format, batasHari, hariIniSekolah, TIMEZONE, LOCALES, TANPA_SALINAN, INTERNAL_WORDS, type HleEvent, type Persona } from "../src/lib/hle";
 import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
 import { hibahAktif, nodeLingkup, dalamLingkup, kelasDalamLingkup, LingkupError } from "../src/lib/mengajar";
@@ -3459,8 +3459,9 @@ export const experienceTests: SelfTest[] = [
 
   {
     id: "UX1-S0-MUAT-01",
-    requires: [],
-    run: async ({ repoRoot }) => {
+    requires: ["build"],
+    run: async (ctx) => {
+      const { repoRoot } = ctx;
       const c = new Checks();
 
       /**
@@ -3535,7 +3536,7 @@ export const experienceTests: SelfTest[] = [
       //    that is where the import actually resolves.
       c.expect(/@import\s+"tailwindcss"/.test(readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8")),
         "globals.css no longer imports tailwindcss, so the global border-box reset is gone");
-      const chunks = join(repoRoot, ".next", "static", "chunks");
+      const chunks = compiledBundle(ctx, "static", "chunks");
       let built = "";
       if (existsSync(chunks)) {
         built = readdirSync(chunks).filter((f) => f.endsWith(".css"))
