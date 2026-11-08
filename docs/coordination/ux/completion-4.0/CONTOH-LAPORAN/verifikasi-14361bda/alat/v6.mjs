@@ -1,0 +1,12 @@
+const OUTV = "../verif";
+const foto = (p, n) => p.screenshot({ path: `${OUTV}/${n}.png`, fullPage: true });
+const HOD = { key: "hod", tujuan: "MEMIMPIN", email: "alpha-hod@synthetic.pintar.test", password: "Sintetis-AlphaHod-48!" };
+const browser = await chromium.launch();
+const { page: H } = await masuk(browser, HOD);
+console.log("landed", H.url());
+await buka(H, "/studio"); console.log("HOD STUDIO:", norm(await H.locator("main").innerText()).slice(0, 700)); await foto(H, "w116-hod-studio");
+await buka(H, "/studio/paket/264ed74e-5f14-401d-b2d1-9af027349496");
+console.log("HOD PAKET:", norm(await H.locator("main").innerText()).slice(0, 600));
+console.log("primaries:", (await H.locator("main button.pin-primary").allInnerTexts()).join(" | "));
+await foto(H, "w116-hod-paket");
+await browser.close();
