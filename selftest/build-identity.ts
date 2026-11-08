@@ -19,8 +19,9 @@
  *              reused even when no input differs
  *
  * A build made outside the selftest (`npm run build`) carries no fingerprint,
- * so the selftest builds again rather than trust it. `SELFTEST_REUSE_BUILD=1`
- * keeps a stale bundle for someone who knows what they are doing, loudly.
+ * so the selftest builds again rather than trust it; in CI the selftest owns
+ * the build for that reason. `SELFTEST_REUSE_BUILD=1` keeps a stale bundle for
+ * someone who knows what they are doing, loudly, and is refused in CI.
  */
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
@@ -146,6 +147,9 @@ export function ensureFreshBuild(opts: {
       return { action: "reused", reason: "fingerprint matches" };
     }
     if (env.SELFTEST_REUSE_BUILD === "1") {
+      if (env.CI === "true" || env.GITHUB_ACTIONS === "true") {
+        throw new Error(`SELFTEST_REUSE_BUILD=1 is refused in CI: ${reason}`);
+      }
       log(`  !!! STALE BUILD REUSED (SELFTEST_REUSE_BUILD=1): ${reason}.`);
       log("  !!! The app-level results below describe that older bundle, not the working tree.");
       return { action: "reused-stale", reason };

@@ -2055,9 +2055,11 @@ jobs:
              "migrations-clean":"${{ needs.migrations-clean.result }}",
              "migrations-upgrade-path":"${{ needs.migrations-upgrade-path.result }}",
              "red-case":"${{ needs.red-case.result }}"}
-        run: |
-          npm run build
-          npm run selftest
+        # The selftest owns the build: it runs `next build` with this step's env,
+        # records the bundle's fingerprint, and verifies it before any test reads
+        # it (selftest/build-identity.ts). A separate `npm run build` here would
+        # carry no fingerprint and be built a second time.
+        run: npm run selftest
 
   # The run is green only when every job ran and succeeded (D-119): a skipped,
   # failed or cancelled job makes this fail. On a cancelled run (superseded,

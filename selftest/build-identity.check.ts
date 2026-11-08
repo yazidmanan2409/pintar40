@@ -191,7 +191,7 @@ test("a build made outside the selftest, or replaced under the fingerprint, is n
   }
 });
 
-test("explicit stale-build override: SELFTEST_REUSE_BUILD=1 reuses, loudly, and never stands in for a missing build", () => {
+test("explicit stale-build override: SELFTEST_REUSE_BUILD=1 reuses, loudly, never stands in for a missing build, and is refused in CI", () => {
   const f = fixture();
   try {
     f.env.SELFTEST_REUSE_BUILD = "1";
@@ -203,6 +203,12 @@ test("explicit stale-build override: SELFTEST_REUSE_BUILD=1 reuses, loudly, and 
     assert.equal(r.built, 0);
     assert.match(r.log, /!!! STALE BUILD REUSED \(SELFTEST_REUSE_BUILD=1\): stale build: source changed since it was built\./);
     assert.match(r.log, /!!! The app-level results below describe that older bundle, not the working tree\./);
+    // never in CI: a stale bundle there would be evidence about another tree
+    for (const ci of [{ CI: "true" }, { GITHUB_ACTIONS: "true" }]) {
+      Object.assign(f.env, ci);
+      assert.throws(() => f.run(), /SELFTEST_REUSE_BUILD=1 is refused in CI: stale build: source changed/);
+      for (const k of Object.keys(ci)) delete f.env[k];
+    }
     delete f.env.SELFTEST_REUSE_BUILD;
     assert.equal(f.run().action, "built");
   } finally {
