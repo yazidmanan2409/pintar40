@@ -40,6 +40,13 @@ function tsx(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? tsx(join(dir, e.name)) : e.name.endsWith(".tsx") ? [join(dir, e.name)] : []);
 }
 
+// a job's runs-on pins Ubuntu 24.04: GitHub's ubuntu-24.04 image, or a self-hosted machine labelled ubuntu-24.04
+function diPin2404(nilai: string): boolean {
+  if (nilai === "ubuntu-24.04") return true;
+  const daftar = /^\[(.*)\]$/.exec(nilai)?.[1]?.split(",").map((x) => x.trim().replace(/^["']|["']$/g, ""));
+  return Boolean(daftar && daftar.includes("self-hosted") && daftar.includes("ubuntu-24.04"));
+}
+
 export const retroTests: SelfTest[] = [
   {
     id: "R0-PIN-01",
@@ -51,14 +58,18 @@ export const retroTests: SelfTest[] = [
         for (const j of jobsAlurKerja(readFileSync(join(dir, f), "utf8"))) {
           if (!PERAMBAN.test(j.isi)) continue;
           dilihat++;
-          const runsOn = [...j.isi.matchAll(/^\s+runs-on:\s*(\S+)/gm)].map((m) => m[1]);
-          c.expect(runsOn.length === 1 && runsOn[0] === "ubuntu-24.04", `${f} › ${j.nama} drives a browser on ${runsOn.join(", ") || "no runner"}, not ubuntu-24.04`);
+          const runsOn = [...j.isi.matchAll(/^\s+runs-on:\s*(.+?)\s*$/gm)].map((m) => m[1]);
+          c.expect(runsOn.length === 1 && diPin2404(runsOn[0]), `${f} › ${j.nama} drives a browser on ${runsOn.join(", ") || "no runner"}, not ubuntu-24.04`);
         }
       }
       c.expect(dilihat >= 17, `only ${dilihat} browser job(s) found; Batch 0 pinned 17`);
       // the check itself catches a planted job on ubuntu-latest
       const tanam = jobsAlurKerja("on: push\njobs:\n  walk:\n    runs-on: ubuntu-latest\n    steps:\n      - run: npx playwright install chromium\n");
       c.expect(tanam.length === 1 && PERAMBAN.test(tanam[0].isi) && /runs-on:\s*ubuntu-latest/.test(tanam[0].isi), "the check cannot see a planted browser job on ubuntu-latest");
+      // W6.2/W6.8 (owner, 8 Nov: a measurement from Indonesia): a self-hosted machine counts only when it is labelled
+      // ubuntu-24.04 too, i.e. registered on an Ubuntu 24.04 host; a self-hosted label list without it is refused
+      c.expect(diPin2404("[self-hosted, indonesia, ubuntu-24.04]") && !diPin2404("[self-hosted, indonesia]")
+        && !diPin2404("ubuntu-latest") && !diPin2404("[ubuntu-latest, ubuntu-24.04]"), "the check accepts a self-hosted job without ubuntu-24.04, or a hosted list");
       return c.verdict(`every workflow job that installs or drives a browser (${dilihat}) runs on ubuntu-24.04, where Playwright 1.55 has its browser build (W0.2)`);
     },
   },

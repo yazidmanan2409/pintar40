@@ -577,7 +577,7 @@ await step("D13", "the record's per-package table by each audience: steps and re
 
 // ═══════════════════════════════════════════════════════════════════════════ D8
 const OPERATOR = "goldenschool+operator@pintarselalu.com";
-await step("D8", "the platform administrator in «Seluruh platform»: the class's figures, no learner by name or dot; the PD Kelas, no participant", async (rec) => {
+await step("D8", "the platform administrator: in «Seluruh platform» a school's class report is not shown (L3); in the school's own context, the class's figures and no learner by name or dot; the PD Kelas, no participant", async (rec) => {
   if (!C.kelas) return terhalang(rec, "no PD Kelas (D1)");
   if (!harus(rec, keadaan(OPERATOR) !== null, "the Platform Operator has an account")) return;
   const p = await (await browser.newContext(konteks())).newPage();
@@ -585,26 +585,35 @@ await step("D8", "the platform administrator in «Seluruh platform»: the class'
   await masukStaf(p, OPERATOR, keadaan);
   const di = await pilihKonteks(p, { tujuan: "MENGELOLA", platform: true });
   rec.catatan.push(`«Seluruh platform» chosen, landed ${di}`);
-  // the academic class report, as the database answers this reader: figures (D-132(g)), nothing personal (D-195(5))
+  // L3 (D-132(g), §2.6): in the platform's context a school's report is not shown; the chooser offers that school
+  await buka(p, `/edukator/ringkasan?kelas=${S.kelas}`);
+  const u = new URL(p.url());
+  const teks0 = norm(await p.locator("body").innerText().catch(() => ""));
+  await shot(p, "d8-operator-platform");
+  const murid = sql(`select string_agg(p.display_name, '|') from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+      join public.persons p on p.id = e.person_id where m.node_id = '${S.kelas}' and m.valid_to is null`).split("|").filter(Boolean);
+  const sebut = (t) => murid.filter((n) => t.toLowerCase().includes(n.toLowerCase()));
+  harus(rec, u.pathname !== "/edukator/ringkasan" && sebut(teks0).length === 0,
+    `in «Seluruh platform» the class report is not shown: sent to ${u.pathname}${u.search.slice(0, 80)}, no learner named`);
+  // the school's own context, as the chooser offers it: the platform's authority is broad there (D-132(g)), nothing personal
+  const keSekolah = await pilihKonteks(p, { tujuan: "MENGELOLA", nama: S.nama }).catch((e) => `none (${String(e.message).slice(0, 120)})`);
+  rec.catatan.push(`the school's own context chosen → ${keSekolah}`);
   await buka(p, `/edukator/ringkasan?kelas=${S.kelas}`);
   const jalan = new URL(p.url()).pathname;
   const html = await p.locator("main").first().evaluate((el) => el.outerHTML).catch(() => "");
   const teks = norm(await p.locator("main").innerText().catch(() => ""));
-  await shot(p, "d8-operator-kelas");
-  const murid = sql(`select string_agg(p.display_name, '|') from public.memberships m join public.enrollments e on e.id = m.enrollment_id
-      join public.persons p on p.id = e.person_id where m.node_id = '${S.kelas}' and m.valid_to is null`).split("|").filter(Boolean);
-  const disebut = murid.filter((n) => teks.toLowerCase().includes(n.toLowerCase()));
-  harus(rec, jalan === "/edukator/ringkasan", `the class report's address is read (${jalan})`);
-  harus(rec, disebut.length === 0, `no learner of «${KELAS}» is named (${murid.length} placed; named ${JSON.stringify(disebut)})`);
-  harus(rec, !/data-lk-titik/.test(html), "no dot of the score line is drawn");
-  rec.catatan.push(`the class's figures drawn: ${/data-lk="(topik|pita|kenaikan)"/.test(html)} (D-132(g): the platform's authority is broad; recorded)`);
+  await shot(p, "d8-operator-sekolah-kelas");
+  if (jalan === "/edukator/ringkasan") {
+    harus(rec, sebut(teks).length === 0, `in the school's context, no learner of «${KELAS}» is named (${murid.length} placed; named ${JSON.stringify(sebut(teks))})`);
+    harus(rec, !/data-lk-titik/.test(html), "and no dot of the score line is drawn");
+    rec.catatan.push(`the class's figures drawn: ${/data-lk="(topik|pita|kenaikan)"/.test(html)} (D-132(g); recorded)`);
+  } else rec.catatan.push(`in the school's context the report sends to ${jalan} (recorded)`);
   // the PD Kelas: D-069(b), no PD analytics for the platform
   await buka(p, alamat());
-  const teksPd = norm(await p.locator("main").innerText().catch(() => ""));
+  const teksPd = norm(await p.locator("body").innerText().catch(() => ""));
   await shot(p, "d8-operator-pd");
   const pdDisebut = PESERTA.filter((n) => teksPd.toLowerCase().includes(n.toLowerCase()));
-  harus(rec, pdDisebut.length === 0, `the PD Kelas names no participant to the platform (${JSON.stringify(pdDisebut)})`);
-  harus(rec, !AKADEMIK.test(await p.content()), "and draws no academic mark");
+  harus(rec, pdDisebut.length === 0 && !AKADEMIK.test(await p.content()), `the PD Kelas names no participant to the platform (${JSON.stringify(pdDisebut)}) and draws no academic mark`);
 });
 
 // ═══════════════════════════════════════════════════════════════════════════ X1
@@ -612,7 +621,9 @@ await step("X1", "everyone signs out", async (rec) => {
   for (const [siapa, p] of [["admin", A], ...terbuka]) {
     try {
       // a page inside the staff shell, where «Keluar» is
-      await buka(p, siapa === "admin" ? "/konfigurasi" : alamat());
+      await buka(p, siapa === "admin" || siapa === "operator" ? "/konfigurasi" : alamat());
+      // a page that sends the reader to the chooser has no «Keluar»: go to Konfigurasi, which the reader holds
+      if (new URL(p.url()).pathname === "/") await buka(p, "/konfigurasi");
       const dari = new URL(p.url()).pathname;
       const b = p.getByRole("button", { name: "Keluar", exact: true }).first();
       if (!(await b.count())) { rec.catatan.push(`${siapa}: no «Keluar» on ${dari}`); continue; }
