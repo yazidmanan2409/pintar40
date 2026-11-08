@@ -31,7 +31,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, appendFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { APP, SLOW, closeTour } from "../perf/lib.mjs";
-import { keadaanDari, masukStaf } from "./masuk.mjs";
+import { keadaanDari, masukStaf, pilihKonteks } from "./masuk.mjs";
 import { catat as catatDi } from "./pendataan.mjs";
 
 const env = (k) => { const v = process.env[k]; if (!v) throw new Error(`${k} is not set`); return v; };
@@ -93,7 +93,13 @@ async function buka(page, jalan) {
   await closeTour(page).catch(() => {});
 }
 const keadaan = keadaanDari(sql, lit);
-const masuk = async (page, email) => (await masukStaf(page, email, keadaan)).di;
+// L3 (D-132): a person holding several purposes lands on the chooser and picks one, as a person does (run 42427201822:
+// the PD Kepala departemen and the other Kepala departemen hold Mengajar and Mengelola, and the walk had not chosen)
+const masuk = async (page, email, tujuan = null) => {
+  const di = (await masukStaf(page, email, keadaan)).di;
+  if (di !== "/" || !tujuan) return di;
+  return `/ → ${await pilihKonteks(page, { tujuan, nama: S.nama })}`;
+};
 // read only, for the steps' evidence
 // under `induk` anywhere below it: Struktur sekolah keeps hidden levels between those it shows (a Tingkat sits under the
 // Bagian's «Reguler» programme, run 42426680421), so the parent a person chose is an ancestor, not always the parent
@@ -264,10 +270,10 @@ const halaman = {};
 const terbuka = [];
 await step("D4", `X5: «${PD.kelas}»'s Ringkasan Kelas by the facilitator, the PD Kepala departemen, the Dekan, and the school admin from Konfigurasi «Laporan»`, async (rec) => {
   if (!C.kelas || !PESERTA.every((n) => anggota(C.kelas, n))) return terhalang(rec, "no PD Kelas with its two participants (D1–D3)");
-  const lihat = async (siapa, email) => {
+  const lihat = async (siapa, email, tujuan = null) => {
     const p = await (await browser.newContext(konteks())).newPage();
     halaman[siapa] = p; terbuka.push([siapa, p]);
-    const di = await masuk(p, email);
+    const di = await masuk(p, email, tujuan);
     await buka(p, alamat());
     const r = await bacaRingkasan(p);
     await shot(p, `d4-${siapa}`);
@@ -275,7 +281,7 @@ await step("D4", `X5: «${PD.kelas}»'s Ringkasan Kelas by the facilitator, the 
   };
   const hasilnya = [
     ["the facilitator", await lihat("fasilitator", mail("fasilitator"))],
-    ["the PD Kepala departemen", await lihat("kepalapd", mail("kepalapd"))],
+    ["the PD Kepala departemen", await lihat("kepalapd", mail("kepalapd"), "MENGELOLA")],
     ["the Dekan", await lihat("dekan", mail("dekan"))],
   ];
   // the school admin by the way a person goes: Konfigurasi «Laporan» lists every active Kelas, the PD Kelas among them
@@ -298,11 +304,14 @@ await step("D4", `X5: «${PD.kelas}»'s Ringkasan Kelas by the facilitator, the 
 // ═══════════════════════════════════════════════════════════════════════════ D5
 await step("D5", `the refused at the same address: the Kepala departemen of «${BAGIAN_LAIN}» and the Guru of «${KELAS}» (a participant)`, async (rec) => {
   if (!C.kelas) return terhalang(rec, "no PD Kelas (D1)");
-  for (const [siapa, kunci] of [["kabag", "kabag"], ["guru", "guru"]]) {
+  for (const [siapa, kunci, tujuan] of [["kabag", "kabag", "MENGELOLA"], ["guru", "guru", "MENGAJAR"]]) {
     const p = await (await browser.newContext(konteks())).newPage();
     halaman[siapa] = p; terbuka.push([siapa, p]);
-    await masuk(p, mail(kunci));
+    const di = await masuk(p, mail(kunci), tujuan);
     await buka(p, alamat());
+    // a refusal counts only on the summary's own address (run 42427201822's «refused» Kepala departemen was on the chooser)
+    const jalan = new URL(p.url()).pathname;
+    harus(rec, jalan === "/edukator/ringkasan", `the ${siapa} (landed ${di}) reads the summary's address (${jalan})`);
     const html = await p.content();
     // the page's own content: the shell's account menu names the reader, which is not the record
     const teks = norm(await p.locator("main").innerText().catch(() => ""));
