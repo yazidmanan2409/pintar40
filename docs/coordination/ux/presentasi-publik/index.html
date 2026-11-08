@@ -44,6 +44,7 @@ img { max-width: 100%; display: block; }
 a { color: var(--primary); }
 :focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; border-radius: 6px; }
 .terbalik :focus-visible { outline-color: var(--on-teal); }
+[hidden] { display: none !important; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 a.sr:focus { position: fixed; z-index: 50; top: calc(env(safe-area-inset-top, 0px) + 8px); left: max(16px, env(safe-area-inset-left, 0px)); width: auto; height: auto; clip-path: none; padding: 12px 16px; border-radius: 10px; background: var(--teal); color: var(--on-teal); font-weight: 600; }
 .label { font-family: var(--mono); font-size: var(--t-label); letter-spacing: 0.08em; text-transform: uppercase; }
@@ -65,14 +66,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .tombol svg { width: 18px; height: 18px; flex: none; }
 
 /* ── a screen ── */
-main { min-height: calc(100vh - var(--bar) - 72px); }
+main { min-height: calc(100vh - var(--bar) - 69px); }
 .layar { display: none; }
-.layar.aktif { display: block; animation: muncul 220ms ease-out; }
+.layar.aktif { display: flex; flex-direction: column; min-height: calc(100vh - var(--bar) - 69px); min-height: calc(100dvh - var(--bar) - 69px); animation: muncul 220ms ease-out; }
+.layar.aktif > .isi:last-child { flex: 1; width: 100%; align-content: center; }
 @keyframes muncul { from { opacity: 0.001; } to { opacity: 1; } }
 .isi { max-width: 1180px; margin: 0 auto; padding-block: clamp(28px, 5vw, 64px) clamp(40px, 6vw, 80px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: clamp(20px, 3vw, 32px); }
 .nada-putih { background: var(--white); }
 .nada-hangat { background: var(--warm); }
-.terbalik { background: var(--teal); color: var(--on-teal); }
+.terbalik { background: radial-gradient(1100px 620px at 88% -10%, #0b636a 0%, rgba(11, 99, 106, 0) 70%), var(--teal); color: var(--on-teal); }
 .pita { background: var(--teal); color: var(--on-teal); }
 .pita .isi { padding-block: 22px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
 .pita .label { color: var(--on-teal-2); }
@@ -88,7 +90,7 @@ h1 { font-size: var(--t-h1); line-height: 1.12; letter-spacing: -0.02em; font-we
 /* ── opening and closing: typography only ── */
 .pembuka .isi, .penutup .isi { padding-block: clamp(36px, 6vw, 84px); gap: clamp(24px, 4vw, 44px); }
 .pernyataan { margin: 0; font-size: var(--t-hero); line-height: 1.04; letter-spacing: -0.03em; font-weight: 800; max-width: 18ch; }
-.pernyataan span { display: block; margin-top: 0.35em; font-size: 0.5em; line-height: 1.2; color: var(--on-teal-2); font-weight: 600; letter-spacing: -0.015em; max-width: 30ch; }
+.pernyataan .sub { display: block; margin-top: 0.35em; font-size: 0.5em; line-height: 1.2; color: var(--on-teal-2); font-weight: 600; letter-spacing: -0.015em; max-width: 30ch; }
 .pernyataan em { font-style: normal; text-decoration: underline; text-decoration-color: var(--on-teal-2); text-decoration-thickness: 0.07em; text-underline-offset: 0.12em; }
 .pengantar { margin: 0; color: var(--on-teal-2); font-size: var(--t-lead); max-width: 56ch; }
 @media (prefers-reduced-motion: no-preference) {
@@ -108,7 +110,9 @@ h1 { font-size: var(--t-h1); line-height: 1.12; letter-spacing: -0.02em; font-we
 .terbalik .tombol.utama:hover { background: #fff; }
 .terbalik .tombol:not(.utama) { background: transparent; color: var(--on-teal); border-color: rgba(188, 214, 210, 0.6); }
 .terbalik .tombol:not(.utama):hover { background: rgba(255, 255, 255, 0.08); }
-.penutup .pernyataan { max-width: 18ch; }
+.penutup .pernyataan { max-width: none; font-size: clamp(2.5rem, 1.4rem + 4.4vw, 5.2rem); }
+.pernyataan .baris { display: block; }
+.penutup .pernyataan .sub { font-size: 0.42em; margin-top: 0.7em; }
 .kontak { display: grid; gap: 10px; color: var(--on-teal-2); }
 .kontak strong { color: var(--on-teal); font-size: var(--t-lead); }
 .kontak .baris { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
@@ -119,7 +123,8 @@ h1 { font-size: var(--t-h1); line-height: 1.12; letter-spacing: -0.02em; font-we
 .bingkai-kepala { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: center; padding: 9px 14px; background: var(--warm); border-bottom: 1px solid var(--line); }
 .bingkai-kepala .label { color: var(--ink-2); }
 .bingkai-kepala .contoh { color: var(--teal); }
-.bingkai img { width: 100%; height: auto; }
+.bingkai picture { display: block; background: var(--paper); padding: clamp(0px, 1.5vw, 14px) 0; }
+.bingkai img { width: 100%; max-width: var(--w, 100%); height: auto; margin: 0 auto; }
 figcaption { padding: 12px 14px; font-size: var(--t-small); color: var(--ink-2); border-top: 1px solid var(--line); background: var(--white); }
 .pilih { display: inline-flex; flex-wrap: wrap; gap: 6px; padding: 4px; border-radius: 999px; background: var(--warm); border: 1px solid var(--line); }
 .pilih button { font: 600 var(--t-small)/1.2 var(--font); border: 0; min-height: 40px; padding: 8px 14px; border-radius: 999px; background: transparent; color: var(--ink-2); cursor: pointer; }
@@ -146,32 +151,32 @@ details > div { padding: 0 2px 16px; color: var(--ink-2); display: grid; gap: 8p
 
 /* ── the connected route (screen 2) and setup steps (screen 7) ── */
 .alur { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; counter-reset: alur; }
-.alur li { position: relative; display: grid; gap: 8px; align-content: start; padding: 18px 16px 18px 0; }
-.alur li + li { padding-left: 16px; border-left: 1px solid var(--line-strong); }
-.alur .tahap { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.06rem; color: var(--ink); }
-.alur .tahap i { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--teal); color: var(--on-teal); font: 500 var(--t-small)/1 var(--mono); font-style: normal; }
-.alur p { margin: 0; font-size: var(--t-small); color: var(--ink-2); }
+.alur li { position: relative; display: grid; gap: 10px; align-content: start; padding: 26px 20px 26px 0; }
+.alur li + li { padding-left: 20px; border-left: 1px solid var(--line-strong); }
+.alur .tahap { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: clamp(1.06rem, 0.9rem + 0.5vw, 1.3rem); color: var(--ink); }
+.alur .tahap i { flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--teal); color: var(--on-teal); font: 500 var(--t-small)/1 var(--mono); font-style: normal; }
+.alur p { margin: 0; font-size: var(--t-body); color: var(--ink-2); }
 .alur .siapa { font-family: var(--mono); font-size: var(--t-label); color: var(--teal); letter-spacing: 0.05em; text-transform: uppercase; }
 @media (max-width: 880px) { .alur { grid-template-columns: minmax(0, 1fr); } .alur li, .alur li + li { padding: 14px 0 14px 18px; border-left: 2px solid var(--teal); } }
 .peran { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .peran li { padding: 8px 14px; border-radius: 999px; background: var(--white); border: 1px solid var(--line); font-size: var(--t-small); font-weight: 600; }
 .langkah4 { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-.langkah4 li { display: grid; gap: 8px; align-content: start; padding: 18px; border-radius: var(--r); background: var(--white); border: 1px solid var(--line); }
-.langkah4 .no { font: 500 var(--t-small)/1 var(--mono); color: var(--teal); }
-.langkah4 h3 { font-size: 1.06rem; }
-.langkah4 p { margin: 0; font-size: var(--t-small); color: var(--ink-2); }
+.langkah4 li { display: grid; gap: 10px; align-content: start; padding: clamp(18px, 2vw, 26px); border-radius: var(--r); background: var(--white); border: 1px solid var(--line); }
+.langkah4 .no { font: 800 clamp(1.6rem, 1.2rem + 1vw, 2.2rem)/1 var(--font); color: var(--teal); letter-spacing: -0.02em; }
+.langkah4 h3 { font-size: clamp(1.06rem, 0.95rem + 0.4vw, 1.25rem); }
+.langkah4 p { margin: 0; font-size: var(--t-body); color: var(--ink-2); }
 @media (max-width: 980px) { .langkah4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .langkah4 { grid-template-columns: minmax(0, 1fr); } }
 
 /* ── the class report (screen 5) ── */
-.laporan { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); grid-template-areas: "lap langkah" "lap jelas" "lap saklar" "lap ."; grid-template-rows: auto auto auto 1fr; gap: 14px clamp(18px, 3vw, 36px); align-items: start; }
+.laporan { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); grid-template-areas: "lap langkah" "lap jelas" "lap redup" "lap saklar" "lap ."; grid-template-rows: auto auto auto auto 1fr; gap: 14px clamp(18px, 3vw, 36px); align-items: start; }
 .laporan > * { min-width: 0; }
 .laporan > .bingkai { grid-area: lap; } .laporan > .langkah-baca { grid-area: langkah; } .laporan > .penjelasan { grid-area: jelas; } .laporan > .saklar { grid-area: saklar; }
-@media (max-width: 880px) { .laporan { grid-template-columns: minmax(0, 1fr); grid-template-areas: "langkah" "lap" "jelas" "saklar"; grid-template-rows: none; } .jendela { max-height: 58vh; } }
-.jendela { position: relative; max-height: min(74vh, 760px); overflow: auto; overscroll-behavior: contain; background: var(--paper); }
+@media (max-width: 880px) { .laporan { grid-template-columns: minmax(0, 1fr); grid-template-areas: "langkah" "lap" "redup" "jelas" "saklar"; grid-template-rows: none; } .jendela { max-height: 58vh; } }
+.jendela { position: relative; max-height: min(76vh, 820px); overflow: auto; overscroll-behavior: contain; background: var(--paper); }
 .jendela:focus-visible { outline-offset: -3px; }
 .kanvas { position: relative; }
-.sorot { position: absolute; border: 2.5px dashed var(--mark); border-radius: 12px; pointer-events: none; box-shadow: 0 0 0 9999px rgba(251, 250, 247, 0.62); }
+.sorot { position: absolute; border: 2.5px dashed var(--mark); border-radius: 12px; pointer-events: none; box-shadow: 0 0 0 9999px rgba(251, 250, 247, 0.4); }
 .sorot + .sorot { box-shadow: none; }
 .sorot span { position: absolute; top: -13px; left: 10px; background: var(--mark); color: var(--on-teal); font: 500 var(--t-label)/1 var(--mono); padding: 5px 7px; border-radius: 6px; }
 @media (prefers-reduced-motion: no-preference) { .sorot { transition: top 260ms ease, height 260ms ease; } }
@@ -180,6 +185,7 @@ details > div { padding: 0 2px 16px; color: var(--ink-2); display: grid; gap: 8p
 .langkah-baca button i { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font: 500 var(--t-small)/1 var(--mono); font-style: normal; border: 1.5px dashed var(--mark); color: var(--mark); }
 .langkah-baca button[aria-selected="true"] { border-color: var(--teal); background: var(--primary-soft); }
 .langkah-baca button[aria-selected="true"] i { background: var(--mark); color: var(--on-teal); border-style: solid; }
+.redup { margin: 0; font-size: var(--t-small); color: var(--ink-2); grid-area: redup; }
 .saklar { display: flex; gap: 12px; align-items: center; min-height: 48px; cursor: pointer; font-weight: 600; }
 .saklar input { appearance: none; flex: none; width: 46px; height: 28px; border-radius: 999px; background: var(--warm-2); border: 1px solid var(--line-strong); position: relative; cursor: pointer; margin: 0; }
 .saklar input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--white); box-shadow: 0 1px 2px rgba(31, 42, 51, 0.3); }
@@ -200,18 +206,51 @@ details > div { padding: 0 2px 16px; color: var(--ink-2); display: grid; gap: 8p
 
 /* ── roadmap (screen 9): now solid, later outlined ── */
 .peta { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-.peta li { display: grid; gap: 10px; align-content: start; padding: 20px; border-radius: var(--r); }
+.peta li { display: grid; gap: 12px; align-content: start; padding: clamp(20px, 2.2vw, 30px); border-radius: var(--r); min-height: 15rem; }
 .peta .kini { background: var(--teal); color: var(--on-teal); }
 .peta .kini p { color: var(--on-teal-2); }
 .peta .nanti { border: 1.5px dashed var(--line-strong); background: transparent; }
 .peta .versi { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-.peta .versi b { font: 800 1.6rem/1 var(--font); letter-spacing: -0.02em; }
-.peta h3 { font-size: 1.02rem; }
-.peta p { margin: 0; font-size: var(--t-small); color: var(--ink-2); }
+.peta .versi b { font: 800 clamp(1.8rem, 1.3rem + 1.4vw, 2.6rem)/1 var(--font); letter-spacing: -0.03em; }
+.peta h3 { font-size: clamp(1.06rem, 0.95rem + 0.4vw, 1.25rem); }
+.peta p { margin: 0; font-size: var(--t-body); color: var(--ink-2); }
 .peta .status { font-family: var(--mono); font-size: var(--t-label); letter-spacing: 0.05em; text-transform: uppercase; }
 .peta .kini .status { color: var(--on-teal); border: 1px solid rgba(188, 214, 210, 0.6); border-radius: 999px; padding: 2px 8px; }
 @media (max-width: 980px) { .peta { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .peta { grid-template-columns: minmax(0, 1fr); } }
+
+/* ── screen 6: the finding first ── */
+.temuan { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr); gap: clamp(18px, 3vw, 36px); align-items: center; padding: clamp(20px, 3vw, 34px); border-radius: var(--r); background: var(--warm); border: 1px solid var(--line); }
+.temuan > * { min-width: 0; }
+@media (max-width: 880px) { .temuan { grid-template-columns: minmax(0, 1fr); } }
+.temuan .label { color: var(--teal); }
+.temuan-besar { margin: 8px 0 10px; font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.3rem); line-height: 1.15; font-weight: 800; letter-spacing: -0.02em; text-wrap: balance; }
+.temuan-besar b { color: var(--teal); }
+.temuan p { margin: 0; }
+.kelas5 { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 560px) { .kelas5 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.kelas5 li { display: grid; gap: 6px; padding: 12px; border-radius: 12px; background: var(--white); border: 1px solid var(--line); }
+.kelas5 .k { font-size: var(--t-small); font-weight: 600; color: var(--ink-2); }
+.kelas5 .v { font: 800 1.45rem/1 var(--font); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.kelas5 [data-bawah] .v { color: #8a5f00; }
+.kelas5 .bar { position: relative; height: 6px; border-radius: 3px; background: var(--warm-2); }
+.kelas5 .bar i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: #808a91; }
+.kelas5 [data-bawah] .bar i { background: #8a5f00; }
+.kelas5 .bar u { position: absolute; top: -4px; bottom: -4px; left: 60%; width: 2px; background: var(--ink); text-decoration: none; }
+.kelas5 .kurang { font-size: var(--t-label); color: var(--ink-2); line-height: 1.3; }
+.kunci-mini { grid-column: 1 / -1; font-size: var(--t-small); color: var(--ink-2); }
+/* ── screen 8: what, then who ── */
+.akses2 { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.akses2 li { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.5fr); gap: 10px 28px; align-items: start; padding: clamp(16px, 2vw, 22px); border-radius: var(--r); background: var(--white); border: 1px solid var(--line); }
+@media (max-width: 760px) { .akses2 li { grid-template-columns: minmax(0, 1fr); } }
+.akses2 .apa { display: flex; gap: 14px; align-items: center; }
+.akses2 .apa svg { flex: none; width: 40px; height: 40px; padding: 9px; border-radius: 12px; background: var(--teal); color: var(--on-teal); }
+.akses2 h3 { font-size: clamp(1.02rem, 0.95rem + 0.3vw, 1.18rem); }
+.akses2 .siapa { display: grid; gap: 8px; }
+.akses2 .siapa .label { color: var(--ink-3); }
+.akses2 ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.akses2 ul li { display: block; padding: 6px 12px; border: 0; border-radius: 999px; background: var(--primary-soft); color: var(--teal); font-weight: 600; font-size: var(--t-small); }
+.akses2 p { margin: 0; color: var(--ink-2); font-size: var(--t-small); max-width: 60ch; }
 
 /* ── the bottom bar ── */
 .bawah { position: sticky; bottom: 0; z-index: 20; background: rgba(251, 250, 247, 0.96); backdrop-filter: blur(8px); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -282,13 +321,14 @@ noscript p { max-width: 60ch; margin: 24px auto; padding: 0 16px; }
 "use strict";
 const A = (n) => `aset/${n}`;
 // measured on the rendered report (percent of the image), desktop and phone
-const SOROT = {"lebar": {"terlihat": [{"x": 11.29, "y": 13.13, "w": 77.43, "h": 14.53}], "artinya": [{"x": 6.57, "y": 33.95, "w": 86.86, "h": 15.17}], "lakukan": [{"x": 6.57, "y": 67.24, "w": 86.86, "h": 2.69}, {"x": 6.57, "y": 71.62, "w": 86.86, "h": 16.35}], "sedikit": [{"x": 11.29, "y": 22.53, "w": 77.43, "h": 14.63}]}, "hp": {"terlihat": [{"x": 12.05, "y": 9.54, "w": 75.9, "h": 16.66}], "artinya": [{"x": 7.69, "y": 31.87, "w": 84.62, "h": 15.54}], "lakukan": [{"x": 7.69, "y": 65.56, "w": 84.62, "h": 2.67}, {"x": 7.69, "y": 69.46, "w": 84.62, "h": 18.78}], "sedikit": [{"x": 12.05, "y": 18.49, "w": 75.9, "h": 16.78}]}};
+const SOROT = {"lebar": {"terlihat": [{"x": 10.97, "y": 12.3, "w": 78.06, "h": 14.67}], "artinya": [{"x": 6.39, "y": 33.31, "w": 87.22, "h": 15.31}], "lakukan": [{"x": 6.39, "y": 66.93, "w": 87.22, "h": 2.71}, {"x": 6.39, "y": 71.35, "w": 87.22, "h": 16.51}], "sedikit": [{"x": 10.97, "y": 21.56, "w": 78.06, "h": 13.63}]}, "hp": {"terlihat": [{"x": 12.05, "y": 9.54, "w": 75.9, "h": 16.66}], "artinya": [{"x": 7.69, "y": 31.87, "w": 84.62, "h": 15.54}], "lakukan": [{"x": 7.69, "y": 65.56, "w": 84.62, "h": 2.67}, {"x": 7.69, "y": 69.46, "w": 84.62, "h": 18.78}], "sedikit": [{"x": 12.05, "y": 18.49, "w": 75.9, "h": 16.78}]}};
 const UI = {
   id: { semua: "Semua pertanyaan", sebelum: "Sebelumnya", sesudah: "Berikutnya", tutup: "Tutup", bagian: (n, m) => `${n} dari ${m}`, awal: "Mulai dari awal", contoh: "Contoh sekolah · data simulasi", diPintar: "Di PINTAR", penjelasan: "Penjelasan", perlu: "Yang perlu diketahui", lakukan: "Yang dapat Anda lakukan", catatanVersi: "Tampilan berasal dari PINTAR 4.0, versi verifikasi akhir sebelum rilis. Semua nama sekolah, guru, dan murid adalah contoh, dengan data simulasi. Di tampilan PINTAR, nama contoh bertanda «(peraga)».", layarAsli: "Tampilan PINTAR dalam bahasa Indonesia.", selesai: "Selesai" },
   en: { semua: "All questions", sebelum: "Previous", sesudah: "Next", tutup: "Close", bagian: (n, m) => `${n} of ${m}`, awal: "Start from the beginning", contoh: "Example school · simulated data", diPintar: "In PINTAR", penjelasan: "Explanation", perlu: "Good to know", lakukan: "What you can do", catatanVersi: "Screens come from PINTAR 4.0, the final-verification build before release. All school, teacher and student names are examples, with simulated data. In PINTAR's screens, example names carry «(peraga)», meaning demonstration.", layarAsli: "PINTAR's screens are in Bahasa Indonesia.", selesai: "Done" },
 };
 const ik = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
-const gambar = (nama, alt) => `<picture><source media="(max-width: 640px)" srcset="${A(nama + "-hp.jpg")}"><img src="${A(nama + "-lebar.jpg")}" alt="${alt}" loading="lazy" decoding="async"></picture>`;
+const UKURAN = { "studio-langkah": 592, "soal-kunci": 592, "uji-cepat": 592, "murid-langkah": 592, "murid-hasil": 592, persiapan: 592, struktur: 592, "lap-kisi": 900, "lap-sekolah": 900 };
+const gambar = (nama, alt) => `<picture><source media="(max-width: 640px)" srcset="${A(nama + "-hp.jpg")}"><img src="${A(nama + "-lebar.jpg")}" alt="${alt}" loading="lazy" decoding="async" style="--w:${UKURAN[nama] ?? 9999}px"></picture>`;
 const bingkai = (L, judul, nama, alt, kap) => `<figure class="bingkai"><div class="bingkai-kepala"><span class="label">${UI[L].diPintar} · ${judul}</span><span class="label contoh">${UI[L].contoh}</span></div>${gambar(nama, alt)}${kap ? `<figcaption>${kap}</figcaption>` : ""}</figure>`;
 const perlu = (L, isi) => `<div class="perlu"><b>${UI[L].perlu}</b>${isi}</div>`;
 const lakukan = (teks) => `<p class="lakukan">${teks}</p>`;
@@ -298,7 +338,7 @@ const LAYAR = [
   { id: "mulai", en: "start", nada: "terbalik pembuka", judul: { id: "Pembuka", en: "Welcome" }, isi: (L) => L === "id" ? `
     <div class="isi">
       <p class="label masuk-1" style="color:var(--on-teal-2)">PINTAR · untuk pendidik dan sekolah</p>
-      <h1 class="pernyataan masuk-1" id="h-mulai">Yang mengajar tetap <em>Anda</em>.<span class="masuk-2">PINTAR membantu mengurus yang berulang.</span></h1>
+      <h1 class="pernyataan masuk-1" id="h-mulai">Yang mengajar tetap <em>Anda</em>.<span class="sub masuk-2">PINTAR membantu mengurus yang berulang.</span></h1>
       <p class="pengantar masuk-3">Menyiapkan materi dan soal, menilai jawaban murid, dan membaca apa yang sudah terbukti dari belajar mereka, dalam satu alur.</p>
       <section class="tanya masuk-3" aria-labelledby="t-mulai">
         <h2 id="t-mulai">Apa yang ingin Anda ketahui?</h2>
@@ -315,7 +355,7 @@ const LAYAR = [
     </div>` : `
     <div class="isi">
       <p class="label masuk-1" style="color:var(--on-teal-2)">PINTAR · for educators and schools</p>
-      <h1 class="pernyataan masuk-1" id="h-mulai"><em>You</em> lead the teaching.<span class="masuk-2">PINTAR helps with the repetitive work.</span></h1>
+      <h1 class="pernyataan masuk-1" id="h-mulai"><em>You</em> lead the teaching.<span class="sub masuk-2">PINTAR helps with the repetitive work.</span></h1>
       <p class="pengantar masuk-3">Preparing lessons and questions, marking students' answers, and reading what their learning has shown so far, in one connected flow.</p>
       <section class="tanya masuk-3" aria-labelledby="t-mulai">
         <h2 id="t-mulai">What would you like to know?</h2>
@@ -375,8 +415,8 @@ const LAYAR = [
       </div>
       <div style="display:grid;gap:14px">
         <div class="pilih" role="tablist" aria-label="Tampilan Studio" data-pilih="studio"><button role="tab" aria-selected="true" data-v="unggah">Unggah</button><button role="tab" aria-selected="false" data-v="paket">Tinjau soal</button></div>
-        <div data-panel="studio:unggah">${bingkai(L, "Studio · Buat Paket", "studio-unggah", "Halaman Studio untuk mengunggah buku kerja: unduh templat Excel atau contoh isian, lalu tiga langkah: periksa buku kerja, unggah media, simpan ke Studio.", "Templat dan contoh isian tersedia di halaman yang sama.")}</div>
-        <div data-panel="studio:paket" hidden>${bingkai(L, "Studio · Paket", "studio-paket", "Paket Pecahan Senilai berstatus Terbit. Soal pertama ditampilkan dengan pilihan jawaban, kunci, alasan setiap pilihan, dan pemahaman keliru yang ditandai.", "Setiap soal disimpan dengan kuncinya, alasan setiap pilihan, dan pemahaman keliru yang ditandainya.")}</div>
+        <div data-panel="studio:unggah">${bingkai(L, "Studio · Buat Paket", "studio-langkah", "Tombol Unduh templat Excel dan Unduh contoh isian, lalu tiga langkah: periksa buku kerja, unggah media, simpan ke Studio.", "Mulai dari templat atau contoh isiannya. PINTAR memeriksa buku kerja lebih dulu, baru menyimpannya.")}</div>
+        <div data-panel="studio:paket" hidden>${bingkai(L, "Studio · Soal dalam paket", "soal-kunci", "Satu soal dalam paket: empat pilihan, kunci pada pilihan B, alasan setiap pilihan, dan pemahaman keliru yang ditandai pilihan yang salah.", "Setiap soal disimpan dengan kuncinya, alasan setiap pilihan, dan pemahaman keliru yang ditandai pilihan yang salah.")}</div>
         ${perlu(L, "<span>Soal yang sudah terbit masuk Bank Soal sekolah dan dapat dipakai lagi, misalnya untuk Uji Cepat. Untuk mengubah soal, unggah buku kerja yang sudah diperbaiki.</span>")}
         <details><summary>Apakah PINTAR membuat soal dengan AI?</summary><div><p>Belum. Di PINTAR 4.0, soal disusun oleh guru.</p><p>Bantuan AI untuk menyusun soal sedang direncanakan untuk PINTAR 4.1, dengan keputusan akhir tetap di tangan guru. <span class="direncanakan">Direncanakan · 4.1</span></p></div></details>
       </div>
@@ -394,8 +434,8 @@ const LAYAR = [
       </div>
       <div style="display:grid;gap:14px">
         <div class="pilih" role="tablist" aria-label="Studio views" data-pilih="studio"><button role="tab" aria-selected="true" data-v="unggah">Upload</button><button role="tab" aria-selected="false" data-v="paket">Review questions</button></div>
-        <div data-panel="studio:unggah">${bingkai(L, "Studio · Create a package", "studio-unggah", "The Studio upload page: download the Excel template or a filled-in example, then three steps: check the workbook, upload media, save to Studio.", "The template and a filled-in example are on the same page. " + UI.en.layarAsli)}</div>
-        <div data-panel="studio:paket" hidden>${bingkai(L, "Studio · Package", "studio-paket", "The package Pecahan Senilai (equivalent fractions), marked as published. Its first question is shown with options, the answer key, the reason for each option and the misconception it flags.", "Every question is kept with its key, the reason for each option and the misconception it points to.")}</div>
+        <div data-panel="studio:unggah">${bingkai(L, "Studio · Create a package", "studio-langkah", "Buttons to download the Excel template and a filled-in example, then three steps: check the workbook, upload media, save to Studio.", "Start from the template or the filled-in example. PINTAR checks the workbook before it saves anything. " + UI.en.layarAsli)}</div>
+        <div data-panel="studio:paket" hidden>${bingkai(L, "Studio · A question in the package", "soal-kunci", "One question in a package: four options, the key on option B, the reason for each option, and the misconception each wrong option points to.", "Every question is kept with its key, the reason for each option, and the misconception each wrong option points to.")}</div>
         ${perlu(L, "<span>Published questions join the school's question bank and can be reused, for example in a quick check (Uji Cepat). To change a question, upload a corrected workbook.</span>")}
         <details><summary>Does PINTAR write questions with AI?</summary><div><p>Not yet. In PINTAR 4.0, teachers write the questions.</p><p>AI help with drafting questions is planned for PINTAR 4.1, with the final decision staying with the teacher. <span class="direncanakan">Planned · 4.1</span></p></div></details>
       </div>
@@ -440,6 +480,7 @@ const LAYAR = [
       alt: "Ringkasan Kelas 5A Matematika: bagian A penguasaan per topik, B sebaran hasil Uji Penguasaan, C kenaikan, D pemahaman keliru yang berulang, E murid yang perlu penguatan, F apa berikutnya.",
       alt2: "Ringkasan Kelas 5A saat baru 4 murid yang mengerjakan: belum cukup bukti untuk menyimpulkan apa pun; setiap angka menunggu paling sedikit 5 murid.",
       gulir: "Laporan dapat digulir. Gunakan tombol panah setelah memilih laporan.",
+      redup: "Bagian lain laporan dibuat lebih pudar agar yang ditandai mudah terlihat. Semuanya tetap dapat digulir dan dibaca.",
       kap: "Laporan ini digambar oleh komponen laporan PINTAR dengan data kelas simulasi. Nama murid adalah rekaan." } : {
       h: "Reports help you see which students need your attention.",
       lead: "An example class summary for class 5A. Pick a question, and the part of the report that answers it is marked.",
@@ -448,6 +489,7 @@ const LAYAR = [
       alt: "Class summary for 5A Mathematics: section A mastery by topic, B spread of mastery-check results, C gain, D recurring misconceptions, E students who need support, F what next.",
       alt2: "Class summary for 5A when only 4 students have taken the check: not enough evidence to conclude anything; each figure waits for at least 5 students.",
       gulir: "The report scrolls. Select it, then use the arrow keys.",
+      redup: "The rest of the report is dimmed so the marked part stands out. All of it can still be scrolled and read.",
       kap: "This report is drawn by PINTAR's own report components with simulated class data. Student names are invented. " + UI.en.layarAsli };
     return `<div class="isi">
       <div class="kepala"><h1 id="h-laporan">${t.h}</h1><p class="lead">${t.lead}</p></div>
@@ -457,41 +499,36 @@ const LAYAR = [
           <figcaption>${t.kap} <span class="sr" id="gulir-ket">${t.gulir}</span></figcaption></figure>
         <div class="langkah-baca" role="tablist" aria-label="${t.tab}" id="langkah-baca">${t.s.map((s, i) => `<button role="tab" aria-selected="${i === 0}" aria-controls="baca-isi" data-i="${i}"><i>${i + 1}</i>${s}</button>`).join("")}</div>
         <div class="penjelasan" id="baca-isi" role="tabpanel" aria-live="polite"><span class="label">${UI[L].penjelasan}</span><div id="baca-teks" style="display:grid;gap:10px"></div></div>
+        <p class="redup">${t.redup}</p>
         <label class="saklar"><input type="checkbox" id="sedikit" role="switch"> ${t.sk}</label>
       </div>
     </div>`; }, teks: null },
 
-  { id: "pimpinan", en: "leaders", nada: "nada-putih", pita: { id: ["Untuk pimpinan sekolah", "Bagian 6 dan 7 menjawab pertanyaan sekolah."], en: ["For school leaders", "Sections 6 and 7 answer a school's questions."] }, judul: { id: "Pimpinan sekolah", en: "School leaders" }, isi: (L) => L === "id" ? `
-    <div class="isi"><div class="dua">
-      <div class="kepala"><h1 id="h-pimpinan">Pimpinan dapat melihat kondisi belajar di seluruh kelas.</h1>
-        <p class="lead">Kepala departemen dan Dekan melihat angka setiap kelas berdampingan, sehingga pola terlihat: topik yang sulit di banyak kelas, dan kelas yang buktinya belum cukup.</p>
-        <div class="penjelasan"><span class="label">${UI[L].penjelasan}</span><p>Baca mendatar untuk melihat pola. Pada contoh ini, <b>«membagi»</b> di bawah target di tiga dari empat kelas. Pola seperti itu menunjuk ke topiknya, bukan ke satu kelas atau satu guru.</p><p>Kelas 5E baru punya 3 murid yang mengerjakan. PINTAR menulis «—», bukan nol.</p></div>
-        ${perlu(L, "<span>PINTAR tidak memeringkat sekolah, kelas, atau guru, dan tidak menjanjikan kenaikan nilai. Laporan membantu melihat di mana dukungan diperlukan.</span>")}
-        ${lakukan("Bicarakan topik yang sulit di banyak kelas bersama guru-gurunya.")}
+  { id: "pimpinan", en: "leaders", nada: "nada-putih", pita: { id: ["Untuk pimpinan sekolah", "Bagian 6 dan 7 menjawab pertanyaan sekolah."], en: ["For school leaders", "Sections 6 and 7 answer a school's questions."] }, judul: { id: "Pimpinan sekolah", en: "School leaders" }, isi: (L) => {
+    const id = L === "id";
+    const kelas = [["5A", 58], ["5B", 71], ["5C", 55], ["5D", 57], ["5E", null]];
+    const ubin = kelas.map(([k, v]) => `<li${v !== null && v < 60 ? " data-bawah" : ""}><span class="k">${id ? "Kelas" : "Class"} ${k}</span>${v === null ? `<span class="v">—</span><span class="kurang">${id ? "Sekarang 3 murid; perlu 5." : "3 students so far; 5 needed."}</span>` : `<span class="v">${v}%</span><span class="bar" aria-hidden="true"><i style="width:${v}%"></i><u></u></span>`}</li>`).join("");
+    return `<div class="isi">
+      <div class="kepala"><h1 id="h-pimpinan">${id ? "Pimpinan dapat melihat kondisi belajar di seluruh kelas." : "School leaders get a clearer view of learning across classes."}</h1>
+        <p class="lead">${id ? "Kepala departemen dan Dekan melihat angka setiap kelas berdampingan, sehingga pola langsung terlihat." : "Heads of department and deans see each class's figures side by side, so patterns are easy to spot."}</p></div>
+      <section class="temuan" aria-labelledby="temuan-h">
+        <div><span class="label">${UI[L].penjelasan} · ${id ? "data simulasi" : "simulated data"}</span>
+          <p class="temuan-besar" id="temuan-h">${id ? "<b>3 dari 4 kelas</b> berada di bawah target pada topik yang sama." : "<b>3 of 4 classes</b> are below target on the same topic."}</p>
+          <p>${id ? "Menentukan pecahan senilai dengan membagi. Pola seperti ini menunjuk ke topiknya, bukan ke satu kelas atau satu guru." : "Finding equivalent fractions by dividing. A pattern like this points to the topic, not to one class or one teacher."}</p></div>
+        <div style="display:grid;gap:10px"><ul class="kelas5" aria-label="${id ? "Penguasaan topik membagi per kelas" : "Mastery of the dividing topic by class"}">${ubin}</ul>
+          <p class="kunci-mini">${id ? "Garis tegak: target sekolah 60%. Angka jingga: di bawah target. Tanda —: data belum cukup, bukan nol." : "Upright line: the school's 60% target. Amber figures: below target. A dash: not enough data yet, not zero."}</p></div>
+      </section>
+      <div class="pilih" role="tablist" aria-label="${id ? "Tampilan pimpinan" : "Leaders' views"}" data-pilih="pimpinan"><button role="tab" aria-selected="true" data-v="kisi">${id ? "Topik × kelas" : "Topics × classes"}</button><button role="tab" aria-selected="false" data-v="sekolah">${id ? "Ringkasan sekolah" : "School summary"}</button></div>
+      <div data-panel="pimpinan:kisi">${bingkai(L, id ? "Pimpinan · Penguasaan per topik" : "Leadership · Mastery by topic", "lap-kisi", id ? "Tabel penguasaan per topik untuk lima kelas Angkatan 5: topik membagi di bawah target di kelas 5A, 5C dan 5D; kelas 5E belum cukup data." : "A table of mastery by topic for five Year 5 classes: the dividing topic is below target in 5A, 5C and 5D; class 5E does not have enough data yet.", id ? "Laporan yang sama di PINTAR, digambar oleh komponen laporannya dengan data simulasi." : "The same report in PINTAR, drawn by its report components with simulated data. " + UI.en.layarAsli)}</div>
+      <div data-panel="pimpinan:sekolah" hidden>${bingkai(L, id ? "Ringkasan Sekolah" : "School summary", "lap-sekolah", id ? "Ringkasan Sekolah: capaian per ranah dengan batas pita, angka utama sekolah, dan perbandingan angkatan." : "The school summary: achievement by learning area with the band boundaries, the school's main figures and a comparison of year groups.", id ? "Digambar oleh komponen laporan PINTAR dengan data simulasi." : "Drawn by PINTAR's report components with simulated data.")}</div>
+      <div class="dua">
+        <div style="display:grid;gap:14px">${perlu(L, id ? "<span>PINTAR tidak memeringkat sekolah, kelas, atau guru, dan tidak menjanjikan kenaikan nilai. Laporan membantu melihat di mana dukungan diperlukan.</span>" : "<span>PINTAR does not rank schools, classes or teachers, and it does not promise higher scores. Its reports help you see where support is needed.</span>")}
+          ${lakukan(id ? "Bicarakan topik yang sulit di banyak kelas bersama guru-gurunya." : "Talk through a topic that is hard in many classes with the teachers who teach it.")}</div>
+        <div>${id ? `<details><summary>Sertifikat yang dapat diperiksa</summary><div><p>Murid yang mencapai target menerima sertifikat penguasaan. Setiap sertifikat dapat diperiksa keasliannya di halaman verifikasi PINTAR, oleh siapa pun yang memegang tautannya.</p></div></details>
+          <details><summary>Pengembangan profesi guru</summary><div><p>Guru juga dapat belajar di PINTAR, dalam kelas pengembangan profesi yang dikelola sekolah.</p><p>Hasilnya terlihat oleh peserta, fasilitator, Kepala departemen yang membawahinya, dan Dekan. Admin sekolah hanya melihat pendaftaran, keikutsertaan, dan penyelesaian.</p></div></details>` : `<details><summary>Certificates anyone can check</summary><div><p>Students who reach the target receive a mastery certificate. Anyone holding its link can check that it is genuine on PINTAR's verification page.</p></div></details>
+          <details><summary>Teachers' professional development</summary><div><p>Teachers can also learn in PINTAR, in professional-development classes run by the school.</p><p>Results are visible to the participant, the facilitator, the responsible head of department and the dean. The school administrator sees enrolment, participation and completion only.</p></div></details>`}</div>
       </div>
-      <div style="display:grid;gap:14px">
-        <div class="pilih" role="tablist" aria-label="Tampilan pimpinan" data-pilih="pimpinan"><button role="tab" aria-selected="true" data-v="kisi">Topik × kelas</button><button role="tab" aria-selected="false" data-v="sekolah">Ringkasan sekolah</button></div>
-        <div data-panel="pimpinan:kisi">${bingkai(L, "Pimpinan · Penguasaan per topik", "lap-kisi", "Tabel penguasaan per topik untuk lima kelas Angkatan 5: topik membagi di bawah target di kelas 5A, 5C dan 5D; kelas 5E belum cukup data.", "Digambar oleh komponen laporan PINTAR dengan data simulasi.")}</div>
-        <div data-panel="pimpinan:sekolah" hidden>${bingkai(L, "Ringkasan Sekolah", "lap-sekolah", "Ringkasan Sekolah: capaian per ranah dengan batas pita, angka utama sekolah, dan perbandingan angkatan.", "Digambar oleh komponen laporan PINTAR dengan data simulasi.")}</div>
-        <details><summary>Sertifikat yang dapat diperiksa</summary><div><p>Murid yang mencapai target menerima sertifikat penguasaan. Setiap sertifikat dapat diperiksa keasliannya di halaman verifikasi PINTAR, oleh siapa pun yang memegang tautannya.</p></div></details>
-        <details><summary>Pengembangan profesi guru</summary><div><p>Guru juga dapat belajar di PINTAR, dalam kelas pengembangan profesi yang dikelola sekolah.</p><p>Hasilnya terlihat oleh peserta, fasilitator, Kepala departemen yang membawahinya, dan Dekan. Admin sekolah hanya melihat pendaftaran, keikutsertaan, dan penyelesaian.</p></div></details>
-      </div>
-    </div></div>` : `
-    <div class="isi"><div class="dua">
-      <div class="kepala"><h1 id="h-pimpinan">School leaders get a clearer view of learning across classes.</h1>
-        <p class="lead">Heads of department and deans see each class's figures side by side, so patterns stand out: a topic that is hard in many classes, and classes whose evidence is not yet enough.</p>
-        <div class="penjelasan"><span class="label">${UI[L].penjelasan}</span><p>Read across to see the pattern. In this example, <b>dividing to find equivalent fractions</b> is below target in three of four classes. A pattern like that points to the topic, not to one class or one teacher.</p><p>Class 5E has only 3 students who have taken the check. PINTAR shows «—», not zero.</p></div>
-        ${perlu(L, "<span>PINTAR does not rank schools, classes or teachers, and it does not promise higher scores. Its reports help you see where support is needed.</span>")}
-        ${lakukan("Talk through a topic that is hard in many classes with the teachers who teach it.")}
-      </div>
-      <div style="display:grid;gap:14px">
-        <div class="pilih" role="tablist" aria-label="Leaders' views" data-pilih="pimpinan"><button role="tab" aria-selected="true" data-v="kisi">Topics × classes</button><button role="tab" aria-selected="false" data-v="sekolah">School summary</button></div>
-        <div data-panel="pimpinan:kisi">${bingkai(L, "Leadership · Mastery by topic", "lap-kisi", "A table of mastery by topic for five Year 5 classes: the dividing topic is below target in 5A, 5C and 5D; class 5E does not have enough data yet.", "Drawn by PINTAR's report components with simulated data. " + UI.en.layarAsli)}</div>
-        <div data-panel="pimpinan:sekolah" hidden>${bingkai(L, "School summary", "lap-sekolah", "The school summary: achievement by learning area with the band boundaries, the school's main figures and a comparison of year groups.", "Drawn by PINTAR's report components with simulated data.")}</div>
-        <details><summary>Certificates anyone can check</summary><div><p>Students who reach the target receive a mastery certificate. Anyone holding its link can check that it is genuine on PINTAR's verification page.</p></div></details>
-        <details><summary>Teachers' professional development</summary><div><p>Teachers can also learn in PINTAR, in professional-development classes run by the school.</p><p>Results are visible to the participant, the facilitator, the responsible head of department and the dean. The school administrator sees enrolment, participation and completion only.</p></div></details>
-      </div>
-    </div></div>` },
+    </div>`; } },
 
   { id: "memulai", en: "setup", nada: "nada-hangat", judul: { id: "Memulai di sekolah", en: "Getting started" }, isi: (L) => L === "id" ? `
     <div class="isi">
@@ -531,39 +568,40 @@ const LAYAR = [
       </div>
     </div>` },
 
-  { id: "akses", en: "access", nada: "nada-hangat", judul: { id: "Siapa melihat apa", en: "Who sees what" }, isi: (L) => L === "id" ? `
-    <div class="isi">
-      <div class="kepala"><h1 id="h-akses">Akses informasi mengikuti peran dan tanggung jawab.</h1>
-        <p class="lead">Di PINTAR, apa yang Anda lihat ditentukan oleh peran Anda dan tempat peran itu berlaku: kelas Anda, bagian Anda, atau sekolah Anda.</p></div>
-      <ul class="akses">
-        <li><h3>Jawaban dan hasil seorang murid</h3><div style="display:grid;gap:4px"><p class="siapa">Murid itu sendiri, guru yang mengajar kelasnya, dan pimpinan dalam lingkupnya.</p><p>Pimpinan yang membuka catatan seorang murid melakukannya sebagai tindakan tersendiri, dan tindakan itu tercatat.</p></div></li>
-        <li><h3>Laporan kelas</h3><div style="display:grid;gap:4px"><p class="siapa">Guru kelas itu, dan pimpinan dalam lingkupnya.</p><p>Laporan hanya menampilkan angka bila buktinya cukup.</p></div></li>
-        <li><h3>Laporan sekolah</h3><div style="display:grid;gap:4px"><p class="siapa">Pimpinan sekolah.</p><p>Angka sekolah tidak menilai guru atau kelas mana pun.</p></div></li>
-        <li><h3>Pengembangan profesi guru</h3><div style="display:grid;gap:4px"><p class="siapa">Peserta, fasilitatornya, Kepala departemen yang membawahinya, dan Dekan.</p><p>Admin sekolah hanya melihat pendaftaran, keikutsertaan, dan penyelesaian. Guru lain tidak melihatnya.</p></div></li>
-        <li><h3>Sinyal integritas</h3><div style="display:grid;gap:4px"><p class="siapa">Ditinjau Kepala departemen, bukan guru.</p><p>Sinyal ini dicatat untuk ditinjau, tidak ditampilkan di halaman guru.</p></div></li>
-      </ul>
-      <ul class="bukti-tetap" aria-label="Yang dapat diperiksa">
+  { id: "akses", en: "access", nada: "nada-hangat", judul: { id: "Siapa melihat apa", en: "Who sees what" }, isi: (L) => {
+    const id = L === "id";
+    const ik = {
+      murid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>',
+      kelas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>',
+      sekolah: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21h18M5 21V10l7-5 7 5v11M10 21v-5h4v5"/></svg>',
+      guru: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>',
+      jaga: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>' };
+    const baris = id ? [
+      ["murid", "Jawaban dan hasil seorang murid", ["Murid itu sendiri", "Guru kelasnya", "Pimpinan dalam lingkupnya"], "Pimpinan yang membuka catatan seorang murid melakukannya sebagai tindakan tersendiri, dan tindakan itu tercatat."],
+      ["kelas", "Laporan kelas", ["Guru kelas itu", "Pimpinan dalam lingkupnya"], "Laporan hanya menampilkan angka bila buktinya cukup."],
+      ["sekolah", "Laporan sekolah", ["Pimpinan sekolah"], "Angka sekolah tidak menilai guru atau kelas mana pun."],
+      ["guru", "Pengembangan profesi guru", ["Peserta", "Fasilitator", "Kepala departemen yang membawahinya", "Dekan"], "Admin sekolah hanya melihat pendaftaran, keikutsertaan, dan penyelesaian. Guru lain tidak melihatnya."],
+      ["jaga", "Sinyal integritas", ["Kepala departemen"], "Dicatat untuk ditinjau. Tidak ditampilkan di halaman guru."],
+    ] : [
+      ["murid", "One student's answers and results", ["The student", "Their class's teachers", "Leaders within their scope"], "When a leader opens one student's record, it is a separate action, and it is recorded."],
+      ["kelas", "Class reports", ["The class's teachers", "Leaders within their scope"], "A report shows a figure only when there is enough evidence behind it."],
+      ["sekolah", "School reports", ["School leaders"], "School figures do not grade any teacher or class."],
+      ["guru", "Teachers' professional development", ["The participant", "The facilitator", "The responsible head of department", "The dean"], "The school administrator sees enrolment, participation and completion only. Other teachers see nothing."],
+      ["jaga", "Integrity signals", ["Head of department"], "Recorded for review. Not shown on teachers' pages."],
+    ];
+    const lihat = id ? "Yang dapat melihat" : "Who can see it";
+    return `<div class="isi">
+      <div class="kepala"><h1 id="h-akses">${id ? "Akses informasi mengikuti peran dan tanggung jawab." : "The right information, for the right people."}</h1>
+        <p class="lead">${id ? "Apa yang Anda lihat ditentukan oleh peran Anda dan tempat peran itu berlaku: kelas Anda, bagian Anda, atau sekolah Anda." : "What you can see depends on your role and where it applies: your class, your section or your school."}</p></div>
+      <ul class="akses2">${baris.map(([k, apa, siapa, ket]) => `<li><div class="apa">${ik[k]}<h3>${apa}</h3></div><div class="siapa"><span class="label">${lihat}</span><ul>${siapa.map((s) => `<li>${s}</li>`).join("")}</ul><p>${ket}</p></div></li>`).join("")}</ul>
+      <ul class="bukti-tetap" aria-label="${id ? "Yang dapat diperiksa" : "What can be checked"}">${id ? `
         <li><b>Disetujui orang kedua</b>Paket terbit setelah disetujui orang lain, bukan penyusunnya.</li>
         <li><b>Sertifikat dapat diperiksa</b>Keaslian setiap sertifikat dapat diperiksa di halaman verifikasi.</li>
-        <li><b>Tindakan tercatat</b>Admin sekolah dapat membuka jejak audit di Konfigurasi.</li>
-      </ul>
-    </div>` : `
-    <div class="isi">
-      <div class="kepala"><h1 id="h-akses">The right information, for the right people.</h1>
-        <p class="lead">In PINTAR, what you can see depends on your role and where it applies: your class, your section or your school.</p></div>
-      <ul class="akses">
-        <li><h3>One student's answers and results</h3><div style="display:grid;gap:4px"><p class="siapa">The student, the teachers of their class, and leaders within their scope.</p><p>When a leader opens one student's record, it is a separate action, and it is recorded.</p></div></li>
-        <li><h3>Class reports</h3><div style="display:grid;gap:4px"><p class="siapa">The class's teachers, and leaders within their scope.</p><p>A report shows a figure only when there is enough evidence behind it.</p></div></li>
-        <li><h3>School reports</h3><div style="display:grid;gap:4px"><p class="siapa">School leaders.</p><p>School figures do not grade any teacher or class.</p></div></li>
-        <li><h3>Teachers' professional development</h3><div style="display:grid;gap:4px"><p class="siapa">The participant, their facilitator, the responsible head of department, and the dean.</p><p>The school administrator sees enrolment, participation and completion only. Other teachers see nothing.</p></div></li>
-        <li><h3>Integrity signals</h3><div style="display:grid;gap:4px"><p class="siapa">Reviewed by the head of department, not by teachers.</p><p>They are recorded for review and not shown on teachers' pages.</p></div></li>
-      </ul>
-      <ul class="bukti-tetap" aria-label="What can be checked">
+        <li><b>Tindakan tercatat</b>Admin sekolah dapat membuka jejak audit di Konfigurasi.</li>` : `
         <li><b>Approved by a second person</b>A package is published only after someone other than its author approves it.</li>
         <li><b>Certificates can be checked</b>Each certificate can be verified on PINTAR's verification page.</li>
-        <li><b>Actions are recorded</b>The school administrator can open the audit trail in Configuration.</li>
-      </ul>
-    </div>` },
+        <li><b>Actions are recorded</b>The school administrator can open the audit trail in Configuration.</li>`}</ul>
+    </div>`; } },
 
   { id: "rencana", en: "roadmap", nada: "nada-hangat", judul: { id: "Arah PINTAR", en: "What comes next" }, isi: (L) => L === "id" ? `
     <div class="isi">
@@ -591,14 +629,14 @@ const LAYAR = [
 
   { id: "penutup", en: "closing", nada: "terbalik penutup", judul: { id: "Penutup", en: "Closing" }, isi: (L) => L === "id" ? `
     <div class="isi">
-      <h1 class="pernyataan masuk-1" id="h-penutup">Mengajar. Membimbing. Memahami murid.<span class="masuk-2">Itu tetap peran Anda. PINTAR hadir untuk membantu.</span></h1>
+      <h1 class="pernyataan masuk-1" id="h-penutup"><span class="baris">Mengajar.</span> <span class="baris">Membimbing.</span> <span class="baris">Memahami murid.</span><span class="sub masuk-2">Itu tetap peran Anda. PINTAR hadir untuk membantu.</span></h1>
       <div class="kontak masuk-3"><strong>Ingin mengenal PINTAR lebih dekat?</strong>
         <div class="baris"><span class="alamat" id="surel">info@pintarselalu.com</span><button type="button" class="tombol" data-salin="surel">Salin alamat</button></div>
         <a href="https://pintarselalu.com" style="color:var(--on-teal)">pintarselalu.com</a></div>
       <div class="mulai-row masuk-3"><a class="tombol utama" href="#mulai">Lihat pertanyaan lain</a><a class="tombol" href="#alur">Mulai dari awal</a></div>
     </div>` : `
     <div class="isi">
-      <h1 class="pernyataan masuk-1" id="h-penutup">Teach. Mentor. Understand your students.<span class="masuk-2">That remains your role. PINTAR is here to help.</span></h1>
+      <h1 class="pernyataan masuk-1" id="h-penutup"><span class="baris">Teach.</span> <span class="baris">Mentor.</span> <span class="baris">Understand your students.</span><span class="sub masuk-2">That remains your role. PINTAR is here to help.</span></h1>
       <div class="kontak masuk-3"><strong>Would you like to see PINTAR more closely?</strong>
         <div class="baris"><span class="alamat" id="surel">info@pintarselalu.com</span><button type="button" class="tombol" data-salin="surel">Copy address</button></div>
         <a href="https://pintarselalu.com" style="color:var(--on-teal)">pintarselalu.com</a></div>

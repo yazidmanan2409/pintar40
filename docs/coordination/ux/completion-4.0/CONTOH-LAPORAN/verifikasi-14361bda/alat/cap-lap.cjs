@@ -1,12 +1,12 @@
 const { chromium } = require("playwright"); const fs = require("fs");
-const R = __dirname + "/pres-render", A = __dirname + "/aset"; const META = {};
+const R = __dirname + "/pres-render", A = __dirname + "/aset2"; const META = {};
 const T = {
   kelas: { terlihat: [["1 dari 2 topik", "Angka berwarna jingga"]], artinya: [["32 murid di kelas ini", "Pita tetap PINTAR"]], lakukan: [["Menambah alih-alih mengali", "Saran penanganan"], ["Murid yang perlu penguatan", "Gita Lestari"]] },
   "kelas-sedikit": { lead: [["Belum cukup bukti", "28 belum mengerjakan"]] },
   kisi: {}, sekolah: {},
 };
 (async () => { const b = await chromium.launch();
-  for (const [f, targets] of Object.entries(T)) for (const vw of [700, 390]) {
+  for (const [f, targets] of Object.entries(T)) for (const vw of [(f === "kisi" || f === "sekolah") ? 900 : 720, 390]) {
     const p = await b.newPage({ viewport: { width: vw, height: 900 }, deviceScaleFactor: 2 });
     await p.goto(`file://${R}/${f}.html`); await p.evaluate(() => document.fonts.ready);
     const hilang = await p.evaluate(() => { document.querySelectorAll(".pin-actions").forEach((e) => e.remove()); return true; });

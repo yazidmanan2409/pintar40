@@ -28,7 +28,7 @@
 
 | Image | Source | Status |
 |---|---|---|
-| `studio-unggah`, `studio-paket`, `uji-cepat` | The real application on `5919a370` (the verified engineering baseline), built and served locally, signed in through **Ruang Peragaan** as «Pak Rahmat (peraga)», SD Cendekia Nusantara | **Authentic** screen, demonstration data |
+| `studio-langkah` (the template buttons and the three steps), `soal-kunci` (one question with its key, reasons and misconceptions), `uji-cepat` | The real application on `5919a370` (the verified engineering baseline), built and served locally, signed in through **Ruang Peragaan** as «Pak Rahmat (peraga)», SD Cendekia Nusantara | **Authentic** screen, demonstration data |
 | `murid-langkah`, `murid-hasil` | The same, as «Aisyah (peraga)» | **Authentic**, demonstration data |
 | `persiapan`, `struktur` | The same, as «Bu Ratna (peraga)», Admin sekolah | **Authentic**, demonstration data |
 | `lap-kelas`, `lap-kelas-sedikit`, `lap-kisi`, `lap-sekolah` | PINTAR's own report components (`KomposisiKelas`, `KisiTopik`, `KomposisiSekolah`, with `BarisLingkup` and the page head) from `5919a370`, rendered with **simulated** class and school data. The data uses the demonstration package's real objectives, its real 60% pass mark and a real misconception code (MK-PCH-02); learner names are invented | **Illustrative**, labelled «Contoh · data peragaan» and «data kelas simulasi» |
@@ -38,6 +38,8 @@ The demonstration school has one learner, so it cannot show a class with enough 
 **The harness and capture scripts** are kept in `../completion-4.0/CONTOH-LAPORAN/verifikasi-14361bda/alat/`, with `uji/presentasi.tsx`, `cap.mjs`, `cap-lap.cjs`, `uji-pres.cjs` and `uji-int.cjs`. To rebuild:
 1. Run the local stack and app as in the handover of 8 Nov.
 2. Sign in as `penilai@evaluasi.pintar.test` and use **Ruang Peragaan**.
+
+**Version 3 (visual refinement, owner review of 9 Nov):** screenshots are tight crops of one moment each, captured at a 640-px window and shown at their natural size (592 px; the report grids at 900 px); the class report is rendered at 720 px. No screenshot was edited.
 
 ## Claim register
 
@@ -77,7 +79,7 @@ The demonstration school has one learner, so it cannot show a class with enough 
 | 9 | 4.0 is in final verification before release; 4.1, 4.5 and 5.0 are planned, with no dates | Owner (9 Nov); staging status | D, P |
 | 10 | Contact info@pintarselalu.com and pintarselalu.com | PINTAR's own footer | C |
 
-## Verification run on this preview (local copy of the page, Chromium)
+## Verification run on this preview (version 3, local copy of the page, Chromium)
 
 - **Every screen,** both languages, at 1280, 390 and 320 px:
   - no sideways scroll;
@@ -102,6 +104,16 @@ The demonstration school has one learner, so it cannot show a class with enough 
 2. **C: a lead sentence ends «…dengan membagi..».** A learning objective's own full stop is kept before the sentence's. The simulated data leaves the full stop out, so the preview does not show it.
 
 ## Owner decisions (9 Nov) and the review sequence
+
+**Version 3 (refinement, not redesign):**
+- the screens now fill the viewport, so content no longer floats in empty space (1, 2, 7–10);
+- larger screenshots in tight crops (3, 4, 7);
+- screen 5's report is wider; its dimmed part says it is dimmed on purpose and stays readable;
+- screen 6 opens with the finding «3 dari 4 kelas berada di bawah target pada topik yang sama», class by class, then the matrix;
+- screen 8 shows each category with «Yang dapat melihat» and its audience as chips;
+- the closing statement is on three lines at a larger size.
+
+The ten-screen structure, typography, colours and interactions are unchanged. No new claims were added: screen 6's tiles repeat the simulated grid.
 
 **Status:** READY FOR OWNER REVIEW, NOT YET APPROVED FOR PUBLICATION. No redesign is to be made before the owner has looked at the result.
 
