@@ -32,7 +32,7 @@ same app code plus staging-walk scripts and records only. **Production:** not to
 - staging's six new database functions are byte-equal to the candidate's;
 - two fresh schools walked from GS-01 to GS-21, plus Studio end to end and the Batch 5 walk: all green on the school of
   record;
-- X5 walked on staging for the first time (staging had no professional-development class before 8 Nov). The re-run is in progress.
+- X5 walked on staging for the first time (staging had no professional-development class before 8 Nov): **9/9 green** (run 42428273364). Every audience reads it as D-196 has it, the refused are refused, and it holds at 390 px and in A4.
 
 **What 4.0 still needs:**
 - acceptance by people: no batch is fully accepted (ledger §3b), and no person has walked any journey on staging;
@@ -76,7 +76,7 @@ Since P-4, every promotion is gated the same way:
 | Read-only checks | six functions SECURITY DEFINER, search_path pinned, anon refused, registered; md5 equal to the candidate; the PD guard present; MC-8; 225 official results and 60 certificates unchanged by the promotion |
 | Sekolah Uji P7 1107 | GS-01–16 green. GS-17–21: 16/18. **The two failures were in the walk, not the product** (§5) |
 | **Sekolah Uji P7B 1107 (of record)** | GS-01–03, GS-04–11, GS-07/12–16 green; **GS-17–21 18/18** (42424027157); **Studio 19/19** (42425742473); **Batch 5 6/6** (42426258818) |
-| X5 on staging | the re-run is in progress; filled in when it finishes |
+| **X5 on staging** (new walk) | **9/9** (42428273364). The admin built the place by Struktur sekolah, Pendataan, Aktivasi, Peran & akses and «Peserta pengembangan profesi». The facilitator, the PD Kepala departemen, the Dekan and the admin (from Konfigurasi «Laporan») each read the owner's sentence and both participants alphabetical, with no academic mark. Another department's Kepala and a participant Guru are refused. 390 px; A4, one page. Two earlier runs failed on walk defects, fixed (§5) |
 
 Full record: `batch-9/evidence/staging-p7.md`.
 
@@ -91,7 +91,7 @@ Full record: `batch-9/evidence/staging-p7.md`.
 | Professional-learning record (6-fasilitator) | alphabetical, nothing added up | LAPORAN-FASILITATOR-01; C12f |
 | Who may see (5-peserta) | the sentence on a PD result | LAPORAN-PESERTA-01 |
 | «Yang menunggu», Aktivasi (7-admin) | the reasons; the class-card exclusions by one reason each | F33-A01; B4-W8 |
-| **X5** (D-196) | a PD class's Ringkasan Kelas: the owner's sentence and the record, never an academic figure | LAPORAN-KELAS-PD-01, F33-P01, C12f2; **on staging: in progress** |
+| **X5** (D-196) | a PD class's Ringkasan Kelas: the owner's sentence and the record, never an academic figure | LAPORAN-KELAS-PD-01, F33-P01, C12f2; **on staging: 9/9** (42428273364) |
 
 Daisy's reviews are reconciled: fidelity #1–#28 and X5-1–X5-9; her X5 patch `d86f61b3` integrated
 (`batch-9/kesetiaan-implementasi.md`).
@@ -108,8 +108,8 @@ Daisy's reviews are reconciled: fidelity #1–#28 and X5-1–X5-9; her X5 patch 
 | Not started (W4.3, W9.8, W9.10, W9.12 break-glass, W9.17) | 5 |
 | Per batch (W6.11, second reviewer) | 1 |
 
-> **The register's status column lags P-7 for two rows:** W3.8 still says «not on staging», and W1.2's evidence names
-> `bd4c2c06`. Both are now on staging. One small edit, made with this report's commit.
+> **Brought up to P-7 with this report's commit:** the register's W3.8 (it said «not on staging») and the ledger's
+> Batch 9 row (it said «passed on the branch, not on staging»).
 
 ---
 
@@ -119,12 +119,11 @@ Daisy's reviews are reconciled: fidelity #1–#28 and X5-1–X5-9; her X5 patch 
 
 | Order | Item | What it takes |
 |---|---|---|
-| 1 | Bring the register and the ledger up to P-7 (W3.8, W1.2; ledger row 9 «on staging») | records |
-| 2 | **The platform administrator's report boundary** (dossier check 5 gap): «Seluruh platform» opening a class or school report | a test in CI and a staging walk step |
-| 3 | **UX1-UB-ALUR-01**, the intermittent refusal comparison (failed once on `99494abd`) | it now prints where the pages differ; root-cause it on the next recurrence |
-| 4 | The X5 staging walk with a published PD package (the per-package table on staging) | Studio's PD path on staging, then the sitting |
-| 5 | Integration dossiers for Batches 1–6 in the ledger's §2 form (only Batch 9's exists) | gathering what the walks and suites already show |
-| 6 | W6.9 release checklist re-rendered on `c4944fab` | after 1–5 |
+| 1 | **The platform administrator's report boundary** (dossier check 5 gap): «Seluruh platform» opening a class or school report | a test in CI and a staging walk step |
+| 2 | **UX1-UB-ALUR-01**, the intermittent refusal comparison (failed once on `99494abd`) | it now prints where the pages differ; root-cause it on the next recurrence |
+| 3 | The X5 staging walk with a published PD package (the per-package table on staging) | Studio's PD path on staging, then the sitting |
+| 4 | Integration dossiers for Batches 1–6 in the ledger's §2 form (only Batch 9's exists) | gathering what the walks and suites already show |
+| 5 | W6.9 release checklist re-rendered on `c4944fab` | after 1–4 |
 | — | W2.13 «nomor induk» residue, W4.3 copy review, W4.4 review | the builds are ready; they wait on the words (§3.3) |
 
 ### 3.2 Waiting on the owner (decisions and actions)
