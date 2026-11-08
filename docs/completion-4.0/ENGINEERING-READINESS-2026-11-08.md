@@ -24,6 +24,7 @@
 | Round | Findings | State |
 |---|---|---|
 | **Audit** (`KESIAPAN-4.0.md`) | A1–A3, the six walkthrough Bs, the remaining Bs and Cs | Corrected; see `acceptance/KESIAPAN-PENYELESAIAN-2026-11-08.md` |
+| **Final verification of `14361bda`** (Daisy, `CONTOH-LAPORAN/KESIAPAN-AKHIR.md`, `ux-1/daisy-experience` `a0581113`) | **Daisy's verdict: READY for the owner's walkthrough, on the condition that staging serves `14361bda`.** Seen live on her local build, as admin, Guru, Kepala departemen and Dekan: F1 both ways, B4, the primary buttons, F8's clean path (the error path read in code), F9, F10, and the reviewer's page. Rendered: F3 at 390 and 320 px, with axe clean, and the 10-class A4 grid. `siap-jalan` 7/7 on her build. Not seen: staging, and the withdrawal and maintenance confirmations pressed live. Five cosmetic items may follow. **Her verdict is hers. Our exact-SHA gates on `14361bda` are still pending (§4)** |
 | **Verification of `f2a52a5a`** (`7ea99f35`) | Closed by Daisy: A2, A3 (keyboard), B1, B2, B3, B5, B6. Not closed: A1, B4. Must-fix: F1–F10 | **F1–F10 corrected in `2be7a796`**, as listed below. **Daisy has not re-verified.** No design acceptance is claimed here |
 
 **F1–F10, corrected in `2be7a796`:**
@@ -58,7 +59,7 @@ Her evidence so far:
 | Head | CI | Journeys |
 |---|---|---|
 | `a10d5650` | 42433800520: 874 passed, **1 failed** (D168-B1-6, an h3 heading; fixed in `b41aeeed`) | 42433803149: **green**, both jobs |
-| `14361bda` (F1–F10) | **PENDING**: dispatched 8 Nov | **PENDING**: dispatched with the full SHA |
+| `14361bda` (F1–F10) | **PENDING**: run 42439246621 | **PENDING**: run 42439260649 (42439248749 cancelled: a short SHA was refused) |
 | combined with Sharon's | not yet | not yet |
 
 **Locally on `b41aeeed`:**
@@ -119,7 +120,7 @@ Known limitations: the A1 gap and W1.16 (§7).
 **Not yet.** The candidate is ready only when all of these hold:
 1. The PENDING runs are green, or every red has been investigated and fixed.
 2. Sharon's change is integrated, and the combined head is green on exact-SHA CI and journeys.
-3. Daisy re-verifies F1–F10.
+3. ~~Daisy re-verifies F1–F10.~~ **Done:** Daisy READY on `14361bda`, on the condition that staging serves it (`a0581113`).
 4. You rule on the A1 gap and F8.
 5. You authorize the staging promotion, and one signed-in pass on staging confirms the admin, Guru, Kepala departemen and Dekan journeys.
 
