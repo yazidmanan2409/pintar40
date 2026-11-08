@@ -100,7 +100,7 @@ Workflow guidance:
 | SIAP-FOKUS-01 (focus sweep) | Green: every client in-place panel moves focus, the ten swapping components move it as declared, and the planted copy is caught |
 | Grid print render (R) | 10 classes: 1 landscape page; 5 classes: 1 portrait page |
 | CI on `a10d5650` (run 42433800520) | **874 passed, 1 failed: D168-B1-6** (above, fixed in `b41aeeed`). All 16 other jobs green. Investigated, not re-run |
-| Journeys on `a10d5650` (run 42433803149) | _pending_ |
+| Journeys on `a10d5650` (run 42433803149) | **Green, both jobs.** A: every role's screens, W6.2 first-screen timing, Studio end to end, administration, Batch 5, A4 print, the Batch 5 focused checks, E1+E2 navigation, the identity emails, E-RB, Batch 8. B: Gladys's path from an empty production-like database |
 | **Exact-commit CI and journeys on the final candidate** | _to be dispatched once, on the final head, after Sharon's selftest change is integrated_ |
 
 **Found during verification:** the local selftest reuses any existing `.next` build, so an earlier local run on 8 Nov tested a bundle from 7 Nov. That run's app-level results are not counted here. CI always builds fresh and is unaffected.
