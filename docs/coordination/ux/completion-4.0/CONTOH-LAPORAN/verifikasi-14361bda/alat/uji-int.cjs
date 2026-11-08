@@ -25,9 +25,9 @@ const hasil = []; const cek = (ok, s) => hasil.push(`${ok ? "PASS" : "FAIL"} ${s
   await p.getByRole("button", { name: "EN", exact: true }).click(); await p.waitForTimeout(300);
   cek(p.url().endsWith("#en-report") && (await p.getByRole("switch").isChecked()) && /draws no conclusion/.test(await p.locator("#baca-teks").innerText()), "EN keeps the screen and the report's state");
   cek(await p.evaluate(() => document.documentElement.lang === "en"), "html lang follows the language");
-  await p.goto(U + "#en-materials", { waitUntil: "networkidle" }); await p.getByRole("tab", { name: "Review questions" }).click();
+  await p.goto(U + "#en-materials", { waitUntil: "networkidle" }); await p.getByRole("tab", { name: "Upload" }).click();
   await p.getByRole("button", { name: "ID", exact: true }).click(); await p.waitForTimeout(250);
-  cek(p.url().endsWith("#materi") && (await p.getByRole("tab", { name: "Tinjau soal" }).getAttribute("aria-selected")) === "true", "ID keeps the Studio tab the reader chose");
+  cek(p.url().endsWith("#materi") && (await p.getByRole("tab", { name: "Unggah" }).getAttribute("aria-selected")) === "true", "ID keeps the Studio tab the reader chose");
   await p.getByRole("button", { name: "Semua pertanyaan" }).click(); await p.waitForTimeout(100);
   cek(await p.locator("#panel").isVisible() && await p.evaluate(() => document.activeElement?.closest("#panel") !== null), "All questions opens the panel with focus inside");
   for (let i = 0; i < 14; i++) await p.keyboard.press("Tab"); cek(await p.evaluate(() => document.activeElement?.closest("#panel") !== null), "Tab stays inside the panel");

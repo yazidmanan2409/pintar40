@@ -96,6 +96,14 @@ The demonstration school has one learner, so it cannot show a class with enough 
   - reduced motion;
   - phone order and phone images;
   - touch targets of 24 px or more.
+- **Heights** (`uji-tinggi.cjs`): every screen in both languages, and every tab, at 1920×1080, 1536×864, 1440×900, 1366×768, 1280×720, 1024×768, 768×1024, 390×844, 375×667, 360×740 and 320×568. The check covers:
+  - the heading and main point are visible before scrolling;
+  - every frame fits between the bars;
+  - a scrolling frame shows its cue and is reachable by keyboard;
+  - nothing is clipped;
+  - no sideways scroll.
+
+  **One known exception:** at 320×568 (the smallest, oldest phones), screen 6's heading and lead fit, but the finding starts just below the fold.
 - **Not tested:** a human screen-reader pass (NVDA / TalkBack); real phones and tablets; slow networks.
 
 ## Found while capturing (for Second Eye)
@@ -114,6 +122,17 @@ The demonstration school has one learner, so it cannot show a class with enough 
 - the closing statement is on three lines at a larger size.
 
 The ten-screen structure, typography, colours and interactions are unchanged. No new claims were added: screen 6's tiles repeat the simulated grid.
+
+**Version 4 (focused correction pass, owner review of V3):**
+- **Rule:** a screen makes its main point without scrolling. Detailed evidence may scroll, but only inside a clearly marked frame.
+- **Every evidence frame** is sized to fit between the top bar and the bottom navigation. Content taller than that scrolls inside the frame, which:
+  - shows «Gulir untuk melihat selengkapnya», hidden once the reader scrolls;
+  - becomes a named, keyboard-reachable region.
+
+  The report is not shrunk.
+- **Screen 6:** both reports are inspectable in such a frame. Each has «Buka laporan ukuran penuh» to open the full image.
+- **Screen 3:** «Tinjau soal» (the question with its key, reasons and misconceptions) is the first tab. «Unggah» is second.
+- **Short phones:** the section band is more compact.
 
 **Status:** READY FOR OWNER REVIEW, NOT YET APPROVED FOR PUBLICATION. No redesign is to be made before the owner has looked at the result.
 
