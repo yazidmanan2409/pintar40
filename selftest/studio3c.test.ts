@@ -29,7 +29,10 @@ export const studio3cTests: SelfTest[] = [
     run: async (ctx) => {
       const c = new Checks();
       const beranda = kode(baca(ctx.repoRoot, "src/app/studio/page.tsx"));
-      c.expect(/from\("courses"\)\.select\("supersedes_course_id"\)\s*\.in\("institution_id", daftar \? menyusun : ids\)\.not\("supersedes_course_id", "is", null\)/.test(beranda),
+      // RESTATED (owner decision 3, 8 Nov): a narrowed list reads its own scope; RELEASE_STEP's is every school of the
+      // context (a publisher may hold no CAN_DRAFT), the others' CAN_DRAFT's, and superseded versions stay out of each
+      c.expect(/from\("courses"\)\.select\("supersedes_course_id"\)\s*\.in\("institution_id", daftar \? lingkupDaftar : ids\)\.not\("supersedes_course_id", "is", null\)/.test(beranda)
+        && /const lingkupDaftar = daftar === "RELEASE_STEP" \? ids : menyusun;/.test(beranda),
         "Studio's home does not read which versions a correction replaced");
       c.expect(/if \(lama\.length > 0\) kursusQ = kursusQ\.not\("id", "in", `\(\$\{lama\.join\(","\)\}\)`\);/.test(beranda),
         "Studio's home still lists a replaced version as a package of its own");

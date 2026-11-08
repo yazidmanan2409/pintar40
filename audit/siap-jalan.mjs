@@ -288,16 +288,20 @@ await step("R8", "Admin: a learner without a class is counted in «Yang menunggu
 
 // ── Owner decision 2: «Tandai lolos pemeriksaan» runs the check; an ERROR refuses the step, nothing moves, it says why.
 await step("R9", "Author (Admin sekolah, an author role; Alpha's Guru is scoped to 5A): the content check refuses the mark on a real ERROR, changes nothing, and says how to correct it", async (rec) => {
-  const course = sql("select c.id from public.courses c join public.institutions i on i.id = c.institution_id "
-    + "where c.title = 'Paket Internal Alpha' and c.status in ('INGESTED','STRUCTURED') limit 1");
-  if (!course) { belum(rec, "no unsealed Alpha package on this seed"); return; }
-  const item = sql(`select i.id from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id = '${course}' limit 1`);
+  // A PACKAGE OF ITS OWN, built as fable05's f05_private_course builds one, so no seeded package another suite reads
+  // is moved: the walk once took «Paket Internal Alpha» to STRUCTURED, and fable05 then failed on it (9 Nov)
+  const sekolah = sql("select i.id from public.institutions i join public.role_assignments r on r.institution_id = i.id "
+    + "join public.accounts a on a.person_id = r.person_id join auth.users u on u.id = a.auth_user_id "
+    + `where u.email = '${ORANG.admin.email}' and r.role = 'INSTITUTION_ADMIN' and r.revoked_at is null limit 1`);
+  if (!sekolah) { belum(rec, "no administrator's school on this seed"); return; }
+  const judul = `Paket Uji Periksa ${Date.now() % 1000000}`;
+  const course = sql(`insert into public.courses (institution_id, subject, stage, grade_label, title) values ('${sekolah}', 'Matematika', 'SD', 'Kelas 5', '${judul}') returning id`).split("\n")[0];
+  const modul = sql(`insert into public.modules (course_id, institution_id, ordinal, title) values ('${course}', '${sekolah}', 1, 'modul uji') returning id`).split("\n")[0];
+  const les = sql(`insert into public.lessons (module_id, institution_id, ordinal, title, body_markdown) values ('${modul}', '${sekolah}', 1, 'pelajaran uji', 'isi uji') returning id`).split("\n")[0];
   // a stem whose key word appears only in its correct option: STEM_REVEALS_ANSWER, an ERROR the check itself finds
-  sql(`update public.items set stem = 'Berapa hasil penjumlahan ini? Jawabannya limabelas.' where id = '${item}'`);
-  if (sql(`select count(*) from public.item_options where item_id = '${item}'`) === "0") {
-    sql(`insert into public.item_options (item_id, institution_id, label, body, is_correct, rationale) select id, institution_id, 'A', 'limabelas', true, 'Ini hasil penjumlahannya.' from public.items where id = '${item}'`);
-    sql(`insert into public.item_options (item_id, institution_id, label, body, is_correct, rationale) select id, institution_id, 'B', 'tujuh', false, 'Ini bukan hasil penjumlahannya.' from public.items where id = '${item}'`);
-  }
+  const item = sql(`insert into public.items (lesson_id, institution_id, item_type, bank_type, stem) values ('${les}', '${sekolah}', 'MCQ_SINGLE', 'PRACTICE', 'Berapa hasil penjumlahan ini? Jawabannya limabelas.') returning id`).split("\n")[0];
+  sql(`insert into public.item_options (item_id, institution_id, label, body, is_correct, rationale) values ('${item}', '${sekolah}', 'A', 'limabelas', true, 'Ini hasil penjumlahannya.')`);
+  sql(`insert into public.item_options (item_id, institution_id, label, body, is_correct, rationale) values ('${item}', '${sekolah}', 'B', 'tujuh', false, 'Ini bukan hasil penjumlahannya.')`);
   const { context, page } = await masuk(browser, ORANG.admin);
   await buka(page, `/studio/paket/${course}`);
   const susun = page.getByRole("button", { name: "Tandai sudah tersusun", exact: true });
