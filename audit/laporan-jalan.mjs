@@ -30,7 +30,6 @@ const ROOT = sql(`select id from public.org_nodes where institution_id = '${I}' 
 const DEPT = sql(`select id from public.org_nodes where institution_id = '${I}' and kind = 'DEPARTMENT'`);
 const POST5B = sql(`select aa.id from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
   where aa.node_id = '${K["5B"]}' and d.mode = 'POST_TEST' order by aa.created_at limit 1`);
-const muridB = W.murid.filter((m) => m.kelas === "5B");
 const LEMAH = sql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id
   join public.official_sessions s on s.person_id = a.person_id join public.official_results r on r.session_id = s.id
   where u.email like 'lap-5b-%' and s.mode = 'POST_TEST' order by r.mastery asc limit 1`);
@@ -129,7 +128,14 @@ for (const [siapa, daftar] of Object.entries(HALAMAN)) {
   for (const w of LEBAR) {
     const { context, page } = await masuk(browser, ORANG[siapa], { width: w, height: w > 800 ? 900 : 844 });
     for (const [nama, jalan] of daftar) {
-      const r = await page.goto(`${APP}${jalan}`, { waitUntil: "networkidle" }).catch(() => null);
+      let r = await page.goto(`${APP}${jalan}`, { waitUntil: "networkidle" }).catch(() => null);
+      // «Komputer siapa ini?» may be asked on the first protected page rather than at /: answered as the person would
+      if (new URL(page.url()).pathname === "/perangkat") {
+        await page.locator('input[type="radio"][name="mode"][value="PERSONAL"]').check();
+        await page.getByRole("button", { name: "Simpan pilihan" }).click();
+        await page.waitForURL((u) => u.pathname !== "/perangkat", { timeout: 30000 }).catch(() => {});
+        r = await page.goto(`${APP}${jalan}`, { waitUntil: "networkidle" }).catch(() => null);
+      }
       const tutup = page.getByRole("button", { name: /Lewati|Tutup tur/ }).first();
       if (await tutup.isVisible().catch(() => false)) { await tutup.click().catch(() => {}); await page.waitForTimeout(300); }
       const f = `${siapa}-${nama}-${w}.png`;

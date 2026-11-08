@@ -818,6 +818,57 @@ export const b5aTests: SelfTest[] = [
     },
   },
   {
+    // Reporting Quality Gate (owner, 9 Nov): «Hasil belajar» on a phone with a real chapter's objectives. Each part is
+    // named by its objective's statement (a sentence); seven of them ran into a 25-line lead at 390 px.
+    id: "LAPORAN-MURID-02",
+    run: async (ctx) => {
+      const c = new Checks();
+      const bagian = (n: number) => Array.from({ length: n }, (_, i) => ({ kode: `P${i}`, nama: `Kalian dapat menyelesaikan langkah ${i + 1}.`, benar: 0, total: 2, ulang: true }));
+      const bab = [
+        { tugas: "t1", judul: "Matematika Kelas 5 · Bab 1: Pola Bilangan", keadaan: "SELESAI", awal: 0.5, akhir: 0.13, ambang: 0.7, tercapai: "BELUM",
+          benar: 1, total: 8, bagian: bagian(4), ulang: bagian(4).map((b) => b.nama) },
+        { tugas: "t2", judul: "Matematika Kelas 5 · Bab 2: Data Sederhana", keadaan: "SELESAI", awal: 0.25, akhir: 0.38, ambang: 0.7, tercapai: "BELUM",
+          benar: 3, total: 8, bagian: bagian(3), ulang: bagian(3).map((b) => b.nama) },
+      ];
+      const r = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiMurid.tsx");' +
+        "const K = m.default?.default ?? m.default;" +
+        "process.stdout.write(renderToStaticMarkup(h(K, { bab: JSON.parse(process.env.BAB), locale: 'id' })));",
+        { BAB: JSON.stringify(bab) });
+      if (c.expect(r.ok, `could not be rendered: ${r.err}`)) {
+        const teks = r.out.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+        const a = teks.slice(0, teks.indexOf("Bagian per bab") > 0 ? teks.indexOf("Bagian per bab") : 600);
+        c.expect(a.includes("Ada 7 bagian untuk dipelajari lagi; semuanya ditandai «pelajari lagi» di bagian B."), `the lead reads «${a.slice(0, 300)}»`);
+        c.expect(!/Pelajari lagi: /.test(a) && !/\.,/.test(teks), "the lead still lists every part, or a statement's full stop is inside a list");
+        c.expect((teks.match(/Kalian dapat menyelesaikan langkah 1/g) ?? []).length >= 1, "section B no longer lists the parts");
+      }
+      const lib = baca(ctx.repoRoot, "src/lib/hasil-belajar.ts");
+      c.expect(/a\.title\.toLowerCase\(\)\.startsWith\(String\(a\.subject\)\.toLowerCase\(\)\)/.test(lib),
+        "a chapter whose title begins with its subject is still named «Matematika · Matematika Kelas 5 …»");
+      return c.verdict("«Hasil belajar» with seven parts to study again counts them in the lead and points to section B, which lists each; "
+        + "a chapter whose title begins with its subject is not prefixed with it again");
+    },
+  },
+  {
+    // Reporting Quality Gate (owner, 9 Nov): a learner who opened a class's summary, and a teacher at another class's or
+    // the school's, were given a report frame (the place, «Cetak laporan») of six refusal cards
+    id: "LAPORAN-TOLAK-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      for (const f of ["src/app/edukator/ringkasan/page.tsx", "src/app/dekan/ringkasan/page.tsx"]) {
+        const src = kode(baca(ctx.repoRoot, f));
+        const jaga = src.indexOf('entries.every((e) => e.status === "not_permitted")');
+        const lapor = src.indexOf("<AksiLaporan");
+        c.expect(jaga > 0 && /if \(entries\.length > 0 && entries\.every\(\(e\) => e\.status === "not_permitted"\)\) \{\s*return <HalamanPenolakan [^>]*messageKey="laporan\.ditolak"/.test(src)
+          && lapor > jaga, `${f} still draws the report frame for a reader refused every figure`);
+      }
+      c.expect(t("laporan.ditolak", "staff", { locale: "id" }) === "Laporan ini tidak ditampilkan untuk peran Anda di tempat ini.", "the refusal's words are not in the copy table");
+      return c.verdict("Ringkasan Kelas and Ringkasan Sekolah give a reader refused every figure the refusal page («Laporan ini tidak ditampilkan untuk peran Anda di tempat ini.»), never a report frame of refusal cards; the guard runs before the page's report is drawn");
+    },
+  },
+  {
     // Reporting Quality Gate (owner, 9 Nov): the grid's lead never claims what its reader could not have found. A Dekan
     // reads no class's target (assessment_assignments is the authors' and assigners' read) and was told «Tidak ada topik
     // yang di bawah target di sebagian besar kelas» over cells below the target.

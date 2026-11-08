@@ -30,7 +30,11 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
   else if (dinilai.length > 0 && capai === dinilai.length) kalimat = s("hasilbelajar.semua_capai");
   else if (dinilai.length > 0) kalimat = s("hasilbelajar.capai").replace("{n}", format.number(capai, locale)).replace("{m}", format.number(dinilai.length, locale));
   else kalimat = s("hasilbelajar.selesai").replace("{n}", format.number(selesai.length, locale));
-  const daftarUlang = ulang.map((b) => `${daftarKata(b.ulang, locale)} (${b.judul})`).join("; ");
+  // Reporting Quality Gate (9 Nov): with a real chapter's objectives (each a sentence) more than two parts to study
+  // again ran into a paragraph of 25 lines on a phone; the lead then counts them and points to section B, which lists
+  // every one of them by chapter
+  const nUlang = ulang.reduce((n, b) => n + b.ulang.length, 0);
+  const daftarUlang = nUlang > 2 ? "" : ulang.map((b) => `${daftarKata(b.ulang, locale)} (${b.judul})`).join("; ");
 
   return (
     <div className="pin-lk">
@@ -39,6 +43,7 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
         <div className="pin-lk-inti">
         <p className="pin-lk-kalimat" data-lk-kalimat="">{kalimat}</p>
         {daftarUlang ? <p className="pin-lk-kalimat-sub">{s("hasilbelajar.ulang").replace("{daftar}", daftarUlang)}</p> : null}
+        {nUlang > 2 ? <p className="pin-lk-kalimat-sub" data-ulang-banyak="">{s("hasilbelajar.ulang_banyak").replace("{n}", format.number(nUlang, locale))}</p> : null}
         {selesai.length > 0 ? (
           <ul className="pin-lk-pita-ket" aria-hidden="true">
             <li><i className="pin-lk-titik-ket" data-awal="" />{s("hasilbelajar.awal")}</li>

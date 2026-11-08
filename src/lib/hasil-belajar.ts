@@ -35,7 +35,10 @@ export type BabHasil = {
 export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]> {
   const tugas = await engine.myAssignments(db);
   const bab = await Promise.all(tugas.map(async (a): Promise<BabHasil | null> => {
-    const judul = [a.subject, a.title].filter(Boolean).join(" · ");
+    // Reporting Quality Gate (9 Nov): a title that already begins with its subject («Matematika Kelas 5 · Bab 1») is not
+    // prefixed with it again («Matematika · Matematika Kelas 5 · Bab 1»)
+    const judul = a.subject && a.title && a.title.toLowerCase().startsWith(String(a.subject).toLowerCase())
+      ? a.title : [a.subject, a.title].filter(Boolean).join(" · ");
     const state = await engine.cycleState(db, a.learning_assignment_id).catch(() => null);
     if (!state) return null;
     const mulai = Boolean(state.pre_session || state.post_session);

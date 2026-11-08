@@ -4712,6 +4712,16 @@
       "proves": "Reporting Quality Gate (9 Nov), rendered: KisiTopik's lead sentence judges topics «below target in most classes» only over at least two classes whose figure and target the reader can read. A Dekan reads no class's target and had been told «Tidak ada topik yang di bawah target di sebagian besar kelas» over cells below it; with no target or one, the lead is now absent and the cells are still drawn."
     },
     {
+      "id": "LAPORAN-TOLAK-01",
+      "runner": "static",
+      "proves": "Reporting Quality Gate (9 Nov): Ringkasan Kelas (/edukator/ringkasan) and Ringkasan Sekolah (/dekan/ringkasan) give a reader refused every figure (a learner, another class's teacher, a teacher at the school's summary) the refusal page with «Laporan ini tidak ditampilkan untuk peran Anda di tempat ini.», never a report frame naming the place with a print button and six refusal cards; the guard runs before the report is drawn."
+    },
+    {
+      "id": "LAPORAN-MURID-02",
+      "runner": "static",
+      "proves": "Reporting Quality Gate (9 Nov), rendered: the learner's «Hasil belajar» with more than two parts to study again (each named by its objective's statement) counts them in the lead («Ada 7 bagian untuk dipelajari lagi; semuanya ditandai «pelajari lagi» di bagian B.») instead of a 25-line list at 390 px; section B lists each; a chapter whose title begins with its subject is not named «Matematika · Matematika Kelas 5 …»."
+    },
+    {
       "id": "LAPORAN-SEKOLAH-01",
       "runner": "static",
       "proves": "CONTOH LAPORAN 4-dekan (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov), selftest/b5a.test.ts: src/components/laporan/KomposisiSekolah.tsx rendered over envelopes shaped like the specimen's: the lead names the competency domains below 60%; the domains as dots on 0–100% high to low with PINTAR's band zones named once above the scale (R4-01), R4-02's one decimal (59,6%), a domain below 60% amber and naming its band (G-03); every headline figure with its base, «Sertifikat terbit» as issued and not revoked out of all issued («408 dari 411 yang pernah terbit; 3 dicabut», R4-03); the cohorts by name on the same scale, captioned as a comparison of states, not a ranking; lettered sections and an action sentence under each figure; the not-yet report keeps each figure's place with how far it is; and Ringkasan Sekolah draws it."

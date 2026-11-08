@@ -1,3 +1,4 @@
+import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { supabaseServer } from "@/lib/supabase/server";
 import Kosong from "@/components/Kosong";
 import { asalLaporan } from "@/lib/nama-tempat";
@@ -71,6 +72,12 @@ export default async function RingkasanSekolah({
   const dihitung = new Date();
 
   const entries = (report?.entries ?? []) as Entry[];
+  // Reporting Quality Gate (9 Nov): a reader refused every figure (a learner, another class's teacher, a teacher at
+  // the school's summary) gets the refusal page, not a report frame with the place, a print button and one refusal
+  // card per figure. The refusal discloses nothing more than before: no figure is named.
+  if (entries.length > 0 && entries.every((e) => e.status === "not_permitted")) {
+    return <HalamanPenolakan locale={await currentLocale()} persona="staff" messageKey="laporan.ditolak" backHref={asal.ke} />;
+  }
   const shown = entries.filter((e) => e.status === "ok");
   // W9: figures in the reader's language and units; rows that name a place, by its name
   const locale = await currentLocale();
