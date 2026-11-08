@@ -13046,6 +13046,56 @@ export const experienceTests: SelfTest[] = [
       );
     },
   },
+  {
+    id: "SIAP-FOKUS-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      /**
+       * Readiness (8 Nov; owner: «check other instances of the same shared interaction pattern»). WHEN A PRESS REPLACES
+       * PART OF THE SCREEN, FOCUS IS MOVED ON PURPOSE. A button swapped for a question or a small form takes the focused
+       * element away; unless the code moves focus, a keyboard or screen-reader reader falls to the top of the page.
+       * 1. Every client component that draws an in-place panel (role="group" aria-labelledby) moves focus somewhere.
+       * 2. Every component known to swap a button for a panel moves focus BOTH ways: into the panel on open (a .focus()
+       *    or autoFocus) and back to the opener on leaving it (a second .focus()). A planted copy of KeluarSemua with
+       *    its focus calls removed is the control.
+       */
+      // [file, ways]: 2 = into the panel and back to its opener; 1 = the opener is gone for good (the worked example's
+      // last step), so focus goes once, to what replaces it
+      const KENAL: Array<[string, number]> = [
+        ["src/components/KonfirmasiBahaya.tsx", 2], ["src/components/sertifikat/FormCabut.tsx", 2],
+        ["src/components/sesi/KeluarSemua.tsx", 2], ["src/components/umpanbalik/TutupPutaran.tsx", 2],
+        ["src/components/struktur/PanelStruktur.tsx", 2], ["src/components/studio/LangkahTerbit.tsx", 2],
+        ["src/components/aktivasi/KartuUlang.tsx", 2], ["src/components/aktivasi/KartuJadiEmail.tsx", 2],
+        ["src/app/belajar/_components/ItemPlayer.tsx", 2], ["src/app/belajar/_components/LessonPlayer.tsx", 1],
+      ];
+      const arah = (src: string) => (src.match(/\.focus\(\)/g) ?? []).length + (src.match(/\bautoFocus\b/g) ?? []).length;
+      for (const [f, n] of KENAL) {
+        const src = readFileSync(join(repoRoot, f), "utf8");
+        c.expect(arah(src) >= n, `${f} swaps part of the screen without moving focus ${n === 2 ? "both ways" : "to what replaces it"}`);
+      }
+      const semua: string[] = [];
+      const jalan = (d: string) => {
+        for (const n of readdirSync(join(repoRoot, d))) {
+          const r = `${d}/${n}`;
+          if (statSync(join(repoRoot, r)).isDirectory()) jalan(r);
+          else if (r.endsWith(".tsx")) semua.push(r);
+        }
+      };
+      jalan("src/app"); jalan("src/components");
+      let panel = 0;
+      for (const f of semua) {
+        const src = readFileSync(join(repoRoot, f), "utf8");
+        if (!/^\s*["']use client["']/.test(src) || !/role="group" aria-labelledby/.test(src)) continue;
+        panel++;
+        c.expect(/\.focus\(\)|\bautoFocus\b/.test(src), `${f} draws an in-place panel and never moves focus`);
+      }
+      c.expect(panel >= 6, `only ${panel} in-place panel(s) found: the sweep is not reading the source`);
+      const tanam = readFileSync(join(repoRoot, "src/components/sesi/KeluarSemua.tsx"), "utf8").replace(/\S*\.focus\(\);?/g, "");
+      c.expect(arah(tanam) < 2, "a KeluarSemua without its focus calls is not caught");
+      return c.verdict(`${KENAL.length} swapping component(s) move focus as declared (${KENAL.filter(([, n]) => n === 2).length} both ways, the rest once); ${panel} client in-place panel(s) move focus; the planted copy is caught`);
+    },
+  },
 ];
 
 /**

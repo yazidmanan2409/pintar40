@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import BarisHasil from "@/components/BarisHasil";
 import BidangTeks from "@/components/bentuk/BidangTeks";
@@ -32,6 +32,13 @@ export default function KartuJadiEmail({ locale, pemegang, ada, dicari }: { loca
   const [sibuk, setSibuk] = useState(false);
   const [hasil, setHasil] = useState<{ id: string; jawaban: JawabanKartuJadiEmail } | null>(null);
   const [selesai, setSelesai] = useState<Set<string>>(new Set());
+  // Focus (readiness, 8 Nov): choosing a person takes focus to their email field; «Batal» returns it to their button.
+  const pembuka = useRef<Record<string, HTMLButtonElement | null>>({});
+  const kembaliKe = useRef<string | null>(null);
+  useEffect(() => {
+    if (pilih) document.getElementById(`staf-email-${pilih}`)?.focus();
+    else if (kembaliKe.current) { pembuka.current[kembaliKe.current]?.focus(); kembaliKe.current = null; }
+  }, [pilih]);
   const berjalan = useRef(false);
 
   const kata = cari.trim().toLowerCase();
@@ -107,11 +114,11 @@ export default function KartuJadiEmail({ locale, pemegang, ada, dicari }: { loca
                         <button type="submit" className="pin-btn pin-primary" disabled={sibuk} aria-busy={sibuk ? "true" : undefined}>
                           {sibuk ? s("aktivasi.staf.sibuk") : s("aktivasi.staf.ya")}
                         </button>
-                        <button type="button" className="pin-btn" disabled={sibuk} onClick={() => setPilih(null)}>{s("aktivasi.ulang.batal")}</button>
+                        <button type="button" className="pin-btn pin-quiet" disabled={sibuk} onClick={() => { kembaliKe.current = p.person_id; setPilih(null); }}>{s("aktivasi.ulang.batal")}</button>
                       </span>
                     </form>
                   ) : (
-                    <button type="button" className="pin-btn" disabled={sibuk}
+                    <button ref={(b) => { pembuka.current[p.person_id] = b; }} type="button" className="pin-btn" disabled={sibuk}
                       onClick={() => { setPilih(p.person_id); setHasil(null); setEmail(""); setAlasan(""); }}>
                       {s("aktivasi.staf.pilih")}
                     </button>

@@ -33,6 +33,14 @@ export default function KartuUlang({ locale, pemegang, ada, dicari }: { locale: 
   const [sibuk, setSibuk] = useState(false);
   const [gagal, setGagal] = useState<{ id: string; jawaban: Extract<JawabanKartuUlang, { ok: false }> } | null>(null);
   const [lembar, setLembar] = useState<KartuCetak | null>(null);
+  // Focus (readiness, 8 Nov): choosing a learner takes focus to the first reason; «Batal» returns it to their button.
+  const pembuka = useRef<Record<string, HTMLButtonElement | null>>({});
+  const kembaliKe = useRef<string | null>(null);
+  const dipilihId = pilih?.id ?? null;
+  useEffect(() => {
+    if (dipilihId) document.querySelector<HTMLInputElement>(`input[name="alasan-${dipilihId}"]`)?.focus();
+    else if (kembaliKe.current) { pembuka.current[kembaliKe.current]?.focus(); kembaliKe.current = null; }
+  }, [dipilihId]);
   const berjalan = useRef(false);
   const lembarRef = useRef<HTMLDivElement>(null);
 
@@ -112,11 +120,11 @@ export default function KartuUlang({ locale, pemegang, ada, dicari }: { locale: 
                           onClick={() => pilih.alasan && void terbitkan(p, pilih.alasan)}>
                           {sibuk ? s("aktivasi.ulang.sibuk") : s("aktivasi.ulang.ya")}
                         </button>
-                        <button type="button" className="pin-btn" disabled={sibuk} onClick={() => setPilih(null)}>{s("aktivasi.ulang.batal")}</button>
+                        <button type="button" className="pin-btn pin-quiet" disabled={sibuk} onClick={() => { kembaliKe.current = p.person_id; setPilih(null); }}>{s("aktivasi.ulang.batal")}</button>
                       </span>
                     </span>
                   ) : (
-                    <button type="button" className="pin-btn" disabled={sibuk} onClick={() => { setPilih({ id: p.person_id, alasan: null }); setGagal(null); }}>
+                    <button ref={(b) => { pembuka.current[p.person_id] = b; }} type="button" className="pin-btn" disabled={sibuk} onClick={() => { setPilih({ id: p.person_id, alasan: null }); setGagal(null); }}>
                       {s("aktivasi.ulang.pilih")}
                     </button>
                   )}

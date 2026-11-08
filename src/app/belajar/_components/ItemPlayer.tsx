@@ -184,6 +184,12 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   const [finishing, setFinishing] = useState(false);
   // W3: «Kumpulkan» asks once before it hands the test in (posttest.submit_confirm)
   const [asking, setAsking] = useState(false);
+  // Readiness (8 Nov): leaving the question returns focus to «Kumpulkan», which reappears in its place.
+  const kumpulkan = useRef<HTMLButtonElement>(null);
+  const balikKumpulkan = useRef(false);
+  useEffect(() => {
+    if (!asking && balikKumpulkan.current) { balikKumpulkan.current = false; kumpulkan.current?.focus(); }
+  }, [asking]);
   // THE SEQUENCE RULE (R1, F-07). Two sources of truth, never one:
   //   serverSeqs — the highest client_seq the server is known to hold per item
   //                (the page's read, raised by every acknowledgement);
@@ -730,7 +736,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
               {kata("posttest.submit")}
             </button>
             {/* the button that asked is gone: focus lands on the safe answer, so the question is read out */}
-            <button type="button" onClick={() => setAsking(false)} className="pin-btn" autoFocus>
+            <button type="button" onClick={() => { balikKumpulkan.current = true; setAsking(false); }} className="pin-btn" autoFocus>
               {kata("komitmen.kembali")}
             </button>
           </div>
@@ -748,7 +754,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
           </button>
         ) : formal ? (
           !asking && (
-            <button type="button" onClick={() => { setNotice(null); setAsking(true); }}
+            <button ref={kumpulkan} type="button" onClick={() => { setNotice(null); setAsking(true); }}
               className="pin-btn pin-primary">
               {kata("posttest.submit")}
             </button>

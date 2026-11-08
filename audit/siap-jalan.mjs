@@ -218,6 +218,32 @@ await step("R6", "Guru: Studio says who acts next and that PINTAR sends no notif
   await context.close();
 });
 
+// ── The same pattern elsewhere (owner, 8 Nov): Struktur's rename and deactivation, by keyboard, both cancelled.
+await step("R7", "Keyboard: Struktur «Ubah nama» and «Nonaktifkan» take focus in and give it back", async (rec) => {
+  const { context, page } = await masuk(browser, ORANG.admin);
+  await buka(page, "/konfigurasi/struktur");
+  const fokus = () => page.evaluate(() => {
+    const e = document.activeElement;
+    if (!e || e === document.body) return "BODY";
+    return `${e.tagName}:${e.getAttribute("name") ?? ""}:${(e.textContent ?? "").trim().slice(0, 40)}`;
+  });
+  for (const [kata, masukKe] of [["Ubah nama", /^INPUT:nama:/], ["Nonaktifkan", /^INPUT:alasan:/]]) {
+    const tombol = page.locator(".pin-str-aksi button", { hasText: kata }).first();
+    if (!harus(rec, await tombol.isVisible().catch(() => false), `a row offers «${kata}»`)) continue;
+    await tombol.focus();
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(300);
+    const di = await fokus();
+    harus(rec, masukKe.test(di), `«${kata}» puts focus in its field (${di})`);
+    await shot(page, rec, `struktur-${kata.split(" ")[0].toLowerCase()}`);
+    await page.locator(".pin-str-baris button", { hasText: "Batal" }).first().click();
+    await page.waitForTimeout(300);
+    const balik = await fokus();
+    harus(rec, balik.startsWith(`BUTTON::${kata}`), `«Batal» returns focus to «${kata}» (${balik})`);
+  }
+  await context.close();
+});
+
 await browser.close();
 writeFileSync(join(OUT, "ringkasan.json"), JSON.stringify(langkah, null, 2));
 const lulus = langkah.filter((l) => l.verdict === "PASS").length;
