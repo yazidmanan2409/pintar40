@@ -52,7 +52,7 @@ Her evidence so far:
 - she reports clean test merges with this branch;
 - **her exact-commit run 42438430634 on `04abab88` and her handoff are PENDING.**
 
-**Not integrated.** It will be integrated by a merge commit only after her verified handoff; the combined head then gets exact-SHA CI and journeys.
+**Integrated** by merge commit `9535f65d`, a clean merge. Locally: typecheck clean, 11/11 build-identity regression tests, the static guards green. The candidate's CI is §4.
 
 ## 4. CI and journey results
 
@@ -60,7 +60,9 @@ Her evidence so far:
 |---|---|---|
 | `a10d5650` | 42433800520: 874 passed, **1 failed** (D168-B1-6, an h3 heading; fixed in `b41aeeed`) | 42433803149: **green**, both jobs |
 | `14361bda` (F1–F10) | **PENDING**: run 42439246621 | **PENDING**: run 42439260649 (42439248749 cancelled: a short SHA was refused) |
-| combined with Sharon's | not yet | not yet |
+| **`9535f65d` = the promotion candidate** (Sharon's `04abab88` merged) | **PENDING**: run 42440201460 | **PENDING**: run 42440203357 |
+
+The runs on `14361bda` (CI 42439246621, journeys 42439260649) were superseded by the candidate's runs under the workflows' concurrency rule. **The application tree is identical:** `git diff 14361bda 9535f65d` touches no file under `src/`, `supabase/` or `public/`. The only non-test change is the `selftest:build-identity` script in `package.json`. So the candidate's runs also test the application Daisy rated READY.
 
 **Locally on `b41aeeed`:**
 - the readiness walk `audit/siap-jalan.mjs`: 7/7;
