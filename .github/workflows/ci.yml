@@ -118,6 +118,9 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      # The selftest's own bundle check (selftest/build-identity.ts): which .next
+      # it may reuse, and that every test reading .next declares it.
+      - run: npm run -s selftest:build-identity
       - name: Production build (placeholder public env; nothing secret)
         env:
           NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321

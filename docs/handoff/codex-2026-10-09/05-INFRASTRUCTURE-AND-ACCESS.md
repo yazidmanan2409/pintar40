@@ -384,7 +384,7 @@ These are local or CI only, and hold synthetic values.
 | `ADMIN_DB_URL` | selftest, scripts | Admin connection for some suites |
 | `PINTAR_PG_BIN` | selftest, scripts | Path to the Postgres binaries |
 | `SELFTEST_APP_PORT` | selftest/run.ts | App port (CI 3999) |
-| `SELFTEST_REUSE_BUILD` | selftest/run.ts | `1` = reuse a `.next` build older than `src/`, `public/` or root config (logged loudly); otherwise a stale build is rebuilt |
+| `SELFTEST_REUSE_BUILD` | selftest/run.ts, selftest/build-identity.ts | `1` = reuse a `.next` whose recorded fingerprint (source, config, lockfile, installed tree, build env, git revision) no longer matches; logged loudly. Otherwise a mismatched or unfingerprinted `.next` is rebuilt |
 | `SELFTEST_CI_UPSTREAM` | selftest/run.ts | Upstream CI job results (F01-R04) |
 | `PINTAR_SELFTEST_RSC` | selftest/run.ts | Internal re-exec guard (`react-server` condition) |
 | `APP_URL`, `APP_DIR` | audit/crawl.mjs, audit/journey.mjs | App under audit, and its directory (2 names) |

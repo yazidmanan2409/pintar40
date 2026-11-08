@@ -18,12 +18,13 @@
  */
 import { createHash } from "node:crypto";
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { staticTests } from "./static.test";
 import { appTests } from "./app.test";
-import type { Context, Facility, SelfTest, Verdict } from "./lib";
+import { BUILD_DIR, ensureFreshBuild } from "./build-identity";
+import { contextFor, selectionNeedsBuild, type Context, type Facility, type SelfTest, type Verdict } from "./lib";
 
 type ManifestTest = { id: string; runner: "db" | "static" | "app"; proves: string; skip_justification?: string };
 type Manifest = { contract: string; version: number; phase: string; tests: ManifestTest[] };
@@ -865,80 +866,8 @@ async function runDbConcurrency(dbUrl: string): Promise<Outcome> {
 // ---------------------------------------------------------------- app process
 const FETCH_LOG = join(tmpdir(), `pintar-selftest-fetch-${process.pid}.log`);
 
-/**
- * What `next build` reads. A build older than any of these is stale: on
- * 8 Nov 2026 a full local run tested a bundle built the day before, after
- * several commits had changed `src/`, and nothing said so. Directories count
- * too, so deleting or renaming a file under `src/` also marks the build stale.
- * (`git checkout`/`reset`/`stash` rewrite the mtime of every file they touch,
- * so switching commits is caught the same way.)
- */
-const BUILD_INPUT_DIRS = ["src", "public"];
-const BUILD_INPUT_FILE = /^(next\.config\..+|package\.json|package-lock\.json|tsconfig\.json|postcss\.config\..+|\.env(\.local|\.production|\.production\.local)?)$/;
-
-function newestBuildInput(): { path: string; mtimeMs: number } | null {
-  let newest: { path: string; mtimeMs: number } | null = null;
-  const consider = (abs: string) => {
-    const m = statSync(abs).mtimeMs;
-    if (!newest || m > newest.mtimeMs) newest = { path: abs.slice(repoRoot.length + 1), mtimeMs: m };
-  };
-  const walk = (dir: string) => {
-    consider(dir);
-    for (const e of readdirSync(dir, { withFileTypes: true })) {
-      const abs = join(dir, e.name);
-      if (e.isDirectory()) walk(abs);
-      else if (e.isFile()) consider(abs);
-    }
-  };
-  for (const d of BUILD_INPUT_DIRS) if (existsSync(join(repoRoot, d))) walk(join(repoRoot, d));
-  for (const e of readdirSync(repoRoot, { withFileTypes: true })) {
-    if (e.isFile() && BUILD_INPUT_FILE.test(e.name)) consider(join(repoRoot, e.name));
-  }
-  return newest;
-}
-
-/**
- * Builds when `.next/BUILD_ID` is missing or older than any build input, and
- * logs which of the three cases applied. `SELFTEST_REUSE_BUILD=1` keeps a stale
- * build for someone who knows what they are doing — loudly, never silently.
- */
-function ensureFreshBuild() {
-  const buildId = join(repoRoot, ".next", "BUILD_ID");
-  const stamp = (ms: number) => new Date(ms).toISOString();
-  let reason: string | null = null;
-  if (!existsSync(buildId)) {
-    reason = ".next/BUILD_ID missing";
-  } else {
-    const builtAt = statSync(buildId).mtimeMs;
-    const newest = newestBuildInput();
-    if (newest && newest.mtimeMs > builtAt) {
-      const what = `${newest.path} (${stamp(newest.mtimeMs)}) is newer than .next/BUILD_ID (${stamp(builtAt)})`;
-      if (process.env.SELFTEST_REUSE_BUILD === "1") {
-        log(`  !!! STALE BUILD REUSED (SELFTEST_REUSE_BUILD=1): ${what}.`);
-        log("  !!! The app-level results below describe that older bundle, not the working tree.");
-        return;
-      }
-      reason = `stale build: ${what}`;
-    } else {
-      log(`  reusing production bundle: .next/BUILD_ID (${stamp(builtAt)}) is newer than every build input` +
-        (newest ? ` (newest: ${newest.path}, ${stamp(newest.mtimeMs)})` : ""));
-      return;
-    }
-  }
-  log(`  building production bundle (${reason})…`);
-  const b = spawnSync(process.execPath, [NEXT_BIN, "build"], { cwd: repoRoot, stdio: "inherit", env: process.env });
-  if (b.status !== 0) throw new Error("next build failed");
-}
-
-/**
- * Static tests that read `.next/` rather than `src/`. A full run builds via
- * startApp() before the static runner; a targeted run of only these must
- * still get a fresh build, or it checks a stale bundle.
- */
-const STATIC_TESTS_READING_BUILD = ["F01-S03", "UX1-S0-MUAT-01"];
-
+/** Starts `next start` on the bundle main() has just verified (facility `build`). */
 async function startApp(port: number): Promise<{ child: ChildProcess; url: string }> {
-  ensureFreshBuild();
   // BOB-18 (D-046): the app's calls to Supabase are counted, path only, into
   // FETCH_LOG, so a test can read what one click cost (selftest/hitung-fetch.cjs).
   writeFileSync(FETCH_LOG, "");
@@ -984,7 +913,7 @@ async function runTests(tests: SelfTest[], runner: string, ctx: Context, facilit
     }
     let v: Verdict;
     try {
-      v = await test.run(ctx);
+      v = await test.run(contextFor(test, ctx));
     } catch (e) {
       v = { ok: false, detail: `threw: ${(e as Error).message}` };
     }
@@ -1039,12 +968,25 @@ async function main() {
   // static + app
   const port = Number(process.env.SELFTEST_APP_PORT ?? 3999);
   let app: { child: ChildProcess; url: string } | null = null;
-  const needsApp = !only || appTests.some((t) => only.includes(t.id) && (t.requires ?? []).includes("app"));
-  if (!needsApp && only?.some((id) => STATIC_TESTS_READING_BUILD.includes(id))) {
-    log("\n[build] a targeted static test reads .next/");
-    ensureFreshBuild();
+  const selected = (t: SelfTest) => !only || only.includes(t.id);
+  const needsApp = appTests.some((t) => selected(t) && (t.requires ?? []).includes("app"));
+  const needsBuild = needsApp || selectionNeedsBuild([...staticTests, ...appTests], selected);
+  if (needsBuild) {
+    log("\n[build] production bundle for the selected tests");
+    try {
+      ensureFreshBuild({
+        root: repoRoot,
+        env: process.env,
+        log,
+        build: () => spawnSync(process.execPath, [NEXT_BIN, "build"], { cwd: repoRoot, stdio: "inherit", env: process.env }).status === 0,
+      });
+      facilities.add("build");
+    } catch (e) {
+      log(`  ${(e as Error).message}`);
+    }
   }
-  if (needsApp) {
+  if (needsApp && !facilities.has("build")) facilities.delete("app"); // nothing verified to start
+  if (needsApp && facilities.has("app")) {
     try {
       log("\n[app] starting production-mode app");
       app = await startApp(port);
@@ -1061,6 +1003,7 @@ async function main() {
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? null,
     ciUpstream,
     fetchLog: app ? FETCH_LOG : null,
+    bundleDir: facilities.has("build") ? join(repoRoot, BUILD_DIR) : null,
   };
   try {
     log("\n[static] selftest/static.test.ts");
