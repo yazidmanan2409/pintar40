@@ -310,6 +310,7 @@ await step("J1.6", "maintenance as people meet it: the school's teacher is told 
     await a.page.goto(`${APP}/konfigurasi/pemeliharaan?ubah=${jendela}#jendela-${jendela}`, { waitUntil: "networkidle" });
     const lagi = a.page.locator(`li[data-jendela="${jendela}"][data-terbuka]`);
     await lagi.locator('input[name="alasan"]').fill("Selesai (W6.10)");
+    await lagi.locator("[data-bahaya-buka]").click();   // B4: the act asks first, in place
     await lagi.locator('button[name="aksi"][value="AKHIRI"]').click();
     await a.page.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
     harus(rec, sql(`select (ended_at is not null)::text from public.maintenance_windows where id = ${lit(jendela)}`) === "true", "the window has ended");

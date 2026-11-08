@@ -175,7 +175,10 @@ export default async function Pendataan({
             aksi={bukaPendataanAksi}
             locale={locale}
           />
-        ) : null}
+        ) : (
+          // Readiness B3 (Daisy, 8 Nov): the upload waits for the school code; say so where the upload would be
+          <p className="pin-msg pin-msg-note" data-perlu-kode="">{s("pendataan.unggah.perlu_kode")}</p>
+        )}
       </main>
       <KakiPintar className="pin-noprint" />
     </>

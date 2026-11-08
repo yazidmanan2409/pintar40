@@ -261,7 +261,8 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
                         </span>
                         <span className="pin-lk-nilai">
                           {Number.isFinite(v) ? persenJujur(v, locale, [target]) : "—"}
-                          {kurang ? <small className="pin-lk-bawah">{s("mengajar.murid1.di_bawah_target")}</small> : null}
+                          {/* «explain once» (owner, 7 Nov; Daisy's a2291edf): the words are read, not drawn; the legend says it once */}
+                          {kurang ? <span className="pin-sr">{` ${s("mengajar.murid1.di_bawah_target")}`}</span> : null}
                         </span>
                       </li>
                     );
@@ -269,6 +270,8 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
                 </ul>
               </div>
               {target !== null ? <p className="pin-lk-arti">{s("laporan.komposisi.target_arti").replace("{p}", persen(target))}</p> : null}
+              {target !== null && baris.some((b) => Number(b.mean_score) < target)
+                ? <p className="pin-lk-arti" data-lk-ket-bawah="">{s("laporan.komposisi.bawah_ket")}</p> : null}
             </div>
           ) : topik.status === "ok" ? null : tiada(topik)}
         </section>

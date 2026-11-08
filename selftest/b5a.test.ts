@@ -264,9 +264,14 @@ export const b5aTests: SelfTest[] = [
         c.expect(t1.includes("2 dari 4 topik masih di bawah target: Pecahan campuran serta Penjumlahan dan pengurangan pecahan."), `the lead reads «${t1.slice(0, 200)}»`);
         c.expect(t1.includes("24 dari 29 murid sudah berada di pita «Mantap» atau «Berkembang»; 5 murid perlu penguatan.") && t1.includes("Pemahaman kelas: 74,8%."),
           "the bands and the comprehension are not said under the lead (R4-02: 74,8% against a 75% target)");
-        // G-03: below the target is amber AND in words; the target is a labelled line; colour never alone
-        c.expect((isi.match(/<li data-bawah="">/g) ?? []).length === 2 && (isi.match(/class="pin-lk-bawah">di bawah target</g) ?? []).length === 2 && /class="pin-lk-target"/.test(isi) && t1.includes("Target 75%"),
-          "the rows below the target are not marked in words and amber, or the target line is missing");
+        // G-03: below the target is amber AND in words; the target is a labelled line; colour never alone.
+        // RESTATED FOR «explain once» (owner, 7 Nov; Readiness B6, 8 Nov): each amber row carries its words for assistive
+        // technology (.pin-sr), none is drawn under every value, and the legend says what amber means once
+        c.expect((isi.match(/<li data-bawah="">/g) ?? []).length === 2 && (isi.match(/class="pin-sr"> di bawah target</g) ?? []).length === 2
+          && !/class="pin-lk-bawah">di bawah target</.test(isi)
+          && (isi.match(/data-lk-ket-bawah="">Angka berwarna jingga menunjukkan penguasaan di bawah target\.</g) ?? []).length === 1
+          && /class="pin-lk-target"/.test(isi) && t1.includes("Target 75%"),
+          "the rows below the target are not marked in words and amber, or the target line is missing, or the words repeat under every value");
         // B: the population line, then the bands over the assessed in the legend's order; «belum mengerjakan» is a count, never a band
         c.expect(/31 murid di kelas ini · 29 sudah mengerjakan Uji Penguasaan · 2 belum mengerjakan/.test(t1) && t1.includes("Hasil 29 murid yang sudah mengerjakan")
           && /data-pita="mantap"[^>]*>17<[\s\S]*data-pita="berkembang"[^>]*>7<[\s\S]*data-pita="penguatan"[^>]*>5</.test(isi) && !/data-pita="[a-z]*"[^>]*>2</.test(isi),
@@ -707,7 +712,10 @@ export const b5aTests: SelfTest[] = [
       c.expect(/body:has\(\.pin-lk\) \{ page: laporan; background: var\(--surface-1\) !important; \}/.test(css)
         && /\.pin-lk, \.pin-lk-bagian, \.pin-lk-inti, \.pin-lk-gambar \{ display: block; \}/.test(css) && /\.pin-lk-h \+ \* \{ break-before: avoid; \}/.test(css)
         && /\.pin-lk-gambar, \.pin-lk-pita, \.pin-lk-kelompok \{ break-inside: avoid; \}/.test(css), "a report does not print as blocks on white with each heading kept with its chart");
-      c.expect(/\[data-kisi-lebar\] \{ page: laporan-lebar; \}/.test(css) && /\.pin-lk-kisi-tabel thead th, \.pin-lk-kisi-tabel \.pin-lk-bawah \{ white-space: nowrap; \}/.test(css)
+      // RESTATED FOR READINESS B5 (Daisy, 8 Nov): a wide grid makes the whole report landscape; a named page on the
+      // grid's section alone broke the page before it and left page 1 with the head only
+      c.expect(/body:has\(\.pin-lk\):has\(\[data-kisi-lebar\]\) \{ page: laporan-lebar; \}/.test(css) && !/^\s*\[data-kisi-lebar\] \{ page:/m.test(css)
+        && /\.pin-lk-kisi-tabel thead th, \.pin-lk-kisi-tabel \.pin-lk-bawah \{ white-space: nowrap; \}/.test(css)
         && /\.pin-lk-kisi-tabel \.pin-lk-kol-nama \{ width: var\(--lk-kolom-nama\); \}/.test(css), "the grid does not print with a fixed name column, whole words, or a landscape page when wide (#15)");
       const r = render(ctx.repoRoot,
         'const { createElement: h } = await import("react");' +
@@ -789,8 +797,10 @@ export const b5aTests: SelfTest[] = [
         // KESETIAAN #1, #4: the lead's list said as a sentence; the section lettered and read
         c.expect(/<span class="pin-lk-huruf"><span class="pin-sr">Bagian <\/span>A<\/span>/.test(html) && /data-kisi-lebar=""/.test(html) === false, "the grid's letter is not read, or six classes print landscape");
         // cells: below the class's own target amber and in words; R4-02 (69,6% against 70%); no target, no tick and no verdict
-        c.expect((html.match(/data-bawah=""/g) ?? []).length === 3 && (html.match(/class="pin-lk-bawah">di bawah target</g) ?? []).length === 3,
-          "a cell below its class's target is not marked in words and amber (expected 7A, 7B Pecahan campuran and 7C Pecahan senilai)");
+        // RESTATED FOR «explain once» (owner, 7 Nov; Readiness B6): the words are read (.pin-sr), the key says amber once
+        c.expect((html.match(/data-bawah=""/g) ?? []).length === 3 && (html.match(/class="pin-sr"> di bawah target</g) ?? []).length === 3
+          && !/class="pin-lk-bawah">di bawah target</.test(html) && html.includes("Angka berwarna jingga menunjukkan penguasaan di bawah target."),
+          "a cell below its class's target is not marked in words and amber (expected 7A, 7B Pecahan campuran and 7C Pecahan senilai), or the key does not say it once");
         c.expect(teks.includes("69,6%") && teks.includes("57%") && (html.match(/<u /g) ?? []).length === 6, "R4-02 or the target ticks are wrong");
         c.expect(/<table[\s\S]*<th scope="col" class="pin-lk-kol-nama">Topik<\/th>[\s\S]*<th scope="row">Pecahan campuran<\/th>/.test(html), "the grid is not a table with row and column headers (its own text equivalent)");
         // RB1-C1 (journey, 7 Nov, axe scrollable-region-focusable at 320 px): the sideways-scrolling grid is a focusable, named region
@@ -847,7 +857,10 @@ export const b5aTests: SelfTest[] = [
         // R4-01: the zones named once above the scale; R4-02: 59,6%, not «60%»; sorted high to low; below 60% amber and names its band
         c.expect(t1.includes("Batas pita: di bawah 60% «Perlu penguatan» · 60–79% «Berkembang» · 80% ke atas «Mantap».") && t1.includes("59,6%")
           && /Bilangan[\s\S]*Listrik dan magnet[\s\S]*Geometri dan pengukuran/.test(t1)
-          && (isi.match(/<li data-bawah="">/g) ?? []).length === 2 && (isi.match(/class="pin-lk-bawah">Perlu penguatan</g) ?? []).length === 2
+          // RESTATED FOR «explain once» (Readiness B6): the band's name is read under each amber dot (.pin-sr), said once below
+          && (isi.match(/<li data-bawah="">/g) ?? []).length === 2 && (isi.match(/class="pin-sr"> Perlu penguatan</g) ?? []).length === 2
+          && !/class="pin-lk-bawah">Perlu penguatan</.test(isi)
+          && (isi.match(/data-lk-ket-bawah="">Titik berwarna jingga menunjukkan penguasaan pada pita Perlu penguatan\.</g) ?? []).length === 1
           && (isi.match(/class="pin-lk-zona"/g) ?? []).length === 10, "the domain dot plot does not follow R4-01, R4-02 or G-03");
         // B: every headline figure with its base; R4-03: issued and not revoked out of all issued
         c.expect(t1.includes("408 dari 411 yang pernah terbit; 3 dicabut.") && t1.includes("Dari 836 hasil Uji Penguasaan.")

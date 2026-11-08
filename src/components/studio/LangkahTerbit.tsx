@@ -12,6 +12,7 @@ import {
   advanceContentAction, buatTerbitanAksi, kembalikanPaketAksi, kunciTerbitanAksi, tarikTerbitanAksi, terbitkanAksi,
 } from "@/app/studio/actions";
 import { tanggal } from "@/lib/tanggal";
+import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
 import {
   LANGKAH, bolehMengambil, keadaanLangkah, kunciSalinan, posisiPaket,
   type FaktaPaket, type KunciLangkah, type Langkah,
@@ -345,9 +346,9 @@ export default function LangkahTerbit({
                 <span className="pin-meta">{s("studio.langkah.tarik.alasan")}</span>
                 <input className="pin-input" name="alasan" value={alasan} onChange={(e) => setAlasan(e.target.value)} required />
               </label>
-              <TombolKirim className="pin-btn" disabled={sibuk} sibuk={s("studio.langkah.sibuk")}>
-                {s("studio.paket.tarik")}
-              </TombolKirim>
+              {/* Readiness B4: a withdrawal asks first, in place, and its act is red (KonfirmasiBahaya) */}
+              <KonfirmasiBahaya sibuk={s("studio.langkah.sibuk")} id={`tarik-${terbitan.id}`} tombol={s("studio.paket.tarik")} tanya={s("studio.paket.tarik.tanya")}
+                akibat={<p>{s("studio.langkah.ditarik.arti")}</p>} ya={s("studio.paket.tarik")} batal={s("bahaya.batal")} />
             </form>
           ) : null}
           {pesanGagal("tarik")}

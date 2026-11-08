@@ -3609,6 +3609,12 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-lk-jalur::before { content: ""; position: absolute; left: 0; right: 0; top: calc((var(--lk-jalur) - var(--border-selected)) / 2); height: var(--border-selected); background: var(--lk-alur); border-radius: var(--border-hairline); }
 .pin-lk-isi { position: absolute; left: 0; top: calc((var(--lk-jalur) - var(--lk-batang)) / 2); height: var(--lk-batang); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: var(--lk-isi); }
 .pin-lk-baris li[data-bawah] .pin-lk-isi { background: var(--lk-bawah); }
+/* Readiness A1: Pendataan's example list, a small sheet in the page's own type */
+.pin-contoh-daftar { margin: 0; padding: var(--space-3); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); white-space: pre; font-size: var(--t-small); overflow-x: auto; }
+/* Readiness A3: a lesson table's scroll region, reached by Tab, shows where focus is */
+.pin-ttabel:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+/* «explain once» (owner, 7 Nov): an amber value keeps its colour; its words are read (.pin-sr), the legend says it once */
+.pin-lk-baris li[data-bawah] .pin-lk-nilai { color: var(--status-attention); font-weight: 600; }
 .pin-lk-target { position: absolute; top: calc(var(--space-1) * -1); bottom: calc(var(--space-1) * -1); width: var(--border-selected); margin-left: calc(var(--border-hairline) * -1); background: var(--ink-1); }
 .pin-lk-nilai { font-variant-numeric: tabular-nums; color: var(--ink-1); font-weight: 600; text-align: right; }
 .pin-lk-nilai small { display: block; font-weight: 400; color: var(--ink-2); }
@@ -3709,7 +3715,6 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
   .pin-lk-kisi-tabel tfoot { display: table-footer-group; }
   .pin-lk-sel { min-width: 0; }
   .pin-lk-kisi-tabel small { font-size: 6.5pt; line-height: var(--leading-tight); }
-  [data-kisi-lebar] { page: laporan-lebar; }
   [data-kisi-lebar] .pin-lk-kisi-tabel .pin-lk-kol-nama { width: 30mm; }
   [data-kisi-lebar] .pin-lk-kisi-tabel th, [data-kisi-lebar] .pin-lk-kisi-tabel td { padding: 1.5mm 1mm; }
   .pin-lk-kisi-tabel thead { display: table-header-group; }
@@ -3752,6 +3757,9 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 }
 @media print {
   body:has(.pin-lk) { page: laporan; background: var(--surface-1) !important; }
+  /* Readiness B5 (Daisy, 8 Nov): a grid of more than six classes prints the whole report landscape. A named page on the
+     grid's section alone broke the page before it, leaving page 1 with the head only */
+  body:has(.pin-lk):has([data-kisi-lebar]) { page: laporan-lebar; }
   body:has(.pin-lk) main, body:has(.pin-lk) .pin-col { background: var(--surface-1) !important; }
   .pin-lk, .pin-lk-bagian, .pin-lk-inti, .pin-lk-gambar { display: block; }
   .pin-lk > * + * { margin-top: 8mm; }

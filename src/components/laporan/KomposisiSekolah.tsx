@@ -100,13 +100,16 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
             </span>
             <span className="pin-lk-nilai">
               {persenJujur(r.v, locale)}
-              {bawah ? <small className="pin-lk-bawah">{s(pitaDari(r.v))}</small> : null}
+              {/* «explain once» (owner, 7 Nov): the band's name is read, not drawn under every amber dot */}
+              {bawah ? <span className="pin-sr">{` ${s(pitaDari(r.v))}`}</span> : null}
             </span>
           </li>
         );
       })}
     </ul>
   );
+  const titikKet = (rows: Array<{ v: number }>) => rows.some((r) => r.v < ZONA[0])
+    ? <p className="pin-lk-arti" data-lk-ket-bawah="">{s("laporan.sekolah.bawah_ket").replace("{pita}", s(pitaDari(0)))}</p> : null;
 
   const domain: Domain[] = komp?.status === "ok" && Array.isArray(komp.value) ? (komp.value as Domain[]) : [];
   const urut = [...domain].filter((d) => typeof d.mean_score === "number").sort((a, b) => Number(b.mean_score) - Number(a.mean_score));
@@ -160,6 +163,7 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
               {zona}
               <div className="pin-lk-gambar">
                 {titik(urut.map((d, i) => ({ kunci: d.objective_id ?? d.code ?? String(i), nama: d.competency ?? "—", v: Number(d.mean_score) })))}
+                {titikKet(urut.map((d) => ({ v: Number(d.mean_score) })))}
               </div>
             </div>
           ) : komp.status === "ok" ? null : tiada(komp)}
@@ -198,6 +202,7 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
                 v: Number(r.mean_mastery),
                 sub: typeof r.learners === "number" ? `${format.number(r.learners, locale)} ${s("mengajar.bukti.murid")}` : undefined,
               })))}
+              {titikKet((kohort.value as Angkatan[]).filter((r) => typeof r.mean_mastery === "number").map((r) => ({ v: Number(r.mean_mastery) })))}
             </>
           ) : kohort.status === "ok" ? null : tiada(kohort)}
         </section>

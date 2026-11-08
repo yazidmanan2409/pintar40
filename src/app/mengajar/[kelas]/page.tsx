@@ -131,6 +131,12 @@ export default async function Kelas({
           <Link className="pin-btn" href={`/mengajar/${id}/bukti`}>
             {s("mengajar.aksi.bukti")}
           </Link>
+          {/* Readiness A2 (Daisy, 8 Nov): the teacher's own Ringkasan Kelas (CONTOH LAPORAN 2-guru) is reached from the class */}
+          {ctx.ini.jenis !== "PARTICIPANT" ? (
+            <Link className="pin-btn" href={`/edukator/ringkasan?kelas=${encodeURIComponent(id)}&dari=kelas`}>
+              {s("laporan.kelas.judul")}
+            </Link>
+          ) : null}
           {/* DAISY-34 (D-070(a)): a professional-learning Kelas's record, for its facilitator; the database decides again */}
           {ctx.ini.jenis === "PARTICIPANT" ? (
             <Link className="pin-btn" href={alamatCatatan(id)}>

@@ -6277,7 +6277,11 @@ export const experienceTests: SelfTest[] = [
       // and rendering it is how the screen says nobody can sign in. Reading a
       // field called that is not promising activation, so the identifier is
       // removed before the sweep rather than the sweep being loosened.
-      const tanpaMedan = (x: string) => x.replace(/accounts_activated/g, "AKUN_NOL");
+      // THE ONE ONWARD LINK (owner, 8 Nov, Readiness B3: «Improve Pendataan's guidance and onward navigation to
+      // Aktivasi and Peran & akses»): the done page points to the separate Aktivasi page, where accounts are opened, by
+      // its href alone and its name from nav.aktivasi (not a pendataan.* key). Pointing elsewhere promises nothing here,
+      // so that one href is removed before the sweep; any other word of activation in this flow still fails it.
+      const tanpaMedan = (x: string) => x.replace(/accounts_activated/g, "AKUN_NOL").replace(/href="\/aktivasi"/g, "href=LANJUT").replace(/s\("nav\.aktivasi"\)/g, "s(NAMA_LANJUT)");
       for (const f of semua) {
         const rel = relative(repoRoot, f).replace(/\\/g, "/");
         const m = AKTIVASI.exec(tanpaMedan(code(readFileSync(f, "utf8"))));
@@ -10228,8 +10232,11 @@ export const experienceTests: SelfTest[] = [
         c.expect(JSON.stringify(tombolDi(R["beku-penyusun"])) === JSON.stringify([tb("terbitkan")]), "the school administrator is not offered to publish a locked release");
         c.expect(R["terbit-penyusun"].includes(`${sId("studio.langkah.terbit.sejak")} ${tanggalBaca("2026-09-25T02:00:00Z")}`) // RESTATED FOR E3 #15: a record's date in the human-readable form
           && R["terbit-penyusun"].includes(`<span class="pin-meta">${sId("studio.langkah.tarik.alasan")}</span>`)
-          && JSON.stringify(tombolDi(R["terbit-penyusun"])) === JSON.stringify([sId("studio.paket.tarik")]),
-          "a published course does not say since when, or offers no labelled withdrawal to its publisher");
+          // RESTATED FOR READINESS B4 (owner, 8 Nov: «Standardize destructive-action confirmation»): the withdrawal asks
+          // first (KonfirmasiBahaya): its first press is a labelled type="button" and nothing submits before the second
+          && tombolDi(R["terbit-penyusun"]).length === 0
+          && new RegExp(`<button[^>]*type="button"[^>]*data-bahaya-buka=""[^>]*>${sId("studio.paket.tarik")}</button>`).test(R["terbit-penyusun"]),
+          "a published course does not say since when, or offers no labelled withdrawal to its publisher, or withdraws on one press");
         c.expect(tombolDi(R["terbit-kaprodi"]).length === 0, "a reader without CAN_PUBLISH is offered to withdraw");
         c.expect(R["ditarik"].includes(sId("studio.langkah.ditarik.arti")) && tombolDi(R["ditarik"]).length === 0, "a withdrawn release does not say so");
         c.expect(tombolDi(R["tamu"]).length === 0 && R["tamu"].includes(sId("studio.langkah.tunggu.wewenang")), "a reader with no capability is offered a step");
@@ -10642,7 +10649,9 @@ export const experienceTests: SelfTest[] = [
           const akhir = src.indexOf("</form>", m.index!);
           const isi = src.slice(m.index! + m[0].length, akhir < 0 ? undefined : akhir);
           const polos = [...isi.matchAll(/<button\b[^>]*>/g)].map((b) => b[0]).filter((b) => !/type="button"/.test(b));
-          if (polos.length || /<input\b[^>]*type="submit"/.test(isi) || !/<TombolKirim\b/.test(isi)) {
+          // Readiness B4 (Daisy, 8 Nov): a destructive act submits through KonfirmasiBahaya, whose confirmed act is its own
+          // TombolKirim (checked below); its first press is a type="button"
+          if (polos.length || /<input\b[^>]*type="submit"/.test(isi) || !/<(TombolKirim|KonfirmasiBahaya)\b/.test(isi)) {
             salah.push(`<form action={${/\baction=\{([^}]*)\}/.exec(m[1])?.[1]}}>: ${polos[0] ?? (/<TombolKirim\b/.test(isi) ? "an input submit" : "no TombolKirim")}`);
           }
         }
@@ -10657,7 +10666,14 @@ export const experienceTests: SelfTest[] = [
         const { n, salah } = periksa(src);
         jumlah += n;
         for (const x of salah) c.expect(false, `${f} ${x}: a form that saves without saying so, or twice`);
-        tombol.push(...[...src.matchAll(/<TombolKirim\b[^>]*>/g)].map((m) => `${f}: ${m[0]}`));
+        // the confirmation's own red submit takes its busy word from the page that places it (sibuk={sibuk}); each place
+        // names it like any TombolKirim, and the component itself must submit through TombolKirim
+        if (f === "src/components/KonfirmasiBahaya.tsx") {
+          c.expect(/<TombolKirim\b[^>]*\bsibuk=\{sibuk\}/.test(src) && !/<button\b(?![^>]*type="button")[^>]*>/.test(src),
+            "KonfirmasiBahaya's act is not its TombolKirim, or it carries a plain submit button");
+          continue;
+        }
+        tombol.push(...[...src.matchAll(/<(?:TombolKirim|KonfirmasiBahaya)\b[^>]*>/g)].map((m) => `${f}: ${m[0]}`));
       }
       c.expect(jumlah >= 43, `only ${jumlah} server-action form(s) found; the sweep is not seeing the app`);
       for (const tk of tombol) c.expect(/\bsibuk=\{s\("(?:tombol\.[a-z_]+|studio\.langkah\.sibuk|config\.struktur\.sibuk)"\)\}|\bsibuk=\{e\("tombol\.[a-z_]+"\)\}/.test(tk), `${tk} does not say what it does while it works`);

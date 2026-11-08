@@ -425,6 +425,11 @@ await step("B4-W11", "alpha's admin checks a time, schedules a window in step 2,
   harus(rec, await terbuka.locator('input[name="alasan"]').evaluate((el) => el === document.activeElement), "focus is on the reason");
   await shot(A, rec, "pemeliharaan-terbuka");
   await terbuka.locator('input[name="alasan"]').fill("Jadwal diganti");
+  // Readiness B4 (Daisy, 8 Nov): a destructive act asks first, in place; focus goes to «Batal»; the act is red
+  await terbuka.locator("[data-bahaya-buka]").click();
+  const tanya = terbuka.locator("[data-bahaya-tanya]");
+  harus(rec, (await tanya.count()) === 1 && await tanya.getByRole("button", { name: "Batal", exact: true }).evaluate((el) => el === document.activeElement),
+    "ending it asks first, in place, with focus on «Batal»");
   await terbuka.locator('button[name="aksi"][value="AKHIRI"]').click();
   await A.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
   await A.waitForLoadState("networkidle");

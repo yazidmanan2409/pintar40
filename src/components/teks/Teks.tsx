@@ -153,7 +153,8 @@ function blok(teks: string, sisip?: (baris: string) => ReactNode | null): ReactN
         );
       case "tabel":
         return (
-          <div key={k} className="pin-ttabel">
+          // Readiness A3 (Daisy, 8 Nov): a table wider than the screen scrolls in a focusable, named region (WCAG 2.1.1)
+          <div key={k} className="pin-ttabel" role="region" tabIndex={0} aria-label={x.kepala.join(", ") || undefined}>
             <table>
               <thead>
                 <tr>{x.kepala.map((c, j) => <th key={j} scope="col">{sebaris(c)}</th>)}</tr>

@@ -92,6 +92,10 @@ export default function BacaDanPetakan({
       <section className="pin-sec" aria-labelledby="pin-unggah">
         <h2 id="pin-unggah">{s("pendataan.unggah.judul")}</h2>
         <p className="pin-mm">{s("pendataan.unggah.bentuk")}</p>
+        {/* Readiness A1 (Daisy, 8 Nov; owner: «clear instructions, a valid example»): one list per class, a name column;
+            the class is chosen once, after the list is read, never guessed from a «Kelas» column */}
+        <p className="pin-mm" data-contoh-arti="">{s("pendataan.unggah.contoh_arti")}</p>
+        <pre className="pin-mono pin-contoh-daftar" aria-label={s("pendataan.unggah.contoh_label")}>{s("pendataan.unggah.contoh")}</pre>
 
         {/* W3.7 (Batch 4; RV-22): the field frame of Daisy's TextField, its label in sentence case */}
         <div className="pin-bidang">

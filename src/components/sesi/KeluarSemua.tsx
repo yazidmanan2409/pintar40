@@ -32,9 +32,9 @@ export default function KeluarSemua({ locale }: { locale: Locale }) {
       {langkah === "yakin" || langkah === "sibuk" ? (
         <div className="pin-actions" role="group" aria-label={s("akun.semua.yakin")}>
           <p className="pin-meta"><strong>{s("akun.semua.yakin")}</strong></p>
-          <button type="button" className="pin-btn pin-primary" onClick={() => void keluar()} disabled={langkah === "sibuk"}
+          <button type="button" className="pin-btn pin-bahaya-pasti" onClick={() => void keluar()} disabled={langkah === "sibuk"}
             aria-busy={langkah === "sibuk" ? "true" : undefined}>{s("akun.semua.ya")}</button>
-          <button type="button" className="pin-btn" onClick={() => setLangkah("diam")} disabled={langkah === "sibuk"}>{s("akun.semua.batal")}</button>
+          <button type="button" className="pin-btn pin-quiet" onClick={() => setLangkah("diam")} disabled={langkah === "sibuk"}>{s("akun.semua.batal")}</button>
         </div>
       ) : (
         <div className="pin-actions">

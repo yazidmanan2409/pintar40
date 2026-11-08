@@ -250,6 +250,13 @@ export default async function SatuPendataan({
             {/* Repeated here rather than only on the preview: this is the
                 screen an administrator screenshots and sends to a colleague. */}
             <p className="pin-mm">{s("pendataan.pratinjau.akun_arti")}</p>
+            {/* Readiness B2/B3 (Daisy, 8 Nov): the way on, in the order that works: a teacher's role before their
+                account (so they are never counted for a class card), a learner's class card on Aktivasi */}
+            <h3 className="pin-h3">{s("pendataan.lanjut.judul")}</h3>
+            <ol className="pin-daftar-titik" data-lanjut="">
+              <li>{s("pendataan.lanjut.staf")} <Link href="/konfigurasi/roles">{s("config.section.roles")}</Link></li>
+              <li>{s("pendataan.lanjut.aktif")} <Link href="/aktivasi">{s("nav.aktivasi")}</Link></li>
+            </ol>
           </section>
         ) : null}
 

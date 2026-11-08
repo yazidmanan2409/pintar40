@@ -114,7 +114,7 @@ export default function KisiTopik({ kolom, locale, huruf = "A" }: { kolom: reado
                               <i style={{ width: `${Math.max(0, Math.min(1, v)) * 100}%` }} />
                               {tg !== null ? <u style={{ left: `${tg * 100}%` }} /> : null}
                             </span>
-                            {bawah ? <small className="pin-lk-bawah">{s("mengajar.murid1.di_bawah_target")}</small> : null}
+                            {bawah ? <span className="pin-sr">{` ${s("mengajar.murid1.di_bawah_target")}`}</span> : null}
                           </span>
                         </td>
                       );

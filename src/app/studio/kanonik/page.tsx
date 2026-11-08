@@ -10,6 +10,7 @@ import { grantDistributionAction, withdrawDistributionAction } from "../actions"
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
 import SimpanIsian from "@/components/SimpanIsian";
+import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/studio/kanonik");
@@ -173,7 +174,8 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
                 <span>{s("studio.langkah.tarik.alasan")}</span>
                 <input className={field} name="alasan" required />
               </label>
-              <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.paket.tarik")}</TombolKirim>
+              <KonfirmasiBahaya sibuk={s("tombol.memproses")} id="izin-tarik" tombol={s("studio.paket.tarik")} tanya={s("studio.kanonik.tarik.tanya")}
+                akibat={<p>{s("studio.kanonik.ditarik")}</p>} ya={s("studio.paket.tarik")} batal={s("bahaya.batal")} />
             </form>
           ) : null}
           {izinBerlaku.length > 0 ? <SimpanIsian form="izin-tarik" ditolak={ditolak("izin-tarik")} pemilik={pemilik} /> : null}

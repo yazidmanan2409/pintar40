@@ -53,6 +53,7 @@ import { pindahkanLaporanAksi } from "@/app/lapor/actions";
 import { daftarKelola, KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { transferMintaAction, transferTerimaAction } from "./actions";
+import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
 
 export const generateMetadata = judulHalaman("/konfigurasi");
 
@@ -1174,7 +1175,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                             {w.keadaan !== "AKTIF" ? (
                               <TombolKirim className={button} name="aksi" value="MULAI" sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.mulai_sekarang")}</TombolKirim>
                             ) : null}
-                            <TombolKirim className={button} name="aksi" value="AKHIRI" sibuk={s("tombol.memproses")}>{kata}</TombolKirim>
+                            <KonfirmasiBahaya sibuk={s("tombol.memproses")} id={`jendela-${w.id}`} tombol={kata} tanya={sl("config.pemeliharaan.akhiri.tanya")} ya={kata}
+                              batal={s("bahaya.batal")} nama="aksi" nilai="AKHIRI" />
                             <Link href={tautanUbah(null, `jendela-${w.id}`)} className={tautanTempat}>{s("config.angkat.batal")}</Link>
                           </form>
                         )
@@ -1221,7 +1223,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                             <label className={label}>{sl("config.pemeliharaan.alasan")}
                               <input name="alasan" className={field} required maxLength={300} autoComplete="off" autoFocus />
                             </label>
-                            <TombolKirim className={button} sibuk={s("tombol.memproses")}>{kata}</TombolKirim>
+                            <KonfirmasiBahaya sibuk={s("tombol.memproses")} id={`pengumuman-${n.id}`} tombol={kata} tanya={sl("config.pemeliharaan.pengumuman.tarik.tanya")} ya={kata}
+                              batal={s("bahaya.batal")} />
                             <Link href={tautanUbah(null, `pengumuman-${n.id}`)} className={tautanTempat}>{s("config.angkat.batal")}</Link>
                           </form>
                         )

@@ -88,7 +88,7 @@ export default function TutupPutaran({
           <div className="pin-actions">
             <button
               type="button"
-              className="pin-btn pin-primary pin-ub-btn"
+              className="pin-btn pin-bahaya-pasti pin-ub-btn"
               onClick={kerjakan}
               disabled={sibuk}
             >
