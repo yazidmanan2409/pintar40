@@ -687,9 +687,10 @@ begin
         if v_n <> 1 then
           v_probs := selftest.f23_note(v_probs, 'F23-W06', 'the sent-back draft is no longer a draft by status: the case this measures has changed');
         end if;
-        -- what «Menunggu tindakan Anda» should count: the school's drafts that are the newest of their line
+        -- what «Menunggu tindakan Anda» should count: the school's drafts that are the newest of their line.
+        -- RESTATED (owner decision 3, 8 Nov): a VALIDATED package is still its author's to submit, so it counts too
         select count(*) into v_m from public.courses c
-         where c.institution_id = v_w and c.status in ('INGESTED','STRUCTURED','VALIDATION_FAILED')
+         where c.institution_id = v_w and c.status in ('INGESTED','STRUCTURED','VALIDATED','VALIDATION_FAILED')
            and not exists (select 1 from public.courses x where x.supersedes_course_id = c.id);
         perform selftest.as_user_uid(v_guru);
         select coalesce(sum(h.count), 0) into v_n from public.studio_home() h where h.bucket = 'ACTION_REQUIRED' and h.institution_id = v_w;
