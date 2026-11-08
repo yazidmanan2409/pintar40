@@ -934,7 +934,11 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             {sekolahStruktur && peserta ? (
               <>
                 <p className="mt-1 text-sm text-ink-2">{sl("config.peserta.arti")}</p>
-                {peserta.tempat.length > 0 ? (
+                {/* Readiness (Daisy, 8 Nov): the person list is the school's staff; with none yet, say what makes one */}
+                {peserta.tempat.length > 0 && peserta.calon.length === 0 ? (
+                  <p className="mt-3 text-sm text-ink-2" data-peserta-tanpa-calon="">{sl("config.peserta.tanpa_calon")}</p>
+                ) : null}
+                {peserta.tempat.length > 0 && peserta.calon.length > 0 ? (
                   <form action={daftarkanPesertaAction} className="mt-3 grid max-w-[var(--measure-narrow)] gap-2">
                     <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
                     <div className="pin-baris-isian">
@@ -955,9 +959,9 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     </div>
                     <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.peserta.daftarkan")}</TombolKirim></div>
                   </form>
-                ) : (
+                ) : peserta.tempat.length === 0 ? (
                   <p className="mt-3 text-sm text-ink-3">{sl("config.peserta.tanpa_tempat")}</p>
-                )}
+                ) : null}
                 {result("peserta")}
                 {catatanPd.length > 0 ? (
                   <nav className="mt-3 text-sm" aria-label={sl("config.peserta.catatan")}>
@@ -1598,6 +1602,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
           {/* B1: only the page's own section is drawn */}{tampilDi("roles") ? (
 <section id="roles" hidden={!tampilDi("roles") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.roles")}</h2>
+            {/* Readiness (Daisy, 8 Nov): what this section is, and the teacher's order (B2) */}
+            <p className="mt-1 text-sm text-ink-2" data-peran-arti="">{s("config.roles.arti")}</p>
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
               {daftarPeran.map((a) => (
                 // CR-94: below 640 px the revoke form wraps below the name instead of past the window; wider, as before
@@ -1683,7 +1689,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             ) : null}
             {result("roles", "pertama")}
             <div className="mt-3">{cariOrangForm("roles")}</div>
-            <form action={grantRoleAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2">
+            <form action={grantRoleAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2" aria-labelledby="pin-beri-peran">
+              <h3 id="pin-beri-peran" className="font-medium sm:col-span-2">{s("config.action.grant")}</h3>
               <label className={label}>{s("config.label.person")}
                 <select name="person" className={field} required defaultValue="">
                   <option value="" disabled>—</option>
@@ -1712,13 +1719,16 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 </select>
               </label>
               <label className={label}>{s("config.label.scope")}
-                <select name="scope" className={field} defaultValue="">
+                <span className="text-xs text-ink-3">{s("config.roles.lingkup_arti")}</span>
+                {/* a school role needs its place; only the platform's own role (SYSTEM_ADMIN) has none */}
+                <select name="scope" className={field} defaultValue="" required={!platformIni}>
                   <option value="">—</option>
                   {lingkupPeran(platformKonteks ? [] : nodes ?? [], institutionName).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
                 </select>
               </label>
               <div className={label}>
                 <label htmlFor="cfg-peran-sampai">{s("config.label.valid_until")}</label>
+                <span className="text-xs text-ink-3" id="cfg-peran-sampai-arti">{s("config.roles.sampai_arti")}</span>
                 <TanggalDenganGema id="cfg-peran-sampai" name="valid_until" className={field} required locale={locale} />
               </div>
               <div><TombolKirim className={primer} sibuk={s("tombol.menyimpan")}>{s("config.action.grant")}</TombolKirim></div>

@@ -449,8 +449,11 @@ export const studio3aTests: SelfTest[] = [
       c.expect(/posisiPaket\(\{ statusKursus: c\.status as string, terbitan: r \? \{ status: r\.status \} : null \}\)/.test(beranda)
         // restated (R3-LENCANA-01): the badge is one function, drawn beside the row and as its marked narrow copy
         && /posisi\.kini === "terbit"\s*\? <span className="pin-pill pin-ok" data-salinan-sempit=\{sempit \? "" : undefined\}>\{s\("studio\.langkah\.terbit\.judul"\)\}<\/span>/.test(beranda)
-        && /<span>\{s\("studio\.langkah\.keadaan\.kini"\)\}: \{s\(kunciSalinan\(posisi\.kini, "judul"\)\)\}<\/span>/.test(beranda),
-        "a package in the list does not say where it stands («✓ Terbit», or «Sekarang:» and its step)");
+        && /<span>\{s\("studio\.langkah\.keadaan\.kini"\)\}: \{s\(kunciSalinan\(posisi\.kini, "judul"\)\)\}/.test(beranda)
+        // Readiness (Daisy, 8 Nov): a step that is not this reader's says so on the row, by the steps' own rule
+        && /bolehMengambil\(l, kemampuan, typeof saya === "string" \? saya : null, \(c\.author_person_id as string \| null\) \?\? null\) !== "boleh"/.test(beranda)
+        && /data-menunggu-lain=""/.test(beranda),
+        "a package in the list does not say where it stands («✓ Terbit», or «Sekarang:» and its step, and whether it waits on someone else)");
       const r = render(ctx.repoRoot, "src/components/Kosong.tsx", { jenis: "tidak_cocok", kalimat: "Belum ada paket di sini.", aksi: { href: "/studio#paket", label: "Semua" } });
       c.expect(r.ok && /data-kosong="tidak_cocok"/.test(r.html) && /<Kosong jenis=\{daftar \? "tidak_cocok" : "belum"\}/.test(beranda),
         "an empty list is not the Empty state, with the way back when narrowed");

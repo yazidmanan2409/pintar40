@@ -405,7 +405,7 @@ export const d168Tests: SelfTest[] = [
       const baca = (f: string) => kode(readFileSync(join(repoRoot, f), "utf8"));
       const pasang = (tujuan: string, peran: string[]) => ({ tujuan, tempat: "s", platform: false, nama: "S", jenis: "INSTITUTION", peran, kemampuan: [] }) as never;
       // a person who is both a teacher and a school administrator, working in Mengelola: Konfigurasi's shell, not a teacher's
-      c.expect(JSON.stringify(cangkangStaf(["EDUCATOR", "INSTITUTION_ADMIN"], pasang("MENGELOLA", ["INSTITUTION_ADMIN"]))) === JSON.stringify({ kind: "focus", kembali: "/konfigurasi" }),
+      c.expect(JSON.stringify(cangkangStaf(["EDUCATOR", "INSTITUTION_ADMIN"], pasang("MENGELOLA", ["INSTITUTION_ADMIN"]))) === JSON.stringify({ kind: "pendataan", kembali: "/konfigurasi" }), // RESTATED FOR C8 (Daisy, 8 Nov): the admin's staff shell, as /akun
         `a teacher-administrator in Mengelola gets ${JSON.stringify(cangkangStaf(["EDUCATOR", "INSTITUTION_ADMIN"], pasang("MENGELOLA", ["INSTITUTION_ADMIN"])))}`);
       c.expect(cangkangStaf(["EDUCATOR", "DEAN"], pasang("MENGAJAR", ["EDUCATOR"])).kembali === "/mengajar", "a teaching Dean in Mengajar is not given Mengajar");
       c.expect(cangkangStaf(["EDUCATOR"], null).kembali === "/mengajar", "without a context the roles no longer stand in");

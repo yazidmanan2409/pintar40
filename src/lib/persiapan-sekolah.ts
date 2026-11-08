@@ -37,7 +37,9 @@ export function persiapanSekolah(
   jalur: ReadonlyMap<string, readonly string[]>,
   sekarang: number,
 ): LangkahPersiapan[] {
-  const aktif = kelas.filter((k) => k.level === "KELAS" && k.is_active);
+  // Readiness (Daisy, 8 Nov): the school's teaching classes only; a professional-learning Kelas (participants, BOB-45) is
+  // neither a place needing students nor one waiting for a teacher
+  const aktif = kelas.filter((k) => k.level === "KELAS" && k.is_active && k.member_kind !== "PARTICIPANT");
   const murid = aktif.reduce((n, k) => n + (k.active_members ?? 0), 0);
   const guru = peran.filter((p) => p.role === "EDUCATOR" && !p.revoked_at && p.scope_node_id
     && Date.parse(p.valid_until) > sekarang);

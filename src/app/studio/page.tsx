@@ -6,7 +6,7 @@ import { card, studioInstitutions, tabSaya } from "./_lib";
 import { kalimatHasil } from "@/lib/galat-kontrak";
 import HasilDi from "@/components/HasilDi";
 import { judulHalaman } from "@/lib/judul-halaman";
-import { posisiPaket, kunciSalinan } from "@/components/studio/langkah";
+import { LANGKAH, bolehMengambil, posisiPaket, kunciSalinan } from "@/components/studio/langkah";
 import Kosong from "@/components/Kosong";
 import Ikon from "@/components/Ikon";
 import TandaTautan from "@/components/TandaTautan";
@@ -35,7 +35,7 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
   const sp = await searchParams;
   const daftar = (DAFTAR as readonly string[]).includes(sp.daftar ?? "") ? sp.daftar as Daftar : null;
   const supabase = await supabaseServer();
-  const [institutions, locale, tab] = await Promise.all([studioInstitutions(), currentLocale(), tabSaya()]);
+  const [institutions, locale, tab, { data: saya }] = await Promise.all([studioInstitutions(), currentLocale(), tabSaya(), supabase.rpc("current_person_id")]);
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const byId = new Map(institutions.map((i) => [i.id, i.name]));
 
@@ -54,7 +54,7 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
   const { data: digantikan } = await supabase.from("courses").select("supersedes_course_id")
     .in("institution_id", daftar ? menyusun : ids).not("supersedes_course_id", "is", null);
   const lama = [...new Set((digantikan ?? []).map((x) => x.supersedes_course_id as string))];
-  let kursusQ = supabase.from("courses").select("id, title, subject, grade_label, institution_id, status")
+  let kursusQ = supabase.from("courses").select("id, title, subject, grade_label, institution_id, status, author_person_id")
     .in("institution_id", daftar ? menyusun : ids);
   if (lama.length > 0) kursusQ = kursusQ.not("id", "in", `(${lama.join(",")})`);
   if (daftar === "ACTION_REQUIRED") kursusQ = kursusQ.in("status", ["INGESTED", "STRUCTURED", "VALIDATION_FAILED"]);
@@ -156,7 +156,13 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
                   <span className="pin-rowmeta">
                     <span>{c.subject} · {c.grade_label} · {byId.get(c.institution_id) ?? "\u2014"}</span>
                     {posisi.kini && posisi.kini !== "terbit" && posisi.kini !== "ditarik"
-                      ? <span>{s("studio.langkah.keadaan.kini")}: {s(kunciSalinan(posisi.kini, "judul"))}</span> : null}
+                      ? <span>{s("studio.langkah.keadaan.kini")}: {s(kunciSalinan(posisi.kini, "judul"))}{(() => {
+                          // Readiness (Daisy, 8 Nov): a step that is not this reader's says so on the row (the steps' rule)
+                          const l = LANGKAH.find((x) => x.kunci === posisi.kini);
+                          const kemampuan = institutions.find((i) => i.id === c.institution_id)?.capabilities ?? [];
+                          return l && bolehMengambil(l, kemampuan, typeof saya === "string" ? saya : null, (c.author_person_id as string | null) ?? null) !== "boleh"
+                            ? <span data-menunggu-lain=""> · {s("studio.state.MENUNGGU")}</span> : null;
+                        })()}</span> : null}
                     {c.status === "VALIDATION_FAILED" && tinjauanTerakhir.get(c.id as string) === "SENT_BACK"
                       ? <span className="pin-pill pin-attention pin-pill-ikon" data-dikembalikan=""><Ikon nama="triangle-alert" />{s("studio.paket.riwayat.dikembalikan")}</span> : null}
                     {/* under 560 px the row's badge sits in its meta line (experience.css) */}

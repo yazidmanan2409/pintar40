@@ -8,6 +8,7 @@
  * the same functions. Paging, saving and step-by-step reveal stay the player's own.
  */
 import TeksBlok, { TeksBaris } from "@/components/teks/Teks";
+import { t } from "@/lib/hle";
 
 /** PAGINATION IS AT HEADING BOUNDARIES (`## `), so authoring controls it. Never empty: a lesson has a page. */
 export function halamanPelajaran(bodyMarkdown: string | null | undefined): string[][] {
@@ -33,7 +34,9 @@ export function Visual({ spec }: { spec: string }) {
     if (Number.isFinite(num) && Number.isFinite(den) && den > 0 && num >= 0 && num <= den) {
       const w = 320, h = 64, cell = w / den;
       return (
-        <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={`${num} dari ${den} bagian`}
+        // Readiness (Daisy, 8 Nov): the diagram's name is copy (hle.ts), in the lesson's own language, which is the
+        // content's (a lesson's text is not translated around it)
+        <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={t("pelajaran.visual.pecahan", "learner").replace("{n}", String(num)).replace("{m}", String(den))}
              className="pin-lmedia">
           {Array.from({ length: den }, (_, i) => (
             <rect key={i} x={i * cell} y={0} width={cell} height={h}
