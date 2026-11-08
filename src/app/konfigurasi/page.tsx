@@ -18,8 +18,7 @@ import {
   daftarkanPesertaAction, grantRoleAction, hentikanSekarangAction, jadwalkanPemeliharaanAction, pindahKelasAction,
   revokeRoleAction, rolloverAction, saveReportTemplateAction, tarikPengumumanAction, terbitkanPengumumanAction,
   tetapkanBatasAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction, transferRequestAction,
-  tunjukAdminPertamaAction, ubahPemeliharaanAction,
-} from "./actions";
+  tunjukAdminPertamaAction, ubahPemeliharaanAction, tempatkanMuridAction } from "./actions";
 import { adaAdminSekolah, calonAdminPertama } from "@/lib/admin-pertama";
 import { pelajaranDanBatas } from "@/lib/batas-ketuntasan";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
@@ -521,7 +520,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
       : Promise.resolve(0),
     satuSekolah && konteksAda && melayani(kh, "/studio")
       ? supabase.rpc("studio_home").then(({ data }) => ((data ?? []) as Array<{ bucket: string; institution_id: string; count: number }>)
-          .filter((r) => r.institution_id === satuSekolah && (r.bucket === "ACTION_REQUIRED" || r.bucket === "AWAITING_MY_REVIEW"))
+          .filter((r) => r.institution_id === satuSekolah
+            && (r.bucket === "ACTION_REQUIRED" || r.bucket === "AWAITING_MY_REVIEW" || r.bucket === "RELEASE_STEP"))
           .reduce((n, r) => n + Number(r.count ?? 0), 0))
       : Promise.resolve(0),
   ]);
@@ -534,6 +534,10 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
         ? supabase.rpc("persons_awaiting_account", {}, { count: "exact", head: true }).eq("institution_id", satuSekolah).eq("boleh_kartu", true)
         : supabase.rpc("persons_awaiting_account", {}, { count: "exact", head: true }).eq("boleh_kartu", true)).then((r) => r.count ?? null)
     : 0;
+  // 4.0 completion (owner decision 1): learners recorded without a class wait for a place, counted where they are placed
+  const nTanpaKelas = satuSekolah && bolehPendataan
+    ? await supabase.rpc("murid_tanpa_kelas", { p_sekolah: satuSekolah }).then(({ data }) => (Array.isArray(data) ? data.length : 0))
+    : 0;
   const alasanAkun: Array<{ k: string; kunci: HleEvent; n: number }> = nMurid === null ? [] : [
     { k: "kartu", kunci: "config.menunggu.alasan.kartu" as HleEvent, n: nMurid },
     { k: "email", kunci: "config.menunggu.alasan.email" as HleEvent, n: Math.max(0, nAkun - nMurid) },
@@ -541,6 +545,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const menunggu: Array<{ k: string; href: string; kunci: HleEvent; n: number; alasan?: HleEvent }> = [
     { k: "impor", href: "/pendataan", kunci: "config.menunggu.pendataan" as HleEvent, n: nImpor, alasan: "config.menunggu.alasan.pendataan" as HleEvent },
     { k: "akun", href: "/aktivasi", kunci: "config.menunggu.aktivasi" as HleEvent, n: nAkun },
+    { k: "kelas", href: "/konfigurasi/pindah#tempatkan", kunci: "config.menunggu.tanpa_kelas" as HleEvent, n: nTanpaKelas },
     { k: "studio", href: "/studio", kunci: "config.menunggu.studio" as HleEvent, n: nStudio },
   ].filter((m) => m.n > 0);
   const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
@@ -551,6 +556,13 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const kelasDari = [...asal.kelas, ...asal.tingkat].find((k) => k.node_id === sp.dari) ?? null;
   const tujuan = kelasDari && struktur?.ok ? tujuanPindah(struktur.rows, kelasDari.node_id) : [];
   const muridDari = kelasDari ? await muridDiKelas(supabase, kelasDari.node_id) : [];
+  // 4.0 completion (owner decision 1): the school's learners recorded without a class, and the Kelas they may go to
+  // (a learners' Kelas only: a professional-learning Kelas holds participants)
+  const { data: tanpaKelasRows } = bagianIni === "pindah" && sekolahStruktur
+    ? await supabase.rpc("murid_tanpa_kelas", { p_sekolah: sekolahStruktur.id })
+    : { data: [] as Array<{ person_id: string; display_name: string; institutional_id: string }> };
+  const tanpaKelas = (tanpaKelasRows ?? []) as Array<{ person_id: string; display_name: string; institutional_id: string }>;
+  const kelasMurid = asal.kelas.filter((k) => (k.member_kind ?? "LEARNER") === "LEARNER");
   const sl = (event: HleEvent) => t(event, "staff", { locale });
   // W3.3 (Batch 2; RV-16): every moment through the one date helper, on WIB, with its year and «WIB» —
   // a record as the timestamp («9 Okt 2026, 07.30 WIB»), a window someone acts on with its day.
@@ -916,6 +928,34 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   </div>
                 ) : null}
                 {result("pindah")}
+                {/* 4.0 completion (owner decision 1): learners recorded without a class, placed by tempatkan_murid */}
+                <div id="tempatkan" className="mt-4 grid gap-2">
+                  <h2 className="text-sm font-medium text-ink-1">{sl("config.tempatkan.judul")}</h2>
+                  <p className="text-sm text-ink-2">{sl("config.tempatkan.arti")}</p>
+                  {tanpaKelas.length > 0 && kelasMurid.length > 0 ? (
+                    <ul className="grid gap-1 text-sm text-ink-2" data-tanpa-kelas="">
+                      {tanpaKelas.map((m) => (
+                        <li key={m.person_id} className="grid gap-2 border-b border-line-1 px-3 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
+                          <span className="text-ink-1">{m.display_name} · <span className="pin-num">{m.institutional_id}</span></span>
+                          <form action={tempatkanMuridAction} className="flex flex-wrap items-center gap-2">
+                            <input type="hidden" name="orang" value={m.person_id} />
+                            <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
+                            <select name="kelas" className={field} required defaultValue="" aria-label={`${m.display_name}: ${sl("config.tempatkan.ke")}`}>
+                              <option value="" disabled>{sl("config.tempatkan.ke")}</option>
+                              {kelasMurid.map((k) => <option key={k.node_id} value={k.node_id}>{namaKelas(k)}</option>)}
+                            </select>
+                            <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.tempatkan.tombol")}<span className="pin-sr"> · {m.display_name}</span></TombolKirim>
+                          </form>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : tanpaKelas.length > 0 ? (
+                    <p className="text-sm text-ink-3">{sl("config.pindah.tanpa_kelas")}</p>
+                  ) : (
+                    <Kosong jenis="belum" kalimat={sl("config.tempatkan.kosong")} />
+                  )}
+                  {result("tempatkan")}
+                </div>
               </>
             ) : (
               <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>

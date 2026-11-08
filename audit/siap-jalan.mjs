@@ -3,6 +3,7 @@
 import { chromium } from "playwright";
 import { createRequire } from "node:module";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 
 const APP = process.env.APP_URL ?? "http://127.0.0.1:3999";
@@ -13,6 +14,11 @@ const SLOW = 30000;
 const require = createRequire(join(process.cwd(), "package.json"));
 const { createServerClient } = require("@supabase/ssr");
 
+const DB = process.env.SUPABASE_DB_URL;
+// SQL PREPARES A FIXTURE AND READS RESULTS BACK; every act is done in the browser by the signed-in person
+const sql = (q) => execFileSync("psql", [DB, "-At", "-v", "ON_ERROR_STOP=1", "-c", q], { encoding: "utf8" }).trim();
+// a step whose state the fixture could not reach says so; it is never a PASS (Daisy, 8 Nov: R5 and R6 were hollow)
+const belum = (rec, kata) => { rec.catatan.push(`-- NOT EXERCISED: ${kata}`); if (rec.verdict === "PASS") rec.verdict = "NOT EXERCISED"; };
 const ORANG = {
   admin: { key: "admin", tujuan: "MENGELOLA", email: "alpha-admin@synthetic.pintar.test", password: "Sintetis-AlphaAdmin-27!" },
   guru: { key: "guru", tujuan: "MENGAJAR", email: "alpha-guru@synthetic.pintar.test", password: "Sintetis-AlphaGuru-52!" },
@@ -195,6 +201,7 @@ await step("R5", "Dekan: reports explain below-target once; the grid prints on A
     await shot(page, rec, `dekan-laporan-${laporan.indexOf(h)}`);
   }
   rec.catatan.push(`   grids met: ${kisi}`);
+  if (kisi === 0) belum(rec, "no topics × classes grid on this seed (B5 is shown by Daisy's render and LAPORAN-CETAK-01)");
   await context.close();
 });
 
@@ -214,6 +221,7 @@ await step("R6", "Guru: Studio says who acts next and that PINTAR sends no notif
       await shot(page, rec, "studio-menunggu");
     }
   }
+  if (!(await page.locator("[data-menunggu-lain]").count())) belum(rec, "no package waiting on someone else on this seed (R10 reads the counts)");
   await shot(page, rec, "guru-studio");
   await context.close();
 });
@@ -244,8 +252,104 @@ await step("R7", "Keyboard: Struktur «Ubah nama» and «Nonaktifkan» take focu
   await context.close();
 });
 
+// ── Owner decision 1: a learner recorded without a class is counted, found and placed by the administrator.
+await step("R8", "Admin: a learner without a class is counted in «Yang menunggu», placed from Pindah, and leaves the list", async (rec) => {
+  const sekolah = sql("select i.id from public.institutions i join public.accounts a on true join auth.users u on u.id = a.auth_user_id "
+    + "join public.role_assignments r on r.person_id = a.person_id and r.role = 'INSTITUTION_ADMIN' and r.revoked_at is null "
+    + `where u.email = '${ORANG.admin.email}' and r.institution_id = i.id limit 1`);
+  if (!harus(rec, Boolean(sekolah), "the administrator's school")) return;
+  sql(`update public.institutions set namespace = 'ALP' where id = '${sekolah}' and namespace is null`);
+  const nama = `Murid Tanpa Kelas ${Date.now() % 100000}`;
+  const orang = sql(`insert into public.persons (display_name) values ('${nama}') returning id`).split("\n")[0];
+  sql(`select public.issue_institutional_id('${orang}', '${sekolah}')`);
+  const { context, page } = await masuk(browser, ORANG.admin);
+  await buka(page, "/konfigurasi");
+  harus(rec, /belum punya kelas/.test(norm(await page.locator("main").textContent())), "«Yang menunggu» counts the learner without a class");
+  await buka(page, "/konfigurasi/pindah#tempatkan");
+  const baris = page.locator("[data-tanpa-kelas] li", { hasText: nama });
+  if (!harus(rec, (await baris.count()) === 1, "Pindah lists the learner without a class")) { await context.close(); return; }
+  await shot(page, rec, "pindah-tanpa-kelas");
+  const pilihan = await baris.locator("select option").evaluateAll((os) => os.map((o) => o.value).filter(Boolean));
+  if (!harus(rec, pilihan.length > 0, "a learners' Kelas is offered")) { await context.close(); return; }
+  await baris.locator("select").selectOption(pilihan[0]);
+  await baris.getByRole("button", { name: /Masukkan ke kelas/ }).click();
+  // the server action redirects back with its result: wait for it, not for the click
+  await page.waitForURL((u) => u.searchParams.has("hasil") || u.searchParams.has("kode"), { timeout: SLOW }).catch(() => {});
+  await page.waitForLoadState("networkidle");
+  harus(rec, /Murid sudah ditempatkan di kelas/.test(norm(await page.locator("main").textContent())), "the success line is shown");
+  harus(rec, (await page.locator("[data-tanpa-kelas] li", { hasText: nama }).count()) === 0, "the learner leaves the list");
+  const m = sql(`select count(*) from public.memberships m join public.enrollments e on e.id = m.enrollment_id where e.person_id = '${orang}' and m.valid_to is null and m.node_id = '${pilihan[0]}'`);
+  harus(rec, m === "1", `the database holds one open placement in the chosen Kelas (${m})`);
+  const a = sql(`select count(*) from public.audit_log where action = 'LEARNER_PLACED' and summary->>'person_id' = '${orang}'`);
+  harus(rec, a === "1", `the placement is audited (${a})`);
+  await shot(page, rec, "pindah-ditempatkan");
+  await context.close();
+});
+
+// ── Owner decision 2: «Tandai lolos pemeriksaan» runs the check; an ERROR refuses the step, nothing moves, it says why.
+await step("R9", "Author (Admin sekolah, an author role; Alpha's Guru is scoped to 5A): the content check refuses the mark on a real ERROR, changes nothing, and says how to correct it", async (rec) => {
+  const course = sql("select c.id from public.courses c join public.institutions i on i.id = c.institution_id "
+    + "where c.title = 'Paket Internal Alpha' and c.status in ('INGESTED','STRUCTURED') limit 1");
+  if (!course) { belum(rec, "no unsealed Alpha package on this seed"); return; }
+  const item = sql(`select i.id from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id = '${course}' limit 1`);
+  // a stem whose key word appears only in its correct option: STEM_REVEALS_ANSWER, an ERROR the check itself finds
+  sql(`update public.items set stem = 'Berapa hasil penjumlahan ini? Jawabannya limabelas.' where id = '${item}'`);
+  if (sql(`select count(*) from public.item_options where item_id = '${item}'`) === "0") {
+    sql(`insert into public.item_options (item_id, institution_id, label, body, is_correct, rationale) select id, institution_id, 'A', 'limabelas', true, 'Ini hasil penjumlahannya.' from public.items where id = '${item}'`);
+    sql(`insert into public.item_options (item_id, institution_id, label, body, is_correct, rationale) select id, institution_id, 'B', 'tujuh', false, 'Ini bukan hasil penjumlahannya.' from public.items where id = '${item}'`);
+  }
+  const { context, page } = await masuk(browser, ORANG.admin);
+  await buka(page, `/studio/paket/${course}`);
+  const susun = page.getByRole("button", { name: "Tandai sudah tersusun", exact: true });
+  if (await susun.isVisible().catch(() => false)) {
+    await susun.click();
+    await page.getByRole("button", { name: "Tandai lolos pemeriksaan", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
+    await page.waitForLoadState("networkidle");
+  }
+  const sebelum = sql(`select status from public.courses where id = '${course}'`);
+  const langkahSebelum = sql(`select count(*) from public.audit_log where action = 'content.status_changed' and target_id = '${course}'`);
+  const tandai = page.getByRole("button", { name: "Tandai lolos pemeriksaan", exact: true });
+  if (!harus(rec, await tandai.isVisible().catch(() => false), `«Tandai lolos pemeriksaan» is offered (status ${sebelum})`)) { await context.close(); return; }
+  await tandai.click();
+  // the action redirects with its result (?bagian=…&kode=…); wait for that, not for any text already on the page
+  await page.waitForURL((u) => u.searchParams.has("kode") || u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
+  await page.waitForLoadState("networkidle");
+  const teks = norm(await page.locator("main").textContent());
+  harus(rec, /menemukan hal yang wajib diperbaiki/.test(teks), "the refusal says the check found what must be fixed");
+  harus(rec, /Lihat Temuan di bawah/.test(teks), "the refusal names where the correction starts");
+  const sesudah = sql(`select status from public.courses where id = '${course}'`);
+  harus(rec, sesudah === sebelum && sesudah === "STRUCTURED", `the package did not move (${sebelum} → ${sesudah})`);
+  const langkahSesudah = sql(`select count(*) from public.audit_log where action = 'content.status_changed' and target_id = '${course}'`);
+  harus(rec, langkahSesudah === langkahSebelum, `no step was recorded (${langkahSebelum} → ${langkahSesudah})`);
+  const err = sql(`select count(*) from public.mcq_quality_findings where course_id = '${course}' and severity = 'ERROR' and acknowledged_at is null`);
+  harus(rec, Number(err) > 0, `the check itself recorded the ERROR (${err})`);
+  harus(rec, /Kata khas pada pertanyaan hanya muncul di pilihan yang benar/.test(teks) || (await page.locator("#temuan").count()) > 0, "Temuan shows the finding");
+  await shot(page, rec, "periksa-ditolak");
+  await context.close();
+});
+
+// ── Owner decision 3: every Studio count equals the list it opens.
+await step("R10", "Studio: every count opens a list of exactly that many packages (Guru, Admin)", async (rec) => {
+  let dibaca = 0;
+  for (const o of [ORANG.guru, ORANG.admin]) {
+    const { context, page } = await masuk(browser, o);
+    await buka(page, "/studio");
+    const kartu = await page.locator('a.pin-kartu-tautan[href^="/studio?daftar="]').evaluateAll((as) => as.map((a) => ({
+      href: a.getAttribute("href"), n: Number((a.querySelector(".pin-studio-angka")?.textContent ?? "").replace(/\D/g, "")) })));
+    for (const k of kartu) {
+      await buka(page, k.href);
+      const n = await page.locator('#paket a[href^="/studio/paket/"]').evaluateAll((as) => new Set(as.map((a) => a.getAttribute("href"))).size);
+      harus(rec, n === k.n || (k.n > 30 && n === 30), `${o.key} ${k.href}: the count ${k.n}, the list ${n}`);
+      dibaca++;
+    }
+    await context.close();
+  }
+  if (dibaca === 0) belum(rec, "no Studio count with a list on this seed");
+});
+
 await browser.close();
 writeFileSync(join(OUT, "ringkasan.json"), JSON.stringify(langkah, null, 2));
 const lulus = langkah.filter((l) => l.verdict === "PASS").length;
-console.log(`${lulus}/${langkah.length} PASS`);
-process.exit(lulus === langkah.length ? 0 : 1);
+const kosong = langkah.filter((l) => l.verdict === "NOT EXERCISED").length;
+console.log(`${lulus}/${langkah.length} PASS, ${kosong} NOT EXERCISED, ${langkah.length - lulus - kosong} FAIL`);
+process.exit(langkah.some((l) => l.verdict === "FAIL") ? 1 : 0);

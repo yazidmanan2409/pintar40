@@ -281,6 +281,29 @@ export async function pindahKelasAction(fd: FormData): Promise<void> {
 }
 
 /**
+ * 4.0 completion (owner decision 1): «Masukkan ke kelas». A learner recorded without a class (a Pendataan row with no
+ * place) is placed in a Kelas by `tempatkan_murid`, as the signed-in administrator: the intake's own two writes, one
+ * transaction, audited. The person, the number and the account stay the same. A refusal comes back as its code.
+ */
+export async function tempatkanMuridAction(fd: FormData): Promise<void> {
+  const orang = uuidOrNull(str(fd, "orang"));
+  const kelas = uuidOrNull(str(fd, "kelas"));
+  const sekolah = uuidOrNull(str(fd, "sekolah"));
+  const kembali = (h: HasilAksi, tampil: string | null): never => {
+    const q = queryHasil("tempatkan", h);
+    if (tampil) q.set("dari", tampil);
+    if (sekolah) q.set("sekolah", sekolah);
+    redirect(alamatBagian("pindah", q, "tempatkan"));
+  };
+  if (!orang || !kelas) kembali({ ok: false, kode: "MOVE_INPUT_INCOMPLETE" }, null);
+  await wajibDalamKonteks({ sekolah: await sekolahDari("simpul", kelas) }, "pindah");
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("tempatkan_murid", { p_person: orang, p_kelas: kelas });
+  if (error) kembali(ditolak("tempatkan_murid", error), null);
+  kembali({ ok: true, kode: "LEARNER_PLACED" }, kelas);
+}
+
+/**
  * BOB-44 / DAISY-32 (D-069(e), D-070(c)): «Daftarkan sebagai peserta». One call, as the signed-in administrator:
  * `enrol_for_professional_learning` places an existing person who holds a staff role at the school in a
  * professional-learning Kelas or Tingkat, reusing their enrolment for the year, and audits it. It creates no person,

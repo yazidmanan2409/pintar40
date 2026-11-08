@@ -61,7 +61,9 @@ export const KODE_PINDAH = ["RELEASE_MOVE_STARTED", "RELEASE_MOVE_NO_CYCLE_DEFIN
  * Not allowed (42501) stays ACTION_NOT_ALLOWED and a deactivated Kelas
  * ACTION_PLACE_INACTIVE, as for every action. Any other PR070 is ACTION_FAILED.
  */
-export const KODE_PINDAH_KELAS = ["MOVE_NOT_CURRENT", "MOVE_NOT_A_KELAS", "MOVE_SAME_KELAS", "MOVE_OTHER_YEAR", "MOVE_ALREADY_IN_KELAS"] as const;
+export const KODE_PINDAH_KELAS = ["MOVE_NOT_CURRENT", "MOVE_NOT_A_KELAS", "MOVE_SAME_KELAS", "MOVE_OTHER_YEAR", "MOVE_ALREADY_IN_KELAS",
+  // 4.0 completion (owner decision 1): placing a learner recorded without a class (tempatkan_murid), the same PR070
+  "PLACE_NOT_A_KELAS", "PLACE_NOT_THIS_SCHOOL", "PLACE_STAFF", "PLACE_ALREADY_PLACED", "PLACE_NO_YEAR"] as const;
 
 /**
  * D-088(b), BOB-49: a lesson whose pass mark the school has not set cannot be given to a class or launched as an Uji
@@ -178,6 +180,8 @@ export const KODE_SUKSES = [
   "DRAFT_CREATED",
   // D-085 M9: a learner moved to another Kelas
   "LEARNER_MOVED",
+  // 4.0 completion (owner decision 1): a learner recorded without a class placed in one
+  "LEARNER_PLACED",
   // D-088(b): a lesson's pass mark set, or already that value
   "PASS_MARK_SET", "PASS_MARK_UNCHANGED",
   // BOB-44: a person enrolled for professional learning

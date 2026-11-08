@@ -347,6 +347,8 @@ export type HleEvent =
   | "config.menunggu.judul"
   | "config.menunggu.pendataan"
   | "config.menunggu.aktivasi"
+  | "config.menunggu.tanpa_kelas"
+  | "belajar.tanpa_kelas"
   | "config.menunggu.studio"
   | "config.section.system"
   | "config.section.intelligence"
@@ -900,6 +902,18 @@ export type HleEvent =
   | "studio.bucket.ACTION_REQUIRED"
   | "studio.bucket.AWAITING_MY_REVIEW"
   | "studio.bucket.BLOCKED"
+  | "galat.place_not_a_kelas"
+  | "galat.place_not_this_school"
+  | "galat.place_staff"
+  | "galat.place_already_placed"
+  | "galat.place_no_year"
+  | "galat.learner_placed"
+  | "config.tempatkan.judul"
+  | "config.tempatkan.arti"
+  | "config.tempatkan.kosong"
+  | "config.tempatkan.tombol"
+  | "config.tempatkan.ke"
+  | "studio.bucket.RELEASE_STEP"
   | "studio.bucket.QUESTION_HEALTH"
   | "studio.bucket.DISTRIBUTED_CANONICAL"
   | "studio.state.READY"
@@ -3284,6 +3298,8 @@ const table: Table = {
   "config.menunggu.judul": { default: "Yang menunggu", en: "Waiting" },
   "config.menunggu.pendataan": { default: "pendataan menunggu persetujuan Anda di Pendataan", en: "imports waiting for your go-ahead in Pendataan" },
   "config.menunggu.aktivasi": { default: "orang menunggu akun di Aktivasi", en: "people waiting for an account in Aktivasi" },
+  "config.menunggu.tanpa_kelas": { default: "murid belum punya kelas: masukkan ke kelas di Pindah kelas", en: "students without a class: place them in a class under Pindah kelas" },
+  "belajar.tanpa_kelas": { default: "Anda belum masuk kelas mana pun, jadi belum ada materi untuk Anda. Admin sekolah Anda dapat memasukkan Anda ke kelas.", en: "You are not in any class yet, so there is no material for you. Your school administrator can place you in a class." },
   "config.menunggu.alasan.kartu": { default: "orang tanpa peran staf: buat kartu kelas di Aktivasi, untuk satu kelas atau beberapa kelas sekaligus. Bila ada guru atau staf di antaranya, berikan perannya di Peran & akses lebih dulu; kartu kelas hanya untuk murid.", en: "people with no staff role: make class cards in Aktivasi, for one class or several at once. If a teacher or staff member is among them, give their role on Peran & akses first; class cards are for learners only." },
   "config.menunggu.alasan.email": { default: "orang yang memegang peran staf: aktifkan dengan email di Aktivasi; kartu kelas hanya untuk murid. Orangnya lalu meminta sendiri kode aktivasinya.", en: "people who hold a staff role: activate them with email in Aktivasi; class cards are for learners only. The person then asks for their own activation code." },
   "config.menunggu.alasan.pendataan": { default: "Orang di dalamnya belum bisa dibuatkan akun sampai pendataannya disetujui.", en: "No account can be made for the people in it until the import is approved." },
@@ -4173,6 +4189,18 @@ const table: Table = {
   "studio.bucket.ACTION_REQUIRED": { default: "Draf yang belum diajukan", en: "Drafts not yet submitted" },
   "studio.bucket.AWAITING_MY_REVIEW": { default: "Menunggu tinjauan Anda", en: "Waiting on your review" },
   "studio.bucket.BLOCKED": { default: "Tertahan", en: "Held" },
+  "galat.place_not_a_kelas": { default: "Murid ditempatkan di sebuah Kelas yang aktif.", en: "A student is placed in an active Kelas." },
+  "galat.place_not_this_school": { default: "Orang ini tidak tercatat di sekolah ini.", en: "This person is not recorded at this school." },
+  "galat.place_staff": { default: "Orang ini memegang peran staf, jadi tidak ditempatkan sebagai murid. Kelas dan kartu kelas hanya untuk murid.", en: "This person holds a staff role, so they are not placed as a student. Classes and class cards are for students only." },
+  "galat.place_already_placed": { default: "Murid ini sudah punya kelas. Pindahkan dari kelasnya di bagian atas halaman ini.", en: "This student already has a class. Move them from their class at the top of this page." },
+  "galat.place_no_year": { default: "Sekolah ini belum punya tahun ajaran untuk Kelas itu. Buat tahun ajarannya dulu di Struktur sekolah.", en: "This school has no school year for that Kelas yet. Create the year first under School structure." },
+  "galat.learner_placed": { default: "Murid sudah ditempatkan di kelas.", en: "The student has been placed in the class." },
+  "config.tempatkan.judul": { default: "Murid yang belum punya kelas", en: "Students without a class" },
+  "config.tempatkan.arti": { default: "Murid ini dicatat tanpa kelas, jadi belum bisa menerima materi. Pilih kelasnya. Orangnya, nomor registrasi sekolah, dan akunnya tetap sama.", en: "These students were recorded without a class, so no material can reach them yet. Choose their class. The person, their school registration number and their account stay the same." },
+  "config.tempatkan.kosong": { default: "Semua murid sudah punya kelas.", en: "Every student has a class." },
+  "config.tempatkan.tombol": { default: "Masukkan ke kelas", en: "Place in class" },
+  "config.tempatkan.ke": { default: "Kelas", en: "Class" },
+  "studio.bucket.RELEASE_STEP": { default: "Menunggu langkah terbitan dari Anda", en: "Waiting for your release step" },
   "studio.bucket.QUESTION_HEALTH": { default: "Sinyal mutu soal", en: "Item quality signals" },
   "studio.bucket.DISTRIBUTED_CANONICAL": { default: "Pustaka PINTAR untuk sekolah Anda", en: "PINTAR Library for your school" },
   "studio.state.READY": { default: "Siap", en: "Ready" },
@@ -4206,7 +4234,7 @@ const table: Table = {
   "studio.paket.riwayat.ini": { default: "halaman ini", en: "this page" },
   "studio.paket.riwayat.buka": { default: "Buka", en: "Open" },
   "studio.paket.kosong": { default: "Belum ada paket di sini.", en: "There is nothing here yet." },
-  "studio.beranda.tak_ada_tugas": { default: "Hitungan di atas belum mencakup paket yang sudah disetujui atau sedang dibuat terbitannya. Lihat daftar paket di bawah: setiap paket menyebut langkahnya sekarang.", en: "The counts above do not yet include packages that are approved or whose release is being made. See the package list below: each package names its step now." },
+  "studio.beranda.tak_ada_tugas": { default: "Tidak ada yang menunggu tindakan Anda di Studio.", en: "Nothing in the Studio is waiting for you." },
   "studio.state.explain.TERBIT": { default: "Paket ini sudah terbit. Guru dapat menyediakannya untuk kelas mereka.", en: "This package is published. Teachers can make it available to their classes." },
   // polish batch 2 (UX-14): the section is named what both steps call it
   "studio.temuan.judul": { default: "Temuan", en: "Findings" },

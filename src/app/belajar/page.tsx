@@ -99,6 +99,12 @@ export default async function Belajar({
   const sapa = namaSapaan(viewer.displayName, peran);
 
   const tugas = await engine.myAssignments(db);
+  // 4.0 completion (owner decision 1): a learner recorded without a class is told why nothing is here, and who can help;
+  // their own open placements, read under their own row security
+  const { count: nTempat } = tugas.length === 0
+    ? await (db as unknown as Awaited<ReturnType<typeof supabaseServer>>).from("memberships")
+        .select("id", { count: "exact", head: true }).is("valid_to", null)
+    : { count: 1 };
 
   // DAISY-26 (UX-21): the next unread lesson of each assignment, in the order
   // the reading map set, so «Lanjutkan pelajaran» opens that lesson rather than
@@ -330,7 +336,10 @@ export default async function Belajar({
                 <p className="pin-mm">{s("pembelajaran.kosong_arti")}</p>
               </>
             ) : (
-              <Kosong jenis="belum" kalimat={s("cycle.none")} />
+              <>
+                <Kosong jenis="belum" kalimat={s("cycle.none")} />
+                {nTempat === 0 ? <p className="pin-mm" data-tanpa-kelas="">{s("belajar.tanpa_kelas")}</p> : null}
+              </>
             )
           ) : (
             [...(utama ? [utama] : []), ...sisa].map((k) => (
