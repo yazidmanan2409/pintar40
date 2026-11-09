@@ -159,8 +159,8 @@ Red at `68116785`, green at `3b2799e4`. On `3b2799e4`: the whole clean suite 938
 - The enrolment row is locked. Its placements close as ENROLLMENT_ENDED, and it writes one
   `enrollment.ended_with_reason` row.
 - It never touches results, sittings, certificates or attribution.
-- **An open sitting (CREATED / IN_PROGRESS / PAUSED) refuses the ending, ENROL_SITTING_OPEN, fail closed.** Your
-  ruling: keep refusing, or end the sitting as INSTITUTIONAL_REVOCATION?
+- **An open sitting (CREATED / IN_PROGRESS / PAUSED):** at `3b2799e4` it refused the ending (ENROL_SITTING_OPEN). Since
+  `d2b7b714` the departure closes it instead: EXPIRED if past its deadline, otherwise INSTITUTIONAL_REVOCATION. See §12.
 
 **E4 `daftarkan_kembali(person, school, kind, reason, kelas, enrolment)`.** It never rewrites the past.
 - **CORRECTION:**
@@ -280,3 +280,50 @@ The demonstration found this gap, and the owner ruled it 4.0.
   - Can an audit row's free reason ever carry something the school's admin may not see? For example, a
     platform-written reason on a row tagged with the school.
   - Is «Petugas lain», for an actor the reader cannot see, the right disclosure?
+
+## 12. Two rule changes the human journeys forced (9 Nov afternoon), for your ruling
+
+The journeys on `ef43d245` and `d2b7b714` each failed at S27 (Kelas 1A's year end), for two different reasons. Each fix
+was red first.
+
+**1. Open sittings no longer block a departure or a year's move.** This answers your E3 question («end it, or wait»).
+- The case: a learner of Kelas 1A had left a sitting open, in S26d and S26e, as learners do.
+- No screen lets anyone close another person's sitting, so ENROL_SITTING_OPEN blocked the whole class's year end.
+  Waiting deadlocks.
+- `tutup_asesmen_terbuka` (internal) now closes each open sitting in two steps:
+  1. it holds the sitting to its deadline (`session_enforce_deadline`: EXPIRED if past it, as its next touch would);
+  2. a sitting still open is ended through `terminate_session` itself, as INSTITUTIONAL_REVOCATION. Its authority
+     check over the class, its audit row and the retained responses all apply.
+- `akhiri_pendaftaran` records `sittings_closed`.
+- The promotion's preview says per learner how many will be ended. The confirmation closes them before moving the
+  learner.
+- Tests:
+  - red: `f5ddbb4d`;
+  - green: `d2b7b714`;
+  - F37-E03 and K04 are restated, each with a note.
+
+**2. A learner recorded but not yet signed in (PENDING) can leave and move up.**
+- The case: the guard (`20260912004321`) allowed PENDING only to ACTIVE or CANCELLED, so Fajar, never signed in,
+  blocked the confirmation.
+- `20270112230000` allows PENDING → ENDED.
+- Unchanged: CANCELLED still means «never took effect», and a closed enrolment stays immutable. Both are verified.
+- Tests:
+  - red: `ee3b3783`;
+  - green: `e0ca32d9`, with ADR-0021's revoke in `7a2c1751`;
+  - F37-E07 is new;
+  - the promotion fixtures now include a PENDING learner.
+
+**Please rule on both:**
+- Is ending as INSTITUTIONAL_REVOCATION the right cause for a departure's open sitting?
+- Is PENDING → ENDED acceptable, or should a never-activated learner's departure be CANCELLED, which loses
+  «Murid yang sudah keluar» and E4?
+
+## The verified candidate for this request: `7a2c1751`
+
+| Check | Result |
+|---|---|
+| Clean suite | 950 passed, 0 failed (suite 15) |
+| CI | green (run 542) |
+| Human journeys | green (run 249), including S27, «Kenaikan kelas dan kelulusan» through the screen |
+
+This file is added after it, in a docs-only commit.
