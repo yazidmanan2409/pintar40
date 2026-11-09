@@ -2099,12 +2099,14 @@ export const experienceTests: SelfTest[] = [
       // MOVED 204 -> 205 for SI-D02 (9 Nov): 20270112120000 serializes start_learning_session per learner and assignment
       // (an advisory lock). Read against §3 first: a lock, not a mark, a logo, a crest or a theme, so the Q-7 source still
       // does not exist.
+      // MOVED 207 -> 208 for SI-D01 finding 1: 20270112150000 gives a professional-learning sitting's end and extension
+      // to the platform; no brand surface changes.
       // MOVED 206 -> 207 for SI-D03 (Sharon, 9 Nov): 20270112140000 narrows five credential paths to the school that
       // holds the person now; no brand surface changes.
       // MOVED 205 -> 206 for SI-D01's remaining findings (Sharon, 9 Nov): 20270112130000 moves three acts on a sitting and
       // its referral to the sitting's place, replaces the place helpers by booleans, and gives other departments a count.
       // Read against §3 first: policies, functions and a count, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 207, `${migrations.length} migrations; the frozen baseline has 207`);
+      c.expect(migrations.length === 208, `${migrations.length} migrations; the frozen baseline has 208`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3931,9 +3933,10 @@ export const experienceTests: SelfTest[] = [
       // MOVED 202 -> 203 for the System Integrity Gate (9 Nov): four policies narrowed to the class touch no tour RPC.
       // MOVED 203 -> 204 for SI-D01's completion: evidence policies on the sitting's place and D5's investigation read touch no tour RPC.
       // MOVED 204 -> 205 for SI-D02: one start at a time per learner and assignment touches no tour RPC.
+      // MOVED 207 -> 208 for SI-D01 finding 1: PD sittings ended or extended by the platform; no tour RPC.
       // MOVED 206 -> 207 for SI-D03: credential paths narrowed to the school that holds the person; no tour RPC.
       // MOVED 205 -> 206 for SI-D01's remaining findings: acts on a sitting decided over its place touch no tour RPC.
-      c.expect(migs.length === 207, `${migs.length} migrations; the baseline has 207`);
+      c.expect(migs.length === 208, `${migs.length} migrations; the baseline has 208`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
