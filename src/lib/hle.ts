@@ -193,6 +193,26 @@ export type HleEvent =
   | "sertifikat.kelola.cabut"
   | "sertifikat.kelola.ditolak"
   | "sertifikat.cabut.judul"
+  | "sertifikat.ganti.judul"
+  | "sertifikat.ganti.arti"
+  | "sertifikat.ganti.bagian"
+  | "sertifikat.ganti.tercetak"
+  | "sertifikat.ganti.kini"
+  | "sertifikat.ganti.berubah"
+  | "sertifikat.ganti.alasan"
+  | "sertifikat.ganti.alasan.arti"
+  | "sertifikat.ganti.tombol"
+  | "sertifikat.ganti.sama"
+  | "sertifikat.ganti.ok"
+  | "sertifikat.ganti.digantikan_oleh"
+  | "sertifikat.ganti.gagal.cert_not_allowed"
+  | "sertifikat.ganti.gagal.cert_not_issued"
+  | "sertifikat.ganti.gagal.cert_reason_required"
+  | "sertifikat.ganti.gagal.cert_nothing_changed"
+  | "sertifikat.ganti.gagal.cert_key_invalid"
+  | "sertifikat.ganti.gagal.cert_replacement_invalid"
+  | "sertifikat.ganti.gagal.tidak_ditemukan"
+  | "sertifikat.ganti.gagal.layanan_tidak_tersedia"
   | "sertifikat.cabut.alasan"
   | "sertifikat.cabut.alasan.arti"
   | "sertifikat.cabut.lanjut"
@@ -3281,6 +3301,27 @@ const table: Table = {
   "sertifikat.kelola.cabut": { default: "Cabut", en: "Revoke" },
   "sertifikat.kelola.ditolak": { default: "Sertifikat sekolah hanya dapat dibuka oleh Admin sekolah.", en: "Only a school admin can open the school's certificates." },
   "sertifikat.cabut.judul": { default: "Cabut sertifikat", en: "Revoke a certificate" },
+  // W2.22 (owner, 9 Nov): «Terbitkan ulang», the replacement of an erroneous issued certificate
+  "sertifikat.ganti.judul": { default: "Terbitkan ulang", en: "Reissue" },
+  "sertifikat.ganti.arti": { default: "Sertifikat pengganti diterbitkan dengan nama, sekolah dan pelajaran yang tercatat sekarang, dengan hasil yang sama dan nomor baru. Sertifikat ini tetap tersimpan, dan pemeriksaannya akan menyebut bahwa ia sudah digantikan.", en: "A replacement certificate is issued with the name, school and lesson recorded now, the same result and a new number. This certificate is kept, and its check will say it has been replaced." },
+  "sertifikat.ganti.bagian": { default: "Bagian", en: "Part" },
+  "sertifikat.ganti.tercetak": { default: "Tertulis di sertifikat", en: "On the certificate" },
+  "sertifikat.ganti.kini": { default: "Tercatat sekarang", en: "Recorded now" },
+  "sertifikat.ganti.berubah": { default: "Berbeda", en: "Different" },
+  "sertifikat.ganti.alasan": { default: "Alasan penerbitan ulang", en: "Reason for reissuing" },
+  "sertifikat.ganti.alasan.arti": { default: "10 sampai 300 karakter. Tercatat bersama sertifikat pengganti dan di jejak audit sekolah.", en: "10 to 300 characters. Recorded with the replacement and in the school's audit trail." },
+  "sertifikat.ganti.tombol": { default: "Terbitkan sertifikat pengganti", en: "Issue the replacement" },
+  "sertifikat.ganti.sama": { default: "Nama, sekolah dan pelajaran di sertifikat ini sama dengan yang tercatat sekarang. Bila ada yang keliru, perbaiki datanya lebih dahulu (nama orang dikoreksi oleh Admin platform), lalu terbitkan ulang di sini.", en: "The name, school and lesson on this certificate match what is recorded now. If something is wrong, correct the record first (a person's name is corrected by the platform administrator), then reissue here." },
+  "sertifikat.ganti.ok": { default: "Sertifikat pengganti {nomor} diterbitkan. Sertifikat sebelumnya tetap tersimpan sebagai digantikan.", en: "Replacement certificate {nomor} issued. The earlier certificate is kept as replaced." },
+  "sertifikat.ganti.digantikan_oleh": { default: "Digantikan oleh sertifikat {nomor}.", en: "Replaced by certificate {nomor}." },
+  "sertifikat.ganti.gagal.cert_not_allowed": { default: "Anda tidak dapat menerbitkan ulang sertifikat sekolah ini.", en: "You cannot reissue this school's certificates." },
+  "sertifikat.ganti.gagal.cert_not_issued": { default: "Hanya sertifikat yang masih berlaku yang dapat diterbitkan ulang. Sertifikat yang dicabut atau sudah digantikan tetap seperti adanya.", en: "Only a certificate still in force can be reissued. A revoked or replaced certificate stays as it is." },
+  "sertifikat.ganti.gagal.cert_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
+  "sertifikat.ganti.gagal.cert_nothing_changed": { default: "Tidak ada yang berbeda dari yang tercatat sekarang. Perbaiki datanya lebih dahulu.", en: "Nothing differs from what is recorded now. Correct the record first." },
+  "sertifikat.ganti.gagal.cert_key_invalid": { default: "Sertifikat pengganti belum dapat ditandatangani sekarang. Coba lagi nanti.", en: "The replacement cannot be signed right now. Try again later." },
+  "sertifikat.ganti.gagal.cert_replacement_invalid": { default: "Sertifikat pengganti belum dapat diterbitkan. Coba lagi; sertifikat ini tetap berlaku.", en: "The replacement could not be issued. Try again; this certificate stays in force." },
+  "sertifikat.ganti.gagal.tidak_ditemukan": { default: "Sertifikat itu tidak ditemukan.", en: "That certificate was not found." },
+  "sertifikat.ganti.gagal.layanan_tidak_tersedia": { default: "Penerbitan ulang sedang tidak dapat dilakukan. Sertifikat ini tetap berlaku; coba lagi nanti.", en: "Reissuing is not available right now. This certificate stays in force; try again later." },
   "sertifikat.cabut.alasan": { default: "Alasan pencabutan", en: "Reason for revoking" },
   "sertifikat.cabut.alasan.arti": { default: "Mengapa sertifikat ini dicabut. Dicatat bersama pencabutannya dan tidak dapat diubah.", en: "Why this certificate is revoked. Recorded with the revocation and cannot be changed." },
   "sertifikat.cabut.lanjut": { default: "Lanjutkan", en: "Continue" },

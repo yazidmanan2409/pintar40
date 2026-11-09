@@ -16,6 +16,19 @@
 --   F38-W05  W2.21: a lesson PINTAR no longer shares can still be ended (found by PENUGASAN-A01 on 9 Nov): an ACTIVE
 --            assignment of canonical content whose distribution to the school was WITHDRAWN is ended by the class's
 --            Guru, its assessment CLOSED; it still cannot be made ACTIVE again or opened.
+--   F38-C01  W2.22 «Terbitkan ulang»: who may, and what the preview shows. The school's admin reads the name, school
+--            and course sealed beside those read now (the holder's name corrected since); a Guru, the holder and
+--            another school's admin are refused CERT_NOT_ALLOWED.
+--   F38-C02  W2.22: refusals write nothing. A reason under 10 characters, a certificate whose name, school and course
+--            are unchanged (CERT_NOTHING_CHANGED), a revoked certificate (CERT_NOT_ISSUED), a Guru and another school's
+--            admin; no certificate is added and the original stays ISSUED.
+--   F38-C03  W2.22: corrected by its replacement. The admin prepares the replacement (ELIGIBLE, not public: a new number
+--            from the holder's sequence, a new token, the corrected name, the original's result, the reason and the
+--            actor); a second press returns the same one; sealed by the server, the replacement is ISSUED and the
+--            original SUPERSEDED with its payload, snapshot, number and token unchanged; the public check answers
+--            BERLAKU and DIGANTIKAN; one certificate.superseded row names the reason, the actor and the replacement.
+--   F38-C04  W2.22: one replacement per certificate. A superseded certificate cannot be corrected or revoked again; a
+--            second prepared replacement of it cannot be sealed; the replacement itself can be revoked.
 --
 -- EVERY ROW IS ROLLED BACK (the suite's block ends in 'f38-rollback', as fable37 does).
 
@@ -52,12 +65,43 @@ begin
 end $$;
 revoke all on function selftest.f38_buka(uuid, uuid, uuid, uuid, uuid, uuid) from public;
 
+-- an ISSUED certificate of this suite's own for one finished sitting, as certificate_prepare and certificate_seal leave
+-- it (the suite's chapter has no school pass mark, so eligibility is not asked; the shape is the real one)
+create or replace function selftest.f38_sertifikat(p_session uuid)
+returns uuid language plpgsql set search_path = public, pg_temp as $$
+declare v_s public.assessment_sessions; v_p public.persons; v_snap uuid; v_id uuid; v_num text; v_tok text; v_iso text;
+begin
+  select * into v_s from public.assessment_sessions where id = p_session;
+  select * into v_p from public.persons where id = v_s.person_id;
+  insert into public.certificate_identity_snapshots (person_id, institution_id, name_as_issued, snapshot_hash)
+  values (v_p.id, v_s.institution_id, v_p.display_name, md5(v_p.display_name)) returning id into v_snap;
+  v_num := coalesce(v_p.pintar_id, 'F38') || '/' || lpad((floor(random() * 90000) + 10000)::int::text, 5, '0') || left(md5(p_session::text), 4);
+  v_tok := replace(replace(replace(encode(extensions.gen_random_bytes(32), 'base64'), '+', '-'), '/', '_'), '=', '');
+  v_iso := to_char(now() at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"');
+  insert into public.certificates (session_id, person_id, institution_id, snapshot_id, certificate_number, verification_token,
+    status, issued_at_iso, canonical_payload, institution_as_issued, course_subject_as_issued, course_title_as_issued, language_as_issued)
+  select v_s.id, v_p.id, v_s.institution_id, v_snap, v_num, v_tok, 'ELIGIBLE', v_iso,
+         jsonb_build_object('certificate_number', v_num, 'identity_snapshot_hash', md5(v_p.display_name),
+           'result', jsonb_build_object('score', 0.8, 'predikat', 'Baik', 'passed', true, 'safety_gate', true),
+           'issued_at', v_iso, 'plp_release_id', v_s.plp_release_id, 'release_content_sha256', null,
+           'assessment_definition_id', v_s.assessment_definition_id, 'assessment_definition_version', 1,
+           'scoring_policy_version', v_s.scoring_policy_version, 'key_version', 1),
+         i.name, co.subject, co.title, 'id'
+    from public.institutions i, public.plp_releases r join public.courses co on co.id = r.course_id
+   where i.id = v_s.institution_id and r.id = v_s.plp_release_id
+  returning certificates.id into v_id;
+  perform public.certificate_seal(v_id, 1::smallint, repeat('s', 43));
+  return v_id;
+end $$;
+revoke all on function selftest.f38_sertifikat(uuid) from public;
+
 create or replace function selftest.run_fable38()
 returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
-  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}';
+  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; c01 text[] := '{}'; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
+  u_admin uuid; v_n int; v_cert uuid; v_cert2 uuid; v_new uuid; v_new2 uuid; v_tok text; v_ntok text; v_payload jsonb; v_nomor text; v_snapold uuid; p_holder uuid; u_holder uuid; v_k record;
   v_crel uuid; v_cdef uuid; v_dist uuid; v_la3 uuid; v_aa3 uuid;
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid; v_coh uuid; c_a uuid; c_b uuid;
   v_def uuid; v_rel uuid; v_la uuid; v_aa uuid; v_la2 uuid;
@@ -244,6 +288,116 @@ begin
     v_got := selftest.f37_sebagai(u_guru_a, format('update public.assessment_assignments set status = %L where id = %L', 'OPEN', v_aa3));
     if v_got = 'OK' then w05 := w05 || 'a closed assessment of a lesson no longer shared was opened again'::text; end if;
 
+    -- ═══════════════════════════════════ F38-C01..C04 an erroneous certificate is corrected by its replacement
+    u_admin := selftest.f11_user('f38-admin-' || v_tag || '@local.invalid', 'INSTITUTION_ADMIN', v_root);
+    u_holder := selftest.f11_user('f38-holder-' || v_tag || '@local.invalid', null, null);
+    select a.person_id into p_holder from public.accounts a where a.auth_user_id = u_holder;
+    -- the holder's own sitting: the finished one above, given to the holder
+    set local session_replication_role = replica;
+    update public.assessment_sessions set person_id = p_holder where assessment_sessions.id = s_selesai;
+    update public.persons set display_name = 'Murid F38 Salah Ketik ' || v_tag where persons.id = p_holder;
+    set local session_replication_role = origin;
+    v_cert := selftest.f38_sertifikat(s_selesai);
+    select c.verification_token, c.canonical_payload, c.certificate_number, c.snapshot_id into v_tok, v_payload, v_nomor, v_snapold
+      from public.certificates c where c.id = v_cert;
+    -- a second sitting and certificate whose name is right, for «nothing changed» and the revoked case
+    v_cert2 := selftest.f38_sertifikat((select x.session from selftest.f36_sit(v_tpl, null, c_a, v_def, 0.90, 'W1', now() - interval '1 hour') x));
+    -- the holder's name is corrected afterwards (as correct_person_name does), so the first certificate is now wrong
+    set local session_replication_role = replica;
+    update public.persons set display_name = 'Murid F38 Benar ' || v_tag where persons.id = p_holder;
+    set local session_replication_role = origin;
+
+    -- C01 who may, and the preview
+    v_pv := null;
+    perform selftest.as_user_uid(u_admin);
+    begin
+      v_pv := public.sertifikat_koreksi_pratinjau(v_cert);
+    exception when others then c01 := c01 || ('the school''s admin was refused the preview: ' || sqlerrm); end;
+    perform selftest.as_owner();
+    if v_pv is not null and not (v_pv ->> 'nama_tercetak' = 'Murid F38 Salah Ketik ' || v_tag and v_pv ->> 'nama_kini' = 'Murid F38 Benar ' || v_tag
+                                 and (v_pv ->> 'berubah')::boolean and v_pv ->> 'status' = 'ISSUED') then
+      c01 := c01 || ('the preview: ' || v_pv::text); end if;
+    for r in select * from (values (u_guru_a, 'the Guru'), (u_holder, 'the holder'), (u_adminx, 'another school''s admin')) t(uid, who) loop
+      v_got := selftest.f37_sebagai(r.uid, format('select public.sertifikat_koreksi_pratinjau(%L)', v_cert));
+      if v_got <> 'PR120:CERT_NOT_ALLOWED' then c01 := c01 || (r.who || ' reading the preview: ' || v_got || ' (expected PR120:CERT_NOT_ALLOWED)'); end if;
+    end loop;
+
+    -- C02 refusals write nothing
+    select count(*) into v_n from public.certificates c where c.session_id in (s_selesai, (select c2.session_id from public.certificates c2 where c2.id = v_cert2));
+    for r in select * from (values
+        (u_admin, v_cert, 'salah', 'PR120:CERT_REASON_REQUIRED', 'a reason of 5 characters'),
+        (u_admin, v_cert2, 'nama sudah benar sejak awal', 'PR120:CERT_NOTHING_CHANGED', 'a certificate with nothing to correct'),
+        (u_guru_a, v_cert, 'nama murid salah ketik', 'PR120:CERT_NOT_ALLOWED', 'the Guru'),
+        (u_adminx, v_cert, 'nama murid salah ketik', 'PR120:CERT_NOT_ALLOWED', 'another school''s admin')) t(uid, cid, alasan, want, who) loop
+      v_got := selftest.f37_sebagai(r.uid, format('select * from public.sertifikat_koreksi_siapkan(%L, %L, 1::smallint)', r.cid, r.alasan));
+      if v_got <> r.want then c02 := c02 || (r.who || ': ' || v_got || ' (expected ' || r.want || ')'); end if;
+    end loop;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.revoke_certificate(%L, %L)', v_cert2, 'uji F38-C02'));
+    v_got := selftest.f37_sebagai(u_admin, format('select * from public.sertifikat_koreksi_siapkan(%L, %L, 1::smallint)', v_cert2, 'nama murid salah ketik'));
+    if v_got <> 'PR120:CERT_NOT_ISSUED' then c02 := c02 || ('a revoked certificate: ' || v_got || ' (expected PR120:CERT_NOT_ISSUED)'); end if;
+    if (select count(*) from public.certificates c where c.session_id in (s_selesai, (select c2.session_id from public.certificates c2 where c2.id = v_cert2))) <> v_n
+       or (select c.status::text from public.certificates c where c.id = v_cert) <> 'ISSUED' then
+      c02 := c02 || 'a refusal added a certificate or changed the original'::text; end if;
+
+    -- C03 corrected by its replacement
+    perform selftest.as_user_uid(u_admin);
+    begin
+      select * into v_k from public.sertifikat_koreksi_siapkan(v_cert, 'nama murid salah ketik saat terbit', 1::smallint);
+      v_new := v_k.certificate_id;
+      select * into v_k from public.sertifikat_koreksi_siapkan(v_cert, 'nama murid salah ketik saat terbit', 1::smallint);
+      if v_k.certificate_id is distinct from v_new then c03 := c03 || 'a second press prepared another replacement'::text; end if;
+    exception when others then c03 := c03 || ('the admin could not prepare the replacement: ' || sqlerrm); end;
+    perform selftest.as_owner();
+    if v_new is not null then
+      if not exists (select 1 from public.certificates n join public.certificate_identity_snapshots sn on sn.id = n.snapshot_id
+                      where n.id = v_new and n.status = 'ELIGIBLE' and n.supersedes_certificate_id = v_cert
+                        and sn.name_as_issued = 'Murid F38 Benar ' || v_tag and n.certificate_number <> v_nomor
+                        and n.verification_token <> v_tok and n.canonical_payload -> 'result' = v_payload -> 'result'
+                        and n.correction_reason = 'nama murid salah ketik saat terbit'
+                        and n.corrected_by_person_id = (select a.person_id from public.accounts a where a.auth_user_id = u_admin)) then
+        c03 := c03 || 'the prepared replacement does not carry the corrected name, a new number and token, the original''s result, the reason and the actor'::text; end if;
+      if exists (select 1 from public.verify_certificate((select n.verification_token from public.certificates n where n.id = v_new))) then
+        c03 := c03 || 'the prepared, unsigned replacement answers the public check'::text; end if;
+      -- the server signs and seals (service only)
+      v_got := selftest.f37_sebagai(u_admin, format('select public.sertifikat_koreksi_segel(%L, 1::smallint, %L)', v_new, repeat('t', 43)));
+      if v_got not like '42501%' then c03 := c03 || ('the admin''s own client sealed the replacement: ' || v_got); end if;
+      perform public.sertifikat_koreksi_segel(v_new, 1::smallint, repeat('t', 43));
+      if (select n.status::text || '/' || o.status::text from public.certificates n, public.certificates o where n.id = v_new and o.id = v_cert) <> 'ISSUED/SUPERSEDED' then
+        c03 := c03 || 'after the seal the replacement is not ISSUED and the original SUPERSEDED'::text; end if;
+      if not exists (select 1 from public.certificates o where o.id = v_cert and o.canonical_payload = v_payload and o.snapshot_id = v_snapold
+                       and o.certificate_number = v_nomor and o.verification_token = v_tok) then
+        c03 := c03 || 'the original''s sealed history changed'::text; end if;
+      if (select v.validity from public.verify_certificate(v_tok) v) is distinct from 'DIGANTIKAN'
+         or (select v.validity from public.verify_certificate((select n.verification_token from public.certificates n where n.id = v_new)) v) is distinct from 'BERLAKU' then
+        c03 := c03 || 'the public check does not answer DIGANTIKAN for the original and BERLAKU for the replacement'::text; end if;
+      if (select count(*) from public.audit_log a where a.action = 'certificate.superseded' and a.target_id = v_cert::text
+            and a.summary ->> 'reason' = 'nama murid salah ketik saat terbit' and a.summary ->> 'replacement_id' = v_new::text
+            and a.summary ->> 'actor' = (select ac.person_id::text from public.accounts ac where ac.auth_user_id = u_admin)
+            and (a.summary -> 'changed' ->> 'name')::boolean) <> 1 then
+        c03 := c03 || 'no single certificate.superseded row with the reason, the actor, the replacement and what changed'::text; end if;
+    end if;
+
+    -- C04 one replacement per certificate
+    if v_new is not null then
+      v_got := selftest.f37_sebagai(u_admin, format('select * from public.sertifikat_koreksi_siapkan(%L, %L, 1::smallint)', v_cert, 'nama murid salah ketik lagi'));
+      if v_got <> 'PR120:CERT_NOT_ISSUED' then c04 := c04 || ('correcting a superseded certificate: ' || v_got || ' (expected PR120:CERT_NOT_ISSUED)'); end if;
+      v_got := selftest.f37_sebagai(u_admin, format('select public.revoke_certificate(%L, %L)', v_cert, 'uji F38-C04'));
+      if v_got = 'OK' then c04 := c04 || 'a superseded certificate was revoked'::text; end if;
+      -- a second replacement of the original, prepared behind the rule's back, cannot be sealed
+      insert into public.certificates (session_id, person_id, institution_id, snapshot_id, certificate_number, verification_token,
+        status, issued_at_iso, canonical_payload, supersedes_certificate_id, correction_reason, corrected_by_person_id)
+      select o.session_id, o.person_id, o.institution_id, o.snapshot_id, o.certificate_number || 'X', o.verification_token || 'X',
+             'ELIGIBLE', o.issued_at_iso, o.canonical_payload, o.id, 'kedua yang tidak boleh ada', o.person_id
+        from public.certificates o where o.id = v_cert returning certificates.id into v_new2;
+      begin
+        perform public.sertifikat_koreksi_segel(v_new2, 1::smallint, repeat('u', 43));
+        c04 := c04 || 'a second replacement of the same certificate was sealed'::text;
+      exception when others then null; end;
+      v_got := selftest.f37_sebagai(u_admin, format('select public.revoke_certificate(%L, %L)', v_new, 'uji F38-C04: pengganti dicabut'));
+      if v_got <> 'OK' or (select c.status::text from public.certificates c where c.id = v_new) <> 'REVOKED' then
+        c04 := c04 || ('the replacement could not be revoked: ' || v_got); end if;
+    end if;
+
     raise exception 'f38-rollback';
   exception when others then
     if sqlerrm <> 'f38-rollback' then v_fatal := sqlerrm; end if;
@@ -260,7 +414,15 @@ begin
       ('F38-W04', 'W2.21: a second press, giving it again, a withdrawal', w04,
        'a second press is refused ASSIGN_NOT_LIVE with no row; assign_release no longer refuses ASSIGN_EXISTS; B''s Guru withdraws B''s assignment, recorded as learning_assignment.withdrawn'),
       ('F38-W05', 'W2.21: a lesson PINTAR no longer shares can still be ended', w05,
-       'an ACTIVE assignment of canonical content whose distribution was WITHDRAWN is ended by the class''s Guru, its assessment CLOSED; the closed assessment cannot be opened again')) t(tid, tarea, probs, good) loop
+       'an ACTIVE assignment of canonical content whose distribution was WITHDRAWN is ended by the class''s Guru, its assessment CLOSED; the closed assessment cannot be opened again'),
+      ('F38-C01', 'W2.22 «Terbitkan ulang»: who may, and what the preview shows', c01,
+       'the school''s admin reads the sealed name beside the corrected one (something would change); a Guru, the holder and another school''s admin are refused CERT_NOT_ALLOWED'),
+      ('F38-C02', 'W2.22: refusals write nothing', c02,
+       'a 5-character reason, a certificate with nothing to correct, a revoked certificate, a Guru and another school''s admin are refused; no certificate added, the original ISSUED'),
+      ('F38-C03', 'W2.22: corrected by its replacement', c03,
+       'the replacement is prepared ELIGIBLE (not public) with the corrected name, a new number and token, the original''s result, the reason and the actor, once; sealed by the server only, it is ISSUED and the original SUPERSEDED with its sealed history unchanged; the public check answers BERLAKU and DIGANTIKAN; one certificate.superseded row'),
+      ('F38-C04', 'W2.22: one replacement per certificate', c04,
+       'a superseded certificate is neither corrected nor revoked again; a second replacement of it cannot be sealed; the replacement itself is revoked')) t(tid, tarea, probs, good) loop
     id := r.tid; area := r.tarea;
     ok := v_fatal = '' and cardinality(r.probs) = 0;
     detail := case when v_fatal <> '' then 'fixture: ' || v_fatal when ok then r.good else array_to_string(r.probs, '; ') end;

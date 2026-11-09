@@ -329,4 +329,94 @@ export const kenaikanAppTests: SelfTest[] = [
         "one learning_assignment.withdrawn row with the reason) and the page confirms it and shows «Ditarik»");
     },
   },
+  {
+    id: "SERTIFIKAT-A01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      // W2.22 «Terbitkan ulang» on Konfigurasi · Sertifikat, as Alpha's admin, through the running app
+      const c = new Checks();
+      const asal = ctx.appUrl!;
+      const tag = randomBytes(4).toString("hex");
+      const salah = `Murid Salah Ketik ${tag}`, benar = `Murid Benar ${tag}`;
+      // a learner of the test's own with an issued certificate under a misspelt name, and the name corrected since
+      const [alpha, sert, token] = psql(`
+        do $$ declare v_i uuid; v_per uuid; v_p uuid; v_e uuid; v_tpl uuid; v_s uuid; v_snap uuid; v_c uuid; v_num text; v_tok text; v_iso text; begin
+          perform set_config('app.seed_intent', 'synthetic', true);
+          select i.id into v_i from public.institutions i where i.slug like 'synth-alpha-%' and i.is_active order by i.created_at desc limit 1;
+          select ap.id into v_per from public.academic_periods ap where ap.institution_id = v_i order by ap.starts_on limit 1;
+          select s.id into v_tpl from public.assessment_sessions s where s.institution_id = v_i and s.mode = 'POST_TEST' order by s.created_at limit 1;
+          if v_tpl is null then raise exception 'Alpha has no Cek penguasaan sitting to copy'; end if;
+          insert into public.persons (display_name) values (${lit(salah)}) returning id into v_p;
+          insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_p, v_i, v_per, 'ACTIVE') returning id into v_e;
+          -- the sitting the certificate is for, copied from one of Alpha's (written past the provenance guard: whether PINTAR
+          -- still shares that lesson with Alpha is not what this test is about, and earlier tests may have withdrawn it)
+          set local session_replication_role = replica;
+          insert into public.assessment_sessions (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, plp_release_id,
+            assessment_definition_id, assessment_definition_version, engine_version, scoring_policy_version, evidence_channel, evidence_class,
+            mode, status, shuffle_seed, started_at, deadline_extended_count)
+          select gen_random_uuid(), v_p, x.institution_id, v_e, x.academic_period_id, x.class_node_id, x.plp_release_id, x.assessment_definition_id,
+                 x.assessment_definition_version, x.engine_version, x.scoring_policy_version, x.evidence_channel, x.evidence_class, x.mode,
+                 'CREATED', x.shuffle_seed, now(), 0
+            from public.assessment_sessions x where x.id = v_tpl returning id into v_s;
+          set local session_replication_role = origin;
+          insert into public.certificate_identity_snapshots (person_id, institution_id, name_as_issued, snapshot_hash)
+          values (v_p, v_i, ${lit(salah)}, md5(${lit(salah)})) returning id into v_snap;
+          v_num := 'UJI-' || ${lit(tag)} || '/00001';
+          v_tok := replace(replace(replace(encode(extensions.gen_random_bytes(32), 'base64'), '+', '-'), '/', '_'), '=', '');
+          v_iso := to_char(now() at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"');
+          insert into public.certificates (session_id, person_id, institution_id, snapshot_id, certificate_number, verification_token, status,
+            issued_at_iso, canonical_payload, institution_as_issued, course_subject_as_issued, course_title_as_issued, language_as_issued)
+          select v_s, v_p, v_i, v_snap, v_num, v_tok, 'ELIGIBLE', v_iso,
+                 jsonb_build_object('certificate_number', v_num, 'identity_snapshot_hash', md5(${lit(salah)}),
+                   'result', jsonb_build_object('score', 0.85, 'predikat', 'Baik', 'passed', true, 'safety_gate', true), 'issued_at', v_iso,
+                   'plp_release_id', s.plp_release_id, 'release_content_sha256', null, 'assessment_definition_id', s.assessment_definition_id,
+                   'assessment_definition_version', s.assessment_definition_version, 'scoring_policy_version', s.scoring_policy_version, 'key_version', 1),
+                 i.name, co.subject, co.title, 'id'
+            from public.assessment_sessions s join public.institutions i on i.id = s.institution_id
+            join public.plp_releases r on r.id = s.plp_release_id join public.courses co on co.id = r.course_id where s.id = v_s
+          returning id into v_c;
+          perform public.certificate_seal(v_c, 1::smallint, repeat('s', 43));
+          set local session_replication_role = replica;
+          update public.persons set display_name = ${lit(benar)} where id = v_p;
+          set local session_replication_role = origin;
+          perform set_config('sa.ids', v_i || '|' || v_c || '|' || v_tok, false);
+        end $$;
+        select current_setting('sa.ids');`).split("\n").pop()!.split("|");
+      if (!c.expect(/^[0-9a-f-]{36}$/.test(alpha ?? "") && /^[0-9a-f-]{36}$/.test(sert ?? "") && (token ?? "").length >= 43, "the fixture was not made")) return c.verdict("");
+      const admin = new Komputer(asal, ipUji());
+      const m = await admin.jsonDari("/masuk/password", { form: { identitas: "alpha-admin@synthetic.pintar.test", password: "Sintetis-AlphaAdmin-27!" } });
+      if (!c.expect(m.status === 200, `Alpha's admin could not sign in (${m.status})`)) return c.verdict("");
+      await admin.halaman("/konfigurasi");
+      await admin.jsonDari("/api/sesi/perangkat", { form: { mode: "PERSONAL" } });
+      await pilihKonteksPeramban(admin, `MENGELOLA:${alpha}`);
+
+      // the certificate's panel sets what is written beside what is recorded now, and offers the replacement
+      const h1 = await (await admin.halaman(`/konfigurasi/sertifikat?pilih=${sert}`)).text();
+      c.expect(teks(h1).includes(salah) && teks(h1).includes(benar) && h1.includes(`data-ganti-form="${sert}"`),
+        "the panel does not show the name on the certificate beside the corrected one with «Terbitkan ulang»");
+      const f = formDengan(h1, `data-ganti-form="${sert}"`, { alasan: `nama salah ketik saat terbit ${tag}` });
+      if (!c.expect(typeof f !== "string", `the «Terbitkan ulang» form: ${f}`)) return c.verdict("");
+      const r = await admin.kirim("/konfigurasi/sertifikat", { form: f as Record<string, string> });
+      c.expect(/hasil=ok/.test(r.headers.get("location") ?? "") && /jenis=ganti/.test(r.headers.get("location") ?? ""),
+        `the reissue answered ${r.status} ${r.headers.get("location")}`);
+      const [lama, baru, barutok, alasan] = psql(`select o.status || '|' || n.status || '|' || n.verification_token || '|' || n.correction_reason
+        from public.certificates o join public.certificates n on n.supersedes_certificate_id = o.id where o.id = ${lit(sert)} and n.status <> 'ELIGIBLE'`).split("|");
+      c.expect(lama === "SUPERSEDED" && baru === "ISSUED" && alasan === `nama salah ketik saat terbit ${tag}`,
+        `after the reissue: original ${lama}, replacement ${baru}, reason «${alasan}»`);
+      const namaBaru = psql(`select sn.name_as_issued from public.certificates n join public.certificate_identity_snapshots sn on sn.id = n.snapshot_id
+        where n.supersedes_certificate_id = ${lit(sert)} and n.status = 'ISSUED'`);
+      c.expect(namaBaru === benar, `the replacement carries «${namaBaru}»`);
+      // the replacement's own public check: signed by this server's key, it answers BERLAKU; the original says it was replaced
+      if (barutok) {
+        const v = await fetch(`${asal}/api/verifikasi/${encodeURIComponent(barutok)}`).then((x) => x.json()).catch(() => null) as { validity?: string } | null;
+        c.expect(v?.validity === "BERLAKU", `the replacement's public check says ${JSON.stringify(v)}`);
+      }
+      const h2 = await (await admin.halaman(r.headers.get("location") ?? `/konfigurasi/sertifikat?pilih=${sert}`)).text();
+      c.expect(teks(h2).includes("Sertifikat sebelumnya tetap tersimpan sebagai digantikan") && h2.includes("data-digantikan-oleh="),
+        "the panel does not confirm the reissue and say what replaced the certificate");
+      return c.verdict("as Alpha's admin on Konfigurasi · Sertifikat: the panel sets the misspelt name on the certificate beside the corrected one; " +
+        "«Terbitkan ulang» with a reason issues a replacement carrying the corrected name, signed by the server (its public check BERLAKU); " +
+        "the original is kept as SUPERSEDED and the panel says which certificate replaced it");
+    },
+  },
 ];

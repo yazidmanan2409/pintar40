@@ -27,7 +27,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { t, type HleEvent } from "../src/lib/hle";
-import { KODE_CABUT, KEADAAN_SERTIFIKAT } from "../src/lib/sertifikat-cabut-kontrak";
+import { KODE_CABUT, KEADAAN_SERTIFIKAT, KODE_GANTI, KODE_GANTI_DB, kodeGantiDariGalat } from "../src/lib/sertifikat-cabut-kontrak";
 import { JUDUL_HALAMAN } from "../src/lib/judul-halaman";
 import { langkahRujukan } from "../src/lib/integritas-kontrak";
 
@@ -56,7 +56,9 @@ export const b5Tests: SelfTest[] = [
         "«Cabut» is not offered on an issued certificate only");
       c.expect(/rpc\("sertifikat_sekolah", \{ p_sekolah: lingkup, p_cari: null, p_hal: 1, p_id: pilih \}\)/.test(halaman),
         "the chosen certificate is not read again by id under the same rule");
-      c.expect(/dipilih\.status === "ISSUED" \? \(\s*<FormCabut /.test(halaman), "the panel does not offer the revocation form for an issued certificate");
+      // RESTATED for W2.22 (owner, 9 Nov): an issued certificate's panel now holds «Cabut» and «Terbitkan ulang» together
+      // (a fragment); the property is the same: the revocation form is offered for an issued certificate
+      c.expect(/dipilih\.status === "ISSUED" \? \(\s*(?:<>\s*)?<FormCabut /.test(halaman), "the panel does not offer the revocation form for an issued certificate");
       c.expect(/messageKey="sertifikat\.kelola\.ditolak"/.test(halaman), "a reader the database refuses does not get the one refusal page");
       c.expect(!/service_role|SERVICE_ROLE|supabaseAdmin|createClient\(/.test(halaman), "the page reaches for the service key");
 
@@ -158,5 +160,49 @@ export const b5Tests: SelfTest[] = [
         + "with the total and a pager that keeps the words; never every waiting person; new words start at page 1; words in both languages");
     },
   },
+  {
+    // W222-K01 — «TERBITKAN ULANG»: ONE CONTRACT FROM THE MIGRATION TO THE CERTIFICATE PANEL (owner, 9 Nov).
+    id: "W222-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const sql = baca(ctx.repoRoot, "supabase/migrations/20270113110000_a_certificate_is_corrected_by_its_replacement.sql").replace(/--[^\n]*/g, "");
+      const tolak = /create or replace function public\.sertifikat_koreksi_tolak[\s\S]*?\$\$;/.exec(sql)?.[0] ?? "";
+      const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();
+      c.expect(JSON.stringify(dariDb) === JSON.stringify([...KODE_GANTI_DB].sort()),
+        `sertifikat_koreksi_tolak knows ${dariDb.join(",")} and the contract names ${KODE_GANTI_DB.join(",")}`);
+      for (const k of KODE_GANTI_DB) {
+        c.expect(new RegExp(`sertifikat_koreksi_tolak\\('${k}'\\)`).test(sql.replace(/create or replace function public\.sertifikat_koreksi_tolak[\s\S]*?\$\$;/, "")),
+          `no function raises ${k}`);
+        c.expect(kodeGantiDariGalat({ code: "PR120", details: k }) === k, `${k} is not read back as itself`);
+      }
+      c.expect(kodeGantiDariGalat({ code: "PR120", details: "CERT_PLANTED" }) === "LAYANAN_TIDAK_TERSEDIA", "an unknown DETAIL is read as a known code");
+      c.expect(kodeGantiDariGalat({ code: "PR110", details: "MAINTENANCE_NO_NEW_START" }) === "LAYANAN_TIDAK_TERSEDIA", "another state's refusal is read as a correction code");
+      const MESIN = /CERT_|PR\d{3}|jsonb|uuid|CAN_|INV-|ELIGIBLE|SUPERSEDED/;
+      for (const k of KODE_GANTI) {
+        for (const l of ["id", "en"] as const) {
+          const kunci = `sertifikat.ganti.gagal.${k.toLowerCase()}` as HleEvent;
+          let x = ""; try { x = t(kunci, "staff", { locale: l }); } catch { x = ""; }
+          c.expect(x.trim() !== "" && x !== kunci, `${kunci} has no ${l} telling`);
+          c.expect(!MESIN.test(x), `${kunci} names the machinery in ${l}`);
+        }
+      }
+      // the seal is the server's alone: the action prepares with the admin's own client, signs, then seals with the service one
+      const aksi = baca(ctx.repoRoot, "src/app/konfigurasi/sertifikat/actions.ts");
+      const fungsi = /export async function terbitUlangSertifikatAksi[\s\S]*?\n\}/.exec(aksi)?.[0] ?? "";
+      const i1 = fungsi.indexOf("wajibDalamKonteks("), i2 = fungsi.indexOf('supabase.rpc("sertifikat_koreksi_siapkan"'),
+            i3 = fungsi.indexOf("signPayload("), i4 = fungsi.indexOf('supabaseService().rpc("sertifikat_koreksi_segel"');
+      c.expect(i1 >= 0 && i2 > i1 && i3 > i2 && i4 > i3,
+        "terbitUlangSertifikatAksi does not check the context, prepare with the admin's own client, sign, then seal with the service client, in that order");
+      c.expect(/has_function_privilege\('authenticated', 'public\.sertifikat_koreksi_segel/.test(sql) && /grant execute on function public\.sertifikat_koreksi_segel\(uuid, smallint, text\) to service_role;/.test(sql),
+        "the seal is not service-only");
+      // the panel: the form only where something differs, the reason 10–300, «Digantikan oleh» on a replaced certificate
+      const panel = baca(ctx.repoRoot, "src/components/sertifikat/FormTerbitUlang.tsx");
+      c.expect(/pratinjau\.berubah \? \(\s*<form action=\{terbitUlangSertifikatAksi\}/.test(panel), "the form is not offered only where something differs");
+      c.expect(/name="alasan"[^>]*minLength=\{10\} maxLength=\{300\}/.test(panel), "the reason is not 10–300 characters");
+      const halaman = kode(baca(ctx.repoRoot, "src/app/konfigurasi/sertifikat/page.tsx"));
+      c.expect(/rpc\("sertifikat_koreksi_pratinjau", \{ p_certificate: dipilih\.id \}\)/.test(halaman), "the panel does not read the database's preview");
+      c.expect(/<FormTerbitUlang /.test(halaman) && /sertifikat\.ganti\.digantikan_oleh/.test(halaman), "the panel does not offer «Terbitkan ulang» or say what replaced a certificate");
+      return c.verdict("sertifikat_koreksi_tolak's six codes are the contract's, each raised and read back by its PR120 DETAIL (an unknown one and another state's are not), and every screen code has a sentence in both languages naming no machinery; the action checks the context, prepares with the admin's own client, signs, then seals with the service client, and the seal is service-only; the panel reads the database's preview, offers the form only where something differs with a 10–300 reason, and says what replaced a certificate");
+    },
+  },
 ];
-

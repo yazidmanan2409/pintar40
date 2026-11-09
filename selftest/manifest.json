@@ -4172,6 +4172,11 @@
       "proves": "W2.5 (Batch 5; CR-05, ADM-18, J8.5), selftest/b5.test.ts: the source of «Sertifikat sekolah» (src/app/konfigurasi/sertifikat/page.tsx) lists the database's own read sertifikat_sekolah as Daisy's Collection, offers «Cabut» on an issued certificate only and reads the chosen one again by id; the revocation (src/components/sertifikat/FormCabut.tsx) is Daisy's form page with the destructive in-page Confirmation (components/Confirmation, GQ5: never the Dialog): a required reason, «Lanjutkan» that commits nothing, the solid red act naming the certificate, focus on «Batal», what happens and what stays safe; the action (src/app/konfigurasi/sertifikat/actions.ts) checks the certificate's school against the working context and then asks revoke_certificate with the caller's own client; every refusal code and state has words in both languages in the copy table (src/lib/hle.ts); Konfigurasi links the page and it has its title."
     },
     {
+      "id": "W222-K01",
+      "runner": "static",
+      "proves": "W2.22 «Terbitkan ulang» read from its sources (selftest/b5.test.ts against 20270113110000): sertifikat_koreksi_tolak's codes are exactly KODE_GANTI_DB and each is raised; each is read back by its PR120 DETAIL (a planted unknown and maintenance's PR110 are not); every screen code has a sentence in both languages naming no machinery; terbitUlangSertifikatAksi checks the working context, prepares with the admin's own client, signs with the keyring, then seals with the service client, and sertifikat_koreksi_segel is granted to service_role only; the certificate panel reads sertifikat_koreksi_pratinjau, offers the form only where something differs with a 10–300 character reason, and says which certificate replaced a superseded one."
+    },
+    {
       "id": "F26-C01",
       "runner": "db",
       "proves": "W2.5 (Batch 5; CR-05), selftest/db/fable26.sql, migration 20261222100000: sertifikat_sekolah answers the school admin their school's issued certificates (number, holder, school, state), by number from its start and by a part of the holder's name, one by id (also with no school named, for whom may revoke it); a prepared ELIGIBLE row is not listed; «%» is matched as a word; a Guru, a head of department, another school's admin, a school admin asking for every school and an anonymous caller are refused; Admin platform reads every school's."
@@ -4942,6 +4947,26 @@
       "proves": "W2.21, found by PENUGASAN-A01 (9 Nov; red first, selftest/db/fable38.sql against 20270113100000): an ACTIVE assignment of a canonical lesson whose distribution to the school PINTAR has WITHDRAWN is ended by the class's Guru (ENDED, its assessment CLOSED); before the fix enforce_assignment_status's licence check refused every update, closing included. Closing needs no licence to teach; opening still does, and the closed assessment cannot be opened again."
     },
     {
+      "id": "F38-C01",
+      "runner": "db",
+      "proves": "W2.22 «Terbitkan ulang» (owner, 9 Nov: a minimal governed remedy; selftest/db/fable38.sql against 20270113110000): sertifikat_koreksi_pratinjau shows the school's admin the name sealed on an issued certificate beside the holder's name corrected since (something would change); a Guru, the holder and another school's admin are refused CERT_NOT_ALLOWED (CAN_PUBLISH in the certificate's school, the authority that revokes it)."
+    },
+    {
+      "id": "F38-C02",
+      "runner": "db",
+      "proves": "W2.22 refusals write nothing (selftest/db/fable38.sql): sertifikat_koreksi_siapkan refuses a reason under 10 characters (CERT_REASON_REQUIRED), a certificate whose name, school and course match the records (CERT_NOTHING_CHANGED), a revoked certificate (CERT_NOT_ISSUED), a Guru and another school's admin (CERT_NOT_ALLOWED); no certificate is added and the original stays ISSUED."
+    },
+    {
+      "id": "F38-C03",
+      "runner": "db",
+      "proves": "W2.22 corrected by its replacement (selftest/db/fable38.sql): the admin prepares the replacement ELIGIBLE, which the public check does not answer, carrying the corrected name in a new snapshot, a new number and token, the original's sealed result, the reason and the actor; a second press returns the same one; the admin's own client cannot seal it (42501); sealed by the server, the replacement is ISSUED and the original SUPERSEDED with its payload, snapshot, number and token unchanged; verify_certificate answers BERLAKU and DIGANTIKAN; one certificate.superseded audit row names the reason, the actor, the replacement and that the name changed."
+    },
+    {
+      "id": "F38-C04",
+      "runner": "db",
+      "proves": "W2.22 one replacement per certificate (selftest/db/fable38.sql): a superseded certificate can be neither corrected (CERT_NOT_ISSUED) nor revoked again; a second replacement of it, inserted behind the rule, cannot be sealed; the replacement itself can be revoked."
+    },
+    {
       "id": "KENAIKAN-K01",
       "runner": "static",
       "proves": "«Kenaikan kelas dan kelulusan», selftest/kenaikan.test.ts, executes the source file src/lib/kenaikan.ts: it reads every select value (NAIK and TINGGAL with a Kelas, LULUS, PINDAH, KELUAR with each of the four reasons) back as its decision and writes it the same way; an empty choice, a malformed id or an unknown reason is no decision; the address form between steps is base64url of ids and codes only, and a malformed one is dropped, never repaired into decisions."
@@ -4959,7 +4984,12 @@
     {
       "id": "PENUGASAN-A01",
       "runner": "app",
-      "proves": "W2.21 «Akhiri penugasan» through the running app (selftest/kenaikan.test.ts): Alpha's Guru, on a class of the test's own with one lesson in force, is offered «Akhiri atau tarik» on that material's row; the panel says results, certificates and learning progress are kept; a 3-character reason is refused (ASSIGN_REASON_REQUIRED, its sentence shown on the panel) and changes nothing; the withdrawal is recorded (learning assignment WITHDRAWN, its assessment CLOSED, one learning_assignment.withdrawn audit row with the reason), and the class page confirms it and shows the material as «Ditarik» with no further offer."
+      "proves": "W2.21 «Akhiri penugasan» through the running app (selftest/kenaikan.test.ts): Alpha's Guru, on a class of the test's own with one lesson in force, is offered «Akhiri atau tarik» on that material's row; the panel says results, certificates and learning progress are kept; a 3-character reason is refused (ASSIGN_REASON_REQUIRED, its sentence shown on the panel) and changes nothing; the withdrawal is recorded (learning assignment WITHDRAWN, its assessment CLOSED, one learning_assignment.withdrawn audit log row with the reason), and the rendered class page confirms it and shows the material as «Ditarik» with no further offer."
+    },
+    {
+      "id": "SERTIFIKAT-A01",
+      "runner": "app",
+      "proves": "W2.22 «Terbitkan ulang» through the running app (selftest/kenaikan.test.ts): Alpha's admin opens an issued certificate whose holder's name was corrected after issuance; the panel sets the name on the certificate beside the one recorded now; reissuing with a reason produces a replacement carrying the corrected name and the reason, signed by the server's keyring (its public check /api/verifikasi answers BERLAKU), and the original is kept as SUPERSEDED; the panel confirms it and names the replacement."
     },
     {
       "id": "JEJAK-K01",
