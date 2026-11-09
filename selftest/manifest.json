@@ -4782,6 +4782,11 @@
       "proves": "SI-D01, Sharon's finding A (HIGH; selftest/db/fable37.sql against 20270112130000): another person's sitting is acted on over its place. B's Kepala departemen and B's Guru are refused (CAN_ in the message) when they decide Kelas A's observation (record_integrity_review), end its sitting (terminate_session) or extend its deadline (extend_session_deadline); A's Kepala departemen succeeds at each (tried and undone). Before the fix all three asked can_in_institution: a capability anywhere in the school."
     },
     {
+      "id": "F37-S01",
+      "runner": "db",
+      "proves": "SI-D03 (System Integrity, 9 Nov; found by the account-lifecycle inventory): a school's account-level power over a person follows the person's current placement, never a historical registration number (selftest/db/fable37.sql against recovery_assist_school). School X's admin is refused (42501) admin_reset_recovery for a learner who transferred from X to Y and for one who withdrew from X, and that learner's session survives; school Y's admin resets the transferred learner (every session ended); a person who is a learner at X and a teacher at Y is assisted by either school; school Y's admin, X's Guru and X's Kepala departemen are refused for X's learner; X's registration numbers and the ended enrollments are kept."
+    },
+    {
       "id": "F37-R01",
       "runner": "db",
       "proves": "SI-D02 (System Integrity, 9 Nov) under real concurrency (runAttemptLimitRace in selftest/run.ts) against supabase/migrations/20270112120000_one_start_at_a_time.sql: a learner one attempt short of an assignment's attempt_limit, chosen from the world and allowed to start by may_start_assessment, starts on connection A, which holds its transaction open; connection B's start of the same assignment waits on the per-(learner, assignment) advisory lock while A holds, and runs only after A ends. Both roll back. It failed before the migration: B completed in 0.07 s while A held, so both commits would have left two attempts against a limit of one (a double tap or two devices suffice; found by the D-125 investigation, confirmed by Sharon)."

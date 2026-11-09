@@ -102,13 +102,14 @@ language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
   d01 text[] := '{}'; d07 text[] := '{}'; d03 text[] := '{}'; d04 text[] := '{}'; d05 text[] := '{}'; d06 text[] := '{}';
-  b01 text[] := '{}'; d02 text[] := '{}'; c01 text[] := '{}';
+  b01 text[] := '{}'; d02 text[] := '{}'; c01 text[] := '{}'; s01 text[] := '{}';
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_depa uuid; v_depb uuid; v_proga uuid; v_progb uuid;
   v_coha uuid; v_cohb uuid; c_a uuid; c_b uuid; v_def uuid; v_def2 uuid; v_item uuid; v_opt text; v_rel uuid; v_rel2 uuid;
   u_murid uuid; u_lain uuid; u_guru_a uuid; u_guru_b uuid; u_kadep_a uuid; u_kadep_b uuid; u_admin uuid; u_sys uuid;
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int;
 begin
   perform selftest.as_owner();
   begin
@@ -346,6 +347,74 @@ begin
       if v_n <> v_total or v_n = 0 then b01 := b01 || format('%s: the count says %s, the list''s total %s', r.siapa, v_n, v_total); end if;
     end loop;
 
+    -- ═══════════════════════════════════ F37-S01 (SI-D03) a school's account-level power follows its current placement
+    -- owner, 9 Nov: a historical registration number is kept for the record, and never confers current authority over
+    -- a person's sign-in. School X is this suite's school (its admin u_admin), school Y another (its admin u_adminy).
+    -- T transferred X -> Y; W withdrew from X; M is a learner at X and a teacher at Y; A is a learner at X only.
+    -- Each holds X's registration number for good, and one live session.
+    -- school Y here: another school with an academic period (D02's school Y needs none)
+    select ap.institution_id, ap.id into v_y, v_pery from public.academic_periods ap
+     where ap.institution_id <> v_x order by ap.created_at limit 1;
+    if v_pery is null then raise exception 'no second school has an academic period'; end if;
+    select o.id into v_rooty from public.org_nodes o where o.institution_id = v_y and o.kind = 'INSTITUTION';
+    u_adminy := selftest.f11_user('f37-adminy-' || v_tag || '@local.invalid', 'INSTITUTION_ADMIN', v_rooty);
+    for r in select * from (values ('T'), ('W'), ('M'), ('A')) t(k) loop
+      v_uid := selftest.f11_user('f37-lc-' || lower(r.k) || '-' || v_tag || '@local.invalid', null, null);
+      select a.person_id into v_pp from public.accounts a where a.auth_user_id = v_uid;
+      insert into public.institutional_identities (person_id, institution_id, institutional_id, sequence_number)
+      select v_pp, v_x, i.namespace || lpad(q.n::text, 6, '0') || 'ZZ', q.n
+        from public.institutions i,
+             (select coalesce(max(ii.sequence_number), 0) + 1 as n from public.institutional_identities ii where ii.institution_id = v_x) q
+       where i.id = v_x;
+      insert into public.enrollments (person_id, institution_id, academic_period_id, status)
+      values (v_pp, v_x, v_period, 'ACTIVE') returning enrollments.id into v_ex;
+      if r.k in ('T', 'W') then
+        update public.enrollments set status = 'ENDED',
+               end_reason = (case r.k when 'T' then 'TRANSFERRED_OUT' else 'WITHDRAWN' end)::public.enrollment_end_reason
+         where enrollments.id = v_ex;
+      end if;
+      if r.k = 'T' then
+        insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_pp, v_y, v_pery, 'ACTIVE');
+      end if;
+      if r.k = 'M' then
+        perform set_config('app.seed_intent', 'synthetic', true);
+        insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until)
+        values (v_pp, 'EDUCATOR', v_rooty, now() - interval '1 day', now() + interval '30 days');
+        perform set_config('app.seed_intent', '', true);
+      end if;
+      insert into auth.sessions (id, user_id) values (gen_random_uuid(), v_uid);
+      lc := lc || jsonb_build_object(r.k, jsonb_build_object('uid', v_uid, 'person', v_pp));
+    end loop;
+    -- refusals first, so each person's session is still there to be kept
+    for r in select * from (values
+        ('school X''s admin, after T transferred to Y', u_admin,   'T', false),
+        ('school X''s admin, after W withdrew',         u_admin,   'W', false),
+        ('school Y''s admin, for A of school X only',   u_adminy,  'A', false),
+        ('school X''s Guru, for A',                     u_guru_a,  'A', false),
+        ('school X''s Kepala departemen, for A',        u_kadep_a, 'A', false),
+        ('school Y''s admin, for T now at Y',           u_adminy,  'T', true),
+        ('school X''s admin, for M (learner at X)',     u_admin,   'M', true),
+        ('school Y''s admin, for M (teacher at Y)',     u_adminy,  'M', true),
+        ('school X''s admin, for A',                    u_admin,   'A', true)) t(siapa, uid, k, boleh) loop
+      v_uid := (lc -> r.k ->> 'uid')::uuid; v_pp := (lc -> r.k ->> 'person')::uuid;
+      v_got := selftest.f37_sebagai(r.uid, format('select public.admin_reset_recovery(%L, %L)', v_pp, 'uji SI-D03: pemulihan dibantu'));
+      select count(*) into v_sesi from auth.sessions s where s.user_id = v_uid;
+      if r.boleh and v_got <> 'OK' then s01 := s01 || format('%s: refused (%s)', r.siapa, v_got); end if;
+      if not r.boleh and v_got = 'OK' then
+        s01 := s01 || format('%s: the reset was ACCEPTED, ending %s''s sessions everywhere (%s left) and forcing a new PIN', r.siapa, r.k, v_sesi);
+      end if;
+      if not r.boleh and v_got <> 'OK' and v_got not like '42501:%' then s01 := s01 || format('%s: refused with %s, not 42501', r.siapa, v_got); end if;
+      if r.boleh and v_got = 'OK' and v_sesi <> 0 then s01 := s01 || format('%s: accepted, but %s session(s) survive', r.siapa, v_sesi); end if;
+    end loop;
+    -- history is kept: X's registration numbers and T's and W's ended enrollments are all still there
+    select count(*) into v_n from public.institutional_identities ii
+     where ii.institution_id = v_x and ii.person_id in (select (v ->> 'person')::uuid from jsonb_each(lc) j(k, v));
+    if v_n <> 4 then s01 := s01 || format('school X''s registration numbers: %s of 4 kept', v_n); end if;
+    select count(*) into v_n from public.enrollments en
+     where en.institution_id = v_x and en.status = 'ENDED'
+       and en.person_id in ((lc -> 'T' ->> 'person')::uuid, (lc -> 'W' ->> 'person')::uuid);
+    if v_n <> 2 then s01 := s01 || format('T''s and W''s ended enrollments at X: %s of 2 kept', v_n); end if;
+
     raise exception 'f37-rollback';
   exception when others then
     perform selftest.as_owner();
@@ -370,7 +439,9 @@ begin
       ('F37-D02', 'System Integrity, chain D: CR-91 across schools', d02,
        'a person offered a card in school X is not, once they hold a staff role in school Y'),
       ('F37-C01', 'System Integrity, chain A: a certificate after a recalculation', c01,
-       'a recalculation above or below the mark leaves eligibility on the sealed result, both ways')) t(tid, tarea, probs, good) loop
+       'a recalculation above or below the mark leaves eligibility on the sealed result, both ways'),
+      ('F37-S01', 'System Integrity, chain D: a school''s account-level power follows its current placement (SI-D03)', s01,
+       'a former school''s admin cannot reset the recovery of a learner who transferred or withdrew (42501; the session kept); the current school can (sessions ended); a person placed at two schools is assisted by either; another school''s admin, a Guru and a Kepala departemen are refused; registration numbers and ended enrollments are kept')) t(tid, tarea, probs, good) loop
     id := r.tid; area := r.tarea;
     ok := v_fatal = '' and cardinality(r.probs) = 0;
     detail := case when v_fatal <> '' then 'fixture: ' || v_fatal when ok then r.good else array_to_string(r.probs, '; ') end;
