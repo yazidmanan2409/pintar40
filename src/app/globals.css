@@ -136,8 +136,10 @@
   --status-ok: #2F6E4A;        --status-ok-soft: #E4F2EA;
   --status-attention: #8A5F00; --status-attention-soft: #F7EED8;
   /* CONTOH LAPORAN (Daisy, approved 7 Nov; G-03): PINTAR's three performance bands as three steps of one teal, validated
-     as an ordinal ramp (monotone, visible steps, the light end 2.3:1 on white); always drawn with their names */
-  --pita-penguatan: #86B3A9; --pita-berkembang: #4F8478; --pita-mantap: var(--pintar-primary);
+     as an ordinal ramp (monotone, visible steps, the light end 2.3:1 on white); always drawn with their names.
+     Reporting gate walk (9 Nov, axe color-contrast): the band bar writes its count in white on «Berkembang», which at
+     #4F8478 was 4.28:1, under AA's 4.5:1 for small text; #487A6F gives 4.9:1 and keeps the ramp monotone (for Daisy) */
+  --pita-penguatan: #86B3A9; --pita-berkembang: #487A6F; --pita-mantap: var(--pintar-primary);
   /* the compositions' geometry (contoh.css): the name, track and figure columns, the track and bar heights, the measures */
   --lk-kolom-nama: 12rem; --lk-kolom-nilai: 6.5rem; --lk-kolom-sempit: 5.5rem;
   --lk-jalur: 20px; --lk-batang: 12px; --lk-pita-tinggi: 28px; --lk-ket: 12px; --lk-titik: 10px;

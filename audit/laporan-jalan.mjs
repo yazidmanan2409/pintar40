@@ -180,6 +180,8 @@ for (const [siapa, daftar] of Object.entries(HALAMAN).filter(([k]) => !HANYA || 
         const a = await periksa(page).catch((e) => ({ gagal: [String(e)] }));
         rec.axe = a.axe ?? null; rec.axeGagal = a.gagal ?? [];
         rec.judul = a.judul; rec.judulMasalah = a.judulMasalah ?? null; rec.lompat = a.lompat; rec.papan = a.papan;
+        // A6 (owner, 9 Nov): what a screen reader is given for the chapter rows, from the accessibility tree itself
+        rec.pohonBab = await page.locator("[data-lk-bab]").first().ariaSnapshot().catch(() => null);
         await page.emulateMedia({ media: "print" });
         rec.cetakKulit = await page.evaluate(() => {
           const lihat = (el) => { const r = el.getBoundingClientRect(); const g = getComputedStyle(el); return r.width > 0 && r.height > 0 && g.display !== "none" && g.visibility !== "hidden"; };

@@ -118,10 +118,12 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
   const minimumDomain = Number(domain.find((d) => typeof d.needed === "number")?.needed ?? 0);
   const tertahanKarena = (alasan: "learners" | "class") => domain.filter((d) => typeof d.mean_score !== "number"
     && (alasan === "class" ? d.withheld === "class" : d.withheld !== "class")).length;
+  // when none is shown, the reasons are «of them», never «other» objectives
+  const tidakAdaTampil = !domain.some((d) => typeof d.mean_score === "number");
   const alasanTertahan = (["learners", "class"] as const).flatMap((alasan) => {
     const n = tertahanKarena(alasan);
     if (n === 0) return [];
-    const kunci = `laporan.sekolah.ranah_tertahan.${alasan === "class" ? "kelas" : "murid"}.${n === 1 ? "satu" : "banyak"}`;
+    const kunci = `laporan.sekolah.ranah_tertahan${tidakAdaTampil ? "_semua" : ""}.${alasan === "class" ? "kelas" : "murid"}.${n === 1 ? "satu" : "banyak"}`;
     return [s(kunci).replace("{n}", format.number(n, locale)).replace("{m}", format.number(minimumDomain, locale))];
   });
   const urut = [...domain].filter((d) => typeof d.mean_score === "number").sort((a, b) => Number(b.mean_score) - Number(a.mean_score));

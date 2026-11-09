@@ -153,8 +153,9 @@ export const d78Tests: SelfTest[] = [
         "process.stdout.write(renderToStaticMarkup(h(K, { entries: [JSON.parse(process.env.E)], locale: 'id' })));",
         { E: JSON.stringify(semua) });
       c.expect(r2.ok && teks(r2.out).includes("Sudah ada hasil untuk 3 tujuan pembelajaran, tetapi belum ada yang dapat ditampilkan")
-        && teks(r2.out).includes("2 tujuan pembelajaran lain belum ditampilkan karena masing-masing dikerjakan kurang dari 10 murid")
-        && teks(r2.out).includes("1 tujuan pembelajaran lain belum ditampilkan karena di salah satu kelas"),
+        // the walk (9 Nov): with none shown, the reasons are «of them», never «other» objectives
+        && teks(r2.out).includes("2 di antaranya masing-masing dikerjakan kurang dari 10 murid.")
+        && teks(r2.out).includes("1 di antaranya di salah satu kelas dikerjakan terlalu sedikit murid") && !teks(r2.out).includes("tujuan pembelajaran lain"),
         `with every competency withheld, section A is empty or silent: «${teks(r2.out).slice(0, 300)}»`);
       const bukti = kode(baca(ctx.repoRoot, "src/app/mengajar/[kelas]/bukti/page.tsx"));
       c.expect(/pernyataan=\{b\.title && b\.title\.trim\(\) !== "" && b\.title\.trim\(\) !== b\.competency\.trim\(\) \? b\.competency : undefined\}/.test(bukti),
