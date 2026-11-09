@@ -216,3 +216,95 @@ Please answer each: verified, or a finding with a reproducible case.
    in «Jejak audit» and on the person's record.
 4. **Graduation of a whole class at year end:** one learner at a time, or a class at once? This is a design decision
    that changes E3's size.
+
+## 9 · «Easy to join. Easy to leave. Never held hostage.» (owner, 9 Nov): closure and deletion
+
+This is read-only: what exists, then the smallest coherent proposal. Nothing is built.
+
+### What exists
+
+| Area | Today | Evidence |
+|---|---|---|
+| **Sign out everywhere** (self-service) | **Works:** «Keluar dari semua perangkat» on «Akun saya» | `src/app/akun/page.tsx` (`KeluarSemua`), D-055(g) |
+| **Remove one's own photo** | **Works** | `akun.foto.hapus` |
+| **«Akun saya» for learners** | **Missing:** a learner is refused the page (`auth.not_yet`), so a learner has no place to see or leave their account | `src/app/akun/page.tsx` (`if (!staf)`) |
+| **Close one's account** | **Missing:** no action, request or state; `persons` cannot be deleted (`persons_no_delete`) | — |
+| **Request deletion of personal data** | **Missing:** `persons.anonymized_at` exists, and two readers already skip anonymized persons, but nothing sets it | `20260912004321:16`; `20261004110000:49`; `20261017100000:93` |
+| **Retention** | **Not built.** `institutions.retention_days` is unused. OD-5: «architecture resolved; legal durations open», and inventing legal periods is forbidden. Backups outlive deletion: 7 days today, then 35 days and 12 months once the off-site copies are active | `docs/product/SCHOOL-DATA-EXPORT-4.0.md` §D; D-103; D-107 D4 |
+| **Legal gate** | **Blocked, external:** UU PDP, controller/processor, retention, **parental consent** (F-16, W9.11). No real student data until it closes (D-117(m)) | `F-OWNER-DECISIONS-REQUIRED-2026-11-02.md:51` |
+| **A school leaving PINTAR** | A principle (D-110 «NO HOSTAGE DATA»); an orderly exit journey is a 4.5 candidate | D-110(b)(d) |
+
+### Four things that must never be confused (for Daisy's wording and Sharon's boundaries)
+
+| Action | Who starts it | What it does | What it never does |
+|---|---|---|---|
+| **End a school affiliation** (§5, E3–E5) | the School Administrator, own school | that school's access ends; the person's account and other schools are untouched | close the account |
+| **Close my account** | **the person** (for a learner: owner decision 1) | sign-in ends everywhere; the person is told what is kept and why | delete records that have a retention requirement |
+| **Delete my personal data** | **the person** (or their guardian) | removes or anonymizes personal data that has no retention requirement | rewrite an academic record, a certificate or an audit row |
+| **Suspension** (§5b) | the **PINTAR Administrator** only | a security, disciplinary or administrative restriction | anything the person asked for; it is never presented as closure |
+
+### What each departure should say happens (the explanation Daisy designs; Sharon checks every line is true)
+
+- **Access:** when sign-in stops, and at which schools.
+- **Personal data:** what is removed (photo, contact email, display name where not required) and what is kept, with the
+  reason and the period.
+- **Academic records:** results and sittings stay with the school, attributed. After deletion, the attribution becomes
+  anonymized.
+- **Certificates:** each stays verifiable. `name_as_issued` is the certificate's own record (INV-30).
+- **Audit history:** append-only (INV-18). An audit row is not rewritten; it may point to an anonymized person.
+- **Backups:** data removed from PINTAR stays in backups until they age out (7 days today). This is said plainly.
+
+### Proposed smallest coherent implementation
+
+**For 4.0** (no legal duration needed):
+- **L1 · Akun saya for everyone.** Learners included. A plain «Meninggalkan PINTAR» section explains the facts above,
+  truthfully about today's retention.
+- **L2 · Self-service requests.** «Tutup akun saya» and «Hapus data pribadi saya»:
+  - one clear confirmation that names the consequences;
+  - no retention offers, no detours, no support email;
+  - recorded as a request the person can see (received → in progress → done, or why not), and audited;
+  - routed to the PINTAR Administrator's queue.
+- **L3 · Closure executed.** By the platform-suspension mechanism the owner has approved, with its own category
+  (`CLOSED_AT_REQUEST`), never shown as a suspension: sessions end, sign-in is refused, records are kept. Reopening is
+  by the person's request.
+- **L4 · Deletion of what needs no retention.** Photo, contact email, and the display name replaced by an anonymized
+  label, setting `anonymized_at`. Only where Sharon confirms no record depends on them. Everything with a possible legal
+  retention is listed in the person's request as «disimpan sesuai ketentuan», and never deleted by invention.
+
+About **4–6 engineering days**. L3 shares the suspension work.
+
+**Waits for counsel (F-16 / OD-5):**
+- retention durations;
+- deleting or anonymizing records that have a legal retention requirement;
+- whether a learner (a child) may close or delete alone, or only with a guardian or the school;
+- backup purging.
+
+**Waits for 4.5:** a school leaving PINTAR (D-110(d)).
+
+### Owner decisions
+
+1. **For a learner** (SD, a child), who may request closure or deletion? The learner, a guardian through the school, or
+   the school on the family's request? This is pending parental consent under F-16.
+   - **Recommendation for 4.0:** the request is made by the school's administrator on the family's behalf, and the
+     learner's own page explains how.
+2. **Closure:**
+   - **Option 1:** executed immediately on the person's confirmation (pure self-service).
+   - **Option 2:** executed by the PINTAR Administrator within a stated time, to check that no school process is in
+     progress, such as an open sitting.
+   - **Recommendation:** immediate for staff and adult accounts. A sitting in progress is drained or contained first,
+     never lost.
+
+### For Sharon (privacy, identity integrity, retention boundaries)
+
+1. Which personal fields can be removed today without breaking an academic record, a certificate, the audit log or
+   identity uniqueness?
+2. Does an anonymized person keep exactly one identity (no duplicate on return)?
+3. What must a closure block (sign-in, the pre-request hook, recovery, service-role work)?
+4. Is every line of the departure explanation true of the current code and backups?
+
+### For Daisy (leaving as easy as joining)
+
+1. Where «Meninggalkan PINTAR» lives for each person (learner, teacher, administrator).
+2. The two requests' wording, the single confirmation, and the status page.
+3. How «akhiri di sekolah ini», «tutup akun», «hapus data pribadi» and a suspension read unmistakably differently.
+4. That no step is a dark pattern: no guilt copy, no buried link, no forced support contact.
