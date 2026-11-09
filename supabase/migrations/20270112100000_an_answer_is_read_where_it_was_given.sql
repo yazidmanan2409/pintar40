@@ -75,3 +75,24 @@ create policy lesson_progress_select on public.lesson_progress for select to aut
                         where e.person_id = lesson_progress.person_id
                           and e.institution_id = lesson_progress.institution_id
                           and public.can_on_node('CAN_ASSIGN_LEARNING', m.node_id)) end);
+
+do $$
+declare v_tabel text; v_qual text;
+begin
+  foreach v_tabel in array array['responses', 'presented_items', 'integrity_signals', 'lesson_progress'] loop
+    select p.qual into v_qual from pg_policies p
+     where p.schemaname = 'public' and p.tablename = v_tabel and p.policyname = v_tabel || '_select' and p.cmd = 'SELECT';
+    if v_qual is null then
+      raise exception 'SI-D01: % has no select policy', v_tabel;
+    end if;
+    if v_qual not like '%can_on_node%' or v_qual like '%can_in_institution%' then
+      raise exception 'SI-D01: %''s academic read is not on the class (R6''s axis): %', v_tabel, left(v_qual, 200);
+    end if;
+    if (select count(*) from pg_policies p where p.schemaname = 'public' and p.tablename = v_tabel and p.cmd in ('SELECT', 'ALL')) <> 1 then
+      raise exception 'SI-D01: % has another read policy beside %_select, which would widen it', v_tabel, v_tabel;
+    end if;
+  end loop;
+  if (select qual from pg_policies where schemaname = 'public' and tablename = 'responses') not like '%is_system_admin%' then
+    raise exception 'SI-D01: the professional-learning branch of responses was lost';
+  end if;
+end $$;
