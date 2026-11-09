@@ -275,7 +275,16 @@ begin
     -- ═══════════════════════════════════ F37-D02 / F37-B01 a person waiting in school X; a staff role in school Y
     -- school X: a school that issues registration numbers; a person recorded there by this suite, with no account and
     -- no staff role (its own, so the case never depends on what earlier suites left waiting); school Y: another school
-    select i.id into v_x from public.institutions i where i.namespace is not null order by (i.id = v_inst) desc, i.created_at limit 1;
+    -- school X is this suite's own school; a school issues numbers only once it has reserved a namespace, which a full
+    -- run's schools may not have yet at this point, so the suite reserves an unused one as its admin (rolled back)
+    v_x := v_inst;
+    if (select i.namespace from public.institutions i where i.id = v_x) is null then
+      perform selftest.as_user_uid(u_admin);
+      perform public.reserve_institution_namespace(v_x,
+        (select c from (select 'Q' || chr(65 + (g / 26)) || chr(65 + (g % 26)) as c from generate_series(0, 675) g) z
+          where not exists (select 1 from public.institutions i where i.namespace = z.c) limit 1));
+      perform selftest.as_owner();
+    end if;
     select i.id into v_y from public.institutions i where i.id <> v_x order by i.created_at limit 1;
     if v_x is null or v_y is null then raise exception 'the fixture has no school issuing registration numbers, or one school only'; end if;
     insert into public.persons (display_name) values ('Menunggu F37 ' || v_tag) returning persons.id into v_p;
