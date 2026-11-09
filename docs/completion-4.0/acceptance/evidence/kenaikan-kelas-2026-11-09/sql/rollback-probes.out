@@ -1,0 +1,45 @@
+BEGIN
+                              set_config                               
+-----------------------------------------------------------------------
+ {"sub":"8fe5d101-96b1-4865-86fa-6722db82ef48","role":"authenticated"}
+(1 row)
+
+SET
+            new_membership            
+--------------------------------------
+ ce679f03-4c86-497f-ae42-72150237b90d
+(1 row)
+
+RESET
+  display_name   |    slug     | status  |   end_reason    
+-----------------+-------------+---------+-----------------
+ Murid Demo Enam | demo-naik-a | ENDED   | TRANSFERRED_OUT
+ Murid Demo Enam | demo-naik-b | ACTIVE  | 
+ Murid Demo Enam | demo-naik-a | PENDING | 
+(3 rows)
+
+ROLLBACK
+BEGIN
+                              set_config                               
+-----------------------------------------------------------------------
+ {"sub":"8fe5d101-96b1-4865-86fa-6722db82ef48","role":"authenticated"}
+(1 row)
+
+SET
+                  id                  | status | end_reason 
+--------------------------------------+--------+------------
+ 83efb9b8-8c71-4e00-811e-3243f0b595d7 | ENDED  | WITHDRAWN
+(1 row)
+
+UPDATE 1
+ tujuh_open_memberships_after_update 
+-------------------------------------
+                                   1
+(1 row)
+
+ROLLBACK
+      note      | status | end_reason 
+----------------+--------+------------
+ after rollback | ACTIVE | 
+(1 row)
+
