@@ -1,0 +1,165 @@
+[
+  {
+    "id": "R1",
+    "judul": "Guru: Kelas → Ringkasan Kelas (A2), at 1280 and 390",
+    "verdict": "PASS",
+    "catatan": [
+      "ok 1280px: the Guru has a class (1)",
+      "ok 1280px: the class page offers «Ringkasan Kelas»",
+      "ok 1280px: it opens /edukator/ringkasan",
+      "ok 1280px: the summary renders",
+      "   back link reads «← Mengajar»",
+      "ok 1280px: no sideways scroll (1280 ≤ 1280)",
+      "ok 390px: the Guru has a class (1)",
+      "ok 390px: the class page offers «Ringkasan Kelas»",
+      "ok 390px: it opens /edukator/ringkasan",
+      "ok 390px: the summary renders",
+      "   back link reads «← Mengajar»",
+      "ok 390px: no sideways scroll (390 ≤ 390)"
+    ],
+    "shots": [
+      "01-guru-kelas-1280.png",
+      "01-guru-ringkasan-1280.png",
+      "01-guru-kelas-390.png",
+      "01-guru-ringkasan-390.png"
+    ]
+  },
+  {
+    "id": "R2",
+    "judul": "Admin: Pendataan guidance, example and Kode sekolah (A1, B3)",
+    "verdict": "PASS",
+    "catatan": [
+      "ok the page either says the code is needed first (1) or shows the example list (0)",
+      "   «Simpan kode sekolah di atas lebih dulu. Setelah kode tersimpan, daftar bisa diunggah di sini.»",
+      "ok no sideways scroll (1280 ≤ 1280)"
+    ],
+    "shots": [
+      "02-admin-pendataan.png"
+    ]
+  },
+  {
+    "id": "R3",
+    "judul": "Admin: Peran & akses intro, form heading, scope and date hints; Aktivasi intro (B2)",
+    "verdict": "PASS",
+    "catatan": [
+      "ok Peran & akses mentions activation",
+      "ok the grant form has a heading",
+      "ok the scope field is required",
+      "   scope hint linked: no",
+      "   Aktivasi opens: «Akun»"
+    ],
+    "shots": [
+      "03-admin-peran.png",
+      "03-admin-aktivasi.png"
+    ]
+  },
+  {
+    "id": "R4",
+    "judul": "Keyboard: «Keluar dari semua» asks in place, focus on Batal, Batal returns (B4)",
+    "verdict": "PASS",
+    "catatan": [
+      "ok /akun offers «Keluar dari semua»",
+      "ok focus moved to the safe choice («BUTTON:Batal»)",
+      "ok the act is the one red button",
+      "ok Batal returns focus to the first button («BUTTON:Keluar dari semua perangkat»)",
+      "ok nothing was sent: still on /akun"
+    ],
+    "shots": [
+      "04-akun-keluar-tanya.png"
+    ]
+  },
+  {
+    "id": "R5",
+    "judul": "Dekan: reports explain below-target once; the grid prints on A4 (B5, B6)",
+    "verdict": "NOT EXERCISED",
+    "catatan": [
+      "   report links offered: 3",
+      "   /edukator/ringkasan?kelas=c7e5ddb2-2892-4c0d-92a5-6393f842a377&dari=pi: legend 0, below-target words drawn in cells 0",
+      "   /edukator/ringkasan?kelas=6acad65f-d699-4510-80da-73640fa9cdef&dari=pi: legend 0, below-target words drawn in cells 0",
+      "   grids met: 0",
+      "-- NOT EXERCISED: no topics × classes grid on this seed (B5 is shown by Daisy's render and LAPORAN-CETAK-01)"
+    ],
+    "shots": [
+      "05-dekan-laporan-0.png",
+      "05-dekan-laporan-1.png"
+    ]
+  },
+  {
+    "id": "R6",
+    "judul": "Guru: Studio says who acts next and that PINTAR sends no notification (B1)",
+    "verdict": "NOT EXERCISED",
+    "catatan": [
+      "ok no promise of a notification on Studio",
+      "   rows waiting on someone else: 0",
+      "-- NOT EXERCISED: no package waiting on someone else on this seed (R10 reads the counts)"
+    ],
+    "shots": [
+      "06-guru-studio.png"
+    ]
+  },
+  {
+    "id": "R7",
+    "judul": "Keyboard: Struktur «Ubah nama» and «Nonaktifkan» take focus in and give it back",
+    "verdict": "PASS",
+    "catatan": [
+      "ok a row offers «Ubah nama»",
+      "ok «Ubah nama» puts focus in its field (INPUT:nama:)",
+      "ok «Batal» returns focus to «Ubah nama» (BUTTON::Ubah nama)",
+      "ok a row offers «Nonaktifkan»",
+      "ok «Nonaktifkan» puts focus in its field (INPUT:alasan:)",
+      "ok «Batal» returns focus to «Nonaktifkan» (BUTTON::Nonaktifkan)"
+    ],
+    "shots": [
+      "07-struktur-ubah.png",
+      "07-struktur-nonaktifkan.png"
+    ]
+  },
+  {
+    "id": "R8",
+    "judul": "Admin: a learner without a class is counted in «Yang menunggu», placed from Pindah, and leaves the list",
+    "verdict": "PASS",
+    "catatan": [
+      "ok the administrator's school",
+      "ok «Yang menunggu» counts the learner without a class",
+      "ok Pindah lists the learner without a class",
+      "ok a learners' Kelas is offered",
+      "ok the success line is shown",
+      "ok the learner leaves the list",
+      "ok the database holds one open placement in the chosen Kelas (1)",
+      "ok the placement is audited (1)"
+    ],
+    "shots": [
+      "08-pindah-tanpa-kelas.png",
+      "08-pindah-ditempatkan.png"
+    ]
+  },
+  {
+    "id": "R9",
+    "judul": "Author (Admin sekolah, an author role; Alpha's Guru is scoped to 5A): the content check refuses the mark on a real ERROR, changes nothing, and says how to correct it",
+    "verdict": "PASS",
+    "catatan": [
+      "ok «Tandai lolos pemeriksaan» is offered (status STRUCTURED)",
+      "ok the refusal says the check found what must be fixed",
+      "ok the refusal names where the correction starts",
+      "ok the package did not move (STRUCTURED → STRUCTURED)",
+      "ok no step was recorded (1 → 1)",
+      "ok the check itself recorded the ERROR (1)",
+      "ok Temuan shows the finding"
+    ],
+    "shots": [
+      "09-periksa-ditolak.png"
+    ]
+  },
+  {
+    "id": "R10",
+    "judul": "Studio: every count opens a list of exactly that many packages (Guru, Admin)",
+    "verdict": "PASS",
+    "catatan": [
+      "ok guru /studio?daftar=ACTION_REQUIRED#paket: the count 1, the list 1",
+      "ok guru /studio?daftar=BLOCKED#paket: the count 1, the list 1",
+      "ok admin /studio?daftar=ACTION_REQUIRED#paket: the count 1, the list 1",
+      "ok admin /studio?daftar=BLOCKED#paket: the count 1, the list 1"
+    ],
+    "shots": []
+  }
+]
