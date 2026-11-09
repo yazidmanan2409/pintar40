@@ -429,3 +429,39 @@ person's page: current roles and their responsibilities → «Ubah peran & tangg
 3. The review screen's gained, retained, lost and not-granted wording, for both Pak Yusuf journeys.
 4. The queue warning's wording, and what the administrator can do about it.
 5. How this sits beside «Akhiri di sekolah ini» (the person leaving the school) without confusion.
+
+## 10 · Year-end promotion: acceptance requirements from the demonstration (owner, 9 Nov)
+
+**The evidence:** a run through the real screens (synthetic data, the local stack), 43 screenshots, before/after SQL
+and the audit rows. The report was reviewed by the owner.
+- **Found working:** the class-level move, authorization, atomic refusal, idempotence and closed (never deleted)
+  membership history.
+- **Found missing:** individual exceptions, a confirmation, per-learner outcomes, withdrawal and graduation, teacher
+  review, and the actor and reason in «Jejak audit».
+
+**The approved flow (Daisy):** select class → review all learners → set exceptions → review outcomes → confirm once.
+This is acceptance work on the existing lifecycle, not a redesign.
+
+**Acceptance requirements**, each a test before it is built:
+1. **No silent omission.**
+   - The population is every learner placed in the selected class *or* in its Tingkat without a Kelas.
+   - Each learner has an explicit disposition: promoted, repeating, transferring, leaving or graduating.
+   - The outcome lists every learner by name.
+   - In the demonstration, a Tingkat-only learner was dropped.
+2. **Repeating is a decision recorded directly.** The learner's new placement is the repeat class itself, never a
+   promotion moved back afterwards (the demonstration's workaround left a false stay in Kelas 6A). Nobody is promoted
+   against a recorded departure or a repeat decision.
+3. **Teacher assignments are reviewed explicitly** for the new year: authority is never carried forward silently. This
+   uses «Ubah peran & tanggung jawab» (§11), not student promotion.
+4. **The enrolment's year is examined with the membership.**
+   - Promoted learners kept an enrolment tagged with the old year while their membership moved; a transfer, by
+     contrast, opens a new enrolment.
+   - Sharon decides the correct form (a new enrolment per year, or the enrolment spanning years), within the
+     one-live-enrolment rule (`20270112160000`).
+5. **History, duplicates and boundaries hold** (Sharon): old memberships closed with their reason, never deleted; no
+   second live enrolment or membership; no other school's learner reachable.
+6. **The departed learner** is no longer offered for placement by the sending school («Murid yang belum punya kelas»
+   after a transfer).
+7. **Assessment evidence is outstanding, not a pass.** No package with a pre-test and a post-test could be assigned in
+   the demonstration. A rollover journey with real sittings and results must show them still attributed to the
+   2026/2027 class and its learners.
