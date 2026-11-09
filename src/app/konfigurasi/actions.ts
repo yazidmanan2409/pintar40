@@ -47,31 +47,6 @@ function uuidOrNull(v: string): string | null {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v) ? v : null;
 }
 
-export async function rolloverAction(fd: FormData): Promise<void> {
-  const institution = uuidOrNull(str(fd, "institution"));
-  const fromPeriod = uuidOrNull(str(fd, "from_period"));
-  const toPeriod = uuidOrNull(str(fd, "to_period"));
-  const mapping: Array<{ from_node: string; to_node: string }> = [];
-  for (const [k, v] of fd.entries()) {
-    const m = /^map\[([0-9a-f-]{36})\]$/i.exec(k);
-    const to = uuidOrNull(String(v));
-    if (m && to) mapping.push({ from_node: m[1], to_node: to });
-  }
-  if (!institution || !fromPeriod || !toPeriod || fromPeriod === toPeriod || mapping.length === 0) {
-    back("rollover", { ok: false, kode: "ROLLOVER_INPUT_INCOMPLETE" });
-  }
-  // L3 (§2.11): a context-bound human action, aimed at the working context's school or offered that context
-  await wajibDalamKonteks({ sekolah: institution }, "rollover");
-  const supabase = await supabaseServer();
-  const { data, error } = await supabase.rpc("period_rollover", {
-    p_institution: institution,
-    p_from_period: fromPeriod,
-    p_to_period: toPeriod,
-    p_mapping: mapping,
-  });
-  back("rollover", error ? ditolak("period_rollover", error) : { ok: true, kode: "ROLLOVER_DONE", n: Number(data ?? 0) });
-}
-
 export async function transferRequestAction(fd: FormData): Promise<void> {
   const fromEnrollment = uuidOrNull(str(fd, "from_enrollment"));
   const toInstitution = uuidOrNull(str(fd, "to_institution"));

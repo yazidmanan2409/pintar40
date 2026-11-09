@@ -856,9 +856,14 @@ export const d168Tests: SelfTest[] = [
       const sistem = bagian("system");
       c.expect(/className=\{`pin-pill \$\{i\.is_active \? "pin-ok" : "pin-neutral"\}`\}/.test(sistem) && /<span className="pin-pill pin-info">\{s\("config\.sekolah\.sintetis"\)\}<\/span>/.test(sistem)
         && /when\(p\.starts_on, "baca"\)\} – \$\{when\(p\.ends_on, "baca"\)\}/.test(sistem) && !/\$\{p\.starts_on\}/.test(sistem) && !/<form/.test(sistem), "Sistem & Konfigurasi's schools are not read-only rows with their badges and their years in words");
-      // Pergantian tahun ajaran: a panel per school under its name, «Dari» and «Ke» sharing a row
+      // RESTATED (owner, 9 Nov: Daisy's «Kenaikan kelas dan kelulusan» replaces the class-to-class «Dari»/«Ke» form; the
+      // pattern is kept): a panel per school, under its name when there are several, and in the flow the new year and
+      // «Naikkan semua ke» share a row
       const roll = bagian("rollover");
-      c.expect(/<h2 className="text-sm font-medium">\{inst\.name\}<\/h2>\s*<div className="pin-baris-isian">\s*<label className=\{label\}>\{s\("config\.label\.period_from"\)\}/.test(roll), "Pergantian tahun ajaran's «Dari» and «Ke» do not share a row under the school's name");
+      const kenaikan = readFileSync(join(repoRoot, "src/components/kenaikan/KenaikanKelas.tsx"), "utf8");
+      c.expect(/\{myInstitutions\.length > 1 \? <h2 className="text-sm font-medium">\{inst\.name\}<\/h2> : null\}\s*<KenaikanKelas sekolah=\{inst\.id\}/.test(roll)
+        && /<form method="get" action="\/konfigurasi\/rollover#rollover" className="pin-baris-isian">[\s\S]{0,200}<label className=\{label\}>\{s\("kenaikan\.tahun\.label"\)\}[\s\S]{0,400}<label className=\{label\}>\{s\("kenaikan\.semua\.label"\)\}/.test(kenaikan),
+        "«Kenaikan kelas dan kelulusan» is not a panel per school, with the new year and «Naikkan semua ke» sharing a row");
       // Templat laporan: the templates as rows, then the narrow form, school and kind sharing a row
       const templat = bagian("intelligence");
       c.expect(/<li key=\{tpl\.id\} className="border-b border-line-1 px-3 py-2">/.test(templat) && sempit.test(templat)
@@ -873,7 +878,7 @@ export const d168Tests: SelfTest[] = [
       // the journeys press a student's «Pindahkan» by its full name
       const jalan = readFileSync(join(repoRoot, "audit/journey.mjs"), "utf8");
       c.expect((jalan.match(/getByRole\("button", \{ name: `Pindahkan · \$\{nama\}`, exact: true \}\)/g) ?? []).length === 2, "the journeys do not press «Pindahkan» by the student's name");
-      return c.verdict("Pindah kelas is a narrow GET step then its Kelas's students as rows, each «Pindahkan · name»; Peserta is a narrow form (Orang, Tempat sharing a row) then its records; Laporan is link rows, the school's first; Sistem's schools are read-only rows with «aktif»/«nonaktif» and «data uji» badges and their years in words; Pergantian's «Dari»/«Ke» share a row under the school's name; Templat laporan is its records then a narrow form; in print a section page keeps its content and drops its forms, record actions, pager and back link (walked: P6)");
+      return c.verdict("Pindah kelas is a narrow GET step then its Kelas's students as rows, each «Pindahkan · name»; Peserta is a narrow form (Orang, Tempat sharing a row) then its records; Laporan is link rows, the school's first; Sistem's schools are read-only rows with «aktif»/«nonaktif» and «data uji» badges and their years in words; «Kenaikan kelas dan kelulusan» is a panel per school with the new year and «Naikkan semua ke» sharing a row; Templat laporan is its records then a narrow form; in print a section page keeps its content and drops its forms, record actions, pager and back link (walked: P6)");
     },
   },
 ];

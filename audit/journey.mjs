@@ -3932,9 +3932,9 @@ await step("S26f", "a correction by the screens: from a published course's page 
 
 // ADM-J19: a new school year, by the screens, never run before. The school admin records Fajar in Kelas 1A
 // (no card yet, so his enrolment waits: PENDING), makes next year's Tingkat «Kelas 2» and its Kelas 2A on
-// Struktur sekolah, then on «Pergantian tahun ajaran» carries Kelas 1A into Kelas 2A. Everyone in 1A,
+// Struktur sekolah, then on «Kenaikan kelas dan kelulusan» moves Kelas 1A up into Kelas 2A (restated 9 Nov: Daisy's flow replaces the class-to-class form). Everyone in 1A,
 // Fajar too, is in 2A afterwards; what they did stays recorded in 1A; the screen says how many moved.
-await step("S27", "a new school year: the school admin makes next year's Tingkat and Kelas, then carries Kelas 1A into it on «Pergantian tahun ajaran»; the whole class moves, one not yet signed in too, and the screen says how many (ADM-J19)", async (rec) => {
+await step("S27", "a new school year: the school admin makes next year's Tingkat and Kelas, then moves Kelas 1A up into it on «Kenaikan kelas dan kelulusan»: every learner decided, the outcome reviewed, one confirmation; the whole class moves, one not yet signed in too, and the screen names each learner's outcome (ADM-J19)", async (rec) => {
   const kelas = kelasSatuA();
   if (!kelas) { rec.verdict = "BLOCKED"; return "no Kelas 1A"; }
   const tahunIni = sql(`select ap.name from public.org_nodes n join public.academic_periods ap on ap.id = n.academic_period_id where n.id='${kelas}'`).trim();
@@ -3965,21 +3965,34 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
   }
   if (!k2) { rec.verdict = "FAIL"; return `${catat}; Kelas 2A was not made under Tingkat «Kelas 2»`; }
   const sebelum = sql(`select count(*) from public.memberships where node_id='${kelas}' and valid_to is null`).trim();
-  // the rollover, on its screen
+  const namaSebelum = sql(`select coalesce(string_agg(p.display_name, ',' order by p.display_name), '') from public.memberships m join public.enrollments e on e.id = m.enrollment_id join public.persons p on p.id = e.person_id where m.node_id='${kelas}' and m.valid_to is null`).trim();
+  // RESTATED (owner, 9 Nov): «Kenaikan kelas dan kelulusan» (Daisy's approved flow) replaces the class-to-class form.
+  // The class is chosen, every learner is listed, «Naikkan semua ke Kelas 2A» pre-selects, the outcome is reviewed,
+  // the teachers' review is stated, one confirmation; the outcome page names each learner
   await a.goto(`${APP}/konfigurasi/rollover#rollover`, { waitUntil: "networkidle" });
-  const fr = a.locator("#rollover form").first();
-  if (!(await fr.count())) { rec.verdict = "FAIL"; rec.shots.push(await shot(a, "adm-j19-tanpa-form")); return `${catat}; no rollover form on Konfigurasi with two years: ${norm(await a.locator("#rollover").innerText().catch(() => "")).slice(0, 200)}`; }
-  await fr.locator('select[name="from_period"]').selectOption({ label: tahunIni });
-  await fr.locator('select[name="to_period"]').selectOption({ label: tahunDepan });
-  const peta = fr.locator(`select[name="map[${kelas}]"]`);
-  const opsi = (await peta.locator("option").allTextContents()).find((o) => o.startsWith("Kelas 2A"));
-  await peta.selectOption({ label: opsi });
-  rec.shots.push(await shot(a, "adm-j19-pergantian"));
-  // what the form holds at the moment it is sent, so a refusal can be read against it
-  const terkirim = await fr.evaluate((f) => [...new FormData(f).entries()]
-    .map(([k, v]) => `${k.replace(/\[[0-9a-f-]{36}\]/, "[…]")}=${String(v).slice(0, 8)}`).join(" "));
-  await fr.getByRole("button", { name: "Jalankan pergantian", exact: true }).click();
-  await a.waitForURL((u) => u.searchParams.get("bagian") === "rollover" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
+  const pilih = a.locator('#rollover select[name="kn_kelas"]').first();
+  if (!(await pilih.count())) { rec.verdict = "FAIL"; rec.shots.push(await shot(a, "adm-j19-tanpa-kelas")); return `${catat}; «Kenaikan kelas dan kelulusan» offers no class: ${norm(await a.locator("#rollover").innerText().catch(() => "")).slice(0, 200)}`; }
+  await pilih.selectOption(kelas);
+  await a.locator("#rollover").getByRole("button", { name: "Lanjut", exact: true }).click();
+  await a.waitForLoadState("networkidle");
+  await a.locator('#rollover select[name="kn_tahun"]').selectOption({ label: tahunDepan }).catch(() => {});
+  await a.locator('#rollover select[name="kn_semua"]').selectOption(k2);
+  await a.locator("#rollover").getByRole("button", { name: "Terapkan", exact: true }).click();
+  await a.waitForLoadState("networkidle");
+  // a learner whose transfer is under way is not pre-selected: they follow the transfer
+  for (const sel of await a.locator('#rollover select[name^="k["]').all()) {
+    if (!(await sel.inputValue())) await sel.selectOption("PINDAH").catch(() => {});
+  }
+  const daftar = (await a.locator("#rollover [data-murid]").count());
+  rec.shots.push(await shot(a, "adm-j19-keputusan"));
+  await a.locator("#rollover").getByRole("button", { name: "Tinjau hasil", exact: true }).click();
+  await a.waitForURL((u) => u.searchParams.get("kn_langkah") === "tinjau" || u.searchParams.has("kn_kode"), { timeout: SLOW }).catch(() => {});
+  await a.waitForLoadState("networkidle");
+  rec.shots.push(await shot(a, "adm-j19-tinjau"));
+  const tinjau = norm(await a.locator("#rollover").innerText().catch(() => ""));
+  await a.locator('#rollover input[name="guru_ditinjau"]').check().catch(() => {});
+  await a.locator("#rollover").getByRole("button", { name: "Konfirmasi kenaikan kelas", exact: true }).click().catch(() => {});
+  await a.waitForURL((u) => u.searchParams.get("kn_langkah") === "selesai" || u.searchParams.has("kn_kode"), { timeout: SLOW }).catch(() => {});
   await a.waitForLoadState("networkidle");
   rec.shots.push(await shot(a, "adm-j19-hasil"));
   const u = new URL(a.url());
@@ -3988,11 +4001,13 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
   const di2A = sql(`select coalesce(string_agg(p.display_name || ':' || e.status, ',' order by p.display_name), '-') from public.memberships m join public.enrollments e on e.id = m.enrollment_id join public.persons p on p.id = e.person_id where m.node_id='${k2}' and m.valid_to is null`).trim();
   const sesi = sql(`select count(*) from public.assessment_sessions where class_node_id='${kelas}'`).trim();
   const fajar = /Fajar Murid:PENDING/.test(di2A);
-  const ok = u.searchParams.get("hasil") === "ok" && u.searchParams.get("kode") === "ROLLOVER_DONE" && u.searchParams.get("n") === sebelum
-    && tinggal === "0" && di2A.split(",").length === Number(sebelum) && fajar && Number(sesi) > 0;
+  const semuaNaik = namaSebelum.split(",").filter(Boolean).every((n) => di2A.includes(`${n}:`));
+  const semuaDisebut = namaSebelum.split(",").filter(Boolean).every((n) => kalimat.includes(n));
+  const ok = u.searchParams.get("kn_langkah") === "selesai" && tinggal === "0" && semuaNaik && semuaDisebut && fajar && Number(sesi) > 0;
   if (!ok) rec.verdict = "FAIL";
-  return `${catat}; next year ${tahunDepan}: Tingkat «Kelas 2» and Kelas 2A made on the screen; Kelas 1A had ${sebelum}; form sent: ${terkirim}; after «Jalankan pergantian»: hasil=${u.searchParams.get("hasil")} ` +
-    `kode=${u.searchParams.get("kode")} n=${u.searchParams.get("n")}; the screen says "${kalimat.slice(-140)}"; left in 1A: ${tinggal}; in 2A: ${di2A}; ` +
+  return `${catat}; next year ${tahunDepan}: Tingkat «Kelas 2» and Kelas 2A made on the screen; Kelas 1A had ${sebelum} (${namaSebelum}); ${daftar} learner(s) listed for a decision; ` +
+    `the review said "${tinjau.slice(0, 160)}"; after «Konfirmasi kenaikan kelas»: langkah=${u.searchParams.get("kn_langkah")} kode=${u.searchParams.get("kn_kode") ?? "-"}; ` +
+    `the outcome page says "${kalimat.slice(0, 200)}"; every learner named: ${semuaDisebut}; left in 1A: ${tinggal}; in 2A: ${di2A}; ` +
     `Fajar (not yet signed in) carried over: ${fajar}; sessions still recorded in 1A: ${sesi}`;
 });
 // HOD-08: a head of department assigns and runs an Uji Cepat within their scope. S24 took Bu Kepala Dept's role away;

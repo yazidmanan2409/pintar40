@@ -69,7 +69,10 @@ export const KODE_PINDAH_KELAS = ["MOVE_NOT_CURRENT", "MOVE_NOT_A_KELAS", "MOVE_
   // E3 «Akhiri pendaftaran» (akhiri_pendaftaran) and E4 «Daftarkan kembali» (daftarkan_kembali), the same PR070
   "ENROL_NOT_LIVE", "ENROL_REASON_INVALID", "ENROL_EXPLANATION_REQUIRED", "ENROL_DATE_INVALID", "ENROL_SITTING_OPEN",
   "ENROL_KIND_INVALID", "ENROL_REASON_REQUIRED", "ENROL_NOT_CORRECTABLE", "ENROL_NOT_ENDED", "ENROL_ALREADY_LIVE",
-  "ENROL_NOT_DEPARTED"] as const;
+  "ENROL_NOT_DEPARTED",
+  // «Kenaikan kelas dan kelulusan» (kenaikan_tetapkan), the same PR070
+  "PROMO_CHANGED", "PROMO_UNDECIDED", "PROMO_TEACHERS_UNREVIEWED", "PROMO_YEAR_INVALID", "PROMO_DECISION_INVALID",
+  "PROMO_TARGET_INVALID", "PROMO_NO_TRANSFER", "PROMO_ALREADY_IN_YEAR"] as const;
 
 /**
  * D-088(b), BOB-49: a lesson whose pass mark the school has not set cannot be given to a class or launched as an Uji

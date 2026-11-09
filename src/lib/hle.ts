@@ -914,6 +914,68 @@ export type HleEvent =
   | "galat.place_no_year"
   | "galat.place_departed"
   | "galat.place_elsewhere"
+  | "kenaikan.intro"
+  | "kenaikan.kelas.kosong"
+  | "kenaikan.kelas.pilih"
+  | "kenaikan.pilih"
+  | "kenaikan.kelas.lanjut"
+  | "kenaikan.tahun.belum_ada"
+  | "kenaikan.tahun.ke_struktur"
+  | "kenaikan.tahun.label"
+  | "kenaikan.semua.label"
+  | "kenaikan.semua.tidak"
+  | "kenaikan.semua.terapkan"
+  | "kenaikan.murid.kosong"
+  | "kenaikan.murid.intro"
+  | "kenaikan.murid.tingkat_saja"
+  | "kenaikan.murid.sedang_pindah"
+  | "kenaikan.murid.asesmen_terbuka"
+  | "kenaikan.murid.keputusan_untuk"
+  | "kenaikan.murid.tinjau"
+  | "kenaikan.opsi.naik_grup"
+  | "kenaikan.opsi.naik"
+  | "kenaikan.opsi.tinggal_grup"
+  | "kenaikan.opsi.tinggal"
+  | "kenaikan.opsi.lulus"
+  | "kenaikan.opsi.keluar_grup"
+  | "kenaikan.opsi.pindah"
+  | "kenaikan.alasan.withdrawn"
+  | "kenaikan.alasan.transfer_external"
+  | "kenaikan.alasan.moved_abroad"
+  | "kenaikan.alasan.deceased"
+  | "kenaikan.tinjau.judul"
+  | "kenaikan.tinjau.intro"
+  | "kenaikan.tinjau.konfirmasi"
+  | "kenaikan.tinjau.ubah"
+  | "kenaikan.guru.judul"
+  | "kenaikan.guru.intro"
+  | "kenaikan.guru.tidak_ada"
+  | "kenaikan.guru.ke_peran"
+  | "kenaikan.guru.sudah_ditinjau"
+  | "kenaikan.hasil.naik"
+  | "kenaikan.hasil.tinggal"
+  | "kenaikan.hasil.lulus"
+  | "kenaikan.hasil.keluar"
+  | "kenaikan.hasil.pindah"
+  | "kenaikan.selesai.ok"
+  | "kenaikan.selesai.judul"
+  | "kenaikan.selesai.tidak_terbaca"
+  | "kenaikan.selesai.lagi"
+  | "kenaikan.kolom.murid"
+  | "kenaikan.kolom.hasil"
+  | "kenaikan.kolom.sekarang"
+  | "kenaikan.akhir.completed"
+  | "kenaikan.akhir.withdrawn"
+  | "kenaikan.akhir.transferred_out"
+  | "kenaikan.akhir.expired"
+  | "galat.promo_changed"
+  | "galat.promo_undecided"
+  | "galat.promo_teachers_unreviewed"
+  | "galat.promo_year_invalid"
+  | "galat.promo_decision_invalid"
+  | "galat.promo_target_invalid"
+  | "galat.promo_no_transfer"
+  | "galat.promo_already_in_year"
   | "galat.enrol_not_live"
   | "galat.enrol_reason_invalid"
   | "galat.enrol_explanation_required"
@@ -3440,7 +3502,7 @@ const table: Table = {
   "config.card.cohorts": { default: "Kelas aktif", en: "Active classes" },
   "config.environment": { default: "Lingkungan", en: "Environment" },
   "config.refused": { default: "Halaman ini hanya untuk Admin sekolah atau Admin platform.", en: "This page is for school administrators and platform administrators only." },
-  "config.section.rollover": { default: "Pergantian tahun ajaran", en: "Academic-year rollover" },
+  "config.section.rollover": { default: "Kenaikan kelas dan kelulusan", en: "Promotion and graduation" },
   "config.section.transfers": { default: "Perpindahan murid", en: "Student transfers" },
   "config.section.pindah": { default: "Pindah kelas", en: "Move a student to another class" },
   "config.section.ketuntasan": { default: "Batas ketuntasan", en: "Pass marks" },
@@ -4291,6 +4353,68 @@ const table: Table = {
   "galat.place_no_year": { default: "Sekolah ini belum punya tahun ajaran untuk Kelas itu. Buat tahun ajarannya dulu di Struktur sekolah.", en: "This school has no school year for that Kelas yet. Create the year first under School structure." },
   "galat.place_departed": { default: "Murid ini sudah tidak terdaftar di sekolah ini, jadi tidak ditempatkan dari sini. Riwayatnya tetap tersimpan.", en: "This student is no longer enrolled at this school, so they are not placed from here. Their history is kept." },
   "galat.place_elsewhere": { default: "Murid ini sekarang terdaftar di sekolah lain. Ia hanya masuk ke sekolah ini melalui Perpindahan murid.", en: "This student is now enrolled at another school. They join this school only through a student transfer." },
+  "kenaikan.intro": { default: "Pilih satu kelas. Setiap muridnya, juga murid di Tingkat yang sama yang belum punya kelas, mendapat satu keputusan. Anda meninjau hasilnya lalu mengonfirmasi sekali; semuanya diterapkan bersama atau tidak sama sekali.", en: "Choose one class. Each of its students, and any student of the same Tingkat who has no class yet, gets one decision. You review the outcome, then confirm once; everything is applied together or not at all." },
+  "kenaikan.kelas.kosong": { default: "Sekolah ini belum punya kelas aktif dengan tahun ajaran. Buat kelasnya di Struktur sekolah.", en: "This school has no active class with a school year yet. Create it in School structure." },
+  "kenaikan.kelas.pilih": { default: "Kelas", en: "Class" },
+  "kenaikan.pilih": { default: "— Pilih —", en: "— Choose —" },
+  "kenaikan.kelas.lanjut": { default: "Lanjut", en: "Continue" },
+  "kenaikan.tahun.belum_ada": { default: "Belum ada tahun ajaran berikutnya untuk sekolah ini. Buat Tingkat dan kelasnya untuk tahun depan lebih dulu.", en: "There is no next school year for this school yet. Create next year's Tingkat and classes first." },
+  "kenaikan.tahun.ke_struktur": { default: "Buka Struktur sekolah", en: "Open School structure" },
+  "kenaikan.tahun.label": { default: "Tahun ajaran baru", en: "New school year" },
+  "kenaikan.semua.label": { default: "Naikkan semua ke", en: "Move everyone up to" },
+  "kenaikan.semua.tidak": { default: "— Pilih satu per satu —", en: "— Choose one by one —" },
+  "kenaikan.semua.terapkan": { default: "Terapkan", en: "Apply" },
+  "kenaikan.murid.kosong": { default: "Kelas ini tidak punya murid yang terdaftar, dan Tingkatnya tidak punya murid tanpa kelas.", en: "This class has no enrolled student, and its Tingkat has no student without a class." },
+  "kenaikan.murid.intro": { default: "{n} murid. Setiap murid perlu satu keputusan sebelum hasilnya dapat ditinjau.", en: "{n} students. Each student needs one decision before the outcome can be reviewed." },
+  "kenaikan.murid.tingkat_saja": { default: "Di Tingkat, belum di kelas", en: "In the Tingkat, not yet in a class" },
+  "kenaikan.murid.sedang_pindah": { default: "Perpindahan sedang berjalan", en: "Transfer under way" },
+  "kenaikan.murid.asesmen_terbuka": { default: "Asesmen masih terbuka", en: "Assessment still open" },
+  "kenaikan.murid.keputusan_untuk": { default: "Keputusan untuk", en: "Decision for" },
+  "kenaikan.murid.tinjau": { default: "Tinjau hasil", en: "Review the outcome" },
+  "kenaikan.opsi.naik_grup": { default: "Naik kelas", en: "Moves up" },
+  "kenaikan.opsi.naik": { default: "Naik ke {kelas}", en: "Up to {kelas}" },
+  "kenaikan.opsi.tinggal_grup": { default: "Tinggal kelas", en: "Repeats the year" },
+  "kenaikan.opsi.tinggal": { default: "Tinggal kelas di {kelas}", en: "Repeats in {kelas}" },
+  "kenaikan.opsi.lulus": { default: "Lulus", en: "Graduates" },
+  "kenaikan.opsi.keluar_grup": { default: "Keluar dari sekolah", en: "Leaves the school" },
+  "kenaikan.opsi.pindah": { default: "Ikut perpindahan yang sedang berjalan", en: "Follows the transfer under way" },
+  "kenaikan.alasan.withdrawn": { default: "Keluar: mengundurkan diri", en: "Leaves: withdrew" },
+  "kenaikan.alasan.transfer_external": { default: "Keluar: pindah ke sekolah di luar PINTAR", en: "Leaves: moved to a school outside PINTAR" },
+  "kenaikan.alasan.moved_abroad": { default: "Keluar: pindah ke luar negeri", en: "Leaves: moved abroad" },
+  "kenaikan.alasan.deceased": { default: "Keluar: meninggal dunia", en: "Leaves: passed away" },
+  "kenaikan.tinjau.judul": { default: "Hasil yang akan diterapkan", en: "The outcome to be applied" },
+  "kenaikan.tinjau.intro": { default: "Belum ada yang berubah. Inilah hasil untuk setiap murid ke tahun ajaran {tahun}.", en: "Nothing has changed yet. This is the outcome for each student into school year {tahun}." },
+  "kenaikan.tinjau.konfirmasi": { default: "Konfirmasi kenaikan kelas", en: "Confirm the promotion" },
+  "kenaikan.tinjau.ubah": { default: "Ubah keputusan", en: "Change the decisions" },
+  "kenaikan.guru.judul": { default: "Penugasan guru", en: "Teacher assignments" },
+  "kenaikan.guru.intro": { default: "Penugasan guru tidak ikut pindah ke tahun ajaran baru. Tinjau siapa yang akan mengajar kelas tujuan, lalu ubah di Peran & akses bila perlu.", en: "Teacher assignments do not move to the new school year. Review who will teach the destination classes, and change them in Roles & access if needed." },
+  "kenaikan.guru.tidak_ada": { default: "belum ada guru", en: "no teacher yet" },
+  "kenaikan.guru.ke_peran": { default: "Buka Peran & akses", en: "Open Roles & access" },
+  "kenaikan.guru.sudah_ditinjau": { default: "Saya sudah meninjau penugasan guru untuk tahun ajaran baru.", en: "I have reviewed the teacher assignments for the new school year." },
+  "kenaikan.hasil.naik": { default: "Naik ke {kelas}", en: "Up to {kelas}" },
+  "kenaikan.hasil.tinggal": { default: "Tinggal kelas di {kelas}", en: "Repeats in {kelas}" },
+  "kenaikan.hasil.lulus": { default: "Lulus", en: "Graduates" },
+  "kenaikan.hasil.keluar": { default: "Keluar dari sekolah ·", en: "Leaves the school ·" },
+  "kenaikan.hasil.pindah": { default: "Tetap di kelasnya sampai perpindahan selesai", en: "Stays in the class until the transfer is done" },
+  "kenaikan.selesai.ok": { default: "Selesai. {n} murid diproses pada {waktu}. Inilah hasil untuk setiap murid.", en: "Done. {n} students processed at {waktu}. This is the outcome for each student." },
+  "kenaikan.selesai.judul": { default: "Hasil kenaikan kelas", en: "Promotion outcome" },
+  "kenaikan.selesai.tidak_terbaca": { default: "Hasilnya belum dapat dibaca. Buka Jejak audit untuk melihat apa yang tercatat.", en: "The outcome cannot be read yet. Open the audit trail to see what was recorded." },
+  "kenaikan.selesai.lagi": { default: "Pilih kelas lain", en: "Choose another class" },
+  "kenaikan.kolom.murid": { default: "Murid", en: "Student" },
+  "kenaikan.kolom.hasil": { default: "Hasil", en: "Outcome" },
+  "kenaikan.kolom.sekarang": { default: "Sekarang", en: "Now" },
+  "kenaikan.akhir.completed": { default: "Lulus", en: "Graduated" },
+  "kenaikan.akhir.withdrawn": { default: "Keluar", en: "Left" },
+  "kenaikan.akhir.transferred_out": { default: "Pindah sekolah", en: "Transferred" },
+  "kenaikan.akhir.expired": { default: "Tahun ajaran selesai", en: "School year ended" },
+  "galat.promo_changed": { default: "Kelas ini sudah berubah sejak ditinjau. Buka lagi daftar muridnya dan tinjau ulang.", en: "This class has changed since it was reviewed. Open its list of students again and review it." },
+  "galat.promo_undecided": { default: "Masih ada murid yang belum mendapat keputusan.", en: "Some students do not have a decision yet." },
+  "galat.promo_teachers_unreviewed": { default: "Tandai bahwa penugasan guru sudah ditinjau sebelum mengonfirmasi.", en: "Mark that the teacher assignments were reviewed before confirming." },
+  "galat.promo_year_invalid": { default: "Tahun ajaran baru harus tahun ajaran berikutnya di sekolah ini.", en: "The new school year must be a later school year of this school." },
+  "galat.promo_decision_invalid": { default: "Ada keputusan yang tidak dikenal. Pilih lagi untuk murid itu.", en: "A decision is not recognised. Choose again for that student." },
+  "galat.promo_target_invalid": { default: "Kelas tujuan harus kelas aktif tahun ajaran baru di sekolah ini.", en: "The destination must be an active class of the new school year at this school." },
+  "galat.promo_no_transfer": { default: "«Ikut perpindahan yang sedang berjalan» hanya untuk murid yang perpindahannya sedang berjalan.", en: "«Follows the transfer under way» is only for a student whose transfer is under way." },
+  "galat.promo_already_in_year": { default: "Ada murid yang sudah terdaftar di tahun ajaran baru.", en: "A student is already enrolled in the new school year." },
   "galat.enrol_not_live": { default: "Pendaftaran ini sudah berakhir.", en: "This enrolment has already ended." },
   "galat.enrol_reason_invalid": { default: "Pilih salah satu alasan yang tersedia.", en: "Choose one of the listed reasons." },
   "galat.enrol_explanation_required": { default: "Alasan «Lainnya» perlu penjelasan 10 sampai 300 karakter. Penjelasan apa pun paling banyak 300 karakter.", en: "«Other» needs an explanation of 10 to 300 characters. Any explanation is at most 300 characters." },

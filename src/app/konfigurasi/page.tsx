@@ -16,7 +16,7 @@ import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
   daftarkanPesertaAction, grantRoleAction, hentikanSekarangAction, jadwalkanPemeliharaanAction, pindahKelasAction,
-  revokeRoleAction, rolloverAction, saveReportTemplateAction, tarikPengumumanAction, terbitkanPengumumanAction,
+  revokeRoleAction, saveReportTemplateAction, tarikPengumumanAction, terbitkanPengumumanAction,
   tetapkanBatasAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction, transferRequestAction,
   tunjukAdminPertamaAction, ubahPemeliharaanAction, tempatkanMuridAction } from "./actions";
 import { adaAdminSekolah, calonAdminPertama } from "@/lib/admin-pertama";
@@ -53,6 +53,7 @@ import { daftarKelola, KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan"
 import { judulHalaman } from "@/lib/judul-halaman";
 import { transferMintaAction, transferTerimaAction } from "./actions";
 import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
+import KenaikanKelas, { type ParamKenaikan } from "@/components/kenaikan/KenaikanKelas";
 
 export const generateMetadata = judulHalaman("/konfigurasi");
 
@@ -135,7 +136,7 @@ type SearchParams = Promise<{
   hal_jendela?: string; hal_pengumuman?: string;
   /** E-K4: which form of a section sent the result (asalHasil validates it). */
   asal?: string;
-}>;
+} & ParamKenaikan>;
 
 export default async function Konfigurasi({ searchParams, params }: { searchParams: SearchParams; params?: Promise<{ bagian?: string }> }) {
   // One parallel read of the viewer and their roles (DAISY-02/03).
@@ -450,7 +451,6 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     list.push({ metric_id: m.metric_id, visualization: m.visualization });
     metricsByTemplate.set(m.template_id, list);
   }
-  const rollNodes = (nodes ?? []).filter((n) => (n.kind === "COHORT" || n.kind === "CLASS") && n.academic_period_id);
 
   // DAISY-18: the result sits under the form it answers, in the shared line.
   // E-K4 (D-173(d)): a section with several forms says each result at the form that sent it (`asal`); a result that
@@ -1416,46 +1416,14 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
           {/* B1: only the page's own section is drawn */}{tampilDi("rollover") ? (
 <section id="rollover" hidden={!tampilDi("rollover") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.rollover")}</h2>
-            <p className="mt-1 text-sm text-ink-3">{s("config.label.mapping_help")}</p>
-            {myInstitutions.map((inst) => {
-              const instPeriods = (periods ?? []).filter((p) => p.institution_id === inst.id);
-              const instNodes = rollNodes.filter((n) => n.institution_id === inst.id);
-              if (instPeriods.length < 2 || instNodes.length === 0) return null;
-              return (
-                <form key={inst.id} action={rolloverAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3">
-                  <input type="hidden" name="institution" value={inst.id} />
-                  <h2 className="text-sm font-medium">{inst.name}</h2>
-                  <div className="pin-baris-isian">
-                    <label className={label}>{s("config.label.period_from")}
-                      <select name="from_period" className={field} required defaultValue="">
-                        <option value="" disabled>—</option>
-                        {instPeriods.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                      </select>
-                    </label>
-                    <label className={label}>{s("config.label.period_to")}
-                      <select name="to_period" className={field} required defaultValue="">
-                        <option value="" disabled>—</option>
-                        {instPeriods.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                      </select>
-                    </label>
-                  </div>
-                  <div className="grid gap-1">
-                    {instNodes.map((n) => (
-                      <label key={n.id} className="flex flex-wrap items-center justify-between gap-2 text-sm text-ink-2">
-                        <span>{n.name} <span className="text-ink-3">· {periodName.get(n.academic_period_id!) ?? ""}</span></span>
-                        <select name={`map[${n.id}]`} className={field} defaultValue="">
-                          <option value="">{s("config.label.not_rolled")}</option>
-                          {instNodes.filter((m) => m.id !== n.id && m.kind === n.kind).map((m) => (
-                            <option key={m.id} value={m.id}>{m.name} · {periodName.get(m.academic_period_id!) ?? ""}</option>
-                          ))}
-                        </select>
-                      </label>
-                    ))}
-                  </div>
-                  <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.rollover")}</TombolKirim></div>
-                </form>
-              );
-            })}
+            {/* «Kenaikan kelas dan kelulusan» (Daisy's approved flow; owner, 9 Nov): every learner of the class decided,
+                reviewed and confirmed once, replacing the class-to-class run (period_rollover) the demonstration found blind */}
+            {myInstitutions.map((inst) => (
+              <div key={inst.id} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" data-kenaikan-sekolah={inst.id}>
+                {myInstitutions.length > 1 ? <h2 className="text-sm font-medium">{inst.name}</h2> : null}
+                <KenaikanKelas sekolah={inst.id} sp={sp} locale={locale} />
+              </div>
+            ))}
             {result("rollover")}
           </section>
           ) : null}
