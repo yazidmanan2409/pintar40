@@ -43,6 +43,8 @@ begin
   return new;
 end $function$
 ;
+-- ADR-0021: a function's EXECUTE is revoked from PUBLIC in the migration that (re)creates it
+revoke all on function public.enrollments_guard() from public, anon, authenticated;
 
 do $$
 begin
