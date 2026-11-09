@@ -60,6 +60,16 @@ back.
 3. Nothing is written to `institutional_identities`, `enrollments` or `transfers`; the registration number stays for the
    record.
 
+## The owner's safeguard (9 Nov)
+
+- «A person may have a legitimate registration number without an active enrollment yet. We must not fix the
+  cross-school defect by breaking legitimate onboarding.»
+- The rule recognizes a **current, authorized onboarding relationship**, not the existence of a historical
+  registration number.
+- So the correction must keep assistance for a person the school is onboarding. For example, someone waiting for an
+  account with no enrollment, or an ended placement elsewhere (CR-91, `persons_awaiting_account`). Please name the
+  condition that defines "currently onboarding" (question 2).
+
 ## Please answer
 
 1. Do you reproduce F37-S01's two accepted resets independently? Is this the defect as stated?

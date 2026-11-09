@@ -112,6 +112,20 @@ Verdicts:
 |---|---|---|---|---|---|---|
 | SI-D01 *(owner, 9 Nov: accepted as a necessary 4.0 correction; stays on the isolated branch until the full verification and Sharon's review; **not closed** until Sharon has assessed the completed authorization changes)* | P0-3 (chain D) | Answers, questions shown, integrity observations and lesson progress were readable by a capability held anywhere in the school, while the results scored from them follow the sitting's class (R6). A head of a sibling department read another department's answers; a Guru of another class read lesson progress | High (within-school privacy) | `20270112100000` (`16de2ec7`) | F37-D01 (red → green); `audit/integritas-peran.mjs` 0 FAIL | corrected; Sharon's review requested |
 
+## 4d · SI-D03: a former school's account-level power (9 Nov)
+
+**The finding.** It was found by the account-lifecycle inventory (`ACCOUNT-LIFECYCLE-INVENTORY.md`).
+`recovery_assist_school` lets a school's admin reset the recovery of anyone holding its permanent registration
+number. That reset ends every session and forces a new PIN.
+
+**Red: F37-S01 at `6070cd60`.** School X's admin resets a learner who transferred to Y, and one who withdrew.
+
+**The fix waits on two things:**
+- Sharon's independent review (`REVIEW-REQUEST-SHARON-SI-D03.md`);
+- the owner's safeguard: legitimate pending-onboarding assistance is kept.
+
+`authorize_card_reissue` shares the rule; its red case is to be written.
+
 ## 4b · Sharon's review of SI-D01 (on `16de2ec7`, 9 Nov) and the owner's rulings
 
 | # | Sharon's finding | Severity | Owner (9 Nov) | Correction (`20270112110000`) | Failing case → regression | Legitimate readers kept |

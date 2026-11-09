@@ -117,7 +117,49 @@ O41-6. It moves the 4.1 forecast unless the owner places part of it elsewhere (�
 - **An orderly school exit** (D-110).
 - A combined people-lifecycle history view per person.
 
-## 6 · Decisions for the owner
+## 5b · Owner rulings (9 Nov), which supersede §6 where they answer it
+
+**Who does what:**
+
+| Action | Authorized administrator |
+|---|---|
+| Suspend or reactivate an entire PINTAR identity | **PINTAR Administrator only** |
+| End an educator's employment or school affiliation | School Administrator, own school |
+| End a learner's enrollment (graduation, withdrawal, relocation) | School Administrator, own school |
+| Restore a person's school affiliation or enrollment | School Administrator, within governed rules |
+| Reset account recovery | an authorized administrator of a **currently affiliated** person, subject to Sharon's review (SI-D03) |
+
+**Platform-level suspension:**
+- It needs a mandatory reason category, an optional note and an audit record.
+- It is enforced immediately, across active sessions and protected operations.
+- Reactivation needs a reason and an audit record.
+- It never deletes or alters historical educational evidence.
+- Normal retirement, graduation and transfer use the affiliation and enrollment lifecycle, never suspension.
+- A School Administrator never globally suspends a person who also teaches or studies at another school.
+
+**SI-D03:**
+- The red test stays at `6070cd60` until Sharon's independent review.
+- The fix removes authority based on a historical registration number. It keeps legitimate **pending-onboarding**
+  assistance: a current, authorized onboarding relationship, not the mere existence of a number.
+
+**The 4.0 scope:** essential completion work covers:
+- reliable departures, with reasons and auditability;
+- historical attribution preserved;
+- safe return and re-enrollment;
+- platform suspension (E1–E8 plus the suspension).
+
+Future-dated scheduling can wait; a departure is recorded with immediate effect. The 8–12 days (plus about 2–3 for
+suspension) is a planning estimate, not a commitment, until Sharon and Daisy have reviewed the design.
+
+**Order:**
+1. Sharon's security and data review, and Daisy's administrator-flow review.
+2. Then implementation.
+3. The Kelas 5 → Kelas 6 demonstration reports what the existing interface does before any change is proposed.
+
+**The benchmark for simplicity:** select the class's learners, choose their next grade, review the exceptions (repeat,
+transfer, withdraw), confirm.
+
+## 6 · Decisions for the owner (as asked; answered by §5b)
 
 1. **Temporary restriction and account suspension** (G6). Should 4.0 have an account-level suspension that blocks
    sign-in and every request?
