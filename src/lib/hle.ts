@@ -914,6 +914,17 @@ export type HleEvent =
   | "galat.place_no_year"
   | "galat.place_departed"
   | "galat.place_elsewhere"
+  | "galat.enrol_not_live"
+  | "galat.enrol_reason_invalid"
+  | "galat.enrol_explanation_required"
+  | "galat.enrol_date_invalid"
+  | "galat.enrol_sitting_open"
+  | "galat.enrol_kind_invalid"
+  | "galat.enrol_reason_required"
+  | "galat.enrol_not_correctable"
+  | "galat.enrol_not_ended"
+  | "galat.enrol_already_live"
+  | "galat.enrol_not_departed"
   | "galat.learner_placed"
   | "config.tempatkan.judul"
   | "config.tempatkan.arti"
@@ -4280,6 +4291,17 @@ const table: Table = {
   "galat.place_no_year": { default: "Sekolah ini belum punya tahun ajaran untuk Kelas itu. Buat tahun ajarannya dulu di Struktur sekolah.", en: "This school has no school year for that Kelas yet. Create the year first under School structure." },
   "galat.place_departed": { default: "Murid ini sudah tidak terdaftar di sekolah ini, jadi tidak ditempatkan dari sini. Riwayatnya tetap tersimpan.", en: "This student is no longer enrolled at this school, so they are not placed from here. Their history is kept." },
   "galat.place_elsewhere": { default: "Murid ini sekarang terdaftar di sekolah lain. Ia hanya masuk ke sekolah ini melalui Perpindahan murid.", en: "This student is now enrolled at another school. They join this school only through a student transfer." },
+  "galat.enrol_not_live": { default: "Pendaftaran ini sudah berakhir.", en: "This enrolment has already ended." },
+  "galat.enrol_reason_invalid": { default: "Pilih salah satu alasan yang tersedia.", en: "Choose one of the listed reasons." },
+  "galat.enrol_explanation_required": { default: "Alasan «Lainnya» perlu penjelasan 10 sampai 300 karakter. Penjelasan apa pun paling banyak 300 karakter.", en: "«Other» needs an explanation of 10 to 300 characters. Any explanation is at most 300 characters." },
+  "galat.enrol_date_invalid": { default: "Tanggal berlaku paling lambat hari ini, dan tidak sebelum pendaftaran dimulai.", en: "The effective date is today or earlier, and not before the enrolment began." },
+  "galat.enrol_sitting_open": { default: "Murid ini masih punya asesmen yang sedang berjalan. Asesmen itu perlu dikumpulkan atau diakhiri dulu.", en: "This student still has an assessment in progress. It must be submitted or ended first." },
+  "galat.enrol_kind_invalid": { default: "Pilih jenisnya: membatalkan pencatatan yang keliru, atau kembali bersekolah.", en: "Choose the kind: undo a mistaken record, or a return to school." },
+  "galat.enrol_reason_required": { default: "Tuliskan alasannya, paling banyak 300 karakter.", en: "Write the reason, at most 300 characters." },
+  "galat.enrol_not_correctable": { default: "Hanya pencatatan keluar terakhir di sekolah ini, yang belum dibatalkan, yang dapat dibatalkan.", en: "Only the latest departure recorded at this school, not yet undone, can be undone." },
+  "galat.enrol_not_ended": { default: "Pendaftaran ini belum berakhir, jadi tidak ada yang perlu dibatalkan.", en: "This enrolment has not ended, so there is nothing to undo." },
+  "galat.enrol_already_live": { default: "Murid ini sudah terdaftar di sekolah ini.", en: "This student is already enrolled at this school." },
+  "galat.enrol_not_departed": { default: "Murid ini belum pernah terdaftar di sekolah ini. Tempatkan ia ke kelas, bukan didaftarkan kembali.", en: "This student has never been enrolled at this school. Place them in a class instead of re-enrolling them." },
   "galat.learner_placed": { default: "Murid sudah ditempatkan di kelas.", en: "The student has been placed in the class." },
   "config.tempatkan.judul": { default: "Murid yang belum punya kelas", en: "Students without a class" },
   "config.tempatkan.arti": { default: "Murid ini dicatat tanpa kelas, jadi belum bisa menerima materi. Pilih kelasnya. Orangnya, nomor registrasi sekolah, dan akunnya tetap sama.", en: "These students were recorded without a class, so no material can reach them yet. Choose their class. The person, their school registration number and their account stay the same." },

@@ -65,7 +65,11 @@ export const KODE_PINDAH_KELAS = ["MOVE_NOT_CURRENT", "MOVE_NOT_A_KELAS", "MOVE_
   // 4.0 completion (owner decision 1): placing a learner recorded without a class (tempatkan_murid), the same PR070
   "PLACE_NOT_A_KELAS", "PLACE_NOT_THIS_SCHOOL", "PLACE_STAFF", "PLACE_ALREADY_PLACED", "PLACE_NO_YEAR",
   // the lifecycle (owner, 9 Nov; demonstration finding 8): a learner who left the school, or is enrolled elsewhere
-  "PLACE_DEPARTED", "PLACE_ELSEWHERE"] as const;
+  "PLACE_DEPARTED", "PLACE_ELSEWHERE",
+  // E3 «Akhiri pendaftaran» (akhiri_pendaftaran) and E4 «Daftarkan kembali» (daftarkan_kembali), the same PR070
+  "ENROL_NOT_LIVE", "ENROL_REASON_INVALID", "ENROL_EXPLANATION_REQUIRED", "ENROL_DATE_INVALID", "ENROL_SITTING_OPEN",
+  "ENROL_KIND_INVALID", "ENROL_REASON_REQUIRED", "ENROL_NOT_CORRECTABLE", "ENROL_NOT_ENDED", "ENROL_ALREADY_LIVE",
+  "ENROL_NOT_DEPARTED"] as const;
 
 /**
  * D-088(b), BOB-49: a lesson whose pass mark the school has not set cannot be given to a class or launched as an Uji
