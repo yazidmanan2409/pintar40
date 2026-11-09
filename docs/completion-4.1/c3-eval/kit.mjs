@@ -22,7 +22,10 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');
 const SRC = (b) => join(REPO, 'docs', 'onboarding', 'konten-sintetis', `SD5-Sintetis-Bab${b}.paket.json`);
 const PER_CHAPTER = 15;
+const PROMPT_VERSION = 'v2';   // v2: Daisy, 9 Nov (TINJAUAN-89374424 §3); v1 kept for the record
 const LABELS = ['A', 'B', 'C', 'D'];
+// Sharon, 9 Nov: what each provider run records beside its responses (usage.json)
+const PROVENANCE = ['model', 'model_date', 'endpoint', 'api_version', 'run_at', 'run_by', 'generation', 'data_retention', 'price_per_mtok'];
 const sha = (s) => createHash('sha256').update(s).digest('hex');
 const die = (m) => { console.error(m); process.exit(1); };
 
@@ -45,16 +48,16 @@ function materialText(b) {
   return out.join('\n') + '\n';
 }
 function promptTemplate() {
-  const t = readFileSync(join(HERE, 'prompt-v1.md'), 'utf8');
+  const t = readFileSync(join(HERE, `prompt-${PROMPT_VERSION}.md`), 'utf8');
   const m = t.match(/<!-- BEGIN PROMPT -->\n([\s\S]*?)\n<!-- END PROMPT -->/);
-  if (!m) die('prompt-v1.md: markers not found');
+  if (!m) die('prompt file: markers not found');
   return m[1];
 }
 const requestText = (b) => promptTemplate().replace('{{MATERIAL}}', readFileSync(join(HERE, 'material', `bab${b}.md`), 'utf8'));
 
 function cmdMaterial() {
   mkdirSync(join(HERE, 'material'), { recursive: true });
-  const manifest = { prompt_version: 'v1', prompt_sha256: sha(promptTemplate()), schema_sha256: sha(readFileSync(join(HERE, 'item-schema.json'))), chapters: {} };
+  const manifest = { prompt_version: PROMPT_VERSION, prompt_sha256: sha(promptTemplate()), schema_sha256: sha(readFileSync(join(HERE, 'item-schema.json'))), chapters: {} };
   for (const b of [1, 2]) {
     const text = materialText(b);
     writeFileSync(join(HERE, 'material', `bab${b}.md`), text);
@@ -122,6 +125,7 @@ function cmdBlind(runsDir, outDir) {
   const sealed = { warning: 'SEALED: do not give to reviewers before scoring is complete', created_at: new Date().toISOString(), manifest: manifest(), providers: {}, items: {} };
   const sheets = { full: ['# Lembar penilaian (blind)', ''], nokey: ['# Lembar pemeriksaan kunci (tanpa kunci)', ''] };
   const csv = ['item_id,judge,role,key_correct,alignment,distractors,language,notes'];
+  const kcsv = ['item_id,answer'];
   providers.forEach((p, i) => { sealed.providers[codes[i]] = { folder: p }; });
   for (const b of [1, 2]) {
     const pool = [];
@@ -130,7 +134,7 @@ function cmdBlind(runsDir, outDir) {
       const raw = existsSync(f) ? readFileSync(f, 'utf8') : '';
       const v = validateResponse(raw, b);
       const code = codes[i];
-      sealed.providers[code][`bab${b}`] = { parsed: v.parsed, count: v.count, valid: v.items.filter((x) => x.valid).length, problems: v.problems, per_item: v.items };
+      sealed.providers[code][`bab${b}`] = { response_sha256: existsSync(f) ? sha(readFileSync(f)) : null, parsed: v.parsed, count: v.count, valid: v.items.filter((x) => x.valid).length, problems: v.problems, per_item: v.items };
       const items = v.parsed ? JSON.parse(raw).items : [];
       v.items.forEach((r) => { if (r.renderable) pool.push({ code, index: r.index, valid: r.valid, it: items[r.index] }); });
     });
@@ -139,7 +143,7 @@ function cmdBlind(runsDir, outDir) {
     sheets.nokey.push(`## Bab ${b}`, '');
     shuffle(pool).forEach((e, n) => {
       const id = `B${b}-${String(n + 1).padStart(3, '0')}`;
-      sealed.items[id] = { provider: e.code, bab: b, index: e.index, schema_valid: e.valid };
+      sealed.items[id] = { provider: e.code, bab: b, index: e.index, schema_valid: e.valid, key: e.it.key };
       const opts = LABELS.map((l) => e.it.options.find((o) => o.label === l)).map((o) => `   ${o.label}. ${norm(o.body)}`);
       const ds = (Array.isArray(e.it.distractors) ? e.it.distractors : []).filter(Boolean).sort((x, y) => String(x.label).localeCompare(String(y.label)));
       sheets.full.push(`### ${id} · tujuan ${norm(e.it.objective_code ?? '—')}`, '', norm(e.it.stem), '', ...opts, '',
@@ -147,15 +151,36 @@ function cmdBlind(runsDir, outDir) {
         ...ds.map((d) => `   Pengecoh ${d.label}: ${norm(d.misconception_code ?? '')} ${norm(d.misconception ?? '')}`), '');
       sheets.nokey.push(`### ${id}`, '', norm(e.it.stem), '', ...opts, '', '   Jawaban Anda: ____', '');
       for (const role of ['J1', 'J2']) csv.push(`${id},,${role},,,,,`);
-      csv.push(`${id},Sharon,K,,,,,`);
+      kcsv.push(`${id},`);
     });
   }
   mkdirSync(join(outDir, 'reviewer'), { recursive: true }); mkdirSync(join(outDir, 'SEALED'), { recursive: true });
   writeFileSync(join(outDir, 'reviewer', 'lembar-penilaian.md'), sheets.full.join('\n') + '\n');
-  writeFileSync(join(outDir, 'reviewer', 'lembar-kunci-tanpa-kunci.md'), sheets.nokey.join('\n') + '\n');
+  // Sharon's key check (role K) is blind: K receives only kunci/, records an answer per item, and seals it (seal-key)
+  // before any full sheet is opened; the kit, not K, compares the answers with the keys
+  mkdirSync(join(outDir, 'kunci'), { recursive: true });
+  writeFileSync(join(outDir, 'kunci', 'lembar-kunci-tanpa-kunci.md'), sheets.nokey.join('\n') + '\n');
+  writeFileSync(join(outDir, 'kunci', 'jawaban-k-template.csv'), kcsv.join('\n') + '\n');
   writeFileSync(join(outDir, 'reviewer', 'judgements-template.csv'), csv.join('\n') + '\n');
   writeFileSync(join(outDir, 'SEALED', 'map.json'), JSON.stringify(sealed, null, 2) + '\n');
   return sealed;
+}
+
+// ───────────────────────────── K's blind answers, sealed before the full sheet is opened
+function sealKey(outDir, answersCsv) {
+  const sealed = JSON.parse(readFileSync(join(outDir, 'SEALED', 'map.json'), 'utf8'));
+  const sp = join(outDir, 'SEALED', 'k-answers.json');
+  if (existsSync(sp)) return { ok: false, errors: ['K\'s answers are already sealed; a second seal is refused'] };
+  const raw = readFileSync(answersCsv, 'utf8'); const rows = parseCsv(raw); const errors = []; const answers = {};
+  for (const r of rows) {
+    if (!sealed.items[r.item_id]) errors.push(`unknown item ${r.item_id}`);
+    else if (!LABELS.includes(r.answer)) errors.push(`${r.item_id}: answer «${r.answer}» is not A–D`);
+    else answers[r.item_id] = r.answer;
+  }
+  for (const id of Object.keys(sealed.items)) if (!answers[id]) errors.push(`${id}: no answer`);
+  if (errors.length) return { ok: false, errors };
+  writeFileSync(sp, JSON.stringify({ sealed_at: new Date().toISOString(), file_sha256: sha(raw), answers }, null, 2) + '\n');
+  return { ok: true };
 }
 
 // ───────────────────────────── scoring
@@ -181,6 +206,9 @@ function score(outDir, judgementsCsv, runsDir) {
     (by[r.item_id] ??= {})[r.role] = r;
   }
   const final = {}; const keyDisagreements = [];
+  const kPath = join(outDir, 'SEALED', 'k-answers.json');
+  const kSealed = existsSync(kPath) ? JSON.parse(readFileSync(kPath, 'utf8')) : null;
+  if (!kSealed) errors.push('Sharon\'s blind key answers are not sealed (node kit.mjs seal-key <out> <answers.csv>)');
   for (const id of Object.keys(sealed.items)) {
     const g = by[id] ?? {}; const f = {};
     for (const [c, [lo, hi]] of Object.entries(CRIT)) {
@@ -189,10 +217,12 @@ function score(outDir, judgementsCsv, runsDir) {
       if (a === null || b === null) { errors.push(`${id}: ${c} not judged by both judges`); continue; }
       if (a === b) f[c] = a; else { const r = val('R'); if (r === null) errors.push(`${id}: ${c} judges disagree (${a}/${b}) and no resolver row R`); else f[c] = r; }
     }
-    const k = g.K?.key_correct;
-    if (k !== '0' && k !== '1') errors.push(`${id}: Sharon's independent key check (role K) missing`);
-    if (f.key_correct !== undefined && (k === '0' || k === '1') && Number(k) !== f.key_correct) keyDisagreements.push({ id, educators: f.key_correct, sharon: Number(k) });
-    f.critical = f.key_correct === 0 || k === '0';
+    // K's blind answer, sealed earlier, against the item's key: the kit compares, K never sees the key first
+    const kAns = kSealed?.answers?.[id];
+    if (!kAns) errors.push(`${id}: Sharon's blind key answer (role K) is not sealed`);
+    const k = kAns ? (kAns === sealed.items[id].key ? 1 : 0) : null;
+    if (f.key_correct !== undefined && k !== null && k !== f.key_correct) keyDisagreements.push({ id, educators: f.key_correct, sharon: k, sharon_answer: kAns, key: sealed.items[id].key });
+    f.critical = f.key_correct === 0 || k === 0;
     final[id] = f;
   }
   if (errors.length) return { ok: false, errors };
@@ -205,8 +235,11 @@ function score(outDir, judgementsCsv, runsDir) {
     const critical = ids.filter((id) => final[id].critical);
     let cost = null, model = null;
     const uf = join(runsDir, p.folder, 'usage.json');
-    if (existsSync(uf)) { const u = JSON.parse(readFileSync(uf, 'utf8')); model = `${u.model} (${u.model_date})`; cost = u.calls.reduce((s, c) => s + c.input_tokens * u.price_per_mtok.input / 1e6 + c.output_tokens * u.price_per_mtok.output / 1e6, 0); }
-    prov[code] = { judged: ids.length, expected, missing_or_unrenderable: expected - ids.length, valid, valid_rate: valid / expected, edu, edu_max: expected * 7, critical, cost, model, folder: p.folder };
+    let provenance = ['usage.json missing'];
+    if (existsSync(uf)) { const u = JSON.parse(readFileSync(uf, 'utf8')); model = `${u.model} (${u.model_date})`;
+      provenance = PROVENANCE.filter((k) => u[k] === undefined || u[k] === null || u[k] === '').concat(
+        (u.calls ?? []).some((c) => !c.request_id) ? ['a call without request_id'] : []); cost = u.calls.reduce((s, c) => s + c.input_tokens * u.price_per_mtok.input / 1e6 + c.output_tokens * u.price_per_mtok.output / 1e6, 0); }
+    prov[code] = { provenance_missing: provenance, judged: ids.length, expected, missing_or_unrenderable: expected - ids.length, valid, valid_rate: valid / expected, edu, edu_max: expected * 7, critical, cost, model, folder: p.folder };
   }
   const eligible = Object.entries(prov).filter(([, v]) => v.critical.length <= 1);
   const ranking = eligible.sort(([, a], [, b]) => b.edu - a.edu || b.valid_rate - a.valid_rate || (a.cost ?? Infinity) - (b.cost ?? Infinity)).map(([c]) => c);
@@ -214,8 +247,8 @@ function score(outDir, judgementsCsv, runsDir) {
 }
 function resultsMarkdown(s, sealed) {
   const L = ['# C3 · blind evaluation results', '', `Prompt ${sealed.manifest.prompt_version} (${sealed.manifest.prompt_sha256.slice(0, 12)}), schema ${sealed.manifest.schema_sha256.slice(0, 12)}.`, '',
-    '| Code | Judged / 30 | Schema-valid | Educational score | Critical key errors | Billed cost (USD) | Decision rule |', '|---|---|---|---|---|---|---|'];
-  for (const [c, v] of Object.entries(s.prov).sort()) L.push(`| ${c} | ${v.judged} | ${v.valid}/30 (${Math.round(v.valid_rate * 100)}%) | ${v.edu}/${v.edu_max} | ${v.critical.length}${v.critical.length ? ': ' + v.critical.join(', ') : ''} | ${v.cost === null ? 'not recorded' : v.cost.toFixed(4)} | ${v.critical.length > 1 ? '**not recommended** (>1 critical)' : 'eligible'} |`);
+    '| Code | Judged / 30 | Schema-valid | Educational score | Critical key errors | Billed cost (USD) | Provenance | Decision rule |', '|---|---|---|---|---|---|---|---|'];
+  for (const [c, v] of Object.entries(s.prov).sort()) L.push(`| ${c} | ${v.judged} | ${v.valid}/30 (${Math.round(v.valid_rate * 100)}%) | ${v.edu}/${v.edu_max} | ${v.critical.length}${v.critical.length ? ': ' + v.critical.join(', ') : ''} | ${v.cost === null ? 'not recorded' : v.cost.toFixed(4)} | ${v.provenance_missing.length ? '**incomplete:** ' + v.provenance_missing.join(', ') : 'complete'} | ${v.critical.length > 1 ? '**not recommended** (>1 critical)' : 'eligible'} |`);
   L.push('', `**Ranking of eligible providers** (educational score, then validity, then cost): ${s.ranking.join(' > ') || 'none'}.`, '');
   if (s.keyDisagreements.length) L.push('**Key checks where Sharon and the educators differ** (counted as critical; for the owner):', ...s.keyDisagreements.map((d) => `- ${d.id}: educators ${d.educators}, Sharon ${d.sharon}`), '');
   L.push('## Blinding map (revealed last)', '', ...Object.entries(s.prov).sort().map(([c, v]) => `- ${c} = ${v.folder}${v.model ? `, ${v.model}` : ''}`), '');
@@ -267,23 +300,32 @@ function cmdSelftest() {
   const flip = (it) => { const to = it.key === 'A' ? 'B' : 'A'; const d = it.distractors.find((x) => x.label === to); d.label = it.key; it.key = to; };
   mk('y', 1, (r) => { flip(r.items[0]); flip(r.items[4]); r.items.pop(); r.items[1].distractors = []; return r; });
   mk('y', 2);
-  writeFileSync(join(runs, 'x', 'usage.json'), JSON.stringify({ model: 'control', model_date: '2026-11-09', price_per_mtok: { input: 2, output: 10 }, calls: [{ bab: 1, request_id: 'r1', input_tokens: 3000, output_tokens: 1000 }, { bab: 2, request_id: 'r2', input_tokens: 3000, output_tokens: 1000 }] }));
+  writeFileSync(join(runs, 'x', 'usage.json'), JSON.stringify({ model: 'control', model_date: '2026-11-09', endpoint: 'offline', api_version: 'none', run_at: '2026-11-09T00:00:00Z', run_by: 'selftest', generation: { temperature: 1, max_tokens: 8000, system_prompt: '' }, data_retention: 'none (offline)', price_per_mtok: { input: 2, output: 10 }, calls: [{ bab: 1, request_id: 'r1', input_tokens: 3000, output_tokens: 1000 }, { bab: 2, request_id: 'r2', input_tokens: 3000, output_tokens: 1000 }] }));
   const sealed = cmdBlind(runs, out);
   const sheet = readFileSync(join(out, 'reviewer', 'lembar-penilaian.md'), 'utf8') + readFileSync(join(out, 'reviewer', 'judgements-template.csv'), 'utf8');
   check(!/\bx\b|\by\b|\bz\b|control/.test(sheet.replace(/B\d-\d{3}/g, '')), 'reviewer files carry no provider folder or model name');
-  check(!/Kunci/.test(readFileSync(join(out, 'reviewer', 'lembar-kunci-tanpa-kunci.md'), 'utf8')), 'the key-check sheet shows no key');
   const codeOf = (f) => Object.entries(sealed.providers).find(([, v]) => v.folder === f)[0];
   check(Object.values(sealed.items).filter((i) => i.provider === codeOf('y')).length === 29, 'Y\'s dropped item is absent from the sheets (29 judged)');
   // judgements: everyone agrees all good, except Y's two flipped keys (wrong), one disagreement resolved by R
-  const lines = ['item_id,judge,role,key_correct,alignment,distractors,language,notes'];
+  const lines = ['item_id,judge,role,key_correct,alignment,distractors,language,notes']; const kLines = ['item_id,answer'];
   const flipped = new Set(Object.entries(sealed.items).filter(([, i]) => i.provider === codeOf('y') && i.bab === 1 && (i.index === 0 || i.index === 4)).map(([id]) => id));
   let first = true;
   for (const id of Object.keys(sealed.items)) {
     const k = flipped.has(id) ? 0 : 1;
-    lines.push(`${id},e1,J1,${k},2,2,2,`, `${id},e2,J2,${k},${first ? 1 : 2},2,2,"ok, natural"`, `${id},Sharon,K,${k},,,,`);
+    lines.push(`${id},e1,J1,${k},2,2,2,`, `${id},e2,J2,${k},${first ? 1 : 2},2,2,"ok, natural"`);
+    // K solved Y's two flipped items from the stem: their answer is the true one, not the item's (wrong) key
+    const key = sealed.items[id].key; kLines.push(`${id},${flipped.has(id) ? (key === 'A' ? 'B' : 'A') : key}`);
     if (first) { lines.push(`${id},e3,R,${k},2,,,resolved`); first = false; }
   }
   writeFileSync(join(t, 'j.csv'), lines.join('\n') + '\n');
+  check(!score(out, join(t, 'j.csv'), runs).ok, 'scoring refuses before Sharon\'s blind key answers are sealed');
+  writeFileSync(join(t, 'k-bad.csv'), kLines.slice(0, -1).join('\n') + '\n');
+  check(!sealKey(out, join(t, 'k-bad.csv')).ok, 'sealing refuses a key sheet with an item unanswered');
+  writeFileSync(join(t, 'k.csv'), kLines.join('\n') + '\n');
+  check(sealKey(out, join(t, 'k.csv')).ok, 'K\'s complete blind answers are sealed');
+  check(!sealKey(out, join(t, 'k.csv')).ok, 'a second seal is refused (answers cannot be changed after the full sheet opens)');
+  check(!/Kunci:|Pengecoh/.test(readFileSync(join(out, 'kunci', 'lembar-kunci-tanpa-kunci.md'), 'utf8')) && !existsSync(join(out, 'kunci', 'lembar-penilaian.md')),
+    'K\'s folder holds only the stem and options, never the full sheet');
   const s = score(out, join(t, 'j.csv'), runs);
   check(s.ok, 'scoring accepts a complete judgement set with one resolved disagreement' + (s.ok ? '' : ': ' + s.errors.slice(0, 3).join('; ')));
   if (s.ok) {
@@ -291,11 +333,14 @@ function cmdSelftest() {
     check(s.prov[codeOf('y')].valid === 28 && s.prov[codeOf('x')].valid === 30, 'validity: Y 28/30 (one dropped, one invalid), X 30/30');
     check(s.prov[codeOf('x')].cost.toFixed(2) === '0.03', 'cost: X 2 × (3K × $2/M + 1K × $10/M) = $0.032');
     check(s.ranking.length === 2 && !s.ranking.includes(codeOf('y')), 'ranking holds only the eligible providers');
+    check(s.prov[codeOf('x')].provenance_missing.length === 0 && s.prov[codeOf('y')].provenance_missing.includes('usage.json missing'),
+      'provenance: X\'s run is complete; Y\'s missing usage.json is reported');
+    const mapNow = JSON.parse(readFileSync(join(out, 'SEALED', 'map.json'), 'utf8'));
+    check(mapNow.providers[codeOf('x')].bab1.response_sha256 === sha(readFileSync(join(runs, 'x', 'bab1.json'))),
+      'each raw response is hashed when sealed, so «unmodified» can be checked');
   }
   writeFileSync(join(t, 'j2.csv'), lines.filter((l) => !/,R,/.test(l)).join('\n') + '\n');
   check(!score(out, join(t, 'j2.csv'), runs).ok, 'scoring refuses a disagreement with no resolver');
-  writeFileSync(join(t, 'j3.csv'), lines.filter((l) => !/,K,/.test(l) || !l.startsWith(Object.keys(sealed.items)[3])).join('\n') + '\n');
-  check(!score(out, join(t, 'j3.csv'), runs).ok, 'scoring refuses an item without Sharon\'s independent key check');
   console.log(`\n${fails.length ? fails.length + ' FAILED' : 'all passed'} (scratch: ${t})`);
   process.exit(fails.length ? 1 : 0);
 }
@@ -304,7 +349,8 @@ const [cmd, a1, a2, a3] = process.argv.slice(2);
 if (cmd === 'material') cmdMaterial();
 else if (cmd === 'request') process.stdout.write(requestText(Number(a1)));
 else if (cmd === 'validate') console.log(JSON.stringify(validateResponse(readFileSync(a1, 'utf8'), Number(a2)), null, 2));
-else if (cmd === 'blind') { cmdBlind(a1, a2); console.log(`reviewer files in ${join(a2, 'reviewer')}; keep ${join(a2, 'SEALED')} from reviewers`); }
+else if (cmd === 'blind') { cmdBlind(a1, a2); console.log(`educators: ${join(a2, 'reviewer')}; Sharon (key check): ${join(a2, 'kunci')} only; ${join(a2, 'SEALED')}: nobody`); }
+else if (cmd === 'seal-key') { const r = sealKey(a1, a2); if (!r.ok) die('seal-key refused:\n' + r.errors.map((e) => '- ' + e).join('\n')); console.log('sealed'); }
 else if (cmd === 'score') cmdScore(a1, a2, a3);
 else if (cmd === 'selftest') cmdSelftest();
-else die('usage: node kit.mjs material | request <1|2> | validate <file> <1|2> | blind <runs> <out> | score <out> <csv> <runs> | selftest');
+else die('usage: node kit.mjs material | request <1|2> | validate <file> <1|2> | blind <runs> <out> | seal-key <out> <answers.csv> | score <out> <csv> <runs> | selftest');

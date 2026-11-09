@@ -7,7 +7,7 @@ and credentials follow only once the providers' actual terms and access are read
 
 | File | Purpose |
 |---|---|
-| `prompt-v1.md` | The one request, in Indonesian. It is sent byte-identical to every provider as a single user message. Daisy reviews the wording before the run; any change is v2 |
+| `prompt-v2.md` | The one request, in Indonesian, sent byte-identical to every provider as a single user message. v2 has Daisy's 9 Nov review applied; v1 (`prompt-v1.md`) is kept for the record. Any change makes a new version |
 | `item-schema.json` | The output contract (stem, A–D options, key, a misconception per wrong option, objective code, one-line rationale). It is kept to the schema subset every provider's structured output accepts; counts and cross-field rules are checked by the kit |
 | `material/bab1.md`, `material/bab2.md` | The frozen material: the synthetic SD Kelas 5 Matematika chapters (F-4), with their objectives (coded B1-T1…B2-T4), known misconceptions and lessons. **No question, option or key from the chapters is sent** |
 | `material/MANIFEST.json` | The SHA-256 of each source, material, request, prompt and schema. These are recorded with every draft for provenance |
@@ -75,10 +75,33 @@ It is the one part of the kit not prepared yet, because it depends on the actual
 ```sh
 node kit.mjs material && git diff --exit-code material/          # material unchanged since review
 # runner: writes runs/<provider>/bab1.json, bab2.json, usage.json (raw responses, unmodified)
-node kit.mjs blind runs out                                       # out/reviewer → judges; out/SEALED → nobody
-# judges fill out/reviewer/judgements-template.csv
+node kit.mjs blind runs out                                       # out/reviewer → educators; out/kunci → Sharon only; out/SEALED → nobody
+# Sharon solves out/kunci/lembar-kunci-tanpa-kunci.md and seals her answers BEFORE any full sheet is opened:
+node kit.mjs seal-key out jawaban-k.csv                           # one seal only; the kit compares answers with keys
+# educators fill out/reviewer/judgements-template.csv (J1, J2, R)
 node kit.mjs score out judgements.csv runs                        # → out/C3-EVALUATION-RESULTS.draft.md
 ```
 
 `runs/` and `out/` hold provider output and judgements. They live outside the repository (in the evaluation's private
 folder) until the owner has reviewed them. The results document is then committed as `../C3-EVALUATION-RESULTS.md`.
+
+## Sharon's review (9 Nov), applied
+
+- **Blind key check.**
+  - Sharon receives only `out/kunci/`: the stem and the options, with no key, rationale or provider.
+  - She records one answer per item and seals it with `seal-key` before any full sheet is opened. A second seal is
+    refused.
+  - The kit compares her answers with the keys, and scoring refuses to run until they are sealed.
+- **Provenance per run** (`usage.json`): `model`, `model_date`, `endpoint`, `api_version`, `run_at`, `run_by`,
+  `generation` (temperature, maximum tokens, system prompt), `data_retention`, `price_per_mtok`, and a `request_id` per
+  call.
+  - The results mark a run whose record is incomplete.
+  - Each raw response file is hashed into the sealed map at blind time.
+- **Equal schema instructions:** v2 lists the fields in the prompt text itself, so a provider without structured output
+  receives the same conditions. Sharon checks that the list matches `item-schema.json` exactly.
+
+## Freeze
+
+The kit is frozen at the commit that adds this line. `material/MANIFEST.json` holds the SHA-256 of the v2 prompt, the
+schema, both materials and both requests. Any change after this needs a new version and a new freeze, and no external
+evaluation runs on an unfrozen kit.
