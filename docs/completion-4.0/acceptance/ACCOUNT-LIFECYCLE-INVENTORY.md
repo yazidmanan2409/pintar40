@@ -308,3 +308,124 @@ About **4–6 engineering days**. L3 shares the suspension work.
 2. The two requests' wording, the single confirmation, and the status page.
 3. How «akhiri di sekolah ini», «tutup akun», «hapus data pribadi» and a suspension read unmistakably differently.
 4. That no step is a dark pattern: no guilt copy, no buried link, no forced support contact.
+
+## 11 · Educator roles and responsibilities (owner directive, 9 Nov): design for review before build
+
+**The benchmark:** find the person → select their responsibilities → review → confirm.
+- «Pak Yusuf remains a Mathematics teacher. He is now also Head of Department.» And later, the reverse.
+- One person, several responsibilities.
+- A formal position is never PINTAR authority (D-059(c, d)).
+
+### What exists (read-only inventory of the code, 9 Nov)
+
+**The role model:**
+- `role_assignments` rows are dated, immutable and audited (`role_assignments_guard`; `role.granted`/`role.revoked`
+  with from/to, reason and actor role).
+- One person may hold several roles at once. Duplicates are refused per (person, role, place).
+- Self-grant is refused. SYSTEM_ADMIN is platform-only.
+- A School Admin may grant INSTITUTION_ADMIN only at the school's own node, after a second press (D-101(2)), and
+  EDUCATOR, HEAD_OF_DEPARTMENT and DEAN only within their own school (D-049).
+
+**The capability registry:** `role_capabilities(app_role)` (`20260926100000`) is the one central definition.
+- EDUCATOR: draft, assign learning, quick assessment, roster, results.
+- HEAD_OF_DEPARTMENT: that, plus review, freeze, question health, integrity review.
+- DEAN: roster only.
+- INSTITUTION_ADMIN: administration, including provisioning.
+- Management decisions are open to HEAD_OF_DEPARTMENT/DEAN by role, not capability (`20260924110000`). The matrix
+  must show this too.
+
+**Attribution and queues:** work is attributed to the person, not the role. Since `20270112160000`, a former
+role-holder stays visible to the school's admin. Decision queues follow the place: after a demotion, pending items
+fall to whoever now holds the role there, and to nobody if no one does
+(`management_decision_independent_decider`). Nothing warns the admin.
+
+**The UI today:** «Peran & akses» lists grants and offers «Cabut» (with a reason) and «Berikan peran» (person, role,
+Lingkup, «Berlaku sampai»).
+- There is no per-person view.
+- A change takes two separate actions.
+- There is no preview of what is gained or lost.
+- `grant_role` has no `valid_from`, so a grant starts now.
+
+| Journey | Today |
+|---|---|
+| Guru → Guru + Kepala Departemen | works, as a second grant |
+| Kepala Departemen → Guru | works, but not atomic; the queue may be left without a decider and nobody is warned |
+| Department transfer | partial: revoke then grant, so access may lapse or overlap in between |
+| Guru → Admin Sekolah | works, with the D-101 second press |
+| Acting appointment | an end date works; no future start date, no label (4.1) |
+
+### The proposed 4.0 design: smallest, reusing everything
+
+**1. Read: `peran_orang(person)`, a definer function for the person's school administrator (or the platform).**
+- It returns the person's live roles at the caller's school: role, place (named), and «Berlaku sampai».
+- For each role, it gives the responsibilities that role carries, derived from `role_capabilities` plus the
+  management-decision rule. No list is maintained by hand.
+
+**2. Preview: `pratinjau_ubah_peran(person, changes)`, read-only.** For a proposed set of roles to add and remove, it
+returns:
+- **gained, retained and lost** responsibilities, each with the place it applies to;
+- **not granted:** School Admin and Platform Admin unless explicitly chosen, and nothing in other departments or
+  schools;
+- what needs **higher authority** (INSTITUTION_ADMIN: its confirmation; SYSTEM_ADMIN: never from a school);
+- a **queue warning:** for each HEAD_OF_DEPARTMENT/DEAN role removed, the places whose pending decisions would be left
+  with no independent decider;
+- a fingerprint of the person's current roles.
+
+**3. Apply: `ubah_peran(person, add, remove, reason, fingerprint)`, one transaction.**
+- It takes an advisory lock per person, so concurrent changes serialize.
+- It refuses a stale preview (the fingerprint differs).
+- It revokes and grants through the existing guards, so every rule is kept.
+- One reason (required), and one `role.changed` audit row naming the revocations and grants beside the existing
+  per-row audit.
+- All or nothing.
+- Authority ends at the next request: capabilities are read live, so no session needs to end.
+
+**4. Screens (Daisy):** «Staf dan akses» → the «Staf sekolah» list, one row per person (her earlier review) → the
+person's page: current roles and their responsibilities → «Ubah peran & tanggung jawab». The flow then:
+1. add, keep or remove a role;
+2. review gained, retained, lost and not granted, with the place of each;
+3. the queue warning, if any;
+4. the reason;
+5. one confirmation;
+6. the result.
+
+**Red tests first:**
+- **Atomicity:** one invalid addition means nothing changes.
+- **Scope:** nothing in another department or school; never SYSTEM_ADMIN; INSTITUTION_ADMIN only with its
+  confirmation.
+- **Concurrency:** a stale preview is refused.
+- **Demotion:** authority ends immediately while teaching stays.
+- **Queues:** the warning appears for an unattended queue, and pending decisions stay visible to the next reviewer.
+- **History:** attribution is kept.
+- **Journeys:** Pak Yusuf's promotion and demotion, and a department transfer with no gap and no overlap.
+
+**4.1 (owner):**
+- formal job-position records distinct from roles, with dated history;
+- employment movements;
+- acting-appointment labels;
+- future-effective role start dates.
+
+### For Sharon (pre-build)
+
+1. Who may grant and revoke each role through `ubah_peran`: do the existing guards suffice when called inside one
+   definer transaction?
+2. Scope boundaries and escalation: can any combination of additions and removals reach SYSTEM_ADMIN, another school,
+   or an INSTITUTION_ADMIN grant without its confirmation?
+3. Atomicity, the per-person lock, and the stale-preview fingerprint against concurrent changes.
+4. Revocation timing: capabilities are read live, so is anything cached in a session that must also end?
+5. Audit completeness of one `role.changed` row beside the per-row audit.
+6. Pending-decision ownership: is "warn, never reassign" right? Should a change that leaves a queue without a decider
+   be refused rather than warned?
+7. Do platform-only privileges stay unreachable from every school path?
+
+### For Daisy (pre-build)
+
+1. The person-centred flow above, in PINTAR's design grammar, in both languages, accessible, and usable on a phone.
+2. **The matrix:**
+   - responsibility names for the registry's capabilities (no codes);
+   - checkmarks only where they help;
+   - three kinds kept visibly distinct: inherited from a role held, available to assign, unavailable to this
+     administrator.
+3. The review screen's gained, retained, lost and not-granted wording, for both Pak Yusuf journeys.
+4. The queue warning's wording, and what the administrator can do about it.
+5. How this sits beside «Akhiri di sekolah ini» (the person leaving the school) without confusion.

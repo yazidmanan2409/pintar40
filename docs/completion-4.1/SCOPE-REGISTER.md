@@ -78,6 +78,15 @@ Each plan answers, for Daisy:
 | **C8** | **PINTAR Administrator emergency override** | Owner 9 Nov §C.8 and the ruling | An immediate pause at **class, school or platform** scope, with a reason, explicit confirmation, immediate notice, audit; lifted only by an authorized PINTAR Administrator. Containment first: accepted answers and attempt state preserved; nothing silently submitted, scored, failed or discarded; governed recovery afterwards | The `EMERGENCY` window (Admin platform only, typed phrase and reason, PT503 `PINTAR_DIHENTIKAN`) for chosen schools or the platform | Approved; class scope to add |
 | **X** | **Platform-wide consistency** (cross-cutting) | Owner 9 Nov, «platform-wide consistency» | One design grammar, one vocabulary (ID/EN), one interaction behaviour, the same educational rules wherever a concept appears, shared facts from one definition, **one permission boundary across UI, API, database, background work and exports**, accessibility and responsive behaviour on desktop, mobile and print | Daisy's grammar and shared components; `hle.ts` (all copy); the 4.0 gates' cross-surface checks (e.g. B6K-URUTAN-02, R-T1, SI-D01) | Applies to every row above and to 4.0 |
 
+**Added to 4.1 (owner, 9 Nov, the educator-roles directive):**
+- formal educator job-position records, distinct from PINTAR authorization roles (D-059(c));
+- dated position history, and promotion, demotion and lateral employment movements;
+- acting-appointment labels;
+- future-effective role start dates, subject to review.
+
+4.0 keeps the person-centred «Ubah peran & tanggung jawab» on the existing role assignments
+(`docs/completion-4.0/acceptance/ACCOUNT-LIFECYCLE-INVENTORY.md` §11).
+
 **Moved out of 4.1 (owner, O41-2, 9 Nov):**
 - **WhatsApp sign-in (#147) moves to PINTAR 4.5.**
 - Its history is kept:
