@@ -109,7 +109,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
 begin
   perform selftest.as_owner();
   begin
@@ -483,9 +483,11 @@ begin
             now() + interval '1 day', now() + interval '30 days');
     perform set_config('app.seed_intent', '', true);
     -- registration numbers: O at X; P at X and Y; T and M at Y (they already hold X's)
-    for r in select * from (values ('O', v_x), ('P', v_x), ('P', v_y), ('T', v_y), ('M', v_y)) t(k, inst) loop
-      insert into public.institutional_identities (person_id, institution_id, institutional_id, sequence_number)
-      select (lc -> r.k ->> 'person')::uuid, r.inst, i.namespace || lpad(q.n::text, 6, '0') || 'ZZ', q.n
+    -- each number at its own time, as a school issues them (P's X number long before Y's; the onboarding rule reads the
+    -- newest, and a tie gives onboarding to nobody: F37-S04)
+    for r in select * from (values ('O', v_x, 30), ('P', v_x, 60), ('P', v_y, 2), ('T', v_y, 10), ('M', v_y, 10)) t(k, inst, hari) loop
+      insert into public.institutional_identities (person_id, institution_id, institutional_id, sequence_number, issued_at)
+      select (lc -> r.k ->> 'person')::uuid, r.inst, i.namespace || lpad(q.n::text, 6, '0') || 'ZZ', q.n, now() - make_interval(days => r.hari)
         from public.institutions i,
              (select coalesce(max(ii.sequence_number), 0) + 1 as n from public.institutional_identities ii where ii.institution_id = r.inst) q
        where i.id = r.inst;
@@ -609,6 +611,32 @@ begin
       elsif v_got !~ r.mau then l05 := l05 || format('%s refused, but not as %s: %s', r.k, r.mau, v_got); end if;
     end loop;
 
+    -- S04 (owner, 9 Nov): the newest registration is not assumed authorised. R: X's and Y's numbers share one timestamp,
+    -- so neither school onboards R. U: Y's number is the newest but Y is inactive, so nobody onboards U (X, the older,
+    -- does not inherit). Each person never enrolled or activated.
+    for r in select * from (values ('R'), ('U')) t(k) loop
+      insert into public.persons (display_name) values ('Calon F37 ' || r.k || ' ' || v_tag) returning persons.id into v_pp;
+      lc := lc || jsonb_build_object(r.k, jsonb_build_object('person', v_pp));
+      for e in select * from (values (v_x, case when r.k = 'R' then v_tie else now() - interval '20 days' end),
+                                     (v_y, case when r.k = 'R' then v_tie else now() - interval '1 day' end)) q(inst, kapan) loop
+        insert into public.institutional_identities (person_id, institution_id, institutional_id, sequence_number, issued_at)
+        select v_pp, e.inst, i.namespace || lpad(n.n::text, 6, '0') || 'ZZ', n.n, e.kapan
+          from public.institutions i,
+               (select coalesce(max(ii.sequence_number), 0) + 1 as n from public.institutional_identities ii where ii.institution_id = e.inst) n
+         where i.id = e.inst;
+      end loop;
+    end loop;
+    for r in select * from (values ('R', 'X', u_admin), ('R', 'Y', u_adminy), ('U', 'X', u_admin)) t(k, sekolah, uid) loop
+      v_pp := (lc -> r.k ->> 'person')::uuid;
+      if r.k = 'U' then update public.institutions set is_active = false where institutions.id = v_y; end if;
+      v_got := selftest.f37_sebagai(r.uid, format('select public.authorize_account_activation(%L, %L, %L, %L)', v_pp, 'EMAIL',
+                                    'f37-' || lower(r.k) || '-' || lower(r.sekolah) || '-' || v_tag || '@local.invalid', null));
+      if r.k = 'U' then update public.institutions set is_active = true where institutions.id = v_y; end if;
+      if v_got !~ 'requires CAN_PROVISION_PEOPLE' then
+        s04 := s04 || format('%s: school %s passed the school check (%s)', r.k, r.sekolah, v_got);
+      end if;
+    end loop;
+
     raise exception 'f37-rollback';
   exception when others then
     perform selftest.as_owner();
@@ -650,6 +678,8 @@ begin
        'a transfer to a school where the learner already holds a live enrolment that year is refused PR040 TRANSFER_ALREADY_ENROLLED, nothing written'),
       ('F37-L05', 'Account lifecycle: a departed learner is not placed back by the old school', l05,
        'a learner who transferred to another school (PLACE_ELSEWHERE) or withdrew (PLACE_DEPARTED) is not offered in «Murid yang belum punya kelas» and tempatkan_murid refuses them by name'),
+      ('F37-S04', 'System Integrity, chain D: the newest registration is not assumed authorised (owner, 9 Nov)', s04,
+       'two schools whose latest numbers share a timestamp: neither onboards the person; the newest number''s school inactive: nobody onboards, and the older school does not inherit'),
       ('F37-S01', 'System Integrity, chain D: a school''s account-level power follows its current placement (SI-D03)', s01,
        'a former school''s admin cannot reset the recovery of a learner who transferred or withdrew (42501; the session kept); the current school can (sessions ended); a person placed at two schools is assisted by either; another school''s admin, a Guru and a Kepala departemen are refused; registration numbers and ended enrollments are kept'),
       ('F37-S02', 'System Integrity, chain D: every credential path follows the current placement or onboarding (SI-D03)', s02,
