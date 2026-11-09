@@ -96,10 +96,13 @@ begin
       values (v_new, v_p, v_inst, v_e, v_tmpl.academic_period_id, v_cls, v_tmpl.cohort_node_id, v_tmpl.plp_release_id,
               v_tmpl.assessment_definition_id, v_tmpl.assessment_definition_version, v_tmpl.engine_version,
               v_tmpl.scoring_policy_version, v_tmpl.evidence_channel, v_tmpl.evidence_class, 'POST_TEST',
-              'CREATED', v_tmpl.shuffle_seed, v_tmpl.started_at, v_tmpl.submitted_at, v_tmpl.finalized_at, 0);
+              -- RESTATED TO OWNER DECISION 8 (9 Nov): a later sitting is one FINALISED later (it was the result's
+              -- computation time alone before, which a recomputation of an old sitting also moves)
+              'CREATED', v_tmpl.shuffle_seed, now() - make_interval(days => m.hari, mins => 30), now() - make_interval(days => m.hari, mins => 5),
+              now() - make_interval(days => m.hari), 0);
       update public.assessment_sessions set status = 'IN_PROGRESS' where assessment_sessions.id = v_new;
       update public.assessment_sessions set status = 'SUBMITTED'   where assessment_sessions.id = v_new;
-      update public.assessment_sessions set status = 'FINALIZED'   where assessment_sessions.id = v_new;
+      update public.assessment_sessions set status = 'FINALIZED', finalized_at = now() - make_interval(days => m.hari) where assessment_sessions.id = v_new;
       insert into public.assessment_results
         (id, session_id, institution_id, person_id, evidence_class, engine_version, scoring_policy_version,
          mastery, per_domain, safety_gate_passed, delta_inputs, computed_at)

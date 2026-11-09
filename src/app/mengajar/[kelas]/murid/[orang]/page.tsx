@@ -126,6 +126,11 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
                         {s("mengajar.ulang.judul")}
                       </Link>
                     ) : null}
+                    {/* owner decision E1: a recomputed sitting says why a report and a certificate can differ */}
+                    {h.dihitungUlang && h.asli !== null && h.asli !== undefined && h.penguasaan !== null && h.asli !== h.penguasaan ? (
+                      <small className="pin-meta" data-dihitung-ulang="">{s("mengajar.murid1.dihitung_ulang")
+                        .replace("{baru}", format.percent(h.penguasaan, locale)).replace("{asli}", format.percent(h.asli, locale))}</small>
+                    ) : null}
                   </dd>
                 </div>
               ))}

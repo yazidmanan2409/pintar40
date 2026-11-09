@@ -205,7 +205,7 @@ A focused follow-up review is requested (§8).
 - The smallest group a report names is a **cell**: one class's learners in one chapter or topic.
 - **Row rule.** A row gives its mean only when its own learners reach its governed minimum. Otherwise it gives its learners and `needed`, never a zero.
 - **Combined figures.** A figure that combines cells is shown only when every cell reaches the minimum of its own row. Otherwise it is **withheld**: its meaning is not changed by recomputing it without the small cell, and its participation is still every learner who sat. This rule covers Pemahaman over chapters, a school competency or Kenaikan over classes, and an Angkatan over classes and chapters.
-- **Kenaikan's pair.** The before → after pair answers only when, in every chapter, no pair lies in a withheld chapter and the unpaired learners number zero or at least the minimum.
+- **Kenaikan's pair.** The before → after pair answers only when no pair lies in a withheld chapter and, in every shown chapter, the unpaired learners number zero or at least the minimum.
 - **Ordering.** Withheld rows come after shown ones, ordered by name or identifier.
 - **Missing minimum.** If a minimum is missing, every mean is withheld.
 

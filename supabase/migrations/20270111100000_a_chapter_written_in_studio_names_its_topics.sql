@@ -306,7 +306,7 @@ begin
            and s.class_node_id = p_class
            and s.person_id = p_learner
            and s.mode = 'POST_TEST'::public.assessment_mode
-         order by r.session_id, r.computed_at desc
+         order by r.session_id, r.computed_at desc, (r.supersedes_result_id is not null) desc
       ), per_objective as (
         select kv.key as code,
                (kv.value ->> 'penguasaan')::numeric as penguasaan,
@@ -547,8 +547,10 @@ revoke all on function public.assert_academic_sources_are_context_bound() from p
 -- ═══════════════════════════════════════════════════════════ ONE EVIDENCE RULE (owner decision 8)
 -- Every calculator below reads assessment evidence through the same three steps, written out in each body (a
 -- calculator reads only its declared sources, so the rule is restated rather than shared through a new relation):
---   (1) a SITTING's effective result is its most recently computed official result (a recomputation replaces the
---       earlier version, INV-29; it is never a second attempt): DISTINCT ON (r.session_id) … ORDER BY r.computed_at DESC;
+--   (1) a SITTING's effective result is the result nothing supersedes: its most recently computed official result, and
+--       on a tie the recomputation over the original (recompute_result supersedes the original, so a lineage holds at
+--       most two; INV-29: it is never a second attempt): DISTINCT ON (r.session_id) … ORDER BY r.computed_at DESC,
+--       (r.supersedes_result_id IS NOT NULL) DESC;
 --   (2) a learner's CURRENT result in a chapter (plp release) is the effective result of their LATEST sitting of that
 --       chapter's Uji Penguasaan in the scope read (by when the sitting was finalised, never by when a result was
 --       recomputed, so recomputing an old sitting cannot make it «latest"); a lower later score is the current score;
@@ -570,8 +572,8 @@ revoke all on function public.assert_academic_sources_are_context_bound() from p
 --     by subtracting the visible rows from it (Sharon's finding 1). A withheld figure says so: `withheld`
 --     {reason 'subgroup', needed}, and its sample is still every learner who sat (participation is never zero).
 --   * Kenaikan's before → after pair (kenaikan_awal_akhir) gives post means over PAIRS, a subset of a chapter's
---     learners; it answers only when, in every chapter, the paired learners are all of the chapter's learners or the
---     unpaired ones themselves reach the minimum, and every chapter it includes is shown.
+--     learners; it answers only when every chapter it includes is shown and, in every shown chapter, the paired
+--     learners are all of the chapter's learners or the unpaired ones themselves reach the minimum.
 --   * Withheld rows are listed after every shown row, in the order of their names, never by their hidden means
 --     (Sharon's finding 2).
 -- A missing minimum withholds every mean (a comparison with NULL is never true).
@@ -587,7 +589,7 @@ BEGIN ATOMIC
             FROM (scoped_official_results r
               JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
            WHERE ((s.institution_id = calc_class_comprehension.p_institution) AND (s.class_node_id = calc_class_comprehension.p_node) AND (s.mode = 'POST_TEST'::assessment_mode))
-           ORDER BY r.session_id, r.computed_at DESC
+           ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), cur AS (
           SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.mastery
             FROM eff e
@@ -624,7 +626,7 @@ BEGIN ATOMIC
             FROM (scoped_official_results r
               JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
            WHERE ((s.institution_id = calc_class_chapter_mastery.p_institution) AND (s.class_node_id = calc_class_chapter_mastery.p_node) AND (s.mode = 'POST_TEST'::assessment_mode))
-           ORDER BY r.session_id, r.computed_at DESC
+           ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), cur AS (
           SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.mastery
             FROM eff e
@@ -662,7 +664,7 @@ BEGIN ATOMIC
             FROM (scoped_official_results r
               JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
            WHERE ((s.institution_id = calc_class_topic_mastery.p_institution) AND (s.class_node_id = calc_class_topic_mastery.p_node) AND (s.mode = 'POST_TEST'::assessment_mode))
-           ORDER BY r.session_id, r.computed_at DESC
+           ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), cur AS (
           SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.assessment_definition_id, e.per_domain
             FROM eff e
@@ -720,7 +722,7 @@ BEGIN ATOMIC
             FROM (scoped_official_results r
               JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
            WHERE ((s.institution_id = calc_institution_competency_outcomes.p_institution) AND (s.mode = 'POST_TEST'::assessment_mode))
-           ORDER BY r.session_id, r.computed_at DESC
+           ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), cur AS (
           SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.class_node_id, e.assessment_definition_id, e.per_domain
             FROM eff e
@@ -797,7 +799,7 @@ BEGIN ATOMIC
             FROM (scoped_official_results r
               JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
            WHERE ((s.institution_id = calc_institution_cohort_comparison.p_institution) AND (s.mode = 'POST_TEST'::assessment_mode))
-           ORDER BY r.session_id, r.computed_at DESC
+           ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), cur AS (
           SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.class_node_id, e.cohort_node_id, e.mastery
             FROM eff e
@@ -860,12 +862,14 @@ BEGIN ATOMIC
             FROM (scoped_official_results r
               JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
            WHERE ((s.institution_id = calc_institution_safety_gate_pass_rate.p_institution) AND (s.mode = 'POST_TEST'::assessment_mode))
-           ORDER BY r.session_id, r.computed_at DESC) x;
+           ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC) x;
 END;
 revoke all on function public.calc_institution_safety_gate_pass_rate(uuid, uuid, text) from public, anon, authenticated;
 
 -- «Kenaikan» (decision 8 B): over every (learner, chapter) with a baseline and a current result in the class, the mean
--- of current − baseline. MC-8 took the HIGHEST result of each test (max over every result row, recomputed versions
+-- of current − baseline. Its unit is the (learner, chapter) PAIR, the governed contract since MC-8 (H31): a learner with
+-- two chapters' pairs counts twice; `sample` is the learners (the minimum's population) and `pairs` the pairs, so the
+-- page says both and never calls the figure a per-learner average. MC-8 took the HIGHEST result of each test (max over every result row, recomputed versions
 -- included); a later, lower Uji Penguasaan now counts, and a recomputation replaces rather than competes.
 CREATE OR REPLACE FUNCTION public.calc_class_net_gain(p_node uuid, p_institution uuid, p_catalogue text)
  RETURNS jsonb
@@ -878,7 +882,7 @@ BEGIN ATOMIC
             FROM (scoped_official_sessions s
               JOIN scoped_official_results r ON ((r.session_id = s.id)))
            WHERE ((s.institution_id = calc_class_net_gain.p_institution) AND (s.class_node_id = calc_class_net_gain.p_node) AND (s.mode = ANY (ARRAY['PRE_TEST'::assessment_mode, 'POST_TEST'::assessment_mode])))
-           ORDER BY r.session_id, r.computed_at DESC
+           ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), pre AS (
           SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.mastery
             FROM eff e
@@ -890,7 +894,7 @@ BEGIN ATOMIC
            WHERE (e.mode = 'POST_TEST'::assessment_mode)
            ORDER BY e.person_id, e.plp_release_id, e.finalized_at DESC NULLS LAST, e.created_at DESC, e.session_id DESC
          )
-  SELECT jsonb_build_object('value', round(avg((b.mastery - a.mastery)), 4), 'sample', count(DISTINCT a.person_id)) AS jsonb_build_object
+  SELECT jsonb_build_object('value', round(avg((b.mastery - a.mastery)), 4), 'sample', count(DISTINCT a.person_id), 'pairs', count(*)) AS jsonb_build_object
     FROM (pre a
       JOIN post b ON (((b.person_id = a.person_id) AND (b.plp_release_id = a.plp_release_id))))
    WHERE ((a.mastery IS NOT NULL) AND (b.mastery IS NOT NULL));
@@ -912,7 +916,7 @@ BEGIN ATOMIC
             FROM (scoped_official_sessions s
               JOIN scoped_official_results r ON ((r.session_id = s.id)))
            WHERE ((s.institution_id = calc_institution_net_gain.p_institution) AND (s.mode = ANY (ARRAY['PRE_TEST'::assessment_mode, 'POST_TEST'::assessment_mode])))
-           ORDER BY r.session_id, r.computed_at DESC
+           ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), pre AS (
           SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.class_node_id, e.mastery
             FROM eff e
@@ -944,7 +948,7 @@ BEGIN ATOMIC
          )
   SELECT (jsonb_build_object(
            'value', ( SELECT round(avg(p.gain), 4) FROM pairs p WHERE (EXISTS ( SELECT 1 FROM disclosable))),
-           'sample', ( SELECT count(DISTINCT p.person_id) FROM pairs p))
+           'sample', ( SELECT count(DISTINCT p.person_id) FROM pairs p), 'pairs', ( SELECT count(*) FROM pairs p))
          || COALESCE(( SELECT jsonb_build_object('withheld', jsonb_build_object('reason', 'subgroup', 'needed', ( SELECT m.k FROM cell_minimum m)))
                           WHERE ((NOT (EXISTS ( SELECT 1 FROM disclosable))) AND (EXISTS ( SELECT 1 FROM pairs)))), '{}'::jsonb)) AS jsonb_build_object;
 END;
@@ -965,7 +969,7 @@ BEGIN ATOMIC
             FROM (scoped_official_sessions s
               JOIN scoped_official_results r ON ((r.session_id = s.id)))
            WHERE ((s.institution_id = calc_class_readiness_distribution.p_institution) AND (s.class_node_id = calc_class_readiness_distribution.p_node) AND (s.mode = 'POST_TEST'::assessment_mode))
-           ORDER BY r.session_id, r.computed_at DESC
+           ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), assessed AS (
           SELECT DISTINCT ON (e.person_id) e.person_id,
              e.mastery,
@@ -1087,7 +1091,7 @@ revoke all on function public.calc_class_misconceptions(uuid, uuid, text) from p
 -- akhir − awal is still the Kenaikan figure. Its «akhir» is a mean of current results over PAIRED learners, a part of
 -- each chapter's learners, so beside the chapter rows it could give a withheld chapter's mean, or the mean of a
 -- chapter's few unpaired learners. It is given only when, in every chapter of the class: no pair is in a withheld
--- chapter, and the unpaired learners are none or themselves reach the minimum. Otherwise the row says how many pairs
+-- chapter, and in a shown chapter the unpaired learners are none or themselves reach the minimum. Otherwise the row says how many pairs
 -- there are and gives no means (awal and akhir null): the page says the pair is withheld, not that there is none.
 create or replace function public.kenaikan_awal_akhir(p_class uuid)
 returns table (awal numeric, akhir numeric, pasangan integer, orang integer)
@@ -1112,7 +1116,7 @@ begin
           join public.scoped_official_results r on r.session_id = s.id
          where s.institution_id = v_inst and s.class_node_id = p_class
            and s.mode = any (array['PRE_TEST'::public.assessment_mode, 'POST_TEST'::public.assessment_mode])
-         order by r.session_id, r.computed_at desc
+         order by r.session_id, r.computed_at desc, (r.supersedes_result_id is not null) desc
       ), pre as (
         select distinct on (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.mastery
           from eff e where e.mode = 'PRE_TEST'::public.assessment_mode
@@ -1134,7 +1138,9 @@ begin
         select v_k is not null and not exists (
                  select 1 from chapters c
                   where (c.paired > 0 and c.n < v_k)
-                     or (c.n - c.paired > 0 and c.n - c.paired < v_k)) as ok
+                     -- a SHOWN chapter's few unpaired learners: its mean minus akhir would give theirs (a withheld
+                     -- chapter's are not exposed: nothing shown can be subtracted from)
+                     or (c.n >= v_k and c.n - c.paired > 0 and c.n - c.paired < v_k)) as ok
       )
       select (select round(avg(g.pre), 4) where (select ok from safe)),
              (select round(avg(g.post), 4) where (select ok from safe)),
@@ -1191,7 +1197,7 @@ begin
           join public.scoped_official_results r on r.session_id = s.id
          where s.institution_id = v_inst and s.class_node_id = p_class
            and s.mode = 'POST_TEST'::public.assessment_mode
-          order by r.session_id, r.computed_at desc) x
+          order by r.session_id, r.computed_at desc, (r.supersedes_result_id is not null) desc) x
          -- decision 8: the learner's latest SITTING (finalised last), each sitting by its effective result
          order by x.person_id, x.finalized_at desc nulls last, x.created_at desc, x.session_id desc
       )
@@ -1265,7 +1271,7 @@ begin
           join public.scoped_official_results r on r.session_id = s.id
          where s.institution_id = v_inst and s.class_node_id = p_class
            and s.mode = 'POST_TEST'::public.assessment_mode
-          order by r.session_id, r.computed_at desc) x
+          order by r.session_id, r.computed_at desc, (r.supersedes_result_id is not null) desc) x
          -- decision 8: the learner's latest SITTING (finalised last), each sitting by its effective result
          order by x.person_id, x.finalized_at desc nulls last, x.created_at desc, x.session_id desc
       ), banded as (
@@ -1379,6 +1385,34 @@ begin
 end $function$;
 revoke all on function public.open_assessment_session(uuid, uuid, uuid, evidence_channel, assessment_mode, text, text, uuid, uuid, timestamp with time zone, uuid, uuid) from public, anon, authenticated;
 grant execute on function public.open_assessment_session(uuid, uuid, uuid, evidence_channel, assessment_mode, text, text, uuid, uuid, timestamp with time zone, uuid, uuid) to service_role;
+
+-- ═══════════════════════════════════════════════════════════ a recomputed sitting says so (owner decision E1, 9 Nov)
+-- A certificate, and the learner's own result page (session_outcome), keep a sitting's ORIGINAL sealed result; reports
+-- read its latest audited recomputation (INV-29). learner.result, the record a teacher reads, now says for each sitting
+-- whether its result was recomputed and, if so, what the sealed original was, so the page can say why a report and a
+-- certificate differ. The value it reports is unchanged (the effective result); nothing about certificates changes.
+CREATE OR REPLACE FUNCTION public.calc_learner_result(p_node uuid, p_institution uuid, p_catalogue text)
+ RETURNS jsonb
+ LANGUAGE sql
+ STABLE
+ SET search_path TO 'public', 'pg_temp'
+BEGIN ATOMIC
+ SELECT jsonb_build_object('value', COALESCE(jsonb_agg(jsonb_build_object('session_id', x.session_id, 'mode', x.mode, 'mastery', x.mastery, 'safety_gate_passed', x.safety_gate_passed,
+          'recomputed', (x.supersedes_result_id IS NOT NULL),
+          'sealed_mastery', ( SELECT o.mastery FROM scoped_official_results o WHERE ((o.session_id = x.session_id) AND (o.supersedes_result_id IS NULL) AND (x.supersedes_result_id IS NOT NULL))))
+          ORDER BY x.finalized_at), '[]'::jsonb), 'sample', count(*)) AS jsonb_build_object
+    FROM ( SELECT DISTINCT ON (r.session_id) r.session_id,
+             s.mode,
+             r.mastery,
+             r.safety_gate_passed,
+             r.supersedes_result_id,
+             s.finalized_at
+            FROM (scoped_official_results r
+              JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
+           WHERE ((s.institution_id = calc_learner_result.p_institution) AND (s.person_id = calc_learner_result.p_node))
+           ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC) x;
+END;
+revoke all on function public.calc_learner_result(uuid, uuid, text) from public, anon, authenticated;
 
 -- ═══════════════════════════════════════════════════════════ the evaluator says WITHHELD, not «no evidence» (decision 7)
 -- One change to migration 20261206100000's body: a calculator that withholds a figure to protect a smaller group
@@ -1510,7 +1544,9 @@ begin
                               'needed', d.minimum_sample)
            -- CR-81 (D-123(3)): who is in the population is no performance figure; it is said whatever the floor
            || case when v_out ? 'population' then jsonb_build_object('population', v_out -> 'population') else '{}'::jsonb end
-           || case when jsonb_typeof(v_out -> 'withheld') = 'object' then jsonb_build_object('withheld', v_out -> 'withheld') else '{}'::jsonb end;
+           || case when jsonb_typeof(v_out -> 'withheld') = 'object' then jsonb_build_object('withheld', v_out -> 'withheld') else '{}'::jsonb end
+           -- owner (9 Nov): Kenaikan is a mean over (learner, chapter) PAIRS; how many is said beside the learners
+           || case when jsonb_typeof(v_out -> 'pairs') = 'number' then jsonb_build_object('pairs', v_out -> 'pairs') else '{}'::jsonb end;
   end if;
 
   return jsonb_build_object('metric_id', p_metric_id, 'catalogue_version', v_cat,
@@ -1521,7 +1557,8 @@ begin
                             'value', v_out -> 'value', 'sample', v_out -> 'sample')
          || case when v_out ? 'population' then jsonb_build_object('population', v_out -> 'population') else '{}'::jsonb end
          -- decision 7: what a shown figure leaves out to protect a small group (misconception patterns) is said
-         || case when jsonb_typeof(v_out -> 'withheld') = 'object' then jsonb_build_object('withheld', v_out -> 'withheld') else '{}'::jsonb end;
+         || case when jsonb_typeof(v_out -> 'withheld') = 'object' then jsonb_build_object('withheld', v_out -> 'withheld') else '{}'::jsonb end
+         || case when jsonb_typeof(v_out -> 'pairs') = 'number' then jsonb_build_object('pairs', v_out -> 'pairs') else '{}'::jsonb end;
 end $function$;
 revoke all on function public.metric_evaluate(text, uuid, uuid, text) from public, anon, authenticated;
 grant execute on function public.metric_evaluate(text, uuid, uuid, text) to authenticated;
@@ -1615,6 +1652,9 @@ begin
     end if;
     if v_def ~* 'max\(\s*case' then
       raise exception '% reads a highest result (decision 8)', f;
+    end if;
+    if v_def !~* 'supersedes_result_id is not null\)? desc' then
+      raise exception '% does not prefer the recomputation over the original it supersedes (INV-29)', f;
     end if;
   end loop;
   foreach f in array array['calc_class_comprehension(uuid,uuid,text)', 'calc_institution_net_gain(uuid,uuid,text)',

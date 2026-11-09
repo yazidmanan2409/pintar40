@@ -251,6 +251,34 @@ begin
     if (v_j ->> 'value')::numeric is distinct from 0.32 then
       e01 := e01 || format('Kenaikan after both recomputations is not (0.70 − 0.30 + 4 × 0.30) / 5 = 0.32: %s', v_j ->> 'value');
     end if;
+    -- owner decision E1: the teacher's record of the learner says the 60% sitting was recomputed, and what was sealed
+    perform set_config('pintar.metric_boundary_person', v_l1::text, true);
+    v_j := public.calc_learner_result(v_l1, v_inst, v_cat);
+    perform set_config('pintar.metric_boundary_person', '', true);
+    select e into v_rows from jsonb_array_elements(v_j -> 'value') e where e ->> 'session_id' = v_s2::text;
+    if v_rows is null or (v_rows ->> 'recomputed')::boolean is distinct from true or (v_rows ->> 'sealed_mastery')::numeric is distinct from 0.60
+       or (v_rows ->> 'mastery')::numeric is distinct from 0.70 then
+      e01 := e01 || format('the record does not say the sitting was recomputed (70%%) from its sealed 60%%: %s', coalesce(v_rows::text, 'nothing'));
+    end if;
+    -- E1 through the product's own audited path: recompute_result, as the platform's SYSTEM_ADMIN, on a fresh sitting
+    select x.person, x.session into v_p, v_sess from selftest.f36_sit(v_tpl, null, c_e, d_a, 0.55, 'E1', now() - interval '1 day') x;
+    v_y := selftest.f11_user('f36-sys-' || v_tag || '@local.invalid', 'SYSTEM_ADMIN', v_root);
+    v_err := null;
+    begin
+      perform selftest.as_user_uid(v_y);
+      perform public.recompute_result(v_sess, 'F36: an audited recomputation');
+      perform selftest.as_owner();
+    exception when others then perform selftest.as_owner(); v_err := sqlerrm;
+    end;
+    perform set_config('pintar.metric_boundary_person', v_p::text, true);
+    v_j := public.calc_learner_result(v_p, v_inst, v_cat);
+    perform set_config('pintar.metric_boundary_person', '', true);
+    if v_err is not null or not exists (select 1 from jsonb_array_elements(v_j -> 'value') e
+                                         where e ->> 'session_id' = v_sess::text and (e ->> 'recomputed')::boolean
+                                           and (e ->> 'sealed_mastery')::numeric = 0.55) then
+      e01 := e01 || format('recompute_result (the audited path) did not leave a sitting marked recomputed with its sealed 55%%: %s %s',
+                           coalesce(v_err, ''), left(coalesce((v_j -> 'value')::text, 'nothing'), 300));
+    end if;
     -- the certificate decision reads the sitting's own sealed result (certificate_eligibility, unchanged)
     select ce.mastery into v_num from public.certificate_eligibility(v_s2) ce;
     if v_num is distinct from 0.60 then
@@ -587,7 +615,7 @@ begin
 
   for m in select * from (values
       ('F36-E01', 'Decision 8 -- current mastery, history, Kenaikan, recomputation, certificate', e01,
-       'a learner''s 80% then 60%: current mastery is 60% (per bab and Pemahaman 0.52 over 5, the bands over 5), the history keeps both, Kenaikan pairs 60% with the earliest Pemetaan Awal (0.30, not the highest 0.80), a recomputation to 70% moves the figures and stays one sitting, recomputing the older sitting later leaves it not current, and the certificate decision still reads the sitting''s sealed 60%'),
+       'a learner''s 80% then 60%: current mastery is 60% (per bab and Pemahaman 0.52 over 5, the bands over 5), the history keeps both, Kenaikan pairs 60% with the earliest Pemetaan Awal (0.30, not the highest 0.80), a recomputation to 70% moves the figures and stays one sitting, recomputing the older sitting later leaves it not current, the teacher''s record says the sitting was recomputed from its sealed 60% (E1), and the certificate decision still reads the sealed 60%'),
       ('F36-X01', 'Cross-report consistency', x01,
        'Pemahaman is the one chapter''s mean and, over two chapters, their learner-weighted mean; with every learner paired Kenaikan''s akhir is Pemahaman and akhir − awal is Kenaikan'),
       ('F36-R01', 'Sharon finding 1 -- a withheld chapter cannot be recovered', r01,

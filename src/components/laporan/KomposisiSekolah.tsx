@@ -145,7 +145,10 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
     const n2 = typeof e.sample === "number" ? e.sample : null;
     if (n2 === null) return null;
     switch (e.metric_id) {
-      case "institution.net_gain": return s("laporan.komposisi.kenaikan_dari").replace("{n}", format.number(n2, locale));
+      // owner (9 Nov): Kenaikan is a mean over pairs; where the pairs are known the line says how many, of how many learners
+      case "institution.net_gain": return typeof e.pairs === "number"
+        ? s("laporan.komposisi.kenaikan_dari_pasangan").replace("{p}", format.number(e.pairs, locale)).replace("{n}", format.number(n2, locale))
+        : s("laporan.komposisi.kenaikan_dari").replace("{n}", format.number(n2, locale));
       case "institution.safety_gate_pass_rate": return s("laporan.sekolah.dasar_gerbang").replace("{n}", format.number(n2, locale));
       case "institution.verified_credentials": {
         const v = Number(e.value);

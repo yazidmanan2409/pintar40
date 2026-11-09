@@ -369,7 +369,9 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
               <div className="pin-lk-angka">
                 <p className="pin-lk-angka-nilai">{nilaiMetrik("class.net_gain", Number(naik.value), locale)}</p>
                 {typeof naik.sample === "number" ? (
-                  <p>{s("laporan.komposisi.kenaikan_dari").replace("{n}", format.number(naik.sample, locale))}</p>
+                  <p>{typeof naik.pairs === "number"
+                    ? s("laporan.komposisi.kenaikan_dari_pasangan").replace("{p}", format.number(naik.pairs, locale)).replace("{n}", format.number(naik.sample, locale))
+                    : s("laporan.komposisi.kenaikan_dari").replace("{n}", format.number(naik.sample, locale))}</p>
                 ) : null}
               </div>
             </div>

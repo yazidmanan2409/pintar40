@@ -841,6 +841,10 @@ export type HasilResmi = {
   sesi: string; mode: string; penguasaan: number | null; judul: string | null;
   /** D-085 M3, D-088(b): the mark sealed on that attempt, when the teacher's read of it carries one */
   batas: number | null;
+  /** Owner decision E1: the sitting's result was recomputed after it was sealed; `asli` is the sealed original, which a
+   *  certificate and the learner's own page keep */
+  dihitungUlang?: boolean;
+  asli?: number | null;
 };
 
 export type CatatanMurid = {
@@ -888,7 +892,7 @@ export function susunCatatan(
   const batasTugas = new Map(tugas.map((x) => [x.id, x.batas ?? null]));
   const batasSesi = new Map(milikNya.map((x) => [x.id, batasTugas.get(x.assessment_assignment_id) ?? null]));
   const nilai = hasil.status === "ok" && Array.isArray(hasil.value)
-    ? (hasil.value as Array<{ session_id?: unknown; mode?: unknown; mastery?: unknown }>)
+    ? (hasil.value as Array<{ session_id?: unknown; mode?: unknown; mastery?: unknown; recomputed?: unknown; sealed_mastery?: unknown }>)
     : [];
   return {
     tugasSesi: Object.fromEntries(milikNya.map((x) => [x.id, x.assessment_assignment_id])),
@@ -903,6 +907,8 @@ export function susunCatatan(
       penguasaan: typeof v.mastery === "number" ? v.mastery : v.mastery == null ? null : Number(v.mastery),
       judul: judulSesi.get(String(v.session_id ?? "")) ?? null,
       batas: batasSesi.get(String(v.session_id ?? "")) ?? null,
+      dihitungUlang: v.recomputed === true,
+      asli: v.recomputed === true && v.sealed_mastery != null && Number.isFinite(Number(v.sealed_mastery)) ? Number(v.sealed_mastery) : null,
     })),
   };
 }
@@ -1154,6 +1160,8 @@ export type Amplop = {
   population?: { placed: number; assessed: number; not_yet: number };
   /** Owner decision 7: what was withheld to protect a smaller group (see Envelope.withheld). */
   withheld?: { reason: string; needed?: number; count?: number; chapters?: number };
+  /** Kenaikan's pairs (see Envelope.pairs). */
+  pairs?: number;
 };
 
 /**

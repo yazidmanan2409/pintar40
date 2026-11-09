@@ -4574,7 +4574,7 @@
     {
       "id": "F31-K01",
       "runner": "db",
-      "proves": "H31 (MC-8), selftest/db/fable31.sql, migration 20270101100000_a_gain_pairs_each_learners_pre_and_post_test_of_the_same_chapter.sql: in a class of its own, a learner who sat Bab 1 (pre 30%, post 80%) and Bab 2 (pre 70%, post 75%) and another who sat only Bab 1's pre-test and Bab 2's post-test make calc_class_net_gain return 0.275 (the mean of the first learner's per-chapter gains), not 0.10 or 0.40, with a sample of 1 person; calc_institution_net_gain equals the same per-learner, per-chapter pairing computed independently from the official sessions and results, with its sample in people. Against the person-only grouping it answers 0.40 over 2 and fails."
+      "proves": "H31 (MC-8), selftest/db/fable31.sql, migration 20270101100000_a_gain_pairs_each_learners_pre_and_post_test_of_the_same_chapter.sql: in a class of its own, a learner who sat Bab 1 (pre 30%, post 80%) and Bab 2 (pre 70%, post 75%) and another who sat only Bab 1's pre-test and Bab 2's post-test make calc_class_net_gain return 0.275 (the mean of the first learner's per-chapter gains), not 0.10 or 0.40, with a sample of 1 person; calc_institution_net_gain counts the same learners as that pairing computed independently from the official sessions and results; restated 9 Nov to owner decisions 7 and 8: the independent pairing is the current Uji Penguasaan against the earliest Pemetaan Awal (never each test's highest), and the school figure is withheld, never recomputed, when its pairs fall in a class under the class minimum. Against the person-only grouping it answers 0.40 over 2 and fails."
     },
     {
       "id": "F32-E01",
@@ -4810,6 +4810,11 @@
       "id": "D78-S01",
       "runner": "static",
       "proves": "Daisy's further findings (9 Nov), the source of src/app/belajar/[tugas]/hasil/page.tsx, src/app/pimpinan/page.tsx and src/app/experience.css: «every important question was right» only over required questions, «none in this check» when there were none and nothing over unread items; «Ada angka» only for a performance figure; a count-and-link keeps its gap and wraps; a Temuan panel in a list keeps its box."
+    },
+    {
+      "id": "D78-E01",
+      "runner": "static",
+      "proves": "Owner decision E1 and the owner's Kenaikan question (9 Nov), the output of susunCatatan in src/lib/pengajar.ts, the source of src/app/mengajar/[kelas]/murid/[orang]/page.tsx and the rendered output of src/components/laporan/KomposisiKelas.tsx: a recomputed sitting carries its sealed original and the teacher's page explains why a report and a certificate differ, only when they do; Kenaikan is described as a mean per student per chapter (a student with two chapters counts twice), with its pairs and its learners."
     },
     {
       "id": "LAPORAN-MURID-02",

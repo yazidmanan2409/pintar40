@@ -22,8 +22,9 @@ const baca = (root: string, p: string) => { try { return readFileSync(join(root,
 const kode = (x: string) => x.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
 const teks = (h: string) => (h ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
-function render(root: string, skrip: string, env: Record<string, string> = {}) {
-  const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+function render(root: string, skrip: string, env: Record<string, string> = {}, server = false) {
+  // a server-only module (src/lib/pengajar.ts) loads under the React server condition, as app.test.ts loads card.ts
+  const anak = spawnSync(process.execPath, [...(server ? ["--conditions=react-server"] : []), "--import", "tsx", "-e",
     `(async () => {${skrip}})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });`],
   { cwd: root, encoding: "utf8", env: { ...process.env, ...env } });
   return { ok: anak.status === 0, out: anak.stdout, err: (anak.stderr || "").split("\n").slice(0, 3).join(" ") };
@@ -182,6 +183,46 @@ export const d78Tests: SelfTest[] = [
       return c.verdict("the source of the chapter result, Pimpinan and experience.css: «every important question was right» only over required questions, " +
         "«none in this check» when there were none, nothing over unread items; «Ada angka» only for a performance figure, «evidence, no figure yet» " +
         "otherwise; a count-and-link keeps its gap and wraps; a list item that is a panel keeps its box");
+    },
+  },
+  {
+    id: "D78-E01",
+    run: async (ctx) => {
+      const c = new Checks();
+      // owner decision E1: the teacher's record of a recomputed sitting, built by the pure susunCatatan from the envelope
+      const r = render(ctx.repoRoot,
+        'const m = await import("file://" + process.cwd() + "/src/lib/pengajar.ts");' +
+        "const env = { status: 'ok', value: [{ session_id: 's1', mode: 'POST_TEST', mastery: 0.7, recomputed: true, sealed_mastery: 0.6 }," +
+        " { session_id: 's2', mode: 'POST_TEST', mastery: 0.5, recomputed: false, sealed_mastery: null }] };" +
+        "process.stdout.write(JSON.stringify(m.susunCatatan('p', [], [], env).daftarHasil));", {}, true);
+      if (c.expect(r.ok, `susunCatatan could not run: ${r.err}`)) {
+        let x: Array<{ sesi: string; dihitungUlang?: boolean; asli?: number | null; penguasaan: number | null }> = [];
+        try { x = JSON.parse(r.out); } catch { /* reported below */ }
+        const a = x.find((h) => h.sesi === "s1"), b = x.find((h) => h.sesi === "s2");
+        c.expect(a?.dihitungUlang === true && a?.asli === 0.6 && a?.penguasaan === 0.7, `the recomputed sitting's record: ${JSON.stringify(a)}`);
+        c.expect(b?.dihitungUlang === false && b?.asli === null, `a sitting never recomputed claims a sealed original: ${JSON.stringify(b)}`);
+      }
+      const hal = kode(baca(ctx.repoRoot, "src/app/mengajar/[kelas]/murid/[orang]/page.tsx"));
+      c.expect(/h\.dihitungUlang && h\.asli !== null && h\.asli !== undefined && h\.penguasaan !== null && h\.asli !== h\.penguasaan/.test(hal)
+        && /mengajar\.murid1\.dihitung_ulang/.test(hal), "the learner page does not explain a recomputed sitting, or explains one whose figures agree");
+      // the owner's Kenaikan question: the figure is a mean over (learner, chapter) pairs, said as such, with both counts
+      const naik = { status: "ok", metric_id: "class.net_gain", label_key: "metrik.kenaikan.label", meaning_key: "metrik.kenaikan.arti", value: 0.18, sample: 7, pairs: 10 };
+      const r2 = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiKelas.tsx");' +
+        "const K = m.default?.default ?? m.default;" +
+        "process.stdout.write(renderToStaticMarkup(h(K, { locale: 'id', persona: 'educator', jenis: 'LEARNER', namaKelas: '5C', buktiHref: null, target: 0.7, titik: null, awalAkhir: null, entries: [JSON.parse(process.env.E)] })));",
+        { E: JSON.stringify(naik) });
+      if (c.expect(r2.ok, `the composition could not be rendered: ${r2.err}`)) {
+        const t = teks(r2.out);
+        c.expect(t.includes("Dihitung dari 10 pasangan Pemetaan Awal dan Uji Penguasaan bab yang sama, milik 7 murid.")
+          && t.includes("dihitung per murid per bab: murid yang mengerjakan dua bab dihitung dua kali") && !/pembelajaran, per murid\./.test(t),
+          `Kenaikan is described as a per-learner average, or without its pairs: «${t.slice(0, 400)}»`);
+      }
+      return c.verdict("the output of susunCatatan (src/lib/pengajar.ts), the source of the learner page and the rendered KomposisiKelas: a recomputed " +
+        "sitting carries its sealed original and the page explains it only when the two differ; Kenaikan says it is a mean per student per chapter " +
+        "(a student with two chapters counts twice) and gives its pairs and its learners");
     },
   },
 ];

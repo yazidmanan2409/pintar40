@@ -72,7 +72,7 @@ export type HleEvent =
   | "laporan.metrik.belum_ada_bukti"
   | "laporan.metrik.dilindungi" | "ketiadaan.dilindungi.bab.murid" | "ketiadaan.dilindungi.bab.peserta"
   | "ketiadaan.dilindungi.kelas.murid" | "ketiadaan.dilindungi.kelas.peserta" | "laporan.muncul.dilindungi.bab"
-  | "laporan.muncul.dilindungi.kelas" | "laporan.komposisi.awal_akhir_dilindungi" | "laporan.komposisi.keliru_tertahan" | "laporan.komposisi.keliru_belum" | "mengajar.bukti.bagian_tertahan" | "hasil.safety.tidak_ada" | "pimpinan.kelas.bukti_saja" | "laporan.sekolah.ranah_tertahan_semua" | "laporan.kisi.arti_tanpa_target" | "laporan.kisi.arti_sebagian" | "laporan.kisi.kunci_sebagian"
+  | "laporan.muncul.dilindungi.kelas" | "laporan.komposisi.awal_akhir_dilindungi" | "laporan.komposisi.keliru_tertahan" | "laporan.komposisi.keliru_belum" | "mengajar.bukti.bagian_tertahan" | "hasil.safety.tidak_ada" | "pimpinan.kelas.bukti_saja" | "laporan.sekolah.ranah_tertahan_semua" | "laporan.komposisi.kenaikan_dari_pasangan" | "mengajar.murid1.dihitung_ulang" | "laporan.kisi.arti_tanpa_target" | "laporan.kisi.arti_sebagian" | "laporan.kisi.kunci_sebagian"
   | "laporan.kelas.judul" | "laporan.institusi.judul"
   | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak" | "laporan.metrik.tanpa_nama" | "laporan.kelas.pd_arti"
   | "laporan.cakupan.kelas" | "laporan.cakupan.sekolah"
@@ -2604,7 +2604,8 @@ const table: Table = {
   "metrik.pemahaman.label": { default: "Pemahaman", en: "Comprehension" },
   "metrik.pemahaman.arti": { default: "Rata-rata penguasaan kelas pada Uji Penguasaan.", en: "The class's average mastery on the Mastery Check." },
   "metrik.kenaikan.label": { default: "Kenaikan", en: "Gain" },
-  "metrik.kenaikan.arti": { default: "Selisih penguasaan sebelum dan sesudah pembelajaran, per murid.", en: "The difference in mastery before and after the lessons, per student." },
+  // owner (9 Nov): the figure is a mean over (learner, chapter) PAIRS (H31's governed contract), never «per murid»
+  "metrik.kenaikan.arti": { default: "Rata-rata selisih penguasaan sebelum dan sesudah pembelajaran, dihitung per murid per bab: murid yang mengerjakan dua bab dihitung dua kali.", en: "The average difference in mastery before and after the lessons, counted per student per chapter: a student who took two chapters counts twice." },
   // D-095: PINTAR's fixed performance bands, an independent distribution, not the school's mastery threshold
   "metrik.kesiapan.label": { default: "Sebaran hasil Uji Penguasaan", en: "Spread of Mastery Check results" },
   "metrik.kesiapan.arti": { default: "Banyaknya murid pada tiap pita hasil, menurut Uji Penguasaan terakhir mereka.", en: "How many students sit in each result band, by their latest Mastery Check." },
@@ -2619,7 +2620,7 @@ const table: Table = {
   "metrik.peserta_institusi.label": { default: "Peserta", en: "Students" },
   "metrik.peserta_institusi.arti": { default: "Banyaknya murid yang mengerjakan asesmen di sekolah ini.", en: "How many students took the assessment in this school." },
   "metrik.kenaikan_institusi.label": { default: "Kenaikan", en: "Gain" },
-  "metrik.kenaikan_institusi.arti": { default: "Rata-rata kenaikan penguasaan murid di sekolah ini.", en: "The average gain in mastery across this school's students." },
+  "metrik.kenaikan_institusi.arti": { default: "Rata-rata kenaikan penguasaan di sekolah ini, dihitung per murid per bab: murid yang mengerjakan dua bab dihitung dua kali.", en: "The average gain in mastery in this school, counted per student per chapter: a student who took two chapters counts twice." },
   "metrik.gerbang_keselamatan.label": { default: "Soal wajib", en: "Required items" },
   "metrik.gerbang_keselamatan.arti": { default: "Bagian hasil Uji Penguasaan yang menjawab benar seluruh soal wajib.", en: "The share of Uji Penguasaan results with every required item answered correctly." },
   "metrik.perbandingan_kohort.label": { default: "Perbandingan angkatan", en: "Cohort comparison" },
@@ -2701,6 +2702,7 @@ const table: Table = {
   "laporan.komposisi.target": { default: "Target {p}", en: "Target {p}" },
   "laporan.komposisi.target_arti": { default: "Garis tegak: target kelas, {p}, yang ditetapkan sekolah pada Uji Penguasaan kelas ini.", en: "Vertical line: the class target, {p}, set by the school on this class's Mastery Check." },
   "laporan.komposisi.kenaikan_dari": { default: "Dihitung dari {n} murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan bab yang sama.", en: "Calculated from {n} students who took the Pre-assessment and the Mastery Check of the same chapter." },
+  "laporan.komposisi.kenaikan_dari_pasangan": { default: "Dihitung dari {p} pasangan Pemetaan Awal dan Uji Penguasaan bab yang sama, milik {n} murid.", en: "Calculated from {p} pairs of a Pre-assessment and a Mastery Check of the same chapter, from {n} students." },
   "laporan.komposisi.berikutnya": { default: "Apa berikutnya", en: "What next" },
   "laporan.komposisi.berikutnya_bukti": { default: "Di PINTAR: {kelas} › «Lihat bukti» memuat jawaban setiap murid per soal.", en: "In PINTAR: {kelas} › «See evidence» holds each student's answer to each question." },
   "laporan.komposisi.berikutnya_keliru": { default: "Saran penanganan untuk pemahaman keliru ada di bagian {huruf}.", en: "The suggested remedy for each misunderstanding is in section {huruf}." },
@@ -4167,6 +4169,7 @@ const table: Table = {
   "siklus.ambang": { default: "Target untuk bab ini:", en: "The target for this chapter:" },
   "siklus.ambang_belum": { default: "Batas ketuntasan belum ditetapkan.", en: "No pass mark has been set." },
   "mengajar.murid1.target": { default: "target", en: "target" },
+  "mengajar.murid1.dihitung_ulang": { default: "Hasil sesi ini dihitung ulang setelah disegel. Laporan memakai hasil terbaru ({baru}); sertifikat dan halaman hasil murid tetap memakai hasil asli yang disegel ({asli}).", en: "This sitting's result was recalculated after it was sealed. Reports use the latest result ({baru}); the certificate and the student's own result page keep the original sealed result ({asli})." },
   "mengajar.murid1.di_bawah_target": { default: "di bawah target", en: "below target" },
   "hasil.target.tercapai": { default: "Target tercapai.", en: "Target reached." },
   "hasil.target.tercapai_arti": { default: "Penguasaan bab ini memenuhi targetnya.", en: "Mastery of this chapter meets its target." },

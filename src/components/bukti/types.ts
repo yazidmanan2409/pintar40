@@ -59,6 +59,8 @@ export type Envelope = {
    * than `needed` learners are not listed. Never a zero, never «no evidence».
    */
   withheld?: Ditahan;
+  /** Owner (9 Nov): Kenaikan's unit, the (learner, chapter) pairs it averages over; `sample` stays the learners. */
+  pairs?: number;
 };
 
 export type Ditahan = { reason: "subgroup" | "patterns" | string; needed?: number; count?: number; chapters?: number };

@@ -19,7 +19,7 @@ create schema if not exists selftest;
 create or replace function selftest.run_fable31()
 returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
-declare
+declare v_cukup boolean;
   v_probs text[] := array[]::text[]; v_fatal text := '';
   v_inst uuid; v_tmpl record; v_rel2 uuid; v_cls uuid; v_pa uuid; v_pb uuid; v_e uuid; v_new uuid;
   m record; r jsonb; v_cat text; v_expect numeric; v_people int;
@@ -95,27 +95,53 @@ begin
       v_probs := v_probs || format('the class gain is %s (expected 0.2750, the mean of 0.50 and 0.05; 0.1000 is one '
                                    'chapter''s pre-test subtracted from another''s post-test)', coalesce(r ->> 'value', 'nothing'));
     end if;
+    -- owner (9 Nov): the governed unit is the (learner, chapter) pair: one learner, two pairs, each weighed once
+    if (r ->> 'pairs')::int is distinct from 2 then
+      v_probs := v_probs || format('the class gain is over %s pair(s), not the learner''s 2 chapters', coalesce(r ->> 'pairs', 'nothing'));
+    end if;
     if (r ->> 'sample')::int is distinct from 1 then
       v_probs := v_probs || format('the class sample is %s (expected 1 person: B has no chapter with both tests, and A''s '
                                    'two chapters are one person)', coalesce(r ->> 'sample', 'nothing'));
     end if;
 
-    -- the school, against the same figure computed independently
-    select round(avg(g.post - g.pre), 4), count(distinct g.person_id) into v_expect, v_people
-      from (select s.person_id, s.plp_release_id,
-                   max(x.mastery) filter (where s.mode = 'PRE_TEST') as pre,
-                   max(x.mastery) filter (where s.mode = 'POST_TEST') as post
-              from public.official_sessions s join public.official_results x on x.session_id = s.id
-             where s.institution_id = v_inst
-             group by s.person_id, s.plp_release_id) g
-     where g.pre is not null and g.post is not null;
+    -- the school, against the same figure computed independently. RESTATED TO OWNER DECISIONS 7 AND 8 (9 Nov): the
+    -- pairing is the current Uji Penguasaan (latest sitting, its effective result) against the earliest Pemetaan Awal,
+    -- never each test's highest; and a school figure whose pairs fall in a class with fewer learners than the class
+    -- minimum is WITHHELD (a reader of the class figures could otherwise subtract), its learners still counted
+    select round(avg(g.post - g.pre), 4), count(distinct g.person_id),
+           bool_and(g.kelas_cukup) into v_expect, v_people, v_cukup
+      from (select b.person_id, b.mastery - a.mastery as dummy, a.mastery as pre, b.mastery as post,
+                   (select count(distinct a2.person_id) from (
+                      select distinct on (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.class_node_id
+                        from (select distinct on (r2.session_id) r2.session_id, s2.person_id, s2.plp_release_id, s2.class_node_id, s2.mode, s2.finalized_at
+                                from public.official_results r2 join public.official_sessions s2 on s2.id = r2.session_id
+                               where s2.institution_id = v_inst order by r2.session_id, r2.computed_at desc) e
+                       where e.mode = 'POST_TEST' order by e.person_id, e.plp_release_id, e.finalized_at desc) a2
+                     where a2.class_node_id is not distinct from b.class_node_id) >= 5 as kelas_cukup
+              from (select distinct on (e.person_id, e.plp_release_id) e.* from (
+                      select distinct on (x.session_id) x.session_id, s.person_id, s.plp_release_id, s.class_node_id, s.mode, s.finalized_at, x.mastery
+                        from public.official_sessions s join public.official_results x on x.session_id = s.id
+                       where s.institution_id = v_inst order by x.session_id, x.computed_at desc) e
+                     where e.mode = 'PRE_TEST' order by e.person_id, e.plp_release_id, e.finalized_at) a
+              join (select distinct on (e.person_id, e.plp_release_id) e.* from (
+                      select distinct on (x.session_id) x.session_id, s.person_id, s.plp_release_id, s.class_node_id, s.mode, s.finalized_at, x.mastery
+                        from public.official_sessions s join public.official_results x on x.session_id = s.id
+                       where s.institution_id = v_inst order by x.session_id, x.computed_at desc) e
+                     where e.mode = 'POST_TEST' order by e.person_id, e.plp_release_id, e.finalized_at desc) b
+                on b.person_id = a.person_id and b.plp_release_id = a.plp_release_id
+             where a.mastery is not null and b.mastery is not null) g;
     perform set_config('pintar.metric_boundary_node', v_inst::text, true);
     r := public.calc_institution_net_gain(v_inst, v_inst, v_cat);
     perform set_config('pintar.metric_boundary_node', '', true);
-    if (r ->> 'value')::numeric is distinct from v_expect or (r ->> 'sample')::int is distinct from v_people then
-      v_probs := v_probs || format('the school answered %s/%s people (expected %s/%s, the mean over every learner''s '
-                                   'chapters with both tests)', coalesce(r ->> 'value', 'nothing'),
-                                   coalesce(r ->> 'sample', 'nothing'), v_expect, v_people);
+    if (r ->> 'sample')::int is distinct from v_people then
+      v_probs := v_probs || format('the school counts %s people, not %s', coalesce(r ->> 'sample', 'nothing'), v_people);
+    end if;
+    -- this tenant's pairs fall in classes of fewer than five: the school figure is withheld, never recomputed without them
+    if not coalesce(v_cukup, false) and (r ? 'value' and r -> 'value' <> 'null'::jsonb or r -> 'withheld' ->> 'reason' is distinct from 'subgroup') then
+      v_probs := v_probs || format('the school figure over a class of fewer than five is given (%s) rather than withheld', left(r::text, 200));
+    elsif coalesce(v_cukup, false) and (r ->> 'value')::numeric is distinct from v_expect then
+      v_probs := v_probs || format('the school answered %s, expected %s (current Uji Penguasaan minus the earliest Pemetaan Awal)',
+                                   coalesce(r ->> 'value', 'nothing'), v_expect);
     end if;
     if v_people < 1 then v_probs := v_probs || 'the school has no paired chapter at all, so nothing was measured'::text; end if;
 
