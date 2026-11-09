@@ -59,7 +59,8 @@ export const w9bTests: SelfTest[] = [
           const semua = html[i].map(teks).join(" | ");
           c.expect(!/(?<![\d.,])0[.,]\d{2,}(?!\d)/.test(semua), `(${l}) a raw decimal reaches the report: ${semua.slice(0, 300)}`);
         }
-        c.expect(/\+35 points/.test(teks(html[1][1])) && /5 learners/.test(teks(html[1][4])), "the English report is not in English units");
+        // RESTATED TO THE OWNER'S WORDING DECISION (9 Nov): English says «students» for school pupils
+        c.expect(/\+35 points/.test(teks(html[1][1])) && /5 students/.test(teks(html[1][4])) && !/learners/.test(teks(html[1][4])), "the English report is not in English units");
       }
 
       const buang = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "").replace(/\{\s*\}/g, "");
