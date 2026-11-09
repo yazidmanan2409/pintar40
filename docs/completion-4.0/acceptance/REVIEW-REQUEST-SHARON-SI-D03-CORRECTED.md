@@ -93,3 +93,26 @@ Does this now distinguish a correct fix from one that counts before locking?
   safety, including the n = 0 case, which needs the RPC to say whether other departments exist.
 - **The demonstration's transfer defect:** after a transfer, the sending school's «Murid yang belum punya kelas»
   still offers to place the departed learner (`tempatkan_murid`). It goes to the lifecycle and promotion design.
+
+## 5. Your review of 2ce4ddcf: the corrections (migration `20270112170000`)
+
+Red first at `f2c4b9f7` and `5294821d`. The whole clean suite on the exact head named in the commit is 931 passed, 0
+failed.
+
+1. **Onboarding (F37-S03, S04):** only the school whose registration number is the person's single newest, and which is
+   active, onboards.
+   - On a tie at the newest time, or with an inactive issuer, *nobody* does (fail closed; the platform still can, as
+     the owner ruled). The older school never inherits.
+   - A new number and a school's act on the person serialise on the person's row (`FOR UPDATE`, only in a read-write
+     transaction: the recovery lookup is read-only).
+   - Is `issued_at >=` (a tie refuses both) right?
+2. **No programme-less coexistence (F37-L04):** a BEFORE trigger refuses a live enrolment with no programme beside
+   another live one of the same person, school and year, serialised on the person's row.
+   - Its cost on W217-SKALA-01's 13,300-row import is 9.0 s → 16.0 s, with no contention (distinct people).
+3. **`transfer_execute` (F37-T01):** a learner already enrolled at the receiving school that year is refused PR040
+   TRANSFER_ALREADY_ENROLLED, and nothing is written.
+4. **A departed learner (F37-L05):** `murid_tanpa_kelas` no longer lists, and `tempatkan_murid` refuses (PLACE_DEPARTED,
+   PLACE_ELSEWHERE), a learner who left this school or is enrolled at another. A return will be a governed
+   re-enrolment (E4, next).
+5. **The F26 fixture** puts its enrolled learner in the Kelas on their existing live enrolment, not a second
+   programme-less one. No assertion changed.

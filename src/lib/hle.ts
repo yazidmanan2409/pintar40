@@ -912,6 +912,8 @@ export type HleEvent =
   | "galat.place_staff"
   | "galat.place_already_placed"
   | "galat.place_no_year"
+  | "galat.place_departed"
+  | "galat.place_elsewhere"
   | "galat.learner_placed"
   | "config.tempatkan.judul"
   | "config.tempatkan.arti"
@@ -1168,6 +1170,7 @@ export type HleEvent =
   | "galat.transfer_not_open"
   | "galat.transfer_search_short"
   | "galat.transfer_period_missing"
+  | "galat.transfer_already_enrolled"
   | "galat.transfer_place_invalid"
   | "galat.transfer_accepted"
   | "galat.transfer_requested"
@@ -4275,6 +4278,8 @@ const table: Table = {
   "galat.place_staff": { default: "Orang ini memegang peran staf, jadi tidak ditempatkan sebagai murid. Kelas dan kartu kelas hanya untuk murid.", en: "This person holds a staff role, so they are not placed as a student. Classes and class cards are for students only." },
   "galat.place_already_placed": { default: "Murid ini sudah punya kelas. Pindahkan dari kelasnya di bagian atas halaman ini.", en: "This student already has a class. Move them from their class at the top of this page." },
   "galat.place_no_year": { default: "Sekolah ini belum punya tahun ajaran untuk Kelas itu. Buat tahun ajarannya dulu di Struktur sekolah.", en: "This school has no school year for that Kelas yet. Create the year first under School structure." },
+  "galat.place_departed": { default: "Murid ini sudah tidak terdaftar di sekolah ini, jadi tidak ditempatkan dari sini. Riwayatnya tetap tersimpan.", en: "This student is no longer enrolled at this school, so they are not placed from here. Their history is kept." },
+  "galat.place_elsewhere": { default: "Murid ini sekarang terdaftar di sekolah lain. Ia hanya masuk ke sekolah ini melalui Perpindahan murid.", en: "This student is now enrolled at another school. They join this school only through a student transfer." },
   "galat.learner_placed": { default: "Murid sudah ditempatkan di kelas.", en: "The student has been placed in the class." },
   "config.tempatkan.judul": { default: "Murid yang belum punya kelas", en: "Students without a class" },
   "config.tempatkan.arti": { default: "Murid ini dicatat tanpa kelas, jadi belum bisa menerima materi. Pilih kelasnya. Orangnya, nomor registrasi sekolah, dan akunnya tetap sama.", en: "These students were recorded without a class, so no material can reach them yet. Choose their class. The person, their school registration number and their account stay the same." },
@@ -4554,6 +4559,7 @@ const table: Table = {
   "galat.transfer_not_open": { default: "Permintaan ini tidak lagi menunggu sekolah ini.", en: "This request is no longer waiting for this school." },
   "galat.transfer_search_short": { default: "Ketik nama lengkap atau kode sekolah, paling sedikit 3 karakter.", en: "Type the school's full name or code, at least 3 characters." },
   "galat.transfer_period_missing": { default: "Sekolah tujuan belum memilih tahun ajarannya.", en: "The receiving school has not chosen the school year yet." },
+  "galat.transfer_already_enrolled": { default: "Murid ini sudah terdaftar di sekolah tujuan untuk tahun ajaran itu. Perpindahan tidak dijalankan, dan tidak ada yang berubah.", en: "This student is already enrolled at the receiving school for that school year. The transfer was not carried out, and nothing changed." },
   "galat.transfer_place_invalid": { default: "Pilih salah satu kelas sekolah ini pada tahun ajaran itu.", en: "Choose one of this school's classes in that school year." },
   "galat.transfer_accepted": { default: "Perpindahan diterima ke tahun ajaran yang dipilih. Sekarang bisa dijalankan.", en: "The transfer is accepted into the chosen school year. It can now be carried out." },
   "galat.transfer_requested": { default: "Perpindahan diajukan dan kini menunggu persetujuan dari pihak lain.", en: "Transfer requested; it now awaits authorization from the other side." },
