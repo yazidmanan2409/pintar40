@@ -2,7 +2,9 @@
 
 Owner directive: Reporting Quality Gate, 9 Nov 2026.
 
-Evidence head: see §8 and §12. Every figure below was checked against the raw official results, not against PINTAR's own calculators.
+Evidence head: `2b3b291e` on `claude/awesome-rubin-bqxp6p` (updated 9 Nov, after Sharon's and Daisy's reviews of `e8a5efb9`); the run record is in §12. Every figure below was checked against the raw official results, not against PINTAR's own calculators.
+
+**Gate status: OPEN.** Open owner decisions: **O-B3** (§13). Open coverage: §12.
 
 ## 1. How the reports were tested
 
@@ -186,7 +188,7 @@ A focused follow-up review is requested (§8).
 
 | What | Where | Result |
 |---|---|---|
-| Candidate commit | `1e50402f` on `claude/awesome-rubin-bqxp6p`, plus the C12a restatement (§12) | See §12 for the exact SHA CI and journeys ran on |
+| Candidate commit | `2b3b291e` on `claude/awesome-rubin-bqxp6p` (earlier candidates: `1e50402f`, `13079a9e`, `e8a5efb9`) | See §12 for the exact SHA each CI and journeys run used |
 | CI and journeys on 94160304 | CI 512 (42538876168), journeys 219 (42538878758) | **Both failed**, and neither result is used here. CI failed on the 8 local failures found on that SHA, all fixed since. Journeys: A passed; B failed one step, C12a, which pinned the catalogue at 16 metrics (MC-9 adds `class.chapter_mastery`, ruling O3). Restated to 17 |
 | Clean-database suite | `scratchpad/selftest-1e50402f.log` (local) | §12 |
 | Report world and walk | `audit/fixtures/laporan-lokal.mjs`, `audit/laporan-jalan.mjs` | 7 classes, 66 learners, 172 real sittings; 120 views, all HTTP 200, none scrolls sideways at 1280, 390 or 320 px (§11) |
@@ -291,11 +293,11 @@ Daisy's report and screenshots stay as she wrote them on `ux-1/daisy-experience`
 | Decision | What was done | Where | Test | Disposition |
 |---|---|---|---|---|
 | D9: audited management access to one learner's record | Verified, not changed. `management_learner_detail` admits only HEAD_OF_DEPARTMENT and DEAN over the learner (`audience_scope_over_learner`), and each open writes `learner_detail.opened`. The admin, the educator and the learner are refused, and a refusal writes no audit row. Aggregates still go through the cell rule (§9). | `management_learner_detail` | F06-P10 (25 cases: three opens give three audit rows, six refusals give none) | **Verified** |
-| D10: Sharon's mover reconstruction | Complementary suppression. A (class, chapter) cell holding 1–4 learners who moved and re-sat elsewhere withholds that chapter's school competency rows and the Angkatan rows that touch the cell. The test was written first and seen failing: «6 × 0.6750 − 5 × 0.6500 = 0.8000 … school competency (0.5636) shown» (kept in the evidence pack). It now passes. | MC-9 calculators | F36-K02 | **Closed**, for Sharon to verify |
-| D11: effective result chosen by supersession | Every reader takes the result nothing supersedes (`NOT EXISTS … q.supersedes_result_id = r.id`). The verification block refuses any reader without that rule. A second recalculation gets the designed refusal PR011. This pass also found **`tujuan_belum_tercapai`** (the objectives on the teacher's learner page) still choosing by timestamp. It is now structural and listed in the verification block. | MC-9 | F36-L01 (recalculation stamped an hour *before* its original; identical timestamps; three repeated reads; certificate; PR011) | **Closed** |
-| D12: a gate with no required question | NOT APPLICABLE, outside the denominator. The value is a share of the applicable *sittings* (`sittings`), and the evaluator says `laporan.metrik.tidak_berlaku`. A shown gate also says how many tests were not applicable. Each reader shows it the same way: the learner sees «Uji ini tidak berisi soal penting…»; the school page and the absence card say «Tidak berlaku: …», never 100%, a zero or «belum cukup». Teachers and management have no gate figure. | MC-9, `KartuKetiadaan`, `KomposisiSekolah`, `belajar/[tugas]/hasil` | F36-S01, F36-G02, D78-A01, D78-S01 | **Closed**, for Sharon (maths) and Daisy (wording) |
-| D13: objective coverage | The class lead counts over the topics *with a figure* («1 dari 3 topik yang punya angka…»). The withheld ones are counted apart («2 topik lainnya belum dapat ditampilkan, jadi belum diketahui apakah sudah mencapai target»). «Semua topik sudah mencapai target» is never said while one is withheld, and a class with every topic withheld says so. The school already counted shown objectives and states the withheld ones by reason (A5). | `KomposisiKelas`, `KomposisiSekolah`, `hle.ts` | D78-A01, D78-N03 | **Closed**, for Daisy and Sharon |
-| D14: communicating a recalculation | The teacher's note sits directly under the figure (`CatatanHitungUlang`). It gives both figures and the recorded reason, and nothing when they agree. The learner's chapter result shows a neutral notice from `sesi_saya_dihitung_ulang` (their own sitting, yes or no) and still shows the sealed result; the certificate is unchanged. The real audited path was verified: `recompute_result` run as SYSTEM_ADMIN re-scores the answers (mastery and per_domain) and writes an audit row. Then the teacher's record shows the new figure with the sealed one and the reason; Section E decides on the recalculation with its own count; the objectives read it (D11 fix above); the learner's page keeps the sealed figure and sealed objectives; only the learner is told. Per-question evidence reads the responses, which a recalculation does not change. | `CatatanHitungUlang.tsx`, `murid/[orang]`, `belajar/[tugas]/hasil`, MC-9 | F36-D14, D78-E01 (rendered), D78-A01 | **Closed**, for Daisy |
+| D10: Sharon's mover reconstruction | Complementary suppression. A (class, chapter) cell holding 1–4 learners who moved and re-sat elsewhere withholds that chapter's school competency rows and the Angkatan rows that touch the cell. The test was written first and seen failing: «6 × 0.6750 − 5 × 0.6500 = 0.8000 … school competency (0.5636) shown» (kept in the evidence pack). It now passes. After Sharon's review of `e8a5efb9`, a row withheld only for a mover says so (`withheld: 'moved'`, «ada murid yang pindah kelas lalu mengerjakannya lagi»), never «a class took it with too few learners». | MC-9 calculators, `KomposisiSekolah` | F36-K02, D78-N03 | **Verified by Sharon** (`e8a5efb9`; every pair tried, none gives the mover). The `moved` reason is for her re-check |
+| D11: effective result chosen by supersession | Every reader takes the result nothing supersedes (`NOT EXISTS … q.supersedes_result_id = r.id`). The verification block refuses any reader without that rule. A second recalculation gets the designed refusal PR011. This pass also found **`tujuan_belum_tercapai`** (the objectives on the teacher's learner page) still choosing by timestamp. It is now structural and listed in the verification block. Two concurrent recalculations: the loser now gets the same PR011 refusal, not a raw unique violation (Sharon, `e8a5efb9`). | MC-9 | F36-L01 (recalculation stamped an hour *before* its original; identical timestamps; three repeated reads; certificate; PR011) | **Verified by Sharon** (14 readers; originals read only where E1 needs them). The PR011 catch is for her re-check |
+| D12: a gate with no required question | NOT APPLICABLE, outside the denominator. The value is a share of the applicable *sittings* (`sittings`), and the evaluator says `laporan.metrik.tidak_berlaku`. A shown gate also says how many tests were not applicable. Each reader shows it the same way: the learner sees «Uji ini tidak berisi soal penting…»; the school page and the absence card say «Tidak berlaku: …», never 100%, a zero or «belum cukup». Teachers and management have no gate figure. After the reviews: the base counts results, «Dari 10 hasil Uji Penguasaan yang memuat soal wajib, milik 10 murid» (Sharon). Below the school minimum the card reads «Dari hasil Uji Penguasaan yang memuat soal wajib, baru 1 murid; perlu 10», with the not-applicable results set apart (Daisy's B1). | MC-9, `KartuKetiadaan`, `KomposisiSekolah`, `belajar/[tugas]/hasil` | F36-S01, F36-G02, D78-A01, D78-B01, D78-S01 | **Verified by Sharon** (denominators). Wording **for Daisy's re-check** |
+| D13: objective coverage | The class lead counts over the topics *with a figure* («1 dari 3 topik yang punya angka…»). The withheld ones are counted apart («2 topik lainnya belum dapat ditampilkan, jadi belum diketahui apakah sudah mencapai target»). «Semua topik sudah mencapai target» is never said while one is withheld, and a class with every topic withheld says so. The school already counted shown objectives and states the withheld ones by reason (A5). | `KomposisiKelas`, `KomposisiSekolah`, `hle.ts` | D78-A01, D78-N03 | **Verified** by Sharon and Daisy (`e8a5efb9`) |
+| D14: communicating a recalculation | The teacher's note sits directly under the figure (`CatatanHitungUlang`). It gives both figures and the recorded reason, and nothing when they agree. The learner's chapter result shows a neutral notice from `sesi_saya_dihitung_ulang` (their own sitting, yes or no) and still shows the sealed result; the certificate is unchanged. The real audited path was verified: `recompute_result` run as SYSTEM_ADMIN re-scores the answers (mastery and per_domain) and writes an audit row. Then the teacher's record shows the new figure with the sealed one and the reason; Section E decides on the recalculation with its own count; the objectives read it (D11 fix above); the learner's page keeps the sealed figure and sealed objectives; only the learner is told. Per-question evidence reads the responses, which a recalculation does not change. After Daisy's B3: the learner's «Terjawab tepat n dari m» is the sealed result's own count, and the notice claims only the mastery, the count and the certificate. The per-question review grades by today's key (owner decision **O-B3**). | `CatatanHitungUlang.tsx`, `murid/[orang]`, `belajar/[tugas]/hasil`, `hasil-belajar.ts`, MC-9 | F36-D14, D78-E01 (rendered), D78-A01, D78-B01 | **Verified** by Sharon (all five points) and Daisy (teacher's note; the real path staged). The learner's page is **open on O-B3** |
 | Further regressions | Independent figures: school competency 0.675 over 24 and the school's Kenaikan, counted by hand, 0.58 over 10 pairs (F36-K01); Kenaikan 0.275 over 10 pairs (F36-X01). The tie test is strengthened (F36-L01). The E1 source regex is replaced by a rendered component test (D78-E01). | — | F36-K01, F36-X01, F36-L01, D78-E01 | **Closed** |
 | Historical disclosure (Sharon's temporal concern) | Assessed against supported workflows. Reproducible: re-reading one class's Kenaikan before and after a small chapter is sat. Fixed: the class Kenaikan is withheld while any chapter's pairs number 1–4, and the school's Kenaikan uses (class or no class, chapter) cells. The residual is recorded as its own accepted risk, **R-T1**, below (not under E2). | MC-9 | F36-R01, F31-K01 | **Fixed; R-T1 accepted, verified by Sharon** |
 
@@ -353,16 +355,30 @@ Restated tests (each with a note in the test): D78-P01 (A7), D78-N03 (A5), D78-S
 
 ## 12. Coverage still to complete (not converted to PASS)
 
+### Run record (exact SHA)
+
+| Head | What changed | CI | Journeys |
+|---|---|---|---|
+| `1d607822` | bob37-3 plant restated | 515 green | 222 red (S22m, restated in `d840b12f`) |
+| `1f28a08d` | D12–D14, A1–A7 | superseded | superseded |
+| `d840b12f` | clean-suite fixes; S22m restated | 518 green | 224 cancelled (superseded) |
+| `48e94e7c` | walk fixes (contrast, «di antaranya») | 519 red (F36-M01 item choice, a test bug) | **225 green** |
+| `e8a5efb9` | F36-M01 item chosen by property | **520 green** | 226 cancelled (superseded) |
+| `f8d933bc` | Sharon's findings (`moved`, PR011, «hasil», R-T1) | **521 green** | 227 cancelled (superseded) |
+| `2b3b291e` | Daisy's findings (B1, B2, B3 count, «1 learner»); matrix | 522 running | 228 running |
+
+### Open
+
 | Area | State |
 |---|---|
-| Clean-database suite | On `1f28a08d`: 5 failures. One was a real defect (the gate's base line without `sittings`), now fixed; F06-S01 and TOKEN-01 fixed; F06-P23 and LAPORAN-KISI-01 restated. Each failure was then rerun to green. A full clean-database run on the final head is still to do |
-| Exact-SHA CI and journeys | CI 518 green on `d840b12f`. CI 519 red on `48e94e7c` only from the F36-M01 item choice, fixed in `e8a5efb9`. CI 520 green on `e8a5efb9`. Journeys 225 green on `48e94e7c`. To run again on the final head |
-| Report walk | On `d840b12f`: 120 views, all 200, none scrolls sideways. CEK at 1280 (40 views) found one axe colour-contrast failure («Berkembang» band, 4.28:1), fixed. On re-check: 0 violations, print clean, A6 tree snapshot «60% (di bawah target) · 22 murid» |
-| Sharon | Verified e8a5efb9; dispositions in §13. Her review of the `moved` reason and the PR011 catch is requested on the final head |
-| Daisy | Verified e8a5efb9 (`8dac7681`); B1, B2 and the B3 count closed; O-B3 escalated to the owner. A short re-check of B1–B3, the «hasil» wording and the `moved` sentence is requested on the final head |
+| Exact-SHA CI and journeys on the final head | CI 522 and journeys 228 on `2b3b291e`, running |
+| Clean-database suite | The whole suite ran on `1f28a08d` (5 failures, all fixed or restated, each rerun green). Since then: targeted runs on a fresh database: `f8d933bc` 66 passed; `2b3b291e` 88 passed (D78, LAPORAN, M4-K01, F36, F06, F31, F35). The whole suite on the final head is still to run (CI's selftest job runs it) |
+| Report walk | On `d840b12f`: 120 views, all 200, none scrolls sideways. CEK at 1280 (40 views) found one axe colour-contrast failure («Berkembang», 4.28:1), fixed; on re-check 0 violations, print clean, A6 tree snapshot «60% (di bawah target) · 22 murid». Daisy's walk on `e8a5efb9` (120 + 40 views) agrees. B1–B3 changed pages after that; not re-walked |
+| Sharon | Verified `e8a5efb9`; dispositions in §13. **Re-check requested** on the final head: the `moved` reason, the PR011 catch, the gate below its minimum |
+| Daisy | Verified `e8a5efb9` (`8dac7681`); dispositions in §13. **Re-check requested** on the final head: B1–B3, the «hasil» wording, the `moved` sentence |
+| Owner | **O-B3**: should the learner's per-question review be sealed? Also for the terminology owner: «students» and «learners» both appear in English |
 | Staging | Not exercised: no deployment is authorised |
 | Screen readers (NVDA, TalkBack) | The accessibility tree is checked in the walk; no real screen reader has been run |
 | PD reports | Not changed by this pass; not re-walked |
 
-**Gate status: OPEN.** It closes only when the open rows above are done and both reviewers confirm.
-
+**Gate status: OPEN.** It closes only when the open rows above are done, O-B3 is decided, and both reviewers confirm.
