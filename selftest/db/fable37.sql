@@ -109,7 +109,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean; k01 text[] := '{}'; k02 text[] := '{}'; k03 text[] := '{}'; k04 text[] := '{}'; k05 text[] := '{}'; v_knext uuid; v_kt5 uuid; c_k5 uuid; v_kt6 uuid; c_k6 uuid; v_kt5b uuid; c_k5b uuid; v_kguru uuid; v_kp jsonb; v_kdec jsonb; v_kaud int; v_kplan jsonb; v_kres jsonb; v_ksesi uuid;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean; e06 text[] := '{}'; k01 text[] := '{}'; k02 text[] := '{}'; k03 text[] := '{}'; k04 text[] := '{}'; k05 text[] := '{}'; v_knext uuid; v_kt5 uuid; c_k5 uuid; v_kt6 uuid; c_k6 uuid; v_kt5b uuid; c_k5b uuid; v_kguru uuid; v_kp jsonb; v_kdec jsonb; v_kaud int; v_kplan jsonb; v_kres jsonb; v_ksesi uuid;
 begin
   perform selftest.as_owner();
   begin
@@ -931,6 +931,23 @@ begin
        or (select count(*) from public.audit_log a where a.institution_id = v_inst) <> v_kaud then
       k05 := k05 || 'the second press wrote something'::text; end if;
 
+    -- E06: «Murid yang sudah keluar» lists who left (the graduate and the leaver of K03, each correctable), not who is
+    -- live; another school's admin is refused
+    v_sql := null;
+    perform selftest.as_user_uid(u_admin);
+    begin
+      select string_agg(mk.person_id::text || ':' || coalesce(mk.end_reason, '') || ':' || mk.bisa_dikoreksi::text, ',')
+        into v_sql from public.murid_keluar(v_inst) mk
+       where mk.person_id in ((v_kp -> 'K4' ->> 'person')::uuid, (v_kp -> 'K5' ->> 'person')::uuid, (v_kp -> 'K1' ->> 'person')::uuid);
+    exception when others then e06 := e06 || ('the list was refused to the Admin sekolah: ' || sqlerrm); end;
+    perform selftest.as_owner();
+    if coalesce(v_sql, '') !~ ((v_kp -> 'K4' ->> 'person') || ':COMPLETED:true')
+       or coalesce(v_sql, '') !~ ((v_kp -> 'K5' ->> 'person') || ':WITHDRAWN:true')
+       or coalesce(v_sql, '') ~ (v_kp -> 'K1' ->> 'person') then
+      e06 := e06 || format('the list reads %s', coalesce(v_sql, 'nothing')); end if;
+    v_got := selftest.f37_sebagai(u_adminy, format('select count(*) from public.murid_keluar(%L)', v_inst));
+    if v_got not like '42501%' then e06 := e06 || ('another school''s admin reading the list: ' || v_got); end if;
+
     raise exception 'f37-rollback';
   exception when others then
     perform selftest.as_owner();
@@ -986,6 +1003,8 @@ begin
        'an enrolment with an assessment in progress is not ended (ENROL_SITTING_OPEN)'),
       ('F37-E04', 'E4 «Daftarkan kembali»: a correction', e04,
        'a mistaken graduation is corrected by a new live enrolment in the same year, programme and Kelas; the ended row is unchanged and the audit links the correction to it; a live enrolment cannot be «corrected»'),
+      ('F37-E06', 'E4 on the screen: «Murid yang sudah keluar» lists who left', e06,
+       'the school''s admin reads the graduate and the leaver, each correctable, and not a learner who is live; another school''s admin is refused'),
       ('F37-K01', '«Kenaikan kelas dan kelulusan»: every learner listed', k01,
        'the plan lists every learner of the class and the Tingkat-only one (as such), marks the one being transferred, shows the class''s teacher and next year''s classes; a Guru and another school''s admin are refused'),
       ('F37-K02', '«Kenaikan kelas dan kelulusan»: refusals and the preview write nothing', k02,

@@ -4877,6 +4877,11 @@
       "proves": "Owner, 9 Nov (acceptance principle B), selftest/cabut.test.ts, the rendered pages and PostgREST of the running app: with two sessions open at once, an educator teaching at Alpha and Beta is working in Mengajar at Alpha; Alpha's Admin sekolah, in a browser of their own, revokes the Alpha role with a reason (revoke_role with the admin's own token); the educator's next requests from the same still-open browser and token are refused by the server (Kelas 5A's page no longer shows its learners, PostgREST reads no Alpha structure and no placement of Kelas 5A, the Alpha working context is no longer held); the Beta context and class still answer; the revoked row keeps who, when and why, role.granted and role.revoked are audited with the reason, the person, account and session stand, and a fresh sign-in works."
     },
     {
+      "id": "F37-E06",
+      "runner": "db",
+      "proves": "E4 on the screen (the Action & Consequence inventory: daftarkan_kembali had no caller), selftest/db/fable37.sql: murid_keluar lists for the school's Admin sekolah the learners who left the school and are enrolled nowhere there now (a graduate and a leaver, each with their ending and marked correctable, since E3 recorded the ending), never a learner who is live; another school's admin is refused (42501)."
+    },
+    {
       "id": "F37-K01",
       "runner": "db",
       "proves": "«Kenaikan kelas dan kelulusan» (Daisy's approved flow; owner, 9 Nov), selftest/db/fable37.sql: kenaikan_rencana lists every learner of the chosen Kelas and every learner of its Tingkat placed in no Kelas (marked TINGKAT: the demonstration's silent omission), marks a learner whose transfer is under way, shows the class's teachers and next year's classes; a Guru and another school's admin are refused."
