@@ -5030,7 +5030,37 @@
       "id": "F38-A05",
       "runner": "db",
       "proves": "L4 deletion of what needs no retention (selftest/db/fable38.sql): hapus_data_pribadi refuses a school's admin and an open account's request (ACCOUNT_NOT_CLOSED); for the closed account the name becomes the PINTAR ID, the photo and the sign-in email go (through the email guard's own L4 exception), anonymized_at is set, the role history and the audit log are kept, the request is DONE, one account.personal_data_deleted row."
+    },,
+    {
+      "id": "F38-H01",
+      "runner": "db",
+      "proves": "Sharon F1 on 7a2c1751, a school's date is its own (selftest/db/fable38.sql): only the PINTAR Administrator sets a school's time zone (a school's admin is refused), audited institution.time_zone_changed; hari_sekolah answers the school's own date; akhiri_pendaftaran refuses WIT's tomorrow and stamps an ending with no date with WIT's today."
     },
+    {
+      "id": "F38-H02",
+      "runner": "db",
+      "proves": "Sharon F2, an ending does not use up an attempt (selftest/db/fable38.sql): with an attempt limit of 1, a sitting TERMINATED as INSTITUTIONAL_REVOCATION does not make may_start_assessment answer ATTEMPT_LIMIT_REACHED for the learner."
+    },
+    {
+      "id": "F38-H03",
+      "runner": "db",
+      "proves": "Sharon F3, a placeless open sitting does not block a departure (selftest/db/fable38.sql): the enrolment ends; the sitting with neither class nor Angkatan is TERMINATED as INSTITUTIONAL_REVOCATION under the departure's own authority, with its assessment_session.terminated row."
+    },
+    {
+      "id": "F38-H04",
+      "runner": "db",
+      "proves": "Sharon F4, a return takes the chosen Kelas's programme (selftest/db/fable38.sql): a learner who left another programme and returns into Kelas A is enrolled in Kelas A's programme (and F38-R01: the next year's enrolment takes its Kelas's programme)."
+    },
+    {
+      "id": "F38-H05",
+      "runner": "db",
+      "proves": "Sharon F5, an ending in a closed year is not corrected (selftest/db/fable38.sql): CORRECTION of an ending whose school year has ended is refused PR070 ENROL_YEAR_CLOSED, and murid_keluar does not offer it."
+    },
+    {
+      "id": "F38-H06",
+      "runner": "db",
+      "proves": "Sharon F6 (ruling 3), period_rollover is not a client endpoint (selftest/db/fable38.sql): authenticated cannot execute it; the tests that drive it run as the database's owner with the administrator's claims."
+    }
     {
       "id": "KENAIKAN-K01",
       "runner": "static",

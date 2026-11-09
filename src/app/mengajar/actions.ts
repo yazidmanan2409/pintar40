@@ -5,6 +5,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { kelas as kelasKonteks } from "@/lib/pengajar";
 import { kodeGalatPenugasan } from "@/lib/penugasan-kontrak";
 import { batasHari } from "@/lib/hle";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 import { alamatTolakUjiCepat, kodeUjiCepat } from "@/lib/ujicepat-kontrak";
 import { rujukan } from "@/lib/galat-kontrak";
 import { kodeUlang } from "@/lib/ulang-kontrak";
@@ -92,8 +93,9 @@ export async function sediakanMateri(formData: FormData): Promise<void> {
     p_release: terbitan,
     p_node: kelasId,
     // DAISY-14 (M10): the teacher's days on the school's clock, not London's
-    p_from: mulai ? batasHari(mulai, "awal") : null,
-    p_until: sampai ? batasHari(sampai, "akhir") : null,
+    // Sharon F1: and on that school's own clock (WIB, WITA or WIT)
+    p_from: mulai ? batasHari(mulai, "awal", await zonaSekolah(db, ctx!.ini.institusi)) : null,
+    p_until: sampai ? batasHari(sampai, "akhir", await zonaSekolah(db, ctx!.ini.institusi)) : null,
   });
   if (error || !data?.ok) {
     const kode = kodeGalatPenugasan(error);

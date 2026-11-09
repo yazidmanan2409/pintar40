@@ -626,3 +626,20 @@ export async function tarikPengumumanAction(fd: FormData): Promise<void> {
   revalidatePath("/konfigurasi");
   kembaliPemeliharaan({ ok: true, kode: "NOTICE_WITHDRAWN" }, fd);
 }
+
+/**
+ * Sharon F1 (7a2c1751): the PINTAR Administrator sets a school's time zone (WIB, WITA, WIT), in «Sistem & Konfigurasi»
+ * of «Seluruh platform». atur_zona_waktu_sekolah decides (SYSTEM_ADMIN) and audits institution.time_zone_changed.
+ */
+export async function aturZonaWaktuAction(fd: FormData): Promise<void> {
+  const sekolah = uuidOrNull(str(fd, "sekolah"));
+  const zona = str(fd, "zona");
+  const kembali = (h: HasilAksi): never => redirect(alamatBagian("system", queryHasil("system", h, fd), "system"));
+  if (!sekolah) kembali({ ok: false, kode: "ACTION_FAILED" });
+  await wajibDalamKonteks({ platform: true }, "system");
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("atur_zona_waktu_sekolah", { p_institution: sekolah, p_zona: zona });
+  if (error) kembali(ditolak("atur_zona_waktu_sekolah", error));
+  revalidatePath("/konfigurasi");
+  kembali({ ok: true });
+}

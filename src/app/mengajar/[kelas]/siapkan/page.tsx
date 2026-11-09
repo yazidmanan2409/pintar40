@@ -3,6 +3,7 @@ import JendelaTinjau from "@/components/mengajar/JendelaTinjau";
 import { t, format, hariIniSekolah, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 import { sediakanMateri } from "../../actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
@@ -10,7 +11,7 @@ import TombolKirim from "@/components/TombolKirim";
 import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
 import BarisHasil from "@/components/BarisHasil";
 import Kosong from "@/components/Kosong";
-import { bagianJakarta, tanggal } from "@/lib/tanggal";
+import { tanggal } from "@/lib/tanggal";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
@@ -57,9 +58,10 @@ export const dynamic = "force-dynamic";
  * `?disediakan=`: the review reads the class's assignments again and, only when the material is there, the button
  * says «✓ Disediakan», the line says what was made available and its window in words, and the way on names the class.
  */
-function hariDari(iso: string | null): string | undefined {
-  const b = bagianJakarta(iso);
-  return b ? `${b.tahun}-${String(b.bulan).padStart(2, "0")}-${String(b.hari).padStart(2, "0")}` : undefined;
+function hariDari(iso: string | null, zona: string): string | undefined {
+  // Sharon F1: the stored instant read back as a day on the school's own clock
+  const d = iso ? new Date(iso) : null;
+  return d && !Number.isNaN(d.getTime()) ? hariIniSekolah(d, zona) : undefined;
 }
 
 const HARI = /^\d{4}-\d{2}-\d{2}$/;
@@ -86,6 +88,8 @@ export default async function Siapkan({
     return <HalamanPenolakan locale={locale} persona="educator" backHref="/mengajar" backKey="mengajar.kembali" />;
   }
 
+  // Sharon F1: the teacher's days on the school's own clock (WIB, WITA or WIT)
+  const zona = await zonaSekolah(await supabaseServer(), ctx.ini.institusi);
   const [semua, tugas, fakta, akar] = await Promise.all([
     ajar.terbitan(ctx.ini.institusi, id),
     ajar.penugasan(id),
@@ -103,8 +107,8 @@ export default async function Siapkan({
   const dipilih = sudah
     ? semua.find((r) => r.id === sudah.releaseId) ?? null
     : pilihan ? calon.find((r) => r.id === pilihan) ?? null : null;
-  const mulaiAwal = sudah ? hariDari(sudah.mulai) ?? hariIniSekolah() : HARI.test(mulaiTadi ?? "") ? mulaiTadi! : hariIniSekolah();
-  const sampaiAwal = sudah ? hariDari(sudah.sampai) : HARI.test(sampaiTadi ?? "") ? sampaiTadi : undefined;
+  const mulaiAwal = sudah ? hariDari(sudah.mulai, zona) ?? hariIniSekolah(undefined, zona) : HARI.test(mulaiTadi ?? "") ? mulaiTadi! : hariIniSekolah(undefined, zona);
+  const sampaiAwal = sudah ? hariDari(sudah.sampai, zona) : HARI.test(sampaiTadi ?? "") ? sampaiTadi : undefined;
   const jendelaKata = `${s("mengajar.siap.mulai")} ${tanggal(mulaiAwal, "hari", locale)} · ${
     sampaiAwal ? `${s("mengajar.siap.sampai")} ${tanggal(sampaiAwal, "hari", locale)}` : s("mengajar.siap.sampai.kosong")}`;
 

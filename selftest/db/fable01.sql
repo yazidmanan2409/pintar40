@@ -255,6 +255,9 @@ begin
   -- F01-T08 INV-23 period rollover (alpha-admin)
   ok := true; detail := '';
   perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  -- RESTATED (Sharon F6, ruling 3; 20270112190000): period_rollover is no longer a client endpoint, so the administrator's
+  -- run is driven as the database's owner carrying the administrator's claims; its authority check still decides.
+  reset role;
   begin
     n := public.period_rollover(alpha, alpha_p1, alpha_p2,
            jsonb_build_array(jsonb_build_object('from_node', a_coh5, 'to_node', a_coh6), jsonb_build_object('from_node', a_cls5a, 'to_node', a_cls6b)));

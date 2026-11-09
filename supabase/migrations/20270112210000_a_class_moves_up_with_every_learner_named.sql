@@ -192,7 +192,12 @@ begin
         update public.enrollments set status = 'ENDED', end_reason = 'EXPIRED', valid_to = now() where id = en.id;
         begin
           insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
-          values (d.person_id, k.institution_id, p_tahun_baru, en.programme_id, en.status) returning id into v_new;
+          -- CORRECTED IN PLACE (undeployed; Sharon F4): the programme the next year's Kelas sits under, where it sits
+          -- under one; else the learner's own
+          values (d.person_id, k.institution_id, p_tahun_baru,
+                  coalesce((select p.id from public.org_nodes tn join public.org_nodes p on p.id = any(tn.jalur) and p.kind = 'PROGRAMME'
+                             where tn.id = v_tj order by array_position(tn.jalur, p.id) desc limit 1), en.programme_id),
+                  en.status) returning id into v_new;
         exception when unique_violation then
           raise exception using errcode = 'PR070', detail = 'PROMO_ALREADY_IN_YEAR',
             message = d.nama || ' is already enrolled in the new year';

@@ -64,6 +64,24 @@ end $$;
 revoke all on function selftest.f37_baca(uuid, uuid, uuid) from public;
 
 -- a SQL statement run as one person: 'OK', or the refusal's state and detail
+-- RESTATED (Sharon F6, ruling 3): period_rollover is no longer a client endpoint. F37-N01 drives it as the database's
+-- owner carrying the administrator's claims, so its own authority check (has_scope INSTITUTION_ADMIN) still decides.
+create or replace function selftest.f37_sebagai_pemilik(p_user uuid, p_sql text)
+returns text language plpgsql set search_path = public, pg_temp as $$
+declare v_state text; v_detail text;
+begin
+  perform selftest.as_user_uid(p_user);
+  reset role;
+  execute p_sql;
+  perform selftest.as_owner();
+  return 'OK';
+exception when others then
+  get stacked diagnostics v_state = returned_sqlstate, v_detail = pg_exception_detail;
+  perform selftest.as_owner();
+  return v_state || ':' || coalesce(nullif(v_detail, ''), sqlerrm);
+end $$;
+revoke all on function selftest.f37_sebagai_pemilik(uuid, text) from public;
+
 create or replace function selftest.f37_sebagai(p_user uuid, p_sql text)
 returns text language plpgsql set search_path = public, pg_temp as $$
 declare v_state text; v_detail text;
@@ -655,14 +673,14 @@ begin
     insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_coha, 'CLASS', 'Kelas F37 kosong ' || v_tag, v_period) returning org_nodes.id into v_kosong;
     insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_coh2, 'CLASS', 'Kelas F37 baru ' || v_tag, v_p2) returning org_nodes.id into v_baru;
     select count(*) into v_n from public.audit_log a where a.action = 'period.rollover' and a.target_id = v_p2::text;
-    v_got := selftest.f37_sebagai(u_admin, format('select public.period_rollover(%L, %L, %L, %L::jsonb)', v_inst, v_period, v_p2,
+    v_got := selftest.f37_sebagai_pemilik(u_admin, format('select public.period_rollover(%L, %L, %L, %L::jsonb)', v_inst, v_period, v_p2,
                                   jsonb_build_array(jsonb_build_object('from_node', v_kosong, 'to_node', v_baru))));
     select count(*) into v_cnt from public.audit_log a where a.action = 'period.rollover' and a.target_id = v_p2::text;
     if v_got <> 'OK' then n01 := n01 || ('the empty rollover was refused: ' || v_got);
     elsif v_cnt <> v_n then n01 := n01 || 'a rollover that moved nobody wrote a «Tahun ajaran dilanjutkan» audit event'::text; end if;
     -- refused (a destination outside the target year): nothing changes, nothing is audited
     select count(*) into v_n from public.memberships m where m.node_id in (v_kosong, v_baru, c_a);
-    v_got := selftest.f37_sebagai(u_admin, format('select public.period_rollover(%L, %L, %L, %L::jsonb)', v_inst, v_period, v_p2,
+    v_got := selftest.f37_sebagai_pemilik(u_admin, format('select public.period_rollover(%L, %L, %L, %L::jsonb)', v_inst, v_period, v_p2,
                                   jsonb_build_array(jsonb_build_object('from_node', c_a, 'to_node', c_b))));
     select count(*) into v_cnt from public.memberships m where m.node_id in (v_kosong, v_baru, c_a);
     if v_got = 'OK' then n01 := n01 || 'a rollover into a class of the wrong year was accepted'::text; end if;
@@ -673,7 +691,7 @@ begin
     insert into public.persons (display_name) values ('Murid F37 naik ' || v_tag) returning persons.id into v_pp;
     insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_pp, v_inst, v_period, 'ACTIVE') returning enrollments.id into v_ex;
     insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_ex, v_isi, v_period);
-    v_got := selftest.f37_sebagai(u_admin, format('select public.period_rollover(%L, %L, %L, %L::jsonb)', v_inst, v_period, v_p2,
+    v_got := selftest.f37_sebagai_pemilik(u_admin, format('select public.period_rollover(%L, %L, %L, %L::jsonb)', v_inst, v_period, v_p2,
                                   jsonb_build_array(jsonb_build_object('from_node', v_isi, 'to_node', v_baru2))));
     select (a.summary ->> 'moved')::int into v_cnt from public.audit_log a where a.action = 'period.rollover' and a.target_id = v_p2::text
      order by a.id desc limit 1;

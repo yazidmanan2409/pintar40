@@ -102,7 +102,9 @@ grant execute on function public.peran_orang(uuid, uuid) to authenticated;
 create or replace function public.akhiri_tugas_staf(p_person uuid, p_institution uuid, p_kategori text, p_alasan text, p_tanggal date)
 returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
 declare v_actor uuid := public.current_person_id(); v_alasan text := btrim(coalesce(p_alasan, ''));
-        v_hari date := (now() at time zone 'Asia/Jakarta')::date; v_tgl date := coalesce(p_tanggal, (now() at time zone 'Asia/Jakarta')::date);
+        -- CORRECTED IN PLACE (undeployed; Sharon F1): the school's own clock (20270112195000)
+        v_zona text := public.zona_sekolah(p_institution);
+        v_hari date := (now() at time zone v_zona)::date; v_tgl date := coalesce(p_tanggal, v_hari);
         v_awal date; v_ids jsonb; v_n int;
 begin
   if not public.staf_boleh(p_institution) then perform public.staf_tolak('STAFF_NOT_ALLOWED'); end if;
@@ -112,7 +114,7 @@ begin
     perform public.staf_tolak('STAFF_CATEGORY_INVALID');
   end if;
   if char_length(v_alasan) < 10 or char_length(v_alasan) > 300 then perform public.staf_tolak('STAFF_REASON_REQUIRED'); end if;
-  select count(*), min((x.valid_from at time zone 'Asia/Jakarta')::date),
+  select count(*), min((x.valid_from at time zone v_zona)::date),
          jsonb_agg(jsonb_build_object('id', x.id, 'role', x.role, 'scope_node_id', x.scope_node_id) order by x.id)
     into v_n, v_awal, v_ids from public.staf_peran_hidup(p_person, p_institution) x;
   if v_n = 0 then perform public.staf_tolak('STAFF_NOT_ACTIVE'); end if;

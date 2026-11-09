@@ -1091,6 +1091,7 @@ export type HleEvent =
   | "audit.kolom.alasan"
   | "audit.oleh.sistem"
   | "audit.oleh.tidak_terlihat"
+  | "audit.oleh.sekolah_lain"
   | "audit.berlaku"
   | "audit.aksi.enrollment.ended_with_reason"
   | "audit.aksi.enrollment.reopened"
@@ -1205,6 +1206,7 @@ export type HleEvent =
   | "galat.enrol_not_ended"
   | "galat.enrol_already_live"
   | "galat.enrol_not_departed"
+  | "galat.enrol_year_closed"
   | "galat.learner_placed"
   | "config.tempatkan.judul"
   | "config.tempatkan.arti"
@@ -1546,6 +1548,10 @@ export type HleEvent =
   // W1.10 (Batch 3; DG-36): the example-only workbook beside the blank template
   | "studio.unggah.contoh" | "studio.unggah.contoh_arti"
   | "config.sekolah.sintetis" | "config.sekolah.aktif" | "config.sekolah.nonaktif"
+  // Sharon F1: a school's own clock
+  | "config.sekolah.zona.Asia/Jakarta" | "config.sekolah.zona.Asia/Makassar" | "config.sekolah.zona.Asia/Jayapura"
+  | "config.sekolah.zona.label" | "config.sekolah.zona.simpan"
+  | "audit.aksi.institution.time_zone_changed"
   // D-138/D-140: the audit trail in words
   | "audit.aksi.ASSESSMENT_DEFINITION_CREATED"
   | "audit.aksi.ASSESSMENT_DEFINITION_RELABELLED"
@@ -4774,6 +4780,7 @@ const table: Table = {
   "audit.kolom.alasan": { default: "Alasan", en: "Reason" },
   "audit.oleh.sistem": { default: "Sistem", en: "System" },
   "audit.oleh.tidak_terlihat": { default: "Petugas lain", en: "Another staff member" },
+  "audit.oleh.sekolah_lain": { default: "Petugas sekolah lain", en: "Staff member at another school" },
   "audit.berlaku": { default: "berlaku {tanggal}", en: "effective {tanggal}" },
   "audit.aksi.enrollment.ended_with_reason": { default: "Pendaftaran murid diakhiri", en: "Student enrolment ended" },
   "audit.aksi.enrollment.reopened": { default: "Murid didaftarkan kembali", en: "Student enrolled again" },
@@ -4887,6 +4894,8 @@ const table: Table = {
   "galat.enrol_not_correctable": { default: "Hanya pencatatan keluar terakhir di sekolah ini, yang belum dibatalkan, yang dapat dibatalkan.", en: "Only the latest departure recorded at this school, not yet undone, can be undone." },
   "galat.enrol_not_ended": { default: "Pendaftaran ini belum berakhir, jadi tidak ada yang perlu dibatalkan.", en: "This enrolment has not ended, so there is nothing to undo." },
   "galat.enrol_already_live": { default: "Murid ini sudah terdaftar di sekolah ini.", en: "This student is already enrolled at this school." },
+  // Sharon F5: the correction is offered only while the ending's school year runs
+  "galat.enrol_year_closed": { default: "Tahun ajaran pendaftaran ini sudah berakhir, jadi pencatatannya tidak dibatalkan. Daftarkan murid ini kembali melalui «Kembali bersekolah».", en: "The school year of this enrolment has ended, so its record is not undone. Re-enrol this student through «Returns to school»." },
   "galat.enrol_not_departed": { default: "Murid ini belum pernah terdaftar di sekolah ini. Tempatkan ia ke kelas, bukan didaftarkan kembali.", en: "This student has never been enrolled at this school. Place them in a class instead of re-enrolling them." },
   "galat.learner_placed": { default: "Murid sudah ditempatkan di kelas.", en: "The student has been placed in the class." },
   "config.tempatkan.judul": { default: "Murid yang belum punya kelas", en: "Students without a class" },
@@ -6011,6 +6020,13 @@ const table: Table = {
   "config.sekolah.sintetis": { default: "data uji", en: "test data" },
   "config.sekolah.aktif": { default: "aktif", en: "active" },
   "config.sekolah.nonaktif": { default: "nonaktif", en: "inactive" },
+  // Sharon F1 (7a2c1751): the school's own clock; every date it records is decided on it
+  "config.sekolah.zona.Asia/Jakarta": { default: "WIB", en: "WIB" },
+  "config.sekolah.zona.Asia/Makassar": { default: "WITA", en: "WITA" },
+  "config.sekolah.zona.Asia/Jayapura": { default: "WIT", en: "WIT" },
+  "config.sekolah.zona.label": { default: "Zona waktu sekolah", en: "School time zone" },
+  "config.sekolah.zona.simpan": { default: "Simpan zona waktu", en: "Save time zone" },
+  "audit.aksi.institution.time_zone_changed": { default: "Zona waktu sekolah diubah", en: "School time zone changed" },
   // D-138/D-140: the audit trail in words (Jejak audit), never its codes or tables
   "audit.aksi.ASSESSMENT_DEFINITION_CREATED": { default: "Aturan asesmen dibuat", en: "Assessment rule created" },
   "audit.aksi.ASSESSMENT_DEFINITION_RELABELLED": { default: "Nama aturan asesmen diubah", en: "Assessment rule renamed" },
@@ -6801,8 +6817,19 @@ export const format = {
  * (asked of Intl rather than written down, so a zone with daylight saving
  * would still be right), and the same helper gives Siapkan its "today".
  */
-function selisihZona(hari: string): string {
-  const nama = new Intl.DateTimeFormat("en-US", { timeZone: TIMEZONE, timeZoneName: "longOffset" })
+/**
+ * Sharon F1 (7a2c1751): a school's «today» is its own. Indonesia keeps WIB, WITA and WIT; a school's zone is
+ * institutions.zona_waktu (20270112195000), read through zonaSekolah (src/lib/zona-sekolah.ts). Each helper below takes
+ * it, and keeps WIB for a caller that has no school.
+ */
+export const ZONA_SEKOLAH = ["Asia/Jakarta", "Asia/Makassar", "Asia/Jayapura"] as const;
+export type ZonaSekolah = (typeof ZONA_SEKOLAH)[number];
+export function zonaSah(z: unknown): ZonaSekolah {
+  return (ZONA_SEKOLAH as readonly string[]).includes(String(z)) ? (z as ZonaSekolah) : "Asia/Jakarta";
+}
+
+function selisihZona(hari: string, zona: string = TIMEZONE): string {
+  const nama = new Intl.DateTimeFormat("en-US", { timeZone: zonaSah(zona), timeZoneName: "longOffset" })
     .formatToParts(new Date(`${hari}T12:00:00Z`))
     .find((p) => p.type === "timeZoneName")?.value ?? "GMT";
   const m = /GMT([+-]\d{2}):?(\d{2})?/.exec(nama);
@@ -6810,9 +6837,9 @@ function selisihZona(hari: string): string {
 }
 
 /** Today's date on the school's clock, as a date input writes it (yyyy-mm-dd). */
-export function hariIniSekolah(sekarang: Date = new Date()): string {
+export function hariIniSekolah(sekarang: Date = new Date(), zona: string = TIMEZONE): string {
   return new Intl.DateTimeFormat("en-CA", {
-    year: "numeric", month: "2-digit", day: "2-digit", timeZone: TIMEZONE,
+    year: "numeric", month: "2-digit", day: "2-digit", timeZone: zonaSah(zona),
   }).format(sekarang);
 }
 
@@ -6821,11 +6848,11 @@ export function hariIniSekolah(sekarang: Date = new Date()): string {
  * yyyy-mm-dd day on the school's clock, as an ISO timestamp with its offset;
  * null for anything that is not such a day.
  */
-export function batasHari(hari: string, ujung: "awal" | "akhir"): string | null {
+export function batasHari(hari: string, ujung: "awal" | "akhir", zona: string = TIMEZONE): string | null {
   // a real calendar day: 2026-02-30 is refused, not rolled into March
   const tengah = new Date(`${hari}T12:00:00Z`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(hari) || Number.isNaN(tengah.getTime()) || tengah.toISOString().slice(0, 10) !== hari) return null;
-  return `${hari}T${ujung === "awal" ? "00:00:00" : "23:59:59"}${selisihZona(hari)}`;
+  return `${hari}T${ujung === "awal" ? "00:00:00" : "23:59:59"}${selisihZona(hari, zona)}`;
 }
 
 /** For tests: every key, every persona, rendered. */

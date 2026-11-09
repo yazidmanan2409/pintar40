@@ -2101,6 +2101,9 @@ export const experienceTests: SelfTest[] = [
       // MOVED 204 -> 205 for SI-D02 (9 Nov): 20270112120000 serializes start_learning_session per learner and assignment
       // (an advisory lock). Read against §3 first: a lock, not a mark, a logo, a crest or a theme, so the Q-7 source still
       // does not exist.
+      // MOVED 220 -> 222 for Sharon F1/F2 on 7a2c1751 (20270112195000: institutions.zona_waktu and the school's date;
+      // 20270113140000: a sitting the school ended is not an attempt). Read against §3: a time zone and a count, not a
+      // mark, a logo, a crest or a theme.
       // MOVED 219 -> 220 for §5b and L1–L4 (20270113130000: suspension, closure, deletion). Read against §3: an account's
       // state, not a mark, a logo, a crest or a theme.
       // MOVED 218 -> 219 for E5 and §11 (20270113120000: akhiri_tugas_staf, peran_orang, ubah_peran). Read against §3: roles
@@ -2125,7 +2128,7 @@ export const experienceTests: SelfTest[] = [
       // MOVED 205 -> 206 for SI-D01's remaining findings (Sharon, 9 Nov): 20270112130000 moves three acts on a sitting and
       // its referral to the sitting's place, replaces the place helpers by booleans, and gives other departments a count.
       // Read against §3 first: policies, functions and a count, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 220, `${migrations.length} migrations; the frozen baseline has 220`);
+      c.expect(migrations.length === 222, `${migrations.length} migrations; the frozen baseline has 222`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3956,6 +3959,7 @@ export const experienceTests: SelfTest[] = [
       // MOVED 202 -> 203 for the System Integrity Gate (9 Nov): four policies narrowed to the class touch no tour RPC.
       // MOVED 203 -> 204 for SI-D01's completion: evidence policies on the sitting's place and D5's investigation read touch no tour RPC.
       // MOVED 204 -> 205 for SI-D02: one start at a time per learner and assignment touches no tour RPC.
+      // MOVED 220 -> 222 for Sharon F1/F2: a school's time zone and the attempt count touch no tour RPC.
       // MOVED 219 -> 220 for §5b and L1–L4: no tour RPC.
       // MOVED 218 -> 219 for E5 and §11 (akhiri_tugas_staf, ubah_peran): no tour RPC.
       // MOVED 217 -> 218 for W2.22 (sertifikat_koreksi_*): no tour RPC.
@@ -3970,7 +3974,7 @@ export const experienceTests: SelfTest[] = [
       // MOVED 207 -> 208 for SI-D01 finding 1: PD sittings ended or extended by the platform; no tour RPC.
       // MOVED 206 -> 207 for SI-D03: credential paths narrowed to the school that holds the person; no tour RPC.
       // MOVED 205 -> 206 for SI-D01's remaining findings: acts on a sitting decided over its place touch no tour RPC.
-      c.expect(migs.length === 220, `${migs.length} migrations; the baseline has 220`);
+      c.expect(migs.length === 222, `${migs.length} migrations; the baseline has 222`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

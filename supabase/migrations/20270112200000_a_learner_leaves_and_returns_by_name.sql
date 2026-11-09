@@ -23,13 +23,24 @@
 -- For Sharon's ruling: this replaces the fail-closed ENROL_SITTING_OPEN she was asked about.
 create or replace function public.tutup_asesmen_terbuka(p_enrollment uuid, p_alasan text)
 returns integer language plpgsql volatile security definer set search_path = public, pg_temp as $$
-declare s record; v_n int := 0;
+declare s record; v_n int := 0; v_kept int; v_actor uuid := public.current_person_id();
 begin
-  for s in select a.id from public.assessment_sessions a
+  -- CORRECTED IN PLACE (undeployed; Sharon F3 on 7a2c1751): the sitting is ended under the departure's own authority
+  -- (the school's INSTITUTION_ADMIN, checked by akhiri_pendaftaran before this runs), not through terminate_session,
+  -- whose check is over the place the sitting was given in: a sitting with neither class nor Angkatan has no such
+  -- place, and the departure failed with that check's raw error. The update and the audit row are terminate_session's.
+  for s in select a.id, a.institution_id from public.assessment_sessions a
             where a.enrollment_id = p_enrollment and a.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')
             order by a.id for update loop
     if public.session_enforce_deadline(s.id) in ('CREATED', 'IN_PROGRESS', 'PAUSED') then
-      perform public.terminate_session(s.id, 'INSTITUTIONAL_REVOCATION', p_alasan);
+      select count(*) into v_kept from public.responses r where r.session_id = s.id;
+      update public.assessment_sessions
+         set status = 'TERMINATED', termination_cause = 'INSTITUTIONAL_REVOCATION',
+             termination_reason = p_alasan, terminated_by_person_id = v_actor
+       where id = s.id;
+      perform public.audit_write('assessment_session.terminated', 'assessment_sessions', s.id::text, s.institution_id,
+        jsonb_build_object('session_id', s.id, 'cause', 'INSTITUTIONAL_REVOCATION', 'reason', p_alasan,
+                           'actor', v_actor, 'responses_retained', v_kept, 'enrollment_id', p_enrollment));
     end if;
     v_n := v_n + 1;
   end loop;
@@ -41,7 +52,7 @@ revoke all on function public.tutup_asesmen_terbuka(uuid, text) from public, ano
 create or replace function public.akhiri_pendaftaran(p_enrollment uuid, p_reason text, p_explanation text,
                                                      p_effective date)
 returns uuid language plpgsql volatile security definer set search_path = public, pg_temp as $$
-declare en record; v_end public.enrollment_end_reason; v_hari date := (now() at time zone 'Asia/Jakarta')::date; v_date date := coalesce(p_effective, (now() at time zone 'Asia/Jakarta')::date);
+declare en record; v_end public.enrollment_end_reason; v_hari date; v_date date; v_zona text;
         v_expl text := nullif(btrim(coalesce(p_explanation, '')), ''); v_closed int; v_sesi int;
 begin
   select e.id, e.person_id, e.institution_id, e.status, e.valid_from into en
@@ -53,6 +64,10 @@ begin
   if en.status not in ('PENDING', 'ACTIVE') then
     raise exception using errcode = 'PR070', detail = 'ENROL_NOT_LIVE', message = 'this enrolment has already ended';
   end if;
+  -- CORRECTED IN PLACE (undeployed; Sharon F1): the school's own clock (20270112195000), not WIB for every school
+  v_zona := public.zona_sekolah(en.institution_id);
+  v_hari := (now() at time zone v_zona)::date;
+  v_date := coalesce(p_effective, v_hari);
   v_end := case p_reason
              when 'GRADUATED' then 'COMPLETED'
              when 'TRANSFER_EXTERNAL' then 'TRANSFERRED_OUT'
@@ -68,8 +83,8 @@ begin
     raise exception using errcode = 'PR070', detail = 'ENROL_EXPLANATION_REQUIRED',
       message = '«Lainnya» needs an explanation of 10 to 300 characters (any explanation is at most 300)';
   end if;
-  -- the school's clock (WIB), as the screen's date field is: «today» at 06.00 WIB is not a future date
-  if v_date > v_hari or v_date < (en.valid_from at time zone 'Asia/Jakarta')::date then
+  -- the school's clock, as the screen's date field is: «today» at 06.00 is not a future date
+  if v_date > v_hari or v_date < (en.valid_from at time zone v_zona)::date then
     raise exception using errcode = 'PR070', detail = 'ENROL_DATE_INVALID',
       message = 'the effective date is today or earlier, and not before the enrolment began';
   end if;
@@ -121,13 +136,20 @@ begin
   end if;
 
   if p_kind = 'CORRECTION' then
-    select e.id, e.status, e.academic_period_id, e.programme_id, e.created_at into old
-      from public.enrollments e where e.id = p_enrollment and e.person_id = p_person and e.institution_id = p_institution;
+    select e.id, e.status, e.academic_period_id, e.programme_id, e.created_at, ap.ends_on into old
+      from public.enrollments e left join public.academic_periods ap on ap.id = e.academic_period_id
+     where e.id = p_enrollment and e.person_id = p_person and e.institution_id = p_institution;
     if old.id is null then
       raise exception using errcode = 'PR070', detail = 'ENROL_NOT_CORRECTABLE', message = 'no such enrolment of this learner at this school';
     end if;
     if old.status <> 'ENDED' then
       raise exception using errcode = 'PR070', detail = 'ENROL_NOT_ENDED', message = 'this enrolment has not ended; there is nothing to correct';
+    end if;
+    -- CORRECTED IN PLACE (undeployed; Sharon F5): a correction reopens the ending's own year, so it is offered only
+    -- while that year runs; after it the learner comes back as a RETURN, into a Kelas of the year they return to
+    if old.ends_on is not null and old.ends_on < public.hari_sekolah(p_institution) then
+      raise exception using errcode = 'PR070', detail = 'ENROL_YEAR_CLOSED',
+        message = 'the school year of this ending has closed; the learner comes back as a return';
     end if;
   end if;
   if exists (select 1 from public.enrollments e where e.person_id = p_person and e.institution_id <> p_institution
@@ -165,13 +187,15 @@ begin
       raise exception using errcode = 'PR070', detail = 'PLACE_NOT_A_KELAS', message = 'a returning learner is placed in an active Kelas';
     end if;
     v_kelas := p_kelas;
-    -- the programme of their latest enrolment here, the year of the chosen Kelas
+    -- the year of the chosen Kelas; its programme below. CORRECTED IN PLACE (Sharon F4): the fallback programme is
+    -- that of their latest enrolment here that was not cancelled
     select e.programme_id into v_prog from public.enrollments e
-     where e.person_id = p_person and e.institution_id = p_institution order by e.created_at desc limit 1;
+     where e.person_id = p_person and e.institution_id = p_institution and e.status <> 'CANCELLED'
+     order by e.created_at desc limit 1;
   end if;
 
   if v_kelas is not null then
-    select n.id, n.kind, n.is_active, n.institution_id, n.academic_period_id, n.member_kind into k
+    select n.id, n.kind, n.is_active, n.institution_id, n.academic_period_id, n.member_kind, n.jalur into k
       from public.org_nodes n where n.id = v_kelas;
     if k.id is null or k.kind <> 'CLASS' or not k.is_active or k.institution_id <> p_institution
        or coalesce(k.member_kind, 'LEARNER') <> 'LEARNER'
@@ -179,6 +203,12 @@ begin
       raise exception using errcode = 'PR070', detail = 'PLACE_NOT_A_KELAS', message = 'a learner is placed in an active Kelas of this school';
     end if;
     if p_kind = 'RETURN' then v_period := k.academic_period_id; end if;
+    -- CORRECTED IN PLACE (undeployed; Sharon F4): the learner's programme is the one the Kelas sits under, where it
+    -- sits under one (a return, or a correction into a Kelas the administrator chose)
+    if p_kind = 'RETURN' or p_kelas is not null then
+      v_prog := coalesce((select p.id from public.org_nodes p where p.id = any(k.jalur) and p.kind = 'PROGRAMME'
+                           order by array_position(k.jalur, p.id) desc limit 1), v_prog);
+    end if;
   end if;
   if v_period is null then
     raise exception using errcode = 'PR070', detail = 'PLACE_NO_YEAR', message = 'the school has no academic year for this Kelas';

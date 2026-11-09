@@ -3,6 +3,8 @@ import Kosong from "@/components/Kosong";
 import TandaTautan from "@/components/TandaTautan";
 import Ikon from "@/components/Ikon";
 import { t, format, allKeys, hariIniSekolah, type HleEvent } from "@/lib/hle";
+import { zonaSekolah } from "@/lib/zona-sekolah";
+import { zonaSah, ZONA_SEKOLAH } from "@/lib/hle";
 import Penomoran, { UKURAN, halamanDiminta, rentang, satuHalaman, tautanHalaman } from "@/components/koleksi/Penomoran";
 
 // L4 (CR-88): the audit trail's page is the newest 50, the size CR-39 (J1.6) reads; other staff lists are 20 a page
@@ -18,7 +20,7 @@ import {
   daftarkanPesertaAction, grantRoleAction, hentikanSekarangAction, jadwalkanPemeliharaanAction, pindahKelasAction,
   akhiriPendaftaranAction, daftarkanKembaliAction, revokeRoleAction, saveReportTemplateAction, tarikPengumumanAction, terbitkanPengumumanAction,
   tetapkanBatasAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction, transferRequestAction,
-  tunjukAdminPertamaAction, ubahPemeliharaanAction, tempatkanMuridAction } from "./actions";
+  tunjukAdminPertamaAction, ubahPemeliharaanAction, tempatkanMuridAction, aturZonaWaktuAction } from "./actions";
 import { adaAdminSekolah, calonAdminPertama } from "@/lib/admin-pertama";
 import { pelajaranDanBatas } from "@/lib/batas-ketuntasan";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
@@ -240,12 +242,12 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     { data: awaiting }, [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }],
   ] = await Promise.all([
     satuSekolah
-      ? supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").eq("id", satuSekolah)
+      ? supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind, zona_waktu").eq("id", satuSekolah)
       // W2.10 (Batch 4; CR-49, CAP-10): «Seluruh platform» lists the schools a page at a time, never every school at once
       : platformKonteks
-        ? supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name").order("id")
+        ? supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind, zona_waktu").order("name").order("id")
             .range(...rentang(halSekolah))
-        : supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
+        : supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind, zona_waktu").order("name"),
     satuSekolah
       ? supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").eq("institution_id", satuSekolah).order("starts_on")
       // W2.10: in «Seluruh platform» the school years of the page's schools alone, read below
@@ -575,7 +577,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     : { data: [] };
   const keluar = (keluarRows ?? []) as Array<{ person_id: string; display_name: string; institutional_id: string | null;
     enrollment_id: string; end_reason: string | null; ended_at: string | null; bisa_dikoreksi: boolean; di_sekolah_lain: boolean }>;
-  const hariIni = hariIniSekolah();
+  // Sharon F1: the school's own today (WIB, WITA or WIT), as akhiri_pendaftaran decides it
+  const hariIni = hariIniSekolah(undefined, await zonaSekolah(supabase, sekolahStruktur?.id));
   const sl = (event: HleEvent) => t(event, "staff", { locale });
   // W3.3 (Batch 2; RV-16): every moment through the one date helper, on WIB, with its year and «WIB» —
   // a record as the timestamp («9 Okt 2026, 07.30 WIB»), a window someone acts on with its day.
@@ -1485,8 +1488,27 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 <li key={i.id} className="border-b border-line-1 px-3 py-2" data-sekolah-baris="">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="flex flex-wrap items-center gap-2 text-ink-1">{i.name}{i.is_synthetic && platformIni ? <span className="pin-pill pin-info">{s("config.sekolah.sintetis")}</span> : null}</span>
-                    <span className={`pin-pill ${i.is_active ? "pin-ok" : "pin-neutral"}`}>{s(i.is_active ? "config.sekolah.aktif" : "config.sekolah.nonaktif")}</span>
+                    <span className="flex flex-wrap items-center gap-2">
+                      {/* Sharon F1: the school's own clock, the one its dates are decided on */}
+                      <span className="pin-pill pin-neutral" data-zona={zonaSah(i.zona_waktu)}>{s(`config.sekolah.zona.${zonaSah(i.zona_waktu)}` as HleEvent)}</span>
+                      <span className={`pin-pill ${i.is_active ? "pin-ok" : "pin-neutral"}`}>{s(i.is_active ? "config.sekolah.aktif" : "config.sekolah.nonaktif")}</span>
+                    </span>
                   </div>
+                  {platformIni ? (
+                    <form action={aturZonaWaktuAction} className="mt-2 flex flex-wrap items-end gap-2" data-zona-form="">
+                      <input type="hidden" name="sekolah" value={i.id} />
+                      <input type="hidden" name="baris" value={i.id} />
+                      <input type="hidden" name="asal" value="zona" />
+                      <label className="grid gap-1 text-xs text-ink-2">
+                        {s("config.sekolah.zona.label")}
+                        <select name="zona" defaultValue={zonaSah(i.zona_waktu)} className="pin-input">
+                          {ZONA_SEKOLAH.map((z) => <option key={z} value={z}>{s(`config.sekolah.zona.${z}` as HleEvent)}</option>)}
+                        </select>
+                      </label>
+                      <TombolKirim className="pin-btn justify-self-start" sibuk={s("tombol.memproses")}>{s("config.sekolah.zona.simpan")}<span className="pin-sr"> · {i.name}</span></TombolKirim>
+                    </form>
+                  ) : null}
+                  {sp.baris === i.id ? result("system", "zona") : null}
                   <p className="mt-1 text-xs text-ink-3">
                     {(periods ?? []).filter((p) => p.institution_id === i.id).map((p) => `${p.name} (${when(p.starts_on, "baca")} – ${when(p.ends_on, "baca")})`).join(" · ") || s("config.empty")}
                   </p>
@@ -1864,7 +1886,10 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         const a = alasanAudit(r.summary, locale);
                         const nama = r.actor_person_id ? namaPelaku.get(r.actor_person_id as string) ?? null : null;
                         return (<>
-                          <td data-jejak-oleh="">{r.actor_person_id ? [nama, a.peran].filter(Boolean).join(" · ") || s("audit.oleh.tidak_terlihat") : s("audit.oleh.sistem")}</td>
+                          <td data-jejak-oleh="">{r.actor_person_id ? [nama, a.peran].filter(Boolean).join(" · ")
+                            // Sharon (ruling 8 on 7a2c1751): on a transfer row the unnamed actor is the other school's
+                            || s(String(r.action).startsWith("transfer.") ? "audit.oleh.sekolah_lain" : "audit.oleh.tidak_terlihat")
+                            : s("audit.oleh.sistem")}</td>
                           <td data-jejak-alasan="">{[a.alasan, a.berlaku ? s("audit.berlaku").replace("{tanggal}", when(a.berlaku, "baca")) : null].filter(Boolean).join(" · ") || ""}</td>
                         </>);
                       })()}

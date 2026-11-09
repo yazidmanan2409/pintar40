@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { t, format, hariIniSekolah, batasHari, type HleEvent } from "@/lib/hle";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
 import { konteksHalaman } from "@/lib/konteks-server";
@@ -54,6 +55,8 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
   if (!orangId) return tolak("sertifikat.kelola.ditolak");
 
   const supabase = await supabaseServer();
+  // Sharon F1: this school's own clock (WIB, WITA or WIT) for every date on the page
+  const zona = await zonaSekolah(supabase, sekolah);
   const { data: orangData, error } = await supabase.rpc("peran_orang", { p_person: orangId, p_institution: sekolah });
   if (error || !orangData) return tolak("sertifikat.kelola.ditolak");
   const orang = orangData as Orang;
@@ -71,7 +74,7 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
   let kodeTinjau: KodeStaf | null = null;
   if (sp.tinjau === "1") {
     const tambah = tambahPeran && tambahTempat && tambahSampai
-      ? [{ role: tambahPeran, scope_node_id: tambahTempat, valid_until: batasHari(tambahSampai, "akhir") }] : [];
+      ? [{ role: tambahPeran, scope_node_id: tambahTempat, valid_until: batasHari(tambahSampai, "akhir", zona) }] : [];
     const { data, error: e } = await supabase.rpc("ubah_peran", {
       p_person: orangId, p_institution: sekolah, p_tambah: tambah, p_cabut: cabut, p_alasan: alasan,
       p_sidik: orang.sidik, p_konfirmasi_admin: true, p_terapkan: false,
@@ -88,7 +91,7 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
   const daftarTj = (xs: Tj[], data: string) => xs.length === 0
     ? <p className="pin-meta">{s("staf.ubah.tidak_ada")}</p>
     : <ul className="pin-staf-tj" data-tj={data}>{xs.map((x) => <li key={`${x.tj}-${x.tempat}`}>{s(kunciTanggungJawab(x.tj))} · {x.tempat}</li>)}</ul>;
-  const hariIni = hariIniSekolah();
+  const hariIni = hariIniSekolah(undefined, zona);
 
   return (
     <>

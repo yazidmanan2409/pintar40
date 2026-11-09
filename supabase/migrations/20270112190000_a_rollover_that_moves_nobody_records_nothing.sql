@@ -40,8 +40,11 @@ begin
 end;
 $$;
 
-revoke all on function public.period_rollover(uuid, uuid, uuid, jsonb) from public, anon;
-grant execute on function public.period_rollover(uuid, uuid, uuid, jsonb) to authenticated;
+-- CORRECTED IN PLACE (undeployed; Sharon F6, ruling 3): no longer a client endpoint. «Kenaikan kelas dan kelulusan»
+-- (20270112210000) replaced the class-to-class run on every screen; a direct call moved learners with no preview, no
+-- per-learner decision and no reason. It stays for the database's own use (and the tests that drive it as its owner).
+revoke all on function public.period_rollover(uuid, uuid, uuid, jsonb) from public, anon, authenticated;
+delete from public.client_rpc_registry where function_name = 'period_rollover';
 
 do $$
 declare v_def text := pg_get_functiondef('public.period_rollover(uuid,uuid,uuid,jsonb)'::regprocedure);

@@ -62,6 +62,17 @@
 --   F38-A05  L4: the PINTAR Administrator deletes the closed account's personal data from the queue: the name becomes the
 --            PINTAR ID, the photo and the sign-in email are gone, anonymized_at is set, the roles and the audit log are
 --            kept, the request DONE; an open account's request is refused (ACCOUNT_NOT_CLOSED), and a school's admin.
+--   F38-H01  Sharon F1 (7a2c1751): a school's date is its own. Kelas A's school set to WIT by the PINTAR Administrator
+--            (a school's admin is refused; the change is audited): hari_sekolah answers WIT's date, an ending with no
+--            date is stamped with it, and WIT's tomorrow is refused as a future date.
+--   F38-H02  Sharon F2: an ending does not use up an attempt. A sitting TERMINATED as INSTITUTIONAL_REVOCATION is not
+--            counted against an attempt limit of 1 (may_start_assessment does not answer ATTEMPT_LIMIT_REACHED).
+--   F38-H03  Sharon F3: an open sitting with neither class nor Angkatan does not block a departure: the enrolment ends
+--            and the sitting is TERMINATED as INSTITUTIONAL_REVOCATION, audited.
+--   F38-H04  Sharon F4: a returning learner's programme is the chosen Kelas's, not their old enrolment's.
+--   F38-H05  Sharon F5: an ending in a school year that has ended is not «corrected» (ENROL_YEAR_CLOSED); murid_keluar
+--            does not offer it; a return is the way back.
+--   F38-H06  Sharon F6 (ruling 3): period_rollover is not a client endpoint.
 --
 -- EVERY ROW IS ROLLED BACK (the suite's block ends in 'f38-rollback', as fable37 does).
 
@@ -133,7 +144,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
-  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
+  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
   u_admin uuid; v_n int; v_cert uuid; v_cert2 uuid; v_new uuid; v_new2 uuid; v_tok text; v_ntok text; v_payload jsonb; v_nomor text; v_snapold uuid; p_holder uuid; u_holder uuid; v_k record;
   v_crel uuid; v_cdef uuid; v_dist uuid; v_la3 uuid; v_aa3 uuid;
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid; v_coh uuid; c_a uuid; c_b uuid;
@@ -337,7 +348,9 @@ begin
     insert into public.academic_periods (institution_id, name, starts_on, ends_on)
     values (v_inst, 'F38R ' || v_tag, (select ap.ends_on + 1 from public.academic_periods ap where ap.id = v_period),
             (select ap.ends_on + 366 from public.academic_periods ap where ap.id = v_period)) returning academic_periods.id into v_next;
-    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_prog, 'COHORT', 'Tingkat F38 6 ' || v_tag, v_next) returning org_nodes.id into v_coh6;
+    -- (Sharon F4) next year's Kelas sits under another programme of the school: the new enrolment takes the Kelas's
+    insert into public.org_nodes (institution_id, parent_id, kind, name) values (v_inst, v_dep, 'PROGRAMME', 'Program F38 dua ' || v_tag) returning org_nodes.id into v_prog2;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_prog2, 'COHORT', 'Tingkat F38 6 ' || v_tag, v_next) returning org_nodes.id into v_coh6;
     insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_coh6, 'CLASS', 'Kelas F38 6 ' || v_tag, v_next) returning org_nodes.id into c_6;
     perform selftest.as_user_uid(u_admin);
     select jsonb_agg(jsonb_build_object('person_id', b.person_id, 'keputusan', 'NAIK', 'kelas_tujuan', c_6))
@@ -349,6 +362,8 @@ begin
       if not exists (select 1 from public.enrollments en join public.memberships mb on mb.enrollment_id = en.id and mb.valid_to is null
                       where en.person_id = p_belum and en.academic_period_id = v_next and mb.node_id = c_6) then
         r01 := r01 || 'the learner is not in Kelas 6 next year'::text; end if;
+      if (select en.programme_id from public.enrollments en where en.person_id = p_belum and en.academic_period_id = v_next) is distinct from v_prog2 then
+        r01 := r01 || 'the new year''s enrolment does not take the programme of the Kelas it is placed in (Sharon F4)'::text; end if;
       if (select s.class_node_id::text || '/' || e2.status::text || '/' || coalesce(e2.end_reason::text, '')
             from public.assessment_sessions s join public.enrollments e2 on e2.id = s.enrollment_id where s.id = s_r)
          <> c_a::text || '/ENDED/EXPIRED' then
@@ -690,6 +705,101 @@ begin
         a05 := a05 || 'no account.personal_data_deleted row'::text; end if;
     end if;
 
+    -- ═══════════════════════════════════ F38-H01..H06 Sharon's findings on 7a2c1751
+    -- H06 the rollover is not a client endpoint
+    if has_function_privilege('authenticated', 'public.period_rollover(uuid, uuid, uuid, jsonb)'::regprocedure, 'execute') then
+      h06 := h06 || 'period_rollover is still executable by authenticated'::text; end if;
+    -- H01 a school's date is its own
+    begin
+      v_got := selftest.f37_sebagai(u_admin, format('select public.atur_zona_waktu_sekolah(%L, %L)', v_inst, 'Asia/Jayapura'));
+      if v_got not like 'PR%' and v_got not like '42501%' then h01 := h01 || ('a school''s admin set the time zone: ' || v_got); end if;
+      v_got := selftest.f37_sebagai(u_sys, format('select public.atur_zona_waktu_sekolah(%L, %L)', v_inst, 'Asia/Jayapura'));
+      if v_got <> 'OK' then h01 := h01 || ('the PINTAR Administrator could not set WIT: ' || v_got);
+      else
+        if public.hari_sekolah(v_inst) <> (now() at time zone 'Asia/Jayapura')::date then h01 := h01 || 'hari_sekolah does not answer the school''s own date'::text; end if;
+        if not exists (select 1 from public.audit_log a where a.action = 'institution.time_zone_changed' and a.target_id = v_inst::text) then
+          h01 := h01 || 'the change is not audited'::text; end if;
+        insert into public.persons (display_name) values ('Murid F38 H1 ' || v_tag) returning persons.id into p_h;
+        insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status, valid_from)
+        values (p_h, v_inst, v_period, v_prog, 'ACTIVE', now() - interval '10 days') returning enrollments.id into e_h;
+        v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, %L::date)', e_h, 'WITHDRAWN', null, (now() at time zone 'Asia/Jayapura')::date + 1));
+        if v_got <> 'PR070:ENROL_DATE_INVALID' and v_got not like 'PR070:%DATE%' then h01 := h01 || ('WIT''s tomorrow: ' || v_got); end if;
+        v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, null)', e_h, 'WITHDRAWN', null));
+        if v_got <> 'OK' then h01 := h01 || ('an ending with no date: ' || v_got);
+        elsif (select a.summary ->> 'effective_date' from public.audit_log a where a.action = 'enrollment.ended_with_reason' and a.target_id = e_h::text)
+              is distinct from ((now() at time zone 'Asia/Jayapura')::date)::text then
+          h01 := h01 || 'an ending with no date is not stamped with the school''s own date'::text; end if;
+      end if;
+    exception when others then h01 := h01 || ('the school time zone: ' || sqlerrm); end;
+
+    -- H02 an ending does not use up an attempt
+    u_h := selftest.f11_user('f38-murid-h2-' || v_tag || '@local.invalid', null, null);
+    select a.person_id into p_h from public.accounts a where a.auth_user_id = u_h;
+    insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+    values (p_h, v_inst, v_period, v_prog, 'ACTIVE') returning enrollments.id into e_h;
+    insert into public.memberships (enrollment_id, node_id, academic_period_id) values (e_h, c_a, v_period);
+    set local session_replication_role = replica;
+    update public.assessment_definitions set attempt_limit = 1 where assessment_definitions.id = v_def;
+    insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id, academic_period_id, status, assigned_at)
+    select v_inst, x.id, x.course_id, c_a, v_period, 'ACTIVE', now() from public.plp_releases x where x.id = v_rel returning learning_assignments.id into v_la2;
+    insert into public.assessment_assignments (institution_id, assessment_definition_id, learning_assignment_id, node_id, academic_period_id, opens_at, status, assigned_at)
+    values (v_inst, v_def, v_la2, c_a, v_period, now() - interval '1 day', 'OPEN', now()) returning assessment_assignments.id into v_aa_lim;
+    set local session_replication_role = origin;
+    s_h := selftest.f38_buka(v_tpl, p_h, e_h, c_a, v_la2, v_aa_lim);
+    set local session_replication_role = replica;
+    update public.assessment_sessions set status = 'TERMINATED', termination_cause = 'INSTITUTIONAL_REVOCATION', termination_reason = 'uji F38-H02'
+     where assessment_sessions.id = s_h;
+    set local session_replication_role = origin;
+    perform selftest.as_user_uid(u_h);
+    select m.reason into v_got from public.may_start_assessment(v_aa_lim) m;
+    perform selftest.as_owner();
+    if v_got = 'ATTEMPT_LIMIT_REACHED' then
+      h02 := h02 || 'a sitting ended by the school counts against the attempt limit'::text; end if;
+
+    -- H03 a sitting with no place does not block a departure
+    insert into public.persons (display_name) values ('Murid F38 H3 ' || v_tag) returning persons.id into p_h;
+    insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status, valid_from)
+    values (p_h, v_inst, v_period, v_prog, 'ACTIVE', now() - interval '10 days') returning enrollments.id into e_h;
+    s_h := selftest.f38_buka(v_tpl, p_h, e_h, c_a, v_la2, v_aa_lim);
+    set local session_replication_role = replica;
+    update public.assessment_sessions set class_node_id = null, cohort_node_id = null where assessment_sessions.id = s_h;
+    set local session_replication_role = origin;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, null)', e_h, 'WITHDRAWN', null));
+    if v_got <> 'OK' then h03 := h03 || ('a departure with a placeless open sitting: ' || v_got);
+    elsif (select s.status::text || '/' || coalesce(s.termination_cause::text, '') from public.assessment_sessions s where s.id = s_h) <> 'TERMINATED/INSTITUTIONAL_REVOCATION'
+       or not exists (select 1 from public.audit_log a where a.action = 'assessment_session.terminated' and a.target_id = s_h::text) then
+      h03 := h03 || 'the placeless sitting was not ended as an institutional revocation with its audit row'::text; end if;
+
+    -- H04 a returning learner takes the chosen Kelas's programme
+    insert into public.org_nodes (institution_id, parent_id, kind, name) values (v_inst, v_dep, 'PROGRAMME', 'Program F38 tiga ' || v_tag) returning org_nodes.id into v_x2;
+    insert into public.persons (display_name) values ('Murid F38 H4 ' || v_tag) returning persons.id into p_h;
+    insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status, valid_from)
+    values (p_h, v_inst, v_period, v_x2, 'ACTIVE', now() - interval '10 days') returning enrollments.id into e_h;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, null)', e_h, 'WITHDRAWN', null));
+    v_got := selftest.f37_sebagai(u_admin, format('select public.daftarkan_kembali(%L, %L, %L, %L, %L, null)', p_h, v_inst, 'RETURN', 'kembali bersekolah di sini', c_a));
+    if v_got <> 'OK' then h04 := h04 || ('the return: ' || v_got);
+    elsif (select en.programme_id from public.enrollments en where en.person_id = p_h and en.status in ('PENDING', 'ACTIVE')) is distinct from v_prog then
+      h04 := h04 || 'the returning learner keeps the old programme, not the chosen Kelas''s'::text; end if;
+
+    -- H05 an ending in a year that has ended is not corrected
+    insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+    values (v_inst, 'F38H lama ' || v_tag, (select ap.starts_on - 400 from public.academic_periods ap where ap.id = v_period),
+            (select ap.starts_on - 40 from public.academic_periods ap where ap.id = v_period)) returning academic_periods.id into v_old_p;
+    insert into public.persons (display_name) values ('Murid F38 H5 ' || v_tag) returning persons.id into p_h;
+    insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status, valid_from)
+    values (p_h, v_inst, v_old_p, v_prog, 'ACTIVE', now() - interval '500 days') returning enrollments.id into e_h;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, %L::date)', e_h, 'WITHDRAWN', null,
+               (select ap.ends_on - 10 from public.academic_periods ap where ap.id = v_old_p)));
+    if v_got <> 'OK' then h05 := h05 || ('the old year''s ending: ' || v_got);
+    else
+      v_got := selftest.f37_sebagai(u_admin, format('select public.daftarkan_kembali(%L, %L, %L, %L, null, %L)', p_h, v_inst, 'CORRECTION', 'dicatat keliru waktu itu', e_h));
+      if v_got <> 'PR070:ENROL_YEAR_CLOSED' then h05 := h05 || ('correcting an ending in a closed year: ' || v_got || ' (expected PR070:ENROL_YEAR_CLOSED)'); end if;
+      perform selftest.as_user_uid(u_admin);
+      select * into v_hk from public.murid_keluar(v_inst) mk where mk.person_id = p_h;
+      perform selftest.as_owner();
+      if v_hk.person_id is null or v_hk.bisa_dikoreksi then h05 := h05 || 'murid_keluar still offers the correction'::text; end if;
+    end if;
+
     raise exception 'f38-rollback';
   exception when others then
     if sqlerrm <> 'f38-rollback' then v_fatal := sqlerrm; end if;
@@ -731,6 +841,12 @@ begin
       ('F38-A02', 'Suspension refusals write nothing', a02, 'a school''s admin, the administrator''s own account, an unknown category, «Lainnya» without a note and a second suspension are refused; nothing written'),
       ('F38-A03', 'Reactivation', a03, 'refused without a reason; with one, sign-in allowed and the token answers again; one account.reactivated row'),
       ('F38-A04', 'L2 / L3: the person''s own requests', a04, 'a learner is sent to the school, no confirmation is refused; a deletion request is RECEIVED once and read back; the closure is CLOSED_AT_REQUEST at once, its request DONE, sign-in and every request refused; the platform''s queue holds the deletion request'),
+      ('F38-H01', 'Sharon F1: a school''s date is its own', h01, 'the PINTAR Administrator sets WIT (a school''s admin refused, audited); hari_sekolah answers WIT''s date; an ending with no date is stamped with it; WIT''s tomorrow is refused'),
+      ('F38-H02', 'Sharon F2: an ending does not use up an attempt', h02, 'a sitting TERMINATED as INSTITUTIONAL_REVOCATION is not counted against an attempt limit of 1'),
+      ('F38-H03', 'Sharon F3: a placeless open sitting does not block a departure', h03, 'the enrolment ends; the sitting with neither class nor Angkatan is TERMINATED as INSTITUTIONAL_REVOCATION, audited'),
+      ('F38-H04', 'Sharon F4: a return takes the chosen Kelas''s programme', h04, 'a learner who left programme 3 and returns into Kelas A is enrolled in Kelas A''s programme'),
+      ('F38-H05', 'Sharon F5: an ending in a closed year is not corrected', h05, 'CORRECTION is refused ENROL_YEAR_CLOSED and murid_keluar does not offer it'),
+      ('F38-H06', 'Sharon F6: period_rollover is not a client endpoint', h06, 'authenticated cannot execute period_rollover'),
       ('F38-A05', 'L4: deletion of what needs no retention', a05, 'only the PINTAR Administrator, only for a closed account: the name becomes the PINTAR ID, the photo and sign-in email go, anonymized_at is set, roles and audit kept, the request DONE')) t(tid, tarea, probs, good) loop
     id := r.tid; area := r.tarea;
     ok := v_fatal = '' and cardinality(r.probs) = 0;

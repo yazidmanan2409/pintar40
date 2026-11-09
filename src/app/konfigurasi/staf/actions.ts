@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { wajibDalamKonteks } from "@/lib/konteks-server";
 import { batasHari } from "@/lib/hle";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 import { kodeStafDariGalat, type KodeStaf } from "@/lib/staf-kontrak";
 
 /**
@@ -51,10 +52,11 @@ export async function ubahPeranAksi(fd: FormData): Promise<void> {
   const peran = teks(fd, "tambah_peran");
   const tempat = teks(fd, "tambah_tempat");
   const sampai = teks(fd, "tambah_sampai");
-  const tambah = peran && UUID.test(tempat) && HARI.test(sampai)
-    ? [{ role: peran, scope_node_id: tempat, valid_until: batasHari(sampai, "akhir") }]
-    : [];
   const supabase = await supabaseServer();
+  // Sharon F1: the last day on this school's own clock (WIB, WITA or WIT)
+  const tambah = peran && UUID.test(tempat) && HARI.test(sampai)
+    ? [{ role: peran, scope_node_id: tempat, valid_until: batasHari(sampai, "akhir", await zonaSekolah(supabase, sekolah)) }]
+    : [];
   const { error } = await supabase.rpc("ubah_peran", {
     p_person: orang, p_institution: sekolah, p_tambah: tambah, p_cabut: cabut, p_alasan: teks(fd, "alasan"),
     p_sidik: teks(fd, "sidik"), p_konfirmasi_admin: fd.get("konfirmasi_admin") === "ya", p_terapkan: true,

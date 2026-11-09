@@ -21,7 +21,10 @@ begin
            and a.target_id = e.id::text and a.action = 'enrollment.ended_with_reason' order by a.at desc limit 1),
          exists (select 1 from public.audit_log a where a.target_table = 'enrollments' and a.target_id = e.id::text
                    and a.action = 'enrollment.ended_with_reason')
-           and not exists (select 1 from public.audit_log a where a.action = 'enrollment.reopened' and a.summary ->> 'corrects' = e.id::text),
+           and not exists (select 1 from public.audit_log a where a.action = 'enrollment.reopened' and a.summary ->> 'corrects' = e.id::text)
+           -- CORRECTED IN PLACE (undeployed; Sharon F5): only while the ending's school year runs
+           and coalesce((select ap.ends_on from public.academic_periods ap where ap.id = e.academic_period_id)
+                          >= public.hari_sekolah(p_sekolah), true),
          exists (select 1 from public.enrollments x where x.person_id = p.id and x.institution_id <> p_sekolah
                    and x.status in ('PENDING', 'ACTIVE'))
     from public.persons p
