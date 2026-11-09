@@ -2,7 +2,7 @@
 
 Owner directive: Reporting Quality Gate, 9 Nov 2026.
 
-Evidence head: see §6. Every figure below was checked against the raw official results, not against PINTAR's own calculators.
+Evidence head: see §8 and §12. Every figure below was checked against the raw official results, not against PINTAR's own calculators.
 
 ## 1. How the reports were tested
 
@@ -133,19 +133,16 @@ The owner approved the four questions this gate raised (O1–O4) and Sharon's fi
 | **O3.** Chapters kept apart; aggregation explicit | Catalogue metric **class.chapter_mastery** (MC-9, minimum from the class catalogue): per chapter, its learners counted once and their mean, or no mean under the minimum. Ringkasan Kelas section B lists the chapters when there are two or more, and says the bands use each learner's latest Uji Penguasaan from any chapter. Bands keep their governed contract | F35-D01 (c, d) | Teacher and Dekan get the same chapter figures | Re-walked | Bands still follow each learner's latest result, now said on the page | Implemented |
 | **O4.** School summary follows authority over the whole school | Already enforced: `institution.*` needs an audience role at the school's root (`audience_on_node`). A Dekan over one Bagian is refused, and the page now shows the refusal page (R8). /pimpinan offers «Ringkasan sekolah» only when a school figure is readable | F35-O4: Dekan at root and Admin yes; Dekan over a Bagian, another school's Dekan, Kepala departemen and teacher no | — | Refusal page | The demonstration school's seeded «Pak Hendra (peraga)» sits at the Sekolah Dasar Bagian, so by this model he holds part of the school. The model cannot tell that this Bagian is the whole school. Recorded rather than guessed; if he is meant to lead the school, his grant belongs at the root | Implemented; ambiguity recorded |
 | **D5.** Historical cohort attribution | `start_learning_session` now records, at the sitting, the Angkatan above the learner's Kelas. Provenance is immutable (INV-33). The cohort comparison reads only the recorded cohort. Sittings that recorded none form an explicit «Angkatan tidak tercatat» row and are never placed by today's structure. No evidence is rewritten. There is no correction mechanism in 4.0, and provenance cannot be edited, which keeps history stable | F35-A01: an unrecorded row; a class moved after its sittings keeps them under the old Angkatan; a recorded cohort cannot be rewritten. End to end: 102 of 102 new sittings in the report world recorded their Angkatan | — | «Angkatan tidak tercatat» named | Historical sittings before this build stay «tidak tercatat»: staging today has only those. A promotion, or a transfer between classes, keeps each sitting's own Angkatan | Implemented |
-| **D6.** Every subgroup meets its own minimum, learners counted once | Every subgroup row gives `needed` and withholds its mean below the governed minimum: topics, competencies, chapters, Angkatan. Samples count distinct learners: comprehension, topics, competencies, Angkatan, safety gate. «Pemahaman» averages only the chapters that reach the minimum, so a withheld chapter cannot be recovered. The screens show withheld rows as «Belum cukup bukti — kurang dari {m} murid», never 0 | F35-S01, F35-D01 (a–d), F35-G01, F35-T01 | Dekan and teacher read the same withheld rows | Re-walked | See the population units in §6 | Implemented |
+| **D6.** Every subgroup meets its own minimum, learners counted once | Every subgroup row gives `needed` and withholds its mean below the governed minimum: topics, competencies, chapters, Angkatan. Samples count distinct learners: comprehension, topics, competencies, Angkatan, safety gate. ~~«Pemahaman» averages only the chapters that reach the minimum~~ **superseded by decision 7 (§9)**: a combined figure with a small cell is withheld, never recomputed without it. The screens show withheld rows as «belum cukup bukti / belum ditampilkan», never 0 | F35-S01, F35-D01 (a–d, (c) restated to D7), F35-G01, F35-T01, F36-* | Dekan and teacher read the same withheld rows | Re-walked | See §9 | Implemented, then corrected under D7 |
 
 **Population units, metric by metric (D6's wider audit):**
 - **Learners, counted once:** `class.participants`, `class.comprehension` and `class.readiness_distribution`. Also `class.topic_mastery`, `class.net_gain`, `class.chapter_mastery`, `institution.participants`, `institution.net_gain` and `institution.competency_outcomes`. Also `institution.cohort_comparison` and `institution.safety_gate_pass_rate`.
 - **`institution.verified_credentials`:** certificates, by definition a count of certificates (minimum 1). It is not a learner statistic. Compliant.
-- **`class.misconceptions`:** pattern occurrences (minimum 3). **Contract ambiguity, documented, not changed:** a class with one learner who makes three errors shows that learner's patterns to the Kepala departemen and the Dekan.
-  - **Proposal:** also require the class's learner minimum (5 learners with a result) before the list is shown. The owner decides.
+- **`class.misconceptions`:** pattern occurrences, ~~minimum 3~~. **Resolved (owner approval, 9 Nov):** each pattern is gated on its own distinct learners against the class minimum (MC-9: 5); occurrences stay occurrences; §9.
 - **`item.*`:** results per item (minimum 30), Question Health. Out of this gate's scope.
 
 **Recomputed results (Sharon's finding 5):** every class and school calculator takes each sitting's latest `assessment_results` row (`DISTINCT ON (session_id) … computed_at DESC`).
-- The cohort comparison now does the same.
-- Kenaikan takes the highest per learner per chapter, so a recomputation never adds weight.
-- Legitimate repeated sittings still count as sittings in a mean (the governed rule) and once as a learner in the population.
+- ~~Kenaikan takes the highest per learner per chapter~~ and ~~repeated sittings count as sittings in a mean~~: **both superseded by decision 8 (§9)**. Current mastery is one result per learner and chapter (their latest sitting); Kenaikan pairs it with the earliest Pemetaan Awal; no figure reads a highest result.
 
 ## 6. Sharon's independent review (5cca6a5f): dispositions
 
@@ -187,4 +184,110 @@ A focused follow-up review is requested (§8).
 
 ## 8. Evidence
 
-Filled in at the final head: commit, CI run, journeys run, the local suite tally and the reviews.
+| What | Where | Result |
+|---|---|---|
+| Candidate commit | `1e50402f` on `claude/awesome-rubin-bqxp6p`, plus the C12a restatement (§12) | See §12 for the exact SHA CI and journeys ran on |
+| CI and journeys on 94160304 | CI 512 (42538876168), journeys 219 (42538878758) | **Both failed**, and neither result is used here. CI failed on the 8 local failures found on that SHA, all fixed since. Journeys: A passed; B failed one step, C12a, which pinned the catalogue at 16 metrics (MC-9 adds `class.chapter_mastery`, ruling O3). Restated to 17 |
+| Clean-database suite | `scratchpad/selftest-1e50402f.log` (local) | §12 |
+| Report world and walk | `audit/fixtures/laporan-lokal.mjs`, `audit/laporan-jalan.mjs` | 7 classes, 66 learners, 172 real sittings; 120 views, all HTTP 200, none scrolls sideways at 1280, 390 or 320 px (§11) |
+| Independent figures | SQL over the raw official sittings, not the calculators (§11) | Every page figure checked matches |
+| Mutation check | The five calculators of 94160304 swapped back in | Five F36 tests fail, including both of Sharon's reconstruction paths and Daisy's «Sekarang 0 murid». Restored, all pass |
+
+## 9. Owner decisions 7 and 8: the metric contracts
+
+**One evidence rule (D8).**
+- A **sitting's effective result** is its most recently computed official result. A recomputation (INV-29) replaces it and is never another attempt.
+- A learner's **current result** in a chapter is the effective result of their **latest sitting** of it, latest by when the sitting was finalised, never by when a result was recomputed. A later, lower score is the current score.
+- A learner's **baseline** in a chapter is the effective result of their **earliest** Pemetaan Awal of it.
+- **No figure reads a highest result.** MC-8's Kenaikan did: it took each test's highest. Its migration says that was carried over «exactly as before», not an owner ruling, so D8 replaces it with no conflict.
+
+**One disclosure rule (D6, D7).**
+- The smallest group a report names is a **cell**: one class's learners in one chapter or topic.
+- **Row rule.** A row gives its mean only when its own learners reach its governed minimum. Otherwise it gives its learners and `needed`, never a zero.
+- **Combined figures.** A figure that combines cells is shown only when every cell reaches the minimum of its own row. Otherwise it is **withheld**: its meaning is not changed by recomputing it without the small cell, and its participation is still every learner who sat. This rule covers Pemahaman over chapters, a school competency or Kenaikan over classes, and an Angkatan over classes and chapters.
+- **Kenaikan's pair.** The before → after pair answers only when, in every chapter, no pair lies in a withheld chapter and the unpaired learners number zero or at least the minimum.
+- **Ordering.** Withheld rows come after shown ones, ordered by name or identifier.
+- **Missing minimum.** If a minimum is missing, every mean is withheld.
+
+| Metric | Population unit | Eligible evidence | Result selection | Weighting | Minimum | Subgroup / combined rule | Meaning | Insufficient / withheld |
+|---|---|---|---|---|---|---|---|---|
+| `class.comprehension` (Pemahaman) | learners (sample); figure over (learner, chapter) | official Uji Penguasaan in the class | current result per learner and chapter | each (learner, chapter) once; equals the chapters' means weighted by their learners (F36-X01) | 5 | withheld if any chapter < 5 (`class.chapter_mastery`'s minimum) | the class's current mastery over the chapters it took | < 5 learners: «belum cukup data, Sekarang n murid»; 0: «belum ada bukti»; a small chapter: «dilindungi … Sudah n murid…» |
+| `class.chapter_mastery` (Per bab) | learners per chapter | as above | current result per learner and chapter | learner once per chapter | 5 | each row withheld < 5 | per chapter, current mastery | row: learners + `needed` |
+| `class.topic_mastery` | learners per objective | per_domain of the current sitting | as above | learner once per objective | 5 | each row withheld < 5; withheld rows last by statement | mastery per learning objective | row: learners + `needed` |
+| `class.readiness_distribution` (bands) | learners | official Uji Penguasaan in the class | each learner's latest sitting, any chapter (approved meaning) | counts | 5 | counts, no means | where each learner stands now | «belum cukup data» |
+| `class.net_gain` (Kenaikan) | learners | (learner, chapter) with a baseline and a current result in the class | current − earliest Pemetaan Awal | each pair once | 5 | no per-chapter gain or baseline is shown anywhere, so it needs no complement; the before → after pair has its own rule (above) | improvement from baseline, not current mastery or highest result | «belum cukup data»; pair withheld: «tidak ditampilkan…» |
+| `class.misconceptions` | learners per pattern (gate); occurrences (value) | wrong options with a defined misconception, official academic responses | every answer (a measure of answers) | occurrences | 5 learners (MC-9, was 3 occurrences) | each pattern withheld < 5 learners; `withheld` counts them | a pattern shared by enough learners | «n pola lain … kurang dari 5 murid» |
+| `institution.competency_outcomes` | learners per objective | current results, school-wide | as above | learner once per objective | 10 | withheld if any class cell < 5 (`class.topic_mastery`) | the school's mastery per learning objective | «n tujuan pembelajaran … belum ditampilkan: kurang dari 10, atau satu kelas terlalu sedikit» |
+| `institution.net_gain` | learners | school-wide pairs | as class | each pair once | 10 | withheld if any class's pairs (or pairs in no single class) are < 5 | the school's improvement | «dilindungi … ada kelas …» |
+| `institution.cohort_comparison` | learners per recorded Angkatan | current results; the sitting's **recorded** Angkatan | as above | learner once per chapter | 5 | withheld if a (class, chapter) cell is < 5 or split into a small portion; «tidak tercatat» last | mastery by the Angkatan recorded at the sitting | row: learners + reason |
+| `institution.safety_gate_pass_rate` | sittings (value), learners (gate) | each sitting's effective result | every sitting (its meaning: «bagian hasil») | per sitting | 10 learners | none combined | share of sittings with every required item right | «belum cukup data»; `sittings` reported |
+| `learner.result` | the learner's own sittings | official | every sitting's effective result | — | 1 | — | history: both the 80% and the 60% | — |
+| Certificates (`certificate_eligibility`) | one sitting | its sealed result | the lineage's **original** result | — | — | — | the certificate decision, governed separately and unchanged | see escalation E1 |
+
+**E1 (escalated, not changed).** Certificates read a sitting's original sealed result (`official_results … supersedes_result_id is null`), while reports read its latest recomputation.
+- Both rules are approved, and the owner directed that certificates keep their separately governed sealed evidence.
+- After an audited recomputation, the report and the certificate decision for the same sitting can therefore differ. F36-E01 shows the certificate still reads 60% after the report moved to 70%.
+- Neither rule is wrong. A report could say why the two differ; whether it should is the owner's decision.
+
+**E2 (consequence, for awareness).** One small class withholds every school figure it contributes to. That is exactly what keeps the class unrecoverable.
+- In the report world, 5D (4 learners) and 5C's second chapter (3 learners) withhold every school competency and the school's Kenaikan.
+- The page says so; it never shows an empty section or a zero.
+
+## 10. Sharon's follow-up review of 94160304: dispositions
+
+| # | Finding | Correction | Test | Disposition |
+|---|---|---|---|---|
+| Pop. 1 | Pemahaman's population changed | Reverted under D7: all chapters, withheld when one is small, participation kept | F35-D01 (c, restated), F36-R01, F36-P01 | **Closed** |
+| Pop. 2 | The cohort comparison reads the recorded cohort and the latest result per sitting | D5 approved. D8: one current result per learner and chapter | F35-A01, F36-K01 | **Closed** |
+| Pop. 3 | `start_learning_session` records the class's Angkatan | D5 approved; checked again where it is written | F36-H01, F36-H02 | **Closed** |
+| Pop. 4 | Three definitions of a learner's chapter result | One rule (§9) | F36-E01, F36-X01 | **Closed** |
+| 1 | A withheld chapter can be recovered through Kenaikan | The cell rule; Kenaikan's pair rule; school-level complements | F36-R01 (her exact case and four variants), F36-K01 | **Closed** |
+| 2 | Row order reveals withheld means | Withheld rows last, by name or identifier | F36-R02 | **Closed** |
+| 3 | Nothing executes D5's recording | A real sitting through `start_learning_session`, then a move, a second sitting and a rewrite | F36-H01 | **Closed** |
+| 4 | Stale catalogue note and headers | The note, header and F35 header rewritten; the verification refuses the old wording | Migration verification | **Closed** |
+| 5 | F35-G01 lacks the 4 × 3 case | Built inside an Angkatan of its own | F36-G02 | **Closed** |
+| 6 | Verification is text-only | Table-by-table comparison with MC-8 (definitions, tiers, thresholds, sources); behaviour in F36, which fails when a guarantee is removed (mutation check, §8) | — | **Closed** |
+| 8 | Misconceptions need a learner floor | Owner approved; implemented | F36-M01 | **Closed** |
+| `open_assessment_session` | Stores a caller's cohort unchecked | Validated against the class, or the enrolment's placement | F36-H02 | **Closed** |
+
+A focused verification by Sharon is requested on the head named in §12.
+
+## 11. Daisy's re-verification of 94160304 (`ef7e01b8`): dispositions
+
+Daisy's report and screenshots stay as she wrote them on `ux-1/daisy-experience` (`docs/coordination/ux/completion-4.0/CONTOH-LAPORAN/KESIAPAN-LAPORAN-94160304.md`, `verifikasi-94160304/`).
+
+| Item | Daisy's finding | Correction | Where | Test | Seen in the walk (120 views) | Disposition |
+|---|---|---|---|---|---|---|
+| N1 | No decision line on «Lihat bukti» | Said once, under «Kesimpulan» | `src/app/mengajar/[kelas]/bukti/page.tsx` | D78-N01 | guru bukti-5C: present once | **Closed**, for Daisy to confirm |
+| N2 | 5D «Pemahaman» says «Belum ada bukti… 0 murid» | The sample is every learner who sat; a withheld figure says «dilindungi … Sudah n murid»; «Belum ada bukti» only for no evidence | MC-9, `KartuKetiadaan`, `muncul.ts` | F36-P01 (0/1/4/5/4+4), D78-P01 | 5C: «Sudah 7 murid mengerjakan…; ada bab … kurang dari 5»; 5D: «Sekarang 4 murid; perlu 5» | **Closed** |
+| N3 | A short title stands alone | The statement on its own line under every short title, in the grid, school A and «Lihat bukti»; «tujuan pembelajaran», not «ranah» | `KisiTopik`, `KomposisiSekolah`, `BarisKesiapan`, `hle.ts` | D78-N03, D78-K01; `b5a` SEKOLAH-01 restated | IPA grid, bukti-5C at 390 px: title, then statement, then figure | **Closed**, for Daisy to confirm |
+| N4 | The grid's meaning line implies a target | Three states: every class's target, some, none | `KisiTopik.tsx` | D78-K01 (rendered) | IPA's head (two marks, so no readable target): «Setiap sel … kelas itu sendiri» and «Belum ada target kelas…»; no line or amber | **Closed** |
+| A | «Semua soal penting…» under 0 of 8 | The zero is the items answered right. The gate passes vacuously with no required item, so the page now says «Uji ini tidak berisi soal penting yang wajib dijawab tepat» | `belajar/[tugas]/hasil` | D78-S01 | murid hasil-bab: the new line | **Closed** |
+| B | «5A · Ada angka» | «Ada angka» only for a performance figure; «Sudah ada yang mengerjakan; angkanya belum dapat ditampilkan»; «Belum ada angka» | `pimpinan/page.tsx` | D78-S01 | kadep: 5A and 5D «Sudah ada…», 5E «Belum ada angka» | **Closed** |
+| C | «1murid» | A flex link drops the space: the shared `a.pin-tautan` gets a token gap and wraps | `experience.css` | D78-S01 | — | **Closed**, for Daisy to see at 390/320 |
+| Temuan | Padding at 390 px | `.pin-daftar li { display: contents }` erased the panel's box | `experience.css` | D78-S01 | Not in this walk (Studio) | **Closed** in code, for Daisy to see |
+| Not seen: «Angkatan tidak tercatat» | — | 5F's pre-MC-9 history in the report world | fixture | F36-K01 | admin sekolah: «Angkatan tidak tercatat saat Uji Penguasaan · 6 murid · 58%» | **Exercised** |
+| Not seen: a withheld chapter or topic in a class | — | 5C's chapter 2 (3 learners) | fixture | F36-R01 | ringkasan-5C, bukti-5C | **Exercised** |
+| Not seen: no readable target | — | IPA department | fixture | D78-K01 | kadepIpa pimpinan | **Exercised** |
+| Not seen: English pages | — | the walk's English readers | walk | D78-P01 (en) | guruEn, dekanEn, muridEn: 18 views | **Exercised** (wording for Daisy) |
+
+**Independent figures (§8).** Plain SQL over the raw official sittings, not the calculators, gives:
+- 5B Bab 1: 60.2% over 22 learners; Bab 2: 59.4% over 20. So Pemahaman = (22 × 0.6023 + 20 × 0.5938) / 42 = **59.8%**, and the page says «Pemahaman kelas: 59,8%».
+- 5C Bab 1: 37.5% over 7 (the page shows «38% · 7 murid»); Bab 2 over 3, withheld; Pemahaman withheld with its 7 learners.
+- 5F: 12 sittings with no recorded Angkatan, 6 learners, 58.3% (the page shows «6 murid 58%»).
+
+## 12. Coverage still to complete (not converted to PASS)
+
+| Area | State |
+|---|---|
+| Clean-database suite on the final head | Running at the time of writing; the tally is recorded with the head |
+| Exact-SHA CI and journeys on the final head | To dispatch on the pushed head |
+| Sharon's focused verification (§10) | Requested |
+| Daisy's focused re-verification: N1, N3, C, Temuan, the English wording, the three new states | Requested |
+| Staging | Not exercised: no deployment is authorised |
+| Screen readers (NVDA, TalkBack) | Not exercised in this gate; scripts exist from task 73 |
+| A4 print of the changed reports | Journey A's print walk runs in CI; the changed states are not yet printed by hand |
+| PD reports | Not changed by this pass; not re-walked |
+
+**Gate status: OPEN.** It closes only when §12's open rows are done and both reviewers confirm.
+
