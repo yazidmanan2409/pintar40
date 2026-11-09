@@ -318,6 +318,10 @@ await step("R9", "Author (Admin sekolah, an author role; Alpha's Guru is scoped 
   // the action redirects with its result (?bagian=…&kode=…); wait for that, not for any text already on the page
   await page.waitForURL((u) => u.searchParams.has("kode") || u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
   await page.waitForLoadState("networkidle");
+  // Daisy (9 Nov): the first press runs the whole check; wait until no button still says «Memproses…» and the refusal is
+  // on the page, so the walk never reads or photographs the intermediate state
+  await page.waitForFunction(() => !/Memproses…/.test(document.body.innerText) && /menemukan hal yang wajib diperbaiki/.test(document.body.innerText),
+    null, { timeout: SLOW }).catch(() => {});
   const teks = norm(await page.locator("main").textContent());
   harus(rec, /menemukan hal yang wajib diperbaiki/.test(teks), "the refusal says the check found what must be fixed");
   harus(rec, /Lihat Temuan di bawah/.test(teks), "the refusal names where the correction starts");

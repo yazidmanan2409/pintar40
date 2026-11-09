@@ -162,7 +162,7 @@ export const d088gTests: SelfTest[] = [
     run: async ({ repoRoot }) => {
       const c = new Checks();
       const hal = buang(readFileSync(join(repoRoot, "src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"), "utf8"));
-      c.expect(/Array\.isArray\(topik\.value\)/.test(hal) && /label=\{b\.competency\}/.test(hal) && /key=\{b\.objective_id \?\? b\.code\}/.test(hal),
+      c.expect(/Array\.isArray\(topik\.value\)/.test(hal) && /label=\{b\.title && b\.title\.trim\(\) !== "" \? b\.title : b\.competency\}/.test(hal) /* RESTATED (owner V2, 9 Nov) */ && /key=\{b\.objective_id \?\? b\.code\}/.test(hal),
         "«Lihat bukti» does not draw one row per objective named by its statement");
       c.expect(!/Object\.entries\(topik\.value/.test(hal), "«Lihat bukti» still reads the topics as a code-keyed object");
       const mig = readFileSync(join(repoRoot, "supabase", "migrations", "20261031100000_a_topic_is_named_by_its_objective.sql"), "utf8");

@@ -45,6 +45,7 @@ const ORANG = {
   admin: { ...W.staf.admin, tujuan: "MENGELOLA" },
   murid: { ...W.murid.find((m) => m.email === muridLemah), tujuan: "BELAJAR" },
   murid0: { ...W.murid.find((m) => m.peran === "TIDAK" && m.kelas === "5B"), tujuan: "BELAJAR" },
+  tanpaKelas: { ...W.tanpaKelas, tujuan: "BELAJAR" },
 };
 const tugasMurid = TUGAS_MURID(ORANG.murid.email);
 
@@ -77,6 +78,8 @@ const HALAMAN = {
   ],
   admin: [
     ["laporan", "/konfigurasi/laporan"],
+    ["pindah-tempatkan", "/konfigurasi/pindah#tempatkan"],
+    ["persiapan", "/konfigurasi"],
     ["sekolah", `/dekan/ringkasan?simpul=${ROOT}&dari=konfigurasi`],
     ["ringkasan-5B", `/edukator/ringkasan?kelas=${K["5B"]}&dari=konfigurasi`],
     ["tolak-pimpinan", "/pimpinan"],
@@ -87,6 +90,8 @@ const HALAMAN = {
     ["tolak-ringkasan", `/edukator/ringkasan?kelas=${K["5B"]}`],
   ],
   murid0: [["hasil", "/belajar/hasil"]],
+  // owner decision 1 end to end: the learner without a class sees who places them; the admin's Pindah lists them
+  tanpaKelas: [["belajar", "/belajar"]],
 };
 
 async function cookies(p) {

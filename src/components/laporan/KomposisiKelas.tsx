@@ -29,7 +29,11 @@ import { daftarKata, JudulBagian } from "@/components/laporan/tata";
  * A figure not shown keeps its place with the existing sentences (P14, 2b): what it is, how far it is from appearing,
  * and what will make it appear. A metric the reader may not see carries no label (the refusal discloses nothing).
  */
-type Baris = { objective_id?: string | null; code?: string; competency?: string; mean_score?: number; learners?: number };
+type Baris = { objective_id?: string | null; code?: string; competency?: string; title?: string | null; mean_score?: number | null; learners?: number; needed?: number | null };
+/** V2 (owner, 9 Nov; Daisy): a topic by its short title where its lesson names exactly one objective (MC-9), else by the statement. */
+/** F4 (Daisy, VI-4 / C1): the summary shows at most eight recurring misconceptions; «Lihat bukti» keeps every one. */
+export const KELIRU_MAKS = 8;
+export const namaTopik = (b: { title?: string | null; competency?: string }) => (b.title && b.title.trim() !== "" ? b.title : b.competency ?? "");
 type Keliru = { code?: string; label?: string; remediation?: string | null; occurrences?: number };
 
 const HURUF = "ABCDEFGHIJ";
@@ -83,7 +87,9 @@ export function persenSatu(x: number, locale: Locale): string {
   return new Intl.NumberFormat(locale === "en" ? "en-GB" : "id-ID", { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(x);
 }
 
-export default function KomposisiKelas({ entries, locale, persona, jenis, target, namaKelas, buktiHref, tempat = {}, penguatan = null, muridHref = null, titik = null, awalAkhir = null }: {
+export default function KomposisiKelas({ entries, locale, persona, jenis, target, namaKelas, buktiHref, tempat = {}, penguatan = null, muridHref = null, titik = null, awalAkhir = null, perBab = null }: {
+  /** Owner ruling O3 (9 Nov): class.chapter_mastery, the class's chapters kept apart; drawn where there are two or more. */
+  perBab?: Envelope | null;
   entries: readonly Envelope[];
   locale: Locale;
   persona: Persona;
@@ -150,9 +156,13 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
 
   const baris: Baris[] = topik?.status === "ok" && Array.isArray(topik.value) ? (topik.value as Baris[]) : [];
   const bawah = diBawahTarget(baris, target);
+  // V2: section E names what to study again by the topic's short title where the class's own topic row has one
+  const judulPendek = new Map(baris.filter((b) => b.competency && b.title).map((b) => [b.competency as string, b.title as string]));
   const sebaran = pita?.status === "ok" && pita.value && typeof pita.value === "object"
     ? urutkanPita(Object.entries(pita.value as Record<string, number>)).filter(([k]) => PITA[k]) : [];
   const dinilai = sebaran.reduce((a, [, c]) => a + Number(c), 0);
+  type Bab = { plp_release_id?: string; chapter?: string; learners?: number; needed?: number; mean_mastery?: number | string | null };
+  const babBab: Bab[] = perBab?.status === "ok" && Array.isArray(perBab.value) ? (perBab.value as Bab[]) : [];
   const hitung = (p: string) => Number(sebaran.find(([k]) => PITA[k] === p)?.[1] ?? 0);
 
   // the lead sentence: counted from the rows, with no cause and no advice
@@ -161,12 +171,19 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
     if (target !== null && bawah.length > 0) {
       kalimat = s("laporan.komposisi.topik_di_bawah").replace("{n}", format.number(bawah.length, locale))
         .replace("{m}", format.number(baris.length, locale))
-        .replace("{daftar}", daftarKata(bawah.map((b) => b.competency ?? ""), locale));
+        .replace("{daftar}", daftarKata(bawah.map((b) => namaTopik(b)), locale));
+      // V2: above two, the count, the lowest and where the rest are (the list below), not a paragraph of objectives
+      if (bawah.length > 2) {
+        const rendah = [...bawah].sort((a, b) => Number(a.mean_score) - Number(b.mean_score))[0];
+        kalimat = s("laporan.komposisi.topik_di_bawah_banyak").replace("{n}", format.number(bawah.length, locale))
+          .replace("{m}", format.number(baris.length, locale)).replace("{nama}", namaTopik(rendah))
+          .replace("{p}", persenJujur(Number(rendah.mean_score), locale, [target]));
+      }
     } else if (target !== null) {
       kalimat = s("laporan.komposisi.topik_semua").replace("{target}", persen(target));
     } else {
-      const rendah = [...baris].sort((a, b) => Number(a.mean_score) - Number(b.mean_score))[0];
-      if (rendah?.competency) kalimat = s("laporan.komposisi.topik_terendah").replace("{nama}", rendah.competency);
+      const rendah = [...baris].filter((b) => typeof b.mean_score === "number").sort((a, b) => Number(a.mean_score) - Number(b.mean_score))[0];
+      if (rendah) kalimat = s("laporan.komposisi.topik_terendah").replace("{nama}", namaTopik(rendah));
     }
   }
   const sub: Array<{ teks: string; entri?: string }> = [];
@@ -202,8 +219,9 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
     });
   })();
   const tinggiTumpuk = tumpuk.reduce((m, d) => Math.max(m, d.ke + 1), 0);
-  // the ticks the target label would sit on are left out (#10: the label is on the scale, at the target line)
-  const centang = [0, 0.2, 0.4, 0.6, 0.8, 1].filter((x) => target === null || Math.abs(x - target) >= 0.1);
+  // V1 (owner, 9 Nov; Daisy): the target is named once, in the key under the figure, never on the scale, so every tick
+  // (60% is the band boundary readers judge by) stays readable at any target and any width
+  const centang = [0, 0.2, 0.4, 0.6, 0.8, 1];
 
   return (
     <div className="pin-lk">
@@ -237,24 +255,27 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
                   <span />
                   <div className="pin-lk-skala-garis">
                     {centang.map((x) => (
-                      <span key={x} style={{ left: `${x * 100}%` }} data-antara={x > 0 && x < 1 ? "" : undefined}
-                        data-dekat={target !== null && Math.abs(x - target) < 0.3 ? "" : undefined}>{persen(x)}</span>
+                      <span key={x} style={{ left: `${x * 100}%` }} data-antara={x > 0 && x < 1 ? "" : undefined}>{persen(x)}</span>
                     ))}
-                    {target !== null ? (
-                      <span className="pin-lk-skala-target" style={{ left: `${target * 100}%` }}>
-                        {s("laporan.komposisi.target").replace("{p}", persen(target))}
-                      </span>
-                    ) : null}
                   </div>
                   <span />
                 </div>
                 <ul className="pin-lk-baris">
                   {baris.map((b, i) => {
+                    // D6: a topic whose own learners are under the minimum has no mean: said, never drawn as 0
+                    if (typeof b.mean_score !== "number") {
+                      return (
+                        <li key={b.objective_id ?? b.code ?? i} data-tertahan="">
+                          <span className="pin-lk-nama">{namaTopik(b)}{b.title ? <small className="pin-lk-pernyataan">{b.competency}</small> : null}</span>
+                          <span className="pin-lk-nilai">{s("laporan.bab.belum").replace("{n}", format.number(Number(b.learners ?? 0), locale)).replace("{m}", format.number(Number(b.needed ?? 0), locale))}</span>
+                        </li>
+                      );
+                    }
                     const v = Number(b.mean_score);
                     const kurang = target !== null && v < target;
                     return (
                       <li key={b.objective_id ?? b.code ?? i} data-bawah={kurang ? "" : undefined}>
-                        <span className="pin-lk-nama">{b.competency}</span>
+                        <span className="pin-lk-nama">{namaTopik(b)}{b.title ? <small className="pin-lk-pernyataan">{b.competency}</small> : null}</span>
                         <span className="pin-lk-jalur" aria-hidden="true">
                           <span className="pin-lk-isi" style={{ width: `${Math.max(0, Math.min(1, v)) * 100}%` }} />
                           {target !== null ? <span className="pin-lk-target" style={{ left: `${target * 100}%` }} /> : null}
@@ -270,7 +291,7 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
                 </ul>
               </div>
               {target !== null ? <p className="pin-lk-arti">{s("laporan.komposisi.target_arti").replace("{p}", persen(target))}</p> : null}
-              {target !== null && baris.some((b) => Number(b.mean_score) < target)
+              {target !== null && baris.some((b) => typeof b.mean_score === "number" && b.mean_score < target)
                 ? <p className="pin-lk-arti" data-lk-ket-bawah="">{s("laporan.komposisi.bawah_ket")}</p> : null}
             </div>
           ) : topik.status === "ok" ? null : tiada(topik)}
@@ -314,6 +335,28 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
               <p className="pin-lk-arti">{s("kesiapan.catatan")}</p>
             </div>
           ) : pita.status === "ok" ? null : tiada(pita)}
+          {babBab.length >= 2 ? (
+            // O3: the bands read each learner's LATEST Uji Penguasaan, whichever chapter it was; said, and each chapter shown
+            <div className="pin-lk-bab" data-lk-bab="">
+              <p className="pin-lk-arti">{s("laporan.bab.dasar")}</p>
+              <ul className="pin-lk-baris">
+                {babBab.map((b) => {
+                  const v = typeof b.mean_mastery === "number" ? b.mean_mastery : b.mean_mastery == null ? null : Number(b.mean_mastery);
+                  const bawah = v !== null && target !== null && v < target;
+                  return (
+                    <li key={b.plp_release_id ?? b.chapter} data-bawah={bawah ? "" : undefined}>
+                      <span className="pin-lk-nama">{b.chapter}</span>
+                      <span className="pin-lk-nilai">
+                        {v === null
+                          ? s("laporan.bab.belum").replace("{n}", format.number(Number(b.learners ?? 0), locale)).replace("{m}", format.number(Number(b.needed ?? 0), locale))
+                          : <>{persen(v)} · {s("laporan.bab.murid").replace("{n}", format.number(Number(b.learners ?? 0), locale))}{bawah ? <span className="pin-sr"> {s("mengajar.murid1.di_bawah_target")}</span> : null}</>}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ) : null}
         </section>
       ) : null}
 
@@ -361,7 +404,7 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
           {keliru.meaning_key && !semuaTertahan ? <p className="pin-lk-arti">{s(keliru.meaning_key)}</p> : null}
           {keliru.status === "ok" && Array.isArray(keliru.value) && keliru.value.length > 0 ? (
             <ul className="pin-lk-daftar">
-              {(keliru.value as Keliru[]).map((k, i) => (
+              {(keliru.value as Keliru[]).slice(0, KELIRU_MAKS).map((k, i) => (
                 <li key={k.code ?? i}>
                   <span>{k.label}</span>
                   <span className="pin-lk-nilai">{format.number(Number(k.occurrences ?? 0), locale)} {s("mengajar.bukti.kali")}</span>
@@ -369,6 +412,13 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
                 </li>
               ))}
             </ul>
+          ) : null}
+          {keliru.status === "ok" && Array.isArray(keliru.value) && keliru.value.length > KELIRU_MAKS ? (
+            <p className="pin-lk-arti" data-lk-keliru-lain="">
+              {buktiHref
+                ? <a href={buktiHref}>{s("laporan.komposisi.keliru_lainnya").replace("{n}", format.number(keliru.value.length - KELIRU_MAKS, locale))}</a>
+                : s("laporan.komposisi.keliru_lainnya").replace("{n}", format.number(keliru.value.length - KELIRU_MAKS, locale))}
+            </p>
           ) : keliru.status === "ok" ? null : tiada(keliru)}
         </section>
       ) : null}
@@ -386,7 +436,7 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
                   <span>
                     {muridHref ? <a href={`${muridHref}/${o.id}`}>{o.nama}</a> : o.nama}
                     {o.ulang.length > 0
-                      ? <small>{s("laporan.komposisi.penguatan_ulang").replace("{daftar}", o.ulang.join(", "))}</small> : null}
+                      ? <small>{s("laporan.komposisi.penguatan_ulang").replace("{daftar}", daftarKata(o.ulang.map((u) => judulPendek.get(u) ?? u), locale))}</small> : null}
                   </span>
                   <span className="pin-lk-nilai">
                     {typeof o.benar === "number" && typeof o.total === "number"
@@ -422,6 +472,8 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
 
       <section className="pin-lk-bagian" data-lk="berikutnya">
         {kepala(hBerikut, s("laporan.komposisi.berikutnya"))}
+        {/* O1 (owner, 9 Nov; Daisy): said once per report, never under each figure */}
+        <p className="pin-lk-arti" data-lk-memutuskan="">{s("laporan.anda_memutuskan")}</p>
         <ul className="pin-lk-langkah">
           <li>
             {buktiHref

@@ -36,27 +36,25 @@ export function omissionText(e: Entry, locale: Locale = "id"): string {
 }
 
 /**
- * S-3, the 3-lens rule made mechanical: a number is never rendered without a
- * sentence saying what to do about it. This returns that sentence, and a metric
- * with no rule gets its own MEANING rather than nothing -- an unexplained
- * figure is the thing the rule forbids.
+ * S-3, the 3-lens rule made mechanical: a number is never rendered without a sentence beside it. OWNER RULING O1
+ * (9 Nov) with Daisy's lines (KESIAPAN-LAPORAN-5cca6a5f §5): the sentence says where the figure's explanation is in
+ * PINTAR, never a teaching act, and it is the SAME whatever the value, so two figures can never give opposite
+ * directions («Ulangi…» beside «Tidak perlu diulang…» was the defect). The educator decides the next step; the page
+ * says so once (laporan.anda_memutuskan). A figure with no value keeps its own «not yet» sentence (omissionText), so
+ * insufficient evidence is still told apart from a finding. A metric with no line gets its own MEANING.
  */
 export function actionText(e: Entry, locale: Locale = "id"): string {
-  const v = typeof e.value === "number" ? e.value : Number(e.value);
   switch (e.label_key) {
     case "metrik.pemahaman.label":
-      if (Number.isFinite(v)) return v < 0.6 ? s("tindakan.ulangi", "educator", locale) : s("tindakan.lanjut", "educator", locale);
-      break;
+      return s("tindakan.lihat_topik", "educator", locale);
     case "metrik.kenaikan.label":
     case "metrik.kenaikan_institusi.label":
-      if (Number.isFinite(v)) return v <= 0 ? s("tindakan.ulangi", "educator", locale) : s("tindakan.lanjut", "educator", locale);
-      break;
+      return s("tindakan.baca_kenaikan", "educator", locale);
     case "metrik.kesiapan.label":
-      // D-095: the bands' own sentence names them; the safety-gate figure keeps tindakan.fokus
-      return s("tindakan.fokus_pita", "educator", locale);
+      // the bands are what supports naming who is in «Perlu penguatan» (section E): a place, not an instruction
+      return s("tindakan.lihat_nama", "educator", locale);
     case "metrik.gerbang_keselamatan.label":
-      if (Number.isFinite(v)) return v < 1 ? s("tindakan.fokus", "educator", locale) : s("tindakan.lanjut", "educator", locale);
-      break;
+      return s("tindakan.lihat_soal", "educator", locale);
   }
   return e.meaning_key ? s(e.meaning_key, "educator", locale) : s("tindakan.tunggu", "educator", locale);
 }

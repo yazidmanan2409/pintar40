@@ -10439,7 +10439,8 @@ export const experienceTests: SelfTest[] = [
           const re = new RegExp(`create (?:or replace )?function public\\.calc_${fn}\\(`, "gi");
           let m: RegExpExecArray | null;
           while ((m = re.exec(sql))) {
-            const akhir = /\n(?:END\s*\n;|end;)/.exec(sql.slice(m.index));
+            // (MC-9 writes its SQL-standard bodies ending «END;» on one line: recognised too, so a body never runs on into the next function)
+            const akhir = /\n(?:END\s*\n?;|end;)/.exec(sql.slice(m.index));
             hasil = sql.slice(m.index, akhir ? m.index + akhir.index : undefined);
           }
         }
@@ -11680,7 +11681,7 @@ export const experienceTests: SelfTest[] = [
       }
       const bukti = code(baca("src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"));
       // D-088(g) (MC-4): the row is the objective, and its name is the objective's statement (`competency`)
-      c.expect(/bagian\.map\(\((\w+)\) => \(\s*<BarisKesiapan\b[^>]*\blabel=\{\1\.competency\}/.test(bukti)
+      c.expect(/bagian\.map\(\((\w+)\) => \(\s*<BarisKesiapan\b[^>]*\blabel=\{\1\.title && \1\.title\.trim\(\) !== "" \? \1\.title : \1\.competency\}/.test(bukti) /* RESTATED (owner V2, 9 Nov) */
         && !/tierKey=\{\w+\.(?:competency|code)\}/.test(bukti),
         "«Lihat bukti» does not pass each topic's own name as the row's label, or still looks it up as a copy key");
 

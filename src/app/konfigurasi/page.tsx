@@ -570,7 +570,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   // J3.2 (ADM-02): what setup remains at the school shown, from what this page already read
   const persiapan = struktur?.ok
     ? persiapanSekolah(struktur.rows, (assignments ?? []) as PeranTerbaca[],
-        new Map((nodes ?? []).map((n) => [n.id as string, ((n as { jalur?: string[] }).jalur ?? []) as string[]])), new Date().valueOf())
+        new Map((nodes ?? []).map((n) => [n.id as string, ((n as { jalur?: string[] }).jalur ?? []) as string[]])), new Date().valueOf(), nTanpaKelas)
     : null;
   // D-101(e): one School Admin is never an error; a second is recommended quietly, as recovery cover
   const satuAdmin = sekolahStruktur
@@ -781,7 +781,9 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         Pendataan, whose one link is in the places above (DAISY-17) */}
                     {!l.selesai ? (
                       l.kunci === "murid" ? (
-                        <span className="text-ink-2">{sl("config.persiapan.murid.cara")}</span>
+                        l.tanpaKelas > 0
+                          ? <a href={alamatBagian("pindah", undefined, "tempatkan")} className={tautanTempat}>{sl("config.persiapan.murid.tanpa_kelas").replace("{n}", String(l.tanpaKelas))}</a>
+                          : <span className="text-ink-2">{sl("config.persiapan.murid.cara")}</span>
                       ) : (
                         <a href={alamatBagian(l.kunci === "guru" ? "roles" : "struktur")} className={tautanTempat}>{sl(`config.persiapan.${l.kunci}.cara` as HleEvent)}</a>
                       )

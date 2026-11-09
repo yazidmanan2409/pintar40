@@ -154,7 +154,7 @@ export const b5cTests: SelfTest[] = [
         && t("mengajar.bukti.bagian", "educator", { locale: "en" }) === "Mastery by part",
         "«Lihat bukti»'s heading is not Terminology v1's «Penguasaan per bagian»");
       const hal = kode(baca(ctx.repoRoot, "src/app/mengajar/[kelas]/bukti/page.tsx"));
-      c.expect(/<span className="pin-ml">\{s\("mengajar\.bukti\.bagian"\)\}<\/span>[\s\S]*?bagian\.map\(\(b\) => \(\s*<BarisKesiapan\s+key=\{b\.objective_id \?\? b\.code\}\s+label=\{b\.competency\}/.test(hal),
+      c.expect(/<span className="pin-ml">\{s\("mengajar\.bukti\.bagian"\)\}<\/span>[\s\S]*?bagian\.map\(\(b\) => \(\s*<BarisKesiapan\s+key=\{b\.objective_id \?\? b\.code\}\s+label=\{b\.title && b\.title\.trim\(\) !== "" \? b\.title : b\.competency\}/.test(hal), // RESTATED (owner V2, 9 Nov): the short title where it names the objective unambiguously (MC-9), else the statement
         "the rows are not named by the evaluator's objective");
       const mig = sql(baca(ctx.repoRoot, "supabase/migrations/20261031100000_a_topic_is_named_by_its_objective.sql"));
       const calc = /create or replace function public\.calc_class_topic_mastery[\s\S]*?\nend;/.exec(mig)?.[0] ?? "";

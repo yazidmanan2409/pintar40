@@ -142,6 +142,17 @@ for (const k of RENCANA) {
   }
 }
 
+// ── 3c. owner decision 1, end to end (Daisy and the owner, 9 Nov): one learner with an account AND the school's
+// registration number (issued by the admin through issue_institutional_id, as a Pendataan row with no place leaves
+// them), placed in no class: the admin's Pindah lists them, and their /belajar says an administrator places them
+const TANPA_KELAS = await akun("lap-tanpa-kelas@laporan.local.invalid", "Putri Tanpa Kelas (uji)");
+// the school's three-character code, as Pendataan «Kode sekolah» reserves it (reserve_institution_namespace)
+if (sql(`select coalesce(namespace, '') from public.institutions where id = ${uuid(I)}`) === "") {
+  await rpc(await token(STAF.admin), "reserve_institution_namespace", { p_institution: I, p_namespace: "SDC" });
+}
+// the intake calls issue_institutional_id itself (it is not a client RPC); as a fixture it is called as fable34 calls it
+sql(`select public.issue_institutional_id(${uuid(TANPA_KELAS.person)}, ${uuid(I)})`);
+
 // ── 4. two chapters, authored and published through Studio's own operations, each with both tests
 // (the demonstration chapter has no Pemetaan Awal and is frozen, so no Kenaikan could be read from it; INV-04 keeps
 // it as it is). The repository's synthetic packages (audit/fixtures/sd5-sintetis-bab{1,2}.paket.json), by the
@@ -251,7 +262,7 @@ const ringkas = rows(`select n.name, d.mode, count(*), round(avg(r.mastery), 3),
   join public.org_nodes n on n.id = s.class_node_id join public.assessment_definitions d on d.id = s.assessment_definition_id
  where s.institution_id = ${uuid(I)} and n.name in ('5B','5C','5D','5E') group by 1, 2 order by 1, 2`);
 mkdirSync(dirname(OUT), { recursive: true });
-writeFileSync(OUT, JSON.stringify({ sekolah: I, kelas: Object.fromEntries(RENCANA.map((k) => [k.nama, k.id])), staf: STAF,
+writeFileSync(OUT, JSON.stringify({ sekolah: I, kelas: Object.fromEntries(RENCANA.map((k) => [k.nama, k.id])), staf: STAF, tanpaKelas: TANPA_KELAS,
   murid: MURID.map((m) => ({ email: m.email, password: m.password, nama: m.nama, kelas: m.kelas, peran: m.peran })), ringkas }, null, 2));
 console.log(`built: ${RENCANA.length} classes, ${MURID.length} learners, ${sat} sittings; official results by class and mode:`);
 for (const r of ringkas) console.log(`  ${r.join("  ")}`);

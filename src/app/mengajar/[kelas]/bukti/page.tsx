@@ -103,9 +103,12 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
 
   // D-088(g), MC-4: one row per objective, named by its statement (what was learned), never by a code that two
   // chapters share; the evaluator's own order (lowest mastery first) is kept
-  type Bagian = { objective_id: string | null; code: string; competency: string; mean_score: number; learners: number };
-  const bagian: Bagian[] =
+  type Bagian = { objective_id: string | null; code: string; competency: string; title?: string | null; mean_score: number | null; learners: number; needed?: number | null };
+  const semuaBagian: Bagian[] =
     topik && topik.status === "ok" && Array.isArray(topik.value) ? (topik.value as Bagian[]) : [];
+  // D6: a part whose own learners are under the minimum has no mean; it is counted and said, never drawn as 0
+  const bagian = semuaBagian.filter((b) => typeof b.mean_score === "number");
+  const bagianTertahan = semuaBagian.filter((b) => typeof b.mean_score !== "number");
 
   type Keliru = { code: string; label: string; remediation: string | null; occurrences: number };
   const salahPaham =
@@ -170,13 +173,17 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
                 {bagian.map((b) => (
                   <BarisKesiapan
                     key={b.objective_id ?? b.code}
-                    label={b.competency}
+                    label={b.title && b.title.trim() !== "" ? b.title : b.competency}
                     count={Math.round(Number(b.mean_score) * 100)}
                     total={100}
                     locale={locale}
                   />
                 ))}
               </div>
+              {bagianTertahan.length > 0 ? (
+                <span className="pin-ms" data-bagian-tertahan="">{s("laporan.sekolah.ranah_tertahan")
+                  .replace("{n}", format.number(bagianTertahan.length, locale)).replace("{m}", format.number(Number(bagianTertahan[0].needed ?? 0), locale))}</span>
+              ) : null}
               <span className="pin-ma">{actionText(topik, locale)}</span>
             </div>
           ) : topik ? (

@@ -42,6 +42,14 @@ export const adm02Tests: SelfTest[] = [
       c.expect(!satu.guru.selesai && satu.guru.kunci === "guru" && JSON.stringify(satu.guru.tanpaGuru) === JSON.stringify(["Kelas 1B (2026/2027)"]),
         `with a Guru at Kelas 1A only, the teacher step reads ${JSON.stringify(satu.guru)}; expected Kelas 1B named`);
 
+      // Daisy F5 (9 Nov): learners recorded without a class (owner decision 1) keep the step open, and it says how many
+      const sisa = baca(persiapanSekolah(kelas, [{ role: "EDUCATOR", scope_node_id: "k1a", valid_until: NANTI }], JALUR, SEKARANG, 2));
+      c.expect(!sisa.murid.selesai && sisa.murid.kunci === "murid" && sisa.murid.tanpaKelas === 2 && sisa.murid.jumlah === 2,
+        `with 2 learners still without a class the student step reads ${JSON.stringify(sisa.murid)}; it is not done`);
+      c.expect(/murid\.tanpa_kelas/.test(readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8"))
+        && /nTanpaKelas\)/.test(readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8")),
+        "Konfigurasi does not give the setup its classless count, or does not say it");
+
       // a Guru over the Tingkat covers every Kelas under it; a head of department, a revoked or an expired Guru do not
       const atas = baca(persiapanSekolah(kelas, [{ role: "EDUCATOR", scope_node_id: "t1", valid_until: NANTI }], JALUR, SEKARANG));
       c.expect(atas.guru.selesai, `a Guru over the Tingkat leaves ${JSON.stringify(atas.guru)}`);

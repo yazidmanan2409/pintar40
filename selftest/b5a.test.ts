@@ -270,7 +270,7 @@ export const b5aTests: SelfTest[] = [
         c.expect((isi.match(/<li data-bawah="">/g) ?? []).length === 2 && (isi.match(/class="pin-sr"> di bawah target</g) ?? []).length === 2
           && !/class="pin-lk-bawah">di bawah target</.test(isi)
           && (isi.match(/data-lk-ket-bawah="">Angka berwarna jingga menunjukkan penguasaan di bawah target\.</g) ?? []).length === 1
-          && /class="pin-lk-target"/.test(isi) && t1.includes("Target 75%"),
+          && /class="pin-lk-target"/.test(isi) && t1.includes("target kelas, 75%") /* RESTATED TO V1: the line is named in the key */,
           "the rows below the target are not marked in words and amber, or the target line is missing, or the words repeat under every value");
         // B: the population line, then the bands over the assessed in the legend's order; «belum mengerjakan» is a count, never a band
         c.expect(/31 murid di kelas ini · 29 sudah mengerjakan Uji Penguasaan · 2 belum mengerjakan/.test(t1) && t1.includes("Hasil 29 murid yang sudah mengerjakan")
@@ -278,9 +278,11 @@ export const b5aTests: SelfTest[] = [
           "the bands are not drawn over the assessed, in order, apart from who has not sat");
         // KESETIAAN #6: the legend says how many learners and their share
         c.expect(t1.includes("Mantap 17 murid (59%)") && t1.includes("Perlu penguatan 5 murid (17%)"), "the band legend does not say «17 murid (59%)»");
-        // KESETIAAN #10: the target's label sits on the scale at its line, in the one scale row
-        c.expect((isi.match(/class="pin-lk-skala"/g) ?? []).length === 1 && /<div class="pin-lk-skala-garis">[^]*?class="pin-lk-skala-target" style="left:75%"/.test(isi),
-          "the target's label is not on the scale at the target line");
+        // RESTATED TO V1 (owner, 9 Nov; Daisy): the target is named once in the key under the figure, never on the scale,
+        // so no tick (60%, the band boundary) is overprinted; one scale row with every tick
+        c.expect((isi.match(/class="pin-lk-skala"/g) ?? []).length === 1 && !/class="pin-lk-skala-target"/.test(isi)
+          && t1.includes("Garis tegak: target kelas, 75%, yang ditetapkan sekolah pada Uji Penguasaan kelas ini.") && /<span style="left:60%" data-antara="">60%<\/span>/.test(isi),
+          "the target is still labelled on the scale, or the key does not name it, or the 60% tick is gone");
         // C, D, letters, the next step, the action sentence (S-3)
         c.expect(t1.includes("+20 poin") && t1.includes("Dihitung dari 29 murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan bab yang sama."), "the gain or its base is missing");
         c.expect(t1.includes("13 kali") && /class="pin-lk-saran">Saran penanganan: Samakan penyebut dulu\.</.test(isi) && t1.includes("Saran penanganan untuk pemahaman keliru ada di bagian D."), "the misunderstanding, its labelled remedy (#8) or the pointer to it is missing");
@@ -348,7 +350,8 @@ export const b5aTests: SelfTest[] = [
         const t1 = teks(ada);
         c.expect(t1.includes("Murid yang perlu penguatan") && t1.includes("Murid kelas ini di pita «Perlu penguatan», menurut abjad.")
           && /data-lk-penguatan=""/.test(ada) && /href="\/mengajar\/k\/murid\/o1">Ayu Tanjung</.test(ada) && /href="\/mengajar\/k\/murid\/o2">Hana Siregar</.test(ada)
-          && t1.includes("Pelajari lagi: Pecahan campuran, Membandingkan pecahan"), `section E does not name the learners with what to study again: ${t1.slice(0, 300)}`);
+          // RESTATED (Daisy F1, 9 Nov): the parts are said as a list, as everywhere (daftarKata), without their full stops
+          && t1.includes("Pelajari lagi: Pecahan campuran dan Membandingkan pecahan"), `section E does not name the learners with what to study again: ${t1.slice(0, 300)}`);
         c.expect((ada.match(/Pelajari lagi:/g) ?? []).length === 1, "a learner with nothing recorded below the target is given an empty «Pelajari lagi»");
         // KESETIAAN #5: each with «N dari M soal tepat», and «soal wajib belum tepat» only where the gate failed
         c.expect(t1.includes("9 dari 20 soal tepat") && t1.includes("11 dari 20 soal tepat") && (ada.match(/class="pin-lk-bawah">soal wajib belum tepat</g) ?? []).length === 1,
@@ -784,7 +787,8 @@ export const b5aTests: SelfTest[] = [
         const html = r.out;
         const teks = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
         // the lead counts the topics below their own target in most classes that have a target (7A, 7B of 7A–7C)
-        c.expect(teks.includes("Pecahan campuran di bawah target di sebagian besar kelas."), `the lead reads «${teks.slice(0, 220)}»`);
+        // RESTATED TO V2 (owner, 9 Nov; Daisy): the lead says what it counts, the classes with a figure and a target
+        c.expect(teks.includes("Pecahan campuran di bawah target di lebih dari separuh kelas yang punya angka dan target."), `the lead reads «${teks.slice(0, 220)}»`);
         // each class its own column; the refused one is absent without a word; the short one says so in its place
         c.expect(/>7A<[\s\S]*>7B<[\s\S]*>7C<[\s\S]*>7D<[\s\S]*>7E</.test(html) && !/>7F</.test(html), "the columns are not the classes the reader may see");
         // KESETIAAN #13: a class without enough evidence says so once, in its header («Sekarang 2 murid; perlu 5.»), no target there, «—» in its cells
@@ -844,9 +848,18 @@ export const b5aTests: SelfTest[] = [
         c.expect(!/Pelajari lagi: /.test(a) && !/\.,/.test(teks), "the lead still lists every part, or a statement's full stop is inside a list");
         c.expect((teks.match(/Kalian dapat menyelesaikan langkah 1/g) ?? []).length >= 1, "section B no longer lists the parts");
       }
-      const lib = baca(ctx.repoRoot, "src/lib/hasil-belajar.ts");
-      c.expect(/a\.title\.toLowerCase\(\)\.startsWith\(String\(a\.subject\)\.toLowerCase\(\)\)/.test(lib),
-        "a chapter whose title begins with its subject is still named «Matematika · Matematika Kelas 5 …»");
+      // R7 / Daisy F2: one rule for a chapter's name, on every learner page that names one
+      const nb = (await import("../src/lib/nama-bab")) as { namaBab: (s: string, t: string, ...l: string[]) => string };
+      c.expect(nb.namaBab("Matematika", "Matematika Kelas 5 · Bab 1: Pola Bilangan") === "Matematika Kelas 5 · Bab 1: Pola Bilangan"
+        && nb.namaBab("IPA", "Bab 1", "Kelas 7") === "IPA · Kelas 7 · Bab 1"
+        && nb.namaBab("Matematika", "Matematika Kelas 5 · Bab 2", "Kelas 5") === "Matematika Kelas 5 · Bab 2",
+        "namaBab still repeats the subject, or drops it where the title does not carry it");
+      for (const f of ["src/lib/hasil-belajar.ts", "src/app/belajar/[tugas]/hasil/page.tsx", "src/app/belajar/[tugas]/pemetaan/page.tsx",
+        "src/app/belajar/[tugas]/penguasaan/page.tsx", "src/app/belajar/[tugas]/sertifikat/page.tsx"]) {
+        const src = baca(ctx.repoRoot, f);
+        c.expect(/namaBab\(/.test(src) && !/\$\{(?:mine|assignment)\.subject\} · \$\{(?:mine|assignment)\.(?:grade_label|title)\}/.test(src) && !/\{mine\.subject\} · \{mine\.title\}/.test(src),
+          `${f} still names a chapter as «subject · title» by hand`);
+      }
       return c.verdict("«Hasil belajar» with seven parts to study again counts them in the lead and points to section B, which lists each; "
         + "a chapter whose title begins with its subject is not prefixed with it again");
     },
@@ -902,7 +915,7 @@ export const b5aTests: SelfTest[] = [
       }
       const dua = lihat(kasus(0.7, 0.7));
       if (c.expect(dua.ok, `the grid could not be rendered: ${dua.err}`)) {
-        c.expect(teks(dua.out).includes("Pola bilangan dan Pola berkurang di bawah target di sebagian besar kelas."),
+        c.expect(teks(dua.out).includes("Pola bilangan dan Pola berkurang di bawah target di lebih dari separuh kelas yang punya angka dan target."),
           `with both targets the lead reads «${teks(dua.out).slice(0, 200)}» (a statement's full stop inside the list?)`);
       }
       return c.verdict("KisiTopik's lead judges «below target in most classes» only over at least two classes whose figure and target its reader can read; "
@@ -955,7 +968,7 @@ export const b5aTests: SelfTest[] = [
           && (isi.match(/data-lk-ket-bawah="">Titik berwarna jingga menunjukkan penguasaan pada pita Perlu penguatan\.</g) ?? []).length === 1
           && (isi.match(/class="pin-lk-zona"/g) ?? []).length === 10, "the domain dot plot does not follow R4-01, R4-02 or G-03");
         // B: every headline figure with its base; R4-03: issued and not revoked out of all issued
-        c.expect(t1.includes("408 dari 411 yang pernah terbit; 3 dicabut.") && t1.includes("Dari 836 hasil Uji Penguasaan.")
+        c.expect(t1.includes("408 dari 411 yang pernah terbit; 3 dicabut.") && t1.includes("Dari 836 murid yang mengerjakan Uji Penguasaan.") /* RESTATED (Sharon's finding 2, owner D6): the base is learners */
           && t1.includes("Dihitung dari 380 murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan bab yang sama."), "a headline figure stands without its base");
         // C: the cohorts by name on the same scale, captioned as states, not a ranking
         c.expect(t1.includes("Angkatan 2026 (kelas 7)") && t1.includes("Ini perbandingan keadaan, bukan peringkat."), "the cohort comparison is not named or captioned");

@@ -23,7 +23,7 @@ import { daftarKata, JudulBagian } from "@/components/laporan/tata";
  * The lead sentence counts only: the topics below their target in more than half of the classes that have the
  * figure. Nothing is summed or averaged across classes (WP7C).
  */
-type Baris = { objective_id?: string | null; code?: string; competency?: string; mean_score?: number };
+type Baris = { objective_id?: string | null; code?: string; competency?: string; title?: string | null; mean_score?: number | null };
 export type KolomKisi = {
   id: string; nama: string; topik: Envelope | null | undefined; target: number | null | undefined;
   /** The class's own readiness envelope's population: who is placed, who has sat. */
@@ -42,7 +42,8 @@ export function susunKisi(kolom: readonly KolomKisi[]) {
     for (const b of k.topik.value as Baris[]) {
       const kunci = b.objective_id ?? b.code ?? b.competency ?? "";
       if (!kunci || typeof b.mean_score !== "number") continue;
-      if (!baris.has(kunci)) baris.set(kunci, b.competency ?? kunci);
+      // V2: the short title where it names the objective unambiguously (MC-9), else the statement
+      if (!baris.has(kunci)) baris.set(kunci, (b.title && b.title.trim() !== "" ? b.title : b.competency) ?? kunci);
       isi.set(kunci, b.mean_score);
     }
     nilai.set(k.id, isi);
@@ -75,7 +76,9 @@ export default function KisiTopik({ kolom, locale, huruf = "A" }: { kolom: reado
         <div className="pin-lk-inti">
           {berangka > 0 && bertarget >= 2 ? (
             <p className="pin-lk-kalimat" data-lk-kalimat="">
-              {pola.length > 0 ? s("laporan.kisi.pola").replace("{daftar}", daftarKata(pola, locale)) : s("laporan.kisi.tanpa_pola")}
+              {pola.length > 2
+                ? s("laporan.kisi.pola_banyak").replace("{n}", format.number(pola.length, locale))
+                : pola.length > 0 ? s("laporan.kisi.pola").replace("{daftar}", daftarKata(pola, locale)) : s("laporan.kisi.tanpa_pola")}
             </p>
           ) : null}
           <p className="pin-lk-arti">{s("laporan.kisi.arti")}</p>
@@ -142,7 +145,8 @@ export default function KisiTopik({ kolom, locale, huruf = "A" }: { kolom: reado
               ) : null}
             </table>
           </div>
-          <p className="pin-lk-arti">{s("laporan.kisi.kunci")}</p>
+          {/* F3 (Daisy, 9 Nov): the key explains the target line and amber only where a target is drawn */}
+          <p className="pin-lk-arti">{s(bertarget > 0 ? "laporan.kisi.kunci" : "laporan.kisi.tanpa_target")}</p>
         </div>
       </div>
     </section>

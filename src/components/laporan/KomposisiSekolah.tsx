@@ -28,8 +28,10 @@ import { persenJujur } from "@/components/laporan/KomposisiKelas";
  * `generate_report`, re-authorized for this reader; a figure not shown keeps its place with how far it is and what
  * makes it appear (P14); a refused figure carries no label.
  */
-type Domain = { objective_id?: string | null; code?: string; competency?: string; mean_score?: number; learners?: number };
-type Angkatan = { cohort_node_id?: string; learners?: number; mean_mastery?: number };
+type Domain = { objective_id?: string | null; code?: string; competency?: string; title?: string | null; mean_score?: number | null; learners?: number; needed?: number | null };
+type Angkatan = { cohort_node_id?: string | null; recorded?: boolean; learners?: number; needed?: number | null; mean_mastery?: number | null };
+/** V2: a competency by its short title where it names the objective unambiguously (MC-9), else its statement. */
+const namaDomain = (d: Domain) => (d.title && d.title.trim() !== "" ? d.title : d.competency ?? "—");
 
 const HURUF = "ABCDEFGHIJ";
 /** PINTAR's fixed band boundaries (kesiapan.catatan: 80% and up, 60–79%, below 60%), drawn as zone lines. */
@@ -130,7 +132,11 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
     naik?.status === "ok" && Number.isFinite(Number(naik.value))
       ? s("laporan.sekolah.naik").replace("{nilai}", nilaiMetrik("institution.net_gain", Number(naik.value), locale)) : null,
     rendah.length > 0
-      ? s("laporan.sekolah.perhatian").replace("{daftar}", daftarKata(rendah.map((d) => d.competency ?? ""), locale)).replace("{pita}", s("kesiapan.butuh_pendampingan"))
+      ? (rendah.length > 2
+        // V2: above two, the count and the lowest, the list below has them all
+        ? s("laporan.sekolah.perhatian_banyak").replace("{n}", format.number(rendah.length, locale)).replace("{pita}", s("kesiapan.butuh_pendampingan"))
+          .replace("{nama}", namaDomain(rendah[rendah.length - 1])).replace("{p}", format.percent(Number(rendah[rendah.length - 1].mean_score), locale))
+        : s("laporan.sekolah.perhatian").replace("{daftar}", daftarKata(rendah.map((d) => namaDomain(d)), locale)).replace("{pita}", s("kesiapan.butuh_pendampingan")))
       : s("laporan.sekolah.semua_cukup"),
   ].filter(Boolean).join(" ");
   const hBerikut = huruf();
@@ -162,8 +168,14 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
                 .replace("{berkembang}", s("kesiapan.perlu_review")).replace("{mantap}", s("kesiapan.siap_sertifikasi"))}</p>
               {zona}
               <div className="pin-lk-gambar">
-                {titik(urut.map((d, i) => ({ kunci: d.objective_id ?? d.code ?? String(i), nama: d.competency ?? "—", v: Number(d.mean_score) })))}
+                {titik(urut.map((d, i) => ({ kunci: d.objective_id ?? d.code ?? String(i), nama: namaDomain(d), v: Number(d.mean_score) })))}
                 {titikKet(urut.map((d) => ({ v: Number(d.mean_score) })))}
+                {/* D6: a competency whose own learners are under the minimum shows no mean; how many are withheld is said */}
+                {domain.some((d) => typeof d.mean_score !== "number") ? (
+                  <p className="pin-lk-arti" data-lk-tertahan="">{s("laporan.sekolah.ranah_tertahan")
+                    .replace("{n}", format.number(domain.filter((d) => typeof d.mean_score !== "number").length, locale))
+                    .replace("{m}", format.number(Number(domain.find((d) => typeof d.mean_score !== "number")?.needed ?? 0), locale))}</p>
+                ) : null}
               </div>
             </div>
           ) : komp.status === "ok" ? null : tiada(komp)}
@@ -198,11 +210,18 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
               <p className="pin-lk-arti">{s("laporan.sekolah.kohort_arti")}</p>
               {titik((kohort.value as Angkatan[]).filter((r) => typeof r.mean_mastery === "number").map((r, i) => ({
                 kunci: r.cohort_node_id ?? String(i),
-                nama: (r.cohort_node_id && tempat[r.cohort_node_id]) || "—",
+                nama: r.cohort_node_id ? (tempat[r.cohort_node_id] || "—") : s("laporan.sekolah.angkatan_tak_tercatat"),
                 v: Number(r.mean_mastery),
                 sub: typeof r.learners === "number" ? `${format.number(r.learners, locale)} ${s("mengajar.bukti.murid")}` : undefined,
               })))}
               {titikKet((kohort.value as Angkatan[]).filter((r) => typeof r.mean_mastery === "number").map((r) => ({ v: Number(r.mean_mastery) })))}
+              {/* D5, D6: a row under its minimum gives its learners and no mean; sittings that recorded no Angkatan are said so */}
+              {(kohort.value as Angkatan[]).filter((r) => typeof r.mean_mastery !== "number").map((r, i) => (
+                <p key={r.cohort_node_id ?? `x${i}`} className="pin-lk-arti" data-lk-tertahan="">
+                  {s("laporan.sekolah.angkatan_belum").replace("{nama}", r.cohort_node_id ? (tempat[r.cohort_node_id] || "—") : s("laporan.sekolah.angkatan_tak_tercatat"))
+                    .replace("{m}", format.number(Number(r.needed ?? 0), locale))}
+                </p>
+              ))}
             </>
           ) : kohort.status === "ok" ? null : tiada(kohort)}
         </section>
@@ -235,6 +254,8 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
 
       <section className="pin-lk-bagian" data-lk="berikutnya">
         {kepala(hBerikut, s("laporan.komposisi.berikutnya"))}
+        {/* O1 (owner, 9 Nov; Daisy): said once per report */}
+        <p className="pin-lk-arti" data-lk-memutuskan="">{s("laporan.anda_memutuskan")}</p>
         <ul className="pin-lk-langkah">
           <li>{s("laporan.sekolah.berikutnya_kesiapan")}</li>
         </ul>

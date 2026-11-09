@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { namaBab } from "@/lib/nama-bab";
 import Ikon from "@/components/Ikon";
 import { notFound } from "next/navigation";
 import { t, format, type HleEvent } from "@/lib/hle";
@@ -78,7 +79,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
         <div className="pin-head">
           {mine ? (
             <p className="pin-eyebrow">
-              {mine.subject} · {mine.title}
+              {namaBab(mine.subject, mine.title)}
             </p>
           ) : null}
           <h1 className="pin-h1">{s("hasil.title")}</h1>

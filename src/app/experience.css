@@ -3790,3 +3790,6 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
   .pin-lk-isi, .pin-lk-target { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .pin-lk-skala-garis span[data-antara] { display: none; }
 }
+
+/* V2 (owner, 9 Nov): a topic named by its short title keeps its objective's statement on a line of its own, quieter */
+.pin-lk-pernyataan { display: block; font-size: 0.8125rem; line-height: 1.35; color: var(--ink-2); font-weight: 400; margin-top: 0.125rem; }

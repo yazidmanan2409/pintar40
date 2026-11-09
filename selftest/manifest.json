@@ -4644,7 +4644,27 @@
     {
       "id": "F35-A01",
       "runner": "db",
-      "proves": "Reporting Quality Gate (9 Nov), selftest/db/fable35.sql against 20270111100000: sittings that recorded no cohort (start_learning_session records one only for a membership of the COHORT node, and every placement PINTAR makes is a membership of a Kelas) are counted by institution.cohort_comparison in the Angkatan above their Kelas, and no row is unnamed. Before the migration «Perbandingan angkatan» named its only row «—»."
+      "proves": "Owner decision 5 (9 Nov), selftest/db/fable35.sql against 20270111100000: a sitting keeps the Angkatan recorded when it was sat. Sittings that recorded none form one «not recorded» row of institution.cohort_comparison, never placed under today's Angkatan; six sittings recorded under Angkatan A stay there after their class is moved to Angkatan B; a recorded Angkatan cannot be rewritten (INV-33). start_learning_session now records the class's Angkatan at the sitting."
+    },
+    {
+      "id": "F35-D01",
+      "runner": "db",
+      "proves": "Owner decision 6 (9 Nov), selftest/db/fable35.sql: every subgroup meets its own governed minimum with learners counted once. An Angkatan of 4 learners (one sitting three times) is 4 learners with no mean beside an Angkatan of 6 with its mean; the comparison's sample is the school's distinct learners; a chapter two learners sat is withheld with the catalogue's minimum and «Pemahaman» does not move when it is sat (the withheld chapter cannot be recovered); the class's teacher and the Dekan are given the same chapter figures."
+    },
+    {
+      "id": "F35-G01",
+      "runner": "db",
+      "proves": "Sharon's finding 2 (owner D6), selftest/db/fable35.sql: institution.safety_gate_pass_rate's sample is the school's distinct learners, not its Uji Penguasaan results."
+    },
+    {
+      "id": "F35-O2",
+      "runner": "db",
+      "proves": "Owner ruling O2 (9 Nov), selftest/db/fable35.sql against target_kelas (20270111100000): the class's sealed Uji Penguasaan mark is given to its teacher, the school's Dekan and Admin and the Kepala departemen over the class, and to the school's other teachers exactly as the assignments table already reads (CAN_ASSIGN_LEARNING), widening nothing; another school's teacher and Dekan get nothing; anon cannot call it; it returns only the release and the mark."
+    },
+    {
+      "id": "F35-O4",
+      "runner": "db",
+      "proves": "Owner ruling O4 (9 Nov), selftest/db/fable35.sql: the school's figures (institution.*) follow authority over the whole school: a Dekan at the school's root and its Admin read them; a Dekan over one Bagian (faculty node), another school's Dekan, a Kepala departemen and a teacher are refused not_permitted."
     },
     {
       "id": "LAPORAN-KELAS-01",

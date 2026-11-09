@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { namaBab } from "@/lib/nama-bab";
 import Ikon from "@/components/Ikon";
 import { redirect } from "next/navigation";
 import { t, type HleEvent } from "@/lib/hle";
@@ -104,7 +105,7 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
   const sealedCourse = detail?.course_title_as_issued
     ? [detail.course_subject_as_issued, detail.course_title_as_issued].filter(Boolean).join(" · ")
     : null;
-  const course = sealedCourse ?? (assignment ? `${assignment.subject} · ${assignment.title}` : s("sertifikat.judul"));
+  const course = sealedCourse ?? (assignment ? namaBab(assignment.subject, assignment.title) : s("sertifikat.judul"));
   const institution = detail?.institution_as_issued
     ?? (row ? (await institutionNames([row.institution_id])).get(row.institution_id) ?? null : null);
   // the certificate's language is fixed at issuance; the page around it stays in the reader's

@@ -75,7 +75,7 @@ export type HleEvent =
   | "laporan.cakupan.kelas" | "laporan.cakupan.sekolah"
   // CONTOH LAPORAN (Daisy, approved 7 Nov): the report compositions' own sentences, composed from the figures below
   // them with no cause or advice; every figure keeps its existing label and meaning
-  | "laporan.komposisi.topik_di_bawah" | "laporan.komposisi.topik_semua" | "laporan.komposisi.topik_terendah"
+  | "laporan.komposisi.topik_di_bawah" | "laporan.komposisi.topik_semua" | "laporan.komposisi.topik_terendah" | "laporan.komposisi.topik_di_bawah_banyak" | "laporan.komposisi.keliru_lainnya"
   | "laporan.komposisi.pita_ringkas" | "laporan.komposisi.rata_rata" | "laporan.komposisi.target"
   | "laporan.komposisi.target_arti" | "laporan.komposisi.kenaikan_dari" | "laporan.komposisi.berikutnya"
   | "laporan.komposisi.berikutnya_bukti" | "laporan.komposisi.berikutnya_keliru" | "laporan.komposisi.teks_grafik"
@@ -102,7 +102,7 @@ export type HleEvent =
   | "pengembangan.tentang_catatan" | "pengembangan.tanpa_jawaban"
   | "laporan.komposisi.penguatan_judul" | "laporan.komposisi.penguatan_arti" | "laporan.komposisi.penguatan_nihil"
   | "laporan.komposisi.penguatan_ulang" | "laporan.komposisi.berikutnya_penguatan"
-  | "laporan.kisi.pola" | "laporan.kisi.tanpa_pola" | "laporan.kisi.arti" | "laporan.kisi.belum"
+  | "laporan.kisi.pola" | "laporan.kisi.pola_banyak" | "laporan.kisi.tanpa_target" | "laporan.kisi.tanpa_pola" | "laporan.kisi.arti" | "laporan.kisi.belum"
   | "laporan.sekolah.zona" | "laporan.sekolah.perhatian" | "laporan.sekolah.semua_cukup" | "laporan.sekolah.angka"
   | "laporan.sekolah.dasar_gerbang" | "laporan.sekolah.dasar_sertifikat" | "laporan.sekolah.kohort_arti" | "laporan.sekolah.berikutnya_kesiapan"
   // ── WP4. The Management surface. `pimpinan` is Indonesian for the people who
@@ -112,7 +112,7 @@ export type HleEvent =
   // legitimately says "Menunggu tinjauan" about a queue where the same word on a
   // learner's screen would be the system telling a child to wait.
   | "pimpinan.eyebrow" | "pimpinan.judul" | "pimpinan.batas" | "pimpinan.urutan"
-  | "pimpinan.memutuskan" | "pimpinan.ditolak" | "laporan.ditolak"
+  | "pimpinan.memutuskan" | "pimpinan.ditolak" | "laporan.ditolak" | "config.persiapan.murid.tanpa_kelas" | "laporan.sekolah.perhatian_banyak" | "laporan.sekolah.ranah_tertahan" | "laporan.sekolah.angkatan_belum" | "laporan.sekolah.angkatan_tak_tercatat" | "laporan.bab.dasar" | "laporan.bab.belum" | "laporan.bab.murid" | "metrik.bab.label" | "metrik.bab.arti"
   | "pimpinan.menunggu.nihil" | "pimpinan.menunggu.satu" | "pimpinan.menunggu.banyak"
   | "pimpinan.menunggu.judul" | "pimpinan.perlu_diketahui" | "pimpinan.perlu_diketahui.sub"
   | "pimpinan.lingkup.judul" | "pimpinan.lingkup.pilih" | "pimpinan.lingkup.kosong"
@@ -268,6 +268,7 @@ export type HleEvent =
   | "komitmen.kembali"
   | "bukti.dari"
   | "bukti.murid"
+  | "tindakan.lihat_topik" | "tindakan.baca_kenaikan" | "tindakan.lihat_nama" | "tindakan.lihat_soal" | "laporan.anda_memutuskan"
   | "bukti.minimum"
 
   | "app.name"
@@ -2679,11 +2680,13 @@ const table: Table = {
   "laporan.cakupan.sekolah": { default: "Angka dihitung {waktu} dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu.", en: "Figures calculated {waktu} from all of this school's evidence, in every school year, up to then." },
   "laporan.komposisi.topik_di_bawah": { default: "{n} dari {m} topik masih di bawah target: {daftar}.", en: "{n} of {m} topics are still below target: {daftar}." },
   "laporan.komposisi.topik_semua": { default: "Semua topik sudah mencapai target {target}.", en: "Every topic has reached the {target} target." },
+  "laporan.komposisi.topik_di_bawah_banyak": { default: "{n} dari {m} topik masih di bawah target. Yang paling rendah: {nama} ({p}). Semua topik ada di daftar di bawah.", en: "{n} of {m} topics are still below target. The lowest: {nama} ({p}). Every topic is in the list below." },
+  "laporan.komposisi.keliru_lainnya": { default: "{n} pola lain ada di «Lihat bukti».", en: "{n} more patterns are in «See the evidence»." },
   "laporan.komposisi.topik_terendah": { default: "Penguasaan terendah ada pada {nama}.", en: "Mastery is lowest in {nama}." },
   "laporan.komposisi.pita_ringkas": { default: "{baik} dari {n} murid sudah berada di pita «{mantap}» atau «{berkembang}»; {kurang} murid perlu penguatan.", en: "{baik} of {n} students are in the «{mantap}» or «{berkembang}» band; {kurang} need strengthening." },
   "laporan.komposisi.rata_rata": { default: "{label} kelas: {nilai}.", en: "Class {label}: {nilai}." },
   "laporan.komposisi.target": { default: "Target {p}", en: "Target {p}" },
-  "laporan.komposisi.target_arti": { default: "Target ditetapkan sekolah pada Uji Penguasaan kelas ini: {p}.", en: "The target the school set on this class's Mastery Check: {p}." },
+  "laporan.komposisi.target_arti": { default: "Garis tegak: target kelas, {p}, yang ditetapkan sekolah pada Uji Penguasaan kelas ini.", en: "Vertical line: the class target, {p}, set by the school on this class's Mastery Check." },
   "laporan.komposisi.kenaikan_dari": { default: "Dihitung dari {n} murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan bab yang sama.", en: "Calculated from {n} students who took the Pre-assessment and the Mastery Check of the same chapter." },
   "laporan.komposisi.berikutnya": { default: "Apa berikutnya", en: "What next" },
   "laporan.komposisi.berikutnya_bukti": { default: "Di PINTAR: {kelas} › «Lihat bukti» memuat jawaban setiap murid per soal.", en: "In PINTAR: {kelas} › «See evidence» holds each student's answer to each question." },
@@ -2724,15 +2727,21 @@ const table: Table = {
   "laporan.komposisi.penguatan_nihil": { default: "Saat ini tidak ada murid kelas ini di pita «{pita}».", en: "No learner of this class is in the «{pita}» band now." },
   "laporan.komposisi.penguatan_ulang": { default: "Pelajari lagi: {daftar}", en: "Study again: {daftar}" },
   "laporan.komposisi.berikutnya_penguatan": { default: "Mulai dari murid di bagian {huruf}: buka namanya untuk melihat hasil dan bagian yang perlu dipelajari lagi.", en: "Start with the learners in section {huruf}: open a name to see their results and what to study again." },
-  "laporan.kisi.pola": { default: "{daftar} di bawah target di sebagian besar kelas.", en: "{daftar}: below target in most classes." },
-  "laporan.kisi.tanpa_pola": { default: "Tidak ada topik yang di bawah target di sebagian besar kelas.", en: "No topic is below target in most classes." },
+  "laporan.kisi.pola": { default: "{daftar} di bawah target di lebih dari separuh kelas yang punya angka dan target.", en: "{daftar}: below target in more than half the classes with a figure and a target." },
+  "laporan.kisi.pola_banyak": { default: "{n} topik di bawah target di lebih dari separuh kelas yang punya angka dan target. Semua topik ada di tabel di bawah.", en: "{n} topics are below target in more than half the classes with a figure and a target. Every topic is in the table below." },
+  "laporan.kisi.tanpa_target": { default: "Belum ada target kelas yang dapat dibaca di sini, jadi tabel ini tidak menandai angka di bawah target. Tanda — berarti data belum cukup.", en: "No class target can be read here, so this table marks no figure as below target. A — means not enough data yet." },
+  "laporan.kisi.tanpa_pola": { default: "Tidak ada topik yang di bawah target di lebih dari separuh kelas yang punya angka dan target.", en: "No topic is below target in more than half the classes with a figure and a target." },
   "laporan.kisi.arti": { default: "Setiap sel adalah angka «Penguasaan per topik» kelas itu sendiri, terhadap target kelas itu. Baca mendatar untuk melihat pola; baca menurun untuk melihat satu kelas.", en: "Each cell is that class's own «Mastery by topic» figure, against that class's target. Read across for a pattern; read down for one class." },
   "laporan.kisi.belum": { default: "Belum cukup bukti", en: "Not enough evidence yet" },
   "laporan.sekolah.zona": { default: "Batas pita: di bawah 60% «{penguatan}» · 60–79% «{berkembang}» · 80% ke atas «{mantap}».", en: "Band limits: below 60% «{penguatan}» · 60–79% «{berkembang}» · 80% and above «{mantap}»." },
   "laporan.sekolah.perhatian": { default: "{daftar} masih di pita «{pita}».", en: "{daftar}: still in the «{pita}» band." },
   "laporan.sekolah.semua_cukup": { default: "Semua bidang kompetensi berada di 60% ke atas.", en: "Every competency domain is at 60% or above." },
   "laporan.sekolah.angka": { default: "Angka utama", en: "Headline figures" },
-  "laporan.sekolah.dasar_gerbang": { default: "Dari {n} hasil Uji Penguasaan.", en: "Out of {n} Mastery Check results." },
+  "laporan.sekolah.dasar_gerbang": { default: "Dari {n} murid yang mengerjakan Uji Penguasaan.", en: "From {n} students who sat a Mastery Check." },
+  "laporan.sekolah.perhatian_banyak": { default: "{n} ranah masih di pita «{pita}»; yang paling rendah: {nama} ({p}). Semua ranah ada di daftar di bawah.", en: "{n} domains are still in the «{pita}» band; the lowest: {nama} ({p}). Every domain is in the list below." },
+  "laporan.sekolah.ranah_tertahan": { default: "{n} ranah lain belum cukup bukti — kurang dari {m} murid — jadi angkanya tidak ditampilkan.", en: "{n} more domains do not have enough evidence yet — fewer than {m} students — so their figures are not shown." },
+  "laporan.sekolah.angkatan_belum": { default: "{nama}: belum cukup bukti — kurang dari {m} murid.", en: "{nama}: not enough evidence yet — fewer than {m} students." },
+  "laporan.sekolah.angkatan_tak_tercatat": { default: "Angkatan tidak tercatat saat Uji Penguasaan", en: "Year group not recorded at the Mastery Check" },
   "laporan.sekolah.dasar_sertifikat": { default: "{v} dari {n} yang pernah terbit; {d} dicabut.", en: "{v} of {n} ever issued; {d} revoked." },
   "laporan.sekolah.kohort_arti": { default: "Penguasaan rata-rata tiap angkatan pada skala yang sama. Ini perbandingan keadaan, bukan peringkat.", en: "Each cohort's average mastery on the same scale. A comparison of states, not a ranking." },
   "laporan.sekolah.berikutnya_kesiapan": { default: "Di PINTAR: Pimpinan › «Kesiapan bukti» menyebut kelas yang buktinya belum cukup.", en: "In PINTAR: Leadership › «Evidence readiness» names the classes whose evidence is not yet enough." },
@@ -2757,6 +2766,11 @@ const table: Table = {
   "pimpinan.batas": { default: "Yang muncul di sini memerlukan wewenang, koordinasi, atau penafsiran untuk sekolah secara keseluruhan. Selebihnya tidak muncul.", en: "What appears here needs authority, coordination, or an institution-level reading. Nothing else appears." },
   "pimpinan.urutan": { default: "Urutannya: yang paling lama menunggu lebih dulu. Ini urutan, bukan peringkat.", en: "Ordered by what has waited longest. It is an order, not a ranking." },
   "pimpinan.memutuskan": { default: "PINTAR mengusulkan, manusia memutuskan.", en: "PINTAR proposes, a human decides." },
+  "laporan.bab.dasar": { default: "Pita di atas memakai Uji Penguasaan terakhir setiap murid, dari bab mana pun. Setiap bab, terpisah:", en: "The bands above use each student's latest Mastery Check, from any chapter. Each chapter, separately:" },
+  "laporan.bab.belum": { default: "Belum cukup data: {n} murid; perlu {m}.", en: "Not enough data yet: {n} students; {m} needed." },
+  "laporan.bab.murid": { default: "{n} murid", en: "{n} students" },
+  "metrik.bab.label": { default: "Penguasaan per bab", en: "Mastery by chapter" },
+  "metrik.bab.arti": { default: "Rata-rata penguasaan pada Uji Penguasaan tiap bab, terpisah per bab; setiap murid dihitung sekali per bab.", en: "Mean mastery on each chapter's Mastery Check, chapter by chapter; each student counted once per chapter." },
   "laporan.ditolak": { default: "Laporan ini tidak ditampilkan untuk peran Anda di tempat ini.", en: "This report is not shown for your role in this place." },
   "pimpinan.ditolak": { default: "Halaman ini untuk Kepala departemen dan Dekan, dalam lingkup yang mereka pimpin.", en: "This page is for heads of department and deans, over the part of the school they lead." },
 
@@ -3019,6 +3033,11 @@ const table: Table = {
   "pendataan.keadaan.selesai": { default: "Selesai", en: "Done" },
   "pendataan.keadaan.gagal": { default: "Terhenti", en: "Stopped" },
 
+  "tindakan.lihat_topik": { default: "Topik mana yang paling menurunkan angka ini: lihat Penguasaan per bagian di bawah.", en: "To see which topics pull this figure down, see mastery by part below." },
+  "tindakan.baca_kenaikan": { default: "Kenaikan menunjukkan seberapa jauh kelas bergerak, bukan apakah target tercapai. Baca bersama Pemahaman dan Sebaran hasil.", en: "Gain shows how far the class moved, not whether the target is met. Read it with comprehension and the spread of results." },
+  "tindakan.lihat_nama": { default: "Siapa saja yang ada di pita «Perlu penguatan»: lihat nama murid (Ringkasan Kelas, bagian E).", en: "Who is in the Needs strengthening band: see the students' names (class summary, section E)." },
+  "tindakan.lihat_soal": { default: "Soal wajib mana yang belum dijawab tepat: lihat bukti per soal.", en: "Which required questions were not answered correctly: see the evidence per question." },
+  "laporan.anda_memutuskan": { default: "PINTAR menunjukkan; langkah berikutnya Anda yang memutuskan.", en: "PINTAR shows; you decide the next step." },
   "tindakan.ulangi": { default: "Ulangi topik ini bersama-sama sebelum lanjut.", en: "Go over this topic together before moving on." },
   "tindakan.fokus": { default: "Fokuskan waktu tambahan pada murid di dua tingkat kesiapan terbawah.", en: "Focus extra time on students in the two lowest readiness tiers." },
   "tindakan.fokus_pita": { default: "Fokuskan waktu tambahan pada murid di pita Berkembang dan Perlu penguatan.", en: "Focus extra time on students in the Developing and Needs strengthening bands." },
@@ -3382,6 +3401,7 @@ const table: Table = {
   "config.persiapan.kelas": { default: "Kelas aktif", en: "Active classes" },
   "config.persiapan.kelas.cara": { default: "Buat Bagian, Tingkat, lalu Kelas di Struktur sekolah.", en: "Create a Bagian, a Tingkat, then a Kelas under School structure." },
   "config.persiapan.murid": { default: "Murid yang sudah ditempatkan di Kelas", en: "Students placed in a class" },
+  "config.persiapan.murid.tanpa_kelas": { default: "{n} murid belum punya kelas: tempatkan di Pindah", en: "{n} students have no class yet: place them in Move" },
   "config.persiapan.murid.cara": { default: "Catat murid lewat Pendataan: satu daftar untuk satu kelas, kelasnya dipilih sekali dengan «Satu pilihan untuk semua».", en: "Record students through Pendataan: one list per class, its class chosen once with «One choice for everyone»." },
   "config.persiapan.guru": { default: "Setiap Kelas punya guru", en: "Every class has a teacher" },
   "config.persiapan.guru.kurang": { default: "Kelas yang belum punya guru:", en: "Classes without a teacher yet:" },

@@ -122,30 +122,69 @@ These were read after the repairs. Each row is ✓: the report and the independe
 |---|---|---|---|---|---|---|---|---|
 | Catatan pengembangan profesi, and a PD class's Ringkasan | Per-person steps, no totals (D-069) | Impl | n/a: no aggregate by design | Walked on staging (D4–D7, `staging-p7.md`) | ✓ F33-P01, F33-PA01: no individual response; never treated as a learner population | Staging (earlier build) | Not re-walked in this world | READY on the prior evidence; not re-walked here |
 
-## 5. Open items for the owner (not changed: policy, entitlement or approved design)
+## 5. Owner decisions (9 Nov) and how each was implemented
 
-- **O1. The action sentence under each figure (S-3, the three-lens rule) contradicts your directive and itself.**
-  - S-3 is approved design: every figure carries a sentence saying what to do.
-  - The directive says: do not prescribe interventions.
-  - On the same 5B card pair, «Pemahaman 56%» says «Ulangi topik ini bersama-sama sebelum lanjut», while «Kenaikan +21» says «Tidak perlu diulang — lanjutkan ke materi berikutnya». The class has 11 of 22 in «Perlu penguatan».
-  - **Proposal:** replace the prescriptive lines (`tindakan.ulangi`, `tindakan.lanjut`, `tindakan.fokus*`) with where to look next. For example: «Lihat bagian per topik di bawah»; «Lihat siapa yang perlu penguatan».
-  - This changes approved copy: yours and Dr Gladys's to decide.
-- **O2. A Dekan reads no class's target.**
-  - `assessment_assignments` is readable only to CAN_DRAFT and CAN_ASSIGN_LEARNING.
-  - So a Dekan's grid and class summary show no target line and no «di bawah target».
-  - Granting the read would be a new entitlement; not done.
-- **O3. Bands and «Pemahaman» in a class taught two chapters read each learner's latest Uji Penguasaan, whichever chapter it was.**
-  - The page says «menurut Uji Penguasaan terakhir mereka», which is honest.
-  - But a class summary mixing chapters is a metric-definition question: per chapter, or latest?
-  - Not changed.
-- **O4. Is a faculty-scoped Dekan meant to see school-wide figures?**
-  - The demonstration school's Dekan sits at «Sekolah Dasar», a faculty node, and is refused the school summary.
-  - The golden schools' Dekan sits at the root.
-- **Observations:**
-  - V1: the «Target 70%» label in section A crowds the 60% tick at 1280 px (cosmetic; to be checked in the re-walk).
-  - V2: a lead sentence listing several full objective statements is long. It is correct, but slower than 60 seconds to read.
-  - The misconception list (class floor 3 occurrences) appears for 5D, whose other figures are withheld. That is the catalogue's rule, recorded here for your awareness.
+The owner approved the four questions this gate raised (O1–O4) and Sharon's findings (D5, D6). All six are binding 4.0 decisions. The commit and test evidence are in §8.
 
-## 6. Evidence
+| Decision | Implementation | Tests | Cross-role | Visual | Limitations | Verdict |
+|---|---|---|---|---|---|---|
+| **O1.** No prescribed teaching interventions | `actionText` (`src/app/_intel.ts`) returns Daisy's line for each lens. It is the same whatever the value and points to a place in PINTAR. The page says «PINTAR menunjukkan; langkah berikutnya Anda yang memutuskan» once. A figure with no value keeps its «not yet» sentence, so missing evidence is still told apart from a finding | PITA-01 restated to O1; LAPORAN-KELAS-01 | Teacher, leaders and admin read the same lines | Re-walked (§7) | Misconception remediation tips are the chapter author's content, shown as «Saran penanganan»; not changed | Implemented. Daisy to confirm wording |
+| **O2.** The Dekan reads targets within scope | `target_kelas(p_class)`, a SECURITY DEFINER function, gives each chapter's sealed Uji Penguasaan mark and nothing else. It goes to readers of the assignments, or to an audience of the class's own figures over that class (`audience_on_node`). `targetKelasDari` reads it | F35-O2: teacher, Dekan, Admin and Kepala departemen yes; another school's teacher and Dekan no; anon refused; returns only the release and the mark | The school's other teachers keep exactly the read the table already gave them; nothing is widened | Grid key without targets (F3) | — | Implemented |
+| **O3.** Chapters kept apart; aggregation explicit | Catalogue metric **class.chapter_mastery** (MC-9, minimum from the class catalogue): per chapter, its learners counted once and their mean, or no mean under the minimum. Ringkasan Kelas section B lists the chapters when there are two or more, and says the bands use each learner's latest Uji Penguasaan from any chapter. Bands keep their governed contract | F35-D01 (c, d) | Teacher and Dekan get the same chapter figures | Re-walked | Bands still follow each learner's latest result, now said on the page | Implemented |
+| **O4.** School summary follows authority over the whole school | Already enforced: `institution.*` needs an audience role at the school's root (`audience_on_node`). A Dekan over one Bagian is refused, and the page now shows the refusal page (R8). /pimpinan offers «Ringkasan sekolah» only when a school figure is readable | F35-O4: Dekan at root and Admin yes; Dekan over a Bagian, another school's Dekan, Kepala departemen and teacher no | — | Refusal page | The demonstration school's seeded «Pak Hendra (peraga)» sits at the Sekolah Dasar Bagian, so by this model he holds part of the school. The model cannot tell that this Bagian is the whole school. Recorded rather than guessed; if he is meant to lead the school, his grant belongs at the root | Implemented; ambiguity recorded |
+| **D5.** Historical cohort attribution | `start_learning_session` now records, at the sitting, the Angkatan above the learner's Kelas. Provenance is immutable (INV-33). The cohort comparison reads only the recorded cohort. Sittings that recorded none form an explicit «Angkatan tidak tercatat» row and are never placed by today's structure. No evidence is rewritten. There is no correction mechanism in 4.0, and provenance cannot be edited, which keeps history stable | F35-A01: an unrecorded row; a class moved after its sittings keeps them under the old Angkatan; a recorded cohort cannot be rewritten. End to end: 102 of 102 new sittings in the report world recorded their Angkatan | — | «Angkatan tidak tercatat» named | Historical sittings before this build stay «tidak tercatat»: staging today has only those. A promotion, or a transfer between classes, keeps each sitting's own Angkatan | Implemented |
+| **D6.** Every subgroup meets its own minimum, learners counted once | Every subgroup row gives `needed` and withholds its mean below the governed minimum: topics, competencies, chapters, Angkatan. Samples count distinct learners: comprehension, topics, competencies, Angkatan, safety gate. «Pemahaman» averages only the chapters that reach the minimum, so a withheld chapter cannot be recovered. The screens show withheld rows as «Belum cukup bukti — kurang dari {m} murid», never 0 | F35-S01, F35-D01 (a–d), F35-G01, F35-T01 | Dekan and teacher read the same withheld rows | Re-walked | See the population units in §6 | Implemented |
 
-Filled in at the final head: commit, CI run, journeys run, the local suite tally and Daisy's verdict.
+**Population units, metric by metric (D6's wider audit):**
+- **Learners, counted once:** `class.participants`, `class.comprehension` and `class.readiness_distribution`. Also `class.topic_mastery`, `class.net_gain`, `class.chapter_mastery`, `institution.participants`, `institution.net_gain` and `institution.competency_outcomes`. Also `institution.cohort_comparison` and `institution.safety_gate_pass_rate`.
+- **`institution.verified_credentials`:** certificates, by definition a count of certificates (minimum 1). It is not a learner statistic. Compliant.
+- **`class.misconceptions`:** pattern occurrences (minimum 3). **Contract ambiguity, documented, not changed:** a class with one learner who makes three errors shows that learner's patterns to the Kepala departemen and the Dekan.
+  - **Proposal:** also require the class's learner minimum (5 learners with a result) before the list is shown. The owner decides.
+- **`item.*`:** results per item (minimum 30), Question Health. Out of this gate's scope.
+
+**Recomputed results (Sharon's finding 5):** every class and school calculator takes each sitting's latest `assessment_results` row (`DISTINCT ON (session_id) … computed_at DESC`).
+- The cohort comparison now does the same.
+- Kenaikan takes the highest per learner per chapter, so a recomputation never adds weight.
+- Legitimate repeated sittings still count as sittings in a mean (the governed rule) and once as a learner in the population.
+
+## 6. Sharon's independent review (5cca6a5f): dispositions
+
+| # | Finding | Disposition |
+|---|---|---|
+| 1 | The cohort table passes its minimum with duplicated learners; small rows show their mean | **Corrected** (D6): sample = distinct learners; each row withholds its mean below the governed minimum. F35-D01 |
+| 2 | The safety gate counts results | **Corrected**: sample = distinct learners. The base line reads «Dari {n} murid yang mengerjakan Uji Penguasaan». F35-G01 |
+| 3 | `org_nodes` declared as a raw metric source | **Corrected**: the fallback that needed it is gone (D5 records the cohort at the sitting). No calculator reads org structure, and `org_nodes` is not declared. Verified in the migration's verification block |
+| 4 | The cohort is resolved from today's tree | **Corrected by owner decision 5**: recorded at the sitting; never inferred. F35-A01 |
+| 5 | The cohort mean counts recomputed results twice | **Corrected**: latest result per sitting. Other calculators were verified compliant (§5) |
+| 6 | Verification block partial | **Corrected**: a column-by-column copy-forward check of definitions and tiers, people-counted bodies, no `org_nodes`, and the recording in `start_learning_session` |
+| Q | Can a VALIDATED package be submitted only by its author? | **Verified compliant**: `langkah_konten` requires CAN_DRAFT in the school and no authorship, so «Menunggu tindakan Anda» counting the school's VALIDATED packages for CAN_DRAFT readers matches what they may do. Decision 3 unchanged |
+
+The implementation differs materially from what Sharon reviewed:
+- the cohort calculator;
+- the new chapter metric;
+- per-row suppression;
+- `target_kelas`;
+- `start_learning_session`.
+
+A focused follow-up review is requested (§8).
+
+## 7. Daisy's design verification (5cca6a5f, `afdae96d` on ux-1/daisy-experience): dispositions
+
+| Item | Daisy | Disposition |
+|---|---|---|
+| Decision 3, Studio counts | READY | Kept |
+| Content-check refusal | READY; R9's walk photographed «Memproses…» | R9 now waits for the finished state (`audit/siap-jalan.mjs`) |
+| Decision 1 | NOT READY (F5) | **F5 corrected**: the setup step is not done while learners lack a class, and it links to Pindah (ADM02). The end-to-end case is in the report world: a learner with an account and a registration number, listed in the admin's Pindah, sees the message on /belajar |
+| F1, section E «.,» | Must fix | **Corrected**: `daftarKata` (LAPORAN-KELAS-02 restated) |
+| F2, Hasil per bab heading | Must fix | **Corrected for the whole class**: `namaBab` on every learner page that names a chapter (LAPORAN-MURID-02) |
+| F3, Dekan's grid key | Must fix | **Corrected**: targets now readable (O2); with none, the key says so (`laporan.kisi.tanpa_target`) |
+| F4, 19 misconceptions | Must fix | **Corrected**: at most eight in the summary, «N pola lain ada di «Lihat bukti»». Every pattern stays in Lihat bukti |
+| V1, target label over the 60% tick | Must fix | **Corrected**: named once in the key («Garis tegak: target kelas, 70%…»); every tick kept (LAPORAN-KELAS-01 restated) |
+| V2, long leads | Approved by the owner with a condition | **Implemented**: above two items, a count, the lowest and a pointer to the list. Topics are named by short titles only where the lesson has exactly one objective (Studio's intake writes one per lesson); otherwise by the statement |
+| O1 wording | Design input | **Implemented** with her lines (§5) |
+| School-summary rows at 100% for one learner | Confirm the minimum | **Confirmed a real D6 defect, corrected**: the demo chapter's one learner now shows «belum cukup bukti», never 100% |
+| Temuan cards' inner padding at 390 px | Noted | Open (cosmetic), for Daisy's re-check |
+
+## 8. Evidence
+
+Filled in at the final head: commit, CI run, journeys run, the local suite tally and the reviews.
