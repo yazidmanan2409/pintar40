@@ -109,7 +109,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
 begin
   perform selftest.as_owner();
   begin
@@ -561,6 +561,54 @@ begin
     perform selftest.as_owner();
     if v_n <> 1 then l03 := l03 || 'once the role is revoked, the Admin sekolah no longer sees the former teacher''s name (their authored work loses its author)'::text; end if;
 
+    -- ═══════════════════════════════════ Sharon's review of 2ce4ddcf (9 Nov)
+    -- S03: onboarding belongs to the school that issued the most recent registration number. Q was numbered by X, left
+    -- before being enrolled and never activated; Y then numbered them. Only Y may activate or correct their email.
+    insert into public.persons (display_name) values ('Calon F37 Q ' || v_tag) returning persons.id into v_q;
+    for r in select * from (values (v_x, now() - interval '30 days'), (v_y, now() - interval '1 day')) t(inst, kapan) loop
+      insert into public.institutional_identities (person_id, institution_id, institutional_id, sequence_number, issued_at)
+      select v_q, r.inst, i.namespace || lpad(q.n::text, 6, '0') || 'ZZ', q.n, r.kapan
+        from public.institutions i,
+             (select coalesce(max(ii.sequence_number), 0) + 1 as n from public.institutional_identities ii where ii.institution_id = r.inst) q
+       where i.id = r.inst;
+    end loop;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.authorize_account_activation(%L, %L, %L, %L)', v_q, 'EMAIL', 'f37-q-x-' || v_tag || '@local.invalid', null));
+    if v_got !~ 'requires CAN_PROVISION_PEOPLE' then s03 := s03 || format('school X (the older number) passed the school check for Q''s activation (%s)', v_got); end if;
+    v_got := selftest.f37_sebagai(u_adminy, format('select public.authorize_account_activation(%L, %L, %L, %L)', v_q, 'EMAIL', 'f37-q-y-' || v_tag || '@local.invalid', null));
+    if v_got ~ 'requires CAN_PROVISION_PEOPLE' then s03 := s03 || format('school Y (the newest number) was refused Q''s activation (%s)', v_got); end if;
+    -- L04: a live enrolment with no programme never sits beside another live one of the same person, school and year
+    begin
+      insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_murid, v_inst, v_period, 'ACTIVE');
+      l04 := l04 || 'a live enrolment with no programme was accepted beside the learner''s live enrolment with one'::text;
+    exception when others then
+      if sqlerrm !~ 'one live enrolment' then l04 := l04 || ('refused, but not by the rule: ' || sqlerrm); end if;
+    end;
+    -- T01: a transfer to a school where the learner already holds a live enrolment that year is refused BY NAME, not
+    -- with a raw unique_violation. The learner (live at A, this school) gets an enrolment at Y and a transfer Y -> A.
+    insert into public.enrollments (person_id, institution_id, academic_period_id, status)
+    values (v_murid, v_y, v_pery, 'ACTIVE') returning enrollments.id into v_ey;
+    insert into public.transfers (person_id, from_enrollment_id, from_institution_id, to_institution_id, to_academic_period_id,
+                                  to_programme_id, status, reason)
+    values (v_murid, v_ey, v_y, v_inst, v_period, v_proga, 'REQUESTED', 'uji F37-T01') returning transfers.id into v_tf;
+    update public.transfers set status = 'AUTHORIZED', authorized_by = v_murid where transfers.id = v_tf;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.transfer_execute(%L)', v_tf));
+    if v_got = 'OK' then t01 := t01 || 'the transfer made a second live enrolment at the receiving school'::text;
+    elsif v_got !~ 'TRANSFER_ALREADY_ENROLLED' then t01 := t01 || ('refused without a name the screen can read: ' || v_got); end if;
+
+    -- L05: a departed learner is not placed back by the old school through the ordinary placement (demonstration
+    -- finding 8). T transferred X -> Y; W withdrew from X. Neither is offered in «Murid yang belum punya kelas», and
+    -- tempatkan_murid refuses both by name; a return goes through re-enrolment, never this path.
+    for r in select * from (values ('T', 'PLACE_ELSEWHERE'), ('W', 'PLACE_DEPARTED')) t(k, mau) loop
+      v_pp := (lc -> r.k ->> 'person')::uuid;
+      perform selftest.as_user_uid(u_admin);
+      select count(*) into v_n from public.murid_tanpa_kelas(v_x) m where m.person_id = v_pp;
+      perform selftest.as_owner();
+      if v_n <> 0 then l05 := l05 || format('%s (departed) is offered in «Murid yang belum punya kelas»', r.k); end if;
+      v_got := selftest.f37_sebagai(u_admin, format('select public.tempatkan_murid(%L, %L)', v_pp, c_a));
+      if v_got = 'OK' then l05 := l05 || format('the old school placed %s back into a Kelas', r.k);
+      elsif v_got !~ r.mau then l05 := l05 || format('%s refused, but not as %s: %s', r.k, r.mau, v_got); end if;
+    end loop;
+
     raise exception 'f37-rollback';
   exception when others then
     perform selftest.as_owner();
@@ -594,6 +642,14 @@ begin
        'a second PENDING/ACTIVE enrolment of one learner in one school, year and programme is refused as a duplicate (another programme stays possible, as F37-D04 uses)'),
       ('F37-L03', 'Account lifecycle: a former teacher keeps their name for the school', l03,
        'a teacher whose only link was a role stays visible to the Admin sekolah after the role is revoked'),
+      ('F37-S03', 'System Integrity, chain D: onboarding belongs to the newest registration (Sharon, 2ce4ddcf)', s03,
+       'a person numbered by X, never enrolled or activated, then numbered by Y: only Y passes the school check for their activation'),
+      ('F37-L04', 'Account lifecycle: a live enrolment with no programme stands alone (Sharon, 2ce4ddcf)', l04,
+       'a live enrolment with no programme is refused beside another live enrolment of the same person, school and year'),
+      ('F37-T01', 'Account lifecycle: a repeated transfer is refused by name (Sharon, 2ce4ddcf)', t01,
+       'a transfer to a school where the learner already holds a live enrolment that year is refused PR040 TRANSFER_ALREADY_ENROLLED, nothing written'),
+      ('F37-L05', 'Account lifecycle: a departed learner is not placed back by the old school', l05,
+       'a learner who transferred to another school (PLACE_ELSEWHERE) or withdrew (PLACE_DEPARTED) is not offered in «Murid yang belum punya kelas» and tempatkan_murid refuses them by name'),
       ('F37-S01', 'System Integrity, chain D: a school''s account-level power follows its current placement (SI-D03)', s01,
        'a former school''s admin cannot reset the recovery of a learner who transferred or withdrew (42501; the session kept); the current school can (sessions ended); a person placed at two schools is assisted by either; another school''s admin, a Guru and a Kepala departemen are refused; registration numbers and ended enrollments are kept'),
       ('F37-S02', 'System Integrity, chain D: every credential path follows the current placement or onboarding (SI-D03)', s02,

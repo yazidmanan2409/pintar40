@@ -4812,6 +4812,26 @@
       "proves": "Account lifecycle (Sharon, 89374424, D3; owner: preserve historical educator attribution after role revocation): a teacher whose only link to the school was a role stays visible, by name, to the school's administrator after the role is revoked, so their authored items, reviews and decisions keep their author."
     },
     {
+      "id": "F37-S03",
+      "runner": "db",
+      "proves": "SI-D03, Sharon's review of 2ce4ddcf (finding 1): onboarding belongs only to the school that issued a person's most recent registration number (issued_at). A person numbered by X 30 days ago, never enrolled or activated, then numbered by Y yesterday: X's admin is refused at the school check for their activation, Y's admin passes it (selftest/db/fable37.sql)."
+    },
+    {
+      "id": "F37-L04",
+      "runner": "db",
+      "proves": "Account lifecycle, Sharon's review of 2ce4ddcf (finding 2): multi-programme enrolment stays possible (F37-D04), but a live enrolment with no programme never sits beside another live enrolment of the same person, school and year; it is refused by the one-live-enrolment rule."
+    },
+    {
+      "id": "F37-T01",
+      "runner": "db",
+      "proves": "Account lifecycle, Sharon's review of 2ce4ddcf: a transfer to a school where the learner already holds a live enrolment in that year is refused PR040 TRANSFER_ALREADY_ENROLLED (a name the screen can read), never a raw unique_violation, and writes nothing."
+    },
+    {
+      "id": "F37-L05",
+      "runner": "db",
+      "proves": "Account lifecycle (demonstration finding 8; owner, 9 Nov): a departed learner is not placed back by the old school through the ordinary placement. A learner who transferred to another school and one who withdrew are not offered in «Murid yang belum punya kelas» (murid_tanpa_kelas), and tempatkan_murid refuses them as PLACE_ELSEWHERE and PLACE_DEPARTED; a return goes through re-enrolment."
+    },
+    {
       "id": "F37-R01",
       "runner": "db",
       "proves": "SI-D02 (System Integrity, 9 Nov) under real concurrency (runAttemptLimitRace in selftest/run.ts) against supabase/migrations/20270112120000_one_start_at_a_time.sql; strengthened after Sharon's review of 89374424 (finding 2), so it tells a correct fix from one that counts before it locks. A learner one attempt short of an assignment's attempt_limit, chosen from the world and allowed to start by may_start_assessment, starts on connection A, which holds its transaction open and then COMMITS. Connection B's start waits on the per-(learner, assignment) advisory lock while A holds, and after A's commit is refused ATTEMPT_LIMIT_REACHED; the learner then holds exactly attempt_limit sittings. A's sitting and the rows its start wrote are removed afterwards (the test's own rows, triggers suspended for that teardown; audit rows stay). The migration's verification block also checks that the lock is taken before may_start_assessment is called."
