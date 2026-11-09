@@ -109,7 +109,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
 begin
   perform selftest.as_owner();
   begin
@@ -637,6 +637,16 @@ begin
       end if;
     end loop;
 
+    -- S05 (Sharon on 0b60b012): a registration's issue time is the moment it is issued, after the locks, not the start of
+    -- its transaction, so «newest» is the one committed last. Inside this long transaction, a number issued now must be
+    -- stamped later than the transaction began.
+    insert into public.persons (display_name) values ('Calon F37 V ' || v_tag) returning persons.id into v_pp;
+    perform public.issue_institutional_id(v_pp, v_x);
+    select ii.issued_at into v_terbit from public.institutional_identities ii where ii.person_id = v_pp and ii.institution_id = v_x;
+    if v_terbit is null or v_terbit <= now() then
+      s05 := s05 || format('the number was stamped %s, the transaction''s start (%s), not its moment of issue', v_terbit, now());
+    end if;
+
     raise exception 'f37-rollback';
   exception when others then
     perform selftest.as_owner();
@@ -680,6 +690,8 @@ begin
        'a learner who transferred to another school (PLACE_ELSEWHERE) or withdrew (PLACE_DEPARTED) is not offered in «Murid yang belum punya kelas» and tempatkan_murid refuses them by name'),
       ('F37-S04', 'System Integrity, chain D: the newest registration is not assumed authorised (owner, 9 Nov)', s04,
        'two schools whose latest numbers share a timestamp: neither onboards the person; the newest number''s school inactive: nobody onboards, and the older school does not inherit'),
+      ('F37-S05', 'System Integrity, chain D: a registration is stamped when it is issued (Sharon, 0b60b012)', s05,
+       'a number issued late in a long transaction is stamped at its moment of issue, after the transaction began'),
       ('F37-S01', 'System Integrity, chain D: a school''s account-level power follows its current placement (SI-D03)', s01,
        'a former school''s admin cannot reset the recovery of a learner who transferred or withdrew (42501; the session kept); the current school can (sessions ended); a person placed at two schools is assisted by either; another school''s admin, a Guru and a Kepala departemen are refused; registration numbers and ended enrollments are kept'),
       ('F37-S02', 'System Integrity, chain D: every credential path follows the current placement or onboarding (SI-D03)', s02,
