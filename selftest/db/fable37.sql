@@ -541,8 +541,8 @@ begin
     end if;
     -- L02: one person holds at most one live (PENDING/ACTIVE) enrolment per school and year
     begin
-      insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_murid, v_inst, v_period, 'ACTIVE');
-      l02 := l02 || 'a second ACTIVE enrolment of one learner in one school and year was accepted'::text;
+      insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status) values (v_murid, v_inst, v_period, v_proga, 'ACTIVE');
+      l02 := l02 || 'a second ACTIVE enrolment of one learner in one school, year and programme was accepted'::text;
     exception when unique_violation then null;
       when others then l02 := l02 || ('refused, but not as a duplicate: ' || sqlerrm);
     end;
@@ -591,7 +591,7 @@ begin
       ('F37-L01', 'Account lifecycle: a placement changes only through its governed functions', l01,
        'the Admin sekolah''s direct UPDATE or INSERT on enrollments and memberships is refused; «Pindah kelas» still moves the learner'),
       ('F37-L02', 'Account lifecycle: one live enrolment per person, school and year', l02,
-       'a second PENDING/ACTIVE enrolment of one learner in one school and year is refused as a duplicate'),
+       'a second PENDING/ACTIVE enrolment of one learner in one school, year and programme is refused as a duplicate (another programme stays possible, as F37-D04 uses)'),
       ('F37-L03', 'Account lifecycle: a former teacher keeps their name for the school', l03,
        'a teacher whose only link was a role stays visible to the Admin sekolah after the role is revoked'),
       ('F37-S01', 'System Integrity, chain D: a school''s account-level power follows its current placement (SI-D03)', s01,

@@ -120,6 +120,8 @@ number. That reset ends every session and forces a new PIN.
 
 **Red: F37-S01 at `6070cd60`.** School X's admin resets a learner who transferred to Y, and one who withdrew.
 
+**Corrected:** `20270112140000` (`964b0e45`). All five credential paths are covered (F37-S02). Sharon's independent review of the exact head is pending (`REVIEW-REQUEST-SHARON-SI-D03-CORRECTED.md`).
+
 **The fix waits on two things:**
 - Sharon's independent review (`REVIEW-REQUEST-SHARON-SI-D03.md`);
 - the owner's safeguard: legitimate pending-onboarding assistance is kept.
@@ -176,7 +178,8 @@ has reviewed the completed changes.
 | `53ab41fe` | the five fixed: root fallback for reclassification only; revoke/grant; the capability named; the list's contract kept (3b to Sharon); F37 records its own waiting person | targeted: 97 passed, 0 failed. **Whole suite: 909 passed, 9 failed**: R-PROSES-01 (D-197 not yet reconciled in the hand-off list) and F37 ×8 (at F37's moment in a full run no school has reserved a namespace yet; the schools that have one are made by later suites) | 531 dispatched | after 237 |
 | `c9eb8974` | D-197 reconciled; F37 reserves its own school's namespace (rolled back) | R-PROSES-01 and F37 ×8 green alone | CI 531 had run on `53ab41fe`: **910 passed, 9 failed**, the same nine as that row's local suite, all fixed in this head. It says nothing about later heads | 237 on `4f2d2c1b`: **passed** (historical, not the candidate) |
 | `57235a5a` | Sharon's re-review (§4b-2): the three cross-class writes, referral, helpers; other departments see counts; F37-D07 | **Whole suite: 919 passed, 1 failed**: BOB32-K02. `record_integrity_review` closed with `end $function$;`, which the test's body reader does not recognise, so it charged `terminate_session`'s refusals to it. Corrected in the next head by the repository's usual `end;` / `$function$;` form; the functions are unchanged. BOB32-K02, F01-S01 and F06-S01 are green alone | dispatched | dispatched |
-| next | BOB32-K02's terminator | the whole suite on the head | to dispatch | to dispatch |
+| `f37fd20e` | BOB32-K02's terminator | **Whole suite: 920 passed, 0 failed** | **CI 533: success** | **239: success** |
+| `964b0e45` … this head | SI-D03 (five credential paths, F37-S01/S02); SI-D01 finding 1 (F37-D08); SI-D02's stronger race (F37-R01); the lifecycle correction (F37-L01..L03: no direct placement writes, one live enrolment per person, school, year and programme, a former teacher's name) | First clean run: 902 passed, 24 failed. Two causes: the unique key without the programme broke the canonical two-programme fixture; and `move_learner_to_class` was unregistered as a client definer, plus two baselines (release table rights; F08-P02's trigger floor, now shown by a plant). **Whole suite on this head: 926 passed, 0 failed** | to dispatch | to dispatch |
 
 ## 6 · Execution order from here
 

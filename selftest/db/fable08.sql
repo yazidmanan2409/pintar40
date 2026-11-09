@@ -242,6 +242,32 @@ begin
          and (has_table_privilege('authenticated', c.oid, 'insert')
            or has_table_privilege('authenticated', c.oid, 'update')
            or has_table_privilege('authenticated', c.oid, 'delete'));
+      -- RESTATED FOR THE LIFECYCLE CORRECTION (20270112160000; Sharon's D2, owner 9 Nov): the only invoker triggers on
+      -- client-writable tables were on enrollments and memberships, which a client no longer writes. The population is
+      -- now honestly empty, so non-vacuity is shown by a plant: one invoker trigger on a client-writable table, inside
+      -- a subtransaction that is undone, must be counted by the same sweep. The floor is unchanged.
+      if m_triggers < 1 then
+        begin
+          create function public.f08_plant_trigger() returns trigger language plpgsql as $plant$ begin return new; end $plant$;
+          execute format('create trigger f08_plant before update on public.%I for each row execute function public.f08_plant_trigger()',
+            (select c.relname from pg_class c join pg_namespace ns on ns.oid = c.relnamespace
+              where ns.nspname = 'public' and c.relkind = 'r' and has_table_privilege('authenticated', c.oid, 'update')
+              order by c.relname limit 1));
+          select count(*) into m_triggers
+            from pg_class c join pg_namespace ns on ns.oid = c.relnamespace
+            join pg_trigger t on t.tgrelid = c.oid and not t.tgisinternal
+            join pg_proc p on p.oid = t.tgfoid
+           where ns.nspname = 'public' and c.relkind = 'r' and not p.prosecdef
+             and (has_table_privilege('authenticated', c.oid, 'insert')
+               or has_table_privilege('authenticated', c.oid, 'update')
+               or has_table_privilege('authenticated', c.oid, 'delete'));
+          raise exception 'f08-plant-undo';
+        exception when others then
+          if sqlerrm <> 'f08-plant-undo' then
+            v_probs := selftest.f08_note(v_probs, 'F08-P02', 'the planted invoker trigger could not be made: ' || sqlerrm);
+          end if;
+        end;
+      end if;
       if m_tables < 10 or m_triggers < 1 then
         v_probs := selftest.f08_note(v_probs, 'F08-P02',
           format('the assertion sweeps %s table(s) and %s invoker trigger(s): too few to be measuring anything',
