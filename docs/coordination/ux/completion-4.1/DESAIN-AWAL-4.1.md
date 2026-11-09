@@ -401,3 +401,33 @@ The default is the zone of the school's province, if it is recorded. Otherwise t
 **Person in two schools** (rare): each page uses the school in the current context (the context chooser), as every other school-scoped fact does.
 
 **Proof for the walks.** A fixture school in WIT. A walk of its reports, prints and maintenance pages finds no «WIB» anywhere, and times 2 hours later than the same instants at a WIB school. **→ Sharon** (the rule that stored instants never change, only their display).
+
+---
+
+## 8 · How I review 4.1 designs (owner, 9 Nov: PLAN → PREPARE → REVIEW → REVISE → PREPARE → EXECUTE)
+
+**What it is.** My REVIEW step is on Second Eye's plan, before any code. It goes in one file per capability, or a section of the plan, never a new ceremony. Each finding is a direct correction naming the 4.0 pattern it reuses. Routine wording and layout I settle with Second Eye directly; only a material product conflict goes to the owner.
+
+**Proportionate to risk** (the register's own risk column):
+
+| Risk | Capabilities | What I review before build | What I verify after build |
+|---|---|---|---|
+| **High** | C1 recovery, C3 AI drafts | Every screen and state in both languages: happy path, refusals, failure, expiry, the old device, the reviewer. Screen-reader behaviour of each state change. A first-time reader's understanding (student, teacher, reviewer). Where wording depends on the mechanism, agreed with Sharon at REVIEW, not after | The full walk of those states at 1280/390/320, axe, a real run of the mechanism (as with D14), and both languages |
+| **Medium** | C7 maintenance, C8 emergency, C5 «Jejak audit», C4 lineage in Studio | The changed screens and the warning or notice states; reuse of existing parts checked; time zone (§7) | The changed screens at the three widths, the warnings at each step, and one real window run end to end |
+| **Low** | C6 footer, C2 annotations | The composition and copy (C6 is in §1) | Print to PDF in colour and greyscale; one screen check |
+| **Cross-cutting** | X consistency, the time zone | The ordered list in §6 and §7 is the review; each fix is checked against it | The cross-module walks already in use, plus a WIT school |
+
+**What I need in each plan** (one paragraph each, not a template):
+1. Which screens change, and for whom.
+2. The states: empty, refused, failed, expired, «not yet».
+3. Which existing component each uses.
+4. What the mechanism decides that the words depend on.
+
+**What the PREPARE step gets from me:** the acceptance criteria for the screens, written as checks a walk can run: copy present, nothing technical shown, the state's sentence tied to its control, no sideways scroll, axe clean. That way the regression tests and my later verification check the same thing.
+
+**First up:**
+- **C1:** with Sharon on the D-125 investigation, so the recovery words and the single-writer mechanism are reviewed together.
+- **C3:** the draft and review flow, which is independent of the provider.
+- **C7:** class scope, the reason list, the warnings and the time zone.
+
+My §2–§5 input is a starting draft for those plans, not a parallel design.
