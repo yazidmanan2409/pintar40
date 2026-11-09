@@ -158,6 +158,13 @@ begin
   if position('pg_advisory_xact_lock' in (select prosrc from pg_proc where oid = 'public.start_learning_session(uuid)'::regprocedure)) = 0 then
     raise exception 'SI-D02: start_learning_session does not serialize starts per learner and assignment';
   end if;
+  -- Sharon (finding 2): the lock is taken BEFORE the attempt count (may_start_assessment), or it serializes nothing
+  -- the calls themselves, not the comments that name them
+  if position('perform pg_advisory_xact_lock(' in (select prosrc from pg_proc where oid = 'public.start_learning_session(uuid)'::regprocedure)) = 0
+     or position('perform pg_advisory_xact_lock(' in (select prosrc from pg_proc where oid = 'public.start_learning_session(uuid)'::regprocedure))
+        > position('from public.may_start_assessment(' in (select prosrc from pg_proc where oid = 'public.start_learning_session(uuid)'::regprocedure)) then
+    raise exception 'SI-D02: start_learning_session counts attempts before it takes the per-learner lock';
+  end if;
   if (select p.prosecdef from pg_proc p where p.oid = 'public.start_learning_session(uuid)'::regprocedure) is not true then
     raise exception 'SI-D02: start_learning_session must stay SECURITY DEFINER';
   end if;
