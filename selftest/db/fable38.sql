@@ -72,6 +72,10 @@
 --            activation grants, email corrections, card conversions, import rows, the chosen username, auth.identities.
 --   F38-A07  Sharon §16 finding 5: a person holding a live platform role cannot close their own account
 --            (ACCOUNT_PLATFORM_ROLE), so the last PINTAR Administrator cannot lock the platform out.
+--   F38-O01  Owner ruling 1 (9 Nov): an attempt limit holds across reassignment of the same assessment.
+--   F38-O02  Owner ruling 2: a closed account asks to be reopened from outside (minta_buka_kembali, server-only); only the
+--            PINTAR Administrator reopens it, from that request, saying how identity was verified (buka_kembali_akun).
+--   F38-O03  Owner ruling 3: «Disiplin» is not a platform suspension category.
 --   F38-H01  Sharon F1 (7a2c1751): a school's date is its own. Kelas A's school set to WIT by the PINTAR Administrator
 --            (a school's admin is refused; the change is audited): hari_sekolah answers WIT's date, an ending with no
 --            date is stamped with it, and WIT's tomorrow is refused as a future date.
@@ -154,7 +158,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
-  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; s06 text[] := '{}'; u_hd uuid; p_hd uuid; v_hdr uuid; p_luar uuid; u_adm2 uuid; p_adm2 uuid; c05 text[] := '{}'; v_num05 text; v_seq05 int; a06 text[] := '{}'; a07 text[] := '{}'; u_c uuid; u_kartu uuid; p_c uuid; v_akk uuid; v_job uuid; v_req3 uuid; v_pid3 text; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
+  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; o01 text[] := '{}'; o02 text[] := '{}'; o03 text[] := '{}'; u_o uuid; p_o uuid; e_o uuid; v_la_o uuid; v_aa_o uuid; u_t uuid; p_t uuid; v_rq uuid; s06 text[] := '{}'; u_hd uuid; p_hd uuid; v_hdr uuid; p_luar uuid; u_adm2 uuid; p_adm2 uuid; c05 text[] := '{}'; v_num05 text; v_seq05 int; a06 text[] := '{}'; a07 text[] := '{}'; u_c uuid; u_kartu uuid; p_c uuid; v_akk uuid; v_job uuid; v_req3 uuid; v_pid3 text; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
   u_admin uuid; v_n int; v_cert uuid; v_cert2 uuid; v_new uuid; v_new2 uuid; v_tok text; v_ntok text; v_payload jsonb; v_nomor text; v_snapold uuid; p_holder uuid; u_holder uuid; v_k record;
   v_crel uuid; v_cdef uuid; v_dist uuid; v_la3 uuid; v_aa3 uuid;
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid; v_coh uuid; c_a uuid; c_b uuid;
@@ -910,6 +914,76 @@ begin
       if v_hk.person_id is null or v_hk.bisa_dikoreksi then h05 := h05 || 'murid_keluar still offers the correction'::text; end if;
     end if;
 
+    -- ═══════════════════════════════════ F38-O01..O03 the owner's rulings (9 Nov)
+    -- O01 an attempt limit holds across reassignment of the same assessment
+    if v_aa_lim is not null then
+      u_o := selftest.f11_user('f38-murid-o1-' || v_tag || '@local.invalid', null, null);
+      select a.person_id into p_o from public.accounts a where a.auth_user_id = u_o;
+      insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+      values (p_o, v_inst, v_period, v_prog, 'ACTIVE') returning enrollments.id into e_o;
+      insert into public.memberships (enrollment_id, node_id, academic_period_id) values (e_o, c_a, v_period);
+      s_h := selftest.f38_buka(v_tpl, p_o, e_o, c_a, v_la2, v_aa_lim);
+      set local session_replication_role = replica;
+      update public.assessment_sessions set status = 'FINALIZED' where assessment_sessions.id = s_h;
+      -- the lesson ended and given to the class again: a new learning assignment, its assessment the same definition
+      insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id, academic_period_id, status, assigned_at)
+      select v_inst, x.id, x.course_id, c_a, v_period, 'ACTIVE', now() from public.plp_releases x where x.id = v_rel returning learning_assignments.id into v_la_o;
+      insert into public.assessment_assignments (institution_id, assessment_definition_id, learning_assignment_id, node_id, academic_period_id, opens_at, status, assigned_at)
+      values (v_inst, v_def, v_la_o, c_a, v_period, now() - interval '1 day', 'OPEN', now()) returning assessment_assignments.id into v_aa_o;
+      set local session_replication_role = origin;
+      perform selftest.as_user_uid(u_o);
+      select m.reason into v_got from public.may_start_assessment(v_aa_o) m;
+      perform selftest.as_owner();
+      if v_got is distinct from 'ATTEMPT_LIMIT_REACHED' then
+        o01 := o01 || ('a reassignment of the same assessment reset the attempt limit of 1: ' || coalesce(v_got, 'null')); end if;
+    else
+      o01 := o01 || 'fixture: H02 made no limited assessment'::text;
+    end if;
+
+    -- O03 «Disiplin» is not a platform suspension
+    v_got := selftest.f37_sebagai(u_sys, format('select public.tangguhkan_akun(%L, %L, %L)', p_guru_a, 'DISCIPLINARY', null));
+    if v_got <> 'PR140:ACCOUNT_CATEGORY_INVALID' then o03 := o03 || ('a disciplinary platform suspension: ' || v_got); end if;
+
+    -- O02 a closed account asks to be reopened from outside, and is reopened only by the PINTAR Administrator after
+    -- identity verification
+    if has_function_privilege('authenticated', 'public.minta_buka_kembali(text, text)'::regprocedure, 'execute')
+       or has_function_privilege('anon', 'public.minta_buka_kembali(text, text)'::regprocedure, 'execute') then
+      o02 := o02 || 'the public request is callable by a client, not only by its server route'::text; end if;
+    u_t := selftest.f11_user('f38-tutup-' || v_tag || '@local.invalid', null, null);
+    select a.person_id into p_t from public.accounts a where a.auth_user_id = u_t;
+    v_got := selftest.f37_sebagai(u_t, format('select public.minta_akun(%L, true)', 'CLOSE'));
+    select count(*) into v_cnt from public.account_requests q where q.kind = 'REOPEN';
+    perform public.minta_buka_kembali('tidak-ada-' || v_tag || '@local.invalid', 'tolong buka akun saya, hubungi 0812');
+    perform public.minta_buka_kembali('f38-guru-a-' || v_tag || '@local.invalid', 'akun ini belum ditutup sama sekali');
+    if (select count(*) from public.account_requests q where q.kind = 'REOPEN') <> v_cnt then
+      o02 := o02 || 'an unknown or open account recorded a reopening request'::text; end if;
+    if (public.minta_buka_kembali('f38-unknown@local.invalid', 'pesan yang cukup panjang')) is distinct from
+       (public.minta_buka_kembali('F38-TUTUP-' || v_tag || '@LOCAL.INVALID', 'saya ingin kembali, hubungi saya di 0812')) then
+      o02 := o02 || 'the answer tells an unknown address from a closed account'::text; end if;
+    select q.id into v_rq from public.account_requests q where q.person_id = p_t and q.kind = 'REOPEN' and q.status = 'RECEIVED';
+    if v_rq is null then o02 := o02 || 'the closed account''s request was not recorded'::text;
+    else
+      perform public.minta_buka_kembali((select p.pintar_id from public.persons p where p.id = p_t), 'sekali lagi lewat PINTAR ID');
+      if (select count(*) from public.account_requests q where q.person_id = p_t and q.kind = 'REOPEN') <> 1 then
+        o02 := o02 || 'a second request made a second row'::text; end if;
+      if not exists (select 1 from public.person_suspensions x where x.person_id = p_t and x.ended_at is null) then
+        o02 := o02 || 'the request reopened the account by itself'::text; end if;
+      v_got := selftest.f37_sebagai(u_sys, format('select public.aktifkan_kembali_akun(%L, %L)', p_t, 'langsung tanpa permintaan'));
+      if v_got <> 'PR140:ACCOUNT_REOPEN_VIA_REQUEST' then o02 := o02 || ('a closed account reopened without its request: ' || v_got); end if;
+      v_got := selftest.f37_sebagai(u_admin, format('select public.buka_kembali_akun(%L, %L)', v_rq, 'identitas dicocokkan lewat telepon'));
+      if v_got <> 'PR140:ACCOUNT_NOT_ALLOWED' then o02 := o02 || ('a school''s admin reopened: ' || v_got); end if;
+      v_got := selftest.f37_sebagai(u_sys, format('select public.buka_kembali_akun(%L, %L)', v_rq, 'pendek'));
+      if v_got <> 'PR140:ACCOUNT_NOTE_REQUIRED' then o02 := o02 || ('reopening without saying how identity was verified: ' || v_got); end if;
+      v_got := selftest.f37_sebagai(u_sys, format('select public.buka_kembali_akun(%L, %L)', v_rq, 'identitas dicocokkan lewat panggilan video'));
+      if v_got <> 'OK' then o02 := o02 || ('the verified reopening: ' || v_got);
+      elsif exists (select 1 from public.person_suspensions x where x.person_id = p_t and x.ended_at is null)
+         or (select q.status from public.account_requests q where q.id = v_rq) <> 'DONE'
+         or (select u.banned_until from auth.users u where u.id = u_t) is not null
+         or not exists (select 1 from public.audit_log a where a.action = 'account.reopened' and a.target_id = p_t::text
+                          and a.summary ->> 'request_id' = v_rq::text) then
+        o02 := o02 || 'after the verified reopening the account is not open, the request not DONE, or no account.reopened row naming it'::text; end if;
+    end if;
+
     raise exception 'f38-rollback';
   exception when others then
     if sqlerrm <> 'f38-rollback' then v_fatal := sqlerrm; end if;
@@ -955,6 +1029,9 @@ begin
       ('F38-C05', 'Sharon §14: one pending replacement per certificate', c05, 'a preparation with another reason is the same pending replacement, with the same number, the holder''s counter unmoved, carrying the reason given last'),
       ('F38-A06', 'Sharon §16: L4 for a card holder, and every copy of the name and email', a06, 'the deletion goes through with a class card held; the card''s address stays; the activation grant, email corrections, card conversion, import row, username and auth.identities keep neither name nor email'),
       ('F38-A07', 'Sharon §16: a live platform role does not close itself', a07, 'the PINTAR Administrator''s own CLOSE is refused ACCOUNT_PLATFORM_ROLE and nothing is closed'),
+      ('F38-O01', 'Owner ruling 1: an attempt limit holds across reassignment', o01, 'a learner who used the one attempt cannot start the same assessment again when the lesson is given to the class again'),
+      ('F38-O02', 'Owner ruling 2: a closed account asks to be reopened', o02, 'the public request is server-only, records only for a closed account, answers the same for any address, is one per person and reopens nothing by itself; a closed account is reopened only from its request, by the PINTAR Administrator, with how identity was verified; DONE and audited'),
+      ('F38-O03', 'Owner ruling 3: no disciplinary platform suspension', o03, 'DISCIPLINARY is refused ACCOUNT_CATEGORY_INVALID'),
       ('F38-H01', 'Sharon F1: a school''s date is its own', h01, 'the PINTAR Administrator sets WIT (a school''s admin refused, audited); hari_sekolah answers WIT''s date; an ending with no date is stamped with it; WIT''s tomorrow is refused'),
       ('F38-H02', 'Sharon F2: an ending does not use up an attempt', h02, 'a sitting TERMINATED as INSTITUTIONAL_REVOCATION is not counted against an attempt limit of 1'),
       ('F38-H03', 'Sharon F3: a placeless open sitting does not block a departure', h03, 'the enrolment ends; the sitting with neither class nor Angkatan is TERMINATED as INSTITUTIONAL_REVOCATION, audited'),

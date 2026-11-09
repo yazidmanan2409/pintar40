@@ -563,4 +563,66 @@ export const kenaikanAppTests: SelfTest[] = [
         "and carries out the deletion from the queue: the name becomes the PINTAR ID, anonymized_at set");
     },
   },
+  {
+    id: "AKUN-A02",
+    requires: ["app", "network", "db", "mailsink"],
+    run: async (ctx) => {
+      // Owner ruling 2 (9 Nov) through the running app: an educator closes their account; signed out, they ask from the
+      // sign-in screen for it to be reopened (the answer the same as for an address that is nobody's); the request waits
+      // in the PINTAR Administrator's queue and reopens nothing; the Administrator confirms the identity, says how, and
+      // reopens it; the educator signs in again
+      const c = new Checks();
+      const asal = ctx.appUrl!;
+      const tag = randomBytes(4).toString("hex");
+      const email = `kembali-${tag}@local.invalid`;
+      const orang = await daftar(asal, `Guru Kembali ${tag}`, email);
+      const sandi = await aktifkan(c, asal, email, `kembali.${tag}`, "6143");
+      if (!sandi) return c.verdict("");
+      const guru = new Komputer(asal, ipUji());
+      const m = await guru.jsonDari("/masuk/password", { form: { identitas: email, password: sandi } });
+      if (!c.expect(m.status === 200, `the educator could not sign in (${m.status})`)) return c.verdict("");
+      await guru.halaman("/akun");
+      await guru.jsonDari("/api/sesi/perangkat", { form: { mode: "PERSONAL" } });
+      const f1 = formDengan(await (await guru.halaman("/akun")).text(), 'data-minta-akun="CLOSE"', { konfirmasi: "ya" });
+      if (!c.expect(typeof f1 !== "string", `the closure form: ${f1}`)) return c.verdict("");
+      await guru.kirim("/akun", { form: f1 as Record<string, string> });
+      c.expect(psql(`select category from public.person_suspensions where person_id = ${lit(orang)} and ended_at is null`) === "CLOSED_AT_REQUEST",
+        "the account did not close");
+      // signed out: the sign-in screen offers the request, and the page takes it
+      const luar = new Komputer(asal, ipUji());
+      c.expect((await (await luar.halaman("/masuk")).text()).includes('href="/masuk/buka-kembali"'), "the sign-in screen does not offer «Minta dibuka kembali»");
+      const hp = await luar.halaman("/masuk/buka-kembali");
+      c.expect(hp.status === 200 && (await hp.text()).includes('action="/masuk/buka-kembali/kirim"'), `the reopening page answered ${hp.status} without its form`);
+      const pesan = "Saya ingin kembali mengajar. Hubungi saya di nomor sekolah.";
+      const rAda = await luar.kirim("/masuk/buka-kembali/kirim", { form: { identitas: email.toUpperCase(), pesan } });
+      const rTiada = await luar.kirim("/masuk/buka-kembali/kirim", { form: { identitas: `tiada-${tag}@local.invalid`, pesan } });
+      c.expect(rAda.status === 303 && rAda.headers.get("location") === rTiada.headers.get("location") && /hasil=terkirim/.test(rAda.headers.get("location") ?? ""),
+        `a closed account's request and a nobody's address answer differently: ${rAda.headers.get("location")} / ${rTiada.headers.get("location")}`);
+      const req = psql(`select id from public.account_requests where person_id = ${lit(orang)} and kind = 'REOPEN' and status = 'RECEIVED'`);
+      if (!c.expect(/^[0-9a-f-]{36}$/.test(req), "the request did not reach the queue")) return c.verdict("");
+      const tutup = await new Komputer(asal, ipUji()).jsonDari("/masuk/password", { form: { identitas: email, password: sandi } });
+      c.expect(tutup.status !== 200, "the request reopened the account by itself");
+      // the PINTAR Administrator reopens it from the queue, saying how the identity was confirmed
+      const sys = new Komputer(asal, ipUji());
+      const ms = await sys.jsonDari("/masuk/password", { form: { identitas: "sysadmin@synthetic.pintar.test", password: "Sintetis-Sys-91!" } });
+      if (!c.expect(ms.status === 200, `the PINTAR Administrator could not sign in (${ms.status})`)) return c.verdict("");
+      await sys.halaman("/konfigurasi");
+      await sys.jsonDari("/api/sesi/perangkat", { form: { mode: "PERSONAL" } });
+      await pilihKonteksPeramban(sys, "MENGELOLA:PLATFORM");
+      const pid = psql(`select pintar_id from public.persons where id = ${lit(orang)}`);
+      const hk = await (await sys.halaman(`/konfigurasi/keamanan?pid=${pid}`)).text();
+      c.expect(!hk.includes("data-aktifkan-akun"), "a closed account is offered a reopening outside its request");
+      c.expect(teks(hk).includes(pesan), "the queue does not show what the person wrote");
+      const fb = formDengan(hk, `data-buka-kembali="${req}"`, { cara: "dicocokkan lewat panggilan ke nomor sekolah", diverifikasi: "ya" });
+      if (!c.expect(typeof fb !== "string", `the reopening form in the queue: ${fb}`)) return c.verdict("");
+      const rb = await sys.kirim("/konfigurasi/keamanan", { form: fb as Record<string, string> });
+      c.expect(/hasil=ok/.test(rb.headers.get("location") ?? ""), `the reopening answered ${rb.status} ${rb.headers.get("location")}`);
+      const lagi = await new Komputer(asal, ipUji()).jsonDari("/masuk/password", { form: { identitas: email, password: sandi } });
+      c.expect(lagi.status === 200, `the reopened account does not sign in (${lagi.status})`);
+      c.expect(psql(`select status from public.account_requests where id = ${lit(req)}`) === "DONE", "the request is not DONE");
+      return c.verdict("a closed account is asked back signed out from the sign-in screen, answered as an unknown address is; the request waits " +
+        "in the queue and reopens nothing; the closed account offers no other reopening; the PINTAR Administrator confirms the identity, says how, " +
+        "and reopens it from the queue; the request is DONE and the educator signs in again");
+    },
+  },
 ];

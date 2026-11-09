@@ -41,3 +41,17 @@ export async function aktifkanKembaliAksi(fd: FormData): Promise<void> {
 }
 
 // L4 «Hapus data pribadi» is a route (src/app/api/akun/hapus-data), so the photo files are removed with the data.
+
+/**
+ * Owner ruling 2 (9 Nov): an Admin PINTAR reopens a closed account from its request in the queue, after confirming the
+ * person's identity, and says how (buka_kembali_akun decides: SYSTEM_ADMIN, an open REOPEN request of a closed account,
+ * 10–300 characters). The tick is the form's: nothing is sent without it.
+ */
+export async function bukaKembaliAksi(fd: FormData): Promise<void> {
+  const permintaan = String(fd.get("permintaan") ?? "");
+  if (!UUID.test(permintaan) || fd.get("diverifikasi") !== "ya") kembali("", "gagal", "ACCOUNT_NOTE_REQUIRED");
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("buka_kembali_akun", { p_request: permintaan, p_cara_verifikasi: String(fd.get("cara") ?? "").trim() });
+  if (error) kembali("", "gagal", kodeAkunDariGalat(error));
+  kembali("", "ok", undefined, "buka");
+}

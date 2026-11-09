@@ -1002,7 +1002,10 @@ export const staticTests: SelfTest[] = [
       // RESTATED FOR BOB-28 (Gate 5, a changed requirement): its fourth door, recovery by PINTAR ID + PIN, declared the same way.
       const expectedPaths = ["/", "/masuk", "/masuk/kartu", "/masuk/password", "/aktifkan", "/aktifkan/kode",
                              "/aktifkan/periksa", "/masuk/lupa", "/masuk/lupa/kode", "/masuk/lupa/periksa",
-                             "/masuk/lupa/password", "/masuk/lupa/pin", "/auth/callback", "/keluar"];
+                             "/masuk/lupa/password", "/masuk/lupa/pin", "/auth/callback", "/keluar",
+                             // RESTATED FOR THE OWNER'S RULING 2 (9 Nov, a changed requirement): a closed account asks to be
+                             // reopened signed out, at /masuk/buka-kembali and its one POST-only door, declared with its handler
+                             "/masuk/buka-kembali", "/masuk/buka-kembali/kirim"];
       c.expect(
         JSON.stringify(paths.slice().sort()) === JSON.stringify(expectedPaths.slice().sort()),
         `the anonymous path list changed: ${JSON.stringify(paths)}`,
@@ -1038,13 +1041,14 @@ export const staticTests: SelfTest[] = [
       const migTeks = readdirSync(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql"))
         .map((f) => readFileSync(join(repoRoot, "supabase", "migrations", f), "utf8")).join("\n");
       for (const pintu of ["/masuk/kartu", "/masuk/password", "/aktifkan/kode", "/aktifkan/periksa",
-                           "/masuk/lupa/kode", "/masuk/lupa/periksa", "/masuk/lupa/password", "/masuk/lupa/pin"]) {
+                           "/masuk/lupa/kode", "/masuk/lupa/periksa", "/masuk/lupa/password", "/masuk/lupa/pin",
+                           "/masuk/buka-kembali/kirim"]) {
         c.expect(new RegExp(`'ROUTE',\\s*'${pintu}'`).test(migTeks) && new RegExp(`'ENDPOINT',\\s*'/api${pintu}'`).test(migTeks),
           `${pintu} is anonymous but not declared in public_surface_registry with /api${pintu} as its child`);
       }
       c.note(`${routes.length} routes, ${studio.length} in Studio, ${paths.length + prefixes.length} anonymous`);
       c.expect(/'ROUTE',\s*'\/id\/\[pintarId\]'/.test(migTeks), "/id/ is anonymous but not declared in public_surface_registry");
-      return c.verdict("the anonymous surface did not grow beyond its declared doors (Gate 3's three, Gate 4's three and Gate 5's one, each registered with its handler, and the declared ID page) and every Studio route sits behind the proxy");
+      return c.verdict("the anonymous surface did not grow beyond its declared doors (Gate 3's three, Gate 4's three, Gate 5's one and the reopening request's one, each registered with its handler, and the declared ID page) and every Studio route sits behind the proxy");
     },
   },
   {

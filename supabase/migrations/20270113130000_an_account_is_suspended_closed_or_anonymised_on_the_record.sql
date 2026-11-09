@@ -3,7 +3,8 @@
 -- ACCOUNT-LIFECYCLE-INVENTORY.md). One mechanism, four uses that never read alike:
 --
 -- SUSPENSION (§5b), the PINTAR Administrator only: tangguhkan_akun(person, category, note) with a category (SECURITY,
---   DISCIPLINARY, ADMINISTRATIVE, OTHER: OTHER needs a 10–300 note) is enforced at once: every session of the person's
+--   ADMINISTRATIVE, OTHER: OTHER needs a 10–300 note; owner ruling 3, 9 Nov: no DISCIPLINARY, since a school's discipline
+--   is never a platform-wide suspension) is enforced at once: every session of the person's
 --   accounts ends (sesi_akhiri_orang, recorded DITANGGUHKAN), the Auth users are banned so sign-in is refused, and the
 --   per-request check refuses any request still carrying a token (PT403 AKUN_DITANGGUHKAN). Nothing educational is
 --   touched: sittings, results, certificates and attribution stay. aktifkan_kembali_akun(person, reason) lifts it, with
@@ -26,7 +27,8 @@
 create table public.person_suspensions (
   id            uuid primary key default gen_random_uuid(),
   person_id     uuid not null references public.persons(id),
-  category      text not null check (category in ('SECURITY', 'DISCIPLINARY', 'ADMINISTRATIVE', 'OTHER', 'CLOSED_AT_REQUEST')),
+  -- CORRECTED IN PLACE (undeployed; owner ruling 3, 9 Nov): DISCIPLINARY removed
+  category      text not null check (category in ('SECURITY', 'ADMINISTRATIVE', 'OTHER', 'CLOSED_AT_REQUEST')),
   note          text check (note is null or char_length(note) <= 300),
   started_by    uuid not null references public.persons(id),
   started_at    timestamptz not null default now(),
@@ -45,12 +47,15 @@ insert into public.record_class_registry values
 create table public.account_requests (
   id            uuid primary key default gen_random_uuid(),
   person_id     uuid not null references public.persons(id),
-  kind          text not null check (kind in ('CLOSE', 'DELETE_PERSONAL_DATA')),
+  -- CORRECTED IN PLACE (undeployed; owner ruling 2, 9 Nov): REOPEN, a closed account's request to be reopened, made
+  -- from outside (minta_buka_kembali); pesan is what the person wrote with it, so the PINTAR Administrator can reach them
+  kind          text not null check (kind in ('CLOSE', 'DELETE_PERSONAL_DATA', 'REOPEN')),
   status        text not null default 'RECEIVED' check (status in ('RECEIVED', 'IN_PROGRESS', 'DONE', 'DECLINED')),
   created_at    timestamptz not null default now(),
   decided_by    uuid references public.persons(id),
   decided_at    timestamptz,
-  decision_note text check (decision_note is null or char_length(decision_note) <= 300)
+  decision_note text check (decision_note is null or char_length(decision_note) <= 300),
+  pesan         text check (pesan is null or char_length(pesan) between 10 and 500)
 );
 create unique index account_requests_one_open on public.account_requests (person_id, kind) where status in ('RECEIVED', 'IN_PROGRESS');
 alter table public.account_requests enable row level security;
@@ -83,6 +88,8 @@ begin
       when 'ACCOUNT_NOT_CLOSED'         then 'personal data is deleted only from a closed account'
       -- CORRECTED IN PLACE (undeployed; Sharon §16 finding 5 on 6faef690)
       when 'ACCOUNT_PLATFORM_ROLE'      then 'a person holding a platform role does not close their own account'
+      -- owner ruling 2 (9 Nov)
+      when 'ACCOUNT_REOPEN_VIA_REQUEST' then 'a closed account is reopened only from its request, after identity verification'
       else 'the account could not be changed' end;
 end $$;
 revoke all on function public.akun_tolak(text) from public, anon, authenticated;
@@ -115,7 +122,7 @@ begin
   if p_person = v_actor then perform public.akun_tolak('ACCOUNT_SELF'); end if;
   perform 1 from public.persons where id = p_person for update;
   if not found then perform public.akun_tolak('ACCOUNT_UNKNOWN'); end if;
-  if p_kategori is null or p_kategori not in ('SECURITY', 'DISCIPLINARY', 'ADMINISTRATIVE', 'OTHER') then
+  if p_kategori is null or p_kategori not in ('SECURITY', 'ADMINISTRATIVE', 'OTHER') then
     perform public.akun_tolak('ACCOUNT_CATEGORY_INVALID');
   end if;
   if (p_kategori = 'OTHER' and (v_note is null or char_length(v_note) < 10)) or char_length(coalesce(v_note, '')) > 300 then
@@ -140,6 +147,9 @@ begin
   if p_person = v_actor then perform public.akun_tolak('ACCOUNT_SELF'); end if;
   select * into v_s from public.person_suspensions s where s.person_id = p_person and s.ended_at is null for update;
   if v_s.id is null then perform public.akun_tolak('ACCOUNT_NOT_SUSPENDED'); end if;
+  -- CORRECTED IN PLACE (undeployed; owner ruling 2): a closure at the person's request is undone only from their
+  -- request to reopen, after identity verification (buka_kembali_akun); this lifts a suspension
+  if v_s.category = 'CLOSED_AT_REQUEST' then perform public.akun_tolak('ACCOUNT_REOPEN_VIA_REQUEST'); end if;
   if char_length(v_alasan) < 10 or char_length(v_alasan) > 300 then perform public.akun_tolak('ACCOUNT_NOTE_REQUIRED'); end if;
   update public.person_suspensions set ended_at = now(), ended_by = v_actor, end_reason = v_alasan where id = v_s.id;
   perform public.akun_kunci(p_person, false);
@@ -215,13 +225,15 @@ revoke all on function public.permintaan_akun_saya() from public, anon, authenti
 grant execute on function public.permintaan_akun_saya() to authenticated;
 
 create or replace function public.permintaan_akun_antrean()
-returns table (id uuid, person_id uuid, nama text, pintar_id text, kind text, status text, created_at timestamptz, ditutup boolean)
+-- CORRECTED IN PLACE (undeployed; owner ruling 2): with what the person wrote (pesan), for a request to reopen
+returns table (id uuid, person_id uuid, nama text, pintar_id text, kind text, status text, created_at timestamptz, ditutup boolean, pesan text)
 language plpgsql stable security definer set search_path = public, pg_temp as $$
 begin
   if public.current_person_id() is null or not public.is_system_admin() then perform public.akun_tolak('ACCOUNT_NOT_ALLOWED'); end if;
   return query
     select r.id, r.person_id, p.display_name, p.pintar_id, r.kind, r.status, r.created_at,
-           exists (select 1 from public.person_suspensions s where s.person_id = r.person_id and s.ended_at is null and s.category = 'CLOSED_AT_REQUEST')
+           exists (select 1 from public.person_suspensions s where s.person_id = r.person_id and s.ended_at is null and s.category = 'CLOSED_AT_REQUEST'),
+           r.pesan
       from public.account_requests r join public.persons p on p.id = r.person_id
      where r.status in ('RECEIVED', 'IN_PROGRESS') order by r.created_at;
 end $$;
@@ -290,6 +302,75 @@ begin
 end $$;
 revoke all on function public.auth_email_correction_guard() from public, anon, authenticated, service_role;
 
+-- ═══════════════════════════════════════════════════════════ owner ruling 2 (9 Nov): reopening a closed account
+-- «A simple external request channel accessible without signing in, using an existing support mechanism where possible.
+-- Only an authorized Admin PINTAR may approve reopening after identity verification. No automatic restoration and no new
+-- ticketing system.» The existing request queue (account_requests, the PINTAR Administrator's queue on Keamanan) holds
+-- it. minta_buka_kembali is called only by its server route (/api/akun/buka-kembali, service role), from a page
+-- reachable from the sign-in screen: the person names their sign-in email or PINTAR ID and writes how they can be
+-- reached. Only a closed account (CLOSED_AT_REQUEST) records a request, once while it is open; the answer is the same
+-- for any address, so it tells no one whether an account exists. It reopens nothing.
+create or replace function public.minta_buka_kembali(p_identitas text, p_pesan text)
+returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
+declare v_id text := lower(btrim(coalesce(p_identitas, ''))); v_pesan text := btrim(coalesce(p_pesan, '')); v_person uuid; v_req uuid;
+begin
+  -- depends only on what was typed, never on an account
+  if v_id = '' or char_length(v_id) > 254 or char_length(v_pesan) < 10 or char_length(v_pesan) > 500 then
+    return jsonb_build_object('ok', false, 'kode', 'ACCOUNT_NOTE_REQUIRED');
+  end if;
+  select p.id into v_person from public.persons p where lower(p.pintar_id) = v_id;
+  if v_person is null then
+    select a.person_id into v_person from public.accounts a join auth.users u on u.id = a.auth_user_id
+     where lower(u.email) = v_id and a.kind = 'EMAIL' limit 1;
+  end if;
+  if v_person is not null
+     and exists (select 1 from public.person_suspensions s where s.person_id = v_person and s.ended_at is null and s.category = 'CLOSED_AT_REQUEST')
+     and not exists (select 1 from public.account_requests q where q.person_id = v_person and q.kind = 'REOPEN' and q.status in ('RECEIVED', 'IN_PROGRESS')) then
+    insert into public.account_requests (person_id, kind, pesan) values (v_person, 'REOPEN', v_pesan) returning id into v_req;
+    perform public.audit_write('account.reopen_requested', 'persons', v_person::text, null,
+      jsonb_build_object('person_id', v_person, 'request_id', v_req));
+  end if;
+  return jsonb_build_object('ok', true);
+end $$;
+revoke all on function public.minta_buka_kembali(text, text) from public, anon, authenticated;
+grant execute on function public.minta_buka_kembali(text, text) to service_role;
+
+-- the PINTAR Administrator approves it, saying how the person's identity was verified (10–300 characters)
+create or replace function public.buka_kembali_akun(p_request uuid, p_cara_verifikasi text)
+returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
+declare v_actor uuid := public.current_person_id(); v_cara text := btrim(coalesce(p_cara_verifikasi, ''));
+        r public.account_requests; v_s public.person_suspensions;
+begin
+  if v_actor is null or not public.is_system_admin() then perform public.akun_tolak('ACCOUNT_NOT_ALLOWED'); end if;
+  select * into r from public.account_requests q where q.id = p_request for update;
+  if r.id is null or r.kind <> 'REOPEN' or r.status not in ('RECEIVED', 'IN_PROGRESS') then perform public.akun_tolak('ACCOUNT_REQUEST_INVALID'); end if;
+  if r.person_id = v_actor then perform public.akun_tolak('ACCOUNT_SELF'); end if;
+  select * into v_s from public.person_suspensions s where s.person_id = r.person_id and s.ended_at is null for update;
+  if v_s.id is null or v_s.category <> 'CLOSED_AT_REQUEST' then perform public.akun_tolak('ACCOUNT_NOT_CLOSED'); end if;
+  if char_length(v_cara) < 10 or char_length(v_cara) > 300 then perform public.akun_tolak('ACCOUNT_NOTE_REQUIRED'); end if;
+  update public.person_suspensions set ended_at = now(), ended_by = v_actor, end_reason = v_cara where id = v_s.id;
+  perform public.akun_kunci(r.person_id, false);
+  update public.account_requests set status = 'DONE', decided_by = v_actor, decided_at = now(), decision_note = v_cara where id = r.id;
+  perform public.audit_write('account.reopened', 'persons', r.person_id::text, null,
+    jsonb_build_object('person_id', r.person_id, 'request_id', r.id, 'reason', v_cara, 'identity_verified', true,
+                       'from', jsonb_build_object('category', v_s.category), 'actor_role', public.audit_actor_role(null)));
+  return jsonb_build_object('ok', true);
+end $$;
+revoke all on function public.buka_kembali_akun(uuid, text) from public, anon, authenticated;
+grant execute on function public.buka_kembali_akun(uuid, text) to authenticated;
+
+-- the door is public (the person cannot sign in), declared as Gate 3's to Gate 5's are, its handler as its child
+insert into public.public_surface_registry (surface, kind, object, note, parent) values
+  ('reopen_request', 'ROUTE', '/masuk/buka-kembali/kirim',
+   'Owner ruling 2 (9 Nov): a closed account asks to be reopened. POST only, same origin only. The sign-in email or PINTAR '
+   || 'ID and a message of 10-500 characters; the same answer for every address, no sooner than a fixed wait; only a '
+   || 'closed account''s request is recorded, once while open, and nothing is reopened. Listed in the proxy''s PUBLIC_PATHS, '
+   || 'with its page /masuk/buka-kembali.', null),
+  ('reopen_request_api', 'ENDPOINT', '/api/masuk/buka-kembali/kirim',
+   'The handler /masuk/buka-kembali/kirim is rewritten to: minta_buka_kembali, service-role only. Signed out, the proxy '
+   || 'refuses this spelling itself.', 'reopen_request')
+on conflict do nothing;
+
 -- ═══════════════════════════════════════════════════════════ L4: what needs no retention, removed
 create or replace function public.hapus_data_pribadi(p_request uuid, p_catatan text)
 returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
@@ -336,6 +417,8 @@ begin
    where c.person_id = r.person_id;
   update public.card_conversions c set new_email = 'anonim-' || c.id::text || '@pintar.invalid' where c.person_id = r.person_id;
   update public.import_rows ir set payload = '{}'::jsonb where ir.person_id = r.person_id;
+  -- what the person wrote with a request to reopen (owner ruling 2) is theirs too
+  update public.account_requests q set pesan = null where q.person_id = r.person_id and q.pesan is not null;
   perform set_config('pintar.identity_correction', 'on', true);
   update public.person_usernames un set username = 'anonim.' || lower(v_pid) where un.person_id = r.person_id;
   perform set_config('pintar.identity_correction', '', true);
@@ -406,7 +489,8 @@ grant execute on function pintar_permintaan.periksa() to anon, authenticated, se
 insert into public.client_rpc_registry (function_name, exposure, note, authorization_kind, authorization_requirement)
 values
   ('tangguhkan_akun', 'STAFF', '§5b: suspends a PINTAR identity with a category and note; sessions end, sign-in refused, every request refused; evidence untouched. PINTAR Administrator only. PR140.', 'SYSTEM_ADMIN', null),
-  ('aktifkan_kembali_akun', 'STAFF', '§5b / L3: lifts a suspension or reopens a closed account with a 10-300 reason. PINTAR Administrator only. PR140.', 'SYSTEM_ADMIN', null),
+  ('aktifkan_kembali_akun', 'STAFF', '§5b: lifts a suspension with a 10-300 reason; a closed account is reopened only from its request (buka_kembali_akun). PINTAR Administrator only. PR140.', 'SYSTEM_ADMIN', null),
+  ('buka_kembali_akun', 'STAFF', 'Owner ruling 2: reopens a closed account from its REOPEN request, with how identity was verified (10-300); the request DONE; audited account.reopened. PINTAR Administrator only. PR140.', 'SYSTEM_ADMIN', null),
   ('akun_keadaan', 'STAFF', '§5b: one person''s suspension or closure as the platform sees it. PINTAR Administrator only.', 'SYSTEM_ADMIN', null),
   ('permintaan_akun_antrean', 'STAFF', 'L2: the open close and delete-personal-data requests. PINTAR Administrator only.', 'SYSTEM_ADMIN', null),
   ('hapus_data_pribadi', 'STAFF', 'L4: for a closed account''s open request, removes the photo, the name (the PINTAR ID instead, anonymized_at) and the sign-in email; results, certificates as issued and the audit log are kept. PINTAR Administrator only. PR140.', 'SYSTEM_ADMIN', null),
@@ -423,6 +507,10 @@ begin
      or has_function_privilege('authenticated', 'public.orang_ditangguhkan(uuid)'::regprocedure, 'execute')
      or has_function_privilege('authenticated', 'public.akun_tolak(text)'::regprocedure, 'execute') then
     raise exception '§5b: an internal helper is callable by a client';
+  end if;
+  if has_function_privilege('authenticated', 'public.minta_buka_kembali(text, text)'::regprocedure, 'execute')
+     or has_function_privilege('anon', 'public.minta_buka_kembali(text, text)'::regprocedure, 'execute') then
+    raise exception 'owner ruling 2: the reopening request is its server route''s alone';
   end if;
   if has_function_privilege('anon', 'public.minta_akun(text, boolean)'::regprocedure, 'execute')
      or has_function_privilege('anon', 'public.tangguhkan_akun(uuid, text, text)'::regprocedure, 'execute') then

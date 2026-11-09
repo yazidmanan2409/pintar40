@@ -241,14 +241,12 @@ export type HleEvent =
   | "keamanan.akun.akibat"
   | "keamanan.akun.kategori"
   | "keamanan.akun.kategori.security"
-  | "keamanan.akun.kategori.disciplinary"
   | "keamanan.akun.kategori.administrative"
   | "keamanan.akun.kategori.other"
   | "keamanan.akun.catatan"
   | "keamanan.akun.alasan"
   | "keamanan.akun.tangguhkan"
   | "keamanan.akun.aktifkan"
-  | "keamanan.akun.buka_lagi"
   | "keamanan.akun.ok.tangguh"
   | "keamanan.akun.ok.aktif"
   | "keamanan.akun.ok.hapus"
@@ -264,7 +262,6 @@ export type HleEvent =
   | "audit.aksi.account.deletion_requested"
   | "audit.aksi.account.personal_data_deleted"
   | "audit.alasan.security"
-  | "audit.alasan.disciplinary"
   | "audit.alasan.administrative"
   | "audit.alasan.closed_at_request"
   | "staf.judul"
@@ -2714,6 +2711,28 @@ export type HleEvent =
   | "auth.link_h1"
   | "auth.link_lede"
   | "auth.ke_password"
+  | "auth.tutup_tanya"
+  | "auth.tutup_go"
+  | "buka_kembali.judul"
+  | "buka_kembali.arti"
+  | "buka_kembali.identitas"
+  | "buka_kembali.pesan"
+  | "buka_kembali.pesan_arti"
+  | "buka_kembali.kirim"
+  | "buka_kembali.terkirim"
+  | "buka_kembali.galat.isian"
+  | "buka_kembali.galat.umum"
+  | "buka_kembali.ke_masuk"
+  | "keamanan.permintaan.buka_kembali"
+  | "keamanan.permintaan.pesan"
+  | "keamanan.permintaan.cara_verifikasi"
+  | "keamanan.permintaan.cara_verifikasi_arti"
+  | "keamanan.permintaan.verifikasi_centang"
+  | "keamanan.akun.tutup_lewat_permintaan"
+  | "keamanan.akun.ok.buka"
+  | "akun.tinggal.jenis.reopen"
+  | "akun.tinggal.galat.account_reopen_via_request"
+  | "audit.aksi.account.reopen_requested"
   | "auth.aktifkan_tanya"
   | "auth.aktifkan_go"
   | "sesi.akun"
@@ -3481,7 +3500,7 @@ const table: Table = {
   "akun.tinggal.jenis.close": { default: "Tutup akun saya", en: "Close my account" },
   "akun.tinggal.jenis.delete_personal_data": { default: "Hapus data pribadi saya", en: "Delete my personal data" },
   // Sharon §16 finding 4 (6faef690), Daisy (TINJAUAN-6faef690): true of the code
-  "akun.tinggal.akibat.close": { default: "Akun ditutup saat itu juga: semua perangkat keluar dan Anda tidak dapat masuk lagi, juga untuk melihat permintaan Anda. Catatan tetap tersimpan. Akun yang sudah ditutup hanya dapat dibuka kembali oleh Admin PINTAR.", en: "The account closes at once: every device is signed out and you cannot sign in again, including to see your requests. Records are kept. A closed account can be reopened only by an Admin PINTAR." },
+  "akun.tinggal.akibat.close": { default: "Akun ditutup saat itu juga: semua perangkat keluar dan Anda tidak dapat masuk lagi, juga untuk melihat permintaan Anda. Catatan tetap tersimpan. Untuk kembali, buka «Minta dibuka kembali» di halaman masuk; Admin PINTAR membuka akun hanya setelah memastikan identitas Anda.", en: "The account closes at once: every device is signed out and you cannot sign in again, including to see your requests. Records are kept. To come back, open \u00abAsk for it to be reopened\u00bb on the sign-in page; an Admin PINTAR reopens the account only after confirming who you are." },
   // Sharon §16 finding 4 (6faef690), Daisy (TINJAUAN-6faef690): true of the code
   "akun.tinggal.akibat.delete_personal_data": { default: "Data pribadi dihapus hanya setelah akun ditutup. Permintaan ini dicatat sekarang, dan Admin PINTAR mengerjakannya setelah Anda menutup akun. Keadaannya terlihat di sini selama akun belum ditutup; setelah ditutup, Anda tidak dapat masuk untuk melihatnya.", en: "Personal data is deleted only after the account is closed. This request is recorded now, and an Admin PINTAR carries it out once you close the account. You can see where it stands here until the account is closed; after that you cannot sign in to see it." },
   "akun.tinggal.konfirmasi.close": { default: "Saya memahami bahwa akun saya ditutup sekarang.", en: "I understand my account closes now." },
@@ -3521,14 +3540,12 @@ const table: Table = {
   "keamanan.akun.akibat": { default: "Menangguhkan: semua perangkat keluar, masuk ditolak, dan setiap permintaan ditolak. Catatan pendidikan tidak berubah.", en: "Suspending: every device is signed out, sign-in is refused, and every request is refused. Educational records do not change." },
   "keamanan.akun.kategori": { default: "Kategori", en: "Category" },
   "keamanan.akun.kategori.security": { default: "Keamanan akun", en: "Account security" },
-  "keamanan.akun.kategori.disciplinary": { default: "Disiplin", en: "Disciplinary" },
   "keamanan.akun.kategori.administrative": { default: "Administrasi", en: "Administrative" },
   "keamanan.akun.kategori.other": { default: "Lainnya", en: "Other" },
   "keamanan.akun.catatan": { default: "Catatan (wajib untuk Lainnya)", en: "Note (required for Other)" },
   "keamanan.akun.alasan": { default: "Alasan", en: "Reason" },
   "keamanan.akun.tangguhkan": { default: "Tangguhkan akun", en: "Suspend the account" },
   "keamanan.akun.aktifkan": { default: "Pulihkan akun", en: "Restore the account" },
-  "keamanan.akun.buka_lagi": { default: "Buka kembali akun atas permintaannya", en: "Reopen the account at their request" },
   "keamanan.akun.ok.tangguh": { default: "Akun ditangguhkan. Semua sesinya berakhir.", en: "Account suspended. All its sessions ended." },
   "keamanan.akun.ok.aktif": { default: "Akun dipulihkan. Orang ini dapat masuk lagi.", en: "Account restored. This person can sign in again." },
   "keamanan.akun.ok.hapus": { default: "Data pribadi dihapus. Catatan yang wajib disimpan tetap ada.", en: "Personal data deleted. Records that must be kept remain." },
@@ -3544,7 +3561,6 @@ const table: Table = {
   "audit.aksi.account.deletion_requested": { default: "Penghapusan data pribadi diminta", en: "Personal data deletion requested" },
   "audit.aksi.account.personal_data_deleted": { default: "Data pribadi dihapus", en: "Personal data deleted" },
   "audit.alasan.security": { default: "Keamanan akun", en: "Account security" },
-  "audit.alasan.disciplinary": { default: "Disiplin", en: "Disciplinary" },
   "audit.alasan.administrative": { default: "Administrasi", en: "Administrative" },
   "audit.alasan.closed_at_request": { default: "Atas permintaan sendiri", en: "At the holder's request" },
   // E5 «Akhiri tugas di sekolah ini» and §11 «Ubah peran & tanggung jawab» (owner, 9 Nov); words of the responsibilities are
@@ -5778,6 +5794,29 @@ const table: Table = {
   "auth.link_h1": { default: "Masuk dengan tautan email", en: "Sign in with an email link" },
   "auth.link_lede": { default: "Masukkan email Anda. Jika alamat itu terhubung dengan akun PINTAR, tautan untuk masuk dikirim ke sana.", en: "Enter your email. If that address is linked to a PINTAR account, a sign-in link is sent to it." },
   "auth.ke_password": { default: "Masuk dengan password", en: "Sign in with a password" },
+  // owner ruling 2 (9 Nov): a closed account asks to be reopened, signed out; an Admin PINTAR decides after verifying identity
+  "auth.tutup_tanya": { default: "Akun Anda sudah ditutup?", en: "Has your account been closed?" },
+  "auth.tutup_go": { default: "Minta dibuka kembali", en: "Ask for it to be reopened" },
+  "buka_kembali.judul": { default: "Minta akun dibuka kembali", en: "Ask for your account to be reopened" },
+  "buka_kembali.arti": { default: "Akun yang sudah ditutup tidak dibuka dengan sendirinya. Admin PINTAR membaca permintaan ini, memastikan bahwa Anda pemilik akun itu, lalu memutuskan. Catatan Anda tetap tersimpan selama akun tertutup.", en: "A closed account is never reopened by itself. An Admin PINTAR reads this request, makes sure you are the account's owner, then decides. Your records stay kept while the account is closed." },
+  "buka_kembali.identitas": { default: "Email untuk masuk atau PINTAR ID", en: "Sign-in email or PINTAR ID" },
+  "buka_kembali.pesan": { default: "Pesan untuk Admin PINTAR", en: "Message for the Admin PINTAR" },
+  "buka_kembali.pesan_arti": { default: "Tuliskan mengapa Anda ingin kembali dan bagaimana Admin PINTAR dapat menghubungi Anda untuk memastikan identitas Anda. 10 sampai 500 karakter.", en: "Say why you want to come back and how an Admin PINTAR can reach you to confirm who you are. 10 to 500 characters." },
+  "buka_kembali.kirim": { default: "Kirim permintaan", en: "Send the request" },
+  "buka_kembali.terkirim": { default: "Terima kasih. Jika akun itu memang sudah ditutup, permintaan Anda kini menunggu di Admin PINTAR. Akun dibuka kembali hanya setelah Admin PINTAR memastikan identitas Anda.", en: "Thank you. If that account has been closed, your request is now waiting with an Admin PINTAR. The account is reopened only after an Admin PINTAR has confirmed who you are." },
+  "buka_kembali.galat.isian": { default: "Isi email atau PINTAR ID, dan pesan 10 sampai 500 karakter.", en: "Fill in the email or PINTAR ID, and a message of 10 to 500 characters." },
+  "buka_kembali.galat.umum": { default: "Permintaan belum terkirim. Coba lagi.", en: "The request was not sent. Try again." },
+  "buka_kembali.ke_masuk": { default: "Kembali ke halaman masuk", en: "Back to sign-in" },
+  "keamanan.permintaan.buka_kembali": { default: "Buka kembali akun", en: "Reopen the account" },
+  "keamanan.permintaan.pesan": { default: "Pesan", en: "Message" },
+  "keamanan.permintaan.cara_verifikasi": { default: "Bagaimana identitas orang ini dipastikan", en: "How this person's identity was confirmed" },
+  "keamanan.permintaan.cara_verifikasi_arti": { default: "Wajib, 10 sampai 300 karakter. Tercatat di jejak audit.", en: "Required, 10 to 300 characters. Recorded in the audit trail." },
+  "keamanan.permintaan.verifikasi_centang": { default: "Saya sudah memastikan bahwa orang ini pemilik akun.", en: "I have confirmed this person owns the account." },
+  "keamanan.akun.tutup_lewat_permintaan": { default: "Akun yang ditutup atas permintaan pemiliknya dibuka kembali hanya dari permintaannya di antrean, setelah identitasnya dipastikan.", en: "An account closed at its owner's request is reopened only from their request in the queue, after their identity is confirmed." },
+  "keamanan.akun.ok.buka": { default: "Akun dibuka kembali. Pemiliknya dapat masuk lagi.", en: "The account is reopened. Its owner can sign in again." },
+  "akun.tinggal.jenis.reopen": { default: "Minta akun dibuka kembali", en: "Reopen my account" },
+  "akun.tinggal.galat.account_reopen_via_request": { default: "Akun yang ditutup atas permintaan pemiliknya dibuka kembali hanya dari permintaannya, setelah identitasnya dipastikan.", en: "An account closed at its owner's request is reopened only from their request, after their identity is confirmed." },
+  "audit.aksi.account.reopen_requested": { default: "Permintaan membuka kembali akun", en: "Request to reopen an account" },
   "auth.aktifkan_tanya": { default: "Belum mengaktifkan akun?", en: "Haven't activated your account yet?" },
   "auth.aktifkan_go": { default: "Aktifkan akun", en: "Activate your account" },
   // DAISY-20: Akun saya (BOB-26 §4), staff only (C17).

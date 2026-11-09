@@ -93,6 +93,8 @@ const ROUTE_INVENTORY = [
   // E5 and §11 (owner, 9 Nov): one person's roles and duties
   "/konfigurasi/staf",
   "/masuk",
+  // owner ruling 2 (9 Nov): «Minta akun dibuka kembali», signed out
+  "/masuk/buka-kembali",
   // UX-1 login. The magic-link callback stopped being a bare redirect and
   // became a surface people read (S13/S14), so its rendered output joins the
   // internal-word sweep like every other page.
@@ -145,6 +147,8 @@ const ROUTE_INVENTORY = [
   // BOB-27 (Gate 4). «Lupa password?» is served signed out on the same stage
   // and renders server answers through the copy table, so it is swept too.
   "/masuk/lupa",
+  // Owner ruling 2 (9 Nov): «Minta akun dibuka kembali», served signed out on the same stage, through the copy table.
+  "/masuk/buka-kembali",
   // BOB-28 (Gate 5). The platform admin's «Keamanan akun» renders the security record's events through the copy table.
   "/konfigurasi/keamanan",
   // BOB-51. The platform admin's «Kirim email uji», a static route under Konfigurasi.

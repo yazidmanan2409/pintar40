@@ -436,6 +436,11 @@ export default function LayarMasuk({
           <a className="pin-tautan" href={HALAMAN_PEMULIHAN}>{s("auth.pw_lupa")}</a>
         )}
       </p>
+      {/* owner ruling 2 (9 Nov): a closed account asks to be reopened from here, signed out */}
+      <p className="pin-rute">
+        {s("auth.tutup_tanya")}{" "}
+        <a className="pin-tautan" href="/masuk/buka-kembali">{s("auth.tutup_go")}</a>
+      </p>
       <p className="pin-rute">
         {s("auth.aktifkan_tanya")}{" "}
         <a className="pin-tautan" href="/aktifkan">{s("auth.aktifkan_go")}</a>

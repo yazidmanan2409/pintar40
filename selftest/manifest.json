@@ -5052,6 +5052,21 @@
       "proves": "Sharon §16 finding 5 (selftest/db/fable38.sql): a person holding a live platform role cannot close their own account (ACCOUNT_PLATFORM_ROLE) and nothing is closed."
     },
     {
+      "id": "F38-O01",
+      "runner": "db",
+      "proves": "Owner ruling 1 (9 Nov) (selftest/db/fable38.sql): a learner who used the one attempt of an assessment cannot start it again when the lesson is given to the class again (the same definition and version, under any assignment)."
+    },
+    {
+      "id": "F38-O02",
+      "runner": "db",
+      "proves": "Owner ruling 2 (selftest/db/fable38.sql): minta_buka_kembali is server-only, records a request only for a closed account, once while open, answers the same for any address and reopens nothing; a closed account is reopened only from its request by the PINTAR Administrator (buka_kembali_akun), saying how identity was verified; DONE and audited."
+    },
+    {
+      "id": "F38-O03",
+      "runner": "db",
+      "proves": "Owner ruling 3 (selftest/db/fable38.sql): DISCIPLINARY is not a platform suspension category (ACCOUNT_CATEGORY_INVALID)."
+    },
+    {
       "id": "F38-H01",
       "runner": "db",
       "proves": "Sharon F1 on 7a2c1751, a school's date is its own (selftest/db/fable38.sql): only the PINTAR Administrator sets a school's time zone (a school's admin is refused), audited institution.time_zone_changed; hari_sekolah answers the school's own date; akhiri_pendaftaran refuses WIT's tomorrow and stamps an ending with no date with WIT's today."
@@ -5115,6 +5130,11 @@
       "id": "AKUN-A01",
       "runner": "app",
       "proves": "L1–L4 through the running app (selftest/kenaikan.test.ts): a learner's rendered Akun saya sends the request through the school and offers no form; an educator's rendered Akun saya says what leaving means (backups 7 days); their deletion request reads back «Diterima»; the closure takes effect at once (CLOSED_AT_REQUEST in the database, sign-in refused); the PINTAR Administrator's Keamanan akun reads it as a closure, never a suspension, and carries out the deletion from the queue: the name becomes the PINTAR ID and anonymized_at is set."
+    },
+    {
+      "id": "AKUN-A02",
+      "runner": "app",
+      "proves": "Owner ruling 2 (9 Nov), through the running app (selftest/kenaikan.test.ts): an educator closes their account; signed out, the sign-in screen offers «Minta dibuka kembali»; the request answers as an unknown address does, waits in the PINTAR Administrator's queue and reopens nothing; a closed account offers no other reopening; the Administrator confirms the identity, says how, reopens it from the queue; the request is DONE and the educator signs in again."
     },
     {
       "id": "JEJAK-K01",

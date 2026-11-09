@@ -36,7 +36,9 @@ import { adalahBagian, alamatBagian, bagianDariParameter } from "@/lib/bagian-ko
  */
 const PUBLIC_PATHS = new Set(["/", "/masuk", "/masuk/kartu", "/masuk/password", "/aktifkan", "/aktifkan/kode",
                               "/aktifkan/periksa", "/masuk/lupa", "/masuk/lupa/kode", "/masuk/lupa/periksa",
-                              "/masuk/lupa/password", "/masuk/lupa/pin", "/auth/callback", "/keluar"]);
+                              "/masuk/lupa/password", "/masuk/lupa/pin", "/auth/callback", "/keluar",
+                              // owner ruling 2 (9 Nov): a closed account asks to be reopened, signed out, and its door
+                              "/masuk/buka-kembali", "/masuk/buka-kembali/kirim"]);
 // INV-38: exactly one public certificate verification surface. Both entries
 // below ARE that one surface — the route a QR code points at, and the data
 // endpoint that route reads. `public_surface_registry` records the second as

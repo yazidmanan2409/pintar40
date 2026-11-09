@@ -3,14 +3,14 @@ import { tanggal } from "@/lib/tanggal";
 import TombolKirim from "@/components/TombolKirim";
 import BarisHasil from "@/components/BarisHasil";
 import Kosong from "@/components/Kosong";
-import { aktifkanKembaliAksi, tangguhkanAkunAksi } from "@/app/konfigurasi/keamanan/actions";
+import { aktifkanKembaliAksi, bukaKembaliAksi, tangguhkanAkunAksi } from "@/app/konfigurasi/keamanan/actions";
 import { KATEGORI_TANGGUH, type KodeAkun } from "@/lib/akun-kontrak";
 
 export type KeadaanAkun = {
   person_id: string; nama: string | null; pintar_id: string | null; anonim: boolean;
   tangguh: { kategori: string; sejak: string; catatan: string | null } | null;
 };
-export type BarisPermintaan = { id: string; person_id: string; nama: string; pintar_id: string; kind: string; status: string; created_at: string; ditutup: boolean };
+export type BarisPermintaan = { id: string; person_id: string; nama: string; pintar_id: string; kind: string; status: string; created_at: string; ditutup: boolean; pesan: string | null };
 
 /**
  * §5b and L2–L4 (owner, 9 Nov), the PINTAR Administrator's part of Keamanan akun: one identity found by its PINTAR ID,
@@ -27,7 +27,7 @@ export default function AkunPlatform({ locale, pid, akun, antrean, hasil, apa, k
     <section className="pin-sec" id="akun-platform" aria-labelledby="pin-akun-platform">
       <h2 id="pin-akun-platform">{s("keamanan.akun.judul")}</h2>
       <p className="pin-sub">{s("keamanan.akun.arti")}</p>
-      {hasil === "ok" ? <BarisHasil nada="ok">{s(`keamanan.akun.ok.${apa === "aktif" ? "aktif" : apa === "hapus" ? "hapus" : "tangguh"}` as HleEvent)}</BarisHasil> : null}
+      {hasil === "ok" ? <BarisHasil nada="ok">{s(`keamanan.akun.ok.${apa === "aktif" ? "aktif" : apa === "hapus" ? "hapus" : apa === "buka" ? "buka" : "tangguh"}` as HleEvent)}</BarisHasil> : null}
       {hasil === "gagal" ? <BarisHasil nada="gagal">{s(`akun.tinggal.galat.${(kode ?? "ACCOUNT_FAILED").toLowerCase()}` as HleEvent)}</BarisHasil> : null}
       {/* Sharon §16 finding 2: the data is deleted and a photo file is not yet; one press finishes it */}
       {hasil === "gagal" && kode === "ACCOUNT_PHOTO_PENDING" && ulang ? (
@@ -52,17 +52,18 @@ export default function AkunPlatform({ locale, pid, akun, antrean, hasil, apa, k
                 {" "}{tanggal(akun.tangguh.sejak, "baca", locale)}
                 {akun.tangguh.kategori !== "CLOSED_AT_REQUEST" ? ` · ${s(`keamanan.akun.kategori.${akun.tangguh.kategori.toLowerCase()}` as HleEvent)}` : ""}
               </p>
-              <form action={aktifkanKembaliAksi} data-aktifkan-akun="">
-                <input type="hidden" name="orang" value={akun.person_id} />
-                <input type="hidden" name="pid" value={pid} />
-                <div className="pin-isian">
-                  <label htmlFor="akun-aktif-alasan">{s("keamanan.akun.alasan")}</label>
-                  <textarea id="akun-aktif-alasan" name="alasan" className="pin-input" rows={2} minLength={10} maxLength={300} required />
-                </div>
-                <TombolKirim className="pin-btn" sibuk={s("tombol.memproses")}>
-                  {s(akun.tangguh.kategori === "CLOSED_AT_REQUEST" ? "keamanan.akun.buka_lagi" : "keamanan.akun.aktifkan")}
-                </TombolKirim>
-              </form>
+              {/* owner ruling 2 (9 Nov): a closure is undone only from the person's own request, after identity verification */}
+              {akun.tangguh.kategori === "CLOSED_AT_REQUEST" ? <p className="pin-meta">{s("keamanan.akun.tutup_lewat_permintaan")}</p> : (
+                <form action={aktifkanKembaliAksi} data-aktifkan-akun="">
+                  <input type="hidden" name="orang" value={akun.person_id} />
+                  <input type="hidden" name="pid" value={pid} />
+                  <div className="pin-isian">
+                    <label htmlFor="akun-aktif-alasan">{s("keamanan.akun.alasan")}</label>
+                    <textarea id="akun-aktif-alasan" name="alasan" className="pin-input" rows={2} minLength={10} maxLength={300} required />
+                  </div>
+                  <TombolKirim className="pin-btn" sibuk={s("tombol.memproses")}>{s("keamanan.akun.aktifkan")}</TombolKirim>
+                </form>
+              )}
             </>
           ) : (
             <form action={tangguhkanAkunAksi} data-tangguhkan-akun="">
@@ -93,7 +94,23 @@ export default function AkunPlatform({ locale, pid, akun, antrean, hasil, apa, k
             <li key={r.id} className="pin-row" data-permintaan={r.id}>
               <span className="pin-title">{r.nama} · <span className="pin-num">{r.pintar_id}</span></span>
               <span className="pin-rowmeta">{s(`akun.tinggal.jenis.${r.kind.toLowerCase()}` as HleEvent)} · {tanggal(r.created_at, "baca", locale)}</span>
-              {r.kind === "DELETE_PERSONAL_DATA" && r.ditutup ? (
+              {r.kind === "REOPEN" && r.ditutup ? (
+                // owner ruling 2: reopened only here, by an Admin PINTAR, saying how identity was confirmed
+                <form action={bukaKembaliAksi} data-buka-kembali={r.id}>
+                  <input type="hidden" name="permintaan" value={r.id} />
+                  {r.pesan ? <p className="pin-meta" data-pesan="">{s("keamanan.permintaan.pesan")}: {r.pesan}</p> : null}
+                  <div className="pin-isian">
+                    <label htmlFor={`bk-${r.id}`}>{s("keamanan.permintaan.cara_verifikasi")}</label>
+                    <p className="pin-meta" id={`bk-arti-${r.id}`}>{s("keamanan.permintaan.cara_verifikasi_arti")}</p>
+                    <textarea id={`bk-${r.id}`} name="cara" className="pin-input" rows={2} minLength={10} maxLength={300} required aria-describedby={`bk-arti-${r.id}`} />
+                  </div>
+                  <label className="pin-cepat-centang">
+                    <input type="checkbox" name="diverifikasi" value="ya" required />
+                    <span>{s("keamanan.permintaan.verifikasi_centang")}</span>
+                  </label>
+                  <TombolKirim className="pin-btn" sibuk={s("tombol.memproses")}>{s("keamanan.permintaan.buka_kembali")}<span className="pin-sr"> · {r.nama}</span></TombolKirim>
+                </form>
+              ) : r.kind === "DELETE_PERSONAL_DATA" && r.ditutup ? (
                 // Sharon §16 finding 2: a route, so the photo files go with the data (src/app/api/akun/hapus-data)
                 <form action="/api/akun/hapus-data" method="post" data-hapus-data={r.id}>
                   <input type="hidden" name="permintaan" value={r.id} />
