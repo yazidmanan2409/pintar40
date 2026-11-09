@@ -25,6 +25,18 @@
 -- The professional-learning branches are unchanged throughout.
 -- ---------------------------------------------------------------------------
 
+-- the place a sitting is RECLASSIFIED over: its Kelas, else its Angkatan, else the school's root. Reading fails closed
+-- without a place (R6); a decision to WEAKEN evidence with no organizational home is the school's as a whole, so only
+-- a holder scoped at the root (the Admin sekolah, the platform) may take it, never a department's head (F02-T17)
+create or replace function public.sesi_tempat_koreksi(p_session uuid)
+returns uuid language sql stable security definer set search_path = public, pg_temp as $$
+  select coalesce(s.class_node_id, s.cohort_node_id,
+                  (select o.id from public.org_nodes o where o.institution_id = s.institution_id and o.kind = 'INSTITUTION'))
+    from public.assessment_sessions s where s.id = p_session
+$$;
+revoke all on function public.sesi_tempat_koreksi(uuid) from public, anon, authenticated;
+grant execute on function public.sesi_tempat_koreksi(uuid) to authenticated;
+
 -- the organizational place a sitting was given in: its Kelas, else its recorded Angkatan (never invented)
 create or replace function public.sesi_tempat(p_session uuid)
 returns uuid language sql stable security definer set search_path = public, pg_temp as $$
@@ -80,15 +92,15 @@ drop policy evidence_class_overrides_select on public.evidence_class_overrides;
 create policy evidence_class_overrides_select on public.evidence_class_overrides for select to authenticated using (
   case when public.session_is_professional(session_id)
        then public.is_system_admin()
-       else public.sesi_tempat(session_id) is not null
-            and public.can_on_node('CAN_REVIEW_INTEGRITY', public.sesi_tempat(session_id)) end);
+       else public.sesi_tempat_koreksi(session_id) is not null
+            and public.can_on_node('CAN_REVIEW_INTEGRITY', public.sesi_tempat_koreksi(session_id)) end);
 
 drop policy evidence_class_overrides_insert on public.evidence_class_overrides;
 create policy evidence_class_overrides_insert on public.evidence_class_overrides for insert to authenticated with check (
   case when public.session_is_professional(session_id)
        then public.is_system_admin()
-       else public.sesi_tempat(session_id) is not null
-            and public.can_on_node('CAN_REVIEW_INTEGRITY', public.sesi_tempat(session_id)) end);
+       else public.sesi_tempat_koreksi(session_id) is not null
+            and public.can_on_node('CAN_REVIEW_INTEGRITY', public.sesi_tempat_koreksi(session_id)) end);
 
 create or replace function public.enforce_evidence_override()
 returns trigger language plpgsql security definer set search_path = public, pg_temp as $$
@@ -97,9 +109,9 @@ begin
   if tg_op <> 'INSERT' then
     raise exception 'an evidence reclassification is append-only: file another override';
   end if;
-  select s.institution_id, coalesce(s.class_node_id, s.cohort_node_id) into v_inst, v_tempat
-    from public.assessment_sessions s where s.id = new.session_id;
+  select s.institution_id into v_inst from public.assessment_sessions s where s.id = new.session_id;
   if v_inst is null then raise exception 'unknown session %', new.session_id; end if;
+  v_tempat := public.sesi_tempat_koreksi(new.session_id);
   new.institution_id := v_inst;
 
   v_actor := public.current_person_id();
@@ -114,7 +126,7 @@ begin
     end if;
   elsif v_tempat is null or not public.can_on_node('CAN_REVIEW_INTEGRITY', v_tempat) then
     raise exception using errcode = '42501',
-      message = 'reclassifying evidence requires CAN_REVIEW_INTEGRITY over the class (or Angkatan) the sitting was given in';
+      message = 'reclassifying evidence requires CAN_REVIEW_INTEGRITY over the class (or Angkatan, or for a sitting with neither the school) it was given in';
   end if;
   new.decided_by_person_id := v_actor;
 
@@ -150,8 +162,7 @@ create policy lesson_progress_select on public.lesson_progress for select to aut
                                          and e.institution_id = lesson_progress.institution_id
                                          and n.jalur @> array[la.node_id])) end);
 
--- ── 3. the waiting list lists and decides over the sitting's place (it listed every observation in the school to any
---       holder of CAN_REVIEW_INTEGRITY, beyond what the table now gives: found by F37-D05, 9 Nov)
+-- ── 3. the waiting list decides over the sitting's place (its Kelas, else its Angkatan)
 create or replace function public.integrity_signals_awaiting_review()
 returns table (signal_id uuid, session_id uuid, institution_id uuid, category public.integrity_category,
                observed_at timestamptz, may_refer boolean)
@@ -163,15 +174,16 @@ language sql stable security definer set search_path = public, pg_temp as $$
     from public.integrity_signals s
     join public.assessment_sessions ses on ses.id = s.session_id
    where public.current_person_id() is not null
-     -- the list shows what the table's own policy gives (one boundary on every route): an academic observation over
-     -- the sitting's place, a professional-learning one to the platform
-     and (case when public.session_is_professional(s.session_id) then public.is_system_admin()
-               else coalesce(ses.class_node_id, ses.cohort_node_id) is not null
-                    and public.can_on_node('CAN_REVIEW_INTEGRITY', coalesce(ses.class_node_id, ses.cohort_node_id)) end)
+     -- the LIST keeps its approved contract (FD-7, DG-32; F21-I01): every holder of CAN_REVIEW_INTEGRITY in the school
+     -- sees what waits, and only one standing over the sitting's place may refer it (may_refer). Whether the list
+     -- should show no more than the table now gives is put to Sharon, not changed here.
+     and public.can_in_institution('CAN_REVIEW_INTEGRITY', s.institution_id)
      and not public.integrity_signal_decided(s.id)
    order by s.observed_at desc, s.id
    limit 200
 $$;
+revoke all on function public.integrity_signals_awaiting_review() from public, anon, authenticated;
+grant execute on function public.integrity_signals_awaiting_review() to authenticated;
 
 -- ── 5. D5: one sitting's answers, for an investigation of an observation still undecided
 create or replace function public.jawaban_untuk_pemeriksaan(p_session uuid, p_alasan text)
@@ -181,14 +193,14 @@ declare v_inst uuid; v_tempat uuid; v_alasan text := btrim(coalesce(p_alasan, ''
 begin
   if public.current_person_id() is null or p_session is null then
     raise exception using errcode = '42501', detail = 'INVESTIGATION_NOT_ALLOWED',
-      message = 'an investigation opens one sitting the reader reviews';
+      message = 'an investigation requires CAN_REVIEW_INTEGRITY over the sitting it opens';
   end if;
   select s.institution_id, coalesce(s.class_node_id, s.cohort_node_id) into v_inst, v_tempat
     from public.assessment_sessions s where s.id = p_session;
   if v_tempat is null or public.session_is_professional(p_session)
      or not public.can_on_node('CAN_REVIEW_INTEGRITY', v_tempat) then
     raise exception using errcode = '42501', detail = 'INVESTIGATION_NOT_ALLOWED',
-      message = 'an investigation opens one sitting the reader reviews';
+      message = 'an investigation requires CAN_REVIEW_INTEGRITY over the sitting it opens';
   end if;
   if length(v_alasan) < 10 or length(v_alasan) > 500 then
     raise exception using errcode = '22023', detail = 'INVESTIGATION_REASON',
@@ -217,7 +229,8 @@ insert into public.client_rpc_registry (function_name, exposure, note, authoriza
   ('jawaban_untuk_pemeriksaan', 'STAFF', 'D5 (owner, 9 Nov): one sitting''s final answers for an integrity investigation, '
    || 'to CAN_REVIEW_INTEGRITY over the sitting''s place, with a reason, only while an observation on it is undecided; '
    || 'audited integrity.answers_opened on every open. Not a listing.', 'CAPABILITY', 'CAN_REVIEW_INTEGRITY'),
-  ('sesi_tempat', 'STAFF', 'SI-D01: the place a sitting was given in (its Kelas, else its Angkatan), for row security.', null, null);
+  ('sesi_tempat', 'STAFF', 'SI-D01: the place a sitting was given in (its Kelas, else its Angkatan), for row security.', null, null),
+  ('sesi_tempat_koreksi', 'STAFF', 'SI-D01: the place a sitting is reclassified over (its Kelas, else its Angkatan, else the school''s root).', null, null);
 
 do $$
 declare v_tabel text; v_qual text;
@@ -237,8 +250,8 @@ begin
               (select prosrc from pg_proc where oid = 'public.enforce_evidence_override()'::regprocedure)) = 0 then
     raise exception 'SI-D01: the reclassification trigger does not decide over the sitting''s place';
   end if;
-  if position('can_in_institution' in (select prosrc from pg_proc where oid = 'public.integrity_signals_awaiting_review()'::regprocedure)) > 0 then
-    raise exception 'SI-D01: the integrity waiting list still lists by a capability anywhere in the school';
+  if position('coalesce(ses.class_node_id, ses.cohort_node_id)' in (select prosrc from pg_proc where oid = 'public.integrity_signals_awaiting_review()'::regprocedure)) = 0 then
+    raise exception 'SI-D01: the integrity waiting list does not decide may_refer over the sitting''s place';
   end if;
   if has_function_privilege('anon', 'public.jawaban_untuk_pemeriksaan(uuid,text)', 'execute') then
     raise exception 'D5: the investigation function is executable by anon';

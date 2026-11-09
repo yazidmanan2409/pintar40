@@ -17,8 +17,9 @@
 --   F37-D04  LESSON PROGRESS FOLLOWS WHAT THE CLASS WAS ASSIGNED (finding 2): the learner, also placed in Kelas B, reads
 --            chapter 2 there. A's Guru reads chapter 1 (assigned to A) and not chapter 2; B's Guru reads chapter 2 and
 --            not chapter 1.
---   F37-D05  A SITTING WITH AN ANGKATAN AND NO CLASS IS REVIEWABLE (finding 3): A's Kepala departemen reads its
---            observation and sitting and may refer it from the waiting list; B's Kepala departemen does neither.
+--   F37-D05  A SITTING WITH AN ANGKATAN AND NO CLASS IS REVIEWABLE (finding 3): A's Kepala departemen and the Admin
+--            sekolah read its observation and sitting and may refer it from the waiting list; B's Kepala departemen sees it
+--            listed (the list's approved contract, FD-7/DG-32, F21-I01) and may not refer it.
 --   F37-D06  D5's INVESTIGATION (owner, 9 Nov): the Admin sekolah opens one sitting's answers with a reason while its
 --            observation is undecided, and each open writes one audit row; refused without a reason (22023), on a
 --            sitting with no undecided observation (INVESTIGATION_NO_CASE), and to B's Kepala departemen
@@ -232,7 +233,7 @@ begin
     select x.session into v_cohs from selftest.f36_sit(v_tpl, v_murid, null, v_def, 0.50, 'D1', now() - interval '5 hours', v_coha) x;
     insert into public.integrity_signals (session_id, institution_id, category) values (v_cohs, v_inst, 'NAVIGATION');
     for r in select * from (values ('A''s Kepala departemen', u_kadep_a, 'integritas=1 sesi=1 antrean=1 boleh_rujuk=true'),
-                                   ('B''s Kepala departemen', u_kadep_b, 'integritas=0 sesi=0 antrean=0 boleh_rujuk=false'),
+                                   ('B''s Kepala departemen', u_kadep_b, 'integritas=0 sesi=0 antrean=1 boleh_rujuk=false'),
                                    ('the Admin sekolah', u_admin, 'integritas=1 sesi=1 antrean=1 boleh_rujuk=true')) t(siapa, uid, mau) loop
       perform selftest.as_user_uid(r.uid);
       select format('integritas=%s sesi=%s antrean=%s boleh_rujuk=%s',
@@ -272,12 +273,17 @@ begin
     if v_got not like '42501:INVESTIGATION_NO_CASE%' then d06 := d06 || ('a sitting with no observation: ' || v_got); end if;
 
     -- ═══════════════════════════════════ F37-D02 / F37-B01 a person waiting in school X; a staff role in school Y
-    select ii.person_id, ii.institution_id into v_p, v_x from public.institutional_identities ii
-     where not exists (select 1 from public.accounts a where a.person_id = ii.person_id)
-       and not public.memegang_peran_staf(ii.person_id)
-     order by ii.institution_id, ii.person_id limit 1;
+    -- school X: a school that issues registration numbers; a person recorded there by this suite, with no account and
+    -- no staff role (its own, so the case never depends on what earlier suites left waiting); school Y: another school
+    select i.id into v_x from public.institutions i where i.namespace is not null order by (i.id = v_inst) desc, i.created_at limit 1;
     select i.id into v_y from public.institutions i where i.id <> v_x order by i.created_at limit 1;
-    if v_p is null or v_y is null then raise exception 'the fixture has nobody waiting for an account, or one school only'; end if;
+    if v_x is null or v_y is null then raise exception 'the fixture has no school issuing registration numbers, or one school only'; end if;
+    insert into public.persons (display_name) values ('Menunggu F37 ' || v_tag) returning persons.id into v_p;
+    insert into public.institutional_identities (person_id, institution_id, institutional_id, sequence_number)
+    select v_p, v_x, i.namespace || lpad(q.n::text, 6, '0') || 'ZZ', q.n
+      from public.institutions i,
+           (select coalesce(max(ii.sequence_number), 0) + 7000 as n from public.institutional_identities ii where ii.institution_id = v_x) q
+     where i.id = v_x;
     select o.id into v_rooty from public.org_nodes o where o.institution_id = v_y and o.kind = 'INSTITUTION';
     u_adminx := selftest.f11_user('f37-adminx-' || v_tag || '@local.invalid', 'INSTITUTION_ADMIN',
                                   (select o.id from public.org_nodes o where o.institution_id = v_x and o.kind = 'INSTITUTION'));
@@ -316,7 +322,7 @@ begin
       ('F37-D04', 'System Integrity, chain B: lesson progress follows what the class was assigned', d04,
        'A''s Guru reads chapter 1 (assigned to A) and not chapter 2; B''s Guru reads chapter 2 and not chapter 1'),
       ('F37-D05', 'System Integrity, chain D: a sitting with an Angkatan and no class', d05,
-       'A''s head and the Admin sekolah read its observation and sitting, find it on the waiting list and may refer it; B''s head none of these (the list shows what the table gives)'),
+       'A''s head and the Admin sekolah read its observation and sitting and may refer it from the waiting list; B''s head sees it waiting (the list''s approved contract, F21-I01) and may not refer it, and reads neither the observation nor the sitting'),
       ('F37-D06', 'System Integrity, chain D: D5''s one-sitting investigation', d06,
        'the Admin sekolah opens one sitting''s answers with a reason while its observation is undecided, one audit row per open; refused without a reason, with no undecided observation, and to another department''s head; refusals write nothing'),
       ('F37-B01', 'System Integrity, chain B: a waiting count equals its list', b01,

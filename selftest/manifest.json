@@ -4769,7 +4769,7 @@
     {
       "id": "F37-D05",
       "runner": "db",
-      "proves": "SI-D01 completed (Sharon's finding 3; fable37.sql): a sitting recorded with an Angkatan and no Kelas is anchored on the Angkatan. A's Kepala departemen reads its observation and sitting and may refer it from integrity_signals_awaiting_review; B's Kepala departemen does neither. Before the fix nobody in the school could decide it (fail-closed on the class alone)."
+      "proves": "SI-D01 completed (Sharon's finding 3; fable37.sql): a sitting recorded with an Angkatan and no Kelas is anchored on the Angkatan. A's Kepala departemen and the Admin sekolah read its observation and sitting and may refer it from integrity_signals_awaiting_review; B's Kepala departemen sees it listed (the list's approved contract, FD-7/DG-32, F21-I01) and may not refer it, and reads neither the observation nor the sitting. Before the fix nobody in the school could decide it (fail-closed on the class alone)."
     },
     {
       "id": "F37-D06",
