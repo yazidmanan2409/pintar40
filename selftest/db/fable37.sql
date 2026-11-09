@@ -109,7 +109,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
 begin
   perform selftest.as_owner();
   begin
@@ -680,6 +680,105 @@ begin
     if v_got <> 'OK' then n01 := n01 || ('the rollover of one learner was refused: ' || v_got);
     elsif v_cnt is distinct from 1 then n01 := n01 || format('the rollover of one learner audited moved = %s, not 1', coalesce(v_cnt::text, 'nothing')); end if;
 
+    -- ═══════════════════════════════════ E3 «Akhiri pendaftaran» and E4 «Daftarkan kembali» (owner, 9 Nov: essential)
+    -- G graduates from X; H is live at X for the refusals. Both carry X's number and a Kelas A placement.
+    for r in select * from (values ('G'), ('H')) t(k) loop
+      insert into public.persons (display_name) values ('Murid F37 ' || r.k || ' ' || v_tag) returning persons.id into v_pp;
+      perform public.issue_institutional_id(v_pp, v_x);
+      insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status, valid_from)
+      values (v_pp, v_x, v_period, v_proga, 'ACTIVE', now() - interval '30 days') returning enrollments.id into v_ex;
+      insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_ex, c_a, v_period);
+      if r.k = 'G' then v_g := v_pp; v_eg := v_ex; else v_h := v_pp; v_eh := v_ex; end if;
+    end loop;
+    -- E01: the school ends G's enrolment as graduated: ENDED/COMPLETED, memberships closed, one audit row with the reason
+    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_eg, 'GRADUATED', null, current_date));
+    if v_got <> 'OK' then e01 := e01 || ('ending G as graduated was refused: ' || v_got);
+    else
+      if (select en.status::text || '/' || coalesce(en.end_reason::text, '') from public.enrollments en where en.id = v_eg) <> 'ENDED/COMPLETED' then
+        e01 := e01 || 'G''s enrolment is not ENDED/COMPLETED'::text; end if;
+      if exists (select 1 from public.memberships m where m.enrollment_id = v_eg and m.valid_to is null) then
+        e01 := e01 || 'G''s Kelas placement is still open'::text; end if;
+      if not exists (select 1 from public.audit_log a where a.target_id = v_eg::text and a.action = 'enrollment.ended_with_reason'
+                       and a.summary ->> 'reason_code' = 'GRADUATED' and a.summary ->> 'effective_date' = current_date::text) then
+        e01 := e01 || 'no audit row records the reason and the date'::text; end if;
+    end if;
+    -- E02: refusals write nothing; H stays live
+    select count(*) into v_aud from public.audit_log a where a.target_id = v_eh::text;
+    for r in select * from (values
+        ('school Y''s admin', u_adminy, 'WITHDRAWN', null::text, current_date, 'INSTITUTION_ADMIN'),
+        ('X''s Guru',          u_guru_a, 'WITHDRAWN', null::text, current_date, 'INSTITUTION_ADMIN'),
+        ('an unknown reason',  u_admin,  'BOLOS',     null::text, current_date, 'ENROL_REASON_INVALID'),
+        ('Other with no explanation', u_admin, 'OTHER', null::text, current_date, 'ENROL_EXPLANATION_REQUIRED'),
+        ('a future date',      u_admin,  'WITHDRAWN', null::text, current_date + 1, 'ENROL_DATE_INVALID'),
+        ('a date before the enrolment began', u_admin, 'WITHDRAWN', null::text, current_date - 60, 'ENROL_DATE_INVALID')
+      ) t(siapa, uid, alasan, ket, tgl, mau) loop
+      v_got := selftest.f37_sebagai(r.uid, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_eh, r.alasan, r.ket, r.tgl));
+      if v_got = 'OK' or v_got !~ r.mau then e02 := e02 || format('%s: %s, expected %s', r.siapa, v_got, r.mau); end if;
+    end loop;
+    if (select en.status::text from public.enrollments en where en.id = v_eh) <> 'ACTIVE' then e02 := e02 || 'a refusal ended H''s enrolment'::text; end if;
+    if (select count(*) from public.audit_log a where a.target_id = v_eh::text) <> v_aud then e02 := e02 || 'a refusal wrote an audit row'::text; end if;
+    -- E03: an open sitting refuses the ending (fail closed until Sharon rules: end it, or wait)
+    insert into public.assessment_sessions
+      (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, plp_release_id,
+       assessment_definition_id, assessment_definition_version, engine_version, scoring_policy_version, evidence_channel,
+       evidence_class, mode, status, shuffle_seed, started_at, deadline_extended_count)
+    select gen_random_uuid(), v_h, x.institution_id, v_eh, x.academic_period_id, c_a, x.plp_release_id, x.assessment_definition_id,
+           x.assessment_definition_version, x.engine_version, x.scoring_policy_version, x.evidence_channel, x.evidence_class, x.mode,
+           'CREATED', x.shuffle_seed, now(), 0
+      from public.assessment_sessions x where x.id = v_tpl;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_eh, 'WITHDRAWN', null, current_date));
+    if v_got = 'OK' or v_got !~ 'ENROL_SITTING_OPEN' then e03 := e03 || ('an enrolment with an open sitting: ' || v_got); end if;
+    -- E04: CORRECTION of G's mistaken graduation: a new live enrolment, the same year and programme, back in Kelas A; the
+    -- ended row stays as it was, and the audit links the correction to it
+    v_got := selftest.f37_sebagai(u_admin, format('select public.daftarkan_kembali(%L, %L, %L, %L, %L, %L)', v_g, v_x, 'CORRECTION',
+                                  'dicatat keliru: belum lulus', null, v_eg));
+    if v_got <> 'OK' then e04 := e04 || ('the correction was refused: ' || v_got);
+    else
+      select en.id into v_baru_e from public.enrollments en where en.person_id = v_g and en.institution_id = v_x and en.status in ('PENDING', 'ACTIVE');
+      if v_baru_e is null or v_baru_e = v_eg then e04 := e04 || 'no new live enrolment'::text;
+      else
+        if (select en.academic_period_id = v_period and en.programme_id = v_proga from public.enrollments en where en.id = v_baru_e) is not true then
+          e04 := e04 || 'the corrected enrolment is not in the same year and programme'::text; end if;
+        if not exists (select 1 from public.memberships m where m.enrollment_id = v_baru_e and m.node_id = c_a and m.valid_to is null) then
+          e04 := e04 || 'the learner is not back in Kelas A'::text; end if;
+      end if;
+      if (select en.status::text || '/' || en.end_reason::text from public.enrollments en where en.id = v_eg) <> 'ENDED/COMPLETED' then
+        e04 := e04 || 'the corrected ending was rewritten'::text; end if;
+      if not exists (select 1 from public.audit_log a where a.action = 'enrollment.reopened' and a.summary ->> 'kind' = 'CORRECTION'
+                       and a.summary ->> 'corrects' = v_eg::text) then
+        e04 := e04 || 'no audit row links the correction to the ending it corrects'::text; end if;
+    end if;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.daftarkan_kembali(%L, %L, %L, %L, %L, %L)', v_h, v_x, 'CORRECTION',
+                                  'dicatat keliru', null, v_eh));
+    if v_got = 'OK' or v_got !~ 'ENROL_NOT_ENDED' then e04 := e04 || ('correcting a live enrolment: ' || v_got); end if;
+    -- E05: a genuine RETURN of W (withdrew from X) into Kelas A: a new enrolment, the old one still ENDED, the same number;
+    -- T (enrolled at Y) cannot return by this path (a transfer back), and the transfer back keeps X's old record
+    v_pp := (lc -> 'W' ->> 'person')::uuid;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.daftarkan_kembali(%L, %L, %L, %L, %L, %L)', v_pp, v_x, 'RETURN',
+                                  'kembali bersekolah di sini', c_a, null));
+    if v_got <> 'OK' then e05 := e05 || ('W''s return was refused: ' || v_got);
+    else
+      if not exists (select 1 from public.enrollments en join public.memberships m on m.enrollment_id = en.id and m.valid_to is null
+                      where en.person_id = v_pp and en.institution_id = v_x and en.status in ('PENDING', 'ACTIVE') and m.node_id = c_a) then
+        e05 := e05 || 'W is not live in Kelas A after the return'::text; end if;
+      if not exists (select 1 from public.enrollments en where en.person_id = v_pp and en.institution_id = v_x and en.status = 'ENDED' and en.end_reason = 'WITHDRAWN') then
+        e05 := e05 || 'W''s withdrawal was rewritten'::text; end if;
+      if (select count(*) from public.institutional_identities ii where ii.person_id = v_pp and ii.institution_id = v_x) <> 1 then
+        e05 := e05 || 'the return issued a second registration number'::text; end if;
+    end if;
+    v_pp := (lc -> 'T' ->> 'person')::uuid;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.daftarkan_kembali(%L, %L, %L, %L, %L, %L)', v_pp, v_x, 'RETURN',
+                                  'kembali bersekolah di sini', c_a, null));
+    if v_got = 'OK' or v_got !~ 'PLACE_ELSEWHERE' then e05 := e05 || ('T (enrolled at Y) returning by re-enrolment: ' || v_got); end if;
+    select en.id into v_ey from public.enrollments en where en.person_id = v_pp and en.institution_id = v_y and en.status = 'ACTIVE';
+    insert into public.transfers (person_id, from_enrollment_id, from_institution_id, to_institution_id, to_academic_period_id, status, reason)
+    values (v_pp, v_ey, v_y, v_x, v_period, 'REQUESTED', 'uji F37-E05: pindah kembali') returning transfers.id into v_tf;
+    update public.transfers set status = 'AUTHORIZED', authorized_by = v_murid where transfers.id = v_tf;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.transfer_execute(%L)', v_tf));
+    if v_got <> 'OK' then e05 := e05 || ('T''s transfer back to X was refused: ' || v_got);
+    elsif not exists (select 1 from public.enrollments en where en.person_id = v_pp and en.institution_id = v_x and en.status = 'ENDED'
+                        and en.end_reason = 'TRANSFERRED_OUT') then e05 := e05 || 'the transfer back rewrote T''s old record at X'::text; end if;
+
     raise exception 'f37-rollback';
   exception when others then
     perform selftest.as_owner();
@@ -727,6 +826,16 @@ begin
        'a number issued late in a long transaction is stamped at its moment of issue, after the transaction began'),
       ('F37-N01', 'Year-end: a rollover that moves nobody is not audited; a refused one changes nothing; a real one counts', n01,
        'an empty class rolled over writes no audit event; a mapping into the wrong year is refused and changes no membership; a rollover of one learner audits moved = 1'),
+      ('F37-E01', 'E3 «Akhiri pendaftaran»: a graduation', e01,
+       'the school ends a learner''s enrolment as graduated: ENDED/COMPLETED, the Kelas placement closed, one audit row with the reason and the effective date'),
+      ('F37-E02', 'E3: refusals write nothing', e02,
+       'another school''s admin and a Guru (naming INSTITUTION_ADMIN), an unknown reason, «Lainnya» without an explanation, a future date and a date before the enrolment began are refused; the enrolment stays live and nothing is audited'),
+      ('F37-E03', 'E3: an open sitting refuses the ending', e03,
+       'an enrolment with an assessment in progress is not ended (ENROL_SITTING_OPEN)'),
+      ('F37-E04', 'E4 «Daftarkan kembali»: a correction', e04,
+       'a mistaken graduation is corrected by a new live enrolment in the same year, programme and Kelas; the ended row is unchanged and the audit links the correction to it; a live enrolment cannot be «corrected»'),
+      ('F37-E05', 'E4: a genuine return, and a transfer back', e05,
+       'a learner who withdrew returns into a Kelas with a new enrolment, the withdrawal kept and no second number; a learner enrolled at another school is refused (PLACE_ELSEWHERE) and comes back by transfer, which leaves the old record intact'),
       ('F37-S01', 'System Integrity, chain D: a school''s account-level power follows its current placement (SI-D03)', s01,
        'a former school''s admin cannot reset the recovery of a learner who transferred or withdrew (42501; the session kept); the current school can (sessions ended); a person placed at two schools is assisted by either; another school''s admin, a Guru and a Kepala departemen are refused; registration numbers and ended enrollments are kept'),
       ('F37-S02', 'System Integrity, chain D: every credential path follows the current placement or onboarding (SI-D03)', s02,

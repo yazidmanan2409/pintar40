@@ -4847,6 +4847,31 @@
       "proves": "Year-end rollover (the Kelas 5 to 6 demonstration; Daisy's design; owner, 9 Nov): period_rollover writes no audit event when it moves nobody (an empty class), and records how many learners it moved (moved) when it moves some; a mapping into a class of the wrong year is refused and changes no membership (selftest/db/fable37.sql)."
     },
     {
+      "id": "F37-E01",
+      "runner": "db",
+      "proves": "E3 «Akhiri pendaftaran» (owner, 9 Nov: essential; ACCOUNT-LIFECYCLE-INVENTORY.md §12): akhiri_pendaftaran ends a learner's enrolment as graduated (ENDED, end_reason COMPLETED), closes the Kelas placement in the same transaction, and writes one enrollment.ended_with_reason audit row carrying the reason code and the effective date (selftest/db/fable37.sql)."
+    },
+    {
+      "id": "F37-E02",
+      "runner": "db",
+      "proves": "E3: akhiri_pendaftaran refuses another school's admin and a Guru (42501 naming INSTITUTION_ADMIN), an unknown reason (ENROL_REASON_INVALID), «Lainnya» without an explanation (ENROL_EXPLANATION_REQUIRED), and a future date or one before the enrolment began (ENROL_DATE_INVALID); after each refusal the enrolment is still ACTIVE and no audit row was written."
+    },
+    {
+      "id": "F37-E03",
+      "runner": "db",
+      "proves": "E3: an enrolment with an assessment sitting still open is not ended (ENROL_SITTING_OPEN): fail closed until Sharon rules whether ending it should end the sitting instead."
+    },
+    {
+      "id": "F37-E04",
+      "runner": "db",
+      "proves": "E4 «Daftarkan kembali», CORRECTION: a mistaken graduation is corrected by a new live enrolment in the same year and programme, placed back in the same Kelas; the ended enrolment is unchanged (ENDED/COMPLETED) and an enrollment.reopened audit row (kind CORRECTION) names the ending it corrects; a live enrolment cannot be corrected (ENROL_NOT_ENDED)."
+    },
+    {
+      "id": "F37-E05",
+      "runner": "db",
+      "proves": "E4, RETURN and transfer back: a learner who withdrew returns into a Kelas with a new live enrolment, the withdrawal row kept and no second registration number; a learner enrolled at another school is refused re-enrolment (PLACE_ELSEWHERE) and comes back by transfer, which executes and leaves the old TRANSFERRED_OUT record intact."
+    },
+    {
       "id": "F37-R01",
       "runner": "db",
       "proves": "SI-D02 (System Integrity, 9 Nov) under real concurrency (runAttemptLimitRace in selftest/run.ts) against supabase/migrations/20270112120000_one_start_at_a_time.sql; strengthened after Sharon's review of 89374424 (finding 2), so it tells a correct fix from one that counts before it locks. A learner one attempt short of an assignment's attempt_limit, chosen from the world and allowed to start by may_start_assessment, starts on connection A, which holds its transaction open and then COMMITS. Connection B's start waits on the per-(learner, assignment) advisory lock while A holds, and after A's commit is refused ATTEMPT_LIMIT_REACHED; the learner then holds exactly attempt_limit sittings. A's sitting and the rows its start wrote are removed afterwards (the test's own rows, triggers suspended for that teardown; audit rows stay). The migration's verification block also checks that the lock is taken before may_start_assessment is called."
