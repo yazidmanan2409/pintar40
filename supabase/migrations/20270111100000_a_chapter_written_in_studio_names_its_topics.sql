@@ -779,6 +779,9 @@ BEGIN ATOMIC
            GROUP BY t.objective_id, COALESCE((t.objective_id)::text, t.code)
          ), shown AS (
           SELECT d.objective_id, d.code, d.statement, d.title, d.n,
+             -- Sharon (e8a5efb9): whether a SMALL CELL withholds it, apart from movers ('class' vs 'moved')
+             ((( SELECT cm.k FROM cell_minimum cm) IS NULL)
+              OR (EXISTS ( SELECT 1 FROM cells c WHERE ((c.row_key = d.row_key) AND (c.n < ( SELECT cm.k FROM cell_minimum cm)))))) AS by_size,
              ( SELECT d.avg_score
                  WHERE ((d.n >= ( SELECT m.k FROM minimum m))
                    AND (( SELECT cm.k FROM cell_minimum cm) IS NOT NULL)
@@ -788,7 +791,9 @@ BEGIN ATOMIC
          )
   SELECT jsonb_build_object('value', COALESCE(( SELECT jsonb_agg(jsonb_build_object('objective_id', x.objective_id, 'code', x.code, 'competency', x.statement, 'title', x.title,
                  'mean_score', x.mean_score, 'needed', ( SELECT m.k FROM minimum m), 'learners', x.n,
-                 'withheld', COALESCE(( SELECT 'learners'::text WHERE (NOT (x.n >= ( SELECT m.k FROM minimum m)))), ( SELECT 'class'::text WHERE (x.mean_score IS NULL))))
+                 'withheld', COALESCE(( SELECT 'learners'::text WHERE (NOT (x.n >= ( SELECT m.k FROM minimum m)))),
+                                      ( SELECT 'class'::text WHERE ((x.mean_score IS NULL) AND x.by_size)),
+                                      ( SELECT 'moved'::text WHERE (x.mean_score IS NULL))))
                  ORDER BY (x.mean_score IS NULL), x.mean_score DESC, x.statement, x.code) FROM shown x), '[]'::jsonb),
            'sample', COALESCE(( SELECT max(x.n) FROM shown x), (0)::bigint)) AS jsonb_build_object;
 END;
@@ -839,7 +844,11 @@ BEGIN ATOMIC
             FROM portions p
            GROUP BY p.class_node_id, p.plp_release_id
          ), small_cells AS (
-          SELECT c.class_node_id, c.plp_release_id
+          -- Sharon (e8a5efb9): `by_size` says whether the cell itself is small; a cell withheld only for its movers is not,
+          -- and its rows say so (withheld 'moved'), never «a class took it with too few learners»
+          SELECT c.class_node_id, c.plp_release_id,
+             (((NOT (c.n >= ( SELECT cm.k FROM cell_minimum cm))) OR ((c.parts > 1) AND (NOT (c.smallest >= ( SELECT cm.k FROM cell_minimum cm)))))
+              OR (( SELECT cm.k FROM cell_minimum cm) IS NULL)) IS TRUE AS by_size
             FROM cells c
            WHERE ((NOT (c.n >= ( SELECT cm.k FROM cell_minimum cm))) OR ((c.parts > 1) AND (NOT (c.smallest >= ( SELECT cm.k FROM cell_minimum cm)))))
               OR (( SELECT cm.k FROM cell_minimum cm) IS NULL)
@@ -851,17 +860,21 @@ BEGIN ATOMIC
              count(DISTINCT l.person_id) AS learners,
              round(avg(l.mastery), 4) AS mean_mastery,
              bool_or((EXISTS ( SELECT 1 FROM small_cells sc
-                         WHERE ((sc.class_node_id IS NOT DISTINCT FROM l.class_node_id) AND (sc.plp_release_id = l.plp_release_id))))) AS touches_small
+                         WHERE ((sc.class_node_id IS NOT DISTINCT FROM l.class_node_id) AND (sc.plp_release_id = l.plp_release_id))))) AS touches_small,
+             bool_or((EXISTS ( SELECT 1 FROM small_cells sc
+                         WHERE ((sc.class_node_id IS NOT DISTINCT FROM l.class_node_id) AND (sc.plp_release_id = l.plp_release_id) AND sc.by_size)))) AS touches_size
             FROM cur l
            GROUP BY l.cohort_node_id
          ), shown AS (
-          SELECT x.cohort_node_id, x.learners,
+          SELECT x.cohort_node_id, x.learners, x.touches_size,
              ( SELECT x.mean_mastery WHERE ((x.learners >= ( SELECT m.k FROM minimum m)) AND (NOT x.touches_small))) AS mean_mastery
             FROM rows x
          )
   SELECT jsonb_build_object('value', COALESCE(( SELECT jsonb_agg(jsonb_build_object('cohort_node_id', x.cohort_node_id, 'recorded', (x.cohort_node_id IS NOT NULL), 'learners', x.learners,
                  'needed', ( SELECT m.k FROM minimum m), 'mean_mastery', x.mean_mastery,
-                 'withheld', COALESCE(( SELECT 'learners'::text WHERE (NOT (x.learners >= ( SELECT m.k FROM minimum m)))), ( SELECT 'class'::text WHERE (x.mean_mastery IS NULL))))
+                 'withheld', COALESCE(( SELECT 'learners'::text WHERE (NOT (x.learners >= ( SELECT m.k FROM minimum m)))),
+                                      ( SELECT 'class'::text WHERE ((x.mean_mastery IS NULL) AND x.touches_size)),
+                                      ( SELECT 'moved'::text WHERE (x.mean_mastery IS NULL))))
                  ORDER BY (x.cohort_node_id IS NULL), (x.mean_mastery IS NULL), x.mean_mastery DESC, x.cohort_node_id) FROM shown x), '[]'::jsonb),
            'sample', ( SELECT count(DISTINCT l.person_id) FROM cur l)) AS jsonb_build_object;
 END;
@@ -1492,6 +1505,9 @@ begin
   end if;
 
   select * into v_e from public.evaluate_session(p_session);
+  -- Sharon (e8a5efb9): two concurrent calls can both pass the check above; the loser meets results_one_successor and
+  -- gets the same designed refusal, never a raw unique violation
+  begin
   insert into public.assessment_results (
     session_id, institution_id, person_id, evidence_class,
     engine_version, scoring_policy_version, mastery, per_domain,
@@ -1506,6 +1522,10 @@ begin
                        'safety_correct', v_e.safety_correct),
     v_prev.id, p_reason)
   returning id into v_id;
+  exception when unique_violation then
+    raise exception 'this sitting has already been recalculated once; PINTAR 4.0 allows one authorised recalculation per sitting (owner decision D11)'
+      using errcode = 'PR011', hint = 'RECOMPUTE_LIMIT';
+  end;
   perform public.audit_write('assessment_result.recomputed', 'assessment_results', v_id::text,
     v_prev.institution_id,
     jsonb_build_object('session_id', p_session, 'supersedes', v_prev.id,

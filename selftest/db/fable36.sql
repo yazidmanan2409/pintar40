@@ -538,6 +538,14 @@ begin
     if v_rows is not null and v_rows -> 'mean_score' <> 'null'::jsonb then
       k02 := k02 || format('the school competency over the mover (%s) is shown beside both classes'' topic rows', v_rows ->> 'mean_score');
     end if;
+    -- Sharon (e8a5efb9): a row withheld only because a learner moved and re-sat says so ('moved'); neither class is small,
+    -- so neither row may say «a class took it with too few learners» ('class')
+    if v_rows is null or v_rows ->> 'withheld' is distinct from 'moved' then
+      k02 := k02 || format('the school competency over the mover is not withheld for the mover (withheld «%s»)', coalesce(v_rows ->> 'withheld', 'nothing'));
+    end if;
+    if (select e ->> 'withheld' from jsonb_array_elements(v_j2 -> 'value') e where e ->> 'cohort_node_id' = v_ma::text) = 'class' then
+      k02 := k02 || 'Angkatan A''s row blames a small class, though X has six learners and only a mover withholds it'::text;
+    end if;
     -- participation is still every learner: 11, and the withheld rows still say how many
     if (select (e ->> 'learners')::int from jsonb_array_elements(v_j2 -> 'value') e where e ->> 'cohort_node_id' = v_ma::text) is distinct from 5 then
       k02 := k02 || 'Angkatan A no longer counts its 5 learners'::text;
@@ -854,7 +862,7 @@ begin
       ('F36-K01', 'School-level small populations and unrecorded history', k01,
        'a competency over a 12-learner and a 3-learner class, the school''s Kenaikan over them and their Angkatan are withheld; a competency whose every class cell is large is shown; another Angkatan keeps its mean; the 6 sittings with no recorded Angkatan are the last, «not recorded», row and still count among the school''s 27 participants'),
       ('F36-K02', 'Owner decision 10 -- a learner who moved class and re-sat cannot be isolated', k02,
-       'Sharon''s case: Angkatan A holds only class X, whose chapter R six learners sat; the sixth moved to class Y and re-sat. X''s chapter row and Angkatan A''s row are not both shown, nor the school competency beside both classes'' topic rows, so 6·μX − 5·μA cannot be formed; Angkatan A still counts its 5 learners'),
+       'Sharon''s case: Angkatan A holds only class X, whose chapter R six learners sat; the sixth moved to class Y and re-sat. X''s chapter row and Angkatan A''s row are not both shown, nor the school competency beside both classes'' topic rows, so 6·μX − 5·μA cannot be formed; the competency row says it is withheld for the mover (`moved`), and no row blames a small class; Angkatan A still counts its 5 learners'),
       ('F36-S01', 'Owner decision D12 -- a test with no required question is not applicable', s01,
        'twelve sittings of tests with no required question give no rate, said as not applicable (12), never 100%; with ten applicable sittings (7 pass, 3 fail) the rate is 0.7 over 10, the twelve apart'),
       ('F36-L01', 'Owner decision D11 -- the effective result by lineage, one recalculation per sitting', l01,

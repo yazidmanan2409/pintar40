@@ -124,7 +124,9 @@ export const d78Tests: SelfTest[] = [
       const komp = { status: "ok", metric_id: "institution.competency_outcomes", label_key: "metrik.kompetensi.label", sample: 30,
         value: [{ objective_id: "o1", competency: "Membaca, membandingkan dan menjumlahkan data dalam tabel.", title: "Membaca Tabel Data", mean_score: 0.7, learners: 30, needed: 10 },
                 { objective_id: "o2", competency: "Pecahan senilai.", title: null, mean_score: 0.5, learners: 12, needed: 10 },
-                { objective_id: "o3", competency: "Pola.", title: "Pola", mean_score: null, learners: 15, needed: 10, withheld: "class" }] };
+                { objective_id: "o3", competency: "Pola.", title: "Pola", mean_score: null, learners: 15, needed: 10, withheld: "class" },
+                // Sharon (e8a5efb9): withheld only for a learner who moved class and re-sat
+                { objective_id: "o4", competency: "Bangun datar.", title: null, mean_score: null, learners: 14, needed: 10, withheld: "moved" }] };
       const r = render(ctx.repoRoot,
         'const { createElement: h } = await import("react");' +
         'const { renderToStaticMarkup } = await import("react-dom/server");' +
@@ -139,7 +141,8 @@ export const d78Tests: SelfTest[] = [
         c.expect(id.includes("Membaca Tabel Data Membaca, membandingkan dan menjumlahkan data dalam tabel."), `a short title stands without its statement: «${id.slice(0, 400)}»`);
         c.expect(!/\branah\b/.test(id) && id.includes("tujuan pembelajaran"), `the school counts «ranah» where its rows are learning objectives: «${id.slice(0, 400)}»`);
         // restated to Daisy's A5 (owner, 9 Nov): the row's own reason, never «this or that»
-        c.expect(id.includes("1 tujuan pembelajaran lain belum ditampilkan karena di salah satu kelas") && !id.includes("kurang dari 10 murid, atau"),
+        c.expect(id.includes("1 tujuan pembelajaran lain belum ditampilkan karena di salah satu kelas") && !id.includes("kurang dari 10 murid, atau")
+          && id.includes("1 tujuan pembelajaran lain belum ditampilkan karena ada murid yang pindah kelas lalu mengerjakannya lagi"),
           "a withheld row's sentence omits its class-cell reason, or still offers two reasons");
         c.expect(!/\bdomains?\b/.test(en) && en.includes("learning objective"), `the English page counts «domains»: «${en.slice(0, 300)}»`);
       }
@@ -152,9 +155,10 @@ export const d78Tests: SelfTest[] = [
         "const K = m.default?.default ?? m.default;" +
         "process.stdout.write(renderToStaticMarkup(h(K, { entries: [JSON.parse(process.env.E)], locale: 'id' })));",
         { E: JSON.stringify(semua) });
-      c.expect(r2.ok && teks(r2.out).includes("Sudah ada hasil untuk 3 tujuan pembelajaran, tetapi belum ada yang dapat ditampilkan")
+      c.expect(r2.ok && teks(r2.out).includes("Sudah ada hasil untuk 4 tujuan pembelajaran, tetapi belum ada yang dapat ditampilkan")
         // the walk (9 Nov): with none shown, the reasons are «of them», never «other» objectives
         && teks(r2.out).includes("2 di antaranya masing-masing dikerjakan kurang dari 10 murid.")
+        && teks(r2.out).includes("1 di antaranya dikerjakan lagi oleh murid yang pindah kelas")
         && teks(r2.out).includes("1 di antaranya di salah satu kelas dikerjakan terlalu sedikit murid") && !teks(r2.out).includes("tujuan pembelajaran lain"),
         `with every competency withheld, section A is empty or silent: «${teks(r2.out).slice(0, 300)}»`);
       const bukti = kode(baca(ctx.repoRoot, "src/app/mengajar/[kelas]/bukti/page.tsx"));
@@ -255,8 +259,9 @@ export const d78Tests: SelfTest[] = [
           c.expect(v.includes("Tidak berlaku: Uji Penguasaan yang sudah dikerjakan di sini tidak memuat soal wajib") && !/Sekarang 0|100%|0%|Belum cukup data|Belum ada bukti/.test(v),
             `${nama}: a gate that applies to no sitting reads as a pass, a zero or «not enough»: «${v.slice(0, 300)}»`);
         }
-        c.expect(sekolahAda.includes("Dari 10 Uji Penguasaan yang memuat soal wajib, dikerjakan 10 murid.")
-          && sekolahAda.includes("12 Uji Penguasaan lain tidak memuat soal wajib, jadi tidak dihitung, baik sebagai lulus maupun tidak."),
+        // Sharon (e8a5efb9): the count is of RESULTS (sittings), never read as so many different tests
+        c.expect(sekolahAda.includes("Dari 10 hasil Uji Penguasaan yang memuat soal wajib, milik 10 murid.")
+          && sekolahAda.includes("12 hasil Uji Penguasaan lain berasal dari uji tanpa soal wajib, jadi tidak dihitung, baik sebagai lulus maupun tidak."),
           `the shown gate does not give its applicable sittings, or hides the twelve apart: «${sekolahAda.slice(0, 400)}»`);
         // A7: a withheld figure has no second «it appears when…» line
         c.expect(x[3] === null && x[4] === null, `a withheld figure still gets a second explanation: ${JSON.stringify(x.slice(3))}`);
