@@ -158,7 +158,7 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
         <section className="pin-kenaikan" aria-labelledby="kn-guru">
           <h3 id="kn-guru" className="pin-kenaikan-judul">{s("kenaikan.guru.judul")}</h3>
           <p className="pin-kenaikan-teks">{s("kenaikan.guru.intro")}</p>
-          <ul className="pin-daftar" data-kenaikan-guru="">
+          <ul className="pin-kenaikan-murid" data-kenaikan-guru="">
             <li>{r.kelas.nama}: {r.guru.length ? r.guru.map((g) => g.nama).join(", ") : s("kenaikan.guru.tidak_ada")}</li>
             {tujuan.map((k) => <li key={k.id}>{k.nama}: {k.guru.length ? k.guru.map((g) => g.nama).join(", ") : s("kenaikan.guru.tidak_ada")}</li>)}
           </ul>
@@ -253,7 +253,8 @@ function kalimat(s: (k: HleEvent) => string, m: Hasil): string {
     case "NAIK": return s("kenaikan.hasil.naik").replace("{kelas}", m.kelas_tujuan_nama ?? "—");
     case "TINGGAL": return s("kenaikan.hasil.tinggal").replace("{kelas}", m.kelas_tujuan_nama ?? "—");
     case "LULUS": return s("kenaikan.hasil.lulus");
-    case "KELUAR": return `${s("kenaikan.hasil.keluar")} ${m.alasan ? s(`kenaikan.alasan.${m.alasan.toLowerCase()}` as HleEvent) : ""}`.trim();
+    // the reason's own words already say «Keluar: …»
+    case "KELUAR": return m.alasan ? s(`kenaikan.alasan.${m.alasan.toLowerCase()}` as HleEvent) : s("kenaikan.hasil.keluar");
     case "PINDAH": return s("kenaikan.hasil.pindah");
   }
 }

@@ -4482,7 +4482,7 @@ const table: Table = {
   "kenaikan.hasil.naik": { default: "Naik ke {kelas}", en: "Up to {kelas}" },
   "kenaikan.hasil.tinggal": { default: "Tinggal kelas di {kelas}", en: "Repeats in {kelas}" },
   "kenaikan.hasil.lulus": { default: "Lulus", en: "Graduates" },
-  "kenaikan.hasil.keluar": { default: "Keluar dari sekolah ·", en: "Leaves the school ·" },
+  "kenaikan.hasil.keluar": { default: "Keluar dari sekolah", en: "Leaves the school" },
   "kenaikan.hasil.pindah": { default: "Tetap di kelasnya sampai perpindahan selesai", en: "Stays in the class until the transfer is done" },
   "kenaikan.selesai.ok": { default: "Selesai. {n} murid diproses pada {waktu}. Inilah hasil untuk setiap murid.", en: "Done. {n} students processed at {waktu}. This is the outcome for each student." },
   "kenaikan.selesai.judul": { default: "Hasil kenaikan kelas", en: "Promotion outcome" },
