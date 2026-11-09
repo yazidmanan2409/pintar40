@@ -77,6 +77,10 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
   // Daisy's B3: the count beside the sealed mastery is the sealed result's own, never re-graded against today's key
   const hitungan = hitunganSegel(outcome.ringkasan, review);
   const benar = hitungan.benar;
+  // O-B3 (owner, 9 Nov): the per-question review grades by TODAY's key. Where that differs from the sealed count
+  // (a corrected key, recalculated or not), the review says so beside itself; the sealed result above is unchanged
+  const benarKini = review.filter((r) => r.benar === true).length;
+  const kunciBerbeda = hitungan.tersegel && (benarKini !== hitungan.benar || review.length !== hitungan.total);
 
   return (
     <>
@@ -161,6 +165,11 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
             have to go looking for. */}
         <section className="pin-sec">
           <h2>{s("hasil.review")}</h2>
+          {kunciBerbeda ? (
+            <p className="pin-banner pin-neutral" role="note" data-kunci-terkini="">
+              {s("hasil.review.kunci_terkini").replace("{benar}", format.number(hitungan.benar, locale)).replace("{total}", format.number(hitungan.total, locale))}
+            </p>
+          ) : null}
           <div className="pin-tinjau">
             {review.map((r) => (
               <details

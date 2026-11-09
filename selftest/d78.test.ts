@@ -326,7 +326,8 @@ export const d78Tests: SelfTest[] = [
       const hasil = kode(baca(ctx.repoRoot, "src/app/belajar/[tugas]/hasil/page.tsx"));
       const hb = kode(baca(ctx.repoRoot, "src/lib/hasil-belajar.ts"));
       c.expect(/const hitungan = hitunganSegel\(outcome\.ringkasan, review\);/.test(hasil) && /format\.number\(hitungan\.total, locale\)/.test(hasil)
-        && !/review\.filter\(\(r\) => r\.benar === true\)\.length/.test(hasil), "the chapter result still counts the review, not the sealed result");
+        // O-B3: the review's own count is only compared with the sealed one, never displayed as the result's count
+        && /const benar = hitungan\.benar;/.test(hasil) && !/const benar = review\./.test(hasil), "the chapter result still counts the review, not the sealed result");
       c.expect(/benar: hitunganSegel\(outcome\.ringkasan, review\)\.benar/.test(hb) && !/review\.filter\(\(r\) => r\.benar === true\)/.test(hb), "«Hasil belajar» still counts the review, not the sealed result");
       // B1: the school's gate below its minimum says its count is of checks WITH required items, and the others apart
       const g = { status: "below_minimum", metric_id: "institution.safety_gate_pass_rate", label_key: "metrik.gerbang_keselamatan.label", readiness: "INSUFFICIENT_EVIDENCE",
@@ -355,11 +356,27 @@ export const d78Tests: SelfTest[] = [
         c.expect(!/Kesiapan bukti», menyebut/.test(tanpa) || /Bagian [A-F] di atas/.test(tanpa), "with no readiness section, the pointer names one that is not there");
         c.expect(x[3] === "learner" && x[4] === "learners" && x[5] === "murid", `«1 learners» is still possible: ${JSON.stringify(x.slice(3))}`);
       }
+      // O-B3 (owner, 9 Nov): the per-question review and the reading map grade by the corrected key, and say so beside
+      // themselves, with the sealed figure, and never that the sealed result or the certificate changed
+      c.expect(/const kunciBerbeda = hitungan\.tersegel && \(benarKini !== hitungan\.benar \|\| review\.length !== hitungan\.total\);/.test(hasil)
+        && /<h2>\{s\("hasil\.review"\)\}<\/h2>\s*\{kunciBerbeda \? \(\s*<p className="pin-banner pin-neutral" role="note" data-kunci-terkini="">/.test(hasil),
+        "the per-question review does not say, beside itself, that it uses the corrected key where it differs from the sealed count");
+      const peta = kode(baca(ctx.repoRoot, "src/app/belajar/[tugas]/peta/page.tsx"));
+      c.expect(/engine\.sesiDihitungUlang\(db, state\.pre_session\)/.test(peta) && /\{dihitungUlang \? <p className="pin-banner pin-neutral" role="note" data-kunci-terkini="">\{s\("map\.kunci_terkini"\)\}<\/p> : null\}\s*<PetaBacaan/.test(peta),
+        "the reading map of a recalculated sitting does not say it uses the corrected key");
+      const hle2 = baca(ctx.repoRoot, "src/lib/hle.ts");
+      const baris = (k: string) => (hle2.split("\n").find((l) => l.startsWith(`  "${k}": `)) ?? "");
+      for (const k of ["hasil.review.kunci_terkini", "map.kunci_terkini"]) {
+        const l = baris(k);
+        c.expect(/kunci jawaban yang sudah diperbaiki/.test(l) && /corrected answer key/.test(l) && /tidak berubah/.test(l) && /do(es)? not change/.test(l)
+          && !/(sertifikat|certificate)[^."]*(berubah menjadi|changed to|telah berubah|has changed)/i.test(l),
+          `«${k}» does not say the corrected key, or implies the sealed result or certificate changed: ${l.slice(0, 200)}`);
+      }
       const kh = kode(baca(ctx.repoRoot, "src/components/bukti/KeadaanHariIni.tsx"));
       c.expect((kh.match(/format\.satuan\(k\.(sedang|belum), s\(kataAnggota\("mengajar\.bukti\.murid", jenis\)\), locale\)/g) ?? []).length === 2,
         "«Lihat bukti» still writes «1 learners» under «Belum mengerjakan»");
       return c.verdict("hitunganSegel (src/lib/siklus.ts), its use in the chapter result and «Hasil belajar», the rendered KartuKetiadaan and KomposisiSekolah, " +
-        "format.satuan and KeadaanHariIni: the learner's count is the sealed result's own (B3); the gate below its minimum counts the checks with required " +
+        "format.satuan and KeadaanHariIni: the learner's count is the sealed result's own (B3); the per-question review and the reading map say, beside themselves, that they use the corrected key and that the sealed result and certificate do not change (O-B3); the gate below its minimum counts the checks with required " +
         "items and the others apart (B1); the next step points to the page's own «Kesiapan bukti» section (B2); one learner is «1 learner» (A4)");
     },
   },

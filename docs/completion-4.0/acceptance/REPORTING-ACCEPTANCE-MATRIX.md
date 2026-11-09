@@ -4,7 +4,7 @@ Owner directive: Reporting Quality Gate, 9 Nov 2026.
 
 Evidence head: `2b3b291e` on `claude/awesome-rubin-bqxp6p` (updated 9 Nov, after Sharon's and Daisy's reviews of `e8a5efb9`); the run record is in §12. Every figure below was checked against the raw official results, not against PINTAR's own calculators.
 
-**Gate status: OPEN.** Open owner decisions: **O-B3** (§13). Open coverage: §12.
+**Gate status: OPEN.** O-B3 decided by the owner (9 Nov, §13). Open coverage: §12.
 
 ## 1. How the reports were tested
 
@@ -327,7 +327,7 @@ Daisy's report: `docs/coordination/ux/completion-4.0/CONTOH-LAPORAN/KESIAPAN-LAP
 | Item | Daisy's finding | Correction | Test | Disposition |
 |---|---|---|---|---|
 | B3 | After a real recalculation the learner's result reads «Penguasaan 13% · Terjawab tepat 2 dari 8 soal»: the 13% is sealed, but the count re-grades the answers against today's corrected key; the same on «Hasil belajar»; the notice «tidak berubah» was not true of the count | The count is now the sealed result's own (`delta_inputs.correct` / `item_total`, which every writer records), on both pages (`hitunganSegel`). The notice now claims only what is sealed: «Penguasaan dan jumlah jawaban tepat di atas, serta sertifikat Anda, tetap hasil yang disegel…» | D78-B01, D78-A01 (restated) | **Closed** for the count and the notice. **Escalated:** the per-question review (below) |
-| B3, per question | The per-question review marks the corrected question «Sudah tepat» | `session_review` and `reading_map` grade the answers live against today's key («recomputable, never stored», 20260913091500). No per-item grade is sealed anywhere, so «keep everything the learner sees sealed» would need a new sealed record. That is a new decision, not within E1/D14. | — | **Owner decision O-B3** (below) |
+| B3, per question | The per-question review marks the corrected question «Sudah tepat» | `session_review` and `reading_map` grade the answers live against today's key («recomputable, never stored», 20260913091500). No per-item grade is sealed anywhere, so «keep everything the learner sees sealed» would need a new sealed record. That is a new decision, not within E1/D14. | D78-B01 | **Decided (O-B3, below) and implemented** |
 | B1 | The school's gate below its minimum read «Sekarang 1 murid; perlu 10» beside «Peserta 52», never saying the other 51 are not applicable | The evaluator passes `not_applicable` below the minimum too. The card reads «Dari hasil Uji Penguasaan yang memuat soal wajib, baru 1 murid; perlu 10. 51 hasil Uji Penguasaan lain berasal dari uji tanpa soal wajib, jadi tidak dihitung…» | D78-B01 | **Closed**, for Daisy |
 | B2 | Ringkasan Sekolah ends «Pimpinan › «Kesiapan bukti»», which the Admin cannot open | The step points to the page's own section by its letter: «Bagian D di atas, «Kesiapan bukti», menyebut…»; with no such section it is not said | D78-B01 | **Closed** |
 | A4 | «NOT YET ATTEMPTED 1 learners» | `format.satuan` on every count-and-noun built from `mengajar.bukti.murid` («1 learner») | D78-B01 | **Closed**. «students» and «learners» still both appear (~30 each); unifying them is a terminology change for the terminology owner, not done here |
@@ -335,7 +335,14 @@ Daisy's report: `docs/coordination/ux/completion-4.0/CONTOH-LAPORAN/KESIAPAN-LAP
 | Palette | `#487A6F` confirmed; «Mantap» and «Berkembang» are now 1.51:1 apart (from 1.72:1); keep the light gap between segments | The gap is `var(--border-selected)` in `.pin-lk-pita-batang` (component CSS) | — | Confirmed |
 | Optional | «—» repeated in eight blocks for classes with no figure; the Kepala departemen's print ends with a page holding only «Lihat lebih rinci» | Not changed in this pass | — | Open, optional |
 
-**O-B3 (owner decision requested).** Should the learner's per-question review and reading map show the answers as graded when the result was sealed, or as graded by the current key? Today it is the current key, by design. Sealing per-item grades needs a stored record at finalisation, which no part of 4.0 has. Until the owner decides, the mastery, the count and the certificate are sealed, and the notice says exactly that.
+**O-B3, decided by the owner (9 Nov).**
+- **The ruling.** The learner's sealed mastery, correct-answer count and certificate stay unchanged. The per-question review and the reading map may use the current, corrected answer key, as they do today. When a recalculation changes the grading, the page explains that the per-question feedback reflects the corrected key and may differ from the original sealed result. Nothing may imply that the sealed assessment or certificate changed. No historical per-item grade storage in 4.0.
+- **Implemented: the chapter result.** Where the review's current-key grading differs from the sealed count (a corrected key, recalculated or not), a note sits directly under «Pembahasan per soal»: «Pembahasan per soal di bawah memakai kunci jawaban yang sudah diperbaiki, jadi tanda tepat atau belum tepat di sini bisa berbeda dari hasil yang disegel di atas (n dari m soal tepat). Hasil yang disegel dan sertifikat Anda tidak berubah.»
+- **Implemented: the reading map.** A recalculated Pemetaan Awal's reading map says the same («Peta ini memakai kunci jawaban yang sudah diperbaiki…»).
+- **Unchanged.** The notice under the result («…tetap hasil yang disegel…») and the sealed count (B3) stay as they are.
+- **Limit.** The reading map's note shows only for a recalculated sitting. A key corrected *without* a recalculation is not detected there (the chapter result does detect it, by comparing counts). Recalculation is the audited path for a corrected key.
+- **Tests.** D78-B01 (source and wording, both languages: the corrected key named; the sealed result and certificate said not to change).
+- **Verification asked.** Daisy: can a first-time learner tell the sealed result from the current-key feedback? Sharon: do the evidence and recalculation contracts stay consistent?
 
 ### Daisy's report on 13079a9e
 
@@ -374,11 +381,11 @@ Restated tests (each with a note in the test): D78-P01 (A7), D78-N03 (A5), D78-S
 | Exact-SHA CI and journeys on the final head | CI 522 and journeys 228 on `2b3b291e`, running |
 | Clean-database suite | The whole suite ran on `1f28a08d` (5 failures, all fixed or restated, each rerun green). Since then: targeted runs on a fresh database: `f8d933bc` 66 passed; `2b3b291e` 88 passed (D78, LAPORAN, M4-K01, F36, F06, F31, F35). The whole suite on the final head is still to run (CI's selftest job runs it) |
 | Report walk | On `d840b12f`: 120 views, all 200, none scrolls sideways. CEK at 1280 (40 views) found one axe colour-contrast failure («Berkembang», 4.28:1), fixed; on re-check 0 violations, print clean, A6 tree snapshot «60% (di bawah target) · 22 murid». Daisy's walk on `e8a5efb9` (120 + 40 views) agrees. B1–B3 changed pages after that; not re-walked |
-| Sharon | Verified `e8a5efb9`; dispositions in §13. **Re-check requested** on the final head: the `moved` reason, the PR011 catch, the gate below its minimum |
-| Daisy | Verified `e8a5efb9` (`8dac7681`); dispositions in §13. **Re-check requested** on the final head: B1–B3, the «hasil» wording, the `moved` sentence |
-| Owner | **O-B3**: should the learner's per-question review be sealed? Also for the terminology owner: «students» and «learners» both appear in English |
+| Sharon | Verified `e8a5efb9`; dispositions in §13. **Re-check requested** on the final head: the `moved` reason, the PR011 catch, the gate below its minimum, and O-B3: the evidence and recalculation contracts stay consistent |
+| Daisy | Verified `e8a5efb9` (`8dac7681`); dispositions in §13. **Re-check requested** on the final head: B1–B3, the «hasil» wording, the `moved` sentence, and O-B3: a first-time learner telling the sealed result from the current-key feedback |
+| Owner | O-B3 decided and implemented (§13). For the terminology owner: «students» and «learners» both appear in English |
 | Staging | Not exercised: no deployment is authorised |
 | Screen readers (NVDA, TalkBack) | The accessibility tree is checked in the walk; no real screen reader has been run |
 | PD reports | Not changed by this pass; not re-walked |
 
-**Gate status: OPEN.** It closes only when the open rows above are done, O-B3 is decided, and both reviewers confirm.
+**Gate status: OPEN.** It closes only when the open rows above are done and both reviewers confirm, including their O-B3 checks.
