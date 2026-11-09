@@ -753,7 +753,9 @@ export const d168Tests: SelfTest[] = [
       const i = src.indexOf('<section id="audit"');
       const audit = i < 0 ? "" : src.slice(i, src.indexOf("</section>", i));
       c.expect(/<div className="pin-tabel-bingkai[^"]*" role="region" tabIndex=\{0\} aria-labelledby="pin-jejak-judul">\s*<table className="pin-tabel/.test(audit)
-        && /<caption id="pin-jejak-judul"/.test(audit) && (audit.match(/<th scope="col">/g) ?? []).length === 4, "the audit trail is not the design system's Table with its caption and column headers");
+        && /<caption id="pin-jejak-judul"/.test(audit)
+        // RESTATED (owner, 9 Nov: E7 adds «Oleh» and «Alasan»): when, action, record, by, reason, and the platform's build
+        && (audit.match(/<th scope="col">/g) ?? []).length === 6, "the audit trail is not the design system's Table with its caption and column headers");
       c.expect(/const adaVersi = platformIni && barisJejak\.some\(\(r\) => Boolean\(r\.build_sha\)\);/.test(src)
         && /\{adaVersi \? <th scope="col">\{s\("config\.label\.build"\)\}<\/th> : null\}/.test(audit) && !/\{platformIni \?/.test(audit),
         "«Versi» is drawn for a page none of whose rows carries a build, or for a reader who is not Admin platform");
