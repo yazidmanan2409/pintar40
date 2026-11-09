@@ -4874,7 +4874,7 @@
     {
       "id": "CABUT-A01",
       "runner": "app",
-      "proves": "Owner, 9 Nov (acceptance principle B), selftest/cabut.test.ts: with two sessions open at once, an educator teaching at Alpha and Beta is working in Mengajar at Alpha; Alpha's Admin sekolah, in a browser of their own, revokes the Alpha role with a reason (revoke_role with the admin's own token); the educator's next requests from the same still-open browser and token are refused by the server (Kelas 5A's page no longer shows its learners, PostgREST reads no Alpha structure and no placement of Kelas 5A, the Alpha working context is no longer held); the Beta context and class still answer; the revoked row keeps who, when and why, role.granted and role.revoked are audited with the reason, the person, account and session stand, and a fresh sign-in works."
+      "proves": "Owner, 9 Nov (acceptance principle B), selftest/cabut.test.ts, the rendered pages and PostgREST of the running app: with two sessions open at once, an educator teaching at Alpha and Beta is working in Mengajar at Alpha; Alpha's Admin sekolah, in a browser of their own, revokes the Alpha role with a reason (revoke_role with the admin's own token); the educator's next requests from the same still-open browser and token are refused by the server (Kelas 5A's page no longer shows its learners, PostgREST reads no Alpha structure and no placement of Kelas 5A, the Alpha working context is no longer held); the Beta context and class still answer; the revoked row keeps who, when and why, role.granted and role.revoked are audited with the reason, the person, account and session stand, and a fresh sign-in works."
     },
     {
       "id": "F37-K01",
@@ -4904,12 +4904,12 @@
     {
       "id": "KENAIKAN-K01",
       "runner": "static",
-      "proves": "«Kenaikan kelas dan kelulusan», selftest/kenaikan.test.ts: src/lib/kenaikan.ts reads every select value (NAIK and TINGGAL with a Kelas, LULUS, PINDAH, KELUAR with each of the four reasons) back as its decision and writes it the same way; an empty choice, a malformed id or an unknown reason is no decision; the address form between steps is base64url of ids and codes only, and a malformed one is dropped, never repaired into decisions."
+      "proves": "«Kenaikan kelas dan kelulusan», selftest/kenaikan.test.ts, executes the source file src/lib/kenaikan.ts: it reads every select value (NAIK and TINGGAL with a Kelas, LULUS, PINDAH, KELUAR with each of the four reasons) back as its decision and writes it the same way; an empty choice, a malformed id or an unknown reason is no decision; the address form between steps is base64url of ids and codes only, and a malformed one is dropped, never repaired into decisions."
     },
     {
       "id": "KENAIKAN-A01",
       "runner": "app",
-      "proves": "«Kenaikan kelas dan kelulusan» through the running app, as Alpha's Admin sekolah, the forms sent as a browser without script sends them: Kelas 5X is chosen; all four learners are listed, the one in the Tingkat without a class marked; «Naikkan semua ke» pre-selects 6X; a repeat is set straight to the repeat class and a graduate set; the review names each outcome and the teachers and changes nothing; a confirmation without the teachers' review is refused (PROMO_TEACHERS_UNREVIEWED) and changes nothing; the confirmation applies all four, and the outcome page names each learner with where they are now, matching the database; no learner's name travels in the address."
+      "proves": "«Kenaikan kelas dan kelulusan» through the rendered pages of the running app, as Alpha's Admin sekolah, the forms sent as a browser without script sends them: Kelas 5X is chosen; all four learners are listed, the one in the Tingkat without a class marked; «Naikkan semua ke» pre-selects 6X; a repeat is set straight to the repeat class and a graduate set; the review names each outcome and the teachers and changes nothing; a confirmation without the teachers' review is refused (PROMO_TEACHERS_UNREVIEWED) and changes nothing; the confirmation applies all four, and the outcome page names each learner with where they are now, matching the database; no learner's name travels in the address."
     },
     {
       "id": "F37-R01",

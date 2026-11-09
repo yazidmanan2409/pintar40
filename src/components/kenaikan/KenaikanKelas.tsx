@@ -4,6 +4,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { kunciKode } from "@/lib/galat-kontrak";
 import { tanggal } from "@/lib/tanggal";
 import BarisHasil from "@/components/BarisHasil";
+import Kosong from "@/components/Kosong";
 import TombolKirim from "@/components/TombolKirim";
 import { ALASAN_KELUAR, adalahUuid, nilaiDari, urai, type KeputusanMurid } from "@/lib/kenaikan";
 import { terapkanKenaikanAksi, tinjauKenaikanAksi } from "@/app/konfigurasi/kenaikan-aksi";
@@ -34,7 +35,7 @@ type HasilAkhir = Hasil & { kelas_sekarang: string | null; akhir: string | null 
 
 export type ParamKenaikan = { kn_kelas?: string; kn_tahun?: string; kn_semua?: string; kn_langkah?: string; kn_d?: string; kn_kode?: string; kn_ref?: string };
 
-const label = "grid gap-1 text-sm text-ink-2";
+const label = "pin-kenaikan-label";
 const field = "pin-input"; // the v3 Field, as Konfigurasi's own forms
 const primer = "pin-btn pin-primary justify-self-start";
 
@@ -59,10 +60,10 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
       .filter((n) => (n.member_kind ?? "LEARNER") === "LEARNER");
     const tahunList = (tahun ?? []) as Array<{ id: string; name: string }>;
     return (
-      <div className="mt-3 grid gap-3" data-kenaikan-langkah="kelas">
-        <p className="text-sm text-ink-3">{s("kenaikan.intro")}</p>
-        {daftar.length === 0 ? <p className="text-sm text-ink-3">{s("kenaikan.kelas.kosong")}</p> : (
-          <form method="get" action="/konfigurasi/rollover#rollover" className="grid max-w-md gap-2">
+      <div className="pin-kenaikan" data-kenaikan-langkah="kelas">
+        <p className="pin-meta">{s("kenaikan.intro")}</p>
+        {daftar.length === 0 ? <Kosong jenis="belum" kalimat={s("kenaikan.kelas.kosong")} /> : (
+          <form method="get" action="/konfigurasi/rollover#rollover" className="pin-kenaikan-isian">
             <label className={label}>{s("kenaikan.kelas.pilih")}
               <select name="kn_kelas" className={field} required defaultValue="">
                 <option value="" disabled>{s("kenaikan.pilih")}</option>
@@ -87,19 +88,19 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
   if (langkah === "selesai") {
     const { data, error } = await supabase.rpc("kenaikan_hasil", { p_kelas: kelas });
     const h = (data ?? null) as { pada: string; hasil: HasilAkhir[] } | null;
-    if (error || !h) return <div className="mt-3">{tolak ?? <BarisHasil nada="gagal">{s("kenaikan.selesai.tidak_terbaca")}</BarisHasil>}</div>;
+    if (error || !h) return <div className="pin-kenaikan">{tolak ?? <BarisHasil nada="gagal">{s("kenaikan.selesai.tidak_terbaca")}</BarisHasil>}</div>;
     return (
-      <div className="mt-3 grid gap-3" data-kenaikan-langkah="selesai">
+      <div className="pin-kenaikan" data-kenaikan-langkah="selesai">
         <BarisHasil nada="ok">{s("kenaikan.selesai.ok").replace("{n}", String(h.hasil.length)).replace("{waktu}", tanggal(h.pada, "cap", locale))}</BarisHasil>
-        <table className="w-full text-sm" data-kenaikan-hasil="">
+        <table className="pin-tabel" data-kenaikan-hasil="">
           <caption className="pin-sr">{s("kenaikan.selesai.judul")}</caption>
-          <thead><tr className="text-left text-ink-3"><th scope="col">{s("kenaikan.kolom.murid")}</th><th scope="col">{s("kenaikan.kolom.hasil")}</th><th scope="col">{s("kenaikan.kolom.sekarang")}</th></tr></thead>
+          <thead><tr><th scope="col">{s("kenaikan.kolom.murid")}</th><th scope="col">{s("kenaikan.kolom.hasil")}</th><th scope="col">{s("kenaikan.kolom.sekarang")}</th></tr></thead>
           <tbody>
             {h.hasil.map((m) => (
-              <tr key={m.person_id} className="border-b border-line-1" data-murid={m.person_id}>
-                <th scope="row" className="py-1 text-left font-normal text-ink-1">{m.nama}</th>
+              <tr key={m.person_id} data-murid={m.person_id}>
+                <th scope="row" className="pin-tabel-nama">{m.nama}</th>
                 <td>{kalimat(s, m)}</td>
-                <td className="text-ink-2">{m.kelas_sekarang ?? (m.akhir ? s(`kenaikan.akhir.${m.akhir.toLowerCase()}` as HleEvent) : "—")}</td>
+                <td>{m.kelas_sekarang ?? (m.akhir ? s(`kenaikan.akhir.${m.akhir.toLowerCase()}` as HleEvent) : "—")}</td>
               </tr>
             ))}
           </tbody>
@@ -111,15 +112,15 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
 
   const { data: rencanaData, error: rencanaError } = await supabase.rpc("kenaikan_rencana", { p_kelas: kelas });
   if (rencanaError || !rencanaData) {
-    return <div className="mt-3"><BarisHasil nada="gagal">{s(kunciKode(rencanaError ? (rencanaError.code === "42501" ? "ACTION_NOT_ALLOWED" : "ACTION_FAILED") : "ACTION_FAILED"))}</BarisHasil></div>;
+    return <div className="pin-kenaikan"><BarisHasil nada="gagal">{s(kunciKode(rencanaError ? (rencanaError.code === "42501" ? "ACTION_NOT_ALLOWED" : "ACTION_FAILED") : "ACTION_FAILED"))}</BarisHasil></div>;
   }
   const r = rencanaData as Rencana;
-  const judulKelas = <h3 className="text-sm font-medium text-ink-1">{r.kelas.nama}{r.kelas.tahun ? ` · ${r.kelas.tahun}` : ""}{r.kelas.tingkat ? ` · ${r.kelas.tingkat}` : ""}</h3>;
+  const judulKelas = <h3 className="pin-kenaikan-judul">{r.kelas.nama}{r.kelas.tahun ? ` · ${r.kelas.tahun}` : ""}{r.kelas.tingkat ? ` · ${r.kelas.tingkat}` : ""}</h3>;
   if (r.tahun_berikut.length === 0) {
     return (
-      <div className="mt-3 grid gap-2" data-kenaikan-langkah="tanpa-tahun">
+      <div className="pin-kenaikan" data-kenaikan-langkah="tanpa-tahun">
         {judulKelas}
-        <p className="text-sm text-ink-2">{s("kenaikan.tahun.belum_ada")} <Link className="pin-tautan" href="/konfigurasi/struktur#struktur">{s("kenaikan.tahun.ke_struktur")}</Link></p>
+        <p className="pin-kenaikan-teks">{s("kenaikan.tahun.belum_ada")} <Link className="pin-tautan" href="/konfigurasi/struktur#struktur">{s("kenaikan.tahun.ke_struktur")}</Link></p>
       </div>
     );
   }
@@ -133,46 +134,46 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
     });
     if (error) {
       return (
-        <div className="mt-3 grid gap-2">{judulKelas}<BarisHasil nada="gagal">{s(kunciKode(error.code === "PR070" && error.details ? error.details : "ACTION_FAILED"))}</BarisHasil>
+        <div className="pin-kenaikan">{judulKelas}<BarisHasil nada="gagal">{s(kunciKode(error.code === "PR070" && error.details ? error.details : "ACTION_FAILED"))}</BarisHasil>
           <p><Link className="pin-tautan" href={ulang({ kn_kelas: kelas, kn_tahun: tahun.id, kn_d: sp.kn_d ?? "" })}>{s("kenaikan.tinjau.ubah")}</Link></p></div>
       );
     }
     const hasil = ((data as { hasil: Hasil[] }).hasil ?? []);
     const tujuan = tahun.kelas.filter((k) => hasil.some((h) => h.kelas_tujuan_nama === k.nama));
     return (
-      <div className="mt-3 grid gap-3" data-kenaikan-langkah="tinjau">
+      <div className="pin-kenaikan" data-kenaikan-langkah="tinjau">
         {judulKelas}
-        <p className="text-sm text-ink-2">{s("kenaikan.tinjau.intro").replace("{tahun}", tahun.nama)}</p>
-        <table className="w-full text-sm" data-kenaikan-pratinjau="">
+        <p className="pin-kenaikan-teks">{s("kenaikan.tinjau.intro").replace("{tahun}", tahun.nama)}</p>
+        <table className="pin-tabel" data-kenaikan-pratinjau="">
           <caption className="pin-sr">{s("kenaikan.tinjau.judul")}</caption>
-          <thead><tr className="text-left text-ink-3"><th scope="col">{s("kenaikan.kolom.murid")}</th><th scope="col">{s("kenaikan.kolom.hasil")}</th></tr></thead>
+          <thead><tr><th scope="col">{s("kenaikan.kolom.murid")}</th><th scope="col">{s("kenaikan.kolom.hasil")}</th></tr></thead>
           <tbody>
             {hasil.map((m) => (
-              <tr key={m.person_id} className="border-b border-line-1" data-murid={m.person_id}>
-                <th scope="row" className="py-1 text-left font-normal text-ink-1">{m.nama}</th><td>{kalimat(s, m)}</td>
+              <tr key={m.person_id} data-murid={m.person_id}>
+                <th scope="row" className="pin-tabel-nama">{m.nama}</th><td>{kalimat(s, m)}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        <section className="grid gap-1" aria-labelledby="kn-guru">
-          <h3 id="kn-guru" className="text-sm font-medium text-ink-1">{s("kenaikan.guru.judul")}</h3>
-          <p className="text-sm text-ink-2">{s("kenaikan.guru.intro")}</p>
-          <ul className="text-sm text-ink-2" data-kenaikan-guru="">
+        <section className="pin-kenaikan" aria-labelledby="kn-guru">
+          <h3 id="kn-guru" className="pin-kenaikan-judul">{s("kenaikan.guru.judul")}</h3>
+          <p className="pin-kenaikan-teks">{s("kenaikan.guru.intro")}</p>
+          <ul className="pin-daftar" data-kenaikan-guru="">
             <li>{r.kelas.nama}: {r.guru.length ? r.guru.map((g) => g.nama).join(", ") : s("kenaikan.guru.tidak_ada")}</li>
             {tujuan.map((k) => <li key={k.id}>{k.nama}: {k.guru.length ? k.guru.map((g) => g.nama).join(", ") : s("kenaikan.guru.tidak_ada")}</li>)}
           </ul>
-          <p className="text-sm"><Link className="pin-tautan" href="/konfigurasi/roles#roles">{s("kenaikan.guru.ke_peran")}</Link></p>
+          <p><Link className="pin-tautan" href="/konfigurasi/roles#roles">{s("kenaikan.guru.ke_peran")}</Link></p>
         </section>
-        <form action={terapkanKenaikanAksi} className="grid gap-2">
+        <form action={terapkanKenaikanAksi} className="pin-kenaikan">
           <input type="hidden" name="kelas" value={kelas} />
           <input type="hidden" name="tahun" value={tahun.id} />
           <input type="hidden" name="d" value={sp.kn_d ?? ""} />
-          <label className="flex items-start gap-2 text-sm text-ink-1">
+          <label className="pin-kenaikan-centang">
             <input type="checkbox" name="guru_ditinjau" value="ya" required />
             <span>{s("kenaikan.guru.sudah_ditinjau")}</span>
           </label>
           {tolak}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="pin-actions">
             <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("kenaikan.tinjau.konfirmasi")}</TombolKirim>
             <Link className="pin-tautan" href={ulang({ kn_kelas: kelas, kn_tahun: tahun.id, kn_d: sp.kn_d ?? "" })}>{s("kenaikan.tinjau.ubah")}</Link>
           </div>
@@ -189,7 +190,7 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
     return semua && !m.pindah_berjalan ? `NAIK:${semua}` : "";
   };
   return (
-    <div className="mt-3 grid gap-3" data-kenaikan-langkah="keputusan">
+    <div className="pin-kenaikan" data-kenaikan-langkah="keputusan">
       {judulKelas}
       <form method="get" action="/konfigurasi/rollover#rollover" className="pin-baris-isian">
         <input type="hidden" name="kn_kelas" value={kelas} />
@@ -204,23 +205,23 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
             {tahun.kelas.map((k) => <option key={k.id} value={k.id}>{k.nama}</option>)}
           </select>
         </label>
-        <div className="self-end"><button type="submit" className="pin-btn">{s("kenaikan.semua.terapkan")}</button></div>
+        <div className="pin-kenaikan-terapkan"><button type="submit" className="pin-btn">{s("kenaikan.semua.terapkan")}</button></div>
       </form>
-      {r.murid.length === 0 ? <p className="text-sm text-ink-3">{s("kenaikan.murid.kosong")}</p> : (
-        <form action={tinjauKenaikanAksi} className="grid gap-2">
+      {r.murid.length === 0 ? <Kosong jenis="belum" kalimat={s("kenaikan.murid.kosong")} /> : (
+        <form action={tinjauKenaikanAksi} className="pin-kenaikan">
           <input type="hidden" name="kelas" value={kelas} />
           <input type="hidden" name="tahun" value={tahun.id} />
-          <p className="text-sm text-ink-2">{s("kenaikan.murid.intro").replace("{n}", String(r.murid.length))}</p>
-          <ul className="grid gap-1" data-kenaikan-murid="">
+          <p className="pin-kenaikan-teks">{s("kenaikan.murid.intro").replace("{n}", String(r.murid.length))}</p>
+          <ul className="pin-kenaikan-murid" data-kenaikan-murid="">
             {r.murid.map((m) => (
-              <li key={m.person_id} className="grid gap-1 border-b border-line-1 py-1 sm:grid-cols-[1fr_auto] sm:items-center" data-murid={m.person_id}>
-                <span className="text-sm text-ink-1">
-                  {m.nama}{m.nomor ? <span className="text-ink-3"> · {m.nomor}</span> : null}
-                  {m.sumber === "TINGKAT" ? <span className="pin-pill pin-info ml-2">{s("kenaikan.murid.tingkat_saja")}</span> : null}
-                  {m.pindah_berjalan ? <span className="pin-pill pin-neutral ml-2">{s("kenaikan.murid.sedang_pindah")}</span> : null}
-                  {m.asesmen_terbuka ? <span className="pin-pill pin-blocked ml-2">{s("kenaikan.murid.asesmen_terbuka")}</span> : null}
+              <li key={m.person_id} className="pin-kenaikan-baris" data-murid={m.person_id}>
+                <span className="pin-kenaikan-nama">
+                  {m.nama}{m.nomor ? <span className="pin-meta"> · {m.nomor}</span> : null}
+                  {m.sumber === "TINGKAT" ? <span className="pin-pill pin-info">{s("kenaikan.murid.tingkat_saja")}</span> : null}
+                  {m.pindah_berjalan ? <span className="pin-pill pin-neutral">{s("kenaikan.murid.sedang_pindah")}</span> : null}
+                  {m.asesmen_terbuka ? <span className="pin-pill pin-blocked">{s("kenaikan.murid.asesmen_terbuka")}</span> : null}
                 </span>
-                <label className="text-sm"><span className="pin-sr">{s("kenaikan.murid.keputusan_untuk")} {m.nama}</span>
+                <label><span className="pin-sr">{s("kenaikan.murid.keputusan_untuk")} {m.nama}</span>
                   <select name={`k[${m.person_id}]`} className={field} required defaultValue={awal(m)}>
                     <option value="">{s("kenaikan.pilih")}</option>
                     <optgroup label={s("kenaikan.opsi.naik_grup")}>

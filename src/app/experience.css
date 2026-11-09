@@ -3815,3 +3815,14 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 
 /* V2 (owner, 9 Nov): a topic named by its short title keeps its objective's statement on a line of its own, quieter */
 .pin-lk-pernyataan { display: block; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); font-weight: 400; margin-top: var(--space-1); }
+/* «Kenaikan kelas dan kelulusan» (src/components/kenaikan/KenaikanKelas.tsx): the four steps of the year-end flow */
+.pin-kenaikan { display: grid; gap: var(--space-3); margin-top: var(--space-3); }
+.pin-kenaikan-isian { display: grid; gap: var(--space-2); max-width: var(--measure-narrow); }
+.pin-kenaikan-label { display: grid; gap: var(--space-1); font-size: var(--t-label); line-height: var(--t-label-lh); color: var(--ink-2); }
+.pin-kenaikan-teks { margin: 0; color: var(--ink-2); }
+.pin-kenaikan-judul { margin: 0; font-size: var(--t-subsection); line-height: var(--t-subsection-lh); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-kenaikan-murid { display: grid; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
+.pin-kenaikan-baris { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-2); padding: var(--space-2) 0; border-bottom: var(--border-hairline) solid var(--line); }
+.pin-kenaikan-nama { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); color: var(--ink-1); }
+.pin-kenaikan-centang { display: flex; align-items: flex-start; gap: var(--space-2); color: var(--ink-1); }
+.pin-kenaikan-terapkan { align-self: end; }
