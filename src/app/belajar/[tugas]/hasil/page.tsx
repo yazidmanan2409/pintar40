@@ -43,7 +43,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
   const state = await engine.cycleState(db, tugas);
   if (!state.post_session || state.post_status !== "FINALIZED") notFound();
 
-  const [outcome, review, delta, mine, peta, pelajaran, pengembangan] = await Promise.all([
+  const [outcome, review, delta, mine, peta, pelajaran, pengembangan, dihitungUlang] = await Promise.all([
     engine.outcome(db, state.post_session),
     engine.review(db, state.post_session),
     engine.delta(db, tugas),
@@ -56,6 +56,8 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
     engine.lessons(db, tugas).catch(() => []),
     // D-195(4): an educator's own professional-learning package says who else may see this result (D-069(b),(c))
     engine.isProfessionalLearning(db, tugas),
+    // D14: a sitting recalculated after it was sealed is said, neutrally; what this page shows is the sealed result
+    engine.sesiDihitungUlang(db, state.post_session).catch(() => false),
   ]);
   if (!outcome) notFound();
   // UX-40: this result has now been seen, so Belajar's home stops offering it as the next step. Not evidence; a
@@ -102,6 +104,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
               // D-088(b): a result judged against a mark sets one; with none sealed PINTAR says so and assumes nothing
               : outcome.diagnostik === false ? ` ${s("siklus.ambang_belum")}` : ""}
           </p>
+          {dihitungUlang ? <p className="pin-meta" data-dihitung-ulang="">{s("hasil.dihitung_ulang")}</p> : null}
         </section>
 
         {/* M3: whether the target was met, said plainly; below it, what to read again. */}

@@ -48,10 +48,9 @@ export const SYARAT_METRIK: Readonly<Record<string, Syarat>> = {
  */
 export function kunciMuncul(e: { status: string; metric_id?: string; withheld?: { reason: string } }): HleEvent | null {
   if (e.status !== "below_minimum" || !e.metric_id) return null;
-  // owner decision 7: a withheld figure appears when its smallest part is large enough, not when «enough» sit overall
-  if (e.withheld?.reason === "subgroup") {
-    return e.metric_id.startsWith("institution.") ? "laporan.muncul.dilindungi.kelas" : "laporan.muncul.dilindungi.bab";
-  }
+  // owner decision 7, Daisy's A7 (9 Nov): a WITHHELD figure (a small part, or D12's «not applicable») is explained once,
+  // by its own sentence, with its actual reason; no second «it will appear when…» line, no pointer to another section
+  if (e.withheld) return null;
   const syarat = SYARAT_METRIK[e.metric_id];
   return syarat ? (`laporan.muncul.${syarat}` as HleEvent) : null;
 }

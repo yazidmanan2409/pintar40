@@ -154,6 +154,77 @@ export default function KisiTopik({ kolom, locale, huruf = "A" }: { kolom: reado
               ) : null}
             </table>
           </div>
+          {/* A3 (owner, 9 Nov): at phone width the grid is STACKED, one topic at a time with each class's figure under it;
+              the same cells, the same marks, read down instead of across. Only one of the two is ever displayed (CSS), so a
+              screen reader meets the figures once. */}
+          <div className="pin-lk-kisi-tumpuk" data-kisi-tumpuk="">
+            <dl className="pin-lk-kisi-kelas">
+              {ada.map((k) => {
+                const punya = nilai.has(k.id);
+                const pop = k.populasi;
+                return (
+                  <div key={k.id}>
+                    <dt>{k.nama}</dt>
+                    <dd>
+                      {[
+                        punya && typeof pop?.assessed === "number" && typeof pop?.placed === "number"
+                          ? s("laporan.kisi.dasar").replace("{n}", format.number(pop.assessed, locale)).replace("{m}", format.number(pop.placed, locale)) : null,
+                        punya && typeof k.target === "number" ? s("laporan.komposisi.target").replace("{p}", format.percent(k.target, locale)) : null,
+                        !punya ? (k.topik && kalimatJumlah(k.topik, locale, "staff")) || s("laporan.kisi.belum") : null,
+                      ].filter(Boolean).join(" · ")}
+                    </dd>
+                  </div>
+                );
+              })}
+            </dl>
+            <ul className="pin-lk-kisi-topik">
+              {baris.map(([kunci, nama]) => (
+                <li key={kunci}>
+                  <p className="pin-lk-kisi-nama">{nama}{pernyataan.get(kunci) ? <span className="pin-lk-pernyataan">{pernyataan.get(kunci)}</span> : null}</p>
+                  <dl>
+                    {ada.map((k) => {
+                      const v = nilai.get(k.id)?.get(kunci);
+                      const tg = typeof k.target === "number" ? k.target : null;
+                      const bawah = v !== undefined && tg !== null && v < tg;
+                      return (
+                        <div key={k.id}>
+                          <dt>{k.nama}</dt>
+                          <dd className={v === undefined ? "pin-lk-sel-kosong" : undefined}>
+                            {v === undefined ? "—" : (
+                              <span className="pin-lk-sel" data-bawah={bawah ? "" : undefined}>
+                                <b>{persenJujur(v, locale, [tg])}</b>
+                                <span className="pin-lk-mini" aria-hidden="true">
+                                  <i style={{ width: `${Math.max(0, Math.min(1, v)) * 100}%` }} />
+                                  {tg !== null ? <u style={{ left: `${tg * 100}%` }} /> : null}
+                                </span>
+                                {bawah ? <span className="pin-sr">{` ${s("mengajar.murid1.di_bawah_target")}`}</span> : null}
+                              </span>
+                            )}
+                          </dd>
+                        </div>
+                      );
+                    })}
+                  </dl>
+                </li>
+              ))}
+              {adaKenaikan ? (
+                <li data-kisi-kenaikan="">
+                  <p className="pin-lk-kisi-nama">{s("metrik.kenaikan.label")}</p>
+                  <dl>
+                    {ada.map((k) => (
+                      <div key={k.id}>
+                        <dt>{k.nama}</dt>
+                        <dd className={k.kenaikan?.status === "ok" ? undefined : "pin-lk-sel-kosong"}>
+                          {k.kenaikan?.status === "ok" && Number.isFinite(Number(k.kenaikan.value))
+                            ? <b>{nilaiMetrik("class.net_gain", Number(k.kenaikan.value), locale)}</b> : "—"}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </li>
+              ) : null}
+            </ul>
+          </div>
           {/* F3 (Daisy, 9 Nov): the key explains the target line and amber only where a target is drawn */}
           <p className="pin-lk-arti" data-kisi-kunci={kunciKunci}>{s(kunciKunci)}</p>
         </div>

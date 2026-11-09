@@ -54,7 +54,9 @@ export default function BarisSesi({
   // One strip per page, but the two variants never share an id either way.
   const idKet = `pin-sesi-ket-${varian}`;
   return (
-    <div className={`pin-sesi pin-sesi-${varian}`} role="group" aria-label={s("sesi.label")}>
+    // print (B6 P1, re-walked 9 Nov): the session strip is the application's, never the paper's, also on the refusal page,
+    // which stands outside the shell that print already hides
+    <div className={`pin-sesi pin-sesi-${varian} pin-noprint`} role="group" aria-label={s("sesi.label")}>
       <span id={idKet} className="pin-sesi-ket" title={nama ?? undefined}>
         {nama ? (
           <>

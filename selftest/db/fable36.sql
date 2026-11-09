@@ -47,6 +47,10 @@ begin
   end if;
 end $$;
 
+-- earlier signatures, when the file is reloaded into a database that already holds them
+drop function if exists selftest.f36_sit(uuid, uuid, uuid, uuid, numeric, text, timestamptz, uuid, boolean, jsonb);
+drop function if exists selftest.f36_recompute(uuid, numeric, text);
+
 -- a Pemetaan Awal for the chapter a fable35 Uji Penguasaan belongs to
 create or replace function selftest.f36_pre(p_post uuid)
 returns uuid language plpgsql set search_path = public, pg_temp as $$
@@ -63,7 +67,7 @@ revoke all on function selftest.f36_pre(uuid) from public;
 -- is null), with one per_domain code, an optional recorded Angkatan, and optional answers (item, chosen option)
 create or replace function selftest.f36_sit(p_template uuid, p_person uuid, p_class uuid, p_definition uuid, p_mastery numeric,
                                             p_code text, p_finished timestamptz, p_cohort uuid default null,
-                                            p_gate boolean default true, p_answers jsonb default null)
+                                            p_gate boolean default true, p_answers jsonb default null, p_wajib integer default 1)
 returns table (person uuid, session uuid) language plpgsql set search_path = public, pg_temp as $$
 declare s record; v_person uuid := p_person; v_e uuid; v_new uuid := gen_random_uuid(); v_mode public.assessment_mode; a jsonb; v_pi uuid; k int := 0;
 begin
@@ -107,14 +111,15 @@ begin
   select gen_random_uuid(), v_new, r.institution_id, v_person, r.evidence_class, r.engine_version,
          r.scoring_policy_version, p_mastery,
          jsonb_build_object(p_code, jsonb_build_object('benar', round(p_mastery * 5)::int, 'total', 5, 'penguasaan', p_mastery)),
-         p_gate, r.delta_inputs, now()
+         p_gate, coalesce(r.delta_inputs, '{}'::jsonb) || jsonb_build_object('safety_total', p_wajib,
+           'safety_correct', (select p_wajib where p_gate) ), now()
     from public.assessment_results r where r.session_id = p_template limit 1;
   person := v_person; session := v_new; return next;
 end $$;
-revoke all on function selftest.f36_sit(uuid, uuid, uuid, uuid, numeric, text, timestamptz, uuid, boolean, jsonb) from public;
+revoke all on function selftest.f36_sit(uuid, uuid, uuid, uuid, numeric, text, timestamptz, uuid, boolean, jsonb, integer) from public;
 
 -- an audited recomputation of a sitting: a NEW result linked to the one it replaces (INV-29)
-create or replace function selftest.f36_recompute(p_session uuid, p_mastery numeric, p_code text)
+create or replace function selftest.f36_recompute(p_session uuid, p_mastery numeric, p_code text, p_at timestamptz default null)
 returns void language plpgsql set search_path = public, pg_temp as $$
 declare v_prev public.assessment_results;
 begin
@@ -126,9 +131,9 @@ begin
   values (gen_random_uuid(), p_session, v_prev.institution_id, v_prev.person_id, v_prev.evidence_class, v_prev.engine_version,
           v_prev.scoring_policy_version, p_mastery,
           jsonb_build_object(p_code, jsonb_build_object('benar', round(p_mastery * 5)::int, 'total', 5, 'penguasaan', p_mastery)),
-          v_prev.safety_gate_passed, v_prev.delta_inputs, v_prev.id, 'F36: a corrected key', clock_timestamp());
+          v_prev.safety_gate_passed, v_prev.delta_inputs, v_prev.id, 'F36: a corrected key', coalesce(p_at, clock_timestamp()));
 end $$;
-revoke all on function selftest.f36_recompute(uuid, numeric, text) from public;
+revoke all on function selftest.f36_recompute(uuid, numeric, text, timestamptz) from public;
 
 create or replace function selftest.f36_eval(p_user uuid, p_metric text, p_node uuid, p_inst uuid)
 returns jsonb language plpgsql set search_path = public, pg_temp as $$
@@ -161,7 +166,10 @@ declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
   e01 text[] := array[]::text[]; x01 text[] := array[]::text[]; r01 text[] := array[]::text[]; r02 text[] := array[]::text[];
   k01 text[] := array[]::text[]; g02 text[] := array[]::text[]; h01 text[] := array[]::text[]; h02 text[] := array[]::text[];
-  m01 text[] := array[]::text[]; p01 text[] := array[]::text[];
+  m01 text[] := array[]::text[]; p01 text[] := array[]::text[]; k02 text[] := array[]::text[]; s01 text[] := array[]::text[]; l01 text[] := array[]::text[];
+  d14 text[] := array[]::text[]; c_d uuid; v_du uuid; v_dp uuid; v_du2 uuid; v_dsys uuid; v_dsess uuid; v_dnew numeric; v_dold uuid; v_dopt text; v_dper jsonb; v_root_at_n numeric;
+  v_cs uuid; v_root_at timestamptz; v_reads text[];
+  v_fm uuid; v_dm uuid; v_pm uuid; v_ma uuid; v_mb uuid; c_mx uuid; c_my uuid; d_mr uuid; v_l6 uuid; v_ux numeric; v_ua numeric;
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid; v_ca uuid; v_cb uuid; v_cc uuid;
   v_dekan uuid; v_guru uuid; v_cat text; v_k int;
   c_e uuid; c_r uuid; c_q uuid; c_p uuid; c_o uuid; c_m uuid; c_sa uuid; c_sb uuid; c_sc uuid; c_sd uuid; c_g uuid;
@@ -315,14 +323,17 @@ begin
         r01 := r01 || 'chapter B''s topic gives its mean'::text;
       end if;
     end loop;
-    -- Kenaikan's pair: the teacher's read (its own net gain is «ok»: no per-chapter gain or baseline is given anywhere)
+    -- Kenaikan itself (owner, historical disclosure): withheld while chapter B's pairs are 3, or the class's figure
+    -- read before and after B was sat would give B's mean gain; its 9 learners and 9 pairs still counted
     v_j := selftest.f36_eval(v_guru, 'class.net_gain', c_r, v_inst);
-    if v_j ->> 'status' is distinct from 'ok' then r01 := r01 || format('Kenaikan over nine pairs is not shown: %s', left(v_j::text, 200)); end if;
+    if v_j ? 'value' or v_j -> 'withheld' ->> 'reason' is distinct from 'subgroup' or (v_j ->> 'have')::int is distinct from 9 or (v_j ->> 'pairs')::int is distinct from 9 then
+      r01 := r01 || format('Kenaikan over a 6-pair and a 3-pair chapter is not withheld with its 9 learners and 9 pairs: %s', left(v_j::text, 240));
+    end if;
     perform selftest.as_user_uid(v_guru);
     select to_jsonb(t) into v_j2 from public.kenaikan_awal_akhir(c_r) t;
     perform selftest.as_owner();
-    if v_j2 is null or v_j2 -> 'akhir' <> 'null'::jsonb or v_j2 -> 'awal' <> 'null'::jsonb or (v_j2 ->> 'pasangan')::int <> 9 then
-      r01 := r01 || format('Kenaikan''s before → after pair gives a mean over nine pairs beside a withheld chapter (Sharon''s 9 × 0.60 − 6 × 0.70 = 3 × 0.40): %s', coalesce(v_j2::text, 'nothing'));
+    if v_j2 is not null and (v_j2 -> 'akhir' <> 'null'::jsonb or v_j2 -> 'awal' <> 'null'::jsonb) then
+      r01 := r01 || format('Kenaikan''s before → after pair gives a mean beside a withheld chapter (Sharon''s 9 × 0.60 − 6 × 0.70 = 3 × 0.40): %s', v_j2::text);
     end if;
     -- a second withheld chapter, a repeated sitting in A, and learners of A also in B: still nothing yields B
     d_t1 := selftest.f35_bab(v_inst, 'F36 RC ' || v_tag, 'RC', 'Tujuan RC F36 ' || v_tag);
@@ -378,6 +389,20 @@ begin
     if v_rows is null or round((v_rows ->> 'akhir')::numeric - (v_rows ->> 'awal')::numeric, 4) is distinct from (v_j3 ->> 'value')::numeric then
       x01 := x01 || format('Kenaikan''s akhir − awal is not Kenaikan %s: %s', v_j3 ->> 'value', coalesce(v_rows::text, 'nothing'));
     end if;
+    -- Kenaikan's governed unit, the (learner, chapter) pair (H31; moved here from F31-K01, whose one-learner class is now
+    -- withheld): five learners, each with two chapters' pairs gaining 0.50 and 0.05: the mean of the ten, 0.275
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_ca, 'CLASS', 'Kelas F36 P2 ' || v_tag, v_period) returning org_nodes.id into c_z1;
+    d_t2 := selftest.f35_bab(v_inst, 'F36 PY ' || v_tag, 'PY', 'Tujuan PY F36 ' || v_tag); d_t3 := selftest.f36_pre(d_t2);
+    for i in 1..5 loop
+      select x.person into v_p from selftest.f36_sit(v_tpl, null, c_z1, d_b0, 0.30, 'RA', now() - interval '6 days') x;
+      perform selftest.f36_sit(v_tpl, v_p, c_z1, d_b, 0.80, 'RA', now() - interval '3 days');
+      perform selftest.f36_sit(v_tpl, v_p, c_z1, d_t3, 0.70, 'PY', now() - interval '5 days');
+      perform selftest.f36_sit(v_tpl, v_p, c_z1, d_t2, 0.75, 'PY', now() - interval '2 days');
+    end loop;
+    v_j := selftest.f36_eval(v_guru, 'class.net_gain', c_z1, v_inst);
+    if (v_j ->> 'value')::numeric is distinct from 0.275 or (v_j ->> 'pairs')::int is distinct from 10 or (v_j ->> 'sample')::int is distinct from 5 then
+      x01 := x01 || format('five learners with two chapters'' pairs (0.50 and 0.05) are not 0.275 over 10 pairs of 5 learners: %s', left(v_j::text, 240));
+    end if;
     -- two chapters, both shown: Pemahaman is the chapters' means weighted by their learners
     d_s2 := selftest.f35_bab(v_inst, 'F36 PX ' || v_tag, 'PX', 'Tujuan PX F36 ' || v_tag);
     for i in 1..5 loop perform selftest.f36_sit(v_tpl, null, c_p, d_s2, 0.90, 'PX', now() - interval '2 days'); end loop;
@@ -431,8 +456,14 @@ begin
       k01 := k01 || format('competency S (15 learners: 12 in one class, 3 in another) is not withheld: %s', coalesce(v_rows::text, 'nothing'));
     end if;
     select e into v_rows from jsonb_array_elements(v_j -> 'value') e where e ->> 'code' = 'S2';
-    if v_rows is null or v_rows -> 'mean_score' = 'null'::jsonb then
-      k01 := k01 || format('competency S2 (12 + 6 + 6 learners, every class cell large enough) is withheld: %s', coalesce(v_rows::text, 'nothing'));
+    if v_rows is null or (v_rows ->> 'mean_score')::numeric is distinct from round((12 * 0.80 + 6 * 0.50 + 6 * 0.60) / 24, 4)
+       or (v_rows ->> 'learners')::int is distinct from 24 then
+      k01 := k01 || format('competency S2 (12 at 80%%, 6 at 50%%, 6 at 60%%, every class cell large enough) is not shown as %s over 24: %s',
+                           round((12 * 0.80 + 6 * 0.50 + 6 * 0.60) / 24, 4), coalesce(v_rows::text, 'nothing'));
+    end if;
+    if (select (e ->> 'withheld') from jsonb_array_elements((selftest.f36_school('calc_institution_competency_outcomes', v_inst, v_fk)) -> 'value') e where e ->> 'code' = 'S1')
+       is distinct from 'class' then
+      k01 := k01 || 'competency S (15 learners, one class of 3) does not give its actual reason (a small class), A5'::text;
     end if;
     v_j := selftest.f36_school('calc_institution_net_gain', v_inst, v_fk);
     if (v_j ? 'value' and v_j -> 'value' <> 'null'::jsonb) or v_j -> 'withheld' ->> 'reason' is distinct from 'subgroup' or (v_j ->> 'sample')::int <> 15 then
@@ -451,9 +482,122 @@ begin
     if (v_j -> 'value' -> -1 ->> 'recorded')::boolean is distinct from false then
       k01 := k01 || 'the «not recorded» row is not listed last'::text;
     end if;
+    -- a SHOWN school Kenaikan, read inside an Angkatan whose two classes each hold five pairs: equal to the hand count
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_prog, 'COHORT', 'Angkatan F36 N ' || v_tag, v_period) returning org_nodes.id into v_y;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_y, 'CLASS', 'Kelas F36 N1 ' || v_tag, v_period) returning org_nodes.id into c_z0;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_y, 'CLASS', 'Kelas F36 N2 ' || v_tag, v_period) returning org_nodes.id into c_z1;
+    for i in 1..5 loop
+      select x.person into v_p from selftest.f36_sit(v_tpl, null, c_z0, d_s0, 0.20, 'S1', now() - interval '6 days', v_y) x;
+      perform selftest.f36_sit(v_tpl, v_p, c_z0, d_s, 0.60 + i * 0.02, 'S1', now() - interval '3 days', v_y);
+      select x.person into v_p from selftest.f36_sit(v_tpl, null, c_z1, d_s0, 0.30, 'S1', now() - interval '6 days', v_y) x;
+      perform selftest.f36_sit(v_tpl, v_p, c_z1, d_s, 0.90, 'S1', now() - interval '3 days', v_y);
+    end loop;
+    v_j := selftest.f36_school('calc_institution_net_gain', v_inst, v_y);
+    -- by hand: N1's gains 0.42, 0.44, 0.46, 0.48, 0.50; N2's 0.60 × 5; mean of the ten
+    if (v_j ->> 'value')::numeric is distinct from round((0.42 + 0.44 + 0.46 + 0.48 + 0.50 + 5 * 0.60) / 10, 4)
+       or (v_j ->> 'pairs')::int is distinct from 10 or (v_j ->> 'sample')::int is distinct from 10 then
+      k01 := k01 || format('the shown school Kenaikan is not the hand count %s over 10 pairs of 10 learners: %s',
+                           round((0.42 + 0.44 + 0.46 + 0.48 + 0.50 + 5 * 0.60) / 10, 4), v_j::text);
+    end if;
     v_j := selftest.f36_school('calc_institution_participants', v_inst, v_fk);
     if (v_j ->> 'value')::int <> 27 then
       k01 := k01 || format('the school''s participants are %s, not 27 (the 6 with no recorded Angkatan dropped out)', v_j ->> 'value');
+    end if;
+
+    -- ═══════════════════════════════════ F36-K02 owner decision 10: Sharon's mover case, exactly
+    -- Angkatan A holds only class X; chapter R is sat by L1–L6 in X; L6 then moves to class Y (Angkatan B, with five
+    -- learners of its own) and re-sits R. X's chapter row (6 learners) and Angkatan A's row (L1–L5) would give L6's
+    -- sitting in X as 6·μX − 5·μA; X's and Y's topic rows and the school competency would give it as 6·X + 6·Y − 11·S.
+    insert into public.org_nodes (institution_id, parent_id, kind, name) values (v_inst, v_root, 'FACULTY', 'Bagian F36 M ' || v_tag) returning org_nodes.id into v_fm;
+    insert into public.org_nodes (institution_id, parent_id, kind, name) values (v_inst, v_fm, 'DEPARTMENT', 'Departemen F36 M ' || v_tag) returning org_nodes.id into v_dm;
+    insert into public.org_nodes (institution_id, parent_id, kind, name) values (v_inst, v_dm, 'PROGRAMME', 'Program F36 M ' || v_tag) returning org_nodes.id into v_pm;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_pm, 'COHORT', 'Angkatan F36 MA ' || v_tag, v_period) returning org_nodes.id into v_ma;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_pm, 'COHORT', 'Angkatan F36 MB ' || v_tag, v_period) returning org_nodes.id into v_mb;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_ma, 'CLASS', 'Kelas F36 MX ' || v_tag, v_period) returning org_nodes.id into c_mx;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_mb, 'CLASS', 'Kelas F36 MY ' || v_tag, v_period) returning org_nodes.id into c_my;
+    d_mr := selftest.f35_bab(v_inst, 'F36 MR ' || v_tag, 'MR', 'Tujuan MR F36 ' || v_tag);
+    for i in 1..6 loop
+      select x.person into v_p from selftest.f36_sit(v_tpl, null, c_mx, d_mr, 0.50 + i * 0.05, 'MR', now() - interval '5 days', v_ma) x;
+      if i = 6 then v_l6 := v_p; end if;
+    end loop;
+    perform selftest.f36_sit(v_tpl, v_l6, c_my, d_mr, 0.95, 'MR', now() - interval '2 days', v_mb);
+    for i in 1..5 loop perform selftest.f36_sit(v_tpl, null, c_my, d_mr, 0.40, 'MR', now() - interval '2 days', v_mb); end loop;
+    v_j := selftest.f36_eval(v_dekan, 'class.chapter_mastery', c_mx, v_inst);
+    v_ux := (v_j -> 'value' -> 0 ->> 'mean_mastery')::numeric;
+    if v_ux is null or (v_j -> 'value' -> 0 ->> 'learners')::int is distinct from 6 then
+      k02 := k02 || format('the case is not built: class X''s chapter row is not 6 learners shown: %s', left(v_j::text, 200));
+    end if;
+    v_j2 := selftest.f36_school('calc_institution_cohort_comparison', v_inst, v_fm);
+    select (e ->> 'mean_mastery')::numeric into v_ua from jsonb_array_elements(v_j2 -> 'value') e where e ->> 'cohort_node_id' = v_ma::text;
+    if v_ux is not null and v_ua is not null then
+      k02 := k02 || format('class X''s chapter row (%s over 6) and Angkatan A''s row (%s over 5) are both shown: 6 × %s − 5 × %s = %s, the mover''s sitting in X (0.80)',
+                           v_ux, v_ua, v_ux, v_ua, round(6 * v_ux - 5 * v_ua, 4));
+    end if;
+    v_j3 := selftest.f36_school('calc_institution_competency_outcomes', v_inst, v_fm);
+    select e into v_rows from jsonb_array_elements(v_j3 -> 'value') e where e ->> 'code' = 'MR';
+    if v_rows is not null and v_rows -> 'mean_score' <> 'null'::jsonb then
+      k02 := k02 || format('the school competency over the mover (%s) is shown beside both classes'' topic rows', v_rows ->> 'mean_score');
+    end if;
+    -- participation is still every learner: 11, and the withheld rows still say how many
+    if (select (e ->> 'learners')::int from jsonb_array_elements(v_j2 -> 'value') e where e ->> 'cohort_node_id' = v_ma::text) is distinct from 5 then
+      k02 := k02 || 'Angkatan A no longer counts its 5 learners'::text;
+    end if;
+
+    -- ═══════════════════════════════════ F36-S01 owner decision D12: a test with no required question is NOT APPLICABLE
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_prog, 'COHORT', 'Angkatan F36 S ' || v_tag, v_period) returning org_nodes.id into v_cs;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_cs, 'CLASS', 'Kelas F36 S ' || v_tag, v_period) returning org_nodes.id into c_g;
+    for i in 1..12 loop perform selftest.f36_sit(v_tpl, null, c_g, d_a, 0.50, 'E1', now() - interval '2 days', null, true, null, 0); end loop;
+    v_j := selftest.f36_school('calc_institution_safety_gate_pass_rate', v_inst, v_cs);
+    if v_j ? 'value' and v_j -> 'value' <> 'null'::jsonb or v_j -> 'withheld' ->> 'reason' is distinct from 'not_applicable' or (v_j ->> 'not_applicable')::int is distinct from 12 then
+      s01 := s01 || format('twelve sittings of a test with no required question read as a rate (100%%) rather than not applicable: %s', v_j::text);
+    end if;
+    -- now ten learners whose tests do have one: 7 pass, 3 fail; the twelve stay outside the rate
+    for i in 1..10 loop perform selftest.f36_sit(v_tpl, null, c_g, d_a, 0.50, 'E1', now() - interval '1 day', null, i <= 7, null, 2); end loop;
+    v_j := selftest.f36_school('calc_institution_safety_gate_pass_rate', v_inst, v_cs);
+    if (v_j ->> 'value')::numeric is distinct from 0.7 or (v_j ->> 'sittings')::int is distinct from 10 or (v_j ->> 'sample')::int is distinct from 10
+       or (v_j ->> 'not_applicable')::int is distinct from 12 then
+      s01 := s01 || format('the rate is not 7 of 10 applicable sittings, with 12 not applicable apart: %s', v_j::text);
+    end if;
+
+    -- ═══════════════════════════════════ F36-L01 owner decision D11: the effective result by lineage, one recalculation
+    -- a recalculation BACKFILLED with an earlier computed_at than its original: by lineage it is effective; by time it
+    -- would not be
+    select x.person, x.session into v_p, v_sess from selftest.f36_sit(v_tpl, null, c_e, d_a, 0.40, 'E1', now() - interval '20 hours') x;
+    select r.computed_at into v_root_at from public.assessment_results r where r.session_id = v_sess;
+    perform selftest.f36_recompute(v_sess, 0.65, 'E1', v_root_at - interval '1 hour');
+    v_reads := array[]::text[];
+    for i in 1..3 loop
+      perform set_config('pintar.metric_boundary_person', v_p::text, true);
+      v_j := public.calc_learner_result(v_p, v_inst, v_cat);
+      perform set_config('pintar.metric_boundary_person', '', true);
+      v_reads := v_reads || (v_j -> 'value' -> 0 ->> 'mastery');
+    end loop;
+    if v_reads is distinct from array['0.6500', '0.6500', '0.6500'] then
+      l01 := l01 || format('a recalculation stamped before its original is not the effective result on every read: %s', v_reads::text);
+    end if;
+    -- identical timestamps: the same instant for both rows
+    select x.person, x.session into v_p2, v_sess2 from selftest.f36_sit(v_tpl, null, c_e, d_a, 0.40, 'E1', now() - interval '19 hours') x;
+    select r.computed_at into v_root_at from public.assessment_results r where r.session_id = v_sess2;
+    perform selftest.f36_recompute(v_sess2, 0.75, 'E1', v_root_at);
+    perform set_config('pintar.metric_boundary_person', v_p2::text, true);
+    v_j := public.calc_learner_result(v_p2, v_inst, v_cat);
+    perform set_config('pintar.metric_boundary_person', '', true);
+    if (v_j -> 'value' -> 0 ->> 'mastery')::numeric is distinct from 0.75 or (v_j -> 'value' -> 0 ->> 'sealed_mastery')::numeric is distinct from 0.40 then
+      l01 := l01 || format('with identical timestamps the original, not the recalculation, is read: %s', left(v_j::text, 300));
+    end if;
+    select ce.mastery into v_num from public.certificate_eligibility(v_sess2) ce;
+    if v_num is distinct from 0.40 then l01 := l01 || format('the certificate decision moved off the sealed 40%%: %s', v_num); end if;
+    -- a second recalculation of the same sitting: a designed refusal, not a constraint error
+    v_y := selftest.f11_user('f36-sys2-' || v_tag || '@local.invalid', 'SYSTEM_ADMIN', v_root);
+    v_err := null;
+    begin
+      perform selftest.as_user_uid(v_y);
+      perform public.recompute_result(v_sess2, 'F36: a second correction');
+      perform selftest.as_owner();
+    exception when others then perform selftest.as_owner(); v_err := sqlstate || ' ' || sqlerrm;
+    end;
+    if v_err is null or v_err !~ '^PR011 .*one authorised recalculation per sitting' then
+      l01 := l01 || format('a second recalculation is not refused by design (got %s)', coalesce(v_err, 'no refusal'));
     end if;
 
     -- ═══════════════════════════════════ F36-G02 four learners × three sittings
@@ -605,6 +749,83 @@ begin
       h02 := h02 || format('with no class, an Angkatan the enrolment is not placed in was accepted (%s)', coalesce(v_err, 'no refusal'));
     end if;
 
+    -- ═══════════════════════════════════ F36-D14 owner decision D14: the REAL recalculation path, read by every reader
+    -- A learner with an account sits a test whose sealed result (20%) is not what their answers score now; the
+    -- platform's SYSTEM_ADMIN recalculates it through recompute_result. The evaluator re-scores the answers, so mastery
+    -- AND per_domain change. Reports read the recalculation; the learner's own page, the certificate and the learning
+    -- delta keep the sealed result; the learner is told only that a recalculation exists.
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_ca, 'CLASS', 'Kelas F36 D ' || v_tag, v_period) returning org_nodes.id into c_d;
+    v_du := selftest.f11_user('f36-d14-' || v_tag || '@local.invalid', null, null);
+    select a.person_id into v_dp from public.accounts a where a.auth_user_id = v_du;
+    insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+    select v_dp, x.institution_id, x.academic_period_id, e.programme_id, 'ACTIVE'
+      from public.assessment_sessions x join public.enrollments e on e.id = x.enrollment_id where x.id = v_tpl
+    returning enrollments.id into v_le;
+    insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_le, c_d, v_period);
+    select o.label into v_dopt from public.item_options o where o.item_id = v_item and o.is_correct order by o.label limit 1;
+    select x.session into v_dsess from selftest.f36_sit(v_tpl, v_dp, c_d, d_a, 0.20, 'E1', now() - interval '1 day', null, true,
+                                                         jsonb_build_array(jsonb_build_object('item', v_item, 'pilihan', v_dopt))) x;
+    select r.id into v_dold from public.assessment_results r where r.session_id = v_dsess and r.supersedes_result_id is null;
+    v_dsys := selftest.f11_user('f36-d14-sys-' || v_tag || '@local.invalid', 'SYSTEM_ADMIN', v_root);
+    v_err := null;
+    begin
+      perform selftest.as_user_uid(v_dsys);
+      perform public.recompute_result(v_dsess, 'F36-D14: a corrected answer key');
+      perform selftest.as_owner();
+    exception when others then perform selftest.as_owner(); v_err := sqlerrm;
+    end;
+    select r.mastery, r.per_domain into v_dnew, v_dper from public.assessment_results r where r.supersedes_result_id = v_dold;
+    if v_err is not null or v_dnew is null then
+      d14 := d14 || format('recompute_result did not record a recalculation: %s', coalesce(v_err, 'no successor row'));
+    elsif v_dnew = 0.20 then
+      d14 := d14 || 'the fixture is not meaningful: the re-scored answers give the sealed 20% again'::text;
+    else
+      -- audited
+      if not exists (select 1 from public.audit_log al where al.action = 'assessment_result.recomputed' and al.target_id = (
+                       select r.id::text from public.assessment_results r where r.supersedes_result_id = v_dold)) then
+        d14 := d14 || 'the recalculation wrote no audit row'::text;
+      end if;
+      -- the teacher's record of the learner: the recalculated figure, the sealed one beside it, and the reason
+      perform set_config('pintar.metric_boundary_person', v_dp::text, true);
+      v_j := public.calc_learner_result(v_dp, v_inst, v_cat);
+      perform set_config('pintar.metric_boundary_person', '', true);
+      select e into v_rows from jsonb_array_elements(v_j -> 'value') e where e ->> 'session_id' = v_dsess::text;
+      if (v_rows ->> 'mastery')::numeric is distinct from v_dnew or (v_rows ->> 'sealed_mastery')::numeric is distinct from 0.20
+         or (v_rows ->> 'recomputed')::boolean is distinct from true or v_rows ->> 'recomputation_reason' is distinct from 'F36-D14: a corrected answer key' then
+        d14 := d14 || format('the teacher''s record is not %s recalculated from a sealed 20%% with its reason: %s', v_dnew, coalesce(v_rows::text, 'nothing'));
+      end if;
+      -- the learner: their own result page keeps the sealed result and its sealed objectives; they are told a recalculation exists
+      perform selftest.as_user_uid(v_du);
+      v_j2 := public.session_outcome(v_dsess);
+      v_n := case when public.sesi_saya_dihitung_ulang(v_dsess) then 1 else 0 end;
+      perform selftest.as_owner();
+      if (v_j2 ->> 'penguasaan')::numeric is distinct from 0.20 or (v_j2 -> 'per_domain' -> 'E1' ->> 'penguasaan')::numeric is distinct from 0.20 then
+        d14 := d14 || format('the learner''s own page no longer shows the sealed 20%% and its sealed objectives: %s', left(coalesce(v_j2::text, 'nothing'), 200));
+      end if;
+      if v_n <> 1 then d14 := d14 || 'the learner is not told their sitting was recalculated'::text; end if;
+      -- …and nobody else learns it of their sitting
+      v_du2 := selftest.f11_user('f36-d14-lain-' || v_tag || '@local.invalid', null, null);
+      perform selftest.as_user_uid(v_du2);
+      v_n := case when public.sesi_saya_dihitung_ulang(v_dsess) then 1 else 0 end;
+      perform selftest.as_owner();
+      if v_n <> 0 then d14 := d14 || 'another person is told this learner''s sitting was recalculated'::text; end if;
+      -- the certificate keeps the sealed result
+      select ce.mastery into v_num from public.certificate_eligibility(v_dsess) ce;
+      if v_num is distinct from 0.20 then d14 := d14 || format('the certificate decision reads %s, not the sealed 20%%', v_num); end if;
+      -- Section E (murid_perlu_penguatan): the class's teacher sees the recalculated result's own count, not the sealed one
+      v_guru := selftest.f11_user('f36-d14-guru-' || v_tag || '@local.invalid', 'EDUCATOR', c_d);
+      perform selftest.as_user_uid(v_guru);
+      select count(*), max(p.benar::numeric), max(p.total::numeric) into v_n, v_num, v_ux from public.murid_perlu_penguatan(c_d) p;
+      perform selftest.as_owner();
+      select sum((kv.value ->> 'benar')::numeric), sum((kv.value ->> 'total')::numeric) into v_ua, v_root_at_n
+        from jsonb_each(v_dper) kv;
+      -- the sealed 20% is «Perlu penguatan»; the recalculated figure is the one that decides, with its own count
+      if v_dnew < 0.6 and (v_n <> 1 or v_num is distinct from v_ua or v_ux is distinct from v_root_at_n) then
+        d14 := d14 || format('Section E does not name the learner with the recalculation''s %s/%s (named %s, with %s/%s)', v_ua, v_root_at_n, v_n, v_num, v_ux);
+      elsif v_dnew >= 0.6 and v_n <> 0 then
+        d14 := d14 || format('Section E still names the learner from the sealed 20%%, though the recalculation is %s', v_dnew);
+      end if;
+    end if;
     raise exception 'f36-rollback';
   exception when others then
     perform set_config('pintar.metric_boundary_node', '', true);
@@ -617,13 +838,19 @@ begin
       ('F36-E01', 'Decision 8 -- current mastery, history, Kenaikan, recomputation, certificate', e01,
        'a learner''s 80% then 60%: current mastery is 60% (per bab and Pemahaman 0.52 over 5, the bands over 5), the history keeps both, Kenaikan pairs 60% with the earliest Pemetaan Awal (0.30, not the highest 0.80), a recomputation to 70% moves the figures and stays one sitting, recomputing the older sitting later leaves it not current, the teacher''s record says the sitting was recomputed from its sealed 60% (E1), and the certificate decision still reads the sealed 60%'),
       ('F36-X01', 'Cross-report consistency', x01,
-       'Pemahaman is the one chapter''s mean and, over two chapters, their learner-weighted mean; with every learner paired Kenaikan''s akhir is Pemahaman and akhir − awal is Kenaikan'),
+       'Pemahaman is the one chapter''s mean and, over two chapters, their learner-weighted mean; with every learner paired Kenaikan''s akhir is Pemahaman and akhir − awal is Kenaikan; Kenaikan over five learners with two chapters'' pairs each is the mean of the ten pairs (0.275, H31''s unit)'),
       ('F36-R01', 'Sharon finding 1 -- a withheld chapter cannot be recovered', r01,
-       'chapter A 70% over 6, chapter B 40% over 3, nine pairs: B''s row, Pemahaman and Kenaikan''s pair are withheld for the Dekan and the teacher (Kenaikan itself is shown: no per-chapter gain or baseline is given anywhere); with a second withheld chapter, a repeated sitting and learners in both chapters nothing yields B; a shown chapter''s single unpaired learner withholds Kenaikan''s pair'),
+       'chapter A 70% over 6, chapter B 40% over 3, nine pairs: B''s row, Pemahaman, Kenaikan (9 learners, 9 pairs counted) and its pair are withheld for the Dekan and the teacher; with a second withheld chapter, a repeated sitting and learners in both chapters nothing yields B; a shown chapter''s single unpaired learner withholds Kenaikan''s pair'),
       ('F36-R02', 'Sharon finding 2 -- withheld rows are not placed by their hidden values', r02,
        'topics come shown-by-mean then withheld-by-name (T1, T3, T2, T4), never by the hidden means (which would put T4 before T2)'),
       ('F36-K01', 'School-level small populations and unrecorded history', k01,
        'a competency over a 12-learner and a 3-learner class, the school''s Kenaikan over them and their Angkatan are withheld; a competency whose every class cell is large is shown; another Angkatan keeps its mean; the 6 sittings with no recorded Angkatan are the last, «not recorded», row and still count among the school''s 27 participants'),
+      ('F36-K02', 'Owner decision 10 -- a learner who moved class and re-sat cannot be isolated', k02,
+       'Sharon''s case: Angkatan A holds only class X, whose chapter R six learners sat; the sixth moved to class Y and re-sat. X''s chapter row and Angkatan A''s row are not both shown, nor the school competency beside both classes'' topic rows, so 6·μX − 5·μA cannot be formed; Angkatan A still counts its 5 learners'),
+      ('F36-S01', 'Owner decision D12 -- a test with no required question is not applicable', s01,
+       'twelve sittings of tests with no required question give no rate, said as not applicable (12), never 100%; with ten applicable sittings (7 pass, 3 fail) the rate is 0.7 over 10, the twelve apart'),
+      ('F36-L01', 'Owner decision D11 -- the effective result by lineage, one recalculation per sitting', l01,
+       'a recalculation stamped an hour BEFORE its original is the effective result on three repeated reads; with identical timestamps the recalculation is read and the sealed original kept beside it; the certificate keeps the sealed 40%; a second recalculation is refused with PR011 «one authorised recalculation per sitting»'),
       ('F36-G02', 'Sharon finding 5 -- four learners × three sittings', g02,
        'the safety gate over four learners who sat three times each is sample 4 over 12 sittings, its rate 0.5 over the sittings, and four learners do not clear the school minimum of ten'),
       ('F36-H01', 'Sharon finding 3 / decision 5 -- the Angkatan recorded by a real sitting', h01,
@@ -632,6 +859,8 @@ begin
        'open_assessment_session refuses an Angkatan that is not the class''s, and with no class one the enrolment is not placed in'),
       ('F36-M01', 'Misconception patterns are gated on learners', m01,
        'one learner''s three identical mistakes are not a class pattern (withheld, counted in `withheld`); five learners'' shared mistake is listed with 5 occurrences; the sample is the 6 learners'),
+      ('F36-D14', 'Owner decision D14 -- the real recalculation path, read by every reader', d14,
+       'a learner''s sealed 20% is recalculated by the platform''s SYSTEM_ADMIN through recompute_result (audited), which re-scores their answers: the teacher''s record shows the recalculated figure with the sealed 20% and the recorded reason; Section E decides on the recalculation with its own count; the learner''s own page keeps the sealed 20% and its sealed objectives and says, to them alone, that a recalculation exists; the certificate keeps the sealed 20%'),
       ('F36-P01', 'Participation is never zero (decision 7, Daisy N2)', p01,
        'Pemahaman with 0 learners says «belum ada bukti»; with 1 and 4, «belum cukup data» with that count; with 5 it is shown; the bands and topics count the same learners; two chapters of 4 (8 sat) say «withheld to protect a chapter» with 8 learners, each chapter withheld with its 4')
     ) v(tid, tarea, probs, good) loop

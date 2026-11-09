@@ -91,9 +91,11 @@ begin
     perform set_config('pintar.metric_boundary_node', v_cls::text, true);
     r := public.calc_class_net_gain(v_cls, v_inst, v_cat);
     perform set_config('pintar.metric_boundary_node', '', true);
-    if (r ->> 'value')::numeric is distinct from 0.2750 then
-      v_probs := v_probs || format('the class gain is %s (expected 0.2750, the mean of 0.50 and 0.05; 0.1000 is one '
-                                   'chapter''s pre-test subtracted from another''s post-test)', coalesce(r ->> 'value', 'nothing'));
+    -- RESTATED TO THE OWNER'S HISTORICAL-DISCLOSURE RULING (9 Nov): each of this learner's two chapters holds one pair,
+    -- under the class minimum, so the class's Kenaikan is withheld (its value would give a small chapter's gain when
+    -- read before and after); the arithmetic itself (0.275 over two pairs) is F36-X01's, on five such learners
+    if r ? 'value' and r -> 'value' <> 'null'::jsonb or r -> 'withheld' ->> 'reason' is distinct from 'subgroup' then
+      v_probs := v_probs || format('the class gain over two one-pair chapters is given (%s) rather than withheld', left(r::text, 200));
     end if;
     -- owner (9 Nov): the governed unit is the (learner, chapter) pair: one learner, two pairs, each weighed once
     if (r ->> 'pairs')::int is distinct from 2 then
@@ -108,28 +110,22 @@ begin
     -- pairing is the current Uji Penguasaan (latest sitting, its effective result) against the earliest Pemetaan Awal,
     -- never each test's highest; and a school figure whose pairs fall in a class with fewer learners than the class
     -- minimum is WITHHELD (a reader of the class figures could otherwise subtract), its learners still counted
-    select round(avg(g.post - g.pre), 4), count(distinct g.person_id),
-           bool_and(g.kelas_cukup) into v_expect, v_people, v_cukup
-      from (select b.person_id, b.mastery - a.mastery as dummy, a.mastery as pre, b.mastery as post,
-                   (select count(distinct a2.person_id) from (
-                      select distinct on (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.class_node_id
-                        from (select distinct on (r2.session_id) r2.session_id, s2.person_id, s2.plp_release_id, s2.class_node_id, s2.mode, s2.finalized_at
-                                from public.official_results r2 join public.official_sessions s2 on s2.id = r2.session_id
-                               where s2.institution_id = v_inst order by r2.session_id, r2.computed_at desc) e
-                       where e.mode = 'POST_TEST' order by e.person_id, e.plp_release_id, e.finalized_at desc) a2
-                     where a2.class_node_id is not distinct from b.class_node_id) >= 5 as kelas_cukup
-              from (select distinct on (e.person_id, e.plp_release_id) e.* from (
-                      select distinct on (x.session_id) x.session_id, s.person_id, s.plp_release_id, s.class_node_id, s.mode, s.finalized_at, x.mastery
-                        from public.official_sessions s join public.official_results x on x.session_id = s.id
-                       where s.institution_id = v_inst order by x.session_id, x.computed_at desc) e
-                     where e.mode = 'PRE_TEST' order by e.person_id, e.plp_release_id, e.finalized_at) a
-              join (select distinct on (e.person_id, e.plp_release_id) e.* from (
-                      select distinct on (x.session_id) x.session_id, s.person_id, s.plp_release_id, s.class_node_id, s.mode, s.finalized_at, x.mastery
-                        from public.official_sessions s join public.official_results x on x.session_id = s.id
-                       where s.institution_id = v_inst order by x.session_id, x.computed_at desc) e
-                     where e.mode = 'POST_TEST' order by e.person_id, e.plp_release_id, e.finalized_at desc) b
-                on b.person_id = a.person_id and b.plp_release_id = a.plp_release_id
-             where a.mastery is not null and b.mastery is not null) g;
+    with eff as (select distinct on (x.session_id) x.session_id, s.person_id, s.plp_release_id, s.class_node_id, s.mode, s.finalized_at, x.mastery
+                   from public.official_sessions s join public.official_results x on x.session_id = s.id
+                  where s.institution_id = v_inst
+                    and not exists (select 1 from public.official_results q where q.supersedes_result_id = x.id)
+                  order by x.session_id),
+         a as (select distinct on (person_id, plp_release_id) * from eff where mode = 'PRE_TEST' order by person_id, plp_release_id, finalized_at),
+         b as (select distinct on (person_id, plp_release_id) * from eff where mode = 'POST_TEST' order by person_id, plp_release_id, finalized_at desc),
+         g as (select a.person_id, b.mastery - a.mastery as gain,
+                      (select b.class_node_id where a.class_node_id = b.class_node_id) as sel
+                 from a join b on b.person_id = a.person_id and b.plp_release_id = a.plp_release_id
+                where a.mastery is not null and b.mastery is not null)
+    -- the cells are the school rule's: a pair is a class's when both its sittings are there, else it belongs to none
+    select round(avg(g.gain), 4), count(distinct g.person_id),
+           not exists (select 1 from (select g2.sel, count(distinct g2.person_id) n from g g2 group by g2.sel) c where c.n < 5)
+      into v_expect, v_people, v_cukup
+      from g;
     perform set_config('pintar.metric_boundary_node', v_inst::text, true);
     r := public.calc_institution_net_gain(v_inst, v_inst, v_cat);
     perform set_config('pintar.metric_boundary_node', '', true);

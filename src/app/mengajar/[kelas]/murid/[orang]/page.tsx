@@ -1,3 +1,4 @@
+import CatatanHitungUlang from "@/components/CatatanHitungUlang";
 import Link from "next/link";
 import Kosong from "@/components/Kosong";
 import { t, format, type HleEvent } from "@/lib/hle";
@@ -113,6 +114,8 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
                   <dt>{h.judul ?? s(`mengajar.instrumen.${h.mode}` as HleEvent)}</dt>
                   <dd className="pin-num">
                     {h.penguasaan === null ? "—" : format.percent(h.penguasaan, locale)}
+                    {/* owner decisions E1, D14: a recalculated sitting is explained directly under its figure, with its reason */}
+                    {h.dihitungUlang ? <CatatanHitungUlang baru={h.penguasaan} asli={h.asli} alasan={h.alasan} locale={locale} /> : null}
                     {/* D-085 M3: below the sealed target, the teacher sees it; the target is shown beside the mastery */}
                     {h.batas !== null ? (
                       <small data-target={h.penguasaan !== null && h.penguasaan < h.batas ? "belum" : "batas"}>
@@ -125,11 +128,6 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
                       <Link className="pin-ulang-tautan" href={`/mengajar/${id}/ulang?penugasan=${catatan.tugasSesi[h.sesi]}&murid=${orang}`}>
                         {s("mengajar.ulang.judul")}
                       </Link>
-                    ) : null}
-                    {/* owner decision E1: a recomputed sitting says why a report and a certificate can differ */}
-                    {h.dihitungUlang && h.asli !== null && h.asli !== undefined && h.penguasaan !== null && h.asli !== h.penguasaan ? (
-                      <small className="pin-meta" data-dihitung-ulang="">{s("mengajar.murid1.dihitung_ulang")
-                        .replace("{baru}", format.percent(h.penguasaan, locale)).replace("{asli}", format.percent(h.asli, locale))}</small>
                     ) : null}
                   </dd>
                 </div>

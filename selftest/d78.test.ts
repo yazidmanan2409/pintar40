@@ -12,6 +12,9 @@
  *   D78-S01  The chapter result never says «every important question was right» when the check had none; Pimpinan's
  *            class summary says «Ada angka» only for a performance figure; a count-and-link keeps its space; a Temuan
  *            panel in a list keeps its box.
+ *   D78-A01  D12, D13 and Daisy's A3–A7 (owner, 9 Nov): denominators of topics with a figure, «not applicable», one
+ *            explanation per withheld figure, the stacked grid, English terms, screen-reader order, the learner's notice.
+ *   D78-E01  E1 and D14: the recalculation note, rendered, under the figure, with its reason; Kenaikan's pairs.
  */
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -63,7 +66,9 @@ export const d78Tests: SelfTest[] = [
         try { x = JSON.parse(r.out); } catch { /* reported below */ }
         const [dl, ku, dlEn, kls, kos] = x.map(teks);
         c.expect(dl.includes("Angka gabungan ini tidak ditampilkan") && dl.includes("Sudah 8 murid mengerjakan Uji Penguasaan; ada bab yang baru dikerjakan kurang dari 5 murid.")
-          && dl.includes("setiap bab dikerjakan cukup murid"), `a withheld figure does not say it is withheld with its 8 learners: «${dl}»`);
+          // restated to Daisy's A7 (owner, 9 Nov): the withheld figure is explained ONCE, by its actual reason; the second
+          // «it appears once every chapter…» line, which pointed to a section not always shown, is gone
+          && !dl.includes("setiap bab dikerjakan cukup murid") && !dl.includes("«Per bab»"), `a withheld figure does not say it is withheld with its 8 learners, or says it twice: «${dl}»`);
         c.expect(!/Belum ada bukti|Sekarang 0|Sekarang 8|0%/.test(dl), `a withheld figure reads as no evidence, a zero or «not enough students»: «${dl}»`);
         c.expect(ku.includes("Belum cukup data") && ku.includes("Sekarang 4 murid; perlu 5."), `four learners under the minimum are not «belum cukup» with 4: «${ku}»`);
         c.expect(dlEn.includes("This combined figure is not shown") && dlEn.includes("8 students have taken the Mastery Check"), `the English withheld card: «${dlEn}»`);
@@ -119,7 +124,7 @@ export const d78Tests: SelfTest[] = [
       const komp = { status: "ok", metric_id: "institution.competency_outcomes", label_key: "metrik.kompetensi.label", sample: 30,
         value: [{ objective_id: "o1", competency: "Membaca, membandingkan dan menjumlahkan data dalam tabel.", title: "Membaca Tabel Data", mean_score: 0.7, learners: 30, needed: 10 },
                 { objective_id: "o2", competency: "Pecahan senilai.", title: null, mean_score: 0.5, learners: 12, needed: 10 },
-                { objective_id: "o3", competency: "Pola.", title: "Pola", mean_score: null, learners: 15, needed: 10 }] };
+                { objective_id: "o3", competency: "Pola.", title: "Pola", mean_score: null, learners: 15, needed: 10, withheld: "class" }] };
       const r = render(ctx.repoRoot,
         'const { createElement: h } = await import("react");' +
         'const { renderToStaticMarkup } = await import("react-dom/server");' +
@@ -133,7 +138,9 @@ export const d78Tests: SelfTest[] = [
         const [id, en] = x.map(teks);
         c.expect(id.includes("Membaca Tabel Data Membaca, membandingkan dan menjumlahkan data dalam tabel."), `a short title stands without its statement: «${id.slice(0, 400)}»`);
         c.expect(!/\branah\b/.test(id) && id.includes("tujuan pembelajaran"), `the school counts «ranah» where its rows are learning objectives: «${id.slice(0, 400)}»`);
-        c.expect(id.includes("1 tujuan pembelajaran lain belum ditampilkan") && id.includes("di salah satu kelas"), "a withheld row's sentence omits the class-cell reason");
+        // restated to Daisy's A5 (owner, 9 Nov): the row's own reason, never «this or that»
+        c.expect(id.includes("1 tujuan pembelajaran lain belum ditampilkan karena di salah satu kelas") && !id.includes("kurang dari 10 murid, atau"),
+          "a withheld row's sentence omits its class-cell reason, or still offers two reasons");
         c.expect(!/\bdomains?\b/.test(en) && en.includes("learning objective"), `the English page counts «domains»: «${en.slice(0, 300)}»`);
       }
       // every row withheld (one small class in each): the section says so, never stands empty
@@ -145,7 +152,9 @@ export const d78Tests: SelfTest[] = [
         "const K = m.default?.default ?? m.default;" +
         "process.stdout.write(renderToStaticMarkup(h(K, { entries: [JSON.parse(process.env.E)], locale: 'id' })));",
         { E: JSON.stringify(semua) });
-      c.expect(r2.ok && teks(r2.out).includes("Sudah ada hasil untuk 3 tujuan pembelajaran, tetapi belum ada yang dapat ditampilkan"),
+      c.expect(r2.ok && teks(r2.out).includes("Sudah ada hasil untuk 3 tujuan pembelajaran, tetapi belum ada yang dapat ditampilkan")
+        && teks(r2.out).includes("2 tujuan pembelajaran lain belum ditampilkan karena masing-masing dikerjakan kurang dari 10 murid")
+        && teks(r2.out).includes("1 tujuan pembelajaran lain belum ditampilkan karena di salah satu kelas"),
         `with every competency withheld, section A is empty or silent: «${teks(r2.out).slice(0, 300)}»`);
       const bukti = kode(baca(ctx.repoRoot, "src/app/mengajar/[kelas]/bukti/page.tsx"));
       c.expect(/pernyataan=\{b\.title && b\.title\.trim\(\) !== "" && b\.title\.trim\(\) !== b\.competency\.trim\(\) \? b\.competency : undefined\}/.test(bukti),
@@ -154,7 +163,7 @@ export const d78Tests: SelfTest[] = [
       const baris = kode(baca(ctx.repoRoot, "src/components/bukti/BarisKesiapan.tsx"));
       c.expect(/pernyataan \? <span className="pin-lk-pernyataan">\{pernyataan\}<\/span> : null/.test(baris), "BarisKesiapan does not draw the statement line");
       return c.verdict("the rendered KomposisiSekolah output (id, en) and the source of «Lihat bukti» and BarisKesiapan: a short title keeps its " +
-        "objective's statement on its own line; the school counts learning objectives, never «ranah» or «domains»; a withheld row's sentence names both reasons");
+        "objective's statement on its own line; the school counts learning objectives, never «ranah» or «domains»; a withheld row's sentence names its own reason");
     },
   },
   {
@@ -178,11 +187,117 @@ export const d78Tests: SelfTest[] = [
       c.expect(/const ada = bk\.filter\(\(e\) => e\.status === "ok" && e\.metric_id !== "class\.participants"\);/.test(pim) && /pimpinan\.kelas\.bukti_saja/.test(pim),
         "Pimpinan says «Ada angka» for a class whose only figure is its headcount");
       const css = baca(ctx.repoRoot, "src/app/experience.css");
-      c.expect(/a\.pin-tautan \{ display: inline-flex; align-items: center; flex-wrap: wrap; column-gap: var\(--space-1\); \}/.test(css), "a count-and-link loses its space («1murid»)");
+      c.expect(/a\.pin-tautan \{ display: inline-flex; align-items: center; column-gap: var\(--space-1\); \}/.test(css), "a count-and-link loses its space («1murid»), or wraps its count onto a line of its own");
       c.expect(/\.pin-daftar li\.pin-panel \{ display: grid; \}/.test(css), "a Temuan panel in a list loses its box and padding");
       return c.verdict("the source of the chapter result, Pimpinan and experience.css: «every important question was right» only over required questions, " +
         "«none in this check» when there were none, nothing over unread items; «Ada angka» only for a performance figure, «evidence, no figure yet» " +
-        "otherwise; a count-and-link keeps its gap and wraps; a list item that is a panel keeps its box");
+        "otherwise; a count-and-link keeps its gap without putting its count on a line of its own; a list item that is a panel keeps its box");
+    },
+  },
+  {
+    id: "D78-A01",
+    run: async (ctx) => {
+      const c = new Checks();
+      // D13: the class lead counts over the topics WITH a figure, names the others apart, and never says «every topic» while some are withheld
+      const baris = (vs: Array<number | null>) => vs.map((v, i) => ({ objective_id: `o${i}`, competency: `Tujuan ${i}`, title: `Topik ${i}`, mean_score: v, learners: v === null ? 3 : 8 }));
+      const topik = (vs: Array<number | null>) => ({ status: "ok", metric_id: "class.topic_mastery", label_key: "metrik.topik.label", value: baris(vs), sample: 8 });
+      // A6: a chapter row below target
+      const bab = { status: "ok", metric_id: "class.chapter_mastery", label_key: "metrik.bab.label", sample: 12,
+        value: [{ plp_release_id: "r1", chapter: "Bab Satu", learners: 6, needed: 5, mean_mastery: 0.5 }, { plp_release_id: "r2", chapter: "Bab Dua", learners: 6, needed: 5, mean_mastery: 0.9 }] };
+      const pita = { status: "ok", metric_id: "class.readiness_distribution", label_key: "metrik.kesiapan.label", meaning_key: "metrik.kesiapan.arti", sample: 12,
+        value: { "kesiapan.butuh_pendampingan": 4, "kesiapan.siap_sertifikasi": 5, "kesiapan.perlu_review": 3 }, population: { placed: 12, assessed: 12, not_yet: 0 } };
+      const r = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiKelas.tsx");' +
+        "const K = m.default?.default ?? m.default; const es = JSON.parse(process.env.E);" +
+        "const p = { locale: 'id', persona: 'educator', jenis: 'LEARNER', namaKelas: '5C', buktiHref: null, target: 0.7, titik: null, awalAkhir: null };" +
+        "process.stdout.write(JSON.stringify(es.map((e, i) => renderToStaticMarkup(h(K, { ...p, entries: e, perBab: i === 4 ? JSON.parse(process.env.BAB) : null })))));",
+        { BAB: JSON.stringify(bab), E: JSON.stringify([[topik([0.5, 0.8, 0.9, null, null])], [topik([0.8, 0.9, null])], [topik([null, null])], [topik([0.8, 0.9])], [pita]]) });
+      if (c.expect(r.ok, `the class composition could not be rendered: ${r.err}`)) {
+        let x: string[] = [];
+        try { x = JSON.parse(r.out); } catch { /* reported below */ }
+        const [satuBawah, semuaTertampil, semuaTertahan, lengkap, babRow] = x.map(teks);
+        c.expect(satuBawah.includes("1 dari 3 topik yang punya angka masih di bawah target: Topik 0.")
+          && satuBawah.includes("2 topik lainnya belum dapat ditampilkan, jadi belum diketahui apakah sudah mencapai target.") && !satuBawah.includes("dari 5 topik"),
+          `the lead counts withheld topics in its denominator, or does not name them: «${satuBawah.slice(0, 300)}»`);
+        c.expect(semuaTertampil.includes("Ke-2 topik yang punya angka sudah mencapai target 70%.") && semuaTertampil.includes("1 topik lainnya belum dapat ditampilkan")
+          && !semuaTertampil.includes("Semua topik sudah mencapai target"), `«every topic reached the target» while one is withheld: «${semuaTertampil.slice(0, 300)}»`);
+        c.expect(semuaTertahan.includes("Sudah ada hasil untuk 2 topik, tetapi belum ada yang dapat ditampilkan.") && !/mencapai target 70%/.test(semuaTertahan),
+          `with every topic withheld the lead implies a result: «${semuaTertahan.slice(0, 300)}»`);
+        c.expect(lengkap.includes("Semua topik sudah mencapai target 70%.") && !lengkap.includes("belum dapat ditampilkan"), "with nothing withheld the lead changed");
+        // A6: «below target» is read with the percentage, before the learners
+        c.expect(/50%\s*\(di bawah target\)\s*·\s*6 murid/.test(babRow) && !/6 murid\s*di bawah target/.test(babRow),
+          `a screen reader hears «below target» after the learners: «${babRow.slice(0, 300)}»`);
+      }
+      // D12: the school's safety gate, not applicable to any sitting, and shown with some sittings apart
+      const tb = { status: "below_minimum", metric_id: "institution.safety_gate_pass_rate", label_key: "metrik.gerbang_keselamatan.label", readiness: "NOT_YET_EVALUABLE",
+        statement_key: "laporan.metrik.tidak_berlaku", have: 0, needed: 10, withheld: { reason: "not_applicable", sittings: 12 } };
+      const ada = { status: "ok", metric_id: "institution.safety_gate_pass_rate", label_key: "metrik.gerbang_keselamatan.label", meaning_key: "metrik.gerbang_keselamatan.arti",
+        value: 0.7, sample: 10, sittings: 10, not_applicable: 12 };
+      const r2 = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const k = await import("file://" + process.cwd() + "/src/components/bukti/KartuKetiadaan.tsx");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiSekolah.tsx");' +
+        'const mu = await import("file://" + process.cwd() + "/src/components/bukti/muncul.ts");' +
+        "const Kartu = k.default?.default ?? k.default; const K = m.default?.default ?? m.default; const [tb, ada] = JSON.parse(process.env.E);" +
+        "process.stdout.write(JSON.stringify([renderToStaticMarkup(h(Kartu, { entry: tb, locale: 'id', persona: 'staff' })), renderToStaticMarkup(h(K, { entries: [tb], locale: 'id' }))," +
+        " renderToStaticMarkup(h(K, { entries: [ada], locale: 'id' })), (mu.kunciMuncul ?? mu.default?.kunciMuncul)(tb)," +
+        " (mu.kunciMuncul ?? mu.default?.kunciMuncul)({ status: 'below_minimum', metric_id: 'class.comprehension', withheld: { reason: 'subgroup', needed: 5 } })]));",
+        { E: JSON.stringify([tb, ada]) });
+      if (c.expect(r2.ok, `the safety gate could not be rendered: ${r2.err}`)) {
+        let x: Array<string | null> = [];
+        try { x = JSON.parse(r2.out); } catch { /* reported below */ }
+        const [kartu, sekolahTb, sekolahAda] = x.slice(0, 3).map((v) => teks(v ?? ""));
+        for (const [nama, v] of [["the card", kartu], ["the school page", sekolahTb]] as const) {
+          c.expect(v.includes("Tidak berlaku: Uji Penguasaan yang sudah dikerjakan di sini tidak memuat soal wajib") && !/Sekarang 0|100%|0%|Belum cukup data|Belum ada bukti/.test(v),
+            `${nama}: a gate that applies to no sitting reads as a pass, a zero or «not enough»: «${v.slice(0, 300)}»`);
+        }
+        c.expect(sekolahAda.includes("Dari 10 Uji Penguasaan yang memuat soal wajib, dikerjakan 10 murid.")
+          && sekolahAda.includes("12 Uji Penguasaan lain tidak memuat soal wajib, jadi tidak dihitung, baik sebagai lulus maupun tidak."),
+          `the shown gate does not give its applicable sittings, or hides the twelve apart: «${sekolahAda.slice(0, 400)}»`);
+        // A7: a withheld figure has no second «it appears when…» line
+        c.expect(x[3] === null && x[4] === null, `a withheld figure still gets a second explanation: ${JSON.stringify(x.slice(3))}`);
+      }
+      // A3: the topic grid is stacked at phone width, the table kept for wider screens and print
+      const kisi = { status: "ok", metric_id: "class.topic_mastery", label_key: "metrik.topik.label", value: baris([0.5, 0.8]) };
+      const r3 = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KisiTopik.tsx");' +
+        "const K = m.default?.default ?? m.default; const kisi = JSON.parse(process.env.E);" +
+        "process.stdout.write(renderToStaticMarkup(h(K, { kolom: [{ id: 'a', nama: '5A', target: 0.7, topik: kisi }, { id: 'b', nama: '5B', target: 0.7, topik: { status: 'below_minimum', metric_id: 'class.topic_mastery', have: 3, needed: 5 } }], locale: 'id' })));",
+        { E: JSON.stringify(kisi) });
+      if (c.expect(r3.ok, `the grid could not be rendered: ${r3.err}`)) {
+        const tumpuk = (r3.out.match(/<div class="pin-lk-kisi-tumpuk"[\s\S]*$/) ?? [""])[0];
+        c.expect(/<li><p class="pin-lk-kisi-nama">Topik 0/.test(tumpuk) && /<dt>5A<\/dt><dd><span class="pin-lk-sel" data-bawah="">/.test(tumpuk)
+          && /<dt>5B<\/dt><dd class="pin-lk-sel-kosong">—<\/dd>/.test(tumpuk) && /di bawah target/.test(tumpuk),
+          `the stacked grid does not give each topic with each class's figure, mark and dash: «${teks(tumpuk).slice(0, 300)}»`);
+      }
+      const css = baca(ctx.repoRoot, "src/app/experience.css");
+      c.expect(/\.pin-lk-kisi-tumpuk \{ display: none; \}/.test(css) && /@media \(max-width: 639\.98px\) \{\s*\.pin-lk-kisi-wadah \{ display: none; \}\s*\.pin-lk-kisi-tumpuk \{ display: grid;/.test(css)
+        && /@media print \{ \.pin-lk-kisi-tumpuk \{ display: none !important; \}/.test(css),
+        "the stacked grid is not the only one shown at phone width, or prints beside the table");
+      // A4: English terms and sentences
+      const hle = baca(ctx.repoRoot, "src/lib/hle.ts");
+      c.expect(!/Pre-assessment/.test(hle) && !/en: "You answered" \}/.test(hle) && !/a Initial Mapping/.test(hle), "English still says «Pre-assessment», «You answered 3 of 8» or «a Initial Mapping»");
+      const r4 = render(ctx.repoRoot,
+        'const h = await import("file://" + process.cwd() + "/src/lib/hle.ts"); const f = (h.format ?? h.default?.format);' +
+        'const k = await import("file://" + process.cwd() + "/src/components/bukti/KartuKetiadaan.tsx");' +
+        "process.stdout.write(JSON.stringify([f.tunggal('1 students so far; 5 needed.', 'en'), f.tunggal('11 students; 1 learners (21 learners)', 'en'), f.tunggal('1 murid', 'id')," +
+        " (k.kalimatJumlahOrang ?? k.default?.kalimatJumlahOrang)(1, 5, 'LEARNER', 'en')]));");
+      c.expect(r4.ok && r4.out === JSON.stringify(["1 student so far; 5 needed.", "11 students; 1 learner (21 learners)", "1 murid", "1 student so far; 5 needed."]),
+        `English still says «1 students», or a count other than one lost its plural: ${r4.out || r4.err}`);
+      // D14: the learner's chapter result says, neutrally, that a recalculation exists, from their own sitting's yes/no
+      const hasil = kode(baca(ctx.repoRoot, "src/app/belajar/[tugas]/hasil/page.tsx"));
+      c.expect(/engine\.sesiDihitungUlang\(db, state\.post_session\)/.test(hasil) && /\{dihitungUlang \? <p className="pin-meta" data-dihitung-ulang="">\{s\("hasil\.dihitung_ulang"\)\}<\/p> : null\}/.test(hasil),
+        "the learner's chapter result does not say their sitting was recalculated");
+      c.expect(/Hasil yang Anda lihat di sini dan sertifikat Anda tidak berubah/.test(hle), "the learner's notice does not say their result and certificate are unchanged");
+      return c.verdict("the rendered KomposisiKelas, KomposisiSekolah, KartuKetiadaan and KisiTopik output, kunciMuncul, experience.css, hle.ts and the source of the chapter result: " +
+        "the topic lead counts over the topics with a figure and names the withheld ones apart (D13); «below target» is heard with its percentage (A6); a gate that applies to " +
+        "no sitting is «not applicable», never a pass, a zero or «not enough», and a shown gate gives its applicable sittings and the ones apart (D12); a withheld figure is explained " +
+        "once (A7); the grid is stacked at phone width (A3); English terms are consistent (A4); the learner is told of a recalculation (D14)");
     },
   },
   {
@@ -192,19 +307,38 @@ export const d78Tests: SelfTest[] = [
       // owner decision E1: the teacher's record of a recomputed sitting, built by the pure susunCatatan from the envelope
       const r = render(ctx.repoRoot,
         'const m = await import("file://" + process.cwd() + "/src/lib/pengajar.ts");' +
-        "const env = { status: 'ok', value: [{ session_id: 's1', mode: 'POST_TEST', mastery: 0.7, recomputed: true, sealed_mastery: 0.6 }," +
+        "const env = { status: 'ok', value: [{ session_id: 's1', mode: 'POST_TEST', mastery: 0.7, recomputed: true, sealed_mastery: 0.6, recomputation_reason: 'Kunci soal 4 diperbaiki' }," +
         " { session_id: 's2', mode: 'POST_TEST', mastery: 0.5, recomputed: false, sealed_mastery: null }] };" +
         "process.stdout.write(JSON.stringify(m.susunCatatan('p', [], [], env).daftarHasil));", {}, true);
       if (c.expect(r.ok, `susunCatatan could not run: ${r.err}`)) {
         let x: Array<{ sesi: string; dihitungUlang?: boolean; asli?: number | null; penguasaan: number | null }> = [];
         try { x = JSON.parse(r.out); } catch { /* reported below */ }
         const a = x.find((h) => h.sesi === "s1"), b = x.find((h) => h.sesi === "s2");
-        c.expect(a?.dihitungUlang === true && a?.asli === 0.6 && a?.penguasaan === 0.7, `the recomputed sitting's record: ${JSON.stringify(a)}`);
+        c.expect(a?.dihitungUlang === true && a?.asli === 0.6 && a?.penguasaan === 0.7 && (a as { alasan?: string })?.alasan === 'Kunci soal 4 diperbaiki', `the recomputed sitting's record: ${JSON.stringify(a)}`);
         c.expect(b?.dihitungUlang === false && b?.asli === null, `a sitting never recomputed claims a sealed original: ${JSON.stringify(b)}`);
       }
+      // owner (regressions, 9 Nov) and D14: the note is RENDERED, directly under the figure, with its recorded reason; the page
+      // only places it (the source check below is that placement, not the note's logic)
+      const r3 = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/CatatanHitungUlang.tsx");' +
+        "const K = m.default?.default ?? m.default;" +
+        "process.stdout.write(JSON.stringify([renderToStaticMarkup(h(K, { baru: 0.7, asli: 0.6, alasan: 'Kunci soal 4 diperbaiki', locale: 'id' }))," +
+        " renderToStaticMarkup(h(K, { baru: 0.7, asli: 0.7, alasan: 'x', locale: 'id' })), renderToStaticMarkup(h(K, { baru: 0.7, asli: null, locale: 'id' }))," +
+        " renderToStaticMarkup(h(K, { baru: 0.7, asli: 0.6, alasan: '  ', locale: 'en' }))]));");
+      if (c.expect(r3.ok, `the recalculation note could not be rendered: ${r3.err}`)) {
+        let y: string[] = [];
+        try { y = JSON.parse(r3.out); } catch { /* reported below */ }
+        const [beda, sama, tanpa, en] = y.map(teks);
+        c.expect(beda.includes("Laporan memakai hasil terbaru (70%)") && beda.includes("hasil asli yang disegel (60%)") && beda.includes("Alasan yang dicatat: Kunci soal 4 diperbaiki"),
+          `a recalculated sitting is not explained with both figures and its reason: «${beda}»`);
+        c.expect(sama === "" && tanpa === "", `a note is drawn where the figures agree or no sealed original is known: «${sama}» «${tanpa}»`);
+        c.expect(en.includes("Reports use the latest result (70%)") && !en.includes("Reason recorded"), `the English note, or a blank reason drawn: «${en}»`);
+      }
       const hal = kode(baca(ctx.repoRoot, "src/app/mengajar/[kelas]/murid/[orang]/page.tsx"));
-      c.expect(/h\.dihitungUlang && h\.asli !== null && h\.asli !== undefined && h\.penguasaan !== null && h\.asli !== h\.penguasaan/.test(hal)
-        && /mengajar\.murid1\.dihitung_ulang/.test(hal), "the learner page does not explain a recomputed sitting, or explains one whose figures agree");
+      c.expect(/\{h\.penguasaan === null \? "—" : format\.percent\(h\.penguasaan, locale\)\}\s*\{h\.dihitungUlang \? <CatatanHitungUlang baru=\{h\.penguasaan\} asli=\{h\.asli\} alasan=\{h\.alasan\}/.test(hal),
+        "the teacher's learner page does not place the recalculation note directly under the figure");
       // the owner's Kenaikan question: the figure is a mean over (learner, chapter) pairs, said as such, with both counts
       const naik = { status: "ok", metric_id: "class.net_gain", label_key: "metrik.kenaikan.label", meaning_key: "metrik.kenaikan.arti", value: 0.18, sample: 7, pairs: 10 };
       const r2 = render(ctx.repoRoot,
@@ -217,12 +351,12 @@ export const d78Tests: SelfTest[] = [
       if (c.expect(r2.ok, `the composition could not be rendered: ${r2.err}`)) {
         const t = teks(r2.out);
         c.expect(t.includes("Dihitung dari 10 pasangan Pemetaan Awal dan Uji Penguasaan bab yang sama, milik 7 murid.")
-          && t.includes("dihitung per murid per bab: murid yang mengerjakan dua bab dihitung dua kali") && !/pembelajaran, per murid\./.test(t),
+          && t.includes("dihitung per pasangan murid dan bab: murid yang mengerjakan dua bab memberi dua pasangan") && !/pembelajaran, per murid\./.test(t),
           `Kenaikan is described as a per-learner average, or without its pairs: «${t.slice(0, 400)}»`);
       }
       return c.verdict("the output of susunCatatan (src/lib/pengajar.ts), the source of the learner page and the rendered KomposisiKelas: a recomputed " +
         "sitting carries its sealed original and the page explains it only when the two differ; Kenaikan says it is a mean per student per chapter " +
-        "(a student with two chapters counts twice) and gives its pairs and its learners");
+        "(a student who took two chapters gives two pairs) and gives its pairs and its learners");
     },
   },
 ];

@@ -61,9 +61,13 @@ export type Envelope = {
   withheld?: Ditahan;
   /** Owner (9 Nov): Kenaikan's unit, the (learner, chapter) pairs it averages over; `sample` stays the learners. */
   pairs?: number;
+  /** D12: tests with no required question, shown beside the gate's figure and never counted as a pass. */
+  not_applicable?: number;
+  /** D12: the gate's value is a share of these applicable sittings; `sample` stays the learners. */
+  sittings?: number;
 };
 
-export type Ditahan = { reason: "subgroup" | "patterns" | string; needed?: number; count?: number; chapters?: number };
+export type Ditahan = { reason: "subgroup" | "patterns" | "not_applicable" | string; needed?: number; count?: number; chapters?: number; sittings?: number };
 
 export type Populasi = { placed: number; assessed: number; not_yet: number };
 

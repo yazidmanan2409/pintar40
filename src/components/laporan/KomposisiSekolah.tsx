@@ -28,8 +28,8 @@ import { persenJujur } from "@/components/laporan/KomposisiKelas";
  * `generate_report`, re-authorized for this reader; a figure not shown keeps its place with how far it is and what
  * makes it appear (P14); a refused figure carries no label.
  */
-type Domain = { objective_id?: string | null; code?: string; competency?: string; title?: string | null; mean_score?: number | null; learners?: number; needed?: number | null };
-type Angkatan = { cohort_node_id?: string | null; recorded?: boolean; learners?: number; needed?: number | null; mean_mastery?: number | null };
+type Domain = { objective_id?: string | null; code?: string; competency?: string; title?: string | null; mean_score?: number | null; learners?: number; needed?: number | null; withheld?: "learners" | "class" | null };
+type Angkatan = { cohort_node_id?: string | null; recorded?: boolean; learners?: number; needed?: number | null; mean_mastery?: number | null; withheld?: "learners" | "class" | null };
 /** V2: a competency by its short title where it names the objective unambiguously (MC-9), else its statement. */
 const namaDomain = (d: Domain) => (d.title && d.title.trim() !== "" ? d.title : d.competency ?? "—");
 
@@ -114,6 +114,16 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
     ? <p className="pin-lk-arti" data-lk-ket-bawah="">{s("laporan.sekolah.bawah_ket").replace("{pita}", s(pitaDari(0)))}</p> : null;
 
   const domain: Domain[] = komp?.status === "ok" && Array.isArray(komp.value) ? (komp.value as Domain[]) : [];
+  // A5 (owner, 9 Nov): each withheld objective is counted under the reason its own row gives
+  const minimumDomain = Number(domain.find((d) => typeof d.needed === "number")?.needed ?? 0);
+  const tertahanKarena = (alasan: "learners" | "class") => domain.filter((d) => typeof d.mean_score !== "number"
+    && (alasan === "class" ? d.withheld === "class" : d.withheld !== "class")).length;
+  const alasanTertahan = (["learners", "class"] as const).flatMap((alasan) => {
+    const n = tertahanKarena(alasan);
+    if (n === 0) return [];
+    const kunci = `laporan.sekolah.ranah_tertahan.${alasan === "class" ? "kelas" : "murid"}.${n === 1 ? "satu" : "banyak"}`;
+    return [s(kunci).replace("{n}", format.number(n, locale)).replace("{m}", format.number(minimumDomain, locale))];
+  });
   const urut = [...domain].filter((d) => typeof d.mean_score === "number").sort((a, b) => Number(b.mean_score) - Number(a.mean_score));
   const rendah = urut.filter((d) => Number(d.mean_score) < ZONA[0]);
   const hKomp = komp ? huruf() : "";
@@ -149,7 +159,12 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
       case "institution.net_gain": return typeof e.pairs === "number"
         ? s("laporan.komposisi.kenaikan_dari_pasangan").replace("{p}", format.number(e.pairs, locale)).replace("{n}", format.number(n2, locale))
         : s("laporan.komposisi.kenaikan_dari").replace("{n}", format.number(n2, locale));
-      case "institution.safety_gate_pass_rate": return s("laporan.sekolah.dasar_gerbang").replace("{n}", format.number(n2, locale));
+      // D12: the value is a share of the APPLICABLE sittings; tests with no required question are said apart, never a pass
+      case "institution.safety_gate_pass_rate": return [
+        s("laporan.sekolah.dasar_gerbang").replace("{s}", format.number(typeof e.sittings === "number" ? e.sittings : n2, locale)).replace("{n}", format.number(n2, locale)),
+        typeof e.not_applicable === "number" && e.not_applicable > 0
+          ? s("laporan.sekolah.dasar_gerbang_tidak_berlaku").replace("{k}", format.number(e.not_applicable, locale)) : null,
+      ].filter(Boolean).join(" ");
       case "institution.verified_credentials": {
         const v = Number(e.value);
         return Number.isFinite(v) ? s("laporan.sekolah.dasar_sertifikat").replace("{v}", format.number(v, locale))
@@ -176,19 +191,17 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
                   sub: d.title && d.title.trim() !== "" && d.competency && d.competency.trim() !== d.title.trim() ? d.competency : undefined })))}
                 {titikKet(urut.map((d) => ({ v: Number(d.mean_score) })))}
                 {/* D6: a competency whose own learners are under the minimum shows no mean; how many are withheld is said */}
-                {domain.some((d) => typeof d.mean_score !== "number" && typeof d.needed === "number") ? (
-                  <p className="pin-lk-arti" data-lk-tertahan="">{s("laporan.sekolah.ranah_tertahan")
-                    .replace("{n}", format.number(domain.filter((d) => typeof d.mean_score !== "number").length, locale))
-                    .replace("{m}", format.number(Number(domain.find((d) => typeof d.mean_score !== "number" && typeof d.needed === "number")?.needed), locale))}</p>
-                ) : null}
+                {/* D6, A5: how many are withheld is said, each with its own reason, never «this or that» */}
+                {alasanTertahan.map((a) => <p key={a} className="pin-lk-arti" data-lk-tertahan="">{a}</p>)}
               </div>
             </div>
           ) : komp.status === "ok" ? (
             // owner decision 7: every row withheld is said, never an empty section that reads as «nothing measured»
-            domain.some((d) => typeof d.mean_score !== "number" && typeof d.needed === "number") ? (
-              <p className="pin-lk-arti" data-lk-tertahan="">{s("laporan.sekolah.ranah_tertahan_semua")
-                .replace("{n}", format.number(domain.length, locale))
-                .replace("{m}", format.number(Number(domain.find((d) => typeof d.needed === "number")?.needed), locale))}</p>
+            alasanTertahan.length > 0 ? (
+              <>
+                <p className="pin-lk-arti" data-lk-tertahan="">{s("laporan.sekolah.ranah_tertahan_semua").replace("{n}", format.number(domain.length, locale))}</p>
+                {alasanTertahan.map((a) => <p key={a} className="pin-lk-arti" data-lk-tertahan="">{a}</p>)}
+              </>
             ) : null
           ) : tiada(komp)}
         </section>
@@ -230,7 +243,8 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
               {/* D5, D6: a row under its minimum gives its learners and no mean; sittings that recorded no Angkatan are said so */}
               {(kohort.value as Angkatan[]).filter((r) => typeof r.mean_mastery !== "number").map((r, i) => (
                 <p key={r.cohort_node_id ?? `x${i}`} className="pin-lk-arti" data-lk-tertahan="">
-                  {s("laporan.sekolah.angkatan_belum").replace("{nama}", r.cohort_node_id ? (tempat[r.cohort_node_id] || "—") : s("laporan.sekolah.angkatan_tak_tercatat"))
+                  {s(r.withheld === "class" ? "laporan.sekolah.angkatan_belum.kelas" : "laporan.sekolah.angkatan_belum.murid")
+                    .replace("{nama}", r.cohort_node_id ? (tempat[r.cohort_node_id] || "—") : s("laporan.sekolah.angkatan_tak_tercatat"))
                     .replace("{m}", format.number(Number(r.needed ?? 0), locale))}
                 </p>
               ))}

@@ -298,11 +298,13 @@ begin
     perform set_config('pintar.metric_boundary_person', '', true);
     return query
       with latest as (
-        -- each of the learner's official Uji Penguasaan attempts in this class, its latest result
+        -- each of the learner's official Uji Penguasaan attempts in this class, its EFFECTIVE result: the one nothing
+        -- supersedes (D11, structural; a recalculation stamped earlier than its original is still the one read)
         select distinct on (r.session_id) r.session_id, r.per_domain, s.assessment_definition_id, s.finalized_at
           from public.scoped_official_results r
           join public.scoped_official_sessions s on s.id = r.session_id
-         where s.institution_id = v_inst
+         where not exists (select 1 from public.scoped_official_results q where q.supersedes_result_id = r.id)
+           and s.institution_id = v_inst
            and s.class_node_id = p_class
            and s.person_id = p_learner
            and s.mode = 'POST_TEST'::public.assessment_mode
@@ -547,10 +549,10 @@ revoke all on function public.assert_academic_sources_are_context_bound() from p
 -- ═══════════════════════════════════════════════════════════ ONE EVIDENCE RULE (owner decision 8)
 -- Every calculator below reads assessment evidence through the same three steps, written out in each body (a
 -- calculator reads only its declared sources, so the rule is restated rather than shared through a new relation):
---   (1) a SITTING's effective result is the result nothing supersedes: its most recently computed official result, and
---       on a tie the recomputation over the original (recompute_result supersedes the original, so a lineage holds at
---       most two; INV-29: it is never a second attempt): DISTINCT ON (r.session_id) … ORDER BY r.computed_at DESC,
---       (r.supersedes_result_id IS NOT NULL) DESC;
+--   (1) a SITTING's effective result is, STRUCTURALLY, the one result of its lineage that no other result supersedes
+--       (owner decision D11; the constraints give exactly one per sitting, whatever the timestamps): every reader keeps
+--       only rows with no successor (NOT EXISTS … q.supersedes_result_id = r.id); the ordering by computed_at that
+--       follows is a harmless remnant. A recomputation is never a second attempt (INV-29);
 --   (2) a learner's CURRENT result in a chapter (plp release) is the effective result of their LATEST sitting of that
 --       chapter's Uji Penguasaan in the scope read (by when the sitting was finalised, never by when a result was
 --       recomputed, so recomputing an old sitting cannot make it «latest"); a lower later score is the current score;
@@ -588,7 +590,7 @@ BEGIN ATOMIC
           SELECT DISTINCT ON (r.session_id) r.session_id, s.person_id, s.plp_release_id, s.finalized_at, s.created_at, r.mastery
             FROM (scoped_official_results r
               JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
-           WHERE ((s.institution_id = calc_class_comprehension.p_institution) AND (s.class_node_id = calc_class_comprehension.p_node) AND (s.mode = 'POST_TEST'::assessment_mode))
+           WHERE (NOT (EXISTS ( SELECT 1 FROM scoped_official_results q WHERE (q.supersedes_result_id = r.id))) AND (s.institution_id = calc_class_comprehension.p_institution) AND (s.class_node_id = calc_class_comprehension.p_node) AND (s.mode = 'POST_TEST'::assessment_mode))
            ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), cur AS (
           SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.mastery
@@ -625,7 +627,7 @@ BEGIN ATOMIC
           SELECT DISTINCT ON (r.session_id) r.session_id, s.person_id, s.plp_release_id, s.finalized_at, s.created_at, r.mastery
             FROM (scoped_official_results r
               JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
-           WHERE ((s.institution_id = calc_class_chapter_mastery.p_institution) AND (s.class_node_id = calc_class_chapter_mastery.p_node) AND (s.mode = 'POST_TEST'::assessment_mode))
+           WHERE (NOT (EXISTS ( SELECT 1 FROM scoped_official_results q WHERE (q.supersedes_result_id = r.id))) AND (s.institution_id = calc_class_chapter_mastery.p_institution) AND (s.class_node_id = calc_class_chapter_mastery.p_node) AND (s.mode = 'POST_TEST'::assessment_mode))
            ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), cur AS (
           SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.mastery
@@ -663,7 +665,7 @@ BEGIN ATOMIC
           SELECT DISTINCT ON (r.session_id) r.session_id, s.person_id, s.plp_release_id, s.assessment_definition_id, s.finalized_at, s.created_at, r.per_domain
             FROM (scoped_official_results r
               JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
-           WHERE ((s.institution_id = calc_class_topic_mastery.p_institution) AND (s.class_node_id = calc_class_topic_mastery.p_node) AND (s.mode = 'POST_TEST'::assessment_mode))
+           WHERE (NOT (EXISTS ( SELECT 1 FROM scoped_official_results q WHERE (q.supersedes_result_id = r.id))) AND (s.institution_id = calc_class_topic_mastery.p_institution) AND (s.class_node_id = calc_class_topic_mastery.p_node) AND (s.mode = 'POST_TEST'::assessment_mode))
            ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), cur AS (
           SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.assessment_definition_id, e.per_domain
@@ -721,12 +723,18 @@ BEGIN ATOMIC
           SELECT DISTINCT ON (r.session_id) r.session_id, s.person_id, s.plp_release_id, s.class_node_id, s.assessment_definition_id, s.finalized_at, s.created_at, r.per_domain
             FROM (scoped_official_results r
               JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
-           WHERE ((s.institution_id = calc_institution_competency_outcomes.p_institution) AND (s.mode = 'POST_TEST'::assessment_mode))
+           WHERE (NOT (EXISTS ( SELECT 1 FROM scoped_official_results q WHERE (q.supersedes_result_id = r.id))) AND (s.institution_id = calc_institution_competency_outcomes.p_institution) AND (s.mode = 'POST_TEST'::assessment_mode))
            ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), cur AS (
-          SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.class_node_id, e.assessment_definition_id, e.per_domain
+          SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.class_node_id, e.assessment_definition_id, e.per_domain
             FROM eff e
            ORDER BY e.person_id, e.plp_release_id, e.finalized_at DESC NULLS LAST, e.created_at DESC, e.session_id DESC
+         ), movers AS (
+          SELECT l.class_node_id, l.plp_release_id, count(DISTINCT l.person_id) AS n
+            FROM (( SELECT DISTINCT e.person_id, e.plp_release_id, e.class_node_id FROM eff e WHERE (e.class_node_id IS NOT NULL)) l
+              JOIN cur c ON (((c.person_id = l.person_id) AND (c.plp_release_id = l.plp_release_id))))
+           WHERE (c.class_node_id IS DISTINCT FROM l.class_node_id)
+           GROUP BY l.class_node_id, l.plp_release_id
          ), minimum AS (
           SELECT md.minimum_sample AS k
             FROM metric_definitions md
@@ -740,6 +748,7 @@ BEGIN ATOMIC
              kv.value AS recorded,
              c.person_id,
              c.class_node_id,
+             c.plp_release_id AS rel,
              ( SELECT o.id
                     FROM (((assessment_definitions ad
                       JOIN modules mo ON (((mo.id = ad.module_id) OR ((ad.module_id IS NULL) AND (mo.course_id = ad.course_id)))))
@@ -762,7 +771,8 @@ BEGIN ATOMIC
              COALESCE(min(lo.statement), min(t.code)) AS statement,
              min(( SELECT lt.title WHERE (( SELECT count(*) AS count FROM learning_objectives o2 WHERE (o2.lesson_id = lo.lesson_id)) = 1))) AS title,
              round(avg(((t.recorded ->> 'penguasaan'::text))::numeric), 4) AS avg_score,
-             count(DISTINCT t.person_id) AS n
+             count(DISTINCT t.person_id) AS n,
+             array_agg(DISTINCT t.rel) AS rels
             FROM ((t
               LEFT JOIN learning_objectives lo ON ((lo.id = t.objective_id)))
               LEFT JOIN lessons lt ON ((lt.id = lo.lesson_id)))
@@ -772,11 +782,13 @@ BEGIN ATOMIC
              ( SELECT d.avg_score
                  WHERE ((d.n >= ( SELECT m.k FROM minimum m))
                    AND (( SELECT cm.k FROM cell_minimum cm) IS NOT NULL)
-                   AND (NOT (EXISTS ( SELECT 1 FROM cells c WHERE ((c.row_key = d.row_key) AND (c.n < ( SELECT cm.k FROM cell_minimum cm)))))))) AS mean_score
+                   AND (NOT (EXISTS ( SELECT 1 FROM cells c WHERE ((c.row_key = d.row_key) AND (c.n < ( SELECT cm.k FROM cell_minimum cm))))))
+                   AND (NOT (EXISTS ( SELECT 1 FROM movers mv WHERE ((mv.plp_release_id = ANY (d.rels)) AND (mv.n < ( SELECT cm.k FROM cell_minimum cm)))))))) AS mean_score
             FROM d
          )
   SELECT jsonb_build_object('value', COALESCE(( SELECT jsonb_agg(jsonb_build_object('objective_id', x.objective_id, 'code', x.code, 'competency', x.statement, 'title', x.title,
-                 'mean_score', x.mean_score, 'needed', ( SELECT m.k FROM minimum m), 'learners', x.n)
+                 'mean_score', x.mean_score, 'needed', ( SELECT m.k FROM minimum m), 'learners', x.n,
+                 'withheld', COALESCE(( SELECT 'learners'::text WHERE (NOT (x.n >= ( SELECT m.k FROM minimum m)))), ( SELECT 'class'::text WHERE (x.mean_score IS NULL))))
                  ORDER BY (x.mean_score IS NULL), x.mean_score DESC, x.statement, x.code) FROM shown x), '[]'::jsonb),
            'sample', COALESCE(( SELECT max(x.n) FROM shown x), (0)::bigint)) AS jsonb_build_object;
 END;
@@ -798,12 +810,18 @@ BEGIN ATOMIC
           SELECT DISTINCT ON (r.session_id) r.session_id, s.person_id, s.plp_release_id, s.class_node_id, s.cohort_node_id, s.finalized_at, s.created_at, r.mastery
             FROM (scoped_official_results r
               JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
-           WHERE ((s.institution_id = calc_institution_cohort_comparison.p_institution) AND (s.mode = 'POST_TEST'::assessment_mode))
+           WHERE (NOT (EXISTS ( SELECT 1 FROM scoped_official_results q WHERE (q.supersedes_result_id = r.id))) AND (s.institution_id = calc_institution_cohort_comparison.p_institution) AND (s.mode = 'POST_TEST'::assessment_mode))
            ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), cur AS (
           SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.class_node_id, e.cohort_node_id, e.mastery
             FROM eff e
            ORDER BY e.person_id, e.plp_release_id, e.finalized_at DESC NULLS LAST, e.created_at DESC, e.session_id DESC
+         ), movers AS (
+          SELECT l.class_node_id, l.plp_release_id, count(DISTINCT l.person_id) AS n
+            FROM (( SELECT DISTINCT e.person_id, e.plp_release_id, e.class_node_id FROM eff e WHERE (e.class_node_id IS NOT NULL)) l
+              JOIN cur c ON (((c.person_id = l.person_id) AND (c.plp_release_id = l.plp_release_id))))
+           WHERE (c.class_node_id IS DISTINCT FROM l.class_node_id)
+           GROUP BY l.class_node_id, l.plp_release_id
          ), minimum AS (
           SELECT d.minimum_sample AS k
             FROM metric_definitions d
@@ -825,6 +843,9 @@ BEGIN ATOMIC
             FROM cells c
            WHERE ((NOT (c.n >= ( SELECT cm.k FROM cell_minimum cm))) OR ((c.parts > 1) AND (NOT (c.smallest >= ( SELECT cm.k FROM cell_minimum cm)))))
               OR (( SELECT cm.k FROM cell_minimum cm) IS NULL)
+              -- owner decision 10: a class's chapter row also holds learners whose school-current sitting is elsewhere
+              -- (they moved and re-sat); 1–4 of them would be the difference between that row and the Angkatan's
+              OR (EXISTS ( SELECT 1 FROM movers mv WHERE ((mv.class_node_id = c.class_node_id) AND (mv.plp_release_id = c.plp_release_id) AND (mv.n < ( SELECT cm.k FROM cell_minimum cm)))))
          ), rows AS (
           SELECT l.cohort_node_id,
              count(DISTINCT l.person_id) AS learners,
@@ -839,37 +860,51 @@ BEGIN ATOMIC
             FROM rows x
          )
   SELECT jsonb_build_object('value', COALESCE(( SELECT jsonb_agg(jsonb_build_object('cohort_node_id', x.cohort_node_id, 'recorded', (x.cohort_node_id IS NOT NULL), 'learners', x.learners,
-                 'needed', ( SELECT m.k FROM minimum m), 'mean_mastery', x.mean_mastery)
+                 'needed', ( SELECT m.k FROM minimum m), 'mean_mastery', x.mean_mastery,
+                 'withheld', COALESCE(( SELECT 'learners'::text WHERE (NOT (x.learners >= ( SELECT m.k FROM minimum m)))), ( SELECT 'class'::text WHERE (x.mean_mastery IS NULL))))
                  ORDER BY (x.cohort_node_id IS NULL), (x.mean_mastery IS NULL), x.mean_mastery DESC, x.cohort_node_id) FROM shown x), '[]'::jsonb),
            'sample', ( SELECT count(DISTINCT l.person_id) FROM cur l)) AS jsonb_build_object;
 END;
 revoke all on function public.calc_institution_cohort_comparison(uuid, uuid, text) from public, anon, authenticated;
 
--- «Soal wajib» (decision 8 D, Sharon's finding 5): a measure of SITTINGS, by its approved meaning («bagian hasil Uji
--- Penguasaan»): passed sittings over sittings, each sitting by its effective result (a recomputation is not another
--- sitting). Its population gate is LEARNERS: four learners who sat three times each are four, not twelve. `sittings`
--- says how many sittings the rate is over.
+-- «Soal wajib» (decision 8 D, Sharon's finding 5, owner decision D12): a measure of SITTINGS, by its approved meaning
+-- («bagian hasil Uji Penguasaan»): passed sittings over the sittings whose test HAS required questions, each sitting by
+-- its effective result. A sitting with none is not applicable: it is outside the rate and counted as `not_applicable`;
+-- with only such sittings there is no rate, said as «tidak berlaku», never 100%. Its population gate is LEARNERS (with
+-- an applicable sitting): four learners who sat three times each are four, not twelve. `sittings` is the rate's base.
 CREATE OR REPLACE FUNCTION public.calc_institution_safety_gate_pass_rate(p_node uuid, p_institution uuid, p_catalogue text)
  RETURNS jsonb
  LANGUAGE sql
  STABLE
  SET search_path TO 'public', 'pg_temp'
 BEGIN ATOMIC
- SELECT jsonb_build_object('value', round(((count(*) FILTER (WHERE x.safety_gate_passed))::numeric / (NULLIF(count(*), 0))::numeric), 4),
-          'sample', count(DISTINCT x.person_id), 'sittings', count(*)) AS jsonb_build_object
-    FROM ( SELECT DISTINCT ON (r.session_id) r.safety_gate_passed,
-             s.person_id
+ WITH x AS (
+          SELECT DISTINCT ON (r.session_id) r.safety_gate_passed,
+             s.person_id,
+             -- owner decision D12: a sitting whose test holds no required question has no gate to pass; it is NOT
+             -- APPLICABLE, never a pass (the engine records the vacuous gate as passed, and its safety_total as 0)
+             (COALESCE(((r.delta_inputs ->> 'safety_total'::text))::integer, 1) > 0) AS applicable
             FROM (scoped_official_results r
               JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
-           WHERE ((s.institution_id = calc_institution_safety_gate_pass_rate.p_institution) AND (s.mode = 'POST_TEST'::assessment_mode))
-           ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC) x;
+           WHERE (NOT (EXISTS ( SELECT 1 FROM scoped_official_results q WHERE (q.supersedes_result_id = r.id))) AND (s.institution_id = calc_institution_safety_gate_pass_rate.p_institution) AND (s.mode = 'POST_TEST'::assessment_mode))
+           ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
+         )
+  SELECT (jsonb_build_object(
+           'value', ( SELECT round(((count(*) FILTER (WHERE a.safety_gate_passed))::numeric / (NULLIF(count(*), 0))::numeric), 4) FROM x a WHERE a.applicable),
+           'sample', ( SELECT count(DISTINCT a.person_id) FROM x a WHERE a.applicable),
+           'sittings', ( SELECT count(*) FROM x a WHERE a.applicable),
+           'not_applicable', ( SELECT count(*) FROM x a WHERE (NOT a.applicable)))
+         || COALESCE(( SELECT jsonb_build_object('withheld', jsonb_build_object('reason', 'not_applicable', 'sittings', count(*)))
+                          FROM x a WHERE (NOT a.applicable) HAVING ((count(*) > 0) AND (NOT (EXISTS ( SELECT 1 FROM x b WHERE b.applicable))))), '{}'::jsonb)) AS jsonb_build_object;
 END;
 revoke all on function public.calc_institution_safety_gate_pass_rate(uuid, uuid, text) from public, anon, authenticated;
 
 -- «Kenaikan» (decision 8 B): over every (learner, chapter) with a baseline and a current result in the class, the mean
 -- of current − baseline. Its unit is the (learner, chapter) PAIR, the governed contract since MC-8 (H31): a learner with
 -- two chapters' pairs counts twice; `sample` is the learners (the minimum's population) and `pairs` the pairs, so the
--- page says both and never calls the figure a per-learner average. MC-8 took the HIGHEST result of each test (max over every result row, recomputed versions
+-- page says both and never calls the figure a per-learner average. Owner (historical disclosure, Sharon's finding 4):
+-- like Pemahaman it is WITHHELD while any chapter's pairs are 1–4, or the same class's figure read before and after a
+-- small chapter is sat would give that chapter's mean gain (K₂·(pA+pB) − K₁·pA)/pB; formula and meaning unchanged. MC-8 took the HIGHEST result of each test (max over every result row, recomputed versions
 -- included); a later, lower Uji Penguasaan now counts, and a recomputation replaces rather than competes.
 CREATE OR REPLACE FUNCTION public.calc_class_net_gain(p_node uuid, p_institution uuid, p_catalogue text)
  RETURNS jsonb
@@ -881,7 +916,7 @@ BEGIN ATOMIC
           SELECT DISTINCT ON (r.session_id) r.session_id, s.person_id, s.plp_release_id, s.mode, s.finalized_at, s.created_at, r.mastery
             FROM (scoped_official_sessions s
               JOIN scoped_official_results r ON ((r.session_id = s.id)))
-           WHERE ((s.institution_id = calc_class_net_gain.p_institution) AND (s.class_node_id = calc_class_net_gain.p_node) AND (s.mode = ANY (ARRAY['PRE_TEST'::assessment_mode, 'POST_TEST'::assessment_mode])))
+           WHERE (NOT (EXISTS ( SELECT 1 FROM scoped_official_results q WHERE (q.supersedes_result_id = r.id))) AND (s.institution_id = calc_class_net_gain.p_institution) AND (s.class_node_id = calc_class_net_gain.p_node) AND (s.mode = ANY (ARRAY['PRE_TEST'::assessment_mode, 'POST_TEST'::assessment_mode])))
            ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), pre AS (
           SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.mastery
@@ -893,18 +928,32 @@ BEGIN ATOMIC
             FROM eff e
            WHERE (e.mode = 'POST_TEST'::assessment_mode)
            ORDER BY e.person_id, e.plp_release_id, e.finalized_at DESC NULLS LAST, e.created_at DESC, e.session_id DESC
+         ), pairs AS (
+          SELECT a.person_id, a.plp_release_id, (b.mastery - a.mastery) AS gain
+            FROM (pre a
+              JOIN post b ON (((b.person_id = a.person_id) AND (b.plp_release_id = a.plp_release_id))))
+           WHERE ((a.mastery IS NOT NULL) AND (b.mastery IS NOT NULL))
+         ), cell_minimum AS (
+          SELECT d.minimum_sample AS k
+            FROM metric_definitions d
+           WHERE ((d.catalogue_version = calc_class_net_gain.p_catalogue) AND (d.metric_id = 'class.chapter_mastery'::text))
+         ), cells AS (
+          SELECT p.plp_release_id, count(DISTINCT p.person_id) AS n FROM pairs p GROUP BY p.plp_release_id
+         ), disclosable AS (
+          SELECT 1 AS y FROM cell_minimum m WHERE ((m.k IS NOT NULL) AND (NOT (EXISTS ( SELECT 1 FROM cells c WHERE (c.n < m.k)))))
          )
-  SELECT jsonb_build_object('value', round(avg((b.mastery - a.mastery)), 4), 'sample', count(DISTINCT a.person_id), 'pairs', count(*)) AS jsonb_build_object
-    FROM (pre a
-      JOIN post b ON (((b.person_id = a.person_id) AND (b.plp_release_id = a.plp_release_id))))
-   WHERE ((a.mastery IS NOT NULL) AND (b.mastery IS NOT NULL));
+  SELECT (jsonb_build_object(
+           'value', ( SELECT round(avg(p.gain), 4) FROM pairs p WHERE (EXISTS ( SELECT 1 FROM disclosable))),
+           'sample', ( SELECT count(DISTINCT p.person_id) FROM pairs p), 'pairs', ( SELECT count(*) FROM pairs p))
+         || COALESCE(( SELECT jsonb_build_object('withheld', jsonb_build_object('reason', 'subgroup', 'needed', ( SELECT m.k FROM cell_minimum m)))
+                          WHERE ((NOT (EXISTS ( SELECT 1 FROM disclosable))) AND (EXISTS ( SELECT 1 FROM pairs)))), '{}'::jsonb)) AS jsonb_build_object;
 END;
 revoke all on function public.calc_class_net_gain(uuid, uuid, text) from public, anon, authenticated;
 
 -- The school's Kenaikan: the same pairing over the school. A pair is a CLASS's when both its sittings are in that
--- class (a class's own Kenaikan reads exactly those), otherwise it belongs to no class. Shown only when every class's
--- pairs, and the pairs of no class, are none or reach the class minimum; otherwise the school figure minus the shown
--- classes' Kenaikan would give the small class's.
+-- class (a class's own Kenaikan reads exactly those), otherwise it belongs to no class. Shown only when every cell of
+-- pairs (a class, or no class, in one chapter) is none or reaches the class minimum; otherwise the school figure minus
+-- the shown classes' Kenaikan, or the same figure read before and after, would give the small cell's.
 CREATE OR REPLACE FUNCTION public.calc_institution_net_gain(p_node uuid, p_institution uuid, p_catalogue text)
  RETURNS jsonb
  LANGUAGE sql
@@ -915,7 +964,7 @@ BEGIN ATOMIC
           SELECT DISTINCT ON (r.session_id) r.session_id, s.person_id, s.plp_release_id, s.class_node_id, s.mode, s.finalized_at, s.created_at, r.mastery
             FROM (scoped_official_sessions s
               JOIN scoped_official_results r ON ((r.session_id = s.id)))
-           WHERE ((s.institution_id = calc_institution_net_gain.p_institution) AND (s.mode = ANY (ARRAY['PRE_TEST'::assessment_mode, 'POST_TEST'::assessment_mode])))
+           WHERE (NOT (EXISTS ( SELECT 1 FROM scoped_official_results q WHERE (q.supersedes_result_id = r.id))) AND (s.institution_id = calc_institution_net_gain.p_institution) AND (s.mode = ANY (ARRAY['PRE_TEST'::assessment_mode, 'POST_TEST'::assessment_mode])))
            ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), pre AS (
           SELECT DISTINCT ON (e.person_id, e.plp_release_id) e.person_id, e.plp_release_id, e.class_node_id, e.mastery
@@ -928,7 +977,7 @@ BEGIN ATOMIC
            WHERE (e.mode = 'POST_TEST'::assessment_mode)
            ORDER BY e.person_id, e.plp_release_id, e.finalized_at DESC NULLS LAST, e.created_at DESC, e.session_id DESC
          ), pairs AS (
-          SELECT a.person_id, (b.mastery - a.mastery) AS gain,
+          SELECT a.person_id, a.plp_release_id, (b.mastery - a.mastery) AS gain,
              ( SELECT b.class_node_id WHERE (a.class_node_id = b.class_node_id)) AS cell
             FROM (pre a
               JOIN post b ON (((b.person_id = a.person_id) AND (b.plp_release_id = a.plp_release_id))))
@@ -938,9 +987,9 @@ BEGIN ATOMIC
             FROM metric_definitions d
            WHERE ((d.catalogue_version = calc_institution_net_gain.p_catalogue) AND (d.metric_id = 'class.net_gain'::text))
          ), cells AS (
-          SELECT p.cell, count(DISTINCT p.person_id) AS n
+          SELECT p.cell, p.plp_release_id, count(DISTINCT p.person_id) AS n
             FROM pairs p
-           GROUP BY p.cell
+           GROUP BY p.cell, p.plp_release_id
          ), disclosable AS (
           SELECT 1 AS y
             FROM cell_minimum m
@@ -968,7 +1017,7 @@ BEGIN ATOMIC
           SELECT DISTINCT ON (r.session_id) r.session_id, s.person_id, s.finalized_at, s.created_at, r.mastery, r.safety_gate_passed
             FROM (scoped_official_sessions s
               JOIN scoped_official_results r ON ((r.session_id = s.id)))
-           WHERE ((s.institution_id = calc_class_readiness_distribution.p_institution) AND (s.class_node_id = calc_class_readiness_distribution.p_node) AND (s.mode = 'POST_TEST'::assessment_mode))
+           WHERE (NOT (EXISTS ( SELECT 1 FROM scoped_official_results q WHERE (q.supersedes_result_id = r.id))) AND (s.institution_id = calc_class_readiness_distribution.p_institution) AND (s.class_node_id = calc_class_readiness_distribution.p_node) AND (s.mode = 'POST_TEST'::assessment_mode))
            ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC
          ), assessed AS (
           SELECT DISTINCT ON (e.person_id) e.person_id,
@@ -1114,7 +1163,7 @@ begin
         select distinct on (r.session_id) r.session_id, s.person_id, s.plp_release_id, s.mode, s.finalized_at, s.created_at, r.mastery
           from public.scoped_official_sessions s
           join public.scoped_official_results r on r.session_id = s.id
-         where s.institution_id = v_inst and s.class_node_id = p_class
+         where not exists (select 1 from public.scoped_official_results q where q.supersedes_result_id = r.id) and s.institution_id = v_inst and s.class_node_id = p_class
            and s.mode = any (array['PRE_TEST'::public.assessment_mode, 'POST_TEST'::public.assessment_mode])
          order by r.session_id, r.computed_at desc, (r.supersedes_result_id is not null) desc
       ), pre as (
@@ -1195,7 +1244,7 @@ begin
            from (select distinct on (r.session_id) r.session_id, s.person_id, s.finalized_at, s.created_at, r.mastery, r.safety_gate_passed
           from public.scoped_official_sessions s
           join public.scoped_official_results r on r.session_id = s.id
-         where s.institution_id = v_inst and s.class_node_id = p_class
+         where not exists (select 1 from public.scoped_official_results q where q.supersedes_result_id = r.id) and s.institution_id = v_inst and s.class_node_id = p_class
            and s.mode = 'POST_TEST'::public.assessment_mode
           order by r.session_id, r.computed_at desc, (r.supersedes_result_id is not null) desc) x
          -- decision 8: the learner's latest SITTING (finalised last), each sitting by its effective result
@@ -1269,7 +1318,7 @@ begin
            from (select distinct on (r.session_id) r.session_id, s.person_id, s.finalized_at, s.created_at, r.mastery, r.safety_gate_passed, r.per_domain
           from public.scoped_official_sessions s
           join public.scoped_official_results r on r.session_id = s.id
-         where s.institution_id = v_inst and s.class_node_id = p_class
+         where not exists (select 1 from public.scoped_official_results q where q.supersedes_result_id = r.id) and s.institution_id = v_inst and s.class_node_id = p_class
            and s.mode = 'POST_TEST'::public.assessment_mode
           order by r.session_id, r.computed_at desc, (r.supersedes_result_id is not null) desc) x
          -- decision 8: the learner's latest SITTING (finalised last), each sitting by its effective result
@@ -1399,20 +1448,85 @@ CREATE OR REPLACE FUNCTION public.calc_learner_result(p_node uuid, p_institution
 BEGIN ATOMIC
  SELECT jsonb_build_object('value', COALESCE(jsonb_agg(jsonb_build_object('session_id', x.session_id, 'mode', x.mode, 'mastery', x.mastery, 'safety_gate_passed', x.safety_gate_passed,
           'recomputed', (x.supersedes_result_id IS NOT NULL),
-          'sealed_mastery', ( SELECT o.mastery FROM scoped_official_results o WHERE ((o.session_id = x.session_id) AND (o.supersedes_result_id IS NULL) AND (x.supersedes_result_id IS NOT NULL))))
+          'sealed_mastery', ( SELECT o.mastery FROM scoped_official_results o WHERE ((o.session_id = x.session_id) AND (o.supersedes_result_id IS NULL) AND (x.supersedes_result_id IS NOT NULL))),
+          'recomputation_reason', x.recomputation_reason)
           ORDER BY x.finalized_at), '[]'::jsonb), 'sample', count(*)) AS jsonb_build_object
     FROM ( SELECT DISTINCT ON (r.session_id) r.session_id,
              s.mode,
              r.mastery,
              r.safety_gate_passed,
              r.supersedes_result_id,
+             r.recomputation_reason,
              s.finalized_at
             FROM (scoped_official_results r
               JOIN scoped_official_sessions s ON ((s.id = r.session_id)))
-           WHERE ((s.institution_id = calc_learner_result.p_institution) AND (s.person_id = calc_learner_result.p_node))
+           WHERE (NOT (EXISTS ( SELECT 1 FROM scoped_official_results q WHERE (q.supersedes_result_id = r.id))) AND (s.institution_id = calc_learner_result.p_institution) AND (s.person_id = calc_learner_result.p_node))
            ORDER BY r.session_id, r.computed_at DESC, (r.supersedes_result_id IS NOT NULL) DESC) x;
 END;
 revoke all on function public.calc_learner_result(uuid, uuid, text) from public, anon, authenticated;
+
+-- ═══════════════════════════════════════════════════════════ one recalculation per sitting, refused by design (D11)
+-- recompute_result supersedes a sitting's ORIGINAL result; a second recalculation used to meet the constraint
+-- results_one_successor as a raw unique-violation error. 4.0 keeps the limit of one authorised recalculation per sitting
+-- (owner decision D11) and now refuses the second with a designed message; nothing else changes.
+CREATE OR REPLACE FUNCTION public.recompute_result(p_session uuid, p_reason text)
+ RETURNS uuid
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+declare v_prev public.assessment_results; v_e record; v_id uuid;
+begin
+  if not public.is_system_admin() then
+    raise exception 'recomputation requires SYSTEM_ADMIN (INV-29: it is an audited act)';
+  end if;
+  if p_reason is null or btrim(p_reason) = '' then
+    raise exception 'a recomputation records why it happened';
+  end if;
+  select * into v_prev from public.assessment_results
+   where session_id = p_session and supersedes_result_id is null;
+  if v_prev.id is null then raise exception 'session % has no root result to recompute', p_session; end if;
+  if exists (select 1 from public.assessment_results r where r.supersedes_result_id = v_prev.id) then
+    raise exception 'this sitting has already been recalculated once; PINTAR 4.0 allows one authorised recalculation per sitting (owner decision D11)'
+      using errcode = 'PR011', hint = 'RECOMPUTE_LIMIT';
+  end if;
+
+  select * into v_e from public.evaluate_session(p_session);
+  insert into public.assessment_results (
+    session_id, institution_id, person_id, evidence_class,
+    engine_version, scoring_policy_version, mastery, per_domain,
+    safety_gate_passed, delta_inputs, supersedes_result_id, recomputation_reason)
+  values (
+    p_session, '00000000-0000-0000-0000-000000000000',
+    '00000000-0000-0000-0000-000000000000', 'SYNTHETIC',
+    public.engine_version(), public.scoring_policy_version(), v_e.mastery, v_e.per_domain,
+    v_e.safety_gate_passed,
+    jsonb_build_object('item_total', v_e.item_total, 'answered', v_e.answered,
+                       'correct', v_e.correct, 'safety_total', v_e.safety_total,
+                       'safety_correct', v_e.safety_correct),
+    v_prev.id, p_reason)
+  returning id into v_id;
+  perform public.audit_write('assessment_result.recomputed', 'assessment_results', v_id::text,
+    v_prev.institution_id,
+    jsonb_build_object('session_id', p_session, 'supersedes', v_prev.id,
+                       'new_result', v_id, 'reason', p_reason));
+  return v_id;
+end $function$;
+
+-- D14: the learner may be told, neutrally, that a sitting of theirs was recalculated. They keep seeing the sealed result
+-- (session_outcome, certificates); this says only whether a recalculation exists, for their own sitting, nothing more.
+create or replace function public.sesi_saya_dihitung_ulang(p_session uuid)
+returns boolean language sql stable security definer set search_path = public, pg_temp as $$
+  select exists (select 1 from public.assessment_sessions s
+                   join public.assessment_results r on r.session_id = s.id and r.supersedes_result_id is not null
+                  where s.id = p_session and s.person_id = public.current_person_id())
+$$;
+revoke all on function public.sesi_saya_dihitung_ulang(uuid) from public, anon;
+grant execute on function public.sesi_saya_dihitung_ulang(uuid) to authenticated;
+insert into public.client_rpc_registry (function_name, exposure, note, authorization_kind, authorization_requirement)
+select 'sesi_saya_dihitung_ulang', 'LEARNER', 'D14: whether the caller''s own sitting was recalculated after it was sealed; a yes/no about their own sitting, no figure', a.authorization_kind, a.authorization_requirement
+  from public.client_rpc_registry a where a.function_name = 'session_outcome'
+on conflict (function_name) do nothing;
 
 -- ═══════════════════════════════════════════════════════════ the evaluator says WITHHELD, not «no evidence» (decision 7)
 -- One change to migration 20261206100000's body: a calculator that withholds a figure to protect a smaller group
@@ -1535,6 +1649,9 @@ begin
                               case
                                 -- decision 7: evidence exists and clears the minimum, but the figure would disclose a
                                 -- smaller group, so it is WITHHELD: never «no evidence», never zero
+                                -- D12: only tests with no required question: the gate does not apply
+                                when v_ready = 'NOT_YET_EVALUABLE' and v_out -> 'withheld' ->> 'reason' = 'not_applicable'
+                                  then 'laporan.metrik.tidak_berlaku'
                                 when v_ready = 'NOT_YET_EVALUABLE' and jsonb_typeof(v_out -> 'withheld') = 'object'
                                   then 'laporan.metrik.dilindungi'
                                 when v_ready = 'NOT_YET_EVALUABLE' then 'laporan.metrik.belum_ada_bukti'
@@ -1558,7 +1675,10 @@ begin
          || case when v_out ? 'population' then jsonb_build_object('population', v_out -> 'population') else '{}'::jsonb end
          -- decision 7: what a shown figure leaves out to protect a small group (misconception patterns) is said
          || case when jsonb_typeof(v_out -> 'withheld') = 'object' then jsonb_build_object('withheld', v_out -> 'withheld') else '{}'::jsonb end
-         || case when jsonb_typeof(v_out -> 'pairs') = 'number' then jsonb_build_object('pairs', v_out -> 'pairs') else '{}'::jsonb end;
+         || case when jsonb_typeof(v_out -> 'pairs') = 'number' then jsonb_build_object('pairs', v_out -> 'pairs') else '{}'::jsonb end
+         || case when (v_out ->> 'not_applicable')::numeric > 0 then jsonb_build_object('not_applicable', v_out -> 'not_applicable') else '{}'::jsonb end
+         -- D12: the gate's value is a share of SITTINGS (applicable ones); how many is said beside the learners
+         || case when jsonb_typeof(v_out -> 'sittings') = 'number' then jsonb_build_object('sittings', v_out -> 'sittings') else '{}'::jsonb end;
 end $function$;
 revoke all on function public.metric_evaluate(text, uuid, uuid, text) from public, anon, authenticated;
 grant execute on function public.metric_evaluate(text, uuid, uuid, text) to authenticated;
@@ -1645,16 +1765,19 @@ begin
                            'calc_class_topic_mastery(uuid,uuid,text)', 'calc_institution_competency_outcomes(uuid,uuid,text)',
                            'calc_institution_cohort_comparison(uuid,uuid,text)', 'calc_class_net_gain(uuid,uuid,text)',
                            'calc_institution_net_gain(uuid,uuid,text)', 'calc_class_readiness_distribution(uuid,uuid,text)',
-                           'kenaikan_awal_akhir(uuid)', 'sebaran_murid_kelas(uuid)', 'murid_perlu_penguatan(uuid)'] loop
+                           'kenaikan_awal_akhir(uuid)', 'sebaran_murid_kelas(uuid)', 'murid_perlu_penguatan(uuid)',
+                           'calc_institution_safety_gate_pass_rate(uuid,uuid,text)', 'calc_learner_result(uuid,uuid,text)',
+                           'tujuan_belum_tercapai(uuid,uuid)'] loop
     v_def := pg_get_functiondef(('public.' || f)::regprocedure);
-    if v_def !~* 'finalized_at desc nulls last' then
+    -- the two per-sitting readers (their approved meaning) need no latest-sitting rule
+    if f !~ '^calc_(institution_safety_gate_pass_rate|learner_result)' and v_def !~* 'finalized_at desc nulls last' then
       raise exception '% does not read a learner''s latest SITTING (decision 8)', f;
     end if;
     if v_def ~* 'max\(\s*case' then
       raise exception '% reads a highest result (decision 8)', f;
     end if;
-    if v_def !~* 'supersedes_result_id is not null\)? desc' then
-      raise exception '% does not prefer the recomputation over the original it supersedes (INV-29)', f;
+    if v_def !~* 'q\.supersedes_result_id = r\.id' then
+      raise exception '% does not select the effective result structurally (the result nothing supersedes, D11)', f;
     end if;
   end loop;
   foreach f in array array['calc_class_comprehension(uuid,uuid,text)', 'calc_institution_net_gain(uuid,uuid,text)',

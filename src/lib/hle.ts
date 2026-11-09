@@ -71,8 +71,9 @@ export type HleEvent =
   | "laporan.metrik.diganti" | "laporan.metrik.belum_cukup_data"
   | "laporan.metrik.belum_ada_bukti"
   | "laporan.metrik.dilindungi" | "ketiadaan.dilindungi.bab.murid" | "ketiadaan.dilindungi.bab.peserta"
-  | "ketiadaan.dilindungi.kelas.murid" | "ketiadaan.dilindungi.kelas.peserta" | "laporan.muncul.dilindungi.bab"
-  | "laporan.muncul.dilindungi.kelas" | "laporan.komposisi.awal_akhir_dilindungi" | "laporan.komposisi.keliru_tertahan" | "laporan.komposisi.keliru_belum" | "mengajar.bukti.bagian_tertahan" | "hasil.safety.tidak_ada" | "pimpinan.kelas.bukti_saja" | "laporan.sekolah.ranah_tertahan_semua" | "laporan.komposisi.kenaikan_dari_pasangan" | "mengajar.murid1.dihitung_ulang" | "laporan.kisi.arti_tanpa_target" | "laporan.kisi.arti_sebagian" | "laporan.kisi.kunci_sebagian"
+  | "ketiadaan.dilindungi.kelas.murid" | "ketiadaan.dilindungi.kelas.peserta"
+  | "laporan.metrik.tidak_berlaku" | "laporan.sekolah.dasar_gerbang_tidak_berlaku" | "ketiadaan.dilindungi.bab_pasangan.murid" | "ketiadaan.dilindungi.bab_pasangan.peserta" | "laporan.komposisi.awal_akhir_dilindungi" | "laporan.komposisi.keliru_tertahan" | "laporan.komposisi.keliru_belum" | "mengajar.bukti.bagian_tertahan" | "hasil.safety.tidak_ada" | "pimpinan.kelas.bukti_saja" | "laporan.sekolah.ranah_tertahan_semua" | "laporan.komposisi.kenaikan_dari_pasangan" | "mengajar.murid1.dihitung_ulang" | "mengajar.murid1.dihitung_ulang_alasan" | "hasil.dihitung_ulang" | "laporan.kisi.arti_tanpa_target" | "laporan.kisi.arti_sebagian" | "laporan.kisi.kunci_sebagian"
+  | "laporan.komposisi.topik_di_bawah_sebagian" | "laporan.komposisi.topik_di_bawah_banyak_sebagian" | "laporan.komposisi.topik_semua_sebagian" | "laporan.komposisi.topik_tertahan.satu" | "laporan.komposisi.topik_tertahan.banyak" | "laporan.komposisi.topik_tertahan_semua"
   | "laporan.kelas.judul" | "laporan.institusi.judul"
   | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak" | "laporan.metrik.tanpa_nama" | "laporan.kelas.pd_arti"
   | "laporan.cakupan.kelas" | "laporan.cakupan.sekolah"
@@ -115,7 +116,7 @@ export type HleEvent =
   // legitimately says "Menunggu tinjauan" about a queue where the same word on a
   // learner's screen would be the system telling a child to wait.
   | "pimpinan.eyebrow" | "pimpinan.judul" | "pimpinan.batas" | "pimpinan.urutan"
-  | "pimpinan.memutuskan" | "pimpinan.ditolak" | "laporan.ditolak" | "config.persiapan.murid.tanpa_kelas" | "laporan.sekolah.perhatian_banyak" | "laporan.sekolah.ranah_tertahan" | "laporan.sekolah.angkatan_belum" | "laporan.sekolah.angkatan_tak_tercatat" | "laporan.bab.dasar" | "laporan.bab.belum" | "laporan.bab.murid" | "metrik.bab.label" | "metrik.bab.arti"
+  | "pimpinan.memutuskan" | "pimpinan.ditolak" | "laporan.ditolak" | "config.persiapan.murid.tanpa_kelas" | "laporan.sekolah.perhatian_banyak" | "laporan.sekolah.ranah_tertahan.murid.satu" | "laporan.sekolah.ranah_tertahan.murid.banyak" | "laporan.sekolah.ranah_tertahan.kelas.satu" | "laporan.sekolah.ranah_tertahan.kelas.banyak" | "laporan.sekolah.angkatan_belum.murid" | "laporan.sekolah.angkatan_belum.kelas" | "laporan.sekolah.angkatan_tak_tercatat" | "laporan.bab.dasar" | "laporan.bab.belum" | "laporan.bab.murid" | "metrik.bab.label" | "metrik.bab.arti"
   | "pimpinan.menunggu.nihil" | "pimpinan.menunggu.satu" | "pimpinan.menunggu.banyak"
   | "pimpinan.menunggu.judul" | "pimpinan.perlu_diketahui" | "pimpinan.perlu_diketahui.sub"
   | "pimpinan.lingkup.judul" | "pimpinan.lingkup.pilih" | "pimpinan.lingkup.kosong"
@@ -2605,7 +2606,7 @@ const table: Table = {
   "metrik.pemahaman.arti": { default: "Rata-rata penguasaan kelas pada Uji Penguasaan.", en: "The class's average mastery on the Mastery Check." },
   "metrik.kenaikan.label": { default: "Kenaikan", en: "Gain" },
   // owner (9 Nov): the figure is a mean over (learner, chapter) PAIRS (H31's governed contract), never «per murid»
-  "metrik.kenaikan.arti": { default: "Rata-rata selisih penguasaan sebelum dan sesudah pembelajaran, dihitung per murid per bab: murid yang mengerjakan dua bab dihitung dua kali.", en: "The average difference in mastery before and after the lessons, counted per student per chapter: a student who took two chapters counts twice." },
+  "metrik.kenaikan.arti": { default: "Rata-rata selisih penguasaan sebelum dan sesudah pembelajaran, dihitung per pasangan murid dan bab: murid yang mengerjakan dua bab memberi dua pasangan.", en: "The average difference in mastery before and after the lessons, counted per pair of a student and a chapter: a student who took two chapters gives two pairs." },
   // D-095: PINTAR's fixed performance bands, an independent distribution, not the school's mastery threshold
   "metrik.kesiapan.label": { default: "Sebaran hasil Uji Penguasaan", en: "Spread of Mastery Check results" },
   "metrik.kesiapan.arti": { default: "Banyaknya murid pada tiap pita hasil, menurut Uji Penguasaan terakhir mereka.", en: "How many students sit in each result band, by their latest Mastery Check." },
@@ -2620,9 +2621,9 @@ const table: Table = {
   "metrik.peserta_institusi.label": { default: "Peserta", en: "Students" },
   "metrik.peserta_institusi.arti": { default: "Banyaknya murid yang mengerjakan asesmen di sekolah ini.", en: "How many students took the assessment in this school." },
   "metrik.kenaikan_institusi.label": { default: "Kenaikan", en: "Gain" },
-  "metrik.kenaikan_institusi.arti": { default: "Rata-rata kenaikan penguasaan di sekolah ini, dihitung per murid per bab: murid yang mengerjakan dua bab dihitung dua kali.", en: "The average gain in mastery in this school, counted per student per chapter: a student who took two chapters counts twice." },
+  "metrik.kenaikan_institusi.arti": { default: "Rata-rata kenaikan penguasaan di sekolah ini, dihitung per pasangan murid dan bab: murid yang mengerjakan dua bab memberi dua pasangan.", en: "The average gain in mastery in this school, counted per pair of a student and a chapter: a student who took two chapters gives two pairs." },
   "metrik.gerbang_keselamatan.label": { default: "Soal wajib", en: "Required items" },
-  "metrik.gerbang_keselamatan.arti": { default: "Bagian hasil Uji Penguasaan yang menjawab benar seluruh soal wajib.", en: "The share of Uji Penguasaan results with every required item answered correctly." },
+  "metrik.gerbang_keselamatan.arti": { default: "Bagian hasil Uji Penguasaan yang menjawab benar seluruh soal wajib, di antara Uji Penguasaan yang memuat soal wajib.", en: "The share of Mastery Check results with every required item answered correctly, among the Mastery Checks that hold required items." },
   "metrik.perbandingan_kohort.label": { default: "Perbandingan angkatan", en: "Cohort comparison" },
   "metrik.perbandingan_kohort.arti": { default: "Penguasaan rata-rata tiap angkatan di sekolah ini.", en: "The average mastery of each cohort in this school." },
   "metrik.kompetensi.label": { default: "Capaian kompetensi", en: "Competency attainment" },
@@ -2676,12 +2677,13 @@ const table: Table = {
   "laporan.metrik.belum_ada_bukti": { default: "Belum ada bukti yang memenuhi syarat untuk angka ini.", en: "No qualifying evidence for this figure yet." },
   // owner decision 7: evidence exists and is counted, but a combined figure is WITHHELD so a smaller part cannot be worked out
   "laporan.metrik.dilindungi": { default: "Angka gabungan ini tidak ditampilkan agar hasil bagian yang dikerjakan sedikit murid tidak dapat dihitung darinya.", en: "This combined figure is not shown, so that the result of a part taken by few students cannot be worked out from it." },
+  "laporan.metrik.tidak_berlaku": { default: "Tidak berlaku: Uji Penguasaan yang sudah dikerjakan di sini tidak memuat soal wajib, jadi tidak ada soal wajib yang perlu dijawab benar.", en: "Not applicable: the Mastery Checks taken here hold no required item, so there is no required item to answer correctly." },
   "ketiadaan.dilindungi.bab.murid": { default: "Sudah {have} murid mengerjakan Uji Penguasaan; ada bab yang baru dikerjakan kurang dari {needed} murid.", en: "{have} students have taken the Mastery Check; at least one chapter has been taken by fewer than {needed}." },
   "ketiadaan.dilindungi.bab.peserta": { default: "Sudah {have} peserta mengerjakan Uji Penguasaan; ada bab yang baru dikerjakan kurang dari {needed} peserta.", en: "{have} participants have taken the Mastery Check; at least one chapter has been taken by fewer than {needed}." },
-  "ketiadaan.dilindungi.kelas.murid": { default: "Sudah {have} murid punya Pemetaan Awal dan Uji Penguasaan; ada kelas yang baru punya kurang dari {needed} murid seperti itu.", en: "{have} students have both a Pre-assessment and a Mastery Check; at least one class has fewer than {needed} such students." },
-  "ketiadaan.dilindungi.kelas.peserta": { default: "Sudah {have} peserta punya Pemetaan Awal dan Uji Penguasaan; ada kelas yang baru punya kurang dari {needed} peserta seperti itu.", en: "{have} participants have both a Pre-assessment and a Mastery Check; at least one class has fewer than {needed} such participants." },
-  "laporan.muncul.dilindungi.bab": { default: "Angka ini muncul setelah setiap bab dikerjakan cukup murid. Hasil tiap bab yang sudah cukup ada di «Per bab».", en: "This figure appears once every chapter has been taken by enough students. Each chapter that has enough is under «Per chapter»." },
-  "laporan.muncul.dilindungi.kelas": { default: "Angka ini muncul setelah setiap kelas punya cukup murid dengan kedua tes.", en: "This figure appears once every class has enough students with both tests." },
+  "ketiadaan.dilindungi.bab_pasangan.murid": { default: "Sudah {have} murid punya Pemetaan Awal dan Uji Penguasaan bab yang sama; ada bab yang baru punya kurang dari {needed} murid seperti itu.", en: "{have} students have both an Initial Mapping and a Mastery Check of the same chapter; at least one chapter has fewer than {needed} such students." },
+  "ketiadaan.dilindungi.bab_pasangan.peserta": { default: "Sudah {have} peserta punya Pemetaan Awal dan Uji Penguasaan bab yang sama; ada bab yang baru punya kurang dari {needed} peserta seperti itu.", en: "{have} participants have both an Initial Mapping and a Mastery Check of the same chapter; at least one chapter has fewer than {needed} such participants." },
+  "ketiadaan.dilindungi.kelas.murid": { default: "Sudah {have} murid punya Pemetaan Awal dan Uji Penguasaan; ada kelas yang baru punya kurang dari {needed} murid seperti itu.", en: "{have} students have both an Initial Mapping and a Mastery Check; at least one class has fewer than {needed} such students." },
+  "ketiadaan.dilindungi.kelas.peserta": { default: "Sudah {have} peserta punya Pemetaan Awal dan Uji Penguasaan; ada kelas yang baru punya kurang dari {needed} peserta seperti itu.", en: "{have} participants have both an Initial Mapping and a Mastery Check; at least one class has fewer than {needed} such participants." },
   "laporan.kelas.judul": { default: "Ringkasan Kelas", en: "Class Summary" },
   "laporan.institusi.judul": { default: "Ringkasan Sekolah", en: "School Summary" },
   "laporan.cetak": { default: "Cetak laporan", en: "Print report" },
@@ -2696,13 +2698,19 @@ const table: Table = {
   "laporan.komposisi.keliru_lainnya": { default: "{n} pola lain ada di «Lihat bukti».", en: "{n} more patterns are in «See the evidence»." },
   "laporan.komposisi.keliru_tertahan": { default: "{n} pola lain baru dialami kurang dari {m} murid, jadi belum ditampilkan sebagai pola kelas.", en: "{n} more patterns have been seen in fewer than {m} students, so they are not shown as class patterns yet." },
   "laporan.komposisi.keliru_belum": { default: "Belum ada pola jawaban keliru yang dialami cukup banyak murid untuk disebut pola kelas.", en: "No mistaken-answer pattern has yet been seen in enough students to call it a class pattern." },
+  "laporan.komposisi.topik_di_bawah_sebagian": { default: "{n} dari {m} topik yang punya angka masih di bawah target: {daftar}.", en: "{n} of the {m} topics with a figure are still below target: {daftar}." },
+  "laporan.komposisi.topik_di_bawah_banyak_sebagian": { default: "{n} dari {m} topik yang punya angka masih di bawah target. Yang paling rendah: {nama} ({p}). Semua topik ada di daftar di bawah.", en: "{n} of the {m} topics with a figure are still below target. The lowest: {nama} ({p}). Every topic is in the list below." },
+  "laporan.komposisi.topik_semua_sebagian": { default: "Ke-{m} topik yang punya angka sudah mencapai target {target}.", en: "All {m} topics with a figure have reached the {target} target." },
+  "laporan.komposisi.topik_tertahan.satu": { default: "1 topik lainnya belum dapat ditampilkan, jadi belum diketahui apakah sudah mencapai target.", en: "1 more topic cannot be shown yet, so whether it has reached the target is not known." },
+  "laporan.komposisi.topik_tertahan.banyak": { default: "{k} topik lainnya belum dapat ditampilkan, jadi belum diketahui apakah sudah mencapai target.", en: "{k} more topics cannot be shown yet, so whether they have reached the target is not known." },
+  "laporan.komposisi.topik_tertahan_semua": { default: "Sudah ada hasil untuk {k} topik, tetapi belum ada yang dapat ditampilkan.", en: "There are results for {k} topics, but none can be shown yet." },
   "laporan.komposisi.topik_terendah": { default: "Penguasaan terendah ada pada {nama}.", en: "Mastery is lowest in {nama}." },
   "laporan.komposisi.pita_ringkas": { default: "{baik} dari {n} murid sudah berada di pita «{mantap}» atau «{berkembang}»; {kurang} murid perlu penguatan.", en: "{baik} of {n} students are in the «{mantap}» or «{berkembang}» band; {kurang} need strengthening." },
   "laporan.komposisi.rata_rata": { default: "{label} kelas: {nilai}.", en: "Class {label}: {nilai}." },
   "laporan.komposisi.target": { default: "Target {p}", en: "Target {p}" },
   "laporan.komposisi.target_arti": { default: "Garis tegak: target kelas, {p}, yang ditetapkan sekolah pada Uji Penguasaan kelas ini.", en: "Vertical line: the class target, {p}, set by the school on this class's Mastery Check." },
-  "laporan.komposisi.kenaikan_dari": { default: "Dihitung dari {n} murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan bab yang sama.", en: "Calculated from {n} students who took the Pre-assessment and the Mastery Check of the same chapter." },
-  "laporan.komposisi.kenaikan_dari_pasangan": { default: "Dihitung dari {p} pasangan Pemetaan Awal dan Uji Penguasaan bab yang sama, milik {n} murid.", en: "Calculated from {p} pairs of a Pre-assessment and a Mastery Check of the same chapter, from {n} students." },
+  "laporan.komposisi.kenaikan_dari": { default: "Dihitung dari {n} murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan bab yang sama.", en: "Calculated from {n} students who took the Initial Mapping and the Mastery Check of the same chapter." },
+  "laporan.komposisi.kenaikan_dari_pasangan": { default: "Dihitung dari {p} pasangan Pemetaan Awal dan Uji Penguasaan bab yang sama, milik {n} murid.", en: "Calculated from {p} pairs of an Initial Mapping and a Mastery Check of the same chapter, from {n} students." },
   "laporan.komposisi.berikutnya": { default: "Apa berikutnya", en: "What next" },
   "laporan.komposisi.berikutnya_bukti": { default: "Di PINTAR: {kelas} › «Lihat bukti» memuat jawaban setiap murid per soal.", en: "In PINTAR: {kelas} › «See evidence» holds each student's answer to each question." },
   "laporan.komposisi.berikutnya_keliru": { default: "Saran penanganan untuk pemahaman keliru ada di bagian {huruf}.", en: "The suggested remedy for each misunderstanding is in section {huruf}." },
@@ -2757,12 +2765,17 @@ const table: Table = {
   "laporan.sekolah.perhatian": { default: "{daftar} masih di pita «{pita}».", en: "{daftar}: still in the «{pita}» band." },
   "laporan.sekolah.semua_cukup": { default: "Semua bidang kompetensi berada di 60% ke atas.", en: "Every competency domain is at 60% or above." },
   "laporan.sekolah.angka": { default: "Angka utama", en: "Headline figures" },
-  "laporan.sekolah.dasar_gerbang": { default: "Dari {n} murid yang mengerjakan Uji Penguasaan.", en: "From {n} students who sat a Mastery Check." },
+  "laporan.sekolah.dasar_gerbang": { default: "Dari {s} Uji Penguasaan yang memuat soal wajib, dikerjakan {n} murid.", en: "From {s} Mastery Checks that hold required items, taken by {n} students." },
+  "laporan.sekolah.dasar_gerbang_tidak_berlaku": { default: "{k} Uji Penguasaan lain tidak memuat soal wajib, jadi tidak dihitung, baik sebagai lulus maupun tidak.", en: "{k} other Mastery Checks hold no required item, so they are not counted, as a pass or otherwise." },
   "laporan.sekolah.perhatian_banyak": { default: "{n} tujuan pembelajaran masih di pita «{pita}»; yang paling rendah: {nama} ({p}). Semua tujuan pembelajaran ada di daftar di bawah.", en: "{n} learning objectives are still in the «{pita}» band; the lowest: {nama} ({p}). Every learning objective is in the list below." },
-  "laporan.sekolah.ranah_tertahan": { default: "{n} tujuan pembelajaran lain belum ditampilkan: dikerjakan kurang dari {m} murid, atau di salah satu kelas dikerjakan terlalu sedikit murid sehingga hasil kelas itu dapat terbaca dari angka sekolah.", en: "{n} more learning objectives are not shown: fewer than {m} students took them, or in one class so few did that the class's result could be read from the school figure." },
-  "laporan.sekolah.ranah_tertahan_semua": { default: "Sudah ada hasil untuk {n} tujuan pembelajaran, tetapi belum ada yang dapat ditampilkan: masing-masing dikerjakan kurang dari {m} murid, atau di salah satu kelas dikerjakan terlalu sedikit murid sehingga hasil kelas itu dapat terbaca dari angka sekolah.", en: "There are results for {n} learning objectives, but none can be shown yet: each was taken by fewer than {m} students, or in one class so few took it that the class's result could be read from the school figure." },
+  "laporan.sekolah.ranah_tertahan.murid.satu": { default: "1 tujuan pembelajaran lain belum ditampilkan karena dikerjakan kurang dari {m} murid.", en: "1 more learning objective is not shown because fewer than {m} students took it." },
+  "laporan.sekolah.ranah_tertahan.murid.banyak": { default: "{n} tujuan pembelajaran lain belum ditampilkan karena masing-masing dikerjakan kurang dari {m} murid.", en: "{n} more learning objectives are not shown because each was taken by fewer than {m} students." },
+  "laporan.sekolah.ranah_tertahan.kelas.satu": { default: "1 tujuan pembelajaran lain belum ditampilkan karena di salah satu kelas dikerjakan terlalu sedikit murid, sehingga hasil kelas itu dapat terbaca dari angka sekolah.", en: "1 more learning objective is not shown because so few students took it in one class that the class's result could be read from the school figure." },
+  "laporan.sekolah.ranah_tertahan.kelas.banyak": { default: "{n} tujuan pembelajaran lain belum ditampilkan karena di salah satu kelas dikerjakan terlalu sedikit murid, sehingga hasil kelas itu dapat terbaca dari angka sekolah.", en: "{n} more learning objectives are not shown because so few students took each in one class that the class's result could be read from the school figure." },
+  "laporan.sekolah.ranah_tertahan_semua": { default: "Sudah ada hasil untuk {n} tujuan pembelajaran, tetapi belum ada yang dapat ditampilkan.", en: "There are results for {n} learning objectives, but none can be shown yet." },
   "mengajar.bukti.bagian_tertahan": { default: "{n} tujuan pembelajaran lain baru dikerjakan kurang dari {m} murid, jadi angkanya tidak ditampilkan.", en: "{n} more learning objectives have been taken by fewer than {m} students, so their figures are not shown." },
-  "laporan.sekolah.angkatan_belum": { default: "{nama}: belum ditampilkan — kurang dari {m} murid, atau ada kelas di dalamnya yang mengerjakan suatu bab dengan terlalu sedikit murid.", en: "{nama}: not shown — fewer than {m} students, or a class in it took a chapter with too few students." },
+  "laporan.sekolah.angkatan_belum.murid": { default: "{nama}: belum ditampilkan — kurang dari {m} murid.", en: "{nama}: not shown — fewer than {m} students." },
+  "laporan.sekolah.angkatan_belum.kelas": { default: "{nama}: belum ditampilkan — ada kelas di dalamnya yang mengerjakan suatu bab dengan terlalu sedikit murid, sehingga hasil kelas itu dapat terbaca dari angka ini.", en: "{nama}: not shown — a class in it took a chapter with so few students that the class's result could be read from this figure." },
   "laporan.sekolah.angkatan_tak_tercatat": { default: "Angkatan tidak tercatat saat Uji Penguasaan", en: "Year group not recorded at the Mastery Check" },
   "laporan.sekolah.dasar_sertifikat": { default: "{v} dari {n} yang pernah terbit; {d} dicabut.", en: "{v} of {n} ever issued; {d} revoked." },
   "laporan.sekolah.kohort_arti": { default: "Penguasaan rata-rata tiap angkatan pada skala yang sama. Ini perbandingan keadaan, bukan peringkat.", en: "Each cohort's average mastery on the same scale. A comparison of states, not a ranking." },
@@ -4169,6 +4182,9 @@ const table: Table = {
   "siklus.ambang": { default: "Target untuk bab ini:", en: "The target for this chapter:" },
   "siklus.ambang_belum": { default: "Batas ketuntasan belum ditetapkan.", en: "No pass mark has been set." },
   "mengajar.murid1.target": { default: "target", en: "target" },
+  "mengajar.murid1.dihitung_ulang_alasan": { default: "Alasan yang dicatat: {alasan}", en: "Reason recorded: {alasan}" },
+  // D14 (owner, 9 Nov): the learner is told, neutrally, that reports may read a recalculated figure; their own result and certificate do not change
+  "hasil.dihitung_ulang": { default: "Hasil ini kemudian dihitung ulang. Hasil yang Anda lihat di sini dan sertifikat Anda tidak berubah; laporan guru dapat menampilkan hasil yang dihitung ulang.", en: "This result was later recalculated. The result you see here and your certificate do not change; your teacher's reports may show the recalculated result." },
   "mengajar.murid1.dihitung_ulang": { default: "Hasil sesi ini dihitung ulang setelah disegel. Laporan memakai hasil terbaru ({baru}); sertifikat dan halaman hasil murid tetap memakai hasil asli yang disegel ({asli}).", en: "This sitting's result was recalculated after it was sealed. Reports use the latest result ({baru}); the certificate and the student's own result page keep the original sealed result ({asli})." },
   "mengajar.murid1.di_bawah_target": { default: "di bawah target", en: "below target" },
   "hasil.target.tercapai": { default: "Target tercapai.", en: "Target reached." },
@@ -4180,7 +4196,7 @@ const table: Table = {
   "siklus.target.belum": { default: "belum mencapai target", en: "target not reached yet" },
   "siklus.target.lanjut_belum": { default: "Bab ini selesai dikerjakan, tetapi targetnya belum tercapai.", en: "This chapter is finished, but its target has not been reached." },
   "siklus.target.lihat_ulang": { default: "Lihat bagian yang perlu dipelajari lagi", en: "See the parts to review" },
-  "siklus.tepat_dari": { default: "Terjawab tepat", en: "You answered" },
+  "siklus.tepat_dari": { default: "Terjawab tepat", en: "Answered correctly:" },
   "siklus.setelah": { default: "Setelah bab ini", en: "After this chapter" },
   "siklus.berikutnya": { default: "Apa berikutnya", en: "What next" },
   "siklus.terbuka_kini": { default: "Yang terbuka untuk Anda sekarang.", en: "What is open to you now." },
@@ -6079,6 +6095,15 @@ const LOCALE_TAG: Record<Locale, string> = { id: "id-ID", en: "en-ID" };
 export const TIMEZONE = "Asia/Jakarta";
 
 export const format = {
+  /**
+   * A4 (Daisy, owner 9 Nov): English counts its nouns. Indonesian «1 murid» and «5 murid» share one sentence; English
+   * «1 learners» does not, so a sentence built from a count passes through here: «1 students» → «1 student» (and the
+   * learners, participants, topics, pairs, sittings and objectives PINTAR counts). Indonesian is returned unchanged.
+   */
+  tunggal(teks: string, locale: Locale = "id"): string {
+    if (locale !== "en") return teks;
+    return teks.replace(/(^|[^\d.,])1 (student|learner|participant|topic|pair|sitting|objective|learning objective)s\b/g, "$11 $2");
+  },
   number(value: number, locale: Locale = "id", options: Intl.NumberFormatOptions = {}): string {
     return new Intl.NumberFormat(LOCALE_TAG[locale], options).format(value);
   },

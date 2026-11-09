@@ -9,6 +9,7 @@ import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { periksa } from "./a11y.mjs";
 
 const env = (k) => { const v = process.env[k]; if (!v) throw new Error(`${k} is not set`); return v; };
 const APP = process.env.APP_URL ?? "http://127.0.0.1:3999";
@@ -27,7 +28,8 @@ const norm = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
 const K = W.kelas;
 const I = W.sekolah;
 const ROOT = sql(`select id from public.org_nodes where institution_id = '${I}' and kind = 'INSTITUTION'`);
-const DEPT = sql(`select id from public.org_nodes where institution_id = '${I}' and kind = 'DEPARTMENT'`);
+// the Kepala departemen's own department (the world also has IPA, for the grid with no readable target)
+const DEPT = sql(`select id from public.org_nodes where institution_id = '${I}' and kind = 'DEPARTMENT' and name = 'Matematika'`);
 const POST5B = sql(`select aa.id from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
   where aa.node_id = '${K["5B"]}' and d.mode = 'POST_TEST' order by aa.created_at limit 1`);
 const LEMAH = sql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id
@@ -172,6 +174,23 @@ for (const [siapa, daftar] of Object.entries(HALAMAN).filter(([k]) => !HANYA || 
       const l = await page.evaluate(() => ({ s: document.documentElement.scrollWidth, w: window.innerWidth }));
       const rec = { siapa, nama, w, jalan, status: r?.status() ?? 0, akhir: new URL(page.url()).pathname + new URL(page.url()).search,
         geser: l.s > l.w, lebar: l, shot: f, teks: w === 1280 ? teks : teks.slice(0, 300) };
+      // CEK=1 (owner directive, 9 Nov: accessibility and print of the changed reports): at 1280 px, the B0-B harness
+      // (axe WCAG A/AA, title, skip link, keyboard) and the page printed to A4, with any shell part that reaches the paper
+      if (process.env.CEK && w === 1280 && rec.status === 200) {
+        const a = await periksa(page).catch((e) => ({ gagal: [String(e)] }));
+        rec.axe = a.axe ?? null; rec.axeGagal = a.gagal ?? [];
+        rec.judul = a.judul; rec.judulMasalah = a.judulMasalah ?? null; rec.lompat = a.lompat; rec.papan = a.papan;
+        await page.emulateMedia({ media: "print" });
+        rec.cetakKulit = await page.evaluate(() => {
+          const lihat = (el) => { const r = el.getBoundingClientRect(); const g = getComputedStyle(el); return r.width > 0 && r.height > 0 && g.display !== "none" && g.visibility !== "hidden"; };
+          return ["header.pin-shell", "header.pin-top", "[role=banner]", ".pin-lewati", ".pin-menu-tombol", "[data-menu-akun]", ".pin-konteks", "aside", "[data-menu-bagian]"]
+            .flatMap((q) => [...document.querySelectorAll(q)].filter(lihat).map(() => q))
+            .concat([...document.querySelectorAll("nav, [role=navigation]")].filter((el) => lihat(el) && !el.closest("main")).map(() => "nav"));
+        });
+        await page.pdf({ path: join(OUT, `${siapa}-${nama}.pdf`), format: "A4", printBackground: true }).catch(() => null);
+        rec.pdf = `${siapa}-${nama}.pdf`;
+        await page.emulateMedia({ media: "screen" });
+      }
       hasil.push(rec);
       writeFileSync(join(OUT, "laporan-jalan.json"), JSON.stringify(hasil, null, 2));
       console.log(`${siapa.padEnd(7)} ${nama.padEnd(15)} ${w}  ${rec.status}  ${rec.geser ? "SCROLLS " + l.s : "ok"}  → ${rec.akhir.slice(0, 70)}`);

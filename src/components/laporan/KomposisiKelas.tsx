@@ -167,24 +167,36 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
 
   // the lead sentence: counted from the rows, with no cause and no advice
   let kalimat: string | null = null;
-  if (baris.length > 0) {
+  // D13 (owner, 9 Nov): the denominator is the topics that have a figure; a topic whose figure is withheld or not yet
+  // available is counted apart and named as such, and never folded into «below target» or «reached the target».
+  const berangka = baris.filter((b) => typeof b.mean_score === "number");
+  const topikTertahan = baris.length - berangka.length;
+  const sebagian = topikTertahan > 0 ? "_sebagian" : "";
+  const ekor = topikTertahan > 0
+    ? " " + s(topikTertahan === 1 ? "laporan.komposisi.topik_tertahan.satu" : "laporan.komposisi.topik_tertahan.banyak").replace("{k}", format.number(topikTertahan, locale))
+    : "";
+  if (baris.length > 0 && berangka.length === 0) {
+    kalimat = s("laporan.komposisi.topik_tertahan_semua").replace("{k}", format.number(topikTertahan, locale));
+  } else if (baris.length > 0) {
     if (target !== null && bawah.length > 0) {
-      kalimat = s("laporan.komposisi.topik_di_bawah").replace("{n}", format.number(bawah.length, locale))
-        .replace("{m}", format.number(baris.length, locale))
+      kalimat = s(`laporan.komposisi.topik_di_bawah${sebagian}`).replace("{n}", format.number(bawah.length, locale))
+        .replace("{m}", format.number(berangka.length, locale))
         .replace("{daftar}", daftarKata(bawah.map((b) => namaTopik(b)), locale));
       // V2: above two, the count, the lowest and where the rest are (the list below), not a paragraph of objectives
       if (bawah.length > 2) {
         const rendah = [...bawah].sort((a, b) => Number(a.mean_score) - Number(b.mean_score))[0];
-        kalimat = s("laporan.komposisi.topik_di_bawah_banyak").replace("{n}", format.number(bawah.length, locale))
-          .replace("{m}", format.number(baris.length, locale)).replace("{nama}", namaTopik(rendah))
+        kalimat = s(`laporan.komposisi.topik_di_bawah_banyak${sebagian}`).replace("{n}", format.number(bawah.length, locale))
+          .replace("{m}", format.number(berangka.length, locale)).replace("{nama}", namaTopik(rendah))
           .replace("{p}", persenJujur(Number(rendah.mean_score), locale, [target]));
       }
     } else if (target !== null) {
-      kalimat = s("laporan.komposisi.topik_semua").replace("{target}", persen(target));
+      kalimat = s(`laporan.komposisi.topik_semua${sebagian}`).replace("{target}", persen(target))
+        .replace("{m}", format.number(berangka.length, locale));
     } else {
-      const rendah = [...baris].filter((b) => typeof b.mean_score === "number").sort((a, b) => Number(a.mean_score) - Number(b.mean_score))[0];
+      const rendah = [...berangka].sort((a, b) => Number(a.mean_score) - Number(b.mean_score))[0];
       if (rendah) kalimat = s("laporan.komposisi.topik_terendah").replace("{nama}", namaTopik(rendah));
     }
+    if (kalimat) kalimat += ekor;
   }
   const sub: Array<{ teks: string; entri?: string }> = [];
   if (dinilai > 0) {
@@ -313,8 +325,8 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
               </div>
               <ul className="pin-lk-pita-ket">
                 {sebaran.map(([k, c]) => (
-                  <li key={k}><i data-pita={PITA[k]} aria-hidden="true" />{s(k)} <strong>{s("laporan.komposisi.pita_ket")
-                    .replace("{n}", format.number(Number(c), locale)).replace("{p}", persen(Number(c) / dinilai))}</strong></li>
+                  <li key={k}><i data-pita={PITA[k]} aria-hidden="true" />{s(k)} <strong>{format.tunggal(s("laporan.komposisi.pita_ket")
+                    .replace("{n}", format.number(Number(c), locale)).replace("{p}", persen(Number(c) / dinilai)), locale)}</strong></li>
                 ))}
               </ul>
               {tumpuk.length > 0 ? (
@@ -349,7 +361,9 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
                       <span className="pin-lk-nilai">
                         {v === null
                           ? s("laporan.bab.belum").replace("{n}", format.number(Number(b.learners ?? 0), locale)).replace("{m}", format.number(Number(b.needed ?? 0), locale))
-                          : <>{persen(v)} · {s("laporan.bab.murid").replace("{n}", format.number(Number(b.learners ?? 0), locale))}{bawah ? <span className="pin-sr"> {s("mengajar.murid1.di_bawah_target")}</span> : null}</>}
+                          // A6 (owner, 9 Nov): «below target» belongs to the figure, so a screen reader hears it beside the
+                          // percentage, never after the learners («6 murid di bawah target» reads as six learners below it)
+                          : <>{persen(v)}{bawah ? <span className="pin-sr"> ({s("mengajar.murid1.di_bawah_target")})</span> : null} · {format.tunggal(s("laporan.bab.murid").replace("{n}", format.number(Number(b.learners ?? 0), locale)), locale)}</>}
                       </span>
                     </li>
                   );

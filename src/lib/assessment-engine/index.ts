@@ -142,6 +142,11 @@ export async function newResults(db: EngineClient): Promise<Set<string>> {
   return new Set(r.map((x) => x.learning_assignment_id));
 }
 
+/** D14 (owner, 9 Nov): whether the caller's own sitting was recalculated after it was sealed: a yes/no, no figure. */
+export async function sesiDihitungUlang(db: EngineClient, sessionId: string): Promise<boolean> {
+  return (await call(db, "sesi_saya_dihitung_ulang", { p_session: sessionId })) === true;
+}
+
 export async function noteResultSeen(db: EngineClient, sessionId: string): Promise<boolean> {
   return Boolean(await call(db, "note_result_seen", { p_session: sessionId }));
 }

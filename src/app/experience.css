@@ -1786,7 +1786,7 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
    min-height does nothing on an inline box, so a link sat 18 px tall. */
 /* Daisy (9 Nov, «1murid»): a flex box drops the space between a count and its word, so the gap is the box's own; it
    wraps at 320 px rather than overflow */
-a.pin-tautan { display: inline-flex; align-items: center; flex-wrap: wrap; column-gap: var(--space-1); }
+a.pin-tautan { display: inline-flex; align-items: center; column-gap: var(--space-1); }
 .pin-kembali {
   justify-self: start;
   background: none; border: 0; padding: var(--space-2) 0;
@@ -2910,6 +2910,8 @@ a.pin-tautan { display: inline-flex; align-items: center; flex-wrap: wrap; colum
 .pin-target p + p, .pin-target .pin-ulang-judul { margin-top: var(--space-2); }
 .pin-ulang-judul { margin: 0; font-weight: var(--weight-strong); }
 .pin-ulang { margin: var(--space-2) 0 0; padding-left: var(--space-5); display: grid; gap: 4px; }
+/* axe link-in-text-block (re-walked 9 Nov): a lesson's link inside a line of text is underlined, not told by colour alone */
+.pin-ulang li > a { text-decoration: underline; text-underline-offset: 3px; }
 
 /* D-085 M6: the origin of a release on «Siapkan materi» — PINTAR's standard material or the school's own. */
 .pin-asal { font-size: var(--type-meta); color: var(--ink-3); }
@@ -3686,6 +3688,22 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 /* 3-kadep: topics × classes; each cell a value, a short bar and its class's target tick; no colour ramp */
 /* position: the read-only words (.pin-sr, absolute) stay inside the scroll region, so a phone page keeps its width (Daisy F3, 8 Nov) */
 .pin-lk-kisi-wadah { overflow-x: auto; position: relative; }
+/* A3 (owner, 9 Nov): below 640px the topic grid is stacked, one topic per block; the table is the wider view and print */
+.pin-lk-kisi-tumpuk { display: none; }
+@media (max-width: 639.98px) {
+  .pin-lk-kisi-wadah { display: none; }
+  .pin-lk-kisi-tumpuk { display: grid; gap: var(--space-4); }
+  .pin-lk-kisi-tumpuk dl { margin: 0; display: grid; gap: var(--space-2); }
+  .pin-lk-kisi-tumpuk dl > div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); column-gap: var(--space-3); align-items: center; }
+  .pin-lk-kisi-tumpuk dt { color: var(--ink-2); overflow-wrap: anywhere; }
+  .pin-lk-kisi-tumpuk dd { margin: 0; overflow-wrap: anywhere; }
+  .pin-lk-kisi-kelas dd { color: var(--ink-3); font-size: var(--t-small); line-height: var(--t-small-lh); }
+  .pin-lk-kisi-topik { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+  .pin-lk-kisi-topik > li { border-top: var(--border-hairline) solid var(--line); padding-top: var(--space-3); }
+  .pin-lk-kisi-nama { margin: 0 0 var(--space-2); font-weight: 600; color: var(--ink-1); }
+  .pin-lk-kisi-nama .pin-lk-pernyataan { display: block; font-weight: 400; }
+}
+@media print { .pin-lk-kisi-tumpuk { display: none !important; } .pin-lk-kisi-wadah { display: block !important; } }
 .pin-lk-kisi-tabel thead th { color: var(--ink-2); font-weight: 600; vertical-align: bottom; text-align: left; }
 .pin-lk-kisi-tabel thead th small { display: block; font-weight: 400; color: var(--ink-3); }
 .pin-lk-kisi-tabel tbody th { font-weight: 400; color: var(--ink-1); text-align: left; }
