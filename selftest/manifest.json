@@ -4947,6 +4947,11 @@
       "proves": "W2.21, found by PENUGASAN-A01 (9 Nov; red first, selftest/db/fable38.sql against 20270113100000): an ACTIVE assignment of a canonical lesson whose distribution to the school PINTAR has WITHDRAWN is ended by the class's Guru (ENDED, its assessment CLOSED); before the fix enforce_assignment_status's licence check refused every update, closing included. Closing needs no licence to teach; opening still does, and the closed assessment cannot be opened again."
     },
     {
+      "id": "F38-R01",
+      "runner": "db",
+      "proves": "Evidence survives the year (owner, 9 Nov: the year-rollover evidence-preservation test; selftest/db/fable38.sql): a class with a learner's finished sitting, its result, an issued certificate and lesson progress moves up whole through kenaikan_tetapkan. The learner is in next year's Kelas 6; the sitting stays on the old class and the old year's ENDED/EXPIRED enrolment; result, certificate and lesson progress are unchanged; the learner still reads all four through row security and my_certificate, the old class's Guru still reads the sitting and its result, and verify_certificate still answers BERLAKU. Green on its first run: an acceptance test of existing behaviour, no defect found."
+    },
+    {
       "id": "F38-C01",
       "runner": "db",
       "proves": "W2.22 «Terbitkan ulang» (owner, 9 Nov: a minimal governed remedy; selftest/db/fable38.sql against 20270113110000): sertifikat_koreksi_pratinjau shows the school's admin the name sealed on an issued certificate beside the holder's name corrected since (something would change); a Guru, the holder and another school's admin are refused CERT_NOT_ALLOWED (CAN_PUBLISH in the certificate's school, the authority that revokes it)."

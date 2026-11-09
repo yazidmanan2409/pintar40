@@ -16,6 +16,10 @@
 --   F38-W05  W2.21: a lesson PINTAR no longer shares can still be ended (found by PENUGASAN-A01 on 9 Nov): an ACTIVE
 --            assignment of canonical content whose distribution to the school was WITHDRAWN is ended by the class's
 --            Guru, its assessment CLOSED; it still cannot be made ACTIVE again or opened.
+--   F38-R01  Evidence survives the year (owner, 9 Nov): Kelas A moves up through «Kenaikan kelas dan kelulusan». The
+--            learner's finished sitting, its result, its issued certificate and lesson progress are unchanged and still
+--            read by the learner (row security and my_certificate) and by the old class's Guru; the certificate's public
+--            check still answers BERLAKU; the sitting stays on the old class and the old (ENDED/EXPIRED) enrolment.
 --   F38-C01  W2.22 «Terbitkan ulang»: who may, and what the preview shows. The school's admin reads the name, school
 --            and course sealed beside those read now (the holder's name corrected since); a Guru, the holder and
 --            another school's admin are refused CERT_NOT_ALLOWED.
@@ -100,7 +104,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
-  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; c01 text[] := '{}'; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
+  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
   u_admin uuid; v_n int; v_cert uuid; v_cert2 uuid; v_new uuid; v_new2 uuid; v_tok text; v_ntok text; v_payload jsonb; v_nomor text; v_snapold uuid; p_holder uuid; u_holder uuid; v_k record;
   v_crel uuid; v_cdef uuid; v_dist uuid; v_la3 uuid; v_aa3 uuid;
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid; v_coh uuid; c_a uuid; c_b uuid;
@@ -288,8 +292,57 @@ begin
     v_got := selftest.f37_sebagai(u_guru_a, format('update public.assessment_assignments set status = %L where id = %L', 'OPEN', v_aa3));
     if v_got = 'OK' then w05 := w05 || 'a closed assessment of a lesson no longer shared was opened again'::text; end if;
 
-    -- ═══════════════════════════════════ F38-C01..C04 an erroneous certificate is corrected by its replacement
+
+    -- ═══════════════════════════════════ F38-R01 evidence survives the year
     u_admin := selftest.f11_user('f38-admin-' || v_tag || '@local.invalid', 'INSTITUTION_ADMIN', v_root);
+    -- the learner who never started finishes a sitting now, with a result, a certificate and lesson progress
+    select x.session into s_r from selftest.f36_sit(v_tpl, p_belum, c_a, v_def, 0.85, 'W1', now() - interval '30 minutes') x;
+    v_cr := selftest.f38_sertifikat(s_r);
+    select c.verification_token into v_crtok from public.certificates c where c.id = v_cr;
+    insert into public.lesson_progress (person_id, lesson_id, plp_release_id, institution_id, furthest_position, total_positions)
+    select p_belum, l.id, v_rel, v_inst, 3, 4 from public.plp_releases pr join public.modules m on m.course_id = pr.course_id
+      join public.lessons l on l.module_id = m.id where pr.id = v_rel order by l.id limit 1;
+    select count(*) into v_res_r from public.assessment_results x where x.session_id = s_r;
+    select count(*) into v_lp from public.lesson_progress x where x.person_id = p_belum;
+    -- next year, and Kelas A moves up whole into its Kelas 6
+    insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+    values (v_inst, 'F38R ' || v_tag, (select ap.ends_on + 1 from public.academic_periods ap where ap.id = v_period),
+            (select ap.ends_on + 366 from public.academic_periods ap where ap.id = v_period)) returning academic_periods.id into v_next;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_prog, 'COHORT', 'Tingkat F38 6 ' || v_tag, v_next) returning org_nodes.id into v_coh6;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_coh6, 'CLASS', 'Kelas F38 6 ' || v_tag, v_next) returning org_nodes.id into c_6;
+    perform selftest.as_user_uid(u_admin);
+    select jsonb_agg(jsonb_build_object('person_id', b.person_id, 'keputusan', 'NAIK', 'kelas_tujuan', c_6))
+      into v_dec from (select (pl ->> 'person_id') as person_id from jsonb_array_elements(public.kenaikan_rencana(c_a) -> 'murid') pl) b;
+    perform selftest.as_owner();
+    v_got := selftest.f37_sebagai(u_admin, format('select public.kenaikan_tetapkan(%L, %L, %L::jsonb, true, true)', c_a, v_next, v_dec));
+    if v_got <> 'OK' then r01 := r01 || ('Kelas A could not move up: ' || v_got);
+    else
+      if not exists (select 1 from public.enrollments en join public.memberships mb on mb.enrollment_id = en.id and mb.valid_to is null
+                      where en.person_id = p_belum and en.academic_period_id = v_next and mb.node_id = c_6) then
+        r01 := r01 || 'the learner is not in Kelas 6 next year'::text; end if;
+      if (select s.class_node_id::text || '/' || e2.status::text || '/' || coalesce(e2.end_reason::text, '')
+            from public.assessment_sessions s join public.enrollments e2 on e2.id = s.enrollment_id where s.id = s_r)
+         <> c_a::text || '/ENDED/EXPIRED' then
+        r01 := r01 || 'the sitting no longer stays on the old class and the old year''s ended enrolment'::text; end if;
+      if (select count(*) from public.assessment_results x where x.session_id = s_r) <> v_res_r
+         or (select count(*) from public.lesson_progress x where x.person_id = p_belum) <> v_lp
+         or (select c.status::text from public.certificates c where c.id = v_cr) <> 'ISSUED' then
+        r01 := r01 || 'the result, the lesson progress or the certificate changed'::text; end if;
+      -- what the learner reads of their own past year, through row security and their own certificate read
+      v_got := selftest.f37_sebagai(u_murid, format('select 1 / (case when (select count(*) from public.assessment_sessions s where s.id = %L) = 1
+          and (select count(*) from public.assessment_results x where x.session_id = %L) = %s
+          and (select count(*) from public.certificates c where c.id = %L) = 1
+          and (select count(*) from public.lesson_progress x where x.person_id = %L) = %s
+          and (select count(*) from public.my_certificate(%L)) = 1 then 1 else 0 end)', s_r, s_r, v_res_r, v_cr, p_belum, v_lp, s_r));
+      if v_got <> 'OK' then r01 := r01 || ('the learner no longer reads their own sitting, result, certificate or lesson progress: ' || v_got); end if;
+      -- the old class's Guru still reads the sitting and its result where it was given
+      v_got := selftest.f37_sebagai(u_guru_a, format('select 1 / (case when (select count(*) from public.assessment_sessions s where s.id = %L) = 1
+          and (select count(*) from public.assessment_results x where x.session_id = %L) = %s then 1 else 0 end)', s_r, s_r, v_res_r));
+      if v_got <> 'OK' then r01 := r01 || ('the old class''s Guru no longer reads the sitting and its result: ' || v_got); end if;
+      if (select v.validity from public.verify_certificate(v_crtok) v) is distinct from 'BERLAKU' then
+        r01 := r01 || 'the certificate''s public check no longer answers BERLAKU'::text; end if;
+    end if;
+    -- ═══════════════════════════════════ F38-C01..C04 an erroneous certificate is corrected by its replacement
     u_holder := selftest.f11_user('f38-holder-' || v_tag || '@local.invalid', null, null);
     select a.person_id into p_holder from public.accounts a where a.auth_user_id = u_holder;
     -- the holder's own sitting: the finished one above, given to the holder
@@ -415,6 +468,8 @@ begin
        'a second press is refused ASSIGN_NOT_LIVE with no row; assign_release no longer refuses ASSIGN_EXISTS; B''s Guru withdraws B''s assignment, recorded as learning_assignment.withdrawn'),
       ('F38-W05', 'W2.21: a lesson PINTAR no longer shares can still be ended', w05,
        'an ACTIVE assignment of canonical content whose distribution was WITHDRAWN is ended by the class''s Guru, its assessment CLOSED; the closed assessment cannot be opened again'),
+      ('F38-R01', 'Evidence survives the year: a class moves up and nothing it earned is lost', r01,
+       'after «Kenaikan kelas dan kelulusan» the learner is in Kelas 6 next year; the sitting stays on the old class and the old ENDED/EXPIRED enrolment; its result, the certificate and lesson progress are unchanged; the learner still reads all four (and my_certificate) and the old class''s Guru the sitting and its result; the public check answers BERLAKU'),
       ('F38-C01', 'W2.22 «Terbitkan ulang»: who may, and what the preview shows', c01,
        'the school''s admin reads the sealed name beside the corrected one (something would change); a Guru, the holder and another school''s admin are refused CERT_NOT_ALLOWED'),
       ('F38-C02', 'W2.22: refusals write nothing', c02,
