@@ -279,7 +279,7 @@ export type HleEvent =
   | "aksesibilitas.lewati"
   | "berkas.pilih" | "berkas.belum" | "berkas.banyak"
   | "ketiadaan.jumlah.murid"
-  | "ketiadaan.jumlah.peserta"
+  | "ketiadaan.jumlah.peserta" | "ketiadaan.jumlah.gerbang"
   | "sesi.menu.semua"
   | "jaga.judul"
   | "tanggal.belum"
@@ -2789,7 +2789,7 @@ const table: Table = {
   "laporan.sekolah.angkatan_tak_tercatat": { default: "Angkatan tidak tercatat saat Uji Penguasaan", en: "Year group not recorded at the Mastery Check" },
   "laporan.sekolah.dasar_sertifikat": { default: "{v} dari {n} yang pernah terbit; {d} dicabut.", en: "{v} of {n} ever issued; {d} revoked." },
   "laporan.sekolah.kohort_arti": { default: "Penguasaan rata-rata tiap angkatan pada skala yang sama. Ini perbandingan keadaan, bukan peringkat.", en: "Each cohort's average mastery on the same scale. A comparison of states, not a ranking." },
-  "laporan.sekolah.berikutnya_kesiapan": { default: "Di PINTAR: Pimpinan › «Kesiapan bukti» menyebut kelas yang buktinya belum cukup.", en: "In PINTAR: Leadership › «Evidence readiness» names the classes whose evidence is not yet enough." },
+  "laporan.sekolah.berikutnya_kesiapan": { default: "Bagian {huruf} di atas, «Kesiapan bukti», menyebut kelas yang buktinya belum cukup.", en: "Section {huruf} above, «Evidence readiness», names the classes whose evidence is not yet enough." },
   "laporan.kosong": { default: "Belum ada angka yang bisa ditampilkan untuk Anda di sini.", en: "There are no figures to show you here yet." },
   // X5 (owner, 7 Nov): the owner's words, verbatim
   "laporan.kelas.pd_arti": { default: "Kelas pengembangan profesional tidak menggunakan ringkasan penguasaan akademik murid.", en: "A professional-development class does not use the academic mastery summary for learners." },
@@ -3237,6 +3237,7 @@ const table: Table = {
   // W3.2 / CR-46 (Daisy, components/EmptyState «not enough yet»): how much there is and how much is needed, in words
   "ketiadaan.jumlah.murid": { default: "Sekarang {have} murid; perlu {needed}.", en: "{have} students so far; {needed} needed." },
   // E-A3-1 (D-176(d)): the participant form; pending copy approval (DR-GLADYS-QUESTION-PACK B5)
+  "ketiadaan.jumlah.gerbang": { default: "Dari hasil Uji Penguasaan yang memuat soal wajib, baru {have} murid; perlu {needed}.", en: "From Mastery Check results that hold required items, {have} students so far; {needed} needed." },
   "ketiadaan.jumlah.peserta": { default: "Sekarang {have} peserta; perlu {needed}.", en: "{have} participants so far; {needed} needed." },
   // W3.3 · the echo under an empty date field (Daisy, components/DateTime)
   "tanggal.belum": { default: "Belum ada tanggal.", en: "No date yet." },
@@ -4194,7 +4195,7 @@ const table: Table = {
   "mengajar.murid1.target": { default: "target", en: "target" },
   "mengajar.murid1.dihitung_ulang_alasan": { default: "Alasan yang dicatat: {alasan}", en: "Reason recorded: {alasan}" },
   // D14 (owner, 9 Nov): the learner is told, neutrally, that reports may read a recalculated figure; their own result and certificate do not change
-  "hasil.dihitung_ulang": { default: "Hasil ini kemudian dihitung ulang. Hasil yang Anda lihat di sini dan sertifikat Anda tidak berubah; laporan guru dapat menampilkan hasil yang dihitung ulang.", en: "This result was later recalculated. The result you see here and your certificate do not change; your teacher's reports may show the recalculated result." },
+  "hasil.dihitung_ulang": { default: "Hasil ini kemudian dihitung ulang. Penguasaan dan jumlah jawaban tepat di atas, serta sertifikat Anda, tetap hasil yang disegel; laporan guru dapat menampilkan hasil yang dihitung ulang.", en: "This result was later recalculated. The mastery and the count of right answers above, and your certificate, stay as sealed; your teacher's reports may show the recalculated result." },
   "mengajar.murid1.dihitung_ulang": { default: "Hasil sesi ini dihitung ulang setelah disegel. Laporan memakai hasil terbaru ({baru}); sertifikat dan halaman hasil murid tetap memakai hasil asli yang disegel ({asli}).", en: "This sitting's result was recalculated after it was sealed. Reports use the latest result ({baru}); the certificate and the student's own result page keep the original sealed result ({asli})." },
   "mengajar.murid1.di_bawah_target": { default: "di bawah target", en: "below target" },
   "hasil.target.tercapai": { default: "Target tercapai.", en: "Target reached." },
@@ -6113,6 +6114,10 @@ export const format = {
   tunggal(teks: string, locale: Locale = "id"): string {
     if (locale !== "en") return teks;
     return teks.replace(/(^|[^\d.,])1 (student|learner|participant|topic|pair|sitting|objective|learning objective)s\b/g, "$11 $2");
+  },
+  /** A4: the noun beside a count, singular in English when the count is one («1 learner»); Indonesian unchanged. */
+  satuan(count: number, kata: string, locale: Locale = "id"): string {
+    return locale === "en" && count === 1 ? kata.replace(/^(students|learners|participants)$/i, (w) => w.slice(0, -1)) : kata;
   },
   number(value: number, locale: Locale = "id", options: Intl.NumberFormatOptions = {}): string {
     return new Intl.NumberFormat(LOCALE_TAG[locale], options).format(value);

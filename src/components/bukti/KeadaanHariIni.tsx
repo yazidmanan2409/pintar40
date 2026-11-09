@@ -105,14 +105,14 @@ export default function KeadaanHariIni({
               <dt>{s("mengajar.bukti.mulai")}</dt>
               <dd className="pin-num">
                 {n(k.sedang)}
-                <small>{s(kataAnggota("mengajar.bukti.murid", jenis))}</small>
+                <small>{format.satuan(k.sedang, s(kataAnggota("mengajar.bukti.murid", jenis)), locale)}</small>
               </dd>
             </div>
             <div>
               <dt>{s("mengajar.bukti.belum")}</dt>
               <dd className="pin-num">
                 {n(k.belum)}
-                <small>{s(kataAnggota("mengajar.bukti.murid", jenis))}</small>
+                <small>{format.satuan(k.belum, s(kataAnggota("mengajar.bukti.murid", jenis)), locale)}</small>
               </dd>
             </div>
           </dl>

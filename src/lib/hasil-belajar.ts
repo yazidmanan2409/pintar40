@@ -1,7 +1,7 @@
 import "server-only";
 import { namaBab } from "@/lib/nama-bab";
 import * as engine from "@/lib/assessment-engine";
-import { bagianUlang, ketuntasan, type Ketuntasan } from "@/lib/siklus";
+import { bagianUlang, hitunganSegel, ketuntasan, type Ketuntasan } from "@/lib/siklus";
 import { namaTujuan } from "@/components/siklus/PerTujuan";
 
 /**
@@ -65,8 +65,9 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
       akhir: outcome.penguasaan,
       ambang: outcome.ambang ?? null,
       tercapai,
-      benar: review.filter((r) => r.benar === true).length,
-      total: review.length,
+      // Daisy's B3: the sealed result's own count, as the chapter page says it
+      benar: hitunganSegel(outcome.ringkasan, review).benar,
+      total: hitunganSegel(outcome.ringkasan, review).total,
       bagian: Object.entries(outcome.per_domain ?? {}).map(([kode, d]) => ({
         kode, nama: nama.get(kode) ?? kode, benar: d.benar, total: d.total, ulang: kodeUlang.has(kode),
       })),

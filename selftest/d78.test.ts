@@ -14,6 +14,8 @@
  *            panel in a list keeps its box.
  *   D78-A01  D12, D13 and Daisy's A3–A7 (owner, 9 Nov): denominators of topics with a figure, «not applicable», one
  *            explanation per withheld figure, the stacked grid, English terms, screen-reader order, the learner's notice.
+ *   D78-B01  Daisy on e8a5efb9: the learner's sealed count (B3), the gate below its minimum (B1), the page's own
+ *            section (B2), «1 learner» (A4).
  *   D78-E01  E1 and D14: the recalculation note, rendered, under the figure, with its reason; Kenaikan's pairs.
  */
 import { spawnSync } from "node:child_process";
@@ -299,11 +301,66 @@ export const d78Tests: SelfTest[] = [
       const hasil = kode(baca(ctx.repoRoot, "src/app/belajar/[tugas]/hasil/page.tsx"));
       c.expect(/engine\.sesiDihitungUlang\(db, state\.post_session\)/.test(hasil) && /\{dihitungUlang \? <p className="pin-meta" data-dihitung-ulang="">\{s\("hasil\.dihitung_ulang"\)\}<\/p> : null\}/.test(hasil),
         "the learner's chapter result does not say their sitting was recalculated");
-      c.expect(/Hasil yang Anda lihat di sini dan sertifikat Anda tidak berubah/.test(hle), "the learner's notice does not say their result and certificate are unchanged");
+      // restated to Daisy's B3 (e8a5efb9): the notice claims only what IS sealed: the mastery, the count and the certificate
+      c.expect(/Penguasaan dan jumlah jawaban tepat di atas, serta sertifikat Anda, tetap hasil yang disegel/.test(hle) && !/Hasil yang Anda lihat di sini dan sertifikat Anda tidak berubah/.test(hle),
+        "the learner's notice claims more, or less, than the sealed mastery, count and certificate");
       return c.verdict("the rendered KomposisiKelas, KomposisiSekolah, KartuKetiadaan and KisiTopik output, kunciMuncul, experience.css, hle.ts and the source of the chapter result: " +
         "the topic lead counts over the topics with a figure and names the withheld ones apart (D13); «below target» is heard with its percentage (A6); a gate that applies to " +
         "no sitting is «not applicable», never a pass, a zero or «not enough», and a shown gate gives its applicable sittings and the ones apart (D12); a withheld figure is explained " +
         "once (A7); the grid is stacked at phone width (A3); English terms are consistent (A4); the learner is told of a recalculation (D14)");
+    },
+  },
+  {
+    id: "D78-B01",
+    run: async (ctx) => {
+      const c = new Checks();
+      // B3: «Terjawab tepat n dari m» is the sealed result's own count, never the review re-graded against today's key
+      const r = render(ctx.repoRoot,
+        'const m = await import("file://" + process.cwd() + "/src/lib/siklus.ts"); const f = m.hitunganSegel ?? m.default?.hitunganSegel;' +
+        "const ulang = [{ benar: true }, { benar: true }, { benar: false }, { benar: false }, { benar: false }, { benar: false }, { benar: false }, { benar: false }];" +
+        "process.stdout.write(JSON.stringify([f({ correct: 1, item_total: 8, answered: 8 }, ulang), f({}, ulang), f(null, ulang), f({ correct: 9, item_total: 8 }, ulang)]));");
+      if (c.expect(r.ok, `hitunganSegel could not run: ${r.err}`)) {
+        c.expect(r.out === JSON.stringify([{ benar: 1, total: 8, tersegel: true }, { benar: 2, total: 8, tersegel: false }, { benar: 2, total: 8, tersegel: false }, { benar: 2, total: 8, tersegel: false }]),
+          `the count beside the sealed mastery is not the sealed result's own (1 of 8 sealed, 2 of 8 against a corrected key): ${r.out}`);
+      }
+      const hasil = kode(baca(ctx.repoRoot, "src/app/belajar/[tugas]/hasil/page.tsx"));
+      const hb = kode(baca(ctx.repoRoot, "src/lib/hasil-belajar.ts"));
+      c.expect(/const hitungan = hitunganSegel\(outcome\.ringkasan, review\);/.test(hasil) && /format\.number\(hitungan\.total, locale\)/.test(hasil)
+        && !/review\.filter\(\(r\) => r\.benar === true\)\.length/.test(hasil), "the chapter result still counts the review, not the sealed result");
+      c.expect(/benar: hitunganSegel\(outcome\.ringkasan, review\)\.benar/.test(hb) && !/review\.filter\(\(r\) => r\.benar === true\)/.test(hb), "«Hasil belajar» still counts the review, not the sealed result");
+      // B1: the school's gate below its minimum says its count is of checks WITH required items, and the others apart
+      const g = { status: "below_minimum", metric_id: "institution.safety_gate_pass_rate", label_key: "metrik.gerbang_keselamatan.label", readiness: "INSUFFICIENT_EVIDENCE",
+        statement_key: "laporan.metrik.belum_cukup_data", have: 1, needed: 10, not_applicable: 51 };
+      // B2: the next step points to THIS page's own «Kesiapan bukti» section, by its letter
+      const r2 = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const k = await import("file://" + process.cwd() + "/src/components/bukti/KartuKetiadaan.tsx");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiSekolah.tsx");' +
+        'const hl = await import("file://" + process.cwd() + "/src/lib/hle.ts"); const fm = hl.format ?? hl.default?.format;' +
+        "const Kartu = k.default?.default ?? k.default; const K = m.default?.default ?? m.default; const g = JSON.parse(process.env.G);" +
+        "const part = { status: 'ok', metric_id: 'institution.participants', label_key: 'metrik.peserta.label', value: 52, sample: 52 };" +
+        "process.stdout.write(JSON.stringify([renderToStaticMarkup(h(Kartu, { entry: g, locale: 'id', persona: 'staff' })), renderToStaticMarkup(h(K, { entries: [part, g], locale: 'id' }))," +
+        " renderToStaticMarkup(h(K, { entries: [part], locale: 'id' })), fm.satuan(1, 'learners', 'en'), fm.satuan(2, 'learners', 'en'), fm.satuan(1, 'murid', 'id')]));",
+        { G: JSON.stringify(g) });
+      if (c.expect(r2.ok, `the gate or the school page could not be rendered: ${r2.err}`)) {
+        let x: string[] = [];
+        try { x = JSON.parse(r2.out); } catch { /* reported below */ }
+        const [kartu, sekolah, tanpa] = x.slice(0, 3).map(teks);
+        c.expect(kartu.includes("Dari hasil Uji Penguasaan yang memuat soal wajib, baru 1 murid; perlu 10.")
+          && kartu.includes("51 hasil Uji Penguasaan lain berasal dari uji tanpa soal wajib") && !kartu.includes("Sekarang 1 murid"),
+          `the gate below its minimum reads as the school's participation: «${kartu}»`);
+        c.expect(/Bagian [A-F] di atas, «Kesiapan bukti», menyebut kelas yang buktinya belum cukup\./.test(sekolah) && !/Pimpinan › «Kesiapan bukti»/.test(sekolah),
+          `the school page points to a section of another page: «${sekolah.slice(-300)}»`);
+        c.expect(!/Kesiapan bukti», menyebut/.test(tanpa) || /Bagian [A-F] di atas/.test(tanpa), "with no readiness section, the pointer names one that is not there");
+        c.expect(x[3] === "learner" && x[4] === "learners" && x[5] === "murid", `«1 learners» is still possible: ${JSON.stringify(x.slice(3))}`);
+      }
+      const kh = kode(baca(ctx.repoRoot, "src/components/bukti/KeadaanHariIni.tsx"));
+      c.expect((kh.match(/format\.satuan\(k\.(sedang|belum), s\(kataAnggota\("mengajar\.bukti\.murid", jenis\)\), locale\)/g) ?? []).length === 2,
+        "«Lihat bukti» still writes «1 learners» under «Belum mengerjakan»");
+      return c.verdict("hitunganSegel (src/lib/siklus.ts), its use in the chapter result and «Hasil belajar», the rendered KartuKetiadaan and KomposisiSekolah, " +
+        "format.satuan and KeadaanHariIni: the learner's count is the sealed result's own (B3); the gate below its minimum counts the checks with required " +
+        "items and the others apart (B1); the next step points to the page's own «Kesiapan bukti» section (B2); one learner is «1 learner» (A4)");
     },
   },
   {

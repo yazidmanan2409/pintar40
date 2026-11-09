@@ -10,7 +10,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import PerTujuan from "@/components/siklus/PerTujuan";
 import { TeksBaris } from "@/components/teks/Teks";
-import { bagianUlang, ketuntasan } from "@/lib/siklus";
+import { bagianUlang, ketuntasan, hitunganSegel } from "@/lib/siklus";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/belajar/[tugas]/hasil");
@@ -74,7 +74,9 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
   const wajib = review.filter((r) => r.is_safety_critical).length;
   const keadaanGerbang: "ok" | "missed" | "tidak_ada" | null =
     gate == null ? null : gate === false ? "missed" : review.length === 0 ? null : wajib === 0 ? "tidak_ada" : "ok";
-  const benar = review.filter((r) => r.benar === true).length;
+  // Daisy's B3: the count beside the sealed mastery is the sealed result's own, never re-graded against today's key
+  const hitungan = hitunganSegel(outcome.ringkasan, review);
+  const benar = hitungan.benar;
 
   return (
     <>
@@ -98,7 +100,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
           <p className="pin-big2 pin-num">{pct == null ? "—" : format.percent(pct, locale)}</p>
           <p className="pin-mean">
             {s("siklus.tepat_dari")} {format.number(benar, locale)} {s("siklus.dari")}{" "}
-            {format.number(review.length, locale)} {s("siklus.soal")}.
+            {format.number(hitungan.total, locale)} {s("siklus.soal")}.
             {outcome.ambang != null
               ? ` ${s("siklus.ambang")} ${format.percent(outcome.ambang, locale)}.`
               // D-088(b): a result judged against a mark sets one; with none sealed PINTAR says so and assumes nothing

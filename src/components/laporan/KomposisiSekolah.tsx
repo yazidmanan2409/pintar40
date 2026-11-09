@@ -243,7 +243,7 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
                 kunci: r.cohort_node_id ?? String(i),
                 nama: r.cohort_node_id ? (tempat[r.cohort_node_id] || "—") : s("laporan.sekolah.angkatan_tak_tercatat"),
                 v: Number(r.mean_mastery),
-                sub: typeof r.learners === "number" ? `${format.number(r.learners, locale)} ${s("mengajar.bukti.murid")}` : undefined,
+                sub: typeof r.learners === "number" ? `${format.number(r.learners, locale)} ${format.satuan(r.learners, s("mengajar.bukti.murid"), locale)}` : undefined,
               })))}
               {titikKet((kohort.value as Angkatan[]).filter((r) => typeof r.mean_mastery === "number").map((r) => ({ v: Number(r.mean_mastery) })))}
               {/* D5, D6: a row under its minimum gives its learners and no mean; sittings that recorded no Angkatan are said so */}
@@ -289,7 +289,9 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
         {/* O1 (owner, 9 Nov; Daisy): said once per report */}
         <p className="pin-lk-arti" data-lk-memutuskan="">{s("laporan.anda_memutuskan")}</p>
         <ul className="pin-lk-langkah">
-          <li>{s("laporan.sekolah.berikutnya_kesiapan")}</li>
+          {/* Daisy's B2 (e8a5efb9): the pointer names THIS page's own section by its letter, never a section of another
+              page the reader may not open; with no readiness section drawn there is nothing to point to */}
+          {hKesiapan ? <li data-lk-ke-kesiapan="">{s("laporan.sekolah.berikutnya_kesiapan").replace("{huruf}", hKesiapan)}</li> : null}
         </ul>
       </section>
     </div>

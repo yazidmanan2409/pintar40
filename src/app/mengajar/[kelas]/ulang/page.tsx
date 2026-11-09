@@ -77,7 +77,7 @@ export default async function UlangKelas({
         </div>
 
         {sp.ulang === "ok" ? (
-          <BarisHasil nada="ok">{s("mengajar.ulang.terkirim")} {n(Number(sp.n) || 0)} {s("mengajar.bukti.murid")}.</BarisHasil>
+          <BarisHasil nada="ok">{s("mengajar.ulang.terkirim")} {n(Number(sp.n) || 0)} {format.satuan(Number(sp.n) || 0, s("mengajar.bukti.murid"), locale)}.</BarisHasil>
         ) : kode ? (
           <BarisHasil nada="gagal">
             {s(`mengajar.ulang.tolak.${kode.toLowerCase()}` as HleEvent)}

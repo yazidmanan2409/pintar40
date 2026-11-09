@@ -178,7 +178,7 @@ export default async function BerandaPengajar({
                 const jalan = buka.filter((b) => b.nodeId === k.id);
                 const meta = [
                   r?.mapel,
-                  `${format.number(r?.murid ?? 0, locale)} ${s(kataAnggota("mengajar.bukti.murid", k.jenis))}`,
+                  `${format.number(r?.murid ?? 0, locale)} ${format.satuan(r?.murid ?? 0, s(kataAnggota("mengajar.bukti.murid", k.jenis)), locale)}`,
                   ...jalan.map(
                     (b) =>
                       `${b.judul} · ${format.number(b.mengumpulkan, locale)}/${format.number(r?.murid ?? 0, locale)} ${s("mengajar.bukti.kumpul").toLowerCase()}`,

@@ -1686,7 +1686,10 @@ begin
            || case when v_out ? 'population' then jsonb_build_object('population', v_out -> 'population') else '{}'::jsonb end
            || case when jsonb_typeof(v_out -> 'withheld') = 'object' then jsonb_build_object('withheld', v_out -> 'withheld') else '{}'::jsonb end
            -- owner (9 Nov): Kenaikan is a mean over (learner, chapter) PAIRS; how many is said beside the learners
-           || case when jsonb_typeof(v_out -> 'pairs') = 'number' then jsonb_build_object('pairs', v_out -> 'pairs') else '{}'::jsonb end;
+           || case when jsonb_typeof(v_out -> 'pairs') = 'number' then jsonb_build_object('pairs', v_out -> 'pairs') else '{}'::jsonb end
+           -- Daisy's B1 (e8a5efb9): below the minimum too, the gate says how many results are not applicable, so «1 murid»
+           -- is never read as the school's participation
+           || case when (v_out ->> 'not_applicable')::numeric > 0 then jsonb_build_object('not_applicable', v_out -> 'not_applicable') else '{}'::jsonb end;
   end if;
 
   return jsonb_build_object('metric_id', p_metric_id, 'catalogue_version', v_cat,

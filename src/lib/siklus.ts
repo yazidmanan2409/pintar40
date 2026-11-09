@@ -264,6 +264,23 @@ export function statusKey(p: Posisi): string {
  */
 export type Ketuntasan = "TERCAPAI" | "BELUM";
 
+/**
+ * Daisy's B3 (e8a5efb9), owner decisions E1 and D14: THE LEARNER'S «Terjawab tepat n dari m» IS THE SEALED RESULT'S OWN.
+ * The sealed result records how many items it counted and how many were right (delta_inputs, returned as `ringkasan`).
+ * Counting the review instead re-grades the answers against today's key, so after a corrected key the count and the
+ * sealed mastery beside it disagree. A result that never recorded the count (none PINTAR writes) falls back to the review.
+ */
+export function hitunganSegel(
+  ringkasan: Record<string, unknown> | null | undefined,
+  review: ReadonlyArray<{ benar?: boolean | null }>,
+): { benar: number; total: number; tersegel: boolean } {
+  const benar = Number(ringkasan?.correct), total = Number(ringkasan?.item_total);
+  if (ringkasan && Number.isInteger(benar) && Number.isInteger(total) && total > 0 && benar >= 0 && benar <= total) {
+    return { benar, total, tersegel: true };
+  }
+  return { benar: review.filter((r) => r.benar === true).length, total: review.length, tersegel: false };
+}
+
 export function ketuntasan(o: { diagnostik?: boolean | null; lulus?: boolean | null } | null | undefined): Ketuntasan | null {
   if (!o || o.diagnostik !== false || typeof o.lulus !== "boolean") return null;
   return o.lulus ? "TERCAPAI" : "BELUM";

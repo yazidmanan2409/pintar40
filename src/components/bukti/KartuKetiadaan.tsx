@@ -67,6 +67,15 @@ export function kalimatJumlah(entry: Envelope, locale: Locale = "id", persona: "
   }
   // D12: a gate that applies to none of the sittings is waiting on no student; the statement says why, alone
   if (entry.withheld?.reason === "not_applicable") return null;
+  // Daisy's B1: the gate counts only the results of checks WITH required items; said so, with the others set apart
+  if (entry.metric_id === "institution.safety_gate_pass_rate") {
+    const s = (k: string) => t(k as HleEvent, persona, { locale });
+    return [
+      format.tunggal(s("ketiadaan.jumlah.gerbang").replace("{have}", format.number(entry.have ?? 0, locale)).replace("{needed}", format.number(entry.needed, locale)), locale),
+      typeof entry.not_applicable === "number" && entry.not_applicable > 0
+        ? s("laporan.sekolah.dasar_gerbang_tidak_berlaku").replace("{k}", format.number(entry.not_applicable, locale)) : null,
+    ].filter(Boolean).join(" ");
+  }
   return kalimatJumlahOrang(entry.have ?? 0, entry.needed, jenis, locale, persona);
 }
 
