@@ -224,14 +224,22 @@ A focused follow-up review is requested (§8).
 | `learner.result` | the learner's own sittings | official | every sitting's effective result | — | 1 | — | history: both the 80% and the 60% | — |
 | Certificates (`certificate_eligibility`) | one sitting | its sealed result | the lineage's **original** result | — | — | — | the certificate decision, governed separately and unchanged | see escalation E1 |
 
-**E1 (escalated, not changed).** Certificates read a sitting's original sealed result (`official_results … supersedes_result_id is null`), while reports read its latest recomputation.
-- Both rules are approved, and the owner directed that certificates keep their separately governed sealed evidence.
-- After an audited recomputation, the report and the certificate decision for the same sitting can therefore differ. F36-E01 shows the certificate still reads 60% after the report moved to 70%.
-- Neither rule is wrong. A report could say why the two differ; whether it should is the owner's decision.
+**E1: decided by the owner (9 Nov), implemented.**
+- **Ruling.** A certificate keeps its original sealed result; reports use the latest authorised effective result.
+- **Implementation.** When a sitting has been recalculated and the two figures differ, the teacher's learner page says so (`mengajar.murid1.dihitung_ulang`): reports use the latest result, and the certificate and the learner's own page keep the sealed original. Nothing about certificates changes; the audit trail is untouched.
+- **Data.** `learner.result` now carries `recomputed` and `sealed_mastery`. The effective result prefers the recalculation over the original it supersedes, including on a timestamp tie.
+- **Tests.** F36-E01 runs a 60% → 70% recalculation and the audited `recompute_result` path as SYSTEM_ADMIN. The certificate still reads 60%. D78-E01 covers the page.
+- **The defect the real recalculation found.** The audited path writes its row in the same transaction in a test, so the original and the recalculation shared `computed_at`, and reports could keep reading the original. Fixed for every calculator; the verification block requires the fix.
 
-**E2 (consequence, for awareness).** One small class withholds every school figure it contributes to. That is exactly what keeps the class unrecoverable.
-- In the report world, 5D (4 learners) and 5C's second chapter (3 learners) withhold every school competency and the school's Kenaikan.
-- The page says so; it never shows an empty section or a zero.
+**E2: decided by the owner (9 Nov), accepted for 4.0.**
+- One small class withholds every school figure it contributes to. In the report world, 5D (4 learners) and 5C's second chapter (3 learners) withhold every school competency and the school's Kenaikan.
+- The page says so: «Sudah ada hasil untuk n tujuan pembelajaran, tetapi belum ada yang dapat ditampilkan…», «Sudah 50 murid punya Pemetaan Awal dan Uji Penguasaan; ada kelas…». It never shows an empty section, a zero or «no participation».
+- **4.1 candidate, not 4.0 scope:** privacy-preserving aggregation that keeps school figures useful when one class is small, for example coarsened or ranged values, or a governed residual threshold. It must not change any metric's population, denominator, weighting or meaning.
+
+**Kenaikan weighting: owner's question (9 Nov).**
+- The governed contract since MC-8 (H31) averages (learner, chapter) pairs, so a learner with two chapters' pairs counts twice. The calculation follows it: F31-K01 has one learner, two pairs, 0.50 and 0.05, mean 0.275, `pairs` 2, sample 1.
+- The meaning line said «per murid», which described the figure wrongly. It now reads «dihitung per murid per bab: murid yang mengerjakan dua bab dihitung dua kali», and the base line reads «Dihitung dari {p} pasangan … milik {n} murid». The formula is unchanged. Tests: D78-E01, F31-K01.
+- Sharon is asked to verify the weighting independently.
 
 ## 10. Sharon's follow-up review of 94160304: dispositions
 
