@@ -116,3 +116,20 @@ failed.
    re-enrolment (E4, next).
 5. **The F26 fixture** puts its enrolled learner in the Kelas on their existing live enrolment, not a second
    programme-less one. No assertion changed.
+
+## 6. Your review of 0b60b012: the two Low findings, and the rollover's audit
+
+Red first at `e03dd272` and `34edd507`. The whole clean suite on the exact head named in the commit is 933 passed, 0
+failed.
+
+1. **Lock order and the issue stamp** (`20270112180000`; F37-S05):
+   - `issue_institutional_id` locks the school, then the person (the import's order).
+   - It stamps `issued_at = clock_timestamp()` after both locks.
+   - The verification checks both.
+   - Is a reverse-order path left anywhere: a function that locks a person and then the school?
+2. **The rollover's audit** (`20270112190000`; F37-N01):
+   - `period_rollover` writes `period.rollover` only when it moved someone, and records `moved`.
+   - A refused run aborts whole and writes nothing.
+   - Is an un-audited no-op acceptable, given that the admin saw «0 dipindahkan» on screen and nothing changed?
+3. **The Medium finding (no path back for a withdrawn learner)** closes with E4 RETURN, next. Lifecycle completion is
+   not claimed before then.
