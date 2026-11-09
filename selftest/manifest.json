@@ -4882,6 +4882,11 @@
       "proves": "E4 on the screen (the Action & Consequence inventory: daftarkan_kembali had no caller), selftest/db/fable37.sql: murid_keluar lists for the school's Admin sekolah the learners who left the school and are enrolled nowhere there now (a graduate and a leaver, each with their ending and marked correctable, since E3 recorded the ending), never a learner who is live; another school's admin is refused (42501)."
     },
     {
+      "id": "F37-E07",
+      "runner": "db",
+      "proves": "E3 (the journeys' S27 on d2b7b714 found «invalid enrollment transition PENDING → ENDED»), selftest/db/fable37.sql: a learner recorded and not yet signed in (PENDING) can leave; akhiri_pendaftaran ends the enrolment ENDED/WITHDRAWN and the learner is listed as departed (murid_sudah_keluar); the enrolment guard still refuses an ENDED enrolment becoming ACTIVE again. F37-K03 now promotes a PENDING learner too."
+    },
+    {
       "id": "F37-K01",
       "runner": "db",
       "proves": "«Kenaikan kelas dan kelulusan» (Daisy's approved flow; owner, 9 Nov), selftest/db/fable37.sql: kenaikan_rencana lists every learner of the chosen Kelas and every learner of its Tingkat placed in no Kelas (marked TINGKAT: the demonstration's silent omission), marks a learner whose transfer is under way, shows the class's teachers and next year's classes; a Guru and another school's admin are refused."

@@ -109,7 +109,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean; e06 text[] := '{}'; k01 text[] := '{}'; k02 text[] := '{}'; k03 text[] := '{}'; k04 text[] := '{}'; k05 text[] := '{}'; v_knext uuid; v_kt5 uuid; c_k5 uuid; v_kt6 uuid; c_k6 uuid; v_kt5b uuid; c_k5b uuid; v_kguru uuid; v_kp jsonb; v_kdec jsonb; v_kaud int; v_kplan jsonb; v_kres jsonb; v_ksesi uuid;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean; e06 text[] := '{}'; e07 text[] := '{}'; k01 text[] := '{}'; k02 text[] := '{}'; k03 text[] := '{}'; k04 text[] := '{}'; k05 text[] := '{}'; v_knext uuid; v_kt5 uuid; c_k5 uuid; v_kt6 uuid; c_k6 uuid; v_kt5b uuid; c_k5b uuid; v_kguru uuid; v_kp jsonb; v_kdec jsonb; v_kaud int; v_kplan jsonb; v_kres jsonb; v_ksesi uuid;
 begin
   perform selftest.as_owner();
   begin
@@ -757,6 +757,22 @@ begin
         e03 := e03 || 'the ended sitting has no audit row'::text; end if;
     end if;
     v_ksesi := null; v_q := null;
+    -- E07 (the journeys' S27 on d2b7b714: «invalid enrollment transition PENDING → ENDED»): a learner recorded and not
+    -- yet signed in (PENDING) can leave too; their enrolment ends ENDED with its reason, and they are listed as departed
+    insert into public.persons (display_name) values ('Murid F37 J ' || v_tag) returning persons.id into v_pp;
+    insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status, valid_from)
+    values (v_pp, v_x, v_period, v_proga, 'PENDING', now() - interval '30 days') returning enrollments.id into v_ex;
+    insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_ex, c_a, v_period);
+    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_ex, 'WITHDRAWN', null, current_date));
+    if v_got <> 'OK' then e07 := e07 || ('a PENDING learner''s enrolment was not ended: ' || v_got);
+    elsif (select en.status::text || '/' || coalesce(en.end_reason::text, '') from public.enrollments en where en.id = v_ex) <> 'ENDED/WITHDRAWN'
+          or not public.murid_sudah_keluar(v_pp, v_x) then
+      e07 := e07 || 'the PENDING learner is not ENDED/WITHDRAWN and departed'::text; end if;
+    -- the guard still refuses what it refused: a CANCELLED enrolment does not come back, an ENDED one is immutable
+    begin
+      update public.enrollments set status = 'ACTIVE' where enrollments.id = v_ex;
+      e07 := e07 || 'an ENDED enrolment was made ACTIVE again'::text;
+    exception when others then null; end;
     -- E04: CORRECTION of G's mistaken graduation: a new live enrolment, the same year and programme, back in Kelas A; the
     -- ended row stays as it was, and the audit links the correction to it
     v_got := selftest.f37_sebagai(u_admin, format('select public.daftarkan_kembali(%L, %L, %L, %L, %L, %L)', v_g, v_x, 'CORRECTION',
@@ -826,7 +842,9 @@ begin
       insert into public.persons (display_name) values ('Murid F37 ' || r.k || ' ' || v_tag) returning persons.id into v_pp;
       perform public.issue_institutional_id(v_pp, v_inst);
       insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status, valid_from)
-      values (v_pp, v_inst, v_period, v_proga, 'ACTIVE', now() - interval '30 days') returning enrollments.id into v_ex;
+      -- K1 recorded and not yet signed in (PENDING), as the journeys' Fajar is: such a learner moves up too (9 Nov)
+      values (v_pp, v_inst, v_period, v_proga, case when r.k = 'K1' then 'PENDING' else 'ACTIVE' end::public.enrollment_status,
+              now() - interval '30 days') returning enrollments.id into v_ex;
       insert into public.memberships (enrollment_id, node_id, academic_period_id)
       values (v_ex, case when r.k = 'K7' then v_kt5 else c_k5 end, v_period);
       v_kp := v_kp || jsonb_build_object(r.k, jsonb_build_object('person', v_pp, 'enr', v_ex));
@@ -888,7 +906,7 @@ begin
     if v_kres is not null and (jsonb_array_length(v_kres -> 'hasil') <> 7 or (v_kres ->> 'diterapkan')::boolean) then
       k02 := k02 || format('the preview answered %s', v_kres); end if;
     if (select count(*) from public.memberships m join public.enrollments en on en.id = m.enrollment_id
-         where m.node_id in (c_k5, v_kt5) and m.valid_to is null and en.status = 'ACTIVE') <> 7
+         where m.node_id in (c_k5, v_kt5) and m.valid_to is null and en.status in ('PENDING', 'ACTIVE')) <> 7
        or exists (select 1 from public.enrollments en where en.academic_period_id = v_knext)
        or (select count(*) from public.audit_log a where a.institution_id = v_inst) <> v_kaud then
       k02 := k02 || 'a refusal or the preview changed something'::text; end if;
@@ -930,7 +948,8 @@ begin
       for r in select * from (values ('K1', c_k6), ('K2', c_k6), ('K7', c_k6), ('K3', c_k5b)) t(k, ke) loop
         if not exists (select 1 from public.enrollments en join public.memberships m on m.enrollment_id = en.id and m.valid_to is null
                         where en.person_id = (v_kp -> r.k ->> 'person')::uuid and en.academic_period_id = v_knext
-                          and en.status = 'ACTIVE' and en.programme_id = v_proga and m.node_id = r.ke) then
+                          and en.status = case when r.k = 'K1' then 'PENDING' else 'ACTIVE' end::public.enrollment_status
+                          and en.programme_id = v_proga and m.node_id = r.ke) then
           k03 := k03 || format('%s is not placed in the new year''s chosen Kelas on a new-year enrolment', r.k); end if;
         if (select en.status::text || '/' || coalesce(en.end_reason::text, '') from public.enrollments en where en.id = (v_kp -> r.k ->> 'enr')::uuid) <> 'ENDED/EXPIRED'
            or exists (select 1 from public.memberships m where m.enrollment_id = (v_kp -> r.k ->> 'enr')::uuid and m.valid_to is null)
@@ -1039,6 +1058,8 @@ begin
        'a mistaken graduation is corrected by a new live enrolment in the same year, programme and Kelas; the ended row is unchanged and the audit links the correction to it; a live enrolment cannot be «corrected»'),
       ('F37-E06', 'E4 on the screen: «Murid yang sudah keluar» lists who left', e06,
        'the school''s admin reads the graduate and the leaver, each correctable, and not a learner who is live; another school''s admin is refused'),
+      ('F37-E07', 'E3: a learner recorded but not yet signed in can leave', e07,
+       'a PENDING enrolment is ended ENDED/WITHDRAWN and the learner is listed as departed; an ENDED enrolment still cannot become ACTIVE again'),
       ('F37-K01', '«Kenaikan kelas dan kelulusan»: every learner listed', k01,
        'the plan lists every learner of the class and the Tingkat-only one (as such), marks the one being transferred, shows the class''s teacher and next year''s classes; a Guru and another school''s admin are refused'),
       ('F37-K02', '«Kenaikan kelas dan kelulusan»: refusals and the preview write nothing', k02,
