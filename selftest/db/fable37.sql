@@ -109,7 +109,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
 begin
   perform selftest.as_owner();
   begin
@@ -522,6 +522,45 @@ begin
       end loop;
     end loop;
 
+    -- ═══════════════════════════════════ F37-L01..L03 (account lifecycle, Sharon on 89374424; owner's priority 4)
+    -- L01: a placement changes only through its governed functions. A School Admin writing enrollments or memberships
+    -- directly (PostgREST) is refused; «Pindah kelas» (move_learner_to_class) still moves the learner, audited.
+    select m.id into v_mem from public.memberships m where m.enrollment_id = v_e and m.valid_to is null limit 1;
+    v_got := selftest.f37_sebagai(u_admin, format('update public.enrollments set status = %L, end_reason = %L where id = %L', 'ENDED', 'WITHDRAWN', v_e));
+    if v_got = 'OK' then l01 := l01 || 'the Admin sekolah ended an enrolment by a direct UPDATE (no reason, no audit, memberships left open)'::text; end if;
+    v_got := selftest.f37_sebagai(u_admin, format('update public.memberships set valid_to = now() where id = %L', v_mem));
+    if v_got = 'OK' then l01 := l01 || 'the Admin sekolah closed a membership by a direct UPDATE'::text; end if;
+    v_got := selftest.f37_sebagai(u_admin, format('insert into public.memberships (enrollment_id, node_id, academic_period_id) values (%L, %L, %L)', v_e, c_b, v_period));
+    if v_got = 'OK' then l01 := l01 || 'the Admin sekolah inserted a membership directly (bypassing the placement function and its audit)'::text; end if;
+    v_got := selftest.f37_sebagai(u_admin, format('insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (%L, %L, %L, %L)', v_murid, v_inst, v_period, 'PENDING'));
+    if v_got = 'OK' then l01 := l01 || 'the Admin sekolah inserted an enrolment directly'::text; end if;
+    select m.id into v_mem from public.memberships m where m.enrollment_id = v_e and m.valid_to is null and m.node_id = c_a limit 1;
+    if v_mem is not null then
+      v_got := selftest.f37_sebagai(u_admin, format('select public.move_learner_to_class(%L, %L)', v_mem, c_b));
+      if v_got <> 'OK' then l01 := l01 || ('«Pindah kelas» no longer moves the learner: ' || v_got); end if;
+    end if;
+    -- L02: one person holds at most one live (PENDING/ACTIVE) enrolment per school and year
+    begin
+      insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_murid, v_inst, v_period, 'ACTIVE');
+      l02 := l02 || 'a second ACTIVE enrolment of one learner in one school and year was accepted'::text;
+    exception when unique_violation then null;
+      when others then l02 := l02 || ('refused, but not as a duplicate: ' || sqlerrm);
+    end;
+    -- L03: a staff member whose only link to the school was a role keeps their name for the school's administrator once
+    -- the role is revoked (historical attribution: their authored items, reviews and decisions)
+    v_uid := selftest.f11_user('f37-staf-' || v_tag || '@local.invalid', 'EDUCATOR', c_b);
+    select a.person_id into v_staf from public.accounts a where a.auth_user_id = v_uid;
+    perform selftest.as_user_uid(u_admin);
+    select count(*) into v_n from public.persons p where p.id = v_staf;
+    perform selftest.as_owner();
+    if v_n <> 1 then l03 := l03 || 'the fixture''s serving teacher is not visible to the Admin sekolah'::text; end if;
+    update public.role_assignments set revoked_at = now(), revoked_by = v_murid, revoked_reason = 'uji: pensiun'
+     where person_id = v_staf and revoked_at is null;
+    perform selftest.as_user_uid(u_admin);
+    select count(*) into v_n from public.persons p where p.id = v_staf;
+    perform selftest.as_owner();
+    if v_n <> 1 then l03 := l03 || 'once the role is revoked, the Admin sekolah no longer sees the former teacher''s name (their authored work loses its author)'::text; end if;
+
     raise exception 'f37-rollback';
   exception when others then
     perform selftest.as_owner();
@@ -549,6 +588,12 @@ begin
        'a recalculation above or below the mark leaves eligibility on the sealed result, both ways'),
       ('F37-D08', 'System Integrity, chain D: a professional-learning sitting is the platform''s to end or extend', d08,
        'a Kepala departemen, a Guru and the Admin sekolah are refused ending a professional-learning sitting or extending its deadline (each refusal names its capability); the platform administrator extends and ends it'),
+      ('F37-L01', 'Account lifecycle: a placement changes only through its governed functions', l01,
+       'the Admin sekolah''s direct UPDATE or INSERT on enrollments and memberships is refused; «Pindah kelas» still moves the learner'),
+      ('F37-L02', 'Account lifecycle: one live enrolment per person, school and year', l02,
+       'a second PENDING/ACTIVE enrolment of one learner in one school and year is refused as a duplicate'),
+      ('F37-L03', 'Account lifecycle: a former teacher keeps their name for the school', l03,
+       'a teacher whose only link was a role stays visible to the Admin sekolah after the role is revoked'),
       ('F37-S01', 'System Integrity, chain D: a school''s account-level power follows its current placement (SI-D03)', s01,
        'a former school''s admin cannot reset the recovery of a learner who transferred or withdrew (42501; the session kept); the current school can (sessions ended); a person placed at two schools is assisted by either; another school''s admin, a Guru and a Kepala departemen are refused; registration numbers and ended enrollments are kept'),
       ('F37-S02', 'System Integrity, chain D: every credential path follows the current placement or onboarding (SI-D03)', s02,

@@ -4797,6 +4797,21 @@
       "proves": "SI-D01, Sharon's re-review finding 1 (selftest/db/fable37.sql against terminate_session and extend_session_deadline): a professional-learning sitting is the platform's, as reading it already is (boleh_atas_sesi). On a fresh open PD sitting each, a Kepala departemen and the Admin sekolah are refused ending it, and a Guru and the Admin sekolah are refused extending its deadline, each refusal naming its capability; the platform administrator extends and ends it. Before the fix both functions asked can_in_institution for PD sittings: the capability anywhere in the school."
     },
     {
+      "id": "F37-L01",
+      "runner": "db",
+      "proves": "Account lifecycle (Sharon's review of 89374424, D2; owner's priority 4; selftest/db/fable37.sql): a placement changes only through its governed functions. The Admin sekolah's direct PostgREST UPDATE of enrollments (ending one with no reason, no audit and its memberships left open) and INSERT of enrollments or memberships (bypassing the placement function and its audit) are refused; «Pindah kelas» (move_learner_to_class) still moves the learner."
+    },
+    {
+      "id": "F37-L02",
+      "runner": "db",
+      "proves": "Account lifecycle (Sharon, 89374424): one person holds at most one live (PENDING/ACTIVE) enrolment per school and academic year; a second is refused as a duplicate (unique_violation)."
+    },
+    {
+      "id": "F37-L03",
+      "runner": "db",
+      "proves": "Account lifecycle (Sharon, 89374424, D3; owner: preserve historical educator attribution after role revocation): a teacher whose only link to the school was a role stays visible, by name, to the school's administrator after the role is revoked, so their authored items, reviews and decisions keep their author."
+    },
+    {
       "id": "F37-R01",
       "runner": "db",
       "proves": "SI-D02 (System Integrity, 9 Nov) under real concurrency (runAttemptLimitRace in selftest/run.ts) against supabase/migrations/20270112120000_one_start_at_a_time.sql; strengthened after Sharon's review of 89374424 (finding 2), so it tells a correct fix from one that counts before it locks. A learner one attempt short of an assignment's attempt_limit, chosen from the world and allowed to start by may_start_assessment, starts on connection A, which holds its transaction open and then COMMITS. Connection B's start waits on the per-(learner, assignment) advisory lock while A holds, and after A's commit is refused ATTEMPT_LIMIT_REACHED; the learner then holds exactly attempt_limit sittings. A's sitting and the rows its start wrote are removed afterwards (the test's own rows, triggers suspended for that teardown; audit rows stay). The migration's verification block also checks that the lock is taken before may_start_assessment is called."
