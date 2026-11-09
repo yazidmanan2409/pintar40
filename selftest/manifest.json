@@ -4859,7 +4859,7 @@
     {
       "id": "F37-E03",
       "runner": "db",
-      "proves": "E3: an enrolment with an assessment sitting still open is not ended (ENROL_SITTING_OPEN): fail closed until Sharon rules whether ending it should end the sitting instead."
+      "proves": "E3, RESTATED 9 Nov for Sharon's ruling (the journeys found a learner's abandoned sitting blocking a class's year end, with no screen to close it), selftest/db/fable37.sql: ending an enrolment closes the learner's open sittings truthfully: a sitting past its deadline EXPIRES (session_enforce_deadline) and a sitting still open is TERMINATED as INSTITUTIONAL_REVOCATION through terminate_session, with its audit row and its responses kept; the ending is not refused."
     },
     {
       "id": "F37-E04",
@@ -4899,7 +4899,7 @@
     {
       "id": "F37-K04",
       "runner": "db",
-      "proves": "«Kenaikan kelas dan kelulusan»: one learner's open sitting refuses the whole run (ENROL_SITTING_OPEN); nobody moves or ends."
+      "proves": "«Kenaikan kelas dan kelulusan», RESTATED 9 Nov with F37-E03: a learner's open sitting no longer refuses the year's run; the preview says it will be ended (asesmen_diakhiri) and changes nothing; the confirmation ends it as INSTITUTIONAL_REVOCATION on the old class (F37-K03)."
     },
     {
       "id": "F37-K05",

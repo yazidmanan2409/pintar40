@@ -718,17 +718,45 @@ begin
     end loop;
     if (select en.status::text from public.enrollments en where en.id = v_eh) <> 'ACTIVE' then e02 := e02 || 'a refusal ended H''s enrolment'::text; end if;
     if (select count(*) from public.audit_log a where a.target_id = v_eh::text) <> v_aud then e02 := e02 || 'a refusal wrote an audit row'::text; end if;
-    -- E03: an open sitting refuses the ending (fail closed until Sharon rules: end it, or wait)
+    -- E03 (RESTATED 9 Nov, for Sharon's ruling; the journeys found a learner's abandoned sitting blocking the class): a
+    -- departure closes the learner's open sittings truthfully: one past its deadline EXPIRES (session_enforce_deadline),
+    -- one still open is TERMINATED as INSTITUTIONAL_REVOCATION through terminate_session (audited, responses kept); the
+    -- ending is not refused. Learner I, live in Kelas A, of its own
+    insert into public.persons (display_name) values ('Murid F37 I ' || v_tag) returning persons.id into v_pp;
+    insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status, valid_from)
+    values (v_pp, v_x, v_period, v_proga, 'ACTIVE', now() - interval '30 days') returning enrollments.id into v_ex;
+    insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_ex, c_a, v_period);
     insert into public.assessment_sessions
       (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, plp_release_id,
        assessment_definition_id, assessment_definition_version, engine_version, scoring_policy_version, evidence_channel,
        evidence_class, mode, status, shuffle_seed, started_at, deadline_extended_count)
-    select gen_random_uuid(), v_h, x.institution_id, v_eh, x.academic_period_id, c_a, x.plp_release_id, x.assessment_definition_id,
+    select gen_random_uuid(), v_pp, x.institution_id, v_ex, x.academic_period_id, c_a, x.plp_release_id, x.assessment_definition_id,
            x.assessment_definition_version, x.engine_version, x.scoring_policy_version, x.evidence_channel, x.evidence_class, x.mode,
            'CREATED', x.shuffle_seed, now(), 0
-      from public.assessment_sessions x where x.id = v_tpl;
-    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_eh, 'WITHDRAWN', null, current_date));
-    if v_got = 'OK' or v_got !~ 'ENROL_SITTING_OPEN' then e03 := e03 || ('an enrolment with an open sitting: ' || v_got); end if;
+      from public.assessment_sessions x where x.id = v_tpl returning assessment_sessions.id into v_ksesi;
+    insert into public.assessment_sessions
+      (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, plp_release_id,
+       assessment_definition_id, assessment_definition_version, engine_version, scoring_policy_version, evidence_channel,
+       evidence_class, mode, status, shuffle_seed, started_at, deadline_extended_count)
+    select gen_random_uuid(), v_pp, x.institution_id, v_ex, x.academic_period_id, c_a, x.plp_release_id, x.assessment_definition_id,
+           x.assessment_definition_version, x.engine_version, x.scoring_policy_version, x.evidence_channel, x.evidence_class, x.mode,
+           'CREATED', x.shuffle_seed, now(), 0
+      from public.assessment_sessions x where x.id = v_tpl returning assessment_sessions.id into v_q;
+    set local session_replication_role = replica;   -- a deadline already past, as an abandoned sitting's is
+    update public.assessment_sessions set authoritative_deadline = now() - interval '1 day' where assessment_sessions.id = v_q;
+    set local session_replication_role = origin;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_ex, 'WITHDRAWN', null, current_date));
+    if v_got <> 'OK' then e03 := e03 || ('an enrolment with open sittings was not ended: ' || v_got);
+    else
+      if (select s.status::text || '/' || coalesce(s.termination_cause::text, '') from public.assessment_sessions s where s.id = v_ksesi) <> 'TERMINATED/INSTITUTIONAL_REVOCATION' then
+        e03 := e03 || 'the open sitting was not ended as an institutional revocation'::text; end if;
+      if (select s.status::text from public.assessment_sessions s where s.id = v_q) <> 'EXPIRED' then
+        e03 := e03 || 'the sitting past its deadline did not expire (it was terminated or left open)'::text; end if;
+      if not exists (select 1 from public.audit_log a where a.action = 'assessment_session.terminated' and a.target_id = v_ksesi::text
+                       and a.summary ->> 'cause' = 'INSTITUTIONAL_REVOCATION') then
+        e03 := e03 || 'the ended sitting has no audit row'::text; end if;
+    end if;
+    v_ksesi := null; v_q := null;
     -- E04: CORRECTION of G's mistaken graduation: a new live enrolment, the same year and programme, back in Kelas A; the
     -- ended row stays as it was, and the audit links the correction to it
     v_got := selftest.f37_sebagai(u_admin, format('select public.daftarkan_kembali(%L, %L, %L, %L, %L, %L)', v_g, v_x, 'CORRECTION',
@@ -865,7 +893,8 @@ begin
        or (select count(*) from public.audit_log a where a.institution_id = v_inst) <> v_kaud then
       k02 := k02 || 'a refusal or the preview changed something'::text; end if;
 
-    -- K04 (before K03): one open sitting refuses the whole run; nobody moves
+    -- K04 (RESTATED 9 Nov with E03, for Sharon's ruling): a learner's open sitting no longer refuses the run; the
+    -- preview says it will be ended (asesmen_diakhiri) and changes nothing; the confirmation (K03) ends it
     insert into public.assessment_sessions
       (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, plp_release_id,
        assessment_definition_id, assessment_definition_version, engine_version, scoring_policy_version, evidence_channel,
@@ -874,15 +903,18 @@ begin
            x.plp_release_id, x.assessment_definition_id, x.assessment_definition_version, x.engine_version, x.scoring_policy_version,
            x.evidence_channel, x.evidence_class, x.mode, 'CREATED', x.shuffle_seed, now(), 0
       from public.assessment_sessions x where x.id = v_tpl returning assessment_sessions.id into v_ksesi;
-    v_got := selftest.f37_sebagai(u_admin, format('select public.kenaikan_tetapkan(%L, %L, %L::jsonb, true, true)', c_k5, v_knext, v_kdec));
-    if v_got = 'OK' or v_got !~ 'ENROL_SITTING_OPEN' then k04 := k04 || ('a class with an open sitting: ' || v_got); end if;
-    if exists (select 1 from public.enrollments en where en.academic_period_id = v_knext)
-       or exists (select 1 from public.enrollments en where en.id = (v_kp -> 'K4' ->> 'enr')::uuid and en.status = 'ENDED') then
-      k04 := k04 || 'the refused run moved or ended someone'::text; end if;
-    -- the sitting is closed for the rest of the case without its triggers (its state machine is not this test's)
-    set local session_replication_role = replica;
-    update public.assessment_sessions set status = 'SUBMITTED', submitted_at = now() where assessment_sessions.id = v_ksesi;
-    set local session_replication_role = origin;
+    perform selftest.as_user_uid(u_admin);
+    v_kres := null;
+    begin
+      v_kres := public.kenaikan_tetapkan(c_k5, v_knext, v_kdec, false, false);
+    exception when others then k04 := k04 || ('the preview with an open sitting was refused: ' || sqlerrm); end;
+    perform selftest.as_owner();
+    if v_kres is not null and not exists (select 1 from jsonb_array_elements(v_kres -> 'hasil') h
+                                          where h ->> 'person_id' = v_kp -> 'K2' ->> 'person' and (h ->> 'asesmen_diakhiri')::int = 1) then
+      k04 := k04 || format('the preview does not say K2''s open sitting will be ended: %s', v_kres); end if;
+    if (select s.status::text from public.assessment_sessions s where s.id = v_ksesi) <> 'CREATED'
+       or exists (select 1 from public.enrollments en where en.academic_period_id = v_knext) then
+      k04 := k04 || 'the preview changed something'::text; end if;
 
     -- K03: applied whole; each learner's outcome by name; the repeat placed directly; the year reconciled; one audit row
     perform selftest.as_user_uid(u_admin);
@@ -921,8 +953,9 @@ begin
         k03 := k03 || 'the audit does not record the run once with every outcome, and each ending with its reason'::text; end if;
       if exists (select 1 from public.role_assignments ra where ra.scope_node_id in (c_k6, c_k5b)) then
         k03 := k03 || 'a teacher''s assignment was carried to the new year'::text; end if;
-      if not exists (select 1 from public.assessment_sessions s where s.id = v_ksesi and s.enrollment_id = (v_kp -> 'K2' ->> 'enr')::uuid and s.class_node_id = c_k5) then
-        k03 := k03 || 'the old year''s sitting moved'::text; end if;
+      if not exists (select 1 from public.assessment_sessions s where s.id = v_ksesi and s.enrollment_id = (v_kp -> 'K2' ->> 'enr')::uuid
+                       and s.class_node_id = c_k5 and s.status = 'TERMINATED' and s.termination_cause = 'INSTITUTIONAL_REVOCATION') then
+        k03 := k03 || 'K2''s open sitting was not ended as an institutional revocation on the old class'::text; end if;
     end if;
     -- K05: a second press changes nothing (the class has changed: PROMO_CHANGED)
     select count(*) into v_kaud from public.audit_log a where a.institution_id = v_inst;
@@ -1000,8 +1033,8 @@ begin
        'the school ends a learner''s enrolment as graduated: ENDED/COMPLETED, the Kelas placement closed, one audit row with the reason and the effective date'),
       ('F37-E02', 'E3: refusals write nothing', e02,
        'another school''s admin and a Guru (naming INSTITUTION_ADMIN), an unknown reason, «Lainnya» without an explanation, a future date and a date before the enrolment began are refused; the enrolment stays live and nothing is audited'),
-      ('F37-E03', 'E3: an open sitting refuses the ending', e03,
-       'an enrolment with an assessment in progress is not ended (ENROL_SITTING_OPEN)'),
+      ('F37-E03', 'E3: a departure closes the learner''s open sittings truthfully', e03,
+       'the enrolment is ended; a sitting past its deadline EXPIRES, a sitting still open is TERMINATED as INSTITUTIONAL_REVOCATION with its audit row'),
       ('F37-E04', 'E4 «Daftarkan kembali»: a correction', e04,
        'a mistaken graduation is corrected by a new live enrolment in the same year, programme and Kelas; the ended row is unchanged and the audit links the correction to it; a live enrolment cannot be «corrected»'),
       ('F37-E06', 'E4 on the screen: «Murid yang sudah keluar» lists who left', e06,
@@ -1012,8 +1045,8 @@ begin
        'a learner without a decision (named), teachers not reviewed, a repeat into this year''s class, «Pindah» without a transfer, a decision for someone outside the class, another school''s admin and a Guru are refused; the preview returns all seven outcomes; nothing is written'),
       ('F37-K03', '«Kenaikan kelas dan kelulusan»: applied whole, each outcome by name', k03,
        'two learners and the Tingkat-only one go up to 6K and the repeater straight into the repeat class on new-year enrolments (the old year ENDED/EXPIRED, its placement PERIOD_ROLLOVER); the graduate is COMPLETED and the leaver WITHDRAWN with their reasons; the learner being transferred is unchanged; one promotion.applied row with seven outcomes; no teacher carried; the old sitting stays on the old class'),
-      ('F37-K04', '«Kenaikan kelas dan kelulusan»: one open sitting refuses the whole run', k04,
-       'with one learner''s sitting open the run is refused ENROL_SITTING_OPEN and nobody moves or ends'),
+      ('F37-K04', '«Kenaikan kelas dan kelulusan»: an open sitting is shown before it is ended', k04,
+       'the preview says the learner''s open sitting will be ended and changes nothing; the confirmation ends it (K03)'),
       ('F37-K05', '«Kenaikan kelas dan kelulusan»: a second press changes nothing', k05,
        'confirming the same decisions again is refused PROMO_CHANGED; no enrolment or audit row is added'),
       ('F37-E05', 'E4: a genuine return, and a transfer back', e05,
