@@ -70,9 +70,9 @@ Each plan answers, for Daisy:
 |---|---|---|---|---|---|
 | **C1** | **Controlled cross-device assessment recovery** | Owner 9 Nov §B.1; **D-125** (7 Oct, `DECISIONS.md:133`) and its intake `docs/reports/PINTAR-4.1-DEVICE-HANDOFF-AND-EXAM-BINDING-INTAKE-2026-10-07.md`; D-132(e) handoff seam | Designated low-stakes assessments: learner self-recovery after re-authentication. **Single-writer protection** and audit. Higher-stakes recovery needs **teacher authorization**. D-125 adds: Exam Mode (no handoff; an authoritative attempt controller with a generation, checked at every boundary that changes an attempt); failed-device EXAM recovery as its own design and proof gate; a handoff cause in the working context | `device_sessions`, the shared-computer PIN lock, durable answers and resume (J6.8, D-096), the stale-continuation guard; `EXAM` mode exists but nothing assigns it. **Residual accepted in 4.0:** two devices of one learner can write to one attempt | Approved. **D-125 requires a focused investigation (six questions, a threat model, red cases) before any build** |
 | **C2** | **Misconception annotations** | Owner 9 Nov §B.2 | Authorized reviewers add **attributed** annotations to existing sealed content; the original stays immutable; sealed scores and reports never change retroactively | Option misconception codes and the class misconception report (MC-9, F36-M01); taught content is immutable (`enforce_taught_content_immutable`) | Approved; truth to define |
-| **C3** | **AI-assisted question generation** | Owner 9 Nov §B.3 | Educators provide or select source material; the AI drafts questions; **educators review and approve before publication**; provenance kept (model, source material); independent review and publication safeguards; built on Studio editing, item lineage and review | Studio's upload → check → review → approve → release → publish (W6.5, F23-*), the content check (Decision 2), the Question Bank (QN5) | Approved; **owner decisions needed (§3)**; depends on C4 |
+| **C3** | **AI-assisted question generation** | Owner 9 Nov §B.3 | Educators provide or select source material; the AI drafts questions; **educators review and approve before publication**; provenance kept (model, source material); independent review and publication safeguards; built on Studio editing, item lineage and review | Studio's upload → check → review → approve → release → publish (W6.5, F23-*), the content check (Decision 2), the Question Bank (QN5) | Approved; **the last implementation phase (O41-6)**. Preparation now: the provider evaluation, the architecture for Sharon and Daisy, the tests. Production build only after its entry gate (§4) |
 | **C4** | **Question revision lineage** | Owner 9 Nov §B.4 | The relationship between original and revised questions is preserved; historical assessment integrity is kept; **no claim of statistical comparability** between revisions in 4.1 | `items_lineage` / `enforce_lineage_pointer`, `create_course_revision` (package level), F23-W06 (the replaced version is history) | Approved; truth to define |
-| **C5** | **Key-event accountability logging** | Owner 9 Nov §C.5 and the clarification | Significant events only: login success and failure, explicit logout, print and export requests, sensitive access where warranted, important administrative and integrity actions. Actor, timestamp, action, scope/resource, outcome. Inspected only by authorized administrators. **No click, page-view or behavioural monitoring.** «Accountability, not surveillance.» | `audit_log`/`audit_write` (D-093, D-097), «Jejak audit» (S23j), `learner_detail.opened`, `integrity.answers_opened` (D5), identity attempts. **4.0 does not log refused sign-ins (O2)** | Approved; one confirmation needed (§3) |
+| **C5** | **Key-event accountability logging** | Owner 9 Nov §C.5 and the clarification | Significant events only: login success and failure, explicit logout, print and export requests, sensitive access where warranted, important administrative and integrity actions. Actor, timestamp, action, scope/resource, outcome. Inspected only by authorized administrators. **No click, page-view or behavioural monitoring.** «Accountability, not surveillance.» | `audit_log`/`audit_write` (D-093, D-097), «Jejak audit» (S23j), `learner_detail.opened`, `integrity.answers_opened` (D5), identity attempts. **4.0 does not log refused sign-ins (O2)** | Approved; retention ruled (O41-4) |
 | **C6** | **Discreet printed-report identification** | Owner 9 Nov §C.6 | A quiet, legible footer on every printed report: printed by (the signed-in person's name), date and time in the right zone, a unique print reference linked to its audit record, page n of m. Legible in monochrome; never obscures content. **Logs the print request, not that paper came out.** Certificates keep their QR verification, not duplicated | `@page laporan` already prints «Halaman n dari m»; `KepalaCetak`, `AksiLaporan` («Cetak laporan») shared by every report | Approved; depends on C5 |
 | **C7** | **Scheduled maintenance pause and resume** | Owner 9 Nov §C.7, the clarification, and **the maintenance ruling (preserve D-094)** | School Administrators schedule for **one class or the whole school**: start, end, a reason list (routine maintenance, system update, fault repair, network/power maintenance, Other with a short explanation), their identity captured. In-app warnings to affected active users at **60, 30 and 15 minutes**; a person arriving inside the warning sees the time left. Pause and resume at the scheduled times, subject to service readiness; extend or resume early. **Per the owner's ruling: a sitting already running finishes normally (D-094 drain); no automatic pause, timer extension, forced submission or new scoring.** New affected activity is blocked as today, and an assessment cannot start when it cannot finish before the window. Enforced at the operation boundary; every significant event audited. **Reuse the 4.0 implementation; no second system.** School Administrators have no immediate pause | `20261120100000_maintenance_is_announced_and_drains.sql`: school and platform windows, T−15 start block, database refusal at T=0 with drain, audit; `maintenance_list` paged; Konfigurasi's maintenance section | Approved |
 | **C8** | **PINTAR Administrator emergency override** | Owner 9 Nov §C.8 and the ruling | An immediate pause at **class, school or platform** scope, with a reason, explicit confirmation, immediate notice, audit; lifted only by an authorized PINTAR Administrator. Containment first: accepted answers and attempt state preserved; nothing silently submitted, scored, failed or discarded; governed recovery afterwards | The `EMERGENCY` window (Admin platform only, typed phrase and reason, PT503 `PINTAR_DIHENTIKAN`) for chosen schools or the platform | Approved; class scope to add |
@@ -109,30 +109,67 @@ Each plan answers, for Daisy:
 | O41-1 | **C3 AI provider** | **Evaluation approved in principle (9 Nov, second ruling):** a controlled blind comparison of Anthropic, OpenAI and Google, **total spend ≤ US$25**, about 30 drafts each on identical authorized Indonesian material; a materially incorrect key is a critical defect; educators judge educational quality, Sharon provenance and data handling, Daisy language and workflow; official pricing and binding data terms confirmed **before** provisioning; no learner data; **no selection or integration before the owner reviews the results** (`C3-EVALUATION-PLAN.md`). **Principle ruled (9 Nov):** AI-generated questions enter official assessments only through the normal educator review, approval and publication safeguards. **Selection open:** the comparison is `C3-AI-PROVIDER-COMPARISON.md`. Recommendation: Claude Sonnet 5.5, subject to a small blind evaluation (Sharon for item quality, Daisy for language). The provider, its data terms, the evaluation's external calls, a spend cap and the key are the owner's to approve (escalated, new external cost) |
 | O41-2 | **WhatsApp sign-in** | **Ruled (9 Nov): moved to PINTAR 4.5**, history and requirements preserved; not in 4.1 |
 | O41-3 | **C1 stake levels** | **Ruled (9 Nov):** self-recovery for low-stakes assessments; **teacher-authorized recovery for Uji Penguasaan**; stricter **Exam Mode** controls. **The D-125 investigation is completed before implementation** (done: `C1-D125-INVESTIGATION.md`). **Second ruling (9 Nov):** transactionally enforced single-writer authority at every attempt boundary, **service-role operations included**; accepted evidence preserved; stale-device writes rejected; Sharon reviews the controller-generation design and Daisy the recovery journeys; **the C1 red cases are written before implementation**; **SI-D02 is proven by a deterministic concurrency test and, if confirmed, corrected in 4.0 before C1** |
-| O41-4 | **Failed-sign-in logging** | **To prepare for the owner's final confirmation (9 Nov):** a proposed **12-month retention**, limited event details (time, outcome, account or identifier hash, method, coarse network origin; never the password or code), access limited to authorized administrators of that scope and the platform. It reverses 4.0's O2 only once confirmed |
+| O41-4 | **Failed-sign-in logging** | **Ruled (9 Nov): 12 months' retention** for failed-sign-in accountability records. Only the necessary security information is kept: time, outcome, account or identifier hash, method, coarse network origin. **Never a password or verification code, and no behavioural surveillance.** Access is restricted to authorized administrators of that scope and the platform. In 4.1 this reverses 4.0's O2, through C5 |
 | O41-5 | **Educator walkthrough** | **Ruled (9 Nov): one complete 4.1 walkthrough, mid-December 2026**, no partial or two-wave acceptance |
+| O41-6 | **Sequence; C3 last** | **Ruled (9 Nov):** C3 is moved to the **last major implementation phase**. The dependency and completion order: (1) the 4.0 integrity and reporting foundations; (2) C4; (3) C2, C5, C6; (4) C7, C8; (5) C1; (6) C3. Parallel work continues where it is safe; this is an order of dependency and completion, not a stop on other work. C3's planning, the provider evaluation, Sharon's and Daisy's design review and its test preparation proceed early («Prepare thoroughly. Execute confidently.»). **No C3 production implementation until its dependencies are independently verified and the earlier capabilities are stable.** C3 stays fully in the 4.1 acceptance scope: complete and internally verified before the single walkthrough. The owner's reasoning: evaluate the providers early, build the feature last, so that AI-quality problems are found while there is time to fix them |
 
 Everything else here is implementation detail, resolved by engineering with Sharon and Daisy, early.
 
 ## 4 · Dependencies and sequence
 
 ```
-4.0 foundation (SI Gate open items; RQG human check)  ──►  precondition for the 4.1 candidate
-C5 key-event logging ──► C6 print identification (the reference is an audit row)
-C4 revision lineage  ──► C3 AI generation (a draft is revised and approved through lineage)
-C2 annotations       ──  independent (beside sealed content; reads C4's item identity)
+4.0 foundation (SI Gate, timezone, consistency, RQG human check) ──► precondition for everything below and the candidate
+C4 revision lineage  ──► C2 (reads C4's item identity) and ──► C3
+C5 key-event logging ──► C6 print identification (the reference is an audit row) and ──► C3 (provenance and audit)
 C7 maintenance       ──► C8 emergency (one system; class scope shared)
-C1 recovery          ──  independent, but touches every attempt boundary (highest risk); investigation first
+C1 recovery          ──  touches every attempt boundary (highest risk); design revised for Sharon's five gaps first
+C3 AI generation     ◄── C4, C5, a dependable Studio review/publication workflow, Daisy's Studio consistency applied
 X consistency        ──  applied in every row; Daisy's and Sharon's cross-module checks
 ```
 
-**Order:**
-1. Lane A: C5 → C6.
-2. Lane B: C7 → C8.
-3. Lane C: C4 → C2, then C3 once O41-1 is decided.
-4. Lane D: C1's investigation now, its build after Sharon's review of the design.
-5. Integration journeys (Admin → Teacher → Student with each capability) are extended **as each capability lands**, not at
-   the end.
+**Completion order (owner, O41-6):**
+1. The 4.0 integrity and reporting foundations.
+2. C4.
+3. C2, C5, C6.
+4. C7, C8.
+5. C1.
+6. **C3, last.**
+
+Lanes run in parallel where it is safe. A capability may be built while an earlier one is finishing. It is **completed**
+(state 5, verified) in this order, and nothing later is allowed to destabilize what an earlier one verified.
+
+**C3's entry gate (owner, 9 Nov: dependency-based, not sequential).** C3 production implementation starts when its own
+foundations are secure. These are **essential dependencies**, and each one blocks the start:
+- C4 is independently verified (state 6): a draft is revised and approved through lineage.
+- C5's audit write path, and the authorization model C3 uses (who may generate, review, approve), are verified.
+- The Studio upload → check → review → approve → release → publish workflow passes its journeys on the current head.
+- Daisy's consistency findings for the existing Studio screens are applied.
+- The 4.0 foundation items that touch Studio, authorization or provenance are closed.
+- Sharon and Daisy have reviewed C3's architecture.
+- The owner has selected the provider from the evaluation results (O41-1).
+
+These are **delivery preferences**, and none of them blocks C3's start:
+- C2 (one exception: if C2 changes Studio's item screens, C2's Studio part is settled first, so the two share one design);
+- C6, C7, C8;
+- C1.
+
+An open defect in an unrelated capability, such as a maintenance-screen defect, does not hold C3.
+
+**What does not change:**
+- C3 is still **completed last**.
+- It passes the same complete acceptance as every capability: states 5 and 6 on the candidate's exact SHA.
+- Nothing it adds may destabilize what another capability has verified.
+
+**What C3 may do before the gate:**
+- the evaluation kit, prepared now (`docs/completion-4.1/c3-eval/`), with the paid run following once provider terms and
+  access are ready;
+- the architecture and its review;
+- the threat model;
+- the test cases, written and held outside the manifest. None of these touches the
+schema or the product.
+
+Integration journeys (Admin → Teacher → Student with each capability) are extended **as each capability lands**, not at
+the end.
 
 ## 5 · Effort (engineering days, including tests; reviews are elapsed time on top)
 
@@ -140,7 +177,7 @@ X consistency        ──  applied in every row; Daisy's and Sharon's cross-mo
 |---|---|---|---|---|
 | C1 | 10–14 (investigation 2–3; controller at every boundary; recovery flows; red cases) | both, twice (design, result) | **high** | touches start, answer, resume, submit, finish |
 | C2 | 4–6 | both | low | new table and Studio surface |
-| C3 | 8–12 (+ provider setup, + the blind evaluation 1–2) | both | **high** | selection waits on O41-1; build of the review flow and provenance can start on C4 now; needs C4 |
+| C3 | 8–12 (+ provider setup, + the blind evaluation 1–2) | both | **high** | last (O41-6). Preparation reduces the build: the architecture reviewed, the tests written, the provider chosen from the evaluation. The build is about 7–9 days after the gate |
 | C4 | 3–5 | Sharon | medium | item-level lineage on top of the package lineage |
 | C5 | 4–6 | Sharon | medium | sign-in events touch identity paths |
 | C6 | 2–4 | Daisy | low | needs C5's print event |
@@ -162,28 +199,33 @@ X consistency        ──  applied in every row; Daisy's and Sharon's cross-mo
 
 **Feasibility:**
 - At four parallel lanes, 46–69 engineering days fit about 4 weeks only if:
-  - O41-1 is decided by mid-November;
-  - the D-125 investigation for C1 does not enlarge C1 materially;
+  - the C3 evaluation's paid run can happen in the second half of November. The kit is prepared now, and API access is not
+    a blocker today;
+  - C1's revised design passes Sharon's re-review by about 19 November;
   - review turnaround stays prompt.
 - The two highest-risk capabilities set the date:
-  - **C1:** the investigation comes first and both reviews are needed.
-  - **C3:** waits on the provider and C4.
+  - **C1:** the revised design, two reviews, twelve-plus boundaries.
+  - **C3:** last by ruling (O41-6), so it has the least slack. The evaluation runs early so that AI-quality problems
+    (wrong keys, weak Indonesian) are known three weeks before the build ends, not during it.
 
-**Planned sequence (four lanes, reviews early):**
+**Planned sequence (O41-6; four lanes, reviews early):**
 
-| Week | Lane A | Lane B | Lane C | Lane D |
+| Week | Lane A (foundation, C5 → C6) | Lane B (C4 → C2; Studio) | Lane C (C7 → C8) | Lane D (C1; C3 preparation, then build) |
 |---|---|---|---|---|
-| 10–15 Nov | C5 truth + Sharon; build | C7 class scope, reason list; Daisy on warnings | C4 truth + Sharon; build | C1 D-125 investigation, threat model, red cases → Sharon |
-| 16–22 Nov | C5 verified; C6 + Daisy | C7 warnings 60/30/15; C8 class scope | C4 verified; C2 truth + review; C3 review flow and provenance (provider-independent) | C1 design review; build starts |
-| 23–29 Nov | C6 verified; X consistency audit | C7/C8 verified | C2 built; C3 generation once the provider is decided | C1 build: controller at every boundary |
-| 30 Nov–6 Dec | X fixes; journeys extended | journeys | C3 verified | C1 verified; recovery journeys |
+| 10–15 Nov | 4.0: SI-D01 closed on the exact SHA; school time zone; Daisy's meaning-changing inconsistencies. C5 truth + Sharon | C4 truth + Sharon; build | C7 truth: class scope, reason list, 60/30/15; Daisy on warnings | C1 design revised for Sharon's five gaps; ten red cases added. **C3:** architecture for Sharon/Daisy; evaluation material prepared |
+| 16–22 Nov | C5 built, verified; C6 + Daisy | C4 verified → Sharon; C2 truth, build; **Daisy's Studio consistency applied** | C7 built | C1 re-review; red cases written red; build starts. **C3:** the blind evaluation runs (if authorized); results to the owner |
+| 23–29 Nov | C6 verified; X consistency audit | C2 verified; Studio journeys green | C7 verified; C8 class scope, verified | C1 build: the controller at every boundary. **C3: entry gate checked (~26 Nov); build starts** |
+| 30 Nov–6 Dec | X fixes; journeys extended | C3 review flow in Studio (with Lane D) | journeys; release readiness | C1 verified; recovery journeys. **C3 built, verified (~6 Dec)** |
 | 7–13 Dec | **one candidate SHA:** clean suite, CI, journeys, Sharon and Daisy on that SHA, the 4.0 foundation | | | |
 
-**Honest assessment:**
-- **Mid-December is achievable** if O41-1 is decided by about 15 November and C1's investigation confirms its estimated
-  size.
-- If either slips by a week, the walkthrough moves by a week.
-- Verification is not compressed.
+**Honest assessment (owner, 9 Nov):**
+- **The dates in this table are forecasts, not promises.** The gate around 26 November and C3's verification around
+  6 December leave little margin for an educational-quality problem that needs a redesign.
+- **The walkthrough moves rather than present an AI question generator whose answers educators cannot trust.**
+  - C3 is not shortened, and verification is not compressed.
+  - If the evaluation or C3's own verification finds keys or language educators cannot trust, the fix is made and
+    re-verified, and the walkthrough date follows.
+- The same holds for C1: if its re-review slips past about 22 November, the walkthrough moves by that slip.
 - The register's status log and each capability's state are the evidence; nobody, including Second Eye, reports a
   capability done on an implementation report.
 
@@ -191,5 +233,7 @@ X consistency        ──  applied in every row; Daisy's and Sharon's cross-mo
 
 | Date | Capability | State | Commit | Evidence |
 |---|---|---|---|---|
+| 9 Nov | C3, C5 | owner's review of the plan: **C3's entry gate made dependency-based** (essential dependencies vs delivery preferences, §4); **O41-4 ruled: 12 months**; the evaluation kit prepared now, paid calls later; the dates are forecasts and the walkthrough moves before an untrusted generator is shown | (this commit) | the owner's review, 9 Nov |
+| 9 Nov | all | **sequence ruled (O41-6): C3 last**, with an entry gate (§4); §4–§6 restated; evaluation and preparation early | (this commit) | the owner's sequencing decision, 9 Nov |
 | 9 Nov | C1 | **design reviewed by Sharon** (`1f7b6fc2`): five gaps, three high (device identity from verified claims, never a parameter; generation decided by the server; final-answer selection across generations), a completed boundary list, one lock order, and ten missing red cases. **Next: revise the design** (Second Eye); Daisy reviews the recovery wording alongside | `1f7b6fc2` | Sharon's review, 9 Nov |
 | 9 Nov | all | register opened; C1–C8 approved; WhatsApp sign-in moved to 4.5 (O41-2); one mid-December walkthrough (O41-5); O41-1 principle ruled, provider open; O41-3 ruled; O41-4 to prepare | (this commit) | the owner's 9 Nov directives |

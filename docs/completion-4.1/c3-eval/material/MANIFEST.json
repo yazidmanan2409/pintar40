@@ -1,0 +1,55 @@
+{
+  "prompt_version": "v1",
+  "prompt_sha256": "11ed19691f5ee9286217e1f629fdb86b766980fa7b1b19ad08556864629889a8",
+  "schema_sha256": "8662c79bb9636a043f4d93b662d3e759b330811606c4ca119e695dea075c95ee",
+  "chapters": {
+    "bab1": {
+      "source": "docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.paket.json",
+      "source_sha256": "87006fe73f7f2351ccfdc2e12df0889d13703ff3948fcb3b1415e950200b4008",
+      "material_sha256": "cc48c8e7e8b40f2ae1d3f99dd6a1afb1e0e9f5220174f25fc01bfe3976473923",
+      "request_sha256": "a4e6a589c5ff4cb434368af76524fe7d054fef79414b53617a481e58cd703cc7",
+      "request_chars": 7463,
+      "objectives": [
+        "B1-T1",
+        "B1-T2",
+        "B1-T3",
+        "B1-T4"
+      ],
+      "misconceptions": [
+        "SINT5-B1-01",
+        "SINT5-B1-02",
+        "SINT5-B1-03",
+        "SINT5-B1-04",
+        "SINT5-B1-05",
+        "SINT5-B1-06",
+        "SINT5-B1-07",
+        "SINT5-B1-08",
+        "SINT5-B1-09"
+      ]
+    },
+    "bab2": {
+      "source": "docs/onboarding/konten-sintetis/SD5-Sintetis-Bab2.paket.json",
+      "source_sha256": "675a5c5ddc37f483dc144d5581391820b1a9d5929335720d1cd3d4629858115e",
+      "material_sha256": "38a2a876176193a8c3fbf089e27234dd89d39e5f84f7cee05e3420a15952889e",
+      "request_sha256": "f4d820f8e073d93881affea181dc39156138e59bdd6d46a342d077f376f637c1",
+      "request_chars": 6271,
+      "objectives": [
+        "B2-T1",
+        "B2-T2",
+        "B2-T3",
+        "B2-T4"
+      ],
+      "misconceptions": [
+        "SINT5-B2-01",
+        "SINT5-B2-02",
+        "SINT5-B2-03",
+        "SINT5-B2-04",
+        "SINT5-B2-05",
+        "SINT5-B2-06",
+        "SINT5-B2-07",
+        "SINT5-B2-08",
+        "SINT5-B2-09"
+      ]
+    }
+  }
+}

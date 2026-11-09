@@ -1,7 +1,16 @@
 # C3 · Blind provider evaluation: plan (owner, 9 Nov: approved in principle, ≤ US$25 total)
 
-**State:** prepared, **not run**. There have been no paid calls and no credentials are provisioned. The provider
+**State:** prepared, **not run**. There have been no paid calls and no credentials are provisioned.
+
+**The kit is ready (owner, 9 Nov: prepare now, without making API access a blocker):** `c3-eval/` holds the prompt, the
+schema, the frozen material, and the blinding and scoring pipeline. Its offline self-test passes. What remains is the
+provider runner, written once terms and access are ready. The US$25 ceiling stands. The material is the two synthetic
+chapters, judged by independent educators. The provider
 selection and any integration wait for the owner's review of the results.
+
+**Timing (O41-6, 9 Nov):** C3 is built last, so the evaluation runs as early as its access allows. That is not a
+blocker for any other lane. The earlier the results, the more time there is to fix an AI-quality problem before the
+walkthrough.
 
 ## 1 · Preconditions (all needed before the first call)
 

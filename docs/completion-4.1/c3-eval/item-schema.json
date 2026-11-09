@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PINTAR C3 evaluation: drafted multiple-choice items (v1)",
+  "description": "Kept to the subset every provider's structured-output feature accepts (types, required, enum, additionalProperties). Counts (15 items, 4 options, 3 distractors) and cross-field rules are checked by kit.mjs validate, not by the schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["items"],
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stem", "options", "key", "distractors", "objective_code", "key_rationale"],
+        "properties": {
+          "stem": { "type": "string" },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["label", "body"],
+              "properties": {
+                "label": { "type": "string", "enum": ["A", "B", "C", "D"] },
+                "body": { "type": "string" }
+              }
+            }
+          },
+          "key": { "type": "string", "enum": ["A", "B", "C", "D"] },
+          "distractors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["label", "misconception_code", "misconception"],
+              "properties": {
+                "label": { "type": "string", "enum": ["A", "B", "C", "D"] },
+                "misconception_code": { "type": "string" },
+                "misconception": { "type": "string" }
+              }
+            }
+          },
+          "objective_code": { "type": "string" },
+          "key_rationale": { "type": "string" }
+        }
+      }
+    }
+  }
+}

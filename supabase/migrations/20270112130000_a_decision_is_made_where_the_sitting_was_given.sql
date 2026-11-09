@@ -102,7 +102,8 @@ begin
     perform public.refer_integrity_signal(p_signal, p_note);
   end if;
   return p_signal;
-end $function$;
+end;
+$function$;
 
 revoke all on function public.record_integrity_review(uuid, text, text) from public, anon, authenticated;
 grant execute on function public.record_integrity_review(uuid, text, text) to authenticated;
@@ -140,7 +141,8 @@ begin
     jsonb_build_object('session_id', p_session, 'cause', p_cause, 'reason', p_reason,
                        'actor', v_actor, 'responses_retained', v_kept));
   return 'TERMINATED';
-end $function$;
+end;
+$function$;
 
 CREATE OR REPLACE FUNCTION public.extend_session_deadline(p_session uuid, p_minutes integer, p_reason text)
  RETURNS timestamp with time zone
@@ -187,7 +189,8 @@ begin
     jsonb_build_object('session_id', p_session, 'old_deadline', v_old, 'new_deadline', v_new,
                        'minutes', p_minutes, 'reason', p_reason, 'actor', v_actor));
   return v_new;
-end $function$;
+end;
+$function$;
 
 -- B.
 CREATE OR REPLACE FUNCTION public.refer_integrity_signal(p_signal uuid, p_note text)
@@ -243,7 +246,8 @@ begin
                        'source_id', p_signal, 'scope_node_id', v_sig.class_node_id,
                        'category', v_sig.category));
   return v_id;
-end $function$;
+end;
+$function$;
 
 revoke all on function public.terminate_session(uuid, public.termination_cause, text) from public, anon, authenticated;
 grant execute on function public.terminate_session(uuid, public.termination_cause, text) to authenticated;
