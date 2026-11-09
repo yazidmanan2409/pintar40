@@ -4792,6 +4792,11 @@
       "proves": "SI-D03 widened (Sharon, 9 Nov; owner: historical registration alone confers no credential-management authority): authorize_card_reissue, authorize_card_conversion, authorize_email_correction, authorize_account_activation and admin_reset_recovery, each by school X's and school Y's admin for seven people (selftest/db/fable37.sql). A former school (T transferred X to Y; W withdrew; P withdrew from X before activating) and a role that has not started (F) are refused at the school check; the current school, both schools of a person placed at two (M), and the school onboarding a person it has numbered but never placed (O at X, P at Y) pass it. Authority is read from the refusal: a school-check refusal names the capability."
     },
     {
+      "id": "F37-D08",
+      "runner": "db",
+      "proves": "SI-D01, Sharon's re-review finding 1 (selftest/db/fable37.sql against terminate_session and extend_session_deadline): a professional-learning sitting is the platform's, as reading it already is (boleh_atas_sesi). On a fresh open PD sitting each, a Kepala departemen and the Admin sekolah are refused ending it, and a Guru and the Admin sekolah are refused extending its deadline, each refusal naming its capability; the platform administrator extends and ends it. Before the fix both functions asked can_in_institution for PD sittings: the capability anywhere in the school."
+    },
+    {
       "id": "F37-R01",
       "runner": "db",
       "proves": "SI-D02 (System Integrity, 9 Nov) under real concurrency (runAttemptLimitRace in selftest/run.ts) against supabase/migrations/20270112120000_one_start_at_a_time.sql: a learner one attempt short of an assignment's attempt_limit, chosen from the world and allowed to start by may_start_assessment, starts on connection A, which holds its transaction open; connection B's start of the same assignment waits on the per-(learner, assignment) advisory lock while A holds, and runs only after A ends. Both roll back. It failed before the migration: B completed in 0.07 s while A held, so both commits would have left two attempts against a limit of one (a double tap or two devices suffice; found by the D-125 investigation, confirmed by Sharon)."

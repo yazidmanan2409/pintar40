@@ -109,7 +109,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
 begin
   perform selftest.as_owner();
   begin
@@ -347,6 +347,42 @@ begin
       if v_n <> v_total or v_n = 0 then b01 := b01 || format('%s: the count says %s, the list''s total %s', r.siapa, v_n, v_total); end if;
     end loop;
 
+    -- ═══════════════════════════════════ F37-D08 (SI-D01, Sharon's re-review finding 1) a professional-learning sitting is
+    -- the platform's: ending it or extending its deadline is refused to every school role (a Kepala departemen, a Guru,
+    -- the Admin sekolah), as reading it already is (boleh_atas_sesi), and allowed to the platform administrator
+    insert into public.courses (institution_id, subject, stage, grade_label, title, learning_context)
+    values (v_inst, 'Pengembangan Guru', 'SD', 'Guru', 'PD F37 ' || v_tag, 'PROFESSIONAL_DEVELOPMENT') returning courses.id into v_pdc;
+    insert into public.assessment_definitions (institution_id, course_id, module_id, title, mode, bank_type, item_count)
+    values (v_inst, v_pdc, null, 'Asesmen PD F37 ' || v_tag, 'POST_TEST', 'TEST', 1) returning assessment_definitions.id into v_pdd;
+    insert into public.plp_releases (institution_id, course_id, version_label) values (v_inst, v_pdc, '37.0.1');
+    for r in select * from (values
+        ('A''s Kepala departemen ends it',   u_kadep_a, 'select public.terminate_session(''@SESI'', ''ADMINISTRATIVE_TERMINATION'', ''uji SI-D01 PD'')', false),
+        ('the Admin sekolah ends it',        u_admin,   'select public.terminate_session(''@SESI'', ''ADMINISTRATIVE_TERMINATION'', ''uji SI-D01 PD'')', false),
+        ('A''s Guru extends it',             u_guru_a,  'select public.extend_session_deadline(''@SESI'', 10, ''uji SI-D01 PD'')', false),
+        ('the Admin sekolah extends it',     u_admin,   'select public.extend_session_deadline(''@SESI'', 10, ''uji SI-D01 PD'')', false),
+        ('the platform admin extends it',    u_sys,     'select public.extend_session_deadline(''@SESI'', 10, ''uji SI-D01 PD'')', true),
+        ('the platform admin ends it',       u_sys,     'select public.terminate_session(''@SESI'', ''ADMINISTRATIVE_TERMINATION'', ''uji SI-D01 PD'')', true)
+      ) t(siapa, uid, q, boleh) loop
+      -- each case meets its own open PD sitting, so an accepted act never changes what the next one meets
+        insert into public.assessment_sessions
+          (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, plp_release_id,
+           assessment_definition_id, assessment_definition_version, engine_version, scoring_policy_version, evidence_channel,
+           evidence_class, mode, status, shuffle_seed, started_at, authoritative_deadline, deadline_extended_count)
+        select gen_random_uuid(), v_murid, x.institution_id, v_e, x.academic_period_id, c_a,
+               (select r2.id from public.plp_releases r2 where r2.course_id = v_pdc limit 1), v_pdd, 1, x.engine_version,
+               x.scoring_policy_version, x.evidence_channel, x.evidence_class, x.mode, 'CREATED', x.shuffle_seed,
+               now() - interval '5 minutes', now() + interval '1 hour', 0
+          from public.assessment_sessions x where x.id = v_tpl
+        returning assessment_sessions.id into v_pdsesi;
+        update public.assessment_sessions set status = 'IN_PROGRESS' where assessment_sessions.id = v_pdsesi;
+        if not public.session_is_professional(v_pdsesi) then raise exception 'the PD sitting is not professional'; end if;
+        v_got := selftest.f37_sebagai(r.uid, replace(r.q, '@SESI', v_pdsesi::text));
+      if r.boleh and v_got <> 'OK' then d08 := d08 || format('%s: refused (%s)', r.siapa, v_got);
+      elsif not r.boleh and v_got = 'OK' then d08 := d08 || format('%s: ACCEPTED on a professional-learning sitting', r.siapa);
+      elsif not r.boleh and v_got !~ 'requires CAN_' then d08 := d08 || format('%s: refused, but not by its capability (%s)', r.siapa, v_got);
+      end if;
+    end loop;
+
     -- ═══════════════════════════════════ F37-S01 (SI-D03) a school's account-level power follows its current placement
     -- owner, 9 Nov: a historical registration number is kept for the record, and never confers current authority over
     -- a person's sign-in. School X is this suite's school (its admin u_admin), school Y another (its admin u_adminy).
@@ -511,6 +547,8 @@ begin
        'a person offered a card in school X is not, once they hold a staff role in school Y'),
       ('F37-C01', 'System Integrity, chain A: a certificate after a recalculation', c01,
        'a recalculation above or below the mark leaves eligibility on the sealed result, both ways'),
+      ('F37-D08', 'System Integrity, chain D: a professional-learning sitting is the platform''s to end or extend', d08,
+       'a Kepala departemen, a Guru and the Admin sekolah are refused ending a professional-learning sitting or extending its deadline (each refusal names its capability); the platform administrator extends and ends it'),
       ('F37-S01', 'System Integrity, chain D: a school''s account-level power follows its current placement (SI-D03)', s01,
        'a former school''s admin cannot reset the recovery of a learner who transferred or withdrew (42501; the session kept); the current school can (sessions ended); a person placed at two schools is assisted by either; another school''s admin, a Guru and a Kepala departemen are refused; registration numbers and ended enrollments are kept'),
       ('F37-S02', 'System Integrity, chain D: every credential path follows the current placement or onboarding (SI-D03)', s02,
