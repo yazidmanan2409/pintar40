@@ -2232,6 +2232,13 @@ await step("S22m", "the teacher reads the misunderstandings that recur in Kelas 
      where c.superseded_by is null and d.metric_id = 'class.misconceptions' order by c.effective_from desc limit 1`).trim() || 0);
   const dasar = Number(sql(`select coalesce(sum(occurrences), 0) from public.service_cohort_misconceptions
      where institution_id = '${ids.sd}' and class_node_id = '${kelas}'`).trim() || 0);
+  // RESTATED TO THE MISCONCEPTION LEARNER FLOOR (owner-approved with Sharon's finding 8, MC-9): a pattern is a CLASS
+  // pattern once `minimum` LEARNERS share it, not once its wrong answers reach it. The codes the page may list, and the
+  // codes it must say are withheld, are counted here from the same view, by learners.
+  const perKode = sql(`select misconception_code || ':' || sum(learners) from public.service_cohort_misconceptions
+     where institution_id = '${ids.sd}' and class_node_id = '${kelas}' group by misconception_code`).trim().split("\n").filter(Boolean)
+    .map((x) => Number(x.slice(x.lastIndexOf(":") + 1)));
+  const cukup = perKode.filter((n) => n >= minimum).length, kurang = perKode.length - cukup;
   const tc = await ctx();
   const t = await tc.newPage();
   await magicSignIn(t, people.guru.email);
@@ -2247,16 +2254,21 @@ await step("S22m", "the teacher reads the misunderstandings that recur in Kelas 
     bantu: (e.querySelector(".pin-kr")?.textContent ?? "").replace(/\s+/g, " ").trim(),
   })));
   const teksBlok = norm(await blok.innerText().catch(() => ""));
+  const teksHalaman = norm(await t.locator("main").innerText().catch(() => ""));
   await tc.close();
   const jumlah = baris.reduce((n, b) => n + b.kali, 0);
   const dikenal = baris.every((b) => definisi.has(b.label) && definisi.get(b.label) === b.bantu);
   const urut = baris.every((b, i) => b.kali >= 1 && (i === 0 || baris[i - 1].kali >= b.kali));
   const tanpaNama = !MURID.some((m) => teksBlok.includes(m));
-  const ok = minimum > 0 && dasar >= minimum && judul === "Pemahaman keliru yang berulang di kelas ini" && baris.length >= 1
-    && dikenal && urut && jumlah > 0 && jumlah <= dasar && tanpaNama;
+  const tertahan = kurang === 0 || teksHalaman.includes(norm(`${kurang} pola lain baru dialami kurang dari ${minimum} murid`));
+  const ok = minimum > 0 && perKode.length > 0 && baris.length === cukup && tertahan && tanpaNama
+    && (cukup > 0
+      ? judul === "Pemahaman keliru yang berulang di kelas ini" && dikenal && urut && jumlah > 0 && jumlah <= dasar
+      : teksHalaman.includes(norm("Belum ada pola jawaban keliru yang dialami cukup banyak murid untuk disebut pola kelas.")));
   if (!ok) rec.verdict = "FAIL";
-  return `the figure «${judul}»: ${baris.length} row(s) ${JSON.stringify(baris.map((b) => `${b.label} · ${b.kali}`))}; each the package's own definition with its remediation: ${dikenal}; ` +
-    `most frequent first: ${urut}; ${jumlah} on the page of ${dasar} wrong answers carrying a code in the class (the figure needs ${minimum}); no student named: ${tanpaNama}`;
+  return `the figure «${judul}»: ${baris.length} row(s) ${JSON.stringify(baris.map((b) => `${b.label} · ${b.kali}`))} for ${cukup} code(s) shared by at least ${minimum} learners; ` +
+    `${kurang} code(s) shared by fewer said withheld: ${tertahan}; each the package's own definition with its remediation: ${dikenal}; ` +
+    `most frequent first: ${urut}; ${jumlah} on the page of ${dasar} wrong answers carrying a code in the class; no student named: ${tanpaNama}`;
 });
 
 // D-085 M3 (J5.12): the teacher may give material back to the learners who need it. From «Lihat bukti», Bab 1's Uji
