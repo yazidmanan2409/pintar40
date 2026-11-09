@@ -35,6 +35,8 @@ export type KolomKisi = {
 export function susunKisi(kolom: readonly KolomKisi[]) {
   const ada = kolom.filter((k) => k.topik && k.topik.status !== "not_permitted" && k.topik.status !== "unavailable");
   const baris = new Map<string, string>();
+  // V2 (Daisy's N3): a short title never stands alone; the objective's statement goes under it
+  const pernyataan = new Map<string, string>();
   const nilai = new Map<string, Map<string, number>>();
   for (const k of ada) {
     if (k.topik?.status !== "ok" || !Array.isArray(k.topik.value)) continue;
@@ -44,6 +46,9 @@ export function susunKisi(kolom: readonly KolomKisi[]) {
       if (!kunci || typeof b.mean_score !== "number") continue;
       // V2: the short title where it names the objective unambiguously (MC-9), else the statement
       if (!baris.has(kunci)) baris.set(kunci, (b.title && b.title.trim() !== "" ? b.title : b.competency) ?? kunci);
+      if (!pernyataan.has(kunci) && b.title && b.title.trim() !== "" && b.competency && b.competency.trim() !== b.title.trim()) {
+        pernyataan.set(kunci, b.competency);
+      }
       isi.set(kunci, b.mean_score);
     }
     nilai.set(k.id, isi);
@@ -60,12 +65,16 @@ export function susunKisi(kolom: readonly KolomKisi[]) {
   // (assessment_assignments is the authors' and assigners' read), and was told «Tidak ada topik yang di bawah target»
   // over cells that were below it.
   const bertarget = berangka.filter((k) => typeof k.target === "number").length;
-  return { kolom: ada, baris: [...baris.entries()], nilai, pola, berangka: berangka.length, bertarget };
+  return { kolom: ada, baris: [...baris.entries()], pernyataan, nilai, pola, berangka: berangka.length, bertarget };
 }
 
 export default function KisiTopik({ kolom, locale, huruf = "A" }: { kolom: readonly KolomKisi[]; locale: Locale; huruf?: string }) {
   const s = (k: string) => t(k as HleEvent, "staff", { locale });
-  const { kolom: ada, baris, nilai, pola, berangka, bertarget } = susunKisi(kolom);
+  const { kolom: ada, baris, pernyataan, nilai, pola, berangka, bertarget } = susunKisi(kolom);
+  // N4 (Daisy): the meaning line and the key say only what is drawn: every class's target, some classes', or none
+  const targetSemua = bertarget > 0 && bertarget === berangka;
+  const artiKunci = bertarget === 0 ? "laporan.kisi.arti_tanpa_target" : targetSemua ? "laporan.kisi.arti" : "laporan.kisi.arti_sebagian";
+  const kunciKunci = bertarget === 0 ? "laporan.kisi.tanpa_target" : targetSemua ? "laporan.kisi.kunci" : "laporan.kisi.kunci_sebagian";
   if (ada.length === 0) return null;
   const adaKenaikan = ada.some((k) => k.kenaikan?.status === "ok");
   return (
@@ -81,7 +90,7 @@ export default function KisiTopik({ kolom, locale, huruf = "A" }: { kolom: reado
                 : pola.length > 0 ? s("laporan.kisi.pola").replace("{daftar}", daftarKata(pola, locale)) : s("laporan.kisi.tanpa_pola")}
             </p>
           ) : null}
-          <p className="pin-lk-arti">{s("laporan.kisi.arti")}</p>
+          <p className="pin-lk-arti" data-kisi-arti={artiKunci}>{s(artiKunci)}</p>
           {/* a narrow screen scrolls the grid sideways: the region takes keyboard focus so it can be scrolled without a mouse (axe scrollable-region-focusable) */}
           <div className="pin-lk-kisi-wadah" role="region" tabIndex={0} aria-labelledby="pin-kisi">
             <table className="pin-lk-tabel pin-lk-kisi-tabel">
@@ -108,7 +117,7 @@ export default function KisiTopik({ kolom, locale, huruf = "A" }: { kolom: reado
               <tbody>
                 {baris.map(([kunci, nama]) => (
                   <tr key={kunci}>
-                    <th scope="row">{nama}</th>
+                    <th scope="row">{nama}{pernyataan.get(kunci) ? <span className="pin-lk-pernyataan">{pernyataan.get(kunci)}</span> : null}</th>
                     {ada.map((k) => {
                       const v = nilai.get(k.id)?.get(kunci);
                       if (v === undefined) return <td key={k.id} className="pin-lk-sel-kosong">—</td>;
@@ -146,7 +155,7 @@ export default function KisiTopik({ kolom, locale, huruf = "A" }: { kolom: reado
             </table>
           </div>
           {/* F3 (Daisy, 9 Nov): the key explains the target line and amber only where a target is drawn */}
-          <p className="pin-lk-arti">{s(bertarget > 0 ? "laporan.kisi.kunci" : "laporan.kisi.tanpa_target")}</p>
+          <p className="pin-lk-arti" data-kisi-kunci={kunciKunci}>{s(kunciKunci)}</p>
         </div>
       </div>
     </section>

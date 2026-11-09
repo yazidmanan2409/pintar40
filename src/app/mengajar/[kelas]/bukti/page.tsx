@@ -111,6 +111,12 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
   const bagianTertahan = semuaBagian.filter((b) => typeof b.mean_score !== "number");
 
   type Keliru = { code: string; label: string; remediation: string | null; occurrences: number };
+  // owner approval (9 Nov): patterns seen in fewer learners than the class minimum are no class pattern; said, never counted
+  const tertahanKeliru = keliru?.status === "ok" && keliru.withheld?.reason === "patterns"
+    && typeof keliru.withheld.count === "number" && typeof keliru.withheld.needed === "number" ? (
+      <span className="pin-ms" data-keliru-tertahan="">{s("laporan.komposisi.keliru_tertahan")
+        .replace("{n}", format.number(keliru.withheld.count, locale)).replace("{m}", format.number(keliru.withheld.needed, locale))}</span>
+    ) : null;
   const salahPaham =
     keliru && keliru.status === "ok" && Array.isArray(keliru.value)
       ? (keliru.value as Keliru[])
@@ -156,6 +162,8 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
         ) : (
         <div className="pin-sec">
           <h2>{s("mengajar.bukti.simpulan")}</h2>
+          {/* O1 (Daisy's N1): said once for the page, as on Ringkasan Kelas and Ringkasan Sekolah, never under each figure */}
+          <p className="pin-intro" data-memutuskan="">{s("laporan.anda_memutuskan")}</p>
           <div className="pin-grid2">
             {/* W9: the same reading as /pimpinan's, from one rule */}
             {angka(paham, "class.comprehension", (v) => nilaiMetrik("class.comprehension", v, locale))}
@@ -174,15 +182,16 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
                   <BarisKesiapan
                     key={b.objective_id ?? b.code}
                     label={b.title && b.title.trim() !== "" ? b.title : b.competency}
+                    pernyataan={b.title && b.title.trim() !== "" && b.title.trim() !== b.competency.trim() ? b.competency : undefined}
                     count={Math.round(Number(b.mean_score) * 100)}
                     total={100}
                     locale={locale}
                   />
                 ))}
               </div>
-              {bagianTertahan.length > 0 ? (
-                <span className="pin-ms" data-bagian-tertahan="">{s("laporan.sekolah.ranah_tertahan")
-                  .replace("{n}", format.number(bagianTertahan.length, locale)).replace("{m}", format.number(Number(bagianTertahan[0].needed ?? 0), locale))}</span>
+              {bagianTertahan.length > 0 && typeof bagianTertahan[0].needed === "number" ? (
+                <span className="pin-ms" data-bagian-tertahan="">{s("mengajar.bukti.bagian_tertahan")
+                  .replace("{n}", format.number(bagianTertahan.length, locale)).replace("{m}", format.number(Number(bagianTertahan[0].needed), locale))}</span>
               ) : null}
               <span className="pin-ma">{actionText(topik, locale)}</span>
             </div>
@@ -212,6 +221,13 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
                   </li>
                 ))}
               </ul>
+              {tertahanKeliru}
+            </div>
+          ) : keliru && keliru.status === "ok" ? (
+            <div className="pin-metric">
+              <span className="pin-ml">{s("mengajar.bukti.keliru")}</span>
+              <span className="pin-ms">{s("laporan.komposisi.keliru_belum")}</span>
+              {tertahanKeliru}
             </div>
           ) : keliru ? (
             <KartuKetiadaan entry={keliru} locale={locale} />

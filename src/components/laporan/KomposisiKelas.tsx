@@ -108,7 +108,7 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
   /** KESETIAAN #6: the class's score line, one anonymous dot per assessed learner (the teacher's only); null draws none. */
   titik?: ReadonlyArray<{ mastery: number; pita: "mantap" | "berkembang" | "penguatan" }> | null;
   /** KESETIAAN #7: the before → after pair behind Kenaikan, or «TIDAK» when it cannot be compared yet; null draws none. */
-  awalAkhir?: { awal: number; akhir: number; pasangan?: number } | "TIDAK" | null;
+  awalAkhir?: { awal: number; akhir: number; pasangan?: number } | "TIDAK" | "DILINDUNGI" | null;
 }) {
   const s = (k: string, p: Persona = persona, l: Locale = locale) => t(k as HleEvent, p, { locale: l });
   const untuk = persona === "educator" || persona === "staff" ? persona : "staff";
@@ -378,7 +378,11 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
           {naik.status === "ok" && awalAkhir === "TIDAK" ? (
             <p className="pin-lk-arti" data-lk-awal-akhir="tidak">{s("laporan.komposisi.awal_akhir_tidak")}</p>
           ) : null}
-          {naik.status === "ok" && awalAkhir && awalAkhir !== "TIDAK" ? (
+          {/* owner decision 7 (Sharon's finding 1): pairs exist, but their means would expose a small group beside the chapter rows */}
+          {naik.status === "ok" && awalAkhir === "DILINDUNGI" ? (
+            <p className="pin-lk-arti" data-lk-awal-akhir="dilindungi">{s("laporan.komposisi.awal_akhir_dilindungi")}</p>
+          ) : null}
+          {naik.status === "ok" && awalAkhir && awalAkhir !== "TIDAK" && awalAkhir !== "DILINDUNGI" ? (
             <div className="pin-lk-gambar" data-lk-awal-akhir="">
               <ul className="pin-lk-baris pin-lk-baris-pasangan">
                 <li>
@@ -419,7 +423,13 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
                 ? <a href={buktiHref}>{s("laporan.komposisi.keliru_lainnya").replace("{n}", format.number(keliru.value.length - KELIRU_MAKS, locale))}</a>
                 : s("laporan.komposisi.keliru_lainnya").replace("{n}", format.number(keliru.value.length - KELIRU_MAKS, locale))}
             </p>
-          ) : keliru.status === "ok" ? null : tiada(keliru)}
+          ) : keliru.status === "ok" ? (Array.isArray(keliru.value) && keliru.value.length === 0
+            ? <p className="pin-lk-arti" data-lk-keliru-belum="">{s("laporan.komposisi.keliru_belum")}</p> : null) : tiada(keliru)}
+          {/* owner approval (9 Nov): a pattern seen in fewer learners than the class minimum is no class pattern; said, never counted */}
+          {keliru.status === "ok" && keliru.withheld?.reason === "patterns" && typeof keliru.withheld.count === "number" && typeof keliru.withheld.needed === "number" ? (
+            <p className="pin-lk-arti" data-lk-keliru-tertahan="">{s("laporan.komposisi.keliru_tertahan")
+              .replace("{n}", format.number(keliru.withheld.count, locale)).replace("{m}", format.number(keliru.withheld.needed, locale))}</p>
+          ) : null}
         </section>
       ) : null}
 

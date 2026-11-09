@@ -628,7 +628,10 @@ export const b5aTests: SelfTest[] = [
         && /titik=\{titik\} awalAkhir=\{awalAkhir\}/.test(halaman), "Ringkasan Kelas asks for the dots for a reader who does not teach the class, or in a class of participants, or does not pass the pair");
       const lib = kode(baca(ctx.repoRoot, "src/lib/pengajar.ts"));
       c.expect(/c\.rpc\("sebaran_murid_kelas", \{ p_class: kelasId \}\)/.test(lib) && /c\.rpc\("kenaikan_awal_akhir", \{ p_class: kelasId \}\)/.test(lib)
-        && /if \(!r \|\| r\.awal == null \|\| r\.akhir == null\) return "TIDAK";/.test(lib), "the lib does not ask the two reads, or turns an empty answer into a figure");
+        // RESTATED TO OWNER DECISION 7 (9 Nov): no pair is «TIDAK»; pairs whose means are withheld are «DILINDUNGI», never a figure
+        && /if \(!r\) return "TIDAK";/.test(lib)
+        && /if \(\(r\.awal == null \|\| r\.akhir == null\) && Number\(r\.pasangan\) > 0\) return "DILINDUNGI";/.test(lib)
+        && /if \(r\.awal == null \|\| r\.akhir == null\) return "TIDAK";/.test(lib), "the lib does not ask the two reads, or turns an empty or withheld answer into a figure");
       const mig = baca(ctx.repoRoot, "supabase/migrations/20270103100000_the_report_reads_daisy_asked_for.sql");
       c.expect(/create or replace function public\.sebaran_murid_kelas\(p_class uuid\)\s*returns table \(mastery numeric, tier_key text\)/.test(mig)
         && /v_ok := public\.metric_evaluate\('class\.net_gain', p_class, v_inst\) ->> 'status';/.test(mig), "the dots carry more than mastery and band, or the pair is not gated by the reader's own Kenaikan");
@@ -958,7 +961,8 @@ export const b5aTests: SelfTest[] = [
         const t1 = teks(isi);
         // KESETIAAN #17, #1: the lead says the Kenaikan and the domains in «Perlu penguatan» as a sentence; the sub line counts the rest
         c.expect(t1.includes("Kenaikan penguasaan rata-rata sejak Pemetaan Awal: +19 poin. Listrik dan magnet serta Geometri dan pengukuran masih di pita «Perlu penguatan».")
-          && /1 dari 3 ranah berada di pita «Berkembang» atau «Mantap»\./.test(t1), `the lead reads «${t1.slice(0, 260)}»`);
+          // RESTATED TO THE OWNER'S DIRECTIVE (9 Nov, Daisy's N3): a row of «Capaian kompetensi» is a learning objective, never a «ranah»
+          && /1 dari 3 tujuan pembelajaran berada di pita «Berkembang» atau «Mantap»\./.test(t1), `the lead reads «${t1.slice(0, 260)}»`);
         // R4-01: the zones named once above the scale; R4-02: 59,6%, not «60%»; sorted high to low; below 60% amber and names its band
         c.expect(t1.includes("Batas pita: di bawah 60% «Perlu penguatan» · 60–79% «Berkembang» · 80% ke atas «Mantap».") && t1.includes("59,6%")
           && /Bilangan[\s\S]*Listrik dan magnet[\s\S]*Geometri dan pengukuran/.test(t1)

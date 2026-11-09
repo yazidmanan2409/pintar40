@@ -95,7 +95,7 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
         const bawah = r.v < ZONA[0];
         return (
           <li key={r.kunci} data-bawah={bawah ? "" : undefined}>
-            <span className="pin-lk-nama">{r.nama}{r.sub ? <small className="pin-lk-arti" style={{ display: "block" }}>{r.sub}</small> : null}</span>
+            <span className="pin-lk-nama">{r.nama}{r.sub ? <span className="pin-lk-pernyataan">{r.sub}</span> : null}</span>
             <span className="pin-lk-jalur" aria-hidden="true">
               {ZONA.map((z) => <span key={z} className="pin-lk-zona" style={{ left: `${z * 100}%` }} />)}
               <span className="pin-lk-titik" style={{ left: `${Math.max(0, Math.min(1, r.v)) * 100}%` }} />
@@ -168,17 +168,26 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
                 .replace("{berkembang}", s("kesiapan.perlu_review")).replace("{mantap}", s("kesiapan.siap_sertifikasi"))}</p>
               {zona}
               <div className="pin-lk-gambar">
-                {titik(urut.map((d, i) => ({ kunci: d.objective_id ?? d.code ?? String(i), nama: namaDomain(d), v: Number(d.mean_score) })))}
+                {/* V2 (Daisy's N3): a short title keeps its objective's statement on its own line */}
+                {titik(urut.map((d, i) => ({ kunci: d.objective_id ?? d.code ?? String(i), nama: namaDomain(d), v: Number(d.mean_score),
+                  sub: d.title && d.title.trim() !== "" && d.competency && d.competency.trim() !== d.title.trim() ? d.competency : undefined })))}
                 {titikKet(urut.map((d) => ({ v: Number(d.mean_score) })))}
                 {/* D6: a competency whose own learners are under the minimum shows no mean; how many are withheld is said */}
-                {domain.some((d) => typeof d.mean_score !== "number") ? (
+                {domain.some((d) => typeof d.mean_score !== "number" && typeof d.needed === "number") ? (
                   <p className="pin-lk-arti" data-lk-tertahan="">{s("laporan.sekolah.ranah_tertahan")
                     .replace("{n}", format.number(domain.filter((d) => typeof d.mean_score !== "number").length, locale))
-                    .replace("{m}", format.number(Number(domain.find((d) => typeof d.mean_score !== "number")?.needed ?? 0), locale))}</p>
+                    .replace("{m}", format.number(Number(domain.find((d) => typeof d.mean_score !== "number" && typeof d.needed === "number")?.needed), locale))}</p>
                 ) : null}
               </div>
             </div>
-          ) : komp.status === "ok" ? null : tiada(komp)}
+          ) : komp.status === "ok" ? (
+            // owner decision 7: every row withheld is said, never an empty section that reads as «nothing measured»
+            domain.some((d) => typeof d.mean_score !== "number" && typeof d.needed === "number") ? (
+              <p className="pin-lk-arti" data-lk-tertahan="">{s("laporan.sekolah.ranah_tertahan_semua")
+                .replace("{n}", format.number(domain.length, locale))
+                .replace("{m}", format.number(Number(domain.find((d) => typeof d.needed === "number")?.needed), locale))}</p>
+            ) : null
+          ) : tiada(komp)}
         </section>
       ) : null}
 

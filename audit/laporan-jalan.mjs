@@ -1,5 +1,5 @@
 // LOCAL ONLY. The Reporting Quality Gate's inspection walk (owner directive, 9 Nov): every report opened by its
-// intended reader, at 1280, 390 and 320 px, in the world audit/fixtures/laporan-lokal.mjs builds. For each page:
+// intended reader (and, for the English pages, by the same readers in English), at 1280, 390 and 320 px, in the world audit/fixtures/laporan-lokal.mjs builds. For each page:
 // a full-page screenshot, the visible text (for the figures to be checked against the raw results), the HTTP status,
 // the final address (a refusal or a redirect shows there) and whether the page scrolls sideways.
 // Reads only; it presses nothing that changes anything. Credentials come from the fixture's OUT file (never committed).
@@ -46,6 +46,11 @@ const ORANG = {
   murid: { ...W.murid.find((m) => m.email === muridLemah), tujuan: "BELAJAR" },
   murid0: { ...W.murid.find((m) => m.peran === "TIDAK" && m.kelas === "5B"), tujuan: "BELAJAR" },
   tanpaKelas: { ...W.tanpaKelas, tujuan: "BELAJAR" },
+  // the owner's directive (9 Nov): the states Daisy could not see, and the English pages
+  kadepIpa: { ...W.staf.kadepIpa, tujuan: "MENGELOLA" },
+  guruEn: { ...W.staf.guru, tujuan: "MENGAJAR", bahasa: "en" },
+  dekanEn: { ...W.staf.dekan, tujuan: "MENGELOLA", bahasa: "en" },
+  muridEn: { ...W.murid.find((m) => m.email === muridLemah), tujuan: "BELAJAR", bahasa: "en" },
 };
 const tugasMurid = TUGAS_MURID(ORANG.murid.email);
 
@@ -56,6 +61,7 @@ const HALAMAN = {
     ["bukti-5B", `/mengajar/${K["5B"]}/bukti`],
     ["ringkasan-5B", `/edukator/ringkasan?kelas=${K["5B"]}&dari=kelas`],
     ["ringkasan-5C", `/edukator/ringkasan?kelas=${K["5C"]}&dari=kelas`],
+    ["bukti-5C", `/mengajar/${K["5C"]}/bukti`],
     ["soal-5B", `/mengajar/${K["5B"]}/soal?penugasan=${POST5B}`],
     ["siapa-5B", `/mengajar/${K["5B"]}/siapa?penugasan=${POST5B}`],
     ["murid-lemah", `/mengajar/${K["5B"]}/murid/${LEMAH}`],
@@ -92,6 +98,21 @@ const HALAMAN = {
   murid0: [["hasil", "/belajar/hasil"]],
   // owner decision 1 end to end: the learner without a class sees who places them; the admin's Pindah lists them
   tanpaKelas: [["belajar", "/belajar"]],
+  // a department whose classes have no ONE readable target (two chapters sealed at different marks)
+  kadepIpa: [
+    ["pimpinan", "/pimpinan"],
+    ["ringkasan-5G", `/edukator/ringkasan?kelas=${K["5G"]}&dari=pimpinan`],
+  ],
+  guruEn: [
+    ["ringkasan-5B", `/edukator/ringkasan?kelas=${K["5B"]}&dari=kelas`],
+    ["ringkasan-5C", `/edukator/ringkasan?kelas=${K["5C"]}&dari=kelas`],
+    ["bukti-5B", `/mengajar/${K["5B"]}/bukti`],
+  ],
+  dekanEn: [
+    ["pimpinan", "/pimpinan"],
+    ["sekolah", `/dekan/ringkasan?simpul=${ROOT}&dari=pimpinan`],
+  ],
+  muridEn: [["hasil-bab", `/belajar/${tugasMurid}/hasil`]],
 };
 
 async function cookies(p) {
@@ -102,7 +123,8 @@ async function cookies(p) {
   const { data, error } = await client.auth.signInWithPassword({ email: p.email, password: p.password });
   if (error || !data.session) throw new Error(`sign-in failed for ${p.email}: ${error?.message ?? "no session"}`);
   const host = new URL(APP).hostname;
-  return [...jar].map(([name, value]) => ({ name, value, domain: host, path: "/", httpOnly: false, secure: false, sameSite: "Lax" }));
+  const lang = p.bahasa ? [["pintar-lang", p.bahasa]] : [];
+  return [...jar, ...lang].map(([name, value]) => ({ name, value, domain: host, path: "/", httpOnly: false, secure: false, sameSite: "Lax" }));
 }
 async function masuk(browser, p, viewport) {
   const context = await browser.newContext({ viewport, locale: "id-ID", timezoneId: "Asia/Jakarta" });
@@ -111,7 +133,7 @@ async function masuk(browser, p, viewport) {
   await page.goto(`${APP}/`, { waitUntil: "networkidle" });
   if (new URL(page.url()).pathname === "/perangkat") {
     await page.locator('input[type="radio"][name="mode"][value="PERSONAL"]').check();
-    await page.getByRole("button", { name: "Simpan pilihan" }).click();
+    await page.locator('input[type="radio"][name="mode"]').first().locator("xpath=ancestor::form").locator('button[type="submit"]').click();
     await page.waitForURL((u) => u.pathname !== "/perangkat", { timeout: 30000 }).catch(() => {});
     await page.goto(`${APP}/`, { waitUntil: "networkidle" });
   }
@@ -129,7 +151,8 @@ async function masuk(browser, p, viewport) {
 const hasil = [];
 const browser = await chromium.launch();
 const LEBAR = (process.env.WIDTHS ?? "1280,390,320").split(",").map(Number);
-for (const [siapa, daftar] of Object.entries(HALAMAN)) {
+const HANYA = process.env.ONLY ? process.env.ONLY.split(",") : null;
+for (const [siapa, daftar] of Object.entries(HALAMAN).filter(([k]) => !HANYA || HANYA.includes(k))) {
   for (const w of LEBAR) {
     const { context, page } = await masuk(browser, ORANG[siapa], { width: w, height: w > 800 ? 900 : 844 });
     for (const [nama, jalan] of daftar) {
@@ -137,7 +160,7 @@ for (const [siapa, daftar] of Object.entries(HALAMAN)) {
       // «Komputer siapa ini?» may be asked on the first protected page rather than at /: answered as the person would
       if (new URL(page.url()).pathname === "/perangkat") {
         await page.locator('input[type="radio"][name="mode"][value="PERSONAL"]').check();
-        await page.getByRole("button", { name: "Simpan pilihan" }).click();
+        await page.locator('input[type="radio"][name="mode"]').first().locator("xpath=ancestor::form").locator('button[type="submit"]').click();
         await page.waitForURL((u) => u.pathname !== "/perangkat", { timeout: 30000 }).catch(() => {});
         r = await page.goto(`${APP}${jalan}`, { waitUntil: "networkidle" }).catch(() => null);
       }
@@ -150,6 +173,7 @@ for (const [siapa, daftar] of Object.entries(HALAMAN)) {
       const rec = { siapa, nama, w, jalan, status: r?.status() ?? 0, akhir: new URL(page.url()).pathname + new URL(page.url()).search,
         geser: l.s > l.w, lebar: l, shot: f, teks: w === 1280 ? teks : teks.slice(0, 300) };
       hasil.push(rec);
+      writeFileSync(join(OUT, "laporan-jalan.json"), JSON.stringify(hasil, null, 2));
       console.log(`${siapa.padEnd(7)} ${nama.padEnd(15)} ${w}  ${rec.status}  ${rec.geser ? "SCROLLS " + l.s : "ok"}  → ${rec.akhir.slice(0, 70)}`);
     }
     await context.close();

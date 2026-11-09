@@ -4649,7 +4649,7 @@
     {
       "id": "F35-D01",
       "runner": "db",
-      "proves": "Owner decision 6 (9 Nov), selftest/db/fable35.sql: every subgroup meets its own governed minimum with learners counted once. An Angkatan of 4 learners (one sitting three times) is 4 learners with no mean beside an Angkatan of 6 with its mean; the comparison's sample is the school's distinct learners; a chapter two learners sat is withheld with the catalogue's minimum and «Pemahaman» does not move when it is sat (the withheld chapter cannot be recovered); the class's teacher and the Dekan are given the same chapter figures."
+      "proves": "Owner decision 6 (9 Nov), selftest/db/fable35.sql: every subgroup meets its own governed minimum with learners counted once. An Angkatan of 4 learners (one sitting three times) is 4 learners with no mean beside an Angkatan of 6 with its mean; the comparison's sample is the school's distinct learners; a chapter two learners sat is withheld with the catalogue's minimum, and «Pemahaman», which combines it, is then withheld as protecting a subgroup (owner decision 7: never recomputed without the chapter) with its five learners still counted; the class's teacher and the Dekan are given the same chapter figures. Restated 9 Nov from the reverted rule that dropped the small chapter from «Pemahaman»."
     },
     {
       "id": "F35-G01",
@@ -4665,6 +4665,56 @@
       "id": "F35-O4",
       "runner": "db",
       "proves": "Owner ruling O4 (9 Nov), selftest/db/fable35.sql: the school's figures (institution.*) follow authority over the whole school: a Dekan at the school's root and its Admin read them; a Dekan over one Bagian (faculty node), another school's Dekan, a Kepala departemen and a teacher are refused not_permitted."
+    },
+    {
+      "id": "F36-E01",
+      "runner": "db",
+      "proves": "Owner decision 8 (9 Nov), selftest/db/fable36.sql, running the calculators: a learner sits a chapter at 80% then 60%; current mastery is 60% (class.chapter_mastery and class.comprehension 0.52 over 5 learners, the bands over 5), learner.result keeps both sittings, class.net_gain pairs the current 60% with the earliest Pemetaan Awal (0.30 mean, where MC-8's highest-result rule gave 0.80 − 0.30), an audited recomputation to 70% moves the figures to 0.54 and stays one sitting, recomputing the OLDER sitting later never makes it current, and certificate_eligibility still reads the sitting's sealed 60%."
+    },
+    {
+      "id": "F36-X01",
+      "runner": "db",
+      "proves": "Owner decision 8 E (9 Nov), selftest/db/fable36.sql: the same evidence gives agreeing figures across reports: «Pemahaman» equals the one chapter's mean and, over two chapters, their learner-weighted mean; with every learner paired, kenaikan_awal_akhir's akhir equals «Pemahaman» and akhir − awal equals class.net_gain."
+    },
+    {
+      "id": "F36-R01",
+      "runner": "db",
+      "proves": "Sharon's finding 1 (owner directive D7-D8), selftest/db/fable36.sql, her exact case executed: chapter A 70% over 6 learners, chapter B 40% over 3, nine pairs. For the Dekan and the teacher, B's row, «Pemahaman» and kenaikan_awal_akhir's means are withheld, so 9 × 0.60 − 6 × 0.70 cannot be formed; also with a second withheld chapter, a repeated sitting and learners in both chapters; and a shown chapter whose single unpaired learner would be its mean minus Kenaikan's akhir withholds Kenaikan's pair."
+    },
+    {
+      "id": "F36-R02",
+      "runner": "db",
+      "proves": "Sharon's finding 2, selftest/db/fable36.sql: class.topic_mastery lists shown topics by their means, then withheld topics by name (T1, T3, T2, T4), never by their hidden means (which would give T4 before T2)."
+    },
+    {
+      "id": "F36-K01",
+      "runner": "db",
+      "proves": "Owner directive D7-D8 (school-level small populations, unrecorded history), selftest/db/fable36.sql: a school competency combining a 12-learner and a 3-learner class, the school's Kenaikan over them and their Angkatan are withheld (never recomputed without the small class); a competency whose every class cell is large is shown; another Angkatan keeps its mean; sittings with no recorded Angkatan are the last «not recorded» row and still count among the school's participants."
+    },
+    {
+      "id": "F36-G02",
+      "runner": "db",
+      "proves": "Sharon's finding 5, selftest/db/fable36.sql: four learners who sat three times each give institution.safety_gate_pass_rate sample 4 and sittings 12, the rate over the 12 sittings (0.5), and four learners do not clear the school minimum of ten."
+    },
+    {
+      "id": "F36-H01",
+      "runner": "db",
+      "proves": "Sharon's finding 3 / owner decision 5, selftest/db/fable36.sql, through the product's own path: a learner placed in a Kelas under an Angkatan starts a real Pemetaan Awal (start_learning_session) and it records that Angkatan; after the Kelas moves to another Angkatan the past sitting keeps its own and the next sitting records the new one; a rewrite is refused (INV-33)."
+    },
+    {
+      "id": "F36-H02",
+      "runner": "db",
+      "proves": "Owner decision 5, selftest/db/fable36.sql: open_assessment_session refuses an Angkatan that is not the class's, and, with no class, one the enrolment is not placed in; history is never taken on a caller's word."
+    },
+    {
+      "id": "F36-M01",
+      "runner": "db",
+      "proves": "Owner approval (misconception patterns), selftest/db/fable36.sql, with real responses: one learner who chose the same wrong option three times is no class pattern (not listed; the envelope's `withheld` counts it); five learners who chose another are listed with 5 occurrences; the sample is the 6 learners."
+    },
+    {
+      "id": "F36-P01",
+      "runner": "db",
+      "proves": "Owner decision 7 and Daisy's N2, selftest/db/fable36.sql: «Pemahaman» with 0 learners says «belum ada bukti» with 0; with 1 and 4 learners «belum cukup data» with that count; with 5 it is shown; the bands and topics count the same learners; two chapters of 4 learners (8 sat) are «withheld to protect a chapter» (laporan.metrik.dilindungi) with 8 learners, each chapter withheld with its 4."
     },
     {
       "id": "LAPORAN-KELAS-01",
@@ -4729,17 +4779,42 @@
     {
       "id": "LAPORAN-KISI-02",
       "runner": "static",
-      "proves": "Reporting Quality Gate (9 Nov), rendered: KisiTopik's lead sentence judges topics «below target in most classes» only over at least two classes whose figure and target the reader can read. A Dekan reads no class's target and had been told «Tidak ada topik yang di bawah target di sebagian besar kelas» over cells below it; with no target or one, the lead is now absent and the cells are still drawn."
+      "proves": "Reporting Quality Gate (9 Nov), the rendered output of src/components/laporan/KisiTopik.tsx: KisiTopik's lead sentence judges topics «below target in most classes» only over at least two classes whose figure and target the reader can read. A Dekan reads no class's target and had been told «Tidak ada topik yang di bawah target di sebagian besar kelas» over cells below it; with no target or one, the lead is now absent and the cells are still drawn."
     },
     {
       "id": "LAPORAN-TOLAK-01",
       "runner": "static",
-      "proves": "Reporting Quality Gate (9 Nov): Ringkasan Kelas (/edukator/ringkasan) and Ringkasan Sekolah (/dekan/ringkasan) give a reader refused every figure (a learner, another class's teacher, a teacher at the school's summary) the refusal page with «Laporan ini tidak ditampilkan untuk peran Anda di tempat ini.», never a report frame naming the place with a print button and six refusal cards; the guard runs before the report is drawn."
+      "proves": "Reporting Quality Gate (9 Nov), reading the source of src/app/edukator/ringkasan/page.tsx and src/app/dekan/ringkasan/page.tsx and the copy table src/lib/hle.ts: Ringkasan Kelas (/edukator/ringkasan) and Ringkasan Sekolah (/dekan/ringkasan) give a reader refused every figure (a learner, another class's teacher, a teacher at the school's summary) the refusal page with «Laporan ini tidak ditampilkan untuk peran Anda di tempat ini.», never a report frame naming the place with a print button and six refusal cards; the guard runs before the report is drawn."
+    },
+    {
+      "id": "D78-P01",
+      "runner": "static",
+      "proves": "Owner decision 7 and Daisy's N2 (9 Nov), the rendered output of src/components/bukti/KartuKetiadaan.tsx and src/components/laporan/KomposisiKelas.tsx and the source of src/app/mengajar/[kelas]/bukti/page.tsx: a figure withheld to protect a smaller part says it is withheld with every learner who sat (id and en), never «belum ada bukti», a zero or «Sekarang 0 murid»; four learners are «belum cukup data» with 4; Kenaikan's withheld pair is said, not drawn; withheld misconception patterns are said with their count and minimum."
+    },
+    {
+      "id": "D78-K01",
+      "runner": "static",
+      "proves": "Daisy's N4 (9 Nov), the rendered output of src/components/laporan/KisiTopik.tsx: the meaning line and key compare with «that class's target» only where every class's target is drawn, say the comparison is partial where only some are, and with no readable target imply no comparison, explain no line and draw no line or amber; a short title keeps its objective's statement."
+    },
+    {
+      "id": "D78-N03",
+      "runner": "static",
+      "proves": "Daisy's N3 (9 Nov), the rendered output of src/components/laporan/KomposisiSekolah.tsx (id, en) and the source of src/app/mengajar/[kelas]/bukti/page.tsx and src/components/bukti/BarisKesiapan.tsx: a short title keeps its objective's statement on its own line; the school counts learning objectives, never «ranah» or «domains»; a withheld row's sentence names both its reasons."
+    },
+    {
+      "id": "D78-N01",
+      "runner": "static",
+      "proves": "Daisy's N1 (O1, 9 Nov), the source of src/app/mengajar/[kelas]/bukti/page.tsx: «Lihat bukti» says the educator-decision line once for the page."
+    },
+    {
+      "id": "D78-S01",
+      "runner": "static",
+      "proves": "Daisy's further findings (9 Nov), the source of src/app/belajar/[tugas]/hasil/page.tsx, src/app/pimpinan/page.tsx and src/app/experience.css: «every important question was right» only over required questions, «none in this check» when there were none and nothing over unread items; «Ada angka» only for a performance figure; a count-and-link keeps its gap and wraps; a Temuan panel in a list keeps its box."
     },
     {
       "id": "LAPORAN-MURID-02",
       "runner": "static",
-      "proves": "Reporting Quality Gate (9 Nov), rendered: the learner's «Hasil belajar» with more than two parts to study again (each named by its objective's statement) counts them in the lead («Ada 7 bagian untuk dipelajari lagi; semuanya ditandai «pelajari lagi» di bagian B.») instead of a 25-line list at 390 px; section B lists each; a chapter whose title begins with its subject is not named «Matematika · Matematika Kelas 5 …»."
+      "proves": "Reporting Quality Gate (9 Nov), rendering src/components/laporan/KomposisiMurid.tsx and calling src/lib/nama-bab.ts, and reading the source of src/lib/hasil-belajar.ts and src/app/belajar/[tugas]/{hasil,pemetaan,penguasaan,sertifikat}/page.tsx: the learner's «Hasil belajar» with more than two parts to study again (each named by its objective's statement) counts them in the lead («Ada 7 bagian untuk dipelajari lagi; semuanya ditandai «pelajari lagi» di bagian B.») instead of a 25-line list at 390 px; section B lists each; a chapter whose title begins with its subject is not named «Matematika · Matematika Kelas 5 …»."
     },
     {
       "id": "LAPORAN-SEKOLAH-01",

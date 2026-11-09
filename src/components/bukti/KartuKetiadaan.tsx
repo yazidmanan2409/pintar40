@@ -60,7 +60,21 @@ export function kalimatJumlah(entry: Envelope, locale: Locale = "id", persona: "
   if (variantOf(entry) !== "belum_cukup" || entry.needed == null || !hitungMurid) {
     return null;
   }
+  // owner decision 7 (Daisy's N2): a figure WITHHELD to protect a smaller part is not «not enough students»: its
+  // learners did sit, and the sentence says so, with the minimum the small part did not reach
+  if (entry.withheld?.reason === "subgroup") {
+    return kalimatDilindungi(entry, jenis, locale, persona);
+  }
   return kalimatJumlahOrang(entry.have ?? 0, entry.needed, jenis, locale, persona);
+}
+
+/** Owner decision 7: «N learners sat; a chapter (or, for a school figure, a class) has fewer than M.» */
+export function kalimatDilindungi(entry: Envelope, jenis: JenisAnggota = "LEARNER", locale: Locale = "id", persona: "educator" | "staff" = "educator"): string {
+  const bagian = entry.metric_id?.startsWith("institution.") ? "kelas" : "bab";
+  const orang = jenis === "PARTICIPANT" ? "peserta" : "murid";
+  return t(`ketiadaan.dilindungi.${bagian}.${orang}` as HleEvent, persona, { locale })
+    .replace("{have}", format.number(entry.have ?? 0, locale))
+    .replace("{needed}", format.number(Number(entry.withheld?.needed ?? entry.needed), locale));
 }
 
 /**

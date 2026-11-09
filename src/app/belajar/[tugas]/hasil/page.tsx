@@ -67,6 +67,11 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
 
   const pct = outcome.penguasaan == null ? null : outcome.penguasaan;
   const gate = outcome.gerbang_keselamatan;
+  // Daisy (9 Nov): the gate passes vacuously when the check holds no must-be-right question, so «every important
+  // question was right» is said only where there were some; with none it says so; unread items claim nothing
+  const wajib = review.filter((r) => r.is_safety_critical).length;
+  const keadaanGerbang: "ok" | "missed" | "tidak_ada" | null =
+    gate == null ? null : gate === false ? "missed" : review.length === 0 ? null : wajib === 0 ? "tidak_ada" : "ok";
   const benar = review.filter((r) => r.benar === true).length;
 
   return (
@@ -129,10 +134,16 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
         ) : null}
 
         {/* The feedback on the safety gate, when there is one. */}
-        {gate != null ? (
-          <div className={`pin-banner ${gate ? "pin-ok" : "pin-attention"}`} role="status">
-            <Ikon nama={gate ? "circle-check" : "triangle-alert"} />
-            <p>{gate ? s("hasil.safety.ok") : s("hasil.safety.missed")}</p>
+        {keadaanGerbang === "tidak_ada" ? (
+          <div className="pin-banner pin-neutral" role="status" data-gerbang="tidak-ada">
+            <Ikon nama="info" />
+            <p>{s("hasil.safety.tidak_ada")}</p>
+          </div>
+        ) : null}
+        {keadaanGerbang === "ok" || keadaanGerbang === "missed" ? (
+          <div className={`pin-banner ${keadaanGerbang === "ok" ? "pin-ok" : "pin-attention"}`} role="status">
+            <Ikon nama={keadaanGerbang === "ok" ? "circle-check" : "triangle-alert"} />
+            <p>{keadaanGerbang === "ok" ? s("hasil.safety.ok") : s("hasil.safety.missed")}</p>
           </div>
         ) : null}
 

@@ -46,8 +46,12 @@ export const SYARAT_METRIK: Readonly<Record<string, Syarat>> = {
  * short of evidence (`below_minimum`), or null: a refusal, a retired measure
  * or a figure PINTAR could not compute is not waiting on students.
  */
-export function kunciMuncul(e: { status: string; metric_id?: string }): HleEvent | null {
+export function kunciMuncul(e: { status: string; metric_id?: string; withheld?: { reason: string } }): HleEvent | null {
   if (e.status !== "below_minimum" || !e.metric_id) return null;
+  // owner decision 7: a withheld figure appears when its smallest part is large enough, not when «enough» sit overall
+  if (e.withheld?.reason === "subgroup") {
+    return e.metric_id.startsWith("institution.") ? "laporan.muncul.dilindungi.kelas" : "laporan.muncul.dilindungi.bab";
+  }
   const syarat = SYARAT_METRIK[e.metric_id];
   return syarat ? (`laporan.muncul.${syarat}` as HleEvent) : null;
 }

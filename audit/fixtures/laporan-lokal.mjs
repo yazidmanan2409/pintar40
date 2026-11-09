@@ -10,7 +10,13 @@
 //   5C  12 learners:  7 sit both (a population above the minimum of 5, with many not yet assessed)
 //   5D   4 learners:  4 sit both (a population under the minimum: «Belum cukup data»)
 //   5E   9 learners:  nobody sits anything (zero records)
-//   staff: a Guru of 5B and 5C, a Kepala departemen (Matematika), a Dekan (Sekolah Dasar), an Admin sekolah
+//   (owner directive, 9 Nov: the states Daisy could not see)
+//   5C also takes chapter 2, and only 3 of its learners reach that Uji Penguasaan: a WITHHELD chapter beside a shown one
+//   5F   6 learners:  sit both, and their sittings are then given the history every sitting before MC-9 has: no
+//                     recorded Angkatan («Angkatan tidak tercatat»); local only, written as the database owner
+//   5G   6 and 5H 5 learners, in a department of their own (IPA): both chapters, the second sealed at another mark (80%),
+//                     so neither class has ONE readable target: the IPA head's grid has no target at all
+//   staff: a Guru of 5B and 5C, a Kepala departemen (Matematika), one of IPA, a Dekan (Sekolah Dasar), an Admin sekolah
 // The answers are chosen per learner from an ability and per objective, so the distribution is uneven on purpose
 // (no bell curve is drawn into the data, and none may be drawn out of it by a report).
 //
@@ -104,10 +110,18 @@ const RENCANA = [
   { nama: "5C", murid: 12, keduanya: 7, hanyaAwal: 0, mampu: [0.25, 0.75] },
   { nama: "5D", murid: 4, keduanya: 4, hanyaAwal: 0, mampu: [0.4, 0.9] },
   { nama: "5E", murid: 9, keduanya: 0, hanyaAwal: 0, mampu: [0.5, 0.8] },
+  { nama: "5F", murid: 6, keduanya: 6, hanyaAwal: 0, mampu: [0.4, 0.85], riwayat: true },
+  { nama: "5G", murid: 6, keduanya: 6, hanyaAwal: 0, mampu: [0.35, 0.9], ipa: true },
+  { nama: "5H", murid: 5, keduanya: 5, hanyaAwal: 0, mampu: [0.45, 0.9], ipa: true },
 ];
+// IPA: a department of its own, its programme and Angkatan, for the grid with no readable target
+const DEPT_IPA = sql(`insert into public.org_nodes (institution_id, parent_id, kind, name) values (${uuid(I)}, ${uuid(FAKULTAS)}, 'DEPARTMENT', 'IPA') returning id`);
+const PROG_IPA = sql(`insert into public.org_nodes (institution_id, parent_id, kind, name) values (${uuid(I)}, ${uuid(DEPT_IPA)}, 'PROGRAMME', 'SD Cendekia IPA') returning id`);
+const COHORT_IPA = sql(`insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+  values (${uuid(I)}, ${uuid(PROG_IPA)}, 'COHORT', 'Angkatan 5 IPA', ${uuid(PERIOD)}) returning id`);
 for (const k of RENCANA) {
   k.id = sql(`insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
-    values (${uuid(I)}, ${uuid(COHORT)}, 'CLASS', ${lit(k.nama)}, ${uuid(PERIOD)}) returning id`);
+    values (${uuid(I)}, ${uuid(k.ipa ? COHORT_IPA : COHORT)}, 'CLASS', ${lit(k.nama)}, ${uuid(PERIOD)}) returning id`);
 }
 
 // ── 2. the staff
@@ -116,12 +130,14 @@ const STAF = {
   guru: await akun("lap-guru@laporan.local.invalid", "Pak Yusuf (uji laporan)"),
   kadep: await akun("lap-kadep@laporan.local.invalid", "Bu Fitri (uji laporan)"),
   dekan: await akun("lap-dekan@laporan.local.invalid", "Pak Bambang (uji laporan)"),
+  kadepIpa: await akun("lap-kadep-ipa@laporan.local.invalid", "Bu Ratna (uji laporan)"),
 };
 peran(STAF.admin.person, "INSTITUTION_ADMIN", ROOT);
 peran(STAF.guru.person, "EDUCATOR", RENCANA[0].id);
 peran(STAF.guru.person, "EDUCATOR", RENCANA[1].id);
 peran(STAF.kadep.person, "HEAD_OF_DEPARTMENT", DEPT);
 peran(STAF.dekan.person, "DEAN", FAKULTAS);
+peran(STAF.kadepIpa.person, "HEAD_OF_DEPARTMENT", DEPT_IPA);
 
 // ── 3. the learners, recorded in the school and placed in their class
 const DEPAN = ["Adi", "Bunga", "Citra", "Dimas", "Eka", "Fajar", "Gita", "Hana", "Indra", "Joko", "Kirana", "Lestari", "Maya",
@@ -193,9 +209,14 @@ for (const f of ["sd5-sintetis-bab1", "sd5-sintetis-bab2"]) {
 
 // ── 5. the chapters given to the classes by the school's admin, as Konfigurasi does (5B both chapters; the others
 // the first), each window open now
-for (const k of RENCANA) {
+// (IPA last: its second chapter is given after the school's mark for it moves to 80%, so its classes have two marks)
+for (const k of [...RENCANA.filter((x) => !x.ipa), ...RENCANA.filter((x) => x.ipa)]) {
+  if (k.ipa && !BAB.ubah) {
+    BAB.ubah = true;
+    await rpc(tAdmin, "set_school_pass_mark", { p_institution: I, p_course: BAB[1].course, p_percent: 80, p_reason: "Batas sekolah dinaikkan untuk bab ini." });
+  }
   k.tugas = [];
-  for (const b of k.nama === "5B" ? BAB : BAB.slice(0, 1)) {
+  for (const b of ["5B", "5C"].includes(k.nama) || k.ipa ? BAB : BAB.slice(0, 1)) {
     await rpc(tAdmin, "assign_release", { p_release: b.rel, p_node: k.id, p_from: new Date(Date.now() - 86400000).toISOString(),
       p_until: new Date(Date.now() + 30 * 86400000).toISOString() });
     const t = { course: b.course };
@@ -248,19 +269,32 @@ for (const m of MURID.filter((x) => x.peran !== "TIDAK")) {
   const k = RENCANA.find((x) => x.nama === m.kelas);
   const tok = await token(m);
   for (const [j, t] of k.tugas.entries()) {
+    // 5C's second chapter: only its first three learners take it at all (a chapter under the minimum of five)
+    if (j === 1 && k.nama === "5C") { k.bab2 = (k.bab2 ?? 0) + 1; if (k.bab2 > 3) continue; }
     // the second chapter is still under way: only two thirds of 5B have reached its Uji Penguasaan
-    if (j === 1 && acak() > 0.67) { await duduk(m, tok, t.PRE_TEST, -0.3); sat++; continue; }
+    if (j === 1 && k.nama === "5B" && acak() > 0.67) { await duduk(m, tok, t.PRE_TEST, -0.3); sat++; continue; }
     await duduk(m, tok, t.PRE_TEST, -0.3);
     sat++;
     if (m.peran === "KEDUANYA") { await duduk(m, tok, t.POST_TEST, 0); sat++; }
   }
 }
 
+// ── 6b. 5F's sittings carry the history every sitting before MC-9 carries: no recorded Angkatan. A sitting's Angkatan
+// is immutable (INV-33) and the product now always records one, so this LOCAL fixture writes that history as the
+// database owner, as selftest/db does: the provenance guard is lifted for this one update and restored at once
+const KELAS_RIWAYAT = RENCANA.filter((k) => k.riwayat).map((k) => uuid(k.id)).join(", ");
+sql(`begin; alter table public.assessment_sessions disable trigger assessment_sessions_provenance;
+  update public.assessment_sessions set cohort_node_id = null where class_node_id in (${KELAS_RIWAYAT});
+  alter table public.assessment_sessions enable trigger assessment_sessions_provenance; commit;`);
+if (sql(`select count(*) from public.assessment_sessions where class_node_id in (${KELAS_RIWAYAT}) and cohort_node_id is not null`) !== "0") {
+  throw new Error("5F's history was not written");
+}
+
 // ── 7. what was recorded (read back, for the report's own figures to be checked against)
 const ringkas = rows(`select n.name, d.mode, count(*), round(avg(r.mastery), 3), min(r.mastery), max(r.mastery)
   from public.official_sessions s join public.official_results r on r.session_id = s.id
   join public.org_nodes n on n.id = s.class_node_id join public.assessment_definitions d on d.id = s.assessment_definition_id
- where s.institution_id = ${uuid(I)} and n.name in ('5B','5C','5D','5E') group by 1, 2 order by 1, 2`);
+ where s.institution_id = ${uuid(I)} and n.name in (${RENCANA.map((k) => lit(k.nama)).join(", ")}) group by 1, 2 order by 1, 2`);
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, JSON.stringify({ sekolah: I, kelas: Object.fromEntries(RENCANA.map((k) => [k.nama, k.id])), staf: STAF, tanpaKelas: TANPA_KELAS,
   murid: MURID.map((m) => ({ email: m.email, password: m.password, nama: m.nama, kelas: m.kelas, peran: m.peran })), ringkas }, null, 2));

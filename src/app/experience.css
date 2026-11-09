@@ -1052,6 +1052,8 @@
   border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
 }
 .pin-daftar li { display: contents; }
+/* Daisy (Temuan, 390 px): a list item that IS a panel keeps its box, its padding and its hairline */
+.pin-daftar li.pin-panel { display: grid; }
 
 /* ------------------------------------------------------------------- result */
 /* E-K3 (D-168): the learner's result card has its own name. It used to share `.pin-hasil` with the result line of a
@@ -1782,7 +1784,9 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 }
 /* The same target as a link (DAISY-20: «Aktifkan akun», «Masuk ke PINTAR»):
    min-height does nothing on an inline box, so a link sat 18 px tall. */
-a.pin-tautan { display: inline-flex; align-items: center; }
+/* Daisy (9 Nov, «1murid»): a flex box drops the space between a count and its word, so the gap is the box's own; it
+   wraps at 320 px rather than overflow */
+a.pin-tautan { display: inline-flex; align-items: center; flex-wrap: wrap; column-gap: var(--space-1); }
 .pin-kembali {
   justify-self: start;
   background: none; border: 0; padding: var(--space-2) 0;
@@ -3792,4 +3796,4 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 }
 
 /* V2 (owner, 9 Nov): a topic named by its short title keeps its objective's statement on a line of its own, quieter */
-.pin-lk-pernyataan { display: block; font-size: 0.8125rem; line-height: 1.35; color: var(--ink-2); font-weight: 400; margin-top: 0.125rem; }
+.pin-lk-pernyataan { display: block; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); font-weight: 400; margin-top: var(--space-1); }

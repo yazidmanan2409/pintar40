@@ -10,8 +10,14 @@
 --   F35-S01  THE SAMPLE IS PEOPLE (the 5-learner minimum, H31's rule): those five learners' ten results are a «Pemahaman»
 --            sample of five, and three learners who sat both chapters (six results) are under the minimum for
 --            class.comprehension and class.topic_mastery, counted as three.
---   F35-A01  Those sittings record no cohort (a learner PINTAR places is a member of a Kelas, never of the COHORT node):
---            institution.cohort_comparison counts them in the Angkatan above their Kelas and has no unnamed row.
+--   F35-A01  OWNER DECISION 5: sittings that recorded no Angkatan form one explicit «not recorded» row, never placed
+--            by today's structure; sittings recorded under an Angkatan stay there when their class moves; a recorded
+--            Angkatan cannot be rewritten (INV-33). (These sittings are written directly; the RECORDING itself, through
+--            start_learning_session and open_assessment_session, is F36-H01/H02.)
+--   F35-D01  OWNER DECISIONS 6 AND 7: every row meets its own minimum, learners counted once; a chapter under its
+--            minimum withholds its own mean AND «Pemahaman», which combines it (never recomputed without it).
+--   F35-G01  The safety gate's sample is the school's distinct learners (the 4 × 3 case is F36-G02).
+--   F35-O2 / F35-O4  Owner rulings O2 (the class target) and O4 (the school summary's readers).
 --
 -- EVERY ROW IS ROLLED BACK.
 
@@ -183,9 +189,9 @@ begin
       perform selftest.f35_attempt(v_tpl, v_p, v_kls3, v_db, jsonb_build_object('X1', jsonb_build_object('benar', 4, 'total', 5, 'penguasaan', 0.8)), now() - interval '1 day');
     end loop;
     perform selftest.as_user_uid(v_guru);
-    -- RESTATED TO OWNER DECISION 6 (9 Nov): «Pemahaman» averages only the chapters whose own learners reach the
-    -- minimum, so with three learners per chapter it counts none (0); the topics count their three learners
-    for m in select x, harap from (values ('class.comprehension', 0), ('class.topic_mastery', 3)) v(x, harap) loop
+    -- OWNER DECISION 7: «Pemahaman» counts every assessed learner once (three), so the reader is told how far it is
+    -- from appearing; participation is never zero
+    for m in select x, harap from (values ('class.comprehension', 3), ('class.topic_mastery', 3)) v(x, harap) loop
       v_j := public.metric_evaluate(m.x, v_kls3, v_inst);
       if v_j ->> 'status' = 'ok' or v_j ? 'value' then
         s01 := s01 || format('%s shows a figure for three learners (six results): %s', m.x, left(v_j::text, 160));
@@ -264,7 +270,8 @@ begin
                                                   where s.institution_id = v_inst and s.mode = 'POST_TEST') then
       d01 := d01 || format('the comparison''s sample %s is not the school''s distinct learners', v_j ->> 'sample');
     end if;
-    -- (c) a chapter under its minimum: its own row withheld, and «Pemahaman» does not include it (no reconstruction)
+    -- (c) a chapter under its minimum: its own row withheld, and «Pemahaman», which combines it, withheld too (decision
+    -- 7: never recomputed without it, so neither its meaning changes nor the small chapter can be recovered)
     perform selftest.as_user_uid(v_guru);
     v_j := public.metric_evaluate('class.chapter_mastery', v_kls, v_inst);
     perform selftest.as_owner();
@@ -291,9 +298,16 @@ begin
                                                     where md.catalogue_version = public.current_metric_catalogue() and md.metric_id = 'class.chapter_mastery')) then
       d01 := d01 || format('the chapter two learners sat is not withheld with its governed minimum: %s', left(coalesce((v_j -> 'value')::text, 'nothing'), 400));
     end if;
-    if (v_j3 ->> 'value') is distinct from (v_j2 ->> 'value') then
-      d01 := d01 || format('«Pemahaman» moved from %s to %s when a withheld chapter was sat: the withheld chapter could be recovered from it',
-                           v_j2 ->> 'value', v_j3 ->> 'value');
+    -- RESTATED TO OWNER DECISION 7 (9 Nov; it asserted the reverted rule that dropped the small chapter from the mean)
+    if v_j2 ->> 'status' is distinct from 'ok' then
+      d01 := d01 || format('before chapter C, «Pemahaman» over two full chapters is not shown: %s', left(v_j2::text, 200));
+    end if;
+    if v_j3 ->> 'status' is distinct from 'below_minimum' or v_j3 ? 'value'
+       or v_j3 -> 'withheld' ->> 'reason' is distinct from 'subgroup'
+       or v_j3 ->> 'statement_key' is distinct from 'laporan.metrik.dilindungi'
+       or (v_j3 ->> 'have')::int is distinct from 5 then
+      d01 := d01 || format('with chapter C (two learners) sat, «Pemahaman» is not withheld as protecting a subgroup with its five learners still counted: %s',
+                           left(v_j3::text, 300));
     end if;
     -- (d) the same evidence for the class's teacher and for the school's Dekan: the same figure
     perform selftest.as_user_uid(v_dekan);
@@ -303,11 +317,8 @@ begin
       d01 := d01 || 'the Dekan and the class''s teacher are given different chapter figures for the same evidence'::text;
     end if;
 
-    -- F35-G01 Sharon's finding 2: four learners with three sittings each (12 results) do not clear the school minimum
-    -- of 10: the safety gate counts learners; checked on a school of its own
-    perform set_config('app.seed_intent', 'synthetic', true);
-    -- the gate's figure in this tenant is over every sitting; measured as the delta its sample makes
-    perform set_config('app.seed_intent', '', true);
+    -- F35-G01 Sharon's finding 2: the safety gate counts learners (this tenant's learners sit several times); the
+    -- four-learners-three-sittings case on a school of its own is F36-G02
     perform selftest.as_user_uid(v_dekan);
     v_j := public.metric_evaluate('institution.safety_gate_pass_rate', null, v_inst);
     perform selftest.as_owner();
@@ -422,7 +433,8 @@ begin
   elsif cardinality(d01) > 0 then ok := false; detail := format('%s problem(s): %s', cardinality(d01), array_to_string(d01, '; '));
   else ok := true; detail := 'an Angkatan of 4 learners (one sitting three times) is 4 learners with no mean beside one of 6 with its mean; the '
     || 'comparison''s sample is the school''s distinct learners; a chapter two learners sat is withheld with the governed minimum, and '
-    || '«Pemahaman» does not move when it is sat (it cannot be recovered); the teacher and the Dekan are given the same chapter figures';
+    || '«Pemahaman», which combines it, is then withheld as protecting a subgroup (laporan.metrik.dilindungi) with its five learners '
+    || 'still counted, never recomputed without it; the teacher and the Dekan are given the same chapter figures';
   end if;
   return next;
   id := 'F35-G01'; area := 'Sharon finding 2 -- the safety gate''s population is learners';
