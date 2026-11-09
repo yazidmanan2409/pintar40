@@ -302,7 +302,8 @@ export const d78Tests: SelfTest[] = [
       c.expect(/engine\.sesiDihitungUlang\(db, state\.post_session\)/.test(hasil) && /\{dihitungUlang \? <p className="pin-meta" data-dihitung-ulang="">\{s\("hasil\.dihitung_ulang"\)\}<\/p> : null\}/.test(hasil),
         "the learner's chapter result does not say their sitting was recalculated");
       // restated to Daisy's B3 (e8a5efb9): the notice claims only what IS sealed: the mastery, the count and the certificate
-      c.expect(/Penguasaan dan jumlah jawaban tepat di atas, serta sertifikat Anda, tetap hasil yang disegel/.test(hle) && !/Hasil yang Anda lihat di sini dan sertifikat Anda tidak berubah/.test(hle),
+      // restated to the owner's wording decision (9 Nov): ordinary words for a learner, never «disegel»
+      c.expect(/Penguasaan dan jumlah jawaban tepat di atas, serta sertifikat Anda, tetap seperti semula/.test(hle) && !/Hasil yang Anda lihat di sini dan sertifikat Anda tidak berubah/.test(hle),
         "the learner's notice claims more, or less, than the sealed mastery, count and certificate");
       return c.verdict("the rendered KomposisiKelas, KomposisiSekolah, KartuKetiadaan and KisiTopik output, kunciMuncul, experience.css, hle.ts and the source of the chapter result: " +
         "the topic lead counts over the topics with a figure and names the withheld ones apart (D13); «below target» is heard with its percentage (A6); a gate that applies to " +
@@ -369,7 +370,7 @@ export const d78Tests: SelfTest[] = [
       for (const k of ["hasil.review.kunci_terkini", "map.kunci_terkini"]) {
         const l = baris(k);
         // DAISY-26: learner copy never says «kunci jawaban» (it reads as locking an answer); «jawaban benar yang sudah diperbaiki»
-        c.expect(/jawaban benar yang sudah diperbaiki/.test(l) && !/kunci jawaban/i.test(l) && /corrected answers/.test(l) && !/answer key/i.test(l) && /tidak berubah/.test(l) && /do(es)? not change/.test(l)
+        c.expect(/jawaban benar yang sudah diperbaiki/.test(l) && !/kunci jawaban/i.test(l) && /corrected answers/.test(l) && !/answer key/i.test(l) && /tetap seperti semula/.test(l) && /stays? as (it was|they were)/.test(l) && !/disegel|sealed/i.test(l)
           && !/(sertifikat|certificate)[^."]*(berubah menjadi|changed to|telah berubah|has changed)/i.test(l),
           `«${k}» does not say the corrected key, or implies the sealed result or certificate changed: ${l.slice(0, 200)}`);
       }
