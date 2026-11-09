@@ -624,9 +624,17 @@ begin
 
     -- ═══════════════════════════════════ F36-M01 misconception patterns are gated on learners
     insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_ca, 'CLASS', 'Kelas F36 M ' || v_tag, v_period) returning org_nodes.id into c_m;
+    -- an item with two wrong options carrying DIFFERENT misconceptions (and a correct option, for F36-D14): chosen for
+    -- that property, never by whichever item id sorts first (CI 519: the first item had only one)
     select o.item_id, o.label, o.misconception_code into v_item, v_opt_a, v_code_a
       from public.item_options o join public.misconception_taxonomy t on t.code = o.misconception_code and t.institution_id = o.institution_id
-     where o.institution_id = v_inst and not o.is_correct order by o.item_id, o.label limit 1;
+     where o.institution_id = v_inst and not o.is_correct
+       and o.item_id in (select o2.item_id from public.item_options o2
+                           join public.misconception_taxonomy t2 on t2.code = o2.misconception_code and t2.institution_id = o2.institution_id
+                          where o2.institution_id = v_inst and not o2.is_correct
+                          group by o2.item_id having count(distinct o2.misconception_code) >= 2)
+       and exists (select 1 from public.item_options c where c.item_id = o.item_id and c.is_correct)
+     order by o.item_id, o.label limit 1;
     select o.label, o.misconception_code into v_opt_b, v_code_b
       from public.item_options o join public.misconception_taxonomy t on t.code = o.misconception_code and t.institution_id = o.institution_id
      where o.item_id = v_item and not o.is_correct and o.misconception_code <> v_code_a order by o.label limit 1;
