@@ -101,7 +101,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
-  d01 text[] := '{}'; d03 text[] := '{}'; d04 text[] := '{}'; d05 text[] := '{}'; d06 text[] := '{}';
+  d01 text[] := '{}'; d07 text[] := '{}'; d03 text[] := '{}'; d04 text[] := '{}'; d05 text[] := '{}'; d06 text[] := '{}';
   b01 text[] := '{}'; d02 text[] := '{}'; c01 text[] := '{}';
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_depa uuid; v_depb uuid; v_proga uuid; v_progb uuid;
   v_coha uuid; v_cohb uuid; c_a uuid; c_b uuid; v_def uuid; v_def2 uuid; v_item uuid; v_opt text; v_rel uuid; v_rel2 uuid;
@@ -233,7 +233,7 @@ begin
     select x.session into v_cohs from selftest.f36_sit(v_tpl, v_murid, null, v_def, 0.50, 'D1', now() - interval '5 hours', v_coha) x;
     insert into public.integrity_signals (session_id, institution_id, category) values (v_cohs, v_inst, 'NAVIGATION');
     for r in select * from (values ('A''s Kepala departemen', u_kadep_a, 'integritas=1 sesi=1 antrean=1 boleh_rujuk=true'),
-                                   ('B''s Kepala departemen', u_kadep_b, 'integritas=0 sesi=0 antrean=1 boleh_rujuk=false'),
+                                   ('B''s Kepala departemen', u_kadep_b, 'integritas=0 sesi=0 antrean=0 boleh_rujuk=false'),
                                    ('the Admin sekolah', u_admin, 'integritas=1 sesi=1 antrean=1 boleh_rujuk=true')) t(siapa, uid, mau) loop
       perform selftest.as_user_uid(r.uid);
       select format('integritas=%s sesi=%s antrean=%s boleh_rujuk=%s',
@@ -245,6 +245,35 @@ begin
       perform selftest.as_owner();
       if v_got <> r.mau then d05 := d05 || format('%s: %s; the contract is %s', r.siapa, v_got, r.mau); end if;
     end loop;
+    -- owner, 9 Nov: B's head sees the school's oversight as a count, never the case
+    perform selftest.as_user_uid(u_kadep_b);
+    select coalesce(sum(w.waiting), 0) into v_n from public.integrity_signals_waiting_elsewhere() w where w.institution_id = v_inst;
+    perform selftest.as_owner();
+    if v_n < 2 then d05 := d05 || format('B''s head is not given the count of observations waiting elsewhere (%s; at least 2 wait in Departemen A)', v_n); end if;
+    -- Sharon, finding B: the referral the list offers over the Angkatan is accepted
+    v_got := selftest.f37_sebagai(u_kadep_a, format('select public.refer_integrity_signal(%L, %L)',
+               (select g.id from public.integrity_signals g where g.session_id = v_cohs limit 1), 'dirujuk F37'));
+    if v_got <> 'OK' then d05 := d05 || ('A''s head''s referral of the Angkatan-only sitting was refused: ' || v_got); end if;
+
+    -- ═══════════════════════════════════ F37-D07 deciding, ending and extending another person's sitting (Sharon, finding A)
+    for r in select * from (values
+        ('decide its observation', format('select public.record_integrity_review(%L, ''NO_CONCERN'', ''F37'')', (select g.id from public.integrity_signals g where g.session_id = v_sess limit 1))),
+        ('end the sitting', format('select public.terminate_session(%L, %L, ''F37'')', v_sess, (select e2::text from unnest(enum_range(null::public.termination_cause)) e2 limit 1))),
+        ('extend its deadline', format('select public.extend_session_deadline(%L, 10, ''F37'')', v_sess))) t(apa, q) loop
+      begin
+        v_got := selftest.f37_sebagai(u_kadep_b, r.q);
+        if v_got not like '42501%' and v_got !~* 'requires CAN_' then d07 := d07 || format('B''s head may %s on Kelas A''s sitting: %s', r.apa, v_got); end if;
+        v_got := selftest.f37_sebagai(u_guru_b, r.q);
+        if v_got not like '42501%' and v_got !~* 'requires CAN_' then d07 := d07 || format('B''s Guru may %s on Kelas A''s sitting: %s', r.apa, v_got); end if;
+        v_got := selftest.f37_sebagai(u_kadep_a, r.q);
+        if v_got ~* 'requires CAN_' then d07 := d07 || format('A''s head was refused to %s: %s', r.apa, v_got); end if;
+        raise exception 'f37-undo';
+      exception when others then
+        if sqlerrm <> 'f37-undo' then d07 := d07 || ('fixture: ' || sqlerrm); end if;
+        perform selftest.as_owner();
+      end;
+    end loop;
+
     -- no class and no Angkatan: nobody but its learner (fail closed)
     perform selftest.as_user_uid(u_kadep_a);
     select count(*) into v_n from public.assessment_sessions s where s.id = v_tpl and false;
@@ -326,12 +355,14 @@ begin
   for r in select * from (values
       ('F37-D01', 'System Integrity, chain D: evidence read where it was given', d01,
        'the learner, A''s head, A''s Guru and the Admin sekolah (no answer, no question shown: D5) read what the rule gives each; B''s head, B''s Guru and another learner read nothing'),
+      ('F37-D07', 'System Integrity, chain D: deciding, ending and extending another person''s sitting', d07,
+       'B''s head and B''s Guru cannot decide Kelas A''s observation, end its sitting or extend its deadline; A''s head can (each tried and undone)'),
       ('F37-D03', 'System Integrity, chain D: reclassification decided over the class', d03,
        'B''s head and B''s Guru cannot take Kelas A''s sitting out of official evidence (42501); A''s head and the Admin sekolah can'),
       ('F37-D04', 'System Integrity, chain B: lesson progress follows what the class was assigned', d04,
        'A''s Guru reads chapter 1 (assigned to A) and not chapter 2; B''s Guru reads chapter 2 and not chapter 1'),
       ('F37-D05', 'System Integrity, chain D: a sitting with an Angkatan and no class', d05,
-       'A''s head and the Admin sekolah read its observation and sitting and may refer it from the waiting list; B''s head sees it waiting (the list''s approved contract, F21-I01) and may not refer it, and reads neither the observation nor the sitting'),
+       'A''s head and the Admin sekolah read its observation and sitting, list it and refer it (the referral is accepted); B''s head is given only the count of observations waiting elsewhere (owner, 9 Nov), no case'),
       ('F37-D06', 'System Integrity, chain D: D5''s one-sitting investigation', d06,
        'the Admin sekolah opens one sitting''s answers with a reason while its observation is undecided, one audit row per open; refused without a reason, with no undecided observation, and to another department''s head; refusals write nothing'),
       ('F37-B01', 'System Integrity, chain B: a waiting count equals its list', b01,

@@ -56,13 +56,17 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
   const pemilik = (await currentViewer())?.personId ?? "";
   const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
   const halTinjau = halamanDiminta(sp.hal_tinjau);
-  const [{ data: signals }, { data: tercatat }] = await Promise.all([
+  const [{ data: signals }, { data: tercatat }, { data: lain }] = await Promise.all([
     supabase.rpc("integrity_signals_awaiting_review"),
     supabase.rpc("integrity_reviews_recorded", { p_hal: halTinjau }),
+    // owner, 9 Nov (SI-D01): oversight of other departments is a count only; their cases stay with their reviewers
+    supabase.rpc("integrity_signals_waiting_elsewhere"),
   ]);
   // L3 (D-127 Q2): the working context's school only (studioInstitutions is narrowed to it)
   const sekolah = new Set((await studioInstitutions()).map((i) => i.id));
 
+  const nLain = ((lain ?? []) as Array<{ institution_id: string; waiting: number }>)
+    .filter((r) => sekolah.has(r.institution_id)).reduce((n, r) => n + Number(r.waiting ?? 0), 0);
   const rows = ((signals ?? []) as Menunggu[]).filter((r) => sekolah.has(r.institution_id)).map((r) => ({ ...r, id: r.signal_id }));
   const bySession = new Map<string, typeof rows>();
   for (const r of rows) bySession.set(r.session_id, [...(bySession.get(r.session_id) ?? []), r]);
@@ -123,6 +127,9 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
 
       <section aria-labelledby="integritas-menunggu" className="pin-studio-halaman">
         <h3 id="integritas-menunggu" className="pin-studio-h3">{s("studio.integritas.menunggu.judul")}</h3>
+        {nLain > 0 ? (
+          <p className="pin-ket" data-integritas-lain={nLain}>{s("studio.integritas.menunggu_lain").split("{n}").join(String(nLain))}</p>
+        ) : null}
         {bySession.size === 0 ? (
           // W3.2 (Empty state, «not yet»): nothing is waiting, which is good news; there is no action to offer
           <Kosong jenis="belum" kalimat={s("studio.integritas.kosong")} />

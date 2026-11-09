@@ -128,6 +128,19 @@ All of F37 (D01–D06, B01, D02, C01) is red on `4f2d2c1b`'s rules where it test
 (local, 9 Nov). **SI-D01 stays open** until the whole suite, CI and the journeys pass on the head carrying it and Sharon
 has reviewed the completed changes.
 
+## 4b-2 · Sharon's re-review of `53ab41fe` (9 Nov) and the owner's direction: dispositions
+
+| Finding | Severity | Correction (`20270112130000`) | Regression | State |
+|---|---|---|---|---|
+| A: `record_integrity_review`, `terminate_session`, `extend_session_deadline` decided school-wide | High | each over the sitting's place (`boleh_atas_sesi`); PD sittings keep their rule for ending/extending (to Sharon), PD observations stay the platform's | **F37-D07** (B's head and B's Guru refused on all three; A's head succeeds); **F06-P22 restated** (outside the department a NO_CONCERN decision is now refused too, no review row) | corrected |
+| B: referral offered over the Angkatan, refused by `refer_integrity_signal` | Medium | the function anchors on the place | F37-D05 (A's head's referral of the Angkatan-only sitting is accepted) | corrected |
+| C: `sesi_tempat`/`sesi_tempat_koreksi` answered any signed-in caller | Low | boolean predicates of the caller (`boleh_atas_sesi`, `boleh_koreksi_sesi`); the place helpers withdrawn from `authenticated` | the migration's verification block | corrected |
+| Waiting list (owner, 9 Nov: «aggregate counts for other departments; individual case details and actions limited to authorized scopes»; Sharon: per department) | — | `integrity_signals_awaiting_review` lists only the reader's scope; `integrity_signals_waiting_elsewhere` gives a count per school and department (no sitting, category, time or person); Studio · Integritas shows the count line | **F21-I01 restated** (FD-7/DG-32's presentation replaced, note in the test); F37-D05 | corrected; Daisy to review the count's presentation |
+| Membership timing for lesson progress | Low | a membership that ended before the assignment was made does not carry it | policy (F37-D04 unchanged) | corrected |
+| D5 audit linkage | Low | `integrity.answers_opened` records the qualifying observation ids | F37-D06 | corrected; PostgREST `db-tx-end` rollback override: to confirm |
+| BOB43-D01 floor | Low | — | to replace the 12-set floor by the exact expected-empty (reader, table) sets | **open** |
+| Probe M07–M09 and both answer-opening cases | — | — | `audit/integritas-peran.mjs` | **open** (needs a rebuilt report world) |
+
 ## 4c · SI-D02: an attempt limit under concurrent starts (9 Nov)
 
 | | |

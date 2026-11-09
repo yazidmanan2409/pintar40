@@ -40,6 +40,30 @@ experience.
 
 ---
 
+## 0 · How each capability is developed (owner, 9 Nov)
+
+**PLAN → PREPARE → REVIEW → REVISE → PREPARE → EXECUTE.**
+1. Second Eye plans: the existing implementation, dependencies and boundaries.
+2. Sharon and Daisy review the design independently, **before** implementation, proportionate to risk. Full review for
+   C1 and C3; design plus result for C4, C5, C7 and C8; a short check for C2 and C6.
+3. Second Eye revises the design.
+4. Prepare the regression tests, failure cases, fixtures, acceptance criteria and implementation plan.
+5. Execute with continuous testing and independent verification on the exact commit.
+
+Each plan answers, for Daisy:
+- which screens change, for whom;
+- the states (empty, refused, failed, expired, «not yet»);
+- what it reuses;
+- what the mechanism decides that the wording depends on.
+
+**Owner rulings carried into every capability (9 Nov):**
+- **School time zone:** each school's IANA zone is stored data, set and audited. Every school-facing time and schedule
+  uses it, never a hard-coded WIB. Instants stay in UTC.
+- **AI provenance:** educators and reviewers see it; learners get approved questions with no mandatory AI label, hidden
+  in the API and database, not only on screen.
+- **Printing:** only the official «Cetak laporan» issues an audit-linked reference. A browser print carries none and
+  claims no audit.
+
 ## 1 · The register
 
 | # | Capability | Source | Approved scope (summary) | Already in 4.0 (reuse) | State |
@@ -167,4 +191,5 @@ X consistency        ──  applied in every row; Daisy's and Sharon's cross-mo
 
 | Date | Capability | State | Commit | Evidence |
 |---|---|---|---|---|
+| 9 Nov | C1 | **design reviewed by Sharon** (`1f7b6fc2`): five gaps, three high (device identity from verified claims, never a parameter; generation decided by the server; final-answer selection across generations), a completed boundary list, one lock order, and ten missing red cases. **Next: revise the design** (Second Eye); Daisy reviews the recovery wording alongside | `1f7b6fc2` | Sharon's review, 9 Nov |
 | 9 Nov | all | register opened; C1–C8 approved; WhatsApp sign-in moved to 4.5 (O41-2); one mid-December walkthrough (O41-5); O41-1 principle ruled, provider open; O41-3 ruled; O41-4 to prepare | (this commit) | the owner's 9 Nov directives |

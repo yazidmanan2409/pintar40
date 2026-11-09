@@ -1072,6 +1072,7 @@ export type HleEvent =
   | "studio.integritas.judul"
   | "studio.integritas.penjelasan"
   | "studio.integritas.kosong"
+  | "studio.integritas.menunggu_lain"
   | "studio.integritas.NO_CONCERN"
   | "studio.integritas.DISCUSSED_WITH_LEARNER"
   | "studio.integritas.REFERRED_TO_INSTITUTION"
@@ -4449,6 +4450,7 @@ const table: Table = {
   "studio.definisi.tetap": { default: "Nama diperbarui. Cara hasil dibaca tidak berubah.", en: "The name is updated. How results are read has not changed." },
   "studio.integritas.judul": { default: "Tinjauan Integritas", en: "Integrity Review" },
   "studio.integritas.penjelasan": { default: "Catatan ini bahan pertimbangan manusia, bukan kesimpulan tentang murid.", en: "These notes are material for a human to weigh, not a conclusion about a student." },
+  "studio.integritas.menunggu_lain": { default: "Di bagian lain sekolah, {n} catatan menunggu peninjau bagian itu.", en: "Elsewhere in the school, {n} notes are waiting for that part's reviewer." },
   "studio.integritas.kosong": { default: "Tidak ada catatan yang menunggu tinjauan.", en: "No note is waiting for review." },
   "studio.integritas.NO_CONCERN": { default: "Tidak ada yang perlu ditindaklanjuti", en: "Nothing to follow up" },
   "studio.integritas.DISCUSSED_WITH_LEARNER": { default: "Sudah dibicarakan dengan murid", en: "Discussed with the student" },

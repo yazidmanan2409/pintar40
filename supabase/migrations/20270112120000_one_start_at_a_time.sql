@@ -150,6 +150,8 @@ begin
   return v_session;
 end $function$;
 
+revoke all on function public.start_learning_session(uuid) from public, anon, authenticated;
+grant execute on function public.start_learning_session(uuid) to authenticated, service_role;
 
 do $$
 begin

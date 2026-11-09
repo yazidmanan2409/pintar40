@@ -6237,7 +6237,12 @@ begin
         perform selftest.as_user_uid(c.hod_u);
         begin perform public.record_integrity_review(v_sig_b, 'REFERRED_TO_INSTITUTION', 'departemen lain');
         exception when others then v_caught := true; end;
-        perform public.record_integrity_review(v_sig_b, 'NO_CONCERN', 'hanya dilihat');
+        -- RESTATED FOR SI-D01 (Sharon's finding A; owner, 9 Nov: «individual case details and actions remain limited to
+        -- authorized scopes»): outside the reviewer's department a NO_CONCERN decision is refused as well, not only the
+        -- referral; it was accepted under the school-wide rule
+        begin perform public.record_integrity_review(v_sig_b, 'NO_CONCERN', 'hanya dilihat');
+              bad := bad || array['a NO_CONCERN decision outside the reviewer''s department was accepted'];
+        exception when others then null; end;
         perform selftest.as_owner();
         select count(*) into n from public.management_decisions m where m.source_id = v_sig_b;
         select count(*) into n_aud from public.audit_log l
@@ -6248,7 +6253,8 @@ begin
         end if;
         select count(*) into n_aud from public.audit_log l
          where l.action = 'INTEGRITY_SIGNAL_REVIEWED' and l.target_id = v_sig_b::text and l.summary ->> 'decision' = 'NO_CONCERN';
-        if n_aud <> 1 then bad := bad || array['a NO_CONCERN review outside the reviewer''s department is no longer recorded']; end if;
+        -- RESTATED FOR SI-D01 (Sharon's finding A; owner, 9 Nov): outside the department no review is recorded at all
+        if n_aud <> 0 then bad := bad || array['a NO_CONCERN review outside the reviewer''s department was recorded']; end if;
       end;
 
       -- a Head of Department over the other department does not see it. Made
