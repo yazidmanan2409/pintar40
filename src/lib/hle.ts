@@ -620,7 +620,7 @@ export type HleEvent =
   | "studio.paket.buat_terbitan"
   // DAISY-07: what makes an absent figure appear; class by class; the admin's reports
   | "laporan.muncul.penilaian"
-  | "laporan.muncul.akhir"
+  | "laporan.muncul.akhir" | "laporan.muncul.gerbang"
   | "laporan.muncul.awal_akhir"
   | "laporan.muncul.miskonsepsi"
   | "laporan.muncul.sertifikat"
@@ -3913,6 +3913,7 @@ const table: Table = {
   "studio.terbitan.kode.release_failed": { default: "Langkah ini belum berhasil. Coba lagi sebentar lagi.", en: "This step did not go through. Try again in a moment." },
   "studio.paket.buat_terbitan": { default: "Buat terbitan", en: "Create release" },
   "laporan.muncul.penilaian": { default: "Angka ini muncul setelah murid menyelesaikan asesmen pertamanya.", en: "This figure appears once a student has finished their first assessment." },
+  "laporan.muncul.gerbang": { default: "Angka ini muncul setelah cukup murid mengerjakan Uji Penguasaan yang memuat soal wajib.", en: "This figure appears once enough students have taken a Mastery Check that holds required items." },
   "laporan.muncul.akhir": { default: "Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.", en: "This figure appears once enough students have finished the Mastery Check." },
   "laporan.muncul.awal_akhir": { default: "Angka ini muncul setelah cukup murid menyelesaikan Pemetaan Awal dan Uji Penguasaan. Hanya murid yang menyelesaikan keduanya yang dihitung.", en: "This figure appears once enough students have finished both the Initial Mapping and the Mastery Check. Only students who finished both are counted." },
   "laporan.muncul.miskonsepsi": { default: "Angka ini muncul setelah beberapa murid memilih jawaban keliru yang sama pada pilihan yang diberi kode miskonsepsi.", en: "This figure appears once several students choose the same wrong answer on an option that carries a misconception code." },
@@ -4196,8 +4197,8 @@ const table: Table = {
   "mengajar.murid1.dihitung_ulang_alasan": { default: "Alasan yang dicatat: {alasan}", en: "Reason recorded: {alasan}" },
   // D14 (owner, 9 Nov): the learner is told, neutrally, that reports may read a recalculated figure; their own result and certificate do not change
   // O-B3 (owner, 9 Nov): the feedback uses the corrected key and says so; the sealed result and certificate do not change
-  "hasil.review.kunci_terkini": { default: "Tanda «Sudah tepat» dan «Belum tepat» pada soal-soal di bawah mengikuti jawaban benar yang sudah diperbaiki, jadi bisa berbeda dari hasil yang disegel di atas ({benar} dari {total} soal tepat). Hasil yang disegel dan sertifikat Anda tidak berubah.", en: "The «That is right» and «Not right yet» marks on the questions below use the corrected answer key, so they can differ from the sealed result above ({benar} of {total} questions right). Your sealed result and certificate do not change." },
-  "map.kunci_terkini": { default: "Peta ini mengikuti jawaban benar yang sudah diperbaiki, jadi bisa berbeda dari hasil Pemetaan Awal yang disegel. Hasil yang disegel tidak berubah.", en: "This map uses the corrected answer key, so it can differ from your sealed Initial Mapping result. Your sealed result does not change." },
+  "hasil.review.kunci_terkini": { default: "Tanda «Sudah tepat» dan «Belum tepat» pada soal-soal di bawah mengikuti jawaban benar yang sudah diperbaiki, jadi bisa berbeda dari hasil yang disegel di atas ({benar} dari {total} soal tepat). Hasil yang disegel dan sertifikat Anda tidak berubah.", en: "The «That is right» and «Not right yet» marks on the questions below follow the corrected answers, so they can differ from the sealed result above ({benar} of {total} questions right). Your sealed result and certificate do not change." },
+  "map.kunci_terkini": { default: "Peta ini mengikuti jawaban benar yang sudah diperbaiki, jadi bisa berbeda dari hasil Pemetaan Awal yang disegel. Hasil yang disegel tidak berubah.", en: "This map follows the corrected answers, so it can differ from your sealed Initial Mapping result. Your sealed result does not change." },
   "hasil.dihitung_ulang": { default: "Hasil ini kemudian dihitung ulang. Penguasaan dan jumlah jawaban tepat di atas, serta sertifikat Anda, tetap hasil yang disegel; laporan guru dapat menampilkan hasil yang dihitung ulang.", en: "This result was later recalculated. The mastery and the count of right answers above, and your certificate, stay as sealed; your teacher's reports may show the recalculated result." },
   "mengajar.murid1.dihitung_ulang": { default: "Hasil sesi ini dihitung ulang setelah disegel. Laporan memakai hasil terbaru ({baru}); sertifikat dan halaman hasil murid tetap memakai hasil asli yang disegel ({asli}).", en: "This sitting's result was recalculated after it was sealed. Reports use the latest result ({baru}); the certificate and the student's own result page keep the original sealed result ({asli})." },
   "mengajar.murid1.di_bawah_target": { default: "di bawah target", en: "below target" },

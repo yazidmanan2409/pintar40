@@ -51,6 +51,9 @@ export function kunciMuncul(e: { status: string; metric_id?: string; withheld?: 
   // owner decision 7, Daisy's A7 (9 Nov): a WITHHELD figure (a small part, or D12's «not applicable») is explained once,
   // by its own sentence, with its actual reason; no second «it will appear when…» line, no pointer to another section
   if (e.withheld) return null;
+  // Daisy (20302e39): the gate appears only once enough students sit a check WITH required questions; more sittings of
+  // checks without them never make it appear, so its line says so (its evidence kind stays «akhir»)
+  if (e.metric_id === "institution.safety_gate_pass_rate") return "laporan.muncul.gerbang";
   const syarat = SYARAT_METRIK[e.metric_id];
   return syarat ? (`laporan.muncul.${syarat}` as HleEvent) : null;
 }

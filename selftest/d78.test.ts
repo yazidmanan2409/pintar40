@@ -369,10 +369,16 @@ export const d78Tests: SelfTest[] = [
       for (const k of ["hasil.review.kunci_terkini", "map.kunci_terkini"]) {
         const l = baris(k);
         // DAISY-26: learner copy never says «kunci jawaban» (it reads as locking an answer); «jawaban benar yang sudah diperbaiki»
-        c.expect(/jawaban benar yang sudah diperbaiki/.test(l) && !/kunci jawaban/i.test(l) && /corrected answer key/.test(l) && /tidak berubah/.test(l) && /do(es)? not change/.test(l)
+        c.expect(/jawaban benar yang sudah diperbaiki/.test(l) && !/kunci jawaban/i.test(l) && /corrected answers/.test(l) && !/answer key/i.test(l) && /tidak berubah/.test(l) && /do(es)? not change/.test(l)
           && !/(sertifikat|certificate)[^."]*(berubah menjadi|changed to|telah berubah|has changed)/i.test(l),
           `«${k}» does not say the corrected key, or implies the sealed result or certificate changed: ${l.slice(0, 200)}`);
       }
+      // Daisy (20302e39): the gate's «it appears when…» line names checks WITH required items; more sittings of checks
+      // without them never make it appear
+      const mu = kode(baca(ctx.repoRoot, "src/components/bukti/muncul.ts"));
+      c.expect(/if \(e\.metric_id === "institution\.safety_gate_pass_rate"\) return "laporan\.muncul\.gerbang";/.test(mu)
+        && /"laporan\.muncul\.gerbang": \{ default: "Angka ini muncul setelah cukup murid mengerjakan Uji Penguasaan yang memuat soal wajib\."/.test(hle2),
+        "the gate below its minimum still says it appears once enough students finish any Mastery Check");
       const kh = kode(baca(ctx.repoRoot, "src/components/bukti/KeadaanHariIni.tsx"));
       c.expect((kh.match(/format\.satuan\(k\.(sedang|belum), s\(kataAnggota\("mengajar\.bukti\.murid", jenis\)\), locale\)/g) ?? []).length === 2,
         "«Lihat bukti» still writes «1 learners» under «Belum mengerjakan»");

@@ -345,6 +345,26 @@ Daisy's report: `docs/coordination/ux/completion-4.0/CONTOH-LAPORAN/KESIAPAN-LAP
 - **Tests.** D78-B01 (source and wording, both languages: the corrected key named; the sealed result and certificate said not to change).
 - **Verification asked.** Daisy: can a first-time learner tell the sealed result from the current-key feedback? Sharon: do the evidence and recalculation contracts stay consistent?
 
+### Re-checks on 20302e39
+
+**Sharon (read-only, 20302e39): all four items verified.**
+
+| Item | Sharon's finding | Disposition |
+|---|---|---|
+| 1, the `moved` reason | Verified: the tags apply in order (`learners`, then `class`, then `moved`), and a row a small cell touches is always `class`. **Edge (Low):** with a row's catalogue minimum missing, `n >= NULL` is null, so the `learners` tag was skipped and a row with no movers could read `moved`. The mean was still withheld; only the reason was wrong, and only on a misconfigured catalogue | **Fixed**: the `learners` test is `(n >= minimum) IS NOT TRUE` in both calculators, so a missing minimum is «not met», never a mover |
+| 2, the PR011 catch | Verified. Only the insert is wrapped. The audit row comes after it, so a losing concurrent call raises PR011 and leaves no result row and no audit row | Closed |
+| 3, the gate below its minimum | Verified. No figure is emitted; `have` is the applicable learners; the not-applicable count is on its own line | Closed |
+| 4, O-B3 | Verified. The learner's page and the certificate read the sealed original (`ringkasan` is the original's `delta_inputs`). Reports read the latest recalculation. Feedback grades by today's key. Nothing writes or re-seals | Closed. The map's limit is as recorded under O-B3 |
+
+**Daisy (20302e39, `52607a0e` on `ux-1/daisy-experience`): B1, B2, B3 and O-B3 confirmed.** She staged two real recalculations for one 5B learner (Uji Penguasaan 0% → 12.5%, Pemetaan Awal 0% → 25%) and checked both languages at 1280 and 390 px.
+
+| Item | Daisy's finding | Disposition |
+|---|---|---|
+| B1 residue | Below its minimum the gate still ended «Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.» That is not true here: more sittings of checks without required questions never make it appear | **Fixed**: the gate has its own line, «Angka ini muncul setelah cukup murid mengerjakan Uji Penguasaan yang memuat soal wajib.» (D78-B01) |
+| O-B3, English | «corrected answer key», while the Indonesian avoids «kunci jawaban» | **Fixed**: «follow the corrected answers» (D78-B01 forbids «answer key» in these notes) |
+| O-B3, wording | The learner's notices rest on «disegel» four times; a Grade 5 learner may not know the word. She proposes plain versions («Hasil di atas dan sertifikat Anda tetap seperti semula») | **For the terminology owner.** «disegel» is the product's governed word for a sealed result, so changing it is a terminology decision, not made here |
+| Items 4, 5 | Not seen in this world: the gate never reaches its minimum, and no learner moved class. The copy reads correctly | Covered by D78-A01, D78-B01 and F36-K02 |
+
 ### Daisy's report on 13079a9e
 
 | Item | Correction | Test | Disposition |
@@ -388,7 +408,7 @@ Restated tests (each with a note in the test): D78-P01 (A7), D78-N03 (A5), D78-S
 | Report walk | On `d840b12f`: 120 views, all 200, none scrolls sideways. CEK at 1280 (40 views) found one axe colour-contrast failure («Berkembang», 4.28:1), fixed; on re-check 0 violations, print clean, A6 tree snapshot «60% (di bawah target) · 22 murid». Daisy's walk on `e8a5efb9` (120 + 40 views) agrees. B1–B3 changed pages after that; not re-walked |
 | Sharon | Verified `e8a5efb9`; dispositions in §13. **Re-check requested** on the final head: the `moved` reason, the PR011 catch, the gate below its minimum, and O-B3: the evidence and recalculation contracts stay consistent |
 | Daisy | Verified `e8a5efb9` (`8dac7681`); dispositions in §13. **Re-check requested** on the final head: B1–B3, the «hasil» wording, the `moved` sentence, and O-B3: a first-time learner telling the sealed result from the current-key feedback |
-| Owner | O-B3 decided and implemented (§13). For the terminology owner: «students» and «learners» both appear in English |
+| Owner | O-B3 decided and implemented (§13). For the terminology owner: «students» and «learners» both appear in English; Daisy proposes plainer learner wording than «disegel» |
 | Staging | Not exercised: no deployment is authorised |
 | Screen readers (NVDA, TalkBack) | The accessibility tree is checked in the walk; no real screen reader has been run |
 | PD reports | Not changed by this pass; not re-walked |

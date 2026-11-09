@@ -791,7 +791,8 @@ BEGIN ATOMIC
          )
   SELECT jsonb_build_object('value', COALESCE(( SELECT jsonb_agg(jsonb_build_object('objective_id', x.objective_id, 'code', x.code, 'competency', x.statement, 'title', x.title,
                  'mean_score', x.mean_score, 'needed', ( SELECT m.k FROM minimum m), 'learners', x.n,
-                 'withheld', COALESCE(( SELECT 'learners'::text WHERE (NOT (x.n >= ( SELECT m.k FROM minimum m)))),
+                 -- Sharon (20302e39): a missing minimum is not met («learners»), never read as a mover
+                 'withheld', COALESCE(( SELECT 'learners'::text WHERE ((x.n >= ( SELECT m.k FROM minimum m)) IS NOT TRUE)),
                                       ( SELECT 'class'::text WHERE ((x.mean_score IS NULL) AND x.by_size)),
                                       ( SELECT 'moved'::text WHERE (x.mean_score IS NULL))))
                  ORDER BY (x.mean_score IS NULL), x.mean_score DESC, x.statement, x.code) FROM shown x), '[]'::jsonb),
@@ -872,7 +873,8 @@ BEGIN ATOMIC
          )
   SELECT jsonb_build_object('value', COALESCE(( SELECT jsonb_agg(jsonb_build_object('cohort_node_id', x.cohort_node_id, 'recorded', (x.cohort_node_id IS NOT NULL), 'learners', x.learners,
                  'needed', ( SELECT m.k FROM minimum m), 'mean_mastery', x.mean_mastery,
-                 'withheld', COALESCE(( SELECT 'learners'::text WHERE (NOT (x.learners >= ( SELECT m.k FROM minimum m)))),
+                 -- Sharon (20302e39): a missing minimum is not met («learners»), never read as a mover
+                 'withheld', COALESCE(( SELECT 'learners'::text WHERE ((x.learners >= ( SELECT m.k FROM minimum m)) IS NOT TRUE)),
                                       ( SELECT 'class'::text WHERE ((x.mean_mastery IS NULL) AND x.touches_size)),
                                       ( SELECT 'moved'::text WHERE (x.mean_mastery IS NULL))))
                  ORDER BY (x.cohort_node_id IS NULL), (x.mean_mastery IS NULL), x.mean_mastery DESC, x.cohort_node_id) FROM shown x), '[]'::jsonb),
