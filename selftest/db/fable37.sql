@@ -109,7 +109,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
 begin
   perform selftest.as_owner();
   begin
@@ -415,6 +415,77 @@ begin
        and en.person_id in ((lc -> 'T' ->> 'person')::uuid, (lc -> 'W' ->> 'person')::uuid);
     if v_n <> 2 then s01 := s01 || format('T''s and W''s ended enrollments at X: %s of 2 kept', v_n); end if;
 
+    -- ═══════════════════════════════════ F37-S02 (SI-D03, Sharon 9 Nov) every credential path follows current placement
+    -- or narrowly defined onboarding, never a historical registration number. Authority is read from the refusal: a
+    -- path refused at its school check names the capability («requires CAN_PROVISION_PEOPLE», «requires SYSTEM_ADMIN»);
+    -- anything else (a card not found, an account that exists, OK) means the caller passed the school check.
+    -- T, M also hold Y's number (a transfer and a staff placement issue the receiving school's own).
+    if (select i.namespace from public.institutions i where i.id = v_y) is null then
+      -- the unused code is chosen as the owner: under Y's admin's row security other schools' namespaces are hidden
+      select c into v_fn from (select 'Q' || chr(65 + (g / 26)) || chr(65 + (g % 26)) as c from generate_series(0, 675) g) z
+       where not exists (select 1 from public.institutions i where i.namespace = z.c) limit 1;
+      perform selftest.as_user_uid(u_adminy);
+      perform public.reserve_institution_namespace(v_y, v_fn);
+      perform selftest.as_owner();
+    end if;
+    -- O: X issued a number, never placed, no account yet (onboarding at X)
+    insert into public.persons (display_name) values ('Calon F37 O ' || v_tag) returning persons.id into v_pp;
+    lc := lc || jsonb_build_object('O', jsonb_build_object('person', v_pp));
+    -- P: withdrew from X before activating, now given a number at Y and not yet placed (onboarding at Y; departed X)
+    insert into public.persons (display_name) values ('Calon F37 P ' || v_tag) returning persons.id into v_pp;
+    lc := lc || jsonb_build_object('P', jsonb_build_object('person', v_pp));
+    insert into public.enrollments (person_id, institution_id, academic_period_id, status)
+    values (v_pp, v_x, v_period, 'ACTIVE') returning enrollments.id into v_ex;
+    update public.enrollments set status = 'ENDED', end_reason = 'WITHDRAWN' where enrollments.id = v_ex;
+    -- F: an account with only a FUTURE role at X (Sharon: the role branch read valid_until and not valid_from)
+    v_uid := selftest.f11_user('f37-lc-f-' || v_tag || '@local.invalid', null, null);
+    select a.person_id into v_pp from public.accounts a where a.auth_user_id = v_uid;
+    lc := lc || jsonb_build_object('F', jsonb_build_object('uid', v_uid, 'person', v_pp));
+    perform set_config('app.seed_intent', 'synthetic', true);
+    insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until)
+    values (v_pp, 'EDUCATOR', (select o.id from public.org_nodes o where o.institution_id = v_x and o.kind = 'INSTITUTION'),
+            now() + interval '1 day', now() + interval '30 days');
+    perform set_config('app.seed_intent', '', true);
+    -- registration numbers: O at X; P at X and Y; T and M at Y (they already hold X's)
+    for r in select * from (values ('O', v_x), ('P', v_x), ('P', v_y), ('T', v_y), ('M', v_y)) t(k, inst) loop
+      insert into public.institutional_identities (person_id, institution_id, institutional_id, sequence_number)
+      select (lc -> r.k ->> 'person')::uuid, r.inst, i.namespace || lpad(q.n::text, 6, '0') || 'ZZ', q.n
+        from public.institutions i,
+             (select coalesce(max(ii.sequence_number), 0) + 1 as n from public.institutional_identities ii where ii.institution_id = r.inst) q
+       where i.id = r.inst;
+    end loop;
+    -- who may act: (person, X's admin, Y's admin). The paths are tried with Y first, so an accepted act by X (an
+    -- activation, a reset) never changes what Y's attempt meets.
+    for r in select * from (values
+        ('T', false, true),  ('W', false, false), ('M', true, true),  ('A', true, false),
+        ('O', true, false),  ('P', false, true),  ('F', false, false)) t(k, x_boleh, y_boleh) loop
+      v_pp := (lc -> r.k ->> 'person')::uuid;
+      foreach v_fn in array array['authorize_card_reissue', 'authorize_card_conversion', 'authorize_email_correction',
+                                   'authorize_account_activation', 'admin_reset_recovery'] loop
+        -- F holds no registration number: only recovery reads the role branch
+        if r.k = 'F' and v_fn <> 'admin_reset_recovery' then continue; end if;
+        v_sql := case v_fn
+          when 'authorize_card_reissue' then format('select public.authorize_card_reissue(%L, %L, %L)', v_pp, 'HILANG',
+                    '9' || lpad((abs(hashtext(v_tag || r.k)) % 1000000000)::text, 9, '0'))
+          when 'authorize_card_conversion' then format('select public.authorize_card_conversion(%L, %L, %L)', v_pp,
+                    'f37-konv-' || lower(r.k) || '-' || v_tag || '@local.invalid', 'uji SI-D03: konversi kartu')
+          when 'authorize_email_correction' then format('select public.authorize_email_correction(%L, %L, %L)', v_pp,
+                    'f37-kor-' || lower(r.k) || '-' || v_tag || '@local.invalid', 'uji SI-D03')
+          when 'authorize_account_activation' then format('select public.authorize_account_activation(%L, %L, %L, %L)', v_pp,
+                    'EMAIL', 'f37-akt-' || lower(r.k) || '-' || v_tag || '@local.invalid', null)
+          else format('select public.admin_reset_recovery(%L, %L)', v_pp, 'uji SI-D03') end;
+        for e in select * from (values ('Y', u_adminy, r.y_boleh), ('X', u_admin, r.x_boleh)) q(sekolah, uid, boleh) loop
+          v_got := selftest.f37_sebagai(e.uid, v_sql);
+          v_lulus := v_got !~ 'requires (CAN_PROVISION_PEOPLE|SYSTEM_ADMIN)';
+          if e.boleh and not v_lulus then
+            s02 := s02 || format('%s by school %s''s admin for %s: refused at the school check (%s)', v_fn, e.sekolah, r.k, v_got);
+          elsif not e.boleh and v_lulus then
+            s02 := s02 || format('%s by school %s''s admin for %s: PASSED the school check (%s)', v_fn, e.sekolah, r.k, v_got);
+          end if;
+        end loop;
+      end loop;
+    end loop;
+
     raise exception 'f37-rollback';
   exception when others then
     perform selftest.as_owner();
@@ -441,7 +512,9 @@ begin
       ('F37-C01', 'System Integrity, chain A: a certificate after a recalculation', c01,
        'a recalculation above or below the mark leaves eligibility on the sealed result, both ways'),
       ('F37-S01', 'System Integrity, chain D: a school''s account-level power follows its current placement (SI-D03)', s01,
-       'a former school''s admin cannot reset the recovery of a learner who transferred or withdrew (42501; the session kept); the current school can (sessions ended); a person placed at two schools is assisted by either; another school''s admin, a Guru and a Kepala departemen are refused; registration numbers and ended enrollments are kept')) t(tid, tarea, probs, good) loop
+       'a former school''s admin cannot reset the recovery of a learner who transferred or withdrew (42501; the session kept); the current school can (sessions ended); a person placed at two schools is assisted by either; another school''s admin, a Guru and a Kepala departemen are refused; registration numbers and ended enrollments are kept'),
+      ('F37-S02', 'System Integrity, chain D: every credential path follows the current placement or onboarding (SI-D03)', s02,
+       'card re-issue, card conversion, email correction, activation and recovery reset: a former school (T transferred, W and P withdrew) and a future-only role (F) are refused at the school check; the current school, both schools of a person placed at two, and the school onboarding a person it has numbered but never placed (O at X, P at Y) pass it')) t(tid, tarea, probs, good) loop
     id := r.tid; area := r.tarea;
     ok := v_fatal = '' and cardinality(r.probs) = 0;
     detail := case when v_fatal <> '' then 'fixture: ' || v_fatal when ok then r.good else array_to_string(r.probs, '; ') end;
