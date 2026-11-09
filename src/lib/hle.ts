@@ -1001,6 +1001,7 @@ export type HleEvent =
   | "kenaikan.hasil.lulus"
   | "kenaikan.hasil.keluar"
   | "kenaikan.hasil.pindah"
+  | "kenaikan.hasil.asesmen"
   | "kenaikan.selesai.ok"
   | "kenaikan.selesai.judul"
   | "kenaikan.selesai.tidak_terbaca"
@@ -4413,7 +4414,7 @@ const table: Table = {
   "audit.alasan.other": { default: "Lainnya", en: "Other" },
   "config.akhiri.buka": { default: "Akhiri pendaftaran", en: "End enrolment" },
   "config.akhiri.judul": { default: "Akhiri pendaftaran", en: "End the enrolment" },
-  "config.akhiri.arti": { default: "Murid ini keluar dari kelas dan dari sekolah ini. Hasil belajar, asesmen dan sertifikatnya tetap tersimpan, dan pencatatan yang keliru dapat dibatalkan dari «Murid yang sudah keluar».", en: "The student leaves the class and this school. Their learning results, assessments and certificates stay recorded, and a mistaken record can be undone from «Students who have left»." },
+  "config.akhiri.arti": { default: "Murid ini keluar dari kelas dan dari sekolah ini. Asesmen yang masih terbuka diakhiri. Hasil belajar, asesmen dan sertifikatnya tetap tersimpan, dan pencatatan yang keliru dapat dibatalkan dari «Murid yang sudah keluar».", en: "The student leaves the class and this school. Any assessment still open is ended. Their learning results, assessments and certificates stay recorded, and a mistaken record can be undone from «Students who have left»." },
   "config.akhiri.alasan": { default: "Alasan", en: "Reason" },
   "config.akhiri.alasan.graduated": { default: "Lulus", en: "Graduated" },
   "config.akhiri.alasan.withdrawn": { default: "Mengundurkan diri", en: "Withdrew" },
@@ -4484,6 +4485,7 @@ const table: Table = {
   "kenaikan.hasil.lulus": { default: "Lulus", en: "Graduates" },
   "kenaikan.hasil.keluar": { default: "Keluar dari sekolah", en: "Leaves the school" },
   "kenaikan.hasil.pindah": { default: "Tetap di kelasnya sampai perpindahan selesai", en: "Stays in the class until the transfer is done" },
+  "kenaikan.hasil.asesmen": { default: "{n} asesmen yang masih terbuka diakhiri; jawabannya tetap tersimpan", en: "{n} open assessment(s) ended; the answers are kept" },
   "kenaikan.selesai.ok": { default: "Selesai. {n} murid diproses pada {waktu}. Inilah hasil untuk setiap murid.", en: "Done. {n} students processed at {waktu}. This is the outcome for each student." },
   "kenaikan.selesai.judul": { default: "Hasil kenaikan kelas", en: "Promotion outcome" },
   "kenaikan.selesai.tidak_terbaca": { default: "Hasilnya belum dapat dibaca. Buka Jejak audit untuk melihat apa yang tercatat.", en: "The outcome cannot be read yet. Open the audit trail to see what was recorded." },

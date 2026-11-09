@@ -20,7 +20,8 @@
 --   Every learner of the population needs exactly one decision (PROMO_UNDECIDED names who is missing); a decision for
 --   someone outside it (or a class changed since review) is PROMO_CHANGED. Teachers are never carried to the new year:
 --   the confirmation states that their assignments were reviewed (PROMO_TEACHERS_UNREVIEWED otherwise; the
---   assignments themselves are «Ubah peran & tanggung jawab»'s). An open sitting refuses (ENROL_SITTING_OPEN).
+--   assignments themselves are «Ubah peran & tanggung jawab»'s). A learner's open sittings are shown in the preview and
+--   closed by the confirmation (tutup_asesmen_terbuka; 9 Nov, for Sharon's ruling).
 --   One promotion.applied audit row records every learner's outcome; a refused run writes nothing.
 -- kenaikan_hasil(kelas): the last confirmation read back for the screen, each learner with where they are now.
 -- period_rollover is unchanged; the screen no longer offers it (the blind class-to-class run is replaced by this flow).
@@ -107,7 +108,7 @@ grant execute on function public.kenaikan_rencana(uuid) to authenticated, servic
 create or replace function public.kenaikan_tetapkan(p_kelas uuid, p_tahun_baru uuid, p_keputusan jsonb,
                                                     p_guru_ditinjau boolean, p_terapkan boolean)
 returns jsonb language plpgsql volatile security definer set search_path = public, pg_temp as $$
-declare k record; d record; en record; v_tj uuid; v_tjn text; v_hasil jsonb := '[]'::jsonb; v_kurang text; v_new uuid;
+declare k record; d record; en record; v_tj uuid; v_tjn text; v_terbuka int; v_hasil jsonb := '[]'::jsonb; v_kurang text; v_new uuid;
         v_keputusan jsonb := coalesce(p_keputusan, '[]'::jsonb); v_n int;
 begin
   select n.id, n.name, n.institution_id, n.academic_period_id, n.kind, ap.starts_on into k
@@ -176,14 +177,15 @@ begin
       raise exception using errcode = 'PR070', detail = 'PROMO_NO_TRANSFER',
         message = d.nama || ' has no transfer under way; «Perpindahan murid» starts one';
     end if;
-    if d.keputusan <> 'PINDAH' and exists (select 1 from public.assessment_sessions s where s.enrollment_id = d.enrollment_id
-                                             and s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')) then
-      raise exception using errcode = 'PR070', detail = 'ENROL_SITTING_OPEN',
-        message = d.nama || ' has a sitting still open; it ends or is submitted first';
-    end if;
+    -- 9 Nov (with E3): a learner's open sittings no longer refuse the run; the preview says how many will be ended, and
+    -- the confirmation closes them (tutup_asesmen_terbuka: expired, or ended as an institutional revocation)
+    v_terbuka := case when d.keputusan = 'PINDAH' then 0 else
+      (select count(*) from public.assessment_sessions s where s.enrollment_id = d.enrollment_id
+          and s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')) end;
 
     if p_terapkan then
       if d.keputusan in ('NAIK', 'TINGGAL') then
+        perform public.tutup_asesmen_terbuka(d.enrollment_id, 'Kenaikan kelas: tahun ajaran berakhir');
         select e.id, e.programme_id, e.status into en from public.enrollments e where e.id = d.enrollment_id for update;
         update public.memberships set valid_to = now(), close_reason = 'PERIOD_ROLLOVER'
          where enrollment_id = en.id and valid_to is null;
@@ -204,7 +206,7 @@ begin
     end if;
     v_hasil := v_hasil || jsonb_build_object('person_id', d.person_id, 'nama', d.nama, 'sumber', d.sumber,
                                              'keputusan', d.keputusan, 'kelas_tujuan', v_tj, 'kelas_tujuan_nama', v_tjn,
-                                             'alasan', d.alasan);
+                                             'alasan', d.alasan, 'asesmen_diakhiri', v_terbuka);
   end loop;
 
   v_n := jsonb_array_length(v_hasil);

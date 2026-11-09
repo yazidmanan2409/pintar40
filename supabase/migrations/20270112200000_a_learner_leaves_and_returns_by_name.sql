@@ -16,11 +16,33 @@
 --   Kelas's year, under the same person and the same registration number. A learner enrolled at another school comes
 --   back only by a transfer (PLACE_ELSEWHERE). Every refusal is PR070 with its code in DETAIL, and writes nothing.
 
+-- (9 Nov, the journeys' S27: a learner's abandoned sitting blocked a class's year end, and no screen can close another
+-- person's sitting.) A departure closes the learner's open sittings truthfully instead of being refused by them: a
+-- sitting past its deadline expires as it would on its next touch (session_enforce_deadline); one still open is ended
+-- as INSTITUTIONAL_REVOCATION through terminate_session itself (its authority check, its audit row, responses kept).
+-- For Sharon's ruling: this replaces the fail-closed ENROL_SITTING_OPEN she was asked about.
+create or replace function public.tutup_asesmen_terbuka(p_enrollment uuid, p_alasan text)
+returns integer language plpgsql volatile security definer set search_path = public, pg_temp as $$
+declare s record; v_n int := 0;
+begin
+  for s in select a.id from public.assessment_sessions a
+            where a.enrollment_id = p_enrollment and a.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')
+            order by a.id for update loop
+    if public.session_enforce_deadline(s.id) in ('CREATED', 'IN_PROGRESS', 'PAUSED') then
+      perform public.terminate_session(s.id, 'INSTITUTIONAL_REVOCATION', p_alasan);
+    end if;
+    v_n := v_n + 1;
+  end loop;
+  return v_n;
+end;
+$$;
+revoke all on function public.tutup_asesmen_terbuka(uuid, text) from public, anon, authenticated;
+
 create or replace function public.akhiri_pendaftaran(p_enrollment uuid, p_reason text, p_explanation text,
                                                      p_effective date)
 returns uuid language plpgsql volatile security definer set search_path = public, pg_temp as $$
 declare en record; v_end public.enrollment_end_reason; v_hari date := (now() at time zone 'Asia/Jakarta')::date; v_date date := coalesce(p_effective, (now() at time zone 'Asia/Jakarta')::date);
-        v_expl text := nullif(btrim(coalesce(p_explanation, '')), ''); v_closed int;
+        v_expl text := nullif(btrim(coalesce(p_explanation, '')), ''); v_closed int; v_sesi int;
 begin
   select e.id, e.person_id, e.institution_id, e.status, e.valid_from into en
     from public.enrollments e where e.id = p_enrollment for update;
@@ -51,11 +73,8 @@ begin
     raise exception using errcode = 'PR070', detail = 'ENROL_DATE_INVALID',
       message = 'the effective date is today or earlier, and not before the enrolment began';
   end if;
-  if exists (select 1 from public.assessment_sessions s
-              where s.enrollment_id = en.id and s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')) then
-    raise exception using errcode = 'PR070', detail = 'ENROL_SITTING_OPEN',
-      message = 'the learner has a sitting still open; it ends or is submitted first';
-  end if;
+  -- the learner's open sittings close with the departure (expired, or ended as an institutional revocation)
+  v_sesi := public.tutup_asesmen_terbuka(en.id, 'Pendaftaran diakhiri (' || p_reason || ')');
 
   update public.memberships set valid_to = now(), close_reason = 'ENROLLMENT_ENDED'
    where enrollment_id = en.id and valid_to is null;
@@ -64,7 +83,8 @@ begin
 
   perform public.audit_write('enrollment.ended_with_reason', 'enrollments', en.id::text, en.institution_id,
     jsonb_build_object('person_id', en.person_id, 'reason_code', p_reason, 'end_reason', v_end,
-                       'explanation', v_expl, 'effective_date', v_date, 'placements_closed', v_closed));
+                       'explanation', v_expl, 'effective_date', v_date, 'placements_closed', v_closed,
+                       'sittings_closed', v_sesi));
   return en.id;
 end;
 $$;

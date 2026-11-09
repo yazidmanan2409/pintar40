@@ -30,7 +30,7 @@ type Rencana = {
   kelas: { id: string; nama: string; tahun: string | null; tingkat: string | null };
   murid: Murid[]; guru: Guru[]; tahun_berikut: Array<{ id: string; nama: string; kelas: KelasBaru[] }>;
 };
-type Hasil = { person_id: string; nama: string; keputusan: KeputusanMurid["keputusan"]; kelas_tujuan_nama: string | null; alasan: string | null };
+type Hasil = { person_id: string; nama: string; keputusan: KeputusanMurid["keputusan"]; kelas_tujuan_nama: string | null; alasan: string | null; asesmen_diakhiri?: number };
 type HasilAkhir = Hasil & { kelas_sekarang: string | null; akhir: string | null };
 
 export type ParamKenaikan = { kn_kelas?: string; kn_tahun?: string; kn_semua?: string; kn_langkah?: string; kn_d?: string; kn_kode?: string; kn_ref?: string };
@@ -150,7 +150,7 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
           <tbody>
             {hasil.map((m) => (
               <tr key={m.person_id} data-murid={m.person_id}>
-                <th scope="row" className="pin-tabel-nama">{m.nama}</th><td>{kalimat(s, m)}</td>
+                <th scope="row" className="pin-tabel-nama">{m.nama}</th><td>{kalimat(s, m)}{m.asesmen_diakhiri ? <span className="pin-meta" data-asesmen-diakhiri={m.asesmen_diakhiri}> · {s("kenaikan.hasil.asesmen").replace("{n}", String(m.asesmen_diakhiri))}</span> : null}</td>
               </tr>
             ))}
           </tbody>
