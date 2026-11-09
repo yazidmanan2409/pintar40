@@ -465,3 +465,62 @@ This is acceptance work on the existing lifecycle, not a redesign.
 7. **Assessment evidence is outstanding, not a pass.** No package with a pre-test and a post-test could be assigned in
    the demonstration. A rollover journey with real sittings and results must show them still attributed to the
    2026/2027 class and its learners.
+
+## 12 · E3 «Akhiri pendaftaran» and E4 «Daftarkan kembali»: the database design for review before build (owner, 9 Nov: both essential)
+
+**Today:** no function sets an enrolment to COMPLETED or WITHDRAWN, none re-enrols a returning learner, and clients no
+longer write enrolments directly (`20270112160000`). Both actions are therefore new governed functions. They reuse
+`transfer_execute`'s closing step, the one-live-enrolment rules and `tempatkan_murid`'s placement.
+
+**E3: `akhiri_pendaftaran(enrolment, reason_code, explanation, effective_date)`**
+- **Who:** INSTITUTION_ADMIN of the enrolment's school, never another school's admin; the platform as for every
+  school act.
+- **Reasons** (Daisy's list, owner-approved, with «Meninggal dunia»):
+  - `GRADUATED` → end_reason `COMPLETED`;
+  - `TRANSFER_EXTERNAL` and `MOVED_ABROAD` → `TRANSFERRED_OUT`;
+  - `WITHDRAWN` and `DECEASED` → `WITHDRAWN`;
+  - `OTHER`, with a required explanation of 10–300 characters.
+  - A PINTAR-to-PINTAR move goes through «Perpindahan murid».
+- **Effective date:** today or earlier, never before the enrolment's `valid_from`, and recorded in its own field.
+  Access ends at recording (Sharon on 89374424).
+- **One transaction:**
+  1. lock the enrolment;
+  2. refuse if it is not live;
+  3. close its open memberships (`ENROLLMENT_ENDED`);
+  4. end the enrolment;
+  5. write one `enrollment.ended` audit row with the reason code, explanation, effective date and actor.
+- **What it never does:** touch results, sittings, certificates or attribution.
+- **A sitting in progress:** it is stopped at its next answer by INV-17. The design question for Sharon is whether
+  E3 should refuse while a sitting is open, or end it as INSTITUTIONAL_REVOCATION.
+
+**E4: `daftarkan_kembali(person, school, kind, reason, …)`.** Two distinct kinds, which never rewrite the past:
+- **`CORRECTION`** («Membatalkan pencatatan yang keliru»):
+  - It applies only to an enrolment ended by E3 at this school, as its latest event.
+  - It opens a new live enrolment, with the same programme and year, and the same Kelas where still active.
+  - It writes an audit row linking both ways to the ending it corrects; the ended row stays as it was.
+  - The learner's record reads «Lulus · 20 Jun — dibatalkan 22 Jun: dicatat keliru».
+- **`RETURN`** («Kembali bersekolah»):
+  - It applies to a learner who left this school (PLACE_DEPARTED's case).
+  - It opens a new live enrolment for the chosen year, programme and Kelas, under the same person and the same
+    registration number.
+  - It is refused while the person is enrolled at another school (PLACE_ELSEWHERE: that is a transfer).
+- **Both:**
+  - INSTITUTION_ADMIN of the school;
+  - the one-live-enrolment rules;
+  - a required reason;
+  - never a new person, never a second registration number;
+  - placement written through the same membership insert as `tempatkan_murid`.
+
+**Red tests first:**
+- authorization: the school only, never another;
+- every reason maps to its `end_reason`;
+- memberships are closed in the same transaction;
+- the effective date is bounded;
+- a refusal writes nothing;
+- history is untouched;
+- correction versus return each take their own path, and the past is unchanged;
+- no duplicate live enrolment;
+- a return is refused while enrolled elsewhere.
+
+**Then «Kenaikan kelas dan kelulusan» calls these** for its «Lulus» and «Keluar» rows, with «Pindah kelas» for a
+repeat and `period_rollover` for a move up, all in one transaction (§10).
