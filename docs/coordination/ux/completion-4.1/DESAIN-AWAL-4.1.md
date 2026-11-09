@@ -10,6 +10,12 @@
 
 **Images:** `gambar/`.
 
+**Owner direction of 9 Nov (after the independent reviews), applied here:**
+- **Printing:** only official print actions get an audit-linked reference, and a browser print never claims to be audited. §1, edge state 2, is revised accordingly.
+- **AI provenance:** educators and reviewers see it; learners get approved questions with no mandatory label. That matches §5 as written; the open question there is closed.
+- **Time zones:** the school's actual Indonesian zone, never WIB for every school. The composition is §7.
+- **Consistency:** meaning first, then accessibility and workflow, then print pagination. That is the order of §6, with item 11 (print) to follow P2.
+
 ---
 
 ## 1 · C6 · the printed-report footer
@@ -43,7 +49,16 @@
 
 **Edge states:**
 1. **The request could not be recorded** (no reference). «Cetak laporan» does not open the print dialog, and the action's own result line says so: «Cetakan belum dapat dicatat, jadi belum dicetak. Coba lagi.» / «The print could not be recorded, so nothing was printed. Try again.» This is the existing `AksiLaporan` result-line pattern. **→ Sharon**
-2. **The browser's own Print (Ctrl+P).** The page should still print a reference. I propose minting the reference when the page renders and recording it on `beforeprint`, so both ways of printing carry one. If that cannot be made reliable, the footer must say so honestly («Ref. —»), never print an unrecorded reference. **→ Sharon**
+2. **The browser's own Print (Ctrl+P), revised to the owner's direction of 9 Nov.** Only «Cetak laporan» records a print and gets a reference. A browser print is not audited, and its footer must not look as if it were. It keeps the name, time and pages, and says plainly that it has no reference, in the same quiet type:
+
+   > **ID:** `Dicetak dari browser oleh Bu Wulan Prasetyo · 9 Nov 2026, 14.05 WIB · tanpa nomor referensi`
+   > **EN:** `Printed from the browser by Bu Wulan Prasetyo · 9 Nov 2026, 14:05 WIB · no reference number`
+
+   - **No reference-shaped text at all** on a browser print: no «Ref.», no dash placeholder, no reference minted on render.
+   - **The default state:** the footer above is the stylesheet's default. «Cetak laporan» replaces it with the referenced line only after the request is recorded. So a page printed any other way can never carry a reference.
+   - **«Dicetak oleh … · waktu»:** these are read in the browser and claim nothing about an audit. If engineering cannot fill them reliably for a browser print, the line shrinks to «Dicetak dari browser · tanpa nomor referensi».
+
+   **→ Sharon:** the swap must happen before the print dialog opens, and never for a request that was refused.
 3. **The learner's own «Hasil belajar».** The same footer, with their name. That is consistent, and only their own report.
 
 ---
@@ -284,7 +299,7 @@ If an answer was pending on this device: «**1 jawaban** terakhir di perangkat i
 
 Then the steps are unchanged: Periksa isi → Ajukan → Setujui isi (another person) → Buat terbitan → Kunci → Terbitkan.
 
-**The reviewer** at «Setujui isi» sees a count beside the package state («5 dari 12 soal disusun dengan AI»), and each card's provenance line. **Learners** see published items only, with no AI label. That holds unless the owner rules otherwise; I recommend recording the question as an owner decision.
+**The reviewer** at «Setujui isi» sees a count beside the package state («5 dari 12 soal disusun dengan AI»), and each card's provenance line. **Learners** see published items only, with no AI label (owner, 9 Nov).
 
 **Provenance stays readable** in the Bank Soal and in «Riwayat perbaikan». It is never shown to learners.
 
@@ -340,3 +355,49 @@ Ordered by effect.
 - the 4.1 screens (none exist yet).
 
 Items 1–3 are read from code and from the 4.0 walks I ran. Item 11 is seen in a Chromium PDF.
+
+---
+
+## 7 · The school's own time zone (owner direction, 9 Nov)
+
+**Reuses:**
+- the one date helper («9 Nov 2026, 14.05 WIB»), which every page already calls;
+- Konfigurasi «Sekolah dan tahun ajaran» for the setting;
+- `KonfirmasiBahaya`'s grammar for changing it.
+
+No new pattern: the helper takes a zone instead of a constant.
+
+**One rule, everywhere:** every time a school's people see is shown in **that school's zone, with its label**: WIB, WITA or WIT. It never follows the device's zone, so two people at one school always read the same clock.
+
+**The setting.** Konfigurasi › Sekolah dan tahun ajaran, a field **«Zona waktu sekolah»** with three radios:
+- «WIB · Waktu Indonesia Barat»
+- «WITA · Waktu Indonesia Tengah»
+- «WIT · Waktu Indonesia Timur»
+
+The hint: «Semua waktu di PINTAR untuk sekolah ini ditampilkan dalam zona ini: jadwal, pemeliharaan, laporan, cetakan.» / «Every time PINTAR shows for this school uses this zone: schedules, maintenance, reports, prints.»
+
+The default is the zone of the school's province, if it is recorded. Otherwise the field starts empty and appears under «Persiapan sekolah» as «Belum» until it is set, like the other setup steps.
+
+**Changing it.** It goes through `KonfirmasiBahaya` and is audited:
+
+> «Ubah zona waktu sekolah ke WITA? Waktu yang sudah tercatat tidak berubah; PINTAR hanya menampilkannya dalam zona baru, satu jam lebih lambat dari WIB.»
+
+**Where it shows** (each from the helper, with the label):
+
+| Place | Before | After, for a WITA school |
+|---|---|---|
+| Report header lines («Angka dihitung …») | «… 06.31 WIB» | «… 07.31 WITA» |
+| C6 print footer | «… 14.05 WIB» | «… 15.05 WITA» |
+| Maintenance form fields (C7) | «Mulai (WIB; kosongkan untuk sekarang)» | «Mulai (WITA; kosongkan untuk sekarang)» |
+| Banner and pause page (C7, C8) | «… pukul 10.00 WIB» | «… pukul 11.00 WITA» |
+| Assessment windows and «Jendela» dates | a date's end at midnight WIB | at midnight WITA |
+| Certificate and its verification page | the issue date | the date in the school's zone; the verification page names the zone once |
+
+**A reader across zones.**
+- **A platform-scope window or a PINTAR Administrator's list:** each school's people see the time in their own zone.
+- **The PINTAR Administrator's own form** asks for the zone of the time being entered, defaulting to WIB, and shows the other two beneath it: «= 11.00 WITA · 12.00 WIT».
+- **Lists across schools** show each school's time in its own zone, with the label.
+
+**Person in two schools** (rare): each page uses the school in the current context (the context chooser), as every other school-scoped fact does.
+
+**Proof for the walks.** A fixture school in WIT. A walk of its reports, prints and maintenance pages finds no «WIB» anywhere, and times 2 hours later than the same instants at a WIB school. **→ Sharon** (the rule that stored instants never change, only their display).
