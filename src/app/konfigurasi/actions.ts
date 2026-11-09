@@ -279,6 +279,68 @@ export async function tempatkanMuridAction(fd: FormData): Promise<void> {
 }
 
 /**
+ * E3 «Akhiri pendaftaran» (owner, 9 Nov: essential): the school ends one learner's enrolment from their row in «Pindah
+ * kelas», with a reason, an effective date and (for «Lainnya») an explanation. akhiri_pendaftaran decides everything
+ * (who, the reason, the date, an open sitting); the answer comes back at the learner's row.
+ */
+export async function akhiriPendaftaranAction(fd: FormData): Promise<void> {
+  const penempatan = uuidOrNull(str(fd, "penempatan"));
+  const dari = uuidOrNull(str(fd, "dari"));
+  const sekolah = uuidOrNull(str(fd, "sekolah"));
+  const alasan = str(fd, "alasan");
+  const keterangan = str(fd, "keterangan");
+  const tanggal = /^\d{4}-\d{2}-\d{2}$/.test(str(fd, "tanggal")) ? str(fd, "tanggal") : null;
+  const kembali = (h: HasilAksi): never => {
+    const q = queryHasil("akhiri", h);
+    if (dari) q.set("dari", dari);
+    if (sekolah) q.set("sekolah", sekolah);
+    if (!h.ok && penempatan) q.set("akhiri", penempatan);
+    redirect(alamatBagian("pindah", q, "pindah"));
+  };
+  if (!penempatan || !alasan) kembali({ ok: false, kode: "ENROL_REASON_INVALID" });
+  const supabase = await supabaseServer();
+  const { data: m } = await supabase.from("memberships").select("enrollment_id").eq("id", penempatan!).maybeSingle();
+  const pendaftaran = (m as { enrollment_id?: string } | null)?.enrollment_id ?? null;
+  if (!pendaftaran) kembali({ ok: false, kode: "ENROL_NOT_LIVE" });
+  await wajibDalamKonteks({ sekolah: await sekolahDari("simpul", dari) }, "pindah");
+  const { error } = await supabase.rpc("akhiri_pendaftaran", {
+    p_enrollment: pendaftaran, p_reason: alasan, p_explanation: keterangan || null, p_effective: tanggal,
+  });
+  if (error) kembali(ditolak("akhiri_pendaftaran", error));
+  kembali({ ok: true, kode: "ENROLMENT_ENDED" });
+}
+
+/**
+ * E4 «Daftarkan kembali»: from «Murid yang sudah keluar», either «Membatalkan pencatatan yang keliru» (CORRECTION of
+ * the latest ending recorded with a reason, back where they were) or «Kembali bersekolah» (RETURN into a chosen Kelas).
+ * daftarkan_kembali decides; a learner enrolled at another school is refused (PLACE_ELSEWHERE) and comes back only by
+ * a transfer.
+ */
+export async function daftarkanKembaliAction(fd: FormData): Promise<void> {
+  const orang = uuidOrNull(str(fd, "orang"));
+  const sekolah = uuidOrNull(str(fd, "sekolah"));
+  const jenis = str(fd, "jenis");
+  const alasan = str(fd, "alasan");
+  const kelas = uuidOrNull(str(fd, "kelas"));
+  const pendaftaran = uuidOrNull(str(fd, "pendaftaran"));
+  const kembali = (h: HasilAksi): never => {
+    const q = queryHasil("kembali", h);
+    if (sekolah) q.set("sekolah", sekolah);
+    redirect(alamatBagian("pindah", q, "kembali"));
+  };
+  if (!orang || !sekolah || (jenis !== "CORRECTION" && jenis !== "RETURN")) kembali({ ok: false, kode: "ENROL_KIND_INVALID" });
+  if (!alasan) kembali({ ok: false, kode: "ENROL_REASON_REQUIRED" });
+  await wajibDalamKonteks({ sekolah }, "pindah");
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("daftarkan_kembali", {
+    p_person: orang, p_institution: sekolah, p_kind: jenis, p_reason: alasan,
+    p_kelas: jenis === "RETURN" ? kelas : null, p_enrollment: jenis === "CORRECTION" ? pendaftaran : null,
+  });
+  if (error) kembali(ditolak("daftarkan_kembali", error));
+  kembali({ ok: true, kode: "LEARNER_REENROLLED" });
+}
+
+/**
  * BOB-44 / DAISY-32 (D-069(e), D-070(c)): «Daftarkan sebagai peserta». One call, as the signed-in administrator:
  * `enrol_for_professional_learning` places an existing person who holds a staff role at the school in a
  * professional-learning Kelas or Tingkat, reusing their enrolment for the year, and audits it. It creates no person,

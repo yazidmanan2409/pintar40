@@ -2,7 +2,7 @@ import Link from "next/link";
 import Kosong from "@/components/Kosong";
 import TandaTautan from "@/components/TandaTautan";
 import Ikon from "@/components/Ikon";
-import { t, format, allKeys, type HleEvent } from "@/lib/hle";
+import { t, format, allKeys, hariIniSekolah, type HleEvent } from "@/lib/hle";
 import Penomoran, { UKURAN, halamanDiminta, rentang, satuHalaman, tautanHalaman } from "@/components/koleksi/Penomoran";
 
 // L4 (CR-88): the audit trail's page is the newest 50, the size CR-39 (J1.6) reads; other staff lists are 20 a page
@@ -16,7 +16,7 @@ import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
   daftarkanPesertaAction, grantRoleAction, hentikanSekarangAction, jadwalkanPemeliharaanAction, pindahKelasAction,
-  revokeRoleAction, saveReportTemplateAction, tarikPengumumanAction, terbitkanPengumumanAction,
+  akhiriPendaftaranAction, daftarkanKembaliAction, revokeRoleAction, saveReportTemplateAction, tarikPengumumanAction, terbitkanPengumumanAction,
   tetapkanBatasAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction, transferRequestAction,
   tunjukAdminPertamaAction, ubahPemeliharaanAction, tempatkanMuridAction } from "./actions";
 import { adaAdminSekolah, calonAdminPertama } from "@/lib/admin-pertama";
@@ -54,6 +54,9 @@ import { judulHalaman } from "@/lib/judul-halaman";
 import { transferMintaAction, transferTerimaAction } from "./actions";
 import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
 import KenaikanKelas, { type ParamKenaikan } from "@/components/kenaikan/KenaikanKelas";
+
+/** E3 «Akhiri pendaftaran»: the reasons a school records here (akhiri_pendaftaran's list; Daisy's, owner-approved). */
+const ALASAN_AKHIRI = ["GRADUATED", "WITHDRAWN", "TRANSFER_EXTERNAL", "MOVED_ABROAD", "DECEASED", "OTHER"] as const;
 
 export const generateMetadata = judulHalaman("/konfigurasi");
 
@@ -136,6 +139,8 @@ type SearchParams = Promise<{
   hal_jendela?: string; hal_pengumuman?: string;
   /** E-K4: which form of a section sent the result (asalHasil validates it). */
   asal?: string;
+  /** E3: the learner's row whose «Akhiri pendaftaran» panel is open. */
+  akhiri?: string;
 } & ParamKenaikan>;
 
 export default async function Konfigurasi({ searchParams, params }: { searchParams: SearchParams; params?: Promise<{ bagian?: string }> }) {
@@ -563,6 +568,14 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     : { data: [] as Array<{ person_id: string; display_name: string; institutional_id: string }> };
   const tanpaKelas = (tanpaKelasRows ?? []) as Array<{ person_id: string; display_name: string; institutional_id: string }>;
   const kelasMurid = asal.kelas.filter((k) => (k.member_kind ?? "LEARNER") === "LEARNER");
+  // E3/E4 on the screen: the learners who left this school («Murid yang sudah keluar», murid_keluar decides who), and
+  // today's date as the effective date's default and its latest value
+  const { data: keluarRows } = bagianIni === "pindah" && sekolahStruktur
+    ? await supabase.rpc("murid_keluar", { p_sekolah: sekolahStruktur.id })
+    : { data: [] };
+  const keluar = (keluarRows ?? []) as Array<{ person_id: string; display_name: string; institutional_id: string | null;
+    enrollment_id: string; end_reason: string | null; ended_at: string | null; bisa_dikoreksi: boolean; di_sekolah_lain: boolean }>;
+  const hariIni = hariIniSekolah();
   const sl = (event: HleEvent) => t(event, "staff", { locale });
   // W3.3 (Batch 2; RV-16): every moment through the one date helper, on WIB, with its year and «WIB» —
   // a record as the timestamp («9 Okt 2026, 07.30 WIB»), a window someone acts on with its day.
@@ -921,6 +934,31 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                                 <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pindah.tombol")}<span className="pin-sr"> · {m.nama}</span></TombolKirim>
                               </form>
                             ) : null}
+                            <a className="pin-tautan text-sm" href={`/konfigurasi/pindah?${new URLSearchParams({ dari: kelasDari.node_id, sekolah: sekolahStruktur.id, akhiri: m.penempatan }).toString()}#akhiri-${m.penempatan}`} data-akhiri={m.penempatan}>{sl("config.akhiri.buka")}<span className="pin-sr"> · {m.nama}</span></a>
+                            {sp.akhiri === m.penempatan ? (
+                              <form id={`akhiri-${m.penempatan}`} action={akhiriPendaftaranAction} className="grid gap-2 sm:col-span-2 rounded-[var(--radius-1)] bg-surface-2 p-3" data-akhiri-form={m.penempatan}>
+                                <h3 className="text-sm font-medium text-ink-1">{sl("config.akhiri.judul")} · {m.nama}</h3>
+                                <p className="text-sm text-ink-2">{sl("config.akhiri.arti")}</p>
+                                <input type="hidden" name="penempatan" value={m.penempatan} />
+                                <input type="hidden" name="dari" value={kelasDari.node_id} />
+                                <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
+                                <label className={label}>{sl("config.akhiri.alasan")}
+                                  <select name="alasan" className={field} required defaultValue="">
+                                    <option value="" disabled>—</option>
+                                    {ALASAN_AKHIRI.map((a) => <option key={a} value={a}>{sl(`config.akhiri.alasan.${a.toLowerCase()}` as HleEvent)}</option>)}
+                                  </select>
+                                </label>
+                                <label className={label}>{sl("config.akhiri.tanggal")}
+                                  <input type="date" name="tanggal" className={field} required defaultValue={hariIni} max={hariIni} />
+                                </label>
+                                <label className={label}>{sl("config.akhiri.keterangan")}
+                                  <textarea name="keterangan" className={field} maxLength={300} rows={2} />
+                                </label>
+                                <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.akhiri.tombol")}<span className="pin-sr"> · {m.nama}</span></TombolKirim></div>
+                                {result("akhiri")}
+                              </form>
+                            ) : null}
+
                           </li>
                         ))}
                       </ul>
@@ -957,6 +995,49 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     <Kosong jenis="belum" kalimat={sl("config.tempatkan.kosong")} />
                   )}
                   {result("tempatkan")}
+                </div>
+                <div id="kembali" className="mt-4 grid gap-2">
+                  <h2 className="text-sm font-medium text-ink-1">{sl("config.kembali.judul")}</h2>
+                  <p className="text-sm text-ink-2">{sl("config.kembali.arti")}</p>
+                  {keluar.length > 0 ? (
+                    <ul className="grid gap-1 text-sm text-ink-2" data-murid-keluar="">
+                      {keluar.map((m) => (
+                        <li key={m.person_id} className="grid gap-2 border-b border-line-1 px-3 py-2" data-keluar={m.person_id}>
+                          <span className="text-ink-1">{m.display_name}{m.institutional_id ? <> · <span className="pin-num">{m.institutional_id}</span></> : null}
+                            <span className="text-ink-3"> · {sl(`config.kembali.akhir.${(m.end_reason ?? "withdrawn").toLowerCase()}` as HleEvent)}{m.ended_at ? ` · ${when(m.ended_at, "baca")}` : ""}</span></span>
+                          {m.di_sekolah_lain ? (
+                            <p className="text-sm text-ink-3">{sl("config.kembali.di_sekolah_lain")}</p>
+                          ) : (
+                            <form action={daftarkanKembaliAction} className="grid gap-2 sm:grid-cols-[auto_auto_1fr_auto] sm:items-end">
+                              <input type="hidden" name="orang" value={m.person_id} />
+                              <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
+                              <input type="hidden" name="pendaftaran" value={m.enrollment_id} />
+                              <label className={label}>{sl("config.kembali.jenis")}
+                                <select name="jenis" className={field} required defaultValue={m.bisa_dikoreksi ? "" : "RETURN"}>
+                                  <option value="" disabled>—</option>
+                                  {m.bisa_dikoreksi ? <option value="CORRECTION">{sl("config.kembali.jenis.koreksi")}</option> : null}
+                                  <option value="RETURN">{sl("config.kembali.jenis.kembali")}</option>
+                                </select>
+                              </label>
+                              <label className={label}>{sl("config.kembali.kelas")}
+                                <select name="kelas" className={field} defaultValue="">
+                                  <option value="">{sl("config.kembali.kelas_semula")}</option>
+                                  {kelasMurid.map((k) => <option key={k.node_id} value={k.node_id}>{namaKelas(k)}</option>)}
+                                </select>
+                              </label>
+                              <label className={label}>{sl("config.kembali.alasan")}
+                                <input name="alasan" className={field} required maxLength={300} />
+                              </label>
+                              <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.kembali.tombol")}<span className="pin-sr"> · {m.display_name}</span></TombolKirim>
+                            </form>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <Kosong jenis="belum" kalimat={sl("config.kembali.kosong")} />
+                  )}
+                  {result("kembali")}
                 </div>
               </>
             ) : (

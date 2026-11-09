@@ -19,7 +19,7 @@
 create or replace function public.akhiri_pendaftaran(p_enrollment uuid, p_reason text, p_explanation text,
                                                      p_effective date)
 returns uuid language plpgsql volatile security definer set search_path = public, pg_temp as $$
-declare en record; v_end public.enrollment_end_reason; v_date date := coalesce(p_effective, current_date);
+declare en record; v_end public.enrollment_end_reason; v_hari date := (now() at time zone 'Asia/Jakarta')::date; v_date date := coalesce(p_effective, (now() at time zone 'Asia/Jakarta')::date);
         v_expl text := nullif(btrim(coalesce(p_explanation, '')), ''); v_closed int;
 begin
   select e.id, e.person_id, e.institution_id, e.status, e.valid_from into en
@@ -46,7 +46,8 @@ begin
     raise exception using errcode = 'PR070', detail = 'ENROL_EXPLANATION_REQUIRED',
       message = '«Lainnya» needs an explanation of 10 to 300 characters (any explanation is at most 300)';
   end if;
-  if v_date > current_date or v_date < en.valid_from::date then
+  -- the school's clock (WIB), as the screen's date field is: «today» at 06.00 WIB is not a future date
+  if v_date > v_hari or v_date < (en.valid_from at time zone 'Asia/Jakarta')::date then
     raise exception using errcode = 'PR070', detail = 'ENROL_DATE_INVALID',
       message = 'the effective date is today or earlier, and not before the enrolment began';
   end if;
@@ -89,8 +90,10 @@ begin
   end if;
   -- the person's row serialises this against a transfer, a new number or another re-enrolment of them
   perform 1 from public.persons where persons.id = p_person for update;
+  -- recorded at this school: its number, or an enrolment there (both kinds need an earlier enrolment here anyway)
   if not exists (select 1 from public.institutional_identities ii
-                  where ii.person_id = p_person and ii.institution_id = p_institution) then
+                  where ii.person_id = p_person and ii.institution_id = p_institution)
+     and not exists (select 1 from public.enrollments e where e.person_id = p_person and e.institution_id = p_institution) then
     raise exception using errcode = 'PR070', detail = 'PLACE_NOT_THIS_SCHOOL', message = 'this person is not recorded at this school';
   end if;
   if public.memegang_peran_staf(p_person) then

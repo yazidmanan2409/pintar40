@@ -914,6 +914,36 @@ export type HleEvent =
   | "galat.place_no_year"
   | "galat.place_departed"
   | "galat.place_elsewhere"
+  | "config.akhiri.buka"
+  | "config.akhiri.judul"
+  | "config.akhiri.arti"
+  | "config.akhiri.alasan"
+  | "config.akhiri.alasan.graduated"
+  | "config.akhiri.alasan.withdrawn"
+  | "config.akhiri.alasan.transfer_external"
+  | "config.akhiri.alasan.moved_abroad"
+  | "config.akhiri.alasan.deceased"
+  | "config.akhiri.alasan.other"
+  | "config.akhiri.tanggal"
+  | "config.akhiri.keterangan"
+  | "config.akhiri.tombol"
+  | "config.kembali.judul"
+  | "config.kembali.arti"
+  | "config.kembali.di_sekolah_lain"
+  | "config.kembali.jenis"
+  | "config.kembali.jenis.koreksi"
+  | "config.kembali.jenis.kembali"
+  | "config.kembali.kelas"
+  | "config.kembali.kelas_semula"
+  | "config.kembali.alasan"
+  | "config.kembali.tombol"
+  | "config.kembali.kosong"
+  | "config.kembali.akhir.completed"
+  | "config.kembali.akhir.withdrawn"
+  | "config.kembali.akhir.transferred_out"
+  | "config.kembali.akhir.expired"
+  | "galat.enrolment_ended"
+  | "galat.learner_reenrolled"
   | "kenaikan.intro"
   | "kenaikan.kelas.kosong"
   | "kenaikan.kelas.pilih"
@@ -4353,6 +4383,36 @@ const table: Table = {
   "galat.place_no_year": { default: "Sekolah ini belum punya tahun ajaran untuk Kelas itu. Buat tahun ajarannya dulu di Struktur sekolah.", en: "This school has no school year for that Kelas yet. Create the year first under School structure." },
   "galat.place_departed": { default: "Murid ini sudah tidak terdaftar di sekolah ini, jadi tidak ditempatkan dari sini. Riwayatnya tetap tersimpan.", en: "This student is no longer enrolled at this school, so they are not placed from here. Their history is kept." },
   "galat.place_elsewhere": { default: "Murid ini sekarang terdaftar di sekolah lain. Ia hanya masuk ke sekolah ini melalui Perpindahan murid.", en: "This student is now enrolled at another school. They join this school only through a student transfer." },
+  "config.akhiri.buka": { default: "Akhiri pendaftaran", en: "End enrolment" },
+  "config.akhiri.judul": { default: "Akhiri pendaftaran", en: "End the enrolment" },
+  "config.akhiri.arti": { default: "Murid ini keluar dari kelas dan dari sekolah ini. Hasil belajar, asesmen dan sertifikatnya tetap tersimpan, dan pencatatan yang keliru dapat dibatalkan dari «Murid yang sudah keluar».", en: "The student leaves the class and this school. Their learning results, assessments and certificates stay recorded, and a mistaken record can be undone from «Students who have left»." },
+  "config.akhiri.alasan": { default: "Alasan", en: "Reason" },
+  "config.akhiri.alasan.graduated": { default: "Lulus", en: "Graduated" },
+  "config.akhiri.alasan.withdrawn": { default: "Mengundurkan diri", en: "Withdrew" },
+  "config.akhiri.alasan.transfer_external": { default: "Pindah ke sekolah di luar PINTAR", en: "Moved to a school outside PINTAR" },
+  "config.akhiri.alasan.moved_abroad": { default: "Pindah ke luar negeri", en: "Moved abroad" },
+  "config.akhiri.alasan.deceased": { default: "Meninggal dunia", en: "Passed away" },
+  "config.akhiri.alasan.other": { default: "Lainnya (tuliskan penjelasannya)", en: "Other (write the explanation)" },
+  "config.akhiri.tanggal": { default: "Berlaku sejak", en: "Effective from" },
+  "config.akhiri.keterangan": { default: "Penjelasan (wajib untuk «Lainnya», 10 sampai 300 karakter)", en: "Explanation (required for «Other», 10 to 300 characters)" },
+  "config.akhiri.tombol": { default: "Akhiri pendaftaran", en: "End the enrolment" },
+  "config.kembali.judul": { default: "Murid yang sudah keluar", en: "Students who have left" },
+  "config.kembali.arti": { default: "Membatalkan pencatatan yang keliru mengembalikan murid ke tahun ajaran dan kelasnya semula. Kembali bersekolah mendaftarkannya lagi di kelas yang Anda pilih. Riwayat lamanya tidak diubah.", en: "Undoing a mistaken record returns the student to their school year and class as before. Returning to school enrols them again in the class you choose. Their earlier history is not changed." },
+  "config.kembali.di_sekolah_lain": { default: "Murid ini sekarang terdaftar di sekolah lain. Ia kembali ke sekolah ini hanya melalui Perpindahan murid.", en: "This student is now enrolled at another school. They come back to this school only through a student transfer." },
+  "config.kembali.jenis": { default: "Jenis", en: "Kind" },
+  "config.kembali.jenis.koreksi": { default: "Membatalkan pencatatan yang keliru", en: "Undo a mistaken record" },
+  "config.kembali.jenis.kembali": { default: "Kembali bersekolah", en: "Returns to school" },
+  "config.kembali.kelas": { default: "Kelas", en: "Class" },
+  "config.kembali.kelas_semula": { default: "— Kelas semula (untuk pembatalan) —", en: "— The former class (for undoing) —" },
+  "config.kembali.alasan": { default: "Alasan", en: "Reason" },
+  "config.kembali.tombol": { default: "Daftarkan kembali", en: "Enrol again" },
+  "config.kembali.kosong": { default: "Belum ada murid yang keluar dari sekolah ini.", en: "No student has left this school yet." },
+  "config.kembali.akhir.completed": { default: "Lulus", en: "Graduated" },
+  "config.kembali.akhir.withdrawn": { default: "Keluar", en: "Left" },
+  "config.kembali.akhir.transferred_out": { default: "Pindah sekolah", en: "Transferred" },
+  "config.kembali.akhir.expired": { default: "Tahun ajaran selesai", en: "School year ended" },
+  "galat.enrolment_ended": { default: "Pendaftaran murid sudah diakhiri. Riwayatnya tetap tersimpan.", en: "The student's enrolment has been ended. Their history stays recorded." },
+  "galat.learner_reenrolled": { default: "Murid sudah didaftarkan kembali.", en: "The student has been enrolled again." },
   "kenaikan.intro": { default: "Pilih satu kelas. Setiap muridnya, juga murid di Tingkat yang sama yang belum punya kelas, mendapat satu keputusan. Anda meninjau hasilnya lalu mengonfirmasi sekali; semuanya diterapkan bersama atau tidak sama sekali.", en: "Choose one class. Each of its students, and any student of the same Tingkat who has no class yet, gets one decision. You review the outcome, then confirm once; everything is applied together or not at all." },
   "kenaikan.kelas.kosong": { default: "Sekolah ini belum punya kelas aktif dengan tahun ajaran. Buat kelasnya di Struktur sekolah.", en: "This school has no active class with a school year yet. Create it in School structure." },
   "kenaikan.kelas.pilih": { default: "Kelas", en: "Class" },

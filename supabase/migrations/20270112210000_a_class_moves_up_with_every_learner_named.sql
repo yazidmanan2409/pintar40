@@ -197,9 +197,9 @@ begin
         end;
         insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_new, v_tj, p_tahun_baru);
       elsif d.keputusan = 'LULUS' then
-        perform public.akhiri_pendaftaran(d.enrollment_id, 'GRADUATED', d.keterangan, current_date);
+        perform public.akhiri_pendaftaran(d.enrollment_id, 'GRADUATED', d.keterangan, null);
       elsif d.keputusan = 'KELUAR' then
-        perform public.akhiri_pendaftaran(d.enrollment_id, d.alasan, d.keterangan, current_date);
+        perform public.akhiri_pendaftaran(d.enrollment_id, d.alasan, d.keterangan, null);
       end if;
     end if;
     v_hasil := v_hasil || jsonb_build_object('person_id', d.person_id, 'nama', d.nama, 'sumber', d.sumber,

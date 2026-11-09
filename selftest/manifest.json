@@ -4917,6 +4917,11 @@
       "proves": "«Kenaikan kelas dan kelulusan» through the rendered pages of the running app, as Alpha's Admin sekolah, the forms sent as a browser without script sends them: Kelas 5X is chosen; all four learners are listed, the one in the Tingkat without a class marked; «Naikkan semua ke» pre-selects 6X; a repeat is set straight to the repeat class and a graduate set; the review names each outcome and the teachers and changes nothing; a confirmation without the teachers' review is refused (PROMO_TEACHERS_UNREVIEWED) and changes nothing; the confirmation applies all four, and the outcome page names each learner with where they are now, matching the database; no learner's name travels in the address."
     },
     {
+      "id": "KEMBALI-A01",
+      "runner": "app",
+      "proves": "E3 and E4 on the screen, selftest/kenaikan.test.ts, through the rendered pages of the running app as Alpha's Admin sekolah: on Konfigurasi · Pindah kelas two learners' enrolments are ended from their rows («Akhiri pendaftaran», a reason and today's date on the school's clock); both are listed under «Murid yang sudah keluar»; one ending is undone («Membatalkan pencatatan yang keliru»: back in its Kelas) and the other learner returns into another Kelas («Kembali bersekolah»); both endings stay in the history."
+    },
+    {
       "id": "F37-R01",
       "runner": "db",
       "proves": "SI-D02 (System Integrity, 9 Nov) under real concurrency (runAttemptLimitRace in selftest/run.ts) against supabase/migrations/20270112120000_one_start_at_a_time.sql; strengthened after Sharon's review of 89374424 (finding 2), so it tells a correct fix from one that counts before it locks. A learner one attempt short of an assignment's attempt_limit, chosen from the world and allowed to start by may_start_assessment, starts on connection A, which holds its transaction open and then COMMITS. Connection B's start waits on the per-(learner, assignment) advisory lock while A holds, and after A's commit is refused ATTEMPT_LIMIT_REACHED; the learner then holds exactly attempt_limit sittings. A's sitting and the rows its start wrote are removed afterwards (the test's own rows, triggers suspended for that teardown; audit rows stay). The migration's verification block also checks that the lock is taken before may_start_assessment is called."

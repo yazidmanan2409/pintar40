@@ -194,6 +194,8 @@ export const KODE_SUKSES = [
   "LEARNER_MOVED",
   // 4.0 completion (owner decision 1): a learner recorded without a class placed in one
   "LEARNER_PLACED",
+  // E3/E4 on the screen: an enrolment ended with its reason, a learner re-enrolled
+  "ENROLMENT_ENDED", "LEARNER_REENROLLED",
   // D-088(b): a lesson's pass mark set, or already that value
   "PASS_MARK_SET", "PASS_MARK_UNCHANGED",
   // BOB-44: a person enrolled for professional learning

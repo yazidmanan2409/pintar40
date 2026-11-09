@@ -709,7 +709,8 @@ begin
         ('X''s Guru',          u_guru_a, 'WITHDRAWN', null::text, current_date, 'INSTITUTION_ADMIN'),
         ('an unknown reason',  u_admin,  'BOLOS',     null::text, current_date, 'ENROL_REASON_INVALID'),
         ('Other with no explanation', u_admin, 'OTHER', null::text, current_date, 'ENROL_EXPLANATION_REQUIRED'),
-        ('a future date',      u_admin,  'WITHDRAWN', null::text, current_date + 1, 'ENROL_DATE_INVALID'),
+        -- two days ahead: a future date on any clock (the bound is the school's WIB date, up to 7 h ahead of UTC)
+        ('a future date',      u_admin,  'WITHDRAWN', null::text, current_date + 2, 'ENROL_DATE_INVALID'),
         ('a date before the enrolment began', u_admin, 'WITHDRAWN', null::text, current_date - 60, 'ENROL_DATE_INVALID')
       ) t(siapa, uid, alasan, ket, tgl, mau) loop
       v_got := selftest.f37_sebagai(r.uid, format('select public.akhiri_pendaftaran(%L, %L, %L, %L)', v_eh, r.alasan, r.ket, r.tgl));
