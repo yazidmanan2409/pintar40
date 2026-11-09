@@ -914,6 +914,20 @@ export type HleEvent =
   | "galat.place_no_year"
   | "galat.place_departed"
   | "galat.place_elsewhere"
+  | "audit.kolom.oleh"
+  | "audit.kolom.alasan"
+  | "audit.oleh.sistem"
+  | "audit.oleh.tidak_terlihat"
+  | "audit.berlaku"
+  | "audit.aksi.enrollment.ended_with_reason"
+  | "audit.aksi.enrollment.reopened"
+  | "audit.aksi.promotion.applied"
+  | "audit.alasan.graduated"
+  | "audit.alasan.withdrawn"
+  | "audit.alasan.transfer_external"
+  | "audit.alasan.moved_abroad"
+  | "audit.alasan.deceased"
+  | "audit.alasan.other"
   | "config.akhiri.buka"
   | "config.akhiri.judul"
   | "config.akhiri.arti"
@@ -4383,6 +4397,20 @@ const table: Table = {
   "galat.place_no_year": { default: "Sekolah ini belum punya tahun ajaran untuk Kelas itu. Buat tahun ajarannya dulu di Struktur sekolah.", en: "This school has no school year for that Kelas yet. Create the year first under School structure." },
   "galat.place_departed": { default: "Murid ini sudah tidak terdaftar di sekolah ini, jadi tidak ditempatkan dari sini. Riwayatnya tetap tersimpan.", en: "This student is no longer enrolled at this school, so they are not placed from here. Their history is kept." },
   "galat.place_elsewhere": { default: "Murid ini sekarang terdaftar di sekolah lain. Ia hanya masuk ke sekolah ini melalui Perpindahan murid.", en: "This student is now enrolled at another school. They join this school only through a student transfer." },
+  "audit.kolom.oleh": { default: "Oleh", en: "By" },
+  "audit.kolom.alasan": { default: "Alasan", en: "Reason" },
+  "audit.oleh.sistem": { default: "Sistem", en: "System" },
+  "audit.oleh.tidak_terlihat": { default: "Petugas lain", en: "Another staff member" },
+  "audit.berlaku": { default: "berlaku {tanggal}", en: "effective {tanggal}" },
+  "audit.aksi.enrollment.ended_with_reason": { default: "Pendaftaran murid diakhiri", en: "Student enrolment ended" },
+  "audit.aksi.enrollment.reopened": { default: "Murid didaftarkan kembali", en: "Student enrolled again" },
+  "audit.aksi.promotion.applied": { default: "Kenaikan kelas diterapkan", en: "Promotion applied" },
+  "audit.alasan.graduated": { default: "Lulus", en: "Graduated" },
+  "audit.alasan.withdrawn": { default: "Mengundurkan diri", en: "Withdrew" },
+  "audit.alasan.transfer_external": { default: "Pindah ke sekolah di luar PINTAR", en: "Moved to a school outside PINTAR" },
+  "audit.alasan.moved_abroad": { default: "Pindah ke luar negeri", en: "Moved abroad" },
+  "audit.alasan.deceased": { default: "Meninggal dunia", en: "Passed away" },
+  "audit.alasan.other": { default: "Lainnya", en: "Other" },
   "config.akhiri.buka": { default: "Akhiri pendaftaran", en: "End enrolment" },
   "config.akhiri.judul": { default: "Akhiri pendaftaran", en: "End the enrolment" },
   "config.akhiri.arti": { default: "Murid ini keluar dari kelas dan dari sekolah ini. Hasil belajar, asesmen dan sertifikatnya tetap tersimpan, dan pencatatan yang keliru dapat dibatalkan dari «Murid yang sudah keluar».", en: "The student leaves the class and this school. Their learning results, assessments and certificates stay recorded, and a mistaken record can be undone from «Students who have left»." },

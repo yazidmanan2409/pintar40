@@ -27,7 +27,7 @@ import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
 import { navKonteks } from "@/components/NavKonteks";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
 import ItemNav from "@/components/ItemNav";
-import { kataAksiAudit, kataTabelAudit } from "@/lib/jejak-audit";
+import { alasanAudit, kataAksiAudit, kataTabelAudit } from "@/lib/jejak-audit";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { melayani } from "@/lib/konteks";
 import { redirect } from "next/navigation";
@@ -232,7 +232,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
         status: string; member_kind: string; display_name: string }>)
         .map(({ display_name, ...e }) => ({ ...e, persons: { display_name } })),
     }));
-  const jejak = supabase.from("audit_log").select("id, at, action, target_table, target_id, institution_id, build_sha");
+  const jejak = supabase.from("audit_log").select("id, at, action, target_table, target_id, institution_id, build_sha, actor_person_id, summary");
 
   const [
     { data: institutionsDibaca }, { data: periodsDibaca }, { data: nodes }, { data: enrollments }, { data: transfers },
@@ -601,6 +601,13 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   // B1 / RV-24: the audit trail's page, and whether any row on it carries a build («Versi», Admin platform's alone)
   const barisJejak = (audit ?? []).slice(0, UKURAN_JEJAK);
   const adaVersi = platformIni && barisJejak.some((r) => Boolean(r.build_sha));
+  // E7 (owner, 9 Nov): who acted, by their name where the reader may see the person, and in what role (the row's own
+  // actor_role); a row with no actor is the system's
+  const idPelaku = [...new Set(barisJejak.map((r) => r.actor_person_id as string | null).filter((x): x is string => Boolean(x)))];
+  const { data: pelakuRows } = idPelaku.length && tampilDi("audit")
+    ? await supabase.from("persons").select("id, display_name").in("id", idPelaku)
+    : { data: [] as Array<{ id: string; display_name: string }> };
+  const namaPelaku = new Map(((pelakuRows ?? []) as Array<{ id: string; display_name: string }>).map((p) => [p.id, p.display_name]));
   const navSemua: Array<[string, string]> = [
     ["struktur", s("config.section.struktur")],
     ["ketuntasan", s("config.section.ketuntasan")],
@@ -948,9 +955,10 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                                     {ALASAN_AKHIRI.map((a) => <option key={a} value={a}>{sl(`config.akhiri.alasan.${a.toLowerCase()}` as HleEvent)}</option>)}
                                   </select>
                                 </label>
-                                <label className={label}>{sl("config.akhiri.tanggal")}
-                                  <input type="date" name="tanggal" className={field} required defaultValue={hariIni} max={hariIni} />
-                                </label>
+                                <div className={label}>
+                                  <label htmlFor="akhiri-tanggal">{sl("config.akhiri.tanggal")}</label>
+                                  <TanggalDenganGema jenis="date" id="akhiri-tanggal" name="tanggal" className={field} required defaultValue={hariIni} max={hariIni} locale={locale} />
+                                </div>
                                 <label className={label}>{sl("config.akhiri.keterangan")}
                                   <textarea name="keterangan" className={field} maxLength={300} rows={2} />
                                 </label>
@@ -1839,7 +1847,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               <table className="pin-tabel text-sm text-ink-2" data-jejak="">
                 <caption id="pin-jejak-judul" className="pin-sr">{s("config.section.audit")}</caption>
                 <thead>
-                  <tr><th scope="col">{s("config.label.when")}</th><th scope="col">{s("config.label.action")}</th><th scope="col">{s("config.label.target")}</th>{adaVersi ? <th scope="col">{s("config.label.build")}</th> : null}</tr>
+                  <tr><th scope="col">{s("config.label.when")}</th><th scope="col">{s("config.label.action")}</th><th scope="col">{s("config.label.target")}</th><th scope="col">{s("audit.kolom.oleh")}</th><th scope="col">{s("audit.kolom.alasan")}</th>{adaVersi ? <th scope="col">{s("config.label.build")}</th> : null}</tr>
                 </thead>
                 <tbody>
                   {barisJejak.map((r) => (
@@ -1848,10 +1856,19 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                       {/* D-138(c), D-140(c): the action and the record in words; never the code, the table or an id. */}
                       <td>{kataAksiAudit(r.action, locale)}</td>
                       <td className="text-ink-3">{[kataTabelAudit(r.target_table, locale), r.institution_id ? institutionName.get(r.institution_id) ?? TANPA_NAMA : null].filter(Boolean).join(" · ") || TANPA_NAMA}</td>
+                      {(() => {
+                        // E7: who and why, from the summary keys written for it (src/lib/jejak-audit.ts alasanAudit)
+                        const a = alasanAudit(r.summary, locale);
+                        const nama = r.actor_person_id ? namaPelaku.get(r.actor_person_id as string) ?? null : null;
+                        return (<>
+                          <td data-jejak-oleh="">{r.actor_person_id ? [nama, a.peran].filter(Boolean).join(" · ") || s("audit.oleh.tidak_terlihat") : s("audit.oleh.sistem")}</td>
+                          <td data-jejak-alasan="">{[a.alasan, a.berlaku ? s("audit.berlaku").replace("{tanggal}", when(a.berlaku, "baca")) : null].filter(Boolean).join(" · ") || ""}</td>
+                        </>);
+                      })()}
                       {adaVersi ? <td className="pin-num text-ink-3">{r.build_sha ? short(r.build_sha) : ""}</td> : null}
                     </tr>
                   ))}
-                  {barisJejak.length === 0 && <tr className="pin-tabel-kosong"><td className="text-ink-3" colSpan={adaVersi ? 4 : 3}>{s("config.empty")}</td></tr>}
+                  {barisJejak.length === 0 && <tr className="pin-tabel-kosong"><td className="text-ink-3" colSpan={adaVersi ? 6 : 5}>{s("config.empty")}</td></tr>}
                 </tbody>
               </table>
             </div>

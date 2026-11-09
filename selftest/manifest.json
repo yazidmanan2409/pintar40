@@ -4874,7 +4874,7 @@
     {
       "id": "CABUT-A01",
       "runner": "app",
-      "proves": "Owner, 9 Nov (acceptance principle B), selftest/cabut.test.ts, the rendered pages and PostgREST of the running app: with two sessions open at once, an educator teaching at Alpha and Beta is working in Mengajar at Alpha; Alpha's Admin sekolah, in a browser of their own, revokes the Alpha role with a reason (revoke_role with the admin's own token); the educator's next requests from the same still-open browser and token are refused by the server (Kelas 5A's page no longer shows its learners, PostgREST reads no Alpha structure and no placement of Kelas 5A, the Alpha working context is no longer held); the Beta context and class still answer; the revoked row keeps who, when and why, role.granted and role.revoked are audited with the reason, the person, account and session stand, and a fresh sign-in works."
+      "proves": "Owner, 9 Nov (acceptance principle B), selftest/cabut.test.ts, the rendered pages and PostgREST of the running app: with two sessions open at once, an educator teaching at Alpha and Beta is working in Mengajar at Alpha; Alpha's Admin sekolah, in a browser of their own, revokes the Alpha role with a reason (revoke_role with the admin's own token); the educator's next requests from the same still-open browser and token are refused by the server (Kelas 5A's page no longer shows its learners, PostgREST reads no Alpha structure and no placement of Kelas 5A, the Alpha working context is no longer held); the Beta context and class still answer; the revoked row keeps who, when and why, role.granted and role.revoked are audited with the reason, and «Jejak audit» shows the admin by name with the reason (E7); the person, account and session stand, and a fresh sign-in works."
     },
     {
       "id": "F37-E06",
@@ -4920,6 +4920,11 @@
       "id": "KEMBALI-A01",
       "runner": "app",
       "proves": "E3 and E4 on the screen, selftest/kenaikan.test.ts, through the rendered pages of the running app as Alpha's Admin sekolah: on Konfigurasi · Pindah kelas two learners' enrolments are ended from their rows («Akhiri pendaftaran», a reason and today's date on the school's clock); both are listed under «Murid yang sudah keluar»; one ending is undone («Membatalkan pencatatan yang keliru»: back in its Kelas) and the other learner returns into another Kelas («Kembali bersekolah»); both endings stay in the history."
+    },
+    {
+      "id": "JEJAK-K01",
+      "runner": "static",
+      "proves": "E7 (owner, 9 Nov), selftest/kenaikan.test.ts, executes the source file src/lib/jejak-audit.ts: «Jejak audit» reads who acted and why from the audit summary's keys written for it (the reason code in words, the free reason, the effective date, the actor's role) and never a summary's ids, mappings or counts; an unknown role and a malformed date are not shown."
     },
     {
       "id": "F37-R01",

@@ -27,3 +27,25 @@ export function kataTabelAudit(tabel: string | null, locale: Locale, persona: Pe
   const k = `audit.tabel.${tabel ?? ""}`;
   return ada(k) ? t(k, persona, { locale }) : null;
 }
+
+/**
+ * E7 (owner, 9 Nov; ACCOUNT-LIFECYCLE-INVENTORY.md §5): WHO ACTED AND WHY, from the row's own summary. Only the keys
+ * written for this purpose are read: the reason in words (reason, explanation, revoked_reason), a reason code with words
+ * of its own (audit.alasan.<code>), the effective date, and the role the actor acted in (audit_write's actor_role). Nothing
+ * else in a summary reaches the screen: it may hold ids, mappings or counts that are not a reader's business.
+ */
+export type AlasanAudit = { alasan: string | null; berlaku: string | null; peran: string | null };
+
+export function alasanAudit(summary: unknown, locale: Locale, persona: Persona = "staff"): AlasanAudit {
+  const s = summary && typeof summary === "object" && !Array.isArray(summary) ? (summary as Record<string, unknown>) : {};
+  const teks = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim().slice(0, 300) : null);
+  const kode = teks(s.reason_code);
+  const kunciKode = kode ? `audit.alasan.${kode.toLowerCase()}` : "";
+  const kataKode = kode && ada(kunciKode) ? t(kunciKode, persona, { locale }) : null;
+  const bebas = teks(s.reason) ?? teks(s.explanation) ?? teks(s.revoked_reason);
+  const alasan = [kataKode, bebas].filter(Boolean).join(" · ") || null;
+  const berlaku = typeof s.effective_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s.effective_date) ? s.effective_date : null;
+  const r = teks(s.actor_role);
+  const kunciPeran = r ? `role.${r}` : "";
+  return { alasan, berlaku, peran: r && ada(kunciPeran) ? t(kunciPeran, persona, { locale }) : null };
+}

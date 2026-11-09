@@ -141,6 +141,11 @@ export const cabutAppTests: SelfTest[] = [
                                where p.id = ${lit(orang)} and u.banned_until is null and u.deleted_at is null`);
       const sesiMasih = psql(`select count(*) from public.device_sessions where session_id = ${lit(tokenGuru!.id)} and ended_at is null`);
       c.expect(identitas === "1" && sesiMasih === "1", `the identity or the session was suspended (person+account ${identitas}, session ${sesiMasih})`);
+      // E7: «Jejak audit» says who revoked (the admin by name, as Admin sekolah) and why
+      const namaAdmin = psql(`select p.display_name from public.persons p join public.accounts a on a.person_id = p.id
+                               join auth.users u on u.id = a.auth_user_id where u.email = 'alpha-admin@synthetic.pintar.test'`);
+      const jejakHtml = (await (await admin.halaman("/konfigurasi/audit")).text()).replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
+      c.expect(jejakHtml.includes(alasan) && jejakHtml.includes(namaAdmin), `«Jejak audit» does not show the reason and «${namaAdmin}»`);
       const lagi = await new Komputer(asal, ipUji()).jsonDari("/masuk/password", { form: { identitas: email, password: sandi } });
       c.expect(lagi.status === 200, `a fresh sign-in after the revocation answered ${lagi.status}`);
 
@@ -149,7 +154,7 @@ export const cabutAppTests: SelfTest[] = [
         "Alpha's admin, in another browser, revoked the Alpha role with a reason; the educator's next requests with the same browser " +
         "and token were refused (the class page without its learners, 0 Alpha nodes, 0 placements, the Alpha context cleared); the " +
         "Beta context and class still answer; the revoked row keeps who, when and why, role.granted and role.revoked are both " +
-        "audited, the person, the account (not banned) and the session stand, and a fresh sign-in works",
+        "audited (and «Jejak audit» shows the admin by name with the reason), the person, the account (not banned) and the session stand, and a fresh sign-in works",
       );
     },
   },

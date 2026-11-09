@@ -17,11 +17,29 @@ import { ipUji, lit, psql } from "./bob26.test";
 import { Komputer } from "./bob29.test";
 import { pilihKonteksPeramban, tersusun } from "./konteks-uji";
 import { bacaNilai, dariForm, kodekan, nilaiDari, urai } from "../src/lib/kenaikan";
+import { alasanAudit } from "../src/lib/jejak-audit";
 
 const ID = "11111111-2222-4333-8444-555555555555";
 const ID2 = "66666666-7777-4888-9999-000000000000";
 
 export const kenaikanTests: SelfTest[] = [
+  {
+    id: "JEJAK-K01",
+    requires: [],
+    run: async () => {
+      // E7: «Jejak audit» reads who and why from the summary keys written for it, and nothing else
+      const c = new Checks();
+      const a = alasanAudit({ reason_code: "DECEASED", explanation: "  keterangan keluarga  ", effective_date: "2026-11-02", actor_role: "INSTITUTION_ADMIN",
+        mapping: [{ from_node: "x" }], person_id: "11111111-2222-4333-8444-555555555555", outcomes: [1, 2] }, "id");
+      c.expect(a.alasan === "Meninggal dunia · keterangan keluarga", `the reason reads «${a.alasan}»`);
+      c.expect(a.berlaku === "2026-11-02" && a.peran === "Admin sekolah", `the date or role reads ${a.berlaku} ${a.peran}`);
+      c.expect(!JSON.stringify(a).includes("11111111") && !JSON.stringify(a).includes("from_node"), "a summary's ids or mapping reached the screen");
+      const r = alasanAudit({ reason: "Tidak lagi mengajar", actor_role: "BUKAN_PERAN", effective_date: "kemarin" }, "en");
+      c.expect(r.alasan === "Tidak lagi mengajar" && r.peran === null && r.berlaku === null, `an unknown role or a malformed date was shown: ${JSON.stringify(r)}`);
+      c.expect(JSON.stringify(alasanAudit(null, "id")) === JSON.stringify({ alasan: null, berlaku: null, peran: null }), "an empty summary is not empty");
+      return c.verdict("the reason code in words with the free reason, the effective date and the actor's role are read; a summary's ids, mappings and counts, an unknown role and a malformed date are not");
+    },
+  },
   {
     id: "KENAIKAN-K01",
     requires: [],

@@ -133,3 +133,150 @@ failed.
    - Is an un-audited no-op acceptable, given that the admin saw «0 dipindahkan» on screen and nothing changed?
 3. **The Medium finding (no path back for a withdrawn learner)** closes with E4 RETURN, next. Lifecycle completion is
    not claimed before then.
+
+## 7. E3 and E4 (`20270112200000`): closes your Medium finding (no path back for a withdrawn learner)
+
+Red at `68116785`, green at `3b2799e4`. On `3b2799e4`: the whole clean suite 938 passed, 0 failed; CI green; journeys green.
+
+**Corrected in place since `3b2799e4`** (both migrations are undeployed; listed in `969a0c10`):
+- the date bound is the school's WIB date, not the database's UTC date;
+- «recorded at this school» means its number or an enrolment there, since both kinds already require an earlier
+  enrolment here.
+
+**E3 `akhiri_pendaftaran(enrolment, reason, explanation, effective_date)`:**
+- Who may call it: INSTITUTION_ADMIN of the enrolment's school, never another school's admin, and the platform.
+- How each reason ends the enrolment:
+
+  | Reason | end_reason |
+  |---|---|
+  | GRADUATED | COMPLETED |
+  | TRANSFER_EXTERNAL, MOVED_ABROAD | TRANSFERRED_OUT |
+  | WITHDRAWN, DECEASED | WITHDRAWN |
+  | OTHER | WITHDRAWN, with an explanation of 10–300 characters required |
+
+- The date is today or earlier, and never before the enrolment's `valid_from`. It is recorded in the audit row. Access
+  ends at recording, as you ruled on 89374424.
+- The enrolment row is locked. Its placements close as ENROLLMENT_ENDED, and it writes one
+  `enrollment.ended_with_reason` row.
+- It never touches results, sittings, certificates or attribution.
+- **An open sitting (CREATED / IN_PROGRESS / PAUSED) refuses the ending, ENROL_SITTING_OPEN, fail closed.** Your
+  ruling: keep refusing, or end the sitting as INSTITUTIONAL_REVOCATION?
+
+**E4 `daftarkan_kembali(person, school, kind, reason, kelas, enrolment)`.** It never rewrites the past.
+- **CORRECTION:**
+  - Allowed only for the person's latest ending at this school, recorded by E3, and not yet corrected.
+  - It opens a new live enrolment in the same year and programme, back in the same Kelas if that Kelas is still
+    active.
+  - `enrollment.reopened {kind, corrects}` links it to the ending it corrects.
+  - The ended row stays as it was.
+- **RETURN:**
+  - For a learner who left this school (`murid_sudah_keluar`).
+  - It opens a new enrolment in the chosen Kelas's year and in the programme of their latest enrolment there.
+  - Same person, same registration number.
+- **Both:**
+  - Refused with PLACE_ELSEWHERE while the person is enrolled at another school. A learner who moved away comes back
+    only by a transfer, which keeps the old record (F37-E05). **A former school cannot reclaim a learner.**
+  - Further refusals: ENROL_ALREADY_LIVE, ENROL_NOT_ENDED, ENROL_NOT_CORRECTABLE and ENROL_NOT_DEPARTED.
+  - The person's row is locked.
+  - The new enrolment is ACTIVE once the person has activated, PENDING until then.
+
+**Please check:**
+- Is CORRECTION's «latest, by E3, not yet corrected» tight enough? An ending recorded before E3 existed (for
+  example by `transfer_execute`) cannot be «corrected». It can only be a RETURN.
+- Is taking the programme from the latest enrolment right for RETURN?
+- Does the Medium finding close?
+
+## 8. Immediate institutional access revocation (owner's principle B): proof, no code change (`5f373c54`, CABUT-A01)
+
+Two sessions are open at once, through the running app, Auth and PostgREST.
+1. An educator teaching at Alpha (Kelas 5A) and at Beta is working in Mengajar at Alpha.
+2. Alpha's admin, in another browser, calls `revoke_role` with a reason.
+3. The educator's next requests, from the same open browser and with the same token, are refused:
+   - the Kelas 5A page no longer shows its learner;
+   - PostgREST returns 0 Alpha nodes (8 before) and 0 placements (1 before);
+   - `konteks_saya` no longer holds the Alpha context.
+4. Beta's context and class still answer.
+5. Nothing is lost:
+   - the revoked row keeps who revoked it, when and why;
+   - role.granted and role.revoked are both audited with the reason;
+   - person, account and session stand, and a fresh sign-in works.
+
+**Please check:** is there any path that reads a cached authority? For example a server component's own cache, a
+`device_sessions` column, or a materialised list. Is the per-request check the whole story?
+
+## 9. «Kenaikan kelas dan kelulusan» (`20270112210000`): Daisy's approved flow, replacing the class-to-class run
+
+Red at `c481fa26`, green at `71da21ce`. Tests: F37-K01..K05, KENAIKAN-K01 and KENAIKAN-A01 (the whole journey through
+the screen).
+
+**`kenaikan_rencana(kelas)`** returns:
+- the learners of the Kelas, plus the learners of its Tingkat who have no Kelas (the demonstration's silent omission);
+- for each learner, whether a transfer is under way and whether a sitting is open;
+- the teachers;
+- next year's Kelas.
+
+**`kenaikan_tetapkan(kelas, tahun, keputusan, guru_ditinjau, terapkan)`:**
+- **Preview:** validates and writes nothing.
+- **Apply:** one transaction, locking the population's people rows in id order. Each learner has exactly one decision:
+  - **NAIK / TINGGAL:** the old enrolment becomes ENDED/**EXPIRED**, and its placements close PERIOD_ROLLOVER. A new
+    enrolment opens for the new year in the same programme and with the same status, placed straight into the chosen
+    Kelas. A repeat never passes through the promotion class.
+  - **LULUS / KELUAR:** through E3.
+  - **PINDAH:** only while a transfer is under way, and nothing changes.
+- **Refusals:**
+  - PROMO_UNDECIDED, naming who is missing;
+  - PROMO_CHANGED: someone not in the class, or a second press;
+  - PROMO_TEACHERS_UNREVIEWED;
+  - PROMO_TARGET_INVALID: not an active Kelas of the new year at this school;
+  - PROMO_NO_TRANSFER;
+  - ENROL_SITTING_OPEN: the whole run refuses;
+  - another school's admin, and a Guru.
+- **Audit:** one `promotion.applied` row with every outcome. A refused run writes nothing.
+- **Teachers:** never carried over (F37-K03 asserts no role on the new classes).
+- **Sittings:** stay on the old enrolment and the old class.
+
+**`kenaikan_hasil(kelas)`:** the last confirmation read back, each learner with where they are now.
+
+**Your §10 requirement 4 (the enrolment's year), decided for your ruling.** A promoted learner gets **a new enrolment
+per year**:
+- the canonical Institution Enrollment is keyed by period;
+- the old year's enrolment ends EXPIRED;
+- `transfer_execute` already behaves this way.
+- Is EXPIRED the right end reason, or do you want a distinct one?
+- `period_rollover` (which kept the old year's enrolment) is unchanged in the database, but no screen offers it any
+  more. Should it be revoked from clients?
+
+## 10. E3 and E4 on the screen (`20270112220000`; `969a0c10`)
+
+The Action & Consequence inventory found that neither function had a caller. F37-E06 was red at `8231655c`;
+KEMBALI-A01 drives the whole journey through the running app.
+
+**`murid_keluar(school)`:**
+- Lists the learners who left the school and are enrolled nowhere there now.
+- For each: their latest ending, whether it can be corrected (the same rule as `daftarkan_kembali`), and whether they
+  are enrolled elsewhere now.
+- Only the school's admin can read it.
+
+**Konfigurasi · Pindah kelas:**
+- «Akhiri pendaftaran» on each learner's row.
+- «Murid yang sudah keluar», offering:
+  - «Membatalkan pencatatan yang keliru», only where the database says it can be corrected;
+  - «Kembali bersekolah» into a chosen Kelas.
+- A learner enrolled elsewhere is told that a transfer is the way back. No form is offered for them.
+
+**Please check:** does `murid_keluar` disclose anything beyond what the school's admin may already read?
+
+## 11. E7, a usable audit trail: «Jejak audit» shows who acted and why
+
+The demonstration found this gap, and the owner ruled it 4.0.
+- **Two new columns:**
+  - «Oleh»: the actor's name where the reader may see the person, and the role they acted in (`actor_role`). A row
+    with no actor reads «Sistem».
+  - «Alasan»: the reason code in words, the free reason or explanation, and «berlaku <tanggal>».
+- **Only keys written for this purpose are read** (`alasanAudit` in `src/lib/jejak-audit.ts`). A summary's ids,
+  mappings and counts never reach the screen (JEJAK-K01).
+- **End to end:** CABUT-A01 now also shows the revoking admin by name with the reason.
+- **Please check:**
+  - Can an audit row's free reason ever carry something the school's admin may not see? For example, a
+    platform-written reason on a row tagged with the school.
+  - Is «Petugas lain», for an actor the reader cannot see, the right disclosure?
