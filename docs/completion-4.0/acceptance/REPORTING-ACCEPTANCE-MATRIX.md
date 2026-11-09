@@ -2,7 +2,7 @@
 
 Owner directive: Reporting Quality Gate, 9 Nov 2026.
 
-Evidence head: `2b3b291e` on `claude/awesome-rubin-bqxp6p` (updated 9 Nov, after Sharon's and Daisy's reviews of `e8a5efb9`); the run record is in §12. Every figure below was checked against the raw official results, not against PINTAR's own calculators.
+Evidence head: the head after `fd02ec3e` on `claude/awesome-rubin-bqxp6p` (updated 9 Nov, after Sharon's and Daisy's reviews of `e8a5efb9` and the owner's O-B3); the run record is in §12. Every figure below was checked against the raw official results, not against PINTAR's own calculators.
 
 **Gate status: OPEN.** O-B3 decided by the owner (9 Nov, §13). Open coverage: §12.
 
@@ -337,9 +337,9 @@ Daisy's report: `docs/coordination/ux/completion-4.0/CONTOH-LAPORAN/KESIAPAN-LAP
 
 **O-B3, decided by the owner (9 Nov).**
 - **The ruling.** The learner's sealed mastery, correct-answer count and certificate stay unchanged. The per-question review and the reading map may use the current, corrected answer key, as they do today. When a recalculation changes the grading, the page explains that the per-question feedback reflects the corrected key and may differ from the original sealed result. Nothing may imply that the sealed assessment or certificate changed. No historical per-item grade storage in 4.0.
-- **Implemented: the chapter result.** Where the review's current-key grading differs from the sealed count (a corrected key, recalculated or not), a note sits directly under «Tinjau kembali», above the questions: «Tanda «Sudah tepat» dan «Belum tepat» pada soal-soal di bawah memakai kunci jawaban yang sudah diperbaiki, jadi bisa berbeda dari hasil yang disegel di atas (n dari m soal tepat). Hasil yang disegel dan sertifikat Anda tidak berubah.» It names the badges the learner sees, not a section name.
+- **Implemented: the chapter result.** Where the review's current-key grading differs from the sealed count (a corrected key, recalculated or not), a note sits directly under «Tinjau kembali», above the questions: «Tanda «Sudah tepat» dan «Belum tepat» pada soal-soal di bawah mengikuti jawaban benar yang sudah diperbaiki, jadi bisa berbeda dari hasil yang disegel di atas (n dari m soal tepat). Hasil yang disegel dan sertifikat Anda tidak berubah.» It names the badges the learner sees, not a section name.
 - **Seen rendered after a real recalculation** (local, `54b3323f`; Daisy's staging: a corrected key, then `recompute_result` as SYSTEM_ADMIN, 12.5% → 25%, one audit row). The learner's Bab 2 shows the sealed «13% · Terjawab tepat 1 dari 8 soal», the sealed per-objective counts (summing to 1) and the notice. The note sits above eight questions, two marked «Sudah tepat» under today's key. «Hasil belajar» shows «1 dari 8 soal», 13%.
-- **Implemented: the reading map.** A recalculated Pemetaan Awal's reading map says the same («Peta ini memakai kunci jawaban yang sudah diperbaiki…»).
+- **Implemented: the reading map.** A recalculated Pemetaan Awal's reading map says the same («Peta ini mengikuti jawaban benar yang sudah diperbaiki…»; learner copy never says «kunci jawaban», DAISY-26).
 - **Unchanged.** The notice under the result («…tetap hasil yang disegel…») and the sealed count (B3) stay as they are.
 - **Limit.** The reading map's note shows only for a recalculated sitting. A key corrected *without* a recalculation is not detected there (the chapter result does detect it, by comparing counts). Recalculation is the audited path for a corrected key.
 - **Tests.** D78-B01 (source and wording, both languages: the corrected key named; the sealed result and certificate said not to change).
@@ -373,13 +373,17 @@ Restated tests (each with a note in the test): D78-P01 (A7), D78-N03 (A5), D78-S
 | `48e94e7c` | walk fixes (contrast, «di antaranya») | 519 red (F36-M01 item choice, a test bug) | **225 green** |
 | `e8a5efb9` | F36-M01 item chosen by property | **520 green** | 226 cancelled (superseded) |
 | `f8d933bc` | Sharon's findings (`moved`, PR011, «hasil», R-T1) | **521 green** | 227 cancelled (superseded) |
-| `2b3b291e` | Daisy's findings (B1, B2, B3 count, «1 learner»); matrix | 522 running | 228 running |
+| `2b3b291e` | Daisy's findings (B1, B2, B3 count, «1 learner»); matrix | 522 cancelled (superseded) | 228 cancelled (superseded) |
+| `1036ca51` | matrix only | — | — |
+| `54b3323f` | O-B3 implemented | 523 cancelled (superseded) | 229 cancelled (superseded) |
+| `fd02ec3e` | O-B3 note names the badges (seen rendered after a real recalculation) | 524 red: 910 passed, 1 failed, DAISY-26-BELAJAR-01 (learner copy may not say «kunci jawaban», which reads as locking an answer) | **230 green** |
+| next | the O-B3 notes reworded to «jawaban benar yang sudah diperbaiki» | to run | to run |
 
 ### Open
 
 | Area | State |
 |---|---|
-| Exact-SHA CI and journeys on the final head | CI 522 and journeys 228 on `2b3b291e`, running |
+| Exact-SHA CI and journeys on the final head | CI 524 on `fd02ec3e` failed only DAISY-26-BELAJAR-01, fixed in the next head; journeys 230 green on `fd02ec3e`. Both to run on the next head |
 | Clean-database suite | The whole suite ran on `1f28a08d` (5 failures, all fixed or restated, each rerun green). Since then: targeted runs on a fresh database: `f8d933bc` 66 passed; `2b3b291e` 88 passed (D78, LAPORAN, M4-K01, F36, F06, F31, F35). The whole suite on the final head is still to run (CI's selftest job runs it) |
 | Report walk | On `d840b12f`: 120 views, all 200, none scrolls sideways. CEK at 1280 (40 views) found one axe colour-contrast failure («Berkembang», 4.28:1), fixed; on re-check 0 violations, print clean, A6 tree snapshot «60% (di bawah target) · 22 murid». Daisy's walk on `e8a5efb9` (120 + 40 views) agrees. B1–B3 changed pages after that; not re-walked |
 | Sharon | Verified `e8a5efb9`; dispositions in §13. **Re-check requested** on the final head: the `moved` reason, the PR011 catch, the gate below its minimum, and O-B3: the evidence and recalculation contracts stay consistent |

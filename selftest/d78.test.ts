@@ -368,7 +368,8 @@ export const d78Tests: SelfTest[] = [
       const baris = (k: string) => (hle2.split("\n").find((l) => l.startsWith(`  "${k}": `)) ?? "");
       for (const k of ["hasil.review.kunci_terkini", "map.kunci_terkini"]) {
         const l = baris(k);
-        c.expect(/kunci jawaban yang sudah diperbaiki/.test(l) && /corrected answer key/.test(l) && /tidak berubah/.test(l) && /do(es)? not change/.test(l)
+        // DAISY-26: learner copy never says «kunci jawaban» (it reads as locking an answer); «jawaban benar yang sudah diperbaiki»
+        c.expect(/jawaban benar yang sudah diperbaiki/.test(l) && !/kunci jawaban/i.test(l) && /corrected answer key/.test(l) && /tidak berubah/.test(l) && /do(es)? not change/.test(l)
           && !/(sertifikat|certificate)[^."]*(berubah menjadi|changed to|telah berubah|has changed)/i.test(l),
           `«${k}» does not say the corrected key, or implies the sealed result or certificate changed: ${l.slice(0, 200)}`);
       }
