@@ -1974,6 +1974,11 @@
       "proves": "BOB-04 (D-008, D-011, D-014). Read from the migration source and the source files src/lib/penugasan-kontrak.ts, src/app/mengajar/actions.ts, src/app/mengajar/[kelas]/siapkan/page.tsx and the learner pages src/app/belajar/[tugas]/pemetaan/page.tsx and penguasaan/page.tsx: the codes assign_refuse raises for assigning are exactly the contract's and each is raised (with the seal's, the boundary's and, since D-183, the exposure guard's code read from migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql); every code has a copy key in both languages without machinery words; sediakanMateri calls assign_release with its declared arguments; the review page shows a refused code's sentence; and neither learner test page can answer 404."
     },
     {
+      "id": "W221-K01",
+      "runner": "static",
+      "proves": "W2.21 «Akhiri penugasan» read from its sources (selftest/penugasan.test.ts against 20270113100000): penugasan_tolak's codes are exactly KODE_AKHIRI_DB and akhiri_penugasan raises each; each is read back by its PR050 DETAIL (a planted unknown stays ASSIGN_FAILED) and has a sentence in both languages naming no machinery; akhiriPenugasanAction passes exactly p_la, p_jenis, p_alasan and p_akhiri_yang_berjalan; the class page offers «Akhiri atau tarik» only on an ACTIVE assignment and opens the panel, which lists who is still answering, requires the confirmation, the kind and a 5–300 character reason; statusMateri reads ENDED as «Diakhiri» and WITHDRAWN as «Ditarik»."
+    },
+    {
       "id": "F12-N03",
       "runner": "db",
       "proves": "BOB-03 (D-041). Releases change only through their functions: a teacher's direct insert into plp_releases naming the head of department as author and an admin's direct update of a published release are both refused by the database (42501, no client grant), no write policy remains on plp_releases, and signed-in staff still read the school's releases."
@@ -4912,6 +4917,31 @@
       "proves": "«Kenaikan kelas dan kelulusan»: a second confirmation of the same decisions is refused (PROMO_CHANGED) and writes nothing."
     },
     {
+      "id": "F38-W01",
+      "runner": "db",
+      "proves": "W2.21 «Akhiri penugasan» (owner, 9 Nov: INCLUDE in 4.0; selftest/db/fable38.sql against 20270113100000): akhiri_penugasan_pratinjau tells Kelas A's Guru what ending the lesson assignment would touch before anything changes: the one learner who finished, the two with a sitting still open by name, and the one who never started; B's Guru, a learner and another school's admin are refused ASSIGN_NOT_ALLOWED (CAN_ASSIGN_LEARNING over the class it was given to)."
+    },
+    {
+      "id": "F38-W02",
+      "runner": "db",
+      "proves": "W2.21 refusals write nothing (selftest/db/fable38.sql): akhiri_penugasan refuses an unknown kind (ASSIGN_KIND_INVALID), a reason under 5 characters (ASSIGN_REASON_REQUIRED), learners' open sittings without the explicit confirmation (ASSIGN_IN_PROGRESS), B's Guru and another school's admin (ASSIGN_NOT_ALLOWED); the assignment stays ACTIVE, its assessment OPEN, the open sitting open, and no audit row is written."
+    },
+    {
+      "id": "F38-W03",
+      "runner": "db",
+      "proves": "W2.21 ended on the record (selftest/db/fable38.sql): with the confirmation, the lesson assignment is ENDED and its assessment CLOSED, so a learner who never started may not start (may_start_assessment); the finished sitting and its result are unchanged; the open sitting is TERMINATED as ADMINISTRATIVE_TERMINATION with the reason, its answers kept and an assessment_session.terminated audit row; the sitting past its deadline EXPIRES; one learning_assignment.ended row records the reason and the counts; the lesson package's release keeps its status (withdrawal is not unpublishing)."
+    },
+    {
+      "id": "F38-W04",
+      "runner": "db",
+      "proves": "W2.21 a second press and a return (selftest/db/fable38.sql): ending the same assignment again is refused ASSIGN_NOT_LIVE with no second audit row; assign_release no longer refuses ASSIGN_EXISTS for the class, so the lesson can be given again; B's Guru withdraws B's assignment of the same lesson, recorded WITHDRAWN as learning_assignment.withdrawn."
+    },
+    {
+      "id": "F38-W05",
+      "runner": "db",
+      "proves": "W2.21, found by PENUGASAN-A01 (9 Nov; red first, selftest/db/fable38.sql against 20270113100000): an ACTIVE assignment of a canonical lesson whose distribution to the school PINTAR has WITHDRAWN is ended by the class's Guru (ENDED, its assessment CLOSED); before the fix enforce_assignment_status's licence check refused every update, closing included. Closing needs no licence to teach; opening still does, and the closed assessment cannot be opened again."
+    },
+    {
       "id": "KENAIKAN-K01",
       "runner": "static",
       "proves": "«Kenaikan kelas dan kelulusan», selftest/kenaikan.test.ts, executes the source file src/lib/kenaikan.ts: it reads every select value (NAIK and TINGGAL with a Kelas, LULUS, PINDAH, KELUAR with each of the four reasons) back as its decision and writes it the same way; an empty choice, a malformed id or an unknown reason is no decision; the address form between steps is base64url of ids and codes only, and a malformed one is dropped, never repaired into decisions."
@@ -4925,6 +4955,11 @@
       "id": "KEMBALI-A01",
       "runner": "app",
       "proves": "E3 and E4 on the screen, selftest/kenaikan.test.ts, through the rendered pages of the running app as Alpha's Admin sekolah: on Konfigurasi · Pindah kelas two learners' enrolments are ended from their rows («Akhiri pendaftaran», a reason and today's date on the school's clock); both are listed under «Murid yang sudah keluar»; one ending is undone («Membatalkan pencatatan yang keliru»: back in its Kelas) and the other learner returns into another Kelas («Kembali bersekolah»); both endings stay in the history."
+    },
+    {
+      "id": "PENUGASAN-A01",
+      "runner": "app",
+      "proves": "W2.21 «Akhiri penugasan» through the running app (selftest/kenaikan.test.ts): Alpha's Guru, on a class of the test's own with one lesson in force, is offered «Akhiri atau tarik» on that material's row; the panel says results, certificates and learning progress are kept; a 3-character reason is refused (ASSIGN_REASON_REQUIRED, its sentence shown on the panel) and changes nothing; the withdrawal is recorded (learning assignment WITHDRAWN, its assessment CLOSED, one learning_assignment.withdrawn audit row with the reason), and the class page confirms it and shows the material as «Ditarik» with no further offer."
     },
     {
       "id": "JEJAK-K01",

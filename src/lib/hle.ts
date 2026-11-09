@@ -1749,6 +1749,28 @@ export type HleEvent =
   | "mengajar.status.siap"
   | "mengajar.status.berjalan"
   | "mengajar.status.dijadwalkan"
+  | "mengajar.status.diakhiri"
+  | "mengajar.status.ditarik"
+  | "mengajar.akhiri.buka"
+  | "mengajar.akhiri.judul"
+  | "mengajar.akhiri.arti"
+  | "mengajar.akhiri.selesai_n"
+  | "mengajar.akhiri.belum_n"
+  | "mengajar.akhiri.berjalan"
+  | "mengajar.akhiri.berjalan_kosong"
+  | "mengajar.akhiri.jenis"
+  | "mengajar.akhiri.jenis.ended"
+  | "mengajar.akhiri.jenis.withdrawn"
+  | "mengajar.akhiri.alasan"
+  | "mengajar.akhiri.alasan.arti"
+  | "mengajar.akhiri.konfirmasi"
+  | "mengajar.akhiri.tombol"
+  | "mengajar.akhiri.batal"
+  | "mengajar.akhiri.ok"
+  | "mengajar.sedia.kode.assign_not_live"
+  | "mengajar.sedia.kode.assign_kind_invalid"
+  | "mengajar.sedia.kode.assign_reason_required"
+  | "mengajar.sedia.kode.assign_in_progress"
   | "mengajar.siap.langkah1"
   | "mengajar.siap.langkah2"
   | "mengajar.siap.langkah3"
@@ -6108,6 +6130,29 @@ const table: Table = {
   "mengajar.status.berjalan": { default: "Berjalan", en: "Open" },
   // W16: made available with a future «Mulai»; learners cannot open it until then
   "mengajar.status.dijadwalkan": { default: "Dijadwalkan", en: "Scheduled" },
+  // W2.21 (owner, 9 Nov): ending or withdrawing a lesson assignment on the record
+  "mengajar.status.diakhiri": { default: "Diakhiri", en: "Ended" },
+  "mengajar.status.ditarik": { default: "Ditarik", en: "Withdrawn" },
+  "mengajar.akhiri.buka": { default: "Akhiri atau tarik", en: "End or withdraw" },
+  "mengajar.akhiri.judul": { default: "Akhiri penugasan", en: "End this assignment" },
+  "mengajar.akhiri.arti": { default: "Murid kelas ini tidak dapat memulai lagi materi ini. Hasil, sertifikat dan kemajuan belajar yang sudah ada tetap tersimpan. Paket pelajarannya tetap terbit dan dapat diberikan lagi.", en: "Students in this class can no longer start this material. Results, certificates and learning progress already recorded are kept. The lesson package stays published and can be given again." },
+  "mengajar.akhiri.selesai_n": { default: "Sudah menyelesaikan", en: "Finished" },
+  "mengajar.akhiri.belum_n": { default: "Belum memulai", en: "Not started" },
+  "mengajar.akhiri.berjalan": { default: "Masih mengerjakan asesmen", en: "Still answering an assessment" },
+  "mengajar.akhiri.berjalan_kosong": { default: "Tidak ada murid yang sedang mengerjakan asesmen materi ini.", en: "No student is answering an assessment of this material." },
+  "mengajar.akhiri.jenis": { default: "Jenis", en: "Kind" },
+  "mengajar.akhiri.jenis.ended": { default: "Selesai: materi sudah tuntas dibahas", en: "Finished: the material has been covered" },
+  "mengajar.akhiri.jenis.withdrawn": { default: "Ditarik: diberikan karena keliru", en: "Withdrawn: given by mistake" },
+  "mengajar.akhiri.alasan": { default: "Alasan", en: "Reason" },
+  "mengajar.akhiri.alasan.arti": { default: "5 sampai 300 karakter. Tercatat di jejak audit sekolah.", en: "5 to 300 characters. Recorded in the school's audit trail." },
+  "mengajar.akhiri.konfirmasi": { default: "Akhiri juga asesmen yang masih dikerjakan murid di atas. Jawaban mereka tetap tersimpan.", en: "Also end the assessments the students above are still answering. Their answers are kept." },
+  "mengajar.akhiri.tombol": { default: "Akhiri penugasan", en: "End assignment" },
+  "mengajar.akhiri.batal": { default: "Batal", en: "Cancel" },
+  "mengajar.akhiri.ok": { default: "Penugasan diakhiri. Hasil murid tetap tersimpan.", en: "Assignment ended. Students' results are kept." },
+  "mengajar.sedia.kode.assign_not_live": { default: "Penugasan ini sudah diakhiri atau ditarik.", en: "This assignment has already been ended or withdrawn." },
+  "mengajar.sedia.kode.assign_kind_invalid": { default: "Pilih Selesai atau Ditarik.", en: "Choose Finished or Withdrawn." },
+  "mengajar.sedia.kode.assign_reason_required": { default: "Tuliskan alasannya, 5 sampai 300 karakter.", en: "Write the reason, 5 to 300 characters." },
+  "mengajar.sedia.kode.assign_in_progress": { default: "Masih ada murid yang mengerjakan asesmen materi ini. Centang konfirmasi untuk mengakhirinya, atau kembali setelah mereka selesai.", en: "Some students are still answering an assessment of this material. Tick the confirmation to end it, or come back once they have finished." },
   "mengajar.siap.langkah1": { default: "Pilih materi", en: "Choose material" },
   "mengajar.siap.langkah2": { default: "Tinjau yang akan diterima murid", en: "Review what students receive" },
   "mengajar.siap.langkah3": { default: "Sediakan", en: "Make available" },

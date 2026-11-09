@@ -92,7 +92,8 @@ export default async function Siapkan({
     ajar.faktaKelas(id),
     ajar.garisSekolah(ctx.ini.institusi),
   ]);
-  const punya = new Set(tugas.map((x) => x.releaseId));
+  // W2.21: an assignment ended or withdrawn no longer holds its release; the lesson can be given to the class again
+  const punya = new Set(tugas.filter(ajar.masihBerlaku).map((x) => x.releaseId));
   // D-085 M10: a class already given a release of a chapter's line is not offered that line again; a corrected release
   // reaches it through «Koreksi» (before anyone starts), or stays with the release it was given
   const garisPunya = new Set(tugas.filter((x) => x.status === "ACTIVE").map((x) => akar.get(x.courseId) ?? x.courseId));

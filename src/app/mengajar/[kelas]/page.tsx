@@ -9,6 +9,8 @@ import Kosong from "@/components/Kosong";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import PemilihKelas from "@/components/mengajar/PemilihKelas";
+import AkhiriPenugasan from "@/components/mengajar/AkhiriPenugasan";
+import { kodePenugasanDari } from "@/lib/penugasan-kontrak";
 import Koleksi from "@/components/koleksi/Koleksi";
 import { halamanKoleksi, kueriDiminta, susunKoleksi } from "@/components/koleksi/aturan";
 import { adaBuktiSoal, kataAnggota } from "@/lib/mengajar";
@@ -46,7 +48,7 @@ export default async function Kelas({
   searchParams,
 }: {
   params: Promise<{ kelas: string }>;
-  searchParams: Promise<{ sedia?: string; cari?: string | string[]; hal?: string | string[] }>;
+  searchParams: Promise<{ sedia?: string; cari?: string | string[]; hal?: string | string[]; akhiri?: string; kode?: string; diakhiri?: string }>;
 }) {
   const { kelas: id } = await params;
   const sp = await searchParams;
@@ -75,7 +77,11 @@ export default async function Kelas({
   // W3.5 (Daisy, J2Kelas): the roster searched and paged (alphabetical, 50 a page, the total kept)
   const rosterHalaman = susunKoleksi(fakta.murid, { nama: (m) => m.nama, kueri: kueriDiminta(sp.cari), halaman: halamanKoleksi(sp.hal), ukuran: 50 });
 
-  const punya = new Set(tugas.map((x) => x.releaseId));
+  // W2.21: only an assignment still in force holds the class's place for its release; one ended or withdrawn stays
+  // listed as history and its release is offered again («Siap disediakan»)
+  const punya = new Set(tugas.filter(ajar.masihBerlaku).map((x) => x.releaseId));
+  const diakhiri = tugas.find((x) => x.id === sp.akhiri && x.status === "ACTIVE") ?? null;
+  const pratinjau = diakhiri ? await ajar.pratinjauAkhiri(diakhiri.id) : null;
   const aktif = tugas.filter((x) => x.status === "ACTIVE" && !x.berakhir);
 
   return (
@@ -180,11 +186,12 @@ export default async function Kelas({
           )}
         </div>
 
-        <div className="pin-sec">
+        <div className="pin-sec" id="materi">
           <h2>{s("mengajar.materi.judul")}</h2>
           <p className="pin-sub">{s("mengajar.materi.sub")}</p>
           {/* DAISY-18: "Sediakan" lands here, beside the material it made available */}
           {sedia === "ok" ? <BarisHasil nada="ok">{s("mengajar.sedia.ok")}</BarisHasil> : null}
+          {sp.diakhiri === "ok" ? <BarisHasil nada="ok">{s("mengajar.akhiri.ok")}</BarisHasil> : null}
           {tugas.length === 0 && terbit.length === 0 ? (
             <Kosong jenis="belum" kalimat={s("mengajar.materi.kosong")} />
           ) : (
@@ -199,6 +206,12 @@ export default async function Kelas({
                     <span>{x.sampai ? `${s("mengajar.siap.sampai")} ${tanggal(x.sampai, "hari", locale)}` : s("mengajar.siap.sampai.kosong")}</span>
                   </span>
                   <span className={`pin-pill ${ajar.nadaMateri(ajar.statusMateri(x))}`}>{s(ajar.statusMateri(x))}</span>
+                  {/* W2.21: an assignment in force can be ended or withdrawn, on the record, from its own row */}
+                  {x.status === "ACTIVE" ? (
+                    <Link className="pin-tautan" href={`/mengajar/${id}?akhiri=${x.id}#akhiri`} data-akhiri-buka={x.id}>
+                      {s("mengajar.akhiri.buka")}<span className="pin-sr"> · {x.kursus}</span>
+                    </Link>
+                  ) : null}
                 </div>
               ))}
               {terbit
@@ -224,6 +237,10 @@ export default async function Kelas({
             </div>
           )}
         </div>
+
+        {diakhiri && pratinjau ? (
+          <AkhiriPenugasan kelasId={id} tugas={diakhiri} pratinjau={pratinjau} kode={kodePenugasanDari(sp.kode)} locale={locale} />
+        ) : null}
 
         <div className="pin-sec">
           <h2>{s(kataAnggota("mengajar.murid.judul", ctx.ini.jenis))}</h2>

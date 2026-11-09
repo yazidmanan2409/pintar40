@@ -252,4 +252,81 @@ export const kenaikanAppTests: SelfTest[] = [
         "one ending undone (back in its Kelas), the other a return into another Kelas; both endings kept in the history");
     },
   },
+  {
+    id: "PENUGASAN-A01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      // W2.21 «Akhiri penugasan» on the class page, as Alpha's Guru, through the running app
+      const c = new Checks();
+      const asal = ctx.appUrl!;
+      const tag = randomBytes(4).toString("hex");
+      // a class of the test's own, taught by Alpha's Guru, with one learner and one lesson in force (its learning
+      // assignment ACTIVE and its assessment OPEN, as assign_release leaves them; written past the triggers)
+      const [alpha, kelas, la, aa] = psql(`
+        do $$ declare v_i uuid; v_prog uuid; v_per uuid; v_t uuid; v_k uuid; v_g uuid; v_p uuid; v_e uuid; v_r uuid; v_d uuid; v_la uuid; v_aa uuid; begin
+          perform set_config('app.seed_intent', 'synthetic', true);
+          select i.id into v_i from public.institutions i where i.slug like 'synth-alpha-%' and i.is_active order by i.created_at desc limit 1;
+          select n.id into v_prog from public.org_nodes n where n.institution_id = v_i and n.kind = 'PROGRAMME' and n.is_active order by n.created_at limit 1;
+          select ap.id into v_per from public.academic_periods ap where ap.institution_id = v_i order by ap.starts_on limit 1;
+          insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_i, v_prog, 'COHORT', 'Tingkat P ' || ${lit(tag)}, v_per) returning id into v_t;
+          insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_i, v_t, 'CLASS', 'Kelas P ' || ${lit(tag)}, v_per) returning id into v_k;
+          select a.person_id into v_g from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = 'alpha-guru@synthetic.pintar.test';
+          insert into public.role_assignments (person_id, role, scope_node_id, institution_id, valid_from, valid_until)
+          values (v_g, 'EDUCATOR', v_k, v_i, now() - interval '1 day', now() + interval '365 days');
+          insert into public.persons (display_name) values ('Murid P ' || ${lit(tag)}) returning id into v_p;
+          insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_p, v_i, v_per, 'ACTIVE') returning id into v_e;
+          insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_e, v_k, v_per);
+          -- a lesson Alpha already teaches (its own or one PINTAR shares with it) and that lesson's Cek penguasaan
+          select la0.plp_release_id, aa0.assessment_definition_id into v_r, v_d
+            from public.learning_assignments la0 join public.assessment_assignments aa0 on aa0.learning_assignment_id = la0.id
+            join public.assessment_definitions d on d.id = aa0.assessment_definition_id
+           where la0.institution_id = v_i and d.mode = 'POST_TEST' order by la0.created_at limit 1;
+          if v_r is null then raise exception 'Alpha teaches no lesson with a Cek penguasaan'; end if;
+          set local session_replication_role = replica;
+          insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id, academic_period_id, status, assigned_at)
+          select v_i, r.id, r.course_id, v_k, v_per, 'ACTIVE', now() from public.plp_releases r where r.id = v_r returning id into v_la;
+          insert into public.assessment_assignments (institution_id, assessment_definition_id, learning_assignment_id, node_id, academic_period_id, opens_at, status, assigned_at)
+          values (v_i, v_d, v_la, v_k, v_per, now() - interval '1 day', 'OPEN', now()) returning id into v_aa;
+          set local session_replication_role = origin;
+          perform set_config('pa.ids', v_i || '|' || v_k || '|' || v_la || '|' || v_aa, false);
+        end $$;
+        select current_setting('pa.ids');`).split("\n").pop()!.split("|");
+      if (!c.expect([alpha, kelas, la, aa].every((x) => /^[0-9a-f-]{36}$/.test(x ?? "")), "the fixture was not made (Alpha needs a published lesson with a Cek penguasaan)")) return c.verdict("");
+      const keadaan = () => psql(`select la.status || '/' || aa.status from public.learning_assignments la, public.assessment_assignments aa where la.id = ${lit(la)} and aa.id = ${lit(aa)}`);
+      const guru = new Komputer(asal, ipUji());
+      const m = await guru.jsonDari("/masuk/password", { form: { identitas: "alpha-guru@synthetic.pintar.test", password: "Sintetis-AlphaGuru-52!" } });
+      if (!c.expect(m.status === 200, `Alpha's Guru could not sign in (${m.status})`)) return c.verdict("");
+      await guru.halaman("/mengajar");
+      await guru.jsonDari("/api/sesi/perangkat", { form: { mode: "PERSONAL" } });
+      await pilihKonteksPeramban(guru, `MENGAJAR:${alpha}`);
+
+      // the material's row offers «Akhiri atau tarik»; the panel says what is kept and asks for the kind and a reason
+      const h1 = await (await guru.halaman(`/mengajar/${kelas}`)).text();
+      c.expect(h1.includes(`data-akhiri-buka="${la}"`), "the class page does not offer «Akhiri atau tarik» on the lesson in force");
+      const h2 = await (await guru.halaman(`/mengajar/${kelas}?akhiri=${la}`)).text();
+      c.expect(teks(h2).includes("Hasil, sertifikat dan kemajuan belajar yang sudah ada tetap tersimpan"), "the panel does not say what is kept");
+      // a refusal first: a 3-character reason changes nothing and comes back with its sentence
+      const f1 = formDengan(h2, `data-akhiri="${la}"`, { jenis: "WITHDRAWN", alasan: "oke" });
+      if (!c.expect(typeof f1 !== "string", `the «Akhiri penugasan» panel: ${f1}`)) return c.verdict("");
+      const r1 = await guru.kirim(`/mengajar/${kelas}`, { form: f1 as Record<string, string> });
+      c.expect(/kode=ASSIGN_REASON_REQUIRED/.test(r1.headers.get("location") ?? "") && keadaan() === "ACTIVE/OPEN",
+        `a 3-character reason: ${r1.status} ${r1.headers.get("location")}; now ${keadaan()}`);
+      const h3 = await (await guru.halaman(r1.headers.get("location") ?? `/mengajar/${kelas}?akhiri=${la}`)).text();
+      c.expect(teks(h3).includes("Tuliskan alasannya, 5 sampai 300 karakter."), "the refusal's sentence is not shown on the panel");
+      // the withdrawal, on the record
+      const f2 = formDengan(h2, `data-akhiri="${la}"`, { jenis: "WITHDRAWN", alasan: `diberikan ke kelas yang salah ${tag}` });
+      const r2 = await guru.kirim(`/mengajar/${kelas}`, { form: f2 as Record<string, string> });
+      c.expect(/diakhiri=ok/.test(r2.headers.get("location") ?? "") && keadaan() === "WITHDRAWN/CLOSED",
+        `the withdrawal: ${r2.status} ${r2.headers.get("location")}; now ${keadaan()}`);
+      const audit = psql(`select count(*) from public.audit_log where action = 'learning_assignment.withdrawn' and target_id = ${lit(la)} and summary ->> 'reason' = ${lit(`diberikan ke kelas yang salah ${tag}`)}`);
+      c.expect(audit === "1", `the withdrawal has ${audit} audit row(s) with its reason`);
+      const h4 = await (await guru.halaman(`/mengajar/${kelas}?diakhiri=ok`)).text();
+      c.expect(teks(h4).includes("Penugasan diakhiri. Hasil murid tetap tersimpan.") && teks(h4).includes("Ditarik"),
+        "the class page does not confirm the withdrawal and show the material as «Ditarik»");
+      c.expect(!h4.includes(`data-akhiri-buka="${la}"`), "a withdrawn assignment is still offered «Akhiri atau tarik»");
+      return c.verdict("as Alpha's Guru on the class page: the lesson in force offers «Akhiri atau tarik»; the panel says what is kept; " +
+        "a 3-character reason is refused with its sentence and changes nothing; the withdrawal is recorded (WITHDRAWN, its assessment CLOSED, " +
+        "one learning_assignment.withdrawn row with the reason) and the page confirms it and shows «Ditarik»");
+    },
+  },
 ];

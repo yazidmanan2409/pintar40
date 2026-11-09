@@ -461,7 +461,11 @@ function penugasanDari(r: {
  * «Dijadwalkan», never «Tersedia»: learners cannot open it until that day.
  */
 export function statusMateri(x: Pick<Penugasan, "status" | "berakhir" | "belumMulai">):
-  "mengajar.status.belum" | "mengajar.status.selesai" | "mengajar.status.dijadwalkan" | "mengajar.status.tersedia" {
+  "mengajar.status.belum" | "mengajar.status.selesai" | "mengajar.status.dijadwalkan" | "mengajar.status.tersedia"
+  | "mengajar.status.diakhiri" | "mengajar.status.ditarik" {
+  // W2.21: an assignment ended or withdrawn on the record says so, never «Belum disediakan»
+  if (x.status === "ENDED") return "mengajar.status.diakhiri";
+  if (x.status === "WITHDRAWN") return "mengajar.status.ditarik";
   if (x.status !== "ACTIVE") return "mengajar.status.belum";
   if (x.berakhir) return "mengajar.status.selesai";
   if (x.belumMulai) return "mengajar.status.dijadwalkan";
@@ -474,6 +478,29 @@ export function statusMateri(x: Pick<Penugasan, "status" | "berakhir" | "belumMu
  */
 export function nadaMateri(k: ReturnType<typeof statusMateri>): "pin-ok" | "pin-neutral" {
   return k === "mengajar.status.tersedia" ? "pin-ok" : "pin-neutral";
+}
+
+/** W2.21: an assignment still in force (DRAFT or ACTIVE): the one that holds the class's place for its release. */
+export function masihBerlaku(x: Pick<Penugasan, "status">): boolean {
+  return x.status === "ACTIVE" || x.status === "DRAFT";
+}
+
+/** W2.21: what ending one assignment would touch (akhiri_penugasan_pratinjau), or null when the database refuses. */
+export type PratinjauAkhiri = {
+  status: string; kursus: string; kelas: string; selesai: number; belumMulai: number;
+  berjalan: Array<{ personId: string; nama: string }>;
+};
+export async function pratinjauAkhiri(penugasanId: string): Promise<PratinjauAkhiri | null> {
+  const c = await db();
+  const { data, error } = await c.rpc("akhiri_penugasan_pratinjau", { p_la: penugasanId });
+  if (error || !data) return null;
+  const d = data as { status: string; kursus: string | null; kelas: string | null; selesai: number; belum_mulai: number;
+                      berjalan: Array<{ person_id: string; nama: string }> | null };
+  return {
+    status: d.status, kursus: d.kursus ?? "", kelas: d.kelas ?? "", selesai: Number(d.selesai) || 0,
+    belumMulai: Number(d.belum_mulai) || 0,
+    berjalan: (d.berjalan ?? []).map((b) => ({ personId: b.person_id, nama: b.nama })),
+  };
 }
 
 /** The chapters of one course, in curriculum order. */

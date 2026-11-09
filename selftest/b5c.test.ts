@@ -116,7 +116,7 @@ export const b5cTests: SelfTest[] = [
           "a class whose open assessment everyone submitted, with nothing new to give, still waits on the teacher");
       }
       const langkah = kode(baca(ctx.repoRoot, "src/app/mengajar/[kelas]/langkah/page.tsx"));
-      c.expect(/ajar\s*\.menungguKelas\(id, buka, fakta\.murid\.length, new Set\(tugas\.map\(\(x\) => x\.releaseId\)\), terbit\)/.test(langkah)
+      c.expect(/ajar\s*\.menungguKelas\(id, buka, fakta\.murid\.length, new Set\(tugas\.filter\(ajar\.masihBerlaku\)\.map\(\(x\) => x\.releaseId\)\), terbit\)/.test(langkah)
         && /kataMenunggu\(m, s, locale\)/.test(langkah) && !/mengajar\.langkah\.f1"|mengajar\.langkah\.f4"/.test(langkah),
         "«Yang bisa Anda lakukan sekarang» decides its waiting acts by itself rather than through menungguKelas");
       const beranda = kode(baca(ctx.repoRoot, "src/app/mengajar/page.tsx"));

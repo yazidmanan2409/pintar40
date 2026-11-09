@@ -9,7 +9,7 @@ import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { t, LOCALES } from "../src/lib/hle";
-import { KODE_PENUGASAN_DB, kunciKodePenugasan, type KodePenugasan } from "../src/lib/penugasan-kontrak";
+import { KODE_PENUGASAN_DB, KODE_AKHIRI_DB, kunciKodePenugasan, kodeGalatPenugasan, type KodePenugasan } from "../src/lib/penugasan-kontrak";
 
 const MIGRASI = "20261010100000_a_lesson_is_assigned_whole.sql";
 
@@ -139,6 +139,65 @@ export const penugasanTests: SelfTest[] = [
         `${berkas.length} packages under docs/onboarding/konten-sintetis and audit/fixtures (${nPaket} course(s), ${nSoal} Pemetaan Awal ` +
         `and Cek penguasaan questions): none carries an exposed title or question fingerprint, so staging's test schools can use them ` +
         `under the F-4(f) guard (D-185); the comparison finds an exposed title in another case and spacing`);
+    },
+  },
+  {
+    // =======================================================================
+    // W221-K01 — ENDING OR WITHDRAWING AN ASSIGNMENT: ONE CONTRACT FROM THE MIGRATION TO THE CLASS PAGE (owner, 9 Nov).
+    // =======================================================================
+    id: "W221-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const root = ctx.repoRoot;
+      const sql = readFileSync(join(root, "supabase", "migrations", "20270113100000_an_assignment_is_ended_or_withdrawn_on_the_record.sql"), "utf8")
+        .replace(/--[^\n]*/g, "");
+      // the codes penugasan_tolak knows are exactly the contract's, and akhiri_penugasan raises every one of them
+      const tolak = /create or replace function public\.penugasan_tolak[\s\S]*?\$\$;/.exec(sql)?.[0] ?? "";
+      const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();
+      c.expect(JSON.stringify(dariDb) === JSON.stringify([...KODE_AKHIRI_DB].sort()),
+        `penugasan_tolak knows ${dariDb.join(",")} and the contract names ${KODE_AKHIRI_DB.join(",")}`);
+      const akhiri = /create or replace function public\.akhiri_penugasan\(p_la[\s\S]*?end \$\$;/.exec(sql)?.[0] ?? "";
+      for (const k of KODE_AKHIRI_DB) c.expect(akhiri.includes(`penugasan_tolak('${k}')`), `akhiri_penugasan never raises ${k}`);
+      // each is read by its DETAIL, and a planted unknown stays ASSIGN_FAILED
+      for (const k of KODE_AKHIRI_DB) c.expect(kodeGalatPenugasan({ code: "PR050", details: k }) === k, `${k} is not read back as itself`);
+      c.expect(kodeGalatPenugasan({ code: "PR050", details: "ASSIGN_PLANTED" }) === "ASSIGN_FAILED", "an unknown DETAIL is read as a known code");
+      // every code has a sentence in both languages, and never the machinery
+      const MESIN = /ASSIGN_|PR0\d\d|jsonb|uuid|CAN_|INV-/;
+      for (const k of KODE_AKHIRI_DB) {
+        for (const l of LOCALES) {
+          const kunci = kunciKodePenugasan(k as KodePenugasan);
+          let x = "";
+          try { x = t(kunci, "educator", { locale: l }); } catch { x = ""; }
+          c.expect(x.trim() !== "" && x !== kunci, `${kunci} has no ${l} telling`);
+          c.expect(!MESIN.test(x), `${kunci} names the machinery in ${l}`);
+        }
+      }
+      // the action passes the four declared arguments and nothing else
+      const aksi = readFileSync(join(root, "src", "app", "mengajar", "actions.ts"), "utf8");
+      const panggil = /rpc\("akhiri_penugasan", \{([\s\S]*?)\}\)/.exec(aksi)?.[1] ?? "";
+      const argumen = [...panggil.matchAll(/(p_\w+):/g)].map((m) => m[1]);
+      c.expect(JSON.stringify(argumen) === JSON.stringify(["p_la", "p_jenis", "p_alasan", "p_akhiri_yang_berjalan"]),
+        `akhiriPenugasanAction passes ${argumen.join(",")}`);
+      // the class page offers it on an assignment in force and opens the panel; the panel names who is still answering and
+      // asks for the confirmation, the kind and the reason
+      const kelas = readFileSync(join(root, "src", "app", "mengajar", "[kelas]", "page.tsx"), "utf8");
+      c.expect(/x\.status === "ACTIVE" \? \(\s*<Link[^>]*\?akhiri=/.test(kelas), "the class page does not offer «Akhiri atau tarik» on an assignment in force");
+      c.expect(/<AkhiriPenugasan /.test(kelas), "the class page does not open the panel");
+      const panel = readFileSync(join(root, "src", "components", "mengajar", "AkhiriPenugasan.tsx"), "utf8");
+      for (const [re, what] of [[/name="akhiri_berjalan"[^>]*required/, "the open sittings' confirmation"],
+                                [/name="jenis" value=\{j\}/, "the kind"], [/name="alasan"[^>]*minLength=\{5\} maxLength=\{300\} required/, "the reason (5–300)"],
+                                [/pratinjau\.berjalan\.map/, "the open sittings by name"]] as const) {
+        c.expect(re.test(panel), `the panel has no ${what}`);
+      }
+      // the status words: an ended or withdrawn assignment says so, never «Belum disediakan»
+      let statusMateri: ((x: { status: string; berakhir: boolean; belumMulai: boolean }) => string) | undefined;
+      try { statusMateri = ((await import("../src/lib/pengajar")) as Record<string, unknown>).statusMateri as typeof statusMateri; }
+      catch (e) { c.note(`pengajar could not be imported: ${String(e).slice(0, 80)}`); }
+      if (c.expect(typeof statusMateri === "function", "statusMateri is not exported by src/lib/pengajar.ts")) {
+        c.expect(statusMateri!({ status: "ENDED", berakhir: false, belumMulai: false }) === "mengajar.status.diakhiri", "ENDED is not «Diakhiri»");
+        c.expect(statusMateri!({ status: "WITHDRAWN", berakhir: false, belumMulai: false }) === "mengajar.status.ditarik", "WITHDRAWN is not «Ditarik»");
+      }
+      return c.verdict("akhiri_penugasan's five codes are the contract's, each raised, read by DETAIL and told in both languages without machinery; the action passes the four declared arguments; the class page offers «Akhiri atau tarik» on an assignment in force and its panel names who is still answering, requires the confirmation, the kind and a 5–300 reason; ENDED reads «Diakhiri» and WITHDRAWN «Ditarik»");
     },
   },
 ];

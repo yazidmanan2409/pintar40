@@ -44,11 +44,24 @@ export const KODE_PENUGASAN_DB = [
 ] as const;
 
 /**
+ * W2.21 (owner, 9 Nov): every code akhiri_penugasan and akhiri_penugasan_pratinjau raise (penugasan_tolak, PR050 with
+ * the code in DETAIL) when a teacher ends or withdraws an assignment. Kept apart from assign_release's list: ending is
+ * its own act with its own refusals (ASSIGN_NOT_ALLOWED is shared, with its own sentence for each act's page).
+ */
+export const KODE_AKHIRI_DB = [
+  "ASSIGN_NOT_ALLOWED",
+  "ASSIGN_NOT_LIVE",
+  "ASSIGN_KIND_INVALID",
+  "ASSIGN_REASON_REQUIRED",
+  "ASSIGN_IN_PROGRESS",
+] as const;
+
+/**
  * Every code the assign action can return: the database's, plus
  * `ASSIGN_INPUT_INVALID` (the class or lesson was missing, nothing was sent)
  * and `ASSIGN_FAILED` (anything else; a short reference goes to the server log).
  */
-export type KodePenugasan = (typeof KODE_PENUGASAN_DB)[number] | "ASSIGN_INPUT_INVALID" | "ASSIGN_FAILED";
+export type KodePenugasan = (typeof KODE_PENUGASAN_DB)[number] | (typeof KODE_AKHIRI_DB)[number] | "ASSIGN_INPUT_INVALID" | "ASSIGN_FAILED";
 
 export type HasilPenugasan =
   | { ok: true; learningAssignment: string; preAssignment: string; postAssignment: string }
@@ -57,7 +70,7 @@ export type HasilPenugasan =
 /** A database error as an assignment code: PR050 with a known DETAIL, else ASSIGN_FAILED. */
 export function kodeGalatPenugasan(e: { code?: string | null; details?: string | null } | null | undefined): KodePenugasan {
   if (e?.code === "PR050" && typeof e.details === "string"
-      && (KODE_PENUGASAN_DB as readonly string[]).includes(e.details)) {
+      && ([...KODE_PENUGASAN_DB, ...KODE_AKHIRI_DB] as readonly string[]).includes(e.details)) {
     return e.details as KodePenugasan;
   }
   if (e?.code === "42501") return "ASSIGN_NOT_ALLOWED";
@@ -67,7 +80,7 @@ export function kodeGalatPenugasan(e: { code?: string | null; details?: string |
 /** Read a code back from the page's query string; anything unknown is ASSIGN_FAILED. */
 export function kodePenugasanDari(v: string | undefined | null): KodePenugasan | null {
   if (!v) return null;
-  const semua: readonly string[] = [...KODE_PENUGASAN_DB, "ASSIGN_INPUT_INVALID", "ASSIGN_FAILED"];
+  const semua: readonly string[] = [...KODE_PENUGASAN_DB, ...KODE_AKHIRI_DB, "ASSIGN_INPUT_INVALID", "ASSIGN_FAILED"];
   return (semua.includes(v) ? v : "ASSIGN_FAILED") as KodePenugasan;
 }
 

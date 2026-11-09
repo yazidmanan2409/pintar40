@@ -111,6 +111,36 @@ export async function sediakanMateri(formData: FormData): Promise<void> {
   ke(kelasId, `/siapkan?disediakan=${encodeURIComponent(terbitan)}`);
 }
 
+// ───────────────────────────────────────── W2.21: end or withdraw an assignment on the record
+/**
+ * `akhiri_penugasan` decides everything: CAN_ASSIGN_LEARNING over the class the lesson was given to, the kind, the
+ * reason, and the open sittings (refused ASSIGN_IN_PROGRESS unless the teacher ticked the confirmation). This action
+ * only passes the form on and returns the teacher to the class page with the outcome.
+ */
+export async function akhiriPenugasanAction(formData: FormData): Promise<void> {
+  const kelasId = bersih(formData.get("kelas"));
+  const penugasan = bersih(formData.get("penugasan"));
+  const jenis = bersih(formData.get("jenis"));
+  const alasan = bersih(formData.get("alasan"));
+  const konfirmasi = formData.get("akhiri_berjalan") === "ya";
+  if (!kelasId || !UUID.test(kelasId)) redirect("/mengajar");
+  if (!UUID.test(penugasan)) ke(kelasId);
+
+  const ctx = await kelasKonteks(kelasId);
+  if (!ctx) ke(kelasId);
+
+  const db = (await supabaseServer()) as any;
+  const { error } = await db.rpc("akhiri_penugasan", {
+    p_la: penugasan, p_jenis: jenis, p_alasan: alasan, p_akhiri_yang_berjalan: konfirmasi,
+  });
+  if (error) {
+    const kode = kodeGalatPenugasan(error);
+    if (kode === "ASSIGN_FAILED") console.error("[akhiri] akhiri_penugasan failed", error?.code, error?.message);
+    ke(kelasId, `?${new URLSearchParams({ akhiri: penugasan, kode }).toString()}#akhiri`);
+  }
+  ke(kelasId, "?diakhiri=ok#materi");
+}
+
 // ─────────────────────────────────────────────────────── launch a quick assessment
 export async function sediakanUjiCepat(formData: FormData): Promise<void> {
   const kelasId = bersih(formData.get("kelas"));
