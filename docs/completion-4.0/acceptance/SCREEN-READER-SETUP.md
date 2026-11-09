@@ -60,8 +60,10 @@ npm run build
 npx next start -p 3999 -H 127.0.0.1
 ```
 
-Each `laporan-hitung-ulang.sql` run prints the learner whose sitting was recalculated: that learner is the one to sign
-in as for S9.7. The OUT file holds every account's email and password (Guru, Kepala departemen, Dekan, Admin sekolah,
+Each `laporan-hitung-ulang.sql` run prints the learner whose sitting was recalculated (the last line: email, sealed and
+recalculated mastery). The two runs usually pick **different** learners: sign in as the `POST_TEST` one for S9.7 (the
+chapter's «Hasil»), and as the `PRE_TEST` one to hear the reading map's note («Peta ini mengikuti jawaban benar…»).
+The Guru for S9.6 opens the `POST_TEST` learner's «Catatan belajar» from the class 5B. The OUT file holds every account's email and password (Guru, Kepala departemen, Dekan, Admin sekolah,
 and each learner); keep it on the laptop and delete it after the sessions.
 
 **The phone.** Connect it by USB, allow debugging, then, in a **Windows** terminal (where `adb` is installed), make the
