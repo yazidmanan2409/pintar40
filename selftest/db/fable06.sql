@@ -6441,8 +6441,9 @@ begin
         from jsonb_array_elements(coalesce(v -> 'value', '[]'::jsonb)) e
        where e ->> 'competency' like 'BOB37-%';
       -- RESTATED TO OWNER DECISION 6: the school's minimum is 10 learners, so both rows give their counts and no mean
-      if x is distinct from '[{"objective_id": null, "code": "BOB37-A", "competency": "BOB37-A", "title": null, "mean_score": null, "needed": 10, "learners": 5},
-                               {"objective_id": null, "code": "BOB37-B", "competency": "BOB37-B", "title": null, "mean_score": null, "needed": 10, "learners": 4}]'::jsonb then
+      -- RESTATED TO DAISY'S A5 (owner, 9 Nov): each withheld row also says its own reason, here too few learners
+      if x is distinct from '[{"objective_id": null, "code": "BOB37-A", "competency": "BOB37-A", "title": null, "mean_score": null, "needed": 10, "learners": 5, "withheld": "learners"},
+                               {"objective_id": null, "code": "BOB37-B", "competency": "BOB37-B", "title": null, "mean_score": null, "needed": 10, "learners": 4, "withheld": "learners"}]'::jsonb then
         bad := bad || array[format('the school''s competency outcomes hold %s for the two objectives, expected both withheld under the school minimum of 10 (5 and 4 learners)',
                                    coalesce(x::text, 'nothing'))];
       end if;

@@ -805,10 +805,15 @@ export const b5aTests: SelfTest[] = [
         c.expect(/<span class="pin-lk-huruf"><span class="pin-sr">Bagian <\/span>A<\/span>/.test(html) && /data-kisi-lebar=""/.test(html) === false, "the grid's letter is not read, or six classes print landscape");
         // cells: below the class's own target amber and in words; R4-02 (69,6% against 70%); no target, no tick and no verdict
         // RESTATED FOR «explain once» (owner, 7 Nov; Readiness B6): the words are read (.pin-sr), the key says amber once
-        c.expect((html.match(/data-bawah=""/g) ?? []).length === 3 && (html.match(/class="pin-sr"> di bawah target</g) ?? []).length === 3
+        // RESTATED TO DAISY'S A3 (owner, 9 Nov): the phone-width stacked view repeats the same cells (only one view is ever
+        // displayed), so each view is counted on its own: three marked cells in the table, the same three in the stack
+        const tabel = html.slice(0, html.indexOf("</table>")), tumpuk = html.slice(html.indexOf('class="pin-lk-kisi-tumpuk"'));
+        c.expect([tabel, tumpuk].every((v) => (v.match(/data-bawah=""/g) ?? []).length === 3 && (v.match(/class="pin-sr"> di bawah target</g) ?? []).length === 3)
+          && html.indexOf("</table>") > 0 && html.indexOf('class="pin-lk-kisi-tumpuk"') > html.indexOf("</table>")
           && !/class="pin-lk-bawah">di bawah target</.test(html) && html.includes("Angka berwarna jingga menunjukkan penguasaan di bawah target."),
           "a cell below its class's target is not marked in words and amber (expected 7A, 7B Pecahan campuran and 7C Pecahan senilai), or the key does not say it once");
-        c.expect(teks.includes("69,6%") && teks.includes("57%") && (html.match(/<u /g) ?? []).length === 6, "R4-02 or the target ticks are wrong");
+        // RESTATED TO DAISY'S A3: six target ticks in the table, the same six in the stacked view
+        c.expect(teks.includes("69,6%") && teks.includes("57%") && [tabel, tumpuk].every((v) => (v.match(/<u /g) ?? []).length === 6), "R4-02 or the target ticks are wrong");
         c.expect(/<table[\s\S]*<th scope="col" class="pin-lk-kol-nama">Topik<\/th>[\s\S]*<th scope="row">Pecahan campuran<\/th>/.test(html), "the grid is not a table with row and column headers (its own text equivalent)");
         // RB1-C1 (journey, 7 Nov, axe scrollable-region-focusable at 320 px): the sideways-scrolling grid is a focusable, named region
         c.expect(/<div class="pin-lk-kisi-wadah" role="region" tabindex="0" aria-labelledby="pin-kisi">/.test(html), "the scrolling grid cannot be reached by keyboard");

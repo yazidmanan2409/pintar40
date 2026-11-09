@@ -1512,6 +1512,9 @@ begin
                        'new_result', v_id, 'reason', p_reason));
   return v_id;
 end $function$;
+-- ADR-0021: re-created here, so its EXECUTE is revoked from PUBLIC here; the grants it had before are kept
+revoke all on function public.recompute_result(uuid, text) from public, anon;
+grant execute on function public.recompute_result(uuid, text) to authenticated, service_role;
 
 -- D14: the learner may be told, neutrally, that a sitting of theirs was recalculated. They keep seeing the sealed result
 -- (session_outcome, certificates); this says only whether a recalculation exists, for their own sitting, nothing more.

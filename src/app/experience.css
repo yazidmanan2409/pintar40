@@ -3690,7 +3690,7 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-lk-kisi-wadah { overflow-x: auto; position: relative; }
 /* A3 (owner, 9 Nov): below 640px the topic grid is stacked, one topic per block; the table is the wider view and print */
 .pin-lk-kisi-tumpuk { display: none; }
-@media (max-width: 639.98px) {
+@media (max-width: 639px) {
   .pin-lk-kisi-wadah { display: none; }
   .pin-lk-kisi-tumpuk { display: grid; gap: var(--space-4); }
   .pin-lk-kisi-tumpuk dl { margin: 0; display: grid; gap: var(--space-2); }

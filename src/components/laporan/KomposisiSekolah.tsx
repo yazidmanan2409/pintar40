@@ -161,7 +161,10 @@ export default function KomposisiSekolah({ entries, locale, tempat = {}, kesiapa
         : s("laporan.komposisi.kenaikan_dari").replace("{n}", format.number(n2, locale));
       // D12: the value is a share of the APPLICABLE sittings; tests with no required question are said apart, never a pass
       case "institution.safety_gate_pass_rate": return [
-        s("laporan.sekolah.dasar_gerbang").replace("{s}", format.number(typeof e.sittings === "number" ? e.sittings : n2, locale)).replace("{n}", format.number(n2, locale)),
+        // with its sittings the base says both; without them it says the learners only, never learners counted as sittings
+        typeof e.sittings === "number"
+          ? s("laporan.sekolah.dasar_gerbang").replace("{s}", format.number(e.sittings, locale)).replace("{n}", format.number(n2, locale))
+          : s("laporan.sekolah.dasar_gerbang_murid").replace("{n}", format.number(n2, locale)),
         typeof e.not_applicable === "number" && e.not_applicable > 0
           ? s("laporan.sekolah.dasar_gerbang_tidak_berlaku").replace("{k}", format.number(e.not_applicable, locale)) : null,
       ].filter(Boolean).join(" ");

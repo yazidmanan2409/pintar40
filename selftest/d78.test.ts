@@ -276,7 +276,7 @@ export const d78Tests: SelfTest[] = [
           `the stacked grid does not give each topic with each class's figure, mark and dash: «${teks(tumpuk).slice(0, 300)}»`);
       }
       const css = baca(ctx.repoRoot, "src/app/experience.css");
-      c.expect(/\.pin-lk-kisi-tumpuk \{ display: none; \}/.test(css) && /@media \(max-width: 639\.98px\) \{\s*\.pin-lk-kisi-wadah \{ display: none; \}\s*\.pin-lk-kisi-tumpuk \{ display: grid;/.test(css)
+      c.expect(/\.pin-lk-kisi-tumpuk \{ display: none; \}/.test(css) && /@media \(max-width: 639px\) \{\s*\.pin-lk-kisi-wadah \{ display: none; \}\s*\.pin-lk-kisi-tumpuk \{ display: grid;/.test(css)
         && /@media print \{ \.pin-lk-kisi-tumpuk \{ display: none !important; \}/.test(css),
         "the stacked grid is not the only one shown at phone width, or prints beside the table");
       // A4: English terms and sentences
