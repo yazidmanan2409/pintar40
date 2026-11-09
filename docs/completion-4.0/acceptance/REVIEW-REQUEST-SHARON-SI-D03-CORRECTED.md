@@ -327,3 +327,91 @@ was red first.
 | Human journeys | green (run 249), including S27, «Kenaikan kelas dan kelulusan» through the screen |
 
 This file is added after it, in a docs-only commit.
+
+---
+
+# Second batch (owner's rulings of 9 Nov), on the branch after 48241e2c
+
+The verified application candidate stays **7a2c1751** until this batch is verified on its own exact commit. The table at
+the end of this batch records that verification. All five migrations are undeployed.
+
+## 13. W2.21 «Akhiri penugasan» (`20270113100000`): a lesson assignment is ended or withdrawn on the record
+
+- `akhiri_penugasan(assignment, ENDED | WITHDRAWN, reason 5–300, end_open_sittings)` and its read-only preview.
+- **Who:** `CAN_ASSIGN_LEARNING` over the class (or Angkatan) the lesson was given to, decided over the place, as
+  SI-D01 decided every act on a class's evidence. A professional-learning assignment is the platform's.
+- **Nothing new starts:** the learning assignment leaves ACTIVE and its assessments CLOSE.
+- **In-progress learners:** never swept silently. Without the confirmation, the act is refused (ASSIGN_IN_PROGRESS).
+  With it, a sitting past its deadline EXPIRES and one still open is TERMINATED as ADMINISTRATIVE_TERMINATION, with
+  the reason, its answers kept and the same audit row `terminate_session` writes. Finished work is untouched.
+- **Not unpublishing:** the release keeps its status, and the lesson can be given to the class again.
+- **Found by PENUGASAN-A01, fixed red-first (F38-W05):** `enforce_assignment_status` checked its licence to teach on
+  every update, so an assignment of a lesson PINTAR no longer shares could never be closed. Closing a status, and
+  nothing else, now needs no licence. Opening still does.
+- **Please check:**
+  - Is ADMINISTRATIVE_TERMINATION the right cause?
+  - Should a Guru (`CAN_ASSIGN_LEARNING`) end sittings here, when `terminate_session` asks `CAN_REVIEW_INTEGRITY`?
+  - Is the trigger's exception (a status-only move into CLOSED, ENDED or WITHDRAWN) tight?
+
+## 14. W2.22 «Terbitkan ulang» (`20270113110000`): an erroneous certificate is corrected by its replacement
+
+- **Authority:** CAN_PUBLISH in the certificate's school, the same authority that revokes it.
+- **The replacement:** chain-linked by `supersedes_certificate_id`. It carries a new snapshot of the holder's current
+  name, the school's and course's names now, the original's sealed result, release, definition and scoring policy, a
+  new number from the holder's sequence, a new token, and the reason and actor (two new immutable columns).
+- **Sealing:** the database prepares the replacement (ELIGIBLE, not public). The server signs it with the keyring and
+  seals it with the service client (`sertifikat_koreksi_segel`, service_role only). In the same transaction the original
+  becomes SUPERSEDED, with its payload, snapshot, number and token unchanged, and the public check answers DIGANTIKAN.
+- **Limits:** one sealed replacement per certificate (a partial unique index). Refused when nothing would change.
+  Revocation is unchanged.
+- **Please check:**
+  - Does the replacement's payload, the original's result under a new number and identity hash, keep INV-05 and INV-30?
+  - Is a client-callable preparation safe, given an unsigned ELIGIBLE row is never public?
+  - Should a revoked certificate be correctable?
+
+## 15. E5 and §11 (`20270113120000`): roles change, or end at the school, on the record
+
+- **The page:** `/konfigurasi/staf?orang=…`, opened from the person's name on «Peran & akses».
+- **`akhiri_tugas_staf`:**
+  - ends every live role at the school with a category, a reason of 10–300 characters, and the date: the school's
+    today or earlier, never before the first live role;
+  - each revocation goes through the guard and is audited per row, plus one `staff.ended_at_school` row;
+  - never the admin's own roles.
+- **`ubah_peran`** works as your pre-build §11 asked:
+  - a GET review (apply false) and one POST commitment that carries the fingerprint of the roles;
+  - the person's row is locked;
+  - SYSTEM_ADMIN and other schools are refused, and INSTITUTION_ADMIN only with its second press;
+  - every grant passes `role_assignments_guard` as the signed-in admin;
+  - the queues are warned of, never reassigned;
+  - one `role.changed` row.
+- **Found on the way (F38-S05):** a move must grant before it revokes, because D-049's relationship reads the live
+  roles. Both happen at one `now()`, so there is no gap and no overlap.
+- **Please check:** your §11 questions 1–7, against the code.
+
+## 16. §5b suspension and L1–L4 (`20270113130000`)
+
+- **Suspension:** `tangguhkan_akun`, by the PINTAR Administrator only.
+  - Every session ends (`sesi_akhiri_orang`, DITANGGUHKAN).
+  - The Auth users are banned (`banned_until`), so sign-in is refused.
+  - `pintar_permintaan.periksa` refuses the token, PT403 AKUN_DITANGGUHKAN, whatever the path. The status read and
+    leaving still pass.
+  - No evidence or role is touched.
+- **Reactivation** needs a reason.
+- **L2/L3:** `minta_akun` takes one confirmation.
+  - A learner with a live enrolment is sent to the school.
+  - CLOSE executes at once as CLOSED_AT_REQUEST.
+  - DELETE_PERSONAL_DATA is queued.
+- **L4:** `hapus_data_pribadi`, for a closed account only.
+  - The name becomes the PINTAR ID, the photo is cleared, and the sign-in email is retired through one new governed
+    exception in `auth_email_correction_guard`. `anonymized_at` is set.
+  - Certificates keep `name_as_issued`. The audit log and results are kept.
+- **Please check (your §9 questions):**
+  1. Can the name, photo and email go without breaking a record? `certificate_identity_snapshots` keeps its own name.
+  2. Does the anonymised person keep one identity, and is a return safe?
+  3. Is everything a closure must block blocked: sign-in, the pre-request hook, recovery, service work?
+  4. Is every line of «Meninggalkan PINTAR» true?
+
+## 17. Year rollover preserves evidence (F38-R01): acceptance, no code change
+
+A class moves up whole. The sitting, its result, the issued certificate and lesson progress are unchanged. The learner
+still reads all four, the old class's Guru still reads the sitting and its result, and the certificate still verifies.
