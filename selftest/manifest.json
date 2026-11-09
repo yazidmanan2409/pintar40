@@ -5030,7 +5030,7 @@
       "id": "F38-A05",
       "runner": "db",
       "proves": "L4 deletion of what needs no retention (selftest/db/fable38.sql): hapus_data_pribadi refuses a school's admin and an open account's request (ACCOUNT_NOT_CLOSED); for the closed account the name becomes the PINTAR ID, the photo and the sign-in email go (through the email guard's own L4 exception), anonymized_at is set, the role history and the audit log are kept, the request is DONE, one account.personal_data_deleted row."
-    },,
+    },
     {
       "id": "F38-H01",
       "runner": "db",
@@ -5060,7 +5060,7 @@
       "id": "F38-H06",
       "runner": "db",
       "proves": "Sharon F6 (ruling 3), period_rollover is not a client endpoint (selftest/db/fable38.sql): authenticated cannot execute it; the tests that drive it run as the database's owner with the administrator's claims."
-    }
+    },
     {
       "id": "KENAIKAN-K01",
       "runner": "static",
