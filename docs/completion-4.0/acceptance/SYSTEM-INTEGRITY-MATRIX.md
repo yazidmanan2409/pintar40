@@ -128,6 +128,17 @@ All of F37 (D01–D06, B01, D02, C01) is red on `4f2d2c1b`'s rules where it test
 (local, 9 Nov). **SI-D01 stays open** until the whole suite, CI and the journeys pass on the head carrying it and Sharon
 has reviewed the completed changes.
 
+## 4c · SI-D02: an attempt limit under concurrent starts (9 Nov)
+
+| | |
+|---|---|
+| Defect | `may_start_assessment` counted a learner's sittings against `attempt_limit`, then `start_learning_session` inserted, with no lock: two concurrent starts both passed (found by the D-125 investigation, red case 4; confirmed by Sharon's code reading) |
+| Proof (owner: «do not assume the race is proven until the test demonstrates it») | deterministic two-connection test: attempt limit 1, no sitting yet; A started and held its transaction; **B's start completed in 0.07 s** while A held: both commits would leave two attempts. Both rolled back |
+| Severity | High (educational integrity: an attempt limit on an Uji Penguasaan or Pemetaan Awal can be exceeded by a double tap or two devices) |
+| Correction | `20270112120000_one_start_at_a_time.sql`: `pg_advisory_xact_lock` per (learner, assignment) at the top of `start_learning_session`, before the count; the function otherwise unchanged |
+| Regression | **F37-R01** (`runAttemptLimitRace`): red on the function as it was («the second start completed while the first was held»), green with the fix (B waits on the lock while A holds). Also shown with A committing: B waits, then is refused `ATTEMPT_LIMIT_REACHED`; one sitting against a limit of one |
+| Verdict | corrected; to be reviewed by Sharon with SI-D01's remaining findings |
+
 ## 5 · Run record (System Integrity branch)
 
 | Head | Change | Clean suite (local) | CI | Journeys |

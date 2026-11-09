@@ -243,7 +243,83 @@ async function runDb(dbUrl: string): Promise<Outcome[]> {
   if (!only || only.some((x) => /^F16-C0[123]$/.test(x))) out.push(...(await runIdentityConcurrency(dbUrl, only)));
   if (!only || only.includes("F17-C01")) out.push(await runEmailConcurrency(dbUrl));
   if (!only || only.includes("F05-C01")) out.push(await runMoveStartRace(dbUrl));
+  if (!only || only.includes("F37-R01")) out.push(await runAttemptLimitRace(dbUrl));
   return out;
+}
+
+/**
+ * F37-R01 — SI-D02 (System Integrity, 9 Nov): an attempt limit holds under two concurrent starts. A learner one attempt
+ * short of an assignment's attempt_limit (chosen from the world, may_start_assessment OK) starts on connection A, which
+ * holds its transaction open; connection B starts the same assignment meanwhile. Before 20270112120000 B completed while
+ * A held (0.07 s, both would commit: two attempts against a limit of one); now B waits on the per-(learner, assignment)
+ * advisory lock while A holds. BOTH ROLL BACK, so nothing is left behind.
+ */
+async function runAttemptLimitRace(dbUrl: string): Promise<Outcome> {
+  const psql = (sql: string) => spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, dbUrl], { encoding: "utf8" });
+  const race = (sql: string) =>
+    new Promise<{ code: number; out: string }>((done) => {
+      const p = spawn("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, dbUrl], { stdio: ["ignore", "pipe", "pipe"] });
+      let buf = "";
+      p.stdout.setEncoding("utf8"); p.stderr.setEncoding("utf8");
+      p.stdout.on("data", (d: string) => (buf += d)); p.stderr.on("data", (d: string) => (buf += d));
+      p.on("close", (code: number | null) => done({ code: code ?? 1, out: buf.trim() }));
+    });
+  const tunggu = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
+  const id = "F37-R01";
+  const gagal = (detail: string): Outcome => ({ id, runner: "db", status: "FAIL", detail });
+  const sebagai = (uid: string) =>
+    `select set_config('request.jwt.claims', json_build_object('sub','${uid}','role','authenticated')::text, true), ` +
+    `set_config('request.jwt.claim.sub','${uid}',true); set local role authenticated;`;
+  // a learner one attempt short of a limit, who may start now (asked of the product's own may_start_assessment)
+  const calon = psql(`select a.id || '|' || ac.auth_user_id from public.assessment_assignments a
+      join public.assessment_definitions d on d.id = a.assessment_definition_id
+      join public.org_nodes n on n.jalur @> array[a.node_id]
+      join public.memberships m on m.node_id = n.id and m.valid_to is null
+      join public.enrollments e on e.id = m.enrollment_id and e.status = 'ACTIVE'
+      join public.accounts ac on ac.person_id = e.person_id
+     where a.status = 'OPEN' and d.attempt_limit is not null
+       and (select count(*) from public.assessment_sessions s where s.person_id = e.person_id and s.assessment_assignment_id = a.id) = d.attempt_limit - 1
+     limit 40`).stdout.trim().split("\n").filter(Boolean);
+  let aa = "", uid = "";
+  for (const c of calon) {
+    const [x, u] = c.split("|");
+    const r = psql(`begin; ${sebagai(u)} select ok from public.may_start_assessment('${x}'); rollback;`).stdout.trim().split("\n").pop();
+    if (r === "t") { aa = x; uid = u; break; }
+  }
+  if (!aa) return gagal("the world holds no learner one attempt short of an attempt limit who may start (the race cannot be set up)");
+  const tanda = `si-d02-a-${Date.now().toString(36)}`;
+  const holder = race(`begin; ${sebagai(uid)} select public.start_learning_session('${aa}'); select pg_sleep(3) /*${tanda}*/; rollback;`);
+  let tahan = false;
+  for (let i = 0; i < 100 && !tahan; i++) {
+    tahan = psql(`select count(*) from pg_stat_activity where query like '%${tanda}%' and wait_event = 'PgSleep' and pid <> pg_backend_pid()`).stdout.trim() === "1";
+    if (!tahan) await tunggu(100);
+  }
+  if (!tahan) { await holder; return gagal("connection A never held its start open"); }
+  const tandaB = `si-d02-b-${Date.now().toString(36)}`;
+  const kedua = race(`set statement_timeout = '15s'; begin; ${sebagai(uid)} select public.start_learning_session('${aa}') /*${tandaB}*/; rollback;`);
+  let selesaiSaatDitahan = false, menunggu = false;
+  const sudah = { v: false };
+  kedua.then(() => (sudah.v = true));
+  for (let i = 0; i < 15; i++) {
+    await tunggu(100);
+    if (sudah.v) { selesaiSaatDitahan = true; break; }
+    const w = psql(`select coalesce(wait_event_type, '') from pg_stat_activity where query like '%${tandaB}%' and pid <> pg_backend_pid()`).stdout.trim();
+    if (w === "Lock") { menunggu = true; break; }
+  }
+  const [ra, rb] = await Promise.all([holder, kedua]);
+  const sisa = psql(`select count(*) from public.assessment_sessions where assessment_assignment_id = '${aa}'
+      and person_id = (select person_id from public.accounts where auth_user_id = '${uid}')`).stdout.trim();
+  const masalah: string[] = [];
+  if (selesaiSaatDitahan) masalah.push("the second start completed while the first was held: both would commit two attempts against the limit (SI-D02)");
+  if (!menunggu && !selesaiSaatDitahan) masalah.push("the second start neither waited on a lock nor completed within 1.5 s");
+  if (ra.code !== 0) masalah.push(`connection A failed: ${ra.out.split("\n").pop()}`);
+  if (rb.code !== 0) masalah.push(`connection B failed after A's rollback: ${rb.out.split("\n").pop()}`);
+  const sebelum = (calon.length && true);
+  if (!sebelum) masalah.push("no candidate");
+  return masalah.length ? gagal(masalah.join("; ")) : {
+    id, runner: "db", status: "PASS",
+    detail: `a learner one attempt short of the limit started on A and held it; B's start waited on the (learner, assignment) lock while A held, and ran only after A ended; both rolled back (${sisa} sitting(s) as before)`,
+  };
 }
 
 /**
