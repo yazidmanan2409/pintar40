@@ -304,16 +304,17 @@ begin
       perform set_config('request.jwt.claim.sub', peran.uid::text, true);
       execute format($q$select coalesce(md5(string_agg(t.id::text, ',' order by t.id)), '-') from public.%I t where %s$q$, tabel,
         case tabel
-          when 'assessment_sessions' then 'not pg_temp.pd_rilis(t.plp_release_id) and (t.person_id = public.current_person_id() or public.can_in_institution(''CAN_REVIEW_INTEGRITY'', t.institution_id) or public.can_in_institution(''CAN_ASSIGN_LEARNING'', t.institution_id))'
-          -- RESTATED for the System Integrity Gate (owner, 9 Nov: SI-D01 accepted as a 4.0 correction):
-          -- 20270112100000 moves these four rows from can_in_institution to R6's axis (can_on_node over the sitting's
-          -- class; for lesson progress, over a class the learner is or was in). The reference below is that rule, so this
-          -- check still proves the PD migration left every ACADEMIC row as the academic rule says; the readers it now
-          -- reports differently (another Bagian's head, the PD Bagian's head) are the readers SI-D01 removes. The session
-          -- row keeps its own condition, because the policy's subquery reads assessment_sessions under the caller's rights.
-          when 'lesson_progress' then 'not pg_temp.pd_rilis(t.plp_release_id) and (t.person_id = public.current_person_id() or exists (select 1 from public.memberships m join public.enrollments e on e.id = m.enrollment_id where e.person_id = t.person_id and e.institution_id = t.institution_id and public.can_on_node(''CAN_ASSIGN_LEARNING'', m.node_id)))'
-          when 'integrity_signals' then 'not pg_temp.pd_sesi(t.session_id) and exists (select 1 from public.assessment_sessions s where s.id = t.session_id and s.class_node_id is not null and public.can_on_node(''CAN_REVIEW_INTEGRITY'', s.class_node_id) and (s.person_id = public.current_person_id() or public.can_in_institution(''CAN_REVIEW_INTEGRITY'', s.institution_id) or public.can_in_institution(''CAN_ASSIGN_LEARNING'', s.institution_id)))'
-          else 'not pg_temp.pd_sesi(t.session_id) and exists (select 1 from public.assessment_sessions s where s.id = t.session_id and (s.person_id = public.current_person_id() or public.can_in_institution(''CAN_REVIEW_INTEGRITY'', s.institution_id) or public.can_in_institution(''CAN_ASSIGN_LEARNING'', s.institution_id)) and (s.person_id = public.current_person_id() or (s.class_node_id is not null and public.can_on_node(''CAN_REVIEW_INTEGRITY'', s.class_node_id))))'
+          when 'assessment_sessions' then 'not pg_temp.pd_rilis(t.plp_release_id) and (t.person_id = public.current_person_id() or (coalesce(t.class_node_id, t.cohort_node_id) is not null and (public.can_on_node(''CAN_REVIEW_INTEGRITY'', coalesce(t.class_node_id, t.cohort_node_id)) or public.can_on_node(''CAN_ASSIGN_LEARNING'', coalesce(t.class_node_id, t.cohort_node_id)))))'
+          -- RESTATED for the System Integrity Gate (owner, 9 Nov: SI-D01 accepted; D5 approved, least privilege). The
+          -- academic reference is 20270112100000 + 20270112110000: every evidence row is read over the sitting's PLACE
+          -- (its Kelas, else its Angkatan; nobody else when neither), by can_on_node, never anywhere in the school;
+          -- answers and questions shown also need CAN_VIEW_LEARNER_RESULT there (D5: the Admin sekolah is not an
+          -- examiner); lesson progress follows a learning assignment of that release to a node the reader holds and the
+          -- learner is or was in. So this check still proves the PD migration left every ACADEMIC row as the academic
+          -- rule says; the readers it reports differently from the old school-wide shape are the ones SI-D01 removes.
+          when 'lesson_progress' then 'not pg_temp.pd_rilis(t.plp_release_id) and (t.person_id = public.current_person_id() or exists (select 1 from public.learning_assignments la where la.plp_release_id = t.plp_release_id and la.institution_id = t.institution_id and public.can_on_node(''CAN_ASSIGN_LEARNING'', la.node_id) and exists (select 1 from public.memberships m join public.enrollments e on e.id = m.enrollment_id join public.org_nodes n on n.id = m.node_id where e.person_id = t.person_id and e.institution_id = t.institution_id and n.jalur @> array[la.node_id])))'
+          when 'integrity_signals' then 'not pg_temp.pd_sesi(t.session_id) and exists (select 1 from public.assessment_sessions s where s.id = t.session_id and coalesce(s.class_node_id, s.cohort_node_id) is not null and public.can_on_node(''CAN_REVIEW_INTEGRITY'', coalesce(s.class_node_id, s.cohort_node_id)))'
+          else 'not pg_temp.pd_sesi(t.session_id) and exists (select 1 from public.assessment_sessions s where s.id = t.session_id and (s.person_id = public.current_person_id() or (coalesce(s.class_node_id, s.cohort_node_id) is not null and public.can_on_node(''CAN_REVIEW_INTEGRITY'', coalesce(s.class_node_id, s.cohort_node_id)) and public.can_on_node(''CAN_VIEW_LEARNER_RESULT'', coalesce(s.class_node_id, s.cohort_node_id)))))'
         end) into v_lama;
       perform selftest.as_owner();
       if v_rls <> '-' then v_min := v_min + 1; end if;
@@ -629,7 +630,10 @@ export const bob43Tests: SelfTest[] = [
       c.expect(tolak(v.rujuk_platform, "PD_SIGNAL_NOT_REFERRED") && tolak(v.tinjau_rujuk_platform, "PD_SIGNAL_NOT_REFERRED") && v.tinjau_platform === "OK"
         && v.rujuk_kaprodi_pd === "P0001" && v.tinjau_kaprodi_pd === "P0001" && v.rujuk_akademik === "OK",
         `referral and review: ${JSON.stringify([v.rujuk_platform, v.tinjau_rujuk_platform, v.tinjau_platform, v.rujuk_kaprodi_pd, v.tinjau_kaprodi_pd, v.rujuk_akademik])}`);
-      c.expect(JSON.stringify(v.setara) === "{}" && Number(v.setara_isi) >= 15,
+      // RESTATED 15 -> 12 for SI-D01 and D5 (owner, 9 Nov): the floor keeps this check from passing on empty sets; the
+      // narrowed rule empties sets by design (the Admin sekolah's answers and questions shown, D5; sitting and progress
+      // rows of readers outside the sitting's place), so 12 non-empty reader x table sets remain on this world.
+      c.expect(JSON.stringify(v.setara) === "{}" && Number(v.setara_isi) >= 12,
         `academic rows differ from the previous policies for: ${JSON.stringify(v.setara)} (${v.setara_isi} non-empty reader×table sets)`);
       // BOB-47. RESTATED FOR D-121(c): MC-6 is MC-5 copied forward (the not-yet state), PD admission unchanged.
       // RESTATED FOR CR-81 (D-123(3)): MC-7 is MC-6 copied forward (bands and floor over the assessed)

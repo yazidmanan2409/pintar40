@@ -4739,7 +4739,7 @@
     {
       "id": "F37-D01",
       "runner": "db",
-      "proves": "System Integrity Gate, chain D (owner, 9 Nov), selftest/db/fable37.sql against supabase/migrations/20270112100000_an_answer_is_read_where_it_was_given.sql: one learner's sitting in a Kelas of Departemen A, with an answer, an integrity observation and lesson progress, read straight from the tables through row security alone. responses, presented_items, integrity_signals and lesson_progress give their rows to the learner, to A's Kepala departemen and to the Admin sekolah (CAN_REVIEW_INTEGRITY over the class; A's Guru reads the lesson progress) and nothing to a sibling Departemen B's Kepala departemen, to a Guru of a Kelas in B, or to another learner, as assessment_results already answers each of them (R6, 20260924100000). Before the migration the sibling head read the answers, the questions shown and the observation (can_in_institution anywhere in the school; found live by audit/integritas-peran.mjs: 48 answers of Kelas 5D read by the IPA head), and another class's Guru read the lesson progress."
+      "proves": "System Integrity Gate, chain D (owner, 9 Nov), selftest/db/fable37.sql against 20270112100000 and 20270112110000 (Sharon's review of SI-D01; D5): one learner's sitting in Kelas A of Departemen A, with an answer, an observation, lesson progress of an assignment to Kelas A and a reclassification, read through row security alone, every expectation an exact count (a lost reader fails like an exposed one). The learner reads result, answer, question shown, progress and sitting; A's Kepala departemen all of them plus the observation and the reclassification; A's Guru result, progress and sitting; the Admin sekolah observation, progress, sitting and reclassification and NO answer and NO question shown (D5); B's Kepala departemen, B's Guru and another learner nothing. Red on the school-wide policies (B's head read the answer, the question, the observation, the progress and the sitting; B's Guru the progress and the sitting; the Admin the answers)."
     },
     {
       "id": "F37-B01",
@@ -4755,6 +4755,26 @@
       "id": "F37-C01",
       "runner": "db",
       "proves": "System Integrity Gate, chain A (owner, 9 Nov: «certificate eligibility after recalculation»), selftest/db/fable37.sql: a sitting sealed at 40% against a 70% mark and recalculated to 95% stays not eligible at 0.40, and a sitting sealed at 90% and recalculated to 30% stays eligible at 0.90: certificate_eligibility reads the sealed root result and the mark sealed on the attempt, never the recalculation (O-B3)."
+    },
+    {
+      "id": "F37-D03",
+      "runner": "db",
+      "proves": "SI-D01 completed (Sharon's finding 1, HIGH; selftest/db/fable37.sql against 20270112110000): an evidence reclassification is decided over the sitting's place. B's Kepala departemen and B's Guru cannot insert an override on Kelas A's sitting (42501, by the insert policy and the enforce_evidence_override trigger), so cannot take it out of official evidence and every report; A's Kepala departemen and the Admin sekolah can (each tried and undone). Before the fix the trigger and the policy asked can_in_institution: any holder of CAN_REVIEW_INTEGRITY in the school."
+    },
+    {
+      "id": "F37-D04",
+      "runner": "db",
+      "proves": "SI-D01 completed (Sharon's finding 2; fable37.sql): lesson progress follows a learning assignment of that release to a node the reader holds, which the learner is or was in. A learner of Kelas A, also placed in Kelas B, reads chapter 2 there: A's Guru reads chapter 1 (assigned to A) and not chapter 2; B's Guru reads chapter 2 and not chapter 1; the learner both. Before the fix A's Guru read chapter 2 too (any class the learner ever belonged to)."
+    },
+    {
+      "id": "F37-D05",
+      "runner": "db",
+      "proves": "SI-D01 completed (Sharon's finding 3; fable37.sql): a sitting recorded with an Angkatan and no Kelas is anchored on the Angkatan. A's Kepala departemen reads its observation and sitting and may refer it from integrity_signals_awaiting_review; B's Kepala departemen does neither. Before the fix nobody in the school could decide it (fail-closed on the class alone)."
+    },
+    {
+      "id": "F37-D06",
+      "runner": "db",
+      "proves": "D5 (owner, 9 Nov: APPROVED, least privilege; fable37.sql against 20270112110000): jawaban_untuk_pemeriksaan opens ONE sitting's final answers to CAN_REVIEW_INTEGRITY over its place, with a reason of 10–500 characters, only while an observation on that sitting is undecided, writing one integrity.answers_opened audit row per open. Refused without a reason (22023 INVESTIGATION_REASON), on a sitting with no undecided observation (42501 INVESTIGATION_NO_CASE) and to another department's head (42501 INVESTIGATION_NOT_ALLOWED); a refusal writes no audit row. F37-D01 shows the Admin sekolah reads no answer and no question shown through row security."
     },
     {
       "id": "LAPORAN-KELAS-01",
