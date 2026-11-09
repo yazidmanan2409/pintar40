@@ -1479,7 +1479,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
           ) : null}
 
           {/* System & Configuration: institutions and periods */}
-          {/* B1: only the page's own section is drawn */}{tampilDi("system") ? (
+          {/* B1: only the page's own section is drawn */}{tampilDi("system") ? (<>
 <section id="system" hidden={!tampilDi("system") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.system")}</h2>
             {/* B1 §1 «Sistem & Konfigurasi»: read-only records; the state and «data uji» as badges, the years in words */}
@@ -1494,21 +1494,6 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                       <span className={`pin-pill ${i.is_active ? "pin-ok" : "pin-neutral"}`}>{s(i.is_active ? "config.sekolah.aktif" : "config.sekolah.nonaktif")}</span>
                     </span>
                   </div>
-                  {platformIni ? (
-                    <form action={aturZonaWaktuAction} className="mt-2 flex flex-wrap items-end gap-2" data-zona-form="">
-                      <input type="hidden" name="sekolah" value={i.id} />
-                      <input type="hidden" name="baris" value={i.id} />
-                      <input type="hidden" name="asal" value="zona" />
-                      <label className="grid gap-1 text-xs text-ink-2">
-                        {s("config.sekolah.zona.label")}
-                        <select name="zona" defaultValue={zonaSah(i.zona_waktu)} className="pin-input">
-                          {ZONA_SEKOLAH.map((z) => <option key={z} value={z}>{s(`config.sekolah.zona.${z}` as HleEvent)}</option>)}
-                        </select>
-                      </label>
-                      <TombolKirim className="pin-btn justify-self-start" sibuk={s("tombol.memproses")}>{s("config.sekolah.zona.simpan")}<span className="pin-sr"> · {i.name}</span></TombolKirim>
-                    </form>
-                  ) : null}
-                  {sp.baris === i.id ? result("system", "zona") : null}
                   <p className="mt-1 text-xs text-ink-3">
                     {(periods ?? []).filter((p) => p.institution_id === i.id).map((p) => `${p.name} (${when(p.starts_on, "baca")} – ${when(p.ends_on, "baca")})`).join(" · ") || s("config.empty")}
                   </p>
@@ -1521,7 +1506,32 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 benda={sl("koleksi.benda.sekolah")} jumlah={(institutions ?? []).length} />
             ) : null}
           </section>
+          {/* Sharon F1 (7a2c1751): the Admin PINTAR sets a school's own clock, apart from the read-only rows above */}
+          {platformIni && (institutions ?? []).length > 0 ? (
+            <section id="zona" className={card} aria-labelledby="pin-zona">
+              <h2 id="pin-zona" className="font-medium">{s("config.sekolah.zona.label")}</h2>
+              <form action={aturZonaWaktuAction} className="mt-2 flex flex-wrap items-end gap-2" data-zona-form="">
+                <input type="hidden" name="asal" value="zona" />
+                <label className="grid gap-1 text-xs text-ink-2">
+                  {s("config.sekolah.zona.sekolah")}
+                  <select name="sekolah" className="pin-input" required defaultValue="">
+                    <option value="" disabled>—</option>
+                    {(institutions ?? []).map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
+                  </select>
+                </label>
+                <label className="grid gap-1 text-xs text-ink-2">
+                  {s("config.sekolah.zona.label")}
+                  <select name="zona" className="pin-input" required defaultValue="">
+                    <option value="" disabled>—</option>
+                    {ZONA_SEKOLAH.map((z) => <option key={z} value={z}>{s(`config.sekolah.zona.${z}` as HleEvent)}</option>)}
+                  </select>
+                </label>
+                <TombolKirim className="pin-btn justify-self-start" sibuk={s("tombol.memproses")}>{s("config.sekolah.zona.simpan")}</TombolKirim>
+              </form>
+              {result("system", "zona")}
+            </section>
           ) : null}
+          </>) : null}
 
           {/* Period rollover (INV-23) */}
           {/* B1: only the page's own section is drawn */}{tampilDi("rollover") ? (

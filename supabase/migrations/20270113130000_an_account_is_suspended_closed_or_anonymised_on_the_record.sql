@@ -339,7 +339,7 @@ grant execute on function public.minta_buka_kembali(text, text) to service_role;
 create or replace function public.buka_kembali_akun(p_request uuid, p_cara_verifikasi text)
 returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
 declare v_actor uuid := public.current_person_id(); v_cara text := btrim(coalesce(p_cara_verifikasi, ''));
-        r public.account_requests; v_s public.person_suspensions;
+        r public.account_requests; v_s public.person_suspensions; v_peran jsonb;
 begin
   if v_actor is null or not public.is_system_admin() then perform public.akun_tolak('ACCOUNT_NOT_ALLOWED'); end if;
   select * into r from public.account_requests q where q.id = p_request for update;
@@ -349,10 +349,19 @@ begin
   if v_s.id is null or v_s.category <> 'CLOSED_AT_REQUEST' then perform public.akun_tolak('ACCOUNT_NOT_CLOSED'); end if;
   if char_length(v_cara) < 10 or char_length(v_cara) > 300 then perform public.akun_tolak('ACCOUNT_NOTE_REQUIRED'); end if;
   update public.person_suspensions set ended_at = now(), ended_by = v_actor, end_reason = v_cara where id = v_s.id;
+  -- the owner (9 Nov): reopening restores signing in, never a former authority. Any school role still live from before
+  -- the closure ends now, each through the role guard and its own role.revoked row; a school gives it again if it
+  -- still applies. (A person holding a platform role cannot have closed their account: ACCOUNT_PLATFORM_ROLE.)
+  select coalesce(jsonb_agg(jsonb_build_object('id', ra.id, 'role', ra.role, 'scope_node_id', ra.scope_node_id) order by ra.id), '[]')
+    into v_peran from public.role_assignments ra
+   where ra.person_id = r.person_id and ra.revoked_at is null and ra.role <> 'SYSTEM_ADMIN';
+  update public.role_assignments ra set revoked_at = now(), revoked_by = v_actor,
+         revoked_reason = 'Akun dibuka kembali: peran dari sebelum akun ditutup tidak dipulihkan'
+   where ra.person_id = r.person_id and ra.revoked_at is null and ra.role <> 'SYSTEM_ADMIN';
   perform public.akun_kunci(r.person_id, false);
   update public.account_requests set status = 'DONE', decided_by = v_actor, decided_at = now(), decision_note = v_cara where id = r.id;
   perform public.audit_write('account.reopened', 'persons', r.person_id::text, null,
-    jsonb_build_object('person_id', r.person_id, 'request_id', r.id, 'reason', v_cara, 'identity_verified', true,
+    jsonb_build_object('person_id', r.person_id, 'request_id', r.id, 'reason', v_cara, 'identity_verified', true, 'roles_ended', v_peran,
                        'from', jsonb_build_object('category', v_s.category), 'actor_role', public.audit_actor_role(null)));
   return jsonb_build_object('ok', true);
 end $$;

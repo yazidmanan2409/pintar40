@@ -589,13 +589,18 @@ export const kenaikanAppTests: SelfTest[] = [
       c.expect(psql(`select category from public.person_suspensions where person_id = ${lit(orang)} and ended_at is null`) === "CLOSED_AT_REQUEST",
         "the account did not close");
       // signed out: the sign-in screen offers the request, and the page takes it
-      const luar = new Komputer(asal, ipUji());
+      // two addresses that differ, so the pace of one never answers for the other
+      const ipLuar = ipUji(); let ipLain = ipUji(); while (ipLain === ipLuar) ipLain = ipUji();
+      const luar = new Komputer(asal, ipLuar);
       c.expect((await (await luar.halaman("/masuk")).text()).includes('href="/masuk/buka-kembali"'), "the sign-in screen does not offer «Minta dibuka kembali»");
       const hp = await luar.halaman("/masuk/buka-kembali");
       c.expect(hp.status === 200 && (await hp.text()).includes('action="/masuk/buka-kembali/kirim"'), `the reopening page answered ${hp.status} without its form`);
       const pesan = "Saya ingin kembali mengajar. Hubungi saya di nomor sekolah.";
       const rAda = await luar.kirim("/masuk/buka-kembali/kirim", { form: { identitas: email.toUpperCase(), pesan } });
-      const rTiada = await luar.kirim("/masuk/buka-kembali/kirim", { form: { identitas: `tiada-${tag}@local.invalid`, pesan } });
+      const rTiada = await new Komputer(asal, ipLain).kirim("/masuk/buka-kembali/kirim", { form: { identitas: `tiada-${tag}@local.invalid`, pesan } });
+      // the owner (9 Nov): the public door resists repeated submissions, by the code requests' own pace per address
+      const rLagi = await luar.kirim("/masuk/buka-kembali/kirim", { form: { identitas: `tiada-lagi-${tag}@local.invalid`, pesan } });
+      c.expect(/kode=TUNGGU/.test(rLagi.headers.get("location") ?? ""), `a second request from the same address at once is not paced: ${rLagi.headers.get("location")}`);
       c.expect(rAda.status === 303 && rAda.headers.get("location") === rTiada.headers.get("location") && /hasil=terkirim/.test(rAda.headers.get("location") ?? ""),
         `a closed account's request and a nobody's address answer differently: ${rAda.headers.get("location")} / ${rTiada.headers.get("location")}`);
       const req = psql(`select id from public.account_requests where person_id = ${lit(orang)} and kind = 'REOPEN' and status = 'RECEIVED'`);
@@ -620,9 +625,11 @@ export const kenaikanAppTests: SelfTest[] = [
       const lagi = await new Komputer(asal, ipUji()).jsonDari("/masuk/password", { form: { identitas: email, password: sandi } });
       c.expect(lagi.status === 200, `the reopened account does not sign in (${lagi.status})`);
       c.expect(psql(`select status from public.account_requests where id = ${lit(req)}`) === "DONE", "the request is not DONE");
+      c.expect(psql(`select count(*) from public.role_assignments where person_id = ${lit(orang)} and revoked_at is null`) === "0",
+        "the reopened account got a former school role back");
       return c.verdict("a closed account is asked back signed out from the sign-in screen, answered as an unknown address is; the request waits " +
         "in the queue and reopens nothing; the closed account offers no other reopening; the PINTAR Administrator confirms the identity, says how, " +
-        "and reopens it from the queue; the request is DONE and the educator signs in again");
+        "and reopens it from the queue; the request is DONE and the educator signs in again, with no former school role; a repeat from one address is paced");
     },
   },
 ];

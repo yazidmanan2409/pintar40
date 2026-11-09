@@ -949,7 +949,8 @@ begin
     if has_function_privilege('authenticated', 'public.minta_buka_kembali(text, text)'::regprocedure, 'execute')
        or has_function_privilege('anon', 'public.minta_buka_kembali(text, text)'::regprocedure, 'execute') then
       o02 := o02 || 'the public request is callable by a client, not only by its server route'::text; end if;
-    u_t := selftest.f11_user('f38-tutup-' || v_tag || '@local.invalid', null, null);
+    -- (the owner, 9 Nov: reopening restores signing in, never the former authority) a Guru of Kelas A closes the account
+    u_t := selftest.f11_user('f38-tutup-' || v_tag || '@local.invalid', 'EDUCATOR', c_a);
     select a.person_id into p_t from public.accounts a where a.auth_user_id = u_t;
     v_got := selftest.f37_sebagai(u_t, format('select public.minta_akun(%L, true)', 'CLOSE'));
     select count(*) into v_cnt from public.account_requests q where q.kind = 'REOPEN';
@@ -981,7 +982,10 @@ begin
          or (select u.banned_until from auth.users u where u.id = u_t) is not null
          or not exists (select 1 from public.audit_log a where a.action = 'account.reopened' and a.target_id = p_t::text
                           and a.summary ->> 'request_id' = v_rq::text) then
-        o02 := o02 || 'after the verified reopening the account is not open, the request not DONE, or no account.reopened row naming it'::text; end if;
+        o02 := o02 || 'after the verified reopening the account is not open, the request not DONE, or no account.reopened row naming it'::text;
+      elsif exists (select 1 from public.role_assignments ra where ra.person_id = p_t and ra.revoked_at is null)
+         or (select jsonb_array_length(a.summary -> 'roles_ended') from public.audit_log a where a.action = 'account.reopened' and a.target_id = p_t::text) is distinct from 1 then
+        o02 := o02 || 'the reopened account got its former school role back (it must be given again by the school), or the ending is not recorded'::text; end if;
     end if;
 
     raise exception 'f38-rollback';
@@ -1030,7 +1034,7 @@ begin
       ('F38-A06', 'Sharon §16: L4 for a card holder, and every copy of the name and email', a06, 'the deletion goes through with a class card held; the card''s address stays; the activation grant, email corrections, card conversion, import row, username and auth.identities keep neither name nor email'),
       ('F38-A07', 'Sharon §16: a live platform role does not close itself', a07, 'the PINTAR Administrator''s own CLOSE is refused ACCOUNT_PLATFORM_ROLE and nothing is closed'),
       ('F38-O01', 'Owner ruling 1: an attempt limit holds across reassignment', o01, 'a learner who used the one attempt cannot start the same assessment again when the lesson is given to the class again'),
-      ('F38-O02', 'Owner ruling 2: a closed account asks to be reopened', o02, 'the public request is server-only, records only for a closed account, answers the same for any address, is one per person and reopens nothing by itself; a closed account is reopened only from its request, by the PINTAR Administrator, with how identity was verified; DONE and audited'),
+      ('F38-O02', 'Owner ruling 2: a closed account asks to be reopened', o02, 'the public request is server-only, records only for a closed account, answers the same for any address, is one per person and reopens nothing by itself; a closed account is reopened only from its request, by the PINTAR Administrator, with how identity was verified; DONE and audited; the former Guru role is not restored (ended, recorded)'),
       ('F38-O03', 'Owner ruling 3: no disciplinary platform suspension', o03, 'DISCIPLINARY is refused ACCOUNT_CATEGORY_INVALID'),
       ('F38-H01', 'Sharon F1: a school''s date is its own', h01, 'the PINTAR Administrator sets WIT (a school''s admin refused, audited); hari_sekolah answers WIT''s date; an ending with no date is stamped with it; WIT''s tomorrow is refused'),
       ('F38-H02', 'Sharon F2: an ending does not use up an attempt', h02, 'a sitting TERMINATED as INSTITUTIONAL_REVOCATION is not counted against an attempt limit of 1'),

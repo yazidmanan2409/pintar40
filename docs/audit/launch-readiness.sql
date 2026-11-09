@@ -213,14 +213,17 @@ union all
 -- migration that registers its surface, and the row turned FAIL unseen. It now
 -- pins the registered surface BY NAME (10 routes, 9 endpoints) and, as before,
 -- no public function `anon` may execute.
-select 'anonymous surface unchanged (10 / 19 / 0)',
-       (select count(*) = 10 from public.public_surface_registry where parent is null)
-       and (select count(*) = 19 from public.public_surface_registry where kind in ('ROUTE','ENDPOINT'))
+-- RESTATED FOR THE OWNER'S RULING 2 (9 Nov): the reopening request's door and its handler (reopen_request,
+-- reopen_request_api) join: 11 routes, 10 endpoints.
+select 'anonymous surface unchanged (11 / 21 / 0)',
+       (select count(*) = 11 from public.public_surface_registry where parent is null)
+       and (select count(*) = 21 from public.public_surface_registry where kind in ('ROUTE','ENDPOINT'))
        and (select string_agg(surface, ' ' order by surface) from public.public_surface_registry) =
            'activation_check activation_check_api activation_code activation_code_api card_signin ' ||
            'card_signin_api certificate_verification certificate_verification_api identity_page ' ||
            'password_signin password_signin_api recovery_check recovery_check_api recovery_code ' ||
-           'recovery_code_api recovery_password recovery_password_api recovery_pin recovery_pin_api'
+           'recovery_code_api recovery_password recovery_password_api recovery_pin recovery_pin_api reopen_request ' ||
+           'reopen_request_api'
        and (select count(*) = 0 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
              where n.nspname='public' and has_function_privilege('anon', p.oid, 'EXECUTE')),
        (select count(*)::text from public.public_surface_registry where parent is null) || ' surface / '

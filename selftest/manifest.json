@@ -5134,7 +5134,7 @@
     {
       "id": "AKUN-A02",
       "runner": "app",
-      "proves": "Owner ruling 2 (9 Nov), through the running app (selftest/kenaikan.test.ts): an educator closes their account; signed out, the sign-in screen offers «Minta dibuka kembali»; the request answers as an unknown address does, waits in the PINTAR Administrator's queue and reopens nothing; a closed account offers no other reopening; the Administrator confirms the identity, says how, reopens it from the queue; the request is DONE and the educator signs in again."
+      "proves": "Owner ruling 2 (9 Nov), through the running app's rendered pages and its routes (selftest/kenaikan.test.ts): an educator closes their account; signed out, the sign-in screen offers «Minta dibuka kembali»; the request answers as an unknown address does, waits in the PINTAR Administrator's queue and reopens nothing; a closed account offers no other reopening; the Administrator confirms the identity, says how, reopens it from the queue; the request is DONE and the educator signs in again with no former school role; a repeat from one address is paced."
     },
     {
       "id": "JEJAK-K01",

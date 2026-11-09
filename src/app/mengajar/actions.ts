@@ -89,13 +89,14 @@ export async function sediakanMateri(formData: FormData): Promise<void> {
   // cycle's two tests with it -- or a PR050 refusal and nothing at all. The
   // teacher is sent back to the review with the refusal's code, whose sentence
   // says what the lesson is missing.
+  const zona = await zonaSekolah(db, ctx!.ini.institusi);
   const { data, error } = await db.rpc("assign_release", {
     p_release: terbitan,
     p_node: kelasId,
     // DAISY-14 (M10): the teacher's days on the school's clock, not London's
     // Sharon F1: and on that school's own clock (WIB, WITA or WIT)
-    p_from: mulai ? batasHari(mulai, "awal", await zonaSekolah(db, ctx!.ini.institusi)) : null,
-    p_until: sampai ? batasHari(sampai, "akhir", await zonaSekolah(db, ctx!.ini.institusi)) : null,
+    p_from: mulai ? batasHari(mulai, "awal", zona) : null,
+    p_until: sampai ? batasHari(sampai, "akhir", zona) : null,
   });
   if (error || !data?.ok) {
     const kode = kodeGalatPenugasan(error);

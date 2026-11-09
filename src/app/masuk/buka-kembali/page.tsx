@@ -31,7 +31,7 @@ export default async function BukaKembali({ searchParams }: { searchParams: Prom
             <h1>{s("buka_kembali.judul")}</h1>
             <p className="pin-meta">{s("buka_kembali.arti")}</p>
             {sp.hasil === "terkirim" ? <BarisHasil nada="ok">{s("buka_kembali.terkirim")}</BarisHasil> : null}
-            {sp.kode ? <BarisHasil nada="gagal">{s(sp.kode === "ISIAN" ? "buka_kembali.galat.isian" : "buka_kembali.galat.umum")}</BarisHasil> : null}
+            {sp.kode ? <BarisHasil nada="gagal">{s(sp.kode === "ISIAN" ? "buka_kembali.galat.isian" : sp.kode === "TUNGGU" ? "buka_kembali.galat.tunggu" : "buka_kembali.galat.umum")}</BarisHasil> : null}
             {sp.hasil === "terkirim" ? null : (
               <form method="post" action="/masuk/buka-kembali/kirim" className="pin-isian">
                 <label htmlFor="bk-identitas">{s("buka_kembali.identitas")}</label>

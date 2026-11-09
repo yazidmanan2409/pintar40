@@ -1552,7 +1552,7 @@ export type HleEvent =
   | "config.sekolah.sintetis" | "config.sekolah.aktif" | "config.sekolah.nonaktif"
   // Sharon F1: a school's own clock
   | "config.sekolah.zona.Asia/Jakarta" | "config.sekolah.zona.Asia/Makassar" | "config.sekolah.zona.Asia/Jayapura"
-  | "config.sekolah.zona.label" | "config.sekolah.zona.simpan"
+  | "config.sekolah.zona.label" | "config.sekolah.zona.simpan" | "config.sekolah.zona.sekolah"
   | "audit.aksi.institution.time_zone_changed"
   // D-138/D-140: the audit trail in words
   | "audit.aksi.ASSESSMENT_DEFINITION_CREATED"
@@ -2722,6 +2722,7 @@ export type HleEvent =
   | "buka_kembali.terkirim"
   | "buka_kembali.galat.isian"
   | "buka_kembali.galat.umum"
+  | "buka_kembali.galat.tunggu"
   | "buka_kembali.ke_masuk"
   | "keamanan.permintaan.buka_kembali"
   | "keamanan.permintaan.pesan"
@@ -3945,9 +3946,9 @@ const table: Table = {
   "config.kesehatan.cek.undeclared_anon_functions": { default: "Tidak ada fungsi terbuka tanpa masuk yang tidak dinyatakan", en: "No undeclared function is open without signing in" },
   // BOB-12: the class card's sign-in is the second declared public surface. DAISY-13 confirms this sentence and
   // replaces the paths one: each surface is two declared addresses, a page and the endpoint behind it
-  "config.kesehatan.cek.anon_public_surface": { default: "Tepat sepuluh permukaan publik: pemeriksaan sertifikat, masuk dengan kartu kelas, masuk dengan password, permintaan kode aktivasi, pemeriksaan kode aktivasi, permintaan kode pemulihan, pemeriksaan kode pemulihan, password baru dari pemulihan, pemulihan dengan PIN, dan halaman PINTAR ID", en: "Exactly ten public surfaces: certificate verification, class-card sign-in, password sign-in, the activation code request, the activation code check, the recovery code request, the recovery code check, the new password from recovery, recovery with a PIN, and the PINTAR ID page" },
+  "config.kesehatan.cek.anon_public_surface": { default: "Tepat sebelas permukaan publik: pemeriksaan sertifikat, masuk dengan kartu kelas, masuk dengan password, permintaan kode aktivasi, pemeriksaan kode aktivasi, permintaan kode pemulihan, pemeriksaan kode pemulihan, password baru dari pemulihan, pemulihan dengan PIN, halaman PINTAR ID, dan permintaan membuka kembali akun", en: "Exactly eleven public surfaces: certificate verification, class-card sign-in, password sign-in, the activation code request, the activation code check, the recovery code request, the recovery code check, the new password from recovery, recovery with a PIN, the PINTAR ID page, and the request to reopen an account" },
   "config.kesehatan.cek.client_readable_definer_views": { default: "Tidak ada tampilan berhak pemilik yang terbaca aplikasi", en: "No owner-rights view is readable by the app" },
-  "config.kesehatan.cek.anon_reachable_http_paths": { default: "Tepat sembilan belas alamat publik yang dinyatakan: dua untuk pemeriksaan sertifikat, dua untuk masuk dengan kartu kelas, dua untuk masuk dengan password, dua untuk permintaan kode aktivasi, dua untuk pemeriksaan kode aktivasi, dua untuk permintaan kode pemulihan, dua untuk pemeriksaan kode pemulihan, dua untuk password baru dari pemulihan, dua untuk pemulihan dengan PIN, satu untuk halaman PINTAR ID", en: "Exactly nineteen declared public addresses: two for certificate verification, two for class-card sign-in, two for password sign-in, two for the activation code request, two for the activation code check, two for the recovery code request, two for the recovery code check, two for the new password from recovery, two for recovery with a PIN, one for the PINTAR ID page" },
+  "config.kesehatan.cek.anon_reachable_http_paths": { default: "Tepat dua puluh satu alamat publik yang dinyatakan: dua untuk pemeriksaan sertifikat, dua untuk masuk dengan kartu kelas, dua untuk masuk dengan password, dua untuk permintaan kode aktivasi, dua untuk pemeriksaan kode aktivasi, dua untuk permintaan kode pemulihan, dua untuk pemeriksaan kode pemulihan, dua untuk password baru dari pemulihan, dua untuk pemulihan dengan PIN, satu untuk halaman PINTAR ID, dua untuk permintaan membuka kembali akun", en: "Exactly twenty-one declared public addresses: two for certificate verification, two for class-card sign-in, two for password sign-in, two for the activation code request, two for the activation code check, two for the recovery code request, two for the recovery code check, two for the new password from recovery, two for recovery with a PIN, one for the PINTAR ID page, two for the request to reopen an account" },
   "config.kesehatan.cek.public_surface_ok": { default: "Permukaan publik sesuai yang dinyatakan", en: "The public surface matches its declaration" },
   "config.kesehatan.cek.anon_table_grants": { default: "Tidak ada hak tabel bagi pengguna yang belum masuk", en: "No table grant to signed-out users" },
   "config.kesehatan.cek.public_buckets": { default: "Tidak ada penyimpanan berkas yang publik", en: "No public storage bucket" },
@@ -5805,6 +5806,7 @@ const table: Table = {
   "buka_kembali.kirim": { default: "Kirim permintaan", en: "Send the request" },
   "buka_kembali.terkirim": { default: "Terima kasih. Jika akun itu memang sudah ditutup, permintaan Anda kini menunggu di Admin PINTAR. Akun dibuka kembali hanya setelah Admin PINTAR memastikan identitas Anda.", en: "Thank you. If that account has been closed, your request is now waiting with an Admin PINTAR. The account is reopened only after an Admin PINTAR has confirmed who you are." },
   "buka_kembali.galat.isian": { default: "Isi email atau PINTAR ID, dan pesan 10 sampai 500 karakter.", en: "Fill in the email or PINTAR ID, and a message of 10 to 500 characters." },
+  "buka_kembali.galat.tunggu": { default: "Terlalu banyak permintaan dari perangkat ini. Coba lagi beberapa menit lagi.", en: "Too many requests from this device. Try again in a few minutes." },
   "buka_kembali.galat.umum": { default: "Permintaan belum terkirim. Coba lagi.", en: "The request was not sent. Try again." },
   "buka_kembali.ke_masuk": { default: "Kembali ke halaman masuk", en: "Back to sign-in" },
   "keamanan.permintaan.buka_kembali": { default: "Buka kembali akun", en: "Reopen the account" },
@@ -6082,6 +6084,7 @@ const table: Table = {
   "config.sekolah.zona.Asia/Jayapura": { default: "WIT", en: "WIT" },
   "config.sekolah.zona.label": { default: "Zona waktu sekolah", en: "School time zone" },
   "config.sekolah.zona.simpan": { default: "Simpan zona waktu", en: "Save time zone" },
+  "config.sekolah.zona.sekolah": { default: "Sekolah", en: "School" },
   "audit.aksi.institution.time_zone_changed": { default: "Zona waktu sekolah diubah", en: "School time zone changed" },
   // D-138/D-140: the audit trail in words (Jejak audit), never its codes or tables
   "audit.aksi.ASSESSMENT_DEFINITION_CREATED": { default: "Aturan asesmen dibuat", en: "Assessment rule created" },

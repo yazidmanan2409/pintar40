@@ -10447,13 +10447,16 @@ export const experienceTests: SelfTest[] = [
        *    source file builds a day boundary in UTC.
        */
       const aksi = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "actions.ts"), "utf8"));
-      c.expect(/p_from: mulai \? batasHari\(mulai, "awal"\) : null,/.test(aksi) && /p_until: sampai \? batasHari\(sampai, "akhir"\) : null,/.test(aksi),
+      // RESTATED FOR SHARON F1 (7a2c1751, a changed requirement): the days are on the school's own zone (WIB, WITA or WIT,
+      // institutions.zona_waktu), passed to the same helpers; a school with none set keeps Asia/Jakarta, as asserted above
+      c.expect(/p_from: mulai \? batasHari\(mulai, "awal", zona\) : null,/.test(aksi) && /p_until: sampai \? batasHari\(sampai, "akhir", zona\) : null,/.test(aksi)
+        && /const zona = await zonaSekolah\(db, /.test(aksi),
         "sediakanMateri does not send the school's days");
       const siapkan = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "[kelas]", "siapkan", "page.tsx"), "utf8"));
       // RESTATED FOR W3.11 (Batch 3): J5 reopens a refused form with the dates the teacher sent, and J1 part two shows
       // the window the database now holds; a fresh review still starts on the school's today, so the field takes
       // `mulaiAwal`, whose last fallback (no date sent back, nothing made available) is hariIniSekolah().
-      c.expect(/name="mulai" defaultValue=\{mulaiAwal\}/.test(siapkan) && /const mulaiAwal = [^;]*: hariIniSekolah\(\);/.test(siapkan),
+      c.expect(/name="mulai" defaultValue=\{mulaiAwal\}/.test(siapkan) && /const mulaiAwal = [^;]*: hariIniSekolah\(undefined, zona\);/.test(siapkan),
         "Siapkan's first day does not start on the school's today");
       const utc = walk(join(repoRoot, "src")).filter((f) => /\.(ts|tsx)$/.test(f))
         .filter((f) => /T00:00:00Z|T23:59:59Z|T00:00:00\.000Z/.test(code(readFileSync(f, "utf8"))));
@@ -11271,11 +11274,13 @@ export const experienceTests: SelfTest[] = [
       // sentence. The check itself is unchanged.
       // RESTATED FOR BOB-27 (Gate 4: 8 surfaces, 16 addresses): the number words run to sixteen.
       // RESTATED FOR BOB-28 (Gate 5: 10 surfaces, 19 addresses): to nineteen.
+      // RESTATED FOR THE OWNER'S RULING 2 (9 Nov: 11 surfaces, 21 addresses): to twenty-one.
       const ANGKA: Record<string, string[]> = {
         id: ["nol", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh",
-             "sebelas", "dua belas", "tiga belas", "empat belas", "lima belas", "enam belas", "tujuh belas", "delapan belas", "sembilan belas"],
+             "sebelas", "dua belas", "tiga belas", "empat belas", "lima belas", "enam belas", "tujuh belas", "delapan belas", "sembilan belas",
+             "dua puluh", "dua puluh satu"],
         en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
-             "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"] };
+             "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "twenty-one"] };
       const katakan = (kalimat: string, n: unknown, locale: string) =>
         typeof n === "number" && new RegExp(`^(Tepat|Exactly) ${ANGKA[locale][n]}\\b`).test(kalimat);
       c.expect(!katakan("Tepat tiga permukaan publik: pemeriksaan sertifikat dan masuk dengan kartu kelas", 2, "id"),
