@@ -127,7 +127,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean; e06 text[] := '{}'; e07 text[] := '{}'; k01 text[] := '{}'; k02 text[] := '{}'; k03 text[] := '{}'; k04 text[] := '{}'; k05 text[] := '{}'; v_knext uuid; v_kt5 uuid; c_k5 uuid; v_kt6 uuid; c_k6 uuid; v_kt5b uuid; c_k5b uuid; v_kguru uuid; v_kp jsonb; v_kdec jsonb; v_kaud int; v_kplan jsonb; v_kres jsonb; v_ksesi uuid;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean; e06 text[] := '{}'; e07 text[] := '{}'; k01 text[] := '{}'; k02 text[] := '{}'; k03 text[] := '{}'; k04 text[] := '{}'; k05 text[] := '{}'; v_knext uuid; v_kt5 uuid; c_k5 uuid; v_kt6 uuid; c_k6 uuid; v_kt5b uuid; c_k5b uuid; v_kguru uuid; v_kp jsonb; v_kdec jsonb; v_kaud int; v_kplan jsonb; v_kres jsonb; v_ksesi uuid; k06 text[] := '{}'; v_krun text;
 begin
   perform selftest.as_owner();
   begin
@@ -994,6 +994,48 @@ begin
                        and s.class_node_id = c_k5 and s.status = 'TERMINATED' and s.termination_cause = 'INSTITUTIONAL_REVOCATION') then
         k03 := k03 || 'K2''s open sitting was not ended as an institutional revocation on the old class'::text; end if;
     end if;
+    -- K06 (Daisy's reconciliation and Sharon, 9 Nov: fold, don't hide): the run names itself in every row it writes, and
+    -- its read-back says what the outcome page needs: where each learner is, whether that matches, how a departure
+    -- ended and when, and which destination Kelas still has no teacher
+    if v_kres is not null then
+      select a.summary ->> 'run_id' into v_krun from public.audit_log a
+       where a.action = 'promotion.applied' and a.target_id = c_k5::text order by a.id desc limit 1;
+      if v_krun is null or v_krun !~ '^[0-9a-f-]{36}$' then k06 := k06 || 'the run''s own row names no run id'::text;
+      else
+        if (select count(*) from public.audit_log a where a.action = 'enrollment.ended_with_reason' and a.summary ->> 'run_id' = v_krun
+              and a.target_id in (v_kp -> 'K4' ->> 'enr', v_kp -> 'K5' ->> 'enr')) <> 2
+           or not exists (select 1 from public.audit_log a where a.target_table = 'memberships' and a.summary ->> 'run_id' = v_krun)
+           or not exists (select 1 from public.audit_log a where a.action = 'assessment_session.terminated' and a.target_id = v_ksesi::text
+                            and a.summary ->> 'run_id' = v_krun) then
+          k06 := k06 || 'a row the run wrote (an ending, a placement, an ended sitting) does not carry its run id'::text; end if;
+      end if;
+      perform public.audit_write('selftest.k06_outside', 'org_nodes', c_k5::text, v_inst, '{}'::jsonb);
+      if exists (select 1 from public.audit_log a where a.action = 'selftest.k06_outside' and a.summary ? 'run_id') then
+        k06 := k06 || 'a row written after the run still carries its run id'::text; end if;
+      -- one learner's place moved behind the run's back: the read-back says it no longer matches
+      set local session_replication_role = replica;
+      update public.memberships m set valid_to = now(), close_reason = 'MOVED'
+       where m.valid_to is null and m.node_id = c_k6
+         and m.enrollment_id in (select en.id from public.enrollments en where en.person_id = (v_kp -> 'K7' ->> 'person')::uuid);
+      set local session_replication_role = origin;
+      perform selftest.as_user_uid(u_admin);
+      begin
+        v_kres := public.kenaikan_hasil(c_k5);
+      exception when others then k06 := k06 || ('the read-back: ' || sqlerrm); v_kres := null; end;
+      perform selftest.as_owner();
+      if v_kres is not null then
+        if not exists (select 1 from jsonb_array_elements(v_kres -> 'hasil') h where h ->> 'person_id' = v_kp -> 'K1' ->> 'person' and (h ->> 'sesuai')::boolean)
+           or not exists (select 1 from jsonb_array_elements(v_kres -> 'hasil') h where h ->> 'person_id' = v_kp -> 'K7' ->> 'person' and not (h ->> 'sesuai')::boolean) then
+          k06 := k06 || ('the read-back does not tell a matching place from one that no longer matches: ' || (v_kres -> 'hasil')::text); end if;
+        if not exists (select 1 from jsonb_array_elements(v_kres -> 'hasil') h where h ->> 'person_id' = v_kp -> 'K5' ->> 'person'
+                         and h ->> 'akhir_alasan' is not null and (h ->> 'akhir_pada') ~ '^\d{4}-\d{2}-\d{2}') then
+          k06 := k06 || 'the leaver''s ending is not read back with its reason and date'::text; end if;
+        if jsonb_array_length(coalesce(v_kres -> 'guru_kosong', '[]')) <> 2 then
+          k06 := k06 || ('the destination Kelas without a teacher are not named (expected 2): ' || coalesce(v_kres -> 'guru_kosong', 'null')::text); end if;
+        if v_kres ->> 'run_id' is distinct from v_krun then k06 := k06 || 'the read-back does not name its run'::text; end if;
+      end if;
+    end if;
+
     -- K05: a second press changes nothing (the class has changed: PROMO_CHANGED)
     select count(*) into v_kaud from public.audit_log a where a.institution_id = v_inst;
     v_got := selftest.f37_sebagai(u_admin, format('select public.kenaikan_tetapkan(%L, %L, %L::jsonb, true, true)', c_k5, v_knext, v_kdec));
@@ -1082,6 +1124,8 @@ begin
        'the plan lists every learner of the class and the Tingkat-only one (as such), marks the one being transferred, shows the class''s teacher and next year''s classes; a Guru and another school''s admin are refused'),
       ('F37-K02', '«Kenaikan kelas dan kelulusan»: refusals and the preview write nothing', k02,
        'a learner without a decision (named), teachers not reviewed, a repeat into this year''s class, «Pindah» without a transfer, a decision for someone outside the class, another school''s admin and a Guru are refused; the preview returns all seven outcomes; nothing is written'),
+      ('F37-K06', '«Kenaikan kelas dan kelulusan»: the run''s own record', k06,
+       'every row the run writes (its endings, placements and ended sittings) carries the run''s id and a later row does not; the read-back says, per learner, whether the recorded place matches the decision, how and when a departure ended, and which destination Kelas has no teacher'),
       ('F37-K03', '«Kenaikan kelas dan kelulusan»: applied whole, each outcome by name', k03,
        'two learners and the Tingkat-only one go up to 6K and the repeater straight into the repeat class on new-year enrolments (the old year ENDED/EXPIRED, its placement PERIOD_ROLLOVER); the graduate is COMPLETED and the leaver WITHDRAWN with their reasons; the learner being transferred is unchanged; one promotion.applied row with seven outcomes; no teacher carried; the old sitting stays on the old class'),
       ('F37-K04', '«Kenaikan kelas dan kelulusan»: an open sitting is shown before it is ended', k04,

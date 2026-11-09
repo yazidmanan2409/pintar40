@@ -17,8 +17,8 @@ import { daftar, ipUji, lit, psql } from "./bob26.test";
 import { aktifkan } from "./bob28.test";
 import { Komputer } from "./bob29.test";
 import { pilihKonteksPeramban, tersusun } from "./konteks-uji";
-import { bacaNilai, dariForm, kodekan, nilaiDari, urai } from "../src/lib/kenaikan";
-import { alasanAudit } from "../src/lib/jejak-audit";
+import { bacaNilai, dariForm, kelasDenganTahun, kelompokkan, kodekan, namaTingkat, nilaiDari, tahunPendek, urai } from "../src/lib/kenaikan";
+import { alasanAudit, hasilRun, lipatKenaikan } from "../src/lib/jejak-audit";
 
 const ID = "11111111-2222-4333-8444-555555555555";
 const ID2 = "66666666-7777-4888-9999-000000000000";
@@ -63,6 +63,49 @@ export const kenaikanTests: SelfTest[] = [
       const f = dariForm([[`k[${ID}]`, "LULUS"], [`k[${ID2}]`, ""], ["kelas", ID]]);
       c.expect(f.length === 1 && f[0].person_id === ID, "the form's selects are not read one decision each, an empty one absent");
       return c.verdict("every select value reads back as its decision; empty, malformed and unknown values are no decision; the address form carries ids and codes only and drops what is malformed");
+    },
+  },
+  {
+    id: "KENAIKAN-K02",
+    requires: [],
+    run: async () => {
+      // Daisy's reconciliation (TINJAUAN-KENAIKAN-KELAS-DIBANGUN, #96): the year always written, the level as a level,
+      // the main group and its exceptions (Q2), and one run read as one entry in Jejak audit (K1, Sharon «fold, don't hide»)
+      const c = new Checks();
+      c.expect(tahunPendek("TA 2026/2027") === "2026/27" && tahunPendek("2027/28") === "2027/28" && tahunPendek("Tahun baru") === "Tahun baru" && tahunPendek(null) === "",
+        "a year does not read «2026/27», or a name the school wrote was changed");
+      c.expect(kelasDenganTahun("Kelas 6A", "2027/2028") === "Kelas 6A · 2027/28" && kelasDenganTahun("Kelas 6A", null) === "Kelas 6A", "a Kelas does not carry its year");
+      c.expect(namaTingkat("Kelas 5") === "Tingkat 5" && namaTingkat("5") === "Tingkat 5" && namaTingkat("Tingkat 5 — 2026/27") === "Tingkat 5" && namaTingkat(null) === null, "a Tingkat does not read as a level, or carries its year a second time");
+      const K6 = ID2;
+      const hs = [
+        { person_id: "a", keputusan: "NAIK" as const, kelas_tujuan: K6, sumber: "KELAS" },
+        { person_id: "b", keputusan: "TINGGAL" as const, kelas_tujuan: ID, sumber: "KELAS" },
+        { person_id: "c", keputusan: "NAIK" as const, kelas_tujuan: K6, sumber: "KELAS" },
+        { person_id: "d", keputusan: "NAIK" as const, kelas_tujuan: K6, sumber: "TINGKAT" },
+        { person_id: "e", keputusan: "NAIK" as const, kelas_tujuan: ID, sumber: "KELAS" },
+        { person_id: "f", keputusan: "LULUS" as const, sumber: "KELAS" },
+      ];
+      const g = kelompokkan(hs);
+      c.expect(g.utama === `NAIK:${K6}`, `the main group is ${g.utama}, not the most common «Naik» destination`);
+      c.expect(g.pengecualian.map((h) => h.person_id).join("") === "bdef", `the exceptions are ${g.pengecualian.map((h) => h.person_id)}, not every other outcome and the Tingkat learner`);
+      c.expect(g.kelompok.map((k) => `${k.kunci}=${k.isi.length}`).join(",") === `NAIK:${K6}=3,TINGGAL:${ID}=1,NAIK:${ID}=1,LULUS=1`, `the groups: ${JSON.stringify(g.kelompok.map((k) => k.kunci))}`);
+      c.expect(kelompokkan([{ person_id: "x", keputusan: "LULUS" as const }]).utama === null, "a class with no «Naik» has a main group");
+      // K1: the run's rows fold under its one row by the recorded id; a row of a run whose row is elsewhere says so; time links nothing
+      const R = "9e0c2b8a-7f1d-4c3e-8a5b-123456789abc";
+      const rows = [
+        { id: 1, action: "enrollment.ended", summary: { run_id: R } },
+        { id: 2, action: "promotion.applied", summary: { run_id: R, outcomes: [{ person_id: ID, keputusan: "NAIK" }, { person_id: ID2, keputusan: "KELUAR", alasan: "DECEASED" }, { nama: "tanpa id" }] } },
+        { id: 3, action: "enrollment.created", summary: { run_id: R } },
+        { id: 4, action: "enrollment.ended", summary: { run_id: "lain" } },
+        { id: 5, action: "role.granted", summary: { reason: "x" } },
+      ];
+      const l = lipatKenaikan(rows);
+      c.expect(l.baris.map((r) => r.id).join(",") === "2,4,5" && (l.anak.get(2) ?? []).map((r) => r.id).join(",") === "1,3",
+        `the run's rows are not folded under it: ${l.baris.map((r) => r.id)} / ${(l.anak.get(2) ?? []).map((r) => r.id)}`);
+      c.expect(l.bagianRun.has(4) && !l.bagianRun.has(5) && !l.bagianRun.has(2), "a row of a run whose own row is on another page does not say it belongs to a run");
+      const hr = hasilRun(rows[1].summary);
+      c.expect(hr.length === 2 && hr[1].alasan === "DECEASED" && hr[0].alasan === null && hasilRun(null).length === 0, `the run's learners read ${JSON.stringify(hr)}`);
+      return c.verdict("executes src/lib/kenaikan.ts and src/lib/jejak-audit.ts: the year reads «2026/27» and a Kelas carries it; a Tingkat reads as a level; the main group is the most common «Naik» destination and every other outcome and every Tingkat learner is an exception; a run's rows fold under its one promotion row by the recorded run id, a stray row says it belongs to a run, and the run's learners are read with their decisions");
     },
   },
 ];
@@ -136,14 +179,21 @@ export const kenaikanAppTests: SelfTest[] = [
       const h1 = await (await admin.halaman("/konfigurasi/rollover")).text();
       c.expect(/data-kenaikan-langkah="kelas"/.test(h1) && h1.includes(`value="${k5}"`), "step 1 does not offer Kelas 5X");
 
-      // 2. every learner, D marked; «Naikkan semua ke 6X» pre-selects
+      // RESTATED (Daisy, TINJAUAN-KENAIKAN-KELAS-DIBANGUN, 9 Nov; #96): «Naikkan semua ke» fills the Kelas's own learners only
+      // (Q1), so D, in the Tingkat without a Kelas, is left for a decision by name; the year is always written (K2); the
+      // review groups the outcome with its exceptions named (Q2); the outcome is checked against the data in one line (K4).
+      const tahunNama = psql(`select name from public.academic_periods where id = ${lit(tahun)}`);
+      const kt = (k: string) => kelasDenganTahun(k, tahunNama);
+      // 2. every learner, D marked; «Naikkan semua ke 6X» pre-selects the Kelas's three, not D
       const h2 = await (await admin.halaman(`/konfigurasi/rollover?kn_kelas=${k5}&kn_tahun=${tahun}&kn_semua=${k6}`)).text();
       const t2 = teks(h2);
+      c.expect(/data-kenaikan-step="2"/.test(h2), "step 2 does not say which step it is");
       c.expect(["A", "B", "C", "D"].every((k) => t2.includes(nama(k))), `step 2 does not list all four learners: ${t2.slice(0, 300)}`);
       c.expect(new RegExp(`data-murid="${d}"[\\s\\S]{0,600}Di Tingkat, belum di kelas`).test(tersusun(h2)), "D is not marked as in the Tingkat without a class");
-      c.expect((tersusun(h2).match(new RegExp(`<option[^>]*value="NAIK:${k6}"[^>]*selected`, "g")) ?? []).length === 4
-        || (tersusun(h2).match(new RegExp(`<option selected=""[^>]*value="NAIK:${k6}"`, "g")) ?? []).length === 4,
-        "«Naikkan semua ke» did not pre-select 6X for all four");
+      const dipilih = (v: string) => (tersusun(h2).match(new RegExp(`<option[^>]*value="${v}"[^>]*selected|<option selected=""[^>]*value="${v}"`, "g")) ?? []).length;
+      c.expect(dipilih(`NAIK:${k6}`) === 3, `«Naikkan semua ke» pre-selected 6X for ${dipilih(`NAIK:${k6}`)}, not the Kelas's three`);
+      c.expect(/data-kenaikan-diterapkan="3"/.test(h2) && /data-kenaikan-hitung="1"/.test(h2) && t2.includes(nama("D")),
+        "the applied line or the live count does not say three were filled and D is left");
       // the exceptions: B repeats straight into 5X ulang, C graduates
       const f2 = formDengan(h2, 'name="k[', { [`k[${a}]`]: `NAIK:${k6}`, [`k[${b}]`]: `TINGGAL:${kul}`, [`k[${cc}]`]: "LULUS", [`k[${d}]`]: `NAIK:${k6}` });
       if (!c.expect(typeof f2 !== "string", `step 2's form: ${f2}`)) return c.verdict("");
@@ -152,12 +202,21 @@ export const kenaikanAppTests: SelfTest[] = [
       if (!c.expect([303, 307].includes(r2.status) && /kn_langkah=tinjau/.test(ke3), `«Tinjau hasil» answered ${r2.status} ${ke3}`)) return c.verdict("");
       c.expect(!/Murid/.test(decodeURIComponent(ke3)), "the address carries a learner's name");
 
-      // 3. the review: each outcome by name; nothing changed yet
+      // 3. the review: the main group, the exceptions by name, the destination's teachers; nothing changed yet
       const h3 = await (await admin.halaman(new URL(ke3, asal).pathname + new URL(ke3, asal).search)).text();
       const t3 = teks(h3);
-      c.expect(t3.includes(`${nama("A")} Naik ke Kelas 6X ${tag}`) && t3.includes(`${nama("B")} Tinggal kelas di Kelas 5X ulang ${tag}`)
-        && t3.includes(`${nama("C")} Lulus`) && t3.includes(`${nama("D")} Naik ke Kelas 6X ${tag}`), `the review does not name each outcome: ${t3.slice(0, 400)}`);
-      c.expect(/data-kenaikan-guru=""/.test(h3), "the review does not show the teachers");
+      const li3 = (p: string) => teks(new RegExp(`<li[^>]*data-murid="${p}"[\\s\\S]*?</li>`).exec(tersusun(h3))?.[0] ?? "");
+      c.expect(/data-kenaikan-step="3"/.test(h3) && /data-kenaikan-utama="2"/.test(h3) && /data-kenaikan-pengecualian="3"/.test(h3),
+        "the review does not group A and D under 6X with B, C and D as the exceptions");
+      c.expect(li3(a).includes(nama("A")) && li3(b).includes(`${nama("B")} · Tinggal kelas di ${kt(`Kelas 5X ulang ${tag}`)}`)
+        && li3(cc).includes(`${nama("C")} · Lulus`) && li3(d).includes(`${nama("D")} · dari Tingkat (belum di kelas) · Naik ke ${kt(`Kelas 6X ${tag}`)}`),
+        `the review does not name each exception with its year: ${[a, b, cc, d].map(li3).join(" | ")}`);
+      c.expect(t3.includes(`2 naik ke ${kt(`Kelas 6X ${tag}`)} · 1 tinggal kelas · ${kt(`Kelas 5X ulang ${tag}`)} · 1 lulus`),
+        `the review's summary: ${t3.slice(0, 400)}`);
+      const guru3 = teks(/data-kenaikan-guru=""[\s\S]*?<\/ul>/.exec(tersusun(h3))?.[0] ?? "");
+      c.expect(guru3.includes(`Kelas 6X ${tag}`) && guru3.includes(`Kelas 5X ulang ${tag}`) && /data-kenaikan-tanpa-guru="2"/.test(h3),
+        `the review does not show the destination Kelas's teachers, or that both have none: ${guru3}`);
+      c.expect(t3.includes("4 murid akan diproses"), "the confirmation sentence does not say how many");
       c.expect(psql(`select count(*) from public.enrollments where academic_period_id = ${lit(tahun)} and person_id in (${[a, b, cc, d].map(lit).join(",")})`) === "0", "the review changed something");
       // a confirmation without the teachers' review is refused by the database, and changes nothing
       const tanpa = formDengan(h3, 'name="guru_ditinjau"', {});
@@ -170,21 +229,42 @@ export const kenaikanAppTests: SelfTest[] = [
       const ke4 = r3.headers.get("location") ?? "";
       if (!c.expect(/kn_langkah=selesai/.test(ke4), `«Konfirmasi» answered ${r3.status} ${ke4}`)) return c.verdict("");
 
-      // 4. the outcome, as the database holds it
-      const t4 = teks(await (await admin.halaman(new URL(ke4, asal).pathname + new URL(ke4, asal).search)).text());
-      c.expect(t4.includes("4 murid diproses") && t4.includes(`${nama("A")} Naik ke Kelas 6X ${tag} Kelas 6X ${tag}`)
-        && t4.includes(`${nama("B")} Tinggal kelas di Kelas 5X ulang ${tag} Kelas 5X ulang ${tag}`) && t4.includes(`${nama("C")} Lulus Lulus`)
-        && t4.includes(`${nama("D")} Naik ke Kelas 6X ${tag} Kelas 6X ${tag}`), `the outcome page: ${t4.slice(0, 500)}`);
+      // 4. the outcome, as the database holds it: one check line, the groups, each learner where they are now
+      const h4 = await (await admin.halaman(new URL(ke4, asal).pathname + new URL(ke4, asal).search)).text();
+      const t4 = teks(h4);
+      const li4 = (p: string) => teks(new RegExp(`<li[^>]*data-murid="${p}"[\\s\\S]*?</li>`).exec(tersusun(h4))?.[0] ?? "");
+      c.expect(t4.includes("4 murid diproses") && t4.includes("Diperiksa dari data PINTAR: semua sesuai.") && !/data-kenaikan-tidak-sesuai/.test(h4),
+        `the outcome's check line: ${t4.slice(0, 300)}`);
+      c.expect(new RegExp(`data-kenaikan-kelompok="NAIK:${k6}"`).test(h4) && new RegExp(`data-kenaikan-kelompok="TINGGAL:${kul}"`).test(h4)
+        && /data-kenaikan-kelompok="LULUS"/.test(h4), "the outcome is not grouped by where each learner went");
+      c.expect(li4(a).includes(`${nama("A")} · ${kt(`Kelas 6X ${tag}`)}`) && li4(d).includes(`${nama("D")} · ${kt(`Kelas 6X ${tag}`)}`)
+        && li4(b).includes(`${nama("B")} · ${kt(`Kelas 5X ulang ${tag}`)}`) && /Pendaftaran berakhir · [^·]+ · lulus/.test(li4(cc)),
+        `the outcome page: ${[a, b, cc, d].map(li4).join(" | ")}`);
+      c.expect(/data-kenaikan-guru-kosong="2"/.test(h4) && !new RegExp(`data-kenaikan-berikut="${k5}"`).test(h4),
+        "the outcome does not name the Kelas still without a teacher, or offers the processed class as the next");
+      // the processed class is marked in step 1 and cannot be chosen again
+      const o5 = new RegExp(`<option[^>]*value="${k5}"[\\s\\S]*?</option>`).exec(tersusun(await (await admin.halaman("/konfigurasi/rollover")).text()))?.[0] ?? "";
+      c.expect(/\bdisabled/.test(o5.split(">")[0]) && teks(o5).includes("sudah dinaikkan"), `step 1 does not mark Kelas 5X as already moved up: ${o5}`);
+      // K1 (Sharon «fold, don't hide»): in Jejak audit the run is one entry naming each learner with the decision, its other rows folded under it
+      const hj = tersusun(await (await admin.halaman("/konfigurasi/audit")).text());
+      const run = new RegExp(`<details[^>]*data-jejak-run="4"[^>]*>[\\s\\S]*?</details>`).exec(hj)?.[0] ?? "";
+      const terkait = Number(/data-jejak-run-terkait="(\d+)"/.exec(run)?.[1] ?? "0");
+      c.expect(run !== "" && teks(run).includes(`${nama("A")} · naik kelas`) && teks(run).includes(`${nama("B")} · tinggal kelas`)
+        && teks(run).includes(`${nama("C")} · lulus`) && teks(run).includes(`${nama("D")} · naik kelas`) && terkait >= 1,
+        `Jejak audit does not show the run as one entry with each learner and its rows folded (${terkait}): ${teks(run).slice(0, 400)}`);
       const db = psql(`select string_agg(p.display_name || '=' || coalesce(n.name, e.status || '/' || coalesce(e.end_reason::text, '')), ',' order by p.display_name)
                          from public.persons p join public.enrollments e on e.person_id = p.id
                          left join public.memberships m on m.enrollment_id = e.id and m.valid_to is null
                          left join public.org_nodes n on n.id = m.node_id
                         where p.id in (${[a, b, cc, d].map(lit).join(",")}) and (e.status in ('PENDING', 'ACTIVE') or e.end_reason = 'COMPLETED')`);
       c.expect(db === `${nama("A")}=Kelas 6X ${tag},${nama("B")}=Kelas 5X ulang ${tag},${nama("C")}=ENDED/COMPLETED,${nama("D")}=Kelas 6X ${tag}`, `the database holds ${db}`);
-      return c.verdict("as Alpha's admin, through the screen: Kelas 5X chosen; all four learners listed, the Tingkat-only one marked; «Naikkan semua ke» pre-selected 6X; " +
-        "the repeat set straight to 5X ulang and the graduate set; the review named each outcome and the teachers and changed nothing; a confirmation " +
-        "without the teachers' review was refused (PROMO_TEACHERS_UNREVIEWED) and changed nothing; the confirmation applied all four and the outcome " +
-        "page names each learner with where they are now, as the database holds it; no name travels in the address");
+      return c.verdict("as Alpha's admin, through the screen (rendered, route): Kelas 5X chosen; all four learners listed, the Tingkat-only one marked; " +
+        "«Naikkan semua ke» pre-selected 6X for the Kelas's three and left D, the live count naming the one undecided; the repeat set straight to 5X " +
+        "ulang and the graduate set; the review grouped A and D under 6X with B, C and D named as exceptions, the year written, the destination's " +
+        "teachers shown, and changed nothing; a confirmation without the teachers' review was refused (PROMO_TEACHERS_UNREVIEWED) and changed " +
+        "nothing; the confirmation applied all four, the outcome said it matched PINTAR's data and grouped each learner with where they are now, " +
+        "as the database holds it; the class was then marked as moved up; Jejak audit showed the run as one entry naming each learner " +
+        "with the decision, the run's other rows folded under it; no name travels in the address");
     },
   },
   {

@@ -1095,6 +1095,13 @@ export type HleEvent =
   | "audit.oleh.tidak_terlihat"
   | "audit.oleh.sekolah_lain"
   | "audit.berlaku"
+  | "audit.kenaikan.bagian"
+  | "audit.kenaikan.ringkas"
+  | "kenaikan.keputusan.naik"
+  | "kenaikan.keputusan.tinggal"
+  | "kenaikan.keputusan.lulus"
+  | "kenaikan.keputusan.keluar"
+  | "kenaikan.keputusan.pindah"
   | "audit.aksi.enrollment.ended_with_reason"
   | "audit.aksi.enrollment.reopened"
   | "audit.aksi.promotion.applied"
@@ -1134,6 +1141,44 @@ export type HleEvent =
   | "config.kembali.akhir.expired"
   | "galat.enrolment_ended"
   | "galat.learner_reenrolled"
+  | "kenaikan.langkah"
+  | "kenaikan.langkah.kelas"
+  | "kenaikan.langkah.keputusan"
+  | "kenaikan.langkah.tinjau"
+  | "kenaikan.kelas.sudah"
+  | "kenaikan.selesai.berikut"
+  | "kenaikan.selesai.sesuai"
+  | "kenaikan.selesai.tidak_sesuai"
+  | "kenaikan.selesai.keputusan"
+  | "kenaikan.selesai.tercatat"
+  | "kenaikan.selesai.periksa"
+  | "kenaikan.selesai.guru_kosong"
+  | "kenaikan.tinjau.pengecualian"
+  | "kenaikan.tinjau.dari_tingkat"
+  | "kenaikan.tinjau.kalimat"
+  | "kenaikan.guru.ke_peran_tab"
+  | "kenaikan.guru.tahu_tanpa"
+  | "kenaikan.guru.semua_ada"
+  | "kenaikan.guru.tanpa_tujuan"
+  | "kenaikan.guru.tanpa_tujuan_centang"
+  | "kenaikan.opsi.lulus_grup"
+  | "kenaikan.opsi.pindah_grup"
+  | "kenaikan.hitung.naik"
+  | "kenaikan.hitung.tinggal"
+  | "kenaikan.hitung.lulus"
+  | "kenaikan.hitung.keluar"
+  | "kenaikan.hitung.pindah"
+  | "kenaikan.hitung.belum"
+  | "kenaikan.hitung.belum_nama"
+  | "kenaikan.murid.pengecualian"
+  | "kenaikan.semua.diterapkan"
+  | "kenaikan.berakhir"
+  | "kenaikan.berakhir.graduated"
+  | "kenaikan.berakhir.withdrawn"
+  | "kenaikan.berakhir.transfer_external"
+  | "kenaikan.berakhir.moved_abroad"
+  | "kenaikan.berakhir.deceased"
+  | "kenaikan.berakhir.other"
   | "kenaikan.intro"
   | "kenaikan.kelas.kosong"
   | "kenaikan.kelas.pilih"
@@ -4816,6 +4861,14 @@ const table: Table = {
   "audit.oleh.tidak_terlihat": { default: "Petugas lain", en: "Another staff member" },
   "audit.oleh.sekolah_lain": { default: "Petugas sekolah lain", en: "Staff member at another school" },
   "audit.berlaku": { default: "berlaku {tanggal}", en: "effective {tanggal}" },
+  // K1 (Daisy, TINJAUAN-KENAIKAN-KELAS-DIBANGUN; Sharon «fold, don't hide»): one kenaikan run, one entry
+  "audit.kenaikan.bagian": { default: "bagian dari satu kenaikan kelas", en: "part of one year-end promotion" },
+  "audit.kenaikan.ringkas": { default: "{n} murid, masing-masing dengan keputusannya · {lain} catatan terkait dilipat di sini", en: "{n} students, each with their decision · {lain} related entries folded here" },
+  "kenaikan.keputusan.naik": { default: "naik kelas", en: "moved up" },
+  "kenaikan.keputusan.tinggal": { default: "tinggal kelas", en: "repeats the year" },
+  "kenaikan.keputusan.lulus": { default: "lulus", en: "graduated" },
+  "kenaikan.keputusan.keluar": { default: "keluar dari sekolah", en: "left the school" },
+  "kenaikan.keputusan.pindah": { default: "tetap sampai perpindahan selesai", en: "stays until the transfer is done" },
   "audit.aksi.enrollment.ended_with_reason": { default: "Pendaftaran murid diakhiri", en: "Student enrolment ended" },
   "audit.aksi.enrollment.reopened": { default: "Murid didaftarkan kembali", en: "Student enrolled again" },
   "audit.aksi.promotion.applied": { default: "Kenaikan kelas diterapkan", en: "Promotion applied" },
@@ -4855,6 +4908,45 @@ const table: Table = {
   "config.kembali.akhir.expired": { default: "Tahun ajaran selesai", en: "School year ended" },
   "galat.enrolment_ended": { default: "Pendaftaran murid sudah diakhiri. Riwayatnya tetap tersimpan.", en: "The student's enrolment has been ended. Their history stays recorded." },
   "galat.learner_reenrolled": { default: "Murid sudah didaftarkan kembali.", en: "The student has been enrolled again." },
+  // Daisy's reconciliation of the build (TINJAUAN-KENAIKAN-KELAS-DIBANGUN, 9 Nov)
+  "kenaikan.langkah": { default: "Langkah {n} dari 3", en: "Step {n} of 3" },
+  "kenaikan.langkah.kelas": { default: "Pilih kelas", en: "Choose the class" },
+  "kenaikan.langkah.keputusan": { default: "Keputusan untuk setiap murid", en: "A decision for each student" },
+  "kenaikan.langkah.tinjau": { default: "Tinjau lalu konfirmasi", en: "Review, then confirm" },
+  "kenaikan.kelas.sudah": { default: "sudah dinaikkan {tanggal}", en: "already moved up {tanggal}" },
+  "kenaikan.selesai.berikut": { default: "Lanjut ke {kelas} (belum diproses)", en: "Continue to {kelas} (not yet processed)" },
+  "kenaikan.selesai.sesuai": { default: "Diperiksa dari data PINTAR: semua sesuai.", en: "Checked against PINTAR's data: everything matches." },
+  "kenaikan.selesai.tidak_sesuai": { default: "{n} murid tidak sesuai:", en: "{n} student(s) do not match:" },
+  "kenaikan.selesai.keputusan": { default: "keputusan", en: "decision" },
+  "kenaikan.selesai.tercatat": { default: "tercatat", en: "recorded" },
+  "kenaikan.selesai.periksa": { default: "Periksa di Murid di kelas.", en: "Check it in Students in a class." },
+  "kenaikan.selesai.guru_kosong": { default: "{n} Kelas tahun {tahun} belum punya guru: {daftar}. Beri perannya di Peran & akses.", en: "{n} class(es) of {tahun} have no teacher yet: {daftar}. Give the role in Roles & access." },
+  "kenaikan.tinjau.pengecualian": { default: "Pengecualian", en: "Exceptions" },
+  "kenaikan.tinjau.dari_tingkat": { default: "dari Tingkat (belum di kelas)", en: "from the Tingkat (not yet in a class)" },
+  "kenaikan.tinjau.kalimat": { default: "{n} murid akan diproses: {ringkas}. Semuanya diterapkan bersama atau tidak sama sekali.", en: "{n} students will be processed: {ringkas}. Everything is applied together or not at all." },
+  "kenaikan.guru.ke_peran_tab": { default: "Buka Peran & akses di tab baru", en: "Open Roles & access in a new tab" },
+  "kenaikan.guru.tahu_tanpa": { default: "Saya tahu {daftar} belum punya guru, dan akan memberikan perannya di Peran & akses.", en: "I know {daftar} have no teacher yet, and will give the role in Roles & access." },
+  "kenaikan.guru.semua_ada": { default: "Semua kelas tujuan sudah punya guru. Saya sudah memeriksanya.", en: "Every destination class has a teacher. I have checked them." },
+  "kenaikan.guru.tanpa_tujuan": { default: "Tidak ada kelas tujuan: setiap murid kelas ini lulus atau keluar.", en: "There is no destination class: every student of this class graduates or leaves." },
+  "kenaikan.guru.tanpa_tujuan_centang": { default: "Saya sudah memeriksa: tidak ada murid yang pindah ke kelas lain.", en: "I have checked: no student moves to another class." },
+  "kenaikan.opsi.lulus_grup": { default: "Lulus", en: "Graduates" },
+  "kenaikan.opsi.pindah_grup": { default: "Pindah ke sekolah lain di PINTAR", en: "Moves to another school on PINTAR" },
+  "kenaikan.hitung.naik": { default: "naik ke {kelas}", en: "up to {kelas}" },
+  "kenaikan.hitung.tinggal": { default: "tinggal kelas", en: "repeat the year" },
+  "kenaikan.hitung.lulus": { default: "lulus", en: "graduate" },
+  "kenaikan.hitung.keluar": { default: "keluar", en: "leave" },
+  "kenaikan.hitung.pindah": { default: "mengikuti perpindahan", en: "follow their transfer" },
+  "kenaikan.hitung.belum": { default: "belum dipilih", en: "not yet chosen" },
+  "kenaikan.hitung.belum_nama": { default: "Belum dipilih:", en: "Not yet chosen:" },
+  "kenaikan.murid.pengecualian": { default: "Pengecualian", en: "Exception" },
+  "kenaikan.semua.diterapkan": { default: "Diterapkan ke {n} murid; {sisa} tidak diubah karena sudah dipilih, ada di Tingkat, atau sedang pindah.", en: "Applied to {n} students; {sisa} left as they were because already chosen, in the Tingkat, or transferring." },
+  "kenaikan.berakhir": { default: "Pendaftaran berakhir", en: "Enrolment ended" },
+  "kenaikan.berakhir.graduated": { default: "lulus", en: "graduated" },
+  "kenaikan.berakhir.withdrawn": { default: "mengundurkan diri", en: "withdrew" },
+  "kenaikan.berakhir.transfer_external": { default: "pindah ke sekolah di luar PINTAR", en: "moved to a school outside PINTAR" },
+  "kenaikan.berakhir.moved_abroad": { default: "pindah ke luar negeri", en: "moved abroad" },
+  "kenaikan.berakhir.deceased": { default: "meninggal dunia", en: "passed away" },
+  "kenaikan.berakhir.other": { default: "alasan lain", en: "another reason" },
   "kenaikan.intro": { default: "Pilih satu kelas. Setiap muridnya, juga murid di Tingkat yang sama yang belum punya kelas, mendapat satu keputusan. Anda meninjau hasilnya lalu mengonfirmasi sekali; semuanya diterapkan bersama atau tidak sama sekali.", en: "Choose one class. Each of its students, and any student of the same Tingkat who has no class yet, gets one decision. You review the outcome, then confirm once; everything is applied together or not at all." },
   "kenaikan.kelas.kosong": { default: "Sekolah ini belum punya kelas aktif dengan tahun ajaran. Buat kelasnya di Struktur sekolah.", en: "This school has no active class with a school year yet. Create it in School structure." },
   "kenaikan.kelas.pilih": { default: "Kelas", en: "Class" },
@@ -4908,7 +5000,7 @@ const table: Table = {
   "kenaikan.kolom.sekarang": { default: "Sekarang", en: "Now" },
   "kenaikan.akhir.completed": { default: "Lulus", en: "Graduated" },
   "kenaikan.akhir.withdrawn": { default: "Keluar", en: "Left" },
-  "kenaikan.akhir.transferred_out": { default: "Pindah sekolah", en: "Transferred" },
+  "kenaikan.akhir.transferred_out": { default: "Pendaftaran berakhir", en: "Enrolment ended" },
   "kenaikan.akhir.expired": { default: "Tahun ajaran selesai", en: "School year ended" },
   "galat.promo_changed": { default: "Kelas ini sudah berubah sejak ditinjau. Buka lagi daftar muridnya dan tinjau ulang.", en: "This class has changed since it was reviewed. Open its list of students again and review it." },
   "galat.promo_undecided": { default: "Masih ada murid yang belum mendapat keputusan.", en: "Some students do not have a decision yet." },

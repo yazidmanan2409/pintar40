@@ -49,3 +49,50 @@ export function alasanAudit(summary: unknown, locale: Locale, persona: Persona =
   const kunciPeran = r ? `role.${r}` : "";
   return { alasan, berlaku, peran: r && ada(kunciPeran) ? t(kunciPeran, persona, { locale }) : null };
 }
+
+/**
+ * K1 (Daisy, TINJAUAN-KENAIKAN-KELAS-DIBANGUN; Sharon: «fold, don't hide»): ONE YEAR-END RUN READS AS ONE ENTRY. A
+ * kenaikan run writes its one promotion.applied row and, beside it, a row for each enrolment it ended or opened; every
+ * one of them carries the run's id (summary.run_id, written by audit_write while the run holds pintar.audit_run). On a
+ * page that holds the run's own row, the rows of the same run are folded under it, counted, never dropped; a row whose
+ * run's own row is on another page is drawn as itself and says it belongs to a run. Linked by the recorded id only,
+ * never by time.
+ */
+export type BarisJejak = { id: string | number; action: string | null; summary: unknown };
+export type HasilLipat<T extends BarisJejak> = { baris: T[]; anak: Map<T["id"], T[]>; bagianRun: Set<T["id"]> };
+
+const runDari = (summary: unknown): string | null => {
+  const s = summary && typeof summary === "object" && !Array.isArray(summary) ? (summary as Record<string, unknown>) : {};
+  return typeof s.run_id === "string" && s.run_id ? s.run_id : null;
+};
+
+export function lipatKenaikan<T extends BarisJejak>(rows: T[]): HasilLipat<T> {
+  const induk = new Map<string, T>();
+  for (const r of rows) {
+    const run = runDari(r.summary);
+    if (run && r.action === "promotion.applied" && !induk.has(run)) induk.set(run, r);
+  }
+  const anak = new Map<T["id"], T[]>();
+  const bagianRun = new Set<T["id"]>();
+  const baris: T[] = [];
+  for (const r of rows) {
+    const run = runDari(r.summary);
+    const p = run ? induk.get(run) : undefined;
+    if (run && p && p !== r) { anak.set(p.id, [...(anak.get(p.id) ?? []), r]); continue; }
+    if (run && !p) bagianRun.add(r.id);
+    baris.push(r);
+  }
+  return { baris, anak, bagianRun };
+}
+
+/** The learners a promotion.applied row names (its summary's outcomes), each with the decision as written. */
+export type HasilRun = { person_id: string; keputusan: string; alasan: string | null };
+export function hasilRun(summary: unknown): HasilRun[] {
+  const s = summary && typeof summary === "object" && !Array.isArray(summary) ? (summary as Record<string, unknown>) : {};
+  const o = Array.isArray(s.outcomes) ? s.outcomes : [];
+  return o.flatMap((x) => {
+    const h = x && typeof x === "object" ? (x as Record<string, unknown>) : {};
+    return typeof h.person_id === "string" && typeof h.keputusan === "string"
+      ? [{ person_id: h.person_id, keputusan: h.keputusan, alasan: typeof h.alasan === "string" ? h.alasan : null }] : [];
+  });
+}

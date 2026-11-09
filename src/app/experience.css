@@ -3826,6 +3826,15 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-kenaikan-nama { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); color: var(--ink-1); }
 .pin-kenaikan-centang { display: flex; align-items: flex-start; gap: var(--space-2); color: var(--ink-1); }
 .pin-kenaikan-terapkan { align-self: end; }
+/* Daisy's reconciliation (9 Nov): the live count, an exception's left rule (the reports' marked row), the outcome groups */
+.pin-kenaikan-hitung { margin: 0; color: var(--ink-1); font-weight: var(--weight-strong); }
+.pin-kenaikan-baris[data-pengecualian] { border-left: 3px solid var(--pintar-primary); padding-left: var(--space-2); background: var(--pintar-primary-soft); }
+.pin-kenaikan-kelompok { display: grid; gap: var(--space-1); }
+/* 320 px: a decision's select is as wide as its longest option; every column here may shrink to the screen */
+.pin-kenaikan, .pin-kenaikan-label, .pin-kenaikan-murid, .pin-kenaikan-kelompok { grid-template-columns: minmax(0, 1fr); }
+.pin-kenaikan > *, .pin-kenaikan-baris > *, .pin-kenaikan-baris label { min-width: 0; max-width: 100%; }
+.pin-kenaikan-baris select { max-width: 100%; }
+.pin-kenaikan-kelompok > summary { cursor: pointer; color: var(--ink-1); font-weight: var(--weight-strong); min-height: 44px; display: flex; align-items: center; }
 
 /* W2.21 «Akhiri penugasan»: the panel opened from one material's row on the class page (tokens only) */
 .pin-akhiri { border-top: var(--border-hairline) solid var(--line); padding-top: var(--space-5); }

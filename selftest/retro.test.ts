@@ -391,8 +391,12 @@ export const retroTests: SelfTest[] = [
 
       // E-P17: no disclosure around required content. Each disclosure on a screen is declared with what it holds;
       // a new one must be declared here, which is the review the rule asks for
-      const BOLEH: Record<string, string> = {
-        "src/app/konfigurasi/page.tsx": "a mastery mark's change history, under its current value",
+      const BOLEH: Record<string, string | string[]> = {
+        "src/app/konfigurasi/page.tsx": ["a mastery mark's change history, under its current value",
+          // K1 (Daisy, TINJAUAN-KENAIKAN-KELAS-DIBANGUN; Sharon «fold, don't hide»): the row states the run and its count
+          "a year-end run's learners and their decisions in Jejak audit, under the run's one row that states how many"],
+        // Q2 (Daisy, the same review): the exceptions are always shown and the count is in the summary line
+        "src/components/kenaikan/KenaikanKelas.tsx": "the review's main group's names, under its count; every exception is always shown",
         "src/app/pimpinan/page.tsx": "one class's evidence, a drill-down under the node's figures",
         "src/app/belajar/[tugas]/hasil/page.tsx": "an answered question's review; a wrong safety-critical one opens itself",
         "src/app/studio/bank/page.tsx": "a finding's locations, under the finding",
@@ -405,7 +409,7 @@ export const retroTests: SelfTest[] = [
         const n = (readFileSync(f, "utf8").match(/<details\b/g) ?? []).length;
         if (n > 0) ada.set(rel, n);
       }
-      for (const [f, n] of ada) c.expect(f in BOLEH && n === 1, `${f}: ${n} disclosure(s) not declared (E-P17: no disclosure around required content)`);
+      for (const [f, n] of ada) c.expect(f in BOLEH && n === [BOLEH[f]].flat().length, `${f}: ${n} disclosure(s) not declared (E-P17: no disclosure around required content)`);
       for (const f of Object.keys(BOLEH)) c.expect(ada.has(f), `${f} is declared but draws no disclosure: remove its line`);
       return c.verdict(`reads the decision log (DECISIONS.md), the design hand-off list (06-ENGINEERING-ITEMS-FROM-DESIGN.md), the manifest, every test file and every walk: each of the ${putusan.length} rulings from D-166 is reconciled to the obligations that carry it (or why none); each of the ${baris.length} engineering items is named by a test, held by named tests or files, or blocked on a named decider, and says where it is implemented (D-180); and every disclosure under src/app and src/components (${ada.size}) is declared with what it holds (E-P17)`);
     },

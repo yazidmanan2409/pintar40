@@ -29,7 +29,7 @@ import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
 import { navKonteks } from "@/components/NavKonteks";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
 import ItemNav from "@/components/ItemNav";
-import { alasanAudit, kataAksiAudit, kataTabelAudit } from "@/lib/jejak-audit";
+import { alasanAudit, hasilRun, kataAksiAudit, kataTabelAudit, lipatKenaikan } from "@/lib/jejak-audit";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { melayani } from "@/lib/konteks";
 import { redirect } from "next/navigation";
@@ -602,11 +602,15 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const tampilDi = (bagian: string) => bagianIni === bagian && tampil(bagian);
   if (bagianIni !== null && !tampil(bagianIni)) redirect("/konfigurasi");
   // B1 / RV-24: the audit trail's page, and whether any row on it carries a build («Versi», Admin platform's alone)
-  const barisJejak = (audit ?? []).slice(0, UKURAN_JEJAK);
+  // K1 (Daisy; Sharon «fold, don't hide»): a kenaikan run's own rows fold under its one row, by the recorded run id
+  const lipat = lipatKenaikan((audit ?? []).slice(0, UKURAN_JEJAK));
+  const barisJejak = lipat.baris;
   const adaVersi = platformIni && barisJejak.some((r) => Boolean(r.build_sha));
   // E7 (owner, 9 Nov): who acted, by their name where the reader may see the person, and in what role (the row's own
   // actor_role); a row with no actor is the system's
-  const idPelaku = [...new Set(barisJejak.map((r) => r.actor_person_id as string | null).filter((x): x is string => Boolean(x)))];
+  const idPelaku = [...new Set([...barisJejak.map((r) => r.actor_person_id as string | null),
+    ...barisJejak.filter((r) => r.action === "promotion.applied").flatMap((r) => hasilRun(r.summary).map((h) => h.person_id))]
+    .filter((x): x is string => Boolean(x)))];
   const { data: pelakuRows } = idPelaku.length && tampilDi("audit")
     ? await supabase.from("persons").select("id, display_name").in("id", idPelaku)
     : { data: [] as Array<{ id: string; display_name: string }> };
@@ -1902,7 +1906,23 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                             // Sharon (ruling 8 on 7a2c1751): on a transfer row the unnamed actor is the other school's
                             || s(String(r.action).startsWith("transfer.") ? "audit.oleh.sekolah_lain" : "audit.oleh.tidak_terlihat")
                             : s("audit.oleh.sistem")}</td>
-                          <td data-jejak-alasan="">{[a.alasan, a.berlaku ? s("audit.berlaku").replace("{tanggal}", when(a.berlaku, "baca")) : null].filter(Boolean).join(" · ") || ""}</td>
+                          <td data-jejak-alasan="">{[a.alasan, a.berlaku ? s("audit.berlaku").replace("{tanggal}", when(a.berlaku, "baca")) : null,
+                            lipat.bagianRun.has(r.id) ? s("audit.kenaikan.bagian") : null].filter(Boolean).join(" · ") || ""}
+                            {r.action === "promotion.applied" ? (() => {
+                              // K1: each learner of the run by name with the decision, and the run's other rows counted
+                              const hs = hasilRun(r.summary);
+                              const lain = lipat.anak.get(r.id)?.length ?? 0;
+                              return hs.length ? (
+                                <details className="pin-disclosure mt-1" data-jejak-run={hs.length} data-jejak-run-terkait={lain}>
+                                  <summary className="cursor-pointer text-ink-3">{s("audit.kenaikan.ringkas").replace("{n}", String(hs.length)).replace("{lain}", String(lain))}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
+                                  <ul className="mt-1 grid gap-1 text-ink-2">{hs.map((h) => (
+                                    <li key={h.person_id} data-murid={h.person_id}>{namaPelaku.get(h.person_id) ?? TANPA_NAMA} · {
+                                      h.keputusan === "KELUAR" && h.alasan ? s(`kenaikan.alasan.${h.alasan.toLowerCase()}` as HleEvent)
+                                        : s(`kenaikan.keputusan.${h.keputusan.toLowerCase()}` as HleEvent)}</li>
+                                  ))}</ul>
+                                </details>
+                              ) : null;
+                            })() : null}</td>
                         </>);
                       })()}
                       {adaVersi ? <td className="pin-num text-ink-3">{r.build_sha ? short(r.build_sha) : ""}</td> : null}

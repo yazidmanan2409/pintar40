@@ -105,12 +105,34 @@ $$;
 revoke all on function public.kenaikan_rencana(uuid) from public, anon, authenticated;
 grant execute on function public.kenaikan_rencana(uuid) to authenticated, service_role;
 
+-- CORRECTED IN PLACE (undeployed; Daisy's reconciliation K1 and Sharon, 9 Nov: «fold, don't hide»): A RUN NAMES ITSELF.
+-- audit_write adds the transaction's run id (pintar.audit_run, set only by kenaikan_tetapkan for the length of its run)
+-- to every row written while it is set, so the run's endings, placements and ended sittings each stay findable on their
+-- own and fold under the run's one promotion.applied row by a recorded link, never by time. Replaced from its own
+-- definition, that one block added before the actor-role line, so nothing else in audit_write moves.
+do $$
+declare v_def text := pg_get_functiondef('public.audit_write(text,text,text,uuid,jsonb)'::regprocedure);
+        v_anker text := '  -- ADDED BY D-093 T2: the role the acting person holds';
+begin
+  if position(v_anker in v_def) = 0 then raise exception 'K1: audit_write''s actor-role line is not where it was'; end if;
+  execute replace(v_def, v_anker,
+    '  -- ADDED IN 20270112210000 (K1): the run this row belongs to, when one is under way' || E'\n'
+    || '  if nullif(current_setting(''pintar.audit_run'', true), '''') is not null and not (v_summary ? ''run_id'') then' || E'\n'
+    || '    v_summary := v_summary || jsonb_build_object(''run_id'', current_setting(''pintar.audit_run'', true));' || E'\n'
+    || '  end if;' || E'\n' || v_anker);
+end $$;
+
 create or replace function public.kenaikan_tetapkan(p_kelas uuid, p_tahun_baru uuid, p_keputusan jsonb,
                                                     p_guru_ditinjau boolean, p_terapkan boolean)
 returns jsonb language plpgsql volatile security definer set search_path = public, pg_temp as $$
 declare k record; d record; en record; v_tj uuid; v_tjn text; v_terbuka int; v_hasil jsonb := '[]'::jsonb; v_kurang text; v_new uuid;
-        v_keputusan jsonb := coalesce(p_keputusan, '[]'::jsonb); v_n int;
+        v_keputusan jsonb := coalesce(p_keputusan, '[]'::jsonb); v_n int; v_run uuid;
 begin
+  -- K1: the run's id, carried by every row it writes (cleared at its end; a refused run rolls it back with its rows)
+  if p_terapkan then
+    v_run := gen_random_uuid();
+    perform set_config('pintar.audit_run', v_run::text, true);
+  end if;
   select n.id, n.name, n.institution_id, n.academic_period_id, n.kind, ap.starts_on into k
     from public.org_nodes n left join public.academic_periods ap on ap.id = n.academic_period_id where n.id = p_kelas;
   if k.id is null or not public.has_scope('INSTITUTION_ADMIN', k.id) then
@@ -221,6 +243,7 @@ begin
                          'learners', v_n, 'outcomes',
                          (select jsonb_agg(h - 'nama' - 'kelas_tujuan_nama') from jsonb_array_elements(v_hasil) h)));
   end if;
+  if p_terapkan then perform set_config('pintar.audit_run', '', true); end if;
   return jsonb_build_object('diterapkan', p_terapkan and v_n > 0, 'hasil', v_hasil);
 end;
 $$;
@@ -241,20 +264,46 @@ begin
    where l.action = 'promotion.applied' and l.target_table = 'org_nodes' and l.target_id = p_kelas::text
    order by l.at desc, l.id desc limit 1;
   if a.at is null then return null; end if;
-  return jsonb_build_object('pada', a.at, 'hasil', coalesce((
-    select jsonb_agg(jsonb_build_object(
+  -- CORRECTED IN PLACE (undeployed; Daisy's reconciliation Q3 and K1): what the outcome page says. Per learner: the
+  -- destination with its year, where they are now (id and name) and whether that matches the decision (sesuai); for a
+  -- departure, how and when the enrolment ended and the reason given. For the run: its id, and each destination Kelas
+  -- of the new year that has no teacher now.
+  return jsonb_build_object('pada', a.at, 'run_id', a.summary ->> 'run_id',
+    'guru_kosong', coalesce((
+      select jsonb_agg(distinct n.name) from jsonb_array_elements(a.summary -> 'outcomes') o
+        join public.org_nodes n on n.id::text = o ->> 'kelas_tujuan'
+       where o ->> 'keputusan' in ('NAIK', 'TINGGAL') and jsonb_array_length(public.kenaikan_guru(n.id)) = 0), '[]'::jsonb),
+    'hasil', coalesce((
+    select jsonb_agg(x.v order by x.v ->> 'nama') from (
+      select jsonb_build_object(
              'person_id', o ->> 'person_id', 'nama', p.display_name, 'keputusan', o ->> 'keputusan',
-             'kelas_tujuan_nama', (select n.name from public.org_nodes n where n.id::text = o ->> 'kelas_tujuan'),
+             'kelas_tujuan', o ->> 'kelas_tujuan',
+             'kelas_tujuan_nama', tj.name, 'tahun_tujuan', tap.name,
              'alasan', o ->> 'alasan',
-             'kelas_sekarang', (select string_agg(n.name, ', ' order by n.name) from public.enrollments e
-                                  join public.memberships m on m.enrollment_id = e.id and m.valid_to is null
-                                  join public.org_nodes n on n.id = m.node_id and n.kind = 'CLASS'
-                                 where e.person_id = p.id and e.institution_id = k.institution_id and e.status in ('PENDING', 'ACTIVE')),
-             'akhir', (select e.end_reason::text from public.enrollments e
-                        where e.person_id = p.id and e.institution_id = k.institution_id
-                        order by e.created_at desc limit 1))
-           order by p.display_name)
-      from jsonb_array_elements(a.summary -> 'outcomes') o join public.persons p on p.id::text = o ->> 'person_id'), '[]'::jsonb));
+             'kelas_sekarang', sk.nama, 'kelas_sekarang_id', sk.ids,
+             'akhir', ak.end_reason, 'akhir_pada', to_char(ak.valid_to at time zone public.zona_sekolah(k.institution_id), 'YYYY-MM-DD'),
+             'akhir_alasan', ak.reason_code,
+             'sesuai', case
+               when o ->> 'keputusan' in ('NAIK', 'TINGGAL') then coalesce(sk.ids @> array[o ->> 'kelas_tujuan'], false)
+               when o ->> 'keputusan' = 'LULUS' then ak.end_reason = 'COMPLETED' and sk.ids is null
+               when o ->> 'keputusan' = 'KELUAR' then ak.end_reason in ('WITHDRAWN', 'TRANSFERRED_OUT') and sk.ids is null
+               else true end) as v
+        from jsonb_array_elements(a.summary -> 'outcomes') o
+        join public.persons p on p.id::text = o ->> 'person_id'
+        left join public.org_nodes tj on tj.id::text = o ->> 'kelas_tujuan'
+        left join public.academic_periods tap on tap.id = tj.academic_period_id
+        left join lateral (select string_agg(n.name, ', ' order by n.name) as nama, array_agg(n.id::text) as ids
+                             from public.enrollments e
+                             join public.memberships m on m.enrollment_id = e.id and m.valid_to is null
+                             join public.org_nodes n on n.id = m.node_id and n.kind = 'CLASS'
+                            where e.person_id = p.id and e.institution_id = k.institution_id and e.status in ('PENDING', 'ACTIVE')) sk on true
+        left join lateral (select e.end_reason::text as end_reason, e.valid_to,
+                                  (select l.summary ->> 'reason_code' from public.audit_log l
+                                    where l.action = 'enrollment.ended_with_reason' and l.target_id = e.id::text
+                                    order by l.id desc limit 1) as reason_code
+                             from public.enrollments e
+                            where e.person_id = p.id and e.institution_id = k.institution_id
+                            order by e.created_at desc limit 1) ak on true) x), '[]'::jsonb));
 end;
 $$;
 revoke all on function public.kenaikan_hasil(uuid) from public, anon, authenticated;

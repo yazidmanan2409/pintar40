@@ -66,3 +66,51 @@ export function dariForm(entries: Iterable<[string, FormDataEntryValue]>): Keput
   }
   return out;
 }
+
+/**
+ * DAISY'S RECONCILIATION (TINJAUAN-KENAIKAN-KELAS-DIBANGUN, 9 Nov): one year format and the year always written.
+ * «TA 2026/2027» and «2026/2027» read «2026/27»; anything else is left as the school wrote it.
+ */
+export function tahunPendek(nama: string | null | undefined): string {
+  const m = /(\d{4})\s*\/\s*(\d{2,4})/.exec(nama ?? "");
+  return m ? `${m[1]}/${m[2].slice(-2)}` : (nama ?? "");
+}
+
+/** A Kelas with its year, never relative: «Kelas 6A · 2027/28». */
+export function kelasDenganTahun(kelas: string, tahun: string | null | undefined): string {
+  const t = tahunPendek(tahun);
+  return t ? `${kelas} · ${t}` : kelas;
+}
+
+/** K2: the level as a level, «Tingkat 5», whatever the school named its Tingkat node («Kelas 5», «Tingkat 5», «5»). */
+export function namaTingkat(nama: string | null | undefined): string | null {
+  if (!nama) return null;
+  // the year is written once, by the heading itself: a Tingkat named «Tingkat 5 — 2026/27» reads «Tingkat 5»
+  const inti = nama.replace(/^\s*(kelas|tingkat|grade|level)\s+/i, "").replace(/\s*[—–-]?\s*(TA\s*)?\d{4}\s*\/\s*\d{2,4}\s*$/i, "").trim();
+  return inti ? `Tingkat ${inti}` : nama;
+}
+
+/** An outcome's group: the same destination and kind together («NAIK:<kelas>», «TINGGAL:<kelas>», «LULUS», «KELUAR», «PINDAH»). */
+export type HasilKelompok = { keputusan: Keputusan; kelas_tujuan?: string | null; sumber?: string | null; person_id: string };
+export function kunciKelompok(h: HasilKelompok): string {
+  return h.keputusan === "NAIK" || h.keputusan === "TINGGAL" ? `${h.keputusan}:${h.kelas_tujuan ?? ""}` : h.keputusan;
+}
+
+/**
+ * Q2 (Daisy): the main group is the most common «Naik» destination; every other outcome, and every learner who came
+ * from the Tingkat without a Kelas, is an exception, named and always shown. Groups keep the order of first appearance.
+ */
+export function kelompokkan<T extends HasilKelompok>(hasil: T[]): { utama: string | null; pengecualian: T[]; kelompok: Array<{ kunci: string; isi: T[] }> } {
+  const hitung = new Map<string, number>();
+  for (const h of hasil) if (h.keputusan === "NAIK") hitung.set(kunciKelompok(h), (hitung.get(kunciKelompok(h)) ?? 0) + 1);
+  let utama: string | null = null;
+  for (const [k, n] of hitung) if (utama === null || n > (hitung.get(utama) ?? 0)) utama = k;
+  const kelompok: Array<{ kunci: string; isi: T[] }> = [];
+  for (const h of hasil) {
+    const k = kunciKelompok(h);
+    const g = kelompok.find((x) => x.kunci === k);
+    if (g) g.isi.push(h); else kelompok.push({ kunci: k, isi: [h] });
+  }
+  const pengecualian = hasil.filter((h) => kunciKelompok(h) !== utama || h.sumber === "TINGKAT");
+  return { utama, pengecualian, kelompok };
+}
