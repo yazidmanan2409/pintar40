@@ -106,6 +106,40 @@ Do this for Guru, Kepala departemen, Dekan and Admin sekolah.
 1. Leave the lesson untouched for 5 minutes.
    - Expected: the warning before the lock is spoken. After the lock, «PINTAR terkunci» is spoken, and the PIN field is labelled and resumes the same page.
 
+### S9 · The reports after the Reporting Quality Gate (9 Nov; the owner will not waive this check)
+
+Run on the report world the walk uses (`audit/fixtures/laporan-lokal.mjs` on a local stack, or wherever the owner says;
+staging is not authorised for this gate). Stage one real recalculation first, as in §13 of the reporting matrix (a
+corrected key, then `recompute_result` as a platform admin), so S9.6–S9.7 have something to read. Record the candidate SHA.
+
+1. **Guru, Ringkasan Kelas 5C, section A.** Read the opening sentence.
+   - Expected: «… dari … topik yang punya angka …», then the withheld topics in their own sentence («… topik lainnya
+     belum dapat ditampilkan, jadi belum diketahui apakah sudah mencapai target»). Ask: «How many topics have a figure,
+     and how many do not?» The tester answers from the speech alone.
+2. **Same page, the chapter rows (section B).** Move through the list.
+   - Expected: each row reads «[chapter] [percent] (di bawah target) · [n] murid», with «di bawah target» heard right
+     after the percentage, never after the number of students. A withheld chapter reads «Belum cukup data: …».
+3. **Same page on a phone (TalkBack), the topic grid (Pimpinan, Kepala departemen).** Swipe through the stacked blocks.
+   - Expected: each topic is read once, then each class with its figure and «di bawah target» where it applies, or «—».
+     The figures are not read twice (the table is hidden at this width).
+4. **Admin sekolah, Ringkasan Sekolah.** Section A with every objective withheld, and the safety gate.
+   - Expected: «Sudah ada hasil untuk … tujuan pembelajaran, tetapi belum ada yang dapat ditampilkan», then each reason
+     on its own («… di antaranya …»). The gate reads «Dari hasil Uji Penguasaan yang memuat soal wajib, baru … murid;
+     perlu …» and the results set apart; never a percentage. The last step points to «Bagian D di atas».
+5. **A withheld figure** (Pemahaman in 5C, or the school's Kenaikan). Read the card.
+   - Expected: one explanation with its reason and how many sat; no second «muncul setelah …» line.
+6. **Guru, the recalculated learner's page («Catatan belajar»).** Read «Hasil resmi».
+   - Expected: right after the recalculated figure, the note with both figures (latest and original) and «Alasan yang
+     dicatat: …»; then the target.
+7. **The learner (class card), the recalculated chapter's «Hasil».** Read from the top to the first question.
+   - Expected, in this order: «Penguasaan [p]», «Terjawab tepat [n] dari [m] soal», the notice «Hasil ini kemudian dihitung
+     ulang. … tetap seperti semula …», then under «Tinjau kembali» the note «Tanda «Sudah tepat» dan «Belum tepat» … bisa
+     berbeda dari hasil di atas (n dari m soal tepat). Hasil di atas dan sertifikat Anda tetap seperti semula.», then
+     question 1 with its mark. No «disegel». Ask: «Did your result or your certificate change?» The answer must be no.
+8. **The same, in English (EN).**
+   - Expected: «students» (never «learners») in the reports; the learner's notes say «stay as they were» and name the
+     marks «That is right» and «Not right yet».
+
 ---
 
 ## 4 · The result
@@ -114,5 +148,5 @@ Write the session to `docs/completion-4.0/acceptance/sessions/<date>-<reader>-<i
 - the versions;
 - every step with Heard and OK/Issue.
 
-W6.12 closes for that reader when S1–S8 have no A and no B finding. Each A or B finding becomes an engineering item with
+W6.12 closes for that reader when S1–S9 have no A and no B finding. The Reporting Quality Gate needs S5, S6 and S9 on the gate's candidate SHA, with NVDA and with TalkBack. Each A or B finding becomes an engineering item with
 its step id, and the step is run again after the fix.
