@@ -109,7 +109,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
 begin
   perform selftest.as_owner();
   begin
@@ -647,6 +647,39 @@ begin
       s05 := s05 || format('the number was stamped %s, the transaction''s start (%s), not its moment of issue', v_terbit, now());
     end if;
 
+    -- N01 (the demonstration; Daisy; owner, 9 Nov): a rollover that moves nobody writes no audit event; a refused one
+    -- changes nothing; a run that moves learners says how many in its audit row
+    insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+    values (v_inst, 'F37 tahun depan ' || v_tag, current_date + 300, current_date + 600) returning academic_periods.id into v_p2;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_proga, 'COHORT', 'Angkatan F37 tahun depan ' || v_tag, v_p2) returning org_nodes.id into v_coh2;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_coha, 'CLASS', 'Kelas F37 kosong ' || v_tag, v_period) returning org_nodes.id into v_kosong;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_coh2, 'CLASS', 'Kelas F37 baru ' || v_tag, v_p2) returning org_nodes.id into v_baru;
+    select count(*) into v_n from public.audit_log a where a.action = 'period.rollover' and a.target_id = v_p2::text;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.period_rollover(%L, %L, %L, %L::jsonb)', v_inst, v_period, v_p2,
+                                  jsonb_build_array(jsonb_build_object('from_node', v_kosong, 'to_node', v_baru))));
+    select count(*) into v_cnt from public.audit_log a where a.action = 'period.rollover' and a.target_id = v_p2::text;
+    if v_got <> 'OK' then n01 := n01 || ('the empty rollover was refused: ' || v_got);
+    elsif v_cnt <> v_n then n01 := n01 || 'a rollover that moved nobody wrote a «Tahun ajaran dilanjutkan» audit event'::text; end if;
+    -- refused (a destination outside the target year): nothing changes, nothing is audited
+    select count(*) into v_n from public.memberships m where m.node_id in (v_kosong, v_baru, c_a);
+    v_got := selftest.f37_sebagai(u_admin, format('select public.period_rollover(%L, %L, %L, %L::jsonb)', v_inst, v_period, v_p2,
+                                  jsonb_build_array(jsonb_build_object('from_node', c_a, 'to_node', c_b))));
+    select count(*) into v_cnt from public.memberships m where m.node_id in (v_kosong, v_baru, c_a);
+    if v_got = 'OK' then n01 := n01 || 'a rollover into a class of the wrong year was accepted'::text; end if;
+    if v_cnt <> v_n then n01 := n01 || 'a refused rollover changed memberships'::text; end if;
+    -- a run that moves learners says how many
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_coha, 'CLASS', 'Kelas F37 berisi ' || v_tag, v_period) returning org_nodes.id into v_isi;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_coh2, 'CLASS', 'Kelas F37 baru dua ' || v_tag, v_p2) returning org_nodes.id into v_baru2;
+    insert into public.persons (display_name) values ('Murid F37 naik ' || v_tag) returning persons.id into v_pp;
+    insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_pp, v_inst, v_period, 'ACTIVE') returning enrollments.id into v_ex;
+    insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_ex, v_isi, v_period);
+    v_got := selftest.f37_sebagai(u_admin, format('select public.period_rollover(%L, %L, %L, %L::jsonb)', v_inst, v_period, v_p2,
+                                  jsonb_build_array(jsonb_build_object('from_node', v_isi, 'to_node', v_baru2))));
+    select (a.summary ->> 'moved')::int into v_cnt from public.audit_log a where a.action = 'period.rollover' and a.target_id = v_p2::text
+     order by a.id desc limit 1;
+    if v_got <> 'OK' then n01 := n01 || ('the rollover of one learner was refused: ' || v_got);
+    elsif v_cnt is distinct from 1 then n01 := n01 || format('the rollover of one learner audited moved = %s, not 1', coalesce(v_cnt::text, 'nothing')); end if;
+
     raise exception 'f37-rollback';
   exception when others then
     perform selftest.as_owner();
@@ -692,6 +725,8 @@ begin
        'two schools whose latest numbers share a timestamp: neither onboards the person; the newest number''s school inactive: nobody onboards, and the older school does not inherit'),
       ('F37-S05', 'System Integrity, chain D: a registration is stamped when it is issued (Sharon, 0b60b012)', s05,
        'a number issued late in a long transaction is stamped at its moment of issue, after the transaction began'),
+      ('F37-N01', 'Year-end: a rollover that moves nobody is not audited; a refused one changes nothing; a real one counts', n01,
+       'an empty class rolled over writes no audit event; a mapping into the wrong year is refused and changes no membership; a rollover of one learner audits moved = 1'),
       ('F37-S01', 'System Integrity, chain D: a school''s account-level power follows its current placement (SI-D03)', s01,
        'a former school''s admin cannot reset the recovery of a learner who transferred or withdrew (42501; the session kept); the current school can (sessions ended); a person placed at two schools is assisted by either; another school''s admin, a Guru and a Kepala departemen are refused; registration numbers and ended enrollments are kept'),
       ('F37-S02', 'System Integrity, chain D: every credential path follows the current placement or onboarding (SI-D03)', s02,

@@ -4842,6 +4842,11 @@
       "proves": "SI-D03 (Sharon's review of 0b60b012): issue_institutional_id stamps a registration at its moment of issue (clock_timestamp, after its locks), not at the start of its transaction, so the onboarding rule's newest registration is the one committed last; a number issued late in a long transaction is stamped after the transaction began (selftest/db/fable37.sql)."
     },
     {
+      "id": "F37-N01",
+      "runner": "db",
+      "proves": "Year-end rollover (the Kelas 5 to 6 demonstration; Daisy's design; owner, 9 Nov): period_rollover writes no audit event when it moves nobody (an empty class), and records how many learners it moved (moved) when it moves some; a mapping into a class of the wrong year is refused and changes no membership (selftest/db/fable37.sql)."
+    },
+    {
       "id": "F37-R01",
       "runner": "db",
       "proves": "SI-D02 (System Integrity, 9 Nov) under real concurrency (runAttemptLimitRace in selftest/run.ts) against supabase/migrations/20270112120000_one_start_at_a_time.sql; strengthened after Sharon's review of 89374424 (finding 2), so it tells a correct fix from one that counts before it locks. A learner one attempt short of an assignment's attempt_limit, chosen from the world and allowed to start by may_start_assessment, starts on connection A, which holds its transaction open and then COMMITS. Connection B's start waits on the per-(learner, assignment) advisory lock while A holds, and after A's commit is refused ATTEMPT_LIMIT_REACHED; the learner then holds exactly attempt_limit sittings. A's sitting and the rows its start wrote are removed afterwards (the test's own rows, triggers suspended for that teardown; audit rows stay). The migration's verification block also checks that the lock is taken before may_start_assessment is called."
