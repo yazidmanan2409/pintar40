@@ -1741,9 +1741,11 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 <li key={a.id} id={`peran-${a.id}`} data-terbuka={ubah === a.id ? "" : undefined}
                   className={`flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 rounded-[var(--radius-1)] px-3 py-2 ${ubah === a.id ? "bg-surface-2" : "border-b border-line-1"}`}>
                   <span>
-                    {/* E5 and §11 (owner, 9 Nov): the name opens the person's page, where their roles change or end at this school */}
+                    {/* E5 and §11 (owner, 9 Nov): the name opens the person's page, where their roles change or end at this school. The
+                        product's own text link (colour, weight and underline), since axe's link-in-text-block judged the quiet one
+                        indistinct inside the row's sentence (journeys run 42701288416, RB1-B1) */}
                     {a.scope_node_id && a.person_id !== viewer.personId
-                      ? <Link href={`/konfigurasi/staf?orang=${a.person_id}`} className={tautanTempat} data-staf-buka={a.person_id}>{personName.get(a.person_id) ?? TANPA_NAMA}</Link>
+                      ? <Link href={`/konfigurasi/staf?orang=${a.person_id}`} className="pin-tautan" data-staf-buka={a.person_id}>{personName.get(a.person_id) ?? TANPA_NAMA}</Link>
                       : (personName.get(a.person_id) ?? TANPA_NAMA)} · {roleLabel(a.role)}
                     <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? TANPA_NAMA : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {when(a.valid_until, "baca")}</span>
                   </span>
