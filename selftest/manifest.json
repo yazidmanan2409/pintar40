@@ -4182,6 +4182,11 @@
       "proves": "E5 and §11 read from their sources (selftest/b5.test.ts against the migration 20270113120000, src/lib/staf-kontrak.ts, src/app/konfigurasi/staf/actions.ts and page.tsx): staf_tolak's codes are exactly KODE_STAF_DB, each raised and read back by its PR130 DETAIL; E5's categories are akhiri_tugas_staf's own list and order; every code, category and responsibility, including every capability the registry migration names, has words in the copy table in both languages naming no machinery; both actions ask the working context before acting; the review is a GET render answered by ubah_peran with apply false, the confirmation posts the review's fingerprint, and «Akhiri tugas» asks a category and a date no later than today."
     },
     {
+      "id": "AKUN-K01",
+      "runner": "static",
+      "proves": "§5b and L1–L4 read from their sources (selftest/b5.test.ts against the migration 20270113130000, src/lib/akun-kontrak.ts, src/app/akun and src/components/akun/MeninggalkanPintar.tsx): akun_tolak's codes are exactly KODE_AKUN_DB, each raised and read back by its PR140 DETAIL; the suspension's categories are tangguhkan_akun's own list; the per-request check refuses a suspended or closed person's token whatever the path while the status read passes; every code, category, request kind and status and the six facts of leaving have words in the copy table in both languages naming no machinery; Akun saya is drawn for a learner, who is offered no form; each request is one confirmation; a closure signs the person out."
+    },
+    {
       "id": "F26-C01",
       "runner": "db",
       "proves": "W2.5 (Batch 5; CR-05), selftest/db/fable26.sql, migration 20261222100000: sertifikat_sekolah answers the school admin their school's issued certificates (number, holder, school, state), by number from its start and by a part of the holder's name, one by id (also with no school named, for whom may revoke it); a prepared ELIGIBLE row is not listed; «%» is matched as a word; a Guru, a head of department, another school's admin, a school admin asking for every school and an anonymous caller are refused; Admin platform reads every school's."
@@ -5002,6 +5007,31 @@
       "proves": "§11 applied (selftest/db/fable38.sql): the promotion adds Kepala departemen; the demotion's review warns of the management decision at Kelas B that would wait with no one to decide it, the decision stays AWAITING_REVIEW unreassigned, and teaching at Kelas B stays; a move from Kelas B to Kelas A in one press leaves exactly one live role, at Kelas A, the old one revoked at the instant the new one began (no gap, no overlap; the grant precedes the revocation so D-049's relationship holds); one role.changed audit row per change."
     },
     {
+      "id": "F38-A01",
+      "runner": "db",
+      "proves": "§5b platform suspension (owner, 9 Nov; selftest/db/fable38.sql against 20270113130000): the PINTAR Administrator suspends Kelas B's Guru with the category SECURITY and a note: the Auth user is banned (sign-in refused), pintar_permintaan.periksa refuses the Guru's token PT403 AKUN_DITANGGUHKAN, the Guru's roles and evidence are untouched, and one account.suspended audit row carries the category."
+    },
+    {
+      "id": "F38-A02",
+      "runner": "db",
+      "proves": "§5b suspension refusals write nothing (selftest/db/fable38.sql): tangguhkan_akun refuses a school's admin (ACCOUNT_NOT_ALLOWED), the administrator's own account (ACCOUNT_SELF), an unknown category, «Lainnya» without a 10-300 note (ACCOUNT_NOTE_REQUIRED) and a second suspension (ACCOUNT_ALREADY_SUSPENDED); no suspension row and no audit row."
+    },
+    {
+      "id": "F38-A03",
+      "runner": "db",
+      "proves": "§5b reactivation (selftest/db/fable38.sql): aktifkan_kembali_akun refuses a reason under 10 characters; with one, the suspension ends, the Auth user is unbanned, the token answers again, and one account.reactivated audit row is written."
+    },
+    {
+      "id": "F38-A04",
+      "runner": "db",
+      "proves": "L2 / L3 the person's own requests (selftest/db/fable38.sql): minta_akun refuses a learner with a live enrolment (ACCOUNT_LEARNER_VIA_SCHOOL) and a request without its confirmation; the Guru's deletion request is RECEIVED once (a second is ACCOUNT_REQUEST_OPEN) and reads back through permintaan_akun_saya; the closure is CLOSED_AT_REQUEST at once with its request DONE, sign-in banned and every request refused PT403; the platform's queue holds the deletion request of the closed account."
+    },
+    {
+      "id": "F38-A05",
+      "runner": "db",
+      "proves": "L4 deletion of what needs no retention (selftest/db/fable38.sql): hapus_data_pribadi refuses a school's admin and an open account's request (ACCOUNT_NOT_CLOSED); for the closed account the name becomes the PINTAR ID, the photo and the sign-in email go (through the email guard's own L4 exception), anonymized_at is set, the role history and the audit log are kept, the request is DONE, one account.personal_data_deleted row."
+    },
+    {
       "id": "KENAIKAN-K01",
       "runner": "static",
       "proves": "«Kenaikan kelas dan kelulusan», selftest/kenaikan.test.ts, executes the source file src/lib/kenaikan.ts: it reads every select value (NAIK and TINGGAL with a Kelas, LULUS, PINDAH, KELUAR with each of the four reasons) back as its decision and writes it the same way; an empty choice, a malformed id or an unknown reason is no decision; the address form between steps is base64url of ids and codes only, and a malformed one is dropped, never repaired into decisions."
@@ -5030,6 +5060,11 @@
       "id": "STAF-A01",
       "runner": "app",
       "proves": "E5 and §11 through the running app (selftest/kenaikan.test.ts): Alpha's admin opens Pak Yusuf's page from his name on «Peran & akses»; the rendered page sets his role and its responsibilities in words; he is made Kepala departemen as well after a review of what is gained, then back to Guru only after a review of what is lost (teaching kept), then his duties at the school are ended with a category, the date and a reason; the audit log holds two role.changed rows and one staff.ended_at_school row, and he holds no live role at Alpha."
+    },
+    {
+      "id": "AKUN-A01",
+      "runner": "app",
+      "proves": "L1–L4 through the running app (selftest/kenaikan.test.ts): a learner's rendered Akun saya sends the request through the school and offers no form; an educator's rendered Akun saya says what leaving means (backups 7 days); their deletion request reads back «Diterima»; the closure takes effect at once (CLOSED_AT_REQUEST in the database, sign-in refused); the PINTAR Administrator's Keamanan akun reads it as a closure, never a suspension, and carries out the deletion from the queue: the name becomes the PINTAR ID and anonymized_at is set."
     },
     {
       "id": "JEJAK-K01",

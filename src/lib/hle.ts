@@ -193,6 +193,77 @@ export type HleEvent =
   | "sertifikat.kelola.cabut"
   | "sertifikat.kelola.ditolak"
   | "sertifikat.cabut.judul"
+  | "akun.tinggal.judul"
+  | "akun.tinggal.arti"
+  | "akun.tinggal.intro_murid"
+  | "akun.tinggal.fakta.akses"
+  | "akun.tinggal.fakta.data"
+  | "akun.tinggal.fakta.akademik"
+  | "akun.tinggal.fakta.sertifikat"
+  | "akun.tinggal.fakta.audit"
+  | "akun.tinggal.fakta.cadangan"
+  | "akun.tinggal.jenis.close"
+  | "akun.tinggal.jenis.delete_personal_data"
+  | "akun.tinggal.akibat.close"
+  | "akun.tinggal.akibat.delete_personal_data"
+  | "akun.tinggal.konfirmasi.close"
+  | "akun.tinggal.konfirmasi.delete_personal_data"
+  | "akun.tinggal.tombol.close"
+  | "akun.tinggal.tombol.delete_personal_data"
+  | "akun.tinggal.lewat_sekolah"
+  | "akun.tinggal.ok"
+  | "akun.tinggal.status.received"
+  | "akun.tinggal.status.in_progress"
+  | "akun.tinggal.status.done"
+  | "akun.tinggal.status.declined"
+  | "akun.tinggal.galat.account_not_allowed"
+  | "akun.tinggal.galat.account_self"
+  | "akun.tinggal.galat.account_unknown"
+  | "akun.tinggal.galat.account_category_invalid"
+  | "akun.tinggal.galat.account_note_required"
+  | "akun.tinggal.galat.account_already_suspended"
+  | "akun.tinggal.galat.account_not_suspended"
+  | "akun.tinggal.galat.account_confirm_required"
+  | "akun.tinggal.galat.account_learner_via_school"
+  | "akun.tinggal.galat.account_request_open"
+  | "akun.tinggal.galat.account_request_invalid"
+  | "akun.tinggal.galat.account_not_closed"
+  | "akun.tinggal.galat.account_failed"
+  | "keamanan.akun.judul"
+  | "keamanan.akun.arti"
+  | "keamanan.akun.cari"
+  | "keamanan.akun.cari_tombol"
+  | "keamanan.akun.tidak_ada"
+  | "keamanan.akun.ditangguhkan"
+  | "keamanan.akun.ditutup"
+  | "keamanan.akun.akibat"
+  | "keamanan.akun.kategori"
+  | "keamanan.akun.kategori.security"
+  | "keamanan.akun.kategori.disciplinary"
+  | "keamanan.akun.kategori.administrative"
+  | "keamanan.akun.kategori.other"
+  | "keamanan.akun.catatan"
+  | "keamanan.akun.alasan"
+  | "keamanan.akun.tangguhkan"
+  | "keamanan.akun.aktifkan"
+  | "keamanan.akun.buka_lagi"
+  | "keamanan.akun.ok.tangguh"
+  | "keamanan.akun.ok.aktif"
+  | "keamanan.akun.ok.hapus"
+  | "keamanan.permintaan.judul"
+  | "keamanan.permintaan.kosong"
+  | "keamanan.permintaan.hapus"
+  | "keamanan.permintaan.belum_ditutup"
+  | "audit.aksi.account.suspended"
+  | "audit.aksi.account.reactivated"
+  | "audit.aksi.account.reopened"
+  | "audit.aksi.account.closed_at_request"
+  | "audit.aksi.account.deletion_requested"
+  | "audit.aksi.account.personal_data_deleted"
+  | "audit.alasan.security"
+  | "audit.alasan.disciplinary"
+  | "audit.alasan.administrative"
+  | "audit.alasan.closed_at_request"
   | "staf.judul"
   | "staf.intro"
   | "staf.kosong"
@@ -3383,6 +3454,78 @@ const table: Table = {
   "sertifikat.kelola.cabut": { default: "Cabut", en: "Revoke" },
   "sertifikat.kelola.ditolak": { default: "Sertifikat sekolah hanya dapat dibuka oleh Admin sekolah.", en: "Only a school admin can open the school's certificates." },
   "sertifikat.cabut.judul": { default: "Cabut sertifikat", en: "Revoke a certificate" },
+  // §5b and L1–L4 (owner, 9 Nov): suspension, closure and deletion, never confused
+  "akun.tinggal.judul": { default: "Meninggalkan PINTAR", en: "Leaving PINTAR" },
+  "akun.tinggal.arti": { default: "Anda boleh pergi kapan saja. Inilah yang terjadi bila akun ditutup atau data pribadi dihapus, sesuai keadaan PINTAR hari ini.", en: "You may leave at any time. This is what happens when an account is closed or personal data is deleted, as PINTAR stands today." },
+  "akun.tinggal.intro_murid": { default: "Akun PINTAR Anda, dan cara meninggalkannya.", en: "Your PINTAR account, and how to leave it." },
+  "akun.tinggal.fakta.akses": { default: "Akses: saat akun ditutup, semua perangkat keluar dan masuk tidak lagi bisa, di semua sekolah.", en: "Access: when the account is closed, every device is signed out and signing in no longer works, at every school." },
+  "akun.tinggal.fakta.data": { default: "Data pribadi: yang dihapus adalah foto profil, nama tampilan (diganti PINTAR ID) dan email untuk masuk. Yang lain disimpan karena aturan, seperti di bawah.", en: "Personal data: what is deleted is the profile photo, the display name (replaced by the PINTAR ID) and the sign-in email. The rest is kept by rule, as below." },
+  "akun.tinggal.fakta.akademik": { default: "Catatan akademik: hasil dan pengerjaan tetap tersimpan di sekolahnya. Setelah penghapusan, catatan itu tidak lagi memuat nama Anda.", en: "Academic records: results and sittings stay with their school. After deletion they no longer carry your name." },
+  "akun.tinggal.fakta.sertifikat": { default: "Sertifikat: tetap dapat diperiksa. Nama yang tertulis di sertifikat adalah catatan sertifikat itu sendiri dan tidak diubah.", en: "Certificates: they can still be verified. The name written on a certificate is the certificate's own record and is not changed." },
+  "akun.tinggal.fakta.audit": { default: "Jejak audit: tidak pernah ditulis ulang. Barisnya dapat menunjuk ke orang yang sudah dianonimkan.", en: "Audit trail: never rewritten. Its rows may point to a person who has been anonymised." },
+  "akun.tinggal.fakta.cadangan": { default: "Cadangan: data yang dihapus dari PINTAR masih ada di cadangan sampai cadangan itu berakhir, saat ini 7 hari.", en: "Backups: data removed from PINTAR stays in backups until they expire, today 7 days." },
+  "akun.tinggal.jenis.close": { default: "Tutup akun saya", en: "Close my account" },
+  "akun.tinggal.jenis.delete_personal_data": { default: "Hapus data pribadi saya", en: "Delete my personal data" },
+  "akun.tinggal.akibat.close": { default: "Akun ditutup saat itu juga: semua perangkat keluar dan Anda tidak dapat masuk lagi. Catatan tetap tersimpan. Akun dibuka kembali hanya atas permintaan Anda kepada Admin platform.", en: "The account closes at once: every device is signed out and you cannot sign in again. Records are kept. It is reopened only at your request to the platform administrator." },
+  "akun.tinggal.akibat.delete_personal_data": { default: "Permintaan ini dicatat dan dikerjakan Admin platform setelah akun ditutup. Anda dapat melihat keadaannya di sini.", en: "This request is recorded and carried out by the platform administrator once the account is closed. You can see where it stands here." },
+  "akun.tinggal.konfirmasi.close": { default: "Saya memahami bahwa akun saya ditutup sekarang.", en: "I understand my account closes now." },
+  "akun.tinggal.konfirmasi.delete_personal_data": { default: "Saya meminta data pribadi saya dihapus.", en: "I ask for my personal data to be deleted." },
+  "akun.tinggal.tombol.close": { default: "Tutup akun saya", en: "Close my account" },
+  "akun.tinggal.tombol.delete_personal_data": { default: "Kirim permintaan", en: "Send the request" },
+  "akun.tinggal.lewat_sekolah": { default: "Untuk murid, permintaan menutup akun atau menghapus data pribadi diajukan oleh Admin sekolah bersama keluarga. Sampaikan kepada sekolah Anda.", en: "For a learner, a request to close the account or delete personal data is made by the school's administrator with the family. Tell your school." },
+  "akun.tinggal.ok": { default: "Permintaan Anda tercatat.", en: "Your request is recorded." },
+  "akun.tinggal.status.received": { default: "Diterima", en: "Received" },
+  "akun.tinggal.status.in_progress": { default: "Sedang dikerjakan", en: "In progress" },
+  "akun.tinggal.status.done": { default: "Selesai", en: "Done" },
+  "akun.tinggal.status.declined": { default: "Tidak dapat dilakukan", en: "Could not be done" },
+  "akun.tinggal.galat.account_not_allowed": { default: "Tindakan ini milik Admin platform.", en: "This act belongs to the platform administrator." },
+  "akun.tinggal.galat.account_self": { default: "Akun Anda sendiri ditangguhkan atau dipulihkan oleh admin lain.", en: "Your own account is suspended or restored by another administrator." },
+  "akun.tinggal.galat.account_unknown": { default: "Orang itu tidak ditemukan.", en: "That person was not found." },
+  "akun.tinggal.galat.account_category_invalid": { default: "Pilih salah satu kategori.", en: "Choose one of the categories." },
+  "akun.tinggal.galat.account_note_required": { default: "Tuliskan catatan atau alasannya, 10 sampai 300 karakter.", en: "Write the note or reason, 10 to 300 characters." },
+  "akun.tinggal.galat.account_already_suspended": { default: "Akun ini sudah ditangguhkan atau ditutup.", en: "This account is already suspended or closed." },
+  "akun.tinggal.galat.account_not_suspended": { default: "Akun ini tidak sedang ditangguhkan atau ditutup.", en: "This account is not suspended or closed." },
+  "akun.tinggal.galat.account_confirm_required": { default: "Centang konfirmasinya lebih dahulu.", en: "Tick the confirmation first." },
+  "akun.tinggal.galat.account_learner_via_school": { default: "Untuk murid, permintaan ini diajukan melalui sekolah bersama keluarga.", en: "For a learner, this request is made through the school with the family." },
+  "akun.tinggal.galat.account_request_open": { default: "Permintaan ini sudah diajukan dan sedang dikerjakan.", en: "This request has already been made and is in hand." },
+  "akun.tinggal.galat.account_request_invalid": { default: "Permintaan itu tidak ditemukan atau sudah selesai.", en: "That request was not found or is already done." },
+  "akun.tinggal.galat.account_not_closed": { default: "Data pribadi dihapus hanya dari akun yang sudah ditutup.", en: "Personal data is deleted only from a closed account." },
+  "akun.tinggal.galat.account_failed": { default: "Belum tersimpan. Coba lagi.", en: "Not saved. Try again." },
+  "keamanan.akun.judul": { default: "Penangguhan dan penutupan akun", en: "Account suspension and closure" },
+  "keamanan.akun.arti": { default: "Hanya untuk Admin platform. Penangguhan berlaku saat itu juga di semua sesi dan tidak pernah mengubah catatan pendidikan. Pensiun, kelulusan dan pindah sekolah memakai pengakhiran di sekolah, bukan penangguhan.", en: "For the platform administrator only. A suspension takes effect at once in every session and never alters educational records. Retirement, graduation and transfer use ending at the school, never suspension." },
+  "keamanan.akun.cari": { default: "PINTAR ID", en: "PINTAR ID" },
+  "keamanan.akun.cari_tombol": { default: "Cari", en: "Find" },
+  "keamanan.akun.tidak_ada": { default: "Tidak ada orang dengan PINTAR ID itu.", en: "No person holds that PINTAR ID." },
+  "keamanan.akun.ditangguhkan": { default: "Ditangguhkan sejak", en: "Suspended since" },
+  "keamanan.akun.ditutup": { default: "Ditutup atas permintaan sendiri sejak", en: "Closed at the person's own request since" },
+  "keamanan.akun.akibat": { default: "Menangguhkan: semua perangkat keluar, masuk ditolak, dan setiap permintaan ditolak. Catatan pendidikan tidak berubah.", en: "Suspending: every device is signed out, sign-in is refused, and every request is refused. Educational records do not change." },
+  "keamanan.akun.kategori": { default: "Kategori", en: "Category" },
+  "keamanan.akun.kategori.security": { default: "Keamanan akun", en: "Account security" },
+  "keamanan.akun.kategori.disciplinary": { default: "Disiplin", en: "Disciplinary" },
+  "keamanan.akun.kategori.administrative": { default: "Administrasi", en: "Administrative" },
+  "keamanan.akun.kategori.other": { default: "Lainnya", en: "Other" },
+  "keamanan.akun.catatan": { default: "Catatan (wajib untuk Lainnya)", en: "Note (required for Other)" },
+  "keamanan.akun.alasan": { default: "Alasan", en: "Reason" },
+  "keamanan.akun.tangguhkan": { default: "Tangguhkan akun", en: "Suspend the account" },
+  "keamanan.akun.aktifkan": { default: "Pulihkan akun", en: "Restore the account" },
+  "keamanan.akun.buka_lagi": { default: "Buka kembali akun atas permintaannya", en: "Reopen the account at their request" },
+  "keamanan.akun.ok.tangguh": { default: "Akun ditangguhkan. Semua sesinya berakhir.", en: "Account suspended. All its sessions ended." },
+  "keamanan.akun.ok.aktif": { default: "Akun dipulihkan. Orang ini dapat masuk lagi.", en: "Account restored. This person can sign in again." },
+  "keamanan.akun.ok.hapus": { default: "Data pribadi dihapus. Catatan yang wajib disimpan tetap ada.", en: "Personal data deleted. Records that must be kept remain." },
+  "keamanan.permintaan.judul": { default: "Permintaan dari pemilik akun", en: "Requests from account holders" },
+  "keamanan.permintaan.kosong": { default: "Tidak ada permintaan yang terbuka.", en: "No request is open." },
+  "keamanan.permintaan.hapus": { default: "Hapus data pribadi", en: "Delete personal data" },
+  "keamanan.permintaan.belum_ditutup": { default: "Akun belum ditutup; data pribadi dihapus setelah akun ditutup.", en: "The account is not closed yet; personal data is deleted once it is." },
+  "audit.aksi.account.suspended": { default: "Akun ditangguhkan", en: "Account suspended" },
+  "audit.aksi.account.reactivated": { default: "Akun dipulihkan", en: "Account restored" },
+  "audit.aksi.account.reopened": { default: "Akun dibuka kembali", en: "Account reopened" },
+  "audit.aksi.account.closed_at_request": { default: "Akun ditutup atas permintaan sendiri", en: "Account closed at its holder's request" },
+  "audit.aksi.account.deletion_requested": { default: "Penghapusan data pribadi diminta", en: "Personal data deletion requested" },
+  "audit.aksi.account.personal_data_deleted": { default: "Data pribadi dihapus", en: "Personal data deleted" },
+  "audit.alasan.security": { default: "Keamanan akun", en: "Account security" },
+  "audit.alasan.disciplinary": { default: "Disiplin", en: "Disciplinary" },
+  "audit.alasan.administrative": { default: "Administrasi", en: "Administrative" },
+  "audit.alasan.closed_at_request": { default: "Atas permintaan sendiri", en: "At the holder's request" },
   // E5 «Akhiri tugas di sekolah ini» and §11 «Ubah peran & tanggung jawab» (owner, 9 Nov); words of the responsibilities are
   // plain names pending Daisy's matrix and Dr Gladys's copy pass
   "staf.judul": { default: "Peran dan tugas seseorang", en: "A person's roles and duties" },

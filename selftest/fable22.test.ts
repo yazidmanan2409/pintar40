@@ -199,6 +199,8 @@ const AKSI_BEBAS: Record<string, string> = {
   "src/app/tur/actions.ts": "the tour's evaluation persona (C10)",
   "src/app/konfigurasi/email-uji/actions.ts": "explicitly platform-scoped (D-132(k)): the send history is the platform administrator's, by its own scope",
   "src/app/aktivasi/orang/actions.ts": "explicitly platform-scoped (F-8, D-077(3)): a name or username correction is the platform administrator's alone, decided by the database",
+  "src/app/konfigurasi/keamanan/actions.ts": "explicitly platform-scoped (§5b, L4): suspension, reactivation and the deletion of personal data are the PINTAR Administrator's alone, decided by the database",
+  "src/app/akun/actions.ts": "one's own account (L2, L3): the person's own request to close it or delete their personal data, a neutral surface",
 };
 /** The context-bound API routes, and the act each checks the context before. */
 const RUTE_TERIKAT: Record<string, RegExp[]> = {

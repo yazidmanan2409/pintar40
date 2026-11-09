@@ -48,6 +48,20 @@
 --   F38-S05  «Ubah peran», applied: the promotion, then the demotion warned of the decision left with no one to decide
 --            it (never reassigned), then a move from Kelas B to Kelas A in one press with no gap and no overlap;
 --            teaching stays where it was kept; one role.changed row for each.
+--   F38-A01  Platform suspension (§5b): the PINTAR Administrator suspends Kelas B's Guru (SECURITY, a note): the Auth user
+--            is banned (sign-in refused), the per-request check refuses the Guru's token (PT403 AKUN_DITANGGUHKAN), the
+--            Guru's roles and evidence are untouched, one account.suspended row with the category.
+--   F38-A02  Suspension refusals write nothing: a school's admin (ACCOUNT_NOT_ALLOWED), the administrator's own account
+--            (ACCOUNT_SELF), an unknown category, «Lainnya» without a note, a second suspension.
+--   F38-A03  Reactivation: refused without a 10–300 reason; with one, the suspension ends, sign-in is allowed again,
+--            the token answers, one account.reactivated row.
+--   F38-A04  L2 / L3, the person's own requests: a learner with a live enrolment is refused (ACCOUNT_LEARNER_VIA_SCHOOL)
+--            and no confirmation is refused; the Guru asks to delete their personal data (RECEIVED, in the platform's
+--            queue), then closes the account at once (CLOSED_AT_REQUEST, the request DONE, sign-in and every request
+--            refused); the requests read back to the person.
+--   F38-A05  L4: the PINTAR Administrator deletes the closed account's personal data from the queue: the name becomes the
+--            PINTAR ID, the photo and the sign-in email are gone, anonymized_at is set, the roles and the audit log are
+--            kept, the request DONE; an open account's request is refused (ACCOUNT_NOT_CLOSED), and a school's admin.
 --
 -- EVERY ROW IS ROLLED BACK (the suite's block ends in 'f38-rollback', as fable37 does).
 
@@ -119,7 +133,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
-  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
+  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
   u_admin uuid; v_n int; v_cert uuid; v_cert2 uuid; v_new uuid; v_new2 uuid; v_tok text; v_ntok text; v_payload jsonb; v_nomor text; v_snapold uuid; p_holder uuid; u_holder uuid; v_k record;
   v_crel uuid; v_cdef uuid; v_dist uuid; v_la3 uuid; v_aa3 uuid;
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid; v_coh uuid; c_a uuid; c_b uuid;
@@ -582,6 +596,100 @@ begin
       if v_got <> 'PR050:ASSIGN_NOT_ALLOWED' then s01 := s01 || ('the Guru still acts on Kelas A: ' || v_got); end if;
     end if;
 
+    -- ═══════════════════════════════════ F38-A01..A05 suspension, closure and deletion (§5b, L2–L4)
+    u_sys := selftest.f11_user('f38-sys-' || v_tag || '@local.invalid', 'SYSTEM_ADMIN', v_root);
+    select a.person_id into p_sys from public.accounts a where a.auth_user_id = u_sys;
+    -- A02 refusals first
+    select count(*) into v_aud from public.audit_log a where a.target_id = p_guru_b::text and a.action like 'account.%';
+    for r in select * from (values
+        (u_admin, p_guru_b, 'SECURITY', null::text, 'PR140:ACCOUNT_NOT_ALLOWED', 'a school''s admin'),
+        (u_sys, p_sys, 'SECURITY', null, 'PR140:ACCOUNT_SELF', 'the administrator''s own account'),
+        (u_sys, p_guru_b, 'HOLIDAY', null, 'PR140:ACCOUNT_CATEGORY_INVALID', 'an unknown category'),
+        (u_sys, p_guru_b, 'OTHER', 'pendek', 'PR140:ACCOUNT_NOTE_REQUIRED', '«Lainnya» without a note')) t(uid, orang, kat, cat, want, who) loop
+      v_got := selftest.f37_sebagai(r.uid, format('select public.tangguhkan_akun(%L, %L, %L)', r.orang, r.kat, r.cat));
+      if v_got <> r.want then a02 := a02 || (r.who || ': ' || v_got || ' (expected ' || r.want || ')'); end if;
+    end loop;
+    if exists (select 1 from public.person_suspensions x where x.person_id = p_guru_b)
+       or (select count(*) from public.audit_log a where a.target_id = p_guru_b::text and a.action like 'account.%') <> v_aud then
+      a02 := a02 || 'a refusal suspended or audited'::text; end if;
+
+    -- A01 the suspension
+    v_got := selftest.f37_sebagai(u_sys, format('select public.tangguhkan_akun(%L, %L, %L)', p_guru_b, 'SECURITY', 'akun diduga diambil alih'));
+    if v_got <> 'OK' then a01 := a01 || ('the suspension: ' || v_got);
+    else
+      if (select u.banned_until from auth.users u where u.id = u_guru_b) is distinct from 'infinity'::timestamptz then
+        a01 := a01 || 'sign-in is not refused (the Auth user is not banned)'::text; end if;
+      v_got := selftest.f37_sebagai(u_guru_b, 'select pintar_permintaan.periksa()');
+      if v_got not like 'PT403%' then a01 := a01 || ('the Guru''s token still answers: ' || v_got); end if;
+      if not exists (select 1 from public.staf_peran_hidup(p_guru_b, v_inst)) then a01 := a01 || 'the suspension ended the Guru''s roles'::text; end if;
+      if (select count(*) from public.audit_log a where a.action = 'account.suspended' and a.target_id = p_guru_b::text and a.summary ->> 'reason_code' = 'SECURITY') <> 1 then
+        a01 := a01 || 'no single account.suspended row with the category'::text; end if;
+      v_got := selftest.f37_sebagai(u_sys, format('select public.tangguhkan_akun(%L, %L, %L)', p_guru_b, 'SECURITY', null));
+      if v_got <> 'PR140:ACCOUNT_ALREADY_SUSPENDED' then a02 := a02 || ('a second suspension: ' || v_got); end if;
+    end if;
+
+    -- A03 reactivation
+    v_got := selftest.f37_sebagai(u_sys, format('select public.aktifkan_kembali_akun(%L, %L)', p_guru_b, 'oke'));
+    if v_got <> 'PR140:ACCOUNT_NOTE_REQUIRED' then a03 := a03 || ('a short reason: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_sys, format('select public.aktifkan_kembali_akun(%L, %L)', p_guru_b, 'akun sudah dipulihkan pemiliknya'));
+    if v_got <> 'OK' then a03 := a03 || ('the reactivation: ' || v_got);
+    else
+      if (select u.banned_until from auth.users u where u.id = u_guru_b) is not null then a03 := a03 || 'sign-in is still refused'::text; end if;
+      v_got := selftest.f37_sebagai(u_guru_b, 'select pintar_permintaan.periksa()');
+      if v_got <> 'OK' then a03 := a03 || ('the Guru''s token still refused: ' || v_got); end if;
+      if (select count(*) from public.audit_log a where a.action = 'account.reactivated' and a.target_id = p_guru_b::text) <> 1 then
+        a03 := a03 || 'no account.reactivated row'::text; end if;
+    end if;
+
+    -- A04 the person's own requests
+    v_got := selftest.f37_sebagai(u_murid, format('select public.minta_akun(%L, true)', 'CLOSE'));
+    if v_got <> 'PR140:ACCOUNT_LEARNER_VIA_SCHOOL' then a04 := a04 || ('a learner closing their own account: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_guru_b, format('select public.minta_akun(%L, false)', 'CLOSE'));
+    if v_got <> 'PR140:ACCOUNT_CONFIRM_REQUIRED' then a04 := a04 || ('no confirmation: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_guru_b, format('select public.minta_akun(%L, true)', 'DELETE_PERSONAL_DATA'));
+    select q.id into v_req from public.account_requests q where q.person_id = p_guru_b and q.kind = 'DELETE_PERSONAL_DATA';
+    if v_got <> 'OK' or v_req is null then a04 := a04 || ('the deletion request: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_guru_b, format('select public.minta_akun(%L, true)', 'DELETE_PERSONAL_DATA'));
+    if v_got <> 'PR140:ACCOUNT_REQUEST_OPEN' then a04 := a04 || ('a second deletion request: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_guru_b, 'select 1 / (select count(*)::int from public.permintaan_akun_saya() where status = ''RECEIVED'')');
+    if v_got <> 'OK' then a04 := a04 || ('the person does not read their own request: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_guru_b, format('select public.minta_akun(%L, true)', 'CLOSE'));
+    if v_got <> 'OK' then a04 := a04 || ('the closure: ' || v_got);
+    else
+      if not exists (select 1 from public.person_suspensions x where x.person_id = p_guru_b and x.ended_at is null and x.category = 'CLOSED_AT_REQUEST')
+         or not exists (select 1 from public.account_requests q where q.person_id = p_guru_b and q.kind = 'CLOSE' and q.status = 'DONE') then
+        a04 := a04 || 'the closure is not recorded as CLOSED_AT_REQUEST with its request DONE'::text; end if;
+      v_got := selftest.f37_sebagai(u_guru_b, 'select pintar_permintaan.periksa()');
+      if v_got not like 'PT403%' or (select u.banned_until from auth.users u where u.id = u_guru_b) is distinct from 'infinity'::timestamptz then
+        a04 := a04 || ('after closing, the account still signs in or answers: ' || v_got); end if;
+    end if;
+    perform selftest.as_user_uid(u_sys);
+    begin
+      if not exists (select 1 from public.permintaan_akun_antrean() x where x.id = v_req and x.ditutup) then
+        a04 := a04 || 'the platform''s queue does not hold the request of the closed account'::text; end if;
+    exception when others then a04 := a04 || ('the platform''s queue: ' || sqlerrm); end;
+    perform selftest.as_owner();
+
+    -- A05 deletion of what needs no retention
+    v_got := selftest.f37_sebagai(u_admin, format('select public.hapus_data_pribadi(%L, null)', v_req));
+    if v_got <> 'PR140:ACCOUNT_NOT_ALLOWED' then a05 := a05 || ('a school''s admin deleting personal data: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_guru_a, format('select public.minta_akun(%L, true)', 'DELETE_PERSONAL_DATA'));
+    select q.id into v_req2 from public.account_requests q where q.person_id = p_guru_a and q.kind = 'DELETE_PERSONAL_DATA';
+    v_got := selftest.f37_sebagai(u_sys, format('select public.hapus_data_pribadi(%L, null)', v_req2));
+    if v_got <> 'PR140:ACCOUNT_NOT_CLOSED' then a05 := a05 || ('an open account''s data: ' || v_got || ' (expected PR140:ACCOUNT_NOT_CLOSED)'); end if;
+    select p.pintar_id into v_pid from public.persons p where p.id = p_guru_b;
+    v_got := selftest.f37_sebagai(u_sys, format('select public.hapus_data_pribadi(%L, %L)', v_req, 'sesuai permintaan'));
+    if v_got <> 'OK' then a05 := a05 || ('the deletion: ' || v_got);
+    else
+      if not exists (select 1 from public.persons p where p.id = p_guru_b and p.display_name = v_pid and p.photo_path is null and p.anonymized_at is not null) then
+        a05 := a05 || 'the name is not replaced by the PINTAR ID, or the photo or anonymized_at is wrong'::text; end if;
+      if (select u.email from auth.users u where u.id = u_guru_b) not like 'anonim-%@pintar.invalid' then a05 := a05 || 'the sign-in email is still there'::text; end if;
+      if (select q.status from public.account_requests q where q.id = v_req) <> 'DONE' then a05 := a05 || 'the request is not DONE'::text; end if;
+      if not exists (select 1 from public.role_assignments ra where ra.person_id = p_guru_b) then a05 := a05 || 'the role history is gone'::text; end if;
+      if (select count(*) from public.audit_log a where a.action = 'account.personal_data_deleted' and a.target_id = p_guru_b::text) <> 1 then
+        a05 := a05 || 'no account.personal_data_deleted row'::text; end if;
+    end if;
+
     raise exception 'f38-rollback';
   exception when others then
     if sqlerrm <> 'f38-rollback' then v_fatal := sqlerrm; end if;
@@ -618,7 +726,12 @@ begin
       ('F38-S04', '«Ubah peran»: refusals and atomicity', s04,
        'a stale review, SYSTEM_ADMIN, a role at another school, Admin sekolah without its second press, one bad addition beside a good one and a Guru are refused; nothing changes, nothing is audited'),
       ('F38-S05', '«Ubah peran»: promotion, demotion with its queue warning, a move in one press', s05,
-       'the promotion adds the role; the demotion''s review warns of the decision left with no one, which waits unreassigned, and teaching stays; the move leaves one live role at Kelas A, the old one ended as the new began; one role.changed row each')) t(tid, tarea, probs, good) loop
+       'the promotion adds the role; the demotion''s review warns of the decision left with no one, which waits unreassigned, and teaching stays; the move leaves one live role at Kelas A, the old one ended as the new began; one role.changed row each'),
+      ('F38-A01', 'Platform suspension', a01, 'sign-in refused (banned), the token refused PT403, roles and evidence untouched, one account.suspended row with the category'),
+      ('F38-A02', 'Suspension refusals write nothing', a02, 'a school''s admin, the administrator''s own account, an unknown category, «Lainnya» without a note and a second suspension are refused; nothing written'),
+      ('F38-A03', 'Reactivation', a03, 'refused without a reason; with one, sign-in allowed and the token answers again; one account.reactivated row'),
+      ('F38-A04', 'L2 / L3: the person''s own requests', a04, 'a learner is sent to the school, no confirmation is refused; a deletion request is RECEIVED once and read back; the closure is CLOSED_AT_REQUEST at once, its request DONE, sign-in and every request refused; the platform''s queue holds the deletion request'),
+      ('F38-A05', 'L4: deletion of what needs no retention', a05, 'only the PINTAR Administrator, only for a closed account: the name becomes the PINTAR ID, the photo and sign-in email go, anonymized_at is set, roles and audit kept, the request DONE')) t(tid, tarea, probs, good) loop
     id := r.tid; area := r.tarea;
     ok := v_fatal = '' and cardinality(r.probs) = 0;
     detail := case when v_fatal <> '' then 'fixture: ' || v_fatal when ok then r.good else array_to_string(r.probs, '; ') end;

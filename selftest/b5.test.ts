@@ -28,6 +28,7 @@ import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { t, type HleEvent } from "../src/lib/hle";
 import { KODE_CABUT, KEADAAN_SERTIFIKAT, KODE_GANTI, KODE_GANTI_DB, kodeGantiDariGalat } from "../src/lib/sertifikat-cabut-kontrak";
+import { KODE_AKUN, KODE_AKUN_DB, KATEGORI_TANGGUH, JENIS_PERMINTAAN, KEADAAN_PERMINTAAN, kodeAkunDariGalat } from "../src/lib/akun-kontrak";
 import { KODE_STAF, KODE_STAF_DB, KATEGORI_AKHIR, TANGGUNG_JAWAB, kodeStafDariGalat, kunciTanggungJawab } from "../src/lib/staf-kontrak";
 import { JUDUL_HALAMAN } from "../src/lib/judul-halaman";
 import { langkahRujukan } from "../src/lib/integritas-kontrak";
@@ -253,6 +254,46 @@ export const b5Tests: SelfTest[] = [
       c.expect(/<form action=\{akhiriTugasAksi\}/.test(halaman) && /name="kategori"/.test(halaman) && /id="staf-akhiri-tanggal"[^>]*max=\{hariIni\}/.test(halaman),
         "«Akhiri tugas» has no category or no date bounded by today");
       return c.verdict("staf_tolak's 13 codes are the contract's, each raised and read back by its PR130 DETAIL; the categories are akhiri_tugas_staf's own list and order; every code, category and responsibility (including every capability the registry migration names) has words in both languages naming no machinery; both actions ask the working context before acting; the review is a GET render answered by ubah_peran with apply false, the confirmation posts the fingerprint, and «Akhiri tugas» asks a category and a date no later than today");
+    },
+  },
+  {
+    // AKUN-K01 — §5b AND L1–L4: ONE CONTRACT FROM THE MIGRATION TO AKUN SAYA AND KEAMANAN AKUN (owner, 9 Nov).
+    id: "AKUN-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const sql = baca(ctx.repoRoot, "supabase/migrations/20270113130000_an_account_is_suspended_closed_or_anonymised_on_the_record.sql").replace(/--[^\n]*/g, "");
+      const tolak = /create or replace function public\.akun_tolak[\s\S]*?\$\$;/.exec(sql)?.[0] ?? "";
+      const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();
+      c.expect(JSON.stringify(dariDb) === JSON.stringify([...KODE_AKUN_DB].sort()), `akun_tolak knows ${dariDb.join(",")} and the contract names ${KODE_AKUN_DB.join(",")}`);
+      const badan = sql.replace(/create or replace function public\.akun_tolak[\s\S]*?\$\$;/, "");
+      for (const k of KODE_AKUN_DB) {
+        c.expect(badan.includes(`akun_tolak('${k}')`), `no function raises ${k}`);
+        c.expect(kodeAkunDariGalat({ code: "PR140", details: k }) === k, `${k} is not read back as itself`);
+      }
+      const kat = /p_kategori not in \(([^)]*)\)/.exec(sql)?.[1] ?? "";
+      c.expect(JSON.stringify([...kat.matchAll(/'([A-Z_]+)'/g)].map((m) => m[1])) === JSON.stringify([...KATEGORI_TANGGUH]), `the categories are ${kat}`);
+      // the per-request check refuses a suspended person's token, whatever the path, and the status read still passes
+      c.expect(/coalesce\(v_jalur, ''\) not in \('\/rpc\/pintar_status_saya', '\/rpc\/sesi_akhiri_saya'\)[\s\S]*?orang_ditangguhkan\(v_orang\)[\s\S]*?'AKUN_DITANGGUHKAN'/.test(sql),
+        "the per-request check does not refuse a suspended person's token");
+      const MESIN = /ACCOUNT_|PR\d{3}|jsonb|uuid|CAN_|INV-|CLOSED_AT_REQUEST/;
+      const kunci: string[] = [...KODE_AKUN.map((k) => `akun.tinggal.galat.${k.toLowerCase()}`), ...KATEGORI_TANGGUH.map((k) => `keamanan.akun.kategori.${k.toLowerCase()}`),
+        ...JENIS_PERMINTAAN.map((k) => `akun.tinggal.jenis.${k.toLowerCase()}`), ...KEADAAN_PERMINTAAN.map((k) => `akun.tinggal.status.${k.toLowerCase()}`),
+        ...["akses", "data", "akademik", "sertifikat", "audit", "cadangan"].map((k) => `akun.tinggal.fakta.${k}`)];
+      for (const k of kunci) {
+        for (const l of ["id", "en"] as const) {
+          let x = ""; try { x = t(k as HleEvent, "staff", { locale: l }); } catch { x = ""; }
+          c.expect(x.trim() !== "" && x !== k, `${k} has no ${l} telling`);
+          c.expect(!MESIN.test(x), `${k} names the machinery in ${l}`);
+        }
+      }
+      // Akun saya is for everyone; a learner is offered no request form; the closure leaves by signing out
+      const akun = kode(baca(ctx.repoRoot, "src/app/akun/page.tsx"));
+      c.expect(/if \(!staf\) \{\s*const sl/.test(akun) && /tinggal\("learner"\)/.test(akun), "a learner's Akun saya is not drawn");
+      const komponen = baca(ctx.repoRoot, "src/components/akun/MeninggalkanPintar.tsx");
+      c.expect(/bisaMinta \? \(/.test(komponen) && /data-tinggal-lewat-sekolah/.test(komponen) && /name="konfirmasi" value="ya" required/.test(komponen),
+        "the requests are not one confirmation each, or a learner is offered a form");
+      c.expect(/if \(jenis === "CLOSE"\) redirect\("\/keluar/.test(baca(ctx.repoRoot, "src/app/akun/actions.ts")), "a closure does not sign the person out");
+      return c.verdict("akun_tolak's 12 codes are the contract's, each raised and read back by its PR140 DETAIL; the suspension's categories are tangguhkan_akun's own; the per-request check refuses a suspended or closed person's token whatever the path while the status read passes; every code, category, request kind and status and the six facts of leaving have words in the copy table in both languages naming no machinery; Akun saya is drawn for a learner, who is offered no form; each request is one confirmation; a closure signs the person out");
     },
   },
 ];

@@ -13,7 +13,8 @@
  */
 import { randomBytes } from "node:crypto";
 import { Checks, type SelfTest } from "./lib";
-import { ipUji, lit, psql } from "./bob26.test";
+import { daftar, ipUji, lit, psql } from "./bob26.test";
+import { aktifkan } from "./bob28.test";
 import { Komputer } from "./bob29.test";
 import { pilihKonteksPeramban, tersusun } from "./konteks-uji";
 import { bacaNilai, dariForm, kodekan, nilaiDari, urai } from "../src/lib/kenaikan";
@@ -488,6 +489,72 @@ export const kenaikanAppTests: SelfTest[] = [
       return c.verdict("as Alpha's admin: «Peran & akses» opens Pak Yusuf's page from his name; the page sets his role and its responsibilities in words; " +
         "made Kepala departemen as well after a review of what is gained, then back to Guru after a review of what is lost (teaching kept), " +
         "then his duties at the school ended with a category, the date and a reason; audit log rows: two role.changed, one staff.ended_at_school");
+    },
+  },
+  {
+    id: "AKUN-A01",
+    requires: ["app", "network", "db", "mailsink"],
+    run: async (ctx) => {
+      // L1–L4 and §5b through the running app: a learner reads how to leave; an educator asks to delete their personal
+      // data and closes their account; the PINTAR Administrator carries out the deletion from the queue
+      const c = new Checks();
+      const asal = ctx.appUrl!;
+      const tag = randomBytes(4).toString("hex");
+      // a learner first: «Meninggalkan PINTAR» says the request goes through the school, and offers no form
+      const murid = new Komputer(asal, ipUji());
+      const mm = await murid.jsonDari("/masuk/password", { form: { identitas: "alpha-siswa-1@synthetic.pintar.test", password: "Sintetis-AlphaSiswa1-76!" } });
+      if (c.expect(mm.status === 200, `the learner could not sign in (${mm.status})`)) {
+        await murid.halaman("/belajar");
+        await murid.jsonDari("/api/sesi/perangkat", { form: { mode: "PERSONAL" } });
+        const hm = await (await murid.halaman("/akun")).text();
+        c.expect(hm.includes("data-tinggal-lewat-sekolah") && !hm.includes("data-minta-akun="), "the learner's Akun saya does not send the request through the school, or offers a form");
+      }
+      // an educator of their own
+      const email = `tinggal-${tag}@local.invalid`;
+      const orang = await daftar(asal, `Guru Tinggal ${tag}`, email);
+      const sandi = await aktifkan(c, asal, email, `tinggal.${tag}`, "5937");
+      if (!sandi) return c.verdict("");
+      const guru = new Komputer(asal, ipUji());
+      const m = await guru.jsonDari("/masuk/password", { form: { identitas: email, password: sandi } });
+      if (!c.expect(m.status === 200, `the educator could not sign in (${m.status})`)) return c.verdict("");
+      await guru.halaman("/akun");
+      await guru.jsonDari("/api/sesi/perangkat", { form: { mode: "PERSONAL" } });
+      const h1 = await (await guru.halaman("/akun")).text();
+      c.expect(teks(h1).includes("Meninggalkan PINTAR") && teks(h1).includes("saat ini 7 hari"), "Akun saya does not say what leaving means, backups included");
+      const f1 = formDengan(h1, 'data-minta-akun="DELETE_PERSONAL_DATA"', { konfirmasi: "ya" });
+      if (!c.expect(typeof f1 !== "string", `the deletion request form: ${f1}`)) return c.verdict("");
+      const r1 = await guru.kirim("/akun", { form: f1 as Record<string, string> });
+      c.expect(/hasil=ok/.test(r1.headers.get("location") ?? ""), `the deletion request answered ${r1.status} ${r1.headers.get("location")}`);
+      const h2 = await (await guru.halaman("/akun")).text();
+      c.expect(teks(h2).includes("Diterima"), "the request does not read back as «Diterima»");
+      const f2 = formDengan(h2, 'data-minta-akun="CLOSE"', { konfirmasi: "ya" });
+      if (!c.expect(typeof f2 !== "string", `the closure form: ${f2}`)) return c.verdict("");
+      const r2 = await guru.kirim("/akun", { form: f2 as Record<string, string> });
+      c.expect(/\/keluar/.test(r2.headers.get("location") ?? ""), `the closure answered ${r2.status} ${r2.headers.get("location")}`);
+      const keadaan = psql(`select category from public.person_suspensions where person_id = ${lit(orang)} and ended_at is null`);
+      c.expect(keadaan === "CLOSED_AT_REQUEST", `after closing, the account is «${keadaan}»`);
+      const lagi = await new Komputer(asal, ipUji()).jsonDari("/masuk/password", { form: { identitas: email, password: sandi } });
+      c.expect(lagi.status !== 200, `a closed account signed in again (${lagi.status})`);
+      // the PINTAR Administrator finds the request and deletes the closed account's personal data
+      const sys = new Komputer(asal, ipUji());
+      const ms = await sys.jsonDari("/masuk/password", { form: { identitas: "sysadmin@synthetic.pintar.test", password: "Sintetis-Sys-91!" } });
+      if (!c.expect(ms.status === 200, `the PINTAR Administrator could not sign in (${ms.status})`)) return c.verdict("");
+      await sys.halaman("/konfigurasi");
+      await sys.jsonDari("/api/sesi/perangkat", { form: { mode: "PERSONAL" } });
+      await pilihKonteksPeramban(sys, "MENGELOLA:PLATFORM");
+      const pid = psql(`select pintar_id from public.persons where id = ${lit(orang)}`);
+      const h3 = await (await sys.halaman(`/konfigurasi/keamanan?pid=${pid}`)).text();
+      c.expect(h3.includes('data-akun-keadaan="CLOSED_AT_REQUEST"') && teks(h3).includes("Ditutup atas permintaan sendiri"), "the platform's view does not read the closure as a closure");
+      const req = psql(`select id from public.account_requests where person_id = ${lit(orang)} and kind = 'DELETE_PERSONAL_DATA'`);
+      const f3 = formDengan(h3, `data-hapus-data="${req}"`, {});
+      if (!c.expect(typeof f3 !== "string", `the deletion form in the queue: ${f3}`)) return c.verdict("");
+      const r3 = await sys.kirim("/konfigurasi/keamanan", { form: f3 as Record<string, string> });
+      c.expect(/hasil=ok/.test(r3.headers.get("location") ?? ""), `the deletion answered ${r3.status} ${r3.headers.get("location")}`);
+      const sesudah = psql(`select display_name || '|' || (anonymized_at is not null) from public.persons where id = ${lit(orang)}`);
+      c.expect(sesudah === `${pid}|true`, `after the deletion the person reads «${sesudah}»`);
+      return c.verdict("a learner's Akun saya sends the request through the school and offers no form; an educator's rendered Akun saya says what leaving means (backups 7 days); " +
+        "their deletion request reads back «Diterima»; the closure takes effect at once (CLOSED_AT_REQUEST, sign-in refused); the PINTAR Administrator reads it as a closure " +
+        "and carries out the deletion from the queue: the name becomes the PINTAR ID, anonymized_at set");
     },
   },
 ];
