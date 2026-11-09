@@ -2,7 +2,7 @@
 
 Owner directive: Reporting Quality Gate, 9 Nov 2026.
 
-Evidence head: code candidate `20302e39` on `claude/awesome-rubin-bqxp6p`, CI 525 and journeys 231 green on that exact SHA (updated 9 Nov, after Sharon's and Daisy's reviews of `e8a5efb9` and the owner's O-B3). Later commits change this matrix only; the run record is in §12. Every figure below was checked against the raw official results, not against PINTAR's own calculators.
+Evidence head: code candidate `abce834d` on `claude/awesome-rubin-bqxp6p`, CI 528 and journeys 234 green on that exact SHA (updated 9 Nov, after both reviewers' re-checks, the owner's O-B3 and wording decisions). Later commits change documents only.
 
 **Gate status: OPEN.** O-B3 decided by the owner (9 Nov, §13). Open coverage: §12.
 
@@ -399,15 +399,16 @@ Restated tests (each with a note in the test): D78-P01 (A7), D78-N03 (A5), D78-S
 | `fd02ec3e` | O-B3 note names the badges (seen rendered after a real recalculation) | 524 red: 910 passed, 1 failed, DAISY-26-BELAJAR-01 (learner copy may not say «kunci jawaban», which reads as locking an answer) | **230 green** |
 | `20302e39` | the O-B3 notes reworded to «jawaban benar yang sudah diperbaiki» | **525 green** | **231 green** |
 | `e6758218` | matrix only | — | — |
-| `32acec65` | the re-checks' fixes (missing minimum not met; the gate's own «appears when» line; «the corrected answers») | superseded | superseded |
-| `58566513` | owner's wording decisions («students»; no «disegel» for learners) | superseded | superseded |
-| next | W9-K02 restated to «students» | to run | to run |
+| `32acec65` | the re-checks' fixes (missing minimum not met; the gate's own «appears when» line; «the corrected answers») | **526 green** | **232 green** |
+| `58566513` | owner's wording decisions («students»; no «disegel» for learners) | 527 cancelled (superseded) | 233 cancelled (superseded) |
+| `abce834d` | W9-K02 restated to «students» | **528 green** | **234 green** |
+| `04a1a634` | matrix and screen-reader script only | — | — |
 
 ### Open
 
 | Area | State |
 |---|---|
-| Exact-SHA CI and journeys | **Both green on the code candidate `20302e39`** (CI 525, journeys 231). Any later code change needs its own run |
+| Exact-SHA CI and journeys | **Both green on the code candidate `abce834d`** (CI 528, journeys 234). Any later code change needs its own run |
 | Clean-database suite | The whole suite ran on `1f28a08d` (5 failures, all fixed or restated, each rerun green), and runs in CI's selftest job on each head (CI 525 green on `20302e39`). Targeted fresh-database runs: `f8d933bc` 66 passed; `2b3b291e` 88; `32acec65` 89 (D78, LAPORAN, M4-K01, F36, F06, F31, F35, DAISY-26). **Whole suite on `58566513`** (clean database, local): 909 passed, 1 failed, W9-K02, which pinned «5 learners» in the English report; restated to the owner's «students» and passing |
 | Report walk | **On the code candidate `20302e39`** (fresh database, report world rebuilt, a real recalculation staged): 120 views, all 200, none scrolls sideways at 1280, 390 or 320 px. CEK at 1280 (40 views): 0 axe violations; titles, skip links and keyboard clean; no shell part on the A4 print. The recalculated sitting, rendered at 1280 and 390: the learner's Bab 2 keeps the sealed «0% · Terjawab tepat 0 dari 8 soal», the notice and the sealed per-objective counts, and the corrected-answers note sits under «Tinjau kembali» above the questions (one marked «Sudah tepat» under the corrected answers). The teacher's note gives 13% (latest), 0% (sealed) and the recorded reason. `32acec65` changes only the gate's closing line, the English notes and a tag that only a misconfigured catalogue reaches; it is not re-walked. Earlier: `d840b12f` (contrast fix found and fixed) |
 | Sharon | Verified `e8a5efb9` and re-checked `20302e39`: all items verified (§13). Her one edge case is fixed in `32acec65` |
