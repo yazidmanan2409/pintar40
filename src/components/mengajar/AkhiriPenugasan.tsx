@@ -82,7 +82,7 @@ export default function AkhiriPenugasan({ kelasId, tugas, pratinjau, kode, local
 
       <div className="pin-isian">
         <label htmlFor="akhiri-alasan">{s("mengajar.akhiri.alasan")}</label>
-        <textarea id="akhiri-alasan" name="alasan" className="pin-input" rows={3} minLength={5} maxLength={300} required
+        <textarea id="akhiri-alasan" name="alasan" className="pin-input" rows={3} minLength={10} maxLength={300} required
           aria-describedby="akhiri-alasan-arti" />
         <p id="akhiri-alasan-arti" className="pin-hint">{s("mengajar.akhiri.alasan.arti")}</p>
       </div>

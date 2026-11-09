@@ -6,8 +6,11 @@ export const KODE_AKUN_DB = [
   "ACCOUNT_NOT_ALLOWED", "ACCOUNT_SELF", "ACCOUNT_UNKNOWN", "ACCOUNT_CATEGORY_INVALID", "ACCOUNT_NOTE_REQUIRED",
   "ACCOUNT_ALREADY_SUSPENDED", "ACCOUNT_NOT_SUSPENDED", "ACCOUNT_CONFIRM_REQUIRED", "ACCOUNT_LEARNER_VIA_SCHOOL",
   "ACCOUNT_REQUEST_OPEN", "ACCOUNT_REQUEST_INVALID", "ACCOUNT_NOT_CLOSED",
+  // Sharon §16 finding 5 (6faef690): a live platform role does not close itself
+  "ACCOUNT_PLATFORM_ROLE",
 ] as const;
-export const KODE_AKUN = [...KODE_AKUN_DB, "ACCOUNT_FAILED"] as const;
+// ACCOUNT_PHOTO_PENDING (Sharon §16 finding 2): the data is deleted, a photo file not yet; pressing again finishes it
+export const KODE_AKUN = [...KODE_AKUN_DB, "ACCOUNT_PHOTO_PENDING", "ACCOUNT_FAILED"] as const;
 export type KodeAkun = (typeof KODE_AKUN)[number];
 
 /** A platform suspension's categories (§4), in tangguhkan_akun's own list and order. CLOSED_AT_REQUEST is never chosen. */

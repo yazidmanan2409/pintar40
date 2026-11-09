@@ -226,6 +226,9 @@ const RUTE_BEBAS: Array<[RegExp, string]> = [
   [/^src\/app\/api\/verifikasi\//, "public certificate verification"],
   [/^src\/app\/api\/email\/uji\//, "explicitly platform-scoped (D-132(k)): the platform administrator's delivery proof, by its own scope"],
   [/^src\/app\/api\/akun\/foto\//, "the person's own profile photo (W2.8): a neutral surface"],
+  // L4 (Sharon §16 finding 2): the deletion of personal data moved from the Keamanan action to a route, so the photo
+  // files go with it; platform-scoped as that action was (hapus_data_pribadi decides: an active SYSTEM_ADMIN)
+  [/^src\/app\/api\/akun\/hapus-data\//, "explicitly platform-scoped (§5b, L4): the deletion of personal data is the PINTAR Administrator's alone, decided by the database"],
 ];
 
 export const fable22Tests: SelfTest[] = [

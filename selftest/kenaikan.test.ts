@@ -313,7 +313,8 @@ export const kenaikanAppTests: SelfTest[] = [
       c.expect(/kode=ASSIGN_REASON_REQUIRED/.test(r1.headers.get("location") ?? "") && keadaan() === "ACTIVE/OPEN",
         `a 3-character reason: ${r1.status} ${r1.headers.get("location")}; now ${keadaan()}`);
       const h3 = await (await guru.halaman(r1.headers.get("location") ?? `/mengajar/${kelas}?akhiri=${la}`)).text();
-      c.expect(teks(h3).includes("Tuliskan alasannya, 5 sampai 300 karakter."), "the refusal's sentence is not shown on the panel");
+      // RESTATED (Daisy, TINJAUAN-6faef690): the reason is 10–300 characters, as every other reason
+      c.expect(teks(h3).includes("Tuliskan alasannya, 10 sampai 300 karakter."), "the refusal's sentence is not shown on the panel");
       // the withdrawal, on the record
       const f2 = formDengan(h2, `data-akhiri="${la}"`, { jenis: "WITHDRAWN", alasan: `diberikan ke kelas yang salah ${tag}` });
       const r2 = await guru.kirim(`/mengajar/${kelas}`, { form: f2 as Record<string, string> });
@@ -550,7 +551,10 @@ export const kenaikanAppTests: SelfTest[] = [
       const req = psql(`select id from public.account_requests where person_id = ${lit(orang)} and kind = 'DELETE_PERSONAL_DATA'`);
       const f3 = formDengan(h3, `data-hapus-data="${req}"`, {});
       if (!c.expect(typeof f3 !== "string", `the deletion form in the queue: ${f3}`)) return c.verdict("");
-      const r3 = await sys.kirim("/konfigurasi/keamanan", { form: f3 as Record<string, string> });
+      // RESTATED (Sharon §16 finding 2 on 6faef690): the deletion moved from Keamanan's server action to a route, so the
+      // photo files are removed with the data; the form posts there, and the answer is the route's 303 to the queue
+      c.expect(h3.includes('action="/api/akun/hapus-data"'), "the deletion form does not post to /api/akun/hapus-data");
+      const r3 = await sys.kirim("/api/akun/hapus-data", { form: f3 as Record<string, string> });
       c.expect(/hasil=ok/.test(r3.headers.get("location") ?? ""), `the deletion answered ${r3.status} ${r3.headers.get("location")}`);
       const sesudah = psql(`select display_name || '|' || (anonymized_at is not null) from public.persons where id = ${lit(orang)}`);
       c.expect(sesudah === `${pid}|true`, `after the deletion the person reads «${sesudah}»`);

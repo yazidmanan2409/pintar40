@@ -27,7 +27,7 @@ export const dynamic = "force-dynamic";
  * ladder back to 0 and a new PIN required; every session of the person ended;
  * the owner and the security recipient are emailed.
  */
-export default async function Keamanan({ searchParams }: { searchParams: Promise<{ pid?: string; hasil?: string; apa?: string; kode?: string }> }) {
+export default async function Keamanan({ searchParams }: { searchParams: Promise<{ pid?: string; hasil?: string; apa?: string; kode?: string; permintaan?: string }> }) {
   const sp = await searchParams;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
@@ -71,7 +71,8 @@ export default async function Keamanan({ searchParams }: { searchParams: Promise
         </div>
         <PemulihanPin locale={locale} />
         {sistem === true ? (
-          <AkunPlatform locale={locale} pid={pid} akun={akun} antrean={antrean} hasil={sp.hasil} apa={sp.apa} kode={kodeAkunDari(sp.kode)} />
+          <AkunPlatform locale={locale} pid={pid} akun={akun} antrean={antrean} hasil={sp.hasil} apa={sp.apa} kode={kodeAkunDari(sp.kode)}
+            ulang={/^[0-9a-f-]{36}$/i.test(sp.permintaan ?? "") ? sp.permintaan : undefined} />
         ) : null}
         {sistem === true ? (
           <CatatanKeamanan locale={locale} baris={baris} />

@@ -62,6 +62,16 @@
 --   F38-A05  L4: the PINTAR Administrator deletes the closed account's personal data from the queue: the name becomes the
 --            PINTAR ID, the photo and the sign-in email are gone, anonymized_at is set, the roles and the audit log are
 --            kept, the request DONE; an open account's request is refused (ACCOUNT_NOT_CLOSED), and a school's admin.
+--   F38-S06  Sharon §15 (6faef690): a swap of Kepala departemen for Dekan over the same place is not a false warning;
+--            akhiri_tugas_staf records the decisions left with no one to decide; peran_orang reads only a person tied
+--            to the school (STAFF_UNKNOWN); removing another Admin sekolah needs its second press, as naming one does.
+--   F38-C05  Sharon §14 (6faef690, Low): one pending replacement per certificate. A preparation with another reason
+--            reuses it (its number and token), so abandoned preparations never use up the holder's numbers.
+--   F38-A06  Sharon §16 findings 1 and 3 (6faef690): L4 for a person who also holds a class card goes through (the card's
+--            address is not personal data and is left), and the name and email are removed where else they were copied:
+--            activation grants, email corrections, card conversions, import rows, the chosen username, auth.identities.
+--   F38-A07  Sharon §16 finding 5: a person holding a live platform role cannot close their own account
+--            (ACCOUNT_PLATFORM_ROLE), so the last PINTAR Administrator cannot lock the platform out.
 --   F38-H01  Sharon F1 (7a2c1751): a school's date is its own. Kelas A's school set to WIT by the PINTAR Administrator
 --            (a school's admin is refused; the change is audited): hari_sekolah answers WIT's date, an ending with no
 --            date is stamped with it, and WIT's tomorrow is refused as a future date.
@@ -144,7 +154,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
-  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
+  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; s06 text[] := '{}'; u_hd uuid; p_hd uuid; v_hdr uuid; p_luar uuid; u_adm2 uuid; p_adm2 uuid; c05 text[] := '{}'; v_num05 text; v_seq05 int; a06 text[] := '{}'; a07 text[] := '{}'; u_c uuid; u_kartu uuid; p_c uuid; v_akk uuid; v_job uuid; v_req3 uuid; v_pid3 text; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
   u_admin uuid; v_n int; v_cert uuid; v_cert2 uuid; v_new uuid; v_new2 uuid; v_tok text; v_ntok text; v_payload jsonb; v_nomor text; v_snapold uuid; p_holder uuid; u_holder uuid; v_k record;
   v_crel uuid; v_cdef uuid; v_dist uuid; v_la3 uuid; v_aa3 uuid;
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid; v_coh uuid; c_a uuid; c_b uuid;
@@ -443,7 +453,26 @@ begin
       v_new := v_k.certificate_id;
       select * into v_k from public.sertifikat_koreksi_siapkan(v_cert, 'nama murid salah ketik saat terbit', 1::smallint);
       if v_k.certificate_id is distinct from v_new then c03 := c03 || 'a second press prepared another replacement'::text; end if;
-    exception when others then c03 := c03 || ('the admin could not prepare the replacement: ' || sqlerrm); end;
+      -- C05 (Sharon §14 on 6faef690): another reason is the same pending replacement, its number unchanged, the counter
+      -- not moved; the last reason given is the one it carries
+      perform selftest.as_owner();
+      select n.certificate_number into v_num05 from public.certificates n where n.id = v_new;
+      select cn.last_sequence into v_seq05 from public.certificate_number_counters cn where cn.person_id = (select x.person_id from public.certificates x where x.id = v_cert);
+      perform selftest.as_user_uid(u_admin);
+      select * into v_k from public.sertifikat_koreksi_siapkan(v_cert, 'ejaan nama keliru di sertifikat', 1::smallint);
+      perform selftest.as_owner();
+      if v_k.certificate_id is distinct from v_new then c05 := c05 || 'another reason prepared another replacement (a new number taken)'::text;
+      elsif (select n.correction_reason from public.certificates n where n.id = v_new) <> 'ejaan nama keliru di sertifikat' then
+        c05 := c05 || 'the pending replacement does not carry the reason given last'::text; end if;
+      if (select n.certificate_number from public.certificates n where n.id = v_new) is distinct from v_num05
+         or (select cn.last_sequence from public.certificate_number_counters cn where cn.person_id = (select x.person_id from public.certificates x where x.id = v_cert)) is distinct from v_seq05 then
+        c05 := c05 || 'the number changed or the holder''s counter moved'::text; end if;
+      if (select count(*) from public.certificates n where n.supersedes_certificate_id = v_cert and n.status = 'ELIGIBLE') <> 1 then
+        c05 := c05 || 'more than one pending replacement'::text; end if;
+      perform selftest.as_user_uid(u_admin);
+      select * into v_k from public.sertifikat_koreksi_siapkan(v_cert, 'nama murid salah ketik saat terbit', 1::smallint);
+    -- a failure rolls the preparation back, so nothing below may act on it
+    exception when others then c03 := c03 || ('the admin could not prepare the replacement: ' || sqlerrm); v_new := null; end;
     perform selftest.as_owner();
     if v_new is not null then
       if not exists (select 1 from public.certificates n join public.certificate_identity_snapshots sn on sn.id = n.snapshot_id
@@ -595,6 +624,39 @@ begin
         s05 := s05 || 'not one role.changed row per change'::text; end if;
     end if;
 
+    -- S06 Sharon §15 (6faef690): the swap Kepala departemen → Dekan over the same place warns of nothing; ending the last
+    -- one who could decide records the decisions left waiting; a person with no tie to the school is not read; removing
+    -- another Admin sekolah needs its second press
+    if v_md is not null then
+      u_hd := selftest.f11_user('f38-kadep-' || v_tag || '@local.invalid', 'HEAD_OF_DEPARTMENT', v_dep);
+      select a.person_id into p_hd from public.accounts a where a.auth_user_id = u_hd;
+      select x.id into v_hdr from public.staf_peran_hidup(p_hd, v_inst) x where x.role = 'HEAD_OF_DEPARTMENT';
+      v_sid := public.staf_sidik(p_hd, v_inst);
+      perform selftest.as_user_uid(u_admin);
+      begin
+        v_ub := public.ubah_peran(p_hd, v_inst, ('[{"role":"DEAN","scope_node_id":"' || v_dep || '","valid_until":"2099-01-01"}]')::jsonb,
+                                  array[v_hdr], 'menjadi Dekan atas departemen', v_sid, false, false);
+        if jsonb_array_length(coalesce(v_ub -> 'antrean', '[]')) <> 0 then
+          s06 := s06 || ('Kepala departemen → Dekan over the same place warns of a decision left unattended: ' || (v_ub -> 'antrean')::text); end if;
+      exception when others then s06 := s06 || ('the swap''s review: ' || sqlerrm); end;
+      perform selftest.as_owner();
+      v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_tugas_staf(%L, %L, %L, %L, null)', p_hd, v_inst, 'RESIGNATION', 'mengundurkan diri akhir semester'));
+      if v_got <> 'OK' then s06 := s06 || ('ending the Kepala departemen: ' || v_got);
+      elsif not (coalesce((select a.summary -> 'queues_unattended' from public.audit_log a where a.action = 'staff.ended_at_school' and a.target_id = p_hd::text), '[]')
+                 @> jsonb_build_array(jsonb_build_object('tempat', 'Kelas F38 B ' || v_tag, 'menunggu', 1))) then
+        s06 := s06 || 'ending the last one who could decide does not record the decision left waiting'::text; end if;
+    else
+      s06 := s06 || 'fixture: S05 left no waiting decision'::text;
+    end if;
+    insert into public.persons (display_name) values ('Orang Luar F38 ' || v_tag) returning persons.id into p_luar;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.peran_orang(%L, %L)', p_luar, v_inst));
+    if v_got <> 'PR130:STAFF_UNKNOWN' then s06 := s06 || ('a person with no tie to the school is read: ' || v_got || ' (expected PR130:STAFF_UNKNOWN)'); end if;
+    u_adm2 := selftest.f11_user('f38-admin-dua-' || v_tag || '@local.invalid', 'INSTITUTION_ADMIN', v_root);
+    select a.person_id into p_adm2 from public.accounts a where a.auth_user_id = u_adm2;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.ubah_peran(%L, %L, %L::jsonb, %L::uuid[], %L, %L, false, false)', p_adm2, v_inst, '[]',
+               array[(select x.id from public.staf_peran_hidup(p_adm2, v_inst) x where x.role = 'INSTITUTION_ADMIN')], 'tidak lagi mengurus sekolah', public.staf_sidik(p_adm2, v_inst)));
+    if v_got <> 'PR130:ROLE_ADMIN_UNCONFIRMED' then s06 := s06 || ('removing another Admin sekolah without the second press: ' || v_got); end if;
+
     -- S01 E5: Kelas A's Guru leaves the school
     v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_tugas_staf(%L, %L, %L, %L, (now() at time zone ''Asia/Jakarta'')::date)',
                p_guru_a, v_inst, 'RESIGNATION', 'mengundurkan diri akhir semester'));
@@ -703,6 +765,54 @@ begin
       if not exists (select 1 from public.role_assignments ra where ra.person_id = p_guru_b) then a05 := a05 || 'the role history is gone'::text; end if;
       if (select count(*) from public.audit_log a where a.action = 'account.personal_data_deleted' and a.target_id = p_guru_b::text) <> 1 then
         a05 := a05 || 'no account.personal_data_deleted row'::text; end if;
+    end if;
+
+    -- ═══════════════════════════════════ F38-A06/A07 Sharon's §16 findings on 6faef690
+    -- A07 a live platform role does not close itself
+    v_got := selftest.f37_sebagai(u_sys, format('select public.minta_akun(%L, true)', 'CLOSE'));
+    if v_got <> 'PR140:ACCOUNT_PLATFORM_ROLE' then a07 := a07 || ('the PINTAR Administrator closing their own account: ' || v_got); end if;
+    if exists (select 1 from public.person_suspensions x where x.person_id = p_sys) then a07 := a07 || 'the refusal still closed the account'::text; end if;
+
+    -- A06 a card holder's deletion, and every copy of the name and email
+    u_c := selftest.f11_user('f38-pergi-' || v_tag || '@local.invalid', null, null);
+    select a.person_id, a.id into p_c, v_akk from public.accounts a where a.auth_user_id = u_c;
+    update public.persons set display_name = 'Nama Asli F38 ' || v_tag where persons.id = p_c;
+    set local session_replication_role = replica;
+    insert into auth.users (id, email) values (gen_random_uuid(), 'card-f38' || v_tag || '@cards.local.invalid') returning users.id into u_kartu;
+    insert into public.accounts (person_id, auth_user_id, kind, card_number) values (p_c, u_kartu, 'CLASSROOM_CARD', '0000038001');
+    insert into public.person_usernames (person_id, username, claimed_at) values (p_c, 'namaasli' || substr(v_tag, 1, 6), now());
+    insert into public.account_activation_grants (email, person_id, kind, authorized_by, expires_at, consumed_at, consumed_by)
+    values ('f38-pergi-' || v_tag || '@local.invalid', p_c, 'EMAIL', p_sys, now() + interval '1 day', now(), u_c);
+    insert into public.email_corrections (person_id, account_id, old_email, new_email, activated, reason, authorized_by, expires_at)
+    values (p_c, v_akk, 'lama-' || v_tag || '@local.invalid', 'f38-pergi-' || v_tag || '@local.invalid', true, 'uji F38-A06', p_sys, now() + interval '1 day');
+    insert into public.card_conversions (person_id, account_id, old_card_number, new_email, reason, authorized_by, expires_at)
+    values (p_c, v_akk, '0000038001', 'f38-pergi-' || v_tag || '@local.invalid', 'uji F38-A06 konversi', p_sys, now() + interval '1 day');
+    insert into public.import_jobs (institution_id, created_by_person_id) values (v_inst, p_sys) returning import_jobs.id into v_job;
+    insert into public.import_rows (job_id, ordinal, payload, state, person_id)
+    values (v_job, 1, jsonb_build_object('nama', 'Nama Asli F38 ' || v_tag, 'email', 'f38-pergi-' || v_tag || '@local.invalid'), 'PENDING', p_c);
+    insert into auth.identities (id, user_id, provider_id, provider, identity_data, created_at, updated_at)
+    values (gen_random_uuid(), u_c, u_c::text, 'email', jsonb_build_object('sub', u_c::text, 'email', 'f38-pergi-' || v_tag || '@local.invalid'), now(), now());
+    set local session_replication_role = origin;
+    v_got := selftest.f37_sebagai(u_c, format('select public.minta_akun(%L, true)', 'DELETE_PERSONAL_DATA'));
+    v_got := selftest.f37_sebagai(u_c, format('select public.minta_akun(%L, true)', 'CLOSE'));
+    select q.id into v_req3 from public.account_requests q where q.person_id = p_c and q.kind = 'DELETE_PERSONAL_DATA';
+    v_got := selftest.f37_sebagai(u_sys, format('select public.hapus_data_pribadi(%L, null)', v_req3));
+    if v_got <> 'OK' then a06 := a06 || ('the deletion for a card holder: ' || v_got);
+    else
+      if (select u.email from auth.users u where u.id = u_kartu) <> 'card-f38' || v_tag || '@cards.local.invalid' then
+        a06 := a06 || 'the class card''s address was changed'::text; end if;
+      if exists (select 1 from public.account_activation_grants g where (g.person_id = p_c or g.consumed_by = u_c) and g.email like 'f38-pergi-%') then
+        a06 := a06 || 'the activation grant keeps the email'::text; end if;
+      if exists (select 1 from public.email_corrections c where c.person_id = p_c and (c.old_email like 'lama-%' or c.new_email like 'f38-pergi-%')) then
+        a06 := a06 || 'an email correction keeps an address'::text; end if;
+      if exists (select 1 from public.card_conversions c where c.person_id = p_c and c.new_email like 'f38-pergi-%') then
+        a06 := a06 || 'a card conversion keeps the email'::text; end if;
+      if v_job is not null and exists (select 1 from public.import_rows ir where ir.person_id = p_c and (ir.payload::text like '%Nama Asli%' or ir.payload::text like '%f38-pergi-%')) then
+        a06 := a06 || 'the import row keeps the name or email'::text; end if;
+      if exists (select 1 from public.person_usernames un where un.person_id = p_c and un.username like 'namaasli%') then
+        a06 := a06 || 'the chosen username is kept'::text; end if;
+      if exists (select 1 from auth.identities i where i.user_id = u_c and i.identity_data::text like '%f38-pergi-%') then
+        a06 := a06 || 'auth.identities keeps the email'::text; end if;
     end if;
 
     -- ═══════════════════════════════════ F38-H01..H06 Sharon's findings on 7a2c1751
@@ -841,6 +951,10 @@ begin
       ('F38-A02', 'Suspension refusals write nothing', a02, 'a school''s admin, the administrator''s own account, an unknown category, «Lainnya» without a note and a second suspension are refused; nothing written'),
       ('F38-A03', 'Reactivation', a03, 'refused without a reason; with one, sign-in allowed and the token answers again; one account.reactivated row'),
       ('F38-A04', 'L2 / L3: the person''s own requests', a04, 'a learner is sent to the school, no confirmation is refused; a deletion request is RECEIVED once and read back; the closure is CLOSED_AT_REQUEST at once, its request DONE, sign-in and every request refused; the platform''s queue holds the deletion request'),
+      ('F38-S06', 'Sharon §15: queues, visibility and the second press', s06, 'Kepala departemen → Dekan over the same place warns of nothing; ending the last one who could decide records the decision left waiting; a person with no tie to the school is refused STAFF_UNKNOWN; removing another Admin sekolah needs the second press'),
+      ('F38-C05', 'Sharon §14: one pending replacement per certificate', c05, 'a preparation with another reason is the same pending replacement, with the same number, the holder''s counter unmoved, carrying the reason given last'),
+      ('F38-A06', 'Sharon §16: L4 for a card holder, and every copy of the name and email', a06, 'the deletion goes through with a class card held; the card''s address stays; the activation grant, email corrections, card conversion, import row, username and auth.identities keep neither name nor email'),
+      ('F38-A07', 'Sharon §16: a live platform role does not close itself', a07, 'the PINTAR Administrator''s own CLOSE is refused ACCOUNT_PLATFORM_ROLE and nothing is closed'),
       ('F38-H01', 'Sharon F1: a school''s date is its own', h01, 'the PINTAR Administrator sets WIT (a school''s admin refused, audited); hari_sekolah answers WIT''s date; an ending with no date is stamped with it; WIT''s tomorrow is refused'),
       ('F38-H02', 'Sharon F2: an ending does not use up an attempt', h02, 'a sitting TERMINATED as INSTITUTIONAL_REVOCATION is not counted against an attempt limit of 1'),
       ('F38-H03', 'Sharon F3: a placeless open sitting does not block a departure', h03, 'the enrolment ends; the sitting with neither class nor Angkatan is TERMINATED as INSTITUTIONAL_REVOCATION, audited'),

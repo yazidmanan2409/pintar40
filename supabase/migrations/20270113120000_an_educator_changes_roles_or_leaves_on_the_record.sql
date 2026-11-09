@@ -47,6 +47,8 @@ begin
       when 'ROLE_UNTIL_INVALID'     then 'a role ends after today'
       when 'ROLE_ADMIN_UNCONFIRMED' then 'naming another Admin sekolah needs its own confirmation (D-101)'
       when 'ROLE_REMOVE_INVALID'    then 'a role to remove is not this person''s live role at this school'
+      -- CORRECTED IN PLACE (undeployed; Sharon §15 on 6faef690)
+      when 'STAFF_UNKNOWN'          then 'this person has no role, enrolment or number at this school'
       else 'the roles could not be changed' end;
 end $$;
 revoke all on function public.staf_tolak(text) from public, anon, authenticated;
@@ -80,10 +82,44 @@ returns boolean language sql stable security definer set search_path = public, p
 $$;
 revoke all on function public.staf_boleh(uuid) from public, anon, authenticated;
 
+-- CORRECTED IN PLACE (undeployed; Sharon §15 on 6faef690, Low): the decisions waiting at a place that no Kepala
+-- departemen or Dekan would hold after a change (the roles removed, the roles added), raised by someone else. One rule
+-- for «Ubah peran» (its review warns) and «Akhiri tugas» (its audit row records them).
+create or replace function public.staf_antrean(p_institution uuid, p_cabut uuid[], p_tambah jsonb, p_person uuid)
+returns jsonb language sql stable security definer set search_path = public, pg_temp as $$
+  select coalesce(jsonb_agg(jsonb_build_object('tempat', q.name, 'menunggu', q.n) order by q.name), '[]') from (
+    select n.name, count(*) as n
+      from public.management_decisions md join public.org_nodes n on n.id = md.scope_node_id
+     where md.institution_id = p_institution and md.state <> 'DECIDED'
+       and exists (select 1 from public.role_assignments ra join public.org_nodes rn on rn.id = ra.scope_node_id
+                    where ra.id = any (p_cabut) and ra.role in ('HEAD_OF_DEPARTMENT', 'DEAN')
+                      and (n.id = rn.id or n.jalur @> array[rn.id]))
+       and not exists (select 1 from public.role_assignments ra2 join public.org_nodes an on an.id = ra2.scope_node_id
+                        where ra2.institution_id = p_institution and ra2.role in ('HEAD_OF_DEPARTMENT', 'DEAN')
+                          and ra2.revoked_at is null and now() >= ra2.valid_from and now() < ra2.valid_until
+                          and ra2.id <> all (p_cabut) and ra2.person_id <> md.raised_by_person_id
+                          and (n.id = an.id or n.jalur @> array[an.id]))
+       -- a role added in the same change decides there too (Sharon: Kepala departemen → Dekan over the same place)
+       and not exists (select 1 from jsonb_array_elements(coalesce(p_tambah, '[]')) a
+                         join public.org_nodes an on an.id = (a ->> 'scope_node_id')::uuid
+                        where a ->> 'role' in ('HEAD_OF_DEPARTMENT', 'DEAN') and p_person <> md.raised_by_person_id
+                          and (n.id = an.id or n.jalur @> array[an.id]))
+     group by n.name) q
+$$;
+revoke all on function public.staf_antrean(uuid, uuid[], jsonb, uuid) from public, anon, authenticated;
+
 create or replace function public.peran_orang(p_person uuid, p_institution uuid)
 returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $$
 begin
   if not public.staf_boleh(p_institution) then perform public.staf_tolak('STAFF_NOT_ALLOWED'); end if;
+  -- CORRECTED IN PLACE (undeployed; Sharon §15, Low): only a person tied to this school (a role there, now or before,
+  -- an enrolment or a registration number) is read, never any person id
+  if not exists (select 1 from public.role_assignments ra join public.org_nodes n on n.id = ra.scope_node_id
+                  where ra.person_id = p_person and n.institution_id = p_institution)
+     and not exists (select 1 from public.enrollments e where e.person_id = p_person and e.institution_id = p_institution)
+     and not exists (select 1 from public.institutional_identities ii where ii.person_id = p_person and ii.institution_id = p_institution) then
+    perform public.staf_tolak('STAFF_UNKNOWN');
+  end if;
   return jsonb_build_object(
     'person_id', p_person,
     'nama', (select p.display_name from public.persons p where p.id = p_person),
@@ -105,7 +141,7 @@ declare v_actor uuid := public.current_person_id(); v_alasan text := btrim(coale
         -- CORRECTED IN PLACE (undeployed; Sharon F1): the school's own clock (20270112195000)
         v_zona text := public.zona_sekolah(p_institution);
         v_hari date := (now() at time zone v_zona)::date; v_tgl date := coalesce(p_tanggal, v_hari);
-        v_awal date; v_ids jsonb; v_n int;
+        v_awal date; v_ids jsonb; v_n int; v_antre jsonb;
 begin
   if not public.staf_boleh(p_institution) then perform public.staf_tolak('STAFF_NOT_ALLOWED'); end if;
   if p_person = v_actor then perform public.staf_tolak('STAFF_SELF'); end if;
@@ -120,13 +156,16 @@ begin
   if v_n = 0 then perform public.staf_tolak('STAFF_NOT_ACTIVE'); end if;
   if v_tgl > v_hari or v_tgl < v_awal then perform public.staf_tolak('STAFF_DATE_INVALID'); end if;
 
+  -- CORRECTED IN PLACE (undeployed; Sharon §15, Low): the decisions this leaves with no one to decide are recorded
+  -- (warned, never reassigned, as in «Ubah peran»)
+  v_antre := public.staf_antrean(p_institution, (select array_agg(x.id) from public.staf_peran_hidup(p_person, p_institution) x), '[]', p_person);
   -- each role ends once, through the guard and its per-row audit (role.revoked with the reason)
   update public.role_assignments ra set revoked_at = now(), revoked_by = v_actor, revoked_reason = v_alasan
    where ra.id in (select x.id from public.staf_peran_hidup(p_person, p_institution) x);
   perform public.audit_write('staff.ended_at_school', 'persons', p_person::text, p_institution,
     jsonb_build_object('person_id', p_person, 'reason_code', p_kategori, 'reason', v_alasan, 'effective_date', v_tgl::text,
-                       'roles_ended', v_ids, 'actor_role', public.audit_actor_role(p_institution)));
-  return jsonb_build_object('ok', true, 'diakhiri', v_n);
+                       'roles_ended', v_ids, 'queues_unattended', v_antre, 'actor_role', public.audit_actor_role(p_institution)));
+  return jsonb_build_object('ok', true, 'diakhiri', v_n, 'antrean', v_antre);
 end $$;
 revoke all on function public.akhiri_tugas_staf(uuid, uuid, text, text, date) from public, anon, authenticated;
 grant execute on function public.akhiri_tugas_staf(uuid, uuid, text, text, date) to authenticated;
@@ -161,6 +200,11 @@ begin
     v_until := nullif(t ->> 'valid_until', '')::timestamptz;
     if v_until is null or v_until <= now() then perform public.staf_tolak('ROLE_UNTIL_INVALID'); end if;
   end loop;
+  -- CORRECTED IN PLACE (undeployed; Sharon §15 suggestion): removing another Admin sekolah needs the same second press
+  -- as naming one (D-101)
+  if exists (select 1 from public.role_assignments ra where ra.id = any (v_cabut) and ra.role = 'INSTITUTION_ADMIN') then
+    v_admin := true;
+  end if;
   if v_admin and not coalesce(p_konfirmasi_admin, false) then perform public.staf_tolak('ROLE_ADMIN_UNCONFIRMED'); end if;
   if char_length(v_alasan) < 10 or char_length(v_alasan) > 300 then perform public.staf_tolak('STAFF_REASON_REQUIRED'); end if;
 
@@ -184,19 +228,7 @@ begin
     into v_tetap, v_dapat, v_hilang;
 
   -- the queues: management decisions waiting at a place no Kepala departemen or Dekan would hold after the change
-  select coalesce(jsonb_agg(jsonb_build_object('tempat', q.name, 'menunggu', q.n)), '[]') into v_antre from (
-    select n.name, count(*) as n
-      from public.management_decisions md join public.org_nodes n on n.id = md.scope_node_id
-     where md.institution_id = p_institution and md.state <> 'DECIDED'
-       and exists (select 1 from public.role_assignments ra join public.org_nodes rn on rn.id = ra.scope_node_id
-                    where ra.id = any (v_cabut) and ra.role in ('HEAD_OF_DEPARTMENT', 'DEAN')
-                      and (n.id = rn.id or n.jalur @> array[rn.id]))
-       and not exists (select 1 from public.role_assignments ra2 join public.org_nodes an on an.id = ra2.scope_node_id
-                        where ra2.institution_id = p_institution and ra2.role in ('HEAD_OF_DEPARTMENT', 'DEAN')
-                          and ra2.revoked_at is null and now() >= ra2.valid_from and now() < ra2.valid_until
-                          and ra2.id <> all (v_cabut) and ra2.person_id <> md.raised_by_person_id
-                          and (n.id = an.id or n.jalur @> array[an.id]))
-     group by n.name) q;
+  v_antre := public.staf_antrean(p_institution, v_cabut, p_tambah, p_person);
 
   if not p_terapkan then
     return jsonb_build_object('pratinjau', true, 'tetap', v_tetap, 'dapat', v_dapat, 'hilang', v_hilang, 'antrean', v_antre,

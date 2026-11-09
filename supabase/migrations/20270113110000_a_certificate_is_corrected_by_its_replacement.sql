@@ -50,6 +50,21 @@ begin
   end if;
   if tg_op = 'INSERT' then return new; end if;
 
+  -- CORRECTED IN PLACE (undeployed; Sharon §14 on 6faef690, Low): a replacement prepared and not yet sealed (ELIGIBLE,
+  -- unsigned, not public: verify_certificate answers nothing for it) is re-prepared in place when the administrator
+  -- presses again with another reason or after the name changed again, so abandoned preparations never use up the
+  -- holder's numbers. What identifies it stays: its session, holder, school, number, token and the certificate it
+  -- replaces. Once sealed, every rule below holds.
+  if old.status = 'ELIGIBLE' and new.status = 'ELIGIBLE' and old.supersedes_certificate_id is not null
+     and old.signature is null and new.signature is null then
+    if new.session_id <> old.session_id or new.person_id <> old.person_id or new.institution_id <> old.institution_id
+       or new.certificate_number <> old.certificate_number or new.verification_token <> old.verification_token
+       or new.supersedes_certificate_id is distinct from old.supersedes_certificate_id then
+      raise exception 'a certificate is immutable; a correction is a new chain-linked row (§8)';
+    end if;
+    return new;
+  end if;
+
   if new.session_id <> old.session_id or new.person_id <> old.person_id
      or new.institution_id <> old.institution_id or new.snapshot_id <> old.snapshot_id
      or new.certificate_number <> old.certificate_number
@@ -175,13 +190,17 @@ begin
   select cn.last_sequence into v_seq from public.certificate_number_counters cn where cn.person_id = v_c.person_id for update;
 
   -- a replacement already prepared for this key and the same reason is the one to sign (a second press, or a retry
-  -- after the signature failed): nothing new is numbered
+  -- after the signature failed): nothing new is numbered. CORRECTED IN PLACE (Sharon §14): there is at most one
+  -- pending replacement per certificate; another reason, actor or key re-prepares that one in place, its number and
+  -- token kept, below
   select * into v_pending from public.certificates n
    where n.supersedes_certificate_id = v_c.id and n.status = 'ELIGIBLE'
-     and (n.canonical_payload ->> 'key_version')::smallint = p_key_version and n.correction_reason = v_alasan
-     and n.corrected_by_person_id = v_actor
    order by n.created_at desc limit 1;
-  if v_pending.id is not null then
+  if v_pending.id is not null and (v_pending.canonical_payload ->> 'key_version')::smallint = p_key_version
+     and v_pending.correction_reason = v_alasan and v_pending.corrected_by_person_id = v_actor
+     and (select sn.name_as_issued from public.certificate_identity_snapshots sn where sn.id = v_pending.snapshot_id) is not distinct from k.nama
+     and v_pending.institution_as_issued is not distinct from k.sekolah and v_pending.course_title_as_issued is not distinct from k.kursus
+     and v_pending.course_subject_as_issued is not distinct from k.mapel then
     certificate_id := v_pending.id; canonical_payload := v_pending.canonical_payload; return next; return;
   end if;
 
@@ -192,16 +211,21 @@ begin
   values (v_c.person_id, v_c.institution_id, v_person.display_name, null, null, v_snaphash)
   returning id into v_snap;
 
-  v_token := replace(replace(replace(encode(extensions.gen_random_bytes(32), 'base64'), '+', '-'), '/', '_'), '=', '');
-  loop
-    v_seq := v_seq + 1;
-    if v_seq > 99999 then
-      raise exception 'this holder has reached the last certificate number of the five-digit sequence (D-080(2))';
-    end if;
-    v_num := v_person.pintar_id || '/' || lpad(v_seq::text, 5, '0');
-    exit when not exists (select 1 from public.certificates x where x.certificate_number = v_num);
-  end loop;
-  update public.certificate_number_counters set last_sequence = v_seq, updated_at = now() where person_id = v_c.person_id;
+  if v_pending.id is not null then
+    -- the pending replacement keeps its number and token (Sharon §14)
+    v_num := v_pending.certificate_number; v_token := v_pending.verification_token;
+  else
+    v_token := replace(replace(replace(encode(extensions.gen_random_bytes(32), 'base64'), '+', '-'), '/', '_'), '=', '');
+    loop
+      v_seq := v_seq + 1;
+      if v_seq > 99999 then
+        raise exception 'this holder has reached the last certificate number of the five-digit sequence (D-080(2))';
+      end if;
+      v_num := v_person.pintar_id || '/' || lpad(v_seq::text, 5, '0');
+      exit when not exists (select 1 from public.certificates x where x.certificate_number = v_num);
+    end loop;
+    update public.certificate_number_counters set last_sequence = v_seq, updated_at = now() where person_id = v_c.person_id;
+  end if;
   v_iso := to_char(now() at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"');
 
   -- the original's sealed payload, with only what a replacement is: its number, its holder's snapshot, its date and
@@ -218,13 +242,22 @@ begin
     'scoring_policy_version', v_c.canonical_payload -> 'scoring_policy_version',
     'key_version', p_key_version);
 
-  insert into public.certificates (session_id, person_id, institution_id, snapshot_id,
-    certificate_number, verification_token, status, issued_at_iso, canonical_payload,
-    institution_as_issued, course_subject_as_issued, course_title_as_issued, language_as_issued,
-    supersedes_certificate_id, correction_reason, corrected_by_person_id)
-  values (v_c.session_id, v_c.person_id, v_c.institution_id, v_snap, v_num, v_token, 'ELIGIBLE', v_iso, v_payload,
-          k.sekolah, k.mapel, k.kursus, coalesce(v_c.language_as_issued, 'id'), v_c.id, v_alasan, v_actor)
-  returning id into v_id;
+  if v_pending.id is not null then
+    update public.certificates
+       set snapshot_id = v_snap, issued_at_iso = v_iso, canonical_payload = v_payload, institution_as_issued = k.sekolah,
+           course_subject_as_issued = k.mapel, course_title_as_issued = k.kursus, correction_reason = v_alasan,
+           corrected_by_person_id = v_actor
+     where id = v_pending.id
+    returning id into v_id;
+  else
+    insert into public.certificates (session_id, person_id, institution_id, snapshot_id,
+      certificate_number, verification_token, status, issued_at_iso, canonical_payload,
+      institution_as_issued, course_subject_as_issued, course_title_as_issued, language_as_issued,
+      supersedes_certificate_id, correction_reason, corrected_by_person_id)
+    values (v_c.session_id, v_c.person_id, v_c.institution_id, v_snap, v_num, v_token, 'ELIGIBLE', v_iso, v_payload,
+            k.sekolah, k.mapel, k.kursus, coalesce(v_c.language_as_issued, 'id'), v_c.id, v_alasan, v_actor)
+    returning id into v_id;
+  end if;
   perform public.audit_write('certificate.correction_prepared', 'certificates', v_id::text, v_c.institution_id,
     jsonb_build_object('certificate_id', v_id, 'supersedes', v_c.id, 'number', v_num, 'reason', v_alasan,
                        'actor_role', public.audit_actor_role(v_c.institution_id)));

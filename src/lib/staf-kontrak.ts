@@ -8,6 +8,8 @@ import type { HleEvent } from "./hle";
 export const KODE_STAF_DB = [
   "STAFF_NOT_ALLOWED", "STAFF_SELF", "STAFF_NOT_ACTIVE", "STAFF_CATEGORY_INVALID", "STAFF_REASON_REQUIRED", "STAFF_DATE_INVALID",
   "ROLE_STALE", "ROLE_NOTHING", "ROLE_NOT_ALLOWED", "ROLE_SCOPE_INVALID", "ROLE_UNTIL_INVALID", "ROLE_ADMIN_UNCONFIRMED", "ROLE_REMOVE_INVALID",
+  // Sharon §15 (6faef690): a person with no tie to this school is not read
+  "STAFF_UNKNOWN",
 ] as const;
 export const KODE_STAF = [...KODE_STAF_DB, "STAFF_FAILED"] as const;
 export type KodeStaf = (typeof KODE_STAF)[number];

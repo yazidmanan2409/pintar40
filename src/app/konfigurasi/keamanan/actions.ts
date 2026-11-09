@@ -6,7 +6,7 @@ import { kodeAkunDariGalat, type KodeAkun } from "@/lib/akun-kontrak";
 
 /**
  * §5b and L4 (owner, 9 Nov): the PINTAR Administrator's own acts on one identity, each one call with the reader's own
- * client: tangguhkan_akun, aktifkan_kembali_akun and hapus_data_pribadi refuse anyone but an active SYSTEM_ADMIN, and
+ * client: tangguhkan_akun and aktifkan_kembali_akun (and hapus_data_pribadi, behind its route) refuse anyone but an active SYSTEM_ADMIN, and
  * the administrator's own account. Platform-scoped by the database's rule; the answer comes back as ?hasil=…&kode=….
  */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -40,11 +40,4 @@ export async function aktifkanKembaliAksi(fd: FormData): Promise<void> {
   kembali(pid, "ok", undefined, "aktif");
 }
 
-export async function hapusDataPribadiAksi(fd: FormData): Promise<void> {
-  const permintaan = String(fd.get("permintaan") ?? "");
-  if (!UUID.test(permintaan)) kembali("", "gagal", "ACCOUNT_REQUEST_INVALID");
-  const supabase = await supabaseServer();
-  const { error } = await supabase.rpc("hapus_data_pribadi", { p_request: permintaan, p_catatan: String(fd.get("catatan") ?? "").trim() || null });
-  if (error) kembali("", "gagal", kodeAkunDariGalat(error));
-  kembali("", "ok", undefined, "hapus");
-}
+// L4 «Hapus data pribadi» is a route (src/app/api/akun/hapus-data), so the photo files are removed with the data.

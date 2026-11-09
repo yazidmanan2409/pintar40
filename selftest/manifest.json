@@ -5032,6 +5032,26 @@
       "proves": "L4 deletion of what needs no retention (selftest/db/fable38.sql): hapus_data_pribadi refuses a school's admin and an open account's request (ACCOUNT_NOT_CLOSED); for the closed account the name becomes the PINTAR ID, the photo and the sign-in email go (through the email guard's own L4 exception), anonymized_at is set, the role history and the audit log are kept, the request is DONE, one account.personal_data_deleted row."
     },
     {
+      "id": "F38-C05",
+      "runner": "db",
+      "proves": "Sharon §14 on 6faef690, one pending replacement per certificate (selftest/db/fable38.sql): a preparation with another reason re-prepares the same unsealed replacement, its number and token kept and the holder's counter unmoved, carrying the reason given last; once sealed every immutability rule holds."
+    },
+    {
+      "id": "F38-S06",
+      "runner": "db",
+      "proves": "Sharon §15 on 6faef690 (selftest/db/fable38.sql): a swap of Kepala departemen for Dekan over the same place warns of nothing; akhiri_tugas_staf records the decision left with no one to decide (queues_unattended); peran_orang refuses a person with no tie to the school (STAFF_UNKNOWN); removing another Admin sekolah needs its second press."
+    },
+    {
+      "id": "F38-A06",
+      "runner": "db",
+      "proves": "Sharon §16 findings 1 and 3 on 6faef690 (selftest/db/fable38.sql): L4 goes through for a person who also holds a class card (its address untouched), and leaves the name and email in no activation grant, email correction, card conversion, import row, username or auth.identities row."
+    },
+    {
+      "id": "F38-A07",
+      "runner": "db",
+      "proves": "Sharon §16 finding 5 (selftest/db/fable38.sql): a person holding a live platform role cannot close their own account (ACCOUNT_PLATFORM_ROLE) and nothing is closed."
+    },
+    {
       "id": "F38-H01",
       "runner": "db",
       "proves": "Sharon F1 on 7a2c1751, a school's date is its own (selftest/db/fable38.sql): only the PINTAR Administrator sets a school's time zone (a school's admin is refused), audited institution.time_zone_changed; hari_sekolah answers the school's own date; akhiri_pendaftaran refuses WIT's tomorrow and stamps an ending with no date with WIT's today."

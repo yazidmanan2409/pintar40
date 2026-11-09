@@ -35,6 +35,9 @@ begin
   if v_person is not null then
     perform pg_advisory_xact_lock(hashtextextended('start_learning_session:' || v_person::text || ':' || p_assessment_assignment::text, 0));
   end if;
+  -- CORRECTED IN PLACE (undeployed; Sharon §13 on 6faef690, Low): a share lock on the assessment assignment, so
+  -- «Akhiri penugasan» (which locks it for update before it counts open sittings) never misses a start under way
+  perform 1 from public.assessment_assignments where id = p_assessment_assignment for share;
   select e.ok, e.reason into v_ok, v_reason from public.may_start_assessment(p_assessment_assignment) e;
   if not v_ok then raise exception 'cannot start this assessment: % (INV-27)', v_reason; end if;
 

@@ -3,7 +3,7 @@ import { tanggal } from "@/lib/tanggal";
 import TombolKirim from "@/components/TombolKirim";
 import BarisHasil from "@/components/BarisHasil";
 import Kosong from "@/components/Kosong";
-import { aktifkanKembaliAksi, hapusDataPribadiAksi, tangguhkanAkunAksi } from "@/app/konfigurasi/keamanan/actions";
+import { aktifkanKembaliAksi, tangguhkanAkunAksi } from "@/app/konfigurasi/keamanan/actions";
 import { KATEGORI_TANGGUH, type KodeAkun } from "@/lib/akun-kontrak";
 
 export type KeadaanAkun = {
@@ -18,9 +18,9 @@ export type BarisPermintaan = { id: string; person_id: string; nama: string; pin
  * a closed account's request to delete personal data is carried out. A closure at the person's request reads as a
  * closure, never as a suspension.
  */
-export default function AkunPlatform({ locale, pid, akun, antrean, hasil, apa, kode }: {
+export default function AkunPlatform({ locale, pid, akun, antrean, hasil, apa, kode, ulang }: {
   locale: Locale; pid: string; akun: KeadaanAkun | null; antrean: BarisPermintaan[];
-  hasil: string | undefined; apa: string | undefined; kode: KodeAkun | null;
+  hasil: string | undefined; apa: string | undefined; kode: KodeAkun | null; ulang?: string;
 }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });
   return (
@@ -29,6 +29,13 @@ export default function AkunPlatform({ locale, pid, akun, antrean, hasil, apa, k
       <p className="pin-sub">{s("keamanan.akun.arti")}</p>
       {hasil === "ok" ? <BarisHasil nada="ok">{s(`keamanan.akun.ok.${apa === "aktif" ? "aktif" : apa === "hapus" ? "hapus" : "tangguh"}` as HleEvent)}</BarisHasil> : null}
       {hasil === "gagal" ? <BarisHasil nada="gagal">{s(`akun.tinggal.galat.${(kode ?? "ACCOUNT_FAILED").toLowerCase()}` as HleEvent)}</BarisHasil> : null}
+      {/* Sharon §16 finding 2: the data is deleted and a photo file is not yet; one press finishes it */}
+      {hasil === "gagal" && kode === "ACCOUNT_PHOTO_PENDING" && ulang ? (
+        <form action="/api/akun/hapus-data" method="post" data-hapus-foto-ulang={ulang}>
+          <input type="hidden" name="permintaan" value={ulang} />
+          <TombolKirim className="pin-btn" sibuk={s("tombol.memproses")}>{s("keamanan.permintaan.hapus_foto_ulang")}</TombolKirim>
+        </form>
+      ) : null}
       <form method="get" action="/konfigurasi/keamanan" className="pin-isian" data-cari-akun="">
         <label htmlFor="akun-pid">{s("keamanan.akun.cari")}</label>
         <input id="akun-pid" name="pid" className="pin-input" defaultValue={pid} maxLength={8} autoComplete="off" />
@@ -87,7 +94,8 @@ export default function AkunPlatform({ locale, pid, akun, antrean, hasil, apa, k
               <span className="pin-title">{r.nama} · <span className="pin-num">{r.pintar_id}</span></span>
               <span className="pin-rowmeta">{s(`akun.tinggal.jenis.${r.kind.toLowerCase()}` as HleEvent)} · {tanggal(r.created_at, "baca", locale)}</span>
               {r.kind === "DELETE_PERSONAL_DATA" && r.ditutup ? (
-                <form action={hapusDataPribadiAksi} data-hapus-data={r.id}>
+                // Sharon §16 finding 2: a route, so the photo files go with the data (src/app/api/akun/hapus-data)
+                <form action="/api/akun/hapus-data" method="post" data-hapus-data={r.id}>
                   <input type="hidden" name="permintaan" value={r.id} />
                   <TombolKirim className="pin-btn pin-bahaya" sibuk={s("tombol.memproses")}>{s("keamanan.permintaan.hapus")}</TombolKirim>
                 </form>

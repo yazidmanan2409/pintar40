@@ -200,7 +200,8 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
                 {tinjau.butuh_konfirmasi_admin ? (
                   <label className="pin-cepat-centang">
                     <input type="checkbox" name="konfirmasi_admin" value="ya" required />
-                    <span>{s("staf.ubah.konfirmasi_admin")}</span>
+                    {/* Sharon §15: removing another Admin sekolah asks the same second press as naming one */}
+                    <span>{s(tambahPeran === "INSTITUTION_ADMIN" ? "staf.ubah.konfirmasi_admin" : "staf.ubah.konfirmasi_admin_lepas")}</span>
                   </label>
                 ) : null}
                 <div className="pin-actions">

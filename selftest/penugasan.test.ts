@@ -185,7 +185,8 @@ export const penugasanTests: SelfTest[] = [
       c.expect(/<AkhiriPenugasan /.test(kelas), "the class page does not open the panel");
       const panel = readFileSync(join(root, "src", "components", "mengajar", "AkhiriPenugasan.tsx"), "utf8");
       for (const [re, what] of [[/name="akhiri_berjalan"[^>]*required/, "the open sittings' confirmation"],
-                                [/name="jenis" value=\{j\}/, "the kind"], [/name="alasan"[^>]*minLength=\{5\} maxLength=\{300\} required/, "the reason (5–300)"],
+                                [/name="jenis" value=\{j\}/, "the kind"], // RESTATED (Daisy, TINJAUAN-6faef690): 10 characters, as every other reason
+                                [/name="alasan"[^>]*minLength=\{10\} maxLength=\{300\} required/, "the reason (10–300)"],
                                 [/pratinjau\.berjalan\.map/, "the open sittings by name"]] as const) {
         c.expect(re.test(panel), `the panel has no ${what}`);
       }

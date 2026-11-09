@@ -186,7 +186,13 @@ begin
   if v_la.status <> 'ACTIVE' and not (v_la.status = 'DRAFT' and p_jenis = 'WITHDRAWN') then
     perform public.penugasan_tolak('ASSIGN_NOT_LIVE');
   end if;
-  if char_length(v_alasan) < 5 or char_length(v_alasan) > 300 then perform public.penugasan_tolak('ASSIGN_REASON_REQUIRED'); end if;
+  -- CORRECTED IN PLACE (undeployed; Daisy, TINJAUAN-6faef690): 10 characters, as every other reason in PINTAR
+  if char_length(v_alasan) < 10 or char_length(v_alasan) > 300 then perform public.penugasan_tolak('ASSIGN_REASON_REQUIRED'); end if;
+
+  -- CORRECTED IN PLACE (undeployed; Sharon §13 on 6faef690, Low): the assessments are locked before the open sittings
+  -- are counted. start_learning_session takes a share lock on its assessment assignment, so a start already under way
+  -- finishes first and its sitting is counted and swept here; one that comes after waits, then finds it CLOSED.
+  perform 1 from public.assessment_assignments aa where aa.learning_assignment_id = p_la order by aa.id for update;
 
   select count(*) into v_open from public.penugasan_sesi(p_la) x where x.status in ('CREATED', 'IN_PROGRESS', 'PAUSED');
   if v_open > 0 and not coalesce(p_akhiri_yang_berjalan, false) then perform public.penugasan_tolak('ASSIGN_IN_PROGRESS'); end if;

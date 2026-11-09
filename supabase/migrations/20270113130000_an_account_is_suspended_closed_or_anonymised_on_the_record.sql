@@ -81,6 +81,8 @@ begin
       when 'ACCOUNT_REQUEST_OPEN'       then 'this request has already been made and is in hand'
       when 'ACCOUNT_REQUEST_INVALID'    then 'this is not an open request to delete personal data'
       when 'ACCOUNT_NOT_CLOSED'         then 'personal data is deleted only from a closed account'
+      -- CORRECTED IN PLACE (undeployed; Sharon §16 finding 5 on 6faef690)
+      when 'ACCOUNT_PLATFORM_ROLE'      then 'a person holding a platform role does not close their own account'
       else 'the account could not be changed' end;
 end $$;
 revoke all on function public.akun_tolak(text) from public, anon, authenticated;
@@ -183,6 +185,10 @@ begin
   end if;
   if p_kind = 'CLOSE' then
     if public.orang_ditangguhkan(v_me) then perform public.akun_tolak('ACCOUNT_ALREADY_SUSPENDED'); end if;
+    -- CORRECTED IN PLACE (undeployed; Sharon §16 finding 5): reopening needs another live PINTAR Administrator, so a
+    -- person holding a platform role does not close their own account (the last one would lock the platform out); the
+    -- role is ended first, by another administrator
+    if public.is_system_admin() then perform public.akun_tolak('ACCOUNT_PLATFORM_ROLE'); end if;
     insert into public.account_requests (person_id, kind, status, decided_by, decided_at) values (v_me, 'CLOSE', 'DONE', v_me, now())
     returning id into v_id;
     insert into public.person_suspensions (person_id, category, started_by) values (v_me, 'CLOSED_AT_REQUEST', v_me);
@@ -291,6 +297,12 @@ declare v_actor uuid := public.current_person_id(); r public.account_requests; v
 begin
   if v_actor is null or not public.is_system_admin() then perform public.akun_tolak('ACCOUNT_NOT_ALLOWED'); end if;
   select * into r from public.account_requests q where q.id = p_request for update;
+  -- CORRECTED IN PLACE (undeployed; Sharon §16 finding 2): a request already carried out answers with its person and
+  -- writes nothing, so the route's second press removes a photo file the first could not
+  if r.id is not null and r.kind = 'DELETE_PERSONAL_DATA' and r.status = 'DONE'
+     and exists (select 1 from public.persons p where p.id = r.person_id and p.anonymized_at is not null) then
+    return jsonb_build_object('ok', true, 'orang', r.person_id, 'sudah', true);
+  end if;
   if r.id is null or r.kind <> 'DELETE_PERSONAL_DATA' or r.status not in ('RECEIVED', 'IN_PROGRESS') then
     perform public.akun_tolak('ACCOUNT_REQUEST_INVALID');
   end if;
@@ -299,19 +311,44 @@ begin
   end if;
   select p.pintar_id, p.photo_path is not null into v_pid, v_foto from public.persons p where p.id = r.person_id for update;
   update public.persons set display_name = v_pid, photo_path = null, anonymized_at = now() where id = r.person_id;
-  for a in select ac.id, ac.auth_user_id from public.accounts ac where ac.person_id = r.person_id and ac.auth_user_id is not null loop
+  -- CORRECTED IN PLACE (undeployed; Sharon §16 finding 1 on 6faef690): a class card's address (card-<number>@…) is not
+  -- personal data and its own guard refuses any change, so only the email accounts are retired
+  for a in select ac.id, ac.auth_user_id from public.accounts ac
+            where ac.person_id = r.person_id and ac.auth_user_id is not null and ac.kind = 'EMAIL' loop
     perform set_config('pintar.anonimkan_email', a.id::text, true);
     update auth.users set email = 'anonim-' || a.auth_user_id::text || '@pintar.invalid', email_change = '',
                           raw_user_meta_data = '{}'::jsonb where id = a.auth_user_id;
+    -- GoTrue keeps the address again in the identity; it is not synced by the update above
+    update auth.identities set identity_data = jsonb_build_object('sub', a.auth_user_id::text,
+                                                                  'email', 'anonim-' || a.auth_user_id::text || '@pintar.invalid')
+     where user_id = a.auth_user_id;
   end loop;
+  -- CORRECTED IN PLACE (undeployed; Sharon §16 finding 3): the name and email where else PINTAR copied them. Each address
+  -- becomes an address of no one, unique per row; a name becomes the PINTAR ID; an import row keeps no payload. The audit
+  -- log keeps its history of corrections (INV-18), as the person is told.
+  update public.account_activation_grants g
+     set email = 'anonim-' || g.id::text || '@pintar.invalid',
+         display_name = case when g.display_name is null then null else v_pid end
+   where g.person_id = r.person_id
+      or g.consumed_by in (select ac.auth_user_id from public.accounts ac where ac.person_id = r.person_id);
+  update public.email_corrections c
+     set old_email = 'anonim-' || c.id::text || '-lama@pintar.invalid', new_email = 'anonim-' || c.id::text || '@pintar.invalid'
+   where c.person_id = r.person_id;
+  update public.card_conversions c set new_email = 'anonim-' || c.id::text || '@pintar.invalid' where c.person_id = r.person_id;
+  update public.import_rows ir set payload = '{}'::jsonb where ir.person_id = r.person_id;
+  perform set_config('pintar.identity_correction', 'on', true);
+  update public.person_usernames un set username = 'anonim.' || lower(v_pid) where un.person_id = r.person_id;
+  perform set_config('pintar.identity_correction', '', true);
   update public.account_requests set status = 'DONE', decided_by = v_actor, decided_at = now(),
          decision_note = nullif(btrim(coalesce(p_catatan, '')), '') where id = r.id;
   perform public.audit_write('account.personal_data_deleted', 'persons', r.person_id::text, null,
-    jsonb_build_object('person_id', r.person_id, 'request_id', r.id, 'removed', jsonb_build_array('name', 'sign_in_email')
+    jsonb_build_object('person_id', r.person_id, 'request_id', r.id, 'removed', jsonb_build_array('name', 'sign_in_email', 'username', 'copies')
                          || case when v_foto then jsonb_build_array('photo') else '[]'::jsonb end,
                        'kept', jsonb_build_array('results', 'certificates_as_issued', 'audit_log'),
                        'actor_role', public.audit_actor_role(null)));
-  return jsonb_build_object('ok', true);
+  -- the person, so the server route that called this removes every file in their photo folder from storage
+  -- (Sharon §16 finding 2: a database cannot delete a stored file; storage.protect_delete refuses it)
+  return jsonb_build_object('ok', true, 'orang', r.person_id);
 end $$;
 revoke all on function public.hapus_data_pribadi(uuid, text) from public, anon, authenticated;
 grant execute on function public.hapus_data_pribadi(uuid, text) to authenticated;
