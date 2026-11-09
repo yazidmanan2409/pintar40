@@ -33,6 +33,21 @@
 --            BERLAKU and DIGANTIKAN; one certificate.superseded row names the reason, the actor and the replacement.
 --   F38-C04  W2.22: one replacement per certificate. A superseded certificate cannot be corrected or revoked again; a
 --            second prepared replacement of it cannot be sealed; the replacement itself can be revoked.
+--   F38-S01  E5 «Akhiri tugas di sekolah ini»: the school's admin ends all of Kelas A's Guru's roles there with a category,
+--            a reason and today's date; each role is revoked once with the reason (role.revoked), one
+--            staff.ended_at_school row carries the category and the date, the person stays, and the Guru's authority
+--            over Kelas A ends at once (akhiri_penugasan_pratinjau refused).
+--   F38-S02  E5 refusals write nothing: an unknown category, a short reason, a future date, the admin's own roles
+--            (STAFF_SELF), a Guru and another school's admin (STAFF_NOT_ALLOWED), a person with no role there.
+--   F38-S03  «Ubah peran & tanggung jawab», the review: Kelas B's Guru made Kepala departemen as well is shown what is
+--            gained at the Departemen (review, integrity, management decisions) and what is kept at Kelas B, with
+--            nothing lost; the review writes nothing.
+--   F38-S04  «Ubah peran», refusals and atomicity: a stale review (ROLE_STALE), SYSTEM_ADMIN and a role at another
+--            school (ROLE_NOT_ALLOWED, ROLE_SCOPE_INVALID), Admin sekolah without its second press
+--            (ROLE_ADMIN_UNCONFIRMED), and one bad addition beside a good one: nothing changes, nothing is audited.
+--   F38-S05  «Ubah peran», applied: the promotion, then the demotion warned of the decision left with no one to decide
+--            it (never reassigned), then a move from Kelas B to Kelas A in one press with no gap and no overlap;
+--            teaching stays where it was kept; one role.changed row for each.
 --
 -- EVERY ROW IS ROLLED BACK (the suite's block ends in 'f38-rollback', as fable37 does).
 
@@ -104,7 +119,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
-  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
+  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
   u_admin uuid; v_n int; v_cert uuid; v_cert2 uuid; v_new uuid; v_new2 uuid; v_tok text; v_ntok text; v_payload jsonb; v_nomor text; v_snapold uuid; p_holder uuid; u_holder uuid; v_k record;
   v_crel uuid; v_cdef uuid; v_dist uuid; v_la3 uuid; v_aa3 uuid;
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid; v_coh uuid; c_a uuid; c_b uuid;
@@ -451,6 +466,122 @@ begin
         c04 := c04 || ('the replacement could not be revoked: ' || v_got); end if;
     end if;
 
+    -- ═══════════════════════════════════ F38-S01..S05 an educator's roles change, or end at the school, on the record
+    select a.person_id into p_guru_a from public.accounts a where a.auth_user_id = u_guru_a;
+    select a.person_id into p_guru_b from public.accounts a where a.auth_user_id = u_guru_b;
+    select a.person_id into p_admin from public.accounts a where a.auth_user_id = u_admin;
+    -- S02 refusals first (nothing ends)
+    select count(*) into v_aud from public.audit_log a where a.target_id = p_guru_a::text;
+    for r in select * from (values
+        (u_admin, p_guru_a, 'HOLIDAY', 'mengundurkan diri akhir semester', 0, 'PR130:STAFF_CATEGORY_INVALID', 'an unknown category'),
+        (u_admin, p_guru_a, 'RESIGNATION', 'pindah', 0, 'PR130:STAFF_REASON_REQUIRED', 'a short reason'),
+        (u_admin, p_guru_a, 'RESIGNATION', 'mengundurkan diri akhir semester', 2, 'PR130:STAFF_DATE_INVALID', 'a future date'),
+        (u_admin, p_admin, 'RESIGNATION', 'mengundurkan diri akhir semester', 0, 'PR130:STAFF_SELF', 'the admin''s own roles'),
+        (u_guru_b, p_guru_a, 'RESIGNATION', 'mengundurkan diri akhir semester', 0, 'PR130:STAFF_NOT_ALLOWED', 'a Guru'),
+        (u_adminx, p_guru_a, 'RESIGNATION', 'mengundurkan diri akhir semester', 0, 'PR130:STAFF_NOT_ALLOWED', 'another school''s admin'),
+        (u_admin, p_belum, 'RESIGNATION', 'mengundurkan diri akhir semester', 0, 'PR130:STAFF_NOT_ACTIVE', 'a learner with no role')) t(uid, orang, kat, alasan, hari, want, who) loop
+      v_got := selftest.f37_sebagai(r.uid, format('select public.akhiri_tugas_staf(%L, %L, %L, %L, ((now() at time zone ''Asia/Jakarta'')::date + %s))', r.orang, v_inst, r.kat, r.alasan, r.hari));
+      if v_got <> r.want then s02 := s02 || (r.who || ': ' || v_got || ' (expected ' || r.want || ')'); end if;
+    end loop;
+    if (select count(*) from public.staf_peran_hidup(p_guru_a, v_inst)) <> 1
+       or (select count(*) from public.audit_log a where a.target_id = p_guru_a::text) <> v_aud then
+      s02 := s02 || 'a refusal ended a role or wrote an audit row'::text; end if;
+
+    -- S03 the review of a promotion writes nothing
+    v_sid := (select public.staf_sidik(p_guru_b, v_inst));
+    perform selftest.as_user_uid(u_admin);
+    begin
+      v_ub := public.ubah_peran(p_guru_b, v_inst, jsonb_build_array(jsonb_build_object('role', 'HEAD_OF_DEPARTMENT', 'scope_node_id', v_dep,
+                'valid_until', (now() + interval '1 year')::text)), null, 'menjadi Kepala departemen juga', v_sid, false, false);
+    exception when others then s03 := s03 || ('the review was refused: ' || sqlerrm); end;
+    perform selftest.as_owner();
+    if v_ub is not null then
+      if not (v_ub -> 'dapat' @> jsonb_build_array(jsonb_build_object('tj', 'CAN_REVIEW', 'tempat', 'Departemen F38 ' || v_tag))
+              and v_ub -> 'dapat' @> jsonb_build_array(jsonb_build_object('tj', 'MANAGEMENT_DECISION', 'tempat', 'Departemen F38 ' || v_tag))
+              and v_ub -> 'tetap' @> jsonb_build_array(jsonb_build_object('tj', 'CAN_DRAFT', 'tempat', 'Kelas F38 B ' || v_tag))
+              and jsonb_array_length(v_ub -> 'hilang') = 0) then
+        s03 := s03 || ('the review: ' || left(v_ub::text, 300)); end if;
+    end if;
+    if (select count(*) from public.staf_peran_hidup(p_guru_b, v_inst)) <> 1 then s03 := s03 || 'the review wrote a role'::text; end if;
+
+    -- S04 refusals and atomicity
+    select count(*) into v_aud from public.audit_log a where a.target_id = p_guru_b::text or a.action like 'role.%' and a.summary ->> 'person_id' = p_guru_b::text;
+    for r in select * from (values
+        ('[{"role":"HEAD_OF_DEPARTMENT","scope_node_id":"' || v_dep || '","valid_until":"2099-01-01"}]', 'basi', false, 'PR130:ROLE_STALE', 'a stale review'),
+        ('[{"role":"SYSTEM_ADMIN","scope_node_id":"' || v_root || '","valid_until":"2099-01-01"}]', 'ok', false, 'PR130:ROLE_NOT_ALLOWED', 'SYSTEM_ADMIN'),
+        ('[{"role":"EDUCATOR","scope_node_id":"' || (select o.id from public.org_nodes o where o.institution_id = v_x and o.kind = 'INSTITUTION') || '","valid_until":"2099-01-01"}]', 'ok', false, 'PR130:ROLE_SCOPE_INVALID', 'a role at another school'),
+        ('[{"role":"INSTITUTION_ADMIN","scope_node_id":"' || v_root || '","valid_until":"2099-01-01"}]', 'ok', false, 'PR130:ROLE_ADMIN_UNCONFIRMED', 'Admin sekolah without its second press'),
+        ('[{"role":"HEAD_OF_DEPARTMENT","scope_node_id":"' || v_dep || '","valid_until":"2099-01-01"},{"role":"DEAN","scope_node_id":"' || v_dep || '","valid_until":"2000-01-01"}]', 'ok', false, 'PR130:ROLE_UNTIL_INVALID', 'one bad addition beside a good one')) t(tambah, sidik, konf, want, who) loop
+      v_got := selftest.f37_sebagai(u_admin, format('select public.ubah_peran(%L, %L, %L::jsonb, null, %L, %L, %L, true)', p_guru_b, v_inst, r.tambah,
+                 'perubahan tanggung jawab semester', case r.sidik when 'ok' then v_sid else 'basi' end, r.konf));
+      if v_got <> r.want then s04 := s04 || (r.who || ': ' || v_got || ' (expected ' || r.want || ')'); end if;
+    end loop;
+    v_got := selftest.f37_sebagai(u_guru_a, format('select public.ubah_peran(%L, %L, %L::jsonb, null, %L, %L, false, true)', p_guru_b, v_inst,
+               '[{"role":"HEAD_OF_DEPARTMENT","scope_node_id":"' || v_dep || '","valid_until":"2099-01-01"}]', 'perubahan tanggung jawab semester', v_sid));
+    if v_got <> 'PR130:STAFF_NOT_ALLOWED' then s04 := s04 || ('a Guru changing roles: ' || v_got); end if;
+    if (select count(*) from public.staf_peran_hidup(p_guru_b, v_inst)) <> 1
+       or (select count(*) from public.audit_log a where a.target_id = p_guru_b::text or a.action like 'role.%' and a.summary ->> 'person_id' = p_guru_b::text) <> v_aud then
+      s04 := s04 || 'a refused change wrote a role or an audit row'::text; end if;
+
+    -- S05 applied: promotion; demotion with its queue warning; a move in one press
+    v_got := selftest.f37_sebagai(u_admin, format('select public.ubah_peran(%L, %L, %L::jsonb, null, %L, %L, false, true)', p_guru_b, v_inst,
+               '[{"role":"HEAD_OF_DEPARTMENT","scope_node_id":"' || v_dep || '","valid_until":"2099-01-01"}]', 'menjadi Kepala departemen juga', v_sid));
+    select x.id into v_hod from public.staf_peran_hidup(p_guru_b, v_inst) x where x.role = 'HEAD_OF_DEPARTMENT';
+    if v_got <> 'OK' or v_hod is null or (select count(*) from public.staf_peran_hidup(p_guru_b, v_inst)) <> 2 then
+      s05 := s05 || ('the promotion: ' || v_got);
+    else
+      -- a decision waits at Kelas B, raised by someone else; B is the only Kepala departemen over it
+      set local session_replication_role = replica;
+      insert into public.management_decisions (family, institution_id, scope_node_id, source_table, source_id, raised_by_person_id)
+      values ('LEARNING_INTERVENTION', v_inst, c_b, 'selftest_fable', gen_random_uuid(), p_guru_a) returning management_decisions.id into v_md;
+      -- the school's own Kepala departemen and Dekan above Kelas B (the seed's), ended for this rolled-back test, so B is the
+      -- only one who could decide it
+      update public.role_assignments ra set revoked_at = now(), revoked_reason = 'uji F38-S05'
+       where ra.role in ('HEAD_OF_DEPARTMENT', 'DEAN') and ra.person_id <> p_guru_b and ra.revoked_at is null
+         and exists (select 1 from public.org_nodes o where o.id = c_b and o.jalur @> array[ra.scope_node_id]);
+      set local session_replication_role = origin;
+      v_sid := public.staf_sidik(p_guru_b, v_inst);
+      perform selftest.as_user_uid(u_admin);
+      v_ub := public.ubah_peran(p_guru_b, v_inst, '[]', array[v_hod], 'kembali menjadi Guru saja', v_sid, false, false);
+      perform selftest.as_owner();
+      if not (v_ub -> 'antrean' @> jsonb_build_array(jsonb_build_object('tempat', 'Kelas F38 B ' || v_tag, 'menunggu', 1))) then
+        s05 := s05 || ('the demotion''s review does not warn of the decision left unattended: ' || coalesce(v_ub -> 'antrean', 'null')::text); end if;
+      v_got := selftest.f37_sebagai(u_admin, format('select public.ubah_peran(%L, %L, %L::jsonb, %L::uuid[], %L, %L, false, true)', p_guru_b, v_inst, '[]',
+                 array[v_hod], 'kembali menjadi Guru saja', v_sid));
+      if v_got <> 'OK' or exists (select 1 from public.staf_peran_hidup(p_guru_b, v_inst) x where x.role = 'HEAD_OF_DEPARTMENT')
+         or not exists (select 1 from public.staf_peran_hidup(p_guru_b, v_inst) x where x.role = 'EDUCATOR' and x.scope_node_id = c_b)
+         or (select md.state::text from public.management_decisions md where md.id = v_md) <> 'AWAITING_REVIEW' then
+        s05 := s05 || ('the demotion: ' || v_got || ' (teaching must stay, the decision must wait unreassigned)'); end if;
+      -- the move: Kelas B to Kelas A in one press
+      v_sid := public.staf_sidik(p_guru_b, v_inst);
+      v_got := selftest.f37_sebagai(u_admin, format('select public.ubah_peran(%L, %L, %L::jsonb, %L::uuid[], %L, %L, false, true)', p_guru_b, v_inst,
+                 '[{"role":"EDUCATOR","scope_node_id":"' || c_a || '","valid_until":"2099-01-01"}]',
+                 array[(select x.id from public.staf_peran_hidup(p_guru_b, v_inst) x where x.scope_node_id = c_b)], 'pindah mengajar ke Kelas A', v_sid));
+      if v_got <> 'OK' or (select count(*) from public.staf_peran_hidup(p_guru_b, v_inst)) <> 1
+         or not exists (select 1 from public.staf_peran_hidup(p_guru_b, v_inst) x where x.scope_node_id = c_a)
+         or not exists (select 1 from public.role_assignments o, public.role_assignments n where o.person_id = p_guru_b and n.person_id = p_guru_b
+                          and o.scope_node_id = c_b and n.scope_node_id = c_a and o.revoked_at = n.valid_from) then
+        s05 := s05 || ('the move: ' || v_got || ' (one live role at Kelas A, the old one ended at the moment the new one began)'); end if;
+      if (select count(*) from public.audit_log a where a.action = 'role.changed' and a.target_id = p_guru_b::text) <> 3 then
+        s05 := s05 || 'not one role.changed row per change'::text; end if;
+    end if;
+
+    -- S01 E5: Kelas A's Guru leaves the school
+    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_tugas_staf(%L, %L, %L, %L, (now() at time zone ''Asia/Jakarta'')::date)',
+               p_guru_a, v_inst, 'RESIGNATION', 'mengundurkan diri akhir semester'));
+    if v_got <> 'OK' then s01 := s01 || ('the Guru''s roles were not ended: ' || v_got);
+    else
+      if exists (select 1 from public.staf_peran_hidup(p_guru_a, v_inst)) then s01 := s01 || 'a role is still live'::text; end if;
+      if not exists (select 1 from public.audit_log a where a.action = 'role.revoked' and a.summary ->> 'person_id' = p_guru_a::text
+                       and a.summary ->> 'reason' = 'mengundurkan diri akhir semester') then s01 := s01 || 'no role.revoked row with the reason'::text; end if;
+      if (select count(*) from public.audit_log a where a.action = 'staff.ended_at_school' and a.target_id = p_guru_a::text
+            and a.summary ->> 'reason_code' = 'RESIGNATION' and a.summary ->> 'effective_date' = ((now() at time zone 'Asia/Jakarta')::date)::text) <> 1 then
+        s01 := s01 || 'no single staff.ended_at_school row with the category and the date'::text; end if;
+      if not exists (select 1 from public.persons p where p.id = p_guru_a) then s01 := s01 || 'the person is gone'::text; end if;
+      v_got := selftest.f37_sebagai(u_guru_a, format('select public.akhiri_penugasan_pratinjau(%L)', v_la));
+      if v_got <> 'PR050:ASSIGN_NOT_ALLOWED' then s01 := s01 || ('the Guru still acts on Kelas A: ' || v_got); end if;
+    end if;
+
     raise exception 'f38-rollback';
   exception when others then
     if sqlerrm <> 'f38-rollback' then v_fatal := sqlerrm; end if;
@@ -477,7 +608,17 @@ begin
       ('F38-C03', 'W2.22: corrected by its replacement', c03,
        'the replacement is prepared ELIGIBLE (not public) with the corrected name, a new number and token, the original''s result, the reason and the actor, once; sealed by the server only, it is ISSUED and the original SUPERSEDED with its sealed history unchanged; the public check answers BERLAKU and DIGANTIKAN; one certificate.superseded row'),
       ('F38-C04', 'W2.22: one replacement per certificate', c04,
-       'a superseded certificate is neither corrected nor revoked again; a second replacement of it cannot be sealed; the replacement itself is revoked')) t(tid, tarea, probs, good) loop
+       'a superseded certificate is neither corrected nor revoked again; a second replacement of it cannot be sealed; the replacement itself is revoked'),
+      ('F38-S01', 'E5 «Akhiri tugas di sekolah ini»', s01,
+       'the Guru''s roles end with the reason (role.revoked), one staff.ended_at_school row with the category and the date, the person stays, and authority over Kelas A ends at once'),
+      ('F38-S02', 'E5: refusals write nothing', s02,
+       'an unknown category, a short reason, a future date, the admin''s own roles, a Guru, another school''s admin and a person with no role are refused; nothing ends, nothing is audited'),
+      ('F38-S03', '«Ubah peran & tanggung jawab»: the review', s03,
+       'a Guru made Kepala departemen too is shown review, integrity and management decisions gained at the Departemen, drafting kept at Kelas B, nothing lost; the review writes nothing'),
+      ('F38-S04', '«Ubah peran»: refusals and atomicity', s04,
+       'a stale review, SYSTEM_ADMIN, a role at another school, Admin sekolah without its second press, one bad addition beside a good one and a Guru are refused; nothing changes, nothing is audited'),
+      ('F38-S05', '«Ubah peran»: promotion, demotion with its queue warning, a move in one press', s05,
+       'the promotion adds the role; the demotion''s review warns of the decision left with no one, which waits unreassigned, and teaching stays; the move leaves one live role at Kelas A, the old one ended as the new began; one role.changed row each')) t(tid, tarea, probs, good) loop
     id := r.tid; area := r.tarea;
     ok := v_fatal = '' and cardinality(r.probs) = 0;
     detail := case when v_fatal <> '' then 'fixture: ' || v_fatal when ok then r.good else array_to_string(r.probs, '; ') end;

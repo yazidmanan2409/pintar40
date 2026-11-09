@@ -3839,3 +3839,11 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-ganti-banding th, .pin-ganti-banding td { text-align: left; padding: var(--space-2); border-bottom: var(--border-hairline) solid var(--line); overflow-wrap: anywhere; }
 .pin-ganti-banding tr[data-berubah="ya"] td:last-child { font-weight: var(--weight-strong); }
 .pin-ganti-banding .pin-pill { margin-left: var(--space-2); }
+
+/* E5 and §11: one person's roles and duties (tokens only) */
+.pin-staf-peran { flex-wrap: wrap; }
+.pin-staf-peran .pin-meta { flex-basis: 100%; }
+.pin-staf-tj { margin: 0 0 var(--space-3); padding-left: var(--space-5); display: grid; gap: var(--space-1); }
+.pin-staf-tinjau { margin-top: var(--space-4); }
+.pin-staf-tinjau h4 { margin: var(--space-3) 0 var(--space-1); font-size: var(--type-body); }
+.pin-staf-form .pin-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }

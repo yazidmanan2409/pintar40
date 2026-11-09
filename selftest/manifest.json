@@ -4177,6 +4177,11 @@
       "proves": "W2.22 «Terbitkan ulang» read from its sources (selftest/b5.test.ts against 20270113110000): sertifikat_koreksi_tolak's codes are exactly KODE_GANTI_DB and each is raised; each is read back by its PR120 DETAIL (a planted unknown and maintenance's PR110 are not); every screen code has a sentence in both languages naming no machinery; terbitUlangSertifikatAksi checks the working context, prepares with the admin's own client, signs with the keyring, then seals with the service client, and sertifikat_koreksi_segel is granted to service_role only; the certificate panel reads sertifikat_koreksi_pratinjau, offers the form only where something differs with a 10–300 character reason, and says which certificate replaced a superseded one."
     },
     {
+      "id": "STAF-K01",
+      "runner": "static",
+      "proves": "E5 and §11 read from their sources (selftest/b5.test.ts against the migration 20270113120000, src/lib/staf-kontrak.ts, src/app/konfigurasi/staf/actions.ts and page.tsx): staf_tolak's codes are exactly KODE_STAF_DB, each raised and read back by its PR130 DETAIL; E5's categories are akhiri_tugas_staf's own list and order; every code, category and responsibility, including every capability the registry migration names, has words in the copy table in both languages naming no machinery; both actions ask the working context before acting; the review is a GET render answered by ubah_peran with apply false, the confirmation posts the review's fingerprint, and «Akhiri tugas» asks a category and a date no later than today."
+    },
+    {
       "id": "F26-C01",
       "runner": "db",
       "proves": "W2.5 (Batch 5; CR-05), selftest/db/fable26.sql, migration 20261222100000: sertifikat_sekolah answers the school admin their school's issued certificates (number, holder, school, state), by number from its start and by a part of the holder's name, one by id (also with no school named, for whom may revoke it); a prepared ELIGIBLE row is not listed; «%» is matched as a word; a Guru, a head of department, another school's admin, a school admin asking for every school and an anonymous caller are refused; Admin platform reads every school's."
@@ -4972,6 +4977,31 @@
       "proves": "W2.22 one replacement per certificate (selftest/db/fable38.sql): a superseded certificate can be neither corrected (CERT_NOT_ISSUED) nor revoked again; a second replacement of it, inserted behind the rule, cannot be sealed; the replacement itself can be revoked."
     },
     {
+      "id": "F38-S01",
+      "runner": "db",
+      "proves": "E5 «Akhiri tugas di sekolah ini» (owner, 9 Nov; selftest/db/fable38.sql against 20270113120000): the school's admin ends all of Kelas A's Guru's live roles at the school with the category RESIGNATION, a reason and today's school date; each role is revoked once through the guard with the reason (role.revoked), one staff.ended_at_school audit row carries the category and the effective date, the person stays, and the Guru's authority over Kelas A ends at once (akhiri_penugasan_pratinjau refused ASSIGN_NOT_ALLOWED)."
+    },
+    {
+      "id": "F38-S02",
+      "runner": "db",
+      "proves": "E5 refusals write nothing (selftest/db/fable38.sql): akhiri_tugas_staf refuses an unknown category (STAFF_CATEGORY_INVALID), a reason under 10 characters (STAFF_REASON_REQUIRED), a future date (STAFF_DATE_INVALID), the admin's own roles (STAFF_SELF), a Guru and another school's admin (STAFF_NOT_ALLOWED) and a learner with no role there (STAFF_NOT_ACTIVE); no role ends and no audit row is written."
+    },
+    {
+      "id": "F38-S03",
+      "runner": "db",
+      "proves": "§11 «Ubah peran & tanggung jawab», the review (selftest/db/fable38.sql): ubah_peran with apply false tells the school's admin that Kelas B's Guru made Kepala departemen as well gains review and management decisions at the Departemen and keeps drafting at Kelas B, losing nothing; the review writes no role."
+    },
+    {
+      "id": "F38-S04",
+      "runner": "db",
+      "proves": "§11 refusals and atomicity (selftest/db/fable38.sql): a stale review (ROLE_STALE), SYSTEM_ADMIN (ROLE_NOT_ALLOWED), a role at another school (ROLE_SCOPE_INVALID), Admin sekolah without its second press (ROLE_ADMIN_UNCONFIRMED), one bad addition beside a good one (ROLE_UNTIL_INVALID: neither is written) and a Guru (STAFF_NOT_ALLOWED) are refused; the person's roles and the audit log are unchanged."
+    },
+    {
+      "id": "F38-S05",
+      "runner": "db",
+      "proves": "§11 applied (selftest/db/fable38.sql): the promotion adds Kepala departemen; the demotion's review warns of the management decision at Kelas B that would wait with no one to decide it, the decision stays AWAITING_REVIEW unreassigned, and teaching at Kelas B stays; a move from Kelas B to Kelas A in one press leaves exactly one live role, at Kelas A, the old one revoked at the instant the new one began (no gap, no overlap; the grant precedes the revocation so D-049's relationship holds); one role.changed audit row per change."
+    },
+    {
       "id": "KENAIKAN-K01",
       "runner": "static",
       "proves": "«Kenaikan kelas dan kelulusan», selftest/kenaikan.test.ts, executes the source file src/lib/kenaikan.ts: it reads every select value (NAIK and TINGGAL with a Kelas, LULUS, PINDAH, KELUAR with each of the four reasons) back as its decision and writes it the same way; an empty choice, a malformed id or an unknown reason is no decision; the address form between steps is base64url of ids and codes only, and a malformed one is dropped, never repaired into decisions."
@@ -4995,6 +5025,11 @@
       "id": "SERTIFIKAT-A01",
       "runner": "app",
       "proves": "W2.22 «Terbitkan ulang» through the running app (selftest/kenaikan.test.ts): Alpha's admin opens an issued certificate whose holder's name was corrected after issuance; the panel sets the name on the certificate beside the one recorded now; reissuing with a reason produces a replacement carrying the corrected name and the reason, signed by the server's keyring (its public check /api/verifikasi answers BERLAKU), and the original is kept as SUPERSEDED; the panel confirms it and names the replacement."
+    },
+    {
+      "id": "STAF-A01",
+      "runner": "app",
+      "proves": "E5 and §11 through the running app (selftest/kenaikan.test.ts): Alpha's admin opens Pak Yusuf's page from his name on «Peran & akses»; the rendered page sets his role and its responsibilities in words; he is made Kepala departemen as well after a review of what is gained, then back to Guru only after a review of what is lost (teaching kept), then his duties at the school are ended with a category, the date and a reason; the audit log holds two role.changed rows and one staff.ended_at_school row, and he holds no live role at Alpha."
     },
     {
       "id": "JEJAK-K01",

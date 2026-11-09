@@ -1709,7 +1709,10 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 <li key={a.id} id={`peran-${a.id}`} data-terbuka={ubah === a.id ? "" : undefined}
                   className={`flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 rounded-[var(--radius-1)] px-3 py-2 ${ubah === a.id ? "bg-surface-2" : "border-b border-line-1"}`}>
                   <span>
-                    {personName.get(a.person_id) ?? TANPA_NAMA} · {roleLabel(a.role)}
+                    {/* E5 and §11 (owner, 9 Nov): the name opens the person's page, where their roles change or end at this school */}
+                    {a.scope_node_id && a.person_id !== viewer.personId
+                      ? <Link href={`/konfigurasi/staf?orang=${a.person_id}`} className={tautanTempat} data-staf-buka={a.person_id}>{personName.get(a.person_id) ?? TANPA_NAMA}</Link>
+                      : (personName.get(a.person_id) ?? TANPA_NAMA)} · {roleLabel(a.role)}
                     <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? TANPA_NAMA : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {when(a.valid_until, "baca")}</span>
                   </span>
                   {a.person_id !== viewer.personId && ubah !== a.id ? (

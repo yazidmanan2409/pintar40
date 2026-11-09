@@ -193,6 +193,88 @@ export type HleEvent =
   | "sertifikat.kelola.cabut"
   | "sertifikat.kelola.ditolak"
   | "sertifikat.cabut.judul"
+  | "staf.judul"
+  | "staf.intro"
+  | "staf.kosong"
+  | "staf.tidak_ada_sekolah"
+  | "staf.buka"
+  | "staf.peran_kini"
+  | "staf.tempat"
+  | "staf.sampai"
+  | "staf.tj"
+  | "staf.ubah.judul"
+  | "staf.ubah.arti"
+  | "staf.ubah.lepas"
+  | "staf.ubah.tambah"
+  | "staf.ubah.tambah_tidak"
+  | "staf.ubah.alasan"
+  | "staf.ubah.alasan_arti"
+  | "staf.ubah.tinjau"
+  | "staf.ubah.tinjau_judul"
+  | "staf.ubah.dapat"
+  | "staf.ubah.tetap"
+  | "staf.ubah.hilang"
+  | "staf.ubah.tidak_ada"
+  | "staf.ubah.tidak_diberikan"
+  | "staf.ubah.antrean"
+  | "staf.ubah.antrean_arti"
+  | "staf.ubah.menunggu"
+  | "staf.ubah.konfirmasi_admin"
+  | "staf.ubah.terapkan"
+  | "staf.ubah.batal"
+  | "staf.ubah.ok"
+  | "staf.akhiri.judul"
+  | "staf.akhiri.arti"
+  | "staf.akhiri.kategori"
+  | "staf.akhiri.tanggal"
+  | "staf.akhiri.alasan"
+  | "staf.akhiri.tombol"
+  | "staf.akhiri.ok"
+  | "staf.kategori.retirement"
+  | "staf.kategori.resignation"
+  | "staf.kategori.dismissal"
+  | "staf.kategori.transfer"
+  | "staf.kategori.contract_end"
+  | "staf.kategori.correction"
+  | "staf.kategori.other"
+  | "staf.tj.can_draft"
+  | "staf.tj.can_review"
+  | "staf.tj.can_freeze_release"
+  | "staf.tj.can_publish"
+  | "staf.tj.can_assign_learning"
+  | "staf.tj.can_quick_assessment"
+  | "staf.tj.can_authorize_transfer"
+  | "staf.tj.can_review_question_health"
+  | "staf.tj.can_manage_report_templates"
+  | "staf.tj.can_review_integrity"
+  | "staf.tj.can_view_learner_roster"
+  | "staf.tj.can_view_learner_result"
+  | "staf.tj.can_provision_people"
+  | "staf.tj.management_decision"
+  | "staf.galat.staff_not_allowed"
+  | "staf.galat.staff_self"
+  | "staf.galat.staff_not_active"
+  | "staf.galat.staff_category_invalid"
+  | "staf.galat.staff_reason_required"
+  | "staf.galat.staff_date_invalid"
+  | "staf.galat.role_stale"
+  | "staf.galat.role_nothing"
+  | "staf.galat.role_not_allowed"
+  | "staf.galat.role_scope_invalid"
+  | "staf.galat.role_until_invalid"
+  | "staf.galat.role_admin_unconfirmed"
+  | "staf.galat.role_remove_invalid"
+  | "staf.galat.staff_failed"
+  | "audit.alasan.retirement"
+  | "audit.alasan.resignation"
+  | "audit.alasan.dismissal"
+  | "audit.alasan.contract_end"
+  | "audit.aksi.staff.ended_at_school"
+  | "audit.aksi.role.changed"
+  | "audit.aksi.learning_assignment.ended"
+  | "audit.aksi.learning_assignment.withdrawn"
+  | "audit.aksi.certificate.superseded"
+  | "audit.aksi.certificate.correction_prepared"
   | "sertifikat.ganti.judul"
   | "sertifikat.ganti.arti"
   | "sertifikat.ganti.bagian"
@@ -3301,6 +3383,90 @@ const table: Table = {
   "sertifikat.kelola.cabut": { default: "Cabut", en: "Revoke" },
   "sertifikat.kelola.ditolak": { default: "Sertifikat sekolah hanya dapat dibuka oleh Admin sekolah.", en: "Only a school admin can open the school's certificates." },
   "sertifikat.cabut.judul": { default: "Cabut sertifikat", en: "Revoke a certificate" },
+  // E5 «Akhiri tugas di sekolah ini» and §11 «Ubah peran & tanggung jawab» (owner, 9 Nov); words of the responsibilities are
+  // plain names pending Daisy's matrix and Dr Gladys's copy pass
+  "staf.judul": { default: "Peran dan tugas seseorang", en: "A person's roles and duties" },
+  "staf.intro": { default: "Peran yang dipegang orang ini di sekolah ini, dan tanggung jawab yang dibawa tiap peran. Jabatan formal bukan wewenang di PINTAR.", en: "The roles this person holds at this school, and the responsibilities each carries. A formal position is not authority in PINTAR." },
+  "staf.kosong": { default: "Orang ini tidak memegang peran apa pun di sekolah ini sekarang.", en: "This person holds no role at this school now." },
+  "staf.tidak_ada_sekolah": { default: "Pilih sekolah sebagai konteks kerja lebih dahulu.", en: "Choose a school as your working context first." },
+  "staf.buka": { default: "Kelola peran orang ini", en: "Manage this person's roles" },
+  "staf.peran_kini": { default: "Peran sekarang", en: "Roles now" },
+  "staf.tempat": { default: "Tempat", en: "Place" },
+  "staf.sampai": { default: "Berlaku sampai", en: "Valid until" },
+  "staf.tj": { default: "Tanggung jawab", en: "Responsibilities" },
+  "staf.ubah.judul": { default: "Ubah peran & tanggung jawab", en: "Change roles & responsibilities" },
+  "staf.ubah.arti": { default: "Tambah satu peran, lepaskan peran yang tidak lagi dipegang, atau keduanya sekaligus. Tidak ada yang berubah sebelum Anda meninjau dan mengonfirmasi.", en: "Add one role, release roles no longer held, or both at once. Nothing changes until you review and confirm." },
+  "staf.ubah.lepas": { default: "Lepaskan", en: "Release" },
+  "staf.ubah.tambah": { default: "Tambah peran", en: "Add a role" },
+  "staf.ubah.tambah_tidak": { default: "Tidak menambah peran", en: "Add no role" },
+  "staf.ubah.alasan": { default: "Alasan", en: "Reason" },
+  "staf.ubah.alasan_arti": { default: "10 sampai 300 karakter. Tercatat di jejak audit sekolah.", en: "10 to 300 characters. Recorded in the school's audit trail." },
+  "staf.ubah.tinjau": { default: "Tinjau perubahan", en: "Review the change" },
+  "staf.ubah.tinjau_judul": { default: "Tinjau sebelum mengonfirmasi", en: "Review before confirming" },
+  "staf.ubah.dapat": { default: "Tanggung jawab yang didapat", en: "Responsibilities gained" },
+  "staf.ubah.tetap": { default: "Tanggung jawab yang tetap", en: "Responsibilities kept" },
+  "staf.ubah.hilang": { default: "Tanggung jawab yang hilang", en: "Responsibilities lost" },
+  "staf.ubah.tidak_ada": { default: "Tidak ada.", en: "None." },
+  "staf.ubah.tidak_diberikan": { default: "Tidak pernah diberikan dari sekolah: Admin platform, dan apa pun di sekolah lain.", en: "Never given from a school: platform administrator, and anything at another school." },
+  "staf.ubah.antrean": { default: "Keputusan yang akan menunggu tanpa pemutus", en: "Decisions that will wait with no one to decide them" },
+  "staf.ubah.antrean_arti": { default: "Di tempat ini tidak akan ada lagi Kepala departemen atau Dekan. Keputusan yang menunggu tetap menunggu dan tidak dialihkan; tetapkan pemegang baru agar ada yang memutuskannya.", en: "There will be no Head of department or Dean at this place any more. Waiting decisions stay waiting and are not reassigned; appoint a new holder so someone can decide them." },
+  "staf.ubah.menunggu": { default: "menunggu", en: "waiting" },
+  "staf.ubah.konfirmasi_admin": { default: "Saya memahami bahwa orang ini akan menjadi Admin sekolah dengan semua wewenangnya.", en: "I understand this person will become a school administrator with all its authority." },
+  "staf.ubah.terapkan": { default: "Konfirmasi perubahan", en: "Confirm the change" },
+  "staf.ubah.batal": { default: "Batal", en: "Cancel" },
+  "staf.ubah.ok": { default: "Peran diubah. Wewenang yang dilepas berakhir saat itu juga.", en: "Roles changed. Released authority ends at once." },
+  "staf.akhiri.judul": { default: "Akhiri tugas di sekolah ini", en: "End duties at this school" },
+  "staf.akhiri.arti": { default: "Semua peran orang ini di sekolah ini berakhir saat dicatat. Akunnya, peran di sekolah lain, dan semua karya serta catatannya tetap ada.", en: "All of this person's roles at this school end when this is recorded. Their account, roles at other schools, and all their work and records stay." },
+  "staf.akhiri.kategori": { default: "Kategori", en: "Category" },
+  "staf.akhiri.tanggal": { default: "Tanggal berlaku", en: "Effective date" },
+  "staf.akhiri.alasan": { default: "Alasan", en: "Reason" },
+  "staf.akhiri.tombol": { default: "Akhiri tugas di sekolah ini", en: "End duties at this school" },
+  "staf.akhiri.ok": { default: "Tugas di sekolah ini diakhiri. Wewenangnya berakhir saat itu juga.", en: "Duties at this school ended. Their authority ended at once." },
+  "staf.kategori.retirement": { default: "Pensiun", en: "Retirement" },
+  "staf.kategori.resignation": { default: "Mengundurkan diri", en: "Resignation" },
+  "staf.kategori.dismissal": { default: "Diberhentikan", en: "Dismissal" },
+  "staf.kategori.transfer": { default: "Pindah tugas", en: "Transfer" },
+  "staf.kategori.contract_end": { default: "Masa tugas selesai", en: "End of contract" },
+  "staf.kategori.correction": { default: "Dicatat keliru", en: "Recorded in error" },
+  "staf.kategori.other": { default: "Lainnya", en: "Other" },
+  "staf.tj.can_draft": { default: "Menyusun materi", en: "Drafting material" },
+  "staf.tj.can_review": { default: "Meninjau materi", en: "Reviewing material" },
+  "staf.tj.can_freeze_release": { default: "Mengunci terbitan", en: "Locking releases" },
+  "staf.tj.can_publish": { default: "Menerbitkan dan mengelola sertifikat", en: "Publishing and managing certificates" },
+  "staf.tj.can_assign_learning": { default: "Menyediakan materi untuk kelas", en: "Giving material to classes" },
+  "staf.tj.can_quick_assessment": { default: "Membuat Uji Cepat", en: "Quick Assessments" },
+  "staf.tj.can_authorize_transfer": { default: "Menyetujui perpindahan murid", en: "Approving learner transfers" },
+  "staf.tj.can_review_question_health": { default: "Meninjau kesehatan soal", en: "Reviewing question health" },
+  "staf.tj.can_manage_report_templates": { default: "Mengelola templat laporan", en: "Managing report templates" },
+  "staf.tj.can_review_integrity": { default: "Meninjau tanda integritas", en: "Reviewing integrity signals" },
+  "staf.tj.can_view_learner_roster": { default: "Melihat daftar murid", en: "Seeing the list of learners" },
+  "staf.tj.can_view_learner_result": { default: "Melihat hasil murid", en: "Seeing learners' results" },
+  "staf.tj.can_provision_people": { default: "Mendata orang dan akun", en: "Recording people and accounts" },
+  "staf.tj.management_decision": { default: "Memutuskan keputusan manajemen", en: "Deciding management decisions" },
+  "staf.galat.staff_not_allowed": { default: "Anda tidak dapat mengubah peran di sekolah ini.", en: "You cannot change roles at this school." },
+  "staf.galat.staff_self": { default: "Peran Anda sendiri diubah atau diakhiri oleh admin lain.", en: "Your own roles are changed or ended by another administrator." },
+  "staf.galat.staff_not_active": { default: "Orang ini tidak memegang peran di sekolah ini sekarang.", en: "This person holds no role at this school now." },
+  "staf.galat.staff_category_invalid": { default: "Pilih salah satu kategori.", en: "Choose one of the categories." },
+  "staf.galat.staff_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
+  "staf.galat.staff_date_invalid": { default: "Tanggal berlaku adalah hari ini atau sebelumnya, dan tidak sebelum orang ini mulai bertugas di sini.", en: "The effective date is today or earlier, and not before this person began here." },
+  "staf.galat.role_stale": { default: "Peran orang ini berubah sejak Anda meninjau. Tinjau lagi.", en: "This person's roles changed since you reviewed them. Review again." },
+  "staf.galat.role_nothing": { default: "Pilih peran untuk dilepaskan atau ditambahkan.", en: "Choose a role to release or to add." },
+  "staf.galat.role_not_allowed": { default: "Peran itu tidak diberikan di tempat itu dari sekolah.", en: "That role is not given at that place from a school." },
+  "staf.galat.role_scope_invalid": { default: "Tempat itu bukan bagian aktif sekolah ini.", en: "That place is not an active part of this school." },
+  "staf.galat.role_until_invalid": { default: "Tanggal berlaku sampai harus setelah hari ini.", en: "The valid-until date must be after today." },
+  "staf.galat.role_admin_unconfirmed": { default: "Centang konfirmasi untuk menjadikan orang ini Admin sekolah.", en: "Tick the confirmation to make this person a school administrator." },
+  "staf.galat.role_remove_invalid": { default: "Peran yang dilepas bukan peran orang ini di sekolah ini.", en: "A role to release is not this person's role at this school." },
+  "staf.galat.staff_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
+  "audit.alasan.retirement": { default: "Pensiun", en: "Retirement" },
+  "audit.alasan.resignation": { default: "Mengundurkan diri", en: "Resignation" },
+  "audit.alasan.dismissal": { default: "Diberhentikan", en: "Dismissal" },
+  "audit.alasan.contract_end": { default: "Masa tugas selesai", en: "End of contract" },
+  "audit.aksi.staff.ended_at_school": { default: "Tugas di sekolah diakhiri", en: "Duties at the school ended" },
+  "audit.aksi.role.changed": { default: "Peran diubah", en: "Roles changed" },
+  "audit.aksi.learning_assignment.ended": { default: "Penugasan materi diakhiri", en: "Assignment ended" },
+  "audit.aksi.learning_assignment.withdrawn": { default: "Penugasan materi ditarik", en: "Assignment withdrawn" },
+  "audit.aksi.certificate.superseded": { default: "Sertifikat digantikan", en: "Certificate replaced" },
+  "audit.aksi.certificate.correction_prepared": { default: "Sertifikat pengganti disiapkan", en: "Replacement certificate prepared" },
   // W2.22 (owner, 9 Nov): «Terbitkan ulang», the replacement of an erroneous issued certificate
   "sertifikat.ganti.judul": { default: "Terbitkan ulang", en: "Reissue" },
   "sertifikat.ganti.arti": { default: "Sertifikat pengganti diterbitkan dengan nama, sekolah dan pelajaran yang tercatat sekarang, dengan hasil yang sama dan nomor baru. Sertifikat ini tetap tersimpan, dan pemeriksaannya akan menyebut bahwa ia sudah digantikan.", en: "A replacement certificate is issued with the name, school and lesson recorded now, the same result and a new number. This certificate is kept, and its check will say it has been replaced." },

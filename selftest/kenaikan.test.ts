@@ -419,4 +419,75 @@ export const kenaikanAppTests: SelfTest[] = [
         "the original is kept as SUPERSEDED and the panel says which certificate replaced it");
     },
   },
+  {
+    id: "STAF-A01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      // E5 and §11 through the running app, as Alpha's admin: Pak Yusuf becomes Kepala departemen too, goes back to Guru,
+      // then leaves the school
+      const c = new Checks();
+      const asal = ctx.appUrl!;
+      const tag = randomBytes(4).toString("hex");
+      const nama = `Pak Yusuf ${tag}`;
+      const [alpha, orang, dept] = psql(`
+        do $$ declare v_i uuid; v_prog uuid; v_per uuid; v_t uuid; v_k uuid; v_p uuid; v_d uuid; begin
+          perform set_config('app.seed_intent', 'synthetic', true);
+          select i.id into v_i from public.institutions i where i.slug like 'synth-alpha-%' and i.is_active order by i.created_at desc limit 1;
+          select n.id into v_prog from public.org_nodes n where n.institution_id = v_i and n.kind = 'PROGRAMME' and n.is_active order by n.created_at limit 1;
+          select n.id into v_d from public.org_nodes n where n.institution_id = v_i and n.kind = 'DEPARTMENT' and n.is_active order by n.created_at limit 1;
+          select ap.id into v_per from public.academic_periods ap where ap.institution_id = v_i order by ap.starts_on limit 1;
+          insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_i, v_prog, 'COHORT', 'Tingkat Y ' || ${lit(tag)}, v_per) returning id into v_t;
+          insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_i, v_t, 'CLASS', 'Kelas Y ' || ${lit(tag)}, v_per) returning id into v_k;
+          insert into public.persons (display_name) values (${lit(nama)}) returning id into v_p;
+          insert into public.role_assignments (person_id, role, scope_node_id, institution_id, valid_from, valid_until)
+          values (v_p, 'EDUCATOR', v_k, v_i, now() - interval '30 days', now() + interval '365 days');
+          perform set_config('sy.ids', v_i || '|' || v_p || '|' || v_d, false);
+        end $$;
+        select current_setting('sy.ids');`).split("\n").pop()!.split("|");
+      if (!c.expect([alpha, orang, dept].every((x) => /^[0-9a-f-]{36}$/.test(x ?? "")), "the fixture was not made")) return c.verdict("");
+      const hidup = () => psql(`select coalesce(string_agg(ra.role::text, ',' order by ra.role), '-') from public.role_assignments ra
+        where ra.person_id = ${lit(orang)} and ra.revoked_at is null and now() < ra.valid_until`);
+      const admin = new Komputer(asal, ipUji());
+      const m = await admin.jsonDari("/masuk/password", { form: { identitas: "alpha-admin@synthetic.pintar.test", password: "Sintetis-AlphaAdmin-27!" } });
+      if (!c.expect(m.status === 200, `Alpha's admin could not sign in (${m.status})`)) return c.verdict("");
+      await admin.halaman("/konfigurasi");
+      await admin.jsonDari("/api/sesi/perangkat", { form: { mode: "PERSONAL" } });
+      await pilihKonteksPeramban(admin, `MENGELOLA:${alpha}`);
+
+      // «Peran & akses» names the person and opens their page
+      const h0 = await (await admin.halaman("/konfigurasi/roles")).text();
+      const h1 = await (await admin.halaman(`/konfigurasi/staf?orang=${orang}`)).text();
+      c.expect(teks(h1).includes(nama) && teks(h1).includes("Menyediakan materi untuk kelas"), `the person's page does not show the role and its responsibilities in words: ${teks(h1).slice(0, 400)}`);
+      // 1. promotion: the review says what is gained, then one confirmation
+      const sampai = psql("select ((now() at time zone 'Asia/Jakarta')::date + 200)::text");
+      const q = new URLSearchParams({ orang, tinjau: "1", tambah_peran: "HEAD_OF_DEPARTMENT", tambah_tempat: dept, tambah_sampai: sampai, alasan: `menjadi Kepala departemen juga ${tag}` });
+      const h2 = await (await admin.halaman(`/konfigurasi/staf?${q.toString()}`)).text();
+      c.expect(h2.includes("data-staf-tinjau") && teks(h2).includes("Meninjau materi"), "the review does not show what is gained");
+      const f2 = formDengan(h2, "data-staf-terapkan", {});
+      if (!c.expect(typeof f2 !== "string", `the confirmation form: ${f2}`)) return c.verdict("");
+      const r2 = await admin.kirim("/konfigurasi/staf", { form: f2 as Record<string, string> });
+      c.expect(/hasil=ok/.test(r2.headers.get("location") ?? "") && hidup() === "EDUCATOR,HEAD_OF_DEPARTMENT", `the promotion: ${r2.headers.get("location")}; now ${hidup()}`);
+      // 2. demotion: back to Guru only; teaching stays
+      const hod = psql(`select id from public.role_assignments where person_id = ${lit(orang)} and role = 'HEAD_OF_DEPARTMENT' and revoked_at is null`);
+      const q3 = new URLSearchParams({ orang, tinjau: "1", cabut: hod, alasan: `kembali menjadi Guru saja ${tag}` });
+      const h3 = await (await admin.halaman(`/konfigurasi/staf?${q3.toString()}`)).text();
+      c.expect(teks(h3).includes("Tanggung jawab yang hilang") && teks(h3).includes("Meninjau materi"), "the demotion's review does not show what is lost");
+      const f3 = formDengan(h3, "data-staf-terapkan", {});
+      const r3 = await admin.kirim("/konfigurasi/staf", { form: f3 as Record<string, string> });
+      c.expect(/hasil=ok/.test(r3.headers.get("location") ?? "") && hidup() === "EDUCATOR", `the demotion: ${r3.headers.get("location")}; now ${hidup()}`);
+      // 3. the person leaves the school (E5)
+      const h4 = await (await admin.halaman(`/konfigurasi/staf?orang=${orang}`)).text();
+      const f4 = formDengan(h4, "data-staf-akhiri", { kategori: "RESIGNATION", tanggal: psql("select (now() at time zone 'Asia/Jakarta')::date::text"), alasan: `mengundurkan diri akhir semester ${tag}` });
+      if (!c.expect(typeof f4 !== "string", `the «Akhiri tugas» form: ${f4}`)) return c.verdict("");
+      const r4 = await admin.kirim("/konfigurasi/staf", { form: f4 as Record<string, string> });
+      c.expect(/hasil=ok/.test(r4.headers.get("location") ?? "") && hidup() === "-", `the departure: ${r4.headers.get("location")}; now ${hidup()}`);
+      const jejak = psql(`select count(*) from public.audit_log where action = 'staff.ended_at_school' and target_id = ${lit(orang)} and summary ->> 'reason_code' = 'RESIGNATION'`);
+      const ubah = psql(`select count(*) from public.audit_log where action = 'role.changed' and target_id = ${lit(orang)}`);
+      c.expect(jejak === "1" && ubah === "2", `audit: ${jejak} staff.ended_at_school, ${ubah} role.changed`);
+      c.expect(h0.includes(`data-staf-buka="${orang}"`), "«Peran & akses» does not open the person's page from their name");
+      return c.verdict("as Alpha's admin: «Peran & akses» opens Pak Yusuf's page from his name; the page sets his role and its responsibilities in words; " +
+        "made Kepala departemen as well after a review of what is gained, then back to Guru after a review of what is lost (teaching kept), " +
+        "then his duties at the school ended with a category, the date and a reason; audit log rows: two role.changed, one staff.ended_at_school");
+    },
+  },
 ];

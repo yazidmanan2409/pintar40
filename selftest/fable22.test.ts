@@ -184,6 +184,8 @@ const AKSI_TERIKAT: Record<string, Record<string, string>> = {
   "src/app/konfigurasi/sertifikat/actions.ts": {},
   // «Kenaikan kelas dan kelulusan» (owner, 9 Nov): both presses ask the class's school as the working context
   "src/app/konfigurasi/kenaikan-aksi.ts": {},
+  // E5 and §11 (owner, 9 Nov): both acts ask the person's school as the working context before akhiri_tugas_staf / ubah_peran
+  "src/app/konfigurasi/staf/actions.ts": {},
 };
 /** Every other server-action file, and why it is not context-bound. */
 const AKSI_BEBAS: Record<string, string> = {

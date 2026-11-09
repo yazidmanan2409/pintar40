@@ -28,6 +28,7 @@ import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { t, type HleEvent } from "../src/lib/hle";
 import { KODE_CABUT, KEADAAN_SERTIFIKAT, KODE_GANTI, KODE_GANTI_DB, kodeGantiDariGalat } from "../src/lib/sertifikat-cabut-kontrak";
+import { KODE_STAF, KODE_STAF_DB, KATEGORI_AKHIR, TANGGUNG_JAWAB, kodeStafDariGalat, kunciTanggungJawab } from "../src/lib/staf-kontrak";
 import { JUDUL_HALAMAN } from "../src/lib/judul-halaman";
 import { langkahRujukan } from "../src/lib/integritas-kontrak";
 
@@ -203,6 +204,55 @@ export const b5Tests: SelfTest[] = [
       c.expect(/rpc\("sertifikat_koreksi_pratinjau", \{ p_certificate: dipilih\.id \}\)/.test(halaman), "the panel does not read the database's preview");
       c.expect(/<FormTerbitUlang /.test(halaman) && /sertifikat\.ganti\.digantikan_oleh/.test(halaman), "the panel does not offer «Terbitkan ulang» or say what replaced a certificate");
       return c.verdict("sertifikat_koreksi_tolak's six codes are the contract's, each raised and read back by its PR120 DETAIL (an unknown one and another state's are not), and every screen code has a sentence in both languages naming no machinery; the action checks the context, prepares with the admin's own client, signs, then seals with the service client, and the seal is service-only; the panel reads the database's preview, offers the form only where something differs with a 10–300 reason, and says what replaced a certificate");
+    },
+  },
+  {
+    // STAF-K01 — E5 AND §11: ONE CONTRACT FROM THE MIGRATION TO THE PERSON'S PAGE (owner, 9 Nov).
+    id: "STAF-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const sql = baca(ctx.repoRoot, "supabase/migrations/20270113120000_an_educator_changes_roles_or_leaves_on_the_record.sql").replace(/--[^\n]*/g, "");
+      const tolak = /create or replace function public\.staf_tolak[\s\S]*?\$\$;/.exec(sql)?.[0] ?? "";
+      const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();
+      c.expect(JSON.stringify(dariDb) === JSON.stringify([...KODE_STAF_DB].sort()), `staf_tolak knows ${dariDb.join(",")} and the contract names ${KODE_STAF_DB.join(",")}`);
+      const badan = sql.replace(/create or replace function public\.staf_tolak[\s\S]*?\$\$;/, "");
+      for (const k of KODE_STAF_DB) {
+        c.expect(badan.includes(`staf_tolak('${k}')`), `no function raises ${k}`);
+        c.expect(kodeStafDariGalat({ code: "PR130", details: k }) === k, `${k} is not read back as itself`);
+      }
+      c.expect(kodeStafDariGalat({ code: "PR130", details: "STAFF_PLANTED" }) === "STAFF_FAILED", "an unknown DETAIL is read as a known code");
+      // the categories are the function's own list, in its order
+      const kat = /p_kategori not in \(([^)]*)\)/.exec(sql)?.[1] ?? "";
+      c.expect(JSON.stringify([...kat.matchAll(/'([A-Z_]+)'/g)].map((m) => m[1])) === JSON.stringify([...KATEGORI_AKHIR]), `the categories are ${kat}`);
+      const MESIN = /STAFF_|ROLE_|PR\d{3}|jsonb|uuid|CAN_|INV-/;
+      const kunci: string[] = [...KODE_STAF.map((k) => `staf.galat.${k.toLowerCase()}`), ...KATEGORI_AKHIR.map((k) => `staf.kategori.${k.toLowerCase()}`), ...TANGGUNG_JAWAB.map(kunciTanggungJawab)];
+      for (const k of kunci) {
+        for (const l of ["id", "en"] as const) {
+          let x = ""; try { x = t(k as HleEvent, "staff", { locale: l }); } catch { x = ""; }
+          c.expect(x.trim() !== "" && x !== k, `${k} has no ${l} telling`);
+          c.expect(!MESIN.test(x), `${k} names the machinery in ${l}`);
+        }
+      }
+      // every responsibility the registry can name has words: role_capabilities' own codes, read from the migrations
+      const semuaSql = readFileSync(join(ctx.repoRoot, "supabase", "migrations", "20260926100000_a_school_gives_a_person_a_number.sql"), "utf8");
+      const fungsiCap = /function public\.role_capabilities\([\s\S]*?\$\$;/.exec(semuaSql)?.[0] ?? "";
+      c.expect(fungsiCap.length > 0, "the registry's role_capabilities definition was not found");
+      for (const cap of new Set([...fungsiCap.matchAll(/'(CAN_[A-Z_]+)'/g)].map((m) => m[1]))) {
+        c.expect((TANGGUNG_JAWAB as readonly string[]).includes(cap), `the registry names ${cap} and the page has no words for it`);
+      }
+      // the page: a GET review answered by ubah_peran with apply false, one POST commitment carrying the fingerprint, and E5
+      const aksi = baca(ctx.repoRoot, "src/app/konfigurasi/staf/actions.ts");
+      for (const nama of ["akhiriTugasAksi", "ubahPeranAksi"]) {
+        const f = new RegExp(`export async function ${nama}[\\s\\S]*?\\n\\}`).exec(aksi)?.[0] ?? "";
+        c.expect(f.indexOf("wajibDalamKonteks(") >= 0 && f.indexOf("wajibDalamKonteks(") < f.indexOf("supabase.rpc("), `${nama} does not ask the working context before it acts`);
+      }
+      c.expect(/p_terapkan: true/.test(aksi) && /p_sidik: teks\(fd, "sidik"\)/.test(aksi), "the commitment does not apply with the review's fingerprint");
+      const halaman = kode(baca(ctx.repoRoot, "src/app/konfigurasi/staf/page.tsx"));
+      c.expect(/<form method="get" action="\/konfigurasi\/staf"/.test(halaman) && /p_terapkan: false/.test(halaman), "the review is not a GET render answered with apply false");
+      c.expect(/<form action=\{ubahPeranAksi\}/.test(halaman) && /name="sidik" value=\{orang\.sidik\}/.test(halaman), "the confirmation does not post the fingerprint to ubahPeranAksi");
+      c.expect(/<form action=\{akhiriTugasAksi\}/.test(halaman) && /name="kategori"/.test(halaman) && /id="staf-akhiri-tanggal"[^>]*max=\{hariIni\}/.test(halaman),
+        "«Akhiri tugas» has no category or no date bounded by today");
+      return c.verdict("staf_tolak's 13 codes are the contract's, each raised and read back by its PR130 DETAIL; the categories are akhiri_tugas_staf's own list and order; every code, category and responsibility (including every capability the registry migration names) has words in both languages naming no machinery; both actions ask the working context before acting; the review is a GET render answered by ubah_peran with apply false, the confirmation posts the fingerprint, and «Akhiri tugas» asks a category and a date no later than today");
     },
   },
 ];

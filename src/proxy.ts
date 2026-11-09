@@ -73,7 +73,8 @@ function alamatKonfigurasiBaru(url: URL): string | null {
     return b ? alamatBagian(b, url.searchParams) : null;
   }
   const m = /^\/konfigurasi\/([^/]+)\/?$/.exec(url.pathname);
-  if (m && !adalahBagian(m[1]) && !["keamanan", "email-uji", "sertifikat"].includes(m[1])) return "/konfigurasi";
+  // E5 and §11 (owner, 9 Nov): «staf», one person's roles and duties, is a page of its own like the three before it
+  if (m && !adalahBagian(m[1]) && !["keamanan", "email-uji", "sertifikat", "staf"].includes(m[1])) return "/konfigurasi";
   return null;
 }
 

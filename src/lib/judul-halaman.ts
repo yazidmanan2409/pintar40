@@ -41,6 +41,8 @@ export const JUDUL_HALAMAN: Record<string, Judul> = {
   "/konfigurasi": { kunci: "config.title", untuk: "staff" },
   "/konfigurasi/[bagian]": { kunci: "config.title", untuk: "staff" },
   "/konfigurasi/sertifikat": { kunci: "sertifikat.kelola.judul", untuk: "staff" },
+  // E5 and §11 (owner, 9 Nov): one person's roles and duties at the school
+  "/konfigurasi/staf": { kunci: "staf.judul", untuk: "staff" },
   "/konfigurasi/email-uji": { kunci: "emailuji.judul", untuk: "staff" },
   "/konfigurasi/keamanan": { kunci: "keamanan.judul", untuk: "staff" },
   "/lapor": { kunci: "lapor.judul", untuk: "staff" },
