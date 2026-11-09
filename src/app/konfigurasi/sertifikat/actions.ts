@@ -2,10 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
-import { KODE_CABUT, kodeDariGalat, kodeGantiDariGalat, type KodeCabut, type KodeGanti } from "@/lib/sertifikat-cabut-kontrak";
-import { supabaseService } from "@/lib/supabase/service";
-import { assertKeyringUsable, signingKeyVersion, signPayload } from "@/lib/certificates/keyring";
-import { type CanonicalPayload } from "@/lib/certificates/sign";
+import { KODE_CABUT, kodeDariGalat, type KodeCabut } from "@/lib/sertifikat-cabut-kontrak";
 import { wajibDalamKonteks } from "@/lib/konteks-server";
 import { sekolahSertifikat } from "@/lib/sertifikat-sekolah";
 
@@ -39,41 +36,3 @@ export async function cabutSertifikatAksi(fd: FormData) {
   kembali(id, "gagal", KODE_CABUT.includes(kode) ? kode : "LAYANAN_TIDAK_TERSEDIA");
 }
 
-/**
- * W2.22 (owner, 9 Nov): «TERBITKAN ULANG», the replacement of an erroneous issued certificate.
- *
- * The admin's own client asks sertifikat_koreksi_siapkan, which decides everything (CAN_PUBLISH in the certificate's
- * school, an ISSUED original, a reason of 10–300 characters, something that would change) and prepares the replacement
- * not yet public. Only then does this server sign its payload with the keyring, as /api/certificates/issue does, and
- * seal it with the service client (sertifikat_koreksi_segel, service only), which supersedes the original in the same
- * transaction. A failed signature leaves the replacement unsealed and the original as it was; pressing again signs the
- * same replacement.
- */
-function kembaliGanti(id: string, hasil: "ok" | "gagal", kode?: KodeGanti): never {
-  const q = new URLSearchParams({ pilih: id, hasil, jenis: "ganti" });
-  if (kode) q.set("kode", kode);
-  redirect(`/konfigurasi/sertifikat?${q.toString()}#cabut`);
-}
-
-export async function terbitUlangSertifikatAksi(fd: FormData) {
-  const id = String(fd.get("sertifikat") ?? "");
-  const alasan = String(fd.get("alasan") ?? "").trim();
-  if (!UUID.test(id)) kembaliGanti("", "gagal", "TIDAK_DITEMUKAN");
-  await wajibDalamKonteks({ sekolah: await sekolahSertifikat(id), atauPlatform: true }, "cabut", { pilih: id });
-  try {
-    assertKeyringUsable();
-  } catch {
-    kembaliGanti(id, "gagal", "LAYANAN_TIDAK_TERSEDIA");
-  }
-  const versi = signingKeyVersion();
-  const supabase = await supabaseServer();
-  const { data, error } = await supabase.rpc("sertifikat_koreksi_siapkan", { p_certificate: id, p_reason: alasan, p_key_version: versi });
-  const baris = Array.isArray(data) ? (data[0] as { certificate_id: string; canonical_payload: CanonicalPayload } | undefined) : undefined;
-  if (error || !baris) kembaliGanti(id, "gagal", kodeGantiDariGalat(error));
-  const tanda = signPayload(baris.canonical_payload, versi);
-  const { error: e2 } = await supabaseService().rpc("sertifikat_koreksi_segel", {
-    p_replacement: baris.certificate_id, p_key_version: versi, p_signature: tanda,
-  });
-  if (e2) kembaliGanti(id, "gagal", kodeGantiDariGalat(e2));
-  kembaliGanti(id, "ok");
-}

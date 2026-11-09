@@ -79,6 +79,7 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
     : { data: null };
   const ganti = (gantiData ?? null) as PratinjauGanti | null;
   const gantiKini = sp.jenis === "ganti";
+  const digantikan = dipilih?.status === "SUPERSEDED";
 
   const tautanPilih = (id: string) => {
     const q = new URLSearchParams({ pilih: id });
@@ -166,7 +167,7 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
                 <FormCabut locale={locale} id={dipilih.id} nomor={dipilih.certificate_number} />
                 {ganti ? <FormTerbitUlang locale={locale} id={dipilih.id} pratinjau={ganti} /> : null}
               </>
-            ) : dipilih.status === "SUPERSEDED" && ganti?.pengganti ? (
+            ) : digantikan && ganti?.pengganti ? (
               <p className="pin-meta" data-digantikan-oleh={ganti.pengganti.id}>
                 {s("sertifikat.ganti.digantikan_oleh").replace("{nomor}", ganti.pengganti.nomor)}
               </p>

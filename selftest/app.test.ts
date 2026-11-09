@@ -90,6 +90,8 @@ const ROUTE_INVENTORY = [
   "/aktivasi/orang",
   // W2.5 (Batch 5): «Sertifikat sekolah», the school admin's certificate revocation
   "/konfigurasi/sertifikat",
+  // E5 and §11 (owner, 9 Nov): one person's roles and duties
+  "/konfigurasi/staf",
   "/masuk",
   // UX-1 login. The magic-link callback stopped being a bare redirect and
   // became a surface people read (S13/S14), so its rendered output joins the

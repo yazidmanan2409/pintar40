@@ -1,6 +1,5 @@
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import TombolKirim from "@/components/TombolKirim";
-import { terbitUlangSertifikatAksi } from "@/app/konfigurasi/sertifikat/actions";
 
 /** What sertifikat_koreksi_pratinjau returns, as the panel reads it. */
 export type PratinjauGanti = {
@@ -15,7 +14,7 @@ export type PratinjauGanti = {
  * W2.22 (owner, 9 Nov): «TERBITKAN ULANG» beside «Cabut» on an issued certificate. What is written on the certificate
  * stands beside what is recorded now, line by line, and only what differs is marked; with nothing different there is no
  * form, only the sentence that says to correct the record first. The reason is required (10–300 characters). The act
- * is terbitUlangSertifikatAksi's: the database prepares the replacement and the server signs and seals it; the original
+ * is /api/sertifikat/ganti's: the database prepares the replacement and the server signs and seals it; the original
  * is kept and its public check says it was replaced.
  */
 export default function FormTerbitUlang({ locale, id, pratinjau }: { locale: Locale; id: string; pratinjau: PratinjauGanti }) {
@@ -48,7 +47,7 @@ export default function FormTerbitUlang({ locale, id, pratinjau }: { locale: Loc
         </tbody>
       </table>
       {pratinjau.berubah ? (
-        <form action={terbitUlangSertifikatAksi} data-ganti-form={id}>
+        <form method="post" action="/api/sertifikat/ganti" data-ganti-form={id}>
           <input type="hidden" name="sertifikat" value={id} />
           <div className="pin-bidang">
             <label htmlFor="ganti-alasan" className="pin-bidang-label">{s("sertifikat.ganti.alasan")}</label>

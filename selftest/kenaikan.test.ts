@@ -397,7 +397,9 @@ export const kenaikanAppTests: SelfTest[] = [
         "the panel does not show the name on the certificate beside the corrected one with «Terbitkan ulang»");
       const f = formDengan(h1, `data-ganti-form="${sert}"`, { alasan: `nama salah ketik saat terbit ${tag}` });
       if (!c.expect(typeof f !== "string", `the «Terbitkan ulang» form: ${f}`)) return c.verdict("");
-      const r = await admin.kirim("/konfigurasi/sertifikat", { form: f as Record<string, string> });
+      // the form posts to /api/sertifikat/ganti (the service-role seal lives under src/app/api, F01-S03)
+      c.expect(h1.includes('action="/api/sertifikat/ganti"'), "the reissue form does not post to /api/sertifikat/ganti");
+      const r = await admin.kirim("/api/sertifikat/ganti", { form: f as Record<string, string> });
       c.expect(/hasil=ok/.test(r.headers.get("location") ?? "") && /jenis=ganti/.test(r.headers.get("location") ?? ""),
         `the reissue answered ${r.status} ${r.headers.get("location")}`);
       const [lama, baru, barutok, alasan] = psql(`select o.status || '|' || n.status || '|' || n.verification_token || '|' || n.correction_reason

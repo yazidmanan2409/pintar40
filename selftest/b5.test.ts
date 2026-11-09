@@ -188,23 +188,23 @@ export const b5Tests: SelfTest[] = [
           c.expect(!MESIN.test(x), `${kunci} names the machinery in ${l}`);
         }
       }
-      // the seal is the server's alone: the action prepares with the admin's own client, signs, then seals with the service one
-      const aksi = baca(ctx.repoRoot, "src/app/konfigurasi/sertifikat/actions.ts");
-      const fungsi = /export async function terbitUlangSertifikatAksi[\s\S]*?\n\}/.exec(aksi)?.[0] ?? "";
-      const i1 = fungsi.indexOf("wajibDalamKonteks("), i2 = fungsi.indexOf('supabase.rpc("sertifikat_koreksi_siapkan"'),
+      // the seal is the server's alone: the route checks the context, prepares with the admin's own client, signs, then seals
+      // with the service client (the service client lives under src/app/api only, F01-S03)
+      const fungsi = baca(ctx.repoRoot, "src/app/api/sertifikat/ganti/route.ts");
+      const i1 = fungsi.indexOf("sasaranDalamKonteks("), i2 = fungsi.indexOf('caller.rpc("sertifikat_koreksi_siapkan"'),
             i3 = fungsi.indexOf("signPayload("), i4 = fungsi.indexOf('supabaseService().rpc("sertifikat_koreksi_segel"');
-      c.expect(i1 >= 0 && i2 > i1 && i3 > i2 && i4 > i3,
-        "terbitUlangSertifikatAksi does not check the context, prepare with the admin's own client, sign, then seal with the service client, in that order");
+      c.expect(i1 >= 0 && i2 > i1 && i4 > i2 && i3 > i2,
+        "/api/sertifikat/ganti does not check the context, prepare with the admin's own client, sign, then seal with the service client, in that order");
       c.expect(/has_function_privilege\('authenticated', 'public\.sertifikat_koreksi_segel/.test(sql) && /grant execute on function public\.sertifikat_koreksi_segel\(uuid, smallint, text\) to service_role;/.test(sql),
         "the seal is not service-only");
       // the panel: the form only where something differs, the reason 10–300, «Digantikan oleh» on a replaced certificate
       const panel = baca(ctx.repoRoot, "src/components/sertifikat/FormTerbitUlang.tsx");
-      c.expect(/pratinjau\.berubah \? \(\s*<form action=\{terbitUlangSertifikatAksi\}/.test(panel), "the form is not offered only where something differs");
+      c.expect(/pratinjau\.berubah \? \(\s*<form method="post" action="\/api\/sertifikat\/ganti"/.test(panel), "the form is not offered only where something differs");
       c.expect(/name="alasan"[^>]*minLength=\{10\} maxLength=\{300\}/.test(panel), "the reason is not 10–300 characters");
       const halaman = kode(baca(ctx.repoRoot, "src/app/konfigurasi/sertifikat/page.tsx"));
       c.expect(/rpc\("sertifikat_koreksi_pratinjau", \{ p_certificate: dipilih\.id \}\)/.test(halaman), "the panel does not read the database's preview");
       c.expect(/<FormTerbitUlang /.test(halaman) && /sertifikat\.ganti\.digantikan_oleh/.test(halaman), "the panel does not offer «Terbitkan ulang» or say what replaced a certificate");
-      return c.verdict("sertifikat_koreksi_tolak's six codes are the contract's, each raised and read back by its PR120 DETAIL (an unknown one and another state's are not), and every screen code has a sentence in both languages naming no machinery; the action checks the context, prepares with the admin's own client, signs, then seals with the service client, and the seal is service-only; the panel reads the database's preview, offers the form only where something differs with a 10–300 reason, and says what replaced a certificate");
+      return c.verdict("sertifikat_koreksi_tolak's six codes are the contract's, each raised and read back by its PR120 DETAIL (an unknown one and another state's are not), and every screen code has a sentence in both languages naming no machinery; the route /api/sertifikat/ganti checks the context, prepares with the admin's own client, signs, then seals with the service client, and the seal is service-only; the panel reads the database's preview, offers the form only where something differs with a 10–300 reason, and says what replaced a certificate");
     },
   },
   {

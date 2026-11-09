@@ -353,6 +353,8 @@ const RESET_SURFACES = [
   "src/app/aktivasi/orang/page.tsx",
   // W2.5 (Batch 5): «Sertifikat sekolah», built on the token set, the Collection and the shared pin-* classes
   "src/app/konfigurasi/sertifikat/page.tsx",
+  // E5 and §11 (owner, 9 Nov): one person's roles and duties, built on the token set and the shared pin-* classes
+  "src/app/konfigurasi/staf/page.tsx",
   // DAISY-20 (Gate 3): «Aktifkan akun PINTAR Anda» on the sign-in page's
   // stage, and Akun saya in the reader's own shell. Built on the token set.
   "src/app/aktifkan/page.tsx",

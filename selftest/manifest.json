@@ -4174,7 +4174,7 @@
     {
       "id": "W222-K01",
       "runner": "static",
-      "proves": "W2.22 «Terbitkan ulang» read from its sources (selftest/b5.test.ts against 20270113110000): sertifikat_koreksi_tolak's codes are exactly KODE_GANTI_DB and each is raised; each is read back by its PR120 DETAIL (a planted unknown and maintenance's PR110 are not); every screen code has a sentence in both languages naming no machinery; terbitUlangSertifikatAksi checks the working context, prepares with the admin's own client, signs with the keyring, then seals with the service client, and sertifikat_koreksi_segel is granted to service_role only; the certificate panel reads sertifikat_koreksi_pratinjau, offers the form only where something differs with a 10–300 character reason, and says which certificate replaced a superseded one."
+      "proves": "W2.22 «Terbitkan ulang» read from its sources (selftest/b5.test.ts against 20270113110000): sertifikat_koreksi_tolak's codes are exactly KODE_GANTI_DB and each is raised; each is read back by its PR120 DETAIL (a planted unknown and maintenance's PR110 are not); every screen code has a sentence in both languages naming no machinery; the route /api/sertifikat/ganti checks the working context, prepares with the admin's own client, signs with the keyring, then seals with the service client (the service client stays under src/app/api), and sertifikat_koreksi_segel is granted to service_role only; the certificate panel reads sertifikat_koreksi_pratinjau, offers the form only where something differs with a 10–300 character reason, and says which certificate replaced a superseded one."
     },
     {
       "id": "STAF-K01",
