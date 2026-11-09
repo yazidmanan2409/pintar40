@@ -109,7 +109,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean; k01 text[] := '{}'; k02 text[] := '{}'; k03 text[] := '{}'; k04 text[] := '{}'; k05 text[] := '{}'; v_knext uuid; v_kt5 uuid; c_k5 uuid; v_kt6 uuid; c_k6 uuid; v_kt5b uuid; c_k5b uuid; v_kguru uuid; v_kp jsonb; v_kdec jsonb; v_kaud int; v_kplan jsonb; v_kres jsonb; v_ksesi uuid;
 begin
   perform selftest.as_owner();
   begin
@@ -779,6 +779,158 @@ begin
     elsif not exists (select 1 from public.enrollments en where en.person_id = v_pp and en.institution_id = v_x and en.status = 'ENDED'
                         and en.end_reason = 'TRANSFERRED_OUT') then e05 := e05 || 'the transfer back rewrote T''s old record at X'::text; end if;
 
+    -- ═══════════════════════════════════ «Kenaikan kelas dan kelulusan» (Daisy's approved flow; owner, 9 Nov)
+    -- Tingkat 5K with Kelas 5K (this year); next year Tingkat 6K with Kelas 6K, and Kelas 5K-ulang for a repeat.
+    -- K1, K2 go up; K3 repeats; K4 graduates; K5 withdraws; K6 is being transferred; K7 is in the Tingkat with no Kelas.
+    insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+    values (v_inst, 'F37K ' || v_tag, (select ap.ends_on + 1 from public.academic_periods ap where ap.id = v_period),
+            (select ap.ends_on + 366 from public.academic_periods ap where ap.id = v_period)) returning academic_periods.id into v_knext;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_proga, 'COHORT', 'Tingkat 5K ' || v_tag, v_period) returning org_nodes.id into v_kt5;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_kt5, 'CLASS', 'Kelas 5K ' || v_tag, v_period) returning org_nodes.id into c_k5;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_proga, 'COHORT', 'Tingkat 6K ' || v_tag, v_knext) returning org_nodes.id into v_kt6;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_kt6, 'CLASS', 'Kelas 6K ' || v_tag, v_knext) returning org_nodes.id into c_k6;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_proga, 'COHORT', 'Tingkat 5K baru ' || v_tag, v_knext) returning org_nodes.id into v_kt5b;
+    insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id) values (v_inst, v_kt5b, 'CLASS', 'Kelas 5K ulang ' || v_tag, v_knext) returning org_nodes.id into c_k5b;
+    v_kguru := selftest.f11_user('f37-guru-k-' || v_tag || '@local.invalid', 'EDUCATOR', c_k5);
+    v_kp := '{}';
+    for r in select * from (values ('K1'), ('K2'), ('K3'), ('K4'), ('K5'), ('K6'), ('K7')) t(k) loop
+      insert into public.persons (display_name) values ('Murid F37 ' || r.k || ' ' || v_tag) returning persons.id into v_pp;
+      perform public.issue_institutional_id(v_pp, v_inst);
+      insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status, valid_from)
+      values (v_pp, v_inst, v_period, v_proga, 'ACTIVE', now() - interval '30 days') returning enrollments.id into v_ex;
+      insert into public.memberships (enrollment_id, node_id, academic_period_id)
+      values (v_ex, case when r.k = 'K7' then v_kt5 else c_k5 end, v_period);
+      v_kp := v_kp || jsonb_build_object(r.k, jsonb_build_object('person', v_pp, 'enr', v_ex));
+    end loop;
+    insert into public.transfers (person_id, from_enrollment_id, from_institution_id, to_institution_id, to_academic_period_id, status, reason)
+    values ((v_kp -> 'K6' ->> 'person')::uuid, (v_kp -> 'K6' ->> 'enr')::uuid, v_inst, v_y, v_pery, 'REQUESTED', 'uji F37-K: pindah');
+    v_kdec := jsonb_build_array(
+      jsonb_build_object('person_id', v_kp -> 'K1' ->> 'person', 'keputusan', 'NAIK', 'kelas_tujuan', c_k6),
+      jsonb_build_object('person_id', v_kp -> 'K2' ->> 'person', 'keputusan', 'NAIK', 'kelas_tujuan', c_k6),
+      jsonb_build_object('person_id', v_kp -> 'K3' ->> 'person', 'keputusan', 'TINGGAL', 'kelas_tujuan', c_k5b),
+      jsonb_build_object('person_id', v_kp -> 'K4' ->> 'person', 'keputusan', 'LULUS'),
+      jsonb_build_object('person_id', v_kp -> 'K5' ->> 'person', 'keputusan', 'KELUAR', 'alasan', 'WITHDRAWN'),
+      jsonb_build_object('person_id', v_kp -> 'K6' ->> 'person', 'keputusan', 'PINDAH'),
+      jsonb_build_object('person_id', v_kp -> 'K7' ->> 'person', 'keputusan', 'NAIK', 'kelas_tujuan', c_k6));
+    select count(*) into v_kaud from public.audit_log a where a.institution_id = v_inst;
+
+    -- K01: the plan lists every learner, the Tingkat-only one included, the class's teacher and next year's classes;
+    -- only the school's administrator reads it
+    perform selftest.as_user_uid(u_admin);
+    begin
+      v_kplan := public.kenaikan_rencana(c_k5);
+    exception when others then k01 := k01 || ('the plan was refused to the Admin sekolah: ' || sqlerrm); end;
+    perform selftest.as_owner();
+    if v_kplan is not null then
+      if jsonb_array_length(v_kplan -> 'murid') <> 7 then k01 := k01 || format('the plan lists %s learner(s), not 7', jsonb_array_length(v_kplan -> 'murid')); end if;
+      if not exists (select 1 from jsonb_array_elements(v_kplan -> 'murid') m where m ->> 'person_id' = v_kp -> 'K7' ->> 'person' and m ->> 'sumber' = 'TINGKAT') then
+        k01 := k01 || 'the Tingkat-only learner is not listed as such'::text; end if;
+      if not exists (select 1 from jsonb_array_elements(v_kplan -> 'murid') m where m ->> 'person_id' = v_kp -> 'K6' ->> 'person' and (m ->> 'pindah_berjalan')::boolean) then
+        k01 := k01 || 'the learner being transferred is not marked'::text; end if;
+      if not exists (select 1 from jsonb_array_elements(v_kplan -> 'guru') g where g ->> 'person_id' = (select a.person_id::text from public.accounts a where a.auth_user_id = v_kguru)) then
+        k01 := k01 || 'the class''s teacher is not shown for review'::text; end if;
+      if not exists (select 1 from jsonb_array_elements(v_kplan -> 'tahun_berikut') y, jsonb_array_elements(y -> 'kelas') kk
+                      where y ->> 'id' = v_knext::text and kk ->> 'id' = c_k6::text) then
+        k01 := k01 || 'next year''s Kelas 6K is not offered'::text; end if;
+    end if;
+    for r in select * from (values ('X''s Guru', u_guru_a), ('school Y''s admin', u_adminy)) t(siapa, uid) loop
+      v_got := selftest.f37_sebagai(r.uid, format('select public.kenaikan_rencana(%L)', c_k5));
+      if v_got = 'OK' or v_got not like '42501%' then k01 := k01 || format('%s reading the plan: %s', r.siapa, v_got); end if;
+    end loop;
+
+    -- K02: refusals and the preview write nothing
+    for r in select * from (values
+        ('no decision for the Tingkat-only learner', u_admin, (select jsonb_agg(x) from jsonb_array_elements(v_kdec) x where x ->> 'person_id' <> v_kp -> 'K7' ->> 'person'), true, true, 'PROMO_UNDECIDED'),
+        ('teachers not reviewed', u_admin, v_kdec, false, true, 'PROMO_TEACHERS_UNREVIEWED'),
+        ('a repeat into this year''s class', u_admin, jsonb_set(v_kdec, '{2,kelas_tujuan}', to_jsonb(c_k5::text)), true, true, 'PROMO_TARGET_INVALID'),
+        ('«Pindah» without a transfer', u_admin, jsonb_set(v_kdec, '{0,keputusan}', '"PINDAH"'), true, true, 'PROMO_NO_TRANSFER'),
+        ('a decision for someone not in the class', u_admin, v_kdec || jsonb_build_array(jsonb_build_object('person_id', v_g, 'keputusan', 'LULUS')), true, true, 'PROMO_CHANGED'),
+        ('school Y''s admin', u_adminy, v_kdec, true, true, '42501'),
+        ('X''s Guru', u_guru_a, v_kdec, true, true, '42501')
+      ) t(siapa, uid, dec, ditinjau, terapkan, mau) loop
+      v_got := selftest.f37_sebagai(r.uid, format('select public.kenaikan_tetapkan(%L, %L, %L::jsonb, %L, %L)', c_k5, v_knext, r.dec, r.ditinjau, r.terapkan));
+      if v_got = 'OK' or v_got !~ r.mau then k02 := k02 || format('%s: %s, expected %s', r.siapa, v_got, r.mau); end if;
+    end loop;
+    perform selftest.as_user_uid(u_admin);
+    begin
+      v_kres := public.kenaikan_tetapkan(c_k5, v_knext, v_kdec, false, false);
+    exception when others then k02 := k02 || ('the preview was refused: ' || sqlerrm); end;
+    perform selftest.as_owner();
+    if v_kres is not null and (jsonb_array_length(v_kres -> 'hasil') <> 7 or (v_kres ->> 'diterapkan')::boolean) then
+      k02 := k02 || format('the preview answered %s', v_kres); end if;
+    if (select count(*) from public.memberships m join public.enrollments en on en.id = m.enrollment_id
+         where m.node_id in (c_k5, v_kt5) and m.valid_to is null and en.status = 'ACTIVE') <> 7
+       or exists (select 1 from public.enrollments en where en.academic_period_id = v_knext)
+       or (select count(*) from public.audit_log a where a.institution_id = v_inst) <> v_kaud then
+      k02 := k02 || 'a refusal or the preview changed something'::text; end if;
+
+    -- K04 (before K03): one open sitting refuses the whole run; nobody moves
+    insert into public.assessment_sessions
+      (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, plp_release_id,
+       assessment_definition_id, assessment_definition_version, engine_version, scoring_policy_version, evidence_channel,
+       evidence_class, mode, status, shuffle_seed, started_at, deadline_extended_count)
+    select gen_random_uuid(), (v_kp -> 'K2' ->> 'person')::uuid, x.institution_id, (v_kp -> 'K2' ->> 'enr')::uuid, x.academic_period_id, c_k5,
+           x.plp_release_id, x.assessment_definition_id, x.assessment_definition_version, x.engine_version, x.scoring_policy_version,
+           x.evidence_channel, x.evidence_class, x.mode, 'CREATED', x.shuffle_seed, now(), 0
+      from public.assessment_sessions x where x.id = v_tpl returning assessment_sessions.id into v_ksesi;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.kenaikan_tetapkan(%L, %L, %L::jsonb, true, true)', c_k5, v_knext, v_kdec));
+    if v_got = 'OK' or v_got !~ 'ENROL_SITTING_OPEN' then k04 := k04 || ('a class with an open sitting: ' || v_got); end if;
+    if exists (select 1 from public.enrollments en where en.academic_period_id = v_knext)
+       or exists (select 1 from public.enrollments en where en.id = (v_kp -> 'K4' ->> 'enr')::uuid and en.status = 'ENDED') then
+      k04 := k04 || 'the refused run moved or ended someone'::text; end if;
+    -- the sitting is closed for the rest of the case without its triggers (its state machine is not this test's)
+    set local session_replication_role = replica;
+    update public.assessment_sessions set status = 'SUBMITTED', submitted_at = now() where assessment_sessions.id = v_ksesi;
+    set local session_replication_role = origin;
+
+    -- K03: applied whole; each learner's outcome by name; the repeat placed directly; the year reconciled; one audit row
+    perform selftest.as_user_uid(u_admin);
+    v_kres := null;
+    begin
+      v_kres := public.kenaikan_tetapkan(c_k5, v_knext, v_kdec, true, true);
+    exception when others then k03 := k03 || ('the promotion was refused: ' || sqlerrm); end;
+    perform selftest.as_owner();
+    if v_kres is not null then
+      if jsonb_array_length(v_kres -> 'hasil') <> 7 or not (v_kres ->> 'diterapkan')::boolean
+         or exists (select 1 from jsonb_array_elements(v_kres -> 'hasil') h where coalesce(h ->> 'nama', '') = '') then
+        k03 := k03 || format('the outcome does not name all 7: %s', v_kres); end if;
+      for r in select * from (values ('K1', c_k6), ('K2', c_k6), ('K7', c_k6), ('K3', c_k5b)) t(k, ke) loop
+        if not exists (select 1 from public.enrollments en join public.memberships m on m.enrollment_id = en.id and m.valid_to is null
+                        where en.person_id = (v_kp -> r.k ->> 'person')::uuid and en.academic_period_id = v_knext
+                          and en.status = 'ACTIVE' and en.programme_id = v_proga and m.node_id = r.ke) then
+          k03 := k03 || format('%s is not placed in the new year''s chosen Kelas on a new-year enrolment', r.k); end if;
+        if (select en.status::text || '/' || coalesce(en.end_reason::text, '') from public.enrollments en where en.id = (v_kp -> r.k ->> 'enr')::uuid) <> 'ENDED/EXPIRED'
+           or exists (select 1 from public.memberships m where m.enrollment_id = (v_kp -> r.k ->> 'enr')::uuid and m.valid_to is null)
+           or not exists (select 1 from public.memberships m where m.enrollment_id = (v_kp -> r.k ->> 'enr')::uuid and m.close_reason = 'PERIOD_ROLLOVER') then
+          k03 := k03 || format('%s''s old year is not closed as rolled over', r.k); end if;
+      end loop;
+      if exists (select 1 from public.memberships m join public.enrollments en on en.id = m.enrollment_id
+                  where en.person_id = (v_kp -> 'K3' ->> 'person')::uuid and m.node_id = c_k6) then
+        k03 := k03 || 'the repeat passed through Kelas 6K'::text; end if;
+      if (select en.status::text || '/' || en.end_reason::text from public.enrollments en where en.id = (v_kp -> 'K4' ->> 'enr')::uuid) <> 'ENDED/COMPLETED'
+         or (select en.status::text || '/' || en.end_reason::text from public.enrollments en where en.id = (v_kp -> 'K5' ->> 'enr')::uuid) <> 'ENDED/WITHDRAWN' then
+        k03 := k03 || 'the graduate or the leaver is not ended with their reason'::text; end if;
+      if not exists (select 1 from public.enrollments en join public.memberships m on m.enrollment_id = en.id and m.valid_to is null
+                      where en.id = (v_kp -> 'K6' ->> 'enr')::uuid and en.status = 'ACTIVE' and m.node_id = c_k5) then
+        k03 := k03 || 'the learner being transferred was changed'::text; end if;
+      if (select count(*) from public.audit_log a where a.action = 'promotion.applied' and a.target_id = c_k5::text
+            and jsonb_array_length(a.summary -> 'outcomes') = 7) <> 1
+         or (select count(*) from public.audit_log a where a.action = 'enrollment.ended_with_reason'
+               and a.target_id in (v_kp -> 'K4' ->> 'enr', v_kp -> 'K5' ->> 'enr')) <> 2 then
+        k03 := k03 || 'the audit does not record the run once with every outcome, and each ending with its reason'::text; end if;
+      if exists (select 1 from public.role_assignments ra where ra.scope_node_id in (c_k6, c_k5b)) then
+        k03 := k03 || 'a teacher''s assignment was carried to the new year'::text; end if;
+      if not exists (select 1 from public.assessment_sessions s where s.id = v_ksesi and s.enrollment_id = (v_kp -> 'K2' ->> 'enr')::uuid and s.class_node_id = c_k5) then
+        k03 := k03 || 'the old year''s sitting moved'::text; end if;
+    end if;
+    -- K05: a second press changes nothing (the class has changed: PROMO_CHANGED)
+    select count(*) into v_kaud from public.audit_log a where a.institution_id = v_inst;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.kenaikan_tetapkan(%L, %L, %L::jsonb, true, true)', c_k5, v_knext, v_kdec));
+    if v_got = 'OK' or v_got !~ 'PROMO_CHANGED' then k05 := k05 || ('the second press: ' || v_got); end if;
+    if (select count(*) from public.enrollments en where en.academic_period_id = v_knext) <> 4
+       or (select count(*) from public.audit_log a where a.institution_id = v_inst) <> v_kaud then
+      k05 := k05 || 'the second press wrote something'::text; end if;
+
     raise exception 'f37-rollback';
   exception when others then
     perform selftest.as_owner();
@@ -834,6 +986,16 @@ begin
        'an enrolment with an assessment in progress is not ended (ENROL_SITTING_OPEN)'),
       ('F37-E04', 'E4 «Daftarkan kembali»: a correction', e04,
        'a mistaken graduation is corrected by a new live enrolment in the same year, programme and Kelas; the ended row is unchanged and the audit links the correction to it; a live enrolment cannot be «corrected»'),
+      ('F37-K01', '«Kenaikan kelas dan kelulusan»: every learner listed', k01,
+       'the plan lists every learner of the class and the Tingkat-only one (as such), marks the one being transferred, shows the class''s teacher and next year''s classes; a Guru and another school''s admin are refused'),
+      ('F37-K02', '«Kenaikan kelas dan kelulusan»: refusals and the preview write nothing', k02,
+       'a learner without a decision (named), teachers not reviewed, a repeat into this year''s class, «Pindah» without a transfer, a decision for someone outside the class, another school''s admin and a Guru are refused; the preview returns all seven outcomes; nothing is written'),
+      ('F37-K03', '«Kenaikan kelas dan kelulusan»: applied whole, each outcome by name', k03,
+       'two learners and the Tingkat-only one go up to 6K and the repeater straight into the repeat class on new-year enrolments (the old year ENDED/EXPIRED, its placement PERIOD_ROLLOVER); the graduate is COMPLETED and the leaver WITHDRAWN with their reasons; the learner being transferred is unchanged; one promotion.applied row with seven outcomes; no teacher carried; the old sitting stays on the old class'),
+      ('F37-K04', '«Kenaikan kelas dan kelulusan»: one open sitting refuses the whole run', k04,
+       'with one learner''s sitting open the run is refused ENROL_SITTING_OPEN and nobody moves or ends'),
+      ('F37-K05', '«Kenaikan kelas dan kelulusan»: a second press changes nothing', k05,
+       'confirming the same decisions again is refused PROMO_CHANGED; no enrolment or audit row is added'),
       ('F37-E05', 'E4: a genuine return, and a transfer back', e05,
        'a learner who withdrew returns into a Kelas with a new enrolment, the withdrawal kept and no second number; a learner enrolled at another school is refused (PLACE_ELSEWHERE) and comes back by transfer, which leaves the old record intact'),
       ('F37-S01', 'System Integrity, chain D: a school''s account-level power follows its current placement (SI-D03)', s01,
