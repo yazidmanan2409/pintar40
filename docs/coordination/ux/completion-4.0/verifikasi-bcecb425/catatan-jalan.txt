@@ -1,0 +1,691 @@
+learner after start: /belajar/f1696895-acc4-4930-bb09-8a1819aa7aa1/penguasaan Waktu berjalan 00:01 Simpan & Jeda Daftar soal Uang saku Lina selama lima hari: Rp5.000, Rp7.000, Rp9.000, Rp4.000, dan Rp5.000. Berapa rata-rata uang sakunya per hari? A Rp9.000 B Rp30.000 C Rp6.000 D Rp7.500 Simpan jawaban ini Tandai soal ini Pilih satu jawaban dulu. Kembali Berikutnya
+learner radios 0
+A1-akhiri form aria:
+- 'heading "Akhiri atau tarik penugasan · Matematika Kelas 5 · Bab 2: Data Sederhana" [level=2]'
+- paragraph: Murid kelas ini tidak dapat memulai lagi materi ini. Hasil, sertifikat dan kemajuan belajar yang sudah ada tetap tersimpan. Paket pelajarannya tetap terbit dan dapat diberikan lagi.
+- term: Sudah menyelesaikan
+- definition: "23"
+- term: Belum memulai
+- definition: "1"
+- term: Masih mengerjakan asesmen
+- definition: "1"
+- group "Masih mengerjakan asesmen":
+  - text: Masih mengerjakan asesmen
+  - list:
+    - listitem: Bunga Kurniawan (5B)
+  - checkbox "Tutup juga asesmen yang masih dikerjakan murid di atas. Asesmen itu ditutup sekarang dan tidak dinilai; jawaban yang sudah tersimpan tetap ada."
+  - text: Tutup juga asesmen yang masih dikerjakan murid di atas. Asesmen itu ditutup sekarang dan tidak dinilai; jawaban yang sudah tersimpan tetap ada.
+- text: Alasan
+- textbox "Alasan"
+- paragraph: 10 sampai 300 karakter. Tercatat di jejak audit sekolah.
+- group "Mengapa penugasan ini berakhir?":
+  - text: Mengapa penugasan ini berakhir?
+  - list:
+    - listitem:
+      - 'radio "Diakhiri: materi sudah selesai dibahas" [checked]'
+      - text: "Diakhiri: materi sudah selesai dibahas"
+    - listitem:
+      - 'radio "Ditarik: diberikan karena keliru"'
+      - text: "Ditarik: diberikan karena keliru"
+- button "Akhiri penugasan"
+- paragraph:
+  - link "Tutup tanpa mengubah":
+    - /url: /mengajar/62651ac7-4d69-429a-bfe5-752cf0b45c57#materi
+A1-akhiri running checkbox ticked by Space: true
+A1-akhiri checked: ENDED
+A1-akhiri opener visible true other opener visible false
+A1-akhiri Tab after radio → button «Akhiri penugasan»
+A1-akhiri after opener Enter, focus → button «Batal»
+A1-akhiri confirm: Akhiri penugasan Matematika Kelas 5 · Bab 2: Data Sederhana? Materi ini tidak lagi muncul untuk dikerjakan di halaman Belajar murid kelas ini. Hasil yang sudah ada tetap tersimpan, tetap terlihat oleh murid, dan tetap dihitung. Akhiri penugasan Batal
+A1-akhiri Shift+Tab → button «Akhiri penugasan»
+A1-akhiri after submit url /mengajar/62651ac7-4d69-429a-bfe5-752cf0b45c57?diakhiri=ok#materi focus body «Langsung ke isiPINTARCiutkan navigasiMengajarMengajarSD Cend»
+A1-akhiri result line: ✓Penugasan diakhiri. Hasil murid tetap tersimpan.
+learner radios now 0
+learner after ending: Waktu berjalan 00:10 Simpan & Jeda Daftar soal Tabel pengunjung kebun binatang mini: Sabtu 120 orang, Minggu 150 orang. Berapa orang lebih banyak yang datang pada hari Minggu? A 30 orang B 120 orang C 150 orang D 270 orang Simpan jawaban ini Tandai soal ini Pilih satu jawaban dulu. Kembali Berikutnya
+learner notice: Waktu berjalan 00:10 | |
+learner focus: button «Berikutnya»
+learner links: []
+A3-tarik form aria:
+- 'heading "Akhiri atau tarik penugasan · Matematika Kelas 5 · Bab 1: Pola Bilangan" [level=2]'
+- paragraph: Murid kelas ini tidak dapat memulai lagi materi ini. Hasil, sertifikat dan kemajuan belajar yang sudah ada tetap tersimpan. Paket pelajarannya tetap terbit dan dapat diberikan lagi.
+- term: Sudah menyelesaikan
+- definition: "23"
+- term: Belum memulai
+- definition: "1"
+- term: Masih mengerjakan asesmen
+- definition: "0"
+- group "Masih mengerjakan asesmen":
+  - text: Masih mengerjakan asesmen
+  - paragraph: Tidak ada murid yang sedang mengerjakan asesmen materi ini.
+- text: Alasan
+- textbox "Alasan"
+- paragraph: 10 sampai 300 karakter. Tercatat di jejak audit sekolah.
+- group "Mengapa penugasan ini berakhir?":
+  - text: Mengapa penugasan ini berakhir?
+  - list:
+    - listitem:
+      - 'radio "Diakhiri: materi sudah selesai dibahas" [checked]'
+      - text: "Diakhiri: materi sudah selesai dibahas"
+    - listitem:
+      - 'radio "Ditarik: diberikan karena keliru"'
+      - text: "Ditarik: diberikan karena keliru"
+- button "Akhiri penugasan"
+- paragraph:
+  - link "Tutup tanpa mengubah":
+    - /url: /mengajar/62651ac7-4d69-429a-bfe5-752cf0b45c57#materi
+A3-tarik checked: WITHDRAWN
+A3-tarik opener visible true other opener visible false
+A3-tarik Tab after radio → button «Tarik penugasan»
+A3-tarik after opener Enter, focus → button «Batal»
+A3-tarik confirm: Tarik penugasan Matematika Kelas 5 · Bab 1: Pola Bilangan? Materi ini tidak lagi muncul di halaman Belajar murid kelas ini. Hasil yang sudah ada tetap tersimpan tetapi tidak dihitung di laporan kelas dan sekolah. Tarik penugasan Batal
+A3-tarik Shift+Tab → button «Tarik penugasan»
+A3-tarik after submit url /mengajar/62651ac7-4d69-429a-bfe5-752cf0b45c57?diakhiri=ditarik#materi focus body «Langsung ke isiPINTARCiutkan navigasiMengajarMengajarSD Cend»
+A3-tarik result line: ✓Penugasan ditarik. Hasil murid tetap tersimpan tetapi tidak dihitung di laporan kelas dan sekolah.Enter on option B: still same question? false | Q1 option B pressed? (moved on)
+back on Q1; option B aria-pressed: false
+Space on option B → aria-pressed: true
+on last: Barisan 50, 45, 40, 35, ... berkurang tetap. Bilangan berapa yang datang sesudah
+teacher ended
+status: ["Asesmen ini sudah ditutup dan tidak dinilai. Jawaban yang sudah tersimpan tetap ada. Bila ada pertanyaan, tanyakan kepada guru Anda.\nKembali ke Belajar"]
+focus after notice: button «B25»
+a11y status: - status:
+  - text: Asesmen ini sudah ditutup dan tidak dinilai. Jawaban yang sudah tersimpan tetap ada. Bila ada pertanyaan, tanyakan kepada guru Anda.
+  - link "Kembali ke Belajar":
+    - /url: /belajar
+Enter on «Kembali ke Belajar» → /belajar/4e14e38f-4984-496b-94df-1137874d276f/pemetaan5B #materi aria (closed):
+- heading "Materi untuk kelas ini" [level=2]
+- paragraph: Urutan mengikuti kurikulum sekolah. Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah.
+- 'link "Matematika Kelas 5 · Bab 2: Data Sederhana Diterbitkan sekolah 10 Nov 2026 Siap disediakan"':
+  - /url: /mengajar/62651ac7-4d69-429a-bfe5-752cf0b45c57/siapkan?terbitan=bf8e3b2e-9ae1-4bea-ae87-c0d58569278e
+- 'link "Matematika Kelas 5 · Bab 1: Pola Bilangan Diterbitkan sekolah 10 Nov 2026 Siap disediakan"':
+  - /url: /mengajar/62651ac7-4d69-429a-bfe5-752cf0b45c57/siapkan?terbitan=a76ee5b5-4dc3-4764-909b-df4009042927
+- link "Pecahan Senilai Diterbitkan sekolah 10 Nov 2026 Siap disediakan":
+  - /url: /mengajar/62651ac7-4d69-429a-bfe5-752cf0b45c57/siapkan?terbitan=c45fa772-9aca-422a-b732-b6783f56c4d3
+- group: Sudah berakhir (2)
+1280 summary count 1
+1280 sideways closed 1280
+1280 open after Enter: true
+details aria (open):
+- group:
+  - text: "Sudah berakhir (2) Matematika Kelas 5 · Bab 1: Pola Bilangan Ditarik 10 Nov 2026 · hasilnya tidak dihitung di laporan kelas dan sekolah Alasan: Bab 1 diberikan ke kelas yang keliru. Ditarik Matematika Kelas 5 · Bab 2: Data Sederhana Diakhiri 10 Nov 2026 · hasilnya tetap dihitung Alasan: Bab 2 sudah selesai dibahas di kelas. Diakhiri"
+  - paragraph: Hasil tiap murid ada di halaman muridnya.
+1280 details text: Sudah berakhir (2) Matematika Kelas 5 · Bab 1: Pola Bilangan Ditarik 10 Nov 2026 · hasilnya tidak dihitung di laporan kelas dan sekolah Alasan: Bab 1 diberikan ke kelas yang keliru. Ditarik Matematika Kelas 5 · Bab 2: Data Sederhana Diakhiri 10 Nov 2026 · hasilnya tetap dihitung Alasan: Bab 2 sudah selesai dibahas di kelas. Diakhiri Hasil tiap murid ada di halaman muridnya.
+1280 Tab after summary → input «»
+1280 sideways open 1280
+5C materi: MATERI UNTUK KELAS INI Urutan mengikuti kurikulum sekolah. Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah. Matematika Kelas 5 · Bab 2: Data Sederhana Diterbitkan sekolah 10 Nov 2026 Siap disediakan Matematika Kelas 5 · Bab 1: Pola Bilangan Diterbitkan sekolah 10 Nov 2026 Siap disediakan Pecahan Senilai Diterbitkan sekolah 10 Nov 2026 Siap disediakan Sudah berakhir (2)
+teacher learner page hasil aria:
+- region "Hasil resmi":
+  - heading "Hasil resmi" [level=2]
+  - paragraph: Penguasaan yang tercatat pada tiap asesmen yang sudah dinilai.
+  - term: "Pemetaan awal — Matematika Kelas 5 · Bab 1: Pola Bilangan"
+  - definition: 25% Ditarik · tidak dihitung di laporan kelas dan sekolah
+  - term: "Cek penguasaan — Matematika Kelas 5 · Bab 1: Pola Bilangan"
+  - definition: 75% Ditarik · tidak dihitung di laporan kelas dan sekolah
+  - term: "Pemetaan awal — Matematika Kelas 5 · Bab 2: Data Sederhana"
+  - definition: 0%
+learner hasil aria:
+- main:
+  - heading "Hasil belajar" [level=1]
+  - paragraph: Semua bab yang sudah Anda kerjakan, sampai 10 Nov 2026, 12.19 WIB. Hanya hasil Anda sendiri.
+  - link "← Belajar":
+    - /url: /belajar
+  - button "Cetak laporan"
+  - region "Bagian A Hasil per bab":
+    - heading "Bagian A Hasil per bab" [level=2]
+    - paragraph: Semua bab yang selesai sudah mencapai target.
+    - list:
+      - listitem: "Matematika Kelas 5 · Bab 2: Data Sederhana Pemetaan Awal selesai: 0%. Materi ini ditutup sebelum Uji Penguasaan."
+      - listitem: "Matematika Kelas 5 · Bab 1: Pola Bilangan 6 dari 8 soal target tercapai Guru Anda menarik penugasan ini. Hasil Anda tetap tersimpan di sini. Uji Penguasaan: 75%. Pemetaan Awal: 25%. Target bab ini: 70%."
+    - paragraph: Penguasaan Anda pada Pemetaan Awal dibandingkan dengan Uji Penguasaan. Perbandingan ini muncul hanya ketika keduanya sudah selesai.
+  - heading "Bagian B Bagian per bab" [level=2]
+  - paragraph: Setiap kotak satu soal yang dijawab tepat pada Uji Penguasaan.
+  - 'heading "Matematika Kelas 5 · Bab 1: Pola Bilangan" [level=3]'
+  - list:
+    - listitem: Kalian dapat menentukan selisih pola bertambah tetap dan melanjutkan barisannya. 1 dari 2 soal
+    - listitem: Kalian dapat menentukan selisih pola berkurang tetap dan melanjutkan barisannya. 1 dari 2 soal
+    - listitem: Kalian dapat membaca pola dari gambar atau tabel dan melengkapi nilai yang belum ada. 2 dari 2 soal
+    - listitem: Kalian dapat memakai pola bertambah, berkurang, atau dikali untuk memecahkan masalah sehari-hari. 2 dari 2 soal
+  - heading "Bagian C Apa berikutnya" [level=2]
+  - list:
+    - listitem:
+      - 'link "Hasil lengkap Matematika Kelas 5 · Bab 1: Pola Bilangan"':
+        - /url: /belajar/3ba1c4a4-711f-4fba-99c0-8dc0b8d6f9a8/hasil
+    - listitem:
+      - link "Sertifikat bab yang targetnya tercapai ada di Sertifikat.":
+        - /url: /belajar/sertifikat
+1280 learner hasil text: Hasil belajar Semua bab yang sudah Anda kerjakan, sampai 10 Nov 2026, 12.19 WIB. Hanya hasil Anda sendiri. ← Belajar Cetak laporan Bagian A Hasil per bab Semua bab yang selesai sudah mencapai target. Pemetaan Awal Uji Penguasaan Target bab ini Matematika Kelas 5 · Bab 2: Data Sederhana Pemetaan Awal selesai: 0%. Materi ini ditutup sebelum Uji Penguasaan. Matematika Kelas 5 · Bab 1: Pola Bilangan 6 dari 8 soal target tercapai Guru Anda menarik penugasan ini. Hasil Anda tetap tersimpan di sini. Uji Penguasaan: 75%. Pemetaan Awal: 25%. Target bab ini: 70%. Penguasaan Anda pada Pemetaan Awal dibandingkan dengan Uji Penguasaan. Perbandingan ini muncul hanya ketika keduanya sudah selesai. Bagian B Bagian per bab Setiap kotak satu soal yang dijawab tepat pada Uji Penguasaan. Matematika Kelas 5 · Bab 1: Pola Bilangan Kalian dapat menentukan selisih pola bertambah tetap dan melanjutkan barisannya. 1 dari 2 soal Kalian dapat menentukan selisih pola berkurang tetap dan melanjutkan barisannya. 1 dari 2 soal Kalian dapat membaca pola dari gambar atau tabel dan melengkapi nilai yang belum ada. 2 dari 2 soal Kalian dapat memakai pola bertambah, berkurang, atau dikali untuk memecahkan masalah sehari-hari. 2 dari 2 soal Bagian C Apa berikutnya Hasil lengkap Matematika Kelas 5 · Bab 1: Pola Bilangan Sertifikat bab yang targetnya tercapai ada di Sertifikat.
+1280 learner hasil sideways 1280
+390 summary count 1
+390 sideways closed 390
+390 open after Enter: true
+390 details text: Sudah berakhir (2) Matematika Kelas 5 · Bab 1: Pola Bilangan Ditarik 10 Nov 2026 · hasilnya tidak dihitung di laporan kelas dan sekolah Alasan: Bab 1 diberikan ke kelas yang keliru. Ditarik Matematika Kelas 5 · Bab 2: Data Sederhana Diakhiri 10 Nov 2026 · hasilnya tetap dihitung Alasan: Bab 2 sudah selesai dibahas di kelas. Diakhiri Hasil tiap murid ada di halaman muridnya.
+390 Tab after summary → input «»
+390 sideways open 390
+390 learner page sideways 390
+390 learner hasil text: Hasil belajar Semua bab yang sudah Anda kerjakan, sampai 10 Nov 2026, 12.19 WIB. Hanya hasil Anda sendiri. ← Belajar Cetak laporan Bagian A Hasil per bab Semua bab yang selesai sudah mencapai target. Pemetaan Awal Uji Penguasaan Target bab ini Matematika Kelas 5 · Bab 2: Data Sederhana Pemetaan Awal selesai: 0%. Materi ini ditutup sebelum Uji Penguasaan. Matematika Kelas 5 · Bab 1: Pola Bilangan 6 dari 8 soal target tercapai Guru Anda menarik penugasan ini. Hasil Anda tetap tersimpan di sini. Uji Penguasaan: 75%. Pemetaan Awal: 25%. Target bab ini: 70%. Penguasaan Anda pada Pemetaan Awal dibandingkan dengan Uji Penguasaan. Perbandingan ini muncul hanya ketika keduanya sudah selesai. Bagian B Bagian per bab Setiap kotak satu soal yang dijawab tepat pada Uji Penguasaan. Matematika Kelas 5 · Bab 1: Pola Bilangan Kalian dapat menentukan selisih pola bertambah tetap dan melanjutkan barisannya. 1 dari 2 soal Kalian dapat menentukan selisih pola berkurang tetap dan melanjutkan barisannya. 1 dari 2 soal Kalian dapat membaca pola dari gambar atau tabel dan melengkapi nilai yang belum ada. 2 dari 2 soal Kalian dapat memakai pola bertambah, berkurang, atau dikali untuk memecahkan masalah sehari-hari. 2 dari 2 soal Bagian C Apa berikutnya Hasil lengkap Matematika Kelas 5 · Bab 1: Pola Bilangan Sertifikat bab yang targetnya tercapai ada di Sertifikat.
+390 learner hasil sideways 390
+learner /belajar: BELAJAR Halo, Bunga PEMBELAJARAN ANDA Belum ada materi yang disediakan untuk Anda. Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com
+320 summary count 1
+320 sideways closed 320
+320 open after Enter: true
+320 details text: Sudah berakhir (2) Matematika Kelas 5 · Bab 1: Pola Bilangan Ditarik 10 Nov 2026 · hasilnya tidak dihitung di laporan kelas dan sekolah Alasan: Bab 1 diberikan ke kelas yang keliru. Ditarik Matematika Kelas 5 · Bab 2: Data Sederhana Diakhiri 10 Nov 2026 · hasilnya tetap dihitung Alasan: Bab 2 sudah selesai dibahas di kelas. Diakhiri Hasil tiap murid ada di halaman muridnya.
+320 Tab after summary → input «»
+320 sideways open 320
+320 learner page sideways 320
+320 learner hasil text: Hasil belajar Semua bab yang sudah Anda kerjakan, sampai 10 Nov 2026, 12.19 WIB. Hanya hasil Anda sendiri. ← Belajar Cetak laporan Bagian A Hasil per bab Semua bab yang selesai sudah mencapai target. Pemetaan Awal Uji Penguasaan Target bab ini Matematika Kelas 5 · Bab 2: Data Sederhana Pemetaan Awal selesai: 0%. Materi ini ditutup sebelum Uji Penguasaan. Matematika Kelas 5 · Bab 1: Pola Bilangan 6 dari 8 soal target tercapai Guru Anda menarik penugasan ini. Hasil Anda tetap tersimpan di sini. Uji Penguasaan: 75%. Pemetaan Awal: 25%. Target bab ini: 70%. Penguasaan Anda pada Pemetaan Awal dibandingkan dengan Uji Penguasaan. Perbandingan ini muncul hanya ketika keduanya sudah selesai. Bagian B Bagian per bab Setiap kotak satu soal yang dijawab tepat pada Uji Penguasaan. Matematika Kelas 5 · Bab 1: Pola Bilangan Kalian dapat menentukan selisih pola bertambah tetap dan melanjutkan barisannya. 1 dari 2 soal Kalian dapat menentukan selisih pola berkurang tetap dan melanjutkan barisannya. 1 dari 2 soal Kalian dapat membaca pola dari gambar atau tabel dan melengkapi nilai yang belum ada. 2 dari 2 soal Kalian dapat memakai pola bertambah, berkurang, atau dikali untuk memecahkan masalah sehari-hari. 2 dari 2 soal Bagian C Apa berikutnya Hasil lengkap Matematika Kelas 5 · Bab 1: Pola Bilangan Sertifikat bab yang targetnya tercapai ada di Sertifikat.
+320 learner hasil sideways 320masuk aria:
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - heading "Selamat datang di PINTAR" [level=1]
+  - paragraph: Masuk dengan email atau username, dan password Anda.
+  - text: Email atau username
+  - textbox "Email atau username"
+  - text: Password
+  - textbox "Password"
+  - button "Tampilkan password"
+  - button "Masuk"
+  - paragraph:
+    - link "Lupa password?":
+      - /url: /masuk/lupa
+  - paragraph:
+    - text: Akun Anda sudah ditutup?
+    - link "Minta dibuka kembali":
+      - /url: /masuk/buka-kembali
+  - paragraph:
+    - text: Belum mengaktifkan akun?
+    - link "Aktifkan akun":
+      - /url: /aktifkan
+  - paragraph:
+    - text: Punya kartu kelas?
+    - button "Gunakan kartu kelas"
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+  - region "Belajar dengan bukti. Memahami sebelum memutuskan.":
+    - heading "Belajar dengan bukti. Memahami sebelum memutuskan." [level=2]
+    - paragraph: PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.
+1280 masuk sideways 1280
+buka aria:
+- main:
+  - text: PINTAR
+  - group "Bahasa antarmuka":
+    - button "ID" [pressed]
+    - button "EN"
+  - heading "Minta akun dibuka kembali" [level=1]
+  - paragraph: Akun yang sudah ditutup tidak dibuka dengan sendirinya. Admin PINTAR membaca permintaan ini, memastikan bahwa Anda pemilik akun itu, lalu memutuskan. Catatan Anda tetap tersimpan selama akun tertutup.
+  - text: Email atau username
+  - textbox "Email atau username"
+  - text: Pesan untuk Admin PINTAR
+  - paragraph: Tuliskan mengapa Anda ingin kembali dan bagaimana Admin PINTAR dapat menghubungi Anda untuk memastikan identitas Anda. 10 sampai 500 karakter.
+  - textbox "Pesan untuk Admin PINTAR"
+  - button "Kirim permintaan"
+  - paragraph:
+    - link "Kembali ke halaman masuk":
+      - /url: /masuk
+  - paragraph: Pendidikan yang lebih adil, untuk lebih banyak kesempatan.
+  - region "Belajar dengan bukti. Memahami sebelum memutuskan.":
+    - heading "Belajar dengan bukti. Memahami sebelum memutuskan." [level=2]
+    - paragraph: PINTAR membantu melihat apa yang sedang terjadi dalam proses belajar. Keputusannya tetap pada manusia.
+1280 buka sideways 1280
+390 masuk sideways 390
+390 buka sideways 390
+320 masuk sideways 320
+320 buka sideways 320
+send 1: /masuk/buka-kembali?hasil=terkirim | Minta akun dibuka kembali Akun yang sudah ditutup tidak dibuka dengan sendirinya. Admin PINTAR membaca permintaan ini, memastikan bahwa Anda pemilik akun itu, lalu memutuskan. Catatan Anda tetap tersimpan selama akun tertutup. ✓Terima kasih. Jika akun itu mema | focus body# «Langsung ke isiPINTARIDENMinta akun dibuka kembaliAkun yang »
+send 2: /masuk/buka-kembali?kode=TUNGGU | Minta akun dibuka kembali Akun yang sudah ditutup tidak dibuka dengan sendirinya. Admin PINTAR membaca permintaan ini, memastikan bahwa Anda pemilik akun itu, lalu memutuskan. Catatan Anda tetap tersimpan selama akun tertutup. Sudah terlalu banyak permintaan b | focus body# «Langsung ke isiPINTARIDENMinta akun dibuka kembaliAkun yang »
+tunggu aria:
+- heading "Minta akun dibuka kembali" [level=1]
+- paragraph: Akun yang sudah ditutup tidak dibuka dengan sendirinya. Admin PINTAR membaca permintaan ini, memastikan bahwa Anda pemilik akun itu, lalu memutuskan. Catatan Anda tetap tersimpan selama akun tertutup.
+- alert: Sudah terlalu banyak permintaan baru saja. Coba lagi beberapa menit lagi.
+- text: Email atau username
+- textbox "Email atau username"
+- text: Pesan untuk Admin PINTAR
+- paragraph: Tuliskan mengapa Anda ingin kembali dan bagaimana Admin PINTAR dapat menghubungi Anda untuk memastikan identitas Anda. 10 sampai 500 karakter.
+- textbox "Pesan untuk Admin PINTAR"
+- button "Kirim permintaan"
+- paragraph:
+  - link "Kembali ke halaman masuk":
+    - /url: /masukreissue table aria:
+- table:
+  - rowgroup:
+    - row "Data Tertulis di sertifikat Tercatat sekarang Perbandingan":
+      - columnheader "Data"
+      - columnheader "Tertulis di sertifikat"
+      - columnheader "Tercatat sekarang"
+      - columnheader "Perbandingan"
+  - rowgroup:
+    - row "Pemegang Yogi Hidayat (5D) Yogi Hidayat Saputra (5D) berbeda":
+      - rowheader "Pemegang"
+      - cell "Yogi Hidayat (5D)"
+      - cell "Yogi Hidayat Saputra (5D)"
+      - cell "berbeda"
+    - row "Sekolah SD Cendekia Nusantara (sekolah peragaan) SD Cendekia Nusantara (sekolah peragaan)":
+      - rowheader "Sekolah"
+      - cell "SD Cendekia Nusantara (sekolah peragaan)"
+      - cell "SD Cendekia Nusantara (sekolah peragaan)"
+      - cell
+    - 'row "Kursus Matematika Kelas 5 · Bab 1: Pola Bilangan Matematika Kelas 5 · Bab 1: Pola Bilangan"':
+      - rowheader "Kursus"
+      - 'cell "Matematika Kelas 5 · Bab 1: Pola Bilangan"'
+      - 'cell "Matematika Kelas 5 · Bab 1: Pola Bilangan"'
+      - cell
+    - row "Hasil Tetap seperti di sertifikat ini; tidak pernah dihitung ulang. sama":
+      - rowheader "Hasil"
+      - cell "Tetap seperti di sertifikat ini; tidak pernah dihitung ulang."
+      - cell "sama"
+form text: ← Konfigurasi KONFIGURASI Sertifikat sekolah Sertifikat yang sudah diterbitkan sekolah Anda. Sertifikat yang keliru diterbitkan dapat dicabut di sini; pemeriksaan keasliannya lalu menyatakannya dicabut. Sertifikat sekolah Pemegang Nomor sertifikat Kursus Diterbitkan Keadaan Tindakan Zahra Kurniawan (5D) S28W3HRP/00001 Matematika Kelas 5 · Bab 1: Pola Bilangan 10 Nov 2026 Berlaku Cabut Yogi Hidayat Saputra (5D) 67HKTGE0/00001 Matematika Kelas 5 · Bab 1: Pola Bilangan 10 Nov 2026 Berlaku Cabut Menampilkan 1–2 dari 2 sertifikat Sebelumnya Halaman 1 dari 1 Berikutnya CABUT SERTIFIKAT · 67HKTGE0/00001 PEMEGANG Yogi Hidayat Saputra (5D) KURSUS Matematika Kelas 5 · Bab 1: Pola Bilangan SEKOLAH SD Cendekia Nusantara (sekolah peragaan) DITERBITKAN 10 Nov 2026 KEADAAN Berlaku Alasan pencabutan Mengapa sertifikat ini dicabut. Dicatat bersama pencabutannya dan tidak dapat diubah. Lanjutkan Terbitkan ulang Sertifikat pengganti diterbitkan dengan nama, sekolah dan pelajaran yang tercatat sekarang, dengan hasil yang sama dan nomor baru. Sertifikat ini tetap tersimpan, dan pemeriksaannya akan menyebut bahwa ia sudah digantikan. Data Tertulis di sertifikat Tercatat sekarang Perbandingan Pemegang Yogi Hidayat (5D) Yogi Hidayat Saputra (5D) berbeda Sekolah SD Cendekia Nusantara (sekolah peragaan) SD Cendekia Nusantara (sekolah peragaan) Kursus Matematika Kelas 5 · Bab 1: Pola Bilangan Matematika Kelas 5 · Bab 1: Pola Bilangan Hasil Tetap seperti di sertifikat ini; tidak pernah dihitung ulang. sama Alasan penerbitan ulang 10 sampai 300 karakter. Tercatat bersama sertifikat pengganti dan di jejak audit sekolah. Alasan ini tidak ditampilkan di halaman pemeriksaan. Terbitkan sertifikat pengganti Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com
+1280 reissue sideways 1280 table scrollWidth/clientWidth [703,703,"visible"]
+staf head: PERAN DAN TANGGUNG JAWAB Pak Yusuf (uji laporan) Peran yang dipegang orang ini di sekolah ini, dan tanggung jawab yang dibawa tiap peran. Di PINTAR, wewenang datang dari peran yang diberikan di sini, bukan dari jabatan di sekolah.
+1280 staf confirm focus → button «Batal»
+1280 staf confirm: Akhiri tugas Pak Yusuf (uji laporan) di SD Cendekia Nusantara (sekolah peragaan)? Semua perannya di sekolah ini berakhir: Guru 5B, Guru 5C dan Guru 5E. Akhiri tugas di sekolah ini Batal
+staf confirm aria:
+- group "Akhiri tugas Pak Yusuf (uji laporan) di SD Cendekia Nusantara (sekolah peragaan)?":
+  - paragraph: Akhiri tugas Pak Yusuf (uji laporan) di SD Cendekia Nusantara (sekolah peragaan)?
+  - paragraph: "Semua perannya di sekolah ini berakhir: Guru 5B, Guru 5C dan Guru 5E."
+  - button "Akhiri tugas di sekolah ini"
+  - status
+  - button "Batal"
+1280 staf sideways 1280
+1280 Batal → focus button «Akhiri tugas di sekolah ini»
+390 reissue sideways 390 table scrollWidth/clientWidth [326,326,"visible"]
+390 staf confirm focus → button «Batal»
+390 staf confirm: Akhiri tugas Pak Yusuf (uji laporan) di SD Cendekia Nusantara (sekolah peragaan)? Semua perannya di sekolah ini berakhir: Guru 5B, Guru 5C dan Guru 5E. Akhiri tugas di sekolah ini Batal
+390 staf sideways 390
+390 Batal → focus button «Akhiri tugas di sekolah ini»
+320 reissue sideways 320 table scrollWidth/clientWidth [256,256,"visible"]
+320 staf confirm focus → button «Batal»
+320 staf confirm: Akhiri tugas Pak Yusuf (uji laporan) di SD Cendekia Nusantara (sekolah peragaan)? Semua perannya di sekolah ini berakhir: Guru 5B, Guru 5C dan Guru 5E. Akhiri tugas di sekolah ini Batal
+320 staf sideways 320
+320 Batal → focus button «Akhiri tugas di sekolah ini»step2 url /konfigurasi/rollover?kn_kelas=f5ba16be-d70c-4c1a-9771-1abe54ff942a#rollover
+bulk options ["— Pilih satu per satu —","5A · 2027/28","6A · 2027/28","6B · 2027/28"]
+after Terapkan: Langkah 2 dari 3 · Keputusan untuk setiap murid 5D · Tingkat Angkatan 5 · 2026/27 Tahun ajaran baru 2027/28 Naikkan semua ke — Pilih satu per satu — 5A · 2027/28 6A · 2027/28 6B · 2027/28 Terapkan Diterapkan ke 4 murid; 0 tidak diubah karena sudah dipilih, ada di Tingkat, atau sedang pindah. 4 murid. Setiap murid perlu satu keputusan sebelum hasilnya dapat ditinjau. 4 naik ke 6A · 2027/28 · 0 belum dipilih Vina Utami (5D) Keputusan untuk Vina Utami (5D) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tinggal kelas di 6A · 2027/28 Tinggal kelas di 6B · 2027/28 Lulus Keluar: mengundurkan diri Keluar: pindah ke sekolah di luar PINTAR Keluar: pindah ke luar negeri Keluar: meninggal dunia Wahyu Santoso (5D) Keputusan untuk Wahyu Santoso (5D) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 202
+step2 aria:
+- list:
+  - listitem:
+    - text: Vina Utami (5D) Keputusan untuk Vina Utami (5D)
+    - combobox "Keputusan untuk Vina Utami (5D)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Wahyu Santoso (5D) Keputusan untuk Wahyu Santoso (5D)
+    - combobox "Keputusan untuk Wahyu Santoso (5D)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Yogi Hidayat Saputra (5D) Keputusan untuk Yogi Hidayat Saputra (5D)
+    - combobox "Keputusan untuk Yogi Hidayat Saputra (5D)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Zahra Kurniawan (5D) Keputusan untuk Zahra Kurniawan (5D)
+    - combobox "Keputusan untuk Zahra Kurniawan (5D)":
+      - option "— Pilih —"
+row 0: Vina Utami (5D) → Naik ke 6A · 2027/28
+row 1: Wahyu Santoso (5D) → Naik ke 6A · 2027/28
+row 2: Yogi Hidayat Saputra (5D) → Tinggal kelas di 5A · 2027/28
+row 3: Zahra Kurniawan (5D) → Keluar: pindah ke sekolah di luar PINTAR
+status line: 2 naik ke 6A · 2027/28 · 1 tinggal kelas · 1 keluar · 0 belum dipilih
+G step2 sideways 1280
+review url /konfigurasi/rollover?kn_kelas=f5ba16be-d70c-4c1a-9771-1abe54ff942a&kn_tahun=96a37a15-3536-4cfd-8386-5e99db3c2abc&kn_semua=6e3f93b8-5da7-4f6a-9d74-07e29f3c7bef#rollover
+review aria:
+- paragraph: Langkah 3 dari 3 · Tinjau lalu konfirmasi
+- heading "5D · Tingkat Angkatan 5 · 2026/27" [level=3]
+- paragraph: Belum ada yang berubah. Inilah hasil untuk setiap murid ke tahun ajaran 2027/28.
+- paragraph: 2 naik ke 6A · 2027/28 · 1 tinggal kelas · 5A · 2027/28 · 1 keluar
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: Yogi Hidayat Saputra (5D) · Tinggal kelas di 5A · 2027/28
+  - listitem: "Zahra Kurniawan (5D) · Keluar: pindah ke sekolah di luar PINTAR"
+- group: 2 naik ke 6A · 2027/28
+- region "Penugasan guru":
+  - heading "Penugasan guru" [level=3]
+  - paragraph: Penugasan guru tidak ikut pindah ke tahun ajaran baru. Tinjau siapa yang akan mengajar kelas tujuan, lalu ubah di Peran & akses bila perlu.
+  - list:
+    - listitem: "5A · 2027/28: belum ada guru"
+    - listitem: "6A · 2027/28: belum ada guru"
+  - paragraph:
+    - link "Buka Peran & akses di tab baru":
+      - /url: /konfigurasi/roles#roles
+- checkbox "Saya tahu 5A dan 6A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses."
+- text: Saya tahu 5A dan 6A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses.
+- paragraph: "4 murid akan diproses: 2 naik ke 6A · 2027/28 · 1 tinggal kelas · 5A · 2027/28 · 1 keluar. Semuanya diterapkan bersama atau tidak sama sekali."
+- button "Konfirmasi kenaikan kelas"
+- status
+- link "Ubah keputusan":
+  - /url: /konfigurasi/rollover?kn_kelas=f5ba16be-d70c-4c1a-9771-1abe54ff942a&kn_tahun=96a37a15-3536-4cfd-8386-5e99db3c2abc&kn_d=W1siZjg3ZTA1MjctNzQ0Ny00OTU5LWI2ZmEtNmZmZjEzOTg0M2NmIiwiTkFJSzo2ZTNmOTNiOC01ZGE3LTRmNmEtOWQ3NC0wN2UyOWYzYzdiZWYiXSxbImFhZTc3MmU0LTkwMTgtNDdlMC04MzAyLWZhZWVjNTgyMGFhZiIsIk5BSUs6NmUzZjkzYjgtNWRhNy00ZjZhLTlkNzQtMDdlMjlmM2M3YmVmIl0sWyI2Yjk4OTdjNS04NWQyLTQxZWQtOTVjOS1hZjI4MzZlNzRlY2MiLCJUSU5HR0FMOjllNzFjZGRmLWU2ZmUtNDRmNi04YWRjLTAxOGRhNWE3Y2JlNCJdLFsiOTQwY2Y2MzktNmQ5OS00OGI3LTk4MTgtNTA5N2M0MzZhZWQwIiwiS0VMVUFSOlRSQU5TRkVSX0VYVEVSTkFMIl1d#rollover
+review summary: 2 naik ke 6A · 2027/28 | names in fold: 2 | exceptions: 2
+fold open: 2 naik ke 6A · 2027/28 Vina Utami (5D) Wahyu Santoso (5D)
+checkbox: 1 Saya tahu 5A dan 6A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses.
+G 1280 review sideways 1280
+G 390 review sideways 390
+G 320 review sideways 320
+outcome url /konfigurasi/rollover?kn_kelas=f5ba16be-d70c-4c1a-9771-1abe54ff942a&kn_tahun=96a37a15-3536-4cfd-8386-5e99db3c2abc&kn_langkah=selesai#rollover
+outcome aria:
+- status: "Selesai. 4 murid diproses pada 10 Nov 2026, 12.24 WIB. Inilah hasil untuk setiap murid. Diperiksa dari data PINTAR: semua sesuai."
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: Yogi Hidayat Saputra (5D) · Tinggal kelas di 5A · 2027/28 · 5A · 2027/28
+  - listitem: "Zahra Kurniawan (5D) · Keluar: pindah ke sekolah di luar PINTAR · Pendaftaran berakhir · 10 Nov 2026 · pindah ke sekolah di luar PINTAR"
+- group: 2 naik ke 6A · 2027/28
+- paragraph:
+  - text: "2 Kelas tahun 2027/28 belum punya guru: 5A, 6A. Beri perannya di Peran & akses."
+  - link "Buka Peran & akses":
+    - /url: /konfigurasi/roles#roles
+- link "Lanjut ke 5A · 2026/27 (belum diproses)":
+  - /url: /konfigurasi/rollover?kn_kelas=caf22e08-74c7-46a3-9922-1bd21f05bb75#rollover
+- link "Pilih kelas lain":
+  - /url: /konfigurasi/rollover?#rollover
+outcome summary: 2 naik ke 6A · 2027/28 | names in fold: 2 | exceptions: 2
+outcome fold open: 2 naik ke 6A · 2027/28 Vina Utami (5D) · 6A · 2027/28 Wahyu Santoso (5D) · 6A · 2027/28
+lanjut: Lanjut ke 5A · 2026/27 (belum diproses) Pilih kelas lain
+G 1280 outcome sideways 1280
+G 390 outcome sideways 390
+G 320 outcome sideways 320step2 url /konfigurasi/rollover?kn_kelas=62651ac7-4d69-429a-bfe5-752cf0b45c57#rollover
+bulk options ["— Pilih satu per satu —","5A · 2027/28","6A · 2027/28","6B · 2027/28"]
+after Terapkan: Langkah 2 dari 3 · Keputusan untuk setiap murid 5B · Tingkat Angkatan 5 · 2026/27 Tahun ajaran baru 2027/28 Naikkan semua ke — Pilih satu per satu — 5A · 2027/28 6A · 2027/28 6B · 2027/28 Terapkan Diterapkan ke 24 murid; 1 tidak diubah karena sudah dipilih, ada di Tingkat, atau sedang pindah. 25 murid. Setiap murid perlu satu keputusan sebelum hasilnya dapat ditinjau. 24 naik ke 6A · 2027/28 · 1 belum dipilih. Belum dipilih: Yogi Pratama (5F). Adi Hidayat (5B) Keputusan untuk Adi Hidayat (5B) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tinggal kelas di 6A · 2027/28 Tinggal kelas di 6B · 2027/28 Lulus Keluar: mengundurkan diri Keluar: pindah ke sekolah di luar PINTAR Keluar: pindah ke luar negeri Keluar: meninggal dunia Bunga Kurniawan (5B) Keputusan untuk Bunga Kurniawan (5B) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Na
+step2 aria:
+- list:
+  - listitem:
+    - text: Adi Hidayat (5B) Keputusan untuk Adi Hidayat (5B)
+    - combobox "Keputusan untuk Adi Hidayat (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Bunga Kurniawan (5B) Keputusan untuk Bunga Kurniawan (5B)
+    - combobox "Keputusan untuk Bunga Kurniawan (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Citra Pratama (5B) Keputusan untuk Citra Pratama (5B)
+    - combobox "Keputusan untuk Citra Pratama (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Dimas Lestari (5B) Keputusan untuk Dimas Lestari (5B)
+    - combobox "Keputusan untuk Dimas Lestari (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Eka Rahayu (5B) Keputusan untuk Eka Rahayu (5B)
+    - combobox "Keputusan untuk Eka Rahayu (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Fajar Nugroho (5B) Keputusan untuk Fajar Nugroho (5B)
+    - combobox "Keputusan untuk Fajar Nugroho (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Gita Wibowo (5B) Keputusan untuk Gita Wibowo (5B)
+    - combobox "Keputusan untuk Gita Wibowo (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Hana Saputra (5B) Keputusan untuk Hana Saputra (5B)
+    - combobox "Keputusan untuk Hana Saputra (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Indra Utami (5B) Keputusan untuk Indra Utami (5B)
+    - combobox "Keputusan untuk Indra Utami (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Joko Santoso (5B) Keputusan untuk Joko Santoso (5B)
+    - combobox "Keputusan untuk Joko Santoso (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Kirana Hidayat (5B) Keputusan untuk Kirana Hidayat (5B)
+    - combobox "Keputusan untuk Kirana Hidayat (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Lestari Kurniawan (5B) Keputusan untuk Lestari Kurniawan (5B)
+    - combobox "Keputusan untuk Lestari Kurniawan (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Maya Pratama (5B) Keputusan untuk Maya Pratama (5B)
+    - combobox "Keputusan untuk Maya Pratama (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Nanda Lestari (5B) Keputusan untuk Nanda Lestari (5B)
+    - combobox "Keputusan untuk Nanda Lestari (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Oki Rahayu (5B) Keputusan untuk Oki Rahayu (5B)
+    - combobox "Keputusan untuk Oki Rahayu (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Putri Nugroho (5B) Keputusan untuk Putri Nugroho (5B)
+    - combobox "Keputusan untuk Putri Nugroho (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Rizki Wibowo (5B) Keputusan untuk Rizki Wibowo (5B)
+    - combobox "Keputusan untuk Rizki Wibowo (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Sari Saputra (5B) Keputusan untuk Sari Saputra (5B)
+    - combobox "Keputusan untuk Sari Saputra (5B)":
+      - option "— Pilih —"
+  - listitem:
+    - text: Tono Rahayu (5B) Keputusan untuk Tono Rahayu (5B)
+    - combobox "Keputusan untuk Tono Rahayu (5B)":
+      - option 
+row 0: Adi Hidayat (5B) → Naik ke 6A · 2027/28
+row 1: Bunga Kurniawan (5B) → Naik ke 6A · 2027/28
+row 2: Citra Pratama (5B) → Naik ke 6A · 2027/28
+row 3: Dimas Lestari (5B) → Tinggal kelas di 5A · 2027/28
+row 4: Eka Rahayu (5B) → Naik ke 6A · 2027/28
+row 5: Fajar Nugroho (5B) → Naik ke 6B · 2027/28
+row 6: Gita Wibowo (5B) → Naik ke 6A · 2027/28
+row 7: Hana Saputra (5B) → Naik ke 6A · 2027/28
+row 8: Indra Utami (5B) → Naik ke 6A · 2027/28
+row 9: Joko Santoso (5B) → Naik ke 6A · 2027/28
+row 10: Kirana Hidayat (5B) → Naik ke 6A · 2027/28
+row 11: Lestari Kurniawan (5B) → Naik ke 6A · 2027/28
+row 12: Maya Pratama (5B) → Naik ke 6A · 2027/28
+row 13: Nanda Lestari (5B) → Naik ke 6A · 2027/28
+row 14: Oki Rahayu (5B) → Naik ke 6A · 2027/28
+row 15: Putri Nugroho (5B) → Naik ke 6A · 2027/28
+row 16: Rizki Wibowo (5B) → Naik ke 6A · 2027/28
+row 17: Sari Saputra (5B) → Naik ke 6A · 2027/28
+row 18: Tono Rahayu (5B) → Naik ke 6A · 2027/28
+row 19: Umi Nugroho (5B) → Naik ke 6A · 2027/28
+row 20: Vina Wibowo (5B) → Naik ke 6A · 2027/28
+row 21: Wahyu Saputra (5B) → Naik ke 6A · 2027/28
+row 22: Yogi Pratama (5F) Di Tingkat, belum di kelas → Naik ke 6A · 2027/28
+row 23: Yogi Utami (5B) → Naik ke 6A · 2027/28
+row 24: Zahra Santoso (5B) → Naik ke 6A · 2027/28
+status line: 23 naik ke 6A · 2027/28 · 1 tinggal kelas · 1 naik ke 6B · 2027/28 · 0 belum dipilih
+H step2 sideways 1280
+review url /konfigurasi/rollover?kn_kelas=62651ac7-4d69-429a-bfe5-752cf0b45c57&kn_tahun=96a37a15-3536-4cfd-8386-5e99db3c2abc&kn_semua=6e3f93b8-5da7-4f6a-9d74-07e29f3c7bef#rollover
+review aria:
+- paragraph: Langkah 3 dari 3 · Tinjau lalu konfirmasi
+- heading "5B · Tingkat Angkatan 5 · 2026/27" [level=3]
+- paragraph: Belum ada yang berubah. Inilah hasil untuk setiap murid ke tahun ajaran 2027/28.
+- paragraph: 23 naik ke 6A · 2027/28 · 1 tinggal kelas · 5A · 2027/28 · 1 naik ke 6B · 2027/28
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: Dimas Lestari (5B) · Tinggal kelas di 5A · 2027/28
+  - listitem: Fajar Nugroho (5B) · Naik ke 6B · 2027/28
+  - listitem: Yogi Pratama (5F) · dari Tingkat (belum di kelas) · Naik ke 6A · 2027/28
+- group: 22 naik ke 6A · 2027/28
+- region "Penugasan guru":
+  - heading "Penugasan guru" [level=3]
+  - paragraph: Penugasan guru tidak ikut pindah ke tahun ajaran baru. Tinjau siapa yang akan mengajar kelas tujuan, lalu ubah di Peran & akses bila perlu.
+  - list:
+    - listitem: "5A · 2027/28: belum ada guru"
+    - listitem: "6A · 2027/28: belum ada guru"
+    - listitem: "6B · 2027/28: belum ada guru"
+  - paragraph:
+    - link "Buka Peran & akses di tab baru":
+      - /url: /konfigurasi/roles#roles
+- checkbox "Saya tahu 5A, 6A dan 6B · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses."
+- text: Saya tahu 5A, 6A dan 6B · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses.
+- paragraph: "25 murid akan diproses: 23 naik ke 6A · 2027/28 · 1 tinggal kelas · 5A · 2027/28 · 1 naik ke 6B · 2027/28. Semuanya diterapkan bersama atau tidak sama sekali."
+- button "Konfirmasi kenaikan kelas"
+- status
+- link "Ubah keputusan":
+  - /url: /konfigurasi/rollover?kn_kelas=62651ac7-4d69-429a-bfe5-752cf0b45c57&kn_tahun=96a37a15-3536-4cfd-8386-5e99db3c2abc&kn_d=W1siNzI3NTgwZGYtNGQwMS00ZGU1LThlZDMtYWExM2EzNDU4YjA1IiwiTkFJSzo2ZTNmOTNiOC01ZGE3LTRmNmEtOWQ3NC0wN2UyOWYzYzdiZWYiXSxbIjhjZjQ1Mzg1LTJlZjAtNGUzMi04ODkyLTVmNTIzMWMxNTI3MCIsIk5BSUs6NmUzZjkzYjgtNWRhNy00ZjZhLTlkNzQtMDdlMjlmM2M3YmVmIl0sWyJjZGEwZjQ5Zi0yZGVjLTRjNTYtYjBkYi1hOTBkODFlZjQ3ZDIiLCJOQUlLOjZlM2Y5M2I4LTVkYTctNGY2YS05ZDc0LTA3ZTI5ZjNjN2JlZiJdLFsiYWM3YWRjMzEtNDY5Yi00ZTJhLTk4NjktYWUxMGRmOTg3MzFhIiwiVElOR0dBTDo5ZTcxY2RkZi1lNmZlLTQ0ZjYtOGFkYy0wMThkYTVhN2NiZTQiXSxbIjIwZjY4MGZjLTkzZTctNDA1Ni1iNjEyLWJkN2NhZGE5NTkwNCIsIk5BSUs6NmUzZjkzYjgtNWRhNy00ZjZhLTlkNzQtMDdlMjlmM2M3YmVmIl0sWyIwMTBlMWRjMi02Zjc4LTQ5MGYtYjliNi04NjIyMDVlNjkzMGQiLCJOQUlLOjFhOTM4NjZkLTQ1ZDQtNDUzNi05MTRlLWVhMGNhYWY3ZThkNiJdLFsiYzE5NTVjZTQtOTE5Zi00MDgxLWIxMjktNmFjMjMxM2I2ZjM5IiwiTkFJSzo2ZTNmOTNiOC01ZGE3LTRmNmEtOWQ3NC0wN2UyOWYzYzdiZWYiXSxbImZiMDNlYWJjLTRkYmUtNDk0Ny05ZmUwLWNlM2I3YjdjZDRkNCIsIk5BSUs6NmUzZjkzYjgtNWRhNy00ZjZhLTlkNzQtMDdlMjlmM2M3YmVmIl0sWyI3Mzc1OWZmNi0wMmUyLTQ2MjQtOTMzMC1jN2QxNjI0NDExNjEiLCJOQUlLOjZlM2Y5M2I4LTVkYTctNGY2YS05ZDc0LTA3ZTI5ZjNjN2JlZiJdLFsiMjAyNWQ1MzQtYmJlOC00YzExLWFiNDMtMTUyYzcyYTQ2NDczIiwiTkFJSzo2ZTNmOTNiOC01ZGE3LTRmNmEtOWQ3NC0wN2UyOWYzYzdiZWYiXSxbIjAxNDEwMGNjLWI2ZTItNGJjYi05NGY3LWE0YzQ0MzY0Nzk2ZCIsIk5BSUs6NmUzZjkzYjgtNWRhNy00ZjZhLTlkNzQtMDdlMjlmM2M3YmVmIl0sWyIyZDI3MzMwMy0yMmJhLTQwMjktYjU4MS1jNDZmZWIzNzllMWYiLCJOQUlLOjZlM2Y5M2I4LTVkYTctNGY2YS05ZDc0LTA3ZTI5ZjNjN2JlZiJdLFsiYjQ4ZmFkMjEtY2Q2YS00Zjg1LWFiNTctOTBlMWU1MDMyNGVlIiwiTkFJSzo2ZTNmOTNiOC01ZGE3LTRmNmEtOWQ3NC0wN2UyOWYzYzdiZWYiXSxbIjk4NTNlM2UxLTYyNGUtNDMwYi1hY2ZkLTNhYzIzNmUwODgwYiIsIk5BSUs6NmUzZjkzYjgtNWRhNy00ZjZhLTlkNzQtMDdlMjlmM2M3YmVmIl0sWyI1ZDY3NmJlNy02NTIwLTQ4ZTMtOGQ1Ni05ODhlNzMxMGI0ZTYiLCJOQUlLOjZlM2Y5M2I4LTVkYTctNGY2YS05ZDc0LTA3ZTI5ZjNjN2JlZiJdLFsiZDJjOWMwMzQtMjBiNS00MTIzLWFkMzEtODdiZWI4ZWQwM2QxIiwiTkFJSzo2ZTNmOTNiOC01ZGE3LTRmNmEtOWQ3NC0wN2UyOWYzYzdiZWYiXSxbImVmMWQyZjUyLWE2MzgtNGY5Mi04YmEzLTIyZTkyMDRiOTRlZiIsIk5BSUs6NmUzZjkzYjgtNWRhNy00ZjZhLTlkNzQtMDdlMjlmM2M3YmVmIl0sWyJiMjY0MGZjZS1jYTY1LTRjYjQtYTFkZS1kYzEzNTgxNGMxMTkiLCJOQUlLOjZlM2Y5M2I4LTVkYTctNGY2YS05ZDc0LTA3ZTI5ZjNjN2JlZiJdLFsiMTlkMmMwYmUtOTJjZS00MzZkLWEzMDQtYTM4MzkzMTE2NTVhIiwiTkFJSzo2ZTNmOTNiOC01ZGE3LTRmNmEtOWQ3NC0wN2UyOWYzYzdiZWYiXSxbIjNmOWYyZDhmLTBmMTYtNGIxNy1hYWViLTQ0M2FmZTAzYzBiMiIsIk5BSUs6NmUzZjkzYjgtNWRhNy00ZjZhLTlkNzQtMDdlMjlmM2M3YmVmIl0sWyI1NTVkNjEzNy05YzI3LTRmNTQtYmUyNi1hNzU0YTViODgyNWUiLCJOQUlLOjZlM2Y5M2I4LTVkYTctNGY2YS05ZDc0LTA3ZTI5ZjNjN2JlZiJdLFsiNTJjMWM1YTgtNjM5Ny00ZDA1LWE5Y2EtNDM4OGE3NDQ3Mjg0IiwiTkFJSzo2ZTNmOTNiOC01ZGE3LTRmNmEtOWQ3NC0wN2UyOWYzYzdiZWYiXSxbIjkzMGEwZmU4LThlOWEtNGRiMy05MTU2LTc2Mjc3YTAxNTQzZiIsIk5BSUs6NmUzZjkzYjgtNWRhNy00ZjZhLTlkNzQtMDdlMjlmM2M3YmVmIl0sWyI4YmRmNGUyYy1iNGQxLTRkODktOWQ3NC01MTI0N2ZkYTQwODAiLCJOQUlLOjZlM2Y5M2I4LTVkYTctNGY2YS05ZDc0LTA3ZTI5ZjNjN2JlZiJdLFsiNGUyNTY0NTQtOWVjOS00NzdlLWFjOWEtMThiNWRmNGVhNzE3IiwiTkFJSzo2ZTNmOTNiOC01ZGE3LTRmNmEtOWQ3NC0wN2UyOWYzYzdiZWYiXV0#rollover
+review summary: 22 naik ke 6A · 2027/28 | names in fold: 22 | exceptions: 3
+fold open: 22 naik ke 6A · 2027/28 Adi Hidayat (5B) Bunga Kurniawan (5B) Citra Pratama (5B) Eka Rahayu (5B) Gita Wibowo (5B) Hana Saputra (5B) Indra Utami (5B) Joko Santoso (5B) Kirana Hidayat (5B) Lestari Kurniawan (5B) Maya Pratama (5B) Nanda Lestari (5B) Oki Rahayu (5B) Putri Nugroho (5B) Rizki Wibowo (5B) Sari Saputra (5B) Tono Rahayu (5B) Umi Nugroho (5B) Vina Wibowo (5B) Wahyu Saputra (5B) Yogi Utami (5B) Zahra Santoso (5B)
+checkbox: 1 Saya tahu 5A, 6A dan 6B · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses.
+H 1280 review sideways 1280
+H 390 review sideways 390
+H 320 review sideways 320
+outcome url /konfigurasi/rollover?kn_kelas=62651ac7-4d69-429a-bfe5-752cf0b45c57&kn_tahun=96a37a15-3536-4cfd-8386-5e99db3c2abc&kn_langkah=selesai#rollover
+outcome aria:
+- status: "Selesai. 25 murid diproses pada 10 Nov 2026, 12.25 WIB. Inilah hasil untuk setiap murid. Diperiksa dari data PINTAR: semua sesuai."
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: Dimas Lestari (5B) · Tinggal kelas di 5A · 2027/28 · 5A · 2027/28
+  - listitem: Fajar Nugroho (5B) · Naik ke 6B · 2027/28 · 6B · 2027/28
+- group: 23 naik ke 6A · 2027/28
+- paragraph:
+  - text: "3 Kelas tahun 2027/28 belum punya guru: 5A, 6A, 6B. Beri perannya di Peran & akses."
+  - link "Buka Peran & akses":
+    - /url: /konfigurasi/roles#roles
+- link "Lanjut ke 5A · 2026/27 (belum diproses)":
+  - /url: /konfigurasi/rollover?kn_kelas=caf22e08-74c7-46a3-9922-1bd21f05bb75#rollover
+- link "Pilih kelas lain":
+  - /url: /konfigurasi/rollover?#rollover
+outcome summary: 23 naik ke 6A · 2027/28 | names in fold: 23 | exceptions: 2
+outcome fold open: 23 naik ke 6A · 2027/28 Adi Hidayat (5B) · 6A · 2027/28 Bunga Kurniawan (5B) · 6A · 2027/28 Citra Pratama (5B) · 6A · 2027/28 Eka Rahayu (5B) · 6A · 2027/28 Gita Wibowo (5B) · 6A · 2027/28 Hana Saputra (5B) · 6A · 2027/28 Indra Utami (5B) · 6A · 2027/28 Joko Santoso (5B) · 6A · 2027/28 Kirana Hidayat (5B) · 6A · 2027/28 Lestari Kurniawan (5B) · 6A · 2027/28 Maya Pratama (5B) · 6A · 2027/28 Nanda Lestari (5B) · 6A · 2027/28 Oki Rahayu (5B) · 6A · 2027/28 Putri Nugroho (5B) · 6A · 2027/28 Rizki Wibowo (5B) · 6A · 2027/28 Sari Saputra (5B) · 6A · 2027/28 Tono Rahayu (5B) · 6A · 2027/28 Umi Nugroho (5B) · 6A · 2027/28 Vina Wibowo (5B) · 6A · 2027/28 Wahyu Saputra (5B) · 6A · 2027/28 Yogi Pratama (5F) · 6A · 2027/28 Yogi Utami (5B) · 6A · 2027/28 Zahra Santoso (5B) · 6A · 2027/28
+lanjut: Lanjut ke 5A · 2026/27 (belum diproses) Pilih kelas lain
+H 1280 outcome sideways 1280
+H 390 outcome sideways 390
+H 320 outcome sideways 320step2 url /konfigurasi/rollover?kn_kelas=ac84189b-2363-4175-8160-48abc87f3add#rollover
+bulk options ["— Pilih satu per satu —","5A · 2027/28","6A · 2027/28","6B · 2027/28"]
+after Terapkan: Langkah 2 dari 3 · Keputusan untuk setiap murid 5H · Tingkat Angkatan 5 IPA · 2026/27 Tahun ajaran baru 2027/28 Naikkan semua ke — Pilih satu per satu — 5A · 2027/28 6A · 2027/28 6B · 2027/28 Terapkan 5 murid. Setiap murid perlu satu keputusan sebelum hasilnya dapat ditinjau. 5 belum dipilih. Belum dipilih: Adi Wibowo (5H), Bunga Saputra (5H), Citra Utami (5H), Dimas Santoso (5H), Eka Hidayat (5H). Adi Wibowo (5H) Keputusan untuk Adi Wibowo (5H) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tinggal kelas di 6A · 2027/28 Tinggal kelas di 6B · 2027/28 Lulus Keluar: mengundurkan diri Keluar: pindah ke sekolah di luar PINTAR Keluar: pindah ke luar negeri Keluar: meninggal dunia Bunga Saputra (5H) Keputusan untuk Bunga Saputra (5H) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tin
+step2 aria:
+- list:
+  - listitem:
+    - text: Adi Wibowo (5H) Keputusan untuk Adi Wibowo (5H)
+    - combobox "Keputusan untuk Adi Wibowo (5H)":
+      - option "— Pilih —" [selected]
+  - listitem:
+    - text: Bunga Saputra (5H) Keputusan untuk Bunga Saputra (5H)
+    - combobox "Keputusan untuk Bunga Saputra (5H)":
+      - option "— Pilih —" [selected]
+  - listitem:
+    - text: Citra Utami (5H) Keputusan untuk Citra Utami (5H)
+    - combobox "Keputusan untuk Citra Utami (5H)":
+      - option "— Pilih —" [selected]
+  - listitem:
+    - text: Dimas Santoso (5H) Keputusan untuk Dimas Santoso (5H)
+    - combobox "Keputusan untuk Dimas Santoso (5H)":
+      - option "— Pilih —" [selected]
+  - listitem:
+    - text: Eka Hidayat (5H) Keputusan untuk Eka Hidayat (5H)
+    - combobox "Keputusan untuk Eka Hidayat (5H)":
+      - option "— Pilih —" [selected]
+row 0: Adi Wibowo (5H) → Keluar: mengundurkan diri
+row 1: Bunga Saputra (5H) → Lulus
+row 2: Citra Utami (5H) → Lulus
+row 3: Dimas Santoso (5H) → Lulus
+row 4: Eka Hidayat (5H) → Lulus
+status line: 1 keluar · 4 lulus · 0 belum dipilih
+J step2 sideways 1280
+review url /konfigurasi/rollover?kn_kelas=ac84189b-2363-4175-8160-48abc87f3add#rollover
+review aria:
+- paragraph: Langkah 3 dari 3 · Tinjau lalu konfirmasi
+- heading "5H · Tingkat Angkatan 5 IPA · 2026/27" [level=3]
+- paragraph: Belum ada yang berubah. Inilah hasil untuk setiap murid ke tahun ajaran 2027/28.
+- paragraph: 1 keluar · 4 lulus
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: "Adi Wibowo (5H) · Keluar: mengundurkan diri"
+  - listitem: Bunga Saputra (5H) · Lulus
+  - listitem: Citra Utami (5H) · Lulus
+  - listitem: Dimas Santoso (5H) · Lulus
+  - listitem: Eka Hidayat (5H) · Lulus
+- region "Penugasan guru":
+  - heading "Penugasan guru" [level=3]
+  - paragraph: Penugasan guru tidak ikut pindah ke tahun ajaran baru. Tinjau siapa yang akan mengajar kelas tujuan, lalu ubah di Peran & akses bila perlu.
+  - paragraph: "Tidak ada kelas tujuan: setiap murid kelas ini lulus atau keluar."
+  - paragraph:
+    - link "Buka Peran & akses di tab baru":
+      - /url: /konfigurasi/roles#roles
+- paragraph: "5 murid akan diproses: 1 keluar · 4 lulus. Semuanya diterapkan bersama atau tidak sama sekali."
+- button "Konfirmasi kenaikan kelas"
+- status
+- link "Ubah keputusan":
+  - /url: /konfigurasi/rollover?kn_kelas=ac84189b-2363-4175-8160-48abc87f3add&kn_tahun=96a37a15-3536-4cfd-8386-5e99db3c2abc&kn_d=W1siMDQ5MDlmMmUtNjlmZC00NzE0LWI0YmMtMGJlYWE0Y2U5NjFmIiwiS0VMVUFSOldJVEhEUkFXTiJdLFsiMTVjMmZjYjgtNzNhNC00NmRkLWJkYTQtMzkzZTA0ZTU1NzJlIiwiTFVMVVMiXSxbIjFmZWNmODJkLTExMmMtNDU4Yy1iYjE1LTEyMGM2ZTdmNjI3NyIsIkxVTFVTIl0sWyI0Yjk3ZWQxYi0wMGQ3LTQ5N2EtYWRiMS0xNTE2MmI3NDg3ODMiLCJMVUxVUyJdLFsiYmYxYWI2YmYtMjIwNi00YzUyLTgyZTQtZWM1ZGZiNDIyNjU5IiwiTFVMVVMiXV0#rollover
+review summary: none | names in fold: 0 | exceptions: 5
+checkbox: 0 -
+J 1280 review sideways 1280
+J 390 review sideways 390
+J 320 review sideways 320
+outcome url /konfigurasi/rollover?kn_kelas=ac84189b-2363-4175-8160-48abc87f3add&kn_tahun=96a37a15-3536-4cfd-8386-5e99db3c2abc&kn_langkah=selesai#rollover
+outcome aria:
+- status: "Selesai. 5 murid diproses pada 10 Nov 2026, 12.26 WIB. Inilah hasil untuk setiap murid. Diperiksa dari data PINTAR: semua sesuai."
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: "Adi Wibowo (5H) · Keluar: mengundurkan diri · Pendaftaran berakhir · 10 Nov 2026 · mengundurkan diri"
+  - listitem: Bunga Saputra (5H) · Lulus · Pendaftaran berakhir · 10 Nov 2026 · lulus
+  - listitem: Citra Utami (5H) · Lulus · Pendaftaran berakhir · 10 Nov 2026 · lulus
+  - listitem: Dimas Santoso (5H) · Lulus · Pendaftaran berakhir · 10 Nov 2026 · lulus
+  - listitem: Eka Hidayat (5H) · Lulus · Pendaftaran berakhir · 10 Nov 2026 · lulus
+- link "Lanjut ke 5A · 2026/27 (belum diproses)":
+  - /url: /konfigurasi/rollover?kn_kelas=caf22e08-74c7-46a3-9922-1bd21f05bb75#rollover
+- link "Pilih kelas lain":
+  - /url: /konfigurasi/rollover?#rollover
+outcome summary: none | names in fold: 0 | exceptions: 5
+lanjut: Lanjut ke 5A · 2026/27 (belum diproses) Pilih kelas lain
+J 1280 outcome sideways 1280
+J 390 outcome sideways 390
+J 320 outcome sideways 320run rows on page 1: 1
+run 0 row (closed): 10 Nov 2026, 12.26 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5H · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin sekolah 5 murid: 4 lulus, 1 keluar Catatan terkait (15)
+run 0 summaries: ["5 murid: 4 lulus, 1 keluar","Catatan terkait (15)"]
+run 0 open: 10 Nov 2026, 12.26 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5H · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin sekolah 5 murid: 4 lulus, 1 keluar Adi Wibowo (5H) · Keluar: mengundurkan diri Bunga Saputra (5H) · lulus Citra Utami (5H) · lulus Dimas Santoso (5H) · lulus Eka Hidayat (5H) · lulus Catatan terkait (15) 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas
+run 0 aria:
+- row "10 Nov 2026, 12.26 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5H · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin sekolah":
+  - cell "10 Nov 2026, 12.26 WIB"
+  - cell "Kenaikan kelas diterapkan"
+  - cell "Kenaikan kelas · 5H · 2026/27 → 2027/28"
+  - cell "Bu Wulan (uji laporan) · Admin sekolah"
+  - cell:
+    - group:
+      - text: "5 murid: 4 lulus, 1 keluar"
+      - list:
+        - listitem: "Adi Wibowo (5H) · Keluar: mengundurkan diri"
+        - listitem: Bunga Saputra (5H) · lulus
+        - listitem: Citra Utami (5H) · lulus
+        - listitem: Dimas Santoso (5H) · lulus
+        - listitem: Eka Hidayat (5H) · lulus
+    - group:
+      - text: Catatan terkait (15)
+      - list:
+        - listitem: 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan
+        - listitem: 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas
+        - listitem: 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas
+        - listitem: 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan
+        - listitem: 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas
+        - listitem: 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas
+        - listitem: 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan
+        - listitem: 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas
+        - listitem: 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas
+        - listitem: 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan
+        - listitem: 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas
+        - listitem: 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas
+        - listitem: 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan
+        - listitem: 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas
+        - listitem: 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas
+part-of-run rows page 1: 34 ["Termasuk kenaikan kelas 5B · 10 Nov 2026; baris utamanya ada di halaman lain.","Termasuk kenaikan kelas 5B · 10 Nov 2026; baris utamanya ada di halaman lain.","Termasuk kenaikan kelas 5B · 10 Nov 2026; baris utamanya ada di halaman lain."]
+headers: ["Waktu","Tindakan","Sasaran","Oleh","Alasan"]
+first rows: ["10 Nov 2026, 12.26 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5H · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin sekolah 5 murid: 4 lulus, 1 keluar Adi Wibowo (5H) · Keluar: mengundurkan diri Bunga Saputra (5H) · lulus Citra Utami (5H) · lulus Dimas Santoso (5H) · lulus Eka Hidayat (5H) · lulus Catatan terkait (15) 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Keanggotaan diakhiri · Keanggotaan 10 Nov 2026, 12.26 WIB · Keanggotaan kelas · Keanggotaan kelas 10 Nov 2026, 12.26 WIB · Pendaftaran murid diakhiri · Keanggotaan kelas","10 Nov 2026, 12.25 WIB Keanggotaan diakhiri Keanggotaan · SD Cendekia Nusantara (sekolah peragaan) Bu Wulan (uji laporan) · Admin sekolah Termasuk kenaikan kelas 5B · 10 Nov 2026; baris utamanya ada di halaman lain.","10 Nov 2026, 12.25 WIB Keanggotaan kelas Keanggotaan kelas · SD Cendekia Nusantara (sekolah peragaan) Bu Wulan (uji laporan) · Admin sekolah Termasuk kenaikan kelas 5B · 10 Nov 2026; baris utamanya ada di halaman lain.","10 Nov 2026, 12.25 WIB Murid dimasukkan ke kelas Keanggotaan kelas · SD Cendekia Nusantara (sekolah peragaan) Bu Wulan (uji laporan) · Admin sekolah Termasuk kenaikan kelas 5B · 10 Nov 2026; baris utamanya ada di halaman lain.","10 Nov 2026, 12.25 WIB Keanggotaan dibuat Keanggotaan · SD Cendekia Nusantara (sekolah peragaan) Bu Wulan (uji laporan) · Admin sekolah Termasuk kenaikan kelas 5B · 10 Nov 2026; baris utamanya ada di halaman lain.","10 Nov 2026, 12.25 WIB Keanggotaan diakhiri Keanggotaan · SD Cendekia Nusantara (sekolah peragaan) Bu Wulan (uji laporan) · Admin sekolah Termasuk kenaikan kelas 5B · 10 Nov 2026; baris utamanya ada di halaman lain."]
+1280 sideways 1280
+page 2 part-of-run rows: 34 ["Termasuk kenaikan kelas 5B · 10 Nov 2026; baris utamanya ada di halaman lain.","Termasuk kenaikan kelas 5B · 10 Nov 2026; baris utamanya ada di halaman lain.","Termasuk kenaikan kelas 5B · 10 Nov 2026; baris utamanya ada di halaman lain."]
+page 2 run rows: 1
+390 sideways 390 table container [507,322,"auto"]
+320 sideways 320 table container [507,252,"auto"]WIB 5E materi: MATERI UNTUK KELAS INI Urutan mengikuti kurikulum sekolah. Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah. Matematika Kelas 5 · Bab 1: Pola Bilangan Mulai Selasa, 10 Nov 2026 Sampai Kamis, 10 Des 2026 Dijadwalkan Akhiri atau tarik · Matematika Kelas 5 · Bab 1: Pola Bilangan Matematika Kelas 5 · Bab 2: Data Sederhana Diterbitkan sekolah 10 Nov 2026 Siap disediakan
+WIB audit first time: 10 Nov 2026, 12.26 WIB
+WIB maintenance labels: ["Mulai (WIB; kosongkan untuk sekarang)","Perkiraan selesai (WIB)","Terbit (WIB; kosongkan untuk sekarang)","Sampai (WIB)"]
+WIB cert list: Sertifikat sekolah Pemegang Nomor sertifikat Kursus Diterbitkan Keadaan Tindakan Zahra Kurniawan (5D) S28W3HRP/00001 Matematika Kelas 5 · Bab 1: Pola Bilangan 10 Nov 2026 Berlaku Cabut Yogi Hidayat Saputra (5D) 67HKTGE0/00001 Matematika Kelas 5 · Bab 1: Pola Bilangan 10 Nov 2026 Berlaku Cabut
+WIB learner certs: SD Cendekia Nusantara (sekolah peragaan) SERTIFIKAT Sertifikat Anda Setiap sertifikat di sini bisa diperiksa keasliannya oleh siapa pun, lewat tautannya sendiri. SERTIFIKAT Sertifikat Terbit 10 Nov 2026 Berlaku Berlaku Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.comWITA 5E materi: MATERI UNTUK KELAS INI Urutan mengikuti kurikulum sekolah. Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah. Matematika Kelas 5 · Bab 1: Pola Bilangan Mulai Rabu, 11 Nov 2026 Sampai Jumat, 11 Des 2026 Dijadwalkan Akhiri atau tarik · Matematika Kelas 5 · Bab 1: Pola Bilangan Matematika Kelas 5 · Bab 2: Data Sederhana Diterbitkan sekolah 10 Nov 2026 Siap disediakan P
+WITA audit first time: 10 Nov 2026, 13.26 WITA
+WITA maintenance labels: ["Mulai (WITA; kosongkan untuk sekarang)","Perkiraan selesai (WITA)","Terbit (WITA; kosongkan untuk sekarang)","Sampai (WITA)"]
+WITA cert list: Sertifikat sekolah Pemegang Nomor sertifikat Kursus Diterbitkan Keadaan Tindakan Zahra Kurniawan (5D) S28W3HRP/00001 Matematika Kelas 5 · Bab 1: Pola Bilangan 10 Nov 2026 Berlaku Cabut Yogi Hidayat Saputra (5D) 67HKTGE0/00001 Matematika Kelas 5 · Bab 1: Pola Bilangan 10 Nov 2026 Berlaku Cabut
+WITA learner certs: SD Cendekia Nusantara (sekolah peragaan) SERTIFIKAT Sertifikat Anda Setiap sertifikat di sini bisa diperiksa keasliannya oleh siapa pun, lewat tautannya sendiri. SERTIFIKAT Sertifikat Terbit 10 Nov 2026 Berlaku Berlaku Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com1280 kelas 5B (lipatan terbuka): 0 violations
+1280 akhiri form: 0 violations
+1280 kenaikan hasil 5B: 0 violations
+1280 jejak audit: 0 violations
+1280 terbit ulang: 0 violations
+1280 staf: 0 violations
+1280 hasil belajar: 0 violations
+1280 buka kembali (tunggu): 0 violations
+320 kelas 5B (lipatan terbuka): 0 violations
+320 akhiri form: 0 violations
+320 kenaikan hasil 5B: 0 violations
+320 jejak audit: 0 violations
+320 terbit ulang: 0 violations
+320 staf: 0 violations
+320 hasil belajar: 0 violations
+320 buka kembali (tunggu): 0 violations
