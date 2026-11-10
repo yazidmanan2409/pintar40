@@ -68,6 +68,10 @@ export default function LessonPlayer(props: LessonPlayerProps) {
     return Math.min(pages.length - 1, Math.max(halamanMulai(props.startAt, pages.length), local));
   });
   const [steps, setSteps] = useState(1);
+  // Readiness (8 Nov): the reveal button goes when the last step shows; focus moves to the line that replaces it.
+  const contohSelesai = useRef<HTMLParagraphElement>(null);
+  const lewatLangkah = useRef(false);
+  useEffect(() => { if (lewatLangkah.current) { lewatLangkah.current = false; contohSelesai.current?.focus(); } }, [steps]);
 
   // BOB-23: ONE SAVE PER PAGE NEWLY REACHED. The save ran in an effect that
   // depended on the whole props object; each save re-rendered the page, the
@@ -149,12 +153,12 @@ export default function LessonPlayer(props: LessonPlayerProps) {
         <section className="pin-contoh">
           <LangkahContoh contoh={example!} tampil={steps} />
           {steps < langkah.length ? (
-            <button type="button" onClick={() => setSteps((s) => s + 1)}
+            <button type="button" onClick={() => { if (steps + 1 >= langkah.length) lewatLangkah.current = true; setSteps((s) => s + 1); }}
               className="pin-btn">
               {kata("lesson.example.reveal")}
             </button>
           ) : (
-            <p className="pin-meta">{kata("lesson.example.done")}</p>
+            <p ref={contohSelesai} tabIndex={-1} className="pin-meta">{kata("lesson.example.done")}</p>
           )}
         </section>
       )}

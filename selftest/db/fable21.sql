@@ -10,9 +10,9 @@
 --            teacher's Uji Cepat choices name each by the author's word; and a drawn paper that asks for two Mudah and one
 --            Sedang carries the author's two Mudah and the Sedang, never a Sulit
 --   F21-I01  FD-7 (DG-32): Tinjauan Integritas's waiting list. Two observations of one sitting wait for a reviewer who may
---            review them, and for nobody else (the sitting's own learner sees none); a Kepala departemen whose department
---            does not hold the sitting's class sees them with no referral offered, and the server indeed refuses that
---            referral; RESTATED FOR W2.7 (Batch 5, one decision per observation): a decision on one leaves exactly the other
+--            review them, and for nobody else (the sitting's own learner sees none); RESTATED FOR THE OWNER'S RULING
+--            (9 Nov): a Kepala departemen whose department does not hold the sitting's class sees no case, only her
+--            department-level count of what waits outside her scope, and the server refuses her decision; RESTATED FOR W2.7 (Batch 5, one decision per observation): a decision on one leaves exactly the other
 --            waiting, and once each has its own decision both leave, for every reviewer; an observation made after the
 --            review waits again
 --   F21-R01  FD-9 (D-127 Q8; DG-30): a saved rule's lifecycle. A rule saved for a chapter still being drafted is a draft
@@ -72,7 +72,7 @@ language plpgsql set search_path = public, pg_temp as $$
 declare
   r record; v_tag text; v_kk uuid; v_b uuid; v_hod uuid; v_course uuid; v_mod uuid; v_rel uuid; v_kj jsonb;
   v_node uuid; v_guru text; v_row record; v_sess uuid; v_kata text; v_harap text; v_n int;
-  v_ia uuid; v_isess uuid; v_iroot uuid; v_idept uuid; v_ikadep text; v_isig1 uuid; v_isig2 uuid; v_isig3 uuid;
+  v_ia uuid; v_isess uuid; v_iinst uuid; v_iroot uuid; v_idept uuid; v_ikadep text; v_isig1 uuid; v_isig2 uuid; v_isig3 uuid;
   v_imurid uuid; v_ilist jsonb;
   v_rc uuid; v_rbatch uuid; v_rj jsonb; v_rdef uuid; v_rrel uuid; v_rpakai uuid; v_rtolak jsonb; v_rhod uuid;
   v_probs jsonb := '{}'::jsonb; v_fatal text := '';
@@ -223,14 +223,23 @@ begin
       if jsonb_array_length(v_ilist) <> 2 or exists (select 1 from jsonb_array_elements(v_ilist) x where (x ->> 'r')::boolean is not true) then
         v_probs := selftest.f21_note(v_probs, 'F21-I01', format('the school admin is shown %s for the sitting''s two observations, each to be referable', v_ilist));
       end if;
-      -- a Kepala departemen of another department: both wait, and no referral is offered, because the server refuses it
+      -- RESTATED FOR THE OWNER'S RULING (9 Nov, System Integrity; replaces FD-7/DG-32's presentation): «preserve
+      -- school-wide oversight through aggregate counts for other departments. Individual case details and actions
+      -- remain limited to authorized scopes.» A Kepala departemen of another department is shown NO observation of this
+      -- sitting, is given its department's count of observations waiting outside her scope (integrity_signals_waiting_
+      -- elsewhere, no sitting, category or time), and the server still refuses her decision.
+      select ses.institution_id into v_iinst from public.assessment_sessions ses where ses.id = v_isess;
       perform selftest.as_user(v_ikadep);
       select coalesce(jsonb_agg(jsonb_build_object('s', w.signal_id, 'r', w.may_refer)), '[]'::jsonb) into v_ilist
         from public.integrity_signals_awaiting_review() w where w.session_id = v_isess;
+      select coalesce(sum(w.waiting), 0) into v_n from public.integrity_signals_waiting_elsewhere() w where w.institution_id = v_iinst;
       v_kata := selftest.f11_raised(format('select public.record_integrity_review(%L, %L, %L)', v_isig2, 'REFERRED_TO_INSTITUTION', 'F21-I01')) ->> 'code';
       perform selftest.as_owner();
-      if jsonb_array_length(v_ilist) <> 2 or exists (select 1 from jsonb_array_elements(v_ilist) x where (x ->> 'r')::boolean is not false) then
-        v_probs := selftest.f21_note(v_probs, 'F21-I01', format('another department''s Kepala departemen is shown %s, not the two observations with no referral', v_ilist));
+      if jsonb_array_length(v_ilist) <> 0 then
+        v_probs := selftest.f21_note(v_probs, 'F21-I01', format('another department''s Kepala departemen is shown the cases %s; she is owed only a count', v_ilist));
+      end if;
+      if v_n < 2 then
+        v_probs := selftest.f21_note(v_probs, 'F21-I01', format('another department''s Kepala departemen is given a count of %s, not the at least 2 waiting outside her scope', v_n));
       end if;
       if v_kata is null then
         v_probs := selftest.f21_note(v_probs, 'F21-I01', 'the server accepted the referral the list said this reviewer may not make');
@@ -253,11 +262,12 @@ begin
       if v_ilist is distinct from jsonb_build_array(v_isig1) then
         v_probs := selftest.f21_note(v_probs, 'F21-I01', format('after a decision on one observation the sitting shows %s waiting, not exactly the other one', v_ilist));
       end if;
+      -- (restated, owner 9 Nov) the other department's head: still no case; her count falls by the decided one
       perform selftest.as_user(v_ikadep);
       select coalesce(jsonb_agg(w.signal_id), '[]'::jsonb) into v_ilist from public.integrity_signals_awaiting_review() w where w.session_id = v_isess;
       perform selftest.as_owner();
-      if v_ilist is distinct from jsonb_build_array(v_isig1) then
-        v_probs := selftest.f21_note(v_probs, 'F21-I01', format('after the admin''s decision another reviewer is shown %s, not exactly the other observation', v_ilist));
+      if v_ilist <> '[]'::jsonb then
+        v_probs := selftest.f21_note(v_probs, 'F21-I01', format('after the admin''s decision another department''s head is shown the cases %s', v_ilist));
       end if;
       perform selftest.as_user('alpha-admin@synthetic.pintar.test');
       perform public.record_integrity_review(v_isig1, 'DISCUSSED_WITH_LEARNER', 'F21-I01');

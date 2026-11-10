@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import BarisHasil from "@/components/BarisHasil";
@@ -52,6 +52,15 @@ export default function TutupPutaran({
   const [tanya, setTanya] = useState(false);
   const [sibuk, setSibuk] = useState(false);
   const [sebab, setSebab] = useState<SebabTutup | null>(null);
+  // Focus as KonfirmasiBahaya (readiness, 8 Nov): the question takes focus on «Batal»; leaving it returns focus
+  // to «Tutup putaran», so a keyboard reader never falls to the top of the page.
+  const pembuka = useRef<HTMLButtonElement>(null);
+  const tidak = useRef<HTMLButtonElement>(null);
+  const kembali = useRef(false);
+  useEffect(() => {
+    if (tanya) tidak.current?.focus();
+    else if (kembali.current) { kembali.current = false; pembuka.current?.focus(); }
+  }, [tanya]);
 
   async function kerjakan() {
     if (sibuk) return;
@@ -60,6 +69,7 @@ export default function TutupPutaran({
     try {
       const hasil = await tutup(siklus);
       setSebab(hasil);
+      kembali.current = true;
       setTanya(false);
       // COLLECTION HAS ENDED; WHAT THE ROUND BECAME IS THE SERVER'S TO SAY.
       // The page re-reads the cycle and its result, so the state and the
@@ -88,16 +98,17 @@ export default function TutupPutaran({
           <div className="pin-actions">
             <button
               type="button"
-              className="pin-btn pin-primary pin-ub-btn"
+              className="pin-btn pin-bahaya-pasti pin-ub-btn"
               onClick={kerjakan}
               disabled={sibuk}
             >
               {sibuk ? s("umpanbalik.tutup.menutup") : s("umpanbalik.tutup.ya")}
             </button>
             <button
+              ref={tidak}
               type="button"
-              className="pin-btn pin-ub-btn"
-              onClick={() => setTanya(false)}
+              className="pin-btn pin-quiet pin-ub-btn"
+              onClick={() => { kembali.current = true; setTanya(false); }}
               disabled={sibuk}
             >
               {s("umpanbalik.tutup.batal")}
@@ -106,7 +117,7 @@ export default function TutupPutaran({
         </div>
       ) : (
         <div className="pin-actions">
-          <button type="button" className="pin-btn pin-ub-btn" onClick={() => setTanya(true)}>
+          <button ref={pembuka} type="button" className="pin-btn pin-bahaya pin-ub-btn" onClick={() => setTanya(true)}>
             {s("umpanbalik.tutup.aksi")}
           </button>
         </div>

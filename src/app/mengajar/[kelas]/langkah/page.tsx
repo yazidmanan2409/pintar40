@@ -61,7 +61,7 @@ export default async function Langkah({ params }: { params: Promise<{ kelas: str
   type Kartu = { key: string; judul: string; sebab: string; href: string; utama: boolean };
   // UX-37: what waits on the teacher here is decided once (menungguKelas), the same answer the home shows per class
   const kartu: Kartu[] = ajar
-    .menungguKelas(id, buka, fakta.murid.length, new Set(tugas.map((x) => x.releaseId)), terbit)
+    .menungguKelas(id, buka, fakta.murid.length, new Set(tugas.filter(ajar.masihBerlaku).map((x) => x.releaseId)), terbit)
     .map((m, i) => ({ key: m.key, ...kataMenunggu(m, s, locale), href: m.href, utama: i === 0 }));
   kartu.push({
     key: "f5",

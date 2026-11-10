@@ -102,6 +102,10 @@ export type AssignmentEntry = {
   title: string;
   pre_test_assignment: string | null;
   post_test_assignment: string | null;
+  /** my_learning_history only: ACTIVE, ENDED or WITHDRAWN */
+  status?: string;
+  /** my_learning_history only: a Kelas the learner is in now */
+  kini?: boolean;
 };
 
 export type Delta = {

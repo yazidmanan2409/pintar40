@@ -20,6 +20,7 @@
  * this file does not name, or a code here has no sentence in both languages.
  */
 import type { HleEvent } from "./hle";
+import { geserZona } from "./tanggal";
 
 // ═════════════════════════════════════════════════════════════ the list
 
@@ -186,11 +187,11 @@ export function tahunAjaranBaku(teks: string): string | null {
 }
 
 /**
- * The academic year a date falls in, in Jakarta: it starts on 1 July. For a
- * form's default only -- the database decides what a year is.
+ * The academic year a date falls in, on the school's clock (its zona_waktu; Jakarta when none is given): it starts on
+ * 1 July. For a form's default only -- the database decides what a year is.
  */
-export function tahunAjaranPada(tanggal: Date): string {
-  const jakarta = new Date(tanggal.getTime() + 7 * 60 * 60 * 1000);
+export function tahunAjaranPada(tanggal: Date, zona?: string | null): string {
+  const jakarta = new Date(tanggal.getTime() + geserZona(zona));
   const y = jakarta.getUTCFullYear();
   const mulai = jakarta.getUTCMonth() >= 6 ? y : y - 1;
   return `${mulai}/${mulai + 1}`;

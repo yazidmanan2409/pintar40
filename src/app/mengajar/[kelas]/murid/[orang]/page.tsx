@@ -1,3 +1,4 @@
+import CatatanHitungUlang from "@/components/CatatanHitungUlang";
 import Link from "next/link";
 import Kosong from "@/components/Kosong";
 import { t, format, type HleEvent } from "@/lib/hle";
@@ -91,7 +92,8 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
             <dl className="pin-facts">
               {catatan.tugas.map((x) => (
                 <div key={x.id}>
-                  <dt>{x.judul}</dt>
+                  {/* Daisy (1fad2861, B2): by the instrument's name, as «Hasil resmi» below says it */}
+                  <dt>{ajar.namaInstrumen(x.mode, x.judul, () => s(`mengajar.instrumen.${x.mode}` as HleEvent))}</dt>
                   <dd>{s(KEADAAN[x.keadaan])}</dd>
                 </div>
               ))}
@@ -110,18 +112,28 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
             <dl className="pin-facts">
               {catatan.daftarHasil.map((h) => (
                 <div key={h.sesi}>
-                  <dt>{h.judul ?? s(`mengajar.instrumen.${h.mode}` as HleEvent)}</dt>
+                  {/* Daisy (bcecb425, B2): the cycle's instruments by their names, as the student's page and the reports say them,
+                      with the course: «Uji Penguasaan · Matematika Kelas 5 · Bab 1», never the authoring title («Cek
+                      penguasaan — …», «Pemetaan awal — …», which the database writes on the definition) */}
+                  <dt>{ajar.namaInstrumen(h.mode, h.judul, () => s(`mengajar.instrumen.${h.mode}` as HleEvent))}</dt>
                   <dd className="pin-num">
                     {h.penguasaan === null ? "—" : format.percent(h.penguasaan, locale)}
-                    {/* D-085 M3: below the sealed target, the teacher sees it; the target is shown beside the mastery */}
-                    {h.batas !== null ? (
+                    {/* owner decisions E1, D14: a recalculated sitting is explained directly under its figure, with its reason */}
+                    {h.dihitungUlang ? <CatatanHitungUlang baru={h.penguasaan} asli={h.asli} alasan={h.alasan} locale={locale} /> : null}
+                    {h.ditarik ? <small data-ditarik="">{s("mengajar.murid1.ditarik")}</small> : null}
+                    {/* D-085 M3: below the sealed target, the teacher sees it; the target is shown beside the mastery.
+                        Daisy (435a2856, §1.3): not for a withdrawn result, given by mistake, which invites no judgement */}
+                    {h.batas !== null && !h.ditarik ? (
                       <small data-target={h.penguasaan !== null && h.penguasaan < h.batas ? "belum" : "batas"}>
                         {h.penguasaan !== null && h.penguasaan < h.batas ? `${s("mengajar.murid1.di_bawah_target")} · ` : ""}
                         {s("mengajar.murid1.target")} {format.percent(h.batas, locale)}
                       </small>
                     ) : null}
                     {/* D-085 M3 (J5.12): under the target on this class's Uji Penguasaan, the teacher may give material back */}
-                    {h.mode === "POST_TEST" && h.batas !== null && h.penguasaan !== null && h.penguasaan < h.batas && catatan.tugasSesi[h.sesi] ? (
+                    {/* ... nor «Beri ulang»: giving material back because of a mistaken assessment repeats the mistake */}
+                    {h.mode === "POST_TEST" && !h.ditarik && h.batas !== null && h.penguasaan !== null && h.penguasaan < h.batas && catatan.tugasSesi[h.sesi]
+                      // Daisy (1fad2861, B2): never on a chapter the class is no longer given; the database refuses it there
+                      && !catatan.tugasTertutup[catatan.tugasSesi[h.sesi]] ? (
                       <Link className="pin-ulang-tautan" href={`/mengajar/${id}/ulang?penugasan=${catatan.tugasSesi[h.sesi]}&murid=${orang}`}>
                         {s("mengajar.ulang.judul")}
                       </Link>

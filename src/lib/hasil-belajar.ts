@@ -1,6 +1,7 @@
 import "server-only";
+import { namaBab } from "@/lib/nama-bab";
 import * as engine from "@/lib/assessment-engine";
-import { bagianUlang, ketuntasan, type Ketuntasan } from "@/lib/siklus";
+import { bagianUlang, hitunganSegel, ketuntasan, type Ketuntasan } from "@/lib/siklus";
 import { namaTujuan } from "@/components/siklus/PerTujuan";
 
 /**
@@ -18,7 +19,8 @@ export type BagianBab = { kode: string; nama: string; benar: number; total: numb
 export type BabHasil = {
   tugas: string;
   judul: string;
-  keadaan: "SELESAI" | "BERJALAN";
+  /** DITUTUP_AWAL (Daisy, 435a2856 §2.1): the lesson closed after a finished Tes awal and before its Uji Penguasaan */
+  keadaan: "SELESAI" | "BERJALAN" | "DITUTUP_AWAL";
   /** Pemetaan Awal and Uji Penguasaan mastery, when each is finished (the comparison's own figures). */
   awal: number | null;
   akhir: number | null;
@@ -30,16 +32,45 @@ export type BabHasil = {
   bagian: BagianBab[];
   /** The parts below the target, by name, lowest first (bagianUlang). */
   ulang: string[];
+  /** owner ruling (10 Nov): the assignment was withdrawn; the result is kept and not counted in class figures */
+  ditarik?: boolean;
 };
 
+/**
+ * Daisy (bcecb425, B3): whether the learner has a result in a lesson that is no longer assigned (ended, withdrawn, or
+ * of a Kelas they left), read from the same history Hasil Belajar reads. /belajar asks this only when no assigned
+ * lesson has a result, so a learner whose lessons have all closed still has the way to their results.
+ */
+export async function adaHasilTertutup(db: engine.EngineClient, aktif: Set<string>): Promise<boolean> {
+  const tugas = await engine.myLearningHistory(db).catch(() => []);
+  for (const a of tugas) {
+    if (aktif.has(a.learning_assignment_id)) continue;
+    const state = await engine.cycleState(db, a.learning_assignment_id).catch(() => null);
+    if (state && ((state.post_session && state.post_status === "FINALIZED") || (state.pre_session && state.pre_status === "FINALIZED"))) return true;
+  }
+  return false;
+}
+
 export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]> {
-  const tugas = await engine.myAssignments(db);
+  // defect (10 Nov): a closed lesson's outcome stays seen; an unfinished one of a closed lesson is no longer «in progress»
+  const tugas = await engine.myLearningHistory(db);
   const bab = await Promise.all(tugas.map(async (a): Promise<BabHasil | null> => {
-    const judul = [a.subject, a.title].filter(Boolean).join(" · ");
+    // Reporting Quality Gate (9 Nov): a title that already begins with its subject («Matematika Kelas 5 · Bab 1») is not
+    // prefixed with it again («Matematika · Matematika Kelas 5 · Bab 1»)
+    const judul = namaBab(a.subject, a.title);
     const state = await engine.cycleState(db, a.learning_assignment_id).catch(() => null);
     if (!state) return null;
     const mulai = Boolean(state.pre_session || state.post_session);
     if (!state.post_session || state.post_status !== "FINALIZED") {
+      // a closed lesson, or one of a Kelas the learner has left, is no longer «in progress»; but a finished Tes awal is a
+      // result the learner earned, and the owner's rule keeps results (Daisy, 435a2856 §2.1): one quiet row, no target
+      if ((a.status && a.status !== "ACTIVE") || a.kini === false) {
+        if (!state.pre_session || state.pre_status !== "FINALIZED") return null;
+        const awal = await engine.outcome(db, state.pre_session).catch(() => null);
+        if (!awal || awal.penguasaan === null || awal.penguasaan === undefined) return null;
+        return { tugas: a.learning_assignment_id, judul, keadaan: "DITUTUP_AWAL", awal: awal.penguasaan, akhir: null, ambang: null,
+                 tercapai: null, benar: 0, total: 0, bagian: [], ulang: [], ...(a.status === "WITHDRAWN" ? { ditarik: true } : {}) };
+      }
       return mulai ? { tugas: a.learning_assignment_id, judul, keadaan: "BERJALAN", awal: null, akhir: null, ambang: null, tercapai: null, benar: 0, total: 0, bagian: [], ulang: [] } : null;
     }
     const [outcome, review, delta, peta, pelajaran] = await Promise.all([
@@ -58,12 +89,14 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
       tugas: a.learning_assignment_id,
       judul,
       keadaan: "SELESAI",
+      ditarik: a.status === "WITHDRAWN",
       awal: delta?.status === "LENGKAP" ? delta.awal : null,
       akhir: outcome.penguasaan,
       ambang: outcome.ambang ?? null,
       tercapai,
-      benar: review.filter((r) => r.benar === true).length,
-      total: review.length,
+      // Daisy's B3: the sealed result's own count, as the chapter page says it
+      benar: hitunganSegel(outcome.ringkasan, review).benar,
+      total: hitunganSegel(outcome.ringkasan, review).total,
       bagian: Object.entries(outcome.per_domain ?? {}).map(([kode, d]) => ({
         kode, nama: nama.get(kode) ?? kode, benar: d.benar, total: d.total, ulang: kodeUlang.has(kode),
       })),

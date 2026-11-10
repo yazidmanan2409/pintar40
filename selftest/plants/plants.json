@@ -680,7 +680,7 @@
     { "name": "bob39-2", "gate": "db-bob39-gates", "expect_red": "F06-P22", "expect_detail": "the person who referred took up or decided their own referral" },
     { "name": "bob37-1", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the class's per-topic mastery did not show for five learners" },
     { "name": "bob37-2", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the school's competency outcomes hold nothing for the two objectives" },
-    { "name": "bob37-3", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the class's per-topic mastery is [{\"code\": \"BOB37-A\", \"learners\": 5, \"competency\": \"BOB37-A\", \"mean_score\": 0.5000" },
+    { "name": "bob37-3", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the class's per-topic mastery is [{\"code\": \"BOB37-A\", \"title\": null, \"needed\": 5, \"learners\": 5, \"competency\": \"BOB37-A\", \"mean_score\": 0.5000" },
     { "name": "bob25-1", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "one slot under the ceiling, after refusals, was still refused" },
     { "name": "bob25-2", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "three of them refused by the host, was answered" },
     { "name": "bob25-3", "gate": "db-bob25-gates", "expect_red": "F17-L02", "expect_detail": "a settled send was settled a second time" },

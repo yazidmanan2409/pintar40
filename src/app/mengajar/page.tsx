@@ -15,6 +15,8 @@ import { kataAnggota } from "@/lib/mengajar";
 import { kataMenunggu } from "@/components/mengajar/menunggu";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { tanggal } from "@/lib/tanggal";
+import { zonaSekolahBanyak } from "@/lib/zona-sekolah";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export const generateMetadata = judulHalaman("/mengajar");
 
@@ -74,8 +76,12 @@ export default async function BerandaPengajar({
   // W16: with no suggestion, a class that has no material at all while the school has published some
   const baru = satu ? null : await ajar.kelasTanpaMateri(konteks.kelas);
   const menunggu = await menungguDibaca;
-  const sekarang = ajar.waktu();
+  // the owner's ruling (10 Nov): today and the greeting on the school's clock, and each class's dates on its own school's
+  const zonaDari = await zonaSekolahBanyak(await supabaseServer(), [konteks.institusi?.id, ...konteks.kelas.map((k) => k.institusi)]);
+  const zona = zonaDari(konteks.institusi?.id);
+  const sekarang = ajar.waktu(zona);
   const nama = new Map(konteks.kelas.map((k) => [k.id, k.nama]));
+  const sekolahKelas = new Map(konteks.kelas.map((k) => [k.id, k.institusi]));
 
   // ───────────────────────────────────────────────── the first-login tour (UX-1)
   //
@@ -108,7 +114,7 @@ export default async function BerandaPengajar({
         />
 
         <div className="pin-head">
-          <p className="pin-eyebrow">{tanggal(sekarang.iso, "hari", locale)}</p>
+          <p className="pin-eyebrow">{tanggal(sekarang.iso, "hari", locale, zona)}</p>
           {/* NO HONORIFIC, AND NONE INFERRED. `persons` carries `display_name`
               and nothing else — no title, no salutation, no gender — so "Bu"
               or "Pak" here could only come from guessing at a name, which the
@@ -178,7 +184,7 @@ export default async function BerandaPengajar({
                 const jalan = buka.filter((b) => b.nodeId === k.id);
                 const meta = [
                   r?.mapel,
-                  `${format.number(r?.murid ?? 0, locale)} ${s(kataAnggota("mengajar.bukti.murid", k.jenis))}`,
+                  `${format.number(r?.murid ?? 0, locale)} ${format.satuan(r?.murid ?? 0, s(kataAnggota("mengajar.bukti.murid", k.jenis)), locale)}`,
                   ...jalan.map(
                     (b) =>
                       `${b.judul} · ${format.number(b.mengumpulkan, locale)}/${format.number(r?.murid ?? 0, locale)} ${s("mengajar.bukti.kumpul").toLowerCase()}`,
@@ -221,7 +227,7 @@ export default async function BerandaPengajar({
                     {b.judul} · {nama.get(b.nodeId) ?? ""}
                   </span>
                   <span className="pin-rowmeta">
-                    {b.ditutup ? <span>{tanggal(b.ditutup, "hari", locale)}</span> : null}
+                    {b.ditutup ? <span>{tanggal(b.ditutup, "hari", locale, zonaDari(sekolahKelas.get(b.nodeId)))}</span> : null}
                     <span>
                       {format.number(b.mengumpulkan, locale)}/
                       {format.number(ringkas[b.nodeId]?.murid ?? 0, locale)}{" "}

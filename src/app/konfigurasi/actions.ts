@@ -9,7 +9,9 @@ import { adaAdminSekolah, akarSekolah, calonAdminPertama, orangSekolah } from "@
 import { kodeGalatStruktur, rujukanGalat, type HasilStruktur } from "@/lib/struktur-kontrak";
 import { kodeAntarSekolah, kodeGalat, queryHasil, type HasilAksi } from "@/lib/galat-kontrak";
 import { bacaPersen } from "@/lib/batas-ketuntasan";
-import { KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan-kontrak";
+import { KONFIRMASI_HENTIKAN, waktuSekolah } from "@/lib/pemeliharaan-kontrak";
+import { batasHari } from "@/lib/hle";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 
 /**
  * Config Studio actions (FABLE-01 §10). Every action is a thin call to an
@@ -45,31 +47,6 @@ function str(fd: FormData, key: string): string {
 
 function uuidOrNull(v: string): string | null {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v) ? v : null;
-}
-
-export async function rolloverAction(fd: FormData): Promise<void> {
-  const institution = uuidOrNull(str(fd, "institution"));
-  const fromPeriod = uuidOrNull(str(fd, "from_period"));
-  const toPeriod = uuidOrNull(str(fd, "to_period"));
-  const mapping: Array<{ from_node: string; to_node: string }> = [];
-  for (const [k, v] of fd.entries()) {
-    const m = /^map\[([0-9a-f-]{36})\]$/i.exec(k);
-    const to = uuidOrNull(String(v));
-    if (m && to) mapping.push({ from_node: m[1], to_node: to });
-  }
-  if (!institution || !fromPeriod || !toPeriod || fromPeriod === toPeriod || mapping.length === 0) {
-    back("rollover", { ok: false, kode: "ROLLOVER_INPUT_INCOMPLETE" });
-  }
-  // L3 (§2.11): a context-bound human action, aimed at the working context's school or offered that context
-  await wajibDalamKonteks({ sekolah: institution }, "rollover");
-  const supabase = await supabaseServer();
-  const { data, error } = await supabase.rpc("period_rollover", {
-    p_institution: institution,
-    p_from_period: fromPeriod,
-    p_to_period: toPeriod,
-    p_mapping: mapping,
-  });
-  back("rollover", error ? ditolak("period_rollover", error) : { ok: true, kode: "ROLLOVER_DONE", n: Number(data ?? 0) });
 }
 
 export async function transferRequestAction(fd: FormData): Promise<void> {
@@ -203,7 +180,8 @@ export async function grantRoleAction(fd: FormData): Promise<void> {
     p_person: person,
     p_role: role,
     p_scope_node: role === "SYSTEM_ADMIN" ? null : scope,
-    p_valid_until: `${until}T23:59:59+07:00`,
+    // the owner's ruling (10 Nov): the last day ends at 23.59.59 on the school's clock; Admin platform's own, on WIB
+    p_valid_until: batasHari(until, "akhir", await zonaSekolah(supabase, sekolahPeran)),
   });
   back("roles", error ? ditolak("grant_role", error) : { ok: true, kode: "ROLE_GRANTED" }, fd);
 }
@@ -233,7 +211,7 @@ export async function tunjukAdminPertamaAction(fd: FormData): Promise<void> {
     redirect(alamatBagian("roles", q, "roles"));
   }
   const { error } = await supabase.rpc("grant_role", {
-    p_person: person, p_role: "INSTITUTION_ADMIN", p_scope_node: akar, p_valid_until: `${until}T23:59:59+07:00`,
+    p_person: person, p_role: "INSTITUTION_ADMIN", p_scope_node: akar, p_valid_until: batasHari(until, "akhir", await zonaSekolah(supabase, sekolah)),
   });
   back("roles", error ? ditolak("grant_role", error) : { ok: true, kode: "ROLE_GRANTED" }, fd);
 }
@@ -278,6 +256,91 @@ export async function pindahKelasAction(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc("move_learner_to_class", { p_membership: penempatan, p_kelas: kelas });
   if (error) kembali(ditolak("move_learner_to_class", error), dari);
   kembali({ ok: true, kode: "LEARNER_MOVED" }, kelas);
+}
+
+/**
+ * 4.0 completion (owner decision 1): «Masukkan ke kelas». A learner recorded without a class (a Pendataan row with no
+ * place) is placed in a Kelas by `tempatkan_murid`, as the signed-in administrator: the intake's own two writes, one
+ * transaction, audited. The person, the number and the account stay the same. A refusal comes back as its code.
+ */
+export async function tempatkanMuridAction(fd: FormData): Promise<void> {
+  const orang = uuidOrNull(str(fd, "orang"));
+  const kelas = uuidOrNull(str(fd, "kelas"));
+  const sekolah = uuidOrNull(str(fd, "sekolah"));
+  const kembali = (h: HasilAksi, tampil: string | null): never => {
+    const q = queryHasil("tempatkan", h);
+    if (tampil) q.set("dari", tampil);
+    if (sekolah) q.set("sekolah", sekolah);
+    redirect(alamatBagian("pindah", q, "tempatkan"));
+  };
+  if (!orang || !kelas) kembali({ ok: false, kode: "MOVE_INPUT_INCOMPLETE" }, null);
+  await wajibDalamKonteks({ sekolah: await sekolahDari("simpul", kelas) }, "pindah");
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("tempatkan_murid", { p_person: orang, p_kelas: kelas });
+  if (error) kembali(ditolak("tempatkan_murid", error), null);
+  kembali({ ok: true, kode: "LEARNER_PLACED" }, kelas);
+}
+
+/**
+ * E3 «Akhiri pendaftaran» (owner, 9 Nov: essential): the school ends one learner's enrolment from their row in «Pindah
+ * kelas», with a reason, an effective date and (for «Lainnya») an explanation. akhiri_pendaftaran decides everything
+ * (who, the reason, the date, an open sitting); the answer comes back at the learner's row.
+ */
+export async function akhiriPendaftaranAction(fd: FormData): Promise<void> {
+  const penempatan = uuidOrNull(str(fd, "penempatan"));
+  const dari = uuidOrNull(str(fd, "dari"));
+  const sekolah = uuidOrNull(str(fd, "sekolah"));
+  const alasan = str(fd, "alasan");
+  const keterangan = str(fd, "keterangan");
+  const tanggal = /^\d{4}-\d{2}-\d{2}$/.test(str(fd, "tanggal")) ? str(fd, "tanggal") : null;
+  const kembali = (h: HasilAksi): never => {
+    const q = queryHasil("akhiri", h);
+    if (dari) q.set("dari", dari);
+    if (sekolah) q.set("sekolah", sekolah);
+    if (!h.ok && penempatan) q.set("akhiri", penempatan);
+    redirect(alamatBagian("pindah", q, "pindah"));
+  };
+  if (!penempatan || !alasan) kembali({ ok: false, kode: "ENROL_REASON_INVALID" });
+  const supabase = await supabaseServer();
+  const { data: m } = await supabase.from("memberships").select("enrollment_id").eq("id", penempatan!).maybeSingle();
+  const pendaftaran = (m as { enrollment_id?: string } | null)?.enrollment_id ?? null;
+  if (!pendaftaran) kembali({ ok: false, kode: "ENROL_NOT_LIVE" });
+  await wajibDalamKonteks({ sekolah: await sekolahDari("simpul", dari) }, "pindah");
+  const { error } = await supabase.rpc("akhiri_pendaftaran", {
+    p_enrollment: pendaftaran, p_reason: alasan, p_explanation: keterangan || null, p_effective: tanggal,
+  });
+  if (error) kembali(ditolak("akhiri_pendaftaran", error));
+  kembali({ ok: true, kode: "ENROLMENT_ENDED" });
+}
+
+/**
+ * E4 «Daftarkan kembali»: from «Murid yang sudah keluar», either «Membatalkan pencatatan yang keliru» (CORRECTION of
+ * the latest ending recorded with a reason, back where they were) or «Kembali bersekolah» (RETURN into a chosen Kelas).
+ * daftarkan_kembali decides; a learner enrolled at another school is refused (PLACE_ELSEWHERE) and comes back only by
+ * a transfer.
+ */
+export async function daftarkanKembaliAction(fd: FormData): Promise<void> {
+  const orang = uuidOrNull(str(fd, "orang"));
+  const sekolah = uuidOrNull(str(fd, "sekolah"));
+  const jenis = str(fd, "jenis");
+  const alasan = str(fd, "alasan");
+  const kelas = uuidOrNull(str(fd, "kelas"));
+  const pendaftaran = uuidOrNull(str(fd, "pendaftaran"));
+  const kembali = (h: HasilAksi): never => {
+    const q = queryHasil("kembali", h);
+    if (sekolah) q.set("sekolah", sekolah);
+    redirect(alamatBagian("pindah", q, "kembali"));
+  };
+  if (!orang || !sekolah || (jenis !== "CORRECTION" && jenis !== "RETURN")) kembali({ ok: false, kode: "ENROL_KIND_INVALID" });
+  if (!alasan) kembali({ ok: false, kode: "ENROL_REASON_REQUIRED" });
+  await wajibDalamKonteks({ sekolah }, "pindah");
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("daftarkan_kembali", {
+    p_person: orang, p_institution: sekolah, p_kind: jenis, p_reason: alasan,
+    p_kelas: jenis === "RETURN" ? kelas : null, p_enrollment: jenis === "CORRECTION" ? pendaftaran : null,
+  });
+  if (error) kembali(ditolak("daftarkan_kembali", error));
+  kembali({ ok: true, kode: "LEARNER_REENROLLED" });
 }
 
 /**
@@ -329,6 +392,23 @@ export async function tetapkanBatasAction(fd: FormData): Promise<void> {
   });
   if (error) kembali(ditolak("set_school_pass_mark", error));
   kembali({ ok: true, kode: (data as { changed?: boolean } | null)?.changed === false ? "PASS_MARK_UNCHANGED" : "PASS_MARK_SET" });
+}
+
+/**
+ * Sharon F1 (7a2c1751): the PINTAR Administrator sets a school's time zone (WIB, WITA, WIT), in «Sistem & Konfigurasi»
+ * of «Seluruh platform». atur_zona_waktu_sekolah decides (SYSTEM_ADMIN) and audits institution.time_zone_changed.
+ */
+export async function aturZonaWaktuAction(fd: FormData): Promise<void> {
+  const sekolah = uuidOrNull(str(fd, "sekolah"));
+  const zona = str(fd, "zona");
+  const kembali = (h: HasilAksi): never => redirect(alamatBagian("system", queryHasil("system", h, fd), "zona"));
+  if (!sekolah) kembali({ ok: false, kode: "ACTION_FAILED" });
+  await wajibDalamKonteks({ platform: true }, "system");
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("atur_zona_waktu_sekolah", { p_institution: sekolah, p_zona: zona });
+  if (error) kembali(ditolak("atur_zona_waktu_sekolah", error));
+  revalidatePath("/konfigurasi");
+  kembali({ ok: true });
 }
 
 /**
@@ -466,7 +546,8 @@ export async function nonaktifkanStrukturAksi(_prev: HasilStruktur | null, fd: F
  * #148 (D-094(a)(b)(g)(h), D-100): the maintenance window and notice controls. The database decides who may (a
  * school's Admin sekolah for that school and planned maintenance only; Admin platform for any schools or the whole
  * platform, and alone for «Hentikan sekarang»), refuses with PR110 and a code, and audits each change under D-093.
- * A date and time typed here is WIB.
+ * A date and time typed here is read on the clock of the one school it is for (the owner's ruling, 10 Nov), and in WIB
+ * for the whole platform or several schools; the form's labels name the same zone (zonaPemeliharaan).
  */
 function cakupan(fd: FormData): { platform: boolean; sekolah: string[] } {
   const sekolah = fd.getAll("sekolah").map((v) => uuidOrNull(String(v))).filter((v): v is string => Boolean(v));
@@ -474,6 +555,12 @@ function cakupan(fd: FormData): { platform: boolean; sekolah: string[] } {
 }
 
 const kembaliPemeliharaan = (h: HasilAksi, fd?: FormData): never => back("pemeliharaan", h, fd);
+
+/** The zone a window's or notice's typed times are read in: its one school's; WIB for the platform or several. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function zonaPemeliharaan(supabase: any, c: { platform: boolean; sekolah: readonly string[] }) {
+  return zonaSekolah(supabase, !c.platform && c.sekolah.length === 1 ? c.sekolah[0] : null);
+}
 
 /** L3 (§2.11, C7): the platform's maintenance in «Seluruh platform»; each school's in that school's context. */
 async function cakupanDalamKonteks(c: { platform: boolean; sekolah: readonly string[] }): Promise<void> {
@@ -491,14 +578,15 @@ async function cakupanBaris(supabase: any, tabel: "maintenance_windows" | "broad
 
 export async function jadwalkanPemeliharaanAction(fd: FormData): Promise<void> {
   const { platform, sekolah } = cakupan(fd);
+  const supabase = await supabaseServer();
+  const zona = await zonaPemeliharaan(supabase, { platform, sekolah });
   const mulaiTeks = str(fd, "mulai");
-  const mulai = mulaiTeks ? waktuWib(mulaiTeks) : null;
-  const selesai = waktuWib(str(fd, "selesai"));
+  const mulai = mulaiTeks ? waktuSekolah(mulaiTeks, zona) : null;
+  const selesai = waktuSekolah(str(fd, "selesai"), zona);
   if ((mulaiTeks && !mulai) || (!platform && sekolah.length === 0) || !str(fd, "alasan")) {
     kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" }, fd);
   }
   await cakupanDalamKonteks({ platform, sekolah });
-  const supabase = await supabaseServer();
   const { error } = await supabase.rpc("schedule_maintenance", {
     p_platform: platform, p_institutions: platform ? [] : sekolah, p_starts_at: mulai, p_ends_at: selesai,
     p_message: str(fd, "pesan") || null, p_reason: str(fd, "alasan"), p_notice: str(fd, "umumkan") === "1",
@@ -540,14 +628,15 @@ export async function hentikanSekarangAction(fd: FormData): Promise<void> {
 
 export async function terbitkanPengumumanAction(fd: FormData): Promise<void> {
   const { platform, sekolah } = cakupan(fd);
+  const supabase = await supabaseServer();
+  const zona = await zonaPemeliharaan(supabase, { platform, sekolah });
   const terbitTeks = str(fd, "terbit");
-  const terbit = terbitTeks ? waktuWib(terbitTeks) : null;
-  const sampai = waktuWib(str(fd, "sampai"));
+  const terbit = terbitTeks ? waktuSekolah(terbitTeks, zona) : null;
+  const sampai = waktuSekolah(str(fd, "sampai"), zona);
   if ((terbitTeks && !terbit) || !sampai || !str(fd, "pesan") || (!platform && sekolah.length === 0)) {
     kembaliPemeliharaan({ ok: false, kode: "NOTICE_INPUT_INVALID" }, fd);
   }
   await cakupanDalamKonteks({ platform, sekolah });
-  const supabase = await supabaseServer();
   const { error } = await supabase.rpc("publish_notice", {
     p_platform: platform, p_institutions: platform ? [] : sekolah, p_message: str(fd, "pesan"), p_publish_at: terbit, p_expires_at: sampai,
   });

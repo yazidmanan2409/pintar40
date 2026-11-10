@@ -96,6 +96,14 @@ export async function myAssignments(db: EngineClient): Promise<AssignmentEntry[]
 }
 
 /**
+ * Defect (10 Nov): what was and is assigned to the learner, with its status (ACTIVE, ENDED, WITHDRAWN). Closing a lesson
+ * stops new work; its outcome stays seen. Only results pages read this; starting work reads myAssignments.
+ */
+export async function myLearningHistory(db: EngineClient): Promise<AssignmentEntry[]> {
+  return rows<AssignmentEntry>(await call(db, "my_learning_history"));
+}
+
+/**
  * D-195(4): whether one of the caller's OWN learning assignments is professional learning (jenis_belajar_saya,
  * 20270102100000): true, false for a school's curriculum, null for anything else or an unread answer.
  */
@@ -140,6 +148,11 @@ export async function cycleState(db: EngineClient, learningAssignmentId: string)
 export async function newResults(db: EngineClient): Promise<Set<string>> {
   const r = rows<{ learning_assignment_id: string }>(await call(db, "my_new_results"));
   return new Set(r.map((x) => x.learning_assignment_id));
+}
+
+/** D14 (owner, 9 Nov): whether the caller's own sitting was recalculated after it was sealed: a yes/no, no figure. */
+export async function sesiDihitungUlang(db: EngineClient, sessionId: string): Promise<boolean> {
+  return (await call(db, "sesi_saya_dihitung_ulang", { p_session: sessionId })) === true;
 }
 
 export async function noteResultSeen(db: EngineClient, sessionId: string): Promise<boolean> {

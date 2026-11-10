@@ -26,9 +26,9 @@ import Ikon from "@/components/Ikon";
  */
 export default function TanggalDenganGema({
   jenis = "date", id: idLuar, name, defaultValue, required, min, max, disabled, className = "pin-input",
-  keterangan, kosong, galat, locale, untuk = "staff",
+  keterangan, kosong, galat, locale, untuk = "staff", zona,
 }: {
-  /** "date" for a day; "datetime-local" for a day and a time (on Jakarta's clock, WIB). */
+  /** "date" for a day; "datetime-local" for a day and a time (on the clock of `zona`; WIB when none). */
   jenis?: "date" | "datetime-local";
   id?: string;
   name?: string;
@@ -46,11 +46,13 @@ export default function TanggalDenganGema({
   galat?: string;
   locale: Locale;
   untuk?: Persona;
+  /** The zone a time typed here is read in (the school the form is for; the owner's ruling, 10 Nov): its echo's word. */
+  zona?: string | null;
 }) {
   const auto = useId();
   const id = idLuar ?? `tanggal-${auto.replace(/:/g, "")}`;
   const [nilai, setNilai] = useState(defaultValue ?? "");
-  const kata = gemaTanggal(nilai, locale);
+  const kata = gemaTanggal(nilai, locale, zona);
   const idGema = `${id}-gema`;
   const idGalat = `${id}-galat`;
   const [diubah, setDiubah] = useState(false);

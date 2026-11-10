@@ -1,6 +1,6 @@
 import { targetKelasDari } from "@/lib/target-kelas";
 import "server-only";
-import { bagianJakarta } from "@/lib/tanggal";
+import { bagianJakarta, geserZona } from "@/lib/tanggal";
 import { supabaseServer } from "@/lib/supabase/server";
 import { alamatPilih } from "@/lib/konteks";
 import { susunHasilUjiCepat, type HasilUjiCepat, type SesiHasil } from "@/lib/hasil-ujicepat";
@@ -420,6 +420,19 @@ export async function penugasan(nodeId: string): Promise<Penugasan[]> {
   return (await penugasanKelas([nodeId])).get(nodeId) ?? [];
 }
 
+/**
+ * Daisy (435a2856, §1.1): when and why each ended or withdrawn assignment of one Kelas closed, from its own audit row
+ * (riwayat_penugasan_kelas, decided over the Kelas). An empty map when the read is refused: the row then shows its
+ * state without a date, never a guess.
+ */
+export async function riwayatPenugasan(kelas: string): Promise<Map<string, { jenis: string; pada: string | null; alasan: string | null }>> {
+  const c = await db();
+  const { data, error } = await c.rpc("riwayat_penugasan_kelas", { p_kelas: kelas });
+  if (error) return new Map();
+  return new Map(rows<{ learning_assignment_id: string; jenis: string; pada: string | null; alasan: string | null }>(data)
+    .map((r) => [r.learning_assignment_id, { jenis: r.jenis, pada: r.pada, alasan: r.alasan }]));
+}
+
 /** UX-37: what has already been made available to each of several classes, in one read. */
 export async function penugasanKelas(nodeIds: readonly string[]): Promise<Map<string, Penugasan[]>> {
   const out = new Map<string, Penugasan[]>(nodeIds.map((k) => [k, []]));
@@ -435,7 +448,23 @@ export async function penugasanKelas(nodeIds: readonly string[]): Promise<Map<st
     available_from: string | null; available_until: string | null;
     course: { title: string } | null;
   };
-  for (const r of rows<Baris>(data)) out.get(r.node_id)?.push(penugasanDari(r));
+  const baris = rows<Baris>(data);
+  // A lesson PINTAR shares with the school is a course of PINTAR's, which a Guru cannot read (courses_select is
+  // CAN_DRAFT in the course's own school), so its title came back empty and the class page named no lesson (found by
+  // #97's check of «Tarik penugasan …?», 10 Nov). Its title is the one distributed_releases already gives the school.
+  if (baris.some((r) => !r.course?.title)) {
+    const { data: dist } = await c.rpc("distributed_releases");
+    const judul = new Map(rows<{ plp_release_id: string; course_title: string }>(dist).map((d) => [d.plp_release_id, d.course_title]));
+    for (const r of baris) if (!r.course?.title && judul.get(r.plp_release_id)) r.course = { title: judul.get(r.plp_release_id)! };
+  }
+  // the owner (10 Nov): a lesson PINTAR no longer shares keeps its name; its title only, from judul_materi_kelas
+  const tanpa = [...new Set(baris.filter((r) => !r.course?.title).map((r) => r.node_id))];
+  for (const kelas of tanpa) {
+    const { data: j } = await c.rpc("judul_materi_kelas", { p_kelas: kelas });
+    const judul = new Map(rows<{ learning_assignment_id: string; title: string }>(j).map((x) => [x.learning_assignment_id, x.title]));
+    for (const r of baris) if (r.node_id === kelas && !r.course?.title && judul.get(r.id)) r.course = { title: judul.get(r.id)! };
+  }
+  for (const r of baris) out.get(r.node_id)?.push(penugasanDari(r));
   return out;
 }
 
@@ -461,7 +490,11 @@ function penugasanDari(r: {
  * «Dijadwalkan», never «Tersedia»: learners cannot open it until that day.
  */
 export function statusMateri(x: Pick<Penugasan, "status" | "berakhir" | "belumMulai">):
-  "mengajar.status.belum" | "mengajar.status.selesai" | "mengajar.status.dijadwalkan" | "mengajar.status.tersedia" {
+  "mengajar.status.belum" | "mengajar.status.selesai" | "mengajar.status.dijadwalkan" | "mengajar.status.tersedia"
+  | "mengajar.status.diakhiri" | "mengajar.status.ditarik" {
+  // W2.21: an assignment ended or withdrawn on the record says so, never «Belum disediakan»
+  if (x.status === "ENDED") return "mengajar.status.diakhiri";
+  if (x.status === "WITHDRAWN") return "mengajar.status.ditarik";
   if (x.status !== "ACTIVE") return "mengajar.status.belum";
   if (x.berakhir) return "mengajar.status.selesai";
   if (x.belumMulai) return "mengajar.status.dijadwalkan";
@@ -474,6 +507,29 @@ export function statusMateri(x: Pick<Penugasan, "status" | "berakhir" | "belumMu
  */
 export function nadaMateri(k: ReturnType<typeof statusMateri>): "pin-ok" | "pin-neutral" {
   return k === "mengajar.status.tersedia" ? "pin-ok" : "pin-neutral";
+}
+
+/** W2.21: an assignment still in force (DRAFT or ACTIVE): the one that holds the class's place for its release. */
+export function masihBerlaku(x: Pick<Penugasan, "status">): boolean {
+  return x.status === "ACTIVE" || x.status === "DRAFT";
+}
+
+/** W2.21: what ending one assignment would touch (akhiri_penugasan_pratinjau), or null when the database refuses. */
+export type PratinjauAkhiri = {
+  status: string; kursus: string; kelas: string; selesai: number; belumMulai: number;
+  berjalan: Array<{ personId: string; nama: string }>;
+};
+export async function pratinjauAkhiri(penugasanId: string): Promise<PratinjauAkhiri | null> {
+  const c = await db();
+  const { data, error } = await c.rpc("akhiri_penugasan_pratinjau", { p_la: penugasanId });
+  if (error || !data) return null;
+  const d = data as { status: string; kursus: string | null; kelas: string | null; selesai: number; belum_mulai: number;
+                      berjalan: Array<{ person_id: string; nama: string }> | null };
+  return {
+    status: d.status, kursus: d.kursus ?? "", kelas: d.kelas ?? "", selesai: Number(d.selesai) || 0,
+    belumMulai: Number(d.belum_mulai) || 0,
+    berjalan: (d.berjalan ?? []).map((b) => ({ personId: b.person_id, nama: b.nama })),
+  };
 }
 
 /** The chapters of one course, in curriculum order. */
@@ -841,7 +897,25 @@ export type HasilResmi = {
   sesi: string; mode: string; penguasaan: number | null; judul: string | null;
   /** D-085 M3, D-088(b): the mark sealed on that attempt, when the teacher's read of it carries one */
   batas: number | null;
+  /** Owner decision E1: the sitting's result was recomputed after it was sealed; `asli` is the sealed original, which a
+   *  certificate and the learner's own page keep */
+  dihitungUlang?: boolean;
+  asli?: number | null;
+  /** D14: the reason the recalculation was recorded with, shown beside the note */
+  alasan?: string | null;
+  /** owner ruling (10 Nov): the sitting's assignment was withdrawn; kept and shown, not counted in class figures */
+  ditarik?: boolean;
 };
+
+/**
+ * Daisy (bcecb425 B2, 1fad2861 B2): a Pemetaan Awal or Uji Penguasaan named as the student's page and the reports name
+ * it, «‹instrument› · ‹chapter›», the authoring prefix («Pemetaan awal —», «Cek penguasaan —») taken off its title;
+ * any other assessment by its own title. `kata` gives the instrument's name in the reader's language, asked only when used.
+ */
+export function namaInstrumen(mode: string, judul: string | null, kata: () => string): string {
+  if (mode !== "PRE_TEST" && mode !== "POST_TEST") return judul ?? kata();
+  return [kata(), (judul ?? "").replace(/^\s*(pemetaan awal|cek penguasaan|uji penguasaan)\s*[—–-]\s*/i, "").trim()].filter(Boolean).join(" · ");
+}
 
 export type CatatanMurid = {
   tugas: Array<{ id: string; judul: string; mode: string; keadaan: KeadaanMurid }>;
@@ -849,6 +923,9 @@ export type CatatanMurid = {
   daftarHasil: HasilResmi[];
   /** D-085 M3 (J5.12): each of the learner's sittings in this class, by the assessment it belongs to. */
   tugasSesi: Record<string, string>;
+  /** Daisy (1fad2861, B2): the assessments whose chapter is no longer given to the class (ended or withdrawn); a
+   *  request to read it again is refused there (REVIEW_ASSIGNMENT_CLOSED), so none is offered. */
+  tugasTertutup: Record<string, boolean>;
 };
 
 export async function catatanMurid(kelasId: string, institusi: string, orang: string): Promise<CatatanMurid> {
@@ -864,12 +941,13 @@ export async function catatanMurid(kelasId: string, institusi: string, orang: st
     ? await Promise.all([
         c.from("assessment_sessions").select("id, assessment_assignment_id, person_id, status")
           .eq("person_id", orang).in("assessment_assignment_id", tugas.map((x) => x.id)),
-        c.from("assessment_assignments").select("id, pass_mark").in("id", tugas.map((x) => x.id)),
+        c.from("assessment_assignments").select("id, pass_mark, learning_assignment_id, learning_assignments(status)").in("id", tugas.map((x) => x.id)),
       ])
     : [{ data: [] }, { data: [] }];
-  const segel = new Map(rows<{ id: string; pass_mark: number | string | null }>(segelData)
-    .map((x) => [x.id, x.pass_mark == null ? null : Number(x.pass_mark)]));
-  return susunCatatan(orang, tugas.map((x) => ({ ...x, batas: segel.get(x.id) ?? null })), rows<SesiMurid>(sesiData), hasil);
+  type BarisSegel = { id: string; pass_mark: number | string | null; learning_assignment_id: string | null; learning_assignments: { status: string } | null };
+  const segel = new Map(rows<BarisSegel>(segelData).map((x) => [x.id, x.pass_mark == null ? null : Number(x.pass_mark)]));
+  const tutup = new Set(rows<BarisSegel>(segelData).filter((x) => x.learning_assignment_id && x.learning_assignments?.status !== "ACTIVE").map((x) => x.id));
+  return susunCatatan(orang, tugas.map((x) => ({ ...x, batas: segel.get(x.id) ?? null, tertutup: tutup.has(x.id) })), rows<SesiMurid>(sesiData), hasil);
 }
 
 type SesiMurid = { id: string; assessment_assignment_id: string; person_id: string; status: string };
@@ -877,7 +955,7 @@ type SesiMurid = { id: string; assessment_assignment_id: string; person_id: stri
 /** The record from what was read: pure, so a test drives exactly what the page shows. */
 export function susunCatatan(
   orang: string,
-  tugas: ReadonlyArray<Pick<Berjalan, "id" | "judul" | "mode"> & { batas?: number | null }>,
+  tugas: ReadonlyArray<Pick<Berjalan, "id" | "judul" | "mode"> & { batas?: number | null; tertutup?: boolean }>,
   sesi: readonly SesiMurid[],
   hasil: Amplop,
 ): CatatanMurid {
@@ -888,10 +966,11 @@ export function susunCatatan(
   const batasTugas = new Map(tugas.map((x) => [x.id, x.batas ?? null]));
   const batasSesi = new Map(milikNya.map((x) => [x.id, batasTugas.get(x.assessment_assignment_id) ?? null]));
   const nilai = hasil.status === "ok" && Array.isArray(hasil.value)
-    ? (hasil.value as Array<{ session_id?: unknown; mode?: unknown; mastery?: unknown }>)
+    ? (hasil.value as Array<{ session_id?: unknown; mode?: unknown; mastery?: unknown; recomputed?: unknown; sealed_mastery?: unknown; recomputation_reason?: unknown; ditarik?: unknown }>)
     : [];
   return {
     tugasSesi: Object.fromEntries(milikNya.map((x) => [x.id, x.assessment_assignment_id])),
+    tugasTertutup: Object.fromEntries(tugas.filter((x) => x.tertutup).map((x) => [x.id, true])),
     tugas: tugas.map((x) => ({
       id: x.id, judul: x.judul, mode: x.mode,
       keadaan: keadaanSatu(orang, milikNya.filter((y) => y.assessment_assignment_id === x.id)),
@@ -903,6 +982,11 @@ export function susunCatatan(
       penguasaan: typeof v.mastery === "number" ? v.mastery : v.mastery == null ? null : Number(v.mastery),
       judul: judulSesi.get(String(v.session_id ?? "")) ?? null,
       batas: batasSesi.get(String(v.session_id ?? "")) ?? null,
+      dihitungUlang: v.recomputed === true,
+      asli: v.recomputed === true && v.sealed_mastery != null && Number.isFinite(Number(v.sealed_mastery)) ? Number(v.sealed_mastery) : null,
+      alasan: v.recomputed === true && typeof v.recomputation_reason === "string" ? v.recomputation_reason : null,
+      // Sharon (addendum, 10 Nov): kept and shown, marked; left out of every class figure
+      ...(v.ditarik === true ? { ditarik: true } : {}),
     })),
   };
 }
@@ -978,16 +1062,21 @@ export async function sebaranKelas(kelasId: string): Promise<TitikMurid[] | null
  * KESETIAAN #7: THE BEFORE → AFTER PAIR BEHIND «KENAIKAN» (kenaikan_awal_akhir, 20270103100000): the mean Pemetaan Awal
  * and the mean Uji Penguasaan over exactly the (learner, chapter) pairs class.net_gain reads, given only when the
  * reader's own Kenaikan evaluates «ok». «TIDAK» when the database answers with no pair: the page then says the two
- * cannot be compared yet, never a figure; null when the read failed (nothing drawn).
+ * cannot be compared yet, never a figure; «DILINDUNGI» when there are pairs but their means are withheld (decision 7);
+ * null when the read failed (nothing drawn).
  */
-export type AwalAkhir = { awal: number; akhir: number; pasangan: number } | "TIDAK";
+export type AwalAkhir = { awal: number; akhir: number; pasangan: number } | "TIDAK" | "DILINDUNGI";
 
 export async function awalAkhirKelas(kelasId: string): Promise<AwalAkhir | null> {
   const c = await db();
   const { data, error } = await c.rpc("kenaikan_awal_akhir", { p_class: kelasId });
   if (error) return null;
   const r = rows<{ awal: number | string | null; akhir: number | string | null; pasangan: number }>(data)[0];
-  if (!r || r.awal == null || r.akhir == null) return "TIDAK";
+  if (!r) return "TIDAK";
+  // owner decision 7, Sharon's finding 1: there ARE pairs, but their means would expose a small chapter or a chapter's
+  // few unpaired learners beside the chapter rows: withheld, which is not «cannot be compared»
+  if ((r.awal == null || r.akhir == null) && Number(r.pasangan) > 0) return "DILINDUNGI";
+  if (r.awal == null || r.akhir == null) return "TIDAK";
   return { awal: Number(r.awal), akhir: Number(r.akhir), pasangan: Number(r.pasangan) };
 }
 
@@ -1060,6 +1149,9 @@ export type BahanUlang = {
   murid: BarisUlang[];
   pelajaran: Array<{ id: string; judul: string }>;
   permintaan: Array<{ id: string; orang: string; nama: string; kapan: string; dibaca: number; jumlah: number }>;
+  /** Daisy (1fad2861, B2): the chapter is no longer given to the class (ended or withdrawn). request_lesson_review
+   *  refuses it (REVIEW_ASSIGNMENT_CLOSED), so the page says so and offers no request; the requests made stay listed. */
+  tertutup: boolean;
 };
 
 /**
@@ -1076,8 +1168,8 @@ export async function bahanUlang(kelasId: string, institusi: string, penugasan: 
   type BarisAa = { id: string; pass_mark: number | string | null; learning_assignment_id: string | null; definition: { mode: string } | null };
   const aa = rows<BarisAa>(aaRows)[0];
   if (!aa || !aa.learning_assignment_id || aa.definition?.mode !== "POST_TEST") return null;
-  const { data: laRows } = await c.from("learning_assignments").select("id, course_id, plp_release_id").eq("id", aa.learning_assignment_id).limit(1);
-  const la = rows<{ id: string; course_id: string; plp_release_id: string }>(laRows)[0];
+  const { data: laRows } = await c.from("learning_assignments").select("id, course_id, plp_release_id, status").eq("id", aa.learning_assignment_id).limit(1);
+  const la = rows<{ id: string; course_id: string; plp_release_id: string; status: string }>(laRows)[0];
   if (!la) return null;
 
   const [fakta, { data: sesi }, { data: kursus }, { data: mods }, { data: minta }] = await Promise.all([
@@ -1123,6 +1215,7 @@ export async function bahanUlang(kelasId: string, institusi: string, penugasan: 
   return {
     tugas: la.id,
     penugasan: aa.id,
+    tertutup: la.status !== "ACTIVE",
     judul,
     batas,
     murid: urutUlang(fakta.murid, penguasaan, batas),
@@ -1147,6 +1240,10 @@ export type Amplop = {
   needed?: number;
   /** CR-81 (D-123(3)): the class's population beside the readiness bands (placed, assessed, not yet). */
   population?: { placed: number; assessed: number; not_yet: number };
+  /** Owner decision 7: what was withheld to protect a smaller group (see Envelope.withheld). */
+  withheld?: { reason: string; needed?: number; count?: number; chapters?: number };
+  /** Kenaikan's pairs (see Envelope.pairs). */
+  pairs?: number;
 };
 
 /**
@@ -1393,10 +1490,10 @@ export async function kelasTanpaMateri(kelas: KelasMengajar[]): Promise<{ kelasI
  * is used to describe — makes it an input like any other, and means there is
  * exactly one clock per request rather than one per expression.
  */
-export function waktu(): { iso: string; jam: number } {
+export function waktu(zona?: string | null): { iso: string; jam: number } {
   const now = new Date();
-  // the hour on Jakarta's clock, from the one date helper (W3.3, RV-16)
-  const jam = bagianJakarta(now)?.jam ?? 0;
+  // the hour on the school's clock (the owner's ruling, 10 Nov; WIB when no school is given), from the one date helper
+  const jam = bagianJakarta(now, geserZona(zona))?.jam ?? 0;
   return { iso: now.toISOString(), jam };
 }
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { namaBab } from "@/lib/nama-bab";
 import Ikon from "@/components/Ikon";
 import { notFound } from "next/navigation";
 import { t, format, type HleEvent } from "@/lib/hle";
@@ -9,7 +10,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import PerTujuan from "@/components/siklus/PerTujuan";
 import { TeksBaris } from "@/components/teks/Teks";
-import { bagianUlang, ketuntasan } from "@/lib/siklus";
+import { bagianUlang, ketuntasan, hitunganSegel } from "@/lib/siklus";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/belajar/[tugas]/hasil");
@@ -42,11 +43,11 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
   const state = await engine.cycleState(db, tugas);
   if (!state.post_session || state.post_status !== "FINALIZED") notFound();
 
-  const [outcome, review, delta, mine, peta, pelajaran, pengembangan] = await Promise.all([
+  const [outcome, review, delta, mine, peta, pelajaran, pengembangan, dihitungUlang] = await Promise.all([
     engine.outcome(db, state.post_session),
     engine.review(db, state.post_session),
     engine.delta(db, tugas),
-    engine.myAssignments(db).then((a) => a.find((x) => x.learning_assignment_id === tugas)),
+    engine.myLearningHistory(db).then((a) => a.find((x) => x.learning_assignment_id === tugas)),
     // UX-26: the objectives' names, from this learner's own session. Only
     // names hang on it, so a failed read leaves the rows on their codes
     // rather than the result unreadable.
@@ -55,6 +56,8 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
     engine.lessons(db, tugas).catch(() => []),
     // D-195(4): an educator's own professional-learning package says who else may see this result (D-069(b),(c))
     engine.isProfessionalLearning(db, tugas),
+    // D14: a sitting recalculated after it was sealed is said, neutrally; what this page shows is the sealed result
+    engine.sesiDihitungUlang(db, state.post_session).catch(() => false),
   ]);
   if (!outcome) notFound();
   // UX-40: this result has now been seen, so Belajar's home stops offering it as the next step. Not evidence; a
@@ -66,7 +69,18 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
 
   const pct = outcome.penguasaan == null ? null : outcome.penguasaan;
   const gate = outcome.gerbang_keselamatan;
-  const benar = review.filter((r) => r.benar === true).length;
+  // Daisy (9 Nov): the gate passes vacuously when the check holds no must-be-right question, so «every important
+  // question was right» is said only where there were some; with none it says so; unread items claim nothing
+  const wajib = review.filter((r) => r.is_safety_critical).length;
+  const keadaanGerbang: "ok" | "missed" | "tidak_ada" | null =
+    gate == null ? null : gate === false ? "missed" : review.length === 0 ? null : wajib === 0 ? "tidak_ada" : "ok";
+  // Daisy's B3: the count beside the sealed mastery is the sealed result's own, never re-graded against today's key
+  const hitungan = hitunganSegel(outcome.ringkasan, review);
+  const benar = hitungan.benar;
+  // O-B3 (owner, 9 Nov): the per-question review grades by TODAY's key. Where that differs from the sealed count
+  // (a corrected key, recalculated or not), the review says so beside itself; the sealed result above is unchanged
+  const benarKini = review.filter((r) => r.benar === true).length;
+  const kunciBerbeda = hitungan.tersegel && (benarKini !== hitungan.benar || review.length !== hitungan.total);
 
   return (
     <>
@@ -78,7 +92,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
         <div className="pin-head">
           {mine ? (
             <p className="pin-eyebrow">
-              {mine.subject} · {mine.title}
+              {namaBab(mine.subject, mine.title)}
             </p>
           ) : null}
           <h1 className="pin-h1">{s("hasil.title")}</h1>
@@ -90,12 +104,13 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
           <p className="pin-big2 pin-num">{pct == null ? "—" : format.percent(pct, locale)}</p>
           <p className="pin-mean">
             {s("siklus.tepat_dari")} {format.number(benar, locale)} {s("siklus.dari")}{" "}
-            {format.number(review.length, locale)} {s("siklus.soal")}.
+            {format.number(hitungan.total, locale)} {s("siklus.soal")}.
             {outcome.ambang != null
               ? ` ${s("siklus.ambang")} ${format.percent(outcome.ambang, locale)}.`
               // D-088(b): a result judged against a mark sets one; with none sealed PINTAR says so and assumes nothing
               : outcome.diagnostik === false ? ` ${s("siklus.ambang_belum")}` : ""}
           </p>
+          {dihitungUlang ? <p className="pin-meta" data-dihitung-ulang="">{s("hasil.dihitung_ulang")}</p> : null}
         </section>
 
         {/* M3: whether the target was met, said plainly; below it, what to read again. */}
@@ -128,10 +143,16 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
         ) : null}
 
         {/* The feedback on the safety gate, when there is one. */}
-        {gate != null ? (
-          <div className={`pin-banner ${gate ? "pin-ok" : "pin-attention"}`} role="status">
-            <Ikon nama={gate ? "circle-check" : "triangle-alert"} />
-            <p>{gate ? s("hasil.safety.ok") : s("hasil.safety.missed")}</p>
+        {keadaanGerbang === "tidak_ada" ? (
+          <div className="pin-banner pin-neutral" role="status" data-gerbang="tidak-ada">
+            <Ikon nama="info" />
+            <p>{s("hasil.safety.tidak_ada")}</p>
+          </div>
+        ) : null}
+        {keadaanGerbang === "ok" || keadaanGerbang === "missed" ? (
+          <div className={`pin-banner ${keadaanGerbang === "ok" ? "pin-ok" : "pin-attention"}`} role="status">
+            <Ikon nama={keadaanGerbang === "ok" ? "circle-check" : "triangle-alert"} />
+            <p>{keadaanGerbang === "ok" ? s("hasil.safety.ok") : s("hasil.safety.missed")}</p>
           </div>
         ) : null}
 
@@ -144,6 +165,11 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
             have to go looking for. */}
         <section className="pin-sec">
           <h2>{s("hasil.review")}</h2>
+          {kunciBerbeda ? (
+            <p className="pin-banner pin-neutral" role="note" data-kunci-terkini="">
+              {s("hasil.review.kunci_terkini").replace("{benar}", format.number(hitungan.benar, locale)).replace("{total}", format.number(hitungan.total, locale))}
+            </p>
+          ) : null}
           <div className="pin-tinjau">
             {review.map((r) => (
               <details

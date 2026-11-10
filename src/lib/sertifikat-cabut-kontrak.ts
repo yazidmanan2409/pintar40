@@ -21,3 +21,23 @@ export function kodeDariGalat(e: { code?: string; message?: string; details?: st
   if (/unknown certificate/.test(pesan)) return "TIDAK_DITEMUKAN";
   return "LAYANAN_TIDAK_TERSEDIA";
 }
+
+/**
+ * W2.22 (owner, 9 Nov): «Terbitkan ulang», the replacement of an erroneous issued certificate. The codes
+ * sertifikat_koreksi_siapkan and sertifikat_koreksi_segel raise (PR120, code in DETAIL), plus the screen's own two;
+ * each has its sentence in hle.ts (`sertifikat.ganti.gagal.<kode>`). A guard (W222-K01) holds them to the migration.
+ */
+export const KODE_GANTI_DB = [
+  "CERT_NOT_ALLOWED", "CERT_NOT_ISSUED", "CERT_REASON_REQUIRED", "CERT_NOTHING_CHANGED", "CERT_KEY_INVALID", "CERT_REPLACEMENT_INVALID",
+] as const;
+export const KODE_GANTI = [...KODE_GANTI_DB, "TIDAK_DITEMUKAN", "LAYANAN_TIDAK_TERSEDIA"] as const;
+export type KodeGanti = (typeof KODE_GANTI)[number];
+
+/** A refusal of the replacement, as one of the screen's codes: PR120 by its DETAIL, 42501 as not allowed, else unavailable. */
+export function kodeGantiDariGalat(e: { code?: string; details?: string | null } | null | undefined): KodeGanti {
+  if (e?.code === "PR120" && typeof e.details === "string" && (KODE_GANTI_DB as readonly string[]).includes(e.details)) {
+    return e.details as KodeGanti;
+  }
+  if (e?.code === "42501") return "CERT_NOT_ALLOWED";
+  return "LAYANAN_TIDAK_TERSEDIA";
+}

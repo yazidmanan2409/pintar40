@@ -46,7 +46,7 @@ mkdirSync(join(OUT, "shots"), { recursive: true });
 
 const SEKOLAH = "Sekolah Uji Kinerja (sintetis)", KELAS = "Kelas Uji Kinerja A";
 const PROBE = "/fonts/OFL-PlusJakartaSans.txt"; // the player's offline probe (ALAMAT_PERIKSA; D-192 retired the logo it fetched)
-const OFFER = "section.pin-bantuan";
+const OFFER = "section.pin-bantuan-soal";
 const TUTUP = "Sudah cukup, terima kasih";
 const LURING = "Sedang luring";
 

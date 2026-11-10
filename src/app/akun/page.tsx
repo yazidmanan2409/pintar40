@@ -14,6 +14,8 @@ import { konteksSaya } from "@/lib/konteks-server";
 import { berandaPasangan } from "@/lib/konteks";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { evaluationState } from "@/lib/evaluation";
+import MeninggalkanPintar, { type PermintaanSaya } from "@/components/akun/MeninggalkanPintar";
+import { kodeAkunDari } from "@/lib/akun-kontrak";
 
 export const generateMetadata = judulHalaman("/akun");
 
@@ -33,7 +35,8 @@ export const dynamic = "force-dynamic";
  * opens Akun saya and comes back to Mengajar · SD B (DG-20). Without a context (an evaluation persona, C10) the shell
  * is read from the roles, as before.
  */
-export default async function Akun() {
+export default async function Akun({ searchParams }: { searchParams: Promise<{ hasil?: string; kode?: string }> }) {
+  const sp = await searchParams;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const peran = await peranSaya();
@@ -44,8 +47,36 @@ export default async function Akun() {
   if (await evaluationState()) {
     return <HalamanPenolakan messageKey="evaluasi.akun_tidak_ada" persona="staff" locale={locale} backHref="/evaluasi" backKey="evaluasi.kembali" />;
   }
-  if (!staf) {
+  // L1 (owner, 9 Nov): «Akun saya» for everyone. A learner's page holds what leaving means and how, and signing out
+  // everywhere; the rest of this page is a staff account's
+  const sb = await supabaseServer();
+  const { data: akuL } = await sb.rpc("current_person_id");
+  if (!akuL) {
     return <HalamanPenolakan messageKey="auth.not_yet" persona="public" locale={locale} backHref="/" backKey="galat.beranda" />;
+  }
+  const { data: mintaData } = await sb.rpc("permintaan_akun_saya");
+  const permintaan = (Array.isArray(mintaData) ? mintaData : []) as PermintaanSaya[];
+  const { data: belajar } = await sb.from("enrollments").select("id").eq("person_id", akuL).in("status", ["PENDING", "ACTIVE"]).limit(1);
+  const bisaMinta = (belajar ?? []).length === 0;
+  const tinggal = (persona: "staff" | "learner") => (
+    <MeninggalkanPintar locale={locale} bisaMinta={bisaMinta} permintaan={permintaan} hasil={sp.hasil} kode={kodeAkunDari(sp.kode)} persona={persona} />
+  );
+  if (!staf) {
+    const sl = (k: HleEvent) => t(k, "learner", { locale });
+    return (
+      <>
+        <CangkangPengalaman locale={locale} kind="learner" halamanKini="akun" />
+        <main id="isi" tabIndex={-1} className="pin-col">
+          <div className="pin-head">
+            <h1 className="pin-h1">{sl("akun.judul")}</h1>
+            <p className="pin-intro">{sl("akun.tinggal.intro_murid")}</p>
+          </div>
+          {tinggal("learner")}
+          <KeluarSemua locale={locale} />
+          <KakiPintar />
+        </main>
+      </>
+    );
   }
   // BOB-29 (C11): what this browser was declared for this person, to show and to change
   const supabase = await supabaseServer();
@@ -86,6 +117,7 @@ export default async function Akun() {
             </div>
           </section>
         ) : null}
+        {tinggal("staff")}
         <KeluarSemua locale={locale} />
         <KakiPintar />
       </main>

@@ -3059,7 +3059,8 @@ begin
       perform selftest.as_owner();
       v_cat := public.current_metric_catalogue();
       select count(*) into n from public.metric_definitions where catalogue_version = v_cat;
-      if n <> 16 then bad := bad || array[format('the live catalogue holds %s metric(s), expected 16', n)]; end if;
+      -- RESTATED TO OWNER RULING O3 (9 Nov): MC-9 adds class.chapter_mastery, a class's chapters kept apart (17)
+      if n <> 17 then bad := bad || array[format('the live catalogue holds %s metric(s), expected 17', n)]; end if;
 
       for d in
         select m.metric_id, m.calculation_key, m.scope::text as declared_scope, s.governing_scope,
@@ -6236,7 +6237,12 @@ begin
         perform selftest.as_user_uid(c.hod_u);
         begin perform public.record_integrity_review(v_sig_b, 'REFERRED_TO_INSTITUTION', 'departemen lain');
         exception when others then v_caught := true; end;
-        perform public.record_integrity_review(v_sig_b, 'NO_CONCERN', 'hanya dilihat');
+        -- RESTATED FOR SI-D01 (Sharon's finding A; owner, 9 Nov: «individual case details and actions remain limited to
+        -- authorized scopes»): outside the reviewer's department a NO_CONCERN decision is refused as well, not only the
+        -- referral; it was accepted under the school-wide rule
+        begin perform public.record_integrity_review(v_sig_b, 'NO_CONCERN', 'hanya dilihat');
+              bad := bad || array['a NO_CONCERN decision outside the reviewer''s department was accepted'];
+        exception when others then null; end;
         perform selftest.as_owner();
         select count(*) into n from public.management_decisions m where m.source_id = v_sig_b;
         select count(*) into n_aud from public.audit_log l
@@ -6247,7 +6253,8 @@ begin
         end if;
         select count(*) into n_aud from public.audit_log l
          where l.action = 'INTEGRITY_SIGNAL_REVIEWED' and l.target_id = v_sig_b::text and l.summary ->> 'decision' = 'NO_CONCERN';
-        if n_aud <> 1 then bad := bad || array['a NO_CONCERN review outside the reviewer''s department is no longer recorded']; end if;
+        -- RESTATED FOR SI-D01 (Sharon's finding A; owner, 9 Nov): outside the department no review is recorded at all
+        if n_aud <> 0 then bad := bad || array['a NO_CONCERN review outside the reviewer''s department was recorded']; end if;
       end;
 
       -- a Head of Department over the other department does not see it. Made
@@ -6422,10 +6429,12 @@ begin
         bad := bad || array[format('the class''s per-topic mastery did not show for five learners: %s', v)];
       -- D-088(g), MC-4: one row per objective, named by its statement; these synthetic codes have no objective in
       -- the session's chapter, so each keeps its code as its name and is never merged or dropped
-      elsif (v -> 'value') is distinct from '[{"objective_id": null, "code": "BOB37-A", "competency": "BOB37-A", "mean_score": 0.5500, "learners": 5},
-                                              {"objective_id": null, "code": "BOB37-B", "competency": "BOB37-B", "mean_score": 0.6250, "learners": 4}]'::jsonb
+      -- RESTATED TO OWNER DECISION 6 (9 Nov, MC-9): each row meets its own minimum. BOB37-A (5 learners) keeps the
+      -- recorded mastery averaged (0.55, never benar/total); BOB37-B (4 learners) gives its count and no mean
+      elsif (v -> 'value') is distinct from '[{"objective_id": null, "code": "BOB37-A", "competency": "BOB37-A", "title": null, "mean_score": 0.5500, "needed": 5, "learners": 5},
+                                              {"objective_id": null, "code": "BOB37-B", "competency": "BOB37-B", "title": null, "mean_score": null, "needed": 5, "learners": 4}]'::jsonb
             or (v ->> 'sample')::int is distinct from 5 then
-        bad := bad || array[format('the class''s per-topic mastery is %s over %s, expected BOB37-A 0.55 over 5 and BOB37-B 0.625 over 4, one row each',
+        bad := bad || array[format('the class''s per-topic mastery is %s over %s, expected BOB37-A 0.55 over 5 and BOB37-B withheld at 4 (minimum 5), one row each',
                                    v -> 'value', v -> 'sample')];
       end if;
 
@@ -6437,9 +6446,11 @@ begin
       select jsonb_agg(e order by e ->> 'competency') into x
         from jsonb_array_elements(coalesce(v -> 'value', '[]'::jsonb)) e
        where e ->> 'competency' like 'BOB37-%';
-      if x is distinct from '[{"objective_id": null, "code": "BOB37-A", "competency": "BOB37-A", "mean_score": 0.5500, "learners": 5},
-                               {"objective_id": null, "code": "BOB37-B", "competency": "BOB37-B", "mean_score": 0.6250, "learners": 4}]'::jsonb then
-        bad := bad || array[format('the school''s competency outcomes hold %s for the two objectives, expected BOB37-A 0.55 over 5 and BOB37-B 0.625 over 4',
+      -- RESTATED TO OWNER DECISION 6: the school's minimum is 10 learners, so both rows give their counts and no mean
+      -- RESTATED TO DAISY'S A5 (owner, 9 Nov): each withheld row also says its own reason, here too few learners
+      if x is distinct from '[{"objective_id": null, "code": "BOB37-A", "competency": "BOB37-A", "title": null, "mean_score": null, "needed": 10, "learners": 5, "withheld": "learners"},
+                               {"objective_id": null, "code": "BOB37-B", "competency": "BOB37-B", "title": null, "mean_score": null, "needed": 10, "learners": 4, "withheld": "learners"}]'::jsonb then
+        bad := bad || array[format('the school''s competency outcomes hold %s for the two objectives, expected both withheld under the school minimum of 10 (5 and 4 learners)',
                                    coalesce(x::text, 'nothing'))];
       end if;
       -- and the evaluator counts them against the school's unchanged minimum
@@ -6460,8 +6471,11 @@ begin
       -- RESTATED FOR CR-81 (D-123(3)): the live catalogue is MC-7, MC-6 copied forward with the readiness distribution's
       -- bands and floor over the assessed and its population beside them (its migration, F20-N01 and F20-N02)
       -- RESTATED FOR H31 (7 Nov): MC-8 is MC-7 copied forward with the gain paired within one chapter
-      if v_cat is distinct from 'MC-8' then
-        bad := bad || array[format('the live metric catalogue is %s, not MC-8', coalesce(v_cat, 'none'))];
+      -- RESTATED FOR THE REPORTING QUALITY GATE (9 Nov): MC-9 is MC-8 copied forward (a Studio chapter's topic names)
+      -- RESTATED FOR THE OWNER'S WITHDRAWN RULING (10 Nov): MC-10 is MC-9 copied forward (a withdrawn assignment's
+      -- sittings not counted; learning_assignments added as a source)
+      if v_cat is distinct from 'MC-10' then
+        bad := bad || array[format('the live metric catalogue is %s, not MC-10', coalesce(v_cat, 'none'))];
       else
         if exists (select 1 from (select * from public.metric_definitions where catalogue_version = 'MC-4') d4
                     full join (select * from public.metric_definitions where catalogue_version = 'MC-3') d3

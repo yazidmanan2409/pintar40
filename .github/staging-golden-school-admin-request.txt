@@ -27,4 +27,6 @@ slug: sekolah-uji-l3
 # 7 Nov, P-5 verification (main ebc53ee2): Sekolah Uji P5 1107 after GS-01-03 (run 42316340902)
 # 7 Nov, evaluation school (synthetic): Sekolah Uji Evaluasi B after GS-01-03 (run 42334120019)
 # 7 Nov, evaluation school (synthetic): Sekolah Uji Evaluasi A after GS-01-03 (run 42339737829)
-slug: sekolah-uji-evaluasi-a
+# 7 Nov, P-7 staging verification (main c4944fab = audited d18e24e4, SAME; migrations 199-200): Sekolah Uji P7 1107 after GS-01-03 (run 42418365951)
+# 7 Nov, P-7 staging verification, second school (main c4944fab = audited d18e24e4, SAME; migrations 199-200): Sekolah Uji P7B 1107 after GS-01-03 (run 42422293957)
+slug: sekolah-uji-p7b-1107

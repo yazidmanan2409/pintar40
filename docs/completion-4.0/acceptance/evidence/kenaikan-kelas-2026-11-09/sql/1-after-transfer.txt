@@ -1,0 +1,97 @@
+# snapshot 1-after-transfer at 2026-11-09T09:45:52Z
+
+-- Q1 enrolments of the demo learners (both schools)
+   select p.display_name learner, i.slug school, ap.name enrol_period, e.status, e.end_reason, to_char(e.valid_from,'HH24:MI:SS') valid_from, to_char(e.valid_to,'HH24:MI:SS') valid_to, left(e.id::text,8) enrol from enrollments e join persons p on p.id=e.person_id join institutions i on i.id=e.institution_id join academic_periods ap on ap.id=e.academic_period_id where i.id in ('d9ceed7c-0632-4d3c-aabb-5eca92bc7353','668c76a9-f9c2-4494-8620-b8c916f7054c') and p.display_name like 'Murid Demo%' order by 1, e.valid_from
+      learner       |   school    | enrol_period | status  |   end_reason    | valid_from | valid_to |  enrol   
+--------------------+-------------+--------------+---------+-----------------+------------+----------+----------
+ Murid Demo Delapan | demo-naik-a | 2026/2027    | PENDING |                 | 09:44:32   |          | 2c83c02f
+ Murid Demo Dua     | demo-naik-a | 2026/2027    | PENDING |                 | 09:38:50   |          | f3f7d92d
+ Murid Demo Empat   | demo-naik-a | 2026/2027    | PENDING |                 | 09:38:50   |          | c5bdf75a
+ Murid Demo Enam    | demo-naik-a | 2026/2027    | ENDED   | TRANSFERRED_OUT | 09:38:50   | 09:45:43 | cd6e71cf
+ Murid Demo Enam    | demo-naik-b | 2027/2028    | ACTIVE  |                 | 09:45:43   |          | 542fce3f
+ Murid Demo Lima    | demo-naik-a | 2026/2027    | PENDING |                 | 09:38:50   |          | 75cd3c37
+ Murid Demo Satu    | demo-naik-a | 2026/2027    | ACTIVE  |                 | 09:38:50   |          | d8ef751b
+ Murid Demo Tiga    | demo-naik-a | 2026/2027    | PENDING |                 | 09:38:50   |          | 482530d2
+ Murid Demo Tujuh   | demo-naik-a | 2026/2027    | ACTIVE  |                 | 09:38:50   |          | 83efb9b8
+(9 rows)
+
+
+-- Q2 memberships of the demo learners (every row, open and closed)
+   select p.display_name learner, i.slug school, n.kind, n.name node, ap.name period, to_char(m.valid_from,'HH24:MI:SS') valid_from, to_char(m.valid_to,'HH24:MI:SS') valid_to, m.close_reason, left(m.enrollment_id::text,8) enrol from memberships m join enrollments e on e.id=m.enrollment_id join persons p on p.id=e.person_id join institutions i on i.id=e.institution_id join org_nodes n on n.id=m.node_id join academic_periods ap on ap.id=m.academic_period_id where i.id in ('d9ceed7c-0632-4d3c-aabb-5eca92bc7353','668c76a9-f9c2-4494-8620-b8c916f7054c') and p.display_name like 'Murid Demo%' order by 1, m.valid_from, m.valid_to nulls last
+      learner       |   school    |  kind  |   node   |  period   | valid_from | valid_to |   close_reason   |  enrol   
+--------------------+-------------+--------+----------+-----------+------------+----------+------------------+----------
+ Murid Demo Delapan | demo-naik-a | COHORT | Kelas 5  | 2026/2027 | 09:44:32   |          |                  | 2c83c02f
+ Murid Demo Dua     | demo-naik-a | CLASS  | Kelas 5A | 2026/2027 | 09:38:50   |          |                  | f3f7d92d
+ Murid Demo Empat   | demo-naik-a | CLASS  | Kelas 5A | 2026/2027 | 09:38:50   |          |                  | c5bdf75a
+ Murid Demo Enam    | demo-naik-a | CLASS  | Kelas 5A | 2026/2027 | 09:38:50   | 09:45:43 | ENROLLMENT_ENDED | cd6e71cf
+ Murid Demo Enam    | demo-naik-b | CLASS  | Kelas 6B | 2027/2028 | 09:45:43   |          |                  | 542fce3f
+ Murid Demo Lima    | demo-naik-a | CLASS  | Kelas 5A | 2026/2027 | 09:38:50   |          |                  | 75cd3c37
+ Murid Demo Satu    | demo-naik-a | CLASS  | Kelas 5A | 2026/2027 | 09:38:50   |          |                  | d8ef751b
+ Murid Demo Tiga    | demo-naik-a | CLASS  | Kelas 5A | 2026/2027 | 09:38:50   |          |                  | 482530d2
+ Murid Demo Tujuh   | demo-naik-a | CLASS  | Kelas 5A | 2026/2027 | 09:38:50   |          |                  | 83efb9b8
+(9 rows)
+
+
+-- Q3 per learner: open memberships and enrolments in 2027/2028 (duplicate check)
+   select p.display_name learner, count(distinct m.id) filter (where m.valid_to is null and ap.name='2027/2028') open_2027_memberships, count(distinct m.id) filter (where ap.name='2027/2028') all_2027_memberships, (select count(*) from enrollments e2 join academic_periods a2 on a2.id=e2.academic_period_id where e2.person_id=p.id and a2.name='2027/2028') enrolments_2027, (select count(*) from enrollments e3 where e3.person_id=p.id) enrolments_total from persons p join enrollments e on e.person_id=p.id and e.institution_id in ('d9ceed7c-0632-4d3c-aabb-5eca92bc7353','668c76a9-f9c2-4494-8620-b8c916f7054c') left join memberships m on m.enrollment_id=e.id left join academic_periods ap on ap.id=m.academic_period_id where p.display_name like 'Murid Demo%' group by p.id, p.display_name order by 1
+      learner       | open_2027_memberships | all_2027_memberships | enrolments_2027 | enrolments_total 
+--------------------+-----------------------+----------------------+-----------------+------------------
+ Murid Demo Delapan |                     0 |                    0 |               0 |                1
+ Murid Demo Dua     |                     0 |                    0 |               0 |                1
+ Murid Demo Empat   |                     0 |                    0 |               0 |                1
+ Murid Demo Enam    |                     1 |                    1 |               1 |                2
+ Murid Demo Lima    |                     0 |                    0 |               0 |                1
+ Murid Demo Satu    |                     0 |                    0 |               0 |                1
+ Murid Demo Tiga    |                     0 |                    0 |               0 |                1
+ Murid Demo Tujuh   |                     0 |                    0 |               0 |                1
+(8 rows)
+
+
+-- Q4 transfers and portable_visibility
+   select p.display_name, t.status, fi.slug from_school, ti.slug to_school, ap.name to_period, n.name to_place, t.reason, left(t.from_enrollment_id::text,8) from_enrol, left(t.to_enrollment_id::text,8) to_enrol, to_char(t.executed_at,'HH24:MI:SS') executed from transfers t join persons p on p.id=t.person_id join institutions fi on fi.id=t.from_institution_id join institutions ti on ti.id=t.to_institution_id left join academic_periods ap on ap.id=t.to_academic_period_id left join org_nodes n on n.id=t.to_node_id where t.from_institution_id='d9ceed7c-0632-4d3c-aabb-5eca92bc7353'; select p.display_name, i.slug, to_char(pv.granted_at,'HH24:MI:SS') granted, pv.transfer_id is not null has_transfer from portable_visibility pv join persons p on p.id=pv.person_id join institutions i on i.id=pv.institution_id where p.display_name like 'Murid Demo%'
+  display_name   |  status  | from_school |  to_school  | to_period | to_place |               reason                | from_enrol | to_enrol | executed 
+-----------------+----------+-------------+-------------+-----------+----------+-------------------------------------+------------+----------+----------
+ Murid Demo Enam | EXECUTED | demo-naik-a | demo-naik-b | 2027/2028 | Kelas 6B | Keluarga pindah domisili (sintetis) | cd6e71cf   | 542fce3f | 09:45:43
+(1 row)
+
+  display_name   |    slug     | granted  | has_transfer 
+-----------------+-------------+----------+--------------
+ Murid Demo Enam | demo-naik-b | 09:45:43 | t
+(1 row)
+
+
+-- Q5 things attached to Kelas 5A 2026/2027 (roles, assignments, sessions)
+   select 'role '||ra.role||' '||p.display_name||' until '||to_char(ra.valid_until,'YYYY-MM-DD') what from role_assignments ra join persons p on p.id=ra.person_id join org_nodes n on n.id=ra.scope_node_id join academic_periods ap on ap.id=n.academic_period_id where n.institution_id='d9ceed7c-0632-4d3c-aabb-5eca92bc7353' and n.name='Kelas 5A' and ap.name='2026/2027' union all select 'learning_assignments on it: '||count(*) from learning_assignments la join org_nodes n on n.id=la.node_id join academic_periods ap on ap.id=n.academic_period_id where n.institution_id='d9ceed7c-0632-4d3c-aabb-5eca92bc7353' and n.name='Kelas 5A' and ap.name='2026/2027' union all select 'assessment_sessions on it: '||count(*) from assessment_sessions s join org_nodes n on n.id=s.class_node_id join academic_periods ap on ap.id=n.academic_period_id where n.institution_id='d9ceed7c-0632-4d3c-aabb-5eca92bc7353' and n.name='Kelas 5A' and ap.name='2026/2027'
+                        what                         
+-----------------------------------------------------
+ role EDUCATOR Guru Demo Kelas Lima until 2028-06-30
+ learning_assignments on it: 0
+ assessment_sessions on it: 0
+(3 rows)
+
+
+-- Q6 nodes of school A
+   select n.kind, n.name, ap.name period, n.is_active, left(n.id::text,8) id from org_nodes n left join academic_periods ap on ap.id=n.academic_period_id where n.institution_id='d9ceed7c-0632-4d3c-aabb-5eca92bc7353' order by ap.name nulls first, n.kind, n.name
+    kind     |         name         |  period   | is_active |    id    
+-------------+----------------------+-----------+-----------+----------
+ INSTITUTION | SD Sintetis Kenaikan |           | t         | d9ceed7c
+ FACULTY     | Jenjang              |           | t         | a3ad4069
+ DEPARTMENT  | Kelas Tinggi         |           | t         | b69c576c
+ PROGRAMME   | Reguler              |           | t         | 051eba11
+ COHORT      | Kelas 5              | 2026/2027 | t         | 448c1b12
+ CLASS       | Kelas 5A             | 2026/2027 | t         | 2d985509
+ COHORT      | Kelas 5              | 2027/2028 | t         | 4a92e707
+ COHORT      | Kelas 6              | 2027/2028 | t         | 03a286a5
+ CLASS       | Kelas 5A             | 2027/2028 | t         | 183c63b1
+ CLASS       | Kelas 6A             | 2027/2028 | t         | 249eb764
+ CLASS       | Kelas 6Z             | 2027/2028 | f         | e7604bc9
+(11 rows)
+
+
+-- Q7 row totals (nothing deleted: totals only grow)
+   select (select count(*) from memberships m join enrollments e on e.id=m.enrollment_id where e.institution_id in ('d9ceed7c-0632-4d3c-aabb-5eca92bc7353','668c76a9-f9c2-4494-8620-b8c916f7054c')) memberships, (select count(*) from enrollments where institution_id in ('d9ceed7c-0632-4d3c-aabb-5eca92bc7353','668c76a9-f9c2-4494-8620-b8c916f7054c')) enrolments, (select count(*) from transfers where from_institution_id='d9ceed7c-0632-4d3c-aabb-5eca92bc7353') transfers, (select count(*) from audit_log where institution_id in ('d9ceed7c-0632-4d3c-aabb-5eca92bc7353','668c76a9-f9c2-4494-8620-b8c916f7054c')) audit_rows, (select count(*) from persons p where p.display_name like 'Murid Demo%') persons
+ memberships | enrolments | transfers | audit_rows | persons 
+-------------+------------+-----------+------------+---------
+           9 |          9 |         1 |         70 |       8
+(1 row)
+

@@ -49,6 +49,10 @@ export default function BacaDanPetakan({
   const s = (k: string) => t(k as HleEvent, "staff", { locale });
   const [kisi, setKisi] = useState<Kisi | null>(null);
   const [peta, setPeta] = useState<Pemetaan>({});
+  // Daisy F1 (8 Nov): a row with no place is recorded with no class. Right for a teacher or staff list (their role
+  // comes on Peran & akses); silent and wrong for a learner list, who could then sign in and receive nothing. The
+  // database cannot tell the two apart, so the administrator says which it is before the list goes on.
+  const [tanpaKelas, setTanpaKelas] = useState(false);
 
   function terima(teks: string) {
     const k = bacaKisi(teks);
@@ -63,6 +67,7 @@ export default function BacaDanPetakan({
   }
 
   function ubah(m: Medan, nilai: string) {
+    setTanpaKelas(false);
     setPeta((lama) => {
       const baru = { ...lama };
       if (nilai === "") delete baru[m];
@@ -72,11 +77,12 @@ export default function BacaDanPetakan({
     });
   }
 
-  const siap = kisi !== null && pemetaanLengkap(peta);
   // Built only to be submitted. It is derived from the grid and the mapping on
   // every render rather than kept in a second piece of state, so what is sent
   // cannot fall behind what is shown.
   const baris = kisi ? barisTernormalisasi(kisi, peta) : [];
+  const nTanpaTempat = baris.filter((r) => !r.node_id).length;
+  const siap = kisi !== null && pemetaanLengkap(peta) && (nTanpaTempat === 0 || tanpaKelas);
 
   // A field offers a fixed choice only where a fixed choice is meaningful: a
   // place, a programme and a role. A name is per person by definition, and an
@@ -92,6 +98,10 @@ export default function BacaDanPetakan({
       <section className="pin-sec" aria-labelledby="pin-unggah">
         <h2 id="pin-unggah">{s("pendataan.unggah.judul")}</h2>
         <p className="pin-mm">{s("pendataan.unggah.bentuk")}</p>
+        {/* Readiness A1 (Daisy, 8 Nov; owner: «clear instructions, a valid example»): one list per class, a name column;
+            the class is chosen once, after the list is read, never guessed from a «Kelas» column */}
+        <p className="pin-mm" data-contoh-arti="">{s("pendataan.unggah.contoh_arti")}</p>
+        <pre className="pin-mono pin-contoh-daftar" aria-label={s("pendataan.unggah.contoh_label")}>{s("pendataan.unggah.contoh")}</pre>
 
         {/* W3.7 (Batch 4; RV-22): the field frame of Daisy's TextField, its label in sentence case */}
         <div className="pin-bidang">
@@ -170,12 +180,22 @@ export default function BacaDanPetakan({
             ))}
           </ul>
 
-          {!siap ? <p className="pin-msg pin-msg-note">{s("pendataan.peta.wajib")}</p> : null}
+          {nTanpaTempat > 0 ? (
+            <div className="pin-msg pin-msg-note" data-tanpa-kelas="">
+              <p>{s("pendataan.peta.tanpa_kelas").replace("{n}", format.number(nTanpaTempat, locale))}</p>
+              <label className="pin-pilihan">
+                <input type="checkbox" checked={tanpaKelas} onChange={(e) => setTanpaKelas(e.target.checked)} />
+                <span>{s("pendataan.peta.tanpa_kelas_ya")}</span>
+              </label>
+            </div>
+          ) : null}
+
+          {kisi !== null && !pemetaanLengkap(peta) ? <p className="pin-msg pin-msg-note">{s("pendataan.peta.wajib")}</p> : null}
 
           <form action={aksi}>
             <input type="hidden" name="institusi" value={institusi} />
             <input type="hidden" name="baris" value={JSON.stringify(baris)} />
-            <TombolKirim className="pin-btn pin-go pin-data-btn" disabled={!siap} sibuk={s("tombol.memproses")}>
+            <TombolKirim className="pin-btn pin-primary pin-go pin-data-btn" disabled={!siap} sibuk={s("tombol.memproses")}>
               {s("pendataan.peta.lanjut")}
             </TombolKirim>
           </form>

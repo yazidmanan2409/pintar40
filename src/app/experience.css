@@ -1011,17 +1011,28 @@
   padding: 15px 23px; font-weight: var(--weight-strong);
 }
 .pin-op[aria-pressed="true"] .pin-k { color: var(--pintar-primary); }
+/* Daisy (bcecb425, B4): a sitting the school ended keeps its answers on screen but takes none; they read as disabled,
+   in the one disabled look every button family uses */
+.pin-op:disabled { background: var(--surface-2); color: var(--ink-disabled); border-color: transparent; cursor: not-allowed; }
+.pin-op:disabled .pin-k { color: var(--ink-disabled); }
+/* Daisy (1fad2861, B4): «Jawaban yang sudah tersimpan tetap ada», so the chosen answer keeps its mark when disabled:
+   the chosen border and weight, in the disabled tone (ink-3 keeps the 3:1 a boundary needs) */
+.pin-op[aria-pressed="true"]:disabled { border: 2px solid var(--ink-3); padding: 15px 23px; font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-op[aria-pressed="true"]:disabled .pin-k { color: var(--ink-2); }
+/* and the notice of a sitting the school ended stands clear of «Sudah dijawab» above it */
+.pin-pending[data-diakhiri] { margin-top: var(--space-4); }
 
-/* Assistance is OFFERED, never pushed, and it carries no answer key. */
-.pin-bantuan {
+/* Assistance is OFFERED, never pushed, and it carries no answer key. Its own class (Daisy, bcecb425 A2): it once
+   shared `.pin-bantuan` with the Help panel and took the panel's fixed, full-height rule, covering the question */
+.pin-bantuan-soal {
   background: var(--surface-2); border-radius: var(--radius-2); padding: var(--space-5);
   display: grid; gap: var(--space-2); max-width: 60ch; margin-top: var(--space-5);
 }
-.pin-bantuan .pin-lvl {
+.pin-bantuan-soal .pin-lvl {
   font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
   letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
 }
-.pin-bantuan p { margin: 0; font-size: var(--type-body); color: var(--ink-1); }
+.pin-bantuan-soal p { margin: 0; font-size: var(--type-body); color: var(--ink-1); }
 
 .pin-daftar { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-2); }
 .pin-num-btn {
@@ -1052,6 +1063,8 @@
   border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
 }
 .pin-daftar li { display: contents; }
+/* Daisy (Temuan, 390 px): a list item that IS a panel keeps its box, its padding and its hairline */
+.pin-daftar li.pin-panel { display: grid; }
 
 /* ------------------------------------------------------------------- result */
 /* E-K3 (D-168): the learner's result card has its own name. It used to share `.pin-hasil` with the result line of a
@@ -1265,8 +1278,25 @@
 }
 /* D-140 (review RV-12): a field never runs past its panel on a phone; it shrinks with its row */
 .pin-input { max-width: 100%; min-width: 0; }
-/* the Jejak audit's words wrap inside their cells at 320 px instead of running off the edge (its table still scrolls) */
-#audit td { overflow-wrap: anywhere; }
+/* the Jejak audit's words wrap at their spaces and the table scrolls inside its frame at 320 px. Daisy (1fad2861, C3):
+   «anywhere» let the columns shrink below a word and broke every word mid-word; in a table cell Chromium treats
+   «break-word» the same way (it counts toward the column's minimum), so the cells wrap normally: a column is never
+   narrower than its longest word, and the frame, not the page, scrolls */
+#audit td { overflow-wrap: normal; word-break: normal; }
+#audit tr:not(.pin-jejak-anak-baris) > td:first-child { white-space: nowrap; }
+/* Daisy (1fad2861, C1/C2): a run's related rows are a full-width row under the run's row, and the page lands on the
+   run's own row clear of the sticky bar (the shell's bar under 1024 px; above it only the gap) */
+#audit .pin-jejak-induk > td { scroll-margin-top: var(--space-4); }
+@media (max-width: 1023px) { #audit .pin-jejak-induk > td { scroll-margin-top: calc(var(--shell-bar) + var(--space-4)); } }
+/* Daisy (821d3853, C2), the audit table only: «Waktu» is never held at the left (its column scrolls away and it would
+   label another), and on a phone the header scrolls with the table, never drawn over the app bar */
+#audit .pin-tabel thead th:first-child { left: auto; }
+@media (max-width: 1023px) { #audit .pin-tabel thead th { position: static; } }
+#audit .pin-jejak-anak-baris > td { background: var(--surface-2); padding-top: var(--space-2); }
+/* the opened rows read where the frame shows them: on a phone the table is wider than the screen and scrolls inside
+   its frame, so the row's contents hold to the frame's visible left edge and wrap within one screen's width */
+#audit .pin-jejak-anak-baris > td > * { position: sticky; left: var(--space-4); max-width: min(var(--measure-prose), calc(100vw - 2 * var(--gutter) - 2 * var(--space-4) - var(--space-8))); }
+#audit .pin-jejak-anak li { min-width: 0; overflow-wrap: break-word; }
 .pin-input:hover { border-color: var(--ink-3); }
 .pin-input[aria-invalid="true"] { border-color: var(--status-blocked); box-shadow: inset 0 0 0 var(--border-hairline) var(--status-blocked); }
 .pin-input:disabled { background: var(--surface-2); color: var(--ink-disabled); border-color: var(--line); cursor: not-allowed; }
@@ -1782,7 +1812,9 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 }
 /* The same target as a link (DAISY-20: «Aktifkan akun», «Masuk ke PINTAR»):
    min-height does nothing on an inline box, so a link sat 18 px tall. */
-a.pin-tautan { display: inline-flex; align-items: center; }
+/* Daisy (9 Nov, «1murid»): a flex box drops the space between a count and its word, so the gap is the box's own; it
+   wraps at 320 px rather than overflow */
+a.pin-tautan { display: inline-flex; align-items: center; column-gap: var(--space-1); }
 .pin-kembali {
   justify-self: start;
   background: none; border: 0; padding: var(--space-2) 0;
@@ -2906,6 +2938,8 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-target p + p, .pin-target .pin-ulang-judul { margin-top: var(--space-2); }
 .pin-ulang-judul { margin: 0; font-weight: var(--weight-strong); }
 .pin-ulang { margin: var(--space-2) 0 0; padding-left: var(--space-5); display: grid; gap: 4px; }
+/* axe link-in-text-block (re-walked 9 Nov): a lesson's link inside a line of text is underlined, not told by colour alone */
+.pin-ulang li > a { text-decoration: underline; text-underline-offset: 3px; }
 
 /* D-085 M6: the origin of a release on «Siapkan materi» — PINTAR's standard material or the school's own. */
 .pin-asal { font-size: var(--type-meta); color: var(--ink-3); }
@@ -3212,6 +3246,11 @@ select:not([multiple]):not([size]) {
 .pin-dialog-isi p { margin: 0; color: var(--ink-2); }
 .pin-dialog-aksi { display: flex; gap: var(--space-3); justify-content: flex-end; flex-wrap: wrap; }
 @media (max-width: 639px) { .pin-dialog-aksi { flex-direction: column-reverse; align-items: stretch; } }
+/* a destructive act's opener: red words on white; it opens the confirmation, «red twice, never once» (components/Button
+   pds-btn-destructive; Daisy F2, 8 Nov) */
+.pin-btn.pin-bahaya { background: var(--surface-1); color: var(--status-blocked); border-color: var(--line-strong); }
+.pin-btn.pin-bahaya:hover:not(:disabled) { background: var(--status-blocked-soft); }
+.pin-btn.pin-bahaya:active:not(:disabled) { background: var(--status-blocked-soft); border-color: var(--status-blocked); }
 /* the one solid red in PINTAR: a destructive confirmation's own button (components/Button) */
 .pin-btn.pin-bahaya-pasti { background: var(--status-blocked); border-color: var(--status-blocked); color: var(--pintar-primary-ink); }
 .pin-btn.pin-bahaya-pasti:hover { background: var(--status-blocked-hover); border-color: var(--status-blocked-hover); }
@@ -3241,7 +3280,9 @@ select:not([multiple]):not([size]) {
 .pin-pilih { position: relative; display: block; }
 .pin-pilih select { appearance: none; width: 100%; padding-right: calc(var(--space-3) + var(--icon-md) + var(--space-2)); cursor: pointer; }
 .pin-pilih > .pin-ikon { position: absolute; right: var(--space-3); top: 50%; translate: 0 -50%; color: var(--ink-2); pointer-events: none; }
-.pin-tabel-bingkai { background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); overflow-x: auto; max-width: 100%; }
+/* position: a table's own absolutely placed text (a pager's screen-reader line, in Jejak audit's opened run) stays inside
+   the frame that scrolls it, never widening the page at a phone's width (10 Nov) */
+.pin-tabel-bingkai { position: relative; background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); overflow-x: auto; max-width: 100%; }
 .pin-tabel-bingkai:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
 .pin-tabel { width: 100%; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
 .pin-tabel th, .pin-tabel td { padding: var(--space-3) var(--space-4); text-align: left; vertical-align: middle; border-bottom: var(--border-hairline) solid var(--line); }
@@ -3609,6 +3650,12 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-lk-jalur::before { content: ""; position: absolute; left: 0; right: 0; top: calc((var(--lk-jalur) - var(--border-selected)) / 2); height: var(--border-selected); background: var(--lk-alur); border-radius: var(--border-hairline); }
 .pin-lk-isi { position: absolute; left: 0; top: calc((var(--lk-jalur) - var(--lk-batang)) / 2); height: var(--lk-batang); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: var(--lk-isi); }
 .pin-lk-baris li[data-bawah] .pin-lk-isi { background: var(--lk-bawah); }
+/* Readiness A1: Pendataan's example list, a small sheet in the page's own type */
+.pin-contoh-daftar { margin: 0; padding: var(--space-3); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); white-space: pre; font-size: var(--t-small); overflow-x: auto; }
+/* Readiness A3: a lesson table's scroll region, reached by Tab, shows where focus is */
+.pin-ttabel:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+/* «explain once» (owner, 7 Nov): an amber value keeps its colour; its words are read (.pin-sr), the legend says it once */
+.pin-lk-baris li[data-bawah] .pin-lk-nilai { color: var(--status-attention); font-weight: 600; }
 .pin-lk-target { position: absolute; top: calc(var(--space-1) * -1); bottom: calc(var(--space-1) * -1); width: var(--border-selected); margin-left: calc(var(--border-hairline) * -1); background: var(--ink-1); }
 .pin-lk-nilai { font-variant-numeric: tabular-nums; color: var(--ink-1); font-weight: 600; text-align: right; }
 .pin-lk-nilai small { display: block; font-weight: 400; color: var(--ink-2); }
@@ -3669,7 +3716,24 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-lk-sambung { position: absolute; top: calc((var(--lk-jalur) - var(--border-selected)) / 2); height: var(--border-selected); background: var(--ink-2); }
 .pin-lk-zona { position: absolute; top: calc(var(--space-1) * -1); bottom: calc(var(--space-1) * -1); width: var(--border-hairline); background: var(--line-strong); }
 /* 3-kadep: topics × classes; each cell a value, a short bar and its class's target tick; no colour ramp */
-.pin-lk-kisi-wadah { overflow-x: auto; }
+/* position: the read-only words (.pin-sr, absolute) stay inside the scroll region, so a phone page keeps its width (Daisy F3, 8 Nov) */
+.pin-lk-kisi-wadah { overflow-x: auto; position: relative; }
+/* A3 (owner, 9 Nov): below 640px the topic grid is stacked, one topic per block; the table is the wider view and print */
+.pin-lk-kisi-tumpuk { display: none; }
+@media (max-width: 639px) {
+  .pin-lk-kisi-wadah { display: none; }
+  .pin-lk-kisi-tumpuk { display: grid; gap: var(--space-4); }
+  .pin-lk-kisi-tumpuk dl { margin: 0; display: grid; gap: var(--space-2); }
+  .pin-lk-kisi-tumpuk dl > div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); column-gap: var(--space-3); align-items: center; }
+  .pin-lk-kisi-tumpuk dt { color: var(--ink-2); overflow-wrap: anywhere; }
+  .pin-lk-kisi-tumpuk dd { margin: 0; overflow-wrap: anywhere; }
+  .pin-lk-kisi-kelas dd { color: var(--ink-3); font-size: var(--t-small); line-height: var(--t-small-lh); }
+  .pin-lk-kisi-topik { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+  .pin-lk-kisi-topik > li { border-top: var(--border-hairline) solid var(--line); padding-top: var(--space-3); }
+  .pin-lk-kisi-nama { margin: 0 0 var(--space-2); font-weight: 600; color: var(--ink-1); }
+  .pin-lk-kisi-nama .pin-lk-pernyataan { display: block; font-weight: 400; }
+}
+@media print { .pin-lk-kisi-tumpuk { display: none !important; } .pin-lk-kisi-wadah { display: block !important; } }
 .pin-lk-kisi-tabel thead th { color: var(--ink-2); font-weight: 600; vertical-align: bottom; text-align: left; }
 .pin-lk-kisi-tabel thead th small { display: block; font-weight: 400; color: var(--ink-3); }
 .pin-lk-kisi-tabel tbody th { font-weight: 400; color: var(--ink-1); text-align: left; }
@@ -3709,7 +3773,6 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
   .pin-lk-kisi-tabel tfoot { display: table-footer-group; }
   .pin-lk-sel { min-width: 0; }
   .pin-lk-kisi-tabel small { font-size: 6.5pt; line-height: var(--leading-tight); }
-  [data-kisi-lebar] { page: laporan-lebar; }
   [data-kisi-lebar] .pin-lk-kisi-tabel .pin-lk-kol-nama { width: 30mm; }
   [data-kisi-lebar] .pin-lk-kisi-tabel th, [data-kisi-lebar] .pin-lk-kisi-tabel td { padding: 1.5mm 1mm; }
   .pin-lk-kisi-tabel thead { display: table-header-group; }
@@ -3752,6 +3815,9 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 }
 @media print {
   body:has(.pin-lk) { page: laporan; background: var(--surface-1) !important; }
+  /* Readiness B5 (Daisy, 8 Nov): a grid of more than six classes prints the whole report landscape. A named page on the
+     grid's section alone broke the page before it, leaving page 1 with the head only */
+  body:has(.pin-lk):has([data-kisi-lebar]) { page: laporan-lebar; }
   body:has(.pin-lk) main, body:has(.pin-lk) .pin-col { background: var(--surface-1) !important; }
   .pin-lk, .pin-lk-bagian, .pin-lk-inti, .pin-lk-gambar { display: block; }
   .pin-lk > * + * { margin-top: 8mm; }
@@ -3776,3 +3842,67 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
   .pin-lk-isi, .pin-lk-target { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .pin-lk-skala-garis span[data-antara] { display: none; }
 }
+
+/* V2 (owner, 9 Nov): a topic named by its short title keeps its objective's statement on a line of its own, quieter */
+.pin-lk-pernyataan { display: block; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); font-weight: 400; margin-top: var(--space-1); }
+/* «Kenaikan kelas dan kelulusan» (src/components/kenaikan/KenaikanKelas.tsx): the four steps of the year-end flow */
+.pin-kenaikan { display: grid; gap: var(--space-3); margin-top: var(--space-3); }
+.pin-kenaikan-isian { display: grid; gap: var(--space-2); max-width: var(--measure-narrow); }
+.pin-kenaikan-label { display: grid; gap: var(--space-1); font-size: var(--t-label); line-height: var(--t-label-lh); color: var(--ink-2); }
+.pin-kenaikan-teks { margin: 0; color: var(--ink-2); }
+.pin-kenaikan-judul { margin: 0; font-size: var(--t-subsection); line-height: var(--t-subsection-lh); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-kenaikan-murid { display: grid; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
+.pin-kenaikan-baris { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-2); padding: var(--space-2) 0; border-bottom: var(--border-hairline) solid var(--line); }
+.pin-kenaikan-nama { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); color: var(--ink-1); }
+.pin-kenaikan-centang { display: flex; align-items: flex-start; gap: var(--space-2); color: var(--ink-1); }
+.pin-kenaikan-terapkan { align-self: end; }
+/* Daisy's reconciliation (9 Nov): the live count, an exception's left rule (the reports' marked row), the outcome groups */
+.pin-kenaikan-hitung { margin: 0; color: var(--ink-1); font-weight: var(--weight-strong); }
+.pin-kenaikan-baris[data-pengecualian] { border-left: 3px solid var(--pintar-primary); padding-left: var(--space-2); background: var(--pintar-primary-soft); }
+.pin-kenaikan-kelompok { display: grid; gap: var(--space-1); }
+/* 320 px: a decision's select is as wide as its longest option; every column here may shrink to the screen */
+.pin-kenaikan, .pin-kenaikan-label, .pin-kenaikan-murid, .pin-kenaikan-kelompok { grid-template-columns: minmax(0, 1fr); }
+.pin-kenaikan > *, .pin-kenaikan-baris > *, .pin-kenaikan-baris label { min-width: 0; max-width: 100%; }
+.pin-kenaikan-baris select { max-width: 100%; }
+.pin-kenaikan-kelompok > summary { cursor: pointer; color: var(--ink-1); font-weight: var(--weight-strong); min-height: 44px; display: flex; align-items: center; }
+
+/* W2.21 «Akhiri penugasan»: the panel opened from one material's row on the class page (tokens only) */
+.pin-akhiri { border-top: var(--border-hairline) solid var(--line); padding-top: var(--space-5); }
+.pin-akhiri textarea.pin-input { padding: var(--space-2) var(--space-3); }
+.pin-akhiri ul[data-berjalan] { list-style: disc; padding-left: var(--space-5); }
+.pin-akhiri .pin-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+/* W2.22 «Terbitkan ulang»: what is on the certificate beside what is recorded now (tokens only) */
+.pin-ganti { margin-top: var(--space-5); border-top: var(--border-hairline) solid var(--line); padding-top: var(--space-4); }
+.pin-ganti-banding { width: 100%; border-collapse: collapse; margin: var(--space-3) 0 var(--space-4); }
+.pin-ganti-banding th, .pin-ganti-banding td { text-align: left; padding: var(--space-2); border-bottom: var(--border-hairline) solid var(--line); overflow-wrap: break-word; }
+/* Daisy (bcecb425, B6): four columns at a phone's width broke words mid-word («Pe·me·ga·ng»). Below 640px (the existing phone breakpoint) each row is
+   a block: the field as its heading, then «Tertulis di sertifikat: …», «Tercatat sekarang: …», then the pill */
+@media (max-width: 639px) {
+  .pin-ganti-banding, .pin-ganti-banding tbody, .pin-ganti-banding tr, .pin-ganti-banding th, .pin-ganti-banding td { display: block; }
+  .pin-ganti-banding thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .pin-ganti-banding tr { padding: var(--space-2) 0; border-bottom: var(--border-hairline) solid var(--line); }
+  .pin-ganti-banding th, .pin-ganti-banding td { border-bottom: 0; padding: var(--space-1) 0; }
+  .pin-ganti-banding td[data-label]::before { content: attr(data-label) ": "; color: var(--ink-2); }
+  .pin-ganti-banding td:empty { display: none; }
+  .pin-ganti-banding .pin-pill { margin-left: 0; }
+}
+.pin-ganti-banding tr[data-berubah="ya"] td:last-child { font-weight: var(--weight-strong); }
+.pin-ganti-banding .pin-pill { margin-left: var(--space-2); }
+
+/* E5 and §11: one person's roles and duties (tokens only) */
+.pin-staf-peran { flex-wrap: wrap; }
+.pin-staf-peran .pin-meta { flex-basis: 100%; }
+.pin-staf-tj { margin: 0 0 var(--space-3); padding-left: var(--space-5); display: grid; gap: var(--space-1); }
+.pin-staf-tinjau { margin-top: var(--space-4); }
+.pin-staf-tinjau h4 { margin: var(--space-3) 0 var(--space-1); font-size: var(--type-body); }
+.pin-staf-form .pin-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+/* L1–L4: leaving PINTAR, and the platform's account section (tokens only) */
+.pin-tinggal-fakta { margin: 0 0 var(--space-4); padding-left: var(--space-5); display: grid; gap: var(--space-2); max-width: 60ch; }
+.pin-tinggal-minta { margin-top: var(--space-4); padding-top: var(--space-4); border-top: var(--border-hairline) solid var(--line); }
+.pin-tinggal-minta h3 { margin: 0 0 var(--space-2); font-size: var(--type-body); }
+
+/* Daisy (TINJAUAN-6faef690 §1): «Akhiri» or «Tarik», following the kind chosen above it */
+.pin-akhiri:has(input[name="jenis"][value="ENDED"]:checked) [data-akhiri-untuk="WITHDRAWN"],
+.pin-akhiri:has(input[name="jenis"][value="WITHDRAWN"]:checked) [data-akhiri-untuk="ENDED"] { display: none; }

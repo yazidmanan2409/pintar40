@@ -32,9 +32,11 @@ export default async function Peta({ params }: { params: Promise<{ tugas: string
   const state = await engine.cycleState(db, tugas);
   if (!state.pre_session || state.pre_status !== "FINALIZED") notFound();
 
-  const [kartu, lessons] = await Promise.all([
+  const [kartu, lessons, dihitungUlang] = await Promise.all([
     engine.readingMap(db, state.pre_session),
     engine.lessons(db, tugas),
+    // O-B3: the map reads the answers by today's key; a recalculated sitting says the map may differ from its sealed result
+    engine.sesiDihitungUlang(db, state.pre_session).catch(() => false),
   ]);
   const berikutnya = lessons.find((l) => !lessonRead(l));
 
@@ -51,6 +53,7 @@ export default async function Peta({ params }: { params: Promise<{ tugas: string
           <p className="pin-intro">{s("map.intro")}</p>
         </div>
 
+        {dihitungUlang ? <p className="pin-banner pin-neutral" role="note" data-kunci-terkini="">{s("map.kunci_terkini")}</p> : null}
         <PetaBacaan kartu={kartu} locale={locale} />
 
         {berikutnya ? (

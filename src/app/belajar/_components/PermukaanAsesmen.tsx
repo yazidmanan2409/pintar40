@@ -12,6 +12,7 @@ import OrientasiAsesmen from "@/components/siklus/OrientasiAsesmen";
 import { kunciNamaAsesmen } from "@/components/siklus/aksi";
 import { peranSaya } from "@/lib/tur-negara";
 import { personaPembelajaran } from "@/lib/pembelajaran";
+import { zonaSimpulBanyak } from "@/lib/zona-sekolah";
 import ItemPlayer from "./ItemPlayer";
 
 /**
@@ -73,9 +74,17 @@ export default async function PermukaanAsesmen({
   // ---------------------------------------------------------- D. orientation
   if (!sesi) {
     // W2.16 (DAISY-35 item 2): a refusal here speaks to the reader's own context (the roles are read once per request)
-    const [orientasi, persona] = await Promise.all([
+    const [orientasi, persona, zona] = await Promise.all([
       engine.orientation(db, penugasan),
       peranSaya().then(personaPembelajaran),
+      // the owner's ruling (10 Nov): the assessment's school's clock; the orientation names no school, so the class the
+      // learner's open assessment row names leads to it (WIB when the row is not among them)
+      engine.openAssessments(db)
+        .then(async (rows) => {
+          const node = rows.find((r) => r.assessment_assignment_id === penugasan)?.node_id ?? null;
+          return (await zonaSimpulBanyak(db, [node]))(node);
+        })
+        .catch(() => "Asia/Jakarta"),
     ]);
     if (!orientasi) {
       return <HalamanPenolakan locale={locale} persona={persona} backHref={kembali.href} backKey={kembali.key} />;
@@ -95,6 +104,7 @@ export default async function PermukaanAsesmen({
           <OrientasiAsesmen
             orientasi={orientasi}
             locale={locale}
+            zona={zona}
             mode={mode}
             eyebrow={eyebrow}
             judul={nama}

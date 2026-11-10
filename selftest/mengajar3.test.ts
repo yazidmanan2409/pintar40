@@ -203,7 +203,8 @@ export const mengajar3Tests: SelfTest[] = [
         "«Disediakan» is said on the address's word, not on the class's assignments");
       c.expect(/selesai=\{sudah \? s\("mengajar\.sedia\.selesai"\) : undefined\}/.test(siapkan), "the button does not end in «✓ Disediakan»");
       c.expect(/\{sudah \? <BarisHasil nada="ok">\{s\("mengajar\.sedia\.ok"\)\} \{jendelaKata\}\.<\/BarisHasil> : null\}/.test(siapkan)
-        && /const jendelaKata = `\$\{s\("mengajar\.siap\.mulai"\)\} \$\{tanggal\(mulaiAwal, "hari", locale\)\}/.test(siapkan),
+        // RESTATED (owner, 10 Nov: school-context dates on the school's clock): the window's words carry the school's zone (a day: unshifted)
+        && /const jendelaKata = `\$\{s\("mengajar\.siap\.mulai"\)\} \$\{tanggal\(mulaiAwal, "hari", locale, zona\)\}/.test(siapkan),
         "the result line does not say what was made available and its window in words");
       c.expect(/sudah \? \(\s*<Link className="pin-btn" href=\{`\/mengajar\/\$\{id\}`\}>\{ctx\.ini\.nama\}<\/Link>/.test(siapkan), "there is no way on to the class");
       c.expect(/defaultValue=\{mulaiAwal\} disabled=\{Boolean\(sudah\)\}/.test(siapkan), "the window made available can still be edited as if nothing was sent");

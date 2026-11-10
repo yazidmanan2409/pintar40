@@ -133,9 +133,24 @@ begin
     'notice_kira', public.email_send_would_allow('PEMBERITAHUAN_KEAMANAN', h));
 
   -- ── the card re-issue
-  select a.* into v_kartu from public.accounts a where a.kind = 'CLASSROOM_CARD' order by a.card_number limit 1;
+  -- alpha itself (alpha's admin also administers schools that earlier suites leave behind)
   select ra.institution_id into v_inst from public.role_assignments ra join public.accounts a on a.person_id = ra.person_id
-    join auth.users u on u.id = a.auth_user_id where u.email = 'alpha-admin@synthetic.pintar.test' and ra.role = 'INSTITUTION_ADMIN' limit 1;
+    join auth.users u on u.id = a.auth_user_id join public.institutions i on i.id = ra.institution_id
+   where u.email = 'alpha-admin@synthetic.pintar.test' and ra.role = 'INSTITUTION_ADMIN' and i.slug like 'synth-alpha-%' limit 1;
+  -- a card learner alpha places, else the first card (enrolled at alpha below)
+  select a.* into v_kartu from public.accounts a where a.kind = 'CLASSROOM_CARD'
+   order by exists (select 1 from public.enrollments e where e.person_id = a.person_id and e.institution_id = v_inst
+                     and e.status = 'ACTIVE') desc, a.card_number limit 1;
+  -- RESTATED FOR SI-D03 (owner, 9 Nov; Sharon's review of 89374424): the card learner is one alpha places now. The seed's
+  -- first card learner was transferred from alpha to beta, and the fixture had alpha number them and re-issue their card:
+  -- exactly the authority SI-D03 removes (a former school acting by a registration number alone). Inside this
+  -- rolled-back transaction the learner is enrolled at alpha. No assertion changes.
+  if not exists (select 1 from public.enrollments e where e.person_id = v_kartu.person_id and e.institution_id = v_inst
+                    and e.status in ('PENDING', 'ACTIVE')) then
+    insert into public.enrollments (person_id, institution_id, academic_period_id, status)
+    select v_kartu.person_id, v_inst, ap.id, 'ACTIVE' from public.academic_periods ap
+     where ap.institution_id = v_inst order by ap.created_at limit 1;
+  end if;
   -- the fixture schools reserve no namespace; this one does, inside the rolled-back transaction, to number the learner
   update public.institutions set namespace = (select x from generate_series(1, 500) g, lateral (select upper(substr(md5('b28' || g), 1, 3)) x) q
                                                where x ~ '^[A-Z]{3}$' and not exists (select 1 from public.institutions t where upper(t.namespace) = q.x) limit 1)

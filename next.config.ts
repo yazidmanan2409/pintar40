@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
       { source: "/masuk/lupa/periksa", destination: "/api/masuk/lupa/periksa" },
       { source: "/masuk/lupa/password", destination: "/api/masuk/lupa/password" },
       { source: "/masuk/lupa/pin", destination: "/api/masuk/lupa/pin" },
+      // owner ruling 2 (9 Nov): «Minta akun dibuka kembali»
+      { source: "/masuk/buka-kembali/kirim", destination: "/api/masuk/buka-kembali/kirim" },
     ];
   },
 };

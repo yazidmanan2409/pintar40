@@ -8,6 +8,8 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import PemulihanPin from "@/components/keamanan/PemulihanPin";
 import CatatanKeamanan, { type BarisKeamanan } from "@/components/keamanan/CatatanKeamanan";
 import { judulHalaman } from "@/lib/judul-halaman";
+import AkunPlatform, { type BarisPermintaan, type KeadaanAkun } from "@/components/keamanan/AkunPlatform";
+import { kodeAkunDari } from "@/lib/akun-kontrak";
 
 export const generateMetadata = judulHalaman("/konfigurasi/keamanan");
 
@@ -25,7 +27,8 @@ export const dynamic = "force-dynamic";
  * ladder back to 0 and a new PIN required; every session of the person ended;
  * the owner and the security recipient are emailed.
  */
-export default async function Keamanan() {
+export default async function Keamanan({ searchParams }: { searchParams: Promise<{ pid?: string; hasil?: string; apa?: string; kode?: string; permintaan?: string }> }) {
+  const sp = await searchParams;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const [supabase, viewer] = await Promise.all([supabaseServer(), currentViewer()]);
@@ -44,6 +47,19 @@ export default async function Keamanan() {
   const baris = ((Array.isArray(data) ? data : []) as Array<{ at: string; action: string; pintar_id: string | null }>)
     .map((r): BarisKeamanan => ({ waktu: String(r.at), aksi: String(r.action), pintarId: r.pintar_id ?? null }));
 
+  // §5b / L2–L4: the PINTAR Administrator finds one identity by its PINTAR ID, and reads the people's own requests
+  const pid = /^[0-9A-HJKMNP-TV-Z]{8}$/.test((sp.pid ?? "").trim().toUpperCase()) ? (sp.pid ?? "").trim().toUpperCase() : "";
+  let akun: KeadaanAkun | null = null;
+  let antrean: BarisPermintaan[] = [];
+  if (sistem === true) {
+    if (pid) {
+      const { data: o } = await supabase.from("persons").select("id").eq("pintar_id", pid).maybeSingle();
+      const id = (o as { id?: string } | null)?.id;
+      if (id) akun = ((await supabase.rpc("akun_keadaan", { p_person: id })).data ?? null) as KeadaanAkun | null;
+    }
+    antrean = ((await supabase.rpc("permintaan_akun_antrean")).data ?? []) as BarisPermintaan[];
+  }
+
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pendataan" halamanKini="keamanan" />
@@ -54,6 +70,10 @@ export default async function Keamanan() {
           <p className="pin-intro">{s("keamanan.intro")}</p>
         </div>
         <PemulihanPin locale={locale} />
+        {sistem === true ? (
+          <AkunPlatform locale={locale} pid={pid} akun={akun} antrean={antrean} hasil={sp.hasil} apa={sp.apa} kode={kodeAkunDari(sp.kode)}
+            ulang={/^[0-9a-f-]{36}$/i.test(sp.permintaan ?? "") ? sp.permintaan : undefined} />
+        ) : null}
         {sistem === true ? (
           <CatatanKeamanan locale={locale} baris={baris} />
         ) : null}

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { namaBab } from "@/lib/nama-bab";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
@@ -52,7 +53,7 @@ export default async function Pemetaan({ params }: { params: Promise<{ tugas: st
       penugasan={state.pre_assignment}
       sesi={state.pre_session}
       locale={locale}
-      eyebrow={`${mine.subject} · ${mine.grade_label} · ${mine.title}`}
+      eyebrow={namaBab(mine.subject, mine.title, mine.grade_label)}
       kembali={{ href: `/belajar/${tugas}`, key: "cycle.title" }}
       diriHref={`/belajar/${tugas}/pemetaan`}
       selesaiHref={`/belajar/${tugas}/peta`}

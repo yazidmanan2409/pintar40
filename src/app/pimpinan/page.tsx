@@ -23,6 +23,8 @@ import TandaTautan from "@/components/TandaTautan";
 import { lingkupAwal } from "@/components/pimpinan/lingkup";
 import { alamatCatatan, tempatCatatan } from "@/lib/pengembangan";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { zonaSekolahBanyak } from "@/lib/zona-sekolah";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export const generateMetadata = judulHalaman("/pimpinan");
 
@@ -97,6 +99,8 @@ export default async function Pimpinan({
   ]);
 
   const tertib = urutan(keputusan);
+  // the owner's ruling (10 Nov): each decision's dates on its own school's clock
+  const zonaDari = await zonaSekolahBanyak(await supabaseServer(), tertib.map((k) => k.institusi));
   const antre = tertib.filter(menunggu);
   const angka = bukti.filter((e) => e.status === "ok");
   const absen = bukti.filter((e) => e.status !== "ok");
@@ -194,6 +198,7 @@ export default async function Pimpinan({
               locale={locale}
               galat={sp.galat === "1" && sp.keputusan === k.id}
               tercatat={sp.hasil === "ok" && sp.keputusan === k.id}
+              zona={zonaDari(k.institusi)}
             />
           ))}
 
@@ -256,13 +261,17 @@ export default async function Pimpinan({
               <Kosong jenis="belum" kalimat={s("pimpinan.kelas.kosong")} />
             ) : (
               perKelas.map(({ kelas, bukti: bk, murid }) => {
-                const ada = bk.filter((e) => e.status === "ok");
+                // Daisy (9 Nov): «Ada angka» means a performance figure is shown. «Peserta» is a headcount, so a class whose
+                // only «ok» is that count has evidence but no figure yet, which is what the grid beside it says too
+                const ada = bk.filter((e) => e.status === "ok" && e.metric_id !== "class.participants");
+                const adaBukti = bk.some((e) => (e.status === "ok" && e.metric_id === "class.participants" && Number(e.value) > 0)
+                  || (e.status === "below_minimum" && Number(e.have) > 0));
                 return (
                   <details key={kelas.id} className="pin-kelas-bukti">
                     <summary>
                       <span className="pin-kelas-nama">{kelas.nama}</span>
                       <span className="pin-kelas-tanda">
-                        {s(bk.length === 0 ? "laporan.metrik.bukan_untuk_anda" : ada.length > 0 ? "pimpinan.kelas.ada" : "pimpinan.kelas.belum")}
+                        {s(bk.length === 0 ? "laporan.metrik.bukan_untuk_anda" : ada.length > 0 ? "pimpinan.kelas.ada" : adaBukti ? "pimpinan.kelas.bukti_saja" : "pimpinan.kelas.belum")}
                       </span>
                       <Ikon nama="chevron-down" kelas="pin-chevron" />
                     </summary>

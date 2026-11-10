@@ -8,7 +8,7 @@ import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { spawnSync } from "node:child_process";
 import { join, relative, basename } from "node:path";
-import { Checks, type SelfTest } from "./lib";
+import { Checks, compiledBundle, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
 import { emailTests } from "./email.test";
@@ -102,14 +102,17 @@ import { secguardTests } from "./secguard.test";
 import { cr91Tests } from "./cr91.test";
 import { ux2Tests } from "./ux2.test";
 import { tanggalTests } from "./tanggal.test";
+import { zonaTests } from "./zona.test";
 import { koleksiTests } from "./koleksi.test";
 import { mengajar3Tests } from "./mengajar3.test";
 import { studio3aTests } from "./studio3a.test";
 import { studio3cTests } from "./studio3c.test";
 import { b4Tests } from "./b4.test";
+import { kenaikanTests } from "./kenaikan.test";
 import { b5Tests } from "./b5.test";
 import { b6eTests } from "./b6e.test";
 import { b5aTests } from "./b5a.test";
+import { d78Tests } from "./d78.test";
 import { b5cTests } from "./b5c.test";
 import { b5bTests } from "./b5b.test";
 import { b6cTests } from "./b6c.test";
@@ -206,11 +209,13 @@ export const staticTests: SelfTest[] = [
   },
   {
     id: "F01-S03",
-    run: async ({ repoRoot }) => {
+    requires: ["build"],
+    run: async (ctx) => {
+      const { repoRoot } = ctx;
       const c = new Checks();
       // (a) client bundle scan
-      const staticDir = join(repoRoot, ".next", "static");
-      if (!c.expect(existsSync(staticDir), ".next/static missing — production build required before the static runner")) {
+      const staticDir = compiledBundle(ctx, "static");
+      if (!c.expect(existsSync(staticDir), "the compiled bundle has no static/ directory — production build required before the static runner")) {
         return c.verdict("");
       }
       const forbidden = ["SUPABASE_SERVICE_ROLE_KEY", "service_role", "CARD_PEPPER", "supabaseService", "deriveCardSecret",
@@ -998,7 +1003,10 @@ export const staticTests: SelfTest[] = [
       // RESTATED FOR BOB-28 (Gate 5, a changed requirement): its fourth door, recovery by PINTAR ID + PIN, declared the same way.
       const expectedPaths = ["/", "/masuk", "/masuk/kartu", "/masuk/password", "/aktifkan", "/aktifkan/kode",
                              "/aktifkan/periksa", "/masuk/lupa", "/masuk/lupa/kode", "/masuk/lupa/periksa",
-                             "/masuk/lupa/password", "/masuk/lupa/pin", "/auth/callback", "/keluar"];
+                             "/masuk/lupa/password", "/masuk/lupa/pin", "/auth/callback", "/keluar",
+                             // RESTATED FOR THE OWNER'S RULING 2 (9 Nov, a changed requirement): a closed account asks to be
+                             // reopened signed out, at /masuk/buka-kembali and its one POST-only door, declared with its handler
+                             "/masuk/buka-kembali", "/masuk/buka-kembali/kirim"];
       c.expect(
         JSON.stringify(paths.slice().sort()) === JSON.stringify(expectedPaths.slice().sort()),
         `the anonymous path list changed: ${JSON.stringify(paths)}`,
@@ -1034,13 +1042,14 @@ export const staticTests: SelfTest[] = [
       const migTeks = readdirSync(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql"))
         .map((f) => readFileSync(join(repoRoot, "supabase", "migrations", f), "utf8")).join("\n");
       for (const pintu of ["/masuk/kartu", "/masuk/password", "/aktifkan/kode", "/aktifkan/periksa",
-                           "/masuk/lupa/kode", "/masuk/lupa/periksa", "/masuk/lupa/password", "/masuk/lupa/pin"]) {
+                           "/masuk/lupa/kode", "/masuk/lupa/periksa", "/masuk/lupa/password", "/masuk/lupa/pin",
+                           "/masuk/buka-kembali/kirim"]) {
         c.expect(new RegExp(`'ROUTE',\\s*'${pintu}'`).test(migTeks) && new RegExp(`'ENDPOINT',\\s*'/api${pintu}'`).test(migTeks),
           `${pintu} is anonymous but not declared in public_surface_registry with /api${pintu} as its child`);
       }
       c.note(`${routes.length} routes, ${studio.length} in Studio, ${paths.length + prefixes.length} anonymous`);
       c.expect(/'ROUTE',\s*'\/id\/\[pintarId\]'/.test(migTeks), "/id/ is anonymous but not declared in public_surface_registry");
-      return c.verdict("the anonymous surface did not grow beyond its declared doors (Gate 3's three, Gate 4's three and Gate 5's one, each registered with its handler, and the declared ID page) and every Studio route sits behind the proxy");
+      return c.verdict("the anonymous surface did not grow beyond its declared doors (Gate 3's three, Gate 4's three, Gate 5's one and the reopening request's one, each registered with its handler, and the declared ID page) and every Studio route sits behind the proxy");
     },
   },
   {
@@ -2203,6 +2212,7 @@ export const staticTests: SelfTest[] = [
   ...cr91Tests,
   ...ux2Tests,
   ...tanggalTests,
+  ...zonaTests,
   ...koleksiTests,
   ...studio3aTests,
   ...studio3bTests,
@@ -2211,9 +2221,11 @@ export const staticTests: SelfTest[] = [
   ...mengajar3Tests,
   ...studio3cTests,
   ...b4Tests,
+  ...kenaikanTests,
   ...b5Tests,
   ...b6eTests,
   ...b5aTests,
+  ...d78Tests,
   ...b5cTests,
   ...b5bTests,
   ...b6cTests,

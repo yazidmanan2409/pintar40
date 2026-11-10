@@ -40,6 +40,13 @@ function tsx(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? tsx(join(dir, e.name)) : e.name.endsWith(".tsx") ? [join(dir, e.name)] : []);
 }
 
+// a job's runs-on pins Ubuntu 24.04: GitHub's ubuntu-24.04 image, or a self-hosted machine labelled ubuntu-24.04
+function diPin2404(nilai: string): boolean {
+  if (nilai === "ubuntu-24.04") return true;
+  const daftar = /^\[(.*)\]$/.exec(nilai)?.[1]?.split(",").map((x) => x.trim().replace(/^["']|["']$/g, ""));
+  return Boolean(daftar && daftar.includes("self-hosted") && daftar.includes("ubuntu-24.04"));
+}
+
 export const retroTests: SelfTest[] = [
   {
     id: "R0-PIN-01",
@@ -51,14 +58,18 @@ export const retroTests: SelfTest[] = [
         for (const j of jobsAlurKerja(readFileSync(join(dir, f), "utf8"))) {
           if (!PERAMBAN.test(j.isi)) continue;
           dilihat++;
-          const runsOn = [...j.isi.matchAll(/^\s+runs-on:\s*(\S+)/gm)].map((m) => m[1]);
-          c.expect(runsOn.length === 1 && runsOn[0] === "ubuntu-24.04", `${f} › ${j.nama} drives a browser on ${runsOn.join(", ") || "no runner"}, not ubuntu-24.04`);
+          const runsOn = [...j.isi.matchAll(/^\s+runs-on:\s*(.+?)\s*$/gm)].map((m) => m[1]);
+          c.expect(runsOn.length === 1 && diPin2404(runsOn[0]), `${f} › ${j.nama} drives a browser on ${runsOn.join(", ") || "no runner"}, not ubuntu-24.04`);
         }
       }
       c.expect(dilihat >= 17, `only ${dilihat} browser job(s) found; Batch 0 pinned 17`);
       // the check itself catches a planted job on ubuntu-latest
       const tanam = jobsAlurKerja("on: push\njobs:\n  walk:\n    runs-on: ubuntu-latest\n    steps:\n      - run: npx playwright install chromium\n");
       c.expect(tanam.length === 1 && PERAMBAN.test(tanam[0].isi) && /runs-on:\s*ubuntu-latest/.test(tanam[0].isi), "the check cannot see a planted browser job on ubuntu-latest");
+      // W6.2/W6.8 (owner, 8 Nov: a measurement from Indonesia): a self-hosted machine counts only when it is labelled
+      // ubuntu-24.04 too, i.e. registered on an Ubuntu 24.04 host; a self-hosted label list without it is refused
+      c.expect(diPin2404("[self-hosted, indonesia, ubuntu-24.04]") && !diPin2404("[self-hosted, indonesia]")
+        && !diPin2404("ubuntu-latest") && !diPin2404("[ubuntu-latest, ubuntu-24.04]"), "the check accepts a self-hosted job without ubuntu-24.04, or a hosted list");
       return c.verdict(`every workflow job that installs or drives a browser (${dilihat}) runs on ubuntu-24.04, where Playwright 1.55 has its browser build (W0.2)`);
     },
   },
@@ -380,8 +391,19 @@ export const retroTests: SelfTest[] = [
 
       // E-P17: no disclosure around required content. Each disclosure on a screen is declared with what it holds;
       // a new one must be declared here, which is the review the rule asks for
-      const BOLEH: Record<string, string> = {
-        "src/app/konfigurasi/page.tsx": "a mastery mark's change history, under its current value",
+      const BOLEH: Record<string, string | string[]> = {
+        "src/app/konfigurasi/page.tsx": ["a mastery mark's change history, under its current value",
+          // K1 (Daisy, TINJAUAN-KENAIKAN-KELAS-DIBANGUN; Sharon «fold, don't hide»): the row states the run and its count
+          "a year-end run's learners and their decisions in Jejak audit, under the run's one row that states how many",
+          // RESTATED (Sharon's paging ruling, 10 Nov): a run's related entries are no longer a disclosure; «Catatan terkait (n)»
+          // is a link that opens them under the run's row a sub-page at a time (src/lib/jejak-run.ts), so nothing is folded
+          ],
+        // Q2 (Daisy, the same review): the exceptions are always shown and the count is in the summary line
+        "src/components/kenaikan/KenaikanKelas.tsx": ["the review's main group's names, under its count; every exception is always shown",
+          // Daisy (435a2856, §4.3): the outcome laid out as the review
+          "the outcome's main group's names with what PINTAR recorded, under its count; every exception is always shown"],
+        // Daisy (435a2856, §1.1): what has ended, below the working list; nothing in it can be acted on
+        "src/app/mengajar/[kelas]/page.tsx": "the class's ended and withdrawn assignments with when and why, under the working list; none can be acted on",
         "src/app/pimpinan/page.tsx": "one class's evidence, a drill-down under the node's figures",
         "src/app/belajar/[tugas]/hasil/page.tsx": "an answered question's review; a wrong safety-critical one opens itself",
         "src/app/studio/bank/page.tsx": "a finding's locations, under the finding",
@@ -394,7 +416,7 @@ export const retroTests: SelfTest[] = [
         const n = (readFileSync(f, "utf8").match(/<details\b/g) ?? []).length;
         if (n > 0) ada.set(rel, n);
       }
-      for (const [f, n] of ada) c.expect(f in BOLEH && n === 1, `${f}: ${n} disclosure(s) not declared (E-P17: no disclosure around required content)`);
+      for (const [f, n] of ada) c.expect(f in BOLEH && n === [BOLEH[f]].flat().length, `${f}: ${n} disclosure(s) not declared (E-P17: no disclosure around required content)`);
       for (const f of Object.keys(BOLEH)) c.expect(ada.has(f), `${f} is declared but draws no disclosure: remove its line`);
       return c.verdict(`reads the decision log (DECISIONS.md), the design hand-off list (06-ENGINEERING-ITEMS-FROM-DESIGN.md), the manifest, every test file and every walk: each of the ${putusan.length} rulings from D-166 is reconciled to the obligations that carry it (or why none); each of the ${baris.length} engineering items is named by a test, held by named tests or files, or blocked on a named decider, and says where it is implemented (D-180); and every disclosure under src/app and src/components (${ada.size}) is declared with what it holds (E-P17)`);
     },

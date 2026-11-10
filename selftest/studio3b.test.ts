@@ -385,7 +385,9 @@ export const studio3bTests: SelfTest[] = [
           `${f} does not draw its words in the reader's language (kataStudio)`);
         c.expect(!/\bt\("[^"]+", "staff"\)/.test(src), `${f} still asks the copy table without the reader's language`);
         for (const m of src.matchAll(/\b(enumLabel|when|outcomeLine)\(([^()]*(?:\([^()]*\))?[^()]*)\)/g)) {
-          c.expect(/,\s*locale$/.test(m[2].trim()), `${f}: ${m[1]}(${m[2].slice(0, 40)}) without the reader's language`);
+          // RESTATED (owner, 10 Nov: school-context dates on the school's clock): a moment's when() may carry its school's zone after
+          // the reader's language
+          c.expect(/,\s*locale(?:,\s*[^,]+)?$/.test(m[2].trim()), `${f}: ${m[1]}(${m[2].slice(0, 40)}) without the reader's language`);
         }
       }
       // the pager (its link builder is a function, so it is read as source, not rendered)

@@ -68,6 +68,7 @@ export default function KeadaanHariIni({
   locale,
   kelas,
   jenis = "LEARNER",
+  zona,
 }: {
   asesmen: readonly AsesmenKelas[];
   /** Learners in the class. */
@@ -80,6 +81,8 @@ export default function KeadaanHariIni({
    * (/siapa). A plain link: the block's rules are imported outside Next by tests.
    */
   kelas?: string;
+  /** The class's school's zone (the owner's ruling, 10 Nov): its tests' times are written on that clock; WIB when none. */
+  zona?: string | null;
 }) {
   const s = (k: HleEvent) => t(k, "educator", { locale });
   const n = (x: number) => format.number(x, locale);
@@ -89,7 +92,7 @@ export default function KeadaanHariIni({
     <div className="pin-keadaan">
       {tampil.map((a) => ({ a, k: hitungKeadaan(a, murid) })).map(({ a, k }) => (
         <div className="pin-keadaan-baris" key={a.id}>
-          <p className="pin-keadaan-judul">{judulAsesmen(a, locale)}</p>
+          <p className="pin-keadaan-judul">{judulAsesmen(a, locale, zona)}</p>
           <dl className="pin-facts">
             <div>
               <dt>{s("mengajar.bukti.kumpul")}</dt>
@@ -99,20 +102,20 @@ export default function KeadaanHariIni({
             </div>
             <div>
               <dt>{s("mengajar.bukti.jendela")}</dt>
-              <dd>{a.ditutup ? tanggal(a.ditutup, "hari", locale) : "—"}</dd>
+              <dd>{a.ditutup ? tanggal(a.ditutup, "hari", locale, zona) : "—"}</dd>
             </div>
             <div>
               <dt>{s("mengajar.bukti.mulai")}</dt>
               <dd className="pin-num">
                 {n(k.sedang)}
-                <small>{s(kataAnggota("mengajar.bukti.murid", jenis))}</small>
+                <small>{format.satuan(k.sedang, s(kataAnggota("mengajar.bukti.murid", jenis)), locale)}</small>
               </dd>
             </div>
             <div>
               <dt>{s("mengajar.bukti.belum")}</dt>
               <dd className="pin-num">
                 {n(k.belum)}
-                <small>{s(kataAnggota("mengajar.bukti.murid", jenis))}</small>
+                <small>{format.satuan(k.belum, s(kataAnggota("mengajar.bukti.murid", jenis)), locale)}</small>
               </dd>
             </div>
           </dl>

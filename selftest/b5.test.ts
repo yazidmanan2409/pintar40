@@ -27,7 +27,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { t, type HleEvent } from "../src/lib/hle";
-import { KODE_CABUT, KEADAAN_SERTIFIKAT } from "../src/lib/sertifikat-cabut-kontrak";
+import { KODE_CABUT, KEADAAN_SERTIFIKAT, KODE_GANTI, KODE_GANTI_DB, kodeGantiDariGalat } from "../src/lib/sertifikat-cabut-kontrak";
+import { KODE_AKUN, KODE_AKUN_DB, KATEGORI_TANGGUH, JENIS_PERMINTAAN, KEADAAN_PERMINTAAN, kodeAkunDariGalat } from "../src/lib/akun-kontrak";
+import { KODE_STAF, KODE_STAF_DB, KATEGORI_AKHIR, TANGGUNG_JAWAB, kodeStafDariGalat, kunciTanggungJawab } from "../src/lib/staf-kontrak";
 import { JUDUL_HALAMAN } from "../src/lib/judul-halaman";
 import { langkahRujukan } from "../src/lib/integritas-kontrak";
 
@@ -56,14 +58,16 @@ export const b5Tests: SelfTest[] = [
         "«Cabut» is not offered on an issued certificate only");
       c.expect(/rpc\("sertifikat_sekolah", \{ p_sekolah: lingkup, p_cari: null, p_hal: 1, p_id: pilih \}\)/.test(halaman),
         "the chosen certificate is not read again by id under the same rule");
-      c.expect(/dipilih\.status === "ISSUED" \? \(\s*<FormCabut /.test(halaman), "the panel does not offer the revocation form for an issued certificate");
+      // RESTATED for W2.22 (owner, 9 Nov): an issued certificate's panel now holds «Cabut» and «Terbitkan ulang» together
+      // (a fragment); the property is the same: the revocation form is offered for an issued certificate
+      c.expect(/dipilih\.status === "ISSUED" \? \(\s*(?:<>\s*)?<FormCabut /.test(halaman), "the panel does not offer the revocation form for an issued certificate");
       c.expect(/messageKey="sertifikat\.kelola\.ditolak"/.test(halaman), "a reader the database refuses does not get the one refusal page");
       c.expect(!/service_role|SERVICE_ROLE|supabaseAdmin|createClient\(/.test(halaman), "the page reaches for the service key");
 
       const form = kode(baca(ctx.repoRoot, "src/components/sertifikat/FormCabut.tsx"));
       c.expect(/action=\{cabutSertifikatAksi\}/.test(form), "the form does not post to cabutSertifikatAksi");
       c.expect(/<textarea id="cabut-alasan" name="alasan"[^>]*required/.test(form), "the reason is not a required field of the form");
-      c.expect(/onClick=\{\(\) => \{ if \(form\.current\?\.reportValidity\(\)\) setYakin\(true\); \}\}/.test(form) && /type="button"[^>]*className="pin-btn pin-primary"/.test(form),
+      c.expect(/onClick=\{\(\) => \{ if \(form\.current\?\.reportValidity\(\)\) setYakin\(true\); \}\}/.test(form) && /type="button"[^>]*className="pin-btn pin-bahaya"/.test(form), // restated for Daisy F2 (8 Nov): the opener of a destructive act is red words, «red twice»
         "«Lanjutkan» is not a plain button that only shows the confirmation once the reason is written");
       c.expect(/className="pin-konfirmasi pin-konfirmasi-bahaya" role="group" aria-labelledby="cabut-tanya"/.test(form),
         "the confirmation is not the destructive in-page Confirmation, named by its question");
@@ -158,5 +162,138 @@ export const b5Tests: SelfTest[] = [
         + "with the total and a pager that keeps the words; never every waiting person; new words start at page 1; words in both languages");
     },
   },
+  {
+    // W222-K01 — «TERBITKAN ULANG»: ONE CONTRACT FROM THE MIGRATION TO THE CERTIFICATE PANEL (owner, 9 Nov).
+    id: "W222-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const sql = baca(ctx.repoRoot, "supabase/migrations/20270113110000_a_certificate_is_corrected_by_its_replacement.sql").replace(/--[^\n]*/g, "");
+      const tolak = /create or replace function public\.sertifikat_koreksi_tolak[\s\S]*?\$\$;/.exec(sql)?.[0] ?? "";
+      const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();
+      c.expect(JSON.stringify(dariDb) === JSON.stringify([...KODE_GANTI_DB].sort()),
+        `sertifikat_koreksi_tolak knows ${dariDb.join(",")} and the contract names ${KODE_GANTI_DB.join(",")}`);
+      for (const k of KODE_GANTI_DB) {
+        c.expect(new RegExp(`sertifikat_koreksi_tolak\\('${k}'\\)`).test(sql.replace(/create or replace function public\.sertifikat_koreksi_tolak[\s\S]*?\$\$;/, "")),
+          `no function raises ${k}`);
+        c.expect(kodeGantiDariGalat({ code: "PR120", details: k }) === k, `${k} is not read back as itself`);
+      }
+      c.expect(kodeGantiDariGalat({ code: "PR120", details: "CERT_PLANTED" }) === "LAYANAN_TIDAK_TERSEDIA", "an unknown DETAIL is read as a known code");
+      c.expect(kodeGantiDariGalat({ code: "PR110", details: "MAINTENANCE_NO_NEW_START" }) === "LAYANAN_TIDAK_TERSEDIA", "another state's refusal is read as a correction code");
+      const MESIN = /CERT_|PR\d{3}|jsonb|uuid|CAN_|INV-|ELIGIBLE|SUPERSEDED/;
+      for (const k of KODE_GANTI) {
+        for (const l of ["id", "en"] as const) {
+          const kunci = `sertifikat.ganti.gagal.${k.toLowerCase()}` as HleEvent;
+          let x = ""; try { x = t(kunci, "staff", { locale: l }); } catch { x = ""; }
+          c.expect(x.trim() !== "" && x !== kunci, `${kunci} has no ${l} telling`);
+          c.expect(!MESIN.test(x), `${kunci} names the machinery in ${l}`);
+        }
+      }
+      // the seal is the server's alone: the route checks the context, prepares with the admin's own client, signs, then seals
+      // with the service client (the service client lives under src/app/api only, F01-S03)
+      const fungsi = baca(ctx.repoRoot, "src/app/api/sertifikat/ganti/route.ts");
+      const i1 = fungsi.indexOf("sasaranDalamKonteks("), i2 = fungsi.indexOf('caller.rpc("sertifikat_koreksi_siapkan"'),
+            i3 = fungsi.indexOf("signPayload("), i4 = fungsi.indexOf('supabaseService().rpc("sertifikat_koreksi_segel"');
+      c.expect(i1 >= 0 && i2 > i1 && i4 > i2 && i3 > i2,
+        "/api/sertifikat/ganti does not check the context, prepare with the admin's own client, sign, then seal with the service client, in that order");
+      c.expect(/has_function_privilege\('authenticated', 'public\.sertifikat_koreksi_segel/.test(sql) && /grant execute on function public\.sertifikat_koreksi_segel\(uuid, smallint, text\) to service_role;/.test(sql),
+        "the seal is not service-only");
+      // the panel: the form only where something differs, the reason 10–300, «Digantikan oleh» on a replaced certificate
+      const panel = baca(ctx.repoRoot, "src/components/sertifikat/FormTerbitUlang.tsx");
+      c.expect(/pratinjau\.berubah \? \(\s*<form method="post" action="\/api\/sertifikat\/ganti"/.test(panel), "the form is not offered only where something differs");
+      c.expect(/name="alasan"[^>]*minLength=\{10\} maxLength=\{300\}/.test(panel), "the reason is not 10–300 characters");
+      const halaman = kode(baca(ctx.repoRoot, "src/app/konfigurasi/sertifikat/page.tsx"));
+      c.expect(/rpc\("sertifikat_koreksi_pratinjau", \{ p_certificate: dipilih\.id \}\)/.test(halaman), "the panel does not read the database's preview");
+      c.expect(/<FormTerbitUlang /.test(halaman) && /sertifikat\.ganti\.digantikan_oleh/.test(halaman), "the panel does not offer «Terbitkan ulang» or say what replaced a certificate");
+      return c.verdict("sertifikat_koreksi_tolak's six codes are the contract's, each raised and read back by its PR120 DETAIL (an unknown one and another state's are not), and every screen code has a sentence in both languages naming no machinery; the route /api/sertifikat/ganti checks the context, prepares with the admin's own client, signs, then seals with the service client, and the seal is service-only; the panel reads the database's preview, offers the form only where something differs with a 10–300 reason, and says what replaced a certificate");
+    },
+  },
+  {
+    // STAF-K01 — E5 AND §11: ONE CONTRACT FROM THE MIGRATION TO THE PERSON'S PAGE (owner, 9 Nov).
+    id: "STAF-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const sql = baca(ctx.repoRoot, "supabase/migrations/20270113120000_an_educator_changes_roles_or_leaves_on_the_record.sql").replace(/--[^\n]*/g, "");
+      const tolak = /create or replace function public\.staf_tolak[\s\S]*?\$\$;/.exec(sql)?.[0] ?? "";
+      const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();
+      c.expect(JSON.stringify(dariDb) === JSON.stringify([...KODE_STAF_DB].sort()), `staf_tolak knows ${dariDb.join(",")} and the contract names ${KODE_STAF_DB.join(",")}`);
+      const badan = sql.replace(/create or replace function public\.staf_tolak[\s\S]*?\$\$;/, "");
+      for (const k of KODE_STAF_DB) {
+        c.expect(badan.includes(`staf_tolak('${k}')`), `no function raises ${k}`);
+        c.expect(kodeStafDariGalat({ code: "PR130", details: k }) === k, `${k} is not read back as itself`);
+      }
+      c.expect(kodeStafDariGalat({ code: "PR130", details: "STAFF_PLANTED" }) === "STAFF_FAILED", "an unknown DETAIL is read as a known code");
+      // the categories are the function's own list, in its order
+      const kat = /p_kategori not in \(([^)]*)\)/.exec(sql)?.[1] ?? "";
+      c.expect(JSON.stringify([...kat.matchAll(/'([A-Z_]+)'/g)].map((m) => m[1])) === JSON.stringify([...KATEGORI_AKHIR]), `the categories are ${kat}`);
+      const MESIN = /STAFF_|ROLE_|PR\d{3}|jsonb|uuid|CAN_|INV-/;
+      const kunci: string[] = [...KODE_STAF.map((k) => `staf.galat.${k.toLowerCase()}`), ...KATEGORI_AKHIR.map((k) => `staf.kategori.${k.toLowerCase()}`), ...TANGGUNG_JAWAB.map(kunciTanggungJawab)];
+      for (const k of kunci) {
+        for (const l of ["id", "en"] as const) {
+          let x = ""; try { x = t(k as HleEvent, "staff", { locale: l }); } catch { x = ""; }
+          c.expect(x.trim() !== "" && x !== k, `${k} has no ${l} telling`);
+          c.expect(!MESIN.test(x), `${k} names the machinery in ${l}`);
+        }
+      }
+      // every responsibility the registry can name has words: role_capabilities' own codes, read from the migrations
+      const semuaSql = readFileSync(join(ctx.repoRoot, "supabase", "migrations", "20260926100000_a_school_gives_a_person_a_number.sql"), "utf8");
+      const fungsiCap = /function public\.role_capabilities\([\s\S]*?\$\$;/.exec(semuaSql)?.[0] ?? "";
+      c.expect(fungsiCap.length > 0, "the registry's role_capabilities definition was not found");
+      for (const cap of new Set([...fungsiCap.matchAll(/'(CAN_[A-Z_]+)'/g)].map((m) => m[1]))) {
+        c.expect((TANGGUNG_JAWAB as readonly string[]).includes(cap), `the registry names ${cap} and the page has no words for it`);
+      }
+      // the page: a GET review answered by ubah_peran with apply false, one POST commitment carrying the fingerprint, and E5
+      const aksi = baca(ctx.repoRoot, "src/app/konfigurasi/staf/actions.ts");
+      for (const nama of ["akhiriTugasAksi", "ubahPeranAksi"]) {
+        const f = new RegExp(`export async function ${nama}[\\s\\S]*?\\n\\}`).exec(aksi)?.[0] ?? "";
+        c.expect(f.indexOf("wajibDalamKonteks(") >= 0 && f.indexOf("wajibDalamKonteks(") < f.indexOf("supabase.rpc("), `${nama} does not ask the working context before it acts`);
+      }
+      c.expect(/p_terapkan: true/.test(aksi) && /p_sidik: teks\(fd, "sidik"\)/.test(aksi), "the commitment does not apply with the review's fingerprint");
+      const halaman = kode(baca(ctx.repoRoot, "src/app/konfigurasi/staf/page.tsx"));
+      c.expect(/<form method="get" action="\/konfigurasi\/staf"/.test(halaman) && /p_terapkan: false/.test(halaman), "the review is not a GET render answered with apply false");
+      c.expect(/<form action=\{ubahPeranAksi\}/.test(halaman) && /name="sidik" value=\{orang\.sidik\}/.test(halaman), "the confirmation does not post the fingerprint to ubahPeranAksi");
+      c.expect(/<form action=\{akhiriTugasAksi\}/.test(halaman) && /name="kategori"/.test(halaman) && /id="staf-akhiri-tanggal"[^>]*max=\{hariIni\}/.test(halaman),
+        "«Akhiri tugas» has no category or no date bounded by today");
+      return c.verdict("staf_tolak's 13 codes are the contract's, each raised and read back by its PR130 DETAIL; the categories are akhiri_tugas_staf's own list and order; every code, category and responsibility (including every capability the registry migration names) has words in both languages naming no machinery; both actions ask the working context before acting; the review is a GET render answered by ubah_peran with apply false, the confirmation posts the fingerprint, and «Akhiri tugas» asks a category and a date no later than today");
+    },
+  },
+  {
+    // AKUN-K01 — §5b AND L1–L4: ONE CONTRACT FROM THE MIGRATION TO AKUN SAYA AND KEAMANAN AKUN (owner, 9 Nov).
+    id: "AKUN-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const sql = baca(ctx.repoRoot, "supabase/migrations/20270113130000_an_account_is_suspended_closed_or_anonymised_on_the_record.sql").replace(/--[^\n]*/g, "");
+      const tolak = /create or replace function public\.akun_tolak[\s\S]*?\$\$;/.exec(sql)?.[0] ?? "";
+      const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();
+      c.expect(JSON.stringify(dariDb) === JSON.stringify([...KODE_AKUN_DB].sort()), `akun_tolak knows ${dariDb.join(",")} and the contract names ${KODE_AKUN_DB.join(",")}`);
+      const badan = sql.replace(/create or replace function public\.akun_tolak[\s\S]*?\$\$;/, "");
+      for (const k of KODE_AKUN_DB) {
+        c.expect(badan.includes(`akun_tolak('${k}')`), `no function raises ${k}`);
+        c.expect(kodeAkunDariGalat({ code: "PR140", details: k }) === k, `${k} is not read back as itself`);
+      }
+      const kat = /p_kategori not in \(([^)]*)\)/.exec(sql)?.[1] ?? "";
+      c.expect(JSON.stringify([...kat.matchAll(/'([A-Z_]+)'/g)].map((m) => m[1])) === JSON.stringify([...KATEGORI_TANGGUH]), `the categories are ${kat}`);
+      // the per-request check refuses a suspended person's token, whatever the path, and the status read still passes
+      c.expect(/coalesce\(v_jalur, ''\) not in \('\/rpc\/pintar_status_saya', '\/rpc\/sesi_akhiri_saya'\)[\s\S]*?orang_ditangguhkan\(v_orang\)[\s\S]*?'AKUN_DITANGGUHKAN'/.test(sql),
+        "the per-request check does not refuse a suspended person's token");
+      const MESIN = /ACCOUNT_|PR\d{3}|jsonb|uuid|CAN_|INV-|CLOSED_AT_REQUEST/;
+      const kunci: string[] = [...KODE_AKUN.map((k) => `akun.tinggal.galat.${k.toLowerCase()}`), ...KATEGORI_TANGGUH.map((k) => `keamanan.akun.kategori.${k.toLowerCase()}`),
+        ...JENIS_PERMINTAAN.map((k) => `akun.tinggal.jenis.${k.toLowerCase()}`), ...KEADAAN_PERMINTAAN.map((k) => `akun.tinggal.status.${k.toLowerCase()}`),
+        ...["akses", "data", "akademik", "sertifikat", "audit", "cadangan"].map((k) => `akun.tinggal.fakta.${k}`)];
+      for (const k of kunci) {
+        for (const l of ["id", "en"] as const) {
+          let x = ""; try { x = t(k as HleEvent, "staff", { locale: l }); } catch { x = ""; }
+          c.expect(x.trim() !== "" && x !== k, `${k} has no ${l} telling`);
+          c.expect(!MESIN.test(x), `${k} names the machinery in ${l}`);
+        }
+      }
+      // Akun saya is for everyone; a learner is offered no request form; the closure leaves by signing out
+      const akun = kode(baca(ctx.repoRoot, "src/app/akun/page.tsx"));
+      c.expect(/if \(!staf\) \{\s*const sl/.test(akun) && /tinggal\("learner"\)/.test(akun), "a learner's Akun saya is not drawn");
+      const komponen = baca(ctx.repoRoot, "src/components/akun/MeninggalkanPintar.tsx");
+      c.expect(/bisaMinta \? \(/.test(komponen) && /data-tinggal-lewat-sekolah/.test(komponen) && /name="konfirmasi" value="ya" required/.test(komponen),
+        "the requests are not one confirmation each, or a learner is offered a form");
+      c.expect(/if \(jenis === "CLOSE"\) redirect\("\/keluar/.test(baca(ctx.repoRoot, "src/app/akun/actions.ts")), "a closure does not sign the person out");
+      return c.verdict("akun_tolak's 12 codes are the contract's, each raised and read back by its PR140 DETAIL; the suspension's categories are tangguhkan_akun's own; the per-request check refuses a suspended or closed person's token whatever the path while the status read passes; every code, category, request kind and status and the six facts of leaving have words in the copy table in both languages naming no machinery; Akun saya is drawn for a learner, who is offered no form; each request is one confirmation; a closure signs the person out");
+    },
+  },
 ];
-

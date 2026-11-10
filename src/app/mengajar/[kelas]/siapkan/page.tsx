@@ -3,6 +3,7 @@ import JendelaTinjau from "@/components/mengajar/JendelaTinjau";
 import { t, format, hariIniSekolah, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 import { sediakanMateri } from "../../actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
@@ -10,7 +11,7 @@ import TombolKirim from "@/components/TombolKirim";
 import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
 import BarisHasil from "@/components/BarisHasil";
 import Kosong from "@/components/Kosong";
-import { bagianJakarta, tanggal } from "@/lib/tanggal";
+import { tanggal } from "@/lib/tanggal";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
@@ -57,9 +58,10 @@ export const dynamic = "force-dynamic";
  * `?disediakan=`: the review reads the class's assignments again and, only when the material is there, the button
  * says «✓ Disediakan», the line says what was made available and its window in words, and the way on names the class.
  */
-function hariDari(iso: string | null): string | undefined {
-  const b = bagianJakarta(iso);
-  return b ? `${b.tahun}-${String(b.bulan).padStart(2, "0")}-${String(b.hari).padStart(2, "0")}` : undefined;
+function hariDari(iso: string | null, zona: string): string | undefined {
+  // Sharon F1: the stored instant read back as a day on the school's own clock
+  const d = iso ? new Date(iso) : null;
+  return d && !Number.isNaN(d.getTime()) ? hariIniSekolah(d, zona) : undefined;
 }
 
 const HARI = /^\d{4}-\d{2}-\d{2}$/;
@@ -86,13 +88,16 @@ export default async function Siapkan({
     return <HalamanPenolakan locale={locale} persona="educator" backHref="/mengajar" backKey="mengajar.kembali" />;
   }
 
+  // Sharon F1: the teacher's days on the school's own clock (WIB, WITA or WIT)
+  const zona = await zonaSekolah(await supabaseServer(), ctx.ini.institusi);
   const [semua, tugas, fakta, akar] = await Promise.all([
     ajar.terbitan(ctx.ini.institusi, id),
     ajar.penugasan(id),
     ajar.faktaKelas(id),
     ajar.garisSekolah(ctx.ini.institusi),
   ]);
-  const punya = new Set(tugas.map((x) => x.releaseId));
+  // W2.21: an assignment ended or withdrawn no longer holds its release; the lesson can be given to the class again
+  const punya = new Set(tugas.filter(ajar.masihBerlaku).map((x) => x.releaseId));
   // D-085 M10: a class already given a release of a chapter's line is not offered that line again; a corrected release
   // reaches it through «Koreksi» (before anyone starts), or stays with the release it was given
   const garisPunya = new Set(tugas.filter((x) => x.status === "ACTIVE").map((x) => akar.get(x.courseId) ?? x.courseId));
@@ -102,10 +107,10 @@ export default async function Siapkan({
   const dipilih = sudah
     ? semua.find((r) => r.id === sudah.releaseId) ?? null
     : pilihan ? calon.find((r) => r.id === pilihan) ?? null : null;
-  const mulaiAwal = sudah ? hariDari(sudah.mulai) ?? hariIniSekolah() : HARI.test(mulaiTadi ?? "") ? mulaiTadi! : hariIniSekolah();
-  const sampaiAwal = sudah ? hariDari(sudah.sampai) : HARI.test(sampaiTadi ?? "") ? sampaiTadi : undefined;
-  const jendelaKata = `${s("mengajar.siap.mulai")} ${tanggal(mulaiAwal, "hari", locale)} · ${
-    sampaiAwal ? `${s("mengajar.siap.sampai")} ${tanggal(sampaiAwal, "hari", locale)}` : s("mengajar.siap.sampai.kosong")}`;
+  const mulaiAwal = sudah ? hariDari(sudah.mulai, zona) ?? hariIniSekolah(undefined, zona) : HARI.test(mulaiTadi ?? "") ? mulaiTadi! : hariIniSekolah(undefined, zona);
+  const sampaiAwal = sudah ? hariDari(sudah.sampai, zona) : HARI.test(sampaiTadi ?? "") ? sampaiTadi : undefined;
+  const jendelaKata = `${s("mengajar.siap.mulai")} ${tanggal(mulaiAwal, "hari", locale, zona)} · ${
+    sampaiAwal ? `${s("mengajar.siap.sampai")} ${tanggal(sampaiAwal, "hari", locale, zona)}` : s("mengajar.siap.sampai.kosong")}`;
 
   const lingkup = (
     <BarisLingkup
@@ -151,7 +156,7 @@ export default async function Siapkan({
                   {/* DAISY-26 (UX-20): the date says which release; its version number means nothing to a teacher */}
                   <span className="pin-rowmeta">
                     {r.terbitPada ? (
-                      <span>{s("mengajar.siap.diterbitkan")} {tanggal(r.terbitPada, "baca", locale)}</span>
+                      <span>{s("mengajar.siap.diterbitkan")} {tanggal(r.terbitPada, "baca", locale, zona)}</span>
                     ) : null}
                   </span>
                   <span className="pin-pill pin-info">{s("mengajar.status.siap")}</span>
@@ -201,7 +206,7 @@ export default async function Siapkan({
           </div>
           <p className="pin-meta">
             {/* DAISY-26 (UX-20): no version number; the date says which release */}
-            {dipilih.terbitPada ? `${s("mengajar.siap.diterbitkan")} ${tanggal(dipilih.terbitPada, "baca", locale)} · ` : ""}
+            {dipilih.terbitPada ? `${s("mengajar.siap.diterbitkan")} ${tanggal(dipilih.terbitPada, "baca", locale, zona)} · ` : ""}
             {`${format.number(isi.pelajaran, locale)} ${s("mengajar.siap.pelajaran")}`}
             {` · ${format.number(isi.soal, locale)} ${s("mengajar.siap.soal")}`}
           </p>

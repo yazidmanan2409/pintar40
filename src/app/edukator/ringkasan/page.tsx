@@ -1,4 +1,6 @@
+import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { supabaseServer } from "@/lib/supabase/server";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 import { jenisAnggota, type JenisAnggota } from "@/lib/mengajar";
 import Kosong from "@/components/Kosong";
 import { asalLaporan } from "@/lib/nama-tempat";
@@ -52,9 +54,11 @@ export default async function RingkasanKelas({
   // L3 (§2.6): a report of another school's place is never shown in this context; the chooser offers that school
   // E-A3-1: the class's kind decides who the «how far» line names (murid or peserta), read with the reader's own access
   let jenis: JenisAnggota = "LEARNER";
+  let sekolah: string | undefined;
   if (kelas) {
     const { data: tempat } = await supabase.from("org_nodes").select("institution_id, member_kind").eq("id", kelas).limit(1);
-    await tawarkanSekolahLain((tempat?.[0] as { institution_id?: string } | undefined)?.institution_id);
+    sekolah = (tempat?.[0] as { institution_id?: string } | undefined)?.institution_id;
+    await tawarkanSekolahLain(sekolah);
     jenis = jenisAnggota((tempat?.[0] as { member_kind?: string } | undefined)?.member_kind);
   }
 
@@ -77,11 +81,23 @@ export default async function RingkasanKelas({
     report = data as Report;
   }
   const dihitung = new Date();
+  // the owner's ruling (10 Nov): when it was computed, on the school's clock
+  const zona = await zonaSekolah(supabase, sekolah);
   // the class's one sealed Uji Penguasaan mark, read with the reader's own access (none: no target line)
   const target = kelas ? await targetKelas(kelas) : null;
 
   const entries = (report?.entries ?? []) as Entry[];
+  // Reporting Quality Gate (9 Nov): a reader refused every figure (a learner, another class's teacher, a teacher at
+  // the school's summary) gets the refusal page, not a report frame with the place, a print button and one refusal
+  // card per figure. The refusal discloses nothing more than before: no figure is named.
+  if (entries.length > 0 && entries.every((e) => e.status === "not_permitted")) {
+    return <HalamanPenolakan locale={await currentLocale()} persona="staff" messageKey="laporan.ditolak" backHref={asal.ke} />;
+  }
   const shown = entries.filter((e) => e.status === "ok");
+  // owner ruling O3 (9 Nov): the class's chapters kept apart, through the catalogue like every figure (class.chapter_mastery)
+  const perBab = kelas && sekolah
+    ? ((await supabase.rpc("metric_evaluate", { p_metric_id: "class.chapter_mastery", p_node: kelas, p_institution: sekolah })).data as Entry | null)
+    : null;
   // W9: figures in the reader's language and units; rows that name a place, by its name
   const locale = await currentLocale();
   const kepalaNanti = kelas ? kepalaLaporan(kelas) : Promise.resolve(null);
@@ -117,7 +133,7 @@ export default async function RingkasanKelas({
           <h1 className="pin-h1">{kepala?.tempat ?? judul}</h1>
           {report ? (
             <p className="pin-intro">
-              {s("laporan.cakupan.kelas", untuk, locale).replace("{waktu}", tanggal(dihitung, "cap", locale))}
+              {s("laporan.cakupan.kelas", untuk, locale).replace("{waktu}", tanggal(dihitung, "cap", locale, zona))}
             </p>
           ) : null}
         </div>
@@ -137,7 +153,8 @@ export default async function RingkasanKelas({
             {/* CONTOH LAPORAN 2-guru / 2b (approved 7 Nov): one composition over the same envelopes */}
             <KomposisiKelas entries={entries} locale={locale} persona={untuk} jenis={jenis} target={target}
               namaKelas={kepala?.tempat ?? judul} buktiHref={untuk === "educator" ? `/mengajar/${kelas}/bukti` : null} tempat={tempat}
-              penguatan={penguatan} muridHref={untuk === "educator" ? `/mengajar/${kelas}/murid` : null} titik={titik} awalAkhir={awalAkhir} />
+              penguatan={penguatan} muridHref={untuk === "educator" ? `/mengajar/${kelas}/murid` : null} titik={titik} awalAkhir={awalAkhir}
+              perBab={perBab} />
           </>
         )}
       </main>

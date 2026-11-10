@@ -19,7 +19,7 @@ import type { SimpulStruktur } from "./struktur-kontrak";
 
 export type LangkahPersiapan =
   | { kunci: "kelas"; selesai: boolean; jumlah: number }
-  | { kunci: "murid"; selesai: boolean; jumlah: number }
+  | { kunci: "murid"; selesai: boolean; jumlah: number; tanpaKelas: number }
   | { kunci: "guru"; selesai: boolean; tanpaGuru: string[] };
 
 /** One role as the page reads it from role_assignments. */
@@ -36,8 +36,13 @@ export function persiapanSekolah(
   peran: readonly PeranTerbaca[],
   jalur: ReadonlyMap<string, readonly string[]>,
   sekarang: number,
+  // Daisy F5 (9 Nov): learners recorded at the school without a class (murid_tanpa_kelas, owner decision 1); placement
+  // is not done while any wait, as the same page says above
+  tanpaKelas = 0,
 ): LangkahPersiapan[] {
-  const aktif = kelas.filter((k) => k.level === "KELAS" && k.is_active);
+  // Readiness (Daisy, 8 Nov): the school's teaching classes only; a professional-learning Kelas (participants, BOB-45) is
+  // neither a place needing students nor one waiting for a teacher
+  const aktif = kelas.filter((k) => k.level === "KELAS" && k.is_active && k.member_kind !== "PARTICIPANT");
   const murid = aktif.reduce((n, k) => n + (k.active_members ?? 0), 0);
   const guru = peran.filter((p) => p.role === "EDUCATOR" && !p.revoked_at && p.scope_node_id
     && Date.parse(p.valid_until) > sekarang);
@@ -50,7 +55,7 @@ export function persiapanSekolah(
     .sort((a, b) => a.localeCompare(b, "id", { numeric: true }));
   return [
     { kunci: "kelas", selesai: aktif.length > 0, jumlah: aktif.length },
-    { kunci: "murid", selesai: murid > 0, jumlah: murid },
+    { kunci: "murid", selesai: murid > 0 && tanpaKelas === 0, jumlah: murid, tanpaKelas },
     { kunci: "guru", selesai: aktif.length > 0 && tanpaGuru.length === 0, tanpaGuru },
   ];
 }

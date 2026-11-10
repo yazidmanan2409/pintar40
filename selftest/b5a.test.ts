@@ -77,7 +77,8 @@ export const b5aTests: SelfTest[] = [
         c.expect(new RegExp(`const judul = s\\("${h.judul.replace(/\./g, "\\.")}", ${P}, locale\\);`).test(src)
           && /<p className="pin-eyebrow">\{judul\}<\/p>/.test(src), `${h.f} does not name the report above its heading`);
         c.expect(new RegExp(`\\? kepalaLaporan\\(${h.param}\\)`).test(src), `${h.f} does not read what the report is of`);
-        c.expect(new RegExp(`s\\("${h.cakupan.replace(/\./g, "\\.")}", ${P}, locale\\)\\.replace\\("\\{waktu\\}", tanggal\\(dihitung, "cap", locale\\)\\)`).test(src)
+        // RESTATED (owner, 10 Nov: school-context dates on the school's clock): when it was calculated, on the school's clock (zona)
+        c.expect(new RegExp(`s\\("${h.cakupan.replace(/\./g, "\\.")}", ${P}, locale\\)\\.replace\\("\\{waktu\\}", tanggal\\(dihitung, "cap", locale, zona\\)\\)`).test(src)
           && /const dihitung = new Date\(\);/.test(src), `${h.f} does not say what the figures cover and when they were calculated`);
         // RESTATED FOR E-K1 (D-173(d)): the way back is the history-back, named as one
         c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\(asal\\.nama, ${P}, locale\\)\\} ke=\\{asal\\.ke\\} cetak=\\{s\\("laporan\\.cetak", ${P}, locale\\)\\} />`).test(src),
@@ -264,18 +265,25 @@ export const b5aTests: SelfTest[] = [
         c.expect(t1.includes("2 dari 4 topik masih di bawah target: Pecahan campuran serta Penjumlahan dan pengurangan pecahan."), `the lead reads «${t1.slice(0, 200)}»`);
         c.expect(t1.includes("24 dari 29 murid sudah berada di pita «Mantap» atau «Berkembang»; 5 murid perlu penguatan.") && t1.includes("Pemahaman kelas: 74,8%."),
           "the bands and the comprehension are not said under the lead (R4-02: 74,8% against a 75% target)");
-        // G-03: below the target is amber AND in words; the target is a labelled line; colour never alone
-        c.expect((isi.match(/<li data-bawah="">/g) ?? []).length === 2 && (isi.match(/class="pin-lk-bawah">di bawah target</g) ?? []).length === 2 && /class="pin-lk-target"/.test(isi) && t1.includes("Target 75%"),
-          "the rows below the target are not marked in words and amber, or the target line is missing");
+        // G-03: below the target is amber AND in words; the target is a labelled line; colour never alone.
+        // RESTATED FOR «explain once» (owner, 7 Nov; Readiness B6, 8 Nov): each amber row carries its words for assistive
+        // technology (.pin-sr), none is drawn under every value, and the legend says what amber means once
+        c.expect((isi.match(/<li data-bawah="">/g) ?? []).length === 2 && (isi.match(/class="pin-sr"> di bawah target</g) ?? []).length === 2
+          && !/class="pin-lk-bawah">di bawah target</.test(isi)
+          && (isi.match(/data-lk-ket-bawah="">Angka berwarna jingga menunjukkan penguasaan di bawah target\.</g) ?? []).length === 1
+          && /class="pin-lk-target"/.test(isi) && t1.includes("target kelas, 75%") /* RESTATED TO V1: the line is named in the key */,
+          "the rows below the target are not marked in words and amber, or the target line is missing, or the words repeat under every value");
         // B: the population line, then the bands over the assessed in the legend's order; «belum mengerjakan» is a count, never a band
         c.expect(/31 murid di kelas ini · 29 sudah mengerjakan Uji Penguasaan · 2 belum mengerjakan/.test(t1) && t1.includes("Hasil 29 murid yang sudah mengerjakan")
           && /data-pita="mantap"[^>]*>17<[\s\S]*data-pita="berkembang"[^>]*>7<[\s\S]*data-pita="penguatan"[^>]*>5</.test(isi) && !/data-pita="[a-z]*"[^>]*>2</.test(isi),
           "the bands are not drawn over the assessed, in order, apart from who has not sat");
         // KESETIAAN #6: the legend says how many learners and their share
         c.expect(t1.includes("Mantap 17 murid (59%)") && t1.includes("Perlu penguatan 5 murid (17%)"), "the band legend does not say «17 murid (59%)»");
-        // KESETIAAN #10: the target's label sits on the scale at its line, in the one scale row
-        c.expect((isi.match(/class="pin-lk-skala"/g) ?? []).length === 1 && /<div class="pin-lk-skala-garis">[^]*?class="pin-lk-skala-target" style="left:75%"/.test(isi),
-          "the target's label is not on the scale at the target line");
+        // RESTATED TO V1 (owner, 9 Nov; Daisy): the target is named once in the key under the figure, never on the scale,
+        // so no tick (60%, the band boundary) is overprinted; one scale row with every tick
+        c.expect((isi.match(/class="pin-lk-skala"/g) ?? []).length === 1 && !/class="pin-lk-skala-target"/.test(isi)
+          && t1.includes("Garis tegak: target kelas, 75%, yang ditetapkan sekolah pada Uji Penguasaan kelas ini.") && /<span style="left:60%" data-antara="">60%<\/span>/.test(isi),
+          "the target is still labelled on the scale, or the key does not name it, or the 60% tick is gone");
         // C, D, letters, the next step, the action sentence (S-3)
         c.expect(t1.includes("+20 poin") && t1.includes("Dihitung dari 29 murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan bab yang sama."), "the gain or its base is missing");
         c.expect(t1.includes("13 kali") && /class="pin-lk-saran">Saran penanganan: Samakan penyebut dulu\.</.test(isi) && t1.includes("Saran penanganan untuk pemahaman keliru ada di bagian D."), "the misunderstanding, its labelled remedy (#8) or the pointer to it is missing");
@@ -343,7 +351,8 @@ export const b5aTests: SelfTest[] = [
         const t1 = teks(ada);
         c.expect(t1.includes("Murid yang perlu penguatan") && t1.includes("Murid kelas ini di pita «Perlu penguatan», menurut abjad.")
           && /data-lk-penguatan=""/.test(ada) && /href="\/mengajar\/k\/murid\/o1">Ayu Tanjung</.test(ada) && /href="\/mengajar\/k\/murid\/o2">Hana Siregar</.test(ada)
-          && t1.includes("Pelajari lagi: Pecahan campuran, Membandingkan pecahan"), `section E does not name the learners with what to study again: ${t1.slice(0, 300)}`);
+          // RESTATED (Daisy F1, 9 Nov): the parts are said as a list, as everywhere (daftarKata), without their full stops
+          && t1.includes("Pelajari lagi: Pecahan campuran dan Membandingkan pecahan"), `section E does not name the learners with what to study again: ${t1.slice(0, 300)}`);
         c.expect((ada.match(/Pelajari lagi:/g) ?? []).length === 1, "a learner with nothing recorded below the target is given an empty «Pelajari lagi»");
         // KESETIAAN #5: each with «N dari M soal tepat», and «soal wajib belum tepat» only where the gate failed
         c.expect(t1.includes("9 dari 20 soal tepat") && t1.includes("11 dari 20 soal tepat") && (ada.match(/class="pin-lk-bawah">soal wajib belum tepat</g) ?? []).length === 1,
@@ -570,7 +579,8 @@ export const b5aTests: SelfTest[] = [
       const halaman = kode(baca(ctx.repoRoot, "src/app/belajar/hasil/page.tsx"));
       const lib = kode(baca(ctx.repoRoot, "src/lib/hasil-belajar.ts"));
       c.expect(/await hasilBelajar\(db\)/.test(halaman) && /<KomposisiMurid bab=\{bab\}/.test(halaman), "/belajar/hasil does not draw the composition over hasilBelajar");
-      c.expect(/engine\.myAssignments\(db\)/.test(lib) && /engine\.outcome\(db, state\.post_session\)/.test(lib) && /ketuntasan\(outcome\)/.test(lib) && /bagianUlang\(/.test(lib) && !/\.from\(|\.rpc\(/.test(lib),
+      // RESTATED (defect, 10 Nov): a closed lesson's outcome stays seen, so the learner's own list is my_learning_history
+      c.expect(/engine\.myLearningHistory\(db\)/.test(lib) && /engine\.outcome\(db, state\.post_session\)/.test(lib) && /ketuntasan\(outcome\)/.test(lib) && /bagianUlang\(/.test(lib) && !/\.from\(|\.rpc\(/.test(lib),
         "hasilBelajar reads anything but the learner's own engine reads, or decides a verdict of its own");
       c.expect(/href="\/belajar\/hasil"/.test(kode(baca(ctx.repoRoot, "src/app/belajar/page.tsx"))), "Belajar does not link the learner's report");
       return c.verdict("renders «Hasil belajar» (D-195(1), 1-murid): the lead counted from the learner's own chapters with what to study again, per chapter Pemetaan Awal and " +
@@ -620,7 +630,10 @@ export const b5aTests: SelfTest[] = [
         && /titik=\{titik\} awalAkhir=\{awalAkhir\}/.test(halaman), "Ringkasan Kelas asks for the dots for a reader who does not teach the class, or in a class of participants, or does not pass the pair");
       const lib = kode(baca(ctx.repoRoot, "src/lib/pengajar.ts"));
       c.expect(/c\.rpc\("sebaran_murid_kelas", \{ p_class: kelasId \}\)/.test(lib) && /c\.rpc\("kenaikan_awal_akhir", \{ p_class: kelasId \}\)/.test(lib)
-        && /if \(!r \|\| r\.awal == null \|\| r\.akhir == null\) return "TIDAK";/.test(lib), "the lib does not ask the two reads, or turns an empty answer into a figure");
+        // RESTATED TO OWNER DECISION 7 (9 Nov): no pair is «TIDAK»; pairs whose means are withheld are «DILINDUNGI», never a figure
+        && /if \(!r\) return "TIDAK";/.test(lib)
+        && /if \(\(r\.awal == null \|\| r\.akhir == null\) && Number\(r\.pasangan\) > 0\) return "DILINDUNGI";/.test(lib)
+        && /if \(r\.awal == null \|\| r\.akhir == null\) return "TIDAK";/.test(lib), "the lib does not ask the two reads, or turns an empty or withheld answer into a figure");
       const mig = baca(ctx.repoRoot, "supabase/migrations/20270103100000_the_report_reads_daisy_asked_for.sql");
       c.expect(/create or replace function public\.sebaran_murid_kelas\(p_class uuid\)\s*returns table \(mastery numeric, tier_key text\)/.test(mig)
         && /v_ok := public\.metric_evaluate\('class\.net_gain', p_class, v_inst\) ->> 'status';/.test(mig), "the dots carry more than mastery and band, or the pair is not gated by the reader's own Kenaikan");
@@ -707,7 +720,10 @@ export const b5aTests: SelfTest[] = [
       c.expect(/body:has\(\.pin-lk\) \{ page: laporan; background: var\(--surface-1\) !important; \}/.test(css)
         && /\.pin-lk, \.pin-lk-bagian, \.pin-lk-inti, \.pin-lk-gambar \{ display: block; \}/.test(css) && /\.pin-lk-h \+ \* \{ break-before: avoid; \}/.test(css)
         && /\.pin-lk-gambar, \.pin-lk-pita, \.pin-lk-kelompok \{ break-inside: avoid; \}/.test(css), "a report does not print as blocks on white with each heading kept with its chart");
-      c.expect(/\[data-kisi-lebar\] \{ page: laporan-lebar; \}/.test(css) && /\.pin-lk-kisi-tabel thead th, \.pin-lk-kisi-tabel \.pin-lk-bawah \{ white-space: nowrap; \}/.test(css)
+      // RESTATED FOR READINESS B5 (Daisy, 8 Nov): a wide grid makes the whole report landscape; a named page on the
+      // grid's section alone broke the page before it and left page 1 with the head only
+      c.expect(/body:has\(\.pin-lk\):has\(\[data-kisi-lebar\]\) \{ page: laporan-lebar; \}/.test(css) && !/^\s*\[data-kisi-lebar\] \{ page:/m.test(css)
+        && /\.pin-lk-kisi-tabel thead th, \.pin-lk-kisi-tabel \.pin-lk-bawah \{ white-space: nowrap; \}/.test(css)
         && /\.pin-lk-kisi-tabel \.pin-lk-kol-nama \{ width: var\(--lk-kolom-nama\); \}/.test(css), "the grid does not print with a fixed name column, whole words, or a landscape page when wide (#15)");
       const r = render(ctx.repoRoot,
         'const { createElement: h } = await import("react");' +
@@ -776,7 +792,8 @@ export const b5aTests: SelfTest[] = [
         const html = r.out;
         const teks = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
         // the lead counts the topics below their own target in most classes that have a target (7A, 7B of 7A–7C)
-        c.expect(teks.includes("Pecahan campuran di bawah target di sebagian besar kelas."), `the lead reads «${teks.slice(0, 220)}»`);
+        // RESTATED TO V2 (owner, 9 Nov; Daisy): the lead says what it counts, the classes with a figure and a target
+        c.expect(teks.includes("Pecahan campuran di bawah target di lebih dari separuh kelas yang punya angka dan target."), `the lead reads «${teks.slice(0, 220)}»`);
         // each class its own column; the refused one is absent without a word; the short one says so in its place
         c.expect(/>7A<[\s\S]*>7B<[\s\S]*>7C<[\s\S]*>7D<[\s\S]*>7E</.test(html) && !/>7F</.test(html), "the columns are not the classes the reader may see");
         // KESETIAAN #13: a class without enough evidence says so once, in its header («Sekarang 2 murid; perlu 5.»), no target there, «—» in its cells
@@ -789,9 +806,16 @@ export const b5aTests: SelfTest[] = [
         // KESETIAAN #1, #4: the lead's list said as a sentence; the section lettered and read
         c.expect(/<span class="pin-lk-huruf"><span class="pin-sr">Bagian <\/span>A<\/span>/.test(html) && /data-kisi-lebar=""/.test(html) === false, "the grid's letter is not read, or six classes print landscape");
         // cells: below the class's own target amber and in words; R4-02 (69,6% against 70%); no target, no tick and no verdict
-        c.expect((html.match(/data-bawah=""/g) ?? []).length === 3 && (html.match(/class="pin-lk-bawah">di bawah target</g) ?? []).length === 3,
-          "a cell below its class's target is not marked in words and amber (expected 7A, 7B Pecahan campuran and 7C Pecahan senilai)");
-        c.expect(teks.includes("69,6%") && teks.includes("57%") && (html.match(/<u /g) ?? []).length === 6, "R4-02 or the target ticks are wrong");
+        // RESTATED FOR «explain once» (owner, 7 Nov; Readiness B6): the words are read (.pin-sr), the key says amber once
+        // RESTATED TO DAISY'S A3 (owner, 9 Nov): the phone-width stacked view repeats the same cells (only one view is ever
+        // displayed), so each view is counted on its own: three marked cells in the table, the same three in the stack
+        const tabel = html.slice(0, html.indexOf("</table>")), tumpuk = html.slice(html.indexOf('class="pin-lk-kisi-tumpuk"'));
+        c.expect([tabel, tumpuk].every((v) => (v.match(/data-bawah=""/g) ?? []).length === 3 && (v.match(/class="pin-sr"> di bawah target</g) ?? []).length === 3)
+          && html.indexOf("</table>") > 0 && html.indexOf('class="pin-lk-kisi-tumpuk"') > html.indexOf("</table>")
+          && !/class="pin-lk-bawah">di bawah target</.test(html) && html.includes("Angka berwarna jingga menunjukkan penguasaan di bawah target."),
+          "a cell below its class's target is not marked in words and amber (expected 7A, 7B Pecahan campuran and 7C Pecahan senilai), or the key does not say it once");
+        // RESTATED TO DAISY'S A3: six target ticks in the table, the same six in the stacked view
+        c.expect(teks.includes("69,6%") && teks.includes("57%") && [tabel, tumpuk].every((v) => (v.match(/<u /g) ?? []).length === 6), "R4-02 or the target ticks are wrong");
         c.expect(/<table[\s\S]*<th scope="col" class="pin-lk-kol-nama">Topik<\/th>[\s\S]*<th scope="row">Pecahan campuran<\/th>/.test(html), "the grid is not a table with row and column headers (its own text equivalent)");
         // RB1-C1 (journey, 7 Nov, axe scrollable-region-focusable at 320 px): the sideways-scrolling grid is a focusable, named region
         c.expect(/<div class="pin-lk-kisi-wadah" role="region" tabindex="0" aria-labelledby="pin-kisi">/.test(html), "the scrolling grid cannot be reached by keyboard");
@@ -805,6 +829,107 @@ export const b5aTests: SelfTest[] = [
       return c.verdict("renders KisiTopik (CONTOH LAPORAN 3-kadep): each class the reader may see as its own column (a refused class absent without a word), each cell that class's own topic figure " +
         "against its own sealed target, amber and in words below it, R4-02's decimal; a class without enough evidence says so in its cells; the lead names the topics below target in most classes; " +
         "a table with row and column headers; and /pimpinan draws it from each class's own envelope and target");
+    },
+  },
+  {
+    // Reporting Quality Gate (owner, 9 Nov): «Hasil belajar» on a phone with a real chapter's objectives. Each part is
+    // named by its objective's statement (a sentence); seven of them ran into a 25-line lead at 390 px.
+    id: "LAPORAN-MURID-02",
+    run: async (ctx) => {
+      const c = new Checks();
+      const bagian = (n: number) => Array.from({ length: n }, (_, i) => ({ kode: `P${i}`, nama: `Kalian dapat menyelesaikan langkah ${i + 1}.`, benar: 0, total: 2, ulang: true }));
+      const bab = [
+        { tugas: "t1", judul: "Matematika Kelas 5 · Bab 1: Pola Bilangan", keadaan: "SELESAI", awal: 0.5, akhir: 0.13, ambang: 0.7, tercapai: "BELUM",
+          benar: 1, total: 8, bagian: bagian(4), ulang: bagian(4).map((b) => b.nama) },
+        { tugas: "t2", judul: "Matematika Kelas 5 · Bab 2: Data Sederhana", keadaan: "SELESAI", awal: 0.25, akhir: 0.38, ambang: 0.7, tercapai: "BELUM",
+          benar: 3, total: 8, bagian: bagian(3), ulang: bagian(3).map((b) => b.nama) },
+      ];
+      const r = render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KomposisiMurid.tsx");' +
+        "const K = m.default?.default ?? m.default;" +
+        "process.stdout.write(renderToStaticMarkup(h(K, { bab: JSON.parse(process.env.BAB), locale: 'id' })));",
+        { BAB: JSON.stringify(bab) });
+      if (c.expect(r.ok, `could not be rendered: ${r.err}`)) {
+        const teks = r.out.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+        const a = teks.slice(0, teks.indexOf("Bagian per bab") > 0 ? teks.indexOf("Bagian per bab") : 600);
+        c.expect(a.includes("Ada 7 bagian untuk dipelajari lagi; semuanya ditandai «pelajari lagi» di bagian B."), `the lead reads «${a.slice(0, 300)}»`);
+        c.expect(!/Pelajari lagi: /.test(a) && !/\.,/.test(teks), "the lead still lists every part, or a statement's full stop is inside a list");
+        c.expect((teks.match(/Kalian dapat menyelesaikan langkah 1/g) ?? []).length >= 1, "section B no longer lists the parts");
+      }
+      // R7 / Daisy F2: one rule for a chapter's name, on every learner page that names one
+      const nb = (await import("../src/lib/nama-bab")) as { namaBab: (s: string, t: string, ...l: string[]) => string };
+      c.expect(nb.namaBab("Matematika", "Matematika Kelas 5 · Bab 1: Pola Bilangan") === "Matematika Kelas 5 · Bab 1: Pola Bilangan"
+        && nb.namaBab("IPA", "Bab 1", "Kelas 7") === "IPA · Kelas 7 · Bab 1"
+        && nb.namaBab("Matematika", "Matematika Kelas 5 · Bab 2", "Kelas 5") === "Matematika Kelas 5 · Bab 2",
+        "namaBab still repeats the subject, or drops it where the title does not carry it");
+      for (const f of ["src/lib/hasil-belajar.ts", "src/app/belajar/[tugas]/hasil/page.tsx", "src/app/belajar/[tugas]/pemetaan/page.tsx",
+        "src/app/belajar/[tugas]/penguasaan/page.tsx", "src/app/belajar/[tugas]/sertifikat/page.tsx"]) {
+        const src = baca(ctx.repoRoot, f);
+        c.expect(/namaBab\(/.test(src) && !/\$\{(?:mine|assignment)\.subject\} · \$\{(?:mine|assignment)\.(?:grade_label|title)\}/.test(src) && !/\{mine\.subject\} · \{mine\.title\}/.test(src),
+          `${f} still names a chapter as «subject · title» by hand`);
+      }
+      return c.verdict("«Hasil belajar» with seven parts to study again counts them in the lead and points to section B, which lists each; "
+        + "a chapter whose title begins with its subject is not prefixed with it again");
+    },
+  },
+  {
+    // Reporting Quality Gate (owner, 9 Nov): a learner who opened a class's summary, and a teacher at another class's or
+    // the school's, were given a report frame (the place, «Cetak laporan») of six refusal cards
+    id: "LAPORAN-TOLAK-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      for (const f of ["src/app/edukator/ringkasan/page.tsx", "src/app/dekan/ringkasan/page.tsx"]) {
+        const src = kode(baca(ctx.repoRoot, f));
+        const jaga = src.indexOf('entries.every((e) => e.status === "not_permitted")');
+        const lapor = src.indexOf("<AksiLaporan");
+        c.expect(jaga > 0 && /if \(entries\.length > 0 && entries\.every\(\(e\) => e\.status === "not_permitted"\)\) \{\s*return <HalamanPenolakan [^>]*messageKey="laporan\.ditolak"/.test(src)
+          && lapor > jaga, `${f} still draws the report frame for a reader refused every figure`);
+      }
+      c.expect(t("laporan.ditolak", "staff", { locale: "id" }) === "Laporan ini tidak ditampilkan untuk peran Anda di tempat ini.", "the refusal's words are not in the copy table");
+      return c.verdict("Ringkasan Kelas and Ringkasan Sekolah give a reader refused every figure the refusal page («Laporan ini tidak ditampilkan untuk peran Anda di tempat ini.»), never a report frame of refusal cards; the guard runs before the page's report is drawn");
+    },
+  },
+  {
+    // Reporting Quality Gate (owner, 9 Nov): the grid's lead never claims what its reader could not have found. A Dekan
+    // reads no class's target (assessment_assignments is the authors' and assigners' read) and was told «Tidak ada topik
+    // yang di bawah target di sebagian besar kelas» over cells below the target.
+    id: "LAPORAN-KISI-02",
+    run: async (ctx) => {
+      const c = new Checks();
+      const topik = (r: Array<[string, string, number]>) => ({ status: "ok", metric_id: "class.topic_mastery", label_key: "metrik.topik.label",
+        value: r.map(([id, nama, v]) => ({ objective_id: id, competency: nama, mean_score: v, learners: 25 })) });
+      const kasus = (target: number | null, t2: number | null) => [
+        // objectives are named by their statements, which end in a full stop (it must not survive into the lead)
+        { id: "5b", nama: "5B", target, topik: topik([["p", "Pola bilangan.", 0.38], ["q", "Pola berkurang.", 0.39], ["s", "Modus.", 0.82]]) },
+        { id: "5c", nama: "5C", target: t2, topik: topik([["p", "Pola bilangan.", 0.21], ["q", "Pola berkurang.", 0.43], ["s", "Modus.", 0.86]]) },
+      ];
+      const lihat = (kolom: unknown) => render(ctx.repoRoot,
+        'const { createElement: h } = await import("react");' +
+        'const { renderToStaticMarkup } = await import("react-dom/server");' +
+        'const m = await import("file://" + process.cwd() + "/src/components/laporan/KisiTopik.tsx");' +
+        "const K = m.default?.default ?? m.default;" +
+        "process.stdout.write(renderToStaticMarkup(h(K, { kolom: JSON.parse(process.env.KOLOM), locale: 'id' })));",
+        { KOLOM: JSON.stringify(kolom) });
+      const teks = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      const tanpa = lihat(kasus(null, null));
+      if (c.expect(tanpa.ok, `the grid could not be rendered: ${tanpa.err}`)) {
+        c.expect(!/data-lk-kalimat/.test(tanpa.out) && !teks(tanpa.out).includes("Tidak ada topik"),
+          `with no target readable the lead still judges the topics: «${teks(tanpa.out).slice(0, 200)}»`);
+        c.expect(teks(tanpa.out).includes("38%") && teks(tanpa.out).includes("21%"), "the cells are not drawn without a target");
+      }
+      const satu = lihat(kasus(0.7, null));
+      if (c.expect(satu.ok, `the grid could not be rendered: ${satu.err}`)) {
+        c.expect(!/data-lk-kalimat/.test(satu.out), "with one class's target readable the lead still speaks of «most classes»");
+      }
+      const dua = lihat(kasus(0.7, 0.7));
+      if (c.expect(dua.ok, `the grid could not be rendered: ${dua.err}`)) {
+        c.expect(teks(dua.out).includes("Pola bilangan dan Pola berkurang di bawah target di lebih dari separuh kelas yang punya angka dan target."),
+          `with both targets the lead reads «${teks(dua.out).slice(0, 200)}» (a statement's full stop inside the list?)`);
+      }
+      return c.verdict("KisiTopik's lead judges «below target in most classes» only over at least two classes whose figure and target its reader can read; "
+        + "with none or one it says nothing (a Dekan reads no target) and the cells are still drawn; with two it names the pattern");
     },
   },
   {
@@ -843,14 +968,18 @@ export const b5aTests: SelfTest[] = [
         const t1 = teks(isi);
         // KESETIAAN #17, #1: the lead says the Kenaikan and the domains in «Perlu penguatan» as a sentence; the sub line counts the rest
         c.expect(t1.includes("Kenaikan penguasaan rata-rata sejak Pemetaan Awal: +19 poin. Listrik dan magnet serta Geometri dan pengukuran masih di pita «Perlu penguatan».")
-          && /1 dari 3 ranah berada di pita «Berkembang» atau «Mantap»\./.test(t1), `the lead reads «${t1.slice(0, 260)}»`);
+          // RESTATED TO THE OWNER'S DIRECTIVE (9 Nov, Daisy's N3): a row of «Capaian kompetensi» is a learning objective, never a «ranah»
+          && /1 dari 3 tujuan pembelajaran berada di pita «Berkembang» atau «Mantap»\./.test(t1), `the lead reads «${t1.slice(0, 260)}»`);
         // R4-01: the zones named once above the scale; R4-02: 59,6%, not «60%»; sorted high to low; below 60% amber and names its band
         c.expect(t1.includes("Batas pita: di bawah 60% «Perlu penguatan» · 60–79% «Berkembang» · 80% ke atas «Mantap».") && t1.includes("59,6%")
           && /Bilangan[\s\S]*Listrik dan magnet[\s\S]*Geometri dan pengukuran/.test(t1)
-          && (isi.match(/<li data-bawah="">/g) ?? []).length === 2 && (isi.match(/class="pin-lk-bawah">Perlu penguatan</g) ?? []).length === 2
+          // RESTATED FOR «explain once» (Readiness B6): the band's name is read under each amber dot (.pin-sr), said once below
+          && (isi.match(/<li data-bawah="">/g) ?? []).length === 2 && (isi.match(/class="pin-sr"> Perlu penguatan</g) ?? []).length === 2
+          && !/class="pin-lk-bawah">Perlu penguatan</.test(isi)
+          && (isi.match(/data-lk-ket-bawah="">Titik berwarna jingga menunjukkan penguasaan pada pita Perlu penguatan\.</g) ?? []).length === 1
           && (isi.match(/class="pin-lk-zona"/g) ?? []).length === 10, "the domain dot plot does not follow R4-01, R4-02 or G-03");
         // B: every headline figure with its base; R4-03: issued and not revoked out of all issued
-        c.expect(t1.includes("408 dari 411 yang pernah terbit; 3 dicabut.") && t1.includes("Dari 836 hasil Uji Penguasaan.")
+        c.expect(t1.includes("408 dari 411 yang pernah terbit; 3 dicabut.") && t1.includes("Dari 836 murid yang mengerjakan Uji Penguasaan.") /* RESTATED (Sharon's finding 2, owner D6): the base is learners */
           && t1.includes("Dihitung dari 380 murid yang mengerjakan Pemetaan Awal dan Uji Penguasaan bab yang sama."), "a headline figure stands without its base");
         // C: the cohorts by name on the same scale, captioned as states, not a ranking
         c.expect(t1.includes("Angkatan 2026 (kelas 7)") && t1.includes("Ini perbandingan keadaan, bukan peringkat."), "the cohort comparison is not named or captioned");

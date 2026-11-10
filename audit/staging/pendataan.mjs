@@ -15,6 +15,10 @@ export async function catat(page, nama, { kelas = null, peran = null } = {}, { s
     if (!k) throw new Error(`«${kelas}» is not offered as a place: ${JSON.stringify(tempat.map((o) => o.t))}`);
     await page.locator("#pin-medan-node_id").selectOption(k.v);
     jejak.push(`Tempat «${k.t}»`);
+  } else {
+    // Daisy F1 (8 Nov): a list with no class is recorded only once the administrator says it is a staff list
+    await page.getByLabel("Ini daftar guru atau staf", { exact: false }).check();
+    jejak.push("no Tempat: «Ini daftar guru atau staf» ticked");
   }
   if (peran) await page.locator("#pin-medan-role").selectOption(`t:${peran}`);
   await page.getByRole("button", { name: "Lanjut ke pemeriksaan", exact: true }).click();

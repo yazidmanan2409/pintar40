@@ -152,3 +152,12 @@ This is the text for the owner to sign at Batch 9 or 10. **It is not requested i
 
 - `RELEASE-CHECKLIST.md` REL-03 still refers to «165» migrations. It is stale and is listed for Batch 9.
 - F-5 in F now points to this brief and carries the restated recommendation (§5).
+
+## Added 10 Nov 2026: a table rewrite in the candidate's migrations
+
+`20270112210000` adds `audit_log.run_id`, a stored generated column (Sharon's paging ruling). The audit payload of every row is unchanged, but adding the column **rewrites `audit_log` under an ACCESS EXCLUSIVE lock**: every audited action (and so almost every write in PINTAR) waits until it finishes.
+
+- **R-2 must measure it.** Time this migration's statement on the restored copy of production, with its real row count, and record both.
+- **The production push runs inside a maintenance window** sized from that measurement, never from an estimate. A local timing, or a guess of «seconds», does not establish the hosted duration.
+- The same migration adds the run's indexes (`audit_log_run_idx`, `audit_log_run_parent_uq`) and the deferred constraint trigger `audit_log_run_parent`. R-2's standing assertions should confirm all three exist after the push.
+

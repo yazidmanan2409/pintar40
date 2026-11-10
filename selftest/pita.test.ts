@@ -60,13 +60,14 @@ export const pitaTests: SelfTest[] = [
       c.expect(/80%/.test(catatan) && /60/.test(catatan), `the line does not name the fixed bands: «${catatan}»`);
       c.expect(catatan.length <= 200, `the line is not concise (${catatan.length} characters)`);
 
-      // 3. the action sentence names the bands it means; the safety-gate figure keeps its own sentence
-      const aksi = id("tindakan.fokus_pita");
-      c.expect(aksi.includes(id("kesiapan.perlu_review")) && aksi.includes(id("kesiapan.butuh_pendampingan")),
-        `the action sentence does not name the two bands: «${aksi}»`);
+      // 3. RESTATED TO OWNER RULING O1 (9 Nov): the bands' sentence names the band it points to and where the names are,
+      // never a teaching act; the safety-gate figure keeps a sentence of its own; neither depends on the value
+      const aksi = id("tindakan.lihat_nama");
+      c.expect(aksi.includes(id("kesiapan.butuh_pendampingan")) && !/Fokuskan|Ulangi|lanjutkan/i.test(aksi),
+        `the bands' sentence does not point to the band's names, or prescribes: «${aksi}»`);
       const intel = kode(readFileSync(join(repoRoot, "src/app/_intel.ts"), "utf8"));
-      c.expect(/case "metrik\.kesiapan\.label":\s*return s\("tindakan\.fokus_pita"/.test(intel), "the bands' action sentence is not tindakan.fokus_pita");
-      c.expect(/case "metrik\.gerbang_keselamatan\.label":[\s\S]{0,160}tindakan\.fokus"/.test(intel), "the safety-gate figure lost its own sentence");
+      c.expect(/case "metrik\.kesiapan\.label":\s*return s\("tindakan\.lihat_nama"/.test(intel), "the bands' sentence is not tindakan.lihat_nama");
+      c.expect(/case "metrik\.gerbang_keselamatan\.label":\s*return s\("tindakan\.lihat_soal"/.test(intel), "the safety-gate figure lost its own sentence");
 
       // 4. band order: Mantap, Berkembang, Perlu penguatan, then not yet; anything else after, as given
       const urut = (nilaiMetrik as Record<string, unknown>).urutkanPita as ((x: [string, unknown][]) => [string, unknown][]) | undefined;

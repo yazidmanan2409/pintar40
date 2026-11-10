@@ -5,6 +5,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { kelas as kelasKonteks } from "@/lib/pengajar";
 import { kodeGalatPenugasan } from "@/lib/penugasan-kontrak";
 import { batasHari } from "@/lib/hle";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 import { alamatTolakUjiCepat, kodeUjiCepat } from "@/lib/ujicepat-kontrak";
 import { rujukan } from "@/lib/galat-kontrak";
 import { kodeUlang } from "@/lib/ulang-kontrak";
@@ -88,12 +89,14 @@ export async function sediakanMateri(formData: FormData): Promise<void> {
   // cycle's two tests with it -- or a PR050 refusal and nothing at all. The
   // teacher is sent back to the review with the refusal's code, whose sentence
   // says what the lesson is missing.
+  const zona = await zonaSekolah(db, ctx!.ini.institusi);
   const { data, error } = await db.rpc("assign_release", {
     p_release: terbitan,
     p_node: kelasId,
     // DAISY-14 (M10): the teacher's days on the school's clock, not London's
-    p_from: mulai ? batasHari(mulai, "awal") : null,
-    p_until: sampai ? batasHari(sampai, "akhir") : null,
+    // Sharon F1: and on that school's own clock (WIB, WITA or WIT)
+    p_from: mulai ? batasHari(mulai, "awal", zona) : null,
+    p_until: sampai ? batasHari(sampai, "akhir", zona) : null,
   });
   if (error || !data?.ok) {
     const kode = kodeGalatPenugasan(error);
@@ -109,6 +112,37 @@ export async function sediakanMateri(formData: FormData): Promise<void> {
   // W3.11 (J1 part two): «Menyediakan…», then «✓ Disediakan» at the button that sent it and the line with the window
   // in words, then the way on to the class. The review reads back what the database now holds before it says so.
   ke(kelasId, `/siapkan?disediakan=${encodeURIComponent(terbitan)}`);
+}
+
+// ───────────────────────────────────────── W2.21: end or withdraw an assignment on the record
+/**
+ * `akhiri_penugasan` decides everything: CAN_ASSIGN_LEARNING over the class the lesson was given to, the kind, the
+ * reason, and the open sittings (refused ASSIGN_IN_PROGRESS unless the teacher ticked the confirmation). This action
+ * only passes the form on and returns the teacher to the class page with the outcome.
+ */
+export async function akhiriPenugasanAction(formData: FormData): Promise<void> {
+  const kelasId = bersih(formData.get("kelas"));
+  const penugasan = bersih(formData.get("penugasan"));
+  const jenis = bersih(formData.get("jenis"));
+  const alasan = bersih(formData.get("alasan"));
+  const konfirmasi = formData.get("akhiri_berjalan") === "ya";
+  if (!kelasId || !UUID.test(kelasId)) redirect("/mengajar");
+  if (!UUID.test(penugasan)) ke(kelasId);
+
+  const ctx = await kelasKonteks(kelasId);
+  if (!ctx) ke(kelasId);
+
+  const db = (await supabaseServer()) as any;
+  const { error } = await db.rpc("akhiri_penugasan", {
+    p_la: penugasan, p_jenis: jenis, p_alasan: alasan, p_akhiri_yang_berjalan: konfirmasi,
+  });
+  if (error) {
+    const kode = kodeGalatPenugasan(error);
+    if (kode === "ASSIGN_FAILED") console.error("[akhiri] akhiri_penugasan failed", error?.code, error?.message);
+    ke(kelasId, `?${new URLSearchParams({ akhiri: penugasan, kode }).toString()}#akhiri`);
+  }
+  // Daisy (TINJAUAN-6faef690 §1): the result line follows the choice
+  ke(kelasId, `?diakhiri=${jenis === "WITHDRAWN" ? "ditarik" : "ok"}#materi`);
 }
 
 // ─────────────────────────────────────────────────────── launch a quick assessment

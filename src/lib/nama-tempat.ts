@@ -34,6 +34,8 @@ export const ASAL_LAPORAN: Readonly<Record<string, { ke: string; nama: HleEvent 
   pimpinan: { ke: "/pimpinan", nama: "nav.pimpinan" },
   // B1: Konfigurasi's «Laporan» is its own page
   konfigurasi: { ke: "/konfigurasi/laporan", nama: "config.laporan.judul" },
+  // Readiness A2 (Daisy, 8 Nov): the Guru opens their class's Ringkasan Kelas from Mengajar
+  kelas: { ke: "/mengajar", nama: "nav.kelas" },
 };
 export function asalLaporan(dari: unknown): { ke: string; nama: HleEvent } {
   return (typeof dari === "string" && Object.hasOwn(ASAL_LAPORAN, dari) ? ASAL_LAPORAN[dari] : null) ?? { ke: "/", nama: KEMBALI_RIWAYAT };

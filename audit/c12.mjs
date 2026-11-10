@@ -98,7 +98,8 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
     const kartu = (label) => C.layarAwal.bukti.find((x) => x.startsWith(label)) ?? "";
     const paham = kartu("Pemahaman"), naik = kartu("Kenaikan");
     const harap = /Pemahaman 75\s?%/.test(paham) && /Dari 5 murid/.test(paham) && /Kenaikan \+35 poin/.test(naik) && /Dari 5 murid/.test(naik);
-    if (!harap || C.awal.jumlah_metrik !== 16 || !C.awal.metrik_ok) rec.verdict = "FAIL";
+    // RESTATED TO OWNER RULING O3 (9 Nov): MC-9 adds class.chapter_mastery, so the catalogue holds 17 metrics (as F06-P13)
+    if (!harap || C.awal.jumlah_metrik !== 17 || !C.awal.metrik_ok) rec.verdict = "FAIL";
     return `catalogue ${C.awal.katalog}, ${C.awal.jumlah_metrik} metrics, ${Object.keys(C.awal.metrik).length} readings (${C.awal.metrik_ok} ok), md5 ${C.awal.metrik_md5}; ` +
       `sources ${JSON.stringify(C.awal.sumber)}; rosters ${JSON.stringify(C.awal.daftar)}; the Guru ${JSON.stringify(C.awal.orang)}; ` +
       `«Lihat bukti» Kelas 1A: ${angka.slice(0, 300)} (Pemahaman 75% from 5, Kenaikan +35 poin from 5: ${harap})`;

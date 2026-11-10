@@ -88,6 +88,13 @@ begin
     insert into auth.users (id, email) values (gen_random_uuid(), 'card-' || v_kartu || '@cards.synthetic.pintar.test');
     select a.* into v_akun from public.accounts a where a.person_id = v_murid;
     if v_akun.id is null or v_akun.kind <> 'CLASSROOM_CARD' then raise exception 'the fixture card account was not made'; end if;
+    -- RESTATED FOR SI-D03 (owner, 9 Nov: historical registration alone confers no credential authority; Sharon's
+    -- review of 89374424): the card learner is enrolled at alpha, as a class-card learner is. The fixture had given the
+    -- card with no enrolment, so after activation alpha neither placed nor was onboarding the person and, rightly, may
+    -- no longer convert or correct their account. No assertion changes.
+    insert into public.enrollments (person_id, institution_id, academic_period_id, status)
+    select v_murid, v_a, ap.id, 'ACTIVE' from public.academic_periods ap where ap.institution_id = v_a order by ap.created_at limit 1;
+    if not found then raise exception 'the fixture lacks an academic period at alpha'; end if;
     select ii.institutional_id into v_pid from public.institutional_identities ii where ii.person_id = v_murid limit 1;
     perform audit_write('selftest.f24_marker', 'persons', v_murid::text, v_a, jsonb_build_object('person_id', v_murid));
     v_guru  := selftest.f11_user('f24-guru-'  || v_tag || '@local.invalid', 'EDUCATOR', v_a);

@@ -37,6 +37,7 @@ export function kunciJedaKartu(cardNumber: string): string {
  * nobody without the pepper can compute or clear another's record. Anything
  * typed is keyed the same way, existing or not.
  */
-export function kunciIdentitas(label: "kode-alamat" | "masuk-password" | "minta-kode" | "pulih-pin-alamat", nilai: string): string {
+// owner ruling 2 (9 Nov): "buka-kembali-alamat", the caller's address on the reopening request's door
+export function kunciIdentitas(label: "kode-alamat" | "masuk-password" | "minta-kode" | "pulih-pin-alamat" | "buka-kembali-alamat", nilai: string): string {
   return createHmac("sha256", cardPepper()).update(`${label}|${nilai}`).digest("hex");
 }

@@ -17,6 +17,8 @@ import { TeksBaris } from "@/components/teks/Teks";
 import { adaBuktiSoal, kataAnggota } from "@/lib/mengajar";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { judulAsesmen } from "@/lib/judul-asesmen";
+import { zonaSekolah } from "@/lib/zona-sekolah";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/uji-cepat");
 
@@ -74,6 +76,8 @@ export default async function UjiCepat({
   if (!ctx) {
     return <HalamanPenolakan locale={locale} persona="educator" backHref="/mengajar" backKey="mengajar.kembali" />;
   }
+  // the owner's ruling (10 Nov): an Uji Cepat is named by when it opened on the class's school's clock
+  const zona = await zonaSekolah(await supabaseServer(), ctx.ini.institusi);
 
   const [buka, batas, tugas, fakta] = await Promise.all([
     ajar.berjalan([id]),
@@ -131,7 +135,7 @@ export default async function UjiCepat({
             <p className="pin-eyebrow">{s("mengajar.cepat.hidup.eyebrow")}</p>
             <h1>{s("mengajar.cepat.hidup.judul")}</h1>
             <p>
-              {judulAsesmen(hidup, locale)} · {format.number(hidup.soal, locale)} {s("mengajar.siap.soal")}
+              {judulAsesmen(hidup, locale, zona)} · {format.number(hidup.soal, locale)} {s("mengajar.siap.soal")}
             </p>
           </div>
           {/* TWO FACTS, NOT THREE. The reviewed concept carried a third —
@@ -288,7 +292,7 @@ export default async function UjiCepat({
         {q.tahap === "tinjau" && !cukup && !gagal ? <BarisHasil nada="gagal">{rentang}</BarisHasil> : null}
         {terakhir ? (
           <p className="pin-meta pin-cepat-terakhir">
-            {s("mengajar.cepat.terakhir")} · {judulAsesmen(terakhir, locale)} ·{" "}
+            {s("mengajar.cepat.terakhir")} · {judulAsesmen(terakhir, locale, zona)} ·{" "}
             <Link href={`/mengajar/${id}/uji-cepat/hasil?penugasan=${terakhir.id}`}>{s("mengajar.cepat.hasil.lihat")}</Link>
             {/* E-C2-3: the per-question page answers an academic class only (adaBuktiSoal) */}
             {adaBuktiSoal(ctx.ini.jenis) ? <> · <Link href={`/mengajar/${id}/soal?penugasan=${terakhir.id}`}>{s("mengajar.bukti.per_soal")}</Link></> : null}

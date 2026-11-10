@@ -60,7 +60,33 @@ export function kalimatJumlah(entry: Envelope, locale: Locale = "id", persona: "
   if (variantOf(entry) !== "belum_cukup" || entry.needed == null || !hitungMurid) {
     return null;
   }
+  // owner decision 7 (Daisy's N2): a figure WITHHELD to protect a smaller part is not «not enough students»: its
+  // learners did sit, and the sentence says so, with the minimum the small part did not reach
+  if (entry.withheld?.reason === "subgroup") {
+    return kalimatDilindungi(entry, jenis, locale, persona);
+  }
+  // D12: a gate that applies to none of the sittings is waiting on no student; the statement says why, alone
+  if (entry.withheld?.reason === "not_applicable") return null;
+  // Daisy's B1: the gate counts only the results of checks WITH required items; said so, with the others set apart
+  if (entry.metric_id === "institution.safety_gate_pass_rate") {
+    const s = (k: string) => t(k as HleEvent, persona, { locale });
+    return [
+      format.tunggal(s("ketiadaan.jumlah.gerbang").replace("{have}", format.number(entry.have ?? 0, locale)).replace("{needed}", format.number(entry.needed, locale)), locale),
+      typeof entry.not_applicable === "number" && entry.not_applicable > 0
+        ? s("laporan.sekolah.dasar_gerbang_tidak_berlaku").replace("{k}", format.number(entry.not_applicable, locale)) : null,
+    ].filter(Boolean).join(" ");
+  }
   return kalimatJumlahOrang(entry.have ?? 0, entry.needed, jenis, locale, persona);
+}
+
+/** Owner decision 7: «N learners sat; a chapter (or, for a school figure, a class) has fewer than M.» */
+export function kalimatDilindungi(entry: Envelope, jenis: JenisAnggota = "LEARNER", locale: Locale = "id", persona: "educator" | "staff" = "educator"): string {
+  // the class's Kenaikan is withheld for a chapter's small PAIRS, said as such, not as «took the Mastery Check»
+  const bagian = entry.metric_id?.startsWith("institution.") ? "kelas" : entry.metric_id === "class.net_gain" ? "bab_pasangan" : "bab";
+  const orang = jenis === "PARTICIPANT" ? "peserta" : "murid";
+  return format.tunggal(t(`ketiadaan.dilindungi.${bagian}.${orang}` as HleEvent, persona, { locale })
+    .replace("{have}", format.number(entry.have ?? 0, locale))
+    .replace("{needed}", format.number(Number(entry.withheld?.needed ?? entry.needed), locale)), locale);
 }
 
 /**
@@ -69,9 +95,9 @@ export function kalimatJumlah(entry: Envelope, locale: Locale = "id", persona: "
  * one. A surface never writes the sentence itself.
  */
 export function kalimatJumlahOrang(have: number, needed: number, jenis: JenisAnggota, locale: Locale = "id", persona: "educator" | "staff" = "educator"): string {
-  return t(jenis === "PARTICIPANT" ? "ketiadaan.jumlah.peserta" : "ketiadaan.jumlah.murid", persona, { locale })
+  return format.tunggal(t(jenis === "PARTICIPANT" ? "ketiadaan.jumlah.peserta" : "ketiadaan.jumlah.murid", persona, { locale })
     .replace("{have}", format.number(have, locale))
-    .replace("{needed}", format.number(needed, locale));
+    .replace("{needed}", format.number(needed, locale)), locale);
 }
 
 export default function KartuKetiadaan({

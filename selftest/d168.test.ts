@@ -215,7 +215,8 @@ export const d168Tests: SelfTest[] = [
             `${f}: a pager without the reader's language, its rows' noun or its count: ${m[1].replace(/\s+/g, " ").slice(0, 90)}`);
         }
       }
-      c.expect(jumlah === 10, `${jumlah} paged lists found, not the 10 known`);
+      // RESTATED (Sharon's paging ruling, 10 Nov): eleven, with an opened year-end run's related entries in Jejak audit
+      c.expect(jumlah === 11, `${jumlah} paged lists found, not the 11 known`);
       const KASUS = [
         { halaman: 1, lagi: true, jumlah: 20, locale: "id" }, { halaman: 2, lagi: true, jumlah: 20, locale: "id" },
         { halaman: 3, lagi: false, jumlah: 5, locale: "en" }, { halaman: 1, lagi: false, jumlah: 20, locale: "id" },
@@ -338,11 +339,13 @@ export const d168Tests: SelfTest[] = [
       c.expect(en.startsWith("Quick Assessment · ") && /2026, 20\.26 WIB$/.test(en), `in English an Uji Cepat is named «${en}»`);
       c.expect((id.match(/Uji Cepat/g) ?? []).length === 1 && !id.includes("—") && !/\d{4}-\d{2}-\d{2}/.test(id), "the name repeats «Uji Cepat» or carries the stored stamp");
       c.expect(judulAsesmen({ judul: "Cek penguasaan", mode: "POST_TEST", dibuka: q.dibuka }, "id") === "Cek penguasaan", "another assessment loses its package's title");
+      // RESTATED (owner, 10 Nov: school-context dates on the school's clock): each surface still names it through judulAsesmen, now
+      // with the zone of the assessment's school, so the moment it opened is written on that school's clock
       const SURFACE: Array<[string, RegExp]> = [
-        ["src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx", /<p className="pin-eyebrow">\{judulAsesmen\(tugas, locale\)\}<\/p>/],
-        ["src/components/bukti/KeadaanHariIni.tsx", /<p className="pin-keadaan-judul">\{judulAsesmen\(a, locale\)\}<\/p>/],
-        ["src/app/mengajar/[kelas]/uji-cepat/page.tsx", /\{judulAsesmen\(hidup, locale\)\}[\s\S]*\{judulAsesmen\(terakhir, locale\)\}/],
-        ["src/app/belajar/page.tsx", /<span className="pin-ttitle">\{judulAsesmen\(\{ judul: a\.title, mode: a\.mode, dibuka: a\.opens_at \}, locale\)\}<\/span>/],
+        ["src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx", /<p className="pin-eyebrow">\{judulAsesmen\(tugas, locale, zona\)\}<\/p>/],
+        ["src/components/bukti/KeadaanHariIni.tsx", /<p className="pin-keadaan-judul">\{judulAsesmen\(a, locale, zona\)\}<\/p>/],
+        ["src/app/mengajar/[kelas]/uji-cepat/page.tsx", /\{judulAsesmen\(hidup, locale, zona\)\}[\s\S]*\{judulAsesmen\(terakhir, locale, zona\)\}/],
+        ["src/app/belajar/page.tsx", /<span className="pin-ttitle">\{judulAsesmen\(\{ judul: a\.title, mode: a\.mode, dibuka: a\.opens_at \}, locale, zonaDari\(a\.node_id\)\)\}<\/span>/],
       ];
       for (const [f, re] of SURFACE) {
         const src = kode(readFileSync(join(repoRoot, f), "utf8"));
@@ -405,7 +408,7 @@ export const d168Tests: SelfTest[] = [
       const baca = (f: string) => kode(readFileSync(join(repoRoot, f), "utf8"));
       const pasang = (tujuan: string, peran: string[]) => ({ tujuan, tempat: "s", platform: false, nama: "S", jenis: "INSTITUTION", peran, kemampuan: [] }) as never;
       // a person who is both a teacher and a school administrator, working in Mengelola: Konfigurasi's shell, not a teacher's
-      c.expect(JSON.stringify(cangkangStaf(["EDUCATOR", "INSTITUTION_ADMIN"], pasang("MENGELOLA", ["INSTITUTION_ADMIN"]))) === JSON.stringify({ kind: "focus", kembali: "/konfigurasi" }),
+      c.expect(JSON.stringify(cangkangStaf(["EDUCATOR", "INSTITUTION_ADMIN"], pasang("MENGELOLA", ["INSTITUTION_ADMIN"]))) === JSON.stringify({ kind: "pendataan", kembali: "/konfigurasi" }), // RESTATED FOR C8 (Daisy, 8 Nov): the admin's staff shell, as /akun
         `a teacher-administrator in Mengelola gets ${JSON.stringify(cangkangStaf(["EDUCATOR", "INSTITUTION_ADMIN"], pasang("MENGELOLA", ["INSTITUTION_ADMIN"])))}`);
       c.expect(cangkangStaf(["EDUCATOR", "DEAN"], pasang("MENGAJAR", ["EDUCATOR"])).kembali === "/mengajar", "a teaching Dean in Mengajar is not given Mengajar");
       c.expect(cangkangStaf(["EDUCATOR"], null).kembali === "/mengajar", "without a context the roles no longer stand in");
@@ -753,7 +756,9 @@ export const d168Tests: SelfTest[] = [
       const i = src.indexOf('<section id="audit"');
       const audit = i < 0 ? "" : src.slice(i, src.indexOf("</section>", i));
       c.expect(/<div className="pin-tabel-bingkai[^"]*" role="region" tabIndex=\{0\} aria-labelledby="pin-jejak-judul">\s*<table className="pin-tabel/.test(audit)
-        && /<caption id="pin-jejak-judul"/.test(audit) && (audit.match(/<th scope="col">/g) ?? []).length === 4, "the audit trail is not the design system's Table with its caption and column headers");
+        && /<caption id="pin-jejak-judul"/.test(audit)
+        // RESTATED (owner, 9 Nov: E7 adds «Oleh» and «Alasan»): when, action, record, by, reason, and the platform's build
+        && (audit.match(/<th scope="col">/g) ?? []).length === 6, "the audit trail is not the design system's Table with its caption and column headers");
       c.expect(/const adaVersi = platformIni && barisJejak\.some\(\(r\) => Boolean\(r\.build_sha\)\);/.test(src)
         && /\{adaVersi \? <th scope="col">\{s\("config\.label\.build"\)\}<\/th> : null\}/.test(audit) && !/\{platformIni \?/.test(audit),
         "«Versi» is drawn for a page none of whose rows carries a build, or for a reader who is not Admin platform");
@@ -856,9 +861,14 @@ export const d168Tests: SelfTest[] = [
       const sistem = bagian("system");
       c.expect(/className=\{`pin-pill \$\{i\.is_active \? "pin-ok" : "pin-neutral"\}`\}/.test(sistem) && /<span className="pin-pill pin-info">\{s\("config\.sekolah\.sintetis"\)\}<\/span>/.test(sistem)
         && /when\(p\.starts_on, "baca"\)\} – \$\{when\(p\.ends_on, "baca"\)\}/.test(sistem) && !/\$\{p\.starts_on\}/.test(sistem) && !/<form/.test(sistem), "Sistem & Konfigurasi's schools are not read-only rows with their badges and their years in words");
-      // Pergantian tahun ajaran: a panel per school under its name, «Dari» and «Ke» sharing a row
+      // RESTATED (owner, 9 Nov: Daisy's «Kenaikan kelas dan kelulusan» replaces the class-to-class «Dari»/«Ke» form; the
+      // pattern is kept): a panel per school, under its name when there are several, and in the flow the new year and
+      // «Naikkan semua ke» share a row
       const roll = bagian("rollover");
-      c.expect(/<h2 className="text-sm font-medium">\{inst\.name\}<\/h2>\s*<div className="pin-baris-isian">\s*<label className=\{label\}>\{s\("config\.label\.period_from"\)\}/.test(roll), "Pergantian tahun ajaran's «Dari» and «Ke» do not share a row under the school's name");
+      const kenaikan = readFileSync(join(repoRoot, "src/components/kenaikan/KenaikanKelas.tsx"), "utf8");
+      c.expect(/\{myInstitutions\.length > 1 \? <h2 className="text-sm font-medium">\{inst\.name\}<\/h2> : null\}\s*<KenaikanKelas sekolah=\{inst\.id\}/.test(roll)
+        && /<form method="get" action="\/konfigurasi\/rollover#rollover" className="pin-baris-isian">[\s\S]{0,200}<label className=\{label\}>\{s\("kenaikan\.tahun\.label"\)\}[\s\S]{0,400}<label className=\{label\}>\{s\("kenaikan\.semua\.label"\)\}/.test(kenaikan),
+        "«Kenaikan kelas dan kelulusan» is not a panel per school, with the new year and «Naikkan semua ke» sharing a row");
       // Templat laporan: the templates as rows, then the narrow form, school and kind sharing a row
       const templat = bagian("intelligence");
       c.expect(/<li key=\{tpl\.id\} className="border-b border-line-1 px-3 py-2">/.test(templat) && sempit.test(templat)
@@ -873,7 +883,7 @@ export const d168Tests: SelfTest[] = [
       // the journeys press a student's «Pindahkan» by its full name
       const jalan = readFileSync(join(repoRoot, "audit/journey.mjs"), "utf8");
       c.expect((jalan.match(/getByRole\("button", \{ name: `Pindahkan · \$\{nama\}`, exact: true \}\)/g) ?? []).length === 2, "the journeys do not press «Pindahkan» by the student's name");
-      return c.verdict("Pindah kelas is a narrow GET step then its Kelas's students as rows, each «Pindahkan · name»; Peserta is a narrow form (Orang, Tempat sharing a row) then its records; Laporan is link rows, the school's first; Sistem's schools are read-only rows with «aktif»/«nonaktif» and «data uji» badges and their years in words; Pergantian's «Dari»/«Ke» share a row under the school's name; Templat laporan is its records then a narrow form; in print a section page keeps its content and drops its forms, record actions, pager and back link (walked: P6)");
+      return c.verdict("Pindah kelas is a narrow GET step then its Kelas's students as rows, each «Pindahkan · name»; Peserta is a narrow form (Orang, Tempat sharing a row) then its records; Laporan is link rows, the school's first; Sistem's schools are read-only rows with «aktif»/«nonaktif» and «data uji» badges and their years in words; «Kenaikan kelas dan kelulusan» is a panel per school with the new year and «Naikkan semua ke» sharing a row; Templat laporan is its records then a narrow form; in print a section page keeps its content and drops its forms, record actions, pager and back link (walked: P6)");
     },
   },
 ];

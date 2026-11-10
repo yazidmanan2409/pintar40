@@ -179,7 +179,7 @@ export default async function SatuPendataan({
                     UX-08: its press also starts the recording (IsianSetuju). */}
                 <form action={konfirmasiAksi}>
                   <IsianSetuju pekerjaan={pekerjaan} />
-                  <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memproses")}>{s("pendataan.pratinjau.setuju")}</TombolKirim>
+                  <TombolKirim className="pin-btn pin-primary pin-go pin-data-btn" sibuk={s("tombol.memproses")}>{s("pendataan.pratinjau.setuju")}</TombolKirim>
                 </form>
               </>
             ) : (
@@ -217,7 +217,7 @@ export default async function SatuPendataan({
             {/* UX-08: «lanjutkan sisanya» continues the recording itself. */}
             <form action={periksaPercontohanAksi}>
               <IsianSetuju pekerjaan={pekerjaan} />
-              <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memeriksa")}>{s("pendataan.percontohan.tanya")}</TombolKirim>
+              <TombolKirim className="pin-btn pin-primary pin-go pin-data-btn" sibuk={s("tombol.memeriksa")}>{s("pendataan.percontohan.tanya")}</TombolKirim>
             </form>
           </section>
         ) : null}
@@ -250,6 +250,13 @@ export default async function SatuPendataan({
             {/* Repeated here rather than only on the preview: this is the
                 screen an administrator screenshots and sends to a colleague. */}
             <p className="pin-mm">{s("pendataan.pratinjau.akun_arti")}</p>
+            {/* Readiness B2/B3 (Daisy, 8 Nov): the way on, in the order that works: a teacher's role before their
+                account (so they are never counted for a class card), a learner's class card on Aktivasi */}
+            <h3 className="pin-h3">{s("pendataan.lanjut.judul")}</h3>
+            <ol className="pin-daftar-titik" data-lanjut="">
+              <li>{s("pendataan.lanjut.staf")} <Link href="/konfigurasi/roles">{s("config.section.roles")}</Link></li>
+              <li>{s("pendataan.lanjut.aktif")} <Link href="/aktivasi">{s("nav.aktivasi")}</Link></li>
+            </ol>
           </section>
         ) : null}
 

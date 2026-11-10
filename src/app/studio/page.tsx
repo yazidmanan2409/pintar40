@@ -6,7 +6,7 @@ import { card, studioInstitutions, tabSaya } from "./_lib";
 import { kalimatHasil } from "@/lib/galat-kontrak";
 import HasilDi from "@/components/HasilDi";
 import { judulHalaman } from "@/lib/judul-halaman";
-import { posisiPaket, kunciSalinan } from "@/components/studio/langkah";
+import { LANGKAH, bolehMengambil, posisiPaket, kunciSalinan } from "@/components/studio/langkah";
 import Kosong from "@/components/Kosong";
 import Ikon from "@/components/Ikon";
 import TandaTautan from "@/components/TandaTautan";
@@ -28,14 +28,14 @@ export const generateMetadata = judulHalaman("/studio");
  * (posisiPaket, the steps' own reading of the course and its latest release). Every word in the reader's language
  * (UX-25). A version a correction replaced is not listed or counted: the line is one package, at its newest version.
  */
-type Daftar = "ACTION_REQUIRED" | "BLOCKED";
-const DAFTAR: readonly Daftar[] = ["ACTION_REQUIRED", "BLOCKED"];
+type Daftar = "ACTION_REQUIRED" | "BLOCKED" | "RELEASE_STEP";
+const DAFTAR: readonly Daftar[] = ["ACTION_REQUIRED", "BLOCKED", "RELEASE_STEP"];
 
 export default async function StudioBeranda({ searchParams }: { searchParams: Promise<{ daftar?: string; bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string }> }) {
   const sp = await searchParams;
   const daftar = (DAFTAR as readonly string[]).includes(sp.daftar ?? "") ? sp.daftar as Daftar : null;
   const supabase = await supabaseServer();
-  const [institutions, locale, tab] = await Promise.all([studioInstitutions(), currentLocale(), tabSaya()]);
+  const [institutions, locale, tab, { data: saya }] = await Promise.all([studioInstitutions(), currentLocale(), tabSaya(), supabase.rpc("current_person_id")]);
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const byId = new Map(institutions.map((i) => [i.id, i.name]));
 
@@ -49,15 +49,25 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
     ? await supabase.from("mcq_quality_findings").select("course_id").in("institution_id", menyusun)
       .eq("severity", "ERROR").is("acknowledged_at", null)
     : { data: [] as Array<{ course_id: string }> };
+  // W1.16 (owner decision 3): the release steps the reader may take, the one definition studio_home counts
+  const { data: langkahTerbitan } = daftar === "RELEASE_STEP"
+    ? await supabase.rpc("studio_langkah_terbitan")
+    : { data: [] as Array<{ course_id: string; institution_id: string }> };
+  const lingkupDaftar = daftar === "RELEASE_STEP" ? ids : menyusun;
   // W1.7 (Batch 3 closure): a package is its line's newest version; a version a correction replaced is history, opened
   // from «Riwayat perbaikan», never a package of its own here (studio_home counts the same way, 20261216100000)
   const { data: digantikan } = await supabase.from("courses").select("supersedes_course_id")
-    .in("institution_id", daftar ? menyusun : ids).not("supersedes_course_id", "is", null);
+    .in("institution_id", daftar ? lingkupDaftar : ids).not("supersedes_course_id", "is", null);
   const lama = [...new Set((digantikan ?? []).map((x) => x.supersedes_course_id as string))];
-  let kursusQ = supabase.from("courses").select("id, title, subject, grade_label, institution_id, status")
-    .in("institution_id", daftar ? menyusun : ids);
+  let kursusQ = supabase.from("courses").select("id, title, subject, grade_label, institution_id, status, author_person_id")
+    .in("institution_id", daftar ? lingkupDaftar : ids);
   if (lama.length > 0) kursusQ = kursusQ.not("id", "in", `(${lama.join(",")})`);
-  if (daftar === "ACTION_REQUIRED") kursusQ = kursusQ.in("status", ["INGESTED", "STRUCTURED", "VALIDATION_FAILED"]);
+  if (daftar === "ACTION_REQUIRED") kursusQ = kursusQ.in("status", ["INGESTED", "STRUCTURED", "VALIDATED", "VALIDATION_FAILED"]);
+  if (daftar === "RELEASE_STEP") {
+    const milik = ((langkahTerbitan ?? []) as Array<{ course_id: string; institution_id: string }>)
+      .filter((t) => ids.includes(t.institution_id)).map((t) => t.course_id);
+    kursusQ = kursusQ.in("id", milik.length > 0 ? milik : ["00000000-0000-0000-0000-000000000000"]);
+  }
   if (daftar === "BLOCKED") kursusQ = kursusQ.in("id", [...new Set((tertahan ?? []).map((f) => f.course_id as string))]);
   const [{ data: buckets }, { data: courses }] = await Promise.all([
     supabase.rpc("studio_home"),
@@ -88,6 +98,7 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
     switch (bucket) {
       case "ACTION_REQUIRED": return "/studio?daftar=ACTION_REQUIRED#paket";
       case "BLOCKED": return "/studio?daftar=BLOCKED#paket";
+      case "RELEASE_STEP": return "/studio?daftar=RELEASE_STEP#paket";
       case "AWAITING_MY_REVIEW": return lewat("tinjau", "/studio/tinjau");
       case "QUESTION_HEALTH": return lewat("bank", "/studio/bank#kesehatan");
       case "DISTRIBUTED_CANONICAL": return lewat("kanonik", "/studio/kanonik");
@@ -156,7 +167,13 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
                   <span className="pin-rowmeta">
                     <span>{c.subject} · {c.grade_label} · {byId.get(c.institution_id) ?? "\u2014"}</span>
                     {posisi.kini && posisi.kini !== "terbit" && posisi.kini !== "ditarik"
-                      ? <span>{s("studio.langkah.keadaan.kini")}: {s(kunciSalinan(posisi.kini, "judul"))}</span> : null}
+                      ? <span>{s("studio.langkah.keadaan.kini")}: {s(kunciSalinan(posisi.kini, "judul"))}{(() => {
+                          // Readiness (Daisy, 8 Nov): a step that is not this reader's says so on the row (the steps' rule)
+                          const l = LANGKAH.find((x) => x.kunci === posisi.kini);
+                          const kemampuan = institutions.find((i) => i.id === c.institution_id)?.capabilities ?? [];
+                          return l && bolehMengambil(l, kemampuan, typeof saya === "string" ? saya : null, (c.author_person_id as string | null) ?? null) !== "boleh"
+                            ? <span data-menunggu-lain=""> · {s("studio.state.MENUNGGU")}</span> : null;
+                        })()}</span> : null}
                     {c.status === "VALIDATION_FAILED" && tinjauanTerakhir.get(c.id as string) === "SENT_BACK"
                       ? <span className="pin-pill pin-attention pin-pill-ikon" data-dikembalikan=""><Ikon nama="triangle-alert" />{s("studio.paket.riwayat.dikembalikan")}</span> : null}
                     {/* under 560 px the row's badge sits in its meta line (experience.css) */}

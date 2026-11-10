@@ -255,6 +255,9 @@ begin
   -- F01-T08 INV-23 period rollover (alpha-admin)
   ok := true; detail := '';
   perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  -- RESTATED (Sharon F6, ruling 3; 20270112190000): period_rollover is no longer a client endpoint, so the administrator's
+  -- run is driven as the database's owner carrying the administrator's claims; its authority check still decides.
+  reset role;
   begin
     n := public.period_rollover(alpha, alpha_p1, alpha_p2,
            jsonb_build_array(jsonb_build_object('from_node', a_coh5, 'to_node', a_coh6), jsonb_build_object('from_node', a_cls5a, 'to_node', a_cls6b)));
@@ -289,13 +292,13 @@ begin
   -- F01-T10 INV-25 transfer alpha → beta for the card learner (p_as2)
   ok := true; detail := '';
   begin
-    perform selftest.as_user('alpha-admin@synthetic.pintar.test');
-    -- self-fixturing: (re-)enrol the card learner at alpha if no ACTIVE alpha enrollment exists (repeatable runs)
+    -- self-fixturing: (re-)enrol the card learner at alpha if no ACTIVE alpha enrollment exists (repeatable runs).
+    -- RESTATED FOR THE LIFECYCLE CORRECTION (20270112160000; Sharon's D2, owner 9 Nov): written as the owner, as a fixture
+    -- is; a School Admin no longer writes enrollments directly (F37-L01). No assertion changes.
     if e_as2 is null then
       insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
       values (p_as2, alpha, alpha_p2, a_prog, 'ACTIVE') returning id into e_as2;
     end if;
-    perform selftest.as_owner();
     select count(*) into n2 from public.portable_visibility where person_id = p_as2 and institution_id = beta;  -- prior runs
     perform selftest.as_user('alpha-admin@synthetic.pintar.test');
     v_t := public.transfer_request(e_as2, beta, beta_p1, b_prog, 'pindah sekolah', '{"guardian_consent":"recorded-by-policy-hook"}'::jsonb);

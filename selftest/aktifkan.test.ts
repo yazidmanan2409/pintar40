@@ -395,8 +395,13 @@ export const aktifkanTests: SelfTest[] = [
       //    refusal page is returned, and only after it is the card component
       //    (the one thing that requests the card) drawn. A learner is not staff.
       const akun = code(baca1(repoRoot, "src", "app", "akun", "page.tsx"));
-      const iTolak = akun.search(/if \(!staf\) \{\s*return <HalamanPenolakan/);
-      c.expect(iTolak > 0 && iTolak < akun.indexOf("<AkunSaya"), "Akun saya draws the card before refusing someone who is not staff");
+      // RESTATED for L1 (owner, 9 Nov: «Akun saya» for everyone): someone who is not staff is no longer refused the page; they
+      // are given the learner's page, which leaves before the card is drawn and never draws it. The property is the same:
+      // the card is requested for staff only
+      const iTolak = akun.search(/if \(!staf\) \{/);
+      const cabangMurid = iTolak >= 0 ? akun.slice(iTolak, akun.indexOf("\n  }", iTolak)) : "";
+      c.expect(iTolak > 0 && iTolak < akun.indexOf("<AkunSaya") && /return \(/.test(cabangMurid) && !cabangMurid.includes("<AkunSaya"),
+        "Akun saya draws the card before refusing someone who is not staff");
       c.expect(/const staf = Boolean\(peran\?\.some\(\(p\) => PERAN_STAF\.includes\(p\)\)\);/.test(akun), "Akun saya decides by something other than a staff role");
       let PERAN_STAF: readonly string[] = [];
       try { PERAN_STAF = (await import("../src/components/sesi")).PERAN_STAF; } catch { /* reported below */ }

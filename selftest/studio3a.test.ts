@@ -430,7 +430,8 @@ export const studio3aTests: SelfTest[] = [
         .filter((f) => /create (?:or replace )?function public\.studio_home\(/.test(baca(ctx.repoRoot, `supabase/migrations/${f}`))).pop() ?? "";
       const badan = mig ? baca(ctx.repoRoot, `supabase/migrations/${mig}`) : "";
       const ember = [...new Set([...badan.slice(badan.indexOf("function public.studio_home(")).split("$$;")[0].matchAll(/select '([A-Z_]+)'/g)].map((m) => m[1]))];
-      c.expect(ember.length === 5, `read ${ember.length} bucket(s) of studio_home from ${mig}`);
+      // RESTATED for owner decision 3 (W1.16, 20270110100000): RELEASE_STEP is the sixth count
+      c.expect(ember.length === 6, `read ${ember.length} bucket(s) of studio_home from ${mig}`);
       for (const b of ember) c.expect(new RegExp(`case "${b}": return [^;]+;`).test(beranda), `the count «${b}» opens no list`);
       c.expect(/case "AWAITING_MY_REVIEW": return lewat\("tinjau", "\/studio\/tinjau"\);/.test(beranda)
         && /case "QUESTION_HEALTH": return lewat\("bank", "\/studio\/bank#kesehatan"\);/.test(beranda)
@@ -440,17 +441,23 @@ export const studio3aTests: SelfTest[] = [
       c.expect(/return href \? \(\s*<Link key=\{`\$\{r\.bucket\}:\$\{r\.institution_id\}`\} href=\{href\}/.test(beranda),
         "a count with a list is not a link to it");
       // the home's own lists read exactly what their counts count
-      c.expect(/if \(daftar === "ACTION_REQUIRED"\) kursusQ = kursusQ\.in\("status", \["INGESTED", "STRUCTURED", "VALIDATION_FAILED"\]\);/.test(beranda)
+      c.expect(/if \(daftar === "ACTION_REQUIRED"\) kursusQ = kursusQ\.in\("status", \["INGESTED", "STRUCTURED", "VALIDATED", "VALIDATION_FAILED"\]\);/.test(beranda)
+        // RELEASE_STEP's list and its count are one definition: studio_langkah_terbitan
+        && /supabase\.rpc\("studio_langkah_terbitan"\)/.test(beranda) && /if \(daftar === "RELEASE_STEP"\)/.test(beranda)
         && /from\("mcq_quality_findings"\)\.select\("course_id"\)\.in\("institution_id", menyusun\)\s*\.eq\("severity", "ERROR"\)\.is\("acknowledged_at", null\)/.test(beranda),
         "the narrowed lists do not read what their counts count");
-      c.expect(/'INGESTED','STRUCTURED','VALIDATION_FAILED'/.test(badan) && /f\.severity = 'ERROR' and f\.acknowledged_at is null/.test(badan),
+      c.expect(/'INGESTED','STRUCTURED','VALIDATED','VALIDATION_FAILED'/.test(badan) && /f\.severity = 'ERROR' and f\.acknowledged_at is null/.test(badan)
+        && /from public\.studio_langkah_terbitan\(\) t/.test(badan),
         "studio_home's own buckets changed; the narrowed lists must follow them");
       // every package says where it stands
       c.expect(/posisiPaket\(\{ statusKursus: c\.status as string, terbitan: r \? \{ status: r\.status \} : null \}\)/.test(beranda)
         // restated (R3-LENCANA-01): the badge is one function, drawn beside the row and as its marked narrow copy
         && /posisi\.kini === "terbit"\s*\? <span className="pin-pill pin-ok" data-salinan-sempit=\{sempit \? "" : undefined\}>\{s\("studio\.langkah\.terbit\.judul"\)\}<\/span>/.test(beranda)
-        && /<span>\{s\("studio\.langkah\.keadaan\.kini"\)\}: \{s\(kunciSalinan\(posisi\.kini, "judul"\)\)\}<\/span>/.test(beranda),
-        "a package in the list does not say where it stands («✓ Terbit», or «Sekarang:» and its step)");
+        && /<span>\{s\("studio\.langkah\.keadaan\.kini"\)\}: \{s\(kunciSalinan\(posisi\.kini, "judul"\)\)\}/.test(beranda)
+        // Readiness (Daisy, 8 Nov): a step that is not this reader's says so on the row, by the steps' own rule
+        && /bolehMengambil\(l, kemampuan, typeof saya === "string" \? saya : null, \(c\.author_person_id as string \| null\) \?\? null\) !== "boleh"/.test(beranda)
+        && /data-menunggu-lain=""/.test(beranda),
+        "a package in the list does not say where it stands («✓ Terbit», or «Sekarang:» and its step, and whether it waits on someone else)");
       const r = render(ctx.repoRoot, "src/components/Kosong.tsx", { jenis: "tidak_cocok", kalimat: "Belum ada paket di sini.", aksi: { href: "/studio#paket", label: "Semua" } });
       c.expect(r.ok && /data-kosong="tidak_cocok"/.test(r.html) && /<Kosong jenis=\{daftar \? "tidak_cocok" : "belum"\}/.test(beranda),
         "an empty list is not the Empty state, with the way back when narrowed");

@@ -61,7 +61,22 @@ export const KODE_PINDAH = ["RELEASE_MOVE_STARTED", "RELEASE_MOVE_NO_CYCLE_DEFIN
  * Not allowed (42501) stays ACTION_NOT_ALLOWED and a deactivated Kelas
  * ACTION_PLACE_INACTIVE, as for every action. Any other PR070 is ACTION_FAILED.
  */
-export const KODE_PINDAH_KELAS = ["MOVE_NOT_CURRENT", "MOVE_NOT_A_KELAS", "MOVE_SAME_KELAS", "MOVE_OTHER_YEAR", "MOVE_ALREADY_IN_KELAS"] as const;
+export const KODE_PINDAH_KELAS = ["MOVE_NOT_CURRENT", "MOVE_NOT_A_KELAS", "MOVE_SAME_KELAS", "MOVE_OTHER_YEAR", "MOVE_ALREADY_IN_KELAS",
+  // 4.0 completion (owner decision 1): placing a learner recorded without a class (tempatkan_murid), the same PR070
+  "PLACE_NOT_A_KELAS", "PLACE_NOT_THIS_SCHOOL", "PLACE_STAFF", "PLACE_ALREADY_PLACED", "PLACE_NO_YEAR",
+  // the lifecycle (owner, 9 Nov; demonstration finding 8): a learner who left the school, or is enrolled elsewhere
+  "PLACE_DEPARTED", "PLACE_ELSEWHERE",
+  // E3 «Akhiri pendaftaran» (akhiri_pendaftaran) and E4 «Daftarkan kembali» (daftarkan_kembali), the same PR070
+  "ENROL_NOT_LIVE", "ENROL_REASON_INVALID", "ENROL_EXPLANATION_REQUIRED", "ENROL_DATE_INVALID", "ENROL_SITTING_OPEN",
+  "ENROL_KIND_INVALID", "ENROL_REASON_REQUIRED", "ENROL_NOT_CORRECTABLE", "ENROL_NOT_ENDED", "ENROL_ALREADY_LIVE",
+  "ENROL_NOT_DEPARTED",
+  // Sharon F5 (7a2c1751): an ending in a school year that has closed is not corrected; the learner returns instead
+  "ENROL_YEAR_CLOSED",
+  // «Kenaikan kelas dan kelulusan» (kenaikan_tetapkan), the same PR070
+  "PROMO_CHANGED", "PROMO_UNDECIDED", "PROMO_TEACHERS_UNREVIEWED", "PROMO_YEAR_INVALID", "PROMO_DECISION_INVALID",
+  "PROMO_TARGET_INVALID", "PROMO_NO_TRANSFER", "PROMO_ALREADY_IN_YEAR",
+  // Sharon's follow-up (10 Nov): the run's own record was not complete, so nothing of it was applied
+  "PROMO_RUN_INCOMPLETE"] as const;
 
 /**
  * D-088(b), BOB-49: a lesson whose pass mark the school has not set cannot be given to a class or launched as an Uji
@@ -91,6 +106,8 @@ export const KODE_ANTAR_SEKOLAH = [
   "TRANSFER_DESTINATION_INVALID", "TRANSFER_REASON_REQUIRED", "TRANSFER_OPEN", "TRANSFER_ENROLLMENT_NOT_ACTIVE",
   "TRANSFER_PERIOD_INVALID", "TRANSFER_PROGRAMME_INVALID", "TRANSFER_NOT_OPEN", "TRANSFER_SEARCH_SHORT",
   "TRANSFER_PERIOD_MISSING", "TRANSFER_PLACE_INVALID",
+  // Sharon (2ce4ddcf): a transfer to a school the learner is already enrolled at that year
+  "TRANSFER_ALREADY_ENROLLED",
 ] as const;
 export const KODE_ANTAR_SEKOLAH_DARI_DB: Record<string, (typeof KODE_ANTAR_SEKOLAH)[number]> = {
   DESTINATION_INVALID: "TRANSFER_DESTINATION_INVALID",
@@ -104,6 +121,7 @@ export const KODE_ANTAR_SEKOLAH_DARI_DB: Record<string, (typeof KODE_ANTAR_SEKOL
   QUERY_TOO_SHORT: "TRANSFER_SEARCH_SHORT",
   TRANSFER_PERIOD_MISSING: "TRANSFER_PERIOD_MISSING",
   PLACE_INVALID: "TRANSFER_PLACE_INVALID",
+  TRANSFER_ALREADY_ENROLLED: "TRANSFER_ALREADY_ENROLLED",
 };
 
 /** BOB-44: enrolling a person for professional learning, refused by PR090 with the code in DETAIL. */
@@ -140,6 +158,9 @@ export const KODE_KONTEN = [
   "CONTENT_WITHDRAW_NOT_ALLOWED",
   "CONTENT_AUTHOR_IMMUTABLE",
   "CONTENT_CREATED_NOT_INGESTED",
+  // Daisy F8 (8 Nov; UX-01): «Tandai lolos pemeriksaan» runs the content check first, and an ERROR it finds holds the
+  // step: an ERROR is repaired, never acknowledged away (acknowledge_finding)
+  "CONTENT_CHECK_ERRORS",
 ] as const;
 
 /** A form the reader has to complete; each says what is missing. */
@@ -175,6 +196,10 @@ export const KODE_SUKSES = [
   "DRAFT_CREATED",
   // D-085 M9: a learner moved to another Kelas
   "LEARNER_MOVED",
+  // 4.0 completion (owner decision 1): a learner recorded without a class placed in one
+  "LEARNER_PLACED",
+  // E3/E4 on the screen: an enrolment ended with its reason, a learner re-enrolled
+  "ENROLMENT_ENDED", "LEARNER_REENROLLED",
   // D-088(b): a lesson's pass mark set, or already that value
   "PASS_MARK_SET", "PASS_MARK_UNCHANGED",
   // BOB-44: a person enrolled for professional learning

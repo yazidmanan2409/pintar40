@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { tahunPendek } from "@/lib/kenaikan";
 import { useRouter } from "next/navigation";
 import TombolKirim from "@/components/TombolKirim";
 import BarisHasil from "@/components/BarisHasil";
@@ -265,7 +266,7 @@ function FormTambah({
       </form>
       {tahunIkut ? (
         <p className="pin-hint">
-          {s("config.struktur.tahun_ikut")} <span className="pin-num">{tahunIkut}</span>
+          {s("config.struktur.tahun_ikut")} <span className="pin-num">{tahunPendek(tahunIkut)}</span>
         </p>
       ) : null}
       <div aria-live="polite">
@@ -283,6 +284,21 @@ function BarisSimpul({ simpul, locale }: { simpul: SimpulStruktur; locale: Local
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const [mode, setMode] = useState<"lihat" | "ubah" | "tanya">("lihat");
   const [namaBaru, setNamaBaru] = useState(simpul.name);
+  // Focus (readiness, 8 Nov): opening a row's rename or deactivation takes focus to its field; leaving it returns
+  // focus to the button that opened it, so a keyboard reader keeps their place in the list.
+  const isianUbah = useRef<HTMLInputElement>(null);
+  const tombolUbah = useRef<HTMLButtonElement>(null);
+  const tombolNonaktif = useRef<HTMLButtonElement>(null);
+  const asal = useRef<"ubah" | "tanya" | null>(null);
+  useEffect(() => {
+    if (mode === "ubah") { asal.current = "ubah"; isianUbah.current?.focus(); }
+    else if (mode === "tanya") asal.current = "tanya";
+    else if (asal.current) {
+      const ke = asal.current === "ubah" ? tombolUbah.current : tombolNonaktif.current;
+      asal.current = null;
+      ke?.focus();
+    }
+  }, [mode]);
   const [terakhir, setTerakhir] = useState<Apa>("diubah");
   const [jejakUbah, kirimUbah, sibukUbah] = useAksi(ubahNamaStrukturAksi, (h) => {
     setTerakhir("diubah");
@@ -304,6 +320,7 @@ function BarisSimpul({ simpul, locale }: { simpul: SimpulStruktur; locale: Local
             <input type="hidden" name="simpul" value={simpul.node_id} />
             <label className="pin-sr" htmlFor={`str-ubah-${simpul.node_id}`}>{s("config.struktur.nama_baru")}</label>
             <input
+              ref={isianUbah}
               id={`str-ubah-${simpul.node_id}`}
               name="nama"
               className="pin-input"
@@ -316,24 +333,25 @@ function BarisSimpul({ simpul, locale }: { simpul: SimpulStruktur; locale: Local
             <TombolKirim className="pin-btn pin-primary" disabled={sibukUbah} sibuk={s("config.struktur.sibuk")}>
               {s("config.struktur.simpan")}
             </TombolKirim>
-            <button type="button" className="pin-btn" onClick={() => setMode("lihat")}>
+            <button type="button" className="pin-btn pin-quiet" onClick={() => setMode("lihat")}>
               {s("config.struktur.batal")}
             </button>
           </form>
         ) : (
           <strong className="pin-str-nama">{simpul.name}</strong>
         )}
-        {simpul.academic_year && <span className="pin-num pin-str-tahun">{simpul.academic_year}</span>}
+        {/* Daisy (bcecb425, B8.4): one year format, «2027/28», as typed «2027/2028» or not */}
+        {simpul.academic_year && <span className="pin-num pin-str-tahun">{tahunPendek(simpul.academic_year)}</span>}
         {murid && <span className="pin-str-murid">{murid}</span>}
         {/* DAISY-32: shown, never changed, on the Bagian and every Tingkat and Kelas under it */}
         {simpul.member_kind === "PARTICIPANT" && <span className="pin-str-tanda">{s("config.struktur.untuk_guru")}</span>}
         {!simpul.is_active && <span className="pin-str-tanda">{s("config.struktur.nonaktif")}</span>}
         {bolehDiubah(simpul) && mode === "lihat" && (
           <span className="pin-str-aksi">
-            <button type="button" className="pin-btn pin-quiet" onClick={() => { setNamaBaru(simpul.name); setMode("ubah"); }}>
+            <button ref={tombolUbah} type="button" className="pin-btn pin-quiet" onClick={() => { setNamaBaru(simpul.name); setMode("ubah"); }}>
               {s("config.struktur.ubah_nama")}
             </button>
-            <button type="button" className="pin-btn pin-quiet" onClick={() => setMode("tanya")}>
+            <button ref={tombolNonaktif} type="button" className="pin-btn pin-bahaya" onClick={() => setMode("tanya")}>
               {s("config.struktur.nonaktifkan")}
             </button>
           </span>
@@ -371,6 +389,8 @@ export function KonfirmasiNonaktif({
 }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const idTanya = `str-tanya-${simpul.node_id}`;
+  const alasan = useRef<HTMLInputElement>(null);
+  useEffect(() => { alasan.current?.focus(); }, []);
   return (
     <form action={kirim} className="pin-str-tanya" role="group" aria-labelledby={idTanya}>
       <input type="hidden" name="simpul" value={simpul.node_id} />
@@ -383,6 +403,7 @@ export function KonfirmasiNonaktif({
       <div className="pin-str-isian">
         <label htmlFor={`str-alasan-${simpul.node_id}`}>{s("config.label.reason")}</label>
         <input
+          ref={alasan}
           id={`str-alasan-${simpul.node_id}`}
           name="alasan"
           className="pin-input"
@@ -395,7 +416,7 @@ export function KonfirmasiNonaktif({
         <TombolKirim className="pin-btn pin-str-bahaya" disabled={sibuk} sibuk={s("config.struktur.sibuk")}>
           {s("config.struktur.konfirmasi.ya")}
         </TombolKirim>
-        <button type="button" className="pin-btn" onClick={batal}>
+        <button type="button" className="pin-btn pin-quiet" onClick={batal}>
           {s("config.struktur.batal")}
         </button>
       </div>

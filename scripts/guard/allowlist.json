@@ -59,6 +59,11 @@
    "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
   },
   {
+   "path": "audit/staging/fixtures/PD-Sintetis-Bab1.xlsx",
+   "jenis": "sintetis",
+   "alasan": "the staging PD walk's workbook (golden-school-pd.mjs D9), made by audit/staging/buat-buku-kerja-pd.mts from the synthetic SD5-Sintetis-Bab1.xlsx with its Kursus row restated as professional learning; 0 items from real content"
+  },
+  {
    "path": "docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.xlsx",
    "jenis": "sintetis",
    "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"

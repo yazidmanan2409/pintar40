@@ -30,7 +30,11 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
   else if (dinilai.length > 0 && capai === dinilai.length) kalimat = s("hasilbelajar.semua_capai");
   else if (dinilai.length > 0) kalimat = s("hasilbelajar.capai").replace("{n}", format.number(capai, locale)).replace("{m}", format.number(dinilai.length, locale));
   else kalimat = s("hasilbelajar.selesai").replace("{n}", format.number(selesai.length, locale));
-  const daftarUlang = ulang.map((b) => `${daftarKata(b.ulang, locale)} (${b.judul})`).join("; ");
+  // Reporting Quality Gate (9 Nov): with a real chapter's objectives (each a sentence) more than two parts to study
+  // again ran into a paragraph of 25 lines on a phone; the lead then counts them and points to section B, which lists
+  // every one of them by chapter
+  const nUlang = ulang.reduce((n, b) => n + b.ulang.length, 0);
+  const daftarUlang = nUlang > 2 ? "" : ulang.map((b) => `${daftarKata(b.ulang, locale)} (${b.judul})`).join("; ");
 
   return (
     <div className="pin-lk">
@@ -39,6 +43,7 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
         <div className="pin-lk-inti">
         <p className="pin-lk-kalimat" data-lk-kalimat="">{kalimat}</p>
         {daftarUlang ? <p className="pin-lk-kalimat-sub">{s("hasilbelajar.ulang").replace("{daftar}", daftarUlang)}</p> : null}
+        {nUlang > 2 ? <p className="pin-lk-kalimat-sub" data-ulang-banyak="">{s("hasilbelajar.ulang_banyak").replace("{n}", format.number(nUlang, locale))}</p> : null}
         {selesai.length > 0 ? (
           <ul className="pin-lk-pita-ket" aria-hidden="true">
             <li><i className="pin-lk-titik-ket" data-awal="" />{s("hasilbelajar.awal")}</li>
@@ -48,6 +53,17 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
         ) : null}
         <ul className="pin-lk-baris">
           {bab.map((b) => {
+            if (b.keadaan === "DITUTUP_AWAL") {
+              // Daisy (435a2856, §2.1): the Tes awal the learner finished before the material closed, kept, with no target
+              return (
+                <li key={b.tugas} data-keadaan="ditutup-awal">
+                  <span className="pin-lk-nama">{b.judul}</span>
+                  <span className="pin-lk-jalur" aria-hidden="true" />
+                  <span className="pin-lk-nilai">{s("hasilbelajar.ditutup_awal").replace("{persen}", b.awal !== null ? format.percent(b.awal, locale) : "")}</span>
+                  {b.ditarik ? <small className="pin-lk-ditarik" data-ditarik="">{s("hasilbelajar.ditarik")}</small> : null}
+                </li>
+              );
+            }
             if (b.keadaan === "BERJALAN") {
               return (
                 <li key={b.tugas} data-keadaan="berjalan">
@@ -71,6 +87,7 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
                   {s("hasilbelajar.nilai").replace("{b}", format.number(b.benar, locale)).replace("{t}", format.number(b.total, locale))}
                   {b.tercapai ? <small className={kurang ? "pin-lk-bawah" : undefined}>{s(kurang ? "hasilbelajar.belum_capai" : "hasilbelajar.tercapai")}</small> : null}
                 </span>
+                {b.ditarik ? <small className="pin-lk-ditarik" data-ditarik="">{s("hasilbelajar.ditarik")}</small> : null}
                 {/* the text equivalent of the row's picture */}
                 <span className="pin-sr">
                   {v !== null ? `${s("hasilbelajar.akhir")}: ${persenJujur(v, locale, [b.ambang])}. ` : ""}

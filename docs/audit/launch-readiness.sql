@@ -47,14 +47,14 @@ rights_release as (select unnest(string_to_array(
   'briefing_transitions=S briefings=S certificate_identity_snapshots=S certificate_templates=S ' ||
   'certificates=S classes=S coaching_findings=SU content_ownership_lineage=S ' ||
   'content_review_outcomes=S content_status_transitions=S course_revision_notes=S courses=SIU doctrine_lexicon=S ' ||
-  'enrollments=SIU evidence_class_overrides=SI exam_cooling_policies=SIU feature_flags=SIU ' ||
+  'enrollments=S evidence_class_overrides=SI exam_cooling_policies=SIU feature_flags=SIU ' ||
   'feedback_cycles=S feedback_opportunities=S generated_reports=S import_jobs=S import_rows=S ' ||
   'ingest_batches=SIU ingest_status_transitions=S institutional_identities=S institutions=S ' ||
   'integrity_signals=S item_options=SIU item_type_learner_support=S item_type_registry=S items=SIU ' ||
   'learner_readable_fields=S learning_assignment_release_moves=S ' ||
   'learning_assignment_status_transitions=S learning_assignments=S learning_objectives=SIU ' ||
   'lesson_progress=S lesson_review_items=S lesson_review_requests=S lessons=SIU ' ||
-  'management_decisions=S mcq_quality_findings=SU memberships=SIU metric_catalogue=S ' ||
+  'management_decisions=S mcq_quality_findings=SU memberships=S metric_catalogue=S ' ||
   'metric_definitions=S metric_sources=S misconception_taxonomy=SI mode_policy=S modules=SIU ' ||
   'my_profile=S org_nodes=S person_tour_state=S persons=Su platform_config=SU ' ||
   'platform_environment=S plp_releases=S portable_visibility=S presented_item_views=S ' ||
@@ -213,14 +213,17 @@ union all
 -- migration that registers its surface, and the row turned FAIL unseen. It now
 -- pins the registered surface BY NAME (10 routes, 9 endpoints) and, as before,
 -- no public function `anon` may execute.
-select 'anonymous surface unchanged (10 / 19 / 0)',
-       (select count(*) = 10 from public.public_surface_registry where parent is null)
-       and (select count(*) = 19 from public.public_surface_registry where kind in ('ROUTE','ENDPOINT'))
+-- RESTATED FOR THE OWNER'S RULING 2 (9 Nov): the reopening request's door and its handler (reopen_request,
+-- reopen_request_api) join: 11 routes, 10 endpoints.
+select 'anonymous surface unchanged (11 / 21 / 0)',
+       (select count(*) = 11 from public.public_surface_registry where parent is null)
+       and (select count(*) = 21 from public.public_surface_registry where kind in ('ROUTE','ENDPOINT'))
        and (select string_agg(surface, ' ' order by surface) from public.public_surface_registry) =
            'activation_check activation_check_api activation_code activation_code_api card_signin ' ||
            'card_signin_api certificate_verification certificate_verification_api identity_page ' ||
            'password_signin password_signin_api recovery_check recovery_check_api recovery_code ' ||
-           'recovery_code_api recovery_password recovery_password_api recovery_pin recovery_pin_api'
+           'recovery_code_api recovery_password recovery_password_api recovery_pin recovery_pin_api reopen_request ' ||
+           'reopen_request_api'
        and (select count(*) = 0 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
              where n.nspname='public' and has_function_privilege('anon', p.oid, 'EXECUTE')),
        (select count(*)::text from public.public_surface_registry where parent is null) || ' surface / '

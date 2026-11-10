@@ -23,7 +23,8 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { staticTests } from "./static.test";
 import { appTests } from "./app.test";
-import type { Context, Facility, SelfTest, Verdict } from "./lib";
+import { BUILD_DIR, ensureFreshBuild } from "./build-identity";
+import { contextFor, selectionNeedsBuild, type Context, type Facility, type SelfTest, type Verdict } from "./lib";
 
 type ManifestTest = { id: string; runner: "db" | "static" | "app"; proves: string; skip_justification?: string };
 type Manifest = { contract: string; version: number; phase: string; tests: ManifestTest[] };
@@ -173,6 +174,11 @@ const DB_RUNNERS = [
   { file: "fable31.sql", fn: "selftest.run_fable31()", done: "F31-DONE", emits: ["F31-"] },
   { file: "fable32.sql", fn: "selftest.run_fable32()", done: "F32-DONE", emits: ["F32-"] },
   { file: "fable33.sql", fn: "selftest.run_fable33()", done: "F33-DONE", emits: ["F33-"] },
+  { file: "fable34.sql", fn: "selftest.run_fable34()", done: "F34-DONE", emits: ["F34-"] },
+  { file: "fable35.sql", fn: "selftest.run_fable35()", done: "F35-DONE", emits: ["F35-"] },
+  { file: "fable36.sql", fn: "selftest.run_fable36()", done: "F36-DONE", emits: ["F36-"] },
+  { file: "fable37.sql", fn: "selftest.run_fable37()", done: "F37-DONE", emits: ["F37-"] },
+  { file: "fable38.sql", fn: "selftest.run_fable38()", done: "F38-DONE", emits: ["F38-"] },
 ] as const;
 
 /**
@@ -238,7 +244,108 @@ async function runDb(dbUrl: string): Promise<Outcome[]> {
   if (!only || only.some((x) => /^F16-C0[123]$/.test(x))) out.push(...(await runIdentityConcurrency(dbUrl, only)));
   if (!only || only.includes("F17-C01")) out.push(await runEmailConcurrency(dbUrl));
   if (!only || only.includes("F05-C01")) out.push(await runMoveStartRace(dbUrl));
+  if (!only || only.includes("F37-R01")) out.push(await runAttemptLimitRace(dbUrl));
   return out;
+}
+
+/**
+ * F37-R01 — SI-D02 (System Integrity, 9 Nov): an attempt limit holds under two concurrent starts. A learner one attempt
+ * short of an assignment's attempt_limit (chosen from the world, may_start_assessment OK) starts on connection A, which
+ * holds its transaction open; connection B starts the same assignment meanwhile. Before 20270112120000 B completed while
+ * A held (0.07 s, both would commit: two attempts against a limit of one); now B waits on the per-(learner, assignment)
+ * advisory lock while A holds. BOTH ROLL BACK, so nothing is left behind.
+ */
+async function runAttemptLimitRace(dbUrl: string): Promise<Outcome> {
+  const psql = (sql: string) => spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, dbUrl], { encoding: "utf8" });
+  const race = (sql: string) =>
+    new Promise<{ code: number; out: string }>((done) => {
+      const p = spawn("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, dbUrl], { stdio: ["ignore", "pipe", "pipe"] });
+      let buf = "";
+      p.stdout.setEncoding("utf8"); p.stderr.setEncoding("utf8");
+      p.stdout.on("data", (d: string) => (buf += d)); p.stderr.on("data", (d: string) => (buf += d));
+      p.on("close", (code: number | null) => done({ code: code ?? 1, out: buf.trim() }));
+    });
+  const tunggu = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
+  const id = "F37-R01";
+  const gagal = (detail: string): Outcome => ({ id, runner: "db", status: "FAIL", detail });
+  const sebagai = (uid: string) =>
+    `select set_config('request.jwt.claims', json_build_object('sub','${uid}','role','authenticated')::text, true), ` +
+    `set_config('request.jwt.claim.sub','${uid}',true); set local role authenticated;`;
+  // a learner one attempt short of a limit, who may start now (asked of the product's own may_start_assessment)
+  const calon = psql(`select a.id || '|' || ac.auth_user_id from public.assessment_assignments a
+      join public.assessment_definitions d on d.id = a.assessment_definition_id
+      join public.org_nodes n on n.jalur @> array[a.node_id]
+      join public.memberships m on m.node_id = n.id and m.valid_to is null
+      join public.enrollments e on e.id = m.enrollment_id and e.status = 'ACTIVE'
+      join public.accounts ac on ac.person_id = e.person_id
+     where a.status = 'OPEN' and d.attempt_limit is not null
+       and (select count(*) from public.assessment_sessions s where s.person_id = e.person_id and s.assessment_assignment_id = a.id) = d.attempt_limit - 1
+     limit 40`).stdout.trim().split("\n").filter(Boolean);
+  let aa = "", uid = "";
+  for (const c of calon) {
+    const [x, u] = c.split("|");
+    const r = psql(`begin; ${sebagai(u)} select ok from public.may_start_assessment('${x}'); rollback;`).stdout.trim().split("\n").pop();
+    if (r === "t") { aa = x; uid = u; break; }
+  }
+  if (!aa) return gagal("the world holds no learner one attempt short of an attempt limit who may start (the race cannot be set up)");
+  const tanda = `si-d02-a-${Date.now().toString(36)}`;
+  // Sharon (review of 89374424, finding 2): A COMMITS, so B's count must see A's sitting; a fix that counted before the
+  // lock would also make B wait, and would then let B through. A's sitting is removed afterwards (the world is reused).
+  const orang = psql(`select person_id from public.accounts where auth_user_id = '${uid}'`).stdout.trim();
+  const batas = psql(`select d.attempt_limit from public.assessment_assignments a join public.assessment_definitions d
+      on d.id = a.assessment_definition_id where a.id = '${aa}'`).stdout.trim();
+  const awal = psql(`select coalesce(max(created_at), 'epoch') from public.assessment_sessions where assessment_assignment_id = '${aa}' and person_id = '${orang}'`).stdout.trim();
+  const holder = race(`begin; ${sebagai(uid)} select public.start_learning_session('${aa}'); select pg_sleep(3) /*${tanda}*/; commit;`);
+  let tahan = false;
+  for (let i = 0; i < 100 && !tahan; i++) {
+    tahan = psql(`select count(*) from pg_stat_activity where query like '%${tanda}%' and wait_event = 'PgSleep' and pid <> pg_backend_pid()`).stdout.trim() === "1";
+    if (!tahan) await tunggu(100);
+  }
+  if (!tahan) { await holder; return gagal("connection A never held its start open"); }
+  const tandaB = `si-d02-b-${Date.now().toString(36)}`;
+  const kedua = race(`set statement_timeout = '15s'; begin; ${sebagai(uid)} select public.start_learning_session('${aa}') /*${tandaB}*/; commit;`);
+  let selesaiSaatDitahan = false, menunggu = false;
+  const sudah = { v: false };
+  kedua.then(() => (sudah.v = true));
+  for (let i = 0; i < 15; i++) {
+    await tunggu(100);
+    if (sudah.v) { selesaiSaatDitahan = true; break; }
+    const w = psql(`select coalesce(wait_event_type, '') from pg_stat_activity where query like '%${tandaB}%' and pid <> pg_backend_pid()`).stdout.trim();
+    if (w === "Lock") { menunggu = true; break; }
+  }
+  const [ra, rb] = await Promise.all([holder, kedua]);
+  const sesudah = psql(`select count(*) from public.assessment_sessions where assessment_assignment_id = '${aa}' and person_id = '${orang}'`).stdout.trim();
+  const masalah: string[] = [];
+  if (selesaiSaatDitahan) masalah.push("the second start completed while the first was held (SI-D02)");
+  if (!menunggu && !selesaiSaatDitahan) masalah.push("the second start neither waited on a lock nor completed within 1.5 s");
+  if (ra.code !== 0) masalah.push(`connection A failed: ${ra.out.split("\n").pop()}`);
+  if (rb.code === 0) masalah.push("connection B STARTED after A committed: two attempts against the limit");
+  else if (!/ATTEMPT_LIMIT_REACHED/.test(rb.out)) masalah.push(`connection B was refused, but not by the attempt limit: ${rb.out.split("\n").pop()}`);
+  if (sesudah !== batas) masalah.push(`the learner holds ${sesudah} sitting(s) of the assignment after the race; the limit is ${batas}`);
+  // remove A's committed sitting and every row its start wrote, so the reused world is as it was. Presented items are
+  // immutable (INV-33) and the evidence tables refuse deletes by trigger, so this teardown, of the test's own rows only,
+  // runs in one transaction with triggers suspended (session_replication_role, the owner's); audit rows stay (INV-18).
+  const ids = `(select id from public.assessment_sessions where assessment_assignment_id = '${aa}' and person_id = '${orang}' and created_at > '${awal}')`;
+  const bersih = psql(`begin; set local session_replication_role = replica;
+    delete from public.presented_item_views where session_id in ${ids};
+    delete from public.responses where session_id in ${ids};
+    delete from public.presented_items where session_id in ${ids};
+    delete from telemetry.hesitation_events where session_id in ${ids};
+    delete from telemetry.assistance_events where session_id in ${ids};
+    delete from public.assistance_grants where session_id in ${ids};
+    delete from public.integrity_signals where session_id in ${ids};
+    delete from public.evidence_class_overrides where session_id in ${ids};
+    delete from public.result_views where session_id in ${ids};
+    delete from public.assessment_results where session_id in ${ids};
+    delete from public.assessment_sessions where id in ${ids};
+    commit;
+    select count(*) from public.assessment_sessions where assessment_assignment_id = '${aa}' and person_id = '${orang}';`);
+  const pulih = bersih.stdout.trim().split("\n").pop();
+  if (bersih.status !== 0 || pulih !== String(Number(batas) - 1)) masalah.push(`A's sitting could not be removed afterwards (${(bersih.stderr || pulih || "").trim().slice(0, 160)})`);
+  return masalah.length ? gagal(masalah.join("; ")) : {
+    id, runner: "db", status: "PASS",
+    detail: `a learner one attempt short of a limit of ${batas} started on A, which held and then COMMITTED; B's start waited on the (learner, assignment) lock while A held, and after A's commit was refused ATTEMPT_LIMIT_REACHED; the learner held exactly ${sesudah} sitting(s), the limit (A's sitting removed afterwards; the world back to ${pulih})`,
+  };
 }
 
 /**
@@ -864,12 +971,9 @@ async function runDbConcurrency(dbUrl: string): Promise<Outcome> {
 
 // ---------------------------------------------------------------- app process
 const FETCH_LOG = join(tmpdir(), `pintar-selftest-fetch-${process.pid}.log`);
+
+/** Starts `next start` on the bundle main() has just verified (facility `build`). */
 async function startApp(port: number): Promise<{ child: ChildProcess; url: string }> {
-  if (!existsSync(join(repoRoot, ".next", "BUILD_ID"))) {
-    log("  building production bundle (.next/BUILD_ID missing)…");
-    const b = spawnSync(process.execPath, [NEXT_BIN, "build"], { cwd: repoRoot, stdio: "inherit", env: process.env });
-    if (b.status !== 0) throw new Error("next build failed");
-  }
   // BOB-18 (D-046): the app's calls to Supabase are counted, path only, into
   // FETCH_LOG, so a test can read what one click cost (selftest/hitung-fetch.cjs).
   writeFileSync(FETCH_LOG, "");
@@ -915,7 +1019,7 @@ async function runTests(tests: SelfTest[], runner: string, ctx: Context, facilit
     }
     let v: Verdict;
     try {
-      v = await test.run(ctx);
+      v = await test.run(contextFor(test, ctx));
     } catch (e) {
       v = { ok: false, detail: `threw: ${(e as Error).message}` };
     }
@@ -970,8 +1074,25 @@ async function main() {
   // static + app
   const port = Number(process.env.SELFTEST_APP_PORT ?? 3999);
   let app: { child: ChildProcess; url: string } | null = null;
-  const needsApp = !only || appTests.some((t) => only.includes(t.id) && (t.requires ?? []).includes("app"));
-  if (needsApp) {
+  const selected = (t: SelfTest) => !only || only.includes(t.id);
+  const needsApp = appTests.some((t) => selected(t) && (t.requires ?? []).includes("app"));
+  const needsBuild = needsApp || selectionNeedsBuild([...staticTests, ...appTests], selected);
+  if (needsBuild) {
+    log("\n[build] production bundle for the selected tests");
+    try {
+      ensureFreshBuild({
+        root: repoRoot,
+        env: process.env,
+        log,
+        build: () => spawnSync(process.execPath, [NEXT_BIN, "build"], { cwd: repoRoot, stdio: "inherit", env: process.env }).status === 0,
+      });
+      facilities.add("build");
+    } catch (e) {
+      log(`  ${(e as Error).message}`);
+    }
+  }
+  if (needsApp && !facilities.has("build")) facilities.delete("app"); // nothing verified to start
+  if (needsApp && facilities.has("app")) {
     try {
       log("\n[app] starting production-mode app");
       app = await startApp(port);
@@ -988,6 +1109,7 @@ async function main() {
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? null,
     ciUpstream,
     fetchLog: app ? FETCH_LOG : null,
+    bundleDir: facilities.has("build") ? join(repoRoot, BUILD_DIR) : null,
   };
   try {
     log("\n[static] selftest/static.test.ts");

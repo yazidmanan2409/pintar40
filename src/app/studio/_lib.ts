@@ -2,6 +2,7 @@ import { cache } from "react";
 import { supabaseServer } from "@/lib/supabase/server";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { tanggal } from "@/lib/tanggal";
+import { zonaSekolahBanyak } from "@/lib/zona-sekolah";
 import { kalimatHasil, type QueryHasil } from "@/lib/galat-kontrak";
 import { peranSaya } from "@/lib/tur-negara";
 import { KEMAMPUAN_STUDIO, tabStudio, type TabStudio } from "@/lib/studio-tab";
@@ -117,5 +118,15 @@ export function outcomeLine(q: QueryHasil, locale: Locale = "id"): string | null
 }
 
 export const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "—");
-/** When something was recorded: the timestamp, with its year and WIB («9 Okt 2026, 07.30 WIB»; W3.3, RV-16). */
-export const when = (iso: string | null, locale: Locale = "id") => tanggal(iso, "cap", locale) || "—";
+/**
+ * When something was recorded: the timestamp, with its year and its zone («9 Okt 2026, 07.30 WIB»; W3.3, RV-16), on the
+ * clock of the school it happened at when the caller passes that school's zone (the owner's ruling, 10 Nov; zonaStudio).
+ */
+export const when = (iso: string | null, locale: Locale = "id", zona?: string | null) => tanggal(iso, "cap", locale, zona) || "—";
+
+/**
+ * The owner's ruling (10 Nov): the zone of each school Studio shows (studioInstitutions), read once per request beside
+ * the capability answer (which carries none); WIB for a school not among them.
+ */
+export const zonaStudio = cache(async () =>
+  zonaSekolahBanyak(await supabaseServer(), (await studioInstitutions()).map((i) => i.id)));

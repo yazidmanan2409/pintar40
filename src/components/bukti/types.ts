@@ -52,7 +52,22 @@ export type Envelope = {
    * passes it through below the floor too; only the readiness distribution reports one.
    */
   population?: Populasi;
+  /**
+   * Owner decision 7: what the evaluator WITHHELD to protect a smaller group. `subgroup`: a combined figure (Pemahaman over
+   * a class's chapters, the school's Kenaikan over its classes) is not shown because one of its parts has fewer than
+   * `needed` learners; its learners (`have`) are still counted. `patterns`: `count` misconception patterns seen in fewer
+   * than `needed` learners are not listed. Never a zero, never «no evidence».
+   */
+  withheld?: Ditahan;
+  /** Owner (9 Nov): Kenaikan's unit, the (learner, chapter) pairs it averages over; `sample` stays the learners. */
+  pairs?: number;
+  /** D12: tests with no required question, shown beside the gate's figure and never counted as a pass. */
+  not_applicable?: number;
+  /** D12: the gate's value is a share of these applicable sittings; `sample` stays the learners. */
+  sittings?: number;
 };
+
+export type Ditahan = { reason: "subgroup" | "patterns" | "not_applicable" | string; needed?: number; count?: number; chapters?: number; sittings?: number };
 
 export type Populasi = { placed: number; assessed: number; not_yet: number };
 

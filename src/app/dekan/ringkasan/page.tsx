@@ -1,4 +1,6 @@
+import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { supabaseServer } from "@/lib/supabase/server";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 import Kosong from "@/components/Kosong";
 import { asalLaporan } from "@/lib/nama-tempat";
 import { tawarkanSekolahLain } from "@/lib/konteks-server";
@@ -50,9 +52,11 @@ export default async function RingkasanSekolah({
   const asal = asalLaporan(dari);
   const supabase = await supabaseServer();
   // L3 (§2.6): a report of another school's place is never shown in this context; the chooser offers that school
+  let sekolah: string | undefined;
   if (simpul) {
     const { data: tempat } = await supabase.from("org_nodes").select("institution_id").eq("id", simpul).limit(1);
-    await tawarkanSekolahLain((tempat?.[0] as { institution_id?: string } | undefined)?.institution_id);
+    sekolah = (tempat?.[0] as { institution_id?: string } | undefined)?.institution_id;
+    await tawarkanSekolahLain(sekolah);
   }
 
   // BOB-06 (B6b): the template of the school this node belongs to -- its own
@@ -69,8 +73,16 @@ export default async function RingkasanSekolah({
     report = data as Report;
   }
   const dihitung = new Date();
+  // the owner's ruling (10 Nov): when it was computed, on the school's clock
+  const zona = await zonaSekolah(supabase, sekolah);
 
   const entries = (report?.entries ?? []) as Entry[];
+  // Reporting Quality Gate (9 Nov): a reader refused every figure (a learner, another class's teacher, a teacher at
+  // the school's summary) gets the refusal page, not a report frame with the place, a print button and one refusal
+  // card per figure. The refusal discloses nothing more than before: no figure is named.
+  if (entries.length > 0 && entries.every((e) => e.status === "not_permitted")) {
+    return <HalamanPenolakan locale={await currentLocale()} persona="staff" messageKey="laporan.ditolak" backHref={asal.ke} />;
+  }
   const shown = entries.filter((e) => e.status === "ok");
   // W9: figures in the reader's language and units; rows that name a place, by its name
   const locale = await currentLocale();
@@ -94,7 +106,7 @@ export default async function RingkasanSekolah({
           <h1 className="pin-h1">{kepala?.sekolah ?? judul}</h1>
           {report ? (
             <p className="pin-intro">
-              {s("laporan.cakupan.sekolah", "staff", locale).replace("{waktu}", tanggal(dihitung, "cap", locale))}
+              {s("laporan.cakupan.sekolah", "staff", locale).replace("{waktu}", tanggal(dihitung, "cap", locale, zona))}
             </p>
           ) : null}
         </div>

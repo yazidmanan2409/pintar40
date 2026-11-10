@@ -50,7 +50,7 @@ export default async function LaporanSaya({ searchParams }: { searchParams: Prom
             {daftar.map((l) => (
               <li key={l.id} className="pin-lapor-satu">
                 <p>
-                  <strong>{s(kunciStatusLaporan(l.status))}</strong> · {tanggal(l.dibuat, "baca", locale)} · {kataHalaman(l.halaman, locale)}
+                  <strong>{s(kunciStatusLaporan(l.status))}</strong> · {tanggal(l.dibuat, "baca", locale, l.zona)} · {kataHalaman(l.halaman, locale)}
                   {l.hentikanKelas ? <> · {s("lapor.hentikan.singkat")}</> : null}
                 </p>
                 <p className="pin-meta">{l.terjadi}</p>

@@ -19,7 +19,7 @@ create schema if not exists selftest;
 create or replace function selftest.run_fable31()
 returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
-declare
+declare v_cukup boolean;
   v_probs text[] := array[]::text[]; v_fatal text := '';
   v_inst uuid; v_tmpl record; v_rel2 uuid; v_cls uuid; v_pa uuid; v_pb uuid; v_e uuid; v_new uuid;
   m record; r jsonb; v_cat text; v_expect numeric; v_people int;
@@ -91,31 +91,53 @@ begin
     perform set_config('pintar.metric_boundary_node', v_cls::text, true);
     r := public.calc_class_net_gain(v_cls, v_inst, v_cat);
     perform set_config('pintar.metric_boundary_node', '', true);
-    if (r ->> 'value')::numeric is distinct from 0.2750 then
-      v_probs := v_probs || format('the class gain is %s (expected 0.2750, the mean of 0.50 and 0.05; 0.1000 is one '
-                                   'chapter''s pre-test subtracted from another''s post-test)', coalesce(r ->> 'value', 'nothing'));
+    -- RESTATED TO THE OWNER'S HISTORICAL-DISCLOSURE RULING (9 Nov): each of this learner's two chapters holds one pair,
+    -- under the class minimum, so the class's Kenaikan is withheld (its value would give a small chapter's gain when
+    -- read before and after); the arithmetic itself (0.275 over two pairs) is F36-X01's, on five such learners
+    if r ? 'value' and r -> 'value' <> 'null'::jsonb or r -> 'withheld' ->> 'reason' is distinct from 'subgroup' then
+      v_probs := v_probs || format('the class gain over two one-pair chapters is given (%s) rather than withheld', left(r::text, 200));
+    end if;
+    -- owner (9 Nov): the governed unit is the (learner, chapter) pair: one learner, two pairs, each weighed once
+    if (r ->> 'pairs')::int is distinct from 2 then
+      v_probs := v_probs || format('the class gain is over %s pair(s), not the learner''s 2 chapters', coalesce(r ->> 'pairs', 'nothing'));
     end if;
     if (r ->> 'sample')::int is distinct from 1 then
       v_probs := v_probs || format('the class sample is %s (expected 1 person: B has no chapter with both tests, and A''s '
                                    'two chapters are one person)', coalesce(r ->> 'sample', 'nothing'));
     end if;
 
-    -- the school, against the same figure computed independently
-    select round(avg(g.post - g.pre), 4), count(distinct g.person_id) into v_expect, v_people
-      from (select s.person_id, s.plp_release_id,
-                   max(x.mastery) filter (where s.mode = 'PRE_TEST') as pre,
-                   max(x.mastery) filter (where s.mode = 'POST_TEST') as post
-              from public.official_sessions s join public.official_results x on x.session_id = s.id
-             where s.institution_id = v_inst
-             group by s.person_id, s.plp_release_id) g
-     where g.pre is not null and g.post is not null;
+    -- the school, against the same figure computed independently. RESTATED TO OWNER DECISIONS 7 AND 8 (9 Nov): the
+    -- pairing is the current Uji Penguasaan (latest sitting, its effective result) against the earliest Pemetaan Awal,
+    -- never each test's highest; and a school figure whose pairs fall in a class with fewer learners than the class
+    -- minimum is WITHHELD (a reader of the class figures could otherwise subtract), its learners still counted
+    with eff as (select distinct on (x.session_id) x.session_id, s.person_id, s.plp_release_id, s.class_node_id, s.mode, s.finalized_at, x.mastery
+                   from public.official_sessions s join public.official_results x on x.session_id = s.id
+                  where s.institution_id = v_inst
+                    and not exists (select 1 from public.official_results q where q.supersedes_result_id = x.id)
+                  order by x.session_id),
+         a as (select distinct on (person_id, plp_release_id) * from eff where mode = 'PRE_TEST' order by person_id, plp_release_id, finalized_at),
+         b as (select distinct on (person_id, plp_release_id) * from eff where mode = 'POST_TEST' order by person_id, plp_release_id, finalized_at desc),
+         g as (select a.person_id, b.mastery - a.mastery as gain,
+                      (select b.class_node_id where a.class_node_id = b.class_node_id) as sel
+                 from a join b on b.person_id = a.person_id and b.plp_release_id = a.plp_release_id
+                where a.mastery is not null and b.mastery is not null)
+    -- the cells are the school rule's: a pair is a class's when both its sittings are there, else it belongs to none
+    select round(avg(g.gain), 4), count(distinct g.person_id),
+           not exists (select 1 from (select g2.sel, count(distinct g2.person_id) n from g g2 group by g2.sel) c where c.n < 5)
+      into v_expect, v_people, v_cukup
+      from g;
     perform set_config('pintar.metric_boundary_node', v_inst::text, true);
     r := public.calc_institution_net_gain(v_inst, v_inst, v_cat);
     perform set_config('pintar.metric_boundary_node', '', true);
-    if (r ->> 'value')::numeric is distinct from v_expect or (r ->> 'sample')::int is distinct from v_people then
-      v_probs := v_probs || format('the school answered %s/%s people (expected %s/%s, the mean over every learner''s '
-                                   'chapters with both tests)', coalesce(r ->> 'value', 'nothing'),
-                                   coalesce(r ->> 'sample', 'nothing'), v_expect, v_people);
+    if (r ->> 'sample')::int is distinct from v_people then
+      v_probs := v_probs || format('the school counts %s people, not %s', coalesce(r ->> 'sample', 'nothing'), v_people);
+    end if;
+    -- this tenant's pairs fall in classes of fewer than five: the school figure is withheld, never recomputed without them
+    if not coalesce(v_cukup, false) and (r ? 'value' and r -> 'value' <> 'null'::jsonb or r -> 'withheld' ->> 'reason' is distinct from 'subgroup') then
+      v_probs := v_probs || format('the school figure over a class of fewer than five is given (%s) rather than withheld', left(r::text, 200));
+    elsif coalesce(v_cukup, false) and (r ->> 'value')::numeric is distinct from v_expect then
+      v_probs := v_probs || format('the school answered %s, expected %s (current Uji Penguasaan minus the earliest Pemetaan Awal)',
+                                   coalesce(r ->> 'value', 'nothing'), v_expect);
     end if;
     if v_people < 1 then v_probs := v_probs || 'the school has no paired chapter at all, so nothing was measured'::text; end if;
 

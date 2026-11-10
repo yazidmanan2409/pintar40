@@ -89,4 +89,43 @@ export const w3Tests: SelfTest[] = [
       );
     },
   },
+  {
+    // Daisy (design check at bcecb425, A1, A2, B4; owner, 10 Nov: «restore the learner journey»)
+    id: "PEMAIN-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const ip = readFileSync(join(ctx.repoRoot, "src", "app", "belajar", "_components", "ItemPlayer.tsx"), "utf8");
+      const css = readFileSync(join(ctx.repoRoot, "src", "app", "experience.css"), "utf8");
+      // A1 (WCAG 2.1.1): Enter belongs to the focused control; «next question» only when no control holds focus
+      const kunci = /const onKey = \(e: KeyboardEvent\) => \{([\s\S]*?)\n {4}\};/.exec(ip)?.[1] ?? "";
+      const lewati = kunci.search(/e\.key === "Enter" && target\?\.closest\("button, a, summary, \[role=button\], input, textarea, select, \[contenteditable\]"\)\) return;/);
+      const maju = kunci.search(/e\.key === "ArrowRight" \|\| e\.key === "Enter"/);
+      c.expect(kunci !== "" && lewati >= 0 && maju > lewati,
+        "Enter on an answer, «Selesaikan» or a link is still taken for «next question» (the shortcut is not skipped on a control before it moves)");
+      c.expect(/if \(!current \|\| diakhiri\) return;/.test(kunci), "the keyboard shortcuts still answer on a sitting the school ended");
+      // B4: a sitting the school ended stays ended: every control under the notice is disabled, and focus moves to it
+      c.expect(/r\.code === "PR003"\) \{ setNotice\("sync\.diakhiri_sekolah"\); setDiakhiri\(true\); setAsking\(false\); return; \}/.test(ip),
+        "the school's close (PR003) does not end the sitting on the page");
+      // each opening tag up to the next tag (an attribute's arrow function carries a «>», never a «<»)
+      const tombol = [...ip.matchAll(/<button\b([^<]*)/g)].map((m) => m[1]);
+      const terbuka = tombol.filter((t) => !/disabled=\{diakhiri\b|disabled=\{diakhiri \|\|/.test(t));
+      c.expect(tombol.length >= 12 && terbuka.length === 0, `${terbuka.length} of the player's ${tombol.length} buttons stay usable under the ended notice`);
+      c.expect(/useEffect\(\(\) => \{ if \(diakhiri\) pemberitahuan\.current\?\.focus\(\); \}, \[diakhiri\]\);/.test(ip)
+        && /role="status" ref=\{pemberitahuan\} tabIndex=\{diakhiri \? -1 : undefined\}/.test(ip),
+        "focus does not move to the ended notice, so its «Kembali ke Belajar» is not the next stop");
+      // A2: the player's help offer has its own class, never the Help panel's fixed, full-height one
+      c.expect(/<section className="pin-bantuan-soal"/.test(ip) && !/className="pin-bantuan"/.test(ip),
+        "the player's «Perlu contoh?» offer still carries the Help panel's class");
+      const aturanTawaran = /\n\.pin-bantuan-soal \{([^}]*)\}/.exec(css)?.[1] ?? "";
+      c.expect(aturanTawaran !== "" && !/position:\s*fixed/.test(aturanTawaran) && /max-width:\s*60ch/.test(aturanTawaran)
+        && !/\.pin-bantuan-soal[^{]*\{[^}]*position:\s*fixed/.test(css),
+        "the player's offer is drawn fixed over the question");
+      return c.verdict(
+        "the player (ItemPlayer.tsx): Enter on a focused button, link or form control is that control's, and moves to the next " +
+          "question only when nothing holds focus; a sitting the school ended (PR003) ends on the page: the question to hand in " +
+          "closes, every one of the player's buttons is disabled, the shortcuts stop, and focus moves to the notice so its link " +
+          "is the next stop; the «Perlu contoh?» offer has its own class, drawn inline and never fixed over the question",
+      );
+    },
+  },
 ];

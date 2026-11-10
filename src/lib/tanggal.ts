@@ -3,7 +3,11 @@
  *
  * Every date a person reads is written here, in one grammar: day, month, year, in both languages; the month in words
  * («Okt», no full stop) wherever a misreading would matter; the year always; time 24-hour with a full stop and always
- * WIB. «09/10/2026» only in a narrow column of dates.
+ * its zone's word. «09/10/2026» only in a narrow column of dates.
+ *
+ * THE ZONE (the owner's ruling, 10 Nov): a named school's date is written on that school's clock, the caller passing
+ * institutions.zona_waktu (WIB, WITA or WIT); a platform-wide or personal moment tied to no school passes none and is
+ * written in WIB, the word printed so the convention is explicit. The forms below show WIB.
  *
  *   baca     d MMM yyyy                    9 Okt 2026                    any date a person reads (the default)
  *   hari     EEEE, d MMM yyyy              Jumat, 9 Okt 2026             a date someone acts on; the line under a field
@@ -40,9 +44,28 @@ const HARI: Record<BahasaTanggal, readonly string[]> = {
 };
 /** «pukul» in the formal form with its time (resmiJam). */
 const PUKUL: Record<BahasaTanggal, string> = { id: "pukul", en: "at" };
-const ZONA = "WIB";
 /** WIB is UTC+7 all year (no daylight saving). */
 const WIB_MS = 7 * 60 * 60 * 1000;
+/**
+ * Daisy (435a2856, §1.1 and §4.3): a record of when something happened at a school is written on that school's clock
+ * when the caller knows the school (institutions.zona_waktu, read by zonaSekolah). Indonesia's three zones keep no
+ * daylight saving, so each is a fixed offset and its own word. A caller with no school keeps WIB, as before.
+ */
+const ZONA_JAM: Record<string, { ms: number; kata: string }> = {
+  "Asia/Jakarta": { ms: WIB_MS, kata: "WIB" },
+  "Asia/Makassar": { ms: 8 * 60 * 60 * 1000, kata: "WITA" },
+  "Asia/Jayapura": { ms: 9 * 60 * 60 * 1000, kata: "WIT" },
+};
+
+/** The zone's offset from UTC in milliseconds: WIB (+7) for no zone or one PINTAR does not keep. */
+export function geserZona(zona?: string | null): number {
+  return (ZONA_JAM[zona ?? ""] ?? ZONA_JAM["Asia/Jakarta"]).ms;
+}
+
+/** The zone's word, «WIB», «WITA» or «WIT» (the same in both languages): WIB for no zone or one PINTAR does not keep. */
+export function kataZona(zona?: string | null): string {
+  return (ZONA_JAM[zona ?? ""] ?? ZONA_JAM["Asia/Jakarta"]).kata;
+}
 
 /** A day (and, when there is one, a time) on Jakarta's clock. */
 export type BagianJakarta = {
@@ -71,7 +94,7 @@ function hariNyata(t: number, b: number, h: number): Date | null {
  * - yyyy-mm-dd: that day, as written (no time);
  * - yyyy-mm-ddThh:mm (datetime-local, no zone): that wall-clock time in Jakarta, as written.
  */
-export function bagianJakarta(nilai: string | Date | null | undefined): BagianJakarta | null {
+export function bagianJakarta(nilai: string | Date | null | undefined, geserMs: number = WIB_MS): BagianJakarta | null {
   if (nilai == null) return null;
   if (typeof nilai === "string") {
     const s = nilai.trim();
@@ -90,7 +113,7 @@ export function bagianJakarta(nilai: string | Date | null | undefined): BagianJa
   }
   const waktu = typeof nilai === "string" ? Date.parse(nilai) : nilai.getTime();
   if (!Number.isFinite(waktu)) return null;
-  const w = new Date(waktu + WIB_MS);
+  const w = new Date(waktu + geserMs);
   return {
     tahun: w.getUTCFullYear(), bulan: w.getUTCMonth() + 1, hari: w.getUTCDate(), hariPekan: w.getUTCDay(),
     jam: w.getUTCHours(), menit: w.getUTCMinutes(),
@@ -99,9 +122,12 @@ export function bagianJakarta(nilai: string | Date | null | undefined): BagianJa
 
 const dua = (n: number) => String(n).padStart(2, "0");
 
-/** The time of day on Jakarta's clock, «07.30» (the zone word is the caller's); "" when there is no time. */
-export function jam(nilai: string | Date | null | undefined): string {
-  const p = bagianJakarta(nilai);
+/**
+ * The time of day on Jakarta's clock, or on the given school's zone, «07.30» (the zone word is the caller's, kataZona);
+ * "" when there is no time.
+ */
+export function jam(nilai: string | Date | null | undefined, zona?: string | null): string {
+  const p = bagianJakarta(nilai, geserZona(zona));
   return p && p.jam !== null ? `${dua(p.jam)}.${dua(p.menit ?? 0)}` : "";
 }
 
@@ -109,14 +135,16 @@ export function jam(nilai: string | Date | null | undefined): string {
  * A date in words, in one of the forms above; "" for nothing or a value that is not a moment (the caller says what an
  * empty place shows). A form with a time given a date-only value writes the date without one.
  */
-export function tanggal(nilai: string | Date | null | undefined, bentuk: BentukTanggal = "baca", locale: BahasaTanggal = "id"): string {
-  const p = bagianJakarta(nilai);
+export function tanggal(nilai: string | Date | null | undefined, bentuk: BentukTanggal = "baca", locale: BahasaTanggal = "id",
+                        zona?: string | null): string {
+  const z = { ms: geserZona(zona), kata: kataZona(zona) };
+  const p = bagianJakarta(nilai, z.ms);
   if (!p) return "";
   const bhs: BahasaTanggal = locale === "en" ? "en" : "id";
   const baca = `${p.hari} ${BULAN[bhs][p.bulan - 1]} ${p.tahun}`;
   const resmi = `${p.hari} ${BULAN_PANJANG[bhs][p.bulan - 1]} ${p.tahun}`;
   const denganHari = `${HARI[bhs][p.hariPekan]}, ${baca}`;
-  const pukul = p.jam !== null ? `${dua(p.jam)}.${dua(p.menit ?? 0)} ${ZONA}` : "";
+  const pukul = p.jam !== null ? `${dua(p.jam)}.${dua(p.menit ?? 0)} ${z.kata}` : "";
   switch (bentuk) {
     case "hari": return denganHari;
     case "hariJam": return pukul ? `${denganHari}, ${pukul}` : denganHari;
@@ -131,10 +159,11 @@ export function tanggal(nilai: string | Date | null | undefined, bentuk: BentukT
 /**
  * THE ECHO under a native date field (Daisy, components/DateTime): the field's value (yyyy-mm-dd, or
  * yyyy-mm-ddThh:mm) in words with the day, «Jumat, 9 Okt 2026» or «Jumat, 9 Okt 2026, 07.30 WIB»; "" when the field
- * is empty or holds no real day. Built from the value, never from what the field displays.
+ * is empty or holds no real day. Built from the value, never from what the field displays. A time is read on the clock
+ * of the school the form is for, so its word is that zone's (WIB when none); the value itself is never shifted.
  */
-export function gemaTanggal(nilai: string | null | undefined, locale: BahasaTanggal = "id"): string {
+export function gemaTanggal(nilai: string | null | undefined, locale: BahasaTanggal = "id", zona?: string | null): string {
   const s = String(nilai ?? "").trim();
   if (!HANYA_HARI.test(s) && !JAM_LOKAL.test(s)) return "";
-  return tanggal(s, "hariJam", locale);
+  return tanggal(s, "hariJam", locale, zona);
 }

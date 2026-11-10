@@ -1974,6 +1974,11 @@
       "proves": "BOB-04 (D-008, D-011, D-014). Read from the migration source and the source files src/lib/penugasan-kontrak.ts, src/app/mengajar/actions.ts, src/app/mengajar/[kelas]/siapkan/page.tsx and the learner pages src/app/belajar/[tugas]/pemetaan/page.tsx and penguasaan/page.tsx: the codes assign_refuse raises for assigning are exactly the contract's and each is raised (with the seal's, the boundary's and, since D-183, the exposure guard's code read from migration 20261228100000_exposed_questions_never_give_a_real_verdict.sql); every code has a copy key in both languages without machinery words; sediakanMateri calls assign_release with its declared arguments; the review page shows a refused code's sentence; and neither learner test page can answer 404."
     },
     {
+      "id": "W221-K01",
+      "runner": "static",
+      "proves": "W2.21 «Akhiri penugasan» read from its sources (selftest/penugasan.test.ts against 20270113100000): penugasan_tolak's codes are exactly KODE_AKHIRI_DB and akhiri_penugasan raises each; each is read back by its PR050 DETAIL (a planted unknown stays ASSIGN_FAILED) and has a sentence in both languages naming no machinery; akhiriPenugasanAction passes exactly p_la, p_jenis, p_alasan and p_akhiri_yang_berjalan; the class page offers «Akhiri atau tarik» only on an ACTIVE assignment and opens the panel, which lists who is still answering, requires the confirmation, the kind and a 5–300 character reason; statusMateri reads ENDED as «Diakhiri» and WITHDRAWN as «Ditarik»."
+    },
+    {
       "id": "F12-N03",
       "runner": "db",
       "proves": "BOB-03 (D-041). Releases change only through their functions: a teacher's direct insert into plp_releases naming the head of department as author and an admin's direct update of a published release are both refused by the database (42501, no client grant), no write policy remains on plp_releases, and signed-in staff still read the school's releases."
@@ -2077,7 +2082,7 @@
     {
       "id": "F06-P22",
       "runner": "db",
-      "proves": "BOB-39 (post-login review #2, D-061), migration 20261024100000 measured in selftest/db/fable06.sql: a Head of Department recording REFERRED_TO_INSTITUTION through record_integrity_review raises, in the same transaction, one AWAITING_REVIEW INTEGRITY_REFERRAL on the signal's class node with the reviewer's note as raised_note, beside the review's audit row, and it is in that Head of Department's decision queue read through RLS as /pimpinan reads it; NO_CONCERN and DISCUSSED_WITH_LEARNER create nothing; a second referral of the open signal is the same decision; a referral of a signal outside the reviewer's department is refused whole, leaving no decision and no review row, while NO_CONCERN there is still recorded; a Head of Department over another department does not see it; a teacher is still refused; advance_management_decision takes it up and decides it. RESTATED FOR CR-76 (W-2, D-123(4), migration 20261205100000): the Head of Department who referred it is refused «Saya yang menangani» and «Catat keputusan» (REFERRER_CANNOT_DECIDE) and told by management_decision_independent_decider that another may decide it, or that nobody else can while no other Management role stands over the class; another department's Head of Department is told nothing; the dean takes it up and decides it; the table refuses a referral decided by its referrer."
+      "proves": "RESTATED FOR SI-D01 (Sharon's finding A; owner, 9 Nov: actions stay within the reader's scope): outside the reviewer's department neither the referral nor a NO_CONCERN decision is accepted, and no review row is written. BOB-39 (post-login review #2, D-061), migration 20261024100000 measured in selftest/db/fable06.sql: a Head of Department recording REFERRED_TO_INSTITUTION through record_integrity_review raises, in the same transaction, one AWAITING_REVIEW INTEGRITY_REFERRAL on the signal's class node with the reviewer's note as raised_note, beside the review's audit row, and it is in that Head of Department's decision queue read through RLS as /pimpinan reads it; NO_CONCERN and DISCUSSED_WITH_LEARNER create nothing; a second referral of the open signal is the same decision; a referral of a signal outside the reviewer's department is refused whole, leaving no decision and no review row, while NO_CONCERN there is still recorded; a Head of Department over another department does not see it; a teacher is still refused; advance_management_decision takes it up and decides it. RESTATED FOR CR-76 (W-2, D-123(4), migration 20261205100000): the Head of Department who referred it is refused «Saya yang menangani» and «Catat keputusan» (REFERRER_CANNOT_DECIDE) and told by management_decision_independent_decider that another may decide it, or that nobody else can while no other Management role stands over the class; another department's Head of Department is told nothing; the dean takes it up and decides it; the table refuses a referral decided by its referrer."
     },
     {
       "id": "F06-P23",
@@ -2547,6 +2552,16 @@
       "proves": "DAISY-17 (D-046(e)): a click that saves says so at once and saves once. Every <form action={…}> under src/app and src/components (43 today) submits through TombolKirim and has no plain submit button (a <button> without type=\"button\", or an <input type=\"submit\">); every TombolKirim carries its pending words (tombol.*, or the step's own studio.langkah.sibuk / config.struktur.sibuk); a planted plain button and a second untyped button are caught and a type=\"button\" cancel is not (the control). TombolKirim is a client component that reads its own form's useFormStatus and is disabled, aria-busy and worded from the submit until the answer; it holds a second submit of the same form that lands before the redraw (document capture listener, preventDefault + stopImmediatePropagation, cleared when pending turns false) and never acts in its own click; its pending words exist in both languages and read as work in progress. Aktivasi (fetch, not a form) says \"Mengaktifkan…\" on the pressed button and holds a second press. Same push: a staff refusal (tolak.arti, staff) no longer tells an adult to ask their teacher while a learner's still does, and the refusal page speaks in its reader's register; Konfigurasi offers Menambahkan orang only when sekolahPendataan() -- /pendataan's own admission -- is non-empty."
     },
     {
+      "id": "SIAP-LEBAR-01",
+      "runner": "static",
+      "proves": "Daisy F3 (8 Nov): the topics x classes grid's scroll region (.pin-lk-kisi-wadah) is positioned, so the read-only words of «explain once» (.pin-sr, absolute) stay inside it and a 390 px phone page keeps its width; a stylesheet without the rule is caught. The rendered width is checked by audit/siap-jalan.mjs and Daisy's render."
+    },
+    {
+      "id": "SIAP-FOKUS-01",
+      "runner": "static",
+      "proves": "Readiness (8 Nov; owner: check every instance of the shared pattern), read over the source of every .tsx file under src/app and src/components: when a press replaces part of the screen, focus is moved on purpose. Every client component under src/app and src/components that draws an in-place panel (role=\"group\" aria-labelledby) moves focus; the ten components known to swap a button for a question or a small form (KonfirmasiBahaya, FormCabut, KeluarSemua, TutupPutaran, PanelStruktur, LangkahTerbit, KartuUlang, KartuJadiEmail, the item player's finish question, the lesson's worked example) move it both ways, into the panel on open and back to the opener on leaving; a planted KeluarSemua without its focus calls is caught. Walked by keyboard in audit/siap-jalan.mjs R4 and R7."
+    },
+    {
       "id": "DAISY-17-KIRIM-02",
       "runner": "app",
       "requires": [
@@ -2670,6 +2685,11 @@
       "id": "W3-K01",
       "runner": "static",
       "proves": "W3 (R1): what the learner sees chosen is what is handed in. At «Kumpulkan» every choice on screen that is not the latest taken answer (never saved, changed after a save, or changed after an offline save) is taken, in paper order, and nothing already taken is taken twice (executes src/lib/kumpulkan.ts); the source of ItemPlayer puts those into the outbox with a fresh seq before it replays and finishes; the post-test's «Kumpulkan» first asks posttest.submit_confirm and only the confirmation's own «Kumpulkan» hands in; an opened test starts at the first question without a saved answer (the last when all are answered), not question 1."
+    },
+    {
+      "id": "PEMAIN-K01",
+      "runner": "static",
+      "proves": "Daisy's design check at bcecb425 (A1, A2, B4), selftest/w3.test.ts, reads the source of src/app/belajar/_components/ItemPlayer.tsx and src/app/experience.css: Enter on a focused button, link or form control is that control's (WCAG 2.1.1) and is «next question» only when no control holds focus; a sitting the school ended (PR003) ends on the page, with the hand-in question closed, every player button disabled, the shortcuts stopped and focus moved to the notice; the «Perlu contoh?» offer has its own class, inline (max-width 60ch) and never position: fixed over the question. The rendered keyboard and phone-width check is the local Playwright walk recorded in the run record."
     },
     {
       "id": "W5-K01",
@@ -2902,12 +2922,12 @@
     {
       "id": "M3R-S01",
       "runner": "static",
-      "proves": "D-085 M3 (J5.12): a teacher asks the learners who need it to read again. In the database, rolled back (supabase/migrations/20261107100000): the class's teacher asks two learners placed in the class for two lessons of a chapter the class was given, audited; no learner, no lesson, another chapter's lesson, a person not placed in the class and another school's teacher are refused; the learner finds the request, each lesson is marked read once and the request closes; another learner neither sees nor marks it; the teacher reads who read what; a request is history and no client writes one"
+      "proves": "D-085 M3 (J5.12): a teacher asks the learners who need it to read again. In the database, rolled back (supabase/migrations/20261107100000): the class's teacher asks two learners placed in the class for two lessons of a chapter the class was given, audited; no learner, no lesson, another chapter's lesson, a person not placed in the class and another school's teacher are refused; the learner finds the request, each lesson is marked read once and the request closes; another learner neither sees nor marks it; the teacher reads who read what; a request is history and no client writes one; once the teacher ends the chapter a request is refused (REVIEW_ASSIGNMENT_CLOSED) and the learner's still-open request leaves her home"
     },
     {
       "id": "M3R-K01",
       "runner": "static",
-      "proves": "D-085 M3 (J5.12): reads the source: the teacher's screen lists the class's learners with those under the sealed target marked and first, lets the teacher choose learners and lessons, and sends them to request_lesson_review; the learner's home shows «Diminta gurumu» after the next-step panel; a lesson opened from a request marks it read on its last page"
+      "proves": "D-085 M3 (J5.12): reads the source: the teacher's screen lists the class's learners with those under the sealed target marked and first, lets the teacher choose learners and lessons, and sends them to request_lesson_review; the learner's home shows «Diminta gurumu» after the next-step panel; a lesson opened from a request marks it read on its last page; a chapter the class is no longer given offers no request, on the learner's page or the request screen"
     },
     {
       "id": "C1-S01",
@@ -2972,7 +2992,7 @@
     {
       "id": "EFF-K02",
       "runner": "static",
-      "proves": "whole-system efficiency audit (2 Oct): reads the source of the Konfigurasi route (src/app/konfigurasi/page.tsx): a school administrator's enrolments and audit trail are read for the schools they administer, named, so the database reads the (institution_id, ...) indexes instead of checking the policy on every row of every school; the platform administrator's reads are unchanged; each table is read once"
+      "proves": "whole-system efficiency audit (2 Oct): reads the source of the Konfigurasi route (src/app/konfigurasi/page.tsx): a school administrator's enrolments and audit trail are read for the schools they administer, named, so the database reads the (institution_id, ...) indexes instead of checking the policy on every row of every school; the platform administrator's reads are unchanged; each table is read once. RESTATED for Sharon's paging ruling (10 Nov): the trail is paged by entries (a year-end run's related rows take no slot), and a run's related rows are read by src/lib/jejak-run.ts, which names the run's school, counts exactly per run with all counts asked together, and reads a bounded sub-page of 100"
     },
     {
       "id": "PITA-K01",
@@ -3178,7 +3198,7 @@
     {
       "id": "F21-I01",
       "runner": "db",
-      "proves": "FD-7 (DG-32), measured in selftest/db/fable21.sql through integrity_signals_awaiting_review: two observations of one sitting in an Alpha class wait for the school admin, each referable, and for a Kepala departemen of another department with no referral offered, which record_integrity_review indeed refuses for her; the sitting's own learner is shown none; RESTATED FOR W2.7 (Batch 5, CR-75: one decision per observation): once the admin records a decision on one observation exactly the other still waits, for every reviewer, and once each has its own decision both leave the list, the observations themselves unchanged (doc 16); an observation made after the review waits again.",
+      "proves": "RESTATED FOR THE OWNER'S RULING (9 Nov, System Integrity): integrity oversight across departments is a COUNT; individual cases and actions stay within the reader's scope. FD-7 (DG-32), measured in selftest/db/fable21.sql through integrity_signals_awaiting_review: two observations of one sitting in an Alpha class wait for the school admin, each referable, and for a Kepala departemen of another department with no referral offered, which record_integrity_review indeed refuses for her; the sitting's own learner is shown none; RESTATED FOR W2.7 (Batch 5, CR-75: one decision per observation): once the admin records a decision on one observation exactly the other still waits, for every reviewer, and once each has its own decision both leave the list, the observations themselves unchanged (doc 16); an observation made after the review waits again. — a Kepala departemen of another department is now shown no case of the sitting and is given, through integrity_signals_waiting_elsewhere, her department-level count of observations waiting outside her scope (no sitting, category or time); the server refuses her decision; after the admin's decision she still sees no case.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
@@ -3530,7 +3550,7 @@
     {
       "id": "BOB43-D01",
       "runner": "static",
-      "proves": "BOB-43..47, migration 20261118100000 against the database, rolled back (selftest/bob43.test.ts): a place's kind is set on the Bagian (create_bagian's boolean too), inherited, never changed or moved across; ASSIGN_CONTEXT_MISMATCH refuses PD material in an academic Kelas, academic material in a PD Kelas, any above a Bagian and an Uji Cepat across; Siapkan is offered matching releases only; enrol_for_professional_learning enrols a staff member ACTIVE or PENDING, reuses the enrolment, makes no person, account or number, and refuses an academic Kelas, a Murid (also by direct membership), a duplicate, another school's teacher and callers without CAN_PROVISION_PEOPLE; the briefing and Management's learner record count no PD; PD sessions, progress, answers and integrity signals reach only the ruled audiences, referral is refused for everyone; every academic row of five tables is read exactly as the previous policies admit for ten readers; professional_learning_record gives the facilitator, Dekan and PD head progress and the result through catalogue MC-5, Admin sekolah completion only, and refuses everyone else. E-C1-7 (D-069(b), D-167): as Admin sekolah, the PD participant's result is reached by no other path: assessment_results read directly by session and by person, certificates, metric_evaluate('learner.result') (not_permitted, no row) and every standard generate_report at the PD Kelas, its Bagian and the school (none names the session, the participant or the 0.92); a planted permissive policy on assessment_results inside the same rolled-back transaction is seen by the same sweep, so the sweep can detect a leak."
+      "proves": "BOB-43..47, migration 20261118100000 against the database, rolled back (selftest/bob43.test.ts): a place's kind is set on the Bagian (create_bagian's boolean too), inherited, never changed or moved across; ASSIGN_CONTEXT_MISMATCH refuses PD material in an academic Kelas, academic material in a PD Kelas, any above a Bagian and an Uji Cepat across; Siapkan is offered matching releases only; enrol_for_professional_learning enrols a staff member ACTIVE or PENDING, reuses the enrolment, makes no person, account or number, and refuses an academic Kelas, a Murid (also by direct membership), a duplicate, another school's teacher and callers without CAN_PROVISION_PEOPLE; the briefing and Management's learner record count no PD; PD sessions, progress, answers and integrity signals reach only the ruled audiences, referral is refused for everyone; every academic row of five tables is read exactly as the previous policies admit for ten readers; professional_learning_record gives the facilitator, Dekan and PD head progress and the result through catalogue MC-5, Admin sekolah completion only, and refuses everyone else. E-C1-7 (D-069(b), D-167): as Admin sekolah, the PD participant's result is reached by no other path: assessment_results read directly by session and by person, certificates, metric_evaluate('learner.result') (not_permitted, no row) and every standard generate_report at the PD Kelas, its Bagian and the school (none names the session, the participant or the 0.92); a planted permissive policy on assessment_results inside the same rolled-back transaction is seen by the same sweep, so the sweep can detect a leak. RESTATED for the System Integrity Gate (owner, 9 Nov, SI-D01 accepted as a 4.0 correction): the academic reference for responses, presented_items, integrity_signals and lesson_progress is 20270112100000's rule (can_on_node over the sitting's class; for lesson progress a class the learner is or was in), not the earlier school-wide can_in_institution; the session row's own condition is kept, since the policies' subqueries read it under the caller's rights."
     },
     {
       "id": "BOB15-K01",
@@ -3825,6 +3845,21 @@
       "id": "TANGGAL-03",
       "runner": "static",
       "proves": "W3.3 Date and time echo (Batch 2; RV-16; Daisy components/DateTime), selftest/tanggal.test.ts, the source of every src/**/*.tsx and src/components/bentuk/TanggalDenganGema.tsx rendered in id and en: no native date, datetime-local or time input outside TanggalDenganGema; each use is labelled (htmlFor) and in the reader's language; Siapkan's mulai/sampai and Konfigurasi's pm_mulai, pm_selesai, terbit, sampai and valid_until are echoed under their names; rendered, the field passes name, id, value, required, min and max through, aria-describedby names the echo first, and the echo after it says «Jumat, 9 Okt 2026» («Friday, 9 Oct 2026»), with «, 07.30 WIB» for a time, politely, and «Belum ada tanggal.» when empty; .pin-gema in src/app/experience.css is Daisy's line."
+    },
+    {
+      "id": "ZONA-01",
+      "runner": "static",
+      "proves": "The owner's ruling (10 Nov: school-context dates on the school's clock), selftest/zona.test.ts, the output of src/lib/tanggal.ts: one instant is written in WIB (+7), WITA (+8) and WIT (+9) with its own offset and word in every form with a time, the day moving with the zone (23.30 WIB is 00.30 WITA the next day); a field's yyyy-mm-dd or yyyy-mm-ddThh:mm is read as written whatever the zone, only its word following it; no zone or an unknown one is WIB as before; jam(), gemaTanggal(), kataZona/geserZona, format.date, the maintenance clock (jamWib) and judulAsesmen take the same zone."
+    },
+    {
+      "id": "ZONA-02",
+      "runner": "static",
+      "proves": "The owner's ruling (10 Nov), selftest/zona.test.ts, executes the source of src/lib/pemeliharaan-kontrak.ts and src/lib/struktur-kontrak.ts: a date and time typed for one school's maintenance window or notice is read on that school's clock (waktuSekolah; WIB when none, waktuWib unchanged); the default academic year (tahunAjaranPada) turns on 1 July on the school's clock; reads src/app/konfigurasi/actions.ts: no hard-coded +07:00, both role grants end the last day at 23.59.59 on the school's clock (batasHari), and the maintenance actions read their typed times on the zone of the school they are for."
+    },
+    {
+      "id": "ZONA-03",
+      "runner": "static",
+      "proves": "The owner's ruling (10 Nov), selftest/zona.test.ts, the source of the school-context pages and components (Mengajar, Pimpinan, Konfigurasi, Studio, Pendataan, certificates, the learner's assessment and certificate rows): every date they write passes the school's zone; the wrappers (Konfigurasi's and Studio's when(), judulAsesmen, the certificate card's format.date) carry it; the audit trail writes each row on its own school's clock (WIB when it has none); the teacher's home reads its today and greeting on the school's clock; no comment claims «the school's time zone» over a WIB-only write; the maintenance form's four time labels and echoes name the zone the form is read in."
     },
     {
       "id": "KOLEKSI-HAL-01",
@@ -4157,6 +4192,21 @@
       "proves": "W2.5 (Batch 5; CR-05, ADM-18, J8.5), selftest/b5.test.ts: the source of «Sertifikat sekolah» (src/app/konfigurasi/sertifikat/page.tsx) lists the database's own read sertifikat_sekolah as Daisy's Collection, offers «Cabut» on an issued certificate only and reads the chosen one again by id; the revocation (src/components/sertifikat/FormCabut.tsx) is Daisy's form page with the destructive in-page Confirmation (components/Confirmation, GQ5: never the Dialog): a required reason, «Lanjutkan» that commits nothing, the solid red act naming the certificate, focus on «Batal», what happens and what stays safe; the action (src/app/konfigurasi/sertifikat/actions.ts) checks the certificate's school against the working context and then asks revoke_certificate with the caller's own client; every refusal code and state has words in both languages in the copy table (src/lib/hle.ts); Konfigurasi links the page and it has its title."
     },
     {
+      "id": "W222-K01",
+      "runner": "static",
+      "proves": "W2.22 «Terbitkan ulang» read from its sources (selftest/b5.test.ts against 20270113110000): sertifikat_koreksi_tolak's codes are exactly KODE_GANTI_DB and each is raised; each is read back by its PR120 DETAIL (a planted unknown and maintenance's PR110 are not); every screen code has a sentence in both languages naming no machinery; the route /api/sertifikat/ganti checks the working context, prepares with the admin's own client, signs with the keyring, then seals with the service client (the service client stays under src/app/api), and sertifikat_koreksi_segel is granted to service_role only; the certificate panel reads sertifikat_koreksi_pratinjau, offers the form only where something differs with a 10–300 character reason, and says which certificate replaced a superseded one."
+    },
+    {
+      "id": "STAF-K01",
+      "runner": "static",
+      "proves": "E5 and §11 read from their sources (selftest/b5.test.ts against the migration 20270113120000, src/lib/staf-kontrak.ts, src/app/konfigurasi/staf/actions.ts and page.tsx): staf_tolak's codes are exactly KODE_STAF_DB, each raised and read back by its PR130 DETAIL; E5's categories are akhiri_tugas_staf's own list and order; every code, category and responsibility, including every capability the registry migration names, has words in the copy table in both languages naming no machinery; both actions ask the working context before acting; the review is a GET render answered by ubah_peran with apply false, the confirmation posts the review's fingerprint, and «Akhiri tugas» asks a category and a date no later than today."
+    },
+    {
+      "id": "AKUN-K01",
+      "runner": "static",
+      "proves": "§5b and L1–L4 read from their sources (selftest/b5.test.ts against the migration 20270113130000, src/lib/akun-kontrak.ts, src/app/akun and src/components/akun/MeninggalkanPintar.tsx): akun_tolak's codes are exactly KODE_AKUN_DB, each raised and read back by its PR140 DETAIL; the suspension's categories are tangguhkan_akun's own list; the per-request check refuses a suspended or closed person's token whatever the path while the status read passes; every code, category, request kind and status and the six facts of leaving have words in the copy table in both languages naming no machinery; Akun saya is drawn for a learner, who is offered no form; each request is one confirmation; a closure signs the person out."
+    },
+    {
       "id": "F26-C01",
       "runner": "db",
       "proves": "W2.5 (Batch 5; CR-05), selftest/db/fable26.sql, migration 20261222100000: sertifikat_sekolah answers the school admin their school's issued certificates (number, holder, school, state), by number from its start and by a part of the holder's name, one by id (also with no school named, for whom may revoke it); a prepared ELIGIBLE row is not listed; «%» is matched as a word; a Guru, a head of department, another school's admin, a school admin asking for every school and an anonymous caller are refused; Admin platform reads every school's."
@@ -4464,7 +4514,7 @@
     {
       "id": "D168-K2-1",
       "runner": "static",
-      "proves": "E-K2 (D-173(d), one pagination grammar), selftest/d168.test.ts: reading the source, Penomoran renders the Collection's pager (HalamanKoleksi) and every one of the 10 paged staff lists passes its rows' noun, count and the reader's language; rendered (react-dom/server), page 1 of a keyset list shows «Menampilkan 1–20 laporan», «Halaman 1» and a disabled «Sebelumnya», page 2 links both ways, the last page in English, a one-page list draws nothing, a known total is shown, and no pager says «Kembali»."
+      "proves": "E-K2 (D-173(d), one pagination grammar), selftest/d168.test.ts: reading the source, Penomoran renders the Collection's pager (HalamanKoleksi) and every one of the 11 paged staff lists (restated 10 Nov: an opened year-end run's related entries in Jejak audit, Sharon's paging ruling) passes its rows' noun, count and the reader's language; rendered (react-dom/server), page 1 of a keyset list shows «Menampilkan 1–20 laporan», «Halaman 1» and a disabled «Sebelumnya», page 2 links both ways, the last page in English, a one-page list draws nothing, a known total is shown, and no pager says «Kembali»."
     },
     {
       "id": "D168-K7-1",
@@ -4564,7 +4614,7 @@
     {
       "id": "F31-K01",
       "runner": "db",
-      "proves": "H31 (MC-8), selftest/db/fable31.sql, migration 20270101100000_a_gain_pairs_each_learners_pre_and_post_test_of_the_same_chapter.sql: in a class of its own, a learner who sat Bab 1 (pre 30%, post 80%) and Bab 2 (pre 70%, post 75%) and another who sat only Bab 1's pre-test and Bab 2's post-test make calc_class_net_gain return 0.275 (the mean of the first learner's per-chapter gains), not 0.10 or 0.40, with a sample of 1 person; calc_institution_net_gain equals the same per-learner, per-chapter pairing computed independently from the official sessions and results, with its sample in people. Against the person-only grouping it answers 0.40 over 2 and fails."
+      "proves": "H31 (MC-8), selftest/db/fable31.sql, migration 20270101100000_a_gain_pairs_each_learners_pre_and_post_test_of_the_same_chapter.sql: in a class of its own, a learner who sat Bab 1 (pre 30%, post 80%) and Bab 2 (pre 70%, post 75%) and another who sat only Bab 1's pre-test and Bab 2's post-test make calc_class_net_gain count 2 pairs of 1 person (restated 9 Nov: the class's figure is withheld because each chapter holds one pair, the owner's historical-disclosure ruling; the 0.275 arithmetic is F36-X01's, on five such learners); calc_institution_net_gain counts the same learners as that pairing computed independently from the official sessions and results; restated 9 Nov to owner decisions 7 and 8: the independent pairing is the current Uji Penguasaan against the earliest Pemetaan Awal (never each test's highest), and the school figure is withheld, never recomputed, when its pairs fall in a class under the class minimum. Against the person-only grouping it answers 0.40 over 2 and fails."
     },
     {
       "id": "F32-E01",
@@ -4605,6 +4655,621 @@
       "id": "F33-P01",
       "runner": "db",
       "proves": "D-069 against D-195(5) and KESETIAAN #6, selftest/db/fable33.sql: in a professional-learning class constructed under a PROFESSIONAL_DEVELOPMENT Bagian (member_kind PARTICIPANT), whose three participants hold official Uji Penguasaan results there, one in the lowest band, the class's facilitator (EDUCATOR over it) is given no name by murid_perlu_penguatan and no dot by sebaran_murid_kelas. Without the class-of-learners condition in either read the facilitator is given the participant by name, or the dots, and it fails."
+    },
+    {
+      "id": "F33-PA01",
+      "runner": "db",
+      "proves": "D-132(g) with D-195(5), KESETIAAN #6 and D-069(b), selftest/db/fable33.sql: a platform administrator (SYSTEM_ADMIN, no role at the school), over the suite's own fixtures, is given Kenaikan's pair equal to the class's (0.4250 -> 0.7333; metric_evaluate admits the platform) and nothing personal: no learner by name from murid_perlu_penguatan, no dot from sebaran_murid_kelas, no row from kesiapan_kelas_per_mapel, and professional_learning_record refuses it. The card exclusions are recorded, not judged. Given the class's teacher role as well, the same reader is given 2 names and 6 dots, and it fails (shown 8 Nov)."
+    },
+    {
+      "id": "F34-P01",
+      "runner": "db",
+      "proves": "Owner decision 1 (8 Nov), selftest/db/fable34.sql against supabase/migrations/20270110100000_a_learner_without_a_class_is_placed.sql: a learner recorded without a class (a person and a registration number, as a Pendataan row with no place leaves them) is listed by murid_tanpa_kelas to the school's administrator and to no teacher; tempatkan_murid places them with one PENDING enrolment for the Kelas's year and one open membership, audited LEARNER_PLACED, the number unchanged, and the list no longer names them. Refused: a teacher and another school's administrator (42501), a staff role holder (PLACE_STAFF; never listed, CR-91), a second placement (PLACE_ALREADY_PLACED), a Tingkat or a professional-learning Kelas (PLACE_NOT_A_KELAS; D-069), an anonymous caller. Pindah (move_learner_to_class) moves the new placement after. It cannot pass without the migration's functions."
+    },
+    {
+      "id": "F34-H01",
+      "runner": "db",
+      "proves": "Owner decision 3 (W1.16), selftest/db/fable34.sql through the real lifecycle (create_course_revision, langkah_konten, create_release, freeze_release, publish_release, each as the persona whose step it is): a correction at «Ajukan» (VALIDATED) is the author's «Draf yang belum diajukan»; approved, it is «Buat terbitan» for CAN_FREEZE_RELEASE (Kepala departemen, Admin sekolah) and nothing for the Guru; created, «Kunci» for them; frozen, «Terbitkan» for CAN_PUBLISH only; published, nobody's. At every stage studio_home's RELEASE_STEP count equals studio_langkah_terbitan's rows (the list it opens) for that reader and school. It failed (8 Nov) on a rule that required an approved release for «Kunci», which create_release never produces."
+    },
+    {
+      "id": "F35-T01",
+      "runner": "db",
+      "proves": "Reporting Quality Gate (owner directive, 9 Nov), selftest/db/fable35.sql against supabase/migrations/20270111100000_a_chapter_written_in_studio_names_its_topics.sql: two chapters whose Uji Penguasaan are course-level definitions (the shape Studio's intake makes) and whose objectives share the code X1 stay two topics, each named by its own objective's statement with its own five learners, for the class's teacher (class.topic_mastery) and the school's Dekan (institution.competency_outcomes); tujuan_belum_tercapai names the one objective a learner is under the mark on by its statement. It failed before the migration: the objective was looked for only in a module-level definition, so a Studio chapter's topics were bare codes and equal codes were averaged as one."
+    },
+    {
+      "id": "F35-S01",
+      "runner": "db",
+      "proves": "Reporting Quality Gate (9 Nov), selftest/db/fable35.sql against 20270111100000: the 5-learner minimum counts learners, not results (H31's rule for Kenaikan, extended to class.comprehension, class.topic_mastery and institution.competency_outcomes). Five learners who sat ten Uji Penguasaan are a «Pemahaman» sample of five, and three learners who sat two chapters (six results) are under the minimum for «Pemahaman» and «Penguasaan per topik», counted as three. Before the migration the six results cleared the minimum and the class of 24 read «Dari 36 murid»."
+    },
+    {
+      "id": "F35-A01",
+      "runner": "db",
+      "proves": "Owner decision 5 (9 Nov), selftest/db/fable35.sql against 20270111100000: a sitting keeps the Angkatan recorded when it was sat. Sittings that recorded none form one «not recorded» row of institution.cohort_comparison, never placed under today's Angkatan; six sittings recorded under Angkatan A stay there after their class is moved to Angkatan B; a recorded Angkatan cannot be rewritten (INV-33). start_learning_session now records the class's Angkatan at the sitting."
+    },
+    {
+      "id": "F35-D01",
+      "runner": "db",
+      "proves": "Owner decision 6 (9 Nov), selftest/db/fable35.sql: every subgroup meets its own governed minimum with learners counted once. An Angkatan of 4 learners (one sitting three times) is 4 learners with no mean beside an Angkatan of 6 with its mean; the comparison's sample is the school's distinct learners; a chapter two learners sat is withheld with the catalogue's minimum, and «Pemahaman», which combines it, is then withheld as protecting a subgroup (owner decision 7: never recomputed without the chapter) with its five learners still counted; the class's teacher and the Dekan are given the same chapter figures. Restated 9 Nov from the reverted rule that dropped the small chapter from «Pemahaman»."
+    },
+    {
+      "id": "F35-G01",
+      "runner": "db",
+      "proves": "Sharon's finding 2 (owner D6), selftest/db/fable35.sql: institution.safety_gate_pass_rate's sample is the school's distinct learners, not its Uji Penguasaan results."
+    },
+    {
+      "id": "F35-O2",
+      "runner": "db",
+      "proves": "Owner ruling O2 (9 Nov), selftest/db/fable35.sql against target_kelas (20270111100000): the class's sealed Uji Penguasaan mark is given to its teacher, the school's Dekan and Admin and the Kepala departemen over the class, and to the school's other teachers exactly as the assignments table already reads (CAN_ASSIGN_LEARNING), widening nothing; another school's teacher and Dekan get nothing; anon cannot call it; it returns only the release and the mark."
+    },
+    {
+      "id": "F35-O4",
+      "runner": "db",
+      "proves": "Owner ruling O4 (9 Nov), selftest/db/fable35.sql: the school's figures (institution.*) follow authority over the whole school: a Dekan at the school's root and its Admin read them; a Dekan over one Bagian (faculty node), another school's Dekan, a Kepala departemen and a teacher are refused not_permitted."
+    },
+    {
+      "id": "F36-E01",
+      "runner": "db",
+      "proves": "Owner decision 8 (9 Nov), selftest/db/fable36.sql, running the calculators: a learner sits a chapter at 80% then 60%; current mastery is 60% (class.chapter_mastery and class.comprehension 0.52 over 5 learners, the bands over 5), learner.result keeps both sittings, class.net_gain pairs the current 60% with the earliest Pemetaan Awal (0.30 mean, where MC-8's highest-result rule gave 0.80 − 0.30), an audited recomputation to 70% moves the figures to 0.54 and stays one sitting, recomputing the OLDER sitting later never makes it current, and certificate_eligibility still reads the sitting's sealed 60%."
+    },
+    {
+      "id": "F36-X01",
+      "runner": "db",
+      "proves": "Owner decision 8 E (9 Nov), selftest/db/fable36.sql: the same evidence gives agreeing figures across reports: «Pemahaman» equals the one chapter's mean and, over two chapters, their learner-weighted mean; with every learner paired, kenaikan_awal_akhir's akhir equals «Pemahaman» and akhir − awal equals class.net_gain; Kenaikan over five learners each holding two chapters' pairs (0.50 and 0.05) is 0.275 over 10 pairs of 5 learners, H31's governed unit."
+    },
+    {
+      "id": "F36-R01",
+      "runner": "db",
+      "proves": "Sharon's finding 1 (owner directive D7-D8), selftest/db/fable36.sql, her exact case executed: chapter A 70% over 6 learners, chapter B 40% over 3, nine pairs. For the Dekan and the teacher, B's row, «Pemahaman», Kenaikan (its 9 learners and 9 pairs still counted; the owner's historical-disclosure ruling) and kenaikan_awal_akhir's means are withheld, so 9 × 0.60 − 6 × 0.70 cannot be formed; also with a second withheld chapter, a repeated sitting and learners in both chapters; and a shown chapter whose single unpaired learner would be its mean minus Kenaikan's akhir withholds Kenaikan's pair."
+    },
+    {
+      "id": "F36-R02",
+      "runner": "db",
+      "proves": "Sharon's finding 2, selftest/db/fable36.sql: class.topic_mastery lists shown topics by their means, then withheld topics by name (T1, T3, T2, T4), never by their hidden means (which would give T4 before T2)."
+    },
+    {
+      "id": "F36-K01",
+      "runner": "db",
+      "proves": "Owner directive D7-D8 (school-level small populations, unrecorded history) and Sharon's finding 3 of 13079a9e, selftest/db/fable36.sql: a school competency combining a 12-learner and a 3-learner class, the school's Kenaikan over them and their Angkatan are withheld (never recomputed without the small class), the competency giving its actual reason («class»); a competency whose every class cell is large is shown and equals the hand count (12 at 80%, 6 at 50%, 6 at 60%: 0.675 over 24); a school Kenaikan over two classes of five pairs equals the hand count over 10 pairs; another Angkatan keeps its mean; sittings with no recorded Angkatan are the last «not recorded» row and still count among the school's participants."
+    },
+    {
+      "id": "F36-K02",
+      "runner": "db",
+      "proves": "Owner decision D10, Sharon's mover case of 13079a9e, selftest/db/fable36.sql, written first and seen RED before the correction (6 × 0.6750 − 5 × 0.6500 = 0.8000, the mover's own sitting; the school competency shown beside both classes' topic rows): Angkatan A holds only class X, whose chapter R six learners sat; the sixth moved to class Y (Angkatan B) and re-sat. Now X's chapter row and Angkatan A's row are not both shown, nor the school competency beside both classes' topic rows; Angkatan A still counts its 5 learners."
+    },
+    {
+      "id": "F36-S01",
+      "runner": "db",
+      "proves": "Owner decision D12, selftest/db/fable36.sql: twelve sittings of tests with no required question give institution.safety_gate_pass_rate no rate, said as not applicable (12), never 100%; with ten applicable sittings (7 pass, 3 fail) the rate is 0.7 over 10, the twelve apart."
+    },
+    {
+      "id": "F36-L01",
+      "runner": "db",
+      "proves": "Owner decision D11, selftest/db/fable36.sql: the effective result is selected by lineage: a recalculation stamped an hour BEFORE its original is read on three repeated reads (a timestamp rule would read the original); with identical timestamps the recalculation is read and the sealed original kept beside it; the certificate keeps the sealed 40%; a second recalculation through recompute_result is refused with PR011 «one authorised recalculation per sitting», not a constraint error."
+    },
+    {
+      "id": "F36-G02",
+      "runner": "db",
+      "proves": "Sharon's finding 5, selftest/db/fable36.sql: four learners who sat three times each give institution.safety_gate_pass_rate sample 4 and sittings 12, the rate over the 12 sittings (0.5), and four learners do not clear the school minimum of ten."
+    },
+    {
+      "id": "F36-H01",
+      "runner": "db",
+      "proves": "Sharon's finding 3 / owner decision 5, selftest/db/fable36.sql, through the product's own path: a learner placed in a Kelas under an Angkatan starts a real Pemetaan Awal (start_learning_session) and it records that Angkatan; after the Kelas moves to another Angkatan the past sitting keeps its own and the next sitting records the new one; a rewrite is refused (INV-33)."
+    },
+    {
+      "id": "F36-H02",
+      "runner": "db",
+      "proves": "Owner decision 5, selftest/db/fable36.sql: open_assessment_session refuses an Angkatan that is not the class's, and, with no class, one the enrolment is not placed in; history is never taken on a caller's word."
+    },
+    {
+      "id": "F36-M01",
+      "runner": "db",
+      "proves": "Owner approval (misconception patterns), selftest/db/fable36.sql, with real responses: one learner who chose the same wrong option three times is no class pattern (not listed; the envelope's `withheld` counts it); five learners who chose another are listed with 5 occurrences; the sample is the 6 learners."
+    },
+    {
+      "id": "F36-D14",
+      "runner": "db",
+      "proves": "Owner decision D14, selftest/db/fable36.sql: a learner's sealed 20% is recalculated by the platform's SYSTEM_ADMIN through the real recompute_result, which re-scores their answers and writes an audit row; calc_learner_result gives the recalculated figure with the sealed 20% and the recorded reason; murid_perlu_penguatan (Section E) decides on the recalculation with its own count; session_outcome (the learner's page) keeps the sealed 20% and its sealed objectives; sesi_saya_dihitung_ulang says yes to the learner and no to anyone else; certificate_eligibility keeps the sealed 20%."
+    },
+    {
+      "id": "F36-P01",
+      "runner": "db",
+      "proves": "Owner decision 7 and Daisy's N2, selftest/db/fable36.sql: «Pemahaman» with 0 learners says «belum ada bukti» with 0; with 1 and 4 learners «belum cukup data» with that count; with 5 it is shown; the bands and topics count the same learners; two chapters of 4 learners (8 sat) are «withheld to protect a chapter» (laporan.metrik.dilindungi) with 8 learners, each chapter withheld with its 4."
+    },
+    {
+      "id": "F37-D01",
+      "runner": "db",
+      "proves": "System Integrity Gate, chain D (owner, 9 Nov), selftest/db/fable37.sql against 20270112100000 and 20270112110000 (Sharon's review of SI-D01; D5): one learner's sitting in Kelas A of Departemen A, with an answer, an observation, lesson progress of an assignment to Kelas A and a reclassification, read through row security alone, every expectation an exact count (a lost reader fails like an exposed one). The learner reads result, answer, question shown, progress and sitting; A's Kepala departemen all of them plus the observation and the reclassification; A's Guru result, progress and sitting; the Admin sekolah observation, progress, sitting and reclassification and NO answer and NO question shown (D5); B's Kepala departemen, B's Guru and another learner nothing. Red on the school-wide policies (B's head read the answer, the question, the observation, the progress and the sitting; B's Guru the progress and the sitting; the Admin the answers)."
+    },
+    {
+      "id": "F37-B01",
+      "runner": "db",
+      "proves": "System Integrity Gate, chain B (the class «counts disagreeing with available actions»), selftest/db/fable37.sql: Konfigurasi «Yang menunggu»'s Aktivasi count (persons_awaiting_account, counted under the reader's own rights) equals the total of the Aktivasi list it opens (persons_awaiting_account_page) for the school's own administrator, for the platform administrator narrowed to one school, and for the platform administrator over every school (batch-4 dossier gap: only a count ≥ 1 was checked)."
+    },
+    {
+      "id": "F37-D02",
+      "runner": "db",
+      "proves": "System Integrity Gate, chain D, selftest/db/fable37.sql: a person recorded in school 2 without an account who holds a staff role in school 1 is offered no class card by school 2's administrator (persons_awaiting_account.boleh_kartu false; CR-91 counts a staff role in any school; batch-1 dossier gap: held by construction, never planted)."
+    },
+    {
+      "id": "F37-C01",
+      "runner": "db",
+      "proves": "System Integrity Gate, chain A (owner, 9 Nov: «certificate eligibility after recalculation»), selftest/db/fable37.sql: a sitting sealed at 40% against a 70% mark and recalculated to 95% stays not eligible at 0.40, and a sitting sealed at 90% and recalculated to 30% stays eligible at 0.90: certificate_eligibility reads the sealed root result and the mark sealed on the attempt, never the recalculation (O-B3)."
+    },
+    {
+      "id": "F37-D03",
+      "runner": "db",
+      "proves": "SI-D01 completed (Sharon's finding 1, HIGH; selftest/db/fable37.sql against 20270112110000): an evidence reclassification is decided over the sitting's place. B's Kepala departemen and B's Guru cannot insert an override on Kelas A's sitting (42501, by the insert policy and the enforce_evidence_override trigger), so cannot take it out of official evidence and every report; A's Kepala departemen and the Admin sekolah can (each tried and undone). Before the fix the trigger and the policy asked can_in_institution: any holder of CAN_REVIEW_INTEGRITY in the school."
+    },
+    {
+      "id": "F37-D04",
+      "runner": "db",
+      "proves": "SI-D01 completed (Sharon's finding 2; fable37.sql): lesson progress follows a learning assignment of that release to a node the reader holds, which the learner is or was in. A learner of Kelas A, also placed in Kelas B, reads chapter 2 there: A's Guru reads chapter 1 (assigned to A) and not chapter 2; B's Guru reads chapter 2 and not chapter 1; the learner both. Before the fix A's Guru read chapter 2 too (any class the learner ever belonged to)."
+    },
+    {
+      "id": "F37-D05",
+      "runner": "db",
+      "proves": "SI-D01 completed (Sharon's finding 3; fable37.sql): a sitting recorded with an Angkatan and no Kelas is anchored on the Angkatan. A's Kepala departemen and the Admin sekolah read its observation and sitting and may refer it from integrity_signals_awaiting_review; B's Kepala departemen sees it listed (the list's approved contract, FD-7/DG-32, F21-I01) and may not refer it, and reads neither the observation nor the sitting. Before the fix nobody in the school could decide it (fail-closed on the class alone)."
+    },
+    {
+      "id": "F37-D06",
+      "runner": "db",
+      "proves": "D5 (owner, 9 Nov: APPROVED, least privilege; fable37.sql against 20270112110000): jawaban_untuk_pemeriksaan opens ONE sitting's final answers to CAN_REVIEW_INTEGRITY over its place, with a reason of 10–500 characters, only while an observation on that sitting is undecided, writing one integrity.answers_opened audit row per open. Refused without a reason (22023 INVESTIGATION_REASON), on a sitting with no undecided observation (42501 INVESTIGATION_NO_CASE) and to another department's head (42501 INVESTIGATION_NOT_ALLOWED); a refusal writes no audit row. F37-D01 shows the Admin sekolah reads no answer and no question shown through row security."
+    },
+    {
+      "id": "F37-D07",
+      "runner": "db",
+      "proves": "SI-D01, Sharon's finding A (HIGH; selftest/db/fable37.sql against 20270112130000): another person's sitting is acted on over its place. B's Kepala departemen and B's Guru are refused (CAN_ in the message) when they decide Kelas A's observation (record_integrity_review), end its sitting (terminate_session) or extend its deadline (extend_session_deadline); A's Kepala departemen succeeds at each (tried and undone). Before the fix all three asked can_in_institution: a capability anywhere in the school."
+    },
+    {
+      "id": "F37-S01",
+      "runner": "db",
+      "proves": "SI-D03 (System Integrity, 9 Nov; found by the account-lifecycle inventory): a school's account-level power over a person follows the person's current placement, never a historical registration number (selftest/db/fable37.sql against recovery_assist_school). School X's admin is refused (42501) admin_reset_recovery for a learner who transferred from X to Y and for one who withdrew from X, and that learner's session survives; school Y's admin resets the transferred learner (every session ended); a person who is a learner at X and a teacher at Y is assisted by either school; school Y's admin, X's Guru and X's Kepala departemen are refused for X's learner; X's registration numbers and the ended enrollments are kept."
+    },
+    {
+      "id": "F37-S02",
+      "runner": "db",
+      "proves": "SI-D03 widened (Sharon, 9 Nov; owner: historical registration alone confers no credential-management authority): authorize_card_reissue, authorize_card_conversion, authorize_email_correction, authorize_account_activation and admin_reset_recovery, each by school X's and school Y's admin for seven people (selftest/db/fable37.sql). A former school (T transferred X to Y; W withdrew; P withdrew from X before activating) and a role that has not started (F) are refused at the school check; the current school, both schools of a person placed at two (M), and the school onboarding a person it has numbered but never placed (O at X, P at Y) pass it. Authority is read from the refusal: a school-check refusal names the capability."
+    },
+    {
+      "id": "F37-D08",
+      "runner": "db",
+      "proves": "SI-D01, Sharon's re-review finding 1 (selftest/db/fable37.sql against terminate_session and extend_session_deadline): a professional-learning sitting is the platform's, as reading it already is (boleh_atas_sesi). On a fresh open PD sitting each, a Kepala departemen and the Admin sekolah are refused ending it, and a Guru and the Admin sekolah are refused extending its deadline, each refusal naming its capability; the platform administrator extends and ends it. Before the fix both functions asked can_in_institution for PD sittings: the capability anywhere in the school."
+    },
+    {
+      "id": "F37-L01",
+      "runner": "db",
+      "proves": "Account lifecycle (Sharon's review of 89374424, D2; owner's priority 4; selftest/db/fable37.sql): a placement changes only through its governed functions. The Admin sekolah's direct PostgREST UPDATE of enrollments (ending one with no reason, no audit and its memberships left open) and INSERT of enrollments or memberships (bypassing the placement function and its audit) are refused; «Pindah kelas» (move_learner_to_class) still moves the learner."
+    },
+    {
+      "id": "F37-L02",
+      "runner": "db",
+      "proves": "Account lifecycle (Sharon, 89374424): one person holds at most one live (PENDING/ACTIVE) enrolment per school and academic year; a second is refused as a duplicate (unique_violation)."
+    },
+    {
+      "id": "F37-L03",
+      "runner": "db",
+      "proves": "Account lifecycle (Sharon, 89374424, D3; owner: preserve historical educator attribution after role revocation): a teacher whose only link to the school was a role stays visible, by name, to the school's administrator after the role is revoked, so their authored items, reviews and decisions keep their author."
+    },
+    {
+      "id": "F37-S03",
+      "runner": "db",
+      "proves": "SI-D03, Sharon's review of 2ce4ddcf (finding 1): onboarding belongs only to the school that issued a person's most recent registration number (issued_at). A person numbered by X 30 days ago, never enrolled or activated, then numbered by Y yesterday: X's admin is refused at the school check for their activation, Y's admin passes it (selftest/db/fable37.sql)."
+    },
+    {
+      "id": "F37-L04",
+      "runner": "db",
+      "proves": "Account lifecycle, Sharon's review of 2ce4ddcf (finding 2): multi-programme enrolment stays possible (F37-D04), but a live enrolment with no programme never sits beside another live enrolment of the same person, school and year; it is refused by the one-live-enrolment rule."
+    },
+    {
+      "id": "F37-T01",
+      "runner": "db",
+      "proves": "Account lifecycle, Sharon's review of 2ce4ddcf: a transfer to a school where the learner already holds a live enrolment in that year is refused PR040 TRANSFER_ALREADY_ENROLLED (a name the screen can read), never a raw unique_violation, and writes nothing."
+    },
+    {
+      "id": "F37-L05",
+      "runner": "db",
+      "proves": "Account lifecycle (demonstration finding 8; owner, 9 Nov): a departed learner is not placed back by the old school through the ordinary placement. A learner who transferred to another school and one who withdrew are not offered in «Murid yang belum punya kelas» (murid_tanpa_kelas), and tempatkan_murid refuses them as PLACE_ELSEWHERE and PLACE_DEPARTED; a return goes through re-enrolment."
+    },
+    {
+      "id": "F37-S04",
+      "runner": "db",
+      "proves": "SI-D03 (owner, 9 Nov: do not assume the newest registration is authorised): a person whose X and Y numbers share one issued_at is onboarded by neither school; a person whose newest number comes from an inactive school is onboarded by nobody, and the school with the older number does not inherit. Each is read at authorize_account_activation's school check (selftest/db/fable37.sql)."
+    },
+    {
+      "id": "F37-S05",
+      "runner": "db",
+      "proves": "SI-D03 (Sharon's review of 0b60b012): issue_institutional_id stamps a registration at its moment of issue (clock_timestamp, after its locks), not at the start of its transaction, so the onboarding rule's newest registration is the one committed last; a number issued late in a long transaction is stamped after the transaction began (selftest/db/fable37.sql)."
+    },
+    {
+      "id": "F37-N01",
+      "runner": "db",
+      "proves": "Year-end rollover (the Kelas 5 to 6 demonstration; Daisy's design; owner, 9 Nov): period_rollover writes no audit event when it moves nobody (an empty class), and records how many learners it moved (moved) when it moves some; a mapping into a class of the wrong year is refused and changes no membership (selftest/db/fable37.sql)."
+    },
+    {
+      "id": "F37-E01",
+      "runner": "db",
+      "proves": "E3 «Akhiri pendaftaran» (owner, 9 Nov: essential; ACCOUNT-LIFECYCLE-INVENTORY.md §12): akhiri_pendaftaran ends a learner's enrolment as graduated (ENDED, end_reason COMPLETED), closes the Kelas placement in the same transaction, and writes one enrollment.ended_with_reason audit row carrying the reason code and the effective date (selftest/db/fable37.sql)."
+    },
+    {
+      "id": "F37-E02",
+      "runner": "db",
+      "proves": "E3: akhiri_pendaftaran refuses another school's admin and a Guru (42501 naming INSTITUTION_ADMIN), an unknown reason (ENROL_REASON_INVALID), «Lainnya» without an explanation (ENROL_EXPLANATION_REQUIRED), and a future date or one before the enrolment began (ENROL_DATE_INVALID); after each refusal the enrolment is still ACTIVE and no audit row was written."
+    },
+    {
+      "id": "F37-E03",
+      "runner": "db",
+      "proves": "E3, RESTATED 9 Nov for Sharon's ruling (the journeys found a learner's abandoned sitting blocking a class's year end, with no screen to close it), selftest/db/fable37.sql: ending an enrolment closes the learner's open sittings truthfully: a sitting past its deadline EXPIRES (session_enforce_deadline) and a sitting still open is TERMINATED as INSTITUTIONAL_REVOCATION through terminate_session, with its audit row and its responses kept; the ending is not refused."
+    },
+    {
+      "id": "F37-E04",
+      "runner": "db",
+      "proves": "E4 «Daftarkan kembali», CORRECTION: a mistaken graduation is corrected by a new live enrolment in the same year and programme, placed back in the same Kelas; the ended enrolment is unchanged (ENDED/COMPLETED) and an enrollment.reopened audit row (kind CORRECTION) names the ending it corrects; a live enrolment cannot be corrected (ENROL_NOT_ENDED)."
+    },
+    {
+      "id": "F37-E05",
+      "runner": "db",
+      "proves": "E4, RETURN and transfer back: a learner who withdrew returns into a Kelas with a new live enrolment, the withdrawal row kept and no second registration number; a learner enrolled at another school is refused re-enrolment (PLACE_ELSEWHERE) and comes back by transfer, which executes and leaves the old TRANSFERRED_OUT record intact."
+    },
+    {
+      "id": "CABUT-A01",
+      "runner": "app",
+      "proves": "Owner, 9 Nov (acceptance principle B), selftest/cabut.test.ts, the rendered pages and PostgREST of the running app: with two sessions open at once, an educator teaching at Alpha and Beta is working in Mengajar at Alpha; Alpha's Admin sekolah, in a browser of their own, revokes the Alpha role with a reason (revoke_role with the admin's own token); the educator's next requests from the same still-open browser and token are refused by the server (Kelas 5A's page no longer shows its learners, PostgREST reads no Alpha structure and no placement of Kelas 5A, the Alpha working context is no longer held); the Beta context and class still answer; the revoked row keeps who, when and why, role.granted and role.revoked are audited with the reason, and «Jejak audit» shows the admin by name with the reason (E7); the person, account and session stand, and a fresh sign-in works."
+    },
+    {
+      "id": "F37-E06",
+      "runner": "db",
+      "proves": "E4 on the screen (the Action & Consequence inventory: daftarkan_kembali had no caller), selftest/db/fable37.sql: murid_keluar lists for the school's Admin sekolah the learners who left the school and are enrolled nowhere there now (a graduate and a leaver, each with their ending and marked correctable, since E3 recorded the ending), never a learner who is live; another school's admin is refused (42501)."
+    },
+    {
+      "id": "F37-E07",
+      "runner": "db",
+      "proves": "E3 (the journeys' S27 on d2b7b714 found «invalid enrollment transition PENDING → ENDED»), selftest/db/fable37.sql: a learner recorded and not yet signed in (PENDING) can leave; akhiri_pendaftaran ends the enrolment ENDED/WITHDRAWN and the learner is listed as departed (murid_sudah_keluar); the enrolment guard still refuses an ENDED enrolment becoming ACTIVE again. F37-K03 now promotes a PENDING learner too."
+    },
+    {
+      "id": "F37-K01",
+      "runner": "db",
+      "proves": "«Kenaikan kelas dan kelulusan» (Daisy's approved flow; owner, 9 Nov), selftest/db/fable37.sql: kenaikan_rencana lists every learner of the chosen Kelas and every learner of its Tingkat placed in no Kelas (marked TINGKAT: the demonstration's silent omission), marks a learner whose transfer is under way, shows the class's teachers and next year's classes; a Guru and another school's admin are refused."
+    },
+    {
+      "id": "F37-K02",
+      "runner": "db",
+      "proves": "«Kenaikan kelas dan kelulusan»: kenaikan_tetapkan refuses a run with a learner left undecided (PROMO_UNDECIDED, by name), with teachers' assignments not reviewed, a repeat into this year's class, «Pindah» without a transfer, a decision for someone outside the class, another school's admin and a Guru; its preview returns every learner's outcome; neither writes anything."
+    },
+    {
+      "id": "F37-K03",
+      "runner": "db",
+      "proves": "«Kenaikan kelas dan kelulusan»: one confirmation applies every decision in one transaction: promoted and Tingkat-only learners into the new year's Kelas and a repeater straight into the repeat class, each on a new-year enrolment in the same programme (the old year ENDED/EXPIRED, its placement closed PERIOD_ROLLOVER); a graduate COMPLETED and a leaver WITHDRAWN through akhiri_pendaftaran with their reasons; a learner being transferred unchanged; each outcome named; one promotion.applied audit row with every outcome; no teacher assignment carried; the old sitting stays on the old class."
+    },
+    {
+      "id": "F37-K04",
+      "runner": "db",
+      "proves": "«Kenaikan kelas dan kelulusan», RESTATED 9 Nov with F37-E03: a learner's open sitting no longer refuses the year's run; the preview says it will be ended (asesmen_diakhiri) and changes nothing; the confirmation ends it as INSTITUTIONAL_REVOCATION on the old class (F37-K03)."
+    },
+    {
+      "id": "F37-K05",
+      "runner": "db",
+      "proves": "«Kenaikan kelas dan kelulusan»: a second confirmation of the same decisions is refused (PROMO_CHANGED) and writes nothing."
+    },
+    {
+      "id": "F37-W26",
+      "runner": "db",
+      "proves": "W2.26 the integrity count line, to Sharon's ruling at 435a2856 (red first, fable37 against 20270112130000): integrity_signals_waiting_elsewhere returns each school's bare count of observations waiting outside the reader's scope, with no department, class or learner, as one line per school, and no line when nothing waits, so the answer never says whether other departments exist; the page shows the line only above zero."
+    },
+    {
+      "id": "F37-K08",
+      "runner": "db",
+      "proves": "Sharon's paging ruling (10 Nov) for Jejak audit, selftest/db/fable37.sql against 20270112210000: every run id in audit_log has exactly one promotion.applied row and every row of the run is at that row's school; inside a run (pintar.audit_run set), audit_write refuses a row of another school or of no school (AUDIT_RUN_INSTITUTION, set by kenaikan_tetapkan as pintar.audit_run_institution) and writes one of the run's own school. Sharon's follow-up (10 Nov): a run row with no promotion.applied row does not commit (the SECURITY DEFINER deferred constraint trigger audit_log_run_parent, AUDIT_RUN_PARENT); a run that writes its rows first and its own row last commits, and so does a second such run in the same transaction after a forced check; a row of another school written past audit_write is refused by the trigger; a second promotion.applied row for one run is refused (unique index audit_log_run_parent_uq). Each plant rolls itself back, leaving the append-only trail unchanged; planted defects (the index dropped, the trigger's check emptied) turn it red."
+    },
+    {
+      "id": "F37-K07",
+      "runner": "db",
+      "proves": "Daisy's design check at 435a2856 (§4.2; red first, fable37 against 20270112210000): with no learner going to a Kelas (every decision a graduation or a departure) there is no teacher to acknowledge, so kenaikan_tetapkan applies without p_guru_ditinjau and the review page asks for no checkbox; a run with a destination Kelas is still refused PROMO_TEACHERS_UNREVIEWED (F37-K02)."
+    },
+    {
+      "id": "F37-K06",
+      "runner": "db",
+      "proves": "«Kenaikan kelas dan kelulusan»: the run's own record (Daisy's reconciliation K1, Sharon «fold, don't hide»; selftest/db/fable37.sql against 20270112210000): a confirmed run writes its one promotion.applied row and every row it writes beside it (the enrolments it ends and opens) with the same run_id, set only while the run holds pintar.audit_run; kenaikan_hasil reads back each learner's decision, where they are now (Kelas, or the enrolment's end with its reason code and school-zone date) and whether that matches, the destination Kelas still without a teacher, the run id, and (Daisy, bcecb425 B8) where each learner came from as the run recorded it (KELAS, or TINGKAT for the Tingkat-only learner), so the outcome keeps the review's exceptions."
+    },
+    {
+      "id": "F38-W01",
+      "runner": "db",
+      "proves": "W2.21 «Akhiri penugasan» (owner, 9 Nov: INCLUDE in 4.0; selftest/db/fable38.sql against 20270113100000): akhiri_penugasan_pratinjau tells Kelas A's Guru what ending the lesson assignment would touch before anything changes: the one learner who finished, the two with a sitting still open by name, and the one who never started; B's Guru, a learner and another school's admin are refused ASSIGN_NOT_ALLOWED (CAN_ASSIGN_LEARNING over the class it was given to)."
+    },
+    {
+      "id": "F38-W02",
+      "runner": "db",
+      "proves": "W2.21 refusals write nothing (selftest/db/fable38.sql): akhiri_penugasan refuses an unknown kind (ASSIGN_KIND_INVALID), a reason under 5 characters (ASSIGN_REASON_REQUIRED), learners' open sittings without the explicit confirmation (ASSIGN_IN_PROGRESS), B's Guru and another school's admin (ASSIGN_NOT_ALLOWED); the assignment stays ACTIVE, its assessment OPEN, the open sitting open, and no audit row is written."
+    },
+    {
+      "id": "F38-W03",
+      "runner": "db",
+      "proves": "W2.21 ended on the record (selftest/db/fable38.sql): with the confirmation, the lesson assignment is ENDED and its assessment CLOSED, so a learner who never started may not start (may_start_assessment); the finished sitting and its result are unchanged; the open sitting is TERMINATED as ADMINISTRATIVE_TERMINATION with the reason, its answers kept and an assessment_session.terminated audit row; the sitting past its deadline EXPIRES; one learning_assignment.ended row records the reason and the counts; the lesson package's release keeps its status (withdrawal is not unpublishing)."
+    },
+    {
+      "id": "F38-W04",
+      "runner": "db",
+      "proves": "W2.21 a second press and a return (selftest/db/fable38.sql): ending the same assignment again is refused ASSIGN_NOT_LIVE with no second audit row; assign_release no longer refuses ASSIGN_EXISTS for the class, so the lesson can be given again; B's Guru withdraws B's assignment of the same lesson, recorded WITHDRAWN as learning_assignment.withdrawn."
+    },
+    {
+      "id": "F38-W05",
+      "runner": "db",
+      "proves": "W2.21, found by PENUGASAN-A01 (9 Nov; red first, selftest/db/fable38.sql against 20270113100000): an ACTIVE assignment of a canonical lesson whose distribution to the school PINTAR has WITHDRAWN is ended by the class's Guru (ENDED, its assessment CLOSED); before the fix enforce_assignment_status's licence check refused every update, closing included. Closing needs no licence to teach; opening still does, and the closed assessment cannot be opened again."
+    },
+    {
+      "id": "F38-W06",
+      "runner": "db",
+      "proves": "Owner ruling (10 Nov; red first, selftest/db/fable38.sql against 20270113150000): a withdrawn assignment is not counted. The finished sitting of Kelas A's ENDED assignment is in the class's figures (scoped_official_sessions and scoped_official_results under Kelas A's metric boundary); once the assignment is WITHDRAWN neither holds it, and its assessment result is still kept."
+    },
+    {
+      "id": "F38-W07",
+      "runner": "db",
+      "proves": "Defect found by #97 (10 Nov; red first, selftest/db/fable38.sql against 20270113150000): a closed lesson's outcome stays seen. A learner of Kelas A finds the ENDED assignment in my_learning_history with its status, does not find it in my_learning_assignments (no new work), and reads its cycle state through my_cycle_state."
+    },
+    {
+      "id": "F38-W08",
+      "runner": "db",
+      "proves": "Defect found by #97 (10 Nov; red first, selftest/db/fable38.sql against 20270113150000): submitting a sitting the school ended (TERMINATED) is refused PR003 with the detail SESSION_ENDED_BY_SCHOOL, which the player tells as an administrative close rather than as unsaved answers."
+    },
+    {
+      "id": "F38-W09",
+      "runner": "db",
+      "proves": "Sharon's addendum on dc84af22 (red first, selftest/db/fable38.sql against 20270113150000 corrected in place): a figure evaluated under a catalogue keeps that catalogue's population. Under MC-9, which names no learning_assignments source, a withdrawn assignment's sitting is in Kelas A's figures; under MC-10 it is not (metric_evaluate records the version it evaluates)."
+    },
+    {
+      "id": "F38-W10",
+      "runner": "db",
+      "proves": "Sharon's addendum on dc84af22 (red first, fable38 against 20270113150000): a withdrawn assignment's certificate leaves the school's verified credentials (scoped_certificates); the certificate itself stays ISSUED and is not revoked."
+    },
+    {
+      "id": "F38-W11",
+      "runner": "db",
+      "proves": "Sharon's addendum on dc84af22 (red first, fable38 against 20270113150000): the learner's own result keeps a withdrawn sitting and marks it: calc_learner_result, as learner.result evaluates it, lists the sitting with ditarik = true; it is left out of every aggregate."
+    },
+    {
+      "id": "F38-W12",
+      "runner": "db",
+      "proves": "Owner ruling (10 Nov; red first, fable38 against 20270113150000): question health leaves withdrawn answers out: service_item_statistics no longer counts the withdrawn assignment's answer, which is kept."
+    },
+    {
+      "id": "F38-W13",
+      "runner": "db",
+      "proves": "Sharon's addendum on dc84af22 (red first, fable38 against 20270113150000): a closed lesson's content is not returned (learner_lessons refuses the ENDED assignment), and its outcome stays listed after the learner leaves the Kelas (my_learning_history lists it with kini = false)."
+    },
+    {
+      "id": "F38-W14",
+      "runner": "db",
+      "proves": "The owner on Sharon's addendum (10 Nov; red first, selftest/db/fable38.sql against 20270113150000 §4): a lesson PINTAR no longer shares keeps its name on the class page: judul_materi_kelas gives the class's Guru each assignment's course title and nothing else (no content); a Guru of another Kelas at the school (Sharon at 435a2856: decided over the Kelas) and another school's admin are refused."
+    },
+    {
+      "id": "F38-Z01",
+      "runner": "db",
+      "proves": "D-199 (owner, 10 Nov; red first, fable38 against 20270113160000): the public certificate check's date is the issuing school's calendar day, the day the certificate itself writes, never the UTC day. A certificate issued at 00.30 WIB on 10 Nov (17.30 UTC on 9 Nov) is checked as 10 Nov; one at 22.30 WIB stays 9 Nov; at a WIT school 00.30 WIT on 10 Nov is 10 Nov. The payload's keys and the sealed data are unchanged."
+    },
+    {
+      "id": "F38-W15",
+      "runner": "db",
+      "proves": "Daisy's design check at 435a2856 (§1.1; red first, selftest/db/fable38.sql against 20270113150000 §5): an ended or withdrawn assignment says when and why on the class page. riwayat_penugasan_kelas gives the class's Guru the kind, moment and reason recorded in its learning_assignment.ended/withdrawn audit row and nothing else, lists nothing in force, and refuses a Guru of another Kelas at the school, another school's admin and a learner."
+    },
+    {
+      "id": "F38-O05",
+      "runner": "db",
+      "proves": "Daisy's design check at 435a2856 (§2.4; red first, fable38 against 20270113130000): the public reopening form takes what signing in takes. minta_buka_kembali records a closed account's request by its username (any case, spaces trimmed), as by its sign-in email or PINTAR ID, so the form's label can be «Email atau username» as on /masuk."
+    },
+    {
+      "id": "F38-H08",
+      "runner": "db",
+      "proves": "Sharon's re-verification at 435a2856 (Low, older than the range; red first, fable38 against 20270112200000): a transfer contains the learner's open sittings as a departure does. A learner at A with an open sitting is transferred to B: transfer_execute ends the sitting at A through tutup_asesmen_terbuka, TERMINATED as INSTITUTIONAL_REVOCATION with its assessment_session.terminated audit row."
+    },
+    {
+      "id": "F38-H07",
+      "runner": "db",
+      "proves": "The owner on Sharon's addendum (10 Nov; red first against the departure without its school guard, fable38 against 20270112200000): a school's departure ends its own sittings only. A learner enrolled at A and B: A's admin ends the enrolment at A; A's open sitting ends; B's sitting under B's enrolment, a sitting recorded at B that carries A's enrolment, and B's enrolment are untouched."
+    },
+    {
+      "id": "F38-O04",
+      "runner": "db",
+      "proves": "Owner ruling (10 Nov; red first, fable38 against 20270113140000 corrected in place): attempts are counted within one school and one school year. An attempt of another school year or at another school is not counted; a sitting the teacher ended administratively (ADMINISTRATIVE_TERMINATION) is not counted; an integrity ending (SECURITY_INTERVENTION) is."
+    },
+    {
+      "id": "F38-R01",
+      "runner": "db",
+      "proves": "Evidence survives the year (owner, 9 Nov: the year-rollover evidence-preservation test; selftest/db/fable38.sql): a class with a learner's finished sitting, its result, an issued certificate and lesson progress moves up whole through kenaikan_tetapkan. The learner is in next year's Kelas 6; the sitting stays on the old class and the old year's ENDED/EXPIRED enrolment; result, certificate and lesson progress are unchanged; the learner still reads all four through row security and my_certificate, the old class's Guru still reads the sitting and its result, and verify_certificate still answers BERLAKU. Green on its first run: an acceptance test of existing behaviour, no defect found."
+    },
+    {
+      "id": "F38-C01",
+      "runner": "db",
+      "proves": "W2.22 «Terbitkan ulang» (owner, 9 Nov: a minimal governed remedy; selftest/db/fable38.sql against 20270113110000): sertifikat_koreksi_pratinjau shows the school's admin the name sealed on an issued certificate beside the holder's name corrected since (something would change); a Guru, the holder and another school's admin are refused CERT_NOT_ALLOWED (CAN_PUBLISH in the certificate's school, the authority that revokes it)."
+    },
+    {
+      "id": "F38-C02",
+      "runner": "db",
+      "proves": "W2.22 refusals write nothing (selftest/db/fable38.sql): sertifikat_koreksi_siapkan refuses a reason under 10 characters (CERT_REASON_REQUIRED), a certificate whose name, school and course match the records (CERT_NOTHING_CHANGED), a revoked certificate (CERT_NOT_ISSUED), a Guru and another school's admin (CERT_NOT_ALLOWED); no certificate is added and the original stays ISSUED."
+    },
+    {
+      "id": "F38-C03",
+      "runner": "db",
+      "proves": "W2.22 corrected by its replacement (selftest/db/fable38.sql): the admin prepares the replacement ELIGIBLE, which the public check does not answer, carrying the corrected name in a new snapshot, a new number and token, the original's sealed result, the reason and the actor; a second press returns the same one; the admin's own client cannot seal it (42501); sealed by the server, the replacement is ISSUED and the original SUPERSEDED with its payload, snapshot, number and token unchanged; verify_certificate answers BERLAKU and DIGANTIKAN; one certificate.superseded audit row names the reason, the actor, the replacement and that the name changed."
+    },
+    {
+      "id": "F38-C04",
+      "runner": "db",
+      "proves": "W2.22 one replacement per certificate (selftest/db/fable38.sql): a superseded certificate can be neither corrected (CERT_NOT_ISSUED) nor revoked again; a second replacement of it, inserted behind the rule, cannot be sealed; the replacement itself can be revoked."
+    },
+    {
+      "id": "F38-S01",
+      "runner": "db",
+      "proves": "E5 «Akhiri tugas di sekolah ini» (owner, 9 Nov; selftest/db/fable38.sql against 20270113120000): the school's admin ends all of Kelas A's Guru's live roles at the school with the category RESIGNATION, a reason and today's school date; each role is revoked once through the guard with the reason (role.revoked), one staff.ended_at_school audit row carries the category and the effective date, the person stays, and the Guru's authority over Kelas A ends at once (akhiri_penugasan_pratinjau refused ASSIGN_NOT_ALLOWED)."
+    },
+    {
+      "id": "F38-S02",
+      "runner": "db",
+      "proves": "E5 refusals write nothing (selftest/db/fable38.sql): akhiri_tugas_staf refuses an unknown category (STAFF_CATEGORY_INVALID), a reason under 10 characters (STAFF_REASON_REQUIRED), a future date (STAFF_DATE_INVALID), the admin's own roles (STAFF_SELF), a Guru and another school's admin (STAFF_NOT_ALLOWED) and a learner with no role there (STAFF_NOT_ACTIVE); no role ends and no audit row is written."
+    },
+    {
+      "id": "F38-S03",
+      "runner": "db",
+      "proves": "§11 «Ubah peran & tanggung jawab», the review (selftest/db/fable38.sql): ubah_peran with apply false tells the school's admin that Kelas B's Guru made Kepala departemen as well gains review and management decisions at the Departemen and keeps drafting at Kelas B, losing nothing; the review writes no role."
+    },
+    {
+      "id": "F38-S04",
+      "runner": "db",
+      "proves": "§11 refusals and atomicity (selftest/db/fable38.sql): a stale review (ROLE_STALE), SYSTEM_ADMIN (ROLE_NOT_ALLOWED), a role at another school (ROLE_SCOPE_INVALID), Admin sekolah without its second press (ROLE_ADMIN_UNCONFIRMED), one bad addition beside a good one (ROLE_UNTIL_INVALID: neither is written) and a Guru (STAFF_NOT_ALLOWED) are refused; the person's roles and the audit log are unchanged."
+    },
+    {
+      "id": "F38-S05",
+      "runner": "db",
+      "proves": "§11 applied (selftest/db/fable38.sql): the promotion adds Kepala departemen; the demotion's review warns of the management decision at Kelas B that would wait with no one to decide it, the decision stays AWAITING_REVIEW unreassigned, and teaching at Kelas B stays; a move from Kelas B to Kelas A in one press leaves exactly one live role, at Kelas A, the old one revoked at the instant the new one began (no gap, no overlap; the grant precedes the revocation so D-049's relationship holds); one role.changed audit row per change."
+    },
+    {
+      "id": "F38-A01",
+      "runner": "db",
+      "proves": "§5b platform suspension (owner, 9 Nov; selftest/db/fable38.sql against 20270113130000): the PINTAR Administrator suspends Kelas B's Guru with the category SECURITY and a note: the Auth user is banned (sign-in refused), pintar_permintaan.periksa refuses the Guru's token PT403 AKUN_DITANGGUHKAN, the Guru's roles and evidence are untouched, and one account.suspended audit row carries the category."
+    },
+    {
+      "id": "F38-A02",
+      "runner": "db",
+      "proves": "§5b suspension refusals write nothing (selftest/db/fable38.sql): tangguhkan_akun refuses a school's admin (ACCOUNT_NOT_ALLOWED), the administrator's own account (ACCOUNT_SELF), an unknown category, «Lainnya» without a 10-300 note (ACCOUNT_NOTE_REQUIRED) and a second suspension (ACCOUNT_ALREADY_SUSPENDED); no suspension row and no audit row."
+    },
+    {
+      "id": "F38-A03",
+      "runner": "db",
+      "proves": "§5b reactivation (selftest/db/fable38.sql): aktifkan_kembali_akun refuses a reason under 10 characters; with one, the suspension ends, the Auth user is unbanned, the token answers again, and one account.reactivated audit row is written."
+    },
+    {
+      "id": "F38-A04",
+      "runner": "db",
+      "proves": "L2 / L3 the person's own requests (selftest/db/fable38.sql): minta_akun refuses a learner with a live enrolment (ACCOUNT_LEARNER_VIA_SCHOOL) and a request without its confirmation; the Guru's deletion request is RECEIVED once (a second is ACCOUNT_REQUEST_OPEN) and reads back through permintaan_akun_saya; the closure is CLOSED_AT_REQUEST at once with its request DONE, sign-in banned and every request refused PT403; the platform's queue holds the deletion request of the closed account."
+    },
+    {
+      "id": "F38-A05",
+      "runner": "db",
+      "proves": "L4 deletion of what needs no retention (selftest/db/fable38.sql): hapus_data_pribadi refuses a school's admin and an open account's request (ACCOUNT_NOT_CLOSED); for the closed account the name becomes the PINTAR ID, the photo and the sign-in email go (through the email guard's own L4 exception), anonymized_at is set, the role history and the audit log are kept, the request is DONE, one account.personal_data_deleted row."
+    },
+    {
+      "id": "F38-C05",
+      "runner": "db",
+      "proves": "Sharon §14 on 6faef690, one pending replacement per certificate (selftest/db/fable38.sql): a preparation with another reason re-prepares the same unsealed replacement, its number and token kept and the holder's counter unmoved, carrying the reason given last; once sealed every immutability rule holds."
+    },
+    {
+      "id": "F38-S06",
+      "runner": "db",
+      "proves": "Sharon §15 on 6faef690 (selftest/db/fable38.sql): a swap of Kepala departemen for Dekan over the same place warns of nothing; akhiri_tugas_staf records the decision left with no one to decide (queues_unattended); peran_orang refuses a person with no tie to the school (STAFF_UNKNOWN); removing another Admin sekolah needs its second press."
+    },
+    {
+      "id": "F38-A06",
+      "runner": "db",
+      "proves": "Sharon §16 findings 1 and 3 on 6faef690 (selftest/db/fable38.sql): L4 goes through for a person who also holds a class card (its address untouched), and leaves the name and email in no activation grant, email correction, card conversion, import row, username, auth.identities row, GoTrue audit-log entry or one-time token (the last two: Sharon's addendum on dc84af22, red first)."
+    },
+    {
+      "id": "F38-A07",
+      "runner": "db",
+      "proves": "Sharon §16 finding 5 (selftest/db/fable38.sql): a person holding a live platform role cannot close their own account (ACCOUNT_PLATFORM_ROLE) and nothing is closed."
+    },
+    {
+      "id": "F38-O01",
+      "runner": "db",
+      "proves": "Owner ruling 1 (9 Nov) (selftest/db/fable38.sql): a learner who used the one attempt of an assessment cannot start it again when the lesson is given to the class again (the same definition and version, under any assignment)."
+    },
+    {
+      "id": "F38-O02",
+      "runner": "db",
+      "proves": "Owner ruling 2 (selftest/db/fable38.sql): minta_buka_kembali is server-only, records a request only for a closed account, once while open, answers the same for any address and reopens nothing; a closed account is reopened only from its request by the PINTAR Administrator (buka_kembali_akun), saying how identity was verified; DONE and audited."
+    },
+    {
+      "id": "F38-O03",
+      "runner": "db",
+      "proves": "Owner ruling 3 (selftest/db/fable38.sql): DISCIPLINARY is not a platform suspension category (ACCOUNT_CATEGORY_INVALID)."
+    },
+    {
+      "id": "F38-H01",
+      "runner": "db",
+      "proves": "Sharon F1 on 7a2c1751, a school's date is its own (selftest/db/fable38.sql): only the PINTAR Administrator sets a school's time zone (a school's admin is refused), audited institution.time_zone_changed; hari_sekolah answers the school's own date; akhiri_pendaftaran refuses WIT's tomorrow and stamps an ending with no date with WIT's today."
+    },
+    {
+      "id": "F38-H02",
+      "runner": "db",
+      "proves": "Sharon F2, an ending does not use up an attempt (selftest/db/fable38.sql): with an attempt limit of 1, a sitting TERMINATED as INSTITUTIONAL_REVOCATION does not make may_start_assessment answer ATTEMPT_LIMIT_REACHED for the learner."
+    },
+    {
+      "id": "F38-H03",
+      "runner": "db",
+      "proves": "Sharon F3, a placeless open sitting does not block a departure (selftest/db/fable38.sql): the enrolment ends; the sitting with neither class nor Angkatan is TERMINATED as INSTITUTIONAL_REVOCATION under the departure's own authority, with its assessment_session.terminated row."
+    },
+    {
+      "id": "F38-H04",
+      "runner": "db",
+      "proves": "Sharon F4, a return takes the chosen Kelas's programme (selftest/db/fable38.sql): a learner who left another programme and returns into Kelas A is enrolled in Kelas A's programme (and F38-R01: the next year's enrolment takes its Kelas's programme)."
+    },
+    {
+      "id": "F38-H05",
+      "runner": "db",
+      "proves": "Sharon F5, an ending in a closed year is not corrected (selftest/db/fable38.sql): CORRECTION of an ending whose school year has ended is refused PR070 ENROL_YEAR_CLOSED, and murid_keluar does not offer it."
+    },
+    {
+      "id": "F38-H06",
+      "runner": "db",
+      "proves": "Sharon F6 (ruling 3), period_rollover is not a client endpoint (selftest/db/fable38.sql): authenticated cannot execute it; the tests that drive it run as the database's owner with the administrator's claims."
+    },
+    {
+      "id": "KENAIKAN-K01",
+      "runner": "static",
+      "proves": "«Kenaikan kelas dan kelulusan», selftest/kenaikan.test.ts, executes the source file src/lib/kenaikan.ts: it reads every select value (NAIK and TINGGAL with a Kelas, LULUS, PINDAH, KELUAR with each of the four reasons) back as its decision and writes it the same way; an empty choice, a malformed id or an unknown reason is no decision; the address form between steps is base64url of ids and codes only, and a malformed one is dropped, never repaired into decisions."
+    },
+    {
+      "id": "KENAIKAN-K02",
+      "runner": "static",
+      "proves": "Daisy's kenaikan reconciliation (TINJAUAN-KENAIKAN-KELAS-DIBANGUN, #96), selftest/kenaikan.test.ts, executes the source files src/lib/kenaikan.ts and src/lib/jejak-audit.ts: a school year reads «2026/27» and a Kelas always carries its year; a Tingkat reads as a level; the review's main group is the largest group of any outcome (a graduating class folds its graduates; restated 10 Nov, Daisy bcecb425 B8.1) and every other outcome and every learner from the Tingkat is an exception; in Jejak audit a year-end run's rows fold under its one promotion row by the recorded run id, never by time, a row whose run's own row is on another page says it belongs to a run, and the run's learners are read with their decisions."
+    },
+    {
+      "id": "JEJAK-A01",
+      "runner": "app",
+      "proves": "Sharon's paging ruling (10 Nov) for Jejak audit, selftest/kenaikan.test.ts, through the rendered route /konfigurasi/audit of the running app (src/app/konfigurasi/page.tsx with src/lib/jejak-run.ts) as Alpha's admin: thirteen year-end runs written through audit_write as kenaikan_tetapkan writes them (twelve of 90 related rows, one of 230; 1,310 in all, more than PostgREST's max_rows) sit at the newest end of the trail; each run is one entry on exactly one page of the trail with its exact count («Catatan terkait (n)», a count per run), and no page holds a related row or says a run's row is on another page; each run opened (?run=) reaches every related row, 100 a sub-page (230 over three); another school's admin reads none of them. The page's answer time is recorded in the verdict."
+    },
+    {
+      "id": "KENAIKAN-A01",
+      "runner": "app",
+      "proves": "«Kenaikan kelas dan kelulusan» through the rendered pages of the running app (route), as Alpha's Admin sekolah, the forms sent as a browser without script sends them: Kelas 5X is chosen; all four learners are listed, the one in the Tingkat without a class marked; «Naikkan semua ke» pre-selects 6X for the Kelas's own three and leaves the Tingkat learner, the live count naming the one undecided; a repeat is set straight to the repeat class and a graduate set; the review groups the main destination with the exceptions named, every Kelas with its year, shows the destination Kelas's teachers, and changes nothing; a confirmation without the teachers' review is refused (PROMO_TEACHERS_UNREVIEWED) and changes nothing; the confirmation applies all four, the outcome page says it was checked against PINTAR's data and matches, keeps the review's exceptions (the Tingkat learner stays one: the run records each learner's source), says what PINTAR recorded only where it differs, and the class is then marked as moved up in step 1; Jejak audit shows the run as one entry naming each learner with the decision, the run's other rows folded under it by the recorded run id; no learner's name travels in the address. RESTATED to Daisy's reconciliation (TINJAUAN-KENAIKAN-KELAS-DIBANGUN, 9 Nov): «Naikkan semua ke» no longer fills a Tingkat learner (Q1). RESTATED to Daisy's design check at bcecb425 (B8): the outcome keeps the review's exceptions and the summary joins its groups with «, »."
+    },
+    {
+      "id": "KEMBALI-A01",
+      "runner": "app",
+      "proves": "E3 and E4 on the screen, selftest/kenaikan.test.ts, through the rendered pages of the running app as Alpha's Admin sekolah: on Konfigurasi · Pindah kelas two learners' enrolments are ended from their rows («Akhiri pendaftaran», a reason and today's date on the school's clock); both are listed under «Murid yang sudah keluar»; one ending is undone («Membatalkan pencatatan yang keliru»: back in its Kelas) and the other learner returns into another Kelas («Kembali bersekolah»); both endings stay in the history."
+    },
+    {
+      "id": "PENUGASAN-A01",
+      "runner": "app",
+      "proves": "W2.21 «Akhiri penugasan» through the running app (selftest/kenaikan.test.ts): Alpha's Guru, on a class of the test's own with one lesson in force, is offered «Akhiri atau tarik» on that material's row; the panel says results, certificates and learning progress are kept; a 3-character reason is refused (ASSIGN_REASON_REQUIRED, its sentence shown on the panel) and changes nothing; the withdrawal is recorded (learning assignment WITHDRAWN, its assessment CLOSED, one learning_assignment.withdrawn audit log row with the reason), and the rendered class page confirms it and shows the material as «Ditarik» with no further offer."
+    },
+    {
+      "id": "SERTIFIKAT-A01",
+      "runner": "app",
+      "proves": "W2.22 «Terbitkan ulang» through the running app (selftest/kenaikan.test.ts): Alpha's admin opens an issued certificate whose holder's name was corrected after issuance; the panel sets the name on the certificate beside the one recorded now; reissuing with a reason produces a replacement carrying the corrected name and the reason, signed by the server's keyring (its public check /api/verifikasi answers BERLAKU), and the original is kept as SUPERSEDED; the panel confirms it and names the replacement."
+    },
+    {
+      "id": "STAF-A01",
+      "runner": "app",
+      "proves": "E5 and §11 through the running app (selftest/kenaikan.test.ts): Alpha's admin opens Pak Yusuf's page from his name on «Peran & akses»; the rendered page sets his role and its responsibilities in words; he is made Kepala departemen as well after a review of what is gained, then back to Guru only after a review of what is lost (teaching kept), then his duties at the school are ended with a category, the date and a reason; the audit log holds two role.changed rows and one staff.ended_at_school row, and he holds no live role at Alpha."
+    },
+    {
+      "id": "AKUN-A01",
+      "runner": "app",
+      "proves": "L1–L4 through the running app (selftest/kenaikan.test.ts): a learner's rendered Akun saya sends the request through the school and offers no form; an educator's rendered Akun saya says what leaving means (backups 7 days); their deletion request reads back «Diterima»; the closure takes effect at once (CLOSED_AT_REQUEST in the database, sign-in refused); the PINTAR Administrator's Keamanan akun reads it as a closure, never a suspension, and carries out the deletion from the queue: the name becomes the PINTAR ID and anonymized_at is set."
+    },
+    {
+      "id": "AKUN-A02",
+      "runner": "app",
+      "proves": "Owner ruling 2 (9 Nov), through the running app's rendered pages and its routes (selftest/kenaikan.test.ts): an educator closes their account; signed out, the sign-in screen offers «Minta dibuka kembali»; the request answers as an unknown address does, waits in the PINTAR Administrator's queue and reopens nothing; a closed account offers no other reopening; the Administrator confirms the identity, says how, reopens it from the queue; the request is DONE and the educator signs in again with no former school role; a repeat from one address is paced."
+    },
+    {
+      "id": "JEJAK-K01",
+      "runner": "static",
+      "proves": "E7 (owner, 9 Nov), selftest/kenaikan.test.ts, executes the source file src/lib/jejak-audit.ts: «Jejak audit» reads who acted and why from the audit summary's keys written for it (the reason code in words, the free reason, the effective date, the actor's role) and never a summary's ids, mappings or counts; an unknown role and a malformed date are not shown."
+    },
+    {
+      "id": "F37-R01",
+      "runner": "db",
+      "proves": "SI-D02 (System Integrity, 9 Nov) under real concurrency (runAttemptLimitRace in selftest/run.ts) against supabase/migrations/20270112120000_one_start_at_a_time.sql; strengthened after Sharon's review of 89374424 (finding 2), so it tells a correct fix from one that counts before it locks. A learner one attempt short of an assignment's attempt_limit, chosen from the world and allowed to start by may_start_assessment, starts on connection A, which holds its transaction open and then COMMITS. Connection B's start waits on the per-(learner, assignment) advisory lock while A holds, and after A's commit is refused ATTEMPT_LIMIT_REACHED; the learner then holds exactly attempt_limit sittings. A's sitting and the rows its start wrote are removed afterwards (the test's own rows, triggers suspended for that teardown; audit rows stay). The migration's verification block also checks that the lock is taken before may_start_assessment is called."
     },
     {
       "id": "LAPORAN-KELAS-01",
@@ -4664,7 +5329,62 @@
     {
       "id": "LAPORAN-KISI-01",
       "runner": "static",
-      "proves": "CONTOH LAPORAN 3-kadep (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov), selftest/b5a.test.ts: src/components/laporan/KisiTopik.tsx rendered over six classes: each class the reader may see is its own column and a refused class is left out without a word; each cell is that class's own «Penguasaan per topik» figure against that class's own sealed target, amber and in words below it, with R4-02's decimal (69,6% against 70%); a class without enough evidence says so in its cells, never as a low value; a class with no one target draws no tick and no verdict; the lead names the topics below target in most classes that have a target; the grid is a table with row and column headers; and /pimpinan draws it from each class's own envelope (buktiPerKelas) and its sealed target (targetKelasDari)."
+      "proves": "CONTOH LAPORAN 3-kadep (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov), selftest/b5a.test.ts: src/components/laporan/KisiTopik.tsx rendered over six classes: each class the reader may see is its own column and a refused class is left out without a word; each cell is that class's own «Penguasaan per topik» figure against that class's own sealed target, amber and in words below it, with R4-02's decimal (69,6% against 70%); a class without enough evidence says so in its cells, never as a low value; a class with no one target draws no tick and no verdict; the lead names the topics below target in most classes that have a target; the grid is a table with row and column headers; and /pimpinan draws it from each class's own envelope (buktiPerKelas) and its sealed target (targetKelasDari). Restated to Daisy's A3 (owner, 9 Nov): the phone-width stacked view repeats the same cells, so the table and the stack are each counted (three marked cells, six target ticks)."
+    },
+    {
+      "id": "LAPORAN-KISI-02",
+      "runner": "static",
+      "proves": "Reporting Quality Gate (9 Nov), the rendered output of src/components/laporan/KisiTopik.tsx: KisiTopik's lead sentence judges topics «below target in most classes» only over at least two classes whose figure and target the reader can read. A Dekan reads no class's target and had been told «Tidak ada topik yang di bawah target di sebagian besar kelas» over cells below it; with no target or one, the lead is now absent and the cells are still drawn."
+    },
+    {
+      "id": "LAPORAN-TOLAK-01",
+      "runner": "static",
+      "proves": "Reporting Quality Gate (9 Nov), reading the source of src/app/edukator/ringkasan/page.tsx and src/app/dekan/ringkasan/page.tsx and the copy table src/lib/hle.ts: Ringkasan Kelas (/edukator/ringkasan) and Ringkasan Sekolah (/dekan/ringkasan) give a reader refused every figure (a learner, another class's teacher, a teacher at the school's summary) the refusal page with «Laporan ini tidak ditampilkan untuk peran Anda di tempat ini.», never a report frame naming the place with a print button and six refusal cards; the guard runs before the report is drawn."
+    },
+    {
+      "id": "D78-P01",
+      "runner": "static",
+      "proves": "Owner decision 7 and Daisy's N2 (9 Nov), the rendered output of src/components/bukti/KartuKetiadaan.tsx and src/components/laporan/KomposisiKelas.tsx and the source of src/app/mengajar/[kelas]/bukti/page.tsx: a figure withheld to protect a smaller part says it is withheld with every learner who sat (id and en), never «belum ada bukti», a zero or «Sekarang 0 murid»; four learners are «belum cukup data» with 4; Kenaikan's withheld pair is said, not drawn; withheld misconception patterns are said with their count and minimum."
+    },
+    {
+      "id": "D78-K01",
+      "runner": "static",
+      "proves": "Daisy's N4 (9 Nov), the rendered output of src/components/laporan/KisiTopik.tsx: the meaning line and key compare with «that class's target» only where every class's target is drawn, say the comparison is partial where only some are, and with no readable target imply no comparison, explain no line and draw no line or amber; a short title keeps its objective's statement."
+    },
+    {
+      "id": "D78-N03",
+      "runner": "static",
+      "proves": "Daisy's N3 (9 Nov), the rendered output of src/components/laporan/KomposisiSekolah.tsx (id, en) and the source of src/app/mengajar/[kelas]/bukti/page.tsx and src/components/bukti/BarisKesiapan.tsx: a short title keeps its objective's statement on its own line; the school counts learning objectives, never «ranah» or «domains»; a withheld row's sentence names both its reasons."
+    },
+    {
+      "id": "D78-N01",
+      "runner": "static",
+      "proves": "Daisy's N1 (O1, 9 Nov), the source of src/app/mengajar/[kelas]/bukti/page.tsx: «Lihat bukti» says the educator-decision line once for the page."
+    },
+    {
+      "id": "D78-S01",
+      "runner": "static",
+      "proves": "Daisy's further findings (9 Nov), the source of src/app/belajar/[tugas]/hasil/page.tsx, src/app/pimpinan/page.tsx and src/app/experience.css: «every important question was right» only over required questions, «none in this check» when there were none and nothing over unread items; «Ada angka» only for a performance figure; a count-and-link keeps its gap and wraps; a Temuan panel in a list keeps its box."
+    },
+    {
+      "id": "D78-A01",
+      "runner": "static",
+      "proves": "Owner decisions D12 and D13 and Daisy's A3–A7 (9 Nov), the rendered output of src/components/laporan/KomposisiKelas.tsx, KomposisiSekolah.tsx, KisiTopik.tsx and src/components/bukti/KartuKetiadaan.tsx, kunciMuncul in src/components/bukti/muncul.ts, src/app/experience.css, src/lib/hle.ts and the source of src/app/belajar/[tugas]/hasil/page.tsx: the topic lead counts over the topics WITH a figure («1 dari 3 topik yang punya angka…») and names the withheld ones apart, never «Semua topik sudah mencapai target» while one is withheld, and says so when every one is withheld (D13); «di bawah target» is read with its percentage, before the learners (A6); a safety gate that applies to no sitting reads «Tidak berlaku», never a pass, a zero or «belum cukup», on the card and the school page, and a shown gate gives its applicable sittings and the 12 apart (D12); a withheld figure gets no second «it appears when…» line (A7); the topic grid is stacked at phone width with each class's figure, mark and dash, and the table alone is printed (A3); English has no «Pre-assessment», «You answered» or «a Initial Mapping», and format.tunggal makes «1 students so far» «1 student so far» while «11 students» and Indonesian are unchanged (A4); the learner's chapter result reads their own sitting's recalculation yes/no and says their result and certificate are unchanged (D14)."
+    },
+    {
+      "id": "D78-B01",
+      "runner": "static",
+      "proves": "Daisy's verification of e8a5efb9 (B1–B3, A4), hitunganSegel in src/lib/siklus.ts and its use in src/app/belajar/[tugas]/hasil/page.tsx and src/lib/hasil-belajar.ts, the rendered src/components/bukti/KartuKetiadaan.tsx and src/components/laporan/KomposisiSekolah.tsx, format.satuan in src/lib/hle.ts and src/components/bukti/KeadaanHariIni.tsx: the learner's «Terjawab tepat n dari m» is the sealed result's own count (1 of 8 sealed, never 2 of 8 re-graded against a corrected key), falling back to the review only where no count was sealed; the school's safety gate below its minimum says «Dari hasil Uji Penguasaan yang memuat soal wajib, baru 1 murid; perlu 10» with the 51 results set apart, never «Sekarang 1 murid» beside 52 participants; the next step points to the page's own «Kesiapan bukti» section by its letter, never to Pimpinan; one learner is «1 learner» in English. O-B3 (owner, 9 Nov), the source of src/app/belajar/[tugas]/hasil/page.tsx and src/app/belajar/[tugas]/peta/page.tsx and src/lib/hle.ts: where the per-question review's current-key grading differs from the sealed count it says, directly under its heading, that it follows the corrected right answers («jawaban benar yang sudah diperbaiki», never «kunci jawaban», DAISY-26) and may differ from the sealed result (with the sealed «n dari m»), and that the sealed result and certificate do not change; the reading map of a recalculated Pemetaan Awal says the same; neither implies the sealed result or certificate changed."
+    },
+    {
+      "id": "D78-E01",
+      "runner": "static",
+      "proves": "Owner decisions E1 and D14 and the owner's Kenaikan question (9 Nov), the output of susunCatatan in src/lib/pengajar.ts, the RENDERED src/components/CatatanHitungUlang.tsx, its placement in src/app/mengajar/[kelas]/murid/[orang]/page.tsx and the rendered output of src/components/laporan/KomposisiKelas.tsx: a recomputed sitting carries its sealed original and its recorded reason; the note under the figure says both figures and the reason, and nothing when they agree or no original is known; Kenaikan is described as a mean per pair of a student and a chapter (a student who took two chapters gives two pairs), with its pairs and its learners."
+    },
+    {
+      "id": "LAPORAN-MURID-02",
+      "runner": "static",
+      "proves": "Reporting Quality Gate (9 Nov), rendering src/components/laporan/KomposisiMurid.tsx and calling src/lib/nama-bab.ts, and reading the source of src/lib/hasil-belajar.ts and src/app/belajar/[tugas]/{hasil,pemetaan,penguasaan,sertifikat}/page.tsx: the learner's «Hasil belajar» with more than two parts to study again (each named by its objective's statement) counts them in the lead («Ada 7 bagian untuk dipelajari lagi; semuanya ditandai «pelajari lagi» di bagian B.») instead of a 25-line list at 390 px; section B lists each; a chapter whose title begins with its subject is not named «Matematika · Matematika Kelas 5 …»."
     },
     {
       "id": "LAPORAN-SEKOLAH-01",

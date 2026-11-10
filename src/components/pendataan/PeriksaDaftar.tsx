@@ -58,7 +58,7 @@ export default function PeriksaDaftar({
     <section className="pin-sec" aria-labelledby="pin-periksa">
       <h2 id="pin-periksa">{s("pendataan.periksa.judul")}</h2>
 
-      <button type="button" className="pin-btn pin-go pin-data-btn" onClick={periksa} disabled={sibuk}>
+      <button type="button" className="pin-btn pin-primary pin-go pin-data-btn" onClick={periksa} disabled={sibuk}>
         {sibuk ? s("pendataan.periksa.jalan") : s("pendataan.periksa.mulai")}
       </button>
 

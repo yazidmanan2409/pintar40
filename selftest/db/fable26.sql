@@ -215,7 +215,15 @@ begin
       -- (a learner of the school who already has an account, put in the Kelas too)
       select a.person_id into v_wakun from public.accounts a join auth.users u on u.id = a.auth_user_id
        where u.email = 'alpha-siswa-1@synthetic.pintar.test';
-      insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_wakun, v_ia, v_wper, 'ACTIVE') returning enrollments.id into v_we;
+      -- RESTATED FOR THE LIFECYCLE CORRECTION (20270112170000; Sharon on 2ce4ddcf): the learner is put in the Kelas on
+      -- their own live enrolment of that year when they have one, never a second, programme-less one beside it. No
+      -- assertion changes.
+      select e.id into v_we from public.enrollments e
+       where e.person_id = v_wakun and e.institution_id = v_ia and e.academic_period_id = v_wper and e.status in ('PENDING', 'ACTIVE')
+       order by e.created_at limit 1;
+      if v_we is null then
+        insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_wakun, v_ia, v_wper, 'ACTIVE') returning enrollments.id into v_we;
+      end if;
       insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_we, v_wk, v_wper);
       insert into public.persons (display_name) values ('F26 Keluar ' || v_tag) returning persons.id into v_wakhir;
       perform public.issue_institutional_id(v_wakhir, v_ia);

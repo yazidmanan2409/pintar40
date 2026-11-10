@@ -272,7 +272,8 @@ export const b4Tests: SelfTest[] = [
       const bp = kode(baca(ctx.repoRoot, "src/components/pendataan/BacaDanPetakan.tsx"));
       c.expect(!/className="pin-isian"/.test(bp) && /<label htmlFor="pin-tempel" className="pin-bidang-label">/.test(bp),
         "the intake's file and paste fields still wear the upper-case eyebrow label");
-      c.expect(!/format\.date\(/.test(pd) && /tanggal\(j\.dibuat, "cap", locale\)/.test(pd), "Pendataan's job list does not say its moments on WIB (RV-16)");
+      // RESTATED (owner, 10 Nov: school-context dates on the school's clock): an import's moment is on the school's own clock (its zone)
+      c.expect(!/format\.date\(/.test(pd) && /tanggal\(j\.dibuat, "cap", locale, zona\)/.test(pd), "Pendataan's job list does not say its moments on the school's clock (RV-16)");
       const kf = kode(baca(ctx.repoRoot, "src/app/konfigurasi/page.tsx"));
       c.expect(!/format\.date\(/.test(kf), "Konfigurasi still writes a date without the WIB helper (RV-16)");
       return c.verdict("reading the source: Pendataan's school code is the TextField primitive (sentence-case label, hint under it, named by "

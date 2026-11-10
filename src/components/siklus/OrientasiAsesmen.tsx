@@ -39,9 +39,12 @@ export default function OrientasiAsesmen({
   judul,
   mulai,
   kembali,
+  zona,
 }: {
   orientasi: Orientation;
   locale: Locale;
+  /** The assessment's school's zone (the owner's ruling, 10 Nov): its closing day on that clock; WIB when none. */
+  zona?: string | null;
   /**
    * DAISY-25: which assessment this introduces. The Pemetaan Awal is not a test
    * of the learner, and says so (`pretest.intro`); the Uji Penguasaan has its
@@ -86,7 +89,7 @@ export default function OrientasiAsesmen({
           {orientasi.closes_at ? (
             <div>
               <dt>{s("siklus.ditutup")}</dt>
-              <dd className="pin-num">{tanggal(orientasi.closes_at, "hari", locale)}</dd>
+              <dd className="pin-num">{tanggal(orientasi.closes_at, "hari", locale, zona)}</dd>
             </div>
           ) : null}
         </dl>

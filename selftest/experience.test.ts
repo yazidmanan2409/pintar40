@@ -61,7 +61,7 @@ import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { join, relative } from "node:path";
 import jsQR from "jsqr";
-import { Checks, type SelfTest } from "./lib";
+import { Checks, compiledBundle, type SelfTest } from "./lib";
 import { allKeys, telling, renderAll, t, format, batasHari, hariIniSekolah, TIMEZONE, LOCALES, TANPA_SALINAN, INTERNAL_WORDS, type HleEvent, type Persona } from "../src/lib/hle";
 import { posisi, peringkat, LANGKAH, LANGKAH_KEY } from "../src/lib/siklus";
 import { hibahAktif, nodeLingkup, dalamLingkup, kelasDalamLingkup, LingkupError } from "../src/lib/mengajar";
@@ -353,6 +353,10 @@ const RESET_SURFACES = [
   "src/app/aktivasi/orang/page.tsx",
   // W2.5 (Batch 5): «Sertifikat sekolah», built on the token set, the Collection and the shared pin-* classes
   "src/app/konfigurasi/sertifikat/page.tsx",
+  // E5 and §11 (owner, 9 Nov): one person's roles and duties, built on the token set and the shared pin-* classes
+  "src/app/konfigurasi/staf/page.tsx",
+  // Owner ruling 2 (9 Nov): «Minta akun dibuka kembali» on the sign-in page's stage, built on the token set
+  "src/app/masuk/buka-kembali/page.tsx",
   // DAISY-20 (Gate 3): «Aktifkan akun PINTAR Anda» on the sign-in page's
   // stage, and Akun saya in the reader's own shell. Built on the token set.
   "src/app/aktifkan/page.tsx",
@@ -2082,7 +2086,56 @@ export const experienceTests: SelfTest[] = [
       // MOVED 199 -> 200 for KESETIAAN #6/#7/#18/#21 (owner GO, 7 Nov): 20270103100000 adds four report reads (a class's score
       // line without identity, Kenaikan's before → after pair, readiness per subject, the card exclusions). Read against
       // §3 first: reads, not a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 200, `${migrations.length} migrations; the frozen baseline has 200`);
+      // MOVED 200 -> 201 for owner decisions 1 and 3 (8 Nov): 20270110100000 places a learner recorded without a class
+      // (two functions over enrolment and membership) and makes Studio's home count every step (studio_home and
+      // studio_langkah_terbitan). Read against §3 first: a placement and counts, not a mark, a logo, a crest or a theme,
+      // so the Q-7 source still does not exist.
+      // MOVED 201 -> 202 for the Reporting Quality Gate (9 Nov): 20270111100000 resolves a Studio chapter's objectives in
+      // the three topic readers (catalogue MC-9). Read against §3 first: a calculator's lookup, not a mark, a logo, a crest
+      // or a theme, so the Q-7 source still does not exist.
+      // MOVED 202 -> 203 for the System Integrity Gate (9 Nov): 20270112100000 narrows four row-security policies
+      // (answers, questions shown, integrity observations, lesson progress) to the class the evidence was given in (R6's
+      // axis). Read against §3 first: policies, not a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
+      // MOVED 203 -> 204 for SI-D01's completion (Sharon's review; D5, owner, 9 Nov): 20270112110000 moves the remaining
+      // evidence policies, the reclassification trigger and the integrity waiting list to the sitting's place and adds
+      // one audited investigation read. Read against §3 first: policies and a read, not a mark, a logo, a crest or a
+      // theme, so the Q-7 source still does not exist.
+      // MOVED 204 -> 205 for SI-D02 (9 Nov): 20270112120000 serializes start_learning_session per learner and assignment
+      // (an advisory lock). Read against §3 first: a lock, not a mark, a logo, a crest or a theme, so the Q-7 source still
+      // does not exist.
+      // MOVED 220 -> 222 for Sharon F1/F2 on 7a2c1751 (20270112195000: institutions.zona_waktu and the school's date;
+      // 20270113140000: a sitting the school ended is not an attempt). Read against §3: a time zone and a count, not a
+      // mark, a logo, a crest or a theme.
+      // MOVED 219 -> 220 for §5b and L1–L4 (20270113130000: suspension, closure, deletion). Read against §3: an account's
+      // state, not a mark, a logo, a crest or a theme.
+      // MOVED 218 -> 219 for E5 and §11 (20270113120000: akhiri_tugas_staf, peran_orang, ubah_peran). Read against §3: roles
+      // and duties, not a mark, a logo, a crest or a theme.
+      // MOVED 217 -> 218 for W2.22 (20270113110000: sertifikat_koreksi_*). Read against §3: a certificate's replacement,
+      // its words and its seal reuse the certificate's own; not a mark, a logo, a crest or a theme.
+      // MOVED 216 -> 217 for W2.21 (20270113100000: akhiri_penugasan, akhiri_penugasan_pratinjau). Read against §3: an
+      // assignment's end, not a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
+      // MOVED 215 -> 216 for a PENDING learner who leaves (20270112230000: enrollments_guard).
+      // MOVED 214 -> 215 for E3/E4 on the screen (20270112220000: murid_keluar).
+      // MOVED 213 -> 214 for «Kenaikan kelas dan kelulusan» (20270112210000: kenaikan_rencana, _tetapkan, _hasil).
+      // MOVED 212 -> 213 for E3/E4 (20270112200000: akhiri_pendaftaran, daftarkan_kembali; owner, 9 Nov).
+      // MOVED 210 -> 212 for Sharon's two Low findings (20270112180000) and the rollover's audit (20270112190000);
+      // no brand surface changes.
+      // MOVED 209 -> 210 for the lifecycle's remaining findings: 20270112170000; no brand surface changes.
+      // MOVED 208 -> 209 for the lifecycle correction: 20270112160000 (placements through their functions, one live
+      // enrolment, a former teacher's name); no brand surface changes.
+      // MOVED 207 -> 208 for SI-D01 finding 1: 20270112150000 gives a professional-learning sitting's end and extension
+      // to the platform; no brand surface changes.
+      // MOVED 206 -> 207 for SI-D03 (Sharon, 9 Nov): 20270112140000 narrows five credential paths to the school that
+      // holds the person now; no brand surface changes.
+      // MOVED 205 -> 206 for SI-D01's remaining findings (Sharon, 9 Nov): 20270112130000 moves three acts on a sitting and
+      // its referral to the sitting's place, replaces the place helpers by booleans, and gives other departments a count.
+      // Read against §3 first: policies, functions and a count, not a mark, a logo, a crest or a theme.
+      // MOVED 222 -> 223 for the owner's ruling and two defects of 10 Nov (20270113150000: a withdrawn assignment is not
+      // counted; a closed lesson's outcome stays seen; a sitting the school ended says so). Read against §3: an assignment's
+      // status and a refusal code, not a mark, a logo, a crest or a theme.
+      // MOVED 223 -> 224 for D-199 (owner, 10 Nov; 20270113160000: the public certificate check's date is the issuing
+      // school's day). Read against §3: one date's calendar day, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 224, `${migrations.length} migrations; the frozen baseline has 224`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2874,9 +2927,13 @@ export const experienceTests: SelfTest[] = [
       const exported = [...aksi.matchAll(/export async function (\w+)/g)].map((m) => m[1]);
       // RESTATED for D-085 M3 (J5.12): the teacher's request to read again is a third commitment, ruled by the owner
       // and made by a form action (mintaBacaUlang) like the other two; nothing else changed in what this checks
-      c.expect(exported.length === 3, `${exported.length} exported educator action(s); the surface commits three things`);
+      // RESTATED for W2.21 (owner, 9 Nov: INCLUDE in 4.0): ending or withdrawing an assignment on the record is a fourth
+      // commitment, made by a form action (akhiriPenugasanAction) in the class page's panel, which lives in
+      // src/components/mengajar/AkhiriPenugasan.tsx; the panel's form is read with the pages
+      c.expect(exported.length === 4, `${exported.length} exported educator action(s); the surface commits four things`);
+      const panel = join(repoRoot, "src", "components", "mengajar", "AkhiriPenugasan.tsx");
       for (const name of exported) {
-        const used = pages.some((f) => new RegExp(`action=\\{${name}\\}`).test(readFileSync(f, "utf8")));
+        const used = [...pages, panel].some((f) => new RegExp(`action=\\{${name}\\}`).test(readFileSync(f, "utf8")));
         c.expect(used, `the action ${name} is exported but no form submits it`);
       }
       for (const f of pages) {
@@ -3459,8 +3516,9 @@ export const experienceTests: SelfTest[] = [
 
   {
     id: "UX1-S0-MUAT-01",
-    requires: [],
-    run: async ({ repoRoot }) => {
+    requires: ["build"],
+    run: async (ctx) => {
+      const { repoRoot } = ctx;
       const c = new Checks();
 
       /**
@@ -3535,7 +3593,7 @@ export const experienceTests: SelfTest[] = [
       //    that is where the import actually resolves.
       c.expect(/@import\s+"tailwindcss"/.test(readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8")),
         "globals.css no longer imports tailwindcss, so the global border-box reset is gone");
-      const chunks = join(repoRoot, ".next", "static", "chunks");
+      const chunks = compiledBundle(ctx, "static", "chunks");
       let built = "";
       if (existsSync(chunks)) {
         built = readdirSync(chunks).filter((f) => f.endsWith(".css"))
@@ -3903,7 +3961,29 @@ export const experienceTests: SelfTest[] = [
       // MOVED 197 -> 198 for H31 (7 Nov): the gain paired within one chapter and catalogue MC-8 touch no tour RPC.
       // MOVED 198 -> 199 for D-195 (7 Nov): the learners in the lowest band and the own-assignment context touch no tour RPC.
       // MOVED 199 -> 200 for KESETIAAN (7 Nov): the four report reads touch no tour RPC.
-      c.expect(migs.length === 200, `${migs.length} migrations; the baseline has 200`);
+      // MOVED 200 -> 201 for owner decisions 1 and 3 (8 Nov): placing a classless learner and Studio's counts touch no tour RPC.
+      // MOVED 201 -> 202 for the Reporting Quality Gate (9 Nov): a Studio chapter's topic names (MC-9) touch no tour RPC.
+      // MOVED 202 -> 203 for the System Integrity Gate (9 Nov): four policies narrowed to the class touch no tour RPC.
+      // MOVED 203 -> 204 for SI-D01's completion: evidence policies on the sitting's place and D5's investigation read touch no tour RPC.
+      // MOVED 204 -> 205 for SI-D02: one start at a time per learner and assignment touches no tour RPC.
+      // MOVED 220 -> 222 for Sharon F1/F2: a school's time zone and the attempt count touch no tour RPC.
+      // MOVED 219 -> 220 for §5b and L1–L4: no tour RPC.
+      // MOVED 218 -> 219 for E5 and §11 (akhiri_tugas_staf, ubah_peran): no tour RPC.
+      // MOVED 217 -> 218 for W2.22 (sertifikat_koreksi_*): no tour RPC.
+      // MOVED 216 -> 217 for W2.21 (akhiri_penugasan): no tour RPC.
+      // MOVED 215 -> 216 for a PENDING learner who leaves: no tour RPC.
+      // MOVED 214 -> 215 for E3/E4 on the screen: no tour RPC.
+      // MOVED 213 -> 214 for «Kenaikan kelas dan kelulusan»: no tour RPC.
+      // MOVED 212 -> 213 for E3/E4: no tour RPC.
+      // MOVED 210 -> 212 for the issue stamp and the rollover audit: no tour RPC.
+      // MOVED 209 -> 210 for the lifecycle's remaining findings: no tour RPC.
+      // MOVED 208 -> 209 for the lifecycle correction: no tour RPC.
+      // MOVED 207 -> 208 for SI-D01 finding 1: PD sittings ended or extended by the platform; no tour RPC.
+      // MOVED 206 -> 207 for SI-D03: credential paths narrowed to the school that holds the person; no tour RPC.
+      // MOVED 205 -> 206 for SI-D01's remaining findings: acts on a sitting decided over its place touch no tour RPC.
+      // MOVED 222 -> 223 for 20270113150000 (the owner's withdrawn ruling and two defects, 10 Nov): no tour RPC.
+      // MOVED 223 -> 224 for 20270113160000 (D-199, the public check's date on the school's clock): no tour RPC.
+      c.expect(migs.length === 224, `${migs.length} migrations; the baseline has 224`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -6277,7 +6357,11 @@ export const experienceTests: SelfTest[] = [
       // and rendering it is how the screen says nobody can sign in. Reading a
       // field called that is not promising activation, so the identifier is
       // removed before the sweep rather than the sweep being loosened.
-      const tanpaMedan = (x: string) => x.replace(/accounts_activated/g, "AKUN_NOL");
+      // THE ONE ONWARD LINK (owner, 8 Nov, Readiness B3: «Improve Pendataan's guidance and onward navigation to
+      // Aktivasi and Peran & akses»): the done page points to the separate Aktivasi page, where accounts are opened, by
+      // its href alone and its name from nav.aktivasi (not a pendataan.* key). Pointing elsewhere promises nothing here,
+      // so that one href is removed before the sweep; any other word of activation in this flow still fails it.
+      const tanpaMedan = (x: string) => x.replace(/accounts_activated/g, "AKUN_NOL").replace(/href="\/aktivasi"/g, "href=LANJUT").replace(/s\("nav\.aktivasi"\)/g, "s(NAMA_LANJUT)");
       for (const f of semua) {
         const rel = relative(repoRoot, f).replace(/\\/g, "/");
         const m = AKTIVASI.exec(tanpaMedan(code(readFileSync(f, "utf8"))));
@@ -8986,15 +9070,17 @@ export const experienceTests: SelfTest[] = [
           // levels, years, students
           const bB1 = teks(baris(x, "Kelas Rendah")), bT1 = teks(baris(x, "Kelas 1")), bK1 = teks(baris(x, "1A"));
           c.expect(bB1.startsWith(s("config.struktur.jenis.BAGIAN")) && !/\d{4}\/\d{4}/.test(bB1), `(${locale}) the Bagian row: "${bB1}"`);
-          c.expect(bT1.startsWith(s("config.struktur.jenis.TINGKAT")) && bT1.includes("2026/2027") && bT1.includes(`1 ${s("config.struktur.murid.satu")}`),
+          // RESTATED (Daisy, bcecb425 B8.4): a year reads in the one format, «2026/27», where the row and the Kelas form show
+          // it (it was shown as typed, «2026/2027», beside «2026/27» elsewhere); the Tingkat form still sends it as typed
+          c.expect(bT1.startsWith(s("config.struktur.jenis.TINGKAT")) && bT1.includes("2026/27") && bT1.includes(`1 ${s("config.struktur.murid.satu")}`),
             `(${locale}) the Tingkat row does not show its level, year and students: "${bT1}"`);
-          c.expect(bK1.startsWith(s("config.struktur.jenis.KELAS")) && bK1.includes("2026/2027") && bK1.includes(`12 ${s("config.struktur.murid.banyak")}`),
+          c.expect(bK1.startsWith(s("config.struktur.jenis.KELAS")) && bK1.includes("2026/27") && bK1.includes(`12 ${s("config.struktur.murid.banyak")}`),
             `(${locale}) the Kelas row does not show its level, year and students: "${bK1}"`);
           // the add forms: where, what they carry
           const fKelas = formDengan(x, "tingkat", "t1");
           c.expect(fKelas.includes('name="nama"') && !fKelas.includes("tahun_ajaran") && teks(fKelas).includes(s("config.struktur.tambah.KELAS")),
             `(${locale}) the active Tingkat has no "${s("config.struktur.tambah.KELAS")}" form, or it asks for a year`);
-          c.expect(tampil.includes(`${s("config.struktur.tahun_ikut")} 2026/2027`), `(${locale}) the Kelas form does not show the year it takes`);
+          c.expect(tampil.includes(`${s("config.struktur.tahun_ikut")} 2026/27`), `(${locale}) the Kelas form does not show the year it takes`);
           const fTingkat = formDengan(x, "bagian", "b1");
           c.expect(/name="tahun_ajaran"[^>]*value="2026\/2027"|value="2026\/2027"[^>]*name="tahun_ajaran"/.test(fTingkat) && teks(fTingkat).includes(s("config.struktur.tambah.TINGKAT")),
             `(${locale}) the active Bagian has no "${s("config.struktur.tambah.TINGKAT")}" form with this year filled in`);
@@ -9005,7 +9091,7 @@ export const experienceTests: SelfTest[] = [
           for (const nama of ["Kelas Rendah", "Kelas 1", "1A"]) {
             const r = baris(x, nama);
             c.expect(r.includes(`<button type="button" class="pin-btn pin-quiet">${s("config.struktur.ubah_nama")}</button>`)
-              && r.includes(`<button type="button" class="pin-btn pin-quiet">${s("config.struktur.nonaktifkan")}</button>`),
+              && r.includes(`<button type="button" class="pin-btn pin-bahaya">${s("config.struktur.nonaktifkan")}</button>`), // restated for Daisy F2 (8 Nov): deactivation is a destructive act's opener, red words, «red twice»
               `(${locale}) the active ${nama} does not offer rename and deactivate as plain buttons`);
           }
           for (const nama of ["Bagian Lama", "Kelas 0", "1 Lama"]) {
@@ -9035,7 +9121,7 @@ export const experienceTests: SelfTest[] = [
             `(${locale}) the question does not name the level and the place: "${tampil}"`);
           c.expect(tampil.includes(s("config.struktur.konfirmasi.arti")), `(${locale}) the question does not say it cannot be undone here`);
           c.expect(x.includes('name="simpul" value="k1"') && /<button\b(?=[^>]*\bclass="pin-btn pin-str-bahaya")(?=[^>]*\btype="submit")[^>]*>([^<]+)<\/button>/.exec(x)?.[1] === s("config.struktur.konfirmasi.ya")
-            && x.includes(`<button type="button" class="pin-btn">${s("config.struktur.batal")}</button>`),
+            && x.includes(`<button type="button" class="pin-btn pin-quiet">${s("config.struktur.batal")}</button>`), // restated (8 Nov): «Batal» after a destructive act is quiet (P2; Daisy)
             `(${locale}) the question is not the form that sends the deactivation, with a way back`);
         });
       }
@@ -9125,7 +9211,9 @@ export const experienceTests: SelfTest[] = [
       const adminSma = sekolahDitawarkan(TENANT, (id) => id === "sma" || id === "kanon");
       c.expect(JSON.stringify(adminSma.map((x) => x.id)) === JSON.stringify(["sma"]), "an administrator is offered a school that is not theirs, or the library");
       c.expect(sekolahDipilih(sekolahDitawarkan(TENANT, () => false)) === null, "somebody who administers nothing is offered a school");
-      c.expect(/rows=\{struktur\.ok \? struktur\.rows : null\}/.test(konfig) && /tahunKini=\{tahunAjaranPada\(new Date\(\)\)\}/.test(konfig),
+      // RESTATED (owner, 10 Nov: school-context dates on the school's clock): this school year is the shown school's, on its own clock
+      // (zonaKonteks: WIB, WITA or WIT), not Jakarta's
+      c.expect(/rows=\{struktur\.ok \? struktur\.rows : null\}/.test(konfig) && /tahunKini=\{tahunAjaranPada\(new Date\(\), zonaKonteks\)\}/.test(konfig),
         "the panel is fed from something other than bacaStruktur's answer, or its year is not this school year");
       for (const f of walk(join(repoRoot, "src", "components", "struktur"))) {
         c.expect(!/FACULTY|PROGRAMME|Jenjang|Reguler/.test(code(readFileSync(f, "utf8"))), `${relative(repoRoot, f)} names a hidden level`);
@@ -10228,8 +10316,11 @@ export const experienceTests: SelfTest[] = [
         c.expect(JSON.stringify(tombolDi(R["beku-penyusun"])) === JSON.stringify([tb("terbitkan")]), "the school administrator is not offered to publish a locked release");
         c.expect(R["terbit-penyusun"].includes(`${sId("studio.langkah.terbit.sejak")} ${tanggalBaca("2026-09-25T02:00:00Z")}`) // RESTATED FOR E3 #15: a record's date in the human-readable form
           && R["terbit-penyusun"].includes(`<span class="pin-meta">${sId("studio.langkah.tarik.alasan")}</span>`)
-          && JSON.stringify(tombolDi(R["terbit-penyusun"])) === JSON.stringify([sId("studio.paket.tarik")]),
-          "a published course does not say since when, or offers no labelled withdrawal to its publisher");
+          // RESTATED FOR READINESS B4 (owner, 8 Nov: «Standardize destructive-action confirmation»): the withdrawal asks
+          // first (KonfirmasiBahaya): its first press is a labelled type="button" and nothing submits before the second
+          && tombolDi(R["terbit-penyusun"]).length === 0
+          && new RegExp(`<button[^>]*type="button"[^>]*data-bahaya-buka=""[^>]*>${sId("studio.paket.tarik")}</button>`).test(R["terbit-penyusun"]),
+          "a published course does not say since when, or offers no labelled withdrawal to its publisher, or withdraws on one press");
         c.expect(tombolDi(R["terbit-kaprodi"]).length === 0, "a reader without CAN_PUBLISH is offered to withdraw");
         c.expect(R["ditarik"].includes(sId("studio.langkah.ditarik.arti")) && tombolDi(R["ditarik"]).length === 0, "a withdrawn release does not say so");
         c.expect(tombolDi(R["tamu"]).length === 0 && R["tamu"].includes(sId("studio.langkah.tunggu.wewenang")), "a reader with no capability is offered a step");
@@ -10367,13 +10458,16 @@ export const experienceTests: SelfTest[] = [
        *    source file builds a day boundary in UTC.
        */
       const aksi = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "actions.ts"), "utf8"));
-      c.expect(/p_from: mulai \? batasHari\(mulai, "awal"\) : null,/.test(aksi) && /p_until: sampai \? batasHari\(sampai, "akhir"\) : null,/.test(aksi),
+      // RESTATED FOR SHARON F1 (7a2c1751, a changed requirement): the days are on the school's own zone (WIB, WITA or WIT,
+      // institutions.zona_waktu), passed to the same helpers; a school with none set keeps Asia/Jakarta, as asserted above
+      c.expect(/p_from: mulai \? batasHari\(mulai, "awal", zona\) : null,/.test(aksi) && /p_until: sampai \? batasHari\(sampai, "akhir", zona\) : null,/.test(aksi)
+        && /const zona = await zonaSekolah\(db, /.test(aksi),
         "sediakanMateri does not send the school's days");
       const siapkan = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "[kelas]", "siapkan", "page.tsx"), "utf8"));
       // RESTATED FOR W3.11 (Batch 3): J5 reopens a refused form with the dates the teacher sent, and J1 part two shows
       // the window the database now holds; a fresh review still starts on the school's today, so the field takes
       // `mulaiAwal`, whose last fallback (no date sent back, nothing made available) is hariIniSekolah().
-      c.expect(/name="mulai" defaultValue=\{mulaiAwal\}/.test(siapkan) && /const mulaiAwal = [^;]*: hariIniSekolah\(\);/.test(siapkan),
+      c.expect(/name="mulai" defaultValue=\{mulaiAwal\}/.test(siapkan) && /const mulaiAwal = [^;]*: hariIniSekolah\(undefined, zona\);/.test(siapkan),
         "Siapkan's first day does not start on the school's today");
       const utc = walk(join(repoRoot, "src")).filter((f) => /\.(ts|tsx)$/.test(f))
         .filter((f) => /T00:00:00Z|T23:59:59Z|T00:00:00\.000Z/.test(code(readFileSync(f, "utf8"))));
@@ -10422,7 +10516,8 @@ export const experienceTests: SelfTest[] = [
           const re = new RegExp(`create (?:or replace )?function public\\.calc_${fn}\\(`, "gi");
           let m: RegExpExecArray | null;
           while ((m = re.exec(sql))) {
-            const akhir = /\n(?:END\s*\n;|end;)/.exec(sql.slice(m.index));
+            // (MC-9 writes its SQL-standard bodies ending «END;» on one line: recognised too, so a body never runs on into the next function)
+            const akhir = /\n(?:END\s*\n?;|end;)/.exec(sql.slice(m.index));
             hasil = sql.slice(m.index, akhir ? m.index + akhir.index : undefined);
           }
         }
@@ -10642,7 +10737,9 @@ export const experienceTests: SelfTest[] = [
           const akhir = src.indexOf("</form>", m.index!);
           const isi = src.slice(m.index! + m[0].length, akhir < 0 ? undefined : akhir);
           const polos = [...isi.matchAll(/<button\b[^>]*>/g)].map((b) => b[0]).filter((b) => !/type="button"/.test(b));
-          if (polos.length || /<input\b[^>]*type="submit"/.test(isi) || !/<TombolKirim\b/.test(isi)) {
+          // Readiness B4 (Daisy, 8 Nov): a destructive act submits through KonfirmasiBahaya, whose confirmed act is its own
+          // TombolKirim (checked below); its first press is a type="button"
+          if (polos.length || /<input\b[^>]*type="submit"/.test(isi) || !/<(TombolKirim|KonfirmasiBahaya)\b/.test(isi)) {
             salah.push(`<form action={${/\baction=\{([^}]*)\}/.exec(m[1])?.[1]}}>: ${polos[0] ?? (/<TombolKirim\b/.test(isi) ? "an input submit" : "no TombolKirim")}`);
           }
         }
@@ -10657,7 +10754,14 @@ export const experienceTests: SelfTest[] = [
         const { n, salah } = periksa(src);
         jumlah += n;
         for (const x of salah) c.expect(false, `${f} ${x}: a form that saves without saying so, or twice`);
-        tombol.push(...[...src.matchAll(/<TombolKirim\b[^>]*>/g)].map((m) => `${f}: ${m[0]}`));
+        // the confirmation's own red submit takes its busy word from the page that places it (sibuk={sibuk}); each place
+        // names it like any TombolKirim, and the component itself must submit through TombolKirim
+        if (f === "src/components/KonfirmasiBahaya.tsx") {
+          c.expect(/<TombolKirim\b[^>]*\bsibuk=\{sibuk\}/.test(src) && !/<button\b(?![^>]*type="button")[^>]*>/.test(src),
+            "KonfirmasiBahaya's act is not its TombolKirim, or it carries a plain submit button");
+          continue;
+        }
+        tombol.push(...[...src.matchAll(/<(?:TombolKirim|KonfirmasiBahaya)\b[^>]*>/g)].map((m) => `${f}: ${m[0]}`));
       }
       c.expect(jumlah >= 43, `only ${jumlah} server-action form(s) found; the sweep is not seeing the app`);
       for (const tk of tombol) c.expect(/\bsibuk=\{s\("(?:tombol\.[a-z_]+|studio\.langkah\.sibuk|config\.struktur\.sibuk)"\)\}|\bsibuk=\{e\("tombol\.[a-z_]+"\)\}/.test(tk), `${tk} does not say what it does while it works`);
@@ -11181,11 +11285,13 @@ export const experienceTests: SelfTest[] = [
       // sentence. The check itself is unchanged.
       // RESTATED FOR BOB-27 (Gate 4: 8 surfaces, 16 addresses): the number words run to sixteen.
       // RESTATED FOR BOB-28 (Gate 5: 10 surfaces, 19 addresses): to nineteen.
+      // RESTATED FOR THE OWNER'S RULING 2 (9 Nov: 11 surfaces, 21 addresses): to twenty-one.
       const ANGKA: Record<string, string[]> = {
         id: ["nol", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh",
-             "sebelas", "dua belas", "tiga belas", "empat belas", "lima belas", "enam belas", "tujuh belas", "delapan belas", "sembilan belas"],
+             "sebelas", "dua belas", "tiga belas", "empat belas", "lima belas", "enam belas", "tujuh belas", "delapan belas", "sembilan belas",
+             "dua puluh", "dua puluh satu"],
         en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
-             "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"] };
+             "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "twenty-one"] };
       const katakan = (kalimat: string, n: unknown, locale: string) =>
         typeof n === "number" && new RegExp(`^(Tepat|Exactly) ${ANGKA[locale][n]}\\b`).test(kalimat);
       c.expect(!katakan("Tepat tiga permukaan publik: pemeriksaan sertifikat dan masuk dengan kartu kelas", 2, "id"),
@@ -11654,7 +11760,7 @@ export const experienceTests: SelfTest[] = [
       }
       const bukti = code(baca("src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"));
       // D-088(g) (MC-4): the row is the objective, and its name is the objective's statement (`competency`)
-      c.expect(/bagian\.map\(\((\w+)\) => \(\s*<BarisKesiapan\b[^>]*\blabel=\{\1\.competency\}/.test(bukti)
+      c.expect(/bagian\.map\(\((\w+)\) => \(\s*<BarisKesiapan\b[^>]*\blabel=\{\1\.title && \1\.title\.trim\(\) !== "" \? \1\.title : \1\.competency\}/.test(bukti) /* RESTATED (owner V2, 9 Nov) */
         && !/tierKey=\{\w+\.(?:competency|code)\}/.test(bukti),
         "«Lihat bukti» does not pass each topic's own name as the row's label, or still looks it up as a copy key");
 
@@ -11974,7 +12080,8 @@ export const experienceTests: SelfTest[] = [
       }
       const bukti = code(baca("src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"));
       // RESTATED FOR DAISY-33 (a changed requirement, D-069(k)): the block also takes the class's kind, for «murid» or «peserta»
-      c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\}(?: kelas=\{id\})?(?: jenis=\{ctx\.ini\.jenis\})? \/>/.test(bukti) && !/\bfokus\b/.test(bukti),
+      // RESTATED (owner, 10 Nov: school-context dates on the school's clock): and the class's school's zone, for its tests' dates
+      c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\}(?: kelas=\{id\})?(?: jenis=\{ctx\.ini\.jenis\})?(?: zona=\{zona\})? \/>/.test(bukti) && !/\bfokus\b/.test(bukti),
         "«Lihat bukti» still shows one focus test rather than every open one");
 
       /**
@@ -12908,7 +13015,7 @@ export const experienceTests: SelfTest[] = [
         && /terbitSiap \? s\("studio\.langkah\.terbit\.judul"\) : s\(`studio\.state\.\$\{state\.surface_state\}`/.test(paket)
         && /terbitSiap \? s\("studio\.state\.explain\.TERBIT"\) : s\(`studio\.state\.explain\.\$\{state\.surface_state\}`/.test(paket),
         "a published package with nothing to fix still reads «Siap · Paket ini siap diterbitkan»");
-      for (const [k, harap] of [["studio.beranda.tak_ada_tugas", "Tidak ada yang menunggu tindakan Anda di Studio."], ["studio.state.explain.TERBIT", "Paket ini sudah terbit. Guru dapat menyediakannya untuk kelas mereka."], ["studio.langkah.terbit.judul", "Terbit"]] as const) {
+      for (const [k, harap] of [["studio.beranda.tak_ada_tugas", "Tidak ada yang menunggu tindakan Anda di Studio."] /* restored (owner decision 3): studio_home counts every step (20270110100000), so the approved line is true again */, ["studio.state.explain.TERBIT", "Paket ini sudah terbit. Guru dapat menyediakannya untuk kelas mereka."], ["studio.langkah.terbit.judul", "Terbit"]] as const) {
         c.expect(t(k as never, "staff") === harap && t(k as never, "staff", { locale: "en" }) !== harap, `the copy table's ${k} is not «${harap}» with its English`);
       }
       return c.verdict("Studio's home and a published package's headline agree with what is listed and published (RV-10)");
@@ -13028,6 +13135,73 @@ export const experienceTests: SelfTest[] = [
         "release; «Koreksi»'s line reads «Belum tersimpan.» and that sentence, with no reference; and PR060's other " +
         "refusal, PR061's and an unknown DETAIL stay ACTION_FAILED, whose line carries its reference",
       );
+    },
+  },
+  {
+    id: "SIAP-FOKUS-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      /**
+       * Readiness (8 Nov; owner: «check other instances of the same shared interaction pattern»). WHEN A PRESS REPLACES
+       * PART OF THE SCREEN, FOCUS IS MOVED ON PURPOSE. A button swapped for a question or a small form takes the focused
+       * element away; unless the code moves focus, a keyboard or screen-reader reader falls to the top of the page.
+       * 1. Every client component that draws an in-place panel (role="group" aria-labelledby) moves focus somewhere.
+       * 2. Every component known to swap a button for a panel moves focus BOTH ways: into the panel on open (a .focus()
+       *    or autoFocus) and back to the opener on leaving it (a second .focus()). A planted copy of KeluarSemua with
+       *    its focus calls removed is the control.
+       */
+      // [file, ways]: 2 = into the panel and back to its opener; 1 = the opener is gone for good (the worked example's
+      // last step), so focus goes once, to what replaces it
+      const KENAL: Array<[string, number]> = [
+        ["src/components/KonfirmasiBahaya.tsx", 2], ["src/components/sertifikat/FormCabut.tsx", 2],
+        ["src/components/sesi/KeluarSemua.tsx", 2], ["src/components/umpanbalik/TutupPutaran.tsx", 2],
+        ["src/components/struktur/PanelStruktur.tsx", 2], ["src/components/studio/LangkahTerbit.tsx", 2],
+        ["src/components/aktivasi/KartuUlang.tsx", 2], ["src/components/aktivasi/KartuJadiEmail.tsx", 2],
+        ["src/app/belajar/_components/ItemPlayer.tsx", 2], ["src/app/belajar/_components/LessonPlayer.tsx", 1],
+      ];
+      const arah = (src: string) => (src.match(/\.focus\(\)/g) ?? []).length + (src.match(/\bautoFocus\b/g) ?? []).length;
+      for (const [f, n] of KENAL) {
+        const src = readFileSync(join(repoRoot, f), "utf8");
+        c.expect(arah(src) >= n, `${f} swaps part of the screen without moving focus ${n === 2 ? "both ways" : "to what replaces it"}`);
+      }
+      const semua: string[] = [];
+      const jalan = (d: string) => {
+        for (const n of readdirSync(join(repoRoot, d))) {
+          const r = `${d}/${n}`;
+          if (statSync(join(repoRoot, r)).isDirectory()) jalan(r);
+          else if (r.endsWith(".tsx")) semua.push(r);
+        }
+      };
+      jalan("src/app"); jalan("src/components");
+      let panel = 0;
+      for (const f of semua) {
+        const src = readFileSync(join(repoRoot, f), "utf8");
+        if (!/^\s*["']use client["']/.test(src) || !/role="group" aria-labelledby/.test(src)) continue;
+        panel++;
+        c.expect(/\.focus\(\)|\bautoFocus\b/.test(src), `${f} draws an in-place panel and never moves focus`);
+      }
+      c.expect(panel >= 6, `only ${panel} in-place panel(s) found: the sweep is not reading the source`);
+      const tanam = readFileSync(join(repoRoot, "src/components/sesi/KeluarSemua.tsx"), "utf8").replace(/\S*\.focus\(\);?/g, "");
+      c.expect(arah(tanam) < 2, "a KeluarSemua without its focus calls is not caught");
+      return c.verdict(`${KENAL.length} swapping component(s) move focus as declared (${KENAL.filter(([, n]) => n === 2).length} both ways, the rest once); ${panel} client in-place panel(s) move focus; the planted copy is caught`);
+    },
+  },
+  {
+    id: "SIAP-LEBAR-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // Daisy F3 (8 Nov): «explain once» put .pin-sr words (position: absolute) inside the topics x classes grid; its scroll
+      // region was not positioned, so they escaped it and a 390 px phone page grew to 481-1005 px. The region is
+      // positioned, so the words stay inside what scrolls. A planted copy without it is the control.
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      const aturan = (src: string) => /\.pin-lk-kisi-wadah\s*\{[^}]*position:\s*relative/.test(src);
+      c.expect(aturan(css), "the grid's scroll region is not positioned, so its read-only words widen a phone page");
+      c.expect(/pin-lk-kisi-wadah/.test(readFileSync(join(repoRoot, "src/components/laporan/KisiTopik.tsx"), "utf8")),
+        "the grid no longer uses its scroll region");
+      c.expect(!aturan(css.replace(/position:\s*relative;?/g, "")), "a stylesheet without the rule is not caught");
+      return c.verdict("the topics x classes scroll region is positioned, so its read-only words stay inside it; the planted copy is caught");
     },
   },
 ];

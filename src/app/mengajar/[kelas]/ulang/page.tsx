@@ -13,6 +13,8 @@ import { mintaBacaUlang } from "../../actions";
 import { bacaKodeUlang } from "@/lib/ulang-kontrak";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { tanggal } from "@/lib/tanggal";
+import { zonaSekolah } from "@/lib/zona-sekolah";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/ulang");
 
@@ -57,6 +59,8 @@ export default async function UlangKelas({
   const dariMurid = sp.murid && bahan.murid.some((m) => m.id === sp.murid) ? sp.murid : null;
   const kode = sp.ulang === "gagal" ? bacaKodeUlang(sp.kode) : null;
   const ref = sp.ref && /^[A-Z0-9]{6}$/.test(sp.ref) ? sp.ref : null;
+  // the owner's ruling (10 Nov): when each re-read was asked, on the class's school's clock
+  const zona = await zonaSekolah(await supabaseServer(), ctx.ini.institusi);
 
   return (
     <>
@@ -70,14 +74,15 @@ export default async function UlangKelas({
         <div className="pin-head">
           <p className="pin-eyebrow">{bahan.judul}</p>
           <h1 className="pin-h1">{s("mengajar.ulang.judul")}</h1>
-          <p className="pin-intro">{s("mengajar.ulang.arti")}</p>
-          {bahan.batas !== null ? (
+          {/* Daisy (821d3853): on a closed chapter the closed sentence replaces the invitation and the target */}
+          {bahan.tertutup ? null : <p className="pin-intro">{s("mengajar.ulang.arti")}</p>}
+          {!bahan.tertutup && bahan.batas !== null ? (
             <p className="pin-meta">{s("mengajar.murid1.target")} {format.percent(bahan.batas, locale)}</p>
           ) : null}
         </div>
 
         {sp.ulang === "ok" ? (
-          <BarisHasil nada="ok">{s("mengajar.ulang.terkirim")} {n(Number(sp.n) || 0)} {s("mengajar.bukti.murid")}.</BarisHasil>
+          <BarisHasil nada="ok">{s("mengajar.ulang.terkirim")} {n(Number(sp.n) || 0)} {format.satuan(Number(sp.n) || 0, s("mengajar.bukti.murid"), locale)}.</BarisHasil>
         ) : kode ? (
           <BarisHasil nada="gagal">
             {s(`mengajar.ulang.tolak.${kode.toLowerCase()}` as HleEvent)}
@@ -87,6 +92,11 @@ export default async function UlangKelas({
           </BarisHasil>
         ) : null}
 
+        {/* Daisy (1fad2861, B2): a chapter the class is no longer given cannot be asked for again (request_lesson_review:
+            REVIEW_ASSIGNMENT_CLOSED); the page says so in place of the form, and the requests already made stay listed */}
+        {bahan.tertutup ? (
+          <p className="pin-msg pin-sec" data-ulang-tertutup="">{s("mengajar.ulang.tolak.review_assignment_closed")}</p>
+        ) : (
         <form action={mintaBacaUlang} className="pin-sec pin-ulang">
           <input type="hidden" name="kelas" value={id} />
           <input type="hidden" name="penugasan" value={bahan.penugasan} />
@@ -138,6 +148,7 @@ export default async function UlangKelas({
           <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.mengirim")}
             selesai={sp.ulang === "ok" ? s("mengajar.ulang.selesai") : undefined}>{s("mengajar.ulang.kirim")}</TombolKirim>
         </form>
+        )}
 
         <section className="pin-sec" aria-labelledby="pin-ulang-riwayat">
           <h2 id="pin-ulang-riwayat">{s("mengajar.ulang.riwayat")}</h2>
@@ -149,7 +160,7 @@ export default async function UlangKelas({
                 <div key={r.id} data-permintaan={r.orang}>
                   <dt>{r.nama}</dt>
                   <dd>
-                    {tanggal(r.kapan, "baca", locale)} · {n(r.dibaca)} {s("mengajar.soal.dari")} {n(r.jumlah)} {s("mengajar.ulang.dibaca")}
+                    {tanggal(r.kapan, "baca", locale, zona)} · {n(r.dibaca)} {s("mengajar.soal.dari")} {n(r.jumlah)} {s("mengajar.ulang.dibaca")}
                   </dd>
                 </div>
               ))}

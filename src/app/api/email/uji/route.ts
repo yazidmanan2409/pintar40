@@ -3,6 +3,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { GalatPengaturanEmail } from "../../_email/pengaturan";
 import { GalatEmail, kirimEmail } from "../../_email/kirim";
 import { templatUjiPengiriman } from "../../_email/uji";
+import { tanggal } from "@/lib/tanggal";
 
 export const runtime = "nodejs";
 
@@ -47,7 +48,8 @@ export async function POST(request: NextRequest) {
       ke,
       jenis: "UJI_PENGIRIMAN",
       susun: (konteks) =>
-        templatUjiPengiriman({ waktu: new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC" }, konteks),
+        // a platform email tied to no school: its moment in WIB, written by the one date helper (the owner's ruling, 10 Nov)
+        templatUjiPengiriman({ waktu: tanggal(new Date(), "resmiJam") }, konteks),
     });
     return NextResponse.json(hasil, { status: hasil.terkirim ? 200 : 502 });
   } catch (e) {

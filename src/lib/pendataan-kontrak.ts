@@ -128,7 +128,9 @@ export type Pemetaan = Partial<Record<Medan, Sumber>>;
 const PETUNJUK: Record<Medan, RegExp> = {
   display_name: /^(nama|nama lengkap|nama siswa|nama murid|nama peserta|name|full ?name|student ?name)$/i,
   person_id: /^(person[ _]?id|id orang)$/i,
-  node_id: /^(kelas|rombel|node[ _]?id|class|group)$/i,
+  // Readiness A1 (Daisy, 8 Nov): a school's «Kelas» column holds names («7A»), never PINTAR's place id, so it is not
+  // guessed as the place: the class is chosen by name with «Satu pilihan untuk semua» (see §5 of its test)
+  node_id: /^(node[ _]?id)$/i,
   role: /^(peran|role|jabatan)$/i,
   programme_id: /^(program|programme|program[ _]?id|programme[ _]?id)$/i,
 };

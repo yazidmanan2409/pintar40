@@ -182,6 +182,10 @@ const AKSI_TERIKAT: Record<string, Record<string, string>> = {
   // W2.10 (Batch 5): the whole-class run's read of one class's waiting learners; the cards are /api/akun/aktivasi's
   "src/app/aktivasi/actions.ts": { anggotaKelasMenungguAksi: "a read of one class's waiting learners for the whole-class run; it acts on nothing, each card is decided per person by /api/akun/aktivasi" },
   "src/app/konfigurasi/sertifikat/actions.ts": {},
+  // «Kenaikan kelas dan kelulusan» (owner, 9 Nov): both presses ask the class's school as the working context
+  "src/app/konfigurasi/kenaikan-aksi.ts": {},
+  // E5 and §11 (owner, 9 Nov): both acts ask the person's school as the working context before akhiri_tugas_staf / ubah_peran
+  "src/app/konfigurasi/staf/actions.ts": {},
 };
 /** Every other server-action file, and why it is not context-bound. */
 const AKSI_BEBAS: Record<string, string> = {
@@ -195,6 +199,8 @@ const AKSI_BEBAS: Record<string, string> = {
   "src/app/tur/actions.ts": "the tour's evaluation persona (C10)",
   "src/app/konfigurasi/email-uji/actions.ts": "explicitly platform-scoped (D-132(k)): the send history is the platform administrator's, by its own scope",
   "src/app/aktivasi/orang/actions.ts": "explicitly platform-scoped (F-8, D-077(3)): a name or username correction is the platform administrator's alone, decided by the database",
+  "src/app/konfigurasi/keamanan/actions.ts": "explicitly platform-scoped (§5b, L4): suspension, reactivation and the deletion of personal data are the PINTAR Administrator's alone, decided by the database",
+  "src/app/akun/actions.ts": "one's own account (L2, L3): the person's own request to close it or delete their personal data, a neutral surface",
 };
 /** The context-bound API routes, and the act each checks the context before. */
 const RUTE_TERIKAT: Record<string, RegExp[]> = {
@@ -203,6 +209,8 @@ const RUTE_TERIKAT: Record<string, RegExp[]> = {
   "src/app/api/keamanan/pemulihan/route.ts": [/rpc\("admin_reset_recovery"/],
   "src/app/api/assets/upload-url/route.ts": [/rpc\("can_on_node"/, /rpc\("may_upload_package_media"/],
   "src/app/api/akun/kartu-ke-email/route.ts": [/rpc\("authorize_card_conversion"/],
+  // W2.22 (owner, 9 Nov): «Terbitkan ulang» asks the certificate's school as the working context before preparing
+  "src/app/api/sertifikat/ganti/route.ts": [/rpc\("sertifikat_koreksi_siapkan"/],
 };
 /** Every other API route, and why it is not context-bound. */
 const RUTE_BEBAS: Array<[RegExp, string]> = [
@@ -218,6 +226,9 @@ const RUTE_BEBAS: Array<[RegExp, string]> = [
   [/^src\/app\/api\/verifikasi\//, "public certificate verification"],
   [/^src\/app\/api\/email\/uji\//, "explicitly platform-scoped (D-132(k)): the platform administrator's delivery proof, by its own scope"],
   [/^src\/app\/api\/akun\/foto\//, "the person's own profile photo (W2.8): a neutral surface"],
+  // L4 (Sharon §16 finding 2): the deletion of personal data moved from the Keamanan action to a route, so the photo
+  // files go with it; platform-scoped as that action was (hapus_data_pribadi decides: an active SYSTEM_ADMIN)
+  [/^src\/app\/api\/akun\/hapus-data\//, "explicitly platform-scoped (§5b, L4): the deletion of personal data is the PINTAR Administrator's alone, decided by the database"],
 ];
 
 export const fable22Tests: SelfTest[] = [

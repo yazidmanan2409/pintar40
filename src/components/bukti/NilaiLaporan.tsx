@@ -36,10 +36,11 @@ export default function NilaiLaporan({ entry, locale, tempat = {}, persona = "ed
     return (
       <ul className="pin-lap-baris">
         {(v as Baris[]).slice(0, 8).map((row, i) => {
-          if (typeof row.cohort_node_id === "string") {
+          // D5: a row of sittings that recorded no Angkatan is named so; D6: a withheld mean reads «—», never 0
+          if (typeof row.cohort_node_id === "string" || (row as { recorded?: boolean }).recorded === false) {
             return (
               <li key={i}>
-                <span>{tempat[row.cohort_node_id] ?? "—"}</span>
+                <span>{typeof row.cohort_node_id === "string" ? tempat[row.cohort_node_id] ?? "—" : s("laporan.sekolah.angkatan_tak_tercatat")}</span>
                 <span className="pin-num">{[persen(row.mean_mastery), jumlah(row.learners)].filter(Boolean).join(" · ")}</span>
               </li>
             );

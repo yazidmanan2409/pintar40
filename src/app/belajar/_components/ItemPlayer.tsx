@@ -28,6 +28,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import type { PaperEntry, AssistanceState, AssistanceLevel } from "@/lib/assessment-engine";
 import { TeksBaris } from "@/components/teks/Teks";
@@ -181,9 +182,20 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   // the server has closed the session under this page (another tab finished).
   const [notice, setNotice] = useState<HleEvent | null>(null);
   const [closed, setClosed] = useState(false);
+  // Daisy (bcecb425, B4): a sitting the school ended stays ended on this page. Nothing under the notice can be pressed,
+  // and focus moves to the notice, so its «Kembali ke Belajar» is the next stop
+  const [diakhiri, setDiakhiri] = useState(false);
+  const pemberitahuan = useRef<HTMLParagraphElement>(null);
+  useEffect(() => { if (diakhiri) pemberitahuan.current?.focus(); }, [diakhiri]);
   const [finishing, setFinishing] = useState(false);
   // W3: «Kumpulkan» asks once before it hands the test in (posttest.submit_confirm)
   const [asking, setAsking] = useState(false);
+  // Readiness (8 Nov): leaving the question returns focus to «Kumpulkan», which reappears in its place.
+  const kumpulkan = useRef<HTMLButtonElement>(null);
+  const balikKumpulkan = useRef(false);
+  useEffect(() => {
+    if (!asking && balikKumpulkan.current) { balikKumpulkan.current = false; kumpulkan.current?.focus(); }
+  }, [asking]);
   // THE SEQUENCE RULE (R1, F-07). Two sources of truth, never one:
   //   serverSeqs — the highest client_seq the server is known to hold per item
   //                (the page's read, raised by every acknowledgement);
@@ -337,6 +349,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
         setNotice("sync.belum_terkirim");
         return;
       }
+      // defect (10 Nov): a sitting the school ended (akhiri_penugasan) is said as such, not as unsaved answers
+      if (!r.ok && r.code === "PR003") { setNotice("sync.diakhiri_sekolah"); setDiakhiri(true); setAsking(false); return; }
       if (r.ok || r.code === "PR002") {
         // doc 04 §7: the system issues a certificate for a certifying pass. Asked
         // at once, never awaited: the results view must not wait on issuance,
@@ -519,9 +533,12 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   // ------------------------------------------------------------- keyboard nav
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (!current) return;
+      if (!current || diakhiri) return;
       const target = e.target as HTMLElement | null;
       if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
+      // Daisy (bcecb425, A1; WCAG 2.1.1): Enter belongs to the control that has focus (an answer, «Selesaikan», a
+      // link). It is «next question» only when no control holds focus. The letters and the arrows stay as they were
+      if (e.key === "Enter" && target?.closest("button, a, summary, [role=button], input, textarea, select, [contenteditable]")) return;
       const letter = e.key.toUpperCase();
       if (letter >= "A" && letter <= "E") {
         const pos = letter.charCodeAt(0) - 64;
@@ -533,7 +550,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [choose, current, go, index]);
+  }, [choose, current, diakhiri, go, index]);
 
   if (!current) return null;
   const chosen = answerOf(current);
@@ -583,7 +600,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
           {!online && <span className="pin-luring">{kata("sync.offline")}</span>}
           {online && pending > 0 && <span className="pin-meta">{kata("sync.pending")}</span>}
           {formal && allowsPause && (
-            <button
+            <button disabled={diakhiri}
               type="button"
               onClick={async () => {
                 // the server decides; the screen follows what it said
@@ -600,7 +617,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
             </button>
           )}
           {formal && (
-            <button type="button" onClick={() => setNavOpen((o) => !o)}
+            <button disabled={diakhiri} type="button" onClick={() => setNavOpen((o) => !o)}
               className="pin-btn">
               {kata("posttest.navigator")}
             </button>
@@ -612,7 +629,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
         <ol className="pin-daftar">
           {paper.map((p, i) => (
             <li key={p.presentedItemId}>
-              <button type="button" onClick={() => go(i)}
+              <button disabled={diakhiri} type="button" onClick={() => go(i)}
                 className={`pin-num-btn${accepted[p.presentedItemId] ? " pin-ans" : ""}${flagged[p.presentedItemId] ? " pin-flag" : ""}${i === index ? " pin-at" : ""}`}
                 aria-label={`${i + 1} — ${accepted[p.presentedItemId] ? kata("posttest.answered") : kata("posttest.unanswered")}`}>
                 {i + 1}
@@ -638,7 +655,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
             <ul className="pin-opsi">
               {current.item.opsi.map((o) => (
                 <li key={o.posisi}>
-                  <button
+                  <button disabled={diakhiri}
                     type="button"
                     onClick={() => choose(o.posisi)}
                     aria-pressed={selected(o.posisi)}
@@ -659,14 +676,14 @@ export default function ItemPlayer(props: ItemPlayerProps) {
               <div className="pin-actions">
                 <button
                   type="button"
-                  disabled={!chosen || committed}
+                  disabled={diakhiri || !chosen || committed}
                   aria-describedby={!chosen && !committed ? "jawab-alasan" : undefined}
                   onClick={() => chosen && void send(current, chosen)}
                   className="pin-btn pin-primary"
                 >
                   {committed ? kata("posttest.confirmed") : kata("posttest.confirm")}
                 </button>
-                <button
+                <button disabled={diakhiri}
                   type="button"
                   onClick={() => setFlagged((f) => ({ ...f, [current.presentedItemId]: !f[current.presentedItemId] }))}
                   className="pin-btn"
@@ -689,8 +706,9 @@ export default function ItemPlayer(props: ItemPlayerProps) {
 
           {/* ------------------------------------------------ assistance pill */}
           {state?.due && (
-            <section className="pin-bantuan">
-              <p className="pin-lvl">{kata(stageKey(stage))}</p>
+            <section className="pin-bantuan-soal" data-bantuan-soal="">
+              {/* Daisy (1fad2861, small): before a level is opened the offer is its button alone, never said twice */}
+              {opened.length > 0 ? <p className="pin-lvl">{kata(stageKey(stage))}</p> : null}
               {opened.map((l) => (
                 <p key={l.level}>
                   <span className="pin-lvl">{kata(`assist.level.${l.kode}` as HleEvent)}</span>
@@ -699,12 +717,12 @@ export default function ItemPlayer(props: ItemPlayerProps) {
               ))}
               <div className="pin-actions">
                 {state.nextLevel !== null && (
-                  <button type="button" onClick={() => void openLevel(state.nextLevel as number)}
+                  <button disabled={diakhiri} type="button" onClick={() => void openLevel(state.nextLevel as number)}
                     className="pin-btn">
                     {opened.length === 0 ? kata(stageKey(stage)) : kata("assist.more")}
                   </button>
                 )}
-                <button type="button"
+                <button disabled={diakhiri} type="button"
                   onClick={() => { ditutup.current.add(itemId); void actions.dismissAssistance(itemId); setAssist(null); }}
                   className="pin-btn pin-quiet">
                   {kata("assist.close")}
@@ -717,38 +735,40 @@ export default function ItemPlayer(props: ItemPlayerProps) {
 
       {/* ------------------------------------------------------ move / finish */}
       {(notice || closed) && (
-        <p className="pin-pending" role="status">
+        <p className="pin-pending" role="status" ref={pemberitahuan} tabIndex={diakhiri ? -1 : undefined} data-diakhiri={diakhiri ? "" : undefined}>
           {kata(closed ? "sync.sesi_ditutup" : (notice as HleEvent))}
+          {/* Daisy (435a2856, §2.2): a sitting closed under the page can no longer be sent; the notice offers the way back */}
+          {!closed && notice === "sync.diakhiri_sekolah" ? <> <Link className="pin-tautan" href="/belajar" data-diakhiri-kembali="">{kata("tolak.kembali")}</Link></> : null}
         </p>
       )}
       {formal && asking && (
         <div className="pin-pending" role="group" aria-labelledby="kumpulkan-tanya">
           <p id="kumpulkan-tanya">{kata("posttest.submit_confirm")}</p>
           <div className="pin-actions">
-            <button type="button" onClick={() => void finish()} disabled={finishing}
+            <button type="button" onClick={() => void finish()} disabled={diakhiri || finishing}
               className="pin-btn pin-primary">
               {kata("posttest.submit")}
             </button>
             {/* the button that asked is gone: focus lands on the safe answer, so the question is read out */}
-            <button type="button" onClick={() => setAsking(false)} className="pin-btn" autoFocus>
+            <button disabled={diakhiri} type="button" onClick={() => { balikKumpulkan.current = true; setAsking(false); }} className="pin-btn" autoFocus>
               {kata("komitmen.kembali")}
             </button>
           </div>
         </div>
       )}
       <nav className="pin-actions pin-between">
-        <button type="button" onClick={() => go(index - 1)} disabled={index === 0}
+        <button type="button" onClick={() => go(index - 1)} disabled={diakhiri || index === 0}
           className="pin-btn">
           {kata(formal ? "pretest.back" : "pretest.back")}
         </button>
         {index < paper.length - 1 ? (
-          <button type="button" onClick={() => go(index + 1)}
+          <button disabled={diakhiri} type="button" onClick={() => go(index + 1)}
             className="pin-btn pin-primary">
             {kata("pretest.next")}
           </button>
         ) : formal ? (
           !asking && (
-            <button type="button" onClick={() => { setNotice(null); setAsking(true); }}
+            <button disabled={diakhiri} ref={kumpulkan} type="button" onClick={() => { setNotice(null); setAsking(true); }}
               className="pin-btn pin-primary">
               {kata("posttest.submit")}
             </button>
@@ -757,7 +777,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
           <button
             type="button"
             onClick={() => void finish()}
-            disabled={finishing}
+            disabled={diakhiri || finishing}
             className="pin-btn pin-primary"
           >
             {kata("pretest.finish")}

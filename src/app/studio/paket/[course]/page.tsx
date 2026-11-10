@@ -6,10 +6,12 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
 import { currentLocale } from "@/lib/locale";
 import LangkahTerbit from "@/components/studio/LangkahTerbit";
+import { LANGKAH, bolehMengambil, kunciSalinan, posisiPaket } from "@/components/studio/langkah";
 import { enumLabel, format, t, type HleEvent } from "@/lib/hle";
 import { KODE_HAMBATAN, kalimatHambatan, type Hambatan } from "@/lib/terbitan-kontrak";
 import { bacaHasil, kalimatHasil, rujukan } from "@/lib/galat-kontrak";
 import { tanggal } from "@/lib/tanggal";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 import { button, can, card, field, label, studioInstitutions } from "../../_lib";
 import {
   moveReleaseAction, runValidationAction,
@@ -82,7 +84,6 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   // UX-25 (W1.9): every word on this page in the reader's language
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
-  const when = (iso: string | null) => tanggal(iso, "cap", locale) || "—";
 
   const { data: course } = await supabase
     .from("courses")
@@ -94,6 +95,9 @@ export default async function Paket({ params, searchParams }: { params: Params; 
     // empty (Kosong's rule; the same answer Mengajar gives a class it cannot read)
     return <HalamanPenolakan locale={locale} persona="staff" backHref="/studio" backKey="studio.nav.beranda" />;
   }
+  // the owner's ruling (10 Nov): every moment of the package on its school's clock
+  const zona = await zonaSekolah(supabase, course.institution_id);
+  const when = (iso: string | null) => tanggal(iso, "cap", locale, zona) || "—";
 
   const [institutions, { data: saya }] = await Promise.all([
     studioInstitutions(), supabase.rpc("current_person_id"),
@@ -212,6 +216,14 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   const published = (rilisGaris ?? []).filter((r) => r.status === "PUBLISHED");
   const terakhir = (releases ?? []).at(-1) ?? null;
   const terbitSiap = state?.surface_state === "READY" && terakhir?.status === "PUBLISHED";
+  // Readiness B1 (Daisy, 8 Nov): when the package's next step is not this reader's to take (the author at a second
+  // person's step, or a step outside their grants), the head says it is waiting on someone else, who, and that PINTAR
+  // sends no notification: never «Ada yang bisa Anda selesaikan sekarang». The same rule as the steps (bolehMengambil)
+  const langkahKini = LANGKAH.find((l) => l.kunci === posisiPaket({ statusKursus: course.status as string,
+    terbitan: terakhir ? { status: terakhir.status as string } : null }).kini) ?? null;
+  const menunggu = langkahKini && bolehMengambil(langkahKini, inst?.capabilities ?? [], typeof saya === "string" ? saya : null,
+    (course.author_person_id as string | null) ?? null) !== "boleh" ? langkahKini : null;
+  const namaPeran = (peran: readonly string[]) => peran.map((p) => sl(`role.${p}` as HleEvent)).join(` ${sl("studio.langkah.atau")} `);
   const tersegel = terakhir !== null && !["INGESTED", "STRUCTURED", "VALIDATED", "IN_REVIEW", "APPROVED"].includes(terakhir.status);
   const findings = ((mcq ?? []) as Finding[]).filter((f) => f.acknowledged_at === null);
   const coaching = ((coach ?? []) as Finding[]).filter((f) => f.acknowledged_at === null);
@@ -254,13 +266,21 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
         <p className="pin-studio-h2">
           {/* RV-10 (D-140): a published package with nothing to fix reads as published, not «siap diterbitkan» */}
-          {state ? (terbitSiap ? s("studio.langkah.terbit.judul") : s(`studio.state.${state.surface_state}` as never)) : "—"}
+          {menunggu ? s("studio.state.MENUNGGU")
+            : state ? (terbitSiap ? s("studio.langkah.terbit.judul") : s(`studio.state.${state.surface_state}` as never)) : "—"}
         </p>
-        <p className="pin-ket">
-          {state ? (terbitSiap ? s("studio.state.explain.TERBIT") : s(`studio.state.explain.${state.surface_state}` as never)) : ""}
+        <p className="pin-ket" data-menunggu={menunggu ? menunggu.kunci : undefined}>
+          {menunggu
+            ? s("studio.state.explain.MENUNGGU").replace("{langkah}", s(kunciSalinan(menunggu.kunci, "judul")))
+                .replace("{siapa}", namaPeran(menunggu.peran) + (menunggu.orangKedua ? `, ${s("studio.langkah.bukan_penyusun")}` : ""))
+            : state ? (terbitSiap ? s("studio.state.explain.TERBIT") : s(`studio.state.explain.${state.surface_state}` as never)) : ""}
         </p>
 
-        {state && state.reasons.length > 0 ? (
+        {/* what is left to finish is said to the one who can finish it; a reader waiting on another reads the steps.
+            Daisy F4 (8 Nov): publish readiness speaks only once a release exists. Before it, the steps below are the
+            one next step («Setujui isi», then «Buat terbitan»); the reasons («… menunggu langkah Setujui isi», «mulai
+            dari langkah Buat terbitan») would compete with it */}
+        {state && state.reasons.length > 0 && !menunggu && terakhir !== null ? (
           <>
             <p className="pin-judul-baris">{sl("studio.paket.alasan")}</p>
             <ul className="pin-daftar-titik pin-ket">
@@ -398,6 +418,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         kemampuan={inst?.capabilities ?? []}
         saya={typeof saya === "string" ? saya : null}
         penyusun={(course.author_person_id as string | null) ?? null}
+        zona={zona}
         hasilIsi={hasilIsi}
         kembali={kembali}
         unggahPerbaikan={unggahPerbaikan}

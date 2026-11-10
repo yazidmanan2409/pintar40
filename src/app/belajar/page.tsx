@@ -23,6 +23,8 @@ import { labelTujuan } from "@/components/siklus/aksi";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { judulAsesmen } from "@/lib/judul-asesmen";
 import { tanggal } from "@/lib/tanggal";
+import { zonaSimpulBanyak } from "@/lib/zona-sekolah";
+import { adaHasilTertutup } from "@/lib/hasil-belajar";
 
 export const generateMetadata = judulHalaman("/belajar");
 
@@ -99,6 +101,12 @@ export default async function Belajar({
   const sapa = namaSapaan(viewer.displayName, peran);
 
   const tugas = await engine.myAssignments(db);
+  // 4.0 completion (owner decision 1): a learner recorded without a class is told why nothing is here, and who can help;
+  // their own open placements, read under their own row security
+  const { count: nTempat } = tugas.length === 0
+    ? await (db as unknown as Awaited<ReturnType<typeof supabaseServer>>).from("memberships")
+        .select("id", { count: "exact", head: true }).is("valid_to", null)
+    : { count: 1 };
 
   // DAISY-26 (UX-21): the next unread lesson of each assignment, in the order
   // the reading map set, so «Lanjutkan pelajaran» opens that lesson rather than
@@ -137,11 +145,17 @@ export default async function Belajar({
   const baru = await engine.newResults(db).catch(() => new Set<string>());
   for (const k of kandidat) k.hasilBaru = k.posisi.selesai && baru.has(k.tugas.learning_assignment_id);
   const { utama, sisa } = peringkat(kandidat);
+  // Daisy (bcecb425, B3): the way to Hasil Belajar stays once every lesson has closed. Its results are read from the
+  // learner's history (the closed lessons), asked only when no assigned lesson has one
+  const adaHasil = capaian.size > 0
+    || await adaHasilTertutup(db, new Set(tugas.map((a) => a.learning_assignment_id))).catch(() => false);
 
   // Q-12: what a learner may start that no learning assignment names. The RPC
   // returns exactly what `may_start_assessment()` accepts, so this list adds
   // no authority — everything in it is genuinely startable right now.
   const terbuka = await engine.openAssessments(db);
+  // the owner's ruling (10 Nov): each open assessment on its own school's clock (the row names its class, not its school)
+  const zonaDari = terbuka.length > 0 ? await zonaSimpulBanyak(db, terbuka.map((a) => a.node_id)) : () => "Asia/Jakarta";
 
   // D-085 M3 (J5.12): what a teacher has asked this learner to read again. Its own section after the next step, so
   // the home's order (W18, D-088(d)) is unchanged; a failed read shows nothing rather than an error.
@@ -330,7 +344,10 @@ export default async function Belajar({
                 <p className="pin-mm">{s("pembelajaran.kosong_arti")}</p>
               </>
             ) : (
-              <Kosong jenis="belum" kalimat={s("cycle.none")} />
+              <>
+                <Kosong jenis="belum" kalimat={s("cycle.none")} />
+                {nTempat === 0 ? <p className="pin-mm" data-tanpa-kelas="">{s("belajar.tanpa_kelas")}</p> : null}
+              </>
             )
           ) : (
             [...(utama ? [utama] : []), ...sisa].map((k) => (
@@ -381,11 +398,11 @@ export default async function Belajar({
             <h2>{s("siklus.terbuka")}</h2>
             {terbuka.map((a) => (
               <div className="pin-tugas" key={a.assessment_assignment_id}>
-                <span className="pin-ttitle">{judulAsesmen({ judul: a.title, mode: a.mode, dibuka: a.opens_at }, locale)}</span>
+                <span className="pin-ttitle">{judulAsesmen({ judul: a.title, mode: a.mode, dibuka: a.opens_at }, locale, zonaDari(a.node_id))}</span>
                 <div className="pin-tfoot">
                   <span className="pin-tstatus">
                     {format.number(a.item_count, locale)} {s("siklus.soal")} · {a.node_name}
-                    {a.closes_at ? ` · ${s("siklus.ditutup")} ${tanggal(a.closes_at, "hari", locale)}` : ""}
+                    {a.closes_at ? ` · ${s("siklus.ditutup")} ${tanggal(a.closes_at, "hari", locale, zonaDari(a.node_id))}` : ""}
                   </span>
                   <Link className="pin-btn" href={`/belajar/asesmen/${a.assessment_assignment_id}`}>
                     {s("siklus.buka")}
@@ -397,7 +414,7 @@ export default async function Belajar({
         ) : null}
 
         {/* D-195(1), CONTOH LAPORAN 1-murid: every chapter's result on one page, once a chapter has one */}
-        {capaian.size > 0 ? (
+        {adaHasil ? (
           <section className="pin-sec" data-hasil-belajar="">
             <h2>{s("hasilbelajar.judul")}</h2>
             <p className="pin-mm">{s("hasilbelajar.buka_arti")}</p>

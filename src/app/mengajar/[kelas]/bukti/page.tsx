@@ -10,6 +10,8 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { AngkaBerdiri, BarisKesiapan, BarisLingkup, KartuKetiadaan, KeadaanHariIni, PopulasiKelas } from "@/components/bukti";
 import { nilaiMetrik, urutkanPita } from "@/lib/nilai-metrik";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { zonaSekolah } from "@/lib/zona-sekolah";
+import { supabaseServer } from "@/lib/supabase/server";
 import { labelMetrik } from "@/components/bukti/label";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/bukti");
@@ -60,11 +62,13 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
 
   // E-C2-2 (D-070(h)): a professional-learning class produces no academic class figure, so none is asked for
   const akademik = adaBuktiSoal(ctx.ini.jenis);
-  const [asesmen, fakta, amplop, minimum] = await Promise.all([
+  const [asesmen, fakta, amplop, minimum, zona] = await Promise.all([
     ajar.berjalan([id], ["OPEN", "CLOSED"]),
     ajar.faktaKelas(id),
     akademik ? ajar.bukti(id, ctx.ini.institusi) : Promise.resolve([] as Awaited<ReturnType<typeof ajar.bukti>>),
     ajar.minimumMetrik(),
+    // the owner's ruling (10 Nov): the class's tests on its school's clock
+    supabaseServer().then((c) => zonaSekolah(c, ctx.ini.institusi)),
   ]);
 
   const byId = new Map(ajar.METRIK_KELAS.map((m, i) => [m, amplop[i]]));
@@ -103,11 +107,20 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
 
   // D-088(g), MC-4: one row per objective, named by its statement (what was learned), never by a code that two
   // chapters share; the evaluator's own order (lowest mastery first) is kept
-  type Bagian = { objective_id: string | null; code: string; competency: string; mean_score: number; learners: number };
-  const bagian: Bagian[] =
+  type Bagian = { objective_id: string | null; code: string; competency: string; title?: string | null; mean_score: number | null; learners: number; needed?: number | null };
+  const semuaBagian: Bagian[] =
     topik && topik.status === "ok" && Array.isArray(topik.value) ? (topik.value as Bagian[]) : [];
+  // D6: a part whose own learners are under the minimum has no mean; it is counted and said, never drawn as 0
+  const bagian = semuaBagian.filter((b) => typeof b.mean_score === "number");
+  const bagianTertahan = semuaBagian.filter((b) => typeof b.mean_score !== "number");
 
   type Keliru = { code: string; label: string; remediation: string | null; occurrences: number };
+  // owner approval (9 Nov): patterns seen in fewer learners than the class minimum are no class pattern; said, never counted
+  const tertahanKeliru = keliru?.status === "ok" && keliru.withheld?.reason === "patterns"
+    && typeof keliru.withheld.count === "number" && typeof keliru.withheld.needed === "number" ? (
+      <span className="pin-ms" data-keliru-tertahan="">{s("laporan.komposisi.keliru_tertahan")
+        .replace("{n}", format.number(keliru.withheld.count, locale)).replace("{m}", format.number(keliru.withheld.needed, locale))}</span>
+    ) : null;
   const salahPaham =
     keliru && keliru.status === "ok" && Array.isArray(keliru.value)
       ? (keliru.value as Keliru[])
@@ -137,7 +150,7 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
           <h2>{s("mengajar.bukti.keadaan")}</h2>
           {/* DAISY-26 (UX-06): every open test of the class, each with its own
               counts, rather than one "focus" test standing for all of them. */}
-          <KeadaanHariIni asesmen={asesmen} murid={fakta.murid.length} locale={locale} kelas={id} jenis={ctx.ini.jenis} />
+          <KeadaanHariIni asesmen={asesmen} murid={fakta.murid.length} locale={locale} kelas={id} jenis={ctx.ini.jenis} zona={zona} />
         </div>
 
         {!akademik ? (
@@ -153,6 +166,8 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
         ) : (
         <div className="pin-sec">
           <h2>{s("mengajar.bukti.simpulan")}</h2>
+          {/* O1 (Daisy's N1): said once for the page, as on Ringkasan Kelas and Ringkasan Sekolah, never under each figure */}
+          <p className="pin-intro" data-memutuskan="">{s("laporan.anda_memutuskan")}</p>
           <div className="pin-grid2">
             {/* W9: the same reading as /pimpinan's, from one rule */}
             {angka(paham, "class.comprehension", (v) => nilaiMetrik("class.comprehension", v, locale))}
@@ -170,13 +185,18 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
                 {bagian.map((b) => (
                   <BarisKesiapan
                     key={b.objective_id ?? b.code}
-                    label={b.competency}
+                    label={b.title && b.title.trim() !== "" ? b.title : b.competency}
+                    pernyataan={b.title && b.title.trim() !== "" && b.title.trim() !== b.competency.trim() ? b.competency : undefined}
                     count={Math.round(Number(b.mean_score) * 100)}
                     total={100}
                     locale={locale}
                   />
                 ))}
               </div>
+              {bagianTertahan.length > 0 && typeof bagianTertahan[0].needed === "number" ? (
+                <span className="pin-ms" data-bagian-tertahan="">{s("mengajar.bukti.bagian_tertahan")
+                  .replace("{n}", format.number(bagianTertahan.length, locale)).replace("{m}", format.number(Number(bagianTertahan[0].needed), locale))}</span>
+              ) : null}
               <span className="pin-ma">{actionText(topik, locale)}</span>
             </div>
           ) : topik ? (
@@ -205,6 +225,13 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
                   </li>
                 ))}
               </ul>
+              {tertahanKeliru}
+            </div>
+          ) : keliru && keliru.status === "ok" ? (
+            <div className="pin-metric">
+              <span className="pin-ml">{s("mengajar.bukti.keliru")}</span>
+              <span className="pin-ms">{s("laporan.komposisi.keliru_belum")}</span>
+              {tertahanKeliru}
             </div>
           ) : keliru ? (
             <KartuKetiadaan entry={keliru} locale={locale} />

@@ -35,3 +35,4 @@ export async function cabutSertifikatAksi(fd: FormData) {
   const kode = kodeDariGalat(error);
   kembali(id, "gagal", KODE_CABUT.includes(kode) ? kode : "LAYANAN_TIDAK_TERSEDIA");
 }
+

@@ -1303,8 +1303,10 @@ await step("S18", "the teacher assigns the published Bab 1 to Kelas 1A (Siapkan 
   if (!/Batas ketuntasan: 60%/.test(batas)) rec.verdict = "FAIL";
   rec.shots.push(await shot(t, "siapkan-tinjau"));
   await t.locator('form:has(input[name="terbitan"]) button[type="submit"]').first().click();
+  // CORRECTED (the owner, 10 Nov: no arbitrary delays): «Sediakan» is a server action answering with a redirect, to
+  // ?disediakan=<release> when given or ?kode=<code> when refused; wait for that answer, not for a fixed 1.5 s
+  await t.waitForURL((u) => u.searchParams.has("disediakan") || u.searchParams.has("kode"), { timeout: SLOW }).catch(() => {});
   await t.waitForLoadState("networkidle");
-  await t.waitForTimeout(1500);
   rec.shots.push(await shot(t, "siapkan-hasil"));
   const u = new URL(t.url());
   const la = sql(`select count(*) from public.learning_assignments where course_id='${course}'`).trim();
@@ -1514,6 +1516,9 @@ async function catatLewatLayar(page, nama, shots, { kelas = "Kelas 1A", peran = 
     jejak.push(`pasted ${nama.length} name(s); Tempat «${k.t}» for every row`);
   } else {
     jejak.push(`pasted ${nama.length} name(s); no Tempat`);
+    // Daisy F1 (8 Nov): a list with no class is recorded only once the administrator says it is a staff list
+    await page.getByLabel("Ini daftar guru atau staf", { exact: false }).check();
+    jejak.push("«Ini daftar guru atau staf» ticked");
   }
   if (peran) await page.locator("#pin-medan-role").selectOption(`t:${peran}`);
   shots.push(await shot(page, "pendataan-petakan"));
@@ -2229,6 +2234,13 @@ await step("S22m", "the teacher reads the misunderstandings that recur in Kelas 
      where c.superseded_by is null and d.metric_id = 'class.misconceptions' order by c.effective_from desc limit 1`).trim() || 0);
   const dasar = Number(sql(`select coalesce(sum(occurrences), 0) from public.service_cohort_misconceptions
      where institution_id = '${ids.sd}' and class_node_id = '${kelas}'`).trim() || 0);
+  // RESTATED TO THE MISCONCEPTION LEARNER FLOOR (owner-approved with Sharon's finding 8, MC-9): a pattern is a CLASS
+  // pattern once `minimum` LEARNERS share it, not once its wrong answers reach it. The codes the page may list, and the
+  // codes it must say are withheld, are counted here from the same view, by learners.
+  const perKode = sql(`select misconception_code || ':' || sum(learners) from public.service_cohort_misconceptions
+     where institution_id = '${ids.sd}' and class_node_id = '${kelas}' group by misconception_code`).trim().split("\n").filter(Boolean)
+    .map((x) => Number(x.slice(x.lastIndexOf(":") + 1)));
+  const cukup = perKode.filter((n) => n >= minimum).length, kurang = perKode.length - cukup;
   const tc = await ctx();
   const t = await tc.newPage();
   await magicSignIn(t, people.guru.email);
@@ -2244,16 +2256,21 @@ await step("S22m", "the teacher reads the misunderstandings that recur in Kelas 
     bantu: (e.querySelector(".pin-kr")?.textContent ?? "").replace(/\s+/g, " ").trim(),
   })));
   const teksBlok = norm(await blok.innerText().catch(() => ""));
+  const teksHalaman = norm(await t.locator("main").innerText().catch(() => ""));
   await tc.close();
   const jumlah = baris.reduce((n, b) => n + b.kali, 0);
   const dikenal = baris.every((b) => definisi.has(b.label) && definisi.get(b.label) === b.bantu);
   const urut = baris.every((b, i) => b.kali >= 1 && (i === 0 || baris[i - 1].kali >= b.kali));
   const tanpaNama = !MURID.some((m) => teksBlok.includes(m));
-  const ok = minimum > 0 && dasar >= minimum && judul === "Pemahaman keliru yang berulang di kelas ini" && baris.length >= 1
-    && dikenal && urut && jumlah > 0 && jumlah <= dasar && tanpaNama;
+  const tertahan = kurang === 0 || teksHalaman.includes(norm(`${kurang} pola lain baru dialami kurang dari ${minimum} murid`));
+  const ok = minimum > 0 && perKode.length > 0 && baris.length === cukup && tertahan && tanpaNama
+    && (cukup > 0
+      ? judul === "Pemahaman keliru yang berulang di kelas ini" && dikenal && urut && jumlah > 0 && jumlah <= dasar
+      : teksHalaman.includes(norm("Belum ada pola jawaban keliru yang dialami cukup banyak murid untuk disebut pola kelas.")));
   if (!ok) rec.verdict = "FAIL";
-  return `the figure «${judul}»: ${baris.length} row(s) ${JSON.stringify(baris.map((b) => `${b.label} · ${b.kali}`))}; each the package's own definition with its remediation: ${dikenal}; ` +
-    `most frequent first: ${urut}; ${jumlah} on the page of ${dasar} wrong answers carrying a code in the class (the figure needs ${minimum}); no student named: ${tanpaNama}`;
+  return `the figure «${judul}»: ${baris.length} row(s) ${JSON.stringify(baris.map((b) => `${b.label} · ${b.kali}`))} for ${cukup} code(s) shared by at least ${minimum} learners; ` +
+    `${kurang} code(s) shared by fewer said withheld: ${tertahan}; each the package's own definition with its remediation: ${dikenal}; ` +
+    `most frequent first: ${urut}; ${jumlah} on the page of ${dasar} wrong answers carrying a code in the class; no student named: ${tanpaNama}`;
 });
 
 // D-085 M3 (J5.12): the teacher may give material back to the learners who need it. From «Lihat bukti», Bab 1's Uji
@@ -3241,7 +3258,8 @@ await step("S24", "the school admin revokes the head of department's role on Kon
   await baris.locator("[data-buka-ubah]").click();
   await baris.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
   await baris.locator('input[name="alasan"]').fill("Tidak lagi memimpin Kelas Rendah");
-  await baris.getByRole("button", { name: "Cabut", exact: true }).click();
+  // RESTATED (Daisy, TINJAUAN-6faef690 §3): a role is released with «Lepaskan»; «Cabut» is the certificate's verb
+  await baris.getByRole("button", { name: "Lepaskan", exact: true }).click();
   await a.waitForURL((u) => u.searchParams.get("bagian") === "roles" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
   await a.waitForLoadState("networkidle");
   rec.shots.push(await shot(a, "adm-j14-dicabut"));
@@ -3256,7 +3274,7 @@ await step("S24", "the school admin revokes the head of department's role on Kon
   const teks = norm(await bodyText(h)).slice(0, 200);
   await hc.close();
   if (u.searchParams.get("hasil") !== "ok" || masih > 0 || !ditolak) rec.verdict = "FAIL";
-  return `after «Cabut»: hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")}; the row still listed ${masih > 0}; ` +
+  return `after «Lepaskan»: hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")}; the row still listed ${masih > 0}; ` +
     `the head of department on /pimpinan refused ${ditolak}: "${teks}"`;
 });
 
@@ -3406,7 +3424,7 @@ await step("S26b", "a new teacher replaces the old one mid-year: the school admi
   await lama.locator("[data-buka-ubah]").click();
   await lama.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
   await lama.locator('input[name="alasan"]').fill("Digantikan Bu Guru Sari");   // D-097(a)
-  await lama.getByRole("button", { name: "Cabut", exact: true }).click();
+  await lama.getByRole("button", { name: "Lepaskan", exact: true }).click();   // Daisy, TINJAUAN-6faef690 §3
   await a.waitForURL((u) => u.searchParams.get("bagian") === "roles" && u.searchParams.get("kode") === "ROLE_REVOKED", { timeout: SLOW }).catch(() => {});
   jejak.push(`Budi revoked: ${new URL(a.url()).searchParams.get("kode")}`);
   rec.shots.push(await shot(a, "adm-j15-peran"));
@@ -3571,8 +3589,10 @@ await step("S26d", "two chapters: Gita, part-way through Bab 1, finds her home c
     .format(new Date(Date.now() + 30 * 86400000));
   await t.locator("#pin-sampai").fill(sampai).catch(() => {});
   await t.locator('form:has(input[name="terbitan"]) button[type="submit"]').first().click();
+  // CORRECTED (the owner, 10 Nov: no arbitrary delays): «Sediakan» is a server action answering with a redirect, to
+  // ?disediakan=<release> when given or ?kode=<code> when refused; wait for that answer, not for a fixed 1.5 s
+  await t.waitForURL((u) => u.searchParams.has("disediakan") || u.searchParams.has("kode"), { timeout: SLOW }).catch(() => {});
   await t.waitForLoadState("networkidle");
-  await t.waitForTimeout(1500);
   const kodeSedia = new URL(t.url()).searchParams.get("kode");
   await tc.close();
   const la2 = sql(`select id from public.learning_assignments where course_id='${bab2}' and node_id='${kelas}' order by created_at desc limit 1`).trim();
@@ -3917,9 +3937,9 @@ await step("S26f", "a correction by the screens: from a published course's page 
 
 // ADM-J19: a new school year, by the screens, never run before. The school admin records Fajar in Kelas 1A
 // (no card yet, so his enrolment waits: PENDING), makes next year's Tingkat «Kelas 2» and its Kelas 2A on
-// Struktur sekolah, then on «Pergantian tahun ajaran» carries Kelas 1A into Kelas 2A. Everyone in 1A,
+// Struktur sekolah, then on «Kenaikan kelas dan kelulusan» moves Kelas 1A up into Kelas 2A (restated 9 Nov: Daisy's flow replaces the class-to-class form). Everyone in 1A,
 // Fajar too, is in 2A afterwards; what they did stays recorded in 1A; the screen says how many moved.
-await step("S27", "a new school year: the school admin makes next year's Tingkat and Kelas, then carries Kelas 1A into it on «Pergantian tahun ajaran»; the whole class moves, one not yet signed in too, and the screen says how many (ADM-J19)", async (rec) => {
+await step("S27", "a new school year: the school admin makes next year's Tingkat and Kelas, then moves Kelas 1A up into it on «Kenaikan kelas dan kelulusan»: every learner decided, the outcome reviewed, one confirmation; the whole class moves, one not yet signed in too, and the screen names each learner's outcome (ADM-J19)", async (rec) => {
   const kelas = kelasSatuA();
   if (!kelas) { rec.verdict = "BLOCKED"; return "no Kelas 1A"; }
   const tahunIni = sql(`select ap.name from public.org_nodes n join public.academic_periods ap on ap.id = n.academic_period_id where n.id='${kelas}'`).trim();
@@ -3950,22 +3970,38 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
   }
   if (!k2) { rec.verdict = "FAIL"; return `${catat}; Kelas 2A was not made under Tingkat «Kelas 2»`; }
   const sebelum = sql(`select count(*) from public.memberships where node_id='${kelas}' and valid_to is null`).trim();
-  // the rollover, on its screen
+  const namaSebelum = sql(`select coalesce(string_agg(p.display_name, ',' order by p.display_name), '') from public.memberships m join public.enrollments e on e.id = m.enrollment_id join public.persons p on p.id = e.person_id where m.node_id='${kelas}' and m.valid_to is null`).trim();
+  // RESTATED (owner, 9 Nov): «Kenaikan kelas dan kelulusan» (Daisy's approved flow) replaces the class-to-class form.
+  // The class is chosen, every learner is listed, «Naikkan semua ke Kelas 2A» pre-selects, the outcome is reviewed,
+  // the teachers' review is stated, one confirmation; the outcome page names each learner
   await a.goto(`${APP}/konfigurasi/rollover#rollover`, { waitUntil: "networkidle" });
-  const fr = a.locator("#rollover form").first();
-  if (!(await fr.count())) { rec.verdict = "FAIL"; rec.shots.push(await shot(a, "adm-j19-tanpa-form")); return `${catat}; no rollover form on Konfigurasi with two years: ${norm(await a.locator("#rollover").innerText().catch(() => "")).slice(0, 200)}`; }
-  await fr.locator('select[name="from_period"]').selectOption({ label: tahunIni });
-  await fr.locator('select[name="to_period"]').selectOption({ label: tahunDepan });
-  const peta = fr.locator(`select[name="map[${kelas}]"]`);
-  const opsi = (await peta.locator("option").allTextContents()).find((o) => o.startsWith("Kelas 2A"));
-  await peta.selectOption({ label: opsi });
-  rec.shots.push(await shot(a, "adm-j19-pergantian"));
-  // what the form holds at the moment it is sent, so a refusal can be read against it
-  const terkirim = await fr.evaluate((f) => [...new FormData(f).entries()]
-    .map(([k, v]) => `${k.replace(/\[[0-9a-f-]{36}\]/, "[…]")}=${String(v).slice(0, 8)}`).join(" "));
-  await fr.getByRole("button", { name: "Jalankan pergantian", exact: true }).click();
-  await a.waitForURL((u) => u.searchParams.get("bagian") === "rollover" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
+  const pilih = a.locator('#rollover select[name="kn_kelas"]').first();
+  if (!(await pilih.count())) { rec.verdict = "FAIL"; rec.shots.push(await shot(a, "adm-j19-tanpa-kelas")); return `${catat}; «Kenaikan kelas dan kelulusan» offers no class: ${norm(await a.locator("#rollover").innerText().catch(() => "")).slice(0, 200)}`; }
+  await pilih.selectOption(kelas);
+  await a.locator("#rollover").getByRole("button", { name: "Lanjut", exact: true }).click();
   await a.waitForLoadState("networkidle");
+  await a.locator('#rollover select[name="kn_tahun"]').selectOption({ label: tahunDepan }).catch(() => {});
+  await a.locator('#rollover select[name="kn_semua"]').selectOption(k2);
+  await a.locator("#rollover").getByRole("button", { name: "Terapkan", exact: true }).click();
+  await a.waitForLoadState("networkidle");
+  // a learner whose transfer is under way is not pre-selected: they follow the transfer
+  for (const sel of await a.locator('#rollover select[name^="k["]').all()) {
+    if (!(await sel.inputValue())) await sel.selectOption("PINDAH").catch(() => {});
+  }
+  const daftar = (await a.locator("#rollover [data-murid]").count());
+  rec.shots.push(await shot(a, "adm-j19-keputusan"));
+  await a.locator("#rollover").getByRole("button", { name: "Tinjau hasil", exact: true }).click();
+  await a.waitForURL((u) => u.searchParams.get("kn_langkah") === "tinjau" || u.searchParams.has("kn_kode"), { timeout: SLOW }).catch(() => {});
+  await a.waitForLoadState("networkidle");
+  rec.shots.push(await shot(a, "adm-j19-tinjau"));
+  const tinjau = norm(await a.locator("#rollover").innerText().catch(() => ""));
+  await a.locator('#rollover input[name="guru_ditinjau"]').check().catch(() => {});
+  await a.locator("#rollover").getByRole("button", { name: "Konfirmasi kenaikan kelas", exact: true }).click().catch(() => {});
+  await a.waitForURL((u) => u.searchParams.get("kn_langkah") === "selesai" || u.searchParams.has("kn_kode"), { timeout: SLOW }).catch(() => {});
+  await a.waitForLoadState("networkidle");
+  // RESTATED (Daisy, design check at 435a2856 §4.3): the outcome folds the main group under its count, as the review does,
+  // so the reader opens it before the names are on screen; each fold is opened as a person would, by its summary
+  for (const sum of await a.locator("#rollover details > summary").all()) await sum.click().catch(() => {});
   rec.shots.push(await shot(a, "adm-j19-hasil"));
   const u = new URL(a.url());
   const kalimat = norm(await a.locator("#rollover").innerText().catch(() => ""));
@@ -3973,11 +4009,13 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
   const di2A = sql(`select coalesce(string_agg(p.display_name || ':' || e.status, ',' order by p.display_name), '-') from public.memberships m join public.enrollments e on e.id = m.enrollment_id join public.persons p on p.id = e.person_id where m.node_id='${k2}' and m.valid_to is null`).trim();
   const sesi = sql(`select count(*) from public.assessment_sessions where class_node_id='${kelas}'`).trim();
   const fajar = /Fajar Murid:PENDING/.test(di2A);
-  const ok = u.searchParams.get("hasil") === "ok" && u.searchParams.get("kode") === "ROLLOVER_DONE" && u.searchParams.get("n") === sebelum
-    && tinggal === "0" && di2A.split(",").length === Number(sebelum) && fajar && Number(sesi) > 0;
+  const semuaNaik = namaSebelum.split(",").filter(Boolean).every((n) => di2A.includes(`${n}:`));
+  const semuaDisebut = namaSebelum.split(",").filter(Boolean).every((n) => kalimat.includes(n));
+  const ok = u.searchParams.get("kn_langkah") === "selesai" && tinggal === "0" && semuaNaik && semuaDisebut && fajar && Number(sesi) > 0;
   if (!ok) rec.verdict = "FAIL";
-  return `${catat}; next year ${tahunDepan}: Tingkat «Kelas 2» and Kelas 2A made on the screen; Kelas 1A had ${sebelum}; form sent: ${terkirim}; after «Jalankan pergantian»: hasil=${u.searchParams.get("hasil")} ` +
-    `kode=${u.searchParams.get("kode")} n=${u.searchParams.get("n")}; the screen says "${kalimat.slice(-140)}"; left in 1A: ${tinggal}; in 2A: ${di2A}; ` +
+  return `${catat}; next year ${tahunDepan}: Tingkat «Kelas 2» and Kelas 2A made on the screen; Kelas 1A had ${sebelum} (${namaSebelum}); ${daftar} learner(s) listed for a decision; ` +
+    `the review said "${tinjau.slice(0, 160)}"; after «Konfirmasi kenaikan kelas»: langkah=${u.searchParams.get("kn_langkah")} kode=${u.searchParams.get("kn_kode") ?? "-"}; ` +
+    `the outcome page says "${kalimat.slice(0, 200)}"; every learner named: ${semuaDisebut}; left in 1A: ${tinggal}; in 2A: ${di2A}; ` +
     `Fajar (not yet signed in) carried over: ${fajar}; sessions still recorded in 1A: ${sesi}`;
 });
 // HOD-08: a head of department assigns and runs an Uji Cepat within their scope. S24 took Bu Kepala Dept's role away;

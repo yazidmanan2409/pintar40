@@ -25,7 +25,10 @@ export default function BarisKesiapan({
   total,
   locale = "id",
   persona = "educator",
+  pernyataan,
 }: ({ tierKey: string; label?: never } | { label: string; tierKey?: never }) & {
+  /** V2 (Daisy's N3): where the label is a lesson's short title, the objective's statement on its own line under it */
+  pernyataan?: string;
   count: number;
   total: number;
   locale?: Locale;
@@ -34,7 +37,10 @@ export default function BarisKesiapan({
   const share = total > 0 ? (count / total) * 100 : 0;
   return (
     <div className="pin-rrow">
-      <span>{label !== undefined ? label : t(tierKey as HleEvent, persona, { locale })}</span>
+      <span>
+        {label !== undefined ? label : t(tierKey as HleEvent, persona, { locale })}
+        {pernyataan ? <span className="pin-lk-pernyataan">{pernyataan}</span> : null}
+      </span>
       <span className="pin-num" style={{ textAlign: "right" }}>
         {format.number(count, locale)}
       </span>

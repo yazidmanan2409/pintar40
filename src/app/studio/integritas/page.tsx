@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
-import { enumLabel } from "@/lib/hle";
+import { enumLabel, format } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import Kosong from "@/components/Kosong";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
-import { button, card, field, kataStudio, label, outcomeLine, studioInstitutions, when, tabSaya } from "../_lib";
+import { button, card, field, kataStudio, label, outcomeLine, studioInstitutions, when, tabSaya, zonaStudio } from "../_lib";
 import { recordIntegrityReviewAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
@@ -56,13 +56,19 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
   const pemilik = (await currentViewer())?.personId ?? "";
   const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
   const halTinjau = halamanDiminta(sp.hal_tinjau);
-  const [{ data: signals }, { data: tercatat }] = await Promise.all([
+  const [{ data: signals }, { data: tercatat }, { data: lain }] = await Promise.all([
     supabase.rpc("integrity_signals_awaiting_review"),
     supabase.rpc("integrity_reviews_recorded", { p_hal: halTinjau }),
+    // owner, 9 Nov (SI-D01): oversight of other departments is a count only; their cases stay with their reviewers
+    supabase.rpc("integrity_signals_waiting_elsewhere"),
   ]);
   // L3 (D-127 Q2): the working context's school only (studioInstitutions is narrowed to it)
   const sekolah = new Set((await studioInstitutions()).map((i) => i.id));
+  // the owner's ruling (10 Nov): each signal, review and case on its school's clock
+  const zonaDari = await zonaStudio();
 
+  const nLain = ((lain ?? []) as Array<{ institution_id: string; waiting: number }>)
+    .filter((r) => sekolah.has(r.institution_id)).reduce((n, r) => n + Number(r.waiting ?? 0), 0);
   const rows = ((signals ?? []) as Menunggu[]).filter((r) => sekolah.has(r.institution_id)).map((r) => ({ ...r, id: r.signal_id }));
   const bySession = new Map<string, typeof rows>();
   for (const r of rows) bySession.set(r.session_id, [...(bySession.get(r.session_id) ?? []), r]);
@@ -116,6 +122,12 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
       <div>
         <h2 className="pin-studio-h2">{s("studio.integritas.judul")}</h2>
         <p className="pin-ket">{s("studio.integritas.penjelasan")}</p>
+        {/* W2.26 (Daisy, TINJAUAN-89374424 §2; Sharon's ruling): a page-level overview under the explanation, before the
+            reader's own list: a bare count of what waits in other departments, a sentence (no link, no figure styling),
+            shown only when something waits, since the count never says whether other departments exist */}
+        {nLain > 0 ? (
+          <p className="pin-ket" data-integritas-lain={nLain}>{s(nLain === 1 ? "studio.integritas.menunggu_lain_satu" : "studio.integritas.menunggu_lain").split("{n}").join(format.number(nLain, locale))}</p>
+        ) : null}
       </div>
       {/* DAISY-18: one form per item; the answer heads the list it came from */}
       {/* E-K4: a decision is answered in its observation's row; a decided one leaves the list, and is answered here */}
@@ -134,7 +146,7 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
                 <ul className="pin-daftar-rapat">
                   {group.map((g) => (
                     <li key={g.id} className="pin-integritas-catatan">
-                      <p className="pin-ket">{enumLabel("integritas", g.category, locale)} · {when(g.observed_at, locale)}</p>
+                      <p className="pin-ket">{enumLabel("integritas", g.category, locale)} · {when(g.observed_at, locale, zonaDari(g.institution_id))}</p>
                       <form action={recordIntegrityReviewAction} id={`integritas-sinyal-${g.id}`} className="pin-baris-aksi">
                         <input type="hidden" name="sinyal" value={g.id} />
                         <label className={label}>
@@ -172,13 +184,13 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
                 <ul className="pin-daftar-rapat">
                   {group.map((g) => (
                     <li key={g.signal_id} className="pin-integritas-catatan" data-sinyal-ditinjau={g.signal_id} data-keputusan={g.decision}>
-                      <p className="pin-ket">{enumLabel("integritas", g.category, locale)} · {when(g.observed_at, locale)}</p>
+                      <p className="pin-ket">{enumLabel("integritas", g.category, locale)} · {when(g.observed_at, locale, zonaDari(g.institution_id))}</p>
                       <p><span className="pin-pill pin-neutral">{s(`studio.integritas.${g.decision}` as never)}</span></p>
                       <p className="pin-meta">
-                        {s("studio.integritas.oleh").replace("{nama}", g.reviewer_name ?? "—").replace("{waktu}", when(g.reviewed_at, locale))}
+                        {s("studio.integritas.oleh").replace("{nama}", g.reviewer_name ?? "—").replace("{waktu}", when(g.reviewed_at, locale, zonaDari(g.institution_id)))}
                       </p>
                       {g.note ? <p className="pin-meta">{s("studio.integritas.catatan_tercatat")} {g.note}</p> : null}
-                      {g.case_id ? <Rujukan g={g} s={s} locale={locale} /> : null}
+                      {g.case_id ? <Rujukan g={g} s={s} locale={locale} zona={zonaDari(g.institution_id)} /> : null}
                     </li>
                   ))}
                 </ul>
@@ -198,7 +210,7 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
  * what the database lets this reader see of the case (integrity_reviews_recorded.case_visible); otherwise one line
  * that it was referred.
  */
-function Rujukan({ g, s, locale }: { g: Tinjauan; s: ReturnType<typeof kataStudio>; locale: Awaited<ReturnType<typeof currentLocale>> }) {
+function Rujukan({ g, s, locale, zona }: { g: Tinjauan; s: ReturnType<typeof kataStudio>; locale: Awaited<ReturnType<typeof currentLocale>>; zona: string }) {
   if (!g.case_visible) return <p className="pin-meta" data-rujukan="tersembunyi">{s("studio.integritas.rujukan.tak_terlihat")}</p>;
   const { langkah, kini, kalimat } = langkahRujukan(g);
   return (
@@ -214,7 +226,7 @@ function Rujukan({ g, s, locale }: { g: Tinjauan; s: ReturnType<typeof kataStudi
         <>
           <p data-hasil-rujukan={g.case_outcome}>
             {s("studio.integritas.rujukan.hasil").replace("{hasil}", s(`studio.integritas.rujukan.hasil.${g.case_outcome}` as never))}
-            {g.case_decided_at ? ` · ${when(g.case_decided_at, locale)}` : ""}
+            {g.case_decided_at ? ` · ${when(g.case_decided_at, locale, zona)}` : ""}
           </p>
           {g.case_note ? <p className="pin-meta">{s("studio.integritas.rujukan.catatan")} {g.case_note}</p> : null}
         </>

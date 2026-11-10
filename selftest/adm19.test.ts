@@ -61,6 +61,10 @@ begin
   end;
 
   perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+  -- RESTATED (Sharon F6, ruling 3; 20270112190000): no longer a client endpoint; the administrator's run is driven as
+  -- the database's owner carrying the administrator's claims, and its authority check still decides. The teacher above
+  -- stays refused (now by the privilege as well).
+  reset role;
   v_n := public.period_rollover(f.inst, v_p1, v_p2, jsonb_build_array(
            jsonb_build_object('from_node', v_5b, 'to_node', v_6a), jsonb_build_object('from_node', v_5x, 'to_node', v_6b)));
   perform selftest.as_owner();

@@ -152,15 +152,17 @@ export const tanggalTests: SelfTest[] = [
         }
       }
       // the places RV-16 named now ask the helper
+      // RESTATED (owner, 10 Nov: school-context dates on the school's clock): Konfigurasi and Studio pass the school's zone too, the
+      // teacher's clock and the maintenance clock take one; each still through the one helper
       const ASAL: Array<[string, RegExp]> = [
-        ["src/app/konfigurasi/page.tsx", /tanggal\(iso, bentuk, locale\)/],
+        ["src/app/konfigurasi/page.tsx", /tanggal\(iso, bentuk, locale, zona\)/],
         // RESTATED FOR W1.9 (Batch 3): Studio passes the reader's language to the same helper (UX-25)
-        ["src/app/studio/_lib.ts", /tanggal\(iso, "cap"(?:, locale)?\)/],
+        ["src/app/studio/_lib.ts", /tanggal\(iso, "cap", locale, zona\)/],
         ["src/components/email-uji/RiwayatEmail.tsx", /tanggal\(iso, "cap", locale\)/],
         ["src/components/keamanan/CatatanKeamanan.tsx", /tanggal\(iso, "cap", locale\)/],
         ["src/components/keamanan/PemulihanPin.tsx", /tanggal\(iso, "hariJam", locale\)/],
-        ["src/lib/pengajar.ts", /bagianJakarta\(now\)/],
-        ["src/lib/pemeliharaan-kontrak.ts", /return jam\(iso\)/],
+        ["src/lib/pengajar.ts", /bagianJakarta\(now, geserZona\(zona\)\)/],
+        ["src/lib/pemeliharaan-kontrak.ts", /return jam\(iso, zona\)/],
         ["src/components/email/identitas.ts", /tanggal\(data\.waktu, "resmiJam"\)/],
         ["src/components/email/keamanan.ts", /tanggal\(data\.waktu, "resmiJam"\)/],
       ];
