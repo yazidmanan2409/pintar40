@@ -48,7 +48,7 @@ export default function contact(c) {
         <ol class="steps">
           <li><span>${t("Pilih «Minta demo» dan ceritakan peran serta institusi Anda.", "Choose «Request a demo» and tell us your role and institution.")}</span></li>
           <li><span>${t("Kami membalas untuk menyepakati waktu.", "We reply to agree a time.")}</span></li>
-          <li><span>${t("Tim kami memandu Anda melalui produk sebenarnya, dengan data contoh, lalu menjawab pertanyaan Anda.", "Our team guides you through the real product, with sample data, then answers your questions.")}</span></li>
+          <li><span>${t("Tim kami memandu Anda melalui bagian PINTAR yang sesuai dengan peran Anda dan sudah siap ditunjukkan, dengan data contoh, lalu menjawab pertanyaan Anda.", "Our team guides you through the parts of PINTAR that matter to your role and are ready to show, with sample data, then answers your questions.")}</span></li>
         </ol>
       </div>
       <div>
@@ -82,7 +82,7 @@ export default function contact(c) {
           <button class="btn" type="submit">${t("Kirim pesan", "Send message")}</button>
           <p class="small" data-status role="status" aria-live="polite"></p>
         </div>
-        <p class="caption">${t(`Pesan Anda dikirim ke ${COMPANY.email}. Situs ini tidak memakai cookie dan tidak menyimpan isi pesan Anda.`, `Your message is sent to ${COMPANY.email}. This website uses no cookies and does not store what you write.`)}</p>
+        <p class="caption">${t(`Pesan Anda dikirim sebagai email ke ${COMPANY.email} dan disimpan di kotak surat itu untuk ditindaklanjuti. Formulir di situs ini sendiri tidak menyimpan salinan isi pesan, dan situs ini tidak memakai cookie. Rinciannya, termasuk catatan keamanan yang disimpan, ada di <a href="${c.href("privacy")}">Kebijakan Privasi</a>.`, `Your message is sent as an email to ${COMPANY.email} and kept in that mailbox so that we can follow it up. The form on this website keeps no copy of what you write, and the website uses no cookies. The details, including the security records it keeps, are in the <a href="${c.href("privacy")}">Privacy Policy</a>.`)}</p>
       </form>
       <div class="form__done" id="form-done" tabindex="-1" hidden>
         <h2>${t("Terima kasih. Pesan Anda sudah terkirim.", "Thank you. Your message has been sent.")}</h2>

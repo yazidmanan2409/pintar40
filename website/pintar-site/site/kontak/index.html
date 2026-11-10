@@ -10,8 +10,8 @@
 <link rel="alternate" hreflang="id" href="../kontak/">
 <link rel="alternate" hreflang="en" href="../en/contact/">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<link rel="preload" href="../assets/fonts/newsreader-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="../assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/inter-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/ibm-plex-mono-500-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../assets/css/site.css">
 <script src="../assets/js/site.js" defer></script>
 <meta property="og:title" content="Kontak — PINTAR">
@@ -19,6 +19,7 @@
 <meta property="og:locale" content="id_ID">
 </head>
 <body data-page="contact">
+<p class="review-strip" role="note">Pratinjau untuk ditinjau · Teks peluncuran ini disiapkan untuk saat PINTAR 4.1 telah diterima. Belum diterbitkan.</p>
 <a class="skip" href="#isi">Langsung ke isi</a>
 <header class="site-header">
   <div class="wrap site-header__in">
@@ -60,7 +61,7 @@
         <ol class="steps">
           <li><span>Pilih «Minta demo» dan ceritakan peran serta institusi Anda.</span></li>
           <li><span>Kami membalas untuk menyepakati waktu.</span></li>
-          <li><span>Tim kami memandu Anda melalui produk sebenarnya, dengan data contoh, lalu menjawab pertanyaan Anda.</span></li>
+          <li><span>Tim kami memandu Anda melalui bagian PINTAR yang sesuai dengan peran Anda dan sudah siap ditunjukkan, dengan data contoh, lalu menjawab pertanyaan Anda.</span></li>
         </ol>
       </div>
       <div>
@@ -118,7 +119,7 @@
           <button class="btn" type="submit">Kirim pesan</button>
           <p class="small" data-status role="status" aria-live="polite"></p>
         </div>
-        <p class="caption">Pesan Anda dikirim ke info@pintarselalu.com. Situs ini tidak memakai cookie dan tidak menyimpan isi pesan Anda.</p>
+        <p class="caption">Pesan Anda dikirim sebagai email ke info@pintarselalu.com dan disimpan di kotak surat itu untuk ditindaklanjuti. Formulir di situs ini sendiri tidak menyimpan salinan isi pesan, dan situs ini tidak memakai cookie. Rinciannya, termasuk catatan keamanan yang disimpan, ada di <a href="../privasi/">Kebijakan Privasi</a>.</p>
       </form>
       <div class="form__done" id="form-done" tabindex="-1" hidden>
         <h2>Terima kasih. Pesan Anda sudah terkirim.</h2>
@@ -134,21 +135,15 @@
     <div class="site-footer__top">
       <div class="site-footer__brand">
         <span class="wordmark">PINTAR</span>
-        <p class="site-footer__line">Tenang di permukaan.<br>Cermat di bawahnya.</p>
+        <p class="site-footer__line">Tenang di permukaan. <em>Cermat di bawahnya.</em></p>
       </div>
-      <nav aria-label="Jelajahi"><p class="site-footer__h">Jelajahi</p><ul><li><a href="../">Beranda</a></li><li><a href="../mengapa-pintar/">Mengapa PINTAR</a></li><li><a href="../fitur/">Fitur</a></li><li><a href="../untuk-siapa/">Untuk Siapa</a></li><li><a href="../keamanan/">Keamanan</a></li></ul></nav>
-      <div><p class="site-footer__h">Perusahaan</p>
-        <ul><li>PINTAR dikembangkan oleh PT ZAYD PINTAR SELALU (ZPS)</li>
-          <li><a href="mailto:info@pintarselalu.com">info@pintarselalu.com</a></li>
-          <li><a href="../kontak/?subjek=demo#formulir">Minta Demo</a></li></ul></div>
-      <div><p class="site-footer__h">Bahasa</p>
-        <ul><li><a aria-current="true" lang="id" hreflang="id">Bahasa Indonesia</a></li>
-          <li><a href="../en/contact/" lang="en" hreflang="en">English</a></li></ul></div>
+      <nav aria-label="Jelajahi"><ul class="site-footer__nav"><li><a href="../">Beranda</a></li><li><a href="../mengapa-pintar/">Mengapa PINTAR</a></li><li><a href="../fitur/">Fitur</a></li><li><a href="../untuk-siapa/">Untuk Siapa</a></li><li><a href="../keamanan/">Keamanan</a></li></ul></nav>
     </div>
     <div class="site-footer__base">
       <span>© PT ZAYD PINTAR SELALU (ZPS)</span>
+      <a class="site-footer__mail" href="mailto:info@pintarselalu.com">info@pintarselalu.com</a>
       <nav class="site-footer__legal" aria-label="Informasi hukum"><a href="../kontak/" aria-current="page">Kontak</a><a href="../privasi/">Privasi</a><a href="../ketentuan/">Ketentuan</a></nav>
-      <span class="site-footer__status">Status fitur di situs ini mengikuti bukti verifikasi rilis, bukan rencana.</span>
+      <div class="lang lang--footer" role="group" aria-label="Bahasa"><a aria-current="true" lang="id" hreflang="id">ID</a><span aria-hidden="true">|</span><a href="../en/contact/" lang="en" hreflang="en">EN</a></div>
     </div>
   </div>
 </footer>

@@ -2,75 +2,75 @@
 // better for me?" in a headline and four short lines, beside a photograph
 // of that person at work.
 
-import { label, photo, demoBand, NAV_LABEL } from "../core.mjs";
+import { label, photo, status, demoBand, NAV_LABEL } from "../core.mjs";
 
 export default function audiences(c) {
   const t = c.t;
   const roles = [
-    { id: "peserta-didik", photo: "P2", role: t("Peserta didik", "Learners"), who: t("Murid dan mahasiswa", "School pupils and students"),
-      h: t("Tahu apa yang harus dilakukan berikutnya.", "Know what to do next."),
+    { id: "peserta-didik", photo: "P2", role: t("Peserta didik", "Learners"), who: t("Siswa, mahasiswa, dan peserta pelatihan", "School pupils, students and trainees"),
+      h: t("Tahu apa yang perlu <em>dikerjakan berikutnya.</em>", "Know what <em>to do next.</em>"),
       items: t([
-        ["Beranda yang jelas:", "tugas, tenggat, dan satu langkah berikutnya."],
-        ["Bantuan bertahap", "saat belajar: arah berpikir dulu, bukan jawabannya."],
-        ["Hasil sendiri per tujuan pembelajaran,", "tanpa dibandingkan dengan teman."],
-        ["Sertifikat", "yang keasliannya dapat diperiksa."],
+        ["Tugas dan langkah berikutnya", "terlihat di satu halaman."],
+        ["Bantuan bertahap", "saat belajar: arah berpikir lebih dulu, lalu langkah demi langkah."],
+        ["Hasil sendiri per tujuan pembelajaran,", "tanpa peringkat dan tanpa dibandingkan dengan teman."],
+        ["Sertifikat", "yang keasliannya dapat diperiksa orang lain."],
       ], [
-        ["A clear home:", "assignments, deadlines and one next step."],
-        ["Help one step at a time", "while learning: a direction first, not the answer."],
-        ["Their own results by learning objective,", "never compared with classmates."],
-        ["Certificates", "whose authenticity anyone can check."],
+        ["Assignments and the next step", "on one page."],
+        ["Step-by-step help", "while learning: a direction to think in first, then one step at a time."],
+        ["Their own results by learning objective,", "without rankings or comparison with classmates."],
+        ["Certificates", "whose authenticity others can check."],
       ]) },
     { id: "pendidik", photo: "P3", role: t("Pendidik", "Educators"), who: t("Guru, dosen, dan fasilitator", "Teachers, lecturers and facilitators"),
-      h: t("Tahu apa yang perlu diulang besok, dan untuk siapa.", "Know what to revisit tomorrow, and for whom."),
+      h: t("Tahu apa yang perlu diulang besok, <em>dan untuk siapa.</em>", "Know what to revisit tomorrow, <em>and for whom.</em>"),
       items: t([
-        ["Soal mana yang sulit", "bagi kelas, dan pilihan jawaban yang dipilih."],
-        ["Siapa yang mungkin perlu bantuan,", "tanpa memberi label pada anak."],
-        ["Materi siap pakai,", "ditambah materi Anda sendiri bila perlu."],
-        ["Pengembangan profesional", "di ruang yang terpisah dari penilaian kinerja."],
+        ["Bagian dan soal yang sulit bagi kelas,", "termasuk pilihan jawaban yang paling banyak dipilih."],
+        ["Peserta didik yang mungkin perlu bantuan,", "sebagai bahan pertimbangan, bukan label."],
+        ["Materi yang bisa diberikan ke kelas,", "ditambah materi Anda sendiri."],
+        ["Program pengembangan profesional", "yang Anda ikuti, terpisah dari penilaian kinerja."],
       ], [
-        ["Which questions a class found hard,", "and which answers they chose."],
-        ["Who may need help,", "without labelling a child."],
-        ["Material ready to use,", "plus your own when you need it."],
-        ["Professional development", "in a space kept apart from performance judgement."],
+        ["The parts and questions a class found hard,", "including the answer options chosen most often."],
+        ["Learners who may need help,", "as something to consider, not a label."],
+        ["Material you can give to a class,", "plus your own."],
+        ["Professional-development programmes", "you take part in, kept apart from performance review."],
       ]) },
     { id: "pimpinan", photo: "P4", role: t("Pimpinan", "Leadership"), who: t("Kepala sekolah, kepala departemen, dan dekan", "Principals, heads of department and deans"),
-      h: t("Melihat pola, bukan menebak.", "See patterns instead of guessing."),
+      h: t("Melihat pola, <em>bukan menebak.</em>", "See patterns <em>instead of guessing.</em>"),
       items: t([
-        ["Pola penguasaan", "di seluruh kelas yang menjadi wewenang Anda."],
-        ["Kesiapan bukti:", "angka mana yang sudah boleh ditafsirkan."],
+        ["Pola penguasaan", "di kelas-kelas dalam wewenang Anda."],
+        ["Kesiapan bukti:", "angka mana yang sudah memenuhi ambang untuk ditafsirkan."],
         ["Ringkasan kelas dan sekolah", "yang siap dicetak untuk rapat."],
-        ["Membuka catatan satu peserta didik", "hanya dengan sengaja, dan tercatat."],
+        ["Membuka catatan satu peserta didik", "hanya dengan sengaja, dan tindakan itu tercatat."],
       ], [
-        ["Patterns of mastery", "across the classes in your remit."],
-        ["Evidence readiness:", "which figures can be interpreted yet."],
+        ["Patterns of mastery", "across the classes you are responsible for."],
+        ["Evidence readiness:", "which figures meet the minimum to be interpreted."],
         ["Class and school summaries", "ready to print for a meeting."],
-        ["Opening one learner’s record", "only deliberately, and on the record."],
+        ["Opening one learner’s record", "only deliberately, and the action is recorded."],
       ]) },
     { id: "administrator", photo: "P5", role: t("Administrator", "Administrators"), who: t("Operator sekolah dan admin institusi", "School operators and institution administrators"),
-      h: t("Mengelola akses, bukan keputusan pendidikan.", "Manage access, not educational decisions."),
+      h: t("Mengelola akses, <em>bukan keputusan belajar.</em>", "Manage access, <em>not learning decisions.</em>"),
       items: t([
         ["Akun, kelas, rombel, dan peran", "di satu tempat."],
-        ["Kartu kelas", "untuk peserta didik, dengan penggantian yang aman bila hilang."],
-        ["Pindah, naik kelas, dan purnatugas", "tanpa kehilangan riwayat."],
-        ["Setiap perubahan penting", "tercatat: siapa, apa, kapan, dan mengapa."],
+        ["Kartu kelas", "untuk peserta didik, yang dapat diganti bila hilang."],
+        ["Pindah, naik kelas, dan purnatugas", "tanpa kehilangan catatan yang perlu dipertahankan."],
+        ["Perubahan penting", "mencatat siapa, apa, kapan, dan alasannya."],
       ], [
         ["Accounts, classes, groups and roles", "in one place."],
-        ["Class cards", "for learners, safely replaced when lost."],
-        ["Transfers, moving up and retirement", "without losing the record."],
-        ["Every consequential change", "recorded: who, what, when and why."],
+        ["Class cards", "for learners, replaceable when lost."],
+        ["Transfers, moving up and retirement", "without losing records that need to be kept."],
+        ["Consequential changes", "record who, what, when and why."],
       ]) },
-    { id: "institusi", photo: "P6", role: t("Institusi", "Institutions"), who: t("Yayasan dan pengambil keputusan", "Foundations and decision-makers"),
-      h: t("Riwayat pembelajaran yang dapat dipertanggungjawabkan.", "A learning record you can account for."),
+    { id: "institusi", photo: "P6", role: t("Institusi", "Institutions"), who: t("Yayasan, pimpinan institusi, dan pengambil keputusan", "Foundations, institutional leaders and decision-makers"),
+      h: t("Catatan belajar yang <em>dapat dijelaskan.</em>", "A learning record <em>that can be explained.</em>"),
       items: t([
-        ["Konten bersama yang dikurasi,", "ditambah materi milik institusi sendiri."],
-        ["Data institusi Anda", "terpisah dari institusi lain."],
-        ["Bukti yang bertahan", "saat orang datang dan pergi."],
-        ["Dasar yang jujur", "untuk keputusan dan pelaporan."],
+        ["Materi bersama,", "ditambah materi milik institusi sendiri."],
+        ["Data institusi Anda", "dipisahkan dari institusi lain."],
+        ["Catatan yang tetap utuh", "saat orang datang dan pergi."],
+        ["Dasar yang jujur", "untuk rapat, keputusan, dan pelaporan."],
       ], [
-        ["Curated shared content,", "plus material that belongs to your institution."],
-        ["Your institution’s data", "kept apart from every other institution."],
-        ["Evidence that lasts", "as people come and go."],
-        ["An honest basis", "for decisions and reporting."],
+        ["Shared material,", "plus material that belongs to your institution."],
+        ["Your institution’s data", "kept separate from other institutions."],
+        ["Records that stay whole", "as people come and go."],
+        ["An honest basis", "for meetings, decisions and reporting."],
       ]) },
   ];
 
@@ -78,9 +78,9 @@ export default function audiences(c) {
 <section class="page-hero" aria-labelledby="aud-hero-h">
   <div class="wrap" data-reveal-group>
     ${label("", NAV_LABEL.audiences[c.lang])}
-    <h1 class="h1" id="aud-hero-h" data-reveal>${t("Dirancang untuk setiap peran di <em>institusi.</em>", "Designed for every role in an <em>institution.</em>")}</h1>
+    <h1 class="h1" id="aud-hero-h" data-reveal>${t("Untuk setiap peran <em>di institusi.</em>", "For every role <em>in an institution.</em>")}</h1>
     <div class="page-hero__aside" data-reveal>
-      <p class="lead">${t("Satu platform, lima sudut pandang. Setiap orang melihat apa yang perlu ia lihat, dan hanya itu.", "One platform, five points of view. Everyone sees what they need to see, and only that.")}</p>
+      <p class="lead">${t("Sekolah, perguruan tinggi, dan program pelatihan. Lima peran, masing-masing dengan manfaat yang nyata.", "Schools, universities and training programmes. Five roles, each with a practical benefit.")}</p>
     </div>
   </div>
   <nav class="wrap" style="margin-top: var(--s-8)" aria-label="${t("Peran", "Roles")}"><div class="anchors">${roles.map((r) => `<a href="#${r.id}">${r.role}</a>`).join("")}</div></nav>
@@ -98,7 +98,7 @@ ${roles.map((r, i) => `<section class="aud${i % 2 ? " aud--flip" : ""}" id="${r.
   </div>
 </section>`).join("\n")}
 
-${demoBand(c, { heading: t("Lihat PINTAR dari sudut pandang Anda.", "See PINTAR from where you sit."), body: t("Pilih «Minta Demo», ceritakan peran Anda, dan kami menyiapkan demo yang sesuai.", "Choose «Request a Demo», tell us your role, and we will shape the demonstration around it.") })}
+${demoBand(c, { heading: t("Lihat PINTAR <em>dari sudut pandang Anda.</em>", "See PINTAR <em>from where you sit.</em>"), body: t("Ceritakan peran Anda, dan kami menyiapkan demo terpandu dengan data contoh yang sesuai.", "Tell us your role, and we will prepare a guided demonstration with suitable sample data.") })}
 `;
   return {
     title: t("Untuk Siapa — PINTAR", "Who It’s For — PINTAR"),

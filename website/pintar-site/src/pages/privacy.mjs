@@ -19,24 +19,26 @@ export default function privacy(c) {
       <ul><li>Registered address: ${k("", "the company’s registered address")}</li><li>Business identification number (NIB): ${k("", "NIB")}</li><li>Email: ${mail}</li></ul>`)],
 
     ["scope", t("Situs ini, dan bukan aplikasi PINTAR", "This website, not the PINTAR application"), t(`
-      <p>Kebijakan ini hanya berlaku untuk situs publik ini. Data pendidikan yang diproses di dalam <b>aplikasi PINTAR</b> (akun, kelas, jawaban, hasil, laporan, sertifikat) diatur terpisah melalui perjanjian layanan antara ${COMPANY.short} dan setiap institusi, serta kebijakan yang berlaku di dalam aplikasi. ${k("peran para pihak dalam aplikasi dan dokumen yang mengaturnya", "")}</p>`, `
-      <p>This policy covers this public website only. Educational data processed inside the <b>PINTAR application</b> (accounts, classes, answers, results, reports, certificates) is governed separately, by the service agreement between ${COMPANY.short} and each institution and by the policies that apply within the application. ${k("", "each party’s role in the application and the documents that govern it")}</p>`)],
+      <p>Kebijakan ini hanya berlaku untuk situs publik ini. Data pendidikan yang diproses di dalam <b>aplikasi PINTAR</b> (akun, kelas, jawaban, hasil, laporan, sertifikat) diatur terpisah melalui perjanjian layanan antara ${COMPANY.short} dan setiap institusi, serta kebijakan yang berlaku di dalam aplikasi. Di aplikasi, hasil asesmen tetap terhubung ke materi dan aturan yang dipakai saat itu; itu berbeda dari lama penyimpanan data pribadi, yang ditetapkan dalam perjanjian dan kebijakan retensi bersama institusi. ${k("peran para pihak dalam aplikasi dan dokumen yang mengaturnya", "")}</p>`, `
+      <p>This policy covers this public website only. Educational data processed inside the <b>PINTAR application</b> (accounts, classes, answers, results, reports, certificates) is governed separately, by the service agreement between ${COMPANY.short} and each institution and by the policies that apply within the application. In the application, assessment results stay linked to the material and rules used at the time; that is separate from how long personal data is kept, which is set in the agreement and retention policy with each institution. ${k("", "each party’s role in the application and the documents that govern it")}</p>`)],
 
     ["collect", t("Data yang kami kumpulkan", "Information we collect"), t(`
       <h3>Melalui formulir kontak</h3>
       <p>Nama, alamat email, institusi atau organisasi (opsional), subjek, isi pesan, dan persetujuan Anda. Kami juga mencatat bahasa halaman dan waktu pengiriman.</p>
-      <h3>Secara otomatis, untuk keamanan formulir</h3>
-      <p>Alamat IP Anda tidak disimpan. Server menyimpan <b>hash berkunci</b> dari alamat IP (kode yang tidak dapat dikembalikan menjadi alamat aslinya) untuk membatasi jumlah kiriman dan mengenali kiriman ganda.</p>
+      <h3>Oleh formulir, untuk keamanan</h3>
+      <p>Formulir tidak menyimpan alamat IP Anda dalam bentuk aslinya. Untuk membatasi jumlah kiriman dan mengenali kiriman ganda, formulir menyimpan <b>hash berkunci</b> dari alamat IP, dan untuk pesan yang dikirim, sidik jari tak terbaca dari isinya. Hash ini adalah nama samaran (pseudonim), bukan anonimisasi: dengan kunci yang sama di server, alamat yang sama selalu menghasilkan hash yang sama. Karena itu kami tetap memperlakukannya sebagai data pribadi.</p>
+      <p>Untuk kiriman yang ditolak, dibuang sebagai spam, atau ditandai untuk ditinjau, formulir menyimpan catatan keamanan berisi waktu, keputusan, kategori, dan hash alamat IP, tanpa nama, email, atau isi pesan.</p>
       <h3>Oleh penyedia hosting</h3>
-      <p>Seperti situs web pada umumnya, server hosting dapat mencatat log akses teknis (misalnya alamat IP, waktu, halaman yang diminta, dan jenis peramban). ${k("penyedia hosting, isi log, dan lama penyimpanannya", "")}</p>
+      <p>Terpisah dari formulir, server hosting dapat mencatat log akses teknis untuk setiap kunjungan, termasuk alamat IP dalam bentuk aslinya, waktu, halaman yang diminta, dan jenis peramban. Log ini dikelola oleh penyedia hosting. ${k("penyedia hosting, isi log, dan lama penyimpanannya", "")}</p>
       <h3>Yang tidak kami kumpulkan</h3>
       <p>Situs ini tidak memakai cookie, analitik, piksel pelacak, atau iklan, dan tidak memuat apa pun dari layanan pihak ketiga. Huruf (font) disimpan di server kami sendiri.</p>`, `
       <h3>Through the contact form</h3>
       <p>Your name, email address, institution or organisation (optional), subject, message and your consent. We also record the page language and the time of sending.</p>
-      <h3>Automatically, to protect the form</h3>
-      <p>Your IP address is not stored. The server keeps a <b>keyed hash</b> of it (a code that cannot be turned back into the address) to limit how often messages can be sent and to recognise duplicates.</p>
+      <h3>By the form, for security</h3>
+      <p>The form does not store your IP address as it is. To limit how often messages can be sent and to recognise duplicates, it keeps a <b>keyed hash</b> of the address and, for messages that are sent, an unreadable fingerprint of their content. The hash is a pseudonym, not anonymisation: with the same key on the server, the same address always produces the same hash. We therefore still treat it as personal data.</p>
+      <p>For submissions that are refused, discarded as spam or flagged for review, the form keeps a security record of the time, decision, category and hashed IP address, with no name, email or message.</p>
       <h3>By the hosting provider</h3>
-      <p>As with most websites, the hosting server may keep technical access logs (for example IP address, time, page requested and browser type). ${k("", "the hosting provider, what its logs contain and how long they are kept")}</p>
+      <p>Separately from the form, the hosting server may keep technical access logs for every visit, including your IP address as it is, the time, the page requested and the browser type. These logs are managed by the hosting provider. ${k("", "the hosting provider, what its logs contain and how long they are kept")}</p>
       <h3>What we do not collect</h3>
       <p>This website uses no cookies, analytics, tracking pixels or advertising, and loads nothing from third-party services. Fonts are served from our own server.</p>`)],
 
@@ -49,8 +51,8 @@ export default function privacy(c) {
       <p>We do not use your data for marketing without separate consent, we do not sell it, and we make no automated decision with legal effect on you.</p>`)],
 
     ["moderation", t("Penyaringan pesan", "Message screening"), t(`
-      <p>Untuk menjaga saluran ini tetap profesional dan aman, setiap pesan diperiksa otomatis di server terhadap aturan tentang bahasa kasar, ujaran kebencian, ancaman, spam, dan tautan berbahaya. Pesan yang jelas melanggar tidak dikirim, dan <b>isinya tidak disimpan</b>. Pesan yang meragukan tetap dikirim kepada kami dengan tanda «perlu ditinjau», agar seseorang membacanya sebelum menindaklanjuti. Kritik dan keluhan tetap kami terima.</p>`, `
-      <p>To keep this channel professional and safe, every message is checked automatically on the server against rules on abusive language, hate speech, threats, spam and harmful links. A message that clearly breaks them is not sent, and <b>its content is not kept</b>. A doubtful message is still delivered to us, marked «needs review», so that a person reads it before acting. Criticism and complaints are welcome.</p>`)],
+      <p>Untuk menjaga saluran ini tetap profesional dan aman, setiap pesan diperiksa otomatis di server terhadap aturan tentang bahasa kasar, ujaran kebencian, ancaman, spam, dan tautan berbahaya. Pesan yang jelas melanggar tidak dikirim, dan <b>isinya tidak disimpan</b>; yang tersisa hanya catatan keamanan yang dijelaskan di atas. Pesan yang meragukan tetap dikirim kepada kami dengan tanda «perlu ditinjau», agar seseorang membacanya sebelum menindaklanjuti. Kritik dan keluhan tetap kami terima.</p>`, `
+      <p>To keep this channel professional and safe, every message is checked automatically on the server against rules on abusive language, hate speech, threats, spam and harmful links. A message that clearly breaks them is not sent, and <b>its content is not kept</b>; only the security record described above remains. A doubtful message is still delivered to us, marked «needs review», so that a person reads it before acting. Criticism and complaints are welcome.</p>`)],
 
     ["providers", t("Penyedia layanan dan pengungkapan", "Service providers and disclosure"), t(`
       <p>Pesan Anda dikirim sebagai email ke ${mail} dan disimpan di kotak surat tersebut. Penyedia yang terlibat: penyedia hosting situs ${k("nama penyedia", "")} dan penyedia layanan email untuk domain pintarselalu.com ${k("nama penyedia", "")}. ${k("apakah data disimpan atau diproses di luar Indonesia; bila ya, dasar transfernya sesuai Pasal 56 UU PDP", "")}</p>
@@ -60,16 +62,18 @@ export default function privacy(c) {
 
     ["retention", t("Penyimpanan dan perlindungan", "Storage, retention and protection"), t(`
       <ul>
-        <li><b>Pesan yang terkirim</b> disimpan di kotak surat ${COMPANY.email} selama diperlukan untuk menindaklanjuti pertanyaan Anda. ${k("jangka waktu penyimpanan email dan kebijakan penghapusannya", "")}</li>
-        <li><b>Batas kiriman dan pengenal kiriman ganda</b> (hash berkunci) dihapus otomatis setelah satu jam.</li>
-        <li><b>Catatan keamanan</b> untuk kiriman yang ditolak atau ditandai berisi waktu, kategori, dan hash alamat IP, tanpa nama, email, atau isi pesan, dan dihapus otomatis setelah 30 hari.</li>
+        <li><b>Pesan yang terkirim</b> disimpan di kotak surat ${COMPANY.email} selama diperlukan untuk menindaklanjuti pertanyaan Anda. Formulir di situs ini tidak menyimpan salinannya. ${k("jangka waktu penyimpanan email dan kebijakan penghapusannya", "")}</li>
+        <li><b>Hash untuk batas kiriman dan sidik jari pesan</b> tidak dipakai lagi setelah satu jam, dan dihapus pada pembersihan berikutnya.</li>
+        <li><b>Catatan keamanan</b> tidak dipakai lagi setelah 30 hari, dan dihapus pada pembersihan berikutnya.</li>
       </ul>
-      <p>Data keamanan disimpan di luar folder publik situs dan hanya dapat diakses pengelola server. Koneksi ke situs ${k("dilindungi HTTPS pada domain produksi", "")}.</p>`, `
+      <p>Pembersihan berjalan setiap kali formulir dipakai, dan oleh pembersihan terjadwal harian di server. Karena itu sebuah catatan dapat tersimpan sedikit lebih lama dari batas di atas, paling lama sampai pembersihan berikutnya. ${k("pembersihan terjadwal harian telah diaktifkan di server produksi", "")}</p>
+      <p>Data keamanan disimpan di luar folder publik situs dan hanya dapat diakses oleh pengelola server. Koneksi ke situs ${k("dilindungi HTTPS pada domain produksi", "")}.</p>`, `
       <ul>
-        <li><b>Messages that are sent</b> are kept in the ${COMPANY.email} mailbox for as long as needed to follow up your enquiry. ${k("", "how long email is kept, and the deletion policy")}</li>
-        <li><b>Rate limits and duplicate fingerprints</b> (keyed hashes) are deleted automatically after one hour.</li>
-        <li><b>Security records</b> for refused or flagged submissions hold the time, a category and the hashed IP address, with no name, email or message, and are deleted automatically after 30 days.</li>
+        <li><b>Messages that are sent</b> are kept in the ${COMPANY.email} mailbox for as long as needed to follow up your enquiry. The form on this website keeps no copy. ${k("", "how long email is kept, and the deletion policy")}</li>
+        <li><b>Rate-limit hashes and message fingerprints</b> stop being used after one hour, and are deleted at the next cleanup.</li>
+        <li><b>Security records</b> stop being used after 30 days, and are deleted at the next cleanup.</li>
       </ul>
+      <p>Cleanup runs whenever the form is used, and in a daily scheduled cleanup on the server. A record may therefore be kept a little longer than the periods above, at most until the next cleanup. ${k("", "the daily scheduled cleanup is enabled on the production server")}</p>
       <p>Security data is kept outside the website’s public folder and is accessible only to those who administer the server. Connections to the site ${k("", "are protected by HTTPS on the production domain")}.</p>`)],
 
     ["cookies", t("Cookie dan pelacakan", "Cookies and tracking"), t(`
@@ -117,7 +121,7 @@ export default function privacy(c) {
   // The `k(id, en)` helper takes both languages; drop the empty half.
   const body = legalPage(c, {
     heading: t("Kebijakan Privasi", "Privacy Policy"),
-    intro: t("Singkatnya: situs ini tidak memakai cookie atau pelacakan. Kami hanya memproses apa yang Anda kirim melalui formulir kontak, untuk menjawab Anda.", "In short: this website uses no cookies or tracking. We process only what you send through the contact form, in order to answer you."),
+    intro: t("Singkatnya: situs ini tidak memakai cookie atau pelacakan. Apa yang Anda kirim melalui formulir kontak kami pakai untuk menjawab Anda. Formulir juga menyimpan catatan keamanan singkat tanpa isi pesan, dan penyedia hosting mencatat log akses teknis.", "In short: this website uses no cookies or tracking. What you send through the contact form is used to answer you. The form also keeps brief security records without message content, and the hosting provider keeps technical access logs."),
     updated: confirm(c, t("tanggal berlaku", "effective date")),
     sections,
   });

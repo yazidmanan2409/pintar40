@@ -2,7 +2,12 @@
 /*
  * PINTAR contact form: the little it remembers, and for how long.
  *
- * Nothing a visitor writes is stored. The form keeps only:
+ * Deletion happens when the records are next touched (any use of the form)
+ * and whenever server/cleanup.php runs; schedule that daily so that expired
+ * records go even if nobody uses the form.
+ *
+ * The form itself stores nothing a visitor writes (a delivered message lives
+ * in the receiving mailbox, under that mailbox's own retention). It keeps only:
  *   - rate-limit entries: a keyed hash of the sender's IP address and a
  *     time, deleted after the rate window (default one hour);
  *   - duplicate fingerprints: a keyed, irreversible hash of a message's
@@ -71,23 +76,58 @@ final class PintarStore
     }
 
     /**
-     * Duplicate check. Returns 'new', 'same_sender' (a double submit: answer
-     * as before, do not send again) or 'campaign' (the same text from several
-     * senders: refuse).
+     * Duplicate check, BEFORE sending. Returns 'new', 'same_sender' (this
+     * sender's identical message was already DELIVERED: answer as before and
+     * do not send again) or 'campaign' (the same text already delivered from
+     * several senders: refuse). Only delivered messages are remembered (see
+     * delivered()), so a message whose delivery failed is never answered with
+     * a false «sent» when the visitor retries.
      */
     public function duplicate(string $fingerprint, string $ipHash): string
     {
         $now = time(); $win = (int) $this->cfg['rate_window'];
         return (string) $this->update('seen.json', function ($d) use ($now, $win, $fingerprint, $ipHash) {
-            foreach ($d as $k => $e) { $d[$k] = array_values(array_filter($e, fn ($x) => $x[0] > $now - $win)); if (!$d[$k]) unset($d[$k]); }
-            $e = $d[$fingerprint] ?? [];
-            $senders = array_unique(array_column($e, 1));
+            $d = $this->pruneSeen($d, $now, $win);
+            $senders = array_unique(array_column($d[$fingerprint] ?? [], 1));
             $result = 'new';
             if (in_array($ipHash, $senders, true)) $result = 'same_sender';
             elseif (count($senders) >= 2) $result = 'campaign';
-            $e[] = [$now, $ipHash]; $d[$fingerprint] = $e;
             return [$d, $result];
         });
+    }
+
+    /** Remember a message's fingerprint once it has actually been delivered. */
+    public function delivered(string $fingerprint, string $ipHash): void
+    {
+        $now = time(); $win = (int) $this->cfg['rate_window'];
+        $this->update('seen.json', function ($d) use ($now, $win, $fingerprint, $ipHash) {
+            $d = $this->pruneSeen($d, $now, $win);
+            $d[$fingerprint][] = [$now, $ipHash];
+            return [$d, null];
+        });
+    }
+
+    private function pruneSeen(array $d, int $now, int $win): array
+    {
+        foreach ($d as $k => $e) { $d[$k] = array_values(array_filter($e, fn ($x) => $x[0] > $now - $win)); if (!$d[$k]) unset($d[$k]); }
+        return $d;
+    }
+
+    /**
+     * Delete everything past its retention: rate entries and fingerprints older
+     * than the window, security records older than security_log_days. Runs on
+     * every use of the form, and from server/cleanup.php for a scheduled job,
+     * so that deletion does not depend on the form being used again.
+     */
+    public function prune(): void
+    {
+        $now = time(); $win = (int) $this->cfg['rate_window']; $keep = 86400 * (int) $this->cfg['security_log_days'];
+        $this->update('rate.json', function ($d) use ($now, $win) {
+            foreach ($d as $k => $t) { $d[$k] = array_values(array_filter($t, fn ($x) => $x > $now - $win)); if (!$d[$k]) unset($d[$k]); }
+            return [$d, null];
+        });
+        $this->update('seen.json', fn ($d) => [$this->pruneSeen($d, $now, $win), null]);
+        $this->update('security-log.json', fn ($d) => [array_values(array_filter($d, fn ($x) => ($x['t'] ?? 0) > $now - $keep)), null]);
     }
 
     /** Minimal security metadata for refused and flagged submissions. */

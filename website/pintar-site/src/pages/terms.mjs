@@ -32,9 +32,9 @@ export default function terms(c) {
         <li>send abusive, threatening, misleading or spam messages through the contact form.</li></ul>`)],
 
     ["info", t("Informasi di situs ini", "Information on this website"), t(`
-      <p>Situs ini menjelaskan PINTAR secara umum. Status setiap kemampuan ditandai dengan jelas: <b>4.0 · Fondasi</b> (dalam verifikasi rilis), <b>4.1 · Berikutnya</b> (direncanakan), dan <b>Arah</b> (bukan janji rilis). Rencana dapat berubah. Ilustrasi konsep di situs ini bukan tangkapan layar produk.</p>
+      <p>Situs ini menjelaskan PINTAR secara umum. Kemampuan yang ditandai <b>Tersedia</b> adalah bagian dari PINTAR 4.1. Yang ditandai <b>Arah ke depan</b> (4.5, 5.0, dan selanjutnya) adalah rencana tanpa tanggal atau janji ketersediaan, dan dapat berubah. Ilustrasi konsep di situs ini memakai data rekaan dan bukan tangkapan layar produk.</p>
       <p>Isi situs bukan penawaran yang mengikat. Kemampuan, ketersediaan, dan syarat layanan untuk institusi ditetapkan dalam perjanjian layanan.</p>`, `
-      <p>This website describes PINTAR in general terms. Each capability’s status is marked clearly: <b>4.0 · Foundation</b> (in release verification), <b>4.1 · Next</b> (planned) and <b>Direction</b> (not a release promise). Plans can change. Concept illustrations on this website are not product screenshots.</p>
+      <p>This website describes PINTAR in general terms. Capabilities marked <b>Available</b> are part of PINTAR 4.1. Those marked <b>Future direction</b> (4.5, 5.0 and beyond) are plans without dates or availability promises, and may change. Concept illustrations on this website use invented data and are not product screenshots.</p>
       <p>Nothing on this website is a binding offer. Capabilities, availability and terms of service for an institution are set out in the service agreement.</p>`)],
 
     ["links", t("Tautan ke situs lain", "Links to other websites"), t(`

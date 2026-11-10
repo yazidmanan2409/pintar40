@@ -106,6 +106,7 @@ foreach (['name', 'email', 'institution', 'subject', 'message'] as $k) {
 $store = new PintarStore($cfg);
 if (!$store->ready()) { error_log('pintar-contact: store directory not writable'); respond(503, ['ok' => false], $TEXT['failed'], $TEXT['failed'], $wantsJson, $TEXT, $lang); }
 $ipHash = $store->ipHash((string) ($_SERVER['REMOTE_ADDR'] ?? ''));
+$store->prune();
 
 // ------------------------------------------------------------------ 2. bots
 // A filled honeypot or an impossibly fast submission is answered exactly like
@@ -149,8 +150,9 @@ if ($mod['decision'] === 'reject') {
 }
 
 // ------------------------------------------------------------------ 6. duplicates
-$dup = $store->duplicate((new PintarModeration($rules))->fingerprint($message, $store->secret()), $ipHash);
-if ($dup === 'same_sender') respond(200, ['ok' => true], $TEXT['ok_h'], $TEXT['ok_p'], $wantsJson, $TEXT, $lang);   // a double submit: already sent
+$fingerprint = (new PintarModeration($rules))->fingerprint($message, $store->secret());
+$dup = $store->duplicate($fingerprint, $ipHash);
+if ($dup === 'same_sender') respond(200, ['ok' => true], $TEXT['ok_h'], $TEXT['ok_p'], $wantsJson, $TEXT, $lang);   // already delivered once: do not send twice
 if ($dup === 'campaign') {
     $store->log('rejected', ['duplicate_campaign'], $ipHash);
     respond(422, ['ok' => false, 'rejected' => true], $TEXT['rejected'], $TEXT['rejected'], $wantsJson, $TEXT, $lang);
@@ -171,4 +173,5 @@ if (!$sent) {
     error_log('pintar-contact: delivery failed');
     respond(502, ['ok' => false], $TEXT['failed'], $TEXT['failed'], $wantsJson, $TEXT, $lang);
 }
+$store->delivered($fingerprint, $ipHash);
 respond(200, ['ok' => true], $TEXT['ok_h'], $TEXT['ok_p'], $wantsJson, $TEXT, $lang);

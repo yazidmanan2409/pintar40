@@ -71,7 +71,7 @@ for (const f of files.filter((f) => /\.(html|css|js|php)$/.test(f))) {
   assert(!/(?:href|src|action)="\/(?!\/)|url\(\s*["']?\/(?!\/)/.test(src), `${name}: no root-absolute reference`);
 }
 assert(existsSync(join(SITE, "api/lib/.htaccess")) && /Require all denied/.test(await readFile(join(SITE, "api/lib/.htaccess"), "utf8")), "the contact library is denied to the web");
-for (const fam of ["Inter", "Newsreader"]) assert(existsSync(join(SITE, `assets/fonts/OFL-${fam}.txt`)), `font licence shipped: ${fam}`);
+for (const fam of ["Inter", "IBMPlexMono"]) assert(existsSync(join(SITE, `assets/fonts/OFL-${fam}.txt`)), `font licence shipped: ${fam}`);
 const PAGES = Object.keys(ROUTES).flatMap((k) => ["id", "en"].map((lang) => ({ key: k, lang, path: ROUTES[k][lang] })));
 for (const p of PAGES) {
   const html = await readFile(join(SITE, p.path, "index.html"), "utf8").catch(() => "");
@@ -85,14 +85,37 @@ for (const p of PAGES) {
   const depth = p.path.split("/").filter(Boolean).length;
   assert(html.includes(`href="${"../".repeat(depth) + other || "./"}" lang="${p.lang === "id" ? "en" : "id"}"`), `${tag}: the language switch leads to the same page`);
   assert(html.includes("© PT ZAYD PINTAR SELALU (ZPS)"), `${tag}: footer company identity`);
+  // Launch wording (owner, 10 Nov 2026): 4.0 and 4.1 are presented as available; no
+  // «in verification» or «planned» labels remain; future direction stays marked.
+  assert(!/verifikasi rilis|release verification|Direncanakan untuk|[Pp]lanned for 4\.1|4\.1 · Berikutnya|4\.1 · Next/.test(html), `${tag}: launch wording, no verification or planned labels`);
+  assert(html.includes('class="review-strip"'), `${tag}: the review build says it is launch wording, not published`);
+  const foot = html.slice(html.indexOf('<footer class="site-footer">'));
+  assert(!/>(Bahasa|Language|Perusahaan|Company)</.test(foot) && !/dikembangkan oleh|is developed by/.test(foot), `${tag}: footer has no language column and no company heading`);
+  assert(/class="lang lang--footer"/.test(foot) && foot.includes("info@pintarselalu.com") && !foot.includes("subjek=demo"), `${tag}: footer has the ID | EN switch and the email, and no demo link`);
   const confirms = (html.match(/class="confirm"/g) || []).length;
   if (!["privacy", "terms"].includes(p.key)) assert(confirms === 0, `${tag}: no unconfirmed facts outside the legal pages`);
+}
+
+for (const lang of ["id", "en"]) {
+  const html = await readFile(join(SITE, ROUTES.home[lang], "index.html"), "utf8");
+  const main = html.slice(html.indexOf('<main id="isi">'), html.indexOf("</main>"));
+  const hero = main.slice(0, main.indexOf("</section>"));
+  assert((main.match(/subjek=demo/g) || []).length === 1 && !hero.includes("subjek=demo"), `${lang}/home: one demo invitation in the page (the closing section), none in the hero`);
+  assert(hero.includes('href="#siklus"'), `${lang}/home: the hero keeps «see how it works»`);
+  const head = html.slice(html.indexOf('<header class="site-header">'), html.indexOf("</header>"));
+  assert(head.includes('class="btn btn--sm" href="kontak/?subjek=demo#formulir"'.replace("kontak/", ROUTES.contact[lang].replace(/^en\//, ""))) || head.includes("subjek=demo"), `${lang}/home: the header carries the demo button`);
+  const feat = await readFile(join(SITE, ROUTES.features[lang], "index.html"), "utf8");
+  const flow = feat.slice(feat.indexOf('class="flow flow--5"'), feat.indexOf("</figure>", feat.indexOf('class="flow flow--5"')));
+  assert((flow.match(/data-step/g) || []).length === 5 && flow.includes("flow__human"), `${lang}/features: the AI workflow shows five steps with the educator's decision`);
+  assert(lang === "id" ? /persetujuan seperti biasa/i.test(flow) && /orang kedua/.test(flow) : /usual approval/i.test(flow) && /second person/.test(flow), `${lang}/features: approved drafts go through the usual review and approval before release`);
+  assert(lang === "id" ? feat.includes("Arah ke depan") : feat.includes("Future direction"), `${lang}/features: 4.5 and 5.0 are marked as future direction`);
 }
 
 // ------------------------------------------------------------------ servers
 phase("servers");
 const tmp = await mkdtemp(join(tmpdir(), "pintar-site-"));
-await writeFile(join(tmp, "sendmail.sh"), `#!/bin/sh\ncat > "${tmp}/mail-$(date +%s%N).eml"\n`, { mode: 0o755 });
+// The fake mail system fails while a flag file exists, to test a failed delivery.
+await writeFile(join(tmp, "sendmail.sh"), `#!/bin/sh\nif [ -f "${tmp}/fail" ]; then cat > /dev/null; exit 1; fi\ncat > "${tmp}/mail-$(date +%s%N).eml"\n`, { mode: 0o755 });
 await writeFile(join(tmp, "config.php"), `<?php return ['store_dir' => '${tmp}/data', 'min_seconds' => 0, 'rate_limit' => 50];`);
 const port = 20000 + Math.floor(Math.random() * 20000);
 const php = spawn("php", ["-d", `sendmail_path=${tmp}/sendmail.sh`, "-S", `127.0.0.1:${port}`, join(HERE, "router.php")],
@@ -131,6 +154,14 @@ const sent = await lastMail();
 assert(sent.subject.startsWith("[PINTAR] Minta demo") && sent.body.includes("Kami ingin melihat demo"), "the delivered email carries the subject and the message", sent.subject);
 r = await post({ message: "Kami ingin melihat demo PINTAR untuk kelas 8, terima kasih." });
 assert(r.status === 200 && await mails() === m0 + 1, "a double submit answers as before and sends nothing again");
+// A failed delivery must not be remembered: the retry is sent, not falsely confirmed.
+await writeFile(join(tmp, "fail"), "1");
+m0 = await mails();
+r = await post({ message: "Mohon jadwalkan demo untuk minggu depan, terima kasih banyak." });
+assert(r.status === 502 && r.json.ok === false && await mails() === m0, "a failed delivery is reported as not sent", JSON.stringify(r));
+await rm(join(tmp, "fail"));
+r = await post({ message: "Mohon jadwalkan demo untuk minggu depan, terima kasih banyak." });
+assert(r.status === 200 && r.json.ok === true && await mails() === m0 + 1, "after a failed delivery, the retry is actually sent (no false «sent»)", JSON.stringify(r));
 r = await post({ message: "Dasar goblok, kalian bangsat semua! Balas sekarang." });
 assert(r.status === 422 && r.json.rejected === true && r.json.message === "Pesan Anda tidak dapat dikirim. Mohon periksa kembali isi pesan dan gunakan bahasa yang sesuai.", "an abusive message is refused with the owner's Indonesian wording", JSON.stringify(r.json));
 assert(!JSON.stringify(r.json).includes("goblok") && !JSON.stringify(r.json).includes("bangsat"), "a refusal never echoes the offensive text");
@@ -278,6 +309,32 @@ for (const w of [320, 768, 1024]) {
 for (const [path, id] of [...new Map(idsWanted.map((x) => [x.join("#"), x])).values()]) {
   await fresh(ORIGIN + path);
   assert(await p.eval(`!!document.getElementById(${JSON.stringify(id)})`), `linked id exists: ${path}#${id}`);
+}
+
+phase("cycle reading order");
+for (const [w, mode] of [[1440, "serpentine"], [390, "sequence"]]) {
+  await p.viewport(w, w < 700 ? 844 : 900);
+  await fresh(BASE);
+  const o = await p.eval(`(() => { const li = [...document.querySelectorAll(".cycle__grid > li")];
+    return li.map(l => { const r = l.getBoundingClientRect(); return { n: (l.querySelector(".cycle__n")?.textContent || "R").trim(), x: Math.round(r.left), y: Math.round(r.top) }; }); })()`);
+  assert(o.map((x) => x.n).join() === "01,02,03,04,05,06,07,R", `cycle @${w}: document order is stages 1–7, then the return`, o.map((x) => x.n).join());
+  if (mode === "serpentine") {
+    const [a1, a2, a3, a4, b5, b6, b7, ret] = o;
+    const top = a1.y === a2.y && a2.y === a3.y && a3.y === a4.y && a1.x < a2.x && a2.x < a3.x && a3.x < a4.x;
+    const bottom = b5.y === b6.y && b6.y === b7.y && b7.y === ret.y && b5.y > a1.y && b5.x === a4.x && b6.x === a3.x && b7.x === a2.x && ret.x === a1.x;
+    assert(top && bottom, "cycle @1440: 1→4 across the top, 5→7 back along the bottom, the return under stage 1", JSON.stringify(o));
+  } else {
+    assert(o.every((x, i) => i === 0 || x.y > o[i - 1].y), "cycle @390: one column, in reading order", JSON.stringify(o));
+  }
+}
+
+phase("language switch");
+await p.viewport(1440, 900);
+for (const pg of PAGES) {
+  await fresh(BASE + pg.path);
+  const other = ROUTES[pg.key][pg.lang === "id" ? "en" : "id"];
+  const hrefs = await p.eval(`[...document.querySelectorAll(".lang a[href]")].map(a => new URL(a.getAttribute("href"), location.href).pathname)`);
+  assert(hrefs.length === 2 && hrefs.every((h) => h === "/test/pintar/" + other), `${pg.lang}/${pg.key}: both language switches (header and footer) lead to the same page in the other language`, hrefs.join(", "));
 }
 
 phase("menu");

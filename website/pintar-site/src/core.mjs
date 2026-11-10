@@ -123,15 +123,17 @@ export function photo(c, id, { caption = true, cls = "" } = {}) {
 // ------------------------------------------------------------------ status
 // The three states a capability can be in on this site. A state is always a
 // word and a shape, never colour alone. The words are deliberately modest:
-// the site states what is verified, not what is planned.
+// the site states what is available, and marks what is only a direction.
+// This is LAUNCH wording: the site launches only once PINTAR 4.1 has been
+// accepted (owner, 10 Nov 2026). Every capability it presents as available is
+// on the confirmation checklist in review/ until that acceptance.
 export const STATUS = {
-  foundation: { id: "4.0 · Fondasi", en: "4.0 · Foundation", note_id: "Verifikasi rilis", note_en: "In release verification", shape: "dot" },
-  next:       { id: "4.1 · Berikutnya", en: "4.1 · Next", note_id: "Direncanakan", note_en: "Planned", shape: "ring" },
-  direction:  { id: "Arah", en: "Direction", note_id: "Bukan janji rilis", note_en: "Not a release promise", shape: "dash" },
+  available:  { id: "Tersedia", en: "Available", note_id: "", note_en: "", shape: "dot" },
+  direction:  { id: "Arah ke depan", en: "Future direction", note_id: "Tanpa tanggal atau janji rilis", note_en: "No dates or release promises", shape: "dash" },
 };
 export function status(c, kind, { note = true, label } = {}) {
   const s = STATUS[kind];
-  return `<span class="status status--${s.shape}"><span class="status__mark" aria-hidden="true"></span><span class="status__label">${label ?? c.t(s.id, s.en)}</span>${note ? `<span class="status__note">${c.t(s.note_id, s.note_en)}</span>` : ""}</span>`;
+  return `<span class="status status--${s.shape}"><span class="status__mark" aria-hidden="true"></span><span class="status__label">${label ?? c.t(s.id, s.en)}</span>${note && s.note_id ? `<span class="status__note">${c.t(s.note_id, s.note_en)}</span>` : ""}</span>`;
 }
 
 // ------------------------------------------------------------------ shell
@@ -165,26 +167,21 @@ function header(c) {
 
 function footer(c) {
   const explore = ["home", ...NAV].map((k) => `<li><a href="${c.href(k)}">${NAV_LABEL[k][c.lang]}</a></li>`).join("");
+  const cur = (k) => (c.key === k ? ' aria-current="page"' : "");
   return `<footer class="site-footer">
   <div class="wrap">
     <div class="site-footer__top">
       <div class="site-footer__brand">
         ${wordmark(c, { link: false })}
-        <p class="site-footer__line">${c.t("Tenang di permukaan.<br>Cermat di bawahnya.", "Calm on the surface.<br>Rigorous underneath.")}</p>
+        <p class="site-footer__line">${c.t("Tenang di permukaan. <em>Cermat di bawahnya.</em>", "Calm on the surface. <em>Rigorous underneath.</em>")}</p>
       </div>
-      <nav aria-label="${c.t("Jelajahi", "Explore")}"><p class="site-footer__h">${c.t("Jelajahi", "Explore")}</p><ul>${explore}</ul></nav>
-      <div><p class="site-footer__h">${c.t("Perusahaan", "Company")}</p>
-        <ul><li>${c.t("PINTAR dikembangkan oleh", "PINTAR is developed by")} ${COMPANY.name} (${COMPANY.short})</li>
-          <li><a href="mailto:${COMPANY.email}">${COMPANY.email}</a></li>
-          <li><a href="${c.demo()}">${NAV_LABEL.demo[c.lang]}</a></li></ul></div>
-      <div><p class="site-footer__h">${c.t("Bahasa", "Language")}</p>
-        <ul><li><a ${c.lang === "id" ? 'aria-current="true"' : `href="${c.other()}"`} lang="id" hreflang="id">Bahasa Indonesia</a></li>
-          <li><a ${c.lang === "en" ? 'aria-current="true"' : `href="${c.other()}"`} lang="en" hreflang="en">English</a></li></ul></div>
+      <nav aria-label="${c.t("Jelajahi", "Explore")}"><ul class="site-footer__nav">${explore}</ul></nav>
     </div>
     <div class="site-footer__base">
       <span>© ${COMPANY.name} (${COMPANY.short})</span>
-      <nav class="site-footer__legal" aria-label="${c.t("Informasi hukum", "Legal")}"><a href="${c.href("contact")}"${c.key === "contact" ? ' aria-current="page"' : ""}>${NAV_LABEL.contact[c.lang]}</a><a href="${c.href("privacy")}"${c.key === "privacy" ? ' aria-current="page"' : ""}>${c.t("Privasi", "Privacy")}</a><a href="${c.href("terms")}"${c.key === "terms" ? ' aria-current="page"' : ""}>${c.t("Ketentuan", "Terms")}</a></nav>
-      <span class="site-footer__status">${c.t("Status fitur di situs ini mengikuti bukti verifikasi rilis, bukan rencana.", "Feature status on this site follows release verification, not plans.")}</span>
+      <a class="site-footer__mail" href="mailto:${COMPANY.email}">${COMPANY.email}</a>
+      <nav class="site-footer__legal" aria-label="${c.t("Informasi hukum", "Legal")}"><a href="${c.href("contact")}"${cur("contact")}>${NAV_LABEL.contact[c.lang]}</a><a href="${c.href("privacy")}"${cur("privacy")}>${c.t("Privasi", "Privacy")}</a><a href="${c.href("terms")}"${cur("terms")}>${c.t("Ketentuan", "Terms")}</a></nav>
+      <div class="lang lang--footer" role="group" aria-label="${c.t("Bahasa", "Language")}"><a ${c.lang === "id" ? 'aria-current="true"' : `href="${c.other()}"`} lang="id" hreflang="id">ID</a><span aria-hidden="true">|</span><a ${c.lang === "en" ? 'aria-current="true"' : `href="${c.other()}"`} lang="en" hreflang="en">EN</a></div>
     </div>
   </div>
 </footer>`;
@@ -207,8 +204,8 @@ ${review ? '<meta name="robots" content="noindex, nofollow">\n' : ""}<meta name=
 <link rel="alternate" hreflang="${c.lang}" href="${rel(c.path, ROUTES[c.key][c.lang])}">
 <link rel="alternate" hreflang="${other}" href="${c.other()}">
 <link rel="icon" href="${c.asset("favicon.svg")}" type="image/svg+xml">
-<link rel="preload" href="${c.asset("fonts/newsreader-latin-wght-normal.woff2")}" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="${c.asset("fonts/inter-latin-wght-normal.woff2")}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="${c.asset("fonts/inter-latin-opsz-normal.woff2")}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="${c.asset("fonts/ibm-plex-mono-500-latin.woff2")}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${c.asset("css/site.css")}">
 <script src="${c.asset("js/site.js")}" defer></script>
 <meta property="og:title" content="${esc(title)}">
@@ -216,7 +213,8 @@ ${review ? '<meta name="robots" content="noindex, nofollow">\n' : ""}<meta name=
 <meta property="og:locale" content="${c.lang === "id" ? "id_ID" : "en_GB"}">
 </head>
 <body data-page="${c.key}">
-${header(c)}
+${review ? `<p class="review-strip" role="note">${c.t("Pratinjau untuk ditinjau · Teks peluncuran ini disiapkan untuk saat PINTAR 4.1 telah diterima. Belum diterbitkan.", "Review build · This launch wording is prepared for when PINTAR 4.1 has been accepted. Not published.")}</p>
+` : ""}${header(c)}
 <main id="isi">
 ${body}
 </main>
@@ -235,8 +233,8 @@ export function demoBand(c, { heading, body } = {}) {
   <div class="wrap cols">
     <div class="demo-band__text" style="--span:6" data-reveal>
       ${label("", c.t("Minta demo", "Request a demo"))}
-      <h2 class="h2" id="demo-band-h">${heading ?? c.t("Lihat PINTAR bekerja.", "See PINTAR at work.")}</h2>
-      <p class="lead">${body ?? c.t("Demo terpandu dengan produk sebenarnya dan data contoh, disesuaikan dengan peran Anda di institusi.", "A guided demonstration of the real product with sample data, shaped around your role in the institution.")}</p>
+      <h2 class="h2" id="demo-band-h">${heading ?? c.t("Lihat PINTAR <em>bekerja.</em>", "See PINTAR <em>at work.</em>")}</h2>
+      <p class="lead">${body ?? c.t("Demo terpandu dengan data contoh. Kami menunjukkan bagian PINTAR yang sesuai dengan peran Anda dan yang sudah siap ditunjukkan saat itu.", "A guided demonstration with sample data, showing the parts of PINTAR that matter to your role and are ready to show at the time.")}</p>
       <p class="actions"><a class="btn" href="${c.demo()}">${NAV_LABEL.demo[c.lang]}</a><a class="link" href="mailto:${COMPANY.email}">${COMPANY.email}</a></p>
     </div>
     <div style="--span:6" data-reveal>${photo(c, "P8")}</div>
