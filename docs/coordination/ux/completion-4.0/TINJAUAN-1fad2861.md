@@ -1,6 +1,6 @@
 # Rendered recheck of my bcecb425 findings at `1fad2861` (Daisy, 10 Nov 2026)
 
-**Scope:** a read-only design check, not acceptance. CI and the journeys on this commit are still pending, as you said.
+**Scope:** a read-only design check, not acceptance. CI 42773407799 and journeys 42773411702 on this commit completed with **success** (updated 10 Nov after reading both runs; this report first said pending).
 
 **Environment:** local only.
 - `1fad2861` checked out, with **its own** `npm ci`: next 16.4.5.
@@ -184,4 +184,4 @@ After the 5D run, Vina (moved up) and Zahra (left) see «Matematika · Matematik
 - real screen readers, Firefox and WebKit;
 - a «Minta membaca lagi» request followed through to the student.
 
-**Pending, per you:** CI 42773407799 and journeys 42773411702.
+**CI and journeys on `1fad2861`:** CI 42773407799 and journeys 42773411702 completed, success, on that SHA (updated; first written as pending).

@@ -1,0 +1,78 @@
+1280 closed: {"bar":0,"runTop":243,"runH":145,"nextColspan":1,"nextCls":"","frame":[289,1239,948,948,0],"openedTd":[290,477],"itemsOutsideFrame":0,"items":0,"brokenWords":[],"nBroken":0,"pageSideways":1280}
+1280 link: Catatan terkait (114)
+1280 opened: {"bar":0,"runTop":16,"runH":97,"nextColspan":5,"nextCls":"pin-jejak-anak-baris","frame":[289,1239,948,948,0],"openedTd":[290,1238],"itemsOutsideFrame":0,"items":104,"brokenWords":[],"nBroken":0,"pageSideways":1280} | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD»
+opened row aria:
+- row:
+  - cell:
+    - paragraph:
+      - text: Catatan terkait (114) ·
+      - link "Tutup catatan terkait":
+        - /url: /konfigurasi/audit?hal_jejak=1#jejak-run-a3434b28-5df7-42a8-8a2f-e65f0d3a3ec5
+    - list:
+      - listitem: 10 Nov 2026, 15.23 WIB · Keanggotaan diakhiri · Keanggotaan · Adi Rahayu (5F) · 5A
+      - listitem: 10 Nov 2026, 15.23 WIB · Keanggotaan kelas · Keanggotaan kelas · Adi Rahayu (5F)
+      - listitem: 10 Nov 2026, 15.23 WIB · Murid dimasukkan ke kelas · Keanggotaan kelas · Adi Rahayu (5F)
+      - listitem: 10 Nov 2026, 15.23 WIB · Keanggotaan dibuat · Keanggotaan · Adi Rahayu (5F) · 6A
+      - listitem: 10 Nov 2026, 15.23 WIB · Keanggotaan diakhiri · Keanggotaan · Adi Utami (5E) · 5A
+      - listitem: 10 Nov 2026, 15.23 WIB · Keanggotaan kelas · Keanggotaan kelas · Adi Utami (5E)
+      - listitem: 10 Nov 2026, 15.23 WIB · Murid dimasukkan ke kelas · Keanggotaan kelas · Adi Utami (5E)
+      - listitem: 10 Nov 2026, 15.23 WIB · Keanggotaan dibuat · Keanggotaan · Adi Utami (5E) · 6A
+      - listitem: 10 Nov 2026, 15.23 WIB · Keanggotaan diakhiri · Keanggotaan · Adi Wibowo (5C) · 5A
+      - listitem: 10 Nov 2026, 15.23 WIB · Keanggotaan kelas · Keanggotaan kelas · Adi Wibowo (5C)
+      - listitem: 10 Nov 2026, 15.23 WIB · Murid dimasukkan ke kelas · Keanggotaan kelas · Adi Wibowo (5C)
+      - listitem: 10 Nov 2026, 15.23 WIB · Keanggotaan dibuat · Keanggotaan · Adi Wibowo (5C) · 5A
+      - listitem: 10 Nov 2026, 15.23 WIB · Keanggotaan diakhiri · Keanggotaan · Aisyah (peraga) · Angkatan 5
+      - listitem: 10 Nov 2026, 15.23 WIB · Keanggotaan diakhiri · Keanggotaan · Aisyah (peraga) · 5A
+      - listitem: 10 Nov 2026, 15.23 WIB · Keanggotaan kelas · Keanggotaan kelas · Aisyah (peraga)
+      - listitem: 10 Nov 2026, 15.23 WIB · Murid dimasukkan k
+1280 Tab 1 → summary «28 murid: 27 naik, 1 tinggal kelas» inFrame true top 32
+1280 Tab 2 → a «Tutup catatan terkait» inFrame true top 121
+1280 Tab 3 → a «Berikutnya» inFrame true top 428
+1280 Tab 4 → a «Berikutnya» outside frame
+1280 after Tab: {"bar":0,"runTop":-5124,"runH":97,"nextColspan":5,"nextCls":"pin-jejak-anak-baris","frame":[289,1239,948,948,0],"openedTd":[290,1238],"itemsOutsideFrame":0,"items":104,"brokenWords":[],"nBroken":0,"pageSideways":1280}
+1280 sub-page 1 items: 100
+1280 sub-page 2: {"bar":0,"runTop":16,"runH":97,"nextColspan":5,"nextCls":"pin-jejak-anak-baris","frame":[289,1239,948,948,0],"openedTd":[290,1238],"itemsOutsideFrame":0,"items":18,"brokenWords":[],"nBroken":0,"pageSideways":1280} | items 14
+1280 after Tutup: {"bar":0,"runTop":16,"runH":145,"nextColspan":1,"nextCls":"","frame":[289,1239,948,948,0],"openedTd":[290,477],"itemsOutsideFrame":0,"items":0,"brokenWords":[],"nBroken":0,"pageSideways":1280} | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD»
+1280 Tab after Tutup → summary «28 murid: 27 naik, 1 tinggal kelas»
+390 closed: {"bar":57,"runTop":300,"runH":201,"nextColspan":1,"nextCls":"","frame":[33,357,642,322,0],"openedTd":[34,221],"itemsOutsideFrame":0,"items":0,"brokenWords":[],"nBroken":0,"pageSideways":390}
+390 link: Catatan terkait (114)
+390 opened: {"bar":57,"runTop":72,"runH":137,"nextColspan":5,"nextCls":"pin-jejak-anak-baris","frame":[33,357,642,322,320],"openedTd":[-286,356],"itemsOutsideFrame":0,"items":104,"brokenWords":[],"nBroken":0,"pageSideways":390} | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD»
+390 Tab 1 → summary «28 murid: 27 naik, 1 tinggal kelas» inFrame true top 88
+390 Tab 2 → a «Tutup catatan terkait» inFrame true top 237
+390 Tab 3 → a «Berikutnya» inFrame true top 400
+390 Tab 4 → a «Berikutnya» outside frame
+390 after Tab: {"bar":57,"runTop":-12712,"runH":137,"nextColspan":5,"nextCls":"pin-jejak-anak-baris","frame":[33,357,642,322,320],"openedTd":[-286,356],"itemsOutsideFrame":0,"items":104,"brokenWords":[],"nBroken":0,"pageSideways":390}
+390 sub-page 1 items: 100
+390 sub-page 2: {"bar":57,"runTop":72,"runH":137,"nextColspan":5,"nextCls":"pin-jejak-anak-baris","frame":[33,357,642,322,320],"openedTd":[-286,356],"itemsOutsideFrame":0,"items":18,"brokenWords":[],"nBroken":0,"pageSideways":390} | items 14
+390 after Tutup: {"bar":57,"runTop":72,"runH":201,"nextColspan":1,"nextCls":"","frame":[33,357,642,322,320],"openedTd":[-286,-99],"itemsOutsideFrame":0,"items":0,"brokenWords":[],"nBroken":0,"pageSideways":390} | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD»
+390 Tab after Tutup → summary «28 murid: 27 naik, 1 tinggal kelas»
+320 closed: {"bar":57,"runTop":320,"runH":201,"nextColspan":1,"nextCls":"","frame":[33,287,642,252,0],"openedTd":[34,221],"itemsOutsideFrame":0,"items":0,"brokenWords":[],"nBroken":0,"pageSideways":320}
+320 link: Catatan terkait (114)
+320 opened: {"bar":57,"runTop":72,"runH":137,"nextColspan":5,"nextCls":"pin-jejak-anak-baris","frame":[33,287,642,252,390],"openedTd":[-356,286],"itemsOutsideFrame":0,"items":104,"brokenWords":[],"nBroken":0,"pageSideways":320} | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD»
+320 Tab 1 → summary «28 murid: 27 naik, 1 tinggal kelas» inFrame true top 88
+320 Tab 2 → a «Tutup catatan terkait» inFrame true top 237
+320 Tab 3 → a «Berikutnya» inFrame true top 400
+320 Tab 4 → a «Berikutnya» outside frame
+320 after Tab: {"bar":57,"runTop":-14812,"runH":137,"nextColspan":5,"nextCls":"pin-jejak-anak-baris","frame":[33,287,642,252,390],"openedTd":[-356,286],"itemsOutsideFrame":0,"items":104,"brokenWords":[],"nBroken":0,"pageSideways":320}
+320 sub-page 1 items: 100
+320 sub-page 2: {"bar":57,"runTop":72,"runH":137,"nextColspan":5,"nextCls":"pin-jejak-anak-baris","frame":[33,287,642,252,390],"openedTd":[-356,286],"itemsOutsideFrame":0,"items":18,"brokenWords":[],"nBroken":0,"pageSideways":320} | items 14
+320 after Tutup: {"bar":57,"runTop":72,"runH":201,"nextColspan":1,"nextCls":"","frame":[33,287,642,252,390],"openedTd":[-356,-169],"itemsOutsideFrame":0,"items":0,"brokenWords":[],"nBroken":0,"pageSideways":320} | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD»
+320 Tab after Tutup → summary «28 murid: 27 naik, 1 tinggal kelas»on last; buttons: ["Simpan & Jeda","Daftar soal","A 160","B 80","C 240","D 75","Tersimpan","Tandai soal ini","Kembali","Kumpulkan"]
+teacher running: Indra Utami (5B)
+teacher ended Bab 2
+after Kumpulkan: focus button «Periksa lagi» | confirm: Kumpulkan sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah.
+Shift+Tab → button «Kumpulkan»
+status: ["Sudah dijawab: 8 dari 8.","Asesmen ini sudah ditutup dan tidak dinilai. Jawaban yang sudah tersimpan tetap ada. Bila ada pertanyaan, tanyakan kepada guru Anda.\nKembali ke Belajar"]
+focus after notice: p «Asesmen ini sudah ditutup dan tidak dinilai. Jawaban yang sudah tersim»
+buttons: ["Simpan & Jeda[disabled]","Daftar soal[disabled]","A160[disabled]","B80[disabled]","C240[disabled]","D75[disabled]","Tersimpan[disabled]","Tandai soal ini[disabled]","Kembali[disabled]","Kumpulkan[disabled]"]
+chosen vs other: ["true border 2px rgb(95, 106, 115) weight 600 bg rgb(243, 241, 236)","false border 1px rgba(0, 0, 0, 0) weight 400 bg rgb(243, 241, 236)","false border 1px rgba(0, 0, 0, 0) weight 400 bg rgb(243, 241, 236)","false border 1px rgba(0, 0, 0, 0) weight 400 bg rgb(243, 241, 236)"]
+gap Sudah dijawab → notice: 16
+option styles: ["1/rgb(243, 241, 236)/rgb(78, 90, 100)/true","1/rgb(243, 241, 236)/rgb(127, 136, 144)/false","1/rgb(243, 241, 236)/rgb(127, 136, 144)/false","1/rgb(243, 241, 236)/rgb(127, 136, 144)/false"]
+Tab → a «Kembali ke Belajar»
+Enter on link → /belajarA2 waiting 32 s for the offer…
+A2 390: {"cls":"pin-bantuan-soal","pos":"static","offerText":"Perlu contoh?Sudah cukup, terima kasih","overlapQ":false,"hit":[true,true,true,true],"sw":390}
+A2 320: {"cls":"pin-bantuan-soal","pos":"static","offerText":"Perlu contoh?Sudah cukup, terima kasih","overlapQ":false,"hit":[true,true,true,true],"sw":320}
+A2 1280: {"cls":"pin-bantuan-soal","pos":"static","offerText":"Perlu contoh?Sudah cukup, terima kasih","overlapQ":false,"hit":[true,true,true,true],"sw":1280}
+A2 offer aria:
+- button "Perlu contoh?"
+- button "Sudah cukup, terima kasih"
