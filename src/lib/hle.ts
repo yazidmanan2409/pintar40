@@ -327,6 +327,7 @@ export type HleEvent =
   | "staf.tj.can_view_learner_roster"
   | "staf.tj.can_view_learner_result"
   | "staf.tj.can_provision_people"
+  | "staf.tj.can_manage_sittings"
   | "staf.tj.management_decision"
   | "staf.galat.staff_not_allowed"
   | "staf.galat.staff_self"
@@ -354,6 +355,32 @@ export type HleEvent =
   | "peran.galat.role_expiry_days_invalid"
   | "peran.galat.role_busy"
   | "peran.galat.role_failed"
+  | "pengerjaan.galat.sitting_not_allowed"
+  | "pengerjaan.galat.sitting_professional"
+  | "pengerjaan.galat.sitting_reason_required"
+  | "pengerjaan.galat.sitting_note_too_long"
+  | "pengerjaan.galat.sitting_already_ended"
+  | "pengerjaan.galat.sitting_frozen"
+  | "pengerjaan.galat.sitting_not_frozen"
+  | "pengerjaan.galat.sitting_learner_suspended"
+  | "pengerjaan.galat.sitting_end_kind_invalid"
+  | "pengerjaan.galat.sitting_minutes_invalid"
+  | "pengerjaan.galat.sitting_extend_limit"
+  | "pengerjaan.galat.sitting_no_deadline"
+  | "pengerjaan.galat.attempt_not_limited"
+  | "pengerjaan.galat.attempt_sitting_open"
+  | "pengerjaan.galat.attempt_not_needed"
+  | "pengerjaan.galat.attempt_request_open"
+  | "pengerjaan.galat.attempt_decision_not_allowed"
+  | "pengerjaan.galat.attempt_own_request"
+  | "pengerjaan.galat.attempt_already_decided"
+  | "pengerjaan.galat.attempt_reason_required"
+  | "pengerjaan.galat.window_not_allowed"
+  | "pengerjaan.galat.window_assignment_ended"
+  | "pengerjaan.galat.window_invalid"
+  | "pengerjaan.galat.window_unchanged"
+  | "pengerjaan.galat.window_not_changeable"
+  | "pengerjaan.galat.sitting_failed"
   | "galat.role_renewed"
   | "peran.berakhir.judul"
   | "peran.berakhir.jumlah"
@@ -3742,6 +3769,7 @@ const table: Table = {
   "staf.tj.can_view_learner_roster": { default: "Melihat daftar murid", en: "Seeing the student list" },
   "staf.tj.can_view_learner_result": { default: "Melihat hasil murid", en: "Seeing students' results" },
   "staf.tj.can_provision_people": { default: "Mendata orang dan mengaktifkan akun", en: "Recording people and activating accounts" },
+  "staf.tj.can_manage_sittings": { default: "Mengatur pengerjaan asesmen murid", en: "Managing students' assessment sittings" },
   "staf.tj.management_decision": { default: "Memutuskan hal yang menunggu di Pimpinan", en: "Deciding what waits under Management" },
   "staf.galat.staff_not_allowed": { default: "Anda tidak dapat mengubah peran di sekolah ini.", en: "You cannot change roles at this school." },
   "staf.galat.staff_self": { default: "Peran Anda sendiri diubah atau diakhiri oleh admin lain.", en: "Your own roles are changed or ended by another administrator." },
@@ -3770,6 +3798,33 @@ const table: Table = {
   "peran.galat.role_expiry_days_invalid": { default: "Jumlah hari harus 1 sampai 366.", en: "The number of days must be 1 to 366." },
   "peran.galat.role_busy": { default: "Admin lain sedang mengubah peran di sini pada saat yang sama, jadi perubahan Anda belum tersimpan. Coba lagi.", en: "Another administrator was changing roles here at the same moment, so your change was not saved. Try again." },
   "peran.galat.role_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
+  // A1 · sitting control: the refusals of the sitting, attempt and window acts (PR170, src/lib/pengerjaan-kontrak.ts)
+  "pengerjaan.galat.sitting_not_allowed": { default: "Anda tidak dapat mengatur pengerjaan murid di kelas ini.", en: "You cannot manage learners' sittings in this class." },
+  "pengerjaan.galat.sitting_professional": { default: "Tindakan ini tidak tersedia untuk asesmen Pengembangan Profesional.", en: "This action is not available for Professional Development assessments." },
+  "pengerjaan.galat.sitting_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
+  "pengerjaan.galat.sitting_note_too_long": { default: "Catatan paling banyak 300 karakter.", en: "The note is at most 300 characters." },
+  "pengerjaan.galat.sitting_already_ended": { default: "Pengerjaan ini sudah berakhir sebelum perubahan Anda tersimpan. Tidak ada yang diubah.", en: "This sitting ended before your change was saved. Nothing was changed." },
+  "pengerjaan.galat.sitting_frozen": { default: "Pengerjaan ini sedang ditahan. Lanjutkan atau akhiri lebih dulu.", en: "This sitting is on hold. Resume it or end it first." },
+  "pengerjaan.galat.sitting_not_frozen": { default: "Pengerjaan ini tidak sedang ditahan.", en: "This sitting is not on hold." },
+  "pengerjaan.galat.sitting_learner_suspended": { default: "Pengerjaan ini baru dapat dilanjutkan atau diakhiri setelah akun murid aktif kembali.", en: "This sitting can be resumed or ended only after the learner's account is active again." },
+  "pengerjaan.galat.sitting_end_kind_invalid": { default: "Pilih salah satu: dinilai atau tidak dihitung.", en: "Choose one: scored or not counted." },
+  "pengerjaan.galat.sitting_minutes_invalid": { default: "Tambahan waktu harus 1 sampai 120 menit.", en: "Extra time must be 1 to 120 minutes." },
+  "pengerjaan.galat.sitting_extend_limit": { default: "Pengerjaan ini sudah tiga kali diberi tambahan waktu.", en: "This sitting has already been given extra time three times." },
+  "pengerjaan.galat.sitting_no_deadline": { default: "Pengerjaan ini tidak memiliki batas waktu, jadi tidak ada waktu yang ditambah.", en: "This sitting has no time limit, so there is no time to add." },
+  "pengerjaan.galat.attempt_not_limited": { default: "Asesmen ini tidak membatasi jumlah percobaan, jadi tidak ada yang perlu diminta.", en: "This assessment does not limit attempts, so there is nothing to request." },
+  "pengerjaan.galat.attempt_sitting_open": { default: "Murid ini masih memiliki pengerjaan yang terbuka. Akhiri atau lanjutkan dulu sebelum meminta percobaan lagi.", en: "This learner still has an open sitting. End or resume it before requesting another attempt." },
+  "pengerjaan.galat.attempt_not_needed": { default: "Murid ini masih dapat memulai asesmen ini.", en: "This learner can still start this assessment." },
+  "pengerjaan.galat.attempt_request_open": { default: "Permintaan untuk murid dan asesmen ini sudah menunggu keputusan.", en: "A request for this learner and assessment is already waiting for a decision." },
+  "pengerjaan.galat.attempt_decision_not_allowed": { default: "Anda tidak dapat memutuskan permintaan ini.", en: "You cannot decide this request." },
+  "pengerjaan.galat.attempt_own_request": { default: "Permintaan Anda sendiri diputuskan oleh orang lain.", en: "Your own request is decided by someone else." },
+  "pengerjaan.galat.attempt_already_decided": { default: "Permintaan ini sudah diputuskan.", en: "This request has already been decided." },
+  "pengerjaan.galat.attempt_reason_required": { default: "Tuliskan alasan tidak menyetujui, 10 sampai 300 karakter.", en: "Write why you are declining, 10 to 300 characters." },
+  "pengerjaan.galat.window_not_allowed": { default: "Anda tidak dapat mengubah jadwal materi di kelas ini.", en: "You cannot change the schedule of material in this class." },
+  "pengerjaan.galat.window_assignment_ended": { default: "Materi ini sudah diakhiri atau ditarik, jadi jadwalnya tidak dapat diubah.", en: "This material has been ended or withdrawn, so its schedule cannot be changed." },
+  "pengerjaan.galat.window_invalid": { default: "Waktu tutup harus setelah waktu buka dan setelah saat ini.", en: "The closing time must be after the opening time and after now." },
+  "pengerjaan.galat.window_unchanged": { default: "Jadwalnya sudah seperti itu.", en: "The schedule is already set that way." },
+  "pengerjaan.galat.window_not_changeable": { default: "Jadwal materi ini tidak dapat diubah saat ini.", en: "This material's schedule cannot be changed right now." },
+  "pengerjaan.galat.sitting_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
   // B0 on the screens: the expiry notice, the renewal, the platform admin's warning and the holder's own notice
   "galat.role_renewed": { default: "Peran diperpanjang.", en: "Role renewed." },
   "peran.berakhir.judul": { default: "Peran yang segera berakhir", en: "Roles ending soon" },
