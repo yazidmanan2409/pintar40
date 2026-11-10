@@ -11,6 +11,10 @@ const IMG_PLAN = {
   P3: { message: "Learning continues beyond the classroom, with a clear next step.", use: "Who It’s For · Learners", ratio: "2:3 generated · 4:5" },
   P4: { message: "Leadership discusses patterns, on paper, together.", use: "Who It’s For · Leadership", ratio: "3:2 generated · 3:2 desktop, 4:5 phone" },
   P5: { message: "The institution as a whole, over time; a pause before Trust.", use: "Home pause; Who It’s For · The institution", ratio: "3:2 generated · 2:1 / 4:3" },
+  P6: { message: "Administration done carefully, as practical work.", use: "Who It’s For · Administrators", ratio: "2:3 generated · 4:5" },
+  P7: { message: "A score records the outcome; the working shows the cause.", use: "Why PINTAR · 01 The problem", ratio: "3:2 generated · 2:1 desktop, 4:3 phone" },
+  P8: { message: "A guided demonstration is a calm conversation at a school table. No people, so no one is presented as PINTAR staff.", use: "Contact, beside the introduction", ratio: "3:2" },
+  P9: { message: "Records kept whole, year after year.", use: "Trust & Security, between the hero and the safeguards", ratio: "3:2 generated · 2:1 desktop, 4:3 phone" },
 };
 
 const DIAGRAMS = [
@@ -20,7 +24,7 @@ const DIAGRAMS = [
   ["D12", "Annotated question report", "Features · Reports and assessment", "One question’s report (answers chosen, with counts), numbered to three notes on what the educator notices. Sample data; the reading is the educator’s.", "Shows what the educator notices and how it informs their judgement, instead of an audience table."],
   ["—", "Learning journey", "Features · Learning and teaching", "Starting point (Initial Mapping), reading order (Personal Reading Map), assigned learning and practice, the Mastery Check, the result by objective, which becomes evidence (the thread’s dot).", "Explains the learner’s path visually."],
   ["D4", "Publication and correction", "Features · Content Studio", "Draft → reviewed by a second person → approved → released → shared use by permitted institutions (learner data stays within each); return with notes; version 1 kept, version 2 the correction.", "Reviewed material, shared use and preserved versions in one diagram."],
-  ["D6", "One person, several roles", "Features · Accounts; Who It’s For · Administrators", "One account; three places, each with the role that place assigned. Choosing a place does not grant anything; the assigned role does.", "Identity and access in one picture."],
+  ["D6", "One person, several roles", "Features · Accounts", "One account; three places, each with the role that place assigned. Choosing a place does not grant anything; the assigned role does.", "Identity and access in one picture."],
   ["D9", "AI-assisted question drafts", "Features · AI-assisted drafts", "Educator chooses → AI drafts → drafts checked → educator decides (the thread’s diamond) → reviewed by a second person, approved, released.", "“AI assists. Educators decide.”"],
   ["D5", "Evidence states", "Why PINTAR · Principles", "The same figure with enough data (shown) and with too little (the product’s sentence).", "Too little evidence is not weakness."],
   ["D7", "Layered cross-section", "Home 05 (dark); Trust", "The calm surface, then seven named safeguards.", "“Calm on the surface. Rigorous underneath.”"],
@@ -40,11 +44,11 @@ const SECTIONS = [
     ["06 What comes next", "Two sentences and a link to Features · Future direction"],
     ["Closing", "Typographic demo band (the second and last demo invitation)"],
   ]],
-  ["Why PINTAR", [["Hero", "Typography + D1, the thread"], ["01 The problem", "Three observations"], ["02 Philosophy", "D2 with each stage’s question"], ["03 Principles", "Four principles + D5"], ["Closing", "Demo band"]]],
+  ["Why PINTAR", [["Hero", "Typography + D1, the thread"], ["01 The problem", "P7 + three observations"], ["02 Philosophy", "D2 with each stage’s question"], ["03 Principles", "Four principles + D5"], ["Closing", "Demo band"]]],
   ["Features", [["Hero", "Headline, one sentence, anchor bar"], ["01 Learning and teaching", "Text left, learning journey right"], ["02 Reports and assessment", "D12 left, text right"], ["03 Content Studio", "Headline and intro, D4 full width, three short notes"], ["04 Accounts and institutions", "Text left, D6 right"], ["05 AI-assisted drafts", "Sunk band, headline «AI membantu. Pendidik memutuskan.», D9 full width"], ["06 Versions and the future direction", "D8"], ["Closing", "Demo band"]]],
-  ["Who It’s For", [["Hero", "Typography + anchor bar"], ["Four roles and the institution", "P3, P2, P4, D6 (administrators), P5, each with four practical benefits"], ["Closing", "Demo band"]]],
-  ["Trust & Security", [["Hero", "D7 on paper"], ["In practice", "Seven safeguards, one explanation and one example each"], ["Security questions", "Framed text"], ["Closing", "Demo band"]]],
-  ["Contact · Privacy · Terms", [["Contact", "Typography + one form"], ["Privacy, Terms", "Typography, contents list, draft and «to confirm» markers"]]],
+  ["Who It’s For", [["Hero", "Typography + anchor bar"], ["Four roles and the institution", "P3, P2, P4, P6, P5, each with four practical benefits"], ["Closing", "Demo band"]]],
+  ["Trust & Security", [["Hero", "D7 on paper"], ["Pause", "P9"], ["In practice", "Seven safeguards, one explanation and one example each"], ["Security questions", "Framed text"], ["Closing", "Demo band"]]],
+  ["Contact · Privacy · Terms", [["Contact", "Typography + P8 + one form"], ["Privacy, Terms", "Typography, contents list, draft and «to confirm» markers"]]],
 ];
 
 // Every capability the launch copy presents as available, with where it
@@ -182,8 +186,8 @@ export default function review() {
 
   <section>
     <h2>4. Images and explanatory graphics</h2>
-    <h3>Images (five; prompts in <code>images/README.md</code>)</h3>
-    <p>All five are planned as AI-generated illustrations in one documentary style: muted, natural light, a 35 mm rangefinder look, nobody looking at the camera, nothing legible. Each is labelled as an illustration wherever it appears. Before publication, decide whether to keep them or replace any with licensed or commissioned photography, with consent.</p>
+    <h3>Images (nine; prompts in <code>images/README.md</code>)</h3>
+    <p>All nine are AI-generated illustrations in one documentary style: muted, natural light, a 35 mm rangefinder look, nobody looking at the camera, nothing legible. Each is labelled as an illustration wherever it appears. Before publication, decide whether to keep them or replace any with licensed or commissioned photography, with consent.</p>
     <div class="wrapx"><table><thead><tr><th>#</th><th>Image</th><th>What it shows</th><th>Its job</th><th>Where</th><th>Format</th><th>Source</th><th>Status</th></tr></thead><tbody>
       ${Object.entries(PHOTOS).map(([id, p]) => `<tr><td><b>${id}</b></td><td>${esc(p.name_en)}</td><td>${esc(p.en)}</td><td>${esc(IMG_PLAN[id].message)}</td><td>${esc(IMG_PLAN[id].use)}</td><td>${IMG_PLAN[id].ratio}</td><td>${IMAGE_KIND[p.kind].en}</td><td class="st">${imageReady(id) ? "In the build" : "Prompt ready · awaiting generation"}</td></tr>`).join("")}
     </tbody></table></div>

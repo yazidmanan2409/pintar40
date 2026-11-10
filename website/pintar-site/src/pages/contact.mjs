@@ -4,7 +4,7 @@
 // server and delivers the message by email; without JavaScript the same
 // form still works, and the server answers with a page instead of JSON.
 
-import { label, rel, COMPANY, NAV_LABEL } from "../core.mjs";
+import { label, rel, photo, COMPANY, NAV_LABEL } from "../core.mjs";
 
 export const SUBJECTS = [
   ["umum", "Pertanyaan umum", "General inquiry"],
@@ -32,6 +32,7 @@ export default function contact(c) {
     <h1 class="h1" id="contact-h" data-reveal>${t("Mari berbicara tentang <em>institusi Anda.</em>", "Let’s talk about <em>your institution.</em>")}</h1>
     <div class="page-hero__aside" data-reveal>
       <p class="lead">${t("Untuk demo, kemitraan, dukungan, atau pertanyaan apa pun. Kami membalas melalui email.", "For a demonstration, a partnership, support or any question at all. We reply by email.")}</p>
+      ${photo(c, "P8")}
     </div>
   </div>
 </section>

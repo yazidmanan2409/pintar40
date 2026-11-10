@@ -107,6 +107,30 @@ export const PHOTOS = {
     en: "A school courtyard in the morning before lessons, seen from an upper floor. No recognisable faces.",
     alt_id: "Halaman sekolah dua lantai di Indonesia pada pagi hari, dilihat dari selasar atas: bendera merah putih, pohon peneduh, dan peserta didik berjalan menuju kelas.",
     alt_en: "A two-storey Indonesian school courtyard in the morning, seen from the upper corridor: the red-and-white flag, a shade tree, and learners walking to class." },
+  P6: { r: "4/5", rm: "4/5", kind: "generated", pos: "50% 45%", posm: "50% 45%",
+    name_id: "Ruang tata usaha", name_en: "The administration office",
+    id: "Ruang tata usaha di awal tahun ajaran. Seorang operator sekolah memasukkan kartu kelas ke dalam amplop, satu kelas demi satu kelas.",
+    en: "The administration office at the start of the school year. A school operator puts class cards into envelopes, one class at a time.",
+    alt_id: "Operator sekolah berjilbab hijau tua memasukkan kartu kelas ke amplop cokelat di mejanya, dengan daftar kelas tercetak, stempel, dan lemari arsip di belakangnya.",
+    alt_en: "A school operator in a dark green hijab puts class cards into brown envelopes at her desk, with a printed class list, a rubber stamp and filing cabinets behind her." },
+  P7: { r: "2/1", rm: "4/3", kind: "generated", pos: "50% 50%", posm: "55% 50%",
+    name_id: "Tempat bukti bermula", name_en: "Where evidence begins",
+    id: "Tangan peserta didik mengerjakan lembar kerja pecahan dengan pensil; di tepinya ada coretan pita pecahan dan percobaan yang dicoret.",
+    en: "A learner’s hands work through a fractions worksheet in pencil; in the margin, drawn fraction bars and crossed-out attempts.",
+    alt_id: "Tangan peserta didik menggambar pita pecahan dengan pensil di tepi lembar kerja, beberapa percobaan dicoret, di meja kayu dekat jendela.",
+    alt_en: "A learner’s hand draws fraction bars in pencil in the margin of a worksheet, some attempts crossed out, on a wooden desk by a window." },
+  P8: { r: "3/2", rm: "3/2", kind: "generated", pos: "50% 60%", posm: "50% 60%",
+    name_id: "Sebelum percakapan", name_en: "Before the conversation",
+    id: "Meja rapat sekolah sesaat sebelum percakapan dimulai: laptop, laporan tercetak, buku catatan, dan dua gelas teh. Belum ada orang.",
+    en: "A school meeting table moments before a conversation: a laptop, a printed report, a notebook and two glasses of tea. No one has arrived yet.",
+    alt_id: "Meja kayu di ruang rapat sekolah dengan laptop, laporan tercetak berisi grafik batang, buku catatan, tanaman kecil, dan dua gelas teh; dua kursi kosong.",
+    alt_en: "A wooden table in a school meeting room with a laptop, a printed report of bar charts, a notebook, a small plant and two glasses of tea; two empty chairs." },
+  P9: { r: "2/1", rm: "4/3", kind: "generated", pos: "50% 45%", posm: "40% 50%",
+    name_id: "Catatan yang bertahan", name_en: "Records that last",
+    id: "Ruang arsip sekolah. Seorang guru senior mengembalikan satu map ke raknya, di antara deretan map dan buku catatan dari tahun ke tahun.",
+    en: "A school records room. A senior teacher returns one binder to its shelf, among rows of binders and record books kept year after year.",
+    alt_id: "Guru senior berkemeja batik mengembalikan map biru ke rak kayu di ruang arsip sekolah, di antara deretan map dan buku catatan.",
+    alt_en: "A senior teacher in a batik shirt returns a blue binder to a wooden shelf in a school records room, among rows of binders and record books." },
 };
 
 /** What each source kind is called, wherever an image is shown or listed. */
@@ -210,7 +234,7 @@ function footer(c) {
  * The whole document. `review` adds noindex: until the owner approves the
  * site for publication, every page asks search engines to stay away.
  */
-export function page(c, { title, description, body, review = true }) {
+export function page(c, { title, description, body, review = true, origin = "" }) {
   const other = c.lang === "id" ? "en" : "id";
   return `<!doctype html>
 <html lang="${c.lang}">
@@ -230,6 +254,12 @@ ${review ? '<meta name="robots" content="noindex, nofollow">\n' : ""}<meta name=
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:locale" content="${c.lang === "id" ? "id_ID" : "en_GB"}">
+${origin ? `<meta property="og:url" content="${origin}/${c.path}">
+<meta property="og:image" content="${origin}/assets/img/share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+` : ""}
 </head>
 <body data-page="${c.key}">
 ${review ? `<p class="review-strip" role="note">${c.t("Pratinjau untuk ditinjau · Teks peluncuran ini disiapkan untuk saat PINTAR 4.1 telah diterima. Belum diterbitkan.", "Review build · This launch wording is prepared for when PINTAR 4.1 has been accepted. Not published.")}</p>

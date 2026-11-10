@@ -1,6 +1,6 @@
-# PINTAR website — five images
+# PINTAR website — nine images
 
-Five images, each with one job in the story: **understand what to teach next**.
+Nine images, each with one job in the story: **understand what to teach next**.
 They show the educational situation, not the software. These are generation
 prompts for an image model. Generate each prompt on its own, at the largest
 size available, in the orientation it names.
@@ -26,8 +26,14 @@ replace them with licensed or commissioned photography (with consent).
 | P3 | Studying at home | Portrait 2:3 | Who It's For · Learners | 4:5 |
 | P4 | A leadership meeting | Landscape 3:2 | Who It's For · Leadership | 3:2 on desktop, 4:5 on phones |
 | P5 | Morning at school | Landscape 3:2 | Home, a pause before Trust; Who It's For · The institution | 2:1 on desktop, 4:3 on phones |
+| P6 | The administration office | Portrait 2:3 | Who It's For · Administrators | 4:5 |
+| P7 | Where evidence begins | Landscape 3:2 | Why PINTAR · The problem | 2:1 on desktop, 4:3 on phones |
+| P8 | Before the conversation (no people) | Landscape 3:2 | Contact | 3:2 |
+| P9 | Records that last | Landscape 3:2 | Trust & Security | 2:1 on desktop, 4:3 on phones |
 
-The same photographic style closes every prompt, so the five read as one series.
+The share preview (`site/assets/img/share.jpg`, 1200 × 630) is a crop of P1, used when the build is given `--origin`.
+
+The same photographic style closes every prompt, so the nine read as one series. No image shows a PINTAR team member or a product screen.
 
 ---
 
@@ -80,3 +86,43 @@ The same photographic style closes every prompt, so the five read as one series.
 > Photographic style: documentary photograph, shot on a Leica M11 rangefinder with a Summilux 35 mm f/1.4 lens at f/4, available natural light only. Muted, desaturated, true-to-life colour; soft contrast with a gentle highlight roll-off and slightly lifted blacks; fine natural grain, like Kodak Portra 400. Calm, cinematic and observational: a quiet, unposed moment. High resolution, sharp throughout.
 >
 > Avoid: recognisable faces, anyone looking at the camera; vivid or saturated colour, HDR, a glossy or plastic look, dramatic sunrise colours, lens flare, heavy vignette; any legible text, signs, banners, school names, logos or watermarks; crowds or a ceremony; a Western-style campus.
+
+## P6 · The administration office (portrait 2:3)
+
+> A documentary photograph in the administration office (ruang tata usaha) of an Indonesian school at the start of the school year, mid-morning. A school operator, a woman in her late twenties wearing a plain long-sleeved blouse in a muted olive colour and a dark green hijab, sits at a desk sorting a small stack of printed class cards into labelled envelopes, one class at a time. Beside her: a desktop computer with a dim, indistinct screen, a box of envelopes, a rubber stamp and ink pad, a printed class list held by a binder clip, a glass of water. Behind her, slightly out of focus: grey metal filing cabinets, ring binders on a shelf, a wall calendar, a louvred window with soft daylight.
+>
+> Composition: a three-quarter view at desk height. Her hands and the cards are the sharpest point; her face is in partial profile, concentrating. Keep her in the centre of the frame with room above and below, so the image can be cropped to 4:5. She does not look at the camera.
+>
+> Photographic style: documentary photograph, shot on a Leica M11 rangefinder with a Summilux 35 mm f/1.4 lens at f/2, available natural light only. Muted, desaturated, true-to-life colour; soft contrast with a gentle highlight roll-off and slightly lifted blacks; fine natural grain, like Kodak Portra 400. Calm, cinematic and observational: a quiet, unposed moment. Real skin texture and natural imperfections, a lived-in office. High resolution, sharp where focused, natural depth of field.
+>
+> Avoid: looking at the camera, posing; vivid or saturated colour, HDR, a glossy or plastic look, dramatic lighting, lens flare, heavy vignette; any legible text, names, numbers, logos or watermarks (the cards, the list and the screen are too small or soft to read); distorted hands or extra fingers; a corporate office.
+
+## P7 · Where evidence begins (landscape 3:2)
+
+> A close documentary photograph of a learner's hands at a wooden school desk. A thirteen-year-old in a white school shirt (only the forearms and the edge of a sleeve are visible) works on a printed worksheet of fraction exercises with a pencil. In the margin, small handwritten working: drawn fraction bars and crossed-out attempts, showing how the learner is thinking. A worn eraser and a short pencil lie beside the sheet; the corner of a second worksheet and an open exercise book are visible. Soft morning light from a window to one side, gentle shadows of the louvres across the desk.
+>
+> Composition: a close, slightly high angle over the desk, the hands and the working in the centre third, shallow depth of field so the printed text falls out of focus. Leave calm space on both sides, so the image can be cropped to a wide 2:1 banner and to 4:5. No face in the frame.
+>
+> Photographic style: documentary photograph, shot on a Leica M11 rangefinder with a Summilux 35 mm f/1.4 lens at f/1.4, available natural light only. Muted, desaturated, true-to-life colour; soft contrast with a gentle highlight roll-off and slightly lifted blacks; fine natural grain, like Kodak Portra 400. Calm, cinematic and observational. Real skin texture, worn paper and wood. High resolution, sharp where focused.
+>
+> Avoid: legible text, letters or numbers anywhere (the worksheet and the working read as shapes, not words); a red-pen score or a grade on the paper; logos or watermarks; distorted hands or extra fingers; vivid or saturated colour, HDR, a glossy or plastic look, lens flare, heavy vignette.
+
+## P8 · Before the conversation (landscape 3:2)
+
+> A documentary photograph of a quiet meeting table in an Indonesian school's meeting room, a few minutes before a conversation begins. No people are in the frame. On the wooden table: an open laptop turned slightly away so its screen is not visible, a printed A4 report with simple, soft-coloured bar charts (unreadable), a notebook with a pen laid across it, two glasses of tea on glass saucers, and a small potted plant. Two wooden chairs are pulled out, as if two people have just stood up or are about to sit. Behind, out of focus: a window with louvres and soft daylight, a cream wall, a glass cabinet.
+>
+> Composition: table height, a gentle three-quarter angle across the table, the paper and the two glasses in the centre third. Leave calm space on both sides, so the image can be cropped to 3:2 and to 4:5.
+>
+> Photographic style: documentary photograph, shot on a Leica M11 rangefinder with a Summilux 35 mm f/1.4 lens at f/2, available natural light only. Muted, desaturated, true-to-life colour; soft contrast with a gentle highlight roll-off and slightly lifted blacks; fine natural grain, like Kodak Portra 400. Calm, cinematic and observational: still and expectant. A lived-in room. High resolution, sharp where focused, natural depth of field.
+>
+> Avoid: people, faces or hands; a visible laptop screen or app interface; any legible text, numbers, logos, brand names or watermarks; a corporate boardroom; vivid or saturated colour, HDR, a glossy or plastic look, dramatic lighting, lens flare, heavy vignette.
+
+## P9 · Records that last (landscape 3:2)
+
+> A documentary photograph in the records room of an Indonesian school during the day. Tall wooden and grey metal shelves hold rows of ring binders and bound record books, their spines in muted blues, greens and browns, organised by year. A male teacher in his fifties with greying hair, wearing a plain batik shirt in muted tones, returns one binder to its place on a shelf, his hand on its spine. Soft daylight from a high louvred window falls across the shelves; dust visible in the light. A small wooden step stool and a closed cardboard archive box sit on the tiled floor.
+>
+> Composition: a three-quarter view from the end of the aisle, the shelves leading the eye towards him; he is in the centre third, seen in profile or from slightly behind. Keep generous calm space, so the image can be cropped to a wide 2:1 banner and to 4:3. He does not look at the camera.
+>
+> Photographic style: documentary photograph, shot on a Leica M11 rangefinder with a Summilux 35 mm f/1.4 lens at f/2.8, available natural light only. Muted, desaturated, true-to-life colour; soft contrast with a gentle highlight roll-off and slightly lifted blacks; fine natural grain, like Kodak Portra 400. Calm, cinematic and observational: a quiet, unposed moment. Real skin texture, worn paper and wood. High resolution, sharp where focused, natural depth of field.
+>
+> Avoid: looking at the camera, posing; any legible text, labels, years, names, logos or watermarks on the spines or shelves; padlocks, safes, servers or any security cliché; vivid or saturated colour, HDR, a glossy or plastic look, dramatic lighting, lens flare, heavy vignette; distorted hands or extra fingers.

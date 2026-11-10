@@ -26,6 +26,7 @@ has occurred. Every claim presented as available is listed in
 ```
 node website/pintar-site/build.mjs                 # review build: noindex and a review strip on every page
 node website/pintar-site/build.mjs --publish       # removes both; only once 4.1 is accepted and the owner authorises publication
+#   add --origin=https://<production domain> to include the share preview (assets/img/share.jpg, a crop of P1)
 php -S 127.0.0.1:8080 website/pintar-site/verify/router.php
 # open http://127.0.0.1:8080/test/pintar/   (and /test/pintar/en/)
 ```
@@ -51,7 +52,7 @@ Open Font License (`site/assets/fonts/OFL-*.txt`). The site sets no cookies.
 
 ## Images
 
-Five image slots (P1–P5, defined in `src/core.mjs`). Each declares its source:
+Nine image slots (P1–P9, defined in `src/core.mjs`). Each declares its source:
 AI-generated illustration, licensed photograph, or product screenshot, and the
 page labels it accordingly. Generated images are never presented as PINTAR users
 or partner institutions, and no product screenshot is simulated. Until a slot has
@@ -104,7 +105,7 @@ To change what is caught, edit the lists. Then run the cases.
 
 ```
 php  website/pintar-site/verify/moderation-cases.php   # 47 moderation cases, ID and EN
-node website/pintar-site/verify/check.mjs              # 1206 browser and server checks (needs php and Chromium)
+node website/pintar-site/verify/check.mjs              # 1230 browser and server checks (needs php and Chromium)
 ```
 
 `check.mjs` covers:

@@ -2,7 +2,7 @@
 // cycle) and the principles behind it. This page explains why; capabilities
 // and their status live on Features.
 
-import { label, demoBand, NAV_LABEL } from "../core.mjs";
+import { label, photo, demoBand, NAV_LABEL } from "../core.mjs";
 import { thread, cycle, evidenceStates } from "../diagrams.mjs";
 
 export default function why(c) {
@@ -44,6 +44,7 @@ export default function why(c) {
   <div class="wrap">
     <div class="section-head" data-reveal-group>${label("01", t("Masalahnya", "The problem"))}
       <h2 class="h2" id="obs-h" data-reveal>${t("Tiga hal yang membuat <em>bukti sulit dipakai.</em>", "Three things that make <em>evidence hard to use.</em>")}</h2></div>
+    <div class="why__photo" data-reveal>${photo(c, "P7", { sizes: "(max-width: 760px) 100vw, 86rem" })}</div>
     <ol class="observations">${obs.map(([h, d], i) => `<li data-reveal><span class="observations__n">${String(i + 1).padStart(2, "0")}</span><h3 class="observations__h">${h}</h3><p class="observations__d">${d}</p></li>`).join("")}</ol>
   </div>
 </section>

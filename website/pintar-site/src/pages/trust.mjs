@@ -2,7 +2,7 @@
 // explains each one once, with one everyday example. The page claims no
 // certification; every safeguard is on the launch-claims checklist.
 
-import { label, demoBand, NAV_LABEL } from "../core.mjs";
+import { label, photo, demoBand, NAV_LABEL } from "../core.mjs";
 import { layers, LAYERS } from "../diagrams.mjs";
 
 export default function trust(c) {
@@ -19,6 +19,8 @@ export default function trust(c) {
     <div style="--span:6;--start:7">${layers(c).replace('class="layers"', 'class="layers layers--paper"')}</div>
   </div>
 </section>
+
+<div class="wrap wrap--wide pause" data-reveal>${photo(c, "P9", { sizes: "100vw" })}</div>
 
 <section class="section section--rule" aria-labelledby="practice-h">
   <div class="wrap">

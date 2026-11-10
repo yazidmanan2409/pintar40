@@ -691,3 +691,4 @@ h1, h2, h3, .display, .h1, .h2, .audiences__w, .layers__name, .index__h { overfl
 .ahead { border-top: 1px solid var(--line); }
 .demo-band .lead { margin-bottom: var(--s-5); }
 .ph--img .ph__frame::before, .ph--img .ph__frame::after { display: none; }
+.why__photo { margin-bottom: var(--s-8); }
