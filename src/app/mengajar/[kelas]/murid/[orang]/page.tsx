@@ -92,7 +92,8 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
             <dl className="pin-facts">
               {catatan.tugas.map((x) => (
                 <div key={x.id}>
-                  <dt>{x.judul}</dt>
+                  {/* Daisy (1fad2861, B2): by the instrument's name, as «Hasil resmi» below says it */}
+                  <dt>{ajar.namaInstrumen(x.mode, x.judul, () => s(`mengajar.instrumen.${x.mode}` as HleEvent))}</dt>
                   <dd>{s(KEADAAN[x.keadaan])}</dd>
                 </div>
               ))}
@@ -114,9 +115,7 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
                   {/* Daisy (bcecb425, B2): the cycle's instruments by their names, as the student's page and the reports say them,
                       with the course: «Uji Penguasaan · Matematika Kelas 5 · Bab 1», never the authoring title («Cek
                       penguasaan — …», «Pemetaan awal — …», which the database writes on the definition) */}
-                  <dt>{h.mode === "PRE_TEST" || h.mode === "POST_TEST"
-                    ? [s(`mengajar.instrumen.${h.mode}` as HleEvent), (h.judul ?? "").replace(/^\s*(pemetaan awal|cek penguasaan|uji penguasaan)\s*[—–-]\s*/i, "").trim()].filter(Boolean).join(" · ")
-                    : h.judul ?? s(`mengajar.instrumen.${h.mode}` as HleEvent)}</dt>
+                  <dt>{ajar.namaInstrumen(h.mode, h.judul, () => s(`mengajar.instrumen.${h.mode}` as HleEvent))}</dt>
                   <dd className="pin-num">
                     {h.penguasaan === null ? "—" : format.percent(h.penguasaan, locale)}
                     {/* owner decisions E1, D14: a recalculated sitting is explained directly under its figure, with its reason */}
@@ -132,7 +131,9 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
                     ) : null}
                     {/* D-085 M3 (J5.12): under the target on this class's Uji Penguasaan, the teacher may give material back */}
                     {/* ... nor «Beri ulang»: giving material back because of a mistaken assessment repeats the mistake */}
-                    {h.mode === "POST_TEST" && !h.ditarik && h.batas !== null && h.penguasaan !== null && h.penguasaan < h.batas && catatan.tugasSesi[h.sesi] ? (
+                    {h.mode === "POST_TEST" && !h.ditarik && h.batas !== null && h.penguasaan !== null && h.penguasaan < h.batas && catatan.tugasSesi[h.sesi]
+                      // Daisy (1fad2861, B2): never on a chapter the class is no longer given; the database refuses it there
+                      && !catatan.tugasTertutup[catatan.tugasSesi[h.sesi]] ? (
                       <Link className="pin-ulang-tautan" href={`/mengajar/${id}/ulang?penugasan=${catatan.tugasSesi[h.sesi]}&murid=${orang}`}>
                         {s("mengajar.ulang.judul")}
                       </Link>

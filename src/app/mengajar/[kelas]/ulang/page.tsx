@@ -91,6 +91,11 @@ export default async function UlangKelas({
           </BarisHasil>
         ) : null}
 
+        {/* Daisy (1fad2861, B2): a chapter the class is no longer given cannot be asked for again (request_lesson_review:
+            REVIEW_ASSIGNMENT_CLOSED); the page says so in place of the form, and the requests already made stay listed */}
+        {bahan.tertutup ? (
+          <p className="pin-msg pin-sec" data-ulang-tertutup="">{s("mengajar.ulang.tolak.review_assignment_closed")}</p>
+        ) : (
         <form action={mintaBacaUlang} className="pin-sec pin-ulang">
           <input type="hidden" name="kelas" value={id} />
           <input type="hidden" name="penugasan" value={bahan.penugasan} />
@@ -142,6 +147,7 @@ export default async function UlangKelas({
           <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.mengirim")}
             selesai={sp.ulang === "ok" ? s("mengajar.ulang.selesai") : undefined}>{s("mengajar.ulang.kirim")}</TombolKirim>
         </form>
+        )}
 
         <section className="pin-sec" aria-labelledby="pin-ulang-riwayat">
           <h2 id="pin-ulang-riwayat">{s("mengajar.ulang.riwayat")}</h2>

@@ -707,7 +707,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
           {/* ------------------------------------------------ assistance pill */}
           {state?.due && (
             <section className="pin-bantuan-soal" data-bantuan-soal="">
-              <p className="pin-lvl">{kata(stageKey(stage))}</p>
+              {/* Daisy (1fad2861, small): before a level is opened the offer is its button alone, never said twice */}
+              {opened.length > 0 ? <p className="pin-lvl">{kata(stageKey(stage))}</p> : null}
               {opened.map((l) => (
                 <p key={l.level}>
                   <span className="pin-lvl">{kata(`assist.level.${l.kode}` as HleEvent)}</span>

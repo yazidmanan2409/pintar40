@@ -142,6 +142,24 @@ begin
     get stacked diagnostics v_state = returned_sqlstate;
     v := v || jsonb_build_object('hapus', v_state);
   end;
+  -- 7. Daisy (1fad2861, B2; owner: follow it through to the learner): once the teacher ends the chapter, a request
+  --    is refused with its own code, and the learner's still-open request leaves her home (my_lesson_reviews reads a
+  --    chapter the class is given now); nothing is reopened to make the offer work
+  perform selftest.as_user('siklus-guru@synthetic.pintar.test');
+  v := v || jsonb_build_object('akhiri', (public.akhiri_penugasan(v_la, 'ENDED', 'Bab selesai untuk kelas ini.', true)) is not null);
+  -- read in its own statement: one statement sees one snapshot, taken before the function above ended the chapter
+  v := v || jsonb_build_object('status_akhir', (select status::text from public.learning_assignments where id = v_la));
+  begin
+    perform public.request_lesson_review(v_la, array[v_b], array[v_l1]);
+    v := v || jsonb_build_object('setelah_akhir', 'accepted');
+  exception when others then
+    get stacked diagnostics v_state = returned_sqlstate, v_detail = pg_exception_detail;
+    v := v || jsonb_build_object('setelah_akhir', v_state || ':' || coalesce(nullif(v_detail, ''), '-'));
+  end;
+  perform selftest.as_user('card-7002@cards.synthetic.pintar.test');
+  v := v || jsonb_build_object('lain_setelah_akhir', (select count(*) from public.my_lesson_reviews() q where q.learning_assignment_id = v_la),
+                               'lain_sebelum_akhir_bab', (select count(*) from public.lesson_review_requests q where q.learning_assignment_id = v_la));
+  perform selftest.as_owner();
   insert into m3r_snap values ('M3R', v);
 end $m3r$;
 select k || chr(9) || v::text from m3r_snap;
@@ -185,13 +203,18 @@ export const m3rTests: SelfTest[] = [
       c.expect(Number(m.guru_lihat?.a) === 2 && Number(m.guru_lihat?.b) === 0 && m.tulis_sendiri === "42501",
         `the teacher reads ${JSON.stringify(m.guru_lihat)} and writing a row directly was answered ${m.tulis_sendiri}; expected a: 2 read, b: 0, and 42501`);
       c.expect(m.ubah === "PR080" && m.hapus === "PR080", `changing a request was answered ${m.ubah}, removing it ${m.hapus}; expected PR080`);
+      // Daisy (1fad2861, B2): an ended chapter takes no request, and the open one no longer reaches the learner's home
+      c.expect(m.akhiri === true && m.status_akhir === "ENDED" && m.setelah_akhir === "PR050:REVIEW_ASSIGNMENT_CLOSED"
+        && Number(m.lain_setelah_akhir) === 0 && Number(m.lain_sebelum_akhir_bab) >= 1,
+        `after the teacher ended the chapter (${m.status_akhir}) a request was answered ${m.setelah_akhir} and the learner's home lists ${m.lain_setelah_akhir} of its ${m.lain_sebelum_akhir_bab} kept request(s); expected PR050:REVIEW_ASSIGNMENT_CLOSED and 0`);
       return c.verdict(
         "executed in the database, rolled back (supabase/migrations/20261107100000): the cycle school's chapter given to class " +
           "5S; its teacher asks two of its learners (one named twice) to read two lessons again: two requests, four lessons, " +
           "audited once; no learner, no lesson, another chapter's lesson and a person not placed in the class are refused by " +
           "their codes, another school's teacher by 42501; the learner finds the request with who asked, each lesson is marked " +
           "read once, and the request closes after both; another learner neither sees nor marks it; the teacher reads who read " +
-          "what; a request never changes or goes; no client writes one",
+          "what; a request never changes or goes; no client writes one; once the teacher ends the chapter a request is " +
+          "refused (REVIEW_ASSIGNMENT_CLOSED) and the learner's still-open request leaves her home, the requests kept",
       );
     },
   },
@@ -210,6 +233,13 @@ export const m3rTests: SelfTest[] = [
         "the teacher's screen does not let the teacher choose learners and lessons, or does not mark who is under the target");
       const ajar = baca("src", "lib", "pengajar.ts");
       c.expect(/export function urutUlang\(/.test(ajar), "the screen's order (under the target first) is not one pure function");
+      // Daisy (1fad2861, B2): a chapter the class is no longer given offers no request: the learner's page leaves the link
+      // out, and the request screen says so in place of its form (the database refuses it: M3R-S01)
+      const murid1 = baca("src", "app", "mengajar", "[kelas]", "murid", "[orang]", "page.tsx");
+      c.expect(/tertutup: la\.status !== "ACTIVE"/.test(ajar) && /learning_assignments\(status\)/.test(ajar)
+        && /&& !catatan\.tugasTertutup\[catatan\.tugasSesi\[h\.sesi\]\] \?/.test(murid1)
+        && /\{bahan\.tertutup \? \([\s\S]*?mengajar\.ulang\.tolak\.review_assignment_closed[\s\S]*?\) : \([\s\S]*?<form action=\{mintaBacaUlang\}/.test(halaman),
+        "an ended or withdrawn chapter still offers «Minta membaca lagi» on the learner's page, or the request screen still offers its form");
       const rumah = baca("src", "app", "belajar", "page.tsx");
       const panel = rumah.indexOf("<PanelLanjut");
       const diminta = rumah.indexOf('id="pin-diminta"');
@@ -233,7 +263,8 @@ export const m3rTests: SelfTest[] = [
       return c.verdict(
         "reads the source: the teacher's screen lists the class's learners with those under the target marked, lets the " +
           "teacher choose learners and lessons, and sends them to request_lesson_review; the order is one pure function; the " +
-          "learner's home shows the request after the next-step panel; a lesson opened from a request marks it read",
+          "learner's home shows the request after the next-step panel; a lesson opened from a request marks it read; a chapter " +
+          "the class is no longer given offers no request, on the learner's page or the request screen",
       );
     },
   },

@@ -216,11 +216,14 @@ export const kenaikanAppTests: SelfTest[] = [
         let dibaca = 0, hal = 1, lagi = true;
         while (lagi && hal <= 5) {
           const h = tersusun(await (await admin.halaman(`/konfigurasi/audit?${(dilihat.get(r.run)?.[0]?.hal ?? 1) > 1 ? `hal_jejak=${dilihat.get(r.run)![0].hal}&` : ""}run=${r.run}${hal > 1 ? `&hal_run=${hal}` : ""}`)).text());
-          const blok = h.slice(h.indexOf(`id="jejak-run-${r.run}"`));
-          const baris = (blok.slice(0, blok.indexOf("</td>")).match(/data-jejak-anak=""/g) ?? []).length;
+          // RESTATED (Daisy, 1fad2861 C1): the open run's rows are a full-width row of their own under the run's row
+          // (data-jejak-run-baris), read to that row's end; the obligation (every row reachable, 100 a sub-page) is unchanged
+          const awal = h.indexOf(`data-jejak-run-baris="${r.run}"`);
+          const blok = awal < 0 ? "" : h.slice(awal, h.indexOf("</tr>", awal));
+          const baris = (blok.match(/data-jejak-anak=""/g) ?? []).length;
           dibaca += baris;
-          lagi = new RegExp(`hal_run=${hal + 1}&amp;run=${r.run}`).test(blok.slice(0, blok.indexOf("</td>")));
-          if (hal === 1) c.expect(/data-jejak-run-buka=""/.test(blok), `run ${r.run.slice(0, 8)} does not open on its own page`);
+          lagi = new RegExp(`hal_run=${hal + 1}&amp;run=${r.run}`).test(blok);
+          if (hal === 1) c.expect(h.includes(`id="jejak-run-${r.run}"`) && /data-jejak-run-buka=""/.test(blok), `run ${r.run.slice(0, 8)} does not open on its own page`);
           if (baris > 100) { semua = false; break; }
           hal += 1;
         }
@@ -384,13 +387,18 @@ export const kenaikanAppTests: SelfTest[] = [
       // outcome, the run named by its Kelas and years; and the related rows can be opened (Sharon «fold, don't hide»)
       // RESTATED (Sharon's paging ruling, 10 Nov): the related rows are counted exactly under the run and opened by its link
       // («Catatan terkait (n)», ?run=…), a sub-page at a time; n is the database's count of the run's other rows
-      const blokRun = /data-jejak-run-terkait="(\d+)"[^>]*>\s*(<a\b[^>]*data-jejak-run-buka-tautan[^>]*>)/.exec(hj.slice(hj.indexOf(run)));
-      const tautan = blokRun ? [blokRun[0], blokRun[1], /\bhref="([^"]+)"/.exec(blokRun[2])?.[1] ?? ""] : null;
+      // RESTATED (Daisy, 1fad2861 C1/C2): n is on the run's own row (its anchor), and the link sits in the row's «Alasan»
+      // cell after the learners; the rows it opens are a full-width row under the run
+      const awalRun = hj.lastIndexOf("<tr", hj.indexOf(run));
+      const trRun = hj.slice(awalRun, hj.indexOf("</tr>", awalRun));
+      const nRun = /^<tr[^>]*\bid="jejak-run-[^"]+"[^>]*data-jejak-run-terkait="(\d+)"/.exec(trRun);
+      const aRun = /<a\b[^>]*data-jejak-run-buka-tautan[^>]*>/.exec(trRun);
+      const tautan = nRun && aRun ? [nRun[0], nRun[1], /\bhref="([^"]+)"/.exec(aRun[0])?.[1] ?? ""] : null;
       const terkait = Number(tautan?.[1] ?? "0");
       const nDb = Number(psql(`select count(*) from public.audit_log a where a.summary ->> 'run_id' = (select p.summary ->> 'run_id' from public.audit_log p
         where p.action = 'promotion.applied' and p.target_id = ${lit(k5)} order by p.id desc limit 1) and a.action <> 'promotion.applied'`));
       const hBuka = tautan ? tersusun(await (await admin.halaman(tautan[2].replace(/&amp;/g, "&").split("#")[0])).text()) : "";
-      const lipat = [hBuka.slice(hBuka.indexOf("data-jejak-run-buka")) || ""];
+      const lipat = [(() => { const i = hBuka.indexOf("data-jejak-run-baris="); return i < 0 ? "" : hBuka.slice(i, hBuka.indexOf("</tr>", i)); })()];
       c.expect(run !== "" && teks(run).includes(`${nama("A")} · naik ke ${kt(`Kelas 6X ${tag}`)}`) && teks(run).includes(`${nama("B")} · tinggal kelas di ${kt(`Kelas 5X ulang ${tag}`)}`)
         && teks(run).includes(`${nama("C")} · lulus`) && teks(run).includes(`${nama("D")} · naik ke ${kt(`Kelas 6X ${tag}`)}`)
         && teks(run).includes("4 murid: 2 naik, 1 tinggal kelas, 1 lulus") && terkait >= 1 && terkait === nDb

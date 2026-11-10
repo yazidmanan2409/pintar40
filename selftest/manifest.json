@@ -2922,12 +2922,12 @@
     {
       "id": "M3R-S01",
       "runner": "static",
-      "proves": "D-085 M3 (J5.12): a teacher asks the learners who need it to read again. In the database, rolled back (supabase/migrations/20261107100000): the class's teacher asks two learners placed in the class for two lessons of a chapter the class was given, audited; no learner, no lesson, another chapter's lesson, a person not placed in the class and another school's teacher are refused; the learner finds the request, each lesson is marked read once and the request closes; another learner neither sees nor marks it; the teacher reads who read what; a request is history and no client writes one"
+      "proves": "D-085 M3 (J5.12): a teacher asks the learners who need it to read again. In the database, rolled back (supabase/migrations/20261107100000): the class's teacher asks two learners placed in the class for two lessons of a chapter the class was given, audited; no learner, no lesson, another chapter's lesson, a person not placed in the class and another school's teacher are refused; the learner finds the request, each lesson is marked read once and the request closes; another learner neither sees nor marks it; the teacher reads who read what; a request is history and no client writes one; once the teacher ends the chapter a request is refused (REVIEW_ASSIGNMENT_CLOSED) and the learner's still-open request leaves her home"
     },
     {
       "id": "M3R-K01",
       "runner": "static",
-      "proves": "D-085 M3 (J5.12): reads the source: the teacher's screen lists the class's learners with those under the sealed target marked and first, lets the teacher choose learners and lessons, and sends them to request_lesson_review; the learner's home shows «Diminta gurumu» after the next-step panel; a lesson opened from a request marks it read on its last page"
+      "proves": "D-085 M3 (J5.12): reads the source: the teacher's screen lists the class's learners with those under the sealed target marked and first, lets the teacher choose learners and lessons, and sends them to request_lesson_review; the learner's home shows «Diminta gurumu» after the next-step panel; a lesson opened from a request marks it read on its last page; a chapter the class is no longer given offers no request, on the learner's page or the request screen"
     },
     {
       "id": "C1-S01",

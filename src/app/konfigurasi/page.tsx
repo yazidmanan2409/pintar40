@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import Kosong from "@/components/Kosong";
 import TandaTautan from "@/components/TandaTautan";
@@ -1957,8 +1958,14 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   <tr><th scope="col">{s("config.label.when")}</th><th scope="col">{s("config.label.action")}</th><th scope="col">{s("config.label.target")}</th><th scope="col">{s("audit.kolom.oleh")}</th><th scope="col">{s("audit.kolom.alasan")}</th>{adaVersi ? <th scope="col">{s("config.label.build")}</th> : null}</tr>
                 </thead>
                 <tbody>
-                  {barisJejak.map((r) => (
-                    <tr key={r.id}>
+                  {barisJejak.map((r) => {
+                    // Daisy (1fad2861, C1/C2): a run's related rows open in a full-width row of their own under the run's
+                    // row, never inside its «Alasan» cell; the anchor is the run's own row, kept clear of the sticky bar
+                    const runBaris = r.action === "promotion.applied" ? runId(r.summary) : null;
+                    const nBaris = runBaris ? nAnakRun.get(runBaris) ?? null : null;
+                    const bukaBaris = Boolean(runBaris) && nBaris !== 0 && runDibuka?.run === runBaris && anakRun !== null;
+                    return (<Fragment key={r.id}>
+                    <tr id={runBaris ? `jejak-run-${runBaris}` : undefined} data-jejak-run-terkait={runBaris && nBaris !== 0 ? nBaris ?? "?" : undefined} className={runBaris ? "pin-jejak-induk" : undefined}>
                       <td className="whitespace-nowrap">{when(r.at, "cap", zonaBaris(r.institution_id))}</td>
                       {/* D-138(c), D-140(c): the action and the record in words; never the code, the table or an id. */}
                       <td>{kataAksiAudit(r.action, locale)}</td>
@@ -2006,39 +2013,34 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                                 {/* §4.4.3 (Sharon: «fold, don't hide»), paged as Sharon ruled (10 Nov): the run's related rows are counted
                                     exactly and opened under it, a sub-page at a time, each in the table's own words: when, the action, the
                                     record, the learner and the Kelas. A link, so the open run has an address and the page returns to it */}
-                                {(() => {
-                                  const run = runId(r.summary);
-                                  const n = run ? nAnakRun.get(run) ?? null : null;
-                                  if (!run) return null;
-                                  const daftar = (baris: Array<Record<string, unknown>>) => (
-                                    <ul className="mt-1 grid gap-1 text-ink-2">{baris.map((x) => (
-                                      <li key={String(x.id)} data-jejak-anak="">{[when(x.at as string, "cap", zonaBaris(r.institution_id)), kataAksiAudit(x.action as string, locale), kataTabelAudit(x.target_table as string, locale),
-                                        orangRun(x as never) ? namaPelaku.get(orangRun(x as never)!) ?? TANPA_NAMA : null, kelasRun(x as never) ? namaNode.get(kelasRun(x as never)!) ?? null : null].filter(Boolean).join(" · ")}</li>
-                                    ))}</ul>
-                                  );
+                                {runBaris && nBaris !== 0 && !bukaBaris ? (
                                   // a count that could not be read hides nothing: the run still offers its related rows, unnumbered
-                                  if (n === 0) return null;
-                                  const buka = runDibuka?.run === run && anakRun !== null;
-                                  return (
-                                    <div className="mt-1" id={`jejak-run-${run}`} data-jejak-run-terkait={n ?? "?"}>
-                                      {buka ? (<>
-                                        <p className="text-ink-3" data-jejak-run-buka="">{n === null ? s("audit.kenaikan.terkait_buka") : s("audit.kenaikan.terkait").replace("{n}", String(n))} · <Link className="pin-tautan" href={tautanTutupRun(jalanIni, sp, run)}>{s("audit.kenaikan.tutup")}</Link></p>
-                                        {daftar(anakRun!.baris)}
-                                        <Penomoran halaman={halamanDiminta(sp.hal_run)} lagi={anakRun!.lagi} ke={(h) => tautanRun(jalanIni, sp, run, h)} locale={locale}
-                                          benda={sl("koleksi.benda.jejak")} jumlah={anakRun!.baris.length} ukuran={UKURAN_ANAK_RUN} total={n ?? undefined} />
-                                      </>) : (
-                                        <Link className="pin-tautan" href={tautanRun(jalanIni, sp, run, 1)} data-jejak-run-buka-tautan="">{n === null ? s("audit.kenaikan.terkait_buka") : s("audit.kenaikan.terkait").replace("{n}", String(n))}</Link>
-                                      )}
-                                    </div>
-                                  );
-                                })()}
+                                  <p className="mt-1"><Link className="pin-tautan" href={tautanRun(jalanIni, sp, runBaris, 1)} data-jejak-run-buka-tautan="">{nBaris === null ? s("audit.kenaikan.terkait_buka") : s("audit.kenaikan.terkait").replace("{n}", String(nBaris))}</Link></p>
+                                ) : null}
                               </>);
                             })() : null}</td>
                         </>);
                       })()}
                       {adaVersi ? <td className="pin-num text-ink-3">{r.build_sha ? short(r.build_sha) : ""}</td> : null}
                     </tr>
-                  ))}
+                    {bukaBaris && runBaris ? (
+                      // §4.4.3 (Sharon: «fold, don't hide»), paged as Sharon ruled (10 Nov): the run's related rows, counted
+                      // exactly, a sub-page at a time, each in the table's own words: when, the action, the record, the
+                      // learner and the Kelas
+                      <tr className="pin-jejak-anak-baris" data-jejak-run-baris={runBaris}>
+                        <td colSpan={adaVersi ? 6 : 5}>
+                          <p className="text-ink-3" data-jejak-run-buka="">{nBaris === null ? s("audit.kenaikan.terkait_buka") : s("audit.kenaikan.terkait").replace("{n}", String(nBaris))} · <Link className="pin-tautan" href={tautanTutupRun(jalanIni, sp, runBaris)}>{s("audit.kenaikan.tutup")}</Link></p>
+                          <ul className="pin-jejak-anak mt-1 grid gap-1 text-ink-2">{anakRun!.baris.map((x) => (
+                            <li key={String(x.id)} data-jejak-anak="">{[when(x.at as string, "cap", zonaBaris(r.institution_id)), kataAksiAudit(x.action as string, locale), kataTabelAudit(x.target_table as string, locale),
+                              orangRun(x as never) ? namaPelaku.get(orangRun(x as never)!) ?? TANPA_NAMA : null, kelasRun(x as never) ? namaNode.get(kelasRun(x as never)!) ?? null : null].filter(Boolean).join(" · ")}</li>
+                          ))}</ul>
+                          <Penomoran halaman={halamanDiminta(sp.hal_run)} lagi={anakRun!.lagi} ke={(h) => tautanRun(jalanIni, sp, runBaris, h)} locale={locale}
+                            benda={sl("koleksi.benda.jejak")} jumlah={anakRun!.baris.length} ukuran={UKURAN_ANAK_RUN} total={nBaris ?? undefined} />
+                        </td>
+                      </tr>
+                    ) : null}
+                    </Fragment>);
+                  })}
                   {barisJejak.length === 0 && <tr className="pin-tabel-kosong"><td className="text-ink-3" colSpan={adaVersi ? 6 : 5}>{s("config.empty")}</td></tr>}
                 </tbody>
               </table>
