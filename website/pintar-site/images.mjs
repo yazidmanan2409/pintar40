@@ -1,7 +1,7 @@
 // Prepares the website's images. Put an original in images/ named after its
 // slot (P1.png, P2.jpg … see src/core.mjs PHOTOS and images/README.md), then
 // run `node images.mjs` and `node build.mjs`. Each original becomes WebP files
-// at 640, 1024, 1600 and (when the original is large enough) 2400 px wide in
+// at 640, 1024, 1600 and 2400 px wide (never larger than the original) in
 // site/assets/img/, with all metadata removed. The originals stay in images/
 // and are never uploaded. Needs ffmpeg.
 
@@ -23,12 +23,13 @@ for (const f of existsSync(SRC) ? readdirSync(SRC) : []) {
   const m = /^(P\d+)\.(png|jpe?g|webp)$/i.exec(f);
   if (!m || !PHOTOS[m[1]]) continue;
   const file = join(SRC, f), w0 = width(file);
-  for (const w of IMG_WIDTHS) {
-    if (w > 1600 && w > w0) continue; // never invent detail above 1600 px
+  // The standard widths up to the original, then the original width itself; never upscaled.
+  const widths = [...new Set([...IMG_WIDTHS.filter((w) => w < w0), Math.min(w0, IMG_WIDTHS.at(-1))])];
+  for (const w of widths) {
     execFileSync("ffmpeg", ["-v", "error", "-y", "-i", file, "-map_metadata", "-1", "-vf", `scale=${w}:-2:flags=lanczos`,
       "-c:v", "libwebp", "-quality", "80", "-compression_level", "6", join(OUT, `${m[1]}-${w}.webp`)]);
   }
-  console.log(`${m[1]}: ${f} (${w0} px) → ${IMG_WIDTHS.filter((w) => w <= 1600 || w <= w0).join(", ")} px`);
+  console.log(`${m[1]}: ${f} (${w0} px) → ${widths.join(", ")} px`);
   n += 1;
 }
 console.log(n ? `${n} image(s) prepared in site/assets/img/. Now run node build.mjs.` : "No originals found in images/.");

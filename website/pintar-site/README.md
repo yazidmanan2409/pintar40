@@ -59,7 +59,7 @@ an image, it shows a labelled placeholder with the brief.
 
 ```
 # save the original as website/pintar-site/images/P1.png (or .jpg/.webp), then:
-node website/pintar-site/images.mjs   # WebP at 640, 1024, 1600 (and 2400) px, metadata removed; needs ffmpeg
+node website/pintar-site/images.mjs   # WebP at 640, 1024, 1600, 2400 px, never above the original, metadata removed; needs ffmpeg
 node website/pintar-site/build.mjs
 ```
 
@@ -104,7 +104,7 @@ To change what is caught, edit the lists. Then run the cases.
 
 ```
 php  website/pintar-site/verify/moderation-cases.php   # 47 moderation cases, ID and EN
-node website/pintar-site/verify/check.mjs              # 1178 browser and server checks (needs php and Chromium)
+node website/pintar-site/verify/check.mjs              # 1206 browser and server checks (needs php and Chromium)
 ```
 
 `check.mjs` covers:

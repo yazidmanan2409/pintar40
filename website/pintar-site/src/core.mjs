@@ -5,7 +5,7 @@
 // in English (under en/). Each language has its own natural slugs, and the
 // language switch always lands on the same page in the other language.
 
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 
 export const ROUTES = {
   home:      { id: "",                  en: "en/" },
@@ -77,36 +77,36 @@ const IMG_DIR = new URL("../site/assets/img/", import.meta.url);
 export const IMG_WIDTHS = [640, 1024, 1600, 2400];
 
 export const PHOTOS = {
-  P1: { r: "2/1", rm: "4/5", kind: "generated", pos: "50% 45%", posm: "50% 50%",
+  P1: { r: "2/1", rm: "4/3", kind: "generated", pos: "50% 42%", posm: "45% 50%",
     name_id: "Di kelas", name_en: "In class",
-    id: "Ruang kelas SMP pada pagi hari. Seorang guru berlutut di samping meja dua peserta didik dan membaca lembar kerja pecahan mereka.",
-    en: "A junior secondary classroom in the morning. A teacher kneels beside two learners’ desk and reads their fractions worksheet.",
-    alt_id: "Guru berlutut di samping meja dua peserta didik berseragam putih biru dan menunjuk satu jawaban di lembar kerja.",
-    alt_en: "A teacher kneels beside two learners in white-and-navy uniforms and points to one answer on their worksheet." },
-  P2: { r: "4/5", rm: "4/5", kind: "generated", pos: "50% 50%", posm: "50% 50%",
+    id: "Ruang kelas SMP pada pagi hari. Seorang guru duduk di samping meja dua peserta didik dan membaca lembar kerja pecahan mereka.",
+    en: "A junior secondary classroom in the morning. A teacher sits beside two learners’ desk and reads their fractions worksheet.",
+    alt_id: "Guru berjilbab biru duduk di samping meja dua peserta didik berseragam putih biru dan menunjuk satu jawaban di lembar kerja dengan pena; keduanya memperhatikan sambil berpikir.",
+    alt_en: "A teacher in a blue hijab sits beside two learners in white-and-navy uniforms and points with a pen to one answer on their worksheet; both watch, thinking." },
+  P2: { r: "4/5", rm: "4/5", kind: "generated", pos: "50% 40%", posm: "50% 40%",
     name_id: "Menyiapkan pelajaran besok", name_en: "Preparing tomorrow’s lesson",
     id: "Ruang guru setelah jam pelajaran. Seorang guru menulis rencana pelajaran besok di samping laptop dan tumpukan buku latihan.",
     en: "The staff room after lessons. A teacher writes tomorrow’s lesson plan beside a laptop and a stack of exercise books.",
-    alt_id: "Guru di ruang guru menulis di buku catatan, dengan laptop terbuka dan tumpukan buku latihan di meja.",
-    alt_en: "A teacher in the staff room writes in a notebook, with an open laptop and a stack of exercise books on the desk." },
-  P3: { r: "4/5", rm: "4/5", kind: "generated", pos: "50% 50%", posm: "50% 50%",
+    alt_id: "Guru di ruang guru menulis di buku catatan pada sore hari, dengan laptop terbuka, tumpukan buku latihan, dan segelas teh di meja.",
+    alt_en: "A teacher in the staff room writes in a notebook in the late afternoon, beside an open laptop, a stack of exercise books and a glass of tea." },
+  P3: { r: "4/5", rm: "4/5", kind: "generated", pos: "50% 55%", posm: "50% 55%",
     name_id: "Belajar di rumah", name_en: "Studying at home",
     id: "Peserta didik SMA belajar di teras rumah pada sore hari, buku catatan terbuka di samping ponsel.",
     en: "A senior secondary learner studies on a home veranda in the late afternoon, a notebook open beside a phone.",
-    alt_id: "Peserta didik SMA duduk di teras rumah, menulis di buku catatan di samping ponsel.",
-    alt_en: "A senior secondary learner sits on a veranda, writing in a notebook beside a phone." },
-  P4: { r: "3/2", rm: "4/5", kind: "generated", pos: "50% 50%", posm: "50% 50%",
+    alt_id: "Peserta didik SMA berjilbab abu-abu duduk di lantai teras rumah, menulis di buku catatan di meja kayu rendah, dengan ponsel di sampingnya.",
+    alt_en: "A senior secondary learner in a grey hijab sits on a tiled veranda, writing in a notebook at a low wooden table, her phone beside it." },
+  P4: { r: "3/2", rm: "4/3", kind: "generated", pos: "50% 50%", posm: "55% 50%",
     name_id: "Rapat pimpinan", name_en: "A leadership meeting",
     id: "Kepala sekolah dan wakilnya di ruang rapat, membahas ringkasan kelas yang tercetak di atas meja.",
     en: "A principal and deputy in a meeting room, discussing a printed class summary on the table.",
-    alt_id: "Kepala sekolah dan wakil kepala sekolah membahas laporan tercetak di meja rapat.",
-    alt_en: "A principal and a deputy principal discuss a printed report at a meeting table." },
-  P5: { r: "2/1", rm: "4/3", kind: "generated", pos: "50% 55%", posm: "50% 50%",
+    alt_id: "Kepala sekolah menunjuk bagian laporan tercetak dengan pena, sementara wakilnya mendengarkan sambil berpikir, di meja rapat dengan dua gelas teh.",
+    alt_en: "A principal points with a pen to part of a printed report while her deputy listens, thinking, at a meeting table with two glasses of tea." },
+  P5: { r: "2/1", rm: "4/3", kind: "generated", pos: "50% 50%", posm: "55% 50%",
     name_id: "Pagi di sekolah", name_en: "Morning at school",
     id: "Halaman sekolah pada pagi hari, sebelum pelajaran dimulai, dilihat dari lantai atas. Tanpa wajah yang dapat dikenali.",
     en: "A school courtyard in the morning before lessons, seen from an upper floor. No recognisable faces.",
-    alt_id: "Halaman sekolah di Indonesia pada pagi hari, dengan peserta didik berjalan menuju kelas.",
-    alt_en: "An Indonesian school courtyard in the morning, with learners walking to class." },
+    alt_id: "Halaman sekolah dua lantai di Indonesia pada pagi hari, dilihat dari selasar atas: bendera merah putih, pohon peneduh, dan peserta didik berjalan menuju kelas.",
+    alt_en: "A two-storey Indonesian school courtyard in the morning, seen from the upper corridor: the red-and-white flag, a shade tree, and learners walking to class." },
 };
 
 /** What each source kind is called, wherever an image is shown or listed. */
@@ -116,7 +116,7 @@ export const IMAGE_KIND = {
   screenshot: { id: "Tangkapan layar PINTAR, data contoh", en: "PINTAR screenshot, sample data" },
 };
 
-export const imageReady = (id) => existsSync(new URL(`${id}-1600.webp`, IMG_DIR));
+export const imageReady = (id) => existsSync(new URL(`${id}-640.webp`, IMG_DIR));
 
 /** An image: the real file when it exists, otherwise a labelled placeholder with the brief. */
 export function photo(c, id, { caption = true, cls = "", sizes = "(max-width: 760px) 100vw, 50vw", r, rm } = {}) {
@@ -126,9 +126,10 @@ export function photo(c, id, { caption = true, cls = "", sizes = "(max-width: 76
   const kind = IMAGE_KIND[p.kind][c.lang];
   const style = `--r:${r ?? p.r};--rm:${rm ?? p.rm};--pos:${p.pos};--posm:${p.posm}`;
   if (imageReady(id)) {
-    const set = IMG_WIDTHS.filter((w) => existsSync(new URL(`${id}-${w}.webp`, IMG_DIR))).map((w) => `${c.asset(`img/${id}-${w}.webp`)} ${w}w`).join(", ");
+    const have = readdirSync(IMG_DIR).map((f) => new RegExp(`^${id}-(\\d+)\\.webp$`).exec(f)?.[1]).filter(Boolean).map(Number).sort((a, b) => a - b);
+    const set = have.map((w) => `${c.asset(`img/${id}-${w}.webp`)} ${w}w`).join(", ");
     return `<figure class="ph ph--img ${cls}" style="${style}" data-photo="${id}" data-kind="${p.kind}">
-  <div class="ph__frame"><img src="${c.asset(`img/${id}-1600.webp`)}" srcset="${set}" sizes="${sizes}" alt="${esc(alt)}" loading="lazy" decoding="async"></div>
+  <div class="ph__frame"><img src="${c.asset(`img/${id}-${have.at(-1)}.webp`)}" srcset="${set}" sizes="${sizes}" alt="${esc(alt)}" loading="lazy" decoding="async"></div>
   <figcaption class="caption ph__credit">${kind}</figcaption>
 </figure>`;
   }
