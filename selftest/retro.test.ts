@@ -394,9 +394,15 @@ export const retroTests: SelfTest[] = [
       const BOLEH: Record<string, string | string[]> = {
         "src/app/konfigurasi/page.tsx": ["a mastery mark's change history, under its current value",
           // K1 (Daisy, TINJAUAN-KENAIKAN-KELAS-DIBANGUN; Sharon «fold, don't hide»): the row states the run and its count
-          "a year-end run's learners and their decisions in Jejak audit, under the run's one row that states how many"],
+          "a year-end run's learners and their decisions in Jejak audit, under the run's one row that states how many",
+          // Daisy (435a2856, §4.4.3; Sharon «fold, don't hide»): the run's own other rows, counted in the summary, openable
+          "a year-end run's related entries (enrolments ended and opened), under the run's row that counts them"],
         // Q2 (Daisy, the same review): the exceptions are always shown and the count is in the summary line
-        "src/components/kenaikan/KenaikanKelas.tsx": "the review's main group's names, under its count; every exception is always shown",
+        "src/components/kenaikan/KenaikanKelas.tsx": ["the review's main group's names, under its count; every exception is always shown",
+          // Daisy (435a2856, §4.3): the outcome laid out as the review
+          "the outcome's main group's names with what PINTAR recorded, under its count; every exception is always shown"],
+        // Daisy (435a2856, §1.1): what has ended, below the working list; nothing in it can be acted on
+        "src/app/mengajar/[kelas]/page.tsx": "the class's ended and withdrawn assignments with when and why, under the working list; none can be acted on",
         "src/app/pimpinan/page.tsx": "one class's evidence, a drill-down under the node's figures",
         "src/app/belajar/[tugas]/hasil/page.tsx": "an answered question's review; a wrong safety-critical one opens itself",
         "src/app/studio/bank/page.tsx": "a finding's locations, under the finding",

@@ -19,7 +19,8 @@ export type BagianBab = { kode: string; nama: string; benar: number; total: numb
 export type BabHasil = {
   tugas: string;
   judul: string;
-  keadaan: "SELESAI" | "BERJALAN";
+  /** DITUTUP_AWAL (Daisy, 435a2856 §2.1): the lesson closed after a finished Tes awal and before its Uji Penguasaan */
+  keadaan: "SELESAI" | "BERJALAN" | "DITUTUP_AWAL";
   /** Pemetaan Awal and Uji Penguasaan mastery, when each is finished (the comparison's own figures). */
   awal: number | null;
   akhir: number | null;
@@ -46,8 +47,15 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
     if (!state) return null;
     const mulai = Boolean(state.pre_session || state.post_session);
     if (!state.post_session || state.post_status !== "FINALIZED") {
-      // a closed lesson, or one of a Kelas the learner has left, is no longer «in progress»
-      if ((a.status && a.status !== "ACTIVE") || a.kini === false) return null;
+      // a closed lesson, or one of a Kelas the learner has left, is no longer «in progress»; but a finished Tes awal is a
+      // result the learner earned, and the owner's rule keeps results (Daisy, 435a2856 §2.1): one quiet row, no target
+      if ((a.status && a.status !== "ACTIVE") || a.kini === false) {
+        if (!state.pre_session || state.pre_status !== "FINALIZED") return null;
+        const awal = await engine.outcome(db, state.pre_session).catch(() => null);
+        if (!awal || awal.penguasaan === null || awal.penguasaan === undefined) return null;
+        return { tugas: a.learning_assignment_id, judul, keadaan: "DITUTUP_AWAL", awal: awal.penguasaan, akhir: null, ambang: null,
+                 tercapai: null, benar: 0, total: 0, bagian: [], ulang: [], ...(a.status === "WITHDRAWN" ? { ditarik: true } : {}) };
+      }
       return mulai ? { tugas: a.learning_assignment_id, judul, keadaan: "BERJALAN", awal: null, akhir: null, ambang: null, tercapai: null, benar: 0, total: 0, bagian: [], ulang: [] } : null;
     }
     const [outcome, review, delta, peta, pelajaran] = await Promise.all([

@@ -53,6 +53,17 @@ export default function KomposisiMurid({ bab, locale, persona = "learner" }: { b
         ) : null}
         <ul className="pin-lk-baris">
           {bab.map((b) => {
+            if (b.keadaan === "DITUTUP_AWAL") {
+              // Daisy (435a2856, §2.1): the Tes awal the learner finished before the material closed, kept, with no target
+              return (
+                <li key={b.tugas} data-keadaan="ditutup-awal">
+                  <span className="pin-lk-nama">{b.judul}</span>
+                  <span className="pin-lk-jalur" aria-hidden="true" />
+                  <span className="pin-lk-nilai">{s("hasilbelajar.ditutup_awal").replace("{persen}", b.awal !== null ? format.percent(b.awal, locale) : "")}</span>
+                  {b.ditarik ? <small className="pin-lk-ditarik" data-ditarik="">{s("hasilbelajar.ditarik")}</small> : null}
+                </li>
+              );
+            }
             if (b.keadaan === "BERJALAN") {
               return (
                 <li key={b.tugas} data-keadaan="berjalan">

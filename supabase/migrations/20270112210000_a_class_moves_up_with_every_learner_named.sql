@@ -167,7 +167,11 @@ begin
   if v_kurang is not null then
     raise exception using errcode = 'PR070', detail = 'PROMO_UNDECIDED', message = 'no decision yet for: ' || v_kurang;
   end if;
-  if p_terapkan and p_guru_ditinjau is not true then
+  -- CORRECTED IN PLACE (undeployed; Daisy at 435a2856, §4.2): the acknowledgement is of the teachers of the Kelas the
+  -- learners go to; with no learner going to a Kelas (all graduate or leave) there is none to acknowledge. F37-K07.
+  if p_terapkan and p_guru_ditinjau is not true
+     and exists (select 1 from jsonb_array_elements(v_keputusan) x
+                  where nullif(x ->> 'kelas_tujuan', '') is not null or x ->> 'keputusan' in ('NAIK', 'TINGGAL')) then
     raise exception using errcode = 'PR070', detail = 'PROMO_TEACHERS_UNREVIEWED',
       message = 'teachers are not carried to the new year; confirm that their assignments were reviewed';
   end if;

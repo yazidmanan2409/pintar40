@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { t, format, hariIniSekolah, batasHari, type HleEvent } from "@/lib/hle";
 import { zonaSekolah } from "@/lib/zona-sekolah";
+import { daftarKata } from "@/components/laporan/tata";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
 import { konteksHalaman } from "@/lib/konteks-server";
@@ -252,7 +253,7 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
                 {/* approved (TINJAUAN-89374424): the confirmation names the person, the school and every role that ends */}
                 <KonfirmasiBahaya id="staf-akhiri" sibuk={s("tombol.memproses")} tombol={s("staf.akhiri.tombol")} ya={s("staf.akhiri.tombol")} batal={s("staf.ubah.batal")}
                   tanya={s("staf.akhiri.tanya").replace("{nama}", orang.nama ?? "—").replace("{sekolah}", namaSekolah)}
-                  akibat={<p data-staf-akhiri-peran="">{s("staf.akhiri.peran_berakhir").replace("{daftar}", orang.peran.map((p) => `${peranKata(p.role)} ${p.tempat}`).join(", "))}</p>} />
+                  akibat={<p data-staf-akhiri-peran="">{s("staf.akhiri.peran_berakhir").replace("{daftar}", daftarKata(orang.peran.map((p) => `${peranKata(p.role)} ${p.tempat}`), locale))}</p>} />
               </div>
             </form>
           </section>

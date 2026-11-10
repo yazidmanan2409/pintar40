@@ -17,6 +17,9 @@ import { adaBuktiSoal, kataAnggota } from "@/lib/mengajar";
 import { alamatCatatan } from "@/lib/pengembangan-kontrak";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { tanggal } from "@/lib/tanggal";
+import { zonaSekolah } from "@/lib/zona-sekolah";
+import { supabaseServer } from "@/lib/supabase/server";
+import Ikon from "@/components/Ikon";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]");
 
@@ -68,11 +71,13 @@ export default async function Kelas({
     );
   }
 
-  const [fakta, tugas, buka, terbit] = await Promise.all([
+  const [fakta, tugas, buka, terbit, riwayat, zona] = await Promise.all([
     ajar.faktaKelas(id),
     ajar.penugasan(id),
     ajar.berjalan([id]),
     ajar.terbitan(ctx.ini.institusi, id),
+    ajar.riwayatPenugasan(id),
+    supabaseServer().then((c) => zonaSekolah(c, ctx.ini.institusi)),
   ]);
   // W3.5 (Daisy, J2Kelas): the roster searched and paged (alphabetical, 50 a page, the total kept)
   const rosterHalaman = susunKoleksi(fakta.murid, { nama: (m) => m.nama, kueri: kueriDiminta(sp.cari), halaman: halamanKoleksi(sp.hal), ukuran: 50 });
@@ -83,6 +88,12 @@ export default async function Kelas({
   const diakhiri = tugas.find((x) => x.id === sp.akhiri && x.status === "ACTIVE") ?? null;
   const pratinjau = diakhiri ? await ajar.pratinjauAkhiri(diakhiri.id) : null;
   const aktif = tugas.filter((x) => x.status === "ACTIVE" && !x.berakhir);
+  // Daisy (435a2856, §1.1): the working list holds what a teacher can act on; what has ended or been withdrawn moves to
+  // one closed disclosure below it, newest first, so a lesson withdrawn and offered again appears once up there
+  const kerja = tugas.filter((x) => x.status !== "ENDED" && x.status !== "WITHDRAWN");
+  const selesaiTugas = tugas.filter((x) => x.status === "ENDED" || x.status === "WITHDRAWN")
+    .sort((p, q) => (riwayat.get(q.id)?.pada ?? "").localeCompare(riwayat.get(p.id)?.pada ?? ""));
+  const judulMateri = (k: string) => k || s("mengajar.materi.tanpa_judul");
 
   return (
     <>
@@ -192,13 +203,13 @@ export default async function Kelas({
           {/* DAISY-18: "Sediakan" lands here, beside the material it made available */}
           {sedia === "ok" ? <BarisHasil nada="ok">{s("mengajar.sedia.ok")}</BarisHasil> : null}
           {sp.diakhiri === "ok" || sp.diakhiri === "ditarik" ? <BarisHasil nada="ok">{s(sp.diakhiri === "ditarik" ? "mengajar.akhiri.ok_tarik" : "mengajar.akhiri.ok")}</BarisHasil> : null}
-          {tugas.length === 0 && terbit.length === 0 ? (
+          {kerja.length === 0 && terbit.filter((r) => !punya.has(r.id)).length === 0 ? (
             <Kosong jenis="belum" kalimat={s("mengajar.materi.kosong")} />
           ) : (
             <div className="pin-list">
-              {tugas.map((x) => (
+              {kerja.map((x) => (
                 <div key={x.id} className="pin-row">
-                  <span className="pin-title">{x.kursus}</span>
+                  <span className="pin-title">{judulMateri(x.kursus)}</span>
                   {/* Batch 3 closure (Daisy, J1Terbit step 7): the window in words, «Mulai … · Sampai …» or «Tanpa batas
                       akhir», and «Tersedia» as the done Badge (✓); a scheduled or finished material stays neutral */}
                   <span className="pin-rowmeta">
@@ -209,7 +220,7 @@ export default async function Kelas({
                   {/* W2.21: an assignment in force can be ended or withdrawn, on the record, from its own row */}
                   {x.status === "ACTIVE" ? (
                     <Link className="pin-tautan" href={`/mengajar/${id}?akhiri=${x.id}#akhiri`} data-akhiri-buka={x.id}>
-                      {s("mengajar.akhiri.buka")}<span className="pin-sr"> · {x.kursus}</span>
+                      {s("mengajar.akhiri.buka")}<span className="pin-sr"> · {judulMateri(x.kursus)}</span>
                     </Link>
                   ) : null}
                 </div>
@@ -222,7 +233,7 @@ export default async function Kelas({
                     className="pin-row"
                     href={`/mengajar/${id}/siapkan?terbitan=${r.id}`}
                   >
-                    <span className="pin-title">{r.kursus}</span>
+                    <span className="pin-title">{judulMateri(r.kursus)}</span>
                     {/* DAISY-26 (UX-20): the date says which release; its version number means nothing to a teacher */}
                     <span className="pin-rowmeta">
                       {r.terbitPada ? (
@@ -236,6 +247,32 @@ export default async function Kelas({
                 ))}
             </div>
           )}
+          {selesaiTugas.length > 0 ? (
+            <details className="pin-disclosure pin-materi-berakhir" data-materi-berakhir={selesaiTugas.length}>
+              <summary>{s("mengajar.materi.berakhir").replace("{n}", format.number(selesaiTugas.length, locale))}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
+              <div className="pin-list">
+                {selesaiTugas.map((x) => {
+                  const r = riwayat.get(x.id);
+                  const ditarik = x.status === "WITHDRAWN";
+                  const kapan = r?.pada ? tanggal(r.pada, "baca", locale, zona) : "";
+                  const garis = s(ditarik ? "mengajar.materi.ditarik_pada" : "mengajar.materi.diakhiri_pada");
+                  return (
+                    <div key={x.id} className="pin-row" data-materi-riwayat={x.id} data-materi-jenis={x.status}>
+                      <span className="pin-title">{judulMateri(x.kursus)}</span>
+                      <span className="pin-rowmeta">
+                        <span>{kapan ? garis.replace("{tanggal}", kapan) : garis.replace(" {tanggal}", "")}</span>
+                        {r?.alasan ? <span>{s("mengajar.materi.alasan").replace("{alasan}", r.alasan)}</span> : null}
+                      </span>
+                      <span className="pin-pill pin-neutral">{s(ajar.statusMateri(x))}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* the evidence stays reachable: the class's evidence page has no per-assignment filter, so the sentence
+                  says where each result is rather than promising a view that does not exist */}
+              <p className="pin-sub">{s("mengajar.materi.hasil_murid")}</p>
+            </details>
+          ) : null}
         </div>
 
         {diakhiri && pratinjau ? (

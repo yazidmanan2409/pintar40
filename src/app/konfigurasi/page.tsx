@@ -29,7 +29,8 @@ import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
 import { navKonteks } from "@/components/NavKonteks";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
 import ItemNav from "@/components/ItemNav";
-import { alasanAudit, hasilRun, kataAksiAudit, kataTabelAudit, lipatKenaikan } from "@/lib/jejak-audit";
+import { alasanAudit, hasilRun, hitungKeputusan, kataAksiAudit, kataTabelAudit, lipatKenaikan, runId, tahunRun } from "@/lib/jejak-audit";
+import { kelasDenganTahun, tahunPendek } from "@/lib/kenaikan";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { melayani } from "@/lib/konteks";
 import { redirect } from "next/navigation";
@@ -615,6 +616,27 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     ? await supabase.from("persons").select("id, display_name").in("id", idPelaku)
     : { data: [] as Array<{ id: string; display_name: string }> };
   const namaPelaku = new Map(((pelakuRows ?? []) as Array<{ id: string; display_name: string }>).map((p) => [p.id, p.display_name]));
+  // Daisy (435a2856, §4.4): a run is named by its Kelas and years, each learner by the Kelas they went to, and a row
+  // whose run's own row is on another page by that run. The run's own rows are found by the recorded run id only.
+  const runLain = [...new Set(barisJejak.filter((r) => lipat.bagianRun.has(r.id)).map((r) => runId(r.summary)).filter((x): x is string => Boolean(x)))];
+  const { data: indukRows } = runLain.length && tampilDi("audit")
+    ? await supabase.from("audit_log").select("at, target_id, summary").eq("action", "promotion.applied").in("summary->>run_id", runLain)
+    : { data: [] as Array<{ at: string; target_id: string; summary: unknown }> };
+  const indukRun = new Map(((indukRows ?? []) as Array<{ at: string; target_id: string; summary: unknown }>).map((r) => [runId(r.summary) ?? "", r]));
+  const runBaris = [...barisJejak.filter((r) => r.action === "promotion.applied"), ...indukRun.values()] as Array<{ target_id: unknown; summary: unknown }>;
+  const idNode = [...new Set(runBaris.flatMap((r) => [String(r.target_id), ...hasilRun(r.summary).map((h) => h.kelas_tujuan ?? "")]).filter(Boolean))];
+  const idTahun = [...new Set(runBaris.flatMap((r) => { const y = tahunRun(r.summary); return [y.dari ?? "", y.ke ?? ""]; }).filter(Boolean))];
+  const [{ data: nodeRun }, { data: tahunRunRows }] = await Promise.all([
+    idNode.length ? supabase.from("org_nodes").select("id, name").in("id", idNode) : Promise.resolve({ data: [] as Array<{ id: string; name: string }> }),
+    idTahun.length ? supabase.from("academic_periods").select("id, name").in("id", idTahun) : Promise.resolve({ data: [] as Array<{ id: string; name: string }> }),
+  ]);
+  const namaNode = new Map(((nodeRun ?? []) as Array<{ id: string; name: string }>).map((n) => [n.id, n.name]));
+  const namaTahun = new Map(((tahunRunRows ?? []) as Array<{ id: string; name: string }>).map((n) => [n.id, n.name]));
+  const judulRun = (r: { target_id: unknown; summary: unknown }) => {
+    const y = tahunRun(r.summary);
+    return s("audit.kenaikan.judul").replace("{kelas}", namaNode.get(String(r.target_id)) ?? TANPA_NAMA)
+      .replace("{dari}", tahunPendek(namaTahun.get(y.dari ?? "") ?? "") || TANPA_NAMA).replace("{ke}", tahunPendek(namaTahun.get(y.ke ?? "") ?? "") || TANPA_NAMA);
+  };
   const navSemua: Array<[string, string]> = [
     ["struktur", s("config.section.struktur")],
     ["ketuntasan", s("config.section.ketuntasan")],
@@ -1896,7 +1918,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                       <td className="whitespace-nowrap">{when(r.at)}</td>
                       {/* D-138(c), D-140(c): the action and the record in words; never the code, the table or an id. */}
                       <td>{kataAksiAudit(r.action, locale)}</td>
-                      <td className="text-ink-3">{[kataTabelAudit(r.target_table, locale), r.institution_id ? institutionName.get(r.institution_id) ?? TANPA_NAMA : null].filter(Boolean).join(" · ") || TANPA_NAMA}</td>
+                      <td className="text-ink-3" data-jejak-sasaran="">{r.action === "promotion.applied" ? judulRun(r)
+                        : [kataTabelAudit(r.target_table, locale), r.institution_id ? institutionName.get(r.institution_id) ?? TANPA_NAMA : null].filter(Boolean).join(" · ") || TANPA_NAMA}</td>
                       {(() => {
                         // E7: who and why, from the summary keys written for it (src/lib/jejak-audit.ts alasanAudit)
                         const a = alasanAudit(r.summary, locale);
@@ -1907,21 +1930,45 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                             || s(String(r.action).startsWith("transfer.") ? "audit.oleh.sekolah_lain" : "audit.oleh.tidak_terlihat")
                             : s("audit.oleh.sistem")}</td>
                           <td data-jejak-alasan="">{[a.alasan, a.berlaku ? s("audit.berlaku").replace("{tanggal}", when(a.berlaku, "baca")) : null,
-                            lipat.bagianRun.has(r.id) ? s("audit.kenaikan.bagian") : null].filter(Boolean).join(" · ") || ""}
+                            lipat.bagianRun.has(r.id) ? (() => {
+                              // §4.4.4: which run, and that its own row is on another page
+                              const induk = indukRun.get(runId(r.summary) ?? "");
+                              return induk ? s("audit.kenaikan.bagian").replace("{kelas}", namaNode.get(String(induk.target_id)) ?? TANPA_NAMA).replace("{tanggal}", when(induk.at, "baca"))
+                                : s("audit.kenaikan.bagian_umum");
+                            })() : null].filter(Boolean).join(" · ") || ""}
                             {r.action === "promotion.applied" ? (() => {
                               // K1: each learner of the run by name with the decision, and the run's other rows counted
                               const hs = hasilRun(r.summary);
-                              const lain = lipat.anak.get(r.id)?.length ?? 0;
-                              return hs.length ? (
-                                <details className="pin-disclosure mt-1" data-jejak-run={hs.length} data-jejak-run-terkait={lain}>
-                                  <summary className="cursor-pointer text-ink-3">{s("audit.kenaikan.ringkas").replace("{n}", String(hs.length)).replace("{lain}", String(lain))}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
+                              const anak = lipat.anak.get(r.id) ?? [];
+                              const ke = namaTahun.get(tahunRun(r.summary).ke ?? "") ?? null;
+                              // §4.4.1: the destination with its year, in the review's own phrases
+                              const keputusanKata = (h: (typeof hs)[number]) => {
+                                const tujuan = h.kelas_tujuan ? kelasDenganTahun(namaNode.get(h.kelas_tujuan) ?? TANPA_NAMA, ke) : null;
+                                if (h.keputusan === "NAIK" && tujuan) return s("audit.kenaikan.naik").replace("{kelas}", tujuan);
+                                if (h.keputusan === "TINGGAL" && tujuan) return s("audit.kenaikan.tinggal").replace("{kelas}", tujuan);
+                                if (h.keputusan === "KELUAR" && h.alasan) return s(`kenaikan.alasan.${h.alasan.toLowerCase()}` as HleEvent);
+                                return s(`kenaikan.keputusan.${h.keputusan.toLowerCase()}` as HleEvent);
+                              };
+                              // §4.4.2: the counts by outcome, as approved («6 murid: 4 naik, 1 tinggal kelas, 1 keluar»)
+                              const rincian = hitungKeputusan(hs).map(([k, n]) => s(`audit.kenaikan.n.${k.toLowerCase()}` as HleEvent).replace("{n}", String(n))).join(", ");
+                              return hs.length ? (<>
+                                <details className="pin-disclosure mt-1" data-jejak-run={hs.length}>
+                                  <summary className="cursor-pointer text-ink-3">{s("audit.kenaikan.ringkas").replace("{n}", String(hs.length)).replace("{rincian}", rincian)}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
                                   <ul className="mt-1 grid gap-1 text-ink-2">{hs.map((h) => (
-                                    <li key={h.person_id} data-murid={h.person_id}>{namaPelaku.get(h.person_id) ?? TANPA_NAMA} · {
-                                      h.keputusan === "KELUAR" && h.alasan ? s(`kenaikan.alasan.${h.alasan.toLowerCase()}` as HleEvent)
-                                        : s(`kenaikan.keputusan.${h.keputusan.toLowerCase()}` as HleEvent)}</li>
+                                    <li key={h.person_id} data-murid={h.person_id}>{namaPelaku.get(h.person_id) ?? TANPA_NAMA} · {keputusanKata(h)}</li>
                                   ))}</ul>
                                 </details>
-                              ) : null;
+                                {/* §4.4.3 (Sharon: «fold, don't hide»): the run's other rows are folded here and can be opened, each
+                                    in the table's own words: when, the action, the record */}
+                                {anak.length ? (
+                                  <details className="pin-disclosure mt-1" data-jejak-run-terkait={anak.length}>
+                                    <summary className="cursor-pointer text-ink-3">{s("audit.kenaikan.terkait").replace("{n}", String(anak.length))}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
+                                    <ul className="mt-1 grid gap-1 text-ink-2">{anak.map((x) => (
+                                      <li key={String(x.id)} data-jejak-anak="">{[when(x.at as string), kataAksiAudit(x.action, locale), kataTabelAudit(x.target_table as string, locale)].filter(Boolean).join(" · ")}</li>
+                                    ))}</ul>
+                                  </details>
+                                ) : null}
+                              </>) : null;
                             })() : null}</td>
                         </>);
                       })()}

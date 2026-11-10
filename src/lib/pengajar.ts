@@ -420,6 +420,19 @@ export async function penugasan(nodeId: string): Promise<Penugasan[]> {
   return (await penugasanKelas([nodeId])).get(nodeId) ?? [];
 }
 
+/**
+ * Daisy (435a2856, §1.1): when and why each ended or withdrawn assignment of one Kelas closed, from its own audit row
+ * (riwayat_penugasan_kelas, decided over the Kelas). An empty map when the read is refused: the row then shows its
+ * state without a date, never a guess.
+ */
+export async function riwayatPenugasan(kelas: string): Promise<Map<string, { jenis: string; pada: string | null; alasan: string | null }>> {
+  const c = await db();
+  const { data, error } = await c.rpc("riwayat_penugasan_kelas", { p_kelas: kelas });
+  if (error) return new Map();
+  return new Map(rows<{ learning_assignment_id: string; jenis: string; pada: string | null; alasan: string | null }>(data)
+    .map((r) => [r.learning_assignment_id, { jenis: r.jenis, pada: r.pada, alasan: r.alasan }]));
+}
+
 /** UX-37: what has already been made available to each of several classes, in one read. */
 export async function penugasanKelas(nodeIds: readonly string[]): Promise<Map<string, Penugasan[]>> {
   const out = new Map<string, Penugasan[]>(nodeIds.map((k) => [k, []]));

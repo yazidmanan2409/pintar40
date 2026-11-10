@@ -43,6 +43,16 @@ const PUKUL: Record<BahasaTanggal, string> = { id: "pukul", en: "at" };
 const ZONA = "WIB";
 /** WIB is UTC+7 all year (no daylight saving). */
 const WIB_MS = 7 * 60 * 60 * 1000;
+/**
+ * Daisy (435a2856, §1.1 and §4.3): a record of when something happened at a school is written on that school's clock
+ * when the caller knows the school (institutions.zona_waktu, read by zonaSekolah). Indonesia's three zones keep no
+ * daylight saving, so each is a fixed offset and its own word. A caller with no school keeps WIB, as before.
+ */
+const ZONA_JAM: Record<string, { ms: number; kata: string }> = {
+  "Asia/Jakarta": { ms: WIB_MS, kata: "WIB" },
+  "Asia/Makassar": { ms: 8 * 60 * 60 * 1000, kata: "WITA" },
+  "Asia/Jayapura": { ms: 9 * 60 * 60 * 1000, kata: "WIT" },
+};
 
 /** A day (and, when there is one, a time) on Jakarta's clock. */
 export type BagianJakarta = {
@@ -71,7 +81,7 @@ function hariNyata(t: number, b: number, h: number): Date | null {
  * - yyyy-mm-dd: that day, as written (no time);
  * - yyyy-mm-ddThh:mm (datetime-local, no zone): that wall-clock time in Jakarta, as written.
  */
-export function bagianJakarta(nilai: string | Date | null | undefined): BagianJakarta | null {
+export function bagianJakarta(nilai: string | Date | null | undefined, geserMs: number = WIB_MS): BagianJakarta | null {
   if (nilai == null) return null;
   if (typeof nilai === "string") {
     const s = nilai.trim();
@@ -90,7 +100,7 @@ export function bagianJakarta(nilai: string | Date | null | undefined): BagianJa
   }
   const waktu = typeof nilai === "string" ? Date.parse(nilai) : nilai.getTime();
   if (!Number.isFinite(waktu)) return null;
-  const w = new Date(waktu + WIB_MS);
+  const w = new Date(waktu + geserMs);
   return {
     tahun: w.getUTCFullYear(), bulan: w.getUTCMonth() + 1, hari: w.getUTCDate(), hariPekan: w.getUTCDay(),
     jam: w.getUTCHours(), menit: w.getUTCMinutes(),
@@ -109,14 +119,16 @@ export function jam(nilai: string | Date | null | undefined): string {
  * A date in words, in one of the forms above; "" for nothing or a value that is not a moment (the caller says what an
  * empty place shows). A form with a time given a date-only value writes the date without one.
  */
-export function tanggal(nilai: string | Date | null | undefined, bentuk: BentukTanggal = "baca", locale: BahasaTanggal = "id"): string {
-  const p = bagianJakarta(nilai);
+export function tanggal(nilai: string | Date | null | undefined, bentuk: BentukTanggal = "baca", locale: BahasaTanggal = "id",
+                        zona?: string | null): string {
+  const z = ZONA_JAM[zona ?? ""] ?? { ms: WIB_MS, kata: ZONA };
+  const p = bagianJakarta(nilai, z.ms);
   if (!p) return "";
   const bhs: BahasaTanggal = locale === "en" ? "en" : "id";
   const baca = `${p.hari} ${BULAN[bhs][p.bulan - 1]} ${p.tahun}`;
   const resmi = `${p.hari} ${BULAN_PANJANG[bhs][p.bulan - 1]} ${p.tahun}`;
   const denganHari = `${HARI[bhs][p.hariPekan]}, ${baca}`;
-  const pukul = p.jam !== null ? `${dua(p.jam)}.${dua(p.menit ?? 0)} ${ZONA}` : "";
+  const pukul = p.jam !== null ? `${dua(p.jam)}.${dua(p.menit ?? 0)} ${z.kata}` : "";
   switch (bentuk) {
     case "hari": return denganHari;
     case "hariJam": return pukul ? `${denganHari}, ${pukul}` : denganHari;

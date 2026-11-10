@@ -127,7 +127,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean; e06 text[] := '{}'; e07 text[] := '{}'; k01 text[] := '{}'; k02 text[] := '{}'; k03 text[] := '{}'; k04 text[] := '{}'; k05 text[] := '{}'; v_knext uuid; v_kt5 uuid; c_k5 uuid; v_kt6 uuid; c_k6 uuid; v_kt5b uuid; c_k5b uuid; v_kguru uuid; v_kp jsonb; v_kdec jsonb; v_kaud int; v_kplan jsonb; v_kres jsonb; v_ksesi uuid; k06 text[] := '{}'; v_krun text;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean; e06 text[] := '{}'; e07 text[] := '{}'; k01 text[] := '{}'; k02 text[] := '{}'; k03 text[] := '{}'; k04 text[] := '{}'; k05 text[] := '{}'; v_knext uuid; v_kt5 uuid; c_k5 uuid; v_kt6 uuid; c_k6 uuid; v_kt5b uuid; c_k5b uuid; v_kguru uuid; v_kp jsonb; v_kdec jsonb; v_kaud int; v_kplan jsonb; v_kres jsonb; v_ksesi uuid; k06 text[] := '{}'; v_krun text; k07 text[] := '{}'; w26 text[] := '{}'; v_kdec0 jsonb; v_k7 text;
 begin
   perform selftest.as_owner();
   begin
@@ -269,6 +269,16 @@ begin
     select coalesce(sum(w.waiting), 0) into v_n from public.integrity_signals_waiting_elsewhere() w where w.institution_id = v_inst;
     perform selftest.as_owner();
     if v_n < 2 then d05 := d05 || format('B''s head is not given the count of observations waiting elsewhere (%s; at least 2 wait in Departemen A)', v_n); end if;
+    -- W2.26 Sharon's ruling (435a2856): the line is a bare count, no department, class or learner; and it exists only when
+    -- something waits, so the answer never says whether other departments exist
+    if (select pg_get_function_result('public.integrity_signals_waiting_elsewhere()'::regprocedure)) <> 'TABLE(institution_id uuid, waiting integer)' then
+      w26 := w26 || ('the count names more than the school and the number: ' || pg_get_function_result('public.integrity_signals_waiting_elsewhere()'::regprocedure)); end if;
+    perform selftest.as_user_uid(u_kadep_b);
+    if exists (select 1 from public.integrity_signals_waiting_elsewhere() w where coalesce(w.waiting, 0) <= 0) then
+      w26 := w26 || 'a school with nothing waiting elsewhere is answered with a zero, telling that other departments exist'::text; end if;
+    if (select count(*) from public.integrity_signals_waiting_elsewhere() w where w.institution_id = v_inst) <> 1 then
+      w26 := w26 || 'the count is not one line for the school'::text; end if;
+    perform selftest.as_owner();
     -- Sharon, finding B: the referral the list offers over the Angkatan is accepted
     v_got := selftest.f37_sebagai(u_kadep_a, format('select public.refer_integrity_signal(%L, %L)',
                (select g.id from public.integrity_signals g where g.session_id = v_cohs limit 1), 'dirujuk F37'));
@@ -929,6 +939,19 @@ begin
        or (select count(*) from public.audit_log a where a.institution_id = v_inst) <> v_kaud then
       k02 := k02 || 'a refusal or the preview changed something'::text; end if;
 
+    -- K07 Daisy (435a2856, §4.2): with no learner going to a Kelas there is no teacher to acknowledge; the run applies
+    -- without the acknowledgement (rolled back here: K03 applies the real one)
+    select jsonb_agg(case when x ->> 'keputusan' in ('NAIK', 'TINGGAL') then jsonb_build_object('person_id', x ->> 'person_id', 'keputusan', 'LULUS') else x end)
+      into v_kdec0 from jsonb_array_elements(v_kdec) x;
+    perform selftest.as_user_uid(u_admin);
+    begin
+      perform public.kenaikan_tetapkan(c_k5, v_knext, v_kdec0, false, true);
+      raise exception 'f37-k07-applied';
+    exception when others then v_k7 := sqlerrm;
+    end;
+    perform selftest.as_owner();
+    if v_k7 not like 'f37-k07-applied%' then k07 := k07 || ('a run with no destination Kelas, without the teachers'' acknowledgement: ' || v_k7); end if;
+
     -- K04 (RESTATED 9 Nov with E03, for Sharon's ruling): a learner's open sitting no longer refuses the run; the
     -- preview says it will be ended (asesmen_diakhiri) and changes nothing; the confirmation (K03) ends it
     insert into public.assessment_sessions
@@ -1124,6 +1147,10 @@ begin
        'the plan lists every learner of the class and the Tingkat-only one (as such), marks the one being transferred, shows the class''s teacher and next year''s classes; a Guru and another school''s admin are refused'),
       ('F37-K02', '«Kenaikan kelas dan kelulusan»: refusals and the preview write nothing', k02,
        'a learner without a decision (named), teachers not reviewed, a repeat into this year''s class, «Pindah» without a transfer, a decision for someone outside the class, another school''s admin and a Guru are refused; the preview returns all seven outcomes; nothing is written'),
+      ('F37-W26', 'W2.26 the integrity count line: a bare count, only when above zero', w26,
+       'integrity_signals_waiting_elsewhere returns the school and the number only (no department, class or learner), one line per school, and no line at all when nothing waits elsewhere'),
+      ('F37-K07', '«Kenaikan kelas dan kelulusan»: no destination, no teacher to acknowledge', k07,
+       'a run in which no learner goes to a Kelas (all graduate or leave) applies without the teachers'' acknowledgement; one with a destination is still refused (K02)'),
       ('F37-K06', '«Kenaikan kelas dan kelulusan»: the run''s own record', k06,
        'every row the run writes (its endings, placements and ended sittings) carries the run''s id and a later row does not; the read-back says, per learner, whether the recorded place matches the decision, how and when a departure ended, and which destination Kelas has no teacher'),
       ('F37-K03', '«Kenaikan kelas dan kelulusan»: applied whole, each outcome by name', k03,

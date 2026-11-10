@@ -28,6 +28,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import type { PaperEntry, AssistanceState, AssistanceLevel } from "@/lib/assessment-engine";
 import { TeksBaris } from "@/components/teks/Teks";
@@ -727,6 +728,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       {(notice || closed) && (
         <p className="pin-pending" role="status">
           {kata(closed ? "sync.sesi_ditutup" : (notice as HleEvent))}
+          {/* Daisy (435a2856, §2.2): a sitting closed under the page can no longer be sent; the notice offers the way back */}
+          {!closed && notice === "sync.diakhiri_sekolah" ? <> <Link className="pin-tautan" href="/belajar" data-diakhiri-kembali="">{kata("tolak.kembali")}</Link></> : null}
         </p>
       )}
       {formal && asking && (

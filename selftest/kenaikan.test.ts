@@ -206,8 +206,13 @@ export const kenaikanAppTests: SelfTest[] = [
       const h3 = await (await admin.halaman(new URL(ke3, asal).pathname + new URL(ke3, asal).search)).text();
       const t3 = teks(h3);
       const li3 = (p: string) => teks(new RegExp(`<li[^>]*data-murid="${p}"[\\s\\S]*?</li>`).exec(tersusun(h3))?.[0] ?? "");
-      c.expect(/data-kenaikan-step="3"/.test(h3) && /data-kenaikan-utama="2"/.test(h3) && /data-kenaikan-pengecualian="3"/.test(h3),
-        "the review does not group A and D under 6X with B, C and D as the exceptions");
+      // RESTATED (Daisy, design check at 435a2856 §4.1): the folded group counts the names it holds. D, from the Tingkat,
+      // is listed under the exceptions, so the group under 6X holds A alone (it said 2 and showed one name); the overall
+      // line still counts both (below)
+      const ut3 = new RegExp(`<details[^>]*data-kenaikan-utama="1"[\\s\\S]*?</details>`).exec(tersusun(h3))?.[0] ?? "";
+      c.expect(/data-kenaikan-step="3"/.test(h3) && ut3.includes(`data-murid="${a}"`) && !ut3.includes(`data-murid="${d}"`)
+        && teks(ut3).includes(`1 naik ke ${kt(`Kelas 6X ${tag}`)}`) && /data-kenaikan-pengecualian="3"/.test(h3),
+        "the review does not fold A under 6X, counted as the names it holds, with B, C and D as the exceptions");
       c.expect(li3(a).includes(nama("A")) && li3(b).includes(`${nama("B")} · Tinggal kelas di ${kt(`Kelas 5X ulang ${tag}`)}`)
         && li3(cc).includes(`${nama("C")} · Lulus`) && li3(d).includes(`${nama("D")} · dari Tingkat (belum di kelas) · Naik ke ${kt(`Kelas 6X ${tag}`)}`),
         `the review does not name each exception with its year: ${[a, b, cc, d].map(li3).join(" | ")}`);
@@ -235,10 +240,17 @@ export const kenaikanAppTests: SelfTest[] = [
       const li4 = (p: string) => teks(new RegExp(`<li[^>]*data-murid="${p}"[\\s\\S]*?</li>`).exec(tersusun(h4))?.[0] ?? "");
       c.expect(t4.includes("4 murid diproses") && t4.includes("Diperiksa dari data PINTAR: semua sesuai.") && !/data-kenaikan-tidak-sesuai/.test(h4),
         `the outcome's check line: ${t4.slice(0, 300)}`);
-      c.expect(new RegExp(`data-kenaikan-kelompok="NAIK:${k6}"`).test(h4) && new RegExp(`data-kenaikan-kelompok="TINGGAL:${kul}"`).test(h4)
-        && /data-kenaikan-kelompok="LULUS"/.test(h4), "the outcome is not grouped by where each learner went");
+      // RESTATED (Daisy, design check at 435a2856 §4.3): the outcome is laid out as the review: the exceptions (B and C)
+      // first and always shown, each with the decision and what PINTAR recorded; the main group (A, and D, who came from
+      // the Tingkat and is now in 6X: the run's record keeps no Tingkat mark, and D went where the group went) folded
+      const pg4 = new RegExp(`<section[^>]*data-kenaikan-pengecualian="2"[\\s\\S]*?</section>`).exec(tersusun(h4))?.[0] ?? "";
+      const ut4 = new RegExp(`<details[^>]*data-kenaikan-utama="2"[\\s\\S]*?</details>`).exec(tersusun(h4))?.[0] ?? "";
+      c.expect(pg4 !== "" && ut4 !== "" && tersusun(h4).indexOf(pg4) < tersusun(h4).indexOf(ut4)
+        && [b, cc].every((p) => pg4.includes(`data-murid="${p}"`)) && [a, d].every((p) => ut4.includes(`data-murid="${p}"`)),
+        "the outcome is not laid out as the review (the exceptions first and shown, the main group folded)");
       c.expect(li4(a).includes(`${nama("A")} · ${kt(`Kelas 6X ${tag}`)}`) && li4(d).includes(`${nama("D")} · ${kt(`Kelas 6X ${tag}`)}`)
-        && li4(b).includes(`${nama("B")} · ${kt(`Kelas 5X ulang ${tag}`)}`) && /Pendaftaran berakhir · [^·]+ · lulus/.test(li4(cc)),
+        && li4(b).includes(`${nama("B")} · Tinggal kelas di ${kt(`Kelas 5X ulang ${tag}`)} · ${kt(`Kelas 5X ulang ${tag}`)}`)
+        && /Pendaftaran berakhir · [^·]+ · lulus/.test(li4(cc)),
         `the outcome page: ${[a, b, cc, d].map(li4).join(" | ")}`);
       c.expect(/data-kenaikan-guru-kosong="2"/.test(h4) && !new RegExp(`data-kenaikan-berikut="${k5}"`).test(h4),
         "the outcome does not name the Kelas still without a teacher, or offers the processed class as the next");
@@ -248,10 +260,16 @@ export const kenaikanAppTests: SelfTest[] = [
       // K1 (Sharon «fold, don't hide»): in Jejak audit the run is one entry naming each learner with the decision, its other rows folded under it
       const hj = tersusun(await (await admin.halaman("/konfigurasi/audit")).text());
       const run = new RegExp(`<details[^>]*data-jejak-run="4"[^>]*>[\\s\\S]*?</details>`).exec(hj)?.[0] ?? "";
-      const terkait = Number(/data-jejak-run-terkait="(\d+)"/.exec(run)?.[1] ?? "0");
-      c.expect(run !== "" && teks(run).includes(`${nama("A")} · naik kelas`) && teks(run).includes(`${nama("B")} · tinggal kelas`)
-        && teks(run).includes(`${nama("C")} · lulus`) && teks(run).includes(`${nama("D")} · naik kelas`) && terkait >= 1,
-        `Jejak audit does not show the run as one entry with each learner and its rows folded (${terkait}): ${teks(run).slice(0, 400)}`);
+      // RESTATED (Daisy, design check at 435a2856 §4.4): each learner with the destination and its year, the counts by
+      // outcome, the run named by its Kelas and years; and the related rows can be opened (Sharon «fold, don't hide»)
+      const lipat = new RegExp(`<details[^>]*data-jejak-run-terkait="(\\d+)"[^>]*>[\\s\\S]*?</details>`).exec(hj.slice(hj.indexOf(run)));
+      const terkait = Number(lipat?.[1] ?? "0");
+      c.expect(run !== "" && teks(run).includes(`${nama("A")} · naik ke ${kt(`Kelas 6X ${tag}`)}`) && teks(run).includes(`${nama("B")} · tinggal kelas di ${kt(`Kelas 5X ulang ${tag}`)}`)
+        && teks(run).includes(`${nama("C")} · lulus`) && teks(run).includes(`${nama("D")} · naik ke ${kt(`Kelas 6X ${tag}`)}`)
+        && teks(run).includes("4 murid: 2 naik, 1 tinggal kelas, 1 lulus") && terkait >= 1
+        && (lipat?.[0].match(/data-jejak-anak=""/g) ?? []).length === terkait,
+        `Jejak audit does not show the run as one entry with each learner, the counts and its rows listable (${terkait}): ${teks(run).slice(0, 400)}`);
+      c.expect(new RegExp(`data-jejak-sasaran=""[^>]*>Kenaikan kelas · Kelas 5X ${tag} · `).test(hj.replace(/<!-- -->/g, "")), "the run's row does not name the run by its Kelas and years");
       const db = psql(`select string_agg(p.display_name || '=' || coalesce(n.name, e.status || '/' || coalesce(e.end_reason::text, '')), ',' order by p.display_name)
                          from public.persons p join public.enrollments e on e.person_id = p.id
                          left join public.memberships m on m.enrollment_id = e.id and m.valid_to is null
@@ -411,9 +429,23 @@ export const kenaikanAppTests: SelfTest[] = [
       const audit = psql(`select count(*) from public.audit_log where action = 'learning_assignment.withdrawn' and target_id = ${lit(la)} and summary ->> 'reason' = ${lit(`diberikan ke kelas yang salah ${tag}`)}`);
       c.expect(audit === "1", `the withdrawal has ${audit} audit row(s) with its reason`);
       const h4 = await (await guru.halaman(`/mengajar/${kelas}?diakhiri=ditarik`)).text();
-      c.expect(teks(h4).includes("Penugasan ditarik. Hasil murid tetap tersimpan tetapi tidak dihitung di laporan kelas.") && teks(h4).includes("Ditarik"),
-        "the class page does not confirm the withdrawal and show the material as «Ditarik»");
+      // RESTATED (Daisy, design check at 435a2856 §1.2): «laporan kelas dan sekolah», the owner's rule said whole
+      c.expect(teks(h4).includes("Penugasan ditarik. Hasil murid tetap tersimpan tetapi tidak dihitung di laporan kelas dan sekolah."),
+        "the class page does not confirm the withdrawal");
       c.expect(!h4.includes(`data-akhiri-buka="${la}"`), "a withdrawn assignment is still offered «Akhiri atau tarik»");
+      // Daisy (435a2856, §1.1): the withdrawn assignment leaves the working list for «Sudah berakhir», folded below it, with
+      // its date (on the school's clock), the counting clause and the teacher's reason, and no action; the lesson itself
+      // is offered again, once, in the working list; and the sentence says where each student's result is
+      const lipat = new RegExp(`<details[^>]*data-materi-berakhir="1"[\\s\\S]*?</details>`).exec(tersusun(h4))?.[0] ?? "";
+      const baris = new RegExp(`<div[^>]*data-materi-riwayat="${la}"[\\s\\S]*?</div>`).exec(lipat)?.[0] ?? "";
+      c.expect(lipat !== "" && teks(lipat).startsWith("Sudah berakhir (1)") && /data-materi-jenis="WITHDRAWN"/.test(baris)
+        && /Ditarik \d{1,2} \S+ \d{4} · hasilnya tidak dihitung di laporan kelas dan sekolah/.test(teks(baris))
+        && teks(baris).includes(`Alasan: diberikan ke kelas yang salah ${tag}`) && !/<a\b|<button\b/.test(baris)
+        && teks(lipat).includes("Hasil tiap murid ada di halaman muridnya."),
+        `the withdrawn assignment is not folded below the working list with its date, clause and reason: ${teks(lipat).slice(0, 300)}`);
+      const kerja = tersusun(h4).slice(tersusun(h4).indexOf('id="materi"'), tersusun(h4).indexOf(lipat));
+      const muncul = kerja.split(`<span class="pin-title">${judulKursus}</span>`).length - 1;
+      c.expect(muncul === 1 && kerja.includes("Siap disediakan"), `the working list names the withdrawn lesson ${muncul} time(s), not once as «Siap disediakan»`);
       return c.verdict("as Alpha's Guru on the class page: the lesson in force offers «Akhiri atau tarik»; the panel says what is kept; " +
         "a 3-character reason is refused with its sentence and changes nothing; the withdrawal is recorded (WITHDRAWN, its assessment CLOSED, " +
         "one learning_assignment.withdrawn row with the reason) and the page confirms it and shows «Ditarik»");

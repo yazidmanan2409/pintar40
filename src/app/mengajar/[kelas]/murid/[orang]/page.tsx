@@ -116,16 +116,18 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
                     {h.penguasaan === null ? "—" : format.percent(h.penguasaan, locale)}
                     {/* owner decisions E1, D14: a recalculated sitting is explained directly under its figure, with its reason */}
                     {h.dihitungUlang ? <CatatanHitungUlang baru={h.penguasaan} asli={h.asli} alasan={h.alasan} locale={locale} /> : null}
-                    {h.ditarik ? <small data-ditarik="">{s("hasilbelajar.ditarik")}</small> : null}
-                    {/* D-085 M3: below the sealed target, the teacher sees it; the target is shown beside the mastery */}
-                    {h.batas !== null ? (
+                    {h.ditarik ? <small data-ditarik="">{s("mengajar.murid1.ditarik")}</small> : null}
+                    {/* D-085 M3: below the sealed target, the teacher sees it; the target is shown beside the mastery.
+                        Daisy (435a2856, §1.3): not for a withdrawn result, given by mistake, which invites no judgement */}
+                    {h.batas !== null && !h.ditarik ? (
                       <small data-target={h.penguasaan !== null && h.penguasaan < h.batas ? "belum" : "batas"}>
                         {h.penguasaan !== null && h.penguasaan < h.batas ? `${s("mengajar.murid1.di_bawah_target")} · ` : ""}
                         {s("mengajar.murid1.target")} {format.percent(h.batas, locale)}
                       </small>
                     ) : null}
                     {/* D-085 M3 (J5.12): under the target on this class's Uji Penguasaan, the teacher may give material back */}
-                    {h.mode === "POST_TEST" && h.batas !== null && h.penguasaan !== null && h.penguasaan < h.batas && catatan.tugasSesi[h.sesi] ? (
+                    {/* ... nor «Beri ulang»: giving material back because of a mistaken assessment repeats the mistake */}
+                    {h.mode === "POST_TEST" && !h.ditarik && h.batas !== null && h.penguasaan !== null && h.penguasaan < h.batas && catatan.tugasSesi[h.sesi] ? (
                       <Link className="pin-ulang-tautan" href={`/mengajar/${id}/ulang?penugasan=${catatan.tugasSesi[h.sesi]}&murid=${orang}`}>
                         {s("mengajar.ulang.judul")}
                       </Link>

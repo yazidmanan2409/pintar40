@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { enumLabel } from "@/lib/hle";
+import { enumLabel, format } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import Kosong from "@/components/Kosong";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -120,6 +120,12 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
       <div>
         <h2 className="pin-studio-h2">{s("studio.integritas.judul")}</h2>
         <p className="pin-ket">{s("studio.integritas.penjelasan")}</p>
+        {/* W2.26 (Daisy, TINJAUAN-89374424 §2; Sharon's ruling): a page-level overview under the explanation, before the
+            reader's own list: a bare count of what waits in other departments, a sentence (no link, no figure styling),
+            shown only when something waits, since the count never says whether other departments exist */}
+        {nLain > 0 ? (
+          <p className="pin-ket" data-integritas-lain={nLain}>{s(nLain === 1 ? "studio.integritas.menunggu_lain_satu" : "studio.integritas.menunggu_lain").split("{n}").join(format.number(nLain, locale))}</p>
+        ) : null}
       </div>
       {/* DAISY-18: one form per item; the answer heads the list it came from */}
       {/* E-K4: a decision is answered in its observation's row; a decided one leaves the list, and is answered here */}
@@ -127,9 +133,6 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
 
       <section aria-labelledby="integritas-menunggu" className="pin-studio-halaman">
         <h3 id="integritas-menunggu" className="pin-studio-h3">{s("studio.integritas.menunggu.judul")}</h3>
-        {nLain > 0 ? (
-          <p className="pin-ket" data-integritas-lain={nLain}>{s("studio.integritas.menunggu_lain").split("{n}").join(String(nLain))}</p>
-        ) : null}
         {bySession.size === 0 ? (
           // W3.2 (Empty state, «not yet»): nothing is waiting, which is good news; there is no action to offer
           <Kosong jenis="belum" kalimat={s("studio.integritas.kosong")} />

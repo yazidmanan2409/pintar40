@@ -1106,6 +1106,16 @@ export type HleEvent =
   | "audit.berlaku"
   | "audit.kenaikan.bagian"
   | "audit.kenaikan.ringkas"
+  | "audit.kenaikan.n.pindah"
+  | "audit.kenaikan.n.keluar"
+  | "audit.kenaikan.n.lulus"
+  | "audit.kenaikan.n.tinggal"
+  | "audit.kenaikan.n.naik"
+  | "audit.kenaikan.terkait"
+  | "audit.kenaikan.tinggal"
+  | "audit.kenaikan.naik"
+  | "audit.kenaikan.judul"
+  | "audit.kenaikan.bagian_umum"
   | "kenaikan.keputusan.naik"
   | "kenaikan.keputusan.tinggal"
   | "kenaikan.keputusan.lulus"
@@ -1169,7 +1179,6 @@ export type HleEvent =
   | "kenaikan.guru.tahu_tanpa"
   | "kenaikan.guru.semua_ada"
   | "kenaikan.guru.tanpa_tujuan"
-  | "kenaikan.guru.tanpa_tujuan_centang"
   | "kenaikan.opsi.lulus_grup"
   | "kenaikan.opsi.pindah_grup"
   | "kenaikan.hitung.naik"
@@ -1225,7 +1234,6 @@ export type HleEvent =
   | "kenaikan.guru.intro"
   | "kenaikan.guru.tidak_ada"
   | "kenaikan.guru.ke_peran"
-  | "kenaikan.guru.sudah_ditinjau"
   | "kenaikan.hasil.naik"
   | "kenaikan.hasil.tinggal"
   | "kenaikan.hasil.lulus"
@@ -1236,9 +1244,6 @@ export type HleEvent =
   | "kenaikan.selesai.judul"
   | "kenaikan.selesai.tidak_terbaca"
   | "kenaikan.selesai.lagi"
-  | "kenaikan.kolom.murid"
-  | "kenaikan.kolom.hasil"
-  | "kenaikan.kolom.sekarang"
   | "kenaikan.akhir.completed"
   | "kenaikan.akhir.withdrawn"
   | "kenaikan.akhir.transferred_out"
@@ -1424,6 +1429,7 @@ export type HleEvent =
   | "studio.integritas.penjelasan"
   | "studio.integritas.kosong"
   | "studio.integritas.menunggu_lain"
+  | "studio.integritas.menunggu_lain_satu"
   | "studio.integritas.NO_CONCERN"
   | "studio.integritas.DISCUSSED_WITH_LEARNER"
   | "studio.integritas.REFERRED_TO_INSTITUTION"
@@ -1965,6 +1971,12 @@ export type HleEvent =
   | "mengajar.materi.judul"
   | "mengajar.materi.sub"
   | "mengajar.materi.kosong"
+  | "mengajar.materi.berakhir"
+  | "mengajar.materi.diakhiri_pada"
+  | "mengajar.materi.ditarik_pada"
+  | "mengajar.materi.alasan"
+  | "mengajar.materi.hasil_murid"
+  | "mengajar.materi.tanpa_judul"
   | "mengajar.murid1.eyebrow"
   | "mengajar.murid1.catatan"
   | "mengajar.murid1.tugas"
@@ -2002,6 +2014,8 @@ export type HleEvent =
   | "mengajar.akhiri.tombol"
   | "mengajar.akhiri.tanpa_judul"
   | "hasilbelajar.ditarik"
+  | "hasilbelajar.ditutup_awal"
+  | "mengajar.murid1.ditarik"
   | "sync.diakhiri_sekolah"
   | "mengajar.akhiri.tombol_tarik"
   | "mengajar.akhiri.tanya"
@@ -3668,7 +3682,7 @@ const table: Table = {
   "staf.akhiri.tanggal": { default: "Tanggal kejadian", en: "Date it happened" },
   "staf.akhiri.tanggal_arti": { default: "Hari ini atau sebelumnya. Wewenangnya berakhir saat Anda menyimpan, apa pun tanggalnya.", en: "Today or earlier. Their authority ends when you save, whatever the date." },
   "staf.akhiri.tanya": { default: "Akhiri tugas {nama} di {sekolah}?", en: "End {nama}'s duties at {sekolah}?" },
-  "staf.akhiri.peran_berakhir": { default: "Semua perannya di sekolah ini berakhir: {daftar}. Akunnya, peran di sekolah lain, dan semua karya serta catatannya tetap ada.", en: "All their roles at this school end: {daftar}. Their account, roles at other schools, and all their work and records remain." },
+  "staf.akhiri.peran_berakhir": { default: "Semua perannya di sekolah ini berakhir: {daftar}.", en: "All their roles at this school end: {daftar}." },
   "staf.kategori.koreksi_grup": { default: "Bukan kepergian", en: "Not a departure" },
   "staf.akhiri.alasan": { default: "Alasan", en: "Reason" },
   "staf.akhiri.tombol": { default: "Akhiri tugas di sekolah ini", en: "End duties at this school" },
@@ -3725,7 +3739,7 @@ const table: Table = {
   "sertifikat.ganti.bagian": { default: "Data", en: "Field" },
   "sertifikat.ganti.tercetak": { default: "Tertulis di sertifikat", en: "On the certificate" },
   "sertifikat.ganti.kini": { default: "Tercatat sekarang", en: "Recorded now" },
-  "sertifikat.ganti.berubah": { default: "Berbeda", en: "Different" },
+  "sertifikat.ganti.berubah": { default: "Perbandingan", en: "Comparison" },
   "sertifikat.ganti.berbeda": { default: "berbeda", en: "different" },
   "sertifikat.ganti.hasil": { default: "Hasil", en: "Result" },
   "sertifikat.ganti.hasil_arti": { default: "Tetap seperti di sertifikat ini; tidak pernah dihitung ulang.", en: "As on this certificate; never recalculated." },
@@ -4891,8 +4905,18 @@ const table: Table = {
   "audit.oleh.sekolah_lain": { default: "Petugas sekolah lain", en: "Staff member at another school" },
   "audit.berlaku": { default: "berlaku {tanggal}", en: "effective {tanggal}" },
   // K1 (Daisy, TINJAUAN-KENAIKAN-KELAS-DIBANGUN; Sharon «fold, don't hide»): one kenaikan run, one entry
-  "audit.kenaikan.bagian": { default: "bagian dari satu kenaikan kelas", en: "part of one year-end promotion" },
-  "audit.kenaikan.ringkas": { default: "{n} murid, masing-masing dengan keputusannya · {lain} catatan terkait dilipat di sini", en: "{n} students, each with their decision · {lain} related entries folded here" },
+  "audit.kenaikan.bagian": { default: "Termasuk kenaikan kelas {kelas} · {tanggal}; baris utamanya ada di halaman lain.", en: "Part of the year-end promotion of {kelas} · {tanggal}; its main row is on another page." },
+  "audit.kenaikan.ringkas": { default: "{n} murid: {rincian}", en: "{n} students: {rincian}" },
+  "audit.kenaikan.n.pindah": { default: "{n} mengikuti perpindahan", en: "{n} follow their transfer" },
+  "audit.kenaikan.n.keluar": { default: "{n} keluar", en: "{n} left" },
+  "audit.kenaikan.n.lulus": { default: "{n} lulus", en: "{n} graduated" },
+  "audit.kenaikan.n.tinggal": { default: "{n} tinggal kelas", en: "{n} repeat the year" },
+  "audit.kenaikan.n.naik": { default: "{n} naik", en: "{n} up" },
+  "audit.kenaikan.terkait": { default: "Catatan terkait ({n})", en: "Related entries ({n})" },
+  "audit.kenaikan.tinggal": { default: "tinggal kelas di {kelas}", en: "repeats in {kelas}" },
+  "audit.kenaikan.naik": { default: "naik ke {kelas}", en: "up to {kelas}" },
+  "audit.kenaikan.judul": { default: "Kenaikan kelas · {kelas} · {dari} → {ke}", en: "Year-end promotion · {kelas} · {dari} → {ke}" },
+  "audit.kenaikan.bagian_umum": { default: "Termasuk satu kenaikan kelas; baris utamanya ada di halaman lain.", en: "Part of a year-end promotion; its main row is on another page." },
   "kenaikan.keputusan.naik": { default: "naik kelas", en: "moved up" },
   "kenaikan.keputusan.tinggal": { default: "tinggal kelas", en: "repeats the year" },
   "kenaikan.keputusan.lulus": { default: "lulus", en: "graduated" },
@@ -4957,7 +4981,6 @@ const table: Table = {
   "kenaikan.guru.tahu_tanpa": { default: "Saya tahu {daftar} belum punya guru, dan akan memberikan perannya di Peran & akses.", en: "I know {daftar} have no teacher yet, and will give the role in Roles & access." },
   "kenaikan.guru.semua_ada": { default: "Semua kelas tujuan sudah punya guru. Saya sudah memeriksanya.", en: "Every destination class has a teacher. I have checked them." },
   "kenaikan.guru.tanpa_tujuan": { default: "Tidak ada kelas tujuan: setiap murid kelas ini lulus atau keluar.", en: "There is no destination class: every student of this class graduates or leaves." },
-  "kenaikan.guru.tanpa_tujuan_centang": { default: "Saya sudah memeriksa: tidak ada murid yang pindah ke kelas lain.", en: "I have checked: no student moves to another class." },
   "kenaikan.opsi.lulus_grup": { default: "Lulus", en: "Graduates" },
   "kenaikan.opsi.pindah_grup": { default: "Pindah ke sekolah lain di PINTAR", en: "Moves to another school on PINTAR" },
   "kenaikan.hitung.naik": { default: "naik ke {kelas}", en: "up to {kelas}" },
@@ -5013,7 +5036,6 @@ const table: Table = {
   "kenaikan.guru.intro": { default: "Penugasan guru tidak ikut pindah ke tahun ajaran baru. Tinjau siapa yang akan mengajar kelas tujuan, lalu ubah di Peran & akses bila perlu.", en: "Teacher assignments do not move to the new school year. Review who will teach the destination classes, and change them in Roles & access if needed." },
   "kenaikan.guru.tidak_ada": { default: "belum ada guru", en: "no teacher yet" },
   "kenaikan.guru.ke_peran": { default: "Buka Peran & akses", en: "Open Roles & access" },
-  "kenaikan.guru.sudah_ditinjau": { default: "Saya sudah meninjau penugasan guru untuk tahun ajaran baru.", en: "I have reviewed the teacher assignments for the new school year." },
   "kenaikan.hasil.naik": { default: "Naik ke {kelas}", en: "Up to {kelas}" },
   "kenaikan.hasil.tinggal": { default: "Tinggal kelas di {kelas}", en: "Repeats in {kelas}" },
   "kenaikan.hasil.lulus": { default: "Lulus", en: "Graduates" },
@@ -5024,9 +5046,6 @@ const table: Table = {
   "kenaikan.selesai.judul": { default: "Hasil kenaikan kelas", en: "Promotion outcome" },
   "kenaikan.selesai.tidak_terbaca": { default: "Hasilnya belum dapat dibaca. Buka Jejak audit untuk melihat apa yang tercatat.", en: "The outcome cannot be read yet. Open the audit trail to see what was recorded." },
   "kenaikan.selesai.lagi": { default: "Pilih kelas lain", en: "Choose another class" },
-  "kenaikan.kolom.murid": { default: "Murid", en: "Student" },
-  "kenaikan.kolom.hasil": { default: "Hasil", en: "Outcome" },
-  "kenaikan.kolom.sekarang": { default: "Sekarang", en: "Now" },
   "kenaikan.akhir.completed": { default: "Lulus", en: "Graduated" },
   "kenaikan.akhir.withdrawn": { default: "Keluar", en: "Left" },
   "kenaikan.akhir.transferred_out": { default: "Pendaftaran berakhir", en: "Enrolment ended" },
@@ -5227,8 +5246,9 @@ const table: Table = {
   "studio.definisi.tetap": { default: "Nama diperbarui. Cara hasil dibaca tidak berubah.", en: "The name is updated. How results are read has not changed." },
   "studio.integritas.judul": { default: "Tinjauan Integritas", en: "Integrity Review" },
   "studio.integritas.penjelasan": { default: "Catatan ini bahan pertimbangan manusia, bukan kesimpulan tentang murid.", en: "These notes are material for a human to weigh, not a conclusion about a student." },
-  "studio.integritas.menunggu_lain": { default: "Di bagian lain sekolah, {n} catatan menunggu peninjau bagian itu.", en: "Elsewhere in the school, {n} notes are waiting for that part's reviewer." },
-  "studio.integritas.kosong": { default: "Tidak ada catatan yang menunggu tinjauan.", en: "No note is waiting for review." },
+  "studio.integritas.menunggu_lain": { default: "Di departemen lain, {n} catatan menunggu tinjauan Kepala departemennya.", en: "In other departments, {n} notes are waiting for their head of department's review." },
+  "studio.integritas.menunggu_lain_satu": { default: "Di departemen lain, 1 catatan menunggu tinjauan Kepala departemennya.", en: "In another department, 1 note is waiting for its head of department's review." },
+  "studio.integritas.kosong": { default: "Tidak ada catatan yang menunggu tinjauan Anda.", en: "No note is waiting for your review." },
   "studio.integritas.NO_CONCERN": { default: "Tidak ada yang perlu ditindaklanjuti", en: "Nothing to follow up" },
   "studio.integritas.DISCUSSED_WITH_LEARNER": { default: "Sudah dibicarakan dengan murid", en: "Discussed with the student" },
   "studio.integritas.REFERRED_TO_INSTITUTION": { default: "Diteruskan ke pihak sekolah", en: "Passed to the school" },
@@ -5921,13 +5941,13 @@ const table: Table = {
   "auth.tutup_go": { default: "Minta dibuka kembali", en: "Ask for it to be reopened" },
   "buka_kembali.judul": { default: "Minta akun dibuka kembali", en: "Ask for your account to be reopened" },
   "buka_kembali.arti": { default: "Akun yang sudah ditutup tidak dibuka dengan sendirinya. Admin PINTAR membaca permintaan ini, memastikan bahwa Anda pemilik akun itu, lalu memutuskan. Catatan Anda tetap tersimpan selama akun tertutup.", en: "A closed account is never reopened by itself. An Admin PINTAR reads this request, makes sure you are the account's owner, then decides. Your records stay kept while the account is closed." },
-  "buka_kembali.identitas": { default: "Email untuk masuk atau PINTAR ID", en: "Sign-in email or PINTAR ID" },
+  "buka_kembali.identitas": { default: "Email atau username", en: "Email or username" },
   "buka_kembali.pesan": { default: "Pesan untuk Admin PINTAR", en: "Message for the Admin PINTAR" },
   "buka_kembali.pesan_arti": { default: "Tuliskan mengapa Anda ingin kembali dan bagaimana Admin PINTAR dapat menghubungi Anda untuk memastikan identitas Anda. 10 sampai 500 karakter.", en: "Say why you want to come back and how an Admin PINTAR can reach you to confirm who you are. 10 to 500 characters." },
   "buka_kembali.kirim": { default: "Kirim permintaan", en: "Send the request" },
   "buka_kembali.terkirim": { default: "Terima kasih. Jika akun itu memang sudah ditutup, permintaan Anda kini menunggu di Admin PINTAR. Akun dibuka kembali hanya setelah Admin PINTAR memastikan identitas Anda.", en: "Thank you. If that account has been closed, your request is now waiting with an Admin PINTAR. The account is reopened only after an Admin PINTAR has confirmed who you are." },
   "buka_kembali.galat.isian": { default: "Isi email atau PINTAR ID, dan pesan 10 sampai 500 karakter.", en: "Fill in the email or PINTAR ID, and a message of 10 to 500 characters." },
-  "buka_kembali.galat.tunggu": { default: "Terlalu banyak permintaan dari perangkat ini. Coba lagi beberapa menit lagi.", en: "Too many requests from this device. Try again in a few minutes." },
+  "buka_kembali.galat.tunggu": { default: "Sudah terlalu banyak permintaan baru saja. Coba lagi beberapa menit lagi.", en: "Too many requests just now. Try again in a few minutes." },
   "buka_kembali.galat.umum": { default: "Permintaan belum terkirim. Coba lagi.", en: "The request was not sent. Try again." },
   "buka_kembali.ke_masuk": { default: "Kembali ke halaman masuk", en: "Back to sign-in" },
   "keamanan.permintaan.buka_kembali": { default: "Buka kembali akun", en: "Reopen the account" },
@@ -6655,6 +6675,12 @@ const table: Table = {
   "mengajar.materi.judul": { default: "Materi untuk kelas ini", en: "Material for this class" },
   "mengajar.materi.sub": { default: "Urutan mengikuti kurikulum sekolah. Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah.", en: "Order follows the school's curriculum. Making material available is not the same as publishing it; the school publishes." },
   "mengajar.materi.kosong": { default: "Belum ada materi yang disediakan untuk kelas ini.", en: "No material has been made available to this class yet." },
+  "mengajar.materi.berakhir": { default: "Sudah berakhir ({n})", en: "Ended or withdrawn ({n})" },
+  "mengajar.materi.diakhiri_pada": { default: "Diakhiri {tanggal} · hasilnya tetap dihitung", en: "Ended {tanggal} · its results still count" },
+  "mengajar.materi.ditarik_pada": { default: "Ditarik {tanggal} · hasilnya tidak dihitung di laporan kelas dan sekolah", en: "Withdrawn {tanggal} · its results are not counted in class or school reports" },
+  "mengajar.materi.alasan": { default: "Alasan: {alasan}", en: "Reason: {alasan}" },
+  "mengajar.materi.hasil_murid": { default: "Hasil tiap murid ada di halaman muridnya.", en: "Each student's result is on that student's page." },
+  "mengajar.materi.tanpa_judul": { default: "Materi tanpa judul", en: "Untitled material" },
   "mengajar.murid1.eyebrow": { default: "Catatan belajar", en: "Learning record" },
   "mengajar.murid1.catatan": { default: "Catatan belajar satu murid di kelas Anda, untuk mendukung belajarnya. Tidak dibandingkan dengan murid lain dan bukan peringkat.", en: "One student's learning record in your class, to support their learning. It is not compared with other students and is not a ranking." },
   "mengajar.murid1.tugas": { default: "Penilaian di kelas ini", en: "Assessments in this class" },
@@ -6694,14 +6720,16 @@ const table: Table = {
   "mengajar.akhiri.konfirmasi": { default: "Tutup juga asesmen yang masih dikerjakan murid di atas. Asesmen itu ditutup sekarang dan tidak dinilai; jawaban yang sudah tersimpan tetap ada.", en: "Also close the assessments the students above are still answering. They close now and are not scored; the answers already saved are kept." },
   "mengajar.akhiri.tombol": { default: "Akhiri penugasan", en: "End assignment" },
   "mengajar.akhiri.tanpa_judul": { default: "materi ini", en: "this material" },
-  "hasilbelajar.ditarik": { default: "Ditarik guru; tidak dihitung di laporan kelas", en: "Withdrawn by the teacher; not counted in class reports" },
-  "sync.diakhiri_sekolah": { default: "Asesmen ini sudah ditutup oleh sekolah dan tidak dapat dikirim. Jawaban yang sudah tersimpan tetap ada.", en: "The school has closed this assessment, so it cannot be submitted. The answers already saved are kept." },
+  "hasilbelajar.ditarik": { default: "Guru Anda menarik penugasan ini. Hasil Anda tetap tersimpan di sini.", en: "Your teacher withdrew this assignment. Your result stays here." },
+  "hasilbelajar.ditutup_awal": { default: "Pemetaan Awal selesai: {persen}. Materi ini ditutup sebelum Uji Penguasaan.", en: "Initial Mapping finished: {persen}. This material closed before the Mastery Check." },
+  "mengajar.murid1.ditarik": { default: "Ditarik · tidak dihitung di laporan kelas dan sekolah", en: "Withdrawn · not counted in class or school reports" },
+  "sync.diakhiri_sekolah": { default: "Asesmen ini sudah ditutup dan tidak dinilai. Jawaban yang sudah tersimpan tetap ada. Bila ada pertanyaan, tanyakan kepada guru Anda.", en: "This assessment has been closed and is not scored. The answers already saved are kept. If you have a question, ask your teacher." },
   "mengajar.akhiri.tombol_tarik": { default: "Tarik penugasan", en: "Withdraw assignment" },
   "mengajar.akhiri.tanya": { default: "Akhiri penugasan {kursus}?", en: "End the assignment {kursus}?" },
   "mengajar.akhiri.tanya_tarik": { default: "Tarik penugasan {kursus}?", en: "Withdraw the assignment {kursus}?" },
   "mengajar.akhiri.akibat": { default: "Materi ini tidak lagi muncul untuk dikerjakan di halaman Belajar murid kelas ini. Hasil yang sudah ada tetap tersimpan, tetap terlihat oleh murid, dan tetap dihitung.", en: "This material can no longer be worked on from the class's students' Belajar pages. Results already made are kept, still seen by the students, and still counted." },
-  "mengajar.akhiri.akibat_tarik": { default: "Materi ini tidak lagi muncul di halaman Belajar murid kelas ini. Hasil yang sudah ada tetap tersimpan tetapi tidak dihitung di laporan kelas.", en: "This material no longer appears on the class's students' Belajar pages. Results already made are kept but not counted in the class's reports." },
-  "mengajar.akhiri.ok_tarik": { default: "Penugasan ditarik. Hasil murid tetap tersimpan tetapi tidak dihitung di laporan kelas.", en: "Assignment withdrawn. Students' results are kept but not counted in the class's reports." },
+  "mengajar.akhiri.akibat_tarik": { default: "Materi ini tidak lagi muncul di halaman Belajar murid kelas ini. Hasil yang sudah ada tetap tersimpan tetapi tidak dihitung di laporan kelas dan sekolah.", en: "This material no longer appears on the class's students' Belajar pages. Results already made are kept but not counted in class or school reports." },
+  "mengajar.akhiri.ok_tarik": { default: "Penugasan ditarik. Hasil murid tetap tersimpan tetapi tidak dihitung di laporan kelas dan sekolah.", en: "Assignment withdrawn. Students' results are kept but not counted in class or school reports." },
   "mengajar.akhiri.tutup": { default: "Tutup tanpa mengubah", en: "Close without changing anything" },
   "mengajar.akhiri.batal": { default: "Batal", en: "Cancel" },
   "mengajar.akhiri.ok": { default: "Penugasan diakhiri. Hasil murid tetap tersimpan.", en: "Assignment ended. Students' results are kept." },

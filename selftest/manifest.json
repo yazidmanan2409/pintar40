@@ -4932,6 +4932,16 @@
       "proves": "«Kenaikan kelas dan kelulusan»: a second confirmation of the same decisions is refused (PROMO_CHANGED) and writes nothing."
     },
     {
+      "id": "F37-W26",
+      "runner": "db",
+      "proves": "W2.26 the integrity count line, to Sharon's ruling at 435a2856 (red first, fable37 against 20270112130000): integrity_signals_waiting_elsewhere returns each school's bare count of observations waiting outside the reader's scope, with no department, class or learner, as one line per school, and no line when nothing waits, so the answer never says whether other departments exist; the page shows the line only above zero."
+    },
+    {
+      "id": "F37-K07",
+      "runner": "db",
+      "proves": "Daisy's design check at 435a2856 (§4.2; red first, fable37 against 20270112210000): with no learner going to a Kelas (every decision a graduation or a departure) there is no teacher to acknowledge, so kenaikan_tetapkan applies without p_guru_ditinjau and the review page asks for no checkbox; a run with a destination Kelas is still refused PROMO_TEACHERS_UNREVIEWED (F37-K02)."
+    },
+    {
       "id": "F37-K06",
       "runner": "db",
       "proves": "«Kenaikan kelas dan kelulusan»: the run's own record (Daisy's reconciliation K1, Sharon «fold, don't hide»; selftest/db/fable37.sql against 20270112210000): a confirmed run writes its one promotion.applied row and every row it writes beside it (the enrolments it ends and opens) with the same run_id, set only while the run holds pintar.audit_run; kenaikan_hasil reads back each learner's decision, where they are now (Kelas, or the enrolment's end with its reason code and school-zone date) and whether that matches, the destination Kelas still without a teacher, and the run id."

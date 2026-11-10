@@ -291,30 +291,27 @@ $$;
 revoke all on function public.integrity_signals_awaiting_review() from public, anon, authenticated;
 grant execute on function public.integrity_signals_awaiting_review() to authenticated;
 
--- ... and school-wide oversight as a COUNT PER DEPARTMENT (Sharon, 9 Nov): per school where the reader holds
--- CAN_REVIEW_INTEGRITY, how many academic observations still wait in each department outside the reader's own scope;
--- no sitting, category, time or person. A place under no department is counted under a null department.
+-- ... and school-wide oversight as a COUNT (Sharon, 9 Nov). CORRECTED IN PLACE (undeployed; W2.26, Sharon's ruling at
+-- 435a2856): a bare count per school where the reader holds CAN_REVIEW_INTEGRITY, of the academic observations still
+-- waiting outside the reader's own scope; no department, sitting, category, time or person. A school is listed only
+-- when something waits, so the answer never says whether other departments exist. Red first: F37-W26.
 create or replace function public.integrity_signals_waiting_elsewhere()
-returns table (institution_id uuid, department_id uuid, department_name text, waiting integer)
+returns table (institution_id uuid, waiting integer)
 language sql stable security definer set search_path = public, pg_temp as $$
-  select s.institution_id, d.id, d.name, count(*)::integer
+  select s.institution_id, count(*)::integer
     from public.integrity_signals s
-    join public.assessment_sessions ses on ses.id = s.session_id
-    left join public.org_nodes p on p.id = coalesce(ses.class_node_id, ses.cohort_node_id)
-    left join lateral (select dn.id, dn.name from public.org_nodes dn
-                        where dn.id = any(p.jalur) and dn.kind = 'DEPARTMENT' limit 1) d on true
    where public.current_person_id() is not null
      and public.can_in_institution('CAN_REVIEW_INTEGRITY', s.institution_id)
      and not public.session_is_professional(s.session_id)
      and not public.boleh_atas_sesi(s.session_id, 'CAN_REVIEW_INTEGRITY')
      and not public.integrity_signal_decided(s.id)
-   group by s.institution_id, d.id, d.name
+   group by s.institution_id
 $$;
 revoke all on function public.integrity_signals_waiting_elsewhere() from public, anon, authenticated;
 grant execute on function public.integrity_signals_waiting_elsewhere() to authenticated;
 insert into public.client_rpc_registry (function_name, exposure, note, authorization_kind, authorization_requirement) values
   ('integrity_signals_waiting_elsewhere', 'STAFF', 'Owner, 9 Nov: school-wide integrity oversight as a count only: per '
-   || 'school and department, the observations waiting outside the reader''s own scope. Read only.', null, null);
+   || 'school, the number of observations waiting outside the reader''s own scope; no line when none waits. Read only.', null, null);
 
 -- Low. D5's audit names the undecided observation(s) that qualified the opening
 create or replace function public.jawaban_untuk_pemeriksaan(p_session uuid, p_alasan text)

@@ -86,13 +86,32 @@ export function lipatKenaikan<T extends BarisJejak>(rows: T[]): HasilLipat<T> {
 }
 
 /** The learners a promotion.applied row names (its summary's outcomes), each with the decision as written. */
-export type HasilRun = { person_id: string; keputusan: string; alasan: string | null };
+export type HasilRun = { person_id: string; keputusan: string; alasan: string | null; kelas_tujuan: string | null };
 export function hasilRun(summary: unknown): HasilRun[] {
   const s = summary && typeof summary === "object" && !Array.isArray(summary) ? (summary as Record<string, unknown>) : {};
   const o = Array.isArray(s.outcomes) ? s.outcomes : [];
   return o.flatMap((x) => {
     const h = x && typeof x === "object" ? (x as Record<string, unknown>) : {};
     return typeof h.person_id === "string" && typeof h.keputusan === "string"
-      ? [{ person_id: h.person_id, keputusan: h.keputusan, alasan: typeof h.alasan === "string" ? h.alasan : null }] : [];
+      ? [{ person_id: h.person_id, keputusan: h.keputusan, alasan: typeof h.alasan === "string" ? h.alasan : null,
+           kelas_tujuan: typeof h.kelas_tujuan === "string" && h.kelas_tujuan ? h.kelas_tujuan : null }] : [];
   });
+}
+
+/** Daisy (435a2856, §4.4): the run a promotion.applied row records: its years, and its run id. */
+export function tahunRun(summary: unknown): { dari: string | null; ke: string | null; run: string | null } {
+  const s = summary && typeof summary === "object" && !Array.isArray(summary) ? (summary as Record<string, unknown>) : {};
+  const id = (v: unknown) => (typeof v === "string" && v ? v : null);
+  return { dari: id(s.from_period), ke: id(s.to_period), run: id(s.run_id) };
+}
+
+/** The run id a row carries (summary.run_id), or null. */
+export function runId(summary: unknown): string | null {
+  return runDari(summary);
+}
+
+/** The outcomes counted by decision, in the review's order (NAIK, TINGGAL, LULUS, KELUAR, PINDAH), zeros left out. */
+export function hitungKeputusan(hs: readonly HasilRun[]): Array<[string, number]> {
+  const urut = ["NAIK", "TINGGAL", "LULUS", "KELUAR", "PINDAH"];
+  return urut.map((k) => [k, hs.filter((h) => h.keputusan === k).length] as [string, number]).filter(([, n]) => n > 0);
 }

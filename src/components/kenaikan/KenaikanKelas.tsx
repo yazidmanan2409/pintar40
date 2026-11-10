@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Ikon from "@/components/Ikon";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 import { t, type HleEvent } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { kunciKode } from "@/lib/galat-kontrak";
@@ -134,10 +135,14 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
     const tidak = h.hasil.filter((m) => !m.sesuai);
     const tahunTujuan = h.hasil.find((m) => m.tahun_tujuan)?.tahun_tujuan ?? null;
     const g = kelompokkan(h.hasil);
+    // Daisy (435a2856, §4.3): the outcome is laid out as the review was: the exceptions first and always shown, then the
+    // main group folded under its count; each name says what PINTAR recorded. And its moment is on the school's clock.
+    const utamaHasil = (g.kelompok.find((k) => k.kunci === g.utama)?.isi ?? []).filter((m) => m.sumber !== "TINGKAT");
+    const zona = await zonaSekolah(supabase, sekolah);
     return (
       <div className="pin-kenaikan" data-kenaikan-langkah="selesai">
         <BarisHasil nada="ok">
-          {s("kenaikan.selesai.ok").replace("{n}", String(h.hasil.length)).replace("{waktu}", tanggal(h.pada, "cap", locale))}
+          {s("kenaikan.selesai.ok").replace("{n}", String(h.hasil.length)).replace("{waktu}", tanggal(h.pada, "cap", locale, zona))}
           {tidak.length === 0 ? ` ${s("kenaikan.selesai.sesuai")}` : ""}
         </BarisHasil>
         {tidak.length > 0 ? (
@@ -147,14 +152,26 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
             {s("kenaikan.selesai.periksa")}
           </BarisHasil>
         ) : null}
-        {g.kelompok.map((k) => (
-          <section key={k.kunci} className="pin-kenaikan-kelompok" data-kenaikan-kelompok={k.kunci}>
-            <h4 className="pin-kenaikan-judul">{judulKelompok(s, k.isi[0], k.isi.length, tahunTujuan)}</h4>
+        {g.pengecualian.length > 0 ? (
+          <section className="pin-kenaikan-kelompok" data-kenaikan-pengecualian={g.pengecualian.length}>
+            <h4 className="pin-kenaikan-judul">{s("kenaikan.tinjau.pengecualian")}</h4>
             <ul className="pin-kenaikan-murid" data-kenaikan-hasil="">
-              {k.isi.map((m) => <li key={m.person_id} data-murid={m.person_id}>{m.nama} · {tercatat(s, m, locale)}</li>)}
+              {g.pengecualian.map((m) => (
+                <li key={m.person_id} data-murid={m.person_id}>
+                  {m.nama} · {m.sumber === "TINGKAT" ? `${s("kenaikan.tinjau.dari_tingkat")} · ` : ""}{kalimat(s, m, tahunTujuan)} · {tercatat(s, m, locale)}
+                </li>
+              ))}
             </ul>
           </section>
-        ))}
+        ) : null}
+        {utamaHasil.length > 0 ? (
+          <details className="pin-disclosure pin-kenaikan-kelompok" data-kenaikan-utama={utamaHasil.length}>
+            <summary className="cursor-pointer">{judulKelompok(s, utamaHasil[0], utamaHasil.length, tahunTujuan)}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
+            <ul className="pin-kenaikan-murid" data-kenaikan-hasil="">
+              {utamaHasil.map((m) => <li key={m.person_id} data-murid={m.person_id}>{m.nama} · {tercatat(s, m, locale)}</li>)}
+            </ul>
+          </details>
+        ) : null}
         {h.guru_kosong.length > 0 ? (
           <p className="pin-kenaikan-teks" data-kenaikan-guru-kosong={h.guru_kosong.length}>
             {s("kenaikan.selesai.guru_kosong").replace("{n}", String(h.guru_kosong.length)).replace("{tahun}", tahunPendek(tahunTujuan))
@@ -200,9 +217,11 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
     const hasil = ((data as { hasil: Hasil[] }).hasil ?? []).map((m) => ({ ...m, kelas_tujuan: m.kelas_tujuan ?? null }));
     const g = kelompokkan(hasil);
     const utamaGrup = g.kelompok.find((k) => k.kunci === g.utama);
+    const utamaNama = (utamaGrup?.isi ?? []).filter((m) => m.sumber !== "TINGKAT");
     // the destination Kelas only, each with its teachers or none (Q2)
     const tujuan = tahun.kelas.filter((k) => hasil.some((h) => h.kelas_tujuan === k.id || h.kelas_tujuan_nama === k.nama));
     const tanpaGuru = tujuan.filter((k) => k.guru.length === 0);
+    const adaTujuan = tujuan.length > 0 || hasil.some((h) => h.kelas_tujuan || h.keputusan === "NAIK" || h.keputusan === "TINGGAL");
     const ringkas = g.kelompok.map((k) => judulKelompok(s, k.isi[0], k.isi.length, tahun.nama)).join(" · ");
     return (
       <div className="pin-kenaikan" data-kenaikan-langkah="tinjau">
@@ -223,11 +242,12 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
             </ul>
           </section>
         ) : null}
-        {utamaGrup ? (
-          <details className="pin-disclosure pin-kenaikan-kelompok" data-kenaikan-utama={utamaGrup.isi.length}>
-            <summary className="cursor-pointer">{judulKelompok(s, utamaGrup.isi[0], utamaGrup.isi.length, tahun.nama)}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
+        {/* Daisy (435a2856, §4.1): the summary counts the names it holds; a learner from the Tingkat is under «Pengecualian» */}
+        {utamaNama.length > 0 ? (
+          <details className="pin-disclosure pin-kenaikan-kelompok" data-kenaikan-utama={utamaNama.length}>
+            <summary className="cursor-pointer">{judulKelompok(s, utamaNama[0], utamaNama.length, tahun.nama)}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
             <ul className="pin-kenaikan-murid">
-              {utamaGrup.isi.filter((m) => m.sumber !== "TINGKAT").map((m) => (
+              {utamaNama.map((m) => (
                 <li key={m.person_id} data-murid={m.person_id}>{m.nama}
                   {m.asesmen_diakhiri ? <span className="pin-meta" data-asesmen-diakhiri={m.asesmen_diakhiri}> · {s("kenaikan.hasil.asesmen").replace("{n}", String(m.asesmen_diakhiri))}</span> : null}
                 </li>
@@ -249,12 +269,16 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
           <input type="hidden" name="kelas" value={kelas} />
           <input type="hidden" name="tahun" value={tahun.id} />
           <input type="hidden" name="d" value={sp.kn_d ?? ""} />
-          <label className="pin-kenaikan-centang">
-            <input type="checkbox" name="guru_ditinjau" value="ya" required />
-            <span data-kenaikan-tanpa-guru={tanpaGuru.length}>{tanpaGuru.length
-              ? s("kenaikan.guru.tahu_tanpa").replace("{daftar}", daftarKata(tanpaGuru.map((k) => k.nama), locale) + ` · ${tahunPendek(tahun.nama)}`)
-              : tujuan.length ? s("kenaikan.guru.semua_ada") : s("kenaikan.guru.tanpa_tujuan_centang")}</span>
-          </label>
+          {/* Daisy (435a2856, §4.2): with no learner going to a Kelas there is no teacher to acknowledge, so nothing is asked;
+              the sentence above already says so (the database requires the acknowledgement only when someone has one) */}
+          {adaTujuan ? (
+            <label className="pin-kenaikan-centang">
+              <input type="checkbox" name="guru_ditinjau" value="ya" required />
+              <span data-kenaikan-tanpa-guru={tanpaGuru.length}>{tanpaGuru.length
+                ? s("kenaikan.guru.tahu_tanpa").replace("{daftar}", daftarKata(tanpaGuru.map((k) => k.nama), locale) + ` · ${tahunPendek(tahun.nama)}`)
+                : s("kenaikan.guru.semua_ada")}</span>
+            </label>
+          ) : null}
           <p className="pin-kenaikan-teks" data-kenaikan-kalimat="">{s("kenaikan.tinjau.kalimat").replace("{n}", String(hasil.length)).replace("{ringkas}", ringkas)}</p>
           {tolak}
           <div className="pin-actions">
