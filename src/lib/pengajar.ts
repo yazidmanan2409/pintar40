@@ -435,7 +435,16 @@ export async function penugasanKelas(nodeIds: readonly string[]): Promise<Map<st
     available_from: string | null; available_until: string | null;
     course: { title: string } | null;
   };
-  for (const r of rows<Baris>(data)) out.get(r.node_id)?.push(penugasanDari(r));
+  const baris = rows<Baris>(data);
+  // A lesson PINTAR shares with the school is a course of PINTAR's, which a Guru cannot read (courses_select is
+  // CAN_DRAFT in the course's own school), so its title came back empty and the class page named no lesson (found by
+  // #97's check of «Tarik penugasan …?», 10 Nov). Its title is the one distributed_releases already gives the school.
+  if (baris.some((r) => !r.course?.title)) {
+    const { data: dist } = await c.rpc("distributed_releases");
+    const judul = new Map(rows<{ plp_release_id: string; course_title: string }>(dist).map((d) => [d.plp_release_id, d.course_title]));
+    for (const r of baris) if (!r.course?.title && judul.get(r.plp_release_id)) r.course = { title: judul.get(r.plp_release_id)! };
+  }
+  for (const r of baris) out.get(r.node_id)?.push(penugasanDari(r));
   return out;
 }
 

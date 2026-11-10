@@ -2000,6 +2000,9 @@ export type HleEvent =
   | "mengajar.akhiri.alasan.arti"
   | "mengajar.akhiri.konfirmasi"
   | "mengajar.akhiri.tombol"
+  | "mengajar.akhiri.tanpa_judul"
+  | "hasilbelajar.ditarik"
+  | "sync.diakhiri_sekolah"
   | "mengajar.akhiri.tombol_tarik"
   | "mengajar.akhiri.tanya"
   | "mengajar.akhiri.tanya_tarik"
@@ -6690,12 +6693,15 @@ const table: Table = {
   "mengajar.akhiri.alasan.arti": { default: "10 sampai 300 karakter. Tercatat di jejak audit sekolah.", en: "10 to 300 characters. Recorded in the school's audit trail." },
   "mengajar.akhiri.konfirmasi": { default: "Tutup juga asesmen yang masih dikerjakan murid di atas. Asesmen itu ditutup sekarang dan tidak dinilai; jawaban yang sudah tersimpan tetap ada.", en: "Also close the assessments the students above are still answering. They close now and are not scored; the answers already saved are kept." },
   "mengajar.akhiri.tombol": { default: "Akhiri penugasan", en: "End assignment" },
+  "mengajar.akhiri.tanpa_judul": { default: "materi ini", en: "this material" },
+  "hasilbelajar.ditarik": { default: "Ditarik guru; tidak dihitung di laporan kelas", en: "Withdrawn by the teacher; not counted in class reports" },
+  "sync.diakhiri_sekolah": { default: "Asesmen ini sudah ditutup oleh sekolah dan tidak dapat dikirim. Jawaban yang sudah tersimpan tetap ada.", en: "The school has closed this assessment, so it cannot be submitted. The answers already saved are kept." },
   "mengajar.akhiri.tombol_tarik": { default: "Tarik penugasan", en: "Withdraw assignment" },
   "mengajar.akhiri.tanya": { default: "Akhiri penugasan {kursus}?", en: "End the assignment {kursus}?" },
   "mengajar.akhiri.tanya_tarik": { default: "Tarik penugasan {kursus}?", en: "Withdraw the assignment {kursus}?" },
-  "mengajar.akhiri.akibat": { default: "Materi ini tidak lagi muncul di halaman Belajar murid kelas ini, dan tidak dapat dimulai lagi. Hasil yang sudah ada tetap tersimpan.", en: "This material no longer appears on the class's students' Belajar pages and cannot be started again. Results already made are kept." },
-  "mengajar.akhiri.akibat_tarik": { default: "Materi ini tidak lagi muncul di halaman Belajar murid kelas ini. Hasil yang sudah ada tetap tersimpan, dan untuk saat ini tetap dihitung di laporan kelas.", en: "This material no longer appears on the class's students' Belajar pages. Results already made are kept, and for now they still count in the class's reports." },
-  "mengajar.akhiri.ok_tarik": { default: "Penugasan ditarik. Hasil murid tetap tersimpan, dan untuk saat ini tetap dihitung di laporan kelas.", en: "Assignment withdrawn. Students' results are kept, and for now they still count in the class's reports." },
+  "mengajar.akhiri.akibat": { default: "Materi ini tidak lagi muncul untuk dikerjakan di halaman Belajar murid kelas ini. Hasil yang sudah ada tetap tersimpan, tetap terlihat oleh murid, dan tetap dihitung.", en: "This material can no longer be worked on from the class's students' Belajar pages. Results already made are kept, still seen by the students, and still counted." },
+  "mengajar.akhiri.akibat_tarik": { default: "Materi ini tidak lagi muncul di halaman Belajar murid kelas ini. Hasil yang sudah ada tetap tersimpan tetapi tidak dihitung di laporan kelas.", en: "This material no longer appears on the class's students' Belajar pages. Results already made are kept but not counted in the class's reports." },
+  "mengajar.akhiri.ok_tarik": { default: "Penugasan ditarik. Hasil murid tetap tersimpan tetapi tidak dihitung di laporan kelas.", en: "Assignment withdrawn. Students' results are kept but not counted in the class's reports." },
   "mengajar.akhiri.tutup": { default: "Tutup tanpa mengubah", en: "Close without changing anything" },
   "mengajar.akhiri.batal": { default: "Batal", en: "Cancel" },
   "mengajar.akhiri.ok": { default: "Penugasan diakhiri. Hasil murid tetap tersimpan.", en: "Assignment ended. Students' results are kept." },

@@ -343,6 +343,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
         setNotice("sync.belum_terkirim");
         return;
       }
+      // defect (10 Nov): a sitting the school ended (akhiri_penugasan) is said as such, not as unsaved answers
+      if (!r.ok && r.code === "PR003") { setNotice("sync.diakhiri_sekolah"); return; }
       if (r.ok || r.code === "PR002") {
         // doc 04 §7: the system issues a certificate for a certifying pass. Asked
         // at once, never awaited: the results view must not wait on issuance,

@@ -31,10 +31,13 @@ export type BabHasil = {
   bagian: BagianBab[];
   /** The parts below the target, by name, lowest first (bagianUlang). */
   ulang: string[];
+  /** owner ruling (10 Nov): the assignment was withdrawn; the result is kept and not counted in class figures */
+  ditarik?: boolean;
 };
 
 export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]> {
-  const tugas = await engine.myAssignments(db);
+  // defect (10 Nov): a closed lesson's outcome stays seen; an unfinished one of a closed lesson is no longer «in progress»
+  const tugas = await engine.myLearningHistory(db);
   const bab = await Promise.all(tugas.map(async (a): Promise<BabHasil | null> => {
     // Reporting Quality Gate (9 Nov): a title that already begins with its subject («Matematika Kelas 5 · Bab 1») is not
     // prefixed with it again («Matematika · Matematika Kelas 5 · Bab 1»)
@@ -43,6 +46,7 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
     if (!state) return null;
     const mulai = Boolean(state.pre_session || state.post_session);
     if (!state.post_session || state.post_status !== "FINALIZED") {
+      if (a.status && a.status !== "ACTIVE") return null;
       return mulai ? { tugas: a.learning_assignment_id, judul, keadaan: "BERJALAN", awal: null, akhir: null, ambang: null, tercapai: null, benar: 0, total: 0, bagian: [], ulang: [] } : null;
     }
     const [outcome, review, delta, peta, pelajaran] = await Promise.all([
@@ -61,6 +65,7 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
       tugas: a.learning_assignment_id,
       judul,
       keadaan: "SELESAI",
+      ditarik: a.status === "WITHDRAWN",
       awal: delta?.status === "LENGKAP" ? delta.awal : null,
       akhir: outcome.penguasaan,
       ambang: outcome.ambang ?? null,

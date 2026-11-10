@@ -386,6 +386,9 @@ export const kenaikanAppTests: SelfTest[] = [
       c.expect(h1.includes(`data-akhiri-buka="${la}"`), "the class page does not offer «Akhiri atau tarik» on the lesson in force");
       const h2 = await (await guru.halaman(`/mengajar/${kelas}?akhiri=${la}`)).text();
       c.expect(teks(h2).includes("Hasil, sertifikat dan kemajuan belajar yang sudah ada tetap tersimpan"), "the panel does not say what is kept");
+      // found by #97's browser check (10 Nov): a lesson PINTAR shares is named on the panel, not left blank
+      const judulKursus = psql(`select c.title from public.learning_assignments x join public.courses c on c.id = x.course_id where x.id = ${lit(la)}`);
+      c.expect(judulKursus !== "" && teks(h2).includes(`Akhiri atau tarik penugasan · ${judulKursus}`), `the panel does not name the lesson «${judulKursus}»`);
       // Daisy (TINJAUAN-6faef690 §1): the kind is asked as a question, «Diakhiri» / «Ditarik», and the act opens red
       c.expect(teks(h2).includes("Mengapa penugasan ini berakhir?") && teks(h2).includes("Diakhiri: materi sudah selesai dibahas")
         && /data-bahaya-buka=""[^>]*>Akhiri penugasan</.test(h2.replace(/<!-- -->/g, "")) && /data-bahaya-buka=""[^>]*>Tarik penugasan</.test(h2.replace(/<!-- -->/g, "")), "the panel does not ask why, or does not open the act as the destructive confirmation");
@@ -401,13 +404,14 @@ export const kenaikanAppTests: SelfTest[] = [
       // the withdrawal, on the record
       const f2 = formDengan(h2, `data-akhiri="${la}"`, { jenis: "WITHDRAWN", alasan: `diberikan ke kelas yang salah ${tag}` });
       const r2 = await guru.kirim(`/mengajar/${kelas}`, { form: f2 as Record<string, string> });
-      // RESTATED (Daisy, TINJAUAN-6faef690 §1): the result line follows the choice, «ditarik» for a withdrawal
+      // RESTATED (Daisy, TINJAUAN-6faef690 §1; owner ruling 10 Nov): the result line follows the choice, «ditarik» for a
+      // withdrawal, whose results are kept and not counted
       c.expect(/diakhiri=ditarik/.test(r2.headers.get("location") ?? "") && keadaan() === "WITHDRAWN/CLOSED",
         `the withdrawal: ${r2.status} ${r2.headers.get("location")}; now ${keadaan()}`);
       const audit = psql(`select count(*) from public.audit_log where action = 'learning_assignment.withdrawn' and target_id = ${lit(la)} and summary ->> 'reason' = ${lit(`diberikan ke kelas yang salah ${tag}`)}`);
       c.expect(audit === "1", `the withdrawal has ${audit} audit row(s) with its reason`);
       const h4 = await (await guru.halaman(`/mengajar/${kelas}?diakhiri=ditarik`)).text();
-      c.expect(teks(h4).includes("Penugasan ditarik. Hasil murid tetap tersimpan, dan untuk saat ini tetap dihitung di laporan kelas.") && teks(h4).includes("Ditarik"),
+      c.expect(teks(h4).includes("Penugasan ditarik. Hasil murid tetap tersimpan tetapi tidak dihitung di laporan kelas.") && teks(h4).includes("Ditarik"),
         "the class page does not confirm the withdrawal and show the material as «Ditarik»");
       c.expect(!h4.includes(`data-akhiri-buka="${la}"`), "a withdrawn assignment is still offered «Akhiri atau tarik»");
       return c.verdict("as Alpha's Guru on the class page: the lesson in force offers «Akhiri atau tarik»; the panel says what is kept; " +

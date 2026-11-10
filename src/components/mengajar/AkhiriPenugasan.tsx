@@ -27,11 +27,13 @@ export default function AkhiriPenugasan({ kelasId, tugas, pratinjau, kode, local
   locale: Locale;
 }) {
   const s = (k: HleEvent) => t(k, "educator", { locale });
+  // a lesson whose title cannot be read is still named, never left as «penugasan ?»
+  const kursus = tugas.kursus || s("mengajar.akhiri.tanpa_judul");
   return (
     <form id="akhiri" action={akhiriPenugasanAction} className="pin-sec pin-ulang pin-akhiri" data-akhiri={tugas.id}>
       <input type="hidden" name="kelas" value={kelasId} />
       <input type="hidden" name="penugasan" value={tugas.id} />
-      <h2>{s("mengajar.akhiri.judul")} · {tugas.kursus}</h2>
+      <h2>{s("mengajar.akhiri.judul")} · {kursus}</h2>
       <p className="pin-sub">{s("mengajar.akhiri.arti")}</p>
       {kode ? <BarisHasil nada="gagal">{s(kunciKodePenugasan(kode))}</BarisHasil> : null}
 
@@ -93,11 +95,11 @@ export default function AkhiriPenugasan({ kelasId, tugas, pratinjau, kode, local
           opener and confirm, a quiet «Batal»). Both are drawn; the stylesheet shows the one the chosen kind names. */}
       <div className="pin-actions" data-akhiri-untuk="ENDED">
         <KonfirmasiBahaya id={`akhiri-${tugas.id}`} sibuk={s("tombol.memproses")} tombol={s("mengajar.akhiri.tombol")} ya={s("mengajar.akhiri.tombol")}
-          batal={s("mengajar.akhiri.batal")} tanya={s("mengajar.akhiri.tanya").replace("{kursus}", tugas.kursus)} akibat={<p>{s("mengajar.akhiri.akibat")}</p>} />
+          batal={s("mengajar.akhiri.batal")} tanya={s("mengajar.akhiri.tanya").replace("{kursus}", kursus)} akibat={<p>{s("mengajar.akhiri.akibat")}</p>} />
       </div>
       <div className="pin-actions" data-akhiri-untuk="WITHDRAWN">
         <KonfirmasiBahaya id={`tarik-${tugas.id}`} sibuk={s("tombol.memproses")} tombol={s("mengajar.akhiri.tombol_tarik")} ya={s("mengajar.akhiri.tombol_tarik")}
-          batal={s("mengajar.akhiri.batal")} tanya={s("mengajar.akhiri.tanya_tarik").replace("{kursus}", tugas.kursus)} akibat={<p>{s("mengajar.akhiri.akibat_tarik")}</p>} />
+          batal={s("mengajar.akhiri.batal")} tanya={s("mengajar.akhiri.tanya_tarik").replace("{kursus}", kursus)} akibat={<p>{s("mengajar.akhiri.akibat_tarik")}</p>} />
       </div>
       <p><Link className="pin-btn pin-quiet" href={`/mengajar/${encodeURIComponent(kelasId)}#materi`}>{s("mengajar.akhiri.tutup")}</Link></p>
     </form>

@@ -578,7 +578,8 @@ export const b5aTests: SelfTest[] = [
       const halaman = kode(baca(ctx.repoRoot, "src/app/belajar/hasil/page.tsx"));
       const lib = kode(baca(ctx.repoRoot, "src/lib/hasil-belajar.ts"));
       c.expect(/await hasilBelajar\(db\)/.test(halaman) && /<KomposisiMurid bab=\{bab\}/.test(halaman), "/belajar/hasil does not draw the composition over hasilBelajar");
-      c.expect(/engine\.myAssignments\(db\)/.test(lib) && /engine\.outcome\(db, state\.post_session\)/.test(lib) && /ketuntasan\(outcome\)/.test(lib) && /bagianUlang\(/.test(lib) && !/\.from\(|\.rpc\(/.test(lib),
+      // RESTATED (defect, 10 Nov): a closed lesson's outcome stays seen, so the learner's own list is my_learning_history
+      c.expect(/engine\.myLearningHistory\(db\)/.test(lib) && /engine\.outcome\(db, state\.post_session\)/.test(lib) && /ketuntasan\(outcome\)/.test(lib) && /bagianUlang\(/.test(lib) && !/\.from\(|\.rpc\(/.test(lib),
         "hasilBelajar reads anything but the learner's own engine reads, or decides a verdict of its own");
       c.expect(/href="\/belajar\/hasil"/.test(kode(baca(ctx.repoRoot, "src/app/belajar/page.tsx"))), "Belajar does not link the learner's report");
       return c.verdict("renders «Hasil belajar» (D-195(1), 1-murid): the lead counted from the learner's own chapters with what to study again, per chapter Pemetaan Awal and " +

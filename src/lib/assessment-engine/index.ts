@@ -96,6 +96,14 @@ export async function myAssignments(db: EngineClient): Promise<AssignmentEntry[]
 }
 
 /**
+ * Defect (10 Nov): what was and is assigned to the learner, with its status (ACTIVE, ENDED, WITHDRAWN). Closing a lesson
+ * stops new work; its outcome stays seen. Only results pages read this; starting work reads myAssignments.
+ */
+export async function myLearningHistory(db: EngineClient): Promise<AssignmentEntry[]> {
+  return rows<AssignmentEntry>(await call(db, "my_learning_history"));
+}
+
+/**
  * D-195(4): whether one of the caller's OWN learning assignments is professional learning (jenis_belajar_saya,
  * 20270102100000): true, false for a school's curriculum, null for anything else or an unread answer.
  */

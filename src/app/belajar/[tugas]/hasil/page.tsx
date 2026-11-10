@@ -47,7 +47,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
     engine.outcome(db, state.post_session),
     engine.review(db, state.post_session),
     engine.delta(db, tugas),
-    engine.myAssignments(db).then((a) => a.find((x) => x.learning_assignment_id === tugas)),
+    engine.myLearningHistory(db).then((a) => a.find((x) => x.learning_assignment_id === tugas)),
     // UX-26: the objectives' names, from this learner's own session. Only
     // names hang on it, so a failed read leaves the rows on their codes
     // rather than the result unreadable.

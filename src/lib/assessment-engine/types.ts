@@ -102,6 +102,8 @@ export type AssignmentEntry = {
   title: string;
   pre_test_assignment: string | null;
   post_test_assignment: string | null;
+  /** my_learning_history only: ACTIVE, ENDED or WITHDRAWN */
+  status?: string;
 };
 
 export type Delta = {

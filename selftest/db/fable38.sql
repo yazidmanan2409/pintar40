@@ -16,6 +16,13 @@
 --   F38-W05  W2.21: a lesson PINTAR no longer shares can still be ended (found by PENUGASAN-A01 on 9 Nov): an ACTIVE
 --            assignment of canonical content whose distribution to the school was WITHDRAWN is ended by the class's
 --            Guru, its assessment CLOSED; it still cannot be made ACTIVE again or opened.
+--   F38-W06  Owner ruling (10 Nov): a withdrawn assignment is not counted. The finished sitting of Kelas A's ENDED
+--            assignment is in the class's figures (scoped_official_sessions and _results under Kelas A's boundary);
+--            once its assignment is WITHDRAWN it is not, and its result is still kept.
+--   F38-W07  Defect (10 Nov): a closed lesson's outcome stays seen. A learner of Kelas A finds the ENDED assignment in
+--            my_learning_history with its status, not in my_learning_assignments, and reads its cycle state.
+--   F38-W08  Defect (10 Nov): a sitting the school ended says so. Submitting a TERMINATED sitting is refused
+--            PR003 SESSION_ENDED_BY_SCHOOL.
 --   F38-R01  Evidence survives the year (owner, 9 Nov): Kelas A moves up through «Kenaikan kelas dan kelulusan». The
 --            learner's finished sitting, its result, its issued certificate and lesson progress are unchanged and still
 --            read by the learner (row security and my_certificate) and by the old class's Guru; the certificate's public
@@ -158,7 +165,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
-  w01 text[] := '{}'; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; o01 text[] := '{}'; o02 text[] := '{}'; o03 text[] := '{}'; u_o uuid; p_o uuid; e_o uuid; v_la_o uuid; v_aa_o uuid; u_t uuid; p_t uuid; v_rq uuid; s06 text[] := '{}'; u_hd uuid; p_hd uuid; v_hdr uuid; p_luar uuid; u_adm2 uuid; p_adm2 uuid; c05 text[] := '{}'; v_num05 text; v_seq05 int; a06 text[] := '{}'; a07 text[] := '{}'; u_c uuid; u_kartu uuid; p_c uuid; v_akk uuid; v_job uuid; v_req3 uuid; v_pid3 text; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
+  w01 text[] := '{}'; w06 text[] := '{}'; w07 text[] := '{}'; w08 text[] := '{}'; s_t uuid; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; o01 text[] := '{}'; o02 text[] := '{}'; o03 text[] := '{}'; u_o uuid; p_o uuid; e_o uuid; v_la_o uuid; v_aa_o uuid; u_t uuid; p_t uuid; v_rq uuid; s06 text[] := '{}'; u_hd uuid; p_hd uuid; v_hdr uuid; p_luar uuid; u_adm2 uuid; p_adm2 uuid; c05 text[] := '{}'; v_num05 text; v_seq05 int; a06 text[] := '{}'; a07 text[] := '{}'; u_c uuid; u_kartu uuid; p_c uuid; v_akk uuid; v_job uuid; v_req3 uuid; v_pid3 text; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
   u_admin uuid; v_n int; v_cert uuid; v_cert2 uuid; v_new uuid; v_new2 uuid; v_tok text; v_ntok text; v_payload jsonb; v_nomor text; v_snapold uuid; p_holder uuid; u_holder uuid; v_k record;
   v_crel uuid; v_cdef uuid; v_dist uuid; v_la3 uuid; v_aa3 uuid;
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid; v_coh uuid; c_a uuid; c_b uuid;
@@ -312,6 +319,47 @@ begin
     elsif (select la.status::text from public.learning_assignments la where la.id = v_la2) <> 'WITHDRAWN'
        or not exists (select 1 from public.audit_log a where a.action = 'learning_assignment.withdrawn' and a.target_id = v_la2::text) then
       w04 := w04 || 'the withdrawal is not WITHDRAWN on the record'::text; end if;
+
+    -- ═══════════════════════════════════ F38-W06 a withdrawn assignment is not counted (owner ruling, 10 Nov)
+    -- the suite's sitting is SYNTHETIC evidence, which no figure counts; for this check it is OFFICIAL, as a real one is
+    select s.evidence_class::text into v_got from public.assessment_sessions s where s.id = s_selesai;
+    set local session_replication_role = replica;
+    update public.assessment_sessions set evidence_class = 'OFFICIAL' where assessment_sessions.id = s_selesai;
+    set local session_replication_role = origin;
+    perform set_config('pintar.metric_boundary_node', c_a::text, true);
+    if (select count(*) from public.scoped_official_sessions x where x.id = s_selesai) <> 1
+       or (select count(*) from public.scoped_official_results x where x.session_id = s_selesai) = 0 then
+      w06 := w06 || 'the finished sitting of an ENDED assignment is not in the class''s figures'::text; end if;
+    set local session_replication_role = replica;
+    update public.learning_assignments set status = 'WITHDRAWN' where learning_assignments.id = v_la;
+    set local session_replication_role = origin;
+    if (select count(*) from public.scoped_official_sessions x where x.id = s_selesai) <> 0
+       or (select count(*) from public.scoped_official_results x where x.session_id = s_selesai) <> 0 then
+      w06 := w06 || 'a withdrawn assignment''s sitting is still in the class''s figures'::text; end if;
+    if (select count(*) from public.assessment_results x where x.session_id = s_selesai) <> v_res then
+      w06 := w06 || 'a withdrawn assignment''s result was not kept'::text; end if;
+    set local session_replication_role = replica;
+    update public.learning_assignments set status = 'ENDED' where learning_assignments.id = v_la;
+    update public.assessment_sessions set evidence_class = v_got::public.evidence_class where assessment_sessions.id = s_selesai;
+    set local session_replication_role = origin;
+    perform set_config('pintar.metric_boundary_node', '', true);
+
+    -- ═══════════════════════════════════ F38-W07 a closed lesson's outcome stays seen (defect, 10 Nov)
+    v_got := selftest.f37_sebagai(u_murid, format('select 1 / (select count(*)::int from public.my_learning_history() h where h.learning_assignment_id = %L and h.status = ''ENDED'')', v_la));
+    if v_got <> 'OK' then w07 := w07 || ('the learner does not find the ENDED assignment in my_learning_history: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_murid, format('select 1 / (1 - (select count(*)::int from public.my_learning_assignments() h where h.learning_assignment_id = %L))', v_la));
+    if v_got <> 'OK' then w07 := w07 || 'the ENDED assignment is still offered as work (my_learning_assignments)'::text; end if;
+    v_got := selftest.f37_sebagai(u_murid, format('select count(*) from public.my_cycle_state(%L)', v_la));
+    if v_got <> 'OK' then w07 := w07 || ('the learner cannot read the closed lesson''s cycle state: ' || v_got); end if;
+
+    -- ═══════════════════════════════════ F38-W08 a sitting the school ended says so (defect, 10 Nov)
+    s_t := selftest.f38_buka(v_tpl, p_belum, e_belum, c_a, v_la, v_aa);
+    set local session_replication_role = replica;
+    update public.assessment_sessions set status = 'TERMINATED', termination_cause = 'ADMINISTRATIVE_TERMINATION', termination_reason = 'uji F38-W08'
+     where assessment_sessions.id = s_t;
+    set local session_replication_role = origin;
+    v_got := selftest.f37_sebagai(u_murid, format('select public.submit_session(%L)', s_t));
+    if v_got <> 'PR003:SESSION_ENDED_BY_SCHOOL' then w08 := w08 || ('submitting a sitting the school ended: ' || v_got || ' (expected PR003:SESSION_ENDED_BY_SCHOOL)'); end if;
 
     -- ═══════════════════════════════════ F38-W05 a lesson PINTAR no longer shares can still be ended
     -- a canonical lesson and its Cek penguasaan, both PINTAR's (the definition rides the release's distribution)
@@ -1005,6 +1053,12 @@ begin
        'a second press is refused ASSIGN_NOT_LIVE with no row; assign_release no longer refuses ASSIGN_EXISTS; B''s Guru withdraws B''s assignment, recorded as learning_assignment.withdrawn'),
       ('F38-W05', 'W2.21: a lesson PINTAR no longer shares can still be ended', w05,
        'an ACTIVE assignment of canonical content whose distribution was WITHDRAWN is ended by the class''s Guru, its assessment CLOSED; the closed assessment cannot be opened again'),
+      ('F38-W06', 'Owner ruling (10 Nov): a withdrawn assignment is not counted', w06,
+       'the finished sitting of an ENDED assignment is in Kelas A''s figures; once the assignment is WITHDRAWN it is not (sessions and results), and its result is kept'),
+      ('F38-W07', 'Defect (10 Nov): a closed lesson''s outcome stays seen', w07,
+       'the learner finds the ENDED assignment in my_learning_history with its status, not in my_learning_assignments, and reads its cycle state'),
+      ('F38-W08', 'Defect (10 Nov): a sitting the school ended says so', w08,
+       'submitting a TERMINATED sitting is refused PR003 SESSION_ENDED_BY_SCHOOL'),
       ('F38-R01', 'Evidence survives the year: a class moves up and nothing it earned is lost', r01,
        'after «Kenaikan kelas dan kelulusan» the learner is in Kelas 6 next year; the sitting stays on the old class and the old ENDED/EXPIRED enrolment; its result, the certificate and lesson progress are unchanged; the learner still reads all four (and my_certificate) and the old class''s Guru the sitting and its result; the public check answers BERLAKU'),
       ('F38-C01', 'W2.22 «Terbitkan ulang»: who may, and what the preview shows', c01,

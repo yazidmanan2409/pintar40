@@ -2130,7 +2130,10 @@ export const experienceTests: SelfTest[] = [
       // MOVED 205 -> 206 for SI-D01's remaining findings (Sharon, 9 Nov): 20270112130000 moves three acts on a sitting and
       // its referral to the sitting's place, replaces the place helpers by booleans, and gives other departments a count.
       // Read against §3 first: policies, functions and a count, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 222, `${migrations.length} migrations; the frozen baseline has 222`);
+      // MOVED 222 -> 223 for the owner's ruling and two defects of 10 Nov (20270113150000: a withdrawn assignment is not
+      // counted; a closed lesson's outcome stays seen; a sitting the school ended says so). Read against §3: an assignment's
+      // status and a refusal code, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 223, `${migrations.length} migrations; the frozen baseline has 223`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3976,7 +3979,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 207 -> 208 for SI-D01 finding 1: PD sittings ended or extended by the platform; no tour RPC.
       // MOVED 206 -> 207 for SI-D03: credential paths narrowed to the school that holds the person; no tour RPC.
       // MOVED 205 -> 206 for SI-D01's remaining findings: acts on a sitting decided over its place touch no tour RPC.
-      c.expect(migs.length === 222, `${migs.length} migrations; the baseline has 222`);
+      // MOVED 222 -> 223 for 20270113150000 (the owner's withdrawn ruling and two defects, 10 Nov): no tour RPC.
+      c.expect(migs.length === 223, `${migs.length} migrations; the baseline has 223`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

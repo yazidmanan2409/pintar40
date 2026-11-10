@@ -639,13 +639,14 @@ export const bob43Tests: SelfTest[] = [
       // RESTATED FOR CR-81 (D-123(3)): MC-7 is MC-6 copied forward (bands and floor over the assessed)
       // RESTATED FOR H31 (7 Nov): MC-8 is MC-7 copied forward (the gain paired within one chapter)
       // RESTATED FOR THE REPORTING QUALITY GATE (9 Nov): MC-9 is MC-8 copied forward (a Studio chapter's topic names)
-      c.expect(v.katalog === "MC-9", `the live catalogue is ${v.katalog}`);
+      // RESTATED FOR THE OWNER'S WITHDRAWN RULING (10 Nov): MC-10 is MC-9 copied forward (a withdrawn assignment not counted)
+      c.expect(v.katalog === "MC-10", `the live catalogue is ${v.katalog}`);
       const fasil = v.catatan_fasilitator;
       // the Guru, and the staff member enrolled without an account (PENDING), both participants of the PD Kelas
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the database's own JSON
       const guru = (fasil?.participants ?? []).find((x: any) => x.person_id === v.peserta);
       const paket = guru?.packages?.[0];
-      c.expect(fasil?.columns === "FULL" && fasil?.catalogue_version === "MC-9" && fasil?.participants?.length === 2
+      c.expect(fasil?.columns === "FULL" && fasil?.catalogue_version === "MC-10" && fasil?.participants?.length === 2
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the database's own JSON
         && fasil.participants.every((x: any) => x.member_kind === "PARTICIPANT") && guru?.enrolment_status === "ACTIVE"
         && paket?.completed === true && paket?.post_test === "SELESAI" && paket?.lessons_done === 1 && paket?.lessons_total === 1
