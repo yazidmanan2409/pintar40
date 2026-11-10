@@ -3257,7 +3257,9 @@ select:not([multiple]):not([size]) {
 .pin-pilih { position: relative; display: block; }
 .pin-pilih select { appearance: none; width: 100%; padding-right: calc(var(--space-3) + var(--icon-md) + var(--space-2)); cursor: pointer; }
 .pin-pilih > .pin-ikon { position: absolute; right: var(--space-3); top: 50%; translate: 0 -50%; color: var(--ink-2); pointer-events: none; }
-.pin-tabel-bingkai { background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); overflow-x: auto; max-width: 100%; }
+/* position: a table's own absolutely placed text (a pager's screen-reader line, in Jejak audit's opened run) stays inside
+   the frame that scrolls it, never widening the page at a phone's width (10 Nov) */
+.pin-tabel-bingkai { position: relative; background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); overflow-x: auto; max-width: 100%; }
 .pin-tabel-bingkai:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
 .pin-tabel { width: 100%; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
 .pin-tabel th, .pin-tabel td { padding: var(--space-3) var(--space-4); text-align: left; vertical-align: middle; border-bottom: var(--border-hairline) solid var(--line); }

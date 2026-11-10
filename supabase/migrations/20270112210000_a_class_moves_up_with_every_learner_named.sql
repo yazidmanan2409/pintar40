@@ -118,6 +118,12 @@ begin
   execute replace(v_def, v_anker,
     '  -- ADDED IN 20270112210000 (K1): the run this row belongs to, when one is under way' || E'\n'
     || '  if nullif(current_setting(''pintar.audit_run'', true), '''') is not null and not (v_summary ? ''run_id'') then' || E'\n'
+    -- CORRECTED IN PLACE (undeployed; Sharon's paging ruling, 10 Nov): a run's row is written for the run's own school,
+    -- or not at all. Jejak audit pages a run as one entry and reads its rows by run id and school, so a row of another
+    -- school (or none) inside a run would fall out of every page; it is refused instead, failing its own transaction
+    || '    if p_institution_id is null or p_institution_id::text is distinct from nullif(current_setting(''pintar.audit_run_institution'', true), '''') then' || E'\n'
+    || '      raise exception using errcode = ''P0001'', message = ''AUDIT_RUN_INSTITUTION: a row of a year-end run is written for the run''''s own school'';' || E'\n'
+    || '    end if;' || E'\n'
     || '    v_summary := v_summary || jsonb_build_object(''run_id'', current_setting(''pintar.audit_run'', true));' || E'\n'
     -- CORRECTED IN PLACE (undeployed; Daisy at 435a2856, §4.4.4): and the Kelas the run is for, so a row whose run's
     -- own row is on another page of Jejak audit names its run without a second read of the log
@@ -141,6 +147,9 @@ begin
   end if;
   select n.id, n.name, n.institution_id, n.academic_period_id, n.kind, ap.starts_on into k
     from public.org_nodes n left join public.academic_periods ap on ap.id = n.academic_period_id where n.id = p_kelas;
+  -- Sharon's paging ruling (10 Nov): the run's school, which audit_write holds every row of the run to (read from the
+  -- Kelas, before anything of the run is written)
+  if p_terapkan then perform set_config('pintar.audit_run_institution', k.institution_id::text, true); end if;
   if k.id is null or not public.has_scope('INSTITUTION_ADMIN', k.id) then
     raise exception using errcode = '42501', message = 'a year-end promotion needs INSTITUTION_ADMIN of the class''s school';
   end if;
@@ -253,7 +262,8 @@ begin
                          'learners', v_n, 'outcomes',
                          (select jsonb_agg(h - 'nama' - 'kelas_tujuan_nama') from jsonb_array_elements(v_hasil) h)));
   end if;
-  if p_terapkan then perform set_config('pintar.audit_run', '', true); perform set_config('pintar.audit_run_kelas', '', true); end if;
+  if p_terapkan then perform set_config('pintar.audit_run', '', true); perform set_config('pintar.audit_run_kelas', '', true);
+    perform set_config('pintar.audit_run_institution', '', true); end if;
   return jsonb_build_object('diterapkan', p_terapkan and v_n > 0, 'hasil', v_hasil);
 end;
 $$;
@@ -349,3 +359,12 @@ begin
     raise exception 'year-end: an internal helper is a client function';
   end if;
 end $$;
+
+-- CORRECTED IN PLACE (undeployed; Sharon's paging ruling, 10 Nov): Jejak audit reads a run's rows by school and run id,
+-- counted exactly per run and paged on demand. The run id is a stored column derived from the summary the row already
+-- holds (no row's content changes): under audit_log_select, a filter on summary ->> 'run_id' is not leakproof, so the
+-- planner may use no index for it and checked the policy on every row of the school (1.4 s for one count at 10,700 rows,
+-- measured locally); text equality on a column is, so the index below answers it (16 ms). Only run rows enter the index;
+-- audit_log is append-only.
+alter table public.audit_log add column if not exists run_id text generated always as (summary ->> 'run_id') stored;
+create index if not exists audit_log_run_idx on public.audit_log (institution_id, run_id) where run_id is not null;

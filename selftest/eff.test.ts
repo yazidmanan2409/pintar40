@@ -163,8 +163,18 @@ export const effTests: SelfTest[] = [
       // RESTATED FOR L4 (CR-88): the trail is read a page at a time (rentang) instead of a fixed newest 50; the schools named are unchanged
       // RESTATED FOR W6.2 (W62-JEJAK-01): read only on «Jejak audit»'s page; one school is named with eq (its index's order
       // survives PostgREST's generic plan), several with in; never unnamed for a school administrator
-      c.expect(/bagianIni !== "audit"\s*\?\s*tanpaBaris\s*:\s*\(platformIni \? jejak : satuSekolah \? jejak\.eq\("institution_id", satuSekolah\) : jejak\.in\("institution_id", sekolahIni\)\)\s*\.order\("at", \{ ascending: false \}\)\.order\("id"\)\s*\.range\(\.\.\.rentang\(halamanDiminta\(sp\.hal_jejak\), UKURAN_JEJAK\)\)/.test(halaman.replace(/^\s*\/\/.*$/gm, "")) && /const UKURAN_JEJAK = 50;/.test(halaman),
+      c.expect(/bagianIni !== "audit"\s*\?\s*tanpaBaris\s*:\s*\(platformIni \? jejak : satuSekolah \? jejak\.eq\("institution_id", satuSekolah\) : jejak\.in\("institution_id", sekolahIni\)\)\s*\.or\("run_id\.is\.null,action\.eq\.promotion\.applied"\)\s*\.order\("at", \{ ascending: false \}\)\.order\("id"\)\s*\.range\(\.\.\.rentang\(halamanDiminta\(sp\.hal_jejak\), UKURAN_JEJAK\)\)/.test(halaman.replace(/^\s*\/\/.*$/gm, "")) && /const UKURAN_JEJAK = 50;/.test(halaman),
         "Konfigurasi reads audit_log without naming the administrator's schools");
+      // RESTATED FOR SHARON'S PAGING RULING (10 Nov): the page's one read of the trail is paged by entries (a year-end
+      // run's related rows take no slot); a run's related rows are counted and read under it by src/lib/jejak-run.ts,
+      // which names the run's school on every read (the composite index), counts exactly (head) and reads a bounded
+      // sub-page; the page itself still reads audit_log once
+      const run = readFileSync(join(repoRoot, "src", "lib", "jejak-run.ts"), "utf8");
+      c.expect(/db\.from\("audit_log"\)\.select\(kolom, o\)\.eq\("institution_id", sekolah\)\.eq\("run_id", run\)/.test(run)
+        && /\{ count: "exact", head: true \}/.test(run) && /\.range\(\.\.\.rentang\(hal, UKURAN_ANAK_RUN\)\)/.test(run)
+        && /export const UKURAN_ANAK_RUN = 100;/.test(run) && (run.match(/from\("audit_log"\)/g) ?? []).length === 1,
+        "a run's related rows are read without naming the school, or not counted exactly, or not a bounded sub-page");
+      c.expect(/Promise\.all\(runs\.map/.test(run), "the runs' counts are asked one after another instead of together");
       return c.verdict(
         "reads Konfigurasi (src/app/konfigurasi/page.tsx): a school administrator's enrolments and audit trail are read " +
           "for the working context's school, named (the platform's audit for the platform administrator in «Seluruh platform»; " +

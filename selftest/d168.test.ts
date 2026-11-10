@@ -215,7 +215,8 @@ export const d168Tests: SelfTest[] = [
             `${f}: a pager without the reader's language, its rows' noun or its count: ${m[1].replace(/\s+/g, " ").slice(0, 90)}`);
         }
       }
-      c.expect(jumlah === 10, `${jumlah} paged lists found, not the 10 known`);
+      // RESTATED (Sharon's paging ruling, 10 Nov): eleven, with an opened year-end run's related entries in Jejak audit
+      c.expect(jumlah === 11, `${jumlah} paged lists found, not the 11 known`);
       const KASUS = [
         { halaman: 1, lagi: true, jumlah: 20, locale: "id" }, { halaman: 2, lagi: true, jumlah: 20, locale: "id" },
         { halaman: 3, lagi: false, jumlah: 5, locale: "en" }, { halaman: 1, lagi: false, jumlah: 20, locale: "id" },

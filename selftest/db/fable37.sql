@@ -127,7 +127,7 @@ declare
   v_murid uuid; v_e uuid; v_eb uuid; v_sess uuid; v_cohs uuid; v_lo uuid; v_hi uuid; v_got text; v_turun public.evidence_class;
   v_n int; v_total bigint; v_kartu boolean; v_mark numeric; v_bawah numeric; v_atas numeric; v_audit int; v_audit2 int;
   v_x uuid; v_y uuid; v_rooty uuid; u_adminx uuid; v_p uuid; e record; r record;
-  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean; e06 text[] := '{}'; e07 text[] := '{}'; k01 text[] := '{}'; k02 text[] := '{}'; k03 text[] := '{}'; k04 text[] := '{}'; k05 text[] := '{}'; v_knext uuid; v_kt5 uuid; c_k5 uuid; v_kt6 uuid; c_k6 uuid; v_kt5b uuid; c_k5b uuid; v_kguru uuid; v_kp jsonb; v_kdec jsonb; v_kaud int; v_kplan jsonb; v_kres jsonb; v_ksesi uuid; k06 text[] := '{}'; v_krun text; k07 text[] := '{}'; w26 text[] := '{}'; v_kdec0 jsonb; v_k7 text;
+  u_adminy uuid; v_pery uuid; v_uid uuid; v_pp uuid; v_ex uuid; lc jsonb := '{}'; v_sesi int; s02 text[] := '{}'; d08 text[] := '{}'; l01 text[] := '{}'; l02 text[] := '{}'; l03 text[] := '{}'; s03 text[] := '{}'; l04 text[] := '{}'; t01 text[] := '{}'; l05 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; n01 text[] := '{}'; v_p2 uuid; v_kosong uuid; v_baru uuid; v_isi uuid; v_baru2 uuid; v_cnt int; v_coh2 uuid; e01 text[] := '{}'; e02 text[] := '{}'; e03 text[] := '{}'; e04 text[] := '{}'; e05 text[] := '{}'; v_g uuid; v_eg uuid; v_h uuid; v_eh uuid; v_baru_e uuid; v_aud int; v_terbit timestamptz; v_tie timestamptz := now() - interval '3 days'; v_q uuid; v_ey uuid; v_tf uuid; v_mem uuid; v_staf uuid; v_pdc uuid; v_pdd uuid; v_pdsesi uuid; v_fn text; v_sql text; v_boleh boolean; v_lulus boolean; e06 text[] := '{}'; e07 text[] := '{}'; k01 text[] := '{}'; k02 text[] := '{}'; k03 text[] := '{}'; k04 text[] := '{}'; k05 text[] := '{}'; v_knext uuid; v_kt5 uuid; c_k5 uuid; v_kt6 uuid; c_k6 uuid; v_kt5b uuid; c_k5b uuid; v_kguru uuid; v_kp jsonb; v_kdec jsonb; v_kaud int; v_kplan jsonb; v_kres jsonb; v_ksesi uuid; k06 text[] := '{}'; v_krun text; k07 text[] := '{}'; k08 text[] := '{}'; v_klain uuid; w26 text[] := '{}'; v_kdec0 jsonb; v_k7 text;
 begin
   perform selftest.as_owner();
   begin
@@ -1068,6 +1068,43 @@ begin
       end if;
     end if;
 
+    -- K08 (Sharon's paging ruling, 10 Nov): a run is one entry in Jejak audit, its rows read by school and run id. Every run
+    -- has exactly one promotion.applied row and every row of it is at that row's school; a row of another school (or of
+    -- none) written inside a run is refused, so a run's row can never fall out of every page
+    if exists (select 1 from (select a.summary ->> 'run_id' as run, count(*) filter (where a.action = 'promotion.applied') as induk
+                                from public.audit_log a where a.summary ? 'run_id' group by 1) x where x.induk <> 1) then
+      k08 := k08 || 'a run id has no promotion.applied row, or more than one'::text; end if;
+    if exists (select 1 from public.audit_log c join public.audit_log p on p.action = 'promotion.applied' and p.summary ->> 'run_id' = c.summary ->> 'run_id'
+                where c.summary ? 'run_id' and c.institution_id is distinct from p.institution_id) then
+      k08 := k08 || 'a row of a run is at another school than its run''s own row'::text; end if;
+    if not exists (select 1 from public.audit_log a where a.action = 'promotion.applied' and a.summary ? 'run_id') then
+      k08 := k08 || 'no run was written to check (K03 did not run)'::text; end if;
+    select i.id into v_klain from public.institutions i where i.id <> v_inst order by i.created_at limit 1;
+    -- the plant, in a subtransaction that rolls itself back: the trail is append-only, so nothing it writes may stay
+    begin
+      perform set_config('pintar.audit_run', gen_random_uuid()::text, true);
+      perform set_config('pintar.audit_run_institution', v_inst::text, true);
+      begin
+        perform public.audit_write('selftest.k08_lain', 'org_nodes', c_k5::text, v_klain, '{}'::jsonb);
+        k08 := k08 || 'a row of another school was written inside a run'::text;
+      exception when others then
+        if sqlerrm !~ 'AUDIT_RUN_INSTITUTION' then k08 := k08 || ('another school inside a run: ' || sqlerrm); end if;
+      end;
+      begin
+        perform public.audit_write('selftest.k08_tanpa', 'org_nodes', c_k5::text, null, '{}'::jsonb);
+        k08 := k08 || 'a row of no school was written inside a run'::text;
+      exception when others then
+        if sqlerrm !~ 'AUDIT_RUN_INSTITUTION' then k08 := k08 || ('no school inside a run: ' || sqlerrm); end if;
+      end;
+      begin
+        perform public.audit_write('selftest.k08_sama', 'org_nodes', c_k5::text, v_inst, '{}'::jsonb);
+      exception when others then k08 := k08 || ('the run''s own school inside a run: ' || sqlerrm); end;
+      raise exception 'f37-k08-rollback';
+    exception when others then
+      if sqlerrm <> 'f37-k08-rollback' then k08 := k08 || ('the plant: ' || sqlerrm); end if;
+    end;
+    if exists (select 1 from public.audit_log a where a.action like 'selftest.k08_%') then k08 := k08 || 'the plant left a row'::text; end if;
+
     -- K05: a second press changes nothing (the class has changed: PROMO_CHANGED)
     select count(*) into v_kaud from public.audit_log a where a.institution_id = v_inst;
     v_got := selftest.f37_sebagai(u_admin, format('select public.kenaikan_tetapkan(%L, %L, %L::jsonb, true, true)', c_k5, v_knext, v_kdec));
@@ -1160,6 +1197,8 @@ begin
        'integrity_signals_waiting_elsewhere returns the school and the number only (no department, class or learner), one line per school, and no line at all when nothing waits elsewhere'),
       ('F37-K07', '«Kenaikan kelas dan kelulusan»: no destination, no teacher to acknowledge', k07,
        'a run in which no learner goes to a Kelas (all graduate or leave) applies without the teachers'' acknowledgement; one with a destination is still refused (K02)'),
+      ('F37-K08', 'Jejak audit: a run is one entry, at one school', k08,
+       'every run id has exactly one promotion.applied row and every row of the run is at that row''s school; inside a run, audit_write refuses a row of another school or of none (AUDIT_RUN_INSTITUTION) and writes one of the run''s own school'),
       ('F37-K06', '«Kenaikan kelas dan kelulusan»: the run''s own record', k06,
        'every row the run writes (its endings, placements and ended sittings) carries the run''s id and a later row does not; the read-back says, per learner, whether the recorded place matches the decision, how and when a departure ended, and which destination Kelas has no teacher, and where each learner came from (KELAS, or TINGKAT for the Tingkat-only learner)'),
       ('F37-K03', '«Kenaikan kelas dan kelulusan»: applied whole, each outcome by name', k03,

@@ -102,3 +102,57 @@ This is a partial expression index, small: only run rows. It would be a new migr
 1. Is paging by entry acceptable for the evidence trail, given that the run's own row stands for the run in the order? Its children carry their own times.
 2. The orphan branch: keep the fail-closed fallback, or rely on the institution-equality test alone?
 3. Should «Catatan terkait (n)» page itself above some size (for example 200), or open in full?
+
+---
+
+## As built, after Sharon's ruling (10 Nov), on the working tree after `8f16b4b6`
+
+**Accepted with three changes, all built:**
+
+1. **The orphan rule is a database guarantee.**
+   - `kenaikan_tetapkan` sets `pintar.audit_run_institution` from the Kelas, beside the run id.
+   - `audit_write` refuses a run row with no school, or of another school (`AUDIT_RUN_INSTITUTION`).
+   - The page fallback is dropped; `bagianRun` stays as a display fallback only.
+   - Test: **F37-K08**.
+     - Every run id has exactly one `promotion.applied` row, at the same school as its rows.
+     - A plant writes rows inside a run from another school and from none. Both are refused, and the run's own school's row is written. The plant rolls itself back, because the trail is append-only.
+2. **Children per run, exact, never truncated.**
+   - One `count: exact, head: true` per run on the page, all asked together (`src/lib/jejak-run.ts`).
+   - The rows are read only for the run the reader opened (`?run=`), 100 per sub-page (`hal_run`), ordered `at desc, id`.
+   - A count that cannot be read still offers «Buka catatan terkait», unnumbered. Nothing is hidden.
+   - Test: **JEJAK-A01**.
+     - Thirteen runs with 1,310 related rows, more than `max_rows`.
+     - Each run is one entry on exactly one page, with its exact n, and no page carries a related row.
+     - Every related row is reachable over its sub-pages (230 over three).
+     - Another school's admin reads none of them.
+3. **`institution_id` in every run read, and in the index.** Every read names the run's school by `eq`.
+
+**One change from the ruling, which Sharon should see: a stored `run_id` column.**
+
+The index as ruled, on `(institution_id, (summary->>'run_id'))`, is not used under `audit_log_select`:
+- `->>` is not leakproof, so the planner may not evaluate it before the policy;
+- it scanned the school's rows and checked the policy on each;
+- locally that meant **1.4 s for one count** at 10,700 rows, and 50 parallel counts all failed.
+
+So:
+- `audit_log.run_id` is now `text generated always as (summary ->> 'run_id') stored`: derived from what each row already holds, with no row's content changed;
+- the index is `(institution_id, run_id) where run_id is not null`;
+- Read A filters `run_id.is.null OR action.eq.promotion.applied`.
+
+Measured locally as Alpha's admin (median of 5):
+
+| Case | Time |
+|---|---|
+| One count | 1,435 ms before, **16 ms** after |
+| Read A, the page | 185 ms before, **9 ms** after |
+| Konfigurasi › Jejak audit, a page with no run | **217 ms** |
+| The same page with **50** runs | **690 ms** (the worst case, every slot a run) |
+
+**Rendered check** (local Playwright, at 1280 and 390 px, by keyboard):
+- Tab reaches «Catatan terkait (n)», and Enter opens it.
+- The page stays at the run, and the next Tab stop is inside it.
+- Sub-page 2 keeps the place.
+- «Tutup catatan terkait» closes it at the same place.
+- Nothing scrolls sideways. A pager's absolutely placed screen-reader line had escaped the table frame; `.pin-tabel-bingkai` is now `position: relative`.
+
+**Open, for Sharon:** the parent guarantee. `SHARON-PAGING-PARENT`: a deferred constraint trigger, or test-only.

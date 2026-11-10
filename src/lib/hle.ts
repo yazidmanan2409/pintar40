@@ -1113,6 +1113,8 @@ export type HleEvent =
   | "audit.kenaikan.n.tinggal"
   | "audit.kenaikan.n.naik"
   | "audit.kenaikan.terkait"
+  | "audit.kenaikan.terkait_buka"
+  | "audit.kenaikan.tutup"
   | "audit.kenaikan.tinggal"
   | "audit.kenaikan.naik"
   | "audit.kenaikan.judul"
@@ -4917,6 +4919,8 @@ const table: Table = {
   "audit.kenaikan.n.tinggal": { default: "{n} tinggal kelas", en: "{n} repeat the year" },
   "audit.kenaikan.n.naik": { default: "{n} naik", en: "{n} up" },
   "audit.kenaikan.terkait": { default: "Catatan terkait ({n})", en: "Related entries ({n})" },
+  "audit.kenaikan.terkait_buka": { default: "Buka catatan terkait", en: "Open related entries" },
+  "audit.kenaikan.tutup": { default: "Tutup catatan terkait", en: "Close related entries" },
   "audit.kenaikan.tinggal": { default: "tinggal kelas di {kelas}", en: "repeats in {kelas}" },
   "audit.kenaikan.naik": { default: "naik ke {kelas}", en: "up to {kelas}" },
   "audit.kenaikan.judul": { default: "Kenaikan kelas · {kelas} · {dari} → {ke}", en: "Year-end promotion · {kelas} · {dari} → {ke}" },

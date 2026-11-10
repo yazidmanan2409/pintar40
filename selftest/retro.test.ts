@@ -395,8 +395,9 @@ export const retroTests: SelfTest[] = [
         "src/app/konfigurasi/page.tsx": ["a mastery mark's change history, under its current value",
           // K1 (Daisy, TINJAUAN-KENAIKAN-KELAS-DIBANGUN; Sharon «fold, don't hide»): the row states the run and its count
           "a year-end run's learners and their decisions in Jejak audit, under the run's one row that states how many",
-          // Daisy (435a2856, §4.4.3; Sharon «fold, don't hide»): the run's own other rows, counted in the summary, openable
-          "a year-end run's related entries (enrolments ended and opened), under the run's row that counts them"],
+          // RESTATED (Sharon's paging ruling, 10 Nov): a run's related entries are no longer a disclosure; «Catatan terkait (n)»
+          // is a link that opens them under the run's row a sub-page at a time (src/lib/jejak-run.ts), so nothing is folded
+          ],
         // Q2 (Daisy, the same review): the exceptions are always shown and the count is in the summary line
         "src/components/kenaikan/KenaikanKelas.tsx": ["the review's main group's names, under its count; every exception is always shown",
           // Daisy (435a2856, §4.3): the outcome laid out as the review

@@ -155,6 +155,93 @@ const teks = (html: string) => tersusun(html).replace(/<[^>]+>/g, " ").replace(/
 
 export const kenaikanAppTests: SelfTest[] = [
   {
+    // Sharon's paging ruling (10 Nov): the year-end case. Thirteen runs at the newest end of Alpha's trail, written through
+    // audit_write exactly as kenaikan_tetapkan writes them (the run's settings set, the rows, then its promotion.applied
+    // row): twelve of 90 related rows and one of 230, 1,310 in all, more than PostgREST's max_rows (1000)
+    id: "JEJAK-A01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const asal = ctx.appUrl!;
+      const runs = psql(`
+        do $$ declare v_i uuid; v_k uuid; v_run uuid; n int; begin
+          select i.id into v_i from public.institutions i where i.slug like 'synth-alpha-%' and i.is_active order by i.created_at desc limit 1;
+          select k.id into v_k from public.org_nodes k where k.institution_id = v_i and k.kind = 'CLASS' order by k.created_at limit 1;
+          for r in 1..13 loop
+            v_run := gen_random_uuid();
+            perform set_config('pintar.audit_run', v_run::text, true);
+            perform set_config('pintar.audit_run_kelas', v_k::text, true);
+            perform set_config('pintar.audit_run_institution', v_i::text, true);
+            for n in 1..(case when r = 1 then 230 else 90 end) loop
+              perform public.audit_write('membership.closed', 'memberships', gen_random_uuid()::text, v_i,
+                jsonb_build_object('enrollment_id', gen_random_uuid(), 'node_id', v_k, 'academic_period_id', null, 'close_reason', 'PERIOD_ROLLOVER'));
+            end loop;
+            perform public.audit_write('promotion.applied', 'org_nodes', v_k::text, v_i, jsonb_build_object('learners', 0, 'outcomes', '[]'::jsonb, 'selftest', 'jejak-a01'));
+            perform set_config('pintar.audit_run', '', true); perform set_config('pintar.audit_run_kelas', '', true); perform set_config('pintar.audit_run_institution', '', true);
+          end loop;
+        end $$;
+        select string_agg(x.run || '=' || x.n, ',' order by x.n desc, x.run) from (
+          select p.summary ->> 'run_id' as run, (select count(*) from public.audit_log a where a.summary ->> 'run_id' = p.summary ->> 'run_id' and a.action <> 'promotion.applied') as n
+            from public.audit_log p where p.action = 'promotion.applied' and p.summary ->> 'selftest' = 'jejak-a01'
+           order by p.id desc limit 13) x;`).split("\n").filter((l) => l !== "DO").join("").split(",").map((x) => { const [run, n] = x.split("="); return { run, n: Number(n) }; });
+      if (!c.expect(runs.length === 13 && runs.reduce((t, r) => t + r.n, 0) === 1310, `the fixture: ${JSON.stringify(runs.map((r) => r.n))}`)) return c.verdict("");
+      const admin = new Komputer(asal, ipUji());
+      const m = await admin.jsonDari("/masuk/password", { form: { identitas: "alpha-admin@synthetic.pintar.test", password: "Sintetis-AlphaAdmin-27!" } });
+      if (!c.expect(m.status === 200, `Alpha's admin could not sign in (${m.status})`)) return c.verdict("");
+      await admin.halaman("/konfigurasi");
+      await admin.jsonDari("/api/sesi/perangkat", { form: { mode: "PERSONAL" } });
+      await pilihKonteksPeramban(admin, `MENGELOLA:${psql(`select i.id from public.institutions i where i.slug like 'synth-alpha-%' and i.is_active order by i.created_at desc limit 1`)}`);
+      // the trail, page by page, until every run has been seen: each run is one entry on exactly one page with its exact n,
+      // and no page carries a related row or says a run's row is on another page (other tests' runs may be newer)
+      const dilihat = new Map<string, { hal: number; n: number }[]>();
+      let lama = 0, adaAnak = false;
+      let halSatu = "";
+      for (let hal = 1; hal <= 40 && runs.some((r) => !dilihat.has(r.run)); hal++) {
+        const awal = Date.now();
+        const h = tersusun(await (await admin.halaman(hal === 1 ? "/konfigurasi/audit" : `/konfigurasi/audit?hal_jejak=${hal}`)).text());
+        lama = Math.max(lama, Date.now() - awal);
+        if (hal === 1 && process.env.JEJAK_DUMP) (await import("node:fs")).writeFileSync(process.env.JEJAK_DUMP, h);
+        if (hal === 1) halSatu = `${h.length} chars «${h.slice(0, 80)}», ${(h.match(/data-jejak-sasaran/g) ?? []).length} rows, ${(h.match(/data-jejak-run-terkait/g) ?? []).length} runs`;
+        if (/data-jejak-anak=""/.test(h) || h.includes("baris utamanya ada di halaman lain")) adaAnak = true;
+        for (const m1 of h.matchAll(/id="jejak-run-([0-9a-f-]{36})" data-jejak-run-terkait="(\d+)"/g)) dilihat.set(m1[1], [...(dilihat.get(m1[1]) ?? []), { hal, n: Number(m1[2]) }]);
+      }
+      for (const r of runs) {
+        const d = dilihat.get(r.run) ?? [];
+        c.expect(d.length === 1 && d[0].n === r.n, `(page 1: ${halSatu}) run ${r.run.slice(0, 8)}: seen ${d.length} time(s) (${d.map((x) => `page ${x.hal}: ${x.n}`).join(", ") || "never"}), the database ${r.n}`);
+      }
+      c.expect(!adaAnak, "a page of the trail carries related rows of a run (they take page slots), or says a run's row is on another page");
+      // every related row reachable: each run opened, every sub-page of 100 read until the pager has no next
+      let semua = true;
+      for (const r of runs) {
+        let dibaca = 0, hal = 1, lagi = true;
+        while (lagi && hal <= 5) {
+          const h = tersusun(await (await admin.halaman(`/konfigurasi/audit?${(dilihat.get(r.run)?.[0]?.hal ?? 1) > 1 ? `hal_jejak=${dilihat.get(r.run)![0].hal}&` : ""}run=${r.run}${hal > 1 ? `&hal_run=${hal}` : ""}`)).text());
+          const blok = h.slice(h.indexOf(`id="jejak-run-${r.run}"`));
+          const baris = (blok.slice(0, blok.indexOf("</td>")).match(/data-jejak-anak=""/g) ?? []).length;
+          dibaca += baris;
+          lagi = new RegExp(`hal_run=${hal + 1}&amp;run=${r.run}`).test(blok.slice(0, blok.indexOf("</td>")));
+          if (hal === 1) c.expect(/data-jejak-run-buka=""/.test(blok), `run ${r.run.slice(0, 8)} does not open on its own page`);
+          if (baris > 100) { semua = false; break; }
+          hal += 1;
+        }
+        if (!c.expect(dibaca === r.n, `run ${r.run.slice(0, 8)}: ${dibaca} of ${r.n} related rows reached over ${hal - 1} sub-page(s)`)) semua = false;
+      }
+      // another school's admin reads none of it
+      const lain = new Komputer(asal, ipUji());
+      const m2 = await lain.jsonDari("/masuk/password", { form: { identitas: "siklus-admin@synthetic.pintar.test", password: "Sintetis-SiklusAdmin-33!" } });
+      if (c.expect(m2.status === 200, `the other school's admin could not sign in (${m2.status})`)) {
+        await lain.halaman("/konfigurasi");
+        await lain.jsonDari("/api/sesi/perangkat", { form: { mode: "PERSONAL" } });
+        await pilihKonteksPeramban(lain, `MENGELOLA:${psql(`select i.id from public.institutions i where i.slug like 'synth-siklus-%' and i.is_active order by i.created_at desc limit 1`)}`);
+        const hl = tersusun(await (await lain.halaman(`/konfigurasi/audit?run=${runs[0].run}&hal_run=1`)).text());
+        // the run id is in the address they asked for; what must not be there is any of its rows, its count or its link
+        c.expect(!runs.some((r) => hl.includes(`id="jejak-run-${r.run}"`)) && !/data-jejak-anak=""/.test(hl) && !/data-jejak-run-buka/.test(hl.replace(/data-jejak-run-buka-tautan/g, "")),
+          "another school's admin reads a run of Alpha's");
+      }
+      return c.verdict(`as Alpha's admin, with 13 runs and 1,310 related rows at the newest end of the trail (more than max_rows): each run is one entry on exactly one page of the trail with its exact count, and no page holds a related row; each run opened reaches every related row, 100 a sub-page (230 over three); another school's admin reads none of them. The slowest page of the trail answered in ${lama} ms`);
+    },
+  },
+  {
     id: "KENAIKAN-A01",
     requires: ["app", "network", "db"],
     run: async (ctx) => {
@@ -295,13 +382,20 @@ export const kenaikanAppTests: SelfTest[] = [
       const run = new RegExp(`<details[^>]*data-jejak-run="4"[^>]*>[\\s\\S]*?</details>`).exec(hj)?.[0] ?? "";
       // RESTATED (Daisy, design check at 435a2856 §4.4): each learner with the destination and its year, the counts by
       // outcome, the run named by its Kelas and years; and the related rows can be opened (Sharon «fold, don't hide»)
-      const lipat = new RegExp(`<details[^>]*data-jejak-run-terkait="(\\d+)"[^>]*>[\\s\\S]*?</details>`).exec(hj.slice(hj.indexOf(run)));
-      const terkait = Number(lipat?.[1] ?? "0");
+      // RESTATED (Sharon's paging ruling, 10 Nov): the related rows are counted exactly under the run and opened by its link
+      // («Catatan terkait (n)», ?run=…), a sub-page at a time; n is the database's count of the run's other rows
+      const blokRun = /data-jejak-run-terkait="(\d+)"[^>]*>\s*(<a\b[^>]*data-jejak-run-buka-tautan[^>]*>)/.exec(hj.slice(hj.indexOf(run)));
+      const tautan = blokRun ? [blokRun[0], blokRun[1], /\bhref="([^"]+)"/.exec(blokRun[2])?.[1] ?? ""] : null;
+      const terkait = Number(tautan?.[1] ?? "0");
+      const nDb = Number(psql(`select count(*) from public.audit_log a where a.summary ->> 'run_id' = (select p.summary ->> 'run_id' from public.audit_log p
+        where p.action = 'promotion.applied' and p.target_id = ${lit(k5)} order by p.id desc limit 1) and a.action <> 'promotion.applied'`));
+      const hBuka = tautan ? tersusun(await (await admin.halaman(tautan[2].replace(/&amp;/g, "&").split("#")[0])).text()) : "";
+      const lipat = [hBuka.slice(hBuka.indexOf("data-jejak-run-buka")) || ""];
       c.expect(run !== "" && teks(run).includes(`${nama("A")} · naik ke ${kt(`Kelas 6X ${tag}`)}`) && teks(run).includes(`${nama("B")} · tinggal kelas di ${kt(`Kelas 5X ulang ${tag}`)}`)
         && teks(run).includes(`${nama("C")} · lulus`) && teks(run).includes(`${nama("D")} · naik ke ${kt(`Kelas 6X ${tag}`)}`)
-        && teks(run).includes("4 murid: 2 naik, 1 tinggal kelas, 1 lulus") && terkait >= 1
-        && (lipat?.[0].match(/data-jejak-anak=""/g) ?? []).length === terkait,
-        `Jejak audit does not show the run as one entry with each learner, the counts and its rows listable (${terkait}): ${teks(run).slice(0, 400)}`);
+        && teks(run).includes("4 murid: 2 naik, 1 tinggal kelas, 1 lulus") && terkait >= 1 && terkait === nDb
+        && (lipat[0].match(/data-jejak-anak=""/g) ?? []).length === Math.min(terkait, 100),
+        `Jejak audit does not show the run as one entry with each learner, the counts and its rows listable (${terkait} of ${nDb}): ${teks(run).slice(0, 400)}`);
       c.expect(new RegExp(`data-jejak-sasaran=""[^>]*>Kenaikan kelas · Kelas 5X ${tag} · `).test(hj.replace(/<!-- -->/g, "")), "the run's row does not name the run by its Kelas and years");
       const db = psql(`select string_agg(p.display_name || '=' || coalesce(n.name, e.status || '/' || coalesce(e.end_reason::text, '')), ',' order by p.display_name)
                          from public.persons p join public.enrollments e on e.person_id = p.id

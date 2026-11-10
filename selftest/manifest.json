@@ -2992,7 +2992,7 @@
     {
       "id": "EFF-K02",
       "runner": "static",
-      "proves": "whole-system efficiency audit (2 Oct): reads the source of the Konfigurasi route (src/app/konfigurasi/page.tsx): a school administrator's enrolments and audit trail are read for the schools they administer, named, so the database reads the (institution_id, ...) indexes instead of checking the policy on every row of every school; the platform administrator's reads are unchanged; each table is read once"
+      "proves": "whole-system efficiency audit (2 Oct): reads the source of the Konfigurasi route (src/app/konfigurasi/page.tsx): a school administrator's enrolments and audit trail are read for the schools they administer, named, so the database reads the (institution_id, ...) indexes instead of checking the policy on every row of every school; the platform administrator's reads are unchanged; each table is read once. RESTATED for Sharon's paging ruling (10 Nov): the trail is paged by entries (a year-end run's related rows take no slot), and a run's related rows are read by src/lib/jejak-run.ts, which names the run's school, counts exactly per run with all counts asked together, and reads a bounded sub-page of 100"
     },
     {
       "id": "PITA-K01",
@@ -4514,7 +4514,7 @@
     {
       "id": "D168-K2-1",
       "runner": "static",
-      "proves": "E-K2 (D-173(d), one pagination grammar), selftest/d168.test.ts: reading the source, Penomoran renders the Collection's pager (HalamanKoleksi) and every one of the 10 paged staff lists passes its rows' noun, count and the reader's language; rendered (react-dom/server), page 1 of a keyset list shows «Menampilkan 1–20 laporan», «Halaman 1» and a disabled «Sebelumnya», page 2 links both ways, the last page in English, a one-page list draws nothing, a known total is shown, and no pager says «Kembali»."
+      "proves": "E-K2 (D-173(d), one pagination grammar), selftest/d168.test.ts: reading the source, Penomoran renders the Collection's pager (HalamanKoleksi) and every one of the 11 paged staff lists (restated 10 Nov: an opened year-end run's related entries in Jejak audit, Sharon's paging ruling) passes its rows' noun, count and the reader's language; rendered (react-dom/server), page 1 of a keyset list shows «Menampilkan 1–20 laporan», «Halaman 1» and a disabled «Sebelumnya», page 2 links both ways, the last page in English, a one-page list draws nothing, a known total is shown, and no pager says «Kembali»."
     },
     {
       "id": "D168-K7-1",
@@ -4957,6 +4957,11 @@
       "proves": "W2.26 the integrity count line, to Sharon's ruling at 435a2856 (red first, fable37 against 20270112130000): integrity_signals_waiting_elsewhere returns each school's bare count of observations waiting outside the reader's scope, with no department, class or learner, as one line per school, and no line when nothing waits, so the answer never says whether other departments exist; the page shows the line only above zero."
     },
     {
+      "id": "F37-K08",
+      "runner": "db",
+      "proves": "Sharon's paging ruling (10 Nov) for Jejak audit, selftest/db/fable37.sql against 20270112210000: every run id in audit_log has exactly one promotion.applied row and every row of the run is at that row's school; inside a run (pintar.audit_run set), audit_write refuses a row of another school or of no school (AUDIT_RUN_INSTITUTION, set by kenaikan_tetapkan as pintar.audit_run_institution) and writes one of the run's own school; the plant rolls itself back, leaving the append-only trail unchanged."
+    },
+    {
       "id": "F37-K07",
       "runner": "db",
       "proves": "Daisy's design check at 435a2856 (§4.2; red first, fable37 against 20270112210000): with no learner going to a Kelas (every decision a graduation or a departure) there is no teacher to acknowledge, so kenaikan_tetapkan applies without p_guru_ditinjau and the review page asks for no checkbox; a run with a destination Kelas is still refused PROMO_TEACHERS_UNREVIEWED (F37-K02)."
@@ -5215,6 +5220,11 @@
       "id": "KENAIKAN-K02",
       "runner": "static",
       "proves": "Daisy's kenaikan reconciliation (TINJAUAN-KENAIKAN-KELAS-DIBANGUN, #96), selftest/kenaikan.test.ts, executes the source files src/lib/kenaikan.ts and src/lib/jejak-audit.ts: a school year reads «2026/27» and a Kelas always carries its year; a Tingkat reads as a level; the review's main group is the largest group of any outcome (a graduating class folds its graduates; restated 10 Nov, Daisy bcecb425 B8.1) and every other outcome and every learner from the Tingkat is an exception; in Jejak audit a year-end run's rows fold under its one promotion row by the recorded run id, never by time, a row whose run's own row is on another page says it belongs to a run, and the run's learners are read with their decisions."
+    },
+    {
+      "id": "JEJAK-A01",
+      "runner": "app",
+      "proves": "Sharon's paging ruling (10 Nov) for Jejak audit, selftest/kenaikan.test.ts, through the rendered route /konfigurasi/audit of the running app (src/app/konfigurasi/page.tsx with src/lib/jejak-run.ts) as Alpha's admin: thirteen year-end runs written through audit_write as kenaikan_tetapkan writes them (twelve of 90 related rows, one of 230; 1,310 in all, more than PostgREST's max_rows) sit at the newest end of the trail; each run is one entry on exactly one page of the trail with its exact count («Catatan terkait (n)», a count per run), and no page holds a related row or says a run's row is on another page; each run opened (?run=) reaches every related row, 100 a sub-page (230 over three); another school's admin reads none of them. The page's answer time is recorded in the verdict."
     },
     {
       "id": "KENAIKAN-A01",

@@ -29,7 +29,8 @@ import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
 import { navKonteks } from "@/components/NavKonteks";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
 import ItemNav from "@/components/ItemNav";
-import { alasanAudit, hasilRun, hitungKeputusan, kataAksiAudit, kataTabelAudit, kelasBarisRun, lipatKenaikan, orangBarisRun, petaEnrolmen, tahunRun } from "@/lib/jejak-audit";
+import { alasanAudit, hasilRun, hitungKeputusan, kataAksiAudit, kataTabelAudit, kelasBarisRun, lipatKenaikan, orangBarisRun, petaEnrolmen, runId, tahunRun } from "@/lib/jejak-audit";
+import { UKURAN_ANAK_RUN, bacaAnakRun, hitungAnakRun, tautanRun, tautanTutupRun } from "@/lib/jejak-run";
 import { kelasDenganTahun, tahunPendek } from "@/lib/kenaikan";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { melayani } from "@/lib/konteks";
@@ -140,6 +141,8 @@ type SearchParams = Promise<{
   // L4 (CR-88): the page of each bounded list
   hal_pindah?: string; hal_jejak?: string; hal_peran?: string; hal_sekolah?: string; hal_lapor?: string;
   hal_jendela?: string; hal_pengumuman?: string;
+  /** Sharon's paging ruling (10 Nov): the year-end run whose related rows are open, and their sub-page. */
+  run?: string; hal_run?: string;
   /** E-K4: which form of a section sent the result (asalHasil validates it). */
   asal?: string;
   /** E3: the learner's row whose «Akhiri pendaftaran» panel is open. */
@@ -284,7 +287,10 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
       // and one school is named with eq, not in: PostgREST sends a prepared statement, and its generic plan for
       // `institution_id = any($1)` cannot use (institution_id, at desc)'s order, so it read all 6,386 of the school's rows,
       // the row policy on each, to keep 51 (2,538 ms); `= $1` stops at the page (21 ms). Read-only EXPLAIN, staging
+      // Sharon's paging ruling (10 Nov): paged by entries, a year-end run's related rows taking no slot (its own
+      // promotion.applied row stands for it; they are counted and read under it, src/lib/jejak-run.ts)
       : (platformIni ? jejak : satuSekolah ? jejak.eq("institution_id", satuSekolah) : jejak.in("institution_id", sekolahIni))
+          .or("run_id.is.null,action.eq.promotion.applied")
           .order("at", { ascending: false }).order("id")
           .range(...rentang(halamanDiminta(sp.hal_jejak), UKURAN_JEJAK)),
     // BOB-18 (D-046): the schema lint runs when an operator asks for it, never
@@ -621,9 +627,23 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const adaVersi = platformIni && barisJejak.some((r) => Boolean(r.build_sha));
   // E7 (owner, 9 Nov): who acted, by their name where the reader may see the person, and in what role (the row's own
   // actor_role); a row with no actor is the system's
+  // Sharon's paging ruling (10 Nov): each run on the page counted exactly, all counts asked together; the related rows
+  // read only for the run the reader opened, a sub-page at a time (src/lib/jejak-run.ts)
+  const runHalaman = barisJejak.flatMap((r) => {
+    const run = r.action === "promotion.applied" ? runId(r.summary) : null;
+    return run && r.institution_id ? [{ run, sekolah: r.institution_id as string }] : [];
+  });
+  const runDibuka = runHalaman.find((x) => x.run === sp.run) ?? null;
+  const [nAnakRun, anakRun] = tampilDi("audit") && runHalaman.length
+    ? await Promise.all([
+        hitungAnakRun(supabase as never, runHalaman),
+        runDibuka ? bacaAnakRun(supabase as never, runDibuka.run, runDibuka.sekolah, halamanDiminta(sp.hal_run)) : Promise.resolve(null),
+      ])
+    : [new Map<string, number | null>(), null];
   // Daisy (bcecb425, B9.2): a run's related rows name the learner and the Kelas (src/lib/jejak-audit.ts orangBarisRun)
-  const barisRun = [...[...lipat.anak.values()].flat(), ...barisJejak.filter((r) => lipat.bagianRun.has(r.id))];
-  const enrolmenRun = petaEnrolmen((audit ?? []).slice(0, UKURAN_JEJAK));
+  const barisRun = [...[...lipat.anak.values()].flat(), ...barisJejak.filter((r) => lipat.bagianRun.has(r.id)),
+    ...((anakRun?.baris ?? []) as Array<{ id: string | number; action: string | null; target_table: unknown; target_id: unknown; summary: unknown }>)];
+  const enrolmenRun = petaEnrolmen([...(audit ?? []).slice(0, UKURAN_JEJAK), ...(anakRun?.baris ?? [])] as never);
   const orangRun = (x: { target_table: unknown; target_id: unknown; summary: unknown }) => orangBarisRun(x, enrolmenRun);
   const kelasRun = kelasBarisRun;
   const idPelaku = [...new Set([...barisJejak.map((r) => r.actor_person_id as string | null),
@@ -1963,7 +1983,6 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                             {r.action === "promotion.applied" ? (() => {
                               // K1: each learner of the run by name with the decision, and the run's other rows counted
                               const hs = hasilRun(r.summary);
-                              const anak = lipat.anak.get(r.id) ?? [];
                               const ke = namaTahun.get(tahunRun(r.summary).ke ?? "") ?? null;
                               // §4.4.1: the destination with its year, in the review's own phrases
                               const keputusanKata = (h: (typeof hs)[number]) => {
@@ -1977,25 +1996,43 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                               };
                               // §4.4.2: the counts by outcome, as approved («6 murid: 4 naik, 1 tinggal kelas, 1 keluar»)
                               const rincian = hitungKeputusan(hs).map(([k, n]) => s(`audit.kenaikan.n.${k.toLowerCase()}` as HleEvent).replace("{n}", String(n))).join(", ");
-                              return hs.length ? (<>
-                                <details className="pin-disclosure mt-1" data-jejak-run={hs.length}>
+                              return (<>
+                                {hs.length ? (<details className="pin-disclosure mt-1" data-jejak-run={hs.length}>
                                   <summary className="cursor-pointer text-ink-3">{s("audit.kenaikan.ringkas").replace("{n}", String(hs.length)).replace("{rincian}", rincian)}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
                                   <ul className="mt-1 grid gap-1 text-ink-2">{hs.map((h) => (
                                     <li key={h.person_id} data-murid={h.person_id}>{namaPelaku.get(h.person_id) ?? TANPA_NAMA} · {keputusanKata(h)}</li>
                                   ))}</ul>
-                                </details>
-                                {/* §4.4.3 (Sharon: «fold, don't hide»): the run's other rows are folded here and can be opened, each
-                                    in the table's own words: when, the action, the record */}
-                                {anak.length ? (
-                                  <details className="pin-disclosure mt-1" data-jejak-run-terkait={anak.length}>
-                                    <summary className="cursor-pointer text-ink-3">{s("audit.kenaikan.terkait").replace("{n}", String(anak.length))}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
-                                    <ul className="mt-1 grid gap-1 text-ink-2">{anak.map((x) => (
-                                      <li key={String(x.id)} data-jejak-anak="">{[when(x.at as string, "cap", zonaBaris(r.institution_id)), kataAksiAudit(x.action, locale), kataTabelAudit(x.target_table as string, locale),
-                                        orangRun(x) ? namaPelaku.get(orangRun(x)!) ?? TANPA_NAMA : null, kelasRun(x) ? namaNode.get(kelasRun(x)!) ?? null : null].filter(Boolean).join(" · ")}</li>
+                                </details>) : null}
+                                {/* §4.4.3 (Sharon: «fold, don't hide»), paged as Sharon ruled (10 Nov): the run's related rows are counted
+                                    exactly and opened under it, a sub-page at a time, each in the table's own words: when, the action, the
+                                    record, the learner and the Kelas. A link, so the open run has an address and the page returns to it */}
+                                {(() => {
+                                  const run = runId(r.summary);
+                                  const n = run ? nAnakRun.get(run) ?? null : null;
+                                  if (!run) return null;
+                                  const daftar = (baris: Array<Record<string, unknown>>) => (
+                                    <ul className="mt-1 grid gap-1 text-ink-2">{baris.map((x) => (
+                                      <li key={String(x.id)} data-jejak-anak="">{[when(x.at as string, "cap", zonaBaris(r.institution_id)), kataAksiAudit(x.action as string, locale), kataTabelAudit(x.target_table as string, locale),
+                                        orangRun(x as never) ? namaPelaku.get(orangRun(x as never)!) ?? TANPA_NAMA : null, kelasRun(x as never) ? namaNode.get(kelasRun(x as never)!) ?? null : null].filter(Boolean).join(" · ")}</li>
                                     ))}</ul>
-                                  </details>
-                                ) : null}
-                              </>) : null;
+                                  );
+                                  // a count that could not be read hides nothing: the run still offers its related rows, unnumbered
+                                  if (n === 0) return null;
+                                  const buka = runDibuka?.run === run && anakRun !== null;
+                                  return (
+                                    <div className="mt-1" id={`jejak-run-${run}`} data-jejak-run-terkait={n ?? "?"}>
+                                      {buka ? (<>
+                                        <p className="text-ink-3" data-jejak-run-buka="">{n === null ? s("audit.kenaikan.terkait_buka") : s("audit.kenaikan.terkait").replace("{n}", String(n))} · <Link className="pin-tautan" href={tautanTutupRun(jalanIni, sp, run)}>{s("audit.kenaikan.tutup")}</Link></p>
+                                        {daftar(anakRun!.baris)}
+                                        <Penomoran halaman={halamanDiminta(sp.hal_run)} lagi={anakRun!.lagi} ke={(h) => tautanRun(jalanIni, sp, run, h)} locale={locale}
+                                          benda={sl("koleksi.benda.jejak")} jumlah={anakRun!.baris.length} ukuran={UKURAN_ANAK_RUN} total={n ?? undefined} />
+                                      </>) : (
+                                        <Link className="pin-tautan" href={tautanRun(jalanIni, sp, run, 1)} data-jejak-run-buka-tautan="">{n === null ? s("audit.kenaikan.terkait_buka") : s("audit.kenaikan.terkait").replace("{n}", String(n))}</Link>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
+                              </>);
                             })() : null}</td>
                         </>);
                       })()}
