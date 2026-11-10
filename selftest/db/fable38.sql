@@ -165,7 +165,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
-  w01 text[] := '{}'; w09 text[] := '{}'; w10 text[] := '{}'; w11 text[] := '{}'; w12 text[] := '{}'; w13 text[] := '{}'; o04 text[] := '{}'; w12_awal int; v_per_lalu uuid; v_pi_w12 uuid; w06 text[] := '{}'; w07 text[] := '{}'; w08 text[] := '{}'; s_t uuid; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; o01 text[] := '{}'; o02 text[] := '{}'; o03 text[] := '{}'; u_o uuid; p_o uuid; e_o uuid; v_la_o uuid; v_aa_o uuid; u_t uuid; p_t uuid; v_rq uuid; s06 text[] := '{}'; u_hd uuid; p_hd uuid; v_hdr uuid; p_luar uuid; u_adm2 uuid; p_adm2 uuid; c05 text[] := '{}'; v_num05 text; v_seq05 int; a06 text[] := '{}'; a07 text[] := '{}'; u_c uuid; u_kartu uuid; p_c uuid; v_akk uuid; v_job uuid; v_req3 uuid; v_pid3 text; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
+  w01 text[] := '{}'; w09 text[] := '{}'; w10 text[] := '{}'; w11 text[] := '{}'; w12 text[] := '{}'; w13 text[] := '{}'; o04 text[] := '{}'; w12_awal int; v_per_lalu uuid; v_pi_w12 uuid; h07 text[] := '{}'; w14 text[] := '{}'; p_h7 uuid; e_a7 uuid; e_b7 uuid; v_per_x uuid; s_a7 uuid; s_b7 uuid; s_bx7 uuid; w06 text[] := '{}'; w07 text[] := '{}'; w08 text[] := '{}'; s_t uuid; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; o01 text[] := '{}'; o02 text[] := '{}'; o03 text[] := '{}'; u_o uuid; p_o uuid; e_o uuid; v_la_o uuid; v_aa_o uuid; u_t uuid; p_t uuid; v_rq uuid; s06 text[] := '{}'; u_hd uuid; p_hd uuid; v_hdr uuid; p_luar uuid; u_adm2 uuid; p_adm2 uuid; c05 text[] := '{}'; v_num05 text; v_seq05 int; a06 text[] := '{}'; a07 text[] := '{}'; u_c uuid; u_kartu uuid; p_c uuid; v_akk uuid; v_job uuid; v_req3 uuid; v_pid3 text; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
   u_admin uuid; v_n int; v_cert uuid; v_cert2 uuid; v_new uuid; v_new2 uuid; v_tok text; v_ntok text; v_payload jsonb; v_nomor text; v_snapold uuid; p_holder uuid; u_holder uuid; v_k record;
   v_crel uuid; v_cdef uuid; v_dist uuid; v_la3 uuid; v_aa3 uuid;
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid; v_coh uuid; c_a uuid; c_b uuid;
@@ -456,6 +456,12 @@ begin
     v_got := selftest.f37_sebagai(u_guru_a, format('update public.assessment_assignments set status = %L where id = %L', 'OPEN', v_aa3));
     if v_got = 'OK' then w05 := w05 || 'a closed assessment of a lesson no longer shared was opened again'::text; end if;
 
+
+    -- W14 the owner (10 Nov): a lesson PINTAR no longer shares is still named on the class page, its title only
+    v_got := selftest.f37_sebagai(u_guru_a, format('select 1 / (select count(*)::int from public.judul_materi_kelas(%L) j where j.learning_assignment_id = %L and j.title <> '''')', c_a, v_la3));
+    if v_got <> 'OK' then w14 := w14 || ('the class''s Guru cannot read the title of a lesson no longer shared: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_adminx, format('select count(*) from public.judul_materi_kelas(%L)', c_a));
+    if v_got not like '42501%' and v_got not like 'PR%' then w14 := w14 || ('another school''s admin read the class''s lesson titles: ' || v_got); end if;
 
     -- ═══════════════════════════════════ F38-R01 evidence survives the year
     u_admin := selftest.f11_user('f38-admin-' || v_tag || '@local.invalid', 'INSTITUTION_ADMIN', v_root);
@@ -1004,6 +1010,38 @@ begin
        or not exists (select 1 from public.audit_log a where a.action = 'assessment_session.terminated' and a.target_id = s_h::text) then
       h03 := h03 || 'the placeless sitting was not ended as an institutional revocation with its audit row'::text; end if;
 
+    -- H07 the owner (10 Nov): a school's departure ends its own sittings only. A learner enrolled at this school (A) and at
+    -- another (B), with an open sitting at each, and one sitting recorded at B that carries A's enrolment: A's admin ends
+    -- the enrolment at A; A's sitting ends, both of B's stay open
+    insert into public.persons (display_name) values ('Murid F38 H7 ' || v_tag) returning persons.id into p_h7;
+    insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status, valid_from)
+    values (p_h7, v_inst, v_period, v_prog, 'ACTIVE', now() - interval '10 days') returning enrollments.id into e_a7;
+    insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+    values (v_x, 'Tahun F38 X ' || v_tag, current_date - 30, current_date + 300) returning academic_periods.id into v_per_x;
+    insert into public.enrollments (person_id, institution_id, academic_period_id, status, valid_from)
+    values (p_h7, v_x, v_per_x, 'ACTIVE', now() - interval '10 days') returning enrollments.id into e_b7;
+    s_a7 := selftest.f38_buka(v_tpl, p_h7, e_a7, c_a, v_la2, v_aa_lim);
+    s_b7 := selftest.f38_buka(v_tpl, p_h7, e_a7, c_a, v_la2, v_aa_lim);
+    s_bx7 := selftest.f38_buka(v_tpl, p_h7, e_a7, c_a, v_la2, v_aa_lim);
+    set local session_replication_role = replica;
+    update public.assessment_sessions set institution_id = v_x, enrollment_id = e_b7, academic_period_id = v_per_x, class_node_id = null
+     where assessment_sessions.id = s_b7;
+    update public.assessment_sessions set institution_id = v_x, academic_period_id = v_per_x, class_node_id = null
+     where assessment_sessions.id = s_bx7;
+    set local session_replication_role = origin;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.akhiri_pendaftaran(%L, %L, %L, null)', e_a7, 'WITHDRAWN', null));
+    if v_got <> 'OK' then h07 := h07 || ('A''s departure: ' || v_got);
+    else
+      if (select s.status::text from public.assessment_sessions s where s.id = s_a7) <> 'TERMINATED' then
+        h07 := h07 || 'A''s own sitting was not ended'::text; end if;
+      if (select s.status::text from public.assessment_sessions s where s.id = s_b7) <> 'CREATED' then
+        h07 := h07 || 'B''s sitting under B''s enrolment was ended by A''s departure'::text; end if;
+      if (select s.status::text from public.assessment_sessions s where s.id = s_bx7) <> 'CREATED' then
+        h07 := h07 || 'a sitting recorded at B was ended by A''s departure because it carries A''s enrolment'::text; end if;
+      if (select e.status::text from public.enrollments e where e.id = e_b7) <> 'ACTIVE' then
+        h07 := h07 || 'B''s enrolment was changed'::text; end if;
+    end if;
+
     -- H04 a returning learner takes the chosen Kelas's programme
     insert into public.org_nodes (institution_id, parent_id, kind, name) values (v_inst, v_dep, 'PROGRAMME', 'Program F38 tiga ' || v_tag) returning org_nodes.id into v_x2;
     insert into public.persons (display_name) values ('Murid F38 H4 ' || v_tag) returning persons.id into p_h;
@@ -1061,12 +1099,13 @@ begin
       insert into public.academic_periods (institution_id, name, starts_on, ends_on)
       values (v_inst, 'Tahun lalu F38 ' || v_tag, date '2001-07-01', date '2002-06-30') returning academic_periods.id into v_per_lalu;
       set local session_replication_role = replica;
-      update public.assessment_sessions set academic_period_id = v_per_lalu where assessment_sessions.id = s_h;
+      update public.assessment_assignments set academic_period_id = v_per_lalu where assessment_assignments.id = v_aa_lim;
       set local session_replication_role = origin;
       perform selftest.as_user_uid(u_o); select m.reason into v_got from public.may_start_assessment(v_aa_o) m; perform selftest.as_owner();
       if v_got is not distinct from 'ATTEMPT_LIMIT_REACHED' then o04 := o04 || 'an attempt of another school year was counted'::text; end if;
       set local session_replication_role = replica;
-      update public.assessment_sessions set academic_period_id = v_period, institution_id = v_x where assessment_sessions.id = s_h;
+      update public.assessment_assignments set academic_period_id = v_period where assessment_assignments.id = v_aa_lim;
+      update public.assessment_sessions set institution_id = v_x where assessment_sessions.id = s_h;
       set local session_replication_role = origin;
       perform selftest.as_user_uid(u_o); select m.reason into v_got from public.may_start_assessment(v_aa_o) m; perform selftest.as_owner();
       if v_got is not distinct from 'ATTEMPT_LIMIT_REACHED' then o04 := o04 || 'an attempt at another school was counted'::text; end if;
@@ -1155,6 +1194,10 @@ begin
        'the learner finds the ENDED assignment in my_learning_history with its status, not in my_learning_assignments, and reads its cycle state'),
       ('F38-W08', 'Defect (10 Nov): a sitting the school ended says so', w08,
        'submitting a TERMINATED sitting is refused PR003 SESSION_ENDED_BY_SCHOOL'),
+      ('F38-H07', 'The owner (10 Nov): a school''s departure ends its own sittings only', h07,
+       'a learner enrolled at A and B: A''s admin ends the enrolment at A; A''s open sitting ends; B''s sitting under B''s enrolment, a sitting recorded at B that carries A''s enrolment, and B''s enrolment are untouched'),
+      ('F38-W14', 'The owner (10 Nov): a lesson no longer shared keeps its name on the class page', w14,
+       'judul_materi_kelas gives the class''s Guru the title of an assignment whose lesson PINTAR no longer shares (no content); another school''s admin is refused'),
       ('F38-W09', 'Sharon (addendum): a figure under MC-9 keeps MC-9''s population', w09,
        'evaluated under MC-9, which names no learning_assignments source, the withdrawn assignment''s sitting is in Kelas A''s figures; under MC-10 it is not'),
       ('F38-W10', 'Sharon (addendum): verified credentials leave a withdrawn assignment''s certificate out', w10,

@@ -5002,6 +5002,16 @@
       "proves": "Sharon's addendum on dc84af22 (red first, fable38 against 20270113150000): a closed lesson's content is not returned (learner_lessons refuses the ENDED assignment), and its outcome stays listed after the learner leaves the Kelas (my_learning_history lists it with kini = false)."
     },
     {
+      "id": "F38-W14",
+      "runner": "db",
+      "proves": "The owner on Sharon's addendum (10 Nov; red first, selftest/db/fable38.sql against 20270113150000 §4): a lesson PINTAR no longer shares keeps its name on the class page: judul_materi_kelas gives the class's Guru each assignment's course title and nothing else (no content); another school's admin is refused."
+    },
+    {
+      "id": "F38-H07",
+      "runner": "db",
+      "proves": "The owner on Sharon's addendum (10 Nov; red first against the departure without its school guard, fable38 against 20270112200000): a school's departure ends its own sittings only. A learner enrolled at A and B: A's admin ends the enrolment at A; A's open sitting ends; B's sitting under B's enrolment, a sitting recorded at B that carries A's enrolment, and B's enrolment are untouched."
+    },
+    {
       "id": "F38-O04",
       "runner": "db",
       "proves": "Owner ruling (10 Nov; red first, fable38 against 20270113140000 corrected in place): attempts are counted within one school and one school year. An attempt of another school year or at another school is not counted; a sitting the teacher ended administratively (ADMINISTRATIVE_TERMINATION) is not counted; an integrity ending (SECURITY_INTERVENTION) is."

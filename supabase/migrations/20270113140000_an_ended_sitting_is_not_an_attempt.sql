@@ -12,9 +12,11 @@
 --     assessment (a new definition, a new version of it, every Uji Cepat) brings its own allowance. No reset is built.
 --
 -- CORRECTED IN PLACE (undeployed; Sharon's addendum on dc84af22 and the owner's ruling of 10 Nov). Red first: F38-O04.
---   * Owner ruling (10 Nov): the count is within one school and one school year (the sitting's institution and academic
---     period, which it records, against the assignment's). A learner repeating the year, or one who moved school,
---     starts a fresh allowance; a reassignment or a class change within the year does not.
+--   * Owner ruling (10 Nov): the count is within one school and one school year. A sitting of this very assignment always
+--     counts; a sitting of another assignment of the same assessment counts when it was at the same school and its
+--     assignment is of the same school year (found by F37-R01 on the clean suite: a sitting's own recorded period need
+--     not be its assignment's). A learner repeating the year, or one who moved school, starts a fresh allowance; a
+--     reassignment or a class change within the year does not.
 --   * Sharon (addendum): a sitting the teacher ended with the assignment (ADMINISTRATIVE_TERMINATION) is the school's own
 --     act, as a departure is, and is not counted. An integrity ending (SECURITY_INTERVENTION) and an expiry still are.
 --
@@ -33,10 +35,11 @@ begin
     'where s.person_id = v_person'
     || E'\n       -- owner ruling 1 (20270113140000): the same assessment under any assignment, not this assignment alone'
     || E'\n       and (s.assessment_assignment_id = p_assessment_assignment'
-    || E'\n            or (s.assessment_definition_id = v_d.id and s.assessment_definition_version = v_d.version))'
-    || E'\n       -- owner ruling (10 Nov): within one school and one school year'
-    || E'\n       and s.institution_id = v_aa.institution_id'
-    || E'\n       and s.academic_period_id is not distinct from v_aa.academic_period_id'
+    || E'\n            or (s.assessment_definition_id = v_d.id and s.assessment_definition_version = v_d.version'
+    || E'\n                -- owner ruling (10 Nov): another assignment counts within one school and one school year'
+    || E'\n                and s.institution_id = v_aa.institution_id'
+    || E'\n                and exists (select 1 from public.assessment_assignments a2 where a2.id = s.assessment_assignment_id'
+    || E'\n                              and a2.academic_period_id is not distinct from v_aa.academic_period_id)))'
     || E'\n       -- Sharon F2 and addendum (20270113140000): an ending by the school''s own act is not an attempt'
     || E'\n       and coalesce(s.termination_cause::text, '''') not in (''INSTITUTIONAL_REVOCATION'', ''ADMINISTRATIVE_TERMINATION'');');
 end $$;
@@ -47,7 +50,7 @@ begin
   if position('INSTITUTIONAL_REVOCATION' in v_src) = 0 or position('ADMINISTRATIVE_TERMINATION' in v_src) = 0
      or position('PRE_TEST_NOT_FINALIZED' in v_src) = 0
      or position('s.assessment_definition_version = v_d.version' in v_src) = 0
-     or position('s.academic_period_id is not distinct from v_aa.academic_period_id' in v_src) = 0
+     or position('a2.academic_period_id is not distinct from v_aa.academic_period_id' in v_src) = 0
      or position('s.institution_id = v_aa.institution_id' in v_src) = 0 then
     raise exception 'F2 / ruling 1 / 10 Nov: may_start_assessment does not count the same assessment within one school and year without a sitting the school ended, or lost its order check';
   end if;

@@ -112,12 +112,21 @@ returns boolean language sql stable security definer set search_path = public, p
 $$;
 revoke all on function public.sesi_ditarik_dikecualikan(uuid) from public, anon, authenticated;
 
+create or replace function public.sesi_dari_penugasan_ditarik(p_session uuid)
+returns boolean language sql stable security definer set search_path = public, pg_temp as $$
+  select coalesce((select public.dari_penugasan_ditarik(x.learning_assignment_id) from public.assessment_sessions x where x.id = p_session), false);
+$$;
+revoke all on function public.sesi_dari_penugasan_ditarik(uuid) from public, anon, authenticated;
+
 create or replace view public.scoped_official_sessions as
   select s.id, s.person_id, s.institution_id, s.enrollment_id, s.academic_period_id,
          s.class_node_id, s.cohort_node_id, s.plp_release_id,
          s.assessment_definition_id, s.assessment_definition_version,
          s.engine_version, s.scoring_policy_version, s.evidence_channel, s.mode,
-         s.status, s.started_at, s.submitted_at, s.finalized_at, s.created_at
+         s.status, s.started_at, s.submitted_at, s.finalized_at, s.created_at,
+         -- Sharon (addendum): whether the sitting's assignment was withdrawn, so a learner's own result marks it from its
+         -- declared source (a calculator reads no relation the catalogue does not name)
+         public.sesi_dari_penugasan_ditarik(s.id) as ditarik
     from public.official_sessions s
    where public.row_in_metric_boundary(s.institution_id,
                                        coalesce(s.class_node_id, s.cohort_node_id), s.person_id)
@@ -196,10 +205,13 @@ do $$
 declare v_def text := pg_get_functiondef((select p.oid from pg_proc p join pg_namespace n on n.oid = p.pronamespace
                                            where n.nspname = 'public' and p.proname = 'calc_learner_result'));
         v_old text := '''recomputation_reason'', x.recomputation_reason)';
+        v_sel text := 's.finalized_at';
 begin
-  if position(v_old in v_def) = 0 then raise exception 'calc_learner_result''s row is not where it was'; end if;
-  execute replace(v_def, v_old, '''recomputation_reason'', x.recomputation_reason, ''ditarik'', ( SELECT public.dari_penugasan_ditarik(a.learning_assignment_id)'
-                               || ' FROM assessment_sessions a WHERE (a.id = x.session_id)))');
+  if position(v_old in v_def) = 0 or position(v_sel in v_def) = 0 then raise exception 'calc_learner_result''s row is not where it was'; end if;
+  v_def := replace(v_def, v_old, '''recomputation_reason'', x.recomputation_reason, ''ditarik'', x.ditarik)');
+  -- the inner select carries the sitting's own flag from scoped_official_sessions
+  v_def := regexp_replace(v_def, 's\.finalized_at\s*FROM', 's.finalized_at, s.ditarik FROM');
+  execute v_def;
 end $$;
 
 -- ───────────────────────────────────────────── 2. a finished result stays seen
@@ -265,6 +277,34 @@ begin
     'raise exception using errcode = ''PR003'', detail = ''SESSION_ENDED_BY_SCHOOL'','
     || ' message = ''this session was ended and accepts no submission'';');
 end $$;
+
+-- ───────────────────────────────────────────── 4. a lesson no longer shared keeps its name
+--
+-- CORRECTED IN PLACE (undeployed; the owner on Sharon's addendum, 10 Nov). Red first: F38-W14. A Guru cannot read
+-- PINTAR's course rows (courses_select is CAN_DRAFT in the course's own school), and distributed_releases names only
+-- what is shared now, so an assignment of a lesson PINTAR stopped sharing was named nowhere. No assignment records a
+-- title, so no storage is added: this returns, for one Kelas, each assignment's course title and nothing else (no
+-- content, no outline), to whoever may give material at that school (CAN_ASSIGN_LEARNING), as the class page does.
+-- The title is the course's current one.
+
+create or replace function public.judul_materi_kelas(p_kelas uuid)
+returns table (learning_assignment_id uuid, title text)
+language plpgsql stable security definer set search_path = public, pg_temp as $$
+declare v_inst uuid;
+begin
+  select n.institution_id into v_inst from public.org_nodes n where n.id = p_kelas;
+  if v_inst is null or not public.can_in_institution('CAN_ASSIGN_LEARNING', v_inst) then
+    raise exception using errcode = '42501', message = 'a Kelas''s lesson titles are for who may give material at its school';
+  end if;
+  return query
+    select la.id, c.title from public.learning_assignments la join public.courses c on c.id = la.course_id
+     where la.node_id = p_kelas and la.institution_id = v_inst;
+end $$;
+revoke all on function public.judul_materi_kelas(uuid) from public, anon;
+grant execute on function public.judul_materi_kelas(uuid) to authenticated, service_role;
+insert into public.client_rpc_registry (function_name, exposure, note, authorization_kind, authorization_requirement) values
+  ('judul_materi_kelas', 'STAFF', 'the course title of each assignment of one Kelas, nothing else: a lesson no longer shared stays named (10 Nov)',
+   'CAPABILITY', 'CAN_ASSIGN_LEARNING');
 
 -- ───────────────────────────────────────────── checks
 

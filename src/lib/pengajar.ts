@@ -444,6 +444,13 @@ export async function penugasanKelas(nodeIds: readonly string[]): Promise<Map<st
     const judul = new Map(rows<{ plp_release_id: string; course_title: string }>(dist).map((d) => [d.plp_release_id, d.course_title]));
     for (const r of baris) if (!r.course?.title && judul.get(r.plp_release_id)) r.course = { title: judul.get(r.plp_release_id)! };
   }
+  // the owner (10 Nov): a lesson PINTAR no longer shares keeps its name; its title only, from judul_materi_kelas
+  const tanpa = [...new Set(baris.filter((r) => !r.course?.title).map((r) => r.node_id))];
+  for (const kelas of tanpa) {
+    const { data: j } = await c.rpc("judul_materi_kelas", { p_kelas: kelas });
+    const judul = new Map(rows<{ learning_assignment_id: string; title: string }>(j).map((x) => [x.learning_assignment_id, x.title]));
+    for (const r of baris) if (r.node_id === kelas && !r.course?.title && judul.get(r.id)) r.course = { title: judul.get(r.id)! };
+  }
   for (const r of baris) out.get(r.node_id)?.push(penugasanDari(r));
   return out;
 }
@@ -951,7 +958,7 @@ export function susunCatatan(
       asli: v.recomputed === true && v.sealed_mastery != null && Number.isFinite(Number(v.sealed_mastery)) ? Number(v.sealed_mastery) : null,
       alasan: v.recomputed === true && typeof v.recomputation_reason === "string" ? v.recomputation_reason : null,
       // Sharon (addendum, 10 Nov): kept and shown, marked; left out of every class figure
-      ditarik: v.ditarik === true,
+      ...(v.ditarik === true ? { ditarik: true } : {}),
     })),
   };
 }
