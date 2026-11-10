@@ -65,6 +65,11 @@ Carried from 4.0, to be taken with the batch that touches the same code, or in 4
 - **Daisy:** the first Tab after landing on an audit run scrolls the frame; a 15 px header strip on a phone landing; broader audit presentation.
 - **Cosmetic:** Kenaikan step 2's «·» status line; the summary's group order; «Tambah Tingkat» suggesting «2026/2027»; the 320 px top bar breaking titles; «Kursus» in «Cabut sertifikat» (X12).
 
+From the pre-build review of A1 and C1w (11 Nov), taken with those batches:
+- **A1, Daisy:** state how an open player learns of an extension or an ending (a light check every 30 to 60 s, and on every send) (A1-R1); name `/mengajar/[kelas]/siapa` in place of "the class's assessment page" (A1-R2); the approver's queue under Konfigurasi's «Yang menunggu», and on a head of department's home (A1-R4).
+- **C1w, Daisy:** on an existing assignment, «Ada perbaikan · terbit {tanggal}» linking to «Pindahkan penugasan», with nothing moved automatically (C1-R2); a paper printed while under review relies on its QR (C1-R4); the school notice's channel, in-app plus one email to the school's admins with no student names (C1-R5).
+- **Staging, Daisy:** her session cannot reach either staging host and has no staging sign-in. The three checks in §6 stay outstanding.
+
 New non-blocking findings are added here when raised, with the batch they came from.
 
 ## 6 · Still open from 4.0 on staging

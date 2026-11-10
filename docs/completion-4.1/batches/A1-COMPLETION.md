@@ -1,6 +1,6 @@
 # A1 · Sitting control: completion page
 
-**Lane A. Effort M. Review before build: Sharon and Daisy.** Status: awaiting that review. No code yet.
+**Lane A. Effort M. Review before build: Sharon and Daisy.** Status: reviewed once; open points listed under «Pre-build review: outcome». No code yet.
 
 ## Why
 
@@ -62,6 +62,29 @@ One new section on the teacher's assessment page for a class, and one confirmati
 ## Out of this batch
 
 Cross-device recovery and single-writer enforcement (A3). Reopening a finished sitting (never). The handover view after a teacher leaves (4.2).
+
+## Pre-build review: outcome (11 Nov)
+
+One review each, at `2560494a`. Daisy: `docs/coordination/ux/completion-4.1/TINJAUAN-A1-C1W.md` (branch `ux-1/daisy-experience`, `a2420446`). Sharon: her addendum response of 11 Nov, and her first reading at `3370643a`.
+
+**Settled, and now part of this page:**
+
+| Point | From | Decision |
+|---|---|---|
+| The independent approver of another attempt | Sharon | A holder of CAN_REVIEW_INTEGRITY over the sitting's place. Never the requester, never the learner, and never a SYSTEM_ADMIN on an academic sitting |
+| A frozen sitting (blocker) | Sharon | Frozen is its own recorded state on the sitting, not `PAUSED`. `tangguhkan_akun` writes it in the same transaction as the suspension, with the remaining time. The abandoned-sitting job and `session_enforce_deadline` skip it. Resume sets the deadline to now plus the stored remaining time |
+| The learner's notices (A1-B1, blocker) | Daisy | Three notices, each with its own key, told apart by the refusal code: ended and scored; ended and not counted; the assignment ended (the 4.0 notice, unchanged). The 4.0 «tidak dinilai» notice is never shown for a scored ending |
+| Where the list sits | Daisy | On `/mengajar/[kelas]/siapa`, with a choice of instrument. One «Atur» link per row opens a panel; an act that cannot apply is absent. «Ubah jadwal» is on the class page's material row |
+| The two endings | Daisy | No default. «Dinilai» uses an attempt; «Tidak dihitung» gives no result and uses none. Wording as in her review |
+| A frozen sitting, to the teacher | Daisy | The neutral «Ditahan», never «ditangguhkan». After reinstatement: «Lanjutkan» with exactly the preserved time, or «Akhiri tanpa menghitung». «Lanjutkan» stays offered if the window closed meanwhile |
+| Another attempt, to the learner | Daisy | Nothing while waiting; never «ditolak»; after approval, the chapter's «Mulai» returns |
+| States to add | Daisy | Her seven: attempts used up; a request waiting, approved or declined; a granted attempt not yet started; an act that raced the learner; a Professional Development class; a window changed before anyone started; more than one sitting for one learner |
+
+**Open before build:**
+- Sharon's first reading at `3370643a`: A1 blockers 1 (name the sitting capability) and 2 (a scored teacher ending is a submission). Her text is not yet in this record.
+- **The owner's ruling:** how an abandoned sitting is scored (Sharon's A1 blocker 3).
+
+Non-blocking points are in `EXECUTION-PLAN.md` §5.
 
 ## Questions
 

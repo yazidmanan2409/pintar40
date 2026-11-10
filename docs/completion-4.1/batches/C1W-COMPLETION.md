@@ -1,6 +1,6 @@
 # C1w · Item workbench: completion page
 
-**Lane C. Effort L. Review before build: Sharon and Daisy.** Status: awaiting that review. No code yet. Contains the approved C4 (revision lineage) and decisions O41-10 and O41-11.
+**Lane C. Effort L. Review before build: Sharon and Daisy.** Status: reviewed once; open points listed under «Pre-build review: outcome». No code yet. Contains the approved C4 (revision lineage) and decisions O41-10 and O41-11.
 
 ## Why
 
@@ -64,6 +64,31 @@ Every edit of a draft is attributed (who, when). Every revision, publication, wi
 ## Out of this batch
 
 Misconception annotations (C2w). AI drafting (C3w). Scheduled question-health statistics (4.2). Retiring a single question without a revision. Schools adapting platform content.
+
+## Pre-build review: outcome (11 Nov)
+
+One review each, at `2560494a`. Daisy: `docs/coordination/ux/completion-4.1/TINJAUAN-A1-C1W.md` (branch `ux-1/daisy-experience`, `a2420446`). Sharon: her addendum response of 11 Nov, and her first reading at `3370643a`.
+
+**Settled, and now part of this page:**
+
+| Point | From | Decision |
+|---|---|---|
+| The content owner of a school's content (blocker) | Sharon | A role scoped inside that school. Platform admins are excluded from a school's content |
+| The confirmer of a key correction (blocker) | Sharon | A different person holding CAN_PUBLISH or CAN_REVIEW in the same tenant |
+| The certificate under review (blocker) | Sharon | An append-only `certificate_reviews` side record, not a new status value; sealed payloads are untouched. `verify_certificate` returns DITINJAU while a review is open. DICABUT and DIGANTIKAN take precedence |
+| «Ditarik» (C1-B2, blocker) | Daisy | Teachers and learners never see «Ditarik» for a release its publisher withdrew. They see «Dihentikan penerbit · tidak dapat dimulai lagi; hasil tetap dihitung». «Ditarik» stays inside Studio |
+| The draft editor | Daisy | Inside «Soal dalam paket ini», one question at a time, errors summarised at the top, each save attributed. «Tambah soal», «Hapus soal», «Buang draf ini» |
+| A question's history | Daisy | «Riwayat soal (n versi)», newest first, changes said in words. No statistic across versions |
+| The key correction | Daisy | «Perbaiki kunci jawaban», three steps, with exact counts computed by the recompute rule. For platform content, other schools appear as counts only. The proposer sees no confirm button |
+| «Sedang ditinjau» | Daisy | A third, neutral status on public verification and on the learner's certificate, never the mark of «Berlaku». No school reason shown publicly. Printing stays available. Konfigurasi › Sertifikat gains «Sedang ditinjau (n)» |
+| The notice to affected schools | Daisy | A line in Konfigurasi's «Yang menunggu» until every certificate is decided |
+| States to add | Daisy | Her six: two authors on one draft; a re-upload over in-app edits; a correction on a withdrawn release; a correction that changes nothing; a confirmation refused for lack of authority; a decided certificate affected again |
+
+**Open before build:**
+- **C1-B1 (Daisy, blocker):** what the learner's result page shows after a key correction, the recalculated result or the sealed original. 4.0 shows the original and says the certificate is unchanged, which O41-19 makes false. Both notes are rewritten once this is settled.
+- Sharon's first reading at `3370643a`: C1W blockers 1 (D11, one recalculation per sitting), 2 (the scoring basis), 3 (stop new sittings on a wrong key) and 4 (validate the identity column). Her text is not yet in this record; blocker 2 is expected to settle C1-B1.
+
+Non-blocking points are in `EXECUTION-PLAN.md` §5.
 
 ## Questions
 
