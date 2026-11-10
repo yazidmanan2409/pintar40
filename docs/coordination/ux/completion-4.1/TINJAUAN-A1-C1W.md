@@ -224,7 +224,7 @@ Then «Simpan soal» (primary) and «Batal» (quiet).
 **Step 2, «Yang terdampak».** Counts first, then the list:
 
 > «Soal ini ada di {n} sesi yang sudah selesai, di {k} sekolah.
-> Bila kunci diperbaiki: {a} hasil berubah · {b} keputusan target berubah · {c} sertifikat mungkin tidak lagi sesuai · {d} sertifikat baru dapat diterbitkan.»
+> Bila kunci diperbaiki: {a} hasil berubah · {b} keputusan target berubah · {c} sertifikat akan ditinjau sekolahnya · {d} sertifikat baru dapat diterbitkan.»
 
 - **Platform content:** the list is by school and class, with counts only. The proposer does not see students of other schools. **→ Sharon**, with her Q3.
 - **School content:** by class, with names visible to the proposer's grants.
@@ -286,7 +286,7 @@ with «Konfirmasi berlaku» (reason) and «Cabut» (the existing FormCabut), eac
 3. **A key correction proposed on a question of a withdrawn release:** allowed, with step 2 counting only finished sittings.
 4. **A key correction that changes nothing for anyone:** the «Tidak ada sesi selesai…» state above.
 5. **Confirmation refused because the proposer lacks authority at some schools** (platform content). **→ Sharon**, with her Q3.
-6. **A certificate decision already taken,** then a second correction affects it again: it returns to «Perlu keputusan».
+6. **A certificate decision already taken,** then a second correction affects it again: it returns to «Sedang ditinjau», and public verification says so again.
 
 ### Findings
 
