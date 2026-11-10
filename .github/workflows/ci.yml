@@ -1584,7 +1584,9 @@ jobs:
           #    future author is most likely to make while "simplifying".
           cat > /tmp/wp1-1.sql <<'SQL'
           begin;
-          create or replace view public.scoped_official_sessions as select s.* from public.official_sessions s;
+          -- re-aimed (20270113150000): the view carries the appended ditarik column, which a replacement may not drop
+          create or replace view public.scoped_official_sessions as
+            select s.*, public.sesi_dari_penugasan_ditarik(s.id) as ditarik from public.official_sessions s;
           SQL
           case_of /tmp/wp1-1.sql F06-P11
           red F06-P11 'returned 2, expected 1' /tmp/wp1-1.sql
