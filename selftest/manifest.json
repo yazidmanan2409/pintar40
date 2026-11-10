@@ -4932,6 +4932,11 @@
       "proves": "«Kenaikan kelas dan kelulusan»: a second confirmation of the same decisions is refused (PROMO_CHANGED) and writes nothing."
     },
     {
+      "id": "F37-K06",
+      "runner": "db",
+      "proves": "«Kenaikan kelas dan kelulusan»: the run's own record (Daisy's reconciliation K1, Sharon «fold, don't hide»; selftest/db/fable37.sql against 20270112210000): a confirmed run writes its one promotion.applied row and every row it writes beside it (the enrolments it ends and opens) with the same run_id, set only while the run holds pintar.audit_run; kenaikan_hasil reads back each learner's decision, where they are now (Kelas, or the enrolment's end with its reason code and school-zone date) and whether that matches, the destination Kelas still without a teacher, and the run id."
+    },
+    {
       "id": "F38-W01",
       "runner": "db",
       "proves": "W2.21 «Akhiri penugasan» (owner, 9 Nov: INCLUDE in 4.0; selftest/db/fable38.sql against 20270113100000): akhiri_penugasan_pratinjau tells Kelas A's Guru what ending the lesson assignment would touch before anything changes: the one learner who finished, the two with a sitting still open by name, and the one who never started; B's Guru, a learner and another school's admin are refused ASSIGN_NOT_ALLOWED (CAN_ASSIGN_LEARNING over the class it was given to)."

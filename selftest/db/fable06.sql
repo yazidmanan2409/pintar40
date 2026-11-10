@@ -6472,8 +6472,10 @@ begin
       -- bands and floor over the assessed and its population beside them (its migration, F20-N01 and F20-N02)
       -- RESTATED FOR H31 (7 Nov): MC-8 is MC-7 copied forward with the gain paired within one chapter
       -- RESTATED FOR THE REPORTING QUALITY GATE (9 Nov): MC-9 is MC-8 copied forward (a Studio chapter's topic names)
-      if v_cat is distinct from 'MC-9' then
-        bad := bad || array[format('the live metric catalogue is %s, not MC-9', coalesce(v_cat, 'none'))];
+      -- RESTATED FOR THE OWNER'S WITHDRAWN RULING (10 Nov): MC-10 is MC-9 copied forward (a withdrawn assignment's
+      -- sittings not counted; learning_assignments added as a source)
+      if v_cat is distinct from 'MC-10' then
+        bad := bad || array[format('the live metric catalogue is %s, not MC-10', coalesce(v_cat, 'none'))];
       else
         if exists (select 1 from (select * from public.metric_definitions where catalogue_version = 'MC-4') d4
                     full join (select * from public.metric_definitions where catalogue_version = 'MC-3') d3
