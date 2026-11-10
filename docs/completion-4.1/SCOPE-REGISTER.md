@@ -1,5 +1,13 @@
 # PINTAR 4.1 · scope register (one source of truth) · opened 9 Nov 2026
 
+> **Revised 11 Nov 2026.** The owner's decisions of 11 Nov (`OWNER-DECISIONS-2026-11-11.md`) change this register's scope, sequence and dates:
+> - Exam Mode, job positions, acting appointments and future-dated role starts move to 4.2.
+> - An item workbench (in-app question editing) and sitting control are added as foundations.
+> - §4 (sequence), §5 (effort) and §6 (delivery to mid-December) are **superseded** by `EXECUTION-PLAN.md`.
+> - §0's process is kept, as bounded by the five rules in the owner decisions.
+>
+> The capability definitions in §1 and the truth table in §2 still stand, except as those decisions change them.
+
 **Authority.** The owner's 9 Nov directives:
 - «PINTAR 4.1 updated owner directive»: sections A–E;
 - the clarification of the three additions;
