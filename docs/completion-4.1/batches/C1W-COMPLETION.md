@@ -1,6 +1,6 @@
 # C1w · Item workbench: completion page
 
-**Lane C. Effort L. Review before build: Sharon and Daisy.** Status: reviewed once; one confirmation open (D11 for key corrections). Build may start. Contains the approved C4 (revision lineage) and decisions O41-10 and O41-11.
+**Lane C. Effort L. Review before build: Sharon and Daisy.** Status: reviewed once; blockers settled below. Build may start. Contains the approved C4 (revision lineage) and decisions O41-10 and O41-11.
 
 ## Why
 
@@ -94,12 +94,25 @@ One review each, at `2560494a`. Daisy: `docs/coordination/ux/completion-4.1/TINJ
 
 | Blocker | Decision | Accepted when |
 |---|---|---|
-| 1 · One recalculation per sitting (D11) | **A key correction supersedes the result in force**, so a sitting already recalculated, or a second correction, is supported by design. This follows from O41-21 (the learner always sees the corrected result as current). It extends D11's one-successor rule for key corrections only; every earlier result stays preserved in the chain. **Put to the owner for confirmation**; `recompute_result` itself keeps D11 as it is | A key correction on a sitting that already has a recalculation works by a designed rule and never meets a raw constraint error |
+| 1 · One recalculation per sitting (D11) | **Ruled by the owner (O41-22), below.** Ordinary recalculation keeps D11. A governed key correction may recalculate again | A key correction on a sitting that already has a recalculation works by a designed rule and never meets a raw constraint error |
 | 2 · The scoring basis | Each recomputed result records the corrected revision whose key it used and the mapping from each original item to that revision. A new function under the key-correction authority writes it. `recompute_result` is not widened | The result names its revision and mapping; the sealed content and original result stay byte-identical; `recompute_result` keeps its authority |
 | 3 · New sittings on the wrong key | A confirmed correction moves the new starts of existing assignments to the corrected revision (`move_learning_assignment_release`). A sitting open at that moment is recomputed once it finalises | No new sitting on any existing assignment uses the wrong key; every sitting open then gets its recomputed result |
 | 4 · The upload's identity column | An identity value must belong to the predecessor release of the same course at the same owning school, and be used once. Otherwise that row is refused, never treated as a new question | An upload citing another course, another school, a non-predecessor release, or one item twice is refused for that row. No cross-tenant lineage can be created |
 
-**Open:** the owner's confirmation of blocker 1. It does not hold the start of the batch: the draft editor, lineage, withdrawal and identity validation do not depend on it.
+**The owner's ruling on repeated key corrections (O41-22):**
+
+The one-recalculation-per-sitting rule stays for ordinary recalculation (`recompute_result`). For an authorized wrong-key correction, further recalculations are permitted, including on a sitting already recalculated, on these conditions:
+1. Each correction needs the content-owner authorization and the independent confirmation already approved.
+2. Each recalculation scores the original recorded responses against the complete currently authorized key. It never adjusts an earlier corrected score.
+3. Every earlier result, scoring basis, correction reason, authorization and timestamp is kept in an immutable, traceable chain.
+4. Exactly one result is current at any time. The learner and the teacher see the latest authorized corrected result, marked as corrected.
+5. O41-19's certificate review applies whenever a correction affects a certificate's validity. A certificate is never silently revoked and never automatically revalidated.
+6. Concurrent corrections cannot create competing current results.
+7. The controls that stop new sittings on a withdrawn or known-invalid release are kept.
+
+The exception covers governed key corrections only: not arbitrary score changes, and not repeated ordinary recalculations.
+
+**Nothing is open. Build may start.**
 
 Non-blocking points are in `EXECUTION-PLAN.md` §5.
 
