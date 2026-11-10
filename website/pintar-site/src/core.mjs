@@ -5,6 +5,8 @@
 // in English (under en/). Each language has its own natural slugs, and the
 // language switch always lands on the same page in the other language.
 
+import { existsSync } from "node:fs";
+
 export const ROUTES = {
   home:      { id: "",                  en: "en/" },
   why:       { id: "mengapa-pintar/",   en: "en/why-pintar/" },
@@ -61,62 +63,78 @@ export function context(lang, key) {
   };
 }
 
-// ------------------------------------------------------------------ photographs
-// Every photograph on the site, defined once: the pages place them, and the
-// review page's asset plan reads the same list. None exists yet: each renders
-// as a labelled, correctly proportioned placeholder until the shoot delivers.
+// ------------------------------------------------------------------ images
+// Five images, defined once: the pages place them, and the review page's asset
+// plan reads the same list. Each has a source kind, said plainly wherever it
+// appears: «generated» (an AI-generated illustrative scene, never presented as
+// real PINTAR users or partner institutions), «photo» (licensed or
+// commissioned photography, with consent), or «screenshot» (the accepted
+// product, with sample data). When a processed file exists in
+// site/assets/img/ (made by `node images.mjs` from images/), the page shows
+// it; until then the slot is a labelled, correctly proportioned placeholder.
+
+const IMG_DIR = new URL("../site/assets/img/", import.meta.url);
+export const IMG_WIDTHS = [640, 1024, 1600, 2400];
 
 export const PHOTOS = {
-  P1: { r: "21/9", rm: "4/5",
-    id: "Ruang kelas SMP negeri, pagi hari. Seorang guru berlutut di samping meja dua peserta didik dan membaca lembar kerja mereka.",
-    en: "A state junior secondary classroom in the morning. A teacher kneels beside two learners’ desk, reading their worksheet.",
-    alt_id: "Guru berlutut di samping meja dua peserta didik berseragam putih biru, membaca lembar kerja bersama mereka di ruang kelas yang terang.",
-    alt_en: "A teacher kneels beside two learners in white-and-navy uniforms, reading a worksheet with them in a bright classroom." },
-  P2: { r: "4/5", rm: "4/5",
-    id: "Peserta didik SMA belajar di beranda rumah pada sore hari, buku catatan terbuka di samping ponsel.",
-    en: "A senior secondary learner studies on a home veranda in the afternoon, a notebook open beside a phone.",
-    alt_id: "Peserta didik SMA duduk di beranda rumah, menulis di buku catatan di samping ponsel.",
+  P1: { r: "2/1", rm: "4/5", kind: "generated", pos: "50% 45%", posm: "50% 50%",
+    name_id: "Di kelas", name_en: "In class",
+    id: "Ruang kelas SMP pada pagi hari. Seorang guru berlutut di samping meja dua peserta didik dan membaca lembar kerja pecahan mereka.",
+    en: "A junior secondary classroom in the morning. A teacher kneels beside two learners’ desk and reads their fractions worksheet.",
+    alt_id: "Guru berlutut di samping meja dua peserta didik berseragam putih biru dan menunjuk satu jawaban di lembar kerja.",
+    alt_en: "A teacher kneels beside two learners in white-and-navy uniforms and points to one answer on their worksheet." },
+  P2: { r: "4/5", rm: "4/5", kind: "generated", pos: "50% 50%", posm: "50% 50%",
+    name_id: "Menyiapkan pelajaran besok", name_en: "Preparing tomorrow’s lesson",
+    id: "Ruang guru setelah jam pelajaran. Seorang guru menulis rencana pelajaran besok di samping laptop dan tumpukan buku latihan.",
+    en: "The staff room after lessons. A teacher writes tomorrow’s lesson plan beside a laptop and a stack of exercise books.",
+    alt_id: "Guru di ruang guru menulis di buku catatan, dengan laptop terbuka dan tumpukan buku latihan di meja.",
+    alt_en: "A teacher in the staff room writes in a notebook, with an open laptop and a stack of exercise books on the desk." },
+  P3: { r: "4/5", rm: "4/5", kind: "generated", pos: "50% 50%", posm: "50% 50%",
+    name_id: "Belajar di rumah", name_en: "Studying at home",
+    id: "Peserta didik SMA belajar di teras rumah pada sore hari, buku catatan terbuka di samping ponsel.",
+    en: "A senior secondary learner studies on a home veranda in the late afternoon, a notebook open beside a phone.",
+    alt_id: "Peserta didik SMA duduk di teras rumah, menulis di buku catatan di samping ponsel.",
     alt_en: "A senior secondary learner sits on a veranda, writing in a notebook beside a phone." },
-  P3: { r: "4/5", rm: "4/5",
-    id: "Ruang guru setelah jam pelajaran. Seorang guru meninjau hasil kelas di laptop, tumpukan buku latihan di sampingnya.",
-    en: "The staff room after lessons. A teacher reviews a class’s results on a laptop beside a stack of exercise books.",
-    alt_id: "Guru di ruang guru meninjau hasil kelas di laptop, dengan tumpukan buku latihan di meja.",
-    alt_en: "A teacher in the staff room reviews class results on a laptop next to a stack of exercise books." },
-  P4: { r: "3/2", rm: "4/5",
-    id: "Kepala sekolah dan wakilnya di ruang rapat, membahas ringkasan sekolah yang tercetak di atas meja.",
-    en: "A principal and deputy in a meeting room, discussing a printed school summary on the table.",
+  P4: { r: "3/2", rm: "4/5", kind: "generated", pos: "50% 50%", posm: "50% 50%",
+    name_id: "Rapat pimpinan", name_en: "A leadership meeting",
+    id: "Kepala sekolah dan wakilnya di ruang rapat, membahas ringkasan kelas yang tercetak di atas meja.",
+    en: "A principal and deputy in a meeting room, discussing a printed class summary on the table.",
     alt_id: "Kepala sekolah dan wakil kepala sekolah membahas laporan tercetak di meja rapat.",
     alt_en: "A principal and a deputy principal discuss a printed report at a meeting table." },
-  P5: { r: "4/5", rm: "4/5",
-    id: "Operator sekolah di ruang tata usaha, menyiapkan kartu kelas untuk awal tahun ajaran.",
-    en: "A school operator in the administration office, preparing class cards for the start of the school year.",
-    alt_id: "Operator sekolah di ruang tata usaha menata kartu kelas di meja.",
-    alt_en: "A school operator in the administration office arranges class cards on a desk." },
-  P6: { r: "21/9", rm: "4/3",
-    id: "Halaman sekolah pada pagi hari, sebelum pelajaran dimulai. Diambil dari jauh, tanpa wajah yang dapat dikenali.",
-    en: "A school courtyard in the morning, before lessons begin. Shot from a distance, with no recognisable faces.",
+  P5: { r: "2/1", rm: "4/3", kind: "generated", pos: "50% 55%", posm: "50% 50%",
+    name_id: "Pagi di sekolah", name_en: "Morning at school",
+    id: "Halaman sekolah pada pagi hari, sebelum pelajaran dimulai, dilihat dari lantai atas. Tanpa wajah yang dapat dikenali.",
+    en: "A school courtyard in the morning before lessons, seen from an upper floor. No recognisable faces.",
     alt_id: "Halaman sekolah di Indonesia pada pagi hari, dengan peserta didik berjalan menuju kelas.",
     alt_en: "An Indonesian school courtyard in the morning, with learners walking to class." },
-  P7: { r: "21/9", rm: "4/5",
-    id: "Detail: tangan peserta didik menulis jawaban di lembar Pemetaan Awal yang tercetak.",
-    en: "Detail: a learner’s hand writing an answer on a printed initial-mapping sheet.",
-    alt_id: "Tangan peserta didik menulis jawaban dengan pensil di lembar kerja.",
-    alt_en: "A learner’s hand writes an answer in pencil on a worksheet." },
-  P8: { r: "3/2", rm: "4/5",
-    id: "Dua orang di meja sekolah: anggota tim PINTAR memandu seorang wakil kepala sekolah melalui laptop.",
-    en: "Two people at a school table: a PINTAR team member guides a deputy principal through a laptop.",
-    alt_id: "Anggota tim PINTAR memandu seorang wakil kepala sekolah melalui laptop di meja sekolah.",
-    alt_en: "A PINTAR team member guides a deputy principal through a laptop at a school table." },
 };
 
-/** A photograph's placeholder: the right proportion, viewfinder marks, and the brief as its caption. */
-export function photo(c, id, { caption = true, cls = "" } = {}) {
+/** What each source kind is called, wherever an image is shown or listed. */
+export const IMAGE_KIND = {
+  generated:  { id: "Ilustrasi, dibuat dengan AI", en: "Illustration, AI-generated" },
+  photo:      { id: "Foto", en: "Photograph" },
+  screenshot: { id: "Tangkapan layar PINTAR, data contoh", en: "PINTAR screenshot, sample data" },
+};
+
+export const imageReady = (id) => existsSync(new URL(`${id}-1600.webp`, IMG_DIR));
+
+/** An image: the real file when it exists, otherwise a labelled placeholder with the brief. */
+export function photo(c, id, { caption = true, cls = "", sizes = "(max-width: 760px) 100vw, 50vw", r, rm } = {}) {
   const p = PHOTOS[id];
   const alt = c.lang === "id" ? p.alt_id : p.alt_en;
   const brief = c.lang === "id" ? p.id : p.en;
-  return `<figure class="ph ${cls}" style="--r:${p.r};--rm:${p.rm}" data-photo="${id}">
-  <div class="ph__frame" role="img" aria-label="${esc(c.t("Foto direncanakan: ", "Planned photograph: ") + alt)}"><span class="ph__marks" aria-hidden="true"></span><span class="ph__tag" aria-hidden="true">${c.t("Foto", "Photo")} ${id.slice(1)}</span></div>
-  ${caption ? `<figcaption class="caption"><span class="caption__k">${c.t("Foto direncanakan", "Planned photograph")}</span> ${esc(brief)}</figcaption>` : ""}
+  const kind = IMAGE_KIND[p.kind][c.lang];
+  const style = `--r:${r ?? p.r};--rm:${rm ?? p.rm};--pos:${p.pos};--posm:${p.posm}`;
+  if (imageReady(id)) {
+    const set = IMG_WIDTHS.filter((w) => existsSync(new URL(`${id}-${w}.webp`, IMG_DIR))).map((w) => `${c.asset(`img/${id}-${w}.webp`)} ${w}w`).join(", ");
+    return `<figure class="ph ph--img ${cls}" style="${style}" data-photo="${id}" data-kind="${p.kind}">
+  <div class="ph__frame"><img src="${c.asset(`img/${id}-1600.webp`)}" srcset="${set}" sizes="${sizes}" alt="${esc(alt)}" loading="lazy" decoding="async"></div>
+  <figcaption class="caption ph__credit">${kind}</figcaption>
+</figure>`;
+  }
+  return `<figure class="ph ${cls}" style="${style}" data-photo="${id}" data-kind="${p.kind}">
+  <div class="ph__frame" role="img" aria-label="${esc(c.t("Gambar menyusul: ", "Image to come: ") + alt)}"><span class="ph__marks" aria-hidden="true"></span><span class="ph__tag" aria-hidden="true"><b>${c.t("Gambar", "Image")} ${id.slice(1)}</b>${c.lang === "id" ? p.name_id : p.name_en}</span></div>
+  ${caption ? `<figcaption class="caption"><span class="caption__k">${c.t("Gambar menyusul", "Image to come")}</span> ${esc(brief)}</figcaption>` : ""}
 </figure>`;
 }
 
@@ -129,7 +147,7 @@ export function photo(c, id, { caption = true, cls = "" } = {}) {
 // on the confirmation checklist in review/ until that acceptance.
 export const STATUS = {
   available:  { id: "Tersedia", en: "Available", note_id: "", note_en: "", shape: "dot" },
-  direction:  { id: "Arah ke depan", en: "Future direction", note_id: "Tanpa tanggal atau janji rilis", note_en: "No dates or release promises", shape: "dash" },
+  direction:  { id: "Arah ke depan", en: "Future direction", note_id: "", note_en: "", shape: "dash" },
 };
 export function status(c, kind, { note = true, label } = {}) {
   const s = STATUS[kind];
@@ -227,17 +245,18 @@ ${footer(c)}
 /** A section label: a number, a rule and a name, set small and precise. */
 export const label = (num, text, cls = "") => `<p class="label ${cls}">${num ? `<span class="label__n">${num}</span>` : ""}${text}</p>`;
 
-/** The demo invitation that closes most pages. */
+/** The demo invitation that closes most pages: typographic, one action. */
 export function demoBand(c, { heading, body } = {}) {
   return `<section class="section demo-band" aria-labelledby="demo-band-h">
-  <div class="wrap cols">
-    <div class="demo-band__text" style="--span:6" data-reveal>
+  <div class="wrap cols cols--end">
+    <div style="--span:7" data-reveal-group>
       ${label("", c.t("Minta demo", "Request a demo"))}
-      <h2 class="h2" id="demo-band-h">${heading ?? c.t("Lihat PINTAR <em>bekerja.</em>", "See PINTAR <em>at work.</em>")}</h2>
-      <p class="lead">${body ?? c.t("Demo terpandu dengan data contoh. Kami menunjukkan bagian PINTAR yang sesuai dengan peran Anda dan yang sudah siap ditunjukkan saat itu.", "A guided demonstration with sample data, showing the parts of PINTAR that matter to your role and are ready to show at the time.")}</p>
+      <h2 class="h2" id="demo-band-h" data-reveal>${heading ?? c.t("Lihat PINTAR <em>bekerja.</em>", "See PINTAR <em>at work.</em>")}</h2>
+    </div>
+    <div style="--span:4;--start:9" data-reveal>
+      <p class="lead">${body ?? c.t("Demo terpandu yang disesuaikan dengan peran Anda, dengan data contoh.", "A guided demonstration tailored to your role, using sample data.")}</p>
       <p class="actions"><a class="btn" href="${c.demo()}">${NAV_LABEL.demo[c.lang]}</a><a class="link" href="mailto:${COMPANY.email}">${COMPANY.email}</a></p>
     </div>
-    <div style="--span:6" data-reveal>${photo(c, "P8")}</div>
   </div>
 </section>`;
 }

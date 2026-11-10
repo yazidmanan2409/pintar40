@@ -92,6 +92,12 @@ for (const p of PAGES) {
   const foot = html.slice(html.indexOf('<footer class="site-footer">'));
   assert(!/>(Bahasa|Language|Perusahaan|Company)</.test(foot) && !/dikembangkan oleh|is developed by/.test(foot), `${tag}: footer has no language column and no company heading`);
   assert(/class="lang lang--footer"/.test(foot) && foot.includes("info@pintarselalu.com") && !foot.includes("subjek=demo"), `${tag}: footer has the ID | EN switch and the email, and no demo link`);
+  // Revision 3: no internal-review language in public copy.
+  const pub = html.slice(html.indexOf('<main id="isi">'), html.indexOf("</main>"));
+  const internal = pub.match(/bukan bagian dari 4\.0|not part of 4\.0|tidak dijanjikan di sini|not promised here|bukan laporan audit|not an audit report|siap ditunjukkan|ready to show|bisa disimpulkan|can be concluded|cukup buktinya|seperti biasa|usual approval|evidence minimum|[Rr]emoved access|[Mm]astery by part|[Pp]enguasaan per bagian|data rekaan|invented data|Newsreader/g);
+  assert(!internal, `${tag}: no internal-review phrasing in public copy`, (internal || []).join(" | "));
+  for (const m of html.matchAll(/<figure class="ph[^"]*"[^>]*data-photo="(P\d)"[^>]*>/g)) assert(/data-kind="(generated|photo|screenshot)"/.test(m[0]), `${tag}: image ${m[1]} declares its source`);
+  for (const m of html.matchAll(/<figure class="ph ph--img[\s\S]*?<\/figure>/g)) assert(/ alt="[^"]{20,}"/.test(m[0]) && /class="caption ph__credit"/.test(m[0]), `${tag}: a real image has alternative text and its source label`);
   const confirms = (html.match(/class="confirm"/g) || []).length;
   if (!["privacy", "terms"].includes(p.key)) assert(confirms === 0, `${tag}: no unconfirmed facts outside the legal pages`);
 }
@@ -107,7 +113,30 @@ for (const lang of ["id", "en"]) {
   const feat = await readFile(join(SITE, ROUTES.features[lang], "index.html"), "utf8");
   const flow = feat.slice(feat.indexOf('class="flow flow--5"'), feat.indexOf("</figure>", feat.indexOf('class="flow flow--5"')));
   assert((flow.match(/data-step/g) || []).length === 5 && flow.includes("flow__human"), `${lang}/features: the AI workflow shows five steps with the educator's decision`);
-  assert(lang === "id" ? /persetujuan seperti biasa/i.test(flow) && /orang kedua/.test(flow) : /usual approval/i.test(flow) && /second person/.test(flow), `${lang}/features: approved drafts go through the usual review and approval before release`);
+  assert(lang === "id" ? /orang kedua/.test(flow) && /dirilis/.test(flow) : /second person/.test(flow) && /released/.test(flow), `${lang}/features: accepted drafts are reviewed by a second person before release`);
+  // Revision 3: one current product. Capability sections carry no status chips or
+  // catalogue letters; «new in 4.1» stays secondary; versions sit together at the end.
+  const fmain = feat.slice(feat.indexOf('<main id="isi">'), feat.indexOf("</main>"));
+  assert(!/class="status|chapter__letter|class="legend"/.test(fmain), `${lang}/features: no repeated availability chips or A/B letters`);
+  const order = ["belajar-mengajar", "laporan-asesmen", "studio-konten", "akun-institusi", "draf-ai", "arah"].map((id) => fmain.indexOf(`id="${id}"`));
+  assert(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), `${lang}/features: sections by what people accomplish, with versions and the future direction last`, order.join());
+  for (const id of order.slice(0, 5).map((x) => fmain.slice(x))) {
+    const sec = id.slice(0, id.indexOf("</section>"));
+    assert((sec.match(/<figure/g) || []).length === 1, `${lang}/features: each capability section has one focal visual`, sec.slice(4, 30));
+  }
+  assert((await readFile(join(SITE, ROUTES.terms[lang], "index.html"), "utf8")).includes("Inter dan IBM Plex Mono".replace("dan", lang === "id" ? "dan" : "and")), `${lang}/terms: names the typefaces actually shipped`);
+  const homeMain = main;
+  assert(!/class="status/.test(homeMain) && !homeMain.includes('class="roadmap"'), `${lang}/home: no availability chips, and the roadmap is a brief look ahead with a link`);
+  assert(homeMain.includes(lang === "id" ? 'href="fitur/#arah"' : 'href="../en/features/#arah"'), `${lang}/home: the look ahead links to the future direction on Features`);
+  assert(lang === "id" ? hero.includes("Nilai menunjukkan hasil. <em>Pemahaman menentukan langkah berikutnya.</em>") : hero.includes("A score shows the result. <em>Understanding shows what to teach next.</em>"), `${lang}/home: the hero headline`);
+  const panel = hero.slice(hero.indexOf('class="panel"'));
+  assert(panel.includes(lang === "id" ? "Data contoh" : "Sample data") && panel.includes(lang === "id" ? "% jawaban benar" : "% of answers correct") && panel.includes(lang === "id" ? "24 peserta didik" : "24 learners"), `${lang}/home: the class panel says sample data, what each percentage measures, and how many learners`);
+  assert(panel.includes(lang === "id" ? "belum kesimpulan tentang penguasaan" : "not yet a judgement of mastery"), `${lang}/home: percentage correct is distinguished from a judgement of mastery`);
+  assert(/class="panel__decision"/.test(panel) && panel.includes(lang === "id" ? "Ditulis oleh pendidik · contoh" : "Written by the educator · example"), `${lang}/home: the educator's decision is set apart and attributed as an example`);
+  for (const [k, html] of [["home", main], ["why", await readFile(join(SITE, ROUTES.why[lang], "index.html"), "utf8")]]) {
+    const th = html.slice(html.indexOf('<figure class="thread"'), html.indexOf("</figure>", html.indexOf('<figure class="thread"')));
+    assert((th.match(/data-step/g) || []).length === 4 && th.includes("thread__step--human"), `${lang}/${k}: the evidence-to-decision thread, with the educator's judgement marked`);
+  }
   assert(lang === "id" ? feat.includes("Arah ke depan") : feat.includes("Future direction"), `${lang}/features: 4.5 and 5.0 are marked as future direction`);
 }
 
@@ -257,7 +286,17 @@ function revealProbe() {
   return { total: els.length, hidden: els.filter((e) => Number(getComputedStyle(e).opacity) < 0.99).length, motion: document.documentElement.classList.contains("motion") };
 }
 function photoProbe() {
-  return [...document.querySelectorAll("[data-photo]")].filter((f) => !(f.querySelector("[role=img]")?.getAttribute("aria-label") || "").length).length;
+  return [...document.querySelectorAll("[data-photo]")].filter((f) => !(f.querySelector("[role=img]")?.getAttribute("aria-label") || f.querySelector("img")?.getAttribute("alt") || "").length).length;
+}
+// Reading comfort and diagram legibility (revision 3).
+function comfortProbe() {
+  const bad = [];
+  for (const el of document.querySelectorAll(".feat__intro, .feat__list li, .aud__list li, .feat__trio p, .journey__d, .report__notes li, .thread__d")) {
+    const cs = getComputedStyle(el), fs = parseFloat(cs.fontSize), lh = parseFloat(cs.lineHeight) / fs, em = el.getBoundingClientRect().width / fs;
+    if (fs < 15 || lh < 1.4 || em > 40) bad.push(`${el.className || el.tagName}: ${fs}px/${lh.toFixed(2)} ${em.toFixed(0)}em`);
+  }
+  for (const f of document.querySelectorAll("main figure")) if (f.scrollWidth > f.clientWidth + 1) bad.push(`figure ${f.className} overflows by ${f.scrollWidth - f.clientWidth}px`);
+  return bad;
 }
 
 await media(true);
@@ -280,7 +319,9 @@ for (const pg of PAGES) {
     assert(s.length === 0, `${tag}: no text under 14 px`, s.slice(0, 4).join(" | "));
     const t = await p.eval(expr(targetProbe));
     assert(t.length === 0, `${tag}: controls are 44 px`, t.slice(0, 4).join(" | "));
-    assert(await p.eval(expr(photoProbe)) === 0, `${tag}: every planned photograph has its alternative text`);
+    assert(await p.eval(expr(photoProbe)) === 0, `${tag}: every image or placeholder has its alternative text`);
+    const cf = await p.eval(expr(comfortProbe));
+    assert(cf.length === 0, `${tag}: body text is comfortable and no diagram overflows`, cf.slice(0, 4).join(" | "));
     const rv = await p.eval(expr(revealProbe));
     assert(!rv.motion && rv.hidden === 0, `${tag}: reduced motion hides nothing`, JSON.stringify(rv));
     if (w === 1440) {
@@ -326,6 +367,18 @@ for (const [w, mode] of [[1440, "serpentine"], [390, "sequence"]]) {
   } else {
     assert(o.every((x, i) => i === 0 || x.y > o[i - 1].y), "cycle @390: one column, in reading order", JSON.stringify(o));
   }
+}
+
+phase("features reading order");
+for (const lang of ["id", "en"]) for (const w of [1440, 390]) {
+  await p.viewport(w, w < 700 ? 844 : 900);
+  await fresh(BASE + ROUTES.features[lang]);
+  const o = await p.eval(`[...document.querySelectorAll("section.feat")].map(s => { const h = s.querySelector("h2").getBoundingClientRect(), v = s.querySelector(".feat__visual, .roadmap").getBoundingClientRect();
+    return { id: s.id, flip: s.classList.contains("feat--flip"), hTop: Math.round(h.top), hLeft: Math.round(h.left), vTop: Math.round(v.top), vLeft: Math.round(v.left),
+      textFirst: !!(s.querySelector("h2").compareDocumentPosition(s.querySelector(".feat__visual, .roadmap")) & Node.DOCUMENT_POSITION_FOLLOWING) }; })`);
+  assert(o.length === 6 && o.every((x) => x.textFirst), `${lang}/features @${w}: in every section the headline comes before its visual in reading order`, JSON.stringify(o.map((x) => x.id)));
+  if (w === 390) assert(o.every((x) => x.hTop < x.vTop), `${lang}/features @390: on phones, each headline and its text sit above the visual`, JSON.stringify(o));
+  else assert(o.filter((x) => x.flip).every((x) => x.vLeft < x.hLeft) && o.filter((x) => !x.flip && /belajar|akun/.test(x.id)).every((x) => x.vLeft > x.hLeft), `${lang}/features @1440: the compositions alternate (visual right, left, right)`, JSON.stringify(o));
 }
 
 phase("language switch");

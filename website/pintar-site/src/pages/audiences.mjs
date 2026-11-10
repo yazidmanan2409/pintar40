@@ -1,13 +1,15 @@
-// Untuk Siapa / Who It's For: five roles, each answering "what becomes
-// better for me?" in a headline and four short lines, beside a photograph
-// of that person at work.
+// Untuk Siapa / Who It's For: four roles and the institution as a whole,
+// each answering "what becomes better for me?" in a headline and four short
+// lines, beside an image of that situation, or, for administrators, the
+// diagram that explains their work.
 
-import { label, photo, status, demoBand, NAV_LABEL } from "../core.mjs";
+import { label, photo, demoBand, NAV_LABEL } from "../core.mjs";
+import { roles as rolesDiagram } from "../diagrams.mjs";
 
 export default function audiences(c) {
   const t = c.t;
   const roles = [
-    { id: "peserta-didik", photo: "P2", role: t("Peserta didik", "Learners"), who: t("Siswa, mahasiswa, dan peserta pelatihan", "School pupils, students and trainees"),
+    { id: "peserta-didik", photo: "P3", role: t("Peserta didik", "Learners"), who: t("Siswa, mahasiswa, dan peserta pelatihan", "School pupils, students and trainees"),
       h: t("Tahu apa yang perlu <em>dikerjakan berikutnya.</em>", "Know what <em>to do next.</em>"),
       items: t([
         ["Tugas dan langkah berikutnya", "terlihat di satu halaman."],
@@ -20,7 +22,7 @@ export default function audiences(c) {
         ["Their own results by learning objective,", "without rankings or comparison with classmates."],
         ["Certificates", "whose authenticity others can check."],
       ]) },
-    { id: "pendidik", photo: "P3", role: t("Pendidik", "Educators"), who: t("Guru, dosen, dan fasilitator", "Teachers, lecturers and facilitators"),
+    { id: "pendidik", photo: "P2", role: t("Pendidik", "Educators"), who: t("Guru, dosen, dan fasilitator", "Teachers, lecturers and facilitators"),
       h: t("Tahu apa yang perlu diulang besok, <em>dan untuk siapa.</em>", "Know what to revisit tomorrow, <em>and for whom.</em>"),
       items: t([
         ["Bagian dan soal yang sulit bagi kelas,", "termasuk pilihan jawaban yang paling banyak dipilih."],
@@ -37,16 +39,16 @@ export default function audiences(c) {
       h: t("Melihat pola, <em>bukan menebak.</em>", "See patterns <em>instead of guessing.</em>"),
       items: t([
         ["Pola penguasaan", "di kelas-kelas dalam wewenang Anda."],
-        ["Kesiapan bukti:", "angka mana yang sudah memenuhi ambang untuk ditafsirkan."],
+        ["Angka yang jelas dasarnya:", "ditampilkan bila datanya cukup, dengan keterangan bila belum."],
         ["Ringkasan kelas dan sekolah", "yang siap dicetak untuk rapat."],
         ["Membuka catatan satu peserta didik", "hanya dengan sengaja, dan tindakan itu tercatat."],
       ], [
         ["Patterns of mastery", "across the classes you are responsible for."],
-        ["Evidence readiness:", "which figures meet the minimum to be interpreted."],
+        ["Figures with a clear basis:", "shown when there is enough data, with a note when there is not."],
         ["Class and school summaries", "ready to print for a meeting."],
         ["Opening one learner’s record", "only deliberately, and the action is recorded."],
       ]) },
-    { id: "administrator", photo: "P5", role: t("Administrator", "Administrators"), who: t("Operator sekolah dan admin institusi", "School operators and institution administrators"),
+    { id: "administrator", visual: "roles", role: t("Administrator", "Administrators"), who: t("Operator sekolah dan admin institusi", "School operators and institution administrators"),
       h: t("Mengelola akses, <em>bukan keputusan belajar.</em>", "Manage access, <em>not learning decisions.</em>"),
       items: t([
         ["Akun, kelas, rombel, dan peran", "di satu tempat."],
@@ -59,7 +61,7 @@ export default function audiences(c) {
         ["Transfers, moving up and retirement", "without losing records that need to be kept."],
         ["Consequential changes", "record who, what, when and why."],
       ]) },
-    { id: "institusi", photo: "P6", role: t("Institusi", "Institutions"), who: t("Yayasan, pimpinan institusi, dan pengambil keputusan", "Foundations, institutional leaders and decision-makers"),
+    { id: "institusi", photo: "P5", role: t("Institusi secara keseluruhan", "The institution as a whole"), who: t("Yayasan, badan pengelola, dan pimpinan institusi", "Foundations, governing bodies and institutional leaders"),
       h: t("Catatan belajar yang <em>dapat dijelaskan.</em>", "A learning record <em>that can be explained.</em>"),
       items: t([
         ["Materi bersama,", "ditambah materi milik institusi sendiri."],
@@ -78,17 +80,17 @@ export default function audiences(c) {
 <section class="page-hero" aria-labelledby="aud-hero-h">
   <div class="wrap" data-reveal-group>
     ${label("", NAV_LABEL.audiences[c.lang])}
-    <h1 class="h1" id="aud-hero-h" data-reveal>${t("Untuk setiap peran <em>di institusi.</em>", "For every role <em>in an institution.</em>")}</h1>
+    <h1 class="h1" id="aud-hero-h" data-reveal>${t("Untuk setiap orang <em>yang terlibat dalam belajar.</em>", "For everyone <em>involved in learning.</em>")}</h1>
     <div class="page-hero__aside" data-reveal>
-      <p class="lead">${t("Sekolah, perguruan tinggi, dan program pelatihan. Lima peran, masing-masing dengan manfaat yang nyata.", "Schools, universities and training programmes. Five roles, each with a practical benefit.")}</p>
+      <p class="lead">${t("Sekolah, perguruan tinggi, dan program pelatihan. Empat peran, dan institusi secara keseluruhan, masing-masing dengan manfaat yang nyata.", "Schools, universities and training programmes. Four roles, and the institution as a whole, each with a practical benefit.")}</p>
     </div>
   </div>
-  <nav class="wrap" style="margin-top: var(--s-8)" aria-label="${t("Peran", "Roles")}"><div class="anchors">${roles.map((r) => `<a href="#${r.id}">${r.role}</a>`).join("")}</div></nav>
+  <nav class="wrap" style="margin-top: var(--s-8)" aria-label="${t("Kelompok", "Groups")}"><div class="anchors">${roles.map((r) => `<a href="#${r.id}">${r.role}</a>`).join("")}</div></nav>
 </section>
 
 ${roles.map((r, i) => `<section class="aud${i % 2 ? " aud--flip" : ""}" id="${r.id}" aria-labelledby="${r.id}-h">
   <div class="wrap cols">
-    <div class="aud__photo" style="--span:5${i % 2 ? ";--start:8" : ""}" data-reveal>${photo(c, r.photo)}</div>
+    <div class="aud__photo" style="--span:5${i % 2 ? ";--start:8" : ""}" data-reveal>${r.photo ? photo(c, r.photo, r.photo === "P5" ? { r: "4/3" } : {}) : rolesDiagram(c)}</div>
     <div style="--span:6;--start:${i % 2 ? 1 : 7}" data-reveal-group>
       <p class="aud__role">${String(i + 1).padStart(2, "0")} · ${r.role}</p>
       <p class="aud__who">${r.who}</p>
@@ -102,7 +104,7 @@ ${demoBand(c, { heading: t("Lihat PINTAR <em>dari sudut pandang Anda.</em>", "Se
 `;
   return {
     title: t("Untuk Siapa — PINTAR", "Who It’s For — PINTAR"),
-    description: t("Manfaat PINTAR bagi peserta didik, pendidik, pimpinan, administrator, dan institusi.", "What PINTAR offers learners, educators, leadership, administrators and institutions."),
+    description: t("Manfaat PINTAR bagi peserta didik, pendidik, pimpinan, administrator, dan institusi secara keseluruhan.", "What PINTAR offers learners, educators, leadership, administrators and the institution as a whole."),
     body,
   };
 }

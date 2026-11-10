@@ -18,6 +18,7 @@ has occurred. Every claim presented as available is listed in
 | `build.mjs` | Writes `site/**/index.html` from `src/` (no dependencies) | No |
 | `server/` | Contact form configuration example and the daily cleanup job, kept **outside** the public folder | Copied by hand, see below |
 | `review/` | The owner's review document: changes, launch-claims checklist, asset plan, unresolved facts | **Never** |
+| `images/` | Image originals and their generation prompts (`images/README.md`); `node images.mjs` turns them into WebP in `site/assets/img/` | **Never** (the WebP files in `site/` are) |
 | `verify/` | Acceptance checks | No |
 
 ## Build and view
@@ -47,6 +48,20 @@ Every link is relative, so the site works from any folder.
 Type is self-hosted: Inter (variable, with the optical-size axis, so headlines
 use Inter Display) and IBM Plex Mono 500 for small labels, both under the SIL
 Open Font License (`site/assets/fonts/OFL-*.txt`). The site sets no cookies.
+
+## Images
+
+Five image slots (P1–P5, defined in `src/core.mjs`). Each declares its source:
+AI-generated illustration, licensed photograph, or product screenshot, and the
+page labels it accordingly. Generated images are never presented as PINTAR users
+or partner institutions, and no product screenshot is simulated. Until a slot has
+an image, it shows a labelled placeholder with the brief.
+
+```
+# save the original as website/pintar-site/images/P1.png (or .jpg/.webp), then:
+node website/pintar-site/images.mjs   # WebP at 640, 1024, 1600 (and 2400) px, metadata removed; needs ffmpeg
+node website/pintar-site/build.mjs
+```
 
 ## Contact form
 
@@ -89,7 +104,7 @@ To change what is caught, edit the lists. Then run the cases.
 
 ```
 php  website/pintar-site/verify/moderation-cases.php   # 47 moderation cases, ID and EN
-node website/pintar-site/verify/check.mjs              # 1076 browser and server checks (needs php and Chromium)
+node website/pintar-site/verify/check.mjs              # 1178 browser and server checks (needs php and Chromium)
 ```
 
 `check.mjs` covers:
@@ -97,7 +112,9 @@ node website/pintar-site/verify/check.mjs              # 1076 browser and server
 - **Build and pages:** the build is current; every page exists in both languages with the right `lang`, one `h1`, a title, a description, `noindex` and the review strip; both language switches (header and footer) land on the same page.
 - **Launch wording:** no «release verification» or «planned» labels anywhere; future direction is marked; the AI workflow has five steps including the educator's decision and the usual approval.
 - **Footer and demo:** no language or company column; ©, email, Contact / Privacy / Terms and ID | EN; no footer demo link; on the homepage, only the header and closing demo invitations.
-- **Reading order:** the cycle's seven stages and return keep their document order, laid out as a serpentine at 1440 px and one column at 390 px.
+- **Reading order:** the cycle's seven stages and return keep their document order, laid out as a serpentine at 1440 px and one column at 390 px; on Features every headline precedes its visual, and sits above it on phones.
+- **Reading comfort and diagrams:** body text in feature and audience sections is at least 15 px, line height 1.4, at most 40 em wide; no diagram overflows its column.
+- **Story and accuracy:** the hero headline and the completed class panel (sample data, what each percentage measures, learner counts, the educator's decision set apart); the evidence thread on Home and Why; no availability chips on current features; no internal-review phrasing in public copy; every image declares its source.
 - **Links and requests:** links and assets are relative and real, and nothing is requested from another host.
 - **Layout and accessibility:** contrast is measured; no text is under 14 px; controls are 44 px; there is no sideways overflow from 320 to 1440 px; every planned photograph has its alternative text.
 - **Motion:** reduced motion and no-JavaScript hide nothing; with motion allowed, every entrance completes and nothing loops.
@@ -105,7 +122,7 @@ node website/pintar-site/verify/check.mjs              # 1076 browser and server
 - **Contact form:** the full journey in both languages, in the browser and over HTTP, including moderation, rate limit, honeypot, origin, header injection, and a failed delivery followed by a real retry.
 - **Storage:** no cookie and nothing stored on the device.
 
-It has been proved able to fail: planted faults were each caught. They were a removed rule, an echoed refusal, low contrast, a stale build, local storage, a disabled rate limit, a missing consent check, a message remembered before sending, a footer demo link, swapped cycle positions and an old «planned» label.
+It has been proved able to fail: planted faults were each caught. They were a removed rule, an echoed refusal, low contrast, a stale build, local storage, a disabled rate limit, a missing consent check, a message remembered before sending, a footer demo link, swapped cycle positions, an old «planned» label, internal-review wording, the educator's note merged into the report, and a visual placed before its headline.
 
 ## Before publication
 

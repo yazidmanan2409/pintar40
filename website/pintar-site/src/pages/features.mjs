@@ -1,152 +1,149 @@
-// Fitur / Features: what 4.0 provides (the foundation, in release
-// verification), what 4.1 plans, and a brief look further ahead. Each
-// chapter starts with what an educator or learner can see and do, then the
-// safeguards behind it. Boundaries between versions are stated where a
-// reader could otherwise blur them.
+// Fitur / Features: what people can accomplish with PINTAR 4.1, one
+// capability per section. Each section reads the way Who It's For does: a
+// label, a sensibly sized headline, the explanation directly under it, a few
+// well-spaced benefit rows, and one focal visual. The compositions vary
+// (visual right, visual left, full-width diagram, a band) within one system.
+// Version history and the future direction sit together at the end.
 
-import { label, status, demoBand, NAV_LABEL } from "../core.mjs";
-import { journey, canonical, lifecycle, whoSees, roles, aiFlow, handoff } from "../diagrams.mjs";
+import { label, demoBand, NAV_LABEL } from "../core.mjs";
+import { journey, reportView, lifecycle, roles, aiFlow, roadmap } from "../diagrams.mjs";
 
 export default function features(c) {
   const t = c.t;
-  const facts = (rows) => `<ul class="facts">${rows.map(([b, d]) => `<li><span><b>${b}</b> ${d}</span></li>`).join("")}</ul>`;
-  const chapter = (letter, id, heading, lead, diagram, rows) => `<section class="chapter" id="${id}" aria-labelledby="${id}-h">
-  <div class="wrap">
-    <div class="chapter__head" data-reveal-group>
-      <div><p class="chapter__meta"><span class="chapter__letter" aria-hidden="true">${letter}</span>${status(c, "available")}</p><h2 class="h2" id="${id}-h" data-reveal>${heading}</h2></div>
-      <p class="lead" data-reveal>${lead}</p>
-    </div>
-    ${diagram}
-    ${facts(rows)}
-  </div>
-</section>`;
+  const isNew = `<span class="tag">${t("Baru di 4.1", "New in 4.1")}</span>`;
+  const rows = (items) => `<ol class="aud__list feat__list">${items.map(([b, d, n], k) => `<li data-reveal><span>${String(k + 1).padStart(2, "0")}</span><span><b>${b}</b> ${d}${n ? ` ${isNew}` : ""}</span></li>`).join("")}</ol>`;
+  const head = (n, key, lab, h, intro, extra = "") => `<p class="aud__role">${n} · ${lab}${extra}</p>
+      <h2 class="h2 feat__h" id="${key}-h" data-reveal>${h}</h2>
+      ${intro ? `<p class="feat__intro" data-reveal>${intro}</p>` : ""}`;
+
+  const S = {
+    learn: { id: "belajar-mengajar", lab: t("Belajar dan mengajar", "Learning and teaching") },
+    report: { id: "laporan-asesmen", lab: t("Laporan dan asesmen", "Reports and assessment") },
+    studio: { id: "studio-konten", lab: t("Studio Konten", "Content Studio") },
+    acct: { id: "akun-institusi", lab: t("Akun dan institusi", "Accounts and institutions") },
+    ai: { id: "draf-ai", lab: t("Draf soal dengan bantuan AI", "AI-assisted question drafts") },
+    ahead: { id: "arah", lab: t("Ke depan", "What comes next") },
+  };
 
   const body = `
 <section class="page-hero" aria-labelledby="feat-hero-h">
   <div class="wrap" data-reveal-group>
     ${label("", NAV_LABEL.features[c.lang])}
-    <h1 class="h1" id="feat-hero-h" data-reveal>${t("Fondasi yang kokoh, <em>dan bantuan yang tepat.</em>", "A sound foundation, <em>and the right kind of help.</em>")}</h1>
+    <h1 class="h1" id="feat-hero-h" data-reveal>${t("Yang dapat Anda kerjakan <em>dengan PINTAR.</em>", "What you can do <em>with PINTAR.</em>")}</h1>
     <div class="page-hero__aside" data-reveal>
-      <p class="lead">${t("PINTAR 4.1: fondasi 4.0 untuk belajar dan mengajar, laporan dan asesmen, materi, serta akun dan institusi, ditambah bantuan AI untuk menyusun soal dan kesinambungan antarperangkat.", "PINTAR 4.1: the 4.0 foundation for learning and teaching, reports and assessment, material, and accounts and institutions, plus AI help with writing questions and continuity across devices.")}</p>
-      <div>
-        <div class="legend">${status(c, "available", { label: t("4.0 dan 4.1 · Tersedia", "4.0 and 4.1 · Available") })}${status(c, "direction", { label: t("4.5 dan 5.0 · Arah ke depan", "4.5 and 5.0 · Future direction"), note: false })}</div>
-      </div>
+      <p class="lead">${t("Peserta didik belajar dengan langkah yang jelas, pendidik memahami buktinya, dan institusi menjaga materi serta akunnya tetap tertata.", "Learners work with a clear next step, educators understand the evidence, and institutions keep their material and accounts in order.")}</p>
     </div>
+  </div>
+  <nav class="wrap" style="margin-top: var(--s-8)" aria-label="${t("Isi halaman", "On this page")}"><div class="anchors">${Object.values(S).map((x) => `<a href="#${x.id}">${x.lab}</a>`).join("")}</div></nav>
+</section>
+
+<section class="feat" id="${S.learn.id}" aria-labelledby="${S.learn.id}-h">
+  <div class="wrap cols">
+    <div class="feat__text" style="--span:5" data-reveal-group>
+      ${head("01", S.learn.id, S.learn.lab, t("Setiap peserta didik tahu <em>langkah berikutnya.</em>", "Every learner knows <em>the next step.</em>"),
+        t("Peserta didik melihat tugasnya dan apa yang perlu dikerjakan berikutnya. Pendidik menugaskan materi, melihatnya seperti yang dilihat peserta didik, lalu melihat hasilnya.", "Learners see their assignments and what to do next. Educators assign material, see it as learners will, then see the results."))}
+      ${rows(t([
+        ["Titik mulai yang jelas:", "Pemetaan Awal, lalu Peta Bacaan Personal yang menyarankan urutan bacaan awal."],
+        ["Bantuan bertahap", "saat belajar: arah berpikir lebih dulu, lalu langkah demi langkah."],
+        ["Melanjutkan di perangkat lain", "dengan kode sekali pakai, tanpa membagikan kata sandi.", true],
+        ["Kelas, rombel, dan periode", "yang tertata, juga untuk institusi besar."],
+      ], [
+        ["A clear starting point:", "the Initial Mapping, then a Personal Reading Map that suggests where to start reading."],
+        ["Step-by-step help", "while learning: a direction to think in first, then one step at a time."],
+        ["Continue on another device", "with a single-use code, without sharing a password.", true],
+        ["Classes, groups and periods", "kept in order, at any scale."],
+      ]))}
+    </div>
+    <div class="feat__visual" style="--span:6;--start:7">${journey(c)}</div>
   </div>
 </section>
 
-${chapter("A", "belajar-mengajar", t("Langkah berikutnya <em>terlihat jelas.</em>", "The next step <em>is clear.</em>"),
-  t("Peserta didik melihat tugasnya dan apa yang perlu dikerjakan berikutnya. Pendidik memberikan materi kepada kelas, melihatnya seperti yang akan dilihat peserta didik, lalu melihat hasilnya.", "Learners see their assignments and what to do next. Educators give material to a class, see it as learners will see it, then see the results."),
-  journey(c),
-  t([
-    ["Pemetaan Awal dan Peta Bacaan Personal", "memberi titik mulai dan urutan bacaan awal. Penyesuaian jalur belajar yang terus-menerus bukan bagian dari 4.0."],
-    ["Bantuan bertahap", "saat belajar, sebelum Uji Penguasaan."],
-    ["Kelas, rombel, dan periode", "yang tertata, juga untuk institusi besar."],
-    ["Pengembangan profesional pendidik:", "keikutsertaan dalam program pelatihan, terpisah dari hasil akademik. Perjalanan pertumbuhan pendidik adalah arah ke depan di 5.0."],
-  ], [
-    ["The Initial Mapping and the Personal Reading Map", "give a starting point and an initial reading order. Continuously adapting each learner’s path is not part of 4.0."],
-    ["Step-by-step help", "while learning, before the Mastery Check."],
-    ["Classes, groups and periods", "kept in order, at institutional scale."],
-    ["Professional development for educators:", "taking part in training programmes, kept apart from academic results. Educator growth journeys are a future direction, for 5.0."],
-  ]))}
+<section class="feat feat--flip" id="${S.report.id}" aria-labelledby="${S.report.id}-h">
+  <div class="wrap cols">
+    <div class="feat__text" style="--span:5;--start:8" data-reveal-group>
+      ${head("02", S.report.id, S.report.lab, t("Laporan yang membantu <em>menyiapkan pelajaran berikutnya.</em>", "Reports that help <em>prepare the next lesson.</em>"),
+        t("Pendidik melihat tujuan mana yang sudah kuat, soal mana yang sulit, dan jawaban yang paling sering dipilih. Pimpinan melihat pola di kelas-kelas dalam wewenangnya. Tanpa peringkat.", "Educators see which objectives are strong, which questions were hard and which answers were chosen most. Leaders see patterns across the classes they are responsible for. No rankings."))}
+      ${rows(t([
+        ["Laporan per soal:", "berapa yang menjawab benar dan jawaban mana yang dipilih."],
+        ["Angka yang jelas dasarnya:", "bila datanya belum cukup, laporan mengatakannya."],
+        ["Satu pengerjaan, satu hasil resmi,", "dengan aturan penilaian yang tercatat."],
+        ["Laporan siap cetak A4", "dan sertifikat yang keasliannya dapat diperiksa."],
+      ], [
+        ["Question-level reports:", "how many answered correctly and which answers were chosen."],
+        ["Figures with a clear basis:", "when there is not yet enough data, the report says so."],
+        ["One attempt, one official result,", "with its scoring rules recorded."],
+        ["A4-ready reports", "and certificates whose authenticity can be checked."],
+      ]))}
+    </div>
+    <div class="feat__visual" style="--span:6;--start:1">${reportView(c)}</div>
+  </div>
+</section>
 
-${chapter("B", "laporan-asesmen", t("Apa yang sudah bisa disimpulkan, <em>untuk setiap peran.</em>", "What can be concluded, <em>for each role.</em>"),
-  t("Laporan menunjukkan penguasaan, soal yang sulit, dan peserta didik yang mungkin perlu bantuan, kepada orang yang berwenang melihatnya, tanpa peringkat.", "Reports show mastery, hard questions and learners who may need help, to the people entitled to see them, without rankings."),
-  whoSees(c),
-  t([
-    ["Laporan per soal:", "berapa yang menjawab tepat dan pilihan mana yang dipilih. Penilaian mutu soal (kesehatan soal) adalah arah ke depan di 4.5."],
-    ["Angka ditahan", "bila datanya di bawah ambang sampel minimum metrik itu."],
-    ["Satu pengerjaan, satu hasil resmi,", "dengan aturan penilaian yang tercatat sehingga hasilnya dapat dihitung ulang."],
-    ["Laporan siap cetak A4, sertifikat dengan pemeriksaan keaslian publik,", "dan Kartu Digital."],
-  ], [
-    ["Question-level reporting:", "how many answered correctly and which options were chosen. Judging question quality (question health) is a future direction, for 4.5."],
-    ["Figures are held back", "when the data falls below that metric’s minimum sample."],
-    ["One attempt, one official result,", "with the scoring rules recorded so the result can be recalculated."],
-    ["A4-ready reports, certificates with a public authenticity check,", "and a Digital Card."],
-  ]))}
-
-${chapter("C", "materi", t("Materi yang ditinjau <em>sebelum dipakai.</em>", "Material reviewed <em>before it is used.</em>"),
-  t("Studio Konten dipakai untuk menyusun, meninjau, dan merilis materi. Materi bersama dapat dipakai oleh institusi yang diberi izin, dan setiap institusi dapat menambahkan materinya sendiri.", "The Content Studio is where material is prepared, reviewed and released. Shared material can be used by institutions with permission, and each institution can add its own."),
-  `<div class="cols" style="row-gap: var(--s-7)"><div style="--span:6">${canonical(c)}</div><div style="--span:5;--start:8">${lifecycle(c)}</div></div>`,
-  t([
-    ["Sumber tercatat:", "buku, edisi, dan halamannya, beserta izin pemakaiannya."],
-    ["Ditinjau orang kedua", "sebelum dirilis."],
-    ["Versi yang dirilis dijaga;", "koreksi menjadi versi baru. Di 4.1, setiap soal juga memiliki riwayat rinci (lihat di bawah)."],
-    ["Materi siap pakai", "untuk mata pelajaran dan jenjang tertentu dibicarakan dengan setiap institusi; ketersediaannya tidak dijanjikan di sini."],
-  ], [
-    ["Sources recorded:", "the book, edition and pages, with the permission to use them."],
-    ["Reviewed by a second person", "before release."],
-    ["Released versions are kept;", "corrections become new versions. In 4.1 every question also has a detailed history (see below)."],
-    ["Ready-to-use material", "for particular subjects and levels is agreed with each institution; its availability is not promised here."],
-  ]))}
-
-${chapter("D", "akun-institusi", t("Akun yang mengikuti orangnya, <em>bukan sebaliknya.</em>", "Accounts that follow people, <em>not the other way round.</em>"),
-  t("Satu orang dapat belajar, mengajar, dan mengelola di tempat yang berbeda. Institusi menyiapkan akunnya, dan setiap tindakan diperiksa terhadap peran orang itu di tempat ia sedang bekerja.", "One person can learn, teach and manage in different places. The institution sets up the account, and each action is checked against that person’s role where they are working."),
-  roles(c),
-  t([
-    ["Akun dibuat oleh institusi;", "PINTAR tidak menyediakan pendaftaran mandiri."],
-    ["Kartu kelas", "untuk peserta didik, hanya untuk belajar."],
-    ["Pindah kelas, naik kelas, pindah sekolah, dan purnatugas", "tanpa kehilangan catatan yang perlu dipertahankan."],
-    ["Pencabutan akses", "dirancang berlaku pada permintaan berikutnya."],
-  ], [
-    ["Accounts are created by the institution;", "PINTAR offers no self sign-up."],
-    ["Class cards", "for learners, for learning only."],
-    ["Class changes, moving up, school transfers and retirement", "without losing records that need to be kept."],
-    ["Removed access", "is designed to take effect from the next request."],
-  ]))}
-
-<section class="section section--sunk" id="berikutnya" aria-labelledby="next-h">
+<section class="feat feat--wide" id="${S.studio.id}" aria-labelledby="${S.studio.id}-h">
   <div class="wrap">
-    <div class="section-head section-head--split" data-reveal-group>
-      <div><div class="caps__head">${label("", t("Baru di 4.1", "New in 4.1"))}${status(c, "available")}</div>
-      <h2 class="h2" id="next-h" data-reveal>${t("Bantuan yang tetap <em>di tangan pendidik.</em>", "Help that stays <em>in educators’ hands.</em>")}</h2></div>
-      <p class="quote" data-reveal>${t("AI membantu.<br>Pendidik memutuskan.", "AI assists.<br>Educators decide.")}</p>
+    <div class="feat__text feat__text--split" data-reveal-group>
+      <div>${head("03", S.studio.id, S.studio.lab, t("Materi yang ditinjau, <em>dan tetap dapat dijelaskan.</em>", "Material that is reviewed, <em>and stays explainable.</em>"), "")}</div>
+      <p class="feat__intro" data-reveal>${t("Di Studio Konten, materi disusun, ditinjau orang kedua, lalu dirilis. Institusi yang diberi izin memakai materi bersama yang sama, dan dapat menambahkan materinya sendiri.", "In the Content Studio, material is prepared, reviewed by a second person, then released. Institutions with permission use the same shared material, and can add their own.")}</p>
     </div>
-    <div class="cols" style="row-gap: var(--s-9)">
-      <div style="--span:12">
-        <h3 class="h3" style="margin-bottom: var(--s-3)">${t("Draf soal pilihan ganda dengan bantuan AI", "AI-assisted multiple-choice drafts")}</h3>
-        <p class="body measure" style="margin-bottom: var(--s-6)">${t("Untuk menghemat waktu menyusun soal, bukan untuk menggantikan penilaian pendidik.", "To save time writing questions, not to replace an educator’s judgement.")}</p>
-        ${aiFlow(c)}
-      </div>
-      <div style="--span:5">
-        <h3 class="h3" style="margin-bottom: var(--s-3)">${t("Riwayat setiap soal", "A history for every question")}</h3>
-        <p class="body">${t("Melengkapi versi rilis dari 4.0: setiap draf, revisi, koreksi, dan pengganti soal tercatat, termasuk catatan pendidik tentang miskonsepsi yang ingin diuji. Hasil lama tetap terhubung ke versi soal yang dipakai.", "Building on the released versions from 4.0: every draft, revision, correction and replacement of a question is recorded, including an educator’s note on the misconception it is meant to test. Earlier results stay linked to the version used.")}</p>
-      </div>
-      <div style="--span:6;--start:7">
-        <h3 class="h3" style="margin-bottom: var(--s-3)">${t("Melanjutkan di perangkat lain", "Continuing on another device")}</h3>
-        <p class="body" style="margin-bottom: var(--s-5)">${t("Mulai di komputer sekolah, lanjutkan di perangkat lain, tanpa membagikan kata sandi.", "Start on a school computer and carry on elsewhere, without sharing a password.")}</p>
-        ${handoff(c)}
-      </div>
-    </div>
+    <div class="feat__visual">${lifecycle(c)}</div>
+    <ul class="feat__trio">${t([
+      ["Sumber tercatat", "Buku, edisi, dan halamannya, beserta izin pemakaiannya."],
+      ["Versi yang dirilis dijaga", "Koreksi menjadi versi baru, sehingga hasil yang lama tetap dapat dijelaskan."],
+      ["Riwayat setiap soal", "Setiap draf, revisi, dan koreksi tercatat, termasuk catatan pendidik tentang miskonsepsi yang ingin diuji.", true],
+    ], [
+      ["Sources recorded", "The book, edition and pages, with permission to use them."],
+      ["Released versions kept", "A correction becomes a new version, so earlier results can still be explained."],
+      ["A history for every question", "Every draft, revision and correction is recorded, including the educator’s note on the misconception it is meant to test.", true],
+    ]).map(([h, d, n]) => `<li data-reveal><h3>${h}${n ? ` ${isNew}` : ""}</h3><p>${d}</p></li>`).join("")}</ul>
   </div>
 </section>
 
-<section class="section" aria-labelledby="later-h">
+<section class="feat" id="${S.acct.id}" aria-labelledby="${S.acct.id}-h">
+  <div class="wrap cols">
+    <div class="feat__text" style="--span:5" data-reveal-group>
+      ${head("04", S.acct.id, S.acct.lab, t("Akun yang mengikuti orangnya, <em>dari tahun ke tahun.</em>", "Accounts that follow people, <em>year after year.</em>"),
+        t("Satu orang dapat belajar, mengajar, dan mengelola di tempat yang berbeda dengan satu akun. Institusi menyiapkan akunnya dan menugaskan perannya.", "One person can learn, teach and manage in different places with one account. The institution sets up the account and assigns the roles."))}
+      ${rows(t([
+        ["Akun dibuat oleh institusi,", "dengan peran yang ditugaskan di setiap tempat."],
+        ["Kartu kelas", "untuk masuk belajar, yang dapat diganti bila hilang."],
+        ["Pindah kelas, naik kelas, pindah sekolah, dan purnatugas", "tanpa kehilangan catatan yang perlu dipertahankan."],
+        ["Program pengembangan profesional", "yang diikuti pendidik, terpisah dari hasil akademik."],
+      ], [
+        ["Accounts are created by the institution,", "with roles assigned in each place."],
+        ["Class cards", "for signing in to learn, replaceable if lost."],
+        ["Class changes, moving up, school transfers and retirement", "without losing records that need to be kept."],
+        ["Professional-development programmes", "that educators take part in, kept apart from academic results."],
+      ]))}
+    </div>
+    <div class="feat__visual" style="--span:6;--start:7">${roles(c)}</div>
+  </div>
+</section>
+
+<section class="feat feat--band section--sunk" id="${S.ai.id}" aria-labelledby="${S.ai.id}-h">
   <div class="wrap">
-    <div class="section-head section-head--split" data-reveal-group>
-      <div><div class="caps__head">${label("", t("Lebih jauh", "Further ahead"))}${status(c, "direction")}</div>
-      <h2 class="h2" id="later-h" data-reveal>${t("Arah ke depan, <em>bukan janji.</em>", "A future direction, <em>not a promise.</em>")}</h2></div>
-      <p class="lead" data-reveal>${t("Tidak ada tanggal atau janji ketersediaan di sini.", "No dates or availability are promised here.")}</p>
+    <div class="feat__text feat__text--split" data-reveal-group>
+      <div>${head("05", S.ai.id, S.ai.lab, t("AI membantu. <em>Pendidik memutuskan.</em>", "AI assists. <em>Educators decide.</em>"), "", ` ${isNew}`)}</div>
+      <p class="feat__intro" data-reveal>${t("AI menyusun draf soal pilihan ganda dari sumber dan tujuan yang dipilih pendidik, untuk menghemat waktu. Pendidik memeriksa, mengubah, atau menolaknya, dan soal yang diterima tetap ditinjau orang kedua sebelum dirilis.", "AI drafts multiple-choice questions from the source and objective an educator chooses, to save time. The educator checks, edits or rejects them, and an accepted question is still reviewed by a second person before release.")}</p>
     </div>
-    <div class="later">
-      <div data-reveal><span class="status status--dash"><span class="status__mark" aria-hidden="true"></span><span class="status__label">4.5</span></span>
-        <h3>${t("Memahami", "Understand")}</h3>
-        <p>${t("Quiet Intelligence: sedikit pengamatan yang dapat dijelaskan dari bukti, kesehatan soal, dan perbandingan dari waktu ke waktu.", "Quiet Intelligence: a few observations drawn from the evidence and explained, question health, and comparisons over time.")}</p></div>
-      <div data-reveal><span class="status status--dash"><span class="status__mark" aria-hidden="true"></span><span class="status__label">5.0</span></span>
-        <h3>${t("Bertindak dan bertumbuh", "Act and grow")}</h3>
-        <p>${t("Perjalanan pertumbuhan pendidik, jalur belajar yang lebih menyesuaikan, dan intervensi yang direncanakan lalu diukur.", "Educator growth journeys, more adaptive learning paths, and interventions that are planned and then measured.")}</p></div>
-      <div data-reveal><span class="status status--dash"><span class="status__mark" aria-hidden="true"></span><span class="status__label">5.0+</span></span>
-        <h3>${t("Selanjutnya", "Beyond")}</h3>
-        <p>${t("Kemungkinan lain hanya dipertimbangkan bila fondasinya tetap terjaga.", "Anything further is considered only while the foundation holds.")}</p></div>
-    </div>
+    <div class="feat__visual">${aiFlow(c)}</div>
   </div>
 </section>
 
-${demoBand(c, { heading: t("Lihat fondasinya <em>secara langsung.</em>", "See the foundation <em>for yourself.</em>") })}
+<section class="feat feat--wide" id="${S.ahead.id}" aria-labelledby="${S.ahead.id}-h">
+  <div class="wrap">
+    <div class="feat__text feat__text--split" data-reveal-group>
+      <div>${head("06", S.ahead.id, t("Versi dan arah ke depan", "Versions and the future direction"), t("Hari ini, <em>dan ke depan.</em>", "Today, <em>and what comes next.</em>"), "")}</div>
+      <p class="feat__intro" data-reveal>${t("PINTAR 4.1 menggabungkan fondasi 4.0 dengan bantuan baru untuk menyusun konten. Arah ke depan belum memiliki tanggal dan dapat berubah.", "PINTAR 4.1 brings together the 4.0 foundation and new help with preparing content. The future direction has no dates yet and may change.")}</p>
+    </div>
+    ${roadmap(c)}
+  </div>
+</section>
+
+${demoBand(c, { heading: t("Lihat semuanya <em>bekerja bersama.</em>", "See it all <em>working together.</em>") })}
 `;
   return {
     title: t("Fitur — PINTAR 4.1", "Features — PINTAR 4.1"),
-    description: t("PINTAR 4.1: belajar dan mengajar, laporan dan asesmen, materi, akun dan institusi, draf soal dengan bantuan AI yang ditinjau pendidik, dan kesinambungan antarperangkat. Lalu arah ke depan.", "PINTAR 4.1: learning and teaching, reports and assessment, material, accounts and institutions, AI-assisted question drafts reviewed by educators, and continuity across devices. Then the future direction."),
+    description: t("Yang dapat dikerjakan dengan PINTAR 4.1: belajar dan mengajar, laporan dan asesmen, Studio Konten, akun dan institusi, serta draf soal dengan bantuan AI yang diputuskan pendidik.", "What you can do with PINTAR 4.1: learning and teaching, reports and assessment, the Content Studio, accounts and institutions, and AI-assisted question drafts that educators decide on."),
     body,
   };
 }

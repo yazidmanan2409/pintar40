@@ -48,7 +48,7 @@ export default function contact(c) {
         <ol class="steps">
           <li><span>${t("Pilih «Minta demo» dan ceritakan peran serta institusi Anda.", "Choose «Request a demo» and tell us your role and institution.")}</span></li>
           <li><span>${t("Kami membalas untuk menyepakati waktu.", "We reply to agree a time.")}</span></li>
-          <li><span>${t("Tim kami memandu Anda melalui bagian PINTAR yang sesuai dengan peran Anda dan sudah siap ditunjukkan, dengan data contoh, lalu menjawab pertanyaan Anda.", "Our team guides you through the parts of PINTAR that matter to your role and are ready to show, with sample data, then answers your questions.")}</span></li>
+          <li><span>${t("Tim kami memandu Anda melalui PINTAR dari sudut pandang peran Anda, dengan data contoh, lalu menjawab pertanyaan Anda.", "Our team guides you through PINTAR from the point of view of your role, using sample data, then answers your questions.")}</span></li>
         </ol>
       </div>
       <div>

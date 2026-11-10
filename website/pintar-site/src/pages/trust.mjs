@@ -1,7 +1,6 @@
 // Keamanan / Trust & Security. The diagram names the safeguards; the list
-// explains each one once, with one everyday example. Nothing here is offered
-// as an audit result: these are 4.0's designed safeguards, in release
-// verification, and the page claims no certification.
+// explains each one once, with one everyday example. The page claims no
+// certification; every safeguard is on the launch-claims checklist.
 
 import { label, demoBand, NAV_LABEL } from "../core.mjs";
 import { layers, LAYERS } from "../diagrams.mjs";
@@ -16,7 +15,6 @@ export default function trust(c) {
       ${label("", NAV_LABEL.trust[c.lang])}
       <h1 class="h1" id="trust-hero-h" data-reveal>${t("Tenang di permukaan. <em>Cermat di bawahnya.</em>", "Calm on the surface. <em>Rigorous underneath.</em>")}</h1>
       <p class="lead" data-reveal>${t("Yang dilihat pengguna sengaja dibuat sederhana. Di bawahnya ada tujuh perlindungan.", "What people see is deliberately simple. Beneath it are seven safeguards.")}</p>
-      <p class="caption" data-reveal>${t("Halaman ini menjelaskan cara PINTAR melindungi data dan pekerjaan Anda. Ini bukan laporan audit.", "This page explains how PINTAR protects your data and work. It is not an audit report.")}</p>
     </div>
     <div style="--span:6;--start:7">${layers(c).replace('class="layers"', 'class="layers layers--paper"')}</div>
   </div>
@@ -35,17 +33,17 @@ export default function trust(c) {
 <section class="section section--sunk" aria-labelledby="honest-h">
   <div class="wrap">
     <div class="honest" data-reveal>
-      <h2 id="honest-h">${t("Yang tidak kami klaim.", "What we do not claim.")}</h2>
+      <h2 id="honest-h">${t("Pertanyaan keamanan dari institusi.", "Security questions from institutions.")}</h2>
       <div>
-        <p>${t("Kami tidak mencantumkan sertifikasi atau standar kepatuhan yang belum kami miliki. Bila nanti ada, kami akan menyebutkannya beserta nomor dan penerbitnya.", "We list no certification or compliance standard we do not hold. If that changes, we will name it, with its number and issuer.")}</p>
-        <p>${t("Kami tidak membuka detail teknis keamanan di halaman publik. Pertanyaan keamanan dari institusi kami jawab langsung, dalam demo atau percakapan teknis dengan tim Anda.", "We do not publish technical security detail on a public page. We answer an institution’s security questions directly, in a demonstration or a technical conversation with your team.")}</p>
+        <p>${t("Kami menjawabnya langsung, dalam demo atau percakapan teknis dengan tim TI Anda, termasuk detail teknis yang tidak kami muat di halaman publik.", "We answer them directly, in a demonstration or a technical conversation with your IT team, including technical detail we do not put on a public page.")}</p>
+        <p>${t("Sertifikasi dan standar kepatuhan hanya kami sebutkan bila kami memilikinya, beserta nomor dan penerbitnya.", "We name a certification or compliance standard only when we hold it, with its number and issuer.")}</p>
         <p>${t("Data pendidikan di dalam aplikasi PINTAR diatur oleh perjanjian dengan setiap institusi, terpisah dari situs ini.", "Educational data inside the PINTAR application is governed by the agreement with each institution, separately from this website.")} <a href="${c.href("privacy")}">${NAV_LABEL.privacy[c.lang]}</a></p>
       </div>
     </div>
   </div>
 </section>
 
-${demoBand(c, { heading: t("Bawa pertanyaan <em>keamanan Anda.</em>", "Bring your <em>security questions.</em>"), body: t("Dalam demo, kami menunjukkan batas akses dan catatan tindakan dengan data contoh, dan menjawab pertanyaan tim TI Anda.", "In a demonstration, we show access boundaries and recorded actions with sample data, and answer your IT team’s questions.") })}
+${demoBand(c, { heading: t("Bawa pertanyaan <em>keamanan Anda.</em>", "Bring your <em>security questions.</em>"), body: t("Demo terpandu dengan data contoh: batas akses dan catatan tindakan, ditunjukkan langsung, dan jawaban untuk pertanyaan tim TI Anda.", "A guided demonstration with sample data: access boundaries and recorded actions, shown directly, and answers to your IT team’s questions.") })}
 `;
   return {
     title: t("Keamanan — Tenang di permukaan, cermat di bawahnya", "Trust & Security — Calm on the surface, rigorous underneath"),

@@ -1,0 +1,5 @@
+# Originals stay out of the repository; only the processed WebP files in site/assets/img/ are committed.
+P*.png
+P*.jpg
+P*.jpeg
+P*.webp

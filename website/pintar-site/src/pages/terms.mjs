@@ -15,9 +15,9 @@ export default function terms(c) {
 
     ["ip", t("Kekayaan intelektual", "Intellectual property"), t(`
       <p>Nama dan tanda kata PINTAR, teks, diagram, tata letak, dan materi lain di situs ini adalah milik ${COMPANY.short} atau digunakan dengan izin, dan dilindungi peraturan perundang-undangan. ${confirm(c, "status pendaftaran merek PINTAR")}</p>
-      <p>Huruf yang dipakai situs ini (Inter dan Newsreader) dilisensikan di bawah SIL Open Font License.</p>`, `
+      <p>Huruf yang dipakai situs ini (Inter dan IBM Plex Mono) dilisensikan di bawah SIL Open Font License.</p>`, `
       <p>The PINTAR name and wordmark, and the text, diagrams, layout and other material on this website, belong to ${COMPANY.short} or are used with permission, and are protected by law. ${confirm(c, "the registration status of the PINTAR trademark")}</p>
-      <p>The typefaces used on this website (Inter and Newsreader) are licensed under the SIL Open Font License.</p>`)],
+      <p>The typefaces used on this website (Inter and IBM Plex Mono) are licensed under the SIL Open Font License.</p>`)],
 
     ["use", t("Penggunaan yang diizinkan", "Permitted use"), t(`
       <p>Anda boleh membaca, membagikan tautan, dan mencetak halaman situs ini untuk keperluan pribadi atau keperluan institusi Anda dalam menilai PINTAR. Anda tidak boleh:</p>
@@ -32,9 +32,9 @@ export default function terms(c) {
         <li>send abusive, threatening, misleading or spam messages through the contact form.</li></ul>`)],
 
     ["info", t("Informasi di situs ini", "Information on this website"), t(`
-      <p>Situs ini menjelaskan PINTAR secara umum. Kemampuan yang ditandai <b>Tersedia</b> adalah bagian dari PINTAR 4.1. Yang ditandai <b>Arah ke depan</b> (4.5, 5.0, dan selanjutnya) adalah rencana tanpa tanggal atau janji ketersediaan, dan dapat berubah. Ilustrasi konsep di situs ini memakai data rekaan dan bukan tangkapan layar produk.</p>
+      <p>Situs ini menjelaskan PINTAR 4.1 secara umum. Yang ditandai <b>Arah ke depan</b> (4.5, 5.0, dan selanjutnya) adalah rencana tanpa tanggal atau janji ketersediaan, dan dapat berubah. Ilustrasi konsep di situs ini memakai data contoh dan bukan tangkapan layar produk. Gambar yang ditandai «dibuat dengan AI» adalah ilustrasi, bukan foto pengguna atau institusi mitra PINTAR.</p>
       <p>Isi situs bukan penawaran yang mengikat. Kemampuan, ketersediaan, dan syarat layanan untuk institusi ditetapkan dalam perjanjian layanan.</p>`, `
-      <p>This website describes PINTAR in general terms. Capabilities marked <b>Available</b> are part of PINTAR 4.1. Those marked <b>Future direction</b> (4.5, 5.0 and beyond) are plans without dates or availability promises, and may change. Concept illustrations on this website use invented data and are not product screenshots.</p>
+      <p>This website describes PINTAR 4.1 in general terms. Anything marked <b>Future direction</b> (4.5, 5.0 and beyond) is a plan without dates or availability promises, and may change. Concept illustrations on this website use sample data and are not product screenshots. Images marked “AI-generated” are illustrations, not photographs of PINTAR users or partner institutions.</p>
       <p>Nothing on this website is a binding offer. Capabilities, availability and terms of service for an institution are set out in the service agreement.</p>`)],
 
     ["links", t("Tautan ke situs lain", "Links to other websites"), t(`

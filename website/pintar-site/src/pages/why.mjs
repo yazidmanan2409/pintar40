@@ -2,8 +2,8 @@
 // cycle) and the principles behind it. This page explains why; capabilities
 // and their status live on Features.
 
-import { label, photo, demoBand, NAV_LABEL } from "../core.mjs";
-import { cycle, evidenceStates } from "../diagrams.mjs";
+import { label, demoBand, NAV_LABEL } from "../core.mjs";
+import { thread, cycle, evidenceStates } from "../diagrams.mjs";
 
 export default function why(c) {
   const t = c.t;
@@ -34,10 +34,10 @@ export default function why(c) {
     ${label("", NAV_LABEL.why[c.lang])}
     <h1 class="h1" id="why-hero-h" data-reveal>${t("Keputusan pendidikan <em>layak didukung bukti.</em>", "Educational decisions <em>deserve evidence.</em>")}</h1>
     <div class="page-hero__aside" data-reveal>
-      <p class="lead">${t("Pertanyaan terpenting di kelas jarang terjawab oleh angka saja: bagian mana yang sudah dikuasai, siapa yang perlu bantuan, dan apa yang sebaiknya dilakukan berikutnya. PINTAR dibuat untuk membantu menjawabnya, dan untuk berterus terang ketika buktinya belum cukup.", "The most important questions in a class are rarely answered by numbers alone: which parts have been mastered, who needs help, and what should happen next. PINTAR is built to help answer them, and to say plainly when the evidence is not yet enough.")}</p>
+      <p class="lead">${t("Pertanyaan terpenting di kelas jarang terjawab oleh angka saja: bagian mana yang sudah dikuasai, siapa yang perlu bantuan, dan apa yang sebaiknya dilakukan berikutnya. PINTAR membantu menjawabnya, dari tujuan pembelajaran hingga langkah mengajar berikutnya.", "The most important questions in a class are rarely answered by numbers alone: which parts have been mastered, who needs help, and what should happen next. PINTAR helps answer them, from the learning objective to the next teaching step.")}</p>
     </div>
   </div>
-  <div class="wrap wrap--wide" style="margin-top: var(--s-8)" data-reveal>${photo(c, "P7")}</div>
+  <div class="wrap" style="margin-top: var(--s-9)">${thread(c)}</div>
 </section>
 
 <section class="section section--rule" aria-labelledby="obs-h">

@@ -1,61 +1,50 @@
 // The review document for the owner (English). It lives beside the site in
-// review/, links into site/, and is never uploaded. It reads the same photo
+// review/, links into site/, and is never uploaded. It reads the same image
 // list the pages use, so the asset plan cannot drift from the design.
 
-import { PHOTOS, ROUTES, NAV_LABEL, esc } from "./core.mjs";
+import { PHOTOS, ROUTES, NAV_LABEL, IMAGE_KIND, imageReady, esc } from "./core.mjs";
 
-const PH_PLAN = {
-  P1: { subject: "Teacher kneeling at two learners’ desk, reading a worksheet with them. State SMP, white-and-navy uniforms, morning daylight through louvred windows.",
-    composition: "Eye level, 35 mm, people in the right two-thirds; the left third quiet. No faces to camera.", message: "PINTAR starts with the teacher understanding a learner, not with software.",
-    use: "Home hero", source: "Commission" },
-  P2: { subject: "SMA learner studying on a home veranda, notebook beside a phone, late-afternoon light.", composition: "Portrait, three-quarter view, hands and notebook in focus.",
-    message: "Learning continues beyond the classroom, with a clear next step.", use: "Who It’s For · Learners", source: "Commission" },
-  P3: { subject: "Teacher in the staff room after lessons, reviewing results on a laptop beside a stack of exercise books.", composition: "Portrait, over-the-shoulder; the screen deliberately unreadable.",
-    message: "Evidence that helps tomorrow’s lesson.", use: "Home · Capabilities; Who It’s For · Educators", source: "Commission" },
-  P4: { subject: "Principal and deputy at a meeting table discussing a printed A4 school summary.", composition: "Landscape, table-height, the paper central and blurred.",
-    message: "Leadership sees patterns and discusses them.", use: "Who It’s For · Leadership", source: "Commission" },
-  P5: { subject: "School operator in the administration office preparing class cards at the start of the year.", composition: "Portrait, hands and cards in focus.",
-    message: "Administration done carefully, without becoming educational decision-making.", use: "Who It’s For · Administrators", source: "Commission" },
-  P6: { subject: "School courtyard in the morning before lessons; learners walking to class, shot from a distance.", composition: "Wide, high vantage, no recognisable faces.",
-    message: "The institution as a whole, over time.", use: "Home · pause; Who It’s For · Institutions", source: "Commission, or the client’s own school with consent" },
-  P7: { subject: "Close detail of a learner’s hand writing an answer on a printed initial-mapping sheet.", composition: "Macro, wide crop, shallow depth; the sheet’s text out of focus.",
-    message: "Diagnosis begins with what a learner already knows.", use: "Why PINTAR · hero", source: "Commission" },
-  P8: { subject: "A PINTAR team member guiding a deputy principal through a laptop at a school table.", composition: "Landscape, both people in profile, screen unreadable.",
-    message: "A demonstration is a guided conversation, not a sales pitch.", use: "Demo band on every page", source: "Commission" },
+// What each image does, and where. The prompts themselves are in images/README.md.
+const IMG_PLAN = {
+  P1: { message: "The situation a teacher recognises: one answer, one misunderstanding, at the desk.", use: "Home, under the hero", ratio: "3:2 generated · 2:1 desktop, 4:5 phone" },
+  P2: { message: "Evidence turning into tomorrow’s lesson.", use: "Home · Capabilities; Who It’s For · Educators", ratio: "2:3 generated · 4:5" },
+  P3: { message: "Learning continues beyond the classroom, with a clear next step.", use: "Who It’s For · Learners", ratio: "2:3 generated · 4:5" },
+  P4: { message: "Leadership discusses patterns, on paper, together.", use: "Who It’s For · Leadership", ratio: "3:2 generated · 3:2 desktop, 4:5 phone" },
+  P5: { message: "The institution as a whole, over time; a pause before Trust.", use: "Home pause; Who It’s For · The institution", ratio: "3:2 generated · 2:1 / 4:3" },
 };
 
 const DIAGRAMS = [
-  ["D0", "Class summary (concept illustration)", "Home · hero", "One class after a Mastery Check: mastery by part (by learning objective), the hardest questions with counts, and a figure held back because there is not enough data. Labelled «Ilustrasi · data rekaan».", "The proposition made concrete in the first screen, in the product’s own metric names."],
-  ["D1", "Connects", "Home · below the hero photograph", "Teaching · Learning · Assessment · Decisions, joined by “evidence you can trace”.", "The proposition in four words."],
-  ["D2", "The learning cycle (serpentine)", "Home · How it works; Why PINTAR (with questions)", "Seven stages: 1→4 across the top, 5→7 back along the bottom, and a distinct return panel under stage 1 pointing up to Diagnose. Document order is 1–7 then the return; phones show one column in that order.", "The philosophy in one picture, without inventing an eighth stage."],
-  ["D5", "Evidence states (concept illustration)", "Why PINTAR · Principles", "Average mastery on the Mastery Check, from 22 of 24 learners, meets the metric’s minimum sample and is shown; with 4 of 24 it is below the minimum and the report shows the product’s own sentence instead. No threshold number is given, because none is published.", "Too little evidence is not weakness, shown rather than told."],
-  ["D3", "Shared material", "Features · C", "One piece of shared material, two institutions, each adding its own, with learner data visible only within each.", "Sharing without leaking learner data."],
-  ["D4", "Release and correction", "Features · C", "Draft → second-person review → approved → released; send-back; version 1 kept, version 2 the correction.", "Why results stay explainable."],
-  ["D11", "Who sees what", "Features · B", "Learners, educators, leadership and certificate checkers: what each sees, and what they do not.", "Reports without rankings or over-exposure."],
-  ["D6", "One person, several roles", "Features · D", "Teaching at School A, managing at School B, learning in a professional-development programme.", "Identity and access in one picture."],
-  ["D7", "Layered cross-section", "Home · Trust (dark); Trust & Security", "The calm surface, then seven named layers. Each is explained once, with one example, in the list below it.", "“Calm on the surface. Rigorous underneath.”"],
-  ["D8", "Today and what comes next", "Home", "4.0 and 4.1: available. 4.5 and 5.0: future direction, without dates.", "An honest future, kept brief."],
-  ["D9", "AI-assisted question drafts", "Features · New in 4.1", "Educator chooses source and objective → AI drafts → drafts checked → educator decides (emphasised) → the usual second-person review, approval and release.", "“AI assists. Educators decide.”"],
-  ["D10", "Continue on another device", "Features · New in 4.1", "First device → short-lived single-use code → second device; one device saves answers at a time.", "Continuity without a shared password."],
+  ["D1", "The evidence-to-decision thread", "Home 01; Why PINTAR hero", "Learning objective → evidence → educator judgement → next teaching step, with four marks (ring, dot, diamond, arrow) and the judgement step tinted. The same marks label the hero panel and the annotated report, so the sequence is recognisable across the site.", "The organising idea, drawn once and reused, not repeated as a slogan."],
+  ["D0", "Class summary (completed)", "Home hero", "One class after a Mastery Check, told along the thread: learning objectives with % of answers correct (3 questions, 24 learners), the hardest questions with counts and the option chosen, then a separate, attributed note «Written by the educator · example» with a judgement and the next step. «Sample data»; «not a screenshot».", "The visitor recognises the situation and sees how evidence becomes tomorrow’s lesson."],
+  ["D2", "The learning cycle (serpentine)", "Home 02; Why PINTAR", "Seven stages, 1→4 across the top, 5→7 back along the bottom, and the return to Diagnose. Unchanged.", "The philosophy in one picture."],
+  ["D12", "Annotated question report", "Features · Reports and assessment", "One question’s report (answers chosen, with counts), numbered to three notes on what the educator notices. Sample data; the reading is the educator’s.", "Shows what the educator notices and how it informs their judgement, instead of an audience table."],
+  ["—", "Learning journey", "Features · Learning and teaching", "Starting point (Initial Mapping), reading order (Personal Reading Map), assigned learning and practice, the Mastery Check, the result by objective, which becomes evidence (the thread’s dot).", "Explains the learner’s path visually."],
+  ["D4", "Publication and correction", "Features · Content Studio", "Draft → reviewed by a second person → approved → released → shared use by permitted institutions (learner data stays within each); return with notes; version 1 kept, version 2 the correction.", "Reviewed material, shared use and preserved versions in one diagram."],
+  ["D6", "One person, several roles", "Features · Accounts; Who It’s For · Administrators", "One account; three places, each with the role that place assigned. Choosing a place does not grant anything; the assigned role does.", "Identity and access in one picture."],
+  ["D9", "AI-assisted question drafts", "Features · AI-assisted drafts", "Educator chooses → AI drafts → drafts checked → educator decides (the thread’s diamond) → reviewed by a second person, approved, released.", "“AI assists. Educators decide.”"],
+  ["D5", "Evidence states", "Why PINTAR · Principles", "The same figure with enough data (shown) and with too little (the product’s sentence).", "Too little evidence is not weakness."],
+  ["D7", "Layered cross-section", "Home 05 (dark); Trust", "The calm surface, then seven named safeguards.", "“Calm on the surface. Rigorous underneath.”"],
+  ["D8", "Versions and the future direction", "Features, at the end", "4.0 and 4.1 available; 4.5 and 5.0 future direction, with the boundaries (question health, growth journeys, adaptive paths) stated here once.", "History and the future kept out of the current offer’s way."],
 ];
 
 const SECTIONS = [
   ["Home", [
-    ["Hero", "Sans headline with the second clause in teal, lead, «See how it works» + D0 class panel"],
-    ["Below the hero", "P1 (21:9 / 4:5) + D1"],
-    ["01 How it works", "D2 serpentine cycle"],
-    ["02 Capabilities", "P3 + five capabilities (incl. AI-assisted drafts), marked Available"],
-    ["03 Who it’s for", "Typographic list of five roles"],
-    ["Pause", "P6"],
-    ["04 Trust & Security", "Dark band + D7 names"],
-    ["05 Today and what comes next", "D8 + «AI assists. Educators decide.»"],
-    ["Closing", "Request a demo + P8 (the second and last demo invitation; the first is the header)"],
+    ["Hero", "«Nilai menunjukkan hasil. Pemahaman menentukan langkah berikutnya.» + D0, the completed class panel"],
+    ["Under the hero", "P1, full width"],
+    ["01 From evidence to decision", "D1, the thread"],
+    ["02 How it works", "D2, the cycle"],
+    ["03 Capabilities", "P2 + five capabilities + «AI membantu. Pendidik memutuskan.»"],
+    ["04 Who it’s for", "Typographic list: four roles and foundations"],
+    ["Pause", "P5"],
+    ["05 Trust & Security", "Dark band + D7"],
+    ["06 What comes next", "Two sentences and a link to Features · Future direction"],
+    ["Closing", "Typographic demo band (the second and last demo invitation)"],
   ]],
-  ["Why PINTAR", [["Hero", "Typography + P7"], ["01 The problem", "Three observations"], ["02 Philosophy", "D2 with each stage’s question"], ["03 Principles", "Four principles + D5"], ["Closing", "Demo band + P8"]]],
-  ["Features", [["Hero", "Available / Future direction legend"], ["A Learning and teaching", "Journey strip"], ["B Reports and assessment", "D11"], ["C Material", "D3 + D4"], ["D Accounts and institutions", "D6"], ["New in 4.1", "D9 + D10"], ["Future direction", "4.5, 5.0, beyond: three short columns"], ["Closing", "Demo band + P8"]]],
-  ["Who It’s For", [["Hero", "Typography + anchor bar"], ["Five roles", "P2, P3, P4, P5, P6 with four practical benefits each"], ["Closing", "Demo band + P8"]]],
-  ["Trust & Security", [["Hero", "D7 on paper"], ["In practice", "Seven safeguards, one explanation and one example each"], ["What we do not claim", "Framed text"], ["Closing", "Demo band + P8"]]],
-  ["Contact · Privacy · Terms", [["Contact", "Typography + one form (subject preselected from demo buttons)"], ["Privacy, Terms", "Typography, contents list, draft and «to confirm» markers"]]],
+  ["Why PINTAR", [["Hero", "Typography + D1, the thread"], ["01 The problem", "Three observations"], ["02 Philosophy", "D2 with each stage’s question"], ["03 Principles", "Four principles + D5"], ["Closing", "Demo band"]]],
+  ["Features", [["Hero", "Headline, one sentence, anchor bar"], ["01 Learning and teaching", "Text left, learning journey right"], ["02 Reports and assessment", "D12 left, text right"], ["03 Content Studio", "Headline and intro, D4 full width, three short notes"], ["04 Accounts and institutions", "Text left, D6 right"], ["05 AI-assisted drafts", "Sunk band, headline «AI membantu. Pendidik memutuskan.», D9 full width"], ["06 Versions and the future direction", "D8"], ["Closing", "Demo band"]]],
+  ["Who It’s For", [["Hero", "Typography + anchor bar"], ["Four roles and the institution", "P3, P2, P4, D6 (administrators), P5, each with four practical benefits"], ["Closing", "Demo band"]]],
+  ["Trust & Security", [["Hero", "D7 on paper"], ["In practice", "Seven safeguards, one explanation and one example each"], ["Security questions", "Framed text"], ["Closing", "Demo band"]]],
+  ["Contact · Privacy · Terms", [["Contact", "Typography + one form"], ["Privacy, Terms", "Typography, contents list, draft and «to confirm» markers"]]],
 ];
 
 // Every capability the launch copy presents as available, with where it
@@ -63,52 +52,50 @@ const SECTIONS = [
 // intended scope, not implementation: each row must be confirmed against the
 // scope Dr Gladys and her team accept for 4.1 before publication.
 const CLAIMS = [
-  ["Initial Mapping gives a starting point; the Personal Reading Map gives an initial reading order (not continuous adaptation)", "Home D2, Features A", "LRN-01, TCH-01; product strings"],
-  ["Step-by-step help while learning, before the Mastery Check", "Home D2, Features A, Who · Learners", "ASM-05"],
-  ["Educators see mastery by learning objective («Penguasaan per bagian») and the hardest questions with counts and chosen options", "Home hero D0, Home capabilities, Features B, Who · Educators", "RPT-01; product strings"],
-  ["A figure is withheld below its metric’s minimum sample, with «Belum cukup data untuk menampilkan angka ini.»", "Home D0, Why D5, Features B", "EVD-01, RPT-01, metric catalogue"],
-  ["«Change since the Initial Mapping» is a reported figure", "Home D0", "Product strings (hasil.delta)"],
-  ["Reports without rankings", "Home, Why, Features B, Who", "DEC-12"],
-  ["One official result per attempt; a double submit gives one result; scoring rules recorded and recalculable", "Features B, Trust 03", "ASM-02, ASM-03"],
+  ["Initial Mapping gives a starting point; the Personal Reading Map suggests an initial reading order", "Home D2, Features 01", "LRN-01, TCH-01; product strings"],
+  ["Step-by-step help while learning", "Home D2, Features 01, Who · Learners", "ASM-05"],
+  ["What «penguasaan» percentages represent. The site shows «% of answers correct» in its illustrations and says it is evidence, not yet a judgement of mastery; product copy elsewhere says educators see «mastery by learning objective»", "Home D0, Features 02 and D12, Why D5, Who · Educators and Leadership", "RPT-01; metric catalogue; product strings («Penguasaan per bagian»)"],
+  ["Question-level reporting: how many answered correctly and which option was chosen, with counts", "Home D0, Features 02 and D12, Who · Educators", "RPT-01"],
+  ["Metric-specific minimum-sample rules, and their actual behaviour: below the minimum the figure is withheld with «Belum cukup data untuk menampilkan angka ini.»", "Why D5, Features 02, Who · Leadership, Home capabilities", "EVD-01, RPT-01, metric catalogue"],
+  ["Change since the Initial Mapping: whether it is supported, and under what comparison rules. Removed from the hero in this revision; not claimed anywhere now", "(none)", "Product strings (hasil.delta)"],
+  ["The educator’s judgement and next step in D0 are illustrative and set apart as the educator’s own note; the site does not claim PINTAR recommends an intervention or stores such a note", "Home D0", "Out of scope: intervention planning is 5.0"],
+  ["Reports without rankings", "Home, Why, Features 02, Who", "DEC-12"],
+  ["One official result per attempt; a double submit gives one result; scoring rules recorded", "Features 02, Trust 03", "ASM-02, ASM-03"],
   ["Answer keys designed to stay off learners’ devices", "Trust 03", "ASM-05, SEC-03; OD-12"],
-  ["A4-ready reports; class and school summaries", "Features B, Who · Leadership", "RPT-02"],
-  ["Certificates with a public check showing validity, issuer, date and achievement, without the holder’s name", "Features B, Trust 07, D11", "CRT-01 (payload is a reconciliation item)"],
-  ["Digital Card", "Features B", "CRD-01"],
-  ["Shared material used by permitted institutions; institutions add their own; sources and permissions recorded", "Features C, D3, Who · Institutions", "STU-01, STU-02, DEC-04/05; OD-20"],
-  ["Second-person review before release; released versions kept; corrections become new versions", "Features C, D4, Trust 04", "STU-04, STU-05, DEC-06"],
-  ["Per-question history, including educators’ misconception notes (4.1)", "Features · New in 4.1", "AIQ-02"],
-  ["AI-assisted multiple-choice drafts: permitted source and objective, checks, educator decides, usual approval; no learner personal data; manual fallback (4.1)", "Home capabilities, Features D9", "AIQ-01; OD-16"],
-  ["Continuing on another device with a short-lived single-use code; one device saves at a time (4.1)", "Features D10, roadmap", "CNT-01; OD-16"],
-  ["Accounts created by the institution; no self sign-up", "Features D", "ACC-01"],
-  ["Class cards for learners, for learning only; replaceable when lost", "Features D, Who · Administrators", "DEC-07, CRD-01"],
-  ["Class changes, moving up, transfers and retirement without losing records", "Home, Features D, Trust 05, Who", "PRG-01, TRF-01/02, STF-01; OD-02, OD-08"],
-  ["Removed access designed to take effect from the next request", "Features D", "REV-01 (retained checks)"],
-  ["Each action checked against the role and place; teaching access at A does not apply at B", "Features D6, Trust 01", "CTX-01, PER-01"],
-  ["Institutions’ data logically separated within one system", "Trust 02, Who · Institutions", "SEC-01"],
+  ["A4-ready reports; class and school summaries", "Features 02, Who · Leadership", "RPT-02"],
+  ["Certificates with a public check: validity, issuer, date and achievement, without the holder’s name. Confirm the released payload", "Features 02, Trust 07, Who · Learners", "CRT-01"],
+  ["Shared material used by permitted institutions; institutions add their own; sources and permissions recorded", "Features 03 D4, Who · Institution", "STU-01, STU-02, DEC-04/05; OD-20"],
+  ["Second-person review before release; released versions kept; corrections become new versions", "Features 03 D4, Trust 04", "STU-04, STU-05, DEC-06"],
+  ["Per-question history, including educators’ misconception notes (4.1)", "Features 03", "AIQ-02"],
+  ["AI-assisted multiple-choice drafts: permitted source and objective, checks, educator decides, second-person review before release; no learner personal data; manual fallback (4.1)", "Home capabilities, Features 05 D9", "AIQ-01; OD-16"],
+  ["Continuing on another device with a single-use code (4.1)", "Features 01", "CNT-01; OD-16"],
+  ["Accounts created by the institution, with roles assigned in each place", "Features 04", "ACC-01"],
+  ["Access wording: choosing a place does not itself grant permission; the role assigned in that place governs access; teaching access at A does not apply at B", "Features 04 D6, Who · Administrators, Trust 01", "CTX-01, PER-01"],
+  ["Class cards for signing in to learn; replaceable when lost", "Features 04, Who · Administrators", "DEC-07, CRD-01"],
+  ["Class changes, moving up, transfers and retirement without losing records; the end of someone’s access handled deliberately", "Home, Features 04, Trust 05, Who", "PRG-01, TRF-01/02, STF-01, REV-01; OD-02, OD-08"],
+  ["Institutional separation: logical separation within one system; shared material does not give another institution access to learner data", "Features 03 D4, Trust 02, Who · Institution", "SEC-01"],
   ["Consequential actions recorded; a leader opening one learner’s record is recorded", "Trust 06, Who · Leadership", "AUD-01"],
-  ["Professional-development participation kept apart from academic results", "Features A, Who · Educators", "PDP-01"],
-  ["Classes, groups and periods at institutional scale", "Features A, Who · Administrators", "ADM-01"],
-  ["A guided demonstration with sample data, of the parts ready to show", "Demo bands, Contact", "To confirm: demonstration environment"],
+  ["Professional-development participation kept apart from academic results", "Features 04, D6, Who · Educators", "PDP-01"],
+  ["Classes, groups and periods at institutional scale", "Features 01, Who · Administrators", "ADM-01"],
+  ["A guided demonstration tailored to the visitor’s role, with sample data. Resolve demonstration readiness internally before publication", "Demo bands, Contact", "To confirm: demonstration environment"],
 ];
 
 const UNRESOLVED = [
-  ["Accepted 4.1 scope and the date of acceptance", "Dr Gladys and her team’s acceptance record", "Launch prerequisite; then reconcile every row of the claims checklist"],
-  ["What a guided demonstration can show, and in which environment", "Product lead", "Demo copy and Contact"],
-  ["Ready-to-use material by subject and level, and source licences", "Content owner (OD-20)", "Features C"],
-  ["Certificate verification payload as released", "Release evidence (CRT-01)", "Trust 07, D11"],
+  ["Accepted 4.1 scope and the date of acceptance", "Dr Gladys and her team’s acceptance record", "Launch prerequisite; then every row of the claims checklist"],
+  ["What «penguasaan» percentages represent, and the metric minimum-sample rules", "Metric catalogue and the accepted build", "D0, D5, D12, Features 02"],
+  ["Whether change since the Initial Mapping is reported, and how", "Product lead; accepted build", "Not claimed now; could return to D0"],
+  ["Certificate verification payload as released", "Release evidence (CRT-01)", "Trust 07, Features 02"],
+  ["Demonstration environment and readiness", "Product lead", "Demo copy and Contact"],
+  ["Ready-to-use material by subject and level, and source licences", "Content owner (OD-20)", "Features 03 (kept general)"],
+  ["Use of AI-generated illustrations at launch, or replacement with licensed or commissioned photography (with consent)", "Owner", "P1–P5"],
   ["Registered address and NIB", "Company deed and NIB (OSS)", "Privacy §1"],
   ["Hosting provider, its log contents and retention", "Hosting account or contract", "Privacy §3, §6"],
   ["Email provider for pintarselalu.com, data location, any overseas transfer", "Email service contract", "Privacy §6"],
   ["How long the mailbox keeps email", "Company retention decision", "Privacy §7"],
-  ["Data protection officer (UU PDP Art. 53), if required", "Legal counsel", "Privacy §11"],
-  ["PSE (private electronic system operator) registration", "Legal counsel", "Launch"],
+  ["Data protection officer (UU PDP Art. 53), if required; PSE registration", "Legal counsel", "Privacy §11; launch"],
   ["Trademark status of PINTAR", "DJKI records", "Terms §2"],
-  ["Production HTTPS and domain", "Hosting configuration", "Privacy §7, indexing, hreflang"],
-  ["Daily cleanup scheduled on the server", "Server cron (server/cleanup.php)", "Privacy §7 retention wording"],
-  ["Mail delivery confirmed (SPF/DKIM, or SMTP)", "A test message in the real inbox", "Contact form"],
+  ["Production domain, HTTPS, daily cleanup scheduled, mail delivery confirmed", "Hosting configuration; a test message", "Privacy §7; contact form"],
   ["Effective dates of the legal pages", "Owner, after legal review", "Privacy, Terms"],
-  ["Terminology decision (school vs universal terms)", "OD-11", "All copy"],
-  ["Photography commission and consent (minors)", "Owner", "All photographs"],
   ["Repository history: this lane predates main’s rewrite", "Owner’s approval to move the work onto the new main", "Repository"],
 ];
 
@@ -120,7 +107,7 @@ export default function review() {
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">
-<title>Website Review 2 — PINTAR public website, launch wording</title>
+<title>Website Review 3 — PINTAR public website</title>
 <link rel="stylesheet" href="../site/assets/css/site.css">
 <style>
   .rv { padding-block: 5rem 8rem; }
@@ -138,58 +125,45 @@ export default function review() {
   .rv .pages { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0; border-top: 1px solid var(--line); }
   .rv .pages div { padding: 1rem 0; border-bottom: 1px solid var(--line); }
   .rv .pages a { margin-right: 1rem; }
-  .rv .decision { border-left: 3px solid var(--teal); padding: .25rem 0 .25rem 1rem; margin-top: 1rem; }
-  .rv .decision b { color: var(--ink); }
   .rv code { font-size: .875rem; }
+  .rv .st { font: 500 .875rem/1.3 var(--mono); color: var(--teal); white-space: nowrap; }
 </style>
 </head>
 <body>
 <main class="wrap rv" id="isi">
-  <p class="label">PINTAR public website · review build 2 · launch wording for PINTAR 4.1</p>
-  <h1 class="h1">The revised website, <em>still unpublished.</em></h1>
-  <p class="lead" style="margin-top:1.5rem">This build carries the intended launch wording for when PINTAR 4.1 has been accepted by Dr Gladys and her team. Preparing the wording does not mean acceptance has occurred. Every page is <code>noindex</code> and carries a review strip, and nothing has been deployed. Production deployment still needs the owner’s explicit authorisation.</p>
+  <p class="label">PINTAR public website · review build 3 · launch wording for PINTAR 4.1</p>
+  <h1 class="h1">Understand <em>what to teach next.</em></h1>
+  <p class="lead" style="margin-top:1.5rem">This build carries the intended launch wording for when PINTAR 4.1 has been accepted by Dr Gladys and her team. Preparing the wording does not mean acceptance has occurred. Every page is <code>noindex</code> and carries a review strip, and nothing has been deployed. Publication needs the accepted scope, public claims that match it, and the owner’s explicit authorisation.</p>
 
   <section>
     <h2>1. What changed in this revision</h2>
-    <h3>Visual</h3>
+    <h3>The story</h3>
     <ul class="dot">
-      <li><b>Type, after screenshot 4:</b> confident Inter Display headlines with one clause in the brand teal, Inter for reading, IBM Plex Mono for small labels. Newsreader is retired, and first-visit fonts fall from about 170 KB to about 88 KB.</li>
-      <li><b>A concrete hero:</b> the headline now sits beside a concept panel of one class after a Mastery Check (D0), labelled as an illustration with invented data.</li>
-      <li><b>The cycle is a serpentine</b> in the arrangement of screenshot 2: stages 1→4 across the top, 5→7 back along the bottom, and a distinct return panel pointing up to Diagnose. It has seven stages, with no eighth invented. On phones it is one column in the same order.</li>
-      <li><b>Lighter footer:</b> the wordmark and its line, the pages, then one base row with ©&nbsp;PT ZAYD PINTAR SELALU (ZPS), the email, Contact / Privacy / Terms and ID | EN. The language and company columns are gone.</li>
-      <li><b>Two demo invitations on the homepage:</b> the header and the closing section. The hero keeps «Lihat cara kerjanya». Both use the one contact form, with the demo subject preselected.</li>
+      <li><b>One organising idea:</b> learning objective → evidence → educator judgement → next teaching step. It is drawn once as a thread with four marks, and the same marks label the hero panel and the annotated report, so the sequence is recognisable without being repeated as a slogan.</li>
+      <li><b>Homepage opening:</b> «Nilai menunjukkan hasil. Pemahaman menentukan langkah berikutnya.» / «A score shows the result. Understanding shows what to teach next.» The lead is one simple sentence; the class panel carries the detail.</li>
+      <li><b>The class panel is complete:</b> learning objectives with «% of answers correct» from 3 questions and 24 learners, said to be evidence and not yet a judgement of mastery; the hardest questions with counts and the option most chosen; then a separate note, «Written by the educator · example», with a judgement and the next step. «Change since the Initial Mapping» is removed until its support is confirmed. The panel does not suggest PINTAR recommends an intervention.</li>
+      <li><b>One current product:</b> the availability chips and A/B letters are gone from Features and the homepage. «New in 4.1» is a small tag on three items. Versions and the future direction sit together at the end of Features; the homepage has two sentences and a link instead of the roadmap.</li>
+    </ul>
+    <h3>The Features page, redesigned</h3>
+    <ul class="dot">
+      <li><b>Organised by what people accomplish:</b> learning and teaching, reports and assessment, the Content Studio, accounts and institutions, AI-assisted drafts, then versions and what comes next. An anchor bar replaces the status legend.</li>
+      <li><b>The reading pattern of Who It’s For:</b> a clear label, a headline at a sensible size, the explanation directly under it, four well-spaced benefit rows at body size, and one focal visual. The small two-column notes and the detached intro paragraphs are gone.</li>
+      <li><b>Variety within one system:</b> journey on the right; the annotated report on the left; the publication diagram full width with three short notes; the roles diagram on the right; the AI workflow full width in a sunk band under «AI membantu. Pendidik memutuskan.» On phones every section reads headline, text, then visual.</li>
+      <li><b>Each visual does one job:</b> the learning journey shows the starting point, assigned learning, practice and assessment; the annotated report shows what an educator notices instead of an audience table; one publication diagram covers review, shared use and preserved versions; the roles diagram shows that access comes from the role assigned in each place.</li>
     </ul>
     <h3>Copy, both languages</h3>
     <ul class="dot">
-      <li><b>Launch wording:</b> 4.0 and 4.1 are presented as available. 4.5, 5.0 and beyond are «Arah ke depan / Future direction», without dates. Every former «verifikasi rilis / direncanakan» label is gone, and a check enforces that.</li>
-      <li><b>What educators see and do comes first;</b> governance follows. Jargon is cut: «tergovernansi», «kanonik» (now «materi bersama»), «pemutar», «teaching grant». So are the awkward English phrases and «anak».</li>
-      <li><b>Each page has one job:</b> Home introduces, Why explains the philosophy, Features gives capabilities and boundaries, Who It’s For gives benefits, Trust gives safeguards. The comparison with other LMS, library and exam platforms is removed.</li>
-      <li><b>Trust</b> now explains each of the seven safeguards once, with one example. Separation is described as logical separation within one system. Certificate verification states what it shows and what it does not.</li>
-      <li><b>The evidence illustration</b> says what the percentage measures (average mastery on the Mastery Check). It uses the product’s rule, a minimum sample per metric in the metric catalogue, without inventing a number, and the product’s own sentence for withheld figures.</li>
-      <li><b>Product names</b> follow the application: Pemetaan Awal, Peta Bacaan Personal, Uji Penguasaan in Indonesian; the application’s English names Initial Mapping, Personal Reading Map, Mastery Check in English. Quiet Intelligence stays as it is.</li>
-      <li><b>Boundaries stated where a reader could blur them:</b>
-        <ul class="dot">
-          <li>question reporting now, question health in 4.5;</li>
-          <li>professional-development participation now, growth journeys in 5.0;</li>
-          <li>released versions in 4.0, per-question history in 4.1;</li>
-          <li>an initial reading order, not continuous adaptation;</li>
-          <li>Content Studio capability, not a promise of ready material;</li>
-          <li>a demo of the parts ready to show.</li>
-        </ul></li>
-      <li><b>The AI workflow</b> now has five steps, as AIQ-01 sets out: the educator chooses a permitted source and objective; AI drafts; the drafts are checked; the educator decides; then the usual second-person review, approval and release. The retained line is «AI membantu. Pendidik memutuskan.»</li>
+      <li><b>No internal-review language in public copy:</b> «not part of 4.0», «not promised here», «not an audit report», «ready to show at the time» and the repeated «no dates or promises» are gone. The one future boundary sits in the versions section; the rest is on the checklist below. A check now fails if any of these return.</li>
+      <li><b>Demonstrations:</b> «a guided demonstration tailored to your role, using sample data».</li>
+      <li><b>Simplified phrasing:</b> «what can be concluded», «which figures the evidence supports», «mastery by part», «the evidence minimum», «the usual approval» and «removed access» are rewritten.</li>
+      <li><b>Institutions are no longer a person’s role:</b> Who It’s For now covers four roles and «the institution as a whole»; the homepage lists «foundations and governing bodies».</li>
+      <li><b>Terms</b> now names Inter and IBM Plex Mono, and explains that AI-generated illustrations are not photographs of PINTAR users or partner institutions.</li>
     </ul>
-    <h3>Functional and privacy</h3>
+    <h3>Images</h3>
     <ul class="dot">
-      <li><b>Fixed a false «sent».</b> A message whose delivery failed was remembered as a duplicate, so the retry was wrongly confirmed. Messages are now remembered only after delivery. A check proves the retry is really sent.</li>
-      <li><b>Deletion as it really happens.</b> Expired security records are deleted on each use of the form and by <code>server/cleanup.php</code>, a daily job to schedule. The privacy policy says «deleted at the next cleanup», not an exact deadline.</li>
-      <li><b>Privacy policy corrected:</b>
-        <ul class="dot">
-          <li>it now distinguishes the form (no copy kept) from the mailbox (where messages live);</li>
-          <li>it counts the security records and the hosting logs in the summary;</li>
-          <li>it calls the IP hash a pseudonym, not anonymisation, and separates it from the host’s raw logs;</li>
-          <li>it separates assessment provenance from personal-data retention.</li>
-        </ul></li>
-      <li><b>Unchanged:</b> spam protection, rate limits and bilingual moderation; human review of ambiguous messages; the two prescribed rejection messages.</li>
+      <li><b>Five images instead of eight,</b> each placed where it explains the situation: the classroom, the staff room, studying at home, a leadership meeting, the school in the morning. Why PINTAR and the demo bands now use the thread and typography instead of a photograph; administrators get the roles diagram.</li>
+      <li><b>Every image declares its source:</b> AI-generated illustration, licensed photograph, or product screenshot. Generated images carry a visible «Ilustrasi, dibuat dengan AI» label and are never presented as PINTAR users. No product screenshot is used or faked.</li>
+      <li><b>Drop-in:</b> save an image as <code>images/P1.png</code> etc., run <code>node images.mjs</code> (WebP at 640–2400 px, metadata removed) and <code>node build.mjs</code>.</li>
     </ul>
   </section>
 
@@ -201,22 +175,20 @@ export default function review() {
   <section>
     <h2>3. Launch claims to confirm against the accepted 4.1 scope</h2>
     <p>This is an internal checklist and is never published. Each claim the launch copy presents as available is listed with where it appears and the master-specification reference behind it. The specification sets intended scope, not proof of implementation or acceptance. Resolve each row against the scope Dr Gladys and her team accept, and change or remove any claim that differs, before publication.</p>
-    <div class="wrapx"><table><thead><tr><th>#</th><th>Claim (as available at launch)</th><th>Where</th><th>Specification</th><th>Confirmed</th></tr></thead><tbody>
+    <div class="wrapx"><table><thead><tr><th>#</th><th>Claim or wording to confirm</th><th>Where</th><th>Specification</th><th>Confirmed</th></tr></thead><tbody>
       ${CLAIMS.map(([c, w, r], i) => `<tr><td>${i + 1}</td><td>${c}</td><td>${w}</td><td>${r}</td><td>☐</td></tr>`).join("")}
     </tbody></table></div>
   </section>
 
-
   <section>
-    <h2>4. Visual assets, mapped to sections</h2>
-    <h3>Photographs (eight, reused across pages; none exist yet)</h3>
-    <p>I recommend one commissioned documentary shoot over two or three days, across at least two regions (for example Java and Sulawesi or Nusa Tenggara). It should use natural light, real schools, real staff and learners in their own uniforms, with nothing posed to camera. Stock imagery of “Indonesian classrooms” is usually generic, and AI-generated people are ruled out. Until the shoot, each photograph is a correctly proportioned placeholder whose caption is its brief.</p>
-    <div class="wrapx"><table><thead><tr><th>#</th><th>Subject</th><th>Composition</th><th>Message</th><th>Ratio (desktop / phone)</th><th>Used in</th><th>Source</th></tr></thead><tbody>
-      ${Object.entries(PHOTOS).map(([id, p]) => `<tr><td><b>${id}</b></td><td>${esc(PH_PLAN[id].subject)}</td><td>${esc(PH_PLAN[id].composition)}</td><td>${esc(PH_PLAN[id].message)}</td><td>${p.r} / ${p.rm}</td><td>${esc(PH_PLAN[id].use)}</td><td>${esc(PH_PLAN[id].source)}</td></tr>`).join("")}
+    <h2>4. Images and explanatory graphics</h2>
+    <h3>Images (five; prompts in <code>images/README.md</code>)</h3>
+    <p>All five are planned as AI-generated illustrations in one documentary style: muted, natural light, a 35 mm rangefinder look, nobody looking at the camera, nothing legible. Each is labelled as an illustration wherever it appears. Before publication, decide whether to keep them or replace any with licensed or commissioned photography, with consent.</p>
+    <div class="wrapx"><table><thead><tr><th>#</th><th>Image</th><th>What it shows</th><th>Its job</th><th>Where</th><th>Format</th><th>Source</th><th>Status</th></tr></thead><tbody>
+      ${Object.entries(PHOTOS).map(([id, p]) => `<tr><td><b>${id}</b></td><td>${esc(p.name_en)}</td><td>${esc(p.en)}</td><td>${esc(IMG_PLAN[id].message)}</td><td>${esc(IMG_PLAN[id].use)}</td><td>${IMG_PLAN[id].ratio}</td><td>${IMAGE_KIND[p.kind].en}</td><td class="st">${imageReady(id) ? "In the build" : "Prompt ready · awaiting generation"}</td></tr>`).join("")}
     </tbody></table></div>
-    <p style="margin-top:1rem">Delivery: 2400 px on the long edge, then exported as AVIF and WebP at 640, 1024, 1600 and 2400 px with <code>srcset</code> and <code>loading="lazy"</code> below the fold. Each placeholder already carries the final image’s alternative text.</p>
-    <h3>Diagrams and infographics (native HTML and SVG, built)</h3>
-    <div class="wrapx"><table><thead><tr><th>#</th><th>Diagram</th><th>Where</th><th>What it shows</th><th>Why it is there</th></tr></thead><tbody>
+    <h3>Explanatory graphics (native HTML and SVG, complete)</h3>
+    <div class="wrapx"><table><thead><tr><th>#</th><th>Graphic</th><th>Where</th><th>What it shows</th><th>Why it is there</th></tr></thead><tbody>
       ${DIAGRAMS.map(([id, n, w, s, y]) => `<tr><td><b>${id}</b></td><td>${n}</td><td>${w}</td><td>${s}</td><td>${y}</td></tr>`).join("")}
     </tbody></table></div>
     <h3>Section by section</h3>
@@ -224,18 +196,18 @@ export default function review() {
       ${SECTIONS.map(([pg, rows]) => rows.map(([s, v], i) => `<tr><td>${i ? "" : `<b>${pg}</b>`}</td><td>${s}</td><td>${v}</td></tr>`).join("")).join("")}
     </tbody></table></div>
     <h3>Product screenshots</h3>
-    <p>Once 4.1 is accepted, authentic screenshots of the real product, with sample data and clearly labelled, can replace one or two concept illustrations (for example D0 on the homepage). None are used now, and none should be until the accepted build exists.</p>
+    <p>None are used, and none are simulated. Once 4.1 is accepted, an authentic excerpt of a question report from the accepted product, with sample data and labelled as a screenshot, could replace D12 on Features.</p>
   </section>
+
   <section>
     <h2>5. Verified in this build</h2>
     <ul class="dot">
-      <li><b>Reading order:</b> on desktop the cycle is laid out 1→4, then 5→7 right to left, then the return under stage 1. The document order is 1–7, then the return. At 390 px it is one column in that order.</li>
-      <li><b>Language switching:</b> on all 16 pages, both switches (header and footer) lead to the same page in the other language.</li>
-      <li><b>Contact form:</b> delivered; double submit not resent; failed delivery reported, and the retry really sent; abuse refused with the prescribed wording in both languages and never echoed; reports flagged «PERLU DITINJAU» and delivered; honeypot; rate limit; foreign origin; header injection; works without JavaScript.</li>
-      <li><b>Footer and demo placements:</b> no language or company column; ©, email, Contact / Privacy / Terms, ID | EN; no footer demo link; on the homepage, only the header and closing demo invitations.</li>
-      <li><b>Launch wording:</b> no verification or planned labels anywhere; the future direction is marked; the AI workflow has five steps, including the educator’s decision and the usual approval.</li>
-      <li><b>Also covered:</b> contrast, 14 px minimum text, 44 px controls, no overflow from 320 to 1440 px, reduced motion, no-JavaScript, nothing stored on the device, and 47 moderation cases.</li>
-      <li><b>Run:</b> <code>node verify/check.mjs</code>. Every new check was proved able to fail by planting each regression it guards against.</li>
+      <li><b>Reading order:</b> on Features, every section’s headline and text come before its visual in the document, and sit above it at 390 px; at 1440 px the compositions alternate. The cycle keeps stages 1–7 then the return, as a serpentine at 1440 px and one column at 390 px.</li>
+      <li><b>Body-text comfort:</b> introductions and benefit rows are at least 15 px with a line height of at least 1.4 and no wider than 40 em, on every page at 390 and 1440 px.</li>
+      <li><b>Diagram legibility:</b> no text under 14 px anywhere; no diagram overflows its column at 320, 390, 768, 1024 or 1440 px; contrast is measured on every page.</li>
+      <li><b>Story and accuracy:</b> the hero headline; the panel’s «sample data», what each percentage measures, the learner count, and percentage correct distinguished from mastery; the educator’s decision set apart and attributed; the thread on Home and Why; no availability chips or A/B letters on Features; versions last; no internal-review phrasing on any page; every image declares its source.</li>
+      <li><b>Unchanged and still checked:</b> language switching on all 16 pages (header and footer); the contact form (delivery, double submit, failed delivery and a real retry, moderation in both languages without echo, flagged reports, honeypot, rate limit, origin, header injection, no JavaScript); the footer and the two demo placements; 47 moderation cases.</li>
+      <li><b>Run:</b> <code>node verify/check.mjs</code>. The new checks were proved able to fail by planting each regression: internal-review wording, the educator’s note merged into the report, and a visual placed before its headline.</li>
     </ul>
   </section>
 
