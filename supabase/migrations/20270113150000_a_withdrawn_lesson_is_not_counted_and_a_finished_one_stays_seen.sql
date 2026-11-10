@@ -284,7 +284,8 @@ end $$;
 -- PINTAR's course rows (courses_select is CAN_DRAFT in the course's own school), and distributed_releases names only
 -- what is shared now, so an assignment of a lesson PINTAR stopped sharing was named nowhere. No assignment records a
 -- title, so no storage is added: this returns, for one Kelas, each assignment's course title and nothing else (no
--- content, no outline), to whoever may give material at that school (CAN_ASSIGN_LEARNING), as the class page does.
+-- content, no outline), to whoever may give material to that Kelas (CAN_ASSIGN_LEARNING over it; Sharon at 435a2856:
+-- decided over the place, not school-wide), as the class page does.
 -- The title is the course's current one.
 
 create or replace function public.judul_materi_kelas(p_kelas uuid)
@@ -293,8 +294,9 @@ language plpgsql stable security definer set search_path = public, pg_temp as $$
 declare v_inst uuid;
 begin
   select n.institution_id into v_inst from public.org_nodes n where n.id = p_kelas;
-  if v_inst is null or not public.can_in_institution('CAN_ASSIGN_LEARNING', v_inst) then
-    raise exception using errcode = '42501', message = 'a Kelas''s lesson titles are for who may give material at its school';
+  -- Sharon (re-verification at 435a2856): decided over the Kelas, as the class page and SI-D01 decide, not school-wide
+  if v_inst is null or not public.can_on_node('CAN_ASSIGN_LEARNING', p_kelas) then
+    raise exception using errcode = '42501', message = 'a Kelas''s lesson titles are for who may give material to it';
   end if;
   return query
     select la.id, c.title from public.learning_assignments la join public.courses c on c.id = la.course_id
@@ -304,6 +306,38 @@ revoke all on function public.judul_materi_kelas(uuid) from public, anon;
 grant execute on function public.judul_materi_kelas(uuid) to authenticated, service_role;
 insert into public.client_rpc_registry (function_name, exposure, note, authorization_kind, authorization_requirement) values
   ('judul_materi_kelas', 'STAFF', 'the course title of each assignment of one Kelas, nothing else: a lesson no longer shared stays named (10 Nov)',
+   'CAPABILITY', 'CAN_ASSIGN_LEARNING');
+
+-- ───────────────────────────────────────────── 5. an ended or withdrawn assignment says when and why
+--
+-- CORRECTED IN PLACE (undeployed; Daisy's design check at 435a2856, §1.1, 10 Nov). Red first: F38-W15. The class page
+-- folds what has ended below the working list, each row with its date and the teacher's reason. Neither is on the
+-- assignment row: akhiri_penugasan records both in its learning_assignment.ended / .withdrawn audit row, which a Guru
+-- cannot read. This returns, for one Kelas, each closed assignment's kind, moment and reason from that row and nothing
+-- else (no counts, no actor), to the same reader as judul_materi_kelas. No storage is added.
+
+create or replace function public.riwayat_penugasan_kelas(p_kelas uuid)
+returns table (learning_assignment_id uuid, jenis text, pada timestamptz, alasan text)
+language plpgsql stable security definer set search_path = public, pg_temp as $$
+declare v_inst uuid;
+begin
+  select n.institution_id into v_inst from public.org_nodes n where n.id = p_kelas;
+  if v_inst is null or not public.can_on_node('CAN_ASSIGN_LEARNING', p_kelas) then
+    raise exception using errcode = '42501', message = 'a Kelas''s ended assignments are for who may give material to it';
+  end if;
+  return query
+    select distinct on (la.id) la.id, l.summary ->> 'kind', l.at, l.summary ->> 'reason'
+      from public.learning_assignments la
+      join public.audit_log l on l.target_table = 'learning_assignments' and l.target_id = la.id::text
+                             and l.action in ('learning_assignment.ended', 'learning_assignment.withdrawn')
+                             and l.institution_id = v_inst
+     where la.node_id = p_kelas and la.institution_id = v_inst and la.status in ('ENDED', 'WITHDRAWN')
+     order by la.id, l.at desc;
+end $$;
+revoke all on function public.riwayat_penugasan_kelas(uuid) from public, anon;
+grant execute on function public.riwayat_penugasan_kelas(uuid) to authenticated, service_role;
+insert into public.client_rpc_registry (function_name, exposure, note, authorization_kind, authorization_requirement) values
+  ('riwayat_penugasan_kelas', 'STAFF', 'when and why each ended or withdrawn assignment of one Kelas closed, nothing else (Daisy, 10 Nov)',
    'CAPABILITY', 'CAN_ASSIGN_LEARNING');
 
 -- ───────────────────────────────────────────── checks

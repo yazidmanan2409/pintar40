@@ -323,6 +323,10 @@ begin
     select a.person_id into v_person from public.accounts a join auth.users u on u.id = a.auth_user_id
      where lower(u.email) = v_id and a.kind = 'EMAIL' limit 1;
   end if;
+  -- CORRECTED IN PLACE (undeployed; Daisy at 435a2856, §2.4): what signing in takes, the username too (signin_resolve)
+  if v_person is null then
+    select pu.person_id into v_person from public.person_usernames pu where pu.username = v_id;
+  end if;
   if v_person is not null
      and exists (select 1 from public.person_suspensions s where s.person_id = v_person and s.ended_at is null and s.category = 'CLOSED_AT_REQUEST')
      and not exists (select 1 from public.account_requests q where q.person_id = v_person and q.kind = 'REOPEN' and q.status in ('RECEIVED', 'IN_PROGRESS')) then
@@ -383,7 +387,7 @@ on conflict do nothing;
 -- ═══════════════════════════════════════════════════════════ L4: what needs no retention, removed
 create or replace function public.hapus_data_pribadi(p_request uuid, p_catatan text)
 returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
-declare v_actor uuid := public.current_person_id(); r public.account_requests; v_pid text; a record; v_foto boolean;
+declare v_actor uuid := public.current_person_id(); r public.account_requests; v_pid text; a record; v_foto boolean; v_lama text;
 begin
   if v_actor is null or not public.is_system_admin() then perform public.akun_tolak('ACCOUNT_NOT_ALLOWED'); end if;
   select * into r from public.account_requests q where q.id = p_request for update;
@@ -406,6 +410,7 @@ begin
   for a in select ac.id, ac.auth_user_id from public.accounts ac
             where ac.person_id = r.person_id and ac.auth_user_id is not null and ac.kind = 'EMAIL' loop
     perform set_config('pintar.anonimkan_email', a.id::text, true);
+    select lower(u.email) into v_lama from auth.users u where u.id = a.auth_user_id;
     update auth.users set email = 'anonim-' || a.auth_user_id::text || '@pintar.invalid', email_change = '',
                           raw_user_meta_data = '{}'::jsonb where id = a.auth_user_id;
     -- GoTrue keeps the address again in the identity; it is not synced by the update above
@@ -419,8 +424,17 @@ begin
        set payload = ((x.payload::jsonb - 'actor_username' - 'actor_name')
                    || case when jsonb_typeof(x.payload::jsonb -> 'traits') = 'object'
                            then jsonb_build_object('traits', (x.payload::jsonb -> 'traits') - 'user_email' - 'email')
-                           else '{}'::jsonb end)::json
-     where x.payload ->> 'actor_id' = a.auth_user_id::text or x.payload -> 'traits' ->> 'user_id' = a.auth_user_id::text;
+                           else '{}'::jsonb end)::json,
+           -- CORRECTED IN PLACE (undeployed; Sharon's re-verification at 435a2856): GoTrue's record of where each event
+           -- came from is the person's too; the IP goes, the event stays
+           ip_address = ''
+     where x.payload ->> 'actor_id' = a.auth_user_id::text or x.payload -> 'traits' ->> 'user_id' = a.auth_user_id::text
+        -- (same correction) an entry naming the address under neither id, a failed sign-in, is found by the address
+        -- itself, read before it was replaced
+        or lower(x.payload -> 'traits' ->> 'user_email') = v_lama or lower(x.payload ->> 'actor_username') = v_lama;
+    -- a session left behind keeps the device's IP and browser; the account is closed, so none is needed
+    delete from auth.refresh_tokens t where t.user_id = a.auth_user_id::text;
+    delete from auth.sessions s where s.user_id = a.auth_user_id;
     delete from auth.one_time_tokens t where t.user_id = a.auth_user_id;
   end loop;
   -- CORRECTED IN PLACE (undeployed; Sharon §16 finding 3): the name and email where else PINTAR copied them. Each address

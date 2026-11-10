@@ -5004,7 +5004,22 @@
     {
       "id": "F38-W14",
       "runner": "db",
-      "proves": "The owner on Sharon's addendum (10 Nov; red first, selftest/db/fable38.sql against 20270113150000 §4): a lesson PINTAR no longer shares keeps its name on the class page: judul_materi_kelas gives the class's Guru each assignment's course title and nothing else (no content); another school's admin is refused."
+      "proves": "The owner on Sharon's addendum (10 Nov; red first, selftest/db/fable38.sql against 20270113150000 §4): a lesson PINTAR no longer shares keeps its name on the class page: judul_materi_kelas gives the class's Guru each assignment's course title and nothing else (no content); a Guru of another Kelas at the school (Sharon at 435a2856: decided over the Kelas) and another school's admin are refused."
+    },
+    {
+      "id": "F38-W15",
+      "runner": "db",
+      "proves": "Daisy's design check at 435a2856 (§1.1; red first, selftest/db/fable38.sql against 20270113150000 §5): an ended or withdrawn assignment says when and why on the class page. riwayat_penugasan_kelas gives the class's Guru the kind, moment and reason recorded in its learning_assignment.ended/withdrawn audit row and nothing else, lists nothing in force, and refuses a Guru of another Kelas at the school, another school's admin and a learner."
+    },
+    {
+      "id": "F38-O05",
+      "runner": "db",
+      "proves": "Daisy's design check at 435a2856 (§2.4; red first, fable38 against 20270113130000): the public reopening form takes what signing in takes. minta_buka_kembali records a closed account's request by its username (any case, spaces trimmed), as by its sign-in email or PINTAR ID, so the form's label can be «Email atau username» as on /masuk."
+    },
+    {
+      "id": "F38-H08",
+      "runner": "db",
+      "proves": "Sharon's re-verification at 435a2856 (Low, older than the range; red first, fable38 against 20270112200000): a transfer contains the learner's open sittings as a departure does. A learner at A with an open sitting is transferred to B: transfer_execute ends the sitting at A through tutup_asesmen_terbuka, TERMINATED as INSTITUTIONAL_REVOCATION with its assessment_session.terminated audit row."
     },
     {
       "id": "F38-H07",

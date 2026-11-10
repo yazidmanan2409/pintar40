@@ -52,6 +52,23 @@ end;
 $$;
 revoke all on function public.tutup_asesmen_terbuka(uuid, text) from public, anon, authenticated;
 
+-- CORRECTED IN PLACE (undeployed; Sharon's re-verification at 435a2856, Low, older than the range). A transfer ended
+-- the source enrolment and closed its placements but left the learner's open sittings open; it now contains them the
+-- same way a departure does, through the guarded tutup_asesmen_terbuka (the source school's own sittings of that
+-- enrolment only). Red first: F38-H08. Otherwise transfer_execute is its 20270112170000 definition, unchanged.
+do $$
+declare v_def text := pg_get_functiondef('public.transfer_execute(uuid)'::regprocedure);
+        v_old text := $o$  update public.enrollments set status = 'ENDED', end_reason = 'TRANSFERRED_OUT', valid_to = now()
+   where id = t.from_enrollment_id;$o$;
+begin
+  if position(v_old in v_def) = 0 then raise exception 'transfer_execute no longer ends the source enrolment where it did'; end if;
+  execute replace(v_def, v_old, v_old || $n$
+  -- the learner's open sittings at the source school end with the enrolment (Sharon, 435a2856)
+  perform public.tutup_asesmen_terbuka(t.from_enrollment_id, 'Pindah sekolah');$n$);
+end $$;
+revoke all on function public.transfer_execute(uuid) from public, anon, authenticated;
+grant execute on function public.transfer_execute(uuid) to authenticated, service_role;
+
 create or replace function public.akhiri_pendaftaran(p_enrollment uuid, p_reason text, p_explanation text,
                                                      p_effective date)
 returns uuid language plpgsql volatile security definer set search_path = public, pg_temp as $$

@@ -165,7 +165,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
-  w01 text[] := '{}'; w09 text[] := '{}'; w10 text[] := '{}'; w11 text[] := '{}'; w12 text[] := '{}'; w13 text[] := '{}'; o04 text[] := '{}'; w12_awal int; v_per_lalu uuid; v_pi_w12 uuid; h07 text[] := '{}'; w14 text[] := '{}'; p_h7 uuid; e_a7 uuid; e_b7 uuid; v_per_x uuid; s_a7 uuid; s_b7 uuid; s_bx7 uuid; w06 text[] := '{}'; w07 text[] := '{}'; w08 text[] := '{}'; s_t uuid; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; o01 text[] := '{}'; o02 text[] := '{}'; o03 text[] := '{}'; u_o uuid; p_o uuid; e_o uuid; v_la_o uuid; v_aa_o uuid; u_t uuid; p_t uuid; v_rq uuid; s06 text[] := '{}'; u_hd uuid; p_hd uuid; v_hdr uuid; p_luar uuid; u_adm2 uuid; p_adm2 uuid; c05 text[] := '{}'; v_num05 text; v_seq05 int; a06 text[] := '{}'; a07 text[] := '{}'; u_c uuid; u_kartu uuid; p_c uuid; v_akk uuid; v_job uuid; v_req3 uuid; v_pid3 text; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
+  w01 text[] := '{}'; w09 text[] := '{}'; w10 text[] := '{}'; w11 text[] := '{}'; w12 text[] := '{}'; w13 text[] := '{}'; o04 text[] := '{}'; w12_awal int; v_per_lalu uuid; v_pi_w12 uuid; h07 text[] := '{}'; h08 text[] := '{}'; p_h8 uuid; e_a8 uuid; s_a8 uuid; v_tf8 uuid; w14 text[] := '{}'; w15 text[] := '{}'; p_h7 uuid; e_a7 uuid; e_b7 uuid; v_per_x uuid; s_a7 uuid; s_b7 uuid; s_bx7 uuid; w06 text[] := '{}'; w07 text[] := '{}'; w08 text[] := '{}'; s_t uuid; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; o01 text[] := '{}'; o02 text[] := '{}'; o05 text[] := '{}'; u_t5 uuid; p_t5 uuid; o03 text[] := '{}'; u_o uuid; p_o uuid; e_o uuid; v_la_o uuid; v_aa_o uuid; u_t uuid; p_t uuid; v_rq uuid; s06 text[] := '{}'; u_hd uuid; p_hd uuid; v_hdr uuid; p_luar uuid; u_adm2 uuid; p_adm2 uuid; c05 text[] := '{}'; v_num05 text; v_seq05 int; a06 text[] := '{}'; a07 text[] := '{}'; u_c uuid; u_kartu uuid; p_c uuid; v_akk uuid; v_job uuid; v_req3 uuid; v_pid3 text; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
   u_admin uuid; v_n int; v_cert uuid; v_cert2 uuid; v_new uuid; v_new2 uuid; v_tok text; v_ntok text; v_payload jsonb; v_nomor text; v_snapold uuid; p_holder uuid; u_holder uuid; v_k record;
   v_crel uuid; v_cdef uuid; v_dist uuid; v_la3 uuid; v_aa3 uuid;
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid; v_coh uuid; c_a uuid; c_b uuid;
@@ -462,6 +462,20 @@ begin
     if v_got <> 'OK' then w14 := w14 || ('the class''s Guru cannot read the title of a lesson no longer shared: ' || v_got); end if;
     v_got := selftest.f37_sebagai(u_adminx, format('select count(*) from public.judul_materi_kelas(%L)', c_a));
     if v_got not like '42501%' and v_got not like 'PR%' then w14 := w14 || ('another school''s admin read the class''s lesson titles: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_guru_b, format('select count(*) from public.judul_materi_kelas(%L)', c_a));
+    if v_got not like '42501%' and v_got not like 'PR%' then w14 := w14 || ('a Guru of another Kelas at the school read Kelas A''s lesson titles: ' || v_got); end if;
+
+    -- W15 Daisy (435a2856, §1.1): an ended assignment says when and why, from its own audit row; nothing else, nobody else
+    v_got := selftest.f37_sebagai(u_guru_a, format('select 1 / (select count(*)::int from public.riwayat_penugasan_kelas(%L) r where r.learning_assignment_id = %L and r.jenis = %L and r.alasan = %L and r.pada is not null)', c_a, v_la3, 'ENDED', 'PINTAR tidak lagi membagikan bab ini'));
+    if v_got <> 'OK' then w15 := w15 || ('the class''s Guru does not read the ended assignment''s kind, moment and reason: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_guru_a, format('select 1 / (1 - (select count(*)::int from public.riwayat_penugasan_kelas(%L) r join public.learning_assignments la on la.id = r.learning_assignment_id where la.status not in (%L, %L)))', c_a, 'ENDED', 'WITHDRAWN'));
+    if v_got <> 'OK' then w15 := w15 || ('an assignment still in force is listed as ended: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_adminx, format('select count(*) from public.riwayat_penugasan_kelas(%L)', c_a));
+    if v_got not like '42501%' and v_got not like 'PR%' then w15 := w15 || ('another school''s admin read the class''s ended assignments: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_murid, format('select count(*) from public.riwayat_penugasan_kelas(%L)', c_a));
+    if v_got not like '42501%' and v_got not like 'PR%' then w15 := w15 || ('a learner read the class''s ended assignments and their reasons: ' || v_got); end if;
+    v_got := selftest.f37_sebagai(u_guru_b, format('select count(*) from public.riwayat_penugasan_kelas(%L)', c_a));
+    if v_got not like '42501%' and v_got not like 'PR%' then w15 := w15 || ('a Guru of another Kelas at the school read Kelas A''s ended assignments: ' || v_got); end if;
 
     -- ═══════════════════════════════════ F38-R01 evidence survives the year
     u_admin := selftest.f11_user('f38-admin-' || v_tag || '@local.invalid', 'INSTITUTION_ADMIN', v_root);
@@ -918,6 +932,13 @@ begin
                                                   'traits', jsonb_build_object('user_id', u_c::text, 'user_email', 'f38-pergi-' || v_tag || '@local.invalid')), now());
     insert into auth.one_time_tokens (id, user_id, token_type, token_hash, relates_to)
     values (gen_random_uuid(), u_c, 'recovery_token', md5(v_tag), 'f38-pergi-' || v_tag || '@local.invalid');
+    -- Sharon (re-verification at 435a2856): an entry naming the address under neither id (a failed sign-in), the IP
+    -- GoTrue records with each entry, and a session's IP and user agent
+    insert into auth.audit_log_entries (id, payload, created_at, ip_address)
+    values (gen_random_uuid(), jsonb_build_object('action', 'login_failed', 'actor_id', '', 'traits', jsonb_build_object('user_email', 'f38-pergi-' || v_tag || '@local.invalid')), now(), '203.0.113.38'),
+           (gen_random_uuid(), jsonb_build_object('action', 'logout', 'actor_id', u_c::text), now(), '203.0.113.39');
+    insert into auth.sessions (id, user_id, created_at, updated_at, user_agent, ip)
+    values (gen_random_uuid(), u_c, now(), now(), 'Peramban F38 ' || v_tag, '203.0.113.40');
     set local session_replication_role = origin;
     v_got := selftest.f37_sebagai(u_c, format('select public.minta_akun(%L, true)', 'DELETE_PERSONAL_DATA'));
     v_got := selftest.f37_sebagai(u_c, format('select public.minta_akun(%L, true)', 'CLOSE'));
@@ -943,6 +964,10 @@ begin
         a06 := a06 || 'GoTrue''s audit log keeps the email'::text; end if;
       if exists (select 1 from auth.one_time_tokens x where x.user_id = u_c) then
         a06 := a06 || 'GoTrue keeps a one-time token naming the email'::text; end if;
+      if exists (select 1 from auth.audit_log_entries x where x.ip_address in ('203.0.113.38', '203.0.113.39')) then
+        a06 := a06 || 'GoTrue''s audit log keeps the person''s IP address'::text; end if;
+      if exists (select 1 from auth.sessions x where x.user_id = u_c or x.user_agent like 'Peramban F38 %') then
+        a06 := a06 || 'a session keeps the person''s IP and browser'::text; end if;
     end if;
 
     -- ═══════════════════════════════════ F38-H01..H06 Sharon's findings on 7a2c1751
@@ -1041,6 +1066,22 @@ begin
       if (select e.status::text from public.enrollments e where e.id = e_b7) <> 'ACTIVE' then
         h07 := h07 || 'B''s enrolment was changed'::text; end if;
     end if;
+
+    -- H08 Sharon (re-verification at 435a2856): a transfer contains the learner's open sittings as a departure does. A
+    -- learner at A with an open sitting moves to B: the transfer ends the sitting at A as an institutional revocation
+    insert into public.persons (display_name) values ('Murid F38 H8 ' || v_tag) returning persons.id into p_h8;
+    insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status, valid_from)
+    values (p_h8, v_inst, v_period, v_prog, 'ACTIVE', now() - interval '10 days') returning enrollments.id into e_a8;
+    s_a8 := selftest.f38_buka(v_tpl, p_h8, e_a8, c_a, v_la2, v_aa_lim);
+    insert into public.transfers (person_id, from_enrollment_id, from_institution_id, to_institution_id, to_academic_period_id, status, reason)
+    values (p_h8, e_a8, v_inst, v_x, v_per_x, 'REQUESTED', 'uji F38-H08') returning transfers.id into v_tf8;
+    update public.transfers set status = 'AUTHORIZED', authorized_by = p_h8 where transfers.id = v_tf8;
+    v_got := selftest.f37_sebagai(u_admin, format('select public.transfer_execute(%L)', v_tf8));
+    if v_got <> 'OK' then h08 := h08 || ('the transfer: ' || v_got);
+    elsif (select s.status::text || '/' || coalesce(s.termination_cause::text, '') from public.assessment_sessions s where s.id = s_a8) <> 'TERMINATED/INSTITUTIONAL_REVOCATION'
+       or not exists (select 1 from public.audit_log a where a.action = 'assessment_session.terminated' and a.target_id = s_a8::text) then
+      h08 := h08 || ('the transfer left the learner''s sitting at the old school '
+                     || (select s.status::text from public.assessment_sessions s where s.id = s_a8) || ', not ended as an institutional revocation with its audit row'); end if;
 
     -- H04 a returning learner takes the chosen Kelas's programme
     insert into public.org_nodes (institution_id, parent_id, kind, name) values (v_inst, v_dep, 'PROGRAMME', 'Program F38 tiga ' || v_tag) returning org_nodes.id into v_x2;
@@ -1171,6 +1212,15 @@ begin
         o02 := o02 || 'the reopened account got its former school role back (it must be given again by the school), or the ending is not recorded'::text; end if;
     end if;
 
+    -- O05 Daisy (435a2856, §2.4): the reopening form takes what signing in takes, the username too (and still the PINTAR ID)
+    u_t5 := selftest.f11_user('f38-tutup5-' || v_tag || '@local.invalid', 'EDUCATOR', c_a);
+    select a.person_id into p_t5 from public.accounts a where a.auth_user_id = u_t5;
+    insert into public.person_usernames (person_id, username) values (p_t5, 'f38tutup' || v_tag);
+    v_got := selftest.f37_sebagai(u_t5, format('select public.minta_akun(%L, true)', 'CLOSE'));
+    perform public.minta_buka_kembali(' F38TUTUP' || upper(v_tag) || ' ', 'saya ingin kembali, lewat nama pengguna');
+    if not exists (select 1 from public.account_requests q where q.person_id = p_t5 and q.kind = 'REOPEN' and q.status = 'RECEIVED') then
+      o05 := o05 || 'a closed account''s request by its username was not recorded'::text; end if;
+
     raise exception 'f38-rollback';
   exception when others then
     if sqlerrm <> 'f38-rollback' then v_fatal := sqlerrm; end if;
@@ -1194,10 +1244,14 @@ begin
        'the learner finds the ENDED assignment in my_learning_history with its status, not in my_learning_assignments, and reads its cycle state'),
       ('F38-W08', 'Defect (10 Nov): a sitting the school ended says so', w08,
        'submitting a TERMINATED sitting is refused PR003 SESSION_ENDED_BY_SCHOOL'),
+      ('F38-H08', 'Sharon (435a2856): a transfer contains the learner''s open sittings', h08,
+       'a learner at A with an open sitting is transferred to B: the sitting at A is TERMINATED as INSTITUTIONAL_REVOCATION, with its audit row'),
       ('F38-H07', 'The owner (10 Nov): a school''s departure ends its own sittings only', h07,
        'a learner enrolled at A and B: A''s admin ends the enrolment at A; A''s open sitting ends; B''s sitting under B''s enrolment, a sitting recorded at B that carries A''s enrolment, and B''s enrolment are untouched'),
       ('F38-W14', 'The owner (10 Nov): a lesson no longer shared keeps its name on the class page', w14,
-       'judul_materi_kelas gives the class''s Guru the title of an assignment whose lesson PINTAR no longer shares (no content); another school''s admin is refused'),
+       'judul_materi_kelas gives the class''s Guru the title of an assignment whose lesson PINTAR no longer shares (no content); a Guru of another Kelas at the school and another school''s admin are refused'),
+      ('F38-W15', 'Daisy (435a2856): an ended assignment says when and why on the class page', w15,
+       'riwayat_penugasan_kelas gives the class''s Guru the ENDED assignment''s kind, moment and reason from its audit row, lists nothing in force, and refuses a Guru of another Kelas at the school, another school''s admin and a learner'),
       ('F38-W09', 'Sharon (addendum): a figure under MC-9 keeps MC-9''s population', w09,
        'evaluated under MC-9, which names no learning_assignments source, the withdrawn assignment''s sitting is in Kelas A''s figures; under MC-10 it is not'),
       ('F38-W10', 'Sharon (addendum): verified credentials leave a withdrawn assignment''s certificate out', w10,
@@ -1240,6 +1294,7 @@ begin
       ('F38-A07', 'Sharon §16: a live platform role does not close itself', a07, 'the PINTAR Administrator''s own CLOSE is refused ACCOUNT_PLATFORM_ROLE and nothing is closed'),
       ('F38-O01', 'Owner ruling 1: an attempt limit holds across reassignment', o01, 'a learner who used the one attempt cannot start the same assessment again when the lesson is given to the class again'),
       ('F38-O02', 'Owner ruling 2: a closed account asks to be reopened', o02, 'the public request is server-only, records only for a closed account, answers the same for any address, is one per person and reopens nothing by itself; a closed account is reopened only from its request, by the PINTAR Administrator, with how identity was verified; DONE and audited; the former Guru role is not restored (ended, recorded)'),
+      ('F38-O05', 'Daisy (435a2856): the reopening form takes what signing in takes', o05, 'a closed account''s request by its username (any case, spaces trimmed) is recorded, as by its email or PINTAR ID'),
       ('F38-O03', 'Owner ruling 3: no disciplinary platform suspension', o03, 'DISCIPLINARY is refused ACCOUNT_CATEGORY_INVALID'),
       ('F38-H01', 'Sharon F1: a school''s date is its own', h01, 'the PINTAR Administrator sets WIT (a school''s admin refused, audited); hari_sekolah answers WIT''s date; an ending with no date is stamped with it; WIT''s tomorrow is refused'),
       ('F38-H02', 'Sharon F2: an ending does not use up an attempt', h02, 'a sitting TERMINATED as INSTITUTIONAL_REVOCATION is not counted against an attempt limit of 1'),
