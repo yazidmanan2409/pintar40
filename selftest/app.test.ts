@@ -2311,7 +2311,11 @@ export const appTests: SelfTest[] = [
       for (const nama of ["Matematika", "Kelas 5 — 2026/27", "5A", "Kelas 6 — 2027/28", "6B"]) {
         c.expect(bagian.includes(`<strong class="pin-str-nama">${nama}</strong>`), `the seeded place "${nama}" is not in the structure`);
       }
-      c.expect(/2026\/2027/.test(teks) && /2027\/2028/.test(teks), "a Tingkat or Kelas is shown without its school year");
+      // RESTATED (Daisy, bcecb425 B8.4): each place's year badge reads in the one format, «2026/27», as kenaikan and every
+      // other screen write it (it was the period's name as typed, «2026/2027»); the intro's typing example is unchanged
+      const lencana = [...bagian.matchAll(/<span class="pin-num pin-str-tahun">([^<]*)<\/span>/g)].map((m) => m[1]);
+      c.expect(lencana.includes("2026/27") && lencana.includes("2027/28") && lencana.every((x) => /^\d{4}\/\d{2}$/.test(x)),
+        `a Tingkat or Kelas is shown without its school year, or not as «2026/27»: ${lencana.join(", ") || "no year shown"}`);
       for (const k of ["config.struktur.tambah.BAGIAN", "config.struktur.tambah.TINGKAT", "config.struktur.tambah.KELAS"] as const) {
         c.expect(teks.includes(t(k, "staff")), `the section does not offer "${t(k, "staff")}"`);
       }

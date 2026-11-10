@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
+import { tahunPendek } from "@/lib/kenaikan";
 import { useRouter } from "next/navigation";
 import TombolKirim from "@/components/TombolKirim";
 import BarisHasil from "@/components/BarisHasil";
@@ -265,7 +266,7 @@ function FormTambah({
       </form>
       {tahunIkut ? (
         <p className="pin-hint">
-          {s("config.struktur.tahun_ikut")} <span className="pin-num">{tahunIkut}</span>
+          {s("config.struktur.tahun_ikut")} <span className="pin-num">{tahunPendek(tahunIkut)}</span>
         </p>
       ) : null}
       <div aria-live="polite">
@@ -339,7 +340,8 @@ function BarisSimpul({ simpul, locale }: { simpul: SimpulStruktur; locale: Local
         ) : (
           <strong className="pin-str-nama">{simpul.name}</strong>
         )}
-        {simpul.academic_year && <span className="pin-num pin-str-tahun">{simpul.academic_year}</span>}
+        {/* Daisy (bcecb425, B8.4): one year format, «2027/28», as typed «2027/2028» or not */}
+        {simpul.academic_year && <span className="pin-num pin-str-tahun">{tahunPendek(simpul.academic_year)}</span>}
         {murid && <span className="pin-str-murid">{murid}</span>}
         {/* DAISY-32: shown, never changed, on the Bagian and every Tingkat and Kelas under it */}
         {simpul.member_kind === "PARTICIPANT" && <span className="pin-str-tanda">{s("config.struktur.untuk_guru")}</span>}

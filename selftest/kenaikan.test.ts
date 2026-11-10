@@ -18,7 +18,7 @@ import { aktifkan } from "./bob28.test";
 import { Komputer } from "./bob29.test";
 import { pilihKonteksPeramban, tersusun } from "./konteks-uji";
 import { bacaNilai, dariForm, kelasDenganTahun, kelompokkan, kodekan, namaTingkat, nilaiDari, tahunPendek, urai } from "../src/lib/kenaikan";
-import { alasanAudit, hasilRun, lipatKenaikan } from "../src/lib/jejak-audit";
+import { alasanAudit, hasilRun, kelasBarisRun, lipatKenaikan, orangBarisRun, petaEnrolmen } from "../src/lib/jejak-audit";
 
 const ID = "11111111-2222-4333-8444-555555555555";
 const ID2 = "66666666-7777-4888-9999-000000000000";
@@ -86,10 +86,27 @@ export const kenaikanTests: SelfTest[] = [
         { person_id: "f", keputusan: "LULUS" as const, sumber: "KELAS" },
       ];
       const g = kelompokkan(hs);
-      c.expect(g.utama === `NAIK:${K6}`, `the main group is ${g.utama}, not the most common «Naik» destination`);
+      c.expect(g.utama === `NAIK:${K6}`, `the main group is ${g.utama}, not the largest group`);
       c.expect(g.pengecualian.map((h) => h.person_id).join("") === "bdef", `the exceptions are ${g.pengecualian.map((h) => h.person_id)}, not every other outcome and the Tingkat learner`);
       c.expect(g.kelompok.map((k) => `${k.kunci}=${k.isi.length}`).join(",") === `NAIK:${K6}=3,TINGGAL:${ID}=1,NAIK:${ID}=1,LULUS=1`, `the groups: ${JSON.stringify(g.kelompok.map((k) => k.kunci))}`);
-      c.expect(kelompokkan([{ person_id: "x", keputusan: "LULUS" as const }]).utama === null, "a class with no «Naik» has a main group");
+      // RESTATED (Daisy, bcecb425 B8.1, accepted by the owner 10 Nov): the main group is the largest group of any outcome,
+      // no longer the most common «Naik» only. Before: a class with no «Naik» had no main group, and a graduating class
+      // listed every child as an exception
+      const lulusan = kelompokkan([
+        { person_id: "p", keputusan: "LULUS" as const, sumber: "KELAS" }, { person_id: "q", keputusan: "LULUS" as const, sumber: "KELAS" },
+        { person_id: "r", keputusan: "KELUAR" as const, sumber: "KELAS" }, { person_id: "s", keputusan: "LULUS" as const, sumber: "KELAS" },
+        { person_id: "t", keputusan: "LULUS" as const, sumber: "KELAS" },
+      ]);
+      c.expect(lulusan.utama === "LULUS" && lulusan.pengecualian.map((h) => h.person_id).join("") === "r",
+        `a graduating class: main group ${lulusan.utama}, exceptions ${lulusan.pengecualian.map((h) => h.person_id)} (expected LULUS, r)`);
+      // a tie is settled by the outcome, not the order: the review and the outcome list the learners in different orders
+      const seri = [{ person_id: "u", keputusan: "KELUAR" as const }, { person_id: "v", keputusan: "LULUS" as const },
+                    { person_id: "w", keputusan: "NAIK" as const, kelas_tujuan: ID2 }, { person_id: "x", keputusan: "NAIK" as const, kelas_tujuan: ID }];
+      const utamaSeri = [seri, [...seri].reverse(), [seri[2], seri[0], seri[3], seri[1]]].map((x) => kelompokkan(x).utama);
+      c.expect(utamaSeri.every((u) => u === utamaSeri[0]) && utamaSeri[0]?.startsWith("NAIK:") === true,
+        `a tie chooses by the learners' order: ${utamaSeri.join(" / ")}`);
+      const seri2 = [{ person_id: "u", keputusan: "LULUS" as const }, { person_id: "v", keputusan: "KELUAR" as const }];
+      c.expect(kelompokkan(seri2).utama === "LULUS" && kelompokkan([...seri2].reverse()).utama === "LULUS", "a tie between «lulus» and «keluar» depends on the order");
       // K1: the run's rows fold under its one row by the recorded id; a row of a run whose row is elsewhere says so; time links nothing
       const R = "9e0c2b8a-7f1d-4c3e-8a5b-123456789abc";
       const rows = [
@@ -103,9 +120,21 @@ export const kenaikanTests: SelfTest[] = [
       c.expect(l.baris.map((r) => r.id).join(",") === "2,4,5" && (l.anak.get(2) ?? []).map((r) => r.id).join(",") === "1,3",
         `the run's rows are not folded under it: ${l.baris.map((r) => r.id)} / ${(l.anak.get(2) ?? []).map((r) => r.id)}`);
       c.expect(l.bagianRun.has(4) && !l.bagianRun.has(5) && !l.bagianRun.has(2), "a row of a run whose own row is on another page does not say it belongs to a run");
+      // Daisy (bcecb425, B9.2): a related row names its learner and Kelas, from the enrolment rows of the same page, never a guess
+      const P = "11111111-2222-4333-8444-555555555555", E = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee", N = "99999999-8888-4777-8666-555555555555";
+      const sas = [
+        { target_table: "enrollments", target_id: E, summary: { person_id: P, run_id: R } },
+        { target_table: "memberships", target_id: "m1", summary: { enrollment_id: E, node_id: N, run_id: R } },
+        { target_table: "memberships", target_id: "m2", summary: { enrollment_id: "lain", node_id: N } },
+        { target_table: "role_assignments", target_id: "r1", summary: { person_id: P } },
+      ];
+      const pe = petaEnrolmen(sas);
+      c.expect(orangBarisRun(sas[0], pe) === P && orangBarisRun(sas[1], pe) === P && orangBarisRun(sas[2], pe) === null && orangBarisRun(sas[3], pe) === null,
+        `a related row's learner: ${sas.map((x) => orangBarisRun(x, pe)).join(",")} (expected the enrolment's person, the membership's through it, and none otherwise)`);
+      c.expect(kelasBarisRun(sas[1]) === N && kelasBarisRun(sas[0]) === null, "a membership row does not name its Kelas, or an enrolment row names one");
       const hr = hasilRun(rows[1].summary);
       c.expect(hr.length === 2 && hr[1].alasan === "DECEASED" && hr[0].alasan === null && hasilRun(null).length === 0, `the run's learners read ${JSON.stringify(hr)}`);
-      return c.verdict("executes src/lib/kenaikan.ts and src/lib/jejak-audit.ts: the year reads «2026/27» and a Kelas carries it; a Tingkat reads as a level; the main group is the most common «Naik» destination and every other outcome and every Tingkat learner is an exception; a run's rows fold under its one promotion row by the recorded run id, a stray row says it belongs to a run, and the run's learners are read with their decisions");
+      return c.verdict("executes src/lib/kenaikan.ts and src/lib/jejak-audit.ts: the year reads «2026/27» and a Kelas carries it; a Tingkat reads as a level; the main group is the largest group of any outcome (a graduating class folds its graduates) and every other outcome and every Tingkat learner is an exception; a run's rows fold under its one promotion row by the recorded run id, a stray row says it belongs to a run, and the run's learners are read with their decisions");
     },
   },
 ];
@@ -216,7 +245,9 @@ export const kenaikanAppTests: SelfTest[] = [
       c.expect(li3(a).includes(nama("A")) && li3(b).includes(`${nama("B")} · Tinggal kelas di ${kt(`Kelas 5X ulang ${tag}`)}`)
         && li3(cc).includes(`${nama("C")} · Lulus`) && li3(d).includes(`${nama("D")} · dari Tingkat (belum di kelas) · Naik ke ${kt(`Kelas 6X ${tag}`)}`),
         `the review does not name each exception with its year: ${[a, b, cc, d].map(li3).join(" | ")}`);
-      c.expect(t3.includes(`2 naik ke ${kt(`Kelas 6X ${tag}`)} · 1 tinggal kelas · ${kt(`Kelas 5X ulang ${tag}`)} · 1 lulus`),
+      // RESTATED (Daisy, bcecb425 B8.2): the groups are joined by «, » and the repeat reads «tinggal kelas di …», so the «·»
+      // inside a group is not read as a separator (it read «2 naik ke … · 1 tinggal kelas · … · 1 lulus»)
+      c.expect(t3.includes(`2 naik ke ${kt(`Kelas 6X ${tag}`)}, 1 tinggal kelas di ${kt(`Kelas 5X ulang ${tag}`)}, 1 lulus`),
         `the review's summary: ${t3.slice(0, 400)}`);
       const guru3 = teks(/data-kenaikan-guru=""[\s\S]*?<\/ul>/.exec(tersusun(h3))?.[0] ?? "");
       c.expect(guru3.includes(`Kelas 6X ${tag}`) && guru3.includes(`Kelas 5X ulang ${tag}`) && /data-kenaikan-tanpa-guru="2"/.test(h3),
@@ -240,17 +271,19 @@ export const kenaikanAppTests: SelfTest[] = [
       const li4 = (p: string) => teks(new RegExp(`<li[^>]*data-murid="${p}"[\\s\\S]*?</li>`).exec(tersusun(h4))?.[0] ?? "");
       c.expect(t4.includes("4 murid diproses") && t4.includes("Diperiksa dari data PINTAR: semua sesuai.") && !/data-kenaikan-tidak-sesuai/.test(h4),
         `the outcome's check line: ${t4.slice(0, 300)}`);
-      // RESTATED (Daisy, design check at 435a2856 §4.3): the outcome is laid out as the review: the exceptions (B and C)
-      // first and always shown, each with the decision and what PINTAR recorded; the main group (A, and D, who came from
-      // the Tingkat and is now in 6X: the run's record keeps no Tingkat mark, and D went where the group went) folded
-      const pg4 = new RegExp(`<section[^>]*data-kenaikan-pengecualian="2"[\\s\\S]*?</section>`).exec(tersusun(h4))?.[0] ?? "";
-      const ut4 = new RegExp(`<details[^>]*data-kenaikan-utama="2"[\\s\\S]*?</details>`).exec(tersusun(h4))?.[0] ?? "";
+      // RESTATED (Daisy, bcecb425 B8, her refusal of 435a2856's outcome): the outcome keeps the review's exceptions. The
+      // run records where each learner came from, so D, from the Tingkat, is still an exception (B, C and D, shown first)
+      // and the main group under 6X holds A alone, as on the review. Before: 2 exceptions and D folded into the group.
+      // And (B8.3) what PINTAR recorded is said only where it differs: the check line already says all matched
+      const pg4 = new RegExp(`<section[^>]*data-kenaikan-pengecualian="3"[\\s\\S]*?</section>`).exec(tersusun(h4))?.[0] ?? "";
+      const ut4 = new RegExp(`<details[^>]*data-kenaikan-utama="1"[\\s\\S]*?</details>`).exec(tersusun(h4))?.[0] ?? "";
       c.expect(pg4 !== "" && ut4 !== "" && tersusun(h4).indexOf(pg4) < tersusun(h4).indexOf(ut4)
-        && [b, cc].every((p) => pg4.includes(`data-murid="${p}"`)) && [a, d].every((p) => ut4.includes(`data-murid="${p}"`)),
-        "the outcome is not laid out as the review (the exceptions first and shown, the main group folded)");
-      c.expect(li4(a).includes(`${nama("A")} · ${kt(`Kelas 6X ${tag}`)}`) && li4(d).includes(`${nama("D")} · ${kt(`Kelas 6X ${tag}`)}`)
-        && li4(b).includes(`${nama("B")} · Tinggal kelas di ${kt(`Kelas 5X ulang ${tag}`)} · ${kt(`Kelas 5X ulang ${tag}`)}`)
-        && /Pendaftaran berakhir · [^·]+ · lulus/.test(li4(cc)),
+        && [b, cc, d].every((p) => pg4.includes(`data-murid="${p}"`)) && ut4.includes(`data-murid="${a}"`) && !ut4.includes(`data-murid="${d}"`)
+        && teks(ut4).includes(`1 naik ke ${kt(`Kelas 6X ${tag}`)}`),
+        "the outcome does not keep the review's exceptions (B, C and D shown first, A alone folded under 6X)");
+      c.expect(li4(a).trim() === nama("A") && li4(d).includes(`${nama("D")} · dari Tingkat (belum di kelas) · Naik ke ${kt(`Kelas 6X ${tag}`)}`)
+        && li4(b).includes(`${nama("B")} · Tinggal kelas di ${kt(`Kelas 5X ulang ${tag}`)}`) && !li4(b).includes(`${kt(`Kelas 5X ulang ${tag}`)} · ${kt(`Kelas 5X ulang ${tag}`)}`)
+        && li4(cc).includes(`${nama("C")} · Lulus`) && !/Pendaftaran berakhir/.test(li4(cc)),
         `the outcome page: ${[a, b, cc, d].map(li4).join(" | ")}`);
       c.expect(/data-kenaikan-guru-kosong="2"/.test(h4) && !new RegExp(`data-kenaikan-berikut="${k5}"`).test(h4),
         "the outcome does not name the Kelas still without a teacher, or offers the processed class as the next");

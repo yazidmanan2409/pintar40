@@ -29,7 +29,7 @@ import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
 import { navKonteks } from "@/components/NavKonteks";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
 import ItemNav from "@/components/ItemNav";
-import { alasanAudit, hasilRun, hitungKeputusan, kataAksiAudit, kataTabelAudit, lipatKenaikan, tahunRun } from "@/lib/jejak-audit";
+import { alasanAudit, hasilRun, hitungKeputusan, kataAksiAudit, kataTabelAudit, kelasBarisRun, lipatKenaikan, orangBarisRun, petaEnrolmen, tahunRun } from "@/lib/jejak-audit";
 import { kelasDenganTahun, tahunPendek } from "@/lib/kenaikan";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { melayani } from "@/lib/konteks";
@@ -621,7 +621,13 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const adaVersi = platformIni && barisJejak.some((r) => Boolean(r.build_sha));
   // E7 (owner, 9 Nov): who acted, by their name where the reader may see the person, and in what role (the row's own
   // actor_role); a row with no actor is the system's
+  // Daisy (bcecb425, B9.2): a run's related rows name the learner and the Kelas (src/lib/jejak-audit.ts orangBarisRun)
+  const barisRun = [...[...lipat.anak.values()].flat(), ...barisJejak.filter((r) => lipat.bagianRun.has(r.id))];
+  const enrolmenRun = petaEnrolmen((audit ?? []).slice(0, UKURAN_JEJAK));
+  const orangRun = (x: { target_table: unknown; target_id: unknown; summary: unknown }) => orangBarisRun(x, enrolmenRun);
+  const kelasRun = kelasBarisRun;
   const idPelaku = [...new Set([...barisJejak.map((r) => r.actor_person_id as string | null),
+    ...barisRun.map(orangRun),
     ...barisJejak.filter((r) => r.action === "promotion.applied").flatMap((r) => hasilRun(r.summary).map((h) => h.person_id))]
     .filter((x): x is string => Boolean(x)))];
   const { data: pelakuRows } = idPelaku.length && tampilDi("audit")
@@ -637,7 +643,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     return typeof s0.run_kelas === "string" && s0.run_kelas ? s0.run_kelas : null;
   };
   const idNode = [...new Set([...runBaris.flatMap((r) => [String(r.target_id), ...hasilRun(r.summary).map((h) => h.kelas_tujuan ?? "")]),
-    ...barisJejak.filter((r) => lipat.bagianRun.has(r.id)).map((r) => kelasRunLain(r) ?? "")].filter(Boolean))];
+    ...barisJejak.filter((r) => lipat.bagianRun.has(r.id)).map((r) => kelasRunLain(r) ?? ""),
+    ...barisRun.map((x) => kelasRun(x) ?? "")].filter(Boolean))];
   const idTahun = [...new Set(runBaris.flatMap((r) => { const y = tahunRun(r.summary); return [y.dari ?? "", y.ke ?? ""]; }).filter(Boolean))];
   const [{ data: nodeRun }, { data: tahunRunRows }] = await Promise.all([
     idNode.length ? supabase.from("org_nodes").select("id, name").in("id", idNode) : Promise.resolve({ data: [] as Array<{ id: string; name: string }> }),
@@ -1935,7 +1942,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                       <td className="whitespace-nowrap">{when(r.at, "cap", zonaBaris(r.institution_id))}</td>
                       {/* D-138(c), D-140(c): the action and the record in words; never the code, the table or an id. */}
                       <td>{kataAksiAudit(r.action, locale)}</td>
-                      <td className="text-ink-3" data-jejak-sasaran="">{sasaranJejak(r)}</td>
+                      <td className="text-ink-3" data-jejak-sasaran="">{[sasaranJejak(r), ...(lipat.bagianRun.has(r.id)
+                        ? [orangRun(r) ? namaPelaku.get(orangRun(r)!) ?? TANPA_NAMA : null, kelasRun(r) ? namaNode.get(kelasRun(r)!) ?? null : null] : [])].filter(Boolean).join(" · ")}</td>
                       {(() => {
                         // E7: who and why, from the summary keys written for it (src/lib/jejak-audit.ts alasanAudit)
                         const a = alasanAudit(r.summary, locale);
@@ -1962,7 +1970,9 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                                 const tujuan = h.kelas_tujuan ? kelasDenganTahun(namaNode.get(h.kelas_tujuan) ?? TANPA_NAMA, ke) : null;
                                 if (h.keputusan === "NAIK" && tujuan) return s("audit.kenaikan.naik").replace("{kelas}", tujuan);
                                 if (h.keputusan === "TINGGAL" && tujuan) return s("audit.kenaikan.tinggal").replace("{kelas}", tujuan);
-                                if (h.keputusan === "KELUAR" && h.alasan) return s(`kenaikan.alasan.${h.alasan.toLowerCase()}` as HleEvent);
+                                // Daisy (bcecb425, B9.3): in the run's list every decision is lowercase («keluar: mengundurkan diri»,
+                                // beside «lulus» and «naik ke …»); the reason's own words begin with a capital on the review
+                                if (h.keputusan === "KELUAR" && h.alasan) { const k = s(`kenaikan.alasan.${h.alasan.toLowerCase()}` as HleEvent); return k.charAt(0).toLocaleLowerCase(locale) + k.slice(1); }
                                 return s(`kenaikan.keputusan.${h.keputusan.toLowerCase()}` as HleEvent);
                               };
                               // §4.4.2: the counts by outcome, as approved («6 murid: 4 naik, 1 tinggal kelas, 1 keluar»)
@@ -1980,7 +1990,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                                   <details className="pin-disclosure mt-1" data-jejak-run-terkait={anak.length}>
                                     <summary className="cursor-pointer text-ink-3">{s("audit.kenaikan.terkait").replace("{n}", String(anak.length))}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
                                     <ul className="mt-1 grid gap-1 text-ink-2">{anak.map((x) => (
-                                      <li key={String(x.id)} data-jejak-anak="">{[when(x.at as string, "cap", zonaBaris(r.institution_id)), kataAksiAudit(x.action, locale), kataTabelAudit(x.target_table as string, locale)].filter(Boolean).join(" · ")}</li>
+                                      <li key={String(x.id)} data-jejak-anak="">{[when(x.at as string, "cap", zonaBaris(r.institution_id)), kataAksiAudit(x.action, locale), kataTabelAudit(x.target_table as string, locale),
+                                        orangRun(x) ? namaPelaku.get(orangRun(x)!) ?? TANPA_NAMA : null, kelasRun(x) ? namaNode.get(kelasRun(x)!) ?? null : null].filter(Boolean).join(" · ")}</li>
                                     ))}</ul>
                                   </details>
                                 ) : null}

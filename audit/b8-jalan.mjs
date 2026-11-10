@@ -225,14 +225,14 @@ await step("J6.4", "the learner finishes the Pemetaan Awal by the screens, start
   await s.page.locator("h2.pin-stem").first().waitFor({ state: "visible", timeout: SLOW });
   harus(rec, jalan(s.page).endsWith("/penguasaan"), `the Uji Penguasaan is open (${jalan(s.page)})`);
   // help: offered once the question has been on screen for the window (the server's clock), never before
-  const bantuan = s.page.locator(".pin-bantuan");
+  const bantuan = s.page.locator(".pin-bantuan-soal");
   await s.page.waitForTimeout(Math.max(0, (jendela - 8) * 1000));
   harus(rec, !(await bantuan.isVisible().catch(() => false)), `no help is offered before ${jendela} s`);
   await bantuan.waitFor({ state: "visible", timeout: (jendela + 30) * 1000 }).catch(() => {});
   if (!harus(rec, await bantuan.isVisible().catch(() => false), `help is offered after the ${jendela}-second window («${(await bantuan.innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 100)}»)`)) return;
   await bantuan.locator("button").first().click();
-  await s.page.locator(".pin-bantuan .pin-lvl").first().waitFor({ timeout: SLOW }).catch(() => {});
-  harus(rec, (await s.page.locator(".pin-bantuan .pin-lvl").count()) > 0, `opening it shows a level of help («${(await s.page.locator(".pin-bantuan .pin-lvl").first().innerText().catch(() => "")).trim()}»)`);
+  await s.page.locator(".pin-bantuan-soal .pin-lvl").first().waitFor({ timeout: SLOW }).catch(() => {});
+  harus(rec, (await s.page.locator(".pin-bantuan-soal .pin-lvl").count()) > 0, `opening it shows a level of help («${(await s.page.locator(".pin-bantuan-soal .pin-lvl").first().innerText().catch(() => "")).trim()}»)`);
   await shot(s.page, rec, "bantuan");
   sesiMurid = { ...s, tugas };
 });
@@ -245,7 +245,7 @@ await step("J6.7", "the learner pauses the Uji Penguasaan with «Simpan & Jeda»
     join public.accounts a on a.person_id = e.person_id join auth.users u on u.id = a.auth_user_id
     where aa.learning_assignment_id = ${lit(tugas)} and d.mode = 'POST_TEST' and u.email = ${lit(MURID.email)} order by s.created_at desc limit 1`);
   // a sitting is under way once an answer is saved (CREATED until then)
-  await page.locator(".pin-bantuan").getByRole("button", { name: /Sudah cukup/ }).click().catch(() => {});
+  await page.locator(".pin-bantuan-soal").getByRole("button", { name: /Sudah cukup/ }).click().catch(() => {});
   await page.locator("ul.pin-opsi button.pin-op").first().click();
   const simpan = page.getByRole("button", { name: /^(Kunci|Simpan) jawaban ini$/ });
   if (await simpan.count()) { await simpan.click(); await page.getByRole("button", { name: "Tersimpan", exact: true }).waitFor({ timeout: SLOW }).catch(() => {}); }

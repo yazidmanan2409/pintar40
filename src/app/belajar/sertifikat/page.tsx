@@ -8,7 +8,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import { BarisLingkup } from "@/components/bukti";
-import { myCertificates, institutionNames, tugasSertifikatSaya, type CertificateRow } from "@/lib/sertifikat";
+import { myCertificates, institutionNames, tugasSertifikatSaya, certificateForSession, type CertificateRow } from "@/lib/sertifikat";
 import KakiPintar from "@/components/KakiPintar";
 import { petaSesi } from "@/components/sertifikat/asalSertifikat";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -75,6 +75,10 @@ export default async function DaftarSertifikat() {
   ]);
 
   const institution = rows.length > 0 ? institutions.get(rows[0].institution_id) ?? null : null;
+  // Daisy (bcecb425, B12): a certificate whose chapter is no longer assigned keeps its own title, the course sealed on
+  // it when it was issued, read by my_certificate (the list's columns stay the ten Q-11 names). Only those rows ask
+  const tersegel = new Map((await Promise.all(rows.filter((r) => !bySession.get(r.session_id)).map(async (r) =>
+    [r.session_id, await certificateForSession(r.session_id).catch(() => null)] as const))));
 
   return (
     <>
@@ -106,14 +110,14 @@ export default async function DaftarSertifikat() {
               const isi = (
                 <>
                   <span className="pin-eyebrow">
-                    {meta ? `${meta.subject} · ${meta.grade}` : s("sertifikat.judul")}
+                    {meta ? `${meta.subject} · ${meta.grade}` : (tersegel.get(row.session_id)?.course_subject_as_issued ?? s("sertifikat.judul"))}
                   </span>
-                  <span className="pin-title">{meta?.title ?? s("sertifikat.judul")}</span>
+                  <span className="pin-title">{meta?.title ?? tersegel.get(row.session_id)?.course_title_as_issued ?? s("sertifikat.judul")}</span>
+                  {/* Daisy (bcecb425, B12): the status is said once, in the row's meta (it was drawn a second time after it) */}
                   <span className="pin-rowmeta">
                     <span className="pin-num">{when}</span>
                     {pill}
                   </span>
-                  {pill}
                 </>
               );
               const ke = meta?.tugas ?? tugasDari.get(row.session_id);

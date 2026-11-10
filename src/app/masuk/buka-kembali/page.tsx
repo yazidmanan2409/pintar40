@@ -4,6 +4,7 @@ import PengalihBahasa from "@/components/PengalihBahasa";
 import MerekPintar from "@/components/MerekPintar";
 import PanelPernyataan from "@/components/masuk/PanelPernyataan";
 import BarisHasil from "@/components/BarisHasil";
+import SimpanIsian from "@/components/SimpanIsian";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/masuk/buka-kembali");
@@ -33,7 +34,7 @@ export default async function BukaKembali({ searchParams }: { searchParams: Prom
             {sp.hasil === "terkirim" ? <BarisHasil nada="ok">{s("buka_kembali.terkirim")}</BarisHasil> : null}
             {sp.kode ? <BarisHasil nada="gagal">{s(sp.kode === "ISIAN" ? "buka_kembali.galat.isian" : sp.kode === "TUNGGU" ? "buka_kembali.galat.tunggu" : "buka_kembali.galat.umum")}</BarisHasil> : null}
             {sp.hasil === "terkirim" ? null : (
-              <form method="post" action="/masuk/buka-kembali/kirim" className="pin-isian">
+              <form id="buka-kembali" method="post" action="/masuk/buka-kembali/kirim" className="pin-isian">
                 <label htmlFor="bk-identitas">{s("buka_kembali.identitas")}</label>
                 <input id="bk-identitas" name="identitas" className="pin-input" required maxLength={254} autoComplete="username" />
                 <label htmlFor="bk-pesan">{s("buka_kembali.pesan")}</label>
@@ -41,6 +42,9 @@ export default async function BukaKembali({ searchParams }: { searchParams: Prom
                 <textarea id="bk-pesan" name="pesan" className="pin-input" rows={4} required minLength={10} maxLength={500}
                   aria-describedby="bk-pesan-arti" />
                 <button type="submit" className="pin-btn pin-primary">{s("buka_kembali.kirim")}</button>
+                {/* Daisy (bcecb425, B5): a refused request keeps what the person typed (CR-84's one-press keep, this tab only);
+                    the page is signed out, so the form is its own owner */}
+                <SimpanIsian form="buka-kembali" ditolak={Boolean(sp.kode)} pemilik="buka-kembali" />
               </form>
             )}
             <p className="pin-rute"><a className="pin-tautan" href="/masuk">{s("buka_kembali.ke_masuk")}</a></p>

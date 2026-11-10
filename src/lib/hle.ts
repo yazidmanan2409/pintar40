@@ -358,6 +358,7 @@ export type HleEvent =
   | "sertifikat.ganti.bagian"
   | "sertifikat.ganti.tercetak"
   | "sertifikat.ganti.kini"
+  | "sertifikat.ganti.paket"
   | "sertifikat.ganti.berubah"
   | "sertifikat.ganti.berbeda"
   | "sertifikat.ganti.hasil"
@@ -1183,6 +1184,7 @@ export type HleEvent =
   | "kenaikan.opsi.pindah_grup"
   | "kenaikan.hitung.naik"
   | "kenaikan.hitung.tinggal"
+  | "kenaikan.hitung.tinggal_di"
   | "kenaikan.hitung.lulus"
   | "kenaikan.hitung.keluar"
   | "kenaikan.hitung.pindah"
@@ -1190,6 +1192,7 @@ export type HleEvent =
   | "kenaikan.hitung.belum_nama"
   | "kenaikan.murid.pengecualian"
   | "kenaikan.semua.diterapkan"
+  | "kenaikan.semua.diterapkan_semua"
   | "kenaikan.berakhir"
   | "kenaikan.berakhir.graduated"
   | "kenaikan.berakhir.withdrawn"
@@ -3735,10 +3738,11 @@ const table: Table = {
   "audit.aksi.certificate.correction_prepared": { default: "Sertifikat pengganti disiapkan", en: "Replacement certificate prepared" },
   // W2.22 (owner, 9 Nov): «Terbitkan ulang», the replacement of an erroneous issued certificate
   "sertifikat.ganti.judul": { default: "Terbitkan ulang", en: "Reissue" },
-  "sertifikat.ganti.arti": { default: "Sertifikat pengganti diterbitkan dengan nama, sekolah dan pelajaran yang tercatat sekarang, dengan hasil yang sama dan nomor baru. Sertifikat ini tetap tersimpan, dan pemeriksaannya akan menyebut bahwa ia sudah digantikan.", en: "A replacement certificate is issued with the name, school and lesson recorded now, the same result and a new number. This certificate is kept, and its check will say it has been replaced." },
+  "sertifikat.ganti.arti": { default: "Sertifikat pengganti diterbitkan dengan nama, sekolah dan paket yang tercatat sekarang, dengan hasil yang sama dan nomor baru. Sertifikat ini tetap tersimpan, dan pemeriksaannya akan menyebut bahwa ia sudah digantikan.", en: "A replacement certificate is issued with the name, school and package recorded now, the same result and a new number. This certificate is kept, and its check will say it has been replaced." },
   "sertifikat.ganti.bagian": { default: "Data", en: "Field" },
   "sertifikat.ganti.tercetak": { default: "Tertulis di sertifikat", en: "On the certificate" },
   "sertifikat.ganti.kini": { default: "Tercatat sekarang", en: "Recorded now" },
+  "sertifikat.ganti.paket": { default: "Paket", en: "Package" },
   "sertifikat.ganti.berubah": { default: "Perbandingan", en: "Comparison" },
   "sertifikat.ganti.berbeda": { default: "berbeda", en: "different" },
   "sertifikat.ganti.hasil": { default: "Hasil", en: "Result" },
@@ -3747,7 +3751,7 @@ const table: Table = {
   "sertifikat.ganti.alasan": { default: "Alasan penerbitan ulang", en: "Reason for reissuing" },
   "sertifikat.ganti.alasan.arti": { default: "10 sampai 300 karakter. Tercatat bersama sertifikat pengganti dan di jejak audit sekolah. Alasan ini tidak ditampilkan di halaman pemeriksaan.", en: "10 to 300 characters. Recorded with the replacement and in the school's audit trail. The reason is not shown on the check page." },
   "sertifikat.ganti.tombol": { default: "Terbitkan sertifikat pengganti", en: "Issue the replacement" },
-  "sertifikat.ganti.sama": { default: "Nama, sekolah dan pelajaran di sertifikat ini sama dengan yang tercatat sekarang. Bila ada yang keliru, perbaiki datanya lebih dahulu (nama orang dikoreksi oleh Admin PINTAR), lalu terbitkan ulang di sini.", en: "The name, school and lesson on this certificate match what is recorded now. If something is wrong, correct the record first (a person's name is corrected by an Admin PINTAR), then reissue here." },
+  "sertifikat.ganti.sama": { default: "Nama, sekolah dan paket di sertifikat ini sama dengan yang tercatat sekarang. Bila ada yang keliru, perbaiki datanya lebih dahulu (nama orang dikoreksi oleh Admin PINTAR), lalu terbitkan ulang di sini.", en: "The name, school and package on this certificate match what is recorded now. If something is wrong, correct the record first (a person's name is corrected by an Admin PINTAR), then reissue here." },
   "sertifikat.ganti.ok": { default: "Sertifikat pengganti {nomor} diterbitkan. Sertifikat sebelumnya tetap tersimpan sebagai digantikan.", en: "Replacement certificate {nomor} issued. The earlier certificate is kept as replaced." },
   "sertifikat.ganti.digantikan_oleh": { default: "Digantikan oleh sertifikat {nomor}.", en: "Replaced by certificate {nomor}." },
   "sertifikat.ganti.gagal.cert_not_allowed": { default: "Anda tidak dapat menerbitkan ulang sertifikat sekolah ini.", en: "You cannot reissue this school's certificates." },
@@ -4985,6 +4989,7 @@ const table: Table = {
   "kenaikan.opsi.pindah_grup": { default: "Pindah ke sekolah lain di PINTAR", en: "Moves to another school on PINTAR" },
   "kenaikan.hitung.naik": { default: "naik ke {kelas}", en: "up to {kelas}" },
   "kenaikan.hitung.tinggal": { default: "tinggal kelas", en: "repeat the year" },
+  "kenaikan.hitung.tinggal_di": { default: "tinggal kelas di {kelas}", en: "repeat the year in {kelas}" },
   "kenaikan.hitung.lulus": { default: "lulus", en: "graduate" },
   "kenaikan.hitung.keluar": { default: "keluar", en: "leave" },
   "kenaikan.hitung.pindah": { default: "mengikuti perpindahan", en: "follow their transfer" },
@@ -4992,6 +4997,7 @@ const table: Table = {
   "kenaikan.hitung.belum_nama": { default: "Belum dipilih:", en: "Not yet chosen:" },
   "kenaikan.murid.pengecualian": { default: "Pengecualian", en: "Exception" },
   "kenaikan.semua.diterapkan": { default: "Diterapkan ke {n} murid; {sisa} tidak diubah karena sudah dipilih, ada di Tingkat, atau sedang pindah.", en: "Applied to {n} students; {sisa} left as they were because already chosen, in the Tingkat, or transferring." },
+  "kenaikan.semua.diterapkan_semua": { default: "Diterapkan ke {n} murid.", en: "Applied to {n} students." },
   "kenaikan.berakhir": { default: "Pendaftaran berakhir", en: "Enrolment ended" },
   "kenaikan.berakhir.graduated": { default: "lulus", en: "graduated" },
   "kenaikan.berakhir.withdrawn": { default: "mengundurkan diri", en: "withdrew" },
@@ -5947,7 +5953,7 @@ const table: Table = {
   "buka_kembali.kirim": { default: "Kirim permintaan", en: "Send the request" },
   "buka_kembali.terkirim": { default: "Terima kasih. Jika akun itu memang sudah ditutup, permintaan Anda kini menunggu di Admin PINTAR. Akun dibuka kembali hanya setelah Admin PINTAR memastikan identitas Anda.", en: "Thank you. If that account has been closed, your request is now waiting with an Admin PINTAR. The account is reopened only after an Admin PINTAR has confirmed who you are." },
   "buka_kembali.galat.isian": { default: "Isi email atau PINTAR ID, dan pesan 10 sampai 500 karakter.", en: "Fill in the email or PINTAR ID, and a message of 10 to 500 characters." },
-  "buka_kembali.galat.tunggu": { default: "Sudah terlalu banyak permintaan baru saja. Coba lagi beberapa menit lagi.", en: "Too many requests just now. Try again in a few minutes." },
+  "buka_kembali.galat.tunggu": { default: "Baru saja ada permintaan dari jaringan ini. Tunggu beberapa menit, lalu coba lagi.", en: "A request was just sent from this network. Wait a few minutes, then try again." },
   "buka_kembali.galat.umum": { default: "Permintaan belum terkirim. Coba lagi.", en: "The request was not sent. Try again." },
   "buka_kembali.ke_masuk": { default: "Kembali ke halaman masuk", en: "Back to sign-in" },
   "keamanan.permintaan.buka_kembali": { default: "Buka kembali akun", en: "Reopen the account" },
@@ -6716,7 +6722,7 @@ const table: Table = {
   "mengajar.akhiri.jenis.ended": { default: "Diakhiri: materi sudah selesai dibahas", en: "Ended: the material has been covered" },
   "mengajar.akhiri.jenis.withdrawn": { default: "Ditarik: diberikan karena keliru", en: "Withdrawn: given by mistake" },
   "mengajar.akhiri.alasan": { default: "Alasan", en: "Reason" },
-  "mengajar.akhiri.alasan.arti": { default: "10 sampai 300 karakter. Tercatat di jejak audit sekolah.", en: "10 to 300 characters. Recorded in the school's audit trail." },
+  "mengajar.akhiri.alasan.arti": { default: "10 sampai 300 karakter. Tercatat di jejak audit sekolah dan terlihat oleh guru kelas ini.", en: "10 to 300 characters. Recorded in the school's audit trail and visible to this class's teachers." },
   "mengajar.akhiri.konfirmasi": { default: "Tutup juga asesmen yang masih dikerjakan murid di atas. Asesmen itu ditutup sekarang dan tidak dinilai; jawaban yang sudah tersimpan tetap ada.", en: "Also close the assessments the students above are still answering. They close now and are not scored; the answers already saved are kept." },
   "mengajar.akhiri.tombol": { default: "Akhiri penugasan", en: "End assignment" },
   "mengajar.akhiri.tanpa_judul": { default: "materi ini", en: "this material" },

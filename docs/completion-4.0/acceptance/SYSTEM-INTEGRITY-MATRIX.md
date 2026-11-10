@@ -157,6 +157,14 @@ has reviewed the completed changes.
 | BOB43-D01 floor | Low | — | to replace the 12-set floor by the exact expected-empty (reader, table) sets | **open** |
 | Probe M07–M09 and both answer-opening cases | — | — | `audit/integritas-peran.mjs` | **open** (needs a rebuilt report world) |
 
+## 4b-3 · Sharon's recheck of `bcecb425` (10 Nov): nothing refused; dispositions
+
+| Finding | Kind | Disposition | Evidence | State |
+|---|---|---|---|---|
+| F37-K06 (a kenaikan run's id and Kelas stay inside the run's own transaction) had no red-first demonstration | test process | planted twice on a scratch copy, never committed. Plant 1 removed only the run-end clear of `pintar.audit_run_kelas`: **stayed green**, because `audit_write` stamps `run_kelas` only inside the `audit_run` block (defence in depth, not a gap in the test). Plant 2 removed the whole run-end clearing line: **red**, «a row written after the run still carries its run id». Restored: green | local DB suite, 10 Nov | proven |
+| «Akhiri penugasan»: the form does not say who reads the reason | copy | `mengajar.akhiri.alasan.arti` now says the reason is recorded in the school's audit trail **and visible to this class's teachers** (the «Sudah berakhir» list shows it to them). Carried in the next necessary screen revision, as the owner directed | static copy tests | in the next revision |
+| An integrity observation on a sitting with neither class nor Angkatan is counted «elsewhere» for every reader and no one may decide it | edge (older than this range) | **not reachable through supported workflows**, so no fix: `may_start_assessment` requires an ACTIVE membership under the node, and memberships are CLASS or COHORT only (`memberships_guard`), so `start_learning_session` always records a place; `open_assessment_session` is the only inserter; the foreign keys are no-action and nothing nulls the place. Only fixture F38-H03, which writes past the triggers, creates the state. `boleh_atas_sesi` fails closed on it, as intended. No broader school authority added | code reading of the named functions and triggers | recorded; no change |
+
 ## 4c · SI-D02: an attempt limit under concurrent starts (9 Nov)
 
 | | |

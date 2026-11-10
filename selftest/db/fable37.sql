@@ -1060,6 +1060,11 @@ begin
         if jsonb_array_length(coalesce(v_kres -> 'guru_kosong', '[]')) <> 2 then
           k06 := k06 || ('the destination Kelas without a teacher are not named (expected 2): ' || coalesce(v_kres -> 'guru_kosong', 'null')::text); end if;
         if v_kres ->> 'run_id' is distinct from v_krun then k06 := k06 || 'the read-back does not name its run'::text; end if;
+        -- Daisy (bcecb425, B8): the outcome keeps the review's exceptions, so the read-back says where each learner came
+        -- from: the Tingkat-only learner (K7) as TINGKAT, a learner of the Kelas (K1) as KELAS
+        if not exists (select 1 from jsonb_array_elements(v_kres -> 'hasil') h where h ->> 'person_id' = v_kp -> 'K7' ->> 'person' and h ->> 'sumber' = 'TINGKAT')
+           or not exists (select 1 from jsonb_array_elements(v_kres -> 'hasil') h where h ->> 'person_id' = v_kp -> 'K1' ->> 'person' and h ->> 'sumber' = 'KELAS') then
+          k06 := k06 || ('the read-back does not say where each learner came from (sumber): ' || (v_kres -> 'hasil')::text); end if;
       end if;
     end if;
 
@@ -1156,7 +1161,7 @@ begin
       ('F37-K07', '«Kenaikan kelas dan kelulusan»: no destination, no teacher to acknowledge', k07,
        'a run in which no learner goes to a Kelas (all graduate or leave) applies without the teachers'' acknowledgement; one with a destination is still refused (K02)'),
       ('F37-K06', '«Kenaikan kelas dan kelulusan»: the run''s own record', k06,
-       'every row the run writes (its endings, placements and ended sittings) carries the run''s id and a later row does not; the read-back says, per learner, whether the recorded place matches the decision, how and when a departure ended, and which destination Kelas has no teacher'),
+       'every row the run writes (its endings, placements and ended sittings) carries the run''s id and a later row does not; the read-back says, per learner, whether the recorded place matches the decision, how and when a departure ended, and which destination Kelas has no teacher, and where each learner came from (KELAS, or TINGKAT for the Tingkat-only learner)'),
       ('F37-K03', '«Kenaikan kelas dan kelulusan»: applied whole, each outcome by name', k03,
        'two learners and the Tingkat-only one go up to 6K and the repeater straight into the repeat class on new-year enrolments (the old year ENDED/EXPIRED, its placement PERIOD_ROLLOVER); the graduate is COMPLETED and the leaver WITHDRAWN with their reasons; the learner being transferred is unchanged; one promotion.applied row with seven outcomes; no teacher carried; the old sitting stays on the old class'),
       ('F37-K04', '«Kenaikan kelas dan kelulusan»: an open sitting is shown before it is ended', k04,

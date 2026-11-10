@@ -36,6 +36,21 @@ export type BabHasil = {
   ditarik?: boolean;
 };
 
+/**
+ * Daisy (bcecb425, B3): whether the learner has a result in a lesson that is no longer assigned (ended, withdrawn, or
+ * of a Kelas they left), read from the same history Hasil Belajar reads. /belajar asks this only when no assigned
+ * lesson has a result, so a learner whose lessons have all closed still has the way to their results.
+ */
+export async function adaHasilTertutup(db: engine.EngineClient, aktif: Set<string>): Promise<boolean> {
+  const tugas = await engine.myLearningHistory(db).catch(() => []);
+  for (const a of tugas) {
+    if (aktif.has(a.learning_assignment_id)) continue;
+    const state = await engine.cycleState(db, a.learning_assignment_id).catch(() => null);
+    if (state && ((state.post_session && state.post_status === "FINALIZED") || (state.pre_session && state.pre_status === "FINALIZED"))) return true;
+  }
+  return false;
+}
+
 export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]> {
   // defect (10 Nov): a closed lesson's outcome stays seen; an unfinished one of a closed lesson is no longer «in progress»
   const tugas = await engine.myLearningHistory(db);

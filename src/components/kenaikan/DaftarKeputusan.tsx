@@ -61,19 +61,22 @@ export default function DaftarKeputusan({ locale, kelas, tahun, baris, opsi, uta
           return (
             <li key={b.person_id} className="pin-kenaikan-baris" data-murid={b.person_id} data-pengecualian={pengecualian ? "" : undefined}>
               <span className="pin-kenaikan-nama">
-                {b.nama}{b.nomor ? <span className="pin-meta"> · {b.nomor}</span> : null}
+                <span id={`kn-nama-${b.person_id}`}>{b.nama}</span>{b.nomor ? <span className="pin-meta"> · {b.nomor}</span> : null}
                 {b.tanda.map((t) => <span key={t} className="pin-pill pin-info">{t}</span>)}
                 {pengecualian ? <span className="pin-meta" data-tanda-pengecualian="">{kata.pengecualian}</span> : null}
               </span>
-              <label><span className="pin-sr">{kata.keputusanUntuk} {b.nama}</span>
-                <select name={`k[${b.person_id}]`} className="pin-input" required value={v}
+              {/* Daisy (bcecb425, B8.4): the select is named «Keputusan untuk {nama}» from the visible name, so the row does
+                  not read the name twice (it had a hidden label repeating it) */}
+              <span>
+                <span id={`kn-untuk-${b.person_id}`} hidden>{kata.keputusanUntuk}</span>
+                <select name={`k[${b.person_id}]`} className="pin-input" required value={v} aria-labelledby={`kn-untuk-${b.person_id} kn-nama-${b.person_id}`}
                   onChange={(e) => setPilihan((p) => ({ ...p, [b.person_id]: e.target.value }))}>
                   <option value="">{kata.pilih}</option>
                   {opsi.map((o) => "opsi" in o
                     ? <optgroup key={o.label} label={o.label}>{o.opsi.map((x) => <option key={x.value} value={x.value}>{x.label}</option>)}</optgroup>
                     : <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
-              </label>
+              </span>
             </li>
           );
         })}

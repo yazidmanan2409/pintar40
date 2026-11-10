@@ -144,6 +144,10 @@ await step("B4-W0", "alpha's admin gives the school its code on Pendataan (the T
   await A.waitForLoadState("networkidle");
   await shot(A, rec, "kode-sekolah");
   const jawab = new URL(A.url()).search || "(no answer)";
+  // a refusal is still a failure here: the step expects the save, so it asks for the page's saved answer and its line
+  // («Kode sekolah tersimpan.»), and for the code the database now holds
+  harus(rec, new URL(A.url()).searchParams.get("kode") === "tersimpan", `the page answered the save as saved (${jawab})`);
+  harus(rec, await A.getByText("Kode sekolah tersimpan.", { exact: false }).first().isVisible().catch(() => false), "the page says «Kode sekolah tersimpan.»");
   harus(rec, sql(`select coalesce(namespace, '') from public.institutions where id = '${alphaId}'`) === kode, `alpha's code is ${kode} (the page answered ${jawab})`);
 });
 muridKartu = catatMurid(MURID_KARTU);

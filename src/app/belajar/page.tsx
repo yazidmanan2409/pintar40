@@ -24,6 +24,7 @@ import { judulHalaman } from "@/lib/judul-halaman";
 import { judulAsesmen } from "@/lib/judul-asesmen";
 import { tanggal } from "@/lib/tanggal";
 import { zonaSimpulBanyak } from "@/lib/zona-sekolah";
+import { adaHasilTertutup } from "@/lib/hasil-belajar";
 
 export const generateMetadata = judulHalaman("/belajar");
 
@@ -144,6 +145,10 @@ export default async function Belajar({
   const baru = await engine.newResults(db).catch(() => new Set<string>());
   for (const k of kandidat) k.hasilBaru = k.posisi.selesai && baru.has(k.tugas.learning_assignment_id);
   const { utama, sisa } = peringkat(kandidat);
+  // Daisy (bcecb425, B3): the way to Hasil Belajar stays once every lesson has closed. Its results are read from the
+  // learner's history (the closed lessons), asked only when no assigned lesson has one
+  const adaHasil = capaian.size > 0
+    || await adaHasilTertutup(db, new Set(tugas.map((a) => a.learning_assignment_id))).catch(() => false);
 
   // Q-12: what a learner may start that no learning assignment names. The RPC
   // returns exactly what `may_start_assessment()` accepts, so this list adds
@@ -409,7 +414,7 @@ export default async function Belajar({
         ) : null}
 
         {/* D-195(1), CONTOH LAPORAN 1-murid: every chapter's result on one page, once a chapter has one */}
-        {capaian.size > 0 ? (
+        {adaHasil ? (
           <section className="pin-sec" data-hasil-belajar="">
             <h2>{s("hasilbelajar.judul")}</h2>
             <p className="pin-mm">{s("hasilbelajar.buka_arti")}</p>

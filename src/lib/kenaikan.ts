@@ -97,14 +97,23 @@ export function kunciKelompok(h: HasilKelompok): string {
 }
 
 /**
- * Q2 (Daisy): the main group is the most common «Naik» destination; every other outcome, and every learner who came
- * from the Tingkat without a Kelas, is an exception, named and always shown. Groups keep the order of first appearance.
+ * Q2 (Daisy): the main group is the largest group of any outcome (Daisy, bcecb425 B8.1: a graduating Kelas 6 folds «4
+ * lulus» and names the one who leaves, rather than listing every child as an exception; it was the most common «Naik»
+ * destination only); every other outcome, and every learner who came from the Tingkat without a Kelas, is an exception,
+ * named and always shown. A tie goes by the outcome (naik, tinggal, lulus, keluar, pindah, then the destination's id),
+ * never by the learners' order, so the review and the outcome choose the same group. Groups keep the order of first appearance.
  */
 export function kelompokkan<T extends HasilKelompok>(hasil: T[]): { utama: string | null; pengecualian: T[]; kelompok: Array<{ kunci: string; isi: T[] }> } {
   const hitung = new Map<string, number>();
-  for (const h of hasil) if (h.keputusan === "NAIK") hitung.set(kunciKelompok(h), (hitung.get(kunciKelompok(h)) ?? 0) + 1);
+  for (const h of hasil) hitung.set(kunciKelompok(h), (hitung.get(kunciKelompok(h)) ?? 0) + 1);
+  // a tie is settled by the outcome, never by the order the learners came in: the review lists them in its own order
+  // and the outcome by name, and both must choose the same main group (owner, 10 Nov)
+  const urutan = (k: string) => KEPUTUSAN.indexOf(k.split(":")[0] as Keputusan);
   let utama: string | null = null;
-  for (const [k, n] of hitung) if (utama === null || n > (hitung.get(utama) ?? 0)) utama = k;
+  for (const [k, n] of hitung) {
+    const u = utama === null ? 0 : hitung.get(utama) ?? 0;
+    if (utama === null || n > u || (n === u && (urutan(k) < urutan(utama) || (urutan(k) === urutan(utama) && k < utama)))) utama = k;
+  }
   const kelompok: Array<{ kunci: string; isi: T[] }> = [];
   for (const h of hasil) {
     const k = kunciKelompok(h);

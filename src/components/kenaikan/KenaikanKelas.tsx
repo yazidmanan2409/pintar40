@@ -159,7 +159,8 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
             <ul className="pin-kenaikan-murid" data-kenaikan-hasil="">
               {g.pengecualian.map((m) => (
                 <li key={m.person_id} data-murid={m.person_id}>
-                  {m.nama} · {m.sumber === "TINGKAT" ? `${s("kenaikan.tinjau.dari_tingkat")} · ` : ""}{kalimat(s, m, tahunTujuan)} · {tercatat(s, m, locale, zona)}
+                  {/* Daisy (bcecb425, B8.3): what PINTAR recorded is said only where it differs; the check line above says the rest matched */}
+                  {m.nama} · {m.sumber === "TINGKAT" ? `${s("kenaikan.tinjau.dari_tingkat")} · ` : ""}{kalimat(s, m, tahunTujuan)}{m.sesuai ? "" : ` · ${tercatat(s, m, locale, zona)}`}
                 </li>
               ))}
             </ul>
@@ -169,7 +170,7 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
           <details className="pin-disclosure pin-kenaikan-kelompok" data-kenaikan-utama={utamaHasil.length}>
             <summary className="cursor-pointer">{judulKelompok(s, utamaHasil[0], utamaHasil.length, tahunTujuan)}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
             <ul className="pin-kenaikan-murid" data-kenaikan-hasil="">
-              {utamaHasil.map((m) => <li key={m.person_id} data-murid={m.person_id}>{m.nama} · {tercatat(s, m, locale, zona)}</li>)}
+              {utamaHasil.map((m) => <li key={m.person_id} data-murid={m.person_id}>{m.nama}{m.sesuai ? "" : ` · ${tercatat(s, m, locale, zona)}`}</li>)}
             </ul>
           </details>
         ) : null}
@@ -223,7 +224,8 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
     const tujuan = tahun.kelas.filter((k) => hasil.some((h) => h.kelas_tujuan === k.id || h.kelas_tujuan_nama === k.nama));
     const tanpaGuru = tujuan.filter((k) => k.guru.length === 0);
     const adaTujuan = tujuan.length > 0 || hasil.some((h) => h.kelas_tujuan || h.keputusan === "NAIK" || h.keputusan === "TINGGAL");
-    const ringkas = g.kelompok.map((k) => judulKelompok(s, k.isi[0], k.isi.length, tahun.nama)).join(" · ");
+    // Daisy (bcecb425, B8.2): the groups are joined by «, », so the «·» inside a group («6A · 2027/28») reads as part of it
+    const ringkas = g.kelompok.map((k) => judulKelompok(s, k.isi[0], k.isi.length, tahun.nama)).join(", ");
     return (
       <div className="pin-kenaikan" data-kenaikan-langkah="tinjau">
         {langkahKe(3, "kenaikan.langkah.tinjau")}
@@ -264,7 +266,8 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
               {tujuan.map((k) => <li key={k.id}>{kt(k)}: {k.guru.length ? k.guru.map((x) => x.nama).join(", ") : s("kenaikan.guru.tidak_ada")}</li>)}
             </ul>
           ) : <p className="pin-kenaikan-teks" data-kenaikan-guru="" data-kenaikan-tanpa-tujuan="">{s("kenaikan.guru.tanpa_tujuan")}</p>}
-          <p><Link className="pin-tautan" href="/konfigurasi/roles#roles" target="_blank" rel="noopener">{s("kenaikan.guru.ke_peran_tab")}</Link></p>
+          {/* Daisy (bcecb425, B8.4): with no destination Kelas there is no teacher to give a role to */}
+          {tujuan.length ? <p><Link className="pin-tautan" href="/konfigurasi/roles#roles" target="_blank" rel="noopener">{s("kenaikan.guru.ke_peran_tab")}</Link></p> : null}
         </section>
         <form action={terapkanKenaikanAksi} className="pin-kenaikan">
           <input type="hidden" name="kelas" value={kelas} />
@@ -330,7 +333,10 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
       </form>
       {semua ? (
         <p role="status" className="pin-meta" data-kenaikan-diterapkan={diisi}>
-          {s("kenaikan.semua.diterapkan").replace("{n}", String(diisi)).replace("{sisa}", String(r.murid.length - diisi))}
+          {/* Daisy (bcecb425, B8.4): «0 tidak diubah karena …» is not said */}
+          {r.murid.length - diisi > 0
+            ? s("kenaikan.semua.diterapkan").replace("{n}", String(diisi)).replace("{sisa}", String(r.murid.length - diisi))
+            : s("kenaikan.semua.diterapkan_semua").replace("{n}", String(diisi))}
         </p>
       ) : null}
       {r.murid.length === 0 ? <Kosong jenis="belum" kalimat={s("kenaikan.murid.kosong")} /> : (
@@ -366,7 +372,7 @@ function judulKelompok(s: (k: HleEvent) => string, m: Hasil, n: number, tahun: s
   const kelasT = m.kelas_tujuan_nama ? kelasDenganTahun(m.kelas_tujuan_nama, tahun) : "—";
   switch (m.keputusan) {
     case "NAIK": return `${n} ${s("kenaikan.hitung.naik").replace("{kelas}", kelasT)}`;
-    case "TINGGAL": return `${n} ${s("kenaikan.hitung.tinggal")} · ${kelasT}`;
+    case "TINGGAL": return `${n} ${s("kenaikan.hitung.tinggal_di").replace("{kelas}", kelasT)}`;
     case "LULUS": return `${n} ${s("kenaikan.hitung.lulus")}`;
     case "KELUAR": return `${n} ${s("kenaikan.hitung.keluar")}`;
     case "PINDAH": return `${n} ${s("kenaikan.hitung.pindah")}`;

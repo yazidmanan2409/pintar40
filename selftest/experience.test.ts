@@ -9070,15 +9070,17 @@ export const experienceTests: SelfTest[] = [
           // levels, years, students
           const bB1 = teks(baris(x, "Kelas Rendah")), bT1 = teks(baris(x, "Kelas 1")), bK1 = teks(baris(x, "1A"));
           c.expect(bB1.startsWith(s("config.struktur.jenis.BAGIAN")) && !/\d{4}\/\d{4}/.test(bB1), `(${locale}) the Bagian row: "${bB1}"`);
-          c.expect(bT1.startsWith(s("config.struktur.jenis.TINGKAT")) && bT1.includes("2026/2027") && bT1.includes(`1 ${s("config.struktur.murid.satu")}`),
+          // RESTATED (Daisy, bcecb425 B8.4): a year reads in the one format, «2026/27», where the row and the Kelas form show
+          // it (it was shown as typed, «2026/2027», beside «2026/27» elsewhere); the Tingkat form still sends it as typed
+          c.expect(bT1.startsWith(s("config.struktur.jenis.TINGKAT")) && bT1.includes("2026/27") && bT1.includes(`1 ${s("config.struktur.murid.satu")}`),
             `(${locale}) the Tingkat row does not show its level, year and students: "${bT1}"`);
-          c.expect(bK1.startsWith(s("config.struktur.jenis.KELAS")) && bK1.includes("2026/2027") && bK1.includes(`12 ${s("config.struktur.murid.banyak")}`),
+          c.expect(bK1.startsWith(s("config.struktur.jenis.KELAS")) && bK1.includes("2026/27") && bK1.includes(`12 ${s("config.struktur.murid.banyak")}`),
             `(${locale}) the Kelas row does not show its level, year and students: "${bK1}"`);
           // the add forms: where, what they carry
           const fKelas = formDengan(x, "tingkat", "t1");
           c.expect(fKelas.includes('name="nama"') && !fKelas.includes("tahun_ajaran") && teks(fKelas).includes(s("config.struktur.tambah.KELAS")),
             `(${locale}) the active Tingkat has no "${s("config.struktur.tambah.KELAS")}" form, or it asks for a year`);
-          c.expect(tampil.includes(`${s("config.struktur.tahun_ikut")} 2026/2027`), `(${locale}) the Kelas form does not show the year it takes`);
+          c.expect(tampil.includes(`${s("config.struktur.tahun_ikut")} 2026/27`), `(${locale}) the Kelas form does not show the year it takes`);
           const fTingkat = formDengan(x, "bagian", "b1");
           c.expect(/name="tahun_ajaran"[^>]*value="2026\/2027"|value="2026\/2027"[^>]*name="tahun_ajaran"/.test(fTingkat) && teks(fTingkat).includes(s("config.struktur.tambah.TINGKAT")),
             `(${locale}) the active Bagian has no "${s("config.struktur.tambah.TINGKAT")}" form with this year filled in`);

@@ -287,6 +287,9 @@ begin
     select jsonb_agg(x.v order by x.v ->> 'nama') from (
       select jsonb_build_object(
              'person_id', o ->> 'person_id', 'nama', p.display_name, 'keputusan', o ->> 'keputusan',
+             -- CORRECTED IN PLACE (undeployed; Daisy, bcecb425 B8): where the learner came from, as the run recorded it
+             -- (KELAS, or TINGKAT for a learner placed on the Tingkat only), so the outcome names the review's exceptions
+             'sumber', o ->> 'sumber',
              'kelas_tujuan', o ->> 'kelas_tujuan',
              'kelas_tujuan_nama', tj.name, 'tahun_tujuan', tap.name,
              'alasan', o ->> 'alasan',

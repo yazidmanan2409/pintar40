@@ -111,7 +111,12 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
             <dl className="pin-facts">
               {catatan.daftarHasil.map((h) => (
                 <div key={h.sesi}>
-                  <dt>{h.judul ?? s(`mengajar.instrumen.${h.mode}` as HleEvent)}</dt>
+                  {/* Daisy (bcecb425, B2): the cycle's instruments by their names, as the student's page and the reports say them,
+                      with the course: «Uji Penguasaan · Matematika Kelas 5 · Bab 1», never the authoring title («Cek
+                      penguasaan — …», «Pemetaan awal — …», which the database writes on the definition) */}
+                  <dt>{h.mode === "PRE_TEST" || h.mode === "POST_TEST"
+                    ? [s(`mengajar.instrumen.${h.mode}` as HleEvent), (h.judul ?? "").replace(/^\s*(pemetaan awal|cek penguasaan|uji penguasaan)\s*[—–-]\s*/i, "").trim()].filter(Boolean).join(" · ")
+                    : h.judul ?? s(`mengajar.instrumen.${h.mode}` as HleEvent)}</dt>
                   <dd className="pin-num">
                     {h.penguasaan === null ? "—" : format.percent(h.penguasaan, locale)}
                     {/* owner decisions E1, D14: a recalculated sitting is explained directly under its figure, with its reason */}

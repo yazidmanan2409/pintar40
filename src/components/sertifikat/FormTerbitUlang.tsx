@@ -22,7 +22,8 @@ export default function FormTerbitUlang({ locale, id, pratinjau }: { locale: Loc
   const baris: Array<[HleEvent, string | null, string | null]> = [
     ["sertifikat.kelola.kolom.pemegang", pratinjau.nama_tercetak, pratinjau.nama_kini],
     ["sertifikat.kelola.kolom.sekolah", pratinjau.sekolah_tercetak, pratinjau.sekolah_kini],
-    ["sertifikat.kelola.kolom.kursus", pratinjau.kursus_tercetak, pratinjau.kursus_kini],
+    // Daisy (bcecb425, B6): one word in this panel, the one its sentences use (X12 ruling 2: «paket» for the package)
+    ["sertifikat.ganti.paket", pratinjau.kursus_tercetak, pratinjau.kursus_kini],
   ];
   return (
     <div className="pin-koreksi pin-ganti" data-ganti={id}>
@@ -43,8 +44,9 @@ export default function FormTerbitUlang({ locale, id, pratinjau }: { locale: Loc
           {baris.map(([k, lama, kini]) => (
             <tr key={k} data-berubah={lama !== kini ? "ya" : "tidak"}>
               <th scope="row">{s(k)}</th>
-              <td>{lama ?? "—"}</td>
-              <td>{kini ?? "—"}</td>
+              {/* Daisy (bcecb425, B6): on a phone each row is drawn as a block, each value with its own label (data-label) */}
+              <td data-label={s("sertifikat.ganti.tercetak")}>{lama ?? "—"}</td>
+              <td data-label={s("sertifikat.ganti.kini")}>{kini ?? "—"}</td>
               <td>{lama !== kini ? <span className="pin-pill pin-info">{s("sertifikat.ganti.berbeda")}</span> : null}</td>
             </tr>
           ))}

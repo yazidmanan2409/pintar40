@@ -1303,8 +1303,10 @@ await step("S18", "the teacher assigns the published Bab 1 to Kelas 1A (Siapkan 
   if (!/Batas ketuntasan: 60%/.test(batas)) rec.verdict = "FAIL";
   rec.shots.push(await shot(t, "siapkan-tinjau"));
   await t.locator('form:has(input[name="terbitan"]) button[type="submit"]').first().click();
+  // CORRECTED (the owner, 10 Nov: no arbitrary delays): «Sediakan» is a server action answering with a redirect, to
+  // ?disediakan=<release> when given or ?kode=<code> when refused; wait for that answer, not for a fixed 1.5 s
+  await t.waitForURL((u) => u.searchParams.has("disediakan") || u.searchParams.has("kode"), { timeout: SLOW }).catch(() => {});
   await t.waitForLoadState("networkidle");
-  await t.waitForTimeout(1500);
   rec.shots.push(await shot(t, "siapkan-hasil"));
   const u = new URL(t.url());
   const la = sql(`select count(*) from public.learning_assignments where course_id='${course}'`).trim();
@@ -3587,8 +3589,10 @@ await step("S26d", "two chapters: Gita, part-way through Bab 1, finds her home c
     .format(new Date(Date.now() + 30 * 86400000));
   await t.locator("#pin-sampai").fill(sampai).catch(() => {});
   await t.locator('form:has(input[name="terbitan"]) button[type="submit"]').first().click();
+  // CORRECTED (the owner, 10 Nov: no arbitrary delays): «Sediakan» is a server action answering with a redirect, to
+  // ?disediakan=<release> when given or ?kode=<code> when refused; wait for that answer, not for a fixed 1.5 s
+  await t.waitForURL((u) => u.searchParams.has("disediakan") || u.searchParams.has("kode"), { timeout: SLOW }).catch(() => {});
   await t.waitForLoadState("networkidle");
-  await t.waitForTimeout(1500);
   const kodeSedia = new URL(t.url()).searchParams.get("kode");
   await tc.close();
   const la2 = sql(`select id from public.learning_assignments where course_id='${bab2}' and node_id='${kelas}' order by created_at desc limit 1`).trim();
