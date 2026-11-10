@@ -28,3 +28,27 @@ export function kodePeranDariGalat(e: { code?: string | null; details?: string |
 export function kunciKodePeran(kode: KodePeran): HleEvent {
   return `peran.galat.${kode.toLowerCase()}` as HleEvent;
 }
+
+/** Whether a code is one of this contract's (a page told a code by its address reads it back through this). */
+export function kodePeranDari(v: string | undefined | null): KodePeran | null {
+  return v && (KODE_PERAN as readonly string[]).includes(v) ? (v as KodePeran) : null;
+}
+
+/** The expiry notice's windows: «Peran & akses» from 30 days before the end date, the holder's own home from 7. */
+export const HARI_PERINGATAN = { kelola: 30, sendiri: 7 } as const;
+
+/** One row of peran_akan_berakhir: a live role ending within the asked days, counted on the school's clock (`zona`). */
+export type PeranBerakhir = {
+  id: string; person_id: string; nama: string; role: string; scope_node_id: string | null; tempat: string | null;
+  institution_id: string | null; valid_until: string; zona: string; sisa_hari: number; milik_sendiri: boolean; pemegang_terakhir: boolean;
+};
+
+/** The day after a role's current end, on its own clock: the earliest day a renewal may name (yyyy-mm-dd). */
+export function hariSetelah(validUntil: string, zona: string): string {
+  const d = new Date(validUntil);
+  if (Number.isNaN(d.getTime())) return "";
+  const hari = new Intl.DateTimeFormat("en-CA", { timeZone: zona || "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+  const besok = new Date(`${hari}T12:00:00Z`);
+  besok.setUTCDate(besok.getUTCDate() + 1);
+  return besok.toISOString().slice(0, 10);
+}

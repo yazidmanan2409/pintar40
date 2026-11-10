@@ -12,6 +12,7 @@ import { bacaPersen } from "@/lib/batas-ketuntasan";
 import { KONFIRMASI_HENTIKAN, waktuSekolah } from "@/lib/pemeliharaan-kontrak";
 import { batasHari } from "@/lib/hle";
 import { zonaSekolah } from "@/lib/zona-sekolah";
+import { KODE_PERAN_DICATAT, kodePeranDariGalat } from "@/lib/peran-kontrak";
 
 /**
  * Config Studio actions (FABLE-01 §10). Every action is a thin call to an
@@ -216,6 +217,47 @@ export async function tunjukAdminPertamaAction(fd: FormData): Promise<void> {
   back("roles", error ? ditolak("grant_role", error) : { ok: true, kode: "ROLE_GRANTED" }, fd);
 }
 
+/**
+ * B0 · a role action's refusal: the guard's last-holder rule and the renewal's own (PR160 with its code in DETAIL) and
+ * two changes that met (40P01) are said in their own sentences (peran.galat.*); anything else as every action's is.
+ * A last-holder refusal or a refused self-renewal aborted its own transaction, so it is recorded here, afterwards
+ * (catat_penolakan_peran, which writes only a refusal that stands for this caller); recording never changes the answer.
+ */
+async function ditolakPeran(
+  supabase: Awaited<ReturnType<typeof supabaseServer>>, fn: string,
+  error: { code?: string | null; message?: string | null; details?: string | null }, assignment: string | null,
+): Promise<HasilAksi> {
+  const kode = kodePeranDariGalat(error);
+  if (kode === "ROLE_FAILED") return ditolak(fn, error);
+  if (assignment && (KODE_PERAN_DICATAT as readonly string[]).includes(kode)) {
+    const { error: e } = await supabase.rpc("catat_penolakan_peran", { p_assignment: assignment, p_kode: kode });
+    if (e) console.error(`[konfigurasi] ${fn}: the refusal ${kode} was not recorded`, e.code);
+  }
+  return { ok: false, kode };
+}
+
+/**
+ * B0 · «Perpanjang peran»: one act (perpanjang_peran): a new assignment with the later end date through the role
+ * guard, then the old one ended, with the reason, audited as a renewal. Whoever may grant the role renews it; nobody
+ * their own, except the platform's only active administrator. The new last day ends at 23.59.59 on the school's clock.
+ */
+export async function perpanjangPeranAction(fd: FormData): Promise<void> {
+  const id = uuidOrNull(str(fd, "assignment"));
+  const until = str(fd, "valid_until");
+  const alasan = str(fd, "alasan");
+  if (!id) back("roles", { ok: false, kode: "ACTION_NOT_FOUND" }, fd);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(until)) back("roles", { ok: false, kode: "ROLE_RENEW_UNTIL_INVALID" }, fd);
+  if (alasan.length < 10 || alasan.length > 300) back("roles", { ok: false, kode: "ROLE_RENEW_REASON_REQUIRED" }, fd);
+  const supabase = await supabaseServer();
+  const { data: hibah } = await supabase.from("role_assignments").select("role, institution_id").eq("id", id).limit(1);
+  const h = (hibah?.[0] ?? null) as { role?: string; institution_id?: string | null } | null;
+  if (h) await wajibDalamKonteks(h.role === "SYSTEM_ADMIN" ? { platform: true } : { sekolah: h.institution_id ?? null }, "roles");
+  const sampai = batasHari(until, "akhir", await zonaSekolah(supabase, h?.institution_id ?? null));
+  if (!sampai) back("roles", { ok: false, kode: "ROLE_RENEW_UNTIL_INVALID" }, fd);
+  const { error } = await supabase.rpc("perpanjang_peran", { p_assignment: id, p_valid_until: sampai, p_alasan: alasan });
+  back("roles", error ? await ditolakPeran(supabase, "perpanjang_peran", error, id) : { ok: true, kode: "ROLE_RENEWED" }, fd);
+}
+
 export async function revokeRoleAction(fd: FormData): Promise<void> {
   const id = uuidOrNull(str(fd, "assignment"));
   // D-097(a): a revocation states why; the database asks again (revoke_role)
@@ -229,7 +271,8 @@ export async function revokeRoleAction(fd: FormData): Promise<void> {
     if (h) await wajibDalamKonteks(h.role === "SYSTEM_ADMIN" ? { platform: true } : { sekolah: h.institution_id ?? null }, "roles");
   }
   const { error } = await supabase.rpc("revoke_role", { p_assignment: id, p_reason: alasan });
-  back("roles", error ? ditolak("revoke_role", error) : { ok: true, kode: "ROLE_REVOKED" }, fd);
+  // B0: the last-holder refusal in its own sentence, and recorded
+  back("roles", error ? await ditolakPeran(supabase, "revoke_role", error, id) : { ok: true, kode: "ROLE_REVOKED" }, fd);
 }
 
 /**

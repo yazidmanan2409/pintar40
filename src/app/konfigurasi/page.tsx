@@ -19,7 +19,7 @@ import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
   daftarkanPesertaAction, grantRoleAction, hentikanSekarangAction, jadwalkanPemeliharaanAction, pindahKelasAction,
-  akhiriPendaftaranAction, daftarkanKembaliAction, revokeRoleAction, saveReportTemplateAction, tarikPengumumanAction, terbitkanPengumumanAction,
+  akhiriPendaftaranAction, daftarkanKembaliAction, perpanjangPeranAction, revokeRoleAction, saveReportTemplateAction, tarikPengumumanAction, terbitkanPengumumanAction,
   tetapkanBatasAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction, transferRequestAction,
   tunjukAdminPertamaAction, ubahPemeliharaanAction, tempatkanMuridAction, aturZonaWaktuAction } from "./actions";
 import { adaAdminSekolah, calonAdminPertama } from "@/lib/admin-pertama";
@@ -38,6 +38,8 @@ import { melayani } from "@/lib/konteks";
 import { redirect } from "next/navigation";
 import { KELOMPOK_KONFIGURASI, adalahBagian, alamatBagian, bagianDariParameter } from "@/lib/bagian-konfigurasi";
 import TerusBagian from "@/components/konfigurasi/TerusBagian";
+import PeranSayaBerakhir from "@/components/peran/PeranSayaBerakhir";
+import { HARI_PERINGATAN, hariSetelah, type PeranBerakhir } from "@/lib/peran-kontrak";
 import { peranSaya } from "@/lib/tur-negara";
 import { bacaStruktur } from "@/lib/struktur";
 import { tahunAjaranPada } from "@/lib/struktur-kontrak";
@@ -139,6 +141,8 @@ type SearchParams = Promise<{
   angkat?: string; lingkup?: string; sampai?: string; pertama?: string;
   /** B1: the record whose one action is open in place (its row shows its short form), one at a time. */
   ubah?: string;
+  /** B0: the role whose renewal form is open on «Peran & akses» (one at a time, in the address). */
+  perpanjang?: string;
   // L4 (CR-88): the page of each bounded list
   hal_pindah?: string; hal_jejak?: string; hal_peran?: string; hal_sekolah?: string; hal_lapor?: string;
   hal_jendela?: string; hal_pengumuman?: string;
@@ -431,6 +435,34 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     if (id) q.set("ubah", id);
     return `${jalanIni}${q.size ? `?${q.toString()}` : ""}#${jangkar}`;
   };
+  // B0 · administrator lock-out protection, on «Peran & akses» only. (1) The roles ending within 30 days, counted by the
+  // database on the school's clock (peran_akan_berakhir): this school's in a school's context, the platform's in
+  // «Seluruh platform». (2) The one role whose renewal form is open (?perpanjang=), read from the whole list so a role
+  // on another page of it can be renewed from the notice. (3) Whether the role whose «Lepaskan» is open, or the
+  // reader's own platform role, is the last usable administrator role (peran_pemegang_terakhir).
+  const diPeran = bagianIni === "roles";
+  const { data: berakhirDibaca } = diPeran && (satuSekolah || platformIni)
+    ? await supabase.rpc("peran_akan_berakhir", { p_institution: platformIni ? null : satuSekolah, p_hari: HARI_PERINGATAN.kelola })
+    : { data: [] };
+  const berakhir = ((berakhirDibaca ?? []) as PeranBerakhir[]).filter((r) => (platformIni ? r.role === "SYSTEM_ADMIN" : true));
+  type BarisPeran = { id: string; person_id: string; role: string; scope_node_id: string | null; institution_id: string | null; valid_until: string };
+  const semuaPeran = (assignments ?? []) as unknown as BarisPeran[];
+  const peranSendiri = platformIni ? semuaPeran.find((a) => a.person_id === viewer.personId && a.role === "SYSTEM_ADMIN") ?? null : null;
+  const dibuka = ubah ? semuaPeran.find((a) => a.id === ubah) ?? null : null;
+  const terakhir = async (id: string | null | undefined) =>
+    id ? (await supabase.rpc("peran_pemegang_terakhir", { p_assignment: id })).data === true : false;
+  const [sendiriTerakhir, dibukaTerakhir] = diPeran
+    ? await Promise.all([terakhir(peranSendiri?.id), terakhir(isSys === true && dibuka?.role === "INSTITUTION_ADMIN" ? dibuka.id : null)])
+    : [false, false];
+  // nobody renews their own role, except the platform's only active administrator (the database decides again)
+  const bolehPerpanjang = (a: { id: string; person_id: string }) => a.person_id !== viewer.personId || (sendiriTerakhir && a.id === peranSendiri?.id);
+  const diperpanjang = diPeran && uuidSah(sp.perpanjang) ? semuaPeran.find((a) => a.id === sp.perpanjang && bolehPerpanjang(a)) ?? null : null;
+  const tautanPerpanjang = (id: string | null) => {
+    const q = new URLSearchParams();
+    for (const k of ["sekolah", "hal_peran"] as const) if (typeof sp[k] === "string" && sp[k]) q.set(k, sp[k]!);
+    if (id) q.set("perpanjang", id);
+    return `${jalanIni}${q.size ? `?${q.toString()}` : ""}#${id ? "perpanjang" : "roles"}`;
+  };
   const angkat = uuidSah(sp.angkat) && uuidSah(sp.lingkup) && /^\d{4}-\d{2}-\d{2}$/.test(sp.sampai ?? "")
     ? {
         person: sp.angkat!, scope: sp.lingkup!, sampai: sp.sampai!,
@@ -624,7 +656,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const barisJejak = lipat.baris;
   // the owner's ruling (10 Nov): each audit row and role on its own school's clock; one read for the schools they name
   const zonaBaris = await zonaSekolahBanyak(supabase, [...barisJejak.map((r) => r.institution_id as string | null),
-    ...daftarPeran.map((a) => (a as { institution_id?: string | null }).institution_id)]);
+    ...daftarPeran.map((a) => (a as { institution_id?: string | null }).institution_id), diperpanjang?.institution_id]);
   const adaVersi = platformIni && barisJejak.some((r) => Boolean(r.build_sha));
   // E7 (owner, 9 Nov): who acted, by their name where the reader may see the person, and in what role (the row's own
   // actor_role); a row with no actor is the system's
@@ -756,6 +788,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
         ) : null}
       </header>
       {bagianIni === null ? <TerusBagian /> : null}
+      {/* B0: on the administrator's own home, their own role ending within seven days */}
+      {bagianIni === null ? <PeranSayaBerakhir locale={locale} /> : null}
 
 
       {bagianIni === null && menunggu.length > 0 ? (
@@ -1806,6 +1840,63 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             <h2 className="font-medium">{s("config.section.roles")}</h2>
             {/* Readiness (Daisy, 8 Nov): what this section is, and the teacher's order (B2) */}
             <p className="mt-1 text-sm text-ink-2" data-peran-arti="">{s("config.roles.arti")}</p>
+            {/* B0: the roles ending within 30 days, each by name with its date on the school's clock and its renewal;
+                nothing is drawn when none ends */}
+            {berakhir.length > 0 ? (
+              <div className="pin-banner pin-attention mt-3" role="status" aria-labelledby="pin-peran-berakhir" data-peran-berakhir={berakhir.length}>
+                <Ikon nama="triangle-alert" />
+                <h3 id="pin-peran-berakhir" className="font-medium">{sl("peran.berakhir.judul")}</h3>
+                <p className="text-sm text-ink-1">{sl("peran.berakhir.jumlah").replace("{n}", String(berakhir.length))}</p>
+                <ul className="mt-1 grid gap-1 text-sm">
+                  {berakhir.map((r) => (
+                    <li key={r.id} className="flex flex-wrap items-center justify-between gap-2" data-berakhir={r.id} data-sisa-hari={r.sisa_hari}>
+                      <span>
+                        <strong>{r.nama}</strong> · {roleLabel(r.role)}
+                        <span className="text-ink-2"> · {r.tempat ?? sl("config.pemeliharaan.platform")} · {sl("config.label.valid_until").toLowerCase()} {tanggal(r.valid_until, "baca", locale, r.zona)}
+                          {r.pemegang_terakhir ? <> · {sl("peran.berakhir.terakhir")}</> : null}</span>
+                      </span>
+                      {bolehPerpanjang(r) ? (
+                        <Link href={tautanPerpanjang(r.id)} className={button} data-buka-perpanjang={r.id}>
+                          {sl("peran.perpanjang.aksi")}<span className="pin-sr"> · {r.nama} · {roleLabel(r.role)}</span>
+                        </Link>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {diperpanjang ? (
+              // «Perpanjang peran», opened in place (?perpanjang=): the role named, its new last day and the reason; one
+              // press. Focus arrives on the date (the page's own pattern for a form opened in place).
+              <form id="perpanjang" action={perpanjangPeranAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2" aria-labelledby="pin-perpanjang" data-perpanjang={diperpanjang.id}>
+                <input type="hidden" name="asal" value="perpanjang" /><input type="hidden" name="hal_peran" value={String(halPeran)} />
+                <input type="hidden" name="assignment" value={diperpanjang.id} />
+                <h3 id="pin-perpanjang" className="font-medium sm:col-span-2">{sl("peran.perpanjang.judul")}</h3>
+                <p className="text-sm text-ink-1 sm:col-span-2">
+                  <strong>{personName.get(diperpanjang.person_id) ?? TANPA_NAMA}</strong> · {roleLabel(diperpanjang.role)} · {diperpanjang.scope_node_id ? nodeName.get(diperpanjang.scope_node_id) ?? TANPA_NAMA : sl("config.pemeliharaan.platform")}
+                  {" · "}{sl("config.label.valid_until").toLowerCase()} {when(diperpanjang.valid_until, "baca", zonaBaris(diperpanjang.institution_id))}
+                </p>
+                <p className="text-sm text-ink-2 sm:col-span-2">{sl(diperpanjang.person_id === viewer.personId ? "peran.perpanjang.sendiri" : "peran.perpanjang.arti")}</p>
+                <div className={`${label} content-start`}>
+                  <label htmlFor="cfg-perpanjang-sampai">{sl("peran.perpanjang.sampai_baru")}</label>
+                  <span className="text-xs text-ink-3" id="cfg-perpanjang-sampai-arti">
+                    {sl("peran.perpanjang.sampai_arti").replace("{tanggal}", when(diperpanjang.valid_until, "baca", zonaBaris(diperpanjang.institution_id)))}
+                  </span>
+                  <TanggalDenganGema id="cfg-perpanjang-sampai" name="valid_until" className={field} required locale={locale}
+                    min={hariSetelah(diperpanjang.valid_until, zonaBaris(diperpanjang.institution_id))} keterangan="cfg-perpanjang-sampai-arti" fokus />
+                </div>
+                <div className={`${label} content-start`}>
+                  <label htmlFor="cfg-perpanjang-alasan">{sl("config.label.reason")}</label>
+                  <span className="text-xs text-ink-3" id="cfg-perpanjang-alasan-arti">{sl("peran.perpanjang.alasan_arti")}</span>
+                  <input id="cfg-perpanjang-alasan" name="alasan" className={field} required minLength={10} maxLength={300} autoComplete="off" aria-describedby="cfg-perpanjang-alasan-arti" />
+                </div>
+                <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+                  <TombolKirim className={primer} sibuk={sl("tombol.menyimpan")}>{sl("peran.perpanjang.simpan")}</TombolKirim>
+                  <Link href={tautanPerpanjang(null)} className={tautanTempat}>{sl("config.angkat.batal")}</Link>
+                </div>
+              </form>
+            ) : null}
+            {result("roles", "perpanjang")}
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
               {daftarPeran.map((a) => (
                 // CR-94: below 640 px the revoke form wraps below the name instead of past the window; wider, as before
@@ -1820,18 +1911,34 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                       : (personName.get(a.person_id) ?? TANPA_NAMA)} · {roleLabel(a.role)}
                     <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? TANPA_NAMA : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {when(a.valid_until, "baca", zonaBaris(a.institution_id))}</span>
                   </span>
-                  {a.person_id !== viewer.personId && ubah !== a.id ? (
-                    // B1: the row's one action, named with its record so a list of links is unambiguous («Cabut · Citra Lestari»)
-                    <Link href={tautanUbah(a.id, `peran-${a.id}`)} className={button} data-buka-ubah="">
-                      {s("config.action.revoke")}<span className="pin-sr"> · {personName.get(a.person_id) ?? TANPA_NAMA}</span>
-                    </Link>
+                  {ubah !== a.id && bolehPerpanjang(a) ? (
+                    <span className="flex flex-wrap items-center gap-2">
+                      {/* B0: a role is renewed where it is listed (whoever may grant it; the platform's only active
+                          administrator their own), named with its record like the row's other action */}
+                      <Link href={tautanPerpanjang(a.id)} className={button} data-buka-perpanjang={a.id}>
+                        {sl("peran.perpanjang.aksi")}<span className="pin-sr"> · {personName.get(a.person_id) ?? TANPA_NAMA}</span>
+                      </Link>
+                      {a.person_id !== viewer.personId ? (
+                        // B1: the row's one action, named with its record so a list of links is unambiguous («Cabut · Citra Lestari»)
+                        <Link href={tautanUbah(a.id, `peran-${a.id}`)} className={button} data-buka-ubah="">
+                          {s("config.action.revoke")}<span className="pin-sr"> · {personName.get(a.person_id) ?? TANPA_NAMA}</span>
+                        </Link>
+                      ) : null}
+                    </span>
                   ) : null}
                   {a.person_id !== viewer.personId && ubah === a.id ? (
                     // D-097(a): a revocation states why; opened in place, its form is named like its action, and destructive
                     <form action={revokeRoleAction} className="flex flex-wrap items-center gap-2" aria-label={`${s("config.action.revoke")} · ${personName.get(a.person_id) ?? TANPA_NAMA}`}><input type="hidden" name="asal" value="cabut" /><input type="hidden" name="hal_peran" value={String(halPeran)} />
                       <input type="hidden" name="assignment" value={a.id} />
+                      {/* B0: a platform admin may release a school's last administrator; the form says what that leaves */}
+                      {dibukaTerakhir ? (
+                        <p id={`peran-tanpa-admin-${a.id}`} className="flex w-full items-start gap-2 text-sm text-ink-1" data-tanpa-admin="">
+                          <Ikon nama="triangle-alert" /><span>{sl("peran.cabut.tanpa_admin")}</span>
+                        </p>
+                      ) : null}
                       <label className="flex items-center gap-1 text-xs text-ink-3">{s("config.label.reason")}
-                        <input name="alasan" className={field} required maxLength={300} autoComplete="off" autoFocus />
+                        <input name="alasan" className={field} required maxLength={300} autoComplete="off" autoFocus
+                          aria-describedby={dibukaTerakhir ? `peran-tanpa-admin-${a.id}` : undefined} />
                       </label>
                       <TombolKirim className={bahaya} sibuk={s("tombol.memproses")}>{s("config.action.revoke")}</TombolKirim>
                       <Link href={tautanUbah(null, `peran-${a.id}`)} className={tautanTempat}>{s("config.angkat.batal")}</Link>

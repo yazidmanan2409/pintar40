@@ -1,3 +1,4 @@
+import PeranSayaBerakhir from "@/components/peran/PeranSayaBerakhir";
 import Link from "next/link";
 import KisiTopik, { susunKisi, type KolomKisi } from "@/components/laporan/KisiTopik";
 import { JudulBagian } from "@/components/laporan/tata";
@@ -139,6 +140,8 @@ export default async function Pimpinan({
           <h1 className="pin-h1">{s("pimpinan.judul")}</h1>
           <p className="pin-intro">{s("pimpinan.batas")}</p>
         </div>
+        {/* B0: the reader's own role ending within seven days (nothing when none) */}
+        <PeranSayaBerakhir locale={locale} />
 
         {/* MORE THAN ONE PART OF THE SCHOOL, AND PLAIN LINKS RATHER THAN A
             SELECT. A picker whose choice is applied by a script is a control

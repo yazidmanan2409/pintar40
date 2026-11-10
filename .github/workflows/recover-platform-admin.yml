@@ -1,0 +1,92 @@
+# B0 · ADMINISTRATOR LOCK-OUT PROTECTION: A PLATFORM WITH NO USABLE PLATFORM ADMIN IS RECOVERED BY ONE VERSIONED, AUDITED STEP.
+#
+# The only caller of public.operator_appoint_platform_admin (migration 20270113170000), which names ONE EXISTING person
+# as platform admin, with a reason and an end date, audited as role.platform_admin_recovered with this run's reference.
+# The database decides everything: it refuses while a usable platform admin exists (that admin appoints the next one,
+# in the app), refuses a person who does not exist, and refuses a suspended, closed or anonymised person. Nothing is
+# written by a refused run. No database console is used.
+#
+# Dispatch only, in the pattern of found-school.yml, with the person's PINTAR ID, the role's last day and the reason as
+# inputs. STAGING ONLY: staging's database URL is checked to name staging's project and never production's. Recovering
+# production's platform is a decision Yazid approves, and this workflow has no production target.
+#
+# THE CONTROLLED RED (found-school.yml has no input-driven red mode, so it is said here): dispatch with a PINTAR ID
+# nobody holds, for example 22222222 after checking that no person has it. The step fails with PR160 and
+# OPERATOR_PERSON_UNKNOWN, whether or not a platform admin exists, and writes nothing: no role, no audit row. That
+# refusal is measured in the database by selftest B0-S03 (selftest/b0.test.ts).
+#
+# NEVER: hand-written SQL beyond the one call; an input spliced into SQL (each is a psql variable); any other write.
+
+name: operator · recover the platform admin (B0, staging)
+
+on:
+  workflow_dispatch:
+    inputs:
+      pintar_id:
+        description: "The PINTAR ID of the existing person to name as platform admin (8 characters)"
+        required: true
+      sampai:
+        description: "The role's last day (YYYY-MM-DD); it ends at 23:59:59 WIB"
+        required: true
+      alasan:
+        description: "Why the platform is being recovered (10 to 300 characters)"
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+
+jobs:
+  gs00:
+    # GS-00 (CR-60): staging runs main's code and main's migrations, read by machine inside this run; red stops the walk
+    name: GS-00 · staging runs main's commit and migrations
+    uses: ./.github/workflows/environment-facts.yml
+    with:
+      scope: staging
+    secrets:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+
+  recover:
+    name: the platform admin's recovery, on staging
+    needs: [gs00]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Staging's database, checked (never printed)
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          [ "$STAGING_SUPABASE_PROJECT_REF" != "$PRODUCTION_SUPABASE_PROJECT_REF" ]
+          case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_SUPABASE_PROJECT_REF"*) echo "::error::the database URL names production"; exit 1;; esac
+          case "$STAGING_SUPABASE_DB_URL" in *"$STAGING_SUPABASE_PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::the database URL does not name staging's project"; exit 1;; esac
+      - name: The appointment (one call; the inputs are psql variables)
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          PINTAR_ID: ${{ inputs.pintar_id }}
+          SAMPAI: ${{ inputs.sampai }}
+          ALASAN: ${{ inputs.alasan }}
+          RUJUKAN: "recover-platform-admin.yml run ${{ github.run_id }} by ${{ github.actor }}"
+        run: |
+          set -euo pipefail
+          case "$SAMPAI" in [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) ;; *) echo "::error::the last day is written YYYY-MM-DD"; exit 1;; esac
+          id=$(psql "$STAGING_SUPABASE_DB_URL" -qAt -v ON_ERROR_STOP=1 \
+            -v pintar_id="$PINTAR_ID" -v sampai="$SAMPAI" -v alasan="$ALASAN" -v rujukan="$RUJUKAN" <<'SQL'
+          select public.operator_appoint_platform_admin(:'pintar_id', (:'sampai' || ' 23:59:59 Asia/Jakarta')::timestamptz, :'alasan', :'rujukan');
+          SQL
+          )
+          echo "appointed: $id"
+          {
+            echo "### A platform admin appointed on staging (B0 recovery)"
+            echo "- role assignment: \`$id\`, until $SAMPAI (23:59:59 WIB)"
+            echo "- audited as role.platform_admin_recovered with: $RUJUKAN"
+            echo "- next, in the app: the platform admin appoints a second platform admin"
+          } >> "$GITHUB_STEP_SUMMARY"

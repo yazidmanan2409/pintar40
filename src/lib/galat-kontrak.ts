@@ -1,5 +1,6 @@
 import type { HleEvent } from "@/lib/hle";
 import { istilah } from "@/lib/istilah-menunggu";
+import { KODE_PERAN, type KodePeran } from "@/lib/peran-kontrak";
 import { KODE_TERBITAN_DB, kunciKodeTerbitan, type KodeTerbitan } from "@/lib/terbitan-kontrak";
 import {
   KODE_MASALAH_PAKET, KODE_TOLAK_PAKET, LEMBAR, kunciKodePaket, kunciMasalahPaket, type KodePaket,
@@ -185,6 +186,8 @@ export const KODE_SUKSES = [
   "DEFINITION_KEPT",
   // DAISY-18 (D-047): the key actions say what was done, not only "saved"
   "ROLE_GRANTED", "ROLE_REVOKED",
+  // B0: a role renewed (one act: a new end date, the old assignment ended)
+  "ROLE_RENEWED",
   "TRANSFER_REQUESTED", "TRANSFER_AUTHORIZED", "TRANSFER_EXECUTED", "TRANSFER_REJECTED",
   // W2.15 (Batch 4): the receiving school accepted a transfer into its own school year
   "TRANSFER_ACCEPTED",
@@ -235,7 +238,9 @@ export type KodeSukses = (typeof KODE_SUKSES)[number];
 
 /** Every code a banner may carry: these and the domain contracts' own. */
 export type KodeHasil = KodeGalat | KodeKonten | KodeIsian | KodeSukses | KodeTerbitan | KodePaket | KodeKonteks
-  | (typeof KODE_ANTAR_SEKOLAH)[number];
+  | (typeof KODE_ANTAR_SEKOLAH)[number]
+  // B0: the role guard's last-holder refusals, the renewal's and «try again» (peran-kontrak.ts, PR160 and 40P01)
+  | KodePeran;
 
 /** A problem of a package upload, at its sheet and row. */
 export type MasalahHasil = { code: string; sheet?: string; row?: number };
@@ -379,6 +384,7 @@ const SEMUA_KODE = new Set<string>([
   ...KODE_ISIAN, ...KODE_SUKSES, ...KODE_KONTEKS,
   ...KODE_TERBITAN_DB, "RELEASE_INPUT_INVALID", "RELEASE_FAILED",
   ...KODE_TOLAK_PAKET, "PACKAGE_HAS_PROBLEMS", "PACKAGE_INPUT_INVALID", "PACKAGE_FAILED",
+  ...KODE_PERAN,
 ]);
 
 /** The copy key of a code (D-014). A code this file does not know is ACTION_FAILED's. */
@@ -392,6 +398,8 @@ export function kunciKode(kode: string): HleEvent {
   if (kode.startsWith("RELEASE_")) return kunciKodeTerbitan(kode as KodeTerbitan);
   if (kode.startsWith("PACKAGE_")) return kunciKodePaket(kode as KodePaket);
   if (kode.startsWith("CONTENT_")) return `studio.konten.kode.${kode.toLowerCase()}` as HleEvent;
+  // B0: the role refusals keep their own family of sentences (peran.galat.*)
+  if ((KODE_PERAN as readonly string[]).includes(kode)) return `peran.galat.${kode.toLowerCase()}` as HleEvent;
   return `galat.${kode.toLowerCase()}` as HleEvent;
 }
 

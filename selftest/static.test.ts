@@ -119,6 +119,7 @@ import { b6cTests } from "./b6c.test";
 import { b6kTests } from "./b6k.test";
 import { d168Tests } from "./d168.test";
 import { b0Tests } from "./b0.test";
+import { b0LayarTests } from "./b0-layar.test";
 import { studio3bTests } from "./studio3b.test";
 import { penutupanTests } from "./penutupan.test";
 import { fable22Tests } from "./fable22.test";
@@ -2233,4 +2234,5 @@ export const staticTests: SelfTest[] = [
   ...b6kTests,
   ...d168Tests,
   ...b0Tests,
+  ...b0LayarTests.filter((x) => x.id === "B0-K02"),
 ];

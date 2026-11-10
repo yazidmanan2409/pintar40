@@ -27,6 +27,7 @@ import { penutupanAppTests } from "./penutupan.test";
 import { b4AppTests } from "./b4.test";
 import { cabutAppTests } from "./cabut.test";
 import { kenaikanAppTests } from "./kenaikan.test";
+import { b0LayarTests } from "./b0-layar.test";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
 const PERSONA = {
@@ -3512,6 +3513,7 @@ export const appTests: SelfTest[] = [
   ...cabutAppTests,
   // «Kenaikan kelas dan kelulusan» (Daisy's approved flow; owner, 9 Nov), through the screen
   ...kenaikanAppTests,
+  ...b0LayarTests.filter((x) => x.id !== "B0-K02"),
   // BOB-50 (D-082(d)): a single Uji Cepat issues no certificate, through the running app
   ...bob50AppTests,
   // BOB-51 (D-057, REL-08): «Kirim email uji», the platform admin's delivery proof, through the running app

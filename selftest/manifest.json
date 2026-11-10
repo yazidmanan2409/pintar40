@@ -5515,6 +5515,36 @@
       "id": "B0-K01",
       "runner": "static",
       "proves": "B0, selftest/b0.test.ts, reads supabase/migrations/20270113170000_the_last_administrator_is_never_removed.sql and executes src/lib/peran-kontrak.ts with src/lib/hle.ts: every code peran_tolak raises (PR160) is a signed-in caller's, each with its sentence in Indonesian and English, the operator's, or the recorder's own; a refusal is read by its PR160 DETAIL alone; the last-holder rule is asked by role_assignments_guard, under its row lock, on the revocation, and no revoking function (revoke_role, akhiri_tugas_staf, ubah_peran, buka_kembali_akun) carries a check of its own"
+    },
+    {
+      "id": "B0-K02",
+      "runner": "static",
+      "proves": "B0, selftest/b0-layar.test.ts, reads the workflow file .github/workflows/recover-platform-admin.yml and the source of the role screens: the recovery workflow is a dispatch only, staging's database only (a URL naming production refused), its inputs passed to operator_appoint_platform_admin as psql variables in one call with no other write, nothing of the person or the database printed, and its controlled red (an unknown PINTAR ID: OPERATOR_PERSON_UNKNOWN, nothing written) documented in its header; «Lepaskan», «Perpanjang» (src/app/konfigurasi/actions.ts), «Akhiri tugas» and «Ubah peran» (src/app/konfigurasi/staf/actions.ts) read the role guard's refusal through the one contract and record it with catat_penolakan_peran; «Peran & akses» and the holder's notice ask the database which roles end"
+    },
+    {
+      "id": "B0-A01",
+      "runner": "app",
+      "proves": "B0, selftest/b0-layar.test.ts, the rendered Konfigurasi › «Peran & akses» of the running app as a school's admin: with no role of the school ending within 30 days no notice is drawn; a role ending in 30 days on the school's clock is in the notice by name, counted, with its date as the school reads it and its renewal link; a role ending in 31 days is listed among the roles and is not in the notice"
+    },
+    {
+      "id": "B0-A02",
+      "runner": "app",
+      "proves": "B0, selftest/b0-layar.test.ts, the rendered pages and server actions of the running app as a school's admin: the notice's «Perpanjang» link opens the renewal in place as a native form (a labelled date, a labelled required reason, one submit, so a keyboard reaches all of it) naming the role and its current end date; a short reason, an end date not after the current one and the admin's own role are refused, each with its own sentence on the page, the refused self-renewal recorded as role.renewal_refused; one press renews, leaving one live assignment with the new end date and the old one ended, audited role.renewed, said on the page and gone from the notice"
+    },
+    {
+      "id": "B0-A03",
+      "runner": "app",
+      "proves": "B0, selftest/b0-layar.test.ts, the rendered pages and the existing «Lepaskan» action of the running app: a school's only administrator releasing their own role is answered ROLE_LAST_SCHOOL_ADMIN and the page says the designed last-holder sentence instead of the general failure; the role stands and role.revocation_refused is recorded; the person's page (rendered) says the same sentence and the try-again sentence for «Akhiri tugas» and «Ubah peran»"
+    },
+    {
+      "id": "B0-A04",
+      "runner": "app",
+      "proves": "B0, selftest/b0-layar.test.ts, the rendered «Peran & akses» of the running app as the platform admin: in a school's context, «Lepaskan» opened on the school's only administrator says before its one confirmation that the school will have no administrator (tied to the reason field), and on a teacher's role says nothing; in «Seluruh platform» the only platform admin is offered the renewal of their own role and no release, and its form says why it is allowed and requires a reason"
+    },
+    {
+      "id": "B0-A05",
+      "runner": "app",
+      "proves": "B0, selftest/b0-layar.test.ts, the rendered teacher's home (/mengajar) of the running app: with no role of the teacher ending within 7 days nothing is drawn; a role ending in 8 days on the school's clock is not announced; one ending in 7 days is, by its role and its date as the school reads it, and offers no action that is not the holder's"
     }
   ]
 }

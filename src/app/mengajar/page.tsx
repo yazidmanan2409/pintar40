@@ -1,3 +1,4 @@
+import PeranSayaBerakhir from "@/components/peran/PeranSayaBerakhir";
 import Link from "next/link";
 import Kosong from "@/components/Kosong";
 import { t, format, type HleEvent } from "@/lib/hle";
@@ -129,6 +130,8 @@ export default async function BerandaPengajar({
           </h1>
           <p className="pin-intro">{s("mengajar.beranda.intro")}</p>
         </div>
+        {/* B0: the teacher's own role ending within seven days (nothing when none) */}
+        <PeranSayaBerakhir locale={locale} persona="educator" />
 
         {/* Step 1's target, on both branches: the card when there is one thing
             worth doing, and the line that says there is not. §J-1 — the

@@ -15,6 +15,7 @@ import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
 import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
 import { tanggal } from "@/lib/tanggal";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { kodePeranDari, kunciKodePeran } from "@/lib/peran-kontrak";
 import { URUTAN_KATEGORI, PERAN_SEKOLAH, kodeStafDari, kodeStafDariGalat, kunciTanggungJawab, type KodeStaf } from "@/lib/staf-kontrak";
 import { akhiriTugasAksi, ubahPeranAksi } from "./actions";
 
@@ -83,10 +84,12 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
     });
     if (e) kodeTinjau = kodeStafDariGalat(e); else tinjau = data as Tinjau;
   }
+  // B0: the role guard's refusal on either act reads in its own sentence (peran.galat.*)
+  const kodePeran = kodePeranDari(sp.kode);
   const kode = kodeStafDari(sp.kode);
   const hasil = (jenis: "ubah" | "akhiri") => sp.jenis === jenis && (sp.hasil === "ok" || sp.hasil === "gagal")
     ? <BarisHasil nada={sp.hasil === "ok" ? "ok" : "gagal"}>
-        {sp.hasil === "ok" ? s(jenis === "ubah" ? "staf.ubah.ok" : "staf.akhiri.ok") : s(`staf.galat.${(kode ?? "STAFF_FAILED").toLowerCase()}` as HleEvent)}
+        {sp.hasil === "ok" ? s(jenis === "ubah" ? "staf.ubah.ok" : "staf.akhiri.ok") : kodePeran ? s(kunciKodePeran(kodePeran)) : s(`staf.galat.${(kode ?? "STAFF_FAILED").toLowerCase()}` as HleEvent)}
       </BarisHasil>
     : null;
   const peranKata = (r: string) => s(`role.${r}` as HleEvent);

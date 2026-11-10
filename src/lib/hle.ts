@@ -354,6 +354,24 @@ export type HleEvent =
   | "peran.galat.role_expiry_days_invalid"
   | "peran.galat.role_busy"
   | "peran.galat.role_failed"
+  | "galat.role_renewed"
+  | "peran.berakhir.judul"
+  | "peran.berakhir.jumlah"
+  | "peran.berakhir.terakhir"
+  | "peran.perpanjang.aksi"
+  | "peran.perpanjang.judul"
+  | "peran.perpanjang.arti"
+  | "peran.perpanjang.sampai_baru"
+  | "peran.perpanjang.sampai_arti"
+  | "peran.perpanjang.alasan_arti"
+  | "peran.perpanjang.sendiri"
+  | "peran.perpanjang.simpan"
+  | "peran.cabut.tanpa_admin"
+  | "peran.saya.judul"
+  | "peran.saya.berakhir"
+  | "peran.saya.berakhir_platform"
+  | "peran.saya.berakhir_sendiri"
+  | "peran.saya.buka"
   | "audit.alasan.retirement"
   | "audit.alasan.resignation"
   | "audit.alasan.dismissal"
@@ -3752,6 +3770,25 @@ const table: Table = {
   "peran.galat.role_expiry_days_invalid": { default: "Jumlah hari harus 1 sampai 366.", en: "The number of days must be 1 to 366." },
   "peran.galat.role_busy": { default: "Admin lain sedang mengubah peran di sini pada saat yang sama, jadi perubahan Anda belum tersimpan. Coba lagi.", en: "Another administrator was changing roles here at the same moment, so your change was not saved. Try again." },
   "peran.galat.role_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
+  // B0 on the screens: the expiry notice, the renewal, the platform admin's warning and the holder's own notice
+  "galat.role_renewed": { default: "Peran diperpanjang.", en: "Role renewed." },
+  "peran.berakhir.judul": { default: "Peran yang segera berakhir", en: "Roles ending soon" },
+  "peran.berakhir.jumlah": { default: "Peran yang berakhir dalam 30 hari ke depan: {n}. Perpanjang sebelum tanggalnya agar orangnya tetap dapat bekerja.", en: "Roles ending within the next 30 days: {n}. Renew each before its date so the person can keep working." },
+  "peran.berakhir.terakhir": { default: "satu-satunya admin yang aktif", en: "the only active administrator" },
+  "peran.perpanjang.aksi": { default: "Perpanjang", en: "Renew" },
+  "peran.perpanjang.judul": { default: "Perpanjang peran", en: "Renew a role" },
+  "peran.perpanjang.arti": { default: "Peran ini mendapat tanggal akhir yang baru. Yang lain tidak berubah.", en: "This role gets a new end date. Nothing else changes." },
+  "peran.perpanjang.sampai_baru": { default: "Berlaku sampai yang baru", en: "New valid-until date" },
+  "peran.perpanjang.sampai_arti": { default: "Setelah {tanggal}, tanggal akhir yang sekarang.", en: "After {tanggal}, the current end date." },
+  "peran.perpanjang.alasan_arti": { default: "10 sampai 300 karakter. Alasan ini dicatat.", en: "10 to 300 characters. This reason is recorded." },
+  "peran.perpanjang.sendiri": { default: "Anda satu-satunya Admin platform yang aktif, jadi Anda memperpanjang peran Anda sendiri. Alasannya dicatat.", en: "You are the only active platform administrator, so you renew your own role. The reason is recorded." },
+  "peran.perpanjang.simpan": { default: "Perpanjang peran", en: "Renew role" },
+  "peran.cabut.tanpa_admin": { default: "Setelah peran ini dilepaskan, sekolah ini tidak memiliki Admin sekolah. Tunjuk yang berikutnya sesudahnya.", en: "Once this role is released, this school has no school administrator. Appoint the next one afterwards." },
+  "peran.saya.judul": { default: "Peran Anda segera berakhir", en: "Your role ends soon" },
+  "peran.saya.berakhir": { default: "Peran Anda sebagai {peran} di {tempat} berakhir pada {tanggal}. Minta admin Anda memperpanjangnya sebelum tanggal itu.", en: "Your role as {peran} at {tempat} ends on {tanggal}. Ask your administrator to renew it before then." },
+  "peran.saya.berakhir_platform": { default: "Peran Anda sebagai {peran} berakhir pada {tanggal}. Minta Admin platform lain memperpanjangnya sebelum tanggal itu.", en: "Your role as {peran} ends on {tanggal}. Ask another platform administrator to renew it before then." },
+  "peran.saya.berakhir_sendiri": { default: "Peran Anda sebagai {peran} berakhir pada {tanggal}, dan Anda satu-satunya Admin platform yang aktif. Perpanjang sendiri di Peran & akses.", en: "Your role as {peran} ends on {tanggal}, and you are the only active platform administrator. Renew it yourself in Roles & access." },
+  "peran.saya.buka": { default: "Buka Peran & akses", en: "Open Roles & access" },
   "audit.alasan.retirement": { default: "Pensiun", en: "Retirement" },
   "audit.alasan.resignation": { default: "Mengundurkan diri", en: "Resignation" },
   "audit.alasan.dismissal": { default: "Diberhentikan", en: "Dismissal" },
