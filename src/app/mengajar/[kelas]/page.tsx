@@ -263,7 +263,7 @@ export default async function Kelas({
                         <span>{kapan ? garis.replace("{tanggal}", kapan) : garis.replace(" {tanggal}", "")}</span>
                         {r?.alasan ? <span>{s("mengajar.materi.alasan").replace("{alasan}", r.alasan)}</span> : null}
                       </span>
-                      <span className="pin-pill pin-neutral">{s(ajar.statusMateri(x))}</span>
+                      <span className={`pin-pill ${ajar.nadaMateri(ajar.statusMateri(x))}`}>{s(ajar.statusMateri(x))}</span>
                     </div>
                   );
                 })}

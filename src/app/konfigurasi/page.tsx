@@ -29,7 +29,7 @@ import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
 import { navKonteks } from "@/components/NavKonteks";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
 import ItemNav from "@/components/ItemNav";
-import { alasanAudit, hasilRun, hitungKeputusan, kataAksiAudit, kataTabelAudit, lipatKenaikan, runId, tahunRun } from "@/lib/jejak-audit";
+import { alasanAudit, hasilRun, hitungKeputusan, kataAksiAudit, kataTabelAudit, lipatKenaikan, tahunRun } from "@/lib/jejak-audit";
 import { kelasDenganTahun, tahunPendek } from "@/lib/kenaikan";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { melayani } from "@/lib/konteks";
@@ -618,13 +618,14 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const namaPelaku = new Map(((pelakuRows ?? []) as Array<{ id: string; display_name: string }>).map((p) => [p.id, p.display_name]));
   // Daisy (435a2856, §4.4): a run is named by its Kelas and years, each learner by the Kelas they went to, and a row
   // whose run's own row is on another page by that run. The run's own rows are found by the recorded run id only.
-  const runLain = [...new Set(barisJejak.filter((r) => lipat.bagianRun.has(r.id)).map((r) => runId(r.summary)).filter((x): x is string => Boolean(x)))];
-  const { data: indukRows } = runLain.length && tampilDi("audit")
-    ? await supabase.from("audit_log").select("at, target_id, summary").eq("action", "promotion.applied").in("summary->>run_id", runLain)
-    : { data: [] as Array<{ at: string; target_id: string; summary: unknown }> };
-  const indukRun = new Map(((indukRows ?? []) as Array<{ at: string; target_id: string; summary: unknown }>).map((r) => [runId(r.summary) ?? "", r]));
-  const runBaris = [...barisJejak.filter((r) => r.action === "promotion.applied"), ...indukRun.values()] as Array<{ target_id: unknown; summary: unknown }>;
-  const idNode = [...new Set(runBaris.flatMap((r) => [String(r.target_id), ...hasilRun(r.summary).map((h) => h.kelas_tujuan ?? "")]).filter(Boolean))];
+  const runBaris = barisJejak.filter((r) => r.action === "promotion.applied") as Array<{ target_id: unknown; summary: unknown }>;
+  // a row whose run's own row is on another page names its run by the Kelas it records (summary.run_kelas), no second read
+  const kelasRunLain = (r: { summary: unknown }) => {
+    const s0 = r.summary && typeof r.summary === "object" && !Array.isArray(r.summary) ? (r.summary as Record<string, unknown>) : {};
+    return typeof s0.run_kelas === "string" && s0.run_kelas ? s0.run_kelas : null;
+  };
+  const idNode = [...new Set([...runBaris.flatMap((r) => [String(r.target_id), ...hasilRun(r.summary).map((h) => h.kelas_tujuan ?? "")]),
+    ...barisJejak.filter((r) => lipat.bagianRun.has(r.id)).map((r) => kelasRunLain(r) ?? "")].filter(Boolean))];
   const idTahun = [...new Set(runBaris.flatMap((r) => { const y = tahunRun(r.summary); return [y.dari ?? "", y.ke ?? ""]; }).filter(Boolean))];
   const [{ data: nodeRun }, { data: tahunRunRows }] = await Promise.all([
     idNode.length ? supabase.from("org_nodes").select("id, name").in("id", idNode) : Promise.resolve({ data: [] as Array<{ id: string; name: string }> }),
@@ -637,6 +638,10 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     return s("audit.kenaikan.judul").replace("{kelas}", namaNode.get(String(r.target_id)) ?? TANPA_NAMA)
       .replace("{dari}", tahunPendek(namaTahun.get(y.dari ?? "") ?? "") || TANPA_NAMA).replace("{ke}", tahunPendek(namaTahun.get(y.ke ?? "") ?? "") || TANPA_NAMA);
   };
+  // the record a row is about, in words: a run by its Kelas and years, any other row by its table and school
+  const sasaranJejak = (r: { action: unknown; target_table: unknown; target_id: unknown; summary: unknown; institution_id: unknown }) =>
+    r.action === "promotion.applied" ? judulRun(r)
+      : [kataTabelAudit(r.target_table as string, locale), r.institution_id ? institutionName.get(r.institution_id as string) ?? TANPA_NAMA : null].filter(Boolean).join(" · ") || TANPA_NAMA;
   const navSemua: Array<[string, string]> = [
     ["struktur", s("config.section.struktur")],
     ["ketuntasan", s("config.section.ketuntasan")],
@@ -1918,8 +1923,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                       <td className="whitespace-nowrap">{when(r.at)}</td>
                       {/* D-138(c), D-140(c): the action and the record in words; never the code, the table or an id. */}
                       <td>{kataAksiAudit(r.action, locale)}</td>
-                      <td className="text-ink-3" data-jejak-sasaran="">{r.action === "promotion.applied" ? judulRun(r)
-                        : [kataTabelAudit(r.target_table, locale), r.institution_id ? institutionName.get(r.institution_id) ?? TANPA_NAMA : null].filter(Boolean).join(" · ") || TANPA_NAMA}</td>
+                      <td className="text-ink-3" data-jejak-sasaran="">{sasaranJejak(r)}</td>
                       {(() => {
                         // E7: who and why, from the summary keys written for it (src/lib/jejak-audit.ts alasanAudit)
                         const a = alasanAudit(r.summary, locale);
@@ -1932,8 +1936,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                           <td data-jejak-alasan="">{[a.alasan, a.berlaku ? s("audit.berlaku").replace("{tanggal}", when(a.berlaku, "baca")) : null,
                             lipat.bagianRun.has(r.id) ? (() => {
                               // §4.4.4: which run, and that its own row is on another page
-                              const induk = indukRun.get(runId(r.summary) ?? "");
-                              return induk ? s("audit.kenaikan.bagian").replace("{kelas}", namaNode.get(String(induk.target_id)) ?? TANPA_NAMA).replace("{tanggal}", when(induk.at, "baca"))
+                              const k = kelasRunLain(r);
+                              return k && namaNode.get(k) ? s("audit.kenaikan.bagian").replace("{kelas}", namaNode.get(k)!).replace("{tanggal}", when(r.at as string, "baca"))
                                 : s("audit.kenaikan.bagian_umum");
                             })() : null].filter(Boolean).join(" · ") || ""}
                             {r.action === "promotion.applied" ? (() => {

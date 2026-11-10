@@ -1031,9 +1031,13 @@ begin
            or not exists (select 1 from public.audit_log a where a.action = 'assessment_session.terminated' and a.target_id = v_ksesi::text
                             and a.summary ->> 'run_id' = v_krun) then
           k06 := k06 || 'a row the run wrote (an ending, a placement, an ended sitting) does not carry its run id'::text; end if;
+        -- Daisy (435a2856, §4.4.4): every row of the run also names the Kelas it is for, so a row on another page of
+        -- Jejak audit names its run without a second read of the log
+        if exists (select 1 from public.audit_log a where a.summary ->> 'run_id' = v_krun and a.summary ->> 'run_kelas' is distinct from c_k5::text) then
+          k06 := k06 || 'a row of the run does not name the Kelas the run is for (run_kelas)'::text; end if;
       end if;
       perform public.audit_write('selftest.k06_outside', 'org_nodes', c_k5::text, v_inst, '{}'::jsonb);
-      if exists (select 1 from public.audit_log a where a.action = 'selftest.k06_outside' and a.summary ? 'run_id') then
+      if exists (select 1 from public.audit_log a where a.action = 'selftest.k06_outside' and (a.summary ? 'run_id' or a.summary ? 'run_kelas')) then
         k06 := k06 || 'a row written after the run still carries its run id'::text; end if;
       -- one learner's place moved behind the run's back: the read-back says it no longer matches
       set local session_replication_role = replica;

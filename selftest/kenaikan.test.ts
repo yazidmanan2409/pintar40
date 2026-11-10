@@ -438,7 +438,7 @@ export const kenaikanAppTests: SelfTest[] = [
       // is offered again, once, in the working list; and the sentence says where each student's result is
       const lipat = new RegExp(`<details[^>]*data-materi-berakhir="1"[\\s\\S]*?</details>`).exec(tersusun(h4))?.[0] ?? "";
       const baris = new RegExp(`<div[^>]*data-materi-riwayat="${la}"[\\s\\S]*?</div>`).exec(lipat)?.[0] ?? "";
-      c.expect(lipat !== "" && teks(lipat).startsWith("Sudah berakhir (1)") && /data-materi-jenis="WITHDRAWN"/.test(baris)
+      c.expect(lipat !== "" && teks(lipat).trim().startsWith("Sudah berakhir (1)") && /data-materi-jenis="WITHDRAWN"/.test(baris)
         && /Ditarik \d{1,2} \S+ \d{4} · hasilnya tidak dihitung di laporan kelas dan sekolah/.test(teks(baris))
         && teks(baris).includes(`Alasan: diberikan ke kelas yang salah ${tag}`) && !/<a\b|<button\b/.test(baris)
         && teks(lipat).includes("Hasil tiap murid ada di halaman muridnya."),

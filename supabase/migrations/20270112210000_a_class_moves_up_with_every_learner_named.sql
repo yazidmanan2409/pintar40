@@ -119,6 +119,11 @@ begin
     '  -- ADDED IN 20270112210000 (K1): the run this row belongs to, when one is under way' || E'\n'
     || '  if nullif(current_setting(''pintar.audit_run'', true), '''') is not null and not (v_summary ? ''run_id'') then' || E'\n'
     || '    v_summary := v_summary || jsonb_build_object(''run_id'', current_setting(''pintar.audit_run'', true));' || E'\n'
+    -- CORRECTED IN PLACE (undeployed; Daisy at 435a2856, §4.4.4): and the Kelas the run is for, so a row whose run's
+    -- own row is on another page of Jejak audit names its run without a second read of the log
+    || '    if nullif(current_setting(''pintar.audit_run_kelas'', true), '''') is not null then' || E'\n'
+    || '      v_summary := v_summary || jsonb_build_object(''run_kelas'', current_setting(''pintar.audit_run_kelas'', true));' || E'\n'
+    || '    end if;' || E'\n'
     || '  end if;' || E'\n' || v_anker);
 end $$;
 
@@ -132,6 +137,7 @@ begin
   if p_terapkan then
     v_run := gen_random_uuid();
     perform set_config('pintar.audit_run', v_run::text, true);
+    perform set_config('pintar.audit_run_kelas', p_kelas::text, true);
   end if;
   select n.id, n.name, n.institution_id, n.academic_period_id, n.kind, ap.starts_on into k
     from public.org_nodes n left join public.academic_periods ap on ap.id = n.academic_period_id where n.id = p_kelas;
@@ -247,7 +253,7 @@ begin
                          'learners', v_n, 'outcomes',
                          (select jsonb_agg(h - 'nama' - 'kelas_tujuan_nama') from jsonb_array_elements(v_hasil) h)));
   end if;
-  if p_terapkan then perform set_config('pintar.audit_run', '', true); end if;
+  if p_terapkan then perform set_config('pintar.audit_run', '', true); perform set_config('pintar.audit_run_kelas', '', true); end if;
   return jsonb_build_object('diterapkan', p_terapkan and v_n > 0, 'hasil', v_hasil);
 end;
 $$;
