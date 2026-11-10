@@ -191,7 +191,7 @@ export default async function Kelas({
           <p className="pin-sub">{s("mengajar.materi.sub")}</p>
           {/* DAISY-18: "Sediakan" lands here, beside the material it made available */}
           {sedia === "ok" ? <BarisHasil nada="ok">{s("mengajar.sedia.ok")}</BarisHasil> : null}
-          {sp.diakhiri === "ok" ? <BarisHasil nada="ok">{s("mengajar.akhiri.ok")}</BarisHasil> : null}
+          {sp.diakhiri === "ok" || sp.diakhiri === "ditarik" ? <BarisHasil nada="ok">{s(sp.diakhiri === "ditarik" ? "mengajar.akhiri.ok_tarik" : "mengajar.akhiri.ok")}</BarisHasil> : null}
           {tugas.length === 0 && terbit.length === 0 ? (
             <Kosong jenis="belum" kalimat={s("mengajar.materi.kosong")} />
           ) : (

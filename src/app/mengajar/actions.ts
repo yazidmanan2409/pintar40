@@ -141,7 +141,8 @@ export async function akhiriPenugasanAction(formData: FormData): Promise<void> {
     if (kode === "ASSIGN_FAILED") console.error("[akhiri] akhiri_penugasan failed", error?.code, error?.message);
     ke(kelasId, `?${new URLSearchParams({ akhiri: penugasan, kode }).toString()}#akhiri`);
   }
-  ke(kelasId, "?diakhiri=ok#materi");
+  // Daisy (TINJAUAN-6faef690 §1): the result line follows the choice
+  ke(kelasId, `?diakhiri=${jenis === "WITHDRAWN" ? "ditarik" : "ok"}#materi`);
 }
 
 // ─────────────────────────────────────────────────────── launch a quick assessment

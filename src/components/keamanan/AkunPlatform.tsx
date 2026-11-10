@@ -23,12 +23,21 @@ export default function AkunPlatform({ locale, pid, akun, antrean, hasil, apa, k
   hasil: string | undefined; apa: string | undefined; kode: KodeAkun | null; ulang?: string;
 }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });
+  // Daisy (TINJAUAN-6faef690 §5.1): «already suspended» says which of the two states the account is in, and since when,
+  // because restoring a suspension and reopening a closure are different acts
+  const galat = () => {
+    if (kode === "ACCOUNT_ALREADY_SUSPENDED" && akun?.tangguh) {
+      return s(akun.tangguh.kategori === "CLOSED_AT_REQUEST" ? "akun.tinggal.galat.account_already_closed" : "akun.tinggal.galat.account_already_suspended")
+        .replace("{tanggal}", tanggal(akun.tangguh.sejak, "baca", locale));
+    }
+    return s(`akun.tinggal.galat.${(kode ?? "ACCOUNT_FAILED").toLowerCase()}` as HleEvent).replace(" sejak {tanggal}", "");
+  };
   return (
     <section className="pin-sec" id="akun-platform" aria-labelledby="pin-akun-platform">
       <h2 id="pin-akun-platform">{s("keamanan.akun.judul")}</h2>
       <p className="pin-sub">{s("keamanan.akun.arti")}</p>
       {hasil === "ok" ? <BarisHasil nada="ok">{s(`keamanan.akun.ok.${apa === "aktif" ? "aktif" : apa === "hapus" ? "hapus" : apa === "buka" ? "buka" : "tangguh"}` as HleEvent)}</BarisHasil> : null}
-      {hasil === "gagal" ? <BarisHasil nada="gagal">{s(`akun.tinggal.galat.${(kode ?? "ACCOUNT_FAILED").toLowerCase()}` as HleEvent)}</BarisHasil> : null}
+      {hasil === "gagal" ? <BarisHasil nada="gagal">{galat()}</BarisHasil> : null}
       {/* Sharon §16 finding 2: the data is deleted and a photo file is not yet; one press finishes it */}
       {hasil === "gagal" && kode === "ACCOUNT_PHOTO_PENDING" && ulang ? (
         <form action="/api/akun/hapus-data" method="post" data-hapus-foto-ulang={ulang}>

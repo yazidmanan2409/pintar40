@@ -222,6 +222,7 @@ export type HleEvent =
   | "akun.tinggal.galat.account_category_invalid"
   | "akun.tinggal.galat.account_note_required"
   | "akun.tinggal.galat.account_already_suspended"
+  | "akun.tinggal.galat.account_already_closed"
   | "akun.tinggal.galat.account_not_suspended"
   | "akun.tinggal.galat.account_confirm_required"
   | "akun.tinggal.galat.account_learner_via_school"
@@ -299,6 +300,10 @@ export type HleEvent =
   | "staf.akhiri.arti"
   | "staf.akhiri.kategori"
   | "staf.akhiri.tanggal"
+  | "staf.akhiri.tanggal_arti"
+  | "staf.akhiri.tanya"
+  | "staf.akhiri.peran_berakhir"
+  | "staf.kategori.koreksi_grup"
   | "staf.akhiri.alasan"
   | "staf.akhiri.tombol"
   | "staf.akhiri.ok"
@@ -354,6 +359,10 @@ export type HleEvent =
   | "sertifikat.ganti.tercetak"
   | "sertifikat.ganti.kini"
   | "sertifikat.ganti.berubah"
+  | "sertifikat.ganti.berbeda"
+  | "sertifikat.ganti.hasil"
+  | "sertifikat.ganti.hasil_arti"
+  | "sertifikat.ganti.sama_kata"
   | "sertifikat.ganti.alasan"
   | "sertifikat.ganti.alasan.arti"
   | "sertifikat.ganti.tombol"
@@ -1991,6 +2000,13 @@ export type HleEvent =
   | "mengajar.akhiri.alasan.arti"
   | "mengajar.akhiri.konfirmasi"
   | "mengajar.akhiri.tombol"
+  | "mengajar.akhiri.tombol_tarik"
+  | "mengajar.akhiri.tanya"
+  | "mengajar.akhiri.tanya_tarik"
+  | "mengajar.akhiri.akibat"
+  | "mengajar.akhiri.akibat_tarik"
+  | "mengajar.akhiri.ok_tarik"
+  | "mengajar.akhiri.tutup"
   | "mengajar.akhiri.batal"
   | "mengajar.akhiri.ok"
   | "mengajar.sedia.kode.assign_not_live"
@@ -3532,7 +3548,7 @@ const table: Table = {
   "sertifikat.cabut.judul": { default: "Cabut sertifikat", en: "Revoke a certificate" },
   // §5b and L1–L4 (owner, 9 Nov): suspension, closure and deletion, never confused
   "akun.tinggal.judul": { default: "Meninggalkan PINTAR", en: "Leaving PINTAR" },
-  "akun.tinggal.arti": { default: "Anda boleh pergi kapan saja. Inilah yang terjadi bila akun ditutup atau data pribadi dihapus, sesuai keadaan PINTAR hari ini.", en: "You may leave at any time. This is what happens when an account is closed or personal data is deleted, as PINTAR stands today." },
+  "akun.tinggal.arti": { default: "Anda boleh pergi kapan saja. Inilah yang terjadi bila akun ditutup atau data pribadi dihapus, sebagaimana PINTAR bekerja saat ini.", en: "You may leave at any time. This is what happens when an account is closed or personal data is deleted, as PINTAR works today." },
   "akun.tinggal.intro_murid": { default: "Akun PINTAR Anda, dan cara meninggalkannya.", en: "Your PINTAR account, and how to leave it." },
   "akun.tinggal.fakta.akses": { default: "Akses: saat akun ditutup, semua perangkat keluar dan masuk tidak lagi bisa, di semua sekolah.", en: "Access: when the account is closed, every device is signed out and signing in no longer works, at every school." },
   // Sharon §16 finding 4 (6faef690), Daisy (TINJAUAN-6faef690): true of the code
@@ -3565,10 +3581,11 @@ const table: Table = {
   "akun.tinggal.galat.account_unknown": { default: "Orang itu tidak ditemukan.", en: "That person was not found." },
   "akun.tinggal.galat.account_category_invalid": { default: "Pilih salah satu kategori.", en: "Choose one of the categories." },
   "akun.tinggal.galat.account_note_required": { default: "Tuliskan catatan atau alasannya, 10 sampai 300 karakter.", en: "Write the note or reason, 10 to 300 characters." },
-  "akun.tinggal.galat.account_already_suspended": { default: "Akun ini sudah ditangguhkan atau ditutup.", en: "This account is already suspended or closed." },
-  "akun.tinggal.galat.account_not_suspended": { default: "Akun ini tidak sedang ditangguhkan atau ditutup.", en: "This account is not suspended or closed." },
+  "akun.tinggal.galat.account_already_suspended": { default: "Akun ini sudah ditangguhkan sejak {tanggal}.", en: "This account has been suspended since {tanggal}." },
+  "akun.tinggal.galat.account_already_closed": { default: "Akun ini sudah ditutup atas permintaan pemiliknya sejak {tanggal}. Akun itu dibuka kembali hanya dari permintaannya.", en: "This account has been closed at its owner's request since {tanggal}. It is reopened only from that person's request." },
+  "akun.tinggal.galat.account_not_suspended": { default: "Akun ini aktif: tidak ditangguhkan dan tidak ditutup.", en: "This account is active: neither suspended nor closed." },
   "akun.tinggal.galat.account_confirm_required": { default: "Centang konfirmasinya lebih dahulu.", en: "Tick the confirmation first." },
-  "akun.tinggal.galat.account_learner_via_school": { default: "Untuk murid, permintaan ini diajukan melalui sekolah bersama keluarga.", en: "For a learner, this request is made through the school with the family." },
+  "akun.tinggal.galat.account_learner_via_school": { default: "Karena Anda murid, permintaan ini diajukan oleh sekolah bersama keluarga Anda. Sampaikan kepada wali kelas atau guru Anda.", en: "As a student, this request is made by your school with your family. Tell your class teacher." },
   "akun.tinggal.galat.account_request_open": { default: "Permintaan ini sudah diajukan dan sedang dikerjakan.", en: "This request has already been made and is in hand." },
   "akun.tinggal.galat.account_request_invalid": { default: "Permintaan itu tidak ditemukan atau sudah selesai.", en: "That request was not found or is already done." },
   "akun.tinggal.galat.account_not_closed": { default: "Data pribadi dihapus hanya dari akun yang sudah ditutup.", en: "Personal data is deleted only from a closed account." },
@@ -3583,7 +3600,7 @@ const table: Table = {
   "keamanan.akun.tidak_ada": { default: "Tidak ada orang dengan PINTAR ID itu.", en: "No person holds that PINTAR ID." },
   "keamanan.akun.ditangguhkan": { default: "Ditangguhkan sejak", en: "Suspended since" },
   "keamanan.akun.ditutup": { default: "Ditutup atas permintaan sendiri sejak", en: "Closed at the person's own request since" },
-  "keamanan.akun.akibat": { default: "Menangguhkan: semua perangkat keluar, masuk ditolak, dan setiap permintaan ditolak. Catatan pendidikan tidak berubah.", en: "Suspending: every device is signed out, sign-in is refused, and every request is refused. Educational records do not change." },
+  "keamanan.akun.akibat": { default: "Menangguhkan: semua perangkat keluar, masuk ditolak, dan setiap tindakan di PINTAR ditolak. Catatan pendidikan tidak berubah.", en: "Suspending: every device is signed out, sign-in is refused, and every action in PINTAR is refused. Educational records do not change." },
   "keamanan.akun.kategori": { default: "Kategori", en: "Category" },
   "keamanan.akun.kategori.security": { default: "Keamanan akun", en: "Account security" },
   "keamanan.akun.kategori.administrative": { default: "Administrasi", en: "Administrative" },
@@ -3611,8 +3628,8 @@ const table: Table = {
   "audit.alasan.closed_at_request": { default: "Atas permintaan sendiri", en: "At the holder's request" },
   // E5 «Akhiri tugas di sekolah ini» and §11 «Ubah peran & tanggung jawab» (owner, 9 Nov); words of the responsibilities are
   // plain names pending Daisy's matrix and Dr Gladys's copy pass
-  "staf.judul": { default: "Peran dan tugas seseorang", en: "A person's roles and duties" },
-  "staf.intro": { default: "Peran yang dipegang orang ini di sekolah ini, dan tanggung jawab yang dibawa tiap peran. Jabatan formal bukan wewenang di PINTAR.", en: "The roles this person holds at this school, and the responsibilities each carries. A formal position is not authority in PINTAR." },
+  "staf.judul": { default: "Peran dan tanggung jawab", en: "Roles and responsibilities" },
+  "staf.intro": { default: "Peran yang dipegang orang ini di sekolah ini, dan tanggung jawab yang dibawa tiap peran. Di PINTAR, wewenang datang dari peran yang diberikan di sini, bukan dari jabatan di sekolah.", en: "The roles this person holds at this school, and the responsibilities each carries. In PINTAR, authority comes from the roles given here, not from a job title at the school." },
   "staf.kosong": { default: "Orang ini tidak memegang peran apa pun di sekolah ini sekarang.", en: "This person holds no role at this school now." },
   "staf.tidak_ada_sekolah": { default: "Pilih sekolah sebagai konteks kerja lebih dahulu.", en: "Choose a school as your working context first." },
   "staf.buka": { default: "Kelola peran orang ini", en: "Manage this person's roles" },
@@ -3629,13 +3646,13 @@ const table: Table = {
   "staf.ubah.alasan_arti": { default: "10 sampai 300 karakter. Tercatat di jejak audit sekolah.", en: "10 to 300 characters. Recorded in the school's audit trail." },
   "staf.ubah.tinjau": { default: "Tinjau perubahan", en: "Review the change" },
   "staf.ubah.tinjau_judul": { default: "Tinjau sebelum mengonfirmasi", en: "Review before confirming" },
-  "staf.ubah.dapat": { default: "Tanggung jawab yang didapat", en: "Responsibilities gained" },
+  "staf.ubah.dapat": { default: "Tanggung jawab yang ditambahkan", en: "Responsibilities added" },
   "staf.ubah.tetap": { default: "Tanggung jawab yang tetap", en: "Responsibilities kept" },
-  "staf.ubah.hilang": { default: "Tanggung jawab yang hilang", en: "Responsibilities lost" },
+  "staf.ubah.hilang": { default: "Tanggung jawab yang dilepas", en: "Responsibilities released" },
   "staf.ubah.tidak_ada": { default: "Tidak ada.", en: "None." },
-  "staf.ubah.tidak_diberikan": { default: "Tidak pernah diberikan dari sekolah: Admin platform, dan apa pun di sekolah lain.", en: "Never given from a school: platform administrator, and anything at another school." },
-  "staf.ubah.antrean": { default: "Keputusan yang akan menunggu tanpa pemutus", en: "Decisions that will wait with no one to decide them" },
-  "staf.ubah.antrean_arti": { default: "Di tempat ini tidak akan ada lagi Kepala departemen atau Dekan. Keputusan yang menunggu tetap menunggu dan tidak dialihkan; tetapkan pemegang baru agar ada yang memutuskannya.", en: "There will be no Head of department or Dean at this place any more. Waiting decisions stay waiting and are not reassigned; appoint a new holder so someone can decide them." },
+  "staf.ubah.tidak_diberikan": { default: "Dari halaman ini tidak dapat diberikan: peran Admin PINTAR, dan peran di sekolah lain.", en: "This page cannot give: the Admin PINTAR role, or roles at another school." },
+  "staf.ubah.antrean": { default: "Keputusan yang akan menunggu tanpa ada yang memutuskan", en: "Decisions that will wait with no one to decide them" },
+  "staf.ubah.antrean_arti": { default: "Di {tempat} tidak akan ada lagi yang memutuskan. {n} keputusan yang menunggu tetap menunggu dan tidak dialihkan; tetapkan pemegang baru agar ada yang memutuskannya.", en: "At {tempat} no one will be left to decide. {n} waiting decision(s) keep waiting and are not passed on; name a new holder so someone decides them." },
   "staf.ubah.menunggu": { default: "menunggu", en: "waiting" },
   "staf.ubah.konfirmasi_admin_lepas": { default: "Saya memahami bahwa orang ini tidak lagi menjadi Admin sekolah dan kehilangan semua wewenangnya.", en: "I understand this person will no longer be a school administrator and loses all its authority." },
   "staf.ubah.konfirmasi_admin": { default: "Saya memahami bahwa orang ini akan menjadi Admin sekolah dengan semua wewenangnya.", en: "I understand this person will become a school administrator with all its authority." },
@@ -3645,42 +3662,46 @@ const table: Table = {
   "staf.akhiri.judul": { default: "Akhiri tugas di sekolah ini", en: "End duties at this school" },
   "staf.akhiri.arti": { default: "Semua peran orang ini di sekolah ini berakhir saat dicatat. Akunnya, peran di sekolah lain, dan semua karya serta catatannya tetap ada.", en: "All of this person's roles at this school end when this is recorded. Their account, roles at other schools, and all their work and records stay." },
   "staf.akhiri.kategori": { default: "Kategori", en: "Category" },
-  "staf.akhiri.tanggal": { default: "Tanggal berlaku", en: "Effective date" },
+  "staf.akhiri.tanggal": { default: "Tanggal kejadian", en: "Date it happened" },
+  "staf.akhiri.tanggal_arti": { default: "Hari ini atau sebelumnya. Wewenangnya berakhir saat Anda menyimpan, apa pun tanggalnya.", en: "Today or earlier. Their authority ends when you save, whatever the date." },
+  "staf.akhiri.tanya": { default: "Akhiri tugas {nama} di {sekolah}?", en: "End {nama}'s duties at {sekolah}?" },
+  "staf.akhiri.peran_berakhir": { default: "Semua perannya di sekolah ini berakhir: {daftar}. Akunnya, peran di sekolah lain, dan semua karya serta catatannya tetap ada.", en: "All their roles at this school end: {daftar}. Their account, roles at other schools, and all their work and records remain." },
+  "staf.kategori.koreksi_grup": { default: "Bukan kepergian", en: "Not a departure" },
   "staf.akhiri.alasan": { default: "Alasan", en: "Reason" },
   "staf.akhiri.tombol": { default: "Akhiri tugas di sekolah ini", en: "End duties at this school" },
   "staf.akhiri.ok": { default: "Tugas di sekolah ini diakhiri. Wewenangnya berakhir saat itu juga.", en: "Duties at this school ended. Their authority ended at once." },
   "staf.kategori.retirement": { default: "Pensiun", en: "Retirement" },
   "staf.kategori.resignation": { default: "Mengundurkan diri", en: "Resignation" },
   "staf.kategori.dismissal": { default: "Diberhentikan", en: "Dismissal" },
-  "staf.kategori.transfer": { default: "Pindah tugas", en: "Transfer" },
+  "staf.kategori.transfer": { default: "Pindah tugas ke sekolah lain", en: "Moved to another school" },
   "staf.kategori.contract_end": { default: "Masa tugas selesai", en: "End of contract" },
   "staf.kategori.correction": { default: "Dicatat keliru", en: "Recorded in error" },
   "staf.kategori.other": { default: "Lainnya", en: "Other" },
-  "staf.tj.can_draft": { default: "Menyusun materi", en: "Drafting material" },
-  "staf.tj.can_review": { default: "Meninjau materi", en: "Reviewing material" },
-  "staf.tj.can_freeze_release": { default: "Mengunci terbitan", en: "Locking releases" },
-  "staf.tj.can_publish": { default: "Menerbitkan dan mengelola sertifikat", en: "Publishing and managing certificates" },
+  "staf.tj.can_draft": { default: "Menyusun paket di Studio", en: "Writing packages in Studio" },
+  "staf.tj.can_review": { default: "Menyetujui isi paket", en: "Approving package content" },
+  "staf.tj.can_freeze_release": { default: "Membuat dan mengunci terbitan", en: "Making and locking releases" },
+  "staf.tj.can_publish": { default: "Menerbitkan paket dan mengelola sertifikat", en: "Publishing packages and managing certificates" },
   "staf.tj.can_assign_learning": { default: "Menyediakan materi untuk kelas", en: "Giving material to classes" },
-  "staf.tj.can_quick_assessment": { default: "Membuat Uji Cepat", en: "Quick Assessments" },
-  "staf.tj.can_authorize_transfer": { default: "Menyetujui perpindahan murid", en: "Approving learner transfers" },
-  "staf.tj.can_review_question_health": { default: "Meninjau kesehatan soal", en: "Reviewing question health" },
+  "staf.tj.can_quick_assessment": { default: "Membuat Uji Cepat", en: "Creating quick checks (Uji Cepat)" },
+  "staf.tj.can_authorize_transfer": { default: "Menyetujui perpindahan murid", en: "Approving student transfers" },
+  "staf.tj.can_review_question_health": { default: "Meninjau sinyal mutu soal", en: "Reviewing item quality signals" },
   "staf.tj.can_manage_report_templates": { default: "Mengelola templat laporan", en: "Managing report templates" },
-  "staf.tj.can_review_integrity": { default: "Meninjau tanda integritas", en: "Reviewing integrity signals" },
-  "staf.tj.can_view_learner_roster": { default: "Melihat daftar murid", en: "Seeing the list of learners" },
-  "staf.tj.can_view_learner_result": { default: "Melihat hasil murid", en: "Seeing learners' results" },
-  "staf.tj.can_provision_people": { default: "Mendata orang dan akun", en: "Recording people and accounts" },
-  "staf.tj.management_decision": { default: "Memutuskan keputusan manajemen", en: "Deciding management decisions" },
+  "staf.tj.can_review_integrity": { default: "Meninjau catatan integritas", en: "Reviewing integrity notes" },
+  "staf.tj.can_view_learner_roster": { default: "Melihat daftar murid", en: "Seeing the student list" },
+  "staf.tj.can_view_learner_result": { default: "Melihat hasil murid", en: "Seeing students' results" },
+  "staf.tj.can_provision_people": { default: "Mendata orang dan mengaktifkan akun", en: "Recording people and activating accounts" },
+  "staf.tj.management_decision": { default: "Memutuskan hal yang menunggu di Pimpinan", en: "Deciding what waits under Management" },
   "staf.galat.staff_not_allowed": { default: "Anda tidak dapat mengubah peran di sekolah ini.", en: "You cannot change roles at this school." },
   "staf.galat.staff_self": { default: "Peran Anda sendiri diubah atau diakhiri oleh admin lain.", en: "Your own roles are changed or ended by another administrator." },
   "staf.galat.staff_unknown": { default: "Orang ini tidak tercatat di sekolah ini.", en: "This person is not recorded at this school." },
   "staf.galat.staff_not_active": { default: "Orang ini tidak memegang peran di sekolah ini sekarang.", en: "This person holds no role at this school now." },
   "staf.galat.staff_category_invalid": { default: "Pilih salah satu kategori.", en: "Choose one of the categories." },
   "staf.galat.staff_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
-  "staf.galat.staff_date_invalid": { default: "Tanggal berlaku adalah hari ini atau sebelumnya, dan tidak sebelum orang ini mulai bertugas di sini.", en: "The effective date is today or earlier, and not before this person began here." },
+  "staf.galat.staff_date_invalid": { default: "Tanggal kejadian adalah hari ini atau sebelumnya, dan tidak sebelum orang ini mulai bertugas di sini.", en: "The date it happened is today or earlier, and not before this person began here." },
   "staf.galat.role_stale": { default: "Peran orang ini berubah sejak Anda meninjau. Tinjau lagi.", en: "This person's roles changed since you reviewed them. Review again." },
   "staf.galat.role_nothing": { default: "Pilih peran untuk dilepaskan atau ditambahkan.", en: "Choose a role to release or to add." },
-  "staf.galat.role_not_allowed": { default: "Peran itu tidak diberikan di tempat itu dari sekolah.", en: "That role is not given at that place from a school." },
-  "staf.galat.role_scope_invalid": { default: "Tempat itu bukan bagian aktif sekolah ini.", en: "That place is not an active part of this school." },
+  "staf.galat.role_not_allowed": { default: "Peran itu tidak dapat diberikan untuk tempat itu.", en: "That role cannot be given for that place." },
+  "staf.galat.role_scope_invalid": { default: "Tempat itu tidak aktif atau bukan milik sekolah ini.", en: "That place is not active or does not belong to this school." },
   "staf.galat.role_until_invalid": { default: "Tanggal berlaku sampai harus setelah hari ini.", en: "The valid-until date must be after today." },
   "staf.galat.role_admin_unconfirmed": { default: "Centang konfirmasi untuk menjadikan orang ini Admin sekolah.", en: "Tick the confirmation to make this person a school administrator." },
   "staf.galat.role_remove_invalid": { default: "Peran yang dilepas bukan peran orang ini di sekolah ini.", en: "A role to release is not this person's role at this school." },
@@ -3698,21 +3719,25 @@ const table: Table = {
   // W2.22 (owner, 9 Nov): «Terbitkan ulang», the replacement of an erroneous issued certificate
   "sertifikat.ganti.judul": { default: "Terbitkan ulang", en: "Reissue" },
   "sertifikat.ganti.arti": { default: "Sertifikat pengganti diterbitkan dengan nama, sekolah dan pelajaran yang tercatat sekarang, dengan hasil yang sama dan nomor baru. Sertifikat ini tetap tersimpan, dan pemeriksaannya akan menyebut bahwa ia sudah digantikan.", en: "A replacement certificate is issued with the name, school and lesson recorded now, the same result and a new number. This certificate is kept, and its check will say it has been replaced." },
-  "sertifikat.ganti.bagian": { default: "Bagian", en: "Part" },
+  "sertifikat.ganti.bagian": { default: "Data", en: "Field" },
   "sertifikat.ganti.tercetak": { default: "Tertulis di sertifikat", en: "On the certificate" },
   "sertifikat.ganti.kini": { default: "Tercatat sekarang", en: "Recorded now" },
   "sertifikat.ganti.berubah": { default: "Berbeda", en: "Different" },
+  "sertifikat.ganti.berbeda": { default: "berbeda", en: "different" },
+  "sertifikat.ganti.hasil": { default: "Hasil", en: "Result" },
+  "sertifikat.ganti.hasil_arti": { default: "Tetap seperti di sertifikat ini; tidak pernah dihitung ulang.", en: "As on this certificate; never recalculated." },
+  "sertifikat.ganti.sama_kata": { default: "sama", en: "same" },
   "sertifikat.ganti.alasan": { default: "Alasan penerbitan ulang", en: "Reason for reissuing" },
-  "sertifikat.ganti.alasan.arti": { default: "10 sampai 300 karakter. Tercatat bersama sertifikat pengganti dan di jejak audit sekolah.", en: "10 to 300 characters. Recorded with the replacement and in the school's audit trail." },
+  "sertifikat.ganti.alasan.arti": { default: "10 sampai 300 karakter. Tercatat bersama sertifikat pengganti dan di jejak audit sekolah. Alasan ini tidak ditampilkan di halaman pemeriksaan.", en: "10 to 300 characters. Recorded with the replacement and in the school's audit trail. The reason is not shown on the check page." },
   "sertifikat.ganti.tombol": { default: "Terbitkan sertifikat pengganti", en: "Issue the replacement" },
-  "sertifikat.ganti.sama": { default: "Nama, sekolah dan pelajaran di sertifikat ini sama dengan yang tercatat sekarang. Bila ada yang keliru, perbaiki datanya lebih dahulu (nama orang dikoreksi oleh Admin platform), lalu terbitkan ulang di sini.", en: "The name, school and lesson on this certificate match what is recorded now. If something is wrong, correct the record first (a person's name is corrected by the platform administrator), then reissue here." },
+  "sertifikat.ganti.sama": { default: "Nama, sekolah dan pelajaran di sertifikat ini sama dengan yang tercatat sekarang. Bila ada yang keliru, perbaiki datanya lebih dahulu (nama orang dikoreksi oleh Admin PINTAR), lalu terbitkan ulang di sini.", en: "The name, school and lesson on this certificate match what is recorded now. If something is wrong, correct the record first (a person's name is corrected by an Admin PINTAR), then reissue here." },
   "sertifikat.ganti.ok": { default: "Sertifikat pengganti {nomor} diterbitkan. Sertifikat sebelumnya tetap tersimpan sebagai digantikan.", en: "Replacement certificate {nomor} issued. The earlier certificate is kept as replaced." },
   "sertifikat.ganti.digantikan_oleh": { default: "Digantikan oleh sertifikat {nomor}.", en: "Replaced by certificate {nomor}." },
   "sertifikat.ganti.gagal.cert_not_allowed": { default: "Anda tidak dapat menerbitkan ulang sertifikat sekolah ini.", en: "You cannot reissue this school's certificates." },
   "sertifikat.ganti.gagal.cert_not_issued": { default: "Hanya sertifikat yang masih berlaku yang dapat diterbitkan ulang. Sertifikat yang dicabut atau sudah digantikan tetap seperti adanya.", en: "Only a certificate still in force can be reissued. A revoked or replaced certificate stays as it is." },
   "sertifikat.ganti.gagal.cert_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
   "sertifikat.ganti.gagal.cert_nothing_changed": { default: "Tidak ada yang berbeda dari yang tercatat sekarang. Perbaiki datanya lebih dahulu.", en: "Nothing differs from what is recorded now. Correct the record first." },
-  "sertifikat.ganti.gagal.cert_key_invalid": { default: "Sertifikat pengganti belum dapat ditandatangani sekarang. Coba lagi nanti.", en: "The replacement cannot be signed right now. Try again later." },
+  "sertifikat.ganti.gagal.cert_key_invalid": { default: "Sertifikat pengganti belum dapat dibuat sekarang. Sertifikat ini tetap berlaku; coba lagi nanti.", en: "The replacement cannot be made right now. This certificate stays in force; try again later." },
   "sertifikat.ganti.gagal.cert_replacement_invalid": { default: "Sertifikat pengganti belum dapat diterbitkan. Coba lagi; sertifikat ini tetap berlaku.", en: "The replacement could not be issued. Try again; this certificate stays in force." },
   "sertifikat.ganti.gagal.tidak_ditemukan": { default: "Sertifikat itu tidak ditemukan.", en: "That certificate was not found." },
   "sertifikat.ganti.gagal.layanan_tidak_tersedia": { default: "Penerbitan ulang sedang tidak dapat dilakukan. Sertifikat ini tetap berlaku; coba lagi nanti.", en: "Reissuing is not available right now. This certificate stays in force; try again later." },
@@ -4061,7 +4086,8 @@ const table: Table = {
   "config.action.execute": { default: "Laksanakan", en: "Execute" },
   "config.action.reject": { default: "Tolak", en: "Decline" },
   "config.action.grant": { default: "Berikan peran", en: "Grant the role" },
-  "config.action.revoke": { default: "Cabut", en: "Revoke" },
+  // Daisy (TINJAUAN-6faef690 §3): one verb per act; a role is released («Lepaskan»), «Cabut» stays for certificates
+  "config.action.revoke": { default: "Lepaskan", en: "Release" },
   "config.action.save": { default: "Simpan", en: "Save" },
   "config.result.ok": { default: "Selesai.", en: "Done." },
   "config.result.failed": { default: "Belum berhasil.", en: "Not saved." },
@@ -5677,7 +5703,7 @@ const table: Table = {
   "keamanan.eyebrow": { default: "Konfigurasi", en: "Configuration" },
   "keamanan.judul": { default: "Keamanan akun", en: "Account security" },
   "keamanan.intro": { default: "Pemulihan dengan PIN: lihat keadaan satu PINTAR ID, lalu atur ulang dengan alasan yang tercatat.", en: "Recovery with a PIN: see the state of one PINTAR ID, then reset it with a recorded reason." },
-  "keamanan.ditolak": { default: "Halaman ini untuk admin sekolah dan admin platform.", en: "This page is for school administrators and the platform administrator." },
+  "keamanan.ditolak": { default: "Halaman ini untuk Admin sekolah dan Admin PINTAR.", en: "This page is for school administrators and Admin PINTAR." },
   "keamanan.cari_judul": { default: "Pemulihan dengan PIN", en: "Recovery with a PIN" },
   "keamanan.id_label": { default: "PINTAR ID", en: "PINTAR ID" },
   "keamanan.lihat": { default: "Lihat", en: "Look up" },
@@ -5694,7 +5720,7 @@ const table: Table = {
   "keamanan.gagal.ID_TIDAK_SAH": { default: "Periksa PINTAR ID: 8 huruf dan angka.", en: "Check the PINTAR ID: 8 letters and digits." },
   "keamanan.gagal.TIDAK_ADA": { default: "Tidak ada orang dengan PINTAR ID ini yang bisa Anda bantu.", en: "Nobody you can help has this PINTAR ID." },
   "keamanan.gagal.ALASAN_KOSONG": { default: "Tulis alasannya. Alasan ini tercatat.", en: "Write the reason. It is recorded." },
-  "keamanan.gagal.DITOLAK": { default: "Hanya admin sekolah dan admin platform yang bisa melakukan ini.", en: "Only a school administrator or the platform administrator can do this." },
+  "keamanan.gagal.DITOLAK": { default: "Hanya Admin sekolah dan Admin PINTAR yang bisa melakukan ini.", en: "Only a school administrator or an Admin PINTAR can do this." },
   "keamanan.gagal.BELUM_MASUK": { default: "Sesi Anda sudah berakhir. Masuk lagi.", en: "Your session has ended. Sign in again." },
   // D-101 (1): one's own recovery is assisted by another administrator, never by oneself
   "keamanan.gagal.SENDIRI": { default: "Pemulihan akun Anda sendiri dibantu oleh admin lain, bukan dari sini.", en: "Your own account's recovery is done by another administrator, not here." },
@@ -6651,19 +6677,26 @@ const table: Table = {
   "mengajar.status.diakhiri": { default: "Diakhiri", en: "Ended" },
   "mengajar.status.ditarik": { default: "Ditarik", en: "Withdrawn" },
   "mengajar.akhiri.buka": { default: "Akhiri atau tarik", en: "End or withdraw" },
-  "mengajar.akhiri.judul": { default: "Akhiri penugasan", en: "End this assignment" },
+  "mengajar.akhiri.judul": { default: "Akhiri atau tarik penugasan", en: "End or withdraw this assignment" },
   "mengajar.akhiri.arti": { default: "Murid kelas ini tidak dapat memulai lagi materi ini. Hasil, sertifikat dan kemajuan belajar yang sudah ada tetap tersimpan. Paket pelajarannya tetap terbit dan dapat diberikan lagi.", en: "Students in this class can no longer start this material. Results, certificates and learning progress already recorded are kept. The lesson package stays published and can be given again." },
   "mengajar.akhiri.selesai_n": { default: "Sudah menyelesaikan", en: "Finished" },
   "mengajar.akhiri.belum_n": { default: "Belum memulai", en: "Not started" },
   "mengajar.akhiri.berjalan": { default: "Masih mengerjakan asesmen", en: "Still answering an assessment" },
   "mengajar.akhiri.berjalan_kosong": { default: "Tidak ada murid yang sedang mengerjakan asesmen materi ini.", en: "No student is answering an assessment of this material." },
-  "mengajar.akhiri.jenis": { default: "Jenis", en: "Kind" },
-  "mengajar.akhiri.jenis.ended": { default: "Selesai: materi sudah tuntas dibahas", en: "Finished: the material has been covered" },
+  "mengajar.akhiri.jenis": { default: "Mengapa penugasan ini berakhir?", en: "Why is this assignment ending?" },
+  "mengajar.akhiri.jenis.ended": { default: "Diakhiri: materi sudah selesai dibahas", en: "Ended: the material has been covered" },
   "mengajar.akhiri.jenis.withdrawn": { default: "Ditarik: diberikan karena keliru", en: "Withdrawn: given by mistake" },
   "mengajar.akhiri.alasan": { default: "Alasan", en: "Reason" },
   "mengajar.akhiri.alasan.arti": { default: "10 sampai 300 karakter. Tercatat di jejak audit sekolah.", en: "10 to 300 characters. Recorded in the school's audit trail." },
-  "mengajar.akhiri.konfirmasi": { default: "Akhiri juga asesmen yang masih dikerjakan murid di atas. Jawaban mereka tetap tersimpan.", en: "Also end the assessments the students above are still answering. Their answers are kept." },
+  "mengajar.akhiri.konfirmasi": { default: "Tutup juga asesmen yang masih dikerjakan murid di atas. Asesmen itu ditutup sekarang dan tidak dinilai; jawaban yang sudah tersimpan tetap ada.", en: "Also close the assessments the students above are still answering. They close now and are not scored; the answers already saved are kept." },
   "mengajar.akhiri.tombol": { default: "Akhiri penugasan", en: "End assignment" },
+  "mengajar.akhiri.tombol_tarik": { default: "Tarik penugasan", en: "Withdraw assignment" },
+  "mengajar.akhiri.tanya": { default: "Akhiri penugasan {kursus}?", en: "End the assignment {kursus}?" },
+  "mengajar.akhiri.tanya_tarik": { default: "Tarik penugasan {kursus}?", en: "Withdraw the assignment {kursus}?" },
+  "mengajar.akhiri.akibat": { default: "Materi ini tidak lagi muncul di halaman Belajar murid kelas ini, dan tidak dapat dimulai lagi. Hasil yang sudah ada tetap tersimpan.", en: "This material no longer appears on the class's students' Belajar pages and cannot be started again. Results already made are kept." },
+  "mengajar.akhiri.akibat_tarik": { default: "Materi ini tidak lagi muncul di halaman Belajar murid kelas ini. Hasil yang sudah ada tetap tersimpan, dan untuk saat ini tetap dihitung di laporan kelas.", en: "This material no longer appears on the class's students' Belajar pages. Results already made are kept, and for now they still count in the class's reports." },
+  "mengajar.akhiri.ok_tarik": { default: "Penugasan ditarik. Hasil murid tetap tersimpan, dan untuk saat ini tetap dihitung di laporan kelas.", en: "Assignment withdrawn. Students' results are kept, and for now they still count in the class's reports." },
+  "mengajar.akhiri.tutup": { default: "Tutup tanpa mengubah", en: "Close without changing anything" },
   "mengajar.akhiri.batal": { default: "Batal", en: "Cancel" },
   "mengajar.akhiri.ok": { default: "Penugasan diakhiri. Hasil murid tetap tersimpan.", en: "Assignment ended. Students' results are kept." },
   "mengajar.sedia.kode.assign_not_live": { default: "Penugasan ini sudah diakhiri atau ditarik.", en: "This assignment has already been ended or withdrawn." },

@@ -3256,7 +3256,8 @@ await step("S24", "the school admin revokes the head of department's role on Kon
   await baris.locator("[data-buka-ubah]").click();
   await baris.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
   await baris.locator('input[name="alasan"]').fill("Tidak lagi memimpin Kelas Rendah");
-  await baris.getByRole("button", { name: "Cabut", exact: true }).click();
+  // RESTATED (Daisy, TINJAUAN-6faef690 §3): a role is released with «Lepaskan»; «Cabut» is the certificate's verb
+  await baris.getByRole("button", { name: "Lepaskan", exact: true }).click();
   await a.waitForURL((u) => u.searchParams.get("bagian") === "roles" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
   await a.waitForLoadState("networkidle");
   rec.shots.push(await shot(a, "adm-j14-dicabut"));
@@ -3271,7 +3272,7 @@ await step("S24", "the school admin revokes the head of department's role on Kon
   const teks = norm(await bodyText(h)).slice(0, 200);
   await hc.close();
   if (u.searchParams.get("hasil") !== "ok" || masih > 0 || !ditolak) rec.verdict = "FAIL";
-  return `after «Cabut»: hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")}; the row still listed ${masih > 0}; ` +
+  return `after «Lepaskan»: hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")}; the row still listed ${masih > 0}; ` +
     `the head of department on /pimpinan refused ${ditolak}: "${teks}"`;
 });
 
@@ -3421,7 +3422,7 @@ await step("S26b", "a new teacher replaces the old one mid-year: the school admi
   await lama.locator("[data-buka-ubah]").click();
   await lama.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
   await lama.locator('input[name="alasan"]').fill("Digantikan Bu Guru Sari");   // D-097(a)
-  await lama.getByRole("button", { name: "Cabut", exact: true }).click();
+  await lama.getByRole("button", { name: "Lepaskan", exact: true }).click();   // Daisy, TINJAUAN-6faef690 §3
   await a.waitForURL((u) => u.searchParams.get("bagian") === "roles" && u.searchParams.get("kode") === "ROLE_REVOKED", { timeout: SLOW }).catch(() => {});
   jejak.push(`Budi revoked: ${new URL(a.url()).searchParams.get("kode")}`);
   rec.shots.push(await shot(a, "adm-j15-peran"));

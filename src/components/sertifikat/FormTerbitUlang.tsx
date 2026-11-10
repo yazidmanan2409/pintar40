@@ -28,12 +28,15 @@ export default function FormTerbitUlang({ locale, id, pratinjau }: { locale: Loc
     <div className="pin-koreksi pin-ganti" data-ganti={id}>
       <h3>{s("sertifikat.ganti.judul")}</h3>
       <p className="pin-sub">{s("sertifikat.ganti.arti")}</p>
+      {/* Daisy (TINJAUAN-6faef690 §2): «Data», not «Bagian» (a structure level); each differing row says «berbeda» in words;
+          the result last, always «sama», because a replacement never re-derives it */}
       <table className="pin-ganti-banding">
         <thead>
           <tr>
-            <th scope="col"><span className="pin-sr">{s("sertifikat.ganti.bagian")}</span></th>
+            <th scope="col">{s("sertifikat.ganti.bagian")}</th>
             <th scope="col">{s("sertifikat.ganti.tercetak")}</th>
             <th scope="col">{s("sertifikat.ganti.kini")}</th>
+            <th scope="col">{s("sertifikat.ganti.berubah")}</th>
           </tr>
         </thead>
         <tbody>
@@ -41,9 +44,15 @@ export default function FormTerbitUlang({ locale, id, pratinjau }: { locale: Loc
             <tr key={k} data-berubah={lama !== kini ? "ya" : "tidak"}>
               <th scope="row">{s(k)}</th>
               <td>{lama ?? "—"}</td>
-              <td>{kini ?? "—"}{lama !== kini ? <span className="pin-pill pin-info">{s("sertifikat.ganti.berubah")}</span> : null}</td>
+              <td>{kini ?? "—"}</td>
+              <td>{lama !== kini ? <span className="pin-pill pin-info">{s("sertifikat.ganti.berbeda")}</span> : null}</td>
             </tr>
           ))}
+          <tr data-berubah="tidak" data-ganti-hasil="">
+            <th scope="row">{s("sertifikat.ganti.hasil")}</th>
+            <td colSpan={2}>{s("sertifikat.ganti.hasil_arti")}</td>
+            <td>{s("sertifikat.ganti.sama_kata")}</td>
+          </tr>
         </tbody>
       </table>
       {pratinjau.berubah ? (

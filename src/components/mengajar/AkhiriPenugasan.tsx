@@ -3,7 +3,7 @@ import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import type { Penugasan, PratinjauAkhiri } from "@/lib/pengajar";
 import { kunciKodePenugasan, type KodePenugasan } from "@/lib/penugasan-kontrak";
 import { akhiriPenugasanAction } from "@/app/mengajar/actions";
-import TombolKirim from "@/components/TombolKirim";
+import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
 import BarisHasil from "@/components/BarisHasil";
 import Kosong from "@/components/Kosong";
 
@@ -13,7 +13,8 @@ import Kosong from "@/components/Kosong";
  * WHAT IS TOUCHED, BEFORE ANYTHING IS. The panel reads akhiri_penugasan_pratinjau: how many students finished (kept),
  * how many never started (they will not be able to), and, by name, who is still answering an assessment of this
  * material. Those sittings end only if the teacher ticks the confirmation; without it the database refuses
- * (ASSIGN_IN_PROGRESS) and nothing changes. The kind (Selesai / Ditarik) and a reason are required.
+ * (ASSIGN_IN_PROGRESS) and nothing changes. The kind (Diakhiri / Ditarik) and a reason are required; the act's words follow the kind (both drawn, the stylesheet shows the chosen one), and the
+ * act is the destructive confirmation (Daisy, TINJAUAN-6faef690 §1).
  *
  * NOT UNPUBLISHING. The sentence under the heading says the lesson package stays published and can be given again;
  * nothing here reaches Studio.
@@ -66,6 +67,14 @@ export default function AkhiriPenugasan({ kelasId, tugas, pratinjau, kode, local
         )}
       </fieldset>
 
+
+      <div className="pin-isian">
+        <label htmlFor="akhiri-alasan">{s("mengajar.akhiri.alasan")}</label>
+        <textarea id="akhiri-alasan" name="alasan" className="pin-input" rows={3} minLength={10} maxLength={300} required
+          aria-describedby="akhiri-alasan-arti" />
+        <p id="akhiri-alasan-arti" className="pin-hint">{s("mengajar.akhiri.alasan.arti")}</p>
+      </div>
+
       <fieldset>
         <legend>{s("mengajar.akhiri.jenis")}</legend>
         <ul>
@@ -80,17 +89,17 @@ export default function AkhiriPenugasan({ kelasId, tugas, pratinjau, kode, local
         </ul>
       </fieldset>
 
-      <div className="pin-isian">
-        <label htmlFor="akhiri-alasan">{s("mengajar.akhiri.alasan")}</label>
-        <textarea id="akhiri-alasan" name="alasan" className="pin-input" rows={3} minLength={10} maxLength={300} required
-          aria-describedby="akhiri-alasan-arti" />
-        <p id="akhiri-alasan-arti" className="pin-hint">{s("mengajar.akhiri.alasan.arti")}</p>
+      {/* Daisy (TINJAUAN-6faef690 §1): the act's words follow the kind, and the act is the destructive confirmation (red
+          opener and confirm, a quiet «Batal»). Both are drawn; the stylesheet shows the one the chosen kind names. */}
+      <div className="pin-actions" data-akhiri-untuk="ENDED">
+        <KonfirmasiBahaya id={`akhiri-${tugas.id}`} sibuk={s("tombol.memproses")} tombol={s("mengajar.akhiri.tombol")} ya={s("mengajar.akhiri.tombol")}
+          batal={s("mengajar.akhiri.batal")} tanya={s("mengajar.akhiri.tanya").replace("{kursus}", tugas.kursus)} akibat={<p>{s("mengajar.akhiri.akibat")}</p>} />
       </div>
-
-      <div className="pin-actions">
-        <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.memproses")}>{s("mengajar.akhiri.tombol")}</TombolKirim>
-        <Link className="pin-btn" href={`/mengajar/${encodeURIComponent(kelasId)}#materi`}>{s("mengajar.akhiri.batal")}</Link>
+      <div className="pin-actions" data-akhiri-untuk="WITHDRAWN">
+        <KonfirmasiBahaya id={`tarik-${tugas.id}`} sibuk={s("tombol.memproses")} tombol={s("mengajar.akhiri.tombol_tarik")} ya={s("mengajar.akhiri.tombol_tarik")}
+          batal={s("mengajar.akhiri.batal")} tanya={s("mengajar.akhiri.tanya_tarik").replace("{kursus}", tugas.kursus)} akibat={<p>{s("mengajar.akhiri.akibat_tarik")}</p>} />
       </div>
+      <p><Link className="pin-btn pin-quiet" href={`/mengajar/${encodeURIComponent(kelasId)}#materi`}>{s("mengajar.akhiri.tutup")}</Link></p>
     </form>
   );
 }

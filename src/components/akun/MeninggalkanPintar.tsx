@@ -24,8 +24,10 @@ export default function MeninggalkanPintar({ locale, bisaMinta, permintaan, hasi
     <section className="pin-sec" id="meninggalkan" aria-labelledby="pin-meninggalkan">
       <h2 id="pin-meninggalkan">{s("akun.tinggal.judul")}</h2>
       <p className="pin-sub">{s("akun.tinggal.arti")}</p>
-      <ul className="pin-tinggal-fakta">
-        {(["akses", "data", "akademik", "sertifikat", "audit", "cadangan"] as const).map((k) => (
+      <ul className="pin-tinggal-fakta" data-tinggal-fakta={bisaMinta ? "lengkap" : "murid"}>
+        {/* Daisy (TINJAUAN-6faef690 §4): a student, who cannot ask here, reads the shorter list; the audit and backup
+            lines are for the adults who decide, and the school-and-family line follows the list */}
+        {(bisaMinta ? (["akses", "data", "akademik", "sertifikat", "audit", "cadangan"] as const) : (["akses", "akademik", "sertifikat"] as const)).map((k) => (
           <li key={k}>{s(`akun.tinggal.fakta.${k}` as HleEvent)}</li>
         ))}
       </ul>

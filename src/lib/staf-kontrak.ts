@@ -17,6 +17,8 @@ export type KodeStaf = (typeof KODE_STAF)[number];
 /** E5's categories (ACCOUNT-LIFECYCLE-INVENTORY.md §4), in akhiri_tugas_staf's own list and order. */
 export const KATEGORI_AKHIR = ["RETIREMENT", "RESIGNATION", "DISMISSAL", "TRANSFER", "CONTRACT_END", "CORRECTION", "OTHER"] as const;
 export type KategoriAkhir = (typeof KATEGORI_AKHIR)[number];
+/** The order the screen offers them (Daisy, TINJAUAN-89374424 §1.3); «Dicatat keliru» is set apart on the screen. */
+export const URUTAN_KATEGORI: readonly KategoriAkhir[] = ["RETIREMENT", "RESIGNATION", "TRANSFER", "CONTRACT_END", "DISMISSAL", "OTHER", "CORRECTION"];
 
 /** The roles a school gives (never SYSTEM_ADMIN; INSTITUTION_ADMIN only at the school's own node, with its second press). */
 export const PERAN_SEKOLAH = ["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN"] as const;

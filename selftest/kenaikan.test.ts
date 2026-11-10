@@ -386,6 +386,9 @@ export const kenaikanAppTests: SelfTest[] = [
       c.expect(h1.includes(`data-akhiri-buka="${la}"`), "the class page does not offer «Akhiri atau tarik» on the lesson in force");
       const h2 = await (await guru.halaman(`/mengajar/${kelas}?akhiri=${la}`)).text();
       c.expect(teks(h2).includes("Hasil, sertifikat dan kemajuan belajar yang sudah ada tetap tersimpan"), "the panel does not say what is kept");
+      // Daisy (TINJAUAN-6faef690 §1): the kind is asked as a question, «Diakhiri» / «Ditarik», and the act opens red
+      c.expect(teks(h2).includes("Mengapa penugasan ini berakhir?") && teks(h2).includes("Diakhiri: materi sudah selesai dibahas")
+        && /data-bahaya-buka=""[^>]*>Akhiri penugasan</.test(h2.replace(/<!-- -->/g, "")) && /data-bahaya-buka=""[^>]*>Tarik penugasan</.test(h2.replace(/<!-- -->/g, "")), "the panel does not ask why, or does not open the act as the destructive confirmation");
       // a refusal first: a 3-character reason changes nothing and comes back with its sentence
       const f1 = formDengan(h2, `data-akhiri="${la}"`, { jenis: "WITHDRAWN", alasan: "oke" });
       if (!c.expect(typeof f1 !== "string", `the «Akhiri penugasan» panel: ${f1}`)) return c.verdict("");
@@ -398,12 +401,13 @@ export const kenaikanAppTests: SelfTest[] = [
       // the withdrawal, on the record
       const f2 = formDengan(h2, `data-akhiri="${la}"`, { jenis: "WITHDRAWN", alasan: `diberikan ke kelas yang salah ${tag}` });
       const r2 = await guru.kirim(`/mengajar/${kelas}`, { form: f2 as Record<string, string> });
-      c.expect(/diakhiri=ok/.test(r2.headers.get("location") ?? "") && keadaan() === "WITHDRAWN/CLOSED",
+      // RESTATED (Daisy, TINJAUAN-6faef690 §1): the result line follows the choice, «ditarik» for a withdrawal
+      c.expect(/diakhiri=ditarik/.test(r2.headers.get("location") ?? "") && keadaan() === "WITHDRAWN/CLOSED",
         `the withdrawal: ${r2.status} ${r2.headers.get("location")}; now ${keadaan()}`);
       const audit = psql(`select count(*) from public.audit_log where action = 'learning_assignment.withdrawn' and target_id = ${lit(la)} and summary ->> 'reason' = ${lit(`diberikan ke kelas yang salah ${tag}`)}`);
       c.expect(audit === "1", `the withdrawal has ${audit} audit row(s) with its reason`);
-      const h4 = await (await guru.halaman(`/mengajar/${kelas}?diakhiri=ok`)).text();
-      c.expect(teks(h4).includes("Penugasan diakhiri. Hasil murid tetap tersimpan.") && teks(h4).includes("Ditarik"),
+      const h4 = await (await guru.halaman(`/mengajar/${kelas}?diakhiri=ditarik`)).text();
+      c.expect(teks(h4).includes("Penugasan ditarik. Hasil murid tetap tersimpan, dan untuk saat ini tetap dihitung di laporan kelas.") && teks(h4).includes("Ditarik"),
         "the class page does not confirm the withdrawal and show the material as «Ditarik»");
       c.expect(!h4.includes(`data-akhiri-buka="${la}"`), "a withdrawn assignment is still offered «Akhiri atau tarik»");
       return c.verdict("as Alpha's Guru on the class page: the lesson in force offers «Akhiri atau tarik»; the panel says what is kept; " +
@@ -546,7 +550,8 @@ export const kenaikanAppTests: SelfTest[] = [
       const sampai = psql("select ((now() at time zone 'Asia/Jakarta')::date + 200)::text");
       const q = new URLSearchParams({ orang, tinjau: "1", tambah_peran: "HEAD_OF_DEPARTMENT", tambah_tempat: dept, tambah_sampai: sampai, alasan: `menjadi Kepala departemen juga ${tag}` });
       const h2 = await (await admin.halaman(`/konfigurasi/staf?${q.toString()}`)).text();
-      c.expect(h2.includes("data-staf-tinjau") && teks(h2).includes("Meninjau materi"), "the review does not show what is gained");
+      // RESTATED (Daisy, TINJAUAN-6faef690 §3): «ditambahkan / dilepas», and the responsibilities named by the act on its screen
+      c.expect(h2.includes("data-staf-tinjau") && teks(h2).includes("Tanggung jawab yang ditambahkan") && teks(h2).includes("Menyetujui isi paket"), "the review does not show what is gained");
       const f2 = formDengan(h2, "data-staf-terapkan", {});
       if (!c.expect(typeof f2 !== "string", `the confirmation form: ${f2}`)) return c.verdict("");
       const r2 = await admin.kirim("/konfigurasi/staf", { form: f2 as Record<string, string> });
@@ -555,7 +560,7 @@ export const kenaikanAppTests: SelfTest[] = [
       const hod = psql(`select id from public.role_assignments where person_id = ${lit(orang)} and role = 'HEAD_OF_DEPARTMENT' and revoked_at is null`);
       const q3 = new URLSearchParams({ orang, tinjau: "1", cabut: hod, alasan: `kembali menjadi Guru saja ${tag}` });
       const h3 = await (await admin.halaman(`/konfigurasi/staf?${q3.toString()}`)).text();
-      c.expect(teks(h3).includes("Tanggung jawab yang hilang") && teks(h3).includes("Meninjau materi"), "the demotion's review does not show what is lost");
+      c.expect(teks(h3).includes("Tanggung jawab yang dilepas") && teks(h3).includes("Menyetujui isi paket"), "the demotion's review does not show what is lost");
       const f3 = formDengan(h3, "data-staf-terapkan", {});
       const r3 = await admin.kirim("/konfigurasi/staf", { form: f3 as Record<string, string> });
       c.expect(/hasil=ok/.test(r3.headers.get("location") ?? "") && hidup() === "EDUCATOR", `the demotion: ${r3.headers.get("location")}; now ${hidup()}`);

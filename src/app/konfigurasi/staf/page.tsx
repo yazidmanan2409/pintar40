@@ -10,10 +10,11 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import BarisHasil from "@/components/BarisHasil";
 import Kosong from "@/components/Kosong";
 import TombolKirim from "@/components/TombolKirim";
+import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
 import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
 import { tanggal } from "@/lib/tanggal";
 import { judulHalaman } from "@/lib/judul-halaman";
-import { KATEGORI_AKHIR, PERAN_SEKOLAH, kodeStafDari, kodeStafDariGalat, kunciTanggungJawab, type KodeStaf } from "@/lib/staf-kontrak";
+import { URUTAN_KATEGORI, PERAN_SEKOLAH, kodeStafDari, kodeStafDariGalat, kunciTanggungJawab, type KodeStaf } from "@/lib/staf-kontrak";
 import { akhiriTugasAksi, ubahPeranAksi } from "./actions";
 
 export const generateMetadata = judulHalaman("/konfigurasi/staf");
@@ -92,6 +93,8 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
     ? <p className="pin-meta">{s("staf.ubah.tidak_ada")}</p>
     : <ul className="pin-staf-tj" data-tj={data}>{xs.map((x) => <li key={`${x.tj}-${x.tempat}`}>{s(kunciTanggungJawab(x.tj))} · {x.tempat}</li>)}</ul>;
   const hariIni = hariIniSekolah(undefined, zona);
+  const { data: sekolahRow } = await supabase.from("institutions").select("name").eq("id", sekolah).maybeSingle();
+  const namaSekolah = (sekolahRow as { name: string } | null)?.name ?? "—";
 
   return (
     <>
@@ -184,8 +187,10 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
               {tinjau.antrean.length > 0 ? (
                 <div className="pin-banner pin-info" role="status" data-staf-antrean={tinjau.antrean.length}>
                   <h4>{s("staf.ubah.antrean")}</h4>
-                  <p>{s("staf.ubah.antrean_arti")}</p>
-                  <ul>{tinjau.antrean.map((a) => <li key={a.tempat}>{a.tempat}: {format.number(a.menunggu, locale)} {s("staf.ubah.menunggu")}</li>)}</ul>
+                  {/* Daisy (TINJAUAN-6faef690 §3): the page's most important sentence names the place and the number */}
+                  {tinjau.antrean.map((a) => (
+                    <p key={a.tempat} data-staf-antrean-tempat="">{s("staf.ubah.antrean_arti").replace("{tempat}", a.tempat).replace("{n}", format.number(a.menunggu, locale))}</p>
+                  ))}
                 </div>
               ) : null}
               <form action={ubahPeranAksi} data-staf-terapkan="">
@@ -225,12 +230,18 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
                 <label htmlFor="staf-akhiri-kategori">{s("staf.akhiri.kategori")}</label>
                 <select id="staf-akhiri-kategori" name="kategori" className="pin-input" required defaultValue="">
                   <option value="" disabled>—</option>
-                  {KATEGORI_AKHIR.map((k) => <option key={k} value={k}>{s(`staf.kategori.${k.toLowerCase()}` as HleEvent)}</option>)}
+                  {/* Daisy (TINJAUAN-89374424 §1.3): the departures in their order, and «Dicatat keliru» set apart */}
+                  {URUTAN_KATEGORI.filter((k) => k !== "CORRECTION").map((k) => <option key={k} value={k}>{s(`staf.kategori.${k.toLowerCase()}` as HleEvent)}</option>)}
+                  <optgroup label={s("staf.kategori.koreksi_grup")}>
+                    <option value="CORRECTION">{s("staf.kategori.correction")}</option>
+                  </optgroup>
                 </select>
               </div>
               <div className="pin-isian">
                 <label htmlFor="staf-akhiri-tanggal">{s("staf.akhiri.tanggal")}</label>
-                <TanggalDenganGema jenis="date" id="staf-akhiri-tanggal" name="tanggal" className="pin-input" required defaultValue={hariIni} max={hariIni} locale={locale} />
+                <TanggalDenganGema jenis="date" id="staf-akhiri-tanggal" name="tanggal" className="pin-input" required defaultValue={hariIni} max={hariIni} locale={locale}
+                  aria-describedby="staf-akhiri-tanggal-arti" />
+                <p id="staf-akhiri-tanggal-arti" className="pin-hint">{s("staf.akhiri.tanggal_arti")}</p>
               </div>
               <div className="pin-isian">
                 <label htmlFor="staf-akhiri-alasan">{s("staf.akhiri.alasan")}</label>
@@ -238,7 +249,10 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
                 <p id="staf-akhiri-alasan-arti" className="pin-hint">{s("staf.ubah.alasan_arti")}</p>
               </div>
               <div className="pin-actions">
-                <TombolKirim className="pin-btn pin-bahaya" sibuk={s("tombol.memproses")}>{s("staf.akhiri.tombol")}</TombolKirim>
+                {/* approved (TINJAUAN-89374424): the confirmation names the person, the school and every role that ends */}
+                <KonfirmasiBahaya id="staf-akhiri" sibuk={s("tombol.memproses")} tombol={s("staf.akhiri.tombol")} ya={s("staf.akhiri.tombol")} batal={s("staf.ubah.batal")}
+                  tanya={s("staf.akhiri.tanya").replace("{nama}", orang.nama ?? "—").replace("{sekolah}", namaSekolah)}
+                  akibat={<p data-staf-akhiri-peran="">{s("staf.akhiri.peran_berakhir").replace("{daftar}", orang.peran.map((p) => `${peranKata(p.role)} ${p.tempat}`).join(", "))}</p>} />
               </div>
             </form>
           </section>
