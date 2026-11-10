@@ -3995,6 +3995,9 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
   await a.locator("#rollover").getByRole("button", { name: "Konfirmasi kenaikan kelas", exact: true }).click().catch(() => {});
   await a.waitForURL((u) => u.searchParams.get("kn_langkah") === "selesai" || u.searchParams.has("kn_kode"), { timeout: SLOW }).catch(() => {});
   await a.waitForLoadState("networkidle");
+  // RESTATED (Daisy, design check at 435a2856 §4.3): the outcome folds the main group under its count, as the review does,
+  // so the reader opens it before the names are on screen; each fold is opened as a person would, by its summary
+  for (const sum of await a.locator("#rollover details > summary").all()) await sum.click().catch(() => {});
   rec.shots.push(await shot(a, "adm-j19-hasil"));
   const u = new URL(a.url());
   const kalimat = norm(await a.locator("#rollover").innerText().catch(() => ""));
