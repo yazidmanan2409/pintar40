@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — PINTAR</title>
+<meta name="description" content="Contact the PINTAR team for a demonstration, partnership, support or general questions. Email: info@pintarselalu.com.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F6F4EF">
+<link rel="alternate" hreflang="en" href="../../en/contact/">
+<link rel="alternate" hreflang="id" href="../../kontak/">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../assets/fonts/newsreader-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/css/site.css">
+<script src="../../assets/js/site.js" defer></script>
+<meta property="og:title" content="Contact — PINTAR">
+<meta property="og:description" content="Contact the PINTAR team for a demonstration, partnership, support or general questions. Email: info@pintarselalu.com.">
+<meta property="og:locale" content="en_GB">
+</head>
+<body data-page="contact">
+<a class="skip" href="#isi">Skip to content</a>
+<header class="site-header">
+  <div class="wrap site-header__in">
+    <a class="wordmark" href="../../en/" aria-label="PINTAR — Home">PINTAR</a>
+    <nav class="site-nav" id="menu" aria-label="Main navigation">
+      <ul><li><a href="../../en/why-pintar/">Why PINTAR</a></li><li><a href="../../en/features/">Features</a></li><li><a href="../../en/who-its-for/">Who It’s For</a></li><li><a href="../../en/trust-and-security/">Trust & Security</a></li></ul>
+      <a class="site-nav__demo" href="../../en/contact/?subjek=demo#formulir">Request a Demo</a>
+    </nav>
+    <div class="site-header__end">
+      <div class="lang" role="group" aria-label="Language">
+      <a href="../../kontak/" lang="id" hreflang="id">ID</a><span aria-hidden="true">/</span><a aria-current="true" lang="en" hreflang="en">EN</a>
+    </div>
+      <a class="btn btn--sm" href="../../en/contact/?subjek=demo#formulir">Request a Demo</a>
+      <button class="menu-btn" type="button" aria-controls="menu" aria-expanded="false">Menu</button>
+    </div>
+  </div>
+</header>
+<main id="isi">
+
+<section class="page-hero" aria-labelledby="contact-h" style="padding-bottom: var(--s-8)">
+  <div class="wrap" data-reveal-group>
+    <p class="label ">Contact</p>
+    <h1 class="h1" id="contact-h" data-reveal>Let’s talk about <em>your institution.</em></h1>
+    <div class="page-hero__aside" data-reveal>
+      <p class="lead">For a demonstration, a partnership, support or any question at all. We reply by email.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--rule" style="padding-top: var(--s-8)" aria-label="Contact form">
+  <div class="wrap contact-grid">
+    <aside class="contact-aside" data-reveal>
+      <div>
+        <h2>Email us directly</h2>
+        <a class="contact-email" href="mailto:info@pintarselalu.com">info@pintarselalu.com</a>
+      </div>
+      <div>
+        <h2>How a demonstration works</h2>
+        <ol class="steps">
+          <li><span>Choose «Request a demo» and tell us your role and institution.</span></li>
+          <li><span>We reply to agree a time.</span></li>
+          <li><span>Our team guides you through the real product, with sample data, then answers your questions.</span></li>
+        </ol>
+      </div>
+      <div>
+        <h2>Company</h2>
+        <p class="small">PT ZAYD PINTAR SELALU (ZPS)</p>
+      </div>
+    </aside>
+
+    <div id="formulir">
+      <form class="form" data-contact action="../../api/kontak.php" method="post" accept-charset="UTF-8">
+        <div class="form__summary" tabindex="-1" role="group" aria-labelledby="sum-h" hidden><h2 id="sum-h">Please correct the following:</h2><ul></ul></div>
+        <input type="hidden" name="lang" value="en">
+        <input type="hidden" name="started" value="">
+        <div class="hp" aria-hidden="true"><label for="f-website">Website</label><input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+        <div class="form__row">
+          <div class="field">
+      <label for="f-name">Name</label>
+      
+      <input id="f-name" name="name" type="text" required maxlength="120" autocomplete="name" aria-describedby="err-name">
+      <p class="field__err" id="err-name" hidden></p>
+    </div>
+          <div class="field">
+      <label for="f-email">Email address</label>
+      
+      <input id="f-email" name="email" type="email" required maxlength="254" autocomplete="email" inputmode="email" aria-describedby="err-email">
+      <p class="field__err" id="err-email" hidden></p>
+    </div>
+        </div>
+        <div class="form__row">
+          <div class="field">
+      <label for="f-institution">Institution or organisation <span class="opt">(optional)</span></label>
+      
+      <input id="f-institution" name="institution" type="text" maxlength="160" autocomplete="organization" aria-describedby="err-institution">
+      <p class="field__err" id="err-institution" hidden></p>
+    </div>
+          <div class="field">
+      <label for="f-subject">Subject</label>
+      
+      <select id="f-subject" name="subject" required aria-describedby="err-subject"><option value="umum">General inquiry</option><option value="demo">Request a demo</option><option value="kemitraan">Partnership</option><option value="dukungan">Support</option><option value="lainnya">Other</option></select>
+      <p class="field__err" id="err-subject" hidden></p>
+    </div>
+        </div>
+        <div class="field">
+      <label for="f-message">Message</label>
+      <p class="field__hint" id="hint-message">For a demonstration, tell us your role and what you would like to see.</p>
+      <textarea id="f-message" name="message" required minlength="10" maxlength="5000" rows="7" aria-describedby="hint-message err-message"></textarea>
+      <p class="field__err" id="err-message" hidden></p>
+    </div>
+        <div class="field">
+          <div class="check"><input id="f-consent" name="consent" type="checkbox" value="yes" required aria-describedby="err-consent">
+            <label for="f-consent">I agree that PT ZAYD PINTAR SELALU may process the information I send in order to respond to this message, as described in the <a href="../../en/privacy/">Privacy Policy</a>.</label></div>
+          <p class="field__err" id="err-consent" hidden></p>
+        </div>
+        <div class="form__foot">
+          <button class="btn" type="submit">Send message</button>
+          <p class="small" data-status role="status" aria-live="polite"></p>
+        </div>
+        <p class="caption">Your message is sent to info@pintarselalu.com. This website uses no cookies and does not store what you write.</p>
+      </form>
+      <div class="form__done" id="form-done" tabindex="-1" hidden>
+        <h2>Thank you. Your message has been sent.</h2>
+        <p class="body">We will reply to the email address you gave. If you need to add anything, write to <a href="mailto:info@pintarselalu.com">info@pintarselalu.com</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="site-footer__top">
+      <div class="site-footer__brand">
+        <span class="wordmark">PINTAR</span>
+        <p class="site-footer__line">Calm on the surface.<br>Rigorous underneath.</p>
+      </div>
+      <nav aria-label="Explore"><p class="site-footer__h">Explore</p><ul><li><a href="../../en/">Home</a></li><li><a href="../../en/why-pintar/">Why PINTAR</a></li><li><a href="../../en/features/">Features</a></li><li><a href="../../en/who-its-for/">Who It’s For</a></li><li><a href="../../en/trust-and-security/">Trust & Security</a></li></ul></nav>
+      <div><p class="site-footer__h">Company</p>
+        <ul><li>PINTAR is developed by PT ZAYD PINTAR SELALU (ZPS)</li>
+          <li><a href="mailto:info@pintarselalu.com">info@pintarselalu.com</a></li>
+          <li><a href="../../en/contact/?subjek=demo#formulir">Request a Demo</a></li></ul></div>
+      <div><p class="site-footer__h">Language</p>
+        <ul><li><a href="../../kontak/" lang="id" hreflang="id">Bahasa Indonesia</a></li>
+          <li><a aria-current="true" lang="en" hreflang="en">English</a></li></ul></div>
+    </div>
+    <div class="site-footer__base">
+      <span>© PT ZAYD PINTAR SELALU (ZPS)</span>
+      <nav class="site-footer__legal" aria-label="Legal"><a href="../../en/contact/" aria-current="page">Contact</a><a href="../../en/privacy/">Privacy</a><a href="../../en/terms/">Terms</a></nav>
+      <span class="site-footer__status">Feature status on this site follows release verification, not plans.</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

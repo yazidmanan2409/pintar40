@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">
+<title>Website Review — PINTAR public website, first review</title>
+<link rel="stylesheet" href="../site/assets/css/site.css">
+<style>
+  .rv { padding-block: 5rem 8rem; }
+  .rv section { padding-block: 3.5rem; border-top: 1px solid var(--ink); }
+  .rv h2 { font: 380 2.25rem/1.1 var(--serif); margin-bottom: 1.25rem; }
+  .rv h3 { font: 600 1.0625rem/1.4 var(--sans); margin: 2rem 0 .75rem; }
+  .rv p, .rv li { color: var(--ink-2); max-width: 48rem; }
+  .rv p + p { margin-top: .75rem; }
+  .rv ul.dot { display: grid; gap: .5rem; } .rv ul.dot li { padding-left: 1.25rem; position: relative; } .rv ul.dot li::before { content: "—"; position: absolute; left: 0; color: var(--teal); }
+  .rv table { width: 100%; border-collapse: collapse; font-size: .9375rem; margin-top: 1rem; }
+  .rv th, .rv td { text-align: left; vertical-align: top; padding: .65rem .75rem .65rem 0; border-bottom: 1px solid var(--line); }
+  .rv th { font-weight: 600; color: var(--ink); border-bottom-color: var(--ink); }
+  .rv td { color: var(--ink-2); }
+  .rv .wrapx { overflow-x: auto; }
+  .rv .pages { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0; border-top: 1px solid var(--line); }
+  .rv .pages div { padding: 1rem 0; border-bottom: 1px solid var(--line); }
+  .rv .pages a { margin-right: 1rem; }
+  .rv .decision { border-left: 3px solid var(--teal); padding: .25rem 0 .25rem 1rem; margin-top: 1rem; }
+  .rv .decision b { color: var(--ink); }
+  .rv code { font-size: .875rem; }
+</style>
+</head>
+<body>
+<main class="wrap rv" id="isi">
+  <p class="label">PINTAR public website · Task 01 · first visual review</p>
+  <h1 class="h1">The website, before it is published.</h1>
+  <p class="lead" style="margin-top:1.5rem">Every page is designed and built, in Bahasa Indonesia and English. This page explains the decisions in brief, maps every visual to its section, and lists what needs your ruling. Nothing has been deployed.</p>
+
+  <section>
+    <h2>1. Creative direction</h2>
+    <p><b>Typography leads.</b> Newsreader, a contemporary serif, carries what is said: large, light and set with deliberate line breaks. Inter, the typeface of PINTAR’s own wordmark and reports, carries what is read and operated. The wordmark is the text-only «PINTAR» in Inter Bold, <code>#075056</code>, 0.14 em tracking (D-192, D-193).</p>
+    <p><b>Colour is quiet.</b> Warm white <code>#F6F4EF</code>, a soft neutral <code>#EDE9E1</code>, charcoal <code>#1B1E1D</code>, and the brand teal <code>#075056</code> used sparingly, with one deep-teal band per page at most. No gradients, decorative icons or stock illustration.</p>
+    <p><b>Images explain.</b> Documentary photographs of Indonesian schools show people. Native diagrams show how PINTAR works, and each replaces paragraphs. There are no product screenshots yet and none are faked: the one evidence picture is labelled as a concept illustration.</p>
+    <p><b>Layout.</b> A 12-column grid with a maximum width of 86 rem and wide margins. Splits are asymmetric (5/7, 7/5), with hairline rules instead of cards, and one focal point per section.</p>
+    <p><b>Motion.</b> Text and figures rise 18 px and fade in once (680 ms). Diagram stages light up once, in sequence. There is no parallax, autoplay, looping or scroll hijacking. With reduced motion everything is present and still; without JavaScript every page is complete.</p>
+    <p><b>Inspiration, not imitation.</b> From Leica: precision, confident photography and captioned editorial composition (the viewfinder marks on photo frames are a quiet nod). From MUJI: warmth, honesty, whitespace and restraint. No marks, layouts or assets are copied.</p>
+  </section>
+
+  <section>
+    <h2>2. Site map and navigation</h2>
+    <p>The navigation follows your structure: <b>Why PINTAR · Features · Who It’s For · Trust & Security</b>, the ID / EN switch, and one action: <b>Request a Demo</b>. As you recommended, demo requests use the Contact form with «Minta demo» preselected: one form, one handler. The footer adds Contact · Privacy · Terms. There is no cookie page because the site sets no cookies; the Privacy Policy says so.</p>
+    <div class="pages"><div><b>Home</b><br><a class="link" href="../site/">ID /</a> <a class="link" href="../site/en/">EN /en/</a></div><div><b>Why PINTAR</b><br><a class="link" href="../site/mengapa-pintar/">ID /mengapa-pintar/</a> <a class="link" href="../site/en/why-pintar/">EN /en/why-pintar/</a></div><div><b>Features</b><br><a class="link" href="../site/fitur/">ID /fitur/</a> <a class="link" href="../site/en/features/">EN /en/features/</a></div><div><b>Who It’s For</b><br><a class="link" href="../site/untuk-siapa/">ID /untuk-siapa/</a> <a class="link" href="../site/en/who-its-for/">EN /en/who-its-for/</a></div><div><b>Trust & Security</b><br><a class="link" href="../site/keamanan/">ID /keamanan/</a> <a class="link" href="../site/en/trust-and-security/">EN /en/trust-and-security/</a></div><div><b>Contact</b><br><a class="link" href="../site/kontak/">ID /kontak/</a> <a class="link" href="../site/en/contact/">EN /en/contact/</a></div><div><b>Privacy Policy</b><br><a class="link" href="../site/privasi/">ID /privasi/</a> <a class="link" href="../site/en/privacy/">EN /en/privacy/</a></div><div><b>Terms of Use</b><br><a class="link" href="../site/ketentuan/">ID /ketentuan/</a> <a class="link" href="../site/en/terms/">EN /en/terms/</a></div></div>
+    <p style="margin-top:1rem">Bahasa Indonesia is the default, at the root. English lives under <code>/en/</code>, with its own natural slugs. The switch always lands on the same page in the other language. Nothing is remembered on the device.</p>
+  </section>
+
+  <section>
+    <h2>3. Visual assets, mapped to sections</h2>
+    <h3>Photographs (eight, reused across pages; none exist yet)</h3>
+    <p>I recommend one commissioned documentary shoot over two or three days, across at least two regions (for example Java and Sulawesi or Nusa Tenggara). It should use natural light, real schools, real staff and learners in their own uniforms, with nothing posed to camera. Stock imagery of “Indonesian classrooms” is usually generic, and AI-generated people are ruled out. Until the shoot, each photograph is a correctly proportioned placeholder whose caption is its brief.</p>
+    <div class="wrapx"><table><thead><tr><th>#</th><th>Subject</th><th>Composition</th><th>Message</th><th>Ratio (desktop / phone)</th><th>Used in</th><th>Source</th></tr></thead><tbody>
+      <tr><td><b>P1</b></td><td>Teacher kneeling at two learners’ desk, reading a worksheet with them. State SMP, white-and-navy uniforms, morning daylight through louvred windows.</td><td>Eye level, 35 mm, people in the right two-thirds; the left third quiet. No faces to camera.</td><td>PINTAR starts with the teacher understanding a learner, not with software.</td><td>21/9 / 4/5</td><td>Home hero</td><td>Commission</td></tr><tr><td><b>P2</b></td><td>SMA learner studying on a home veranda, notebook beside a phone, late-afternoon light.</td><td>Portrait, three-quarter view, hands and notebook in focus.</td><td>Learning continues beyond the classroom, with a clear next step.</td><td>4/5 / 4/5</td><td>Who It’s For · Learners</td><td>Commission</td></tr><tr><td><b>P3</b></td><td>Teacher in the staff room after lessons, reviewing results on a laptop beside a stack of exercise books.</td><td>Portrait, over-the-shoulder; the screen deliberately unreadable.</td><td>Evidence that helps tomorrow’s lesson.</td><td>4/5 / 4/5</td><td>Home · Capabilities; Who It’s For · Educators</td><td>Commission</td></tr><tr><td><b>P4</b></td><td>Principal and deputy at a meeting table discussing a printed A4 school summary.</td><td>Landscape, table-height, the paper central and blurred.</td><td>Leadership sees patterns and discusses them.</td><td>3/2 / 4/5</td><td>Who It’s For · Leadership</td><td>Commission</td></tr><tr><td><b>P5</b></td><td>School operator in the administration office preparing class cards at the start of the year.</td><td>Portrait, hands and cards in focus.</td><td>Administration done carefully, without becoming educational decision-making.</td><td>4/5 / 4/5</td><td>Who It’s For · Administrators</td><td>Commission</td></tr><tr><td><b>P6</b></td><td>School courtyard in the morning before lessons; learners walking to class, shot from a distance.</td><td>Wide, high vantage, no recognisable faces.</td><td>The institution as a whole, over time.</td><td>21/9 / 4/3</td><td>Home · pause; Who It’s For · Institutions</td><td>Commission, or the client’s own school with consent</td></tr><tr><td><b>P7</b></td><td>Close detail of a learner’s hand writing an answer on a printed initial-mapping sheet.</td><td>Macro, wide crop, shallow depth; the sheet’s text out of focus.</td><td>Diagnosis begins with what a learner already knows.</td><td>21/9 / 4/5</td><td>Why PINTAR · hero</td><td>Commission</td></tr><tr><td><b>P8</b></td><td>A PINTAR team member guiding a deputy principal through a laptop at a school table.</td><td>Landscape, both people in profile, screen unreadable.</td><td>A demonstration is a guided conversation, not a sales pitch.</td><td>3/2 / 4/5</td><td>Demo band on every page</td><td>Commission</td></tr>
+    </tbody></table></div>
+    <p style="margin-top:1rem">Delivery: 2400 px on the long edge, then exported as AVIF and WebP at 640, 1024, 1600 and 2400 px with <code>srcset</code> and <code>loading="lazy"</code> below the fold. Each placeholder already carries the final image’s alternative text.</p>
+    <h3>Diagrams and infographics (native HTML and SVG, built)</h3>
+    <div class="wrapx"><table><thead><tr><th>#</th><th>Diagram</th><th>Where</th><th>What it shows</th><th>Why it is there</th></tr></thead><tbody>
+      <tr><td><b>D1</b></td><td>Connects</td><td>Home · hero</td><td>Teaching · Learning · Assessment · Decisions, joined by “evidence you can trace”.</td><td>The proposition in four words, read in two seconds.</td></tr><tr><td><b>D2</b></td><td>The learning cycle</td><td>Home · How it works; Why PINTAR (full)</td><td>Seven stages, each with its question and what PINTAR does; a return line to the start. Stages light up once, in order.</td><td>Replaces paragraphs on the philosophy.</td></tr><tr><td><b>D5</b></td><td>Evidence states (concept illustration)</td><td>Home · Why; Why PINTAR · Principles</td><td>72% from 22 of 24 learners, against “—” from 4 of 24: “not enough evidence yet, not weakness”. Labelled as an illustration.</td><td>PINTAR’s most distinctive honesty, shown not told.</td></tr><tr><td><b>D3</b></td><td>Canonical content</td><td>Features · B</td><td>One canonical release, two institutions, each with its own additions and its own evidence, kept apart.</td><td>Sharing without leaking.</td></tr><tr><td><b>D4</b></td><td>Governed publishing</td><td>Features · B</td><td>Draft → second-person review → approved → frozen and released; send-back loop; R1 untouched, R2 the correction.</td><td>Why history is trustworthy.</td></tr><tr><td><b>D11</b></td><td>Who sees what</td><td>Features · C</td><td>Learners, educators, leadership, certificate checkers: what each sees, and what they do not.</td><td>Reports without ranking or over-exposure.</td></tr><tr><td><b>D6</b></td><td>One person, many roles</td><td>Features · D</td><td>Teaching at School A, managing at School B, learning in a training programme; a role is not a permission.</td><td>Identity and context in one picture.</td></tr><tr><td><b>D7</b></td><td>Layered cross-section</td><td>Home · Trust (dark); Trust & Security (full)</td><td>The calm surface, then seven layers beneath it. Layers appear once, top to bottom.</td><td>“Calm on the surface. Rigorous underneath.”</td></tr><tr><td><b>D8</b></td><td>Roadmap</td><td>Home · What comes next</td><td>4.0 Foundation (in release verification), 4.1 Next (planned), 4.5 and 5.0 (direction), 5.0+ (possibilities). Status is a word and a shape.</td><td>An honest future, at a glance.</td></tr><tr><td><b>D9</b></td><td>AI drafts, educator decides</td><td>Features · 4.1</td><td>AI drafts → educator reviews, edits or rejects (emphasised) → usual approval → release.</td><td>“AI assists. Educators decide.”</td></tr><tr><td><b>D10</b></td><td>Continue on another device</td><td>Features · 4.1</td><td>First device → short-lived single-use code → second device; one writer at a time.</td><td>Continuity without a shared password.</td></tr><tr><td><b>D12</b></td><td>What PINTAR is not</td><td>Why PINTAR · 04</td><td>LMS distributes, library stores, exam platform measures; PINTAR connects them and explains.</td><td>Positioning without naming competitors.</td></tr>
+    </tbody></table></div>
+    <h3>Section by section</h3>
+    <div class="wrapx"><table><thead><tr><th>Page</th><th>Section</th><th>Visual treatment</th></tr></thead><tbody>
+      <tr><td><b>Home</b></td><td>Hero</td><td>Typography (display serif, two deliberate lines) + P1, 21:9 desktop / 4:5 phone + D1</td></tr><tr><td></td><td>01 Why PINTAR</td><td>Headline + D5 concept illustration</td></tr><tr><td></td><td>02 How it works</td><td>D2 cycle, progressive emphasis</td></tr><tr><td></td><td>03 Capabilities (4.0 Foundation)</td><td>P3 (sticky on desktop) + typographic index of four capabilities</td></tr><tr><td></td><td>04 Who it’s for</td><td>Typographic list of five roles</td></tr><tr><td></td><td>Pause</td><td>P6, 21:9</td></tr><tr><td></td><td>05 Trust & Security</td><td>Dark band + D7 (compact)</td></tr><tr><td></td><td>06 What comes next</td><td>D8 roadmap + “AI assists. Educators decide.”</td></tr><tr><td></td><td>Request a demo</td><td>P8 + button to the contact form, subject preselected</td></tr><tr><td><b>Why PINTAR</b></td><td>Hero</td><td>Typography + P7 detail</td></tr><tr><td></td><td>01 The problem</td><td>Three numbered observations (typography only)</td></tr><tr><td></td><td>02 Philosophy</td><td>D2 full cycle</td></tr><tr><td></td><td>03 Principles</td><td>Four principles + D5</td></tr><tr><td></td><td>04 Difference</td><td>D12</td></tr><tr><td></td><td>Demo</td><td>P8</td></tr><tr><td><b>Features</b></td><td>Hero</td><td>Status legend</td></tr><tr><td></td><td>A Learning & teaching</td><td>Journey strip</td></tr><tr><td></td><td>B Content</td><td>D3 + D4</td></tr><tr><td></td><td>C Assessment & reports</td><td>D11</td></tr><tr><td></td><td>D Identity & institutions</td><td>D6</td></tr><tr><td></td><td>4.1 Next</td><td>D9 + D10</td></tr><tr><td></td><td>Further ahead</td><td>Three typographic columns, dashed status</td></tr><tr><td></td><td>Demo</td><td>P8</td></tr><tr><td><b>Who It’s For</b></td><td>Hero</td><td>Typography + anchor bar</td></tr><tr><td></td><td>Learners</td><td>P2</td></tr><tr><td></td><td>Educators</td><td>P3</td></tr><tr><td></td><td>Leadership</td><td>P4</td></tr><tr><td></td><td>Administrators</td><td>P5</td></tr><tr><td></td><td>Institutions</td><td>P6</td></tr><tr><td></td><td>Demo</td><td>P8</td></tr><tr><td><b>Trust & Security</b></td><td>Hero</td><td>D7 full, on paper</td></tr><tr><td></td><td>In practice</td><td>Seven layers with a real-life example each (typography)</td></tr><tr><td></td><td>What we do not claim</td><td>Framed text block</td></tr><tr><td></td><td>Demo</td><td>P8</td></tr><tr><td><b>Contact · Privacy · Terms</b></td><td>Contact</td><td>Typography + form; no photograph (focus)</td></tr><tr><td></td><td>Privacy, Terms</td><td>Typography with a sticky contents list; draft and «to confirm» markers</td></tr>
+    </tbody></table></div>
+    <h3>Product screenshots</h3>
+    <p>When 4.0 is accepted on staging, authentic screenshots of the real product, with sample data and clearly labelled, can replace one or two diagrams (for example the class evidence screen in Features · C). None are used now.</p>
+  </section>
+
+  <section>
+    <h2>4. Homepage, and 5. supporting pages</h2>
+    <p>Open the pages above. The homepage answers, in order: what PINTAR is (hero and D1), why it matters (D5), how it works (D2), what it does (four capabilities, status shown), who it is for, why to trust it (D7), where it is going (D8), and how to see it (Request a Demo).</p>
+  </section>
+
+  <section>
+    <h2>6. Mobile and bilingual behaviour</h2>
+    <ul class="dot">
+      <li><b>Responsive:</b> every page is checked for horizontal overflow at 320, 390, 768, 1024 and 1440 px. Diagrams reflow from horizontal to vertical; photographs switch to their phone crop (mostly 4:5).</li>
+      <li><b>Phone navigation:</b> on a phone the navigation is a full-screen menu with large serif links, and the language switch stays visible.</li>
+      <li><b>Bilingual copy:</b> both languages are written, not translated; Indonesian runs longer, and the layouts are tested in it. Terms follow the universal vocabulary (Peserta didik, Pendidik, Pimpinan, Institusi), pending the written terminology decision.</li>
+      <li><b>Accessibility:</b>
+        <ul class="dot">
+          <li>measured contrast, no text under 14 px, controls of 44 px or more, visible focus, and a skip link;</li>
+          <li>one H1 per page, alternative text on every photograph, diagrams as real lists, form errors linked to their fields with a summary, and status in words, not colour alone.</li>
+        </ul></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>7. Implementation, and what needs your approval</h2>
+    <p><b>Build.</b> The site is static, with a zero-dependency Node build (<code>node build.mjs</code>) that writes plain HTML to <code>site/</code>; the result uploads to the existing Namecheap hosting as it is. Pages are under 20 KB of HTML each, with one stylesheet (47 KB), one small script (8 KB) and self-hosted fonts (Inter and Newsreader, about 170 KB on a first visit, then cached).</p>
+    <p><b>Contact form.</b> <code>api/kontak.php</code> (PHP 8.1 or later, already available on that hosting) does all of the following on the server:</p>
+    <ul class="dot">
+      <li>validates every field and refuses foreign origins;</li>
+      <li>stops bots with a honeypot and a timing check;</li>
+      <li>limits each sender to five messages an hour and ignores double submits;</li>
+      <li>moderates content in Indonesian and English;</li>
+      <li>delivers by email to info@pintarselalu.com.</li>
+    </ul>
+    <p>Credentials, if SMTP is used, live in a config file outside the public folder.</p>
+    <p><b>Moderation.</b> Moderation is rule-based and configurable:</p>
+    <ul class="dot">
+      <li>normalisation defeats disguises such as look-alike letters, zero-width characters, l33t spelling, spaced or stretched letters and full-width text;</li>
+      <li>clear abuse is refused with your exact wording;</li>
+      <li>reports, quotations and borderline messages are delivered marked «PERLU DITINJAU», never discarded;</li>
+      <li>nothing of a refused message is kept, only the time, a category and a hashed address, for 30 days.</li>
+    </ul>
+    <p>The 47 acceptance cases cover both languages and all three outcomes.</p>
+    <h3>Decisions for you</h3>
+    <div class="decision"><b>1 · Public status of 4.0.</b> The site labels 4.0 “Fondasi · verifikasi rilis / Foundation · in release verification”, because no release has been accepted for production. Once 4.0 is accepted, one constant changes it to “available”. Please confirm the wording, and who confirms the switch.</div>
+    <div class="decision"><b>2 · Photography.</b> Approve a commissioned documentary shoot (eight images, two regions), and the consent process for minors (parental consent forms) and staff.</div>
+    <div class="decision"><b>3 · Company facts for the legal pages.</b>
+      <ul class="dot">
+        <li>Registered address and NIB.</li>
+        <li>Hosting and email providers, and whether any data leaves Indonesia.</li>
+        <li>How long the mailbox keeps email.</li>
+        <li>Whether a data protection officer is appointed.</li>
+        <li>Trademark status.</li>
+        <li>An effective date.</li>
+      </ul>
+      Whether the website needs a PSE (private electronic system operator) registration should be checked by counsel. Both legal pages are drafts until a qualified reviewer approves them.</div>
+    <div class="decision"><b>4 · Mail delivery.</b> Either use the host’s mail() with SPF and DKIM set for pintarselalu.com (no password), or an authenticated SMTP mailbox (more reliable). Either way, a test message must be confirmed in the real inbox before launch.</div>
+    <div class="decision"><b>5 · Domain and indexing.</b> Every page is <code>noindex</code> while in review. Publication (<code>node build.mjs --publish</code>) needs the production domain, for canonical and hreflang URLs, and your go-ahead. I have not deployed anything.</div>
+    <div class="decision"><b>6 · Mini-PINTAR and the paused corporate site.</b> Per the brief, the new site does not link to Mini-PINTAR. Should Mini-PINTAR stay online elsewhere, or be retired with the paused corporate site once this one is published?</div>
+    <div class="decision"><b>7 · Repository history (not a design matter).</b> Main was rewritten (a new 368-commit history from 9 October). This website lane still carries the old history, which may include what the rewrite removed. With your approval I can move the website work onto the new main and replace the lane.</div>
+  </section>
+</main>
+</body>
+</html>
