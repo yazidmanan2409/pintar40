@@ -1,6 +1,6 @@
 import { targetKelasDari } from "@/lib/target-kelas";
 import "server-only";
-import { bagianJakarta } from "@/lib/tanggal";
+import { bagianJakarta, geserZona } from "@/lib/tanggal";
 import { supabaseServer } from "@/lib/supabase/server";
 import { alamatPilih } from "@/lib/konteks";
 import { susunHasilUjiCepat, type HasilUjiCepat, type SesiHasil } from "@/lib/hasil-ujicepat";
@@ -1471,10 +1471,10 @@ export async function kelasTanpaMateri(kelas: KelasMengajar[]): Promise<{ kelasI
  * is used to describe — makes it an input like any other, and means there is
  * exactly one clock per request rather than one per expression.
  */
-export function waktu(): { iso: string; jam: number } {
+export function waktu(zona?: string | null): { iso: string; jam: number } {
   const now = new Date();
-  // the hour on Jakarta's clock, from the one date helper (W3.3, RV-16)
-  const jam = bagianJakarta(now)?.jam ?? 0;
+  // the hour on the school's clock (the owner's ruling, 10 Nov; WIB when no school is given), from the one date helper
+  const jam = bagianJakarta(now, geserZona(zona))?.jam ?? 0;
   return { iso: now.toISOString(), jam };
 }
 

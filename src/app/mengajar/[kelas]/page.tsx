@@ -183,7 +183,7 @@ export default async function Kelas({
                 <div key={b.id} className="pin-row">
                   <span className="pin-title">{b.judul}</span>
                   <span className="pin-rowmeta">
-                    {b.ditutup ? <span>{tanggal(b.ditutup, "hari", locale)}</span> : null}
+                    {b.ditutup ? <span>{tanggal(b.ditutup, "hari", locale, zona)}</span> : null}
                     <span>
                       {format.number(b.mengumpulkan, locale)}/
                       {format.number(fakta.murid.length, locale)}{" "}
@@ -213,8 +213,8 @@ export default async function Kelas({
                   {/* Batch 3 closure (Daisy, J1Terbit step 7): the window in words, «Mulai … · Sampai …» or «Tanpa batas
                       akhir», and «Tersedia» as the done Badge (✓); a scheduled or finished material stays neutral */}
                   <span className="pin-rowmeta">
-                    {x.mulai ? <span>{s("mengajar.siap.mulai")} {tanggal(x.mulai, "hari", locale)}</span> : null}
-                    <span>{x.sampai ? `${s("mengajar.siap.sampai")} ${tanggal(x.sampai, "hari", locale)}` : s("mengajar.siap.sampai.kosong")}</span>
+                    {x.mulai ? <span>{s("mengajar.siap.mulai")} {tanggal(x.mulai, "hari", locale, zona)}</span> : null}
+                    <span>{x.sampai ? `${s("mengajar.siap.sampai")} ${tanggal(x.sampai, "hari", locale, zona)}` : s("mengajar.siap.sampai.kosong")}</span>
                   </span>
                   <span className={`pin-pill ${ajar.nadaMateri(ajar.statusMateri(x))}`}>{s(ajar.statusMateri(x))}</span>
                   {/* W2.21: an assignment in force can be ended or withdrawn, on the record, from its own row */}
@@ -238,7 +238,7 @@ export default async function Kelas({
                     <span className="pin-rowmeta">
                       {r.terbitPada ? (
                         <span>
-                          {s("mengajar.siap.diterbitkan")} {tanggal(r.terbitPada, "baca", locale)}
+                          {s("mengajar.siap.diterbitkan")} {tanggal(r.terbitPada, "baca", locale, zona)}
                         </span>
                       ) : null}
                     </span>
@@ -285,7 +285,7 @@ export default async function Kelas({
             {format.number(fakta.murid.length, locale)} {s(kataAnggota("mengajar.fakta.murid", ctx.ini.jenis)).toLowerCase()}.{" "}
             {s("mengajar.murid.sub")}
             {fakta.rosterBerubah
-              ? ` ${s("mengajar.fakta.berubah")} ${tanggal(fakta.rosterBerubah, "baca", locale)}.`
+              ? ` ${s("mengajar.fakta.berubah")} ${tanggal(fakta.rosterBerubah, "baca", locale, zona)}.`
               : ""}
           </p>
           {/* W3.5 (Batch 4; Daisy, J2Kelas): the class's learners as a Table: alphabetical, searchable, paged with the

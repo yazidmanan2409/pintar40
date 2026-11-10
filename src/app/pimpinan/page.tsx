@@ -23,6 +23,8 @@ import TandaTautan from "@/components/TandaTautan";
 import { lingkupAwal } from "@/components/pimpinan/lingkup";
 import { alamatCatatan, tempatCatatan } from "@/lib/pengembangan";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { zonaSekolahBanyak } from "@/lib/zona-sekolah";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export const generateMetadata = judulHalaman("/pimpinan");
 
@@ -97,6 +99,8 @@ export default async function Pimpinan({
   ]);
 
   const tertib = urutan(keputusan);
+  // the owner's ruling (10 Nov): each decision's dates on its own school's clock
+  const zonaDari = await zonaSekolahBanyak(await supabaseServer(), tertib.map((k) => k.institusi));
   const antre = tertib.filter(menunggu);
   const angka = bukti.filter((e) => e.status === "ok");
   const absen = bukti.filter((e) => e.status !== "ok");
@@ -194,6 +198,7 @@ export default async function Pimpinan({
               locale={locale}
               galat={sp.galat === "1" && sp.keputusan === k.id}
               tercatat={sp.hasil === "ok" && sp.keputusan === k.id}
+              zona={zonaDari(k.institusi)}
             />
           ))}
 

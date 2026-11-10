@@ -14,7 +14,8 @@ const BERNAMA = new Set<string>(allKeys().filter((k) => k.startsWith("keamanan.a
  * PINTAR ID it concerns. What is shown is what the record holds; an event this
  * page has no words for is still shown, never hidden, in the words of the Jejak audit (its action's own, else its
  * area's, else «Perubahan tercatat»), never by its code (D-140(c), 9 Oct review RV-2). The moment carries its year
- * and the school's time zone.
+ * and WIB: an account's security event is tied to no school, so it is written on the platform's stated clock (the
+ * owner's ruling, 10 Nov), «WIB» printed.
  */
 export default function CatatanKeamanan({ locale, baris }: { locale: Locale; baris: BarisKeamanan[] }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });

@@ -12,6 +12,7 @@ import HasilDi from "@/components/HasilDi";
 import SimpanIsian from "@/components/SimpanIsian";
 import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { zonaSekolahBanyak } from "@/lib/zona-sekolah";
 
 export const generateMetadata = judulHalaman("/studio/kanonik");
 
@@ -64,6 +65,8 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
   }>).filter((r) => ids.has(r.consuming_institution_id) || ids.has(r.owner_institution_id));
 
   const banner = outcomeLine(sp, locale);
+  // the owner's ruling (10 Nov): an authorization on the clock of the school it was given to
+  const zonaDari = await zonaSekolahBanyak(supabase, catalogue.map((r) => r.consuming_institution_id));
 
   // CR-87 (4), FD-8 (D-127; ADR-0015): granting and withdrawing the library is the platform operator's alone, by names.
   // Every school admin was shown the form (CAN_PUBLISH in their own school), which the database refused, and it asked
@@ -123,7 +126,7 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
               {r.distribution_status === "WITHDRAWN" ? (
                 <p className="pin-ket">{s("studio.kanonik.ditarik")}</p>
               ) : (
-                <p className="pin-ket-3">{when(r.authorized_at, locale)}</p>
+                <p className="pin-ket-3">{when(r.authorized_at, locale, zonaDari(r.consuming_institution_id))}</p>
               )}
               <p className="pin-ket">
                 <Link href={`/studio/kanonik/${r.plp_release_id}`} className="pin-tautan">

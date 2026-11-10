@@ -10,7 +10,7 @@
  * browser times T-60/30/15 itself, with no polling (D-094(d)).
  */
 
-import { jam } from "./tanggal";
+import { geserZona, jam } from "./tanggal";
 
 export const HALAMAN_PEMELIHARAAN = "/pemeliharaan";
 
@@ -126,10 +126,10 @@ export function tahapBerikutMs(mulai: string, sekarangMs: number, selisihMs = 0)
   return null;
 }
 
-/** A time of day as a reader in Indonesia reads it: «22.00» (WIB, Asia/Jakarta). */
+/** A time of day as a reader in Indonesia reads it: «22.00» (WIB, Asia/Jakarta, unless a school's zone is given). */
 // W3.3 (Batch 2; RV-16): from the one date helper, «22.00» in both languages (24-hour with a full stop, never «22:00»).
-export function jamWib(iso: string): string {
-  return jam(iso);
+export function jamWib(iso: string, zona?: string | null): string {
+  return jam(iso, zona);
 }
 
 /** The window that matters most to this reader now: an emergency, else an active window, else the nearest. */
@@ -204,12 +204,19 @@ export function bacaDaftarKelola(data: unknown): DaftarKelola {
 }
 
 /**
- * A local date and time typed into the form (`datetime-local`, no zone) read as WIB, the zone every administrator's
- * school is in (D-094(e) speaks WIB), as an instant. Null when it is not a date and time.
+ * A local date and time typed into the form (`datetime-local`, no zone) read on the clock of the school the window or
+ * notice is for (the owner's ruling, 10 Nov: institutions.zona_waktu, WIB, WITA or WIT), as an instant; WIB for the
+ * whole platform, several schools, or none (D-094(e) speaks WIB, and the form's label says which). Null when it is not
+ * a date and time.
  */
-export function waktuWib(nilai: string | null | undefined): string | null {
+export function waktuSekolah(nilai: string | null | undefined, zona?: string | null): string | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(String(nilai ?? "").trim());
   if (!m) return null;
-  const d = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:00+07:00`);
-  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) - geserZona(zona));
+  return Number.isNaN(d.getTime()) || +m[4] > 23 || +m[5] > 59 ? null : d.toISOString();
+}
+
+/** The same, read as WIB. */
+export function waktuWib(nilai: string | null | undefined): string | null {
+  return waktuSekolah(nilai, "Asia/Jakarta");
 }

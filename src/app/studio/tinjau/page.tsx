@@ -3,9 +3,8 @@ import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import { t, type HleEvent } from "@/lib/hle";
-import { tanggal } from "@/lib/tanggal";
 import Kosong from "@/components/Kosong";
-import { studioInstitutions, tabSaya } from "../_lib";
+import { studioInstitutions, tabSaya, when, zonaStudio } from "../_lib";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/studio/tinjau");
@@ -25,7 +24,8 @@ export default async function Tinjau() {
   // CR-87: a tab not this person's sends them to Studio's home (src/lib/studio-tab.ts); the database still decides
   if (!(await tabSaya()).includes("tinjau")) redirect("/studio");
   const supabase = await supabaseServer();
-  const [institutions, locale] = await Promise.all([studioInstitutions(), currentLocale()]);
+  // the owner's ruling (10 Nov): each package's moment on its school's clock (zonaStudio)
+  const [institutions, locale, zonaDari] = await Promise.all([studioInstitutions(), currentLocale(), zonaStudio()]);
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const byId = new Map(institutions.map((i) => [i.id, i.name]));
 
@@ -53,7 +53,7 @@ export default async function Tinjau() {
             <Link key={c.id} href={`/studio/paket/${c.id}`} className="pin-row">
               <span className="pin-title">{c.title}</span>
               <span className="pin-rowmeta">
-                <span>{c.subject} · {c.grade_label} · {byId.get(c.institution_id) ?? ""} · {tanggal(c.created_at, "cap", locale)}</span>
+                <span>{c.subject} · {c.grade_label} · {byId.get(c.institution_id) ?? ""} · {when(c.created_at, locale, zonaDari(c.institution_id))}</span>
                 {c.author_person_id && c.author_person_id === me ? <span>{s("studio.tinjau.bukan_penulis")}</span> : null}
               </span>
             </Link>

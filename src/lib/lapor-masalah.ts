@@ -1,6 +1,7 @@
 import "server-only";
 import { supabaseServer } from "@/lib/supabase/server";
 import { rentangTriase, type StatusLaporan } from "@/lib/lapor-masalah-kontrak";
+import { zonaSah, type ZonaSekolah } from "@/lib/hle";
 
 export * from "@/lib/lapor-masalah-kontrak";
 
@@ -23,6 +24,8 @@ export type LaporanMasalah = {
   peran: string;
   pelapor: string;
   sekolah: string | null;
+  /** the report's school's zone (the owner's ruling, 10 Nov): its time is written on that school's clock; WIB with none */
+  zona: ZonaSekolah;
   tangkapan: string | null;
   build: string | null;
   perangkat: string | null;
@@ -32,18 +35,18 @@ type Baris = {
   id: string; created_at: string; page: string; error_ref: string | null; did: string; expected: string; happened: string;
   stops_class: boolean; status: StatusLaporan; next_step: string | null; reporter_role: string; reporter_person_id: string;
   institution_id: string | null; screenshot_path: string | null; build_sha: string | null; device: string | null;
-  reporter: { display_name: string } | null; institution: { name: string } | null;
+  reporter: { display_name: string } | null; institution: { name: string; zona_waktu?: unknown } | null;
 };
 
 const KOLOM = "id, created_at, page, error_ref, did, expected, happened, stops_class, status, next_step, reporter_role, "
   + "reporter_person_id, institution_id, screenshot_path, build_sha, device, reporter:persons!support_reports_reporter_person_id_fkey(display_name), "
-  + "institution:institutions(name)";
+  + "institution:institutions(name, zona_waktu)";
 
 function ubah(r: Baris): LaporanMasalah {
   return {
     id: r.id, dibuat: r.created_at, halaman: r.page, rujukan: r.error_ref, lakukan: r.did, harapan: r.expected,
     terjadi: r.happened, hentikanKelas: r.stops_class, status: r.status, langkah: r.next_step, peran: r.reporter_role,
-    pelapor: r.reporter?.display_name ?? "", sekolah: r.institution?.name ?? null, tangkapan: r.screenshot_path,
+    pelapor: r.reporter?.display_name ?? "", sekolah: r.institution?.name ?? null, zona: zonaSah(r.institution?.zona_waktu), tangkapan: r.screenshot_path,
     build: r.build_sha, perangkat: r.device,
   };
 }

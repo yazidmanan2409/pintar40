@@ -13,6 +13,8 @@ export type Kredensial = {
   issuedAtIso: string;
   certificateNumber: string;
   verificationUrl: string | null;
+  /** The issuing school's zone (the owner's ruling, 10 Nov): the issue day on that clock; WIB when absent. */
+  zona?: string | null;
 };
 
 /**
@@ -83,7 +85,7 @@ export default function KartuSertifikat({
           ) : null}
           <div>
             <dt>{s("sertifikat.tanggal")}</dt>
-            <dd className="pin-num">{format.date(cred.issuedAtIso, locale)}</dd>
+            <dd className="pin-num">{format.date(cred.issuedAtIso, locale, cred.zona)}</dd>
           </div>
           <div>
             <dt>{s("sertifikat.nomor")}</dt>
@@ -156,7 +158,7 @@ function LembarSertifikat({ cred, locale, konteks }: { cred: Kredensial; locale:
         ) : null}
         <div>
           <dt>{s("sertifikat.tanggal")}</dt>
-          <dd>{format.date(cred.issuedAtIso, locale)}</dd>
+          <dd>{format.date(cred.issuedAtIso, locale, cred.zona)}</dd>
         </div>
         <div>
           <dt>{s("sertifikat.nomor")}</dt>

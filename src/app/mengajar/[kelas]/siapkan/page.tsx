@@ -109,8 +109,8 @@ export default async function Siapkan({
     : pilihan ? calon.find((r) => r.id === pilihan) ?? null : null;
   const mulaiAwal = sudah ? hariDari(sudah.mulai, zona) ?? hariIniSekolah(undefined, zona) : HARI.test(mulaiTadi ?? "") ? mulaiTadi! : hariIniSekolah(undefined, zona);
   const sampaiAwal = sudah ? hariDari(sudah.sampai, zona) : HARI.test(sampaiTadi ?? "") ? sampaiTadi : undefined;
-  const jendelaKata = `${s("mengajar.siap.mulai")} ${tanggal(mulaiAwal, "hari", locale)} · ${
-    sampaiAwal ? `${s("mengajar.siap.sampai")} ${tanggal(sampaiAwal, "hari", locale)}` : s("mengajar.siap.sampai.kosong")}`;
+  const jendelaKata = `${s("mengajar.siap.mulai")} ${tanggal(mulaiAwal, "hari", locale, zona)} · ${
+    sampaiAwal ? `${s("mengajar.siap.sampai")} ${tanggal(sampaiAwal, "hari", locale, zona)}` : s("mengajar.siap.sampai.kosong")}`;
 
   const lingkup = (
     <BarisLingkup
@@ -156,7 +156,7 @@ export default async function Siapkan({
                   {/* DAISY-26 (UX-20): the date says which release; its version number means nothing to a teacher */}
                   <span className="pin-rowmeta">
                     {r.terbitPada ? (
-                      <span>{s("mengajar.siap.diterbitkan")} {tanggal(r.terbitPada, "baca", locale)}</span>
+                      <span>{s("mengajar.siap.diterbitkan")} {tanggal(r.terbitPada, "baca", locale, zona)}</span>
                     ) : null}
                   </span>
                   <span className="pin-pill pin-info">{s("mengajar.status.siap")}</span>
@@ -206,7 +206,7 @@ export default async function Siapkan({
           </div>
           <p className="pin-meta">
             {/* DAISY-26 (UX-20): no version number; the date says which release */}
-            {dipilih.terbitPada ? `${s("mengajar.siap.diterbitkan")} ${tanggal(dipilih.terbitPada, "baca", locale)} · ` : ""}
+            {dipilih.terbitPada ? `${s("mengajar.siap.diterbitkan")} ${tanggal(dipilih.terbitPada, "baca", locale, zona)} · ` : ""}
             {`${format.number(isi.pelajaran, locale)} ${s("mengajar.siap.pelajaran")}`}
             {` · ${format.number(isi.soal, locale)} ${s("mengajar.siap.soal")}`}
           </p>

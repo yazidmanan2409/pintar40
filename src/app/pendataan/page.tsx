@@ -14,6 +14,8 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import BacaDanPetakan from "@/components/pendataan/BacaDanPetakan";
 import BidangTeks from "@/components/bentuk/BidangTeks";
 import { tanggal } from "@/lib/tanggal";
+import { zonaSekolah } from "@/lib/zona-sekolah";
+import { supabaseServer } from "@/lib/supabase/server";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/pendataan");
@@ -60,9 +62,11 @@ export default async function Pendataan({
   }
 
   const dipilih = sekolah.find((x) => x.id === sp.sekolah) ?? sekolah[0];
-  const [pekerjaan, tempat] = await Promise.all([
+  const [pekerjaan, tempat, zona] = await Promise.all([
     data.pekerjaanSekolah(dipilih.id),
     dipilih.kode ? data.tempatSekolah(dipilih.id) : Promise.resolve([]),
+    // the owner's ruling (10 Nov): an import's time on the school's clock
+    supabaseServer().then((c) => zonaSekolah(c, dipilih.id)),
   ]);
 
   return (
@@ -153,7 +157,7 @@ export default async function Pendataan({
                     <Link href={`/pendataan/${encodeURIComponent(j.id)}`}>
                       <span className="pin-ml">
                         {/* W3.6 / RV-16: a record's moment through the one date helper, on WIB */}
-                        {format.number(j.total, locale)} · {tanggal(j.dibuat, "cap", locale) || j.dibuat}
+                        {format.number(j.total, locale)} · {tanggal(j.dibuat, "cap", locale, zona) || j.dibuat}
                       </span>
                       {/* The job's own state, as a sentence. The enum never
                           renders. */}

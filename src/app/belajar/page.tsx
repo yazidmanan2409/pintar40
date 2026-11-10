@@ -23,6 +23,7 @@ import { labelTujuan } from "@/components/siklus/aksi";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { judulAsesmen } from "@/lib/judul-asesmen";
 import { tanggal } from "@/lib/tanggal";
+import { zonaSimpulBanyak } from "@/lib/zona-sekolah";
 
 export const generateMetadata = judulHalaman("/belajar");
 
@@ -148,6 +149,8 @@ export default async function Belajar({
   // returns exactly what `may_start_assessment()` accepts, so this list adds
   // no authority — everything in it is genuinely startable right now.
   const terbuka = await engine.openAssessments(db);
+  // the owner's ruling (10 Nov): each open assessment on its own school's clock (the row names its class, not its school)
+  const zonaDari = terbuka.length > 0 ? await zonaSimpulBanyak(db, terbuka.map((a) => a.node_id)) : () => "Asia/Jakarta";
 
   // D-085 M3 (J5.12): what a teacher has asked this learner to read again. Its own section after the next step, so
   // the home's order (W18, D-088(d)) is unchanged; a failed read shows nothing rather than an error.
@@ -390,11 +393,11 @@ export default async function Belajar({
             <h2>{s("siklus.terbuka")}</h2>
             {terbuka.map((a) => (
               <div className="pin-tugas" key={a.assessment_assignment_id}>
-                <span className="pin-ttitle">{judulAsesmen({ judul: a.title, mode: a.mode, dibuka: a.opens_at }, locale)}</span>
+                <span className="pin-ttitle">{judulAsesmen({ judul: a.title, mode: a.mode, dibuka: a.opens_at }, locale, zonaDari(a.node_id))}</span>
                 <div className="pin-tfoot">
                   <span className="pin-tstatus">
                     {format.number(a.item_count, locale)} {s("siklus.soal")} · {a.node_name}
-                    {a.closes_at ? ` · ${s("siklus.ditutup")} ${tanggal(a.closes_at, "hari", locale)}` : ""}
+                    {a.closes_at ? ` · ${s("siklus.ditutup")} ${tanggal(a.closes_at, "hari", locale, zonaDari(a.node_id))}` : ""}
                   </span>
                   <Link className="pin-btn" href={`/belajar/asesmen/${a.assessment_assignment_id}`}>
                     {s("siklus.buka")}

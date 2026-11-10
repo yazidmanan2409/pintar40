@@ -27,7 +27,7 @@ export type DataEmailKartu = DataKartu & { tautanAkun: string };
 /** PASSWORD_DIUBAH (BOB-27, D-055(f)): the owner is told their password changed, when, and that every session ended. */
 export type DataEmailPasswordDiubah = {
   nama: string;
-  /** when the password changed, ISO; the template says it in the school's time zone */
+  /** when the password changed, ISO; the template says it in WIB, labelled (an account's moment, tied to no school) */
   waktu: string;
   /** where to start a recovery if it was not them */
   tautanLupa: string;
@@ -48,7 +48,7 @@ export type DataEmailKeamanan = {
   peristiwa: PeristiwaKeamanan;
   untuk: "PEMILIK" | "ADMIN";
   pintarId: string;
-  /** when it happened, ISO; the template says it in the school's time zone */
+  /** when it happened, ISO; the template says it in WIB, labelled (an account's moment, tied to no school) */
   waktu: string;
   /** where an owner starts an email recovery */
   tautanLupa: string;

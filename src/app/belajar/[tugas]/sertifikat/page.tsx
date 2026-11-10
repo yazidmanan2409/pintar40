@@ -25,6 +25,7 @@ import {
 import KakiPintar from "@/components/KakiPintar";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { namaBerkas } from "@/lib/nama-berkas";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 
 export const generateMetadata = judulHalaman("/belajar/[tugas]/sertifikat");
 
@@ -156,6 +157,8 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
     issuedAtIso: detail.issued_at_iso,
     certificateNumber: detail.certificate_number,
     verificationUrl,
+    // the owner's ruling (10 Nov): the issue day on the issuing school's clock
+    zona: await zonaSekolah(db, row?.institution_id),
   };
 
   const replacement = row ? replacementFor(row, all) : null;

@@ -40,6 +40,7 @@ export default function KartuKeputusan({
   locale = "id",
   galat = false,
   tercatat = false,
+  zona,
 }: {
   keputusan: Keputusan;
   /** The server action that records a move. Absent on a read-only rendering. */
@@ -48,6 +49,8 @@ export default function KartuKeputusan({
   galat?: boolean;
   /** DAISY-18: this card's move was just recorded. */
   tercatat?: boolean;
+  /** The decision's school's zone (the owner's ruling, 10 Nov): its dates on that school's clock; WIB when none. */
+  zona?: string | null;
 }) {
   const s = (key: string) => t(key as HleEvent, "staff", { locale });
   const rantai = RANTAI[k.keluarga];
@@ -73,7 +76,7 @@ export default function KartuKeputusan({
           </p>
         ) : null}
         <p className="pin-meta">
-          {s("pimpinan.sejak")} {tanggal(k.diangkatPada, "baca", locale)}
+          {s("pimpinan.sejak")} {tanggal(k.diangkatPada, "baca", locale, zona)}
           {sumberKunci ? <> · {s(sumberKunci)}</> : null}
         </p>
       </header>
@@ -100,7 +103,7 @@ export default function KartuKeputusan({
             {k.diputuskanPada ? (
               <span className="pin-meta">
                 {" "}
-                · {s("pimpinan.diputuskan")} {tanggal(k.diputuskanPada, "baca", locale)}
+                · {s("pimpinan.diputuskan")} {tanggal(k.diputuskanPada, "baca", locale, zona)}
               </span>
             ) : null}
           </p>

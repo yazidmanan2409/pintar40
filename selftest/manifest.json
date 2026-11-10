@@ -3842,6 +3842,21 @@
       "proves": "W3.3 Date and time echo (Batch 2; RV-16; Daisy components/DateTime), selftest/tanggal.test.ts, the source of every src/**/*.tsx and src/components/bentuk/TanggalDenganGema.tsx rendered in id and en: no native date, datetime-local or time input outside TanggalDenganGema; each use is labelled (htmlFor) and in the reader's language; Siapkan's mulai/sampai and Konfigurasi's pm_mulai, pm_selesai, terbit, sampai and valid_until are echoed under their names; rendered, the field passes name, id, value, required, min and max through, aria-describedby names the echo first, and the echo after it says «Jumat, 9 Okt 2026» («Friday, 9 Oct 2026»), with «, 07.30 WIB» for a time, politely, and «Belum ada tanggal.» when empty; .pin-gema in src/app/experience.css is Daisy's line."
     },
     {
+      "id": "ZONA-01",
+      "runner": "static",
+      "proves": "The owner's ruling (10 Nov: school-context dates on the school's clock), selftest/zona.test.ts, the output of src/lib/tanggal.ts: one instant is written in WIB (+7), WITA (+8) and WIT (+9) with its own offset and word in every form with a time, the day moving with the zone (23.30 WIB is 00.30 WITA the next day); a field's yyyy-mm-dd or yyyy-mm-ddThh:mm is read as written whatever the zone, only its word following it; no zone or an unknown one is WIB as before; jam(), gemaTanggal(), kataZona/geserZona, format.date, the maintenance clock (jamWib) and judulAsesmen take the same zone."
+    },
+    {
+      "id": "ZONA-02",
+      "runner": "static",
+      "proves": "The owner's ruling (10 Nov), selftest/zona.test.ts, executes the source of src/lib/pemeliharaan-kontrak.ts and src/lib/struktur-kontrak.ts: a date and time typed for one school's maintenance window or notice is read on that school's clock (waktuSekolah; WIB when none, waktuWib unchanged); the default academic year (tahunAjaranPada) turns on 1 July on the school's clock; reads src/app/konfigurasi/actions.ts: no hard-coded +07:00, both role grants end the last day at 23.59.59 on the school's clock (batasHari), and the maintenance actions read their typed times on the zone of the school they are for."
+    },
+    {
+      "id": "ZONA-03",
+      "runner": "static",
+      "proves": "The owner's ruling (10 Nov), selftest/zona.test.ts, the source of the school-context pages and components (Mengajar, Pimpinan, Konfigurasi, Studio, Pendataan, certificates, the learner's assessment and certificate rows): every date they write passes the school's zone; the wrappers (Konfigurasi's and Studio's when(), judulAsesmen, the certificate card's format.date) carry it; the audit trail writes each row on its own school's clock (WIB when it has none); the teacher's home reads its today and greeting on the school's clock; no comment claims «the school's time zone» over a WIB-only write; the maintenance form's four time labels and echoes name the zone the form is read in."
+    },
+    {
       "id": "KOLEKSI-HAL-01",
       "runner": "static",
       "proves": "W3.4 Table / Collection (Batch 2; CR-88; Daisy components/Pagination, Search, Table), selftest/koleksi.test.ts, executing the source of src/components/koleksi/aturan.ts: posisiHalaman places a page in the whole (page 2 of 312 by 20 is 21–40 of 16 pages; the last page is short; a page past the last is the last; page 0, a negative or no page is page 1; nothing at all is page 1 of 1 showing 0–0; a size below one is one row); halamanKoleksi reads only a whole page number; urutAbjad is alphabetical in Indonesian order ignoring case and accents, numbers in number order; susunKoleksi searches ignoring case and accents, filters, orders and pages, keeping the whole count; saringDiminta is always an offered choice and, of the segments and the select, takes the one the person changed; tautanKoleksi keeps the page's own place and leaves out the default filter and page 1."
@@ -5015,6 +5030,11 @@
       "id": "F38-W14",
       "runner": "db",
       "proves": "The owner on Sharon's addendum (10 Nov; red first, selftest/db/fable38.sql against 20270113150000 §4): a lesson PINTAR no longer shares keeps its name on the class page: judul_materi_kelas gives the class's Guru each assignment's course title and nothing else (no content); a Guru of another Kelas at the school (Sharon at 435a2856: decided over the Kelas) and another school's admin are refused."
+    },
+    {
+      "id": "F38-Z01",
+      "runner": "db",
+      "proves": "D-199 (owner, 10 Nov; red first, fable38 against 20270113160000): the public certificate check's date is the issuing school's calendar day, the day the certificate itself writes, never the UTC day. A certificate issued at 00.30 WIB on 10 Nov (17.30 UTC on 9 Nov) is checked as 10 Nov; one at 22.30 WIB stays 9 Nov; at a WIT school 00.30 WIT on 10 Nov is 10 Nov. The payload's keys and the sealed data are unchanged."
     },
     {
       "id": "F38-W15",

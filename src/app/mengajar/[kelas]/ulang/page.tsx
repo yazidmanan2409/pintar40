@@ -13,6 +13,8 @@ import { mintaBacaUlang } from "../../actions";
 import { bacaKodeUlang } from "@/lib/ulang-kontrak";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { tanggal } from "@/lib/tanggal";
+import { zonaSekolah } from "@/lib/zona-sekolah";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/ulang");
 
@@ -57,6 +59,8 @@ export default async function UlangKelas({
   const dariMurid = sp.murid && bahan.murid.some((m) => m.id === sp.murid) ? sp.murid : null;
   const kode = sp.ulang === "gagal" ? bacaKodeUlang(sp.kode) : null;
   const ref = sp.ref && /^[A-Z0-9]{6}$/.test(sp.ref) ? sp.ref : null;
+  // the owner's ruling (10 Nov): when each re-read was asked, on the class's school's clock
+  const zona = await zonaSekolah(await supabaseServer(), ctx.ini.institusi);
 
   return (
     <>
@@ -149,7 +153,7 @@ export default async function UlangKelas({
                 <div key={r.id} data-permintaan={r.orang}>
                   <dt>{r.nama}</dt>
                   <dd>
-                    {tanggal(r.kapan, "baca", locale)} · {n(r.dibaca)} {s("mengajar.soal.dari")} {n(r.jumlah)} {s("mengajar.ulang.dibaca")}
+                    {tanggal(r.kapan, "baca", locale, zona)} · {n(r.dibaca)} {s("mengajar.soal.dari")} {n(r.jumlah)} {s("mengajar.ulang.dibaca")}
                   </dd>
                 </div>
               ))}

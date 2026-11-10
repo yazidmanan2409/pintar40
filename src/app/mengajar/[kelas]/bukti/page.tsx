@@ -10,6 +10,8 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { AngkaBerdiri, BarisKesiapan, BarisLingkup, KartuKetiadaan, KeadaanHariIni, PopulasiKelas } from "@/components/bukti";
 import { nilaiMetrik, urutkanPita } from "@/lib/nilai-metrik";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { zonaSekolah } from "@/lib/zona-sekolah";
+import { supabaseServer } from "@/lib/supabase/server";
 import { labelMetrik } from "@/components/bukti/label";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/bukti");
@@ -60,11 +62,13 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
 
   // E-C2-2 (D-070(h)): a professional-learning class produces no academic class figure, so none is asked for
   const akademik = adaBuktiSoal(ctx.ini.jenis);
-  const [asesmen, fakta, amplop, minimum] = await Promise.all([
+  const [asesmen, fakta, amplop, minimum, zona] = await Promise.all([
     ajar.berjalan([id], ["OPEN", "CLOSED"]),
     ajar.faktaKelas(id),
     akademik ? ajar.bukti(id, ctx.ini.institusi) : Promise.resolve([] as Awaited<ReturnType<typeof ajar.bukti>>),
     ajar.minimumMetrik(),
+    // the owner's ruling (10 Nov): the class's tests on its school's clock
+    supabaseServer().then((c) => zonaSekolah(c, ctx.ini.institusi)),
   ]);
 
   const byId = new Map(ajar.METRIK_KELAS.map((m, i) => [m, amplop[i]]));
@@ -146,7 +150,7 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
           <h2>{s("mengajar.bukti.keadaan")}</h2>
           {/* DAISY-26 (UX-06): every open test of the class, each with its own
               counts, rather than one "focus" test standing for all of them. */}
-          <KeadaanHariIni asesmen={asesmen} murid={fakta.murid.length} locale={locale} kelas={id} jenis={ctx.ini.jenis} />
+          <KeadaanHariIni asesmen={asesmen} murid={fakta.murid.length} locale={locale} kelas={id} jenis={ctx.ini.jenis} zona={zona} />
         </div>
 
         {!akademik ? (

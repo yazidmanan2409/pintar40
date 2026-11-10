@@ -9,7 +9,9 @@ import { adaAdminSekolah, akarSekolah, calonAdminPertama, orangSekolah } from "@
 import { kodeGalatStruktur, rujukanGalat, type HasilStruktur } from "@/lib/struktur-kontrak";
 import { kodeAntarSekolah, kodeGalat, queryHasil, type HasilAksi } from "@/lib/galat-kontrak";
 import { bacaPersen } from "@/lib/batas-ketuntasan";
-import { KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan-kontrak";
+import { KONFIRMASI_HENTIKAN, waktuSekolah } from "@/lib/pemeliharaan-kontrak";
+import { batasHari } from "@/lib/hle";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 
 /**
  * Config Studio actions (FABLE-01 §10). Every action is a thin call to an
@@ -178,7 +180,8 @@ export async function grantRoleAction(fd: FormData): Promise<void> {
     p_person: person,
     p_role: role,
     p_scope_node: role === "SYSTEM_ADMIN" ? null : scope,
-    p_valid_until: `${until}T23:59:59+07:00`,
+    // the owner's ruling (10 Nov): the last day ends at 23.59.59 on the school's clock; Admin platform's own, on WIB
+    p_valid_until: batasHari(until, "akhir", await zonaSekolah(supabase, sekolahPeran)),
   });
   back("roles", error ? ditolak("grant_role", error) : { ok: true, kode: "ROLE_GRANTED" }, fd);
 }
@@ -208,7 +211,7 @@ export async function tunjukAdminPertamaAction(fd: FormData): Promise<void> {
     redirect(alamatBagian("roles", q, "roles"));
   }
   const { error } = await supabase.rpc("grant_role", {
-    p_person: person, p_role: "INSTITUTION_ADMIN", p_scope_node: akar, p_valid_until: `${until}T23:59:59+07:00`,
+    p_person: person, p_role: "INSTITUTION_ADMIN", p_scope_node: akar, p_valid_until: batasHari(until, "akhir", await zonaSekolah(supabase, sekolah)),
   });
   back("roles", error ? ditolak("grant_role", error) : { ok: true, kode: "ROLE_GRANTED" }, fd);
 }
@@ -543,7 +546,8 @@ export async function nonaktifkanStrukturAksi(_prev: HasilStruktur | null, fd: F
  * #148 (D-094(a)(b)(g)(h), D-100): the maintenance window and notice controls. The database decides who may (a
  * school's Admin sekolah for that school and planned maintenance only; Admin platform for any schools or the whole
  * platform, and alone for «Hentikan sekarang»), refuses with PR110 and a code, and audits each change under D-093.
- * A date and time typed here is WIB.
+ * A date and time typed here is read on the clock of the one school it is for (the owner's ruling, 10 Nov), and in WIB
+ * for the whole platform or several schools; the form's labels name the same zone (zonaPemeliharaan).
  */
 function cakupan(fd: FormData): { platform: boolean; sekolah: string[] } {
   const sekolah = fd.getAll("sekolah").map((v) => uuidOrNull(String(v))).filter((v): v is string => Boolean(v));
@@ -551,6 +555,12 @@ function cakupan(fd: FormData): { platform: boolean; sekolah: string[] } {
 }
 
 const kembaliPemeliharaan = (h: HasilAksi, fd?: FormData): never => back("pemeliharaan", h, fd);
+
+/** The zone a window's or notice's typed times are read in: its one school's; WIB for the platform or several. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function zonaPemeliharaan(supabase: any, c: { platform: boolean; sekolah: readonly string[] }) {
+  return zonaSekolah(supabase, !c.platform && c.sekolah.length === 1 ? c.sekolah[0] : null);
+}
 
 /** L3 (§2.11, C7): the platform's maintenance in «Seluruh platform»; each school's in that school's context. */
 async function cakupanDalamKonteks(c: { platform: boolean; sekolah: readonly string[] }): Promise<void> {
@@ -568,14 +578,15 @@ async function cakupanBaris(supabase: any, tabel: "maintenance_windows" | "broad
 
 export async function jadwalkanPemeliharaanAction(fd: FormData): Promise<void> {
   const { platform, sekolah } = cakupan(fd);
+  const supabase = await supabaseServer();
+  const zona = await zonaPemeliharaan(supabase, { platform, sekolah });
   const mulaiTeks = str(fd, "mulai");
-  const mulai = mulaiTeks ? waktuWib(mulaiTeks) : null;
-  const selesai = waktuWib(str(fd, "selesai"));
+  const mulai = mulaiTeks ? waktuSekolah(mulaiTeks, zona) : null;
+  const selesai = waktuSekolah(str(fd, "selesai"), zona);
   if ((mulaiTeks && !mulai) || (!platform && sekolah.length === 0) || !str(fd, "alasan")) {
     kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" }, fd);
   }
   await cakupanDalamKonteks({ platform, sekolah });
-  const supabase = await supabaseServer();
   const { error } = await supabase.rpc("schedule_maintenance", {
     p_platform: platform, p_institutions: platform ? [] : sekolah, p_starts_at: mulai, p_ends_at: selesai,
     p_message: str(fd, "pesan") || null, p_reason: str(fd, "alasan"), p_notice: str(fd, "umumkan") === "1",
@@ -617,14 +628,15 @@ export async function hentikanSekarangAction(fd: FormData): Promise<void> {
 
 export async function terbitkanPengumumanAction(fd: FormData): Promise<void> {
   const { platform, sekolah } = cakupan(fd);
+  const supabase = await supabaseServer();
+  const zona = await zonaPemeliharaan(supabase, { platform, sekolah });
   const terbitTeks = str(fd, "terbit");
-  const terbit = terbitTeks ? waktuWib(terbitTeks) : null;
-  const sampai = waktuWib(str(fd, "sampai"));
+  const terbit = terbitTeks ? waktuSekolah(terbitTeks, zona) : null;
+  const sampai = waktuSekolah(str(fd, "sampai"), zona);
   if ((terbitTeks && !terbit) || !sampai || !str(fd, "pesan") || (!platform && sekolah.length === 0)) {
     kembaliPemeliharaan({ ok: false, kode: "NOTICE_INPUT_INVALID" }, fd);
   }
   await cakupanDalamKonteks({ platform, sekolah });
-  const supabase = await supabaseServer();
   const { error } = await supabase.rpc("publish_notice", {
     p_platform: platform, p_institutions: platform ? [] : sekolah, p_message: str(fd, "pesan"), p_publish_at: terbit, p_expires_at: sampai,
   });

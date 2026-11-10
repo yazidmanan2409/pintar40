@@ -152,7 +152,8 @@ export const d088iTests: SelfTest[] = [
       const hal = buang(readFileSync(join(repoRoot, "src", "app", "pimpinan", "[simpul]", "murid", "[orang]", "page.tsx"), "utf8"));
       c.expect(/rincian\.placement\.map\(\(p\) => p\.name\)/.test(hal) && /s\("pimpinan\.rincian\.penempatan"\)/.test(hal),
         "the learner record no longer names the current placement");
-      c.expect(/rincian\.placement_history[\s\S]{0,200}s\("pimpinan\.rincian\.riwayat"\)[\s\S]{0,900}tanggal\(h\.until, "baca", locale\)[\s\S]{0,300}pimpinan\.rincian\.alasan\./.test(hal),
+      // RESTATED (owner, 10 Nov: school-context dates on the school's clock): the day each ended, on the school's clock (zona)
+      c.expect(/rincian\.placement_history[\s\S]{0,200}s\("pimpinan\.rincian\.riwayat"\)[\s\S]{0,900}tanggal\(h\.until, "baca", locale, zona\)[\s\S]{0,300}pimpinan\.rincian\.alasan\./.test(hal),
         "the learner record does not show the places left apart, with the day each ended and why");
       for (const locale of ["id", "en"] as const) {
         for (const k of ["pimpinan.rincian.penempatan", "pimpinan.rincian.riwayat", "pimpinan.rincian.sampai",

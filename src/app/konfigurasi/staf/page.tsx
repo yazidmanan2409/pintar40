@@ -117,7 +117,7 @@ export default async function StafSekolah({ searchParams }: { searchParams: Prom
                   <span className="pin-title">{peranKata(p.role)}</span>
                   <span className="pin-rowmeta">
                     <span>{s("staf.tempat")}: {p.tempat}</span>
-                    <span>{s("staf.sampai")} {tanggal(p.sampai, "hari", locale)}</span>
+                    <span>{s("staf.sampai")} {tanggal(p.sampai, "hari", locale, zona)}</span>
                   </span>
                   <span className="pin-meta">{s("staf.tj")}: {p.tanggung_jawab.map((x) => s(kunciTanggungJawab(x))).join(", ")}</span>
                 </li>

@@ -10,6 +10,8 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { tanggal } from "@/lib/tanggal";
+import { zonaSekolah } from "@/lib/zona-sekolah";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export const generateMetadata = judulHalaman("/pimpinan/[simpul]/murid/[orang]");
 
@@ -64,6 +66,8 @@ export default async function RincianMuridPimpinan({
   }
 
   const rincian = await pim.rincianMurid(orang, node.institusi);
+  // the owner's ruling (10 Nov): the placements' dates on the school's clock
+  const zona = await zonaSekolah(await supabaseServer(), node.institusi);
   if (!rincian) {
     return (
       <HalamanPenolakan
@@ -130,7 +134,7 @@ export default async function RincianMuridPimpinan({
                     {(rincian.placement_history ?? []).map((h) => (
                       <li key={`${h.node_id}-${h.until}`}>
                         {h.academic_year ? `${h.name} (${h.academic_year})` : h.name}
-                        {" · "}{s("pimpinan.rincian.sampai")} {tanggal(h.until, "baca", locale)}
+                        {" · "}{s("pimpinan.rincian.sampai")} {tanggal(h.until, "baca", locale, zona)}
                         {h.reason && ["MOVED", "PERIOD_ROLLOVER", "ENROLLMENT_ENDED"].includes(h.reason)
                           ? <> · {s(`pimpinan.rincian.alasan.${h.reason}` as HleEvent)}</> : null}
                       </li>

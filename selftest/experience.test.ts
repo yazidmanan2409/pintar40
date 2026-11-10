@@ -2133,7 +2133,9 @@ export const experienceTests: SelfTest[] = [
       // MOVED 222 -> 223 for the owner's ruling and two defects of 10 Nov (20270113150000: a withdrawn assignment is not
       // counted; a closed lesson's outcome stays seen; a sitting the school ended says so). Read against §3: an assignment's
       // status and a refusal code, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 223, `${migrations.length} migrations; the frozen baseline has 223`);
+      // MOVED 223 -> 224 for D-199 (owner, 10 Nov; 20270113160000: the public certificate check's date is the issuing
+      // school's day). Read against §3: one date's calendar day, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 224, `${migrations.length} migrations; the frozen baseline has 224`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3980,7 +3982,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 206 -> 207 for SI-D03: credential paths narrowed to the school that holds the person; no tour RPC.
       // MOVED 205 -> 206 for SI-D01's remaining findings: acts on a sitting decided over its place touch no tour RPC.
       // MOVED 222 -> 223 for 20270113150000 (the owner's withdrawn ruling and two defects, 10 Nov): no tour RPC.
-      c.expect(migs.length === 223, `${migs.length} migrations; the baseline has 223`);
+      // MOVED 223 -> 224 for 20270113160000 (D-199, the public check's date on the school's clock): no tour RPC.
+      c.expect(migs.length === 224, `${migs.length} migrations; the baseline has 224`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -9206,7 +9209,9 @@ export const experienceTests: SelfTest[] = [
       const adminSma = sekolahDitawarkan(TENANT, (id) => id === "sma" || id === "kanon");
       c.expect(JSON.stringify(adminSma.map((x) => x.id)) === JSON.stringify(["sma"]), "an administrator is offered a school that is not theirs, or the library");
       c.expect(sekolahDipilih(sekolahDitawarkan(TENANT, () => false)) === null, "somebody who administers nothing is offered a school");
-      c.expect(/rows=\{struktur\.ok \? struktur\.rows : null\}/.test(konfig) && /tahunKini=\{tahunAjaranPada\(new Date\(\)\)\}/.test(konfig),
+      // RESTATED (owner, 10 Nov: school-context dates on the school's clock): this school year is the shown school's, on its own clock
+      // (zonaKonteks: WIB, WITA or WIT), not Jakarta's
+      c.expect(/rows=\{struktur\.ok \? struktur\.rows : null\}/.test(konfig) && /tahunKini=\{tahunAjaranPada\(new Date\(\), zonaKonteks\)\}/.test(konfig),
         "the panel is fed from something other than bacaStruktur's answer, or its year is not this school year");
       for (const f of walk(join(repoRoot, "src", "components", "struktur"))) {
         c.expect(!/FACULTY|PROGRAMME|Jenjang|Reguler/.test(code(readFileSync(f, "utf8"))), `${relative(repoRoot, f)} names a hidden level`);
@@ -12073,7 +12078,8 @@ export const experienceTests: SelfTest[] = [
       }
       const bukti = code(baca("src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"));
       // RESTATED FOR DAISY-33 (a changed requirement, D-069(k)): the block also takes the class's kind, for «murid» or «peserta»
-      c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\}(?: kelas=\{id\})?(?: jenis=\{ctx\.ini\.jenis\})? \/>/.test(bukti) && !/\bfokus\b/.test(bukti),
+      // RESTATED (owner, 10 Nov: school-context dates on the school's clock): and the class's school's zone, for its tests' dates
+      c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\}(?: kelas=\{id\})?(?: jenis=\{ctx\.ini\.jenis\})?(?: zona=\{zona\})? \/>/.test(bukti) && !/\bfokus\b/.test(bukti),
         "«Lihat bukti» still shows one focus test rather than every open one");
 
       /**

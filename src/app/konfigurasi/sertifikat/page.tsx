@@ -14,6 +14,7 @@ import { UKURAN } from "@/components/koleksi/halaman";
 import FormCabut from "@/components/sertifikat/FormCabut";
 import FormTerbitUlang, { type PratinjauGanti } from "@/components/sertifikat/FormTerbitUlang";
 import { tanggal } from "@/lib/tanggal";
+import { zonaSekolahBanyak } from "@/lib/zona-sekolah";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { KODE_CABUT, KODE_GANTI, KEADAAN_SERTIFIKAT, type KeadaanSertifikat, type KodeCabut, type KodeGanti } from "@/lib/sertifikat-cabut-kontrak";
 import { kalimatHasil } from "@/lib/galat-kontrak";
@@ -78,6 +79,8 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
     ? await supabase.rpc("sertifikat_koreksi_pratinjau", { p_certificate: dipilih.id })
     : { data: null };
   const ganti = (gantiData ?? null) as PratinjauGanti | null;
+  // the owner's ruling (10 Nov): each certificate's dates on its issuing school's clock, one read for the schools listed
+  const zonaDari = await zonaSekolahBanyak(supabase, [...daftar.map((c) => c.institution_id), dipilih?.institution_id]);
   const gantiKini = sp.jenis === "ganti";
   const digantikan = dipilih?.status === "SUPERSEDED";
 
@@ -136,7 +139,7 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
               <span key="n" className="pin-num">{c.certificate_number}</span>,
               ...(platformIni ? [<span key="s">{c.institution_name}</span>] : []),
               <span key="k">{c.course_title || "—"}</span>,
-              <span key="t">{tanggal(c.issued_at, "baca", locale)}</span>,
+              <span key="t">{tanggal(c.issued_at, "baca", locale, zonaDari(c.institution_id))}</span>,
               <span key="e" className={nada(c.status)}>{keadaan(c.status)}</span>,
               c.status === "ISSUED"
                 ? <Link key="a" className="pin-tautan" href={tautanPilih(c.id)} data-cabut-sertifikat={c.id}>{s("sertifikat.kelola.cabut")}</Link>
@@ -159,7 +162,7 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
               <div><dt>{s("sertifikat.kelola.kolom.pemegang")}</dt><dd>{dipilih.holder_name}</dd></div>
               <div><dt>{s("sertifikat.kelola.kolom.kursus")}</dt><dd>{dipilih.course_title || "—"}</dd></div>
               <div><dt>{s("sertifikat.kelola.kolom.sekolah")}</dt><dd>{dipilih.institution_name}</dd></div>
-              <div><dt>{s("sertifikat.kelola.kolom.terbit")}</dt><dd>{tanggal(dipilih.issued_at, "baca", locale)}</dd></div>
+              <div><dt>{s("sertifikat.kelola.kolom.terbit")}</dt><dd>{tanggal(dipilih.issued_at, "baca", locale, zonaDari(dipilih.institution_id))}</dd></div>
               <div><dt>{s("sertifikat.kelola.kolom.keadaan")}</dt><dd className={nada(dipilih.status)}>{keadaan(dipilih.status)}</dd></div>
             </dl>
             {dipilih.status === "ISSUED" ? (
@@ -173,7 +176,7 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
               </p>
             ) : dipilih.status === "REVOKED" ? (
               <p className="pin-meta" data-sudah-dicabut="">
-                {s("sertifikat.cabut.dicabut_pada").replace("{tanggal}", dipilih.revoked_at ? tanggal(dipilih.revoked_at, "cap", locale) : "—")}
+                {s("sertifikat.cabut.dicabut_pada").replace("{tanggal}", dipilih.revoked_at ? tanggal(dipilih.revoked_at, "cap", locale, zonaDari(dipilih.institution_id)) : "—")}
                 {" "}{s("sertifikat.cabut.alasan_tercatat")} {dipilih.revoked_reason ?? "—"}
               </p>
             ) : (

@@ -165,7 +165,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
-  w01 text[] := '{}'; w09 text[] := '{}'; w10 text[] := '{}'; w11 text[] := '{}'; w12 text[] := '{}'; w13 text[] := '{}'; o04 text[] := '{}'; w12_awal int; v_per_lalu uuid; v_pi_w12 uuid; h07 text[] := '{}'; h08 text[] := '{}'; p_h8 uuid; e_a8 uuid; s_a8 uuid; v_tf8 uuid; w14 text[] := '{}'; w15 text[] := '{}'; p_h7 uuid; e_a7 uuid; e_b7 uuid; v_per_x uuid; s_a7 uuid; s_b7 uuid; s_bx7 uuid; w06 text[] := '{}'; w07 text[] := '{}'; w08 text[] := '{}'; s_t uuid; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; o01 text[] := '{}'; o02 text[] := '{}'; o05 text[] := '{}'; u_t5 uuid; p_t5 uuid; o03 text[] := '{}'; u_o uuid; p_o uuid; e_o uuid; v_la_o uuid; v_aa_o uuid; u_t uuid; p_t uuid; v_rq uuid; s06 text[] := '{}'; u_hd uuid; p_hd uuid; v_hdr uuid; p_luar uuid; u_adm2 uuid; p_adm2 uuid; c05 text[] := '{}'; v_num05 text; v_seq05 int; a06 text[] := '{}'; a07 text[] := '{}'; u_c uuid; u_kartu uuid; p_c uuid; v_akk uuid; v_job uuid; v_req3 uuid; v_pid3 text; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
+  w01 text[] := '{}'; w09 text[] := '{}'; w10 text[] := '{}'; w11 text[] := '{}'; w12 text[] := '{}'; w13 text[] := '{}'; o04 text[] := '{}'; w12_awal int; v_per_lalu uuid; v_pi_w12 uuid; h07 text[] := '{}'; h08 text[] := '{}'; p_h8 uuid; e_a8 uuid; s_a8 uuid; v_tf8 uuid; w14 text[] := '{}'; w15 text[] := '{}'; z01 text[] := '{}'; p_h7 uuid; e_a7 uuid; e_b7 uuid; v_per_x uuid; s_a7 uuid; s_b7 uuid; s_bx7 uuid; w06 text[] := '{}'; w07 text[] := '{}'; w08 text[] := '{}'; s_t uuid; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; o01 text[] := '{}'; o02 text[] := '{}'; o05 text[] := '{}'; u_t5 uuid; p_t5 uuid; o03 text[] := '{}'; u_o uuid; p_o uuid; e_o uuid; v_la_o uuid; v_aa_o uuid; u_t uuid; p_t uuid; v_rq uuid; s06 text[] := '{}'; u_hd uuid; p_hd uuid; v_hdr uuid; p_luar uuid; u_adm2 uuid; p_adm2 uuid; c05 text[] := '{}'; v_num05 text; v_seq05 int; a06 text[] := '{}'; a07 text[] := '{}'; u_c uuid; u_kartu uuid; p_c uuid; v_akk uuid; v_job uuid; v_req3 uuid; v_pid3 text; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
   u_admin uuid; v_n int; v_cert uuid; v_cert2 uuid; v_new uuid; v_new2 uuid; v_tok text; v_ntok text; v_payload jsonb; v_nomor text; v_snapold uuid; p_holder uuid; u_holder uuid; v_k record;
   v_crel uuid; v_cdef uuid; v_dist uuid; v_la3 uuid; v_aa3 uuid;
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid; v_coh uuid; c_a uuid; c_b uuid;
@@ -529,6 +529,34 @@ begin
       if v_got <> 'OK' then r01 := r01 || ('the old class''s Guru no longer reads the sitting and its result: ' || v_got); end if;
       if (select v.validity from public.verify_certificate(v_crtok) v) is distinct from 'BERLAKU' then
         r01 := r01 || 'the certificate''s public check no longer answers BERLAKU'::text; end if;
+    end if;
+    -- Z01 D-199 (owner, 10 Nov): the public check's date is the issuing school's day, as the certificate itself writes
+    -- it, never the UTC day. 17.30 UTC is 00.30 WIB the next day; 15.30 UTC is 00.30 WIT the next day and 22.30 WIB the
+    -- same day. Rolled back: the certificate and the school are left as they were.
+    if v_crtok is not null then
+      begin
+        set local session_replication_role = replica;
+        update public.certificates set issued_at_iso = '2026-11-09T17:30:00Z' where certificates.id = v_cr;
+        update public.institutions set zona_waktu = 'Asia/Jakarta' where institutions.id = (select c.institution_id from public.certificates c where c.id = v_cr);
+        set local session_replication_role = origin;
+        if (select v.date from public.verify_certificate(v_crtok) v) is distinct from '2026-11-10' then
+          z01 := z01 || ('a WIB school''s certificate issued at 00.30 WIB on 10 Nov is checked as ' || coalesce((select v.date from public.verify_certificate(v_crtok) v), 'null')); end if;
+        set local session_replication_role = replica;
+        update public.certificates set issued_at_iso = '2026-11-09T15:30:00Z' where certificates.id = v_cr;
+        set local session_replication_role = origin;
+        if (select v.date from public.verify_certificate(v_crtok) v) is distinct from '2026-11-09' then
+          z01 := z01 || ('a WIB school''s certificate issued at 22.30 WIB on 9 Nov is checked as ' || coalesce((select v.date from public.verify_certificate(v_crtok) v), 'null')); end if;
+        set local session_replication_role = replica;
+        update public.institutions set zona_waktu = 'Asia/Jayapura' where institutions.id = (select c.institution_id from public.certificates c where c.id = v_cr);
+        set local session_replication_role = origin;
+        if (select v.date from public.verify_certificate(v_crtok) v) is distinct from '2026-11-10' then
+          z01 := z01 || ('a WIT school''s certificate issued at 00.30 WIT on 10 Nov is checked as ' || coalesce((select v.date from public.verify_certificate(v_crtok) v), 'null')); end if;
+        raise exception 'f38-z01-rollback';
+      exception when others then
+        if sqlerrm <> 'f38-z01-rollback' then z01 := z01 || ('fixture: ' || sqlerrm); end if;
+      end;
+    else
+      z01 := z01 || 'fixture: R01 made no certificate to check'::text;
     end if;
     -- ═══════════════════════════════════ F38-C01..C04 an erroneous certificate is corrected by its replacement
     u_holder := selftest.f11_user('f38-holder-' || v_tag || '@local.invalid', null, null);
@@ -1250,6 +1278,8 @@ begin
        'a learner enrolled at A and B: A''s admin ends the enrolment at A; A''s open sitting ends; B''s sitting under B''s enrolment, a sitting recorded at B that carries A''s enrolment, and B''s enrolment are untouched'),
       ('F38-W14', 'The owner (10 Nov): a lesson no longer shared keeps its name on the class page', w14,
        'judul_materi_kelas gives the class''s Guru the title of an assignment whose lesson PINTAR no longer shares (no content); a Guru of another Kelas at the school and another school''s admin are refused'),
+      ('F38-Z01', 'D-199: the public check''s date is the issuing school''s day', z01,
+       'a certificate issued at 00.30 WIB (17.30 UTC the day before) is checked on the WIB day; 22.30 WIB stays that day; at a WIT school 00.30 WIT is the WIT day'),
       ('F38-W15', 'Daisy (435a2856): an ended assignment says when and why on the class page', w15,
        'riwayat_penugasan_kelas gives the class''s Guru the ENDED assignment''s kind, moment and reason from its audit row, lists nothing in force, and refuses a Guru of another Kelas at the school, another school''s admin and a learner'),
       ('F38-W09', 'Sharon (addendum): a figure under MC-9 keeps MC-9''s population', w09,

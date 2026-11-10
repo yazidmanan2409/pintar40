@@ -13,6 +13,7 @@ import KakiPintar from "@/components/KakiPintar";
 import { petaSesi } from "@/components/sertifikat/asalSertifikat";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { tanggal } from "@/lib/tanggal";
+import { zonaSekolahBanyak } from "@/lib/zona-sekolah";
 
 export const generateMetadata = judulHalaman("/belajar/sertifikat");
 
@@ -59,7 +60,8 @@ export default async function DaftarSertifikat() {
   // opens the learner's own certificate after the chapter stops being assigned
   // (a new school year, a transfer). Only a row with no sitting of theirs is not
   // a link.
-  const [institutions, bySession, tugasDari] = await Promise.all([
+  // the owner's ruling (10 Nov): each certificate's day on its issuing school's clock
+  const [institutions, bySession, tugasDari, zonaDari] = await Promise.all([
     institutionNames(rows.map((r) => r.institution_id)),
     rows.length === 0
       ? Promise.resolve(petaSesi([]))
@@ -69,6 +71,7 @@ export default async function DaftarSertifikat() {
             postSession: (await engine.cycleState(db, assignment.learning_assignment_id).catch(() => null))?.post_session ?? null,
           }))))),
     tugasSertifikatSaya(rows.map((r) => r.session_id)),
+    zonaSekolahBanyak(db, rows.map((r) => r.institution_id)),
   ]);
 
   const institution = rows.length > 0 ? institutions.get(rows[0].institution_id) ?? null : null;
@@ -98,8 +101,8 @@ export default async function DaftarSertifikat() {
               );
               const when =
                 row.status === "ELIGIBLE"
-                  ? `${s("sertifikat.daftar.selesai")} · ${tanggal(row.issued_at_iso, "baca", locale)}`
-                  : `${s("sertifikat.daftar.terbit")} ${tanggal(row.issued_at_iso, "baca", locale)}`;
+                  ? `${s("sertifikat.daftar.selesai")} · ${tanggal(row.issued_at_iso, "baca", locale, zonaDari(row.institution_id))}`
+                  : `${s("sertifikat.daftar.terbit")} ${tanggal(row.issued_at_iso, "baca", locale, zonaDari(row.institution_id))}`;
               const isi = (
                 <>
                   <span className="pin-eyebrow">

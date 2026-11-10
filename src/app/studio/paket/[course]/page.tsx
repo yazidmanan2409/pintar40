@@ -11,6 +11,7 @@ import { enumLabel, format, t, type HleEvent } from "@/lib/hle";
 import { KODE_HAMBATAN, kalimatHambatan, type Hambatan } from "@/lib/terbitan-kontrak";
 import { bacaHasil, kalimatHasil, rujukan } from "@/lib/galat-kontrak";
 import { tanggal } from "@/lib/tanggal";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 import { button, can, card, field, label, studioInstitutions } from "../../_lib";
 import {
   moveReleaseAction, runValidationAction,
@@ -83,7 +84,6 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   // UX-25 (W1.9): every word on this page in the reader's language
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
-  const when = (iso: string | null) => tanggal(iso, "cap", locale) || "—";
 
   const { data: course } = await supabase
     .from("courses")
@@ -95,6 +95,9 @@ export default async function Paket({ params, searchParams }: { params: Params; 
     // empty (Kosong's rule; the same answer Mengajar gives a class it cannot read)
     return <HalamanPenolakan locale={locale} persona="staff" backHref="/studio" backKey="studio.nav.beranda" />;
   }
+  // the owner's ruling (10 Nov): every moment of the package on its school's clock
+  const zona = await zonaSekolah(supabase, course.institution_id);
+  const when = (iso: string | null) => tanggal(iso, "cap", locale, zona) || "—";
 
   const [institutions, { data: saya }] = await Promise.all([
     studioInstitutions(), supabase.rpc("current_person_id"),
@@ -415,6 +418,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         kemampuan={inst?.capabilities ?? []}
         saya={typeof saya === "string" ? saya : null}
         penyusun={(course.author_person_id as string | null) ?? null}
+        zona={zona}
         hasilIsi={hasilIsi}
         kembali={kembali}
         unggahPerbaikan={unggahPerbaikan}

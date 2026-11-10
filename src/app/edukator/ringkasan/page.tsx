@@ -1,5 +1,6 @@
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { supabaseServer } from "@/lib/supabase/server";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 import { jenisAnggota, type JenisAnggota } from "@/lib/mengajar";
 import Kosong from "@/components/Kosong";
 import { asalLaporan } from "@/lib/nama-tempat";
@@ -80,6 +81,8 @@ export default async function RingkasanKelas({
     report = data as Report;
   }
   const dihitung = new Date();
+  // the owner's ruling (10 Nov): when it was computed, on the school's clock
+  const zona = await zonaSekolah(supabase, sekolah);
   // the class's one sealed Uji Penguasaan mark, read with the reader's own access (none: no target line)
   const target = kelas ? await targetKelas(kelas) : null;
 
@@ -130,7 +133,7 @@ export default async function RingkasanKelas({
           <h1 className="pin-h1">{kepala?.tempat ?? judul}</h1>
           {report ? (
             <p className="pin-intro">
-              {s("laporan.cakupan.kelas", untuk, locale).replace("{waktu}", tanggal(dihitung, "cap", locale))}
+              {s("laporan.cakupan.kelas", untuk, locale).replace("{waktu}", tanggal(dihitung, "cap", locale, zona))}
             </p>
           ) : null}
         </div>

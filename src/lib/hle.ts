@@ -4376,8 +4376,8 @@ const table: Table = {
   "config.pemeliharaan.arti": { default: "Jadwalkan pemeliharaan supaya orang di sekolah tahu lebih dulu. Mulai 60 menit sebelumnya mereka diberi tahu; mulai 15 menit sebelumnya asesmen baru tidak dapat dimulai; saat pemeliharaan dimulai PINTAR tidak dapat mereka pakai, kecuali murid yang sedang mengerjakan asesmen: mereka tetap dapat menyelesaikan dan mengumpulkannya.", en: "Schedule maintenance so that people at the school know in advance. From 60 minutes before, they are told; from 15 minutes before, no new assessment can be started; once it begins they cannot use PINTAR, except students already working on an assessment, who can still finish and submit it." },
   "config.pemeliharaan.cakupan": { default: "Untuk", en: "For" },
   "config.pemeliharaan.platform": { default: "Seluruh platform", en: "The whole platform" },
-  "config.pemeliharaan.mulai": { default: "Mulai (WIB; kosongkan untuk sekarang)", en: "Start (WIB; leave empty for now)" },
-  "config.pemeliharaan.selesai": { default: "Perkiraan selesai (WIB)", en: "Expected end (WIB)" },
+  "config.pemeliharaan.mulai": { default: "Mulai ({zona}; kosongkan untuk sekarang)", en: "Start ({zona}; leave empty for now)" },
+  "config.pemeliharaan.selesai": { default: "Perkiraan selesai ({zona})", en: "Expected end ({zona})" },
   "config.pemeliharaan.periksa": { default: "Periksa waktu ini", en: "Check this time" },
   "config.pemeliharaan.tabrakan.perhatian": { default: "Perhatian.", en: "Please note." },
   "config.pemeliharaan.tabrakan.jumlah": { default: "asesmen dijadwalkan berlangsung selama periode ini.", en: "assessments are scheduled to run during this period." },
@@ -4405,8 +4405,8 @@ const table: Table = {
   "config.pemeliharaan.pengumuman": { default: "Pengumuman", en: "Notices" },
   "config.pemeliharaan.pengumuman.arti": { default: "Satu baris untuk orang di sekolah yang dipilih, dari waktu terbit sampai kedaluwarsa. Bukan sistem pesan.", en: "One line for the people of the chosen schools, from its publication to its expiry. Not a messaging system." },
   "config.pemeliharaan.pengumuman.pesan": { default: "Isi pengumuman", en: "The notice" },
-  "config.pemeliharaan.pengumuman.terbit": { default: "Terbit (WIB; kosongkan untuk sekarang)", en: "Publish (WIB; leave empty for now)" },
-  "config.pemeliharaan.pengumuman.sampai": { default: "Sampai (WIB)", en: "Until (WIB)" },
+  "config.pemeliharaan.pengumuman.terbit": { default: "Terbit ({zona}; kosongkan untuk sekarang)", en: "Publish ({zona}; leave empty for now)" },
+  "config.pemeliharaan.pengumuman.sampai": { default: "Sampai ({zona})", en: "Until ({zona})" },
   "config.pemeliharaan.pengumuman.terbitkan": { default: "Terbitkan pengumuman", en: "Publish the notice" },
   "config.pemeliharaan.pengumuman.tarik": { default: "Tarik", en: "Withdraw" },
   "config.pemeliharaan.pengumuman.ditarik": { default: "Ditarik", en: "Withdrawn" },
@@ -7018,9 +7018,10 @@ export const format = {
     return new Intl.NumberFormat(LOCALE_TAG[locale], { style: "unit", unit: menit ? "minute" : "second", unitDisplay: "long" })
       .format(menit ? Math.ceil(detik / 60) : Math.ceil(detik));
   },
-  // W3.3 (Batch 2): the formal form, «9 Oktober 2026», written by the one date helper (src/lib/tanggal.ts).
-  date(iso: string, locale: Locale = "id"): string {
-    return tanggal(iso, "resmi", locale) || iso;
+  // W3.3 (Batch 2): the formal form, «9 Oktober 2026», written by the one date helper (src/lib/tanggal.ts); on the
+  // issuing school's clock when the caller passes its zone (the owner's ruling, 10 Nov), else WIB as before.
+  date(iso: string, locale: Locale = "id", zona?: string | null): string {
+    return tanggal(iso, "resmi", locale, zona) || iso;
   },
 };
 

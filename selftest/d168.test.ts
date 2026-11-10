@@ -338,11 +338,13 @@ export const d168Tests: SelfTest[] = [
       c.expect(en.startsWith("Quick Assessment · ") && /2026, 20\.26 WIB$/.test(en), `in English an Uji Cepat is named «${en}»`);
       c.expect((id.match(/Uji Cepat/g) ?? []).length === 1 && !id.includes("—") && !/\d{4}-\d{2}-\d{2}/.test(id), "the name repeats «Uji Cepat» or carries the stored stamp");
       c.expect(judulAsesmen({ judul: "Cek penguasaan", mode: "POST_TEST", dibuka: q.dibuka }, "id") === "Cek penguasaan", "another assessment loses its package's title");
+      // RESTATED (owner, 10 Nov: school-context dates on the school's clock): each surface still names it through judulAsesmen, now
+      // with the zone of the assessment's school, so the moment it opened is written on that school's clock
       const SURFACE: Array<[string, RegExp]> = [
-        ["src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx", /<p className="pin-eyebrow">\{judulAsesmen\(tugas, locale\)\}<\/p>/],
-        ["src/components/bukti/KeadaanHariIni.tsx", /<p className="pin-keadaan-judul">\{judulAsesmen\(a, locale\)\}<\/p>/],
-        ["src/app/mengajar/[kelas]/uji-cepat/page.tsx", /\{judulAsesmen\(hidup, locale\)\}[\s\S]*\{judulAsesmen\(terakhir, locale\)\}/],
-        ["src/app/belajar/page.tsx", /<span className="pin-ttitle">\{judulAsesmen\(\{ judul: a\.title, mode: a\.mode, dibuka: a\.opens_at \}, locale\)\}<\/span>/],
+        ["src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx", /<p className="pin-eyebrow">\{judulAsesmen\(tugas, locale, zona\)\}<\/p>/],
+        ["src/components/bukti/KeadaanHariIni.tsx", /<p className="pin-keadaan-judul">\{judulAsesmen\(a, locale, zona\)\}<\/p>/],
+        ["src/app/mengajar/[kelas]/uji-cepat/page.tsx", /\{judulAsesmen\(hidup, locale, zona\)\}[\s\S]*\{judulAsesmen\(terakhir, locale, zona\)\}/],
+        ["src/app/belajar/page.tsx", /<span className="pin-ttitle">\{judulAsesmen\(\{ judul: a\.title, mode: a\.mode, dibuka: a\.opens_at \}, locale, zonaDari\(a\.node_id\)\)\}<\/span>/],
       ];
       for (const [f, re] of SURFACE) {
         const src = kode(readFileSync(join(repoRoot, f), "utf8"));

@@ -8,9 +8,10 @@ import { tanggal } from "@/lib/tanggal";
  * 2026, 20.26 WIB» in the reader's language, the date through the one date helper — and adds no «Uji Cepat» of its own.
  * Every other assessment keeps the title its package gave it.
  */
-export function judulAsesmen(a: { judul: string; mode: string; dibuka: string | null }, locale: Locale): string {
+export function judulAsesmen(a: { judul: string; mode: string; dibuka: string | null }, locale: Locale, zona?: string | null): string {
   if (a.mode !== "QUICK") return a.judul;
   const nama = t("jenis.mode.QUICK", "educator", { locale });
-  const kapan = a.dibuka ? tanggal(a.dibuka, "cap", locale) : "";
+  // the owner's ruling (10 Nov): the moment it opened, on its school's clock when the caller knows the school
+  const kapan = a.dibuka ? tanggal(a.dibuka, "cap", locale, zona) : "";
   return kapan ? `${nama} · ${kapan}` : nama;
 }

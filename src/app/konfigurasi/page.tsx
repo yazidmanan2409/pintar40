@@ -3,7 +3,7 @@ import Kosong from "@/components/Kosong";
 import TandaTautan from "@/components/TandaTautan";
 import Ikon from "@/components/Ikon";
 import { t, format, allKeys, hariIniSekolah, type HleEvent } from "@/lib/hle";
-import { zonaSekolah } from "@/lib/zona-sekolah";
+import { zonaSekolah, zonaSekolahBanyak } from "@/lib/zona-sekolah";
 import { zonaSah, ZONA_SEKOLAH } from "@/lib/hle";
 import Penomoran, { UKURAN, halamanDiminta, rentang, satuHalaman, tautanHalaman } from "@/components/koleksi/Penomoran";
 
@@ -42,7 +42,7 @@ import { tahunAjaranPada } from "@/lib/struktur-kontrak";
 import PanelStruktur from "@/components/struktur/PanelStruktur";
 import TombolKirim from "@/components/TombolKirim";
 import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
-import { tanggal, type BentukTanggal } from "@/lib/tanggal";
+import { kataZona, tanggal, type BentukTanggal } from "@/lib/tanggal";
 import BarisHasil from "@/components/BarisHasil";
 import { sekolahPendataan } from "@/lib/pendataan";
 import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
@@ -52,7 +52,7 @@ import { lingkupPeran } from "@/lib/lingkup-peran";
 import { alamatCatatan, formulirPeserta, tempatCatatan } from "@/lib/pengembangan";
 import { kunciKodeLaporan, kunciStatusLaporan, langkahBerikut, laporanTriase, type KodeLaporan } from "@/lib/lapor-masalah";
 import { pindahkanLaporanAksi } from "@/app/lapor/actions";
-import { daftarKelola, KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan";
+import { daftarKelola, KONFIRMASI_HENTIKAN, waktuSekolah } from "@/lib/pemeliharaan";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { transferMintaAction, transferTerimaAction } from "./actions";
 import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
@@ -488,8 +488,11 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const pmSekolah = (Array.isArray(sp.pm_sekolah) ? sp.pm_sekolah : sp.pm_sekolah ? [sp.pm_sekolah] : [])
     .filter((x) => /^[0-9a-f-]{36}$/i.test(x));
   const pmPlatform = platformIni && sp.pm_platform === "1";
-  const pmMulai = sp.pm_mulai ? waktuWib(sp.pm_mulai) : null;
-  const pmSelesai = waktuWib(sp.pm_selesai);
+  // the owner's ruling (10 Nov): a window for one school is typed on that school's clock; for the platform or several, WIB
+  // (as jadwalkanPemeliharaanAction reads it)
+  const zonaPmPilih = await zonaSekolah(supabase, !pmPlatform && pmSekolah.length === 1 ? pmSekolah[0] : null);
+  const pmMulai = sp.pm_mulai ? waktuSekolah(sp.pm_mulai, zonaPmPilih) : null;
+  const pmSelesai = waktuSekolah(sp.pm_selesai, zonaPmPilih);
   const pmCek = sp.pm_cek === "1" && (pmPlatform || pmSekolah.length > 0) && (!sp.pm_mulai || pmMulai !== null);
   const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan, peserta, catatanPd, { isi: laporan, lagi: lagiLapor }, kelolaSemua, { data: tabrakan }] = await Promise.all([
     bacaanStruktur, currentLocale(), bacaanAkar,
@@ -579,11 +582,17 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const keluar = (keluarRows ?? []) as Array<{ person_id: string; display_name: string; institutional_id: string | null;
     enrollment_id: string; end_reason: string | null; ended_at: string | null; bisa_dikoreksi: boolean; di_sekolah_lain: boolean }>;
   // Sharon F1: the school's own today (WIB, WITA or WIT), as akhiri_pendaftaran decides it
-  const hariIni = hariIniSekolah(undefined, await zonaSekolah(supabase, sekolahStruktur?.id));
+  const zonaKonteks = await zonaSekolah(supabase, sekolahStruktur?.id);
+  const hariIni = hariIniSekolah(undefined, zonaKonteks);
   const sl = (event: HleEvent) => t(event, "staff", { locale });
-  // W3.3 (Batch 2; RV-16): every moment through the one date helper, on WIB, with its year and «WIB» —
-  // a record as the timestamp («9 Okt 2026, 07.30 WIB»), a window someone acts on with its day.
-  const when = (iso: string, bentuk: BentukTanggal = "cap") => tanggal(iso, bentuk, locale) || TANPA_NAMA;
+  // W3.3 (Batch 2; RV-16): every moment through the one date helper, with its year and its zone's word —
+  // a record as the timestamp («9 Okt 2026, 07.30 WIB»), a window someone acts on with its day. The owner's ruling
+  // (10 Nov): on the shown school's clock (WIB in «Seluruh platform»); a row of another school passes its own zone.
+  const when = (iso: string, bentuk: BentukTanggal = "cap", zona: string = zonaKonteks) => tanggal(iso, bentuk, locale, zona) || TANPA_NAMA;
+  // the maintenance form is typed on its one school's clock, else WIB; its labels and echoes say which
+  const zonaPm = !platformIni && sekolahKu.length === 1 ? zonaKonteks : "Asia/Jakarta";
+  /** a window or notice for the platform, or listed in «Seluruh platform» by names alone, is written in WIB */
+  const zonaJendela = (platform: boolean) => (platform || !satuSekolah ? "Asia/Jakarta" : zonaKonteks);
   // J3.2 (ADM-02): what setup remains at the school shown, from what this page already read
   const persiapan = struktur?.ok
     ? persiapanSekolah(struktur.rows, (assignments ?? []) as PeranTerbaca[],
@@ -606,6 +615,9 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   // K1 (Daisy; Sharon «fold, don't hide»): a kenaikan run's own rows fold under its one row, by the recorded run id
   const lipat = lipatKenaikan((audit ?? []).slice(0, UKURAN_JEJAK));
   const barisJejak = lipat.baris;
+  // the owner's ruling (10 Nov): each audit row and role on its own school's clock; one read for the schools they name
+  const zonaBaris = await zonaSekolahBanyak(supabase, [...barisJejak.map((r) => r.institution_id as string | null),
+    ...daftarPeran.map((a) => (a as { institution_id?: string | null }).institution_id)]);
   const adaVersi = platformIni && barisJejak.some((r) => Boolean(r.build_sha));
   // E7 (owner, 9 Nov): who acted, by their name where the reader may see the person, and in what role (the row's own
   // actor_role); a row with no actor is the system's
@@ -797,7 +809,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     institusi={sekolahStruktur.id}
                     rows={struktur.ok ? struktur.rows : null}
                     gagalBaca={struktur.ok ? null : { code: struktur.code, ref: struktur.ref }}
-                    tahunKini={tahunAjaranPada(new Date())}
+                    tahunKini={tahunAjaranPada(new Date(), zonaKonteks)}
                   />
                 </div>
               </>
@@ -1172,7 +1184,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     className={`rounded-[var(--radius-1)] px-3 py-3 ${ubah === l.id ? "bg-surface-2" : "border-b border-line-1"}`}>
                     <article className="grid gap-2" aria-labelledby={`laporan-judul-${l.id}`}>
                       <h2 id={`laporan-judul-${l.id}`} className="font-medium text-ink-1">{l.terjadi}</h2>
-                      <p className="text-ink-2">{when(l.dibuat)} · {l.pelapor} · {roleLabel(l.peran)}{l.sekolah ? ` · ${l.sekolah}` : ""}</p>
+                      <p className="text-ink-2">{when(l.dibuat, "cap", l.zona)} · {l.pelapor} · {roleLabel(l.peran)}{l.sekolah ? ` · ${l.sekolah}` : ""}</p>
                       <p className="flex flex-wrap items-center gap-2">
                         <strong className="pin-pill pin-neutral" data-status-laporan="">{sl(kunciStatusLaporan(l.status))}</strong>
                         {l.hentikanKelas ? <span className="pin-pill pin-attention pin-pill-ikon"><Ikon nama="triangle-alert" />{sl("lapor.hentikan.singkat")}</span> : null}
@@ -1256,12 +1268,12 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 </fieldset>
                 <div className="pin-baris-isian">
                   <div className={label}>
-                    <label htmlFor="cfg-pm-mulai">{sl("config.pemeliharaan.mulai")}</label>
-                    <TanggalDenganGema jenis="datetime-local" id="cfg-pm-mulai" name="pm_mulai" className={field} defaultValue={sp.pm_mulai ?? ""} locale={locale} />
+                    <label htmlFor="cfg-pm-mulai">{sl("config.pemeliharaan.mulai").replace("{zona}", kataZona(zonaPm))}</label>
+                    <TanggalDenganGema jenis="datetime-local" id="cfg-pm-mulai" name="pm_mulai" className={field} defaultValue={sp.pm_mulai ?? ""} locale={locale} zona={zonaPm} />
                   </div>
                   <div className={label}>
-                    <label htmlFor="cfg-pm-selesai">{sl("config.pemeliharaan.selesai")}</label>
-                    <TanggalDenganGema jenis="datetime-local" id="cfg-pm-selesai" name="pm_selesai" className={field} defaultValue={sp.pm_selesai ?? ""} locale={locale} />
+                    <label htmlFor="cfg-pm-selesai">{sl("config.pemeliharaan.selesai").replace("{zona}", kataZona(zonaPm))}</label>
+                    <TanggalDenganGema jenis="datetime-local" id="cfg-pm-selesai" name="pm_selesai" className={field} defaultValue={sp.pm_selesai ?? ""} locale={locale} zona={zonaPm} />
                   </div>
                 </div>
                 <div><button type="submit" className={button}>{sl("config.pemeliharaan.periksa")}</button></div>
@@ -1276,8 +1288,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         {Number((tabrakan as { asesmen: number }).asesmen)} {sl("config.pemeliharaan.tabrakan.jumlah")}{" "}
                         {(tabrakan as { terakhir_selesai?: string | null }).terakhir_selesai ? (
                           <>
-                            {sl("config.pemeliharaan.tabrakan.terakhir")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai)}.{" "}
-                            {sl("config.pemeliharaan.tabrakan.saran")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai)}.
+                            {sl("config.pemeliharaan.tabrakan.terakhir")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai, "cap", zonaPmPilih)}.{" "}
+                            {sl("config.pemeliharaan.tabrakan.saran")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai, "cap", zonaPmPilih)}.
                           </>
                         ) : null}
                       </p>
@@ -1314,7 +1326,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     // B1 §1 «Records»: a window's one action (end or cancel it) at its row's end, named with the window,
                     // opening its reason in place
                     const kata = sl(w.keadaan === "AKTIF" ? "config.pemeliharaan.akhiri" : "config.pemeliharaan.batalkan");
-                    const nama = `${w.platform ? sl("config.pemeliharaan.platform") : w.sekolah.join(", ")}, ${when(w.mulai, "hariJam")}`;
+                    const nama = `${w.platform ? sl("config.pemeliharaan.platform") : w.sekolah.join(", ")}, ${when(w.mulai, "hariJam", zonaJendela(w.platform))}`;
                     return (
                     <li key={w.id} id={`jendela-${w.id}`} data-jendela={w.id} data-terbuka={ubah === w.id ? "" : undefined}
                       className={`grid gap-1 rounded-[var(--radius-1)] px-3 py-2 ${ubah === w.id ? "bg-surface-2" : "border-b border-line-1"}`}>
@@ -1324,7 +1336,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         {" · "}{w.platform ? sl("config.pemeliharaan.platform") : w.sekolah.join(", ")}
                       </span>
                       <span className="text-ink-2">
-                        {when(w.mulai, "hariJam")} {w.selesai ? <>{sl("config.pemeliharaan.hingga")} {when(w.selesai, "hariJam")}</> : <>· {sl("config.pemeliharaan.tanpa_akhir")}</>}
+                        {when(w.mulai, "hariJam", zonaJendela(w.platform))} {w.selesai ? <>{sl("config.pemeliharaan.hingga")} {when(w.selesai, "hariJam", zonaJendela(w.platform))}</> : <>· {sl("config.pemeliharaan.tanpa_akhir")}</>}
                       </span>
                       {w.pesan ? <span className="text-ink-2">{w.pesan}</span> : null}
                       <span className="text-xs text-ink-3">{sl("config.pemeliharaan.alasan")}: {w.alasan}</span>
@@ -1375,7 +1387,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                       className={`grid gap-1 rounded-[var(--radius-1)] px-3 py-2 ${ubah === n.id ? "bg-surface-2" : "border-b border-line-1"}`}>
                       <span className="text-ink-1">{n.pesan}</span>
                       <span className="text-ink-2">
-                        {when(n.terbit, "hariJam")} {sl("config.pemeliharaan.hingga")} {when(n.sampai, "hariJam")}
+                        {when(n.terbit, "hariJam", zonaJendela(n.platform))} {sl("config.pemeliharaan.hingga")} {when(n.sampai, "hariJam", zonaJendela(n.platform))}
                         {n.platform ? <> · {sl("config.pemeliharaan.platform")}</> : null}
                         {n.ditarik ? <> · <strong className="pin-pill pin-neutral">{sl("config.pemeliharaan.pengumuman.ditarik")}</strong></> : null}
                       </span>
@@ -1423,12 +1435,12 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 </label>
                 <div className="pin-baris-isian">
                   <div className={label}>
-                    <label htmlFor="cfg-pengumuman-terbit">{sl("config.pemeliharaan.pengumuman.terbit")}</label>
-                    <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-terbit" name="terbit" className={field} locale={locale} />
+                    <label htmlFor="cfg-pengumuman-terbit">{sl("config.pemeliharaan.pengumuman.terbit").replace("{zona}", kataZona(zonaPm))}</label>
+                    <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-terbit" name="terbit" className={field} locale={locale} zona={zonaPm} />
                   </div>
                   <div className={label}>
-                    <label htmlFor="cfg-pengumuman-sampai">{sl("config.pemeliharaan.pengumuman.sampai")}</label>
-                    <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-sampai" name="sampai" className={field} required locale={locale} />
+                    <label htmlFor="cfg-pengumuman-sampai">{sl("config.pemeliharaan.pengumuman.sampai").replace("{zona}", kataZona(zonaPm))}</label>
+                    <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-sampai" name="sampai" className={field} required locale={locale} zona={zonaPm} />
                   </div>
                 </div>
                 <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.pengumuman.terbitkan")}</TombolKirim></div>
@@ -1778,7 +1790,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     {a.scope_node_id && a.person_id !== viewer.personId
                       ? <Link href={`/konfigurasi/staf?orang=${a.person_id}`} className="pin-tautan" data-staf-buka={a.person_id}>{personName.get(a.person_id) ?? TANPA_NAMA}</Link>
                       : (personName.get(a.person_id) ?? TANPA_NAMA)} · {roleLabel(a.role)}
-                    <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? TANPA_NAMA : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {when(a.valid_until, "baca")}</span>
+                    <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? TANPA_NAMA : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {when(a.valid_until, "baca", zonaBaris(a.institution_id))}</span>
                   </span>
                   {a.person_id !== viewer.personId && ubah !== a.id ? (
                     // B1: the row's one action, named with its record so a list of links is unambiguous («Cabut · Citra Lestari»)
@@ -1920,7 +1932,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 <tbody>
                   {barisJejak.map((r) => (
                     <tr key={r.id}>
-                      <td className="whitespace-nowrap">{when(r.at)}</td>
+                      <td className="whitespace-nowrap">{when(r.at, "cap", zonaBaris(r.institution_id))}</td>
                       {/* D-138(c), D-140(c): the action and the record in words; never the code, the table or an id. */}
                       <td>{kataAksiAudit(r.action, locale)}</td>
                       <td className="text-ink-3" data-jejak-sasaran="">{sasaranJejak(r)}</td>
@@ -1933,11 +1945,11 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                             // Sharon (ruling 8 on 7a2c1751): on a transfer row the unnamed actor is the other school's
                             || s(String(r.action).startsWith("transfer.") ? "audit.oleh.sekolah_lain" : "audit.oleh.tidak_terlihat")
                             : s("audit.oleh.sistem")}</td>
-                          <td data-jejak-alasan="">{[a.alasan, a.berlaku ? s("audit.berlaku").replace("{tanggal}", when(a.berlaku, "baca")) : null,
+                          <td data-jejak-alasan="">{[a.alasan, a.berlaku ? s("audit.berlaku").replace("{tanggal}", when(a.berlaku, "baca", zonaBaris(r.institution_id))) : null,
                             lipat.bagianRun.has(r.id) ? (() => {
                               // §4.4.4: which run, and that its own row is on another page
                               const k = kelasRunLain(r);
-                              return k && namaNode.get(k) ? s("audit.kenaikan.bagian").replace("{kelas}", namaNode.get(k)!).replace("{tanggal}", when(r.at as string, "baca"))
+                              return k && namaNode.get(k) ? s("audit.kenaikan.bagian").replace("{kelas}", namaNode.get(k)!).replace("{tanggal}", when(r.at as string, "baca", zonaBaris(r.institution_id)))
                                 : s("audit.kenaikan.bagian_umum");
                             })() : null].filter(Boolean).join(" · ") || ""}
                             {r.action === "promotion.applied" ? (() => {
@@ -1968,7 +1980,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                                   <details className="pin-disclosure mt-1" data-jejak-run-terkait={anak.length}>
                                     <summary className="cursor-pointer text-ink-3">{s("audit.kenaikan.terkait").replace("{n}", String(anak.length))}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
                                     <ul className="mt-1 grid gap-1 text-ink-2">{anak.map((x) => (
-                                      <li key={String(x.id)} data-jejak-anak="">{[when(x.at as string), kataAksiAudit(x.action, locale), kataTabelAudit(x.target_table as string, locale)].filter(Boolean).join(" · ")}</li>
+                                      <li key={String(x.id)} data-jejak-anak="">{[when(x.at as string, "cap", zonaBaris(r.institution_id)), kataAksiAudit(x.action, locale), kataTabelAudit(x.target_table as string, locale)].filter(Boolean).join(" · ")}</li>
                                     ))}</ul>
                                   </details>
                                 ) : null}

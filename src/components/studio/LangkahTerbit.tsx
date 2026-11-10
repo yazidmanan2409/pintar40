@@ -59,7 +59,7 @@ type Kabar = { jenis: "langkah"; langkah: KunciLangkah[] } | { jenis: "kembali" 
  */
 export default function LangkahTerbit({
   locale, course, fakta, terbitan, kemampuan, saya, penyusun, hasilIsi = null, kembali = null, unggahPerbaikan = null,
-  jawabanAwal = null,
+  jawabanAwal = null, zona,
 }: {
   locale: Locale;
   course: string;
@@ -70,6 +70,8 @@ export default function LangkahTerbit({
   /** The reader's person id, and the course's author's. */
   saya: string | null;
   penyusun: string | null;
+  /** The course's school's zone (the owner's ruling, 10 Nov): its release's date on that clock; WIB when none. */
+  zona?: string | null;
   /** A content step's result, as the page read it back from the address (codes only, the copy table's sentence). */
   hasilIsi?: { ok: boolean; kode: string | null; kalimat: string } | null;
   /** The reviewer's reason, when the package was sent back: who, when (already written in the reader's language). */
@@ -329,7 +331,7 @@ export default function LangkahTerbit({
           {(() => {
             const kalimat = (
               <p>
-                {terbitan?.terbitPada ? `${s("studio.langkah.terbit.sejak")} ${tanggal(terbitan.terbitPada, "baca", locale)}. ` : ""}
+                {terbitan?.terbitPada ? `${s("studio.langkah.terbit.sejak")} ${tanggal(terbitan.terbitPada, "baca", locale, zona)}. ` : ""}
                 {s("studio.paket.terbit_bukan_tugas")}
               </p>
             );

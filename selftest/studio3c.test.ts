@@ -83,8 +83,10 @@ export const studio3cTests: SelfTest[] = [
       c.expect(/<span className=\{`pin-pill \$\{ajar\.nadaMateri\(ajar\.statusMateri\(x\)\)\}`\}>\{s\(ajar\.statusMateri\(x\)\)\}<\/span>/.test(kelas)
         && !/<span className="pin-pill pin-neutral">\{s\(ajar\.statusMateri\(x\)\)\}<\/span>/.test(kelas),
         "the class page's material rows do not draw «Tersedia» as the done Badge");
-      c.expect(/\{x\.mulai \? <span>\{s\("mengajar\.siap\.mulai"\)\} \{tanggal\(x\.mulai, "hari", locale\)\}<\/span> : null\}/.test(kelas)
-        && /<span>\{x\.sampai \? `\$\{s\("mengajar\.siap\.sampai"\)\} \$\{tanggal\(x\.sampai, "hari", locale\)\}` : s\("mengajar\.siap\.sampai\.kosong"\)\}<\/span>/.test(kelas),
+      // RESTATED (owner, 10 Nov: school-context dates on the school's clock): the window is written on the class's school's clock (zona),
+      // so a WITA or WIT school's «Mulai» is no longer a day early
+      c.expect(/\{x\.mulai \? <span>\{s\("mengajar\.siap\.mulai"\)\} \{tanggal\(x\.mulai, "hari", locale, zona\)\}<\/span> : null\}/.test(kelas)
+        && /<span>\{x\.sampai \? `\$\{s\("mengajar\.siap\.sampai"\)\} \$\{tanggal\(x\.sampai, "hari", locale, zona\)\}` : s\("mengajar\.siap\.sampai\.kosong"\)\}<\/span>/.test(kelas),
         "the class page's material rows do not give their window in words («Mulai … · Sampai …» or «Tanpa batas akhir»)");
       const css = baca(ctx.repoRoot, "src/app/experience.css");
       c.expect(/\.pin-pill\.pin-ok::before \{ content: "✓";/.test(css), "the ok Badge no longer draws its ✓");

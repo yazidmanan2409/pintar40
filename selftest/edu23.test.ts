@@ -106,7 +106,8 @@ export const edu23Tests: SelfTest[] = [
       const lib = buang(readFileSync(join(ctx.repoRoot, "src", "lib", "pengajar.ts"), "utf8"));
       c.expect(/return pisahSiapa\(roster, rows</.test(lib), "ajar.siapa does not split by pisahSiapa");
       // RESTATED FOR DAISY-33 (a changed requirement, D-069(k)): the block also takes the class's kind
-      c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\} kelas=\{id\}(?: jenis=\{ctx\.ini\.jenis\})? \/>/
+      // RESTATED (owner, 10 Nov: school-context dates on the school's clock): and the class's school's zone, for its tests' dates
+      c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\} kelas=\{id\}(?: jenis=\{ctx\.ini\.jenis\})?(?: zona=\{zona\})? \/>/
         .test(buang(readFileSync(join(ctx.repoRoot, "src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"), "utf8"))),
         "«Lihat bukti» does not give its counts the way to the names");
 

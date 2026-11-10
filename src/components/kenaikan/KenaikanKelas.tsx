@@ -55,6 +55,8 @@ const primer = "pin-btn pin-primary justify-self-start";
 export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: string; sp: ParamKenaikan; locale: "id" | "en" }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const supabase = await supabaseServer();
+  // the owner's ruling (10 Nov): every date of the school's promotion on its own clock
+  const zona = await zonaSekolah(supabase, sekolah);
   const kelas = adalahUuid(sp.kn_kelas) ? sp.kn_kelas : null;
   const langkah = sp.kn_langkah === "tinjau" || sp.kn_langkah === "selesai" ? sp.kn_langkah : "keputusan";
   const tolak = sp.kn_kode ? (
@@ -99,7 +101,7 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
                       {di.map((n) => {
                         const pada = sudah.get(n.id);
                         return <option key={n.id} value={n.id} disabled={Boolean(pada)} data-sudah={pada ? "" : undefined}>
-                          {kelasDenganTahun(n.name, y.name)}{pada ? ` · ${s("kenaikan.kelas.sudah").replace("{tanggal}", tanggal(pada, "baca", locale))}` : ""}
+                          {kelasDenganTahun(n.name, y.name)}{pada ? ` · ${s("kenaikan.kelas.sudah").replace("{tanggal}", tanggal(pada, "baca", locale, zona))}` : ""}
                         </option>;
                       })}
                     </optgroup>
@@ -138,7 +140,6 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
     // Daisy (435a2856, §4.3): the outcome is laid out as the review was: the exceptions first and always shown, then the
     // main group folded under its count; each name says what PINTAR recorded. And its moment is on the school's clock.
     const utamaHasil = (g.kelompok.find((k) => k.kunci === g.utama)?.isi ?? []).filter((m) => m.sumber !== "TINGKAT");
-    const zona = await zonaSekolah(supabase, sekolah);
     return (
       <div className="pin-kenaikan" data-kenaikan-langkah="selesai">
         <BarisHasil nada="ok">
@@ -148,7 +149,7 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
         {tidak.length > 0 ? (
           <BarisHasil nada="gagal">
             <span data-kenaikan-tidak-sesuai={tidak.length}>{s("kenaikan.selesai.tidak_sesuai").replace("{n}", String(tidak.length))}</span>{" "}
-            {tidak.map((m) => `${m.nama}: ${s("kenaikan.selesai.keputusan")} ${kalimat(s, m, tahunTujuan)}, ${s("kenaikan.selesai.tercatat")} ${tercatat(s, m, locale)}`).join("; ")}.{" "}
+            {tidak.map((m) => `${m.nama}: ${s("kenaikan.selesai.keputusan")} ${kalimat(s, m, tahunTujuan)}, ${s("kenaikan.selesai.tercatat")} ${tercatat(s, m, locale, zona)}`).join("; ")}.{" "}
             {s("kenaikan.selesai.periksa")}
           </BarisHasil>
         ) : null}
@@ -158,7 +159,7 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
             <ul className="pin-kenaikan-murid" data-kenaikan-hasil="">
               {g.pengecualian.map((m) => (
                 <li key={m.person_id} data-murid={m.person_id}>
-                  {m.nama} · {m.sumber === "TINGKAT" ? `${s("kenaikan.tinjau.dari_tingkat")} · ` : ""}{kalimat(s, m, tahunTujuan)} · {tercatat(s, m, locale)}
+                  {m.nama} · {m.sumber === "TINGKAT" ? `${s("kenaikan.tinjau.dari_tingkat")} · ` : ""}{kalimat(s, m, tahunTujuan)} · {tercatat(s, m, locale, zona)}
                 </li>
               ))}
             </ul>
@@ -168,7 +169,7 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
           <details className="pin-disclosure pin-kenaikan-kelompok" data-kenaikan-utama={utamaHasil.length}>
             <summary className="cursor-pointer">{judulKelompok(s, utamaHasil[0], utamaHasil.length, tahunTujuan)}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
             <ul className="pin-kenaikan-murid" data-kenaikan-hasil="">
-              {utamaHasil.map((m) => <li key={m.person_id} data-murid={m.person_id}>{m.nama} · {tercatat(s, m, locale)}</li>)}
+              {utamaHasil.map((m) => <li key={m.person_id} data-murid={m.person_id}>{m.nama} · {tercatat(s, m, locale, zona)}</li>)}
             </ul>
           </details>
         ) : null}
@@ -373,12 +374,12 @@ function judulKelompok(s: (k: HleEvent) => string, m: Hasil, n: number, tahun: s
 }
 
 /** Where a learner is now, as PINTAR recorded it: their Kelas with its year, or how and when their enrolment ended. */
-function tercatat(s: (k: HleEvent) => string, m: HasilAkhir, locale: "id" | "en"): string {
+function tercatat(s: (k: HleEvent) => string, m: HasilAkhir, locale: "id" | "en", zona: string): string {
   if (m.kelas_sekarang) return kelasDenganTahun(m.kelas_sekarang, m.keputusan === "NAIK" || m.keputusan === "TINGGAL" ? m.tahun_tujuan : null);
   if (m.akhir === "EXPIRED" || !m.akhir) return s("kenaikan.akhir.expired");
   // Daisy (Dimas): «Pendaftaran berakhir · 9 Nov 2026 · pindah ke sekolah di luar PINTAR», never «Pindah sekolah»
   const alasan = m.akhir_alasan ? s(`kenaikan.berakhir.${m.akhir_alasan.toLowerCase()}` as HleEvent) : s(`kenaikan.akhir.${m.akhir.toLowerCase()}` as HleEvent);
-  return [s("kenaikan.berakhir"), m.akhir_pada ? tanggal(m.akhir_pada, "baca", locale) : null, alasan].filter(Boolean).join(" · ");
+  return [s("kenaikan.berakhir"), m.akhir_pada ? tanggal(m.akhir_pada, "baca", locale, zona) : null, alasan].filter(Boolean).join(" · ");
 }
 
 /** «6A, 6B dan 5A» / «6A, 6B and 5A». */

@@ -13,6 +13,8 @@ import { adaBuktiSoal, kataAnggota } from "@/lib/mengajar";
 import { AMBANG_NILAI_KELAS, type KeadaanHasil } from "@/lib/hasil-ujicepat";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { judulAsesmen } from "@/lib/judul-asesmen";
+import { zonaSekolah } from "@/lib/zona-sekolah";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/uji-cepat/hasil");
 
@@ -61,6 +63,8 @@ export default async function HasilUjiCepat({
       backKey={ctx ? "mengajar.cepat.judul" : "mengajar.kembali"} />;
   }
   const { tugas, hasil } = baca;
+  // the owner's ruling (10 Nov): named by when it opened on the class's school's clock
+  const zona = await zonaSekolah(await supabaseServer(), ctx.ini.institusi);
   const benda = s(kataAnggota("mengajar.bukti.murid", ctx.ini.jenis));
   const isi = (k: HleEvent, ganti: Record<string, string>) =>
     Object.entries(ganti).reduce((a, [kunci, v]) => a.split(`{${kunci}}`).join(v), s(k));
@@ -86,7 +90,7 @@ export default async function HasilUjiCepat({
           locale={locale}
         />
         <div className="pin-head">
-          <p className="pin-eyebrow">{judulAsesmen(tugas, locale)}</p>
+          <p className="pin-eyebrow">{judulAsesmen(tugas, locale, zona)}</p>
           <h1 className="pin-h1">{s("mengajar.cepat.hasil.judul")}</h1>
         </div>
 
