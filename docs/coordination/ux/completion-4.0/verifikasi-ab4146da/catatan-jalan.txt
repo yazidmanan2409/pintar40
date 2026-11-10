@@ -1,0 +1,33 @@
+390 start: {"scrollLeft":0,"waktuVis":true,"tindakanVis":true,"thPos":"static","thTop":255,"th0Left":34,"td0Left":34,"barBottom":57,"atBarMid":"bar","runTop":300,"opened":0,"openedOutside":0,"sideways":false}
+390 link: Catatan terkait (113)
+390 open: {"scrollLeft":0,"waktuVis":true,"tindakanVis":true,"thPos":"static","thTop":27,"th0Left":34,"td0Left":34,"barBottom":57,"atBarMid":"bar","runTop":72,"opened":104,"openedOutside":0,"sideways":false} | items 100
+390 Tab 1 → summary «28 murid: 27 naik, 1 tinggal kelas» scrollLeft 320
+390 Tab 2 → a «Tutup catatan terkait» scrollLeft 320
+390 Tab 3 → a «Berikutnya» scrollLeft 320
+390 sub-page 2: {"scrollLeft":0,"waktuVis":true,"tindakanVis":true,"thPos":"static","thTop":27,"th0Left":34,"td0Left":34,"barBottom":57,"atBarMid":"bar","runTop":72,"opened":17,"openedOutside":0,"sideways":false} | items 13
+390 Tutup: {"scrollLeft":0,"waktuVis":true,"tindakanVis":true,"thPos":"static","thTop":27,"th0Left":34,"td0Left":34,"barBottom":57,"atBarMid":"bar","runTop":72,"opened":0,"openedOutside":0,"sideways":false} | focus body «Langsung ke isiPINTARCiutkan navigasiKon»
+390 Tab after Tutup → summary «28 murid: 27 naik, 1 tinggal kelas»
+390 after scrolling 600: {"scrollLeft":320,"waktuVis":false,"tindakanVis":false,"thPos":"static","thTop":-573,"th0Left":-286,"td0Left":-286,"barBottom":57,"atBarMid":"bar","runTop":-528,"opened":0,"openedOutside":0,"sideways":false}
+390 frame scrolled 200: {"scrollLeft":200,"waktuVis":false,"tindakanVis":false,"thPos":"static","thTop":-573,"th0Left":-166,"td0Left":-166,"barBottom":57,"atBarMid":"bar","runTop":-528,"opened":0,"openedOutside":0,"sideways":false}
+320 start: {"scrollLeft":0,"waktuVis":true,"tindakanVis":false,"thPos":"static","thTop":275,"th0Left":34,"td0Left":34,"barBottom":57,"atBarMid":"bar","runTop":320,"opened":0,"openedOutside":0,"sideways":false}
+320 link: Catatan terkait (113)
+320 open: {"scrollLeft":0,"waktuVis":true,"tindakanVis":false,"thPos":"static","thTop":27,"th0Left":34,"td0Left":34,"barBottom":57,"atBarMid":"bar","runTop":72,"opened":104,"openedOutside":0,"sideways":false} | items 100
+320 Tab 1 → summary «28 murid: 27 naik, 1 tinggal kelas» scrollLeft 390
+320 Tab 2 → a «Tutup catatan terkait» scrollLeft 390
+320 Tab 3 → a «Berikutnya» scrollLeft 390
+320 sub-page 2: {"scrollLeft":0,"waktuVis":true,"tindakanVis":false,"thPos":"static","thTop":27,"th0Left":34,"td0Left":34,"barBottom":57,"atBarMid":"bar","runTop":72,"opened":17,"openedOutside":0,"sideways":false} | items 13
+320 Tutup: {"scrollLeft":0,"waktuVis":true,"tindakanVis":false,"thPos":"static","thTop":27,"th0Left":34,"td0Left":34,"barBottom":57,"atBarMid":"bar","runTop":72,"opened":0,"openedOutside":0,"sideways":false} | focus body «Langsung ke isiPINTARCiutkan navigasiKon»
+320 Tab after Tutup → summary «28 murid: 27 naik, 1 tinggal kelas»
+320 after scrolling 600: {"scrollLeft":390,"waktuVis":false,"tindakanVis":false,"thPos":"static","thTop":-573,"th0Left":-356,"td0Left":-356,"barBottom":57,"atBarMid":"bar","runTop":-528,"opened":0,"openedOutside":0,"sideways":false}
+320 frame scrolled 200: {"scrollLeft":200,"waktuVis":false,"tindakanVis":false,"thPos":"static","thTop":-573,"th0Left":-166,"td0Left":-166,"barBottom":57,"atBarMid":"bar","runTop":-528,"opened":0,"openedOutside":0,"sideways":false}
+1280 start: {"scrollLeft":0,"waktuVis":true,"tindakanVis":true,"thPos":"sticky","thTop":198,"th0Left":290,"td0Left":290,"barBottom":0,"atBarMid":"no bar","runTop":243,"opened":0,"openedOutside":0,"sideways":false}
+1280 link: Catatan terkait (113)
+1280 open: {"scrollLeft":0,"waktuVis":true,"tindakanVis":true,"thPos":"sticky","thTop":-29,"th0Left":290,"td0Left":290,"barBottom":0,"atBarMid":"no bar","runTop":16,"opened":104,"openedOutside":0,"sideways":false} | items 100
+1280 Tab 1 → summary «28 murid: 27 naik, 1 tinggal kelas» scrollLeft 0
+1280 Tab 2 → a «Tutup catatan terkait» scrollLeft 0
+1280 Tab 3 → a «Berikutnya» scrollLeft 0
+1280 sub-page 2: {"scrollLeft":0,"waktuVis":true,"tindakanVis":true,"thPos":"sticky","thTop":-29,"th0Left":290,"td0Left":290,"barBottom":0,"atBarMid":"no bar","runTop":16,"opened":17,"openedOutside":0,"sideways":false} | items 13
+1280 Tutup: {"scrollLeft":0,"waktuVis":true,"tindakanVis":true,"thPos":"sticky","thTop":-29,"th0Left":290,"td0Left":290,"barBottom":0,"atBarMid":"no bar","runTop":16,"opened":0,"openedOutside":0,"sideways":false} | focus body «Langsung ke isiPINTARCiutkan navigasiKon»
+1280 Tab after Tutup → summary «28 murid: 27 naik, 1 tinggal kelas»
+1280 after scrolling 600: {"scrollLeft":0,"waktuVis":true,"tindakanVis":true,"thPos":"sticky","thTop":-629,"th0Left":290,"td0Left":290,"barBottom":0,"atBarMid":"no bar","runTop":-584,"opened":0,"openedOutside":0,"sideways":false}
+1280 frame scrolled 200: {"scrollLeft":0,"waktuVis":true,"tindakanVis":true,"thPos":"sticky","thTop":-629,"th0Left":290,"td0Left":290,"barBottom":0,"atBarMid":"no bar","runTop":-584,"opened":0,"openedOutside":0,"sideways":false}
