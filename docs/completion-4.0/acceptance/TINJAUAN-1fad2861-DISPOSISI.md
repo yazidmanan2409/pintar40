@@ -66,6 +66,35 @@ Unrelated cosmetic items stay in the register below. Sharon revisits only if aut
 - B2 rests on M3R-S01 (database) and M3R-K01 (source) until Daisy's rendered recheck.
 - That attempt also ended that class's chapter in local data only; the next reset clears it.
 
+## Addendum: Daisy's recheck at `821d3853` (`TINJAUAN-821d3853.md`)
+
+**Accepted at `821d3853`:**
+- the player's small items;
+- B2, on its first rendered look;
+- C3;
+- C1 and C2 at 1280 px.
+
+**Changed, audit table only (owner: presentation only; no shared-table change):**
+
+| # | Daisy found at 390 and 320 px | Change |
+|---|---|---|
+| C1 | Opening a run left the frame scrolled to its far right (`scrollLeft` 320 or 390), with «Waktu» and «Tindakan» off-screen, still so after «Tutup» | The anchor is the run row's **first cell**, not the row. Landing brings the frame back to its first columns |
+| C2 | The table header was drawn over the app bar, and «Waktu» stuck to the left while its column scrolled away, so it labelled «Sasaran» | In the audit table «Waktu» is never held at the left. Below 1024 px the audit header scrolls with the table (`position: static`), as the owner recommended, rather than another offset rule |
+| small | The closed «Minta membaca lagi» page still showed the invitation and «target 70%» | The closed sentence replaces both, and reads «… kepada kelas ini» |
+
+**The check that missed it, strengthened (the owner: no new process).**
+- The local rendered check measured the vertical landing and page overflow, not the frame's horizontal position or the header. It now asserts, on every landing (open, sub-page 2, «Tutup»):
+  - the frame's `scrollLeft` is 0;
+  - what is drawn at the app bar's middle is the bar;
+  - «Waktu» is not held at the left.
+- **Red on `821d3853`:**
+  - `scrollLeft` 274 at 390 px and 344 at 320 px;
+  - the header drawn over the bar;
+  - «Waktu» held left, at every width.
+- **Green after the change:** 69 of 69, at 1280, 390 and 320 px, by keyboard, on a 230-row run.
+- KENAIKAN-A01 is restated to read n on the first cell, with its obligation unchanged.
+- JEJAK-A01, M3R-K01, UX1-S0-TOKEN-01, KOLEKSI-CSS-01, L4-G01, UX1-S0-HLE-01, EFF-K02 and D168-K2-1 are green.
+
 ## 4 · Register: kept, not changed in this pass
 
 - Kenaikan step 2's live status line still joins with «·» (`DaftarKeputusan.tsx`).

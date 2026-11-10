@@ -1286,8 +1286,12 @@
 #audit tr:not(.pin-jejak-anak-baris) > td:first-child { white-space: nowrap; }
 /* Daisy (1fad2861, C1/C2): a run's related rows are a full-width row under the run's row, and the page lands on the
    run's own row clear of the sticky bar (the shell's bar under 1024 px; above it only the gap) */
-#audit .pin-jejak-induk { scroll-margin-top: var(--space-4); }
-@media (max-width: 1023px) { #audit .pin-jejak-induk { scroll-margin-top: calc(var(--shell-bar) + var(--space-4)); } }
+#audit .pin-jejak-induk > td { scroll-margin-top: var(--space-4); }
+@media (max-width: 1023px) { #audit .pin-jejak-induk > td { scroll-margin-top: calc(var(--shell-bar) + var(--space-4)); } }
+/* Daisy (821d3853, C2), the audit table only: «Waktu» is never held at the left (its column scrolls away and it would
+   label another), and on a phone the header scrolls with the table, never drawn over the app bar */
+#audit .pin-tabel thead th:first-child { left: auto; }
+@media (max-width: 1023px) { #audit .pin-tabel thead th { position: static; } }
 #audit .pin-jejak-anak-baris > td { background: var(--surface-2); padding-top: var(--space-2); }
 /* the opened rows read where the frame shows them: on a phone the table is wider than the screen and scrolls inside
    its frame, so the row's contents hold to the frame's visible left edge and wrap within one screen's width */

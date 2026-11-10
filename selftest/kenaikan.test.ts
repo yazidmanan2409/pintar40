@@ -391,7 +391,8 @@ export const kenaikanAppTests: SelfTest[] = [
       // cell after the learners; the rows it opens are a full-width row under the run
       const awalRun = hj.lastIndexOf("<tr", hj.indexOf(run));
       const trRun = hj.slice(awalRun, hj.indexOf("</tr>", awalRun));
-      const nRun = /^<tr[^>]*\bid="jejak-run-[^"]+"[^>]*data-jejak-run-terkait="(\d+)"/.exec(trRun);
+      // RESTATED (Daisy, 821d3853 C1): the anchor and n are on the run row's first cell
+      const nRun = /^<tr[^>]*>\s*<td[^>]*\bid="jejak-run-[^"]+"[^>]*data-jejak-run-terkait="(\d+)"/.exec(trRun);
       const aRun = /<a\b[^>]*data-jejak-run-buka-tautan[^>]*>/.exec(trRun);
       const tautan = nRun && aRun ? [nRun[0], nRun[1], /\bhref="([^"]+)"/.exec(aRun[0])?.[1] ?? ""] : null;
       const terkait = Number(tautan?.[1] ?? "0");

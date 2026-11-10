@@ -1965,8 +1965,10 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     const nBaris = runBaris ? nAnakRun.get(runBaris) ?? null : null;
                     const bukaBaris = Boolean(runBaris) && nBaris !== 0 && runDibuka?.run === runBaris && anakRun !== null;
                     return (<Fragment key={r.id}>
-                    <tr id={runBaris ? `jejak-run-${runBaris}` : undefined} data-jejak-run-terkait={runBaris && nBaris !== 0 ? nBaris ?? "?" : undefined} className={runBaris ? "pin-jejak-induk" : undefined}>
-                      <td className="whitespace-nowrap">{when(r.at, "cap", zonaBaris(r.institution_id))}</td>
+                    <tr className={runBaris ? "pin-jejak-induk" : undefined}>
+                      {/* Daisy (821d3853, C1): the anchor is the row's first cell, so landing on it brings the frame back to
+                          its first columns on a phone (a whole row wider than the screen was scrolled to its far end) */}
+                      <td className="whitespace-nowrap" id={runBaris ? `jejak-run-${runBaris}` : undefined} data-jejak-run-terkait={runBaris && nBaris !== 0 ? nBaris ?? "?" : undefined}>{when(r.at, "cap", zonaBaris(r.institution_id))}</td>
                       {/* D-138(c), D-140(c): the action and the record in words; never the code, the table or an id. */}
                       <td>{kataAksiAudit(r.action, locale)}</td>
                       <td className="text-ink-3" data-jejak-sasaran="">{[sasaranJejak(r), ...(lipat.bagianRun.has(r.id)

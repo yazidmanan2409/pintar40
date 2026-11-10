@@ -74,8 +74,9 @@ export default async function UlangKelas({
         <div className="pin-head">
           <p className="pin-eyebrow">{bahan.judul}</p>
           <h1 className="pin-h1">{s("mengajar.ulang.judul")}</h1>
-          <p className="pin-intro">{s("mengajar.ulang.arti")}</p>
-          {bahan.batas !== null ? (
+          {/* Daisy (821d3853): on a closed chapter the closed sentence replaces the invitation and the target */}
+          {bahan.tertutup ? null : <p className="pin-intro">{s("mengajar.ulang.arti")}</p>}
+          {!bahan.tertutup && bahan.batas !== null ? (
             <p className="pin-meta">{s("mengajar.murid1.target")} {format.percent(bahan.batas, locale)}</p>
           ) : null}
         </div>

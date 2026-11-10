@@ -3004,7 +3004,7 @@ const table: Table = {
   "mengajar.ulang.tolak.review_too_many": { default: "Terlalu banyak sekaligus: paling banyak 60 murid dan 30 pelajaran.", en: "Too many at once: at most 60 students and 30 lessons." },
   "mengajar.ulang.tolak.review_not_in_class": { default: "Ada murid yang tidak lagi berada di kelas ini. Muat ulang halaman, lalu pilih lagi.", en: "A student is no longer in this class. Reload the page and choose again." },
   "mengajar.ulang.tolak.review_lesson_not_in_chapter": { default: "Ada pelajaran yang bukan bagian dari bab ini.", en: "A lesson is not part of this chapter." },
-  "mengajar.ulang.tolak.review_assignment_closed": { default: "Bab ini tidak lagi diberikan kepada kelas.", en: "This chapter is no longer given to the class." },
+  "mengajar.ulang.tolak.review_assignment_closed": { default: "Bab ini tidak lagi diberikan kepada kelas ini.", en: "This chapter is no longer given to this class." },
   "mengajar.ulang.tolak.review_not_allowed": { default: "Hanya guru kelas ini yang dapat meminta muridnya membaca lagi.", en: "Only this class's teacher can ask its students to read again." },
   "mengajar.ulang.tolak.review_failed": { default: "Permintaan belum terkirim. Coba lagi.", en: "The request was not sent. Try again." },
   "mengajar.soal.tidak_dijawab": { default: "tidak dijawab", en: "not answered" },
