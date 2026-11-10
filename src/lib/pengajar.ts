@@ -883,6 +883,8 @@ export type HasilResmi = {
   asli?: number | null;
   /** D14: the reason the recalculation was recorded with, shown beside the note */
   alasan?: string | null;
+  /** owner ruling (10 Nov): the sitting's assignment was withdrawn; kept and shown, not counted in class figures */
+  ditarik?: boolean;
 };
 
 export type CatatanMurid = {
@@ -930,7 +932,7 @@ export function susunCatatan(
   const batasTugas = new Map(tugas.map((x) => [x.id, x.batas ?? null]));
   const batasSesi = new Map(milikNya.map((x) => [x.id, batasTugas.get(x.assessment_assignment_id) ?? null]));
   const nilai = hasil.status === "ok" && Array.isArray(hasil.value)
-    ? (hasil.value as Array<{ session_id?: unknown; mode?: unknown; mastery?: unknown; recomputed?: unknown; sealed_mastery?: unknown; recomputation_reason?: unknown }>)
+    ? (hasil.value as Array<{ session_id?: unknown; mode?: unknown; mastery?: unknown; recomputed?: unknown; sealed_mastery?: unknown; recomputation_reason?: unknown; ditarik?: unknown }>)
     : [];
   return {
     tugasSesi: Object.fromEntries(milikNya.map((x) => [x.id, x.assessment_assignment_id])),
@@ -948,6 +950,8 @@ export function susunCatatan(
       dihitungUlang: v.recomputed === true,
       asli: v.recomputed === true && v.sealed_mastery != null && Number.isFinite(Number(v.sealed_mastery)) ? Number(v.sealed_mastery) : null,
       alasan: v.recomputed === true && typeof v.recomputation_reason === "string" ? v.recomputation_reason : null,
+      // Sharon (addendum, 10 Nov): kept and shown, marked; left out of every class figure
+      ditarik: v.ditarik === true,
     })),
   };
 }

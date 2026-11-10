@@ -4977,6 +4977,36 @@
       "proves": "Defect found by #97 (10 Nov; red first, selftest/db/fable38.sql against 20270113150000): submitting a sitting the school ended (TERMINATED) is refused PR003 with the detail SESSION_ENDED_BY_SCHOOL, which the player tells as an administrative close rather than as unsaved answers."
     },
     {
+      "id": "F38-W09",
+      "runner": "db",
+      "proves": "Sharon's addendum on dc84af22 (red first, selftest/db/fable38.sql against 20270113150000 corrected in place): a figure evaluated under a catalogue keeps that catalogue's population. Under MC-9, which names no learning_assignments source, a withdrawn assignment's sitting is in Kelas A's figures; under MC-10 it is not (metric_evaluate records the version it evaluates)."
+    },
+    {
+      "id": "F38-W10",
+      "runner": "db",
+      "proves": "Sharon's addendum on dc84af22 (red first, fable38 against 20270113150000): a withdrawn assignment's certificate leaves the school's verified credentials (scoped_certificates); the certificate itself stays ISSUED and is not revoked."
+    },
+    {
+      "id": "F38-W11",
+      "runner": "db",
+      "proves": "Sharon's addendum on dc84af22 (red first, fable38 against 20270113150000): the learner's own result keeps a withdrawn sitting and marks it: calc_learner_result, as learner.result evaluates it, lists the sitting with ditarik = true; it is left out of every aggregate."
+    },
+    {
+      "id": "F38-W12",
+      "runner": "db",
+      "proves": "Owner ruling (10 Nov; red first, fable38 against 20270113150000): question health leaves withdrawn answers out: service_item_statistics no longer counts the withdrawn assignment's answer, which is kept."
+    },
+    {
+      "id": "F38-W13",
+      "runner": "db",
+      "proves": "Sharon's addendum on dc84af22 (red first, fable38 against 20270113150000): a closed lesson's content is not returned (learner_lessons refuses the ENDED assignment), and its outcome stays listed after the learner leaves the Kelas (my_learning_history lists it with kini = false)."
+    },
+    {
+      "id": "F38-O04",
+      "runner": "db",
+      "proves": "Owner ruling (10 Nov; red first, fable38 against 20270113140000 corrected in place): attempts are counted within one school and one school year. An attempt of another school year or at another school is not counted; a sitting the teacher ended administratively (ADMINISTRATIVE_TERMINATION) is not counted; an integrity ending (SECURITY_INTERVENTION) is."
+    },
+    {
       "id": "F38-R01",
       "runner": "db",
       "proves": "Evidence survives the year (owner, 9 Nov: the year-rollover evidence-preservation test; selftest/db/fable38.sql): a class with a learner's finished sitting, its result, an issued certificate and lesson progress moves up whole through kenaikan_tetapkan. The learner is in next year's Kelas 6; the sitting stays on the old class and the old year's ENDED/EXPIRED enrolment; result, certificate and lesson progress are unchanged; the learner still reads all four through row security and my_certificate, the old class's Guru still reads the sitting and its result, and verify_certificate still answers BERLAKU. Green on its first run: an acceptance test of existing behaviour, no defect found."
@@ -5064,7 +5094,7 @@
     {
       "id": "F38-A06",
       "runner": "db",
-      "proves": "Sharon §16 findings 1 and 3 on 6faef690 (selftest/db/fable38.sql): L4 goes through for a person who also holds a class card (its address untouched), and leaves the name and email in no activation grant, email correction, card conversion, import row, username or auth.identities row."
+      "proves": "Sharon §16 findings 1 and 3 on 6faef690 (selftest/db/fable38.sql): L4 goes through for a person who also holds a class card (its address untouched), and leaves the name and email in no activation grant, email correction, card conversion, import row, username, auth.identities row, GoTrue audit-log entry or one-time token (the last two: Sharon's addendum on dc84af22, red first)."
     },
     {
       "id": "F38-A07",

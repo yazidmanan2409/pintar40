@@ -412,6 +412,16 @@ begin
     update auth.identities set identity_data = jsonb_build_object('sub', a.auth_user_id::text,
                                                                   'email', 'anonim-' || a.auth_user_id::text || '@pintar.invalid')
      where user_id = a.auth_user_id;
+    -- CORRECTED IN PLACE (undeployed; Sharon's addendum on dc84af22): GoTrue's own copies of the address. Its audit log
+    -- keeps the event and loses the address; a one-time token (recovery, confirmation) is removed, since it is useless
+    -- for an address that no longer exists.
+    update auth.audit_log_entries x
+       set payload = ((x.payload::jsonb - 'actor_username' - 'actor_name')
+                   || case when jsonb_typeof(x.payload::jsonb -> 'traits') = 'object'
+                           then jsonb_build_object('traits', (x.payload::jsonb -> 'traits') - 'user_email' - 'email')
+                           else '{}'::jsonb end)::json
+     where x.payload ->> 'actor_id' = a.auth_user_id::text or x.payload -> 'traits' ->> 'user_id' = a.auth_user_id::text;
+    delete from auth.one_time_tokens t where t.user_id = a.auth_user_id;
   end loop;
   -- CORRECTED IN PLACE (undeployed; Sharon §16 finding 3): the name and email where else PINTAR copied them. Each address
   -- becomes an address of no one, unique per row; a name becomes the PINTAR ID; an import row keeps no payload. The audit

@@ -31,6 +31,9 @@ begin
   -- place, and the departure failed with that check's raw error. The update and the audit row are terminate_session's.
   for s in select a.id, a.institution_id from public.assessment_sessions a
             where a.enrollment_id = p_enrollment and a.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')
+              -- CORRECTED IN PLACE (undeployed; the owner on Sharon's addendum, 10 Nov): only the school's own sittings
+              -- of its own enrolment, never a sitting held elsewhere (a PD sitting of another place is not this school's)
+              and a.institution_id = (select e.institution_id from public.enrollments e where e.id = p_enrollment)
             order by a.id for update loop
     if public.session_enforce_deadline(s.id) in ('CREATED', 'IN_PROGRESS', 'PAUSED') then
       select count(*) into v_kept from public.responses r where r.session_id = s.id;

@@ -8,10 +8,10 @@
 --    keeps counting. The exclusion follows the assignment's status, so it holds for results made before the
 --    withdrawal and for any figure computed after it; nothing is deleted or rewritten.
 --
--- 2. A FINISHED RESULT STAYS SEEN (defect). my_learning_assignments lists ACTIVE assignments only, and Hasil Belajar,
---    my_cycle_state and learner_lessons read through it, so ending a lesson (its normal close) hid the learner's own
---    finished result. my_learning_history lists the learner's assignments that are ACTIVE, ENDED or WITHDRAWN, with
---    their status, under the same membership rule; the two read functions accept it. Starting and recording work
+-- 2. A FINISHED RESULT STAYS SEEN (defect). my_learning_assignments lists ACTIVE assignments only, and Hasil Belajar and
+--    my_cycle_state read through it, so ending a lesson (its normal close) hid the learner's own finished result.
+--    my_learning_history lists the learner's assignments that are ACTIVE, ENDED or WITHDRAWN, with their status, over
+--    every Kelas the learner was in that year; my_cycle_state accepts it (corrected in place, see §2). Starting and recording work
 --    (record_lesson_progress, may_read_lesson_media, start_learning_session, may_start_assessment) are unchanged:
 --    closing a lesson stops new work and no longer hides its outcome.
 --
@@ -73,6 +73,19 @@ insert into public.metric_sources (catalogue_version, source_relation, why) valu
 on conflict (catalogue_version, source_relation) do nothing;
 
 -- ───────────────────────────────────────────── 1. withdrawn sittings leave the figures
+--
+-- CORRECTED IN PLACE (undeployed; Sharon's addendum on dc84af22, and the owner's two rulings of 10 Nov). Red first:
+-- F38-W09..W12.
+--   * A figure evaluated under a catalogue keeps that catalogue's population. metric_evaluate records the version it
+--     evaluates (pintar.metric_catalogue, transaction-local, cleared on every exit as the boundary is); the exclusion
+--     applies only under a catalogue that lists learning_assignments as a source (MC-10 and later). A reader outside
+--     metric_evaluate (no version set) reads the live catalogue's population.
+--   * The learner's own result (learner.result) keeps a withdrawn sitting and marks it (ditarik): it is kept, and it is
+--     theirs; it is left out of every aggregate. metric_evaluate says so with pintar.ditarik_tampil for that calculator.
+--   * Verified credentials (scoped_certificates) leave a withdrawn assignment's certificate out; the certificate itself
+--     is not revoked and its public check is unchanged.
+--   * Owner ruling (10 Nov): question health (service_item_statistics, service_distractor_uptake) leaves withdrawn
+--     answers out; the answers and the exposure records are kept.
 
 create or replace function public.dari_penugasan_ditarik(p_learning_assignment uuid)
 returns boolean language sql stable security definer set search_path = public, pg_temp as $$
@@ -80,6 +93,24 @@ returns boolean language sql stable security definer set search_path = public, p
      and exists (select 1 from public.learning_assignments la where la.id = p_learning_assignment and la.status = 'WITHDRAWN');
 $$;
 revoke all on function public.dari_penugasan_ditarik(uuid) from public, anon, authenticated;
+
+-- whether a figure being computed now leaves this assignment's sittings out
+create or replace function public.ditarik_dikecualikan(p_learning_assignment uuid)
+returns boolean language sql stable security definer set search_path = public, pg_temp as $$
+  select public.dari_penugasan_ditarik(p_learning_assignment)
+     and coalesce(current_setting('pintar.ditarik_tampil', true), '') <> 'ya'
+     and (nullif(current_setting('pintar.metric_catalogue', true), '') is null
+          or exists (select 1 from public.metric_sources m
+                      where m.catalogue_version = current_setting('pintar.metric_catalogue', true)
+                        and m.source_relation = 'learning_assignments'));
+$$;
+revoke all on function public.ditarik_dikecualikan(uuid) from public, anon, authenticated;
+
+create or replace function public.sesi_ditarik_dikecualikan(p_session uuid)
+returns boolean language sql stable security definer set search_path = public, pg_temp as $$
+  select coalesce((select public.ditarik_dikecualikan(x.learning_assignment_id) from public.assessment_sessions x where x.id = p_session), false);
+$$;
+revoke all on function public.sesi_ditarik_dikecualikan(uuid) from public, anon, authenticated;
 
 create or replace view public.scoped_official_sessions as
   select s.id, s.person_id, s.institution_id, s.enrollment_id, s.academic_period_id,
@@ -91,9 +122,8 @@ create or replace view public.scoped_official_sessions as
    where public.row_in_metric_boundary(s.institution_id,
                                        coalesce(s.class_node_id, s.cohort_node_id), s.person_id)
      and public.row_in_learning_context(s.plp_release_id)
-     -- owner ruling (10 Nov): a sitting of a withdrawn assignment is kept and not counted
-     and not exists (select 1 from public.assessment_sessions x
-                      where x.id = s.id and public.dari_penugasan_ditarik(x.learning_assignment_id));
+     -- owner ruling (10 Nov): a sitting of a withdrawn assignment is kept and not counted (under MC-10 and later)
+     and not public.sesi_ditarik_dikecualikan(s.id);
 
 do $$
 declare v_def text := pg_get_viewdef('public.service_cohort_misconceptions'::regclass);
@@ -103,7 +133,7 @@ begin
     raise exception 'the withdrawn ruling: service_cohort_misconceptions'' filter is not where it was';
   end if;
   execute 'create or replace view public.service_cohort_misconceptions as '
-       || replace(v_def, v_old, v_old || ' AND (NOT public.dari_penugasan_ditarik(s.learning_assignment_id))');
+       || replace(v_def, v_old, v_old || ' AND (NOT public.ditarik_dikecualikan(s.learning_assignment_id))');
 end $$;
 
 do $$
@@ -114,14 +144,77 @@ begin
   if position(v_old in v_def) = 0 then raise exception 'the withdrawn ruling: target_kelas''s filter is not where it was'; end if;
   execute replace(v_def, v_old,
     'where aa.node_id = p_class and aa.status in (''OPEN'', ''CLOSED'')'
-    || E'\n       and not public.dari_penugasan_ditarik(aa.learning_assignment_id);  -- owner ruling (10 Nov)');
+    || E'\n       and not public.ditarik_dikecualikan(aa.learning_assignment_id);  -- owner ruling (10 Nov)');
+end $$;
+
+-- verified credentials (Sharon's addendum): the certificate stays; the count leaves it out
+do $$
+declare v_def text := pg_get_viewdef('public.scoped_certificates'::regclass);
+        v_old text := 'WHERE person_in_metric_boundary(institution_id, person_id);';
+begin
+  if position(v_old in v_def) = 0 then raise exception 'the withdrawn ruling: scoped_certificates'' filter is not where it was'; end if;
+  execute 'create or replace view public.scoped_certificates as '
+       || replace(v_def, v_old, 'WHERE person_in_metric_boundary(institution_id, person_id) AND NOT public.sesi_ditarik_dikecualikan(session_id);');
+end $$;
+
+-- question health (owner ruling, 10 Nov)
+do $$
+declare v_def text;
+        v_old text := 'JOIN academic_responses r ON ((r.presented_item_id = p.id))';
+        v_old2 text := 'JOIN academic_responses r ON (((r.presented_item_id = p.id) AND ((r.value ->> ''pilihan''::text) = o.label)))';
+begin
+  v_def := pg_get_viewdef('public.service_item_statistics'::regclass);
+  if position(v_old in v_def) = 0 then raise exception 'service_item_statistics'' join is not where it was'; end if;
+  execute 'create or replace view public.service_item_statistics as '
+       || replace(v_def, v_old, 'JOIN academic_responses r ON ((r.presented_item_id = p.id) AND (NOT public.sesi_ditarik_dikecualikan(r.session_id)))');
+  v_def := pg_get_viewdef('public.service_distractor_uptake'::regclass);
+  if position(v_old2 in v_def) = 0 then raise exception 'service_distractor_uptake''s join is not where it was'; end if;
+  execute 'create or replace view public.service_distractor_uptake as '
+       || replace(v_def, v_old2, 'JOIN academic_responses r ON (((r.presented_item_id = p.id) AND ((r.value ->> ''pilihan''::text) = o.label)) AND (NOT public.sesi_ditarik_dikecualikan(r.session_id)))');
+end $$;
+
+-- metric_evaluate records the version it evaluates, and whether it is reading one learner's own result
+do $$
+declare v_def text := pg_get_functiondef((select p.oid from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                                           where n.nspname = 'public' and p.proname = 'metric_evaluate'));
+        v_set text := 'perform set_config(''pintar.metric_boundary_person'', coalesce(v_bind_person::text, ''''), true);';
+        v_clr text := 'perform set_config(''pintar.metric_boundary_person'', '''', true);';
+begin
+  if position(v_set in v_def) = 0 or position(v_clr in v_def) = 0 then
+    raise exception 'metric_evaluate''s boundary is not where it was';
+  end if;
+  v_def := replace(v_def, v_set, v_set
+    || E'\n    perform set_config(''pintar.metric_catalogue'', v_cat, true);  -- Sharon (addendum): the version evaluated'
+    || E'\n    perform set_config(''pintar.ditarik_tampil'', case when d.calculation_key = ''learner_result'' then ''ya'' else '''' end, true);');
+  v_def := replace(v_def, v_clr, v_clr
+    || ' perform set_config(''pintar.metric_catalogue'', '''', true); perform set_config(''pintar.ditarik_tampil'', '''', true);');
+  execute v_def;
+end $$;
+
+-- the learner's own result marks a withdrawn sitting
+do $$
+declare v_def text := pg_get_functiondef((select p.oid from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                                           where n.nspname = 'public' and p.proname = 'calc_learner_result'));
+        v_old text := '''recomputation_reason'', x.recomputation_reason)';
+begin
+  if position(v_old in v_def) = 0 then raise exception 'calc_learner_result''s row is not where it was'; end if;
+  execute replace(v_def, v_old, '''recomputation_reason'', x.recomputation_reason, ''ditarik'', ( SELECT public.dari_penugasan_ditarik(a.learning_assignment_id)'
+                               || ' FROM assessment_sessions a WHERE (a.id = x.session_id)))');
 end $$;
 
 -- ───────────────────────────────────────────── 2. a finished result stays seen
+--
+-- CORRECTED IN PLACE (undeployed; Sharon's addendum on dc84af22). Red first: F38-W13.
+--   * The outcome stays seen, not the content: learner_lessons stays on the learner's live assignments, so a closed or
+--     withdrawn lesson's body, worked examples and media are not returned. Only my_cycle_state (which sittings, which
+--     state) reads the history.
+--   * The history follows the learner, not the current Kelas: every Kelas the learner was a member of in that
+--     assignment's school year, so a lesson of last year stays listed after Kenaikan. kini says whether it is a Kelas the
+--     learner is in now.
 
 create or replace function public.my_learning_history()
 returns table (learning_assignment_id uuid, course_id uuid, plp_release_id uuid, subject text, stage text,
-               grade_label text, title text, pre_test_assignment uuid, post_test_assignment uuid, status text)
+               grade_label text, title text, pre_test_assignment uuid, post_test_assignment uuid, status text, kini boolean)
 language sql stable security definer set search_path = public, pg_temp as $$
   select la.id, la.course_id, la.plp_release_id,
          c.subject, c.stage, c.grade_label, c.title,
@@ -131,30 +224,34 @@ language sql stable security definer set search_path = public, pg_temp as $$
          (select aa.id from public.assessment_assignments aa
             join public.assessment_definitions d on d.id = aa.assessment_definition_id
            where aa.learning_assignment_id = la.id and d.mode = 'POST_TEST' limit 1),
-         la.status::text
+         la.status::text,
+         exists (select 1 from public.enrollments e
+                   join public.memberships m on m.enrollment_id = e.id and m.valid_to is null
+                   join public.org_nodes n on n.id = m.node_id
+                  where e.person_id = public.current_person_id() and e.status = 'ACTIVE'
+                    and (n.id = la.node_id or n.jalur @> array[la.node_id]))
     from public.learning_assignments la
     join public.courses c on c.id = la.course_id
    where la.status in ('ACTIVE', 'ENDED', 'WITHDRAWN')
      and exists (select 1 from public.enrollments e
-                   join public.memberships m on m.enrollment_id = e.id and m.valid_to is null
+                   join public.memberships m on m.enrollment_id = e.id
                    join public.org_nodes n on n.id = m.node_id
-                  where e.person_id = public.current_person_id() and e.status = 'ACTIVE'
+                  where e.person_id = public.current_person_id()
+                    and m.academic_period_id is not distinct from la.academic_period_id
                     and (n.id = la.node_id or n.jalur @> array[la.node_id]))
 $$;
 revoke all on function public.my_learning_history() from public, anon;
 grant execute on function public.my_learning_history() to authenticated, service_role;
 insert into public.client_rpc_registry (function_name, exposure, note) values
-  ('my_learning_history', 'LEARNER', 'what was and is assigned to the caller, with its status: a closed lesson''s outcome stays seen (10 Nov)');
+  ('my_learning_history', 'LEARNER', 'what was and is assigned to the caller, with its status and whether it is a Kelas of theirs now: a closed lesson''s outcome stays seen (10 Nov)');
 
 do $$
-declare f text; v_def text; v_old text := 'public.my_learning_assignments()';
+declare v_def text; v_old text := 'public.my_learning_assignments()';
 begin
-  foreach f in array array['my_cycle_state', 'learner_lessons'] loop
-    v_def := pg_get_functiondef((select p.oid from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-                                  where n.nspname = 'public' and p.proname = f));
-    if position(v_old in v_def) = 0 then raise exception '% no longer reads my_learning_assignments', f; end if;
-    execute replace(v_def, v_old, 'public.my_learning_history()');
-  end loop;
+  v_def := pg_get_functiondef((select p.oid from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                                where n.nspname = 'public' and p.proname = 'my_cycle_state'));
+  if position(v_old in v_def) = 0 then raise exception 'my_cycle_state no longer reads my_learning_assignments'; end if;
+  execute replace(v_def, v_old, 'public.my_learning_history()');
 end $$;
 
 -- ───────────────────────────────────────────── 3. a sitting the school ended says so
@@ -173,20 +270,25 @@ end $$;
 
 do $$
 begin
-  if position('dari_penugasan_ditarik' in pg_get_viewdef('public.scoped_official_sessions'::regclass)) = 0
-     or position('dari_penugasan_ditarik' in pg_get_viewdef('public.service_cohort_misconceptions'::regclass)) = 0 then
-    raise exception 'the withdrawn ruling did not reach the figures';
+  if position('sesi_ditarik_dikecualikan' in pg_get_viewdef('public.scoped_official_sessions'::regclass)) = 0
+     or position('ditarik_dikecualikan' in pg_get_viewdef('public.service_cohort_misconceptions'::regclass)) = 0
+     or position('sesi_ditarik_dikecualikan' in pg_get_viewdef('public.scoped_certificates'::regclass)) = 0
+     or position('sesi_ditarik_dikecualikan' in pg_get_viewdef('public.service_item_statistics'::regclass)) = 0
+     or position('sesi_ditarik_dikecualikan' in pg_get_viewdef('public.service_distractor_uptake'::regclass)) = 0 then
+    raise exception 'the withdrawn ruling did not reach every figure';
   end if;
-  if has_function_privilege('authenticated', 'public.dari_penugasan_ditarik(uuid)', 'execute') then
-    raise exception 'dari_penugasan_ditarik is client-callable';
+  if has_function_privilege('authenticated', 'public.dari_penugasan_ditarik(uuid)', 'execute')
+     or has_function_privilege('authenticated', 'public.ditarik_dikecualikan(uuid)', 'execute')
+     or has_function_privilege('authenticated', 'public.sesi_ditarik_dikecualikan(uuid)', 'execute') then
+    raise exception 'a withdrawn-ruling helper is client-callable';
   end if;
   if public.current_metric_catalogue() is distinct from 'MC-10' then raise exception 'MC-10 is not the live catalogue'; end if;
-  if (select count(*) from pg_proc p where p.proname in ('my_cycle_state', 'learner_lessons')
-        and p.prosrc like '%my_learning_history()%') <> 2 then
-    raise exception 'the read functions do not accept a closed lesson';
+  if (select count(*) from pg_proc p where p.proname = 'my_cycle_state' and p.prosrc like '%my_learning_history()%') <> 1
+     or (select count(*) from pg_proc p where p.proname = 'learner_lessons' and p.prosrc like '%my_learning_history()%') <> 0 then
+    raise exception 'the outcome, and only the outcome, of a closed lesson is read';
   end if;
-  if (select count(*) from pg_proc p where p.proname in ('record_lesson_progress', 'may_read_lesson_media')
-        and p.prosrc like '%my_learning_assignments()%') <> 2 then
-    raise exception 'new work no longer requires an active assignment';
+  if (select count(*) from pg_proc p where p.proname in ('record_lesson_progress', 'may_read_lesson_media', 'learner_lessons')
+        and p.prosrc like '%my_learning_assignments()%') <> 3 then
+    raise exception 'new work or a lesson''s content no longer requires an active assignment';
   end if;
 end $$;

@@ -46,7 +46,8 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
     if (!state) return null;
     const mulai = Boolean(state.pre_session || state.post_session);
     if (!state.post_session || state.post_status !== "FINALIZED") {
-      if (a.status && a.status !== "ACTIVE") return null;
+      // a closed lesson, or one of a Kelas the learner has left, is no longer «in progress»
+      if ((a.status && a.status !== "ACTIVE") || a.kini === false) return null;
       return mulai ? { tugas: a.learning_assignment_id, judul, keadaan: "BERJALAN", awal: null, akhir: null, ambang: null, tercapai: null, benar: 0, total: 0, bagian: [], ulang: [] } : null;
     }
     const [outcome, review, delta, peta, pelajaran] = await Promise.all([

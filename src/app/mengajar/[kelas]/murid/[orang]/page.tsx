@@ -115,6 +115,7 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
                   <dd className="pin-num">
                     {h.penguasaan === null ? "—" : format.percent(h.penguasaan, locale)}
                     {/* owner decisions E1, D14: a recalculated sitting is explained directly under its figure, with its reason */}
+                    {h.ditarik ? <small data-ditarik="">{s("hasilbelajar.ditarik")}</small> : null}
                     {h.dihitungUlang ? <CatatanHitungUlang baru={h.penguasaan} asli={h.asli} alasan={h.alasan} locale={locale} /> : null}
                     {/* D-085 M3: below the sealed target, the teacher sees it; the target is shown beside the mastery */}
                     {h.batas !== null ? (

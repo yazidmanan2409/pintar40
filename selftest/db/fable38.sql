@@ -165,7 +165,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_fatal text := '';
-  w01 text[] := '{}'; w06 text[] := '{}'; w07 text[] := '{}'; w08 text[] := '{}'; s_t uuid; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; o01 text[] := '{}'; o02 text[] := '{}'; o03 text[] := '{}'; u_o uuid; p_o uuid; e_o uuid; v_la_o uuid; v_aa_o uuid; u_t uuid; p_t uuid; v_rq uuid; s06 text[] := '{}'; u_hd uuid; p_hd uuid; v_hdr uuid; p_luar uuid; u_adm2 uuid; p_adm2 uuid; c05 text[] := '{}'; v_num05 text; v_seq05 int; a06 text[] := '{}'; a07 text[] := '{}'; u_c uuid; u_kartu uuid; p_c uuid; v_akk uuid; v_job uuid; v_req3 uuid; v_pid3 text; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
+  w01 text[] := '{}'; w09 text[] := '{}'; w10 text[] := '{}'; w11 text[] := '{}'; w12 text[] := '{}'; w13 text[] := '{}'; o04 text[] := '{}'; w12_awal int; v_per_lalu uuid; v_pi_w12 uuid; w06 text[] := '{}'; w07 text[] := '{}'; w08 text[] := '{}'; s_t uuid; w02 text[] := '{}'; w03 text[] := '{}'; w04 text[] := '{}'; w05 text[] := '{}'; r01 text[] := '{}'; v_next uuid; v_coh6 uuid; c_6 uuid; s_r uuid; v_cr uuid; v_crtok text; v_res_r int; v_lp int; v_dec jsonb; c01 text[] := '{}'; s01 text[] := '{}'; s02 text[] := '{}'; s03 text[] := '{}'; s04 text[] := '{}'; s05 text[] := '{}'; a01 text[] := '{}'; a02 text[] := '{}'; a03 text[] := '{}'; a04 text[] := '{}'; a05 text[] := '{}'; h01 text[] := '{}'; h02 text[] := '{}'; h03 text[] := '{}'; h04 text[] := '{}'; h05 text[] := '{}'; h06 text[] := '{}'; v_prog2 uuid; v_coh2 uuid; c_p2 uuid; p_h uuid; e_h uuid; s_h uuid; v_def_lim uuid; v_aa_lim uuid; v_old_p uuid; c_old uuid; v_x2 uuid; v_hk record; u_h uuid; o01 text[] := '{}'; o02 text[] := '{}'; o03 text[] := '{}'; u_o uuid; p_o uuid; e_o uuid; v_la_o uuid; v_aa_o uuid; u_t uuid; p_t uuid; v_rq uuid; s06 text[] := '{}'; u_hd uuid; p_hd uuid; v_hdr uuid; p_luar uuid; u_adm2 uuid; p_adm2 uuid; c05 text[] := '{}'; v_num05 text; v_seq05 int; a06 text[] := '{}'; a07 text[] := '{}'; u_c uuid; u_kartu uuid; p_c uuid; v_akk uuid; v_job uuid; v_req3 uuid; v_pid3 text; u_sys uuid; p_sys uuid; v_req uuid; v_req2 uuid; v_pid text; p_guru_a uuid; p_guru_b uuid; p_admin uuid; v_sid text; v_md uuid; v_hod uuid; v_ub jsonb; v_cnt int; c02 text[] := '{}'; c03 text[] := '{}'; c04 text[] := '{}';
   u_admin uuid; v_n int; v_cert uuid; v_cert2 uuid; v_new uuid; v_new2 uuid; v_tok text; v_ntok text; v_payload jsonb; v_nomor text; v_snapold uuid; p_holder uuid; u_holder uuid; v_k record;
   v_crel uuid; v_cdef uuid; v_dist uuid; v_la3 uuid; v_aa3 uuid;
   v_tpl uuid; v_inst uuid; v_root uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid; v_coh uuid; c_a uuid; c_b uuid;
@@ -330,6 +330,18 @@ begin
     if (select count(*) from public.scoped_official_sessions x where x.id = s_selesai) <> 1
        or (select count(*) from public.scoped_official_results x where x.session_id = s_selesai) = 0 then
       w06 := w06 || 'the finished sitting of an ENDED assignment is not in the class''s figures'::text; end if;
+    -- the suite's sitting was made without answers; one answer, as a real sitting holds, so W12 has something to leave out
+    set local session_replication_role = replica;
+    insert into public.presented_items (session_id, item_id, institution_id, position, presented_at)
+    select s_selesai, i.id, v_inst, 1, now() - interval '3 hours' from public.items i where i.institution_id = v_inst order by i.created_at limit 1
+    returning presented_items.id into v_pi_w12;
+    insert into public.responses (presented_item_id, session_id, institution_id, client_seq, value, value_digest, is_final)
+    values (v_pi_w12, s_selesai, v_inst, 1, jsonb_build_object('pilihan', 'A'), encode(extensions.digest('{"pilihan": "A"}', 'sha256'), 'hex'), true);
+    set local session_replication_role = origin;
+    select coalesce(sum(x.evidence_count), 0) - (select count(*) from public.academic_responses ar where ar.session_id = s_selesai
+                                             and exists (select 1 from public.presented_items pi where pi.id = ar.presented_item_id))
+      into w12_awal from public.service_item_statistics x
+     where x.item_id in (select pi.item_id from public.presented_items pi where pi.session_id = s_selesai);
     set local session_replication_role = replica;
     update public.learning_assignments set status = 'WITHDRAWN' where learning_assignments.id = v_la;
     set local session_replication_role = origin;
@@ -338,6 +350,44 @@ begin
       w06 := w06 || 'a withdrawn assignment''s sitting is still in the class''s figures'::text; end if;
     if (select count(*) from public.assessment_results x where x.session_id = s_selesai) <> v_res then
       w06 := w06 || 'a withdrawn assignment''s result was not kept'::text; end if;
+    -- W09 Sharon's addendum: evaluated under MC-9 (no learning_assignments source) the population is MC-9's
+    perform set_config('pintar.metric_catalogue', 'MC-9', true);
+    if (select count(*) from public.scoped_official_sessions x where x.id = s_selesai) <> 1 then
+      w09 := w09 || 'under MC-9 the withdrawn assignment''s sitting is left out (MC-10''s rule applied to MC-9)'::text; end if;
+    perform set_config('pintar.metric_catalogue', 'MC-10', true);
+    if (select count(*) from public.scoped_official_sessions x where x.id = s_selesai) <> 0 then
+      w09 := w09 || 'under MC-10 the withdrawn assignment''s sitting is counted'::text; end if;
+    perform set_config('pintar.metric_catalogue', '', true);
+    -- W10 a certificate of a withdrawn assignment leaves the verified-credentials count, and is not revoked (in a block
+    -- whose writes are undone: C01 issues this sitting's certificate later)
+    begin
+    v_cert := selftest.f38_sertifikat(s_selesai);
+    perform set_config('pintar.metric_boundary_node', c_a::text, true);
+    if exists (select 1 from public.scoped_certificates x where x.id = v_cert) then
+      w10 := w10 || 'a certificate of a withdrawn assignment is in the school''s verified credentials'::text; end if;
+    if (select c.status::text from public.certificates c where c.id = v_cert) <> 'ISSUED' then
+      w10 := w10 || 'the certificate itself was changed'::text; end if;
+    raise exception using errcode = 'P0W10';
+    exception when sqlstate 'P0W10' then null;
+    end;
+    v_cert := null;
+    -- W11 the learner's own result keeps the sitting, marked
+    perform set_config('pintar.metric_boundary_node', '', true);
+    perform set_config('pintar.metric_boundary_person', p_selesai::text, true);
+    perform set_config('pintar.ditarik_tampil', 'ya', true);
+    v_pv := public.calc_learner_result(p_selesai, v_inst, 'MC-10');
+    if not exists (select 1 from jsonb_array_elements(v_pv -> 'value') e where e ->> 'session_id' = s_selesai::text and (e ->> 'ditarik')::boolean) then
+      w11 := w11 || ('the learner''s own result drops the withdrawn sitting or does not mark it: ' || left(coalesce((v_pv -> 'value')::text, 'null'), 200)); end if;
+    perform set_config('pintar.ditarik_tampil', '', true);
+    perform set_config('pintar.metric_boundary_person', '', true);
+    perform set_config('pintar.metric_boundary_node', c_a::text, true);
+    -- W12 question health leaves the withdrawn answers out; the answers are kept
+    select coalesce(sum(x.evidence_count), 0) into v_cnt from public.service_item_statistics x
+     where x.item_id in (select pi.item_id from public.presented_items pi where pi.session_id = s_selesai);
+    if not exists (select 1 from public.academic_responses ar where ar.session_id = s_selesai) then
+      w12 := w12 || 'fixture: the finished sitting has no answers, so the check proves nothing'::text;
+    elsif v_cnt <> w12_awal then
+      w12 := w12 || ('item statistics still count the withdrawn answers (' || w12_awal || ' before, ' || v_cnt || ' after)'); end if;
     set local session_replication_role = replica;
     update public.learning_assignments set status = 'ENDED' where learning_assignments.id = v_la;
     update public.assessment_sessions set evidence_class = v_got::public.evidence_class where assessment_sessions.id = s_selesai;
@@ -351,6 +401,18 @@ begin
     if v_got <> 'OK' then w07 := w07 || 'the ENDED assignment is still offered as work (my_learning_assignments)'::text; end if;
     v_got := selftest.f37_sebagai(u_murid, format('select count(*) from public.my_cycle_state(%L)', v_la));
     if v_got <> 'OK' then w07 := w07 || ('the learner cannot read the closed lesson''s cycle state: ' || v_got); end if;
+
+    -- W13 Sharon's addendum: a closed lesson's content is not returned; its outcome stays listed after a move
+    v_got := selftest.f37_sebagai(u_murid, format('select count(*) from public.learner_lessons(%L)', v_la));
+    if v_got = 'OK' then w13 := w13 || 'learner_lessons returns a closed lesson''s content'::text; end if;
+    set local session_replication_role = replica;
+    update public.memberships set valid_from = now() - interval '2 days', valid_to = now() - interval '1 day', close_reason = 'MOVED' where memberships.enrollment_id = e_belum and memberships.valid_to is null;
+    set local session_replication_role = origin;
+    v_got := selftest.f37_sebagai(u_murid, format('select 1 / (select count(*)::int from public.my_learning_history() h where h.learning_assignment_id = %L and not h.kini)', v_la));
+    if v_got <> 'OK' then w13 := w13 || ('after leaving the class the closed lesson is no longer listed (or listed as current): ' || v_got); end if;
+    set local session_replication_role = replica;
+    update public.memberships set valid_to = null, close_reason = null where memberships.enrollment_id = e_belum and memberships.node_id = c_a;
+    set local session_replication_role = origin;
 
     -- ═══════════════════════════════════ F38-W08 a sitting the school ended says so (defect, 10 Nov)
     s_t := selftest.f38_buka(v_tpl, p_belum, e_belum, c_a, v_la, v_aa);
@@ -844,6 +906,12 @@ begin
     values (v_job, 1, jsonb_build_object('nama', 'Nama Asli F38 ' || v_tag, 'email', 'f38-pergi-' || v_tag || '@local.invalid'), 'PENDING', p_c);
     insert into auth.identities (id, user_id, provider_id, provider, identity_data, created_at, updated_at)
     values (gen_random_uuid(), u_c, u_c::text, 'email', jsonb_build_object('sub', u_c::text, 'email', 'f38-pergi-' || v_tag || '@local.invalid'), now(), now());
+    -- Sharon's addendum (10 Nov): GoTrue's own copies of the address
+    insert into auth.audit_log_entries (id, payload, created_at)
+    values (gen_random_uuid(), jsonb_build_object('action', 'login', 'actor_id', u_c::text, 'actor_username', 'f38-pergi-' || v_tag || '@local.invalid',
+                                                  'traits', jsonb_build_object('user_id', u_c::text, 'user_email', 'f38-pergi-' || v_tag || '@local.invalid')), now());
+    insert into auth.one_time_tokens (id, user_id, token_type, token_hash, relates_to)
+    values (gen_random_uuid(), u_c, 'recovery_token', md5(v_tag), 'f38-pergi-' || v_tag || '@local.invalid');
     set local session_replication_role = origin;
     v_got := selftest.f37_sebagai(u_c, format('select public.minta_akun(%L, true)', 'DELETE_PERSONAL_DATA'));
     v_got := selftest.f37_sebagai(u_c, format('select public.minta_akun(%L, true)', 'CLOSE'));
@@ -865,6 +933,10 @@ begin
         a06 := a06 || 'the chosen username is kept'::text; end if;
       if exists (select 1 from auth.identities i where i.user_id = u_c and i.identity_data::text like '%f38-pergi-%') then
         a06 := a06 || 'auth.identities keeps the email'::text; end if;
+      if exists (select 1 from auth.audit_log_entries x where x.payload::text like '%f38-pergi-' || v_tag || '%') then
+        a06 := a06 || 'GoTrue''s audit log keeps the email'::text; end if;
+      if exists (select 1 from auth.one_time_tokens x where x.user_id = u_c) then
+        a06 := a06 || 'GoTrue keeps a one-time token naming the email'::text; end if;
     end if;
 
     -- ═══════════════════════════════════ F38-H01..H06 Sharon's findings on 7a2c1751
@@ -984,6 +1056,30 @@ begin
       perform selftest.as_owner();
       if v_got is distinct from 'ATTEMPT_LIMIT_REACHED' then
         o01 := o01 || ('a reassignment of the same assessment reset the attempt limit of 1: ' || coalesce(v_got, 'null')); end if;
+      -- O04 owner ruling (10 Nov): counted within one school and one school year; a teacher's administrative ending is
+      -- not an attempt, an integrity ending still is
+      insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+      values (v_inst, 'Tahun lalu F38 ' || v_tag, date '2001-07-01', date '2002-06-30') returning academic_periods.id into v_per_lalu;
+      set local session_replication_role = replica;
+      update public.assessment_sessions set academic_period_id = v_per_lalu where assessment_sessions.id = s_h;
+      set local session_replication_role = origin;
+      perform selftest.as_user_uid(u_o); select m.reason into v_got from public.may_start_assessment(v_aa_o) m; perform selftest.as_owner();
+      if v_got is not distinct from 'ATTEMPT_LIMIT_REACHED' then o04 := o04 || 'an attempt of another school year was counted'::text; end if;
+      set local session_replication_role = replica;
+      update public.assessment_sessions set academic_period_id = v_period, institution_id = v_x where assessment_sessions.id = s_h;
+      set local session_replication_role = origin;
+      perform selftest.as_user_uid(u_o); select m.reason into v_got from public.may_start_assessment(v_aa_o) m; perform selftest.as_owner();
+      if v_got is not distinct from 'ATTEMPT_LIMIT_REACHED' then o04 := o04 || 'an attempt at another school was counted'::text; end if;
+      set local session_replication_role = replica;
+      update public.assessment_sessions set institution_id = v_inst, status = 'TERMINATED', termination_cause = 'ADMINISTRATIVE_TERMINATION' where assessment_sessions.id = s_h;
+      set local session_replication_role = origin;
+      perform selftest.as_user_uid(u_o); select m.reason into v_got from public.may_start_assessment(v_aa_o) m; perform selftest.as_owner();
+      if v_got is not distinct from 'ATTEMPT_LIMIT_REACHED' then o04 := o04 || 'a sitting the teacher ended administratively was counted'::text; end if;
+      set local session_replication_role = replica;
+      update public.assessment_sessions set termination_cause = 'SECURITY_INTERVENTION' where assessment_sessions.id = s_h;
+      set local session_replication_role = origin;
+      perform selftest.as_user_uid(u_o); select m.reason into v_got from public.may_start_assessment(v_aa_o) m; perform selftest.as_owner();
+      if v_got is distinct from 'ATTEMPT_LIMIT_REACHED' then o04 := o04 || ('an integrity ending was not counted: ' || coalesce(v_got, 'null')); end if;
     else
       o01 := o01 || 'fixture: H02 made no limited assessment'::text;
     end if;
@@ -1059,6 +1155,18 @@ begin
        'the learner finds the ENDED assignment in my_learning_history with its status, not in my_learning_assignments, and reads its cycle state'),
       ('F38-W08', 'Defect (10 Nov): a sitting the school ended says so', w08,
        'submitting a TERMINATED sitting is refused PR003 SESSION_ENDED_BY_SCHOOL'),
+      ('F38-W09', 'Sharon (addendum): a figure under MC-9 keeps MC-9''s population', w09,
+       'evaluated under MC-9, which names no learning_assignments source, the withdrawn assignment''s sitting is in Kelas A''s figures; under MC-10 it is not'),
+      ('F38-W10', 'Sharon (addendum): verified credentials leave a withdrawn assignment''s certificate out', w10,
+       'the certificate of the withdrawn assignment''s sitting is not in scoped_certificates; the certificate itself stays ISSUED'),
+      ('F38-W11', 'Sharon (addendum): the learner''s own result keeps a withdrawn sitting, marked', w11,
+       'calc_learner_result, as learner.result evaluates it, lists the withdrawn assignment''s sitting with ditarik = true'),
+      ('F38-W12', 'Owner ruling (10 Nov): question health leaves withdrawn answers out', w12,
+       'service_item_statistics no longer counts the withdrawn assignment''s answers; the answers are kept'),
+      ('F38-W13', 'Sharon (addendum): a closed lesson''s content is not returned; its outcome stays listed after a move', w13,
+       'learner_lessons refuses the ENDED assignment; after the learner leaves the class my_learning_history still lists it, not as current'),
+      ('F38-O04', 'Owner ruling (10 Nov): attempts are counted within one school and one school year', o04,
+       'an attempt of another school year or at another school is not counted; a sitting the teacher ended administratively is not counted; an integrity ending (SECURITY_INTERVENTION) is'),
       ('F38-R01', 'Evidence survives the year: a class moves up and nothing it earned is lost', r01,
        'after «Kenaikan kelas dan kelulusan» the learner is in Kelas 6 next year; the sitting stays on the old class and the old ENDED/EXPIRED enrolment; its result, the certificate and lesson progress are unchanged; the learner still reads all four (and my_certificate) and the old class''s Guru the sitting and its result; the public check answers BERLAKU'),
       ('F38-C01', 'W2.22 «Terbitkan ulang»: who may, and what the preview shows', c01,

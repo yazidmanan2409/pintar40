@@ -11,6 +11,13 @@
 --     (its definition and version, the identity a sitting already records), under any assignment. A genuinely new
 --     assessment (a new definition, a new version of it, every Uji Cepat) brings its own allowance. No reset is built.
 --
+-- CORRECTED IN PLACE (undeployed; Sharon's addendum on dc84af22 and the owner's ruling of 10 Nov). Red first: F38-O04.
+--   * Owner ruling (10 Nov): the count is within one school and one school year (the sitting's institution and academic
+--     period, which it records, against the assignment's). A learner repeating the year, or one who moved school,
+--     starts a fresh allowance; a reassignment or a class change within the year does not.
+--   * Sharon (addendum): a sitting the teacher ended with the assignment (ADMINISTRATIVE_TERMINATION) is the school's own
+--     act, as a departure is, and is not counted. An integrity ending (SECURITY_INTERVENTION) and an expiry still are.
+--
 -- The function body is replaced from its own current definition, that one count changed, so the lock order
 -- (20270112120000: start_learning_session locks before it calls this) and every other reason are unchanged.
 -- CORRECTED IN PLACE (undeployed): ruling 1 added to F2's correction.
@@ -27,15 +34,22 @@ begin
     || E'\n       -- owner ruling 1 (20270113140000): the same assessment under any assignment, not this assignment alone'
     || E'\n       and (s.assessment_assignment_id = p_assessment_assignment'
     || E'\n            or (s.assessment_definition_id = v_d.id and s.assessment_definition_version = v_d.version))'
-    || E'\n       and s.termination_cause is distinct from ''INSTITUTIONAL_REVOCATION'';  -- Sharon F2 (20270113140000)');
+    || E'\n       -- owner ruling (10 Nov): within one school and one school year'
+    || E'\n       and s.institution_id = v_aa.institution_id'
+    || E'\n       and s.academic_period_id is not distinct from v_aa.academic_period_id'
+    || E'\n       -- Sharon F2 and addendum (20270113140000): an ending by the school''s own act is not an attempt'
+    || E'\n       and coalesce(s.termination_cause::text, '''') not in (''INSTITUTIONAL_REVOCATION'', ''ADMINISTRATIVE_TERMINATION'');');
 end $$;
 
 do $$
 declare v_src text := (select prosrc from pg_proc where oid = 'public.may_start_assessment(uuid)'::regprocedure);
 begin
-  if position('INSTITUTIONAL_REVOCATION' in v_src) = 0 or position('PRE_TEST_NOT_FINALIZED' in v_src) = 0
-     or position('s.assessment_definition_version = v_d.version' in v_src) = 0 then
-    raise exception 'F2 / ruling 1: may_start_assessment does not count the same assessment across assignments without a sitting the school ended, or lost its order check';
+  if position('INSTITUTIONAL_REVOCATION' in v_src) = 0 or position('ADMINISTRATIVE_TERMINATION' in v_src) = 0
+     or position('PRE_TEST_NOT_FINALIZED' in v_src) = 0
+     or position('s.assessment_definition_version = v_d.version' in v_src) = 0
+     or position('s.academic_period_id is not distinct from v_aa.academic_period_id' in v_src) = 0
+     or position('s.institution_id = v_aa.institution_id' in v_src) = 0 then
+    raise exception 'F2 / ruling 1 / 10 Nov: may_start_assessment does not count the same assessment within one school and year without a sitting the school ended, or lost its order check';
   end if;
   if has_function_privilege('anon', 'public.may_start_assessment(uuid)', 'execute') then
     raise exception 'Sharon F2: the signed-out role may call may_start_assessment';
