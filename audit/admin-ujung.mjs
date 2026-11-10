@@ -137,9 +137,14 @@ await step("B4-W0", "alpha's admin gives the school its code on Pendataan (the T
   await A.locator("#pin-kode-isi").fill(kode);
   harus(rec, (await A.locator("#pin-kode-isi").getAttribute("aria-describedby")) === "pin-kode-isi-petunjuk", "the hint is named by the field");
   await A.getByRole("button", { name: /Simpan/ }).first().click();
+  // CORRECTED (journeys on 6b2eeb42, B4-W0): the save is a server action that answers with a redirect; «networkidle» could
+  // come before it, and the code was then read before it was written. The step now waits for the action's own answer
+  // (?kode=tersimpan, or ?galat=kode when refused) and says which it got
+  await A.waitForURL((u) => u.searchParams.get("kode") === "tersimpan" || u.searchParams.has("galat"), { timeout: SLOW }).catch(() => {});
   await A.waitForLoadState("networkidle");
   await shot(A, rec, "kode-sekolah");
-  harus(rec, sql(`select coalesce(namespace, '') from public.institutions where id = '${alphaId}'`) === kode, `alpha's code is ${kode}`);
+  const jawab = new URL(A.url()).search || "(no answer)";
+  harus(rec, sql(`select coalesce(namespace, '') from public.institutions where id = '${alphaId}'`) === kode, `alpha's code is ${kode} (the page answered ${jawab})`);
 });
 muridKartu = catatMurid(MURID_KARTU);
 
