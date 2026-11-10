@@ -21,21 +21,19 @@ export default async function PeranSayaBerakhir({ locale, persona = "staff" }: {
   const s = (k: HleEvent) => t(k, persona, { locale });
   const peran = (r: string) => (["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"].includes(r) ? s(`role.${r}` as HleEvent) : "—");
   return (
-    <div className="pin-banner pin-info mt-4" role="status" aria-labelledby="pin-peran-saya" data-peran-saya={milik.length}>
+    <div className="pin-banner pin-info" role="status" aria-labelledby="pin-peran-saya" data-peran-saya={milik.length}>
       <Ikon nama="info" />
-      <p id="pin-peran-saya" className="font-medium">{s("peran.saya.judul")}</p>
-      <ul className="grid gap-1 text-sm">
-        {milik.map((r) => {
-          const sendiri = r.role === "SYSTEM_ADMIN" && r.pemegang_terakhir;
-          const kunci: HleEvent = sendiri ? "peran.saya.berakhir_sendiri" : r.role === "SYSTEM_ADMIN" || !r.tempat ? "peran.saya.berakhir_platform" : "peran.saya.berakhir";
-          return (
-            <li key={r.id} data-peran-saya-baris={r.id} data-sisa-hari={r.sisa_hari}>
-              {s(kunci).replace("{peran}", peran(r.role)).replace("{tempat}", r.tempat ?? "").replace("{tanggal}", tanggal(r.valid_until, "baca", locale, r.zona))}
-              {sendiri ? <> <Link className="pin-tautan" href={`/konfigurasi/roles?perpanjang=${r.id}#perpanjang`}>{s("peran.saya.buka")}</Link></> : null}
-            </li>
-          );
-        })}
-      </ul>
+      <p id="pin-peran-saya"><strong>{s("peran.saya.judul")}</strong></p>
+      {milik.map((r) => {
+        const sendiri = r.role === "SYSTEM_ADMIN" && r.pemegang_terakhir;
+        const kunci: HleEvent = sendiri ? "peran.saya.berakhir_sendiri" : r.role === "SYSTEM_ADMIN" || !r.tempat ? "peran.saya.berakhir_platform" : "peran.saya.berakhir";
+        return (
+          <p key={r.id} data-peran-saya-baris={r.id} data-sisa-hari={r.sisa_hari}>
+            {s(kunci).replace("{peran}", peran(r.role)).replace("{tempat}", r.tempat ?? "").replace("{tanggal}", tanggal(r.valid_until, "baca", locale, r.zona))}
+            {sendiri ? <> <Link className="pin-tautan" href={`/konfigurasi/roles?perpanjang=${r.id}#perpanjang`}>{s("peran.saya.buka")}</Link></> : null}
+          </p>
+        );
+      })}
     </div>
   );
 }

@@ -789,7 +789,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
       </header>
       {bagianIni === null ? <TerusBagian /> : null}
       {/* B0: on the administrator's own home, their own role ending within seven days */}
-      {bagianIni === null ? <PeranSayaBerakhir locale={locale} /> : null}
+      {bagianIni === null ? <div className="mt-4"><PeranSayaBerakhir locale={locale} /></div> : null}
 
 
       {bagianIni === null && menunggu.length > 0 ? (
@@ -1891,7 +1891,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   <input id="cfg-perpanjang-alasan" name="alasan" className={field} required minLength={10} maxLength={300} autoComplete="off" aria-describedby="cfg-perpanjang-alasan-arti" />
                 </div>
                 <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
-                  <TombolKirim className={primer} sibuk={sl("tombol.menyimpan")}>{sl("peran.perpanjang.simpan")}</TombolKirim>
+                  <TombolKirim className={primer} sibuk={s("tombol.menyimpan")}>{sl("peran.perpanjang.simpan")}</TombolKirim>
                   <Link href={tautanPerpanjang(null)} className={tautanTempat}>{sl("config.angkat.batal")}</Link>
                 </div>
               </form>

@@ -99,6 +99,35 @@ const akhiri = (...orang: string[]) => {
   }
 };
 
+/**
+ * A school of the test's own, with Alpha's admin as its ONLY administrator and one teacher: whatever other tests left
+ * at Alpha, «the school's last administrator» is true here, and nothing of the seeded schools is at stake.
+ */
+function sekolahSendiri(tag: string): { sekolah: string; raAdmin: string; guru: string; raGuru: string } | string {
+  transaksi("select set_config('app.seed_intent', 'synthetic', true)",
+    `insert into public.institutions (name, slug, is_synthetic, is_active) values ('Sekolah B0 ${tag}', 'sekolah-b0-${tag}', true, true)`);
+  const sekolah = psql(`select id from public.institutions where slug = 'sekolah-b0-${tag}'`);
+  if (!/^[0-9a-f-]{36}$/.test(sekolah)) return "the test's own school was not made";
+  const guru = orangBaru(`Guru B0 ${tag}`);
+  transaksi("select set_config('app.seed_intent', 'synthetic', true)",
+    `insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until)
+     select a.person_id, 'INSTITUTION_ADMIN', ${lit(sekolah)}, now() - interval '1 day', now() + interval '90 days'
+       from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = ${lit(ADMIN.identitas)}`,
+    `insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until)
+     values (${lit(guru)}, 'EDUCATOR', ${lit(sekolah)}, now() - interval '1 day', now() + interval '90 days')`);
+  const raAdmin = psql(`select id from public.role_assignments where institution_id = ${lit(sekolah)} and role = 'INSTITUTION_ADMIN' and revoked_at is null`);
+  const raGuru = psql(`select id from public.role_assignments where institution_id = ${lit(sekolah)} and role = 'EDUCATOR' and revoked_at is null`);
+  if (!/^[0-9a-f-]{36}$/.test(raAdmin) || !/^[0-9a-f-]{36}$/.test(raGuru)) return "the test's own school has no administrator or teacher";
+  return { sekolah, raAdmin, guru, raGuru };
+}
+/** The test's own school is left without roles again: its only administrator's by the platform admin (the one who may). */
+function tinggalkan(sekolah: string): void {
+  if (!sekolah) return;
+  psql(`update public.role_assignments set revoked_at = now(), revoked_reason = 'selftest B0: fixture ended' where institution_id = ${lit(sekolah)} and role <> 'INSTITUTION_ADMIN' and revoked_at is null`);
+  transaksi(`select set_config('request.jwt.claims', json_build_object('sub', u.id, 'role', 'authenticated')::text, true), set_config('request.jwt.claim.sub', u.id::text, true) from auth.users u where u.email = ${lit(SYS.identitas)}`,
+    `select public.revoke_role(ra.id, 'selftest B0: the test school is left again') from public.role_assignments ra where ra.institution_id = ${lit(sekolah)} and ra.role = 'INSTITUTION_ADMIN' and ra.revoked_at is null`);
+}
+
 async function masuk(asal: string, siapa: { identitas: string; password: string }, konteks: string): Promise<Komputer | string> {
   const k = new Komputer(asal, ipUji());
   const m = await k.jsonDari("/masuk/password", { form: siapa });
@@ -267,25 +296,28 @@ export const b0LayarTests: SelfTest[] = [
       const d = dunia();
       if (typeof d === "string") { c.expect(false, d); return c.verdict(""); }
       const tag = randomBytes(4).toString("hex");
-      let orang = "";
+      let sekolah = "";
       try {
-        const k = await masuk(ctx.appUrl!, ADMIN, `MENGELOLA:${d.alpha}`);
+        // a school of the test's own, where Alpha's admin is the only administrator
+        const w = sekolahSendiri(tag);
+        if (typeof w === "string") { c.expect(false, w); return c.verdict(""); }
+        sekolah = w.sekolah;
+        const orang = w.guru, ra = w.raGuru;
+        const k = await masuk(ctx.appUrl!, ADMIN, `MENGELOLA:${sekolah}`);
         if (typeof k === "string") { c.expect(false, k); return c.verdict(""); }
-        orang = orangBaru(`Pak Lepas ${tag}`);
-        const ra = peranUntuk(d, orang, 90);
         // «Lepaskan», opened on another row, sent for the admin's own role (the screen offers none for it)
         const h = await baca(k, `/konfigurasi/roles?ubah=${ra}`);
         c.expect(!/data-tanpa-admin/.test(h), "a school admin releasing a teacher's role is told the school will have no administrator");
-        const f = formDengan(h, `name="assignment" value="${ra}"`, { assignment: d.raAdmin, alasan: `melepas peran sendiri ${tag}` });
+        const f = formDengan(h, `name="assignment" value="${ra}"`, { assignment: w.raAdmin, alasan: `melepas peran sendiri ${tag}` });
         if (!c.expect(typeof f !== "string", `the «Lepaskan» form: ${f}`)) return c.verdict("");
-        const sebelum = jejak("role.revocation_refused", d.raAdmin);
+        const sebelum = jejak("role.revocation_refused", w.raAdmin);
         const ke = (await k.kirim("/konfigurasi/roles", { form: f as Record<string, string> })).headers.get("location") ?? "";
         c.expect(/hasil=gagal/.test(ke) && /kode=ROLE_LAST_SCHOOL_ADMIN/.test(ke) && /asal=cabut/.test(ke), `releasing the school's only administrator answered ${ke}`);
         const h2 = teks(await baca(k, ke));
         c.expect(h2.includes(id("peran.galat.role_last_school_admin")), `the page does not say the last-holder sentence: ${h2.slice(h2.indexOf(id("config.result.failed")), h2.indexOf(id("config.result.failed")) + 240)}`);
         c.expect(!h2.includes(id("galat.action_failed")), "the last-holder refusal is still said as a general failure");
-        c.expect(psql(`select (revoked_at is null)::text from public.role_assignments where id = ${lit(d.raAdmin)}`) === "true", "the school's only administrator was released");
-        c.expect(jejak("role.revocation_refused", d.raAdmin) === sebelum + 1, "the refused revocation was not recorded (role.revocation_refused)");
+        c.expect(psql(`select (revoked_at is null)::text from public.role_assignments where id = ${lit(w.raAdmin)}`) === "true", "the school's only administrator was released");
+        c.expect(jejak("role.revocation_refused", w.raAdmin) === sebelum + 1, "the refused revocation was not recorded (role.revocation_refused)");
         // the person's page reads a role-guard code in the same family, for either act
         for (const jenis of ["akhiri", "ubah"]) {
           const hs = teks(await baca(k, `/konfigurasi/staf?orang=${orang}&jenis=${jenis}&hasil=gagal&kode=ROLE_LAST_SCHOOL_ADMIN`));
@@ -294,7 +326,7 @@ export const b0LayarTests: SelfTest[] = [
           c.expect(hb.includes(id("peran.galat.role_busy")), `the person's page («${jenis}») does not say the try-again sentence`);
         }
       } finally {
-        akhiri(orang);
+        tinggalkan(sekolah);
       }
       return c.verdict("as a school's only administrator: «Lepaskan» sent for their own role is refused with the designed last-holder sentence (not the general failure), "
         + "the role stands and role.revocation_refused is recorded; the person's page says the same sentence, and the try-again one, for «Akhiri tugas» and «Ubah peran»");
@@ -308,17 +340,20 @@ export const b0LayarTests: SelfTest[] = [
       const d = dunia();
       if (typeof d === "string") { c.expect(false, d); return c.verdict(""); }
       const tag = randomBytes(4).toString("hex");
-      let orang = "";
+      let sekolah = "";
       try {
-        const k = await masuk(ctx.appUrl!, SYS, `MENGELOLA:${d.alpha}`);
+        // a school of the test's own with one administrator and one teacher
+        const w = sekolahSendiri(tag);
+        if (typeof w === "string") { c.expect(false, w); return c.verdict(""); }
+        sekolah = w.sekolah;
+        const ra = w.raGuru;
+        const k = await masuk(ctx.appUrl!, SYS, `MENGELOLA:${sekolah}`);
         if (typeof k === "string") { c.expect(false, k); return c.verdict(""); }
-        orang = orangBaru(`Bu Guru ${tag}`);
-        const ra = peranUntuk(d, orang, 90);
-        const h1 = await baca(k, `/konfigurasi/roles?ubah=${d.raAdmin}`);
-        const b1 = bentukDengan(h1, `name="assignment" value="${d.raAdmin}"`);
+        const h1 = await baca(k, `/konfigurasi/roles?ubah=${w.raAdmin}`);
+        const b1 = bentukDengan(h1, `name="assignment" value="${w.raAdmin}"`);
         c.expect(b1 !== "" && /data-tanpa-admin/.test(b1) && teks(b1).includes(id("peran.cabut.tanpa_admin")),
           `«Lepaskan» on the school's only administrator does not say the school will have no administrator: ${teks(b1).slice(0, 200)}`);
-        c.expect(new RegExp(`aria-describedby="peran-tanpa-admin-${d.raAdmin}"`).test(b1) && (b1.match(/<button[^>]*type="submit"/g) ?? []).length === 1,
+        c.expect(new RegExp(`aria-describedby="peran-tanpa-admin-${w.raAdmin}"`).test(b1) && (b1.match(/<button[^>]*type="submit"/g) ?? []).length === 1,
           "the warning is not tied to the reason field, or the form has more than its one confirmation");
         const h2 = await baca(k, `/konfigurasi/roles?ubah=${ra}`);
         const b2 = bentukDengan(h2, `name="assignment" value="${ra}"`);
@@ -337,7 +372,7 @@ export const b0LayarTests: SelfTest[] = [
             `the own-role renewal form does not say why it is allowed, or has no required reason: ${teks(b4).slice(0, 240)}`);
         }
       } finally {
-        akhiri(orang);
+        tinggalkan(sekolah);
       }
       return c.verdict("as the platform admin in a school's context: «Lepaskan» on the school's only administrator says, before its one confirmation, that the school "
         + "will have no administrator, and on a teacher's role says nothing; in «Seluruh platform» the only platform admin is offered the renewal of their own role, "
@@ -362,7 +397,7 @@ export const b0LayarTests: SelfTest[] = [
         const ra7 = peranUntuk(d, d.guru, 7);
         const sampai = psql(`select valid_until from public.role_assignments where id = ${lit(ra7)}`);
         const h7 = await baca(k, "/mengajar");
-        const blok = /<div[^>]*data-peran-saya="1"[\s\S]*?<\/ul>/.exec(tersusun(h7))?.[0] ?? "";
+        const blok = /<div[^>]*data-peran-saya="1"[\s\S]*?<\/div>/.exec(tersusun(h7))?.[0] ?? "";
         c.expect(blok !== "" && new RegExp(`data-peran-saya-baris="${ra7}" data-sisa-hari="7"`).test(blok), `a role ending in 7 days is not announced on the holder's home: ${blok.slice(0, 200) || "(not drawn)"}`);
         c.expect(teks(blok).includes(t("peran.saya.judul", "educator", { locale: "id" })) && teks(blok).includes(tanggal(sampai, "baca", "id", d.zona)) && teks(blok).includes(t("role.EDUCATOR", "educator", { locale: "id" })),
           `the notice does not name the role and its date on the school's clock: ${teks(blok).slice(0, 300)}`);

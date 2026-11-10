@@ -3,6 +3,7 @@
  * peran_akan_berakhir and peran_pemegang_terakhir (migration 20270113170000). Pure: no database, no React.
  */
 import type { HleEvent } from "./hle";
+import { bagianJakarta, geserZona } from "./tanggal";
 
 /** Every code a signed-in caller can be answered (PR160, code in DETAIL). The operator's codes never reach a screen. */
 export const KODE_PERAN_DB = [
@@ -45,10 +46,8 @@ export type PeranBerakhir = {
 
 /** The day after a role's current end, on its own clock: the earliest day a renewal may name (yyyy-mm-dd). */
 export function hariSetelah(validUntil: string, zona: string): string {
-  const d = new Date(validUntil);
-  if (Number.isNaN(d.getTime())) return "";
-  const hari = new Intl.DateTimeFormat("en-CA", { timeZone: zona || "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
-  const besok = new Date(`${hari}T12:00:00Z`);
-  besok.setUTCDate(besok.getUTCDate() + 1);
+  const p = bagianJakarta(validUntil, geserZona(zona));
+  if (!p) return "";
+  const besok = new Date(Date.UTC(p.tahun, p.bulan - 1, p.hari + 1, 12));
   return besok.toISOString().slice(0, 10);
 }
