@@ -1,6 +1,6 @@
 # A1 · Sitting control: completion page
 
-**Lane A. Effort M. Review before build: Sharon and Daisy.** Status: reviewed once; open points listed under «Pre-build review: outcome». No code yet.
+**Lane A. Effort M. Review before build: Sharon and Daisy.** Status: reviewed once; blockers settled below. Build may start.
 
 ## Why
 
@@ -80,9 +80,22 @@ One review each, at `2560494a`. Daisy: `docs/coordination/ux/completion-4.1/TINJ
 | Another attempt, to the learner | Daisy | Nothing while waiting; never «ditolak»; after approval, the chapter's «Mulai» returns |
 | States to add | Daisy | Her seven: attempts used up; a request waiting, approved or declined; a granted attempt not yet started; an act that raced the learner; a Professional Development class; a window changed before anyone started; more than one sitting for one learner |
 
-**Open before build:**
-- Sharon's first reading at `3370643a`: A1 blockers 1 (name the sitting capability) and 2 (a scored teacher ending is a submission). Her text is not yet in this record.
-- **The owner's ruling:** how an abandoned sitting is scored (Sharon's A1 blocker 3).
+**From Sharon's first reading at `3370643a`, as she reproduced it on 11 Nov, all accepted:**
+
+| Blocker | Decision | Accepted when |
+|---|---|---|
+| 1 · The sitting-management capability | A new named capability, held by EDUCATOR, the head of department and the school admin, decided over the sitting's own place, `coalesce(class, cohort)`, as `boleh_atas_sesi` does. Ending for an integrity cause stays with CAN_REVIEW_INTEGRITY | A class's teacher can extend, end, request and resume through it. A teacher still cannot end a sitting for an integrity cause |
+| 2 · A scored teacher ending | A hand-in on the learner's behalf: SUBMITTED, then FINALIZED by the existing scoring, recording the teacher and the reason. «Not counted» is the existing ADMINISTRATIVE_TERMINATION | The result is an ordinary finalised result that the existing evidence and metric rules read unchanged. No TERMINATED sitting ever has a result |
+| 3 · An abandoned sitting | **Ruled by the owner (O41-20).** One function decides the ending for both the lazy check and the scheduled job. It applies from the build onwards, never to past expiries. The result is marked as ended by its deadline | The ruling is on this page; past EXPIRED sittings are untouched; the marking exists; no sitting stays open without a defined outcome |
+
+**The owner's ruling on an abandoned sitting (O41-20):**
+- It ends at its effective deadline, is scored on the answers successfully recorded, and uses one attempt. Unanswered questions stay unanswered.
+- The effective deadline respects authorized pauses and extensions. A frozen sitting is skipped.
+- The original answers, timestamps and the closure reason are preserved.
+- The learner and the teacher are told the sitting ended because its deadline passed, not because the learner handed it in.
+- **A sitting with no deadline** ends, by the same function, when its assignment's window closes. **With no deadline and no closing time**, it ends when its assignment ends (the teacher's «Akhiri» or «Tarik»), as 4.0 already does. The build confirms that the school year's closure ends every assignment, so that none is left open across years; if it does not, that gap is closed in this batch. No expiry period is invented and no existing assessment condition changes.
+
+**Nothing is open. Build may start.**
 
 Non-blocking points are in `EXECUTION-PLAN.md` §5.
 

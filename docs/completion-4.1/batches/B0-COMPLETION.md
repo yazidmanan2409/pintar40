@@ -1,6 +1,6 @@
 # B0 · Administrator lock-out protection: completion page
 
-**Lane B. Effort S. Review before build: Sharon, short.** Status: awaiting that review. No code yet.
+**Lane B. Effort S. Review before build: Sharon, short.** Status: reviewed once; blockers settled below. Build may start.
 
 ## Why
 
@@ -42,6 +42,17 @@ Konfigurasi › «Peran & akses» only. States: no role expiring; one or more ex
 ## Out of this batch
 
 A school admin adding one person or correcting a name; declining an account request; password change while signed in. All 4.2.
+
+## Pre-build review: outcome (11 Nov)
+
+Sharon's first reading at `3370643a`, as she reproduced it on 11 Nov. Two blockers, both technical and both accepted:
+
+| Blocker | Decision | Accepted when |
+|---|---|---|
+| 1 · Where the last-holder rule lives | In `role_assignments_guard`, on the UPDATE that sets `revoked_at`, so every revoking path passes it (`revoke_role`, staff departure, change roles, `buka_kembali_akun`, and any later one). No check lives in an individual function | No path can revoke a school's or the platform's last usable admin role without the guard refusing it. The one exception: a platform admin removing a school's last admin |
+| 2 · Deciding "last" | Under a lock: `FOR UPDATE` on the school's row (or the platform's) before counting. Only usable holders count: a live role whose holder is suspended, closed or anonymised is not counted. The self-renewal and the operator workflow use the same definition | Concurrent revocations cannot reach zero usable admins. A suspended, closed or anonymised holder is never the remaining admin |
+
+Register (non-blocking, `EXECUTION-PLAN.md` §5): a renewal changes only the end date; closing an account can leave a school with no usable admin.
 
 ## Questions for Sharon (to settle on this page)
 

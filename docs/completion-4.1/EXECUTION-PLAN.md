@@ -68,6 +68,9 @@ Carried from 4.0, to be taken with the batch that touches the same code, or in 4
 From the pre-build review of A1 and C1w (11 Nov), taken with those batches:
 - **A1, Daisy:** state how an open player learns of an extension or an ending (a light check every 30 to 60 s, and on every send) (A1-R1); name `/mengajar/[kelas]/siapa` in place of "the class's assessment page" (A1-R2); the approver's queue under Konfigurasi's «Yang menunggu», and on a head of department's home (A1-R4).
 - **C1w, Daisy:** on an existing assignment, «Ada perbaikan · terbit {tanggal}» linking to «Pindahkan penugasan», with nothing moved automatically (C1-R2); a paper printed while under review relies on its QR (C1-R4); the school notice's channel, in-app plus one email to the school's admins with no student names (C1-R5).
+- **B0, Sharon:** a renewal changes only the end date; closing an account can leave a school with no usable admin.
+- **A1, Sharon:** mark granted attempts and say which result reports use; a cap on extra time; a window change never reopens a CLOSED assignment; time lost to maintenance; the lock order with A3; re-check the conditions at approval, not only at request; a request is single-use and lapses with the school year or the assignment.
+- **C1w, Sharon:** statistics after a one-question revision; lessons of a withdrawn release; who can see «Riwayat soal»; `create_course_revision` revises only the current head (she verifies at the result review); prefer a confirmer who is not the author of the faulty revision; every result change opens a certificate review, with a one-step confirm where the outcome is unchanged.
 - **Staging, Daisy:** her session cannot reach either staging host and has no staging sign-in. The three checks in §6 stay outstanding.
 
 New non-blocking findings are added here when raised, with the batch they came from.

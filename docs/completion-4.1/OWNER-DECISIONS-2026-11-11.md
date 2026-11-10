@@ -85,3 +85,10 @@ Not without the owner:
 - any production change or release.
 
 Escalate only material decisions, blocked dependencies, or changes with significant consequences.
+
+## Rulings of 11 Nov, after the pre-build review
+
+- **O41-20 · An abandoned sitting.** It ends at its effective deadline, is scored on the answers successfully recorded, and uses one attempt. Unanswered questions stay unanswered. Authorized pauses and extensions are respected. The original answers, timestamps and closure reason are preserved. The learner and the teacher are told it ended because its deadline passed, not because it was handed in. A sitting without a deadline gets a deterministic, governed closure rule, with no invented expiry period and no silent change to existing assessment conditions (the rule is on `batches/A1-COMPLETION.md`).
+- **O41-21 · Corrected results.** After an authorized key correction the learner sees the corrected result as the current result, clearly identified as corrected. The original sealed result stays preserved and traceable. An affected certificate follows O41-19. No historical evidence is silently rewritten.
+- **Awaiting confirmation:** a key correction supersedes the result in force even where the sitting already has one recalculation (D11's one-successor rule, extended for key corrections only). See `batches/C1W-COMPLETION.md`.
+

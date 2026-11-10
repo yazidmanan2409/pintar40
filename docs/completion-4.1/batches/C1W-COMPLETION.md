@@ -1,6 +1,6 @@
 # C1w · Item workbench: completion page
 
-**Lane C. Effort L. Review before build: Sharon and Daisy.** Status: reviewed once; open points listed under «Pre-build review: outcome». No code yet. Contains the approved C4 (revision lineage) and decisions O41-10 and O41-11.
+**Lane C. Effort L. Review before build: Sharon and Daisy.** Status: reviewed once; one confirmation open (D11 for key corrections). Build may start. Contains the approved C4 (revision lineage) and decisions O41-10 and O41-11.
 
 ## Why
 
@@ -33,7 +33,7 @@ Verified in the 4.0 code:
 - A recomputed result supersedes; it does not overwrite. Reports read the result in force and can show that it was recomputed and why.
 - **Who the content owner is (owner, 11 Nov):** for a school's own content, that school's authorized content owner. For platform content distributed across schools, an authorized platform content owner. Both need independent confirmation, and the affected schools are notified.
 - **Certificates after a recomputation (owner, 11 Nov):** a certificate is a formal educational claim. When its supporting result changes it is neither silently revoked nor left standing as valid. It is flagged for authorized review, its history is preserved, and **public verification says it is under review** until an authorized decision is made. One newly earned is issued by the usual path.
-- A learner sees a neutral «dihitung ulang» note, as 4.0 already words it.
+- A learner sees the corrected result as current, marked as corrected (O41-21). The 4.0 note, which says the learner's page and certificate keep the original, is rewritten.
 
 ## Refused
 
@@ -84,9 +84,22 @@ One review each, at `2560494a`. Daisy: `docs/coordination/ux/completion-4.1/TINJ
 | The notice to affected schools | Daisy | A line in Konfigurasi's «Yang menunggu» until every certificate is decided |
 | States to add | Daisy | Her six: two authors on one draft; a re-upload over in-app edits; a correction on a withdrawn release; a correction that changes nothing; a confirmation refused for lack of authority; a decided certificate affected again |
 
-**Open before build:**
-- **C1-B1 (Daisy, blocker):** what the learner's result page shows after a key correction, the recalculated result or the sealed original. 4.0 shows the original and says the certificate is unchanged, which O41-19 makes false. Both notes are rewritten once this is settled.
-- Sharon's first reading at `3370643a`: C1W blockers 1 (D11, one recalculation per sitting), 2 (the scoring basis), 3 (stop new sittings on a wrong key) and 4 (validate the identity column). Her text is not yet in this record; blocker 2 is expected to settle C1-B1.
+**The owner's ruling on corrected results (O41-21), which settles C1-B1:**
+- After an authorized key correction the learner sees the corrected result as the current result, clearly marked as corrected.
+- The original sealed result stays preserved and traceable. No historical evidence is silently rewritten.
+- An affected certificate follows O41-19.
+- So `hasil.dihitung_ulang` and `mengajar.murid1.dihitung_ulang` are rewritten: neither may say the learner's page or the certificate stays as originally sealed.
+
+**From Sharon's first reading at `3370643a`, as she reproduced it on 11 Nov:**
+
+| Blocker | Decision | Accepted when |
+|---|---|---|
+| 1 · One recalculation per sitting (D11) | **A key correction supersedes the result in force**, so a sitting already recalculated, or a second correction, is supported by design. This follows from O41-21 (the learner always sees the corrected result as current). It extends D11's one-successor rule for key corrections only; every earlier result stays preserved in the chain. **Put to the owner for confirmation**; `recompute_result` itself keeps D11 as it is | A key correction on a sitting that already has a recalculation works by a designed rule and never meets a raw constraint error |
+| 2 · The scoring basis | Each recomputed result records the corrected revision whose key it used and the mapping from each original item to that revision. A new function under the key-correction authority writes it. `recompute_result` is not widened | The result names its revision and mapping; the sealed content and original result stay byte-identical; `recompute_result` keeps its authority |
+| 3 · New sittings on the wrong key | A confirmed correction moves the new starts of existing assignments to the corrected revision (`move_learning_assignment_release`). A sitting open at that moment is recomputed once it finalises | No new sitting on any existing assignment uses the wrong key; every sitting open then gets its recomputed result |
+| 4 · The upload's identity column | An identity value must belong to the predecessor release of the same course at the same owning school, and be used once. Otherwise that row is refused, never treated as a new question | An upload citing another course, another school, a non-predecessor release, or one item twice is refused for that row. No cross-tenant lineage can be created |
+
+**Open:** the owner's confirmation of blocker 1. It does not hold the start of the batch: the draft editor, lineage, withdrawal and identity validation do not depend on it.
 
 Non-blocking points are in `EXECUTION-PLAN.md` §5.
 
