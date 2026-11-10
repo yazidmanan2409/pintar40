@@ -343,6 +343,17 @@ export type HleEvent =
   | "staf.galat.role_admin_unconfirmed"
   | "staf.galat.role_remove_invalid"
   | "staf.galat.staff_failed"
+  | "peran.galat.role_last_platform_admin"
+  | "peran.galat.role_last_school_admin"
+  | "peran.galat.role_renew_not_allowed"
+  | "peran.galat.role_renew_not_live"
+  | "peran.galat.role_renew_self"
+  | "peran.galat.role_renew_until_invalid"
+  | "peran.galat.role_renew_reason_required"
+  | "peran.galat.role_read_not_allowed"
+  | "peran.galat.role_expiry_days_invalid"
+  | "peran.galat.role_busy"
+  | "peran.galat.role_failed"
   | "audit.alasan.retirement"
   | "audit.alasan.resignation"
   | "audit.alasan.dismissal"
@@ -3729,6 +3740,18 @@ const table: Table = {
   "staf.galat.role_admin_unconfirmed": { default: "Centang konfirmasi untuk menjadikan orang ini Admin sekolah.", en: "Tick the confirmation to make this person a school administrator." },
   "staf.galat.role_remove_invalid": { default: "Peran yang dilepas bukan peran orang ini di sekolah ini.", en: "A role to release is not this person's role at this school." },
   "staf.galat.staff_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
+  // B0 (administrator lock-out protection): the last-holder refusals, the renewal and the expiry read (peran_tolak, PR160)
+  "peran.galat.role_last_platform_admin": { default: "Ini satu-satunya Admin PINTAR yang masih aktif, jadi perannya tidak dapat dicabut. Tunjuk Admin PINTAR kedua lebih dulu.", en: "This is the only active Admin PINTAR, so the role cannot be revoked. Appoint a second Admin PINTAR first." },
+  "peran.galat.role_last_school_admin": { default: "Ini satu-satunya Admin sekolah yang masih aktif di sekolah ini, jadi perannya tidak dapat dicabut. Tunjuk Admin sekolah lain lebih dulu, atau hubungi Admin PINTAR.", en: "This is the only active school administrator at this school, so the role cannot be revoked. Appoint another school administrator first, or contact an Admin PINTAR." },
+  "peran.galat.role_renew_not_allowed": { default: "Anda tidak dapat memperpanjang peran ini.", en: "You cannot renew this role." },
+  "peran.galat.role_renew_not_live": { default: "Peran ini sudah berakhir atau dicabut. Berikan peran itu lagi.", en: "This role has ended or been revoked. Grant it again." },
+  "peran.galat.role_renew_self": { default: "Peran Anda sendiri diperpanjang oleh admin lain.", en: "Your own role is renewed by another administrator." },
+  "peran.galat.role_renew_until_invalid": { default: "Tanggal berlaku sampai yang baru harus setelah hari ini dan setelah tanggal yang sekarang.", en: "The new valid-until date must be after today and after the current one." },
+  "peran.galat.role_renew_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
+  "peran.galat.role_read_not_allowed": { default: "Anda tidak dapat melihat peran ini.", en: "You cannot see these roles." },
+  "peran.galat.role_expiry_days_invalid": { default: "Jumlah hari harus 1 sampai 366.", en: "The number of days must be 1 to 366." },
+  "peran.galat.role_busy": { default: "Admin lain sedang mengubah peran di sini pada saat yang sama, jadi perubahan Anda belum tersimpan. Coba lagi.", en: "Another administrator was changing roles here at the same moment, so your change was not saved. Try again." },
+  "peran.galat.role_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
   "audit.alasan.retirement": { default: "Pensiun", en: "Retirement" },
   "audit.alasan.resignation": { default: "Mengundurkan diri", en: "Resignation" },
   "audit.alasan.dismissal": { default: "Diberhentikan", en: "Dismissal" },

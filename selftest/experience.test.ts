@@ -2135,7 +2135,10 @@ export const experienceTests: SelfTest[] = [
       // status and a refusal code, not a mark, a logo, a crest or a theme.
       // MOVED 223 -> 224 for D-199 (owner, 10 Nov; 20270113160000: the public certificate check's date is the issuing
       // school's day). Read against §3: one date's calendar day, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 224, `${migrations.length} migrations; the frozen baseline has 224`);
+      // MOVED 224 -> 225 for B0, administrator lock-out protection (20270113170000: the last-holder rule in the role
+      // guard, the renewal, the operator's recovery and the expiry read). Read against §3: roles and their end dates, not
+      // a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 225, `${migrations.length} migrations; the frozen baseline has 225`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3983,7 +3986,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 205 -> 206 for SI-D01's remaining findings: acts on a sitting decided over its place touch no tour RPC.
       // MOVED 222 -> 223 for 20270113150000 (the owner's withdrawn ruling and two defects, 10 Nov): no tour RPC.
       // MOVED 223 -> 224 for 20270113160000 (D-199, the public check's date on the school's clock): no tour RPC.
-      c.expect(migs.length === 224, `${migs.length} migrations; the baseline has 224`);
+      // MOVED 224 -> 225 for 20270113170000 (B0: the last administrator, the renewal, the operator's recovery): no tour RPC.
+      c.expect(migs.length === 225, `${migs.length} migrations; the baseline has 225`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

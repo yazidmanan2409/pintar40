@@ -2232,10 +2232,15 @@ export const appTests: SelfTest[] = [
         psql(`update public.platform_environment set local_fixtures_enabled = ${marker === "t"}`);
         // the Alpha administrator leaves this school again, so no later reader
         // of their scope sees a second institution
-        seeding(
-          "update public.role_assignments set revoked_at = now() where role = 'INSTITUTION_ADMIN' " +
-            `and scope_node_id = '${inst}' and revoked_at is null`,
-        );
+        // RESTATED, B0 (administrator lock-out protection, migration 20270113170000): this is the temporary school's only
+        // administrator, and a school's last usable administrator role is revoked only by a platform admin. The clean-up
+        // used to be the database owner's bare UPDATE, with no actor; it is now revoke_role as the synthetic platform admin,
+        // with its reason. What is cleaned up, and when, is unchanged.
+        psql("begin",
+          `select set_config('request.jwt.claims', json_build_object('sub', u.id, 'role', 'authenticated')::text, true), set_config('request.jwt.claim.sub', u.id::text, true) from auth.users u where u.email = '${PERSONA.sysadmin.email}'`,
+          "select public.revoke_role(ra.id, 'selftest: the temporary school is left again') from public.role_assignments ra where ra.role = 'INSTITUTION_ADMIN' " +
+            `and ra.scope_node_id = '${inst}' and ra.revoked_at is null`,
+          "commit");
       }
       return c.verdict(
         "an institution administrator activated a provisioned learner by classroom card and a provisioned teacher " +
@@ -3385,8 +3390,15 @@ export const appTests: SelfTest[] = [
         c.expect(fGuru === 200, `the school's own teacher's photo → ${fGuru}`);
         c.expect(fLain === 403, `another school's teacher's photo → ${fLain}, expected 403`);
       } finally {
-        seeding("update public.role_assignments set revoked_at = now() where role = 'INSTITUTION_ADMIN' " +
-          `and scope_node_id = '${S}' and revoked_at is null`);
+        // RESTATED, B0 (administrator lock-out protection, migration 20270113170000): this is the temporary school's only
+        // administrator, and a school's last usable administrator role is revoked only by a platform admin. The clean-up
+        // used to be the database owner's bare UPDATE, with no actor; it is now revoke_role as the synthetic platform admin,
+        // with its reason. What is cleaned up, and when, is unchanged.
+        psql("begin",
+          `select set_config('request.jwt.claims', json_build_object('sub', u.id, 'role', 'authenticated')::text, true), set_config('request.jwt.claim.sub', u.id::text, true) from auth.users u where u.email = '${PERSONA.sysadmin.email}'`,
+          "select public.revoke_role(ra.id, 'selftest: the temporary school is left again') from public.role_assignments ra where ra.role = 'INSTITUTION_ADMIN' " +
+            `and ra.scope_node_id = '${S}' and ra.revoked_at is null`,
+          "commit");
       }
       return c.verdict(
         "as a school's INSTITUTION_ADMIN, through the running app: Konfigurasi's grant list names the school's own " +

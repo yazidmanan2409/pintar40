@@ -5485,6 +5485,36 @@
       "runner": "db",
       "proves": "W2.18 (Batch 5), measured in selftest/db/fable25.sql: tujuan_belum_tercapai gives a teacher of another class of the same school, a teacher of another school, a school admin with no teaching role, and the class's own teacher asking under another class an empty answer; an anonymous caller is refused.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "B0-S01",
+      "runner": "static",
+      "proves": "B0 · administrator lock-out protection (docs/completion-4.1/batches/B0-COMPLETION.md, blockers 1 and 2), selftest/b0.test.ts, in the database, rolled back, against supabase/migrations/20270113170000_the_last_administrator_is_never_removed.sql: the last-holder rule lives in role_assignments_guard. The platform's last usable SYSTEM_ADMIN role is revoked by nobody (its holder through revoke_role, the database owner, one statement over every holder; ROLE_LAST_PLATFORM_ADMIN); a school's last usable INSTITUTION_ADMIN role is not revoked by a school admin, by a path with no actor, or through «Akhiri tugas» and «Ubah peran» (ROLE_LAST_SCHOOL_ADMIN), and is by a platform admin (revoke_role, «Akhiri tugas», buka_kembali_akun); a second holder who is suspended, closed, anonymised or expired is not the remaining one; with a usable second holder each revocation is accepted; catat_penolakan_peran records a refusal afterwards, and only one that stands"
+    },
+    {
+      "id": "B0-S02",
+      "runner": "static",
+      "proves": "B0, selftest/b0.test.ts, in the database, rolled back, against migration 20270113170000: perpanjang_peran renews a role in one transaction (the old assignment revoked at the instant the new one begins, written by one transaction) leaving exactly one live assignment, audited role.renewed with its reason beside the per-row role.granted and role.revoked; whoever may grant renews and nobody else; a school's only administrator is renewed without tripping the last-holder rule; nobody renews their own role (ROLE_RENEW_SELF) except the platform's only usable administrator, refused once a usable second platform admin exists and allowed while the second is suspended, closed or anonymised; every other self-grant, a forged renewal marker included, and a duplicate standing grant stay refused"
+    },
+    {
+      "id": "B0-S03",
+      "runner": "static",
+      "proves": "B0, selftest/b0.test.ts, in the database, rolled back, against migration 20270113170000: operator_appoint_platform_admin, the operator's recovery of a platform with no usable platform admin, refuses while one exists (OPERATOR_ADMIN_EXISTS) and for a person who does not exist (OPERATOR_PERSON_UNKNOWN), writing nothing; is never a signed-in caller's; with the only platform admin suspended, closed or anonymised it appoints one existing, usable person, audited role.platform_admin_recovered with the reason and the run's reference, and refuses a second appointment"
+    },
+    {
+      "id": "B0-S04",
+      "runner": "static",
+      "proves": "B0, selftest/b0.test.ts, in the database, rolled back, against migration 20270113170000: peran_akan_berakhir lists a role ending in 30 days on the school's clock at 30 and not at 29, and one ending in 31 only from 31; the holder reads their own roles, a school's admin (or a platform admin) that school's, a platform admin the platform's, and nobody anyone else's; each row says whether it is the caller's own and the last usable administrator role; days outside 1 to 366 are refused; peran_pemegang_terakhir answers whoever may revoke"
+    },
+    {
+      "id": "B0-C01",
+      "runner": "static",
+      "proves": "B0 (blocker 2), selftest/b0.test.ts, over two real connections, against migration 20270113170000: two administrators revoke each other. The first holds its transaction open; the second waits on the school's row (the platform's for SYSTEM_ADMIN) and is refused as the last usable holder once the first commits, by revoke_role, «Akhiri tugas» and «Ubah peran» at a school and by revoke_role at the platform, so concurrent revocations cannot reach zero usable administrators. The refused side rolls back whatever it was answered; the seeded administrators stand afterwards"
+    },
+    {
+      "id": "B0-K01",
+      "runner": "static",
+      "proves": "B0, selftest/b0.test.ts, reads supabase/migrations/20270113170000_the_last_administrator_is_never_removed.sql and executes src/lib/peran-kontrak.ts with src/lib/hle.ts: every code peran_tolak raises (PR160) is a signed-in caller's, each with its sentence in Indonesian and English, the operator's, or the recorder's own; a refusal is read by its PR160 DETAIL alone; the last-holder rule is asked by role_assignments_guard, under its row lock, on the revocation, and no revoking function (revoke_role, akhiri_tugas_staf, ubah_peran, buka_kembali_akun) carries a check of its own"
     }
   ]
 }
