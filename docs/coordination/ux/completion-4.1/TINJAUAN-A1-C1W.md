@@ -1,6 +1,10 @@
 # Design review of two 4.1 completion pages, before code (Daisy, 11 Nov 2026)
 
-**Pages:** `docs/completion-4.1/batches/A1-COMPLETION.md` and `C1W-COMPLETION.md`, at `3370643a` (documentation only, on `main` at `d764d69e`).
+**Pages:** `docs/completion-4.1/batches/A1-COMPLETION.md` and `C1W-COMPLETION.md`, at **`2560494a`** (documentation only, on `main` at `d764d69e`).
+
+This replaces my first reading at `3370643a` (pushed as `1c2f9582`). The owner's four rulings of 11 Nov (`OWNER-DECISIONS-2026-11-11.md` §1b, O41-16 to O41-19) are taken as settled, and I do not answer them. The two new surfaces are added:
+- **A1:** another attempt by request and approval; resume or close a frozen sitting (§A1·N1, §A1·N2).
+- **C1w:** the certificate «under review» on public verification and on the student's certificate, and the notice to affected schools (§C1·N1, §C1·N2).
 
 **Method:** one review of each page (O41-15 rule 1). I read the pages against the 4.0 screens they extend:
 - `/mengajar/[kelas]`, `/mengajar/[kelas]/siapa` and the player, with `ItemPlayer` and the `sync.*` keys;
@@ -35,7 +39,7 @@ There are **three blockers**: A1-B1, C1-B1 and C1-B2. Each is a wording decision
 |---|---|---|
 | Belum mengerjakan | neutral | — |
 | Sedang mengerjakan | neutral | «Mulai 10.05 WITA · sisa 12 menit» (sisa only if a deadline exists) |
-| Dijeda | neutral | «Sisa 12 menit · dilanjutkan saat murid dapat masuk lagi» (see A1-R3) |
+| Ditahan | neutral | «Ditahan · sisa 12 menit», and once the student is reinstated, «Ditahan · menunggu keputusan Anda» (see §A1·N2 and A1-R3) |
 | Sudah mengumpulkan | ok | «Dikumpulkan 10.41 WITA» |
 | Diakhiri guru · dinilai | neutral | «Diakhiri 10.40 WITA · jawaban yang ada dinilai» |
 | Diakhiri guru · tidak dihitung | neutral | «Diakhiri 10.40 WITA · tidak dihitung, tidak memakai kesempatan» |
@@ -47,7 +51,9 @@ There are **three blockers**: A1-B1, C1-B1 and C1-B2. Each is a wording decision
 **The row action:** one quiet link per row, «Atur» followed by a hidden «· {nama}». It opens the act panel under the list, in the `?akhiri=` pattern the class page already uses: `siapa?penugasan=…&instrumen=…&sesi=…#atur`. One panel at a time. It is not a dialog.
 - The panel offers only the acts that apply to that state. An act that cannot apply is **absent, not disabled**.
   - **Open:** «Tambah waktu» and «Akhiri sesi».
-  - **Handed in, or ended, with no attempt left:** «Beri satu kesempatan lagi».
+  - **Handed in, or ended, with no attempt left:** «Minta satu kesempatan lagi» (O41-16; §A1·N1).
+  - **Ditahan, student reinstated:** «Lanjutkan» and «Akhiri tanpa menghitung» (O41-17; §A1·N2).
+  - **Ditahan, student still suspended:** no act. The row says only «Ditahan · sisa 12 menit».
   - **Not started:** no act. The link is not shown at all.
 - Each act ends in the existing `KonfirmasiBahaya` (focus to «Batal»), with the reason field (10–300) as in «Akhiri atau tarik».
 
@@ -66,9 +72,7 @@ There are **three blockers**: A1-B1, C1-B1 and C1-B2. Each is a wording decision
 - The confirmation names the person and the instrument: «Akhiri Uji Penguasaan {nama} tanpa menghitung?»
 - The button's words follow the choice, as in 4.0's «Akhiri penugasan» / «Tarik penugasan».
 
-**«Beri satu kesempatan lagi»:**
-- The reason, then a sentence that says what stays: «Hasil sebelumnya tetap tersimpan dan tidak berubah. Kesempatan ini ditandai sebagai kesempatan tambahan.»
-- On Uji Penguasaan, add: «Kesempatan ini dapat menghasilkan sertifikat.» (This depends on Sharon's Q2.)
+**«Minta satu kesempatan lagi»** is a request, not a grant. Its wording is in §A1·N1.
 
 **«Ubah jadwal», the window change, is not on «Siapa».** It belongs to the assignment, so it goes on the class page's material row, beside «Akhiri atau tarik», as «Ubah jadwal · {kursus}». It opens a panel in the same pattern:
 - «Mulai» and «Sampai», labelled with the school's zone: «Mulai (WITA)»;
@@ -87,7 +91,10 @@ Three different ends need three different notices. Today's `sync.diakhiri_sekola
 | Ended, not counted | «Guru Anda mengakhiri asesmen ini. Asesmen ini tidak dihitung dan tidak memakai kesempatan Anda. Jawaban yang sudah tersimpan tetap ada.» + «Kembali ke Belajar» | moves to the notice | all disabled |
 | The assignment ended (4.0) | keep `sync.diakhiri_sekolah` as it is | — | — |
 | Time ran out (abandoned, then returned) | on Belajar, the chapter card: «Waktu habis. Jawaban yang sudah tersimpan sudah dinilai.» + «Lihat hasil» | — | — |
-| Paused, then the suspension lifts | on Belajar: «Lanjutkan · sisa 12 menit» | — | — |
+| Frozen by suspension | the student cannot sign in; nothing to show | — | — |
+| Reinstated, the teacher has not yet decided | on Belajar, the chapter card: «Asesmen ini ditahan. Guru Anda akan memutuskan kelanjutannya.» No «Mulai» | — | — |
+| The teacher resumed it | on Belajar: «Lanjutkan · sisa 12 menit» | — | — |
+| The teacher closed it | on Belajar: «Asesmen ini tidak dihitung dan tidak memakai kesempatan Anda. Jawaban yang sudah tersimpan tetap ada.» | — | — |
 
 **The page must also say when the open player learns of the change.** Today it learns only when it next sends (`ItemPlayer` deliver and finish). An extended deadline reached only on the next answer is late, and an ending reached only at «Kumpulkan» lets the student answer into a closed sitting.
 - State the mechanism: a light check every 30–60 s while the player is open, and on every send. This is register **A1-R1**.
@@ -96,12 +103,13 @@ The register is the student one: «Anda», «Guru Anda». No «sesi», no «dise
 
 ### Missing states (add them to the page)
 
-1. **Attempts used up, none open.** This is the only state in which «Beri satu kesempatan lagi» appears.
-2. **An attempt granted, not yet started.** «Siapa» shows «Belum mengerjakan · kesempatan tambahan». Belajar shows the chapter's «Mulai» again.
+1. **Attempts used up, none open.** This is the only state in which «Minta satu kesempatan lagi» appears.
+2. **A request waiting, approved, or declined:** the three row states in §A1·N1.
+2b. **An attempt granted, not yet started.** «Siapa» shows «Belum mengerjakan · kesempatan tambahan». Belajar shows the chapter's «Mulai» again.
 3. **The act raced the student:** the sitting ended between opening the panel and confirming. The refusal reads: «Sesi ini sudah berakhir sebelum perubahan Anda disimpan. Tidak ada yang diubah.»
 4. **A Professional Development class:** the «Atur» link is absent, not refused.
 5. **A window changed before anyone started:** Belajar shows the new dates. Nothing else changes.
-6. **The window closed while a sitting was paused** (the page's own rule): «Siapa» shows «Diakhiri · tidak dihitung (jadwal berakhir)».
+6. **The window closed while a sitting was frozen.** Under O41-17 the sitting waits for the teacher. Once the student is reinstated, the page must say whether «Lanjutkan» is still offered. My proposal: yes, with exactly the preserved remaining time, because the sitting keeps its own deadline. The page also confirms the abandoned-sitting job skips frozen sittings (its own A1-3).
 7. **More than one sitting for one student:** «Siapa» shows the latest. The earlier ones are on the student's record page («Penilaian di kelas ini»), each with its state.
 
 ### Findings
@@ -111,7 +119,45 @@ The register is the student one: «Anda», «Guru Anda». No «sesi», no «dise
 | **A1-B1** | **blocker** | The player has one ended-by-school notice, which says «tidak dinilai». A1 adds an ending that **is** scored. Reusing the notice tells the student the opposite of what happened | The page names three notices, as in the table above, each with its own key, and the database's refusal code tells them apart |
 | A1-R1 | register | When the open player learns of an extension or an ending is not stated | State a check while the player is open, as above |
 | A1-R2 | register | «the class's assessment page» does not exist | Name `/mengajar/[kelas]/siapa` with an instrument choice, and the class page row for «Ubah jadwal» |
-| A1-R3 | register | «Dijeda» on a suspended student. The teacher should not learn of a platform suspension from this list (the 4.0 ruling keeps suspended sign-in neutral) | A neutral «Dijeda». **→ Sharon** confirms the teacher may see that a sitting is paused at all |
+| A1-R3 | register | A frozen sitting. The teacher should not learn of a platform suspension from this list (the 4.0 ruling keeps suspended sign-in neutral) | A neutral «Ditahan», never «ditangguhkan». **→ Sharon**: the teacher needs only to know it is waiting for them |
+| A1-R4 | register | The approver's queue can only be placed once the approver role is settled (the page's A1-2) | Use §A1·N1's placement for the school admin; a head of department gets the same rows on their own home |
+
+### §A1·N1 · Another attempt: request, approval, and the student's view (O41-16)
+
+**The teacher's request**, from the «Atur» panel on «Siapa»:
+- The heading «Minta satu kesempatan lagi», then the reason (10–300).
+- The sentence: «Permintaan ini dikirim untuk disetujui. Sampai disetujui, murid belum dapat mengerjakan lagi. Hasil sebelumnya tetap tersimpan dan tidak berubah.»
+- On Uji Penguasaan, add: «Karena Uji Penguasaan dapat menghasilkan sertifikat, kesempatan ini perlu disetujui orang lain.»
+- The button is «Kirim permintaan». It is not destructive, so a plain primary, with no red confirm.
+- Result line: «Permintaan dikirim. Menunggu persetujuan.»
+
+**The row on «Siapa»,** in the meta line:
+- waiting: «Kesempatan tambahan diminta · menunggu persetujuan»;
+- approved: «Kesempatan tambahan disetujui {tanggal}», and the state returns to «Belum mengerjakan · kesempatan tambahan»;
+- declined: «Permintaan ditolak · {alasan}». The teacher may ask again with a new reason.
+
+**The approver's queue: «Permintaan kesempatan tambahan».**
+- One Collection page, newest first, reached from the «Yang menunggu» block at the top of Konfigurasi: «{n} permintaan kesempatan tambahan menunggu persetujuan». A head of department gets the same line on their own home.
+- Each row gives what the decision needs, and nothing that ranks a child:
+  - «{nama} · {kelas} · Uji Penguasaan {bab}»;
+  - «{2} kesempatan dipakai · hasil terakhir {63%}, target {70%}»;
+  - «Diminta {guru}, {tanggal} · Alasan: {alasan}».
+- Actions: «Setujui», then «Tolak», which requires a reason. Both are audited.
+- **The requester opening it** sees no buttons, and the line, in the pattern of `studio.temuan.orang_kedua`: «Anda yang meminta ini. Orang lain yang menyetujuinya.»
+- Empty state: «Tidak ada permintaan yang menunggu.»
+
+**The student:**
+- **While waiting:** nothing. PINTAR does not promise what has not been decided.
+- **After approval:** the chapter card on Belajar: «Uji Penguasaan dapat dikerjakan sekali lagi.» + «Mulai».
+- **After a decline:** nothing. A child is never shown «ditolak».
+
+### §A1·N2 · Resume or close a frozen sitting (O41-17)
+
+**On «Siapa»**, once the student is reinstated: «Ditahan · menunggu keputusan Anda». «Atur» then offers two acts, in the same panel pattern:
+- **«Lanjutkan»:** «Murid melanjutkan dengan sisa waktu yang tersimpan, {12} menit. Waktu tidak ditambah.» Plain primary, with the reason. If more time is truly needed, «Tambah waktu» is a separate, recorded act.
+- **«Akhiri tanpa menghitung»:** the same wording and red confirm as the administrative end above.
+
+**The student:** the Belajar states in the Q5 table above. Nothing resumes without the teacher.
 
 ---
 
@@ -199,13 +245,39 @@ Then «Simpan soal» (primary) and «Batal» (quiet).
 
 **The student's note:** see **C1-B1**. The 4.0 wording cannot stand under this batch's certificate rule.
 
-**Konfigurasi › Sertifikat:** a section at the top, «Perlu keputusan ({n})», shown only when n > 0. Each row reads:
+**Konfigurasi › Sertifikat** (O41-19): a section at the top, «Sedang ditinjau ({n})», shown only when n > 0. It uses the same words the public page uses. Each row reads:
 
-> «{nama} · {paket} · hasil dihitung ulang {asli} → {baru}, target {t}»
+> «{nama} · {paket} · hasil dihitung ulang {asli} → {baru}, target {t} · sejak {tanggal}»
 
-with «Tetap berlaku» (reason) and «Cabut» (the existing FormCabut).
-- A kept certificate stays in the list, marked «Tetap berlaku setelah dihitung ulang · {alasan}».
+with «Konfirmasi berlaku» (reason) and «Cabut» (the existing FormCabut), each audited.
+- A confirmed certificate leaves the section. Its row in the main list keeps «Dikonfirmasi setelah dihitung ulang · {alasan}».
 - A newly earned certificate needs no row: it is issued.
+
+### §C1·N1 · «Sedang ditinjau» on public verification and on the student's certificate (O41-19)
+
+**Public verification** (`/verifikasi/{token}`). The status block gets a third state between «Berlaku» and «Dicabut», with the word and a neutral, not-ok pill. It is never the ✓ of «Berlaku»:
+
+> **STATUS** · Sedang ditinjau
+> «Sertifikat ini benar diterbitkan oleh {sekolah}. Penilaian satu soal di asesmennya diperbaiki, dan sekolah penerbit sedang meninjau sertifikat ini. Sampai selesai, sertifikat ini tidak dinyatakan berlaku. Hubungi sekolah penerbit untuk keterangan.»
+
+- «Hasil», «Predikat» and the issue date stay as sealed, so the payload is untouched (the page's own C1w-4).
+- **After the decision:** «Berlaku» again, with the line «Ditinjau ulang dan dikonfirmasi {tanggal}»; or «Dicabut», as 4.0 shows it.
+- **No reason text** from the school is shown publicly. That is the 4.0 rule for reissue reasons.
+
+**The student's certificate:**
+- The list row's pill reads «Sedang ditinjau», replacing «Berlaku».
+- The card says, in the student register:
+
+  > «Sekolah Anda sedang meninjau sertifikat ini karena penilaian satu soal diperbaiki. Sertifikat tetap tersimpan. Selama ditinjau, pemeriksaan sertifikat menyebutnya sedang ditinjau.»
+
+- «Cetak atau simpan PDF» stays available. The paper carries the QR, which resolves to the live status (register **C1-R4**).
+
+### §C1·N2 · The notice to affected schools' admins (O41-18)
+
+- **In-app, at the top of Konfigurasi, in «Yang menunggu»:** «Penilaian satu soal di {paket} diperbaiki pada {tanggal}. {a} hasil di sekolah ini dihitung ulang; {c} sertifikat sedang ditinjau.» It links to «Sedang ditinjau» (or, with no certificate affected, to the audit row).
+- The line stays until the school has decided every certificate.
+- **The page must name the channel.** In-app only, or also the existing email path? I propose in-app plus one email to the school's admins, with no student names in the email. This is register **C1-R5**.
+- **The teacher** of an affected class sees no new notice. The existing `CatatanHitungUlang` under each figure is enough.
 
 ### Missing states (add them to the page)
 
@@ -220,11 +292,13 @@ with «Tetap berlaku» (reason) and «Cabut» (the existing FormCabut).
 
 | # | Class | Finding | Change |
 |---|---|---|---|
-| **C1-B1** | **blocker** | 4.0 tells the student, under a recomputed result: «Penguasaan dan jumlah jawaban tepat di atas, serta sertifikat Anda, tetap seperti semula» (`hasil.dihitung_ulang`). The teacher is told the certificate and the student's page use the sealed original (`mengajar.murid1.dihitung_ulang`). C1w's rule makes both false: a certificate may be revoked or newly issued | The page states, for a wrong-key correction, **what the student's result page shows: the result in force or the original**, and rewrites both notes to match. Proposal, if it shows the result in force: «Hasil ini dihitung ulang karena kunci jawaban satu soal diperbaiki. Hasil asli tetap tersimpan.» The certificate line is said only after the school has decided. **→ Sharon** for the truth; the copy follows |
+| **C1-B1** | **blocker** | 4.0 tells the student, under a recomputed result: «Penguasaan dan jumlah jawaban tepat di atas, serta sertifikat Anda, tetap seperti semula» (`hasil.dihitung_ulang`). The teacher is told the certificate and the student's page use the sealed original (`mengajar.murid1.dihitung_ulang`). O41-19 makes the certificate half false: it is now «Sedang ditinjau». The page still does not say what the student's **result** page shows after a wrong-key correction | The page states **what the student's result page shows: the result in force or the original**. Both notes are rewritten to match, with the certificate said as §C1·N1 says it. Proposal, if it shows the result in force: «Hasil ini dihitung ulang karena penilaian satu soal diperbaiki. Hasil asli tetap tersimpan.» **→ Sharon** for the truth; the copy follows |
 | **C1-B2** | **blocker** | «Ditarik» means two things. In 4.0, a **teacher's** «Ditarik» means the results are **not counted**. A **publisher** withdrawing a release (O41-11) stops new sittings while the finished results **still count**. The same word on the class page would mislead a teacher about the figures | Do not show the word «Ditarik» to teachers or students for a withdrawn release. On the class page row: «Dihentikan penerbit · tidak dapat dimulai lagi; hasil tetap dihitung». Keep «Ditarik» inside Studio, where `studio.langkah.ditarik.*` already uses it |
 | C1-R1 | register | «Riwayat» per question would collide with the package's «Riwayat perbaikan» | Name it «Riwayat soal» |
 | C1-R2 | register | The page says a corrected release replaces its predecessor for new assignments, but not what a teacher sees on an existing assignment | On the class page row: «Ada perbaikan · terbit {tanggal}», linking to the existing «Pindahkan penugasan». Nothing moves on its own |
-| C1-R3 | register | The key-correction step 2 counts are the mechanism's honesty test | Compute them with the recompute rule, not an estimate. Say «mungkin» only for certificates, which wait for the school's decision |
+| C1-R3 | register | The key-correction step 2 counts are the mechanism's honesty test | Compute them with the recompute rule, not an estimate. Under O41-19, write «{c} sertifikat akan ditinjau sekolahnya» in place of «mungkin tidak lagi sesuai» |
+| C1-R4 | register | A paper printed while a certificate is «Sedang ditinjau» | Allow it; the QR carries the live status. Say nothing on paper that the status page contradicts |
+| C1-R5 | register | «Affected schools are notified» does not say how | In-app in «Yang menunggu», plus one email to the school's admins with no student names (§C1·N2) |
 
 ---
 
