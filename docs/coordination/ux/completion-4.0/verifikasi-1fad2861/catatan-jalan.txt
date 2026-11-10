@@ -1,0 +1,686 @@
+A1 Enter on option B: same question true | aria-pressed true | focus button «B4 anak»
+A1 letter C (no focus): option C pressed true
+A2 waiting 32 s for the offer…
+A2 390: {"hit":[true,true,true,true],"sw":390}
+A2 320: {"hit":[true,true,true,true],"sw":320}
+A2 1280: {"hit":[true,true,true,true],"sw":1280}
+A2 offer aria:
+-
+A1 Enter on Berikutnya moved: true
+POST 200
+A1 Enter on Selesaikan → /belajar/47c8b474-cae7-40a5-a25f-547423f07ab3/peta ← Perjalanan belajar Anda PEMETAAN SELESAI. PETA BACAAN ANDA SUDAH SIAP. Peta Bacaan Personal Mulailah dari kartu paling atas. Urutannya sudah disusunA2 waiting 32 s for the offer…
+A2 390: {"cls":"pin-bantuan-soal","pos":"static","offerText":"Perlu contoh?Perlu contoh?Sudah cukup, terima kasih","overlapQ":false,"hit":[true,true,true,true],"sw":390}
+A2 320: {"cls":"pin-bantuan-soal","pos":"static","offerText":"Perlu contoh?Perlu contoh?Sudah cukup, terima kasih","overlapQ":false,"hit":[true,true,true,true],"sw":320}
+A2 1280: {"cls":"pin-bantuan-soal","pos":"static","offerText":"Perlu contoh?Perlu contoh?Sudah cukup, terima kasih","overlapQ":false,"hit":[true,true,true,true],"sw":1280}
+A2 offer aria:
+- paragraph: Perlu contoh?
+- button "Perlu contoh?"
+- button "Sudah cukup, terima kasih"on last; buttons: ["Simpan & Jeda","Daftar soal","A Rp3.000","B Rp80.000","C Rp33.000","D Rp37.000","Tersimpan","Tandai soal ini","Kembali","Kumpulkan"]
+teacher running: Gita Wibowo (5B)
+teacher ended Bab 2
+after Kumpulkan: focus button «Periksa lagi» | confirm: Kumpulkan sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah.
+Shift+Tab → button «Kumpulkan»
+status: ["Sudah dijawab: 8 dari 8.","Asesmen ini sudah ditutup dan tidak dinilai. Jawaban yang sudah tersimpan tetap ada. Bila ada pertanyaan, tanyakan kepada guru Anda.\nKembali ke Belajar"]
+focus after notice: p «Asesmen ini sudah ditutup dan tidak dinilai. Jawaban yang sudah tersim»
+buttons: ["Simpan & Jeda[disabled]","Daftar soal[disabled]","ARp3.000[disabled]","BRp80.000[disabled]","CRp33.000[disabled]","DRp37.000[disabled]","Tersimpan[disabled]","Tandai soal ini[disabled]","Kembali[disabled]","Kumpulkan[disabled]"]
+option styles: ["1/rgb(243, 241, 236)/rgb(127, 136, 144)/true","1/rgb(243, 241, 236)/rgb(127, 136, 144)/false","1/rgb(243, 241, 236)/rgb(127, 136, 144)/false","1/rgb(243, 241, 236)/rgb(127, 136, 144)/false"]
+Tab → a «Kembali ke Belajar»
+Enter on link → /belajarwithdrawn Bab 1
+B1 #materi aria:
+- heading "Materi untuk kelas ini" [level=2]
+- paragraph: Urutan mengikuti kurikulum sekolah. Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah.
+- 'link "Matematika Kelas 5 · Bab 2: Data Sederhana Diterbitkan sekolah 10 Nov 2026 Siap disediakan"':
+  - /url: /mengajar/32354804-27da-40f1-ad29-4805a6fdfa59/siapkan?terbitan=0887907d-9a9a-4021-bd73-db0412987848
+- 'link "Matematika Kelas 5 · Bab 1: Pola Bilangan Diterbitkan sekolah 10 Nov 2026 Siap disediakan"':
+  - /url: /mengajar/32354804-27da-40f1-ad29-4805a6fdfa59/siapkan?terbitan=3c9e96f1-bbb0-4bef-991d-27dea5bd0e3b
+- link "Pecahan Senilai Diterbitkan sekolah 10 Nov 2026 Siap disediakan":
+  - /url: /mengajar/32354804-27da-40f1-ad29-4805a6fdfa59/siapkan?terbitan=f1dbacb8-0e36-4aa4-9d88-bc0f44c73144
+- group:
+  - text: "Sudah berakhir (2) Matematika Kelas 5 · Bab 1: Pola Bilangan Ditarik 10 Nov 2026 · hasilnya tidak dihitung di laporan kelas dan sekolah Alasan: Bab 1 diberikan ke kelas yang keliru. Matematika Kelas 5 · Bab 2: Data Sederhana Diakhiri 10 Nov 2026 · hasilnya tetap dihitung Alasan: Bab 2 sudah selesai dibahas di kelas."
+  - paragraph: Hasil tiap murid ada di halaman muridnya.
+1280 B1 fold: Sudah berakhir (2) Matematika Kelas 5 · Bab 1: Pola Bilangan Ditarik 10 Nov 2026 · hasilnya tidak dihitung di laporan kelas dan sekolah Alasan: Bab 1 diberikan ke kelas yang keliru. Matematika Kelas 5 · Bab 2: Data Sederhana Diakhiri 10 Nov 2026 · hasilnya tetap dihitung Alasan: Bab 2 sudah selesai dibahas di kelas. Hasil tiap murid ada di halaman muridnya. | pills in fold: 0
+1280 B1 sideways 1280
+B2 aria:
+- region "Hasil resmi":
+  - heading "Hasil resmi" [level=2]
+  - paragraph: Penguasaan yang tercatat pada tiap asesmen yang sudah dinilai.
+  - term: "Pemetaan Awal · Matematika Kelas 5 · Bab 1: Pola Bilangan"
+  - definition: 0% Ditarik · tidak dihitung di laporan kelas dan sekolah
+  - term: "Uji Penguasaan · Matematika Kelas 5 · Bab 1: Pola Bilangan"
+  - definition: 63% Ditarik · tidak dihitung di laporan kelas dan sekolah
+  - term: "Pemetaan Awal · Matematika Kelas 5 · Bab 2: Data Sederhana"
+  - definition: 25%
+  - term: "Uji Penguasaan · Matematika Kelas 5 · Bab 2: Data Sederhana"
+  - definition:
+    - text: 63% di bawah target · target 70%
+    - link "Minta membaca lagi":
+      - /url: /mengajar/32354804-27da-40f1-ad29-4805a6fdfa59/ulang?penugasan=2ed34be5-929e-4e67-a372-5ade378040bf&murid=0f815a5b-09b0-4df7-9357-c694f1b5f0fa
+1280 B2 sideways 1280
+1280 B3 /belajar: BELAJAR Halo, Bunga PEMBELAJARAN ANDA Belum ada materi yang disediakan untuk Anda. HASIL BELAJAR Semua bab yang sudah Anda kerjakan dalam satu halaman, dengan bagian yang perlu dipelajari lagi. Lihat hasil belajar Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com
+1280 B3 sideways 1280
+1280 B3 card link: 1
+1280 B3 Enter → /belajar | Bagian A Hasil per bab 0 dari 2 bab yang selesai sudah mencapai target. Ada 5 bagian untuk dipelajari lagi; semuanya ditandai «pelajari lagi» di bagian B. Pemetaan Awal Uji Penguasaan Target bab ini Matematika Kelas 5 · Bab 2: Data Sederhana 5 dari 8 soal belum mencapai target Uji Penguasaan: 63%. Pemetaan Awal: 25%. Target bab ini: 70%. Matematika Kelas 5 · Bab 1: Pola Bilangan 5 dari 8 soal belum mencapai target Guru Anda menarik penugasan ini. Hasil Anda tetap tersimpan di sini. Uji Penguasaa
+390 B1 fold: Sudah berakhir (2) Matematika Kelas 5 · Bab 1: Pola Bilangan Ditarik 10 Nov 2026 · hasilnya tidak dihitung di laporan kelas dan sekolah Alasan: Bab 1 diberikan ke kelas yang keliru. Matematika Kelas 5 · Bab 2: Data Sederhana Diakhiri 10 Nov 2026 · hasilnya tetap dihitung Alasan: Bab 2 sudah selesai dibahas di kelas. Hasil tiap murid ada di halaman muridnya. | pills in fold: 0
+390 B1 sideways 390
+390 B2 sideways 390
+390 B3 /belajar: BELAJAR Halo, Bunga PEMBELAJARAN ANDA Belum ada materi yang disediakan untuk Anda. HASIL BELAJAR Semua bab yang sudah Anda kerjakan dalam satu halaman, dengan bagian yang perlu dipelajari lagi. Lihat hasil belajar Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com
+390 B3 sideways 390
+390 B3 card link: 1
+390 B3 Enter → /belajar | Bagian A Hasil per bab 0 dari 2 bab yang selesai sudah mencapai target. Ada 5 bagian untuk dipelajari lagi; semuanya ditandai «pelajari lagi» di bagian B. Pemetaan Awal Uji Penguasaan Target bab ini Matematika Kelas 5 · Bab 2: Data Sederhana 5 dari 8 soal belum mencapai target Uji Penguasaan: 63%. Pemetaan Awal: 25%. Target bab ini: 70%. Matematika Kelas 5 · Bab 1: Pola Bilangan 5 dari 8 soal belum mencapai target Guru Anda menarik penugasan ini. Hasil Anda tetap tersimpan di sini. Uji Penguasaa
+320 B1 fold: Sudah berakhir (2) Matematika Kelas 5 · Bab 1: Pola Bilangan Ditarik 10 Nov 2026 · hasilnya tidak dihitung di laporan kelas dan sekolah Alasan: Bab 1 diberikan ke kelas yang keliru. Matematika Kelas 5 · Bab 2: Data Sederhana Diakhiri 10 Nov 2026 · hasilnya tetap dihitung Alasan: Bab 2 sudah selesai dibahas di kelas. Hasil tiap murid ada di halaman muridnya. | pills in fold: 0
+320 B1 sideways 320
+320 B2 sideways 320
+320 B3 /belajar: BELAJAR Halo, Bunga PEMBELAJARAN ANDA Belum ada materi yang disediakan untuk Anda. HASIL BELAJAR Semua bab yang sudah Anda kerjakan dalam satu halaman, dengan bagian yang perlu dipelajari lagi. Lihat hasil belajar Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com
+320 B3 sideways 320
+320 B3 card link: 1
+320 B3 Enter → /belajar | PEMBELAJARAN ANDA Belum ada materi yang disediakan untuk Anda.page 1 rows: 50 | run rows: 4 | part-of-run lines: 0
+run 0: 10 Nov 2026, 14.43 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5G · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin sekolah 6 murid: 3 naik, 3 lulus Catatan terkait (21)
+run 1: 10 Nov 2026, 14.43 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5H · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin sekolah 5 murid: 4 lulus, 1 keluar Catatan terkait (15)
+run 2: 10 Nov 2026, 14.43 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5B · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin sekolah 24 murid: 23 naik, 1 tinggal kelas Catatan terkait (96)
+run 3: 10 Nov 2026, 14.42 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5D · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin sekolah 5 murid: 4 naik, 1 keluar Catatan terkait (19)
+first 8 rows: ["10 Nov 2026, 14.43 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5G · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin ","10 Nov 2026, 14.43 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5H · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin ","10 Nov 2026, 14.43 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5B · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin ","10 Nov 2026, 14.42 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5D · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin ","10 Nov 2026, 14.42 WIB Kelas dibuat Struktur sekolah · SD Cendekia Nusantara (sekolah peragaan) Bu Wulan (uji laporan) ·","10 Nov 2026, 14.42 WIB Kelas dibuat Struktur sekolah · SD Cendekia Nusantara (sekolah peragaan) Bu Wulan (uji laporan) ·","10 Nov 2026, 14.42 WIB Kelas dibuat Struktur sekolah · SD Cendekia Nusantara (sekolah peragaan) Bu Wulan (uji laporan) ·","10 Nov 2026, 14.42 WIB Tingkat dibuat Struktur sekolah · SD Cendekia Nusantara (sekolah peragaan) Bu Wulan (uji laporan)"]
+5B run aria:
+- row "10 Nov 2026, 14.43 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5B · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin sekolah Catatan terkait (96)":
+  - cell "10 Nov 2026, 14.43 WIB"
+  - cell "Kenaikan kelas diterapkan"
+  - cell "Kenaikan kelas · 5B · 2026/27 → 2027/28"
+  - cell "Bu Wulan (uji laporan) · Admin sekolah"
+  - cell "Catatan terkait (96)":
+    - group: "24 murid: 23 naik, 1 tinggal kelas"
+    - link "Catatan terkait (96)":
+      - /url: /konfigurasi/audit?hal_run=1&run=c9d09d65-4103-4cd4-b66e-7c441529736c#jejak-run-c9d09d65-4103-4cd4-b66e-7c441529736c
+link: 1 /konfigurasi/audit?hal_run=1&run=c9d09d65-4103-4cd4-b66e-7c441529736c#jejak-run-c9d09d65-4103-4cd4-b66e-7c441529736c
+after open url: /konfigurasi/audit?hal_run=1&run=c9d09d65-4103-4cd4-b66e-7c441529736c#jejak-run-c9d09d65-4103-4cd4-b66e-7c441529736c | scrollY 477 | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD Cendekia »
+5B run row in view: [-40,6305,900]
+related rows shown: 0 []
+related aria:
+no [data-jejak-terkait]
+next Tab → a «Tutup catatan terkait»1280 5A run closed: 10 Nov 2026, 14.46 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5A · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin sekolah 27 murid: 26 naik, 1 tinggal kelas Catatan terkait (110)
+1280 buka url /konfigurasi/audit?hal_run=1&run=981fa7d6-681a-462c-967d-0304c167b583#jejak-run-981fa7d6-6 | row {"rowTop":-40,"firstCellTop":-40,"firstCellBottom":6561,"vh":900} header bottom 900 | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD» | sideways 1280
+1280 items on sub-page 1: 127
+pager aria:
+- link "Halaman berikutnya":
+  - /url: /konfigurasi/audit?hal_run=2&run=981fa7d6-681a-462c-967d-0304c167b583#jejak-run-981fa7d6-681a-462c-967d-0304c167b583
+  - text: Berikutnya
+1280 sub-pager next: 1
+1280 hal2 url /konfigurasi/audit?hal_run=2&run=981fa7d6-681a-462c-967d-0304c167b583#jejak-run-981fa7d6-6 | row {"rowTop":-40,"firstCellTop":-40,"firstCellBottom":801,"vh":900} header bottom 900 | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD» | sideways 1280
+1280 items on sub-page 2: 37
+1280 tutup url /konfigurasi/audit?hal_jejak=1#jejak-run-981fa7d6-681a-462c-967d-0304c167b583 | row {"rowTop":-88,"firstCellTop":-88,"firstCellBottom":57,"vh":900} header bottom 900 | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD» | sideways 1280
+390 5A run closed: 10 Nov 2026, 14.46 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5A · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin sekolah 27 murid: 26 naik, 1 tinggal kelas Catatan terkait (110)
+390 buka url /konfigurasi/audit?hal_run=1&run=981fa7d6-681a-462c-967d-0304c167b583#jejak-run-981fa7d6-6 | row {"rowTop":-168,"firstCellTop":-168,"firstCellBottom":34977,"vh":844} header bottom 57 | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD» | sideways 390
+390 items on sub-page 1: 127
+390 sub-pager next: 1
+390 hal2 url /konfigurasi/audit?hal_run=2&run=981fa7d6-681a-462c-967d-0304c167b583#jejak-run-981fa7d6-6 | row {"rowTop":-168,"firstCellTop":-168,"firstCellBottom":3677,"vh":844} header bottom 57 | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD» | sideways 390
+390 items on sub-page 2: 37
+390 tutup url /konfigurasi/audit?hal_jejak=1#jejak-run-981fa7d6-681a-462c-967d-0304c167b583 | row {"rowTop":-168,"firstCellTop":-168,"firstCellBottom":93,"vh":844} header bottom 57 | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD» | sideways 390
+320 5A run closed: 10 Nov 2026, 14.46 WIB Kenaikan kelas diterapkan Kenaikan kelas · 5A · 2026/27 → 2027/28 Bu Wulan (uji laporan) · Admin sekolah 27 murid: 26 naik, 1 tinggal kelas Catatan terkait (110)
+320 buka url /konfigurasi/audit?hal_run=1&run=981fa7d6-681a-462c-967d-0304c167b583#jejak-run-981fa7d6-6 | row {"rowTop":-168,"firstCellTop":-168,"firstCellBottom":34977,"vh":844} header bottom 57 | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD» | sideways 320
+320 items on sub-page 1: 127
+320 sub-pager next: 1
+320 hal2 url /konfigurasi/audit?hal_run=2&run=981fa7d6-681a-462c-967d-0304c167b583#jejak-run-981fa7d6-6 | row {"rowTop":-168,"firstCellTop":-168,"firstCellBottom":3677,"vh":844} header bottom 57 | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD» | sideways 320
+320 items on sub-page 2: 37
+320 tutup url /konfigurasi/audit?hal_jejak=1#jejak-run-981fa7d6-681a-462c-967d-0304c167b583 | row {"rowTop":-168,"firstCellTop":-168,"firstCellBottom":93,"vh":844} header bottom 57 | focus body «Langsung ke isiPINTARCiutkan navigasiKonfigurasiSD» | sideways 3201280 audit, run open, sub-page 2: 0 violations
+1280 kenaikan outcome 5A: 0 violations
+1280 reissue: 0 violations
+320 audit, run open, sub-page 2: 0 violations
+320 kenaikan outcome 5A: 0 violations
+320 reissue: 0 violations
+320 class 5B fold open: 0 violations
+320 /belajar (all closed): 0 violations
+320 certificate list: 0 violationsstep2 url /konfigurasi/rollover?kn_kelas=7d80d048-f5d5-49f3-831a-4961a8f92664#rollover
+bulk options ["— Pilih satu per satu —","5A · 2027/28","6A · 2027/28","6B · 2027/28"]
+after Terapkan: Langkah 2 dari 3 · Keputusan untuk setiap murid 5D · Tingkat Angkatan 5 · 2026/27 Tahun ajaran baru 2027/28 Naikkan semua ke — Pilih satu per satu — 5A · 2027/28 6A · 2027/28 6B · 2027/28 Terapkan Diterapkan ke 4 murid; 1 tidak diubah karena sudah dipilih, ada di Tingkat, atau sedang pindah. 5 murid. Setiap murid perlu satu keputusan sebelum hasilnya dapat ditinjau. 4 naik ke 6A · 2027/28 · 1 belum dipilih. Belum dipilih: Zahra Lestari (5F). Vina Utami Lestari (5D) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tinggal kelas di 6A · 2027/28 Tinggal kelas di 6B · 2027/28 Lulus Keluar: mengundurkan diri Keluar: pindah ke sekolah di luar PINTAR Keluar: pindah ke luar negeri Keluar: meninggal dunia Wahyu Santoso (5D) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tinggal kelas di 6
+step2 aria:
+- list:
+  - listitem:
+    - text: Vina Utami Lestari (5D)
+    - combobox "Keputusan untuk Vina Utami Lestari (5D)":
+  - listitem:
+    - text: Wahyu Santoso (5D)
+    - combobox "Keputusan untuk Wahyu Santoso (5D)":
+  - listitem:
+    - text: Yogi Hidayat (5D)
+    - combobox "Keputusan untuk Yogi Hidayat (5D)":
+  - listitem:
+    - text: Zahra Kurniawan (5D)
+    - combobox "Keputusan untuk Zahra Kurniawan (5D)":
+  - listitem:
+    - text: Zahra Lestari (5F) Di Tingkat, belum di kelas
+    - combobox "Keputusan untuk Zahra Lestari (5F)":
+row 0: Vina Utami Lestari (5D) → Naik ke 6A · 2027/28
+row 1: Wahyu Santoso (5D) → Naik ke 6A · 2027/28
+row 2: Yogi Hidayat (5D) → Naik ke 6A · 2027/28
+row 3: Zahra Kurniawan (5D) → Keluar: pindah ke sekolah di luar PINTAR
+row 4: Zahra Lestari (5F) Di Tingkat, belum di kelas → Naik ke 6A · 2027/28
+status line: 4 naik ke 6A · 2027/28 · 1 keluar · 0 belum dipilih
+G step2 sideways 1280
+review url /konfigurasi/rollover?kn_kelas=7d80d048-f5d5-49f3-831a-4961a8f92664&kn_tahun=d9458753-8357-4c7f-84d7-383cc873b940&kn_semua=d63c65df-0382-42e1-a542-70432c3c3199#rollover
+review aria:
+- paragraph: Langkah 3 dari 3 · Tinjau lalu konfirmasi
+- heading "5D · Tingkat Angkatan 5 · 2026/27" [level=3]
+- paragraph: Belum ada yang berubah. Inilah hasil untuk setiap murid ke tahun ajaran 2027/28.
+- paragraph: 4 naik ke 6A · 2027/28, 1 keluar
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: "Zahra Kurniawan (5D) · Keluar: pindah ke sekolah di luar PINTAR"
+  - listitem: Zahra Lestari (5F) · dari Tingkat (belum di kelas) · Naik ke 6A · 2027/28
+- group: 3 naik ke 6A · 2027/28
+- region "Penugasan guru":
+  - heading "Penugasan guru" [level=3]
+  - paragraph: Penugasan guru tidak ikut pindah ke tahun ajaran baru. Tinjau siapa yang akan mengajar kelas tujuan, lalu ubah di Peran & akses bila perlu.
+  - list:
+    - listitem: "6A · 2027/28: belum ada guru"
+  - paragraph:
+    - link "Buka Peran & akses di tab baru":
+      - /url: /konfigurasi/roles#roles
+- checkbox "Saya tahu 6A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses."
+- text: Saya tahu 6A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses.
+- paragraph: "5 murid akan diproses: 4 naik ke 6A · 2027/28, 1 keluar. Semuanya diterapkan bersama atau tidak sama sekali."
+- button "Konfirmasi kenaikan kelas"
+- status
+- link "Ubah keputusan":
+  - /url: /konfigurasi/rollover?kn_kelas=7d80d048-f5d5-49f3-831a-4961a8f92664&kn_tahun=d9458753-8357-4c7f-84d7-383cc873b940&kn_d=W1siMjllZTQwZWQtNGE3Yi00ZmE5LThiM2UtMmMxY2M1ZmY4MzBmIiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjZiNDJlM2ZhLTExOTItNDg3Zi1iYmQwLThjZjgwY2YwM2Y5YyIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyJlNjNiNTUyOC1jZTRjLTRiNDYtOGRkNi0xNTllZmY1ZmE1ZmMiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiMDliOGE1MmMtZDU3ZC00NDNiLTgyNDMtNDFjNTMwZjE5ZjFlIiwiS0VMVUFSOlRSQU5TRkVSX0VYVEVSTkFMIl0sWyJjYjRlNmZlNS05YzJmLTRlOWQtODRmZi1lODI2N2M5NjEyZDIiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdXQ#rollover
+review summary: 3 naik ke 6A · 2027/28 | names in fold: 3 | exceptions: 2
+fold open: 3 naik ke 6A · 2027/28 Vina Utami Lestari (5D) Wahyu Santoso (5D) Yogi Hidayat (5D)
+checkbox: 1 Saya tahu 6A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses.
+G 1280 review sideways 1280
+G 390 review sideways 390
+G 320 review sideways 320
+outcome url /konfigurasi/rollover?kn_kelas=7d80d048-f5d5-49f3-831a-4961a8f92664&kn_tahun=d9458753-8357-4c7f-84d7-383cc873b940&kn_langkah=selesai#rollover
+outcome aria:
+- status: "Selesai. 5 murid diproses pada 10 Nov 2026, 14.42 WIB. Inilah hasil untuk setiap murid. Diperiksa dari data PINTAR: semua sesuai."
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: "Zahra Kurniawan (5D) · Keluar: pindah ke sekolah di luar PINTAR"
+  - listitem: Zahra Lestari (5F) · dari Tingkat (belum di kelas) · Naik ke 6A · 2027/28
+- group: 3 naik ke 6A · 2027/28
+- paragraph:
+  - text: "1 Kelas tahun 2027/28 belum punya guru: 6A. Beri perannya di Peran & akses."
+  - link "Buka Peran & akses":
+    - /url: /konfigurasi/roles#roles
+- link "Lanjut ke 5A · 2026/27 (belum diproses)":
+  - /url: /konfigurasi/rollover?kn_kelas=66752045-6857-45f4-8868-4ef9361fcc2a#rollover
+- link "Pilih kelas lain":
+  - /url: /konfigurasi/rollover?#rollover
+outcome summary: 3 naik ke 6A · 2027/28 | names in fold: 3 | exceptions: 2
+outcome fold open: 3 naik ke 6A · 2027/28 Vina Utami Lestari (5D) Wahyu Santoso (5D) Yogi Hidayat (5D)
+lanjut: Lanjut ke 5A · 2026/27 (belum diproses) Pilih kelas lain
+G 1280 outcome sideways 1280
+G 390 outcome sideways 390
+G 320 outcome sideways 320
+step2 url /konfigurasi/rollover?kn_kelas=32354804-27da-40f1-ad29-4805a6fdfa59#rollover
+bulk options ["— Pilih satu per satu —","5A · 2027/28","6A · 2027/28","6B · 2027/28"]
+after Terapkan: Langkah 2 dari 3 · Keputusan untuk setiap murid 5B · Tingkat Angkatan 5 · 2026/27 Tahun ajaran baru 2027/28 Naikkan semua ke — Pilih satu per satu — 5A · 2027/28 6A · 2027/28 6B · 2027/28 Terapkan Diterapkan ke 24 murid. 24 murid. Setiap murid perlu satu keputusan sebelum hasilnya dapat ditinjau. 24 naik ke 6A · 2027/28 · 0 belum dipilih Adi Hidayat (5B) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tinggal kelas di 6A · 2027/28 Tinggal kelas di 6B · 2027/28 Lulus Keluar: mengundurkan diri Keluar: pindah ke sekolah di luar PINTAR Keluar: pindah ke luar negeri Keluar: meninggal dunia Bunga Kurniawan (5B) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tinggal kelas di 6A · 2027/28 Tinggal kelas di 6B · 2027/28 Lulus Keluar: mengundurkan diri Keluar: pindah ke sekolah di luar PIN
+step2 aria:
+- list:
+  - listitem:
+    - text: Adi Hidayat (5B)
+    - combobox "Keputusan untuk Adi Hidayat (5B)":
+  - listitem:
+    - text: Bunga Kurniawan (5B)
+    - combobox "Keputusan untuk Bunga Kurniawan (5B)":
+  - listitem:
+    - text: Citra Pratama (5B)
+    - combobox "Keputusan untuk Citra Pratama (5B)":
+  - listitem:
+    - text: Dimas Lestari (5B)
+    - combobox "Keputusan untuk Dimas Lestari (5B)":
+  - listitem:
+    - text: Eka Rahayu (5B)
+    - combobox "Keputusan untuk Eka Rahayu (5B)":
+  - listitem:
+    - text: Fajar Nugroho (5B)
+    - combobox "Keputusan untuk Fajar Nugroho (5B)":
+  - listitem:
+    - text: Gita Wibowo (5B)
+    - combobox "Keputusan untuk Gita Wibowo (5B)":
+  - listitem:
+    - text: Hana Saputra (5B)
+    - combobox "Keputusan untuk Hana Saputra (5B)":
+  - listitem:
+    - text: Indra Utami (5B)
+    - combobox "Keputusan untuk Indra Utami (5B)":
+  - listitem:
+    - text: Joko Santoso (5B)
+    - combobox "Keputusan untuk Joko Santoso (5B)":
+  - listitem:
+    - text: Kirana Hidayat (5B)
+    - combobox "Keputusan untuk Kirana Hidayat (5B)":
+  - listitem:
+    - text: Lestari Kurniawan (5B)
+    - combobox "Keputusan untuk Lestari Kurniawan (5B)":
+  - listitem:
+    - text: Maya Pratama (5B)
+    - combobox "Keputusan untuk Maya Pratama (5B)":
+  - listitem:
+    - text: Nanda Lestari (5B)
+    - combobox "Keputusan untuk Nanda Lestari (5B)":
+  - listitem:
+    - text: Oki Rahayu (5B)
+    - combobox "Keputusan untuk Oki Rahayu (5B)":
+  - listitem:
+    - text: Putri Nugroho (5B)
+    - combobox "Keputusan untuk Putri Nugroho (5B)":
+  - listitem:
+    - text: Rizki Wibowo (5B)
+    - combobox "Keputusan untuk Rizki Wibowo (5B)":
+  - listitem:
+    - text: Sari Saputra (5B)
+    - combobox "Keputusan untuk Sari Saputra (5B)":
+  - listitem:
+    - text: Tono Rahayu (5B)
+    - combobox "Keputusan untuk Tono Rahayu (5B)":
+  - listitem:
+    - text: Umi Nugroho (5B)
+    - combobox "Keputusan untuk Umi Nugroho (5B)":
+  - listitem:
+    - text: Vina Wibowo (5B)
+    - combobox "Keputusan untuk Vina Wibowo (5B)":
+  - listitem:
+    - text: Wahyu Saputra (5B)
+    - combobox "Keputusan untuk Wahyu Saputra (5B)":
+  - listitem:
+    - text: Yogi Utami (5B)
+    - combobox "Keputusan untuk Yogi Utami (5B)":
+  - listitem:
+    - text: Zahra Santoso (5B)
+    - combobox "Keputusan untuk Zahra Santoso (5B)":
+row 0: Adi Hidayat (5B) → Naik ke 6A · 2027/28
+row 1: Bunga Kurniawan (5B) → Naik ke 6A · 2027/28
+row 2: Citra Pratama (5B) → Naik ke 6A · 2027/28
+row 3: Dimas Lestari (5B) → Tinggal kelas di 5A · 2027/28
+row 4: Eka Rahayu (5B) → Naik ke 6A · 2027/28
+row 5: Fajar Nugroho (5B) → Naik ke 6B · 2027/28
+row 6: Gita Wibowo (5B) → Naik ke 6A · 2027/28
+row 7: Hana Saputra (5B) → Naik ke 6A · 2027/28
+row 8: Indra Utami (5B) → Naik ke 6A · 2027/28
+row 9: Joko Santoso (5B) → Naik ke 6A · 2027/28
+row 10: Kirana Hidayat (5B) → Naik ke 6A · 2027/28
+row 11: Lestari Kurniawan (5B) → Naik ke 6A · 2027/28
+row 12: Maya Pratama (5B) → Naik ke 6A · 2027/28
+row 13: Nanda Lestari (5B) → Naik ke 6A · 2027/28
+row 14: Oki Rahayu (5B) → Naik ke 6A · 2027/28
+row 15: Putri Nugroho (5B) → Naik ke 6A · 2027/28
+row 16: Rizki Wibowo (5B) → Naik ke 6A · 2027/28
+row 17: Sari Saputra (5B) → Naik ke 6A · 2027/28
+row 18: Tono Rahayu (5B) → Naik ke 6A · 2027/28
+row 19: Umi Nugroho (5B) → Naik ke 6A · 2027/28
+row 20: Vina Wibowo (5B) → Naik ke 6A · 2027/28
+row 21: Wahyu Saputra (5B) → Naik ke 6A · 2027/28
+row 22: Yogi Utami (5B) → Naik ke 6A · 2027/28
+row 23: Zahra Santoso (5B) → Naik ke 6A · 2027/28
+status line: 22 naik ke 6A · 2027/28 · 1 tinggal kelas · 1 naik ke 6B · 2027/28 · 0 belum dipilih
+H step2 sideways 1280
+review url /konfigurasi/rollover?kn_kelas=32354804-27da-40f1-ad29-4805a6fdfa59&kn_tahun=d9458753-8357-4c7f-84d7-383cc873b940&kn_semua=d63c65df-0382-42e1-a542-70432c3c3199#rollover
+review aria:
+- paragraph: Langkah 3 dari 3 · Tinjau lalu konfirmasi
+- heading "5B · Tingkat Angkatan 5 · 2026/27" [level=3]
+- paragraph: Belum ada yang berubah. Inilah hasil untuk setiap murid ke tahun ajaran 2027/28.
+- paragraph: 22 naik ke 6A · 2027/28, 1 tinggal kelas di 5A · 2027/28, 1 naik ke 6B · 2027/28
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: Dimas Lestari (5B) · Tinggal kelas di 5A · 2027/28
+  - listitem: Fajar Nugroho (5B) · Naik ke 6B · 2027/28
+- group: 22 naik ke 6A · 2027/28
+- region "Penugasan guru":
+  - heading "Penugasan guru" [level=3]
+  - paragraph: Penugasan guru tidak ikut pindah ke tahun ajaran baru. Tinjau siapa yang akan mengajar kelas tujuan, lalu ubah di Peran & akses bila perlu.
+  - list:
+    - listitem: "5A · 2027/28: belum ada guru"
+    - listitem: "6A · 2027/28: belum ada guru"
+    - listitem: "6B · 2027/28: belum ada guru"
+  - paragraph:
+    - link "Buka Peran & akses di tab baru":
+      - /url: /konfigurasi/roles#roles
+- checkbox "Saya tahu 5A, 6A dan 6B · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses."
+- text: Saya tahu 5A, 6A dan 6B · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses.
+- paragraph: "24 murid akan diproses: 22 naik ke 6A · 2027/28, 1 tinggal kelas di 5A · 2027/28, 1 naik ke 6B · 2027/28. Semuanya diterapkan bersama atau tidak sama sekali."
+- button "Konfirmasi kenaikan kelas"
+- status
+- link "Ubah keputusan":
+  - /url: /konfigurasi/rollover?kn_kelas=32354804-27da-40f1-ad29-4805a6fdfa59&kn_tahun=d9458753-8357-4c7f-84d7-383cc873b940&kn_d=W1siYzZmMzkxMmItOTk2NS00YWYyLTg3YWUtZGE5MDRjMTIxNGQ1IiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjBmODE1YTViLTA5YjAtNGRmNy05MzU3LWM2OTRmMWI1ZjBmYSIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyI4MDA4ZTkyZC0xODA4LTRlMWQtYWYxNy0yZTc4NjQ5Y2Q4ZjkiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiOWY2MWM3MTYtMGY4ZC00N2QwLWFhOTMtYTIwZThjOGU1ZDBmIiwiVElOR0dBTDpmZjkzMWUxMS02NjZiLTQ1N2ItOTg1OC00ZDY5NzM3MjdlZDIiXSxbIjMwYTMzZDUyLTI2YTctNGUwNi1iZDIzLTliMzk4YjlmM2Q1MyIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyI4NjhjODA5Ni03ZTJlLTRkNDUtODI1ZS01M2NkYTZjMjllZGUiLCJOQUlLOjYxYWU0NjhjLTg4ZjktNGM1Ni1iOWFlLWQ3NDU2NzdmMzVmNCJdLFsiODc2MTcyMzAtYWFkOC00ODUzLTkxYTMtNjEzOTIwMjhjM2E4IiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjZkNWRmM2Q1LTNiN2YtNDM0YS1hNjQ0LWIxNjBjZWExYjcyMSIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyI3OGU4MmI5MC1kNTcxLTQyMTYtYTRlZC1hNjA5MmI1MjRmMjciLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiODc0ZjM5YzYtZTRjMy00MmMyLWE4YzgtMWFkZDY4Y2MzZjEyIiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjA1ODc5NjY1LWE5MzQtNDViZi04YmVkLTA4ZmQ4ODM0NTY3ZSIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyIzMGZjYjM3OS03ZmZlLTQ4NGQtOTQ1Ni1jYzJkMTYzMDQ4NjUiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiYzQxMmE1YzItZDcyOC00MjAxLTk2Y2UtZDkxMDE2YjI2ZjQyIiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjNhYmYyM2Y5LWExMjQtNDkxMS1iZWRmLTRkZjlhNGQ1MTNjZSIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyI0YzVlYzQzZi0xYzI3LTQ1NDAtOTZjYS03ZDg4MzgwNWVjOTciLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiMDNiZjE4YzYtZjM4Ny00ZWZkLThhNzMtMzA5ZTJkNTgxNGQ1IiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjM2YTg4ZmJjLWMzMzktNDk2Yi05YjdlLTAyNzA3MDNiZGEzYyIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyI2ZDRiZmNlMy0wYzJkLTRmYmItODgzZi05ZGMwYzFmZTMxZTgiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiN2MyMzUyZDAtYmFlZi00OTVkLTg2NGUtMWY2ZDRkYjUwN2I2IiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjViMDRmNDQ3LTZiZTYtNDIwOC05NDNlLWU3Yzk4MjU3NGExMCIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyI1ZTQwMmQwZC1jZGM3LTRkYzQtYWRlYS00NzlhMzQyNTAxMjciLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiNTIyZjNkZmMtODk2NS00Mjg5LTg4M2ItMmUyYjAwOGU1MzhmIiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjM2OGQ2OTE3LWI4ZTEtNGNiYS05NDZjLWJmY2Y4YzBkYThkYSIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyIwZmI5MDI3OC1hMWZiLTQxNmItYWYzZi05ODA0NGY1YjQwNzIiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdXQ#rollover
+review summary: 22 naik ke 6A · 2027/28 | names in fold: 22 | exceptions: 2
+fold open: 22 naik ke 6A · 2027/28 Adi Hidayat (5B) Bunga Kurniawan (5B) Citra Pratama (5B) Eka Rahayu (5B) Gita Wibowo (5B) Hana Saputra (5B) Indra Utami (5B) Joko Santoso (5B) Kirana Hidayat (5B) Lestari Kurniawan (5B) Maya Pratama (5B) Nanda Lestari (5B) Oki Rahayu (5B) Putri Nugroho (5B) Rizki Wibowo (5B) Sari Saputra (5B) Tono Rahayu (5B) Umi Nugroho (5B) Vina Wibowo (5B) Wahyu Saputra (5B) Yogi Utami (5B) Zahra Santoso (5B)
+checkbox: 1 Saya tahu 5A, 6A dan 6B · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses.
+H 1280 review sideways 1280
+H 390 review sideways 390
+H 320 review sideways 320
+outcome url /konfigurasi/rollover?kn_kelas=32354804-27da-40f1-ad29-4805a6fdfa59&kn_tahun=d9458753-8357-4c7f-84d7-383cc873b940&kn_langkah=selesai#rollover
+outcome aria:
+- status: "Selesai. 24 murid diproses pada 10 Nov 2026, 14.43 WIB. Inilah hasil untuk setiap murid. Diperiksa dari data PINTAR: semua sesuai."
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: Dimas Lestari (5B) · Tinggal kelas di 5A · 2027/28
+  - listitem: Fajar Nugroho (5B) · Naik ke 6B · 2027/28
+- group: 22 naik ke 6A · 2027/28
+- paragraph:
+  - text: "3 Kelas tahun 2027/28 belum punya guru: 5A, 6A, 6B. Beri perannya di Peran & akses."
+  - link "Buka Peran & akses":
+    - /url: /konfigurasi/roles#roles
+- link "Lanjut ke 5A · 2026/27 (belum diproses)":
+  - /url: /konfigurasi/rollover?kn_kelas=66752045-6857-45f4-8868-4ef9361fcc2a#rollover
+- link "Pilih kelas lain":
+  - /url: /konfigurasi/rollover?#rollover
+outcome summary: 22 naik ke 6A · 2027/28 | names in fold: 22 | exceptions: 2
+outcome fold open: 22 naik ke 6A · 2027/28 Adi Hidayat (5B) Bunga Kurniawan (5B) Citra Pratama (5B) Eka Rahayu (5B) Gita Wibowo (5B) Hana Saputra (5B) Indra Utami (5B) Joko Santoso (5B) Kirana Hidayat (5B) Lestari Kurniawan (5B) Maya Pratama (5B) Nanda Lestari (5B) Oki Rahayu (5B) Putri Nugroho (5B) Rizki Wibowo (5B) Sari Saputra (5B) Tono Rahayu (5B) Umi Nugroho (5B) Vina Wibowo (5B) Wahyu Saputra (5B) Yogi Utami (5B) Zahra Santoso (5B)
+lanjut: Lanjut ke 5A · 2026/27 (belum diproses) Pilih kelas lain
+H 1280 outcome sideways 1280
+H 390 outcome sideways 390
+H 320 outcome sideways 320
+step2 url /konfigurasi/rollover?kn_kelas=a5d61959-ad75-4e9a-b5e2-d892e3a97a9f#rollover
+bulk options ["— Pilih satu per satu —","5A · 2027/28","6A · 2027/28","6B · 2027/28"]
+after Terapkan: Langkah 2 dari 3 · Keputusan untuk setiap murid 5H · Tingkat Angkatan 5 IPA · 2026/27 Tahun ajaran baru 2027/28 Naikkan semua ke — Pilih satu per satu — 5A · 2027/28 6A · 2027/28 6B · 2027/28 Terapkan 5 murid. Setiap murid perlu satu keputusan sebelum hasilnya dapat ditinjau. 5 belum dipilih. Belum dipilih: Adi Wibowo (5H), Bunga Saputra (5H), Citra Utami (5H), Dimas Santoso (5H), Eka Hidayat (5H). Adi Wibowo (5H) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tinggal kelas di 6A · 2027/28 Tinggal kelas di 6B · 2027/28 Lulus Keluar: mengundurkan diri Keluar: pindah ke sekolah di luar PINTAR Keluar: pindah ke luar negeri Keluar: meninggal dunia Bunga Saputra (5H) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tinggal kelas di 6A · 2027/28 Tinggal kelas di 6B · 2027/28 Lulus Kelu
+step2 aria:
+- list:
+  - listitem:
+    - text: Adi Wibowo (5H)
+    - combobox "Keputusan untuk Adi Wibowo (5H)":
+  - listitem:
+    - text: Bunga Saputra (5H)
+    - combobox "Keputusan untuk Bunga Saputra (5H)":
+  - listitem:
+    - text: Citra Utami (5H)
+    - combobox "Keputusan untuk Citra Utami (5H)":
+  - listitem:
+    - text: Dimas Santoso (5H)
+    - combobox "Keputusan untuk Dimas Santoso (5H)":
+  - listitem:
+    - text: Eka Hidayat (5H)
+    - combobox "Keputusan untuk Eka Hidayat (5H)":
+row 0: Adi Wibowo (5H) → Keluar: mengundurkan diri
+row 1: Bunga Saputra (5H) → Lulus
+row 2: Citra Utami (5H) → Lulus
+row 3: Dimas Santoso (5H) → Lulus
+row 4: Eka Hidayat (5H) → Lulus
+status line: 1 keluar · 4 lulus · 0 belum dipilih
+J step2 sideways 1280
+review url /konfigurasi/rollover?kn_kelas=a5d61959-ad75-4e9a-b5e2-d892e3a97a9f#rollover
+review aria:
+- paragraph: Langkah 3 dari 3 · Tinjau lalu konfirmasi
+- heading "5H · Tingkat Angkatan 5 IPA · 2026/27" [level=3]
+- paragraph: Belum ada yang berubah. Inilah hasil untuk setiap murid ke tahun ajaran 2027/28.
+- paragraph: 1 keluar, 4 lulus
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: "Adi Wibowo (5H) · Keluar: mengundurkan diri"
+- group: 4 lulus
+- region "Penugasan guru":
+  - heading "Penugasan guru" [level=3]
+  - paragraph: Penugasan guru tidak ikut pindah ke tahun ajaran baru. Tinjau siapa yang akan mengajar kelas tujuan, lalu ubah di Peran & akses bila perlu.
+  - paragraph: "Tidak ada kelas tujuan: setiap murid kelas ini lulus atau keluar."
+- paragraph: "5 murid akan diproses: 1 keluar, 4 lulus. Semuanya diterapkan bersama atau tidak sama sekali."
+- button "Konfirmasi kenaikan kelas"
+- status
+- link "Ubah keputusan":
+  - /url: /konfigurasi/rollover?kn_kelas=a5d61959-ad75-4e9a-b5e2-d892e3a97a9f&kn_tahun=d9458753-8357-4c7f-84d7-383cc873b940&kn_d=W1siOGVhZTc0NzEtNGE2Yy00OTI0LWFkNWItZTZlZjVlNDBlNjBiIiwiS0VMVUFSOldJVEhEUkFXTiJdLFsiOWFkNzI0YWEtN2Q4My00NDFmLTlkMTAtNDIzNzdiNDQ5ZmVjIiwiTFVMVVMiXSxbIjRiOWRmMGNjLWQyMTEtNDFmZC05NjVkLTkzMzE4Y2I2MWU4OCIsIkxVTFVTIl0sWyJlMmQwNjdjOC0yYjFhLTRmYjctYWNkYi1lZDY2NjIyMWFiNGUiLCJMVUxVUyJdLFsiNjQ1NjdkMTctYjgzYy00NjMyLWE5ZmYtN2Y1ZGM0NjYyYjMxIiwiTFVMVVMiXV0#rollover
+review summary: 4 lulus | names in fold: 4 | exceptions: 1
+fold open: 4 lulus Bunga Saputra (5H) Citra Utami (5H) Dimas Santoso (5H) Eka Hidayat (5H)
+checkbox: 0 -
+J 1280 review sideways 1280
+J 390 review sideways 390
+J 320 review sideways 320
+outcome url /konfigurasi/rollover?kn_kelas=a5d61959-ad75-4e9a-b5e2-d892e3a97a9f&kn_tahun=d9458753-8357-4c7f-84d7-383cc873b940&kn_langkah=selesai#rollover
+outcome aria:
+- status: "Selesai. 5 murid diproses pada 10 Nov 2026, 14.43 WIB. Inilah hasil untuk setiap murid. Diperiksa dari data PINTAR: semua sesuai."
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: "Adi Wibowo (5H) · Keluar: mengundurkan diri"
+- group: 4 lulus
+- link "Lanjut ke 5A · 2026/27 (belum diproses)":
+  - /url: /konfigurasi/rollover?kn_kelas=66752045-6857-45f4-8868-4ef9361fcc2a#rollover
+- link "Pilih kelas lain":
+  - /url: /konfigurasi/rollover?#rollover
+outcome summary: 4 lulus | names in fold: 4 | exceptions: 1
+outcome fold open: 4 lulus Bunga Saputra (5H) Citra Utami (5H) Dimas Santoso (5H) Eka Hidayat (5H)
+lanjut: Lanjut ke 5A · 2026/27 (belum diproses) Pilih kelas lain
+J 1280 outcome sideways 1280
+J 390 outcome sideways 390
+J 320 outcome sideways 320
+step2 url /konfigurasi/rollover?kn_kelas=86e1404e-61ee-42a5-aba9-6905993e5080#rollover
+bulk options ["— Pilih satu per satu —","5A · 2027/28","6A · 2027/28","6B · 2027/28"]
+after Terapkan: Langkah 2 dari 3 · Keputusan untuk setiap murid 5G · Tingkat Angkatan 5 IPA · 2026/27 Tahun ajaran baru 2027/28 Naikkan semua ke — Pilih satu per satu — 5A · 2027/28 6A · 2027/28 6B · 2027/28 Terapkan 6 murid. Setiap murid perlu satu keputusan sebelum hasilnya dapat ditinjau. 6 belum dipilih Adi Hidayat (5G) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tinggal kelas di 6A · 2027/28 Tinggal kelas di 6B · 2027/28 Lulus Keluar: mengundurkan diri Keluar: pindah ke sekolah di luar PINTAR Keluar: pindah ke luar negeri Keluar: meninggal dunia Bunga Kurniawan (5G) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tinggal kelas di 6A · 2027/28 Tinggal kelas di 6B · 2027/28 Lulus Keluar: mengundurkan diri Keluar: pindah ke sekolah di luar PINTAR Keluar: pindah ke luar negeri Keluar: menin
+step2 aria:
+- list:
+  - listitem:
+    - text: Adi Hidayat (5G)
+    - combobox "Keputusan untuk Adi Hidayat (5G)":
+  - listitem:
+    - text: Bunga Kurniawan (5G)
+    - combobox "Keputusan untuk Bunga Kurniawan (5G)":
+  - listitem:
+    - text: Citra Pratama (5G)
+    - combobox "Keputusan untuk Citra Pratama (5G)":
+  - listitem:
+    - text: Dimas Lestari (5G)
+    - combobox "Keputusan untuk Dimas Lestari (5G)":
+  - listitem:
+    - text: Eka Rahayu (5G)
+    - combobox "Keputusan untuk Eka Rahayu (5G)":
+  - listitem:
+    - text: Zahra Santoso (5G)
+    - combobox "Keputusan untuk Zahra Santoso (5G)":
+row 0: Adi Hidayat (5G) → Lulus
+row 1: Bunga Kurniawan (5G) → Lulus
+row 2: Citra Pratama (5G) → Lulus
+row 3: Dimas Lestari (5G) → Naik ke 6A · 2027/28
+row 4: Eka Rahayu (5G) → Naik ke 6A · 2027/28
+row 5: Zahra Santoso (5G) → Naik ke 6A · 2027/28
+status line: 3 lulus · 3 naik ke 6A · 2027/28 · 0 belum dipilih
+T step2 sideways 1280
+review url /konfigurasi/rollover?kn_kelas=86e1404e-61ee-42a5-aba9-6905993e5080#rollover
+review aria:
+- paragraph: Langkah 3 dari 3 · Tinjau lalu konfirmasi
+- heading "5G · Tingkat Angkatan 5 IPA · 2026/27" [level=3]
+- paragraph: Belum ada yang berubah. Inilah hasil untuk setiap murid ke tahun ajaran 2027/28.
+- paragraph: 3 lulus, 3 naik ke 6A · 2027/28
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: Adi Hidayat (5G) · Lulus
+  - listitem: Bunga Kurniawan (5G) · Lulus
+  - listitem: Citra Pratama (5G) · Lulus
+- group: 3 naik ke 6A · 2027/28
+- region "Penugasan guru":
+  - heading "Penugasan guru" [level=3]
+  - paragraph: Penugasan guru tidak ikut pindah ke tahun ajaran baru. Tinjau siapa yang akan mengajar kelas tujuan, lalu ubah di Peran & akses bila perlu.
+  - list:
+    - listitem: "6A · 2027/28: belum ada guru"
+  - paragraph:
+    - link "Buka Peran & akses di tab baru":
+      - /url: /konfigurasi/roles#roles
+- checkbox "Saya tahu 6A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses."
+- text: Saya tahu 6A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses.
+- paragraph: "6 murid akan diproses: 3 lulus, 3 naik ke 6A · 2027/28. Semuanya diterapkan bersama atau tidak sama sekali."
+- button "Konfirmasi kenaikan kelas"
+- status
+- link "Ubah keputusan":
+  - /url: /konfigurasi/rollover?kn_kelas=86e1404e-61ee-42a5-aba9-6905993e5080&kn_tahun=d9458753-8357-4c7f-84d7-383cc873b940&kn_d=W1siY2QzY2FmODYtYmQ5OC00ZDA0LTlhYjEtYTZjODczMzZiMjdkIiwiTFVMVVMiXSxbIjgyNTA5MmY0LWU0MWItNDVlYS04MjQ0LTdkNmIwNTQ0YzM4OSIsIkxVTFVTIl0sWyJlZGY3MWNhOS1hZTE1LTQ0MGQtOGViNy0wZDRiMWM1OWZhMDEiLCJMVUxVUyJdLFsiNDcxNWJmMmMtMTJiOS00MDcyLWFjNDEtOTI2Njc2MzZhMjQwIiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjkwMzNjZTBhLTY0MjgtNDAwMS05MTI1LTBjNjUyNzg0ZDNkYSIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyIxOTNhMGMxNy04MjQ2LTRmZDYtYjJkMS0yNDgzZGQzMDliMGEiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdXQ#rollover
+review summary: 3 naik ke 6A · 2027/28 | names in fold: 3 | exceptions: 3
+fold open: 3 naik ke 6A · 2027/28 Dimas Lestari (5G) Eka Rahayu (5G) Zahra Santoso (5G)
+checkbox: 1 Saya tahu 6A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses.
+T 1280 review sideways 1280
+T 390 review sideways 390
+T 320 review sideways 320
+outcome url /konfigurasi/rollover?kn_kelas=86e1404e-61ee-42a5-aba9-6905993e5080&kn_tahun=d9458753-8357-4c7f-84d7-383cc873b940&kn_langkah=selesai#rollover
+outcome aria:
+- status: "Selesai. 6 murid diproses pada 10 Nov 2026, 14.43 WIB. Inilah hasil untuk setiap murid. Diperiksa dari data PINTAR: semua sesuai."
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: Adi Hidayat (5G) · Lulus
+  - listitem: Bunga Kurniawan (5G) · Lulus
+  - listitem: Citra Pratama (5G) · Lulus
+- group: 3 naik ke 6A · 2027/28
+- paragraph:
+  - text: "1 Kelas tahun 2027/28 belum punya guru: 6A. Beri perannya di Peran & akses."
+  - link "Buka Peran & akses":
+    - /url: /konfigurasi/roles#roles
+- link "Lanjut ke 5A · 2026/27 (belum diproses)":
+  - /url: /konfigurasi/rollover?kn_kelas=66752045-6857-45f4-8868-4ef9361fcc2a#rollover
+- link "Pilih kelas lain":
+  - /url: /konfigurasi/rollover?#rollover
+outcome summary: 3 naik ke 6A · 2027/28 | names in fold: 3 | exceptions: 3
+outcome fold open: 3 naik ke 6A · 2027/28 Dimas Lestari (5G) Eka Rahayu (5G) Zahra Santoso (5G)
+lanjut: Lanjut ke 5A · 2026/27 (belum diproses) Pilih kelas lain
+T 1280 outcome sideways 1280
+T 390 outcome sideways 390
+T 320 outcome sideways 320
+step2 url /konfigurasi/rollover?kn_kelas=66752045-6857-45f4-8868-4ef9361fcc2a#rollover
+bulk options ["— Pilih satu per satu —","5A · 2027/28","6A · 2027/28","6B · 2027/28"]
+after Terapkan: Langkah 2 dari 3 · Keputusan untuk setiap murid 5A · Tingkat Angkatan 5 · 2026/27 Tahun ajaran baru 2027/28 Naikkan semua ke — Pilih satu per satu — 5A · 2027/28 6A · 2027/28 6B · 2027/28 Terapkan Diterapkan ke 27 murid. 27 murid. Setiap murid perlu satu keputusan sebelum hasilnya dapat ditinjau. 27 naik ke 6A · 2027/28 · 0 belum dipilih Adi Rahayu (5F) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tinggal kelas di 6A · 2027/28 Tinggal kelas di 6B · 2027/28 Lulus Keluar: mengundurkan diri Keluar: pindah ke sekolah di luar PINTAR Keluar: pindah ke luar negeri Keluar: meninggal dunia Adi Utami (5E) — Pilih — Naik ke 5A · 2027/28 Naik ke 6A · 2027/28 Naik ke 6B · 2027/28 Tinggal kelas di 5A · 2027/28 Tinggal kelas di 6A · 2027/28 Tinggal kelas di 6B · 2027/28 Lulus Keluar: mengundurkan diri Keluar: pindah ke sekolah di luar PINTAR Kel
+step2 aria:
+- list:
+  - listitem:
+    - text: Adi Rahayu (5F)
+    - combobox "Keputusan untuk Adi Rahayu (5F)":
+  - listitem:
+    - text: Adi Utami (5E)
+    - combobox "Keputusan untuk Adi Utami (5E)":
+  - listitem:
+    - text: Adi Wibowo (5C)
+    - combobox "Keputusan untuk Adi Wibowo (5C)":
+  - listitem:
+    - text: Aisyah (peraga)
+    - combobox "Keputusan untuk Aisyah (peraga)":
+  - listitem:
+    - text: Bunga Nugroho (5F)
+    - combobox "Keputusan untuk Bunga Nugroho (5F)":
+  - listitem:
+    - text: Bunga Santoso (5E)
+    - combobox "Keputusan untuk Bunga Santoso (5E)":
+  - listitem:
+    - text: Bunga Saputra (5C)
+    - combobox "Keputusan untuk Bunga Saputra (5C)":
+  - listitem:
+    - text: Citra Hidayat (5E)
+    - combobox "Keputusan untuk Citra Hidayat (5E)":
+  - listitem:
+    - text: Citra Utami (5C)
+    - combobox "Keputusan untuk Citra Utami (5C)":
+  - listitem:
+    - text: Citra Wibowo (5F)
+    - combobox "Keputusan untuk Citra Wibowo (5F)":
+  - listitem:
+    - text: Dimas Kurniawan (5E)
+    - combobox "Keputusan untuk Dimas Kurniawan (5E)":
+  - listitem:
+    - text: Dimas Santoso (5C)
+    - combobox "Keputusan untuk Dimas Santoso (5C)":
+  - listitem:
+    - text: Dimas Saputra (5F)
+    - combobox "Keputusan untuk Dimas Saputra (5F)":
+  - listitem:
+    - text: Eka Hidayat (5C)
+    - combobox "Keputusan untuk Eka Hidayat (5C)":
+  - listitem:
+    - text: Eka Pratama (5E)
+    - combobox "Keputusan untuk Eka Pratama (5E)":
+  - listitem:
+    - text: Fajar Kurniawan (5C)
+    - combobox "Keputusan untuk Fajar Kurniawan (5C)":
+  - listitem:
+    - text: Fajar Lestari (5E)
+    - combobox "Keputusan untuk Fajar Lestari (5E)":
+  - listitem:
+    - text: Gita Pratama (5C)
+    - combobox "Keputusan untuk Gita Pratama (5C)":
+  - listitem:
+    - text: Umi Kurniawan (5C)
+    - combobox "Keputusan untuk Umi Kurniawan (5C)":
+  - listitem:
+    - text: Vina Pratama (5C)
+    - combobox "Keputusan untuk Vina Pratama (5C)":
+  - listitem:
+    - text: Wahyu Lestari (5C)
+    - combobox "Keputusan untuk Wahyu Lestari (5C)":
+  - listitem:
+    - text: Wahyu Nugroho (5E)
+    - combobox "Keputusan untuk Wahyu Nugroho (5E)":
+  - listitem:
+    - text: Yogi Pratama (5F)
+    - combobox "Keputusan untuk Yogi Pratama (5F)":
+  - listitem:
+    - text: Yogi Rahayu (5C)
+    - combobox "Keputusan untuk Yogi Rahayu (5C)":
+  - listitem:
+    - text: Yogi Wib
+row 0: Adi Rahayu (5F) → Naik ke 6A · 2027/28
+row 1: Adi Utami (5E) → Naik ke 6A · 2027/28
+row 2: Adi Wibowo (5C) → Tinggal kelas di 5A · 2027/28
+row 3: Aisyah (peraga) → Naik ke 6A · 2027/28
+row 4: Bunga Nugroho (5F) → Naik ke 6A · 2027/28
+row 5: Bunga Santoso (5E) → Naik ke 6A · 2027/28
+row 6: Bunga Saputra (5C) → Naik ke 6A · 2027/28
+row 7: Citra Hidayat (5E) → Naik ke 6A · 2027/28
+row 8: Citra Utami (5C) → Naik ke 6A · 2027/28
+row 9: Citra Wibowo (5F) → Naik ke 6A · 2027/28
+row 10: Dimas Kurniawan (5E) → Naik ke 6A · 2027/28
+row 11: Dimas Santoso (5C) → Naik ke 6A · 2027/28
+row 12: Dimas Saputra (5F) → Naik ke 6A · 2027/28
+row 13: Eka Hidayat (5C) → Naik ke 6A · 2027/28
+row 14: Eka Pratama (5E) → Naik ke 6A · 2027/28
+row 15: Fajar Kurniawan (5C) → Naik ke 6A · 2027/28
+row 16: Fajar Lestari (5E) → Naik ke 6A · 2027/28
+row 17: Gita Pratama (5C) → Naik ke 6A · 2027/28
+row 18: Umi Kurniawan (5C) → Naik ke 6A · 2027/28
+row 19: Vina Pratama (5C) → Naik ke 6A · 2027/28
+row 20: Wahyu Lestari (5C) → Naik ke 6A · 2027/28
+row 21: Wahyu Nugroho (5E) → Naik ke 6A · 2027/28
+row 22: Yogi Pratama (5F) → Naik ke 6A · 2027/28
+row 23: Yogi Rahayu (5C) → Naik ke 6A · 2027/28
+row 24: Yogi Wibowo (5E) → Naik ke 6A · 2027/28
+row 25: Zahra Nugroho (5C) Asesmen masih terbuka → Naik ke 6A · 2027/28
+row 26: Zahra Saputra (5E) → Naik ke 6A · 2027/28
+status line: 26 naik ke 6A · 2027/28 · 1 tinggal kelas · 0 belum dipilih
+X step2 sideways 1280
+review url /konfigurasi/rollover?kn_kelas=66752045-6857-45f4-8868-4ef9361fcc2a&kn_tahun=d9458753-8357-4c7f-84d7-383cc873b940&kn_semua=d63c65df-0382-42e1-a542-70432c3c3199#rollover
+review aria:
+- paragraph: Langkah 3 dari 3 · Tinjau lalu konfirmasi
+- heading "5A · Tingkat Angkatan 5 · 2026/27" [level=3]
+- paragraph: Belum ada yang berubah. Inilah hasil untuk setiap murid ke tahun ajaran 2027/28.
+- paragraph: 26 naik ke 6A · 2027/28, 1 tinggal kelas di 5A · 2027/28
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: Adi Wibowo (5C) · Tinggal kelas di 5A · 2027/28
+- group: 26 naik ke 6A · 2027/28
+- region "Penugasan guru":
+  - heading "Penugasan guru" [level=3]
+  - paragraph: Penugasan guru tidak ikut pindah ke tahun ajaran baru. Tinjau siapa yang akan mengajar kelas tujuan, lalu ubah di Peran & akses bila perlu.
+  - list:
+    - listitem: "5A · 2027/28: belum ada guru"
+    - listitem: "6A · 2027/28: belum ada guru"
+  - paragraph:
+    - link "Buka Peran & akses di tab baru":
+      - /url: /konfigurasi/roles#roles
+- checkbox "Saya tahu 5A dan 6A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses."
+- text: Saya tahu 5A dan 6A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses.
+- paragraph: "27 murid akan diproses: 26 naik ke 6A · 2027/28, 1 tinggal kelas di 5A · 2027/28. Semuanya diterapkan bersama atau tidak sama sekali."
+- button "Konfirmasi kenaikan kelas"
+- status
+- link "Ubah keputusan":
+  - /url: /konfigurasi/rollover?kn_kelas=66752045-6857-45f4-8868-4ef9361fcc2a&kn_tahun=d9458753-8357-4c7f-84d7-383cc873b940&kn_d=W1siZjY2M2YwMjAtMGRiMy00ZTQyLTk5NTMtNzFiMjkzYTQxMDVjIiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjEyNmU4OWZjLTAxNDEtNDJlYy1hZTNiLWY1MDRkZjM2MDAyMiIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyI3NGI5ODNiYi0xMmJiLTQzMGYtOGI1NC1jNGUxNWU1OTdhNmMiLCJUSU5HR0FMOmZmOTMxZTExLTY2NmItNDU3Yi05ODU4LTRkNjk3MzcyN2VkMiJdLFsiMjY3N2VlNzQtNTIyYi00OTdlLWE5ZDgtYjE4N2EyMDI2YjJhIiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbImU5NTExYWM2LWM5NjMtNDhjYy1hMWY3LWIwOGViYmZjYmQwYyIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyIwODkwMTdjNC0zMGMwLTQ3MWItYTI5Yi1lNTFkNjgxMWIyNjgiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiYmQ0YWNjMGQtYmZlNy00Y2E5LWJiNWMtNjMyNTU3NzRhOTQ1IiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjYwNGU0NTg0LThmZDItNDkwMS04YmU1LWUwMzYxMGMxMTQyNyIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyIzZTBiNjZkNC0xYTFkLTRiMGUtOTM5Zi03MWNhODQ0N2ViNGEiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiYjY2Yjg5ZTUtMDE0Mi00NDdhLWE1NjEtNzY2ZTZmM2U3YzBjIiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjY3NzBkYWFhLWJkNzctNGY3Yy1iZTA3LTk3YjViNGUxMGY5MSIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyJhNWQyOTE2ZS0zZmQ0LTRiYWYtOWFmOS1kNzRhOWJhM2JjMjkiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiMjAwODQxZjMtMzZlNS00ZjFjLTk4OTItMTE4ZDcxMThlZTQwIiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjM4NjUyMWI4LWQ3ZTYtNGQ5Mi04OTNjLTFhZjc1YTE5YjU4MiIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyI3N2JiY2Q5Ni01MWExLTRiYzgtYWMxZS1kYjc3Y2FlYzkwYzEiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiN2Y2ZDE5ZDItYmQ4Yy00M2Q2LWE2N2ItMDEzYjUyMWFjODAxIiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjlmYmQyYWVlLWEzZDAtNDZiYS04YzU3LTBiYjlmZjQyNzQ2MCIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyI2ZjI0MmQ0Yi04YzE1LTQ1ZjktYWIyNy03YzRiMzJiMDczODQiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiNDNkZTQxOWYtYmEzNy00YjYyLWFkMjUtMWIwODE3NGEzMzBiIiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbImUwY2E1ZmUwLTk4ZTgtNDNiYy1hNTQwLWNkOTBmYTMwM2I4NSIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyI1MjRjMDBiYS03YzYxLTRjYmEtOTJlMi00M2UyNWNjYjM0NzIiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiYmU1MjRjOWUtYThiNC00NjQ1LWExODMtYzIyY2FhNTMyZGMzIiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbIjAwMmUxNjc4LTc1OTQtNGQwNS04MDg4LTFhOWQzOTNkOWI5MSIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyJmMWE4N2M3MC1jZDFiLTRlZDgtYWI2Ny1lZTFjMzMwMzE1YjIiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdLFsiNmI5ZDQ5MTktZjlmMy00M2IzLTk1OTctOWQzNzg4ZDIwYmM4IiwiTkFJSzpkNjNjNjVkZi0wMzgyLTQyZTEtYTU0Mi03MDQzMmMzYzMxOTkiXSxbImJkY2E1ZjcwLTBjZmQtNGVhMy05NjZjLTRlZGZlYTQ1ZDZmOCIsIk5BSUs6ZDYzYzY1ZGYtMDM4Mi00MmUxLWE1NDItNzA0MzJjM2MzMTk5Il0sWyI5MzFlMmUzZS1mZDQyLTRlNGUtYWM3MC0xOGVlMDZlNzIxYTkiLCJOQUlLOmQ2M2M2NWRmLTAzODItNDJlMS1hNTQyLTcwNDMyYzNjMzE5OSJdXQ#rollover
+review summary: 26 naik ke 6A · 2027/28 | names in fold: 26 | exceptions: 1
+fold open: 26 naik ke 6A · 2027/28 Adi Rahayu (5F) Adi Utami (5E) Aisyah (peraga) Bunga Nugroho (5F) Bunga Santoso (5E) Bunga Saputra (5C) Citra Hidayat (5E) Citra Utami (5C) Citra Wibowo (5F) Dimas Kurniawan (5E) Dimas Santoso (5C) Dimas Saputra (5F) Eka Hidayat (5C) Eka Pratama (5E) Fajar Kurniawan (5C) Fajar Lestari (5E) Gita Pratama (5C) Umi Kurniawan (5C) Vina Pratama (5C) Wahyu Lestari (5C) Wahyu Nugroho (5E) Yogi Pratama (5F) Yogi Rahayu (5C) Yogi Wibowo (5E) Zahra Nugroho (5C) · 1 asesmen yang masih terbuka diakhiri; jawabannya tetap tersimpan Zahra Saputra (5E)
+checkbox: 1 Saya tahu 5A dan 6A · 2027/28 belum punya guru, dan akan memberikan perannya di Peran & akses.
+X 1280 review sideways 1280
+X 390 review sideways 390
+X 320 review sideways 320
+outcome url /konfigurasi/rollover?kn_kelas=66752045-6857-45f4-8868-4ef9361fcc2a&kn_tahun=d9458753-8357-4c7f-84d7-383cc873b940&kn_langkah=selesai#rollover
+outcome aria:
+- status: "Selesai. 27 murid diproses pada 10 Nov 2026, 14.46 WIB. Inilah hasil untuk setiap murid. Diperiksa dari data PINTAR: semua sesuai."
+- heading "Pengecualian" [level=4]
+- list:
+  - listitem: Adi Wibowo (5C) · Tinggal kelas di 5A · 2027/28
+- group: 26 naik ke 6A · 2027/28
+- paragraph:
+  - text: "2 Kelas tahun 2027/28 belum punya guru: 5A, 6A. Beri perannya di Peran & akses."
+  - link "Buka Peran & akses":
+    - /url: /konfigurasi/roles#roles
+- link "Lanjut ke 5C · 2026/27 (belum diproses)":
+  - /url: /konfigurasi/rollover?kn_kelas=baebd54b-e8f3-4e88-9caf-9633cc850a7b#rollover
+- link "Pilih kelas lain":
+  - /url: /konfigurasi/rollover?#rollover
+outcome summary: 26 naik ke 6A · 2027/28 | names in fold: 26 | exceptions: 1
+outcome fold open: 26 naik ke 6A · 2027/28 Adi Rahayu (5F) Adi Utami (5E) Aisyah (peraga) Bunga Nugroho (5F) Bunga Santoso (5E) Bunga Saputra (5C) Citra Hidayat (5E) Citra Utami (5C) Citra Wibowo (5F) Dimas Kurniawan (5E) Dimas Santoso (5C) Dimas Saputra (5F) Eka Hidayat (5C) Eka Pratama (5E) Fajar Kurniawan (5C) Fajar Lestari (5E) Gita Pratama (5C) Umi Kurniawan (5C) Vina Pratama (5C) Wahyu Lestari (5C) Wahyu Nugroho (5E) Yogi Pratama (5F) Yogi Rahayu (5C) Yogi Wibowo (5E) Zahra Nugroho (5C) Zahra Saputra (5E)
+lanjut: Lanjut ke 5C · 2026/27 (belum diproses) Pilih kelas lain
+X 1280 outcome sideways 1280
+X 390 outcome sideways 390
+X 320 outcome sideways 320
