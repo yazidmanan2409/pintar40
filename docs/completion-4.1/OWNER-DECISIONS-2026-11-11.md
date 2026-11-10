@@ -18,6 +18,20 @@
 | O41-14 | **AI provider evaluation** | Approved within the US$25 ceiling (O41-1). It begins early. Educators remain responsible for approving content. |
 | O41-15 | **Development-process rules** | The five rules in §3 are adopted, with one qualification: a genuine security, authorization, evidence-integrity or essential-journey blocker is always resolved before closure. |
 
+## 1b · Four further rulings (11 Nov, later the same day)
+
+| # | Question | Ruling |
+|---|---|---|
+| O41-16 | **Another attempt at Uji Penguasaan** | The teacher may request it, with a reason. An independent authorized approval is required before it is granted, because mastery can lead to certification. |
+| O41-17 | **A suspended learner's sitting** | Freeze access immediately. Preserve acknowledged answers and remaining time. On reinstatement, the teacher resumes or closes it; it never resumes silently and never gains time. |
+| O41-18 | **The authorized content owner** | For school-owned content, the school's authorized content owner. For platform content distributed across schools, an authorized platform content owner. Both require independent confirmation, with affected schools notified. |
+| O41-19 | **A certificate after corrected scoring** | Not silently revoked, and not left standing as valid. Flagged for authorized review with its history preserved. Verification must not present a disputed certificate as unquestionably valid. |
+
+Also ruled the same day:
+- The two outstanding rendered checks on 4.0 staging do not hold 4.1 development (see `EXECUTION-PLAN.md` §6).
+- The provider evaluation's design, material and US$25 ceiling are approved; execution waits for secure access and named judges, and blocks nothing (`C3-EVALUATION-PLAN.md`).
+- Planning records become the authoritative repository record once merged into `main` through the protected process.
+
 ## 2 · Approved direction: three lanes
 
 - **Lane A · Assessment operations:** sitting control; pause and emergency controls; cross-device recovery and single-writer enforcement.

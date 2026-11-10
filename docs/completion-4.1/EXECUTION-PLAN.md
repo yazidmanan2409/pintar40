@@ -70,3 +70,5 @@ New non-blocking findings are added here when raised, with the batch they came f
 ## 6 · Still open from 4.0 on staging
 
 Three rendered checks, not yet seen: a certificate's displayed date for a night-issued certificate; the integrity count line; «Materi tanpa judul» (no such assignment exists on staging). They need a browser on staging. They are checks, not a review round.
+
+**Owner (11 Nov):** these do not hold 4.1 development. Daisy attempts them; if she cannot reach staging, they stay recorded as outstanding and a browser-capable person performs them before the next human acceptance milestone. «Materi tanpa judul» stays explicitly unverified.

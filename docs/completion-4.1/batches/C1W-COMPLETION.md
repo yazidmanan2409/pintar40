@@ -23,14 +23,16 @@ Verified in the 4.0 code:
 | See a question's **history** | authors and reviewers | Studio shows the chain: each version, who revised it, when, in which release |
 | **Publish a correction** | CAN_PUBLISH, second person as today | The corrected release replaces its predecessor for new assignments. The predecessor is marked replaced |
 | **Withdraw a release** | CAN_PUBLISH | No class can start a new sitting on it (O41-11). Open sittings finish. Finished results stay |
-| **Correct a wrong key** (O41-11) | an authorized content owner proposes; an independent second person confirms | A corrected revision of the question is published. Affected finished sittings are listed. Each gets a recomputed result that supersedes the original; the original result, the original responses and the authorization are kept and visible. A mastery decision or certificate that changes is flagged for the school, never silently altered |
+| **Correct a wrong key** (O41-11) | an authorized content owner proposes; an independent second person confirms | A corrected revision of the question is published. Affected finished sittings are listed. Each gets a recomputed result that supersedes the original; the original result, the original responses and the authorization are kept and visible. Affected schools are notified |
+| **Review a certificate** whose supporting result changed | an authorized person at the issuing school | The certificate is marked under review from the moment the result changes. The reviewer confirms it or revokes it, with a reason. Its history is kept either way |
 
 ## Truths (for Sharon)
 
 - A past sitting always shows the version the learner saw. Sealed content is never edited.
 - A revised question is a new row. Statistics stay per version. No comparability is claimed between versions.
 - A recomputed result supersedes; it does not overwrite. Reports read the result in force and can show that it was recomputed and why.
-- **Certificates after a recomputation:** one that would no longer be earned is not revoked automatically. It is listed for the school admin, who revokes or keeps it with a reason. One newly earned is issued by the usual path.
+- **Who the content owner is (owner, 11 Nov):** for a school's own content, that school's authorized content owner. For platform content distributed across schools, an authorized platform content owner. Both need independent confirmation, and the affected schools are notified.
+- **Certificates after a recomputation (owner, 11 Nov):** a certificate is a formal educational claim. When its supporting result changes it is neither silently revoked nor left standing as valid. It is flagged for authorized review, its history is preserved, and **public verification says it is under review** until an authorized decision is made. One newly earned is issued by the usual path.
 - A learner sees a neutral «dihitung ulang» note, as 4.0 already words it.
 
 ## Refused
@@ -48,12 +50,14 @@ Every edit of a draft is attributed (who, when). Every revision, publication, wi
 
 - Studio › package: a question editor for drafts; discard; «Riwayat» per question.
 - Studio › package: «Koreksi kunci» with the list of affected sittings and the second person's confirmation.
-- Konfigurasi › Sertifikat: certificates flagged after a recomputation.
+- Konfigurasi › Sertifikat: certificates under review after a recomputation, with confirm and revoke.
+- The public verification page and the learner's certificate: the «under review» state.
+- A notice to each affected school's admins.
 - States: empty draft; validation failures (exactly one key, no empty option); sent back; awaiting the second person; nothing affected; recomputation done; refused.
 
 ## Tests: red before, green after
 
-- Database: a draft edit is refused once submitted. A revision of one question sets every item pointer (red today on the screen path). A withdrawn release refuses a new sitting (red today). A key correction needs two different people. A recomputation leaves the original result and responses byte-identical and adds one superseding result. An unaffected sitting is untouched.
+- Database: a draft edit is refused once submitted. A revision of one question sets every item pointer (red today on the screen path). A withdrawn release refuses a new sitting (red today). A key correction needs two different people. A recomputation leaves the original result and responses byte-identical and adds one superseding result. An unaffected sitting is untouched. A certificate whose result changed verifies as under review, not as valid, until it is confirmed or revoked; an unaffected certificate verifies as before.
 - App: a typo fixed with no re-upload; the history chain; the correction by two signed-in people.
 - Journey: author → reviewer → publish → class sits → wrong key found → corrected and confirmed → results recomputed → the teacher's report shows the result in force and its note.
 
@@ -66,8 +70,8 @@ Misconception annotations (C2w). AI drafting (C3w). Scheduled question-health st
 **For Sharon:**
 1. Question identity on the upload path. Proposal: the workbook gains an optional identity column; a re-upload with it links each question to its original, and one without it is treated as all new questions. Is "all new" the right fail-closed default?
 2. Reusing `create_course_revision` for a one-question revision: are its immutability and lineage guarantees sufficient as they stand?
-3. Who is "an authorized content owner" for a school's own content, and for platform content distributed to many schools? For platform content, a correction recomputes results in every school that used it.
-4. The certificate rule above: flag and let the school decide. Acceptable for evidence integrity?
+3. *(Ruled by the owner; see Truths.)* The remaining design point: which existing capability marks the content owner at each level. Proposal: CAN_PUBLISH on the content's own tenant, with the confirmer a different holder.
+4. *(Ruled by the owner; see Truths.)* The remaining design point: «under review» as a certificate state the public verification function returns, without disturbing sealed certificate payloads.
 
 **For Daisy:**
 5. The draft editor's shape inside the existing package page, and how the history chain reads.

@@ -21,8 +21,10 @@ walkthrough.
 | P3 | Google: official pricing and the binding data terms | **blocked**: `ai.google.dev` is not in the allowed hosts |
 | P4 | Network egress to the three APIs (`api.anthropic.com`, `api.openai.com`, `generativelanguage.googleapis.com`) | not allowed today; an environment change the owner approves |
 | P5 | One API key per provider, with a provider-side spend cap | **owner to authorize**; each supplied as a network secret, never in the repository or the chat |
-| P6 | The material, authorized | proposed below; owner to confirm |
+| P6 | The material, authorized | **authorized (owner, 11 Nov):** the two synthetic chapters, provided they represent the intended Indonesian educational content and carry what is needed to judge each generated key |
 | P7 | Educator judges | owner to name them: educators, not Dr Gladys's walkthrough team (no invitation before the 4.1 candidate) |
+
+**Owner (11 Nov):** the design and the US$25 ceiling are approved. Execution waits for secure access and named educator judges, who are not members of Dr Gladys's acceptance team. It does not block B0, A1 or C1w. The evaluation judges educational quality (accuracy, distractor quality, language, curriculum relevance and review burden), not whether the output merely looks like a plausible question.
 
 ## 2 · Material (identical for every provider; no learner data)
 
@@ -61,6 +63,7 @@ walkthrough.
 | **Objective alignment**: assesses the stated objective at the right level | 0–2 | educators |
 | **Distractor quality**: plausible, each tied to a real misconception, none also correct | 0–2 | educators |
 | **Indonesian language**: correct, natural, age-appropriate (SD Kelas 5), consistent with PINTAR's terminology | 0–2 | Daisy, educators |
+| **Review burden** (owner, 11 Nov): how much an educator must change before they would approve the item | 0–2 (2 = approve as is; 1 = light edit; 0 = rewrite or reject) | educators |
 | **Structured-output reliability**: valid against the schema without repair; every field present | per item 0/1; per provider the valid rate | automatic |
 | **Cost**: the tokens actually billed × the confirmed price | USD | automatic |
 
