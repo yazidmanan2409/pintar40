@@ -1080,7 +1080,11 @@ begin
     if not exists (select 1 from public.audit_log a where a.action = 'promotion.applied' and a.summary ? 'run_id') then
       k08 := k08 || 'no run was written to check (K03 did not run)'::text; end if;
     select i.id into v_klain from public.institutions i where i.id <> v_inst order by i.created_at limit 1;
-    -- the plant, in a subtransaction that rolls itself back: the trail is append-only, so nothing it writes may stay
+    -- the plants, each in a subtransaction that rolls itself back (the trail is append-only, so nothing they write may
+    -- stay). A forced check (SET CONSTRAINTS ... IMMEDIATE) is set back in the same block before it ends, and the mode is
+    -- set back again at this level after each block: a mode changed in a rolled-back subtransaction can come back as
+    -- IMMEDIATE (found by F37-K03, which is why kenaikan_tetapkan asks the rule as a query instead)
+    -- 1. the school guard: inside a run, audit_write refuses another school and no school, and writes the run's own school
     begin
       perform set_config('pintar.audit_run', gen_random_uuid()::text, true);
       perform set_config('pintar.audit_run_institution', v_inst::text, true);
@@ -1101,9 +1105,64 @@ begin
       exception when others then k08 := k08 || ('the run''s own school inside a run: ' || sqlerrm); end;
       raise exception 'f37-k08-rollback';
     exception when others then
-      if sqlerrm <> 'f37-k08-rollback' then k08 := k08 || ('the plant: ' || sqlerrm); end if;
+      if sqlerrm <> 'f37-k08-rollback' then k08 := k08 || ('the guard plant: ' || sqlerrm); end if;
     end;
-    if exists (select 1 from public.audit_log a where a.action like 'selftest.k08_%') then k08 := k08 || 'the plant left a row'::text; end if;
+    set constraints public.audit_log_run_parent deferred;
+    perform set_config('pintar.audit_run_institution', v_inst::text, true);
+    -- 2. a missing parent: a run row with no promotion.applied row does not commit (forced here, as at commit)
+    begin
+      perform set_config('pintar.audit_run', gen_random_uuid()::text, true);
+      perform public.audit_write('selftest.k08_yatim', 'org_nodes', c_k5::text, v_inst, '{}'::jsonb);
+      set constraints public.audit_log_run_parent immediate;
+      k08 := k08 || 'a run row with no promotion.applied row was accepted'::text;
+      raise exception 'f37-k08-rollback';
+    exception when others then
+      if sqlerrm <> 'f37-k08-rollback' and sqlerrm !~ 'AUDIT_RUN_PARENT' then k08 := k08 || ('a run row with no parent: ' || sqlerrm); end if;
+    end;
+    set constraints public.audit_log_run_parent deferred;
+    -- 3. a run's rows first and its own row last is accepted; a second parent for it, later, is refused (the unique index)
+    begin
+      perform set_config('pintar.audit_run', gen_random_uuid()::text, true);
+      perform public.audit_write('selftest.k08_anak', 'org_nodes', c_k5::text, v_inst, '{}'::jsonb);
+      perform public.audit_write('promotion.applied', 'org_nodes', c_k5::text, v_inst, '{"selftest": "k08"}'::jsonb);
+      set constraints public.audit_log_run_parent immediate;
+      set constraints public.audit_log_run_parent deferred;
+      begin
+        perform public.audit_write('promotion.applied', 'org_nodes', c_k5::text, v_inst, '{"selftest": "k08-kedua"}'::jsonb);
+        k08 := k08 || 'a second promotion.applied row for one run was accepted'::text;
+      exception when unique_violation then null;
+        when others then k08 := k08 || ('a second parent: ' || sqlerrm); end;
+      -- 4. the owner (10 Nov): after a forced check and deferred again, a second run in the same transaction may write
+      --    its rows before its own row
+      perform set_config('pintar.audit_run', gen_random_uuid()::text, true);
+      perform public.audit_write('selftest.k08_anak2', 'org_nodes', c_k5::text, v_inst, '{}'::jsonb);
+      perform public.audit_write('promotion.applied', 'org_nodes', c_k5::text, v_inst, '{"selftest": "k08-2"}'::jsonb);
+      set constraints public.audit_log_run_parent immediate;
+      set constraints public.audit_log_run_parent deferred;
+      raise exception 'f37-k08-rollback';
+    exception when others then
+      if sqlerrm <> 'f37-k08-rollback' then k08 := k08 || ('a run written rows first, its own row last (then a second run): ' || sqlerrm); end if;
+    end;
+    set constraints public.audit_log_run_parent deferred;
+    -- 5. a row of another school written past audit_write (its guard bypassed) into a run that has its parent: the
+    --    trigger refuses it
+    begin
+      perform set_config('pintar.audit_run', gen_random_uuid()::text, true);
+      perform public.audit_write('promotion.applied', 'org_nodes', c_k5::text, v_inst, '{"selftest": "k08-3"}'::jsonb);
+      perform set_config('pintar.audit_run', '', true);
+      insert into public.audit_log (action, target_table, target_id, institution_id, summary)
+      select 'selftest.k08_langsung', 'org_nodes', c_k5::text, v_klain, jsonb_build_object('run_id', p.run_id)
+        from public.audit_log p where p.action = 'promotion.applied' and p.summary ->> 'selftest' = 'k08-3';
+      set constraints public.audit_log_run_parent immediate;
+      k08 := k08 || 'a row of another school, written past audit_write, was accepted into a run'::text;
+      raise exception 'f37-k08-rollback';
+    exception when others then
+      if sqlerrm <> 'f37-k08-rollback' and sqlerrm !~ 'AUDIT_RUN_PARENT' then k08 := k08 || ('another school past audit_write: ' || sqlerrm); end if;
+    end;
+    set constraints public.audit_log_run_parent deferred;
+    perform set_config('pintar.audit_run', '', true); perform set_config('pintar.audit_run_institution', '', true);
+    if exists (select 1 from public.audit_log a where a.action like 'selftest.k08_%' or a.summary ->> 'selftest' like 'k08%') then
+      k08 := k08 || 'a plant left a row'::text; end if;
 
     -- K05: a second press changes nothing (the class has changed: PROMO_CHANGED)
     select count(*) into v_kaud from public.audit_log a where a.institution_id = v_inst;
@@ -1198,7 +1257,7 @@ begin
       ('F37-K07', '«Kenaikan kelas dan kelulusan»: no destination, no teacher to acknowledge', k07,
        'a run in which no learner goes to a Kelas (all graduate or leave) applies without the teachers'' acknowledgement; one with a destination is still refused (K02)'),
       ('F37-K08', 'Jejak audit: a run is one entry, at one school', k08,
-       'every run id has exactly one promotion.applied row and every row of the run is at that row''s school; inside a run, audit_write refuses a row of another school or of none (AUDIT_RUN_INSTITUTION) and writes one of the run''s own school'),
+       'every run id has exactly one promotion.applied row and every row of the run is at that row''s school; inside a run, audit_write refuses a row of another school or of none (AUDIT_RUN_INSTITUTION) and writes one of the run''s own school; a run row with no promotion.applied row does not commit (AUDIT_RUN_PARENT), a run that writes its rows first and its own row last does, and so does a second such run in the same transaction after a forced check; a row of another school written past audit_write is refused by the trigger; a second promotion.applied row for one run is refused'),
       ('F37-K06', '«Kenaikan kelas dan kelulusan»: the run''s own record', k06,
        'every row the run writes (its endings, placements and ended sittings) carries the run''s id and a later row does not; the read-back says, per learner, whether the recorded place matches the decision, how and when a departure ended, and which destination Kelas has no teacher, and where each learner came from (KELAS, or TINGKAT for the Tingkat-only learner)'),
       ('F37-K03', '«Kenaikan kelas dan kelulusan»: applied whole, each outcome by name', k03,

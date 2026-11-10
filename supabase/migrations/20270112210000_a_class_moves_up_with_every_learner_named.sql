@@ -262,6 +262,18 @@ begin
                          'learners', v_n, 'outcomes',
                          (select jsonb_agg(h - 'nama' - 'kelas_tujuan_nama') from jsonb_array_elements(v_hasil) h)));
   end if;
+  -- Sharon's follow-up (10 Nov): the run's one-parent rule is checked here, inside the function, so a run whose own row is
+  -- missing is refused as a designed PR070, not at PostgREST's COMMIT. It is the trigger's own lookup, asked as a query,
+  -- NOT by SET CONSTRAINTS ... IMMEDIATE: that setting outlives the function, and when a caller's subtransaction that
+  -- changed it is rolled back PostgreSQL may restore it as IMMEDIATE (found by F37-K03 after K07's rolled-back run), so a
+  -- later run in the same transaction would be refused mid-way. The deferred trigger stays the backstop at commit.
+  if p_terapkan and v_n > 0 and exists (
+       select 1 from public.audit_log c
+        where c.run_id = v_run::text and c.action <> 'promotion.applied'
+          and not exists (select 1 from public.audit_log p where p.run_id = c.run_id and p.action = 'promotion.applied'
+                            and p.institution_id is not distinct from c.institution_id)) then
+    raise exception using errcode = 'PR070', detail = 'PROMO_RUN_INCOMPLETE', message = 'the run''s own record is not complete';
+  end if;
   if p_terapkan then perform set_config('pintar.audit_run', '', true); perform set_config('pintar.audit_run_kelas', '', true);
     perform set_config('pintar.audit_run_institution', '', true); end if;
   return jsonb_build_object('diterapkan', p_terapkan and v_n > 0, 'hasil', v_hasil);
@@ -365,6 +377,43 @@ end $$;
 -- holds (no row's content changes): under audit_log_select, a filter on summary ->> 'run_id' is not leakproof, so the
 -- planner may use no index for it and checked the policy on every row of the school (1.4 s for one count at 10,700 rows,
 -- measured locally); text equality on a column is, so the index below answers it (16 ms). Only run rows enter the index;
--- audit_log is append-only.
+-- audit_log is append-only (audit_log_immutable), and a generated value cannot be written. The audit payload of every
+-- row is unchanged, but adding a stored generated column REWRITES audit_log under an ACCESS EXCLUSIVE lock: every audited
+-- action waits until it finishes. Run inside a maintenance window; its duration is measured in the production upgrade
+-- rehearsal (docs/completion-4.0/batch-0/07-MIGRATION-162-BRIEF.md, R-2), not estimated. No path inserts into audit_log
+-- without a column list, and no export reads it with select * (checked 10 Nov).
 alter table public.audit_log add column if not exists run_id text generated always as (summary ->> 'run_id') stored;
 create index if not exists audit_log_run_idx on public.audit_log (institution_id, run_id) where run_id is not null;
+
+-- CORRECTED IN PLACE (undeployed; Sharon's paging ruling and its follow-up, 10 Nov): A RUN HAS EXACTLY ONE PARENT. Jejak
+-- audit pages a run by its one promotion.applied row and reads the rest under it, so a run row with no parent would be on
+-- no page, and a second parent would page the run twice.
+--   - one parent: at most one promotion.applied row per run id, whenever it is written (a unique index refuses a second
+--     one inserted later as well as in the same transaction);
+--   - no orphan: a run row commits only if its run's promotion.applied row exists at commit, at the same school (a deferred
+--     constraint trigger, so a run may write its rows first and its own row last, as kenaikan_tetapkan does; it also
+--     refuses a row of another school written past audit_write, whose own guard fails earlier and more clearly).
+--   The check is SECURITY DEFINER with a fixed search_path: a deferred trigger fires at commit under the session's role,
+--   and under audit_log_select a reader-dependent lookup would pass or fail by who commits.
+--   Known limit: session_replication_role = replica disables triggers; only the owner can set it, and only the selftest
+--   fixtures do.
+create unique index if not exists audit_log_run_parent_uq on public.audit_log (run_id) where action = 'promotion.applied' and run_id is not null;
+
+create or replace function public.audit_run_parent_check() returns trigger
+language plpgsql security definer set search_path = public, pg_temp as $$
+begin
+  if not exists (select 1 from public.audit_log p
+                  where p.run_id = new.run_id and p.action = 'promotion.applied'
+                    and p.institution_id is not distinct from new.institution_id) then
+    raise exception using errcode = 'P0001',
+      message = 'AUDIT_RUN_PARENT: a row of a year-end run commits only with its run''s one promotion.applied row, at the same school';
+  end if;
+  return null;
+end $$;
+revoke all on function public.audit_run_parent_check() from public, anon, authenticated;
+
+drop trigger if exists audit_log_run_parent on public.audit_log;
+create constraint trigger audit_log_run_parent after insert on public.audit_log
+  deferrable initially deferred for each row
+  when (new.run_id is not null and new.action <> 'promotion.applied')
+  execute function public.audit_run_parent_check();

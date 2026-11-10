@@ -4959,7 +4959,7 @@
     {
       "id": "F37-K08",
       "runner": "db",
-      "proves": "Sharon's paging ruling (10 Nov) for Jejak audit, selftest/db/fable37.sql against 20270112210000: every run id in audit_log has exactly one promotion.applied row and every row of the run is at that row's school; inside a run (pintar.audit_run set), audit_write refuses a row of another school or of no school (AUDIT_RUN_INSTITUTION, set by kenaikan_tetapkan as pintar.audit_run_institution) and writes one of the run's own school; the plant rolls itself back, leaving the append-only trail unchanged."
+      "proves": "Sharon's paging ruling (10 Nov) for Jejak audit, selftest/db/fable37.sql against 20270112210000: every run id in audit_log has exactly one promotion.applied row and every row of the run is at that row's school; inside a run (pintar.audit_run set), audit_write refuses a row of another school or of no school (AUDIT_RUN_INSTITUTION, set by kenaikan_tetapkan as pintar.audit_run_institution) and writes one of the run's own school. Sharon's follow-up (10 Nov): a run row with no promotion.applied row does not commit (the SECURITY DEFINER deferred constraint trigger audit_log_run_parent, AUDIT_RUN_PARENT); a run that writes its rows first and its own row last commits, and so does a second such run in the same transaction after a forced check; a row of another school written past audit_write is refused by the trigger; a second promotion.applied row for one run is refused (unique index audit_log_run_parent_uq). Each plant rolls itself back, leaving the append-only trail unchanged; planted defects (the index dropped, the trigger's check emptied) turn it red."
     },
     {
       "id": "F37-K07",

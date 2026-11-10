@@ -1261,6 +1261,7 @@ export type HleEvent =
   | "galat.promo_target_invalid"
   | "galat.promo_no_transfer"
   | "galat.promo_already_in_year"
+  | "galat.promo_run_incomplete"
   | "galat.enrol_not_live"
   | "galat.enrol_reason_invalid"
   | "galat.enrol_explanation_required"
@@ -5068,6 +5069,7 @@ const table: Table = {
   "galat.promo_target_invalid": { default: "Kelas tujuan harus kelas aktif tahun ajaran baru di sekolah ini.", en: "The destination must be an active class of the new school year at this school." },
   "galat.promo_no_transfer": { default: "«Ikut perpindahan yang sedang berjalan» hanya untuk murid yang perpindahannya sedang berjalan.", en: "«Follows the transfer under way» is only for a student whose transfer is under way." },
   "galat.promo_already_in_year": { default: "Ada murid yang sudah terdaftar di tahun ajaran baru.", en: "A student is already enrolled in the new school year." },
+  "galat.promo_run_incomplete": { default: "Kenaikan kelas ini tidak diterapkan: catatannya tidak lengkap. Tidak ada yang berubah. Coba lagi; bila terulang, laporkan masalah ini.", en: "This year-end promotion was not applied: its record was incomplete. Nothing has changed. Try again; if it happens again, report the problem." },
   "galat.enrol_not_live": { default: "Pendaftaran ini sudah berakhir.", en: "This enrolment has already ended." },
   "galat.enrol_reason_invalid": { default: "Pilih salah satu alasan yang tersedia.", en: "Choose one of the listed reasons." },
   "galat.enrol_explanation_required": { default: "Alasan «Lainnya» perlu penjelasan 10 sampai 300 karakter. Penjelasan apa pun paling banyak 300 karakter.", en: "«Other» needs an explanation of 10 to 300 characters. Any explanation is at most 300 characters." },

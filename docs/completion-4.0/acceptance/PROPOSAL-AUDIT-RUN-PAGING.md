@@ -135,7 +135,7 @@ The index as ruled, on `(institution_id, (summary->>'run_id'))`, is not used und
 - locally that meant **1.4 s for one count** at 10,700 rows, and 50 parallel counts all failed.
 
 So:
-- `audit_log.run_id` is now `text generated always as (summary ->> 'run_id') stored`: derived from what each row already holds, with no row's content changed;
+- `audit_log.run_id` is now `text generated always as (summary ->> 'run_id') stored`: derived from what each row already holds. The audit payload is unchanged, but the schema change rewrites the table under an ACCESS EXCLUSIVE lock (a maintenance window, measured in the upgrade rehearsal, R-2);
 - the index is `(institution_id, run_id) where run_id is not null`;
 - Read A filters `run_id.is.null OR action.eq.promotion.applied`.
 
@@ -155,4 +155,9 @@ Measured locally as Alpha's admin (median of 5):
 - «Tutup catatan terkait» closes it at the same place.
 - Nothing scrolls sideways. A pager's absolutely placed screen-reader line had escaped the table frame; `.pin-tabel-bingkai` is now `position: relative`.
 
-**Open, for Sharon:** the parent guarantee. `SHARON-PAGING-PARENT`: a deferred constraint trigger, or test-only.
+**Sharon's follow-up ruling (10 Nov):** build the trigger.
+- A unique partial index allows at most one parent.
+- A SECURITY DEFINER deferred constraint trigger requires at least one parent, at the same school. It also refuses a row of another school written past `audit_write`.
+- `kenaikan_tetapkan` forces the check inside the function, so a failure is a designed PR070 `PROMO_RUN_INCOMPLETE`, then defers it again (owner: so a second run in the same transaction still works).
+- The generated column is accepted on three conditions. No column-less insert: none exists. No `select *` export: none exists. A maintenance window: recorded in the R-2 rehearsal brief.
+- Tests: F37-K08 covers a missing parent, a cross-school row (by the guard, and by the trigger past `audit_write`), a duplicate parent, and two runs in one transaction.
