@@ -6,7 +6,11 @@
 > creates no gate, no document and no approval of its own.
 >
 > *Kept under `docs/completion-4.1/` because that is where the Chief Architect may commit today. It is not a 4.1
-> record: when a merge is authorized it belongs in a version-independent place.*
+> record. Owner's instruction: when a future merge is authorized, it is relocated to a version-independent home. No
+> merge is initiated for it.*
+>
+> **It is a principle of consequence analysis. It authorizes no additional functionality** and changes no approved
+> plan, scope, sequence or boundary.
 
 **The objective.** Not working features, but one coherent, trustworthy PINTAR. PINTAR evolves as one integrated
 system, not a collection of individually successful modules.
@@ -95,6 +99,26 @@ differ: who can still start, who can still finish, what stays visible, and wheth
 for suspend, close and delete on an account; for end, withdraw and cancel on an assignment; for recalculate, correct
 and supersede on a result; for revoke, review and reissue on a certificate. One word is never used for two
 consequences, and two words are never used for one.
+
+**The worked example: taking a published lesson out of use.** This shows how the fourth question is asked. It is an
+illustration of the analysis, **not a specification and not authorization to build anything**: where PINTAR has a
+ruling it is cited, and every other cell is the question a design must answer before the action exists.
+
+| What must be answered | Unpublish (stop offering it; expected to come back) | Withdraw (it should not be used; O41-11) | Archive (it has served its time) |
+|---|---|---|---|
+| Kind | Reversible | Terminable for new use. Ruled: withdrawing a release prevents new sittings. Restoring a withdrawn release is not in 4.1 or 4.2 | Terminable; whether it can return is a decision |
+| Learners who have not started | Can they still see or start it? | No new sitting (ruled) | No new start |
+| Work in progress | Does a learner part-way through finish, pause, or lose access, and what are they told? | Does an open sitting finish and count, or end, and with what score? | The same question; an archive should not strand open work |
+| Completed work and evidence | Unchanged, and still readable by learner and teacher | Unchanged and sealed. If the reason is a wrong key, the governed correction supersedes results; it does not erase them | Unchanged, and still reachable where reports cite it |
+| Certificates | Stand | Stand unless a governed correction puts one under review (C1w) | Stand, and must still verify |
+| Assignments that point to it | Stay, hidden, or ended? What does the teacher's list show? | What an assignment of a withdrawn release becomes, and who is told | Whether an old assignment still opens its results |
+| Republishing | The same release returns, or a new revision? Does progress made before carry over? | Not a republish: a corrected revision is a new release with its own lineage | Whether un-archiving exists at all |
+| Institutional authority | Who may do it: the author, a content owner, the school's admin? For content a school received from another owner, whose act is it? | The same, and whether a second person must confirm | The same |
+| Historical integrity | Every report and result that named it still resolves to exactly what was taught and sat | The same, with the reason for withdrawal on the record | The same |
+| Confirmation, explanation, audit | What the educator is shown before (who is affected, how many are part-way), what affected people see after, the audit row | The same, with the reason required | The same |
+
+Three buttons that looked like one are three actions, because the columns differ. That is the test for any pair of
+actions elsewhere in PINTAR.
 
 **Where the answer is recorded.** In the behaviour section of the batch's completion page, as one row per
 consequential action the batch adds or changes: its kind, and the five answers. Where an answer is "not decided", it
