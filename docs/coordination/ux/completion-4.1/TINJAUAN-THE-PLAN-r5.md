@@ -157,3 +157,43 @@ The pre-build reviews that remain (B2, A2, A3, C3w, and C2w short) are confirmat
 **Verdict on `ed9506a7`:** BLOCKED, on Blocker 2 only. It is one added item in §5.3 F's revision list and in §7.6's A2 row, with the text given above.
 
 My final verdict is given on the final document commit, the same one Sharon reviews.
+
+---
+
+## Final verdict · `0b40c97758691c956581cf314c2c45b0b73d3a23` (revision 8): **PASS**
+
+**Blocker 2 is resolved.** All three lines are in §5.3 F, item list 1 to 3, word for word, in Indonesian and in English. I compared them as text with line-wrapping removed:
+- during the stop (`pemeliharaan.darurat.asesmen`, replaced);
+- after the lift;
+- on reopening the sitting.
+
+The line «guru Anda yang menentukan langkah berikutnya» is recorded as withdrawn.
+
+**Blocker 1** stays resolved (§5.2 D3, D4 and F agree).
+
+**O-1 to O-6 are in the F sections:**
+
+| Item | Where | Status |
+|---|---|---|
+| O-1 | §5.1 F | In. The rule is carried without my sample phrase, which is enough |
+| O-2 and O-6 | §5.3 F, items 4 and 5 | In |
+| O-3 | §5.4 F | In: «Catatan peninjau ({n})» after «Riwayat soal», and annotations do not print |
+| O-4 | §5.5 F | In: the same-device variant and «setelah masuk lagi» |
+| O-5 | §5.6 F | In: the rights confirmation, limit reached, not yet available, and working and done |
+
+The promotion-run refusal agrees with ruling M-1: refused where it would end a protected sitting.
+
+### English for §5.3 F items 4 and 5
+
+Supplied now, so A2's pre-build review does not have to wait for it. «Ditahan» is «On hold», as A1 built it (`atur.meta.ditahan`). Students are «students», and the role is «an Admin PINTAR».
+
+| State | English |
+|---|---|
+| A teacher's act on a stopped class | «Class {kelas} has been stopped by an Admin PINTAR. This can be done once the stop has ended. Nothing was changed.» |
+| Assignment ending or withdrawal during a stop (O1) | «This assignment cannot be ended or withdrawn during a stop. Nothing was changed.» |
+| The promotion run during a stop (M-1) | «The promotion cannot be applied yet: {n} students' assessments are on hold because of the stop. Try again once the stop has ended.» |
+| Activation that did not take effect (platform admin) | «The stop has not taken effect. Nothing was stopped. Try again.» |
+| A start refused because the assessment cannot finish before the window | «This assessment takes {d} min, and maintenance starts at {jam} {zona}. Start it after maintenance ends, at {jam selesai} {zona}.» |
+| The teacher's list during a stop (item 5) | «On hold · continues once the stop has ended» |
+
+THE PLAN at this commit is detailed enough to build without further UX decisions. The remaining pre-build reviews are confirmations against it.
