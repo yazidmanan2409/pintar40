@@ -121,6 +121,7 @@ import { d168Tests } from "./d168.test";
 import { b0Tests } from "./b0.test";
 import { a1Tests } from "./a1.test";
 import { a1LayarTests } from "./a1-layar.test";
+import { c1wTests } from "./c1w.test";
 import { b0LayarTests } from "./b0-layar.test";
 import { studio3bTests } from "./studio3b.test";
 import { penutupanTests } from "./penutupan.test";
@@ -2239,4 +2240,5 @@ export const staticTests: SelfTest[] = [
   ...b0LayarTests.filter((x) => x.id === "B0-K02"),
   ...a1Tests,
   ...a1LayarTests.filter((x) => ["A1-K02", "A1-S08", "A1-S09"].includes(x.id)),
+  ...c1wTests,
 ];

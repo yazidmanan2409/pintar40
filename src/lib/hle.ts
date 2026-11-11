@@ -381,6 +381,54 @@ export type HleEvent =
   | "pengerjaan.galat.window_unchanged"
   | "pengerjaan.galat.window_not_changeable"
   | "pengerjaan.galat.sitting_failed"
+  // C1w: the item workbench's refusals and problems (src/lib/soal-kontrak.ts)
+  | "studio.soal.galat.draft_not_allowed"
+  | "studio.soal.galat.draft_unknown"
+  | "studio.soal.galat.draft_submitted"
+  | "studio.soal.galat.draft_sealed"
+  | "studio.soal.galat.draft_edit_conflict"
+  | "studio.soal.galat.draft_in_use"
+  | "studio.soal.galat.draft_last_test_question"
+  | "studio.soal.galat.draft_shape_invalid"
+  | "studio.soal.galat.draft_note_too_long"
+  | "studio.soal.galat.revision_not_head"
+  | "studio.soal.galat.revision_not_published"
+  | "studio.soal.galat.revision_open_exists"
+  | "studio.soal.galat.revision_summary_required"
+  | "studio.soal.galat.question_not_visible"
+  | "studio.soal.galat.release_state_not_visible"
+  | "studio.soal.galat.draft_failed"
+  | "studio.soal.masalah.item_objective_unknown"
+  | "studio.soal.masalah.item_use_no_test"
+  | "studio.soal.identitas.item_identity_unknown"
+  | "studio.soal.identitas.item_identity_no_predecessor"
+  | "studio.soal.identitas.item_identity_other_course"
+  | "studio.soal.identitas.item_identity_not_predecessor"
+  | "studio.soal.identitas.item_identity_repeated"
+  | "studio.koreksi.galat.correction_not_allowed"
+  | "studio.koreksi.galat.correction_unknown"
+  | "studio.koreksi.galat.correction_item_not_published"
+  | "studio.koreksi.galat.correction_not_in_head"
+  | "studio.koreksi.galat.correction_open_revision"
+  | "studio.koreksi.galat.correction_key_invalid"
+  | "studio.koreksi.galat.correction_key_unchanged"
+  | "studio.koreksi.galat.correction_reason_required"
+  | "studio.koreksi.galat.correction_pending"
+  | "studio.koreksi.galat.correction_already_decided"
+  | "studio.koreksi.galat.correction_own_proposal"
+  | "studio.koreksi.galat.correction_confirm_not_allowed"
+  | "studio.koreksi.galat.correction_proposer_lapsed"
+  | "studio.koreksi.galat.correction_stale"
+  | "studio.koreksi.galat.correction_not_ready"
+  | "studio.koreksi.galat.correction_sitting_not_affected"
+  | "studio.koreksi.galat.correction_concurrent"
+  | "studio.koreksi.galat.result_not_visible"
+  | "studio.koreksi.galat.cert_review_unknown"
+  | "studio.koreksi.galat.cert_review_not_allowed"
+  | "studio.koreksi.galat.cert_review_decided"
+  | "studio.koreksi.galat.cert_review_decision_invalid"
+  | "studio.koreksi.galat.cert_review_reason_required"
+  | "studio.koreksi.galat.correction_failed"
   | "atur.instrumen"
   | "atur.buka"
   | "atur.keadaan.ditahan"
@@ -3914,6 +3962,54 @@ const table: Table = {
   "pengerjaan.galat.window_unchanged": { default: "Jadwalnya sudah seperti itu.", en: "The schedule is already set that way." },
   "pengerjaan.galat.window_not_changeable": { default: "Jadwal materi ini tidak dapat diubah saat ini.", en: "This material's schedule cannot be changed right now." },
   "pengerjaan.galat.sitting_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
+  // C1w (O41-10, O41-11, O41-18, O41-19): the item workbench's refusals, said to the staff who meet them
+  "studio.soal.galat.draft_not_allowed": { default: "Anda tidak dapat mengubah soal dalam draf ini.", en: "You cannot change the questions in this draft." },
+  "studio.soal.galat.draft_unknown": { default: "Draf atau soal ini tidak ditemukan.", en: "This draft or question was not found." },
+  "studio.soal.galat.draft_submitted": { default: "Paket ini sedang ditinjau. Soalnya dapat diubah lagi setelah paket dikembalikan kepada Anda.", en: "This package is being reviewed. Its questions can be changed again once it is sent back to you." },
+  "studio.soal.galat.draft_sealed": { default: "Paket ini sudah dikunci atau diterbitkan. Untuk mengubah soalnya, buat revisi paket.", en: "This package is locked or published. To change its questions, make a revision of the package." },
+  "studio.soal.galat.draft_edit_conflict": { default: "Soal ini baru saja disimpan oleh orang lain. Buka lagi soalnya, lalu ulangi perubahan Anda.", en: "Someone else has just saved this question. Open it again, then repeat your change." },
+  "studio.soal.galat.draft_in_use": { default: "Draf atau soal ini sudah dipakai di tempat lain, jadi tidak dapat dihapus.", en: "This draft or question is already used elsewhere, so it cannot be removed." },
+  "studio.soal.galat.draft_last_test_question": { default: "Ini soal terakhir dari tesnya. Sebuah tes memerlukan sedikitnya satu soal.", en: "This is the last question of its test. A test needs at least one question." },
+  "studio.soal.galat.draft_shape_invalid": { default: "Soal belum lengkap. Isi pertanyaan dan pilihan jawabannya, lalu simpan lagi.", en: "The question is incomplete. Fill in the question and its options, then save again." },
+  "studio.soal.galat.draft_note_too_long": { default: "Catatan paling banyak 300 karakter.", en: "The note is at most 300 characters." },
+  "studio.soal.galat.revision_not_head": { default: "Sudah ada versi paket yang lebih baru. Revisi dibuat dari versi terbaru.", en: "A newer version of this package exists. A revision is made from the newest version." },
+  "studio.soal.galat.revision_not_published": { default: "Hanya soal dari paket yang sudah terbit yang dapat direvisi.", en: "Only a question of a published package can be revised." },
+  "studio.soal.galat.revision_open_exists": { default: "Revisi paket ini sudah dibuka. Selesaikan atau buang revisi itu dulu.", en: "A revision of this package is already open. Finish or discard it first." },
+  "studio.soal.galat.revision_summary_required": { default: "Tuliskan apa yang diubah dan mengapa, 10 sampai 1000 karakter.", en: "Write what changes and why, 10 to 1000 characters." },
+  "studio.soal.galat.question_not_visible": { default: "Riwayat soal ini hanya dapat dibaca oleh penyusun dan peninjau sekolahnya.", en: "This question's history is read only by its school's authors and reviewers." },
+  "studio.soal.galat.release_state_not_visible": { default: "Keadaan materi ini hanya dapat dibaca oleh guru dan murid kelasnya.", en: "This material's state is read only by its class's teachers and learners." },
+  "studio.soal.galat.draft_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
+  "studio.soal.masalah.item_objective_unknown": { default: "Tujuan pembelajaran yang dipilih bukan bagian dari paket ini.", en: "The chosen learning objective is not part of this package." },
+  "studio.soal.masalah.item_use_no_test": { default: "Paket ini tidak memiliki tes untuk kegunaan yang dipilih.", en: "This package has no test for the chosen use." },
+  "studio.soal.identitas.item_identity_unknown": { default: "Identitas soal ini tidak dikenal di sekolah ini.", en: "This question identity is not known at this school." },
+  "studio.soal.identitas.item_identity_no_predecessor": { default: "Identitas soal hanya diisi saat mengunggah koreksi sebuah paket.", en: "A question identity is filled in only when uploading a correction of a package." },
+  "studio.soal.identitas.item_identity_other_course": { default: "Identitas soal ini milik paket lain, bukan paket yang dikoreksi.", en: "This question identity belongs to another package, not the one being corrected." },
+  "studio.soal.identitas.item_identity_not_predecessor": { default: "Identitas soal ini milik versi lama paket. Pakai identitas dari versi yang dikoreksi.", en: "This question identity belongs to an older version of the package. Use the identity from the version being corrected." },
+  "studio.soal.identitas.item_identity_repeated": { default: "Identitas soal yang sama dipakai lebih dari sekali dalam berkas ini.", en: "The same question identity is used more than once in this file." },
+  "studio.koreksi.galat.correction_not_allowed": { default: "Koreksi kunci jawaban diajukan oleh pemilik materi di sekolahnya.", en: "An answer-key correction is proposed by the material's owner at its school." },
+  "studio.koreksi.galat.correction_unknown": { default: "Koreksi atau soal ini tidak ditemukan.", en: "This correction or question was not found." },
+  "studio.koreksi.galat.correction_item_not_published": { default: "Hanya soal dari materi yang sudah terbit yang dapat dikoreksi kuncinya.", en: "Only a question of published material can have its answer key corrected." },
+  "studio.koreksi.galat.correction_not_in_head": { default: "Soal ini sudah diubah pada versi paket yang lebih baru. Koreksi soal pada versi itu.", en: "This question was changed in a newer version of the package. Correct the question in that version." },
+  "studio.koreksi.galat.correction_open_revision": { default: "Revisi paket ini sedang dibuka. Selesaikan atau buang revisi itu dulu.", en: "A revision of this package is open. Finish or discard it first." },
+  "studio.koreksi.galat.correction_key_invalid": { default: "Pilih jawaban benar dari pilihan soal ini: tepat satu untuk soal satu jawaban.", en: "Choose the right answer from this question's options: exactly one for a single-answer question." },
+  "studio.koreksi.galat.correction_key_unchanged": { default: "Jawaban benar yang dipilih sama dengan yang sekarang.", en: "The chosen right answer is the same as the current one." },
+  "studio.koreksi.galat.correction_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
+  "studio.koreksi.galat.correction_pending": { default: "Koreksi untuk soal ini sudah menunggu konfirmasi orang kedua.", en: "A correction of this question is already waiting for a second person." },
+  "studio.koreksi.galat.correction_already_decided": { default: "Koreksi ini sudah dikonfirmasi atau ditolak.", en: "This correction has already been confirmed or declined." },
+  "studio.koreksi.galat.correction_own_proposal": { default: "Koreksi yang Anda ajukan dikonfirmasi oleh orang lain.", en: "A correction you proposed is confirmed by someone else." },
+  "studio.koreksi.galat.correction_confirm_not_allowed": { default: "Anda tidak berwenang mengonfirmasi koreksi kunci untuk materi ini.", en: "You are not authorized to confirm an answer-key correction for this material." },
+  "studio.koreksi.galat.correction_proposer_lapsed": { default: "Pengaju koreksi ini tidak lagi berwenang atas materinya. Koreksi perlu diajukan lagi.", en: "The person who proposed this correction is no longer authorized for the material. It needs to be proposed again." },
+  "studio.koreksi.galat.correction_stale": { default: "Soal ini berubah sejak koreksi diajukan. Koreksi perlu diajukan lagi.", en: "This question changed after the correction was proposed. It needs to be proposed again." },
+  "studio.koreksi.galat.correction_not_ready": { default: "Versi yang sudah dikoreksi belum dapat diterbitkan. Tidak ada yang berubah.", en: "The corrected version could not be published. Nothing was changed." },
+  "studio.koreksi.galat.correction_sitting_not_affected": { default: "Sesi ini tidak memuat soal yang dikoreksi, jadi hasilnya tidak dihitung ulang.", en: "This sitting did not include the corrected question, so its result is not recalculated." },
+  "studio.koreksi.galat.correction_concurrent": { default: "Koreksi lain sedang menghitung ulang sesi yang sama. Tidak ada yang tersimpan; coba lagi.", en: "Another correction was recalculating the same sitting. Nothing was saved; try again." },
+  "studio.koreksi.galat.result_not_visible": { default: "Anda tidak dapat melihat hasil sesi ini.", en: "You cannot see this sitting's results." },
+  "studio.koreksi.galat.cert_review_unknown": { default: "Peninjauan sertifikat ini tidak ditemukan.", en: "This certificate review was not found." },
+  "studio.koreksi.galat.cert_review_not_allowed": { default: "Peninjauan sertifikat diputuskan oleh pihak berwenang di sekolah penerbitnya.", en: "A certificate review is decided by an authorized person at the issuing school." },
+  "studio.koreksi.galat.cert_review_decided": { default: "Peninjauan sertifikat ini sudah diputuskan.", en: "This certificate review has already been decided." },
+  "studio.koreksi.galat.cert_review_decision_invalid": { default: "Pilih salah satu: tetap berlaku atau cabut.", en: "Choose one: keep it valid or revoke it." },
+  "studio.koreksi.galat.cert_review_reason_required": { default: "Tuliskan alasan keputusan, 10 sampai 300 karakter.", en: "Write the reason for the decision, 10 to 300 characters." },
+  "studio.koreksi.galat.correction_failed": { default: "Koreksi belum tersimpan. Coba lagi.", en: "The correction was not saved. Try again." },
   // A1 on the screens: the teacher's list and act panel, the schedule, the approver's queue, the learner's notices, the audit labels
   "atur.instrumen": { default: "Instrumen", en: "Instrument" },
   "atur.buka": { default: "Atur", en: "Manage" },

@@ -2145,7 +2145,12 @@ export const experienceTests: SelfTest[] = [
       // and who may act on it, not a mark, a logo, a crest or a theme.
       // MOVED 226 -> 227 for A1's scheduler (20270114110000: pg_cron and the one five-minute job that closes abandoned
       // sittings, the owner's Option A). Read against §3: an extension and a schedule, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 227, `${migrations.length} migrations; the frozen baseline has 227`);
+      // MOVED 227 -> 228 for C1w, the item workbench (20270115100000: the draft editor, a question's identity on upload,
+      // a revision of the head, a question's history, a correction replacing its predecessor, a withdrawn release).
+      // Read against §3: questions, their versions and a release's state, not a mark, a logo, a crest or a theme.
+      // MOVED 228 -> 229 for C1w's governed key correction (20270115110000: the correction, the result chain and its
+      // basis, the certificate review). Read against §3: results and a review record, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 229, `${migrations.length} migrations; the frozen baseline has 229`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3996,7 +4001,9 @@ export const experienceTests: SelfTest[] = [
       // MOVED 224 -> 225 for 20270113170000 (B0: the last administrator, the renewal, the operator's recovery): no tour RPC.
       // MOVED 225 -> 226 for 20270114100000 (A1: sitting control, acts on a sitting and its assignment's window): no tour RPC.
       // MOVED 226 -> 227 for 20270114110000 (A1: the scheduler of abandoned sittings, pg_cron): no tour RPC.
-      c.expect(migs.length === 227, `${migs.length} migrations; the baseline has 227`);
+      // MOVED 227 -> 228 for 20270115100000 (C1w: the draft editor, identity on upload, revision, history, withdrawal): no tour RPC.
+      // MOVED 228 -> 229 for 20270115110000 (C1w: the governed key correction and the certificate review): no tour RPC.
+      c.expect(migs.length === 229, `${migs.length} migrations; the baseline has 229`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
