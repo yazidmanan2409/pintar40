@@ -6,6 +6,9 @@
 >
 > **Revision 2 (11 Nov):** the owner's rulings D-1 to D-8 are incorporated (§7.3); the emergency-containment design
 > (§5.3 D6) is specified for concurrency, scale and failure. The direction is approved; the plan is not.
+> The owner accepted revision 2 (`38e43db0`) as the current working draft: a planning milestone, not approval to
+> execute. One follow-up is added: Sharon's review covers the emergency-stop transaction race and the late-sync edge
+> (§5.3).
 >
 > Statements marked **[P-A1]** or **[P-C1w]** rest on a batch that is not yet closed and are provisional.
 
@@ -437,6 +440,15 @@ zone.
 ### 5.3 · A2 — Pause and emergency (C7 + C8)
 
 **Review before build:** Sharon and Daisy. **Depends on:** A1.
+
+**Required in Sharon's pre-build review (owner, 11 Nov).** Her review of this batch must explicitly cover, and record a
+finding on, both of the following, alongside the recovery cases she reviews for A3:
+1. **The emergency-stop transaction race** (D6): the interval between the stop's commit and the completion of marking,
+   with the deadline scheduler, a hand-in, a teacher's act and the lift each racing it; Rule 2 as the guarantee that no
+   affected sitting is ended or scored; the lock order.
+2. **The late-sync edge** (D6, "A known edge"): a sitting already past its deadline and inside its late-sync grace at
+   the stop's instant, and an answer of its still travelling.
+The completion page is not settled, and the build does not start, until both findings are on it.
 
 #### A · Objective
 A school can announce maintenance for one class or the whole school and trust what happens to sittings. The platform
@@ -1240,7 +1252,7 @@ None open. The one found (O41-20's deadline rule against C8's containment, in th
 | N-1 | `selftest/a1.test.ts`'s header (A1-K01) still says "nothing is scheduled"; line 259 restates it | Second Eye, with A1's closure |
 | N-2 | BOB-48's certificate sealing and numbering are on `main` under F20 ids (`M/20261201100000…`) | record only |
 | N-3 | A print reference stops resolving after 12 months, with the purge | Daisy and the owner, at B2's page |
-| N-4 | Sharon's ten further red cases for recovery are summarized at `SCOPE-REGISTER.md:255`; her full review (`1f7b6fc2`) is not on the branches read | Sharon, before A3's page |
+| N-4 | Sharon's ten further red cases for recovery are summarized at `SCOPE-REGISTER.md:255`; her full review (`1f7b6fc2`) is not on the branches read. Her review also covers the emergency-stop transaction race and the late-sync edge (§5.3, owner, 11 Nov) | Sharon, before A2's and A3's pages |
 | N-5 | Sharon's verdict on the SI-D02 stronger-race re-review is not recorded on the branch read | Sharon |
 | N-6 | `institutions.retention_days` exists and nothing enforces it | 4.2; B1 does not use it |
 | N-7 | The warning banner formats times with `jamWib` and no zone today | fixed in A2 |
