@@ -1,8 +1,22 @@
 # PINTAR 4.1 · THE PLAN
 
-> **DRAFT — NOT APPROVED. FINAL APPROVAL CANDIDATE (revision 9, 11 Nov 2026),** by the Chief Architect (Bob), for
-> the owner's review. **Nothing here authorizes implementation.** It becomes THE PLAN only on the owner's explicit
-> approval.
+> **OWNER APPROVED — 11 NOVEMBER 2026.** Revision 9, by the Chief Architect (Bob). The owner approved this plan at
+> commit `2b89e28d21efdd3fda47050c79f41aa17ce0b34b` on `claude/bob-41-master-plan`. The commit that records the
+> approval changes only this header and the blockers table in §7.6; the technical and UX content is as approved.
+>
+> **What the approval authorizes, and its boundaries (the owner's, 11 Nov 2026):**
+> THE PLAN is released for execution. Second Eye may begin B1, following the approved sequence and the mandatory
+> pre-flight (§4.1).
+> 1. Execute one governed batch at a time, with the specified verification and review gates.
+> 2. Routine implementation decisions and corrections do not require returning to the owner.
+> 3. Material scope changes, unresolved architectural conflicts, or failed acceptance gates must be escalated.
+> 4. No authorization is granted for merging, staging promotion, production deployment, or production database
+>    changes. Those remain separate decisions.
+>
+> The owner accepted that the reviewers' verdicts name `a0af41ba` and that the approved commit differs from it only by
+> the record of those verdicts, **subject to confirming that difference before execution**
+> (`git diff a0af41ba 2b89e28d`: five places, all in this header and §7.5–§7.6). N-12 is closed on Sharon's answer,
+> accepted by the owner.
 >
 > **Revision 9:** Sharon's nine A2 verification scenarios, in her original words, with her reading of them in this
 > plan's terms (§5.3 H); her non-blocking point on the scheduled closer's selection (§5.3 D6.6); Daisy's English for
@@ -13,7 +27,7 @@
 > revisions 5 and 8 is addressed). **Daisy: PASS** (her wording is exact and no approved UX requirement changed;
 > recorded on `ux-1/daisy-experience` at `5b5823dd`). The commit that records these two verdicts changes only this
 > header and the register (§7.5, §7.6); every batch section is as reviewed. Neither verdict is an approval to build,
-> merge or deploy. **Awaiting the owner's approval.**
+> merge or deploy.
 >
 > Revision 8: Sharon's technical review of revision 5 and Daisy's UX review. Revision 7: rulings M-1 to M-3, C1w's
 > final verification and the disposition of its findings (§7.7).
@@ -1841,13 +1855,11 @@ limits and the provider are decided after E's report, as ruled.
 **Genuine blockers to execution**
 | Blocker | Blocks | Does not block |
 |---|---|---|
-| The owner's approval of this plan | every batch | — |
 | Sharon's classification of C1w finding F-1 (§7.7) | where F-1's correction is done: before promotion, or as C2w's first step | B1, B2, A2 |
-| The owner's explicit approval of this plan | any build under it | nothing else. Sharon's and Daisy's final verdicts are both PASS on `a0af41ba` |
 | Sharon's full review of the controller design, with her ten red cases | A3's completion page | everything before A3 |
 | E's prerequisites and the owner's provider choice | C3w | everything before C3w |
 
-**B1 and B2 have no blocker other than the owner's approval.** C1w is closed; its findings are disposed of in §7.7.
+**The owner approved this plan on 11 November 2026, so B1 and B2 have no blocker.** C1w is closed; its findings are disposed of in §7.7.
 
 ---
 
