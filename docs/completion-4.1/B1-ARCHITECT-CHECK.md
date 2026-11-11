@@ -124,3 +124,31 @@ result review is to name the same corrected commit.
 
 **What she needs for PASS:** the corrected candidate's commit, the same one Sharon reviews, with the cross-module
 inventory on `B1-COMPLETION.md`. On it she re-runs the two-school check, the five states, and axe at three widths.
+
+## 9 · The corrected candidate, and one finding outside B1 (11 Nov 2026, late)
+
+**Corrected candidate:** `1fc719b5`, committed locally by the engineer and **not pushed**; the full local pre-flight
+is running on it. Reported as carrying: the reader correction with its red-first test; Sharon's four checks; backup
+and restore of B1's three tables and both jobs; a purge that works through a backlog and a health check that names
+one; the cross-module inventory on `B1-COMPLETION.md` with its limitations. None of this has been read by the Chief
+Architect yet, because the commit is not on the remote. One 4.0 test (F37-R01) failed once in a long mixed run and
+passed alone; the engineer will root-cause it before any CI dispatch if it recurs (§4.1 P4).
+
+**Finding outside B1, reported by the engineer, not fixed:**
+
+| | |
+|---|---|
+| What | A suspended or closed account that tries to sign in is answered "cannot check right now" (503). A wrong password is answered with the normal refusal (401) |
+| Consequence | A suspended person is told the service is down. Anyone trying addresses can tell a suspended or closed account from a wrong password |
+| Reported cause | Suspension sets the sign-in system's ban to `banned_until = 'infinity'`, which the local Auth cannot read. Whether hosted staging runs the same Auth is unconfirmed |
+| Where it belongs | 4.0's suspension work. B1 records whatever the route answers and is not affected |
+
+**Chief Architect's reading.** This is the standing principle's third question (what happens when things go wrong)
+answered late: suspension was tested for what it does to the account's rights, not for what the suspended person and
+an outside observer are then told. It is a defect in existing behaviour, small, and it bears on a boundary (which
+accounts exist and are suspended). It is not in THE PLAN, so adding its correction is the owner's decision.
+
+**Recommendation put to the owner:** correct it as one small pass at the boundary after B1, with the F-1 pass, before
+B2; Sharon reviews it once. Before that, confirm on a running hosted-like Auth whether the 503 occurs there, because
+that decides its urgency. The correction must answer: the ban value Auth can read; the same generic refusal as a
+wrong password; accounts already suspended (their stored value); reinstatement; and B1's recorded failure code.
