@@ -4,8 +4,9 @@
 > existing acceptance standard (the 4.0 System Integrity Gate, `docs/completion-4.0/acceptance/SYSTEM-INTEGRITY-MATRIX.md`)
 > throughout 4.1. It is **not** a new batch, a new gate or an amendment to THE PLAN, and it adds no scope.
 
-**The principle behind it** is permanent and is recorded in `STANDING-PRINCIPLE-ONE-SYSTEM.md`: three questions
-(*And then what? What else did that change? What happens when things go wrong?*) asked across five dimensions (human
+**The principle behind it** is permanent and is recorded in `STANDING-PRINCIPLE-ONE-SYSTEM.md`: four questions
+(*And then what? What else did that change? What happens when things go wrong? Can this action be reversed, and what
+survives?*) asked across five dimensions (human
 journey, cross-module effects, lifecycle, evidence integrity, boundaries). This page is its working form for 4.1.
 
 **The acceptance question for every batch:** does PINTAR still work correctly, consistently and understandably as one
@@ -26,9 +27,10 @@ that step must now visibly contain.
 | 6 | Exceptional states and lifecycle transitions | The batch's verification section (H) | The transitions in §3 below that apply to the batch, each with a test or a stated reason it does not apply |
 | 7 | Root-cause regression | §4.1 P4 (failure consolidation) | For every defect found: the shared cause, the other modules inspected for it, and a red-first test. Not only the screen or test that exposed it |
 
-**The three questions against the seven checks.** *And then what?* is checks 1 and 5 (follow the action to the end
+**The four questions against the seven checks.** *And then what?* is checks 1 and 5 (follow the action to the end
 of the journey). *What else did that change?* is checks 1, 2, 3 and 4 (every consumer, role, school and screen).
 *What happens when things go wrong?* is checks 6 and 7 (the transitions, the failure, the shared cause).
+*Can this action be reversed, and what survives?* is check 6, made explicit in §3a.
 
 ## 2 · The cross-module inventory (one table, on the completion page)
 
@@ -48,6 +50,31 @@ Corrections (key correction, result supersession) · transfer between classes or
 person at two schools · suspension and reinstatement · departure and account closure · personal-data deletion (L4) · backup, restore and scheduled-job
 recovery · retries and duplicate requests · a failure part-way (what is left behind, and what the user is told) · the
 reversal of the action itself · historical records and sealed content · an emergency stop (from A2 on).
+
+## 3a · The next state of each consequential action
+
+For each consequential action a batch adds or changes, the completion page's behaviour section carries one row
+(`STANDING-PRINCIPLE-ONE-SYSTEM.md` §4a):
+
+| Action | Kind (reversible, correctable, terminable, irreversible) | Work in progress | Completed work and history | People and institutions affected | Reversed or repeated | Permission, explanation, confirmation, audit |
+|---|---|---|---|---|---|---|
+
+This is part of the batch's existing behaviour section and of check 6; it is not a separate document. Most of these
+answers are already settled in THE PLAN and the owner's rulings, and the row cites them. A row that cannot be filled
+from an existing decision is raised, not improvised.
+
+**The consequential actions of the remaining 4.1 work,** as the Chief Architect reads THE PLAN (the engineer's page
+is authoritative):
+
+| Batch | Actions whose next state the page states |
+|---|---|
+| B1 | the 12-month purge (irreversible, by policy); the nulling of origin and hash at personal-data deletion (irreversible) |
+| C1w F-1 pass | none new. It makes the readers agree with an existing correctable action, the governed key correction |
+| B2 | an official print and its reference (a record; the reference stops resolving at the purge) |
+| A2 | activate, extend, lift and end early an emergency stop or maintenance window; the refused acts during a stop; an enrolment ended during a stop (O1) |
+| C2w | add, edit and remove an annotation; what a revision or a copy of the question does to it |
+| A3 | authorize a device change, and its withdrawal; what an abandoned device's unsent answers become |
+| C3w | accept, edit and discard an AI draft; a review refused by the second educator |
 
 ## 4 · What each batch must trace
 
