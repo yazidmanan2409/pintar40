@@ -890,8 +890,13 @@ export const c1wTests: SelfTest[] = [
         langkah("aju2", "admin", `${ajukan(Y, "B")} is not null`),
         simpanKoreksi("k2", Y, "B"),
         langkah("tegas2", "kadep2", `select (x ->> 'ok') || '|' || (x ->> 'dihitung_ulang') from public.tegaskan_koreksi_kunci(${G("k2")}) x`),
-        langkah("rantai", null, `select (${hasilRingkas("s1")}) || '|' || ((select string_agg(coalesce(b.key_correction_id::text, 'asli'), ',' order by r.computed_at, (b.result_id is not null))
-             from public.assessment_results r left join public.assessment_result_bases b on b.result_id = r.id where r.session_id = ${G("s1")})
+        langkah("rantai", null, `select (${hasilRingkas("s1")}) || '|' || ((with recursive rantai as (
+               select r.id, 1 as n from public.assessment_results r where r.session_id = ${G("s1")} and r.supersedes_result_id is null
+               union all select x.id, rantai.n + 1 from public.assessment_results x join rantai on x.supersedes_result_id = rantai.id)
+             -- RESTATED, C1w (P4): the chain is walked by its supersession links, not ordered by computed_at, which ties
+             -- within this one rolled-back transaction and made the order (and this step) depend on the planner
+             select string_agg(coalesce(b.key_correction_id::text, 'asli'), ',' order by rantai.n)
+               from rantai left join public.assessment_result_bases b on b.result_id = rantai.id)
              = ('asli,' || ${S("k1")} || ',' || ${S("k2")}))::text`),
         langkah("rantai_dasar", null, `select (b.basis -> 'soal' -> ${X}::text ->> 'kunci') || (b.basis -> 'soal' -> ${Y}::text ->> 'kunci') || (b.basis -> 'soal' -> ${Z}::text ->> 'kunci')
              || '|' || jsonb_array_length(b.basis -> 'koreksi') from public.assessment_result_bases b where b.result_id = public.hasil_terkini_id(${G("s1")})`),
@@ -1196,8 +1201,11 @@ commit;`;
       c.expect(tunggu >= 1.0, `the second confirmation did not wait for the first (${tunggu.toFixed(2)} s)`);
       const cek = spawnSync("psql", ["-At", "-c", `
 select count(*) || '|' || count(*) filter (where not exists (select 1 from public.assessment_results x where x.supersedes_result_id = r.id))
-       || '|' || (select string_agg(coalesce(b.key_correction_id::text, 'asli'), ',' order by r2.computed_at, (b.result_id is not null))
-                    from public.assessment_results r2 left join public.assessment_result_bases b on b.result_id = r2.id where r2.session_id = '${w.s1}')
+       || '|' || (with recursive rantai as (
+                      select r2.id, 1 as n from public.assessment_results r2 where r2.session_id = '${w.s1}' and r2.supersedes_result_id is null
+                      union all select x.id, rantai.n + 1 from public.assessment_results x join rantai on x.supersedes_result_id = rantai.id)
+                    select string_agg(coalesce(b.key_correction_id::text, 'asli'), ',' order by rantai.n)
+                      from rantai left join public.assessment_result_bases b on b.result_id = rantai.id)
        || '|' || (select r3.mastery from public.assessment_results r3 where r3.id = public.hasil_terkini_id('${w.s1}'))
        || '|' || (select jsonb_array_length(b.basis -> 'koreksi') from public.assessment_result_bases b where b.result_id = public.hasil_terkini_id('${w.s1}'))
   from public.assessment_results r where r.session_id = '${w.s1}'`, db()], { encoding: "utf8" });
