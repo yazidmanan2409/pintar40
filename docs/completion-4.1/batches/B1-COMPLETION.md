@@ -102,6 +102,51 @@ It is an immutable historical snapshot: it is never recomputed when roles or enr
    in the database, never the person's affiliations and never from the route (owner, via Bob, 11 Nov; for Sharon at her
    result review). Test: a person at two schools prints at school A; A's admin reads it, B's admin does not.
 
+## Result review (Sharon, at `40e89308`): one correction pass
+
+- **Blocker:** the reader returned a person's whole `institution_ids` snapshot to a school admin, disclosing their other
+  schools. The snapshot stays stored whole; the reader returns it whole to the platform admin and only the caller's own
+  school to a school admin.
+- **Bounded cross-module checks** in the same pass: other school-level readers for the same disclosure; suspended, closed
+  and anonymised accounts (a generic failure code, correct visibility); a real A-to-B learner transfer; the purge's audit
+  visibility and the purged-reference empty state.
+- **Follow-ups recorded:**
+  - **Magic-link success** needs a controlled integration test before `TAUTAN_MASUK_CADANGAN` can be enabled. Until then
+    only a source test covers the callback's success.
+  - **Purge capacity:** settled in this pass. The run continues in bounded batches until nothing it may take is left, and
+    the health read names any row older than 12 months and a day (B1-S07).
+  - **Intentional exclusion:** the evaluator persona's sign-in writes no accountability event.
+
+## Cross-module inventory (SYSTEM-INTEGRITY-4.1 §2; candidate after the correction pass)
+
+Bounded: every caller and reader of what B1 changed, found by its own search. Shared evidence on the corrected
+candidate is in its pre-flight record and CI and journeys runs.
+
+| Interface | Checked how | Evidence | Limitation |
+|---|---|---|---|
+| Every sign-in route and method (password, card, link request, callback, code, recovery PIN, password after recovery) | One processed attempt writes one row; one request never two; two attempts two rows; the route's own failure code; no secret or full address stored; a writer failure counted and the sign-in continues | B1-A01, B1-K01, B1-K02, B1-A02; F15–F18, BOB26–29, L2 unchanged and green | A successful magic-link callback is covered only by a source test (links are off); `TAUTAN_MASUK_CADANGAN` needs a controlled integration test before it is enabled. The evaluator persona's sign-in is deliberately not recorded |
+| Sign-out (`/keluar`, `keluarDariSesi`) | One SIGN_OUT row; `identity.session_ended` in `audit_log` unchanged | B1-A01, B1-K01 | «Keluar dari semua perangkat» and the CR-91 forced end write no event, by design |
+| Institutional membership: roles, enrolments, a person at two schools, a change after the event | The snapshot is derived in the database at write time; a school left before or joined after reads nothing; later changes don't alter it | B1-S01, B1-S05 | — |
+| A real learner transfer A→B (`transfer_minta` → `transfer_terima` → `transfer_execute`) | Before the move: {A}, read by A only; after: {B}, read by B only; the platform reads both | B1-S06 | — |
+| The reader `akuntabilitas_baca`, across schools and roles | A school admin receives only their own school (the defect of `40e89308`); the platform admin the full snapshot; network origin to the platform only; a teacher refused; client roles cannot touch the tables | B1-S05 (red on `40e89308`), B1-S01, B1-L01, the rendered check | — |
+| Other client readers that could disclose a person's other schools (root-cause search) | `security_event_list`, `audit_log` RLS, `role_assignments` RLS, `peran_orang`, `staf_peran_hidup`, `staf_sidik`, `peran_akan_berakhir`, `school_people_page`, `card_holders`, `persons_awaiting_account` | No disclosure found | Pre-existing by design, outside B1: `murid_keluar` (yes/no "enrolled elsewhere now", no school named), INV-25 portability (F01-T10), `pindah_masuk` names the sending school of an incoming transfer |
+| Suspended, closed and deleted accounts | One SIGN_IN_FAILED row holding the route's own answer, visible to the person's school only; after L4 deletion the old address resolves to no one, earlier rows lose origin and hash and show under the PINTAR ID | B1-A04 (rendered for the school and the platform), B1-S02 | **Pre-existing defect outside B1, escalated:** a suspended or closed account's sign-in answers 503 `LAYANAN_TIDAK_TERSEDIA` where a wrong password answers 401, because `banned_until = 'infinity'` is unreadable by the local Auth. B1 records the route's answer faithfully |
+| Printing (the path B2 uses) | A print belongs to the single school owning the resource; fails closed if unrecorded; stable, searchable `CTK-` reference | B1-S01, B1-K02, B1-L01 | B2's print screen does not exist yet; tested at the writer and helper |
+| Personal-data deletion (L4) and the departure wording | Only origin and hash cleared, under the deletion's marker; other people untouched; departure wording unchanged | B1-S02, B1-A04; fable38 and fable22 L4 tests | — |
+| `audit_log` and «Jejak audit» | Unchanged, no double record; the purge's audit row is the platform's only, and its count equals the run's | B1-S07, B1-L01; JEJAK and audit tests green | — |
+| Retention and the purge | 12 months and a day purged, 11 months kept; concurrent purges delete each row once; the run continues until nothing it may take is left; a backlog is named by the health read | B1-S03, B1-C01, B1-S07 | — |
+| Job installer, backup, restore, native-restore runbook, health check | One installer for both jobs; the three tables and their rows in the backup and back on restore; the restored database has both jobs once; a job removed by hand is named | B1-R01, DR-D02 (restated), A1-K01, A1-S08 (restated), A1-S09 | A native Supabase restore cannot be run here: its runbook step and the health check are what exists (F-8) |
+| Reports and metrics | The store is not a metric source | B1-S04; F07 metric tests | — |
+| Admin navigation and the reader screen | Beside «Jejak audit»; terminology, paging, refusal states, stacked rows below 640 px, keyboard, no overflow, axe at 1280, 390, 320 px | Rendered check (scratchpad `b1-lihat/`); Daisy's result review | No print view, by design |
+| Human journey (§8.5 journey 4, B1's part) | A wrong password, then a sign-in, then the school admin finds both in the reader and nothing from another school | Journey step B1J (CI only: it needs the mail sink); the same walk locally, 10/10 (`jurnal-*`) | The printed-report step waits for B2 |
+
+**Transitions (SYSTEM-INTEGRITY-4.1 §3):** a person at two schools and later changes: S01, S05 · transfer: S06 · suspension,
+closure, L4 deletion: A04, S02 · backup, restore, job recovery: DR-D02, R01 · retries and duplicates: K02, A01 · retention:
+S03, S07, C01 · corrections, sealed content, emergency stop: not applicable to B1.
+
+**Root causes found during B1:** CI's build-identity check missing from the local pre-flight (now in it); a result chain
+ordered by a tied timestamp in two C1w tests (now walked by links; product readers checked).
+
 ## Refused
 
 - Any direct insert, update, delete or select by a client role. Writes go through one service-level writer; reads through

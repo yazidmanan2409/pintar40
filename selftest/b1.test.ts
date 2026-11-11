@@ -739,6 +739,148 @@ ${DUNIA}
     },
   },
   {
+    id: "B1-S05",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      // Sharon's result review at 40e89308 (the defect): the reader showed a school's administrator the person's other
+      // schools. The snapshot stays stored whole; a school is shown its own school of it, the platform admin all of it.
+      const c = new Checks();
+      const e = siapkan(repoRoot);
+      if (!c.expect(e === null, String(e))) return c.verdict("");
+      const lihat = (siapa: string, sekolah: string | null) =>
+        `pg_temp.b1(${G(`u_${siapa}`)}, format(${q("select coalesce(string_agg(id::text || '=' || institution_ids::text || '/' || coalesce(nama, '-') || '/' || coalesce(network_origin, '-') || '/' || coalesce(resource::text, '-'), ';' order by id), '') from public.akuntabilitas_baca(%L::uuid)")}, ${sekolah ? `current_setting('b1.${sekolah}')` : "null"}))`;
+      const r = jalankan(`
+${DUNIA}
+  i := pg_temp.b1_catat('SIGN_IN_OK', 'PASSWORD', 'OK', ${G("u_dua")}, null, null, '203.0.113.0/24', null);
+  perform set_config('b1.e', i::text, true);
+  -- a print at A by the same person, and one at B
+  perform public.akuntabilitas_catat('PRINT_REQUEST', null, 'OK', ${G("u_dua")}, null, null, '203.0.113.0/24', jsonb_build_object('report', 'laporan.kelas', 'node_id', ${G("node1")}));
+  perform public.akuntabilitas_catat('PRINT_REQUEST', null, 'OK', ${G("u_dua")}, null, null, '203.0.113.0/24', jsonb_build_object('report', 'laporan.kelas', 'node_id', ${G("node2")}));
+  v := v || jsonb_build_object('A', ${G("inst1")}, 'B', ${G("inst2")}, 'e', i,
+    'disimpan', (select institution_ids::text from public.accountability_events where id = i),
+    'lihat_A', ${lihat("adminA", "inst1")}, 'lihat_B', ${lihat("adminB", "inst2")},
+    'lihat_sys', ${lihat("sys", null)}, 'lihat_sysA', ${lihat("sys", "inst1")});
+`);
+      if (!c.expect(r.ok, `the scenario did not run: ${r.err}`)) return c.verdict("");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the database's own JSON
+      const v = r.v as Record<string, any>;
+      const A = String(v.A), B = String(v.B), id = String(v.e);
+      const baris = (s: unknown) => String(s ?? "").replace(/^ok:/, "").split(";").filter(Boolean).map((x) => { const [k, rest] = x.split("="); const [ids, nama, asal, res] = rest.split("/"); return { k, ids, nama, asal, res }; });
+      const satu = (s: unknown) => baris(s).find((b) => b.k === id);
+      const dua = `{${[A, B].sort().join(",")}}`;
+      c.expect(v.disimpan === dua, `the stored snapshot is not kept whole: ${v.disimpan}`);
+      c.expect(satu(v.lihat_A)?.ids === `{${A}}`, `school A's admin is shown ${satu(v.lihat_A)?.ids}, not {${A}} alone`);
+      c.expect(satu(v.lihat_B)?.ids === `{${B}}`, `school B's admin is shown ${satu(v.lihat_B)?.ids}, not {${B}} alone`);
+      c.expect(satu(v.lihat_sys)?.ids === dua && satu(v.lihat_sysA)?.ids === dua, `the platform admin is shown ${satu(v.lihat_sys)?.ids} / ${satu(v.lihat_sysA)?.ids}, not ${dua}`);
+      // the other columns: no other school's id anywhere in a school's rows; no origin; only its own prints
+      for (const [k, sendiri, lain] of [["lihat_A", A, B], ["lihat_B", B, A]] as const) {
+        const bs = baris(v[k]);
+        c.expect(bs.length > 0 && bs.every((b) => !b.ids.includes(lain) && b.asal === "-" && !b.res.includes(lain)), `${k} shows something of the other school: ${String(v[k]).slice(0, 400)}`);
+        c.expect(bs.filter((b) => b.res !== "-").length === 1, `${k} does not read exactly its own one print: ${String(v[k]).slice(0, 400)}`);
+        void sendiri;
+      }
+      return c.verdict("the person at A and B keeps the whole snapshot stored; A's admin is shown {A} alone, B's admin {B} alone, the platform admin "
+        + "both (in «Seluruh platform» and with A named); no row a school reads holds the other school's id, an origin or the other school's print");
+    },
+  },
+  {
+    id: "B1-S06",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      // the coordinator's check 2c: a learner moved from A to B by the product's own transfer (transfer_minta by A's admin,
+      // transfer_terima and transfer_execute by B's): before it A reads the learner's events, after it B
+      const c = new Checks();
+      const e = siapkan(repoRoot);
+      if (!c.expect(e === null, String(e))) return c.verdict("");
+      const r = jalankan(`
+  perform set_config('b1.alpha', (select i.id::text from public.institutions i where i.is_synthetic and i.slug like 'synth-alpha-%' order by i.created_at desc limit 1), true);
+  perform set_config('b1.beta', (select i.id::text from public.institutions i where i.is_synthetic and i.slug like 'synth-beta-%' order by i.created_at desc limit 1), true);
+  perform set_config('b1.u_murid', selftest.f11_user('b1-pindah-' || current_setting('b1.tag') || '@local.invalid', null, null)::text, true);
+  perform set_config('b1.p_murid', (select a.person_id::text from public.accounts a where a.auth_user_id = ${G("u_murid")}), true);
+  insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+  values (${G("p_murid")}, ${G("alpha")}, (select id from public.academic_periods where institution_id = ${G("alpha")} and name = 'TA 2027/2028'),
+          (select id from public.org_nodes where institution_id = ${G("alpha")} and kind = 'PROGRAMME'), 'ACTIVE') returning id::text into x;
+  perform set_config('b1.enr', x, true);
+  i := pg_temp.b1_catat('SIGN_IN_OK', 'PASSWORD', 'OK', ${G("u_murid")}, null, null, null, null);
+  -- the transfer, as the product makes it today (20261219100000): asked by name by the sending school, accepted
+  -- with its year and programme by the receiving school, then carried out
+  perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  perform set_config('b1.tf', public.transfer_minta(${G("enr")}, ${G("beta")}, 'uji B1 pindah sekolah')::text, true);
+  perform selftest.as_user('beta-admin@synthetic.pintar.test');
+  -- into one of Beta's Kelas, in that Kelas's school year
+  perform public.transfer_terima(${G("tf")}, (select n.academic_period_id from public.org_nodes n where n.institution_id = ${G("beta")} and n.kind = 'CLASS' and n.is_active order by n.name limit 1),
+    (select id from public.org_nodes where institution_id = ${G("beta")} and kind = 'PROGRAMME' and is_active limit 1),
+    (select n.id from public.org_nodes n where n.institution_id = ${G("beta")} and n.kind = 'CLASS' and n.is_active order by n.name limit 1));
+  perform public.transfer_execute(${G("tf")});
+  perform selftest.as_owner();
+  j := pg_temp.b1_catat('SIGN_IN_OK', 'PASSWORD', 'OK', ${G("u_murid")}, null, null, null, null);
+  v := v || jsonb_build_object('i', i, 'j', i, 'j2', j,
+    'snap_i', (select institution_ids::text from public.accountability_events where id = i),
+    'snap_j', (select institution_ids::text from public.accountability_events where id = j),
+    'alpha', current_setting('b1.alpha'), 'beta', current_setting('b1.beta'),
+    'enr_lama', (select status::text from public.enrollments where id = ${G("enr")}));
+  perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+  v := v || jsonb_build_object('baca_alpha', (select coalesce(string_agg(id::text, ',' order by id), '') from public.akuntabilitas_baca(current_setting('b1.alpha')::uuid) where id in (i, j)));
+  perform selftest.as_user('beta-admin@synthetic.pintar.test');
+  v := v || jsonb_build_object('baca_beta', (select coalesce(string_agg(id::text, ',' order by id), '') from public.akuntabilitas_baca(current_setting('b1.beta')::uuid) where id in (i, j)));
+  perform selftest.as_owner();
+`);
+      if (!c.expect(r.ok, `the scenario did not run: ${r.err}`)) return c.verdict("");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the database's own JSON
+      const v = r.v as Record<string, any>;
+      c.expect(v.enr_lama === "ENDED", `the transfer did not end the sending enrolment (${v.enr_lama})`);
+      c.expect(v.snap_i === `{${v.alpha}}` && v.snap_j === `{${v.beta}}`, `the snapshots before and after the transfer: ${v.snap_i}, ${v.snap_j}`);
+      c.expect(v.baca_alpha === String(v.i) && v.baca_beta === String(v.j2), `before the transfer A reads ${v.baca_alpha || "nothing"} and B reads ${v.baca_beta || "nothing"} (before ${v.i}, after ${v.j2})`);
+      return c.verdict("a learner moved from Alpha to Beta through transfer_minta, transfer_terima and transfer_execute: the sign-in before it "
+        + "holds {Alpha} and is read by Alpha's admin only; the one after it holds {Beta} and is read by Beta's admin only");
+    },
+  },
+  {
+    id: "B1-S07",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      // the coordinator's follow-up 3a and check 2d: retention past twelve months is never silent (the health read names
+      // it; the purge runs batch after batch until it is gone); the purge's audit row is the platform admin's (audit_log's
+      // own bounds: no school), and a purged print's reference finds nothing in the reader
+      const c = new Checks();
+      const e = siapkan(repoRoot);
+      if (!c.expect(e === null, String(e))) return c.verdict("");
+      const r = jalankan(`
+${DUNIA}
+  insert into public.accountability_events (at, kind, method, outcome, person_id, institution_ids)
+  select now() - interval '12 months 2 days' - (g || ' seconds')::interval, 'SIGN_OUT', null, 'OK', ${G("p_dua")}, array[${G("inst1")}]
+    from generate_series(1, 120) g;
+  insert into public.accountability_events (at, kind, outcome, person_id, institution_ids, resource, print_ref)
+  values (now() - interval '12 months 2 days', 'PRINT_REQUEST', 'OK', ${G("p_dua")}, array[${G("inst1")}],
+          jsonb_build_object('report', 'laporan.kelas', 'node_id', ${G("node1")}), 'CTK-B1S7-0AAA');
+  v := v || jsonb_build_object('sebelum', public.pintar_periksa_kesehatan() -> 'lewat_retensi_akuntabilitas',
+    'ok_sebelum', public.pintar_periksa_kesehatan() -> 'ok',
+    'ref_sebelum', pg_temp.b1(${G("u_adminA")}, format(${q("select count(*)::text from public.akuntabilitas_baca(%L::uuid, null, 'CTK-B1S7-0AAA')")}, current_setting('b1.inst1'))));
+  v := v || jsonb_build_object('jalan', public.akuntabilitas_buang_lama(1));
+  v := v || jsonb_build_object('sesudah', public.pintar_periksa_kesehatan() -> 'lewat_retensi_akuntabilitas',
+    'ref_sesudah', pg_temp.b1(${G("u_adminA")}, format(${q("select count(*)::text from public.akuntabilitas_baca(%L::uuid, null, 'CTK-B1S7-0AAA')")}, current_setting('b1.inst1'))),
+    'audit_id', (select max(id) from public.audit_log where action = 'accountability.purged'));
+  perform set_config('b1.audit', (v ->> 'audit_id'), true);
+  v := v || jsonb_build_object(
+    'audit_sys', pg_temp.b1(${G("u_sys")}, ${q("select count(*)::text from public.audit_log where id = current_setting('b1.audit')::bigint")}),
+    'audit_A', pg_temp.b1(${G("u_adminA")}, ${q("select count(*)::text from public.audit_log where id = current_setting('b1.audit')::bigint")}),
+    'audit_isi', (select jsonb_build_object('inst', institution_id, 'deleted', summary -> 'deleted') from public.audit_log where id = current_setting('b1.audit')::bigint));
+`);
+      if (!c.expect(r.ok, `the scenario did not run: ${r.err}`)) return c.verdict("");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the database's own JSON
+      const v = r.v as Record<string, any>;
+      c.expect(Number(v.sebelum?.n) >= 121 && typeof v.sebelum?.tertua === "string" && v.ok_sebelum === false,
+        `rows past twelve months and a day are not a named finding of the health read: ${JSON.stringify(v.sebelum)}, ok ${v.ok_sebelum}`);
+      c.expect(Number(v.jalan?.dihapus) >= 121 && Number(v.sesudah?.n) === 0, `one run in batches of one left rows past the twelve months: ${JSON.stringify(v.jalan)}; then ${JSON.stringify(v.sesudah)}`);
+      c.expect(v.ref_sebelum === "ok:1" && v.ref_sesudah === "ok:0", `a purged print's reference: before ${v.ref_sebelum}, after ${v.ref_sesudah}`);
+      c.expect(v.audit_sys === "ok:1" && v.audit_A === "ok:0" && v.audit_isi?.inst === null && Number(v.audit_isi?.deleted) >= 121,
+        `the purge's audit row: the platform admin ${v.audit_sys}, a school admin ${v.audit_A}; ${JSON.stringify(v.audit_isi)}`);
+      return c.verdict("121 rows past twelve months and a day are a named, not-ok finding of the health read; one purge run in batches of one row "
+        + "removes them all and the finding clears; a purged print's reference finds nothing; the purge's audit row (no school) is read by the "
+        + "platform admin and not by a school's admin");
+    },
+  },
+  {
     id: "B1-C01",
     requires: ["db"],
     run: async ({ repoRoot }) => {

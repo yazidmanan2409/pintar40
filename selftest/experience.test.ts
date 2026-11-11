@@ -2159,7 +2159,10 @@ export const experienceTests: SelfTest[] = [
       // logo, a crest or a theme.
       // MOVED 230 -> 231 for B1's one job installer (20270116110000: every scheduled job declared once, installed by one
       // installer, and a health read). Read against §3: schedules, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 231, `${migrations.length} migrations; the frozen baseline has 231`);
+      // MOVED 231 -> 232 for B1's correction (20270116120000: a school reads only its own school of a sign-in record's
+      // snapshot; the purge runs until done; overdue rows are reported). Read against §3: who reads a record, not a mark,
+      // a logo, a crest or a theme.
+      c.expect(migrations.length === 232, `${migrations.length} migrations; the frozen baseline has 232`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4014,7 +4017,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 228 -> 229 for 20270115110000 (C1w: the governed key correction and the certificate review): no tour RPC.
       // MOVED 229 -> 230 for 20270116100000 (B1: the sign-in and print record): no tour RPC.
       // MOVED 230 -> 231 for 20270116110000 (B1: the one job installer and its health read): no tour RPC.
-      c.expect(migs.length === 231, `${migs.length} migrations; the baseline has 231`);
+      // MOVED 231 -> 232 for 20270116120000 (B1's correction: the reader's snapshot, the purge, the health read): no tour RPC.
+      c.expect(migs.length === 232, `${migs.length} migrations; the baseline has 232`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

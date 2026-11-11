@@ -3735,7 +3735,7 @@
     {
       "id": "DR-D02",
       "runner": "static",
-      "proves": "#150 WP-B, the secondary logical path end to end (D-106(j); selftest/dr150b.test.ts): a bundle collected by scripts/recovery/backup.mjs as pintar_backup from CI's database and Storage executes through scripts/recovery/restore-bundle.mjs into a second, empty Supabase stack (a new project's stand-in, with its own default privileges): 0 differences in every table's rows and content hash, every function's definition, owner and execute rights, the table rights, the auth.users triggers, the pre-request and the policies; every Storage file put back and read back with its hash; anon's reach equal to its source's; the extension baseline held; readiness as its source; SAFE TO REOPEN. An extension added on the copy afterwards makes its verification refuse to call it safe (D-108(c)(8)), and removing it makes it safe again. RESTATED FOR #150 WP-C (B9 after a native restore): with a file lost on the copy while its storage.objects row stays, scripts/recovery/restore-bundle.mjs --files-only puts the file back from the bundle, read back by SHA-256, changes no row, and the copy verifies SAFE TO REOPEN again; a row the bundle has no file for is named and the run is red. RESTATED, A1 (owner, Option A): in addition, the bundle carries no pg_cron table and still the sittings; the restore's installer (public.pengerjaan_jadwal_pasang) puts the abandoned-sitting job back exactly once and the verification reads it; a copy without the job is refused SAFE TO REOPEN; installing twice leaves one job and is safe again; and the job's own command, run on the restored copy, ends and scores a sitting past its deadline once; every other assertion is unchanged. RESTATED, B1 (THE PLAN §6.3; C1w finding F-8): every job the one installer declares (A1's and B1's daily purge) is back on the restored copy exactly once, as declared; a job removed by hand is named by the health read (pintar_periksa_kesehatan) and makes the copy unsafe to reopen; the one installer, run twice, puts each back once."
+      "proves": "#150 WP-B, the secondary logical path end to end (D-106(j); selftest/dr150b.test.ts): a bundle collected by scripts/recovery/backup.mjs as pintar_backup from CI's database and Storage executes through scripts/recovery/restore-bundle.mjs into a second, empty Supabase stack (a new project's stand-in, with its own default privileges): 0 differences in every table's rows and content hash, every function's definition, owner and execute rights, the table rights, the auth.users triggers, the pre-request and the policies; every Storage file put back and read back with its hash; anon's reach equal to its source's; the extension baseline held; readiness as its source; SAFE TO REOPEN. An extension added on the copy afterwards makes its verification refuse to call it safe (D-108(c)(8)), and removing it makes it safe again. RESTATED FOR #150 WP-C (B9 after a native restore): with a file lost on the copy while its storage.objects row stays, scripts/recovery/restore-bundle.mjs --files-only puts the file back from the bundle, read back by SHA-256, changes no row, and the copy verifies SAFE TO REOPEN again; a row the bundle has no file for is named and the run is red. RESTATED, A1 (owner, Option A): in addition, the bundle carries no pg_cron table and still the sittings; the restore's installer (public.pengerjaan_jadwal_pasang) puts the abandoned-sitting job back exactly once and the verification reads it; a copy without the job is refused SAFE TO REOPEN; installing twice leaves one job and is safe again; and the job's own command, run on the restored copy, ends and scores a sitting past its deadline once; every other assertion is unchanged. RESTATED, B1 (THE PLAN §6.3; C1w finding F-8): every job the one installer declares (A1's and B1's daily purge) is back on the restored copy exactly once, as declared; a job removed by hand is named by the health read (pintar_periksa_kesehatan) and makes the copy unsafe to reopen; the one installer, run twice, puts each back once. RESTATED, B1 (the correction pass): accountability_events, accountability_store and accountability_write_failures are in the bundle with their rows (a known event and a known counted failure among them) and come back on restore as they were; the health read on the restored copy names no job missing or different."
     },
     {
       "id": "DR-D03",
@@ -5734,13 +5734,33 @@
     {
       "id": "B1-L01",
       "runner": "app",
-      "proves": "B1 «Catatan masuk dan cetak», selftest/b1-layar.test.ts, through the running app's rendered html (route /konfigurasi/catatan-masuk): a teacher is refused; a school's administrator reads their own sign-in by name without the network origin; the platform administrator reads it with its /24 and never the address; a reference not there says the purged reference's own sentence; no match says so; the kind filter holds; «Jejak audit» links to it; the test's rows are gone afterwards."
+      "proves": "B1 «Catatan masuk dan cetak», selftest/b1-layar.test.ts, through the running app's rendered html (route /konfigurasi/catatan-masuk): a teacher is refused; a school's administrator reads their own sign-in by name without the network origin; the platform administrator reads it with its /24 and never the address; a reference not there, and a print reference the purge itself removed, say the purged reference's own sentence; the purge's run is one audit row of the platform (no school) whose count is the run's own, said in the platform's «Jejak audit» and absent from the school's; no match says so; the kind filter holds; «Jejak audit» links to it; the test's rows are gone afterwards."
     },
     {
       "id": "B1-A03",
       "runner": "app",
       "proves": "B1, selftest/b1-layar.test.ts, through the running app's routes, the paths that need the mail sink, with a person activated for the test: the right recovery code (SIGN_IN_OK by CODE) and its new password, a wrong PIN for the person's own ID (the person found by the ID), the right PIN (SIGN_IN_OK by RECOVERY_PIN) and its new password, and each sign-out: one row each, no secret in any text column; no live role, session or event row left behind.",
       "skip_justification": "B1-A03 needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
+    },
+    {
+      "id": "B1-S05",
+      "runner": "static",
+      "proves": "B1 correction (Sharon's result review at 40e89308), selftest/b1.test.ts, in the database, rolled back, against migration 20270116120000: a person at schools A and B keeps the whole snapshot stored; the reader shows A's admin {A} alone, B's admin {B} alone and the platform admin both; no row a school reads holds the other school's id, a network origin or the other school's print."
+    },
+    {
+      "id": "B1-S06",
+      "runner": "static",
+      "proves": "B1 correction (cross-module check: a transfer), selftest/b1.test.ts, in the database, rolled back, against migration 20270116100000 and the product's own transfer (transfer_minta, transfer_terima, transfer_execute): a learner's sign-in before the move holds {A} and is read by A's admin only; the one after it holds {B} and is read by B's admin only."
+    },
+    {
+      "id": "B1-S07",
+      "runner": "static",
+      "proves": "B1 correction (purge capacity; the purge's audit and a purged reference), selftest/b1.test.ts, in the database, rolled back, against migration 20270116120000: rows past twelve months and a day are a named, not-ok finding of the health read (pintar_periksa_kesehatan); one purge run in batches of one row removes them all; a purged print's reference finds nothing in the reader; the purge's audit row (no school) is read by the platform admin and not by a school's admin."
+    },
+    {
+      "id": "B1-A04",
+      "runner": "app",
+      "proves": "B1 correction (cross-module checks 2b and the deleted-person presentation), selftest/b1-layar.test.ts, through the running app's routes and its rendered html (route /konfigurasi/catatan-masuk): a staff member of Alpha suspended, then closed, each sign-in attempt one SIGN_IN_FAILED row holding the route's own answer, a code any account can get and never one naming the account's state, the person and Alpha's snapshot, read by Alpha's admin and not Beta's; after hapus_data_pribadi an attempt with the old address names no one (the platform admin's only) and the person's rows hold no origin and no hash; Alpha's admin and the platform admin read them under the PINTAR ID with no origin; nothing of the test is left behind."
     }
   ]
 }

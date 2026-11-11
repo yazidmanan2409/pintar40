@@ -927,6 +927,16 @@ rollback;
         psql(pg, `alter role pintar_backup password '${kata}'`);
         await storageRest(st, "POST", "bucket", JSON.stringify({ id: BUCKET, name: BUCKET, public: false }));
         for (const [n, b] of Object.entries(files)) await storageRest(st, "POST", `object/${BUCKET}/${n}`, b, "application/octet-stream");
+        // RESTATED, B1 (the correction pass; THE PLAN §6.3): the sign-in record's three tables travel with the bundle. A
+        // row of each is made known on the source first (an event by the writer, a counted failure on a day long past,
+        // so the health read's seven days are untouched; the store's start row is there already) and taken away again
+        // at the end. Was: the bundle's contents were checked as a whole (facts), not B1's tables by name.
+        const b1Event = psql(pg, `select (public.akuntabilitas_catat('SIGN_IN_FAILED', 'PASSWORD', 'MASUK_TIDAK_COCOK', null, null, '${"d".repeat(64)}', '192.0.2.0/24', null)) ->> 'id'`).out.trim();
+        psql(pg, "insert into public.accountability_write_failures (day, kind, n, last_at) values ('2001-01-01', 'SIGN_OUT', 1, '2001-01-01') on conflict do nothing");
+        const b1Isi = (p: Pg) => psql(p, `select (select count(*) from public.accountability_events) || '|' || (select count(*) from public.accountability_store) || '|'
+          || (select count(*) from public.accountability_write_failures) || '|' || (select count(*) from public.accountability_events where id = ${Number(b1Event) || 0}
+             and identifier_hash = '${"d".repeat(64)}' and network_origin = '192.0.2.0/24') || '|' || (select count(*) from public.accountability_write_failures where day = '2001-01-01')`).out.trim();
+        const b1Sumber = b1Isi(pg);
         // 1. the bundle, from CI's database and Storage, as pintar_backup
         const bundle = join(dir, "bundle");
         const bin = pgBin(pg);
@@ -956,6 +966,11 @@ rollback;
         c.expect(a.code === 0 && /SAFE TO REOPEN/.test(a.text) && /facts: \d+ compared, 0 difference/.test(a.text) && /Storage: 2 object|Storage: \d+ object/.test(a.text),
           `the restore into the empty stack: exit ${a.code}; ${a.text.trim().split("\n").slice(-6).join(" | ").slice(0, 900)}`);
         c.note(`logical path on CI: restored and verified in ${Math.round((Date.now() - t0) / 1000)} s`);
+        // RESTATED, B1 (the correction pass): B1's three tables are in the bundle with their rows and come back as they were
+        const dataB1 = readFileSync(join(bundle, "data.sql"), "utf8");
+        c.expect(["accountability_events", "accountability_store", "accountability_write_failures"].every((t) => new RegExp(`^COPY "public"\\."${t}"`, "m").test(dataB1))
+          && /\|1\|1$/.test(b1Sumber) && b1Isi(target) === b1Sumber,
+          `the sign-in record's tables on the restored copy (events|store|failures|the known event|the known failure): ${b1Isi(target)}, on the source ${b1Sumber}`);
         // the new project's default privileges did not open anything: anon's reach equals the source's
         const anon = (p: Pg) => psql(p, "select count(*) filter (where has_table_privilege('anon', c.oid, 'SELECT,INSERT,UPDATE,DELETE')) from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relkind in ('r','v','m','p')").out.trim();
         c.expect(anon(target) === anon(pg), `anon reaches ${anon(target)} public relation(s) on the copy, ${anon(pg)} on its source`);
@@ -1010,6 +1025,9 @@ rollback;
           && jobs(target) === `1|*/5 * * * * select public.pengerjaan_tutup_terjadwal() true ${target.PGDATABASE}`
           && jobsB1(target) === `1|17 19 * * * select public.akuntabilitas_buang_lama() true ${target.PGDATABASE}`,
           `the jobs on the restored copy: ${jobs(target)}; ${jobsB1(target)}; ${a.text.split("\n").filter((l) => /scheduled job/.test(l)).join(" | ")}`);
+        // the health read on the restored copy, as restored: no declared job missing or different
+        const sehat0 = psql(target, "select (public.pintar_periksa_kesehatan() -> 'hilang')::text || '|' || (public.pintar_periksa_kesehatan() -> 'berbeda')::text").out.trim();
+        c.expect(sehat0 === "[]|[]", `the health read on the restored copy names a job missing or different: ${sehat0}`);
         psql(target, `select cron.unschedule('${JOB_B1}')`);
         const sehat = psql(target, "select public.pintar_periksa_kesehatan() -> 'hilang'").out.trim();
         const h = restore("--verify-only", "--storage");
@@ -1041,6 +1059,9 @@ rollback;
         c.expect(jalan.ok && hasilJalan === "S|1|FINALIZED/DEADLINE/1/1", `the job's command on the restored copy (sittings|status/closure/results/audit rows): ${hasilJalan} ${jalan.err}`);
       } finally {
         stack?.stop();
+        // P3: B1's known rows taken away from the source again (past the store's guard: the harness's own hand)
+        psql(pg, `begin; set local session_replication_role = replica; delete from public.accountability_events where identifier_hash = '${"d".repeat(64)}' and network_origin = '192.0.2.0/24';
+          delete from public.accountability_write_failures where day = '2001-01-01'; commit;`, { stopOnError: false });
         psql(pg, "alter role pintar_backup password null; select pg_terminate_backend(pid) from pg_stat_activity where usename = 'pintar_backup';", { stopOnError: false });
         await storageRest(st, "DELETE", `object/${BUCKET}`, JSON.stringify({ prefixes: Object.keys(files) }));
         await storageRest(st, "DELETE", `bucket/${BUCKET}`);

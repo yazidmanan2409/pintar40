@@ -3168,6 +3168,50 @@ await step("S23j", "the audit reader: on Konfigurasi → «Jejak audit» the sch
     `the actions as printed: ${JSON.stringify([...new Set(layarAdmin.map((k) => k.split("|")[0]))].slice(0, 8))}; codes on screen ${bocor.length}${bocor.length ? ` (${bocor.slice(0, 3).join(", ")})` : ""}`;
 });
 
+// B1 (THE PLAN §8.5 journey 4, the part before B2's printed report): «who signed in, who failed to». Pak Guru Budi, a
+// real person of this world, types a wrong password on the sign-in screen and then signs in; the school admin opens
+// «Catatan masuk dan cetak» (beside «Jejak audit»), searches his name, and reads both: the failure in the sign-in
+// screen's own words and the success; nothing of another school. Read only.
+await step("B1J", "the school admin looks up who signed in: Pak Guru Budi's failed and successful sign-in on Konfigurasi → «Catatan masuk dan cetak», searched by his name; nothing of another school (B1, journey 4)", async (rec) => {
+  const gc = await ctx();
+  const gp = await gc.newPage();
+  await gp.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+  await gp.locator("#identitas").fill(people.guru.email);
+  await gp.locator("#password").fill("Bukan-Sandinya-2026!");
+  await gp.getByRole("button", { name: "Masuk", exact: true }).click();
+  // the screen's own refusal (it answers no sooner than its floor)
+  await gp.getByText(/belum cocok/).first().waitFor({ timeout: SLOW }).catch(() => {});
+  const ditolak = norm(await gp.getByText(/belum cocok/).first().innerText().catch(() => ""));
+  const masuk = await magicSignIn(gp, people.guru.email);
+  await gc.close();
+  await a.goto(`${APP}/konfigurasi/audit?muat=${Date.now()}`, { waitUntil: "networkidle" });
+  await tutupTur(a);
+  await a.locator('[data-akuntabilitas-tautan] a').click();
+  await a.waitForURL((u) => u.pathname === "/konfigurasi/catatan-masuk", { timeout: SLOW });
+  await a.locator('input[name="cari"]').fill(people.guru.name);
+  await a.getByRole("button", { name: "Tampilkan" }).click();
+  await a.waitForURL((u) => u.searchParams.has("cari"), { timeout: SLOW });
+  await a.waitForLoadState("networkidle");
+  rec.shots.push(await shot(a, "b1-catatan-masuk"));
+  const baris = await a.locator("[data-akuntabilitas-baris]").evaluateAll((trs) => trs.map((tr) => ({
+    jenis: tr.getAttribute("data-akuntabilitas-baris"), siapa: (tr.querySelector("[data-akuntabilitas-orang]")?.textContent ?? "").trim(),
+    hasil: (tr.querySelector("[data-akuntabilitas-hasil]")?.textContent ?? "").replace(/\s+/g, " ").trim() })));
+  const gagal = baris.find((b) => b.jenis === "SIGN_IN_FAILED");
+  const berhasil = baris.find((b) => b.jenis === "SIGN_IN_OK");
+  // the database's own count of Pak Guru Budi's rows that SD may read, against what the screen shows; none of them names another school
+  const diDb = Number(sql(`select count(*) from public.accountability_events e join public.accounts ac on ac.person_id = e.person_id
+    join auth.users u on u.id = ac.auth_user_id where u.email = '${people.guru.email}' and '${ids.sd}' = any (e.institution_ids)`));
+  const lain = Number(sql(`select count(*) from public.accountability_events e join public.accounts ac on ac.person_id = e.person_id
+    join auth.users u on u.id = ac.auth_user_id where u.email = '${people.guru.email}' and not ('${ids.sd}' = any (e.institution_ids))`));
+  const asal = await a.locator("th", { hasText: "Asal jaringan" }).count();
+  const ok = /belum cocok/.test(ditolak) && Boolean(gagal) && gagal.hasil === "Email, username, atau password belum cocok." && Boolean(berhasil) && berhasil.hasil === "Berhasil"
+    && baris.every((b) => b.siapa === people.guru.name) && baris.length === Math.min(50, diDb) && asal === 0;
+  if (!ok) rec.verdict = "FAIL";
+  return `the sign-in screen said «${ditolak.slice(0, 120)}», then he signed in (landed ${masuk.landed}); «Catatan masuk dan cetak» searched «${people.guru.name}»: ${baris.length} row(s) `
+    + `(the database's rows SD may read: ${diDb}; his rows of no SD: ${lain}), the failure «${gagal?.hasil ?? "none"}», the success «${berhasil?.hasil ?? "none"}», `
+    + `every row his ${baris.every((b) => b.siapa === people.guru.name)}, a network-origin column ${asal}`;
+});
+
 // CR-52 (J4.8 EC; D-050(a)(d)): the Question Bank, walked against QN5 as D-120 ruled it: «4.0's Question Bank means
 // browse, filter and review with the answer key and reason; no additional authoring workflow». Read only; before S24,
 // which revokes the head of department. The head of department reviews question health (CAN_REVIEW_QUESTION_HEALTH,

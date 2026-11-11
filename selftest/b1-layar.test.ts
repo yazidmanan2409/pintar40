@@ -15,6 +15,9 @@
  *           sign-out: one row each, no secret.
  *   B1-A02  a writer that fails (a trigger planted on the store for the test) does not block a sign-in or a sign-out:
  *           both answer as ever, nothing is written, each failure is counted, and the health read reports the count.
+ *   B1-A04  a staff member suspended, closed and then deleted (L4): each attempt one failure with the one generic code, the
+ *           right snapshot, read by the right admins; afterwards the reader, as rendered for the school's admin and the
+ *           platform admin, shows the person under their PINTAR ID with no origin.
  *   B1-L01  «Catatan masuk dan cetak» through the running app: a teacher is refused; a school's administrator reads their
  *           own sign-in by name, with no network origin; the platform administrator reads it with the /24; a reference
  *           not there says the purged reference's own sentence; no match says so; «Jejak audit» links to it.
@@ -54,6 +57,18 @@ function buangBaris(dari: number): string {
   psql(`begin; set local session_replication_role = replica; delete from public.accountability_events where id > ${dari}; commit;`);
   return psql(`select count(*) from public.accountability_events where id > ${dari}`);
 }
+
+
+/** As one person, by their Auth user (the request's claims, as PostgREST sets them), in one committed transaction. */
+const sebagaiUid = (uid: string, sql: string) => psql(`begin; set local role authenticated;
+  select set_config('request.jwt.claims', json_build_object('sub', ${lit(uid)}, 'role', 'authenticated')::text, true);
+  select set_config('request.jwt.claim.sub', ${lit(uid)}, true);
+  ${sql}; commit;`);
+const uidDari = (email: string) => psql(`select id from auth.users where email = ${lit(email)}`);
+/** The reader as one administrator, for a school (or none): the ids it returns, with their shown snapshots. */
+const bacaSebagai = (email: string, sekolah: string | null, cari: string | null = null) =>
+  sebagaiUid(uidDari(email), `select coalesce(string_agg(id::text || '=' || institution_ids::text, ';' order by id), '')
+    from public.akuntabilitas_baca(${sekolah ? `${lit(sekolah)}::uuid` : "null"}, null, ${cari ? lit(cari) : "null"})`).split("\n").filter((l) => /=|^$/.test(l)).pop() ?? "";
 
 export const b1AppTests: SelfTest[] = [
   {
@@ -236,6 +251,118 @@ export const b1AppTests: SelfTest[] = [
     },
   },
   {
+    id: "B1-A04",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      // the coordinator's check 2b and the integrity standard's deleted-person presentation: a staff member of Alpha signs
+      // in; is suspended, then closed, then has their personal data deleted; each attempt is one failure with the sign-in
+      // screen's one generic code; the rows are Alpha's (not Beta's); after the deletion the reader, as rendered for
+      // Alpha's admin and for the platform admin, shows the person under their PINTAR ID with no origin and no hash
+      const c = new Checks();
+      const asal = ctx.appUrl!;
+      const tag = randomBytes(4).toString("hex");
+      const email = `b1-ina-${tag}@local.invalid`, sandi = `B1-Ina-${tag}-2026!`;
+      const alpha = psql("select i.id from public.institutions i where i.is_synthetic and i.slug like 'synth-alpha-%' order by i.created_at desc limit 1");
+      const beta = psql("select i.id from public.institutions i where i.is_synthetic and i.slug like 'synth-beta-%' order by i.created_at desc limit 1");
+      const sys = uidDari("sysadmin@synthetic.pintar.test");
+      const orang = psql(`do $$ declare v_u uuid := gen_random_uuid(); v_p uuid; v_node uuid; begin
+        insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+                                confirmation_token, recovery_token, email_change_token_new, email_change)
+        values (v_u, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', ${lit(email)}, extensions.crypt(${lit(sandi)}, extensions.gen_salt('bf', 4)), now(),
+                '{"provider":"email","providers":["email"]}', jsonb_build_object('display_name', 'Ina B1 ' || ${lit(tag)}), now(), now(), '', '', '', '');
+        insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+        values (gen_random_uuid(), v_u, v_u::text, jsonb_build_object('sub', v_u::text, 'email', ${lit(email)}, 'email_verified', true), 'email', now(), now(), now());
+        select a.person_id into v_p from public.accounts a where a.auth_user_id = v_u;
+        update public.persons set display_name = 'Ina B1 ' || ${lit(tag)} where id = v_p;
+        update public.account_setup set state = 'COMPLETE', completed_at = now(), password_set_at = now(), name_confirmed_at = now()
+         where account_id = (select a.id from public.accounts a where a.auth_user_id = v_u);
+        select ra.scope_node_id into v_node from public.role_assignments ra join public.accounts a on a.person_id = ra.person_id join auth.users u on u.id = a.auth_user_id
+         where u.email = 'alpha-guru@synthetic.pintar.test' and ra.role = 'EDUCATOR' limit 1;
+        perform set_config('app.seed_intent', 'synthetic', true);
+        insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until) values (v_p, 'EDUCATOR', v_node, now() - interval '1 day', now() + interval '365 days');
+      end $$; select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = ${lit(email)}`).split("\n").pop() ?? "";
+      const uid = uidDari(email);
+      const pid = psql(`select pintar_id from public.persons where id = ${lit(orang)}`);
+      const awal = titik();
+      const ip: string[] = [];
+      const coba = async (sandiIni: string) => { const x = ipUji(); ip.push(x); return new Peramban(asal, x).jsonDari("/masuk/password", { form: { identitas: email, password: sandiIni } }); };
+      const terakhir = () => baris(awal).slice(-1)[0];
+      const ringkas = (r: Baris | undefined) => r ? [r.kind, r.method, r.outcome, r.person_id === orang ? "INA" : r.person_id ? "LAIN" : "-", r.identifier_hash ? "H" : "-", JSON.stringify(r.institution_ids)].join(" ") : "none";
+      const dilihat = (id: number | undefined, out: string) => out.split(";").some((x) => x.split("=")[0] === String(id));
+      try {
+        // signed in once, and out again
+        const p = new Peramban(asal, ipUji());
+        const m0 = await p.jsonDari("/masuk/password", { form: { identitas: email, password: sandi } });
+        await p.kirim("/keluar", { method: "POST" });
+        c.expect(m0.status === 200, `the staff member could not sign in first (${m0.status})`);
+        // 1. suspended
+        sebagaiUid(sys, `select public.tangguhkan_akun(${lit(orang)}, 'SECURITY', 'uji B1: akun diduga diambil alih')`);
+        const n1 = baris(awal).length;
+        const s1 = await coba(sandi);
+        const r1 = terakhir();
+        // the record holds exactly the route's own answer, and that answer is one of the codes every account can get
+        // (never one naming the account's state). PRE-EXISTING, OUTSIDE B1 (reported): local Auth cannot read the
+        // suspension's banned_until = infinity and fails, so the route answers LAYANAN_TIDAK_TERSEDIA (503), not the
+        // wrong password's MASUK_TIDAK_COCOK (401); the record follows the route either way.
+        const UMUM = ["MASUK_TIDAK_COCOK", "LAYANAN_TIDAK_TERSEDIA"];
+        const sah = (x: { body: Record<string, unknown> | null }, r: Baris | undefined, orangnya: string, sekolah: string[]) =>
+          UMUM.includes(String(x.body?.code)) && ringkas(r) === `SIGN_IN_FAILED PASSWORD ${String(x.body?.code)} ${orangnya} H ${JSON.stringify(sekolah)}`;
+        if (s1.body?.code !== "MASUK_TIDAK_COCOK") c.note(`a suspended account's sign-in answered ${s1.status} ${String(s1.body?.code)} (pre-existing; reported)`);
+        c.expect(baris(awal).length === n1 + 1 && sah(s1, r1, "INA", [alpha]), `a suspended account's attempt: ${s1.status} ${JSON.stringify(s1.body)}; ${ringkas(r1)}`);
+        c.expect(dilihat(r1?.id, bacaSebagai("alpha-admin@synthetic.pintar.test", alpha)) && !dilihat(r1?.id, bacaSebagai("beta-admin@synthetic.pintar.test", beta)),
+          "the suspended account's failure is not Alpha's alone");
+        // 2. closed (reactivated, then closed at the person's own request with a deletion request)
+        sebagaiUid(sys, `select public.aktifkan_kembali_akun(${lit(orang)}, 'uji B1: akun sudah aman kembali')`);
+        sebagaiUid(uid, "select public.minta_akun('DELETE_PERSONAL_DATA', true)");
+        sebagaiUid(uid, "select public.minta_akun('CLOSE', true)");
+        const s2 = await coba(sandi);
+        const r2 = terakhir();
+        if (s2.body?.code !== "MASUK_TIDAK_COCOK") c.note(`a closed account's sign-in answered ${s2.status} ${String(s2.body?.code)} (pre-existing; reported)`);
+        c.expect(sah(s2, r2, "INA", [alpha]), `a closed account's attempt: ${s2.status} ${JSON.stringify(s2.body)}; ${ringkas(r2)}`);
+        c.expect(dilihat(r2?.id, bacaSebagai("alpha-admin@synthetic.pintar.test", alpha)) && !dilihat(r2?.id, bacaSebagai("beta-admin@synthetic.pintar.test", beta)),
+          "the closed account's failure is not Alpha's alone");
+        // 3. personal data deleted (L4)
+        const req = psql(`select id from public.account_requests where person_id = ${lit(orang)} and kind = 'DELETE_PERSONAL_DATA'`);
+        sebagaiUid(sys, `select public.hapus_data_pribadi(${lit(req)}, null)`);
+        const s3 = await coba(sandi);
+        const r3 = terakhir();
+        c.expect(s3.status === 401 && sah(s3, r3, "-", []),
+          `an attempt with the deleted address (it is no one's now): ${s3.status} ${JSON.stringify(s3.body)}; ${ringkas(r3)}`);
+        c.expect(!dilihat(r3?.id, bacaSebagai("alpha-admin@synthetic.pintar.test", alpha)) && dilihat(r3?.id, bacaSebagai("sysadmin@synthetic.pintar.test", null)),
+          "the attempt that names no one is not the platform admin's alone");
+        const milik = baris(awal).filter((r) => r.person_id === orang);
+        c.expect(milik.length === 4 && milik.every((r) => r.network_origin === null && r.identifier_hash === null), `the deleted person's rows keep an origin or a hash: ${milik.map(ringkas).join(" | ")}`);
+        // 4. as rendered: Alpha's admin and the platform admin, searching the PINTAR ID
+        const lihat = async (identitas: string, sandiIni: string, konteks: string) => {
+          const b = new Peramban(asal, ipUji());
+          await b.jsonDari("/masuk/password", { form: { identitas, password: sandiIni } });
+          await pilihKonteksPeramban(b, konteks);
+          const r = await b.kirim(`/konfigurasi/catatan-masuk?cari=${encodeURIComponent(pid)}`);
+          const html = await r.text();
+          await b.kirim("/keluar", { method: "POST" });
+          return html;
+        };
+        for (const [nama, html] of [["Alpha's admin", await lihat("alpha-admin@synthetic.pintar.test", "Sintetis-AlphaAdmin-27!", `MENGELOLA:${alpha}`)],
+          ["the platform admin", await lihat("sysadmin@synthetic.pintar.test", "Sintetis-Sys-91!", "MENGELOLA:PLATFORM")]] as const) {
+          const orangDi = [...html.matchAll(/data-akuntabilitas-orang="">([^<]*)</g)].map((m) => m[1]);
+          const asalDi = [...html.matchAll(/<td data-label="Asal jaringan" class="pin-num">([^<]*)</g)].map((m) => m[1]);
+          c.expect(orangDi.length >= 3 && orangDi.every((x) => x === pid) && !html.includes(`Ina B1 ${tag}`) && asalDi.every((x) => x === "")
+            && ip.every((x) => !html.includes(x)), `${nama} reads the deleted person as ${JSON.stringify(orangDi)} (PINTAR ID ${pid}), origins ${JSON.stringify(asalDi)}`);
+        }
+      } finally {
+        psql(`begin; set local session_replication_role = replica;
+          update public.role_assignments set revoked_at = now() where person_id = ${lit(orang)} and revoked_at is null; commit;`);
+        const sisa = buangBaris(awal);
+        const sesi = psql(`select count(*) from auth.sessions where user_id = ${lit(uid)}`);
+        c.expect(sisa === "0" && sesi === "0", `the test left ${sisa} event row(s) and ${sesi} session(s) behind`);
+      }
+      return c.verdict("a staff member of Alpha, suspended, then closed, each attempt one failure holding the route's own answer, a code "
+        + "any account can get (never one naming the account's state), their person and Alpha's snapshot, read by Alpha's admin and not Beta's; after hapus_data_pribadi an attempt "
+        + "with the old address names no one (empty snapshot, the platform admin's only), and the person's rows hold no origin and no hash; "
+        + "Alpha's admin and the platform admin, as rendered, read them under the PINTAR ID with no origin; nothing of the test is left behind");
+    },
+  },
+  {
     id: "B1-A02",
     requires: ["app", "network", "db"],
     run: async (ctx) => {
@@ -311,6 +438,24 @@ export const b1AppTests: SelfTest[] = [
         const hilang = await halaman(admin, "?cari=CTK-0000-0000");
         c.expect(teks(hilang.html).includes(t("akuntabilitas.rujukan_hilang", "staff").split("{tanggal}")[0]) && /data-kosong="tidak_cocok"/.test(hilang.html),
           `a purged reference: ${teks(hilang.html).slice(0, 300)}`);
+        // a print reference that was purged (Alpha's print, aged past twelve months, taken by the purge itself)
+        psql(`insert into public.accountability_events (at, kind, outcome, person_id, institution_ids, resource, print_ref)
+          select now() - interval '12 months 2 days', 'PRINT_REQUEST', 'OK', p.id, array[o.institution_id], jsonb_build_object('report', 'laporan.kelas', 'node_id', o.id), 'CTK-B1RP-1AAA'
+            from public.persons p, public.org_nodes o join public.institutions i on i.id = o.institution_id
+           where p.id = (select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = 'alpha-admin@synthetic.pintar.test')
+             and o.kind = 'INSTITUTION' and i.slug like 'synth-alpha-%' limit 1`);
+        const jalan = JSON.parse(psql("select public.akuntabilitas_buang_lama()::text")) as { dihapus: number };
+        // the same run, as the audit trail holds it and as «Jejak audit» says it: the platform's row (no school), its count
+        // the run's own; a school's «Jejak audit» does not carry it
+        const jejakDb = psql("select id || '|' || coalesce(institution_id::text, '-') || '|' || (summary ->> 'deleted') from public.audit_log where action = 'accountability.purged' order by id desc limit 1");
+        const kataPurge = t("audit.aksi.accountability.purged", "staff");
+        const jejakSys = teks(await (await sys.kirim("/konfigurasi/audit")).text());
+        const jejakAdmin = teks(await (await admin.kirim("/konfigurasi/audit")).text());
+        c.expect(jejakDb.endsWith(`|-|${jalan.dihapus}`) && jalan.dihapus >= 1 && jejakSys.includes(kataPurge) && !jejakAdmin.includes(kataPurge),
+          `the purge's audit row (${jejakDb}; the run deleted ${jalan.dihapus}): in the platform's «Jejak audit» ${jejakSys.includes(kataPurge)}, in the school's ${jejakAdmin.includes(kataPurge)}`);
+        const dibuang = await halaman(admin, "?cari=CTK-B1RP-1AAA");
+        c.expect(teks(dibuang.html).includes(t("akuntabilitas.rujukan_hilang", "staff").split("{tanggal}")[0]) && psql("select count(*) from public.accountability_events where print_ref = 'CTK-B1RP-1AAA'") === "0",
+          `a purged print reference: ${teks(dibuang.html).slice(0, 300)}`);
         const nihil = await halaman(admin, "?cari=tidak-ada-yang-bernama-ini");
         c.expect(teks(nihil.html).includes(t("akuntabilitas.tidak_cocok", "staff")), `no match: ${teks(nihil.html).slice(0, 300)}`);
         const keluar = await halaman(admin, "?jenis=SIGN_OUT");
