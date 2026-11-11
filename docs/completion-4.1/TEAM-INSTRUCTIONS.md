@@ -27,6 +27,9 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
    journeys run ids; the register B1-R1 to R5 going to B2. Documentation only; it may ride with the next commit.
 2. **L-1 (in progress).** Brief: `AUTH-SUSPENDED-SIGNIN-CORRECTION.md`. Your reading of the one conflict is right:
    Sharon's condition governs; the accountability event records `MASUK_TIDAK_COCOK`. Three additions:
+   - **Per method (added 12 Nov, from Daisy):** "the same as a wrong password" means each method's own ordinary
+     mismatch (`MASUK_TIDAK_COCOK`, `CARD_NOT_MATCHED`, `PIN_TIDAK_COCOK`, and the code and link-request routes'
+     own), in the response and in the accountability event. `PIN_DITANGGUHKAN` stays as it is. Brief §3.2.
    - **Staging has no locked account** (read-only check, in the brief §2). The rewrite migration must therefore be
      correct on a database with none, with some, and when run twice.
    - **State on the page whether the core change** (lock value, rewrite, route answer) **depends on any 4.1 object,**
@@ -94,3 +97,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | When (UTC) | Issued |
 |---|---|
 | 11 Nov 2026, 23:58 | First issue: B1 close record; L-1 additions; F-1; S-1; B2 opening rule; reviewers' checks |
+| 12 Nov 2026, 00:10 | L-1: the indistinguishable answer is per method (Second Eye, Sharon). Daisy's L-1 checks: `ux-1/daisy-experience` `f6bc7aa1d50c9a8179fecd4044a7a631bb57f937` |

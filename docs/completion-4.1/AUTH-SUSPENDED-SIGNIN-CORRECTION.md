@@ -66,6 +66,14 @@ later staging promotion is.
    account, an unknown address and a wrong password are indistinguishable: the same status, the same body, the same
    wording. The engineer also checks that response time does not differ grossly between them, and records what was
    measured.
+   **"The same as a wrong password" is per method (Daisy, pre-review of the page at
+   `11171e5bd3e067d2f434f96cba09cf98102b6137`).** Each sign-in method answers a suspended, closed or anonymised
+   account with **its own** ordinary mismatch: `MASUK_TIDAK_COCOK` for a password, `CARD_NOT_MATCHED` for a card,
+   `PIN_TIDAK_COCOK` for PIN recovery, and the code and link-request routes' own ordinary answers. It does not mean
+   the password screen's code everywhere, which would itself mark the case out. The accountability event records
+   that same per-method code; Sharon's `MASUK_TIDAK_COCOK` condition is the password method's instance of this rule.
+   `PIN_DITANGGUHKAN` is unrelated and stays: it means PIN recovery was stopped after too many wrong PINs, not that
+   the account is suspended. What PIN recovery answers for a suspended account is still to be checked.
 3. **Accurate internal diagnostics and audit.** Inside, the true reason is kept: the route's own stable failure code,
    the server log (without the identifier), and B1's accountability event with the outcome an authorized admin may
    read. What the outside is told and what the record holds are deliberately different.
@@ -129,3 +137,4 @@ likely to find something this page did not.
 | 11 Nov 2026 | Reported by the engineer. Owner approved the bounded correction. Scheduled after B1's close, alongside F-1, before B2 |
 | 11 Nov 2026 (late) | Confirmed by Daisy by running it on the local Auth; second consequence through the accountability reader recorded. Sharon's and Daisy's acceptance tests added. Ordered first of the two passes. B1 closed on `1fc719b5`; this pass may start |
 | 11 Nov 2026 (23:55 UTC) | Read-only check of staging: 224 migrations, no locked account, no open suspension. No exposure today. Active hosted test deferred to the first promotion that carries the correction. Engineer's completion page is on the work branch at `11171e5bd3e067d2f434f96cba09cf98102b6137` |
+| 12 Nov 2026 (00:10 UTC) | Daisy's pre-review of the engineer's page: agreed; one clarification taken into §3.2, that the indistinguishable answer is each method's own mismatch. Her check list is on `ux-1/daisy-experience` at `f6bc7aa1d50c9a8179fecd4044a7a631bb57f937` |
