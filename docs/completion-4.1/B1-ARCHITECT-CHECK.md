@@ -167,3 +167,36 @@ wrong password; accounts already suspended (their stored value); reinstatement; 
      interrupted. Tracked for completion at a suitable boundary **before Z**. The natural one is B2, which works in
      the same reader for the print reference. Wording is Daisy's; one result review covers it there.
    - **Open until done:** this item. Z does not start with it open.
+
+## 11 · Read of the corrected candidate `1fc719b5` (11 Nov 2026, 22:10 UTC)
+
+Read-only, from `git diff 40e89308 1fc719b5`: one new migration (`M/20270116120000…`), tests, the journey, the
+completion page. CI and journeys were dispatched on this commit and had not reported when this was written.
+
+| Point | Reading | Standing |
+|---|---|---|
+| §4, the disclosure | `akuntabilitas_baca` returns `case when v_platform then e.institution_ids else array[p_sekolah] end`; the stored snapshot is unchanged; the migration asserts the clause is present. Test B1-S05, stated red on `40e89308` | Corrected as ruled |
+| Root-cause search | Ten other client readers named on the page; no disclosure found | Done; Sharon verifies |
+| Cross-module inventory | On `B1-COMPLETION.md`: sixteen interfaces, each with how it was checked, the test or journey, and its limitation | Present and bounded |
+| Transitions | Listed against test ids; corrections, sealed content and emergency stop marked not applicable to B1 | Present |
+| Human journey | §8.5 journey 4, B1's part, as a CI journey step and a local walk; the print step deferred to B2, stated | Present |
+| Root causes found during the batch | Two, each with what was changed so it cannot recur | Present |
+| Local pre-flight (engineer's report) | Lint and typecheck clean; build-identity 11 of 11; 1072 passed, 0 failed, 0 skipped; 156 of 156 planted defects; 11 of 11 groups of CI's planted-defect job | Reported, before the push |
+
+**Two notes, neither blocking:**
+
+1. **The purge runs all its batches in one transaction.** `akuntabilitas_buang_lama` now loops until nothing is left,
+   but a function is one transaction, so a large backlog is one long transaction holding its deletions until the
+   end, with one audit row. Correct, and acceptable at 4.1's volumes; the batch size bounds each statement, not the
+   run. It is the "purge throughput" limitation Sharon asked to see stated, and is hers to judge.
+2. **The next-state rows (`SYSTEM-INTEGRITY-4.1.md` §3a) are not on the page.** That section was added after this
+   pass was built. B1's two consequential actions are both irreversible by policy and are described in the page's
+   behaviour (the purge after twelve months; the clearing of origin and hash at deletion), so nothing is undefined.
+   The table form starts with the next pass; B1 is not held for it.
+
+**Not in this candidate, by decision:** the completeness notice (B1-R4, to B2); the «Admin PINTAR» wording and the
+Konfigurasi index entry (Daisy's register).
+
+**Chief Architect's boundary check for closing B1:** inventory present; transitions answered; journey run on the
+candidate (to be confirmed by the CI journeys run); both reviewers to name `1fc719b5`. Nothing in this read stands in
+the way of the two reviews.
