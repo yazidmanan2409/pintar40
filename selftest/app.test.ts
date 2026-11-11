@@ -3517,7 +3517,7 @@ export const appTests: SelfTest[] = [
   // «Kenaikan kelas dan kelulusan» (Daisy's approved flow; owner, 9 Nov), through the screen
   ...kenaikanAppTests,
   ...b0LayarTests.filter((x) => x.id !== "B0-K02"),
-  ...a1LayarTests.filter((x) => x.id !== "A1-K02"),
+  ...a1LayarTests.filter((x) => !["A1-K02", "A1-S08", "A1-S09"].includes(x.id)),
   // BOB-50 (D-082(d)): a single Uji Cepat issues no certificate, through the running app
   ...bob50AppTests,
   // BOB-51 (D-057, REL-08): «Kirim email uji», the platform admin's delivery proof, through the running app

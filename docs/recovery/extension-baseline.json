@@ -1,10 +1,11 @@
 {
   "what": "#150 D-108(c)(5)-(8): the approved installed extensions (name and version) of each environment. A backup whose snapshot holds any other set (an extension added, removed or at another version) fails closed and raises the production watch issue; a restore checks the restored copy against it before PINTAR may reopen. Supabase's supautils lets any database login create or drop allow-listed extensions (CLOSURE-PLAN-150.md, A7), so this is how a change is noticed. Changed only by a reviewed commit that says why.",
   "recorded": {
-    "staging": "6 Oct 2026, read only, from pintar-staging's pg_extension (identical to the local Supabase stack's)",
+    "staging": "6 Oct 2026, read only, from pintar-staging's pg_extension (identical to the local Supabase stack's); pg_cron 1.6.4 added 11 Nov 2026 for A1 (owner, Option A: the abandoned-sitting job). Read only from pintar-staging's pg_available_extensions on 11 Nov: 1.6.4 offered, not yet installed; migration 20270114110000 installs it",
     "production": "not yet: read only, before production's first backup; until then a production backup refuses to run"
   },
   "staging": {
+    "pg_cron": "1.6.4",
     "pg_stat_statements": "1.11",
     "pgcrypto": "1.3",
     "plpgsql": "1.0",

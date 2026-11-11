@@ -42,6 +42,8 @@ import { KODE_PENGERJAAN, KODE_PENGERJAAN_DB, kodePengerjaanDariGalat, kunciKode
 import { TANGGUNG_JAWAB, kunciTanggungJawab } from "../src/lib/staf-kontrak";
 
 const MIGRASI = "supabase/migrations/20270114100000_a_sitting_is_managed_where_it_was_given.sql";
+const MIGRASI_JADWAL = "supabase/migrations/20270114110000_an_abandoned_sitting_is_closed_on_a_schedule.sql";
+const TUGAS = { nama: "pintar-pengerjaan-tutup-terjadwal", jadwal: "*/5 * * * *", perintah: "select public.pengerjaan_tutup_terjadwal()" } as const;
 const ALASAN = "uji A1: alasan yang cukup panjang";
 
 function db(): string {
@@ -254,9 +256,26 @@ export const a1Tests: SelfTest[] = [
       c.expect(/public\.pengerjaan_putus_tenggat\(s\.id, true\)/.test(terjadwal) && !/update /.test(terjadwal), "the scheduled entry point is not a call to the one deciding function");
       c.expect(/grant execute on function public\.pengerjaan_tutup_terjadwal\(integer\) to service_role;/.test(sql)
         && !/grant execute on function public\.pengerjaan_tutup_terjadwal\(integer\) to authenticated/.test(sql), "the scheduled entry point is not the service's alone");
-      // the scheduler is held (pg_cron's own grants and tables break the recovery suite's proven profile; reported): this
-      // migration enables no extension and schedules nothing, and the entry point waits for whatever calls it
-      c.expect(!/create extension/i.test(sql) && !/cron\.schedule/i.test(sql), "the migration enables an extension or schedules a job");
+      // RESTATED, A1 (owner, Option A: pg_cron). The acts' migration still schedules nothing; the scheduler's own migration
+      // creates pg_cron where Supabase keeps it and installs exactly one job, by a fixed name, every five minutes, through
+      // ONE idempotent installer (a job of that name unscheduled first) that the migration calls and a restore calls again
+      c.expect(!/create extension/i.test(sql) && !/cron\.schedule/i.test(sql), "the acts' migration enables an extension or schedules a job");
+      let jadwalSql = "";
+      try { jadwalSql = readFileSync(join(repoRoot, MIGRASI_JADWAL), "utf8").replace(/^\s*--.*$/gm, ""); } catch { jadwalSql = ""; }
+      if (c.expect(jadwalSql.length > 0, `${MIGRASI_JADWAL} does not exist`)) {
+        c.expect(/create extension if not exists pg_cron with schema pg_catalog;/.test(jadwalSql), "pg_cron is not created idempotently in pg_catalog");
+        const panggilan = [...jadwalSql.matchAll(/cron\.schedule\(\s*'([^']*)'\s*,\s*'([^']*)'\s*,\s*'([^']*)'\s*\)/g)];
+        c.expect(panggilan.length === 1 && panggilan[0][1] === TUGAS.nama && panggilan[0][2] === TUGAS.jadwal && panggilan[0][3] === TUGAS.perintah,
+          `the migration schedules ${panggilan.map((x) => `${x[1]} «${x[2]}» ${x[3]}`).join("; ") || "nothing"}; expected exactly ${TUGAS.nama} «${TUGAS.jadwal}» ${TUGAS.perintah}`);
+        const pasang = /create or replace function public\.pengerjaan_jadwal_pasang\(\)[\s\S]*?end \$\$;/.exec(jadwalSql)?.[0] ?? "";
+        c.expect(pasang.indexOf("cron.unschedule(") >= 0 && pasang.indexOf("cron.unschedule(") < pasang.indexOf("cron.schedule(")
+          && new RegExp(`from cron\\.job where jobname = '${TUGAS.nama}'`).test(pasang), "the installer does not unschedule a job of that name before it schedules one");
+        c.expect(/^select public\.pengerjaan_jadwal_pasang\(\);$/m.test(jadwalSql) && /revoke all on function public\.pengerjaan_jadwal_pasang\(\) from public, anon, authenticated, service_role;/.test(jadwalSql),
+          "the migration does not install through the installer, or a client or the service role may change the schedule");
+        const baru = /create or replace function public\.pengerjaan_tutup_terjadwal[\s\S]*?end \$\$;/.exec(jadwalSql)?.[0] ?? "";
+        c.expect(/public\.pengerjaan_putus_tenggat\(s\.id, true\)/.test(baru) && !/\bupdate /.test(baru) && /for update;/.test(baru) && /raise warning/.test(baru),
+          "the scheduled entry point is not one locked call of the deciding function per sitting, warning what it could not close");
+      }
       // the held state is the suspension's own transaction, and its own state (never PAUSED)
       const tangguh = /create or replace function public\.tangguhkan_akun[\s\S]*?end \$\$;/.exec(sql)?.[0] ?? "";
       c.expect(/insert into public\.person_suspensions[\s\S]*pengerjaan_tahan_orang\(p_person, v_id\)/.test(tangguh), "tangguhkan_akun does not hold the person's sittings in its own transaction");
@@ -269,7 +288,8 @@ export const a1Tests: SelfTest[] = [
       }
       return c.verdict("every code pengerjaan_tolak raises is a signed-in caller's with its Indonesian and English sentence or the scheduler's own; "
         + "CAN_MANAGE_SITTINGS is the teacher's, the head's and the school admin's and has its words; EXPIRED is written by one function, which the lazy "
-        + "check and the service-only scheduled entry point both call; no extension is enabled and nothing is scheduled; tangguhkan_akun holds the "
+        + "check and the service-only scheduled entry point both call; the scheduler's own migration creates pg_cron in pg_catalog and installs exactly one job "
+        + "(pintar-pengerjaan-tutup-terjadwal, every five minutes, that entry point) through one idempotent installer no client may call; tangguhkan_akun holds the "
         + "person's sittings in its own transaction; every client entry is declared and revoked from the signed-out role");
     },
   },
@@ -539,10 +559,17 @@ export const a1Tests: SelfTest[] = [
         langkah("jendela_cek", null, `select (${sesiRingkas("s_m4")}) || ' ' || (${sesiRingkas("s_m5")})`),
         langkah("jendela_tenggat", null, `select bool_and(s.closure_deadline = now() - interval '1 minute' and s.authoritative_deadline is null) from public.assessment_sessions s where s.id in (${G("s_m4")}, ${G("s_m5")})`),
         langkah("tak_ada_hasil", null, `select count(*) from public.assessment_sessions s join public.assessment_results r on r.session_id = s.id where s.status::text = 'TERMINATED'`),
+        // the schedule itself: exactly one job of that name, every five minutes, calling the entry point, as a role that may
+        langkah("tugas", null, `select count(*) || '|' || min(j.schedule) || '|' || min(j.command) || '|' || bool_and(j.active) || '|'
+            || bool_and(has_function_privilege(j.username, 'public.pengerjaan_tutup_terjadwal(integer)', 'execute'))
+           from cron.job j where j.jobname = '${TUGAS.nama}'`),
+        langkah("tugas_lain", null, `select count(*) from cron.job j where j.command ilike '%pengerjaan_tutup_terjadwal%' and j.jobname <> '${TUGAS.nama}'`),
       ];
       const m = jalankan(c, repoRoot, L);
       if (!m) return c.verdict("");
       const harap = (k: string, h: string, apa: string) => c.expect(m[k] === h, `${apa}: answered ${m[k]}; expected ${h}`);
+      harap("tugas", `ok:1|${TUGAS.jadwal}|${TUGAS.perintah}|true|true`, "the scheduled job (one, every five minutes, the entry point, active, run by a role that may call it)");
+      harap("tugas_lain", "ok:0", "other jobs calling the entry point");
       c.expect(!/^ok:/.test(m.jadwal_guru ?? "ok:") && !/^ok:/.test(m.jadwal_sys ?? "ok:"), `a signed-in caller reached the scheduled entry point: teacher ${m.jadwal_guru}, platform admin ${m.jadwal_sys}`);
       harap("sebelum", "ok:IN_PROGRESS|-|-|0", "an abandoned sitting past its deadline before anything asks (the 4.0 state: open, no result)");
       harap("malas", "ok:FINALIZED", "the lazy check on a sitting an hour past its deadline");
@@ -569,7 +596,8 @@ export const a1Tests: SelfTest[] = [
       return c.verdict("an abandoned sitting an hour past its deadline ends FINALIZED with one result on the answers recorded (3 of 5; the rest unanswered), marked DEADLINE at "
         + "its deadline, its start time and answers kept, audited, an attempt used, identically by the lazy check and by the service-only scheduled entry point; inside the "
         + "late-sync window it is ended and marked and scored only once the window has closed; an EXPIRED sitting from before the rule is byte-identical after both paths; a "
-        + "sitting with no deadline stays open while its assessment has no closing time and ends (WINDOW_CLOSED) when the window closes");
+        + "sitting with no deadline stays open while its assessment has no closing time and ends (WINDOW_CLOSED) when the window closes; exactly one pg_cron job "
+        + "calls the entry point, every five minutes");
     },
   },
   {

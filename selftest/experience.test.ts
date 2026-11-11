@@ -2143,7 +2143,9 @@ export const experienceTests: SelfTest[] = [
       // MOVED 225 -> 226 for A1, sitting control (20270114100000: the sitting-management capability, the teacher's two
       // endings, the deadline rule, a held sitting, another attempt and the window). Read against §3: a sitting's state
       // and who may act on it, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 226, `${migrations.length} migrations; the frozen baseline has 226`);
+      // MOVED 226 -> 227 for A1's scheduler (20270114110000: pg_cron and the one five-minute job that closes abandoned
+      // sittings, the owner's Option A). Read against §3: an extension and a schedule, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 227, `${migrations.length} migrations; the frozen baseline has 227`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3993,7 +3995,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 223 -> 224 for 20270113160000 (D-199, the public check's date on the school's clock): no tour RPC.
       // MOVED 224 -> 225 for 20270113170000 (B0: the last administrator, the renewal, the operator's recovery): no tour RPC.
       // MOVED 225 -> 226 for 20270114100000 (A1: sitting control, acts on a sitting and its assignment's window): no tour RPC.
-      c.expect(migs.length === 226, `${migs.length} migrations; the baseline has 226`);
+      // MOVED 226 -> 227 for 20270114110000 (A1: the scheduler of abandoned sittings, pg_cron): no tour RPC.
+      c.expect(migs.length === 227, `${migs.length} migrations; the baseline has 227`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

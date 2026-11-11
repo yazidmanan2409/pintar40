@@ -389,7 +389,7 @@ export const dr150bTests: SelfTest[] = [
       c.expect(milik === "0", `pintar_backup owns ${milik} object(s)`);
       c.expect(skema === "-" && db === "f", `pintar_backup may create in schema(s) ${skema}, or in the database (${db})`);
       c.expect(tulis === "-", `pintar_backup holds a write privilege on ${tulis}`);
-      c.expect(cron === "absent" || cron === "true|false|supabase_admin|true|false",
+      c.expect(cron === "absent" || cron === "t|f|supabase_admin|t|f",
         `the one exception is not PUBLIC's DELETE on cron.job_run_details, granted by its owner supabase_admin, and nothing more (delete|other writes|owner|public's grant|named): ${cron}`);
       c.expect(urutan === "0", `pintar_backup may advance ${urutan} sequence(s)`);
       c.expect(secdef === "0", `pintar_backup may execute ${secdef} SECURITY DEFINER function(s)`);
@@ -583,6 +583,8 @@ export const dr150bTests: SelfTest[] = [
   },
   {
     id: "DR-S14",
+    // RESTATED, A1 (owner, Option A): unchanged here; what it reads moved (backup.mjs excludes pg_cron's two tables by name;
+    // backup-profile.sql names DELETE on cron.job_run_details as the one exception). The manifest says so.
     requires: ["db"],
     run: async ({ repoRoot }) => {
       const c = new Checks();
@@ -749,6 +751,8 @@ export const dr150bTests: SelfTest[] = [
   },
   {
     id: "DR-S16",
+    // RESTATED, A1 (owner, Option A): unchanged here; what it reads moved (backup.mjs excludes pg_cron's two tables by name;
+    // backup-profile.sql names DELETE on cron.job_run_details as the one exception). The manifest says so.
     requires: ["db"],
     run: async ({ repoRoot }) => {
       const c = new Checks();

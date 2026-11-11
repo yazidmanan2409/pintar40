@@ -3,8 +3,8 @@
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { kelas as kelasKonteks } from "@/lib/pengajar";
-import { batasHari } from "@/lib/hle";
 import { zonaSekolah } from "@/lib/zona-sekolah";
+import { waktuSekolah } from "@/lib/pemeliharaan-kontrak";
 import { CARA_AKHIRI, MENIT_TAMBAHAN, kodePengerjaanDariGalat } from "@/lib/pengerjaan-kontrak";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -84,18 +84,21 @@ export async function tutupDitahanAksi(fd: FormData): Promise<void> {
   berhasil(t, "tidak_dihitung");
 }
 
-/** «Ubah jadwal» on the class page's material row: the teacher's days on the school's own clock, as «Sediakan» reads them. */
+/** «Ubah jadwal» on the class page's material row: a date and a time each, typed on the school's own clock, sent as instants. */
 export async function ubahJadwalAksi(fd: FormData): Promise<void> {
   const kelas = bersih(fd.get("kelas")), la = bersih(fd.get("penugasan"));
-  const hari = (v: FormDataEntryValue | null) => (/^\d{4}-\d{2}-\d{2}$/.test(bersih(v)) ? bersih(v) : null);
-  const mulai = hari(fd.get("mulai")), sampai = hari(fd.get("sampai"));
+  const mulaiTeks = bersih(fd.get("mulai")), sampaiTeks = bersih(fd.get("sampai"));
   if (!UUID.test(kelas)) redirect("/mengajar");
   const ctx = await kelasKonteks(kelas);
   if (!ctx || !UUID.test(la)) redirect(`/mengajar/${encodeURIComponent(kelas)}`);
   const db = (await supabaseServer()) as any;
   const zona = await zonaSekolah(db, ctx!.ini.institusi);
+  // an opening that is not a date and a time is sent as none (the database refuses a window with no opening time); a
+  // closing typed but unreadable is refused here, never read as «no end»
+  const dari = waktuSekolah(mulaiTeks, zona), sampai = sampaiTeks ? waktuSekolah(sampaiTeks, zona) : null;
+  if (sampaiTeks && !sampai) redirect(`/mengajar/${encodeURIComponent(kelas)}?${new URLSearchParams({ jadwal: la, kode: "WINDOW_INVALID" }).toString()}#jadwal`);
   const { error } = await db.rpc("ubah_jadwal_penugasan", {
-    p_la: la, p_dari: mulai ? batasHari(mulai, "awal", zona) : null, p_sampai: sampai ? batasHari(sampai, "akhir", zona) : null,
+    p_la: la, p_dari: dari, p_sampai: sampai,
     p_alasan: bersih(fd.get("alasan")),
   });
   if (error) {

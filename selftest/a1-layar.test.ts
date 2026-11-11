@@ -23,6 +23,7 @@
  *           paths once the fixture stands.
  */
 import { randomBytes } from "node:crypto";
+import { spawn, spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
@@ -235,7 +236,170 @@ export function bersihkan(): void {
 
 const siapa = (d: Dunia, aa = d.pre) => `/mengajar/${d.kelas}/siapa?penugasan=${aa}`;
 
+
+// ------------------------------------------------------------------ the scheduler (owner's Option A)
+const JOB = "pintar-pengerjaan-tutup-terjadwal";
+/** psql in a connection of its own, as a promise: stdout, the last stderr lines, and whether it succeeded. */
+function psqlLain(sql: string): Promise<{ ok: boolean; out: string; err: string }> {
+  return new Promise((selesai) => {
+    const p = spawn("psql", ["-X", "-q", "-At", "-v", "ON_ERROR_STOP=1", "-c", sql, process.env.SUPABASE_DB_URL!], { stdio: ["ignore", "pipe", "pipe"] });
+    let out = "", err = "";
+    p.stdout.on("data", (b) => { out += b; });
+    p.stderr.on("data", (b) => { err += b; });
+    p.on("close", (code) => selesai({ ok: code === 0, out: out.trim(), err: err.trim().split("\n").slice(-3).join(" | ") }));
+  });
+}
+const tidur = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** One sitting's ending as the database holds it: status/closure/results/deadline-audit rows/teacher-audit rows. */
+const akhirSesi = (sesi: string) => psql(`select s.status || '/' || coalesce(s.closure_kind, '-') || '/' || (select count(*) from public.assessment_results r where r.session_id = s.id)
+  || '/' || (select count(*) from public.audit_log l where l.target_id = s.id::text and l.action = 'assessment_session.ended_by_deadline')
+  || '/' || (select count(*) from public.audit_log l where l.target_id = s.id::text and l.action in ('assessment_session.terminated', 'assessment_session.handed_in_by_teacher'))
+  from public.assessment_sessions s where s.id = ${lit(sesi)}`);
+/** The job's own command, read from pg_cron and executed as pg_cron executes it (no signed-in actor, no claims). */
+const PERINTAH = `(select command from cron.job where jobname = '${JOB}')`;
+
 export const a1LayarTests: SelfTest[] = [
+  {
+    id: "A1-S08",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const tag = randomBytes(3).toString("hex");
+      muat(repoRoot);
+      const d0 = dunia(tag);
+      if (!c.expect(typeof d0 !== "string", String(d0))) return c.verdict("");
+      const d = d0 as Dunia;
+      try {
+        const m = d.murid;
+        // four sittings past their deadline (x, y: ordinary; z1: its ending will raise; z2: its scoring will raise) and
+        // one still within it (w); nobody touches any of them again
+        const s: Record<string, string> = {};
+        for (const [n, nama] of [["x", "buka"], ["y", "serah"], ["z1", "dinilai"], ["z2", "tidak"], ["w", "tenggat"]] as const) s[n] = mulai(m[nama].uid, d.pre, 2);
+        if (!c.expect(Object.values(s).every((x) => /^[0-9a-f-]{36}$/.test(x)), `the sittings could not be started: ${JSON.stringify(s)}`)) return c.verdict("");
+        for (const n of ["x", "y", "z1", "z2"]) tenggat(s[n], "- interval '1 hour'");
+        tenggat(s.w, "+ interval '1 hour'");
+        const ringkas = (n: string) => `(select s.status || '/' || coalesce(s.closure_kind, '-') || '/' || (select count(*) from public.assessment_results r where r.session_id = s.id)
+            || '/' || (select count(*) from public.audit_log l where l.target_id = s.id::text and l.action = 'assessment_session.ended_by_deadline')
+            from public.assessment_sessions s where s.id = ${lit(s[n])})`;
+        const keadaan = `select 'K|' || concat_ws(' ', ${(["x", "y", "z1", "z2", "w"]).map((n) => `'${n}=' || ${ringkas(n)}`).join(", ")})`;
+        const hasilnya = (out: string, awalan: string) => out.split("\n").find((l) => l.startsWith(awalan))?.slice(awalan.length) ?? "";
+        // one transaction, rolled back: a failure planted for z1 (its ending) and z2 (its scoring); run 1; the plants
+        // removed; run 2; run 3; the schedule installed twice
+        const r = spawnSync("psql", ["-X", "-At", "-v", "ON_ERROR_STOP=1", process.env.SUPABASE_DB_URL!], { encoding: "utf8", input: `
+begin;
+create function selftest.a1_s08_rusak_akhir() returns trigger language plpgsql as $f$
+begin
+  if new.id = ${lit(s.z1)} and new.status = 'EXPIRED' then raise exception 'A1-S08: planted failure ending z1'; end if;
+  return new;
+end $f$;
+create function selftest.a1_s08_rusak_nilai() returns trigger language plpgsql as $f$
+begin
+  if new.session_id = ${lit(s.z2)} then raise exception 'A1-S08: planted failure scoring z2'; end if;
+  return new;
+end $f$;
+create trigger a1_s08_rusak before update on public.assessment_sessions for each row execute function selftest.a1_s08_rusak_akhir();
+create trigger a1_s08_rusak before insert on public.assessment_results for each row execute function selftest.a1_s08_rusak_nilai();
+${keadaan.replace("'K|'", "'K0|'")};
+create temp table a1_s08_jalan (n int, hasil jsonb);
+do $j$ declare v jsonb; begin execute ${PERINTAH} into v; insert into a1_s08_jalan values (1, v); end $j$;
+select 'R1|' || hasil::text from a1_s08_jalan where n = 1;
+${keadaan.replace("'K|'", "'K1|'")};
+drop trigger a1_s08_rusak on public.assessment_sessions;
+drop trigger a1_s08_rusak on public.assessment_results;
+do $j$ declare v jsonb; begin execute ${PERINTAH} into v; insert into a1_s08_jalan values (2, v); end $j$;
+select 'R2|' || hasil::text from a1_s08_jalan where n = 2;
+${keadaan.replace("'K|'", "'K2|'")};
+select 'A2|' || (select count(*) from public.audit_log) || '|' || (select count(*) from public.assessment_results);
+do $j$ declare v jsonb; begin execute ${PERINTAH} into v; insert into a1_s08_jalan values (3, v); end $j$;
+select 'R3|' || hasil::text from a1_s08_jalan where n = 3;
+${keadaan.replace("'K|'", "'K3|'")};
+select 'A3|' || (select count(*) from public.audit_log) || '|' || (select count(*) from public.assessment_results);
+select 'P|' || (public.pengerjaan_jadwal_pasang() ->> 'ok') || '|' || (public.pengerjaan_jadwal_pasang() ->> 'ok') || '|'
+  || (select count(*) || ' ' || min(schedule) || ' ' || min(command) from cron.job where jobname = '${JOB}');
+rollback;
+` });
+        const out = r.stdout ?? "", err = r.stderr ?? "";
+        if (!c.expect(r.status === 0, `the scenario did not run: ${err.trim().split("\n").slice(-3).join(" | ")}`)) return c.verdict("");
+        const R1 = JSON.parse(hasilnya(out, "R1|") || "{}"), R2 = JSON.parse(hasilnya(out, "R2|") || "{}"), R3 = JSON.parse(hasilnya(out, "R3|") || "{}");
+        // before: every sitting open, nothing ended
+        c.expect(hasilnya(out, "K0|") === "x=IN_PROGRESS/-/0/0 y=IN_PROGRESS/-/0/0 z1=IN_PROGRESS/-/0/0 z2=IN_PROGRESS/-/0/0 w=IN_PROGRESS/-/0/0", `before the job: ${hasilnya(out, "K0|")}`);
+        // 1. the job's own command, with no user interaction, ends and scores the abandoned sittings past their deadline
+        // 4. one sitting whose ending raises and one whose scoring raises stop nothing else, are reported, and stay to be retried
+        c.expect(hasilnya(out, "K1|") === "x=FINALIZED/DEADLINE/1/1 y=FINALIZED/DEADLINE/1/1 z1=IN_PROGRESS/-/0/0 z2=EXPIRED/DEADLINE/0/1 w=IN_PROGRESS/-/0/0",
+          `after run 1 (failures planted for z1 and z2): ${hasilnya(out, "K1|")}`);
+        c.expect(Array.isArray(R1.gagal) && R1.gagal.some((g: { session_id: string; message: string }) => g.session_id === s.z1 && /planted failure ending z1/.test(g.message)) && R1.menunggu >= 1,
+          `run 1 does not report z1's failure or z2's wait: ${JSON.stringify(R1).slice(0, 400)}`);
+        c.expect(new RegExp(`pengerjaan_tutup_terjadwal: \\d+ of \\d+ sitting\\(s\\) could not be closed and will be tried again on the next run: .*${s.z1}`).test(err)
+          && new RegExp(`A1: sitting ${s.z2} ended by its deadline and could not be scored yet: A1-S08: planted failure scoring z2`).test(err),
+          `the failures are not warned to the server log with their sittings: ${err.split("\n").filter((l) => /WARNING/.test(l)).join(" | ").slice(0, 500)}`);
+        c.expect(hasilnya(out, "K2|") === "x=FINALIZED/DEADLINE/1/1 y=FINALIZED/DEADLINE/1/1 z1=FINALIZED/DEADLINE/1/1 z2=FINALIZED/DEADLINE/1/1 w=IN_PROGRESS/-/0/0"
+          && Array.isArray(R2.gagal) && !R2.gagal.some((g: { session_id: string }) => g.session_id === s.z1 || g.session_id === s.z2),
+          `run 2, the failures gone, does not pick both up: ${hasilnya(out, "K2|")}; ${JSON.stringify(R2).slice(0, 300)}`);
+        // 2. idempotent: a third run changes nothing (no sitting, no result, no audit row); installing twice leaves one job
+        c.expect(hasilnya(out, "K3|") === hasilnya(out, "K2|") && hasilnya(out, "A3|") === hasilnya(out, "A2|") && R3.dinilai === 0,
+          `run 3 changed something: ${hasilnya(out, "K3|")}; audit/results ${hasilnya(out, "A2|")} -> ${hasilnya(out, "A3|")}; ${JSON.stringify(R3).slice(0, 300)}`);
+        c.expect(hasilnya(out, "P|") === `true|true|1 */5 * * * * select public.pengerjaan_tutup_terjadwal()`, `the schedule installed twice: ${hasilnya(out, "P|")}`);
+        // the job's schedule and role, as pg_cron holds them
+        c.expect(psql(`select count(*) || '|' || min(schedule) || '|' || bool_and(active) || '|' || min(database) = '1|*/5 * * * *|true|' || current_database() from cron.job where jobname = '${JOB}'`) === "t",
+          "the database does not hold exactly one active five-minute job by that name");
+        return c.verdict("on the seeded cycle school, with sittings nobody touches again: pg_cron's own command for the one job, executed with no "
+          + "signed-in actor, ends and scores every sitting past its deadline once (FINALIZED, closure DEADLINE, one result, one audit row) and "
+          + "leaves one within its deadline open; a sitting whose ending raised is listed with its error, warned to the server log, and left open; "
+          + "one whose scoring raised is kept EXPIRED with its warning; neither stops the others, and the next run picks both up; a third run "
+          + "changes no sitting, result or audit row; installing the schedule twice leaves one job");
+      } finally {
+        bersihkan();
+      }
+    },
+  },
+  {
+    id: "A1-S09",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const tag = randomBytes(3).toString("hex");
+      muat(repoRoot);
+      const d0 = dunia(tag);
+      if (!c.expect(typeof d0 !== "string", String(d0))) return c.verdict("");
+      const d = d0 as Dunia;
+      try {
+        const m = d.murid;
+        const jalankan = `begin; do $j$ begin execute ${PERINTAH}; end $j$; select pg_sleep(3); commit;`;
+        const sebagaiTeks = (uid: string, sql: string) => `begin; select selftest.as_user_uid(${lit(uid)}); ${sql}; select pg_sleep(3); commit;`;
+        const guru = psql(`select id from auth.users where email = ${lit(GURU.identitas)}`);
+        // 3a. two real connections run the job at once on the same overdue sitting
+        const a = mulai(m.buka.uid, d.pre, 2);
+        tenggat(a, "- interval '1 hour'");
+        const [j1, j2] = await Promise.all([psqlLain(jalankan), tidur(1000).then(() => psqlLain(jalankan.replace("select pg_sleep(3);", "")))]);
+        c.expect(j1.ok && j2.ok && akhirSesi(a) === "FINALIZED/DEADLINE/1/1/0", `two runs at once: ${akhirSesi(a)} (${j1.err} ${j2.err})`);
+        // 3b. the job races the learner's own hand-in arriving after the deadline (the lazy path), each order
+        const b = mulai(m.serah.uid, d.pre, 2), b2 = mulai(m.dinilai.uid, d.pre, 2);
+        tenggat(b, "- interval '1 hour'"); tenggat(b2, "- interval '1 hour'");
+        const [l1, l2] = await Promise.all([psqlLain(sebagaiTeks(m.serah.uid, `select public.finish_my_session(${lit(b)}, null)`)), tidur(1000).then(() => psqlLain(jalankan.replace("select pg_sleep(3);", "")))]);
+        const [l3, l4] = await Promise.all([psqlLain(jalankan), tidur(1000).then(() => psqlLain(`begin; select selftest.as_user_uid(${lit(m.dinilai.uid)}); select public.finish_my_session(${lit(b2)}, null); commit;`))]);
+        c.expect(akhirSesi(b) === "FINALIZED/DEADLINE/1/1/0" && akhirSesi(b2) === "FINALIZED/DEADLINE/1/1/0",
+          `the learner's late hand-in racing the job: learner first ${akhirSesi(b)} (${l1.ok ? "ok" : l1.err} / ${l2.ok ? "ok" : l2.err}); job first ${akhirSesi(b2)} (${l3.ok ? "ok" : l3.err} / ${l4.ok ? "ok" : l4.err})`);
+        // 3c. the job races a teacher ending the same overdue sitting, each order: one outcome, never both
+        const t1 = mulai(m.tidak.uid, d.pre, 2), t2 = mulai(m.tenggat.uid, d.pre, 2);
+        tenggat(t1, "- interval '1 hour'"); tenggat(t2, "- interval '1 hour'");
+        const [g1, g2] = await Promise.all([psqlLain(sebagaiTeks(guru, `select public.akhiri_pengerjaan(${lit(t1)}, 'NOT_COUNTED', 'uji A1: berlomba dengan jadwal')`)),
+          tidur(1000).then(() => psqlLain(jalankan.replace("select pg_sleep(3);", "")))]);
+        const [g3, g4] = await Promise.all([psqlLain(jalankan),
+          tidur(1000).then(() => psqlLain(`begin; select selftest.as_user_uid(${lit(guru)}); select public.akhiri_pengerjaan(${lit(t2)}, 'NOT_COUNTED', 'uji A1: berlomba dengan jadwal'); commit;`))]);
+        const satu = (x: string) => ["FINALIZED/DEADLINE/1/1/0", "TERMINATED/TEACHER_NOT_COUNTED/0/0/1", "TERMINATED/TEACHER_NOT_COUNTED/0/1/1"].includes(x);
+        c.expect(satu(akhirSesi(t1)) && satu(akhirSesi(t2)),
+          `a teacher's ending racing the job: teacher first ${akhirSesi(t1)} (${g1.ok ? "ok" : g1.err} / ${g2.ok ? "ok" : g2.err}); job first ${akhirSesi(t2)} (${g3.ok ? "ok" : g3.err} / ${g4.ok ? "ok" : g4.err})`);
+        // the refused party in the job-first order is told the sitting had already ended (the race's own sentence)
+        c.expect(akhirSesi(t2) !== "FINALIZED/DEADLINE/1/1/0" || /SITTING_ALREADY_ENDED|PR170/.test(g4.err), `the teacher who lost the race is not told the sitting had ended: ${g4.err}`);
+        return c.verdict(`with real connections: two runs of the job at once on one overdue sitting end it once (${akhirSesi(a)}: one result, one audit row); `
+          + `the learner's late hand-in racing the job, either order, ends it once (${akhirSesi(b)}, ${akhirSesi(b2)}); a teacher's «Akhiri tanpa menghitung» `
+          + `racing the job, either order, gives one outcome and never both (teacher first ${akhirSesi(t1)}; job first ${akhirSesi(t2)}); the loser waits on the row lock and `
+          + "then finds the sitting ended (status/closure/results/deadline audit rows/teacher audit rows)");
+      } finally {
+        bersihkan();
+      }
+    },
+  },
   {
     id: "A1-K02",
     requires: [],
@@ -588,28 +752,48 @@ export const a1LayarTests: SelfTest[] = [
         // ---- «Ubah jadwal» on the class page's material row
         const hk = await (await guru.halaman(`/mengajar/${d.kelas}`)).text();
         c.expect(hk.includes(`data-jadwal-buka="${d.la}"`) && hk.includes(`data-akhiri-buka="${d.la}"`), "the material's row does not offer «Ubah jadwal» beside «Akhiri atau tarik»");
-        const hj = await (await guru.halaman(`/mengajar/${d.kelas}?jadwal=${d.la}`)).text();
-        const fj = /<form[^>]*data-jadwal="[\s\S]*?<\/form>/.exec(rapi(hj))?.[0] ?? "";
-        c.expect(/Ubah jadwal · /.test(teks(fj)) && /Mulai \((WIB|WITA|WIT)\)/.test(teks(fj)) && /Sampai \((WIB|WITA|WIT)\)/.test(teks(fj))
-          && teks(fj).includes("Murid yang sedang mengerjakan tetap memakai batas waktunya sendiri."), `the «Ubah jadwal» panel: ${teks(fj).slice(0, 200)}`);
-        const besok = (n: number) => psql(`select ((now() at time zone 'Asia/Jakarta')::date + ${n})::text`);
-        const tetap = psql(`select authoritative_deadline from public.assessment_sessions where id = ${lit(s.tahan)}`);
-        const rj0 = await guru.kirim(`/mengajar/${d.kelas}`, { form: formDengan(hj, `data-jadwal="${d.la}"`, { mulai: besok(-1), sampai: besok(-1), alasan: ALASAN }) as Record<string, string> });
-        c.expect(/kode=WINDOW_INVALID/.test(ke(rj0)) && ke(rj0).endsWith("#jadwal"), `a window that has already closed: ${rj0.status} ${ke(rj0)}`);
-        c.expect(teks(await (await guru.halaman(ke(rj0))).text()).includes("Waktu tutup harus setelah waktu buka dan setelah saat ini."), "the refused window's sentence is not on the panel");
-        const rj = await guru.kirim(`/mengajar/${d.kelas}`, { form: formDengan(hj, `data-jadwal="${d.la}"`, { mulai: besok(-2), sampai: besok(9), alasan: ALASAN }) as Record<string, string> });
-        const jadwal = psql(`select (la.available_until > now() + interval '8 days' and la.available_until < now() + interval '11 days')::text || '|' || (select count(*) from public.assessment_assignments aa where aa.learning_assignment_id = la.id and aa.closes_at = la.available_until)
-            || '|' || (select (s.authoritative_deadline = ${lit(tetap)}::timestamptz)::text from public.assessment_sessions s where s.id = ${lit(s.tahan)})
-            || '|' || (select count(*) from public.audit_log l where l.action = 'learning_assignment.window_changed' and l.target_id = la.id::text and l.summary ->> 'reason' = ${lit(ALASAN)})
-          from public.learning_assignments la where la.id = ${lit(d.la)}`);
-        c.expect(/jadwal_diubah=ok/.test(ke(rj)) && jadwal === "true|2|true|1", `«Ubah jadwal»: ${rj.status} ${ke(rj)}; window, both assessments, the open sitting's deadline kept, audited: ${jadwal}`);
-        c.expect(teks(await (await guru.halaman(ke(rj))).text()).includes("Jadwal diubah. Murid yang sedang mengerjakan tetap memakai batas waktunya sendiri."), "the class page does not confirm the new schedule");
+        // (the school is put on WITA for this part, and back afterwards: a time is typed and stored on the school's own clock)
+        const zonaAsal = psql(`select zona_waktu from public.institutions where id = ${lit(d.inst)}`);
+        psql(`begin; set local session_replication_role = replica; update public.institutions set zona_waktu = 'Asia/Makassar' where id = ${lit(d.inst)}; commit;`);
+        try {
+          const hj = await (await guru.halaman(`/mengajar/${d.kelas}?jadwal=${d.la}`)).text();
+          const fj = /<form[^>]*data-jadwal="[\s\S]*?<\/form>/.exec(rapi(hj))?.[0] ?? "";
+          c.expect(/Ubah jadwal · /.test(teks(fj)) && /Mulai \(WITA\)/.test(teks(fj)) && /Sampai \(WITA\)/.test(teks(fj))
+            && (fj.match(/<input[^>]*type="datetime-local"[^>]*>/g) ?? []).length === 2 && /class="pin-gema"/.test(fj)
+            && teks(fj).includes("Murid yang sedang mengerjakan tetap memakai batas waktunya sendiri."), `the «Ubah jadwal» panel (a date and a time each, labelled WITA, with the echo): ${teks(fj).slice(0, 240)}`);
+          const hari = (n: number) => psql(`select ((now() at time zone 'Asia/Makassar')::date + ${n})::text`);
+          const tetap = psql(`select authoritative_deadline from public.assessment_sessions where id = ${lit(s.tahan)}`);
+          const rj0 = await guru.kirim(`/mengajar/${d.kelas}`, { form: formDengan(hj, `data-jadwal="${d.la}"`, { mulai: `${hari(-2)}T07:30`, sampai: `${hari(-1)}T10:00`, alasan: ALASAN }) as Record<string, string> });
+          c.expect(/kode=WINDOW_INVALID/.test(ke(rj0)) && ke(rj0).endsWith("#jadwal"), `a window that has already closed: ${rj0.status} ${ke(rj0)}`);
+          c.expect(teks(await (await guru.halaman(ke(rj0))).text()).includes("Waktu tutup harus setelah waktu buka dan setelah saat ini."), "the refused window's sentence is not on the panel");
+          const rjx = await guru.kirim(`/mengajar/${d.kelas}`, { form: formDengan(hj, `data-jadwal="${d.la}"`, { mulai: `${hari(-2)}T07:30`, sampai: `${hari(9)}T25:99`, alasan: ALASAN }) as Record<string, string> });
+          c.expect(/kode=WINDOW_INVALID/.test(ke(rjx)), `a closing time that is not a time is read as «no end»: ${rjx.status} ${ke(rjx)}`);
+          // 07.30 and 15.45 WITA are 23.30 and 07.45 UTC: stored as those instants, to the minute, on the lesson and both assessments
+          const rj = await guru.kirim(`/mengajar/${d.kelas}`, { form: formDengan(hj, `data-jadwal="${d.la}"`, { mulai: `${hari(-2)}T07:30`, sampai: `${hari(9)}T15:45`, alasan: ALASAN }) as Record<string, string> });
+          const harap = `${psql(`select (${lit(hari(-2) + " 07:30")}::timestamp at time zone 'Asia/Makassar')::text`)}|${psql(`select (${lit(hari(9) + " 15:45")}::timestamp at time zone 'Asia/Makassar')::text`)}`;
+          const jadwal = psql(`select la.available_from::text || '|' || la.available_until::text || '|'
+              || (select count(*) from public.assessment_assignments aa where aa.learning_assignment_id = la.id and aa.opens_at = la.available_from and aa.closes_at = la.available_until)
+              || '|' || (select (s.authoritative_deadline = ${lit(tetap)}::timestamptz)::text from public.assessment_sessions s where s.id = ${lit(s.tahan)})
+              || '|' || (select count(*) from public.audit_log l where l.action = 'learning_assignment.window_changed' and l.target_id = la.id::text and l.summary ->> 'reason' = ${lit(ALASAN)})
+            from public.learning_assignments la where la.id = ${lit(d.la)}`);
+          c.expect(/jadwal_diubah=ok/.test(ke(rj)) && jadwal === `${harap}|2|true|1`,
+            `«Ubah jadwal» with times in WITA: ${rj.status} ${ke(rj)}; stored from|until|both assessments|the open sitting's deadline kept|audited: ${jadwal}; expected ${harap}|2|true|1`);
+          const hsesudah = teks(await (await guru.halaman(ke(rj))).text());
+          c.expect(hsesudah.includes("Jadwal diubah. Murid yang sedang mengerjakan tetap memakai batas waktunya sendiri."), "the class page does not confirm the new schedule");
+          const hj2 = await (await guru.halaman(`/mengajar/${d.kelas}?jadwal=${d.la}`)).text();
+          c.expect(new RegExp(`id="jadwal-mulai"[^>]*value="${hari(-2)}T07:30"|value="${hari(-2)}T07:30"[^>]*id="jadwal-mulai"`).test(rapi(hj2))
+            && new RegExp(`id="jadwal-sampai"[^>]*value="${hari(9)}T15:45"|value="${hari(9)}T15:45"[^>]*id="jadwal-sampai"`).test(rapi(hj2)),
+            "the panel opened again does not show the stored times on the school's clock");
+        } finally {
+          psql(`begin; set local session_replication_role = replica; update public.institutions set zona_waktu = ${lit(zonaAsal)} where id = ${lit(d.inst)}; commit;`);
+        }
         return c.verdict("as the class's teacher in the running app: «Siapa yang sudah mengumpulkan» shows each learner's state (not started; open with its start and time left; handed in; "
           + "«Waktu habis» for one past its deadline, never as a hand-in; «Ditahan» for a held one, never «ditangguhkan») with the instrument choice and no score; «Atur» only where an act "
           + "applies, opening one panel under the list with only those acts; «Tambah waktu», «Akhiri dan nilai», «Akhiri tanpa menghitung», «Lanjutkan» and «Kirim permintaan» each "
           + "through its own form, recorded and confirmed in its own sentence; a short reason, no way chosen and the sitting ending before the change was saved each refused with its "
           + "sentence and nothing changed; a held sitting offers nothing until its learner is reinstated; a professional-learning class shows no «Atur»; «Ubah jadwal» on the material's "
-          + "row changes the lesson's and both assessments' window, keeps the open sitting's deadline and is audited");
+          + "row takes a date and a time each on the school's clock (labelled WITA), refuses a window already closed and a closing time that is not "
+          + "a time, stores 07.30 and 15.45 WITA as those instants on the lesson and both assessments, keeps the open sitting's deadline and is audited");
       } finally {
         bersihkan();
       }

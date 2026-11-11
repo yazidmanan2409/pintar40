@@ -2238,5 +2238,5 @@ export const staticTests: SelfTest[] = [
   ...b0Tests,
   ...b0LayarTests.filter((x) => x.id === "B0-K02"),
   ...a1Tests,
-  ...a1LayarTests.filter((x) => x.id === "A1-K02"),
+  ...a1LayarTests.filter((x) => ["A1-K02", "A1-S08", "A1-S09"].includes(x.id)),
 ];
