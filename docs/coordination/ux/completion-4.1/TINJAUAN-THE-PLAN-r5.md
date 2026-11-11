@@ -144,3 +144,16 @@ The teacher's row and record keep «di perangkat lain» only when the device dif
 - its mobile, keyboard and print rules.
 
 The pre-build reviews that remain (B2, A2, A3, C3w, and C2w short) are confirmations against this, not open design.
+
+---
+
+## Addendum · revision 6 at `ed9506a7` (read the same day)
+
+| Blocker | Status at `ed9506a7` |
+|---|---|
+| **1 · B2's browser print** | **Resolved.** §5.2 D3 and D4 now state the default browser line and the one referenced replacement, identically to F, and `afterprint` returns to the default |
+| **2 · A2's during-stop line** | **Open.** §5.3 F's revision list is unchanged. `pemeliharaan.darurat.asesmen` («Bila waktunya habis selama penghentian, beri tahu guru Anda») is still not listed. The replacement text is in Blocker 2 above |
+
+**Verdict on `ed9506a7`:** BLOCKED, on Blocker 2 only. It is one added item in §5.3 F's revision list and in §7.6's A2 row, with the text given above.
+
+My final verdict is given on the final document commit, the same one Sharon reviews.
