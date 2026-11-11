@@ -919,18 +919,24 @@ scheduling form, list, banner and pause page and adds no second system. Daisy re
   item 6).
 
 *Wording settled by Daisy's review of this plan* (`docs/coordination/ux/completion-4.1/TINJAUAN-THE-PLAN-r5.md` on `ux-1/daisy-experience` (`b24242da`)). It is adopted here so that the engineer does not wait for
-it. All of it goes into `hle.ts`, Indonesian and English; the English is in her document.
+it. **This is her exact wording; no alternative copy is to be written.** All of it goes into `hle.ts`, Indonesian and
+English; the English of items 4 and 5 is to be supplied by her at A2's pre-build review.
 
 1. **During the stop** (her blocker 2). The line learners see today, `pemeliharaan.darurat.asesmen`, ends «Bila
    waktunya habis selama penghentian, beri tahu guru Anda.» Under D-1 that is false: a held sitting loses no time. It
    is **replaced** by: «Penghentian ini tidak mengumpulkan dan tidak menilai asesmen yang sedang dikerjakan. Asesmen itu
    ditahan bersama jawaban yang sudah tersimpan dan sisa waktunya. Setelah PINTAR kembali, buka lagi asesmen tersebut;
    sisa waktunya sama seperti saat dihentikan.»
+   *English:* «This stop does not submit or score an assessment that was in progress. It is held with the answers
+   already saved and the time that was left. When PINTAR is back, open that assessment again; the time left is what it
+   was when the stop began.»
 2. **After the lift,** on «PINTAR dapat digunakan», for a learner whose sitting was held: «Asesmen yang ditahan selama
    penghentian dapat dibuka lagi. Jawaban yang sudah «Tersimpan» tetap ada, dan sisa waktunya sama seperti saat
-   dihentikan.» Her earlier sentence («guru Anda yang menentukan langkah berikutnya») is withdrawn.
+   dihentikan.» *English:* «An assessment held during the stop can be opened again. Answers that showed «Saved» are
+   still there, and the time left is what it was when the stop began.» Her earlier sentence («guru Anda yang
+   menentukan langkah berikutnya») is withdrawn.
 3. **On reopening the sitting,** a `role="status"` line in the player: «Asesmen ini ditahan selama penghentian. Sisa
-   waktu Anda: {n} menit.»
+   waktu Anda: {n} menit.» *English:* «This assessment was held during the stop. Your time left: {n} min.»
    These three hold for D6's edge cases: for a sitting inside its grace the time left is the grace; a window-timed
    sitting's moved closing time is exactly "what it was"; a suspended learner cannot sign in and never sees them.
 4. **The new refusals:**
