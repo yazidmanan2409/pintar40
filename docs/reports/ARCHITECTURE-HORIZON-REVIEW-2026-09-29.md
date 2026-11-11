@@ -1,5 +1,10 @@
 # PINTAR 4.0 → 5.5 Architecture Horizon Review (29 Sep 2026)
 
+> **Roadmap direction superseded (owner, 11 Nov 2026).** The authoritative roadmap for PINTAR after 4.1 is
+> `docs/roadmap/PINTAR-ROADMAP.md`; how each capability named below was disposed of is in
+> `docs/roadmap/ROADMAP-RECONCILIATION-2026-11-11.md`. This review is preserved unchanged as historical evidence, and
+> its technical findings remain available for investigation.
+
 **Second Eye, read-only.** Nothing in code, migrations or schemas was changed by this review.
 
 The evidence came from the 126 migrations, 24 ADRs, `src/` and the self-tests on `main` `73c0be5`. It was read by the coordinator and three read-only agents, and the coordinator checked the key claims against the code. File references are `supabase/migrations/<file>:<line>` unless noted.
