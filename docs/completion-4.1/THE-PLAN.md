@@ -7,8 +7,11 @@
 > **Revision 2 (11 Nov):** the owner's rulings D-1 to D-8 are incorporated (§7.3); the emergency-containment design
 > (§5.3 D6) is specified for concurrency, scale and failure. The direction is approved; the plan is not.
 > The owner accepted revision 2 (`38e43db0`) as the current working draft: a planning milestone, not approval to
-> execute. One follow-up is added: Sharon's review covers the emergency-stop transaction race and the late-sync edge
-> (§5.3).
+> execute.
+>
+> **Revision 3 (11 Nov):** Sharon's A2 pre-build review is incorporated (§5.3): six blockers B1 to B6, requirements R1
+> and R2, and the owner's ruling O1. The emergency design now rests on a transaction-ordering fence, one time rule
+> based on effective deadlines, and independent emergency and suspension holds.
 >
 > Statements marked **[P-A1]** or **[P-C1w]** rest on a batch that is not yet closed and are provisional.
 
@@ -103,7 +106,7 @@ re-runs the job installer and refuses to reopen without the job; DR-S14, S15, S1
 
 | Remaining batch | Needs from | What exactly |
 |---|---|---|
-| A2 | A1 | the held state and its guard; the deadline decider; the scheduled closer |
+| A2 | A1 | the held state and its guard; the deadline decider; the effective-deadline rule; the scheduled closer |
 | A3 | A1, A2, B1 | the sitting gate and row-lock discipline; the teacher's sitting panel on `/mengajar/[kelas]/siapa`; A2's emergency hold; B1's sign-in events |
 | B2 | B1 | the print-request event and its reference |
 | C2w | C1w | the stable question identity; «Riwayat soal» |
@@ -441,14 +444,27 @@ zone.
 
 **Review before build:** Sharon and Daisy. **Depends on:** A1.
 
-**Required in Sharon's pre-build review (owner, 11 Nov).** Her review of this batch must explicitly cover, and record a
-finding on, both of the following, alongside the recovery cases she reviews for A3:
-1. **The emergency-stop transaction race** (D6): the interval between the stop's commit and the completion of marking,
-   with the deadline scheduler, a hand-in, a teacher's act and the lift each racing it; Rule 2 as the guarantee that no
-   affected sitting is ended or scored; the lock order.
-2. **The late-sync edge** (D6, "A known edge"): a sitting already past its deadline and inside its late-sync grace at
-   the stop's instant, and an answer of its still travelling.
-The completion page is not settled, and the build does not start, until both findings are on it.
+**Sharon's pre-build review: done, and accepted by the owner as the technical basis for this section (11 Nov).**
+Read-only, against A1 at `7dfe2bc8` and this plan at `6ae42b88`. It raised six blockers (B1 to B6) and two further
+requirements (R1, R2); the owner added ruling O1. All are incorporated in D6 below.
+
+> **What this section rests on.** Sharon's review document is not on any branch the Chief Architect can read. The
+> blockers are recorded here as the owner relayed them; the design responses are the Chief Architect's. **Her nine
+> verification scenarios are required acceptance evidence (H) and must be copied into A2's completion page from her
+> review, word for word.** They are not reproduced or paraphrased here, because the text was not available. If any
+> response below differs from what her review requires, her review governs and the difference is brought back.
+
+| # | Sharon's finding (as relayed) | Where it is answered |
+|---|---|---|
+| B1 | A safe transaction-ordering fence between emergency activation and protected sitting decisions | D6.1 |
+| B2 | Emergency protection on every A1 action that can end, score, resume, extend or re-time an affected sitting | D6.2 |
+| B3 | The remaining late-sync allowance preserved for sittings already expired but still inside their grace | D6.3 |
+| B4 | Remaining time preserved for assignment-window-timed sittings, by their effective deadlines | D6.3 |
+| B5 | Overlapping and successive emergency windows, without granting or losing time | D6.4 |
+| B6 | Suspension holds preserved when an emergency stop is lifted | D6.5 |
+| R1 | No scheduler starvation of unaffected sittings | D6.6 |
+| R2 | Transactions holding the fence kept short; activation latency measured | D6.1, D6.6 |
+| O1 | **Owner ruling:** during a stop, refuse administrative assessment-ending and assignment-withdrawal on protected sittings; permit genuine enrolment termination without bypassing protection | D6.2 |
 
 #### A · Objective
 A school can announce maintenance for one class or the whole school and trust what happens to sittings. The platform
@@ -520,70 +536,139 @@ they resume when the platform admin lifts the stop; suspension-held sittings sta
 under concurrency and at scale, and no affected sitting may be scored by the deadline scheduler while containment is
 taking effect. It uses A1's mechanisms; there is no second sitting-control system.
 
-*The design. Three rules make it safe; the bulk work is then only bookkeeping.*
+*The design, revised for Sharon's review. It still uses A1's mechanisms and adds no second sitting-control system.*
 
-**Rule 1 · The stop takes effect at one instant, by one row.** `stop_pintar_now` inserts the EMERGENCY window and
-commits. That commit is the instant of effect (`starts_at`). Nothing about containment depends on how long the rest
-takes.
+**Terms.** A sitting is **protected** while an active EMERGENCY window affects its **person**. A **protected decision**
+is any database act that can end, score, resume, extend or re-time a sitting.
 
-**Rule 2 · The one deadline decider refuses to end a contained sitting.** `pengerjaan_putus_tenggat` is the single
-function that ends a sitting by its deadline; the lazy check and the scheduled closer both call it **[P-A1]**. Under the
-sitting's row lock, before deciding, it asks whether an active EMERGENCY window affects the sitting's **person** (a
-person-parameter form of `maintenance_block_for_me`). If so it ends nothing and reports the sitting as skipped. So from
-the commit of Rule 1 no path can end or score an affected sitting, whether or not it has been marked held yet. This is
-what satisfies "no scoring while containment is taking effect", for one sitting or for fifty thousand.
+**D6.1 · The fence (B1, R2).** Revision 2 relied on each decision checking for an active window under the sitting's row
+lock. That is not enough: a decision can read "no window" just before the stop commits and write its ending just
+after. The sitting's row lock orders decisions against each other, not against the window. The correction:
 
-**Rule 3 · Remaining time is computed from the stop's instant, never from when a row was processed.**
-`remaining = the sitting's deadline − the window's starts_at`. A sitting with no deadline has no remaining time and gets
-none back.
+- **One lock, two modes.** Every protected decision takes the *emergency fence* in **shared** mode, as the first lock
+  of its transaction, and only then reads whether the person is protected. Activation and lift take the same fence in
+  **exclusive** mode. A transaction-level advisory lock is the intended mechanism; the engineer may choose another
+  with the same properties.
+- **What this guarantees.** A decision that took the fence before activation finishes and commits before activation
+  can acquire it. A decision that takes it after activation's commit reads the window as committed and is refused or
+  skips. There is no third case. This holds only if the protection read is a **new statement, after** the fence is
+  held, at READ COMMITTED; a decision running at a stricter isolation level must not be used here, and the tests prove
+  the ordering rather than assume it.
+- **The instant of effect is taken under the fence, not assumed from a column default.** Activation acquires the
+  exclusive fence, **then** reads the clock (`clock_timestamp()`, not the transaction's start time), records that as the
+  window's instant of effect `T_stop`, inserts the window and commits. Justification: every earlier protected decision
+  had committed before the fence was granted, so before `T_stop`; every later one begins after the commit, so after
+  `T_stop`. `T_stop` is therefore a valid dividing line even though it is not the commit timestamp itself. The lift
+  records `T_lift` the same way. No other timestamp (a column default, `now()`) is used for time arithmetic.
+- **Requests before and after** (Sharon's distinction, preserved). A learner request that passed the sitting gate
+  before activation holds the shared fence, so it completes and its answer is accepted evidence. A request that
+  reaches the gate after activation is refused there, even if it passed the request-level check a moment earlier; the
+  answer stays on the device and is sent after the lift, inside the restored time.
+- **Short exclusive section (R2).** The transaction holding the exclusive fence does four things only: acquire, read
+  the clock, insert (or end) the window, commit. Marking and releasing sittings happen afterwards, in other
+  transactions. Activation uses a lock timeout and retries, and tells the admin plainly if it could not take effect.
+- **Contention, reviewed.** Shared holders never block each other, so normal operation pays one uncontended lock per
+  protected decision. Two costs are real and must be measured:
+  1. *Activation waits for every in-flight protected decision.* A long one delays the stop. Therefore no protected
+     decision may hold the fence across a long transaction. In particular the scheduled closer must not hold it for a
+     whole run (D6.6).
+  2. *While activation waits, new shared requests queue behind it.* For that interval, sitting operations platform-wide
+     pause. It must be short, and it is measured (H).
+  The fence is global by design: one lock is simpler to prove than per-scope locks, and stops are rare. If the measured
+  latency is unacceptable, per-school fences are the fallback, brought back for review before being built.
 
-*Marking sittings held.* After Rule 1, the open sittings of every affected person are marked held with cause
-`EMERGENCY_STOP`, the window's id and the remaining time of Rule 3. This widens A1's cause check
-(`M/20270114100000…:141`) and reuses `pengerjaan_tahan_orang`'s logic and the state trigger `pengerjaan_jaga`.
-- **By person, not by class:** an affected person cannot make any request (PT503), so every open sitting of theirs is
-  contained, at any class or school, as a suspension already does.
-- **In bounded batches,** each its own short transaction, sittings locked in id order (§6.2), `SKIP LOCKED` for a row
-  another transaction holds, repeated until none is left. No long transaction, no lock queue behind the stop.
-- **Idempotent and resumable:** a sitting already held is left alone. If the marking is interrupted, the stop is still
-  fully in force (Rule 2), and the marking is finished by re-running it, by the next scheduled run, or at the lift.
-- **Not held:** a sitting that had already handed in or ended before `starts_at`; a sitting already past its deadline
-  at `starts_at` (it is ended by the ordinary rule after the lift; Rule 2 only postpones that); a sitting held for a
-  suspension (it keeps `ACCOUNT_SUSPENDED`; the causes never overwrite each other).
+**D6.2 · Protection on every protected decision (B2, O1).** One check, `is this sitting protected?`, is applied under
+the fence by every act below. A1's functions as read at `7dfe2bc8` **[P-A1]**:
 
-*Races at the moment of the stop.* Each is settled by the sitting's row lock:
-- The scheduler holds the lock and ends a sitting whose deadline had passed **before** the commit of Rule 1: that
-  sitting ended legitimately before the stop and is not held.
-- A hand-in commits before the stop: it stands. A hand-in arriving after: refused at the request (PT503).
-- A teacher's act (extend, end) commits first: it stands, and the remaining time is computed from the deadline it left.
-  After the stop, A1's acts on a held sitting are refused as today (`SITTING_FROZEN`).
+| Act | Function | During a stop, on a protected sitting |
+|---|---|---|
+| Ended by its deadline (lazy and scheduled) | `pengerjaan_putus_tenggat` | skipped; nothing ended or scored |
+| Finalized and scored | `finalize_session` | not run |
+| Teacher ends it, scored or not counted | `akhiri_pengerjaan` | **refused** (O1) |
+| Ended for an integrity cause | `terminate_session` | **refused** (O1) |
+| Extra time | `tambah_waktu_pengerjaan`, `extend_session_deadline` | refused |
+| Resume or close a suspension-held sitting | `lanjutkan_pengerjaan`, `tutup_pengerjaan_ditahan` | refused |
+| The window changed | `ubah_jadwal_penugasan` | refused where it would re-time a protected sitting |
+| The assignment ended or withdrawn | `akhiri_penugasan`, the withdrawal path, `tutup_asesmen_terbuka` | **refused** where a protected sitting would be ended (O1) |
+| Learner answer, pause, resume, hand-in | the gate `pengerjaan_gerbang` and the response trigger | refused (the request-level refusal usually comes first) |
 
-*The lift.* Lifting sets the window's `ended_at` and commits; requests flow again at once. Then:
-- **One deterministic rule:** `new deadline = the window's ended_at + remaining`. It does not depend on when the release
-  runs, so every path gives the same answer and a learner neither loses nor gains time.
-- Sittings held by that window are released in bounded batches, as they were marked.
-- **Nobody waits for the batch:** the learner gate (`pengerjaan_gerbang`) and the decider, on meeting a sitting whose
-  emergency has ended, release it by the same rule before doing anything else.
-- A sitting in scope that was never marked (an interrupted marking) is treated identically: its remaining time is still
-  `deadline − starts_at`.
-- **Overlapping stops:** if another active EMERGENCY window still affects the person, the sitting stays held, its
-  remaining time unchanged, and is re-attributed to that window. It is released when the last one lifts.
-- A sitting held for a suspension is untouched by any lift.
-- A window that closed during the stop does not end a released sitting before its restored deadline (A1 already allows
-  «Lanjutkan» after a closed window).
+- Each refusal has its own designed code in A1's domain and one sentence saying the class is stopped and the act can be
+  done after the stop is lifted.
+- **Completeness is enforced by a test, not by this table:** every function that writes a sitting's status, deadline or
+  held state either applies the protection check or is on a short declared list (the marking, the release, the
+  enrolment path below). The same enumeration test serves A3.
+- **Enrolment termination is permitted (O1).** It records an institutional fact about the learner, not an assessment
+  judgment. During a stop it proceeds and is audited as usual, and it must not: end a protected sitting as scored,
+  score it, or discard any accepted answer. The protected sitting stays protected; what finally happens to a departed
+  learner's sitting is decided by the existing rule **after** the lift. *To verify at reconciliation:* what enrolment
+  termination does to an open sitting in the code today **[P-A1]**.
 
-*Failure behaviour.*
-- The stop's row fails to commit: nothing is in force and the admin is told; there is no half-stop.
-- The marking or the release batch fails: retried; Rules 2 and 3 keep every outcome identical to a clean run.
-- The scheduler runs throughout and is harmless: Rule 2 makes it skip, and it counts what it skipped.
+**D6.3 · One time rule (B3, B4).** Revision 2 stored "remaining time" and gave nothing back to a sitting without its own
+deadline. Both were wrong. The rule is now:
 
-*Audit.* One row when the stop takes effect, one when marking completes (how many sittings held), one at the lift (how
-many released, how many left to the ordinary rule). The held and release facts are also on each sitting, as A1 records
-them.
+> **Every protected sitting's effective deadline moves later by exactly the length of its protected interval.**
 
-*A known edge, stated rather than hidden.* An answer acknowledged before the stop is kept. An answer still travelling
-when the stop commits is refused at the request and stays on the device; after the lift the device sends it, inside the
-restored time. A sitting already inside its late-sync grace at `starts_at` is not held, so an answer of its that was
-still travelling is not part of the paper. Sharon reviews this edge before build.
+- The **effective deadline** is A1's: the sitting's own deadline, or, for a sitting timed by its assignment's window,
+  the window's closing time (`pengerjaan_tenggat_efektif`). A sitting with neither has no deadline and none is created.
+- **B4 · Window-timed sittings.** At release the sitting receives a deadline of its own equal to the window's closing
+  time plus the protected interval. The assignment's window is not changed, so learners who were not protected are
+  unaffected.
+- **B3 · Late-sync allowance.** The late-sync grace is measured from the effective deadline, so it moves with it. A
+  sitting that had passed its deadline but was still inside its grace at `T_stop` is protected like any other: it is
+  not finalized during the stop, and after the lift it has exactly the grace it had left. This replaces revision 2's
+  "known edge", which is withdrawn.
+- A sitting already ended, handed in, or past its deadline **and** its grace before `T_stop` is not protected. Nothing
+  about it changes.
+- **Recording.** A1's held state stores a non-negative remaining time (`frozen_remaining_seconds >= 0`), which cannot
+  express "40 seconds of grace left". The emergency hold therefore records the instant it began, and the release
+  computes the shift. The engineer fits this to A1's columns at build; the rule above is the requirement.
+
+**D6.4 · Overlapping and successive stops (B5).**
+- A person's **protected interval** is the union of the active EMERGENCY windows that affect them, from the first
+  `T_stop` to the last `T_lift` with no gap between them.
+- **Overlapping** (a class stop, then a school stop before the first is lifted): the sitting stays held throughout and
+  is released once, when the last window lifts. The shift is the length of the union. Lifting the first window alone
+  releases nothing.
+- **Successive** (a stop, a lift, later another stop): each interval is applied once. The release of the first is
+  always applied before a second hold is recorded, including when that release had not yet been materialized. The
+  release rule is deterministic, so applying it late gives the same deadline as applying it at the lift.
+- **Neither grants nor loses time:** the shift uses `T_lift`, never the moment a row happened to be processed, so a
+  learner who returns an hour after the lift has no more time than one who returns at once.
+
+**D6.5 · Suspension holds (B6).**
+- An emergency hold and a suspension hold are independent facts about a sitting. A1's single cause column cannot hold
+  both, so the held state is extended to carry both; this is an extension of A1's state, not a second system.
+- A sitting is writable only when **no** hold remains.
+- **Suspended before the stop:** the sitting is already held with its remaining time stored. The stop and the lift do
+  not touch it.
+- **Suspended during the stop:** the suspension is recorded; the sitting's remaining time is fixed as of `T_stop`. The
+  lift removes the emergency hold only. The sitting stays held until its teacher resumes or closes it (O41-17), with
+  exactly that remaining time.
+- **Suspension lifted during the stop:** nothing resumes; the emergency hold remains, and O41-17 still requires the
+  teacher's act afterwards.
+
+**D6.6 · The scheduled closer (R1, R2).**
+- **No starvation (R1).** The closer selects its candidates **excluding** protected and held sittings, in the query
+  itself. Skipping them after selection would let a large stopped scope fill every run's limit and leave unaffected,
+  overdue sittings unprocessed.
+- **Short fence holds (R2).** The closer takes the shared fence per sitting or per small batch and commits between
+  them (a procedure with intermediate commits), so that it never delays an activation by more than one small batch.
+- It keeps running during a stop and does its ordinary work for everyone who is not protected.
+
+**D6.7 · Marking and release are bookkeeping.** After activation commits, protected sittings are marked held in bounded
+batches (sittings in id order, §6.2; `SKIP LOCKED`; idempotent; resumable). After the lift commits they are released
+in batches, and the learner gate and the deadline decider release on first touch by the same rule. Because protection
+comes from D6.1 and D6.2 and time from D6.3, an interrupted or late batch changes no outcome.
+
+**D6.8 · Failure behaviour.**
+- Activation cannot take the fence within its timeout: nothing is in force, the admin is told, and may retry. There is
+  no half-stop.
+- Marking or release fails: retried; outcomes are identical to a clean run.
+- The lift fails: the stop remains fully in force.
+
+**D6.9 · Audit.** One row when the stop takes effect (with `T_stop`), one when marking completes (how many held), one
+at the lift (with `T_lift`; how many released, how many held for a suspension and left held). Each refused act under
+O1 is audited as a refusal. Enrolment terminations during a stop keep their ordinary audit record.
 
 **D7 · Emergency at class scope.** `stop_pintar_now` accepts class nodes, under the same typed confirmation and reason.
 The immediate notice is the existing PT503 path: the open player's 45-second check and the next request both land on
@@ -594,7 +679,8 @@ pause page format times with it and name the zone (WIB, WITA, WIT). A platform-w
 school's zone. No polling is added: the existing timers already fire at 60, 30 and 15 minutes from one server read, and
 a person arriving inside the warning sees the time left (`pintar_status_saya`).
 
-**Transactions and locks.** As D6 states: the window row first, then sittings in id order (§6.2), in short batches.
+**Transactions and locks.** As D6 states: the emergency fence first, then the locks of §6.2 (sittings in id order), in
+short transactions.
 
 **Idempotency.** Stopping an already stopped scope and lifting an already lifted window change nothing and write no
 second audit row.
@@ -624,8 +710,8 @@ Daisy reviews before build. Reuse the scheduling form, the banner and the pause 
 - **Mobile and keyboard:** as the existing screens. **Print:** none.
 
 #### G · Ordered implementation instructions
-1. Preconditions: A1 closed and reconciled; completion page reviewed by Sharon and Daisy (D6's rules and its stated
-   edge in particular).
+1. Preconditions: A1 closed and reconciled; the completion page carries Sharon's six blockers as settled and her nine
+   scenarios word for word; Daisy's review.
 2. Database, in this order: scope and reason columns; `maintenance_affects` and the hook for class scope (measured);
    extend; the start refusal (D4); the emergency hold and release on A1's held state; class scope on the emergency;
    registry rows; audit rows.
@@ -640,19 +726,32 @@ Daisy reviews before build. Reuse the scheduling form, the banner and the pause 
   - A class-scoped window affects its learners and teachers and nobody else in the school (red today: no class scope).
   - A start whose deadline would cross a planned window is refused; one that fits is accepted.
   - A planned window: a running sitting drains and is scored by the ordinary rule; nothing is held.
-  - **Emergency:** every open sitting in scope is held with its remaining time; the scheduled closer and the lazy check
-    skip it past its original deadline (red today: ended and scored); on lift each resumes with exactly the stored time;
-    answers are byte-identical before and after; a suspended learner's sitting stays held after the lift.
+  - **Emergency, required evidence.** **Sharon's nine verification scenarios, copied from her review onto the
+    completion page, each as a red-first test.** In addition, one test per design point, so that each blocker has a
+    named proof:
+    - *B1:* on real connections, a deadline ending, a teacher's ending and a learner's answer are each started just
+      before and just after activation, repeatedly. Every one either commits before `T_stop` or is refused or skipped.
+      None commits an ending after `T_stop`. The test fails if the fence is removed (a plant).
+    - *B2 and O1:* each act in D6.2's table is refused or skipped on a protected sitting and works on an unprotected
+      one in the same school. The enumeration test finds no unguarded writer. An enrolment termination during a stop
+      succeeds, is audited, scores nothing and leaves every answer byte-identical.
+    - *B3:* a sitting 20 seconds past its deadline with a 60-second grace at `T_stop` accepts a late answer within 40
+      seconds after the lift and not after.
+    - *B4:* a window-timed sitting whose window closes during the stop is not ended at the lift, and ends exactly the
+      protected interval after the window's closing time. An unprotected learner on the same assignment ends at the
+      window's closing time.
+    - *B5:* overlapping windows and successive windows, including a second stop before the first release was
+      materialized. In every case the deadline moved by exactly the protected interval.
+    - *B6:* suspended before, during, and reinstated during a stop. No suspension-held sitting is writable after the
+      lift until its teacher acts, and it resumes with the right remaining time.
+    - *R1:* several thousand protected overdue sittings and one unprotected overdue sitting: the unprotected one is
+      ended in the next run.
+    - *R2:* activation latency measured with the closer running and many in-flight sitting requests; the length of
+      the platform-wide pause recorded. The thresholds are Sharon's.
   - Extend and resume early are audited with before and after; a school admin cannot stop immediately; a school admin
     cannot schedule for another school's class.
-  - **Concurrency on real connections:** the scheduled closer running while the stop commits and while marking is in
-    progress, over sittings whose deadlines fall inside that interval: none is ended or scored. A hold racing a
-    hand-in; a lift racing a teacher's act; a lift racing the learner's first request (the gate releases by the same
-    rule).
-  - **Scale and interruption:** a stop over several thousand open sittings marks them in batches; the marking is
-    killed halfway and resumed; the lift happens with marking incomplete. Every sitting ends with exactly
-    `ended_at + (deadline − starts_at)`.
-  - **Overlapping stops:** a sitting stays held until the last one lifts.
+  - **Scale and interruption:** marking killed halfway and resumed; the lift with marking incomplete. Outcomes equal a
+    clean run.
 - **App:** the warnings at 60, 30 and 15 with a mocked clock, in WIB and WITA; arriving at T−20 shows the time left; the
   pause page; the player's held notice.
 - **Regression:** M148-*, A1-S01 to S09, F37 and F38 green; the pre-request hook's timing within the measured budget.
@@ -661,12 +760,15 @@ Daisy reviews before build. Reuse the scheduling form, the banner and the pause 
 
 #### I · Acceptance criteria
 1. C7 and C8 demonstrated at class, school and platform scope.
-2. Planned maintenance changes no sitting's conditions; an emergency loses no answer and no time and scores nothing.
+2. Planned maintenance changes no sitting's conditions; an emergency loses no answer and no time, grants no time, and
+   scores nothing. Sharon's nine scenarios and the per-blocker tests are green on the candidate.
 3. Every time shown is in the reader's school zone.
 4. Suite, CI and journeys green on the candidate; Sharon's and Daisy's result reviews closed.
 
 #### J · Escalate only if
-- Sharon finds the late-sync edge in D6 unacceptable and no rule inside A1's mechanisms closes it.
+- The fence's measured activation latency or platform-wide pause is unacceptable and per-school fences are needed.
+- A response in D6 differs from what Sharon's review requires (her review governs; the difference is brought back).
+- Enrolment termination, as coded today, cannot be permitted without ending or scoring a protected sitting.
 - The class test cannot be added to the pre-request hook within the measured budget.
 
 ---
@@ -1149,7 +1251,7 @@ Result: a report to the owner. No selection and no integration before the owner 
 ### 6.1 Shared database objects
 | Object | Touched by | Rule |
 |---|---|---|
-| `assessment_sessions` | A1, A2, A3 | Columns are only added. A2 widens the held-cause check; A3 adds the controller. The state trigger `pengerjaan_jaga` stays the one guard of held sittings |
+| `assessment_sessions` | A1, A2, A3 | Columns are only added. A2 extends the held state so that an emergency hold and a suspension hold can coexist (§5.3 D6.5); A3 adds the controller. The state trigger `pengerjaan_jaga` stays the one guard of held sittings |
 | `responses` | A3 | One added column (generation). The idempotency key is unchanged |
 | The pre-request hook | A2 (class scope) | Measured before and after. A3 adds nothing to it |
 | `pg_cron` jobs | A1, B1 | One shared installer (6.3) |
@@ -1161,7 +1263,7 @@ Result: a report to the owner. No selection and no integration before the owner 
 ### 6.2 One lock order
 A3 must publish it as a lint; every batch before A3 must already follow it, so A3 finds nothing to reorder.
 
-`person → learning assignment → assessment assignments (by id) → sittings (by id) → advisory locks`
+`emergency fence (A2) → person → learning assignment → assessment assignments (by id) → sittings (by id) → other advisory locks`
 
 Evidence at `7dfe2bc8`: suspension locks the person and then sittings by id; assignment-ending paths lock the assignment
 and then sittings by id; A1's per-sitting acts lock the sitting and then an advisory lock. **One exception to reconcile
@@ -1235,6 +1337,7 @@ These are settled. They are not reopened without material new evidence.
 | # | Ruling | Qualification | Where in this plan |
 |---|---|---|---|
 | **D-1** | **Emergency-stop containment: approved.** Affected open sittings are held with their answers and exact remaining time. They resume with that time when the authorized platform admin lifts the stop. Suspension-held sittings stay held | Safe under concurrency and at scale. No affected sitting is scored by the deadline scheduler while containment takes effect. A1's mechanisms; no second sitting-control system | §5.3 D6 |
+| **O1** | **Acts during an active emergency stop: approved (after Sharon's A2 review).** Administrative assessment-ending and assignment-withdrawal actions on protected sittings are refused. Genuine enrolment termination is permitted, as an institutional fact about the learner | It must not bypass protection, cause protected work to be scored, or discard accepted evidence. The audit record is preserved | §5.3 D6.2 |
 | **D-2** | **Same-device reauthentication: approved.** The authenticated session is the authoritative writer. A new session is a new writer, even on the same device. Low-stakes recovery is automatic after reauthentication; Uji Penguasaan needs the teacher's authorization | Accepted answers preserved; the approved sitting-time rules apply | §5.5 D2, D7, D11 |
 | **D-3** | **Teacher recovery authorization: approved.** 10 minutes, single use, enforced server-side | Expiry and reuse are refused | §5.5 D7 |
 | **D-4** | **Accountability export events: approved.** B1 records print requests | No school data export and no export event in 4.1; both arrive in 4.2 | §2, §5.1 B |
@@ -1252,7 +1355,8 @@ None open. The one found (O41-20's deadline rule against C8's containment, in th
 | N-1 | `selftest/a1.test.ts`'s header (A1-K01) still says "nothing is scheduled"; line 259 restates it | Second Eye, with A1's closure |
 | N-2 | BOB-48's certificate sealing and numbering are on `main` under F20 ids (`M/20261201100000…`) | record only |
 | N-3 | A print reference stops resolving after 12 months, with the purge | Daisy and the owner, at B2's page |
-| N-4 | Sharon's ten further red cases for recovery are summarized at `SCOPE-REGISTER.md:255`; her full review (`1f7b6fc2`) is not on the branches read. Her review also covers the emergency-stop transaction race and the late-sync edge (§5.3, owner, 11 Nov) | Sharon, before A2's and A3's pages |
+| N-4 | Sharon's ten further red cases for recovery are summarized at `SCOPE-REGISTER.md:255`; her full review (`1f7b6fc2`) is not on the branches read | Sharon, before A3's page |
+| N-9 | Sharon's A2 pre-build review (six blockers, two requirements, nine verification scenarios) is not on any branch the Chief Architect can read. §5.3 records it as relayed by the owner. Her document should be committed beside the A2 completion page, and her nine scenarios copied from it | the owner or Second Eye, before A2's page |
 | N-5 | Sharon's verdict on the SI-D02 stronger-race re-review is not recorded on the branch read | Sharon |
 | N-6 | `institutions.retention_days` exists and nothing enforces it | 4.2; B1 does not use it |
 | N-7 | The warning banner formats times with `jamWib` and no zone today | fixed in A2 |
