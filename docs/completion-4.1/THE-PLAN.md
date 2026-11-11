@@ -8,10 +8,12 @@
 > plan's terms (§5.3 H); her non-blocking point on the scheduled closer's selection (§5.3 D6.6); Daisy's English for
 > the A2 refusals (§5.3 F). **Nothing further is outstanding for incorporation.**
 >
-> **Reviews of revision 8** (`0b40c97758691c956581cf314c2c45b0b73d3a23`): **Daisy: PASS** (recorded on
-> `ux-1/daisy-experience` at `401d2d38`). **Sharon: BLOCKED for one reason only,** the nine scenarios missing from
-> §5.3 H; her other blocker and all six clarifications verified. This revision adds them. Both reviewers' final
-> verdicts are to name this revision's commit.
+> **Final reviews.** Both reviewers verified the plan's content at
+> `a0af41baccd98b704e2b98fde144dd44a5d811d0`: **Sharon: PASS** (technical integrity; everything she raised on
+> revisions 5 and 8 is addressed). **Daisy: PASS** (her wording is exact and no approved UX requirement changed;
+> recorded on `ux-1/daisy-experience` at `5b5823dd`). The commit that records these two verdicts changes only this
+> header and the register (§7.5, §7.6); every batch section is as reviewed. Neither verdict is an approval to build,
+> merge or deploy. **Awaiting the owner's approval.**
 >
 > Revision 8: Sharon's technical review of revision 5 and Daisy's UX review. Revision 7: rulings M-1 to M-3, C1w's
 > final verification and the disposition of its findings (§7.7).
@@ -1798,7 +1800,7 @@ None open. The one found (O41-20's deadline rule against C8's containment, in th
 | N-9 | Sharon's nine A2 verification scenarios: received in her verification of revision 8 and incorporated in §5.3 H | closed |
 | N-10 | C1w's completion page promises "a stable identity per question". The code delivers it as the lineage chain, with no separate identity column. This plan builds on the chain. Whether that satisfies the page is for C1w's closure review | Second Eye and Sharon, at C1w's closure |
 | N-11 | C1w notifies affected schools in-app only; Daisy's C1-R5 proposed in-app plus one email | §7.7, F-5 |
-| N-12 | `terminate_session` and `akhiri_penugasan` can end a **suspension-held** sitting today (the state trigger allows TERMINATED). A2 refuses them for emergency-protected sittings; whether they should also be refused for suspension-held ones is outside A2 | Sharon, at A2's review |
+| N-12 | `terminate_session` and `akhiri_penugasan` can end a **suspension-held** sitting (the state trigger allows TERMINATED). **Closed by Sharon:** no change is needed for A2. Such an ending is a deliberate, audited act that keeps the answers and scores nothing: a close, consistent with O41-17, not a silent resume | closed |
 | N-13 | `start_learning_session` and `may_start_assessment` have now been patched by text three times (4.0, A1, C1w). A3 redefines them in full (§5.5 G) | A3 |
 | N-14 | Daisy's design input predates D-1, D-2, D-5, D-6 and O41-9. Her review of this plan (`TINJAUAN-THE-PLAN-r5.md`, `b24242da`) supplies the revised wording, now in each batch's F | settled; confirmed at each pre-build review |
 | N-5 | Sharon's verdict on the SI-D02 stronger-race re-review is not recorded on the branch read | Sharon |
@@ -1817,11 +1819,11 @@ limits and the provider are decided after E's report, as ruled.
 | Batch | Review | Must cover |
 |---|---|---|
 | B1 | short, before build | the store's columns and the coarse network origin; who reads; the purge and its audit; the shared job installer and the restore |
-| A2 | **done** | her six blockers, two requirements and nine verification scenarios are in §5.3 (D6 and H). On revision 8 she verified her grace blocker and all six clarifications, and confirmed the emergency architecture, the batch sequence, the pre-flight and M-1. Her non-blocking point on the closer's selection is in D6.6. Remaining: her final PASS on this revision's commit, and N-12 |
+| A2 | **done** | her six blockers, two requirements and nine verification scenarios are in §5.3 (D6 and H). On revision 8 she verified her grace blocker and all six clarifications, and confirmed the emergency architecture, the batch sequence, the pre-flight and M-1. Her non-blocking point on the closer's selection is in D6.6. **Final verdict: PASS on `a0af41ba`.** N-12 closed with her answer (§7.5) |
 | C2w | short, before build | no sealed row changes; the table is refused as a metric source; unreachable by learners |
 | A3 | full, before build | the controller design against her five gaps; her ten further red cases (N-4); the lock order with the emergency fence first (§6.2); the enumeration test of writers |
 | C3w | full, before build | provenance hidden at the database and API; the acceptance fact and the refused submit; what is sent to the provider; limits |
-| C1w | result review | the class of finding F-1; finding F-3's test result (§7.7); N-10 and N-12 |
+| C1w | result review | the class of finding F-1; finding F-3's test result (§7.7); N-10 |
 | every batch | one review of the result | on the exact candidate commit |
 
 **Daisy: what her reviews must cover**
@@ -1841,7 +1843,7 @@ limits and the provider are decided after E's report, as ruled.
 |---|---|---|
 | The owner's approval of this plan | every batch | — |
 | Sharon's classification of C1w finding F-1 (§7.7) | where F-1's correction is done: before promotion, or as C2w's first step | B1, B2, A2 |
-| Sharon's and Daisy's final verdicts on this revision's commit | submission of this plan as final | nothing else |
+| The owner's explicit approval of this plan | any build under it | nothing else. Sharon's and Daisy's final verdicts are both PASS on `a0af41ba` |
 | Sharon's full review of the controller design, with her ten red cases | A3's completion page | everything before A3 |
 | E's prerequisites and the owner's provider choice | C3w | everything before C3w |
 
