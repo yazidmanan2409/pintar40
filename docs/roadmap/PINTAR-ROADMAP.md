@@ -20,7 +20,8 @@ educator on its own authority.
 
 **How every version is built (owner's standing directive, 11 Nov 2026).** PINTAR evolves as one integrated system,
 not a collection of individually successful modules. Every significant feature, state transition and correction is
-examined with three questions: *And then what? What else did that change? What happens when things go wrong?* They
+examined with four questions: *And then what? What else did that change? What happens when things go wrong? Can this
+action be reversed, and what survives?* Every consequential action has an explicitly defined next state. They
 are asked across five dimensions: the human journey, cross-module effects, lifecycle, evidence integrity, and
 boundaries (permissions, institutional separation, history, privacy). They are questions carried inside each
 version's planning, review and acceptance, not additional gates. The full statement is
