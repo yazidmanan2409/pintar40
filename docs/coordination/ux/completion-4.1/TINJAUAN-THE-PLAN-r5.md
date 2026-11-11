@@ -197,3 +197,24 @@ Supplied now, so A2's pre-build review does not have to wait for it. «Ditahan»
 | The teacher's list during a stop (item 5) | «On hold · continues once the stop has ended» |
 
 THE PLAN at this commit is detailed enough to build without further UX decisions. The remaining pre-build reviews are confirmations against it.
+
+---
+
+## Confirmation · `a0af41baccd98b704e2b98fde144dd44a5d811d0` (revision 9): **PASS**
+
+Read from `git diff 0b40c977 a0af41ba -- docs/completion-4.1/THE-PLAN.md`.
+
+**My English is exact.** All six lines are in §5.3 F items 4 and 5, character for character, beside the Indonesian:
+- the five refusals;
+- the teacher's list, «On hold · continues once the stop has ended».
+
+The Indonesian of those rows is unchanged. The sentence saying the English was still to come is removed.
+
+**No approved UX requirement changed.** The rest of the diff is technical:
+- Sharon's nine A2 scenarios and her mapping (§5.3 H);
+- the shift-aware closer selection, with its test (D6.6, H);
+- the status lines (header, N-9, §7.6).
+
+None removes or alters user-facing copy, a state, a screen, or a mobile, keyboard or print rule. Scenario 2's refused acts (end, extend, resume, close, window change) are covered by the refusal «Kelas {kelas} sedang dihentikan oleh Admin PINTAR…», which names no actor.
+
+My PASS of `0b40c977` therefore carries to this commit unchanged.
