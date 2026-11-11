@@ -46,8 +46,12 @@ select line from (
   -- (names schema-qualified by hand: a regclass's text depends on the reader's search_path)
   select 11, 'writes_to|' || coalesce((select string_agg(c.relnamespace::regnamespace::text || '.' || c.relname, ', ' order by 1) from pg_class c
      where c.relkind in ('r', 'p', 'v', 'm', 'f') and c.oid <> 'pg_catalog.pg_settings'::regclass
+       -- A1 (owner, Option A), the ONE exception: DELETE on cron.job_run_details. pg_cron grants it to PUBLIC on its own
+       -- run log, the table is supabase_admin's, and no PINTAR role can revoke that grant. That table and that privilege
+       -- only: any other privilege on it, and DELETE on any other relation (cron.job included), is still a write.
        and (has_table_privilege('pintar_backup', c.oid, 'INSERT') or has_table_privilege('pintar_backup', c.oid, 'UPDATE')
-            or has_table_privilege('pintar_backup', c.oid, 'DELETE') or has_table_privilege('pintar_backup', c.oid, 'TRUNCATE')
+            or (has_table_privilege('pintar_backup', c.oid, 'DELETE') and c.oid is distinct from to_regclass('cron.job_run_details'))
+            or has_table_privilege('pintar_backup', c.oid, 'TRUNCATE')
             or has_table_privilege('pintar_backup', c.oid, 'TRIGGER') or has_table_privilege('pintar_backup', c.oid, 'REFERENCES'))), 'nothing')
   union all
   select 12, 'advances_sequences|' || (select count(*) from pg_class c

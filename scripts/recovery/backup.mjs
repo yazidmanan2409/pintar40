@@ -65,7 +65,11 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const RESERVED_ROLES = "anon|authenticated|authenticator|cli_login_.*|dashboard_user|pgbouncer|postgres|service_role|supabase_.*|pgsodium_keyholder|pgsodium_keyiduser|pgsodium_keymaker|pgtle_admin";
 export const SCHEMA_EXCLUDE = "information_schema|pg_*|_analytics|_realtime|_supavisor|auth|etl|extensions|pgbouncer|realtime|storage|supabase_functions|supabase_migrations|cron|dbdev|graphql|graphql_public|net|pgmq|pgsodium|pgsodium_masks|pgtle|repack|tiger|tiger_data|timescaledb_*|_timescaledb_*|topology|vault";
 export const DATA_EXCLUDE = "information_schema|pg_*|graphql|graphql_public|pgsodium|pgsodium_masks|pgtle|repack|tiger|tiger_data|timescaledb_*|_timescaledb_*|topology|vault|etl|extensions|pgbouncer|realtime|supabase_migrations|_analytics|_realtime|_supavisor";
-export const DATA_EXCLUDE_TABLES = ["auth.schema_migrations", "storage.migrations", "supabase_functions.migrations", "storage.buckets_vectors", "storage.vector_indexes"];
+// A1 (owner, Option A): pg_cron's own two tables are the platform's bookkeeping (which jobs exist, and each run's log),
+// owned by supabase_admin and not PINTAR's data: they are not in the application backup. The one job PINTAR needs is
+// put back after a restore by public.pengerjaan_jadwal_pasang() (restore-bundle.mjs). These two tables and nothing else.
+export const PG_CRON_TABLES = ["cron.job", "cron.job_run_details"];
+export const DATA_EXCLUDE_TABLES = ["auth.schema_migrations", "storage.migrations", "supabase_functions.migrations", "storage.buckets_vectors", "storage.vector_indexes", ...PG_CRON_TABLES];
 
 /** pg_dump's name pattern (a | b | pg_*) as an anchored SQL regular expression. */
 export function patternRegex(p) {

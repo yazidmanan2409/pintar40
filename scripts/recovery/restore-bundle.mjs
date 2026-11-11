@@ -82,6 +82,16 @@ export function compareFacts(bundleFacts, restoredFacts, { storageRewritten = fa
   return { compared: a.size, diffs };
 }
 
+/** A1: the one job the application schedules (20270114110000), and how a restored copy is asked about it. */
+export const SCHEDULED_JOB = "pintar-pengerjaan-tutup-terjadwal";
+export function scheduledJobCheck() {
+  return `select case
+    when to_regprocedure('public.pengerjaan_jadwal_pasang()') is null then 'none'
+    when to_regclass('cron.job') is null then 'pg_cron is not installed'
+    else (select count(*) || '|' || count(*) filter (where schedule = '*/5 * * * *' and command = 'select public.pengerjaan_tutup_terjadwal()' and active and database = current_database())
+            from cron.job where jobname = '${SCHEDULED_JOB}') end`;
+}
+
 /** The readiness rows, VERDICT|name. */
 function readiness() {
   const r = psql(["-f", join(ROOT, "docs/audit/launch-readiness.sql")]);
@@ -173,6 +183,10 @@ export async function restore(dir, { storage = false, verifyOnly = false } = {})
     step("auth.users triggers", ["--single-transaction", "-f", join(dir, "auth-triggers.sql")]);
     step("exact rights", ["-f", join(dir, "acl.sql")]);
     step("role settings", ["--single-transaction", "-f", join(dir, "role-settings.sql")]);
+    // A1 (owner, Option A): pg_cron's own tables are not in the bundle (backup.mjs, PG_CRON_TABLES), so the restored
+    // database has the function and no job. The idempotent installer puts the one job back (a bundle taken before A1
+    // has no installer and needs none).
+    step("scheduled job", ["-c", "do $$ begin if to_regprocedure('public.pengerjaan_jadwal_pasang()') is not null then perform public.pengerjaan_jadwal_pasang(); end if; end $$"]);
   } finally { rmSync(tmp, { recursive: true, force: true }); }
   else rmSync(tmp, { recursive: true, force: true });
 
@@ -197,6 +211,11 @@ export async function restore(dir, { storage = false, verifyOnly = false } = {})
   problems.push(...extensionCheck(have, bundled, "the bundle").map((p) => `against the bundle: ${p}`));
   problems.push(...extensionCheck(have, baselineFor(process.env.RESTORE_TARGET), process.env.RESTORE_TARGET || "an unnamed target").map((p) => `against the approved baseline: ${p}`));
   say(`extensions: ${Object.keys(have ?? {}).length}, checked against the bundle and the approved baseline`);
+  // A1: the abandoned-sitting job exists exactly once, as the five-minute call of the entry point, in this database
+  const job = psql(["-c", scheduledJobCheck()]);
+  const jobSays = job.ok ? job.out.trim() : `could not be read: ${job.err.join(" | ")}`;
+  if (jobSays !== "none" && jobSays !== "1|1") problems.push(`the scheduled job ${SCHEDULED_JOB} is not installed exactly once as the five-minute call of the entry point (jobs of that name|as it should be: ${jobSays}); run select public.pengerjaan_jadwal_pasang() as postgres`);
+  say(`scheduled job: ${jobSays === "none" ? "none in this bundle's schema" : jobSays === "1|1" ? "installed once" : jobSays}`);
   const ready = readiness();
   if (!ready.ok) problems.push(`the readiness check could not run: ${ready.err}`);
   else if (process.env.RESTORE_READINESS_EXPECTED) {
