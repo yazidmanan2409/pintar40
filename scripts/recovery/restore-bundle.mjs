@@ -82,14 +82,38 @@ export function compareFacts(bundleFacts, restoredFacts, { storageRewritten = fa
   return { compared: a.size, diffs };
 }
 
-/** A1: the one job the application schedules (20270114110000), and how a restored copy is asked about it. */
+/**
+ * B1 (THE PLAN §6.3; F-8): every job PINTAR schedules is declared once in the database (pintar_jadwal_daftar, migration
+ * 20270116110000) and installed by its one installer (pintar_jadwal_pasang); the health read (pintar_periksa_kesehatan)
+ * names each declared job that is missing or different. A bundle taken before B1 has A1's one job and A1's installer;
+ * one taken before A1 has neither and needs none.
+ */
 export const SCHEDULED_JOB = "pintar-pengerjaan-tutup-terjadwal";
+export const INSTALLER = "public.pintar_jadwal_pasang()";
 export function scheduledJobCheck() {
   return `select case
+    when to_regclass('cron.job') is null and to_regprocedure('public.pengerjaan_jadwal_pasang()') is not null then 'pg_cron is not installed'
+    when to_regprocedure('public.pintar_periksa_kesehatan()') is not null then
+      (select 'B1|' || (select count(*) from public.pintar_jadwal_daftar()) || '|' || coalesce(h -> 'hilang', '[]'::jsonb)::text || '|' || coalesce(h -> 'berbeda', '[]'::jsonb)::text
+         from (select public.pintar_periksa_kesehatan() h) x)
     when to_regprocedure('public.pengerjaan_jadwal_pasang()') is null then 'none'
-    when to_regclass('cron.job') is null then 'pg_cron is not installed'
-    else (select count(*) || '|' || count(*) filter (where schedule = '*/5 * * * *' and command = 'select public.pengerjaan_tutup_terjadwal()' and active and database = current_database())
+    else (select 'A1|' || count(*) || '|' || count(*) filter (where schedule = '*/5 * * * *' and command = 'select public.pengerjaan_tutup_terjadwal()' and active and database = current_database())
             from cron.job where jobname = '${SCHEDULED_JOB}') end`;
+}
+/** The problems the check's answer names (none for a bundle with no scheduler). */
+export function scheduledJobProblems(says) {
+  if (says === "none") return { problems: [], line: "none in this bundle's schema" };
+  const b1 = /^B1\|(\d+)\|(\[.*\])\|(\[.*\])$/.exec(says);
+  if (b1) {
+    const hilang = JSON.parse(b1[2]), beda = JSON.parse(b1[3]);
+    const problems = [
+      ...hilang.map((j) => `the scheduled job ${j} is not installed (missing); run select ${INSTALLER} as postgres`),
+      ...beda.map((j) => `the scheduled job ${j.jobname} is not installed exactly once as declared (${j.jumlah} job(s): ${j.schedule} ${j.command}${j.active ? "" : ", inactive"}); run select ${INSTALLER} as postgres`),
+    ];
+    return { problems, line: problems.length ? `${hilang.length} missing, ${beda.length} different of ${b1[1]} declared` : `${b1[1]} declared, each installed once` };
+  }
+  if (says === "A1|1|1") return { problems: [], line: "installed once" };
+  return { problems: [`the scheduled job ${SCHEDULED_JOB} is not installed exactly once as the five-minute call of the entry point (jobs of that name|as it should be: ${says.replace(/^A1\|/, "")}); run select public.pengerjaan_jadwal_pasang() as postgres`], line: says };
 }
 
 /** The readiness rows, VERDICT|name. */
@@ -183,10 +207,11 @@ export async function restore(dir, { storage = false, verifyOnly = false } = {})
     step("auth.users triggers", ["--single-transaction", "-f", join(dir, "auth-triggers.sql")]);
     step("exact rights", ["-f", join(dir, "acl.sql")]);
     step("role settings", ["--single-transaction", "-f", join(dir, "role-settings.sql")]);
-    // A1 (owner, Option A): pg_cron's own tables are not in the bundle (backup.mjs, PG_CRON_TABLES), so the restored
-    // database has the function and no job. The idempotent installer puts the one job back (a bundle taken before A1
-    // has no installer and needs none).
-    step("scheduled job", ["-c", "do $$ begin if to_regprocedure('public.pengerjaan_jadwal_pasang()') is not null then perform public.pengerjaan_jadwal_pasang(); end if; end $$"]);
+    // A1 (owner, Option A); B1 (THE PLAN §6.3): pg_cron's own tables are not in the bundle (backup.mjs, PG_CRON_TABLES),
+    // so the restored database has the functions and no job. The one idempotent installer puts every declared job back
+    // (a bundle taken before B1 has A1's installer; one taken before A1 has none and needs none).
+    step("scheduled jobs", ["-c", "do $$ begin if to_regprocedure('public.pintar_jadwal_pasang()') is not null then perform public.pintar_jadwal_pasang(); "
+      + "elsif to_regprocedure('public.pengerjaan_jadwal_pasang()') is not null then perform public.pengerjaan_jadwal_pasang(); end if; end $$"]);
   } finally { rmSync(tmp, { recursive: true, force: true }); }
   else rmSync(tmp, { recursive: true, force: true });
 
@@ -211,11 +236,11 @@ export async function restore(dir, { storage = false, verifyOnly = false } = {})
   problems.push(...extensionCheck(have, bundled, "the bundle").map((p) => `against the bundle: ${p}`));
   problems.push(...extensionCheck(have, baselineFor(process.env.RESTORE_TARGET), process.env.RESTORE_TARGET || "an unnamed target").map((p) => `against the approved baseline: ${p}`));
   say(`extensions: ${Object.keys(have ?? {}).length}, checked against the bundle and the approved baseline`);
-  // A1: the abandoned-sitting job exists exactly once, as the five-minute call of the entry point, in this database
+  // B1: every declared job exists exactly once, as declared, in this database (the health read's own comparison)
   const job = psql(["-c", scheduledJobCheck()]);
-  const jobSays = job.ok ? job.out.trim() : `could not be read: ${job.err.join(" | ")}`;
-  if (jobSays !== "none" && jobSays !== "1|1") problems.push(`the scheduled job ${SCHEDULED_JOB} is not installed exactly once as the five-minute call of the entry point (jobs of that name|as it should be: ${jobSays}); run select public.pengerjaan_jadwal_pasang() as postgres`);
-  say(`scheduled job: ${jobSays === "none" ? "none in this bundle's schema" : jobSays === "1|1" ? "installed once" : jobSays}`);
+  const jobs = job.ok ? scheduledJobProblems(job.out.trim()) : { problems: [`the scheduled jobs could not be read: ${job.err.join(" | ")}`], line: "could not be read" };
+  problems.push(...jobs.problems);
+  say(`scheduled jobs: ${jobs.line}`);
   const ready = readiness();
   if (!ready.ok) problems.push(`the readiness check could not run: ${ready.err}`);
   else if (process.env.RESTORE_READINESS_EXPECTED) {

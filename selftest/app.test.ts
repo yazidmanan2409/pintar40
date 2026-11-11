@@ -30,6 +30,7 @@ import { kenaikanAppTests } from "./kenaikan.test";
 import { b0LayarTests } from "./b0-layar.test";
 import { a1LayarTests } from "./a1-layar.test";
 import { c1wLayarTests } from "./c1w-layar.test";
+import { b1AppTests } from "./b1-layar.test";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
 const PERSONA = {
@@ -97,6 +98,8 @@ const ROUTE_INVENTORY = [
   "/konfigurasi/staf",
   // A1 (O41-17): «Permintaan kesempatan tambahan», the approver's queue at the school admin's address (a head of department reads it on their own home)
   "/konfigurasi/kesempatan",
+  // B1: «Catatan masuk dan cetak», beside «Jejak audit» (the sign-in and print record)
+  "/konfigurasi/catatan-masuk",
   "/masuk",
   // owner ruling 2 (9 Nov): «Minta akun dibuka kembali», signed out
   "/masuk/buka-kembali",
@@ -3520,6 +3523,8 @@ export const appTests: SelfTest[] = [
   ...b0LayarTests.filter((x) => x.id !== "B0-K02"),
   ...a1LayarTests.filter((x) => !["A1-K02", "A1-S08", "A1-S09"].includes(x.id)),
   ...c1wLayarTests.filter((x) => x.id !== "C1W-K02"),
+  // B1 · accountability events through the running app (every sign-in path, a failing writer, the reader)
+  ...b1AppTests,
   // BOB-50 (D-082(d)): a single Uji Cepat issues no certificate, through the running app
   ...bob50AppTests,
   // BOB-51 (D-057, REL-08): «Kirim email uji», the platform admin's delivery proof, through the running app

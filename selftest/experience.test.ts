@@ -357,6 +357,8 @@ const RESET_SURFACES = [
   "src/app/konfigurasi/staf/page.tsx",
   // A1 (O41-17): «Permintaan kesempatan tambahan», built on the token set and the shared pin-* classes
   "src/app/konfigurasi/kesempatan/page.tsx",
+  // B1: «Catatan masuk dan cetak», built on the token set, the Collection's frame and the shared pin-* classes
+  "src/app/konfigurasi/catatan-masuk/page.tsx",
   // Owner ruling 2 (9 Nov): «Minta akun dibuka kembali» on the sign-in page's stage, built on the token set
   "src/app/masuk/buka-kembali/page.tsx",
   // DAISY-20 (Gate 3): «Aktifkan akun PINTAR Anda» on the sign-in page's
@@ -2152,7 +2154,12 @@ export const experienceTests: SelfTest[] = [
       // Read against §3: questions, their versions and a release's state, not a mark, a logo, a crest or a theme.
       // MOVED 228 -> 229 for C1w's governed key correction (20270115110000: the correction, the result chain and its
       // basis, the certificate review). Read against §3: results and a review record, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 229, `${migrations.length} migrations; the frozen baseline has 229`);
+      // MOVED 229 -> 230 for B1, accountability events (20270116100000: the sign-in and print record, its writer, reader,
+      // purge and the personal-data deletion's narrow exception). Read against §3: who signed in and when, not a mark, a
+      // logo, a crest or a theme.
+      // MOVED 230 -> 231 for B1's one job installer (20270116110000: every scheduled job declared once, installed by one
+      // installer, and a health read). Read against §3: schedules, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 231, `${migrations.length} migrations; the frozen baseline has 231`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4005,7 +4012,9 @@ export const experienceTests: SelfTest[] = [
       // MOVED 226 -> 227 for 20270114110000 (A1: the scheduler of abandoned sittings, pg_cron): no tour RPC.
       // MOVED 227 -> 228 for 20270115100000 (C1w: the draft editor, identity on upload, revision, history, withdrawal): no tour RPC.
       // MOVED 228 -> 229 for 20270115110000 (C1w: the governed key correction and the certificate review): no tour RPC.
-      c.expect(migs.length === 229, `${migs.length} migrations; the baseline has 229`);
+      // MOVED 229 -> 230 for 20270116100000 (B1: the sign-in and print record): no tour RPC.
+      // MOVED 230 -> 231 for 20270116110000 (B1: the one job installer and its health read): no tour RPC.
+      c.expect(migs.length === 231, `${migs.length} migrations; the baseline has 231`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

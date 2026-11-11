@@ -14,6 +14,71 @@ import { tanggal } from "./tanggal";
 
 export type Persona = "learner" | "educator" | "staff" | "public";
 export type HleEvent =
+  | "akuntabilitas.judul"
+  | "akuntabilitas.arti"
+  | "akuntabilitas.tautan"
+  | "akuntabilitas.tautan_arti"
+  | "akuntabilitas.cari.label"
+  | "akuntabilitas.cari.placeholder"
+  | "akuntabilitas.saring.judul"
+  | "akuntabilitas.saring.jenis"
+  | "akuntabilitas.saring.semua"
+  | "akuntabilitas.saring.dari"
+  | "akuntabilitas.saring.sampai"
+  | "akuntabilitas.saring.tanpa_tanggal"
+  | "akuntabilitas.saring.tombol"
+  | "akuntabilitas.saring.hapus"
+  | "akuntabilitas.kolom.waktu"
+  | "akuntabilitas.kolom.orang"
+  | "akuntabilitas.kolom.apa"
+  | "akuntabilitas.kolom.cara"
+  | "akuntabilitas.kolom.hasil"
+  | "akuntabilitas.kolom.asal"
+  | "akuntabilitas.keterangan"
+  | "akuntabilitas.kosong"
+  | "akuntabilitas.tidak_cocok"
+  | "akuntabilitas.rujukan_hilang"
+  | "akuntabilitas.tidak_dikenal"
+  | "akuntabilitas.benda"
+  | "akuntabilitas.ditolak"
+  | "akuntabilitas.gagal"
+  | "akuntabilitas.rujukan"
+  | "akuntabilitas.jenis.sign_in_ok"
+  | "akuntabilitas.jenis.sign_in_failed"
+  | "akuntabilitas.jenis.sign_out"
+  | "akuntabilitas.jenis.print_request"
+  | "akuntabilitas.cara.password"
+  | "akuntabilitas.cara.card"
+  | "akuntabilitas.cara.link"
+  | "akuntabilitas.cara.code"
+  | "akuntabilitas.cara.recovery_pin"
+  | "akuntabilitas.hasil.ok"
+  | "akuntabilitas.hasil.masuk_tidak_cocok"
+  | "akuntabilitas.hasil.masuk_tunggu"
+  | "akuntabilitas.hasil.masuk_dibatasi"
+  | "akuntabilitas.hasil.layanan_tidak_tersedia"
+  | "akuntabilitas.hasil.permintaan_ditolak"
+  | "akuntabilitas.hasil.card_not_matched"
+  | "akuntabilitas.hasil.card_sering"
+  | "akuntabilitas.hasil.card_rate_limited"
+  | "akuntabilitas.hasil.card_request_refused"
+  | "akuntabilitas.hasil.card_unavailable"
+  | "akuntabilitas.hasil.tautan_tidak_terdaftar"
+  | "akuntabilitas.hasil.tautan_tidak_berlaku"
+  | "akuntabilitas.hasil.kode_tidak_cocok"
+  | "akuntabilitas.hasil.kode_tunggu"
+  | "akuntabilitas.hasil.kode_dibatasi"
+  | "akuntabilitas.hasil.id_tidak_sah"
+  | "akuntabilitas.hasil.pin_kosong"
+  | "akuntabilitas.hasil.pin_tidak_cocok"
+  | "akuntabilitas.hasil.pin_terkunci"
+  | "akuntabilitas.hasil.pin_tunggu"
+  | "akuntabilitas.hasil.pin_ditangguhkan"
+  | "akuntabilitas.hasil.akun_belum_aktif"
+  | "akuntabilitas.hasil.password_terlalu_panjang"
+  | "akuntabilitas.hasil.password_lemah"
+  | "akuntabilitas.hasil.pemulihan_berakhir"
+  | "audit.aksi.accountability.purged"
   | "jenis.bank.PRACTICE" | "jenis.bank.TEST" | "jenis.bank.EXAM"
   | "studio.soal.judul" | "studio.soal.arti" | "studio.soal.jumlah" | "studio.soal.kunci" | "studio.soal.alasan" | "studio.soal.kosong"
   | "studio.soal.ringkas" | "studio.soal.pelajaran_label" | "studio.soal.pelajaran_dari" | "studio.soal.posisi" | "studio.soal.buka" | "studio.soal.bacaan" | "studio.soal.gagal" | "studio.soal.pager_label"
@@ -3279,6 +3344,72 @@ const stageTable: Partial<Record<HleEvent, Partial<Record<Stage, { id: string; e
 };
 
 const table: Table = {
+  // B1 · the sign-in and print record (src/lib/akuntabilitas-kontrak.ts): each failure outcome in the sign-in screen's own words
+  "akuntabilitas.judul": { default: "Catatan masuk dan cetak", en: "Sign-in and print record" },
+  "akuntabilitas.arti": { default: "Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus.", en: "Who signed in, could not sign in, signed out or asked for an official print, over the last 12 months. This record is read only: it cannot be exported or deleted." },
+  "akuntabilitas.tautan": { default: "Catatan masuk dan cetak", en: "Sign-in and print record" },
+  "akuntabilitas.tautan_arti": { default: "Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi.", en: "Who signed in, could not sign in, signed out or asked for an official print." },
+  "akuntabilitas.cari.label": { default: "Cari nama, PINTAR ID, atau referensi cetak", en: "Search a name, a PINTAR ID or a print reference" },
+  "akuntabilitas.cari.placeholder": { default: "Nama, PINTAR ID, atau CTK-…", en: "Name, PINTAR ID or CTK-…" },
+  "akuntabilitas.saring.judul": { default: "Saring catatan", en: "Filter the record" },
+  "akuntabilitas.saring.jenis": { default: "Jenis", en: "Kind" },
+  "akuntabilitas.saring.semua": { default: "Semua jenis", en: "Every kind" },
+  "akuntabilitas.saring.dari": { default: "Dari tanggal", en: "From" },
+  "akuntabilitas.saring.sampai": { default: "Sampai tanggal", en: "To" },
+  "akuntabilitas.saring.tanpa_tanggal": { default: "Tanpa batas tanggal.", en: "No date limit." },
+  "akuntabilitas.saring.tombol": { default: "Tampilkan", en: "Show" },
+  "akuntabilitas.saring.hapus": { default: "Hapus saringan", en: "Clear the filters" },
+  "akuntabilitas.kolom.waktu": { default: "Waktu", en: "When" },
+  "akuntabilitas.kolom.orang": { default: "Siapa", en: "Who" },
+  "akuntabilitas.kolom.apa": { default: "Apa", en: "What" },
+  "akuntabilitas.kolom.cara": { default: "Cara", en: "How" },
+  "akuntabilitas.kolom.hasil": { default: "Hasil", en: "Outcome" },
+  "akuntabilitas.kolom.asal": { default: "Asal jaringan", en: "Network origin" },
+  "akuntabilitas.keterangan": { default: "Catatan masuk dan cetak, yang terbaru di atas", en: "Sign-in and print record, newest first" },
+  "akuntabilitas.kosong": { default: "Belum ada catatan. Catatan disimpan sejak {tanggal}.", en: "Nothing recorded yet. The record is kept from {tanggal}." },
+  "akuntabilitas.tidak_cocok": { default: "Tidak ada catatan yang cocok dengan saringan ini.", en: "No record matches these filters." },
+  "akuntabilitas.rujukan_hilang": { default: "Referensi ini tidak ditemukan. Catatan cetak disimpan 12 bulan, sejak {tanggal}.", en: "This reference was not found. Print records are kept for 12 months, from {tanggal}." },
+  "akuntabilitas.tidak_dikenal": { default: "pengenal tidak dikenal", en: "identifier not recognised" },
+  "akuntabilitas.benda": { default: "catatan", en: "entries" },
+  "akuntabilitas.ditolak": { default: "Catatan masuk dan cetak hanya dibaca admin sekolah untuk sekolahnya, dan Admin platform.", en: "The sign-in and print record is read by a school's administrator, for their school, and by the platform administrator." },
+  "akuntabilitas.gagal": { default: "Catatan belum dapat dibaca sekarang. Coba lagi sebentar lagi.", en: "The record cannot be read just now. Try again in a moment." },
+  "akuntabilitas.rujukan": { default: "Referensi {ref}", en: "Reference {ref}" },
+  "akuntabilitas.jenis.sign_in_ok": { default: "Masuk", en: "Signed in" },
+  "akuntabilitas.jenis.sign_in_failed": { default: "Tidak berhasil masuk", en: "Could not sign in" },
+  "akuntabilitas.jenis.sign_out": { default: "Keluar", en: "Signed out" },
+  "akuntabilitas.jenis.print_request": { default: "Meminta cetakan resmi", en: "Asked for an official print" },
+  "akuntabilitas.cara.password": { default: "Password", en: "Password" },
+  "akuntabilitas.cara.card": { default: "Kartu kelas", en: "Class card" },
+  "akuntabilitas.cara.link": { default: "Tautan email", en: "Email link" },
+  "akuntabilitas.cara.code": { default: "Kode pemulihan", en: "Recovery code" },
+  "akuntabilitas.cara.recovery_pin": { default: "PINTAR ID dan PIN", en: "PINTAR ID and PIN" },
+  "akuntabilitas.hasil.ok": { default: "Berhasil", en: "Succeeded" },
+  "akuntabilitas.hasil.masuk_tidak_cocok": { default: "Email, username, atau password belum cocok.", en: "The email, username or password didn't match." },
+  "akuntabilitas.hasil.masuk_tunggu": { default: "Sudah terlalu sering dicoba; diminta menunggu.", en: "Tried too many times; asked to wait." },
+  "akuntabilitas.hasil.masuk_dibatasi": { default: "Sedang banyak yang masuk bersamaan; diminta menunggu.", en: "Many people were signing in at once; asked to wait." },
+  "akuntabilitas.hasil.layanan_tidak_tersedia": { default: "PINTAR sedang tidak dapat memeriksa; diminta mencoba lagi.", en: "PINTAR could not check just then; asked to try again." },
+  "akuntabilitas.hasil.permintaan_ditolak": { default: "Halaman perlu dimuat ulang; tidak ada yang diperiksa.", en: "The page needed reloading; nothing was checked." },
+  "akuntabilitas.hasil.card_not_matched": { default: "Nomor kartu atau PIN belum cocok.", en: "The card number or the PIN didn't match." },
+  "akuntabilitas.hasil.card_sering": { default: "Nomor kartu ini sudah terlalu sering dicoba; diminta menunggu.", en: "This card number was tried too many times; asked to wait." },
+  "akuntabilitas.hasil.card_rate_limited": { default: "Sedang banyak yang masuk bersamaan; diminta menunggu.", en: "Many people were signing in at once; asked to wait." },
+  "akuntabilitas.hasil.card_request_refused": { default: "Halaman perlu dimuat ulang; kartu tidak dipakai untuk masuk.", en: "The page needed reloading; the card did not sign in." },
+  "akuntabilitas.hasil.card_unavailable": { default: "PINTAR sedang tidak dapat memeriksa kartu; diminta mencoba lagi.", en: "PINTAR could not check cards just then; asked to try again." },
+  "akuntabilitas.hasil.tautan_tidak_terdaftar": { default: "Tautan diminta untuk alamat yang tidak terhubung dengan akun PINTAR; tidak ada yang dikirim.", en: "A link was asked for an address linked to no PINTAR account; nothing was sent." },
+  "akuntabilitas.hasil.tautan_tidak_berlaku": { default: "Tautan ini sudah tidak berlaku.", en: "This link was no longer valid." },
+  "akuntabilitas.hasil.kode_tidak_cocok": { default: "Kode tidak cocok atau sudah tidak berlaku.", en: "The code didn't match or was no longer valid." },
+  "akuntabilitas.hasil.kode_tunggu": { default: "Kode sudah terlalu sering dicoba; diminta menunggu.", en: "The code was tried too many times; asked to wait." },
+  "akuntabilitas.hasil.kode_dibatasi": { default: "Sedang banyak yang mencoba bersamaan; diminta menunggu.", en: "Many people were trying at once; asked to wait." },
+  "akuntabilitas.hasil.id_tidak_sah": { default: "PINTAR ID belum benar: 8 huruf dan angka.", en: "The PINTAR ID wasn't right: 8 letters and digits." },
+  "akuntabilitas.hasil.pin_kosong": { default: "PIN belum diketik: 4 angka.", en: "No PIN was typed: 4 digits." },
+  "akuntabilitas.hasil.pin_tidak_cocok": { default: "PINTAR ID atau PIN tidak cocok.", en: "The PINTAR ID or the PIN didn't match." },
+  "akuntabilitas.hasil.pin_terkunci": { default: "Pemulihan dengan PIN ditutup sementara setelah beberapa PIN tidak cocok.", en: "Recovery with a PIN was locked for a while after several PINs that didn't match." },
+  "akuntabilitas.hasil.pin_tunggu": { default: "Terlalu banyak percobaan dari perangkat ini; diminta menunggu.", en: "Too many tries from this device; asked to wait." },
+  "akuntabilitas.hasil.pin_ditangguhkan": { default: "Pemulihan dengan PIN dihentikan setelah terlalu banyak PIN tidak cocok.", en: "Recovery with a PIN was stopped after too many PINs that didn't match." },
+  "akuntabilitas.hasil.akun_belum_aktif": { default: "Akun ini belum selesai diaktifkan.", en: "This account hadn't finished activation." },
+  "akuntabilitas.hasil.password_terlalu_panjang": { default: "Password baru terlalu panjang.", en: "The new password was too long." },
+  "akuntabilitas.hasil.password_lemah": { default: "Password baru belum memenuhi syarat.", en: "The new password didn't meet the rules." },
+  "akuntabilitas.hasil.pemulihan_berakhir": { default: "Waktu untuk membuat password baru sudah habis.", en: "The time to make a new password had run out." },
+  "audit.aksi.accountability.purged": { default: "Catatan masuk dan cetak yang lebih dari 12 bulan dihapus", en: "Sign-in and print records older than 12 months removed" },
   // ENUM LABELS. Found by F06-S03: five surfaces rendered a raw enum into a
   // text position -- PRACTICE, PRE_TEST, VISIBILITY_CHANGE and friends -- none
   // of which is in INTERNAL_WORDS, so no word list would ever have caught them.

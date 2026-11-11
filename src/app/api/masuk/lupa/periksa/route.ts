@@ -10,6 +10,7 @@ import { periksaKodePemulihan } from "@/lib/pemulihan";
 import { akhiriSesiVerifikasi } from "@/lib/keluar";
 import { jawab, kembaliKe } from "@/app/api/aktifkan/_jawab";
 import { hashIzin, simpanIzin, tokenIzinBaru } from "../_izin";
+import { catatAkuntabilitas, normalPengenal } from "@/app/api/_akuntabilitas/catat";
 
 /**
  * BOB-27: TYPE THE RECOVERY CODE, served at `/masuk/lupa/periksa` (rewritten
@@ -17,6 +18,9 @@ import { hashIzin, simpanIzin, tokenIzinBaru } from "../_izin";
  * SIGNS NOBODY IN: Auth's verifyOtp runs on a client that keeps no session, the
  * session it makes is ended at once, and the browser gets the single-use,
  * ten-minute recovery grant instead. The decision is src/lib/pemulihan.ts.
+ *
+ * B1: once the answer is final, one event, method CODE (src/app/api/_akuntabilitas/catat.ts): the account the name reached, when
+ * it reached one; never the name or the code.
  */
 export const dynamic = "force-dynamic";
 
@@ -41,6 +45,7 @@ export async function POST(request: NextRequest) {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     global: { headers: buildHeaders(), fetch: fetchBerpenerus(alamatKlien(request.headers), rekam) },
   });
+  let akun: string | null = null;
   const hasil = await periksaKodePemulihan(
     { origin, nama: fd?.get("nama"), kode: fd?.get("kode") },
     {
@@ -60,6 +65,7 @@ export async function POST(request: NextRequest) {
         if (!r?.auth_user_id) return null;
         const { data: pengguna } = await layanan.auth.admin.getUserById(String(r.auth_user_id));
         const email = pengguna?.user?.email;
+        akun = String(r.auth_user_id);
         return email ? { authUserId: String(r.auth_user_id), email } : null;
       },
       verifikasi: async (email, kode) => {
@@ -78,5 +84,8 @@ export async function POST(request: NextRequest) {
       catatGalat: (ref, apa) => console.error(`[masuk/lupa/periksa] ref=${ref} ${apa}`),
     },
   );
+  await catatAkuntabilitas(request.headers, "masuk/lupa/periksa", hasil.body.ok
+    ? { jenis: "SIGN_IN_OK", cara: "CODE", hasil: "OK", authUserId: akun }
+    : { jenis: "SIGN_IN_FAILED", cara: "CODE", hasil: hasil.body.code, authUserId: akun, diketik: normalPengenal("nama", fd?.get("nama")) || null });
   return jawab(hasil);
 }

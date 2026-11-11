@@ -10,6 +10,7 @@ import { tujuanMasuk } from "@/app/masuk/actions";
 import { detailPr040 } from "@/app/api/aktifkan/_wizard";
 import { jawab, kembaliKe } from "@/app/api/aktifkan/_jawab";
 import { bacaIzin, buangIzin, hashIzin } from "../_izin";
+import { catatAkuntabilitas } from "@/app/api/_akuntabilitas/catat";
 
 /**
  * BOB-27: THE NEW PASSWORD, with the recovery grant, served at
@@ -19,6 +20,10 @@ import { bacaIzin, buangIzin, hashIzin } from "../_izin";
  * person (D-055(f)); the guard spends the grant; this browser then signs in
  * with the new password; the owner is told by email, after the answer. The
  * password is never logged or echoed. The decision is src/lib/pemulihan.ts.
+ *
+ * B1: once the answer is final, one event, method PASSWORD (src/app/api/_akuntabilitas/catat.ts): a success when this browser
+ * signed in with the new password; otherwise the door's own refusal, or LAYANAN_TIDAK_TERSEDIA when the password was
+ * set and the sign-in after it was not made. Nothing typed is sent: this door takes no identifier.
  */
 export const dynamic = "force-dynamic";
 
@@ -32,6 +37,8 @@ export async function POST(request: NextRequest) {
   const layanan = supabaseService();
   const supabase = await supabaseServer({ fetch: fetchBerpenerus(alamatKlien(request.headers)) });
   const token = await bacaIzin();
+  let akun: string | null = null;
+  let masukSebagai: string | null = null;
   const hasil = await gantiPasswordPemulihan(
     { origin, password: fd?.get("password") },
     {
@@ -44,6 +51,7 @@ export async function POST(request: NextRequest) {
         }
         const { data: pengguna } = await layanan.auth.admin.getUserById(String(data));
         const email = pengguna?.user?.email;
+        akun = String(data);
         return email ? { authUserId: String(data), email } : null;
       },
       setel: async (id, password) => {
@@ -51,7 +59,8 @@ export async function POST(request: NextRequest) {
         return { error: error ? { code: error.code, status: error.status, reasons: (error as { reasons?: string[] }).reasons } : null };
       },
       masuk: async (email, password) => {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        masukSebagai = error ? null : data.user?.id ?? null;
         return { error: error ? { status: error.status, code: error.code, name: error.name } : null };
       },
       buangIzin,
@@ -64,5 +73,8 @@ export async function POST(request: NextRequest) {
       catatGalat: (ref, apa) => console.error(`[masuk/lupa/password] ref=${ref} ${apa}`),
     },
   );
+  await catatAkuntabilitas(request.headers, "masuk/lupa/password", hasil.body.ok && masukSebagai
+    ? { jenis: "SIGN_IN_OK", cara: "PASSWORD", hasil: "OK", authUserId: masukSebagai }
+    : { jenis: "SIGN_IN_FAILED", cara: "PASSWORD", hasil: hasil.body.ok ? "LAYANAN_TIDAK_TERSEDIA" : hasil.body.code, authUserId: akun });
   return jawab(hasil);
 }

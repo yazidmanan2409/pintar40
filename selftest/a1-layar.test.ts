@@ -314,7 +314,9 @@ do $j$ declare v jsonb; begin execute ${PERINTAH} into v; insert into a1_s08_jal
 select 'R3|' || hasil::text from a1_s08_jalan where n = 3;
 ${keadaan.replace("'K|'", "'K3|'")};
 select 'A3|' || (select count(*) from public.audit_log) || '|' || (select count(*) from public.assessment_results);
-select 'P|' || (public.pengerjaan_jadwal_pasang() ->> 'ok') || '|' || (public.pengerjaan_jadwal_pasang() ->> 'ok') || '|'
+-- RESTATED, B1 (THE PLAN §6.3): installed twice through the ONE installer of every PINTAR job, then once through A1's
+-- installer (now a call to it); A1's job is still exactly one, as declared. Was: A1's own installer, twice.
+select 'P|' || (public.pintar_jadwal_pasang() ->> 'ok') || '|' || (public.pintar_jadwal_pasang() ->> 'ok') || '|' || (public.pengerjaan_jadwal_pasang() ->> 'ok') || '|'
   || (select count(*) || ' ' || min(schedule) || ' ' || min(command) from cron.job where jobname = '${JOB}');
 rollback;
 ` });
@@ -338,7 +340,7 @@ rollback;
         // 2. idempotent: a third run changes nothing (no sitting, no result, no audit row); installing twice leaves one job
         c.expect(hasilnya(out, "K3|") === hasilnya(out, "K2|") && hasilnya(out, "A3|") === hasilnya(out, "A2|") && R3.dinilai === 0,
           `run 3 changed something: ${hasilnya(out, "K3|")}; audit/results ${hasilnya(out, "A2|")} -> ${hasilnya(out, "A3|")}; ${JSON.stringify(R3).slice(0, 300)}`);
-        c.expect(hasilnya(out, "P|") === `true|true|1 */5 * * * * select public.pengerjaan_tutup_terjadwal()`, `the schedule installed twice: ${hasilnya(out, "P|")}`);
+        c.expect(hasilnya(out, "P|") === `true|true|true|1 */5 * * * * select public.pengerjaan_tutup_terjadwal()`, `the schedule installed twice through the one installer and once through A1's: ${hasilnya(out, "P|")}`);
         // the job's schedule and role, as pg_cron holds them
         c.expect(psql(`select count(*) || '|' || min(schedule) || '|' || bool_and(active) || '|' || min(database) = '1|*/5 * * * *|true|' || current_database() from cron.job where jobname = '${JOB}'`) === "t",
           "the database does not hold exactly one active five-minute job by that name");
@@ -346,7 +348,7 @@ rollback;
           + "signed-in actor, ends and scores every sitting past its deadline once (FINALIZED, closure DEADLINE, one result, one audit row) and "
           + "leaves one within its deadline open; a sitting whose ending raised is listed with its error, warned to the server log, and left open; "
           + "one whose scoring raised is kept EXPIRED with its warning; neither stops the others, and the next run picks both up; a third run "
-          + "changes no sitting, result or audit row; installing the schedule twice leaves one job");
+          + "changes no sitting, result or audit row; installing the schedule twice through the one installer, and again through A1's, leaves one job");
       } finally {
         bersihkan();
       }

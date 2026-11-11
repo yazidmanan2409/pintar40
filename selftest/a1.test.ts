@@ -43,6 +43,8 @@ import { TANGGUNG_JAWAB, kunciTanggungJawab } from "../src/lib/staf-kontrak";
 
 const MIGRASI = "supabase/migrations/20270114100000_a_sitting_is_managed_where_it_was_given.sql";
 const MIGRASI_JADWAL = "supabase/migrations/20270114110000_an_abandoned_sitting_is_closed_on_a_schedule.sql";
+/** B1 (THE PLAN §6.3): the one installer that installs every PINTAR job, A1's among them; A1's installer is a call to it. */
+const MIGRASI_PEMASANG = "supabase/migrations/20270116110000_every_scheduled_job_is_declared_once_installed_by_one_installer_and_checked.sql";
 const TUGAS = { nama: "pintar-pengerjaan-tutup-terjadwal", jadwal: "*/5 * * * *", perintah: "select public.pengerjaan_tutup_terjadwal()" } as const;
 const ALASAN = "uji A1: alasan yang cukup panjang";
 
@@ -264,14 +266,26 @@ export const a1Tests: SelfTest[] = [
       try { jadwalSql = readFileSync(join(repoRoot, MIGRASI_JADWAL), "utf8").replace(/^\s*--.*$/gm, ""); } catch { jadwalSql = ""; }
       if (c.expect(jadwalSql.length > 0, `${MIGRASI_JADWAL} does not exist`)) {
         c.expect(/create extension if not exists pg_cron with schema pg_catalog;/.test(jadwalSql), "pg_cron is not created idempotently in pg_catalog");
-        const panggilan = [...jadwalSql.matchAll(/cron\.schedule\(\s*'([^']*)'\s*,\s*'([^']*)'\s*,\s*'([^']*)'\s*\)/g)];
-        c.expect(panggilan.length === 1 && panggilan[0][1] === TUGAS.nama && panggilan[0][2] === TUGAS.jadwal && panggilan[0][3] === TUGAS.perintah,
-          `the migration schedules ${panggilan.map((x) => `${x[1]} «${x[2]}» ${x[3]}`).join("; ") || "nothing"}; expected exactly ${TUGAS.nama} «${TUGAS.jadwal}» ${TUGAS.perintah}`);
-        const pasang = /create or replace function public\.pengerjaan_jadwal_pasang\(\)[\s\S]*?end \$\$;/.exec(jadwalSql)?.[0] ?? "";
-        c.expect(pasang.indexOf("cron.unschedule(") >= 0 && pasang.indexOf("cron.unschedule(") < pasang.indexOf("cron.schedule(")
-          && new RegExp(`from cron\\.job where jobname = '${TUGAS.nama}'`).test(pasang), "the installer does not unschedule a job of that name before it schedules one");
-        c.expect(/^select public\.pengerjaan_jadwal_pasang\(\);$/m.test(jadwalSql) && /revoke all on function public\.pengerjaan_jadwal_pasang\(\) from public, anon, authenticated, service_role;/.test(jadwalSql),
-          "the migration does not install through the installer, or a client or the service role may change the schedule");
+        // RESTATED, B1 (THE PLAN §6.3): A1's job is declared once, by name, schedule and command, in the one declaration of
+        // every PINTAR job, and installed by the one installer (a job of that name unscheduled first, then scheduled); A1's
+        // installer, pengerjaan_jadwal_pasang, is now a call to it, revoked as before. Was: A1's own migration scheduled its
+        // one job through its own installer (that migration is unchanged; the definitions it pinned are superseded).
+        let pemasangSql = "";
+        try { pemasangSql = readFileSync(join(repoRoot, MIGRASI_PEMASANG), "utf8").replace(/^\s*--.*$/gm, ""); } catch { pemasangSql = ""; }
+        const daftar = /create or replace function public\.pintar_jadwal_daftar\(\)[\s\S]*?\$\$;/.exec(pemasangSql)?.[0] ?? "";
+        const dideklarasikan = [...daftar.matchAll(/\('([^']*)', '([^']*)', '([^']*)'\)/g)].filter((x) => x[1] === TUGAS.nama);
+        c.expect(dideklarasikan.length === 1 && dideklarasikan[0][2] === TUGAS.jadwal && dideklarasikan[0][3] === TUGAS.perintah,
+          `the one declaration names ${dideklarasikan.map((x) => `${x[1]} «${x[2]}» ${x[3]}`).join("; ") || "nothing"} for A1; expected exactly ${TUGAS.nama} «${TUGAS.jadwal}» ${TUGAS.perintah}`);
+        const bersama = /create or replace function public\.pintar_jadwal_pasang\(\)[\s\S]*?end \$\$;/.exec(pemasangSql)?.[0] ?? "";
+        c.expect(bersama.indexOf("cron.unschedule(") >= 0 && bersama.indexOf("cron.unschedule(") < bersama.indexOf("cron.schedule(")
+          && /from cron\.job c where c\.jobname = d\.jobname/.test(bersama) && /from public\.pintar_jadwal_daftar\(\)/.test(bersama),
+          "the one installer does not unschedule each declared job by its name before it schedules it");
+        const pasang = /create or replace function public\.pengerjaan_jadwal_pasang\(\)[\s\S]*?end \$\$;/.exec(pemasangSql)?.[0] ?? "";
+        c.expect(/v := public\.pintar_jadwal_pasang\(\);/.test(pasang) && !/cron\.(un)?schedule/.test(pasang)
+          && /revoke all on function public\.pengerjaan_jadwal_pasang\(\) from public, anon, authenticated, service_role;/.test(pemasangSql)
+          && /revoke all on function public\.pintar_jadwal_pasang\(\) from public, anon, authenticated, service_role;/.test(pemasangSql)
+          && /^select public\.pintar_jadwal_pasang\(\);$/m.test(pemasangSql) && [...pemasangSql.matchAll(/cron\.schedule\(/g)].length === 1,
+          "A1's installer is not a call to the one installer, the migration does not install through it, or a client or the service role may change the schedule");
         const baru = /create or replace function public\.pengerjaan_tutup_terjadwal[\s\S]*?end \$\$;/.exec(jadwalSql)?.[0] ?? "";
         c.expect(/public\.pengerjaan_putus_tenggat\(s\.id, true\)/.test(baru) && !/\bupdate /.test(baru) && /for update;/.test(baru) && /raise warning/.test(baru),
           "the scheduled entry point is not one locked call of the deciding function per sitting, warning what it could not close");
@@ -289,7 +303,7 @@ export const a1Tests: SelfTest[] = [
       return c.verdict("every code pengerjaan_tolak raises is a signed-in caller's with its Indonesian and English sentence or the scheduler's own; "
         + "CAN_MANAGE_SITTINGS is the teacher's, the head's and the school admin's and has its words; EXPIRED is written by one function, which the lazy "
         + "check and the service-only scheduled entry point both call; the scheduler's own migration creates pg_cron in pg_catalog and installs exactly one job "
-        + "(pintar-pengerjaan-tutup-terjadwal, every five minutes, that entry point) through one idempotent installer no client may call; tangguhkan_akun holds the "
+        + "(pintar-pengerjaan-tutup-terjadwal, every five minutes, that entry point), declared once and installed by B1's one idempotent installer, which A1's installer calls and no client may call; tangguhkan_akun holds the "
         + "person's sittings in its own transaction; every client entry is declared and revoked from the signed-out role");
     },
   },

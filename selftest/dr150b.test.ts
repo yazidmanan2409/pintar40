@@ -996,20 +996,30 @@ rollback;
         // 6. RESTATED, A1 (owner, Option A): the abandoned-sitting job after a restore. pg_cron's own tables are not in the
         //    bundle; the restore's installer put the one job back; a copy without it is not safe to reopen; installing
         //    again leaves one; and the job's own command, run on the copy, ends and scores a sitting past its deadline
+        //    RESTATED, B1 (THE PLAN §6.3; F-8): every job the one installer declares (A1's and B1's daily purge) is back
+        //    on the copy, each once, as declared; a job removed by hand is named by the health read and makes the copy
+        //    unsafe to reopen; the one installer, run twice, puts each back once. Was: A1's one job and A1's installer.
         const JOB = "pintar-pengerjaan-tutup-terjadwal";
+        const JOB_B1 = "pintar-akuntabilitas-buang-lama";
         const jobs = (p: Pg) => psql(p, `select count(*) || '|' || coalesce(max(schedule || ' ' || command || ' ' || active || ' ' || database), '-') from cron.job where jobname = '${JOB}'`).out.trim();
+        const jobsB1 = (p: Pg) => psql(p, `select count(*) || '|' || coalesce(max(schedule || ' ' || command || ' ' || active || ' ' || database), '-') from cron.job where jobname = '${JOB_B1}'`).out.trim();
         const dataSql = readFileSync(join(bundle, "data.sql"), "utf8");
-        c.expect(!/^COPY "cron"\./m.test(dataSql) && /^COPY "public"\."assessment_sessions"/m.test(dataSql), "the bundle carries pg_cron's own tables, or not the sittings");
-        c.expect(/scheduled job: done/.test(a.text) && /scheduled job: installed once/.test(a.text) && jobs(target) === `1|*/5 * * * * select public.pengerjaan_tutup_terjadwal() true ${target.PGDATABASE}`,
-          `the job on the restored copy: ${jobs(target)}; ${a.text.split("\n").filter((l) => /scheduled job/.test(l)).join(" | ")}`);
-        psql(target, `select cron.unschedule('${JOB}')`);
+        c.expect(!/^COPY "cron"\./m.test(dataSql) && /^COPY "public"\."assessment_sessions"/m.test(dataSql) && /^COPY "public"\."accountability_events"/m.test(dataSql),
+          "the bundle carries pg_cron's own tables, or not the sittings or the sign-in record");
+        c.expect(/scheduled jobs: done/.test(a.text) && /scheduled jobs: 2 declared, each installed once/.test(a.text)
+          && jobs(target) === `1|*/5 * * * * select public.pengerjaan_tutup_terjadwal() true ${target.PGDATABASE}`
+          && jobsB1(target) === `1|17 19 * * * select public.akuntabilitas_buang_lama() true ${target.PGDATABASE}`,
+          `the jobs on the restored copy: ${jobs(target)}; ${jobsB1(target)}; ${a.text.split("\n").filter((l) => /scheduled job/.test(l)).join(" | ")}`);
+        psql(target, `select cron.unschedule('${JOB_B1}')`);
+        const sehat = psql(target, "select public.pintar_periksa_kesehatan() -> 'hilang'").out.trim();
         const h = restore("--verify-only", "--storage");
-        c.expect(h.code !== 0 && !/SAFE TO REOPEN/.test(h.text) && /the scheduled job pintar-pengerjaan-tutup-terjadwal is not installed exactly once/.test(h.text),
-          `a copy without its job: exit ${h.code}; ${h.text.trim().split("\n").slice(-2).join(" | ").slice(0, 300)}`);
-        const pasang = psql(target, "select public.pengerjaan_jadwal_pasang() ->> 'ok'; select public.pengerjaan_jadwal_pasang() ->> 'ok';");
+        c.expect(sehat === `["${JOB_B1}"]` && h.code !== 0 && !/SAFE TO REOPEN/.test(h.text) && new RegExp(`the scheduled job ${JOB_B1} is not installed \\(missing\\)`).test(h.text),
+          `a copy with a job removed by hand: the health read names ${sehat}; exit ${h.code}; ${h.text.trim().split("\n").slice(-2).join(" | ").slice(0, 300)}`);
+        psql(target, `select cron.unschedule('${JOB}')`);
+        const pasang = psql(target, "select public.pintar_jadwal_pasang() ->> 'ok'; select public.pintar_jadwal_pasang() ->> 'ok';");
         const i = restore("--verify-only", "--storage");
-        c.expect(pasang.ok && pasang.out.trim() === "true\ntrue" && jobs(target).startsWith("1|") && i.code === 0 && /SAFE TO REOPEN/.test(i.text),
-          `the installer run twice on the copy: ${pasang.out.trim().replace(/\n/g, ",")} ${pasang.err}; jobs ${jobs(target)}; verification exit ${i.code}`);
+        c.expect(pasang.ok && pasang.out.trim() === "true\ntrue" && jobs(target).startsWith("1|") && jobsB1(target).startsWith("1|") && i.code === 0 && /SAFE TO REOPEN/.test(i.text),
+          `the one installer run twice on the copy: ${pasang.out.trim().replace(/\n/g, ",")} ${pasang.err}; jobs ${jobs(target)} / ${jobsB1(target)}; verification exit ${i.code}`);
         // (last, because it changes the copy: a finished sitting of the copy is made open and overdue again, past the triggers)
         const jalan = psql(target, `begin; set local session_replication_role = replica;
           create temp table dr_d02_s on commit drop as select s.id from public.assessment_sessions s
@@ -1039,7 +1049,7 @@ rollback;
         "every Storage file read back with its hash, anon's reach as its source's, the extension baseline held and readiness as its source: SAFE TO " +
         "REOPEN; an extension added on the copy makes its verification refuse, and removing it makes it safe again; after a native-like loss " +
         "(a file gone, its row kept) --files-only puts the file back by hash and changes no row, and a row the bundle has no file for is named; " +
-        "pg_cron's own tables are not in the bundle, the restore's installer puts the abandoned-sitting job back exactly once, a copy without it is " +
+        "pg_cron's own tables are not in the bundle, the restore's one installer puts both declared jobs (the abandoned-sitting job and the sign-in record's purge) back exactly once, a copy with one removed by hand is named by the health read and " +
         "refused, installing twice leaves one, and the job's own command on the copy ends and scores a sitting past its deadline, once");
     },
   },

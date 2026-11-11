@@ -77,7 +77,8 @@ function alamatKonfigurasiBaru(url: URL): string | null {
   const m = /^\/konfigurasi\/([^/]+)\/?$/.exec(url.pathname);
   // E5 and §11 (owner, 9 Nov): «staf», one person's roles and duties, is a page of its own like the three before it
   // A1 (O41-16): «kesempatan», the approver's queue of requests for another attempt, is a page of its own too
-  if (m && !adalahBagian(m[1]) && !["keamanan", "email-uji", "sertifikat", "staf", "kesempatan"].includes(m[1])) return "/konfigurasi";
+  // B1: «catatan-masuk», the sign-in and print record beside «Jejak audit», is a page of its own too
+  if (m && !adalahBagian(m[1]) && !["keamanan", "email-uji", "sertifikat", "staf", "kesempatan", "catatan-masuk"].includes(m[1])) return "/konfigurasi";
   return null;
 }
 

@@ -2078,6 +2078,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
           {/* B1: only the page's own section is drawn */}{tampilDi("audit") ? (
 <section id="audit" hidden={!tampilDi("audit") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.audit")}</h2>
+            {/* B1 · accountability events: the sign-in and print record is read on its own page, beside the trail */}
+            <p className="mt-1 text-sm text-ink-3" data-akuntabilitas-tautan=""><Link className="pin-tautan" href="/konfigurasi/catatan-masuk">{s("akuntabilitas.tautan")}</Link> · {s("akuntabilitas.tautan_arti")}</p>
             {/* B1 (D-166(a)), RV-24: the audit trail is the design system's Table (TableRows: striped, and the stripes
                 print), with its caption. «Versi» is a platform operator's diagnostic: drawn for Admin platform only, and
                 only when a row on this page carries a build; a row without one leaves its cell empty, never «—». */}

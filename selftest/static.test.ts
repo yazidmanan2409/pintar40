@@ -11,6 +11,7 @@ import { join, relative, basename } from "node:path";
 import { Checks, compiledBundle, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
+import { b1Tests } from "./b1.test";
 import { emailTests } from "./email.test";
 import { d1Tests } from "./d1.test";
 import { retroTests } from "./retro.test";
@@ -2243,4 +2244,6 @@ export const staticTests: SelfTest[] = [
   ...a1LayarTests.filter((x) => ["A1-K02", "A1-S08", "A1-S09"].includes(x.id)),
   ...c1wTests,
   ...c1wLayarTests.filter((x) => x.id === "C1W-K02"),
+  // B1 · accountability events: the source, the helper, the database and the one installer
+  ...b1Tests,
 ];

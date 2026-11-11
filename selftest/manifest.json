@@ -3735,7 +3735,7 @@
     {
       "id": "DR-D02",
       "runner": "static",
-      "proves": "#150 WP-B, the secondary logical path end to end (D-106(j); selftest/dr150b.test.ts): a bundle collected by scripts/recovery/backup.mjs as pintar_backup from CI's database and Storage executes through scripts/recovery/restore-bundle.mjs into a second, empty Supabase stack (a new project's stand-in, with its own default privileges): 0 differences in every table's rows and content hash, every function's definition, owner and execute rights, the table rights, the auth.users triggers, the pre-request and the policies; every Storage file put back and read back with its hash; anon's reach equal to its source's; the extension baseline held; readiness as its source; SAFE TO REOPEN. An extension added on the copy afterwards makes its verification refuse to call it safe (D-108(c)(8)), and removing it makes it safe again. RESTATED FOR #150 WP-C (B9 after a native restore): with a file lost on the copy while its storage.objects row stays, scripts/recovery/restore-bundle.mjs --files-only puts the file back from the bundle, read back by SHA-256, changes no row, and the copy verifies SAFE TO REOPEN again; a row the bundle has no file for is named and the run is red. RESTATED, A1 (owner, Option A): in addition, the bundle carries no pg_cron table and still the sittings; the restore's installer (public.pengerjaan_jadwal_pasang) puts the abandoned-sitting job back exactly once and the verification reads it; a copy without the job is refused SAFE TO REOPEN; installing twice leaves one job and is safe again; and the job's own command, run on the restored copy, ends and scores a sitting past its deadline once; every other assertion is unchanged."
+      "proves": "#150 WP-B, the secondary logical path end to end (D-106(j); selftest/dr150b.test.ts): a bundle collected by scripts/recovery/backup.mjs as pintar_backup from CI's database and Storage executes through scripts/recovery/restore-bundle.mjs into a second, empty Supabase stack (a new project's stand-in, with its own default privileges): 0 differences in every table's rows and content hash, every function's definition, owner and execute rights, the table rights, the auth.users triggers, the pre-request and the policies; every Storage file put back and read back with its hash; anon's reach equal to its source's; the extension baseline held; readiness as its source; SAFE TO REOPEN. An extension added on the copy afterwards makes its verification refuse to call it safe (D-108(c)(8)), and removing it makes it safe again. RESTATED FOR #150 WP-C (B9 after a native restore): with a file lost on the copy while its storage.objects row stays, scripts/recovery/restore-bundle.mjs --files-only puts the file back from the bundle, read back by SHA-256, changes no row, and the copy verifies SAFE TO REOPEN again; a row the bundle has no file for is named and the run is red. RESTATED, A1 (owner, Option A): in addition, the bundle carries no pg_cron table and still the sittings; the restore's installer (public.pengerjaan_jadwal_pasang) puts the abandoned-sitting job back exactly once and the verification reads it; a copy without the job is refused SAFE TO REOPEN; installing twice leaves one job and is safe again; and the job's own command, run on the restored copy, ends and scores a sitting past its deadline once; every other assertion is unchanged. RESTATED, B1 (THE PLAN §6.3; C1w finding F-8): every job the one installer declares (A1's and B1's daily purge) is back on the restored copy exactly once, as declared; a job removed by hand is named by the health read (pintar_periksa_kesehatan) and makes the copy unsafe to reopen; the one installer, run twice, puts each back once."
     },
     {
       "id": "DR-D03",
@@ -5549,7 +5549,7 @@
     {
       "id": "A1-K01",
       "runner": "static",
-      "proves": "A1, selftest/a1.test.ts, reads supabase/migrations/20270114100000_a_sitting_is_managed_where_it_was_given.sql and executes src/lib/pengerjaan-kontrak.ts with src/lib/hle.ts: every code pengerjaan_tolak raises (PR170) is a signed-in caller's, each with its sentence in Indonesian and English (a held sitting is never called suspended), or the scheduler's own; a refusal is read by its PR170 DETAIL alone; CAN_MANAGE_SITTINGS is held by exactly EDUCATOR, HEAD_OF_DEPARTMENT and INSTITUTION_ADMIN, a teacher holds no integrity authority, and the staff page has words for the capability; EXPIRED is written by one function (pengerjaan_putus_tenggat), which the lazy check (session_enforce_deadline) and the service-only scheduled entry point (pengerjaan_tutup_terjadwal) both call and neither repeats; that migration enables no extension and schedules nothing (the scheduler's own migration does, below); tangguhkan_akun holds the person's sittings in its own transaction and never writes PAUSED; every client entry is declared in client_rpc_registry and revoked from the signed-out role RESTATED, A1 (owner, Option A): the scheduler's own migration (20270114110000) creates pg_cron in pg_catalog and installs exactly one job (pintar-pengerjaan-tutup-terjadwal, every five minutes, the entry point) through one idempotent installer, pengerjaan_jadwal_pasang, that no client or service role may call; the entry point re-reads each sitting under its row lock and warns what it could not close."
+      "proves": "A1, selftest/a1.test.ts, reads supabase/migrations/20270114100000_a_sitting_is_managed_where_it_was_given.sql and executes src/lib/pengerjaan-kontrak.ts with src/lib/hle.ts: every code pengerjaan_tolak raises (PR170) is a signed-in caller's, each with its sentence in Indonesian and English (a held sitting is never called suspended), or the scheduler's own; a refusal is read by its PR170 DETAIL alone; CAN_MANAGE_SITTINGS is held by exactly EDUCATOR, HEAD_OF_DEPARTMENT and INSTITUTION_ADMIN, a teacher holds no integrity authority, and the staff page has words for the capability; EXPIRED is written by one function (pengerjaan_putus_tenggat), which the lazy check (session_enforce_deadline) and the service-only scheduled entry point (pengerjaan_tutup_terjadwal) both call and neither repeats; that migration enables no extension and schedules nothing (the scheduler's own migration does, below); tangguhkan_akun holds the person's sittings in its own transaction and never writes PAUSED; every client entry is declared in client_rpc_registry and revoked from the signed-out role RESTATED, A1 (owner, Option A): the scheduler's own migration (20270114110000) creates pg_cron in pg_catalog and installs exactly one job (pintar-pengerjaan-tutup-terjadwal, every five minutes, the entry point) through one idempotent installer, pengerjaan_jadwal_pasang, that no client or service role may call; the entry point re-reads each sitting under its row lock and warns what it could not close. RESTATED, B1 (THE PLAN §6.3): A1's job is declared once in the one declaration of every PINTAR job (pintar_jadwal_daftar, migration 20270116110000) and installed by the one installer, pintar_jadwal_pasang (each declared job unscheduled by name first); A1's installer, pengerjaan_jadwal_pasang, is a call to it; neither is a client's or the service role's."
     },
     {
       "id": "A1-S01",
@@ -5614,7 +5614,7 @@
     {
       "id": "A1-S08",
       "runner": "static",
-      "proves": "A1 · sitting control, the scheduler (owner's Option A: pg_cron), selftest/a1-layar.test.ts, against supabase/migrations/20270114110000_an_abandoned_sitting_is_closed_on_a_schedule.sql, in the database on the seeded learning-cycle school with sittings nobody touches again: pg_cron's own command for the one job (read from cron.job), executed with no signed-in actor, ends and scores every sitting past its deadline once (FINALIZED, closure DEADLINE, one result, one audit row) and leaves one within its deadline open; a sitting whose ending raises is listed with its error, warned to the server log and left open, one whose scoring raises is kept EXPIRED with its warning, neither stops the others and the next run picks both up; a further run changes no sitting, result or audit row; installing the schedule twice (pengerjaan_jadwal_pasang) leaves exactly one active five-minute job"
+      "proves": "A1 · sitting control, the scheduler (owner's Option A: pg_cron), selftest/a1-layar.test.ts, against supabase/migrations/20270114110000_an_abandoned_sitting_is_closed_on_a_schedule.sql, in the database on the seeded learning-cycle school with sittings nobody touches again: pg_cron's own command for the one job (read from cron.job), executed with no signed-in actor, ends and scores every sitting past its deadline once (FINALIZED, closure DEADLINE, one result, one audit row) and leaves one within its deadline open; a sitting whose ending raises is listed with its error, warned to the server log and left open, one whose scoring raises is kept EXPIRED with its warning, neither stops the others and the next run picks both up; a further run changes no sitting, result or audit row; installing the schedule twice (pengerjaan_jadwal_pasang) leaves exactly one active five-minute job RESTATED, B1 (THE PLAN §6.3): the schedule is installed twice through the one installer (pintar_jadwal_pasang) and once more through A1's installer, now a call to it, and A1's job is still exactly one, as declared."
     },
     {
       "id": "A1-S09",
@@ -5680,6 +5680,67 @@
       "id": "C1W-J01",
       "runner": "app",
       "proves": "C1w · the item workbench, the screens (docs/completion-4.1/batches/C1W-COMPLETION.md; Daisy's review TINJAUAN-A1-C1W Q5, Q6, §C1·N1, §C1·N2, the missing states, C1-B1, C1-B2, C1-R1..R5), selftest/c1w-layar.test.ts, read from the rendered html of the production build route by route, the journey «a wrong key, found and corrected» through the running app with no engineer: the author writes a question's key in the editor (mistyped); the package is approved, locked and published by the people whose steps they are; the class sits; the content owner walks «Perbaiki kunci jawaban»'s three steps with the exact counts and sees her own waiting state with no button; the second person finds it in «Antrean Tinjauan» and confirms through the dialog; the sitting keeps its sealed result and gains one result in force; the teacher's report shows the result in force with its note and reason; the learner's result page shows it as current, corrected, with the original; the class's assignment is on the corrected release"
+    },
+    {
+      "id": "B1-K01",
+      "runner": "static",
+      "proves": "B1 · accountability events (docs/completion-4.1/batches/B1-COMPLETION.md), selftest/b1.test.ts, reads supabase/migrations/20270116100000_a_sign_in_a_sign_out_and_a_print_are_kept_on_the_record_for_twelve_months.sql and src/: every code akuntabilitas_tolak raises (PR200) is the contract's (src/lib/akuntabilitas-kontrak.ts) with its message; each kind, method and failure outcome has one sentence in Indonesian and English (src/lib/hle.ts) naming no mechanism and no Auth text; the store is closed to every client role; the reader is declared and the writer, purge and counter are the service's alone; the writer computes the schools itself; ONLY src/app/api/_akuntabilitas/catat.ts calls the writer, and each route of THE PLAN §5.1 table C calls the helper once, after its decision and before its answer; the origin is alamatKlien's alone; a link request writes a hash-only failure for an unknown address and the success is the callback's."
+    },
+    {
+      "id": "B1-K02",
+      "runner": "static",
+      "proves": "B1, selftest/b1.test.ts, executes the source of src/app/api/_akuntabilitas/catat.ts with its writer replaced: the coarse origin (IPv4 /24, IPv6 /48, an IPv4-mapped address as IPv4) from x-real-ip only; the identifier hash is HMAC-SHA256 with the existing pepper under the store's own label over the normalised identifier; one request writes once (blocker 2), two requests twice, a request whose Auth call was retried once; a failed or timed-out write neither throws nor blocks, is logged without the identifier and counted; a print fails closed."
+    },
+    {
+      "id": "B1-S01",
+      "runner": "static",
+      "proves": "B1, selftest/b1.test.ts, in the database, rolled back, against supabase/migrations/20270116100000_a_sign_in_a_sign_out_and_a_print_are_kept_on_the_record_for_twelve_months.sql: a successful and a failed sign-in each leave exactly one row; the two-school snapshot (blocker 1: both admins read it, a school left before and one joined after read nothing, later changes move no stored snapshot); an empty snapshot is the platform admin's only; a print at school A by a person at A and B is A's alone, by its resource (execution requirement 3); the network origin is the platform admin's alone; a reference typed in any form finds its print; the writer refuses a signed-in caller, an address, a hash on a success and a print without a school's resource; no client role, the service role included, selects, inserts, updates or deletes."
+    },
+    {
+      "id": "B1-S02",
+      "runner": "static",
+      "proves": "B1, selftest/b1.test.ts, in the database, rolled back, against migration 20270116100000 (blocker 3, the L4 regression): after hapus_data_pribadi the person's rows keep kind, instant and person and hold no network origin and no identifier hash; the same update without the deletion's marker, under another person's marker, touching another column, and any delete are refused; another person's rows are untouched."
+    },
+    {
+      "id": "B1-S03",
+      "runner": "static",
+      "proves": "B1, selftest/b1.test.ts, in the database, rolled back, against migration 20270116100000: a row aged twelve months and a day is purged with one audit row (count, oldest and newest instant); rows at eleven months and an hour short of twelve stay; a run that deletes nothing writes no audit row; a delete outside the purge, a younger row under its marker and a truncate are refused; a signed-in caller may not purge; twelve months is the function's constant."
+    },
+    {
+      "id": "B1-S04",
+      "runner": "static",
+      "proves": "B1, selftest/b1.test.ts, in the database, rolled back (THE PLAN §5.1 E, the F07-P11 pattern): metric_sources refuses the sign-in record; assert_accountability_is_not_evidence holds as built and fails, by name, for a calculator reading the store and for a view built over it."
+    },
+    {
+      "id": "B1-R01",
+      "runner": "static",
+      "proves": "B1 · the one job installer (THE PLAN §6.3; C1w finding F-8), selftest/b1.test.ts, in the database, rolled back, against supabase/migrations/20270116110000_every_scheduled_job_is_declared_once_installed_by_one_installer_and_checked.sql: both jobs declared and installed once as declared; a job removed by hand is reported missing, a changed one different, an undeclared pintar-* job named; A1's installer (now a call to the shared one) and the shared one restore each once; counted writer failures make the health read report them; neither installer nor health read is the service role's."
+    },
+    {
+      "id": "B1-C01",
+      "runner": "static",
+      "proves": "B1, selftest/b1.test.ts, against migration 20270116100000, on real database connections with committed aged rows: a purge run that finds every row locked by another run deletes none and does not wait; a run beside another's batch in flight deletes the rest and the next run the locked half (FOR UPDATE SKIP LOCKED); every row is deleted once and the audit rows add up to the rows deleted; nothing of the scenario is left behind (THE PLAN §4.1 P3)."
+    },
+    {
+      "id": "B1-A01",
+      "runner": "app",
+      "proves": "B1 · accountability events through the running app, selftest/b1-layar.test.ts, with live Auth and PostgREST, the seeded teacher and class card: every sign-in path of THE PLAN §5.1 table C and each failure code met on the way (password wrong twice, unknown name, right; class card wrong and right; a recovery code that does not match; a PINTAR ID nobody holds and a malformed one; a new password with no grant; a sign-in link that could not be used at the callback) and each browser's sign-out: each request leaves exactly one row (two attempts two rows) with its kind, method, the route's own code, the person where the identifier named one (the snapshot of their schools), a hash on a failure only and the /24; no text column holds a password, PIN, code, card number, typed name or full address; nothing of the test is left behind."
+    },
+    {
+      "id": "B1-A02",
+      "runner": "app",
+      "proves": "B1, selftest/b1-layar.test.ts, through the running app's routes with a failure planted on the store: the sign-in and the sign-out answer as ever, nothing is written, each failure is counted and the health read (pintar_periksa_kesehatan) reports the count; the plant, the count and the test's rows are gone afterwards."
+    },
+    {
+      "id": "B1-L01",
+      "runner": "app",
+      "proves": "B1 «Catatan masuk dan cetak», selftest/b1-layar.test.ts, through the running app's rendered html (route /konfigurasi/catatan-masuk): a teacher is refused; a school's administrator reads their own sign-in by name without the network origin; the platform administrator reads it with its /24 and never the address; a reference not there says the purged reference's own sentence; no match says so; the kind filter holds; «Jejak audit» links to it; the test's rows are gone afterwards."
+    },
+    {
+      "id": "B1-A03",
+      "runner": "app",
+      "proves": "B1, selftest/b1-layar.test.ts, through the running app's routes, the paths that need the mail sink, with a person activated for the test: the right recovery code (SIGN_IN_OK by CODE) and its new password, a wrong PIN for the person's own ID (the person found by the ID), the right PIN (SIGN_IN_OK by RECOVERY_PIN) and its new password, and each sign-out: one row each, no secret in any text column; no live role, session or event row left behind.",
+      "skip_justification": "B1-A03 needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
     }
   ]
 }

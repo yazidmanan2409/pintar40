@@ -3948,3 +3948,24 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-kunci-banding { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--space-1) * 55)), 1fr)); gap: var(--space-3); }
 /* C1w (O41-19): «Sedang ditinjau (n)» stands apart from the certificates list under it */
 .pin-sertifikat-ditinjau { margin-bottom: var(--space-5); }
+
+/* B1 «Catatan masuk dan cetak» (tokens only): the filters on one wrapping row; the Collection's frame and table, whose
+   rows stack below 640 px, each cell under its own label (the column heads are read, not drawn) */
+.pin-akuntabilitas-saring { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: flex-end; margin: var(--space-4) 0; min-width: 0; }
+.pin-akuntabilitas-saring > .pin-bidang { flex: 1 1 calc(var(--space-5) * 7); min-width: 0; display: grid; gap: var(--space-1); }
+.pin-akuntabilitas-saring .pin-cari { max-width: none; }
+.pin-akuntabilitas-saring .pin-input { width: 100%; min-width: 0; }
+.pin-akuntabilitas-saring > .pin-actions { flex: 1 1 100%; }
+@container (max-width: 639px) {
+  .pin-akuntabilitas .pin-tabel-bingkai { overflow-x: visible; }
+  .pin-akuntabilitas .pin-tabel, .pin-akuntabilitas .pin-tabel tbody, .pin-akuntabilitas .pin-tabel tr,
+  .pin-akuntabilitas .pin-tabel th, .pin-akuntabilitas .pin-tabel td { display: block; width: 100%; }
+  .pin-akuntabilitas .pin-tabel thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .pin-akuntabilitas .pin-tabel tbody tr > * { height: auto; border-bottom: 0; padding: var(--space-1) var(--space-4); }
+  .pin-akuntabilitas .pin-tabel tbody tr { padding: var(--space-2) 0; border-bottom: var(--border-hairline) solid var(--line); }
+  .pin-akuntabilitas .pin-tabel tbody tr:last-child { border-bottom: 0; }
+  .pin-akuntabilitas .pin-tabel .pin-tabel-nama { position: static; min-width: 0; }
+  .pin-akuntabilitas .pin-tabel td[data-label]::before { content: attr(data-label) ": "; color: var(--ink-2); }
+  .pin-akuntabilitas .pin-tabel td:empty { display: none; }
+  .pin-akuntabilitas .pin-tabel td, .pin-akuntabilitas .pin-tabel th { overflow-wrap: anywhere; }
+}

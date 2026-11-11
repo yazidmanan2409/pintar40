@@ -5,6 +5,8 @@ import { alamatKlien, fetchBerpenerus } from "@/lib/auth-forwarding";
 import { asalSendiri, masukDenganKartu, type HasilRuteKartu } from "@/lib/kartu-masuk";
 import { tujuanMasuk } from "@/app/masuk/actions";
 import { keluarPerangkatIni } from "@/lib/keluar";
+import { catatAkuntabilitas, normalPengenal } from "@/app/api/_akuntabilitas/catat";
+import { cardEmail } from "@/lib/card";
 
 /**
  * BOB-12: THE CLASS CARD'S SIGN-IN, served at `/masuk/kartu` (next.config.ts
@@ -16,6 +18,9 @@ import { keluarPerangkatIni } from "@/lib/keluar";
  * The decisions are src/lib/kartu-masuk.ts; the codes src/lib/kartu-kontrak.ts.
  * Always JSON, always no-store. On a match the session cookies are set on this
  * response, with a card's 60-minute lifetime (supabaseServer, BOB-05).
+ *
+ * B1: once the answer is final, one event (src/app/api/_akuntabilitas/catat.ts): the card's account and, on a success, the user
+ * Auth signed in; a card CR-91 refused is a failure (CARD_REQUEST_REFUSED). Never the card number or the PIN.
  */
 export const dynamic = "force-dynamic";
 
@@ -43,6 +48,7 @@ export async function POST(request: NextRequest) {
   };
   // The new session's own client, made once: it signs in, is asked CR-91's question, and is ended if refused.
   let klien: Awaited<ReturnType<typeof supabaseServer>> | null = null;
+  let masukSebagai: string | null = null;
   const sesi = async () => (klien ??= await supabaseServer({ fetch: fetchBerpenerus(alamatKlien(request.headers), rekam) }));
   const hasil = await masukDenganKartu(
     { origin, kartu: fd?.get("kartu"), pin: fd?.get("pin"), lanjut: fd?.get("lanjut") ?? null },
@@ -57,7 +63,8 @@ export async function POST(request: NextRequest) {
         if (error) throw new Error(error.code ?? "refused");
       },
       masuk: async (email, password) => {
-        const { error } = await (await sesi()).auth.signInWithPassword({ email, password });
+        const { data, error } = await (await sesi()).auth.signInWithPassword({ email, password });
+        masukSebagai = error ? null : data.user?.id ?? null;
         return { error: error ? { status: error.status, code: error.code, name: error.name } : null, jeda };
       },
       // CR-91: asked by the session that just signed in, never by the service role
@@ -72,6 +79,10 @@ export async function POST(request: NextRequest) {
       catatGalat: (ref, apa) => console.error(`[masuk/kartu] ref=${ref} ${apa}`),
     },
   );
+  const kartu = normalPengenal("kartu", fd?.get("kartu"));
+  await catatAkuntabilitas(request.headers, "masuk/kartu", hasil.body.ok
+    ? { jenis: "SIGN_IN_OK", cara: "CARD", hasil: "OK", authUserId: masukSebagai }
+    : { jenis: "SIGN_IN_FAILED", cara: "CARD", hasil: hasil.body.code, pengenal: kartu ? cardEmail(kartu) : null, diketik: kartu || null });
   return jawab(hasil);
 }
 
