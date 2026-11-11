@@ -1,0 +1,79 @@
+# Sign-in by a suspended or closed account · bounded correction
+
+> **Coordination record.** Owner's decision of 11 November 2026 (approved). Kept by the Chief Architect. A separate,
+> small correction to existing 4.0 behaviour, run **alongside the C1w F-1 pass, after B1 closes and before B2**. It is
+> not a batch, changes no part of THE PLAN, and is **not** a redesign of authentication.
+
+## 1 · The defect
+
+| | |
+|---|---|
+| Reported by | The engineer, during B1's correction pass (`B1-ARCHITECT-CHECK.md` §9) |
+| What | A suspended or closed account that tries to sign in is answered "cannot check right now" (503). A wrong password is answered with the normal refusal (401) |
+| Consequences | A suspended person is told the service is down. An outside observer can tell a suspended or closed account from a wrong password, so the response discloses that the account exists and its state |
+| Cause, read in the code | `akun_kunci` (`M/20270113130000…:104-114`) locks an account by `update auth.users set banned_until = 'infinity'::timestamptz`. The Auth service cannot read that value as a time, fails, and the sign-in route reports a failed service |
+
+## 2 · Whether hosted Auth does the same (the owner's first instruction)
+
+**Not yet observed; expected.** The value is written directly into `auth.users` by PINTAR's own function, and the
+hosted Auth service is the same software reading the same column, so the same failure is expected on staging. The
+Chief Architect has not run a sign-in against a hosted project: that needs a suspended test account and a credential,
+which are the owner's to provide, and production is outside every authorization.
+
+**To establish it (engineer, on staging only, with a test account the owner designates):** suspend the account, try
+to sign in with the right and with a wrong password, and record the route's status and the Auth log's line for each.
+No real person's account is used.
+
+**The correction does not wait on the answer.** A stored ban value that Auth can read is right in both cases, and the
+disclosure through distinguishable responses must be closed in both cases. The observation decides only how urgent a
+later staging promotion is.
+
+## 3 · What the correction must do (owner's decision)
+
+1. **Correct the underlying failure:** the lock stores a value Auth can read, for example a fixed far-future instant
+   through one named constant. Nothing else in the account lifecycle changes.
+2. **No disclosure through the response.** From outside, a suspended account, a closed account, an anonymised
+   account, an unknown address and a wrong password are indistinguishable: the same status, the same body, the same
+   wording. The engineer also checks that response time does not differ grossly between them, and records what was
+   measured.
+3. **Accurate internal diagnostics and audit.** Inside, the true reason is kept: the route's own stable failure code,
+   the server log (without the identifier), and B1's accountability event with the outcome an authorized admin may
+   read. What the outside is told and what the record holds are deliberately different.
+4. **Bounded.** No change to how suspension, closure or reinstatement are decided, to session ending, or to any
+   other sign-in rule.
+
+## 4 · The four questions, asked of this correction
+
+| Question | What the pass must answer |
+|---|---|
+| And then what? | The suspended person sees the ordinary refusal. Is there any honest route for them to learn they are suspended, such as the existing notice or their school? That is existing behaviour to confirm, not new work |
+| What else did that change? | Every reader of `banned_until`: the `= 'infinity'` comparisons in the suite (`selftest/db/fable38.sql:865,908`) and any function, view or page that tests the lock; every sign-in method (password, card, link, code, recovery PIN) and the password-reset and activation routes; Auth's admin listing of users, which reads the same column; B1's recorded outcome for these attempts |
+| What happens when things go wrong? | Auth genuinely unavailable must still answer 503: the correction must not turn a real outage into "wrong password" |
+| Can it be reversed, and what survives? | Reinstatement still clears the lock and sign-in works again. **Accounts already suspended hold the old value:** one migration rewrites them to the new one. On staging that is part of a later authorized promotion; production is outside authorization |
+
+## 5 · Tests (red first on the commit before the pass)
+
+- Each sign-in method against a suspended, a closed and an anonymised account: the same status and body as a wrong
+  password. Red today: 503.
+- A wrong password, and an unknown address: unchanged.
+- Auth unreachable: still 503.
+- Suspend, then reinstate: sign-in refused, then works.
+- An account locked under the old value, after the migration: refused in the ordinary way.
+- B1's event for each: the internal outcome is the specific one; nothing specific reaches the response.
+
+The pre-flight of THE PLAN §4.1 (P1 to P6) applies in full. P1's search for readers of the lock is the part most
+likely to find something this page did not.
+
+## 6 · Review and order
+
+- **Sharon:** once, on the pass's exact commit: the corrected behaviour and the security boundary.
+- **Daisy:** only if any wording a user sees changes.
+- **Order at the boundary after B1:** the F-1 pass and this pass are independent (different code). They may be built
+  one after the other in either order, each as its own commit with its own review. B2 opens when both have Sharon's
+  PASS.
+
+## 7 · Log
+
+| Date | Entry |
+|---|---|
+| 11 Nov 2026 | Reported by the engineer. Owner approved the bounded correction. Scheduled after B1's close, alongside F-1, before B2 |

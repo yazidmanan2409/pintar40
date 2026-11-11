@@ -152,3 +152,18 @@ accounts exist and are suspended). It is not in THE PLAN, so adding its correcti
 B2; Sharon reviews it once. Before that, confirm on a running hosted-like Auth whether the 503 occurs there, because
 that decides its urgency. The correction must answer: the ban value Auth can read; the same generic refusal as a
 wrong password; accounts already suspended (their stored value); reinstatement; and B1's recorded failure code.
+
+## 10 · Owner's decisions on the two findings (11 Nov 2026)
+
+1. **Sign-in by a suspended or closed account:** bounded correction **approved**. Its record is
+   `AUTH-SUSPENDED-SIGNIN-CORRECTION.md`. After B1's close, alongside F-1, before B2.
+2. **A gap in the accountability record (Daisy's B1-R4): accepted.** The platform admin's reader must not silently
+   imply completeness when recording failures have been detected.
+   - **What is added:** one concise, qualified notice in the platform admin's view of the reader, linking to the
+     platform health information, shown when the health check reports unrecorded events in the period shown.
+   - **Limits:** it does not name specific missing records or affected schools unless that is reliably known.
+     School-facing notices are deferred until an attribution mechanism is properly designed.
+   - **When:** **not in the corrected candidate `1fc719b5`** if its pre-flight is under way; it is not to be
+     interrupted. Tracked for completion at a suitable boundary **before Z**. The natural one is B2, which works in
+     the same reader for the print reference. Wording is Daisy's; one result review covers it there.
+   - **Open until done:** this item. Z does not start with it open.
