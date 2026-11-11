@@ -3906,3 +3906,31 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 /* Daisy (TINJAUAN-6faef690 §1): «Akhiri» or «Tarik», following the kind chosen above it */
 .pin-akhiri:has(input[name="jenis"][value="ENDED"]:checked) [data-akhiri-untuk="WITHDRAWN"],
 .pin-akhiri:has(input[name="jenis"][value="WITHDRAWN"]:checked) [data-akhiri-untuk="ENDED"] { display: none; }
+
+/* A1 · SITTING CONTROL (Daisy, TINJAUAN-A1-C1W Q4). The instrument choice is the segmented control as links; under a
+   learner's name, the sitting's own line; the act panel is the «Akhiri penugasan» panel's shape, one act per form.
+   «Akhiri sesi» draws both confirmations and shows the one the chosen radio names, and neither before a choice. */
+.pin-seg-tautan { margin-bottom: var(--space-5); }
+.pin-seg-tautan a { display: block; flex: none; text-decoration: none; border-radius: var(--radius-md); }
+.pin-seg-tautan a:hover:not([aria-current]) span { color: var(--ink-1); background-color: var(--surface-3); }
+.pin-seg-tautan a[aria-current="page"] span { background-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pin-seg-tautan a:focus-visible { outline: none; }
+.pin-seg-tautan a:focus-visible span { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 0; }
+/* A1: the acts of one material's row («Akhiri atau tarik», «Ubah jadwal») sit beside each other and wrap as links */
+.pin-baris-tindakan { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); align-items: baseline; }
+.pin-baris-tindakan:empty { display: none; }
+.pin-atur-meta { display: block; margin-top: var(--space-1); font-weight: var(--weight-normal); }
+.pin-atur-tindakan { border-top: var(--border-hairline) solid var(--line); padding-top: var(--space-5); margin-top: var(--space-5); }
+.pin-atur-tindakan h3 { margin: 0 0 var(--space-3); font-size: var(--type-body); font-weight: var(--weight-strong); }
+.pin-atur-tindakan .pin-hint { margin-top: var(--space-1); }
+.pin-atur-waktu [data-menit-untuk] { display: none; }
+.pin-atur-waktu:has(option[value="5"]:checked) [data-menit-untuk="5"],
+.pin-atur-waktu:has(option[value="10"]:checked) [data-menit-untuk="10"],
+.pin-atur-waktu:has(option[value="15"]:checked) [data-menit-untuk="15"],
+.pin-atur-waktu:has(option[value="30"]:checked) [data-menit-untuk="30"] { display: flex; }
+.pin-atur-akhiri [data-cara-untuk] { display: none; }
+.pin-atur-akhiri:has(input[name="cara"][value="SCORED"]:checked) [data-cara-untuk="SCORED"],
+.pin-atur-akhiri:has(input[name="cara"][value="NOT_COUNTED"]:checked) [data-cara-untuk="NOT_COUNTED"] { display: flex; }
+.pin-antrean { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-5); }
+.pin-antrean > li { border-top: var(--border-hairline) solid var(--line); padding-top: var(--space-4); display: grid; gap: var(--space-2); }
+.pin-antrean .pin-title { font-weight: var(--weight-strong); }

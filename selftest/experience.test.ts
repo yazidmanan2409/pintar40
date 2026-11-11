@@ -355,6 +355,8 @@ const RESET_SURFACES = [
   "src/app/konfigurasi/sertifikat/page.tsx",
   // E5 and §11 (owner, 9 Nov): one person's roles and duties, built on the token set and the shared pin-* classes
   "src/app/konfigurasi/staf/page.tsx",
+  // A1 (O41-17): «Permintaan kesempatan tambahan», built on the token set and the shared pin-* classes
+  "src/app/konfigurasi/kesempatan/page.tsx",
   // Owner ruling 2 (9 Nov): «Minta akun dibuka kembali» on the sign-in page's stage, built on the token set
   "src/app/masuk/buka-kembali/page.tsx",
   // DAISY-20 (Gate 3): «Aktifkan akun PINTAR Anda» on the sign-in page's

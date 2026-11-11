@@ -8,7 +8,7 @@
 --            the open sitting open, and no audit row is written.
 --   F38-W03  W2.21: ended on the record. With the confirmation: the assignment is ENDED and its assessments CLOSED; the
 --            finished sitting and its result are unchanged; the open sitting is TERMINATED as ADMINISTRATIVE_TERMINATION
---            with the reason, its answers kept and its audit row; the one past its deadline EXPIRES; one
+--            with the reason, its answers kept and its audit row; the one past its deadline is ended by it and scored (A1, O41-20); one
 --            learning_assignment.ended row with the counts; a learner who never started may not start; the lesson
 --            package's release keeps its status (withdrawal is not unpublishing).
 --   F38-W04  W2.21: a second press changes nothing (ASSIGN_NOT_LIVE, no second row), and the lesson can be given to the
@@ -291,10 +291,16 @@ begin
       if (select count(*) from public.responses rr where rr.session_id = s_buka) <> v_resp then w03 := w03 || 'the open sitting lost answers'::text; end if;
       if not exists (select 1 from public.audit_log a where a.action = 'assessment_session.terminated' and a.target_id = s_buka::text
                        and a.summary ->> 'cause' = 'ADMINISTRATIVE_TERMINATION') then w03 := w03 || 'the ended sitting has no audit row'::text; end if;
-      if (select s.status::text from public.assessment_sessions s where s.id = s_lewat) <> 'EXPIRED' then
-        w03 := w03 || 'the sitting past its deadline did not expire'::text; end if;
+      -- RESTATED, A1 (O41-20): a sitting past its deadline is ended by the deadline and scored on what was answered
+      -- (FINALIZED with one result, marked DEADLINE), where 4.0 left it EXPIRED with no result
+      if (select s.status::text || '/' || coalesce(s.closure_kind, '') || '/' || coalesce(s.termination_cause::text, '') || '/'
+                 || (select count(*) from public.assessment_results x where x.session_id = s.id)
+            from public.assessment_sessions s where s.id = s_lewat) <> 'FINALIZED/DEADLINE//1' then
+        w03 := w03 || 'the sitting past its deadline was not ended by its deadline and scored'::text; end if;
+      -- RESTATED, A1 (O41-20): learners_finished 1 -> 2. The deadline-ended sitting is now FINALIZED, so its learner is
+      -- counted as finished (isolated: sittings_ended 1 and sittings_expired 1 are as they were; only this count moved)
       if (select count(*) from public.audit_log a where a.action = 'learning_assignment.ended' and a.target_id = v_la::text
-            and a.summary ->> 'reason' = 'Bab ini sudah selesai dibahas' and (a.summary ->> 'learners_finished')::int = 1
+            and a.summary ->> 'reason' = 'Bab ini sudah selesai dibahas' and (a.summary ->> 'learners_finished')::int = 2
             and (a.summary ->> 'sittings_ended')::int = 1 and (a.summary ->> 'sittings_expired')::int = 1) <> 1 then
         w03 := w03 || 'no single learning_assignment.ended row with the reason and the counts'::text; end if;
       v_got := selftest.f37_sebagai(u_murid, format('select 1 / (case when (select m.ok from public.may_start_assessment(%L) m) then 0 else 1 end)', v_aa));
@@ -1261,7 +1267,7 @@ begin
       ('F38-W02', 'W2.21: refusals write nothing', w02,
        'an unknown kind, a 3-character reason, open sittings without the confirmation (ASSIGN_IN_PROGRESS), B''s Guru and another school''s admin are refused; the assignment stays ACTIVE, the assessment OPEN, the sitting open, no audit row'),
       ('F38-W03', 'W2.21: ended on the record', w03,
-       'ENDED, its assessment CLOSED; the finished sitting and result unchanged; the open sitting TERMINATED as ADMINISTRATIVE_TERMINATION with the reason, answers kept, audited; the one past its deadline EXPIRED; one learning_assignment.ended row with the counts; no new start; the release''s status unchanged'),
+       'ENDED, its assessment CLOSED; the finished sitting and result unchanged; the open sitting TERMINATED as ADMINISTRATIVE_TERMINATION with the reason, answers kept, audited; the one past its deadline ended by it and scored (A1, O41-20); one learning_assignment.ended row with the counts; no new start; the release''s status unchanged'),
       ('F38-W04', 'W2.21: a second press, giving it again, a withdrawal', w04,
        'a second press is refused ASSIGN_NOT_LIVE with no row; assign_release no longer refuses ASSIGN_EXISTS; B''s Guru withdraws B''s assignment, recorded as learning_assignment.withdrawn'),
       ('F38-W05', 'W2.21: a lesson PINTAR no longer shares can still be ended', w05,

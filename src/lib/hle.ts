@@ -381,6 +381,95 @@ export type HleEvent =
   | "pengerjaan.galat.window_unchanged"
   | "pengerjaan.galat.window_not_changeable"
   | "pengerjaan.galat.sitting_failed"
+  | "atur.instrumen"
+  | "atur.buka"
+  | "atur.keadaan.ditahan"
+  | "atur.keadaan.dinilai"
+  | "atur.keadaan.tidak_dihitung"
+  | "atur.keadaan.waktu_habis"
+  | "atur.meta.mulai"
+  | "atur.meta.sisa"
+  | "atur.meta.ditahan"
+  | "atur.meta.ditahan_polos"
+  | "atur.meta.ditahan_menunggu"
+  | "atur.meta.dikumpulkan"
+  | "atur.meta.dinilai"
+  | "atur.meta.tidak_dihitung"
+  | "atur.meta.waktu_habis"
+  | "atur.meta.tambahan"
+  | "atur.meta.diminta"
+  | "atur.meta.disetujui"
+  | "atur.meta.ditolak"
+  | "atur.panel.judul"
+  | "atur.panel.tanpa_tindakan"
+  | "atur.waktu.judul"
+  | "atur.waktu.pilih"
+  | "atur.waktu.menit"
+  | "atur.waktu.tanya"
+  | "atur.waktu.ok"
+  | "atur.akhiri.judul"
+  | "atur.akhiri.legenda"
+  | "atur.akhiri.dinilai"
+  | "atur.akhiri.dinilai.arti"
+  | "atur.akhiri.tidak"
+  | "atur.akhiri.tidak.arti"
+  | "atur.akhiri.tombol_nilai"
+  | "atur.akhiri.tombol_tidak"
+  | "atur.akhiri.tanya_nilai"
+  | "atur.akhiri.tanya_tidak"
+  | "atur.akhiri.ok_nilai"
+  | "atur.akhiri.ok_tidak"
+  | "atur.minta.judul"
+  | "atur.minta.arti"
+  | "atur.minta.sertifikat"
+  | "atur.minta.tombol"
+  | "atur.minta.ok"
+  | "atur.lanjut.judul"
+  | "atur.lanjut.arti"
+  | "atur.lanjut.arti_tanpa_batas"
+  | "atur.lanjut.ok"
+  | "jadwal.buka"
+  | "jadwal.judul"
+  | "jadwal.mulai"
+  | "jadwal.sampai"
+  | "jadwal.sampai.arti"
+  | "jadwal.catatan"
+  | "jadwal.tombol"
+  | "jadwal.ok"
+  | "kesempatan.judul"
+  | "kesempatan.arti"
+  | "kesempatan.menunggu"
+  | "kesempatan.baris.dipakai"
+  | "kesempatan.baris.hasil"
+  | "kesempatan.baris.hasil_saja"
+  | "kesempatan.baris.diminta"
+  | "kesempatan.setujui"
+  | "kesempatan.tolak"
+  | "kesempatan.tolak.alasan"
+  | "kesempatan.tolak.alasan.arti"
+  | "kesempatan.sendiri"
+  | "kesempatan.kosong"
+  | "kesempatan.ok_setuju"
+  | "kesempatan.ok_tolak"
+  | "sync.diakhiri_guru_dinilai"
+  | "sync.diakhiri_guru_tidak_dihitung"
+  | "sync.lihat_hasil"
+  | "sync.waktu_ditambah"
+  | "sync.waktu_habis"
+  | "siklus.kartu.ditahan"
+  | "sync.lanjut_sisa"
+  | "sync.lanjut_polos"
+  | "siklus.kartu.tidak_dihitung"
+  | "siklus.kartu.sekali_lagi"
+  | "sync.mulai_lagi"
+  | "audit.aksi.assessment_session.handed_in_by_teacher"
+  | "audit.aksi.assessment_session.ended_by_deadline"
+  | "audit.aksi.assessment_session.frozen"
+  | "audit.aksi.assessment_session.resumed"
+  | "audit.aksi.attempt_request.requested"
+  | "audit.aksi.attempt_request.approved"
+  | "audit.aksi.attempt_request.declined"
+  | "audit.aksi.learning_assignment.window_changed"
   | "galat.role_renewed"
   | "peran.berakhir.judul"
   | "peran.berakhir.jumlah"
@@ -3769,7 +3858,7 @@ const table: Table = {
   "staf.tj.can_view_learner_roster": { default: "Melihat daftar murid", en: "Seeing the student list" },
   "staf.tj.can_view_learner_result": { default: "Melihat hasil murid", en: "Seeing students' results" },
   "staf.tj.can_provision_people": { default: "Mendata orang dan mengaktifkan akun", en: "Recording people and activating accounts" },
-  "staf.tj.can_manage_sittings": { default: "Mengatur pengerjaan asesmen murid", en: "Managing students' assessment sittings" },
+  "staf.tj.can_manage_sittings": { default: "Mengatur sesi asesmen murid", en: "Managing students' assessment sittings" },
   "staf.tj.management_decision": { default: "Memutuskan hal yang menunggu di Pimpinan", en: "Deciding what waits under Management" },
   "staf.galat.staff_not_allowed": { default: "Anda tidak dapat mengubah peran di sekolah ini.", en: "You cannot change roles at this school." },
   "staf.galat.staff_self": { default: "Peran Anda sendiri diubah atau diakhiri oleh admin lain.", en: "Your own roles are changed or ended by another administrator." },
@@ -3799,20 +3888,20 @@ const table: Table = {
   "peran.galat.role_busy": { default: "Admin lain sedang mengubah peran di sini pada saat yang sama, jadi perubahan Anda belum tersimpan. Coba lagi.", en: "Another administrator was changing roles here at the same moment, so your change was not saved. Try again." },
   "peran.galat.role_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
   // A1 · sitting control: the refusals of the sitting, attempt and window acts (PR170, src/lib/pengerjaan-kontrak.ts)
-  "pengerjaan.galat.sitting_not_allowed": { default: "Anda tidak dapat mengatur pengerjaan murid di kelas ini.", en: "You cannot manage learners' sittings in this class." },
+  "pengerjaan.galat.sitting_not_allowed": { default: "Anda tidak dapat mengatur sesi murid di kelas ini.", en: "You cannot manage learners' sittings in this class." },
   "pengerjaan.galat.sitting_professional": { default: "Tindakan ini tidak tersedia untuk asesmen Pengembangan Profesional.", en: "This action is not available for Professional Development assessments." },
   "pengerjaan.galat.sitting_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
   "pengerjaan.galat.sitting_note_too_long": { default: "Catatan paling banyak 300 karakter.", en: "The note is at most 300 characters." },
-  "pengerjaan.galat.sitting_already_ended": { default: "Pengerjaan ini sudah berakhir sebelum perubahan Anda tersimpan. Tidak ada yang diubah.", en: "This sitting ended before your change was saved. Nothing was changed." },
-  "pengerjaan.galat.sitting_frozen": { default: "Pengerjaan ini sedang ditahan. Lanjutkan atau akhiri lebih dulu.", en: "This sitting is on hold. Resume it or end it first." },
-  "pengerjaan.galat.sitting_not_frozen": { default: "Pengerjaan ini tidak sedang ditahan.", en: "This sitting is not on hold." },
-  "pengerjaan.galat.sitting_learner_suspended": { default: "Pengerjaan ini baru dapat dilanjutkan atau diakhiri setelah akun murid aktif kembali.", en: "This sitting can be resumed or ended only after the learner's account is active again." },
+  "pengerjaan.galat.sitting_already_ended": { default: "Sesi ini sudah berakhir sebelum perubahan Anda disimpan. Tidak ada yang diubah.", en: "This sitting ended before your change was saved. Nothing was changed." },
+  "pengerjaan.galat.sitting_frozen": { default: "Sesi ini sedang ditahan. Lanjutkan atau akhiri lebih dulu.", en: "This sitting is on hold. Resume it or end it first." },
+  "pengerjaan.galat.sitting_not_frozen": { default: "Sesi ini tidak sedang ditahan.", en: "This sitting is not on hold." },
+  "pengerjaan.galat.sitting_learner_suspended": { default: "Sesi ini baru dapat dilanjutkan atau diakhiri setelah akun murid aktif kembali.", en: "This sitting can be resumed or ended only after the learner's account is active again." },
   "pengerjaan.galat.sitting_end_kind_invalid": { default: "Pilih salah satu: dinilai atau tidak dihitung.", en: "Choose one: scored or not counted." },
   "pengerjaan.galat.sitting_minutes_invalid": { default: "Tambahan waktu harus 1 sampai 120 menit.", en: "Extra time must be 1 to 120 minutes." },
-  "pengerjaan.galat.sitting_extend_limit": { default: "Pengerjaan ini sudah tiga kali diberi tambahan waktu.", en: "This sitting has already been given extra time three times." },
-  "pengerjaan.galat.sitting_no_deadline": { default: "Pengerjaan ini tidak memiliki batas waktu, jadi tidak ada waktu yang ditambah.", en: "This sitting has no time limit, so there is no time to add." },
-  "pengerjaan.galat.attempt_not_limited": { default: "Asesmen ini tidak membatasi jumlah percobaan, jadi tidak ada yang perlu diminta.", en: "This assessment does not limit attempts, so there is nothing to request." },
-  "pengerjaan.galat.attempt_sitting_open": { default: "Murid ini masih memiliki pengerjaan yang terbuka. Akhiri atau lanjutkan dulu sebelum meminta percobaan lagi.", en: "This learner still has an open sitting. End or resume it before requesting another attempt." },
+  "pengerjaan.galat.sitting_extend_limit": { default: "Sesi ini sudah tiga kali diberi tambahan waktu.", en: "This sitting has already been given extra time three times." },
+  "pengerjaan.galat.sitting_no_deadline": { default: "Sesi ini tidak memiliki batas waktu, jadi tidak ada waktu yang ditambah.", en: "This sitting has no time limit, so there is no time to add." },
+  "pengerjaan.galat.attempt_not_limited": { default: "Asesmen ini tidak membatasi jumlah kesempatan, jadi tidak ada yang perlu diminta.", en: "This assessment does not limit attempts, so there is nothing to request." },
+  "pengerjaan.galat.attempt_sitting_open": { default: "Murid ini masih memiliki sesi yang terbuka. Akhiri atau lanjutkan dulu sebelum meminta kesempatan lagi.", en: "This learner still has an open sitting. End or resume it before requesting another attempt." },
   "pengerjaan.galat.attempt_not_needed": { default: "Murid ini masih dapat memulai asesmen ini.", en: "This learner can still start this assessment." },
   "pengerjaan.galat.attempt_request_open": { default: "Permintaan untuk murid dan asesmen ini sudah menunggu keputusan.", en: "A request for this learner and assessment is already waiting for a decision." },
   "pengerjaan.galat.attempt_decision_not_allowed": { default: "Anda tidak dapat memutuskan permintaan ini.", en: "You cannot decide this request." },
@@ -3825,6 +3914,96 @@ const table: Table = {
   "pengerjaan.galat.window_unchanged": { default: "Jadwalnya sudah seperti itu.", en: "The schedule is already set that way." },
   "pengerjaan.galat.window_not_changeable": { default: "Jadwal materi ini tidak dapat diubah saat ini.", en: "This material's schedule cannot be changed right now." },
   "pengerjaan.galat.sitting_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
+  // A1 on the screens: the teacher's list and act panel, the schedule, the approver's queue, the learner's notices, the audit labels
+  "atur.instrumen": { default: "Instrumen", en: "Instrument" },
+  "atur.buka": { default: "Atur", en: "Manage" },
+  "atur.keadaan.ditahan": { default: "Ditahan", en: "On hold" },
+  "atur.keadaan.dinilai": { default: "Diakhiri guru · dinilai", en: "Ended by teacher · scored" },
+  "atur.keadaan.tidak_dihitung": { default: "Diakhiri guru · tidak dihitung", en: "Ended by teacher · not counted" },
+  "atur.keadaan.waktu_habis": { default: "Waktu habis", en: "Time ran out" },
+  "atur.meta.mulai": { default: "Mulai {waktu}", en: "Started {waktu}" },
+  "atur.meta.sisa": { default: "sisa {n} menit", en: "{n} min left" },
+  "atur.meta.ditahan": { default: "Ditahan · sisa {n} menit", en: "On hold · {n} min left" },
+  "atur.meta.ditahan_polos": { default: "Ditahan", en: "On hold" },
+  "atur.meta.ditahan_menunggu": { default: "Ditahan · menunggu keputusan Anda", en: "On hold · waiting for your decision" },
+  "atur.meta.dikumpulkan": { default: "Dikumpulkan {waktu}", en: "Submitted {waktu}" },
+  "atur.meta.dinilai": { default: "Diakhiri {waktu} · jawaban yang ada dinilai", en: "Ended {waktu} · the saved answers were scored" },
+  "atur.meta.tidak_dihitung": { default: "Diakhiri {waktu} · tidak dihitung, tidak memakai kesempatan", en: "Ended {waktu} · not counted, no attempt used" },
+  "atur.meta.waktu_habis": { default: "Berakhir {waktu} · jawaban yang ada dinilai", en: "Ended {waktu} · the saved answers were scored" },
+  "atur.meta.tambahan": { default: "kesempatan tambahan", en: "extra attempt" },
+  "atur.meta.diminta": { default: "Kesempatan tambahan diminta · menunggu persetujuan", en: "Extra attempt requested · waiting for approval" },
+  "atur.meta.disetujui": { default: "Kesempatan tambahan disetujui {tanggal}", en: "Extra attempt approved {tanggal}" },
+  "atur.meta.ditolak": { default: "Permintaan ditolak · {alasan}", en: "Request declined · {alasan}" },
+  "atur.panel.judul": { default: "Atur · {nama}", en: "Manage · {nama}" },
+  "atur.panel.tanpa_tindakan": { default: "Tidak ada tindakan untuk sesi ini sekarang.", en: "There is nothing to do for this sitting right now." },
+  "atur.waktu.judul": { default: "Tambah waktu", en: "Add time" },
+  "atur.waktu.pilih": { default: "Tambahan waktu", en: "Extra time" },
+  "atur.waktu.menit": { default: "{n} menit", en: "{n} minutes" },
+  "atur.waktu.tanya": { default: "Tambah {n} menit untuk {nama}? Batas baru {waktu}.", en: "Add {n} minutes for {nama}? New deadline {waktu}." },
+  "atur.waktu.ok": { default: "Waktu {nama} ditambah {n} menit. Batas baru {waktu}.", en: "{nama} was given {n} more minutes. New deadline {waktu}." },
+  "atur.akhiri.judul": { default: "Akhiri sesi", en: "End sitting" },
+  "atur.akhiri.legenda": { default: "Bagaimana sesi ini diakhiri?", en: "How is this sitting ended?" },
+  "atur.akhiri.dinilai": { default: "Dinilai: murid sudah selesai, tetapi belum mengumpulkan", en: "Scored: the student has finished but has not submitted" },
+  "atur.akhiri.dinilai.arti": { default: "Jawaban yang sudah tersimpan dinilai. Ini memakai satu kesempatan.", en: "The saved answers are scored. This uses one attempt." },
+  "atur.akhiri.tidak": { default: "Tidak dihitung: murid yang keliru, atau gangguan teknis", en: "Not counted: the wrong student, or a technical fault" },
+  "atur.akhiri.tidak.arti": { default: "Tidak ada hasil, dan tidak memakai kesempatan. Jawaban tetap tersimpan. Murid dapat memulai lagi selama jadwalnya masih terbuka.", en: "No result, and no attempt used. The answers stay saved. The student can start again while the schedule is still open." },
+  "atur.akhiri.tombol_nilai": { default: "Akhiri dan nilai", en: "End and score" },
+  "atur.akhiri.tombol_tidak": { default: "Akhiri tanpa menghitung", en: "End without counting" },
+  "atur.akhiri.tanya_nilai": { default: "Akhiri {instrumen} {nama} dan nilai jawaban yang ada?", en: "End {nama}'s {instrumen} and score the saved answers?" },
+  "atur.akhiri.tanya_tidak": { default: "Akhiri {instrumen} {nama} tanpa menghitung?", en: "End {nama}'s {instrumen} without counting it?" },
+  "atur.akhiri.ok_nilai": { default: "Sesi {nama} diakhiri. Jawaban yang ada dinilai.", en: "{nama}'s sitting was ended. The saved answers were scored." },
+  "atur.akhiri.ok_tidak": { default: "Sesi {nama} diakhiri tanpa dihitung. Tidak memakai kesempatan.", en: "{nama}'s sitting was ended without counting. No attempt was used." },
+  "atur.minta.judul": { default: "Minta satu kesempatan lagi", en: "Request one more attempt" },
+  "atur.minta.arti": { default: "Permintaan ini dikirim untuk disetujui. Sampai disetujui, murid belum dapat mengerjakan lagi. Hasil sebelumnya tetap tersimpan dan tidak berubah.", en: "This request is sent for approval. Until it is approved, the student cannot take it again. Earlier results stay saved and do not change." },
+  "atur.minta.sertifikat": { default: "Karena Uji Penguasaan dapat menghasilkan sertifikat, kesempatan ini perlu disetujui orang lain.", en: "Because the Mastery Check can lead to a certificate, this attempt needs someone else's approval." },
+  "atur.minta.tombol": { default: "Kirim permintaan", en: "Send request" },
+  "atur.minta.ok": { default: "Permintaan dikirim, menunggu persetujuan.", en: "Request sent. Waiting for approval." },
+  "atur.lanjut.judul": { default: "Lanjutkan", en: "Resume" },
+  "atur.lanjut.arti": { default: "Murid melanjutkan dengan sisa waktu yang tersimpan, {n} menit. Waktu tidak ditambah.", en: "The student continues with the preserved time, {n} minutes. No time is added." },
+  "atur.lanjut.arti_tanpa_batas": { default: "Murid melanjutkan sesi ini. Sesi ini tidak memiliki batas waktu, dan tidak ada waktu yang ditambah.", en: "The student continues this sitting. It has no time limit, and no time is added." },
+  "atur.lanjut.ok": { default: "Sesi {nama} dilanjutkan dengan sisa waktu yang tersimpan.", en: "{nama}'s sitting was resumed with the preserved time." },
+  "jadwal.buka": { default: "Ubah jadwal", en: "Change schedule" },
+  "jadwal.judul": { default: "Ubah jadwal · {kursus}", en: "Change schedule · {kursus}" },
+  "jadwal.mulai": { default: "Mulai ({zona})", en: "From ({zona})" },
+  "jadwal.sampai": { default: "Sampai ({zona})", en: "Until ({zona})" },
+  "jadwal.sampai.arti": { default: "Kosongkan bila tanpa batas akhir.", en: "Leave empty for no end date." },
+  "jadwal.catatan": { default: "Murid yang sedang mengerjakan tetap memakai batas waktunya sendiri.", en: "Students who are already working keep their own deadline." },
+  "jadwal.tombol": { default: "Simpan jadwal", en: "Save schedule" },
+  "jadwal.ok": { default: "Jadwal diubah. Murid yang sedang mengerjakan tetap memakai batas waktunya sendiri.", en: "Schedule changed. Students who are already working keep their own deadline." },
+  "kesempatan.judul": { default: "Permintaan kesempatan tambahan", en: "Requests for an extra attempt" },
+  "kesempatan.arti": { default: "Guru meminta satu kesempatan lagi untuk murid yang kesempatannya sudah habis. Keputusan Anda tercatat di jejak audit sekolah.", en: "A teacher asks for one more attempt for a student whose attempts are used up. Your decision is recorded in the school's audit trail." },
+  "kesempatan.menunggu": { default: "permintaan kesempatan tambahan menunggu persetujuan", en: "requests for an extra attempt are waiting for approval" },
+  "kesempatan.baris.dipakai": { default: "{n} kesempatan dipakai", en: "{n} attempts used" },
+  "kesempatan.baris.hasil": { default: "hasil terakhir {hasil}, target {target}", en: "last result {hasil}, target {target}" },
+  "kesempatan.baris.hasil_saja": { default: "hasil terakhir {hasil}", en: "last result {hasil}" },
+  "kesempatan.baris.diminta": { default: "Diminta {guru}, {tanggal} · Alasan: {alasan}", en: "Requested by {guru}, {tanggal} · Reason: {alasan}" },
+  "kesempatan.setujui": { default: "Setujui", en: "Approve" },
+  "kesempatan.tolak": { default: "Tolak", en: "Decline" },
+  "kesempatan.tolak.alasan": { default: "Alasan (wajib bila menolak)", en: "Reason (required to decline)" },
+  "kesempatan.tolak.alasan.arti": { default: "10 sampai 300 karakter. Guru yang meminta dapat membacanya; murid tidak.", en: "10 to 300 characters. The requesting teacher can read it; the student cannot." },
+  "kesempatan.sendiri": { default: "Anda yang meminta ini. Orang lain yang menyetujuinya.", en: "You asked for this. Someone else approves it." },
+  "kesempatan.kosong": { default: "Tidak ada permintaan yang menunggu.", en: "No requests are waiting." },
+  "kesempatan.ok_setuju": { default: "Permintaan disetujui. Murid dapat mengerjakan sekali lagi.", en: "Request approved. The student can take it once more." },
+  "kesempatan.ok_tolak": { default: "Permintaan ditolak. Guru yang meminta dapat melihat alasannya.", en: "Request declined. The requesting teacher can see the reason." },
+  "sync.diakhiri_guru_dinilai": { default: "Guru Anda mengakhiri asesmen ini. Jawaban yang sudah tersimpan dinilai.", en: "Your teacher ended this assessment. The answers already saved are scored." },
+  "sync.diakhiri_guru_tidak_dihitung": { default: "Guru Anda mengakhiri asesmen ini. Asesmen ini tidak dihitung dan tidak memakai kesempatan Anda. Jawaban yang sudah tersimpan tetap ada.", en: "Your teacher ended this assessment. It is not counted and does not use one of your attempts. The answers already saved are kept." },
+  "sync.lihat_hasil": { default: "Lihat hasil", en: "See the result" },
+  "sync.waktu_ditambah": { default: "Waktu Anda ditambah {n} menit.", en: "You were given {n} more minutes." },
+  "sync.waktu_habis": { default: "Waktu habis. Jawaban yang sudah tersimpan sudah dinilai.", en: "Time ran out. The answers already saved have been scored." },
+  "siklus.kartu.ditahan": { default: "Asesmen ini ditahan. Guru Anda akan memutuskan kelanjutannya.", en: "This assessment is on hold. Your teacher will decide what happens next." },
+  "sync.lanjut_sisa": { default: "Lanjutkan · sisa {n} menit", en: "Continue · {n} min left" },
+  "sync.lanjut_polos": { default: "Lanjutkan", en: "Continue" },
+  "siklus.kartu.tidak_dihitung": { default: "Asesmen ini tidak dihitung dan tidak memakai kesempatan Anda. Jawaban yang sudah tersimpan tetap ada.", en: "This assessment is not counted and does not use one of your attempts. The answers already saved are kept." },
+  "siklus.kartu.sekali_lagi": { default: "{instrumen} dapat dikerjakan sekali lagi.", en: "{instrumen} can be taken once more." },
+  "sync.mulai_lagi": { default: "Mulai", en: "Start" },
+  "audit.aksi.assessment_session.handed_in_by_teacher": { default: "Asesmen dikumpulkan oleh guru", en: "Assessment handed in by the teacher" },
+  "audit.aksi.assessment_session.ended_by_deadline": { default: "Asesmen berakhir karena waktunya habis", en: "Assessment ended at its deadline" },
+  "audit.aksi.assessment_session.frozen": { default: "Asesmen ditahan", en: "Assessment put on hold" },
+  "audit.aksi.assessment_session.resumed": { default: "Asesmen dilanjutkan", en: "Assessment resumed" },
+  "audit.aksi.attempt_request.requested": { default: "Kesempatan tambahan diminta", en: "Extra attempt requested" },
+  "audit.aksi.attempt_request.approved": { default: "Kesempatan tambahan disetujui", en: "Extra attempt approved" },
+  "audit.aksi.attempt_request.declined": { default: "Permintaan kesempatan tambahan ditolak", en: "Extra attempt request declined" },
+  "audit.aksi.learning_assignment.window_changed": { default: "Jadwal penugasan diubah", en: "Assignment schedule changed" },
   // B0 on the screens: the expiry notice, the renewal, the platform admin's warning and the holder's own notice
   "galat.role_renewed": { default: "Peran diperpanjang.", en: "Role renewed." },
   "peran.berakhir.judul": { default: "Peran yang segera berakhir", en: "Roles ending soon" },

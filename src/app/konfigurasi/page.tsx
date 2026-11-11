@@ -1,3 +1,4 @@
+import { jumlahKesempatanMenunggu } from "@/lib/pengerjaan";
 import { Fragment } from "react";
 import Link from "next/link";
 import Kosong from "@/components/Kosong";
@@ -588,6 +589,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const nTanpaKelas = satuSekolah && bolehPendataan
     ? await supabase.rpc("murid_tanpa_kelas", { p_sekolah: satuSekolah }).then(({ data }) => (Array.isArray(data) ? data.length : 0))
     : 0;
+  // A1 (O41-16): requests for another attempt this reader may decide, counted here and decided on their own page
+  const nKesempatan = satuSekolah ? await jumlahKesempatanMenunggu(satuSekolah) : 0;
   const alasanAkun: Array<{ k: string; kunci: HleEvent; n: number }> = nMurid === null ? [] : [
     { k: "kartu", kunci: "config.menunggu.alasan.kartu" as HleEvent, n: nMurid },
     { k: "email", kunci: "config.menunggu.alasan.email" as HleEvent, n: Math.max(0, nAkun - nMurid) },
@@ -597,6 +600,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     { k: "akun", href: "/aktivasi", kunci: "config.menunggu.aktivasi" as HleEvent, n: nAkun },
     { k: "kelas", href: "/konfigurasi/pindah#tempatkan", kunci: "config.menunggu.tanpa_kelas" as HleEvent, n: nTanpaKelas },
     { k: "studio", href: "/studio", kunci: "config.menunggu.studio" as HleEvent, n: nStudio },
+    { k: "kesempatan", href: "/konfigurasi/kesempatan", kunci: "kesempatan.menunggu" as HleEvent, n: nKesempatan },
   ].filter((m) => m.n > 0);
   const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
   // M9: the Kelas whose students «Pindah kelas» lists, if one was chosen, and

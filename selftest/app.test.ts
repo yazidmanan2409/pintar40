@@ -28,6 +28,7 @@ import { b4AppTests } from "./b4.test";
 import { cabutAppTests } from "./cabut.test";
 import { kenaikanAppTests } from "./kenaikan.test";
 import { b0LayarTests } from "./b0-layar.test";
+import { a1LayarTests } from "./a1-layar.test";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
 const PERSONA = {
@@ -93,6 +94,8 @@ const ROUTE_INVENTORY = [
   "/konfigurasi/sertifikat",
   // E5 and §11 (owner, 9 Nov): one person's roles and duties
   "/konfigurasi/staf",
+  // A1 (O41-17): «Permintaan kesempatan tambahan», the approver's queue at the school admin's address (a head of department reads it on their own home)
+  "/konfigurasi/kesempatan",
   "/masuk",
   // owner ruling 2 (9 Nov): «Minta akun dibuka kembali», signed out
   "/masuk/buka-kembali",
@@ -3514,6 +3517,7 @@ export const appTests: SelfTest[] = [
   // «Kenaikan kelas dan kelulusan» (Daisy's approved flow; owner, 9 Nov), through the screen
   ...kenaikanAppTests,
   ...b0LayarTests.filter((x) => x.id !== "B0-K02"),
+  ...a1LayarTests.filter((x) => x.id !== "A1-K02"),
   // BOB-50 (D-082(d)): a single Uji Cepat issues no certificate, through the running app
   ...bob50AppTests,
   // BOB-51 (D-057, REL-08): «Kirim email uji», the platform admin's delivery proof, through the running app

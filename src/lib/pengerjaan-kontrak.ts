@@ -67,6 +67,104 @@ export type BarisPengerjaan = {
 /** pengerjaan_saya's answer: the learner's own sitting, how it stands and how it ended; never why, never who. */
 export type PengerjaanSaya = {
   status: string; ditahan: boolean;
+  /** an open sitting the teacher resumed after it was held */
+  dilanjutkan?: boolean;
   penutupan: "DEADLINE" | "TEACHER_SCORED" | "TEACHER_NOT_COUNTED" | "ASSIGNMENT_ENDED" | "OTHER" | null;
   dihitung: boolean; tenggat: string | null; diperpanjang: number; percobaan_diizinkan: boolean;
 };
+
+// ───────────────────────────────────────────────────────────── A1 on the screens (Daisy, TINJAUAN-A1-C1W Q4, §A1·N1, §A1·N2)
+
+/** The acts of the «Atur» panel. */
+export const TINDAKAN = ["waktu", "akhiri", "minta", "lanjut", "tutup"] as const;
+export type Tindakan = (typeof TINDAKAN)[number];
+
+/** «Tambah waktu» offers these minutes and no others. */
+export const MENIT_TAMBAHAN = [5, 10, 15, 30] as const;
+
+/**
+ * The acts that apply to one learner's row. An act that cannot apply is ABSENT, never disabled, and a row with no act
+ * gets no «Atur» link at all:
+ *   open                                   extra time (while it has a deadline and fewer than three extensions) and ending it
+ *   held, the learner reinstated           resume, or close without counting
+ *   held, the account still suspended      nothing
+ *   handed in or ended, no attempt left    request one more (never while a request waits or a granted one is unused)
+ *   not started                            nothing
+ */
+export function tindakanUntuk(b: Pick<BarisPengerjaan, "keadaan" | "tenggat" | "diperpanjang" | "murid_aktif" | "percobaan_terpakai"
+  | "batas_percobaan" | "permintaan_status" | "izin_belum_dipakai" | "sesi_id">): Tindakan[] {
+  if (!b.sesi_id) return [];
+  if (b.keadaan === "OPEN") return [...(b.tenggat !== null && (b.diperpanjang ?? 0) < 3 ? ["waktu" as const] : []), "akhiri"];
+  if (b.keadaan === "FROZEN") return b.murid_aktif ? ["lanjut", "tutup"] : [];
+  if (b.keadaan === "NOT_STARTED") return [];
+  const habis = b.batas_percobaan !== null && b.percobaan_terpakai >= b.batas_percobaan;
+  return habis && b.permintaan_status !== "PENDING" && !b.izin_belum_dipakai ? ["minta"] : [];
+}
+
+/** Whole minutes of a number of seconds, rounded down and never below zero («sisa 12 menit»). */
+export const menitDari = (detik: number | null | undefined): number | null =>
+  detik === null || detik === undefined ? null : Math.max(0, Math.floor(detik / 60));
+
+/** One row of percobaan_antrean: a waiting request the reader may decide (or their own, which they may not). */
+export type BarisAntrean = {
+  id: string; person_id: string; nama: string; kelas_id: string | null; kelas: string | null; assessment_assignment_id: string;
+  judul: string; mode: string; diminta_oleh: string; nama_peminta: string; diminta_pada: string; alasan: string;
+  percobaan_terpakai: number; batas_percobaan: number | null; milik_sendiri: boolean;
+  kursus: string | null; hasil_terakhir: number | null; target: number | null;
+};
+
+/** Where the approver's queue is drawn: a school admin's own page under Konfigurasi, a head of department's own home. */
+export const ALAMAT_ANTREAN = { konfigurasi: "/konfigurasi/kesempatan", pimpinan: "/pimpinan?kesempatan=buka" } as const;
+export type TempatAntrean = keyof typeof ALAMAT_ANTREAN;
+
+/** How the learner's player says a sitting ended under it: each ending its own notice (A1-B1), never one for all. */
+export type AkhirPemain = "dinilai" | "tidak_dihitung" | "sekolah" | "waktu_habis";
+export const KUNCI_AKHIR_PEMAIN: Record<AkhirPemain, HleEvent> = {
+  dinilai: "sync.diakhiri_guru_dinilai",
+  tidak_dihitung: "sync.diakhiri_guru_tidak_dihitung",
+  sekolah: "sync.diakhiri_sekolah",
+  waktu_habis: "sync.waktu_habis",
+};
+/** From pengerjaan_saya's answer: which ending the open player must say, or null while the sitting is still the learner's. */
+export function akhirDariKeadaan(k: Pick<PengerjaanSaya, "status" | "penutupan"> | null | undefined): AkhirPemain | null {
+  if (!k) return null;
+  if (k.penutupan === "TEACHER_SCORED") return "dinilai";
+  if (k.penutupan === "TEACHER_NOT_COUNTED") return "tidak_dihitung";
+  if (k.penutupan === "ASSIGNMENT_ENDED" && k.status === "TERMINATED") return "sekolah";
+  // ended by its deadline: said only once it has been scored (inside the late-sync window the learner's answers still travel)
+  if (k.penutupan === "DEADLINE" && k.status === "FINALIZED") return "waktu_habis";
+  return null;
+}
+/** From a refusal's code and DETAIL (PR002 on an answer, PR003 on a hand-in): the ending it names, or null. */
+export function akhirDariGalat(code: string | null | undefined, detail: string | null | undefined): AkhirPemain | null {
+  if (detail === "SESSION_ENDED_SCORED") return "dinilai";
+  if (detail === "SESSION_ENDED_NOT_COUNTED") return "tidak_dihitung";
+  if (code === "PR003") return "sekolah";
+  return null;
+}
+
+/**
+ * What a chapter's card on Belajar adds for the learner (Daisy, Q5 and §A1·N1): the sitting is held; the teacher resumed
+ * it; the teacher ended it as not counted; it ended at its deadline; an approved further attempt waits. Never a
+ * reason, never a waiting or a declined request.
+ */
+export type CatatanBab = {
+  jenis: "ditahan" | "lanjut" | "tidak_dihitung" | "waktu_habis" | "sekali_lagi";
+  instrumen: "PRE_TEST" | "POST_TEST";
+  /** whole minutes left on a resumed sitting, when it has a deadline */
+  sisaMenit: number | null;
+};
+const TERBUKA = ["CREATED", "IN_PROGRESS", "PAUSED"];
+/** From one instrument's latest sitting, its learner-side reading and whether a granted attempt waits. Pure. */
+export function catatanDari(instrumen: CatatanBab["instrumen"], status: string | null, k: PengerjaanSaya | null, izin: boolean, sekarang: number): CatatanBab | null {
+  const dasar = { instrumen, sisaMenit: null };
+  if (status !== null && TERBUKA.includes(status) && k) {
+    if (k.ditahan) return { ...dasar, jenis: "ditahan" };
+    if (k.dilanjutkan) return { ...dasar, jenis: "lanjut", sisaMenit: k.tenggat ? Math.max(0, Math.floor((Date.parse(k.tenggat) - sekarang) / 60_000)) : null };
+    return null;
+  }
+  if (izin) return { ...dasar, jenis: "sekali_lagi" };
+  if (status === "TERMINATED" && k?.penutupan === "TEACHER_NOT_COUNTED") return { ...dasar, jenis: "tidak_dihitung" };
+  if (status === "FINALIZED" && k?.penutupan === "DEADLINE") return { ...dasar, jenis: "waktu_habis" };
+  return null;
+}

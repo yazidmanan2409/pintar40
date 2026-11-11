@@ -35,6 +35,7 @@ import { TeksBaris } from "@/components/teks/Teks";
 import { belumDisimpan, sameAnswer, soalAwal, type Answer, type Entry } from "@/lib/kumpulkan";
 import { ALAMAT_PERIKSA, dijawabDiHalaman, jedaAwal, jedaBantuan, periksaSaatLuring } from "@/lib/bantuan-terjadwal";
 import AlasanNonaktif from "@/components/AlasanNonaktif";
+import { KUNCI_AKHIR_PEMAIN, akhirDariGalat, akhirDariKeadaan, type AkhirPemain, type PengerjaanSaya } from "@/lib/pengerjaan-kontrak";
 
 export type ItemPlayerProps = {
   sessionId: string;
@@ -75,6 +76,8 @@ export type ItemPlayerProps = {
                     observation: Record<string, number | string>) => Promise<{ ok: boolean }>;
     finishSession: (sessionId: string, manifest: Record<string, number>) =>
       Promise<{ ok: true; resultId: string } | { ok: false; code: string | null; detail: string | null }>;
+    /** A1 (A1-R1): how the sitting stands now, as the database tells its learner (pengerjaan_saya); never a reason. */
+    keadaanSesi?: (sessionId: string) => Promise<{ ok: true; keadaan: PengerjaanSaya } | { ok: false }>;
   };
 };
 
@@ -196,6 +199,38 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   useEffect(() => {
     if (!asking && balikKumpulkan.current) { balikKumpulkan.current = false; kumpulkan.current?.focus(); }
   }, [asking]);
+  // A1 (Daisy, A1-B1): THREE ENDINGS, THREE NOTICES. A sitting the teacher handed in is scored; one ended as not counted
+  // is not; one ended with its assignment keeps 4.0's notice. Each says its own sentence, told apart by the refusal's
+  // code and by pengerjaan_saya, and each ends the sitting on this page exactly as the school's close does.
+  const [akhir, setAkhir] = useState<AkhirPemain | null>(null);
+  const akhiri = useCallback((a: AkhirPemain) => {
+    setAkhir((lama) => lama ?? a);
+    setNotice((lama) => (lama && (Object.values(KUNCI_AKHIR_PEMAIN) as HleEvent[]).includes(lama) ? lama : KUNCI_AKHIR_PEMAIN[a]));
+    setDiakhiri(true);
+    setAsking(false);
+  }, []);
+  // A1 (A1-R1): WHEN AN OPEN PLAYER LEARNS OF A CHANGE. It asks how the sitting stands every 45 seconds and after every
+  // send: an ending is said at once instead of at «Kumpulkan», and added time is said in a status line that does not
+  // take focus. The first answer only records the deadline, so nothing is announced for time added before the page opened.
+  const tenggat = useRef<string | null | undefined>(undefined);
+  const [tambahan, setTambahan] = useState<number | null>(null);
+  const periksaKeadaan = useCallback(async () => {
+    if (!actions.keadaanSesi) return;
+    let r: Awaited<ReturnType<NonNullable<typeof actions.keadaanSesi>>>;
+    try { r = await actions.keadaanSesi(sessionId); } catch { return; }
+    if (!r.ok) return;
+    const a = akhirDariKeadaan(r.keadaan);
+    if (a) { akhiri(a); return; }
+    const baru = r.keadaan.tenggat, lama = tenggat.current;
+    if (lama && baru && Date.parse(baru) > Date.parse(lama)) setTambahan(Math.round((Date.parse(baru) - Date.parse(lama)) / 60_000));
+    tenggat.current = baru;
+  }, [actions, akhiri, sessionId]);
+  useEffect(() => {
+    if (diakhiri) return;
+    const awal = window.setTimeout(() => { void periksaKeadaan(); }, 0);
+    const jeda = window.setInterval(() => { void periksaKeadaan(); }, 45_000);
+    return () => { window.clearTimeout(awal); window.clearInterval(jeda); };
+  }, [diakhiri, periksaKeadaan]);
   // THE SEQUENCE RULE (R1, F-07). Two sources of truth, never one:
   //   serverSeqs — the highest client_seq the server is known to hold per item
   //                (the page's read, raised by every acknowledgement);
@@ -260,12 +295,15 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       }
       if (r.code === "PR002") {
         dropEntry(sessionId, cur);
+        // A1: an answer into a sitting the teacher ended is told which ending it was
+        const a = akhirDariGalat(r.code, r.detail);
+        if (a === "dinilai" || a === "tidak_dihitung") akhiri(a);
         return "closed";
       }
       return "pending";
     }
     return "pending";
-  }, [actions, nextSeq, outboxMax, sessionId]);
+  }, [actions, akhiri, nextSeq, outboxMax, sessionId]);
 
   /** Every entry still held, oldest first per item. Stops at the first lost request. */
   const flush = useCallback(async (): Promise<Delivery | "clear"> => {
@@ -316,7 +354,9 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     setPending(readEntries(sessionId).length);
     setOnline(o !== "offline");
     if (o === "closed") setClosed(true);
-  }, [accepted, deliver, nextSeq, sessionId]);
+    // A1 (A1-R1): and on every send
+    if (o !== "offline") void periksaKeadaan();
+  }, [accepted, deliver, nextSeq, periksaKeadaan, sessionId]);
 
   /*
    * FINISH NEVER OUTRUNS THE LEARNER'S WORK (R1, F-08). A choice still on the
@@ -350,6 +390,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
         return;
       }
       // defect (10 Nov): a sitting the school ended (akhiri_penugasan) is said as such, not as unsaved answers
+      // A1 (A1-B1): the teacher ended this one sitting as not counted; its own notice, never the assignment's
+      if (!r.ok && r.detail === "SESSION_ENDED_NOT_COUNTED") { akhiri("tidak_dihitung"); return; }
       if (!r.ok && r.code === "PR003") { setNotice("sync.diakhiri_sekolah"); setDiakhiri(true); setAsking(false); return; }
       if (r.ok || r.code === "PR002") {
         // doc 04 §7: the system issues a certificate for a certifying pass. Asked
@@ -369,7 +411,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     } finally {
       setFinishing(false);
     }
-  }, [accepted, actions, draft, finishHref, finishing, flush, memintaSertifikat, nextSeq, paper, router, sessionId]);
+  }, [accepted, actions, akhiri, draft, finishHref, finishing, flush, memintaSertifikat, nextSeq, paper, router, sessionId]);
 
   // ---------------------------------------- integrity observations (F-09)
   /*
@@ -734,11 +776,16 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       )}
 
       {/* ------------------------------------------------------ move / finish */}
+      {/* A1: time the teacher added is said without taking focus; the sitting goes on */}
+      {tambahan && !diakhiri ? <p className="pin-meta" role="status" data-waktu-ditambah={tambahan}>{kata("sync.waktu_ditambah").replace("{n}", format.number(tambahan, props.locale))}</p> : null}
       {(notice || closed) && (
-        <p className="pin-pending" role="status" ref={pemberitahuan} tabIndex={diakhiri ? -1 : undefined} data-diakhiri={diakhiri ? "" : undefined}>
-          {kata(closed ? "sync.sesi_ditutup" : (notice as HleEvent))}
+        <p className="pin-pending" role="status" ref={pemberitahuan} tabIndex={diakhiri ? -1 : undefined} data-diakhiri={diakhiri ? "" : undefined} data-akhir={akhir ?? undefined}>
+          {kata(closed && !akhir ? "sync.sesi_ditutup" : (notice as HleEvent))}
           {/* Daisy (435a2856, §2.2): a sitting closed under the page can no longer be sent; the notice offers the way back */}
-          {!closed && notice === "sync.diakhiri_sekolah" ? <> <Link className="pin-tautan" href="/belajar" data-diakhiri-kembali="">{kata("tolak.kembali")}</Link></> : null}
+          {(!closed || akhir === "sekolah") && notice === "sync.diakhiri_sekolah" ? <> <Link className="pin-tautan" href="/belajar" data-diakhiri-kembali="">{kata("tolak.kembali")}</Link></> : null}
+          {/* A1 (A1-B1): a scored ending (the teacher's, or the deadline's) leads to the result; a not-counted one back to Belajar */}
+          {akhir === "dinilai" || akhir === "waktu_habis" ? <> <Link className="pin-tautan" href={finishHref} data-akhir-hasil="">{kata("sync.lihat_hasil")}</Link></> : null}
+          {akhir === "tidak_dihitung" ? <> <Link className="pin-tautan" href="/belajar" data-akhir-kembali="">{kata("tolak.kembali")}</Link></> : null}
         </p>
       )}
       {formal && asking && (

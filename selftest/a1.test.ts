@@ -254,7 +254,8 @@ export const a1Tests: SelfTest[] = [
       c.expect(/public\.pengerjaan_putus_tenggat\(s\.id, true\)/.test(terjadwal) && !/update /.test(terjadwal), "the scheduled entry point is not a call to the one deciding function");
       c.expect(/grant execute on function public\.pengerjaan_tutup_terjadwal\(integer\) to service_role;/.test(sql)
         && !/grant execute on function public\.pengerjaan_tutup_terjadwal\(integer\) to authenticated/.test(sql), "the scheduled entry point is not the service's alone");
-      // the scheduler is an open point: this migration enables no extension and schedules nothing
+      // the scheduler is held (pg_cron's own grants and tables break the recovery suite's proven profile; reported): this
+      // migration enables no extension and schedules nothing, and the entry point waits for whatever calls it
       c.expect(!/create extension/i.test(sql) && !/cron\.schedule/i.test(sql), "the migration enables an extension or schedules a job");
       // the held state is the suspension's own transaction, and its own state (never PAUSED)
       const tangguh = /create or replace function public\.tangguhkan_akun[\s\S]*?end \$\$;/.exec(sql)?.[0] ?? "";
@@ -262,7 +263,7 @@ export const a1Tests: SelfTest[] = [
       c.expect(!/'PAUSED'\s*(where|,\s*frozen)/.test(sql) && !/set status = 'PAUSED'/.test(sql), "a held sitting is written as PAUSED");
       // every client entry is declared
       for (const f of ["tambah_waktu_pengerjaan", "akhiri_pengerjaan", "lanjutkan_pengerjaan", "tutup_pengerjaan_ditahan", "minta_percobaan",
-        "putuskan_percobaan", "percobaan_antrean", "ubah_jadwal_penugasan", "daftar_pengerjaan", "pengerjaan_saya"]) {
+        "putuskan_percobaan", "percobaan_antrean", "ubah_jadwal_penugasan", "daftar_pengerjaan", "pengerjaan_saya", "percobaan_saya"]) {
         c.expect(new RegExp(`\\('${f}', '(STAFF|LEARNER)'`).test(sql), `${f} is not declared in client_rpc_registry`);
         c.expect(new RegExp(`revoke all on function public\\.${f}\\([^)]*\\) from public, anon, authenticated;`).test(sql), `${f} is not revoked from public and anon`);
       }

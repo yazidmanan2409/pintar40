@@ -23,8 +23,9 @@
 --     when its assessment's window closes (marked WINDOW_CLOSED); with neither it ends when its assignment ends, as
 --     akhiri_penugasan already does. Only a sitting this rule expired is scored by it: an EXPIRED sitting from before
 --     this migration carries no marking and is never touched. A held sitting is skipped.
---     NO SCHEDULER IS ENABLED HERE: pg_cron is enabled by no migration, so the entry point exists and the choice of
---     scheduler is an open point; the lazy path keeps working without one.
+--     NO SCHEDULER IS ENABLED HERE: this migration builds the entry point only, and whatever schedules it is a
+--     separate decision (pg_cron's own grants and tables do not fit the recovery suite's proven profile as it stands).
+--     The lazy path keeps working without a job.
 -- (5) A HELD («frozen») SITTING (O41-17): its own recorded state on the sitting, never PAUSED (the learner's own).
 --     tangguhkan_akun writes it in its own transaction for every open sitting of the person, at every school: since
 --     when, why, and the remaining time. While held, an answer, a hand-in and an extension are refused, and the ending
@@ -874,7 +875,8 @@ grant execute on function public.putuskan_percobaan(uuid, boolean, text) to auth
 create or replace function public.percobaan_antrean(p_institution uuid)
 returns table (id uuid, person_id uuid, nama text, kelas_id uuid, kelas text, assessment_assignment_id uuid, judul text,
                mode public.assessment_mode, diminta_oleh uuid, nama_peminta text, diminta_pada timestamptz, alasan text,
-               percobaan_terpakai integer, batas_percobaan integer, milik_sendiri boolean)
+               percobaan_terpakai integer, batas_percobaan integer, milik_sendiri boolean,
+               kursus text, hasil_terakhir numeric, target numeric)
 language plpgsql stable security definer set search_path = public, pg_temp as $$
 declare v_me uuid := public.current_person_id();
 begin
@@ -883,7 +885,14 @@ begin
     select r.id, r.person_id, p.display_name, n.id, n.name, r.assessment_assignment_id, d.title, d.mode,
            r.requested_by_person_id, q.display_name, r.requested_at, r.reason,
            public.percobaan_terpakai(r.person_id, r.assessment_assignment_id), d.attempt_limit::integer,
-           r.requested_by_person_id = v_me
+           r.requested_by_person_id = v_me,
+           (select c.title from public.plp_releases pr join public.courses c on c.id = pr.course_id where pr.id = s.plp_release_id),
+           -- the last result and its target only for a reader who may see this learner's results (a head of department;
+           -- a school admin decides without them: 20260924100000, an administrator is not an examiner)
+           case when public.can_on_node('CAN_VIEW_LEARNER_RESULT', coalesce(s.class_node_id, s.cohort_node_id))
+                then (select ar.mastery from public.assessment_results ar where ar.session_id = s.id
+                       order by ar.computed_at desc, ar.id desc limit 1) end,
+           case when public.can_on_node('CAN_VIEW_LEARNER_RESULT', coalesce(s.class_node_id, s.cohort_node_id)) then s.pass_mark end
       from public.attempt_requests r
       join public.assessment_sessions s on s.id = r.session_id
       join public.persons p on p.id = r.person_id
@@ -1042,6 +1051,7 @@ begin
   return jsonb_build_object(
     'status', s.status,
     'ditahan', public.pengerjaan_ditahan(s),
+    'dilanjutkan', s.unfrozen_at is not null and s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED'),
     'penutupan', case when s.closure_kind in ('DEADLINE', 'WINDOW_CLOSED') then 'DEADLINE'
                       when s.closure_kind is not null then s.closure_kind
                       when s.status = 'TERMINATED' and s.termination_cause = 'ADMINISTRATIVE_TERMINATION' then 'ASSIGNMENT_ENDED'
@@ -1054,9 +1064,24 @@ end $$;
 revoke all on function public.pengerjaan_saya(uuid) from public, anon, authenticated;
 grant execute on function public.pengerjaan_saya(uuid) to authenticated;
 
+-- Whether an approved further attempt waits for the caller on this assessment: the one thing a learner is told about a
+-- request (never that one waits, never that one was declined).
+create or replace function public.percobaan_saya(p_assessment_assignment uuid)
+returns boolean language sql stable security definer set search_path = public, pg_temp as $$
+  select exists (select 1 from public.attempt_requests g
+                  where g.person_id = public.current_person_id() and g.assessment_assignment_id = p_assessment_assignment
+                    and g.status = 'APPROVED'
+                    and not exists (select 1 from public.assessment_sessions x where x.attempt_request_id = g.id))
+$$;
+revoke all on function public.percobaan_saya(uuid) from public, anon, authenticated;
+grant execute on function public.percobaan_saya(uuid) to authenticated;
+
 -- ═══════════════════════════════════════════════════════════ the declarations
 insert into public.client_rpc_registry (function_name, exposure, note, authorization_kind, authorization_requirement)
 values
+  ('percobaan_saya', 'LEARNER',
+   'A1 (O41-16): whether an approved further attempt waits for the caller on one assessment assignment. Says nothing '
+   || 'of a waiting or a declined request.', null, null),
   ('extend_session_deadline', 'STAFF',
    'CAN_MANAGE_SITTINGS over the sitting''s place (A1; a professional-learning sitting: the platform admin); bounded and '
    || 'audited, no silent extension; a sitting past its deadline or held is not extended',
@@ -1161,7 +1186,8 @@ begin
   foreach f in array array['tambah_waktu_pengerjaan(uuid, integer, text)', 'akhiri_pengerjaan(uuid, text, text)',
       'lanjutkan_pengerjaan(uuid, text)', 'tutup_pengerjaan_ditahan(uuid, text)', 'minta_percobaan(uuid, text)',
       'putuskan_percobaan(uuid, boolean, text)', 'percobaan_antrean(uuid)',
-      'ubah_jadwal_penugasan(uuid, timestamptz, timestamptz, text)', 'daftar_pengerjaan(uuid, uuid)', 'pengerjaan_saya(uuid)'] loop
+      'ubah_jadwal_penugasan(uuid, timestamptz, timestamptz, text)', 'daftar_pengerjaan(uuid, uuid)', 'pengerjaan_saya(uuid)',
+      'percobaan_saya(uuid)'] loop
     if has_function_privilege('anon', ('public.' || f)::regprocedure, 'execute') then
       raise exception 'A1: an anonymous caller can call %', f;
     end if;
