@@ -1,8 +1,6 @@
 # B1 · Accountability events: completion page
 
-**Lane B. Effort M. Review before build: Sharon.** Status: revised for Sharon's three blockers (her pre-build verdict at
-`fece55a1`: BLOCKED; the owner accepted all three and chose the deletion approach). Awaiting her targeted recheck. No code
-yet.
+**Lane B. Effort M. Review before build: Sharon.** Status: **pre-build PASS** (Sharon, at `d242205d`; the three blockers of `fece55a1` resolved). Released for build.
 
 **Source:** THE PLAN §5.1, owner approved 11 Nov 2026 (`claude/bob-41-master-plan` `17cf4a7e`), with C1w finding F-8
 (§7.7). This page restates the plan for the review; where they differ, the plan wins.
@@ -92,6 +90,14 @@ It is an immutable historical snapshot: it is never recomputed when roles or enr
 - Retention is exactly 12 months, a constant in the function.
 - A print reference is stable and indexed, so «Jejak audit» finds it by typing it.
 - A magic-link sign-in is recorded at the callback, when the link is used, not when it is requested.
+
+## Two execution requirements (Sharon's PASS, 11 Nov)
+
+1. **`institution_ids` is derived inside the database** from `person_id`, at the instant the writer runs. The writer
+   takes no affiliation from the application; a route cannot supply or influence it.
+2. **A magic-link request for an unknown address** is recorded as `SIGN_IN_FAILED` / `LINK`, holding only the governed
+   identifier hash. Separate requests are separate events. Sending a link to a known address is not a sign-in and
+   writes no success; success is recorded only at the callback, when the link is used.
 
 ## Refused
 
