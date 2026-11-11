@@ -27,6 +27,33 @@ which are the owner's to provide, and production is outside every authorization.
 to sign in with the right and with a wrong password, and record the route's status and the Auth log's line for each.
 No real person's account is used.
 
+**Read-only finding on staging (Chief Architect, 11 Nov 2026, 23:55 UTC; owner authorized a controlled
+verification).** Counts only, no personal data read, nothing written:
+
+| On `pintar-staging` | |
+|---|---|
+| Migrations applied | 224, last `20270113160000`. So the function that writes the `infinity` value is installed |
+| Accounts locked with `infinity` | **0** |
+| Accounts locked with any other value | 0 |
+| Open suspensions | 0 |
+
+**So there is no exposure on staging today:** no account there is in the state that produces the fault. The defect
+is latent on staging; it would begin when someone suspends or closes an account there. Production is at 111
+migrations and does not have the function at all.
+
+**The active test was not run, by the Chief Architect's judgment.** Observing hosted Auth's behaviour means putting a
+synthetic account into the faulty state on staging, which creates the very exposure being measured, and its result
+would change nothing now: with no affected account there is nothing to protect urgently, and the correction is the
+same either way. It is deferred to the moment it is useful: **the first authorized promotion that carries this
+correction verifies, with one synthetic account, that a suspended sign-in on hosted Auth answers as a wrong password
+does.** Until then, **no account on staging is to be suspended or closed.**
+
+**A narrow correction for staging (the owner's question).** It is possible in principle: the defect is entirely in
+4.0 code that is on `main`, so its core (the lock value, the rewrite of locked accounts, the route's answer) does not
+need any 4.1 capability. It is **not recommended now**, because nothing on staging is exposed. To keep the option
+open at no cost, the pass states on its page whether its core change depends on any 4.1 object, and keeps the
+B1-specific test assertions separable from it.
+
 **The correction does not wait on the answer.** A stored ban value that Auth can read is right in both cases, and the
 disclosure through distinguishable responses must be closed in both cases. The observation decides only how urgent a
 later staging promotion is.
@@ -101,3 +128,4 @@ likely to find something this page did not.
 |---|---|
 | 11 Nov 2026 | Reported by the engineer. Owner approved the bounded correction. Scheduled after B1's close, alongside F-1, before B2 |
 | 11 Nov 2026 (late) | Confirmed by Daisy by running it on the local Auth; second consequence through the accountability reader recorded. Sharon's and Daisy's acceptance tests added. Ordered first of the two passes. B1 closed on `1fc719b5`; this pass may start |
+| 11 Nov 2026 (23:55 UTC) | Read-only check of staging: 224 migrations, no locked account, no open suspension. No exposure today. Active hosted test deferred to the first promotion that carries the correction. Engineer's completion page is on the work branch at `11171e5bd3e067d2f434f96cba09cf98102b6137` |

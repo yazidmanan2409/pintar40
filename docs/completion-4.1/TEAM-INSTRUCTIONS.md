@@ -1,0 +1,96 @@
+# PINTAR 4.1 · current instructions to the team
+
+> Kept by the Chief Architect on `claude/bob-41-master-plan`, so that every instruction is readable by its recipient
+> and names full commits. Replaced as the work moves; the log at the end keeps what was issued. It adds no gate: it is
+> where the prompts live.
+
+**Approved direction (owner, 11 Nov 2026):** B1 closure → L-1 → F-1 → B2 → A2 → C2w → A3 → C3w → Z.
+**Not authorized:** any PR, merge, staging promotion or production change. Staging is not to be modified.
+
+## State
+
+| Item | State | Commit |
+|---|---|---|
+| B1 | **Closed.** Sharon PASS, Daisy PASS, CI `43110782265` and journeys `43110786290` green | `1fc719b5127313bf24084695fa30d7505e15b5d1` |
+| L-1, suspended sign-in correction | **Building.** Completion page pushed | page at `11171e5bd3e067d2f434f96cba09cf98102b6137` |
+| F-1, C1w correction pass | Next, after L-1 | — |
+| S-1, phone drawer overflow | Approved, bounded; before B2's review | — |
+| B2 | Opens when L-1 and F-1 both have Sharon's PASS | — |
+
+Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `docs/completion-4.1/`.
+
+## Second Eye
+
+1. **Record B1's close.** `docs/completion-4.1/batches/B1-COMPLETION.md` still says "pre-build PASS, released for
+   build". Add the result: closed on `1fc719b5127313bf24084695fa30d7505e15b5d1`; Sharon PASS (two governed
+   limitations, one accepted exception); Daisy PASS (her record on `ux-1/daisy-experience` at `c3ab4eac`); CI and
+   journeys run ids; the register B1-R1 to R5 going to B2. Documentation only; it may ride with the next commit.
+2. **L-1 (in progress).** Brief: `AUTH-SUSPENDED-SIGNIN-CORRECTION.md`. Your reading of the one conflict is right:
+   Sharon's condition governs; the accountability event records `MASUK_TIDAK_COCOK`. Three additions:
+   - **Staging has no locked account** (read-only check, in the brief §2). The rewrite migration must therefore be
+     correct on a database with none, with some, and when run twice.
+   - **State on the page whether the core change** (lock value, rewrite, route answer) **depends on any 4.1 object,**
+     and keep the B1-A04 assertions separable from it. This keeps a narrow correction of `main` possible; it is not a
+     request to build one.
+   - **Do not suspend or close any account on staging,** and do not run the hosted test. It is deferred to the first
+     promotion that carries this correction.
+   When the full pre-flight is green and pushed: give the owner the 40-character commit for Sharon and Daisy.
+3. **F-1.** Brief: `C1W-F1-CORRECTION.md` (§8 impact list, §9 brief). Starts when L-1 is pushed for review; it does
+   not wait for L-1's verdict, because the code is independent. Its own commit; Sharon's review on that commit. If a
+   screen changes (row 2, the key shown to the teacher), say so on the page so Daisy is asked.
+4. **S-1.** The open phone drawer is 8 px wider than the screen on every Konfigurasi page (Daisy's review of
+   `1fc719b5`, §2b; look first at `.pin-staf .pin-laci { width: 100% }` inside the fixed
+   `.pin-staf[data-laci="buka"]` in `src/app/experience.css`). Required: the open sheet is no wider than the
+   viewport; it keeps the 16 px gutter; the focus ring is whole at 320 px. Its own small commit, after F-1 and before
+   B2's candidate, with the rendered check at 390 and 320 px on three different Konfigurasi pages, because it is a
+   shell change: ask what else it changed. Daisy verifies it together with B2, in one visit.
+5. **B2** opens when L-1 and F-1 both have Sharon's PASS. It takes B1-R1 to R5 (`B1-ARCHITECT-CHECK.md` §13) and the
+   print step of §8.5 journey 4.
+6. **Every page** carries the cross-module inventory and the next-state row (`SYSTEM-INTEGRITY-4.1.md` §2, §3a).
+   **Report** at each push: the 40-character commit, the pre-flight figures, the CI and journeys run ids, and any
+   limitation.
+
+## Sharon
+
+1. **L-1, when its commit is given to you** (one review, on that exact commit). The brief is
+   `AUTH-SUSPENDED-SIGNIN-CORRECTION.md`; the engineer's page is
+   `docs/completion-4.1/batches/AUTH-SUSPENDED-SIGNIN-COMPLETION.md` on the work branch. Please verify:
+   - from outside, a suspended, a closed, an anonymised and an unknown account and a wrong password are
+     indistinguishable in status, body and wording, for every sign-in method, whichever password is given, and that
+     the measured response times do not separate them;
+   - a real Auth outage still answers 503;
+   - the lock value, every reader of it, reinstatement, and the rewrite of already-locked accounts (none, some, run
+     twice);
+   - your B1-A04 assertion: the accountability event records `MASUK_TIDAK_COCOK`. **Please confirm the
+     reconciliation in the brief §5:** the true reason is kept only in the server log and the suspension's own audit
+     record, never in a record a school admin reads;
+   - the page's statement on whether the core change depends on any 4.1 object.
+2. **F-1, when its commit is given to you:** your six acceptance requirements (`C1W-F1-CORRECTION.md` §5), the
+   accessor chosen per view (§9.2), and the classification of the statistics views (§8 row 5). A proposed change to
+   a catalogue definition is escalated, not reviewed in.
+3. **B2's pre-build review** follows, on its completion page.
+4. **Verdicts:** PASS or BLOCKED on the 40-character commit, with how the four questions were answered.
+
+## Daisy
+
+1. **L-1, on the same commit as Sharon** (small): your red-first check. A suspended or closed account's attempt reads
+   exactly as a wrong password does, on the sign-in screen and as the reader's row («Email, username, atau password
+   belum cocok.»), whichever password is given. Nothing else in the screens should have changed; say so if it has.
+2. **F-1:** only if the engineer's page says a screen changed (most likely the teacher's per-question evidence showing
+   the key in force). Then: what the teacher is shown as the key, and whether the original key is shown and how.
+3. **B2, one visit:** your design input for B2 as planned, plus the register B1-R1 to R5 (wording is yours), the
+   completeness notice B1-R4 (platform admin only, qualified, linking to health; no school named), and S-1's
+   verification at 390 and 320 px across Konfigurasi pages.
+4. **Verdicts:** PASS or BLOCKED on the 40-character commit.
+
+## Relay rules (after the 38-character SHA and the unreadable prompt file)
+
+- A commit is always given as 40 characters, copied from `git rev-parse`.
+- A review instruction is either in this file or pasted in full. A file on a branch the recipient cannot read is not
+  an instruction.
+
+## Log
+
+| When (UTC) | Issued |
+|---|---|
+| 11 Nov 2026, 23:58 | First issue: B1 close record; L-1 additions; F-1; S-1; B2 opening rule; reviewers' checks |
