@@ -70,3 +70,32 @@ reader does not depend on the ordering the tests relied on. One point for the F-
 any new read of "the result in force" goes through `hasil_terkini_id` or `hasil_murid_id`, never an ordering by
 `computed_at`.
 
+
+## 7 · Sharon's ruling on §4, and what the corrected candidate must carry (11 Nov 2026)
+
+**Sharon: BLOCKED on `40e89308`.** §4 is a blocker for B1's closure; she found the same defect independently in her
+result review. The correction and test of §4 are accepted as written:
+
+- A caller who is not the platform admin receives `array[p_sekolah]` in that column; the platform admin keeps the
+  full snapshot.
+- Test, red first on `40e89308`: a two-school person's sign-in; A's admin reads only A, B's admin reads only B, the
+  platform admin reads both.
+
+**Her recheck of the corrected candidate is bounded to:**
+
+1. The disclosure correction and its red-first test.
+2. Four checks: the root-cause search across client RPCs for any other path that returns school identifiers or
+   affiliation facts; a suspended or closed account's sign-in recorded with the generic failure code; a real learner
+   transfer, read separately by A, B and the platform; «Jejak audit» and the reader agreeing on the purge row and on
+   a purged print reference.
+3. Consistency across authentication, membership, the print writer, L4 deletion with the deleted person's display,
+   audit, retention, and backup and restore including the three tables and the reinstalled job.
+4. The inventory's accuracy against the code and tests on that commit, including B2's print UI as a dependency, the
+   magic-link gate before enablement, the evaluator exclusion and purge throughput.
+5. CI and journeys green on the exact commit; the local pre-flight taken from the engineer's P5 note.
+
+Her cross-module verification of `40e89308` is already done and recorded in her result review; the remaining evidence
+gaps she named are backup coverage and the human journey through the real transfer path.
+
+**State:** no corrected candidate exists; the work branch's head is still `40e89308`. B1 is not closed. Daisy's
+result review is to name the same corrected commit.
