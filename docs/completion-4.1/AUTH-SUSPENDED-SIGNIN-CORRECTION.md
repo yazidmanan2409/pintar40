@@ -11,6 +11,9 @@
 | Reported by | The engineer, during B1's correction pass (`B1-ARCHITECT-CHECK.md` §9) |
 | What | A suspended or closed account that tries to sign in is answered "cannot check right now" (503). A wrong password is answered with the normal refusal (401) |
 | Consequences | A suspended person is told the service is down. An outside observer can tell a suspended or closed account from a wrong password, so the response discloses that the account exists and its state |
+| Confirmed by running it (Daisy, at `1fc719b5`, local Auth gotrue v2.197.0) | Auth fails with a scan error on `banned_until` (a string that is not a time). The 503 is **independent of the password**: a suspended staff member with a wrong password gets 503; an address that is no one's and an active member with a wrong password both get 401 `MASUK_TIDAK_COCOK`. So the state of an account can be learned by anyone who tries its address, with no password |
+| Second consequence, through B1 | Each such attempt is one row in the accountability reader reading «PINTAR sedang tidak dapat memeriksa; diminta mencoba lagi.» A school admin sees only that person's rows reading this way and can infer the suspension, which the ruling on neutral sign-in exists to prevent |
+| Where the defect is | In `M/20270113130000…`, which is on `main`. It is 4.0's, not 4.1's |
 | Cause, read in the code | `akun_kunci` (`M/20270113130000…:104-114`) locks an account by `update auth.users set banned_until = 'infinity'::timestamptz`. The Auth service cannot read that value as a time, fails, and the sign-in route reports a failed service |
 
 ## 2 · Whether hosted Auth does the same (the owner's first instruction)
@@ -60,6 +63,10 @@ later staging promotion is.
 - Suspend, then reinstate: sign-in refused, then works.
 - An account locked under the old value, after the migration: refused in the ordinary way.
 - B1's event for each: the internal outcome is the specific one; nothing specific reaches the response.
+- **Daisy's red-first test (design side):** B1-A04 with its accepted codes narrowed to `MASUK_TIDAK_COCOK`, plus a
+  wrong-password attempt on the suspended account. Both fail today. The response matches a wrong password in status,
+  code and wording, whichever password is given; the reader's row then reads «Email, username, atau password belum
+  cocok.»
 - **Sharon's acceptance condition (her B1 recheck at `1fc719b5`):** in B1-A04 the present `c.note` becomes a
   `c.expect` that a suspended or closed attempt records `MASUK_TIDAK_COCOK`.
 
@@ -78,12 +85,19 @@ likely to find something this page did not.
 
 - **Sharon:** once, on the pass's exact commit: the corrected behaviour and the security boundary.
 - **Daisy:** only if any wording a user sees changes.
-- **Order at the boundary after B1:** the F-1 pass and this pass are independent (different code). They may be built
-  one after the other in either order, each as its own commit with its own review. B2 opens when both have Sharon's
+- **Order at the boundary after B1: this pass first, then F-1.** They are independent (different code), each its own
+  commit with its own review. This one goes first because it is a disclosure reachable without a password, and
+  because every day it stands, the accountability store gains rows that carry it. B2 opens when both have Sharon's
   PASS.
+- **Promotion:** B1 is not promoted ahead of this correction (`B1-ARCHITECT-CHECK.md` §13).
+- **Rows already written.** Rows recorded before the correction keep the old outcome. They are a true record of what
+  the route answered, and the store is insert-only, so they are not rewritten. On the work branch's test data this
+  is of no consequence. Where real rows could exist is a hosted environment that had B1 without this correction,
+  which the promotion constraint prevents.
 
 ## 7 · Log
 
 | Date | Entry |
 |---|---|
 | 11 Nov 2026 | Reported by the engineer. Owner approved the bounded correction. Scheduled after B1's close, alongside F-1, before B2 |
+| 11 Nov 2026 (late) | Confirmed by Daisy by running it on the local Auth; second consequence through the accountability reader recorded. Sharon's and Daisy's acceptance tests added. Ordered first of the two passes. B1 closed on `1fc719b5`; this pass may start |

@@ -156,3 +156,4 @@ test red.
 | 11 Nov 2026 | F-1 classified a mandatory pre-promotion blocker (Sharon; accepted by the owner). Recorded. Pass scheduled for the boundary after B1. B1 not interrupted |
 | 11 Nov 2026 (evening) | Owner: continue under the approved plan overnight; schedule this pass after B1 closes and before B2. Release rule recorded in §3. Preliminary impact list (§8) and the engineer's brief (§9) added |
 | 11 Nov 2026 (late) | Owner approved a second, separate small correction at the same boundary (`AUTH-SUSPENDED-SIGNIN-CORRECTION.md`). Sequence: B1 closes → this pass and that one, each with Sharon's review → B2 |
+| 11 Nov 2026 (late) | B1 closed on `1fc719b5` (Sharon PASS, Daisy PASS, CI and journeys green). This pass is released. Order at the boundary: the suspended sign-in correction first, then this pass; B2 after both have Sharon's PASS |

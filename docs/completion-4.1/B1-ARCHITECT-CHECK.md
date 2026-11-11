@@ -220,3 +220,47 @@ both completed successfully on that commit (checked by her on GitHub). B1 may cl
   belongs in B2's admin-lookup journey.
 
 **Remaining for B1's close:** Daisy's verdict on the same commit.
+
+## 13 · Daisy's review of `1fc719b5`, and B1's close (11 Nov 2026)
+
+**Daisy: PASS for B1 on `1fc719b5127313bf24084695fa30d7505e15b5d1`.** Rendered locally at 1280, 390 and 320 px for a
+school admin, the platform admin, two other schools' admins and a refused teacher; axe found no violation in any
+view; keyboard checked. Her five checks: the two-school read (corrected), the five states (the read failure now
+provoked), the school and platform views, a deleted person under the PINTAR ID, keyboard and accessibility. No file
+under `src/` changed since `40e89308`, so the screen is the one she had already reviewed.
+
+### B1 is closed
+
+| Boundary check (`SYSTEM-INTEGRITY-4.1.md` §6) | |
+|---|---|
+| Cross-module inventory on the completion page | Present; verified accurate by Sharon |
+| Transitions answered | Present, against test ids |
+| §8.5 journey run on the candidate | Journey step B1J, green in run `43110786290`; the print step deferred to B2, stated |
+| CI on the exact commit | Run `43110782265`, success |
+| Both verdicts name the same commit | Sharon PASS and Daisy PASS, both on `1fc719b5` |
+
+**B1 is closed on `1fc719b5`.** Closed is not promotable: see the constraint below. B2 does not open yet; the two
+correction passes come first.
+
+### Promotion constraint on B1 (new, from Daisy's finding L-1)
+
+Until the suspended sign-in correction is in, the accountability reader shows a suspended or closed person's failed
+attempts as «PINTAR sedang tidak dapat memeriksa…» while everyone else's read normally, so **a school admin can infer
+a suspension from the list**. B1 records the route's answer faithfully; the fault is the route's. But the two
+together disclose. Therefore **B1 is not to be promoted ahead of that correction**, exactly as C1w is not promoted
+ahead of F-1. No promotion is authorized in any case; this records the dependency for when one is asked for.
+
+### The register after B1
+
+| # | Finding | Chief Architect's disposition |
+|---|---|---|
+| B1-R1 | The refusal says «Admin platform» | **B2**, with Daisy's wording. B2 works in this reader and Daisy reviews B2 |
+| B1-R2 | «Seluruh platform» does not name each row's school | **B2**, platform view only |
+| B1-R3 | The Konfigurasi index does not list the reader (optional) | **B2**, if it is one entry |
+| B1-R4 | A failed write leaves a gap no reader shows | **B2** (owner's decision); must be done before Z |
+| B1-R5 | Two «Hapus saringan» in the no-match and purged-reference states | **B2**: drop the empty state's own action, as the other Konfigurasi no-match state does |
+| S-1 | Shell, not B1: the open phone drawer is 8 px wider than the screen (no left gutter, a clipped focus ring, «EN» and «Keluar» cut). Existing 4.0 behaviour on every Konfigurasi page | A small shell correction **before Z**, reviewed by Daisy. It is an existing defect found by the consistency check, not new scope; reported to the owner |
+| L-1 | Not B1: a suspended or closed account's sign-in answers 503 | The approved correction, `AUTH-SUSPENDED-SIGNIN-CORRECTION.md`; now **first** of the two passes |
+
+**Not seen by Daisy, stated by her:** the English rendering of the reader; a WITA or WIT school's row; a real network
+origin; real screen readers; hosted Auth's behaviour for L-1.
