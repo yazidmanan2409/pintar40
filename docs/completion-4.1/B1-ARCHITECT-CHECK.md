@@ -1,0 +1,55 @@
+# B1 · Chief Architect's read-only check of the build
+
+> **Coordination note, not a review gate.** Sharon's and Daisy's result reviews are B1's gates. This is the Chief
+> Architect's reading of the pushed build against THE PLAN §5.1 and the three execution requirements. Read at
+> `claude/system-integrity-4.0` `380b9e07` on 11 Nov 2026, 17:30 UTC. Nothing was changed on that branch.
+
+## 1 · State
+
+| | |
+|---|---|
+| Build commit | `380b9e07` (15:14 UTC). Its message says the local run was the targeted one and "pre-flight continues" |
+| CI on it | **Red.** Run `43053674112`, job "install · lint · typecheck · build", step `selftest:build-identity`. Every later job was skipped, so nothing else has been judged by CI. Journeys run `43053681237` also failed, within 30 seconds |
+| B1 | **Not a candidate yet.** Not closed. B2 not opened |
+
+## 2 · The CI failure, reproduced
+
+Reproduced locally at `380b9e07` with `npx tsx selftest/build-identity.check.ts`: 10 pass, 1 fail.
+
+- **Check:** "no selftest file reaches .next except through compiledBundle()".
+- **Offender:** `selftest/b1-layar.test.ts:44`, which builds the path
+  `join(repoRoot, ".next", "server", "server-reference-manifest.json")` directly.
+- **Correction (the check's own instruction):** read the bundle with `compiledBundle(ctx, ...)` and declare
+  `requires: ["build"]` on the test.
+
+This is a static check that takes one second locally. It is in the scope of §4.1 P2 (complete local verification
+before any push); the push at `380b9e07` went out before the pre-flight had finished. No harm beyond one wasted CI
+run, but the rule stands for the candidate: nothing is sent to the reviewers until the whole local pass is green.
+
+## 3 · The three execution requirements, as built
+
+| Requirement | Reading of `M/20270116100000…` | Standing |
+|---|---|---|
+| Schools computed in the database from the person (Sharon) | `akuntabilitas_catat` takes no school argument; it calls `akuntabilitas_sekolah_orang(person, now)` (live roles within validity, PENDING or ACTIVE enrolments) | Met |
+| A print belongs to the one school that owns the resource (Bob) | For `PRINT_REQUEST` the writer resolves the node's or assignment's `institution_id` itself and refuses an unknown resource; a table constraint requires exactly one school on a print row | Met, and stronger than asked |
+| Governed deletion exception (Sharon's blocker 3) | The guard admits an update only under the deletion's own marker naming that row's person, only when both fields go to null and every other column is unchanged; delete only under the purge's marker and only for rows past 12 months; truncate refused | Met |
+
+## 4 · One observation for the candidate (for Second Eye; for Sharon at her result review)
+
+**The reader returns the whole `institution_ids` array to a school admin.** `akuntabilitas_baca` filters correctly
+(`p_sekolah = any (e.institution_ids)`), but its result row carries the full array. For a person at schools A and B,
+school A's admin therefore receives school B's identifier with every sign-in of that person: that the person is
+affiliated elsewhere, and where. The page reads only `institution_ids[0]`, for the time zone, but the function is the
+boundary, not the page.
+
+- **Suggested correction (small, inside B1):** for a caller who is not the platform admin, return only the caller's
+  own school in that column (`array[p_sekolah]`), as `network_origin` is already withheld from them. The platform
+  admin keeps the full array.
+- **Test:** the two-school person's sign-in, read by A's admin, names A only.
+- This is the Chief Architect's observation, not an owner decision. If Sharon judges the disclosure acceptable, her
+  judgment stands.
+
+## 5 · Next
+
+Second Eye: correct §2, consider §4, finish P1 to P6 locally, then send the exact candidate to Sharon and Daisy. When
+both have passed it, B1 is closed and the C1w F-1 correction pass starts (`C1W-F1-CORRECTION.md`), before B2.
