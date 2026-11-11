@@ -1,0 +1,87 @@
+wulan Konfigurasi link: 0 [] | context: Konfigurasi
+wulan Jejak audit page link: 1 ["Catatan masuk dan cetak"]
+wulan 1280 page: /konfigurasi/catatan-masuk | ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTAR ID, atau referensi cetak Jenis Semua j
+wulan 1280 rows: {"n":50,"orang":["Bu Wulan (uji laporan)","Pak Yusuf (uji laporan)"],"jenis":["SIGN_IN_FAILED"],"kolom":["Waktu","Siapa","Apa","Cara","Hasil"],"pager":"Menampilkan 1–50 catatanSebelumnyaHalaman 1Berikutnya","sideways":false}
+wulan axe: []
+aria head:
+- main:
+  - link "← Jejak audit":
+    - /url: /konfigurasi/audit
+  - paragraph: Konfigurasi
+  - heading "Catatan masuk dan cetak" [level=1]
+  - paragraph: "Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus."
+  - form "Saring catatan":
+    - text: Cari nama, PINTAR ID, atau referensi cetak
+    - searchbox "Cari nama, PINTAR ID, atau referensi cetak"
+    - text: Jenis
+    - combobox "Jenis":
+      - option "Semua jenis" [selected]
+      - option "Masuk"
+      - option "Tidak berhasil masuk"
+      - option "Keluar"
+      - option "Meminta cetakan resmi"
+    - text: Dari tanggal
+    - textbox "Dari tanggal"
+    - paragraph: Tanpa batas tanggal.
+    - text: Sampai tanggal
+    - textbox "Sampai tanggal"
+    - paragraph: Tanpa batas tanggal.
+    - button "Tampilkan"
+  - region "Catatan masuk dan cetak":
+    - table "Catatan masuk dan cetak, yang terbaru di atas":
+      - caption: Catatan masuk dan cetak, yang terbaru di atas
+      - rowgroup:
+        - row "Waktu Siapa Apa Cara Hasil":
+          - columnheader "Waktu"
+          - columnheader "Siapa"
+          - columnheader "Apa"
+          - columnheader "Cara"
+          - columnheader "Hasil"
+      - rowgroup:
+        - row "12 Nov 2026, 04.13 WIB Bu Wulan (uji laporan) Tidak berhasil masuk Password Sudah terlalu sering dicoba; diminta menunggu.":
+          - rowheader "12 Nov 2026, 04.13 WIB"
+          - cell "Bu Wulan (uji laporan)"
+          - cell "Tidak berhasil masuk"
+          - cell "Password"
+          - cell "Sudah terlalu sering dicoba; diminta menunggu."
+Tab order: a «Langsung ke isi» → button «Ciutkan navigasi» → a «KonfigurasiKonfigurasi» → a «PendataanPendataan» → a «Aktivasi akunAktivasi akun» → a «StudioStudio» → a «Laporkan masalahLaporkan masalah» → button «ID» → button «EN» → button «BLBu Wulan (uji laporan)» → button «KeluarKeluar» → a «← Jejak audit» → input[cari] «» → select[jenis] «Semua jenisMasukTidak berhasil masukKelu» → input[dari] «» → input[dari] «» → input[dari] «» → input[dari] «» → input[sampai] «» → input[sampai] «» → input[sampai] «» → input[sampai] «»
+search "Yusuf" → {"n":37,"orang":["Pak Yusuf (uji laporan)"],"jenis":["SIGN_IN_FAILED","PRINT_REQUEST","SIGN_IN_OK"],"kolom":["Waktu","Siapa","Apa","Cara","Hasil"],"pager":"Menampilkan 1–37 catatanSebelumnyaHalaman 1B | 
+search "CTK-A5AQ-ZE02" → {"n":1,"orang":["Pak Yusuf (uji laporan)"],"jenis":["PRINT_REQUEST"],"kolom":["Waktu","Siapa","Apa","Cara","Hasil"],"pager":"Menampilkan 1–1 catatanSebelumnyaHalaman 1Berikutnya","sideways":false} | 
+search "ctk a5aq ze02" → {"n":1,"orang":["Pak Yusuf (uji laporan)"],"jenis":["PRINT_REQUEST"],"kolom":["Waktu","Siapa","Apa","Cara","Hasil"],"pager":"Menampilkan 1–1 catatanSebelumnyaHalaman 1Berikutnya","sideways":false} | 
+search "CTK-ZZZZ-ZZZZ" → {"n":0,"orang":[],"jenis":[],"kolom":[],"pager":null,"sideways":false} | Referensi ini tidak ditemukan. Catatan cetak disimpan 12 bulan, sejak 12 Nov 2026.
+search "Admin Alpha" → {"n":0,"orang":[],"jenis":[],"kolom":[],"pager":null,"sideways":false} | Tidak ada catatan yang cocok dengan saringan ini.
+search "orang.tidak.ada" → {"n":0,"orang":[],"jenis":[],"kolom":[],"pager":null,"sideways":false} | Tidak ada catatan yang cocok dengan saringan ini.
+jenis=PRINT: {"n":1,"orang":["Pak Yusuf (uji laporan)"],"jenis":["PRINT_REQUEST"],"kolom":["Waktu","Siapa","Apa","Cara","Hasil"],"pager":"Menampilkan 1–1 catatanSebelumnyaHalaman 1Berikutnya","sideways":false} 12 Nov 2026, 04.12 WIB Pak Yusuf (uji laporan) Meminta cetakan resmi · Referensi CTK-A5AQ-ZE02 Berhasil
+future date: Tidak ada catatan yang cocok dengan saringan ini.
+page 2: {"n":8,"orang":["Pak Yusuf (uji laporan)","Bu Wulan (uji laporan)","Tono Rahayu (5B)"],"jenis":["SIGN_IN_FAILED","PRINT_REQUEST","SIGN_OUT","SIGN_IN_OK"],"kolom":["Waktu","Siapa","Apa","Cara","Hasil"],"pager":"Menampilkan 51–58 catatanSebelumnyaHalaman 2Berikutnya","sideways":false}
+keyboard filter → /konfigurasi/catatan-masuk focus button «Tampilkan»
+wulan 390 page: /konfigurasi/catatan-masuk | ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTAR ID, atau referensi cetak Jenis Semua j
+wulan 390 rows: {"n":50,"orang":["Bu Wulan (uji laporan)","Pak Yusuf (uji laporan)"],"jenis":["SIGN_IN_FAILED"],"kolom":["Waktu","Siapa","Apa","Cara","Hasil"],"pager":"Menampilkan 1–50 catatanSebelumnyaHalaman 1Berikutnya","sideways":false}
+wulan 320 page: /konfigurasi/catatan-masuk | ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTAR ID, atau referensi cetak Jenis Semua j
+wulan 320 rows: {"n":50,"orang":["Bu Wulan (uji laporan)","Pak Yusuf (uji laporan)"],"jenis":["SIGN_IN_FAILED"],"kolom":["Waktu","Siapa","Apa","Cara","Hasil"],"pager":"Menampilkan 1–50 catatanSebelumnyaHalaman 1Berikutnya","sideways":false}
+yusuf Konfigurasi link: 0 [] | context: ?
+yusuf Jejak audit page link: 0 []
+yusuf 1280 page: /konfigurasi/catatan-masuk | PINTAR Catatan masuk dan cetak hanya dibaca admin sekolah untuk sekolahnya, dan Admin platform. Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda. Konfigurasi Masuk sebagai Pak Yusuf (uji laporan) Keluar Dr. dr. Gladys DT Tubarad, M.Pd.Ked 
+yusuf 1280 rows: {"n":0,"orang":[],"jenis":[],"kolom":[],"pager":null,"sideways":false}
+yusuf axe: []
+alpha Konfigurasi link: 0 [] | context: Konfigurasi
+alpha Jejak audit page link: 1 ["Catatan masuk dan cetak"]
+alpha 1280 page: /konfigurasi/catatan-masuk | ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTAR ID, atau referensi cetak Jenis Semua j
+alpha 1280 rows: {"n":2,"orang":["Guru Alpha (sintetis)","Admin Alpha (sintetis)"],"jenis":["SIGN_IN_FAILED","SIGN_IN_OK"],"kolom":["Waktu","Siapa","Apa","Cara","Hasil"],"pager":"Menampilkan 1–2 catatanSebelumnyaHalaman 1Berikutnya","sideways":false}
+alpha axe: []
+beta Konfigurasi link: 0 [] | context: Konfigurasi
+beta Jejak audit page link: 1 ["Catatan masuk dan cetak"]
+beta 1280 page: /konfigurasi/catatan-masuk | ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTAR ID, atau referensi cetak Jenis Semua j
+beta 1280 rows: {"n":0,"orang":[],"jenis":[],"kolom":[],"pager":null,"sideways":false}
+beta axe: []
+sys Konfigurasi link: 0 [] | context: Konfigurasi
+sys Jejak audit page link: 1 ["Catatan masuk dan cetak"]
+sys 1280 page: /konfigurasi/catatan-masuk | ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTAR ID, atau referensi cetak Jenis Semua j
+sys 1280 rows: {"n":0,"orang":[],"jenis":[],"kolom":[],"pager":null,"sideways":false}
+sys axe: []
+sys 390 page: /konfigurasi/catatan-masuk | ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTAR ID, atau referensi cetak Jenis Semua j
+sys 390 rows: {"n":0,"orang":[],"jenis":[],"kolom":[],"pager":null,"sideways":false}
+sys 320 page: /konfigurasi/catatan-masuk | ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTAR ID, atau referensi cetak Jenis Semua j
+sys 320 rows: {"n":0,"orang":[],"jenis":[],"kolom":[],"pager":null,"sideways":false}
+yusuf (teacher): /konfigurasi/catatan-masuk PINTAR Catatan masuk dan cetak hanya dibaca admin sekolah untuk sekolahnya, dan Admin platform. Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda. Konfigurasi Masuk sebagai Pak Yusuf (uji laporan) Keluar Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.
+EN: ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTAR ID, atau referensi cetak Jenis Semua jenis Masuk Tidak berhasil masuk Keluar Meminta cetakan resmi Dari tanggal Tanpa batas tanggal. Sampai tanggal Tanpa batas tanggal. Tampilkan Catatan masuk dan cetak, yang terbaru di atas Waktu Siapa Apa Cara Hasil 12 Nov 2026, 04.13 WIB Pak Yusuf (uji laporan) Tidak berhasil masuk Password Sudah terlalu sering dicoba; diminta menunggu. 12 Nov 2026, 04.13 WIB Bu Wulan (uji laporan) Tidak berhasil masuk PINTAR ID dan PIN PINTAR ID atau PI
