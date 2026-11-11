@@ -514,9 +514,17 @@ export const c1wLayarTests: SelfTest[] = [
         const h1 = await (await guru.halaman(paketDi(d.course, `?pelajaran=1&ubah=${item}`))).text();
         const f1 = formDengan(h1, `id="soal-form-${item}"`, { pertanyaan: "Pertanyaan akhir nomor 1 tentang pecahan?", bacaan: "",
           pilihan_A: "Pilihan tepat 1", alasan_A: "Ini tepat.", pilihan_B: "Pilihan lain 1", alasan_B: "Ini belum tepat.", kunci: "B", tujuan: "" });
-        if (!c.expect(typeof f1 !== "string", `the editor: ${f1}`)) return c.verdict("");
-        const r1 = await guru.kirim(paketDi(d.course), { form: f1 as Record<string, string> });
-        c.expect(/c1h=ok/.test(ke(r1)), `the author's save: ${ke(r1)}`);
+        // a screen that is missing is recorded as a failure and the journey goes on by the same function the screen
+        // calls, so every later screen is still judged (a bundle without the editor is red at each step, not only here)
+        if (c.expect(typeof f1 !== "string", `the editor: ${f1}`)) {
+          const r1 = await guru.kirim(paketDi(d.course), { form: f1 as Record<string, string> });
+          c.expect(/c1h=ok/.test(ke(r1)), `the author's save: ${ke(r1)}`);
+        } else {
+          sebagai(BOOT_GURU.identitas, `select public.ubah_soal_draf(${lit(item)}, (select revision from public.items where id = ${lit(item)}),
+            jsonb_build_object('stem', 'Pertanyaan akhir nomor 1 tentang pecahan?', 'options', jsonb_build_array(
+              jsonb_build_object('label', 'A', 'body', 'Pilihan tepat 1', 'is_correct', false, 'rationale', 'Ini tepat.'),
+              jsonb_build_object('label', 'B', 'body', 'Pilihan lain 1', 'is_correct', true, 'rationale', 'Ini belum tepat.'))))`);
+        }
         // 2. reviewed, approved, locked and published by the people whose steps they are
         const rel = terbitkan(d.course, BOOT);
         c.expect(psql(`select status from public.plp_releases where id = ${lit(rel)}`) === "PUBLISHED", "the package was not published");
@@ -553,12 +561,16 @@ export const c1wLayarTests: SelfTest[] = [
         const q3 = new URLSearchParams({ pelajaran: "1", kunci: item, langkah: "3", baru: "A", alasan: ALASAN }).toString();
         const p3 = await (await admin.halaman(paketDi(d.course, `?${q3}`))).text();
         const f3 = formDengan(p3, "data-kunci-kirim", {});
-        if (!c.expect(typeof f3 !== "string", `step 3: ${f3}`)) return c.verdict("");
-        const r3 = await admin.kirim(paketDi(d.course), { form: f3 as Record<string, string> });
-        const p4 = await (await admin.halaman(ke(r3).replace(asal, ""))).text();
+        let r3: Response | null = null;
+        if (c.expect(typeof f3 !== "string", `step 3: ${f3}`)) {
+          r3 = await admin.kirim(paketDi(d.course), { form: f3 as Record<string, string> });
+        } else {
+          sebagai(BOOT_ADMIN.identitas, `select public.ajukan_koreksi_kunci(${lit(item)}, array['A'], ${lit(ALASAN)})`);
+        }
+        const p4 = await (await admin.halaman(r3 ? ke(r3).replace(asal, "") : paketDi(d.course, "?pelajaran=1"))).text();
         const koreksi = psql(`select id from public.key_corrections where item_id = ${lit(item)} and status = 'PENDING'`);
-        c.expect(/c1=KOREKSI_TERKIRIM/.test(ke(r3)) && /^[0-9a-f-]{36}$/.test(koreksi) && /Menunggu konfirmasi orang kedua · diusulkan /.test(teks(p4))
-          && !new RegExp(`data-kunci-keliru="${item}"`).test(p4), `the proposal and the proposer's waiting state: ${ke(r3)}`);
+        c.expect(r3 !== null && /c1=KOREKSI_TERKIRIM/.test(ke(r3)) && /^[0-9a-f-]{36}$/.test(koreksi) && /Menunggu konfirmasi orang kedua · diusulkan /.test(teks(p4))
+          && !new RegExp(`data-kunci-keliru="${item}"`).test(p4), `the proposal and the proposer's waiting state: ${r3 ? ke(r3) : "no form"}`);
         // the proposer opening the second person's page: her sentence, no button
         const p5 = await (await admin.halaman(`/studio/tinjau/kunci/${koreksi}`)).text();
         c.expect(/data-kunci-orang-kedua/.test(p5) && !/data-kunci-tegaskan|data-kunci-tolak/.test(p5) && teks(p5).includes(id("studio.kunci.orang_kedua")),
@@ -573,11 +585,14 @@ export const c1wLayarTests: SelfTest[] = [
         c.expect(/data-kunci-lama="">B</.test(tersusun(k1)) && /data-kunci-baru="">A</.test(tersusun(k1)) && teks(k1).includes(ALASAN) && /<dialog\b[^>]*class="pin-dialog"/.test(tersusun(k1))
           && teks(k1).includes("Hasil 1 sesi dihitung ulang. Hasil asli tetap tersimpan."), "the second person's page lacks the keys side by side, the reason or the dialog's sentence");
         const fk = formDengan(k1, "data-kunci-tegaskan", {});
-        if (!c.expect(typeof fk !== "string", `the confirmation's form: ${fk}`)) return c.verdict("");
-        const rk = await kadep.kirim(`/studio/tinjau/kunci/${koreksi}`, { form: fk as Record<string, string> });
-        const k2 = await (await kadep.halaman(ke(rk).replace(asal, ""))).text();
-        c.expect(/hasil=ok/.test(ke(rk)) && /data-kunci-selesai/.test(k2) && /Selesai\. 1 hasil dihitung ulang pada .+\. Hasil asli dan jawaban murid tetap tersimpan\./.test(teks(k2)),
-          `the confirmation: ${rk.status} ${ke(rk)}`);
+        if (c.expect(typeof fk !== "string", `the confirmation's form: ${fk}`)) {
+          const rk = await kadep.kirim(`/studio/tinjau/kunci/${koreksi}`, { form: fk as Record<string, string> });
+          const k2 = await (await kadep.halaman(ke(rk).replace(asal, ""))).text();
+          c.expect(/hasil=ok/.test(ke(rk)) && /data-kunci-selesai/.test(k2) && /Selesai\. 1 hasil dihitung ulang pada .+\. Hasil asli dan jawaban murid tetap tersimpan\./.test(teks(k2)),
+            `the confirmation: ${rk.status} ${ke(rk)}`);
+        } else {
+          sebagai(BOOT_KADEP.identitas, `select public.tegaskan_koreksi_kunci(${lit(koreksi)})`);
+        }
         // 6. the results recomputed: the original kept, one result in force, scored from the original answers
         const rantai = psql(`select count(*) || '|' || (select r.mastery from public.assessment_results r where r.id = public.hasil_terkini_id(${lit(sesi)}))
           || '|' || (select r.mastery from public.assessment_results r where r.session_id = ${lit(sesi)} and r.supersedes_result_id is null) from public.assessment_results where session_id = ${lit(sesi)}`);
