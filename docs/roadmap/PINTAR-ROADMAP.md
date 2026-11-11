@@ -18,6 +18,15 @@ it contains no batches, schedules, designs or acceptance tests. Each version get
 evidence, explains what it supports, says plainly what it does not, and never issues a judgment of a learner or an
 educator on its own authority.
 
+**How every version is built (owner's standing directive, 11 Nov 2026).** PINTAR evolves as one integrated system,
+not a collection of individually successful modules. Every significant feature, state transition and correction is
+examined with three questions: *And then what? What else did that change? What happens when things go wrong?* They
+are asked across five dimensions: the human journey, cross-module effects, lifecycle, evidence integrity, and
+boundaries (permissions, institutional separation, history, privacy). They are questions carried inside each
+version's planning, review and acceptance, not additional gates. The full statement is
+`docs/completion-4.1/STANDING-PRINCIPLE-ONE-SYSTEM.md` on `claude/bob-41-master-plan`, until it has a
+version-independent home.
+
 ---
 
 ## A · PINTAR 4.5 — UNDERSTAND
