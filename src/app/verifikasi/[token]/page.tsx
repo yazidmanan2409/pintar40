@@ -59,9 +59,12 @@ export const generateMetadata = judulHalaman("/verifikasi/[token]");
  */
 export const dynamic = "force-dynamic";
 
-/** The database says ISSUED / REVOKED / SUPERSEDED; the verifier may downgrade. */
+/** The database says ISSUED / REVOKED / SUPERSEDED, and DITINJAU for an issued certificate under review (C1w); the verifier may downgrade. */
 const STATUS_KEY: Record<string, { word: HleEvent; meaning: HleEvent; tone: string }> = {
   BERLAKU: { word: "verifikasi.status.BERLAKU", meaning: "verifikasi.status.BERLAKU.arti", tone: "" },
+  // C1w (O41-19, Daisy §C1·N1): a third state between «Berlaku» and «Dicabut», neutral and never the ✓ of «Berlaku»;
+  // the school's reason is never shown here
+  DITINJAU: { word: "verifikasi.status.DITINJAU", meaning: "verifikasi.status.DITINJAU.arti", tone: "pin-neutral" },
   DICABUT: { word: "verifikasi.status.DICABUT", meaning: "verifikasi.status.DICABUT.arti", tone: "pin-neutral" },
   DIGANTIKAN: { word: "verifikasi.status.DIGANTIKAN", meaning: "verifikasi.status.DIGANTIKAN.arti", tone: "pin-info" },
   [TAMPERED]: { word: "verifikasi.status.TIDAK_SAH", meaning: "verifikasi.tidak_sah", tone: "pin-blocked" },
@@ -109,7 +112,7 @@ export default async function VerifikasiPage({
           <section className={`pin-status ${status.tone}`}>
             <p className="pin-eyebrow">{s("verifikasi.status")}</p>
             <p className="pin-big">{s(status.word)}</p>
-            <p>{s(status.meaning)}</p>
+            <p>{s(status.meaning).replace("{sekolah}", row?.institution ?? "—")}</p>
           </section>
         ) : (
           <section className="pin-status pin-neutral">

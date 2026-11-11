@@ -409,6 +409,9 @@ export const retroTests: SelfTest[] = [
         "src/app/studio/bank/page.tsx": "a finding's locations, under the finding",
         "src/app/studio/unggah/page.tsx": "the guide for another system's export, beside the main path",
         "src/components/studio/TemuanKelompok.tsx": "a group of findings' locations, under the group",
+        // C1w (Daisy Q5, C1-R1): «Riwayat soal (n versi)» is collapsed by her ruling; each earlier version opens read-only
+        "src/components/studio/SoalKerja.tsx": ["a question's history, under the question, which stays shown in full",
+          "one earlier version of a question, read-only, under its line in that history"],
       };
       const ada = new Map<string, number>();
       for (const f of [...tsx(join(repoRoot, "src", "app")), ...tsx(join(repoRoot, "src", "components"))]) {

@@ -29,6 +29,7 @@ import { cabutAppTests } from "./cabut.test";
 import { kenaikanAppTests } from "./kenaikan.test";
 import { b0LayarTests } from "./b0-layar.test";
 import { a1LayarTests } from "./a1-layar.test";
+import { c1wLayarTests } from "./c1w-layar.test";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
 const PERSONA = {
@@ -3518,6 +3519,7 @@ export const appTests: SelfTest[] = [
   ...kenaikanAppTests,
   ...b0LayarTests.filter((x) => x.id !== "B0-K02"),
   ...a1LayarTests.filter((x) => !["A1-K02", "A1-S08", "A1-S09"].includes(x.id)),
+  ...c1wLayarTests.filter((x) => x.id !== "C1W-K02"),
   // BOB-50 (D-082(d)): a single Uji Cepat issues no certificate, through the running app
   ...bob50AppTests,
   // BOB-51 (D-057, REL-08): «Kirim email uji», the platform admin's delivery proof, through the running app

@@ -87,6 +87,7 @@ export const JUDUL_HALAMAN: Record<string, Judul> = {
   "/studio/paket/[course]": { kunci: "nav.studio", untuk: "staff" },
   "/studio/pratinjau/[pelajaran]": { kunci: "nav.studio", untuk: "staff" },
   "/studio/tinjau": { kunci: "studio.tinjau.judul", untuk: "staff" },
+  "/studio/tinjau/kunci/[koreksi]": { kunci: "studio.kunci.halaman", untuk: "staff" },
   "/studio/unggah": { kunci: "studio.unggah.judul", untuk: "staff" },
   "/terkunci": { kunci: "kunci.judul", untuk: "public" },
   "/verifikasi/[token]": { kunci: "verifikasi.judul", untuk: "public" },

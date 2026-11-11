@@ -110,7 +110,16 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
               // D-088(b): a result judged against a mark sets one; with none sealed PINTAR says so and assumes nothing
               : outcome.diagnostik === false ? ` ${s("siklus.ambang_belum")}` : ""}
           </p>
-          {dihitungUlang ? <p className="pin-meta" data-dihitung-ulang="">{s("hasil.dihitung_ulang")}</p> : null}
+          {/* C1w (C1-B1, O41-21): after a governed key correction the figure above IS the corrected result, marked so, and
+              the sealed original stays traceable beside it; an ordinary recalculation keeps D14 (the original above) */}
+          {outcome.dikoreksi ? (
+            <div className="pin-meta" data-dikoreksi="">
+              <p><span className="pin-pill pin-neutral">{s("hasil.dikoreksi.tanda")}</span> {s("hasil.dikoreksi")}</p>
+              {typeof outcome.koreksi?.penguasaan_asli === "number" ? (
+                <p className="pin-num" data-hasil-asli="">{s("hasil.dikoreksi.asli").replace("{asli}", format.percent(outcome.koreksi.penguasaan_asli, locale))}</p>
+              ) : null}
+            </div>
+          ) : dihitungUlang ? <p className="pin-meta" data-dihitung-ulang="">{s("hasil.dihitung_ulang")}</p> : null}
         </section>
 
         {/* M3: whether the target was met, said plainly; below it, what to read again. */}

@@ -49,6 +49,8 @@ export type MasalahSoal = { code: string; field?: string; label?: string };
 
 /** The question an editor sends (ubah_soal_draf's and tambah_soal_draf's p_soal). */
 export type SoalDraf = {
+  /** Daisy Q5 field 1, «Bacaan» (optional); an editor that omits it leaves the reading as it is */
+  stimulus?: string;
   stem: string;
   options: Array<{ label: string; body: string; is_correct: boolean; rationale: string; misconception_code?: string | null }>;
   objective_ids?: string[];
@@ -59,6 +61,7 @@ export type SoalDraf = {
 
 /** What a save changed, by name (item_draft_edits.changed, riwayat_soal's `perubahan`): never the text. */
 export type PerubahanSoal = {
+  stimulus?: true;
   stem?: true;
   options?: Array<{ label: string; kind: "ADDED" | "REMOVED" | "CHANGED" }>;
   key?: { from: string[]; to: string[] };

@@ -292,6 +292,7 @@ create or replace function public.soal_draf_masalah(p_course uuid, p_institution
 returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $$
 declare v jsonb := '[]'::jsonb; o jsonb; v_n int; v_key int := 0; v_labels text[] := '{}'; v_t text; x text;
 begin
+  if length(coalesce(p_soal ->> 'stimulus', '')) > 8000 then v := v || jsonb_build_object('code', 'TEXT_TOO_LONG', 'field', 'stimulus'); end if;
   v_t := nullif(btrim(coalesce(p_soal ->> 'stem', '')), '');
   if v_t is null then v := v || jsonb_build_object('code', 'ITEM_QUESTION_MISSING', 'field', 'stem');
   elsif length(v_t) > 4000 then v := v || jsonb_build_object('code', 'TEXT_TOO_LONG', 'field', 'stem'); end if;
@@ -374,6 +375,8 @@ begin
              is distinct from (select coalesce(array_agg(o order by o), '{}') from unnest(i.objective_ids) o);
   end if;
   return jsonb_strip_nulls(jsonb_build_object(
+    -- Daisy Q5 field 1, «Bacaan»: changed only when the editor sent one (a workbook-era caller that omits it changes nothing)
+    'stimulus', case when p_new ? 'stimulus' and i.stimulus is distinct from nullif(btrim(coalesce(p_new ->> 'stimulus', '')), '') then true end,
     'stem', case when i.stem is distinct from btrim(p_new ->> 'stem') then true end,
     'options', case when jsonb_array_length(v_opts) > 0 then v_opts end,
     'key', case when v_old_key is distinct from v_new_key then jsonb_build_object('from', to_jsonb(v_old_key), 'to', to_jsonb(v_new_key)) end,
@@ -428,6 +431,7 @@ begin
   end if;
   perform public.soal_tulis_pilihan(p_item, c.institution_id, p_soal);
   update public.items set stem = btrim(p_soal ->> 'stem'), objective_ids = v_obj,
+         stimulus = case when p_soal ? 'stimulus' then nullif(btrim(coalesce(p_soal ->> 'stimulus', '')), '') else i.stimulus end,
          revision = i.revision + 1, edited_at = now(), edited_by_person_id = v_me
    where id = p_item;
   insert into public.item_draft_edits (institution_id, course_id, item_id, action, revision_from, revision_to, changed, by_person_id)
@@ -482,9 +486,9 @@ begin
   else
     select coalesce(array_agg(lo.id order by lo.code), '{}') into v_obj from public.learning_objectives lo where lo.lesson_id = p_lesson;
   end if;
-  insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, objective_ids, cycle_role, author_person_id)
+  insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, stimulus, objective_ids, cycle_role, author_person_id)
   values (p_lesson, c.institution_id, v_type, case when v_use is null then 'PRACTICE' else 'TEST' end::public.bank_type,
-          btrim(p_soal ->> 'stem'), v_obj, v_use::public.assessment_mode, v_me)
+          btrim(p_soal ->> 'stem'), nullif(btrim(coalesce(p_soal ->> 'stimulus', '')), ''), v_obj, v_use::public.assessment_mode, v_me)
   returning id into v_item;
   perform public.soal_tulis_pilihan(v_item, c.institution_id, p_soal);
   foreach st in array public.draf_jalur_status(c.status) loop
@@ -627,6 +631,20 @@ begin
 end $$;
 revoke all on function public.suntingan_draf(uuid) from public, anon, authenticated;
 grant execute on function public.suntingan_draf(uuid) to authenticated;
+
+-- Studio's counts hide a discarded draft too (the list does, src/app/studio/page.tsx): a draft kept only as a record is
+-- no package, and a discarded revision replaces nothing, so its predecessor stays the line's newest.
+do $$
+declare v_def text := pg_get_functiondef('public.studio_home()'::regprocedure); v_n int;
+begin
+  v_n := (length(v_def) - length(replace(v_def, 'where n.supersedes_course_id = c.id)', ''))) / length('where n.supersedes_course_id = c.id)');
+  if v_n < 1 or position('where n.supersedes_course_id = f.course_id)' in v_def) = 0 then
+    raise exception 'C1w: studio_home no longer counts a line''s newest package where it did';
+  end if;
+  v_def := replace(v_def, 'where n.supersedes_course_id = c.id)', 'where n.supersedes_course_id = c.id and n.discarded_at is null) and c.discarded_at is null');
+  v_def := replace(v_def, 'where n.supersedes_course_id = f.course_id)', 'where n.supersedes_course_id = f.course_id and n.discarded_at is null)');
+  execute v_def;
+end $$;
 
 -- ═══════════════════════════════════════════════════════════ (2) a question's identity on upload
 create or replace function public.soal_dari_identitas(p_value text)
@@ -1004,6 +1022,7 @@ revoke all on function public.riwayat_soal_koreksi(uuid) from public, anon, auth
 create or replace function public.soal_beda_versi(p_old uuid, p_new uuid)
 returns jsonb language sql stable security definer set search_path = public, pg_temp as $$
   select public.soal_beda(p_old, jsonb_build_object(
+    'stimulus', (select i.stimulus from public.items i where i.id = p_new),
     'stem', (select i.stem from public.items i where i.id = p_new),
     'objective_ids', (select to_jsonb(i.objective_ids) from public.items i where i.id = p_new),
     'options', coalesce((select jsonb_agg(jsonb_build_object('label', o.label, 'body', o.body, 'is_correct', o.is_correct,
@@ -1045,7 +1064,11 @@ begin
            'diubah_pada', x.edited_at, 'diubah_oleh', x.edited_by_person_id, 'nama_pengubah', pe.display_name,
            'kunci', to_jsonb(public.soal_kunci(d.id)),
            'perubahan', case when d.supersedes_item_id is not null then public.soal_beda_versi(d.supersedes_item_id, d.id) end,
-           'koreksi_kunci', public.riwayat_soal_koreksi(d.id)))
+           'koreksi_kunci', public.riwayat_soal_koreksi(d.id),
+           -- Daisy Q5 «Lihat versi ini»: each version read-only, as its authors and reviewers already read the draft
+           'isi', jsonb_build_object('bacaan', x.stimulus, 'pertanyaan', x.stem,
+                    'pilihan', coalesce((select jsonb_agg(jsonb_build_object('label', o.label, 'teks', o.body, 'kunci', o.is_correct)
+                                                 order by o.label collate "C") from public.item_options o where o.item_id = d.id), '[]'::jsonb))))
          order by d.n desc)
     into v
     from down d join public.items x on x.id = d.id
@@ -1192,7 +1215,17 @@ begin
   if (length(v_def) - length(replace(v_def, v_old, ''))) / length(v_old) <> 1 then
     raise exception 'C1w: start_learning_session no longer chooses a quick assessment''s release where it did';
   end if;
-  execute replace(v_def, v_old, 'and r.status in (''PUBLISHED'', ''SUPERSEDED'') and r.withdrawn_at is null   -- C1w (O41-11)');
+  v_def := replace(v_def, v_old, 'and r.status in (''PUBLISHED'', ''SUPERSEDED'') and r.withdrawn_at is null   -- C1w (O41-11)');
+  -- and says so in the designed reason when the release it would have used is one its publisher withdrew
+  v_old := E'    if v_release is null then\n      raise exception\n        ''this quick assessment';
+  if position(v_old in v_def) = 0 then raise exception 'C1w: start_learning_session no longer refuses a quick assessment where it did'; end if;
+  v_def := replace(v_def, v_old,
+    E'    -- C1w (O41-11): the material its publisher withdrew starts no new sitting, said as may_start_assessment says it\n'
+    || E'    if v_release is null and exists (select 1 from public.plp_releases r where r.course_id = v_course and r.withdrawn_at is not null\n'
+    || E'         and (r.institution_id = v_aa.institution_id or public.release_is_distributed_to(r.id, v_aa.institution_id))) then\n'
+    || E'      raise exception ''cannot start this assessment: RELEASE_WITHDRAWN (INV-27)'';\n'
+    || E'    end if;\n' || v_old);
+  execute v_def;
   -- the learner and the screens are told why, before the start is attempted
   v_def := pg_get_functiondef('public.may_start_assessment(uuid)'::regprocedure);
   v_old := 'select * into v_d from public.assessment_definitions where id = v_aa.assessment_definition_id;';
@@ -1230,7 +1263,10 @@ begin
                     when r.replaced_by_release_id is not null then 'DIGANTIKAN'
                     else 'BERJALAN' end,
     'sejak', coalesce(r.withdrawn_at, r.replaced_at),
-    'sesi_baru', public.release_starts_new_sessions(r.id));
+    'sesi_baru', public.release_starts_new_sessions(r.id),
+    -- Daisy C1-R2: «Ada perbaikan · terbit {tanggal}», linking to «Pindahkan penugasan» on the line's newest package
+    'pengganti_terbit', (select x.published_at from public.plp_releases x where x.id = r.replaced_by_release_id),
+    'kursus_kepala', case when r.replaced_by_release_id is not null then public.kursus_kepala(r.course_id) end);
 end $$;
 revoke all on function public.keadaan_terbitan(uuid) from public, anon, authenticated;
 grant execute on function public.keadaan_terbitan(uuid) to authenticated;

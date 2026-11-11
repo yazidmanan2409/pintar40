@@ -98,6 +98,8 @@ export default async function Kelas({
   const selesaiTugas = tugas.filter((x) => x.status === "ENDED" || x.status === "WITHDRAWN")
     .sort((p, q) => (riwayat.get(q.id)?.pada ?? "").localeCompare(riwayat.get(p.id)?.pada ?? ""));
   const judulMateri = (k: string) => k || s("mengajar.materi.tanpa_judul");
+  // C1w (Daisy C1-B2, C1-R2): a release the publisher stopped or replaced says so on its row, never «Ditarik»
+  const keadaanRilis = await ajar.keadaanTerbitanKelas(kerja);
 
   return (
     <>
@@ -221,7 +223,20 @@ export default async function Kelas({
                     {x.mulai ? <span>{s("mengajar.siap.mulai")} {tanggal(x.mulai, "hari", locale, zona)}</span> : null}
                     <span>{x.sampai ? `${s("mengajar.siap.sampai")} ${tanggal(x.sampai, "hari", locale, zona)}` : s("mengajar.siap.sampai.kosong")}</span>
                   </span>
-                  <span className={`pin-pill ${ajar.nadaMateri(ajar.statusMateri(x))}`}>{s(ajar.statusMateri(x))}</span>
+                  {/* a release the publisher stopped is not «Tersedia»: its row says what holds instead, neutral */}
+                  {keadaanRilis.get(x.id)?.keadaan === "DIHENTIKAN_PENERBIT" ? (
+                    <span className="pin-pill pin-neutral" data-rilis-dihentikan="">{s("mengajar.materi.dihentikan_penerbit")}</span>
+                  ) : <span className={`pin-pill ${ajar.nadaMateri(ajar.statusMateri(x))}`}>{s(ajar.statusMateri(x))}</span>}
+                  {keadaanRilis.get(x.id)?.keadaan === "DIGANTIKAN" ? (
+                    <span className="pin-meta" data-rilis-diperbaiki="">
+                      {s("mengajar.materi.ada_perbaikan").replace("{tanggal}", tanggal(keadaanRilis.get(x.id)!.penggantiTerbit ?? keadaanRilis.get(x.id)!.sejak, "hari", locale, zona))}
+                      {keadaanRilis.get(x.id)!.kursusKepala ? (
+                        <> · <Link className="pin-tautan" href={`/studio/paket/${keadaanRilis.get(x.id)!.kursusKepala}#koreksi`}>
+                          {s("mengajar.materi.pindahkan")}<span className="pin-sr"> · {judulMateri(x.kursus)}</span>
+                        </Link></>
+                      ) : null}
+                    </span>
+                  ) : null}
                   {/* W2.21: an assignment in force can be ended or withdrawn, on the record, from its own row */}
                   <span className="pin-baris-tindakan">
                   {x.status === "ACTIVE" ? (

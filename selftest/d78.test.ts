@@ -299,12 +299,19 @@ export const d78Tests: SelfTest[] = [
         `English still says «1 students», or a count other than one lost its plural: ${r4.out || r4.err}`);
       // D14: the learner's chapter result says, neutrally, that a recalculation exists, from their own sitting's yes/no
       const hasil = kode(baca(ctx.repoRoot, "src/app/belajar/[tugas]/hasil/page.tsx"));
-      c.expect(/engine\.sesiDihitungUlang\(db, state\.post_session\)/.test(hasil) && /\{dihitungUlang \? <p className="pin-meta" data-dihitung-ulang="">\{s\("hasil\.dihitung_ulang"\)\}<\/p> : null\}/.test(hasil),
+      // RESTATED, C1w (O41-21, Daisy C1-B1): a sitting a governed key correction recalculated shows the corrected result as
+      // its own, marked so (outcome.dikoreksi, before this branch); every other recalculated sitting keeps D14's notice
+      c.expect(/engine\.sesiDihitungUlang\(db, state\.post_session\)/.test(hasil)
+        && /\{outcome\.dikoreksi \? \([\s\S]*?\) : dihitungUlang \? <p className="pin-meta" data-dihitung-ulang="">\{s\("hasil\.dihitung_ulang"\)\}<\/p> : null\}/.test(hasil),
         "the learner's chapter result does not say their sitting was recalculated");
       // restated to Daisy's B3 (e8a5efb9): the notice claims only what IS sealed: the mastery, the count and the certificate
       // restated to the owner's wording decision (9 Nov): ordinary words for a learner, never «disegel»
-      c.expect(/Penguasaan dan jumlah jawaban tepat di atas, serta sertifikat Anda, tetap seperti semula/.test(hle) && !/Hasil yang Anda lihat di sini dan sertifikat Anda tidak berubah/.test(hle),
-        "the learner's notice claims more, or less, than the sealed mastery, count and certificate");
+      // RESTATED, C1w (O41-19, Daisy C1-B1): the certificate half became false (a governed correction puts it «Sedang
+      // ditinjau»), so the ordinary notice now claims only what holds: the result shown is the original and it is kept
+      const dihitungUlangBaris = hle.split("\n").find((l) => l.startsWith('  "hasil.dihitung_ulang": ')) ?? "";
+      c.expect(/Hasil di atas adalah hasil asli, dan tetap tersimpan/.test(dihitungUlangBaris) && !/sertifikat|certificate|disegel|sealed/i.test(dihitungUlangBaris)
+        && !/Hasil yang Anda lihat di sini dan sertifikat Anda tidak berubah/.test(hle),
+        "the learner's notice claims more, or less, than the original result being shown and kept");
       return c.verdict("the rendered KomposisiKelas, KomposisiSekolah, KartuKetiadaan and KisiTopik output, kunciMuncul, experience.css, hle.ts and the source of the chapter result: " +
         "the topic lead counts over the topics with a figure and names the withheld ones apart (D13); «below target» is heard with its percentage (A6); a gate that applies to " +
         "no sitting is «not applicable», never a pass, a zero or «not enough», and a shown gate gives its applicable sittings and the ones apart (D12); a withheld figure is explained " +
@@ -370,8 +377,10 @@ export const d78Tests: SelfTest[] = [
       for (const k of ["hasil.review.kunci_terkini", "map.kunci_terkini"]) {
         const l = baris(k);
         // DAISY-26: learner copy never says «kunci jawaban» (it reads as locking an answer); «jawaban benar yang sudah diperbaiki»
-        c.expect(/jawaban benar yang sudah diperbaiki/.test(l) && !/kunci jawaban/i.test(l) && /corrected answers/.test(l) && !/answer key/i.test(l) && /tetap seperti semula/.test(l) && /stays? as (it was|they were)/.test(l) && !/disegel|sealed/i.test(l)
-          && !/(sertifikat|certificate)[^."]*(berubah menjadi|changed to|telah berubah|has changed)/i.test(l),
+        // RESTATED, C1w (O41-19, O41-21, Daisy C1-B1): «… tetap seperti semula» is no longer required, and the line may not
+        // speak for the certificate at all, which a governed correction may put under review
+        c.expect(/jawaban benar yang sudah diperbaiki/.test(l) && !/kunci jawaban/i.test(l) && /corrected answers/.test(l) && !/answer key/i.test(l) && !/disegel|sealed/i.test(l)
+          && !/sertifikat|certificate/i.test(l),
           `«${k}» does not say the corrected key, or implies the sealed result or certificate changed: ${l.slice(0, 200)}`);
       }
       // Daisy (20302e39): the gate's «it appears when…» line names checks WITH required items; more sittings of checks

@@ -3934,3 +3934,17 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-antrean { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-5); }
 .pin-antrean > li { border-top: var(--border-hairline) solid var(--line); padding-top: var(--space-4); display: grid; gap: var(--space-2); }
 .pin-antrean .pin-title { font-weight: var(--weight-strong); }
+
+/* ───────────────────────────── C1w · the item workbench (Daisy, TINJAUAN-A1-C1W Q5, Q6): the editor in place of its
+   article, the question's history, the three steps of a key correction. Tokens only. */
+.pin-soal-form, .pin-perbaiki-kunci { margin-top: var(--space-3); }
+.pin-soal-form .pin-formulir { max-width: 100%; }
+.pin-soal-form h4:focus, .pin-perbaiki-kunci h4:focus { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+.pin-soal-tindakan { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin-top: var(--space-2); }
+.pin-langkah-daftar { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
+.pin-langkah-daftar [aria-current="step"] { font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-riwayat-soal { margin-top: var(--space-2); }
+.pin-riwayat-soal .pin-daftar { margin-top: var(--space-2); }
+.pin-kunci-banding { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--space-1) * 55)), 1fr)); gap: var(--space-3); }
+/* C1w (O41-19): «Sedang ditinjau (n)» stands apart from the certificates list under it */
+.pin-sertifikat-ditinjau { margin-bottom: var(--space-5); }

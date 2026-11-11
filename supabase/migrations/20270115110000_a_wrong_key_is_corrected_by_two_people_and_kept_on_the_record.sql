@@ -61,7 +61,7 @@ begin
       when 'CORRECTION_UNKNOWN'              then 'this key correction or question is not known'
       when 'CORRECTION_ITEM_NOT_PUBLISHED'   then 'only a question of published material has its key corrected'
       when 'CORRECTION_NOT_IN_HEAD'          then 'this question was changed in a newer version of the package; that version''s question is the one corrected'
-      when 'CORRECTION_OPEN_REVISION'        then 'a revision of this package is open; finish or discard it first'
+      when 'CORRECTION_OPEN_REVISION'        then 'an unfinished revision of this package is open: finish it (submit, review, lock, publish) or discard it (buang_draf), then propose or confirm the key correction again'
       when 'CORRECTION_KEY_INVALID'          then 'the new key names options of this question: exactly one for a single-answer question, at least one otherwise'
       when 'CORRECTION_KEY_UNCHANGED'        then 'the new key is the key the question already has'
       when 'CORRECTION_REASON_REQUIRED'      then 'the reason is 10 to 300 characters'
@@ -688,16 +688,15 @@ grant execute on function public.tolak_koreksi_kunci(uuid, text) to authenticate
 -- ═══════════════════════════════════════════════════════════ (2) the exact counts, before confirmation
 -- By the recalculation's own rule (sesi_peta_kunci with the proposal as its hypothesis, evaluate_session_kunci). For
 -- a decided correction, what its confirmation recorded.
-create or replace function public.koreksi_kunci_hitung(p_correction uuid)
+create or replace function public.koreksi_kunci_hitung_untuk(p_item uuid, p_kunci text[])
 returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $$
-declare k public.key_corrections; v_t uuid; v_hyp jsonb; s record; e record; v_cur public.assessment_results;
+declare v_t uuid; v_hyp jsonb; s record; e record; v_cur public.assessment_results;
         n_sesi int := 0; n_ubah int := 0; n_putusan int := 0; n_tinjau int := 0; n_baru int := 0; n_buka int := 0;
         v_sekolah uuid[] := '{}'; v_daftar jsonb := '[]'::jsonb; v_lulus_a boolean; v_lulus_b boolean; v_berubah boolean;
         v_cert uuid;
 begin
-  select * into k from public.key_corrections where id = p_correction;
-  v_t := public.soal_ujung(k.item_id);
-  v_hyp := jsonb_build_object('item', v_t, 'kunci', to_jsonb(k.key_after));
+  v_t := public.soal_ujung(p_item);
+  v_hyp := jsonb_build_object('item', v_t, 'kunci', to_jsonb(p_kunci));
   for s in
     select distinct ss.id, ss.institution_id, ss.pass_mark, ss.mode, ss.person_id, ss.status, coalesce(ss.class_node_id, ss.cohort_node_id) as tempat
       from public.presented_items p join public.assessment_sessions ss on ss.id = p.session_id
@@ -734,7 +733,47 @@ begin
     'putusan_target_berubah', n_putusan, 'sertifikat_ditinjau', n_tinjau, 'sertifikat_baru_layak', n_baru, 'sesi_terbuka', n_buka,
     'daftar', v_daftar);
 end $$;
+revoke all on function public.koreksi_kunci_hitung_untuk(uuid, text[]) from public, anon, authenticated;
+
+create or replace function public.koreksi_kunci_hitung(p_correction uuid)
+returns jsonb language sql stable security definer set search_path = public, pg_temp as $$
+  select public.koreksi_kunci_hitung_untuk(k.item_id, k.key_after) from public.key_corrections k where k.id = p_correction
+$$;
 revoke all on function public.koreksi_kunci_hitung(uuid) from public, anon, authenticated;
+
+-- Daisy's step 2 («Yang terdampak») comes BEFORE the proposal is sent, so the proposer reads the same exact counts
+-- for the key she has chosen without writing anything: the proposal's own refusals except the reason, then the
+-- recalculation's rule over that hypothesis. For platform content the other schools are counts only.
+create or replace function public.pratinjau_koreksi_kunci(p_item uuid, p_kunci text[])
+returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $$
+declare v_me uuid := public.current_person_id(); i public.items; v_t uuid; v_course uuid; v_head uuid; v_kunci text[]; v jsonb;
+begin
+  select * into i from public.items where id = p_item;
+  if i.id is null then perform public.koreksi_tolak('CORRECTION_UNKNOWN'); end if;
+  if not public.koreksi_pemilik(v_me, i.institution_id) then perform public.koreksi_tolak('CORRECTION_NOT_ALLOWED'); end if;
+  v_t := public.soal_ujung(p_item);
+  v_course := public.soal_kursus(v_t);
+  v_head := public.kursus_kepala(v_course);
+  if v_head <> v_course then
+    if not public.content_is_sealed(v_head) then perform public.koreksi_tolak('CORRECTION_OPEN_REVISION'); end if;
+    perform public.koreksi_tolak('CORRECTION_NOT_IN_HEAD');
+  end if;
+  if not exists (select 1 from public.plp_releases x where x.course_id = v_course and x.published_at is not null) then
+    perform public.koreksi_tolak('CORRECTION_ITEM_NOT_PUBLISHED');
+  end if;
+  v_kunci := array(select distinct upper(btrim(x)) from unnest(coalesce(p_kunci, '{}')) x where btrim(x) <> '' order by 1);
+  if cardinality(v_kunci) = 0 or not (v_kunci <@ array(select o.label from public.item_options o where o.item_id = v_t))
+     or ((select it.item_type from public.items it where it.id = v_t) = 'MCQ_SINGLE' and cardinality(v_kunci) <> 1) then
+    perform public.koreksi_tolak('CORRECTION_KEY_INVALID');
+  end if;
+  if v_kunci = public.soal_kunci(v_t) then perform public.koreksi_tolak('CORRECTION_KEY_UNCHANGED'); end if;
+  v := public.koreksi_kunci_hitung_untuk(v_t, v_kunci);
+  if public.tenant_platform(i.institution_id) then v := v - 'daftar'; end if;
+  return v || jsonb_build_object('item', v_t, 'kunci_lama', to_jsonb(public.soal_kunci(v_t)), 'kunci_baru', to_jsonb(v_kunci),
+                                 'konten_platform', public.tenant_platform(i.institution_id));
+end $$;
+revoke all on function public.pratinjau_koreksi_kunci(uuid, text[]) from public, anon, authenticated;
+grant execute on function public.pratinjau_koreksi_kunci(uuid, text[]) to authenticated;
 
 create or replace function public.koreksi_kunci_dampak(p_correction uuid)
 returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $$
@@ -754,6 +793,12 @@ begin
     'nama_pengaju', (select p.display_name from public.persons p where p.id = k.proposed_by_person_id), 'diajukan_pada', k.proposed_at,
     'diputuskan_oleh', k.decided_by_person_id, 'diputuskan_pada', k.decided_at, 'alasan_tolak', k.decline_reason,
     'konten_platform', v_platform,
+    'course', k.course_id, 'paket', (select c.title from public.courses c where c.id = k.course_id),
+    'soal', (select jsonb_build_object('bacaan', i.stimulus, 'pertanyaan', i.stem,
+               'pilihan', coalesce((select jsonb_agg(jsonb_build_object('label', o.label, 'teks', o.body) order by o.label collate "C")
+                                      from public.item_options o where o.item_id = i.id), '[]'::jsonb))
+               from public.items i where i.id = k.item_id),
+    'nama_pemutus', (select p.display_name from public.persons p where p.id = k.decided_by_person_id),
     'boleh_tegaskan', k.status = 'PENDING' and v_me is distinct from k.proposed_by_person_id and public.koreksi_penegas(v_me, k.institution_id),
     'milik_sendiri', v_me = k.proposed_by_person_id);
 end $$;
@@ -768,6 +813,7 @@ begin
     perform public.koreksi_tolak('CORRECTION_NOT_ALLOWED');
   end if;
   return coalesce((select jsonb_agg(jsonb_build_object('koreksi', k.id, 'item', k.item_id, 'release', k.release_id,
+             'course', k.course_id, 'paket', (select c.title from public.courses c where c.id = k.course_id),
              'kunci_lama', to_jsonb(k.key_before), 'kunci_baru', to_jsonb(k.key_after), 'alasan', k.reason,
              'diajukan_oleh', k.proposed_by_person_id, 'nama_pengaju', p.display_name, 'diajukan_pada', k.proposed_at,
              'milik_sendiri', k.proposed_by_person_id = v_me) order by k.proposed_at, k.id)
@@ -776,6 +822,27 @@ begin
 end $$;
 revoke all on function public.koreksi_kunci_antrean(uuid) from public, anon, authenticated;
 grant execute on function public.koreksi_kunci_antrean(uuid) to authenticated;
+
+-- The package page's read (Daisy Q6): for each question shown, its latest key correction, for the owner and the
+-- confirmers of its school only: waiting (with when it was proposed), declined (who declined and why, returned to the
+-- proposer) or confirmed. Nothing for anyone else.
+create or replace function public.koreksi_kunci_terakhir(p_items uuid[])
+returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $$
+declare v_me uuid := public.current_person_id();
+begin
+  if v_me is null then return '[]'::jsonb; end if;
+  return coalesce((select jsonb_agg(jsonb_build_object('item', x.item, 'koreksi', k.id, 'status', k.status,
+             'kunci_lama', to_jsonb(k.key_before), 'kunci_baru', to_jsonb(k.key_after), 'alasan', k.reason,
+             'diajukan_pada', k.proposed_at, 'diputuskan_pada', k.decided_at, 'alasan_tolak', k.decline_reason,
+             'nama_pemutus', (select p.display_name from public.persons p where p.id = k.decided_by_person_id),
+             'milik_sendiri', k.proposed_by_person_id = v_me))
+      from unnest(coalesce(p_items, '{}')) as x(item)
+      join lateral (select * from public.key_corrections kc where kc.asked_item_id = x.item or kc.item_id = x.item
+                     order by kc.proposed_at desc, kc.id desc limit 1) k on true
+     where public.koreksi_pemilik(v_me, k.institution_id) or public.koreksi_penegas(v_me, k.institution_id)), '[]'::jsonb);
+end $$;
+revoke all on function public.koreksi_kunci_terakhir(uuid[]) from public, anon, authenticated;
+grant execute on function public.koreksi_kunci_terakhir(uuid[]) to authenticated;
 
 -- ═══════════════════════════════════════════════════════════ (3) the confirmation
 -- An existing assignment's new starts move to the corrected release: the move recorded as move_learning_assignment_
@@ -1229,13 +1296,34 @@ begin
              'sesi', v.session_id, 'murid', c.person_id, 'nama', p.display_name, 'dibuka_pada', v.opened_at,
              'sebelum', (select r.mastery from public.assessment_results r where r.id = v.previous_result_id),
              'sesudah', (select r.mastery from public.assessment_results r where r.id = v.opened_by_result_id),
-             'alasan_koreksi', k.reason, 'boleh_putuskan', public.boleh_putuskan_tinjauan(c.id)) order by v.opened_at, v.id)
+             'alasan_koreksi', k.reason, 'boleh_putuskan', public.boleh_putuskan_tinjauan(c.id),
+             'paket', (select co.title from public.courses co where co.id = k.course_id),
+             'target', (select ss.pass_mark from public.assessment_sessions ss where ss.id = v.session_id)) order by v.opened_at, v.id)
       from public.certificate_reviews v join public.certificates c on c.id = v.certificate_id
       join public.persons p on p.id = c.person_id join public.key_corrections k on k.id = v.key_correction_id
      where v.institution_id = p_institution and v.decision is null and public.boleh_putuskan_tinjauan(c.id)), '[]'::jsonb);
 end $$;
 revoke all on function public.tinjauan_sertifikat_antrean(uuid) from public, anon, authenticated;
 grant execute on function public.tinjauan_sertifikat_antrean(uuid) to authenticated;
+
+-- Konfigurasi › Sertifikat's main list (Daisy Q6): a certificate confirmed after its result was recalculated keeps
+-- «Dikonfirmasi setelah dihitung ulang · {alasan}», for the people who may decide its reviews; not while another is open.
+create or replace function public.tinjauan_sertifikat_dikonfirmasi(p_institution uuid)
+returns jsonb language plpgsql stable security definer set search_path = public, pg_temp as $$
+declare v_me uuid := public.current_person_id();
+begin
+  if v_me is null or not (public.peran_tenant_punya(v_me, 'CAN_PUBLISH', p_institution) or public.is_system_admin()) then
+    perform public.koreksi_tolak('CERT_REVIEW_NOT_ALLOWED');
+  end if;
+  return coalesce((select jsonb_agg(jsonb_build_object('sertifikat', x.certificate_id, 'alasan', x.reason, 'pada', x.decided_at))
+      from (select distinct on (v.certificate_id) v.certificate_id, v.reason, v.decided_at, v.decision
+              from public.certificate_reviews v
+             where v.institution_id = p_institution and v.decision is not null and public.boleh_putuskan_tinjauan(v.certificate_id)
+             order by v.certificate_id, v.decided_at desc) x
+     where x.decision = 'CONFIRMED' and not public.sertifikat_ditinjau(x.certificate_id)), '[]'::jsonb);
+end $$;
+revoke all on function public.tinjauan_sertifikat_dikonfirmasi(uuid) from public, anon, authenticated;
+grant execute on function public.tinjauan_sertifikat_dikonfirmasi(uuid) to authenticated;
 
 -- Konfigurasi «Yang menunggu»: one school's notices of governed key corrections: its own sittings and certificates,
 -- and how many of its reviews still wait.
@@ -1247,6 +1335,7 @@ begin
     perform public.koreksi_tolak('CORRECTION_NOT_ALLOWED');
   end if;
   return coalesce((select jsonb_agg(jsonb_build_object('pemberitahuan', n.id, 'koreksi', n.key_correction_id, 'pada', n.created_at,
+             'paket', (select co.title from public.courses co where co.id = k.course_id),
              'alasan', k.reason, 'sesi', to_jsonb(n.session_ids), 'jumlah_sesi', cardinality(n.session_ids),
              'tinjauan_sertifikat', to_jsonb(n.certificate_review_ids),
              'tinjauan_menunggu', (select count(*) from public.certificate_reviews v where v.id = any (n.certificate_review_ids) and v.decision is null),
@@ -1277,6 +1366,13 @@ values
    'C1w: a correction''s exact counts by the recalculation''s own rule (finished sittings, schools, results and target '
    || 'decisions that change, certificates to be reviewed and newly earnable, open sittings); for school content the '
    || 'sittings themselves; for platform content counts only.', 'CAPABILITY', 'CAN_REVIEW'),
+  ('pratinjau_koreksi_kunci', 'STAFF',
+   'C1w (Daisy Q6 step 2): before a proposal is sent, the exact counts for the key the owner has chosen, by the '
+   || 'recalculation''s own rule; writes nothing; the proposal''s own refusals except the reason. Counts only for platform content.',
+   'CAPABILITY', 'CAN_PUBLISH'),
+  ('koreksi_kunci_terakhir', 'STAFF',
+   'C1w (Daisy Q6): for the questions a package page shows, each one''s latest key correction (waiting, declined with '
+   || 'its reason, or confirmed), for the owner and the confirmers of its school only.', 'CAPABILITY', 'CAN_REVIEW'),
   ('koreksi_kunci_antrean', 'STAFF',
    'C1w: one tenant''s waiting key corrections; the caller''s own proposal is marked and is not theirs to confirm.',
    'CAPABILITY', 'CAN_REVIEW'),
@@ -1295,6 +1391,9 @@ values
   ('tinjauan_sertifikat_antrean', 'STAFF',
    'C1w: one school''s certificates under review after a key correction, with the result before and after.',
    'CAPABILITY', 'CAN_PUBLISH'),
+  ('tinjauan_sertifikat_dikonfirmasi', 'STAFF',
+   'C1w (Daisy Q6): one school''s certificates confirmed valid after a key correction recalculated their result, with '
+   || 'the reason recorded; none while another review of it is open.', 'CAPABILITY', 'CAN_PUBLISH'),
   ('pemberitahuan_koreksi_kunci', 'STAFF',
    'C1w: one school''s notices of governed key corrections, naming only its own sittings and certificate reviews and '
    || 'how many reviews still wait.', 'CAPABILITY', 'CAN_PUBLISH')
@@ -1323,7 +1422,7 @@ begin
     raise exception 'C1w: the correction''s authority, the learner''s reader or the public answer is not wired';
   end if;
   foreach f in array array['koreksi_tolak(text)', 'hitung_ulang_koreksi_kunci(uuid, uuid)', 'koreksi_kunci_berwenang(text, jsonb)',
-      'koreksi_kunci_pindah(uuid, uuid, uuid)', 'koreksi_kunci_hitung(uuid)', 'sesi_peta_kunci(uuid, jsonb)',
+      'koreksi_kunci_pindah(uuid, uuid, uuid)', 'koreksi_kunci_hitung(uuid)', 'koreksi_kunci_hitung_untuk(uuid, text[])', 'sesi_peta_kunci(uuid, jsonb)',
       'evaluate_session_kunci(uuid, jsonb)', 'grade_kunci(uuid, jsonb, text[])', 'hasil_murid_id(uuid)', 'hasil_terkini_id(uuid)',
       'soal_ujung(uuid)', 'soal_anak_sah(uuid)', 'soal_leluhur_sah(uuid)', 'koreksi_pemilik(uuid, uuid)', 'koreksi_penegas(uuid, uuid)',
       'peran_tenant_punya(uuid, text, uuid)', 'nilai_jawaban_berlaku(uuid, uuid, jsonb)', 'sertifikat_ditinjau(uuid)'] loop
@@ -1333,8 +1432,8 @@ begin
     end if;
   end loop;
   foreach f in array array['ajukan_koreksi_kunci(uuid, text[], text)', 'tolak_koreksi_kunci(uuid, text)', 'tegaskan_koreksi_kunci(uuid)',
-      'koreksi_kunci_dampak(uuid)', 'koreksi_kunci_antrean(uuid)', 'hasil_koreksi_saya(uuid)', 'riwayat_hasil_sesi(uuid)',
-      'sertifikat_saya_ditinjau(uuid)', 'putuskan_tinjauan_sertifikat(uuid, text, text)', 'tinjauan_sertifikat_antrean(uuid)',
+      'koreksi_kunci_dampak(uuid)', 'pratinjau_koreksi_kunci(uuid, text[])', 'koreksi_kunci_terakhir(uuid[])', 'koreksi_kunci_antrean(uuid)', 'hasil_koreksi_saya(uuid)', 'riwayat_hasil_sesi(uuid)',
+      'sertifikat_saya_ditinjau(uuid)', 'putuskan_tinjauan_sertifikat(uuid, text, text)', 'tinjauan_sertifikat_antrean(uuid)', 'tinjauan_sertifikat_dikonfirmasi(uuid)',
       'pemberitahuan_koreksi_kunci(uuid)'] loop
     if has_function_privilege('anon', ('public.' || f)::regprocedure, 'execute') then
       raise exception 'C1w: an anonymous caller can call %', f;

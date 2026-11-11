@@ -182,6 +182,8 @@ const AKSI_TERIKAT: Record<string, Record<string, string>> = {
   // W2.10 (Batch 5): the whole-class run's read of one class's waiting learners; the cards are /api/akun/aktivasi's
   "src/app/aktivasi/actions.ts": { anggotaKelasMenungguAksi: "a read of one class's waiting learners for the whole-class run; it acts on nothing, each card is decided per person by /api/akun/aktivasi" },
   "src/app/konfigurasi/sertifikat/actions.ts": {},
+  // C1w: the item workbench's acts check the question's, the package's or the certificate's school against the context
+  "src/app/studio/soal-actions.ts": {},
   // «Kenaikan kelas dan kelulusan» (owner, 9 Nov): both presses ask the class's school as the working context
   "src/app/konfigurasi/kenaikan-aksi.ts": {},
   // E5 and §11 (owner, 9 Nov): both acts ask the person's school as the working context before akhiri_tugas_staf / ubah_peran

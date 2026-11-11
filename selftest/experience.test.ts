@@ -397,6 +397,8 @@ const RESET_SURFACES = [
   "src/app/studio/page.tsx",
   "src/app/studio/paket/[course]/page.tsx",
   "src/app/studio/tinjau/page.tsx",
+  // C1w (Daisy Q6): the second person's page for a waiting key correction, from «Antrean Tinjauan»
+  "src/app/studio/tinjau/kunci/[koreksi]/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */

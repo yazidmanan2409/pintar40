@@ -74,6 +74,11 @@ export default async function DaftarSertifikat() {
     zonaSekolahBanyak(db, rows.map((r) => r.institution_id)),
   ]);
 
+  // C1w (O41-19, Daisy §C1·N1): an issued certificate under review after its result was recalculated reads «Sedang
+  // ditinjau» in place of «Berlaku» (the learner's own read, sertifikat_saya_ditinjau; a refused read claims nothing)
+  const ditinjau = new Set((await Promise.all(rows.filter((r) => r.status === "ISSUED").map(async (r) =>
+    ((await db.rpc("sertifikat_saya_ditinjau", { p_session: r.session_id }).then((x) => x.data, () => false)) === true ? r.id : null))))
+    .filter((x): x is string => x !== null));
   const institution = rows.length > 0 ? institutions.get(rows[0].institution_id) ?? null : null;
   // Daisy (bcecb425, B12): a certificate whose chapter is no longer assigned keeps its own title, the course sealed on
   // it when it was issued, read by my_certificate (the list's columns stay the ten Q-11 names). Only those rows ask
@@ -99,8 +104,8 @@ export default async function DaftarSertifikat() {
             {rows.map((row) => {
               const meta = bySession.get(row.session_id);
               const pill = (
-                <span className={`pin-pill ${PILL[row.status]}`}>
-                  {s(`sertifikat.status.${row.status}` as HleEvent)}
+                <span className={`pin-pill ${ditinjau.has(row.id) ? "pin-neutral" : PILL[row.status]}`} data-ditinjau={ditinjau.has(row.id) ? "" : undefined}>
+                  {s(ditinjau.has(row.id) ? "sertifikat.status.DITINJAU" : `sertifikat.status.${row.status}` as HleEvent)}
                 </span>
               );
               const when =

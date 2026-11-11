@@ -429,6 +429,141 @@ export type HleEvent =
   | "studio.koreksi.galat.cert_review_decision_invalid"
   | "studio.koreksi.galat.cert_review_reason_required"
   | "studio.koreksi.galat.correction_failed"
+  | "verifikasi.status.DITINJAU"
+  | "verifikasi.status.DITINJAU.arti"
+  | "hasil.dikoreksi"
+  | "hasil.dikoreksi.tanda"
+  | "hasil.dikoreksi.asli"
+  | "sertifikat.status.DITINJAU"
+  | "sertifikat.ditinjau.arti"
+  | "mengajar.murid1.dikoreksi"
+  | "mengajar.murid1.dikoreksi_alasan"
+  | "mengajar.materi.dihentikan_penerbit"
+  | "mengajar.materi.ada_perbaikan"
+  | "mengajar.materi.pindahkan"
+  | "studio.soal.ubah"
+  | "studio.soal.ubah.judul"
+  | "studio.soal.tambah"
+  | "studio.soal.tambah.judul"
+  | "studio.soal.f.bacaan"
+  | "studio.soal.f.bacaan.arti"
+  | "studio.soal.f.pertanyaan"
+  | "studio.soal.f.pilihan"
+  | "studio.soal.f.pilihan.arti"
+  | "studio.soal.f.pilihan_x"
+  | "studio.soal.f.kunci"
+  | "studio.soal.f.alasan_x"
+  | "studio.soal.f.miskonsepsi_x"
+  | "studio.soal.f.miskonsepsi.arti"
+  | "studio.soal.f.tujuan"
+  | "studio.soal.f.tujuan.tetap"
+  | "studio.soal.f.kegunaan"
+  | "studio.soal.f.kegunaan.latihan"
+  | "studio.soal.simpan"
+  | "studio.soal.batal"
+  | "studio.soal.ringkasan_galat"
+  | "studio.soal.v.kunci"
+  | "studio.soal.v.pilihan_kosong"
+  | "studio.soal.v.pertanyaan_kosong"
+  | "studio.soal.v.alasan_kosong"
+  | "studio.soal.v.pilihan_kurang"
+  | "studio.soal.diubah_oleh"
+  | "studio.soal.tersimpan"
+  | "studio.soal.tersimpan_periksa"
+  | "studio.soal.ditambah"
+  | "studio.soal.dihapus"
+  | "studio.soal.hapus"
+  | "studio.soal.hapus.tanya"
+  | "studio.soal.hapus.ya"
+  | "studio.soal.buang"
+  | "studio.soal.buang.tanya"
+  | "studio.soal.buang.ya"
+  | "studio.soal.dibuang"
+  | "studio.soal.sedang_ditinjau"
+  | "studio.soal.basi"
+  | "studio.soal.basi.muat"
+  | "studio.soal.unggah_menimpa"
+  | "studio.soal.riwayat"
+  | "studio.soal.riwayat.versi"
+  | "studio.soal.riwayat.ini"
+  | "studio.soal.riwayat.asli"
+  | "studio.soal.riwayat.baru"
+  | "studio.soal.riwayat.diperbaiki"
+  | "studio.soal.riwayat.diunggah"
+  | "studio.soal.riwayat.terbit"
+  | "studio.soal.riwayat.belum_terbit"
+  | "studio.soal.riwayat.lihat"
+  | "studio.soal.riwayat.kunci"
+  | "studio.soal.riwayat.pertanyaan"
+  | "studio.soal.riwayat.bacaan"
+  | "studio.soal.riwayat.pilihan_diubah"
+  | "studio.soal.riwayat.pilihan_ditambah"
+  | "studio.soal.riwayat.pilihan_dihapus"
+  | "studio.soal.riwayat.alasan"
+  | "studio.soal.riwayat.miskonsepsi"
+  | "studio.soal.riwayat.tujuan"
+  | "studio.soal.riwayat.tetap"
+  | "studio.soal.riwayat.gagal"
+  | "studio.kunci.keliru"
+  | "studio.kunci.judul"
+  | "studio.kunci.langkah"
+  | "studio.kunci.l1"
+  | "studio.kunci.l2"
+  | "studio.kunci.l3"
+  | "studio.kunci.sekarang"
+  | "studio.kunci.alasan"
+  | "studio.kunci.alasan.arti"
+  | "studio.kunci.lanjut"
+  | "studio.kunci.kembali"
+  | "studio.kunci.dampak"
+  | "studio.kunci.dampak.bila"
+  | "studio.kunci.dampak.kosong"
+  | "studio.kunci.dampak.terbuka"
+  | "studio.kunci.dampak.platform"
+  | "studio.kunci.dampak.kolom.murid"
+  | "studio.kunci.dampak.kolom.kelas"
+  | "studio.kunci.dampak.kolom.hasil"
+  | "studio.kunci.dampak.kolom.target"
+  | "studio.kunci.dampak.kolom.sertifikat"
+  | "studio.kunci.dampak.tetap"
+  | "studio.kunci.dampak.tercapai"
+  | "studio.kunci.dampak.belum"
+  | "studio.kunci.dampak.ditinjau"
+  | "studio.kunci.kirim"
+  | "studio.kunci.menunggu"
+  | "studio.kunci.antrean"
+  | "studio.kunci.antrean.baris"
+  | "studio.kunci.kunci_lama"
+  | "studio.kunci.kunci_baru"
+  | "studio.kunci.pengaju"
+  | "studio.kunci.konfirmasi"
+  | "studio.kunci.konfirmasi.tanya"
+  | "studio.kunci.konfirmasi.ya"
+  | "studio.kunci.tolak"
+  | "studio.kunci.tolak.alasan"
+  | "studio.kunci.tolak.arti"
+  | "studio.kunci.ditolak"
+  | "studio.kunci.orang_kedua"
+  | "studio.kunci.selesai"
+  | "studio.kunci.terkirim"
+  | "studio.kunci.tolak.ok"
+  | "studio.kunci.halaman"
+  | "studio.kunci.kembali_antrean"
+  | "studio.kunci.tidak_ada"
+  | "config.tinjau_sertifikat.judul"
+  | "config.tinjau_sertifikat.arti"
+  | "config.tinjau_sertifikat.baris"
+  | "config.tinjau_sertifikat.konfirmasi"
+  | "config.tinjau_sertifikat.alasan"
+  | "config.tinjau_sertifikat.alasan.arti"
+  | "config.tinjau_sertifikat.cabut"
+  | "config.tinjau_sertifikat.cabut.tanya"
+  | "config.tinjau_sertifikat.ok_konfirmasi"
+  | "config.tinjau_sertifikat.ok_cabut"
+  | "config.tinjau_sertifikat.dikonfirmasi"
+  | "config.koreksi_kunci.pemberitahuan"
+  | "config.koreksi_kunci.buka"
+  | "config.koreksi_kunci.audit"
   | "atur.instrumen"
   | "atur.buka"
   | "atur.keadaan.ditahan"
@@ -3990,7 +4125,7 @@ const table: Table = {
   "studio.koreksi.galat.correction_unknown": { default: "Koreksi atau soal ini tidak ditemukan.", en: "This correction or question was not found." },
   "studio.koreksi.galat.correction_item_not_published": { default: "Hanya soal dari materi yang sudah terbit yang dapat dikoreksi kuncinya.", en: "Only a question of published material can have its answer key corrected." },
   "studio.koreksi.galat.correction_not_in_head": { default: "Soal ini sudah diubah pada versi paket yang lebih baru. Koreksi soal pada versi itu.", en: "This question was changed in a newer version of the package. Correct the question in that version." },
-  "studio.koreksi.galat.correction_open_revision": { default: "Revisi paket ini sedang dibuka. Selesaikan atau buang revisi itu dulu.", en: "A revision of this package is open. Finish or discard it first." },
+  "studio.koreksi.galat.correction_open_revision": { default: "Ada revisi paket ini yang belum selesai, jadi kunci jawaban belum dapat dikoreksi. Selesaikan revisi itu sampai terbit, atau buang draf revisinya, lalu ajukan koreksi kunci lagi.", en: "An unfinished revision of this package is open, so the answer key cannot be corrected yet. Take that revision through to publication, or discard its draft, then propose the key correction again." },
   "studio.koreksi.galat.correction_key_invalid": { default: "Pilih jawaban benar dari pilihan soal ini: tepat satu untuk soal satu jawaban.", en: "Choose the right answer from this question's options: exactly one for a single-answer question." },
   "studio.koreksi.galat.correction_key_unchanged": { default: "Jawaban benar yang dipilih sama dengan yang sekarang.", en: "The chosen right answer is the same as the current one." },
   "studio.koreksi.galat.correction_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
@@ -4010,6 +4145,142 @@ const table: Table = {
   "studio.koreksi.galat.cert_review_decision_invalid": { default: "Pilih salah satu: tetap berlaku atau cabut.", en: "Choose one: keep it valid or revoke it." },
   "studio.koreksi.galat.cert_review_reason_required": { default: "Tuliskan alasan keputusan, 10 sampai 300 karakter.", en: "Write the reason for the decision, 10 to 300 characters." },
   "studio.koreksi.galat.correction_failed": { default: "Koreksi belum tersimpan. Coba lagi.", en: "The correction was not saved. Try again." },
+  // C1w on the screens (Daisy, TINJAUAN-A1-C1W: Q5, Q6, §C1·N1, §C1·N2, C1-B1, C1-B2, C1-R1..R5)
+  "verifikasi.status.DITINJAU": { default: "Sedang ditinjau", en: "Under review" },
+  "verifikasi.status.DITINJAU.arti": { default: "Sertifikat ini benar diterbitkan oleh {sekolah}. Penilaian satu soal di asesmennya diperbaiki, dan sekolah penerbit sedang meninjau sertifikat ini. Sampai selesai, sertifikat ini tidak dinyatakan berlaku. Hubungi sekolah penerbit untuk keterangan.", en: "This certificate was genuinely issued by {sekolah}. The marking of one question in its assessment was corrected, and the issuing school is reviewing this certificate. Until that is finished, this certificate is not declared valid. Contact the issuing school for details." },
+  "hasil.dikoreksi": { default: "Hasil ini dihitung ulang karena penilaian satu soal diperbaiki. Hasil asli tetap tersimpan.", en: "This result was recalculated because the marking of one question was corrected. The original result is kept." },
+  "hasil.dikoreksi.tanda": { default: "Dihitung ulang", en: "Recalculated" },
+  "hasil.dikoreksi.asli": { default: "Hasil asli: {asli}", en: "Original result: {asli}" },
+  "sertifikat.status.DITINJAU": { default: "Sedang ditinjau", en: "Under review" },
+  "sertifikat.ditinjau.arti": { default: "Sekolah Anda sedang meninjau sertifikat ini karena penilaian satu soal diperbaiki. Sertifikat tetap tersimpan. Selama ditinjau, pemeriksaan sertifikat menyebutnya sedang ditinjau.", en: "Your school is reviewing this certificate because the marking of one question was corrected. The certificate is kept. While it is under review, the certificate check says it is under review." },
+  "mengajar.murid1.dikoreksi": { default: "Hasil sesi ini dihitung ulang. Hasil yang berlaku sekarang {baru}, juga di halaman hasil murid; hasil asli yang disegel ({asli}) tetap tersimpan.", en: "This sitting's result was recalculated. The result in force is now {baru}, on the student's own result page too; the original sealed result ({asli}) is kept." },
+  "mengajar.murid1.dikoreksi_alasan": { default: "Penilaian satu soal diperbaiki: {alasan}", en: "The marking of one question was corrected: {alasan}" },
+  "mengajar.materi.dihentikan_penerbit": { default: "Dihentikan penerbit · tidak dapat dimulai lagi; hasil tetap dihitung", en: "Stopped by the publisher · cannot be started again; results still count" },
+  "mengajar.materi.ada_perbaikan": { default: "Ada perbaikan · terbit {tanggal}", en: "A correction is available · published {tanggal}" },
+  "mengajar.materi.pindahkan": { default: "Pindahkan penugasan", en: "Move the assignment" },
+  "studio.soal.ubah": { default: "Ubah soal ini", en: "Edit this question" },
+  "studio.soal.ubah.judul": { default: "Ubah soal {posisi}", en: "Edit question {posisi}" },
+  "studio.soal.tambah": { default: "Tambah soal", en: "Add a question" },
+  "studio.soal.tambah.judul": { default: "Soal baru · {pelajaran}", en: "New question · {pelajaran}" },
+  "studio.soal.f.bacaan": { default: "Bacaan", en: "Reading" },
+  "studio.soal.f.bacaan.arti": { default: "Tidak wajib.", en: "Optional." },
+  "studio.soal.f.pertanyaan": { default: "Pertanyaan", en: "Question" },
+  "studio.soal.f.pilihan": { default: "Pilihan", en: "Options" },
+  "studio.soal.f.pilihan.arti": { default: "Dua sampai lima pilihan. Pilihan yang dibiarkan kosong di akhir tidak dipakai.", en: "Two to five options. Options left empty at the end are not used." },
+  "studio.soal.f.pilihan_x": { default: "Pilihan {x}", en: "Option {x}" },
+  "studio.soal.f.kunci": { default: "Kunci jawaban", en: "Answer key" },
+  "studio.soal.f.alasan_x": { default: "Alasan pilihan {x}", en: "Reason for option {x}" },
+  "studio.soal.f.miskonsepsi_x": { default: "Kode miskonsepsi pilihan {x}", en: "Misconception code for option {x}" },
+  "studio.soal.f.miskonsepsi.arti": { default: "Tidak wajib; untuk pilihan yang keliru.", en: "Optional; for a wrong option." },
+  "studio.soal.f.tujuan": { default: "Tujuan", en: "Objective" },
+  "studio.soal.f.tujuan.tetap": { default: "Tujuan pelajaran ini", en: "This lesson's objectives" },
+  "studio.soal.f.kegunaan": { default: "Kegunaan", en: "Use" },
+  "studio.soal.f.kegunaan.latihan": { default: "Latihan", en: "Practice" },
+  "studio.soal.simpan": { default: "Simpan soal", en: "Save question" },
+  "studio.soal.batal": { default: "Batal", en: "Cancel" },
+  "studio.soal.ringkasan_galat": { default: "Soal belum tersimpan. Perbaiki yang berikut:", en: "The question was not saved. Fix the following:" },
+  "studio.soal.v.kunci": { default: "Pilih tepat satu kunci jawaban.", en: "Choose exactly one answer key." },
+  "studio.soal.v.pilihan_kosong": { default: "Pilihan {x} masih kosong.", en: "Option {x} is still empty." },
+  "studio.soal.v.pertanyaan_kosong": { default: "Pertanyaan masih kosong.", en: "The question is still empty." },
+  "studio.soal.v.alasan_kosong": { default: "Alasan pilihan {x} masih kosong.", en: "The reason for option {x} is still empty." },
+  "studio.soal.v.pilihan_kurang": { default: "Isi sedikitnya dua pilihan.", en: "Fill in at least two options." },
+  "studio.soal.diubah_oleh": { default: "Diubah oleh {nama}, {waktu}", en: "Changed by {nama}, {waktu}" },
+  "studio.soal.tersimpan": { default: "Soal tersimpan.", en: "Question saved." },
+  "studio.soal.tersimpan_periksa": { default: "Soal tersimpan. Isi paket perlu diperiksa lagi sebelum diajukan.", en: "Question saved. The package's content needs checking again before it is submitted." },
+  "studio.soal.ditambah": { default: "Soal ditambahkan.", en: "Question added." },
+  "studio.soal.dihapus": { default: "Soal dihapus dari draf.", en: "Question removed from the draft." },
+  "studio.soal.hapus": { default: "Hapus soal", en: "Remove question" },
+  "studio.soal.hapus.tanya": { default: "Hapus soal ini dari draf? Catatan bahwa soal ini pernah ada tetap tersimpan.", en: "Remove this question from the draft? The record that this question existed is kept." },
+  "studio.soal.hapus.ya": { default: "Hapus soal", en: "Remove question" },
+  "studio.soal.buang": { default: "Buang draf ini", en: "Discard this draft" },
+  "studio.soal.buang.tanya": { default: "Buang draf \"{judul}\"? {n} soal di dalamnya dihapus. Catatan audit tetap ada.", en: "Discard the draft \"{judul}\"? Its {n} questions are deleted. The audit record stays." },
+  "studio.soal.buang.ya": { default: "Buang draf", en: "Discard draft" },
+  "studio.soal.dibuang": { default: "Draf \"{judul}\" dibuang.", en: "Draft \"{judul}\" discarded." },
+  "studio.soal.sedang_ditinjau": { default: "Draf ini sedang ditinjau. Soal dapat diubah lagi bila dikembalikan.", en: "This draft is being reviewed. Its questions can be changed again if it is sent back." },
+  "studio.soal.basi": { default: "Soal ini diubah oleh {nama} sejak Anda membukanya. Muat ulang untuk melihat perubahannya.", en: "{nama} changed this question since you opened it. Reload to see the change." },
+  "studio.soal.basi.muat": { default: "Muat ulang", en: "Reload" },
+  "studio.soal.unggah_menimpa": { default: "Unggahan ini mengganti {n} soal yang diubah di aplikasi.", en: "This upload replaces {n} questions that were changed in the app." },
+  "studio.soal.riwayat": { default: "Riwayat soal ({n} versi)", en: "Question history ({n} versions)" },
+  "studio.soal.riwayat.versi": { default: "Versi {n}", en: "Version {n}" },
+  "studio.soal.riwayat.ini": { default: "versi ini", en: "this version" },
+  "studio.soal.riwayat.asli": { default: "asli", en: "original" },
+  "studio.soal.riwayat.baru": { default: "baru di versi paket ini", en: "new in this version of the package" },
+  "studio.soal.riwayat.diperbaiki": { default: "diperbaiki {nama}, {tanggal}", en: "corrected by {nama}, {tanggal}" },
+  "studio.soal.riwayat.diunggah": { default: "diunggah {nama}, {tanggal}", en: "uploaded by {nama}, {tanggal}" },
+  "studio.soal.riwayat.terbit": { default: "terbit {tanggal}", en: "published {tanggal}" },
+  "studio.soal.riwayat.belum_terbit": { default: "belum terbit", en: "not yet published" },
+  "studio.soal.riwayat.lihat": { default: "Lihat versi ini", en: "View this version" },
+  "studio.soal.riwayat.kunci": { default: "Kunci: {dari} → {ke}", en: "Key: {dari} → {ke}" },
+  "studio.soal.riwayat.pertanyaan": { default: "Pertanyaan diubah", en: "Question changed" },
+  "studio.soal.riwayat.bacaan": { default: "Bacaan diubah", en: "Reading changed" },
+  "studio.soal.riwayat.pilihan_diubah": { default: "Pilihan {x} diubah", en: "Option {x} changed" },
+  "studio.soal.riwayat.pilihan_ditambah": { default: "Pilihan {x} ditambahkan", en: "Option {x} added" },
+  "studio.soal.riwayat.pilihan_dihapus": { default: "Pilihan {x} dihapus", en: "Option {x} removed" },
+  "studio.soal.riwayat.alasan": { default: "Alasan pilihan {x} diubah", en: "Reason for option {x} changed" },
+  "studio.soal.riwayat.miskonsepsi": { default: "Kode miskonsepsi pilihan {x} diubah", en: "Misconception code for option {x} changed" },
+  "studio.soal.riwayat.tujuan": { default: "Tujuan diubah", en: "Objective changed" },
+  "studio.soal.riwayat.tetap": { default: "Tidak ada yang diubah", en: "Nothing changed" },
+  "studio.soal.riwayat.gagal": { default: "Riwayat soal ini belum dapat dibaca. Muat ulang halaman ini.", en: "This question's history could not be read. Reload this page." },
+  "studio.kunci.keliru": { default: "Kunci jawaban keliru?", en: "Answer key wrong?" },
+  "studio.kunci.judul": { default: "Perbaiki kunci jawaban", en: "Correct the answer key" },
+  "studio.kunci.langkah": { default: "Langkah {i} dari 3", en: "Step {i} of 3" },
+  "studio.kunci.l1": { default: "Kunci yang benar", en: "The correct key" },
+  "studio.kunci.l2": { default: "Yang terdampak", en: "Who is affected" },
+  "studio.kunci.l3": { default: "Kirim untuk konfirmasi", en: "Send for confirmation" },
+  "studio.kunci.sekarang": { default: "kunci sekarang", en: "current key" },
+  "studio.kunci.alasan": { default: "Alasan", en: "Reason" },
+  "studio.kunci.alasan.arti": { default: "10 sampai 300 karakter. Dicatat dan ditunjukkan kepada orang kedua.", en: "10 to 300 characters. Recorded and shown to the second person." },
+  "studio.kunci.lanjut": { default: "Lanjut", en: "Continue" },
+  "studio.kunci.kembali": { default: "Kembali ke langkah sebelumnya", en: "Back to the previous step" },
+  "studio.kunci.dampak": { default: "Soal ini ada di {n} sesi yang sudah selesai, di {k} sekolah.", en: "This question is in {n} finished sittings, at {k} schools." },
+  "studio.kunci.dampak.bila": { default: "Bila kunci diperbaiki: {a} hasil berubah · {b} keputusan target berubah · {c} sertifikat akan ditinjau sekolahnya · {d} sertifikat baru dapat diterbitkan.", en: "If the key is corrected: {a} results change · {b} target decisions change · {c} certificates will be reviewed by their schools · {d} new certificates can be issued." },
+  "studio.kunci.dampak.kosong": { default: "Tidak ada sesi selesai yang memakai soal ini. Perbaikan berlaku untuk pengerjaan berikutnya.", en: "No finished sitting used this question. The correction applies to the next sittings." },
+  "studio.kunci.dampak.terbuka": { default: "{n} sesi yang belum selesai dihitung dengan kunci yang benar saat selesai.", en: "{n} sittings not yet finished are scored with the correct key when they finish." },
+  "studio.kunci.dampak.platform": { default: "Untuk materi platform, sekolah lain ditunjukkan sebagai jumlah saja.", en: "For platform material, other schools are shown as counts only." },
+  "studio.kunci.dampak.kolom.murid": { default: "Murid", en: "Student" },
+  "studio.kunci.dampak.kolom.kelas": { default: "Kelas", en: "Class" },
+  "studio.kunci.dampak.kolom.hasil": { default: "Hasil", en: "Result" },
+  "studio.kunci.dampak.kolom.target": { default: "Target", en: "Target" },
+  "studio.kunci.dampak.kolom.sertifikat": { default: "Sertifikat", en: "Certificate" },
+  "studio.kunci.dampak.tetap": { default: "tetap", en: "unchanged" },
+  "studio.kunci.dampak.tercapai": { default: "tercapai", en: "met" },
+  "studio.kunci.dampak.belum": { default: "belum tercapai", en: "not met" },
+  "studio.kunci.dampak.ditinjau": { default: "akan ditinjau", en: "will be reviewed" },
+  "studio.kunci.kirim": { default: "Kirim untuk konfirmasi", en: "Send for confirmation" },
+  "studio.kunci.menunggu": { default: "Menunggu konfirmasi orang kedua · diusulkan {waktu}", en: "Waiting for a second person's confirmation · proposed {waktu}" },
+  "studio.kunci.antrean": { default: "Perbaikan kunci menunggu konfirmasi", en: "Key corrections waiting for confirmation" },
+  "studio.kunci.antrean.baris": { default: "Soal di {paket} · kunci {lama} → {baru} · diusulkan {nama}, {waktu}", en: "A question in {paket} · key {lama} → {baru} · proposed by {nama}, {waktu}" },
+  "studio.kunci.kunci_lama": { default: "Kunci sekarang", en: "Current key" },
+  "studio.kunci.kunci_baru": { default: "Kunci yang diusulkan", en: "Proposed key" },
+  "studio.kunci.pengaju": { default: "Diusulkan oleh", en: "Proposed by" },
+  "studio.kunci.konfirmasi": { default: "Konfirmasi perbaikan", en: "Confirm the correction" },
+  "studio.kunci.konfirmasi.tanya": { default: "Hasil {n} sesi dihitung ulang. Hasil asli tetap tersimpan.", en: "The results of {n} sittings are recalculated. The original results are kept." },
+  "studio.kunci.konfirmasi.ya": { default: "Konfirmasi perbaikan", en: "Confirm the correction" },
+  "studio.kunci.tolak": { default: "Tolak", en: "Decline" },
+  "studio.kunci.tolak.alasan": { default: "Alasan menolak", en: "Reason for declining" },
+  "studio.kunci.tolak.arti": { default: "10 sampai 300 karakter. Dicatat dan ditunjukkan kepada pengusulnya.", en: "10 to 300 characters. Recorded and shown to the person who proposed it." },
+  "studio.kunci.ditolak": { default: "Perbaikan ini ditolak oleh {nama}: {alasan}", en: "This correction was declined by {nama}: {alasan}" },
+  "studio.kunci.orang_kedua": { default: "Anda yang mengusulkan perbaikan ini. Orang kedua yang mengonfirmasinya.", en: "You proposed this correction. A second person confirms it." },
+  "studio.kunci.selesai": { default: "Selesai. {n} hasil dihitung ulang pada {waktu}. Hasil asli dan jawaban murid tetap tersimpan.", en: "Done. {n} results recalculated at {waktu}. The original results and the students' answers are kept." },
+  "studio.kunci.terkirim": { default: "Perbaikan terkirim untuk dikonfirmasi orang kedua.", en: "The correction was sent for a second person to confirm." },
+  "studio.kunci.tolak.ok": { default: "Perbaikan ditolak. Pengusulnya melihat alasan Anda.", en: "The correction was declined. Its proposer sees your reason." },
+  "studio.kunci.halaman": { default: "Perbaikan kunci jawaban", en: "Answer-key correction" },
+  "studio.kunci.kembali_antrean": { default: "Antrean Tinjauan", en: "Review queue" },
+  "studio.kunci.tidak_ada": { default: "Perbaikan ini tidak ditemukan.", en: "This correction was not found." },
+  "config.tinjau_sertifikat.judul": { default: "Sedang ditinjau ({n})", en: "Under review ({n})" },
+  "config.tinjau_sertifikat.arti": { default: "Penilaian satu soal diperbaiki, jadi hasil sertifikat-sertifikat ini dihitung ulang. Selama ditinjau, pemeriksaan sertifikat menyebutnya sedang ditinjau.", en: "The marking of one question was corrected, so these certificates' results were recalculated. While under review, the certificate check says each is under review." },
+  "config.tinjau_sertifikat.baris": { default: "{nama} · {paket} · hasil dihitung ulang {asli} → {baru}, target {t} · sejak {tanggal}", en: "{nama} · {paket} · result recalculated {asli} → {baru}, target {t} · since {tanggal}" },
+  "config.tinjau_sertifikat.konfirmasi": { default: "Konfirmasi berlaku", en: "Confirm valid" },
+  "config.tinjau_sertifikat.alasan": { default: "Alasan keputusan", en: "Reason for the decision" },
+  "config.tinjau_sertifikat.alasan.arti": { default: "10 sampai 300 karakter. Dicatat di log audit.", en: "10 to 300 characters. Recorded in the audit log." },
+  "config.tinjau_sertifikat.cabut": { default: "Cabut", en: "Revoke" },
+  "config.tinjau_sertifikat.cabut.tanya": { default: "Cabut sertifikat {nomor}? Pemeriksaan sertifikat lalu menyebutnya dicabut.", en: "Revoke certificate {nomor}? The certificate check will then say it is revoked." },
+  "config.tinjau_sertifikat.ok_konfirmasi": { default: "Sertifikat dikonfirmasi berlaku.", en: "The certificate is confirmed valid." },
+  "config.tinjau_sertifikat.ok_cabut": { default: "Sertifikat dicabut.", en: "The certificate is revoked." },
+  "config.tinjau_sertifikat.dikonfirmasi": { default: "Dikonfirmasi setelah dihitung ulang · {alasan}", en: "Confirmed after recalculation · {alasan}" },
+  "config.koreksi_kunci.pemberitahuan": { default: "Penilaian satu soal di {paket} diperbaiki pada {tanggal}. {a} hasil di sekolah ini dihitung ulang; {c} sertifikat sedang ditinjau.", en: "The marking of one question in {paket} was corrected on {tanggal}. {a} results at this school were recalculated; {c} certificates are under review." },
+  "config.koreksi_kunci.buka": { default: "Buka «Sedang ditinjau»", en: "Open «Under review»" },
+  "config.koreksi_kunci.audit": { default: "Lihat catatan audit", en: "See the audit record" },
   // A1 on the screens: the teacher's list and act panel, the schedule, the approver's queue, the learner's notices, the audit labels
   "atur.instrumen": { default: "Instrumen", en: "Instrument" },
   "atur.buka": { default: "Atur", en: "Manage" },
@@ -5214,14 +5485,15 @@ const table: Table = {
   "siklus.ambang_belum": { default: "Batas ketuntasan belum ditetapkan.", en: "No pass mark has been set." },
   "mengajar.murid1.target": { default: "target", en: "target" },
   "mengajar.murid1.dihitung_ulang_alasan": { default: "Alasan yang dicatat: {alasan}", en: "Reason recorded: {alasan}" },
-  // D14 (owner, 9 Nov): the learner is told, neutrally, that reports may read a recalculated figure; their own result and certificate do not change
+  // D14 (owner, 9 Nov): the learner is told, neutrally, that reports may read a recalculated figure; their own result does not change.
+  // C1w (C1-B1, O41-21): no line here speaks for the certificate any more, which a governed correction may put under review
   // O-B3 (owner, 9 Nov): the feedback uses the corrected key and says so; the sealed result and certificate do not change.
   // Owner (9 Nov): to a learner it is said in ordinary words («tetap seperti semula»), never «disegel»; the concept stays in
   // the data, the audit and the technical documents
-  "hasil.review.kunci_terkini": { default: "Tanda «Sudah tepat» dan «Belum tepat» pada soal-soal di bawah mengikuti jawaban benar yang sudah diperbaiki, jadi bisa berbeda dari hasil di atas ({benar} dari {total} soal tepat). Hasil di atas dan sertifikat Anda tetap seperti semula.", en: "The «That is right» and «Not right yet» marks on the questions below follow the corrected answers, so they can differ from the result above ({benar} of {total} questions right). The result above and your certificate stay as they were." },
-  "map.kunci_terkini": { default: "Peta ini mengikuti jawaban benar yang sudah diperbaiki, jadi bisa berbeda dari hasil Pemetaan Awal Anda. Hasil Pemetaan Awal Anda tetap seperti semula.", en: "This map follows the corrected answers, so it can differ from your Initial Mapping result. Your Initial Mapping result stays as it was." },
-  "hasil.dihitung_ulang": { default: "Hasil ini kemudian dihitung ulang. Penguasaan dan jumlah jawaban tepat di atas, serta sertifikat Anda, tetap seperti semula; laporan guru dapat menampilkan hasil yang dihitung ulang.", en: "This result was later recalculated. The mastery and the count of right answers above, and your certificate, stay as they were; your teacher's reports may show the recalculated result." },
-  "mengajar.murid1.dihitung_ulang": { default: "Hasil sesi ini dihitung ulang setelah disegel. Laporan memakai hasil terbaru ({baru}); sertifikat dan halaman hasil murid tetap memakai hasil asli yang disegel ({asli}).", en: "This sitting's result was recalculated after it was sealed. Reports use the latest result ({baru}); the certificate and the student's own result page keep the original sealed result ({asli})." },
+  "hasil.review.kunci_terkini": { default: "Tanda «Sudah tepat» dan «Belum tepat» pada soal-soal di bawah mengikuti jawaban benar yang sudah diperbaiki, jadi bisa berbeda dari hasil di atas ({benar} dari {total} soal tepat).", en: "The «That is right» and «Not right yet» marks on the questions below follow the corrected answers, so they can differ from the result above ({benar} of {total} questions right)." },
+  "map.kunci_terkini": { default: "Peta ini mengikuti jawaban benar yang sudah diperbaiki, jadi bisa berbeda dari hasil Pemetaan Awal Anda.", en: "This map follows the corrected answers, so it can differ from your Initial Mapping result." },
+  "hasil.dihitung_ulang": { default: "Hasil ini kemudian dihitung ulang untuk laporan sekolah. Hasil di atas adalah hasil asli, dan tetap tersimpan.", en: "This result was later recalculated for the school's reports. The result above is the original, and it is kept." },
+  "mengajar.murid1.dihitung_ulang": { default: "Hasil sesi ini dihitung ulang setelah disegel. Laporan memakai hasil terbaru ({baru}); hasil asli yang disegel ({asli}) tetap tersimpan dan tetap dipakai halaman hasil murid.", en: "This sitting's result was recalculated after it was sealed. Reports use the latest result ({baru}); the original sealed result ({asli}) is kept, and the student's own result page still uses it." },
   "mengajar.murid1.di_bawah_target": { default: "di bawah target", en: "below target" },
   "hasil.target.tercapai": { default: "Target tercapai.", en: "Target reached." },
   "hasil.target.tercapai_arti": { default: "Penguasaan bab ini memenuhi targetnya.", en: "Mastery of this chapter meets its target." },

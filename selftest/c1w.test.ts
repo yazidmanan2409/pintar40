@@ -52,7 +52,7 @@ function db(): string {
 }
 
 function siapkan(repoRoot: string): string | null {
-  for (const f of ["fable01.sql", "fable03.sql", "fable04.sql", "fable06.sql", "fable09.sql", "fable11.sql", "fable12.sql", "fable13.sql"]) {
+  for (const f of ["fable01.sql", "fable02.sql", "fable03.sql", "fable04.sql", "fable05.sql", "fable06.sql", "fable09.sql", "fable11.sql", "fable12.sql", "fable13.sql"]) {
     const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-q", "-1", "-f", join(repoRoot, "selftest", "db", f), db()], { encoding: "utf8" });
     if (r.status !== 0) return `selftest/db/${f} could not be loaded: ${(r.stderr || "").trim().split("\n").find((l) => /ERROR/.test(l)) ?? ""}`;
   }
@@ -132,6 +132,7 @@ begin
   perform set_config('c1.kelas', v_kelas::text, true);
   perform set_config('c1.kelas_lama', v_k::text, true);
   perform set_config('c1.boot', coalesce(v_boot::text, ''), true);
+  perform set_config('c1.lain_inst', (select o.institution_id::text from public.org_nodes o where o.id = v_lain), true);
   perform pg_temp.c1_orang('guru', 'EDUCATOR', v_kelas);
   perform pg_temp.c1_orang('guru2', 'EDUCATOR', v_kelas);
   perform pg_temp.c1_orang('kadep', 'HEAD_OF_DEPARTMENT', v_parent);
@@ -273,6 +274,29 @@ returns text language sql as $f$
           || '#' || coalesce((select r.content_sha256 from public.plp_releases r where r.course_id = p_course), '')
           || '#' || coalesce((select public.course_content_sha256(p_course)), ''))
 $f$;
+-- the bootstrap learner sits its Uji Penguasaan: every safety-critical question right, three right in all, the rest wrong
+create function pg_temp.c1_boot_campur()
+returns uuid language plpgsql as $f$
+declare v_aa uuid; v_s uuid; r record; n int := 0; v_benar boolean;
+begin
+  perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+  select m.post_test_assignment into v_aa from public.my_learning_assignments() m limit 1;
+  perform selftest.pre_finished_for(v_aa);
+  v_s := public.start_learning_session(v_aa);
+  perform selftest.as_owner();
+  for r in select p.id, i.is_safety_critical from public.presented_items p join public.items i on i.id = p.item_id
+            where p.session_id = v_s order by i.is_safety_critical desc, p.position loop
+    v_benar := r.is_safety_critical or n < 3;
+    if v_benar then n := n + 1; end if;
+    perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+    perform public.record_answer(r.id, 1, selftest.f09_answer(r.id, v_benar));
+    perform selftest.as_owner();
+  end loop;
+  perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+  perform public.finish_my_session(v_s);
+  perform selftest.as_owner();
+  return v_s;
+end $f$;
 create temp table c1_snap (v jsonb) on commit drop;
 do $c1$
 declare v jsonb := '{}'::jsonb;
@@ -882,6 +906,54 @@ export const c1wTests: SelfTest[] = [
         langkah("tolak_cek", null, `select k.status || '|' || k.decline_reason || '|' || (k.decided_by_person_id = ${G("p_kadep")}) || '|' || (select count(*) from public.assessment_results r where r.session_id = ${G("s1")})
              from public.key_corrections k where k.id = ${G("k3")}`),
         langkah("aju4", "admin", `${ajukan(Z, "B")} is not null`),
+        simpanKoreksi("k4", Z, "B"),
+        // an unrelated open revision of the package: the owner is told to finish or discard it, never blocked silently
+        `perform set_config('c1.z_kepala', public.soal_ujung(${Z})::text, true);`,
+        lakukan("guru", `select public.revisi_soal(${G("z_kepala")}, 'Revisi biasa yang belum selesai.')`),
+        langkah("revisi_terbuka_aju", "admin", ajukan(Y, "A")),
+        langkah("revisi_terbuka_tegas", "kadep", tegaskan("k4")),
+        // ---- platform content (O41-18): the platform's own tenant proposes and confirms; other schools are counts only;
+        // the correction is distributed onward to every school that held the replaced release
+        `perform set_config('c1.kan', (select to_jsonb(x)::text from selftest.canonical_package('C1W kanonik ' || current_setting('c1.tag')) x), true); perform selftest.as_owner();`,
+        `perform set_config('c1.u_kadmin', (select u.id::text from auth.users u where u.email = 'kanonik-admin@pintar.test'), true);`,
+        `perform selftest.as_user('kanonik-admin@pintar.test');
+         perform public.grant_release_distribution((current_setting('c1.kan')::jsonb ->> 'rel')::uuid, ${G("inst")}, 'C1W kanonik');
+         perform public.grant_release_distribution((current_setting('c1.kan')::jsonb ->> 'rel')::uuid, ${G("lain_inst")}, 'C1W kanonik');
+         perform selftest.as_owner();
+         perform selftest.pass_mark(${G("inst")}, (current_setting('c1.kan')::jsonb ->> 'course')::uuid);`,
+        `perform selftest.as_user_uid(${G("u_guru")});
+         perform set_config('c1.kan_aa', (select x.assessment_assignment_id::text from public.launch_quick_assessment(${G("kelas")}, (current_setting('c1.kan')::jsonb ->> 'modul')::uuid, 3, 30) x), true);
+         perform selftest.as_owner();`,
+        `perform pg_temp.c1_murid('m7'); perform pg_temp.c1_duduk('m7', ${G("kan_aa")}, true, true, 's7');`,
+        `perform set_config('c1.kan_x', (select p.item_id::text from public.presented_items p where p.session_id = ${G("s7")} order by p.position limit 1), true);
+         perform set_config('c1.kan_kunci', (select o.label from public.item_options o where o.item_id = ${G("kan_x")} and not o.is_correct order by o.label limit 1), true);`,
+        langkah("kan_aju_sekolah", "admin", `select public.ajukan_koreksi_kunci(${G("kan_x")}, array[${S("kan_kunci")}], '${ALASAN}') ->> 'ok'`),
+        langkah("kan_aju_sys_tanpa", "kadep", `select public.ajukan_koreksi_kunci(${G("kan_x")}, array[${S("kan_kunci")}], '${ALASAN}') ->> 'ok'`),
+        langkah("kan_aju", "kadmin", `select set_config('c1.kk', public.ajukan_koreksi_kunci(${G("kan_x")}, array[${S("kan_kunci")}], '${ALASAN}') ->> 'koreksi', true) is not null`),
+        langkah("kan_dampak", "kadmin", `select concat_ws('|', (x ? 'daftar')::text, x ->> 'konten_platform', x ->> 'sekolah', x ->> 'sesi_selesai', x ->> 'hasil_berubah', x ->> 'boleh_tegaskan')
+             from public.koreksi_kunci_dampak(${G("kk")}) x`),
+        langkah("kan_tegas_sendiri", "kadmin", tegaskan("kk")),
+        langkah("kan_tegas_sekolah", "admin", tegaskan("kk")),
+        langkah("kan_tegas", "sys", `select (x ->> 'ok') || '|' || (x ->> 'dihitung_ulang') || '|' || (x ->> 'distribusi') from public.tegaskan_koreksi_kunci(${G("kk")}) x`),
+        langkah("kan_cek", null, `select (select count(*) from public.release_distributions d where d.plp_release_id = k.corrected_release_id and d.status = 'ACTIVE'
+                  and d.institution_id in (${G("inst")}, ${G("lain_inst")})) || '|' || (select r.status::text from public.plp_releases r where r.id = k.release_id)
+             || '|' || (select count(*) from public.assessment_results r where r.session_id = ${G("s7")})
+             || '|' || (select count(*) from public.key_correction_notices n where n.key_correction_id = k.id and n.institution_id = ${G("inst")} and ${G("s7")} = any (n.session_ids))
+             || '|' || (select count(*) from public.key_correction_notices n where n.key_correction_id = k.id and n.institution_id <> ${G("inst")})
+             from public.key_corrections k where k.id = ${G("kk")}`),
+        // ---- a certificate newly earnable (bootstrap, OFFICIAL): 3 of 6 right under the faulty key, 4 of 6 under the corrected one
+        `if ${S("boot")} = '' then raise exception 'the bootstrap school is absent'; end if;`,
+        `perform selftest.purge_certificates(); perform set_config('c1.bs2', pg_temp.c1_boot_campur()::text, true);`,
+        `perform set_config('c1.bx', (select f.item_id::text from public.session_final_responses(${G("bs2")}) f join public.items i on i.id = f.item_id
+              where i.item_type = 'MCQ_SINGLE' and not i.is_safety_critical and public.grade_response(f.item_id, f.value) = 0 order by f.posisi limit 1), true);
+         perform set_config('c1.bx_pilih', (select f.value ->> 'pilihan' from public.session_final_responses(${G("bs2")}) f where f.item_id = ${G("bx")}), true);`,
+        langkah("baru_sebelum", null, `select (x.eligible)::text || '|' || x.mastery from public.certificate_eligibility(${G("bs2")}) x`),
+        langkah("baru_aju", "badmin", `select set_config('c1.kb', public.ajukan_koreksi_kunci(${G("bx")}, array[${S("bx_pilih")}], '${ALASAN}') ->> 'koreksi', true) is not null`),
+        langkah("baru_dampak", "bkadep", `select concat_ws('|', x ->> 'sertifikat_baru_layak', x ->> 'putusan_target_berubah', x ->> 'hasil_berubah') from public.koreksi_kunci_dampak(${G("kb")}) x`),
+        langkah("baru_tegas", "bkadep", `select (x ->> 'ok') || '|' || (x ->> 'sertifikat_baru_layak') from public.tegaskan_koreksi_kunci(${G("kb")}) x`),
+        langkah("baru_sesudah", null, `select (x.eligible)::text || '|' || x.mastery || '|' || (select count(*) from public.certificates c where c.session_id = ${G("bs2")}) from public.certificate_eligibility(${G("bs2")}) x`),
+        langkah("baru_siap", null, `select c.already_sealed::text from public.certificate_prepare(${G("bs2")}, 1::smallint) c`),
+        langkah("baru_terbit", null, `select (c.canonical_payload -> 'result' ->> 'passed') || '|' || c.status::text from public.certificates c where c.session_id = ${G("bs2")}`),
         // every act audited
         langkah("audit", null, `select (select count(*) from public.audit_log l where l.action = 'key_correction.proposed' and l.actor_person_id = ${G("p_admin")} and l.target_id in (${S("k1")}, ${S("k2")}, ${S("k3")}))
              || '|' || (select count(*) from public.audit_log l where l.action = 'key_correction.confirmed' and l.target_id in (${S("k1")}, ${S("k2")}))
@@ -945,6 +1017,23 @@ export const c1wTests: SelfTest[] = [
       harap("tolak", "ok:DECLINED", "the second person declining");
       harap("tolak_cek", "ok:DECLINED|Kunci semula sudah benar menurut buku.|true|3", "the decline as recorded (nothing recalculated)");
       harap("aju4", "ok:true", "a new proposal after a decline");
+      harap("revisi_terbuka_aju", "PR190:CORRECTION_OPEN_REVISION", "a proposal while an unrelated revision of the package is open");
+      harap("revisi_terbuka_tegas", "PR190:CORRECTION_OPEN_REVISION", "a confirmation while an unrelated revision of the package is open");
+      harap("kan_aju_sekolah", "PR190:CORRECTION_NOT_ALLOWED", "a school's administrator proposing a correction of platform content");
+      harap("kan_aju_sys_tanpa", "PR190:CORRECTION_NOT_ALLOWED", "a school's head of department proposing a correction of platform content");
+      harap("kan_aju", "ok:true", "a role on the platform's own tenant proposing it");
+      harap("kan_dampak", "ok:false|true|1|1|1|false", "the platform proposer's counts (no list: other schools as counts only; no confirm of their own)");
+      harap("kan_tegas_sendiri", "PR190:CORRECTION_OWN_PROPOSAL", "the platform proposer confirming");
+      harap("kan_tegas_sekolah", "PR190:CORRECTION_CONFIRM_NOT_ALLOWED", "a school's administrator confirming a correction of platform content");
+      harap("kan_tegas", "ok:true|1|2", "the platform admin confirming (one sitting recalculated, two schools distributed onward)");
+      harap("kan_cek", "ok:2|SUPERSEDED|2|1|0", "after the platform correction (both schools hold the corrected release; the faulty one replaced; the school's sitting recalculated; one notice, to that school alone)");
+      harap("baru_sebelum", "ok:false|0.5000", "the bootstrap sitting under the faulty key (3 of 6: not eligible)");
+      harap("baru_aju", "ok:true", "the bootstrap school's administrator proposing");
+      harap("baru_dampak", "ok:1|1|1", "the counts before (one certificate newly earnable; the target decision changes)");
+      harap("baru_tegas", "ok:true|1", "the bootstrap school's head of department confirming");
+      harap("baru_sesudah", "ok:true|0.6667|0", "the sitting after the correction (eligible, and no certificate issued by the correction itself)");
+      harap("baru_siap", "ok:false", "the newly earned certificate, prepared by the usual path");
+      harap("baru_terbit", "ok:true|ELIGIBLE", "that certificate's payload (passed, on the corrected result; sealed by the usual signing step)");
       harap("audit", "ok:3|2|1|2|1", "the audit rows (proposals, confirmations, the decline, the recalculations) and the school's notice");
       return c.verdict("a key correction is proposed by the content's owner (CAN_PUBLISH through the school's own role; a teacher, a head of department and a "
         + "platform admin refused) with a reason and a changed, valid key, one waiting per question; its exact counts before confirmation are the "

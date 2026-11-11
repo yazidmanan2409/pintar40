@@ -595,12 +595,29 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     { k: "kartu", kunci: "config.menunggu.alasan.kartu" as HleEvent, n: nMurid },
     { k: "email", kunci: "config.menunggu.alasan.email" as HleEvent, n: Math.max(0, nAkun - nMurid) },
   ].filter((x) => x.n > 0);
-  const menunggu: Array<{ k: string; href: string; kunci: HleEvent; n: number; alasan?: HleEvent }> = [
+  // C1w (O41-18, Daisy §C1·N2): a governed key correction that recalculated this school's results, in-app only (the email
+  // of C1-R5 is not built); the line stays until the school has decided every certificate under review, and links to
+  // «Sedang ditinjau». pemberitahuan_koreksi_kunci refuses anyone but the school's CAN_PUBLISH or CAN_REVIEW
+  type Pemberitahuan = { pemberitahuan: string; paket: string | null; pada: string; jumlah_sesi: number; tinjauan_menunggu: number; selesai: boolean;
+    tinjauan_sertifikat: string[] };
+  const pemberitahuan: Pemberitahuan[] = satuSekolah
+    ? await supabase.rpc("pemberitahuan_koreksi_kunci", { p_institution: satuSekolah })
+        .then(({ data, error }) => (error ? [] : ((data ?? []) as Pemberitahuan[]).filter((n) => !n.selesai || n.tinjauan_sertifikat.length === 0)))
+    : [];
+  const zonaPemberitahuan = pemberitahuan.length > 0 ? await zonaSekolah(supabase, satuSekolah) : null;
+  const menunggu: Array<{ k: string; href: string; kunci: HleEvent; n: number; alasan?: HleEvent; teks?: string }> = [
     { k: "impor", href: "/pendataan", kunci: "config.menunggu.pendataan" as HleEvent, n: nImpor, alasan: "config.menunggu.alasan.pendataan" as HleEvent },
     { k: "akun", href: "/aktivasi", kunci: "config.menunggu.aktivasi" as HleEvent, n: nAkun },
     { k: "kelas", href: "/konfigurasi/pindah#tempatkan", kunci: "config.menunggu.tanpa_kelas" as HleEvent, n: nTanpaKelas },
     { k: "studio", href: "/studio", kunci: "config.menunggu.studio" as HleEvent, n: nStudio },
     { k: "kesempatan", href: "/konfigurasi/kesempatan", kunci: "kesempatan.menunggu" as HleEvent, n: nKesempatan },
+    ...pemberitahuan.map((n) => ({
+      k: `koreksi_kunci-${n.pemberitahuan}`, href: n.tinjauan_menunggu > 0 ? "/konfigurasi/sertifikat#ditinjau" : "",
+      kunci: "config.koreksi_kunci.pemberitahuan" as HleEvent, n: n.jumlah_sesi,
+      teks: t("config.koreksi_kunci.pemberitahuan", "staff", { locale }).replace("{paket}", n.paket ?? "—")
+        .replace("{tanggal}", tanggal(n.pada, "baca", locale, zonaPemberitahuan)).replace("{a}", format.number(n.jumlah_sesi, locale))
+        .replace("{c}", format.number(n.tinjauan_menunggu, locale)),
+    })),
   ].filter((m) => m.n > 0);
   const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
   // M9: the Kelas whose students «Pindah kelas» lists, if one was chosen, and
@@ -802,7 +819,9 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
           <ul className="mt-2 grid gap-1 text-sm">
             {menunggu.map((m) => (
               <li key={m.k} data-menunggu-jenis={m.k}>
-                <Link className="pin-tautan" href={m.href}><span className="pin-num">{m.n}</span> {s(m.kunci)}</Link>
+                {/* C1w (§C1·N2): a key correction's notice is its own sentence, linked to «Sedang ditinjau» while any waits */}
+                {m.teks ? (m.href ? <Link className="pin-tautan" href={m.href}>{m.teks}</Link> : <span>{m.teks}</span>) : (
+                <Link className="pin-tautan" href={m.href}><span className="pin-num">{m.n}</span> {s(m.kunci)}</Link>)}
                 {m.alasan ? <p className="pin-meta">{s(m.alasan)}</p> : null}
                 {/* D-195(2): why each cannot sign in yet, and the one thing that resolves it */}
                 {m.k === "akun" && alasanAkun.length > 0 ? (
