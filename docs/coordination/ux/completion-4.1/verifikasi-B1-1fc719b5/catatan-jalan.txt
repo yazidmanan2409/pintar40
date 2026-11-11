@@ -1,0 +1,41 @@
+B1 walk at 1fc719b5127313bf24084695fa30d7505e15b5d1 (local; Daisy, 11 Nov 2026)
+
+== platform admin («Seluruh platform»), three widths
+sys 1280 | ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTA
+sys 1280 rows: {"n":50,"orang":["Pak Yusuf (uji laporan)","Bu Wulan (uji laporan)"],"kolom":["Waktu","Siapa","Apa","Cara","Hasil","Asal jaringan"],"sideways":false} | html has Alpha: false Cendekia: false
+sys 1280 context: Pendataan | cols+names: ["Waktu","Siapa","Apa","Cara","Hasil","Asal jaringan"] "12 Nov 2026, 06.27 WIB\tPak Yusuf (uji laporan)\tTidak berhasil masuk\tPassword\tPINTAR sedang tidak dapat memeriksa; diminta mencoba lagi.\t"
+sys 1280 axe: []
+sys 390 | ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTA
+sys 390 rows: {"n":50,"orang":["Pak Yusuf (uji laporan)","Bu Wulan (uji laporan)"],"kolom":["Waktu","Siapa","Apa","Cara","Hasil","Asal jaringan"],"sideways":false} | html has Alpha: false Cendekia: false
+sys 390 context: Pendataan | cols+names: ["Waktu","Siapa","Apa","Cara","Hasil","Asal jaringan"] "12 Nov 2026, 06.27 WIB\nPak Yusuf (uji laporan)\nTidak berhasil masuk\nPassword\nPINTAR sedang tidak dapat memeriksa; diminta mencoba lagi."
+sys 390 axe: []
+sys 320 | ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTA
+sys 320 rows: {"n":50,"orang":["Pak Yusuf (uji laporan)","Bu Wulan (uji laporan)"],"kolom":["Waktu","Siapa","Apa","Cara","Hasil","Asal jaringan"],"sideways":false} | html has Alpha: false Cendekia: false
+sys 320 context: Pendataan | cols+names: ["Waktu","Siapa","Apa","Cara","Hasil","Asal jaringan"] "12 Nov 2026, 06.27 WIB\nPak Yusuf (uji laporan)\nTidak berhasil masuk\nPassword\nPINTAR sedang tidak dapat memeriksa; diminta mencoba lagi."
+sys 320 axe: []
+== read failure (execute on akuntabilitas_baca revoked from authenticated for one load, then restored)
+read failure 1280 : ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTAR ID, atau referensi cetak Jenis Semua jenis Masuk Tidak berhasil masuk Keluar Meminta cetakan resmi Dari tanggal Tanpa batas tanggal. Sampai tanggal Tanpa batas tanggal. Tampilkan
+status el: 1
+axe: []
+read failure 320 : ← Jejak audit KONFIGURASI Catatan masuk dan cetak Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus. Cari nama, PINTAR ID, atau referensi cetak Jenis Semua jenis Masuk Tidak berhasil masuk Keluar Meminta cetakan resmi Dari tanggal Tanpa batas tanggal. Sampai tanggal Tanpa batas tanggal. Tampilkan
+status el: 1
+axe: []
+== alpha, beta, teacher, no match, drawer (console of the same run)
+alpha 1280/390/320 rows: n=4, people [Pak Yusuf (uji laporan), Guru Alpha (sintetis), Admin Alpha (sintetis)], html has Alpha: true, Cendekia: false, axe []
+beta 1280/390/320 rows: n=0 (empty state), html has Alpha: false, Cendekia: false, axe []
+no match 1280: «Tidak ada catatan yang cocok dengan saringan ini.» | Hapus saringan links: ["/konfigurasi/catatan-masuk@425","/konfigurasi/catatan-masuk@534"]
+no match 390: same | ["/konfigurasi/catatan-masuk@823","/konfigurasi/catatan-masuk@953"]
+purged ref CTK-ZZZZ-ZZZZ: «Referensi ini tidak ditemukan. Catatan cetak disimpan 12 bulan, sejak 12 Nov 2026.» | links: 2
+drawer open 390 {"role":"dialog","modal":"true","laci":[0,56,398,361],"h1":[32,122,326,32],"atH1":"drawer","mainInert":true} | focus: a «Konfigurasi»; Tab → «Pendataan»; Escape → button «Buka menu»
+drawer open 320 {"role":"dialog","modal":"true","laci":[0,56,328,361],"h1":[32,122,256,64],"atH1":"drawer","mainInert":true} | same focus path
+drawer width on /konfigurasi/catatan-masuk, /konfigurasi/audit, /konfigurasi, /pendataan: 398 at 390; 328 at 320 (every page)
+teacher (alpha-guru): «Catatan masuk dan cetak hanya dibaca admin sekolah untuk sekolahnya, dan Admin platform. …» axe []
+
+== two schools, RPC with each admin's own token: Wulan [SD Cendekia 4f439d1c…]; Alpha admin [Alpha 776590e3…]; platform both
+== deletion: Tono Rahayu → display name 4HBAGMY0; Wulan's search «4HBAGMY0» → 1 row «4HBAGMY0 · Masuk · Password · Berhasil»
+
+== suspended account (lap-guru, tangguhkan_akun → banned_until = infinity), POST /masuk/password with a WRONG password:
+{"ok":false,"code":"LAYANAN_TIDAK_TERSEDIA","ref":"3GOZZ1"} [503]  ← suspended staff member
+{"ok":false,"code":"MASUK_TIDAK_COCOK"} [401]  ← an address that is no one's
+{"ok":false,"code":"MASUK_TIDAK_COCOK"} [401]  ← an active staff member
+auth (supabase/gotrue:v2.197.0): error finding user: sql: Scan error on column index 1, name "banned_until": unsupported Scan, storing driver.Value type string into type *time.Time
