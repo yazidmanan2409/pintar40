@@ -53,3 +53,20 @@ boundary, not the page.
 
 Second Eye: correct §2, consider §4, finish P1 to P6 locally, then send the exact candidate to Sharon and Daisy. When
 both have passed it, B1 is closed and the C1w F-1 correction pass starts (`C1W-F1-CORRECTION.md`), before B2.
+
+## 6 · Update, 11 Nov 2026, 19:35 UTC
+
+| | |
+|---|---|
+| Head | `40e89308` |
+| Since §1 | `0d716802`: §2 corrected as the check instructs (`compiledBundle`, the build declared). `40e89308`: two C1w tests (C1W-S05, C1W-C01) now walk a sitting's result chain by its supersession links, because results written in one transaction share one `computed_at`; tests only, no product code |
+| CI on `40e89308` | **Green.** Run `43070532410` (ci) and run `43070539251` (journeys), both success |
+| §4 (the reader returns the whole `institution_ids` to a school admin) | **Still open.** No migration changed after `380b9e07`. It remains an observation for Second Eye and for Sharon's result review |
+| B1 | A green build exists. **Not closed:** Sharon's and Daisy's result reviews on the exact candidate are still to come. B2 not opened. F-1 not started, correctly |
+
+**On the C1w test change.** The reason given is sound and was checked against the code: `hasil_terkini_id` selects
+the result that nothing supersedes and uses `computed_at` only as a tie-break after that condition, so the product
+reader does not depend on the ordering the tests relied on. One point for the F-1 pass, which reads the same chain:
+any new read of "the result in force" goes through `hasil_terkini_id` or `hasil_murid_id`, never an ordering by
+`computed_at`.
+
