@@ -91,13 +91,16 @@ It is an immutable historical snapshot: it is never recomputed when roles or enr
 - A print reference is stable and indexed, so «Jejak audit» finds it by typing it.
 - A magic-link sign-in is recorded at the callback, when the link is used, not when it is requested.
 
-## Two execution requirements (Sharon's PASS, 11 Nov)
+## Execution requirements (Sharon's PASS, 11 Nov; the third from the owner via Bob)
 
 1. **`institution_ids` is derived inside the database** from `person_id`, at the instant the writer runs. The writer
    takes no affiliation from the application; a route cannot supply or influence it.
 2. **A magic-link request for an unknown address** is recorded as `SIGN_IN_FAILED` / `LINK`, holding only the governed
    identifier hash. Separate requests are separate events. Sending a link to a known address is not a sign-in and
    writes no success; success is recorded only at the callback, when the link is used.
+3. **An event with a resource (a print)** takes `institution_ids` from the single school that owns the resource, computed
+   in the database, never the person's affiliations and never from the route (owner, via Bob, 11 Nov; for Sharon at her
+   result review). Test: a person at two schools prints at school A; A's admin reads it, B's admin does not.
 
 ## Refused
 
