@@ -99,3 +99,28 @@ gaps she named are backup coverage and the human journey through the real transf
 
 **State:** no corrected candidate exists; the work branch's head is still `40e89308`. B1 is not closed. Daisy's
 result review is to name the same corrected commit.
+
+## 8 · Daisy's result review of `40e89308` (11 Nov 2026)
+
+**Daisy: BLOCKED on `40e89308`, for Sharon's disclosure only. No UX defect found.** Her record is
+`docs/coordination/ux/completion-4.1/TINJAUAN-B1-KONSISTENSI.md` on `ux-1/daisy-experience` at `4daf09a1`.
+
+- **Confirmed by running it:** a person given a role at a second school and signed in through the real form. Neither
+  school admin's page shows the other school; the reader function, called with either admin's own login, returns both
+  schools' identifiers for that row. The correction of §4 changes nothing either admin sees on screen.
+- **Consistent with «Jejak audit» and the Konfigurasi screens:** placement, time format with the zone's word, names,
+  pager, filters, refusal page. Rows stack below 640 px, as she asked. No sideways scroll at 1280, 390 or 320 px; axe
+  found no violation. Suspended or closed accounts, transfers and deleted persons read correctly (deletion read in
+  code, not run).
+- **Not B1 defects (they are B2's):** the «Cetak laporan» button and the printed footer with its reference.
+
+**Her register, non-blocking:**
+
+| Item | Chief Architect's disposition |
+|---|---|
+| The refusal says «Admin platform» where the platform's term is «Admin PINTAR» | One word in `src/lib/hle.ts`. Taken in the corrected candidate: it is the terminology consistency the owner's check 4 asks for, and it costs no review |
+| «Seluruh platform» rows do not name the school, and for a two-school person the platform admin cannot tell which school's clock a row's time uses | Register. To be settled with Daisy's wording before Z; not in the corrected candidate unless it is a one-line change |
+| The Konfigurasi index does not list the reader | Register, for the same candidate if it is one entry; otherwise before Z |
+
+**What she needs for PASS:** the corrected candidate's commit, the same one Sharon reviews, with the cross-module
+inventory on `B1-COMPLETION.md`. On it she re-runs the two-school check, the five states, and axe at three widths.
