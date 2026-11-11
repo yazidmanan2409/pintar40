@@ -9,6 +9,9 @@
 > The owner accepted revision 2 (`38e43db0`) as the current working draft: a planning milestone, not approval to
 > execute.
 >
+> **Revision 4 (11 Nov):** a mandatory pre-flight before every CI dispatch (§4.1), from the lessons of C1w's
+> verification, with each batch's affected functions and impact-analysis starting list (section G of each batch).
+>
 > **Revision 3 (11 Nov):** Sharon's A2 pre-build review is incorporated (§5.3): six blockers B1 to B6, requirements R1
 > and R2, and the owner's ruling O1. The emergency design now rests on a transaction-ordering fence, one time rule
 > based on effective deadlines, and independent emergency and suspension holds.
@@ -207,11 +210,68 @@ These are the adopted process rules and standing rules, stated once. Section 5 d
 6. **The engineer's rendered check** before any review: 1280, 390 and 320 px; keyboard only; every disclosure opened; the
    reviewer's own navigation sequence.
 7. **Acceptance** is the whole local suite, CI and the journeys, green on the exact candidate commit. Then one review of
-   the result, one correction pass, close.
+   the result, one correction pass, close. **The pre-flight of §4.1 comes before every CI dispatch.**
 8. **Blockers** are a demonstrated failure of security, authorization, evidence integrity or an essential journey.
    Everything else goes to the register in `EXECUTION-PLAN.md` §5.
 9. **Never:** a production action; a merge without authorization; `.github/*-request.txt`; a change to
    `supabase/config.toml`; history rewrite; real-person data, keys or model identifiers in the repository.
+
+### 4.1 · Mandatory pre-flight before every CI dispatch (owner, 11 Nov)
+
+**Why.** C1w lost about two hours to three failures, none of them a product defect, each found only after an expensive
+cycle: a test that committed data left a platform admin behind and broke a later test; two planted defects were aimed
+at code C1w had moved, and only CI runs planted defects. The acceptance standard was right. The preparation was
+incomplete. This procedure changes no acceptance requirement, adds no approval and exempts no kind of commit. It is
+what the engineer does before pressing the button.
+
+**P1 · Impact analysis, when the change is designed and again before the candidate.**
+For every function, trigger, view or table the batch replaces or changes, list by name and then search for that name
+in each of the following. Everything found is on the batch's impact list and is re-run or re-aimed in this batch.
+
+| Where to search | What breaks, and how it shows |
+|---|---|
+| `selftest/plants/*.sql` and `selftest/plants/plants.json` | A planted defect edits a function's body by matching text. If the text moved, the plant **fails to apply**. If the plant carries a whole older body, it **silently replaces the new one** and may pass for the wrong reason |
+| The `red-case` job in `.github/workflows/ci.yml` | The same, for the planted defects written inline there. These run **only in CI** unless extracted (P2) |
+| Later migrations that edit a function by text (`pg_get_functiondef` … `replace`) | A function already rewritten that way must be re-read in its **final** form, not in the migration that created it |
+| Tests that read a migration's source (`const MIGRASI = …`, the `-K0x` tests) | A test pinned to an older migration file keeps passing while describing a definition that has been superseded. Re-point it, with a `RESTATED` note |
+| `selftest/db/*.sql`, `selftest/*.test.ts`, the journeys | Tests and fixtures that call the function or depend on its refusal codes, its audit rows or its timing |
+| `src/` callers and `client_rpc_registry` | Dependent operations and their contract files |
+
+For each affected test and plant, confirm it still targets the behaviour it was written for: it is red for its own
+stated reason when the defect is present and green when it is not.
+
+**P2 · Complete local verification.** Before CI is dispatched, on the candidate commit, on a fresh database and a fresh
+build:
+1. the whole local suite;
+2. **every planted-defect gate** (`node scripts/dev/plants.mjs run`, all gates);
+3. **the `red-case` cases written inline in `ci.yml`,** extracted and run locally (a one-time script; it stays in the
+   repository so every batch uses it);
+4. the static checks CI runs (typecheck, lint, the build);
+5. the journeys, where the local stack can run them.
+
+**P3 · Test isolation.** Every test that commits data (anything that is not one rolled-back transaction: two-connection
+tests, app tests, journeys) ends by proving the baseline is restored: the same fingerprint the `red-case` groups
+already take (schema, grants, roles and memberships, row counts), and in particular **no live role, session or window
+left behind**. A leak then fails the test that leaked, not an unrelated test an hour later.
+
+**P4 · Failure consolidation.** When anything fails at any stage, before the next run:
+1. find the cause, then **search for every other place the same cause applies** (every plant aimed at the moved code,
+   every test with the same cleanup pattern, every caller of the changed function);
+2. fix them together, in one commit;
+3. re-run the directly affected checks locally, then P2 in full.
+One expensive cycle per cause, not one per symptom.
+
+**P5 · Pre-flight confirmation.** The CI dispatch is preceded by a short written note in the session, kept with the
+batch's evidence: the commit; P2's results, check by check; the impact list of P1 with each item's result; and **the
+checks that can only run in CI, named**, so that a CI failure outside that list is recognized as a pre-flight gap and
+fixed as one.
+
+**P6 · Immediate failure response.** While CI and the journeys run, watch the jobs. Read a failed job when it fails,
+not at a scheduled time. Start P4 at once; let the remaining jobs finish, because they may show further failures to
+consolidate.
+
+**Applies to** B1, B2, A2, C2w, A3, C3w and Z. Each batch's section G names its affected functions and its
+impact-analysis starting list.
 
 ---
 
@@ -329,6 +389,12 @@ no pre-build UX review is planned for B1 (`EXECUTION-PLAN.md` §2).
 6. **UI.** The reader section.
 7. **Tests** (H). 8. **Rendered check.** 9. **Acceptance.**
 
+**Pre-flight starting list (§4.1 P1).** *Changed:* the six sign-in routes and the sign-out path of table C (application
+code; no database function they call is replaced); `pengerjaan_jadwal_pasang` and `restore-bundle.mjs` (the shared
+installer, §6.3). *Expect to re-run or restate:* DR-S14, DR-S15, DR-S16, DR-D02; A1-K01, A1-S08 and A1-S09 (they pin
+the installer and the job); every identity suite. *Committing tests:* the sign-in app tests, which must leave no
+session and no event rows behind (P3).
+
 #### H · Verification
 - **Database (red first):** a successful and a failed sign-in each leave exactly one row (red today: none). No row holds
   a password, code, PIN or full address (a scan over every text column after a full sign-in matrix). A client role cannot
@@ -419,6 +485,10 @@ zone.
    read, so a forged call cannot log a print of a report they cannot open).
 5. UI: `AksiLaporan` and `KepalaCetak`; the footer CSS under `@page laporan` and `laporan-lebar`.
 6. Tests. 7. Rendered and printed check. 8. Acceptance.
+
+**Pre-flight starting list (§4.1 P1).** *Changed:* `AksiLaporan`, `KepalaCetak`, the print CSS. No database function is
+replaced. *Expect to re-run:* every report suite that renders those components and DAISY's print checks; the
+certificate print tests, which must be unchanged. *Committing tests:* the print app test leaves no event row (P3).
 
 #### H · Verification
 - **App (red first):** a press writes one `PRINT_REQUEST` and the printed document carries that reference, the name and
@@ -721,6 +791,25 @@ Daisy reviews before build. Reuse the scheduling form, the banner and the pause 
 5. UI: scheduling, banner, pause page, the player's held notice, the teacher's list.
 6. Tests. 7. Rendered check at three widths, keyboard only, both a WIB and a WITA school. 8. Acceptance.
 
+**Pre-flight starting list (§4.1 P1). This batch changes sensitive assessment mechanisms; the analysis is done in
+full before the first migration is written.** Read at `3a190dbf`:
+- *Functions replaced or extended:* every function in D6.2's table; `pengerjaan_gerbang`; `pengerjaan_jaga`;
+  `pengerjaan_tutup_terjadwal`; `pengerjaan_tahan_orang`; `tangguhkan_akun`; `maintenance_affects`,
+  `maintenance_block_for_me`, `maintenance_draining`, `schedule_maintenance`, `change_maintenance`, `stop_pintar_now`,
+  `pintar_status_saya`; the pre-request hook `pintar_permintaan.periksa`; the sitting-insert trigger of the T−15 block.
+- *Already rewritten by text in an earlier migration* (read the final body, not the first): `start_learning_session`,
+  `may_start_assessment`, `record_answer`, `submit_session`, `pause_session`, `resume_session`, `finalize_session`
+  (A1 injected its gate into each).
+- *Planted defects known to target this area:* `r1-1`, `r1-2`, `r1-3` (gate `db-r1-gates`); the inline `red-case`
+  plants on `start_learning_session` and `may_start_assessment` (`ci.yml`, about lines 792 and 1096 to 1143); eight
+  plant files touch `assessment_sessions` or `responses`. No plant file names a maintenance function today; the search
+  is repeated on the day, because other batches add plants.
+- *Source-reading tests to re-point:* A1-K01 and A1-K02 (they read A1's two migrations by file name); M148-K01.
+- *Suites to re-run in full:* M148-*, A1-*, F03, F04, F37, F38, fable01, fable08 and fable24 (they exercise
+  maintenance), the DR tests.
+- *Committing tests:* any test that activates a window or a stop must end with **no active window** and no held
+  sitting (P3); a leaked emergency window would refuse every later test's requests.
+
 #### H · Verification
 - **Database (red first):**
   - A class-scoped window affects its learners and teachers and nobody else in the school (red today: no class scope).
@@ -843,6 +932,11 @@ claim that the question has no misconception.
    metric-source refusal.
 3. Contract file and copy. 4. Server actions. 5. UI in Studio, then in the report. 6. Tests. 7. Rendered check.
 8. Acceptance.
+
+**Pre-flight starting list (§4.1 P1).** *Changed:* nothing existing is replaced; one table and its functions are
+added. *Expect to re-run:* F06-P02, F06-P13, F07-P11, F36-M01, F23-*, the C1w suites; the class misconception report's
+render tests. *Check for plants:* any plant aimed at `calc_class_misconceptions` or the report reader, if the reader is
+extended. **[P-C1w]**
 
 #### H · Verification
 - **Database (red first):** before and after an annotation, the question, options, results and all metric evaluations
@@ -1023,6 +1117,22 @@ Daisy reviews the journeys and wording in full before build.
 6. **UI.** The player's three screens; the panel's act.
 7. **Tests** (H). 8. **Rendered check.** 9. **Acceptance.**
 
+**Pre-flight starting list (§4.1 P1). This batch rewrites nearly every sitting boundary. It will break planted
+defects exactly as C1w did unless the analysis is done first.** Read at `3a190dbf`:
+- *Functions replaced:* every function in table C; `pengerjaan_gerbang`; `session_final_responses`;
+  `enforce_response_write`; A1's teacher acts (they gain nothing, but the enumeration test reads them); A2's emergency
+  hold and release.
+- *Already rewritten by text in an earlier migration:* the seven functions A1 injected its gate into (listed under
+  A2). A3 should **redefine each in full** in its own migration rather than patch text a third time, so that later
+  plants and readers have one body to aim at.
+- *Planted defects to re-aim, at minimum:* `r1-1`, `r1-2`, `r1-3`; the inline `red-case` plants on
+  `start_learning_session` and `may_start_assessment`; the eight plant files that touch `assessment_sessions` or
+  `responses`; A2's own plants. **Each is run locally against the new bodies before the suite is run at all.**
+- *Source-reading tests to re-point:* A1-K01, A1-K02, and every `-K0x` test that reads a sitting migration.
+- *Suites to re-run in full:* the whole sitting surface, as H lists.
+- *Committing tests:* the two-connection concurrency tests commit by design. Each ends with no open sitting, no
+  recovery authorization and no live role of its own (P3).
+
 #### H · Verification
 - **Concurrency, deterministic, on real connections** (the standard F37-R01 set): two devices answering at once; finish
   on A with B's answers in flight; answer while paused from the other device; old A after a recovery; two recoveries at
@@ -1178,6 +1288,12 @@ Daisy reviews the generation and review flow in full.
 6. Tests, with the provider replaced by a local stub in the suite and CI (as the mail sink replaces SMTP).
 7. Rendered check. 8. One supervised generation on staging against the real provider, recorded. 9. Acceptance.
 
+**Pre-flight starting list (§4.1 P1).** *Changed:* C1w's draft-write path gains a caller; the closed learner projection's
+assertion and the engine's forbidden-key list are extended. *Expect to re-run:* F06-P02 and the static projection
+test; F23-*; C1w's and B1's suites. *Check for plants:* any aimed at the draft-write functions or at
+`assert_learner_projection_is_closed`. *Committing tests:* the generation app test leaves no request, draft or
+provenance row (P3). *Only in the supervised staging run, never in CI:* a call to the real provider. **[P-C1w]**
+
 #### H · Verification
 - **Database (red first):** a generation inserts drafts only into a draft package the caller authors; the requester
   cannot approve them; a failed or invalid response creates nothing; limits refuse before any call; provenance is
@@ -1236,7 +1352,9 @@ Result: a report to the owner. No selection and no integration before the owner 
 **Instructions.**
 1. Freeze scope: every batch closed; the register in `EXECUTION-PLAN.md` §5 triaged (blockers none; the rest stated).
 2. Extend the integrated journeys (§6.6) and run them.
-3. One full verification on the candidate: whole local suite, CI, journeys.
+3. The pre-flight of §4.1 in full, with P1 run across **all** batches' changed functions together, since Z is where
+   one batch's plants meet another batch's rewrites. Then one full verification on the candidate: whole local suite,
+   CI, journeys.
 4. Sharon and Daisy, once each, on that exact commit, including the three 4.0 rendered checks still outstanding on
    staging (`EXECUTION-PLAN.md` §6) if a browser can reach staging.
 5. Promote to staging on the owner's authorization; verify the migration count, the preservation counts, both scheduled
