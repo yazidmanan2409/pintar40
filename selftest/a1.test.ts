@@ -345,7 +345,7 @@ export const a1Tests: SelfTest[] = [
       const m = jalankan(c, repoRoot, L);
       if (!m) return c.verdict("");
       const harap = (k: string, h: string, apa: string) => c.expect(m[k] === h, `${apa}: answered ${m[k]}; expected ${h}`);
-      harap("peta", "truetruetruefalsefalsefalse", "who holds CAN_MANAGE_SITTINGS (teacher, head, school admin; not platform admin, not dean) and a teacher's integrity authority");
+      harap("peta", "ok:truetruetruefalsefalsefalse", "who holds CAN_MANAGE_SITTINGS (teacher, head, school admin; not platform admin, not dean) and a teacher's integrity authority");
       harap("lain", TAK_BOLEH, "another class's teacher giving extra time");
       harap("murid", TAK_BOLEH, "the learner giving themself extra time");
       harap("platform", TAK_BOLEH, "a platform admin giving extra time on an academic sitting");
@@ -353,9 +353,9 @@ export const a1Tests: SelfTest[] = [
       c.expect(/requires CAN_MANAGE_SITTINGS/.test(m.platform_mentah ?? ""), `a platform admin on extend_session_deadline, academic: ${m.platform_mentah}`);
       harap("pendek", "PR170:SITTING_REASON_REQUIRED", "extra time with a 6-character reason");
       harap("menit", "PR170:SITTING_MINUTES_INVALID", "extra time of 500 minutes");
-      harap("belum", "true,0", "the deadline after the refusals");
+      harap("belum", "ok:true,0", "the deadline after the refusals");
       harap("guru", "ok:true", "the class's teacher giving 10 minutes");
-      harap("guru_cek", "true,1,IN_PROGRESS", "the deadline after the teacher's 10 minutes");
+      harap("guru_cek", "ok:true,1,IN_PROGRESS", "the deadline after the teacher's 10 minutes");
       harap("guru_audit", "ok:1", "the extension's audit row (who, the reason, the minutes, before and after)");
       harap("kadep", "ok:true", "the head of department giving extra time");
       harap("admin", "ok:true", "the school admin giving extra time");
@@ -728,14 +728,17 @@ export const a1Tests: SelfTest[] = [
           || coalesce((select string_agg(to_jsonb(x)::text, '|' order by x.id) from public.responses x where x.session_id = s.id), '')
           || coalesce((select string_agg(to_jsonb(p)::text, '|' order by p.id) from public.presented_items p where p.session_id = s.id), ''))
          from public.assessment_sessions s where s.id = ${G("s_m1")})`;
-      const baris = (nama: string) => `select coalesce(d.permintaan_status, '-') || ',' || d.percobaan_diizinkan || ',' || d.izin_belum_dipakai || ',' || d.jumlah_sesi || ',' || d.percobaan_terpakai || '/' || d.batas_percobaan
-          from public.daftar_pengerjaan(${G("kelas")}, ${G("aa_pre")}) d where d.person_id = ${G(`p_${nama}`)}`;
+      const baris = (nama: string, aa = "aa_post") => `select coalesce(d.permintaan_status, '-') || ',' || d.percobaan_diizinkan || ',' || d.izin_belum_dipakai || ',' || d.jumlah_sesi || ',' || d.percobaan_terpakai || '/' || d.batas_percobaan
+          from public.daftar_pengerjaan(${G("kelas")}, ${G(aa)}) d where d.person_id = ${G(`p_${nama}`)}`;
       const antre = `select count(*) || '|' || coalesce(bool_or(a.milik_sendiri)::text, '-') from public.percobaan_antrean(${G("inst")}) a where a.id = ${G("req")}`;
       const selesai = (nama: string) => `perform pg_temp.a1(${G(`u_${nama}`)}, ${q(`select public.finish_my_session(${G(`s_${nama}`)}, null)`)});`;
       const L: string[] = [
-        murid("m1"), mulai("m1", "aa_pre", 5), selesai("m1"), murid("m2"), mulai("m2", "aa_pre", 1), murid("m3"), mulai("m3", "aa_pre", 5), selesai("m3"),
+        // m1: the Pemetaan Awal finished, then the Uji Penguasaan (its limit set to one attempt, so the fixture's bank can still draw a second paper)
+        murid("m1"), mulai("m1", "aa_pre", 5), selesai("m1"),
+        paksa(`update public.assessment_definitions set attempt_limit = 1 where id = (select aa.assessment_definition_id from public.assessment_assignments aa where aa.id = ${G("aa_post")})`),
+        mulai("m1", "aa_post", 5), selesai("m1"), murid("m2"), mulai("m2", "aa_pre", 1), murid("m3"), mulai("m3", "aa_pre", 5), selesai("m3"),
         langkah("awal", null, `select (${sesiRingkas("s_m1")}) || ' ' || (select set_config('a1.lama', ${sidikLama}, true) is not null)`),
-        langkah("habis", "m1", boleh("m1")),
+        langkah("habis", "m1", boleh("m1", "aa_post")),
         // ---- the request: who may, and what it grants (nothing)
         langkah("minta_lain", "guru_b", minta("s_m1")),
         langkah("minta_murid", "m1", minta("s_m1")),
@@ -746,8 +749,8 @@ export const a1Tests: SelfTest[] = [
         langkah("minta_cek", null, `select r.status || '|' || (r.requested_by_person_id = ${G("p_kadep2")}) || '|' || (r.person_id = ${G("p_m1")}) || '|' || (r.reason = '${ALASAN}') || '|'
             || (select count(*) from public.audit_log l where l.action = 'attempt_request.requested' and l.target_id = r.id::text and l.actor_person_id = ${G("p_kadep2")} and l.summary ->> 'reason' = '${ALASAN}')
            from public.attempt_requests r where r.id = ${G("req")}`),
-        langkah("belum_boleh", "m1", boleh("m1")),
-        langkah("belum_mulai", "m1", `select public.start_learning_session(${G("aa_pre")})`),
+        langkah("belum_boleh", "m1", boleh("m1", "aa_post")),
+        langkah("belum_mulai", "m1", `select public.start_learning_session(${G("aa_post")})`),
         langkah("minta_ganda", "guru_a", minta("s_m1")),
         langkah("daftar_menunggu", "guru_a", baris("m1")),
         // ---- the decision: never the requester (who holds CAN_REVIEW_INTEGRITY too), the learner, a platform admin, or anyone without the capability over the place
@@ -758,7 +761,7 @@ export const a1Tests: SelfTest[] = [
         langkah("putus_kelas_lain", "kadep_b", putus("req", true, null)),
         langkah("antre_kadep", "kadep", antre), langkah("antre_peminta", "kadep2", antre), langkah("antre_guru", "guru_a", antre),
         langkah("antre_platform", "sys", antre), langkah("antre_kelas_lain", "kadep_b", antre),
-        langkah("masih", "m1", `select (select m.reason from public.may_start_assessment(${G("aa_pre")}) m) || '|' || (select count(*) from public.assessment_sessions s where s.person_id = ${G("p_m1")})`),
+        langkah("masih", "m1", `select (select m.reason from public.may_start_assessment(${G("aa_post")}) m) || '|' || (select count(*) from public.assessment_sessions s where s.person_id = ${G("p_m1")})`),
         langkah("tolak_tanpa_alasan", "kadep", putus("req", false, null)),
         // ---- approved by a different authorized person: one more start, marked; nothing earlier touched
         langkah("setuju", "kadep", putus("req", true, null)),
@@ -767,14 +770,14 @@ export const a1Tests: SelfTest[] = [
            from public.attempt_requests r where r.id = ${G("req")}`),
         langkah("setuju_lagi", "admin", putus("req", false, ALASAN)),
         langkah("daftar_diizinkan", "guru_a", baris("m1")),
-        langkah("boleh", "m1", boleh("m1")),
-        langkah("mulai", "m1", `select set_config('a1.s_m1b', public.start_learning_session(${G("aa_pre")})::text, true) ~ '^[0-9a-f-]{36}$'`),
+        langkah("boleh", "m1", boleh("m1", "aa_post")),
+        langkah("mulai", "m1", `select set_config('a1.s_m1b', public.start_learning_session(${G("aa_post")})::text, true) ~ '^[0-9a-f-]{36}$'`),
         langkah("ditandai", null, `select (s.attempt_request_id = ${G("req")}) || '|' || s.status::text || '|' || (select x.attempt_request_id is null from public.assessment_sessions x where x.id = ${G("s_m1")})
            from public.assessment_sessions s where s.id = ${G("s_m1b")}`),
         langkah("lama_utuh", null, `select ${sidikLama} = current_setting('a1.lama')`),
         langkah("daftar_dipakai", "guru_a", baris("m1")),
         langkah("murid_baca", "m1", `select public.pengerjaan_saya(${G("s_m1b")}) ->> 'percobaan_diizinkan'`),
-        langkah("satu_saja", "m1", boleh("m1")),
+        langkah("satu_saja", "m1", boleh("m1", "aa_post")),
         langkah("minta_saat_terbuka", "guru_a", minta("s_m1")),
         // ---- attempts remain: nothing to request
         langkah("m2_tidak_dihitung", "guru_a", akhiri("s_m2", "NOT_COUNTED")),
@@ -820,7 +823,7 @@ export const a1Tests: SelfTest[] = [
       harap("antre_guru", "ok:0|-", "the queue for a teacher");
       harap("antre_platform", "ok:0|-", "the queue for a platform admin");
       harap("antre_kelas_lain", "ok:0|-", "the queue for another class's head of department");
-      harap("masih", "ok:ATTEMPT_LIMIT_REACHED|1", "the learner after every refused decision (nothing granted, one sitting)");
+      harap("masih", "ok:ATTEMPT_LIMIT_REACHED|2", "the learner after every refused decision (nothing granted: the two sittings they had)");
       harap("tolak_tanpa_alasan", "PR170:ATTEMPT_REASON_REQUIRED", "declining without a reason");
       harap("setuju", "ok:APPROVED", "a different head of department approving it");
       harap("setuju_cek", "ok:APPROVED|true|true|1", "the approval as recorded and audited");

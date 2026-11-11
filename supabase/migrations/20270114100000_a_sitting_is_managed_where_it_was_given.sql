@@ -1017,7 +1017,9 @@ begin
       left join lateral (select x.* from public.assessment_sessions x
                           where x.person_id = m.pid and x.assessment_assignment_id = aa.id
                             and coalesce(x.class_node_id, x.cohort_node_id) = p_kelas
-                          order by x.created_at desc, x.id desc limit 1) s on true
+                          -- the latest; at one instant, the open one, then the granted one
+                          order by x.created_at desc, (x.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')) desc,
+                                   (x.attempt_request_id is not null) desc, x.id desc limit 1) s on true
       left join lateral (select coalesce(s.authoritative_deadline, aa.closes_at) as tenggat) t on true
       left join lateral (select g.* from public.attempt_requests g
                           where g.person_id = m.pid and g.assessment_assignment_id = aa.id
