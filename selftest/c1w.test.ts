@@ -1209,6 +1209,18 @@ select count(*) || '|' || count(*) filter (where not exists (select 1 from publi
       const bersih = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-q", "-At", "-c", bersihkan(w.course), db()], { encoding: "utf8" });
       c.expect(bersih.status === 0 && bersih.stdout.trim().split("\n").pop() === "0",
         `the committed world was not removed cleanly: ${bersih.stdout.trim().split("\n").pop()} ${(bersih.stderr || "").split("\n").find((l) => /ERROR/.test(l)) ?? ""}`);
+      // the world's people keep no live role after it (its SYSTEM_ADMIN would otherwise be a second platform admin for
+      // every later test, e.g. B0-A04's sole platform admin); the harness ends them as it removed the rest, triggers off
+      const peran = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-q", "-At", "-c", `
+begin; set local session_replication_role = replica;
+update public.role_assignments ra set revoked_at = now(), revoked_reason = 'selftest: C1W-C01 world removed'
+ where ra.revoked_at is null and ra.person_id in (select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id
+                                                   where u.email like 'c1w-%@local.invalid');
+commit;
+select count(*) from public.role_assignments ra join public.accounts a on a.person_id = ra.person_id join auth.users u on u.id = a.auth_user_id
+ where ra.revoked_at is null and u.email like 'c1w-%@local.invalid';`, db()], { encoding: "utf8" });
+      c.expect(peran.status === 0 && peran.stdout.trim().split("\n").pop() === "0",
+        `the committed world's people still hold a live role: ${peran.stdout.trim()} ${(peran.stderr || "").split("\n").find((l) => /ERROR/.test(l)) ?? ""}`);
       return c.verdict("two key corrections of one package confirmed at the same moment by two people on two real connections: the second waits for the first "
         + "(the line's lock) and stands on its result; the sitting's chain is the sealed original, the first, the second; exactly one result is current, "
         + "scored from the original answers with both corrections in force; never a raw constraint error");
