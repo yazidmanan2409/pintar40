@@ -1,22 +1,20 @@
 # PINTAR 4.1 · THE PLAN
 
-> **DRAFT — NOT APPROVED.** Phase 1 preliminary consolidation, 11 Nov 2026, by the Chief Architect (Bob).
-> It becomes final only after A1 and C1w are verified, this draft is reconciled against their final code, and the owner
-> has reviewed the completed plan. **Nothing here authorizes implementation.**
+> **DRAFT — NOT APPROVED. FINAL APPROVAL CANDIDATE (revision 5, 11 Nov 2026),** by the Chief Architect (Bob), for
+> the owner's review. **Nothing here authorizes implementation.** It becomes THE PLAN only on the owner's explicit
+> approval.
 >
-> **Revision 2 (11 Nov):** the owner's rulings D-1 to D-8 are incorporated (§7.3); the emergency-containment design
-> (§5.3 D6) is specified for concurrency, scale and failure. The direction is approved; the plan is not.
-> The owner accepted revision 2 (`38e43db0`) as the current working draft: a planning milestone, not approval to
-> execute.
+> **Reconciled against the code** of B0, A1 and C1w at `claude/system-integrity-4.0` `3a190dbf`, and against Daisy's
+> two design documents. Three things are **outstanding** and are stated where they matter, not hidden:
+> 1. **C1w's formal closure.** Its three acceptance gates are reported green on `3a190dbf`; Second Eye's closure
+>    evidence was not yet on the branch when this was written. This plan does not declare C1w closed.
+> 2. **Sharon's A2 review document.** It is on no branch the Chief Architect can read. §5.3 records it as the owner
+>    relayed it; her nine verification scenarios are required and are not reproduced (§7.6).
+> 3. **Final completion records** for B0, A1 and C1w do not exist under `docs/`; the three pre-build pages are
+>    unchanged since the planning merge. The reconciliation is therefore against code and tests.
 >
-> **Revision 4 (11 Nov):** a mandatory pre-flight before every CI dispatch (§4.1), from the lessons of C1w's
-> verification, with each batch's affected functions and impact-analysis starting list (section G of each batch).
->
-> **Revision 3 (11 Nov):** Sharon's A2 pre-build review is incorporated (§5.3): six blockers B1 to B6, requirements R1
-> and R2, and the owner's ruling O1. The emergency design now rests on a transaction-ordering fence, one time rule
-> based on effective deadlines, and independent emergency and suspension holds.
->
-> Statements marked **[P-A1]** or **[P-C1w]** rest on a batch that is not yet closed and are provisional.
+> Earlier revisions: 1 preliminary consolidation; 2 owner rulings D-1 to D-8; 3 Sharon's A2 findings and ruling O1;
+> 4 the mandatory pre-flight (§4.1).
 
 **What this document is.** The build-ready execution plan for everything in 4.1 after the foundations B0 → A1 → C1w.
 It consolidates the approved records. It does not replace them and proposes no competing architecture.
@@ -28,8 +26,9 @@ It consolidates the approved records. It does not replace them and proposes no c
 4. `SCOPE-REGISTER.md` §1 (capabilities C1–C8) and §2 (truths), as the decisions above change them.
 5. `C1-D125-INVESTIGATION.md`, `C3-EVALUATION-PLAN.md`, `C3-AI-PROVIDER-COMPARISON.md`.
 
-**Evidence base.** `main` at `057eb2b0`; `claude/system-integrity-4.0` at `7dfe2bc8` (B0 closed; A1's final commit, in
-verification), read only. Paths below are relative to the repository; `M/` is `supabase/migrations/`. Evidence was
+**Evidence base.** `main` at `057eb2b0`; `claude/system-integrity-4.0` at `3a190dbf` (B0, A1 and C1w as built), read
+only; `ux-1/daisy-experience` at `a2420446` (Daisy's `DESAIN-AWAL-4.1.md` and `TINJAUAN-A1-C1W.md` under
+`docs/coordination/ux/completion-4.1/`). Paths below are relative to the repository; `M/` is `supabase/migrations/`. Evidence was
 gathered by targeted reading, not by running anything.
 
 **Contents.** 1 Baseline · 2 Scope · 3 Order · 4 Rules for every batch · 5 Batch instructions (B1, B2, A2, C2w, A3,
@@ -46,9 +45,10 @@ C3w, E, Z) · 6 Cross-batch integration · 7 Decision register · 8 Final accept
 | PINTAR 4.0 | Closed. On staging at migration 224 (PR #17, `d764d69e`). Rollback script `docs/completion-4.0/acceptance/ROLLBACK-201-224.sql`. |
 | Production | Migration 111. Outside every authorization. The 111 → 224 rehearsal on restored real data (R-2) is open and is not part of this plan. |
 | B0 · last-administrator guard | Closed on `0bbee3e3`. Migration `20270113170000`. |
-| A1 · sitting control | Final commit `7dfe2bc8`; CI and journeys in progress when read. Migrations `20270114100000`, `20270114110000`. **[P-A1]** |
-| C1w · item workbench | Not started. Spec: `batches/C1W-COMPLETION.md`. **[P-C1w]** |
-| Suite | 1018 manifest ids on `main`; 1045 on the work branch. |
+| A1 · sitting control | Built; final commit `7dfe2bc8`. Migrations `20270114100000`, `20270114110000`. Tests A1-K01, K02, S01 to S09, A01 to A03, J01 |
+| C1w · item workbench | Built; head `3a190dbf`. Migrations `20270115100000`, `20270115110000`. Tests C1W-K01, K02, S01 to S06, C01, A01, A02, J01. Gates reported green on `3a190dbf`; **formal closure evidence pending** |
+| Suite | 1018 manifest ids on `main`; 1056 passed locally on `3a190dbf` (Second Eye's report) |
+| Migrations | 224 on `main`; 229 on the work branch |
 
 ### 1.2 The mechanisms every remaining batch builds on
 
@@ -72,11 +72,26 @@ authorization requirement; lints enforce it (example `M/20270114100000…:1080`)
 
 **Sittings.** `assessment_sessions` with a status allow-list, pinned to a release (`plp_release_id`) and to
 `presented_items` (immutable). Answers arrive through `record_answer` → `submit_response`, idempotent on
-`(presented_item_id, client_seq)`. A1 added: the held state (`frozen_*` columns, `M/20270114100000…:126-147`; cause list
-today `ACCOUNT_SUSPENDED` only), the one deadline decider `pengerjaan_putus_tenggat` (`:325`), the learner gate
-`pengerjaan_gerbang` (`:439`), the state trigger `pengerjaan_jaga` (`:209`), and the scheduled closer
-`pengerjaan_tutup_terjadwal` run by `pg_cron` every 5 minutes through the idempotent installer
-`pengerjaan_jadwal_pasang` (`M/20270114110000…:79`).
+`(presented_item_id, client_seq)`. What A1 built (`M/20270114100000`, `M/20270114110000`):
+- **The held state:** `frozen_at`, `frozen_cause`, `frozen_suspension_id`, `frozen_remaining_seconds` (null or ≥ 0),
+  `unfrozen_at`, `unfrozen_by_person_id` (`:120-147`). **One cause only** (`ACCOUNT_SUSPENDED`, `:141`).
+- **The state trigger** `pengerjaan_jaga` (`:209`): while held, any status change except to TERMINATED and any deadline
+  change is refused (`SITTING_FROZEN`).
+- **The effective deadline** `pengerjaan_tenggat_efektif` (`:249`): the sitting's own deadline, else its assignment's
+  **current** `closes_at`, else none.
+- **The one deadline decider** `pengerjaan_putus_tenggat` (`:325`): locks the sitting `FOR UPDATE`, skips a held one,
+  and does not score while inside `late_sync_grace_seconds` (`:356`).
+- **The learner gate** `pengerjaan_gerbang` (`:439`), injected by text into `record_answer`, `submit_session`,
+  `pause_session`, `resume_session`. **It takes no lock.**
+- **The scheduled closer** `pengerjaan_tutup_terjadwal` (`M/20270114110000…:28`): **a function, so one transaction per
+  run,** up to 500 sittings (maximum 5000); it excludes held sittings in its query; run every 5 minutes by `pg_cron`
+  through the idempotent installer `pengerjaan_jadwal_pasang` (`:79`).
+- **Paths that end sittings without consulting the held state:** `terminate_session` (`M/20270112150000…:8`; the
+  trigger allows TERMINATED), `akhiri_penugasan` for both «Akhiri» and «Tarik» (`M/20270113100000…:174`), and
+  `tutup_asesmen_terbuka` (`M/20270112200000…:24`), which enrolment termination, a transfer and the promotion run all
+  call. The last one **scores** a sitting past its deadline and terminates the rest unscored
+  (`INSTITUTIONAL_REVOCATION`).
+- No migration sets an isolation level: the default, READ COMMITTED, applies.
 
 **Maintenance.** One system (`M/20261120100000`): `maintenance_windows` (PLANNED or EMERGENCY; platform or a list of
 schools), a T−15 start block (trigger on sitting insert, `:175`), the drain rule `maintenance_draining` (`:135`), PT503
@@ -84,9 +99,25 @@ at the pre-request hook, the pause page `src/app/pemeliharaan/page.tsx`, the ban
 timers at 60/30/15 (`src/lib/pemeliharaan-kontrak.ts:103`).
 
 **Content.** `courses → modules → lessons → items → item_options`; a status allow-list with the two-person rule inside
-`enforce_content_status` (`M/20261213100000…:52-72`); releases in `plp_releases`; package-level revision by
-`create_course_revision` with `items.supersedes_item_id` (`M/20260915120000…:56`); sealed content immutable
-(`enforce_taught_content_immutable`). No per-question stable identity exists today; C1w adds it.
+`enforce_content_status` (`M/20261213100000…:52-72`); releases in `plp_releases`; sealed content immutable
+(`enforce_taught_content_immutable`). What C1w built (`M/20270115100000` = M1, `M/20270115110000` = M2):
+- **A question's identity is its lineage, not a new column.** C1w added no separate identity. A revision's question
+  points to its predecessor through `items.supersedes_item_id`, now guarded against crossing schools (M1`:167`). An
+  uploaded workbook may name the predecessor it replaces (M1`:659-762`). The chain is read by `riwayat_soal(item)`
+  (M1`:1038`; `CAN_DRAFT` or `CAN_REVIEW` in the question's school).
+- **In-app drafting:** `ubah_soal_draf`, `tambah_soal_draf(lesson, jsonb)`, `hapus_soal_draf`, `buang_draf` (M1`:405-558`),
+  allowed while the package is INGESTED, STRUCTURED, VALIDATED or VALIDATION_FAILED and unsealed; `CAN_DRAFT` in the
+  owning school; refusals `soal_tolak`, PR180; every edit attributed in `item_draft_edits` (append-only; field names,
+  never text).
+- **Revision and release:** `revisi_soal`, `salin_kursus_revisi`, `create_course_revision` (head only);
+  `publish_release` replaces the predecessor; `withdraw_release` blocks new sittings (`start_learning_session` and
+  `may_start_assessment` patched by text again, M1`:1213-1239`). Withdrawn and replaced are both SUPERSEDED, told
+  apart by columns.
+- **Wrong-key correction** (M2): `key_corrections`, propose and confirm by two different people (`koreksi_tolak`,
+  PR190); `assessment_result_bases`; **the result in force is `hasil_terkini_id(session)`**, the learner's is
+  `hasil_murid_id`; `certificate_reviews` and the DITINJAU verification state; school notices in-app.
+- **Nothing in C1w mentions annotations, provenance or AI.** No hook was left for C2w or C3w; none is needed (§5.4,
+  §5.6).
 
 **Learner projection.** Learners never read `items`. `session_paper` and `sanitized_item` return only keys in a declared
 allow-list, enforced by `assert_learner_projection_is_closed` (F06-P02) and by `sanitize()` in
@@ -112,8 +143,8 @@ re-runs the job installer and refuses to reopen without the job; DR-S14, S15, S1
 | A2 | A1 | the held state and its guard; the deadline decider; the effective-deadline rule; the scheduled closer |
 | A3 | A1, A2, B1 | the sitting gate and row-lock discipline; the teacher's sitting panel on `/mengajar/[kelas]/siapa`; A2's emergency hold; B1's sign-in events |
 | B2 | B1 | the print-request event and its reference |
-| C2w | C1w | the stable question identity; «Riwayat soal» |
-| C3w | C1w, B1 | the draft state and in-app editor; the two-person review; B1's write path |
+| C2w | C1w | the lineage chain and its reader `riwayat_soal`; «Riwayat soal» on the package page |
+| C3w | C1w, B1 | `tambah_soal_draf` and the in-app editor; the two-person review; B1's write path |
 | Z | all | one candidate |
 
 ---
@@ -165,7 +196,8 @@ B0 ✔ ─► A1 [verifying] ─► C1w ─► STOP ─► owner approves THE PL
 - C3w's entry gate (`SCOPE-REGISTER.md` §4, with "C4 verified" read as "C1w closed"): the owner's provider choice, the
   reviewed architecture, B1's write path verified, Studio journeys green.
 
-**Recommended serial order, and why.** B1 → B2 → A2 → C2w → A3 → C3w → Z.
+**Order, reconfirmed against the built code: B1 → B2 → A2 → C2w → A3 → C3w → Z,** with E alongside. Nothing in the
+final B0, A1 or C1w code changes it, and no owner approval is needed for the order. Why:
 - One implementation engineer builds on one branch. The lanes touch different tables, but every batch edits the same
   four shared files: `src/lib/hle.ts`, `selftest/manifest.json`, `src/app/konfigurasi/page.tsx` and the recovery
   scripts. Serial batches avoid merge work that buys no calendar time.
@@ -244,10 +276,14 @@ stated reason when the defect is present and green when it is not.
 build:
 1. the whole local suite;
 2. **every planted-defect gate** (`node scripts/dev/plants.mjs run`, all gates);
-3. **the `red-case` cases written inline in `ci.yml`,** extracted and run locally (a one-time script; it stays in the
-   repository so every batch uses it);
+3. **the `red-case` cases written inline in `ci.yml`,** extracted and run locally. No such script exists today
+   (`scripts/` has none; `scripts/dev/plants.mjs` runs only the gates declared in `plants.json`). **B1, the first batch,
+   writes it** as test tooling and keeps it in the repository; every later batch uses it;
 4. the static checks CI runs (typecheck, lint, the build);
 5. the journeys, where the local stack can run them.
+
+A shared helper for tests on several connections is needed from A2 onwards. A1's `psqlLain`
+(`selftest/a1-layar.test.ts:243`) is not exported; **A2 moves it to a shared selftest module** and A3 reuses it.
 
 **P3 · Test isolation.** Every test that commits data (anything that is not one rolled-back transaction: two-connection
 tests, app tests, journeys) ends by proving the baseline is restored: the same fingerprint the `red-case` groups
@@ -311,7 +347,7 @@ what it already records; a school-facing analytics view.
 | Rate-limit counters | `identity_attempts` (`M/20261021100000…:276`), `card_signin_cooldowns` | transient; deleted on success |
 | Security events list | `security_event_list` (`M/20261116100000…:201`), `src/app/konfigurasi/keamanan/page.tsx:46` | reads identity rows out of `audit_log`, platform admin only |
 | Retention | none | `institutions.retention_days` exists and nothing enforces it (`M/20260912004244…:11`) |
-| Scheduled jobs | `pengerjaan_jadwal_pasang` (`M/20270114110000…:79`); restore re-installs (`scripts/recovery/restore-bundle.mjs:84-93,186-189`) | **[P-A1]** |
+| Scheduled jobs | `pengerjaan_jadwal_pasang` (`M/20270114110000…:79`); restore re-installs (`scripts/recovery/restore-bundle.mjs:84-93,186-189`) | |
 
 #### D · Proposed technical design
 **The store.** One new table, here called `accountability_events` (the engineer may choose the Indonesian name the
@@ -366,8 +402,10 @@ calculator may read it: it is not declared in `metric_sources`, and a test refus
 
 #### F · UX requirements
 One reader screen for admins. Recommended place: a section beside «Jejak audit» in Konfigurasi, with the same paging and
-the same wording layer (`src/lib/jejak-audit.ts` pattern). Daisy decides the final place and words at the result review;
-no pre-build UX review is planned for B1 (`EXECUTION-PLAN.md` §2).
+the same wording layer (`src/lib/jejak-audit.ts` pattern). Daisy's design input expects a print reference to be found
+"in «Jejak audit» by typing it" (DESAIN-AWAL §1), so the reader must accept a reference in its search field. Daisy
+verifies the changed screens at the result review (her §8, medium risk for C5); no pre-build UX review is planned for
+B1 (`EXECUTION-PLAN.md` §2).
 - **Purpose:** look up sign-ins, failures, sign-outs and prints for one person or one period.
 - **Actions:** filter by kind, by person, by date range. No export, no delete.
 - **States:** empty ("recorded since {date}"); no match; a page of rows; refused (not an admin).
@@ -468,13 +506,24 @@ figure. Learners printing their own results (`/belajar/hasil`) are treated the s
 zone.
 
 #### F · UX requirements
-- **Footer composition** (Daisy's to settle at the pre-build review): one quiet line, legible in monochrome, never over
-  content: «Dicetak oleh {nama} · {tanggal, jam, zona} · Ref {rujukan}» left, «Halaman n dari m» right.
-- **States:** working (the button's existing busy state); failed (one sentence, nothing printed); done (no message
-  needed).
-- **Accessibility:** the button keeps its name and focus; the failure line is a status region (`BarisHasil`).
-- **Print:** A4 portrait and the wide variant (`laporan-lebar`) both carry the footer; no content is clipped at 1280
-  or when printed from a phone.
+**Daisy's composition exists and is adopted:** `docs/coordination/ux/completion-4.1/DESAIN-AWAL-4.1.md` on `ux-1/daisy-experience`, §1, with a rendered mock (`gambar/c6-footer.png`,
+`gambar/c6-mock.html`). The engineer builds to it; Daisy's pre-build review confirms it against this section.
+- **Official print, bottom-left margin box, one line, 7.5–8 pt, `--ink-2`:** «Dicetak oleh {nama} · {tanggal, jam,
+  zona} · Ref. CTK-XXXX-XXXX». Bottom-right unchanged: «Halaman n dari m». Both on every page, portrait and wide.
+- **The reference:** «CTK-» plus 8 characters in two groups of 4, without look-alike characters.
+- **A browser print (Ctrl+P)** is the stylesheet's **default** footer and carries no reference-shaped text at all:
+  «Dicetak dari browser oleh {nama} · {waktu} · tanpa nomor referensi». If name and time cannot be filled reliably,
+  it shrinks to «Dicetak dari browser · tanpa nomor referensi». «Cetak laporan» swaps in the referenced line only
+  after the request is recorded, before the print dialog opens, and never for a refused request.
+- **Failed recording:** the dialog does not open; the existing result line says «Cetakan belum dapat dicatat, jadi
+  belum dicetak. Coba lagi.»
+- **Not on certificates** (their print CSS excludes the box) and never on screen.
+- **An empty report:** «Cetak laporan» is not offered on a report with nothing in it (her §6, item 15), so that no
+  empty page is printed and recorded.
+- **States:** working; failed; done (no message). **Accessibility:** the button keeps its name and focus; the failure
+  line is a status region (`BarisHasil`). **Long names:** the name and time stay whole and the reference wraps.
+- **Known print defects to check, not to redesign** (her §6, item 11): an empty card frame on page 2 of Ringkasan
+  Kelas 5C; Pimpinan's last page holding one link. They are register items unless the footer makes them worse.
 
 #### G · Ordered implementation instructions
 1. Preconditions: B1 closed; completion page reviewed by Daisy.
@@ -564,7 +613,12 @@ system.
 | Warnings | `PengingatPemeliharaan.tsx:40-45` timers; stages in `pemeliharaan-kontrak.ts:103` | times shown with `jamWib(…)` and no zone (`PengingatPemeliharaan.tsx:76-77`) |
 | Screens | scheduling in `src/app/konfigurasi/page.tsx:1305`; pause page `src/app/pemeliharaan/page.tsx` | — |
 | Tests | `selftest/m148.test.ts` (M148-K01, S01, D01, D02) | — |
-| A1's deadline rule | `pengerjaan_putus_tenggat`, the 5-minute job | **knows nothing of maintenance** [P-A1] |
+| A1's deadline rule | `pengerjaan_putus_tenggat`, the 5-minute job | **knows nothing of maintenance** |
+| The scheduled closer | `pengerjaan_tutup_terjadwal` (`M/20270114110000…:28`) | a **function**: one transaction per run, up to 500 sittings; excludes held sittings in its query, not protected ones |
+| A1's held state | six `frozen_*` columns, one cause (`M/20270114100000…:120-147`) | cannot hold two causes; remaining seconds cannot be negative |
+| Endings that ignore the held state | `terminate_session`; `akhiri_penugasan` («Akhiri» and «Tarik»); `tutup_asesmen_terbuka` | each can end a held sitting today |
+| Enrolment termination, transfer, promotion | `akhiri_pendaftaran` (`M/20270112200000…:73`), `transfer_execute` (`:59-68`), the Kenaikan run (`M/20270112210000…:229`) | all call `tutup_asesmen_terbuka`, which **scores** a sitting past its deadline and terminates the rest unscored |
+| Isolation level | none set anywhere | READ COMMITTED, which the fence requires |
 
 #### D · Proposed technical design
 
@@ -648,7 +702,7 @@ after. The sitting's row lock orders decisions against each other, not against t
   latency is unacceptable, per-school fences are the fallback, brought back for review before being built.
 
 **D6.2 · Protection on every protected decision (B2, O1).** One check, `is this sitting protected?`, is applied under
-the fence by every act below. A1's functions as read at `7dfe2bc8` **[P-A1]**:
+the fence by every act below. Functions as read at `3a190dbf`:
 
 | Act | Function | During a stop, on a protected sitting |
 |---|---|---|
@@ -659,7 +713,8 @@ the fence by every act below. A1's functions as read at `7dfe2bc8` **[P-A1]**:
 | Extra time | `tambah_waktu_pengerjaan`, `extend_session_deadline` | refused |
 | Resume or close a suspension-held sitting | `lanjutkan_pengerjaan`, `tutup_pengerjaan_ditahan` | refused |
 | The window changed | `ubah_jadwal_penugasan` | refused where it would re-time a protected sitting |
-| The assignment ended or withdrawn | `akhiri_penugasan`, the withdrawal path, `tutup_asesmen_terbuka` | **refused** where a protected sitting would be ended (O1) |
+| The assignment ended or withdrawn | `akhiri_penugasan` (one function for «Akhiri» and «Tarik») | **refused** where a protected sitting would be ended (O1) |
+| A first view of a question | `note_item_view` | refused (it has no gate today) |
 | Learner answer, pause, resume, hand-in | the gate `pengerjaan_gerbang` and the response trigger | refused (the request-level refusal usually comes first) |
 
 - Each refusal has its own designed code in A1's domain and one sentence saying the class is stopped and the act can be
@@ -668,10 +723,16 @@ the fence by every act below. A1's functions as read at `7dfe2bc8` **[P-A1]**:
   held state either applies the protection check or is on a short declared list (the marking, the release, the
   enrolment path below). The same enumeration test serves A3.
 - **Enrolment termination is permitted (O1).** It records an institutional fact about the learner, not an assessment
-  judgment. During a stop it proceeds and is audited as usual, and it must not: end a protected sitting as scored,
-  score it, or discard any accepted answer. The protected sitting stays protected; what finally happens to a departed
-  learner's sitting is decided by the existing rule **after** the lift. *To verify at reconciliation:* what enrolment
-  termination does to an open sitting in the code today **[P-A1]**.
+  judgment. *What the code does today:* `akhiri_pendaftaran` and `transfer_execute` call `tutup_asesmen_terbuka`, which
+  runs the deadline rule on each open sitting (**scoring** one that is past its deadline) and terminates the rest as
+  `INSTITUTIONAL_REVOCATION`, answers kept, unscored. *Required during a stop:* the enrolment ends and is audited as
+  usual; for a **protected** sitting the deadline rule is **not** run, nothing is scored and no answer is discarded.
+  The sitting stays protected until the lift, and only then does `tutup_asesmen_terbuka`'s ordinary rule apply to it,
+  judged against its **shifted** deadline (D6.3). So a departed learner's work is never scored on time it did not have.
+- **The promotion run (Kenaikan) calls the same function.** It is a school's year-end administrative act, not one
+  learner's enrolment fact. This plan treats it as an administrative assessment-ending action: **refused during a stop
+  for a learner with a protected sitting,** with a sentence saying which learners and why. *This classification is the
+  Chief Architect's reading of O1 and is to be confirmed against Sharon's review text (§7.6).*
 
 **D6.3 · One time rule (B3, B4).** Revision 2 stored "remaining time" and gave nothing back to a sitting without its own
 deadline. Both were wrong. The rule is now:
@@ -689,9 +750,15 @@ deadline. Both were wrong. The rule is now:
   "known edge", which is withdrawn.
 - A sitting already ended, handed in, or past its deadline **and** its grace before `T_stop` is not protected. Nothing
   about it changes.
-- **Recording.** A1's held state stores a non-negative remaining time (`frozen_remaining_seconds >= 0`), which cannot
-  express "40 seconds of grace left". The emergency hold therefore records the instant it began, and the release
-  computes the shift. The engineer fits this to A1's columns at build; the rule above is the requirement.
+- **Recording.** A1's held state stores a non-negative remaining time (`frozen_remaining_seconds`, null or ≥ 0), which
+  cannot express "40 seconds of grace left". The emergency hold therefore records the instant it began, and the release
+  computes the shift.
+- **The trigger must let the release through.** `pengerjaan_jaga` refuses any deadline change on a held sitting. The
+  release changes the deadline and clears the emergency hold in one statement; the trigger is extended to allow
+  exactly that transition and no other.
+- **The effective deadline is read at `T_stop`.** `pengerjaan_tenggat_efektif` returns the assignment's *current*
+  closing time, so a later window change would move it. That is why `ubah_jadwal_penugasan` is refused for a
+  protected sitting (D6.2).
 
 **D6.4 · Overlapping and successive stops (B5).**
 - A person's **protected interval** is the union of the active EMERGENCY windows that affect them, from the first
@@ -706,8 +773,10 @@ deadline. Both were wrong. The rule is now:
   learner who returns an hour after the lift has no more time than one who returns at once.
 
 **D6.5 · Suspension holds (B6).**
-- An emergency hold and a suspension hold are independent facts about a sitting. A1's single cause column cannot hold
-  both, so the held state is extended to carry both; this is an extension of A1's state, not a second system.
+- An emergency hold and a suspension hold are independent facts about a sitting. A1 has one cause column and one check
+  (`frozen_cause in ('ACCOUNT_SUSPENDED')`), which cannot hold both, so the held state is extended to carry both; this
+  is an extension of A1's state, not a second system. `pengerjaan_ditahan` stays the one question "is this sitting
+  held?", answering yes for either.
 - A sitting is writable only when **no** hold remains.
 - **Suspended before the stop:** the sitting is already held with its remaining time stored. The stop and the lift do
   not touch it.
@@ -721,8 +790,13 @@ deadline. Both were wrong. The rule is now:
 - **No starvation (R1).** The closer selects its candidates **excluding** protected and held sittings, in the query
   itself. Skipping them after selection would let a large stopped scope fill every run's limit and leave unaffected,
   overdue sittings unprocessed.
-- **Short fence holds (R2).** The closer takes the shared fence per sitting or per small batch and commits between
-  them (a procedure with intermediate commits), so that it never delays an activation by more than one small batch.
+- **Short fence holds (R2).** Today the closer is a function, so one run is one transaction of up to 500 sittings with
+  scoring. Holding the shared fence for that long would delay an activation by the whole run. The closer therefore
+  becomes a **procedure that commits per sitting or per small batch** and takes the shared fence inside each. The
+  installer's job text changes from `select …` to `call …`; A1-S08, A1-S09 and the DR tests that pin the job are
+  restated with notes.
+- **Selection.** Its query already excludes held sittings; it must also exclude sittings of protected persons, since
+  marking may not have reached them yet.
 - It keeps running during a stop and does its ordinary work for everyone who is not protected.
 
 **D6.7 · Marking and release are bookkeeping.** After activation commits, protected sittings are marked held in bounded
@@ -765,19 +839,57 @@ meaning.
 - Professional-learning sittings follow the same containment (they are sittings); who may act on them is unchanged.
 
 #### F · UX requirements
-Daisy reviews before build. Reuse the scheduling form, the banner and the pause page.
-- **Scheduling (school admin):** scope choice (the school, or classes picked from the school's active classes); the
-  reason list; start and end in the school's zone; a collision message. **Extend** and **resume early** on a listed
-  window, each with a reason and a confirmation.
-- **Emergency (platform admin):** class added to the scope choice; the typed phrase as today.
-- **Affected learner:** the banner at 60/30/15 with the time left and the start in their zone; the pause page with the
-  expected end; after an emergency, on return, the player says the sitting was held and shows the restored time (a
-  notice in the pattern of A1's player notices, with its own key).
-- **Refused start (D4):** one sentence naming when the window begins.
-- **Teacher:** A1's sitting list shows «Ditahan» for an emergency-held sitting with the cause in neutral words; no act
-  is offered on it while the stop is in force.
-- **States:** none scheduled; scheduled; approaching; active; extended; ended early; emergency active; lifted.
-- **Mobile and keyboard:** as the existing screens. **Print:** none.
+**Daisy's design input exists and is the starting design:** `docs/coordination/ux/completion-4.1/DESAIN-AWAL-4.1.md` on `ux-1/daisy-experience`, §2 (C7), §3 (C8), §6 and §7. It reuses the existing
+scheduling form, list, banner and pause page and adds no second system. Daisy reviews this batch before build.
+
+*Affected users and screens*
+| Who | Screen | Change |
+|---|---|---|
+| School admin | Konfigurasi › Pemeliharaan (form, list) | scope, reason list, «Perpanjang» |
+| Platform admin | the same, and the emergency form | class scope; the impact sentence; two more reasons |
+| Learners and teachers in scope | the banner; the pause page; the player; the start button | wording by scope and reason; the school's zone |
+| The class's teacher | A1's sitting list on `/mengajar/[kelas]/siapa` | «Ditahan» for an emergency-held sitting |
+
+*As Daisy composed them*
+- **The form:** «Untuk» = «Satu kelas» (a class select with the year) or «Seluruh sekolah»; the platform option only for
+  a PINTAR Administrator. «Alasan» as required radios: Pemeliharaan rutin, Pembaruan sistem, Perbaikan gangguan,
+  Pemeliharaan jaringan atau listrik, Lainnya (with «Jelaskan singkat», required, up to 120 characters). The chosen
+  reason is shown to the people affected, and the hint says so. «Periksa waktu ini» lists the class's assessments in
+  the window. The zone in the labels is the school's.
+- **The list row** adds the scope and «Dijadwalkan oleh {nama}». Actions: «Perpanjang» (a new end time, no
+  confirmation), «Akhiri sekarang» and «Batalkan» as today.
+- **Warnings:** one banner, three states. T−60 and T−30 neutral and closable; T−15 amber and not closable, saying no
+  new assessment can start. Minutes left refresh in place once a minute, never a seconds countdown. `role="status"`,
+  announced on arrival and at each step only.
+- **A learner in a running sitting** (planned window): a quiet line that they can finish and that the time does not
+  change.
+- **A blocked start** (inside T−15, or the assessment cannot finish before the window): «Mulai» disabled and tied by
+  `aria-describedby` to a sentence naming when the window starts, how long the assessment takes and when to start
+  instead. This replaces the fixed 15-minute sentence (`pemeliharaan.menjelang.arti`).
+- **The pause page:** the title names the class for a class scope; the lines give start, reason and expected end; an
+  extension says «diperpanjang sampai …».
+- **Emergency form:** the impact sentence above the typed phrase («Anda akan menghentikan seketika: {kelas · sekolah}.
+  Saat ini {n} murid masuk dan {m} asesmen sedang dikerjakan.»); reasons are the planned list plus «Masalah
+  keamanan» and «Masalah integritas data»; the phrase stays «HENTIKAN SEKARANG».
+- **Who lifts:** a PINTAR Administrator gets «Akhiri penghentian» behind `KonfirmasiBahaya`; a school admin sees the
+  row with «Hanya Admin PINTAR yang dapat mengakhiri penghentian ini.»
+- **One name for the role:** «Admin PINTAR» in place of «Admin platform» in `pemeliharaan.darurat.arti` (her §6,
+  item 6).
+
+*What Daisy must revise, because rulings came after her document*
+1. **After a lift** her wording tells the learner «Bila waktunya habis selama penghentian, guru Anda yang menentukan
+   langkah berikutnya.» Under D-1 no time is lost. The learner's notice must say that the sitting was held and that the
+   time they had is restored.
+2. **New states from D6 and O1,** each needing a sentence: an act refused because the class is stopped (teacher ending,
+   extension, assignment ending or withdrawal, window change, promotion); a suspension-held sitting after a lift
+   («Ditahan · menunggu keputusan Anda», A1's wording, unchanged); activation that could not take effect and may be
+   retried; a blocked start because the assessment cannot finish before the window.
+3. **The teacher's list** shows «Ditahan» for an emergency-held sitting in neutral words, with no act offered while
+   the stop is in force.
+
+*States, in full:* none scheduled; scheduled; approaching (60, 30, 15); active; extended; ended early; emergency
+active; lifted; refused; failed to activate. *Mobile:* the form stacks in one column at 390 and 320 px.
+*Keyboard and screen reader:* as above; the typed phrase and the confirm are reachable in order. *Print:* none.
 
 #### G · Ordered implementation instructions
 1. Preconditions: A1 closed and reconciled; the completion page carries Sharon's six blockers as settled and her nine
@@ -864,7 +976,7 @@ full before the first migration is written.** Read at `3a190dbf`:
 
 ### 5.4 · C2w — Misconception annotations (C2)
 
-**Review before build:** Sharon; Daisy short. **Depends on:** C1w. **[P-C1w]** throughout.
+**Review before build:** Sharon; Daisy short. **Depends on:** C1w.throughout.
 
 #### A · Objective
 An authorized reviewer can record what a wrong option really reveals about a learner's thinking, after the question is
@@ -876,6 +988,10 @@ teachers (read).
 **Out:** editing an option's `misconception_code` on sealed content; any metric, calculator or report figure that reads
 annotations; learner-facing display; AI-suggested annotations.
 
+**Pending, not in scope unless approved:** letting an annotation name a code from the existing misconception taxonomy
+(roadmap decision R-3, `docs/roadmap/` on `claude/roadmap-45-50`). It needs a separate technical review and the owner's
+approval. This section is written without it.
+
 #### C · Existing architecture
 | Thing | Where |
 |---|---|
@@ -885,16 +1001,19 @@ annotations; learner-facing display; AI-suggested annotations.
 | What a calculator may read | `metric_sources`, `assert_metric_closure` (`M/20260923110000…:726`), F06-P13 |
 | The refusal precedent | F07-P11 refuses `feedback_%` as a source (`selftest/db/fable07.sql:1087`) |
 | Review capability | `CAN_REVIEW`, used by `kembalikan_paket` (`M/20261214100000…:139`) |
-| Stable question identity, «Riwayat soal» | C1w **[P-C1w]** |
+| A question's lineage | `items.supersedes_item_id` (guarded, C1w M1`:167`); read by `riwayat_soal(item)` (M1`:1038`, `CAN_DRAFT` or `CAN_REVIEW` in the question's school) |
+| «Riwayat soal» | `RiwayatSoal` in `src/components/studio/SoalKerja.tsx:227`, on `src/app/studio/paket/[course]/page.tsx` (`:222-228`), shown when the package is sealed |
+| The option's code is editable only in a draft | C1w's editor (M1`:290`, `:324-326`) |
 
 #### D · Proposed technical design
-**The table.** One row per annotation: the question's **stable identity** (C1w), the item revision it was written
-against, optionally the option it concerns, the text, the author, the instant, and an optional pointer to the annotation
-it supersedes. Rows are immutable. A correction is a new row that supersedes; nothing is edited or deleted (truth table,
-C2).
+**The table.** One row per annotation: the **question revision** it was written on (an `items` row), optionally the
+option it concerns, the text, the author, the instant, and an optional pointer to the annotation it supersedes. Rows
+are immutable. A correction is a new row that supersedes; nothing is edited or deleted (truth table, C2).
 
-**Why the stable identity.** An annotation is knowledge about the question, so it stays visible across revisions. Each
-display states which revision it was written against, so a reader can see when the question has changed since.
+**Across revisions, by lineage.** C1w gave a question no separate identity: a question is its chain of revisions
+(`supersedes_item_id`). An annotation is therefore stored against one revision and **shown for every revision in the
+same chain**, each display stating which revision it was written on, so a reader sees when the question has changed
+since. The chain is read as `riwayat_soal` reads it; C2w adds no identity column and does not change `items`.
 
 **Authorization.** Create: a holder of `CAN_REVIEW` over the content's tenant (school content: that school; platform
 library content: the platform's content reviewers). Read: anyone who may read the item in Studio, and a teacher who may
@@ -916,7 +1035,7 @@ marked as an annotation with its author and date; it never alters the figure, an
 claim that the question has no misconception.
 
 #### F · UX requirements
-- **Studio › question (in «Riwayat soal» or beside it, Daisy's choice):** the annotations for this question, newest
+- **Studio › package page, with «Riwayat soal»** (C1w's `RiwayatSoal`; Daisy confirms the exact place): the annotations for this question, newest
   first, each with author, date and the revision it was written on; «Tambah catatan» for a reviewer; «Perbarui» creates
   a superseding note and shows the earlier one as replaced.
 - **The class misconception report:** where a misconception row comes from an annotated question, a quiet «Catatan
@@ -927,7 +1046,7 @@ claim that the question has no misconception.
   report unless Daisy rules otherwise.
 
 #### G · Ordered implementation instructions
-1. Preconditions: C1w closed; reconcile this section against its identity column and history screen.
+1. Preconditions: C1w formally closed; Sharon's short review of the completion page.
 2. Database: the table, its immutability guard, create and supersede, the two readers, registry rows, audit rows, the
    metric-source refusal.
 3. Contract file and copy. 4. Server actions. 5. UI in Studio, then in the report. 6. Tests. 7. Rendered check.
@@ -936,7 +1055,7 @@ claim that the question has no misconception.
 **Pre-flight starting list (§4.1 P1).** *Changed:* nothing existing is replaced; one table and its functions are
 added. *Expect to re-run:* F06-P02, F06-P13, F07-P11, F36-M01, F23-*, the C1w suites; the class misconception report's
 render tests. *Check for plants:* any plant aimed at `calc_class_misconceptions` or the report reader, if the reader is
-extended. **[P-C1w]**
+extended.
 
 #### H · Verification
 - **Database (red first):** before and after an annotation, the question, options, results and all metric evaluations
@@ -952,8 +1071,8 @@ extended. **[P-C1w]**
 3. No learner can read one. Suite, CI and journeys green; Sharon's result review closed.
 
 #### J · Escalate only if
-- C1w's final identity model cannot carry an annotation across revisions (then the fallback is per-revision annotations,
-  which changes what educators see and is the owner's to accept).
+- Walking the lineage chain on every display proves too slow for a long-revised question (then a stored chain root is
+  proposed; it would add a column to `items` and needs Sharon's review).
 
 ---
 
@@ -976,17 +1095,18 @@ teacher-authorized recovery for Uji Penguasaan, from A1's sitting panel; an audi
 offline recovery beyond what the late-sync grace already allows.
 
 #### C · Existing architecture
-The boundary list is `C1-D125-INVESTIGATION.md` §2. Latest definitions at `7dfe2bc8` **[P-A1]**:
+The boundary list is `C1-D125-INVESTIGATION.md` §2. Latest definitions at `3a190dbf`:
 
 | Boundary | Function (latest) | Locks today |
 |---|---|---|
-| Start | `start_learning_session` (`M/20270112120000…:16`; A1 rewrite `M/20270114100000…:778`) | advisory per (person, assignment); assignment `FOR SHARE` |
+| Start | `start_learning_session` (`M/20270112120000…:16`; patched by text by A1 `M/20270114100000…:778` and again by C1w M1`:1213`) | advisory per (person, assignment); assignment `FOR SHARE` |
 | Open | `open_assessment_session` (`M/20270111100000…:1375`) | none |
 | Answer | `record_answer` (`M/20261005100000…:114`), `submit_response` `:46`, trigger `enforce_response_write` (`M/20270114100000…:481`) | **none** |
 | Pause, resume | `pause_session`, `resume_session` (`M/20260913090000…:660,675`) | none |
 | Submit, finish | `submit_session` (`M/20260913094000…:109`), `finish_my_session` (`M/20261005100000…:258`) | none |
 | Finalize | `finalize_session` (`M/20261129100000…:104`) | none (idempotent by result check) |
-| Item view | `note_item_view` (`M/20260913090000…:540`) | none |
+| Item view | `note_item_view` (`M/20260913090000…:540`) | none; no gate at all, so it writes even on a held sitting |
+| The gate | `pengerjaan_gerbang` (`M/20270114100000…:439`) | **none**: a plain read; returns silently when the caller is not the learner |
 | Final answer | `session_final_responses` (`M/20260914094500…:181`) | highest `client_seq` with `is_final` |
 | Staff acts | A1's functions; `terminate_session` (`M/20270112150000…:8`) | sitting `FOR UPDATE` (A1) |
 | Deadline | `pengerjaan_putus_tenggat` (`M/20270114100000…:325`), the scheduled closer | sitting `FOR UPDATE` |
@@ -1021,8 +1141,10 @@ database, under the sitting's row lock.
 1. takes the sitting's row lock (`FOR UPDATE`) first;
 2. requires the caller's verified session to be the controller, else refuses with a designed code (stale writer);
 3. then applies A1's gate and its own existing checks.
-The natural place is A1's `pengerjaan_gerbang`, which most learner boundaries already call **[P-A1]**; `record_answer`
-and the response trigger gain the row lock they lack today.
+The natural place is A1's `pengerjaan_gerbang`, which `record_answer`, `submit_session`, `pause_session` and
+`resume_session` already call. Today it takes no lock and is silent for a caller who is not the learner; A3 makes it
+take the row lock and check the controller. `start_learning_session` and `note_item_view` do not call it and are
+brought under it. `finish_my_session` reaches it through `submit_session`.
 
 **D5 · Service-level and staff writers** (the owner's second ruling on O41-3). The scheduled closer, finalization, A1's
 teacher acts, the suspension and emergency holds, and the assignment-ending paths are not devices and are not checked
@@ -1087,20 +1209,34 @@ that offers «Lanjutkan di perangkat ini», never to a generic error.
   acts («Akhiri», «Tidak dihitung») remain the way out.
 
 #### F · UX requirements
-Daisy reviews the journeys and wording in full before build.
-- **Learner, new device, low-stakes:** opening the assessment continues where they left off, with one quiet line that
-  the sitting was continued on this device.
-- **Learner, new device, Uji Penguasaan:** a waiting screen: what happened, that the teacher must allow it, and a
-  «Coba lagi» that checks for the authorization. No countdown that reveals the expiry mechanism; if it expires, the same
-  screen.
-- **Learner, old device:** on its next send or 45-second check: "this sitting continues on another device"; nothing more
-  can be entered; unsent answers on that device are named as not sent.
-- **Teacher (A1's panel on `/mengajar/[kelas]/siapa`):** an act «Izinkan lanjut di perangkat lain» on an open Uji
-  Penguasaan sitting, with a reason and a confirmation; the row shows that a recovery was authorized, and later that it
-  was used, with the time.
-- **States:** nothing to recover; waiting; authorized; expired; recovered; refused (held, ended, maintenance).
-- **Accessibility and mobile:** all three learner screens at 320 px and by keyboard; the waiting screen announces its
-  change of state.
+**Daisy's design input exists and is the starting design:** `docs/coordination/ux/completion-4.1/DESAIN-AWAL-4.1.md` on `ux-1/daisy-experience`, §4. Daisy reviews the journeys and wording in full
+before build (her §8: high risk). No word for the mechanism reaches a user.
+
+*Affected users and screens*
+| Who | Screen | State |
+|---|---|---|
+| Learner, new device, low-stakes | a full page before the assessment, in the pattern of «Komputer siapa ini?» | «Lanjutkan di perangkat ini?» with where they were, when it was last saved, how many answered, and that the other device stops saving. [Lanjutkan di perangkat ini] [Batal]. Then a quiet line above the first unanswered question |
+| Learner, new device, Uji Penguasaan | the same place | «Asesmen ini sedang dikerjakan di perangkat lain.» The teacher must allow it; what to tell the teacher; «buka lagi asesmen ini» afterwards |
+| Learner, old device | the player's question area, on its next save or 45-second check | a neutral panel, not an error colour: continued on another device at {jam}; answers from this device are no longer saved; saved ones remain. If an answer was pending: «1 jawaban terakhir di perangkat ini belum tersimpan dan tidak dikirim.» [Kembali ke Belajar] |
+| Teacher | A1's sitting list on `/mengajar/[kelas]/siapa` | the row reads «Sedang mengerjakan · minta lanjut di perangkat lain»; one row action «Izinkan lanjut di perangkat lain»; a primary (not red) confirmation naming the learner and the assessment; result «{nama} dapat melanjutkan di perangkat lain sampai pukul {jam}» |
+| Teacher, afterwards | the learner's record | «Dilanjutkan di perangkat lain pukul {jam} · diizinkan oleh {guru}», or «… oleh murid sendiri setelah masuk lagi» |
+
+*What the mechanism decides that the words depend on* (Daisy's four «→ Sharon» points, answered by D):
+1. **Can the waiting page refresh itself?** No push is added. The page offers «Coba lagi», which asks whether an
+   authorization now exists.
+2. **The teacher's row shows a request.** The learner's refused continue attempt on an Uji Penguasaan records that a
+   recovery is wanted, so the row can say so. It grants nothing.
+3. **The expiry is shown to the teacher** («sampai pukul …», 10 minutes, D-3) and not to the learner. When it lapses
+   the row returns to «Sedang mengerjakan».
+4. **A pending answer on the old device** is known to that device only; it can be named there, as her panel does.
+
+*To be dropped from her draft:* the Exam Mode sentence (O41-9; no Exam Mode in 4.1).
+*Under D-2:* the same screens appear when a learner signs in again on the **same** device, because it is a new
+session. Daisy checks that «di perangkat lain» still reads truthfully there, or supplies a variant.
+
+*States, in full:* nothing to recover; confirm (low-stakes); waiting; authorized; expired; recovered; old device
+stopped; refused because held, ended, or in maintenance. *Mobile and keyboard:* all learner screens at 320 px and by
+keyboard; the waiting screen announces a change of state; the panel on the old device takes focus. *Print:* none.
 
 #### G · Ordered implementation instructions
 1. **Preconditions.** A1, A2 and B1 closed. The completion page reviewed in full.
@@ -1164,7 +1300,6 @@ defects exactly as C1w did unless the analysis is done first.** Read at `3a190db
 ### 5.6 · C3w — AI-assisted question generation (C3)
 
 **Review before build:** Sharon and Daisy, full. **Depends on:** C1w, B1, the entry gate. **Built last** (O41-6).
-**[P-C1w]** throughout.
 
 #### A · Objective
 An educator turns source material into draft questions faster, and stays the author of record for everything that
@@ -1183,7 +1318,10 @@ learner data to a provider; provider selection (the owner's, O41-1).
 #### C · Existing architecture
 | Thing | Where |
 |---|---|
-| Draft state and in-app editor | C1w **[P-C1w]** |
+| Draft state | editable while INGESTED, STRUCTURED, VALIDATED or VALIDATION_FAILED and unsealed (`draf_kunci`, C1w M1`:254`); `CAN_DRAFT` in the owning school (`draf_boleh_tulis`, M1`:244`) |
+| Writing a draft question | `tambah_soal_draf(lesson, jsonb)` (M1`:460`), `ubah_soal_draf`, `hapus_soal_draf`; refusals `soal_tolak`, PR180; attribution in `item_draft_edits` |
+| The in-app editor | `FormSoal` in `src/components/studio/SoalKerja.tsx:53`; actions in `src/app/studio/soal-actions.ts` |
+| The step to review | `langkah_konten` (`CAN_DRAFT`; `M/20261214100000…:80`) |
 | Author → reviewer rule | `enforce_content_status` (`M/20261213100000…:52-72`): APPROVED needs `CAN_REVIEW` and refuses the author |
 | Content check | `validate_course_content`, `run_mcq_quality` (latest `M/20260919090000…:35,90`), run by `advanceContentAction` (`src/app/studio/actions.ts:73`) |
 | Release and publish | `create_release`, `freeze_release` (refuses the author), `publish_release` (`M/20261009100000…`) |
@@ -1203,12 +1341,19 @@ learner data to a provider; provider selection (the owner's, O41-1).
 4. The author edits them in C1w's editor like any draft. The content check, the review by a second person, the release
    and the publication are the existing ones, unchanged.
 
-**D2 · A generated question is an ordinary draft.** It is written through the same path as a hand-written draft, by the
-requesting educator, who becomes its author. Therefore the two-person rule already refuses that educator as its
-reviewer. No new status, no parallel lifecycle.
+**D2 · A generated question is an ordinary draft, plus one fact: whether an educator has accepted it.**
+- It is written through C1w's own path, `tambah_soal_draf`, by the requesting educator, who becomes its author. The
+  two-person rule therefore already refuses that educator as its reviewer. No new content status, no parallel
+  lifecycle.
+- **Acceptance** (Daisy's design, adopted): each generated draft must be **accepted, edited or deleted** by an educator
+  before the package can be submitted for review. The fact (who, when, which of the three) is recorded beside the
+  provenance, not on `items`.
+- **The submit step refuses while any generated draft is unaccepted,** in the database (`langkah_konten`), with a
+  designed code and Daisy's sentence. Hiding the button is not the rule.
 
 **D3 · Provenance.** One side table, one row per generated question, never a column on `items`:
-the question's stable identity; the generation request; the model's identifier and version **as a value** (the INV-32
+the draft question (an `items` row; its later revisions are reached through the lineage chain, as in C2w); the
+generation request; the model's identifier and version **as a value** (the INV-32
 guard forbids vendor names in schema names, so the columns are named neutrally, for example `model_ident`); the
 provider's request id; the prompt version; the source material reference and a hash of the excerpt sent; the requesting
 educator; the instant. Rows are immutable. When the author edits the draft, the provenance row stays: the question's
@@ -1253,26 +1398,45 @@ does not call the provider again. The server retries a transient provider failur
 limits.
 
 #### E · Educational semantics
-- AI drafts; educators decide. Nothing generated reaches a learner without an educator's edit-or-accept, the content
-  check, and a second educator's approval.
+- AI drafts; educators decide. Nothing generated reaches a learner without an educator's accept, edit or delete on
+  each draft, the content check, and a second educator's approval.
 - A materially wrong key is a critical defect (O41-1). The existing content check runs on generated drafts exactly as on
   written ones, and the review screen shows the key and rationale prominently for a generated draft.
 - Provenance is part of the question's history for staff, for good. Learners get approved questions with no AI label.
 - Statistics and comparability rules are C1w's and unchanged: a generated question is a question.
 
 #### F · UX requirements
-Daisy reviews the generation and review flow in full.
-- **Generate (in the draft package):** source, objective, count; the rights confirmation; the limits left today; a busy
-  state that can take tens of seconds, with a plain explanation; cancel leaves nothing.
-- **Result:** the new drafts listed, each marked «Draf dengan bantuan AI» for staff, opening in C1w's editor. Failure:
-  one sentence per cause (limit reached, the service did not answer, the answer could not be used), nothing created.
-- **Review queue and review screen:** the same mark and a «Asal-usul» disclosure (model, prompt version, source
-  reference, who asked, when).
-- **Question history:** the origin line.
-- **States:** no source; limit reached; working; drafted n of n; failed; refused (not an author).
-- **Accessibility:** the long-running state is announced; focus returns to the result. **Mobile:** usable at 390 px;
-  authoring at 320 px may be read-only if C1w's editor is.
-- **Never:** the provider's name or the word for the mechanism on a learner surface.
+**Daisy's design input exists and is the starting design:** `docs/coordination/ux/completion-4.1/DESAIN-AWAL-4.1.md` on `ux-1/daisy-experience`, §5. No new review system: a draft enters the
+existing steps. Daisy reviews the generation and review flow in full (her §8: high risk).
+
+*Affected users and screens*
+| Who | Screen | What |
+|---|---|---|
+| Author | Studio › package page, on a lesson, beside the workbook route | a secondary button «Buat draf soal dengan AI» and a short form |
+| Author | the same page | the generated cards, in C1w's question card and editor |
+| Reviewer | «Setujui isi» and the review queue | a count («5 dari 12 soal disusun dengan AI») and each card's provenance line |
+| Anyone with Studio access to the question | Bank Soal, «Riwayat soal» | the provenance line stays readable |
+| Learners | — | published questions only, with no AI label |
+
+*As Daisy composed them*
+- **The form:** «Sumber» (this lesson's text by default, another lesson of the package, or pasted text); «Tujuan
+  pembelajaran» (the lesson's objectives); «Banyak soal» 1–10; «Kesulitan» Mudah, Sedang or Sulit. Primary «Buat draf».
+  The rights confirmation of D10 is added to this form; its wording is Daisy's.
+- **A draft is visibly a draft:** a neutral chip «Draf dari AI»; a provenance line («Disusun dengan AI ({model}) dari
+  {sumber} · diminta oleh {nama}, {waktu}»); three actions per card: «Terima» (primary), «Ubah», «Hapus».
+  «Terima» records the educator and the chip becomes «Diterima oleh {nama}»; «Ubah» opens C1w's editor.
+- **The held step:** «Ajukan untuk ditinjau» is held while any draft remains unaccepted, with the step reason «{n}
+  soal masih draf dari AI. Setiap soal perlu diterima, diubah atau dihapus oleh pendidik sebelum paket diajukan.» The
+  disabled action is tied to that sentence by `aria-describedby`.
+- **Failure:** «Tidak ada soal yang dibuat. Coba lagi, atau tulis soal sendiri.» Nothing is created.
+
+*For Daisy to add, because rulings came after her document:* the rights confirmation (D-5); the limit states (D-6:
+limit reached; limits not yet set, so generation is unavailable); the long-running state (tens of seconds), announced,
+with focus returned to the result.
+
+*States, in full:* no source; working; drafted n of n; failed (the service did not answer; the answer could not be
+used); limit reached; unavailable; refused (not an author; the package is not a draft). *Mobile:* usable at 390 px;
+at 320 px the form follows C1w's editor. *Never:* the provider's name or the mechanism on a learner surface.
 
 #### G · Ordered implementation instructions
 1. **The entry gate** (all blocking): C1w closed; B1's write path verified; Studio journeys green on the head; Daisy's
@@ -1292,11 +1456,11 @@ Daisy reviews the generation and review flow in full.
 assertion and the engine's forbidden-key list are extended. *Expect to re-run:* F06-P02 and the static projection
 test; F23-*; C1w's and B1's suites. *Check for plants:* any aimed at the draft-write functions or at
 `assert_learner_projection_is_closed`. *Committing tests:* the generation app test leaves no request, draft or
-provenance row (P3). *Only in the supervised staging run, never in CI:* a call to the real provider. **[P-C1w]**
+provenance row (P3). *Only in the supervised staging run, never in CI:* a call to the real provider.
 
 #### H · Verification
-- **Database (red first):** a generation inserts drafts only into a draft package the caller authors; the requester
-  cannot approve them; a failed or invalid response creates nothing; limits refuse before any call; provenance is
+- **Database (red first):** a generation inserts drafts only into a draft package the caller authors; the package
+  cannot be submitted while a generated draft is unaccepted, by any caller; the requester cannot approve them; a failed or invalid response creates nothing; limits refuse before any call; provenance is
   immutable; a learner role cannot read provenance by any path.
 - **App (stubbed provider):** the full flow; each failure cause; a double submit calls the stub once.
 - **Static:** only the provider module makes the outbound call; no schema name carries a vendor; no learner surface
@@ -1383,9 +1547,8 @@ A3 must publish it as a lint; every batch before A3 must already follow it, so A
 
 `emergency fence (A2) → person → learning assignment → assessment assignments (by id) → sittings (by id) → other advisory locks`
 
-Evidence at `7dfe2bc8`: suspension locks the person and then sittings by id; assignment-ending paths lock the assignment
-and then sittings by id; A1's per-sitting acts lock the sitting and then an advisory lock. **One exception to reconcile
-[P-A1]:** `start_learning_session` takes its advisory lock first and then reads the assignment `FOR SHARE`. It inserts a
+Evidence at `3a190dbf`: suspension locks the person and then sittings by id; assignment-ending paths lock the assignment
+and then sittings by id; A1's per-sitting acts lock the sitting and then an advisory lock. **One point for A3's design review:** `start_learning_session` takes its advisory lock first and then reads the assignment `FOR SHARE`. It inserts a
 new sitting rather than locking an existing one, so it may be harmless; A3's design review settles it with Sharon
 (already on her list: "the lock order with A3").
 
@@ -1474,11 +1637,59 @@ None open. The one found (O41-20's deadline rule against C8's containment, in th
 | N-2 | BOB-48's certificate sealing and numbering are on `main` under F20 ids (`M/20261201100000…`) | record only |
 | N-3 | A print reference stops resolving after 12 months, with the purge | Daisy and the owner, at B2's page |
 | N-4 | Sharon's ten further red cases for recovery are summarized at `SCOPE-REGISTER.md:255`; her full review (`1f7b6fc2`) is not on the branches read | Sharon, before A3's page |
-| N-9 | Sharon's A2 pre-build review (six blockers, two requirements, nine verification scenarios) is not on any branch the Chief Architect can read. §5.3 records it as relayed by the owner. Her document should be committed beside the A2 completion page, and her nine scenarios copied from it | the owner or Second Eye, before A2's page |
+| N-9 | Sharon's A2 pre-build review is not on any branch the Chief Architect can read (§7.6) | the owner or Second Eye, before A2's page |
+| N-10 | C1w's completion page promises "a stable identity per question". The code delivers it as the lineage chain, with no separate identity column. This plan builds on the chain. Whether that satisfies the page is for C1w's closure review | Second Eye and Sharon, at C1w's closure |
+| N-11 | C1w notifies affected schools in-app only; Daisy's C1-R5 proposed in-app plus one email | register (`EXECUTION-PLAN.md` §5) |
+| N-12 | `terminate_session` and `akhiri_penugasan` can end a **suspension-held** sitting today (the state trigger allows TERMINATED). A2 refuses them for emergency-protected sittings; whether they should also be refused for suspension-held ones is outside A2 | Sharon, at A2's review |
+| N-13 | `start_learning_session` and `may_start_assessment` have now been patched by text three times (4.0, A1, C1w). A3 redefines them in full (§5.5 G) | A3 |
+| N-14 | Daisy's design input predates D-1, D-2, D-5, D-6 and O41-9; the points to revise are listed in each batch's F | Daisy, at each pre-build review |
 | N-5 | Sharon's verdict on the SI-D02 stronger-race re-review is not recorded on the branch read | Sharon |
 | N-6 | `institutions.retention_days` exists and nothing enforces it | 4.2; B1 does not use it |
 | N-7 | The warning banner formats times with `jamWib` and no zone today | fixed in A2 |
 | N-8 | The production upgrade rehearsal 111 → 224 (R-2) grows with every 4.1 migration | the owner; outside this plan |
+
+---
+
+### 7.6 Outstanding dependencies, review requirements and blockers
+
+**Material decisions still open**
+| # | Question | Needed before |
+|---|---|---|
+| M-1 | **The promotion run during an emergency stop.** It ends sittings through the same function as enrolment termination. This plan reads O1 as: refuse it for learners with protected sittings (§5.3 D6.2). To be confirmed against Sharon's review; if her review treats it otherwise, the owner rules | A2's completion page |
+| M-2 | The numerical AI limits (D-6) and the provider (D-8) follow E's report | C3w |
+| M-3 | A misconception annotation naming a structured code (roadmap R-3): pending; C2w is written without it | C2w's completion page, only if the owner wants it considered |
+
+**Sharon: what her reviews must cover**
+| Batch | Review | Must cover |
+|---|---|---|
+| B1 | short, before build | the store's columns and the coarse network origin; who reads; the purge and its audit; the shared job installer and the restore |
+| A2 | **done; document outstanding** | her six blockers, two requirements and **nine verification scenarios, to be copied word for word onto the completion page**; the promotion-run classification (M-1); N-12 |
+| C2w | short, before build | no sealed row changes; the table is refused as a metric source; unreachable by learners |
+| A3 | full, before build | the controller design against her five gaps; her ten further red cases (N-4); the lock order with the emergency fence first (§6.2); the enumeration test of writers |
+| C3w | full, before build | provenance hidden at the database and API; the acceptance fact and the refused submit; what is sent to the provider; limits |
+| every batch | one review of the result | on the exact candidate commit |
+
+**Daisy: what her reviews must cover**
+| Batch | Review | Must cover |
+|---|---|---|
+| B1 | result only | the reader screen at three widths; finding a print reference |
+| B2 | before build | her §1 composition against §5.2 F; the browser-print line; no print on an empty report; printed PDF in colour and greyscale |
+| A2 | before build | her §2 and §3 against §5.3 F; **the three revisions listed there** (after-lift wording under D-1; the new refusal states; the teacher's list); a WITA or WIT school |
+| C2w | short | where annotations sit with «Riwayat soal» and beside the class misconception report |
+| A3 | full, before build | her §4 against §5.5 F; the same-device case under D-2; dropping the Exam Mode sentence |
+| C3w | full, before build | her §5 against §5.6 F; the rights confirmation, limit and long-running states |
+| every batch | the engineer's rendered check, then one result review | 1280, 390 and 320 px; keyboard only; every disclosure opened |
+
+**Genuine blockers to execution**
+| Blocker | Blocks | Does not block |
+|---|---|---|
+| The owner's approval of this plan | every batch | — |
+| C1w's formal closure evidence | C2w, C3w; and the claim that the foundations are verified | B1, B2, A2's design |
+| Sharon's A2 review document | A2's completion page and build | B1, B2 |
+| Sharon's full review of the controller design, with her ten red cases | A3's completion page | everything before A3 |
+| E's prerequisites and the owner's provider choice | C3w | everything before C3w |
+
+**B1 and B2 have no blocker other than the owner's approval.**
 
 ---
 
@@ -1541,12 +1752,20 @@ The integrated journeys, run in one sitting on the candidate, each with no engin
 
 ---
 
-## Reconciliation list (Phase 2, after C1w closes)
+## Reconciliation record (revision 5)
 
-1. Re-read A1's final verified commit: the gate, the held-state columns and causes, the installer; update §1.2, §5.3 D6
-   and §6.2.
-2. Read C1w's final code: the identity column, the draft state and editor, «Riwayat soal», the key-correction and
-   certificate-review objects; complete §5.4 and §5.6 and remove their provisional marks.
-3. Obtain Sharon's full review of the controller design; complete A3's red-case list.
-4. Carry any register items C1w adds for C2w or C3w into their sections.
-5. Re-issue the plan for the owner's approval. (D-1 to D-8 were ruled on 11 Nov and are recorded in §7.3.)
+What changed when the draft met the built code and Daisy's documents:
+
+| Area | Before | After |
+|---|---|---|
+| Question identity | C2w and C3w keyed to a "stable identity" column expected from C1w | C1w built none. Both attach to a question revision and follow the lineage chain (§5.4, §5.6) |
+| AI drafts | an ordinary draft, nothing more | plus an acceptance fact per draft, and a submit step refused while any draft is unaccepted (Daisy's design; §5.6 D2) |
+| The scheduled closer | assumed able to commit between sittings | it is a function, one transaction per run; A2 makes it a procedure (§5.3 D6.6) |
+| Enrolment termination under O1 | "to verify" | verified: it scores a sitting past its deadline today; the required behaviour during a stop is specified, and the promotion run is flagged (§5.3 D6.2, M-1) |
+| Endings that ignore a held sitting | not known | `terminate_session`, `akhiri_penugasan`, `tutup_asesmen_terbuka` (§1.2; §5.3 C) |
+| The learner gate | "most boundaries call it" | four do; it takes no lock; start and item view do not call it (§5.5) |
+| Print footer | page numbers only on a browser print | Daisy's composition: a browser line with no reference; `CTK-` references (§5.2 F) |
+| Low-stakes recovery | silent | Daisy's confirmation screen (§5.5 F), consistent with D-2 |
+| UX sections of B2, A2, A3, C3w | written from the capability definitions | rebuilt on Daisy's `DESAIN-AWAL-4.1.md`, with the points she must revise named |
+| Test tooling | assumed | no script runs the inline red cases locally, and the multi-connection helper is not exported; B1 and A2 provide them (§4.1) |
+| Batch order | proposed | reconfirmed, unchanged |
