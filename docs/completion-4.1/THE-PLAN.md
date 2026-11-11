@@ -4,6 +4,9 @@
 > It becomes final only after A1 and C1w are verified, this draft is reconciled against their final code, and the owner
 > has reviewed the completed plan. **Nothing here authorizes implementation.**
 >
+> **Revision 2 (11 Nov):** the owner's rulings D-1 to D-8 are incorporated (§7.3); the emergency-containment design
+> (§5.3 D6) is specified for concurrency, scale and failure. The direction is approved; the plan is not.
+>
 > Statements marked **[P-A1]** or **[P-C1w]** rest on a batch that is not yet closed and are provisional.
 
 **What this document is.** The build-ready execution plan for everything in 4.1 after the foundations B0 → A1 → C1w.
@@ -133,7 +136,7 @@ The lane and batch structure of `EXECUTION-PLAN.md` §2 is kept unchanged.
 
 **A consequence for B1.** C5 names "print and export requests". No data export exists in the product today (the only
 downloads are client-side template workbooks, `src/components/unggah/PanelUnggah.tsx:99`). B1 therefore records print
-requests and defines no export event. The export event arrives with the export feature in 4.2 (register D-4).
+requests and defines no export event. The export event arrives with the export feature in 4.2 (owner ruling D-4).
 
 ---
 
@@ -167,7 +170,8 @@ B0 ✔ ─► A1 [verifying] ─► C1w ─► STOP ─► owner approves THE PL
 lane A and can run beside A2. A3 and C3w should not run in parallel with each other: both are full-review batches and
 both extend the journeys.
 
-**E** runs beside everything. It needs no product code. Its open preconditions are the owner's (register D-7).
+**E** runs beside everything. It needs no product code. Its prerequisites are prepared now and its owner-dependent
+actions are brought to the owner when needed (owner ruling D-7).
 
 **Each closed batch is promoted to staging** on the owner's authorization for that merge (process rule, owner decisions
 §3). A batch whose migration needs a hosted extension or setting says so on its completion page (§6.4).
@@ -225,7 +229,7 @@ counter. Users affected: school admins and the platform admin (readers); everyon
 **In:** a separate event store; five event kinds (below); the write path at each sign-in and sign-out; the print-request
 event that B2 uses; a reader for authorized admins; a daily purge of events older than 12 months.
 
-**Out:** export events (no export exists; D-4); any click, page-view or behaviour record; changes to `audit_log` or to
+**Out:** school data export and any export event (owner ruling D-4: they arrive together in 4.2); any click, page-view or behaviour record; changes to `audit_log` or to
 what it already records; a school-facing analytics view.
 
 **Depends on:** nothing unbuilt. It reuses A1's job installer pattern.
@@ -491,7 +495,7 @@ as today.
 its deadline plus grace, as `maintenance_draining` allows. A1's scheduled closer keeps running during a planned window;
 that is consistent, because a draining sitting is reachable.
 
-**D6 · Emergency containment. This is the one genuine gap this plan found** (register D-1).
+**D6 · Emergency containment** (the one genuine gap this plan found; **owner ruling D-1, 11 Nov**).
 - C8 requires: "accepted answers and attempt state preserved; nothing silently submitted, scored, failed or discarded;
   governed recovery afterwards."
 - Today an emergency refuses every request of the affected people (PT503). Their sittings' deadlines keep running.
@@ -499,24 +503,75 @@ that is consistent, because a draining sitting is reachable.
   class stopped for 40 minutes would come back to sittings already ended and scored on partial answers. That is exactly
   what C8 forbids.
 
-*Proposed resolution, reusing A1's held state and adding no new mechanism:*
-1. When an emergency stop takes effect, every open sitting of an affected person is **held**, in the same transaction,
-   with a new cause `EMERGENCY_STOP`, the window's id, and the remaining time. This is `pengerjaan_tahan_orang`'s logic
-   applied to a scope, and it widens the cause check at `M/20270114100000…:141`.
-2. While held, A1's rules already apply: answers, hand-in and extension are refused, and both ending paths skip it.
-3. When the platform admin lifts the stop, sittings held **by that stop** are released in the same transaction: the
-   deadline becomes now plus the stored remaining time, no more. One audit row per window records how many were held
-   and released.
-4. A sitting held for a suspension stays held; the two causes never overwrite each other (a suspended learner's sitting
-   inside a stopped class keeps `ACCOUNT_SUSPENDED`).
-5. A window that closed during the stop does not end a released sitting before its restored deadline (A1 already allows
-   «Lanjutkan» after a closed window).
+**Ruled by the owner (11 Nov, D-1): approved.** Open sittings are held with their answers and exact remaining time;
+they resume when the platform admin lifts the stop; suspension-held sittings stay held. The transition must be safe
+under concurrency and at scale, and no affected sitting may be scored by the deadline scheduler while containment is
+taking effect. It uses A1's mechanisms; there is no second sitting-control system.
 
-*Why release on lift rather than by each teacher.* O41-17 makes a teacher resume a suspended learner's sitting because
-that hold concerns one person's conduct. An emergency stop concerns nobody's conduct, may cover a whole school or the
-platform, and the lift is itself the authorized act (only a platform admin may lift, C8). Requiring every teacher to
-resume every sitting after a platform-wide stop would leave sittings held for days. **This rule extends an owner ruling
-to a new cause, so it is the owner's to confirm (D-1).**
+*The design. Three rules make it safe; the bulk work is then only bookkeeping.*
+
+**Rule 1 · The stop takes effect at one instant, by one row.** `stop_pintar_now` inserts the EMERGENCY window and
+commits. That commit is the instant of effect (`starts_at`). Nothing about containment depends on how long the rest
+takes.
+
+**Rule 2 · The one deadline decider refuses to end a contained sitting.** `pengerjaan_putus_tenggat` is the single
+function that ends a sitting by its deadline; the lazy check and the scheduled closer both call it **[P-A1]**. Under the
+sitting's row lock, before deciding, it asks whether an active EMERGENCY window affects the sitting's **person** (a
+person-parameter form of `maintenance_block_for_me`). If so it ends nothing and reports the sitting as skipped. So from
+the commit of Rule 1 no path can end or score an affected sitting, whether or not it has been marked held yet. This is
+what satisfies "no scoring while containment is taking effect", for one sitting or for fifty thousand.
+
+**Rule 3 · Remaining time is computed from the stop's instant, never from when a row was processed.**
+`remaining = the sitting's deadline − the window's starts_at`. A sitting with no deadline has no remaining time and gets
+none back.
+
+*Marking sittings held.* After Rule 1, the open sittings of every affected person are marked held with cause
+`EMERGENCY_STOP`, the window's id and the remaining time of Rule 3. This widens A1's cause check
+(`M/20270114100000…:141`) and reuses `pengerjaan_tahan_orang`'s logic and the state trigger `pengerjaan_jaga`.
+- **By person, not by class:** an affected person cannot make any request (PT503), so every open sitting of theirs is
+  contained, at any class or school, as a suspension already does.
+- **In bounded batches,** each its own short transaction, sittings locked in id order (§6.2), `SKIP LOCKED` for a row
+  another transaction holds, repeated until none is left. No long transaction, no lock queue behind the stop.
+- **Idempotent and resumable:** a sitting already held is left alone. If the marking is interrupted, the stop is still
+  fully in force (Rule 2), and the marking is finished by re-running it, by the next scheduled run, or at the lift.
+- **Not held:** a sitting that had already handed in or ended before `starts_at`; a sitting already past its deadline
+  at `starts_at` (it is ended by the ordinary rule after the lift; Rule 2 only postpones that); a sitting held for a
+  suspension (it keeps `ACCOUNT_SUSPENDED`; the causes never overwrite each other).
+
+*Races at the moment of the stop.* Each is settled by the sitting's row lock:
+- The scheduler holds the lock and ends a sitting whose deadline had passed **before** the commit of Rule 1: that
+  sitting ended legitimately before the stop and is not held.
+- A hand-in commits before the stop: it stands. A hand-in arriving after: refused at the request (PT503).
+- A teacher's act (extend, end) commits first: it stands, and the remaining time is computed from the deadline it left.
+  After the stop, A1's acts on a held sitting are refused as today (`SITTING_FROZEN`).
+
+*The lift.* Lifting sets the window's `ended_at` and commits; requests flow again at once. Then:
+- **One deterministic rule:** `new deadline = the window's ended_at + remaining`. It does not depend on when the release
+  runs, so every path gives the same answer and a learner neither loses nor gains time.
+- Sittings held by that window are released in bounded batches, as they were marked.
+- **Nobody waits for the batch:** the learner gate (`pengerjaan_gerbang`) and the decider, on meeting a sitting whose
+  emergency has ended, release it by the same rule before doing anything else.
+- A sitting in scope that was never marked (an interrupted marking) is treated identically: its remaining time is still
+  `deadline − starts_at`.
+- **Overlapping stops:** if another active EMERGENCY window still affects the person, the sitting stays held, its
+  remaining time unchanged, and is re-attributed to that window. It is released when the last one lifts.
+- A sitting held for a suspension is untouched by any lift.
+- A window that closed during the stop does not end a released sitting before its restored deadline (A1 already allows
+  «Lanjutkan» after a closed window).
+
+*Failure behaviour.*
+- The stop's row fails to commit: nothing is in force and the admin is told; there is no half-stop.
+- The marking or the release batch fails: retried; Rules 2 and 3 keep every outcome identical to a clean run.
+- The scheduler runs throughout and is harmless: Rule 2 makes it skip, and it counts what it skipped.
+
+*Audit.* One row when the stop takes effect, one when marking completes (how many sittings held), one at the lift (how
+many released, how many left to the ordinary rule). The held and release facts are also on each sitting, as A1 records
+them.
+
+*A known edge, stated rather than hidden.* An answer acknowledged before the stop is kept. An answer still travelling
+when the stop commits is refused at the request and stays on the device; after the lift the device sends it, inside the
+restored time. A sitting already inside its late-sync grace at `starts_at` is not held, so an answer of its that was
+still travelling is not part of the paper. Sharon reviews this edge before build.
 
 **D7 · Emergency at class scope.** `stop_pintar_now` accepts class nodes, under the same typed confirmation and reason.
 The immediate notice is the existing PT503 path: the open player's 45-second check and the next request both land on
@@ -527,9 +582,7 @@ pause page format times with it and name the zone (WIB, WITA, WIT). A platform-w
 school's zone. No polling is added: the existing timers already fire at 60, 30 and 15 minutes from one server read, and
 a person arriving inside the warning sees the time left (`pintar_status_saya`).
 
-**Transactions and locks.** The emergency hold and release lock sittings in id order, after the window row, consistent
-with §6.2. A hold racing a hand-in: whichever takes the sitting's row lock first wins; a sitting already handed in is
-not held.
+**Transactions and locks.** As D6 states: the window row first, then sittings in id order (§6.2), in short batches.
 
 **Idempotency.** Stopping an already stopped scope and lifting an already lifted window change nothing and write no
 second audit row.
@@ -559,7 +612,8 @@ Daisy reviews before build. Reuse the scheduling form, the banner and the pause 
 - **Mobile and keyboard:** as the existing screens. **Print:** none.
 
 #### G · Ordered implementation instructions
-1. Preconditions: A1 closed and reconciled; owner's answer to D-1; completion page reviewed by Sharon and Daisy.
+1. Preconditions: A1 closed and reconciled; completion page reviewed by Sharon and Daisy (D6's rules and its stated
+   edge in particular).
 2. Database, in this order: scope and reason columns; `maintenance_affects` and the hook for class scope (measured);
    extend; the start refusal (D4); the emergency hold and release on A1's held state; class scope on the emergency;
    registry rows; audit rows.
@@ -579,7 +633,14 @@ Daisy reviews before build. Reuse the scheduling form, the banner and the pause 
     answers are byte-identical before and after; a suspended learner's sitting stays held after the lift.
   - Extend and resume early are audited with before and after; a school admin cannot stop immediately; a school admin
     cannot schedule for another school's class.
-  - Concurrency on real connections: a hold racing a hand-in; a lift racing a teacher's act.
+  - **Concurrency on real connections:** the scheduled closer running while the stop commits and while marking is in
+    progress, over sittings whose deadlines fall inside that interval: none is ended or scored. A hold racing a
+    hand-in; a lift racing a teacher's act; a lift racing the learner's first request (the gate releases by the same
+    rule).
+  - **Scale and interruption:** a stop over several thousand open sittings marks them in batches; the marking is
+    killed halfway and resumed; the lift happens with marking incomplete. Every sitting ends with exactly
+    `ended_at + (deadline − starts_at)`.
+  - **Overlapping stops:** a sitting stays held until the last one lifts.
 - **App:** the warnings at 60, 30 and 15 with a mocked clock, in WIB and WITA; arriving at T−20 shows the time left; the
   pause page; the player's held notice.
 - **Regression:** M148-*, A1-S01 to S09, F37 and F38 green; the pre-request hook's timing within the measured budget.
@@ -593,7 +654,7 @@ Daisy reviews before build. Reuse the scheduling form, the banner and the pause 
 4. Suite, CI and journeys green on the candidate; Sharon's and Daisy's result reviews closed.
 
 #### J · Escalate only if
-- The owner's answer to D-1 differs from the proposal (the design changes at step 3 of D6 only).
+- Sharon finds the late-sync edge in D6 unacceptable and no rule inside A1's mechanisms closes it.
 - The class test cannot be added to the pre-request hook within the measured budget.
 
 ---
@@ -772,7 +833,8 @@ migration and tested.
   transaction. The old device's next write is refused.
 - **Uji Penguasaan (POST_TEST):** the same act is refused unless a teacher has authorized it. From A1's sitting panel the
   class's teacher (`CAN_MANAGE_SITTINGS` over the sitting's place) records an authorization with a reason. It is
-  single-use, expires after a short fixed time (proposed: 10 minutes), and names no device. The learner's next continue
+  single-use, lasts 10 minutes, is enforced in the database, and names no device (**owner ruling D-3**). An expired or
+  used authorization is refused. The learner's next continue
   request consumes it.
 - Both write an audit row (who recovered, who authorized, when, the generations) and, as today's reconnects do, an
   integrity observation in the RECONNECT category. A recovery adds no time and changes no answer.
@@ -796,7 +858,7 @@ generation acknowledged them, so answers sent by the failed device and acknowled
   deadline is ended by the ordinary rule and not recovered.
 - **A staff act racing a recovery:** serialized by the row lock; whichever commits first is seen by the other.
 
-**D11 · A consequence educators will notice** (register D-2). The controller is the Auth session. A learner who signs
+**D11 · A consequence educators will notice** (**owner ruling D-2, 11 Nov: approved**). The controller is the Auth session. A learner who signs
 out and in again, or whose card session expires, on the **same** device has a new session and therefore needs a
 recovery: automatic for low-stakes work, teacher-authorized for Uji Penguasaan. Treating "the same browser" as the same
 writer would need the cookie hash, which arrives as a parameter and which Sharon's review rules out as identity. The
@@ -833,7 +895,7 @@ Daisy reviews the journeys and wording in full before build.
   change of state.
 
 #### G · Ordered implementation instructions
-1. **Preconditions.** A1, A2 and B1 closed. The owner's answers to D-2 and D-3. The completion page reviewed in full.
+1. **Preconditions.** A1, A2 and B1 closed. The completion page reviewed in full.
 2. **Red cases first,** as failing tests on the pre-change commit: the ten of `C1-D125-INVESTIGATION.md` §5 (case 4 is
    already F37-R01) and Sharon's ten further cases from her review at `1f7b6fc2` (to be obtained from Sharon; register
    N-4).
@@ -872,7 +934,6 @@ Daisy reviews the journeys and wording in full before build.
 - A boundary cannot take the row lock without an unacceptable cost under load (the engineer measures answer latency
   before and after).
 - Sharon's further red cases reveal a boundary this design cannot guard.
-- The owner's answer to D-2 asks for same-device continuity without a verifiable device identity.
 
 ---
 
@@ -943,8 +1004,10 @@ the cost estimate. It stores **no** source text beyond the hash and a bounded ex
 after the whole response has validated. A provider error, a timeout, an output that fails the schema, or a question with
 no single correct key leaves zero rows and one ledger row with the reason. A partial batch is not kept.
 
-**D7 · Limits.** Per educator and per school per day, and a global monthly ceiling, checked before the call (the
-`email_send_would_allow` pattern). The numbers are settings the owner approves with the provider (D-6).
+**D7 · Limits** (**owner ruling D-6: approved in principle**). The system supports governed limits per educator, per
+school and per month, checked before the call (the `email_send_would_allow` pattern). **No number is set in this plan.**
+The numbers are set by the owner after the provider evaluation has measured real cost and operational constraints. The
+build ships with generation refused until limits have been set, so an unset limit can never mean unlimited.
 
 **D8 · The provider module.** One `server-only` module behind one interface (request in, validated items out), so the
 owner's choice is a configuration and one adapter. Settings and the key are read through `src/lib/env.ts` getters; the
@@ -954,8 +1017,12 @@ owner enters the key himself. Nothing about the provider appears in a schema nam
 name, answer or result; never another school's content. The request builder is a pure function with a test that scans
 its output.
 
-**D10 · Source material rights** (register D-5). The author confirms, per request, that the school may use the material
-this way. The confirmation is recorded with the request.
+**D10 · Source material rights** (**owner ruling D-5: approved with safeguards**). For each request the author
+explicitly confirms that they have the rights or permission to use the submitted material; the confirmation is recorded
+with the request, and a request without it is refused. The confirmation alone does not establish legal permission:
+before any educational material is transmitted to a provider, the evaluation (E) must have examined the applicable
+licensing restrictions, the provider's data handling and its contractual terms, and C3w's entry gate requires that
+finding.
 
 **D11 · Idempotency and retries.** A request has a client-generated key; a repeated submit returns the first outcome and
 does not call the provider again. The server retries a transient provider failure a bounded number of times inside the
@@ -986,7 +1053,8 @@ Daisy reviews the generation and review flow in full.
 #### G · Ordered implementation instructions
 1. **The entry gate** (all blocking): C1w closed; B1's write path verified; Studio journeys green on the head; Daisy's
    Studio consistency findings applied; the architecture reviewed by Sharon and Daisy; **the owner has selected the
-   provider from E's results**; the data terms, network egress, key and spend cap in place (D-6, D-7).
+   provider from E's results** (D-8; none is preselected); E's finding on licensing, data handling and contract terms
+   (D-5); the numerical limits set by the owner (D-6); network egress and the key in place.
 2. Database: requests and ledger; provenance; the Studio reader; limits; registry rows; audit rows; the projection and
    metric-source assertions.
 3. Contract: `src/lib/…-kontrak.ts` with outcome codes, the provenance view type, the limits.
@@ -1025,10 +1093,26 @@ Daisy reviews the generation and review flow in full.
 
 ### 5.7 · E — Provider evaluation
 
-The plan is `C3-EVALUATION-PLAN.md`; it is approved (O41-14) and unchanged here. It needs no product code and blocks
-nothing except C3w's entry gate. **Open preconditions, all the owner's** (register D-7): binding data terms confirmed;
-network access to the three providers for the session that runs it; keys with provider-side spend caps, entered by the
-owner; named educator judges. Result: a report to the owner. No selection and no integration before the owner decides.
+The plan is `C3-EVALUATION-PLAN.md`; it is approved (O41-14). It needs no product code and blocks nothing except C3w's
+entry gate. **No provider is preselected** (D-8).
+
+**Prerequisites to identify and prepare (owner ruling D-7).** Preparing them is authorized. Incurring cost,
+provisioning a credential and transmitting material are **not** authorized by this plan; each is brought to the owner
+when it becomes necessary.
+
+| Prerequisite | What "ready" means | Whose action |
+|---|---|---|
+| Provider data-handling terms | For each provider: the binding terms on retention, training use, sub-processors and location, read from the official source and recorded with its date | prepared by engineering; accepted by the owner |
+| Licensing of the material (D-5) | For the material to be sent: who holds the rights, and whether the terms above permit sending it. The synthetic chapters in the kit are the default because they carry no third-party rights | prepared by engineering; any non-synthetic material authorized by the owner in writing |
+| Network access | The evaluating session can reach the three providers' API hosts | the owner (environment setting) |
+| Credentials with spending caps | One key per provider with a provider-side cap; the script's own hard stop as the plan states | the owner enters them; never in the repository or a log |
+| Named human evaluators | Two educator judges per item and a third for disagreements, named | the owner |
+| Materials and criteria | The kit in `docs/completion-4.1/c3-eval/` (prompts, schema, material) and the rubric of the plan's §5, frozen before the first call | engineering; ready today |
+
+**Additions to the evaluation's report** (from D-5 and D-6): the licensing and data-handling finding per provider; the
+measured cost per accepted draft and any rate limit met, as the basis for the owner's numerical limits.
+
+Result: a report to the owner. No selection and no integration before the owner decides.
 
 ---
 
@@ -1132,21 +1216,23 @@ learners in the API and database, only «Cetak laporan» issues a reference.
 | R-7 | Is a generated draft a new lifecycle? | No; an ordinary draft authored by the requester | Truth table C3; the existing two-person rule |
 | R-8 | Order of the remaining batches | B1 → B2 → A2 → C2w → A3 → C3w → Z | `EXECUTION-PLAN.md` §1 dependencies; one engineer |
 
-### 7.3 For the owner (material; each has a recommendation)
-| # | Decision | Recommendation | Needed before |
+### 7.3 Owner rulings on this plan's questions — **OWNER APPROVED — 11 NOVEMBER 2026**
+
+These are settled. They are not reopened without material new evidence.
+
+| # | Ruling | Qualification | Where in this plan |
 |---|---|---|---|
-| **D-1** | **An emergency stop and open sittings.** With A1, a sitting past its deadline is ended and scored. During an emergency stop that would score learners who were locked out, which C8 forbids. What happens to open sittings in a stopped scope? | Hold them when the stop takes effect, with their remaining time (A1's held state, a new cause). Release them when the platform admin lifts the stop, each with exactly its remaining time. No teacher action per sitting | A2 |
-| **D-2** | **The same device after signing in again.** The single writer is the sign-in session. A learner who signs out and in, or whose session expires, needs a recovery even on the same device: automatic for low-stakes work, teacher-authorized for Uji Penguasaan | Accept the strict rule. It is the only identity the server can verify, and the teacher is present for Uji Penguasaan | A3 |
-| **D-3** | **How long a teacher's recovery authorization lasts** | 10 minutes, single use | A3 |
-| **D-4** | **Export events in the accountability store.** C5 names them; no export exists in 4.1 | Record print requests only. Add the export event with the export feature in 4.2 | B1 |
-| **D-5** | **Source material rights for AI drafting.** The educator may paste copyrighted text | A per-request confirmation by the educator, recorded with the request | C3w |
-| **D-6** | **AI limits:** per educator and per school per day, and a monthly ceiling | Set with the provider choice, from E's measured cost per draft | C3w |
-| **D-7** | **E's preconditions:** data terms, network access, keys with spend caps, named judges | The owner's actions, as `C3-EVALUATION-PLAN.md` §1 lists them. E has the longest lead time; start it first | E, then C3w |
-| **D-8** | **Provider selection (O41-1)** | After E's report | C3w |
+| **D-1** | **Emergency-stop containment: approved.** Affected open sittings are held with their answers and exact remaining time. They resume with that time when the authorized platform admin lifts the stop. Suspension-held sittings stay held | Safe under concurrency and at scale. No affected sitting is scored by the deadline scheduler while containment takes effect. A1's mechanisms; no second sitting-control system | §5.3 D6 |
+| **D-2** | **Same-device reauthentication: approved.** The authenticated session is the authoritative writer. A new session is a new writer, even on the same device. Low-stakes recovery is automatic after reauthentication; Uji Penguasaan needs the teacher's authorization | Accepted answers preserved; the approved sitting-time rules apply | §5.5 D2, D7, D11 |
+| **D-3** | **Teacher recovery authorization: approved.** 10 minutes, single use, enforced server-side | Expiry and reuse are refused | §5.5 D7 |
+| **D-4** | **Accountability export events: approved.** B1 records print requests | No school data export and no export event in 4.1; both arrive in 4.2 | §2, §5.1 B |
+| **D-5** | **Copyrighted source material: approved with safeguards.** An explicit educator confirmation of rights or permission for each AI drafting request, recorded | Confirmation is not legal permission. The provider evaluation examines licensing, data handling and contract terms before any educational material is transmitted | §5.6 D10, §5.7 |
+| **D-6** | **AI usage limits: approved in principle.** Governed limits per educator, per school and per month | Numbers are set only after the evaluation establishes cost and constraints. None is invented now | §5.6 D7 |
+| **D-7** | **Evaluation prerequisites: approved.** Identify and prepare: data-handling terms, network access, credentials with spending caps, named evaluators, materials and criteria | Not an authorization to incur cost, provision credentials or transmit material. Owner-dependent actions are brought to the owner when needed | §5.7 |
+| **D-8** | **Provider selection: approved.** After the evaluation's results | No provider is preselected. The final choice is the owner's | §5.6 G1, §5.7 |
 
 ### 7.4 Material contradictions
-None found that blocks planning. D-1 is the only place where two approved rules (O41-20 and C8) conflict in the code as
-built; it is resolvable without changing either ruling.
+None open. The one found (O41-20's deadline rule against C8's containment, in the code as built) is settled by D-1.
 
 ### 7.5 Non-blocking observations
 | # | Observation | Goes to |
@@ -1229,4 +1315,4 @@ The integrated journeys, run in one sitting on the candidate, each with no engin
    certificate-review objects; complete §5.4 and §5.6 and remove their provisional marks.
 3. Obtain Sharon's full review of the controller design; complete A3's red-case list.
 4. Carry any register items C1w adds for C2w or C3w into their sections.
-5. Record the owner's answers to D-1 to D-8; re-issue the plan for approval.
+5. Re-issue the plan for the owner's approval. (D-1 to D-8 were ruled on 11 Nov and are recorded in §7.3.)
