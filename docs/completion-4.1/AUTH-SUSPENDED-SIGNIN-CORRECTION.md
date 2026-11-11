@@ -60,6 +60,16 @@ later staging promotion is.
 - Suspend, then reinstate: sign-in refused, then works.
 - An account locked under the old value, after the migration: refused in the ordinary way.
 - B1's event for each: the internal outcome is the specific one; nothing specific reaches the response.
+- **Sharon's acceptance condition (her B1 recheck at `1fc719b5`):** in B1-A04 the present `c.note` becomes a
+  `c.expect` that a suspended or closed attempt records `MASUK_TIDAK_COCOK`.
+
+> **To reconcile in the pass, before building.** The line above it asks that the internal outcome be "the specific
+> one", and Sharon's condition asks that the accountability event record the same code as a wrong password. They
+> differ on one point: what a **school admin** reads in the accountability reader. Sharon's is the safer reading of
+> the owner's rule (the reader is shown to school admins, and a platform suspension must not be learnable from it),
+> and it governs: **the accountability event records `MASUK_TIDAK_COCOK`.** "Accurate internal diagnostics" is then
+> met by the server log and by the suspension's own audit record, which already exist and are read only by those
+> authorized. The engineer confirms this with Sharon on the pass's page; it is not a new decision.
 
 The pre-flight of THE PLAN §4.1 (P1 to P6) applies in full. P1's search for readers of the lock is the part most
 likely to find something this page did not.

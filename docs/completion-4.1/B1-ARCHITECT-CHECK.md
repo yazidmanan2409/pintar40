@@ -200,3 +200,23 @@ Konfigurasi index entry (Daisy's register).
 **Chief Architect's boundary check for closing B1:** inventory present; transitions answered; journey run on the
 candidate (to be confirmed by the CI journeys run); both reviewers to name `1fc719b5`. Nothing in this read stands in
 the way of the two reviews.
+
+## 12 · Sharon's recheck of `1fc719b5` (11 Nov 2026)
+
+**Sharon: PASS on `1fc719b5127313bf24084695fa30d7505e15b5d1`.** CI run `43110782265` and journeys run `43110786290`
+both completed successfully on that commit (checked by her on GitHub). B1 may close once Daisy's review also passes.
+
+- **Verified:** the disclosure correction and B1-S05; the root-cause search (three remaining reads recorded as
+  by-design: `murid_keluar`'s one bit, INV-25 portability, `pindah_masuk` naming the sending school); a real learner
+  transfer (B1-S06); «Jejak audit» and the reader agreeing on the purge row and a purged reference (B1-S07); backup,
+  restore and retention (DR-D02); journey step B1J; the inventory's accuracy and its stated limitations.
+- **Governed limitation 1:** a suspended or closed account's sign-in is recorded with the route's present answer
+  (`LAYANAN_TIDAK_TERSEDIA`). It is a generic code and discloses nothing in the record; it follows the scheduled
+  sign-in correction. **Her acceptance condition for that correction** is carried into
+  `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §5.
+- **Governed limitation 2:** the magic-link success test is mandatory before `TAUTAN_MASUK_CADANGAN` is ever enabled.
+- **Accepted exception:** the transfer case is proven at the database (B1-S06), not rendered through the reader
+  page. Accepted because the page passes `p_sekolah` straight to the same function. If a rendered read is wanted, it
+  belongs in B2's admin-lookup journey.
+
+**Remaining for B1's close:** Daisy's verdict on the same commit.
