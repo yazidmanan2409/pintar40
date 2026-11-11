@@ -21,7 +21,7 @@
  * Needs: the local Supabase stack running, `node_modules` installed in this checkout. Exit 0 only if every step of
  * every selected group succeeded.
  */
-import { readFileSync, existsSync, symlinkSync, rmSync } from "node:fs";
+import { existsSync, symlinkSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";

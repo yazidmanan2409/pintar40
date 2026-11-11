@@ -21,8 +21,7 @@
  */
 import { randomBytes } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { Checks, visibleText, type SelfTest } from "./lib";
+import { Checks, compiledBundle, visibleText, type Context, type SelfTest } from "./lib";
 import { t } from "../src/lib/hle";
 import { Peramban, daftar, ipUji, kodeDari, lit, psql, sandiBagas, sinkTunggu } from "./bob26.test";
 import { aktifkan, cobaPin, pintarIdDari } from "./bob28.test";
@@ -40,8 +39,8 @@ const personDari = (email: string) => psql(`select a.person_id from public.accou
 const asal24 = (ip: string) => ip.split(".").slice(0, 3).join(".") + ".0/24";
 
 /** The server action's id for an exported function of a file, from the production build's manifest (null when absent). */
-function idAksi(repoRoot: string, berkas: string, nama: string): string | null {
-  const p = join(repoRoot, ".next", "server", "server-reference-manifest.json");
+function idAksi(ctx: Context, berkas: string, nama: string): string | null {
+  const p = compiledBundle(ctx, "server", "server-reference-manifest.json");
   if (!existsSync(p)) return null;
   const m = JSON.parse(readFileSync(p, "utf8")) as { node?: Record<string, { workers?: Record<string, unknown>; exportedName?: string; filename?: string }> };
   for (const [id, a] of Object.entries(m.node ?? {})) {
@@ -59,7 +58,7 @@ function buangBaris(dari: number): string {
 export const b1AppTests: SelfTest[] = [
   {
     id: "B1-A01",
-    requires: ["app", "network", "db"],
+    requires: ["app", "network", "db", "build"],
     run: async (ctx) => {
       const c = new Checks();
       const asal = ctx.appUrl!;
@@ -109,7 +108,7 @@ export const b1AppTests: SelfTest[] = [
         c.expect(kodeSalah.body?.code === "KODE_TIDAK_COCOK" && pinSalah.body?.code === "PIN_TIDAK_COCOK" && rusak.body?.code === "ID_TIDAK_SAH"
           && tanpaIzin.body?.code === "PEMULIHAN_BERAKHIR", `the recovery doors answered ${JSON.stringify([kodeSalah.body, pinSalah.body, rusak.body, tanpaIzin.body])}`);
         // 6. a sign-in link that cannot be used, at the callback (the server action the callback page calls)
-        aksi = idAksi(ctx.repoRoot, "src/app/auth/callback/actions.ts", "tukarKode");
+        aksi = idAksi(ctx, "src/app/auth/callback/actions.ts", "tukarKode");
         if (aksi) {
           const lIp = ipUji(); ip.push(lIp);
           const r = await fetch(`${asal}/auth/callback`, { method: "POST", headers: { "next-action": aksi, origin: asal, "x-real-ip": lIp,
