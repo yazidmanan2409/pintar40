@@ -1066,6 +1066,11 @@ full before the first migration is written.** Read at `3a190dbf`:
       lift until its teacher acts, and it resumes with the right remaining time.
     - *R1:* several thousand protected overdue sittings and one unprotected overdue sitting: the unprotected one is
       ended in the next run.
+    - *The closer's selection is shift-aware (Sharon, on revision 8):* after the lift, a released window-timed sitting
+      whose original `closes_at` has passed but whose shifted closing time has not is **not selected** by the closer
+      on any run before that time, and is ended on the first run after it. With more such sittings than the run's
+      limit and one unprotected overdue sitting, the unprotected one is ended on the first run. Red first: with the
+      selection reading `closes_at` unshifted, the sittings are selected on every run.
     - *Enrolment ended during a stop (Sharon's clarification 4):* the enrolment ends and is audited; the protected
       sitting is unscored and unchanged until the lift; after the lift it is terminated unscored if inside its shifted
       deadline, and scored only if past it and any grace; every answer is byte-identical throughout.
