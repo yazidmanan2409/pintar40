@@ -1,20 +1,23 @@
 # PINTAR 4.1 · THE PLAN
 
-> **DRAFT — NOT APPROVED. FINAL APPROVAL CANDIDATE (revision 8, 11 Nov 2026),** by the Chief Architect (Bob), for
+> **DRAFT — NOT APPROVED. FINAL APPROVAL CANDIDATE (revision 9, 11 Nov 2026),** by the Chief Architect (Bob), for
 > the owner's review. **Nothing here authorizes implementation.** It becomes THE PLAN only on the owner's explicit
 > approval.
 >
-> **Revision 8:** Sharon's technical review of revision 5 (two approval blockers, six clarifications: §5.3 D6.2, D6.3
-> and H; §5.5 D4; §4.1 P3) and Daisy's UX review with its addendum on revision 6 (her remaining blocker and her
-> settled wording: the F sections of B1, A2, C2w, A3 and C3w). Revision 7: rulings M-1 to M-3, C1w's final
-> verification and the disposition of its findings (§7.7).
+> **Revision 9:** Sharon's nine A2 verification scenarios, in her original words, with her reading of them in this
+> plan's terms (§5.3 H); her non-blocking point on the scheduled closer's selection (§5.3 D6.6); Daisy's English for
+> the A2 refusals (§5.3 F). **Nothing further is outstanding for incorporation.**
+>
+> **Reviews of revision 8** (`0b40c97758691c956581cf314c2c45b0b73d3a23`): **Daisy: PASS** (recorded on
+> `ux-1/daisy-experience` at `401d2d38`). **Sharon: BLOCKED for one reason only,** the nine scenarios missing from
+> §5.3 H; her other blocker and all six clarifications verified. This revision adds them. Both reviewers' final
+> verdicts are to name this revision's commit.
+>
+> Revision 8: Sharon's technical review of revision 5 and Daisy's UX review. Revision 7: rulings M-1 to M-3, C1w's
+> final verification and the disposition of its findings (§7.7).
 >
 > **Reconciled against the code** of B0, A1 and C1w at `claude/system-integrity-4.0` `3a190dbf`, and against Daisy's
-> two design documents. **Still to be incorporated before this is submitted as final:**
-> 1. **The text of Sharon's nine A2 verification scenarios.** It has not reached the Chief Architect and is on no
->    readable branch. They are not written from memory or inference. Until they are in §5.3 H, the missing-review
->    blocker stays (§7.6).
-> 2. **The two final reviews,** Sharon's and Daisy's, both on the same commit of this document.
+> design documents.
 >
 > Final completion records for B0, A1 and C1w are not under `docs/`; the three pre-build pages are unchanged since the
 > planning merge. C1w's final verification is recorded in §1.1 as the owner relayed it.
@@ -591,11 +594,10 @@ certificate print tests, which must be unchanged. *Committing tests:* the print 
 Read-only, against A1 at `7dfe2bc8` and this plan at `6ae42b88`. It raised six blockers (B1 to B6) and two further
 requirements (R1, R2); the owner added ruling O1. All are incorporated in D6 below.
 
-> **What this section rests on.** Sharon's review document is not on any branch the Chief Architect can read. The
-> blockers are recorded here as the owner relayed them; the design responses are the Chief Architect's. **Her nine
-> verification scenarios are required acceptance evidence (H) and must be copied into A2's completion page from her
-> review, word for word.** They are not reproduced or paraphrased here, because the text was not available. If any
-> response below differs from what her review requires, her review governs and the difference is brought back.
+> **What this section rests on.** Sharon's original findings, relayed by the owner, and her verification of revision
+> 8, in which she supplied her nine verification scenarios in their original text. They are in H, word for word, and
+> are required acceptance evidence. The design responses in D6 are the Chief Architect's; Sharon verified them against
+> her review and against A1 at `3a190dbf`.
 
 | # | Sharon's finding (as relayed) | Where it is answered |
 |---|---|---|
@@ -839,6 +841,10 @@ deadline. Both were wrong. The rule is now:
   restated with notes.
 - **Selection.** Its query already excludes held sittings; it must also exclude sittings of protected persons, since
   marking may not have reached them yet.
+- **Selection must use the shifted closing time (Sharon, non-blocking, on revision 8).** The closer's query reads the
+  assignment's `closes_at` directly (`M/20270114110000…:47`), without the window-timed shift of D6.3. Left so, a
+  released window-timed sitting would be selected again on every run until its shifted time and would fill the run's
+  limit, which is R1's starvation again. The selection uses `pengerjaan_tenggat_efektif`, or adds the same shift.
 - It keeps running during a stop and does its ordinary work for everyone who is not protected.
 
 **D6.7 · Marking and release are bookkeeping.** After activation commits, protected **open** sittings are marked held
@@ -920,7 +926,7 @@ scheduling form, list, banner and pause page and adds no second system. Daisy re
 
 *Wording settled by Daisy's review of this plan* (`docs/coordination/ux/completion-4.1/TINJAUAN-THE-PLAN-r5.md` on `ux-1/daisy-experience` (`b24242da`)). It is adopted here so that the engineer does not wait for
 it. **This is her exact wording; no alternative copy is to be written.** All of it goes into `hle.ts`, Indonesian and
-English; the English of items 4 and 5 is to be supplied by her at A2's pre-build review.
+English.
 
 1. **During the stop** (her blocker 2). The line learners see today, `pemeliharaan.darurat.asesmen`, ends «Bila
    waktunya habis selama penghentian, beri tahu guru Anda.» Under D-1 that is false: a held sitting loses no time. It
@@ -939,17 +945,18 @@ English; the English of items 4 and 5 is to be supplied by her at A2's pre-build
    waktu Anda: {n} menit.» *English:* «This assessment was held during the stop. Your time left: {n} min.»
    These three hold for D6's edge cases: for a sitting inside its grace the time left is the grace; a window-timed
    sitting's moved closing time is exactly "what it was"; a suspended learner cannot sign in and never sees them.
-4. **The new refusals:**
+4. **The new refusals** (English supplied by Daisy with her PASS, `401d2d38`):
 
-| State | Indonesian |
-|---|---|
-| A teacher's act on a stopped class | «Kelas {kelas} sedang dihentikan oleh Admin PINTAR. Tindakan ini dapat dilakukan setelah penghentian diakhiri. Tidak ada yang diubah.» |
-| Assignment ending or withdrawal during a stop (O1) | «Penugasan ini tidak dapat diakhiri atau ditarik selama penghentian. Tidak ada yang diubah.» |
-| The promotion run during a stop (M-1) | «Kenaikan kelas belum dapat diterapkan: asesmen {n} murid sedang ditahan karena penghentian. Coba lagi setelah penghentian diakhiri.» |
-| Activation that did not take effect (platform admin) | «Penghentian belum berlaku. Tidak ada yang dihentikan. Coba lagi.» |
-| A start refused because the assessment cannot finish before the window | «Asesmen ini memerlukan {d} menit, sedangkan pemeliharaan mulai pukul {jam} {zona}. Mulailah setelah pemeliharaan selesai, pukul {jam selesai} {zona}.», tied to the disabled «Mulai» by `aria-describedby` |
+| State | Indonesian | English |
+|---|---|---|
+| A teacher's act on a stopped class | «Kelas {kelas} sedang dihentikan oleh Admin PINTAR. Tindakan ini dapat dilakukan setelah penghentian diakhiri. Tidak ada yang diubah.» | «Class {kelas} has been stopped by an Admin PINTAR. This can be done once the stop has ended. Nothing was changed.» |
+| Assignment ending or withdrawal during a stop (O1) | «Penugasan ini tidak dapat diakhiri atau ditarik selama penghentian. Tidak ada yang diubah.» | «This assignment cannot be ended or withdrawn during a stop. Nothing was changed.» |
+| The promotion run during a stop (M-1) | «Kenaikan kelas belum dapat diterapkan: asesmen {n} murid sedang ditahan karena penghentian. Coba lagi setelah penghentian diakhiri.» | «The promotion cannot be applied yet: {n} students' assessments are on hold because of the stop. Try again once the stop has ended.» |
+| Activation that did not take effect (platform admin) | «Penghentian belum berlaku. Tidak ada yang dihentikan. Coba lagi.» | «The stop has not taken effect. Nothing was stopped. Try again.» |
+| A start refused because the assessment cannot finish before the window | «Asesmen ini memerlukan {d} menit, sedangkan pemeliharaan mulai pukul {jam} {zona}. Mulailah setelah pemeliharaan selesai, pukul {jam selesai} {zona}.», tied to the disabled «Mulai» by `aria-describedby` | «This assessment takes {d} min, and maintenance starts at {jam} {zona}. Start it after maintenance ends, at {jam selesai} {zona}.» |
 
-5. **The teacher's list during a stop:** «Ditahan · dilanjutkan setelah penghentian diakhiri», with no «Atur». After
+5. **The teacher's list during a stop:** «Ditahan · dilanjutkan setelah penghentian diakhiri» (English: «On hold ·
+   continues once the stop has ended»), with no «Atur». After
    the lift the row returns to its live state with no notice to the teacher; the learner's notice is enough. A
    suspension-held sitting keeps A1's «Ditahan · menunggu keputusan Anda».
 
@@ -959,7 +966,7 @@ active; lifted; refused; failed to activate. *Mobile:* the form stacks in one co
 
 #### G · Ordered implementation instructions
 1. Preconditions: A1 closed and reconciled; the completion page carries Sharon's six blockers as settled and her nine
-   scenarios word for word; Daisy's review.
+   scenarios word for word from H; Daisy's review.
 2. Database, in this order: scope and reason columns; `maintenance_affects` and the hook for class scope (measured);
    extend; the start refusal (D4); the emergency hold and release on A1's held state; class scope on the emergency;
    registry rows; audit rows.
@@ -993,9 +1000,55 @@ full before the first migration is written.** Read at `3a190dbf`:
   - A class-scoped window affects its learners and teachers and nobody else in the school (red today: no class scope).
   - A start whose deadline would cross a planned window is refused; one that fits is accepted.
   - A planned window: a running sitting drains and is scored by the ordinary rule; nothing is held.
-  - **Emergency, required evidence.** **Sharon's nine verification scenarios, copied from her review onto the
-    completion page, each as a red-first test.** In addition, one test per design point, so that each blocker has a
-    named proof:
+  - **Emergency, required evidence: Sharon's nine verification scenarios.** Her original text, from her A2 review
+    against this plan at `6ae42b88` and A1 at `7dfe2bc8`. They are database tests, red first unless they guard an
+    existing rule. **All nine are required for A2's acceptance, with these invariants.**
+
+    1. **The fence (B1):** the decider, the stop and the marking, interleaved in two sessions at each point: before
+       the stop's lock, while it is held, and after the commit.
+       - Invariant: no sitting ends by deadline with `closure_deadline > starts_at` for a window affecting its person.
+       - Plant: remove the fence, and this goes red.
+    2. **The acts during a stop (B2):** under a class-scoped stop, a head of department and the school admin are each
+       refused end, extend, resume, close and window change on an affected but unmarked sitting. The same acts on an
+       unaffected class succeed.
+    3. **Late sync (B3):**
+       - a sitting in its grace at the stop's instant, with the stop longer than the grace;
+       - after the lift, the answer arriving within the restored grace is LATE_SYNC and scored, and scoring waits
+         until `late_sync_until`;
+       - an answer after `late_sync_until` is kept, not scored;
+       - a manifest-complete hand-in after the lift closes it early.
+       - Red today: the scoring happens at the lift.
+    4. **A window-timed sitting (B4):** its `closes_at` passes during the stop. After the lift it has
+       `ended_at + (closes_at − starts_at)` and isn't ended at the lift.
+    5. **Re-stop (B5):** W1 lifts, the gap passes, W3 starts before release. The final deadline equals
+       `W3.ended_at + (W1 restored deadline − W3.starts_at)`, so the learner gains no gap time.
+       - Also: with overlapping W1 and W2, the remaining time comes from the earlier `starts_at`.
+    6. **Suspension during a stop (B6):** suspended during the stop, then the stop lifts. The sitting stays held as
+       ACCOUNT_SUSPENDED with the same remaining time, and the scheduler doesn't end it.
+    7. **In-flight requests:** a hand-in and an answer whose requests passed the gate before the stop's commit. Both
+       are committed and kept, and neither is refused or lost.
+    8. **Scale and starvation (R1, R2):** 50,000 affected sittings and one unaffected expired sitting. The unaffected
+       one is ended on the first scheduler run, and the skipped count is reported. The stop's wait on the fence is
+       measured, as is the hook's time before and after (D1).
+    9. **Idempotency and recovery:** the marking interrupted after half the sittings, then the lift. Every outcome is
+       identical to a clean run: the same deadlines, nothing scored.
+       - Also: stopping twice or lifting twice writes no second audit row.
+
+    *How to read them in this plan's terms (Sharon's own mapping; it keeps each scenario's meaning and invariant and
+    replaces no words above):*
+    - `starts_at` is `T_stop`, and `ended_at` is `T_lift`.
+    - Scenario 2: an enrolment ending during the stop is permitted under O1 and scores nothing; `akhiri_penugasan`
+      and the promotion run are refused.
+    - Scenario 3: "`late_sync_until`" is the grace remaining after the deadline shift of D6.3. It applies only to
+      sittings with their own deadline.
+    - Scenario 4: the window-timed sitting keeps no deadline of its own. "Its effective deadline" is the shifted
+      closing time.
+    - Scenarios 4 and 5: these equal D6.3's "moves later by exactly the protected interval" and D6.4's union of
+      windows.
+    - Scenario 8: this is run by the dedicated scale job, with the CI-sized variant in the suite.
+
+  - **In addition,** one test per design point not already proven by a scenario above, so that each blocker and
+    ruling has a named proof:
     - *B1:* on real connections, a deadline ending, a teacher's ending and a learner's answer are each started just
       before and just after activation, repeatedly. Every one either commits before `T_stop` or is refused or skipped.
       None commits an ending after `T_stop`. The test fails if the fence is removed (a plant).
@@ -1737,7 +1790,7 @@ None open. The one found (O41-20's deadline rule against C8's containment, in th
 | N-2 | BOB-48's certificate sealing and numbering are on `main` under F20 ids (`M/20261201100000…`) | record only |
 | N-3 | A print reference stops resolving after 12 months, with the purge | Daisy and the owner, at B2's page |
 | N-4 | Sharon's ten further red cases for recovery are summarized at `SCOPE-REGISTER.md:255`; her full review (`1f7b6fc2`) is not on the branches read | Sharon, before A3's page |
-| N-9 | Sharon's A2 pre-build review is not on any branch the Chief Architect can read (§7.6) | the owner or Second Eye, before A2's page |
+| N-9 | Sharon's nine A2 verification scenarios: received in her verification of revision 8 and incorporated in §5.3 H | closed |
 | N-10 | C1w's completion page promises "a stable identity per question". The code delivers it as the lineage chain, with no separate identity column. This plan builds on the chain. Whether that satisfies the page is for C1w's closure review | Second Eye and Sharon, at C1w's closure |
 | N-11 | C1w notifies affected schools in-app only; Daisy's C1-R5 proposed in-app plus one email | §7.7, F-5 |
 | N-12 | `terminate_session` and `akhiri_penugasan` can end a **suspension-held** sitting today (the state trigger allows TERMINATED). A2 refuses them for emergency-protected sittings; whether they should also be refused for suspension-held ones is outside A2 | Sharon, at A2's review |
@@ -1759,7 +1812,7 @@ limits and the provider are decided after E's report, as ruled.
 | Batch | Review | Must cover |
 |---|---|---|
 | B1 | short, before build | the store's columns and the coarse network origin; who reads; the purge and its audit; the shared job installer and the restore |
-| A2 | done; **her nine scenarios' text still outstanding** | her review of revision 5 confirms the emergency architecture as otherwise sound, the batch sequence, the pre-flight and M-1. Her two approval blockers and six clarifications are in §5.3 (D6.3, D6.2, H), §5.5 D4 and §4.1 P3. **Her nine original verification scenarios must be in A2's completion requirements with their meaning and invariants preserved; the Chief Architect has not received their text** (below) |
+| A2 | **done** | her six blockers, two requirements and nine verification scenarios are in §5.3 (D6 and H). On revision 8 she verified her grace blocker and all six clarifications, and confirmed the emergency architecture, the batch sequence, the pre-flight and M-1. Her non-blocking point on the closer's selection is in D6.6. Remaining: her final PASS on this revision's commit, and N-12 |
 | C2w | short, before build | no sealed row changes; the table is refused as a metric source; unreachable by learners |
 | A3 | full, before build | the controller design against her five gaps; her ten further red cases (N-4); the lock order with the emergency fence first (§6.2); the enumeration test of writers |
 | C3w | full, before build | provenance hidden at the database and API; the acceptance fact and the refused submit; what is sent to the provider; limits |
@@ -1783,7 +1836,7 @@ limits and the provider are decided after E's report, as ruled.
 |---|---|---|
 | The owner's approval of this plan | every batch | — |
 | Sharon's classification of C1w finding F-1 (§7.7) | where F-1's correction is done: before promotion, or as C2w's first step | B1, B2, A2 |
-| The text of Sharon's nine A2 verification scenarios | A2's completion page and build; final approval of this plan as complete | B1, B2 |
+| Sharon's and Daisy's final verdicts on this revision's commit | submission of this plan as final | nothing else |
 | Sharon's full review of the controller design, with her ten red cases | A3's completion page | everything before A3 |
 | E's prerequisites and the owner's provider choice | C3w | everything before C3w |
 
