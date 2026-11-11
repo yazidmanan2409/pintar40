@@ -1,24 +1,23 @@
 # PINTAR 4.1 · THE PLAN
 
-> **DRAFT — NOT APPROVED. FINAL APPROVAL CANDIDATE (revision 5, 11 Nov 2026),** by the Chief Architect (Bob), for
+> **DRAFT — NOT APPROVED. FINAL APPROVAL CANDIDATE (revision 7, 11 Nov 2026),** by the Chief Architect (Bob), for
 > the owner's review. **Nothing here authorizes implementation.** It becomes THE PLAN only on the owner's explicit
 > approval.
 >
-> **Revision 6 (11 Nov), after the independent assessment's conditional pass on revision 5.** Corrected: C1w's
-> closure; the print specification, which contradicted itself; the B1 event count; the counts in §1.1. Recorded:
-> the assessment's recommendations on M-1, M-2 and M-3, awaiting the owner's ruling (§7.6).
+> **Revision 7:** the owner's rulings M-1, M-2 and M-3 (§7.3); Second Eye's final verification of C1w (§1.1); the
+> disposition of C1w's eight reported findings (§7.7).
 >
 > **Reconciled against the code** of B0, A1 and C1w at `claude/system-integrity-4.0` `3a190dbf`, and against Daisy's
-> two design documents. **Still outstanding, and stated where they matter:**
-> 1. **Sharon's A2 review document,** with her nine verification scenarios. It is on no branch the Chief Architect
->    can read. A2 cannot be built without it (§7.6).
-> 2. **Second Eye's final closure report for C1w, as a document.** The Chief Architect has the outcome (closed on
->    `3a190dbf`) and has verified the CI and journeys runs, but not the report's text. Its four remaining
->    evidence-integrity findings therefore have no disposition yet (§7.6, C-1 to C-4).
-> 3. **Final completion records** for B0, A1 and C1w are not under `docs/`; the three pre-build pages are unchanged.
+> two design documents. **Still to be incorporated before this is submitted as final:**
+> 1. **Sharon's original A2 review,** with her nine verification scenarios (requested by the owner; §7.6).
+> 2. **The two final reviews** of this candidate, Sharon's and Daisy's.
+>
+> Final completion records for B0, A1 and C1w are not under `docs/`; the three pre-build pages are unchanged since the
+> planning merge. C1w's final verification is recorded in §1.1 as the owner relayed it.
 >
 > Earlier revisions: 1 preliminary consolidation; 2 owner rulings D-1 to D-8; 3 Sharon's A2 findings and ruling O1;
-> 4 the mandatory pre-flight (§4.1); 5 reconciliation against the built code and Daisy's documents.
+> 4 the mandatory pre-flight (§4.1); 5 reconciliation against the built code and Daisy's documents; 6 corrections after
+> the independent assessment's conditional pass.
 
 **What this document is.** The build-ready execution plan for everything in 4.1 after the foundations B0 → A1 → C1w.
 It consolidates the approved records. It does not replace them and proposes no competing architecture.
@@ -50,9 +49,9 @@ C3w, E, Z) · 6 Cross-batch integration · 7 Decision register · 8 Final accept
 | Production | Migration 111. Outside every authorization. The 111 → 224 rehearsal on restored real data (R-2) is open and is not part of this plan. |
 | B0 · last-administrator guard | Closed on `0bbee3e3`. Migration `20270113170000`. |
 | A1 · sitting control | Built; final commit `7dfe2bc8`. Migrations `20270114100000`, `20270114110000`. Tests A1-K01, K02, S01 to S09, A01 to A03, J01 |
-| C1w · item workbench | **Closed on `3a190dbf`** (reported by Second Eye; relayed by the owner). Migrations `20270115100000`, `20270115110000`. Tests C1W-K01, K02, S01 to S06, C01, A01, A02, J01. Verified by the Chief Architect on GitHub: CI run 569 (`43020868681`) and journeys run 270 (`43020873278`), both successful on `3a190dbf`. Local suite 1056 passed, 0 failed (Second Eye's report) |
+| C1w · item workbench | **Closed; Second Eye has formally stopped.** Final verification on `3a190dbfaad5ed71484ae8fc91a1fe4608cf5345` (owner, 11 Nov): local suite 1,056 passed, 0 failed, 0 skipped; planted defects 156 from plant files plus 50 embedded in CI, all verified across 26 local database steps; CI run `43020868681` success; journeys run `43020873278` success; working tree clean; nothing merged or deployed. The Chief Architect confirmed both runs on GitHub. Migrations `20270115100000`, `20270115110000`. Tests C1W-K01, K02, S01 to S06, C01, A01, A02, J01. Eight findings reported: §7.7 |
 | Suite | 1018 manifest ids on `main`; 1057 on the work branch at `3a190dbf` |
-| Migrations | 224 on `main`; 229 on the work branch: B0 one, A1 two, C1w two. Counted from the tree; to be matched to the count in Second Eye's final report when that report is in the repository |
+| Migrations | 224 on `main`. **229 on the work branch, the verified repository count** (counted from the tree at `3a190dbf`: B0 one, A1 two, C1w two). No other count is used in this plan |
 
 ### 1.2 The mechanisms every remaining batch builds on
 
@@ -422,7 +421,9 @@ B1 (`EXECUTION-PLAN.md` §2).
 2. **Database.** The table, its guard (no update, no delete outside the purge), the service-level writer, the reader, the
    purge, the registry rows, the metric-source refusal. Extend the shared job installer (§6.3) and install the purge job.
 3. **Recovery scripts.** `restore-bundle.mjs` checks and re-installs both jobs through the shared installer; restate
-   DR-S14 to S16 and DR-D02 with notes if their expectations name the job count.
+   DR-S14 to S16 and DR-D02 with notes if their expectations name the job count. **For a native Supabase restore**
+   (C1w finding F-8, §7.7), which bypasses that procedure: add the runbook step (run the installer) and a health check
+   that reports any scheduled job the installer declares and the database lacks.
 4. **Contract.** `src/lib/akuntabilitas-kontrak.ts` (or the chosen name): kinds, methods, outcome codes, the row type,
    and the `hle.ts` key per kind and outcome.
 5. **Server.** One server-only helper that derives the coarse origin from the request and calls the writer. Call it once
@@ -446,7 +447,7 @@ session and no event rows behind (P3).
 - **App:** each sign-in method and each failure code through the running app; sign-out; a retried request writes one row.
   A writer failure (simulated) does not block sign-in.
 - **Static:** the store is not a metric source; no file outside the helper calls the writer; no copy names the mechanism.
-- **Recovery:** the restored database has both jobs.
+- **Recovery:** the restored database has both jobs. With a job removed by hand, the health check reports it.
 - **Regression:** every existing identity test green unchanged (F15 to F18, BOB26-*, BOB27-*, BOB28-*, BOB29-*, L2-*).
 - **Rendered:** the reader at the three widths, keyboard only.
 
@@ -742,8 +743,8 @@ the fence by every act below. Functions as read at `3a190dbf`:
   judged against its **shifted** deadline (D6.3). So a departed learner's work is never scored on time it did not have.
 - **The promotion run (Kenaikan) calls the same function.** It is a school's year-end administrative act, not one
   learner's enrolment fact. This plan treats it as an administrative assessment-ending action: **refused during a stop
-  for a learner with a protected sitting,** with a sentence saying which learners and why. *This classification is the
-  Chief Architect's reading of O1 and is to be confirmed against Sharon's review text (§7.6).*
+  for a learner with a protected sitting,** with a sentence saying which learners and why. **Owner ruling M-1 (11 Nov) confirms this.** Sharon
+  verifies the technical treatment against her original review.
 
 **D6.3 · One time rule (B3, B4).** Revision 2 stored "remaining time" and gave nothing back to a sitting without its own
 deadline. Both were wrong. The rule is now:
@@ -999,9 +1000,8 @@ teachers (read).
 **Out:** editing an option's `misconception_code` on sealed content; any metric, calculator or report figure that reads
 annotations; learner-facing display; AI-suggested annotations.
 
-**Pending, not in scope unless approved:** letting an annotation name a code from the existing misconception taxonomy
-(roadmap decision R-3, `docs/roadmap/` on `claude/roadmap-45-50`). It needs a separate technical review and the owner's
-approval. This section is written without it.
+**Outside this batch (owner ruling M-3, 11 Nov):** an annotation naming a code from the existing misconception
+taxonomy. No scope expansion.
 
 #### C · Existing architecture
 | Thing | Where |
@@ -1057,7 +1057,9 @@ claim that the question has no misconception.
   report unless Daisy rules otherwise.
 
 #### G · Ordered implementation instructions
-1. Preconditions: C1w closed (it is, on `3a190dbf`) and its finding C-4 disposed of (§7.6); Sharon's short review of the completion page.
+1. Preconditions: C1w's corrective items F-1 and F-4 done (§7.7), F-1 no later than this batch's first step, because
+   this batch places annotations beside the misconception views F-1 concerns; Sharon's short review of the completion
+   page.
 2. Database: the table, its immutability guard, create and supersede, the two readers, registry rows, audit rows, the
    metric-source refusal.
 3. Contract file and copy. 4. Server actions. 5. UI in Studio, then in the report. 6. Tests. 7. Rendered check.
@@ -1630,6 +1632,9 @@ These are settled. They are not reopened without material new evidence.
 |---|---|---|---|
 | **D-1** | **Emergency-stop containment: approved.** Affected open sittings are held with their answers and exact remaining time. They resume with that time when the authorized platform admin lifts the stop. Suspension-held sittings stay held | Safe under concurrency and at scale. No affected sitting is scored by the deadline scheduler while containment takes effect. A1's mechanisms; no second sitting-control system | §5.3 D6 |
 | **O1** | **Acts during an active emergency stop: approved (after Sharon's A2 review).** Administrative assessment-ending and assignment-withdrawal actions on protected sittings are refused. Genuine enrolment termination is permitted, as an institutional fact about the learner | It must not bypass protection, cause protected work to be scored, or discard accepted evidence. The audit record is preserved | §5.3 D6.2 |
+| **M-1** | **The year-end promotion during an emergency stop: approved.** It is refused where it would terminate a protected sitting. Genuine individual enrolment termination remains permitted | Under the approved safeguards of O1 | §5.3 D6.2 |
+| **M-2** | **AI provider and numerical limits: remain pending the provider evaluation** | No value is invented and no provider is selected prematurely | §5.6 D7, §5.7 |
+| **M-3** | **Structured misconception codes stay outside C2w** | No scope expansion | §5.4 B |
 | **D-2** | **Same-device reauthentication: approved.** The authenticated session is the authoritative writer. A new session is a new writer, even on the same device. Low-stakes recovery is automatic after reauthentication; Uji Penguasaan needs the teacher's authorization | Accepted answers preserved; the approved sitting-time rules apply | §5.5 D2, D7, D11 |
 | **D-3** | **Teacher recovery authorization: approved.** 10 minutes, single use, enforced server-side | Expiry and reuse are refused | §5.5 D7 |
 | **D-4** | **Accountability export events: approved.** B1 records print requests | No school data export and no export event in 4.1; both arrive in 4.2 | §2, §5.1 B |
@@ -1650,7 +1655,7 @@ None open. The one found (O41-20's deadline rule against C8's containment, in th
 | N-4 | Sharon's ten further red cases for recovery are summarized at `SCOPE-REGISTER.md:255`; her full review (`1f7b6fc2`) is not on the branches read | Sharon, before A3's page |
 | N-9 | Sharon's A2 pre-build review is not on any branch the Chief Architect can read (§7.6) | the owner or Second Eye, before A2's page |
 | N-10 | C1w's completion page promises "a stable identity per question". The code delivers it as the lineage chain, with no separate identity column. This plan builds on the chain. Whether that satisfies the page is for C1w's closure review | Second Eye and Sharon, at C1w's closure |
-| N-11 | C1w notifies affected schools in-app only; Daisy's C1-R5 proposed in-app plus one email | register (`EXECUTION-PLAN.md` §5) |
+| N-11 | C1w notifies affected schools in-app only; Daisy's C1-R5 proposed in-app plus one email | §7.7, F-5 |
 | N-12 | `terminate_session` and `akhiri_penugasan` can end a **suspension-held** sitting today (the state trigger allows TERMINATED). A2 refuses them for emergency-protected sittings; whether they should also be refused for suspension-held ones is outside A2 | Sharon, at A2's review |
 | N-13 | `start_learning_session` and `may_start_assessment` have now been patched by text three times (4.0, A1, C1w). A3 redefines them in full (§5.5 G) | A3 |
 | N-14 | Daisy's design input predates D-1, D-2, D-5, D-6 and O41-9; the points to revise are listed in each batch's F | Daisy, at each pre-build review |
@@ -1663,28 +1668,8 @@ None open. The one found (O41-20's deadline rule against C8's containment, in th
 
 ### 7.6 Outstanding dependencies, review requirements and blockers
 
-**Material decisions still open**
-| # | Question | Needed before |
-|---|---|---|
-| M-1 | **The promotion run during an emergency stop.** It ends sittings through the same function as enrolment termination. This plan refuses it where it would terminate a protected sitting; genuine individual enrolment termination stays permitted (§5.3 D6.2). **The independent assessment recommends accepting this; the owner's ruling is awaited.** Sharon verifies the technical treatment against her original review | A2's completion page |
-| M-2 | The numerical AI limits (D-6) and the provider (D-8) follow E's report. **Assessment: keep pending.** No change | C3w |
-| M-3 | A misconception annotation naming a structured code (roadmap R-3). **Assessment: keep it out of C2w.** C2w is written without it; no change unless the owner rules otherwise | — |
-
-**C1w's remaining evidence-integrity findings (to be disposed of explicitly)**
-
-The independent assessment names four, from Second Eye's final report. **The report's text is not available to the
-Chief Architect, so the findings themselves are not restated here and no disposition is invented.** Each needs one of:
-fixed in C1w before promotion; taken by a named 4.1 batch; or registered with a reason.
-
-| # | Finding (title only, as named in the assessment) | Batch it most plausibly touches | Disposition |
-|---|---|---|---|
-| C-1 | Corrected-key evidence reads | reports and metrics that read results (none of the remaining batches rewrites them); C3w's journey passes through a key correction | **pending the report** |
-| C-2 | Certificate verification | no remaining batch | **pending the report** |
-| C-3 | Professional Development authorization coverage | A2 and A3 touch PD sittings' holds and writers | **pending the report** |
-| C-4 | Concurrent editing | C3w writes drafts through the same editor path | **pending the report** |
-
-If any of the four is a demonstrated failure of evidence integrity or authorization, it is a blocker under the owner's
-qualification and is fixed before the batch that depends on it, not registered.
+**Material decisions still open:** none for the owner. M-1, M-2 and M-3 were ruled on 11 Nov (§7.3). The numerical AI
+limits and the provider are decided after E's report, as ruled.
 
 **Sharon: what her reviews must cover**
 | Batch | Review | Must cover |
@@ -1694,6 +1679,7 @@ qualification and is fixed before the batch that depends on it, not registered.
 | C2w | short, before build | no sealed row changes; the table is refused as a metric source; unreachable by learners |
 | A3 | full, before build | the controller design against her five gaps; her ten further red cases (N-4); the lock order with the emergency fence first (§6.2); the enumeration test of writers |
 | C3w | full, before build | provenance hidden at the database and API; the acceptance fact and the refused submit; what is sent to the provider; limits |
+| C1w | result review | the class of finding F-1; finding F-3's test result (§7.7); N-10 and N-12 |
 | every batch | one review of the result | on the exact candidate commit |
 
 **Daisy: what her reviews must cover**
@@ -1705,18 +1691,45 @@ qualification and is fixed before the batch that depends on it, not registered.
 | C2w | short | where annotations sit with «Riwayat soal» and beside the class misconception report |
 | A3 | full, before build | her §4 against §5.5 F; the same-device case under D-2; dropping the Exam Mode sentence |
 | C3w | full, before build | her §5 against §5.6 F; the rights confirmation, limit and long-running states |
+| C1w | result review | findings F-5, F-6 and F-7 (§7.7) |
 | every batch | the engineer's rendered check, then one result review | 1280, 390 and 320 px; keyboard only; every disclosure opened |
 
 **Genuine blockers to execution**
 | Blocker | Blocks | Does not block |
 |---|---|---|
 | The owner's approval of this plan | every batch | — |
-| The text of Second Eye's final C1w report, for the disposition of C-1 to C-4 | approval of this plan as complete; C2w and C3w if a finding proves to be a blocker | B1, B2 |
+| Sharon's classification of C1w finding F-1 (§7.7) | where F-1's correction is done: before promotion, or as C2w's first step | B1, B2, A2 |
 | Sharon's A2 review document | A2's completion page and build | B1, B2 |
 | Sharon's full review of the controller design, with her ten red cases | A3's completion page | everything before A3 |
 | E's prerequisites and the owner's provider choice | C3w | everything before C3w |
 
-**B1 and B2 have no blocker other than the owner's approval.**
+**B1 and B2 have no blocker other than the owner's approval.** C1w is closed; its findings are disposed of in §7.7.
+
+---
+
+### 7.7 C1w's reported findings: disposition
+
+C1w is closed and is **not reopened by this section**. Each finding is classed against approved scope. "Engineering"
+means work is required somewhere in 4.1; "reviewer" means a named reviewer's judgment decides; "non-blocking" means it
+goes to the register in `EXECUTION-PLAN.md` §5.
+
+| # | Finding (Second Eye's report, as relayed by the owner) | Against approved scope | Class | Disposition |
+|---|---|---|---|---|
+| **F-1** | After a governed key correction, some of the teacher's per-question evidence, the sitting's misconception views and the reading-map remediation links still use the **original** answer key. Authoritative results, outcomes and certificates use the corrected key | C1w's completion page: "Reports read the result in force". O41-21: the corrected result is the current result. The evidence is intact; several **derived views contradict the result in force**. A teacher can see a question marked wrong that the result counts as right, and a learner can be sent to remediate what they answered correctly | **Engineering, and reviewer (Sharon) for its class** | Work is required in 4.1 whatever its class. **Sharon decides at C1w's result review whether it is a blocker** (a failure of evidence integrity in what educators are shown). If a blocker: corrected in C1w's one correction pass, before C1w is promoted. If not: done as **the first step of C2w**, which builds on the same misconception views, and no later. It must be closed before Z: journey 3 of §8.5 passes through a key correction and then reads these screens. Rule for the correction: every view that marks an answer right or wrong, or derives a misconception or a remediation from it, reads the key in force for that sitting through the one accessor (`hasil_terkini_id` and the recorded basis), never the sealed key directly; the original marking stays visible in history |
+| **F-2** | Public certificate verification does not display «Ditinjau ulang dan dikonfirmasi» after a completed review | Not a defect against scope. O41-19 requires that a certificate under review is not shown as unquestionably valid; after a confirming decision it verifies as valid, as before. Showing that a review happened would change the settled public verification format | **Non-blocking; a separate owner decision if wanted** | No work in 4.1. Recorded as a possible later decision. This plan does not recommend it: a confirmed certificate is simply valid, and its review history is kept for authorized readers |
+| **F-3** | No test covers a platform administrator deciding a Professional Development certificate review | A gap in authorization coverage, not a known defect. PD belongs to the platform, so this is the one path where a platform admin decides | **Engineering (a test), and reviewer (Sharon)** | One red-first test, with its refusal counterpart (a school's reviewer cannot decide a PD review). If the test passes, nothing else changes. **If it fails, that is an authorization defect and a blocker.** Done with F-4, before C2w |
+| **F-4** | Concurrent edits of one draft question are tested one after the other, not on two database connections | The behaviour exists (`DRAFT_EDIT_CONFLICT` on a stale revision); the proof does not exercise a real race. C3w writes drafts through the same path | **Engineering (a test)** | One two-connection test using the shared helper A2 exports (§4.1): two editors save the same revision at once; exactly one succeeds, the other gets `DRAFT_EDIT_CONFLICT`, and no edit is lost or duplicated in `item_draft_edits`. Done before C2w and in any case **before C3w's build** |
+| **F-5** | The notice to affected schools (C1-R5) is in-app only; no email | Daisy's register item proposed in-app plus one email. In-app notice satisfies "affected schools are notified" (O41-18) | **Reviewer (Daisy); non-blocking** | Register. The email, if Daisy still wants it, uses B1-era email infrastructure already in the product and is a small item for Z's triage |
+| **F-6** | «Pindahkan penugasan» first places focus at the top of its page | An accessibility finding on an existing page | **Reviewer (Daisy); non-blocking** | Register, for Daisy's result review of C1w |
+| **F-7** | After an ordinary revision, the class page also lists the new release separately as «Siap disediakan» | Daisy's C1-R2 asked for «Ada perbaikan · terbit {tanggal}» linking to «Pindahkan penugasan». A second, separate listing can read as a different lesson | **Reviewer (Daisy)** | Daisy judges at C1w's result review whether it misleads a teacher. If it does, a small presentation correction in C1w's correction pass; otherwise register |
+| **F-8** | A native Supabase restore does not reinstall A1's scheduled job | After such a restore abandoned sittings are closed only by the lazy check, until someone installs the job. PINTAR's own restore procedure does reinstall it | **Engineering, in B1** | B1 already owns the shared job installer and the restore check (§6.3). B1 adds: the native-restore runbook step (run the installer), and a health check that reports a missing scheduled job, so that the gap is visible instead of silent. No change to C1w or A1 |
+
+**Summary.** Engineering work: F-1 (a correction), F-3 and F-4 (tests), F-8 (in B1). Reviewer judgment: Sharon on F-1's
+class and F-3's result; Daisy on F-5, F-6 and F-7. Non-blocking as they stand: F-2, F-5, F-6. **None reopens C1w by
+itself;** only a blocker classed by a reviewer does, under process rule 4.
+
+**Sequence consequence.** B1 and B2 are unaffected. F-3 and F-4 are a short test-only item between A2 and C2w (F-4
+needs A2's shared helper). F-1 is placed by Sharon's classification. The batch order of §3 does not change.
 
 ---
 
