@@ -91,3 +91,21 @@ Also, from that review:
 2. **The cross-module inventory** on `B1-COMPLETION.md` at that commit.
 
 Then I re-run sections 1 and 4 on it and return PASS or BLOCKED on that SHA.
+
+## 7 · The owner's three questions, applied to the reader
+
+Under `STANDING-PRINCIPLE-ONE-SYSTEM.md`, at `14d72272`, §5, the UX row.
+
+| Question | For the B1 reader |
+|---|---|
+| **And then what?** (after the action) | A sign-in, a failure, a sign-out or a print appears as one row, newest first, in plain words. A print row carries its reference, which finds it again. B2's footer is the reference's next consumer |
+| **What else did that change?** | «Jejak audit» is unchanged: no double record, and the same names and time format. A deletion (L4) makes the rows read the PINTAR ID, as «Jejak audit» does. A transfer or a second school changes who sees which rows, at the event's own instant (§3). The two-school API disclosure is Sharon's blocker (§1) |
+| **What happens when things go wrong?** | A read failure: the status banner. A purged reference: its own sentence. A print whose event cannot be written does not print (B2). **A sign-in whose event could not be written leaves no row.** That is fail-open by Sharon's ruling, counted, and reported by the platform health check |
+
+**One consequence, recorded:**
+
+| # | Class | Finding | Change |
+|---|---|---|---|
+| B1-R4 | register | **A school admin cannot see that the record has a gap.** A failed write is counted only in the platform health check. The reader presents itself as complete for 12 months, and nothing tells the school otherwise | Keep it **within B1's approved scope**: no new screen and no new data for schools. When the platform health check reports uncounted events in the period shown, the platform admin's own view of the reader could carry one line: «{n} kejadian tidak dapat dicatat sejak {tanggal}; lihat Kesehatan sistem.» Whether schools should ever be told is the owner's, escalated by this register entry, not absorbed |
+
+This does not change my verdict. It is held for the corrected candidate, as stated above.
