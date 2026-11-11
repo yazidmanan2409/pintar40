@@ -4,17 +4,21 @@
 > the owner's review. **Nothing here authorizes implementation.** It becomes THE PLAN only on the owner's explicit
 > approval.
 >
+> **Revision 6 (11 Nov), after the independent assessment's conditional pass on revision 5.** Corrected: C1w's
+> closure; the print specification, which contradicted itself; the B1 event count; the counts in §1.1. Recorded:
+> the assessment's recommendations on M-1, M-2 and M-3, awaiting the owner's ruling (§7.6).
+>
 > **Reconciled against the code** of B0, A1 and C1w at `claude/system-integrity-4.0` `3a190dbf`, and against Daisy's
-> two design documents. Three things are **outstanding** and are stated where they matter, not hidden:
-> 1. **C1w's formal closure.** Its three acceptance gates are reported green on `3a190dbf`; Second Eye's closure
->    evidence was not yet on the branch when this was written. This plan does not declare C1w closed.
-> 2. **Sharon's A2 review document.** It is on no branch the Chief Architect can read. §5.3 records it as the owner
->    relayed it; her nine verification scenarios are required and are not reproduced (§7.6).
-> 3. **Final completion records** for B0, A1 and C1w do not exist under `docs/`; the three pre-build pages are
->    unchanged since the planning merge. The reconciliation is therefore against code and tests.
+> two design documents. **Still outstanding, and stated where they matter:**
+> 1. **Sharon's A2 review document,** with her nine verification scenarios. It is on no branch the Chief Architect
+>    can read. A2 cannot be built without it (§7.6).
+> 2. **Second Eye's final closure report for C1w, as a document.** The Chief Architect has the outcome (closed on
+>    `3a190dbf`) and has verified the CI and journeys runs, but not the report's text. Its four remaining
+>    evidence-integrity findings therefore have no disposition yet (§7.6, C-1 to C-4).
+> 3. **Final completion records** for B0, A1 and C1w are not under `docs/`; the three pre-build pages are unchanged.
 >
 > Earlier revisions: 1 preliminary consolidation; 2 owner rulings D-1 to D-8; 3 Sharon's A2 findings and ruling O1;
-> 4 the mandatory pre-flight (§4.1).
+> 4 the mandatory pre-flight (§4.1); 5 reconciliation against the built code and Daisy's documents.
 
 **What this document is.** The build-ready execution plan for everything in 4.1 after the foundations B0 → A1 → C1w.
 It consolidates the approved records. It does not replace them and proposes no competing architecture.
@@ -46,9 +50,9 @@ C3w, E, Z) · 6 Cross-batch integration · 7 Decision register · 8 Final accept
 | Production | Migration 111. Outside every authorization. The 111 → 224 rehearsal on restored real data (R-2) is open and is not part of this plan. |
 | B0 · last-administrator guard | Closed on `0bbee3e3`. Migration `20270113170000`. |
 | A1 · sitting control | Built; final commit `7dfe2bc8`. Migrations `20270114100000`, `20270114110000`. Tests A1-K01, K02, S01 to S09, A01 to A03, J01 |
-| C1w · item workbench | Built; head `3a190dbf`. Migrations `20270115100000`, `20270115110000`. Tests C1W-K01, K02, S01 to S06, C01, A01, A02, J01. Gates reported green on `3a190dbf`; **formal closure evidence pending** |
-| Suite | 1018 manifest ids on `main`; 1056 passed locally on `3a190dbf` (Second Eye's report) |
-| Migrations | 224 on `main`; 229 on the work branch |
+| C1w · item workbench | **Closed on `3a190dbf`** (reported by Second Eye; relayed by the owner). Migrations `20270115100000`, `20270115110000`. Tests C1W-K01, K02, S01 to S06, C01, A01, A02, J01. Verified by the Chief Architect on GitHub: CI run 569 (`43020868681`) and journeys run 270 (`43020873278`), both successful on `3a190dbf`. Local suite 1056 passed, 0 failed (Second Eye's report) |
+| Suite | 1018 manifest ids on `main`; 1057 on the work branch at `3a190dbf` |
+| Migrations | 224 on `main`; 229 on the work branch: B0 one, A1 two, C1w two. Counted from the tree; to be matched to the count in Second Eye's final report when that report is in the repository |
 
 ### 1.2 The mechanisms every remaining batch builds on
 
@@ -328,7 +332,7 @@ people do. Today a successful sign-in leaves no durable record and a failed one 
 counter. Users affected: school admins and the platform admin (readers); everyone who signs in (subjects).
 
 #### B · Scope
-**In:** a separate event store; five event kinds (below); the write path at each sign-in and sign-out; the print-request
+**In:** a separate event store; four event kinds (sign-in success, sign-in failure, sign-out, print request); the write path at each sign-in and sign-out; the print-request
 event that B2 uses; a reader for authorized admins; a daily purge of events older than 12 months.
 
 **Out:** school data export and any export event (owner ruling D-4: they arrive together in 4.2); any click, page-view or behaviour record; changes to `audit_log` or to
@@ -485,17 +489,24 @@ any claim that paper came out of a printer.
 #### D · Proposed technical design
 1. Pressing «Cetak laporan» calls a server action. It writes B1's `PRINT_REQUEST` event (the signed-in person, the
    report kind, its scope) and returns the **reference**, the person's display name and the instant.
-2. The reference is a short, legible code derived from the event's id (for example 8 characters in the PINTAR ID
-   alphabet, grouped 4+4). It is unique, and the reader in B1 finds the event by it.
-3. The client places name, date and time (the school's zone, with the zone's word), and the reference in the print
-   footer, then calls `window.print()`. After the print dialog closes (`afterprint`) the footer values are cleared.
-4. **A browser print (Ctrl+P) carries no reference and claims no audit** (owner, 9 Nov). Without the button's values the
-   footer prints page numbers only, as today.
+2. The reference is «CTK-» plus 8 characters in two groups of 4, without look-alike characters, derived from the
+   event's id. It is unique, and the reader in B1 finds the event by it.
+3. **The footer has a default and one replacement** (Daisy's composition, F):
+   - *The default,* which is what the stylesheet prints for any print not made through the button: «Dicetak dari
+     browser oleh {nama} · {waktu} · tanpa nomor referensi», with page numbers. It contains no reference-shaped text.
+     The name and time here are read in the browser and claim nothing about an audit; if they cannot be filled
+     reliably the line is «Dicetak dari browser · tanpa nomor referensi».
+   - *The replacement,* set only after the action has returned a reference and before the print dialog opens:
+     «Dicetak oleh {nama} · {tanggal, jam, zona} · Ref. CTK-XXXX-XXXX», the name and instant being the server's.
+   After the print dialog closes (`afterprint`) the footer returns to the default.
+4. **A browser print (Ctrl+P) therefore carries the default line: no reference, and no claim of an audit** (owner,
+   9 Nov). It is not "page numbers only": it says plainly that it came from the browser and has no reference.
 5. If the action fails, nothing prints and the result line says so. An official print never goes out without a
    reference.
 6. Each press is one event and one reference. Printing twice is two references; that is intended.
 
-**Invariant:** the footer never shows a reference that has no event.
+**Invariant:** the footer never shows a reference that has no event, and a page printed any way other than through
+«Cetak laporan» never shows a reference at all.
 
 **A consequence to know.** Print events are purged with the rest after 12 months (O41-13). A paper older than that still
 shows who printed it and when, but its reference no longer resolves (register N-3).
@@ -546,7 +557,7 @@ certificate print tests, which must be unchanged. *Committing tests:* the print 
 - **Static:** every page that renders `AksiLaporan` goes through the action; nothing else calls `window.print()` on a
   report; the certificate print is untouched.
 - **Rendered:** a PDF print of each report at A4 and wide, checked for the footer on every page, in monochrome; a
-  browser print without the button shows no reference.
+  browser print without the button shows the browser line and no reference-shaped text.
 - **Regression:** the report suites and the certificate tests unchanged.
 
 #### I · Acceptance criteria
@@ -1046,7 +1057,7 @@ claim that the question has no misconception.
   report unless Daisy rules otherwise.
 
 #### G · Ordered implementation instructions
-1. Preconditions: C1w formally closed; Sharon's short review of the completion page.
+1. Preconditions: C1w closed (it is, on `3a190dbf`) and its finding C-4 disposed of (§7.6); Sharon's short review of the completion page.
 2. Database: the table, its immutability guard, create and supersede, the two readers, registry rows, audit rows, the
    metric-source refusal.
 3. Contract file and copy. 4. Server actions. 5. UI in Studio, then in the report. 6. Tests. 7. Rendered check.
@@ -1655,15 +1666,31 @@ None open. The one found (O41-20's deadline rule against C8's containment, in th
 **Material decisions still open**
 | # | Question | Needed before |
 |---|---|---|
-| M-1 | **The promotion run during an emergency stop.** It ends sittings through the same function as enrolment termination. This plan reads O1 as: refuse it for learners with protected sittings (§5.3 D6.2). To be confirmed against Sharon's review; if her review treats it otherwise, the owner rules | A2's completion page |
-| M-2 | The numerical AI limits (D-6) and the provider (D-8) follow E's report | C3w |
-| M-3 | A misconception annotation naming a structured code (roadmap R-3): pending; C2w is written without it | C2w's completion page, only if the owner wants it considered |
+| M-1 | **The promotion run during an emergency stop.** It ends sittings through the same function as enrolment termination. This plan refuses it where it would terminate a protected sitting; genuine individual enrolment termination stays permitted (§5.3 D6.2). **The independent assessment recommends accepting this; the owner's ruling is awaited.** Sharon verifies the technical treatment against her original review | A2's completion page |
+| M-2 | The numerical AI limits (D-6) and the provider (D-8) follow E's report. **Assessment: keep pending.** No change | C3w |
+| M-3 | A misconception annotation naming a structured code (roadmap R-3). **Assessment: keep it out of C2w.** C2w is written without it; no change unless the owner rules otherwise | — |
+
+**C1w's remaining evidence-integrity findings (to be disposed of explicitly)**
+
+The independent assessment names four, from Second Eye's final report. **The report's text is not available to the
+Chief Architect, so the findings themselves are not restated here and no disposition is invented.** Each needs one of:
+fixed in C1w before promotion; taken by a named 4.1 batch; or registered with a reason.
+
+| # | Finding (title only, as named in the assessment) | Batch it most plausibly touches | Disposition |
+|---|---|---|---|
+| C-1 | Corrected-key evidence reads | reports and metrics that read results (none of the remaining batches rewrites them); C3w's journey passes through a key correction | **pending the report** |
+| C-2 | Certificate verification | no remaining batch | **pending the report** |
+| C-3 | Professional Development authorization coverage | A2 and A3 touch PD sittings' holds and writers | **pending the report** |
+| C-4 | Concurrent editing | C3w writes drafts through the same editor path | **pending the report** |
+
+If any of the four is a demonstrated failure of evidence integrity or authorization, it is a blocker under the owner's
+qualification and is fixed before the batch that depends on it, not registered.
 
 **Sharon: what her reviews must cover**
 | Batch | Review | Must cover |
 |---|---|---|
 | B1 | short, before build | the store's columns and the coarse network origin; who reads; the purge and its audit; the shared job installer and the restore |
-| A2 | **done; document outstanding** | her six blockers, two requirements and **nine verification scenarios, to be copied word for word onto the completion page**; the promotion-run classification (M-1); N-12 |
+| A2 | **done; document outstanding** | her six blockers, two requirements and **nine verification scenarios, to be copied word for word onto the completion page**; the promotion-run treatment (M-1); N-12; and a check of §5.3 D6 against her original text |
 | C2w | short, before build | no sealed row changes; the table is refused as a metric source; unreachable by learners |
 | A3 | full, before build | the controller design against her five gaps; her ten further red cases (N-4); the lock order with the emergency fence first (§6.2); the enumeration test of writers |
 | C3w | full, before build | provenance hidden at the database and API; the acceptance fact and the refused submit; what is sent to the provider; limits |
@@ -1684,7 +1711,7 @@ None open. The one found (O41-20's deadline rule against C8's containment, in th
 | Blocker | Blocks | Does not block |
 |---|---|---|
 | The owner's approval of this plan | every batch | — |
-| C1w's formal closure evidence | C2w, C3w; and the claim that the foundations are verified | B1, B2, A2's design |
+| The text of Second Eye's final C1w report, for the disposition of C-1 to C-4 | approval of this plan as complete; C2w and C3w if a finding proves to be a blocker | B1, B2 |
 | Sharon's A2 review document | A2's completion page and build | B1, B2 |
 | Sharon's full review of the controller design, with her ten red cases | A3's completion page | everything before A3 |
 | E's prerequisites and the owner's provider choice | C3w | everything before C3w |
@@ -1764,7 +1791,7 @@ What changed when the draft met the built code and Daisy's documents:
 | Enrolment termination under O1 | "to verify" | verified: it scores a sitting past its deadline today; the required behaviour during a stop is specified, and the promotion run is flagged (§5.3 D6.2, M-1) |
 | Endings that ignore a held sitting | not known | `terminate_session`, `akhiri_penugasan`, `tutup_asesmen_terbuka` (§1.2; §5.3 C) |
 | The learner gate | "most boundaries call it" | four do; it takes no lock; start and item view do not call it (§5.5) |
-| Print footer | page numbers only on a browser print | Daisy's composition: a browser line with no reference; `CTK-` references (§5.2 F) |
+| Print footer | page numbers only on a browser print | Daisy's composition, now stated identically in §5.2 D and F: a browser line with no reference; `CTK-` references |
 | Low-stakes recovery | silent | Daisy's confirmation screen (§5.5 F), consistent with D-2 |
 | UX sections of B2, A2, A3, C3w | written from the capability definitions | rebuilt on Daisy's `DESAIN-AWAL-4.1.md`, with the points she must revise named |
 | Test tooling | assumed | no script runs the inline red cases locally, and the multi-connection helper is not exported; B1 and A2 provide them (§4.1) |
