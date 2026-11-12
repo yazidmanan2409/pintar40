@@ -16,8 +16,10 @@
 4. **The guard covers new credentials as well as new standing,** and is INSERT-only.
 5. **The deletion refuses when a live attachment exists** (the race of §3a point 3). This is the one place the
    correction touches how a deletion runs; it is a guard against a race, not a change of the deletion's rules.
-6. **One question is with the owner** (§3b): a certificate newly earned by a key correction for an anonymised
-   person. It does not hold the build.
+6. **A certificate newly earned by an anonymised person (owner, 12 Nov 2026: Option A).** A governed key correction
+   may establish that an anonymised person earned certification. That outcome is recorded accurately in the
+   historical review as **earned but not issued**. No new certificate is created, and no anonymised identity is
+   restored to issue one.
 7. State: **released to the engineer**, as its own commit, before Z. It gates nothing.
 
 ## 1 · The defect
@@ -127,7 +129,10 @@ person. For such a person the two conflict.
 | **A. Do not issue it; record it on the review as earned but not issued (Sharon's recommendation; the Chief Architect agrees)** | The corrected result stands and the record shows the certificate was earned. No credential is created for an identity that no longer exists. Consistent with refusing a replacement |
 | B. Issue it under the PINTAR ID | A new credential attaches to a deleted identity, bearing no name the person can use, contrary to the principle just approved |
 
-The build does not wait for this: the certificate-review test is written to the owner's ruling when it is given.
+**Decided (owner, 12 Nov 2026): Option A.** See §0 item 6, which governs. The test: a key correction that makes a
+certificate newly earnable for an anonymised person supersedes the result, records the review as earned but not
+issued, creates no certificate row, and leaves every existing record byte-identical; the same correction for a person
+who is not anonymised still issues by the usual path.
 
 ## 4 · The four questions
 
@@ -167,3 +172,4 @@ Pre-flight of THE PLAN §4.1 in full. The page carries the inventory and the nex
 |---|---|
 | 12 Nov 2026, 07:30 | Owner approved the principle and a separate bounded correction, with four points for Sharon to verify. Brief written. Awaiting her pre-implementation review |
 | 12 Nov 2026, 08:00 | Sharon: PASS on the design with four required points and six tests (§3a). Released to the engineer. One question put to the owner (§3b). The deletion's new refusal needs Daisy's wording |
+| 12 Nov 2026, 08:20 | Owner: Option A. Earned but not issued, recorded on the review; no certificate created; no identity restored. No open decision remains on this correction |

@@ -15,7 +15,7 @@
 | L-1, suspended sign-in correction | **BLOCKED by Sharon on one item** on `2ea60c85e4f855eca2175749c4270a170922ee33`. The fix is committed locally, in full pre-flight, not pushed; she rechecks that item alone when it is | local `916d12c01345816afcf567b40131e72b9857cf65` |
 | F-1, C1w correction pass | **Pushed; CI `43142431230` and journeys `43142435769` running.** For Sharon and Daisy when the owner gives them this commit, with both green. Daisy's visit also covers her L-1 confirmation | `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` |
 | L1-F2, a suspension covers accounts created after it | Design PASS (Sharon), three required points. **Released to build** after the L-1 fix closes; own commit; before Z; holds nothing | brief: `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0, §2a |
-| L1-F4, an anonymised person is terminal | Design PASS (Sharon), four required points. **Released to build**; own commit; before Z; holds nothing. One question with the owner (§3b) | brief: `ANONYMISED-PERSON-IS-TERMINAL.md` §0, §3a |
+| L1-F4, an anonymised person is terminal | Design PASS (Sharon), four required points. **Released to build**; own commit; before Z; holds nothing. No open decision | brief: `ANONYMISED-PERSON-IS-TERMINAL.md` §0, §3a |
 | S-1, phone drawer overflow | Approved, bounded; before B2's review | — |
 | B2 | Opens when L-1 and F-1 both have Sharon's PASS | — |
 
@@ -128,3 +128,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026, 07:00 | Second Eye: P-1 needs only its guarding test, taken with the lock trigger. L1-F4 is with the owner; build nothing for it; the three tests of today's behaviour are still wanted, as evidence |
 | 12 Nov 2026, 07:30 | Sharon: pre-implementation review of `ANONYMISED-PERSON-IS-TERMINAL.md` §2 and §3 (four points from the owner). Second Eye: nothing to build for it yet; P-1's guarding test goes with the lock trigger |
 | 12 Nov 2026, 08:00 | Second Eye: L1-F4 released, `ANONYMISED-PERSON-IS-TERMINAL.md` §0 and §3a. Order of the small corrections after the L-1 fix is yours; none gates B2. Daisy: wording for the platform admin's refusal when a deletion meets a live attachment (one line, when the engineer asks) |
+| 12 Nov 2026, 08:20 | Second Eye: L1-F4's certificate case is decided (`ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 6 and §3b): earned but not issued, recorded on the review; no certificate row. Daisy: if the review screen shows this state, its wording is yours |
