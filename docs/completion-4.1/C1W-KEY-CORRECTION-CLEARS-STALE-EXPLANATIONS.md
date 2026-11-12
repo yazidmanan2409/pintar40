@@ -30,8 +30,10 @@
 10. **Sharon: PASS on the amended design** (read at `bf91ead92b3924f4e6d3aa7c688ab1a9978a29f8`), with required
     points per item (§3d). They govern where §3c differs.
 11. State: **released to the engineer**, after F-1's fix, as its own commit, before Z. It gates nothing. Daisy's
-    wording is needed for three lines (§6). **One question is with the owner** (§3d point 4.5): whether an
-    authoritative copy of the baseline exists outside the repository.
+    wording is needed for three lines (§6).
+12. **The repository is the baseline of record (ADR-0019, verified; §3e).** INV-03 is amended **in the repository**
+    by Sharon's procedure. Any external Project copy is a downstream synchronization target, not an authority. No
+    open decision remains on this correction.
 
 ## 1 · The defect
 
@@ -296,6 +298,25 @@ be submitted until the rationale is written.*
 - The amendment commit changes a frozen baseline document. It is authorized by the owner's decision of 12 Nov and
   carries that decision's reference in the ADR; it is the only baseline change in 4.1 so far.
 
+## 3e · Document authority, verified (12 Nov 2026, 05:56 UTC)
+
+The owner pointed to the governance decision of 13 September 2026 and asked that it be verified before amending.
+
+| Checked | Found |
+|---|---|
+| `docs/adr/0019-the-baseline-is-in-the-repository.md` on the work branch | Status **Accepted**, dated 2026-09-13. Its decision: "the repository becomes the single source of truth for the baseline, and that status is enforced by a manifest and a parity job rather than by convention". It states that the repository "is the baseline of record. Amendments are made here and flow outward" |
+| Later ADRs (0020 to 0024) | None mentions ADR-0019, the baseline, `docs/rebuild/` or a source of truth. Nothing supersedes it |
+| `docs/coordination/DECISIONS.md` | No later ruling on document authority. D-197 (9 Nov) records owner directives "approved outside the repository" by writing them into the repository, which is consistent with ADR-0019, not a counter-authority |
+| `scripts/baseline-parity.mjs` | Its six assertions are those ADR-0019 lists; assertion 5 requires an ADR in the same change as a changed baseline |
+
+**Conclusion.** The authority is unchanged. Sharon's point 4.5 of §3d is answered: there is no separate authority
+to amend. If an external Project copy exists, updating it is a downstream synchronization after the repository's
+amendment, and is the owner's to do or to assign; it is not part of this correction and does not gate it.
+
+**The amendment therefore proceeds exactly as §3d point 4 sets out,** in one commit on the work branch: the dated
+note first in document 03, the INV-03 row, the manifest entry, and a new ADR recording the owner's A1 decision. The
+ADR takes the next free number after 0024 at the time of the commit.
+
 ## 4 · The four questions
 
 | Question | To answer on the page |
@@ -349,3 +370,4 @@ call, together with the same question for F-1's fix.
 | 12 Nov 2026 (05:47 UTC) | **Held.** The engineer found that INV-03 and its column constraint forbid a null rationale. Options and a recommendation recorded in §3b; put to the owner |
 | 12 Nov 2026 (05:49 UTC) | Owner: A1. INV-03 amended narrowly, enforced in the database, with a durable reference and the text on the correction's audit record. Awaiting Sharon's verification (§3c) |
 | 12 Nov 2026 (05:54 UTC) | Sharon: PASS on the amended design (§3d): the CHECK and a trigger that admits the reference only from the confirming act or a verified copy; the digest unchanged; the baseline amendment procedure with the marker first, the manifest and an ADR in the same commit. Released to the engineer. One question to the owner: an authoritative baseline outside the repository |
+| 12 Nov 2026 (05:56 UTC) | Owner: the repository is the single authoritative baseline (ADR-0019). Verified against the ADR, later ADRs, the decisions record and the parity script (§3e). No conflicting ruling found. The amendment proceeds in the repository |
