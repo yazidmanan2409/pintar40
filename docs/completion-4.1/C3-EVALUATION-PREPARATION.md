@@ -187,6 +187,70 @@ limitation as this document: she is also an Anthropic model, so her check is not
   provider. C3w's page should keep a rule that excerpts are educator-supplied teaching text and are checked, or the
   educator warned, for names.
 
+## 6d · The owner's further rulings (12 November 2026), and how the reading is to be done
+
+**Documentation access: the dedicated `pintar40` environment, not the shared Default.** The official OpenAI, Google
+and Anthropic documentation, including `privacy.claude.com`, is read there, read-only, in a new session once access
+is available. No API access, credential, spending or transfer of evaluation material is authorized.
+
+**The Google inquiry (§6b) is approved for sending.** The response window is **ten working days from the date it is
+sent**. With no satisfactory clarification by then, the evaluation continues with the other eligible providers.
+Google stays **conditional**, not declared ineligible. No provider selection or expenditure is authorized.
+
+**C3w source material (owner):** learner personal information must be prevented from reaching an external provider,
+by enforceable handling established at C3w's design review, not by assuming educators never supply identifying
+material. Carried to C3w's page (Addendum 1 §5d, R-3).
+
+### For the owner: configuring the `pintar40` environment
+
+In the environment's settings (the cloud environment menu in a session's title bar, then Edit), under **Network
+access**, keep the level at **Limited**, leave **Allow package managers** ticked, and add these under **Allowed
+domains**. The two hosts already listed there stay.
+
+| Host | Why |
+|---|---|
+| `openai.com` | Services Agreement, Service Terms, Data Processing Addendum, sub-processor list, usage policies |
+| `developers.openai.com` | data controls, pricing, spend limits, structured outputs, under-18 guidance |
+| `platform.openai.com` | the sub-processor page the addendum references; documentation that redirects there |
+| `help.openai.com` | help-centre articles the policy pages link to |
+| `ai.google.dev` | Gemini API Additional Terms, usage policies, zero data retention, pricing, billing, structured output |
+| `policies.google.com` | the generative AI Prohibited Use Policy; Google APIs Terms of Service |
+| `business.safety.google` | the processor addendum and sub-processor list that govern the paid Gemini Developer API |
+| `cloud.google.com` | Google Cloud terms and pricing (reachable from this session; listed so that the new session has it) |
+| `privacy.claude.com` | the commercial data retention policy, to reconcile the two retention statements |
+| `www.anthropic.com`, `platform.claude.com`, `support.claude.com` | Anthropic's terms, documentation and the article on organizations serving minors (the first two were reachable from this session; the third was not) |
+
+**These are documentation and policy sites only.** The API hosts (`api.openai.com`,
+`generativelanguage.googleapis.com`, `api.anthropic.com`) are **not** on this list and must not be added for this
+step.
+
+### For the new session: what to read and confirm
+
+Start it on the `pintar40` environment and give it this section. It reads only, changes nothing in the repository
+except this document, and contacts no API.
+
+1. **OpenAI (every item is grade B today).** On the official pages: training use and the opt-in; retention of
+   abuse-monitoring logs and the conditions for zero retention; the sub-processor list; the default processing
+   location and the regional options; ownership of outputs and the output indemnity with its exclusions; **the
+   customer's warranty of rights in inputs, verbatim**; the clause on minors, verbatim, and the under-18 API
+   guidance; how the Data Processing Addendum is accepted; current prices and exact model names, and **which model
+   the provider presents as its mid-tier general model**; spend limits; structured output.
+2. **Google, Gemini Developer API (grade B today).** The Gemini API Additional Terms in full, with their effective
+   date: the definition of a Paid Service; training use on paid and unpaid tiers, and the "Contributor" tier seen in
+   an excerpt; retention (the 55 days) and zero retention; data location; ownership; **whether any indemnity
+   applies; the under-18 restriction, verbatim, and any "professional or business purposes" wording**; the processor
+   addendum and its sub-processor list; current prices and model names; the project spend cap.
+3. **Google, both routes:** the Prohibited Use Policy and the Google APIs Terms of Service clause on rights in
+   inputs.
+4. **Anthropic:** the commercial data retention policy on `privacy.claude.com`, to decide which of "not retained by
+   default" and "deleted within 30 days" governs a standard API organization; the sub-processor list; the support
+   article on organizations serving minors.
+5. **For each item:** the URL, the page's effective or last-modified date, the date read, the **service route** it
+   governs, and the governing sentence quoted exactly. Raise the grade to A only for what was read on the page. Leave
+   as B or C, and say so, anything still not reached.
+6. Update §1 to §4 of this document accordingly, mark each superseded statement where it stands, and ask Sharon to
+   review the result.
+
 ## 7 · Sources
 
 Official pages, accessed 12 November 2026. Grade A unless marked.

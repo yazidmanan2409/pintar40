@@ -224,7 +224,14 @@ the options. The last kind comes to the owner.
 - **A pre-existing defect she found, outside class scope:** a **school-scoped** planned window already stops a
   person at two schools from their other school's work. It is 4.0 behaviour, not something 4.1 introduced.
 
-**Put to the owner (12 Nov):** the ruling's first sentence, "PLANNED maintenance is work-scoped, not person-scoped",
+**RECONCILED (owner, 12 Nov 2026): R-1 already covers school-scoped planned windows. Option A holds.** The owner
+confirmed that the ruling approved it: **A2b applies work-scoped planned maintenance to both class-scoped and
+school-scoped windows; one school's planned maintenance must not stop the same person's work at another school.
+Platform-wide planned maintenance and all approved emergency protections are unchanged.** The paragraph below, and
+every later statement in this section that the question "remains with the owner", recorded it as open in error and is
+superseded by this entry. It is kept as the record of how it was put.
+
+**Put to the owner (12 Nov) — superseded, see above:** the ruling's first sentence, "PLANNED maintenance is work-scoped, not person-scoped",
 is general, and its example names "classes at another school". The Chief Architect reads it as covering a
 school-scoped planned window too, so that A2b corrects school scope by the same work-level rule. Because that changes
 existing 4.0 behaviour beyond the class scope the question was asked about, the owner is asked to confirm that
@@ -233,8 +240,8 @@ covers both and builds neither.
 
 **Owner (12 Nov, later): the interim safeguard is agreed.** A2a must not expose class-scoped planned maintenance
 with person-level consequences; if it cannot be enforced correctly yet, that specific functionality is deferred to
-A2b. This confirms the A2a row above. *The question of school-scoped planned windows (option A or B) has not been
-answered and remains with the owner.*
+A2b. This confirms the A2a row above. ~~The question of school-scoped planned windows (option A or B) has not been
+answered and remains with the owner.~~ *(Superseded: decided, option A; see "RECONCILED" above.)*
 
 **Sharon's answer to the eight operations (12 Nov; read at `e7723882e73079632442fb5d1e62d140da10eabf`, against the
 code at `b21bec621a449e8d4d90ed646f7fb09c15dfc6f9`). The engineer's inventory confirms or corrects it before A2b is
@@ -268,11 +275,16 @@ stay as they are today until A2b.
 class-scoped EMERGENCY windows only.
 
 **Chief Architect's notes.**
-- Her row 8 shows that correcting school scope is the same mechanism and no extra design. It is still a change to
-  existing 4.0 behaviour, and so is still the owner's to confirm (option A or B, above).
+- Her row 8 shows that correcting school scope is the same mechanism and no extra design. ~~It is still a change to
+  existing 4.0 behaviour, and so is still the owner's to confirm (option A or B, above).~~ *(Superseded: decided,
+  option A.)*
 - Row 1 is the one that needs care in the build: a planned class window stops **writes** to the class's work and
   leaves **reads** open. That is the right reading of "the class's work is under maintenance", and Daisy's banner
   must make it plain.
+
+**Owner (12 Nov, later): Sharon's analysis is accepted as the technical direction,** subject to Second Eye's
+independent inventory and the established review and verification process. **The concurrency and downstream-write
+safeguards already identified are preserved.**
 
 ### R-2 · Terminology (owner, 12 Nov 2026: Daisy's I-6 accepted under her existing design authority)
 
@@ -281,6 +293,25 @@ class-scoped EMERGENCY windows only.
   misconception».
 - «anotasi» / «annotation» never appears on a screen. F1-R1b never uses «catat», «catatan» or «tercatat»; C2w never
   uses «kaitkan» or «terkait». Both batches' pages carry this.
+
+### R-3 · C3w: learner personal information must not reach an external provider (owner, 12 Nov 2026)
+
+THE PLAN §5.6 D9 says what is sent ("never a learner's name, answer or result") and tests the request builder's
+output. That covers what PINTAR adds to a request. It does not cover what an educator pastes in: a worksheet or a
+class list with names on it would be personal data of a minor sent to a provider.
+
+**The owner's requirement:** prevent it by **enforceable handling established at C3w's design review**, not by an
+unverified assumption that educators will never supply identifying material.
+
+**For C3w's page (the design is Sharon's and Daisy's to review there; these are the questions it must answer):**
+- What is checked before a request is sent, and where: in the database or the server, not only on the screen.
+- What "identifying" means for the check: at least the names and PINTAR IDs of people in the educator's own school,
+  which PINTAR can match exactly; and what is done about names it cannot know.
+- What happens on a match: refuse, or require the educator to remove it, with nothing sent meanwhile.
+- What is recorded when a request is refused for this reason, without storing the excerpt.
+- The educator's confirmation of rights (D10) gains a statement that the material contains no learner's personal
+  information; that statement alone is not the control.
+- A test that a request containing a known learner's name is not sent, and a plant that removes the check.
 
 ## 6 · Dependencies that now hold
 
@@ -312,3 +343,4 @@ deployment or production database change.
 | 12 Nov 2026 (07:33 UTC) | Sharon: work-level enforcement is sound; A2a carries class scope for the emergency only, class-scoped planned windows arrive in A2b. Pre-existing defect recorded: a school-scoped planned window stops a two-school person at the other school. Reading of R-1 put to the owner |
 | 12 Nov 2026 (07:36 UTC) | Owner agreed the interim safeguard for A2a. The school-scoped question remains open. Owner's rulings on the provider preparation recorded in `C3-EVALUATION-PREPARATION.md` §6a |
 | 12 Nov 2026 (07:37 UTC) | Sharon's answer to the eight operations recorded: all can be scoped safely, by moving the refusal from the request to the writers of the work. The engineer's inventory is still owed before A2b |
+| 12 Nov 2026 (07:39 UTC) | **Register reconciled:** R-1 covers school-scoped planned windows (option A); the statements that recorded it as open are marked superseded. Sharon's analysis accepted as the technical direction. R-3 recorded: no learner personal information to a provider, enforced by design at C3w |
