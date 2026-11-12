@@ -1,0 +1,90 @@
+F-1 and L-1 walk at 4131d7a2cbd30df3f18603e66ec3f08b7c25ad49 (local; Daisy, 12 Nov 2026)
+
+== C1W-J02 run with its cleanup disabled (world kept): every check passed; the only failure is the leftover count
+C1W-J02     FAIL    the journey left 28 row(s) of its own behind (class, package, misconceptions, sittings, places, roles)
+
+== F-1 teacher screen
+1280 url /mengajar/9722a5a3-0604-42da-8d99-f246ebba232b/soal?penugasan=50936d03-be7e-44d4-841d-0f750f6663e0 | sideways: false
+1280 questions: 3
+1280 Q1: Pertanyaan awal nomor 1 tentang pecahan? 6 dari 11 menjawab tepat A. Pilihan tepat 1 · 5 murid B. Pilihan lain 1 · Kunci · 6 murid Kunci soal ini sudah diperbaiki. Jawaban di sini dinilai dengan kunci yang berlaku sekarang; kunci aslinya A. Murid yang mungkin perlu bantuan pada soal ini Murid C1W 442ffer5 · A Murid C1W 442ffer6 · A Murid C1W 442ffer7 · A Murid C1W 442ffer8 · A Murid C1W 442ffer9 · A
+1280 Q2: Pertanyaan awal nomor 3 tentang pecahan? 11 dari 11 menjawab tepat A. Pilihan tepat 3 · Kunci · 11 murid B. Pilihan lain 3 · 0 murid Semua yang mengumpulkan menjawab soal ini dengan tepat.
+1280 Q3: Pertanyaan awal nomor 2 tentang pecahan? 11 dari 11 menjawab tepat A. Pilihan tepat 2 · Kunci · 11 murid B. Pilihan lain 2 · 0 murid Semua yang mengumpulkan menjawab soal ini dengan tepat.
+1280 key marks X: ["B. Pilihan lain 1 · Kunci · 6 murid"] | Y: ["A. Pilihan tepat 2 · Kunci · 11 murid"]
+1280 X html key markup: <li class="pin-opsi-kunci"><span>B<!-- -->. <span data-isi-materi="">Pilihan lain 1</span></span><strong> · <!-- -->Kunci</strong><span class="pin-num"> · <!-- -->6<!-- --> <!-- -->murid</span></li>
+1280 axe: []
+aria X:
+- listitem:
+  - paragraph: Pertanyaan awal nomor 1 tentang pecahan?
+  - paragraph: 6 dari 11 menjawab tepat
+  - list:
+    - listitem: A. Pilihan tepat 1 · 5 murid
+    - listitem:
+      - text: B. Pilihan lain 1
+      - strong: · Kunci
+      - text: · 6 murid
+  - paragraph: Kunci soal ini sudah diperbaiki. Jawaban di sini dinilai dengan kunci yang berlaku sekarang; kunci aslinya A.
+  - paragraph: Murid yang mungkin perlu bantuan pada soal ini
+  - list:
+    - listitem: Murid C1W 442ffer5 · A
+    - listitem: Murid C1W 442ffer6 · A
+    - listitem: Murid C1W 442ffer7 · A
+    - listitem: Murid C1W 442ffer8 · A
+    - listitem: Murid C1W 442ffer9 · A
+Tab: a «Langsung ke isi» → button «Ciutkan navigasi» → a «MengajarMengajar» → a «StudioStudio» → button «?BantuanBantuan» → a «Laporkan masalahLaporkan masalah» → button «ID» → button «EN» → button «GBGuru Bootstrap» → button «KeluarKeluar» → a «← Lihat bukti» → a «info@pintarselalu.com» → a «pintarselalu.com» → body «Langsung ke isiPINTARCiutkan navigasiMengajarMenga»
+EN X: Pertanyaan awal nomor 1 tentang pecahan? 6 dari 11 menjawab tepat A. Pilihan tepat 1 · 5 murid B. Pilihan lain 1 · Kunci · 6 murid Kunci soal ini sudah diperbaiki. Jawaban di sini dinilai dengan kunci yang berlaku sekarang; kunci aslinya A. Murid yang mungkin perlu bantuan pada soal ini Murid C1W 442ffer5 · A Murid C1W 442ffer6 · A Murid C1W 442ffer7 · A Murid C1W 442ffer8 · A Murid C1W 442ffer9 · A
+390 url /mengajar/9722a5a3-0604-42da-8d99-f246ebba232b/soal?penugasan=50936d03-be7e-44d4-841d-0f750f6663e0 | sideways: false
+390 questions: 3
+390 Q1: Pertanyaan awal nomor 1 tentang pecahan? 6 dari 11 menjawab tepat A. Pilihan tepat 1 · 5 murid B. Pilihan lain 1 · Kunci · 6 murid Kunci soal ini sudah diperbaiki. Jawaban di sini dinilai dengan kunci yang berlaku sekarang; kunci aslinya A. Murid yang mungkin perlu bantuan pada soal ini Murid C1W 442ffer5 · A Murid C1W 442ffer6 · A Murid C1W 442ffer7 · A Murid C1W 442ffer8 · A Murid C1W 442ffer9 · A
+390 Q2: Pertanyaan awal nomor 3 tentang pecahan? 11 dari 11 menjawab tepat A. Pilihan tepat 3 · Kunci · 11 murid B. Pilihan lain 3 · 0 murid Semua yang mengumpulkan menjawab soal ini dengan tepat.
+390 Q3: Pertanyaan awal nomor 2 tentang pecahan? 11 dari 11 menjawab tepat A. Pilihan tepat 2 · Kunci · 11 murid B. Pilihan lain 2 · 0 murid Semua yang mengumpulkan menjawab soal ini dengan tepat.
+390 key marks X: ["B. Pilihan lain 1 · Kunci · 6 murid"] | Y: ["A. Pilihan tepat 2 · Kunci · 11 murid"]
+390 X html key markup: <li class="pin-opsi-kunci"><span>B<!-- -->. <span data-isi-materi="">Pilihan lain 1</span></span><strong> · <!-- -->Kunci</strong><span class="pin-num"> · <!-- -->6<!-- --> <!-- -->murid</span></li>
+390 axe: []
+320 url /mengajar/9722a5a3-0604-42da-8d99-f246ebba232b/soal?penugasan=50936d03-be7e-44d4-841d-0f750f6663e0 | sideways: false
+320 questions: 3
+320 Q1: Pertanyaan awal nomor 1 tentang pecahan? 6 dari 11 menjawab tepat A. Pilihan tepat 1 · 5 murid B. Pilihan lain 1 · Kunci · 6 murid Kunci soal ini sudah diperbaiki. Jawaban di sini dinilai dengan kunci yang berlaku sekarang; kunci aslinya A. Murid yang mungkin perlu bantuan pada soal ini Murid C1W 442ffer5 · A Murid C1W 442ffer6 · A Murid C1W 442ffer7 · A Murid C1W 442ffer8 · A Murid C1W 442ffer9 · A
+320 Q2: Pertanyaan awal nomor 3 tentang pecahan? 11 dari 11 menjawab tepat A. Pilihan tepat 3 · Kunci · 11 murid B. Pilihan lain 3 · 0 murid Semua yang mengumpulkan menjawab soal ini dengan tepat.
+320 Q3: Pertanyaan awal nomor 2 tentang pecahan? 11 dari 11 menjawab tepat A. Pilihan tepat 2 · Kunci · 11 murid B. Pilihan lain 2 · 0 murid Semua yang mengumpulkan menjawab soal ini dengan tepat.
+320 key marks X: ["B. Pilihan lain 1 · Kunci · 6 murid"] | Y: ["A. Pilihan tepat 2 · Kunci · 11 murid"]
+320 X html key markup: <li class="pin-opsi-kunci"><span>B<!-- -->. <span data-isi-materi="">Pilihan lain 1</span></span><strong> · <!-- -->Kunci</strong><span class="pin-num"> · <!-- -->6<!-- --> <!-- -->murid</span></li>
+320 axe: []
+EN teacher: Pertanyaan awal nomor 1 tentang pecahan? 6 of 11 answered rightly A. Pilihan tepat 1 · 5 students B. Pilihan lain 1 · Key · 6 students This question's key was corrected. The answers here are marked by the key in force now; its original key was A. Students who may need help with this question Murid C1W 442ffer5 · A Murid C1W 442ffer6 · A Murid C1W 442ffer7 · A Murid C1W 442ffer8 · A Murid C1W 442ff
+paket-asli /studio/paket/1aabdede-9155-45cb-bcf5-3bb7ce818295?pelajaran=1 | tepat. Riwayat soal (2 versi) Soal 3 dari 6 · Pemetaan Awal Pertanyaan awal nomor 1 tentang pecahan? A A. Pilihan tepat 1 Kunci Alasan: Ini tepat. Pemahaman keliru: Keliru A 442ffe F1J-A-442FFE B B. Pilihan lain 1 Alasan: Ini belum tepat. Pemahaman keliru: Keliru B 442ffe F1J-B-442FFE Riwayat soal (2 versi) Soal 4 dari 6 · Uji Penguasaan Pertanyaan akhir nomor 2 tentang pecahan? A A. Pilihan tepat 2 Kunci Alasan: Ini tepat. B B. Pilihan lain 2 Alasan: Ini belum tepat. Riwayat soal (2 versi) Soal 5 dari 6 · Uji Penguasaan Pertanyaan akhir nomor 1 tentang pecahan? A A. Pilihan tepat 1 Kunci Alasan: Ini tepat. B B. Pilihan lain 1 Alasan: Ini belum tepat. Riwayat soal (2 versi) Soal 6 dari 6 · Latihan Pertanyaan latihan tentang pecahan? A A. Pilihan tepa
+paket-koreksi /studio/paket/0ba2132b-90f3-48bb-98bc-3cd428b01029?pelajaran=1 | dari 6 Riwayat soal (2 versi) Soal 2 dari 6 · Pemetaan Awal Pertanyaan awal nomor 1 tentang pecahan? A A. Pilihan tepat 1 Alasan: Ini tepat. Pemahaman keliru: Keliru A 442ffe F1J-A-442FFE B B. Pilihan lain 1 Kunci Alasan: Ini belum tepat. Pemahaman keliru: Keliru B 442ffe F1J-B-442FFE Diubah oleh Kaprodi Bootstrap, 12 Nov 2026, 10.37 WIB Kunci jawaban keliru? · Soal 2 dari 6 Riwayat soal (2 versi) Soal 3 dari 6 · Pemetaan Awal Pertanyaan awal nomor 3 tentang pecahan? A A. Pilihan tepat 3 Kunci Alasan: Ini tepat. B B. Pilihan lain 3 Alasan: Ini belum tepat. Kunci jawaban keliru? · Soal 3 dari 6 Riwayat soal (2 versi) Soal 4 dari 6 · Uji Penguasaan Pertanyaan akhir nomor 2 tentang pecahan? A A. Pilihan tepat 2 Kunci Alasan: Ini tepat. B B. Pilihan lain
+tinjau-kunci /studio/tinjau/kunci/f4d0d6f2-e5d2-4638-bcd7-2067e2b52542 | auan Perbaikan kunci jawaban C1W layar f1 442ffe Pertanyaan Pertanyaan awal nomor 1 tentang pecahan? A. Pilihan tepat 1 B. Pilihan lain 1 KUNCI SEKARANG A KUNCI YANG DIUSULKAN B ALASAN Kunci soal ini tertukar saat diketik. DIUSULKAN OLEH Admin Bootstrap · 12 Nov 2026, 10.37 WIB Yang terdampak Soal ini ada di 11 sesi yang sudah selesai, di 1 sekolah. Bila kunci diperbaiki: 11 hasil berubah · 0 keputusan target berubah · 0 sertifikat akan ditinjau sekolahnya · 0 sertifikat baru dapat diterbitkan. Konfirmasi perbaikan Selesai. 11 hasil dihitung ulang pada 12 Nov 2026, 10.37 WIB. Hasil asli dan jawaban murid tetap tersimpan.
+== L-1 self-tests here
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/l1.log:AUTH-A01    FAIL    the person could not be activated first ([400,401,401,401,401,401])
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/l1.log:AUTH-K01    PASS    Auth's «user_banned» (400 or 403) is, in the password, activation code, recovery code and card decisions, exactly the method's own non-match (MASUK_TIDAK_COCOK, KODE_TIDAK_COCOK, CARD_NOT_MATCHED), counted and never taken back, and logged once with a reference and no identifier; after recovery's new password it is the ordinary «sign in again»; Auth unreachable stays 503 in each
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/l1.log:B1-A04      PASS    a staff member of Alpha, suspended (the right and a wrong password), then closed, each attempt one failure answered and recorded exactly as a wrong password (401 MASUK_TIDAK_COCOK, never one naming the account's state), their person and Alpha's snapshot, read by Alpha's admin and not Beta's; after hapus_data_pribadi an attempt with the old address names no one (empty snapshot, the platform admin's only), and the person's rows hold no origin and no hash; Alpha's admin and the platform ad
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/l1b.log:AUTH-A01    FAIL    the person could not be activated first ([400,401,401,401,401,401])
+
+== L-1 password screen
+ditangguhkan-benar | status 401 | url /masuk | shown: ["Email, username, atau password belum cocok. Periksa lagi, lalu coba sekali lagi."] | focus: identitas
+ditangguhkan-benar axe: []
+ditangguhkan-salah | status 401 | url /masuk | shown: ["Email, username, atau password belum cocok. Periksa lagi, lalu coba sekali lagi."] | focus: identitas
+ditangguhkan-salah axe: []
+ditutup-benar | status 401 | url /masuk | shown: ["Email, username, atau password belum cocok. Periksa lagi, lalu coba sekali lagi."] | focus: identitas
+ditutup-benar axe: []
+tidak-dikenal | status 401 | url /masuk | shown: ["Email, username, atau password belum cocok. Periksa lagi, lalu coba sekali lagi."] | focus: identitas
+tidak-dikenal axe: []
+aktif-salah | status 401 | url /masuk | shown: ["Email, username, atau password belum cocok. Periksa lagi, lalu coba sekali lagi."] | focus: identitas
+aktif-salah axe: []
+ditangguhkan-benar | status 401 | url /masuk | shown: ["Email, username, atau password belum cocok. Periksa lagi, lalu coba sekali lagi."] | focus: identitas
+ditangguhkan-benar axe: []
+aktif-salah | status 401 | url /masuk | shown: ["Email, username, atau password belum cocok. Periksa lagi, lalu coba sekali lagi."] | focus: identitas
+aktif-salah axe: []dipulihkan-benar | status 200 | url /perangkat?lanjut=%2Fmulai | shown: [] | focus: BODYgangguan-aktif-salah | status 503 | url /masuk | shown: ["PINTAR sedang tidak dapat memproses ini. Coba lagi sebentar lagi. Bila masih terjadi, sampaikan kode rujukan berikut kepada yang mengurus PINTAR di sekolah Anda. Kode rujukan: UCOL5C."] | focus: identitas
+gangguan-aktif-salah axe: []
+gangguan-ditutup | status 503 | url /masuk | shown: ["PINTAR sedang tidak dapat memproses ini. Coba lagi sebentar lagi. Bila masih terjadi, sampaikan kode rujukan berikut kepada yang mengurus PINTAR di sekolah Anda. Kode rujukan: OXCDBG."] | focus: identitas
+gangguan-ditutup axe: []
+== L-1 doors (JSON, ref removed)
+card made: 200 403 {"ok":false,"error":"refused","ref":"FJGSCO"}
+card · active, wrong PIN: 401 {"ok":false,"code":"CARD_NOT_MATCHED"} | unknown card: 401 {"ok":false,"code":"CARD_NOT_MATCHED"} | active, right PIN: 401
+card · SUSPENDED, right PIN: 401 {"ok":false,"code":"CARD_NOT_MATCHED"}
+card · SUSPENDED, wrong PIN: 401 {"ok":false,"code":"CARD_NOT_MATCHED"}
+suspended | activation code (wrong): 400 {"ok":false,"code":"KODE_TIDAK_COCOK"} | recovery code (wrong): 400 {"ok":false,"code":"KODE_TIDAK_COCOK"} | recovery PIN (wrong): 400 {"ok":false,"code":"PIN_TIDAK_COCOK"} | password (wrong): 401 {"ok":false,"code":"MASUK_TIDAK_COCOK"}
+closed    | activation code (wrong): 400 {"ok":false,"code":"KODE_TIDAK_COCOK"} | recovery code (wrong): 400 {"ok":false,"code":"KODE_TIDAK_COCOK"} | recovery PIN (wrong): 400 {"ok":false,"code":"PIN_TIDAK_COCOK"} | password (wrong): 401 {"ok":false,"code":"MASUK_TIDAK_COCOK"}
+unknown   | activation code (wrong): 400 {"ok":false,"code":"KODE_TIDAK_COCOK"} | recovery code (wrong): 400 {"ok":false,"code":"KODE_TIDAK_COCOK"} | recovery PIN (wrong): 400 {"ok":false,"code":"PIN_TIDAK_COCOK"} | password (wrong): 401 {"ok":false,"code":"MASUK_TIDAK_COCOK"}
+active    | activation code (wrong): 400 {"ok":false,"code":"KODE_TIDAK_COCOK"} | recovery code (wrong): 400 {"ok":false,"code":"KODE_TIDAK_COCOK"} | recovery PIN (wrong): 400 {"ok":false,"code":"PIN_TIDAK_COCOK"} | password (wrong): 401 {"ok":false,"code":"MASUK_TIDAK_COCOK"}
+== reader rows
+wulan 6 rows for Yusuf; outcomes: ["Pak Yusuf (uji laporan) Tidak berhasil masuk Password Email, username, atau password belum cocok.","Pak Yusuf (uji laporan) Tidak berhasil masuk PINTAR ID dan PIN PINTAR ID atau PIN tidak cocok.","Pak Yusuf (uji laporan) Tidak berhasil masuk Kode pemulihan Kode tidak cocok atau sudah tidak berlaku."]
+sys 6 rows for Yusuf; outcomes: ["Pak Yusuf (uji laporan) Tidak berhasil masuk Password Email, username, atau password belum cocok. 198.51.100.0/24","Pak Yusuf (uji laporan) Tidak berhasil masuk PINTAR ID dan PIN PINTAR ID atau PIN tidak cocok. 198.51.100.0/24","Pak Yusuf (uji laporan) Tidak berhasil masuk Kode pemulihan Kode tidak cocok atau sudah tidak berlaku. 198.51.100.0/24","Pak Yusuf (uji laporan) Tidak berhasil masuk Password Email, username, atau password belum cocok."]
