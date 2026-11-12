@@ -111,6 +111,26 @@ the preconditions page on it. Summary:
 - **Three more material discrepancies:** a new account left open at any instant; an `auth` write refused at runtime;
   the restored copy differing from staging after the reinstall step.
 
+**Sharon's explicit confirmation for the owner (item 5; her
+`CHECKPOINT-ITEM5-152ecea939f780e7c5038f81229fac61879707ce.md`, same branch and commit).** *"Yes: restoring staging's
+backup into a scratch target satisfies Addendum 1 §5b item 5. Staging itself doesn't need to be restored."* Nothing
+stops and nothing goes to the owner on this point. Her conditions, final (five; they replace the four above):
+
+1. The rehearsal runs after the promotion.
+2. Its comparison covers the guard trigger on `auth.users` and the lock trigger on `accounts`, L1-F4's guards, the
+   scheduled jobs (`cron.job`) and the accountability tables.
+3. On the copy, the installer is run **twice**: each job exists exactly once, then the health read is clean.
+4. The `audit_log` rewrite time is recorded with staging's row count.
+5. **The known limit is stated in the verification report:** the scratch target does not show what Supabase's own
+   hosted restore brings back by itself. Item 5 does not require that, and finding out would mean restoring staging,
+   which is not authorized and not needed.
+
+If a condition cannot be met, or the copy differs from staging after the runbook step: material discrepancy, stop.
+
+**Before and after the merge (Sharon; the owner's "no staging mutations before the merge").** Before: only the
+read-only preservation query and the migration count. After: item 1's job run, item 3's synthetic people, item 4's
+removal, and the rehearsal. The preconditions page marks every step as one or the other.
+
 **Chief Architect's note on scope.** Extending `restore-rehearsal.yml`'s comparison is a workflow change on the work
 branch. It is within the boundary: it is the checkpoint's own verification, it touches no request file, and it is
 named in the pull request.
@@ -132,3 +152,4 @@ effect on production. Item 1's committing-procedure result, if negative, is not 
 | 12 Nov 2026, 22:00 | Owner's authorization recorded. Runbook written from Addendum 1 §5b and the 4.0 promotion pattern. Nothing done on staging |
 | 12 Nov 2026, 22:06 | Owner's second instruction recorded: the pull request is explicitly authorized on six conditions; no staging mutation before the merge; Sharon must confirm the scratch-target restore |
 | 12 Nov 2026, 22:08 | Sharon's reading of the six items recorded (§3a); it governs. The scratch-target restore is confirmed as satisfying §5b, with four conditions. Items 3 and 4 corrected |
+| 12 Nov 2026, 22:08 | Sharon's explicit confirmation recorded: a scratch-target restore satisfies §5b item 5; five conditions; the known limit to be stated in the report. The owner's condition is met; nothing is escalated |
