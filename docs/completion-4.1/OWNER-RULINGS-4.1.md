@@ -1,5 +1,9 @@
 # PINTAR 4.1 · the owner's rulings since THE PLAN was approved
 
+> **Status: compiled, not yet independently checked.** The owner asked (12 Nov) for one bounded consistency check by
+> Sharon against the governing records, with any discrepancy corrected, after which it is the team's decision index.
+> No approval round.
+>
 > **A digest for reading, not a new authority.** Compiled by the Chief Architect on 12 November 2026 (07:43 UTC). Each
 > ruling is stated briefly and points to the record that holds it in full; where this digest and that record differ,
 > the record governs. Rulings made before THE PLAN's approval are in `OWNER-DECISIONS-2026-11-11.md` and in THE PLAN
@@ -13,7 +17,7 @@ material is authorized.
 
 | # | Date | Ruling | Record |
 |---|---|---|---|
-| 1 | 11 Nov | **THE PLAN, revision 9, approved** at `2b89e28d21efdd3fda47050c79f41aa17ce0b34b`. One governed batch at a time; routine decisions stay with the team; material changes and failed gates are escalated | `THE-PLAN.md` header |
+| 1 | 11 Nov | **THE PLAN, revision 9, approved.** Two commits are involved and they are different things: **`2b89e28d21efdd3fda47050c79f41aa17ce0b34b` is the commit the owner reviewed and approved** (still marked draft). **`17cf4a7e59ce7a8f11dd976e2c198ea08977e1ef` is the commit that records that approval** (the header and the blockers table changed; no technical or UX content), and is the file the team reads and the baseline Addendum 1 refers to. One governed batch at a time; routine decisions stay with the team; material changes and failed gates are escalated | `THE-PLAN.md` header |
 | 2 | 11 Nov | **Cross-module system integrity** is part of every batch's acceptance, not a new gate | `SYSTEM-INTEGRITY-4.1.md` |
 | 3 | 11 Nov | **Standing engineering principle, permanent:** four questions (and then what; what else did that change; what happens when things go wrong; can this action be reversed, and what survives) across five dimensions; every consequential action has a defined next state | `STANDING-PRINCIPLE-ONE-SYSTEM.md` |
 | 4 | 11 Nov | The Chief Architect leads execution: issues instructions, coordinates, escalates only material decisions | `TEAM-INSTRUCTIONS.md` |
