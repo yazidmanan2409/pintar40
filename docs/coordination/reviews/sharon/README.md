@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2a, pre-build review of its page | **PASS on the design, with four required changes** for the page; build held for the owner | `55fb9b9b93d75c0d683f8be543f30436246c3be2` | `A2A-PREBUILD-55fb9b9b93d75c0d683f8be543f30436246c3be2.md` |
 | A2b, eight-operation inventory | **Accepted**, with rulings on the engineer's three questions; my condition before A2b is met | `55fb9b9b93d75c0d683f8be543f30436246c3be2` | `A2B-INVENTORY-55fb9b9b93d75c0d683f8be543f30436246c3be2.md` |
 | L1-F4, result (with L1F4-A1) | **BLOCKED**: required change verified; L1F4-A1 (deletion racing a reopen) and L1F4-A2 (reopen of an anonymised person) gate it | `3a63a2b2158ea4834c1f12653c864baf157c0dd5` | `L1F4-3a63a2b2158ea4834c1f12653c864baf157c0dd5.md` |
 | L1-F2 with L1-R2 | **BLOCKED on one item**: lock-order cycle between the permit issuers and a suspension; small fix in the issuers | `e27f4a77a10c7c448170bb2851462e4561daadf7` | `L1F2-e27f4a77a10c7c448170bb2851462e4561daadf7.md` |
