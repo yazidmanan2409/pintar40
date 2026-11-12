@@ -70,6 +70,23 @@
      (`authorize_card_reissue`, `authorize_card_conversion`, `authorize_email_correction`) and a second cycle between
      Auth's card write and `akun_kunci` (`auth.users` then account, against the reverse). The rule on the page is
      now: person row, then `auth.users`, then accounts, then permits. To be read when pushed.
+   - **The fix is pushed at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` (18:11 UTC, 12 Nov).** CI `43272608696` and
+     journeys `43272615741` in progress. The three commits beneath it (top
+     `55fb9b9b93d75c0d683f8be543f30436246c3be2`) ended green: CI `43262235163`, journeys `43262243374`.
+   - **Chief Architect's read of the fix, this time following each insert into its triggers.** No blocker found.
+     - The order is persons, then `auth.users`, then accounts, then permits. The five issuers and card acts take the
+       person row first; `akun_kunci` takes `auth.users` before accounts.
+     - Auth's own writes (`auth_card_email_guard`, `auth_email_correction_guard`, `auth_password_write_guard`) hold
+       an `auth.users` row and then touch accounts, `account_setup`, `person_pins` (updates) and the audit log. I
+       found none that takes the person's row lock afterwards: L1-F4's guards are INSERT-only and none of those
+       inserts is into a guarded table.
+     - Account creation takes `auth.users`, then accounts, then the person. That is against the order, and safe
+       only because both rows are new and invisible to any other transaction. The page should say so in those words.
+     - **One point for Sharon to confirm.** The suspending act holds the person `FOR UPDATE`, which also blocks the
+       `FOR KEY SHARE` a foreign key takes. So an insert made **inside an Auth write** with a foreign key to
+       `persons` would wait on the suspension while the suspension waits on `auth.users`: the same cycle by another
+       door. I found one candidate only, `audit_log.evaluation_actor_person_id`, which is null outside an evaluation
+       persona's acts. Please confirm none is reachable, or name it.
    - **Review:** Sharon reviews the next candidate as a delta on this commit. L1-F4's required change may land in
      the same commit set.
 
