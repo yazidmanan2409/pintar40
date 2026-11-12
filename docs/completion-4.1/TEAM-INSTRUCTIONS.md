@@ -42,7 +42,7 @@ channel:
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
-### Review queue (as of 14:18 UTC, 12 Nov; updated at each check)
+### Review queue (as of 15:36 UTC, 12 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
@@ -52,9 +52,10 @@ channel:
 | ~~**Daisy**~~ | ~~**F1-R1b's** screens~~ **Done: PASS** on `97a40ebb…`, 12 Nov | — | her record at `a13f30ff4fe0bd53727d7af219068d35d0b1b0ae` |
 | ~~**Daisy**~~ | ~~**L1-F4** wording~~ **Done: PASS** on `ea3c4b6f…`, 12 Nov | — | same record, §2 |
 | **Daisy** | **B2, one visit, now.** With **S-1** (phone widths and the desktop sidebar), the time zone on a learner's own print, and one question: does a print refused for being in another working context need its own line (B2-R-A1)? | `bfe949b11935763a8c8ed7b91f4adcdbcea93645` | `B2-ARCHITECT-NOTES.md` §4, §5 and its log |
-| **Second Eye** | **F1-R1b page item (still owed; not in B2's push):** fill "Evidence on this commit" on `F1R1B-COMPLETION.md` (CI `43189210169`, journeys `43189229437`, local pre-flight figures). No code; may ride in the next commit | — | `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §0 item 11a |
+| ~~**Second Eye**~~ | ~~F1-R1b page item~~ **Done** in `e27f4a77a10c7c448170bb2851462e4561daadf7`, confirmed from its diff | — | — |
 | **Second Eye** | **L1-F4 required change (Sharon):** measure history against live attachments by live enrolment at deletion time and a record written at closure, not by timestamps; third order in the race harness. In the L1-F2 commit set | — | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 9; Sharon's `L1F4-INTERIM-ea3c4b6f….md` |
-| **Second Eye** | After B2: **L1-F2 with L1-R2** and the shared two-connection race test (which L1-F4 needs); then the inventory of the eight operations for work-scoped planned maintenance, before A2b | — | `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §2a, §2b; `THE-PLAN-ADDENDUM-1.md` §5d |
+| **Sharon** | Result review of **L1-F2 with L1-R2**, including the engineer's finding about the race plants | `e27f4a77a10c7c448170bb2851462e4561daadf7` | `batches/L1F2-COMPLETION.md` on the work branch (its top is the prompt); `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0 item 8, §2a, §2b |
+| **Second Eye** | Next: **L1-F4's required change** (row above), then the inventory of the eight operations for work-scoped planned maintenance before A2b, then A2a's completion page (**no build**) | — | `THE-PLAN-ADDENDUM-1.md` §5d |
 
 ### For Second Eye, from Daisy's review of `97a40ebb…` and `ea3c4b6f…` (non-blocking; one commit, with L1-F2 or sooner)
 
@@ -115,9 +116,9 @@ This instruction was acted on from the day it was given but had not been written
 | B1 | **Closed.** Sharon PASS, Daisy PASS, CI `43110782265` and journeys `43110786290` green | `1fc719b5127313bf24084695fa30d7505e15b5d1` |
 | L-1, suspended sign-in correction | **CLOSED. Sharon PASS** (12 Nov). Residual L1-R2 goes with L1-F2 | `916d12c01345816afcf567b40131e72b9857cf65` |
 | F-1, C1w correction pass | **CLOSED. Sharon PASS** (12 Nov). Remaining with Daisy, not a gate: the learner's disclosure and any wording for an absent explanation | `bc67f72a0e1c6bc39a2c16292f728080b12710d4` |
-| L1-F2, a suspension covers accounts created after it | Design PASS. **Unblocked** (the L-1 fix has passed). Own commit; before Z. Also takes L1-R2 (delete outstanding password-write permits at locking) and builds the two-connection race setup that L1-F4 needs | brief: `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0, §2a |
+| L1-F2, a suspension covers accounts created after it (with L1-R2) | **Pushed.** CI `43248100218` and journeys `43248126094` in progress at 15:36 UTC. **Waiting on Sharon's result review** | `e27f4a77a10c7c448170bb2851462e4561daadf7` |
 | L1-F4, an anonymised person is terminal | **Daisy PASS.** CI and journeys green. **Not accepted: Sharon's interim review requires one change** (how history is told from a live attachment), built with the two-connection race test in the L1-F2 commit set; then her result review | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` |
-| F1-R1b, a key correction clears stale explanations | **ACCEPTED. Sharon PASS, Daisy PASS.** CI `43189210169` and journeys `43189229437` green. Closes when the page's evidence section is filled (page only, confirmed from its diff). Register: F1R1B-R1, F1R1B-R2 | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` |
+| F1-R1b, a key correction clears stale explanations | **CLOSED.** Sharon PASS, Daisy PASS, CI `43189210169` and journeys `43189229437` green; page evidence filled. Register: F1R1B-R1, F1R1B-R2 | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` |
 | S-1, phone drawer overflow | **Pushed.** Covered by the CI and journeys of the F-1 fix commit above it. Daisy verifies it with B2, at phone widths **and at the desktop sidebar**, because one rule hides a nav item at every width | `61a6dd3b19761dfc91e11ac4f9e0295b64a32c6e` |
 | B2 | **Sharon PASS. CI `43226752867` and journeys `43226758051` green. Waiting only on Daisy's visit.** Register: B2-R-S1, B2-R-A1 | `bfe949b11935763a8c8ed7b91f4adcdbcea93645` |
 
@@ -282,3 +283,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (11:50 UTC) | Check: no new commit on any branch. B2 still in the engineer's local pre-flight. Staging checkpoint readiness table drafted in `STATUS-2026-11-12.md` for the owner's return |
 | 12 Nov 2026 (13:35 UTC) | B2 pushed at `bfe949b11935763a8c8ed7b91f4adcdbcea93645` and read (`B2-ARCHITECT-NOTES.md` §5): no blocker. Sharon: PASS, conditional on its runs. Daisy: your visit is open. Second Eye: next is L1-F2 with L1-R2, the race harness and L1-F4's change; the F1-R1b page item is still owed |
 | 12 Nov 2026 (14:18 UTC) | B2: both runs green on `bfe949b11935763a8c8ed7b91f4adcdbcea93645`; Sharon's PASS confirmed. B2 waits only on Daisy's visit |
+| 12 Nov 2026 (15:36 UTC) | L1-F2 with L1-R2 pushed at `e27f4a77a10c7c448170bb2851462e4561daadf7` and read: no blocker; with Sharon. F1-R1b CLOSED (page item confirmed). B2 still waits only on Daisy's visit. L1-F4's change is next for Second Eye |

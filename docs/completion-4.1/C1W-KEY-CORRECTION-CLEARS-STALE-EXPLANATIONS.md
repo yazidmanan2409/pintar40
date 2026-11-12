@@ -47,6 +47,9 @@
       than the revision copy write `supersedes_item_id`, this is looked at again (carried into those batches' design
       reviews).
     - Daisy's non-blocking wording changes are listed in `TEAM-INSTRUCTIONS.md`.
+11b. **CLOSED (15:36 UTC, 12 Nov 2026).** The page item is done: `F1R1B-COMPLETION.md`'s evidence section is filled
+    in `e27f4a77a10c7c448170bb2851462e4561daadf7` (page only; confirmed from its diff). Nothing further on this
+    correction except its register items.
 12. **The repository is the baseline of record (ADR-0019, verified; §3e).** INV-03 is amended **in the repository**
     by Sharon's procedure. Any external Project copy is a downstream synchronization target, not an authority. No
     open decision remains on this correction.

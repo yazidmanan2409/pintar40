@@ -33,8 +33,19 @@
      Nothing is to be suppressed. It is kept true by one guarding test (§5c).
    - **P-2 is not true today:** an anonymised person can be re-attached. This is finding **L1-F4** (§5c). **The
      owner approved its correction; it is governed by `ANONYMISED-PERSON-IS-TERMINAL.md`,** not by this page.
-8. State: **released to the engineer**, to build after the L-1 fix closes, as its own commit, before Z. It gates
-   nothing.
+8. State: **pushed at `e27f4a77a10c7c448170bb2851462e4561daadf7` (15:36 UTC, 12 Nov), with L1-R2 and the shared
+   two-connection harness** (`selftest/balapan.ts`). CI `43248100218` and journeys `43248126094` in progress. **With
+   Sharon for her result review** (the page, `batches/L1F2-COMPLETION.md`, is her prompt). No screen changes, so
+   Daisy is not asked. *(The earlier state, "released to the engineer", is superseded.)*
+   - **Chief Architect's read: no blocker.** The three design points and the L1-R2 design are built as §2a and §2b
+     set them; the lock order has no cycle that I can find; the workflow change only adds the plant gate.
+   - **For Sharon in particular:** the page reports that her two race plants, as specified, cannot turn a test red on
+     this tree, because three existing locks already serialise both races; the race tests move those locks aside so
+     the plant can bite. Please confirm that reading, and that a test which sets real guards aside still proves the
+     new lock and nothing weaker.
+   - **For the staging checkpoint:** this adds a second trigger on `auth.users`. Addendum 1 §5b item 3 already asks
+     whether the hosted project permits them.
+   - **L1-F4's required change is not in this commit.** It follows, using the same harness.
 
 ## 1 · The defect
 
