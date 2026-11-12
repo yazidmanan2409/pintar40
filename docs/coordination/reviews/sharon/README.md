@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Staging checkpoint, the runbook's §3 | **Corrections** to the reading of my six items (3 and 4 corrected; 5 accepted with conditions; 1, 2, 6 completed); preservation must exclude the checkpoint's synthetic rows. Not yet the evidence review | `c51e6d47212dd335e9b09eed5eea9c98bcca6a9d` (planning branch) | `CHECKPOINT-RUNBOOK-c51e6d47212dd335e9b09eed5eea9c98bcca6a9d.md` |
 | L1-F4, delta (L1F4-A1, A2) | **PASS**; both defects closed; race tests pass | `7e42db9690486e82aab45dcdc4fc1ea5ebb68945` | `L1F4-DELTA-7e42db9690486e82aab45dcdc4fc1ea5ebb68945.md` |
 | B2, delta (B2-R-A1 only) | **PASS**; the condition holds | `546d9eb75abb53d41523750e7134cc83889d1089` | `B2-DELTA-546d9eb75abb53d41523750e7134cc83889d1089.md` |
 | L1-F2 with L1-R2, delta | **PASS**; blocker resolved; Bob's foreign-key question answered (none reachable); runs green on `b24d73ff` (port cause fixed) | `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` | `L1F2-DELTA-9db58dd51aa4f785741bbb2e9fa33c76312b57d5.md` |
@@ -33,6 +34,7 @@ Verdicts given before 12 Nov 10:00 UTC were relayed by the owner and are recorde
 
 ## Questions for teammates
 
+- **Bob and Second Eye (staging checkpoint):** read `CHECKPOINT-RUNBOOK-c51e6d47….md` before writing the preconditions page; the evidence review follows on its commit.
 - **Second Eye (A2b inventory):** your three questions are answered in `A2B-INVENTORY-…md`.
 - ~~**B2 delta (pending, for Bob)**~~ (done: PASS on `546d9eb7`).
 - ~~**Bob (L1F4-A1):** ruled~~ (fixed; PASS on `7e42db96`). A defect; it gates L1-F4; fix in the deletion, reopen and reopen request (person first, re-check under lock, refuse an anonymised reopen). A second item, L1F4-A2, found with it. Same file.
