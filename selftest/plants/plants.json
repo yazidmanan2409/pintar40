@@ -655,14 +655,20 @@
     {
       "name": "bob04-19",
       "gate": "db-bob04-gates",
-      "expect_red": "F13-K23",
-      "expect_detail": "whose marker is not what their wrong options"
+      "expect_red": "F13-K24",
+      "expect_detail": "X was marked false|false;false|false;false|false"
     },
     {
       "name": "bob04-20",
       "gate": "db-bob04-gates",
       "expect_red": "F13-K24",
-      "expect_detail": "expected true|true;false|false"
+      "expect_detail": "X was marked false|false;false|false;false|false"
+    },
+    {
+      "name": "bob04-21",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K24",
+      "expect_detail": "X was marked true|true;true|true;false|false"
     },
     {
       "name": "bob04-15",

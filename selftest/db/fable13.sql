@@ -201,8 +201,9 @@ begin
     v_back := v_def;
     foreach p slice 1 in array (case r.k
       when 'tqe' then array[
-        -- F1-R1b's marker (20270117140000 step 6b), read by the sealed key like every other line of this reading
-        array[E'and not coalesce(q.kunci ? o2.label, o2.is_correct) and o2.misconception_code is null),\n', E'and not o2.is_correct and o2.misconception_code is null),\n'],
+        -- F1-R1b's marker (20270117140000 step 6b) had its own pair here. RESTATED (Daisy's refinement, 20270117180000):
+        -- the marker now reads the answers' marks (jawab's nilai), which the third pair below puts back to the sealed key,
+        -- so it is read by the sealed key like every other line of this reading with no pair of its own
         array[E'  kunci as (               -- F-1 (O41-21): the key in force for these sittings, where a governed correction recorded one\n    select k.session_id, k.item_id, k.kunci, k.pada from sit st cross join lateral public.kunci_berlaku_sesi(st.id) k\n  ),\n', ''],
         array[E'public.nilai_jawaban_berlaku(st.id, p.item_id, f.value) end as nilai,\n           kk.kunci, kk.pada\n', E'public.grade_response(p.item_id, f.value) end as nilai\n'],
         array[E'      left join kunci kk on kk.session_id = st.id and kk.item_id = p.item_id\n', ''],
@@ -311,8 +312,10 @@ revoke all on function selftest.f13_kunci_sidik(uuid, uuid[]) from public;
 -- Returns the ids the suite reads. Also the fixture of the F-1 evidence (the whole-world identity and the cohort
 -- view's plan on a class-sized class).
 -- p_c (F13-K24): X gains a third option C, wrong, with a rationale: '-' with no misconception code, else that code
+-- p_cn (F13-K24, restated for Daisy's teacher marker): the last p_cn learners choose C on X (default none)
 drop function if exists selftest.f13_kunci_dunia(int, int);
-create or replace function selftest.f13_kunci_dunia(p_n int default 11, p_b int default 6, p_c text default null)
+drop function if exists selftest.f13_kunci_dunia(int, int, text);
+create or replace function selftest.f13_kunci_dunia(p_n int default 11, p_b int default 6, p_c text default null, p_cn int default 0)
 returns jsonb language plpgsql set search_path = public, pg_temp as $$
 declare
   f record; v_tag text := substr(md5(random()::text), 1, 8); v_inst uuid; v_k5 uuid; v_par uuid; v_per uuid; v_prog uuid;
@@ -391,10 +394,10 @@ begin
     perform selftest.as_owner();
     v_la := (v ->> 'learning_assignment')::uuid; v_pre := (v ->> 'pre_assignment')::uuid; v_post := (v ->> 'post_assignment')::uuid;
 
-    -- the class sits: the first p_b learners choose B on X, the rest choose A
+    -- the class sits: the first p_b learners choose B on X, the last p_cn choose C, the rest choose A
     for i in 1..p_n loop
       v_u := (v_sesi ->> ('u' || i))::uuid;
-      v_s := selftest.f13_kunci_duduk(v_u, v_pre, v_x, case when i <= p_b then 'B' else 'A' end);
+      v_s := selftest.f13_kunci_duduk(v_u, v_pre, v_x, case when i <= p_b then 'B' when i > p_n - p_cn then 'C' else 'A' end);
       v_sesi := v_sesi || jsonb_build_object('s' || i, v_s);
       v_semua := v_semua || v_s;
     end loop;
@@ -405,7 +408,7 @@ begin
   return jsonb_build_object('inst', v_inst, 'kelas', v_kelas, 'guru', v_guru, 'course', v_course, 'rel', v_rel, 'la', v_la,
                             'pre', v_pre, 'post', v_post, 'x', v_x, 'sesi', v_sesi, 'semua', to_jsonb(v_semua));
 end $$;
-revoke all on function selftest.f13_kunci_dunia(int, int, text) from public;
+revoke all on function selftest.f13_kunci_dunia(int, int, text, int) from public;
 
 create or replace function selftest.f13_kunci()
 returns table (id text, ok boolean, detail text)
@@ -488,16 +491,25 @@ begin
     end if;
     -- ═══ F13-K23  the marker (F1-R1b, Sharon §3a.1; Daisy §6a): before and after, every question says whether a wrong
     -- option, by the key the view shows, has no misconception code; X's two options are both coded, so X says no
-    select count(*) into n from (select x from jsonb_array_elements(v_sebelum -> 'tqe' -> 'questions') x
-                                 union all select x from jsonb_array_elements(v_sesudah -> 'tqe' -> 'questions') x) q(x)
+    -- RESTATED (Daisy, TINJAUAN-F1R1B-97a40ebb.md §1c item 3; the Chief Architect's queue): on the teacher's view the
+    -- marker says whether an ANSWER in the view landed on a wrong option with no code (an answer not right, on an option
+    -- whose code is null). X's answers land on coded options only, so X says no; the package still holds a question
+    -- that says yes. Studio's "any wrong option" is unchanged and not read here
+    select count(*) into n from (select v_sebelum -> 'tqe' as t union all select v_sesudah -> 'tqe') w,
+                                lateral jsonb_array_elements(w.t -> 'questions') q(x)
      where (q.x ->> 'ada_tak_terkait')::boolean is distinct from exists (
-             select 1 from jsonb_array_elements(q.x -> 'options') o
-               join public.item_options io on io.item_id = (q.x ->> 'item_id')::uuid and io.label = o ->> 'label'
-              where not (o ->> 'is_key')::boolean and io.misconception_code is null);
+             select 1 from jsonb_array_elements(w.t -> 'learners') l, jsonb_array_elements(l -> 'answers') a
+               join public.item_options io on io.item_id = (a ->> 'item_id')::uuid and io.label = a ->> 'chosen'
+              where (a ->> 'item_id') = (q.x ->> 'item_id') and not (a ->> 'right')::boolean and io.misconception_code is null);
+    -- RESTATED: the positive reading ("at least one question is marked") is now Daisy's own case instead: a question with a
+    -- wrong option not linked that nobody chose reads NOT marked. The positive case is F13-K24 world 1
     if n > 0 or (v_q ->> 'ada_tak_terkait') is distinct from 'false'
-       or not exists (select 1 from jsonb_array_elements(v_sesudah -> 'tqe' -> 'questions') x where (x ->> 'ada_tak_terkait')::boolean) then
-      v_probs := selftest.f11_note(v_probs, 'F13-K23', n || ' question reading(s) whose marker is not what their wrong options'' codes say; X reads '
-        || coalesce(v_q ->> 'ada_tak_terkait', 'nothing') || ' (expected false: both coded); and the package should hold at least one unlinked question');
+       or not exists (select 1 from jsonb_array_elements(v_sesudah -> 'tqe' -> 'questions') x
+                       where not (x ->> 'ada_tak_terkait')::boolean
+                         and exists (select 1 from public.item_options io where io.item_id = (x ->> 'item_id')::uuid
+                                        and not io.is_correct and io.misconception_code is null)) then
+      v_probs := selftest.f11_note(v_probs, 'F13-K23', n || ' question reading(s) whose marker is not what their answers on unlinked wrong options say; X reads '
+        || coalesce(v_q ->> 'ada_tak_terkait', 'nothing') || ' (expected false: its answers land on coded options); and the package should hold a question with an unlinked wrong option nobody chose, unmarked');
     end if;
     select count(*) filter (where (a ->> 'right')::boolean and a ->> 'chosen' = 'B'), count(*) filter (where not (a ->> 'right')::boolean and a ->> 'chosen' = 'A')
       into n, m
@@ -924,20 +936,27 @@ end $$;
 revoke all on function selftest.f13_penjelasan() from public;
 
 -- ═══════════════════════════════════════ F13-K24 · the marker is "any", not "all" (F1-R1b; Daisy §6a)
--- World 1: X with three options, A (the sealed key, linked), B (wrong, linked), C (wrong, not linked). The teacher's
--- per-question view marks X before the correction and after it (A to B: A and C are then wrong, C still not linked).
--- Under "all wrong options unlinked" X would not be marked: plant bob04-20. World 2: the same with C linked: X is not
--- marked, before or after. Everything is undone.
+-- RESTATED (Daisy, TINJAUAN-F1R1B-97a40ebb.md §1c item 3; the Chief Architect's queue, "for Second Eye", item 2): on
+-- the teacher's view the marker reads the ANSWERS in the view. Still "any", not "all" (the owner's request), now at the
+-- level of answers. X has three options: A (the sealed key, linked), B (wrong, linked), C (wrong). Three learners
+-- choose B, A and C, or two choose B and A. The key is then corrected A to B (the view reads the sat item, whose codes
+-- do not change). Before|after:
+--   world 1, C not linked, one answer on C: marked, marked. One answer on an unlinked wrong option is enough, though
+--            another wrong answer landed on a linked one ("all" reads false: plant bob04-20)
+--   world 2, C not linked, no answer on C: not marked, not marked. Studio marks this question; the teacher's view does
+--            not, because no answer in it went uncounted (the old "any wrong option" reads true: plant bob04-21)
+--   world 3, C linked, one answer on C: not marked, not marked
+-- Everything is undone.
 create or replace function selftest.f13_tanda()
 returns table (id text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 #variable_conflict use_column
-declare v jsonb; v_x uuid; v_k uuid; v_t text := ''; v_fatal text := ''; v_c text;
+declare v jsonb; v_x uuid; v_k uuid; v_t text := ''; v_fatal text := ''; r record;
 begin
   perform selftest.as_owner();
-  foreach v_c in array array['-', 'F13K-A'] loop
+  for r in select * from (values (1, '-', 3, 1), (2, '-', 2, 0), (3, 'F13K-A', 3, 1)) z(n, c, murid, pada_c) order by 1 loop
   begin
-    v := selftest.f13_kunci_dunia(2, 1, v_c);
+    v := selftest.f13_kunci_dunia(r.murid, 1, r.c, r.pada_c);
     v_x := (v ->> 'x')::uuid;
     perform selftest.as_user_uid((v ->> 'guru')::uuid);
     v_t := v_t || case when v_t = '' then '' else ';' end || coalesce((select x ->> 'ada_tak_terkait' from jsonb_array_elements(public.teacher_question_evidence((v ->> 'pre')::uuid, (v ->> 'kelas')::uuid) -> 'questions') x
@@ -959,10 +978,10 @@ begin
   id := 'F13-K24';
   if v_fatal <> '' then
     ok := false; detail := 'the F13-K24 world could not run: ' || left(v_fatal, 220);
-  elsif v_t is distinct from 'true|true;false|false' then
-    ok := false; detail := 'X was marked ' || v_t || ' (C not linked: before|after; C linked: before|after) (expected true|true;false|false: one wrong option not linked is enough, and all linked clears it)';
+  elsif v_t is distinct from 'true|true;false|false;false|false' then
+    ok := false; detail := 'X was marked ' || v_t || ' (C unlinked with an answer on it; C unlinked with none; C linked with one: before|after each) (expected true|true;false|false;false|false: one answer on an unlinked wrong option is enough, an unlinked option nobody chose marks nothing, and a linked one marks nothing)';
   else
-    ok := true; detail := 'F1-R1b (Daisy §6a): a question with one wrong option linked and one not is marked, before and after a key correction, and with all its wrong options linked is not; the marker is "any", not "all"';
+    ok := true; detail := 'F1-R1b (Daisy §6a, restated §1c): the teacher''s marker shows, before and after a key correction, when at least one answer in the view landed on an unlinked wrong option, though another landed on a linked one; not for an unlinked option nobody chose, nor a linked one; "any" answer, not "all"';
   end if;
   return next;
 end $$;

@@ -2181,7 +2181,9 @@ export const experienceTests: SelfTest[] = [
       // after it). Read against §3: who may sign in, not a mark, a logo, a crest or a theme.
       // MOVED 240 -> 241, RESTATED, L1-F4 (Sharon's required change, 12 Nov): 20270117170000 (a closure records what it
       // held). Read against §3: when a deletion may proceed, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 241, `${migrations.length} migrations; the frozen baseline has 241`);
+      // MOVED 241 -> 242, RESTATED, F1-R1b (Daisy's refinement, 12 Nov): 20270117180000 (the teacher's marker reads the
+      // answers in its view). Read against §3: what a teacher is told about answers, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 242, `${migrations.length} migrations; the frozen baseline has 242`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4046,7 +4048,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 238 -> 239, RESTATED, B2, for 20270117150000 (the person-scoped print and its one read): no tour RPC.
       // MOVED 239 -> 240, RESTATED, L1-F2, for 20270117160000 (the lock on the link and the permit delete): no tour RPC.
       // MOVED 240 -> 241, RESTATED, L1-F4, for 20270117170000 (the closure's record; the deletion's measure): no tour RPC.
-      c.expect(migs.length === 241, `${migs.length} migrations; the baseline has 241`);
+      // MOVED 241 -> 242, RESTATED, F1-R1b, for 20270117180000 (the teacher's marker reads the answers in its view): no tour RPC.
+      c.expect(migs.length === 242, `${migs.length} migrations; the baseline has 242`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

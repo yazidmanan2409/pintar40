@@ -5,6 +5,43 @@
 §3d at `d45dfc05`, the release; §3e at `10529627`, document authority). Reviews: Sharon once, on the exact commit; Daisy
 for the wording of §6 and one result review.
 
+## After acceptance: Daisy's three items (12 Nov; non-blocking; this commit)
+
+From her review of `97a40ebb…` (`ux-1/daisy-experience` at `a13f30ff4fe0bd53727d7af219068d35d0b1b0ae`,
+`TINJAUAN-F1R1B-97a40ebb.md` §1c), queued for Second Eye in TEAM-INSTRUCTIONS.md. **Daisy:** please confirm the
+three on the commit that carries this section; **Sharon:** item 2 changes what one database read returns (below).
+
+1. **English «Misunderstanding»** in `soal.tak_terkait`, `laporan.komposisi.keliru_kosong` and
+   `studio.kunci.dampak.penjelasan_hilang`, her lines word for word. Indonesian unchanged. *(Supersedes the
+   «Misconception» question under "Two adjustments" below.)*
+2. **The teacher's per-question marker reads the answers in its view.** It shows only when at least one answer in the
+   view landed on a wrong option not linked to a misunderstanding: an answer not right under its own sitting's key in
+   force, on an option with no code. In Studio, "any wrong option not linked" stays.
+   - Migration `20270117180000_the_teachers_marker_counts_the_answers_in_its_view.sql` changes only
+     `teacher_question_evidence`'s `ada_tak_terkait`. It reads the view's own `jawab` rows, so the same marks the
+     view's count of right answers uses.
+   - **Still "any", not "all"** (the owner's request on F13-K24), now at the level of answers. F13-K24 is rebuilt in
+     three worlds: C unlinked with an answer on it (marked, before and after); C unlinked with none (not marked:
+     Studio marks this question, the teacher's view does not); C linked with an answer (not marked). Expected
+     `true|true;false|false;false|false`.
+   - **Plants:** bob04-20 restated ("all" now means all the wrong answers): red `false|false;false|false;false|false`.
+     **bob04-21 new** (the old "any wrong option" reading put back): red `true|true;true|true;false|false`. bob04-19
+     ("always off") now turns F13-K24 red, because F13-K23's world has no marked question under the refined meaning.
+   - **Restated with notes:** F13-K23 checks every reading against the answer-based meaning, and requires Daisy's own
+     case (an unlinked wrong option nobody chose reads unmarked) where it required a marked question; F-1's
+     sealed-key reconstruction (`f13_kunci_segel`) drops the marker's own fragment pair, because the marker now reads
+     the answers' marks, which the reconstruction already puts back to the sealed key; the world builder gains
+     `p_cn` (learners choosing C), default none, so every other world is unchanged; the migration-count pins
+     241 → 242.
+   - **Red first** on `3a63a2b2158ea4834c1f12653c864baf157c0dd5` (the migration taken out): F13-K24 read
+     `true|true;true|true;false|false`; F13-K23 found 4 readings that disagree.
+
+   | Column or table | Constraints after this commit | Baseline invariant |
+   |---|---|---|
+   | `teacher_question_evidence` (`ada_tak_terkait`, a function's output) | Reads `item_options.misconception_code` and the view's own marks; writes nothing | **INV-01**: no key reaches the client beyond what the view already returned; **INV-13**: the class's own sittings only, as before |
+3. **The held step's wording** (`studio.konten.kode.content_rationale_owed`), her lines word for word, using «Alasan»
+   and pointing at «Alasan pilihan … ditarik».
+
 ## What holds now
 
 - **Status: built, awaiting review.** It gates nothing. **C1w is not promoted ahead of it** (Chief Architect, 12 Nov):

@@ -2161,12 +2161,12 @@
     {
       "id": "F13-K24",
       "runner": "db",
-      "proves": "F1-R1b (Daisy §6a): a question with two wrong options, one linked to a misconception and one not, is marked by the teacher's per-question view before and after a key correction, and the same question with both linked is not: the marker shows when any wrong option is unlinked and clears only when all are linked."
+      "proves": "F1-R1b (Daisy §6a): a question with two wrong options, one linked to a misconception and one not, is marked by the teacher's per-question view before and after a key correction, and the same question with both linked is not: the marker shows when any wrong option is unlinked and clears only when all are linked. RESTATED (Daisy, §1c item 3): still any, not all, at the level of answers: one answer on an unlinked wrong option marks the question though another wrong answer is on a linked one; an unlinked option nobody chose, or a linked one, marks nothing (plants bob04-20 and bob04-21)."
     },
     {
       "id": "F13-K23",
       "runner": "db",
-      "proves": "F1-R1b (Sharon §3a.1; Daisy §6a): teacher_question_evidence's per-question marker, ada_tak_terkait, is for every question before and after a key correction whether any option it shows as wrong (by the key in force) has no misconception code; the package holds at least one such question."
+      "proves": "F1-R1b (Sharon §3a.1; Daisy §6a): teacher_question_evidence's per-question marker, ada_tak_terkait, is for every question before and after a key correction whether any option it shows as wrong (by the key in force) has no misconception code; the package holds at least one such question. RESTATED (Daisy, TINJAUAN-F1R1B-97a40ebb.md §1c item 3): on the teacher's view the marker says whether an answer in the view landed on a wrong option with no misconception code."
     },
     {
       "id": "F13-K22",
