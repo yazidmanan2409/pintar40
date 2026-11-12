@@ -14,7 +14,12 @@ S-1's check at 390 and 320 px.
 - **B1 already holds the print event:** `catatPermintaanCetak` (`src/app/api/_akuntabilitas/catat.ts`) writes a
   `PRINT_REQUEST`, fails closed, and returns a `CTK-XXXX-XXXX` reference. `akuntabilitas_catat` validates the scope's
   shape and sets the single owning school. The reader finds a print by its reference.
-- **Three questions for Sharon** are marked **Q1–Q3** below.
+- **Q1 is ruled** (`B2-ARCHITECT-NOTES.md` §1 on `claude/bob-41-master-plan` at
+  `2dd28e3ca5b4dcb867e51df17dd8a2213b55a8aa`): a learner's own-results print is **person-scoped**, and its school
+  snapshot is the schools whose evidence the printed report contains. It is computed in the database from the report's
+  own scope. It is never refused for several schools. The engineer's proposal of one live school is superseded (§2,
+  where it stands). The content rule is the owner's to change knowingly; it is the working assumption.
+- **Two questions remain for Sharon:** Q2 and Q3 below.
 
 ## 1 · What B2 builds
 
@@ -35,7 +40,7 @@ through «Cetak laporan» never shows a reference at all.
 |---|---|---|---|
 | `/edukator/ringkasan?kelas=` | `ringkasan.kelas` | `node_id` = the class | the same read the page makes: `generate_report` for that class, as the caller |
 | `/dekan/ringkasan?simpul=` | `ringkasan.simpul` | `node_id` = the node | the same: `generate_report` for that node, as the caller |
-| `/belajar/hasil` | `hasil.belajar` | **Q1** | the page reads only the caller's own work (`my_*`) |
+| `/belajar/hasil` | `hasil.belajar` | `person_id` = the requester (Q1, ruled) | own prints only: the database refuses a `person_id` that is not the requester's |
 
 - **The action decides readability by the same read the page makes, as the caller.**
   - A forged call naming a class the person cannot read gets the page's own refusal, and writes nothing.
@@ -45,15 +50,34 @@ through «Cetak laporan» never shows a reference at all.
   - Certificates (`AksiCetak`) keep their QR, and their print CSS excludes the footer.
   - Class cards (`LembarKartu`).
 
-**Q1 · The learner's own results have no class or assignment scope.** `akuntabilitas_catat` accepts only `node_id`,
-`learning_assignment_id` or `assessment_assignment_id`, and `/belajar/hasil` spans every chapter the learner worked on.
-- **Engineer's proposal:** B2's migration adds one scope to B1's writer, `person_id`. It is accepted only when it is
-  the requester's own person; anything else is `ACCOUNTABILITY_RESOURCE_INVALID`.
-- **The owning school** is the requester's single live school at that instant (`akuntabilitas_sekolah_orang`). With
-  none or several, the print is refused as "cannot be recorded" and nothing prints. A learner with no school or two
-  schools is rare; the refusal is honest, not a guess.
-- **The alternative,** the learner's current class `node_id`, names a class the report is not about, so I don't
-  propose it.
+**Q1 · The learner's own results: RULED (Sharon's content rule; `B2-ARCHITECT-NOTES.md` §1).**
+- **The print is person-scoped:** `resource = { report: 'hasil.belajar', person_id }`.
+  - **Own prints only:** `akuntabilitas_catat` refuses a `person_id` that is not the requester's
+    (`ACCOUNTABILITY_RESOURCE_INVALID`).
+  - A staff member printing a learner's report uses a class or assignment scope.
+- **Its school snapshot is computed in the database, at print time, from the same scope the report is assembled
+  from:** the schools of every sitting, result or certificate the page shows.
+  - It is never the route's word, and never the learner's live affiliations.
+  - The page's content is `hasilBelajar`, the learner's own sessions and their outcomes. The snapshot is the institutions
+    of those sessions' assignments: the set the printed page holds evidence from.
+- **Several schools: never refused.** The one-school constraint (`accountability_events_print_one_school`) is relaxed
+  for the person-scoped kind only. Class- and assignment-scoped prints keep exactly one school, and a test proves
+  both sides.
+- **No live school:** a departed learner who can still sign in prints their history. The snapshot holds the schools
+  whose evidence is on it.
+- **No evidence:** the snapshot is empty, and the event is the platform admin's alone. (The empty report offers no
+  «Cetak laporan» in any case: §1 item 4. So this arises only if evidence becomes unreadable between the page and the
+  press.)
+- Suspended, closed and anonymised people cannot sign in, and never reach this path.
+- **The cost (Sharon's, stated for the owner):** a former school's admin learns that a learner who left printed that
+  school's results after leaving. The event carries no content.
+  - The owner's alternative, the live snapshot, discloses less. But a departed learner's printed report could then not
+    be confirmed by the school that issued its results.
+- **One migration (B2's):** `akuntabilitas_catat` accepts the person scope and computes its snapshot. The one-school
+  check becomes "exactly one, unless the resource is person-scoped".
+- ~~**Engineer's proposal (superseded by the ruling above):** the owning school is the requester's single live school
+  at that instant; with none or several, the print is refused. The alternative, the learner's current class `node_id`,
+  names a class the report is not about.~~
 
 ## 3 · The footer, as built from §5.2 F
 
@@ -112,6 +136,11 @@ adds the print step to `audit/journey.mjs`:
 | B2-A03 | A forged scope (a class the person can't read) is refused, and no row is written | not reachable today |
 | B2-A04 | A browser print shows the default line and no reference-shaped text | page numbers only |
 | B2-A05 | An empty report offers no «Cetak laporan» | `/belajar/hasil` offers it empty |
+| B2-P01 | Q1: a person with results at A and B prints their own results: the snapshot is {A, B}, and each school's admin finds the reference | no person scope |
+| B2-P02 | The same person with results only from A: the snapshot is {A}, and B's admin finds nothing | no person scope |
+| B2-P03 | A departed learner (no live school) prints their history: the former school finds the reference, an unrelated school does not | no person scope |
+| B2-P04 | A print whose report holds no evidence: the snapshot is empty, and only the platform admin finds it | no person scope |
+| B2-P05 | A person-scoped print naming someone else's `person_id`: refused, and no row is written. And the one-school check: a class-scoped print with two schools is still refused, a person-scoped one is not | no person scope |
 | B2-S01 | Static: every page rendering `AksiLaporan` goes through the action; nothing else calls `window.print()` on a report; the certificate print is untouched | — |
 | B2-S02 | B1-R1, R2, R5 and the R4 notice (platform admin only; a school admin never sees it), through the running app | — |
 | Journey 4 | The print step (§5) | — |
@@ -126,7 +155,7 @@ adds the print step to `audit/journey.mjs`:
   - the print CSS;
   - the three report pages;
   - the reader `/konfigurasi/catatan-masuk` and its copy;
-  - if Q1 is accepted, `akuntabilitas_catat` (one migration).
+  - `akuntabilitas_catat` and the one-school constraint (one migration, Q1 as ruled).
 - **Expect to re-run:**
   - every report suite that renders those components;
   - DAISY's print checks;
@@ -145,7 +174,7 @@ adds the print step to `audit/journey.mjs`:
 | Question | Answer to verify |
 |---|---|
 | And then what? | The paper leaves the building carrying who, when and a reference. An admin types the reference and finds the event. After 12 months the reference no longer resolves, and the paper still says who and when |
-| What else did that change? | The three report pages; the print CSS shared with certificates (excluded); B1's writer if Q1 is accepted; the reader's wording and its platform view; journey 4 |
+| What else did that change? | The three report pages; the print CSS shared with certificates (excluded); B1's writer (the person scope, and its snapshot from the report's evidence); the one-school constraint, relaxed for the person scope only; the reader's wording and its platform view; journey 4. **And B1's reader then shows a school admin a print by a person no longer at that school** (a departed learner printing that school's results). That is correct and intended: the school owns the printed evidence. The row's wording, if it needs any, is Daisy's |
 | What happens when things go wrong? | The writer fails: nothing prints (fail closed). The dialog is cancelled: the event stands (a request, not a printout; §5.2 B, "any claim that paper came out of a printer" is out). A browser print: the default line, no reference |
 | Can it be reversed, and what survives? | Nothing is reversed. The row survives 12 months; the paper survives indefinitely |
 
@@ -154,6 +183,7 @@ adds the print step to `audit/journey.mjs`:
 | Interface | Checked how | Evidence | Limitation |
 |---|---|---|---|
 | B1's writer and reader | A press, then a lookup by reference; a forged scope; a failed write | B2-A01 to A03, journey 4 | — |
+| A person-scoped print's snapshot (Q1) | Two schools; one school; a departed learner; no evidence; someone else's person; the one-school check on both sides | B2-P01 to P05 | — |
 | The three report pages and `/pimpinan` | Static and rendered | B2-S01, B2-A04, B2-A05 | — |
 | Certificates' print | Unchanged, by test | the certificate print tests | — |
 | The reader's platform and school views (R1 to R5, R4's notice) | Through the running app, as both | B2-S02 | — |
