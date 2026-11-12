@@ -5,7 +5,61 @@ at `f2861db1576eae3eb9e7e0728ea37ec1dde94d7d`: §0, §3a Sharon's four points, �
 wording). It gates nothing. Review: Sharon on the exact commit; Daisy for the deletion's refusal line, the "earned but
 not issued" line (a draft) and one more draft line (below).
 
-## For Sharon: the result review, with your required change (this is the prompt)
+## For Sharon: the fix after your BLOCKED of `3a63a2b2…` (this is the prompt; it supersedes the next)
+
+**Your record:** `claude/gracious-lamport-0m1qjr` at `a809058bbc2dfd6b0aea0b92f98e77e8901c3dbf`,
+`L1F4-3a63a2b2158ea4834c1f12653c864baf157c0dd5.md`; the brief's §0 item 11. **Candidate:** the commit carrying this
+section, L1-F4's own, above B2's fix; one pre-flight and one set of runs for both (Bob's queue). Its 40-character hash is
+in the review queue.
+
+**Please verify** (migration `20270117200000_an_anonymised_person_is_never_reopened.sql`):
+1. **L1F4-A1, the race.** `hapus_data_pribadi` takes the person `FOR UPDATE` first, before its request and before every
+   check; the closure and both attachment checks are read under that lock. `buka_kembali_akun` and
+   `aktifkan_kembali_akun` take the person row first too.
+   - **One step further than your fix asked, and why.** Your item 4 has the deletion end the person's open REOPEN
+     request. The reopen locks that request row. Had the reopen taken its request before the person, the two would
+     wait on each other. So **both** the deletion and the reopen read their request's person without a lock, lock the
+     person, and only then lock their own request and check it again: persons → `account_requests` →
+     `person_suspensions` → `auth.users` → accounts, as L1-F2's rule.
+2. **L1F4-A2, no race needed.** `buka_kembali_akun` refuses a person whose personal data was deleted:
+   `ACCOUNT_ANONYMISED`. `minta_buka_kembali` records nothing for one; its answer is the same `ok` as for anyone.
+   - **Found while testing:** L1-F4's own guard on `account_requests` already refuses a **new** REOPEN row for an
+     anonymised person (`PERSON_UNKNOWN`). Before this fix, `minta_buka_kembali` would have tried that insert and
+     raised, an answer different from anyone else's. It no longer tries.
+3. **Item 4, the Chief Architect's request:** the deletion ends the person's open REOPEN request as `DECLINED`, with the
+   note «Data pribadi orang ini sudah dihapus; akunnya tidak dibuka kembali.»
+4. **Tests, red first on `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`:**
+   - **L1F4-R02**, two real connections, both orders, each act paused just after its first lock (its function swapped
+     by fragment). Deletion first: the reopen waits, then is refused; the person ends anonymised, still closed, every
+     account locked. Reopen first: the deletion waits, then is refused `ACCOUNT_NOT_CLOSED`; the person ends reopened
+     and not anonymised. **Your second plant is its last phase:** the deletion's closure check moved back before its
+     lock, with the pause between; the reopen passes through, and the person ends anonymised **and** reopened. Red on
+     `9db58dd5` structurally (there is no first lock to pause after); the plant phase is that commit's order exactly.
+   - **L1F4-K12**, sequential: your "L1F4-K09", **renamed because K09 was taken** (the closure-record test of
+     `3a63a2b2`). A request made before the deletion: the deletion ends it, and approving it after is refused. Any
+     other open request (written past the guard, as data from before this fix would be) is refused
+     `ACCOUNT_ANONYMISED`. The closure stays open and every account locked. A request by PINTAR ID after the deletion
+     answers `ok` and records nothing. **Red on `9db58dd5`:** "approving the earlier request after the deletion
+     answered OK".
+   - **Plant `l1f4-5`** (your first): the anonymised refusal removed; L1F4-K12 red, "an anonymised person answered OK".
+     Gate `db-l1f4-tutup-gates`, control 4.
+   - **Restated with notes:** AKUN-K01 reads the new migration's `akun_tolak`; the migration-count pins 243 → 244.
+5. **Lock order for Bob's list:** all three acts take the person row first. They conform (the L1-F2 page's table is the
+   list).
+
+PASS or BLOCKED, on the candidate.
+
+**For Daisy, one line:** `akun.tinggal.galat.account_anonymised`, the platform admin's refusal. **Engineer's draft,
+yours to replace:** «Akun ini tidak dibuka kembali: data pribadi pemiliknya sudah dihapus. Tidak ada yang diubah.» /
+«This account is not reopened: its holder's personal data has been deleted. Nothing was changed.»
+
+| Column or table | Constraints after this commit | Baseline invariant |
+|---|---|---|
+| `account_requests` (REOPEN) | `status` set to `DECLINED` with `decided_by`, `decided_at`, `decision_note` by the deletion; unchanged: the kind and status checks, `account_requests_one_open`, L1-F4's guard (a new row for an anonymised person is refused) | **INV-18**: the request's end is kept on the record with who and why |
+| `persons` (row lock) | taken `FOR UPDATE` first by the deletion, the reopen and the reinstatement; no column changes beyond the deletion's own | **INV-23** |
+| `person_suspensions` | unchanged; read and ended under the person's lock | **INV-17**: a deleted person's closure, and the lock it keeps, is never ended |
+
+## For Sharon: the result review, with your required change (the earlier prompt, on `3a63a2b2`; answered)
 
 **Candidate:** the commit on `claude/system-integrity-4.0` that carries this section, above L1-F2
 `e27f4a77a10c7c448170bb2851462e4561daadf7`. Its 40-character hash is in the review queue (TEAM-INSTRUCTIONS.md).

@@ -2124,9 +2124,19 @@
       "proves": "L1-F4, Daisy's correctness check (TINJAUAN-F1R1B-97a40ebb.md §2.1): a key correction that newly earns a certificate for an anonymised learner counts it as earned but not issued and not among the certificates that can be issued, so «{n} sertifikat baru dapat diterbitkan» and the row agree."
     },
     {
+      "id": "L1F4-K12",
+      "runner": "db",
+      "proves": "L1-F4, Sharon's result review of 3a63a2b2 (L1F4-A2; her L1F4-K09, renamed), selftest/db/l1f4.sql against migration 20270117200000: the deletion ends an open request to reopen with a note; a request made before it and approved after it is refused, and any other open one is refused ACCOUNT_ANONYMISED; the closure stays open and every account stays locked; a request by PINTAR ID after the deletion answers ok and records nothing."
+    },
+    {
       "id": "L1F4-R01",
       "runner": "static",
       "proves": "L1-F4, selftest/l1f4-balapan.test.ts, Sharon's third order on two real connections against the database (migration 20270117170000) (the shared harness selftest/balapan.ts): a role grant whose transaction began before the closure and inserted after it has the earlier created_at, and the deletion is still refused ACCOUNT_LIVE_ATTACHMENT with nothing anonymised; a plant restoring the timestamp comparison lets the same order through."
+    },
+    {
+      "id": "L1F4-R02",
+      "runner": "static",
+      "proves": "L1-F4, selftest/l1f4-balapan.test.ts, Sharon's L1F4-A1 on two real connections against the database (migration 20270117200000): a deletion and a reopen of the same closed person, in both orders, each paused after its first lock; the second waits and is refused, so the person ends either anonymised, closed and locked, or reopened and not anonymised; her plant (the closure checked before the lock) lets both through."
     },
     {
       "id": "F13-K16",

@@ -296,6 +296,7 @@ export type HleEvent =
   | "akun.tinggal.galat.account_request_invalid"
   | "akun.tinggal.galat.account_not_closed"
   | "akun.tinggal.galat.account_live_attachment"
+  | "akun.tinggal.galat.account_anonymised"
   | "akun.tinggal.galat.account_platform_role"
   | "akun.tinggal.galat.account_photo_pending"
   | "akun.tinggal.galat.account_failed"
@@ -4104,6 +4105,7 @@ const table: Table = {
   "akun.tinggal.galat.account_not_closed": { default: "Data pribadi dihapus hanya dari akun yang sudah ditutup.", en: "Personal data is deleted only from a closed account." },
   // L1-F4 (Daisy, final: ANONYMISED-PERSON-IS-TERMINAL.md §3c; the school is not named, and the attachment's kind never is)
   "akun.tinggal.galat.account_live_attachment": { default: "Data pribadi tidak dihapus: orang ini masih memegang pendaftaran, peran, atau keterkaitan lain yang berlaku di sebuah sekolah. Tidak ada yang diubah, dan permintaannya tetap terbuka. Tanyakan kepada sekolah itu apakah keterkaitan tersebut memang harus diakhiri; setelah diakhiri, tekan «Hapus data pribadi» sekali lagi.", en: "Personal data was not deleted: this person still holds an enrolment, role or other attachment in force at a school. Nothing was changed, and the request stays open. Ask that school whether the attachment should end; once it has ended, press «Delete personal data» once more." },
+  "akun.tinggal.galat.account_anonymised": { default: "Akun ini tidak dibuka kembali: data pribadi pemiliknya sudah dihapus. Tidak ada yang diubah.", en: "This account is not reopened: its holder's personal data has been deleted. Nothing was changed." },
   // Sharon §16 (6faef690): the last PINTAR Administrator cannot lock the platform out; a photo file not yet removed
   "akun.tinggal.galat.account_platform_role": { default: "Akun yang memegang peran Admin PINTAR tidak dapat ditutup sendiri. Minta Admin PINTAR lain melepaskan peran itu lebih dulu.", en: "An account holding the Admin PINTAR role cannot be closed by its owner. Ask another Admin PINTAR to remove that role first." },
   "akun.tinggal.galat.account_photo_pending": { default: "Data pribadi sudah dihapus, tetapi foto profil belum terhapus dari penyimpanan. Tekan sekali lagi untuk menyelesaikannya.", en: "The personal data has been deleted, but the profile photo has not yet been removed from storage. Press once more to finish." },

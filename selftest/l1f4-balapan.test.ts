@@ -7,12 +7,17 @@
  *             committed: the role's created_at is earlier than the closure's started_at, and the deletion is still
  *             refused ACCOUNT_LIVE_ATTACHMENT, with nothing anonymised. Then the plant: the timestamp comparison put
  *             back, the same order lets the deletion through and the person is anonymised
+ *   L1F4-R02  (Sharon's result review of 3a63a2b2, L1F4-A1) a deletion and a reopen of the same closed person, in both
+ *             orders, each paused after its first lock: deletion first, the reopen is refused and the person ends
+ *             anonymised, still closed, every account locked; reopen first, the deletion is refused ACCOUNT_NOT_CLOSED
+ *             and the person ends reopened and not anonymised. Then her plant: the deletion's closure check moved back
+ *             before its lock, and the reopen passes it: the person ends anonymised AND reopened
  */
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { randomBytes } from "node:crypto";
 import { Checks, type SelfTest } from "./lib";
-import { gantiFungsi, mulaiLebihDulu } from "./balapan";
+import { gantiFungsi, mulaiLebihDulu, psqlLain, tidur } from "./balapan";
 
 const db = () => process.env.SUPABASE_DB_URL!;
 function psql(sql: string): string {
@@ -76,6 +81,7 @@ function bersihkan(awalan: string): string {
     delete from public.role_assignments where person_id in (select id from l1f4b_orang);
     delete from public.person_suspensions where person_id in (select id from l1f4b_orang);
     delete from public.account_requests where person_id in (select id from l1f4b_orang);
+    delete from public.person_usernames where person_id in (select id from l1f4b_orang);
     delete from public.account_setup where account_id in (select a.id from public.accounts a where a.person_id in (select id from l1f4b_orang));
     delete from public.audit_log where target_id in (select id::text from l1f4b_orang);
     delete from auth.users where id in (select a.auth_user_id from public.accounts a where a.person_id in (select id from l1f4b_orang));
@@ -126,6 +132,82 @@ export const l1f4BalapanTests: SelfTest[] = [
         c.expect(bersihkan(awalan) === "0", "the race's people and places are still there");
       }
       return c.verdict("on two real connections: a school's role grant whose transaction began before the closure and inserted after it carries the earlier time, and the deletion is still refused ACCOUNT_LIVE_ATTACHMENT with nothing anonymised; with the timestamp comparison put back (the plant), the same order lets the deletion through; everything the race made is gone");
+    },
+  },
+  {
+    id: "L1F4-R02",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const e = siapkan(repoRoot);
+      if (!c.expect(e === null, String(e))) return c.verdict("");
+      const awalan = `l1f4r${randomBytes(3).toString("hex")}-`;
+      const sys = uid(SYS);
+      const KUNCI_ORANG = "  perform 1 from public.persons p where p.id = (select q.person_id from public.account_requests q where q.id = p_request) for update;\n";
+      /** A closed person with an open request to delete and an open request to reopen. */
+      const tutup = (nama: string) => {
+        const g = guru(awalan, nama);
+        const t = psql(sebagai(g.u, "select public.minta_akun('CLOSE', true)"));
+        if (t !== "OK") throw new Error(`${nama} could not close: ${t}`);
+        psql(`select public.minta_buka_kembali((select pintar_id from public.persons where id = ${lit(g.p)}), 'uji L1F4: saya ingin akun saya dibuka kembali')`);
+        const buka = psql(`select id from public.account_requests where person_id = ${lit(g.p)} and kind = 'REOPEN' and status = 'RECEIVED'`);
+        if (!buka) throw new Error(`${nama}'s request to reopen was not recorded`);
+        return { ...g, buka };
+      };
+      const hapus = (g: { req: string }) => sebagai(sys, `select public.hapus_data_pribadi('${g.req}', 'sesuai permintaan')`);
+      const bukaKembali = (g: { buka: string }) => sebagai(sys, `select public.buka_kembali_akun('${g.buka}', 'identitas diperiksa lewat telepon sekolah')`);
+      const keadaan = (p: string) => psql(`select (select (anonymized_at is not null)::text from public.persons where id = ${lit(p)})
+        || '|' || (select count(*) from public.person_suspensions where person_id = ${lit(p)} and ended_at is null)
+        || '|' || (select coalesce(string_agg(case when u.banned_until = public.akun_terkunci_sampai() then 'locked' when u.banned_until is null then 'open' else 'other' end, ','), '-')
+                   from public.accounts a join auth.users u on u.id = a.auth_user_id where a.person_id = ${lit(p)})`);
+      /** The first act sleeps 2 s just after its first lock (its function swapped by fragment); the second starts 0.6 s in. */
+      const balap = async (fnPertama: string, pertama: string, kedua: string) => {
+        const pulih = gantiFungsi(fnPertama, KUNCI_ORANG, KUNCI_ORANG + "  perform pg_sleep(2);\n");
+        try {
+          const a = psqlLain(pertama);
+          await tidur(600);
+          const b = psqlLain(kedua);
+          return { a: await a, b: await b };
+        } finally { pulih(); }
+      };
+      try {
+        // deletion first: the reopen waits on the person, then finds them anonymised (or its request ended)
+        const g1 = tutup("satu");
+        const r1 = await balap("public.hapus_data_pribadi(uuid,text)", hapus(g1), bukaKembali(g1));
+        c.expect(r1.a.out.endsWith("OK") && /PR140:ACCOUNT_(ANONYMISED|REQUEST_INVALID)/.test(r1.b.out) && r1.b.ms >= 1000,
+          `deletion first: the deletion answered ${r1.a.out || r1.a.err}, the reopen ${r1.b.out || r1.b.err} after ${r1.b.ms} ms (expected OK, then a refusal after waiting)`);
+        c.expect(keadaan(g1.p) === "true|1|locked", `deletion first, the person reads ${keadaan(g1.p)} (expected true|1|locked: anonymised, still closed, locked)`);
+        // reopen first: the deletion waits on the person, then finds no closure
+        const g2 = tutup("dua");
+        const r2 = await balap("public.buka_kembali_akun(uuid,text)", bukaKembali(g2), hapus(g2));
+        c.expect(r2.a.out.endsWith("OK") && /PR140:ACCOUNT_NOT_CLOSED/.test(r2.b.out) && r2.b.ms >= 1000,
+          `reopen first: the reopen answered ${r2.a.out || r2.a.err}, the deletion ${r2.b.out || r2.b.err} after ${r2.b.ms} ms (expected OK, then ACCOUNT_NOT_CLOSED after waiting)`);
+        c.expect(keadaan(g2.p) === "false|0|open", `reopen first, the person reads ${keadaan(g2.p)} (expected false|0|open: reopened, not anonymised)`);
+        // Sharon's plant: the deletion checks the closure BEFORE it locks the person (the order before this correction),
+        // and pauses between; the reopen passes through the gap and the deletion then anonymises a reopened person
+        const def = spawnSync("psql", ["-X", "-At", db(), "-c", "select pg_get_functiondef('public.hapus_data_pribadi(uuid,text)'::regprocedure)"], { encoding: "utf8" }).stdout ?? "";
+        const i = def.indexOf(KUNCI_ORANG);
+        const pintar = "  select p.pintar_id, p.photo_path is not null into v_pid, v_foto from public.persons p where p.id = r.person_id for update;\n";
+        const tutupCek = "  if not exists (select 1 from public.person_suspensions s where s.person_id = r.person_id and s.ended_at is null and s.category = 'CLOSED_AT_REQUEST') then\n    perform public.akun_tolak('ACCOUNT_NOT_CLOSED');\n  end if;\n";
+        const j = def.indexOf(pintar + tutupCek);
+        if (!c.expect(i > 0 && j > i, "the deletion does not lock and check where this test expects")) return c.verdict("");
+        const tengah = def.slice(i + KUNCI_ORANG.length, j);
+        const pulih = gantiFungsi("public.hapus_data_pribadi(uuid,text)", def.slice(i, j + pintar.length + tutupCek.length),
+          tengah + tutupCek + "  perform pg_sleep(2);\n" + pintar);
+        let r3: { a: Awaited<ReturnType<typeof psqlLain>>; b: Awaited<ReturnType<typeof psqlLain>> };
+        const g3 = tutup("tiga");
+        try {
+          const a = psqlLain(hapus(g3));
+          await tidur(600);
+          const b = psqlLain(bukaKembali(g3));
+          r3 = { a: await a, b: await b };
+        } finally { pulih(); }
+        c.expect(r3.a.out.endsWith("OK") && r3.b.out.endsWith("OK") && keadaan(g3.p) === "true|0|open",
+          `with the closure checked before the lock, the deletion answered ${r3.a.out || r3.a.err}, the reopen ${r3.b.out || r3.b.err}, the person reads ${keadaan(g3.p)} (expected OK, OK, true|0|open: anonymised and reopened, the plant must turn this red)`);
+      } finally {
+        c.expect(bersihkan(awalan) === "0", "the race's people and places are still there");
+      }
+      return c.verdict("on two real connections, a deletion and a reopen of the same closed person, each paused after its first lock: deletion first, the reopen waited and was refused, and the person stayed anonymised, closed and locked; reopen first, the deletion waited and was refused ACCOUNT_NOT_CLOSED, and the person was reopened and not anonymised; with the closure checked before the lock (the plant), both went through and an anonymised person was reopened; everything the race made is gone");
     },
   },
 ];

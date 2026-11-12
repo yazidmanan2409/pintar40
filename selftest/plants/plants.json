@@ -42,7 +42,7 @@
     },
     "db-l1f4-tutup-gates": {
       "suite": "selftest.run_l1f4_tutup()",
-      "control_green": 3,
+      "control_green": 4,
       "what": "L1-F4, Sharon's required change and Daisy's count (12 Nov): the deletion reads live state and the closure's record, not timestamps; the record is written once; an anonymised learner's certificate is not counted as one that can be issued"
     },
     "db-b2-gates": {
@@ -699,6 +699,12 @@
       "gate": "db-l1f4-tutup-gates",
       "expect_red": "L1F4-K11",
       "expect_detail": "read 1|1"
+    },
+    {
+      "name": "l1f4-5",
+      "gate": "db-l1f4-tutup-gates",
+      "expect_red": "L1F4-K12",
+      "expect_detail": "an anonymised person answered OK"
     },
     {
       "name": "b2-1",

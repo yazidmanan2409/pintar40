@@ -118,7 +118,7 @@ and every trigger on `auth.users`:
 | Path | Before this correction | Now |
 |---|---|---|
 | `tangguhkan_akun`, `minta_akun` (CLOSE) → `akun_kunci` | person `FOR UPDATE`, then accounts `FOR UPDATE`, then `auth.users` | **Changed:** person, then `auth.users` `FOR NO KEY UPDATE` (id order), then accounts `FOR UPDATE` (id order), then permits |
-| `aktifkan_kembali_akun`, `buka_kembali_akun` → `akun_kunci(false)` | the open suspension row `FOR UPDATE` (no person row), then accounts, then `auth.users` | **Changed** with `akun_kunci`: the suspension row, then `auth.users`, then accounts. They never ask for the person row, so they conform |
+| `aktifkan_kembali_akun`, `buka_kembali_akun` → `akun_kunci(false)` | the open suspension row `FOR UPDATE` (no person row), then accounts, then `auth.users` | **Changed** with `akun_kunci`: the suspension row, then `auth.users`, then accounts. *(Updated by L1-F4's fix after Sharon's review of `3a63a2b2`: both now take the person row first, then the request (the reopen), then the suspension row: they conform)* |
 | `recovery_grant_permit` | account `FOR SHARE`, then the permit insert's L1-F4 guard took the person: **account → person** (Sharon's cycle) | **Changed:** person `FOR SHARE`, account `FOR SHARE`, check, insert |
 | `password_write_permit` | the same: **account → person** | **Changed:** the same |
 | `authorize_card_reissue` | card account `FOR UPDATE`, then `card_reissues` and permit inserts' guards took the person: **account → person** | **Changed:** person `FOR SHARE` first |
@@ -128,7 +128,7 @@ and every trigger on `auth.users`:
 | Auth's password write (`auth_password_write_guard`) | `auth.users` row, then the permit (delete), then `account_setup` (update; `accounts` read, not locked) | **Conforms** (`auth.users` → permits) |
 | `auth_email_correction_guard`, `kunci_tetap_jaga` (BEFORE UPDATE on `auth.users`) | `auth.users` row; `accounts` and the person read, not locked | **Conforms** |
 | The account-link trigger (`_l1f2_accounts_terkunci`) and L1-F4's guard on `accounts` | inside an insert of a **new** `accounts` row: the person `FOR SHARE`. The new row is invisible to `akun_kunci` until it commits | **Conforms** |
-| `hapus_data_pribadi` (with L1-F4's change) | request row, then person `FOR UPDATE`, then the accounts read (not locked) and `auth.users` updated | **Conforms** (person → `auth.users`) |
+| `hapus_data_pribadi` (with L1-F4's change) | request row, then person `FOR UPDATE`, then the accounts read (not locked) and `auth.users` updated | **Conforms** (person → `auth.users`). *(Updated by L1-F4's fix: the person row now first, then the request row, then the closure check and the REOPEN request it ends)* |
 | `minta_akun` (with L1-F4's change) | person `FOR UPDATE`; the record of what it held is read only; then `akun_kunci` | **Conforms** |
 
 *(Superseded, kept as the record. The statement below was wrong: an issuer did ask for the person's row, through

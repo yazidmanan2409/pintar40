@@ -170,7 +170,10 @@ export const b5Tests: SelfTest[] = [
       // RESTATED, L1-F4 (owner, 12 Nov): 20270117130000 redefines sertifikat_koreksi_tolak with CERT_HOLDER_DELETED and raises it
       // from its rewrite of sertifikat_koreksi_siapkan (inside a quoted string): the newest definition, across both files
       const sql = [baca(ctx.repoRoot, "supabase/migrations/20270113110000_a_certificate_is_corrected_by_its_replacement.sql"),
-        baca(ctx.repoRoot, "supabase/migrations/20270117130000_an_anonymised_person_is_given_nothing_new.sql")].join("\n")
+        baca(ctx.repoRoot, "supabase/migrations/20270117130000_an_anonymised_person_is_given_nothing_new.sql"),
+        // RESTATED again, L1-F4 (Sharon's result review of 3a63a2b2): 20270117200000 redefines akun_tolak with
+        // ACCOUNT_ANONYMISED and raises it from buka_kembali_akun; the last definition read is still the one in force
+        baca(ctx.repoRoot, "supabase/migrations/20270117200000_an_anonymised_person_is_never_reopened.sql")].join("\n")
         .replace(/--[^\n]*/g, "");
       const tolak = [...sql.matchAll(/create or replace function public\.sertifikat_koreksi_tolak[\s\S]*?\$\$;/g)].pop()?.[0] ?? "";
       const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();
@@ -268,7 +271,10 @@ export const b5Tests: SelfTest[] = [
       // RESTATED, L1-F4 (owner, 12 Nov): 20270117130000 redefines akun_tolak with ACCOUNT_LIVE_ATTACHMENT and raises it from its
       // rewrite of hapus_data_pribadi (inside a quoted string, so quotes are undoubled): the newest definition, across both files
       const sql = [baca(ctx.repoRoot, "supabase/migrations/20270113130000_an_account_is_suspended_closed_or_anonymised_on_the_record.sql"),
-        baca(ctx.repoRoot, "supabase/migrations/20270117130000_an_anonymised_person_is_given_nothing_new.sql")].join("\n")
+        baca(ctx.repoRoot, "supabase/migrations/20270117130000_an_anonymised_person_is_given_nothing_new.sql"),
+        // RESTATED again, L1-F4 (Sharon's result review of 3a63a2b2): 20270117200000 redefines akun_tolak with
+        // ACCOUNT_ANONYMISED and raises it from buka_kembali_akun; the last definition read is still the one in force
+        baca(ctx.repoRoot, "supabase/migrations/20270117200000_an_anonymised_person_is_never_reopened.sql")].join("\n")
         .replace(/--[^\n]*/g, "");
       const tolak = [...sql.matchAll(/create or replace function public\.akun_tolak[\s\S]*?\$\$;/g)].pop()?.[0] ?? "";
       const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();

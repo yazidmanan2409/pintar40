@@ -25,6 +25,10 @@
 --             read them as history and the deletion completed)
 --   L1F4-K10  the closure records what was live when it was made, written once; with only that live, the deletion
 --             completes
+--   L1F4-K11  (Daisy) a key correction newly earning a certificate for an anonymised learner does not count it
+--   L1F4-K12  (Sharon's result review of 3a63a2b2, L1F4-A2) an anonymised person is never reopened: a request made
+--             before the deletion is ended by it and refused after it; any open request is refused ACCOUNT_ANONYMISED;
+--             the closure stays open and the accounts locked; a request after the deletion records nothing
 
 create or replace function selftest.l1f4_kode(p_sql text)
 returns text language plpgsql set search_path = public, pg_temp as $$
@@ -360,6 +364,7 @@ declare
   v_tag text := substr(md5(random()::text), 1, 8); v_probs jsonb := '{}'::jsonb; v_fatal text := '';
   v_a uuid; v_root_a uuid; u_sys uuid; u_adm_a uuid; u_h uuid; p_h uuid; v_req_h uuid; v_ra_h uuid;
   v_ref uuid; v_sidik text; v_period uuid; v_t text; v jsonb; v_k uuid; v_post uuid; v_y uuid; v_w uuid; v_d0 text; r record;
+  u_j uuid; p_j uuid; v_req_j uuid; v_pid_j text; v_reopen uuid; n int;
 begin
   perform selftest.as_owner();
   begin
@@ -434,6 +439,59 @@ begin
       end if;
     end if;
 
+    -- ═══ L1F4-K12 (Sharon's result review of 3a63a2b2, L1F4-A2; her "L1F4-K09", renamed: K09 was taken): a person whose
+    -- personal data was deleted is never reopened. J, a teacher at A, asks for deletion, closes, and asks to reopen
+    u_j := selftest.f11_user('l1f4t-guru-j-' || v_tag || '@local.invalid', 'EDUCATOR', v_root_a);
+    select a.person_id into p_j from public.accounts a where a.auth_user_id = u_j;
+    if selftest.l1f4_sebagai(u_j, format('select public.minta_akun(%L, true)', 'DELETE_PERSONAL_DATA')) <> 'OK'
+       or selftest.l1f4_sebagai(u_j, format('select public.minta_akun(%L, true)', 'CLOSE')) <> 'OK' then
+      raise exception 'teacher J could not ask for deletion and close';
+    end if;
+    select q.id into v_req_j from public.account_requests q where q.person_id = p_j and q.kind = 'DELETE_PERSONAL_DATA';
+    v_pid_j := (select p.pintar_id from public.persons p where p.id = p_j);
+    perform public.minta_buka_kembali(v_pid_j, 'uji L1F4: saya ingin akun saya dibuka kembali');
+    select q.id into v_reopen from public.account_requests q where q.person_id = p_j and q.kind = 'REOPEN' and q.status = 'RECEIVED';
+    if v_reopen is null then raise exception 'J''s request to reopen was not recorded before the deletion'; end if;
+    -- the deletion: it completes, and ends the open request to reopen with a note
+    v_t := selftest.l1f4_sebagai(u_sys, format('select public.hapus_data_pribadi(%L, %L)', v_req_j, 'sesuai permintaan'));
+    -- (if J's deletion is refused, that is the finding, reported here; the rest of K12 needs it to have happened)
+    if v_t <> 'OK' then
+      v_probs := selftest.f11_note(v_probs, 'L1F4-K12', 'J''s deletion answered ' || v_t || ' (expected OK: J held only the role held at the closure)');
+    else
+      v_t := (select q.status || ':' || (q.decision_note is not null)::text from public.account_requests q where q.id = v_reopen);
+      if v_t is distinct from 'DECLINED:true' then
+        v_probs := selftest.f11_note(v_probs, 'L1F4-K12', 'the request to reopen made before the deletion reads ' || coalesce(v_t, 'nothing') || ' after it (expected DECLINED, with a note)');
+      end if;
+      -- a request made before the deletion, approved after it: refused; the closure stays open; the accounts stay locked
+      v_t := selftest.l1f4_sebagai(u_sys, format('select public.buka_kembali_akun(%L, %L)', v_reopen, 'identitas diperiksa lewat telepon sekolah'));
+      if v_t not like 'PR140:%' then
+        v_probs := selftest.f11_note(v_probs, 'L1F4-K12', 'approving the earlier request after the deletion answered ' || v_t || ' (expected a refusal)');
+      end if;
+      -- a request left open from before this correction (an anonymised person's open request to reopen; L1-F4's guard on
+      -- account_requests refuses a NEW one, so it is written past the guard, as data from before would be): refused
+      -- ACCOUNT_ANONYMISED
+      set local session_replication_role = replica;
+      insert into public.account_requests (person_id, kind, pesan) values (p_j, 'REOPEN', 'uji L1F4: permintaan yang tertinggal') returning id into v_reopen;
+      set local session_replication_role = origin;
+      v_t := selftest.l1f4_sebagai(u_sys, format('select public.buka_kembali_akun(%L, %L)', v_reopen, 'identitas diperiksa lewat telepon sekolah'));
+      if v_t <> 'PR140:ACCOUNT_ANONYMISED' then
+        v_probs := selftest.f11_note(v_probs, 'L1F4-K12', 'approving an open request to reopen an anonymised person answered ' || v_t || ' (expected PR140:ACCOUNT_ANONYMISED)');
+      end if;
+      v_t := (select count(*)::text from public.person_suspensions x where x.person_id = p_j and x.ended_at is null and x.category = 'CLOSED_AT_REQUEST')
+          || '|' || (select coalesce(string_agg((u.banned_until = public.akun_terkunci_sampai())::text, ','), '-') from public.accounts a join auth.users u on u.id = a.auth_user_id where a.person_id = p_j);
+      if v_t is distinct from '1|true' then
+        v_probs := selftest.f11_note(v_probs, 'L1F4-K12', 'after the refused reopens, the closure|accounts locked read ' || coalesce(v_t, '-') || ' (expected 1|true: still closed, still locked)');
+      end if;
+      delete from public.account_requests q where q.id = v_reopen;
+      -- a request by PINTAR ID after the deletion: the same answer as for anyone, and nothing recorded
+      n := (select count(*) from public.account_requests q where q.person_id = p_j and q.kind = 'REOPEN');
+      v := public.minta_buka_kembali(v_pid_j, 'uji L1F4: saya ingin akun saya dibuka kembali');
+      if (v ->> 'ok') is distinct from 'true' or (select count(*) from public.account_requests q where q.person_id = p_j and q.kind = 'REOPEN') <> n then
+        v_probs := selftest.f11_note(v_probs, 'L1F4-K12', 'a request to reopen by PINTAR ID after the deletion answered ' || coalesce(v::text, '-') || ' or recorded a row (expected ok, nothing recorded)');
+      end if;
+
+    end if;
+
     -- ═══ L1F4-K11 (Daisy): the summary's «{n} sertifikat baru dapat diterbitkan» does not count a certificate that will
     -- not be issued: a key correction newly earns one for an anonymised learner and one for a live learner
     v := selftest.f13_kunci_dunia(2, 1);
@@ -464,7 +522,8 @@ begin
   for r in select * from (values
     ('L1F4-K09', 'a live role or pending enrolment dated before the closure but not held at it refuses the deletion ACCOUNT_LIVE_ATTACHMENT, changing nothing: timestamps decide nothing'),
     ('L1F4-K10', 'the closure records the ids live when it was made, written once; with only those live the deletion completes'),
-    ('L1F4-K11', 'a key correction newly earning a certificate for an anonymised learner does not count it among those that can be issued')
+    ('L1F4-K11', 'a key correction newly earning a certificate for an anonymised learner does not count it among those that can be issued'),
+    ('L1F4-K12', 'an anonymised person is never reopened: the deletion ends an open request to reopen with a note; one approved after the deletion is refused, another open one ACCOUNT_ANONYMISED; the closure stays open and the accounts locked; a request by PINTAR ID after it records nothing and answers as for anyone')
   ) z(a, b) loop
     id := r.a;
     ok := v_fatal = '' and not (v_probs ? r.a);

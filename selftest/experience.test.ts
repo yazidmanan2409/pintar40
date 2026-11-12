@@ -2185,7 +2185,9 @@ export const experienceTests: SelfTest[] = [
       // answers in its view). Read against §3: what a teacher is told about answers, not a mark, a logo, a crest or a theme.
       // MOVED 242 -> 243, RESTATED, L1-F2 (Sharon's result review of e27f4a77): 20270117190000 (the person row before the
       // account rows). Read against §3: the order of locks, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 243, `${migrations.length} migrations; the frozen baseline has 243`);
+      // MOVED 243 -> 244, RESTATED, L1-F4 (Sharon's result review of 3a63a2b2): 20270117200000 (an anonymised person is never
+      // reopened). Read against §3: when an account may be reopened, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 244, `${migrations.length} migrations; the frozen baseline has 244`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4052,7 +4054,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 240 -> 241, RESTATED, L1-F4, for 20270117170000 (the closure's record; the deletion's measure): no tour RPC.
       // MOVED 241 -> 242, RESTATED, F1-R1b, for 20270117180000 (the teacher's marker reads the answers in its view): no tour RPC.
       // MOVED 242 -> 243, RESTATED, L1-F2, for 20270117190000 (the lock order: person first, auth.users before accounts): no tour RPC.
-      c.expect(migs.length === 243, `${migs.length} migrations; the baseline has 243`);
+      // MOVED 243 -> 244, RESTATED, L1-F4, for 20270117200000 (the deletion and the reopen take the person first): no tour RPC.
+      c.expect(migs.length === 244, `${migs.length} migrations; the baseline has 244`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

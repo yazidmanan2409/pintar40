@@ -12,6 +12,8 @@ export const KODE_AKUN_DB = [
   "ACCOUNT_REOPEN_VIA_REQUEST",
   // L1-F4 (Sharon §3a.3): an attachment gained since the closure began stops the deletion; the request stays open
   "ACCOUNT_LIVE_ATTACHMENT",
+  // L1-F4 (Sharon, result review of 3a63a2b2): a person whose personal data was deleted is never reopened
+  "ACCOUNT_ANONYMISED",
 ] as const;
 // ACCOUNT_PHOTO_PENDING (Sharon §16 finding 2): the data is deleted, a photo file not yet; pressing again finishes it
 export const KODE_AKUN = [...KODE_AKUN_DB, "ACCOUNT_PHOTO_PENDING", "ACCOUNT_FAILED"] as const;
