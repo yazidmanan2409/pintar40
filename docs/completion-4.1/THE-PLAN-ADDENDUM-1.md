@@ -313,6 +313,33 @@ unverified assumption that educators will never supply identifying material.
   information; that statement alone is not the control.
 - A test that a request containing a known learner's name is not sent, and a plant that removes the check.
 
+**What Sharon will require for R-3 at C3w's pre-build review (12 Nov; read against the ruling, not as new scope):**
+
+1. **One server-side builder of the provider request,** built from an allowlist of fields taken from content tables
+   only: the educator's excerpt, the objective, the item schema and the prompt. It never reads `persons`, `responses`,
+   `assessment_sessions`, results, enrolments or accounts. A static test finds no provider call outside that one
+   module; a database-level test shows the builder's reads touch only the allowed relations.
+2. **The excerpt is educator text, and that is checked, not assumed.** Before sending, it is checked against the
+   school's own learner names and PINTAR IDs, and against obvious identifiers (numbers shaped like a PINTAR ID, email
+   addresses, phone numbers). **A match blocks the send and tells the educator why. A warning alone is not enough.**
+3. **Nothing learner-derived in the context:** no examples drawn from learners' answers, no class results, no "common
+   mistakes" built from evidence, even aggregated, unless the owner rules otherwise.
+4. **Provider-side records hold content only:** no log, request id or metadata sent to the provider carries a person
+   identifier; the request carries no user field naming a learner or an educator.
+5. **Tests, red first:** an excerpt containing a learner's name or PINTAR ID is refused before any call; the request
+   built for a normal draft contains only allowlisted fields; a plant adding a learner-derived field to the builder
+   turns the test red.
+
+**One consequence for C3w's design review to settle (Chief Architect).** Teaching text is full of names. A word
+problem that begins "Budi membeli lima apel" names nobody in particular, and a school will very likely have a learner
+called Budi. A check that blocks on any match with a learner's given name would refuse a large share of ordinary
+material, and educators would learn to strip names from good text or stop using the feature. A check that matches
+only full names and identifiers lets a worksheet with first names through. The rule for what counts as a match (full
+name, identifier, a given name beside a class or a score, a list of several of the school's names together) is the
+substance of this control. It is Sharon's and Daisy's to design on C3w's page, with what the educator is shown when
+the send is blocked. If no rule both protects learners and leaves ordinary teaching text usable, that comes to the
+owner with the options. It is not decided here.
+
 ## 6 · Dependencies that now hold
 
 - **Promotion:** B1 not ahead of L-1 (met). C1w not ahead of F-1 (met) nor of F1-R1b. L1-F4 not accepted before its
@@ -344,3 +371,4 @@ deployment or production database change.
 | 12 Nov 2026 (07:36 UTC) | Owner agreed the interim safeguard for A2a. The school-scoped question remains open. Owner's rulings on the provider preparation recorded in `C3-EVALUATION-PREPARATION.md` §6a |
 | 12 Nov 2026 (07:37 UTC) | Sharon's answer to the eight operations recorded: all can be scoped safely, by moving the refusal from the request to the writers of the work. The engineer's inventory is still owed before A2b |
 | 12 Nov 2026 (07:39 UTC) | **Register reconciled:** R-1 covers school-scoped planned windows (option A); the statements that recorded it as open are marked superseded. Sharon's analysis accepted as the technical direction. R-3 recorded: no learner personal information to a provider, enforced by design at C3w |
+| 12 Nov 2026 (07:40 UTC) | Sharon's five requirements for R-3 recorded for C3w's pre-build review, with one consequence to settle there: what counts as a match when ordinary teaching text contains common names |
