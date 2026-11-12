@@ -22,8 +22,9 @@
    marker; content checks; where the clearing is written). They govern where §2 differs.
 8. **The owner's question is answered:** "not annotated" is distinguished from "none found" by **wording and a
    marker**, with **no new number and no change to any catalogue definition**.
-9. State: **released to the engineer**, after F-1's fix, as its own commit, before Z. Daisy's wording is needed for
-   three lines (§6). It gates nothing.
+9. ~~State: **released to the engineer**, after F-1's fix, as its own commit, before Z.~~ **Superseded (12 Nov,
+   05:47 UTC): HELD on a conflict with invariant INV-03 (§3b), which is the owner's to decide.** Nothing is built
+   until then. It still gates nothing. Daisy's wording is needed for three lines (§6).
 
 ## 1 · The defect
 
@@ -137,6 +138,45 @@ exception. Once approved, a direct write to either column is refused as before.
 - **§2 point 4 is answered by her point 5:** Studio's marker and the existing content checks together are how
   "explanations owed" is shown and enforced. No new mechanism is added.
 
+## 3b · Conflict with INV-03, found by the engineer (12 Nov 2026)
+
+**The conflict.** `docs/rebuild/03-PINTAR-INVARIANTS.md`, INV-03: *"Every Option's rationale is non-empty. A wrong
+answer is evidence of thinking; an unexplained distractor teaches nothing."* It is enforced in the database:
+`item_options.rationale text not null check (btrim(rationale) <> '')` (`M/20260912112712…:261`). The approved
+correction clears the rationale of an option whose correctness changed. **A null rationale cannot be stored.** The
+brief and Sharon's design review both missed the column constraint; her point 5 saw only the draft check.
+(`misconception_code` is nullable, so clearing it raises no conflict.)
+
+The engineer raised this for a ruling and held F1-R1b. The question did not reach the Chief Architect until the
+engineer's status of 12 Nov mentioned it.
+
+**It is the owner's to decide,** because an invariant of the baseline is involved, and the invariants document says
+its rules must remain true whatever implements them.
+
+| Option | What is stored | Consequence |
+|---|---|---|
+| **A1 (recommended). Amend INV-03 narrowly** | The rationale is null **only** on an option that names the governed key correction which withdrew it (one new column, with a constraint: non-empty rationale, or a named withdrawing correction). The old text is kept on the correction's record | **No reader can show a stale explanation, because there is none to show.** This is the property F-1 was about: the defect class there was a reader serving sealed text beside a new mark. The existing draft checks then refuse any later revision until the rationale is rewritten, as Sharon's point 5 describes. Cost: INV-03 gains one stated exception, and the baseline records an amendment |
+| A2. Keep INV-03 untouched; withdraw instead of clearing | The stale text stays in the column; the option is marked withdrawn; every reader that serves a rationale must withhold it when marked | The invariant's letter holds. But correctness then depends on every present and future reader honouring the mark, which is exactly how F-1 arose. It needs a new draft check and an accessor every reader must use |
+| A3. Store a fixed placeholder sentence | A system sentence in an authored column | The constraint holds. Authored content then contains text no author wrote, in one language, sealed into releases and copies. Not recommended |
+
+**Why A1.** The invariant's own reason is that an unexplained distractor teaches nothing. A distractor explained
+**wrongly** teaches something false, which is worse, and A2 keeps the false text one missed reader away from a
+learner. A1 states the exception honestly, bounds it to a governed, two-person, audited act, marks it, and makes the
+debt enforceable. It is also what the owner's decision said in words: "clear that option's stale rationale".
+
+**Proposed amended wording of INV-03 (for the owner's approval):** *Every Option's rationale is non-empty, except
+where a governed answer-key correction has withdrawn it because it contradicted the corrected key. Such an Option
+names that correction, the withdrawn text is kept on the correction's record, and no further revision of its package
+may be submitted until the rationale is written.*
+
+**How the amendment is recorded.** The invariants document already carries a dated "Baseline amendment" note, and
+CI checks the frozen baseline against its manifest. The engineer and Sharon state the correct way to record an
+amendment (the note, the manifest, and the owner-decisions record) so that the baseline check stays truthful.
+
+**For Sharon, with the owner's decision:** confirm A1's constraint and that nothing else reads `rationale` assuming
+it is never null (packages, copies, the canonical payload and its digest, Studio, the MCQ quality run, exports).
+That search was already asked of the engineer in her point 3; it now matters more.
+
 ## 4 · The four questions
 
 | Question | To answer on the page |
@@ -187,3 +227,4 @@ call, together with the same question for F-1's fix.
 |---|---|
 | 12 Nov 2026 (03:50 UTC) | Owner approved Option A with the conditions of §0. Brief written. Awaiting Sharon's pre-implementation review and Daisy's wording |
 | 12 Nov 2026 (03:53 UTC) | Sharon: PASS on the design with three required points and six tests (§3a). Released to the engineer, after F-1's fix |
+| 12 Nov 2026 (05:47 UTC) | **Held.** The engineer found that INV-03 and its column constraint forbid a null rationale. Options and a recommendation recorded in §3b; put to the owner |
