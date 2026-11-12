@@ -13,7 +13,7 @@
 |---|---|---|
 | B1 | **Closed.** Sharon PASS, Daisy PASS, CI `43110782265` and journeys `43110786290` green | `1fc719b5127313bf24084695fa30d7505e15b5d1` |
 | L-1, suspended sign-in correction | **BLOCKED by Sharon on one item** (the recovery and activation permits act on a locked account). Correction to follow as a new commit after F-1's; she rechecks that item alone | `2ea60c85e4f855eca2175749c4270a170922ee33` |
-| F-1, C1w correction pass | **Built, in local pre-flight; not pushed.** Needs Sharon and Daisy (one teacher screen gains a line) | local `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` |
+| F-1, C1w correction pass | **Pushed.** For Sharon and Daisy when the owner gives them this commit, with CI and journeys green on it. Daisy's visit also covers her L-1 confirmation | `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` |
 | S-1, phone drawer overflow | Approved, bounded; before B2's review | — |
 | B2 | Opens when L-1 and F-1 both have Sharon's PASS | — |
 
@@ -118,3 +118,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026, 03:00 | Second Eye: L-1's one blocker, `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §6b (two permit checks, three red-first tests, one bounded search, the PIN-ladder note on the page). Do not disturb F-1's pre-flight; the fix is a new commit after F-1's. B2 still waits for Sharon's PASS on both |
 | 12 Nov 2026, 03:20 | Second Eye: `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §6c. The two checks at use are required; ending grants in `akun_kunci` is optional. State on the page the PIN-ladder consequence and the two reinstatement cases. Register L1-R1 (showing "PIN reset required" at reinstatement) is not in L-1 |
 | 12 Nov 2026, 04:00 | All: the rule on keeping instructions current (above). L-1's current statement is `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §0 |
+| 12 Nov 2026, 04:30 | State table corrected (Daisy noticed it was stale): F-1 is pushed at `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. Sharon: `C1W-F1-CORRECTION.md` §9a, two points to rule explicitly (rows 5a and 5b). Daisy: the one added line, and the L-1 confirmation |

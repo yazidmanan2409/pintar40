@@ -149,6 +149,52 @@ test red.
 
 **Before any push:** THE PLAN §4.1, P1 to P6, in full. **Then:** the exact commit to Sharon, once.
 
+## 9a · Chief Architect's read of the candidate (12 Nov 2026, 04:30 UTC)
+
+Read-only, of `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` on `claude/system-integrity-4.0` (one migration,
+`M/20270117100000…`; tests; six planted defects; one line on the teacher's per-question screen; the engineer's page
+`docs/completion-4.1/batches/C1W-F1-COMPLETION.md`). The engineer reports the local pre-flight green on the suite
+(1088 passed, 0 failed) and the planted defects (162 of 162). CI and journeys on this commit are not yet confirmed by
+this read.
+
+| Brief (§9) | As built | Standing |
+|---|---|---|
+| One reader of the key in force | `kunci_berlaku_sesi(session)` is the only reader of a basis's key; `nilai_jawaban_berlaku` is re-expressed through it; the migration refuses to finish unless each corrected reader takes the key from it and none keeps the sealed-key read | Met |
+| Which accessor, and why | `hasil_murid_id`, reasoned in the migration header and on the page | Met; Sharon reviews the choice |
+| Uncorrected sittings identical | Every corrected read is `coalesce(key in force, sealed key)`; tests F13-K06 to K10 compare each view with its exact previous definition, plus a whole-database comparison | Met |
+| The cohort view is set-based | The reader is joined once per query, not called per response; class read timed before and after (4.80 to 4.89 ms uncorrected, 4.95 to 4.96 ms corrected) | Met |
+| `class.misconceptions` definition unchanged | The catalogue fingerprint is identical before and after (F13-K12); no new catalogue published | Met as built; **Sharon rules** on whether that reading of D-060 is right |
+| History immutable | F13-K11: sealed question, options, digest, original results, presented items and responses byte-identical | Met |
+| `is_key` on the teacher's evidence | The key in force; where it differs, each option also carries `was_key`, and the screen says so in one line | Met; **Daisy reviews the line** |
+| Journey 3 across the corrected views | C1W-J02, through the running app with eleven learners | Met |
+| Plants | Six, each restoring the sealed-key read in one view | Met |
+
+**The impact list of §8, as disposed by the pass:**
+
+| Row | Disposition |
+|---|---|
+| 1 `service_cohort_misconceptions` | Corrected |
+| 2 `teacher_question_evidence` | Corrected (mark and `is_key`) |
+| 3 `reading_map` remediation | Corrected |
+| 4 `session_misconceptions` (the additional candidate) | Corrected |
+| 5a `service_item_statistics` correct count and rate | **Corrected.** An educator-facing figure that counted an answer wrong that the result in force counts right. It is also read by `recompute_question_health` |
+| 5b distractor uptake's per-option key flag | **Not changed, deliberately.** It counts choices and marks no answer; a per-sitting key would split one option's row in two, which changes the figure's shape. A catalogue question, put to Sharon |
+| 6 `learning_delta` | Not a marking view; unchanged |
+
+**Two points for Sharon, in the Chief Architect's words:**
+
+1. **Row 5a changes a figure that a catalogue entry describes** (`item.correctness_rate`), in the same way row 1
+   changes `class.misconceptions`: the definition is untouched, and only corrected sittings move. If she accepts that
+   reading for row 1 she will likely accept it for 5a, but it is the same D-060 question asked twice, and it also
+   moves Question Health for a corrected question. It should be ruled explicitly, not by inference.
+2. **Row 5b leaves a visible disagreement:** after a correction, distractor uptake still flags the old key as the
+   key, beside figures that now use the new one. Leaving it is right for this pass. If Sharon agrees it is a
+   catalogue matter, it is recorded as a finding for the owner with the 4.5 item-statistics work, where the figure's
+   shape is already to be reconsidered.
+
+**The wording added (Daisy's to review):** «Kunci soal ini sudah diperbaiki. Jawaban di sini dinilai dengan kunci
+yang berlaku sekarang; kunci aslinya {asli}.»
+
 ## 10 · Log
 
 | Date | Entry |
@@ -157,3 +203,4 @@ test red.
 | 11 Nov 2026 (evening) | Owner: continue under the approved plan overnight; schedule this pass after B1 closes and before B2. Release rule recorded in §3. Preliminary impact list (§8) and the engineer's brief (§9) added |
 | 11 Nov 2026 (late) | Owner approved a second, separate small correction at the same boundary (`AUTH-SUSPENDED-SIGNIN-CORRECTION.md`). Sequence: B1 closes → this pass and that one, each with Sharon's review → B2 |
 | 11 Nov 2026 (late) | B1 closed on `1fc719b5` (Sharon PASS, Daisy PASS, CI and journeys green). This pass is released. Order at the boundary: the suspended sign-in correction first, then this pass; B2 after both have Sharon's PASS |
+| 12 Nov 2026 (04:30 UTC) | Candidate pushed: `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. Read by the Chief Architect (§9a). For Sharon and Daisy once CI and journeys are green on it |
