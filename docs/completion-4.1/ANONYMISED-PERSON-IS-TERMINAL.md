@@ -10,9 +10,15 @@
    receives a **new** person identity, without reconnecting their anonymised record or their historical learning
    evidence.
 2. **P-1 needs no implementation change** beyond its guarding test (that test is taken with L1-F2's lock trigger).
-3. **Sharon reviews the design before anything is built,** and is asked to verify four things (§3).
-4. State: **awaiting Sharon's pre-implementation review.** Not started. The engineer's three tests of today's
-   behaviour are evidence for this page and may be written at any time.
+3. **Sharon's pre-implementation review: PASS on the design** (read at
+   `54de9d9235834678492f6b56ff2d4d4102a12dcd`), **with four required design points** (§3a). Where they differ from
+   §2, they govern.
+4. **The guard covers new credentials as well as new standing,** and is INSERT-only.
+5. **The deletion refuses when a live attachment exists** (the race of §3a point 3). This is the one place the
+   correction touches how a deletion runs; it is a guard against a race, not a change of the deletion's rules.
+6. **One question is with the owner** (§3b): a certificate newly earned by a key correction for an anonymised
+   person. It does not hold the build.
+7. State: **released to the engineer**, as its own commit, before Z. It gates nothing.
 
 ## 1 · The defect
 
@@ -54,6 +60,75 @@ Found by the engineer's examination for `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §5b
 | 3 | **Concurrency between anonymisation and attachment** | An attachment and `hapus_data_pribadi` racing each other, in both orders, on two real connections: can an attachment commit after the person is anonymised, or be read as valid by the deletion? Which row is locked, and by whom first? |
 | 4 | **Legitimate historical records and deletion bookkeeping** | What must still write to, or about, an anonymised person: the deletion's own steps, the ending of open enrolments and roles, audit rows, the purge, a governed key correction that supersedes a past result of theirs, a certificate review? The guard must refuse new attachment and nothing else |
 
+## 3a · Sharon's four required design points (these govern)
+
+**1 · Central enforcement and its scope.**
+- **One predicate, several triggers.** "One place" cannot be one trigger, because attachments go into several
+  tables. One guard function, `orang_dianonimkan(person)`, called by a BEFORE INSERT trigger on each attaching table.
+- **Completeness is kept by a test, not by a list on a page.** Every table with a foreign key to `persons(id)` is
+  classified as guarded or exempt, with a reason. An unclassified table fails the test, so a table added later
+  cannot slip past. A plant that adds such a table unclassified turns the test red.
+- **Scope covers new credentials, not only new standing.** At least:
+  - standing: enrolments, role assignments, institutional identities, transfers, portable visibility;
+  - ways to sign in: accounts (including cards), activation grants, recovery grants and codes, new or reset PINs,
+    usernames, email corrections, card reissues and conversions.
+- **INSERT only.** UPDATEs that end or close existing rows are not attachments and must not be caught.
+
+**2 · Indistinguishable responses.**
+- Each path gives the unknown-id answer, compared field by field with it, including `import_validate`'s stored
+  finding.
+- **Who can see an anonymised person's id** (§1's "not verified"), to be verified on the page:
+  - a school that once held the person can already see the record under the PINTAR ID; to that school the
+    anonymisation is visible anyway, which is accepted. The requirement there is only that nothing new attaches;
+  - a school with no relationship must not be able to read the id at all, and its import naming that id must look
+    exactly like an unknown id.
+
+**3 · Concurrency.**
+- The guard takes `FOR SHARE` on the person's row before reading `anonymized_at`; `hapus_data_pribadi` already holds
+  that row `FOR UPDATE`. Deletion first: the attachment waits, sees `anonymized_at`, and is refused. Attachment
+  first: the deletion waits.
+- **Required: the deletion, under its lock, refuses when a live attachment exists.** Otherwise, in the
+  attachment-first order, it would anonymise a person who has just gained a live enrolment or role. Closure already
+  requires no live enrolment (`minta_akun`), but nothing re-checks at deletion time. Refuse with a designed code the
+  platform admin sees; refusing is simpler than ending the attachment as bookkeeping, and preserves evidence.
+- **Lock order:** `import_advance` takes the school, then the person; the deletion takes its request, then the
+  person, and never the school. No cycle.
+
+**4 · Historical records and deletion bookkeeping.**
+- **Allowed** (each corrects or closes what exists; none adds standing): the deletion's own steps; UPDATEs ending
+  enrolments, roles and placements; audit rows and the purge; a governed key correction's superseding result (C1w); a
+  certificate review's decision, and a revocation; B1's clearing of origin and hash.
+- **Refused:** a certificate replacement (W2.22) for an anonymised person. It would issue a new credential under the
+  PINTAR ID, and INV-30 keeps `name_as_issued` as it was.
+
+**Her tests, beyond §5:**
+1. The enumeration test, with its plant of an unclassified table.
+2. Each credential path in scope refused as unknown: activation grant, recovery grant or code, PIN reset, username,
+   email correction, card reissue or conversion.
+3. The two kinds of school, each compared with the unknown case.
+4. The deletion race, attachment first, on two real connections: the deletion is refused and nothing is anonymised.
+5. A certificate replacement for an anonymised person: refused. A key correction's newly earned certificate follows
+   the owner's ruling (§3b).
+6. The deletion still completes on a person with no live attachment; every historical row byte-identical.
+
+**Chief Architect's notes.**
+- The deletion's new refusal is seen by the platform admin. **Its wording is Daisy's**, and it is the one screen
+  consequence of this correction, so she reviews that line.
+- §5's test "a certificate review still runs" stands. Its outcome for a newly earned certificate waits for §3b.
+
+## 3b · For the owner: a certificate newly earned by an anonymised person
+
+A governed key correction can raise a past result so that a certificate is newly earned. C1w's rule is that "one
+newly earned is issued by the usual path". This correction's rule is that nothing new attaches to an anonymised
+person. For such a person the two conflict.
+
+| Option | Consequence |
+|---|---|
+| **A. Do not issue it; record it on the review as earned but not issued (Sharon's recommendation; the Chief Architect agrees)** | The corrected result stands and the record shows the certificate was earned. No credential is created for an identity that no longer exists. Consistent with refusing a replacement |
+| B. Issue it under the PINTAR ID | A new credential attaches to a deleted identity, bearing no name the person can use, contrary to the principle just approved |
+
+The build does not wait for this: the certificate-review test is written to the owner's ruling when it is given.
+
 ## 4 · The four questions
 
 | Question | To answer on the page |
@@ -91,3 +166,4 @@ Pre-flight of THE PLAN §4.1 in full. The page carries the inventory and the nex
 | Date (UTC) | Entry |
 |---|---|
 | 12 Nov 2026, 07:30 | Owner approved the principle and a separate bounded correction, with four points for Sharon to verify. Brief written. Awaiting her pre-implementation review |
+| 12 Nov 2026, 08:00 | Sharon: PASS on the design with four required points and six tests (§3a). Released to the engineer. One question put to the owner (§3b). The deletion's new refusal needs Daisy's wording |
