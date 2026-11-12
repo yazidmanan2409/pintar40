@@ -4,6 +4,26 @@
 > small correction to existing 4.0 behaviour, run **alongside the C1w F-1 pass, after B1 closes and before B2**. It is
 > not a batch, changes no part of THE PLAN, and is **not** a redesign of authentication.
 
+## 0 · What holds now (read this first; it overrides anything below that differs)
+
+*Kept current by the Chief Architect. Sections below are the record of how we got here; where one has been
+superseded it says so at that point and refers back to this list.*
+
+1. The lock is one readable far-future instant, written only by `akun_kunci`; reinstatement clears it.
+2. Every sign-in method answers a suspended, closed or anonymised account with **its own** ordinary mismatch, in the
+   response and in the accountability event. A real Auth outage still answers 503.
+3. The true reason is kept only in the server log (no identifier) and in the suspension's own audit record.
+4. PIN recovery treats a locked person as a wrong PIN. The ladder is not cleared by reinstatement.
+5. **Recovery grants and activations are checked at use:** `recovery_grant_permit` and `password_write_permit` (for
+   `ACTIVATION`) refuse a locked person. Ending grants at locking is optional and not relied on.
+6. **A grant used after a suspension** gets the ordinary expired-grant answer, `PEMULIHAN_BERAKHIR`; the password is
+   byte-identical; the accountability event records that outcome with no person and an empty school snapshot. **The
+   test compares that response and row, field by field, with those of a genuinely expired grant.** (It does *not*
+   record `MASUK_TIDAK_COCOK`; that expectation is withdrawn by Sharon.)
+7. State: BLOCKED by Sharon on `2ea60c85e4f855eca2175749c4270a170922ee33` for item 5 only; the fix is a new commit
+   after F-1's; she rechecks that item alone. Daisy confirms in her F-1 visit; she is not a gate for this pass.
+8. Not in this pass: register L1-R1; any other path found by the bounded search.
+
 ## 1 · The defect
 
 | | |
@@ -165,7 +185,8 @@ is the fourth question earning its place: making one thing work exposed what it 
 2. **The engineer's question to Sharon: a recovery grant obtained before a suspension and used after it still sets
    the password** (the sign-in after it is refused). The Chief Architect's view, for her ruling: suspension already
    ends every session of the person; an outstanding recovery grant is the same kind of thing, a standing permission
-   to act as the account, and should end with them. The natural place is where sessions are ended at locking. That
+   to act as the account, and should end with them. The natural place is where sessions are ended at locking
+   (**superseded:** Sharon ruled this placement insufficient; the check is at use, §0 item 5 and §6c). That
    is a change to what suspension does, so it is **outside this bounded correction** unless Sharon judges it the same
    defect; if she does not, it is recorded as a finding of its own and put to the owner.
 
@@ -192,7 +213,9 @@ password during the suspension, and it is live at reinstatement. The suspension 
 
 **Tests, red first on `2ea60c85e4f855eca2175749c4270a170922ee33`:**
 - a grant issued before a suspension and used after it: the ordinary invalid-grant answer, `encrypted_password`
-  byte-identical, and B1 records `MASUK_TIDAK_COCOK`;
+  byte-identical, and ~~B1 records `MASUK_TIDAK_COCOK`~~ (**withdrawn by Sharon, 12 Nov:** with the fix no password
+  is set, so the answer and the record are those of an expired grant, `PEMULIHAN_BERAKHIR`, compared field by field
+  with a genuinely expired grant; §0 item 6);
 - the same for an activation;
 - after reinstatement, a fresh recovery works.
 
@@ -254,3 +277,4 @@ granted) is recorded with it as a consequence to confirm, not as a defect.
 | 12 Nov 2026 (02:20 UTC) | CI `43132734581` success on attempt 2 (attempt 1: a runner could not start its database before any test ran; failed jobs re-run once), journeys `43132738349` success, both on `2ea60c85e4f855eca2175749c4270a170922ee33`. Local: 1075 passed, 0 failed; 156 of 156 planted defects. Review prompt issued to Sharon by the engineer. Daisy's role clarified in §6 |
 | 12 Nov 2026 (03:00 UTC) | Sharon: BLOCKED on `2ea60c85e4f855eca2175749c4270a170922ee33` for the recovery and activation permits acting on a locked account; all else verified. Correction and tests recorded in §6b, with one bounded search added |
 | 12 Nov 2026 (03:20 UTC) | Sharon's ruling on §6a recorded (§6c): checks at use are required, ending grants at locking is optional; the PIN ladder survives reinstatement by design; register item L1-R1 opened |
+| 12 Nov 2026 (04:00 UTC) | Sharon withdrew the `MASUK_TIDAK_COCOK` expectation for a grant used after a suspension; the engineer's reading stands. §0 added as the one current statement; the two superseded passages are marked where they stand |

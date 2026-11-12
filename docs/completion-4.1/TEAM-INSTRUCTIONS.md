@@ -89,6 +89,17 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
    verification at 390 and 320 px across Konfigurasi pages.
 4. **Verdicts:** PASS or BLOCKED on the 40-character commit.
 
+## Keeping instructions current (owner, 12 Nov 2026)
+
+- **One current statement.** For each piece of work, the brief's "what holds now" section and this file's state table
+  are what is in force. Anything else is history.
+- **Whoever changes a requirement marks the old one where it stands**, as superseded or withdrawn, with a pointer to
+  what replaced it. Nothing is deleted: the record of what was asked and when is kept, as PINTAR keeps its own.
+- **A prompt or review that has been overtaken is not acted on.** If two instructions disagree, the later one by its
+  author wins; if the authors differ, ask before building.
+- **The same on each party's own documents:** the engineer's completion page, Sharon's reviews and Daisy's reviews
+  each say, at the top, what currently holds.
+
 ## Relay rules (after the 38-character SHA and the unreadable prompt file)
 
 - A commit is always given as 40 characters, copied from `git rev-parse`.
@@ -106,3 +117,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026, 02:20 | L-1 with Sharon (prompt issued by the engineer; she should also read `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §6a at this commit of the planning branch). Daisy: one visit on the F-1 commit covering F-1's teacher screen and her L-1 confirmation. F-1 built locally at `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` |
 | 12 Nov 2026, 03:00 | Second Eye: L-1's one blocker, `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §6b (two permit checks, three red-first tests, one bounded search, the PIN-ladder note on the page). Do not disturb F-1's pre-flight; the fix is a new commit after F-1's. B2 still waits for Sharon's PASS on both |
 | 12 Nov 2026, 03:20 | Second Eye: `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §6c. The two checks at use are required; ending grants in `akun_kunci` is optional. State on the page the PIN-ladder consequence and the two reinstatement cases. Register L1-R1 (showing "PIN reset required" at reinstatement) is not in L-1 |
+| 12 Nov 2026, 04:00 | All: the rule on keeping instructions current (above). L-1's current statement is `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §0 |
