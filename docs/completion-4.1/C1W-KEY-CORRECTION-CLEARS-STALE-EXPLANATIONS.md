@@ -17,7 +17,13 @@
 5. **The two-person approval rule is unchanged.**
 6. **Sharon verifies the effect of cleared misconception codes on downstream reporting,** so that the absence of an
    annotation is not misrepresented as evidence of no misconception (§3).
-7. State: **awaiting Sharon's pre-implementation review and Daisy's wording.** Not started.
+7. **Sharon's pre-implementation review: PASS on the design** (read at
+   `10b71c39018133964cafa61a3a3527f1f5ff3cbf`), **with three required design points** (§3a: downstream wording and
+   marker; content checks; where the clearing is written). They govern where §2 differs.
+8. **The owner's question is answered:** "not annotated" is distinguished from "none found" by **wording and a
+   marker**, with **no new number and no change to any catalogue definition**.
+9. State: **released to the engineer**, after F-1's fix, as its own commit, before Z. Daisy's wording is needed for
+   three lines (§6). It gates nothing.
 
 ## 1 · The defect
 
@@ -61,6 +67,75 @@ Found by Daisy in Studio during her F-1 review (`ux-1/daisy-experience` at
 | 5 | **Content rules.** Does any check (`soal_draf_masalah`, `lesson_package_check`, the MCQ quality run) require a rationale or a misconception on an option, so that a corrected revision would be reported as invalid, or could not be published or moved to? An urgent correction must not be refused for it |
 | 6 | **A second correction of the same question** (O41-22): options whose correctness flips back. Their text was already cleared; nothing is restored automatically |
 | 7 | **Immutability:** which guard today permits `tegaskan_koreksi_kunci` to write `is_correct` on the corrected revision, and does the same permission cover these two columns without widening what else may be written |
+
+## 3a · Sharon's answers (these govern)
+
+**1 · Cleared misconception codes downstream (the owner's row): REQUIRED, with no catalogue change.**
+- "Not annotated" already exists in 4.0: `misconception_code` is optional. Clearing adds cases; it creates no new
+  kind.
+- `class.misconceptions` and `session_misconceptions` count only annotated wrong answers; an unannotated wrong answer
+  contributes nothing to either.
+- The reading map is honest already: its remediation falls back to the objective's own statement
+  (`coalesce(remediation, statement)`), so a learner who chose the now-wrong old key is still sent to read the
+  objective.
+- **Required: wording plus a marker, not a new number.**
+  - Every screen that shows a misconception figure or list words an empty or thin result as **"no recorded
+    misconception"**, never "no misconception".
+  - **A marker** on the teacher's per-question view and in Studio, on a question whose wrong options carry no
+    annotation.
+  - **No new number:** a count of unannotated wrong answers would add a value to a catalogue figure, which is a
+    definition change.
+  - The wording is Daisy's (§6 line 3).
+
+**2 · Old sittings: verified.** The corrected revision's questions are new rows; `tegaskan_koreksi_kunci` copies the
+head course and writes only the copied question's options, so no option row is shared with the revision that was
+sat. *One consequence:* in an old sitting the old key was authored as the key and so carries no code; a learner who
+chose it is now wrong and unannotated. The same "not recorded" wording covers it.
+
+**3 · Question Health and item statistics: no effect.** They read correctness and counts, not rationale or codes.
+The engineer confirms with a search of every reader of the two columns.
+
+**4 · Packages, copies, annotations: noted.** Copies carry the nulls, correctly. **For C2w's page:** an annotation is
+keyed to the option's code as it stands; one naming a code the option no longer has is refused or shown as detached,
+never as attached.
+
+**5 · Content rules: REQUIRED.**
+- `soal_draf_masalah` refuses an option with no rationale (`OPTION_REASON_MISSING`), and `lesson_package_check` does
+  the same on upload. **The correction path must not run these checks.** As built, `tegaskan_koreksi_kunci` steps the
+  copied revision's status directly; the engineer confirms nothing in that path calls them, so an urgent correction
+  is never refused for the explanations it has just cleared.
+- **The same checks are the marker's teeth:** a later ordinary revision of that package cannot be submitted until
+  each cleared option has a rationale again. "Explanations owed" is enforced without a new rule.
+- The engineer also states: that any MCQ quality run treats a missing rationale as a finding to report, not a refusal
+  to publish or to move an assignment; and whether writing the explanations needs a further revision, given that the
+  corrected revision is approved and sealed when the confirmation ends.
+
+**6 · A second correction: verified.** A flip-back option was already cleared in the revision being copied and stays
+null; a first-time flip is cleared now; nothing is restored. Each correction's record holds the text it cleared.
+
+**7 · Immutability: REQUIRED.** The `is_correct` write is made on the freshly copied revision while it is still a
+draft, before the status loop takes it to APPROVED. **The two columns are cleared in the same statement or
+immediately after it, before the status loop,** under the same draft permission. The sealed-content guard gains no
+exception. Once approved, a direct write to either column is refused as before.
+
+**Her tests, beyond §5:**
+1. The empty state: for a corrected question, the teacher's class misconception figure and the learner's sitting
+   misconceptions show the "not recorded" wording, and the marker is present.
+2. The reading map: a learner who chose the now-wrong old key, on a new sitting and on an old one, is given the
+   objective's statement, never empty.
+3. Content checks: the correction is confirmed although `soal_draf_masalah` would report `OPTION_REASON_MISSING`; a
+   later ordinary revision is refused until the rationale is written; the marker clears only then.
+4. Old sittings: `session_misconceptions`, the class figure and the reading map byte-identical before and after.
+5. Order: the clearing happens while the copy is a draft; after approval a direct write to either column is refused.
+6. Copies and a second correction.
+
+**Chief Architect's notes.**
+- **The "not recorded" wording reaches existing screens.** Unannotated wrong options already exist in 4.0, so the
+  wording corrects an existing overstatement wherever a misconception figure or list is shown, not only on corrected
+  questions. It is wording only, in `src/lib/hle.ts`, and is Daisy's; it is the consistency the owner's standard asks
+  for and adds no behaviour.
+- **§2 point 4 is answered by her point 5:** Studio's marker and the existing content checks together are how
+  "explanations owed" is shown and enforced. No new mechanism is added.
 
 ## 4 · The four questions
 
@@ -111,3 +186,4 @@ call, together with the same question for F-1's fix.
 | Date | Entry |
 |---|---|
 | 12 Nov 2026 (03:50 UTC) | Owner approved Option A with the conditions of §0. Brief written. Awaiting Sharon's pre-implementation review and Daisy's wording |
+| 12 Nov 2026 (03:53 UTC) | Sharon: PASS on the design with three required points and six tests (§3a). Released to the engineer, after F-1's fix |
