@@ -47,10 +47,33 @@ channel:
 | **Sharon** | Result review of **F1-R1b**, including where the "rationale missing" rule now applies, and the baseline amendment | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` | `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §0, §3d, §3f |
 | **Sharon** | Result review of **L1-F4**, *when its two-connection race test exists* (it is built with L1-F2). Until then: the distinction between historical and new live attachments | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 |
 | **Sharon** | Result review of **B2**, when it is pushed | not yet pushed | `B2-ARCHITECT-NOTES.md` §0 to §4 |
-| **Daisy** | **F1-R1b's** screens and her two open questions (the empty-figure split; «Misunderstanding» or «Misconception») | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` | same brief, §6a |
-| **Daisy** | **L1-F4:** confirm the "earned but not issued" line from the screen; the engineer's line for a refused certificate replacement | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` | `ANONYMISED-PERSON-IS-TERMINAL.md` §3c |
+| ~~**Daisy**~~ | ~~**F1-R1b's** screens~~ **Done: PASS** on `97a40ebb…`, 12 Nov | — | her record at `a13f30ff4fe0bd53727d7af219068d35d0b1b0ae` |
+| ~~**Daisy**~~ | ~~**L1-F4** wording~~ **Done: PASS** on `ea3c4b6f…`, 12 Nov | — | same record, §2 |
 | **Daisy** | **B2,** one visit, with **S-1** (phone widths and the desktop sidebar) and the time zone on a learner's own print | not yet pushed | `B2-ARCHITECT-NOTES.md` §4 and its log |
 | **Second Eye** | After B2: **L1-F2 with L1-R2** and the shared two-connection race test (which L1-F4 needs); then the inventory of the eight operations for work-scoped planned maintenance, before A2b | — | `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §2a, §2b; `THE-PLAN-ADDENDUM-1.md` §5d |
+
+### For Second Eye, from Daisy's review of `97a40ebb…` and `ea3c4b6f…` (non-blocking; one commit, with L1-F2 or sooner)
+
+Her record: `ux-1/daisy-experience` at `a13f30ff4fe0bd53727d7af219068d35d0b1b0ae`,
+`docs/coordination/ux/completion-4.1/TINJAUAN-F1R1B-97a40ebb.md` §1c and §2. Take the exact lines from there.
+
+1. English «Misunderstanding» in three lines (`soal.tak_terkait`, `laporan.komposisi.keliru_kosong`,
+   `studio.kunci.dampak.penjelasan_hilang`); Indonesian unchanged.
+2. The teacher's per-question marker shows only when at least one answer in that view landed on an unlinked wrong
+   option. In Studio, "any wrong option not linked" stays. F13-K24 and its plant follow the meaning in each place.
+3. Her wording for the held step, `studio.konten.kode.content_rationale_owed`.
+4. L1-F4: the shorter cell line for "earned but not issued"; her line for the refused certificate replacement.
+5. **A correctness check, not wording:** the summary «… {n} sertifikat baru dapat diterbitkan» above the impact
+   table must not count a certificate that will not be issued to an anonymised person. Verify with a test; if it
+   counts it today, that is a defect in L1-F4 to correct before its acceptance.
+
+### Register additions (Daisy, 12 Nov; all predate this work; before Z)
+
+| # | Finding | Disposition |
+|---|---|---|
+| X-1 | A refusal inside Studio renders two `<main id="isi">` (two main landmarks, a duplicated skip-link target) | Accessibility; small; before Z, Daisy verifies |
+| X-2 | After a key correction moves a class's assignment, a learner opening an earlier `/belajar/{id}/…` link gets the generic error page | **A consequence of C1w's assignment move that nobody followed to the learner.** Before Z, with a designed answer (redirect to the current assignment, or a plain sentence); short design note to Sharon and Daisy first |
+| X-3 | An unknown correction id at `/studio/tinjau/kunci/{id}` shows "not allowed" where it should show "not found" | Minor; before Z |
 
 **What may close without the owner:** a correction or a batch closes when its reviewers have passed its exact commit,
 CI and journeys are green on it, and the Chief Architect's boundary check is met. **B2 may close on those terms.**
@@ -88,8 +111,8 @@ This instruction was acted on from the day it was given but had not been written
 | L-1, suspended sign-in correction | **CLOSED. Sharon PASS** (12 Nov). Residual L1-R2 goes with L1-F2 | `916d12c01345816afcf567b40131e72b9857cf65` |
 | F-1, C1w correction pass | **CLOSED. Sharon PASS** (12 Nov). Remaining with Daisy, not a gate: the learner's disclosure and any wording for an absent explanation | `bc67f72a0e1c6bc39a2c16292f728080b12710d4` |
 | L1-F2, a suspension covers accounts created after it | Design PASS. **Unblocked** (the L-1 fix has passed). Own commit; before Z. Also takes L1-R2 (delete outstanding password-write permits at locking) and builds the two-connection race setup that L1-F4 needs | brief: `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0, §2a |
-| L1-F4, an anonymised person is terminal | **Pushed and green:** CI `43168308089` and journeys `43168311621` success, first attempt. **Not accepted until its two-connection race test passes** (with L1-F2). Then Sharon's result review | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` |
-| F1-R1b, a key correction clears stale explanations | **Pushed; CI `43189210169` success; journeys `43189229437` running.** With Sharon and Daisy for result reviews. Includes the INV-03 amendment and ADR-0025 | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` |
+| L1-F4, an anonymised person is terminal | **Daisy PASS.** CI and journeys green. **Waiting on the two-connection race test (with L1-F2) and Sharon's result review** | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` |
+| F1-R1b, a key correction clears stale explanations | **Daisy PASS.** CI `43189210169` and journeys `43189229437` green. **Waiting on Sharon's result review** | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` |
 | S-1, phone drawer overflow | **Pushed.** Covered by the CI and journeys of the F-1 fix commit above it. Daisy verifies it with B2, at phone widths **and at the desktop sidebar**, because one rule hides a nav item at every width | `61a6dd3b19761dfc91e11ac4f9e0295b64a32c6e` |
 | B2 | **Built; local, in full pre-flight, not pushed** (engineer's report). Then Sharon's result review and Daisy's one visit (with S-1) | local `9fe1bb44a77f5b0bdcfc8df83eb91a80993c01ba` |
 
@@ -248,3 +271,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (08:23 UTC) | Second Eye: L1-R2's delete covers `RECOVERY` and `ACTIVATION` permits only, not `CARD_REISSUE` (`SUSPENSION-COVERS-NEW-ACCOUNTS.md` §2b, "SETTLED"). Card reissue for a locked learner is intended: write it on the page with its one test |
 | 12 Nov 2026 (09:53 UTC) | F1-R1b pushed and read (`C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §3f). B2 built locally. For B2's reviews: the time zone on a learner's own-results print (`B2-ARCHITECT-NOTES.md` log) |
 | 12 Nov 2026 (10:04 UTC) | Owner away; standing instruction recorded at the top of this file, with the review queue. The repository is the team's channel until the owner returns |
+| 12 Nov 2026 (10:18 UTC) | Check: Daisy passed F1-R1b (`97a40ebb…`) and L1-F4 (`ea3c4b6f…`); journeys green on `97a40ebb…`. Work-branch head unchanged; B2 not yet pushed. No verdict from Sharon is visible on any branch. Queue and register updated |
