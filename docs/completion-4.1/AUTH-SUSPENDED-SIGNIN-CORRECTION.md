@@ -119,7 +119,11 @@ likely to find something this page did not.
 ## 6 · Review and order
 
 - **Sharon:** once, on the pass's exact commit: the corrected behaviour and the security boundary.
-- **Daisy:** only if any wording a user sees changes.
+- **Daisy:** not a gate for this pass. No wording a user sees changed, so L-1 closes on Sharon's PASS, as the owner
+  decided. Daisy runs her own short rendered confirmation of the finding she raised (her list on
+  `ux-1/daisy-experience` at `f6bc7aa1d50c9a8179fecd4044a7a631bb57f937`) **in the same visit as her F-1 review**,
+  on the F-1 commit, which contains this pass. If she finds the screens differ from what she expects, that is a
+  finding against L-1 and reopens it.
 - **Order at the boundary after B1: this pass first, then F-1.** They are independent (different code), each its own
   commit with its own review. This one goes first because it is a disclosure reachable without a password, and
   because every day it stands, the accountability store gains rows that carry it. B2 opens when both have Sharon's
@@ -175,3 +179,4 @@ is the fourth question earning its place: making one thing work exposed what it 
 | 12 Nov 2026 (00:10 UTC) | Daisy's pre-review of the engineer's page: agreed; one clarification taken into §3.2, that the indistinguishable answer is each method's own mismatch. Her check list is on `ux-1/daisy-experience` at `f6bc7aa1d50c9a8179fecd4044a7a631bb57f937` |
 | 12 Nov 2026 (00:15 UTC) | **Sharon confirmed the reconciliation of §5:** the accountability event records the ordinary mismatch; the true reason is kept only in the server log (without the typed identifier) and in the suspension's own audit record, which `tangguhkan_akun` writes with no school, so only the platform admin reads it. **To state on the engineer's page:** the platform admin's accountability reader also shows the ordinary mismatch for these attempts, by intent; the reader is not where suspensions are found. Her condition names the password method; under §3.2 it holds per method |
 | 12 Nov 2026 (01:45 UTC) | Candidate pushed: `2ea60c85e4f855eca2175749c4270a170922ee33`. Read by the Chief Architect (§6a). A second defect (a recovery grant to a suspended account) found and closed by the pass. CI and journeys running |
+| 12 Nov 2026 (02:20 UTC) | CI `43132734581` success on attempt 2 (attempt 1: a runner could not start its database before any test ran; failed jobs re-run once), journeys `43132738349` success, both on `2ea60c85e4f855eca2175749c4270a170922ee33`. Local: 1075 passed, 0 failed; 156 of 156 planted defects. Review prompt issued to Sharon by the engineer. Daisy's role clarified in §6 |

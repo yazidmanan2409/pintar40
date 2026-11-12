@@ -12,8 +12,8 @@
 | Item | State | Commit |
 |---|---|---|
 | B1 | **Closed.** Sharon PASS, Daisy PASS, CI `43110782265` and journeys `43110786290` green | `1fc719b5127313bf24084695fa30d7505e15b5d1` |
-| L-1, suspended sign-in correction | **Candidate pushed; CI and journeys running.** For review by Sharon and Daisy on this commit once both are green | `2ea60c85e4f855eca2175749c4270a170922ee33` |
-| F-1, C1w correction pass | Next, after L-1 | — |
+| L-1, suspended sign-in correction | **With Sharon for review.** CI `43132734581` and journeys `43132738349` green. Closes on her PASS | `2ea60c85e4f855eca2175749c4270a170922ee33` |
+| F-1, C1w correction pass | **Built, in local pre-flight; not pushed.** Needs Sharon and Daisy (one teacher screen gains a line) | local `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` |
 | S-1, phone drawer overflow | Approved, bounded; before B2's review | — |
 | B2 | Opens when L-1 and F-1 both have Sharon's PASS | — |
 
@@ -76,11 +76,14 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 
 ## Daisy
 
-1. **L-1, on the same commit as Sharon** (small): your red-first check. A suspended or closed account's attempt reads
+1. **L-1 (changed 12 Nov, 02:20): not a separate visit and not a gate.** Run it together with your F-1 review, on
+   the F-1 commit, which contains L-1. The check itself is unchanged: your red-first check. A suspended or closed account's attempt reads
    exactly as a wrong password does, on the sign-in screen and as the reader's row («Email, username, atau password
    belum cocok.»), whichever password is given. Nothing else in the screens should have changed; say so if it has.
-2. **F-1:** only if the engineer's page says a screen changed (most likely the teacher's per-question evidence showing
-   the key in force). Then: what the teacher is shown as the key, and whether the original key is shown and how.
+2. **F-1: you are needed.** The teacher's per-question screen gains one line naming the original key. On the F-1
+   commit, when it is given: what the teacher is shown as the key in force, how the original key is named beside it,
+   that a teacher cannot mistake one for the other, and that the screen is otherwise unchanged; at 1280, 390 and
+   320 px. Then your L-1 confirmation (item 1), in the same visit.
 3. **B2, one visit:** your design input for B2 as planned, plus the register B1-R1 to R5 (wording is yours), the
    completeness notice B1-R4 (platform admin only, qualified, linking to health; no school named), and S-1's
    verification at 390 and 320 px across Konfigurasi pages.
@@ -100,3 +103,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026, 00:10 | L-1: the indistinguishable answer is per method (Second Eye, Sharon). Daisy's L-1 checks: `ux-1/daisy-experience` `f6bc7aa1d50c9a8179fecd4044a7a631bb57f937` |
 | 12 Nov 2026, 00:15 | L-1, Second Eye: state on the page that the platform admin's reader also shows the ordinary mismatch for suspended or closed attempts, by intent (Sharon). Reconciliation of the brief §5 confirmed by Sharon |
 | 12 Nov 2026, 01:45 | L-1 candidate `2ea60c85e4f855eca2175749c4270a170922ee33`. Sharon: also rule on the engineer's question (a pre-suspension recovery grant used after it) and see the two consequences in `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §6a. Daisy: same commit |
+| 12 Nov 2026, 02:20 | L-1 with Sharon (prompt issued by the engineer; she should also read `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §6a at this commit of the planning branch). Daisy: one visit on the F-1 commit covering F-1's teacher screen and her L-1 confirmation. F-1 built locally at `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` |
