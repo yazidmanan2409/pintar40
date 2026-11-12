@@ -1,8 +1,10 @@
 # L1-F4: wording (Daisy, 12 Nov 2026)
 
-> **What holds now:**
-> - The line below is final for the key `akun.tinggal.galat.account_live_attachment`.
-> - The «earned but not issued» wording is a draft until I see the certificate review screen.
+> **What holds now (12 Nov, later):**
+> - **§1 is final:** `account_live_attachment`.
+> - **§3 is final (new, 12 Nov):** the refused reopen of an anonymised person.
+> - **«Earned but not issued» is superseded** by the shorter cell line in `TINJAUAN-F1R1B-97a40ebb.md` §2.1 (built at `3a63a2b2`). It sits in the impact table's «Sertifikat» column, not on a certificate review screen.
+> - ~~The line below is final for the key `akun.tinggal.galat.account_live_attachment`.~~ ~~The «earned but not issued» wording is a draft until I see the certificate review screen.~~ (superseded by the lines above)
 
 **Brief:** `docs/completion-4.1/ANONYMISED-PERSON-IS-TERMINAL.md` on `claude/bob-41-master-plan` at `533a38d7deb88657be28a34846728b36aa43b95f`, §3a point 3, and §0 item 6.
 
@@ -49,3 +51,22 @@ The line must not be read as a pending issue someone should fix.
 - that no action, such as «Terbitkan», is offered on that row.
 
 **Send me a screenshot or the commit with the screen, and I will confirm or adjust the line in one reply.**
+
+## 3 · A reopen refused because the person's personal data has been deleted (12 Nov; L1F4-A2)
+
+**Source:** Bob's request, with context in `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 11 at `9f616a58d7cd689548228ce99e1f21934f4e7224`.
+
+**The situation:** a platform admin approves a reopen request (Konfigurasi › Keamanan, beside the other account refusals) for a person whose personal data has already been deleted. It is refused, and nothing is changed.
+
+**Suggested key:** `akun.tinggal.galat.account_anonymised`; the engineer may name it.
+
+| | |
+|---|---|
+| **ID** | «Akun ini tidak dapat dibuka kembali: data pribadi pemiliknya sudah dihapus. Tidak ada yang diubah. Bila orang ini ingin memakai PINTAR lagi, ia didaftarkan sebagai orang baru.» |
+| **EN** | «This account cannot be reopened: its owner's personal data has been deleted. Nothing was changed. If this person wants to use PINTAR again, they are registered as a new person.» |
+
+**Why it is worded this way:**
+- **The family's order:** what was refused and why, then that nothing changed, then the next step. It matches `cert_holder_deleted` and `account_live_attachment`.
+- **«pemiliknya» (its owner)** is the same word the certificate line uses.
+- **The next step is the owner's principle,** said plainly: a returning person gets a new identity (§0 item 1). It names no actor, because who registers them (a school, or the platform admin) depends on the person.
+- **Nothing about the deleted record:** no name, no date of deletion. The admin needs only to know that the account cannot come back and what to do instead.
