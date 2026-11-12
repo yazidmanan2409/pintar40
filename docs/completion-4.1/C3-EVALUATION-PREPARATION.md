@@ -1,0 +1,123 @@
+# C3 · Provider evaluation · preparation findings (no-cost)
+
+> **Prepared 12 November 2026 (07:32 UTC) by the Chief Architect, under the owner's ruling M-A.** Reading only. No
+> key was provisioned, nothing was spent, no network access was changed, and no material was sent to any provider.
+> This is the "provider data-handling terms" and "licensing" prerequisite of THE PLAN §5.7, as far as it could be
+> prepared. It recommends no provider.
+>
+> **Disclosure.** One of the three providers is Anthropic, and this document was prepared by an Anthropic model. The
+> blind design protects the quality judging. This comparison has no such protection, so it quotes each provider's own
+> text with its source and date and states how each item was verified. Sharon holds the data-handling review in the
+> evaluation plan (§7) and is asked to check it.
+
+## 1 · How far each provider could be verified
+
+The session's network policy allowed Anthropic's legal and documentation pages and Google Cloud's terms pages. It
+blocked every OpenAI host and the Gemini Developer API's own pages.
+
+| Grade | Meaning | Applies to |
+|---|---|---|
+| **A** | Read directly on the provider's official page; quotes are verbatim | Anthropic's Commercial Terms, DPA, Usage Policy, Service Specific Terms and documentation; Google **Cloud** terms, DPA, sub-processor list and pricing |
+| **B** | Official URL identified, but the page was blocked; content seen only as search-result excerpts. **Wording may not be verbatim and must be re-read on the live page before anyone relies on it** | **Everything for OpenAI.** The **Gemini Developer API's** own terms, retention, pricing and billing pages. Anthropic's privacy-centre article and its support article on minors |
+| **C** | Not found | Named where it occurs |
+
+**Consequence.** Anthropic is verified. OpenAI is not verified at all. Google is verified for its Cloud route and
+not for its Developer API route, and those are two different contracts.
+
+## 2 · What matters for PINTAR, by question
+
+C3w sends an educator's source excerpt, the objective, the item schema and a prompt. It never sends a learner's name,
+answer or result. Learners never interact with the model. PINTAR's learners are children (SD).
+
+| Question | Anthropic (Claude API) | OpenAI (API platform) | Google (Gemini) |
+|---|---|---|---|
+| **Are inputs used to train models?** | **No, unless opted in (A).** "Anthropic may not train models on Customer Content from Services." | No, unless the customer agrees (B) | Paid Developer API: not used to improve products (B). Unpaid: used, with human review (B). Cloud route: not without permission (A) |
+| **Retention of what is sent** | Documentation: not retained by default, except named "Covered Models" which require 30 days (A). A privacy-centre article says deleted within 30 days (B). **The two read differently and need reconciling.** Flagged content may be kept up to 2 years (A). Zero retention by request to sales (A) | Abuse-monitoring logs up to 30 days; zero retention only with approval (B) | Paid Developer API: logged for abuse monitoring, 55 days (B). Zero retention is offered on the Cloud route, not the Developer API (B). Cloud: not stored longer than needed to produce the output (A) |
+| **Where it is processed** | Global by default; a US-only option; data at rest in the US. **No Indonesian or regional option on the first-party API (A)** | Default not confirmed; regional options listed, none in Indonesia, and non-US regions need approval (B) | Developer API: nothing found (C). Cloud: a region can be selected (A) |
+| **Who owns the drafts; indemnity** | Customer owns outputs; Anthropic indemnifies third-party IP claims on paid use, with exclusions including the customer's own inputs (A) | Customer owns outputs; an output indemnity for API customers, with exclusions (B) | Developer API: Google claims no ownership; **no indemnity found (C)**. Cloud route: indemnity for listed services, which do not include the Developer API (A) |
+| **Rights in the source material sent** | **The customer warrants it has "all rights and permissions required to submit Inputs", and indemnifies the provider for claims about inputs (A)** | Customer indemnifies for claims about its content; exact warranty wording not retrieved (B) | Customer is responsible; exact clause not retrieved (C) |
+| **Minors and education** | Applies where minors "directly interact with products that incorporate our API(s)"; then additional guidelines apply (A). C3w's learners do not interact with the model | Guidance concerns processing personal data of children under 13 without zero retention (B). C3w sends no learner data | **Both routes restrict products for under-18s.** Cloud terms §20(d), read directly (A): the customer will not use a generative AI service "as part of a website, Customer Application, or other online service that is directed towards or is likely to be accessed by individuals under the age of 18." The Developer API's terms carry the same restriction (B) |
+| **Data processing addendum** | Incorporated into the Commercial Terms automatically (A) | Incorporated into the Services Agreement (B) | A processor addendum is referenced; not read (B) |
+| **Structured (JSON schema) output** | Native, stable (A) | Native (B) | Native, a subset of JSON Schema (B) |
+| **A spending cap** | A spend limit per organization and per workspace; reaching it refuses calls (A). **No cap per key found** | Monthly limits per organization and project with a hard-limit switch; spend "can slightly exceed" it (B). No cap per key found | A monthly cap per project, and tier caps (B). No cap per key found |
+
+## 3 · Prices (per million tokens, input / output), for the evaluation's budget
+
+| Provider | Mid-tier general model | Cheapest | Highest | Grade |
+|---|---|---|---|---|
+| Anthropic | Claude Sonnet 5.5: $2 / $10 | Claude Haiku 5.5: $0.10 / $0.50 (prompts up to 100,000 tokens) | Claude Fable 5.2: $8 / $40; Claude Opus 5.5: $4 / $20 | A |
+| OpenAI | `gpt-6.1-sol`: $2 / $10 (which model OpenAI calls mid-tier is not confirmed) | `gpt-6-luna`: $0.10 / $0.50 | `gpt-6-astra`: $10 / $50 | B |
+| Google | Developer API price list not verified. Cloud route (A): Gemini 3.8 Flash $0.75 / $3.75 until 31 Dec 2026, then $1.50 / $7.50; Gemini 4 Argon $2 / $10 until 30 Nov 2026, then $4 / $20 | Gemini 3.1 Flash-Lite $0.25 / $1.50 (Cloud) | Gemini 4 Carbon $2 / $10 until 30 Nov, then $4 / $20 (Cloud) | A for Cloud; B for the Developer API |
+
+The evaluation plan's estimate (about US$0.48 for 30 drafts on the mid-tier Anthropic model; under US$10 for the
+whole evaluation with retries) still holds at these prices. Two of Google's prices are promotional and end on stated
+dates, which matters for the cost-per-accepted-draft figure the owner will use to set limits.
+
+## 4 · Findings that bear on the evaluation and on C3w
+
+1. **Google's restriction on products accessed by under-18s is the one finding that could remove a provider.**
+   PINTAR is used by children. In C3w the model is reached only by educators in Studio, and no learner ever
+   interacts with it. Whether the clause's words, "as part of a … Customer Application … likely to be accessed by
+   individuals under the age of 18", cover an educator-only feature inside an application that children also use is a
+   question of contract reading that engineering should not answer. The evaluation itself (a script sending synthetic
+   chapters) is not such an application. **This needs the owner's reading, or advice the owner trusts, before Google
+   could be selected, and arguably before the effort of judging its drafts.**
+2. **Source-material rights sit with PINTAR and the school under every provider.** The customer warrants its rights in
+   what it sends and indemnifies the provider. This confirms THE PLAN §5.6 D10 and the owner's ruling D-5: the
+   educator's confirmation is necessary, and is not by itself enough. The synthetic chapters carry no third-party
+   rights, so the evaluation is unaffected.
+3. **No provider offers processing in Indonesia** on the routes read. The content sent is educational text, not
+   personal data, so this is recorded and not treated as a barrier; whether any Indonesian requirement applies to
+   educator-supplied material is the owner's to confirm.
+4. **No provider offers a cap on an individual key.** The evaluation plan's precondition P5 ("one API key per
+   provider, with a provider-side spend cap") is met in substance by a cap on a dedicated workspace or project per
+   provider, plus the script's own hard stop. The precondition should be read that way.
+5. **Anthropic's retention statements need reconciling,** and its highest model requires 30-day retention. The
+   evaluation uses the mid-tier model, which that requirement does not name.
+6. **Training use is off by default on the paid API of all three,** on the evidence available (A for Anthropic and
+   Google Cloud; B for OpenAI and the Gemini Developer API). On Google, this depends on the project being a paid one.
+
+## 5 · What is still needed before the first call (THE PLAN §5.7; evaluation plan §1)
+
+| Prerequisite | State | Whose action |
+|---|---|---|
+| Binding terms confirmed for each provider | Anthropic: read (A), with one reconciliation. **OpenAI and the Gemini Developer API: not read; grade B.** | **Owner's decision (§6, item 1)** |
+| Licensing of the material | The synthetic chapters: no third-party rights. Authorized by the owner on 11 Nov | Done |
+| Google's under-18 clause | Open | **Owner's decision (§6, item 2)** |
+| Educator judges | Requirements given to the owner on 12 Nov | Owner nominates |
+| Network access to the three API hosts | Not allowed; not authorized | Owner, when ready |
+| Keys with a cap per workspace or project | Not provisioned; not authorized | Owner enters them, when ready |
+| Kit (prompts, schema, material, blinding and scoring) | Ready; its offline self-test passes. The provider runner is written once terms and access are settled | Engineering |
+| Sharon's check of this document | Requested | Sharon |
+
+## 6 · Decisions for the owner
+
+1. **How the unread terms are confirmed.** Either the owner (or someone the owner names) reads the listed OpenAI and
+   Gemini Developer API pages and confirms the items graded B, or the session is allowed to read those documentation
+   and policy pages. The second is a network change, read-only and to public pages, and is distinct from access to
+   the providers' APIs; it is not made without the owner's approval.
+2. **Whether Google stays in the evaluation,** given finding 1. Options: (a) keep three providers and settle the
+   clause before any selection; (b) settle the clause first and include Google only if it could be selected;
+   (c) evaluate two providers. Recommended: (b), because judging thirty drafts from a provider that cannot be chosen
+   costs the judges' time and tells the owner nothing actionable.
+
+## 7 · Sources
+
+Official pages, accessed 12 November 2026. Grade A unless marked.
+
+- **Anthropic:** Commercial Terms of Service (effective 17 Jun 2025), `www.anthropic.com/legal/commercial-terms`;
+  Data Processing Addendum (effective 24 Feb 2025), `…/legal/data-processing-addendum`; Usage Policy,
+  `…/legal/aup`; Service Specific Terms (effective 31 Aug 2026), `…/legal/service-specific-terms`; documentation at
+  `platform.claude.com/docs/en/` (pricing, models overview, API and data retention, data residency, structured
+  outputs, rate limits). *Grade B:* the privacy-centre retention article and the support article on organizations
+  serving minors. The sub-processor list page was blocked.
+- **OpenAI (all grade B):** Services Agreement, Service Terms, Data Processing Addendum and sub-processor list under
+  `openai.com/policies/`; data controls, pricing, spend limits, structured outputs and under-18 guidance under
+  `developers.openai.com/api/docs/`.
+- **Google:** *Grade A:* Cloud Service Specific Terms (last modified 11 Nov 2026),
+  `cloud.google.com/terms/service-terms`; Cloud Data Processing Addendum (30 Oct 2026); Cloud sub-processors
+  (19 Oct 2026); Generative AI Indemnified Services (20 Jul 2026); Cloud model pricing. *Grade B:* Gemini API
+  Additional Terms (effective 23 Mar 2026 per the excerpt), `ai.google.dev/gemini-api/terms`; its usage-policies,
+  zero-data-retention, pricing, billing and structured-output pages.
+
+No third-party figure is used anywhere in this document.
