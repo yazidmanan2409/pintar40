@@ -5,7 +5,42 @@
 12 Nov with the card reissue; §5c, P-1). Read at `e8a3996925ba46539125dc8e8cd5706fb6703695`. Reviews: Sharon once, on
 the exact commit. No screen changes, so Daisy is not asked.
 
-## For Sharon: the result review (this is the prompt)
+## For Sharon: the delta review after your BLOCKED of `e27f4a77…` (this is the prompt; it supersedes the next)
+
+**Your verdict:** BLOCKED on one item, the lock order has a cycle (`claude/gracious-lamport-0m1qjr` at
+`5941e3b7ef9c16f473eb6ba2139e7c95ccd17854`, `L1F2-e27f4a77a10c7c448170bb2851462e4561daadf7.md`). **Candidate:** the
+commit on `claude/system-integrity-4.0` that carries this section; its 40-character hash is in the review queue. It
+is its own commit, above `55fb9b9b93d75c0d683f8be543f30436246c3be2`.
+
+**Please verify, as a delta on `e27f4a77`:**
+1. **Your fix:** both issuers take the person row `FOR SHARE` first, then the account row, then their check
+   (migration `20270117190000_the_person_row_is_locked_before_the_account_rows.sql`).
+2. **L1R2-R02**, your deadlock order on two real connections. **Red on `55fb9b9b`:** "deadlock detected", the issuer
+   aborted. Green here: both complete, the suspension commits after waiting, no permit survives.
+3. **The structural line, L1R2-S02:** each issuer's first lock is on `persons`.
+4. **L1R2-R01's plant**, restated: it removes the issuer's person lock **and** its account lock, with L1-F4's guard
+   switched off as before. You asked to keep the account lock; either lock alone serialises that race against the
+   suspending act, so removing only the person lock leaves the race safe and the plant cannot bite.
+5. **Read this first: the engineer's search found the same shape in three more acts, and a second cycle.**
+   - `authorize_card_reissue`, `authorize_card_conversion` and `authorize_email_correction` take the account row
+     `FOR UPDATE`, then insert where L1-F4's guard takes the person row. **Changed:** the person row first.
+   - **The second cycle, made by L1-R2.** Auth's own write of a reissued card holds the `auth.users` row, and its
+     trigger `auth_card_email_guard` then updates the `accounts` row. `akun_kunci` took the `accounts` rows and then
+     updated `auth.users`. A school's card reissue for a learner who is being suspended at that moment could deadlock
+     with the suspension: L1F2-A01's own path. Before L1-R2, `akun_kunci` locked no account row, so the cycle did not
+     exist. **Changed:** `akun_kunci` takes the person's `auth.users` rows `FOR NO KEY UPDATE`, in id order, before
+     their accounts. Auth's order cannot be changed; ours can.
+   - **L1R2-R03** proves it on two real connections. **Red on `55fb9b9b`:** "deadlock detected", the card's Auth
+     write aborted. Green here.
+   - **Why `NO KEY UPDATE`:** it waits for any `UPDATE` of the row (Auth's write). It does not wait for the
+     `FOR KEY SHARE` a foreign key's check takes when a permit or a session is inserted, which needs no ordering. With
+     `FOR UPDATE`, it also serialised permit inserts through the foreign key, a fourth hidden lock that masked
+     L1R2-R01's plant.
+6. **The rule and every path,** in "The lock order" below, corrected where it stood.
+
+PASS or BLOCKED, on the candidate.
+
+## For Sharon: the result review (the first prompt, on `e27f4a77`; superseded by the section above)
 
 **Candidate:** the commit on `claude/system-integrity-4.0` that carries this page, one above B2
 `bfe949b11935763a8c8ed7b91f4adcdbcea93645`. Its 40-character hash is given in the review queue
@@ -70,24 +105,46 @@ PASS or BLOCKED, on the candidate.
 
 No route, page or copy changes. No `src/lib/hle.ts` key is added.
 
-## The lock order (§2b, "for the engineer's page")
+## The lock order (§2b, "for the engineer's page"; corrected after Sharon's BLOCKED of `e27f4a77`)
 
-| Step | Taken by | Lock |
+**The rule: the person's row before their `auth.users` rows, before their `accounts` rows, before their permits.**
+`persons` → `auth.users` → `accounts` → `password_write_permits` (and the other rows an L1-F4 guard protects).
+Every path that takes two of these takes them in that order.
+
+**Every path that takes an account row or an `auth.users` row and then reaches the person** (directly, or through an
+L1-F4 guard on its insert). Found by reading every function that locks or updates `accounts` or updates `auth.users`,
+and every trigger on `auth.users`:
+
+| Path | Before this correction | Now |
 |---|---|---|
-| 1 | The suspending act (`tangguhkan_akun`, and closure) | the person's row, `FOR UPDATE` (unchanged) |
-| 2 | `akun_kunci`, inside that act | the person's `accounts` rows, `FOR UPDATE`, in id order (new) |
-| — | The account-link trigger, inside an insert into `accounts` | the person's row, `FOR SHARE` (new) |
-| — | `recovery_grant_permit`, `password_write_permit` | the one account row, `FOR SHARE` (new) |
+| `tangguhkan_akun`, `minta_akun` (CLOSE) → `akun_kunci` | person `FOR UPDATE`, then accounts `FOR UPDATE`, then `auth.users` | **Changed:** person, then `auth.users` `FOR NO KEY UPDATE` (id order), then accounts `FOR UPDATE` (id order), then permits |
+| `aktifkan_kembali_akun`, `buka_kembali_akun` → `akun_kunci(false)` | the open suspension row `FOR UPDATE` (no person row), then accounts, then `auth.users` | **Changed** with `akun_kunci`: the suspension row, then `auth.users`, then accounts. They never ask for the person row, so they conform |
+| `recovery_grant_permit` | account `FOR SHARE`, then the permit insert's L1-F4 guard took the person: **account → person** (Sharon's cycle) | **Changed:** person `FOR SHARE`, account `FOR SHARE`, check, insert |
+| `password_write_permit` | the same: **account → person** | **Changed:** the same |
+| `authorize_card_reissue` | card account `FOR UPDATE`, then `card_reissues` and permit inserts' guards took the person: **account → person** | **Changed:** person `FOR SHARE` first |
+| `authorize_card_conversion` | card account `FOR UPDATE`, then the `card_conversions` guard: **account → person** | **Changed:** person `FOR SHARE` first |
+| `authorize_email_correction` | email account `FOR UPDATE`, then the `email_corrections` guard: **account → person** | **Changed:** person `FOR SHARE` first |
+| Auth's write of a card (`auth_card_email_guard`, BEFORE UPDATE OF email on `auth.users`) | `auth.users` row, then the `accounts` row: **auth.users → accounts**, against `akun_kunci`'s accounts → `auth.users` (the second cycle) | **Conforms** now that `akun_kunci` takes `auth.users` first. Auth's own order is unchanged |
+| Auth's password write (`auth_password_write_guard`) | `auth.users` row, then the permit (delete), then `account_setup` (update; `accounts` read, not locked) | **Conforms** (`auth.users` → permits) |
+| `auth_email_correction_guard`, `kunci_tetap_jaga` (BEFORE UPDATE on `auth.users`) | `auth.users` row; `accounts` and the person read, not locked | **Conforms** |
+| The account-link trigger (`_l1f2_accounts_terkunci`) and L1-F4's guard on `accounts` | inside an insert of a **new** `accounts` row: the person `FOR SHARE`. The new row is invisible to `akun_kunci` until it commits | **Conforms** |
+| `hapus_data_pribadi` (with L1-F4's change) | request row, then person `FOR UPDATE`, then the accounts read (not locked) and `auth.users` updated | **Conforms** (person → `auth.users`) |
+| `minta_akun` (with L1-F4's change) | person `FOR UPDATE`; the record of what it held is read only; then `akun_kunci` | **Conforms** |
 
-**No cycle:**
-- **The link trigger** holds no lock on an existing `accounts` row that the suspending act waits for. The row it
+*(Superseded, kept as the record. The statement below was wrong: an issuer did ask for the person's row, through
+L1-F4's guard on its insert, after it held the account row. Sharon found it; the engineer's search found three more
+acts and the second cycle above.)*
+
+~~**No cycle:**~~
+- ~~**The link trigger** holds no lock on an existing `accounts` row that the suspending act waits for. The row it
   inserts is not visible to `akun_kunci` until it commits. It waits on the person's row, or the suspension waits on
-  it. Never both.
-- **An issuer** holds only its account row. It waits on step 2, or step 2 waits on it. It never asks for the person's
+  it. Never both.~~ *(This one holds, and is in the table above.)*
+- ~~**An issuer** holds only its account row. It waits on step 2, or step 2 waits on it. It never asks for the person's
   row. L1-F4's guard on `password_write_permits` does take the person's row `FOR SHARE`. The suspending act takes that
-  row before step 2, so the order is still person, then account, on both sides.
-- **L1-F4's guard on `accounts`** (`_l1f4_accounts_person_id`) takes the person's row `FOR SHARE` before the insert.
-  That is the same row and the same mode as the link trigger, so it adds nothing to the order.
+  row before step 2, so the order is still person, then account, on both sides.~~ *(Wrong: the issuer had already
+  taken the account row when the guard asked for the person.)*
+- ~~**L1-F4's guard on `accounts`** (`_l1f4_accounts_person_id`) takes the person's row `FOR SHARE` before the insert.
+  That is the same row and the same mode as the link trigger, so it adds nothing to the order.~~ *(This one holds.)*
 
 ## Why the race plants needed the other locks out of the way (a finding about Sharon's plants)
 

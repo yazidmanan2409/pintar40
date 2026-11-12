@@ -14,7 +14,7 @@ import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { randomBytes } from "node:crypto";
 import { Checks, type SelfTest } from "./lib";
-import { balapan } from "./balapan";
+import { balapan, psqlLain, tidur } from "./balapan";
 
 const db = () => process.env.SUPABASE_DB_URL!;
 function psql(sql: string): string {
@@ -151,8 +151,12 @@ export const l1f2BalapanTests: SelfTest[] = [
           psql(akunUntuk(p4, e4)); const u4 = uidDari(e4);
           await balapan(terbit(u4), tangguh(p4));
           sendiri = izin(u4);
-          // the plant: the issuer's FOR SHARE removed as well, issuer first: the permit survives the lock
-          const pulih = tanam("public.password_write_permit(uuid,text)", "  perform 1 from public.accounts a where a.auth_user_id = p_auth_user for share;\n", "");
+          // the plant: the issuer's locks removed as well, issuer first: the permit survives the lock. RESTATED (Sharon's
+          // review of e27f4a77): the issuer now takes the person row, then the account row; either alone serialises it
+          // against the suspending act, so the plant removes both
+          const pulih = tanam("public.password_write_permit(uuid,text)",
+            "  perform 1 from public.persons p where p.id = (select a.person_id from public.accounts a where a.auth_user_id = p_auth_user) for share;\n"
+            + "  perform 1 from public.accounts a where a.auth_user_id = p_auth_user for share;\n", "");
           try {
             const p3 = orangBaru(awalan + "tiga"), e3 = `l1r2b-tiga-${randomBytes(3).toString("hex")}@local.invalid`;
             psql(akunUntuk(p3, e3)); const u3 = uidDari(e3);
@@ -166,6 +170,88 @@ export const l1f2BalapanTests: SelfTest[] = [
         c.expect(bersihkan(awalan) === "0", "the race's people are still there");
       }
       return c.verdict("on two real connections, overlapping: an activation permit issued first and the lock waiting leaves no permit; the lock first and the issuer waiting is refused ACCOUNT_LOCKED and writes none; with L1-F4's guard on permits switched off the issuer's own FOR SHARE still holds; with that removed as well, issuer first leaves its permit standing after the lock (the plant); everything the race made is gone");
+    },
+  },
+  {
+    // Sharon's result review of e27f4a77: the deadlock order. The issuer takes its first lock, then sleeps before its
+    // insert (the function swapped by fragment); the suspension starts during that sleep. Both must complete: no 40P01,
+    // the suspension committed, no permit left
+    id: "L1R2-R02",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const e = siapkan(repoRoot);
+      if (!c.expect(e === null, String(e))) return c.verdict("");
+      const awalan = `L1R2C ${randomBytes(3).toString("hex")} `;
+      try {
+        const p = orangBaru(awalan + "satu"), em = `l1r2c-satu-${randomBytes(3).toString("hex")}@local.invalid`;
+        psql(akunUntuk(p, em)); const u = uidDari(em);
+        const sisip = "  insert into public.password_write_permits (auth_user_id, purpose, expires_at)\n  values (p_auth_user, p_purpose,";
+        const pulih = tanam("public.password_write_permit(uuid,text)", sisip, "  perform pg_sleep(2);\n" + sisip);
+        let r: { a: Awaited<ReturnType<typeof psqlLain>>; b: Awaited<ReturnType<typeof psqlLain>> };
+        try {
+          const a = psqlLain(`select public.password_write_permit(${lit(u)}::uuid, 'ACTIVATION')`);
+          await tidur(600);
+          const b = psqlLain(tangguh(p));
+          r = { a: await a, b: await b };
+        } finally { pulih(); }
+        const mati = [r.a, r.b].filter((x) => /deadlock|40P01/i.test(x.err)).length;
+        c.expect(mati === 0, `a side was aborted for a deadlock: the issuer ${r.a.ok ? "OK" : r.a.err}; the suspension ${r.b.ok ? "OK" : r.b.err}`);
+        c.expect(r.b.ok && psql(`select public.orang_ditangguhkan(${lit(p)}::uuid)::text`) === "true", `the suspension did not commit (${r.b.err || "not suspended"})`);
+        c.expect(r.b.ms >= 1000, `the suspension did not wait for the issuer (${r.b.ms} ms): the order was not reached`);
+        c.expect(psql(`select count(*) from public.password_write_permits where auth_user_id = ${lit(u)}`) === "0", "a permit survived the lock");
+      } finally {
+        c.expect(bersihkan(awalan) === "0", "the race's people are still there");
+      }
+      return c.verdict("on two real connections, the issuer holding its first lock and sleeping before its insert while a suspension starts: both complete, no 40P01, the suspension committed after waiting, and no permit survives the lock (the person row is taken first on both sides)");
+    },
+  },
+  {
+    // The engineer's search after Sharon's review: Auth's own write of a card (auth_card_email_guard) holds the auth.users
+    // row and then updates the accounts row; akun_kunci took the accounts rows and then auth.users. The guard is
+    // swapped by fragment to sleep before its accounts update; the suspension starts during that sleep. Both must
+    // complete: no 40P01, the suspension committed, the new card number written, the account locked
+    id: "L1R2-R03",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const e = siapkan(repoRoot);
+      if (!c.expect(e === null, String(e))) return c.verdict("");
+      const awalan = `L1R2D ${randomBytes(3).toString("hex")} `;
+      const angka = () => String(1_000_000_000 + Math.floor(Math.random() * 8_999_999_999)).slice(0, 10);
+      try {
+        const p = orangBaru(awalan + "kartu"), lama = angka(), baru = angka();
+        const dom = "cards.synthetic.pintar.test";
+        psql(`begin; select set_config('app.seed_intent', 'synthetic', true);
+          insert into auth.users (id, email, raw_app_meta_data) values (gen_random_uuid(), ${lit(`card-${lama}@${dom}`)},
+            jsonb_build_object('person_id', ${lit(p)}, 'account_kind', 'CLASSROOM_CARD', 'card_number', ${lit(lama)}));
+          insert into public.card_reissues (person_id, account_id, old_card_number, new_card_number, reason, authorized_by, expires_at)
+          select ${lit(p)}, a.id, ${lit(lama)}, ${lit(baru)}, 'HILANG', (select ac.person_id from public.accounts ac join auth.users uu on uu.id = ac.auth_user_id where uu.email = ${lit(SYS)}), now() + interval '10 minutes'
+            from public.accounts a where a.person_id = ${lit(p)};
+          commit;`);
+        const u = psql(`select a.auth_user_id from public.accounts a where a.person_id = ${lit(p)}`);
+        const ganti = "  update public.accounts set card_number = r.new_card_number where id = v_akun.id;\n";
+        const pulih = tanam("public.auth_card_email_guard()", ganti, "  perform pg_sleep(2);\n" + ganti);
+        let r: { a: Awaited<ReturnType<typeof psqlLain>>; b: Awaited<ReturnType<typeof psqlLain>> };
+        try {
+          const a = psqlLain(`update auth.users set email = ${lit(`card-${baru}@${dom}`)} where id = ${lit(u)}`);
+          await tidur(600);
+          const b = psqlLain(tangguh(p));
+          r = { a: await a, b: await b };
+        } finally { pulih(); }
+        const mati = [r.a, r.b].filter((x) => /deadlock|40P01/i.test(x.err)).length;
+        c.expect(mati === 0, `a side was aborted for a deadlock: the card's Auth write ${r.a.ok ? "OK" : r.a.err}; the suspension ${r.b.ok ? "OK" : r.b.err}`);
+        c.expect(r.a.ok && psql(`select card_number from public.accounts where person_id = ${lit(p)}`) === baru, `the card's Auth write did not complete (${r.a.err || "card number unchanged"})`);
+        c.expect(r.b.ok && psql(`select public.orang_ditangguhkan(${lit(p)}::uuid)::text`) === "true", `the suspension did not commit (${r.b.err || "not suspended"})`);
+        c.expect(r.b.ms >= 1000, `the suspension did not wait for the card's write (${r.b.ms} ms): the order was not reached`);
+        c.expect(kunci(`card-${baru}@${dom}`) === "locked", `the account reads ${kunci(`card-${baru}@${dom}`)} after both (expected locked)`);
+      } finally {
+        psql(`begin; set local session_replication_role = replica;
+          delete from public.card_reissues where person_id in (select p.id from public.persons p where p.display_name like ${lit(awalan + "%")});
+          commit;`);
+        c.expect(bersihkan(awalan) === "0", "the race's people are still there");
+      }
+      return c.verdict("on two real connections, Auth's write of a reissued card holding its auth.users row and sleeping before its accounts update while a suspension starts: both complete, no 40P01, the new card number written, the suspension committed after waiting, and the account locked (akun_kunci takes auth.users before accounts)");
     },
   },
 ];

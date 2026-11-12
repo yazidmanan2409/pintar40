@@ -374,7 +374,10 @@ export const akunTerkunciAppTests: SelfTest[] = [
       // a lock's RECOVERY and ACTIVATION permits deleted). It is the one later word allowed: running this file again
       // puts back the older akun_kunci, so the newer definition is saved before each run and restored after it
       const L1F2 = "20270117160000_a_suspension_covers_the_accounts_made_after_it.sql";
-      const lebihBaru = readdirSync(dir).filter((f) => f.endsWith(".sql") && f > MIGRASI && f !== L1F2)
+      // RESTATED again, L1-F2 (Sharon's result review of e27f4a77): 20270117190000 redefines akun_kunci too (auth.users
+      // before accounts), and is allowed the same way: the newer definition is the one saved and restored around each run
+      const L1F2_URUTAN = "20270117190000_the_person_row_is_locked_before_the_account_rows.sql";
+      const lebihBaru = readdirSync(dir).filter((f) => f.endsWith(".sql") && f > MIGRASI && f !== L1F2 && f !== L1F2_URUTAN)
         .filter((f) => /function public\.(akun_kunci|recovery_attempt|akun_terkunci_sampai)\(/.test(readFileSync(join(dir, f), "utf8")));
       if (!c.expect(lebihBaru.length === 0, `a later migration redefines what ${MIGRASI} defines (${lebihBaru.join(", ")}): restate this test before running the file again`)) return c.verdict("");
       const kunciKini = spawnSync("psql", ["-X", "-At", process.env.SUPABASE_DB_URL!, "-c", "select pg_get_functiondef('public.akun_kunci(uuid,boolean)'::regprocedure)"], { encoding: "utf8" }).stdout;

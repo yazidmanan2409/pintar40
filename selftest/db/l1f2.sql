@@ -13,6 +13,8 @@
 --   L1F2-S05  a closed person (CLOSED_AT_REQUEST) given an account: it ends locked; buka_kembali_akun releases it (test 6)
 --   L1R2-S01  a lock leaves no RECOVERY or ACTIVATION permit of the person; a CARD_REISSUE permit stays; an unlock
 --             deletes nothing; another person's permits are untouched (Sharon §2b point 1)
+--   L1R2-S02  the lock order, structurally (Sharon's result review of e27f4a77): every act that takes an account row and
+--             then reaches the person takes the person row first; akun_kunci takes auth.users before accounts
 
 create schema if not exists selftest;
 
@@ -212,6 +214,30 @@ begin
     perform selftest.as_owner();
     if sqlerrm <> 'L1F2_UNDO' then v_fatal := v_fatal || ' R2: ' || sqlerrm; end if;
   end;
+
+  -- ═══ L1R2-S02 (Sharon's result review of e27f4a77; the engineer's search): the lock order is persons → auth.users →
+  -- accounts → permits. Each act that takes an account row and then reaches the person (directly, or through an L1-F4
+  -- guard on its insert) takes the person row FIRST; akun_kunci takes auth.users before accounts
+  v_t := '';
+  declare f text; v text; a int; b int;
+  begin
+    foreach f in array array['public.recovery_grant_permit(text)', 'public.password_write_permit(uuid,text)',
+                             'public.authorize_card_reissue(uuid,text,text)', 'public.authorize_card_conversion(uuid,text,text)',
+                             'public.authorize_email_correction(uuid,text,text)'] loop
+      v := pg_get_functiondef(f::regprocedure);
+      a := position('from public.persons' in v);
+      b := least(nullif(position('for share' in v), 0), nullif(position('for update' in v), 0));
+      if a = 0 or b is null or a > b then v_t := v_t || f || ' locks something before persons; '; end if;
+    end loop;
+    v := pg_get_functiondef('public.akun_kunci(uuid,boolean)'::regprocedure);
+    if position('from auth.users u' in v) = 0 or position('from auth.users u' in v) > position('for update of ac' in v) then
+      v_t := v_t || 'akun_kunci locks accounts before auth.users; ';
+    end if;
+  end;
+  id := 'L1R2-S02'; ok := v_t = '';
+  detail := case when ok then 'the lock order: the two permit issuers and the three card and email acts take the person row first; akun_kunci takes auth.users before accounts (persons → auth.users → accounts → permits)'
+                 else v_t end;
+  return next;
 
   id := 'L1F2-DONE'; area := 'suite'; ok := v_fatal = '';
   detail := case when v_fatal = '' then 'L1-F2 suite complete; every row rolled back' else 'the suite did not complete:' || left(v_fatal, 400) end;

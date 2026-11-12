@@ -5950,6 +5950,16 @@
       "proves": "L1-R2, selftest/l1f2-balapan.test.ts, on two real connections against the database (migration 20270117160000): an activation permit's issue and a lock race in both orders: issuer first, the permit is deleted by the lock; lock first, the issuer is refused ACCOUNT_LOCKED and writes none; with the issuer's FOR SHARE removed, issuer first leaves its permit standing (the plant); everything committed is removed and proven gone."
     },
     {
+      "id": "L1R2-R02",
+      "runner": "static",
+      "proves": "L1-F2, selftest/l1f2-balapan.test.ts, Sharon's deadlock order on two real connections against the database (migration 20270117190000): an activation permit's issuer holds its first lock and sleeps before its insert while a suspension starts; both complete with no 40P01, the suspension commits after waiting, and no permit survives."
+    },
+    {
+      "id": "L1R2-R03",
+      "runner": "static",
+      "proves": "L1-F2, selftest/l1f2-balapan.test.ts, the engineer's search after Sharon's review, on two real connections against the database (migration 20270117190000): Auth's write of a reissued card holds its auth.users row and sleeps before auth_card_email_guard updates the accounts row while a suspension starts; both complete with no 40P01, the new card number is written and the account ends locked."
+    },
+    {
       "id": "L1F2-S01",
       "runner": "db",
       "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a person suspended before having an account is given one: it is created locked (Sharon §2a)."
@@ -5978,6 +5988,11 @@
       "id": "L1R2-S01",
       "runner": "db",
       "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a lock deletes the person's RECOVERY and ACTIVATION permits and leaves a CARD_REISSUE permit and other people's; an unlock deletes nothing (§2b point 1)."
+    },
+    {
+      "id": "L1R2-S02",
+      "runner": "db",
+      "proves": "L1-F2, the lock order structurally (Sharon's result review of e27f4a77; migration 20270117190000): recovery_grant_permit, password_write_permit, authorize_card_reissue, authorize_card_conversion and authorize_email_correction each take the person row first; akun_kunci takes auth.users before accounts."
     },
     {
       "id": "B2-D01",

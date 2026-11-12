@@ -37,7 +37,7 @@
     },
     "db-l1f2-gates": {
       "suite": "selftest.run_l1f2()",
-      "control_green": 6,
+      "control_green": 7,
       "what": "L1-F2 and L1-R2 (SUSPENSION-COVERS-NEW-ACCOUNTS.md §2a, §2b): an account made for a suspended or closed person is created locked and Auth cannot clear the lock; a lock leaves no RECOVERY or ACTIVATION permit"
     },
     "db-l1f4-tutup-gates": {
