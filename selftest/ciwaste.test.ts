@@ -240,7 +240,9 @@ export const ciwasteTests: SelfTest[] = [
         "static-second-verification-route", "db-fable04-gates", "db-fable05-gates", "db-task1-gates", "db-task2-gates", "db-fable06-gates",
         "static-fable06-gates", "db-tour-gates", "db-wp1-gates", "db-wp7-gates", "db-wp8-gates", "db-r1-gates", "db-bob01-gates",
         "db-bob02-gates", "db-bob03-gates", "db-bob04-gates", "db-bob06-gates", "db-bob12-gates", "db-bob24-gates", "db-bob35-gates",
-        "db-bob36-gates", "db-bob39-gates", "db-bob37-gates", "db-bob25-gates", "db-bob26-gates", "db-bob50-gates"];
+        "db-bob36-gates", "db-bob39-gates", "db-bob37-gates", "db-bob25-gates", "db-bob26-gates", "db-bob50-gates",
+        // L1-F4 (owner, 12 Nov): the registry of attaching columns
+        "db-l1f4-gates"];
       const ci = readFileSync(join(ctx.repoRoot, ".github/workflows/ci.yml"), "utf8");
       const redCase = ci.slice(ci.indexOf("\n  red-case:\n"), ci.indexOf("\n  baseline-parity:\n"));
       const groups = [...redCase.matchAll(/- \{ group: "([^"]+)", cases: " ([a-z0-9 -]+) " \}/g)].map((x) => ({ group: x[1], cases: x[2].split(" ") }));

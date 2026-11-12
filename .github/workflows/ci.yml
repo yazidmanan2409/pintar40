@@ -268,7 +268,7 @@ jobs:
           - { group: "db · fable06 task2 bob06 bob50 bob25", cases: " db-fable06-gates db-task2-gates db-bob06-gates db-bob50-gates db-bob25-gates " }
           - { group: "db · wp1 task1 bob36 bob02 wp8", cases: " db-wp1-gates db-task1-gates db-bob36-gates db-bob02-gates db-wp8-gates " }
           - { group: "db · tour r1 fable05 bob12 bob03", cases: " db-tour-gates db-r1-gates db-fable05-gates db-bob12-gates db-bob03-gates " }
-          - { group: "db · bob37 bob24 bob39 bob04 fable04", cases: " db-bob37-gates db-bob24-gates db-bob39-gates db-bob04-gates db-fable04-gates " }
+          - { group: "db · bob37 bob24 bob39 bob04 fable04 l1f4", cases: " db-bob37-gates db-bob24-gates db-bob39-gates db-bob04-gates db-fable04-gates db-l1f4-gates " }
           - { group: "db · bob01 bob35 wp7 bob26", cases: " db-bob01-gates db-bob35-gates db-wp7-gates db-bob26-gates " }
     steps:
       - uses: actions/checkout@v4
@@ -336,6 +336,8 @@ jobs:
               echo "the five session-provenance defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob39-gates)
               echo "the integrity-referral defect declared in selftest/plants/plants.json is planted against the running stack, below" ;;
+            db-l1f4-gates)
+              echo "L1-F4's registry defect declared in selftest/plants/plants.json is planted against the running stack, below" ;;
             db-bob37-gates)
               echo "the three per-topic mastery defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob25-gates)
@@ -1959,6 +1961,17 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesBob37.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob37-gates
+
+      # L1-F4's gate: every foreign key to persons(id) is classified, so a table added later cannot attach a deleted person.
+      - name: Local stack (anonymised person gate)
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-l1f4-gates ') }}
+        id: gatesL1f4
+        uses: ./.github/actions/local-stack
+      - name: Each planted registry defect must turn L1F4-E01 red
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-l1f4-gates ') }}
+        env:
+          DB_URL: ${{ steps.gatesL1f4.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-l1f4-gates
 
       # BOB-25's gate: the send log and the send limits.
       - name: Local stack (send log and limits gate)

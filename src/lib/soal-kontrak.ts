@@ -114,7 +114,9 @@ export type DampakKoreksi = {
   sesi_selesai: number; sekolah: number; hasil_berubah: number; putusan_target_berubah: number;
   sertifikat_ditinjau: number; sertifikat_baru_layak: number; sesi_terbuka: number;
   daftar?: Array<{ sesi: string; nama: string | null; nama_tempat: string | null; mode: string; sebelum: number | null;
-    sesudah: number | null; berubah: boolean; lulus_sebelum: boolean | null; lulus_sesudah: boolean | null; sertifikat_ditinjau: boolean }>;
+    sesudah: number | null; berubah: boolean; lulus_sebelum: boolean | null; lulus_sesudah: boolean | null; sertifikat_ditinjau: boolean;
+    /** L1-F4 (§3b Option A): newly earned for a person whose personal data was deleted: earned, not issued */
+    sertifikat_tidak_diterbitkan?: boolean }>;
   koreksi: string; status: "PENDING" | "CONFIRMED" | "DECLINED"; kunci_lama: string[]; kunci_baru: string[]; alasan: string;
   konten_platform: boolean; boleh_tegaskan: boolean; milik_sendiri: boolean;
 };

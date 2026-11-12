@@ -387,7 +387,8 @@ export function DaftarDampak({ s, locale, daftar }: { s: S; locale: Locale; daft
               <td>{r.nama ?? "—"}</td>
               <td className="pin-num">{r.berubah ? `${pct(r.sebelum)} → ${pct(r.sesudah)}` : `${pct(r.sebelum)} · ${s("studio.kunci.dampak.tetap")}`}</td>
               <td>{r.lulus_sebelum === r.lulus_sesudah ? lulus(r.lulus_sesudah) : `${lulus(r.lulus_sebelum)} → ${lulus(r.lulus_sesudah)}`}</td>
-              <td>{r.sertifikat_ditinjau ? s("studio.kunci.dampak.ditinjau") : "—"}</td>
+              <td>{r.sertifikat_tidak_diterbitkan ? s("studio.kunci.dampak.tidak_diterbitkan")
+                : r.sertifikat_ditinjau ? s("studio.kunci.dampak.ditinjau") : "—"}</td>
             </tr>
           ))}
         </tbody>

@@ -295,6 +295,7 @@ export type HleEvent =
   | "akun.tinggal.galat.account_request_open"
   | "akun.tinggal.galat.account_request_invalid"
   | "akun.tinggal.galat.account_not_closed"
+  | "akun.tinggal.galat.account_live_attachment"
   | "akun.tinggal.galat.account_platform_role"
   | "akun.tinggal.galat.account_photo_pending"
   | "akun.tinggal.galat.account_failed"
@@ -595,6 +596,7 @@ export type HleEvent =
   | "studio.kunci.dampak.tercapai"
   | "studio.kunci.dampak.belum"
   | "studio.kunci.dampak.ditinjau"
+  | "studio.kunci.dampak.tidak_diterbitkan"
   | "studio.kunci.kirim"
   | "studio.kunci.menunggu"
   | "studio.kunci.antrean"
@@ -768,6 +770,7 @@ export type HleEvent =
   | "sertifikat.ganti.gagal.cert_not_issued"
   | "sertifikat.ganti.gagal.cert_reason_required"
   | "sertifikat.ganti.gagal.cert_nothing_changed"
+  | "sertifikat.ganti.gagal.cert_holder_deleted"
   | "sertifikat.ganti.gagal.cert_key_invalid"
   | "sertifikat.ganti.gagal.cert_replacement_invalid"
   | "sertifikat.ganti.gagal.tidak_ditemukan"
@@ -4074,6 +4077,8 @@ const table: Table = {
   "akun.tinggal.galat.account_request_open": { default: "Permintaan ini sudah diajukan dan sedang dikerjakan.", en: "This request has already been made and is in hand." },
   "akun.tinggal.galat.account_request_invalid": { default: "Permintaan itu tidak ditemukan atau sudah selesai.", en: "That request was not found or is already done." },
   "akun.tinggal.galat.account_not_closed": { default: "Data pribadi dihapus hanya dari akun yang sudah ditutup.", en: "Personal data is deleted only from a closed account." },
+  // L1-F4 (Daisy, final: ANONYMISED-PERSON-IS-TERMINAL.md §3c; the school is not named, and the attachment's kind never is)
+  "akun.tinggal.galat.account_live_attachment": { default: "Data pribadi tidak dihapus: orang ini masih memegang pendaftaran, peran, atau keterkaitan lain yang berlaku di sebuah sekolah. Tidak ada yang diubah, dan permintaannya tetap terbuka. Tanyakan kepada sekolah itu apakah keterkaitan tersebut memang harus diakhiri; setelah diakhiri, tekan «Hapus data pribadi» sekali lagi.", en: "Personal data was not deleted: this person still holds an enrolment, role or other attachment in force at a school. Nothing was changed, and the request stays open. Ask that school whether the attachment should end; once it has ended, press «Delete personal data» once more." },
   // Sharon §16 (6faef690): the last PINTAR Administrator cannot lock the platform out; a photo file not yet removed
   "akun.tinggal.galat.account_platform_role": { default: "Akun yang memegang peran Admin PINTAR tidak dapat ditutup sendiri. Minta Admin PINTAR lain melepaskan peran itu lebih dulu.", en: "An account holding the Admin PINTAR role cannot be closed by its owner. Ask another Admin PINTAR to remove that role first." },
   "akun.tinggal.galat.account_photo_pending": { default: "Data pribadi sudah dihapus, tetapi foto profil belum terhapus dari penyimpanan. Tekan sekali lagi untuk menyelesaikannya.", en: "The personal data has been deleted, but the profile photo has not yet been removed from storage. Press once more to finish." },
@@ -4380,6 +4385,8 @@ const table: Table = {
   "studio.kunci.dampak.tercapai": { default: "tercapai", en: "met" },
   "studio.kunci.dampak.belum": { default: "belum tercapai", en: "not met" },
   "studio.kunci.dampak.ditinjau": { default: "akan ditinjau", en: "will be reviewed" },
+  // L1-F4 (owner §3b, Option A): Daisy's DRAFT (ANONYMISED-PERSON-IS-TERMINAL.md §3c); she confirms after seeing the screen
+  "studio.kunci.dampak.tidak_diterbitkan": { default: "Memenuhi syarat sertifikat setelah koreksi kunci, tetapi tidak diterbitkan: data pribadi orang ini sudah dihapus.", en: "Met the certificate's requirements after the key correction, but not issued: this person's personal data has been deleted." },
   "studio.kunci.kirim": { default: "Kirim untuk konfirmasi", en: "Send for confirmation" },
   "studio.kunci.menunggu": { default: "Menunggu konfirmasi orang kedua · diusulkan {waktu}", en: "Waiting for a second person's confirmation · proposed {waktu}" },
   "studio.kunci.antrean": { default: "Perbaikan kunci menunggu konfirmasi", en: "Key corrections waiting for confirmation" },
@@ -4556,6 +4563,8 @@ const table: Table = {
   "sertifikat.ganti.gagal.cert_not_issued": { default: "Hanya sertifikat yang masih berlaku yang dapat diterbitkan ulang. Sertifikat yang dicabut atau sudah digantikan tetap seperti adanya.", en: "Only a certificate still in force can be reissued. A revoked or replaced certificate stays as it is." },
   "sertifikat.ganti.gagal.cert_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
   "sertifikat.ganti.gagal.cert_nothing_changed": { default: "Tidak ada yang berbeda dari yang tercatat sekarang. Perbaiki datanya lebih dahulu.", en: "Nothing differs from what is recorded now. Correct the record first." },
+  // L1-F4 (§3a.4): DRAFT, the engineer's, for Daisy: a replacement would issue a new certificate to a deleted identity
+  "sertifikat.ganti.gagal.cert_holder_deleted": { default: "Sertifikat ini tidak diganti: data pribadi pemiliknya sudah dihapus atas permintaannya. Sertifikat yang sudah terbit tetap seperti adanya.", en: "This certificate is not replaced: its holder's personal data was deleted at their request. The certificate already issued stays as it is." },
   "sertifikat.ganti.gagal.cert_key_invalid": { default: "Sertifikat pengganti belum dapat dibuat sekarang. Sertifikat ini tetap berlaku; coba lagi nanti.", en: "The replacement cannot be made right now. This certificate stays in force; try again later." },
   "sertifikat.ganti.gagal.cert_replacement_invalid": { default: "Sertifikat pengganti belum dapat diterbitkan. Coba lagi; sertifikat ini tetap berlaku.", en: "The replacement could not be issued. Try again; this certificate stays in force." },
   "sertifikat.ganti.gagal.tidak_ditemukan": { default: "Sertifikat itu tidak ditemukan.", en: "That certificate was not found." },

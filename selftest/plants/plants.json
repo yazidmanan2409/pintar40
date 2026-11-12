@@ -35,6 +35,11 @@
       "control_green": 20,
       "what": "BOB-04's whole learning cycle: a course carrying its pre-test and post-test, one assignment making both, the draw following the marks, INV-24 checked at assignment, every refusal's stable code, and a stranger refused the cycle; and the upload refusing a parallel group that spans both tests (D-040)"
     },
+    "db-l1f4-gates": {
+      "suite": "selftest.run_l1f4_registry()",
+      "control_green": 1,
+      "what": "L1-F4's registry: every foreign key to persons(id) classified guarded or exempt with a reason, every guarded column with its trigger"
+    },
     "db-bob06-gates": {
       "suite": "selftest.run_fable14()",
       "control_green": 3,
@@ -625,6 +630,12 @@
       "gate": "db-bob04-gates",
       "expect_red": "F13-K05",
       "expect_detail": "read 5|5|11|0.4545"
+    },
+    {
+      "name": "l1f4-1",
+      "gate": "db-l1f4-gates",
+      "expect_red": "L1F4-E01",
+      "expect_detail": "l1f4_tanam.orang"
     },
     {
       "name": "bob06-1",

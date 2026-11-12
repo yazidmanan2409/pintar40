@@ -167,13 +167,17 @@ export const b5Tests: SelfTest[] = [
     id: "W222-K01",
     run: async (ctx) => {
       const c = new Checks();
-      const sql = baca(ctx.repoRoot, "supabase/migrations/20270113110000_a_certificate_is_corrected_by_its_replacement.sql").replace(/--[^\n]*/g, "");
-      const tolak = /create or replace function public\.sertifikat_koreksi_tolak[\s\S]*?\$\$;/.exec(sql)?.[0] ?? "";
+      // RESTATED, L1-F4 (owner, 12 Nov): 20270117130000 redefines sertifikat_koreksi_tolak with CERT_HOLDER_DELETED and raises it
+      // from its rewrite of sertifikat_koreksi_siapkan (inside a quoted string): the newest definition, across both files
+      const sql = [baca(ctx.repoRoot, "supabase/migrations/20270113110000_a_certificate_is_corrected_by_its_replacement.sql"),
+        baca(ctx.repoRoot, "supabase/migrations/20270117130000_an_anonymised_person_is_given_nothing_new.sql")].join("\n")
+        .replace(/--[^\n]*/g, "");
+      const tolak = [...sql.matchAll(/create or replace function public\.sertifikat_koreksi_tolak[\s\S]*?\$\$;/g)].pop()?.[0] ?? "";
       const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();
       c.expect(JSON.stringify(dariDb) === JSON.stringify([...KODE_GANTI_DB].sort()),
         `sertifikat_koreksi_tolak knows ${dariDb.join(",")} and the contract names ${KODE_GANTI_DB.join(",")}`);
       for (const k of KODE_GANTI_DB) {
-        c.expect(new RegExp(`sertifikat_koreksi_tolak\\('${k}'\\)`).test(sql.replace(/create or replace function public\.sertifikat_koreksi_tolak[\s\S]*?\$\$;/, "")),
+        c.expect(new RegExp(`sertifikat_koreksi_tolak\\('${k}'\\)`).test(sql.replace(/create or replace function public\.sertifikat_koreksi_tolak[\s\S]*?\$\$;/g, "").replace(/''/g, "'")),
           `no function raises ${k}`);
         c.expect(kodeGantiDariGalat({ code: "PR120", details: k }) === k, `${k} is not read back as itself`);
       }
@@ -261,11 +265,15 @@ export const b5Tests: SelfTest[] = [
     id: "AKUN-K01",
     run: async (ctx) => {
       const c = new Checks();
-      const sql = baca(ctx.repoRoot, "supabase/migrations/20270113130000_an_account_is_suspended_closed_or_anonymised_on_the_record.sql").replace(/--[^\n]*/g, "");
-      const tolak = /create or replace function public\.akun_tolak[\s\S]*?\$\$;/.exec(sql)?.[0] ?? "";
+      // RESTATED, L1-F4 (owner, 12 Nov): 20270117130000 redefines akun_tolak with ACCOUNT_LIVE_ATTACHMENT and raises it from its
+      // rewrite of hapus_data_pribadi (inside a quoted string, so quotes are undoubled): the newest definition, across both files
+      const sql = [baca(ctx.repoRoot, "supabase/migrations/20270113130000_an_account_is_suspended_closed_or_anonymised_on_the_record.sql"),
+        baca(ctx.repoRoot, "supabase/migrations/20270117130000_an_anonymised_person_is_given_nothing_new.sql")].join("\n")
+        .replace(/--[^\n]*/g, "");
+      const tolak = [...sql.matchAll(/create or replace function public\.akun_tolak[\s\S]*?\$\$;/g)].pop()?.[0] ?? "";
       const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();
       c.expect(JSON.stringify(dariDb) === JSON.stringify([...KODE_AKUN_DB].sort()), `akun_tolak knows ${dariDb.join(",")} and the contract names ${KODE_AKUN_DB.join(",")}`);
-      const badan = sql.replace(/create or replace function public\.akun_tolak[\s\S]*?\$\$;/, "");
+      const badan = sql.replace(/create or replace function public\.akun_tolak[\s\S]*?\$\$;/g, "").replace(/''/g, "'");
       for (const k of KODE_AKUN_DB) {
         c.expect(badan.includes(`akun_tolak('${k}')`), `no function raises ${k}`);
         c.expect(kodeAkunDariGalat({ code: "PR140", details: k }) === k, `${k} is not read back as itself`);

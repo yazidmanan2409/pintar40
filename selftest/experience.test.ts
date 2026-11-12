@@ -2171,7 +2171,9 @@ export const experienceTests: SelfTest[] = [
       // activation). Read against §3: who may set a password, not a mark, a logo, a crest or a theme.
       // MOVED 235 -> 236, RESTATED, F-1 fix (Sharon, C1W-F1-CORRECTION.md §0): 20270117120000 (the learner's review gives no
       // sealed rationale beside a corrected mark). Read against §3: what a mark is explained by, not a logo, a crest or a theme.
-      c.expect(migrations.length === 236, `${migrations.length} migrations; the frozen baseline has 236`);
+      // MOVED 236 -> 237, RESTATED, L1-F4 (owner, 12 Nov): 20270117130000 (an anonymised person is given nothing new). Read
+      // against §3: who may be attached to whom, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 237, `${migrations.length} migrations; the frozen baseline has 237`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4031,7 +4033,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 233 -> 234, RESTATED, F-1 (O41-21), for 20270117100000 (the key in force in every view of a corrected answer): no tour RPC.
       // MOVED 234 -> 235, RESTATED, L-1 (Sharon §6b), for 20270117110000 (the two password permits consult the lock): no tour RPC.
       // MOVED 235 -> 236, RESTATED, F-1 fix (Sharon §0), for 20270117120000 (session_review's rationale): no tour RPC.
-      c.expect(migs.length === 236, `${migs.length} migrations; the baseline has 236`);
+      // MOVED 236 -> 237, RESTATED, L1-F4, for 20270117130000 (the attachment guard and its registry): no tour RPC.
+      c.expect(migs.length === 237, `${migs.length} migrations; the baseline has 237`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

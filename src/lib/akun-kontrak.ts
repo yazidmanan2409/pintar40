@@ -10,6 +10,8 @@ export const KODE_AKUN_DB = [
   "ACCOUNT_PLATFORM_ROLE",
   // owner ruling 2 (9 Nov): a closed account is reopened only from its request
   "ACCOUNT_REOPEN_VIA_REQUEST",
+  // L1-F4 (Sharon §3a.3): an attachment gained since the closure began stops the deletion; the request stays open
+  "ACCOUNT_LIVE_ATTACHMENT",
 ] as const;
 // ACCOUNT_PHOTO_PENDING (Sharon §16 finding 2): the data is deleted, a photo file not yet; pressing again finishes it
 export const KODE_AKUN = [...KODE_AKUN_DB, "ACCOUNT_PHOTO_PENDING", "ACCOUNT_FAILED"] as const;

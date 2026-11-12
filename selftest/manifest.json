@@ -2064,6 +2064,51 @@
       "proves": "C1w F-1, Sharon's correction (§0), selftest.f13_ulasan: before the correction every row of both learners' reviews carries its chosen option's sealed mark and rationale; after it every row but the corrected question's is byte-identical, and the reviews keep their number of rows."
     },
     {
+      "id": "L1F4-E01",
+      "runner": "db",
+      "proves": "L1-F4 (ANONYMISED-PERSON-IS-TERMINAL.md \u00a73a.1), selftest/db/l1f4.sql: every foreign key to persons(id) is classified in public.orang_lampiran as DIJAGA (guarded) or BEBAS (exempt, with its reason), and every DIJAGA column has its BEFORE INSERT guard trigger (_l1f4_<table>_<column>); a table added later with an unclassified foreign key turns this red (plant l1f4-1)."
+    },
+    {
+      "id": "L1F4-K01",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.2: an intake row naming the anonymised person's PINTAR id, checked by import_row_problems as the person's former school's admin, an unrelated school's admin and the platform admin, gives exactly the finding of an id that names no one; the unrelated school cannot read the person (person_visible_to_me false)."
+    },
+    {
+      "id": "L1F4-K02",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.2: daftarkan_kembali naming the anonymised person gives exactly the refusal of an unknown id (PR070 PLACE_NOT_THIS_SCHOOL)."
+    },
+    {
+      "id": "L1F4-K03",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.2: murid_keluar lists a learner who left the school, and no longer lists them once anonymised."
+    },
+    {
+      "id": "L1F4-K04",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.1: every guarded column refuses an insert naming the anonymised person (or their enrolment or account) with PR040 PERSON_UNKNOWN, before any other check, and does not refuse the same insert naming a live person as unknown."
+    },
+    {
+      "id": "L1F4-K05",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.4, \u00a73b Option A: certificate_prepare returns a certificate already issued as before; for an anonymised holder a new one is not eligible and nothing is written; a replacement (sertifikat_koreksi_siapkan, W2.22) is refused PR120 CERT_HOLDER_DELETED."
+    },
+    {
+      "id": "L1F4-K06",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.3: hapus_data_pribadi refuses PR140 ACCOUNT_LIVE_ATTACHMENT when the closed person gained a role after the closure began, changing nothing and leaving the request open; once the school ends that role the deletion completes, with the role held at the closure kept and every role and number byte-identical."
+    },
+    {
+      "id": "L1F4-K07",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.1: the guard is INSERT only: an update ending the anonymised person's role passes."
+    },
+    {
+      "id": "L1F4-K08",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73b (owner, Option A): a governed key correction of a post-test question that newly earns a certificate for an anonymised learner records it in the correction's outcome as earned but not issued (sertifikat_tidak_diterbitkan), and no certificate row is written."
+    },
+    {
       "id": "F13-K11",
       "runner": "db",
       "proves": "C1w F-1 requirement 2: the sealed question, its options and its release's content digest, every original result, presented question and response of the class's sittings are byte-identical after the correction and after every view above was read; the teacher reads a corrected sitting's chain through riwayat_hasil_sesi (SEALED 0.6667, then KEY_CORRECTED 1.0000, current); each sitting carries exactly one basis."
