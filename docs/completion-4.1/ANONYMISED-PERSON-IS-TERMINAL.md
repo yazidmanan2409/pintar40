@@ -118,6 +118,41 @@ Found by the engineer's examination for `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §5b
   consequence of this correction, so she reviews that line.
 - §5's test "a certificate review still runs" stands. Its outcome for a newly earned certificate waits for §3b.
 
+## 3c · Daisy's wording (final for the refusal; draft for the review line)
+
+Her record: `docs/coordination/ux/completion-4.1/KATA-L1-F4.md` on `ux-1/daisy-experience` at
+`fd226de5c9df769e6537982b98297ec8fce8ad36`.
+
+**The deletion refused on a live attachment** (`akun.tinggal.galat.account_live_attachment`; platform admin,
+Konfigurasi › Keamanan, beside «Hapus data pribadi»). **Final.**
+
+- ID: «Data pribadi tidak dihapus: orang ini masih memegang pendaftaran, peran, atau keterkaitan lain yang berlaku di
+  sebuah sekolah. Tidak ada yang diubah, dan permintaannya tetap terbuka. Tanyakan kepada sekolah itu apakah
+  keterkaitan tersebut memang harus diakhiri; setelah diakhiri, tekan «Hapus data pribadi» sekali lagi.»
+- EN: «Personal data was not deleted: this person still holds an enrolment, role or other attachment in force at a
+  school. Nothing was changed, and the request stays open. Ask that school whether the attachment should end; once it
+  has ended, press «Delete personal data» once more.»
+- **Why "ask the school":** the refusal fires when someone gained an enrolment or role after the account was closed,
+  which may mean the person has come back to a school. The platform admin should not end a school's enrolment so that
+  a deletion goes through.
+- **Naming the school is optional:** if it is cheap to supply, use `{sekolah}` («… di {sekolah}. … Tanyakan kepada
+  {sekolah} …» / «… at {sekolah}. … Ask {sekolah} …»). Do not name the kind of attachment unless it is certain.
+
+**Earned but not issued** (on the certificate review). **Draft; she confirms after seeing the screen.**
+
+- ID: «Memenuhi syarat sertifikat setelah koreksi kunci, tetapi tidak diterbitkan: data pribadi orang ini sudah
+  dihapus.»
+- EN: «Met the certificate's requirements after the key correction, but not issued: this person's personal data has
+  been deleted.»
+- The screen settles: where the line sits; whether the row already shows the PINTAR ID in place of a name; and that
+  no «Terbitkan» action is offered on that row. A screenshot or the commit is enough.
+
+**Chief Architect's note, from her reasoning.** Her "ask the school" names a state worth stating on the engineer's
+page: a person who closed their account and asked for deletion, then gains an enrolment, has an **open deletion
+request and a live attachment at once**. The request stays open and nothing is deleted until the school ends the
+attachment. That is the right holding state. It is not resolved automatically in either direction, because only the
+person and the school know which of the two is the mistake.
+
 ## 3b · For the owner: a certificate newly earned by an anonymised person
 
 A governed key correction can raise a past result so that a certificate is newly earned. C1w's rule is that "one
@@ -173,3 +208,4 @@ Pre-flight of THE PLAN §4.1 in full. The page carries the inventory and the nex
 | 12 Nov 2026, 07:30 | Owner approved the principle and a separate bounded correction, with four points for Sharon to verify. Brief written. Awaiting her pre-implementation review |
 | 12 Nov 2026, 08:00 | Sharon: PASS on the design with four required points and six tests (§3a). Released to the engineer. One question put to the owner (§3b). The deletion's new refusal needs Daisy's wording |
 | 12 Nov 2026, 08:20 | Owner: Option A. Earned but not issued, recorded on the review; no certificate created; no identity restored. No open decision remains on this correction |
+| 12 Nov 2026, 09:00 | Daisy's wording for the deletion refusal (final) and a draft for "earned but not issued" recorded (§3c) |
