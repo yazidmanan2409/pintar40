@@ -1,8 +1,27 @@
 # PINTAR 4.1 · THE PLAN · Addendum 1
 
-> **DRAFT — NOT EFFECTIVE. SUBMITTED FOR THE OWNER'S APPROVAL.** Prepared by the Chief Architect on 12 November 2026 (07:26 UTC) on the owner's ruling
-> M-D. It takes effect only on the owner's explicit approval. Sharon has confirmed the split of A2, with three
-> conditions (§5a).
+> **OWNER APPROVED — EFFECTIVE — 12 NOVEMBER 2026.** The owner approved this addendum as submitted at commit
+> `0e3c63e11540a004fbb5183c1486378301e7a9f7` on `claude/bob-41-master-plan` (07:30 UTC, when recorded). It is effective
+> under the owner-approved THE PLAN, subject to the owner's five conditions:
+>
+> 1. THE PLAN remains byte-identical. This addendum governs only the specific additions, deviations and execution
+>    rulings it records.
+> 2. The A2a/A2b split is confirmed, incorporating all three of Sharon's conditions (§5a). Her nine scenarios, the
+>    existing integrity guarantees and the final acceptance requirements are preserved.
+> 3. The staging checkpoint is approved for planning only. Its hosted verification requirements, particularly
+>    `pg_cron`'s transaction behaviour, must be addressed before A2a. The readiness evidence and the proposed promotion
+>    boundary are brought for separate authorization. **No staging action is authorized by this approval.**
+> 4. The stacked-verification safeguards and the existing review standards remain in force.
+> 5. B2 and the approved corrections continue without interruption. The provider evaluation's preparation proceeds
+>    under the existing no-cost authorization.
+>
+> **What the approval covers:** the document as it stood at `0e3c63e11540a004fbb5183c1486378301e7a9f7`. The commit
+> that records this approval changes only this header and the record in §8. **§5c was added after submission and is
+> not part of the approved content:** it notes one question that is still undecided and will be brought to the owner
+> separately.
+>
+> No additional process or scope is introduced beyond what is approved. Not authorized: any pull request, merge,
+> staging promotion or production deployment.
 >
 > **THE PLAN is unchanged.** `THE-PLAN.md`, owner approved at `17cf4a7e59ce7a8f11dd976e2c198ea08977e1ef`, stays
 > byte-identical and remains the plan. This addendum records what has been added to it, where execution departs from
@@ -163,3 +182,4 @@ deployment or production database change.
 | 12 Nov 2026 (07:26 UTC) | Drafted after the owner's rulings on the reassessment (`PLAN-REASSESSMENT-2026-11-12.md`). Not effective |
 | 12 Nov 2026 (07:29 UTC) | Sharon confirmed the split of A2 with three conditions (§5a) and listed the hosted behaviours for the checkpoint (§5b). Submitted to the owner for approval |
 | 12 Nov 2026 (07:29 UTC) | §5c added: the reach of a class-scoped planned window, raised by Daisy; with Sharon for her view before it is put to the owner |
+| 12 Nov 2026 (07:30 UTC) | **Owner approved; effective.** Approved as submitted at `0e3c63e11540a004fbb5183c1486378301e7a9f7`, with five conditions recorded in the header. §5c is outside the approved content |

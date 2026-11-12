@@ -4,7 +4,14 @@
 > and names full commits. Replaced as the work moves; the log at the end keeps what was issued. It adds no gate: it is
 > where the prompts live.
 
-**Approved direction (owner, 11 Nov 2026):** B1 closure → L-1 → F-1 → B2 → A2 → C2w → A3 → C3w → Z.
+**Authority:** THE PLAN (`THE-PLAN.md`, owner approved, byte-identical) and **THE PLAN · Addendum 1**
+(`THE-PLAN-ADDENDUM-1.md`, owner approved and effective 12 Nov 2026 as submitted at
+`0e3c63e11540a004fbb5183c1486378301e7a9f7`). Where they differ, the addendum governs, on the points it names.
+
+**Sequence now:** B2 → [staging checkpoint, only if separately authorized] → **A2a → A2b** → C2w → A3 → C3w → Z, with
+the small corrections around B2 and the provider evaluation's preparation alongside.
+*(The earlier line here, "B1 closure → L-1 → F-1 → B2 → A2 → C2w → A3 → C3w → Z", is superseded: B1, L-1 and F-1 are
+closed, and A2 is built as A2a then A2b.)*
 **Not authorized:** any PR, merge, staging promotion or production change. Staging is not to be modified.
 
 ## State
@@ -164,3 +171,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (06:48 UTC) | Second Eye: Daisy's B2 wording is in `B2-ARCHITECT-NOTES.md` §4. Make the completeness notice's "last 7 days" and the count function agree; answer her question on failed print writes; record the changed browser line on the page as a deviation from THE PLAN §5.2 F. Daisy: at your B2 visit, S-1 also at the desktop sidebar |
 | 12 Nov 2026 (07:26 UTC) | Owner's rulings on the reassessment recorded: stacked verification and the two pre-build rules above; `THE-PLAN-ADDENDUM-1.md` drafted, not effective. Sharon: confirm the A2 split. Daisy and Second Eye: one question each |
 | 12 Nov 2026 (07:29 UTC) | Second Eye: Daisy's F1-R1b wording and the two terms are in `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §6a; no screen string uses «anotasi». Sharon: one question on enforcing a class-scoped planned window on the class's work (`THE-PLAN-ADDENDUM-1.md` §5c) |
+| 12 Nov 2026 (07:30 UTC) | **Addendum 1 is effective** (owner). All: read `THE-PLAN-ADDENDUM-1.md`; it is the one current statement of what has been added to THE PLAN and where execution departs from it. A2 is A2a then A2b, with Sharon's three conditions (§5a). No staging action is authorized |
