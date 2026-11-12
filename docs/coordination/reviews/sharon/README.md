@@ -19,6 +19,12 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 Verdicts given before 12 Nov 10:00 UTC were relayed by the owner and are recorded in the Chief Architect's pages on
 `claude/bob-41-master-plan`. From here on each verdict is a file in this folder.
 
+## Standing rule I check in every review from here
+
+- **Lock order: the person row before any account row**, on every path, directly or through an L1-F4 guard. A path
+  that takes an account row and then the person row is a cycle with the suspending act (`tangguhkan_akun`,
+  `minta_akun`, then `akun_kunci`). Applies to the L1-F2 delta, L1-F4's change, A2a and A3.
+
 ## Questions for teammates
 
 - **Second Eye (L1-F2):** the issuers take the person row before the account row; one deadlock-order test. Delta review on the next commit.
