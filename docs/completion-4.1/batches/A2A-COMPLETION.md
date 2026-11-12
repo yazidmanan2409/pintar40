@@ -7,7 +7,81 @@ the staging checkpoint (Addendum 1, condition 3; TEAM-INSTRUCTIONS.md, "What may
 `e8a3996925ba46539125dc8e8cd5706fb6703695`. Code read on `claude/system-integrity-4.0` at
 `bfe949b11935763a8c8ed7b91f4adcdbcea93645`. Companion: `A2B-MAINTENANCE-INVENTORY.md` (the eight operations).
 
-## For Sharon: the pre-build review (this is the prompt)
+## Sharon's pre-build review of `55fb9b9b…`: PASS on the design, with four required changes (carried below)
+
+Her record: `claude/gracious-lamport-0m1qjr` at `a809058bbc2dfd6b0aea0b92f98e77e8901c3dbf`,
+`docs/coordination/reviews/sharon/A2A-PREBUILD-55fb9b9b93d75c0d683f8be543f30436246c3be2.md`. **A review of a design,
+not a build authorization:** A2a is still not built until the owner has considered the staging checkpoint. She checks
+the four changes at the result review; no further pre-build round. Her answers to the five points: the split, her three
+conditions, D6's placement and the nine scenarios verified; **the CHECK in place of a refusal inside
+`schedule_maintenance` accepted** (one is enough in A2a; A2b adds a designed refusal before the CHECK when it adds the
+node parameter; the CHECK also stops `change_maintenance` turning a class-scoped EMERGENCY window into a PLANNED one).
+
+### Required change 1 · every reader of a window's schools is node-aware
+
+A class-scoped window still names its school in `institution_ids` (the table's CHECK requires `platform or
+cardinality(institution_ids) > 0`), so every reader that matches on `institution_ids` alone would read it as
+school-wide. Each reader, and how a non-empty `node_ids` narrows it:
+
+| Reader | Where | Narrowed to the class by |
+|---|---|---|
+| `maintenance_affects(w, person)` | `20261120100000…:109` | when `node_ids` is non-empty, the person's live enrolment's placement (`memberships` with `valid_to is null`) at one of the nodes, or a live role whose scope node is one of them or below it; the school match alone no longer counts |
+| `maintenance_block_for_me()` (the request hook) | `:147` | through `maintenance_affects`, unchanged otherwise; it stays one indexed lookup, skipped when no class-scoped window is active or approaching (D1's cost) |
+| `maintenance_draining(person)` | `:135` | through `maintenance_affects` |
+| `pintar_status_saya()` | `:274` | through `maintenance_affects`; the window returned names the class, never only the school |
+| The sitting-start trigger (`enforce_no_new_sitting_in_maintenance`) | `:175` | through `maintenance_affects` for an EMERGENCY window; PLANNED class windows cannot exist in A2a (the CHECK) |
+| `maintenance_controls(w)` | `:123` | unchanged in reach: the school's admins and the platform admin control a class window of that school |
+| `maintenance_collisions(p_platform, p_institutions, …)` | `:326` | a class window overlaps its school's window and another window over one of the same nodes; two windows over different classes of one school do not collide |
+| `maintenance_may_act(p_platform, p_institutions)` | `:317` | unchanged: whether the actor may act on a window of that school |
+| `maintenance_record_edges()` | `:236` | its audit rows carry `node_ids` beside `institution_ids` |
+| `maintenance_list()` and its paged form | `:512`; `20261221100000…:16-67` | each row returns its classes' names beside the school's; the school filter still matches the school |
+| `change_maintenance`, `stop_pintar_now`, `publish_notice`, `withdraw_notice` | `:390`, `:430`, `:461`, `:489` | the writers: they carry `node_ids` (the stop at class scope is D7); the notices are school or platform only in A2a |
+| The pause page and the banner | `src/app/pemeliharaan/page.tsx`, `src/components/pemeliharaan/*`, `src/lib/pemeliharaan-kontrak.ts` (`sekolah: string[]`) | the contract gains the class names; the page names the class when the window has one |
+
+**Test (required):** a class-scoped EMERGENCY window affects the class's learners and teachers, and nobody else in the
+school, **through every reader on this list**, not only the hook.
+
+### Required change 2 · the node column is validated beyond the CHECK
+
+A CHECK cannot read other rows. A trigger on insert and update of `maintenance_windows` requires, when `node_ids` is
+non-empty:
+- each id is a CLASS node;
+- each belongs to the window's one school;
+- `cardinality(institution_ids) = 1`;
+- the window is not platform-wide.
+
+`stop_pintar_now` refuses a bad node first, with a designed code (in A1's domain, wording Daisy's), before the trigger
+would.
+
+### Required change 3 · the lock order, stated in full
+
+**The order: person → accounts → emergency fence → sittings in id order.** "The emergency fence first" (below) holds
+for the stop and the lift, **not for a suspension**: `tangguhkan_akun` takes the person row, then the account rows
+(`akun_kunci`), then holds the person's sittings (`pengerjaan_tahan_orang`), and D6.5 makes that hold a fenced
+decision. So its fence comes after the person and account locks.
+
+- **The rule:** no transaction holding the fence ever asks for a person or an account row afterwards.
+- **Tests:** a structural test that no fenced function locks `persons` or `accounts` after its fence call; and B6
+  (suspension during a stop) on two real connections, with the stop's activation in progress.
+- This is Sharon's person-before-account rule (L1-F2), extended to the fence. L1-F2's fix makes the full order
+  persons → `auth.users` → accounts → permits; A2a adds the fence after accounts, then sittings.
+
+*(The line "The emergency fence first, then sittings in id order" under "Lock order" below is superseded by this
+statement.)*
+
+### Required change 4 · how the writer enumeration finds the writers
+
+- **From the catalogue,** not a list kept by hand: every function and trigger function in `pg_proc` whose definition
+  writes the named tables or columns (`assessment_sessions`' status, deadline or held state; `learning_assignments`'
+  schedule, status or release; `lesson_progress`; `maintenance_windows.ended_at`).
+- **Triggers count as writers.**
+- **Dynamic SQL:** any function that builds SQL with `execute` and touches those tables is on the declared list, with
+  its reason.
+- **No direct grants:** the test also asserts that no client role holds INSERT, UPDATE or DELETE on
+  `assessment_sessions`, `learning_assignments`, `lesson_progress` or `maintenance_windows`.
+- **Plants:** an unclassified writer turns it red; so does a fenced writer with its fence removed.
+
+## For Sharon: the pre-build review (the first prompt, answered above)
 
 Please verify, on this page:
 1. **The split.** A2a is class scope for EMERGENCY only, all of D6, and D7. Nothing class-scoped and PLANNED can be
@@ -75,8 +149,9 @@ The design text is THE PLAN §5.3 D6, unchanged. This table says where A2a build
 | D6.8 · Failure behaviour | No half-stop; retried marking and release give identical outcomes; a failed lift leaves the stop in force | activation and lift |
 | D6.9 · Audit | One row at effect (`T_stop`), one when marking completes, one at the lift (`T_lift`, released, left held); each O1 refusal audited; enrolment terminations keep their ordinary record | `audit_log` |
 
-**Lock order** (THE PLAN §6.2): the emergency fence first, then sittings in id order, in short transactions. L1-F2's
-locks (the person's row, then the person's `accounts` rows) touch no sitting and take no fence, so they add no cycle.
+~~**Lock order** (THE PLAN §6.2): the emergency fence first, then sittings in id order, in short transactions. L1-F2's
+locks (the person's row, then the person's `accounts` rows) touch no sitting and take no fence, so they add no cycle.~~
+*(Superseded by Sharon's required change 3 above: person → accounts → fence → sittings in id order.)*
 
 ## The shared writer enumeration (one test, built in A2a)
 
