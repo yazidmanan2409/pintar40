@@ -87,6 +87,16 @@
        `persons` would wait on the suspension while the suspension waits on `auth.users`: the same cycle by another
        door. I found one candidate only, `audit_log.evaluation_actor_person_id`, which is null outside an evaluation
        persona's acts. Please confirm none is reachable, or name it.
+   - **Sharon: PASS on the delta at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`** (19:43 UTC, 12 Nov; her record:
+     `claude/gracious-lamport-0m1qjr` at `156382f908a70618f6c899aca0ffa3a42bf1a315`,
+     `docs/coordination/reviews/sharon/L1F2-DELTA-9db58dd51aa4f785741bbb2e9fa33c76312b57d5.md`). Her blocker is
+     resolved. **The foreign-key point: none is reachable** on this tree.
+   - **Runs on the fix.** CI `43272608696`: success. Journeys `43272615741`: job A (the seeded world) succeeded; job B
+     failed **before the database started**, on the runner: "failed to bind host port for 0.0.0.0:54322 … address
+     already in use". I read the log myself; no migration or test ran. This is the one case where a re-run is
+     allowed. **I queued a re-run of the failed job only, on the same commit, at 19:43 UTC.** A second failure
+     would be treated as real.
+   - **L1-F2 closes when that re-run passes.** Nothing else is open on it.
    - **Review:** Sharon reviews the next candidate as a delta on this commit. L1-F4's required change may land in
      the same commit set.
 

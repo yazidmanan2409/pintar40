@@ -42,7 +42,7 @@ channel:
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
-### Review queue (as of 18:11 UTC, 12 Nov; updated at each check)
+### Review queue (as of 19:43 UTC, 12 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
@@ -60,7 +60,7 @@ channel:
 | **Sharon** | B2's fix: the delta only, for the condition on B2-R-A1's line (no disclosure of a report the person cannot read) | fix commit, when pushed | `B2-ARCHITECT-NOTES.md` §0 item 7 |
 | ~~**Second Eye**~~ | ~~F1-R1b page item~~ **Done** in `e27f4a77a10c7c448170bb2851462e4561daadf7`, confirmed from its diff | — | — |
 | ~~**Second Eye**~~ | ~~L1-F4 required change~~ **Pushed** at `3a63a2b2158ea4834c1f12653c864baf157c0dd5` | — | — |
-| **Sharon** | **L1-F2's fix: the delta**, with the path list on the page and one point from Bob (a foreign key to `persons` inside an Auth write) | `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` | `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0 item 9; `batches/L1F2-COMPLETION.md` |
+| ~~**Sharon**~~ | ~~L1-F2's fix: the delta~~ **Done: PASS** on `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`; the foreign-key point answered (none reachable) | — | her record on `claude/gracious-lamport-0m1qjr` at `156382f908a70618f6c899aca0ffa3a42bf1a315` |
 | ~~**Second Eye**~~ | ~~L1-F2's blocker~~ **Fix pushed** at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` | — | — |
 | **Second Eye** | **Order of work:** (1) push the L1-F2 fix; (2) B2's fix; (3) **L1-F4's fix for A1 and A2**, its own commit, red first; (4) A2a's page: Sharon's four changes, page only. (2) and (3) are independent and may share one pre-flight and one set of runs. **A2a: no build** | — | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 11; Sharon's `L1F4-3a63a2b2….md` and `A2A-PREBUILD-55fb9b9b….md` |
 
@@ -123,7 +123,7 @@ This instruction was acted on from the day it was given but had not been written
 | B1 | **Closed.** Sharon PASS, Daisy PASS, CI `43110782265` and journeys `43110786290` green | `1fc719b5127313bf24084695fa30d7505e15b5d1` |
 | L-1, suspended sign-in correction | **CLOSED. Sharon PASS** (12 Nov). Residual L1-R2 goes with L1-F2 | `916d12c01345816afcf567b40131e72b9857cf65` |
 | F-1, C1w correction pass | **CLOSED. Sharon PASS** (12 Nov). Remaining with Daisy, not a gate: the learner's disclosure and any wording for an absent explanation | `bc67f72a0e1c6bc39a2c16292f728080b12710d4` |
-| L1-F2, a suspension covers accounts created after it (with L1-R2) | **Fix pushed** (the lock order; five functions and `akun_kunci`). CI `43272608696` and journeys `43272615741` in progress at 18:11 UTC. **Waiting on Sharon's review of the delta** | `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` |
+| L1-F2, a suspension covers accounts created after it (with L1-R2) | **Sharon PASS on the fix.** CI `43272608696` green. Journeys `43272615741`: job A green; job B failed on the runner before the database started (port in use); **re-run of that job queued at 19:43 UTC. Closes when it passes** | `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` |
 | L1-F4, an anonymised person is terminal | **BLOCKED by Sharon on two defects:** a deletion racing a reopen (A1), and a reopen that does not refuse an anonymised person (A2). Her required change is verified. One fix commit, then her review | `3a63a2b2158ea4834c1f12653c864baf157c0dd5` |
 | F1-R1b, a key correction clears stale explanations | **CLOSED.** Sharon PASS, Daisy PASS, CI `43189210169` and journeys `43189229437` green; page evidence filled. Register: F1R1B-R1, F1R1B-R2 | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` |
 | S-1, phone drawer overflow | **CLOSED. Daisy PASS** on `bfe949b11935763a8c8ed7b91f4adcdbcea93645` (drawer at 390 and 320 px; desktop sidebar at 1280 and 1100 px) | `61a6dd3b19761dfc91e11ac4f9e0295b64a32c6e` |
@@ -297,3 +297,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (17:08 UTC) | Sharon (`claude/gracious-lamport-0m1qjr` at `a809058bbc2dfd6b0aea0b92f98e77e8901c3dbf`): L1-F4 BLOCKED on A1 and A2; the A2b inventory accepted; A2a's page PASS on the design with four changes (no build). Second Eye's order of work set in the queue. Daisy: one refusal line. Reminder to all: read the clock before writing a time; two of today's review files carry times ahead of it |
 | 12 Nov 2026 (17:14 UTC) | Daisy (`2ca5794ddde95897d8b0951c174356ccad59052d`): the refused-reopen line is final; her F1-R1b items and the certificate count are accepted as built. She still owes one screenshot of B2's fix |
 | 12 Nov 2026 (18:11 UTC) | L1-F2's fix pushed at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` and read, following each insert into its triggers: no blocker; one point for Sharon. The three commits at `55fb9b9b…` ended green. Next for Second Eye: B2's fix, then L1-F4's fix |
+| 12 Nov 2026 (19:43 UTC) | Sharon PASS on L1-F2's fix (`9db58dd51aa4f785741bbb2e9fa33c76312b57d5`). Journeys job B failed on the runner before the database started; log read; re-run of the failed job queued by the Chief Architect (same commit, once). No new work-branch commit: B2's fix and L1-F4's fix still owed by Second Eye |
