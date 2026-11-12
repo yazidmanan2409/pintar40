@@ -50,7 +50,7 @@
      the timestamp comparison; remove the snapshot write).
    - **Order:** in the commit that brings the race test, with L1-F2. It is a third order for the shared
      two-connection harness. Sharon's result review follows on that commit.
-10. **The required change is pushed at `3a63a2b2158ea4834c1f12653c864baf157c0dd5` (17:02 UTC, 12 Nov)**, with the race
+10. **The required change is pushed at `3a63a2b2158ea4834c1f12653c864baf157c0dd5` (16:58 UTC, 12 Nov)**, with the race
     test (`selftest/l1f4-balapan.test.ts`), three plants and Daisy's certificate-count fix. It is one of three
     commits verified together; CI `43262235163` and journeys `43262243374` run on the top one,
     `55fb9b9b93d75c0d683f8be543f30436246c3be2`, and were in progress. **With Sharon for her result review.**

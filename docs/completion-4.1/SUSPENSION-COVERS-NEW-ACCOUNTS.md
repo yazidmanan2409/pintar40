@@ -65,7 +65,7 @@
      and list every path that locks or updates an `accounts` row and then takes the person row, directly or through
      an L1-F4 guard on a table it inserts into (card reissue, account creation, activation, sign-in bookkeeping,
      the deletion). For each: conforms, or changed. Sharon reads that list with the delta.
-   - **Engineer's report (17:02 UTC, not yet pushed; local `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`, in
+   - **Engineer's report (16:58 UTC, not yet pushed; local `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`, in
      pre-flight):** the fix is built red first. The path list found the same cycle in three more functions
      (`authorize_card_reissue`, `authorize_card_conversion`, `authorize_email_correction`) and a second cycle between
      Auth's card write and `akun_kunci` (`auth.users` then account, against the reverse). The rule on the page is

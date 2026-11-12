@@ -42,7 +42,7 @@ channel:
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
-### Review queue (as of 17:02 UTC, 12 Nov; updated at each check)
+### Review queue (as of 16:58 UTC, 12 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
@@ -121,7 +121,7 @@ This instruction was acted on from the day it was given but had not been written
 | L-1, suspended sign-in correction | **CLOSED. Sharon PASS** (12 Nov). Residual L1-R2 goes with L1-F2 | `916d12c01345816afcf567b40131e72b9857cf65` |
 | F-1, C1w correction pass | **CLOSED. Sharon PASS** (12 Nov). Remaining with Daisy, not a gate: the learner's disclosure and any wording for an absent explanation | `bc67f72a0e1c6bc39a2c16292f728080b12710d4` |
 | L1-F2, a suspension covers accounts created after it (with L1-R2) | **BLOCKED by Sharon on one item: a lock-order cycle between the permit issuers and the suspending act.** CI and journeys green but cannot show it. Fix with Second Eye; Sharon reviews the delta | `e27f4a77a10c7c448170bb2851462e4561daadf7` |
-| L1-F4, an anonymised person is terminal | **Required change pushed, with the race test.** CI `43262235163` and journeys `43262243374` in progress at 17:02 UTC (on `55fb9b9b93d75c0d683f8be543f30436246c3be2`). **Waiting on Sharon's result review**, including L1F4-A1 | `3a63a2b2158ea4834c1f12653c864baf157c0dd5` |
+| L1-F4, an anonymised person is terminal | **Required change pushed, with the race test.** CI `43262235163` and journeys `43262243374` in progress at 16:58 UTC (on `55fb9b9b93d75c0d683f8be543f30436246c3be2`). **Waiting on Sharon's result review**, including L1F4-A1 | `3a63a2b2158ea4834c1f12653c864baf157c0dd5` |
 | F1-R1b, a key correction clears stale explanations | **CLOSED.** Sharon PASS, Daisy PASS, CI `43189210169` and journeys `43189229437` green; page evidence filled. Register: F1R1B-R1, F1R1B-R2 | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` |
 | S-1, phone drawer overflow | **Pushed.** Covered by the CI and journeys of the F-1 fix commit above it. Daisy verifies it with B2, at phone widths **and at the desktop sidebar**, because one rule hides a nav item at every width | `61a6dd3b19761dfc91e11ac4f9e0295b64a32c6e` |
 | B2 | **Sharon PASS. CI `43226752867` and journeys `43226758051` green. Waiting only on Daisy's visit.** Register: B2-R-S1, B2-R-A1 | `bfe949b11935763a8c8ed7b91f4adcdbcea93645` |
@@ -289,4 +289,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (14:18 UTC) | B2: both runs green on `bfe949b11935763a8c8ed7b91f4adcdbcea93645`; Sharon's PASS confirmed. B2 waits only on Daisy's visit |
 | 12 Nov 2026 (15:36 UTC) | L1-F2 with L1-R2 pushed at `e27f4a77a10c7c448170bb2851462e4561daadf7` and read: no blocker; with Sharon. F1-R1b CLOSED (page item confirmed). B2 still waits only on Daisy's visit. L1-F4's change is next for Second Eye |
 | 12 Nov 2026 (16:37 UTC) | Sharon BLOCKED L1-F2 at `e27f4a77a10c7c448170bb2851462e4561daadf7` on a lock-order cycle (issuer: account then person; suspension: person then account). Second Eye: fix first, per her file, plus the list of paths asked for in `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0 item 9. B2 still waits only on Daisy |
-| 12 Nov 2026 (17:02 UTC) | Three commits pushed, top `55fb9b9b93d75c0d683f8be543f30436246c3be2`: L1-F4's required change (`3a63a2b2158ea4834c1f12653c864baf157c0dd5`), Daisy's F1-R1b items (`04f689483732d7da8eae6076da842d643a157cd1`), pages (inventory, A2a page, evidence). Read; one question to Sharon (L1F4-A1). L1-F2's fix is built locally and found further cycles; not yet pushed |
+| 12 Nov 2026 (16:58 UTC) | Three commits pushed, top `55fb9b9b93d75c0d683f8be543f30436246c3be2`: L1-F4's required change (`3a63a2b2158ea4834c1f12653c864baf157c0dd5`), Daisy's F1-R1b items (`04f689483732d7da8eae6076da842d643a157cd1`), pages (inventory, A2a page, evidence). Read; one question to Sharon (L1F4-A1). L1-F2's fix is built locally and found further cycles; not yet pushed |
