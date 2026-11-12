@@ -42,7 +42,7 @@ channel:
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
-### Review queue (as of 20:30 UTC, 12 Nov; updated at each check)
+### Review queue (as of 21:53 UTC, 12 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
@@ -63,7 +63,8 @@ channel:
 | ~~**Second Eye**~~ | ~~L1-F4 required change~~ **Pushed** at `3a63a2b2158ea4834c1f12653c864baf157c0dd5` | — | — |
 | ~~**Sharon**~~ | ~~L1-F2's fix: the delta~~ **Done: PASS** on `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`; the foreign-key point answered (none reachable) | — | her record on `claude/gracious-lamport-0m1qjr` at `156382f908a70618f6c899aca0ffa3a42bf1a315` |
 | ~~**Second Eye**~~ | ~~L1-F2's blocker~~ **Fix pushed** at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` | — | — |
-| **Second Eye** | **Now:** (1) L1-F4's refusal line: Daisy's ID and EN words exactly (the built line differs); (2) A2a's page: Sharon's four changes, page only. **A2a: no build.** Then wait: the next batch is A2a, which is held for the owner | — | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 11; Sharon's `A2A-PREBUILD-55fb9b9b….md` |
+| **Sharon** | A2a's page with your four changes: confirm they are carried (page only; **A2a is not built**) | `3c46d521a27ae87627d590363b973f5dd7c7c7a3` | `batches/A2A-COMPLETION.md` on the work branch; your `A2A-PREBUILD-55fb9b9b….md` |
+| **Second Eye** | **One item:** L1-F4's refusal line. Your draft is in; Daisy's line has been final since 17:13 UTC. Put her ID and EN words in exactly, one small commit. **Then stop: the next batch is A2a, held for the owner** | — | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 11 |
 
 ### For Second Eye, from Daisy's review of `97a40ebb…` and `ea3c4b6f…` (non-blocking; one commit, with L1-F2 or sooner)
 
@@ -300,3 +301,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (18:11 UTC) | L1-F2's fix pushed at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` and read, following each insert into its triggers: no blocker; one point for Sharon. The three commits at `55fb9b9b…` ended green. Next for Second Eye: B2's fix, then L1-F4's fix |
 | 12 Nov 2026 (19:43 UTC) | Sharon PASS on L1-F2's fix (`9db58dd51aa4f785741bbb2e9fa33c76312b57d5`). Journeys job B failed on the runner before the database started; log read; re-run of the failed job queued by the Chief Architect (same commit, once). No new work-branch commit: B2's fix and L1-F4's fix still owed by Second Eye |
 | 12 Nov 2026 (20:30 UTC) | Work branch at `b24d73ffd0e84b139a02fe26f52fa21c52a94a25`: B2's fix (`546d9eb75abb53d41523750e7134cc83889d1089`), L1-F4's fix (`7e42db9690486e82aab45dcdc4fc1ea5ebb68945`), the runner port fix. CI `43293048714` and journeys `43293054174`, both green on `b24d73ffd0e84b139a02fe26f52fa21c52a94a25`. Sharon PASS on both deltas. **L1-F2 CLOSED. L1-F4 ACCEPTED** (one wording item). B2 waits only on Daisy. Second Eye: Daisy's exact refusal line; A2a's page changes |
+| 12 Nov 2026 (21:53 UTC) | A2a's page pushed at `3c46d521a27ae87627d590363b973f5dd7c7c7a3` (page only; not built), for Sharon. Second Eye's only remaining item: Daisy's exact refusal line for L1-F4 |
