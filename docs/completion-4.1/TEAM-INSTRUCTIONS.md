@@ -103,6 +103,21 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 - **The same on each party's own documents:** the engineer's completion page, Sharon's reviews and Daisy's reviews
   each say, at the top, what currently holds.
 
+## Stacked verification for small corrections (owner, 12 Nov 2026: approved with safeguards)
+
+- Up to **three genuinely independent** small corrections may share one full pre-flight, CI and journeys run on the
+  exact combined candidate (the top commit of their stack).
+- Each keeps its **own commit, red-first evidence, impact assessment and review** on its own commit.
+- **The combined candidate must be green before any of them is accepted.** On a failure, isolate and re-run.
+- **Never** for a batch, and never for corrections that touch the same code or depend on each other.
+- The engineer states on each page which commits were verified together and on which candidate.
+
+## Before any correction is built (owner, 12 Nov 2026)
+
+- **A short design review by Sharon first,** however small the correction.
+- **The impact analysis names, for every column and table touched, its constraints and the baseline invariant that
+  governs it** (`docs/rebuild/03-PINTAR-INVARIANTS.md`), not only the callers and readers.
+
 ## Relay rules (after the 38-character SHA and the unreadable prompt file)
 
 - A commit is always given as 40 characters, copied from `git rev-parse`.
@@ -147,3 +162,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (06:33 UTC) | F-1 PASS. B2 now waits on two things, both Sharon's: the L-1 fix recheck (`916d12c01345816afcf567b40131e72b9857cf65`) and the pre-build review of B2's page (work-branch head `b21bec621a449e8d4d90ed646f7fb09c15dfc6f9`) |
 | 12 Nov 2026 (06:44 UTC) | **B2 is open.** Second Eye: carry Sharon's five changes onto B2's page (`B2-ARCHITECT-NOTES.md` §3), then build B2 under THE PLAN §5.2 with the full pre-flight; the order of B2 against F1-R1b, L1-F2 and L1-F4's race test is yours, but B2 is the batch and should not wait behind them. L1-F2 takes L1-R2. Daisy: the default print line that names no person (Sharon's ruling, item 5), with or without the time; and your B2 design input for the register R1 to R5 and the completeness notice. Sharon: one result review of B2 on its exact commit |
 | 12 Nov 2026 (06:48 UTC) | Second Eye: Daisy's B2 wording is in `B2-ARCHITECT-NOTES.md` §4. Make the completeness notice's "last 7 days" and the count function agree; answer her question on failed print writes; record the changed browser line on the page as a deviation from THE PLAN §5.2 F. Daisy: at your B2 visit, S-1 also at the desktop sidebar |
+| 12 Nov 2026 (07:26 UTC) | Owner's rulings on the reassessment recorded: stacked verification and the two pre-build rules above; `THE-PLAN-ADDENDUM-1.md` drafted, not effective. Sharon: confirm the A2 split. Daisy and Second Eye: one question each |
