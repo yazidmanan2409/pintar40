@@ -30,26 +30,30 @@ channel:
 - **The engineer** needs no prompt to be read: a push to `claude/system-integrity-4.0` is the request. Each
   completion page says, at the top, which commit is the candidate and what it asks of each reviewer.
 - **Reviewers take their work from the queue below,** on the exact commit named there, without waiting to be asked.
-- **Verdicts are written where the others can read them:** Daisy on `ux-1/daisy-experience`, as she does. **Sharon:
-  no branch of yours is visible to the team today.** Please record each verdict in a file on a branch of your own
+- **Verdicts are written where the others can read them:** Daisy on `ux-1/daisy-experience`, as she does. **Sharon on
+  `claude/gracious-lamport-0m1qjr`, under `docs/coordination/reviews/sharon/`** (index: its `README.md`; since
+  10:36 UTC, 12 Nov). *(Superseded, kept for the record:)* ~~Sharon: no branch of yours is visible to the team
+  today.~~ ~~Please record each verdict in a file on a branch of your own
   (for example `reviews/sharon`, under `docs/coordination/reviews/`), named for the commit reviewed, and it will be
   picked up at the next check. A verdict that exists only in a conversation with the owner cannot reach anyone while
-  the owner is away.
+  the owner is away.~~
 - **A question for another member** is written at the top of your own page or review, addressed by name. The Chief
   Architect answers on this branch.
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
-### Review queue (as of 10:04 UTC, 12 Nov; updated at each check)
+### Review queue (as of 10:40 UTC, 12 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
-| **Sharon** | Result review of **F1-R1b**, including where the "rationale missing" rule now applies, and the baseline amendment | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` | `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §0, §3d, §3f |
-| **Sharon** | Result review of **L1-F4**, *when its two-connection race test exists* (it is built with L1-F2). Until then: the distinction between historical and new live attachments | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 |
+| ~~**Sharon**~~ | ~~Result review of **F1-R1b**~~ **Done: PASS** on `97a40ebb…`, 12 Nov. One page item for Second Eye | — | her record, `claude/gracious-lamport-0m1qjr` `1076f121fc5d6f1e2414d190f20cf9b6c1be258f` |
+| **Sharon** | Result review of **L1-F4**, on the commit that brings her required change and the race test (with L1-F2). *Interim review done, 12 Nov: one required change* | not yet built | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 items 8 and 9 |
 | **Sharon** | Result review of **B2**, when it is pushed | not yet pushed | `B2-ARCHITECT-NOTES.md` §0 to §4 |
 | ~~**Daisy**~~ | ~~**F1-R1b's** screens~~ **Done: PASS** on `97a40ebb…`, 12 Nov | — | her record at `a13f30ff4fe0bd53727d7af219068d35d0b1b0ae` |
 | ~~**Daisy**~~ | ~~**L1-F4** wording~~ **Done: PASS** on `ea3c4b6f…`, 12 Nov | — | same record, §2 |
 | **Daisy** | **B2,** one visit, with **S-1** (phone widths and the desktop sidebar) and the time zone on a learner's own print | not yet pushed | `B2-ARCHITECT-NOTES.md` §4 and its log |
+| **Second Eye** | **F1-R1b page item:** fill "Evidence on this commit" on `F1R1B-COMPLETION.md` (CI `43189210169`, journeys `43189229437`, local pre-flight figures). No code; may ride in the next commit | — | `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §0 item 11a |
+| **Second Eye** | **L1-F4 required change (Sharon):** measure history against live attachments by live enrolment at deletion time and a record written at closure, not by timestamps; third order in the race harness. In the L1-F2 commit set | — | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 9; Sharon's `L1F4-INTERIM-ea3c4b6f….md` |
 | **Second Eye** | After B2: **L1-F2 with L1-R2** and the shared two-connection race test (which L1-F4 needs); then the inventory of the eight operations for work-scoped planned maintenance, before A2b | — | `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §2a, §2b; `THE-PLAN-ADDENDUM-1.md` §5d |
 
 ### For Second Eye, from Daisy's review of `97a40ebb…` and `ea3c4b6f…` (non-blocking; one commit, with L1-F2 or sooner)
@@ -111,8 +115,8 @@ This instruction was acted on from the day it was given but had not been written
 | L-1, suspended sign-in correction | **CLOSED. Sharon PASS** (12 Nov). Residual L1-R2 goes with L1-F2 | `916d12c01345816afcf567b40131e72b9857cf65` |
 | F-1, C1w correction pass | **CLOSED. Sharon PASS** (12 Nov). Remaining with Daisy, not a gate: the learner's disclosure and any wording for an absent explanation | `bc67f72a0e1c6bc39a2c16292f728080b12710d4` |
 | L1-F2, a suspension covers accounts created after it | Design PASS. **Unblocked** (the L-1 fix has passed). Own commit; before Z. Also takes L1-R2 (delete outstanding password-write permits at locking) and builds the two-connection race setup that L1-F4 needs | brief: `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0, §2a |
-| L1-F4, an anonymised person is terminal | **Daisy PASS.** CI and journeys green. **Waiting on the two-connection race test (with L1-F2) and Sharon's result review** | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` |
-| F1-R1b, a key correction clears stale explanations | **Daisy PASS.** CI `43189210169` and journeys `43189229437` green. **Waiting on Sharon's result review** | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` |
+| L1-F4, an anonymised person is terminal | **Daisy PASS.** CI and journeys green. **Not accepted: Sharon's interim review requires one change** (how history is told from a live attachment), built with the two-connection race test in the L1-F2 commit set; then her result review | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` |
+| F1-R1b, a key correction clears stale explanations | **ACCEPTED. Sharon PASS, Daisy PASS.** CI `43189210169` and journeys `43189229437` green. Closes when the page's evidence section is filled (page only, confirmed from its diff). Register: F1R1B-R1, F1R1B-R2 | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` |
 | S-1, phone drawer overflow | **Pushed.** Covered by the CI and journeys of the F-1 fix commit above it. Daisy verifies it with B2, at phone widths **and at the desktop sidebar**, because one rule hides a nav item at every width | `61a6dd3b19761dfc91e11ac4f9e0295b64a32c6e` |
 | B2 | **Built; local, in full pre-flight, not pushed** (engineer's report). Then Sharon's result review and Daisy's one visit (with S-1) | local `9fe1bb44a77f5b0bdcfc8df83eb91a80993c01ba` |
 
@@ -272,3 +276,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (09:53 UTC) | F1-R1b pushed and read (`C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §3f). B2 built locally. For B2's reviews: the time zone on a learner's own-results print (`B2-ARCHITECT-NOTES.md` log) |
 | 12 Nov 2026 (10:04 UTC) | Owner away; standing instruction recorded at the top of this file, with the review queue. The repository is the team's channel until the owner returns |
 | 12 Nov 2026 (10:18 UTC) | Check: Daisy passed F1-R1b (`97a40ebb…`) and L1-F4 (`ea3c4b6f…`); journeys green on `97a40ebb…`. Work-branch head unchanged; B2 not yet pushed. No verdict from Sharon is visible on any branch. Queue and register updated |
+| 12 Nov 2026 (10:40 UTC) | Sharon's verdicts are now on `claude/gracious-lamport-0m1qjr` (`1076f121fc5d6f1e2414d190f20cf9b6c1be258f`). F1-R1b: PASS, accepted; one page item for Second Eye; register F1R1B-R1, R2. L1-F4: interim review, one required change for Second Eye, with the race test |

@@ -20,8 +20,9 @@
    may establish that an anonymised person earned certification. That outcome is recorded accurately in the
    historical review as **earned but not issued**. No new certificate is created, and no anonymised identity is
    restored to issue one.
-7. State: **built by the engineer; committed locally at `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2`, in pre-flight,
-   not pushed** (as of 05:49 UTC, 12 Nov).
+7. State: **pushed at `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2`; CI `43168308089` and journeys `43168311621`
+   green; Daisy PASS. Not accepted:** one required change from Sharon (item 9) and the race test (item 8). *(The
+   earlier state, "committed locally, not pushed", is superseded.)*
 8. **Two instructions from the owner for its review (12 Nov 2026):**
    - **Sharon verifies the distinction between historical attachments and new live attachments.** As built, the
      deletion's refusal counts only attachments gained after the closure began, because closure leaves school roles
@@ -31,6 +32,24 @@
    - **The two-connection race test is required before final acceptance.** It is not built yet; the engineer plans
      to build it with L1-F2's race test, and sharing that infrastructure is acceptable. **L1-F4 is not accepted
      until it passes.** The one-connection demonstration on the page does not stand in for it.
+9. **Sharon's interim review (12 Nov 2026; not a verdict). One REQUIRED change, for Second Eye.** Her record:
+   `claude/gracious-lamport-0m1qjr` at `1076f121fc5d6f1e2414d190f20cf9b6c1be258f`,
+   `docs/coordination/reviews/sharon/L1F4-INTERIM-ea3c4b6f1d10a2a01281f16e8cce893235bfbef2.md`. It governs; this
+   is a summary. The Chief Architect concurs.
+   - **Where the line is drawn is right** (held when the closure began: history; gained after: live, refuses).
+   - **How it is measured must change.** `created_at > started_at` compares two transaction **start** times. An
+     attachment whose transaction began before the closure but inserted after it counts as history, and the deletion
+     then ends a live enrolment or role instead of refusing. A long import makes the window long.
+   - **The fix.** (a) Enrolments and placements: no timestamp; under the deletion's lock, refuse on any `PENDING` or
+     `ACTIVE` enrolment or live placement. (b) Roles, open transfers, evaluator grants: `minta_akun` records their
+     live ids on the closure row while it holds the person `FOR UPDATE`; the deletion refuses on any live one not in
+     that record. A closure older than the column is backfilled with what is live at migration time, and the page
+     says so.
+   - **Tests, red first:** that order on two real connections (refused with `ACCOUNT_LIVE_ATTACHMENT`, nothing
+     anonymised); a role held at closure still lets the deletion complete (F38-A05 unchanged); two plants (restore
+     the timestamp comparison; remove the snapshot write).
+   - **Order:** in the commit that brings the race test, with L1-F2. It is a third order for the shared
+     two-connection harness. Sharon's result review follows on that commit.
 
 ## 1 · The defect
 

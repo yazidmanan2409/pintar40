@@ -31,8 +31,22 @@
     points per item (§3d). They govern where §3c differs.
 11. **State: built and pushed at `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b`.** Local pre-flight (engineer's report):
     1110 passed, 168 of 168 planted defects, 11 of 11 red-case groups. CI run `43189210169`: success. Journeys run
-    `43189229437`: running when this was written. **With Sharon and Daisy for their result reviews.** The Chief
-    Architect's read is §3f. *(The earlier state, "released to the engineer", is superseded.)*
+    `43189229437`: success. The Chief Architect's read is §3f. *(The earlier states, "released to the engineer" and
+    "with Sharon and Daisy for their result reviews", are superseded by item 11a.)*
+11a. **ACCEPTED on `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` (12 Nov 2026, 10:40 UTC).** Sharon: **PASS**, no
+    blocker (her record: `claude/gracious-lamport-0m1qjr` at `1076f121fc5d6f1e2414d190f20cf9b6c1be258f`,
+    `docs/coordination/reviews/sharon/F1R1B-97a40ebb0e52a2f0ba558418426f9fc5d71aca4b.md`). Daisy: **PASS** (her
+    record at `a13f30ff4fe0bd53727d7af219068d35d0b1b0ae`). CI and journeys green on this commit.
+    - **One page item remains, for Second Eye (Sharon, required; no code):** the completion page's "Evidence on this
+      commit" still reads "to be filled". Fill it with CI `43189210169`, journeys `43189229437` and the local
+      pre-flight figures. It may ride in the next commit. It is confirmed from its diff; no re-review. **The record
+      closes when that is confirmed.**
+    - **Register, before Z (Sharon, non-blocking):** **F1R1B-R1**, one assertion (in F13-K19 or K22) that writing a
+      rationale onto a withdrawn option of the sealed corrected revision is refused and the reference stays.
+      **F1R1B-R2**, the copy case trusts `items.supersedes_item_id` plus the label: if C2w or A3 lets anything other
+      than the revision copy write `supersedes_item_id`, this is looked at again (carried into those batches' design
+      reviews).
+    - Daisy's non-blocking wording changes are listed in `TEAM-INSTRUCTIONS.md`.
 12. **The repository is the baseline of record (ADR-0019, verified; §3e).** INV-03 is amended **in the repository**
     by Sharon's procedure. Any external Project copy is a downstream synchronization target, not an authority. No
     open decision remains on this correction.
