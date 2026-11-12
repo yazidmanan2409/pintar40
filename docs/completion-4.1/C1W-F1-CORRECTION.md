@@ -195,6 +195,30 @@ this read.
 **The wording added (Daisy's to review):** «Kunci soal ini sudah diperbaiki. Jawaban di sini dinilai dengan kunci
 yang berlaku sekarang; kunci aslinya {asli}.»
 
+## 9b · With the reviewers (12 Nov 2026)
+
+The engineer's review prompts were handed to Sharon and Daisy for
+`4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. Evidence stated in them: 1088 passed, 0 failed; 162 of 162 planted
+defects; 11 of 11 groups; CI run `43142431230` success on the first attempt; journeys run `43142435769` success.
+
+**Two additions from the Chief Architect, sent with the prompts' follow-up:**
+
+1. **Sharon, row 5a explicitly.** The prompt asks for her D-060 judgment in terms of `class.misconceptions`. The pass
+   also changed `service_item_statistics`' correct count, which the catalogue describes as `item.correctness_rate`
+   and which `recompute_question_health` reads. It is the same question asked of a second figure, and of Question
+   Health for a corrected question. Her ruling should name it (§9a point 1).
+2. **A consequence the engineer recorded as "not done", raised to a finding (F1-R1).** After a correction, an option
+   that is now right can still carry its authored rationale «Ini belum tepat». The engineer is right that it is
+   authored content and not this pass's to rewrite. But ask *and then what?*: wherever a rationale is shown beside a
+   marked answer, a learner or teacher can read "correct" and, next to it, the author's sentence that it is not. That
+   is the same contradiction F-1 exists to remove, moved from the mark to the words.
+   - **To establish (Daisy, in this visit, where she can):** on which screens a rationale is shown for a sitting's
+     answer (the learner's review, the teacher's per-question evidence), and what a corrected question shows there.
+   - **Not decided here.** Possible treatments range from not showing a rationale for an option whose correctness
+     changed on that sitting, to asking the correcting educator to revise the rationale as part of the correction.
+     Both touch C1w's approved correction flow, so it is brought to the owner with the reviewers' findings, not
+     built.
+
 ## 10 · Log
 
 | Date | Entry |
@@ -204,3 +228,4 @@ yang berlaku sekarang; kunci aslinya {asli}.»
 | 11 Nov 2026 (late) | Owner approved a second, separate small correction at the same boundary (`AUTH-SUSPENDED-SIGNIN-CORRECTION.md`). Sequence: B1 closes → this pass and that one, each with Sharon's review → B2 |
 | 11 Nov 2026 (late) | B1 closed on `1fc719b5` (Sharon PASS, Daisy PASS, CI and journeys green). This pass is released. Order at the boundary: the suspended sign-in correction first, then this pass; B2 after both have Sharon's PASS |
 | 12 Nov 2026 (04:30 UTC) | Candidate pushed: `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. Read by the Chief Architect (§9a). For Sharon and Daisy once CI and journeys are green on it |
+| 12 Nov 2026 (09:30 UTC) | CI `43142431230` and journeys `43142435769` success on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. With Sharon and Daisy. Two additions from the Chief Architect (§9b): row 5a to be ruled explicitly; finding F1-R1 on rationale text after a correction |
