@@ -5,6 +5,9 @@
 > (07:52 UTC), and where a ruling had been acted on without being written down, the record was completed. This was a
 > consistency check, not an approval.
 >
+> **On quoted words (owner, 12 Nov, 08:06 UTC):** rulings 4, 6, 10, 12 and 26 rest on passages that quote the owner. The
+> owner has approved the **substance** of those decisions today and has not verified the quotations word for word.
+>
 > **A digest for reading, not a new authority.** Compiled by the Chief Architect on 12 November 2026 (07:43 UTC). Each
 > ruling is stated briefly and points to the record that holds it in full; where this digest and that record differ,
 > the record governs. Rulings made before THE PLAN's approval are in `OWNER-DECISIONS-2026-11-11.md` and in THE PLAN

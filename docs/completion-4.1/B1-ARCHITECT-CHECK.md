@@ -266,3 +266,8 @@ ahead of F-1. No promotion is authorized in any case; this records the dependenc
 origin; real screen readers; hosted Auth's behaviour for L-1.
 
 > **Added 12 Nov 2026 (07:52 UTC), on Sharon's check of the rulings digest.** §13 records the close on the reviewers' verdicts and the Chief Architect's boundary check. **The owner accepted that closure recommendation on 11 Nov** ("Your B1 closure recommendation is accepted. Please proceed with formal B1 closure…"), and approved S-1 the same day as bounded 4.1 consistency work with Daisy's verification. Both are recorded in `TEAM-INSTRUCTIONS.md`.
+
+> **Owner's confirmation, 12 November 2026 (08:06 UTC).** The owner approves **the substance** of the decisions
+> recorded in this passage, as of today. The owner has **not verified the quotations word for word**: they are the
+> Chief Architect's record, copied from the conversation in which they were given. The rulings that rest on them
+> stand on today's approval of their substance, not on the exactness of the wording.

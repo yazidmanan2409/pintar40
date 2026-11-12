@@ -31,6 +31,11 @@ This instruction was acted on from the day it was given but had not been written
   coordinate the sequence and dependencies; track completion and resolve routine issues within approved scope;
   "escalate only material decisions, blocked dependencies or actions requiring additional authorization."
 
+> **Owner's confirmation, 12 November 2026 (08:06 UTC).** The owner approves **the substance** of the decisions
+> recorded in this passage, as of today. The owner has **not verified the quotations word for word**: they are the
+> Chief Architect's record, copied from the conversation in which they were given. The rulings that rest on them
+> stand on today's approval of their substance, not on the exactness of the wording.
+
 ## State
 
 | Item | State | Commit |
@@ -194,3 +199,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (07:45 UTC) | Sharon: one bounded consistency check of `OWNER-RULINGS-4.1.md` against the governing records (owner's instruction; no approval round). After it, the digest is the team's decision index |
 | 12 Nov 2026 (07:46 UTC) | Check: work-branch head unchanged at `b21bec621a449e8d4d90ed646f7fb09c15dfc6f9`. L1-F4's CI and journeys are green on `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2`. F1-R1b not yet pushed |
 | 12 Nov 2026 (07:52 UTC) | Sharon's consistency check of the rulings digest: 24 lines matched; the rest corrected. The owner's instruction of 11 Nov on the execution phase, which had been acted on but not recorded, is now recorded above. The digest is the team's decision index |
+| 12 Nov 2026 (08:06 UTC) | Owner approved the substance of the decisions recorded as the instruction of 11 Nov, without verifying the quotations word for word. Noted on the three passages that quote the owner |

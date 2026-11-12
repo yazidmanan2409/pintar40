@@ -212,3 +212,8 @@ on what we've learned, not redesign it."
 
 The owner's rulings on the recommendations (M-A to M-D, stacked verification, and §3 and §5) are in
 `THE-PLAN-ADDENDUM-1.md` §5. This document remains an assessment; those rulings are the authority.
+
+> **Owner's confirmation, 12 November 2026 (08:06 UTC).** The owner approves **the substance** of the decisions
+> recorded in this passage, as of today. The owner has **not verified the quotations word for word**: they are the
+> Chief Architect's record, copied from the conversation in which they were given. The rulings that rest on them
+> stand on today's approval of their substance, not on the exactness of the wording.
