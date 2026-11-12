@@ -14,6 +14,10 @@
  *             then reinstated (it works again), then closed, then anonymised, with the right and a wrong credential:
  *             the same status and body as the method's wrong credential on an active account; an unknown identifier
  *             unchanged; nothing of the test left live (role, session, suspension)
+ *   AUTH-A03  L-1 (Sharon §6b): an activation outstanding for a suspended person creates no credential (the route, and
+ *             the permit and Auth's admin write asked for directly); reinstated, the activation goes on. AUTH-A01 also
+ *             holds her recovery-grant case: a grant from before a suspension is an expired grant's case in every field
+ *             (answer, record, password), during the suspension and after reinstatement; a fresh recovery then works
  *   AUTH-A02  the migration on a database with no locked account, with one locked under the old 'infinity' (Auth fails:
  *             the route still answers 503), and run twice: afterwards the account is refused in the ordinary way and
  *             nothing else changed
@@ -23,7 +27,7 @@ import { randomBytes } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
-import { Peramban, daftar, ipUji, lit, psql } from "./bob26.test";
+import { Peramban, daftar, ipUji, kodeDari, lit, psql, sinkTunggu } from "./bob26.test";
 import { aktifkan, pintarIdDari } from "./bob28.test";
 import { pilihKonteksPeramban } from "./konteks-uji";
 
@@ -247,12 +251,37 @@ export const akunTerkunciAppTests: SelfTest[] = [
           for (const [apa, r, d] of hasil) c.expect(sama(r, d), `${keadaan}, ${apa}: ${tampil(r)}; the method's own mismatch is ${tampil(d)}`);
         };
 
-        // a recovery grant obtained before the suspension (planted as recovery_grant_issue gives it after a right PIN), held by
-        // a browser, used after it
-        const izinToken = randomBytes(32).toString("base64url");
-        psql(`select public.recovery_grant_issue(${lit(uid)}, encode(sha256(convert_to(${lit(izinToken)}, 'UTF8')), 'hex'), 'PIN')`);
-        const pemegang = new Peramban(asal, ipUji());
-        pemegang.kue.set("pintar_pulih", izinToken);
+        // RESTATED, L-1 (Sharon §6b, her corrected expectation): a grant from before a suspension, used during it, is a
+        // genuinely expired grant's case in every field. The baseline: a grant of the active account, expired, used from the
+        // same network as the locked one's below, so even the recorded origin must agree.
+        const ipIzin = ipUji();
+        const izinBaru = () => {
+          const t = randomBytes(32).toString("base64url");
+          psql(`select public.recovery_grant_issue(${lit(uid)}, encode(sha256(convert_to(${lit(t)}, 'UTF8')), 'hex'), 'PIN')`);
+          return t;
+        };
+        const pakaiIzin = async (token: string, password: string) => {
+          const b = new Peramban(asal, ipIzin);
+          b.kue.set("pintar_pulih", token);
+          const titik = titikB1();
+          const h = await b.jsonDari("/masuk/lupa/password", { form: { password } });
+          // every column but the row's own id and time
+          const baris = adaB1() ? psql(`select coalesce(string_agg(concat_ws(' | ', kind, method, coalesce(person_id::text, '-'),
+              coalesce(identifier_hash, '-'), institution_ids::text, outcome, coalesce(network_origin, '-'), coalesce(resource::text, '-'),
+              coalesce(print_ref, '-')), ';' order by id), '') from public.accountability_events where id > ${titik}`) : "";
+          return { h, baris };
+        };
+        const hashSandi = () => psql(`select coalesce(md5(encrypted_password), '-') from auth.users where id = ${lit(uid)}`);
+        const kedaluwarsa = izinBaru();
+        psql(`update public.password_recovery_grants set expires_at = clock_timestamp() - interval '1 second' where auth_user_id = ${lit(uid)}`);
+        const sandiAwal = hashSandi();
+        const dasarIzin = await pakaiIzin(kedaluwarsa, `Ina-Basi-${randomBytes(6).toString("hex")}`);
+        c.expect(dasarIzin.h.status === 410 && JSON.stringify(dasarIzin.h.body) === JSON.stringify({ ok: false, code: "PEMULIHAN_BERAKHIR" })
+          && hashSandi() === sandiAwal, `an expired grant: ${tampil(dasarIzin.h)}, or the password changed (unchanged rule)`);
+        if (adaB1()) c.expect(/^SIGN_IN_FAILED \| PASSWORD \| - \| - \| \{\} \| PEMULIHAN_BERAKHIR \| [^;|]+ \| - \| -$/.test(dasarIzin.baris),
+          `an expired grant was recorded «${dasarIzin.baris}», not a failure naming no one, with no school`);
+        // the grant obtained before the suspension (planted as recovery_grant_issue gives it after a right PIN)
+        const izinToken = izinBaru();
         // 1. suspended (the staff member and the learner)
         sebagaiUid(sys, `select public.tangguhkan_akun(${lit(orang)}, 'SECURITY', 'uji auth: akun diduga diambil alih')`);
         sebagaiUid(sys, `select public.tangguhkan_akun(${lit(murid)}, 'ADMINISTRATIVE', 'uji auth: kartu ditahan sementara')`);
@@ -271,19 +300,14 @@ export const akunTerkunciAppTests: SelfTest[] = [
         c.expect(sama(rk, dasar.pulih), `suspended, recovery code (right): ${tampil(rk)}; a wrong code is ${tampil(dasar.pulih)}`);
         const ra = await pakai("/aktifkan/periksa", { email, kode: await kodeAuth() });
         c.expect(sama(ra, dasar.aktivasi), `suspended, activation code (right): ${tampil(ra)}; a wrong code is ${tampil(dasar.aktivasi)}`);
-        // the grant from before the suspension, used now: the ordinary answer of a new password whose sign-in was refused,
-        // and (where this tree keeps sign-in records) the ordinary refused sign-in's code, never the outage's.
-        // Whether the password is set is not this pass's rule (it is set, as before); the account is signed in with it below.
-        const baru = `Ina-Baru-${randomBytes(6).toString("hex")}`;
-        const titikIzin = titikB1();
-        const pakaiIzin = await pemegang.jsonDari("/masuk/lupa/password", { form: { password: baru } });
-        c.expect(pakaiIzin.status === 200 && JSON.stringify(pakaiIzin.body) === JSON.stringify({ ok: true, tujuan: "/masuk" }),
-          `suspended, a grant from before used after: ${tampil(pakaiIzin)}; a new password whose sign-in is refused answers 200 {"ok":true,"tujuan":"/masuk"}`);
-        if (adaB1()) {
-          const b = psql(`select coalesce(string_agg(kind || ' ' || coalesce(method, '-') || ' ' || outcome, ';' order by id), '') from public.accountability_events where id > ${titikIzin}`);
-          c.expect(b === "SIGN_IN_FAILED PASSWORD MASUK_TIDAK_COCOK", `suspended, a grant from before used after was recorded «${b}», not the ordinary refused sign-in (never the outage's code)`);
-        }
-        sandiKini = baru;
+        // the grant from before the suspension, used now (RESTATED, L-1, Sharon §6b): exactly an expired grant's answer and
+        // record, field by field; the password byte-identical (the permit refuses a locked person's grant)
+        const sebelumIzin = hashSandi();
+        const izinTerkunci = await pakaiIzin(izinToken, `Ina-Baru-${randomBytes(6).toString("hex")}`);
+        c.expect(sama(izinTerkunci.h, dasarIzin.h), `suspended, a grant from before used after: ${tampil(izinTerkunci.h)}; an expired grant is ${tampil(dasarIzin.h)}`);
+        c.expect(hashSandi() === sebelumIzin, "suspended, a grant from before used after changed the password");
+        if (adaB1()) c.expect(izinTerkunci.baris === dasarIzin.baris,
+          `suspended, a grant from before used after was recorded «${izinTerkunci.baris}»; an expired grant «${dasarIzin.baris}»: a school admin could tell them apart`);
         // 2. reinstated: refused, then works (each method that signs in)
         sebagaiUid(sys, `select public.aktifkan_kembali_akun(${lit(orang)}, 'uji auth: akun sudah aman kembali')`);
         sebagaiUid(sys, `select public.aktifkan_kembali_akun(${lit(murid)}, 'uji auth: kartu dipakai kembali')`);
@@ -295,6 +319,18 @@ export const akunTerkunciAppTests: SelfTest[] = [
         await k1.kirim("/keluar", { method: "POST" });
         c.expect(lagi.status === 200 && lagi.body?.ok === true, `reinstated, the password does not sign in again: ${tampil(lagi)}`);
         c.expect(kLagi.status === 200 && kLagi.body?.ok === true, `reinstated, the card does not sign in again: ${tampil(kLagi)}`);
+        // L-1 (Sharon §6b): reinstated, the grant from before the suspension is still no grant (a lock covered its life),
+        // and a fresh recovery works: the password is set and this browser signs in with it
+        const sebelumLama = hashSandi();
+        const izinLama = await pakaiIzin(izinToken, `Ina-Lama-${randomBytes(6).toString("hex")}`);
+        c.expect(sama(izinLama.h, dasarIzin.h) && hashSandi() === sebelumLama && (!adaB1() || izinLama.baris === dasarIzin.baris),
+          `reinstated, the grant from before the suspension: ${tampil(izinLama.h)}, «${izinLama.baris}»; an expired grant is ${tampil(dasarIzin.h)}, «${dasarIzin.baris}»`);
+        const segar = `Ina-Segar-${randomBytes(6).toString("hex")}`;
+        const izinSegar = await pakaiIzin(izinBaru(), segar);
+        c.expect(izinSegar.h.status === 200 && isi(izinSegar.h).ok === true && isi(izinSegar.h).tujuan !== "/masuk" && hashSandi() !== sebelumLama,
+          `reinstated, a fresh recovery: ${tampil(izinSegar.h)}; a new password that signs in is expected`);
+        if (adaB1()) c.expect(/^SIGN_IN_OK \| PASSWORD \| [0-9a-f-]{36} \| /.test(izinSegar.baris), `reinstated, a fresh recovery was recorded «${izinSegar.baris}»`);
+        sandiKini = segar;
         // 3. closed at the person's own request (with a deletion request for step 4)
         sebagaiUid(uid, "select public.minta_akun('DELETE_PERSONAL_DATA', true)");
         sebagaiUid(uid, "select public.minta_akun('CLOSE', true)");
@@ -408,6 +444,72 @@ export const akunTerkunciAppTests: SelfTest[] = [
         + "'infinity'), Auth failed and the route answered 503, not a mismatch; the migration rewrote that one to akun_terkunci_sampai() and no "
         + "other; the right and a wrong password were then exactly a wrong password's answer; run a second time it changed nothing; reinstated, "
         + "the account signs in; nothing of the test is left live");
+    },
+  },
+  {
+    id: "AUTH-A03",
+    requires: ["app", "network", "db", "mailsink"],
+    run: async (ctx) => {
+      // L-1 (Sharon §6b): an activation outstanding for a locked person creates no credential. The wizard's session is
+      // ended by the lock, so the route answers as for any locked person in the wizard; and the two calls the route
+      // makes (the ACTIVATION permit, then Auth's admin password write) are made directly, as in the moment between a
+      // lock committing and the route's permit, and neither gives a password.
+      const c = new Checks();
+      const asal = ctx.appUrl!;
+      const tag = randomBytes(4).toString("hex");
+      const email = `auth-tari-${tag}@local.invalid`;
+      const sys = uidDari("sysadmin@synthetic.pintar.test");
+      const awal = titikB1();
+      const orang = await daftar(asal, "Tari Wulandari", email);
+      try {
+        const w = new Peramban(asal, ipUji());
+        await w.jsonDari("/aktifkan/kode", { form: { email } });
+        const masuk = await w.jsonDari("/aktifkan/periksa", { form: { email, kode: kodeDari((await sinkTunggu(email, 1))[0]) } });
+        const uid = uidDari(email);
+        if (!c.expect(masuk.status === 200 && /^[0-9a-f-]{36}$/.test(uid), `the activation could not start (${tampil(masuk)})`)) return c.verdict("");
+        const hash = () => psql(`select coalesce(md5(encrypted_password), '-') from auth.users where id = ${lit(uid)}`);
+        const izin = () => psql(`create function pg_temp.coba(u uuid) returns text language plpgsql as $f$
+            declare d text; begin perform public.password_write_permit(u, 'ACTIVATION'); return 'OK';
+            exception when others then get stacked diagnostics d = pg_exception_detail; return coalesce(nullif(d, ''), sqlstate); end $f$;
+          select pg_temp.coba(${lit(uid)});`).split("\n").pop();
+        const tulisAuth = async (password: string) => (await fetch(`${ctx.supabaseUrl}/auth/v1/admin/users/${uid}`, { method: "PUT",
+          headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!, authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`, "content-type": "application/json" },
+          body: JSON.stringify({ password }) })).status;
+        const awalSandi = hash();
+        sebagaiUid(sys, `select public.tangguhkan_akun(${lit(orang)}, 'SECURITY', 'uji auth: aktivasi diduga diambil alih')`);
+        // through the route: the wizard's session ended with the lock
+        const r = await w.jsonDari("/api/aktifkan/password", { form: { password: `Tari-Baru-${randomBytes(6).toString("hex")}` } });
+        const tanpaSesi = await new Peramban(asal, ipUji()).jsonDari("/api/aktifkan/password", { form: { password: `Tari-Asing-${randomBytes(6).toString("hex")}` } });
+        c.expect(r.status === 401 && sama(r, tanpaSesi) && hash() === awalSandi,
+          `suspended, the activation's password step: ${tampil(r)}; a browser that never signed in gets ${tampil(tanpaSesi)}, and nothing is written`);
+        // the route's own two calls, as in the moment after the lock
+        const jawab = izin();
+        c.expect(jawab === "ACCOUNT_LOCKED", `suspended, the ACTIVATION permit answered «${jawab}», not ACCOUNT_LOCKED`);
+        const st = await tulisAuth(`Tari-Lain-${randomBytes(6).toString("hex")}`);
+        c.expect(st >= 400 && hash() === awalSandi, `suspended, Auth's admin password write answered ${st}, or the password changed: a credential was created`);
+        // reinstated: the activation goes on as before
+        sebagaiUid(sys, `select public.aktifkan_kembali_akun(${lit(orang)}, 'uji auth: aktivasi aman kembali')`);
+        const w2 = new Peramban(asal, ipUji());
+        // a fresh code as PINTAR's own email issues it (Auth's admin link; a second email would wait out the resend interval)
+        const gl = await fetch(`${ctx.supabaseUrl}/auth/v1/admin/generate_link`, { method: "POST",
+          headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!, authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`, "content-type": "application/json" },
+          body: JSON.stringify({ type: "magiclink", email }) });
+        const kode2 = String(((await gl.json().catch(() => ({}))) as { email_otp?: string }).email_otp ?? "");
+        const masuk2 = await w2.jsonDari("/aktifkan/periksa", { form: { email, kode: kode2 } });
+        const p2 = await w2.jsonDari("/api/aktifkan/password", { form: { password: `Tari-Pulih-${randomBytes(6).toString("hex")}` } });
+        c.expect(masuk2.status === 200 && p2.status === 200 && p2.body?.ok === true && hash() !== awalSandi,
+          `reinstated, the activation does not go on: ${tampil(masuk2)}, ${tampil(p2)}`);
+        await w2.kirim("/keluar", { method: "POST" });
+      } finally {
+        lepaskan(orang, sys);
+        const sisa = buangB1(awal);
+        const hidup = sisaHidup(orang);
+        c.expect(sisa === "0" && hidup === "0/0/0/0", `the test left ${sisa} event row(s) and role/session/suspension/lock ${hidup} behind`);
+      }
+      return c.verdict("with a person whose activation was started for the test, then suspended: the wizard's password step answered 401 "
+        + "exactly as to a browser that never signed in, and wrote nothing; the ACTIVATION permit, asked for directly as in the moment after the lock, answered ACCOUNT_LOCKED; "
+        + "Auth's admin password write was refused and the password hash stayed byte-identical; reinstated, the activation went on and set "
+        + "the password; nothing of the test is left live");
     },
   },
 ];

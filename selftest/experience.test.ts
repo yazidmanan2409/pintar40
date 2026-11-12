@@ -2167,7 +2167,9 @@ export const experienceTests: SelfTest[] = [
       // a logo, a crest or a theme.
       // MOVED 233 -> 234, RESTATED, F-1 (O41-21): C1w's correction pass (20270117100000: every view of a corrected answer
       // marks it by the key in force). Read against §3: which answers count as right, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 234, `${migrations.length} migrations; the frozen baseline has 234`);
+      // MOVED 234 -> 235, RESTATED, L-1 (Sharon §6b): 20270117110000 (a locked account is given no password by a grant or an
+      // activation). Read against §3: who may set a password, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 235, `${migrations.length} migrations; the frozen baseline has 235`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4025,7 +4027,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 231 -> 232 for 20270116120000 (B1's correction: the reader's snapshot, the purge, the health read): no tour RPC.
       // MOVED 232 -> 233 for 20270116130000 (the auth correction: the lock's instant, PIN recovery of a locked account): no tour RPC.
       // MOVED 233 -> 234, RESTATED, F-1 (O41-21), for 20270117100000 (the key in force in every view of a corrected answer): no tour RPC.
-      c.expect(migs.length === 234, `${migs.length} migrations; the baseline has 234`);
+      // MOVED 234 -> 235, RESTATED, L-1 (Sharon §6b), for 20270117110000 (the two password permits consult the lock): no tour RPC.
+      c.expect(migs.length === 235, `${migs.length} migrations; the baseline has 235`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

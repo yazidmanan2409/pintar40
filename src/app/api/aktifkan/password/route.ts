@@ -35,6 +35,12 @@ export async function POST(request: NextRequest) {
   const { error: galatIzin } = await layanan.rpc("password_write_permit", { p_auth_user: w.userId, p_purpose: "ACTIVATION" });
   if (galatIzin) {
     if (detailPr040(galatIzin) === "SETUP_NOT_REQUIRED") return jawab({ status: 409, body: { ok: false, code: "SETUP_SUDAH_SELESAI" } });
+    // L-1 (Sharon §6b): a person locked between the wizard's session check and this permit is given no password, and is
+    // answered as any locked person in the wizard is (their session has ended). Only the server log says why.
+    if (detailPr040(galatIzin) === "ACCOUNT_LOCKED") {
+      console.error(`[aktifkan] ref=${rujukan()} the ACTIVATION permit refused a locked (suspended or closed) account; answered as not signed in`);
+      return jawab({ status: 401, body: { ok: false, code: "BELUM_MASUK" } });
+    }
     return tidakTersedia("the password permit could not be given", galatIzin.code);
   }
   const { error } = await layanan.auth.admin.updateUserById(w.userId, { password });
