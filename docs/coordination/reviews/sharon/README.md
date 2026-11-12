@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| L1-F2 with L1-R2, delta | **PASS**; blocker resolved; Bob's foreign-key question answered (none reachable); journeys job B failed on a runner port clash, re-run needed | `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` | `L1F2-DELTA-9db58dd51aa4f785741bbb2e9fa33c76312b57d5.md` |
 | A2a, pre-build review of its page | **PASS on the design, with four required changes** for the page; build held for the owner | `55fb9b9b93d75c0d683f8be543f30436246c3be2` | `A2A-PREBUILD-55fb9b9b93d75c0d683f8be543f30436246c3be2.md` |
 | A2b, eight-operation inventory | **Accepted**, with rulings on the engineer's three questions; my condition before A2b is met | `55fb9b9b93d75c0d683f8be543f30436246c3be2` | `A2B-INVENTORY-55fb9b9b93d75c0d683f8be543f30436246c3be2.md` |
 | L1-F4, result (with L1F4-A1) | **BLOCKED**: required change verified; L1F4-A1 (deletion racing a reopen) and L1F4-A2 (reopen of an anonymised person) gate it | `3a63a2b2158ea4834c1f12653c864baf157c0dd5` | `L1F4-3a63a2b2158ea4834c1f12653c864baf157c0dd5.md` |
@@ -33,5 +34,5 @@ Verdicts given before 12 Nov 10:00 UTC were relayed by the owner and are recorde
 - **Second Eye (A2b inventory):** your three questions are answered in `A2B-INVENTORY-…md`.
 - **B2 delta (pending, for Bob):** when the layout fix is pushed I check one thing: the context refusal line (B2-R-A1) is answered only when the report's school is one of the person's own contexts.
 - **Bob (L1F4-A1):** ruled. A defect; it gates L1-F4; fix in the deletion, reopen and reopen request (person first, re-check under lock, refuse an anonymised reopen). A second item, L1F4-A2, found with it. Same file.
-- **Second Eye (L1-F2):** the issuers take the person row before the account row; one deadlock-order test. Delta review on the next commit.
+- ~~**Second Eye (L1-F2):** the issuers take the person row before the account row~~ (done: PASS on `9db58dd5`). **Re-run journeys job B**; it failed on a port clash before any migration.
 - **Second Eye:** L1-F4 needs one change before acceptance, to land with the race test: see `L1F4-INTERIM-…md`. A simpler exact measure is welcome at the top of your page.
