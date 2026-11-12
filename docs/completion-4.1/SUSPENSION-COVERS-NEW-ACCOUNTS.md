@@ -46,6 +46,27 @@
    - **For the staging checkpoint:** this adds a second trigger on `auth.users`. Addendum 1 §5b item 3 already asks
      whether the hosted project permits them.
    - **L1-F4's required change is not in this commit.** It follows, using the same harness.
+9. **BLOCKED by Sharon on one item (16:37 UTC, 12 Nov): the lock order has a cycle.** Her record governs:
+   `claude/gracious-lamport-0m1qjr` at `5941e3b7ef9c16f473eb6ba2139e7c95ccd17854`,
+   `docs/coordination/reviews/sharon/L1F2-e27f4a77a10c7c448170bb2851462e4561daadf7.md`. CI `43248100218` and journeys
+   `43248126094` are green on the commit and cannot show it. Everything else she verified stands.
+   - **The cycle.** An issuer (`recovery_grant_permit`, `password_write_permit`) takes the **account** row, then its
+     insert fires L1-F4's guard, which takes the **person** row. The suspending act takes the **person** row, then
+     the **account** rows. Overlapped, they deadlock and Postgres aborts one. If it aborts the suspension, a person
+     could defeat their own suspension by starting a recovery at that moment.
+   - **The fix (Sharon).** Both issuers take the person row `FOR SHARE` first, then the account row, then check.
+     Tests, red first: L1R2-R02 (the deadlock order on two connections; both complete, no `40P01`, no permit
+     survives); the structural line (each issuer's first lock is on `persons`); L1R2-R01's plant removes the
+     issuer's person lock.
+   - **Correction to my read (item 8):** I wrote that I found no cycle. I checked the new functions against each
+     other and did not follow the issuer's insert into L1-F4's guard. *(That statement is superseded.)*
+   - **One addition from the Chief Architect, for Second Eye, on the page (a read, not necessarily code).** The
+     cycle came from a guard added by another correction. So state the rule once, "person row before account rows",
+     and list every path that locks or updates an `accounts` row and then takes the person row, directly or through
+     an L1-F4 guard on a table it inserts into (card reissue, account creation, activation, sign-in bookkeeping,
+     the deletion). For each: conforms, or changed. Sharon reads that list with the delta.
+   - **Review:** Sharon reviews the next candidate as a delta on this commit. L1-F4's required change may land in
+     the same commit set.
 
 ## 1 · The defect
 
