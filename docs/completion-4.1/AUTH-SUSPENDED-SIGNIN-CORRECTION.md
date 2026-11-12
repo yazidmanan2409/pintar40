@@ -344,3 +344,4 @@ is the optional tidy-up of §6c). Raised so that it is decided, not assumed.
 
 > **Correction to this log (12 Nov 2026, 03:45 UTC, read from the clock).** Entries dated 12 Nov after 01:45 UTC carried times that were estimated, not read from a clock, and several were later than the actual time. Those times have been removed. The order of the entries is correct.
 | 12 Nov 2026 (06:44 UTC) | **Sharon: PASS on `916d12c01345816afcf567b40131e72b9857cf65`. L-1 is closed.** Residual L1-R2 registered, to be taken with L1-F2 |
+| 12 Nov 2026 (07:52 UTC) | **Correction to this record (Sharon's check):** §6 and the log entry of 11 Nov describe "this pass first, then F-1" as the Chief Architect's ordering. It was the Chief Architect's recommendation, **and the owner approved it on 11 Nov** ("L-1 before F-1. Your security-based prioritization is justified. Both corrections remain separate, independently verified passes."), recorded in `TEAM-INSTRUCTIONS.md` |

@@ -14,6 +14,23 @@ the small corrections around B2 and the provider evaluation's preparation alongs
 closed, and A2 is built as A2a then A2b.)*
 **Not authorized:** any PR, merge, staging promotion or production change. Staging is not to be modified.
 
+## The owner's instruction of 11 November 2026 on the execution phase (recorded 12 Nov, on Sharon's check)
+
+This instruction was acted on from the day it was given but had not been written into any record. The owner's words:
+
+- "Your B1 closure recommendation is accepted. Please proceed with formal B1 closure and ensure its completion record
+  accurately reflects Sharon's and Daisy's PASS verdicts."
+- "I also approve your recommendations: 1. L-1 before F-1. Your security-based prioritization is justified. Both
+  corrections remain separate, independently verified passes. 2. Controlled staging verification of L-1. Authorized
+  using a synthetic account only. Do not alter real user accounts or production. 3. Shared mobile drawer correction
+  (S-1). Approved as bounded 4.1 consistency work, with Daisy's verification."
+- "Staging promotion is NOT yet authorized."
+- "You are the Chief Architect. Please take ownership of the next execution phase." With: issue the necessary task
+  prompts to Second Eye, Sharon and Daisy; give each the correct branch, full 40-character commit, scope, acceptance
+  requirements and reporting expectations; ensure all review instructions are accessible to their recipients;
+  coordinate the sequence and dependencies; track completion and resolve routine issues within approved scope;
+  "escalate only material decisions, blocked dependencies or actions requiring additional authorization."
+
 ## State
 
 | Item | State | Commit |
@@ -176,3 +193,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (07:39 UTC) | Owner: R-1 applies to class- and school-scoped planned windows alike (A2b); Sharon's eight answers are the technical direction, subject to Second Eye's inventory before A2b is built. R-3 for C3w's page (`THE-PLAN-ADDENDUM-1.md` §5d). Provider documentation is read in a new session on the `pintar40` environment (`C3-EVALUATION-PREPARATION.md` §6d) |
 | 12 Nov 2026 (07:45 UTC) | Sharon: one bounded consistency check of `OWNER-RULINGS-4.1.md` against the governing records (owner's instruction; no approval round). After it, the digest is the team's decision index |
 | 12 Nov 2026 (07:46 UTC) | Check: work-branch head unchanged at `b21bec621a449e8d4d90ed646f7fb09c15dfc6f9`. L1-F4's CI and journeys are green on `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2`. F1-R1b not yet pushed |
+| 12 Nov 2026 (07:52 UTC) | Sharon's consistency check of the rulings digest: 24 lines matched; the rest corrected. The owner's instruction of 11 Nov on the execution phase, which had been acted on but not recorded, is now recorded above. The digest is the team's decision index |

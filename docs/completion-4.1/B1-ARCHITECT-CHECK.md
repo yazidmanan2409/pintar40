@@ -264,3 +264,5 @@ ahead of F-1. No promotion is authorized in any case; this records the dependenc
 
 **Not seen by Daisy, stated by her:** the English rendering of the reader; a WITA or WIT school's row; a real network
 origin; real screen readers; hosted Auth's behaviour for L-1.
+
+> **Added 12 Nov 2026 (07:52 UTC), on Sharon's check of the rulings digest.** §13 records the close on the reviewers' verdicts and the Chief Architect's boundary check. **The owner accepted that closure recommendation on 11 Nov** ("Your B1 closure recommendation is accepted. Please proceed with formal B1 closure…"), and approved S-1 the same day as bounded 4.1 consistency work with Daisy's verification. Both are recorded in `TEAM-INSTRUCTIONS.md`.

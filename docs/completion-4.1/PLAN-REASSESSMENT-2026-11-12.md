@@ -202,3 +202,13 @@ to save a review.
 
 Everything in §3 and §5 proceeds under existing authority unless the owner objects. Nothing in this assessment
 authorizes a merge, a promotion or a deployment, and B2 and the correction work continue unchanged.
+
+---
+
+## 10 · The owner's response (12 November 2026; recorded 07:52 UTC)
+
+"I agree with your principal conclusion: THE PLAN remains fundamentally sound. We should improve its execution based
+on what we've learned, not redesign it."
+
+The owner's rulings on the recommendations (M-A to M-D, stacked verification, and §3 and §5) are in
+`THE-PLAN-ADDENDUM-1.md` §5. This document remains an assessment; those rulings are the authority.
