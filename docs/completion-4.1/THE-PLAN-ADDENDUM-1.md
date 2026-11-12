@@ -340,6 +340,13 @@ substance of this control. It is Sharon's and Daisy's to design on C3w's page, w
 the send is blocked. If no rule both protects learners and leaves ordinary teaching text usable, that comes to the
 owner with the options. It is not decided here.
 
+### Staging checkpoint authorized (owner, 12 Nov 2026, recorded 22:00 UTC)
+
+> Approved. Proceed with the staging checkpoint under Addendum 1 §5b, using the final accepted boundary commit after the wording correction and required green checks. Verify all prescribed staging conditions, including both Auth-user triggers. Stop on any material discrepancy. No production action is authorized. Once the checkpoint passes, release A2a for implementation under its existing gates.
+
+Carried out by `STAGING-CHECKPOINT-BEFORE-A2A.md`. §5b's "No staging action is authorized" is **superseded for the
+checkpoint only**; production stays outside every authorization.
+
 ## 6 · Dependencies that now hold
 
 - **Promotion:** B1 not ahead of L-1 (met). C1w not ahead of F-1 (met) nor of F1-R1b. L1-F4 not accepted before its

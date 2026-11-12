@@ -42,7 +42,7 @@ channel:
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
-### Review queue (as of 21:56 UTC, 12 Nov; updated at each check)
+### Review queue (as of 22:00 UTC, 12 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
@@ -64,7 +64,9 @@ channel:
 | ~~**Sharon**~~ | ~~L1-F2's fix: the delta~~ **Done: PASS** on `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`; the foreign-key point answered (none reachable) | — | her record on `claude/gracious-lamport-0m1qjr` at `156382f908a70618f6c899aca0ffa3a42bf1a315` |
 | ~~**Second Eye**~~ | ~~L1-F2's blocker~~ **Fix pushed** at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` | — | — |
 | ~~**Sharon**~~ | ~~A2a's page with her four changes~~ **Done: carried** at `3c46d521a27ae87627d590363b973f5dd7c7c7a3`. **A2a is not built** | — | her branch at `3ad40227b14aee30d8513c5627b7b56c1da0cf79` |
-| **Second Eye** | **One item:** L1-F4's refusal line. Your draft is in; Daisy's line has been final since 17:13 UTC. Put her ID and EN words in exactly, one small commit. **Then stop: the next batch is A2a, held for the owner** | — | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 11 |
+| **Second Eye** | **Staging checkpoint, authorized by the owner.** (1) L1-F4's refusal line, Daisy's exact words. (2) Promotion evidence on the work branch, as the 4.0 promotions had: `ROLLBACK-225-244.sql`, `preservation.sql`, and a preconditions page with the exact check for each §5b item. (3) Full pre-flight, push, CI and journeys: that head is the boundary commit. **A2a is still not built** until the checkpoint passes | — | `STAGING-CHECKPOINT-BEFORE-A2A.md` §1 to §3 |
+| **Sharon** | Review the rollback file, the preservation query and the checks for §5b's six items, when pushed. After the promotion: your verdict on the staging verification report | when pushed | `STAGING-CHECKPOINT-BEFORE-A2A.md` §2 steps 3 and 11, §3 |
+| **Daisy** | After the promotion, if a browser can reach staging: one look at the promoted screens (B1's reader, B2's print, the key-correction screens). No action before then | after the merge | `STAGING-CHECKPOINT-BEFORE-A2A.md` §2 step 11 |
 
 ### For Second Eye, from Daisy's review of `97a40ebb…` and `ea3c4b6f…` (non-blocking; one commit, with L1-F2 or sooner)
 
@@ -92,7 +94,7 @@ Her record: `ux-1/daisy-experience` at `a13f30ff4fe0bd53727d7af219068d35d0b1b0ae
 
 **What may close without the owner:** a correction or a batch closes when its reviewers have passed its exact commit,
 CI and journeys are green on it, and the Chief Architect's boundary check is met. **B2 may close on those terms.**
-**A2a does not start** until the staging checkpoint has been considered by the owner (Addendum 1, condition 3): after
+**The owner authorized the staging checkpoint on 12 Nov** (`STAGING-CHECKPOINT-BEFORE-A2A.md`); **A2a is released only when it passes.** *(Earlier wording, kept:)* A2a does not start until the staging checkpoint has been considered by the owner (Addendum 1, condition 3): after
 B2 and the corrections, the engineer continues with L1-F2, L1-R2, the race test and the A2b inventory, and prepares
 A2a's completion page for Sharon's pre-build review, but does not build A2a.
 
@@ -303,3 +305,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (20:30 UTC) | Work branch at `b24d73ffd0e84b139a02fe26f52fa21c52a94a25`: B2's fix (`546d9eb75abb53d41523750e7134cc83889d1089`), L1-F4's fix (`7e42db9690486e82aab45dcdc4fc1ea5ebb68945`), the runner port fix. CI `43293048714` and journeys `43293054174`, both green on `b24d73ffd0e84b139a02fe26f52fa21c52a94a25`. Sharon PASS on both deltas. **L1-F2 CLOSED. L1-F4 ACCEPTED** (one wording item). B2 waits only on Daisy. Second Eye: Daisy's exact refusal line; A2a's page changes |
 | 12 Nov 2026 (21:53 UTC) | A2a's page pushed at `3c46d521a27ae87627d590363b973f5dd7c7c7a3` (page only; not built), for Sharon. Second Eye's only remaining item: Daisy's exact refusal line for L1-F4 |
 | 12 Nov 2026 (21:56 UTC) | **B2 CLOSED** (Daisy PASS on `546d9eb75abb53d41523750e7134cc83889d1089`). A2a's page carries Sharon's four changes; not built. Head `3c46d521a27ae87627d590363b973f5dd7c7c7a3`: CI `43308672713`, journeys `43308678595` green. All nine boundary rows read Yes; the proposal for the owner is in `STATUS-2026-11-12.md`. One item left: Daisy's exact refusal line for L1-F4 (Second Eye) |
+| 12 Nov 2026 (22:00 UTC) | **The owner authorized the staging checkpoint** (words in `STAGING-CHECKPOINT-BEFORE-A2A.md` §0). Promotion is a pull request into `main` that the owner merges. Second Eye: the wording line and the promotion evidence. Sharon: review them. A2a is released when the checkpoint passes; no production action |
