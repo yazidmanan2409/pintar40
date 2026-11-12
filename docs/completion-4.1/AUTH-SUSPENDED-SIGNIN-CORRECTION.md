@@ -214,6 +214,33 @@ objects only.
 **Sequence.** F-1 is committed locally on top of this pass and its pre-flight is running; it is not disturbed. The
 L-1 fix is a new commit after it. Sharon rechecks **that commit alone, for this item**; her verified items stand.
 
+## 6c · Sharon's ruling on §6a (read at `ca1623c70b0ffcf80ec561e50ae5d04024c6c157`)
+
+1. **The pre-suspension grant is the same defect and inside L-1.** No owner ruling is needed: it does not change
+   what suspension does, it makes the existing rule hold on the last path.
+   - **Where to fix it: at use.** The Chief Architect's placement in §6a (ending outstanding grants where sessions
+     end at locking) is a tidy-up but **not sufficient**: a code verified just before the lock commits can issue a
+     grant just after the grants were ended. The two checks in the permit functions (§6b) are stateless, so they
+     cover that race and any grant issued by a path added later. **Required:** the two checks at use.
+     **Optional:** also ending grants in `akun_kunci`, if the engineer wants the tidier state.
+2. **The PIN ladder after reinstatement is acceptable as stated.** It is the price of being indistinguishable, and
+   it is correct evidence: the attempts happened.
+   - **Reinstatement must not clear it.** An automatic reset would itself mark the case out and would discard a real
+     record.
+   - **The person who reinstates should not be surprised.** The reinstatement flow, or the person's state as the
+     platform admin sees it, should show that a PIN reset is required. No change on the database side, provided the
+     existing assisted PIN reset stays available afterwards:
+     - suspended, then reinstated: roles are untouched, so the school's assisted recovery still applies;
+     - closed, then reopened: `buka_kembali_akun` ends the person's school roles, so the school cannot assist until
+       it grants a role again.
+   - **To state on the engineer's page.**
+
+**Chief Architect's disposition of the reinstatement point.** Showing "PIN reset required" to whoever reinstates is
+a small addition to an existing screen, with Daisy's wording. It is **not part of L-1** (L-1 changes no screen). It
+goes on the register as **L1-R1**, to be taken with the next work that touches the account screens or before Z,
+whichever comes first, and reviewed by Daisy. The closed-then-reopened case (no school can assist until a role is
+granted) is recorded with it as a consequence to confirm, not as a defect.
+
 ## 7 · Log
 
 | Date | Entry |
@@ -226,3 +253,4 @@ L-1 fix is a new commit after it. Sharon rechecks **that commit alone, for this 
 | 12 Nov 2026 (01:45 UTC) | Candidate pushed: `2ea60c85e4f855eca2175749c4270a170922ee33`. Read by the Chief Architect (§6a). A second defect (a recovery grant to a suspended account) found and closed by the pass. CI and journeys running |
 | 12 Nov 2026 (02:20 UTC) | CI `43132734581` success on attempt 2 (attempt 1: a runner could not start its database before any test ran; failed jobs re-run once), journeys `43132738349` success, both on `2ea60c85e4f855eca2175749c4270a170922ee33`. Local: 1075 passed, 0 failed; 156 of 156 planted defects. Review prompt issued to Sharon by the engineer. Daisy's role clarified in §6 |
 | 12 Nov 2026 (03:00 UTC) | Sharon: BLOCKED on `2ea60c85e4f855eca2175749c4270a170922ee33` for the recovery and activation permits acting on a locked account; all else verified. Correction and tests recorded in §6b, with one bounded search added |
+| 12 Nov 2026 (03:20 UTC) | Sharon's ruling on §6a recorded (§6c): checks at use are required, ending grants at locking is optional; the PIN ladder survives reinstatement by design; register item L1-R1 opened |
