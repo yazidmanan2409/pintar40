@@ -66,6 +66,21 @@ page must carry:
   printout. This is the second of Sharon's five tests, and it is the one that proves the owner's condition; the
   transferred learner should be its named case.
 
+**Sharon's specification of the second test (12 Nov 2026; this is what she will check at B2's review):**
+
+- **Fixture:** a learner who earned results at A is moved to B through the product's own transfer path
+  (`transfer_minta`, `transfer_terima`, `transfer_execute`), then prints a report showing those results.
+- **Asserted:** the event's snapshot is `{A}`; A's admin finds the reference and B's admin does not; the platform
+  admin finds it.
+- **Invariant:** the snapshot comes from each sitting's own `institution_id`, the school where it was given, never
+  from the learner's current enrolment.
+- **Plant:** derive the snapshot from the live affiliation instead; the test must go red.
+- **A second report from the same learner:** one result earned at B is added and both are printed. The snapshot is
+  `{A, B}`; each school finds that event and neither is shown the other's identity (the reader returns only the
+  caller's own school, as in B1's correction).
+- **Also at her review:** the print reference adds no new way for B to read A's evidence. The reference identifies
+  the print; printed content is never returned to a reader. Portability (INV-25) is unchanged by B2.
+
 **Chief Architect's note.** The content rule is the better architecture: it keeps one rule for every print (the
 owner of the printed evidence), where the suggestion would have introduced a second. One thing for the page to
 state under "what else did that change": B1's reader then shows a school admin an event for a person who is no
@@ -78,3 +93,4 @@ needs any.
 |---|---|
 | 12 Nov 2026 (04:05 UTC) | Sharon's ruling on the learner's own-results print recorded; the owner's choice put |
 | 12 Nov 2026 (06:06 UTC) | Owner approved the content rule, with boundaries preserved and no attribution of historical evidence by transfer. No open decision on B2 |
+| 12 Nov 2026 (06:07 UTC) | Sharon's specification of the transferred-learner test recorded |
