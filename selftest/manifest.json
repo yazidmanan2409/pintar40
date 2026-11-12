@@ -2109,6 +2109,51 @@
       "proves": "L1-F4 \u00a73b (owner, Option A): a governed key correction of a post-test question that newly earns a certificate for an anonymised learner records it in the correction's outcome as earned but not issued (sertifikat_tidak_diterbitkan), and no certificate row is written."
     },
     {
+      "id": "F13-K16",
+      "runner": "db",
+      "proves": "F1-R1b (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md \u00a70, \u00a73d), selftest/db/fable13.sql (selftest.f13_penjelasan): after a governed key correction of X from A to B, the corrected copy's two flipped options have no rationale and no misconception code and each names the correction (rationale_withdrawn_by); the correction's record (penjelasan_dihapus) holds what they said, and is not rewritten after the decision; the revision that was sat keeps its options byte for byte (supabase/migrations/20270117140000)."
+    },
+    {
+      "id": "F13-K17",
+      "runner": "db",
+      "proves": "F1-R1b, INV-03 as amended (ADR-0025): an option inserted with no rationale and no reference, with an empty rationale, or with both a rationale and a reference is refused by the check (23514)."
+    },
+    {
+      "id": "F13-K18",
+      "runner": "db",
+      "proves": "F1-R1b: the withdrawal reference set by a direct update, or carried by an insert whose source option does not hold it, is refused by the trigger (42501): only the confirming act and a copy of a withdrawn option may carry it."
+    },
+    {
+      "id": "F13-K19",
+      "runner": "db",
+      "proves": "F1-R1b: a new revision of the corrected course (create_course_revision) carries the withdrawn state on its copy of the question; writing a rationale on the copy clears the reference, and the option is ordinary again."
+    },
+    {
+      "id": "F13-K20",
+      "runner": "db",
+      "proves": "F1-R1b: every release's stored content digest is what course_content_sha256 recomputes, the corrected revision's included (a null rationale hashes deterministically as '~'; the reference is not taught content)."
+    },
+    {
+      "id": "F13-K21",
+      "runner": "db",
+      "proves": "F1-R1b: a second correction flipping the key back restores nothing: the options stay withdrawn under the first correction, and the second correction's record holds nothing for them."
+    },
+    {
+      "id": "F13-K24",
+      "runner": "db",
+      "proves": "F1-R1b (Daisy §6a): a question with two wrong options, one linked to a misconception and one not, is marked by the teacher's per-question view before and after a key correction, and the same question with both linked is not: the marker shows when any wrong option is unlinked and clears only when all are linked."
+    },
+    {
+      "id": "F13-K23",
+      "runner": "db",
+      "proves": "F1-R1b (Sharon §3a.1; Daisy §6a): teacher_question_evidence's per-question marker, ada_tak_terkait, is for every question before and after a key correction whether any option it shows as wrong (by the key in force) has no misconception code; the package holds at least one such question."
+    },
+    {
+      "id": "F13-K22",
+      "runner": "db",
+      "proves": "F1-R1b (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md §3 point 5): a copy of the corrected revision is refused the step past STRUCTURED while one of its options is still withdrawn, and goes through once that option's rationale is written again; the confirming act alone is exempt."
+    },
+    {
       "id": "F13-K11",
       "runner": "db",
       "proves": "C1w F-1 requirement 2: the sealed question, its options and its release's content digest, every original result, presented question and response of the class's sittings are byte-identical after the correction and after every view above was read; the teacher reads a corrected sitting's chain through riwayat_hasil_sesi (SEALED 0.6667, then KEY_CORRECTED 1.0000, current); each sitting carries exactly one basis."

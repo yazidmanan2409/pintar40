@@ -341,6 +341,7 @@ export function PerbaikiKunci({
             {kalimatDampak(dampak, s, angka).map((k) => <p key={k}>{k}</p>)}
             {dampak.sesi_terbuka > 0 ? <p className="pin-ket">{isi(s("studio.kunci.dampak.terbuka"), { n: angka(dampak.sesi_terbuka) })}</p> : null}
             {dampak.konten_platform ? <p className="pin-ket">{s("studio.kunci.dampak.platform")}</p> : null}
+            {dampak.penjelasan_hilang && dampak.penjelasan_hilang.length > 0 ? <PenjelasanHilang s={s} daftar={dampak.penjelasan_hilang} /> : null}
             {langkah === 2 && dampak.daftar && dampak.daftar.length > 0 ? <DaftarDampak s={s} locale={locale} daftar={dampak.daftar} /> : null}
           </div>
           {langkah === 2 ? (
@@ -362,6 +363,15 @@ export function PerbaikiKunci({
         </>
       ) : null}
     </section>
+  );
+}
+
+/** F1-R1b (Daisy §6a, §6 line 1): each option that loses its explanation, one line each; the key now, the explanation after. */
+export function PenjelasanHilang({ s, daftar }: { s: S; daftar: NonNullable<DampakKoreksi["penjelasan_hilang"]> }) {
+  return (
+    <ul className="pin-ket" data-penjelasan-hilang={daftar.length}>
+      {daftar.map((o) => <li key={o.label}>{s("studio.kunci.dampak.penjelasan_hilang").replace("{x}", o.label)}</li>)}
+    </ul>
   );
 }
 

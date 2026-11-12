@@ -2173,7 +2173,9 @@ export const experienceTests: SelfTest[] = [
       // sealed rationale beside a corrected mark). Read against §3: what a mark is explained by, not a logo, a crest or a theme.
       // MOVED 236 -> 237, RESTATED, L1-F4 (owner, 12 Nov): 20270117130000 (an anonymised person is given nothing new). Read
       // against §3: who may be attached to whom, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 237, `${migrations.length} migrations; the frozen baseline has 237`);
+      // MOVED 237 -> 238, RESTATED, F1-R1b (owner, 12 Nov): 20270117140000 (a key correction withdraws the explanations it
+      // makes stale; INV-03 amended). Read against §3: which explanation a question carries, not a logo, a crest or a theme.
+      c.expect(migrations.length === 238, `${migrations.length} migrations; the frozen baseline has 238`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4034,7 +4036,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 234 -> 235, RESTATED, L-1 (Sharon §6b), for 20270117110000 (the two password permits consult the lock): no tour RPC.
       // MOVED 235 -> 236, RESTATED, F-1 fix (Sharon §0), for 20270117120000 (session_review's rationale): no tour RPC.
       // MOVED 236 -> 237, RESTATED, L1-F4, for 20270117130000 (the attachment guard and its registry): no tour RPC.
-      c.expect(migs.length === 237, `${migs.length} migrations; the baseline has 237`);
+      // MOVED 237 -> 238, RESTATED, F1-R1b, for 20270117140000 (the withdrawn explanation and its reference): no tour RPC.
+      c.expect(migs.length === 238, `${migs.length} migrations; the baseline has 238`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

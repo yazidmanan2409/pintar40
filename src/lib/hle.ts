@@ -80,7 +80,7 @@ export type HleEvent =
   | "akuntabilitas.hasil.pemulihan_berakhir"
   | "audit.aksi.accountability.purged"
   | "jenis.bank.PRACTICE" | "jenis.bank.TEST" | "jenis.bank.EXAM"
-  | "studio.soal.judul" | "studio.soal.arti" | "studio.soal.jumlah" | "studio.soal.kunci" | "studio.soal.alasan" | "studio.soal.kosong"
+  | "studio.soal.judul" | "studio.soal.arti" | "studio.soal.jumlah" | "studio.soal.kunci" | "studio.soal.alasan" | "studio.soal.alasan_ditarik" | "studio.soal.belum_dikaitkan" | "soal.tak_terkait" | "studio.soal.kosong"
   | "studio.soal.ringkas" | "studio.soal.pelajaran_label" | "studio.soal.pelajaran_dari" | "studio.soal.posisi" | "studio.soal.buka" | "studio.soal.bacaan" | "studio.soal.gagal" | "studio.soal.pager_label"
   | "mengajar.bukti.per_soal" | "pelajaran.visual.pecahan" | "mengajar.soal.judul" | "mengajar.soal.arti" | "mengajar.soal.terkumpul" | "mengajar.soal.dari" | "mengajar.soal.tepat"
   | "mengajar.soal.kunci" | "mengajar.soal.bantuan" | "mengajar.soal.semua_tepat" | "mengajar.soal.kosong" | "mengajar.soal.tidak_dijawab" | "mengajar.soal.kembali"
@@ -138,7 +138,7 @@ export type HleEvent =
   | "laporan.metrik.belum_ada_bukti"
   | "laporan.metrik.dilindungi" | "ketiadaan.dilindungi.bab.murid" | "ketiadaan.dilindungi.bab.peserta"
   | "ketiadaan.dilindungi.kelas.murid" | "ketiadaan.dilindungi.kelas.peserta"
-  | "laporan.metrik.tidak_berlaku" | "laporan.sekolah.dasar_gerbang_tidak_berlaku" | "laporan.sekolah.dasar_gerbang_murid" | "ketiadaan.dilindungi.bab_pasangan.murid" | "ketiadaan.dilindungi.bab_pasangan.peserta" | "laporan.komposisi.awal_akhir_dilindungi" | "laporan.komposisi.keliru_tertahan" | "laporan.komposisi.keliru_belum" | "mengajar.bukti.bagian_tertahan" | "hasil.safety.tidak_ada" | "pimpinan.kelas.bukti_saja" | "laporan.sekolah.ranah_tertahan_semua" | "laporan.komposisi.kenaikan_dari_pasangan" | "mengajar.murid1.dihitung_ulang" | "mengajar.murid1.dihitung_ulang_alasan" | "hasil.dihitung_ulang" | "hasil.review.kunci_terkini" | "map.kunci_terkini" | "laporan.kisi.arti_tanpa_target" | "laporan.kisi.arti_sebagian" | "laporan.kisi.kunci_sebagian"
+  | "laporan.metrik.tidak_berlaku" | "laporan.sekolah.dasar_gerbang_tidak_berlaku" | "laporan.sekolah.dasar_gerbang_murid" | "ketiadaan.dilindungi.bab_pasangan.murid" | "ketiadaan.dilindungi.bab_pasangan.peserta" | "laporan.komposisi.awal_akhir_dilindungi" | "laporan.komposisi.keliru_tertahan" | "laporan.komposisi.keliru_belum" | "laporan.komposisi.keliru_kosong" | "mengajar.bukti.bagian_tertahan" | "hasil.safety.tidak_ada" | "pimpinan.kelas.bukti_saja" | "laporan.sekolah.ranah_tertahan_semua" | "laporan.komposisi.kenaikan_dari_pasangan" | "mengajar.murid1.dihitung_ulang" | "mengajar.murid1.dihitung_ulang_alasan" | "hasil.dihitung_ulang" | "hasil.review.kunci_terkini" | "map.kunci_terkini" | "laporan.kisi.arti_tanpa_target" | "laporan.kisi.arti_sebagian" | "laporan.kisi.kunci_sebagian"
   | "laporan.komposisi.topik_di_bawah_sebagian" | "laporan.komposisi.topik_di_bawah_banyak_sebagian" | "laporan.komposisi.topik_semua_sebagian" | "laporan.komposisi.topik_tertahan.satu" | "laporan.komposisi.topik_tertahan.banyak" | "laporan.komposisi.topik_tertahan_semua"
   | "laporan.kelas.judul" | "laporan.institusi.judul"
   | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak" | "laporan.metrik.tanpa_nama" | "laporan.kelas.pd_arti"
@@ -596,7 +596,7 @@ export type HleEvent =
   | "studio.kunci.dampak.tercapai"
   | "studio.kunci.dampak.belum"
   | "studio.kunci.dampak.ditinjau"
-  | "studio.kunci.dampak.tidak_diterbitkan"
+  | "studio.kunci.dampak.tidak_diterbitkan" | "studio.kunci.dampak.penjelasan_hilang"
   | "studio.kunci.kirim"
   | "studio.kunci.menunggu"
   | "studio.kunci.antrean"
@@ -1951,7 +1951,7 @@ export type HleEvent =
   | "studio.konten.kode.content_reviewer_required"
   | "studio.konten.kode.content_author_unknown"
   | "studio.konten.kode.content_reviewer_is_author"
-  | "studio.konten.kode.content_check_errors"
+  | "studio.konten.kode.content_check_errors" | "studio.konten.kode.content_rationale_owed"
   | "studio.konten.kode.content_reviewer_not_caller"
   | "studio.konten.kode.content_seal_not_allowed"
   | "studio.konten.kode.content_publish_not_allowed"
@@ -3424,6 +3424,8 @@ const table: Table = {
   "studio.soal.jumlah": { default: "soal", en: "questions" },
   "studio.soal.kunci": { default: "Kunci", en: "Key" },
   "studio.soal.alasan": { default: "Alasan", en: "Why" },
+  // F1-R1b, Daisy's line (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md §6a; I6-I7-JAWABAN.md §1 at e48c4906), §6 line 2
+  "studio.soal.alasan_ditarik": { default: "Alasan pilihan {x} ditarik karena kuncinya diperbaiki. Tuliskan alasan yang baru.", en: "The explanation for option {x} was withdrawn when the key was corrected. Write a new one." },
   "studio.soal.kosong": { default: "Paket ini belum berisi soal.", en: "This package has no questions yet." },
   // A1 (D-166(b)): the question review, one lesson at a time (Daisy's T table; presentation, pending copy approval)
   "studio.soal.ringkas": { default: "{soal} soal dalam {pelajaran} pelajaran", en: "{soal} questions in {pelajaran} lessons" },
@@ -3439,6 +3441,10 @@ const table: Table = {
   "alasan.nonaktif.periksa": { default: "Pilih buku kerja dulu.", en: "Choose a workbook first." },
   // E-A1-1: an option's misconception in the reviewer's question list (the metric's own word; pending Dr Gladys)
   "studio.soal.miskonsepsi": { default: "Pemahaman keliru", en: "Misunderstanding" },
+  // F1-R1b, Daisy's line (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md §6a; I6-I7-JAWABAN.md §1 at e48c4906): the option, where «Pemahaman keliru: {label}» stands for a linked one
+  "studio.soal.belum_dikaitkan": { default: "belum dikaitkan", en: "not linked" },
+  // F1-R1b, Daisy's line (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md §6a; I6-I7-JAWABAN.md §1 at e48c4906): the marker on the question, the teacher's per-question view and Studio
+  "soal.tak_terkait": { default: "Sebagian pilihan salah belum dikaitkan dengan pemahaman keliru. Jawaban pada pilihan itu tidak masuk hitungan pemahaman keliru.", en: "Some wrong options are not linked to a misconception. Answers on those options are not counted in the misconception figures." },
   "pelajaran.visual.pecahan": { default: "{n} dari {m} bagian", en: "{n} of {m} parts" },
   "mengajar.bukti.per_soal": { default: "Lihat per soal", en: "See question by question" },
   "mengajar.soal.judul": { default: "Soal mana yang sulit bagi kelas ini", en: "Which questions this class found hard" },
@@ -3595,6 +3601,9 @@ const table: Table = {
   "laporan.komposisi.keliru_lainnya": { default: "{n} pola lain ada di «Lihat bukti».", en: "{n} more patterns are in «See the evidence»." },
   "laporan.komposisi.keliru_tertahan": { default: "{n} pola lain baru dialami kurang dari {m} murid, jadi belum ditampilkan sebagai pola kelas.", en: "{n} more patterns have been seen in fewer than {m} students, so they are not shown as class patterns yet." },
   "laporan.komposisi.keliru_belum": { default: "Belum ada pola jawaban keliru yang dialami cukup banyak murid untuk disebut pola kelas.", en: "No mistaken-answer pattern has yet been seen in enough students to call it a class pattern." },
+  // F1-R1b, Daisy's line (§6a): an empty misconception figure with nothing withheld; where patterns are withheld under the
+  // class minimum, keliru_belum stands instead, since «nothing linked» would then be false
+  "laporan.komposisi.keliru_kosong": { default: "Belum ada pemahaman keliru yang terkait dengan jawaban ini.", en: "No misconception is linked to these answers yet." },
   "laporan.komposisi.topik_di_bawah_sebagian": { default: "{n} dari {m} topik yang punya angka masih di bawah target: {daftar}.", en: "{n} of the {m} topics with a figure are still below target: {daftar}." },
   "laporan.komposisi.topik_di_bawah_banyak_sebagian": { default: "{n} dari {m} topik yang punya angka masih di bawah target. Yang paling rendah: {nama} ({p}). Semua topik ada di daftar di bawah.", en: "{n} of the {m} topics with a figure are still below target. The lowest: {nama} ({p}). Every topic is in the list below." },
   "laporan.komposisi.topik_semua_sebagian": { default: "Ke-{m} topik yang punya angka sudah mencapai target {target}.", en: "All {m} topics with a figure have reached the {target} target." },
@@ -4386,6 +4395,8 @@ const table: Table = {
   "studio.kunci.dampak.belum": { default: "belum tercapai", en: "not met" },
   "studio.kunci.dampak.ditinjau": { default: "akan ditinjau", en: "will be reviewed" },
   // L1-F4 (owner §3b, Option A): Daisy's DRAFT (ANONYMISED-PERSON-IS-TERMINAL.md §3c); she confirms after seeing the screen
+  // F1-R1b, Daisy's line (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md §6a; I6-I7-JAWABAN.md §1 at e48c4906), §6 line 1
+  "studio.kunci.dampak.penjelasan_hilang": { default: "Pilihan {x} akan kehilangan alasan dan pemahaman keliru terkaitnya, karena benar-salahnya berubah. Kunci diperbaiki sekarang; alasannya ditulis sesudahnya.", en: "Option {x} will lose its explanation and linked misconception, because whether it is right has changed. The key is corrected now; the explanation is written afterwards." },
   "studio.kunci.dampak.tidak_diterbitkan": { default: "Memenuhi syarat sertifikat setelah koreksi kunci, tetapi tidak diterbitkan: data pribadi orang ini sudah dihapus.", en: "Met the certificate's requirements after the key correction, but not issued: this person's personal data has been deleted." },
   "studio.kunci.kirim": { default: "Kirim untuk konfirmasi", en: "Send for confirmation" },
   "studio.kunci.menunggu": { default: "Menunggu konfirmasi orang kedua · diusulkan {waktu}", en: "Waiting for a second person's confirmation · proposed {waktu}" },
@@ -6193,6 +6204,8 @@ const table: Table = {
   "studio.konten.kode.content_author_unknown": { default: "PINTAR tidak tahu siapa penyusun paket ini, jadi tidak dapat memastikan bahwa persetujuannya dari orang lain. Sampaikan kepada yang mengurus PINTAR di sekolah Anda.", en: "PINTAR does not know who wrote this package, so it cannot confirm that the approval comes from someone else. Tell whoever looks after PINTAR at your school." },
   "studio.konten.kode.content_reviewer_is_author": { default: "Anda menyusun paket ini, jadi persetujuannya harus dari orang lain. Minta rekan yang disebut di langkah Setujui isi.", en: "You wrote this package, so the approval must come from someone else. Ask a colleague named at the Approve the content step." },
   "studio.konten.kode.content_check_errors": { default: "Pemeriksaan isi sudah dijalankan dan menemukan hal yang wajib diperbaiki, jadi paket belum ditandai lolos. Lihat Temuan di bawah: perbaiki yang wajib diperbaiki, lalu tandai lolos pemeriksaan lagi.", en: "The content check has run and found things that must be fixed, so the package is not marked as passed yet. See Findings below: fix what must be fixed, then mark the check as passed again." },
+  // F1-R1b, engineer's draft for Daisy (§6 line 2's consequence): the step is held until the explanations are written
+  "studio.konten.kode.content_rationale_owed": { default: "Kunci jawaban salah satu soal di paket ini pernah dikoreksi, dan penjelasan pilihannya belum ditulis ulang. Tulis penjelasan setiap pilihan yang ditandai, lalu lanjutkan langkah ini.", en: "The answer key of a question in this package was corrected, and its options' explanations have not been written again. Write an explanation for each marked option, then take this step again." },
   "studio.konten.kode.content_reviewer_not_caller": { default: "Persetujuan hanya dapat dicatat atas nama Anda sendiri, bukan atas nama orang lain.", en: "An approval can only be recorded in your own name, not in someone else\u2019s." },
   "studio.konten.kode.content_seal_not_allowed": { default: "Mengunci terbitan bukan wewenang Anda di sekolah ini. Minta orang yang disebut di langkah Kunci terbitan.", en: "Locking the release is not yours to do in this school. Ask someone named at the Lock the release step." },
   "studio.konten.kode.content_publish_not_allowed": { default: "Menerbitkan bukan wewenang Anda di sekolah ini. Minta orang yang disebut di langkah Terbitkan.", en: "Publishing is not yours to do in this school. Ask someone named at the Publish step." },

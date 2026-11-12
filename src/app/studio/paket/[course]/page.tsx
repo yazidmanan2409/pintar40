@@ -464,18 +464,30 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                                         {/* the key: icon, word, edge and ground; never colour alone (A1 decision 2) */}
                                         {o.kunci ? <> <strong className="pin-pill pin-ok pin-pill-ikon pin-studio-kunci"><Ikon nama="check" />{sl("studio.soal.kunci")}</strong></> : null}
                                       </p>
-                                      <p className="pin-opsi-alasan">{sl("studio.soal.alasan")}: <TeksBaris teks={o.alasan} /></p>
+                                      {/* F1-R1b: a rationale a confirmed key correction withdrew is owed, and says so (INV-03 as amended) */}
+                                      {o.alasan === null ? (
+                                        <p className="pin-opsi-alasan" data-alasan-ditarik=""><strong>{sl("studio.soal.alasan_ditarik").replace("{x}", o.label)}</strong></p>
+                                      ) : (
+                                        <p className="pin-opsi-alasan">{sl("studio.soal.alasan")}: <TeksBaris teks={o.alasan} /></p>
+                                      )}
                                       {/* E-A1-1: the misconception the option is coded with, by its name in the school's taxonomy */}
                                       {o.miskonsepsi ? (
                                         <p className="pin-opsi-alasan" data-miskonsepsi={o.miskonsepsi.kode}>
                                           {sl("studio.soal.miskonsepsi")}: {o.miskonsepsi.nama ?? o.miskonsepsi.kode}
                                           {o.miskonsepsi.nama ? <> <span className="pin-kode">{o.miskonsepsi.kode}</span></> : null}
                                         </p>
+                                      ) : !o.kunci ? (
+                                        /* F1-R1b, Daisy §6a: a wrong option with no code reads in the same place, «belum dikaitkan» */
+                                        <p className="pin-opsi-alasan" data-miskonsepsi-belum="">{sl("studio.soal.miskonsepsi")}: {sl("studio.soal.belum_dikaitkan")}</p>
                                       ) : null}
                                     </div>
                                   </li>
                                 ))}
                               </ol>
+                              {/* F1-R1b (Sharon §3a.1; Daisy §6a): any wrong option not linked to a misconception, said under the options */}
+                              {q.opsi.some((o) => !o.kunci && !o.miskonsepsi) ? (
+                                <p className="pin-meta" data-tak-terkait="">{sl("soal.tak_terkait")}</p>
+                              ) : null}
                               {/* Daisy Q5: the attribution the page requires, once a question was changed in the app */}
                               {sunt?.diubah_pada ? (
                                 <p className="pin-ket-3" data-soal-diubah={q.id}>{isi("studio.soal.diubah_oleh", { nama: sunt.nama_pengubah ?? "—", waktu: when(sunt.diubah_pada) })}</p>

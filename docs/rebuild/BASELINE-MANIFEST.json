@@ -25,9 +25,9 @@
     },
     {
       "path": "docs/rebuild/03-PINTAR-INVARIANTS.md",
-      "sha256": "6331fa5cac7fb827e617a9f6725900b8f8e337c6342378b9412479f53bf30d20",
-      "bytes": 19974,
-      "baseline": "2026-09-12"
+      "sha256": "c57f9870c867205f5ba78c483837c6a8e9f376c0157269816a70155407bd2c3c",
+      "bytes": 21013,
+      "baseline": "2026-11-12"
     },
     {
       "path": "docs/rebuild/04-PINTAR-STATE-MACHINES.md",

@@ -162,6 +162,8 @@ export const KODE_KONTEN = [
   // Daisy F8 (8 Nov; UX-01): «Tandai lolos pemeriksaan» runs the content check first, and an ERROR it finds holds the
   // step: an ERROR is repaired, never acknowledged away (acknowledge_finding)
   "CONTENT_CHECK_ERRORS",
+  // F1-R1b (§3 point 5): a question whose key was corrected moves on once each option has its rationale again
+  "CONTENT_RATIONALE_OWED",
 ] as const;
 
 /** A form the reader has to complete; each says what is missing. */
@@ -360,6 +362,8 @@ const POLA_KONTEN: ReadonlyArray<readonly [RegExp, KodeKonten]> = [
   [/^publishing requires CAN_PUBLISH/, "CONTENT_PUBLISH_NOT_ALLOWED"],
   [/^withdrawing published content requires CAN_PUBLISH/, "CONTENT_WITHDRAW_NOT_ALLOWED"],
   [/^author_person_id is immutable/, "CONTENT_AUTHOR_IMMUTABLE"],
+  // F1-R1b: penjelasan_terutang_jaga (20270117140000)
+  [/^a question whose key was corrected moves on once each of its options has a rationale again/, "CONTENT_RATIONALE_OWED"],
   // FD-9 (D-127 Q8): a rule for a chapter that has moved on starts again from the chapter's correction, an upload
   // (save_assessment_definition, 20261209100000); the sentence names that next action
   [/^a rule is set while its chapter is still being drafted/, "CONTENT_CREATED_NOT_INGESTED"],

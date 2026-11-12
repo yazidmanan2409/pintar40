@@ -163,6 +163,7 @@ grant execute on function selftest.f13_code(text) to authenticated, anon;
 --
 --   F13-K01  row 1 · service_cohort_misconceptions and the catalogue figure class.misconceptions: before, B's
 --            misconception (six learners) and not A's; after, A's (five) and not B's.
+--   F13-K23  F1-R1b's marker: every question's ada_tak_terkait is whether a wrong option, by the key shown, has no code
 --   F13-K02  row 2 · teacher_question_evidence: X answered rightly by the six; B is the key shown, A is was_key, the
 --            question says key_corrected; each of the six is marked right and each of the five wrong.
 --   F13-K03  row 3 · reading_map: a learner of the six is no longer sent to B's remediation; a learner of the five is
@@ -200,6 +201,8 @@ begin
     v_back := v_def;
     foreach p slice 1 in array (case r.k
       when 'tqe' then array[
+        -- F1-R1b's marker (20270117140000 step 6b), read by the sealed key like every other line of this reading
+        array[E'and not coalesce(q.kunci ? o2.label, o2.is_correct) and o2.misconception_code is null),\n', E'and not o2.is_correct and o2.misconception_code is null),\n'],
         array[E'  kunci as (               -- F-1 (O41-21): the key in force for these sittings, where a governed correction recorded one\n    select k.session_id, k.item_id, k.kunci, k.pada from sit st cross join lateral public.kunci_berlaku_sesi(st.id) k\n  ),\n', ''],
         array[E'public.nilai_jawaban_berlaku(st.id, p.item_id, f.value) end as nilai,\n           kk.kunci, kk.pada\n', E'public.grade_response(p.item_id, f.value) end as nilai\n'],
         array[E'      left join kunci kk on kk.session_id = st.id and kk.item_id = p.item_id\n', ''],
@@ -307,7 +310,9 @@ revoke all on function selftest.f13_kunci_sidik(uuid, uuid[]) from public;
 -- choose B on X, the rest A), its teacher, the package published by the school's people and its Pemetaan Awal sat.
 -- Returns the ids the suite reads. Also the fixture of the F-1 evidence (the whole-world identity and the cohort
 -- view's plan on a class-sized class).
-create or replace function selftest.f13_kunci_dunia(p_n int default 11, p_b int default 6)
+-- p_c (F13-K24): X gains a third option C, wrong, with a rationale: '-' with no misconception code, else that code
+drop function if exists selftest.f13_kunci_dunia(int, int);
+create or replace function selftest.f13_kunci_dunia(p_n int default 11, p_b int default 6, p_c text default null)
 returns jsonb language plpgsql set search_path = public, pg_temp as $$
 declare
   f record; v_tag text := substr(md5(random()::text), 1, 8); v_inst uuid; v_k5 uuid; v_par uuid; v_per uuid; v_prog uuid;
@@ -348,6 +353,11 @@ begin
            jsonb_build_object('code', 'F13K-B', 'label', 'Keliru B', 'description', 'Memilih B pada soal ini.', 'remediation', 'Ulangi bagian B.')));
     v := jsonb_set(v, '{courses,0,modules,0,lessons,0,items,0,options,0,misconception_code}', '"F13K-A"');
     v := jsonb_set(v, '{courses,0,modules,0,lessons,0,items,0,options,1,misconception_code}', '"F13K-B"');
+    if p_c is not null then
+      v := jsonb_set(v, '{courses,0,modules,0,lessons,0,items,0,options}', (v #> '{courses,0,modules,0,lessons,0,items,0,options}')
+             || jsonb_build_array(jsonb_build_object('label', 'C', 'body', 'Pilihan ketiga', 'is_correct', false, 'rationale', 'Ini juga belum tepat.')
+                                  || case when p_c = '-' then '{}'::jsonb else jsonb_build_object('misconception_code', p_c) end));
+    end if;
     perform selftest.as_user('boot-guru@bootstrap.pintar.test');
     v_b := selftest.f11_batch(v_inst, 'STRUCTURED_PACKAGE', v);
     perform public.prepare_ingest_batch(v_b);
@@ -373,7 +383,7 @@ begin
     select i2.id into v_x from public.items i2 join public.lessons l on l.id = i2.lesson_id join public.modules m2 on m2.id = l.module_id
      where m2.course_id = v_course and i2.stem like 'Pertanyaan awal nomor 1%';
     if (select string_agg(o.label || ':' || o.is_correct || ':' || coalesce(o.misconception_code, '-'), ',' order by o.label) from public.item_options o where o.item_id = v_x)
-       is distinct from 'A:true:F13K-A,B:false:F13K-B' then
+       is distinct from (case when p_c is null then 'A:true:F13K-A,B:false:F13K-B' else 'A:true:F13K-A,B:false:F13K-B,C:false:' || p_c end) then
       raise exception 'X is not the question this suite needs';
     end if;
     perform selftest.as_user_uid(v_guru);
@@ -395,7 +405,7 @@ begin
   return jsonb_build_object('inst', v_inst, 'kelas', v_kelas, 'guru', v_guru, 'course', v_course, 'rel', v_rel, 'la', v_la,
                             'pre', v_pre, 'post', v_post, 'x', v_x, 'sesi', v_sesi, 'semua', to_jsonb(v_semua));
 end $$;
-revoke all on function selftest.f13_kunci_dunia(int, int) from public;
+revoke all on function selftest.f13_kunci_dunia(int, int, text) from public;
 
 create or replace function selftest.f13_kunci()
 returns table (id text, ok boolean, detail text)
@@ -475,6 +485,19 @@ begin
     if v_t is distinct from '6|11|true|A:false:true,B:true:false' then
       v_probs := selftest.f11_note(v_probs, 'F13-K02', 'after the correction the teacher''s question X read ' || coalesce(v_t, 'nothing')
         || ' (expected 6|11|true|A:false:true,B:true:false: six right, B the key in force, A the original key)');
+    end if;
+    -- ═══ F13-K23  the marker (F1-R1b, Sharon §3a.1; Daisy §6a): before and after, every question says whether a wrong
+    -- option, by the key the view shows, has no misconception code; X's two options are both coded, so X says no
+    select count(*) into n from (select x from jsonb_array_elements(v_sebelum -> 'tqe' -> 'questions') x
+                                 union all select x from jsonb_array_elements(v_sesudah -> 'tqe' -> 'questions') x) q(x)
+     where (q.x ->> 'ada_tak_terkait')::boolean is distinct from exists (
+             select 1 from jsonb_array_elements(q.x -> 'options') o
+               join public.item_options io on io.item_id = (q.x ->> 'item_id')::uuid and io.label = o ->> 'label'
+              where not (o ->> 'is_key')::boolean and io.misconception_code is null);
+    if n > 0 or (v_q ->> 'ada_tak_terkait') is distinct from 'false'
+       or not exists (select 1 from jsonb_array_elements(v_sesudah -> 'tqe' -> 'questions') x where (x ->> 'ada_tak_terkait')::boolean) then
+      v_probs := selftest.f11_note(v_probs, 'F13-K23', n || ' question reading(s) whose marker is not what their wrong options'' codes say; X reads '
+        || coalesce(v_q ->> 'ada_tak_terkait', 'nothing') || ' (expected false: both coded); and the package should hold at least one unlinked question');
     end if;
     select count(*) filter (where (a ->> 'right')::boolean and a ->> 'chosen' = 'B'), count(*) filter (where not (a ->> 'right')::boolean and a ->> 'chosen' = 'A')
       into n, m
@@ -584,6 +607,7 @@ begin
     ('F13-K04', 'row 4 (C1w F-1): session_misconceptions reads the key in force: nothing for a learner who chose B, A''s for one who chose A'),
     ('F13-K05', 'row 5 (C1w F-1): service_item_statistics, the source of item.correctness_rate, counts X right by the key in force (6 of 11, 0.5455)'),
     ('F13-K06', 'requirement 3: service_cohort_misconceptions over an uncorrected world reads byte for byte as the sealed key does; after the correction another class is unchanged'),
+    ('F13-K23', 'F1-R1b (Sharon §3a.1; Daisy §6a): the teacher''s per-question marker says, for every question before and after the correction, whether a wrong option by the key the view shows has no misconception code'),
     ('F13-K07', 'requirement 3: teacher_question_evidence over an uncorrected world reads byte for byte as before; after the correction the questions it did not reach are unchanged and say nothing of a correction'),
     ('F13-K08', 'requirement 3: reading_map over an uncorrected world reads byte for byte as the sealed key does'),
     ('F13-K09', 'requirement 3: session_misconceptions over an uncorrected world reads byte for byte as the sealed key does'),
@@ -727,6 +751,222 @@ begin
   end loop;
 end $$;
 revoke all on function selftest.f13_ulasan() from public;
+
+
+-- ═══════════════════════════════════════ F13-K16..K21 · a key correction withdraws the explanations it makes stale (F1-R1b)
+-- C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md §0, §3d; INV-03 as amended (ADR-0025). F-1's world: X's key corrected
+-- from A to B, both options flip. Everything is undone.
+--
+--   F13-K16  the corrected copy: A's and B's rationale and misconception code withdrawn, each naming the correction; the
+--            correction's record holds what they said, written once; the revision that was sat keeps its options
+--   F13-K17  the constraint: an option inserted with no rationale and no reference, with an empty rationale, or with both
+--            a rationale and a reference: each refused
+--   F13-K18  the reference from any other path: a direct update setting it, and an insert carrying it with no source
+--            option holding it: each refused
+--   F13-K19  a copy of the corrected revision (create_course_revision) carries the withdrawn state; writing a rationale
+--            on the copy clears the reference
+--   F13-K20  the release digest: every release's stored digest is what course_content_sha256 recomputes, the corrected
+--            revision's included (a null rationale hashes as '~')
+--   F13-K22  explanations owed: a copy of the corrected revision is refused the step to VALIDATED while an option is
+--            still withdrawn, and goes through once its rationale is written (the confirming act is exempt: F13-K16)
+--   F13-K21  a second correction flipping the key back: the options stay withdrawn under the first correction, nothing is
+--            restored, and the second correction's record holds nothing for them
+
+create or replace function selftest.f13_penjelasan()
+returns table (id text, ok boolean, detail text)
+language plpgsql set search_path = public, pg_temp as $$
+#variable_conflict use_column
+declare
+  v jsonb; v_x uuid; v_x2 uuid; v_x3 uuid; v_k uuid; v_k2 uuid; v_c2 uuid; v_draf uuid; v_xd uuid; v_lain uuid;
+  v_sidik text; v_probs jsonb := '{}'::jsonb; v_fatal text := ''; v_t text; n int;
+begin
+  perform selftest.as_owner();
+  begin
+    v := selftest.f13_kunci_dunia(2, 1);
+    v_x := (v ->> 'x')::uuid;
+    v_sidik := (select string_agg(to_jsonb(o)::text, '|' order by o.label) from public.item_options o where o.item_id = v_x);
+    perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+    v_k := (public.ajukan_koreksi_kunci(v_x, array['B'], 'uji F13K: kunci jawaban soal ini keliru') ->> 'koreksi')::uuid;
+    perform selftest.as_user('boot-kaprodi@bootstrap.pintar.test');
+    v := public.tegaskan_koreksi_kunci(v_k);
+    perform selftest.as_owner();
+    if (v ->> 'ok')::boolean is not true then raise exception 'the correction did not confirm: %', left(v::text, 200); end if;
+    select k.corrected_item_id, k.corrected_course_id into v_x2, v_c2 from public.key_corrections k where k.id = v_k;
+
+    -- ═══ F13-K16  the corrected copy, and the record
+    v_t := (select string_agg(o.label || ':' || o.is_correct || ':' || coalesce(o.rationale, '-') || ':' || coalesce(o.misconception_code, '-')
+                              || ':' || case when o.rationale_withdrawn_by = v_k then 'k' else '-' end, ',' order by o.label)
+              from public.item_options o where o.item_id = v_x2);
+    if v_t is distinct from 'A:false:-:-:k,B:true:-:-:k' then
+      v_probs := selftest.f11_note(v_probs, 'F13-K16', 'the corrected copy''s options read ' || coalesce(v_t, 'nothing')
+        || ' (expected A:false:-:-:k,B:true:-:-:k: both flipped, both withdrawn under this correction)');
+    end if;
+    v_t := (select string_agg((x ->> 'label') || ':' || (x ->> 'rationale') || ':' || coalesce(x ->> 'misconception_code', '-'), ',' order by x ->> 'label')
+              from public.key_corrections k, jsonb_array_elements(k.penjelasan_dihapus) x where k.id = v_k);
+    if v_t is distinct from 'A:Ini tepat.:F13K-A,B:Ini belum tepat.:F13K-B' then
+      v_probs := selftest.f11_note(v_probs, 'F13-K16', 'the correction''s record of what it withdrew reads ' || coalesce(v_t, 'nothing'));
+    end if;
+    if (select string_agg(to_jsonb(o)::text, '|' order by o.label) from public.item_options o where o.item_id = v_x) is distinct from v_sidik then
+      v_probs := selftest.f11_note(v_probs, 'F13-K16', 'the revision that was sat had its options changed');
+    end if;
+    v_t := selftest.f13_code(format('update public.key_corrections set penjelasan_dihapus = %L where id = %L', '[]', v_k));
+    if v_t is null then v_probs := selftest.f11_note(v_probs, 'F13-K16', 'the record of what was withdrawn was rewritten after the decision'); end if;
+
+    -- ═══ F13-K19  a copy carries the state; writing a rationale clears it
+    perform selftest.as_user('boot-guru@bootstrap.pintar.test');
+    v_draf := public.create_course_revision(v_c2);
+    perform selftest.as_owner();
+    select i.id into v_xd from public.items i where i.supersedes_item_id = v_x2 and public.soal_kursus(i.id) = v_draf;
+    v_t := (select string_agg(o.label || ':' || coalesce(o.rationale, '-') || ':' || case when o.rationale_withdrawn_by = v_k then 'k' else '-' end, ',' order by o.label)
+              from public.item_options o where o.item_id = v_xd);
+    if v_t is distinct from 'A:-:k,B:-:k' then
+      v_probs := selftest.f11_note(v_probs, 'F13-K19', 'the copy''s options read ' || coalesce(v_t, 'nothing') || ' (expected A:-:k,B:-:k: carried)');
+    end if;
+    update public.item_options set rationale = 'Penjelasan baru untuk kunci yang benar.' where item_id = v_xd and label = 'B';
+    v_t := (select coalesce(o.rationale_withdrawn_by::text, '-') from public.item_options o where o.item_id = v_xd and o.label = 'B');
+    if v_t is distinct from '-' then v_probs := selftest.f11_note(v_probs, 'F13-K19', 'writing a rationale did not clear the reference'); end if;
+
+    -- ═══ F13-K17  the constraint, on the draft copy's question
+    v_t := concat_ws('|',
+      coalesce(selftest.f13_code(format($q$insert into public.item_options (item_id, institution_id, label, body, is_correct) select %L, i.institution_id, 'E', 'Pilihan E', false from public.items i where i.id = %L$q$, v_xd, v_xd)), 'went through'),
+      coalesce(selftest.f13_code(format($q$insert into public.item_options (item_id, institution_id, label, body, is_correct, rationale) select %L, i.institution_id, 'E', 'Pilihan E', false, '  ' from public.items i where i.id = %L$q$, v_xd, v_xd)), 'went through'),
+      coalesce(selftest.f13_code(format($q$insert into public.item_options (item_id, institution_id, label, body, is_correct, rationale, rationale_withdrawn_by) select %L, i.institution_id, 'E', 'Pilihan E', false, 'Ada.', %L from public.items i where i.id = %L$q$, v_xd, v_k, v_xd)), 'went through'));
+    if v_t !~ '^23514 [^|]*\|23514 [^|]*\|23514 ' then
+      v_probs := selftest.f11_note(v_probs, 'F13-K17', 'no rationale | an empty one | both a rationale and a reference answered ' || v_t
+        || ' (expected each refused by the check)');
+    end if;
+
+    -- ═══ F13-K18  the reference from any other path
+    select i.id into v_lain from public.items i where public.soal_kursus(i.id) = v_draf and i.id <> v_xd limit 1;
+    v_t := concat_ws('|',
+      coalesce(selftest.f13_code(format($q$update public.item_options set rationale = null, rationale_withdrawn_by = %L where item_id = %L and label = 'A'$q$, v_k, v_lain)), 'went through'),
+      coalesce(selftest.f13_code(format($q$insert into public.item_options (item_id, institution_id, label, body, is_correct, rationale_withdrawn_by) select %L, i.institution_id, 'E', 'Pilihan E', false, %L from public.items i where i.id = %L$q$, v_xd, v_k, v_xd)), 'went through'));
+    if v_t !~ '^42501 [^|]*\|42501 ' then
+      v_probs := selftest.f11_note(v_probs, 'F13-K18', 'a direct update setting the reference | an insert carrying it with no source answered ' || v_t || ' (expected each refused)');
+    end if;
+
+    -- ═══ F13-K22  explanations owed: the copy steps past STRUCTURED only once every option has its rationale again
+    -- (A is still withdrawn here; B was written under F13-K19). Undone, so the draft stays as the tests below expect.
+    begin
+      perform selftest.as_user('boot-guru@bootstrap.pintar.test');
+      perform public.langkah_konten(v_draf, 'STRUCTURED');
+      v_t := coalesce(selftest.f13_code(format('select public.langkah_konten(%L, %L)', v_draf, 'VALIDATED')), 'went through');
+      if v_t !~ '^PR040 a question whose key was corrected' then
+        v_probs := selftest.f11_note(v_probs, 'F13-K22', 'stepping the copy on with A''s rationale still withdrawn answered ' || v_t
+          || ' (expected refused: the explanation is owed)');
+      end if;
+      update public.item_options set rationale = 'Penjelasan baru untuk pilihan A.' where item_id = v_xd and label = 'A';
+      v_t := coalesce(selftest.f13_code(format('select public.langkah_konten(%L, %L)', v_draf, 'VALIDATED')), 'went through');
+      if v_t <> 'went through' then
+        v_probs := selftest.f11_note(v_probs, 'F13-K22', 'with every rationale written again the step answered ' || v_t || ' (expected it to go through)');
+      end if;
+      if exists (select 1 from public.item_options o where o.item_id = v_xd and (o.rationale is null or o.rationale_withdrawn_by is not null)) then
+        v_probs := selftest.f11_note(v_probs, 'F13-K22', 'an option still reads as withdrawn after its rationale was written');
+      end if;
+      raise exception 'F13P_K22_UNDO';
+    exception when others then
+      if sqlerrm <> 'F13P_K22_UNDO' then v_probs := selftest.f11_note(v_probs, 'F13-K22', 'the step world failed: ' || left(sqlerrm, 200)); end if;
+    end;
+    perform selftest.as_owner();
+
+    -- ═══ F13-K20  every release's digest recomputes to its stored value
+    select count(*) into n from public.plp_releases r
+     where r.content_sha256 is not null and r.content_sha256 is distinct from public.course_content_sha256(r.course_id);
+    if n > 0 then v_probs := selftest.f11_note(v_probs, 'F13-K20', n || ' release(s) whose stored digest is not what their content recomputes to'); end if;
+    if not exists (select 1 from public.plp_releases r where r.course_id = v_c2 and r.content_sha256 = public.course_content_sha256(v_c2)) then
+      v_probs := selftest.f11_note(v_probs, 'F13-K20', 'the corrected revision''s release digest is not reproducible');
+    end if;
+
+    -- ═══ F13-K21  a second correction flips the key back: nothing is restored
+    perform selftest.as_user('boot-guru@bootstrap.pintar.test');
+    perform public.buang_draf(v_draf, 'uji F13K: draf tidak dipakai');
+    perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+    v_k2 := (public.ajukan_koreksi_kunci(v_x2, array['A'], 'uji F13K: kunci dikembalikan seperti semula') ->> 'koreksi')::uuid;
+    perform selftest.as_user('boot-kaprodi@bootstrap.pintar.test');
+    v := public.tegaskan_koreksi_kunci(v_k2);
+    perform selftest.as_owner();
+    select k.corrected_item_id into v_x3 from public.key_corrections k where k.id = v_k2;
+    v_t := (select string_agg(o.label || ':' || o.is_correct || ':' || coalesce(o.rationale, '-') || ':' || case when o.rationale_withdrawn_by = v_k then 'k1' else '-' end, ',' order by o.label)
+              from public.item_options o where o.item_id = v_x3)
+          || '|' || coalesce((select jsonb_array_length(k.penjelasan_dihapus)::text from public.key_corrections k where k.id = v_k2), '-');
+    if v_t is distinct from 'A:true:-:k1,B:false:-:k1|0' then
+      v_probs := selftest.f11_note(v_probs, 'F13-K21', 'after the key was corrected back the options read ' || coalesce(v_t, 'nothing')
+        || ' (expected A:true:-:k1,B:false:-:k1|0: still withdrawn under the first correction, nothing restored, nothing recorded twice)');
+    end if;
+
+    raise exception 'F13P_UNDO';
+  exception when others then
+    begin perform selftest.as_owner(); exception when others then null; end;
+    perform set_config('app.seed_intent', '', true);
+    if sqlerrm <> 'F13P_UNDO' then v_fatal := sqlerrm; end if;
+  end;
+
+  for id, detail in select * from (values
+    ('F13-K16', 'F1-R1b: the corrected copy''s flipped options lose their rationale and misconception code, each naming the correction; the correction''s record holds what they said, written once; the revision that was sat keeps its options'),
+    ('F13-K17', 'F1-R1b (INV-03 as amended): an option with no rationale and no reference, an empty rationale, or both: each refused by the check'),
+    ('F13-K18', 'F1-R1b: the reference set by a direct update, or carried by an insert with no source option holding it: each refused by the trigger'),
+    ('F13-K19', 'F1-R1b: a copy of the corrected revision carries the withdrawn state, and writing a rationale on it clears the reference'),
+    ('F13-K20', 'F1-R1b: every release''s stored digest is what its content recomputes to, the corrected revision''s included'),
+    ('F13-K21', 'F1-R1b: a second correction flipping the key back restores nothing; the options stay withdrawn under the first, and the second records nothing for them'),
+    ('F13-K22', 'F1-R1b (§3 point 5): a copy of the corrected revision steps past STRUCTURED only once every withdrawn option has its rationale again; the confirming act alone is exempt')
+  ) z loop
+    if v_fatal <> '' then
+      ok := false; detail := 'the F13-K16 world could not run: ' || left(v_fatal, 220);
+    elsif v_probs ? id then
+      ok := false;
+      detail := format('%s problem(s): %s', jsonb_array_length(v_probs -> id), (select string_agg(y, '; ') from jsonb_array_elements_text(v_probs -> id) y));
+    else
+      ok := true;
+    end if;
+    return next;
+  end loop;
+end $$;
+revoke all on function selftest.f13_penjelasan() from public;
+
+-- ═══════════════════════════════════════ F13-K24 · the marker is "any", not "all" (F1-R1b; Daisy §6a)
+-- World 1: X with three options, A (the sealed key, linked), B (wrong, linked), C (wrong, not linked). The teacher's
+-- per-question view marks X before the correction and after it (A to B: A and C are then wrong, C still not linked).
+-- Under "all wrong options unlinked" X would not be marked: plant bob04-20. World 2: the same with C linked: X is not
+-- marked, before or after. Everything is undone.
+create or replace function selftest.f13_tanda()
+returns table (id text, ok boolean, detail text)
+language plpgsql set search_path = public, pg_temp as $$
+#variable_conflict use_column
+declare v jsonb; v_x uuid; v_k uuid; v_t text := ''; v_fatal text := ''; v_c text;
+begin
+  perform selftest.as_owner();
+  foreach v_c in array array['-', 'F13K-A'] loop
+  begin
+    v := selftest.f13_kunci_dunia(2, 1, v_c);
+    v_x := (v ->> 'x')::uuid;
+    perform selftest.as_user_uid((v ->> 'guru')::uuid);
+    v_t := v_t || case when v_t = '' then '' else ';' end || coalesce((select x ->> 'ada_tak_terkait' from jsonb_array_elements(public.teacher_question_evidence((v ->> 'pre')::uuid, (v ->> 'kelas')::uuid) -> 'questions') x
+                      where (x ->> 'item_id')::uuid = v_x), 'nothing');
+    perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+    v_k := (public.ajukan_koreksi_kunci(v_x, array['B'], 'uji F13K: kunci jawaban soal ini keliru') ->> 'koreksi')::uuid;
+    perform selftest.as_user('boot-kaprodi@bootstrap.pintar.test');
+    perform public.tegaskan_koreksi_kunci(v_k);
+    perform selftest.as_user_uid((v ->> 'guru')::uuid);
+    v_t := v_t || '|' || coalesce((select x ->> 'ada_tak_terkait' from jsonb_array_elements(public.teacher_question_evidence((v ->> 'pre')::uuid, (v ->> 'kelas')::uuid) -> 'questions') x
+                      where (x ->> 'item_id')::uuid = v_x), 'nothing');
+    raise exception 'F13T_UNDO';
+  exception when others then
+    begin perform selftest.as_owner(); exception when others then null; end;
+    perform set_config('app.seed_intent', '', true);
+    if sqlerrm <> 'F13T_UNDO' then v_fatal := sqlerrm; end if;
+  end;
+  end loop;
+  id := 'F13-K24';
+  if v_fatal <> '' then
+    ok := false; detail := 'the F13-K24 world could not run: ' || left(v_fatal, 220);
+  elsif v_t is distinct from 'true|true;false|false' then
+    ok := false; detail := 'X was marked ' || v_t || ' (C not linked: before|after; C linked: before|after) (expected true|true;false|false: one wrong option not linked is enough, and all linked clears it)';
+  else
+    ok := true; detail := 'F1-R1b (Daisy §6a): a question with one wrong option linked and one not is marked, before and after a key correction, and with all its wrong options linked is not; the marker is "any", not "all"';
+  end if;
+  return next;
+end $$;
+revoke all on function selftest.f13_tanda() from public;
 
 -- ═══════════════════════════════════════════════════════════════ the suite
 create or replace function selftest.run_fable13()
@@ -1033,6 +1273,18 @@ begin
   -- C1w F-1 (O41-21): the key in force, its own world, undone before it returns
   for r in select * from selftest.f13_kunci() loop
     id := r.id; area := 'C1w F-1 -- every view of a corrected answer marks it by the key in force (O41-21)';
+    ok := r.ok; detail := r.detail;
+    return next;
+  end loop;
+  -- F1-R1b: a key correction withdraws the explanations it makes stale, its own world, undone
+  for r in select * from selftest.f13_penjelasan() loop
+    id := r.id; area := 'C1w F1-R1b -- a key correction withdraws the explanations it makes stale';
+    ok := r.ok; detail := r.detail;
+    return next;
+  end loop;
+  -- F1-R1b: the marker is "any", not "all" (F13-K24), its own world, undone
+  for r in select * from selftest.f13_tanda() loop
+    id := r.id; area := 'C1w F1-R1b -- a key correction withdraws the explanations it makes stale';
     ok := r.ok; detail := r.detail;
     return next;
   end loop;

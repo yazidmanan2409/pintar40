@@ -32,7 +32,7 @@
     },
     "db-bob04-gates": {
       "suite": "selftest.run_fable13()",
-      "control_green": 20,
+      "control_green": 29,
       "what": "BOB-04's whole learning cycle: a course carrying its pre-test and post-test, one assignment making both, the draw following the marks, INV-24 checked at assignment, every refusal's stable code, and a stranger refused the cycle; and the upload refusing a parallel group that spans both tests (D-040)"
     },
     "db-l1f4-gates": {
@@ -624,6 +624,30 @@
       "gate": "db-bob04-gates",
       "expect_red": "F13-K13",
       "expect_detail": "true:Ini belum tepat."
+    },
+    {
+      "name": "bob04-17",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K16",
+      "expect_detail": "A:false:Ini tepat."
+    },
+    {
+      "name": "bob04-18",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K22",
+      "expect_detail": "still withdrawn answered went through"
+    },
+    {
+      "name": "bob04-19",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K23",
+      "expect_detail": "whose marker is not what their wrong options"
+    },
+    {
+      "name": "bob04-20",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K24",
+      "expect_detail": "expected true|true;false|false"
     },
     {
       "name": "bob04-15",

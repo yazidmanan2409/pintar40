@@ -22,6 +22,8 @@ export type SoalKelas = {
   presented: number; answered: number; right: number;
   /** the question's key in force is not its sealed key (a governed correction) */
   key_corrected?: boolean;
+  /** F1-R1b (Sharon §3a.1; Daisy §6a): a wrong option, by the key in force, has no misconception code */
+  ada_tak_terkait?: boolean;
 };
 export type JawabanMurid = { item_id: string; chosen: string | null; right: boolean };
 export type MuridKelas = { person_id: string; name: string; answers: JawabanMurid[] };

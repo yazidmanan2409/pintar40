@@ -6,7 +6,7 @@ import TombolKirim from "@/components/TombolKirim";
 import SimpanIsian from "@/components/SimpanIsian";
 import { currentViewer } from "@/lib/auth";
 import KonfirmasiDialog from "@/components/studio/KonfirmasiDialog";
-import { DaftarDampak } from "@/components/studio/SoalKerja";
+import { DaftarDampak, PenjelasanHilang } from "@/components/studio/SoalKerja";
 import { TeksBaris } from "@/components/teks/Teks";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
@@ -84,6 +84,7 @@ export default async function KoreksiKunci({ params, searchParams }: {
         <h2 id="pin-kunci-dampak" className="pin-studio-h3">{s("studio.kunci.l2")}</h2>
         {kalimatDampak(d, s, angka).map((k) => <p key={k}>{k}</p>)}
         {d.konten_platform ? <p className="pin-ket">{s("studio.kunci.dampak.platform")}</p> : null}
+        {d.penjelasan_hilang && d.penjelasan_hilang.length > 0 ? <PenjelasanHilang s={s} daftar={d.penjelasan_hilang} /> : null}
         {d.daftar && d.daftar.length > 0 ? <DaftarDampak s={s} locale={locale} daftar={d.daftar} /> : null}
       </section>
 

@@ -105,6 +105,8 @@ export default async function SoalKelas({
                     {s("mengajar.soal.kunci_diperbaiki").replace("{asli}", q.options.filter((o) => o.was_key).map((o) => o.label).join(", "))}
                   </p>
                 ) : null}
+                {/* F1-R1b (Sharon §3a.1; Daisy §6a): a wrong option, by the key in force, not linked to a misconception */}
+                {q.ada_tak_terkait ? <p className="pin-meta" data-tak-terkait="">{s("soal.tak_terkait")}</p> : null}
                 {perluBantuan.length === 0 ? (
                   <p className="pin-meta">{s("mengajar.soal.semua_tepat")}</p>
                 ) : (

@@ -52,7 +52,8 @@ export type SoalDraf = {
   /** Daisy Q5 field 1, «Bacaan» (optional); an editor that omits it leaves the reading as it is */
   stimulus?: string;
   stem: string;
-  options: Array<{ label: string; body: string; is_correct: boolean; rationale: string; misconception_code?: string | null }>;
+  /** an option's rationale is null only where a confirmed key correction withdrew it (F1-R1b); an editor writes one */
+  options: Array<{ label: string; body: string; is_correct: boolean; rationale: string | null; misconception_code?: string | null }>;
   objective_ids?: string[];
   /** tambah_soal_draf only: practice (null), or one of the package's tests */
   use?: "PRE_TEST" | "POST_TEST" | null;
@@ -119,6 +120,8 @@ export type DampakKoreksi = {
     sertifikat_tidak_diterbitkan?: boolean }>;
   koreksi: string; status: "PENDING" | "CONFIRMED" | "DECLINED"; kunci_lama: string[]; kunci_baru: string[]; alasan: string;
   konten_platform: boolean; boleh_tegaskan: boolean; milik_sendiri: boolean;
+  /** F1-R1b: the options whose explanation the correction withdraws (pending) or withdrew (decided), with what they said */
+  penjelasan_hilang?: Array<{ label: string; alasan: string | null; kode: string | null }>;
 };
 
 /** verify_certificate's `validity`: DITINJAU is a third, neutral state, never the mark of «Berlaku». */
