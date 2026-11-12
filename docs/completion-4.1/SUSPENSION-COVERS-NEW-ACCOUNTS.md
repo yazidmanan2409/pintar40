@@ -113,7 +113,9 @@ permit that survives. The delete alone does not close the race it was opened for
 
 **The design (hers; it governs):**
 1. **The delete.** When `p_kunci` is true, `akun_kunci` deletes `password_write_permits` for every `auth_user_id` of
-   the person, all purposes. On unlock nothing is deleted.
+   the person, ~~all purposes~~ **for the purposes `RECOVERY` and `ACTIVATION` only** (changed by Sharon on 12 Nov,
+   see "Card reissue" below: these are the two purposes refused for a locked person; a `CARD_REISSUE` permit is left
+   alone). On unlock nothing is deleted.
 2. **One lock both sides take.**
    - `akun_kunci` locks the person's `accounts` rows `for update`, in id order, in the same query its loop already
      runs.
@@ -136,7 +138,22 @@ person's row `for share` inside an insert into `accounts`.
 does not check the lock, so a school can reissue a suspended learner's card while the account is locked. Sign-in is
 still refused, so nothing is disclosed.
 
-*Chief Architect's view, for the page and for Sharon to accept or correct:* **intended.** A platform suspension must
+**SETTLED (Sharon, 12 Nov): card reissue for a locked learner is intended. No separate finding.** She checked at
+`916d12c01345816afcf567b40131e72b9857cf65`: the reissue route (`src/app/api/akun/kartu-kelas/route.ts`) writes only
+the card's email and password and never touches `banned_until`, so the new card opens nothing until reinstatement,
+and afterwards it is simply the learner's card. It is the same reasoning as option B.
+
+- **Her change to the design, so that the two agree:** the delete of item 1 covers `RECOVERY` and `ACTIVATION` only.
+  A `CARD_REISSUE` permit outstanding at the moment of locking is **not** deleted; otherwise a school's ordinary
+  reissue could fail at the Auth write in the moment around a lock, which is exactly the visible difference being
+  avoided. Item 2 is unchanged: `recovery_grant_permit` and `password_write_permit` are the only live issuers of
+  those two purposes.
+- **Written on the page as intended, with one test:** a card reissue for a locked learner returns the same response
+  and writes the same `account.card_reissued` row as for an unlocked one; afterwards `banned_until` still equals
+  `akun_terkunci_sampai()`, and sign-in with the new card is refused until reinstatement.
+
+*Chief Architect's view as first put (kept as the record; its last sentence but one is superseded by her change
+above: a `CARD_REISSUE` permit is not removed at locking):* **intended.** A platform suspension must
 not be learnable by a school. A school's ordinary act on its own learner, reissuing a lost card, has to succeed as
 usual, or its refusal tells the school that something is different about this learner. The card opens nothing while
 the account is locked, and reinstatement restores an account whose card the school legitimately replaced. The delete
@@ -310,3 +327,4 @@ proposal above is the record of how it was put. P-1 needs only its guarding test
 
 > **Correction to this log (12 Nov 2026, 03:45 UTC, read from the clock).** Entries dated 12 Nov after 01:45 UTC carried times that were estimated, not read from a clock, and several were later than the actual time. Those times have been removed. The order of the entries is correct.
 | 12 Nov 2026 (08:21 UTC) | L1-R2's design recorded (§2b), as Sharon gave it: the delete **and** a shared lock taken by both sides, with a two-connection race test and two plants. The Chief Architect's earlier reading, that the delete alone was the design, is corrected |
+| 12 Nov 2026 (08:23 UTC) | Sharon: card reissue for a locked learner is intended. L1-R2's delete is narrowed to `RECOVERY` and `ACTIVATION` permits; one test added for the reissue |
