@@ -244,7 +244,9 @@ export const ciwasteTests: SelfTest[] = [
         // L1-F4 (owner, 12 Nov): the registry of attaching columns
         "db-l1f4-gates",
         // B2 (THE PLAN §5.2): a printed report's schools are its evidence's
-        "db-b2-gates"];
+        "db-b2-gates",
+        // L1-F2 and L1-R2 (owner, 12 Nov): a suspension covers the accounts made after it; no permit survives a lock
+        "db-l1f2-gates"];
       const ci = readFileSync(join(ctx.repoRoot, ".github/workflows/ci.yml"), "utf8");
       const redCase = ci.slice(ci.indexOf("\n  red-case:\n"), ci.indexOf("\n  baseline-parity:\n"));
       const groups = [...redCase.matchAll(/- \{ group: "([^"]+)", cases: " ([a-z0-9 -]+) " \}/g)].map((x) => ({ group: x[1], cases: x[2].split(" ") }));

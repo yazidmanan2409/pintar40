@@ -2177,7 +2177,9 @@ export const experienceTests: SelfTest[] = [
       // makes stale; INV-03 amended). Read against §3: which explanation a question carries, not a logo, a crest or a theme.
       // MOVED 238 -> 239, RESTATED, B2 (THE PLAN §5.2): 20270117150000 (a printed report is owned by the schools whose
       // evidence it shows). Read against §3: who a print belongs to, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 239, `${migrations.length} migrations; the frozen baseline has 239`);
+      // MOVED 239 -> 240, RESTATED, L1-F2 and L1-R2 (owner, 12 Nov): 20270117160000 (a suspension covers the accounts made
+      // after it). Read against §3: who may sign in, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 240, `${migrations.length} migrations; the frozen baseline has 240`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4040,7 +4042,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 236 -> 237, RESTATED, L1-F4, for 20270117130000 (the attachment guard and its registry): no tour RPC.
       // MOVED 237 -> 238, RESTATED, F1-R1b, for 20270117140000 (the withdrawn explanation and its reference): no tour RPC.
       // MOVED 238 -> 239, RESTATED, B2, for 20270117150000 (the person-scoped print and its one read): no tour RPC.
-      c.expect(migs.length === 239, `${migs.length} migrations; the baseline has 239`);
+      // MOVED 239 -> 240, RESTATED, L1-F2, for 20270117160000 (the lock on the link and the permit delete): no tour RPC.
+      c.expect(migs.length === 240, `${migs.length} migrations; the baseline has 240`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

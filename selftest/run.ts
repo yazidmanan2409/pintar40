@@ -183,6 +183,8 @@ const DB_RUNNERS = [
   { file: "l1f4.sql", fn: "selftest.run_l1f4()", done: "L1F4-DONE", emits: ["L1F4-"] },
   // B2 (THE PLAN §5.2): a printed report is owned by its evidence's schools; reuses fable13's helpers
   { file: "b2.sql", fn: "selftest.run_b2()", done: "B2-DONE", emits: ["B2-D"] },
+  // L1-F2 and L1-R2 (owner, 12 Nov): a suspension covers the accounts made after it; no permit survives a lock
+  { file: "l1f2.sql", fn: "selftest.run_l1f2()", done: "L1F2-DONE", emits: ["L1F2-S", "L1R2-S"] },
 ] as const;
 
 /**

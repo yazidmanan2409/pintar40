@@ -268,7 +268,7 @@ jobs:
           - { group: "db · fable06 task2 bob06 bob50 bob25", cases: " db-fable06-gates db-task2-gates db-bob06-gates db-bob50-gates db-bob25-gates " }
           - { group: "db · wp1 task1 bob36 bob02 wp8", cases: " db-wp1-gates db-task1-gates db-bob36-gates db-bob02-gates db-wp8-gates " }
           - { group: "db · tour r1 fable05 bob12 bob03", cases: " db-tour-gates db-r1-gates db-fable05-gates db-bob12-gates db-bob03-gates " }
-          - { group: "db · bob37 bob24 bob39 bob04 fable04 l1f4 b2", cases: " db-bob37-gates db-bob24-gates db-bob39-gates db-bob04-gates db-fable04-gates db-l1f4-gates db-b2-gates " }
+          - { group: "db · bob37 bob24 bob39 bob04 fable04 l1f4 b2 l1f2", cases: " db-bob37-gates db-bob24-gates db-bob39-gates db-bob04-gates db-fable04-gates db-l1f4-gates db-b2-gates db-l1f2-gates " }
           - { group: "db · bob01 bob35 wp7 bob26", cases: " db-bob01-gates db-bob35-gates db-wp7-gates db-bob26-gates " }
     steps:
       - uses: actions/checkout@v4
@@ -340,6 +340,8 @@ jobs:
               echo "L1-F4's registry defect declared in selftest/plants/plants.json is planted against the running stack, below" ;;
             db-b2-gates)
               echo "B2's content-rule defect declared in selftest/plants/plants.json is planted against the running stack, below" ;;
+            db-l1f2-gates)
+              echo "L1-R2's permit defect declared in selftest/plants/plants.json is planted against the running stack, below" ;;
             db-bob37-gates)
               echo "the three per-topic mastery defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob25-gates)
@@ -1985,6 +1987,17 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesB2.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-b2-gates
+
+      # L1-F2 and L1-R2's gate: a lock leaves no password-write permit standing.
+      - name: Local stack (suspension and permit gate)
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-l1f2-gates ') }}
+        id: gatesL1f2
+        uses: ./.github/actions/local-stack
+      - name: Each planted permit defect must turn L1R2-S01 red
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-l1f2-gates ') }}
+        env:
+          DB_URL: ${{ steps.gatesL1f2.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-l1f2-gates
 
       # BOB-25's gate: the send log and the send limits.
       - name: Local stack (send log and limits gate)

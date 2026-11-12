@@ -370,11 +370,17 @@ export const akunTerkunciAppTests: SelfTest[] = [
       if (!c.expect(existsSync(berkas), `the rewrite migration ${MIGRASI} is not in the tree`)) return c.verdict("");
       // the file is run again here: it must still be the last word on what it defines, or running it would undo a later one
       const dir = join(ctx.repoRoot, "supabase", "migrations");
-      const lebihBaru = readdirSync(dir).filter((f) => f.endsWith(".sql") && f > MIGRASI)
+      // RESTATED, L1-F2 and L1-R2 (owner, 12 Nov): 20270117160000 redefines akun_kunci (the accounts locked FOR UPDATE,
+      // a lock's RECOVERY and ACTIVATION permits deleted). It is the one later word allowed: running this file again
+      // puts back the older akun_kunci, so the newer definition is saved before each run and restored after it
+      const L1F2 = "20270117160000_a_suspension_covers_the_accounts_made_after_it.sql";
+      const lebihBaru = readdirSync(dir).filter((f) => f.endsWith(".sql") && f > MIGRASI && f !== L1F2)
         .filter((f) => /function public\.(akun_kunci|recovery_attempt|akun_terkunci_sampai)\(/.test(readFileSync(join(dir, f), "utf8")));
       if (!c.expect(lebihBaru.length === 0, `a later migration redefines what ${MIGRASI} defines (${lebihBaru.join(", ")}): restate this test before running the file again`)) return c.verdict("");
+      const kunciKini = spawnSync("psql", ["-X", "-At", process.env.SUPABASE_DB_URL!, "-c", "select pg_get_functiondef('public.akun_kunci(uuid,boolean)'::regprocedure)"], { encoding: "utf8" }).stdout;
       const jalankan = () => {
         const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-q", "--single-transaction", "-f", berkas, process.env.SUPABASE_DB_URL!], { encoding: "utf8" });
+        spawnSync("psql", ["-X", "-q", "-v", "ON_ERROR_STOP=1", process.env.SUPABASE_DB_URL!], { encoding: "utf8", input: kunciKini + ";\n" });
         return r.status === 0 ? "OK" : (r.stderr || "").trim().split("\n").pop() ?? "failed";
       };
       const potret = () => psql("select coalesce(md5(string_agg(id::text || ':' || coalesce(banned_until::text, '-'), ',' order by id)), '') from auth.users");
@@ -410,7 +416,9 @@ export const akunTerkunciAppTests: SelfTest[] = [
         c.expect(a === "OK" && potret() === sebelum, `on a database with no old value the migration answered «${a}» or changed a lock`);
         // (b) one account locked as before the correction: Auth fails on it, and the route says so (503, not a mismatch)
         sebagaiUid(sys, `select public.tangguhkan_akun(${lit(orang)}, 'SECURITY', 'uji auth: nilai kunci lama')`);
-        psql(`update auth.users set banned_until = 'infinity'::timestamptz where id = ${lit(uid)}`);
+        // RESTATED, L1-F2: the old value is planted past L1-F2's guard (which would set the one instant), as a planted
+        // value from before the correction is: with the triggers off for this one statement
+        psql(`begin; set local session_replication_role = replica; update auth.users set banned_until = 'infinity'::timestamptz where id = ${lit(uid)}; commit;`);
         const gagal = await coba(sandi);
         c.expect(gagal.status === 503 && gagal.body?.code === "LAYANAN_TIDAK_TERSEDIA",
           `Auth failing on the old value is not the route's 503: ${tampil(gagal)} (a real Auth failure must not become a mismatch)`);

@@ -178,4 +178,19 @@ This was verified alone, not stacked: F1-R1b's own candidate. B2 is a batch and 
 
 ## Evidence on this commit
 
-To be filled from the pre-flight and CI on the pushed commit.
+**ACCEPTED at `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b`** (Bob, TEAM-INSTRUCTIONS.md review queue): Sharon PASS,
+Daisy PASS.
+
+| Check | Result |
+|---|---|
+| Whole local suite (fresh reset, fresh build) | 1110 passed, 0 failed, 0 skipped |
+| Planted defects | 168 of 168 (bob04-17 to bob04-20 new) |
+| CI's red-case job, run locally | 11 of 11 groups |
+| Lint, typecheck, build-identity | clean |
+| Red first on `b21bec621a449e8d4d90ed646f7fb09c15dfc6f9` | F13-K16 to K24 red (the world cannot run: no column); behavioural reds from plants bob04-17 to bob04-20 |
+| Baseline parity | OK, 25 documents (doc 03 amended with ADR-0025 in the same commit) |
+| CI | run `43189210169`, success |
+| Journeys | run `43189229437`, success |
+
+Two earlier local pre-flights of this commit before it was pushed were not green, and were fixed before the push:
+R3-SOAL-01 (restated for INV-03 as amended) and UX1-S3-BUKTI-01 (the code's `?? 0`, fixed in the code).

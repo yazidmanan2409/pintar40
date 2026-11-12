@@ -5910,6 +5910,56 @@
       "proves": "B2, selftest/b2-layar.test.ts, through the running app, the print action driven by its build id with the page's cookies: an empty learner's report offers no «Cetak laporan» (THE PLAN §5.2 F; the engineer's defect on /belajar/hasil)."
     },
     {
+      "id": "L1F2-A01",
+      "runner": "app",
+      "proves": "L1-F2, selftest/l1f2-layar.test.ts, through the running app's route /api/akun/kartu-kelas and real Auth: a school's reissue of a suspended learner's card answers as for one who is not (status and shape), writes the same account.card_reissued row in the audit log, leaves banned_until at akun_terkunci_sampai(); the new card signs nothing in until reinstatement, and signs in after it (Sharon, settled 12 Nov)."
+    },
+    {
+      "id": "L1F2-A02",
+      "runner": "app",
+      "proves": "L1-F2 (P-1's guarding test), selftest/l1f2-layar.test.ts, through the running app's route /api/akun/aktivasi, real Auth and the mail sink: an EMAIL account for a suspended person and a class card for a closed person answer as ordinary creations, send nothing to anyone, and are created locked; an ordinary one is not."
+    },
+    {
+      "id": "L1F2-R01",
+      "runner": "static",
+      "proves": "L1-F2, selftest/l1f2-balapan.test.ts, on two real connections against the database (the shared harness selftest/balapan.ts; migration 20270117160000): a suspension and an account creation for the same person race in both orders and the account ends locked either way; with the link trigger's FOR SHARE removed, the creation-first order leaves it unlocked (the plant); everything committed is removed and proven gone."
+    },
+    {
+      "id": "L1R2-R01",
+      "runner": "static",
+      "proves": "L1-R2, selftest/l1f2-balapan.test.ts, on two real connections against the database (migration 20270117160000): an activation permit's issue and a lock race in both orders: issuer first, the permit is deleted by the lock; lock first, the issuer is refused ACCOUNT_LOCKED and writes none; with the issuer's FOR SHARE removed, issuer first leaves its permit standing (the plant); everything committed is removed and proven gone."
+    },
+    {
+      "id": "L1F2-S01",
+      "runner": "db",
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a person suspended before having an account is given one: it is created locked (Sharon §2a)."
+    },
+    {
+      "id": "L1F2-S02",
+      "runner": "db",
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: while the person is suspended, an update clearing banned_until, one of another column and one setting a nearer date each leave the lock (§2a test 4)."
+    },
+    {
+      "id": "L1F2-S03",
+      "runner": "db",
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: suspend, create, reinstate, suspend again: locked, released, locked; reinstatement ends the suspension before it unlocks (§2a test 5)."
+    },
+    {
+      "id": "L1F2-S04",
+      "runner": "db",
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a lock step forced to fail leaves no Auth user and no account; an Auth insert with no grant is refused PR010 under production's rule (§2a tests 1 and 2)."
+    },
+    {
+      "id": "L1F2-S05",
+      "runner": "db",
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a closed person (CLOSED_AT_REQUEST) given an account: it is created locked, and buka_kembali_akun releases it (§2a test 6)."
+    },
+    {
+      "id": "L1R2-S01",
+      "runner": "db",
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a lock deletes the person's RECOVERY and ACTIVATION permits and leaves a CARD_REISSUE permit and other people's; an unlock deletes nothing (§2b point 1)."
+    },
+    {
       "id": "B2-D01",
       "runner": "db",
       "proves": "B2's planted-defect gate (selftest/db/b2.sql): a learner who earned results at Alpha (Alpha's own people write, review, release and assign the chapter; both tests sat), moved to Beta by transfer_minta, transfer_terima and transfer_execute, prints them: the snapshot is {Alpha}, never the live {Beta}. Plant b2-1 (the live affiliation) turns it red."

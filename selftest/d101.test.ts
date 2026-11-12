@@ -372,7 +372,7 @@ export const d101Tests: SelfTest[] = [
 
 // ═══════════════════════════════════════════════════════════════ the running app
 /** A learner of a synthetic school of their own, with a class card from the Platform Admin; signed in on a browser. */
-async function muridBerkartu(c: Checks, asal: string, sys: Peramban, tag: string) {
+export async function muridBerkartu(c: Checks, asal: string, sys: Peramban, tag: string) {
   const nama = `Murid D101 ${tag}`;
   const murid = psql(`
     do $$ declare v_p uuid; v_inst uuid; begin
