@@ -231,6 +231,11 @@ existing 4.0 behaviour beyond the class scope the question was asked about, the 
 reading, or to accept the current reach of school-scoped windows for now. Until confirmed, A2b's feasibility work
 covers both and builds neither.
 
+**Owner (12 Nov, later): the interim safeguard is agreed.** A2a must not expose class-scoped planned maintenance
+with person-level consequences; if it cannot be enforced correctly yet, that specific functionality is deferred to
+A2b. This confirms the A2a row above. *The question of school-scoped planned windows (option A or B) has not been
+answered and remains with the owner.*
+
 ### R-2 · Terminology (owner, 12 Nov 2026: Daisy's I-6 accepted under her existing design authority)
 
 - **C2w's reviewer notes:** «Catatan peninjau» / «Reviewer note».
@@ -267,3 +272,4 @@ deployment or production database change.
 | 12 Nov 2026 (07:30 UTC) | **Owner approved; effective.** Approved as submitted at `0e3c63e11540a004fbb5183c1486378301e7a9f7`, with five conditions recorded in the header. §5c is outside the approved content |
 | 12 Nov 2026 (07:32 UTC) | Owner's ruling R-1 recorded (§5d): planned maintenance is work-scoped; emergency containment unchanged; feasibility by Sharon and the engineer before implementation. R-2: Daisy's two terms accepted |
 | 12 Nov 2026 (07:33 UTC) | Sharon: work-level enforcement is sound; A2a carries class scope for the emergency only, class-scoped planned windows arrive in A2b. Pre-existing defect recorded: a school-scoped planned window stops a two-school person at the other school. Reading of R-1 put to the owner |
+| 12 Nov 2026 (07:36 UTC) | Owner agreed the interim safeguard for A2a. The school-scoped question remains open. Owner's rulings on the provider preparation recorded in `C3-EVALUATION-PREPARATION.md` §6a |

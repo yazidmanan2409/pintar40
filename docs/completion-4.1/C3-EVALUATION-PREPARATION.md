@@ -101,6 +101,68 @@ dates, which matters for the cost-per-accepted-draft figure the owner will use t
    (c) evaluate two providers. Recommended: (b), because judging thirty drafts from a provider that cannot be chosen
    costs the judges' time and tells the owner nothing actionable.
 
+## 6a · The owner's rulings on §6 (12 November 2026)
+
+**Decision 1: approved.** The official public documentation, terms and policy pages of OpenAI and Google may be read
+for verification. This authorizes no provider API access, credential, spending or transfer of evaluation material.
+The exact sources, dates and service routes are to be recorded, and Sharon reviews the findings independently.
+
+**Decision 2: option B approved.** Google's age-restriction eligibility is resolved before Google is included.
+Written clarification is sought from Google specifically for PINTAR's educator-only question-generation feature
+inside a school application also used by minors. **Until eligibility is established Google is a conditional
+candidate: no evaluation funds and no educator judging time are spent on it.** If it cannot be confirmed within a
+reasonable time, the evaluation proceeds with the eligible providers and reports the narrower comparison. The 4.1
+critical path is not held for it.
+
+**State of Decision 1: not yet carried out, and why.** This session runs in the owner's shared Default environment,
+whose network policy blocks those hosts. The environment saved for this repository cannot be joined by a running
+session. Allowing the hosts on the Default environment would change every future session of the owner that uses it,
+not only this work, so it is not proposed without the owner asking for that specific change. The ways forward are in
+the Chief Architect's report of the same time. **Hosts that would have to be reachable:** `openai.com`,
+`developers.openai.com`, `platform.openai.com`, `help.openai.com`, `ai.google.dev`, `policies.google.com`,
+`business.safety.google`.
+
+**State of Decision 2: the inquiry is drafted for the owner to send (§6b).** Nobody on the team can write to Google
+on PINTAR's behalf.
+
+## 6b · Draft inquiry to Google (for the owner to send, from the owner's own account, through Google's sales or support channel for the Gemini API or Google Cloud)
+
+> **Subject: Eligibility question: generative AI used only by teachers inside a school application**
+>
+> We operate an educational platform used by schools. Its users include teachers, school administrators and
+> students, and many of the students are under 18.
+>
+> We are evaluating the Gemini API (and, alternatively, Gemini through Google Cloud's Agent Platform) for one
+> feature. We would like to confirm in writing whether that feature is permitted under your terms before we evaluate
+> the service.
+>
+> **The feature.** A teacher, signed in with a staff account, supplies a passage of teaching material and asks for
+> draft multiple-choice questions. Our server sends the passage, the learning objective and a formatting instruction
+> to the API and receives draft questions. The drafts are shown only to teachers. A teacher must review and accept or
+> edit each draft, and a second teacher must approve it, before any question can be published to students.
+>
+> **What students do and do not do.** Students never send anything to the model and never receive anything from it
+> directly. No student name, answer, result or other student data is sent to the API. Students later see only
+> questions that teachers have reviewed, approved and published, with no indication of how a draft originated.
+>
+> **Our question.** Your terms state that a customer will not use a generative AI service "as part of a website,
+> Customer Application, or other online service that is directed towards or is likely to be accessed by individuals
+> under the age of 18" (Google Cloud Service Specific Terms, generative AI services), and the Gemini API Additional
+> Terms contain a similar restriction on API clients directed towards or likely to be accessed by individuals under
+> 18.
+>
+> 1. Does this restriction apply to the feature described, where the generative AI service is reached only by adult
+>    staff, inside an application that students also use for other purposes?
+> 2. If it applies, is there a permitted configuration or an agreement under which this use is allowed?
+> 3. Does your answer differ between the Gemini Developer API and Gemini through Google Cloud?
+>
+> We would be grateful for a written answer we can keep on record, and for the name of the terms document and section
+> it relies on.
+
+*Notes for the owner.* The draft names no school, person or product. Add the organization's name and contact as you
+see fit. **"A reasonable timeframe" needs a date:** the Chief Architect suggests ten working days from sending, after
+which the evaluation proceeds with the eligible providers, as ruled.
+
 ## 7 · Sources
 
 Official pages, accessed 12 November 2026. Grade A unless marked.
