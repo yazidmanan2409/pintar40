@@ -65,6 +65,24 @@
       the person's lock, and the reopen takes the person row first (the same "person first" rule as L1-F2's fix);
       one more order in the harness. **Sharon rules** whether it is a defect, and whether it gates L1-F4 or goes in
       the L1-F2 fix commit.
+11. **BLOCKED by Sharon at `3a63a2b2158ea4834c1f12653c864baf157c0dd5` (17:08 UTC, 12 Nov).** Her required change is
+    verified as built. Two defects gate acceptance. Her record governs: `claude/gracious-lamport-0m1qjr` at `a809058bbc2dfd6b0aea0b92f98e77e8901c3dbf`,
+    `docs/coordination/reviews/sharon/L1F4-3a63a2b2158ea4834c1f12653c864baf157c0dd5.md`.
+    - **L1F4-A1: a defect.** A deletion racing a reopen anonymises a person just reopened. Irreversible.
+    - **L1F4-A2 (Sharon, new): a reopen does not check for anonymisation.** No race needed: a reopen request approved
+      after the deletion ends the closure and unlocks the accounts of an anonymised person. A class card signs in
+      again. That contradicts the owner's principle (item 1).
+    - **The fix, one commit, L1-F4's own (not folded into L1-F2's fix, which is already in pre-flight):**
+      1. `hapus_data_pribadi` takes the person `FOR UPDATE` first, then reads the closure and both attachment checks.
+      2. `buka_kembali_akun` and `aktifkan_kembali_akun` take the person row first. `buka_kembali_akun` refuses an
+         anonymised person with a designed code (for example `ACCOUNT_ANONYMISED`); **the wording is Daisy's.**
+      3. `minta_buka_kembali` records nothing for an anonymised person; its answer is unchanged.
+      4. Recommended by Sharon, **and asked for by the Chief Architect:** the deletion ends any open REOPEN request
+         for the person, with a note, so that no request is left that can only be refused (every action has a
+         defined next state).
+    - **Tests, red first:** L1F4-R02 (two connections, both orders); L1F4-K09 (sequential, both request timings);
+      two plants. As her file lists them.
+    - **Review:** Sharon, on the fix commit. Daisy, the one refusal line.
 
 ## 1 · The defect
 
