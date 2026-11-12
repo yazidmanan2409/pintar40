@@ -49,9 +49,18 @@ in the review queue.
 
 PASS or BLOCKED, on the candidate.
 
-**For Daisy, one line:** `akun.tinggal.galat.account_anonymised`, the platform admin's refusal. **Engineer's draft,
+**ACCEPTED at `7e42db9690486e82aab45dcdc4fc1ea5ebb68945`** (Sharon PASS; the brief's §0 item 11 at
+`2c51a0cca93a47205b8eb25668089e06955cf6af`). **The refusal line is now Daisy's, word for word** (her `KATA-L1-F4.md`
+§3 at `2ca5794ddde95897d8b0951c174356ccad59052d`), `akun.tinggal.galat.account_anonymised`:
+- ID: «Akun ini tidak dapat dibuka kembali: data pribadi pemiliknya sudah dihapus. Tidak ada yang diubah. Bila orang
+  ini ingin memakai PINTAR lagi, ia didaftarkan sebagai orang baru.»
+- EN: «This account cannot be reopened: its owner's personal data has been deleted. Nothing was changed. If this
+  person wants to use PINTAR again, they are registered as a new person.»
+
+~~**For Daisy, one line:** `akun.tinggal.galat.account_anonymised`, the platform admin's refusal. **Engineer's draft,
 yours to replace:** «Akun ini tidak dibuka kembali: data pribadi pemiliknya sudah dihapus. Tidak ada yang diubah.» /
-«This account is not reopened: its holder's personal data has been deleted. Nothing was changed.»
+«This account is not reopened: its holder's personal data has been deleted. Nothing was changed.»~~ *(Superseded by
+Daisy's final line above.)*
 
 | Column or table | Constraints after this commit | Baseline invariant |
 |---|---|---|
