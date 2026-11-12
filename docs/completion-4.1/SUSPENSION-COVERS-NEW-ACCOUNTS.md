@@ -31,8 +31,8 @@
 7b. **From the engineer's examination (12 Nov; read from code, tests of today's behaviour still to be written):**
    - **P-1 is already true:** no account-creation path sends a message to anyone, and every success screen says so.
      Nothing is to be suppressed. It is kept true by one guarding test (§5c).
-   - **P-2 is not true today:** an anonymised person can be re-attached. This is finding **L1-F4** (§5c), reported to
-     the owner with a proposed correction. **Nothing is built for it until the owner decides.**
+   - **P-2 is not true today:** an anonymised person can be re-attached. This is finding **L1-F4** (§5c). **The
+     owner approved its correction; it is governed by `ANONYMISED-PERSON-IS-TERMINAL.md`,** not by this page.
 8. State: **released to the engineer**, to build after the L-1 fix closes, as its own commit, before Z. It gates
    nothing.
 
@@ -245,8 +245,8 @@ refused by the guard; a new person with the same name created normally; every hi
 person (for example, the deletion's own bookkeeping, or ending an open enrolment), so that the guard refuses new
 attachment and nothing else.
 
-**Standing.** Outside L-1, outside L1-F2's lock, and outside THE PLAN. A separate small correction, before Z, holding
-nothing. **Awaiting the owner's decision.**
+**Decided (owner, 12 Nov 2026): approved.** Its brief is `ANONYMISED-PERSON-IS-TERMINAL.md`, which now governs; the
+proposal above is the record of how it was put. P-1 needs only its guarding test.
 
 ## 6 · Review and order
 
