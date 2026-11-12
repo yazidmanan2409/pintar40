@@ -24,6 +24,8 @@
 --   F13-N02  a stranger asking for someone's cycle gets a code, not the cycle
 --   F13-N03  the upload refuses a parallel group that holds both a pre-test and
 --            a post-test question, naming every row of it (D-040)
+--   F13-K13..K15  C1w F-1, Sharon's correction (C1W-F1-CORRECTION.md §0): the learner's own review of a corrected
+--            answer returns no sealed rationale; see f13_ulasan.
 --   F13-K01..K12  C1w F-1 (O41-21): after a governed key correction, every view that
 --            marks an answer or derives a misconception or remediation from it reads
 --            the key in force; uncorrected sittings read as before; history and the
@@ -391,7 +393,7 @@ begin
     end if;
 
   return jsonb_build_object('inst', v_inst, 'kelas', v_kelas, 'guru', v_guru, 'course', v_course, 'rel', v_rel, 'la', v_la,
-                            'pre', v_pre, 'x', v_x, 'sesi', v_sesi, 'semua', to_jsonb(v_semua));
+                            'pre', v_pre, 'post', v_post, 'x', v_x, 'sesi', v_sesi, 'semua', to_jsonb(v_semua));
 end $$;
 revoke all on function selftest.f13_kunci_dunia(int, int) from public;
 
@@ -601,6 +603,130 @@ begin
   end loop;
 end $$;
 revoke all on function selftest.f13_kunci() from public;
+
+-- ═══════════════════════════════════════ F13-K13..K15 · the learner's own review of a corrected answer (F-1, Sharon §0)
+-- C1W-F1-CORRECTION.md §0 item 2: in session_review, where the chosen answer's mark by the key in force differs from its
+-- sealed mark, no rationale is returned (null). A pre-test has no review, so this world corrects a POST-TEST question:
+-- the class sits its pre-test and its post-test; on the post-test's first question Y the first learner chooses B, the
+-- second A; Y's key is then corrected from A to B by the school's own two people. Everything is undone.
+--
+--   F13-K13  the now-right answer: the learner who chose B reads Y marked right (benar true) and no rationale (before the
+--            correction: wrong, with B's sealed «Ini belum tepat.»)
+--   F13-K14  the now-wrong answer: the learner who chose A reads Y marked wrong and no rationale (before: right, with A's
+--            sealed «Ini tepat.»), never the sealed rationale calling it right
+--   F13-K15  what the correction did not reach: before it, every row of both reviews carries the chosen option's sealed
+--            mark and rationale; after it, every row but Y's is byte-identical to before
+
+-- One learner's review of one sitting, as that learner reads it.
+create or replace function selftest.f13_ulasan_baca(p_sesi uuid)
+returns jsonb language plpgsql set search_path = public, pg_temp as $$
+declare v jsonb;
+begin
+  perform selftest.as_user_uid((select a.auth_user_id from public.accounts a join public.assessment_sessions s on s.person_id = a.person_id
+                                 where s.id = p_sesi));
+  v := (select coalesce(jsonb_agg(to_jsonb(x) order by x.posisi), '[]'::jsonb) from public.session_review(p_sesi) x);
+  perform selftest.as_owner();
+  return v;
+end $$;
+revoke all on function selftest.f13_ulasan_baca(uuid) from public;
+
+create or replace function selftest.f13_ulasan()
+returns table (id text, ok boolean, detail text)
+language plpgsql set search_path = public, pg_temp as $$
+#variable_conflict use_column
+declare
+  v jsonb; v_sesi jsonb; v_post uuid; v_y uuid; v_y_stem text; v_k uuid; i int; v_u uuid;
+  v_w uuid; v_r uuid; v_sebelum_w jsonb; v_sebelum_r jsonb; v_sesudah_w jsonb; v_sesudah_r jsonb;
+  v_probs jsonb := '{}'::jsonb; v_fatal text := ''; v_t text; x jsonb;
+begin
+  perform selftest.as_owner();
+  begin
+    v := selftest.f13_kunci_dunia(2, 1);
+    v_sesi := v -> 'sesi'; v_post := (v ->> 'post')::uuid;
+    select i2.id, i2.stem into v_y, v_y_stem from public.items i2 join public.lessons l on l.id = i2.lesson_id join public.modules m2 on m2.id = l.module_id
+     where m2.course_id = (v ->> 'course')::uuid and i2.stem like 'Pertanyaan akhir nomor 1%';
+    if (select string_agg(o.label || ':' || o.is_correct || ':' || coalesce(o.rationale, '-'), ',' order by o.label) from public.item_options o where o.item_id = v_y)
+       is distinct from 'A:true:Ini tepat.,B:false:Ini belum tepat.' then
+      raise exception 'Y is not the question this test needs';
+    end if;
+    -- the post-test: the first learner chooses B on Y, the second A; every other answer right
+    v_w := selftest.f13_kunci_duduk((v_sesi ->> 'u1')::uuid, v_post, v_y, 'B');
+    v_r := selftest.f13_kunci_duduk((v_sesi ->> 'u2')::uuid, v_post, v_y, 'A');
+    v_sebelum_w := selftest.f13_ulasan_baca(v_w);
+    v_sebelum_r := selftest.f13_ulasan_baca(v_r);
+
+    -- the correction: the school's administrator proposes B, its head of department confirms
+    perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+    v_k := (public.ajukan_koreksi_kunci(v_y, array['B'], 'uji F13K: kunci soal akhir ini keliru') ->> 'koreksi')::uuid;
+    perform selftest.as_user('boot-kaprodi@bootstrap.pintar.test');
+    v := public.tegaskan_koreksi_kunci(v_k);
+    perform selftest.as_owner();
+    if (v ->> 'ok')::boolean is not true or (v ->> 'dihitung_ulang')::int <> 2 then
+      raise exception 'the correction did not recalculate the two post-test sittings: %', left(v::text, 200);
+    end if;
+    v_sesudah_w := selftest.f13_ulasan_baca(v_w);
+    v_sesudah_r := selftest.f13_ulasan_baca(v_r);
+
+    -- ═══ F13-K13  the now-right answer
+    v_t := concat_ws('|',
+      (select (e ->> 'benar') || ':' || coalesce(e ->> 'alasan', '-') from jsonb_array_elements(v_sebelum_w) e where e ->> 'stem' = v_y_stem),
+      (select (e ->> 'benar') || ':' || coalesce(e ->> 'alasan', '-') from jsonb_array_elements(v_sesudah_w) e where e ->> 'stem' = v_y_stem));
+    if v_t is distinct from 'false:Ini belum tepat.|true:-' then
+      v_probs := selftest.f11_note(v_probs, 'F13-K13', 'the learner who chose B read Y (before|after) ' || coalesce(v_t, 'nothing')
+        || ' (expected false:Ini belum tepat.|true:-: right by the key in force, and no sealed rationale calling it wrong)');
+    end if;
+
+    -- ═══ F13-K14  the now-wrong answer
+    v_t := concat_ws('|',
+      (select (e ->> 'benar') || ':' || coalesce(e ->> 'alasan', '-') from jsonb_array_elements(v_sebelum_r) e where e ->> 'stem' = v_y_stem),
+      (select (e ->> 'benar') || ':' || coalesce(e ->> 'alasan', '-') from jsonb_array_elements(v_sesudah_r) e where e ->> 'stem' = v_y_stem));
+    if v_t is distinct from 'true:Ini tepat.|false:-' then
+      v_probs := selftest.f11_note(v_probs, 'F13-K14', 'the learner who chose A read Y (before|after) ' || coalesce(v_t, 'nothing')
+        || ' (expected true:Ini tepat.|false:-: wrong by the key in force, and no sealed rationale calling it right)');
+    end if;
+
+    -- ═══ F13-K15  what the correction did not reach
+    if jsonb_array_length(v_sebelum_w) < 2 or jsonb_array_length(v_sebelum_r) < 2 then
+      v_probs := selftest.f11_note(v_probs, 'F13-K15', 'a review has fewer than two rows: nothing to compare');
+    end if;
+    for x in select e from jsonb_array_elements(v_sebelum_w || v_sebelum_r) e loop
+      if (x ->> 'benar') is distinct from (case when x ->> 'alasan' = 'Ini tepat.' then 'true' when x ->> 'alasan' = 'Ini belum tepat.' then 'false' end) then
+        v_probs := selftest.f11_note(v_probs, 'F13-K15', 'before any correction the row «' || left(x ->> 'stem', 40) || '» read '
+          || coalesce(x ->> 'benar', '-') || ':' || coalesce(x ->> 'alasan', '-') || ', not its option''s sealed mark and rationale');
+      end if;
+    end loop;
+    if (select jsonb_agg(e order by e ->> 'posisi') from jsonb_array_elements(v_sesudah_w || v_sesudah_r) e where e ->> 'stem' <> v_y_stem)
+       is distinct from (select jsonb_agg(e order by e ->> 'posisi') from jsonb_array_elements(v_sebelum_w || v_sebelum_r) e where e ->> 'stem' <> v_y_stem) then
+      v_probs := selftest.f11_note(v_probs, 'F13-K15', 'after the correction a row it did not reach (not Y) reads differently from before');
+    end if;
+    if jsonb_array_length(v_sesudah_w) <> jsonb_array_length(v_sebelum_w) or jsonb_array_length(v_sesudah_r) <> jsonb_array_length(v_sebelum_r) then
+      v_probs := selftest.f11_note(v_probs, 'F13-K15', 'after the correction a review has a different number of rows');
+    end if;
+
+    raise exception 'F13U_UNDO';
+  exception when others then
+    begin perform selftest.as_owner(); exception when others then null; end;
+    perform set_config('app.seed_intent', '', true);
+    if sqlerrm <> 'F13U_UNDO' then v_fatal := sqlerrm; end if;
+  end;
+
+  for id, detail in select * from (values
+    ('F13-K13', 'F-1 (Sharon §0): the learner''s own review of a post-test question whose key was corrected to their answer: marked right by the key in force, with no rationale (the sealed «Ini belum tepat.» before the correction)'),
+    ('F13-K14', 'F-1 (Sharon §0): the learner''s own review of a post-test question whose corrected key is no longer their answer: marked wrong, with no rationale, never the sealed «Ini tepat.» calling it right'),
+    ('F13-K15', 'F-1 (Sharon §0): before the correction every row of both reviews carries its chosen option''s sealed mark and rationale; after it every row but the corrected question''s is byte-identical')
+  ) z loop
+    if v_fatal <> '' then
+      ok := false; detail := 'the F13-K13 world could not run: ' || left(v_fatal, 220);
+    elsif v_probs ? id then
+      ok := false;
+      detail := format('%s problem(s): %s', jsonb_array_length(v_probs -> id), (select string_agg(y, '; ') from jsonb_array_elements_text(v_probs -> id) y));
+    else
+      ok := true;
+    end if;
+    return next;
+  end loop;
+end $$;
+revoke all on function selftest.f13_ulasan() from public;
 
 -- ═══════════════════════════════════════════════════════════════ the suite
 create or replace function selftest.run_fable13()
@@ -907,6 +1033,12 @@ begin
   -- C1w F-1 (O41-21): the key in force, its own world, undone before it returns
   for r in select * from selftest.f13_kunci() loop
     id := r.id; area := 'C1w F-1 -- every view of a corrected answer marks it by the key in force (O41-21)';
+    ok := r.ok; detail := r.detail;
+    return next;
+  end loop;
+  -- C1w F-1, Sharon's correction (§0): the learner's own review of a corrected answer, its own world, undone
+  for r in select * from selftest.f13_ulasan() loop
+    id := r.id; area := 'C1w F-1 -- the learner''s review of a corrected answer gives no sealed rationale (Sharon §0)';
     ok := r.ok; detail := r.detail;
     return next;
   end loop;

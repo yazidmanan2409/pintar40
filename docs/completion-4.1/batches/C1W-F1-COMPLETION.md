@@ -4,6 +4,25 @@
 `da1d3709dde87533dafea2e8cf39dbfa0c222e00`), Sharon's six acceptance requirements. Review: Sharon, once, on the exact
 commit; **Daisy too, because one teacher screen changes** (below).
 
+## What holds now
+
+- **Sharon: BLOCKED on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` for one reader** (`C1W-F1-CORRECTION.md` §0 on
+  `claude/bob-41-master-plan` at `8b93cc785d70420fc6bf0b272a0e9eb8f29b8e4e`). The learner's own review,
+  `session_review`, showed the sealed rationale beside the in-force mark. Her requirements 1 to 5 are verified;
+  requirement 6 was short by that reader.
+- **Her correction is its own commit after it** («Correction pass» below), for her recheck of that item alone.
+- **Her judgments, all accepted:**
+  - the accessor `hasil_murid_id`;
+  - D-060 unchanged with no new catalogue, ruled explicitly for `class.misconceptions` (row 1) and
+    `item.correctness_rate` (row 5a);
+  - row 5b left as is.
+- **Register, not in this pass:**
+  - F1-R1's remainder, Daisy's: whether any other screen shows a rationale beside a mark, and whether the learner's
+    screen says why the explanation is absent;
+  - F1-R2, the Question Health marker;
+  - row 5b, for the owner, with the 4.5 statistics work;
+  - F1-R1b, a key correction clearing the explanations it makes stale, its own commit.
+
 **Rule (THE PLAN §7.7, O41-21).** Every view that marks an answer, or derives a misconception or a remediation from
 that mark, reads the key in force for the sitting through one accessor. It never reads the sealed key directly. The
 original marking stays visible in history.
@@ -33,7 +52,7 @@ Migration `20270117100000_every_view_of_a_corrected_answer_marks_it_by_the_key_i
 | 5a | `service_item_statistics` `correct_count` and `correctness_rate` (`item.correctness_rate`, shown to heads of department and admins; also read by `recompute_question_health`) | `o.is_correct` | **Corrected:** an educator-facing figure that counted answers wrong that the result in force counts right. The catalogue meaning ("share answered correctly") is unchanged. The four 4.5 statistics defects are not touched | F13-K05, K10; bob04-15 |
 | 5b | `service_distractor_uptake`, its scoped view, and `calc_item_distractor_uptake` | the `is_correct` flag per option | **Not changed.** It counts choices and marks no answer; a per-sitting key would split one option's row in two, which changes the figure's shape. **Residual for Sharon:** the flag still shows the sealed key, and changing it would be a catalogue question | — |
 | 6 | `learning_delta` | results only (through `hasil_murid_id` since C1w) | Not a marking view; unchanged | — |
-| — | `session_review` | `nilai_jawaban_berlaku` | Already correct; now goes through the reader | C1W-S05 |
+| — | `session_review` | `nilai_jawaban_berlaku` for the mark; **the sealed option's `rationale` beside it** | ~~Already correct; now goes through the reader~~ *(superseded: Sharon found the rationale stale, «Correction pass» below)*. The mark goes through the reader; **the rationale is withheld where the mark changed** | C1W-S05; F13-K13 to K15; bob04-16 |
 | — | `evaluate_session`, `grade_response`, `finalize_session`, `recompute_result`, the correction's own scoring, preview and impact functions | original or governed scoring | Must stay as they are (requirement 2) | — |
 | — | Content and authoring functions, and the `assert_*` checks | carry or compare keys | Mark no sitting's answer | — |
 | — | `src/`: Studio's question bank and review page | the question's own key | Not a sitting's view | — |
@@ -51,7 +70,7 @@ pins move from 233 to 234 (restated, with notes).
 | 3 | Uncorrected sittings unchanged | F13-K06 to K10 compare each view with its exact previous definition. A whole-database comparison (the seed plus an uncorrected class of 35) found all five readers identical row for row |
 | 4 | `class.misconceptions` catalogue definition unchanged | F13-K12: the catalogue fingerprint (MC-10, definitions, sources and calculators) is identical before and after. **For Sharon (D-060):** the migration declares `CATALOGUE: unchanged (D-060(c))` and publishes no new catalogue, because only governed-corrected sittings move and none exists on a deployed database. If she reads it as a change of meaning, it is the owner's catalogue decision |
 | 5 | THE PLAN §8.5 journey 3 across the corrected views | C1W-J02, through the running app with eleven learners: a key corrected and confirmed; six learners at 100% and five at 67% in force, the sealed results kept; «Bukti» names A's misconception and not B's; «Lihat per soal» shows 6 of 11 right, B as the key and «kunci aslinya A»; in «Peta Bacaan» the learner who chose B gets no remediation and the learner who chose A gets A's. The checks agree. The journey removes its committed data and proves none is left |
-| 6 | Completeness search | The table above |
+| 6 | Completeness search | The table above. ~~Complete~~ *(superseded: short by `session_review`'s rationale; corrected in «Correction pass»)* |
 
 **The cohort view stays set-based** (class of 35):
 
@@ -99,3 +118,31 @@ Transfer, suspension, deletion and recovery: not applicable (no change to who re
   gate still says "nine defects" (cosmetic).
 - **C1W-J02** leaves its synthetic learner accounts behind, as C1W-J01 does. Classes, sittings and enrolments are
   removed.
+
+## Correction pass: the learner's review (Sharon, `C1W-F1-CORRECTION.md` §0 item 2)
+
+**As built** (migration `20270117120000_a_corrected_answer_is_not_explained_by_the_sealed_key.sql`):
+- In `session_review`, where the chosen answer's mark by the key in force differs from its sealed mark
+  (`grade_response`), the rationale is null. The mark stays the key in force's.
+- Where no governed correction exists, `nilai_jawaban_berlaku` falls back to `grade_response`. The two marks are then
+  equal, and every row is returned as before.
+- The sealed option keeps its authored text; only this reader withholds it.
+- The migration's own check: removing the one fragment gives back the previous definition byte for byte.
+
+**Tests, red first on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`:**
+- **The world:** a pre-test has no review, so `selftest.f13_ulasan` corrects a POST-TEST question. Two learners sit
+  it; on its first question Y one chooses B and one A; Y's key is then corrected from A to B by the school's own two
+  people.
+
+| Test | What it shows | On `4131d7a2` |
+|---|---|---|
+| F13-K13 | The now-right answer: marked right, no rationale (before: wrong, «Ini belum tepat.») | **red**: right beside «Ini belum tepat.» |
+| F13-K14 | The now-wrong answer: marked wrong, no rationale, never «Ini tepat.» | **red**: wrong beside «Ini tepat.» |
+| F13-K15 | Before the correction every row carries its option's sealed mark and rationale; after it every row but Y's is byte-identical | green, by nature: it guards against the correction reaching too far |
+| Plant bob04-16 | Puts the sealed rationale back: F13-K13 red | the gate's control count moves from 17 to 20 green rows |
+| Migration-count pins | 235 to 236 (restated, with notes) | — |
+
+**What the learner sees:** the corrected question's mark with no explanation under it. Whether the screen says why is
+Daisy's (F1-R1's remainder).
+
+**Next state:** none new. The reader now agrees with the existing correctable action.

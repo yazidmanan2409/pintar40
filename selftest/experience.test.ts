@@ -2169,7 +2169,9 @@ export const experienceTests: SelfTest[] = [
       // marks it by the key in force). Read against §3: which answers count as right, not a mark, a logo, a crest or a theme.
       // MOVED 234 -> 235, RESTATED, L-1 (Sharon §6b): 20270117110000 (a locked account is given no password by a grant or an
       // activation). Read against §3: who may set a password, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 235, `${migrations.length} migrations; the frozen baseline has 235`);
+      // MOVED 235 -> 236, RESTATED, F-1 fix (Sharon, C1W-F1-CORRECTION.md §0): 20270117120000 (the learner's review gives no
+      // sealed rationale beside a corrected mark). Read against §3: what a mark is explained by, not a logo, a crest or a theme.
+      c.expect(migrations.length === 236, `${migrations.length} migrations; the frozen baseline has 236`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4028,7 +4030,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 232 -> 233 for 20270116130000 (the auth correction: the lock's instant, PIN recovery of a locked account): no tour RPC.
       // MOVED 233 -> 234, RESTATED, F-1 (O41-21), for 20270117100000 (the key in force in every view of a corrected answer): no tour RPC.
       // MOVED 234 -> 235, RESTATED, L-1 (Sharon §6b), for 20270117110000 (the two password permits consult the lock): no tour RPC.
-      c.expect(migs.length === 235, `${migs.length} migrations; the baseline has 235`);
+      // MOVED 235 -> 236, RESTATED, F-1 fix (Sharon §0), for 20270117120000 (session_review's rationale): no tour RPC.
+      c.expect(migs.length === 236, `${migs.length} migrations; the baseline has 236`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

@@ -2049,6 +2049,21 @@
       "proves": "C1w F-1 requirement 3 for service_item_statistics: before the correction X's row and every other question's are byte-identical to the definition it replaced; after it, every other question is unchanged."
     },
     {
+      "id": "F13-K13",
+      "runner": "db",
+      "proves": "C1w F-1, Sharon's correction (C1W-F1-CORRECTION.md §0), selftest/db/fable13.sql (selftest.f13_ulasan): a class sits its post-test; on its first question Y the first learner chooses B; Y's key is corrected from A to B by the school's own two people; that learner's own review (session_review) of Y reads marked right by the key in force, with no rationale (before the correction: wrong, with the sealed «Ini belum tepat.»; supabase/migrations/20270117120000)."
+    },
+    {
+      "id": "F13-K14",
+      "runner": "db",
+      "proves": "C1w F-1, Sharon's correction (§0), selftest.f13_ulasan: the learner who chose A on Y reads it, after the correction to B, marked wrong with no rationale, never the sealed «Ini tepat.» calling it right (before: right, with «Ini tepat.»)."
+    },
+    {
+      "id": "F13-K15",
+      "runner": "db",
+      "proves": "C1w F-1, Sharon's correction (§0), selftest.f13_ulasan: before the correction every row of both learners' reviews carries its chosen option's sealed mark and rationale; after it every row but the corrected question's is byte-identical, and the reviews keep their number of rows."
+    },
+    {
       "id": "F13-K11",
       "runner": "db",
       "proves": "C1w F-1 requirement 2: the sealed question, its options and its release's content digest, every original result, presented question and response of the class's sittings are byte-identical after the correction and after every view above was read; the teacher reads a corrected sitting's chain through riwayat_hasil_sesi (SEALED 0.6667, then KEY_CORRECTED 1.0000, current); each sitting carries exactly one basis."
