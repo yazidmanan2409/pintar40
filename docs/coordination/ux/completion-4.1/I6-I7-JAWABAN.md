@@ -6,6 +6,11 @@
 >   - F1-R1b uses «terkait / dikaitkan» / «linked». Its lines in §1 are final unless the engineer's screen shows a reason to adjust.
 > - **I-7:** my answer is in §2. A school would not expect a class's planned maintenance to stop a teacher's other classes, nor a learner's work elsewhere. I recommend the owner decides **per class for planned maintenance, per person for an emergency**. If per person is kept for planned maintenance, §2b gives what the teacher and the scheduling admin must see.
 > - **Recorded (12 Nov):** THE PLAN Addendum 1 at `3bffe6b4c5fae143253bc505533526ad010f649a` records I-6 as a C2w precondition (§4) and I-7 as an open question for the owner (§5c), after Sharon's view on enforcement.
+> - **I-7 ruled (owner, 12 Nov):** Addendum 1 §5d R-1, at `e7723882e73079632442fb5d1e62d140da10eabf`.
+>   - Planned maintenance is scoped to the class's work; an emergency stops the person.
+>   - A2a must not ship a person-level class-scoped planned window.
+>   - §2a's wording is the UX direction, subject to review on A2b's page.
+>   - **§2b (if per person were kept) is superseded** by this ruling.
 > - Not a review visit.
 
 **Source:** `PLAN-REASSESSMENT-2026-11-12.md` §3, I-6 and I-7, on `claude/bob-41-master-plan` at `c95501c416715ae2ec7fc28a711f3deb1c860bc3`. Also:
@@ -77,6 +82,8 @@ Whether "the class's work" can be enforced without a per-person request block is
 «Kelas Anda yang lain tidak terpengaruh» appears **only when the person has another class**. For a learner, «Kelas Anda yang lain» reads naturally too.
 
 ### 2b · If per person is kept for planned maintenance too
+
+> **Superseded 12 Nov** by the owner's ruling R-1 (Addendum 1 §5d at `e7723882e73079632442fb5d1e62d140da10eabf`): planned maintenance is scoped to the class's work. Kept as a record.
 
 The behaviour must not surprise anyone, so it is said in two places:
 
