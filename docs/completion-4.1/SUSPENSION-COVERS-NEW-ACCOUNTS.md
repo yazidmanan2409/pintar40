@@ -15,8 +15,14 @@
 4. **Reinstatement releases it**, as it releases the person's other accounts.
 5. **Closure is separate.** Creating an account for a **closed** person is its own finding (§5) and needs its own
    determination. Nothing here assumes suspension and closure share lifecycle rules.
-6. **Sharon reviews before implementation.** Nothing is built until she has.
-7. State: **awaiting Sharon's pre-implementation review.** Not started.
+6. **Sharon's pre-implementation review: PASS on the design** (read at
+   `299c417abbe1be3209e4c7dec5ccabe95f06a737`), **with three required design points** (§2a). They replace the open
+   choices of §2 and one test line of §4.
+7. **The same mechanism applies to a closed person:** a new account is created locked, and only the reopening act
+   releases it (Sharon's view; integrity side settled). Two **privacy** questions about closed and anonymised persons
+   remain the owner's (§5a).
+8. State: **released to the engineer**, to build after the L-1 fix closes, as its own commit, before Z. It gates
+   nothing.
 
 ## 1 · The defect
 
@@ -44,6 +50,41 @@ begins.** Three requirements:
 3. **Reinstatement releases it.** `akun_kunci(person, false)` already clears every account of the person; the test
    proves it for an account created during the suspension.
 
+## 2a · Sharon's three required design points (these govern; §2 above is the record of what was asked)
+
+From the 4.0 code: every account is linked in one place (`handle_new_auth_user`, the AFTER INSERT trigger on
+`auth.users`, inserts the `public.accounts` row from the live grant); no migration changes an account's
+`auth_user_id` or `person_id` afterwards; an insert that cannot be linked is refused (PR010); `orang_ditangguhkan` is
+true for any open `person_suspensions` row, **including `CLOSED_AT_REQUEST`**.
+
+1. **The lock goes on the link: one AFTER INSERT trigger on `public.accounts`** that locks that account's Auth user
+   when the person is suspended or closed. Every creation path ends in that insert, so one trigger covers them all,
+   and any added later.
+   - **Why there is no authentication window:** the account insert runs inside Auth's own insert of the user, in the
+     same transaction, so the lock commits with the user or not at all; and an Auth user that cannot be linked is
+     refused, so an unlinked user that could authenticate never exists. **The page states both facts.**
+2. **Lock the person's row before reading their state.** The link trigger takes `FOR SHARE` on the person's row
+   before calling `orang_ditangguhkan`. `tangguhkan_akun` already holds that row `FOR UPDATE`, so whichever comes
+   second waits and sees the first. Without it, a suspension and a creation racing each other can both miss.
+3. **Auth itself must not be able to clear the lock.** A BEFORE UPDATE OF `banned_until` trigger on `auth.users`
+   keeps the lock while the linked person is suspended or closed, against a later update by Auth or by a server call.
+   - **Reinstatement still works because of an ordering that must stay and be tested:** `aktifkan_kembali_akun` and
+     `buka_kembali_akun` end the suspension row first and only then call `akun_kunci(false)`.
+
+**Her tests, beyond §4:**
+1. Atomicity: a lock step forced to fail leaves no Auth user and no account.
+2. No unlinked user: an Auth insert with no grant is refused (PR010, asserted again here).
+3. The race on two real connections, in both orders, with A2's shared multi-connection helper: the account ends
+   locked either way.
+4. The lock survives later updates: an admin update, an activation's password set and a sign-in attempt each leave
+   `banned_until` at `akun_terkunci_sampai()`.
+5. Successive suspensions: suspend, create, reinstate, suspend again. Locked, released, locked.
+6. A closed person given an account: it ends locked, no session can be created, and `buka_kembali_akun` releases it.
+
+**Chief Architect's note on test 3.** A2's shared multi-connection helper does not exist yet (A2 has not been
+built). The engineer uses the existing two-connection pattern of A1's tests and says so; the helper is not built
+early for this.
+
 **The lock check at use from L-1 is not a substitute.** It guards recovery grants and activation permits. An account
 created unlocked would still sign in with its password.
 
@@ -61,7 +102,8 @@ created unlocked would still sign in with its password.
 - A person suspended with no account, then given one by a school: the creation answers as usual; a sign-in with the
   right password is refused as an ordinary mismatch. Red today: it signs in.
 - The same through each other creation or linking path the search lists.
-- A sign-in attempted between the Auth user's creation and its linking: refused.
+- ~~A sign-in attempted between the Auth user's creation and its linking: refused.~~ (**Superseded by Sharon:** the
+  gap cannot exist; test the two facts that make it impossible, §2a tests 1 and 2.)
 - A suspension and a creation run concurrently, in both orders: the account ends locked.
 - Reinstatement: the account signs in.
 - An unsuspended person: creation and sign-in unchanged.
@@ -83,6 +125,20 @@ determination needs:
 The engineer reports what happens today for each (read from the code, and one test each). Sharon gives her view. The
 determination is then the owner's if it is material; it is recorded here.
 
+## 5a · After Sharon's view: what is settled and what is the owner's
+
+**Settled on the integrity side.** A new account for a closed person is created locked, by the same trigger; creation
+is not refused, because a refusal would tell the school of a closure that is the person's own act; reopening stays a
+separate act of the platform. This follows from Option B and needs no further ruling.
+
+**Two privacy questions remain the owner's.** Neither is needed to build this correction. They are put when the
+engineer has reported what happens today:
+
+| # | Question | Chief Architect's preliminary view |
+|---|---|---|
+| P-1 | Should a person who asked to leave receive an invitation or activation message when a school later creates an account for them? | No. A person who closed their account should not be contacted by PINTAR on a school's act; the school sees an ordinary creation. The same question arises for a **suspended** person, who would receive an activation they cannot use, and the same answer is suggested. Wording, if any, is Daisy's |
+| P-2 | For an **anonymised** person, may a school start a new identity link from an institutional number? | The deleted identity should never be re-linked: a returning individual is a new person. To be confirmed against what the code does today |
+
 ## 6 · Review and order
 
 - **Sharon, before implementation:** the design direction of §2, the choice of place, and the no-window requirement.
@@ -95,3 +151,4 @@ determination is then the owner's if it is material; it is recorded here.
 | Date (UTC) | Entry |
 |---|---|
 | 12 Nov 2026, 05:30 | Owner approved Option B in principle, with the no-window and reinstatement requirements, and separated the closed-person case. Brief written. Awaiting Sharon's pre-implementation review |
+| 12 Nov 2026, 06:00 | Sharon: PASS on the design with three required points and six tests (§2a); the same mechanism for a closed person. Released to the engineer. Privacy questions P-1 and P-2 held for the owner (§5a) |
