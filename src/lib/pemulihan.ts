@@ -1,6 +1,7 @@
 import "server-only";
 import { kunciIdentitas } from "@/lib/card";
 import { rujukan } from "@/lib/galat-kontrak";
+import { AKUN_TERKUNCI_LOG, akunTerkunci } from "@/lib/akun-terkunci";
 import { detikJeda, jenisGalatAuth, type GalatAuth } from "@/lib/kartu-masuk";
 import { PENGATURAN, periksaPassword, type AlasanPasswordLemah } from "@/lib/pengaturan-auth";
 import { angkaKode, tungguSebelumMenjawab, type AlatMintaKode, type Hasil } from "@/lib/aktivasi";
@@ -142,6 +143,7 @@ export async function periksaKodePemulihan(
   }
   if (jawaban.error) {
     const { jenis, ambilKembali } = jenisGalatAuth(jawaban.error);
+    if (akunTerkunci(jawaban.error)) alat.catatGalat(rujukan(), AKUN_TERKUNCI_LOG);
     if (jenis === "TIDAK_COCOK") return gagal<K, B>(STATUS_LUPA_PERIKSA, "KODE_TIDAK_COCOK");
     if (ambilKembali) {
       await alat.selesaikan(kunci, "NOT_JUDGED").catch(() => alat.catatGalat(rujukan(), "an unjudged recovery attempt was not taken back"));
@@ -224,6 +226,7 @@ export async function gantiPasswordPemulihan(
   alat.nanti(() => alat.kabari(id).catch((e) =>
     alat.catatGalat(rujukan(), `the password-changed email was not sent: ${e instanceof Error ? e.name : "unknown"}`)));
   const masuk = await alat.masuk(akun.email, password).catch((e) => ({ error: { name: "Unexpected", code: e instanceof Error ? e.message : "unknown" } as GalatAuth }));
+  if (masuk.error && akunTerkunci(masuk.error)) alat.catatGalat(rujukan(), AKUN_TERKUNCI_LOG);
   // The password changed either way; if this browser could not sign in, the person signs in with it normally.
   return { status: 200, body: { ok: true, tujuan: masuk.error ? "/masuk" : await alat.tujuan() } };
 }

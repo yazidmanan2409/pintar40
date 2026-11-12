@@ -5,6 +5,8 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { catatAkuntabilitas } from "@/app/api/_akuntabilitas/catat";
 import { tujuanMasuk } from "@/app/masuk/actions";
 import type { HasilTukar } from "@/lib/tukar-kontrak";
+import { AKUN_TERKUNCI_LOG, akunTerkunci } from "@/lib/akun-terkunci";
+import { rujukan } from "@/lib/galat-kontrak";
 
 /**
  * THE CODE EXCHANGE, as an action rather than as a route.
@@ -39,6 +41,8 @@ export async function tukarKode(kode: string, lanjut: string): Promise<HasilTuka
   // ONE OUTCOME FOR EXPIRED AND ALREADY-USED. Distinguishing them tells a
   // person holding a forwarded link which of the two happened, which is
   // information about somebody else's activity.
+  // AUTH CORRECTION (owner, 11 Nov): a locked account's link is the one dead-link answer too; only the log says why
+  if (error && akunTerkunci(error)) console.error(`[auth/callback] ref=${rujukan()} ${AKUN_TERKUNCI_LOG}`);
   if (error) return { ok: false };
   return { ok: true, tujuan: await tujuanMasuk(lanjut) };
 }

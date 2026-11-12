@@ -15,6 +15,7 @@ import { Checks, visibleText, type SelfTest, type Context } from "./lib";
 import { INTERNAL_WORDS, t, type HleEvent } from "../src/lib/hle";
 import { bacaJawabanKartu } from "../src/components/masuk/kartu";
 import { bob26AppTests } from "./bob26.test";
+import { akunTerkunciAppTests } from "./akun-terkunci.test";
 import { bob27AppTests } from "./bob27.test";
 import { bob28AppTests } from "./bob28.test";
 import { bob29AppTests } from "./bob29.test";
@@ -3507,6 +3508,8 @@ export const appTests: SelfTest[] = [
   },
   // BOB-26 (Gate 3): activation and password sign-in, through the running app
   ...bob26AppTests,
+  // the bounded auth correction (owner, 11 Nov): a suspended, closed or anonymised account, each method's ordinary mismatch
+  ...akunTerkunciAppTests,
   ...dr150cAppTests,
   ...bob27AppTests,
   ...bob28AppTests,

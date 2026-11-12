@@ -1,6 +1,6 @@
 # B1 · Accountability events: completion page
 
-**Lane B. Effort M. Review before build: Sharon.** Status: **pre-build PASS** (Sharon, at `d242205d`; the three blockers of `fece55a1` resolved). Released for build.
+**Lane B. Effort M.** Status: **CLOSED** on `1fc719b5127313bf24084695fa30d7505e15b5d1` (11 Nov 2026).
 
 **Source:** THE PLAN §5.1, owner approved 11 Nov 2026 (`claude/bob-41-master-plan` `17cf4a7e`), with C1w finding F-8
 (§7.7). This page restates the plan for the review; where they differ, the plan wins.
@@ -90,6 +90,21 @@ It is an immutable historical snapshot: it is never recomputed when roles or enr
 - Retention is exactly 12 months, a constant in the function.
 - A print reference is stable and indexed, so «Jejak audit» finds it by typing it.
 - A magic-link sign-in is recorded at the callback, when the link is used, not when it is requested.
+
+## Close (11 Nov 2026)
+
+- **Commit:** `1fc719b5127313bf24084695fa30d7505e15b5d1`.
+- **Sharon: PASS** on that commit. Two governed limitations: the magic-link success path, which needs a controlled
+  integration test before `TAUTAN_MASUK_CADANGAN` is enabled; and the native Supabase restore, covered by its runbook
+  step and the health check. One accepted exception: the learner transfer was verified at database level, without a
+  rendered journey, because the existing tests already exercise that reader path. Her condition for the suspended
+  sign-in correction: B1-A04's note becomes an assertion of `MASUK_TIDAK_COCOK`.
+- **Daisy: PASS.** Her record is on `ux-1/daisy-experience` at `c3ab4eac31cded2956c6ec7fe19028a037033beb`.
+- **Evidence on that commit:** whole local suite 1072 passed, 0 failed, 0 skipped; planted defects 156 of 156; CI's
+  red-case job, run locally, 11 of 11 groups; CI run `43110782265` success; journeys run `43110786290` success
+  (including step B1J).
+- **Register to B2:** B1-R1 to B1-R5 (`B1-ARCHITECT-CHECK.md` §13), including the completeness notice (B1-R4).
+- **Promotion:** B1 is not promoted ahead of the suspended sign-in correction.
 
 ## Execution requirements (Sharon's PASS, 11 Nov; the third from the owner via Bob)
 

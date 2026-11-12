@@ -1,6 +1,7 @@
 import "server-only";
 import { kunciIdentitas } from "@/lib/card";
 import { rujukan } from "@/lib/galat-kontrak";
+import { AKUN_TERKUNCI_LOG, akunTerkunci } from "@/lib/akun-terkunci";
 import { detikJeda, jenisGalatAuth, type GalatAuth } from "@/lib/kartu-masuk";
 import { PENGATURAN } from "@/lib/pengaturan-auth";
 import {
@@ -166,6 +167,7 @@ export async function verifikasiKode(
   }
   if (jawaban.error) {
     const { jenis, ambilKembali } = jenisGalatAuth(jawaban.error);
+    if (akunTerkunci(jawaban.error)) alat.catatGalat(rujukan(), AKUN_TERKUNCI_LOG);
     if (jenis === "TIDAK_COCOK") return gagal<K, B>(STATUS_VERIFIKASI, "KODE_TIDAK_COCOK");
     if (ambilKembali) {
       await alat.selesaikan(kunci, "NOT_JUDGED").catch(() => alat.catatGalat(rujukan(), "an unjudged code attempt was not taken back"));
@@ -252,6 +254,7 @@ export async function masukPassword(
   if (jawaban.error || !email) {
     const e = jawaban.error ?? { status: 400, code: "invalid_credentials" };
     const { jenis, ambilKembali } = jenisGalatAuth(e);
+    if (akunTerkunci(e)) alat.catatGalat(rujukan(), AKUN_TERKUNCI_LOG);
     if (jenis === "TIDAK_COCOK") return tolak("MASUK_TIDAK_COCOK");
     if (ambilKembali) {
       await alat.selesaikan(kunci, "NOT_JUDGED").catch(() => alat.catatGalat(rujukan(), "an unjudged sign-in was not taken back"));

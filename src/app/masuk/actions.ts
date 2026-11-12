@@ -9,6 +9,8 @@ import { appUrl } from "@/lib/env";
 import { tujuanInternal } from "@/lib/tujuan";
 import { TAUTAN_MASUK_CADANGAN } from "@/lib/aktivasi-kontrak";
 import { catatAkuntabilitas, normalPengenal } from "@/app/api/_akuntabilitas/catat";
+import { AKUN_TERKUNCI_LOG, akunTerkunci } from "@/lib/akun-terkunci";
+import { rujukan } from "@/lib/galat-kontrak";
 
 /**
  * WHAT THE SIGN-IN SCREEN IS TOLD, AND WHAT IT IS NOT.
@@ -86,6 +88,12 @@ export async function sendMagicLink(formData: FormData): Promise<HasilKirim> {
   // success is the callback's, when the link is used). Written before the answer, which stays the same either way.
   if (error && tidakTerdaftar(error)) {
     await catatAkuntabilitas(await headers(), "masuk/tautan", { jenis: "SIGN_IN_FAILED", cara: "LINK", hasil: "TAUTAN_TIDAK_TERDAFTAR", diketik: normalPengenal("nama", email) });
+  }
+  // AUTH CORRECTION (owner, 11 Nov): a locked account (suspended or closed) is told what everybody is told; only the
+  // server log says why, never with the address
+  if (error && akunTerkunci(error)) {
+    console.error(`[masuk/tautan] ref=${rujukan()} ${AKUN_TERKUNCI_LOG}`);
+    return "terkirim";
   }
   if (!error || tidakTerdaftar(error) || terlaluSering(error)) return "terkirim";
   return "gagal";

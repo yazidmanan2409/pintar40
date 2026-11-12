@@ -300,15 +300,25 @@ export const b1AppTests: SelfTest[] = [
         const n1 = baris(awal).length;
         const s1 = await coba(sandi);
         const r1 = terakhir();
-        // the record holds exactly the route's own answer, and that answer is one of the codes every account can get
-        // (never one naming the account's state). PRE-EXISTING, OUTSIDE B1 (reported): local Auth cannot read the
-        // suspension's banned_until = infinity and fails, so the route answers LAYANAN_TIDAK_TERSEDIA (503), not the
-        // wrong password's MASUK_TIDAK_COCOK (401); the record follows the route either way.
-        const UMUM = ["MASUK_TIDAK_COCOK", "LAYANAN_TIDAK_TERSEDIA"];
-        const sah = (x: { body: Record<string, unknown> | null }, r: Baris | undefined, orangnya: string, sekolah: string[]) =>
-          UMUM.includes(String(x.body?.code)) && ringkas(r) === `SIGN_IN_FAILED PASSWORD ${String(x.body?.code)} ${orangnya} H ${JSON.stringify(sekolah)}`;
-        if (s1.body?.code !== "MASUK_TIDAK_COCOK") c.note(`a suspended account's sign-in answered ${s1.status} ${String(s1.body?.code)} (pre-existing; reported)`);
+        // the record holds exactly the route's own answer, and that answer is the one every account can get (never one
+        // naming the account's state).
+        // RESTATED, auth correction (owner, 11 Nov; Daisy's red-first test and Sharon's condition at 1fc719b5): the
+        // accepted codes are narrowed to the wrong password's MASUK_TIDAK_COCOK alone (LAYANAN_TIDAK_TERSEDIA is gone: it
+        // was local Auth failing on banned_until = infinity, 20270116130000 corrects the lock); the response matches a
+        // wrong password in status, code and wording whichever password is given, a wrong password on the suspended
+        // account is added, and the former c.note is a c.expect that a suspended or closed attempt records
+        // MASUK_TIDAK_COCOK.
+        const UMUM = ["MASUK_TIDAK_COCOK"];
+        const sah = (x: { status: number; body: Record<string, unknown> | null }, r: Baris | undefined, orangnya: string, sekolah: string[]) =>
+          x.status === 401 && JSON.stringify(x.body) === JSON.stringify({ ok: false, code: "MASUK_TIDAK_COCOK" })
+          && UMUM.includes(String(x.body?.code)) && ringkas(r) === `SIGN_IN_FAILED PASSWORD ${String(x.body?.code)} ${orangnya} H ${JSON.stringify(sekolah)}`;
+        c.expect(r1?.outcome === "MASUK_TIDAK_COCOK", `a suspended account's sign-in recorded ${String(r1?.outcome)} (answered ${s1.status} ${String(s1.body?.code)}), not MASUK_TIDAK_COCOK`);
         c.expect(baris(awal).length === n1 + 1 && sah(s1, r1, "INA", [alpha]), `a suspended account's attempt: ${s1.status} ${JSON.stringify(s1.body)}; ${ringkas(r1)}`);
+        // a wrong password on the suspended account: the very same answer and record
+        const s1b = await coba(`${sandi}-salah`);
+        const r1b = terakhir();
+        c.expect(r1b?.outcome === "MASUK_TIDAK_COCOK" && sah(s1b, r1b, "INA", [alpha]) && JSON.stringify(s1b.body) === JSON.stringify(s1.body) && s1b.status === s1.status,
+          `a wrong password on the suspended account: ${s1b.status} ${JSON.stringify(s1b.body)}; ${ringkas(r1b)} (the right one: ${s1.status} ${JSON.stringify(s1.body)})`);
         c.expect(dilihat(r1?.id, bacaSebagai("alpha-admin@synthetic.pintar.test", alpha)) && !dilihat(r1?.id, bacaSebagai("beta-admin@synthetic.pintar.test", beta)),
           "the suspended account's failure is not Alpha's alone");
         // 2. closed (reactivated, then closed at the person's own request with a deletion request)
@@ -317,7 +327,7 @@ export const b1AppTests: SelfTest[] = [
         sebagaiUid(uid, "select public.minta_akun('CLOSE', true)");
         const s2 = await coba(sandi);
         const r2 = terakhir();
-        if (s2.body?.code !== "MASUK_TIDAK_COCOK") c.note(`a closed account's sign-in answered ${s2.status} ${String(s2.body?.code)} (pre-existing; reported)`);
+        c.expect(r2?.outcome === "MASUK_TIDAK_COCOK", `a closed account's sign-in recorded ${String(r2?.outcome)} (answered ${s2.status} ${String(s2.body?.code)}), not MASUK_TIDAK_COCOK`);
         c.expect(sah(s2, r2, "INA", [alpha]), `a closed account's attempt: ${s2.status} ${JSON.stringify(s2.body)}; ${ringkas(r2)}`);
         c.expect(dilihat(r2?.id, bacaSebagai("alpha-admin@synthetic.pintar.test", alpha)) && !dilihat(r2?.id, bacaSebagai("beta-admin@synthetic.pintar.test", beta)),
           "the closed account's failure is not Alpha's alone");
@@ -331,7 +341,8 @@ export const b1AppTests: SelfTest[] = [
         c.expect(!dilihat(r3?.id, bacaSebagai("alpha-admin@synthetic.pintar.test", alpha)) && dilihat(r3?.id, bacaSebagai("sysadmin@synthetic.pintar.test", null)),
           "the attempt that names no one is not the platform admin's alone");
         const milik = baris(awal).filter((r) => r.person_id === orang);
-        c.expect(milik.length === 4 && milik.every((r) => r.network_origin === null && r.identifier_hash === null), `the deleted person's rows keep an origin or a hash: ${milik.map(ringkas).join(" | ")}`);
+        // RESTATED, auth correction (owner, 11 Nov): five rows, not four, with the wrong password added on the suspended account
+        c.expect(milik.length === 5 && milik.every((r) => r.network_origin === null && r.identifier_hash === null), `the deleted person's rows keep an origin or a hash: ${milik.map(ringkas).join(" | ")}`);
         // 4. as rendered: Alpha's admin and the platform admin, searching the PINTAR ID
         const lihat = async (identitas: string, sandiIni: string, konteks: string) => {
           const b = new Peramban(asal, ipUji());
@@ -346,6 +357,11 @@ export const b1AppTests: SelfTest[] = [
           ["the platform admin", await lihat("sysadmin@synthetic.pintar.test", "Sintetis-Sys-91!", "MENGELOLA:PLATFORM")]] as const) {
           const orangDi = [...html.matchAll(/data-akuntabilitas-orang="">([^<]*)</g)].map((m) => m[1]);
           const asalDi = [...html.matchAll(/<td data-label="Asal jaringan" class="pin-num">([^<]*)</g)].map((m) => m[1]);
+          // auth correction (owner, 11 Nov): every failed row of the person reads as a wrong password, for the school's
+          // admin and for the platform admin alike (no special case for the platform)
+          const hasilDi = [...html.matchAll(/data-akuntabilitas-hasil="([^"]*)">([^<]*)</g)].filter((m) => m[1] !== "OK").map((m) => `${m[1]}=${m[2]}`);
+          c.expect(hasilDi.length === 3 && hasilDi.every((x) => x === "MASUK_TIDAK_COCOK=Email, username, atau password belum cocok."),
+            `${nama} reads the failed rows as ${JSON.stringify(hasilDi)}`);
           c.expect(orangDi.length >= 3 && orangDi.every((x) => x === pid) && !html.includes(`Ina B1 ${tag}`) && asalDi.every((x) => x === "")
             && ip.every((x) => !html.includes(x)), `${nama} reads the deleted person as ${JSON.stringify(orangDi)} (PINTAR ID ${pid}), origins ${JSON.stringify(asalDi)}`);
         }
@@ -356,10 +372,11 @@ export const b1AppTests: SelfTest[] = [
         const sesi = psql(`select count(*) from auth.sessions where user_id = ${lit(uid)}`);
         c.expect(sisa === "0" && sesi === "0", `the test left ${sisa} event row(s) and ${sesi} session(s) behind`);
       }
-      return c.verdict("a staff member of Alpha, suspended, then closed, each attempt one failure holding the route's own answer, a code "
-        + "any account can get (never one naming the account's state), their person and Alpha's snapshot, read by Alpha's admin and not Beta's; after hapus_data_pribadi an attempt "
+      return c.verdict("a staff member of Alpha, suspended (the right and a wrong password), then closed, each attempt one failure answered "
+        + "and recorded exactly as a wrong password (401 MASUK_TIDAK_COCOK, never one naming the account's state), their person and Alpha's snapshot, read by Alpha's admin and not Beta's; after hapus_data_pribadi an attempt "
         + "with the old address names no one (empty snapshot, the platform admin's only), and the person's rows hold no origin and no hash; "
-        + "Alpha's admin and the platform admin, as rendered, read them under the PINTAR ID with no origin; nothing of the test is left behind");
+        + "Alpha's admin and the platform admin, as rendered, read them under the PINTAR ID with no origin, each failure «Email, username, atau "
+        + "password belum cocok.»; nothing of the test is left behind");
     },
   },
   {

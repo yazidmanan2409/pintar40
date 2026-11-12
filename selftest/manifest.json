@@ -3072,6 +3072,18 @@
       "skip_justification": "needs the running app, the local stack and the Mailpit sink"
     },
     {
+      "id": "AUTH-A01",
+      "runner": "app",
+      "proves": "The bounded auth correction, selftest/akun-terkunci.test.ts, through the running app's routes (/masuk/password, /masuk/kartu, /aktifkan/periksa, /masuk/lupa/periksa, /masuk/lupa/pin), real Auth and the mail sink: with a person activated for the test and a class card made for it, each method (password by address and by username, the class card, an activation code, a recovery code, the recovery PIN) answers the account suspended, closed and anonymised, with the right and a wrong credential, with exactly its own ordinary mismatch (MASUK_TIDAK_COCOK, CARD_NOT_MATCHED, KODE_TIDAK_COCOK, PIN_TIDAK_COCOK: the status and body of a wrong credential on an active account); a wrong credential and an unknown identifier are unchanged; reinstated, the password and the card sign in again; nothing of the test is left live (role, session, suspension, lock, event row).",
+      "skip_justification": "needs the running app, the local stack and the Mailpit sink"
+    },
+    {
+      "id": "AUTH-A02",
+      "runner": "app",
+      "proves": "The bounded auth correction, selftest/akun-terkunci.test.ts, the migration 20270116130000 run by psql against the local stack: on a database with no account on the old value it changes nothing; with one locked as before the correction (banned_until 'infinity') Auth fails and /masuk/password answers 503 LAYANAN_TIDAK_TERSEDIA (a real Auth failure is not turned into a mismatch); the migration rewrites that one to akun_terkunci_sampai() and no other, after which the right and a wrong password get a wrong password's answer; run a second time it changes nothing; reinstated, the account signs in; nothing of the test is left live.",
+      "skip_justification": "needs the running app and the local stack"
+    },
+    {
       "id": "BOB26-A03",
       "runner": "app",
       "proves": "BOB-26, selftest/bob26.test.ts: the Gate 0 finding closed by the password write permit (migration 20261112100000): a signed-in session's own PUT /auth/v1/user password change is refused and does not take; the Ironman test through PostgREST: the Guru's PATCH of display_name to «Ironman» is refused, the photo stays theirs.",
@@ -3087,6 +3099,11 @@
       "id": "BOB26-K01",
       "runner": "static",
       "proves": "BOB-26, the source file src/lib/aktivasi.ts executes with its tools replaced (selftest/bob26.test.ts): mintaKode answers alike whether activation_code_target finds an account and sends only after the answer; angkaKode reads «482 913»; masukPassword sends an unknown name to Auth as ALAMAT_TIADA and waits for the floor; kunciIdentitas keeps the two counters apart."
+    },
+    {
+      "id": "AUTH-K01",
+      "runner": "static",
+      "proves": "The bounded auth correction (owner, 11 Nov; AUTH-SUSPENDED-SIGNIN-CORRECTION.md), selftest/akun-terkunci.test.ts, the source files src/lib/aktivasi.ts, src/lib/kartu-masuk.ts and src/lib/pemulihan.ts executed with their tools replaced: Auth's user_banned (400 or 403) is, in the password, activation code, recovery code and card decisions, exactly the method's own non-match, counted and never taken back, and logged once with a reference and no identifier (src/lib/akun-terkunci.ts); after recovery's new password it is the ordinary sign-in-again answer; Auth unreachable stays 503 in each."
     },
     {
       "id": "BOB26-S01",
@@ -5760,7 +5777,7 @@
     {
       "id": "B1-A04",
       "runner": "app",
-      "proves": "B1 correction (cross-module checks 2b and the deleted-person presentation), selftest/b1-layar.test.ts, through the running app's routes and its rendered html (route /konfigurasi/catatan-masuk): a staff member of Alpha suspended, then closed, each sign-in attempt one SIGN_IN_FAILED row holding the route's own answer, a code any account can get and never one naming the account's state, the person and Alpha's snapshot, read by Alpha's admin and not Beta's; after hapus_data_pribadi an attempt with the old address names no one (the platform admin's only) and the person's rows hold no origin and no hash; Alpha's admin and the platform admin read them under the PINTAR ID with no origin; nothing of the test is left behind."
+      "proves": "B1 correction (cross-module checks 2b and the deleted-person presentation), selftest/b1-layar.test.ts, through the running app's routes and its rendered html (route /konfigurasi/catatan-masuk): a staff member of Alpha suspended, then closed, each sign-in attempt (the suspended account with the right and a wrong password; restated for the auth correction, owner 11 Nov) one SIGN_IN_FAILED row answered and recorded exactly as a wrong password (401 MASUK_TIDAK_COCOK), never one naming the account's state, the person and Alpha's snapshot, read by Alpha's admin and not Beta's; after hapus_data_pribadi an attempt with the old address names no one (the platform admin's only) and the person's rows hold no origin and no hash; Alpha's admin and the platform admin read them under the PINTAR ID with no origin, each failure reading «Email, username, atau password belum cocok.»; nothing of the test is left behind."
     }
   ]
 }
