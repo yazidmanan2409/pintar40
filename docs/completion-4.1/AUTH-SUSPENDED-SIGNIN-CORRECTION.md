@@ -22,7 +22,8 @@ superseded it says so at that point and refers back to this list.*
    record `MASUK_TIDAK_COCOK`; that expectation is withdrawn by Sharon.)
 7. State: BLOCKED by Sharon on `2ea60c85e4f855eca2175749c4270a170922ee33` for item 5 only; the fix is a new commit
    after F-1's; she rechecks that item alone. Daisy confirms in her F-1 visit; she is not a gate for this pass.
-8. Not in this pass: register L1-R1; any other path found by the bounded search.
+8. Not in this pass: register L1-R1; finding L1-F2 (§6d), put to the owner; any other path found by the bounded
+   search.
 
 ## 1 · The defect
 
@@ -264,6 +265,34 @@ goes on the register as **L1-R1**, to be taken with the next work that touches t
 whichever comes first, and reviewed by Daisy. The closed-then-reopened case (no school can assist until a role is
 granted) is recorded with it as a consequence to confirm, not as a defect.
 
+## 6d · Finding from the bounded search: an account created for a person already suspended (L1-F2)
+
+**Reported by the engineer, not fixed; not yet read in code by the Chief Architect** (the search's table,
+`docs/completion-4.1/batches/AUTH-SUSPENDED-SIGNIN-CREDENTIAL-PATHS.md`, is in the local fix commit
+`916d12c01345816afcf567b40131e72b9857cf65`, not yet pushed).
+
+| | |
+|---|---|
+| What | A person suspended **before** they had an account can later be given one by a school. The new account is not locked |
+| Shared cause | `akun_kunci` locks the accounts the person has at the instant of suspension. The lock is applied to accounts at a moment; the suspension is a standing state of the person. Anything created for the person afterwards is outside it |
+| Why it is not a one-line fix inside L-1 | The act is an authorized admin's, and the correction is a design choice |
+
+**The choice, and the Chief Architect's recommendation.**
+
+| Option | Consequence |
+|---|---|
+| A. Refuse the creation | The school admin learns that the person is suspended. A platform suspension must not be learnable by a school (the same rule that governs the accountability reader), so this discloses |
+| **B. Create the account and lock it at creation (recommended)** | The suspension holds for every account of the person, whenever created. The school sees an ordinary creation; the person's sign-in is answered as any locked account's. Reinstatement, which already clears the lock on all the person's accounts, releases it |
+
+Asked the four questions, B is the only one of the two that keeps what L-1 established: nothing new is told apart,
+and reinstatement reverses it completely. The same reasoning should be checked for a **closed** person, where
+creating a new account at all may be wrong for a different reason.
+
+**Standing.** It is a gap in what suspension covers, not in what a sign-in answers, so it is outside the correction
+the owner approved ("do not expand into a general authentication redesign"). **It is put to the owner** as a small,
+separate correction before Z, with Sharon's review, after her ruling on the choice. It does not hold L-1's recheck,
+F-1, or B2.
+
 ## 7 · Log
 
 | Date | Entry |
@@ -278,3 +307,4 @@ granted) is recorded with it as a consequence to confirm, not as a defect.
 | 12 Nov 2026 (03:00 UTC) | Sharon: BLOCKED on `2ea60c85e4f855eca2175749c4270a170922ee33` for the recovery and activation permits acting on a locked account; all else verified. Correction and tests recorded in §6b, with one bounded search added |
 | 12 Nov 2026 (03:20 UTC) | Sharon's ruling on §6a recorded (§6c): checks at use are required, ending grants at locking is optional; the PIN ladder survives reinstatement by design; register item L1-R1 opened |
 | 12 Nov 2026 (04:00 UTC) | Sharon withdrew the `MASUK_TIDAK_COCOK` expectation for a grant used after a suspension; the engineer's reading stands. §0 added as the one current statement; the two superseded passages are marked where they stand |
+| 12 Nov 2026 (05:00 UTC) | L-1 fix committed locally by the engineer at `916d12c01345816afcf567b40131e72b9857cf65`, red first on `2ea60c85e4f855eca2175749c4270a170922ee33`, in full pre-flight. Bounded search reported one further gap, recorded as L1-F2 (§6d) and put to the owner |
