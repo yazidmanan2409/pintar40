@@ -12,7 +12,7 @@
 | Item | State | Commit |
 |---|---|---|
 | B1 | **Closed.** Sharon PASS, Daisy PASS, CI `43110782265` and journeys `43110786290` green | `1fc719b5127313bf24084695fa30d7505e15b5d1` |
-| L-1, suspended sign-in correction | **With Sharon for review.** CI `43132734581` and journeys `43132738349` green. Closes on her PASS | `2ea60c85e4f855eca2175749c4270a170922ee33` |
+| L-1, suspended sign-in correction | **BLOCKED by Sharon on one item** (the recovery and activation permits act on a locked account). Correction to follow as a new commit after F-1's; she rechecks that item alone | `2ea60c85e4f855eca2175749c4270a170922ee33` |
 | F-1, C1w correction pass | **Built, in local pre-flight; not pushed.** Needs Sharon and Daisy (one teacher screen gains a line) | local `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` |
 | S-1, phone drawer overflow | Approved, bounded; before B2's review | — |
 | B2 | Opens when L-1 and F-1 both have Sharon's PASS | — |
@@ -104,3 +104,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026, 00:15 | L-1, Second Eye: state on the page that the platform admin's reader also shows the ordinary mismatch for suspended or closed attempts, by intent (Sharon). Reconciliation of the brief §5 confirmed by Sharon |
 | 12 Nov 2026, 01:45 | L-1 candidate `2ea60c85e4f855eca2175749c4270a170922ee33`. Sharon: also rule on the engineer's question (a pre-suspension recovery grant used after it) and see the two consequences in `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §6a. Daisy: same commit |
 | 12 Nov 2026, 02:20 | L-1 with Sharon (prompt issued by the engineer; she should also read `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §6a at this commit of the planning branch). Daisy: one visit on the F-1 commit covering F-1's teacher screen and her L-1 confirmation. F-1 built locally at `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` |
+| 12 Nov 2026, 03:00 | Second Eye: L-1's one blocker, `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §6b (two permit checks, three red-first tests, one bounded search, the PIN-ladder note on the page). Do not disturb F-1's pre-flight; the fix is a new commit after F-1's. B2 still waits for Sharon's PASS on both |

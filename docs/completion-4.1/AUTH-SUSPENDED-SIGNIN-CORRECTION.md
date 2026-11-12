@@ -169,6 +169,51 @@ is the fourth question earning its place: making one thing work exposed what it 
    is a change to what suspension does, so it is **outside this bounded correction** unless Sharon judges it the same
    defect; if she does not, it is recorded as a finding of its own and put to the owner.
 
+## 6b · Sharon's review: BLOCKED on one item (12 Nov 2026)
+
+**Sharon: BLOCKED on `2ea60c85e4f855eca2175749c4270a170922ee33`, for the grant question alone.** She rules it the
+same defect on its last remaining path, so its correction is **inside** this pass (§6a item 2 left that to her).
+Everything else is verified: the five cases indistinguishable from outside for every method, with the response
+times; a real outage still 503; the lock, its one writer, reinstatement and the rewrite; B1-A04 and the
+reconciliation; no dependence on 4.1.
+
+**The blocker.** `recovery_grant_permit` (`M/20261115100000…`) issues a password-write permit for any live grant
+without asking whether the person is locked, and the route's admin password update ignores the ban. With a
+suspension applied because an account is suspected compromised, an attacker holding a ten-minute grant sets their
+password during the suspension, and it is live at reinstatement. The suspension contained nothing.
+
+**The correction (hers, accepted):**
+- In `recovery_grant_permit`, a locked person's grant is treated as no live grant: the existing
+  `RECOVERY_GRANT_INVALID`, the same answer as an expired grant, so nothing new is told apart.
+- The same check in `password_write_permit` for `ACTIVATION`: an outstanding activation for a locked person would
+  otherwise create a working credential.
+- In the two permit functions, **not** in `auth_password_write_guard`: an email correction legitimately clears the
+  password through that guard.
+
+**Tests, red first on `2ea60c85e4f855eca2175749c4270a170922ee33`:**
+- a grant issued before a suspension and used after it: the ordinary invalid-grant answer, `encrypted_password`
+  byte-identical, and B1 records `MASUK_TIDAK_COCOK`;
+- the same for an activation;
+- after reinstatement, a fresh recovery works.
+
+**To state on the page (hers):** a locked person who keeps trying their right PIN climbs the ladder; at level 3 the
+PIN must be reset after reinstatement. Correct, and a visible after-effect for the school.
+
+**Chief Architect's addition: one bounded search, so this is the last path and not the third of several.** Two
+recovery paths have now been found that acted on a locked account without consulting the lock. The shared cause is
+that the lock lived only in Auth's sign-in. The pass therefore lists **every path that changes a credential or
+issues a standing permission for a person** (password, PIN, card, email address, activation, recovery grant, a
+teacher's or admin's reset on the person's behalf) and records for each whether it consults the lock, and whether it
+should. It corrects the two permits Sharon named. Anything else found is **recorded and reported, not fixed here**,
+unless it is the same one-line check in the same kind of function; an act by an authorized admin on a suspended
+account may be legitimate and is not assumed to be a defect.
+
+**Still bounded.** No change to what suspension is, to session ending, or to reinstatement. The core stays on 4.0
+objects only.
+
+**Sequence.** F-1 is committed locally on top of this pass and its pre-flight is running; it is not disturbed. The
+L-1 fix is a new commit after it. Sharon rechecks **that commit alone, for this item**; her verified items stand.
+
 ## 7 · Log
 
 | Date | Entry |
@@ -180,3 +225,4 @@ is the fourth question earning its place: making one thing work exposed what it 
 | 12 Nov 2026 (00:15 UTC) | **Sharon confirmed the reconciliation of §5:** the accountability event records the ordinary mismatch; the true reason is kept only in the server log (without the typed identifier) and in the suspension's own audit record, which `tangguhkan_akun` writes with no school, so only the platform admin reads it. **To state on the engineer's page:** the platform admin's accountability reader also shows the ordinary mismatch for these attempts, by intent; the reader is not where suspensions are found. Her condition names the password method; under §3.2 it holds per method |
 | 12 Nov 2026 (01:45 UTC) | Candidate pushed: `2ea60c85e4f855eca2175749c4270a170922ee33`. Read by the Chief Architect (§6a). A second defect (a recovery grant to a suspended account) found and closed by the pass. CI and journeys running |
 | 12 Nov 2026 (02:20 UTC) | CI `43132734581` success on attempt 2 (attempt 1: a runner could not start its database before any test ran; failed jobs re-run once), journeys `43132738349` success, both on `2ea60c85e4f855eca2175749c4270a170922ee33`. Local: 1075 passed, 0 failed; 156 of 156 planted defects. Review prompt issued to Sharon by the engineer. Daisy's role clarified in §6 |
+| 12 Nov 2026 (03:00 UTC) | Sharon: BLOCKED on `2ea60c85e4f855eca2175749c4270a170922ee33` for the recovery and activation permits acting on a locked account; all else verified. Correction and tests recorded in §6b, with one bounded search added |
