@@ -52,7 +52,7 @@ everything after it is verification.
 |---|---|---|---|
 | 1 | L1-F4's refusal line carries Daisy's exact words (wording only) | Second Eye | Owed |
 | 2 | **Promotion evidence, on the work branch, following the 4.0 pattern** (`docs/completion-4.0/batch-5/`): `ROLLBACK-225-244.sql` for the 20 migrations; `preservation.sql` (read-only; the 4.0 query, extended for what these batches add); a preconditions page naming, for each §5b item, the exact check, the expected result, and whether it only reads or acts on staging | Second Eye | Owed |
-| 3 | Sharon reviews the rollback file, the preservation query and the checks of step 2, **and confirms whether the scratch-target restore satisfies §5b item 5** (owner's condition) | Sharon | After 2 |
+| 3 | Sharon reviews the rollback file, the preservation query and the checks of step 2. **The scratch-target restore: confirmed by Sharon as satisfying §5b item 5, with four conditions (§3a)** | Sharon | Restore confirmed; the rest after 2 |
 | 4 | **The boundary commit:** the head carrying 1 and 2, with a green pre-flight, CI and journeys on that exact commit | Second Eye; confirmed by the Chief Architect | After 1 to 3 |
 | 5 | Preservation "before" and the migration count on staging (read-only) | Chief Architect | Before the merge |
 | 6 | The pull request into `main`, at the boundary commit, titled as the 4.0 promotions were, stating the commit, the migrations, the rollback file and that nothing touches production | Chief Architect opens it | After 4 and 5 |
@@ -78,6 +78,43 @@ and presents the final evidence. The merge stays the owner's.
 | 5 | Restore: the accountability tables and the jobs come back, or the runbook step reinstalls them; the time `audit_log`'s rewrite takes is measured | **Not a restore of staging itself.** The restore rehearsal workflow against a scratch target, as the 4.0 disaster-recovery tests did; the rewrite time is read from the promotion run. If only a real staging restore can prove it, that is a material step: stop and ask | Scratch target only |
 | 6 | Headers: `x-real-ip` arrives, so B1's network origin is filled; the request hook adds no measurable delay | One sign-in by the synthetic account; read its accountability row | Covered by item 3's account |
 
+### 3a · Sharon's reading of the six items (12 Nov 2026). **It governs where the table above differs.**
+
+Her record: `claude/gracious-lamport-0m1qjr` at `e682422328bce43df209d79fbd3d940a4c104d7a`,
+`docs/coordination/reviews/sharon/CHECKPOINT-RUNBOOK-c51e6d47212dd335e9b09eed5eea9c98bcca6a9d.md`. Second Eye builds
+the preconditions page on it. Summary:
+
+- **Item 5, the owner's condition: the scratch-target restore is ACCEPTED by Sharon as satisfying §5b.** Staging
+  itself is not restored. The tool is `restore-rehearsal.yml`: it only reads staging, restores a copy into an empty
+  stack on the runner, and keeps nothing. Four conditions:
+  1. it runs **after** the promotion;
+  2. its comparison is extended to the new triggers, the L1-F4 guards, the scheduled jobs (`cron.job`) and the
+     accountability tables (today it names only the three older triggers on `auth.users`);
+  3. the jobs come back once each, or the shared installer puts them back; either way the health read on the copy is
+     clean;
+  4. the `audit_log` rewrite time is recorded with staging's `audit_log` row count, so it can be scaled.
+- **Item 1.** The promotion's own migration installs `pg_cron`; if the hosted project refuses it, stop. The
+  committing-procedure test uses declared DDL in a scratch schema, and the catalogue must show nothing left after it.
+- **Item 2.** One lock taken and released proves nothing. Two connections, once through the pooler and once direct;
+  the timeouts read for every role. No function is added to staging to reach the lock through the API.
+- **Item 3 (corrected).** "Both Auth-user triggers" are the insert trigger `on_auth_user_created`, inside which
+  L1-F2's lock fires, and the guard on `banned_until`. The check only hosted Auth can prove: **a suspended synthetic
+  person is given a new account through the product, and that account is locked from its first read.** Each sign-in
+  method's refusal must match that method's wrong-password answer.
+- **Item 4 (corrected).** It is about writes to the `auth` schema **while the app runs**, which applying migrations
+  does not show. Two proofs: a read-only privilege check on each `auth` table; and removing the synthetic people by
+  the product's own path (close the account, then delete the personal data), never through the Admin API.
+- **Item 6.** One sign-in shows the network origin is filled. The hook's delay needs at least 50 timed reads against
+  D1's budget.
+- **Across all items: the preservation query** must fingerprint only rows that existed before, because items 3 and 4
+  create synthetic rows. The page lists every row the checkpoint creates.
+- **Three more material discrepancies:** a new account left open at any instant; an `auth` write refused at runtime;
+  the restored copy differing from staging after the reinstall step.
+
+**Chief Architect's note on scope.** Extending `restore-rehearsal.yml`'s comparison is a workflow change on the work
+branch. It is within the boundary: it is the checkpoint's own verification, it touches no request file, and it is
+named in the pull request.
+
 **Material discrepancy means, at least:** the migration count differs; any preservation value differs; a migration
 fails or is skipped; `pg_cron` cannot be installed or cannot run a committing procedure; a trigger on `auth.users` is
 refused by the hosted project or breaks Auth's own writes; a locked account can sign in or refresh; any sign of an
@@ -94,3 +131,4 @@ effect on production. Item 1's committing-procedure result, if negative, is not 
 |---|---|
 | 12 Nov 2026, 22:00 | Owner's authorization recorded. Runbook written from Addendum 1 §5b and the 4.0 promotion pattern. Nothing done on staging |
 | 12 Nov 2026, 22:06 | Owner's second instruction recorded: the pull request is explicitly authorized on six conditions; no staging mutation before the merge; Sharon must confirm the scratch-target restore |
+| 12 Nov 2026, 22:08 | Sharon's reading of the six items recorded (§3a); it governs. The scratch-target restore is confirmed as satisfying §5b, with four conditions. Items 3 and 4 corrected |
