@@ -50,6 +50,21 @@
      the timestamp comparison; remove the snapshot write).
    - **Order:** in the commit that brings the race test, with L1-F2. It is a third order for the shared
      two-connection harness. Sharon's result review follows on that commit.
+10. **The required change is pushed at `3a63a2b2158ea4834c1f12653c864baf157c0dd5` (17:02 UTC, 12 Nov)**, with the race
+    test (`selftest/l1f4-balapan.test.ts`), three plants and Daisy's certificate-count fix. It is one of three
+    commits verified together; CI `43262235163` and journeys `43262243374` run on the top one,
+    `55fb9b9b93d75c0d683f8be543f30436246c3be2`, and were in progress. **With Sharon for her result review.**
+    - **Chief Architect's read:** built as item 9 sets it. A closure with no record is read as having held nothing,
+      so the deletion refuses: the safe direction. The record is written once, guarded.
+    - **One question for Sharon, from that read (L1F4-A1).** `hapus_data_pribadi` checks that an open closure exists
+      **before** it takes the person's lock, and `buka_kembali_akun` (reopen) locks the suspension row, not the
+      person. Two platform admins acting at once on the same person, one deleting and one reopening: the deletion
+      can pass its check, the reopen can commit, and the deletion then anonymises a person whose account was just
+      reopened. That is irreversible. With this commit the new role check is also empty in that order, because it
+      reads the open closure row. The race predates L1-F4. **Suggested:** the deletion re-reads the closure under
+      the person's lock, and the reopen takes the person row first (the same "person first" rule as L1-F2's fix);
+      one more order in the harness. **Sharon rules** whether it is a defect, and whether it gates L1-F4 or goes in
+      the L1-F2 fix commit.
 
 ## 1 · The defect
 

@@ -42,21 +42,24 @@ channel:
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
-### Review queue (as of 16:37 UTC, 12 Nov; updated at each check)
+### Review queue (as of 17:02 UTC, 12 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
 | ~~**Sharon**~~ | ~~Result review of **F1-R1b**~~ **Done: PASS** on `97a40ebb…`, 12 Nov. One page item for Second Eye | — | her record, `claude/gracious-lamport-0m1qjr` `1076f121fc5d6f1e2414d190f20cf9b6c1be258f` |
-| **Sharon** | Result review of **L1-F4**, on the commit that brings her required change and the race test (with L1-F2). *Interim review done, 12 Nov: one required change* | not yet built | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 items 8 and 9 |
+| **Sharon** | Result review of **L1-F4**: your required change, the third race order, the lock-order rule, and **one question from Bob (L1F4-A1: a deletion racing a reopen)** | `3a63a2b2158ea4834c1f12653c864baf157c0dd5` (runs on `55fb9b9b93d75c0d683f8be543f30436246c3be2`) | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 items 9 and 10 |
+| **Sharon** | **The eight-operation inventory:** confirm the correction to row 2 and the four additions; answer the engineer's three questions | `55fb9b9b93d75c0d683f8be543f30436246c3be2` | `batches/A2B-MAINTENANCE-INVENTORY.md` on the work branch |
+| **Sharon** | **A2a's completion page, pre-build review only.** A2a is not built until the owner has considered the staging checkpoint | `55fb9b9b93d75c0d683f8be543f30436246c3be2` | `batches/A2A-COMPLETION.md` on the work branch |
+| **Daisy** | Short check, no full visit: your three F1-R1b items and the certificate-count fix | `04f689483732d7da8eae6076da842d643a157cd1` and `3a63a2b2158ea4834c1f12653c864baf157c0dd5` | your `TINJAUAN-F1R1B-97a40ebb.md` |
 | ~~**Sharon**~~ | ~~Result review of **B2**~~ **Done: PASS on `bfe949b11935763a8c8ed7b91f4adcdbcea93645`** (confirmed after both runs ended green) | — | her record, `claude/gracious-lamport-0m1qjr` `62d52a22d2939137d789ed0ea2637e5c3ffe54ff` |
 | ~~**Daisy**~~ | ~~**F1-R1b's** screens~~ **Done: PASS** on `97a40ebb…`, 12 Nov | — | her record at `a13f30ff4fe0bd53727d7af219068d35d0b1b0ae` |
 | ~~**Daisy**~~ | ~~**L1-F4** wording~~ **Done: PASS** on `ea3c4b6f…`, 12 Nov | — | same record, §2 |
 | **Daisy** | **B2, one visit, now.** With **S-1** (phone widths and the desktop sidebar), the time zone on a learner's own print, and one question: does a print refused for being in another working context need its own line (B2-R-A1)? | `bfe949b11935763a8c8ed7b91f4adcdbcea93645` | `B2-ARCHITECT-NOTES.md` §4, §5 and its log |
 | ~~**Second Eye**~~ | ~~F1-R1b page item~~ **Done** in `e27f4a77a10c7c448170bb2851462e4561daadf7`, confirmed from its diff | — | — |
-| **Second Eye** | **L1-F4 required change (Sharon):** measure history against live attachments by live enrolment at deletion time and a record written at closure, not by timestamps; third order in the race harness. In the L1-F2 commit set | — | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 9; Sharon's `L1F4-INTERIM-ea3c4b6f….md` |
+| ~~**Second Eye**~~ | ~~L1-F4 required change~~ **Pushed** at `3a63a2b2158ea4834c1f12653c864baf157c0dd5` | — | — |
 | **Sharon** | **L1-F2 with L1-R2: BLOCKED on one item** (lock-order cycle) at `e27f4a77a10c7c448170bb2851462e4561daadf7`. Next: the delta, when Second Eye pushes it | next candidate | `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0 item 9 |
 | **Second Eye** | **First: L1-F2's blocker.** Both issuers take the person row `FOR SHARE` before the account row; test L1R2-R02 red first; the structural line; the plant; and the list of every path that takes an account row before the person row | — | Sharon's `L1F2-e27f4a77….md` on `claude/gracious-lamport-0m1qjr`; `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0 item 9 |
-| **Second Eye** | Then: **L1-F4's required change** (row above), then the inventory of the eight operations for work-scoped planned maintenance before A2b, then A2a's completion page (**no build**) | — | `THE-PLAN-ADDENDUM-1.md` §5d |
+| **Second Eye** | After the L1-F2 fix is pushed: whatever Sharon rules on L1F4-A1 and on the inventory's questions. **A2a: no build** | — | — |
 
 ### For Second Eye, from Daisy's review of `97a40ebb…` and `ea3c4b6f…` (non-blocking; one commit, with L1-F2 or sooner)
 
@@ -118,7 +121,7 @@ This instruction was acted on from the day it was given but had not been written
 | L-1, suspended sign-in correction | **CLOSED. Sharon PASS** (12 Nov). Residual L1-R2 goes with L1-F2 | `916d12c01345816afcf567b40131e72b9857cf65` |
 | F-1, C1w correction pass | **CLOSED. Sharon PASS** (12 Nov). Remaining with Daisy, not a gate: the learner's disclosure and any wording for an absent explanation | `bc67f72a0e1c6bc39a2c16292f728080b12710d4` |
 | L1-F2, a suspension covers accounts created after it (with L1-R2) | **BLOCKED by Sharon on one item: a lock-order cycle between the permit issuers and the suspending act.** CI and journeys green but cannot show it. Fix with Second Eye; Sharon reviews the delta | `e27f4a77a10c7c448170bb2851462e4561daadf7` |
-| L1-F4, an anonymised person is terminal | **Daisy PASS.** CI and journeys green. **Not accepted: Sharon's interim review requires one change** (how history is told from a live attachment), built with the two-connection race test in the L1-F2 commit set; then her result review | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` |
+| L1-F4, an anonymised person is terminal | **Required change pushed, with the race test.** CI `43262235163` and journeys `43262243374` in progress at 17:02 UTC (on `55fb9b9b93d75c0d683f8be543f30436246c3be2`). **Waiting on Sharon's result review**, including L1F4-A1 | `3a63a2b2158ea4834c1f12653c864baf157c0dd5` |
 | F1-R1b, a key correction clears stale explanations | **CLOSED.** Sharon PASS, Daisy PASS, CI `43189210169` and journeys `43189229437` green; page evidence filled. Register: F1R1B-R1, F1R1B-R2 | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` |
 | S-1, phone drawer overflow | **Pushed.** Covered by the CI and journeys of the F-1 fix commit above it. Daisy verifies it with B2, at phone widths **and at the desktop sidebar**, because one rule hides a nav item at every width | `61a6dd3b19761dfc91e11ac4f9e0295b64a32c6e` |
 | B2 | **Sharon PASS. CI `43226752867` and journeys `43226758051` green. Waiting only on Daisy's visit.** Register: B2-R-S1, B2-R-A1 | `bfe949b11935763a8c8ed7b91f4adcdbcea93645` |
@@ -286,3 +289,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (14:18 UTC) | B2: both runs green on `bfe949b11935763a8c8ed7b91f4adcdbcea93645`; Sharon's PASS confirmed. B2 waits only on Daisy's visit |
 | 12 Nov 2026 (15:36 UTC) | L1-F2 with L1-R2 pushed at `e27f4a77a10c7c448170bb2851462e4561daadf7` and read: no blocker; with Sharon. F1-R1b CLOSED (page item confirmed). B2 still waits only on Daisy's visit. L1-F4's change is next for Second Eye |
 | 12 Nov 2026 (16:37 UTC) | Sharon BLOCKED L1-F2 at `e27f4a77a10c7c448170bb2851462e4561daadf7` on a lock-order cycle (issuer: account then person; suspension: person then account). Second Eye: fix first, per her file, plus the list of paths asked for in `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0 item 9. B2 still waits only on Daisy |
+| 12 Nov 2026 (17:02 UTC) | Three commits pushed, top `55fb9b9b93d75c0d683f8be543f30436246c3be2`: L1-F4's required change (`3a63a2b2158ea4834c1f12653c864baf157c0dd5`), Daisy's F1-R1b items (`04f689483732d7da8eae6076da842d643a157cd1`), pages (inventory, A2a page, evidence). Read; one question to Sharon (L1F4-A1). L1-F2's fix is built locally and found further cycles; not yet pushed |
