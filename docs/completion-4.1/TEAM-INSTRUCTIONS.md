@@ -42,7 +42,7 @@ channel:
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
-### Review queue (as of 21:53 UTC, 12 Nov; updated at each check)
+### Review queue (as of 21:56 UTC, 12 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
@@ -56,14 +56,14 @@ channel:
 | ~~**Daisy**~~ | ~~**F1-R1b's** screens~~ **Done: PASS** on `97a40ebb…`, 12 Nov | — | her record at `a13f30ff4fe0bd53727d7af219068d35d0b1b0ae` |
 | ~~**Daisy**~~ | ~~**L1-F4** wording~~ **Done: PASS** on `ea3c4b6f…`, 12 Nov | — | same record, §2 |
 | ~~**Daisy**~~ | ~~B2, one visit~~ **Done: BLOCKED on one item** (the completeness notice's layout) at `bfe949b11935763a8c8ed7b91f4adcdbcea93645`; all else passes, S-1 included. Next: one screenshot of the fix | fix commit, when pushed | her record at `42683a7134a83feaeed389906512ba895e9f2fe9` |
-| **Daisy** | **B2's fix: one look, no visit.** The notice at 320 and 1280 px, and your B2-R-A1 line as built. PASS or BLOCKED closes B2 | `546d9eb75abb53d41523750e7134cc83889d1089` (screenshots in `docs/completion-4.1/batches/b2-fix/` on the work branch) | `B2-ARCHITECT-NOTES.md` §0 item 8 |
+| ~~**Daisy**~~ | ~~B2's fix: one look~~ **Done: PASS** on `546d9eb75abb53d41523750e7134cc83889d1089` | — | her record at `9f984fa42c3804db8fc7b92006fd7149c35e411f` |
 | ~~**Second Eye**~~ | ~~B2's fix~~ **Pushed** at `546d9eb75abb53d41523750e7134cc83889d1089` | — | — |
 | ~~**Sharon**~~ | ~~B2's fix: the delta~~ **Done: PASS** | — | her record on `claude/gracious-lamport-0m1qjr` at `75b8cc6e0deb267a4f5af96f3be58fcabe40f215` |
 | ~~**Second Eye**~~ | ~~F1-R1b page item~~ **Done** in `e27f4a77a10c7c448170bb2851462e4561daadf7`, confirmed from its diff | — | — |
 | ~~**Second Eye**~~ | ~~L1-F4 required change~~ **Pushed** at `3a63a2b2158ea4834c1f12653c864baf157c0dd5` | — | — |
 | ~~**Sharon**~~ | ~~L1-F2's fix: the delta~~ **Done: PASS** on `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`; the foreign-key point answered (none reachable) | — | her record on `claude/gracious-lamport-0m1qjr` at `156382f908a70618f6c899aca0ffa3a42bf1a315` |
 | ~~**Second Eye**~~ | ~~L1-F2's blocker~~ **Fix pushed** at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` | — | — |
-| **Sharon** | A2a's page with your four changes: confirm they are carried (page only; **A2a is not built**) | `3c46d521a27ae87627d590363b973f5dd7c7c7a3` | `batches/A2A-COMPLETION.md` on the work branch; your `A2A-PREBUILD-55fb9b9b….md` |
+| ~~**Sharon**~~ | ~~A2a's page with her four changes~~ **Done: carried** at `3c46d521a27ae87627d590363b973f5dd7c7c7a3`. **A2a is not built** | — | her branch at `3ad40227b14aee30d8513c5627b7b56c1da0cf79` |
 | **Second Eye** | **One item:** L1-F4's refusal line. Your draft is in; Daisy's line has been final since 17:13 UTC. Put her ID and EN words in exactly, one small commit. **Then stop: the next batch is A2a, held for the owner** | — | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 11 |
 
 ### For Second Eye, from Daisy's review of `97a40ebb…` and `ea3c4b6f…` (non-blocking; one commit, with L1-F2 or sooner)
@@ -129,7 +129,7 @@ This instruction was acted on from the day it was given but had not been written
 | L1-F4, an anonymised person is terminal | **ACCEPTED.** Sharon PASS; both race tests pass; runs green on `b24d73ffd0e84b139a02fe26f52fa21c52a94a25`. Closes when the refusal line carries Daisy's exact words (wording only) | `7e42db9690486e82aab45dcdc4fc1ea5ebb68945` |
 | F1-R1b, a key correction clears stale explanations | **CLOSED.** Sharon PASS, Daisy PASS, CI `43189210169` and journeys `43189229437` green; page evidence filled. Register: F1R1B-R1, F1R1B-R2 | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` |
 | S-1, phone drawer overflow | **CLOSED. Daisy PASS** on `bfe949b11935763a8c8ed7b91f4adcdbcea93645` (drawer at 390 and 320 px; desktop sidebar at 1280 and 1100 px) | `61a6dd3b19761dfc91e11ac4f9e0295b64a32c6e` |
-| B2 | **Fix pushed; Sharon PASS on the delta; runs green on `b24d73ffd0e84b139a02fe26f52fa21c52a94a25`. Waiting only on Daisy's look at the fix** | `546d9eb75abb53d41523750e7134cc83889d1089` (on `bfe949b11935763a8c8ed7b91f4adcdbcea93645`) |
+| B2 | **CLOSED.** Sharon PASS, Daisy PASS, runs green. Register: B2-R-S1 | `546d9eb75abb53d41523750e7134cc83889d1089` (on `bfe949b11935763a8c8ed7b91f4adcdbcea93645`) |
 
 Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `docs/completion-4.1/`.
 
@@ -302,3 +302,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (19:43 UTC) | Sharon PASS on L1-F2's fix (`9db58dd51aa4f785741bbb2e9fa33c76312b57d5`). Journeys job B failed on the runner before the database started; log read; re-run of the failed job queued by the Chief Architect (same commit, once). No new work-branch commit: B2's fix and L1-F4's fix still owed by Second Eye |
 | 12 Nov 2026 (20:30 UTC) | Work branch at `b24d73ffd0e84b139a02fe26f52fa21c52a94a25`: B2's fix (`546d9eb75abb53d41523750e7134cc83889d1089`), L1-F4's fix (`7e42db9690486e82aab45dcdc4fc1ea5ebb68945`), the runner port fix. CI `43293048714` and journeys `43293054174`, both green on `b24d73ffd0e84b139a02fe26f52fa21c52a94a25`. Sharon PASS on both deltas. **L1-F2 CLOSED. L1-F4 ACCEPTED** (one wording item). B2 waits only on Daisy. Second Eye: Daisy's exact refusal line; A2a's page changes |
 | 12 Nov 2026 (21:53 UTC) | A2a's page pushed at `3c46d521a27ae87627d590363b973f5dd7c7c7a3` (page only; not built), for Sharon. Second Eye's only remaining item: Daisy's exact refusal line for L1-F4 |
+| 12 Nov 2026 (21:56 UTC) | **B2 CLOSED** (Daisy PASS on `546d9eb75abb53d41523750e7134cc83889d1089`). A2a's page carries Sharon's four changes; not built. Head `3c46d521a27ae87627d590363b973f5dd7c7c7a3`: CI `43308672713`, journeys `43308678595` green. All nine boundary rows read Yes; the proposal for the owner is in `STATUS-2026-11-12.md`. One item left: Daisy's exact refusal line for L1-F4 (Second Eye) |

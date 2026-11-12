@@ -56,8 +56,19 @@
    - **Chief Architect's read:** the wrapper is one `<span>`; the new answer `CETAK_KONTEKS_LAIN` is returned only
      when the report's school is among the person's own contexts (`tempatSaya()`); every other case keeps the
      general refusal. Boundary check met.
-   - **Only Daisy's screenshot check remains.** The three screenshots are in the work branch at
+   - ~~Only Daisy's screenshot check remains.~~ The three screenshots are in the work branch at
      `docs/completion-4.1/batches/b2-fix/` (`notice-320-before.png`, `notice-320.png`, `notice-1280.png`).
+9. **B2 IS CLOSED (21:56 UTC, 12 Nov 2026).**
+   - **Sharon: PASS** on `bfe949b11935763a8c8ed7b91f4adcdbcea93645` and on the fix `546d9eb75abb53d41523750e7134cc83889d1089`.
+   - **Daisy: PASS** on `546d9eb75abb53d41523750e7134cc83889d1089` (her `TINJAUAN-B2-546d9eb7.md`, `ux-1/daisy-experience`
+     at `9f984fa42c3804db8fc7b92006fd7149c35e411f`); her BLOCKED on `bfe949b1…` is marked superseded in place.
+   - **Runs:** CI `43293048714` and journeys `43293054174` green on `b24d73ffd0e84b139a02fe26f52fa21c52a94a25`, and
+     CI `43308672713` and journeys `43308678595` green on the head `3c46d521a27ae87627d590363b973f5dd7c7c7a3`.
+   - **Boundary check:** met.
+   - **Register (before Z):** B2-R-S1 (Sharon). B2-R-A1 is done. Daisy's suggestion of a rendered check for the
+     notice **already exists**: journey step B2N renders the page at 320 and 1280 px and asserts no sideways scroll
+     and a link with width; nothing further is owed for it.
+   - With B2 closed, B1-R1 to B1-R5 and S-1 are closed too.
 
 ## 1 · A learner's own-results print (04:05 UTC, 12 Nov 2026)
 
