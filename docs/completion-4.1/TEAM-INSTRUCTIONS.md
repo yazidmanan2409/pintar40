@@ -45,9 +45,9 @@ This instruction was acted on from the day it was given but had not been written
 | F-1, C1w correction pass | **CLOSED. Sharon PASS** (12 Nov). Remaining with Daisy, not a gate: the learner's disclosure and any wording for an absent explanation | `bc67f72a0e1c6bc39a2c16292f728080b12710d4` |
 | L1-F2, a suspension covers accounts created after it | Design PASS. **Unblocked** (the L-1 fix has passed). Own commit; before Z. Also takes L1-R2 (delete outstanding password-write permits at locking) and builds the two-connection race setup that L1-F4 needs | brief: `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0, §2a |
 | L1-F4, an anonymised person is terminal | **Pushed and green:** CI `43168308089` and journeys `43168311621` success, first attempt. **Not accepted until its two-connection race test passes** (with L1-F2). Then Sharon's result review | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` |
-| F1-R1b, a key correction clears stale explanations | Built, with the INV-03 amendment and ADR-0025; **local, in full pre-flight, not pushed** (engineer's report). Then Sharon's and Daisy's result reviews | local `09bcc5ef17af2b7951b84053327605e21a1dae47` |
+| F1-R1b, a key correction clears stale explanations | **Pushed; CI `43189210169` success; journeys `43189229437` running.** With Sharon and Daisy for result reviews. Includes the INV-03 amendment and ADR-0025 | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` |
 | S-1, phone drawer overflow | **Pushed.** Covered by the CI and journeys of the F-1 fix commit above it. Daisy verifies it with B2, at phone widths **and at the desktop sidebar**, because one rule hides a nav item at every width | `61a6dd3b19761dfc91e11ac4f9e0295b64a32c6e` |
-| B2 | **OPEN FOR BUILD.** Carries Sharon's five changes (`B2-ARCHITECT-NOTES.md` §3) and Daisy's wording (§4) | page at `b21bec621a449e8d4d90ed646f7fb09c15dfc6f9` |
+| B2 | **Built; local, in full pre-flight, not pushed** (engineer's report). Then Sharon's result review and Daisy's one visit (with S-1) | local `9fe1bb44a77f5b0bdcfc8df83eb91a80993c01ba` |
 
 Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `docs/completion-4.1/`.
 
@@ -202,3 +202,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (08:06 UTC) | Owner approved the substance of the decisions recorded as the instruction of 11 Nov, without verifying the quotations word for word. Noted on the three passages that quote the owner |
 | 12 Nov 2026 (08:21 UTC) | **Correction:** L1-R2 is not the delete alone. Second Eye: build it to `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §2b (the delete; `for update` on the person's accounts in `akun_kunci`; `for share` on the account row first in both permit functions; three tests; two plants). The earlier line of today, that Sharon's one sentence was the design, is superseded |
 | 12 Nov 2026 (08:23 UTC) | Second Eye: L1-R2's delete covers `RECOVERY` and `ACTIVATION` permits only, not `CARD_REISSUE` (`SUSPENSION-COVERS-NEW-ACCOUNTS.md` §2b, "SETTLED"). Card reissue for a locked learner is intended: write it on the page with its one test |
+| 12 Nov 2026 (09:53 UTC) | F1-R1b pushed and read (`C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §3f). B2 built locally. For B2's reviews: the time zone on a learner's own-results print (`B2-ARCHITECT-NOTES.md` log) |

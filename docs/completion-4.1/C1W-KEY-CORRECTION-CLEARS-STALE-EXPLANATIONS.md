@@ -29,8 +29,10 @@
    revision still require complete rationales.
 10. **Sharon: PASS on the amended design** (read at `bf91ead92b3924f4e6d3aa7c688ab1a9978a29f8`), with required
     points per item (§3d). They govern where §3c differs.
-11. State: **released to the engineer**, after F-1's fix, as its own commit, before Z. It gates nothing. Daisy's
-    wording is needed for three lines (§6).
+11. **State: built and pushed at `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b`.** Local pre-flight (engineer's report):
+    1110 passed, 168 of 168 planted defects, 11 of 11 red-case groups. CI run `43189210169`: success. Journeys run
+    `43189229437`: running when this was written. **With Sharon and Daisy for their result reviews.** The Chief
+    Architect's read is §3f. *(The earlier state, "released to the engineer", is superseded.)*
 12. **The repository is the baseline of record (ADR-0019, verified; §3e).** INV-03 is amended **in the repository**
     by Sharon's procedure. Any external Project copy is a downstream synchronization target, not an authority. No
     open decision remains on this correction.
@@ -317,6 +319,24 @@ amendment, and is the owner's to do or to assign; it is not part of this correct
 note first in document 03, the INV-03 row, the manifest entry, and a new ADR recording the owner's A1 decision. The
 ADR takes the next free number after 0024 at the time of the commit.
 
+## 3f · Chief Architect's read of the candidate (12 Nov 2026, 09:53 UTC)
+
+Read-only, of `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` (one migration, `M/20270117140000…`; the invariants
+document, its manifest entry and ADR-0025; screens; tests and four plants).
+
+| Required (§3d) | As built | Standing |
+|---|---|---|
+| The column and the one CHECK | `rationale_withdrawn_by` references `key_corrections` with `on delete restrict`; the CHECK admits a non-empty rationale with no reference, or a null rationale with one | Met |
+| A trigger that admits the reference only from the confirming act or a verified copy, and clears it when a rationale is written | `alasan_ditarik_jaga`, before insert or update: refuses an insert carrying both; clears the reference when a rationale arrives on update; otherwise requires the confirming act's marker naming that correction, or a source option (the superseded question's option with the same label) holding the same reference | Met as read; Sharon verifies |
+| The withdrawn text on the correction's record | `key_corrections.penjelasan_dihapus`, added to the record's write-once fields | Met |
+| Written while the copy is a draft, with the key | In `tegaskan_koreksi_kunci`, in the statement that writes `is_correct` | Met |
+| A later revision refused until rewritten | **Found by the engineer:** nothing enforced it as the design assumed. A trigger on the question's status, `penjelasan_terutang_jaga`, now applies the existing "rationale missing" rule when a question moves on, with the confirming act exempt. Put to Sharon for the placement | Met, by a correction of the design's assumption |
+| The baseline amendment | The dated note is **first** in `docs/rebuild/03-PINTAR-INVARIANTS.md`, above the September note; the INV-03 row carries the owner's wording; the manifest entry has the new digest, size and date. **Checked independently:** the file's SHA-256 and byte count at this commit equal the manifest's (`c57f9870…`, 21,013 bytes). ADR-0025 is in the same commit | Met |
+| "Any", not "all", for the marker | Test F13-K24 with two worlds, and plant bob04-20 that flips the meaning | Met |
+| A zero never stands in for a missing figure | The engineer's first version broke an existing test of that rule; the code was corrected, the test left as it was | Met |
+
+**Nothing in this read stands in the way of the two reviews.**
+
 ## 4 · The four questions
 
 | Question | To answer on the page |
@@ -399,3 +419,4 @@ renamed, but no screen string uses the word.
 | 12 Nov 2026 (05:54 UTC) | Sharon: PASS on the amended design (§3d): the CHECK and a trigger that admits the reference only from the confirming act or a verified copy; the digest unchanged; the baseline amendment procedure with the marker first, the manifest and an ADR in the same commit. Released to the engineer. One question to the owner: an authoritative baseline outside the repository |
 | 12 Nov 2026 (05:56 UTC) | Owner: the repository is the single authoritative baseline (ADR-0019). Verified against the ADR, later ADRs, the decisions record and the parity script (§3e). No conflicting ruling found. The amendment proceeds in the repository |
 | 12 Nov 2026 (07:29 UTC) | Daisy's wording and the two distinct terms recorded (§6a). The learner's result shows nothing in place of a withdrawn explanation |
+| 12 Nov 2026 (09:53 UTC) | Candidate pushed: `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b`. Read by the Chief Architect (§3f); the manifest digest verified independently. With Sharon and Daisy |
