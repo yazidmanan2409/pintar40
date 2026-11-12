@@ -2,7 +2,7 @@
 
 > **What holds now:**
 > - **PASS on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`, for both F-1 and L-1.** Every item is accepted, with no change asked.
-> - **F1-R1 is established in §3, with no fix proposed.** It also adds a second contradiction of the same kind: the misconception named on the option that is now the key.
+> - **F1-R1 is established in §3, with no fix proposed.** *(12 Nov: §3's claim about the learner's result is corrected in place; see `TINJAUAN-F1R1B-97a40ebb.md`.)* It also adds a second contradiction of the same kind: the misconception named on the option that is now the key.
 > - L-1's grant fix (`916d12c01345816afcf567b40131e72b9857cf65`, now the branch head) is **not** part of this review.
 
 **Instructions:**
@@ -65,7 +65,7 @@
 
 | Screen | Shows a rationale? | What the corrected question shows |
 |---|---|---|
-| **The learner's player, result and reading map** (`/belajar/…`) | **No.** By design the player's payload holds no key, correctness or rationale (`ItemPlayer.tsx`), and Pemetaan Awal shows none | Nothing to contradict |
+| **The learner's player, result and reading map** (`/belajar/…`) | ~~**No.**~~ **Corrected 12 Nov** (`TINJAUAN-F1R1B-97a40ebb.md`): the Uji Penguasaan result (`/belajar/{tugas}/hasil`) **does** show each reviewed question's explanation. The player and the reading map do not. Original text: By design the player's payload holds no key, correctness or rationale (`ItemPlayer.tsx`), and Pemetaan Awal shows none | Nothing to contradict |
 | **The teacher's per-question evidence** (`/mengajar/{kelas}/soal`) | **No.** `teacher_question_evidence` returns label, body, `is_key` and `was_key`, with no rationale | Nothing to contradict |
 | **Studio, the corrected revision's package view** (`/studio/paket/{corrected course}`), seen by authors and the school's admins | **Yes**, each option's «Alasan» beside the «Kunci» mark | **The contradiction is here.** **B** carries «✓ Kunci» and «Alasan: Ini belum tepat.»; A carries «Alasan: Ini tepat.» **And a second one:** B, now the key, still names «Pemahaman keliru: Keliru B …», a misconception on the right answer (`F1R1-studio-koreksi.png`) |
 | Studio, the original revision | Yes | Consistent: A is «Kunci» with «Ini tepat.» (`F1R1-studio-asli.png`) |
@@ -76,7 +76,7 @@
 - **A** is `is_correct = false`, with «Ini tepat.».
 
 **So, at this commit:**
-- **No learner and no teacher reading a sitting meets the contradiction.** F-1's screens are clean.
+- ~~**No learner and no teacher reading a sitting meets the contradiction.**~~ *Corrected 12 Nov: the learner's result does show explanations; see `TINJAUAN-F1R1B-97a40ebb.md` §1b.* F-1's screens are clean.
 - **It lives in Studio, on the corrected revision.**
 - **It may also be served by any later surface that shows authored rationales or misconception labels beside the key.** Studio's preview, the bank and the canonical view read the same fields; I did not open each.
 - **The one moment a person could catch it, the confirmation, doesn't show it.**

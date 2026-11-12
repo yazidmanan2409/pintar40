@@ -11,6 +11,7 @@
 >   - A2a must not ship a person-level class-scoped planned window.
 >   - §2a's wording is the UX direction, subject to review on A2b's page.
 >   - **§2b (if per person were kept) is superseded** by this ruling.
+> - **12 Nov:** the English «misconception» in my F1-R1b lines is **superseded** by «misunderstanding» (`TINJAUAN-F1R1B-97a40ebb.md` §1c).
 > - Not a review visit.
 
 **Source:** `PLAN-REASSESSMENT-2026-11-12.md` §3, I-6 and I-7, on `claude/bob-41-master-plan` at `c95501c416715ae2ec7fc28a711f3deb1c860bc3`. Also:
