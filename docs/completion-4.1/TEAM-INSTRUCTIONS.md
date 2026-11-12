@@ -78,6 +78,7 @@ Her record: `ux-1/daisy-experience` at `a13f30ff4fe0bd53727d7af219068d35d0b1b0ae
 | X-1 | A refusal inside Studio renders two `<main id="isi">` (two main landmarks, a duplicated skip-link target) | Accessibility; small; before Z, Daisy verifies |
 | X-2 | After a key correction moves a class's assignment, a learner opening an earlier `/belajar/{id}/…` link gets the generic error page | **A consequence of C1w's assignment move that nobody followed to the learner.** Before Z, with a designed answer (redirect to the current assignment, or a plain sentence); short design note to Sharon and Daisy first |
 | X-3 | An unknown correction id at `/studio/tinjau/kunci/{id}` shows "not allowed" where it should show "not found" | Minor; before Z |
+| X-4 | A Konfigurasi sub-page shows a shorter navigation than the Konfigurasi index, at every width: the platform admin loses «Keamanan akun», «Kirim email uji» and «Sertifikat sekolah»; a school admin loses «Keamanan akun» and «Sertifikat sekolah». From the sub-page shell that also names the bar «Pendataan». Not S-1 (Daisy, `S1-PRA-97a40ebb.md` at `15e1d39477458a0fe9f5563ede0d397cc1d60b15`) | Fix with the «Pendataan» item in the 4.1 consistency pass (Z); Daisy verifies |
 
 **What may close without the owner:** a correction or a batch closes when its reviewers have passed its exact commit,
 CI and journeys are green on it, and the Chief Architect's boundary check is met. **B2 may close on those terms.**
@@ -277,3 +278,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (10:04 UTC) | Owner away; standing instruction recorded at the top of this file, with the review queue. The repository is the team's channel until the owner returns |
 | 12 Nov 2026 (10:18 UTC) | Check: Daisy passed F1-R1b (`97a40ebb…`) and L1-F4 (`ea3c4b6f…`); journeys green on `97a40ebb…`. Work-branch head unchanged; B2 not yet pushed. No verdict from Sharon is visible on any branch. Queue and register updated |
 | 12 Nov 2026 (10:40 UTC) | Sharon's verdicts are now on `claude/gracious-lamport-0m1qjr` (`1076f121fc5d6f1e2414d190f20cf9b6c1be258f`). F1-R1b: PASS, accepted; one page item for Second Eye; register F1R1B-R1, R2. L1-F4: interim review, one required change for Second Eye, with the race test |
+| 12 Nov 2026 (10:56 UTC) | Daisy's early look at S-1 on `97a40ebb…`: no defect, nothing for Second Eye to change first; her verdict still comes with B2's visit. X-4 registered (shorter navigation on Konfigurasi sub-pages) |
