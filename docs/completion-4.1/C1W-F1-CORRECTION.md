@@ -24,6 +24,12 @@
      flag (sealed) for a corrected item says «kunci diperbaiki», so the flag is not read as the key in force.
    - **Row 5b for the owner, with the 4.5 item-statistics work:** whether distractor uptake's key flag should itself
      move is a catalogue question.
+5a. **Daisy: PASS on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` for the teacher's screen and for her L-1
+   confirmation** (record: `ux-1/daisy-experience` at `34004af2f22055420b4c3b9f0473aae2dd986674`). **One statement
+   in her review is contradicted by the code and is not relied on:** that no screen tied to a sitting shows a
+   rationale (§9d). Sharon's blocker stands.
+5b. **F1-R1 has a second, larger part (§9d): the corrected revision itself carries stale authored text,** which
+   future learners will meet. It is outside F-1 and is **put to the owner.**
 6. **Next:** the fix is a new commit; Sharon rechecks that alone. Daisy's F-1 visit continues on
    `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` for the teacher's screen, and she reviews the learner's review on the
    fix commit if its screen or wording changes.
@@ -265,6 +271,57 @@ defects; 11 of 11 groups; CI run `43142431230` success on the first attempt; jou
 classification is the better one: the contradiction is produced by what a reader chooses to serve, so it is F-1's
 own defect and its fix belongs here.
 
+## 9d · Daisy's review, and what it establishes about F1-R1 (12 Nov 2026)
+
+**Accepted, all at 1280, 390 and 320 px with axe clean:** «Kunci» marks the key in force and the counts follow it;
+the new line sits below the options and reads «… kunci aslinya A.», and a teacher cannot mistake the two keys;
+uncorrected questions are unchanged; the class figure and reading map are unchanged in form and corrected.
+
+**Her L-1 confirmation: accepted.** Suspended (right or wrong password), closed, unknown and active-with-wrong-
+password all get the same 401 and wording; activation code, recovery code and recovery PIN answer identically across
+the cases; the record's rows read as ordinary mistakes for both admins; reinstatement works; a real outage is still
+503. Not done locally, by her statement: the card door, recovery with the right PIN, and AUTH-A01's setup; she relies
+on CI for those.
+
+**One statement not relied on.** Her review says learners never see a rationale beside a mark. The learner's result
+page does show one: `src/app/belajar/[tugas]/hasil/page.tsx` renders `r.alasan` from `session_review` inside each
+question's collapsed disclosure (the `pin-why` line), read by the Chief Architect in the 4.0 code. It is easy to
+miss because the disclosure is closed unless a safety-critical question was missed. **Sharon's blocker is therefore
+confirmed in the screen as well as in the function.** Daisy is asked to open that disclosure for a corrected sitting
+when she looks at the fix (THE PLAN's rendered check already says "every disclosure opened").
+
+**What she found in Studio is the larger matter.** On the **corrected revision** of the question:
+
+- the option that is now the key (B) carries «Kunci» and, beside it, «Alasan: Ini belum tepat.»; the option that
+  was the key (A) carries «Ini tepat.»;
+- B, now the key, still names a misconception («Pemahaman keliru: …»);
+- the screen on which the second person confirms the correction shows no rationales, so nobody sees what the
+  correction will leave contradictory.
+
+**Why this is larger than the blocker (Chief Architect).** Sharon's fix removes the stale rationale from the review
+of a sitting that was corrected **after it was sat**, by comparing the key in force with the sealed option. On the
+corrected revision the sealed option *is* the new key, so that comparison finds nothing, and the stale text stays.
+Assignments are moved to the corrected revision, so **every learner who sits the question from then on** can be
+shown "right" beside «Ini belum tepat», or "not yet" beside «Ini tepat», in their own result. The wrong-key
+correction fixes the mark and leaves the explanation wrong for everyone afterwards. The same holds for the
+misconception: a learner who now picks the old key (wrong) is told nothing, and the new key carries a misconception
+that no longer describes an error.
+
+This is in C1w's approved correction flow, not in a reader, so it is **not** part of F-1 and is the owner's to
+decide.
+
+**Options.**
+
+| Option | What happens at a key correction | Consequence |
+|---|---|---|
+| **A (recommended as the minimum)** | On the corrected revision, the rationale and the misconception code are **cleared** on every option whose correctness changed. The confirmation screen says which options lose their text. The revision is marked in Studio as needing its explanations written | No learner is ever shown an explanation that contradicts their mark. An absent explanation is honest; a wrong one is not. The educator writes new text through the ordinary revision path. Small, mechanical, and it preserves the two-person rule unchanged |
+| B | The person proposing the correction must supply the new rationale and misconception for each affected option, and the second person confirms them with the key | The corrected revision is complete at once. But it enlarges the correction act, slows an urgent fix of a wrong key, and changes C1w's approved two-step flow more deeply |
+| C | Leave as is | Learners after the correction are shown contradictory explanations indefinitely |
+
+**Recommendation:** A now, as a small C1w correction before Z, with Sharon's and Daisy's review; B can be considered
+later as an improvement on top of A. Sealed history is untouched in every option: the original revision keeps its
+text as it was sat.
+
 ## 10 · Log
 
 | Date | Entry |
@@ -278,3 +335,4 @@ own defect and its fix belongs here.
 | 12 Nov 2026 | Sharon: BLOCKED on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` for `session_review`'s rationale only; requirements 1 to 5 verified; accessor, D-060 (rows 1 and 5a) and row 5b accepted. §0 added. Register F1-R2 opened |
 
 > **Correction to this log (12 Nov 2026, 03:45 UTC, read from the clock).** Entries dated 12 Nov after 01:45 UTC carried times that were estimated, not read from a clock, and several were later than the actual time. Those times have been removed. The order of the entries is correct.
+| 12 Nov 2026 (about 04:00 UTC) | Daisy: PASS on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` for the teacher's screen and her L-1 confirmation. Her statement that no sitting screen shows a rationale is contradicted by the learner's result page (§9d). Her Studio finding raised to the owner as the second part of F1-R1 |
