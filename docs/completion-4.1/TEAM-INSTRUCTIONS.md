@@ -12,13 +12,13 @@
 | Item | State | Commit |
 |---|---|---|
 | B1 | **Closed.** Sharon PASS, Daisy PASS, CI `43110782265` and journeys `43110786290` green | `1fc719b5127313bf24084695fa30d7505e15b5d1` |
-| L-1, suspended sign-in correction | **Fix pushed; CI `43148422727` and journeys `43148426130` running.** Sharon rechecks the grant item alone on this commit when both are green | `916d12c01345816afcf567b40131e72b9857cf65` |
-| F-1, C1w correction pass | **BLOCKED by Sharon on one reader** (`session_review` serves the sealed rationale beside the in-force mark). Fix as a new commit; she rechecks that alone. Daisy's visit continues. Daisy's visit also covers her L-1 confirmation | `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` |
+| L-1, suspended sign-in correction | **Fix green: CI `43148422727` and journeys `43148426130` success.** For Sharon's recheck of the grant item alone | `916d12c01345816afcf567b40131e72b9857cf65` |
+| F-1, C1w correction pass | **Fix pushed** (`session_review` returns no rationale where the mark changed). Journeys `43158756250` success; CI `43158752665` on its second attempt, running at 05:44 UTC. For Sharon's recheck of that reader alone when CI is green; Daisy opens the learner's disclosure | `bc67f72a0e1c6bc39a2c16292f728080b12710d4` |
 | L1-F2, a suspension covers accounts created after it | Design PASS (Sharon), three required points. **Released to build** after the L-1 fix closes; own commit; before Z; holds nothing | brief: `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0, §2a |
 | L1-F4, an anonymised person is terminal | Design PASS (Sharon), four required points. **Released to build**; own commit; before Z; holds nothing. No open decision | brief: `ANONYMISED-PERSON-IS-TERMINAL.md` §0, §3a |
 | F1-R1b, a key correction clears stale explanations | Design PASS (Sharon), three required points. **Released to build**, after F-1's fix; own commit; before Z; holds nothing. Needs Daisy's wording for three lines | brief: `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §0, §3a |
-| S-1, phone drawer overflow | Approved, bounded; before B2's review | — |
-| B2 | Opens when L-1 and F-1 both have Sharon's PASS | — |
+| S-1, phone drawer overflow | **Pushed.** Covered by the CI and journeys of the F-1 fix commit above it. Daisy verifies it with B2, at phone widths **and at the desktop sidebar**, because one rule hides a nav item at every width | `61a6dd3b19761dfc91e11ac4f9e0295b64a32c6e` |
+| B2 | **Completion page pushed, for Sharon's pre-build review.** Build opens when she has passed the L-1 fix, the F-1 fix and the page | page at `ca056423de67197b6b8ee9880085b2cb92661d00` |
 
 Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `docs/completion-4.1/`.
 
@@ -137,3 +137,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 > **Correction to this log (12 Nov 2026, 03:45 UTC, read from the clock).** Entries dated 12 Nov after 01:45 UTC carried times that were estimated, not read from a clock, and several were later than the actual time. Those times have been removed. The order of the entries is correct.
 | 12 Nov 2026 (03:50 UTC) | Sharon: pre-implementation review of `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §2 and §3 (row 1 is the owner's question). Daisy: the wording of its §6; and, for F-1's fix, open the per-question disclosure on the learner's result for a corrected sitting. Second Eye: nothing to build for it yet |
 | 12 Nov 2026 (03:53 UTC) | Second Eye: F1-R1b released, `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §0 and §3a; after F-1's fix. Daisy: its §6, where line 3 is now required: "no recorded misconception" wherever a misconception figure or list is empty or thin, and the marker's wording |
+| 12 Nov 2026 (05:44 UTC) | State table brought up to date from the work branch (head `bc67f72a0e1c6bc39a2c16292f728080b12710d4`). Second Eye: CI needed a second attempt on two commits today; if the cause is again the runner failing to start its database, say so, and treat a third as a defect of the workflow to fix at its cause, not to re-run |
