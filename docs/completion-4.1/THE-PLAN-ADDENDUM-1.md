@@ -236,6 +236,44 @@ with person-level consequences; if it cannot be enforced correctly yet, that spe
 A2b. This confirms the A2a row above. *The question of school-scoped planned windows (option A or B) has not been
 answered and remains with the owner.*
 
+**Sharon's answer to the eight operations (12 Nov; read at `e7723882e73079632442fb5d1e62d140da10eabf`, against the
+code at `b21bec621a449e8d4d90ed646f7fb09c15dfc6f9`). The engineer's inventory confirms or corrects it before A2b is
+built.**
+
+**All eight can be scoped safely; none goes to the owner as "cannot be safely scoped".** The principle: for a
+work-scoped window the refusal moves from the request (the person) to **the writers of that work** (the object),
+enforced by table triggers that ask one place-level question, so that no write path to the class's work is left
+unguarded. EMERGENCY is untouched: person-level in the hook, with D6 in full.
+
+**The one shared piece:** `maintenance_affects_place(node, at)`: true when an active (or, for starts, approaching)
+PLANNED window scopes this node or an ancestor at school or class level. A sitting's place is its class or cohort
+node; an assignment's is its node; lesson progress takes its assignment's.
+
+| # | Operation | Her answer |
+|---|---|---|
+| 1 | The request-level block | **Scoped, by removal.** The hook keeps its person-level refusal only for EMERGENCY at any scope and for PLANNED at platform scope. Class- and school-scoped PLANNED windows are not checked in the hook, because a request does not declare whose work it touches. Reads of the class's pages stay allowed, with Daisy's banner; the page says so |
+| 2 | Starting work | **Scoped.** The sitting-insert trigger (the T−15 block) asks the place question for the new sitting's place, and D4 asks it in the same trigger, so every start path is covered, including any added later. `may_start_assessment` gives the same answer for the screen. Lesson progress on the class's assignments is refused by a trigger asking the same question |
+| 3 | A running sitting | **Not applicable as a block.** Work-scoped windows do not block requests, so a running sitting continues to its deadline plus grace (D5). The per-person drain remains only on the person-level paths of row 1 |
+| 4 | Staff acts on the class's work | **Scoped, each classed on A2b's page.** *Refused* during the window: assigning, changing an assignment's schedule, A1's extend and resume, A1's teacher endings, `akhiri_penugasan`. *Allowed*, because they decide nothing about work in the window: departure and transfer; a key correction's move of assignments (it changes only new starts, which are blocked anyway); certificate acts. Window controllers keep their exemption. **Completeness: the place question joins A2a's D6.2 writer-enumeration test,** so every writer of sittings, assignments or progress is classed as guarded by place or declared allowed |
+| 5 | Cross-context writes | **Scoped by construction.** The guard is per object: a person in 7A acting in 7B or at another school is untouched; a teacher of two classes is refused only on 7A's work |
+| 6 | Background writes | **Unaffected, which is correct for PLANNED windows.** The closer, finalization and the purge make no requests; D5 relies on that. No background job may start new work on the class; there is none, and the enumeration test keeps it so |
+| 7 | The status read and warnings | **Scoped.** The window is returned only to people who have work in that place, naming the class. It must not raise PT503 for these windows, and the client must not send anyone to the pause page for them: the banner only |
+| 8 | School- and platform-scoped PLANNED windows | **School scope: the same, one level up;** it covers that school's work, and a teacher who also works elsewhere is untouched there, which removes the pre-existing defect. **Platform scope: person-level remains correct,** because all work is in scope and the two coincide |
+
+**Between A2a and A2b:** `schedule_maintenance` refuses a class node unless the kind is EMERGENCY. *Test in A2a:*
+that refusal, and an emergency at class scope still accepted and still person-level. School-scoped planned windows
+stay as they are today until A2b.
+
+**Superseded by her:** her condition 2 of §5a ("A2a updates the status read for class scope") now applies to
+class-scoped EMERGENCY windows only.
+
+**Chief Architect's notes.**
+- Her row 8 shows that correcting school scope is the same mechanism and no extra design. It is still a change to
+  existing 4.0 behaviour, and so is still the owner's to confirm (option A or B, above).
+- Row 1 is the one that needs care in the build: a planned class window stops **writes** to the class's work and
+  leaves **reads** open. That is the right reading of "the class's work is under maintenance", and Daisy's banner
+  must make it plain.
+
 ### R-2 · Terminology (owner, 12 Nov 2026: Daisy's I-6 accepted under her existing design authority)
 
 - **C2w's reviewer notes:** «Catatan peninjau» / «Reviewer note».
@@ -273,3 +311,4 @@ deployment or production database change.
 | 12 Nov 2026 (07:32 UTC) | Owner's ruling R-1 recorded (§5d): planned maintenance is work-scoped; emergency containment unchanged; feasibility by Sharon and the engineer before implementation. R-2: Daisy's two terms accepted |
 | 12 Nov 2026 (07:33 UTC) | Sharon: work-level enforcement is sound; A2a carries class scope for the emergency only, class-scoped planned windows arrive in A2b. Pre-existing defect recorded: a school-scoped planned window stops a two-school person at the other school. Reading of R-1 put to the owner |
 | 12 Nov 2026 (07:36 UTC) | Owner agreed the interim safeguard for A2a. The school-scoped question remains open. Owner's rulings on the provider preparation recorded in `C3-EVALUATION-PREPARATION.md` §6a |
+| 12 Nov 2026 (07:37 UTC) | Sharon's answer to the eight operations recorded: all can be scoped safely, by moving the refusal from the request to the writers of the work. The engineer's inventory is still owed before A2b |

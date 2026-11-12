@@ -163,6 +163,30 @@ on PINTAR's behalf.
 see fit. **"A reasonable timeframe" needs a date:** the Chief Architect suggests ten working days from sending, after
 which the evaluation proceeds with the eligible providers, as ruled.
 
+## 6c · Sharon's independent check of the data-handling reading (12 Nov 2026)
+
+**Her conclusion: the reading is sound and correctly graded where she could check it.** She states the same
+limitation as this document: she is also an Anthropic model, so her check is not blind for that provider.
+
+- **Confirmed by her, read directly** (`platform.claude.com/docs/en/manage-claude/api-and-data-retention`, 12 Nov):
+  the 30-day requirement applies to **named Covered Models** (Claude Fable 5.2 and 5.1, Claude Mythos 5.2 and 5.1,
+  Claude Fable 5 and Claude Mythos 5); flagged content may be retained up to 2 years even under zero-retention
+  arrangements; retained data is never used for training without express permission; conversation content is not
+  retained by default.
+- **Correction taken:** where this document says "its highest model requires 30-day retention", read **"the named
+  Covered Models require 30-day retention"**. The requirement is a list of models, not a tier. The mid-tier model the
+  evaluation uses is not on it.
+- **Still unreconciled:** "not retained by default" against "deleted within 30 days". The documentation page points
+  to the commercial data retention policy on `privacy.claude.com` for standard retention outside those arrangements;
+  that host is blocked. The item stays marked unreconciled.
+- **Unchanged:** every grade-B item for OpenAI and the Gemini Developer API stays B; she could not read them either.
+  She agrees with the reading of Google's under-18 clause (grade A, Cloud §20(d)) and with passing it to the owner as
+  contract interpretation.
+- **One addition for C3w's design review, not for the evaluation:** in production an educator's source excerpt could
+  contain a learner's name (a worksheet with names on it), which would be personal data of a minor reaching the
+  provider. C3w's page should keep a rule that excerpts are educator-supplied teaching text and are checked, or the
+  educator warned, for names.
+
 ## 7 · Sources
 
 Official pages, accessed 12 November 2026. Grade A unless marked.
