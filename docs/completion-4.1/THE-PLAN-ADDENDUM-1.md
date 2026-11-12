@@ -214,6 +214,23 @@ the options. The last kind comes to the owner.
   Alasan: {alasan}. Kelas Anda yang lain dapat dipakai seperti biasa.»
 - On another class: nothing.
 
+**Sharon's view (12 Nov, given on the question before she had read this ruling):**
+- **A class-scoped planned window can be enforced soundly on the class's work alone.** Her detailed answer to the
+  eight points, with the engineer's, is still to be written down before A2b is implemented.
+- **A2a builds class scope for EMERGENCY only. Class-scoped PLANNED windows arrive in A2b, under the work-level
+  rule.** This settles the interval question in the A2a row above: it is no longer "if it cannot be kept"; class-scoped
+  planned windows are not offered until A2b. It also refines her condition 2 of §5a: A2a's status read covers
+  class-scoped **emergency** windows; class-scoped planned windows and their warnings are A2b's.
+- **A pre-existing defect she found, outside class scope:** a **school-scoped** planned window already stops a
+  person at two schools from their other school's work. It is 4.0 behaviour, not something 4.1 introduced.
+
+**Put to the owner (12 Nov):** the ruling's first sentence, "PLANNED maintenance is work-scoped, not person-scoped",
+is general, and its example names "classes at another school". The Chief Architect reads it as covering a
+school-scoped planned window too, so that A2b corrects school scope by the same work-level rule. Because that changes
+existing 4.0 behaviour beyond the class scope the question was asked about, the owner is asked to confirm that
+reading, or to accept the current reach of school-scoped windows for now. Until confirmed, A2b's feasibility work
+covers both and builds neither.
+
 ### R-2 · Terminology (owner, 12 Nov 2026: Daisy's I-6 accepted under her existing design authority)
 
 - **C2w's reviewer notes:** «Catatan peninjau» / «Reviewer note».
@@ -249,3 +266,4 @@ deployment or production database change.
 | 12 Nov 2026 (07:29 UTC) | §5c added: the reach of a class-scoped planned window, raised by Daisy; with Sharon for her view before it is put to the owner |
 | 12 Nov 2026 (07:30 UTC) | **Owner approved; effective.** Approved as submitted at `0e3c63e11540a004fbb5183c1486378301e7a9f7`, with five conditions recorded in the header. §5c is outside the approved content |
 | 12 Nov 2026 (07:32 UTC) | Owner's ruling R-1 recorded (§5d): planned maintenance is work-scoped; emergency containment unchanged; feasibility by Sharon and the engineer before implementation. R-2: Daisy's two terms accepted |
+| 12 Nov 2026 (07:33 UTC) | Sharon: work-level enforcement is sound; A2a carries class scope for the emergency only, class-scoped planned windows arrive in A2b. Pre-existing defect recorded: a school-scoped planned window stops a two-school person at the other school. Reading of R-1 put to the owner |
