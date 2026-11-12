@@ -11,6 +11,19 @@
    verification of Addendum 1 §5b's six items on staging, including both triggers on `auth.users`.
 3. **What it does not authorize:** any production action; any staging change beyond the promotion and the checks
    below; A2a's build before the checkpoint passes.
+3a. **The owner's second instruction (12 Nov 2026, recorded 22:06 UTC), in the owner's words:**
+   > You are authorized to prepare and open the staging-checkpoint PR once the final boundary commit, Sharon's
+   > review, pre-flight, CI, journeys, and read-only staging preconditions are complete. You open the PR; I will
+   > review and merge it when you present the final evidence. Keep the PR strictly within the approved boundary. No
+   > unrelated changes, no production action, and no staging mutations before the merge. Sharon must confirm the
+   > scratch-target restore satisfies §5b. If it does not, stop and escalate. A2a remains held until the staging
+   > checkpoint has passed all required verification. Otherwise, continue autonomously. No need to escalate routine
+   > corrections.
+   - **So:** the pull request is explicitly authorized, on those six conditions. **Before the merge, staging is
+     only read.** Every check that acts on staging (the synthetic account, the one job run, the one lock) happens
+     **after** the merge.
+   - **Sharon's confirmation of the scratch-target restore is a condition** (step 3). If she says it does not
+     satisfy §5b: stop and escalate.
 4. **State: preparing.** Nothing has been done on staging. Steps 1 to 3 below are in hand.
 5. **Stop rule (owner):** on any material discrepancy, stop, record it here and in `STATUS-2026-11-12.md`, and hold.
    Nothing is repaired on staging without the owner.
@@ -39,7 +52,7 @@ everything after it is verification.
 |---|---|---|---|
 | 1 | L1-F4's refusal line carries Daisy's exact words (wording only) | Second Eye | Owed |
 | 2 | **Promotion evidence, on the work branch, following the 4.0 pattern** (`docs/completion-4.0/batch-5/`): `ROLLBACK-225-244.sql` for the 20 migrations; `preservation.sql` (read-only; the 4.0 query, extended for what these batches add); a preconditions page naming, for each §5b item, the exact check, the expected result, and whether it only reads or acts on staging | Second Eye | Owed |
-| 3 | Sharon reviews the rollback file, the preservation query and the checks of step 2 | Sharon | After 2 |
+| 3 | Sharon reviews the rollback file, the preservation query and the checks of step 2, **and confirms whether the scratch-target restore satisfies §5b item 5** (owner's condition) | Sharon | After 2 |
 | 4 | **The boundary commit:** the head carrying 1 and 2, with a green pre-flight, CI and journeys on that exact commit | Second Eye; confirmed by the Chief Architect | After 1 to 3 |
 | 5 | Preservation "before" and the migration count on staging (read-only) | Chief Architect | Before the merge |
 | 6 | The pull request into `main`, at the boundary commit, titled as the 4.0 promotions were, stating the commit, the migrations, the rollback file and that nothing touches production | Chief Architect opens it | After 4 and 5 |
@@ -50,9 +63,9 @@ everything after it is verification.
 | 11 | The staging verification report, on the work branch; Sharon's verdict on it; Daisy's look at the promoted screens if a browser can reach staging | Second Eye; Sharon; Daisy | After 10 |
 | 12 | **If every item passes: A2a is released for implementation under its existing gates** (owner's words). Recorded here and in `TEAM-INSTRUCTIONS.md` | Chief Architect | After 11 |
 
-On step 6: the owner's rule is that no pull request is opened without authorization. The authorization above is to
-proceed "under Addendum 1 §5b", which requires the protected process, and that process is a pull request into `main`.
-The Chief Architect therefore opens it, and only it, when steps 1 to 5 are complete. The merge stays the owner's.
+On step 6: **explicitly authorized by the owner (§0 item 3a).** *(Superseded, kept: the Chief Architect's own reading
+that "under Addendum 1 §5b" covered it.)* The Chief Architect opens it, and only it, when steps 1 to 5 are complete,
+and presents the final evidence. The merge stays the owner's.
 
 ## 3 · What is verified on staging (Addendum 1 §5b)
 
@@ -80,3 +93,4 @@ effect on production. Item 1's committing-procedure result, if negative, is not 
 | When (UTC) | What |
 |---|---|
 | 12 Nov 2026, 22:00 | Owner's authorization recorded. Runbook written from Addendum 1 §5b and the 4.0 promotion pattern. Nothing done on staging |
+| 12 Nov 2026, 22:06 | Owner's second instruction recorded: the pull request is explicitly authorized on six conditions; no staging mutation before the merge; Sharon must confirm the scratch-target restore |
