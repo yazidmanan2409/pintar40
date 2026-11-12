@@ -50,7 +50,7 @@ everything after it is verification.
 
 | # | Step | Who | State |
 |---|---|---|---|
-| 1 | L1-F4's refusal line carries Daisy's exact words (wording only) | Second Eye | Owed |
+| 1 | L1-F4's refusal line carries Daisy's exact words (wording only) | Second Eye | **Done** at `049e21ad1875b399a4ed2111897dbda8b14cf1d2` |
 | 2 | **Promotion evidence, on the work branch, following the 4.0 pattern** (`docs/completion-4.0/batch-5/`): `ROLLBACK-225-244.sql` for the 20 migrations; `preservation.sql` (read-only; the 4.0 query, extended for what these batches add); a preconditions page naming, for each §5b item, the exact check, the expected result, and whether it only reads or acts on staging | Second Eye | Owed |
 | 3 | Sharon reviews the rollback file, the preservation query and the checks of step 2. **The scratch-target restore: confirmed by Sharon as satisfying §5b item 5, with four conditions (§3a)** | Sharon | Restore confirmed; the rest after 2 |
 | 4 | **The boundary commit:** the head carrying 1 and 2, with a green pre-flight, CI and journeys on that exact commit | Second Eye; confirmed by the Chief Architect | After 1 to 3 |

@@ -101,6 +101,9 @@
       (above): hers says «tidak dapat dibuka kembali» and ends with the next step, «Bila orang ini ingin memakai
       PINTAR lagi, ia didaftarkan sebagai orang baru.»; the English says "owner's", not "holder's". Put her ID and EN
       lines in word for word, in the next commit. Confirmed from its diff. **The record closes then.**
+    - **CLOSED (23:25 UTC, 12 Nov 2026).** Daisy's ID and EN lines are in word for word at
+      `049e21ad1875b399a4ed2111897dbda8b14cf1d2` (confirmed from its diff; wording only). Its runs come with the
+      boundary commit above it.
     - **Daisy accepted the certificate count and her two L1-F4 lines** as built at
       `3a63a2b2158ea4834c1f12653c864baf157c0dd5` (read, not rendered; her `CEK-F1R1B-04f68948-L1F4-3a63a2b2.md`).
 
