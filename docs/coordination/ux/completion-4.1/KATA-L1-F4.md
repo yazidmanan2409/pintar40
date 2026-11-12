@@ -31,6 +31,8 @@ This is not a review visit.
 
 ## 2 · «Earned but not issued» (§0 item 6, Option A): **draft; I want to see the screen first**
 
+> **Superseded 12 Nov.** The cell line «Memenuhi syarat, tidak diterbitkan: data pribadi sudah dihapus» / «Requirements met; not issued: personal data deleted» replaces this draft (`TINJAUAN-F1R1B-97a40ebb.md` §2.1; built at `3a63a2b2158ea4834c1f12653c864baf157c0dd5`). Kept as a record.
+
 What the reader must understand:
 - the corrected result earns a certificate;
 - PINTAR did not issue one, because the person's personal data has been deleted;
