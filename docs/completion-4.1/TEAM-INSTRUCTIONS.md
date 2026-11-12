@@ -16,6 +16,7 @@
 | F-1, C1w correction pass | **BLOCKED by Sharon on one reader** (`session_review` serves the sealed rationale beside the in-force mark). Fix as a new commit; she rechecks that alone. Daisy's visit continues. Daisy's visit also covers her L-1 confirmation | `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` |
 | L1-F2, a suspension covers accounts created after it | Design PASS (Sharon), three required points. **Released to build** after the L-1 fix closes; own commit; before Z; holds nothing | brief: `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0, §2a |
 | L1-F4, an anonymised person is terminal | Design PASS (Sharon), four required points. **Released to build**; own commit; before Z; holds nothing. No open decision | brief: `ANONYMISED-PERSON-IS-TERMINAL.md` §0, §3a |
+| F1-R1b, a key correction clears stale explanations | Approved by the owner (Option A). **Awaiting Sharon's pre-implementation review and Daisy's wording.** Own commit, after F-1's fix, before Z; holds nothing | brief: `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` |
 | S-1, phone drawer overflow | Approved, bounded; before B2's review | — |
 | B2 | Opens when L-1 and F-1 both have Sharon's PASS | — |
 
@@ -134,3 +135,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 | Second Eye: F-1's one blocker, `C1W-F1-CORRECTION.md` §0 items 1 and 2 (null rationale in `session_review` where correctness changed; three tests and a plant). A new commit, after the L-1 fix or before it as the working tree allows; each is rechecked alone. Daisy: say whether the learner's review should explain the missing rationale, and give the wording if so |
 
 > **Correction to this log (12 Nov 2026, 03:45 UTC, read from the clock).** Entries dated 12 Nov after 01:45 UTC carried times that were estimated, not read from a clock, and several were later than the actual time. Those times have been removed. The order of the entries is correct.
+| 12 Nov 2026 (03:55 UTC) | Sharon: pre-implementation review of `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §2 and §3 (row 1 is the owner's question). Daisy: the wording of its §6; and, for F-1's fix, open the per-question disclosure on the learner's result for a corrected sitting. Second Eye: nothing to build for it yet |

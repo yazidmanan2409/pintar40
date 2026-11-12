@@ -29,7 +29,8 @@
    in her review is contradicted by the code and is not relied on:** that no screen tied to a sitting shows a
    rationale (§9d). Sharon's blocker stands.
 5b. **F1-R1 has a second, larger part (§9d): the corrected revision itself carries stale authored text,** which
-   future learners will meet. It is outside F-1 and is **put to the owner.**
+   future learners will meet. It is outside F-1. **Decided by the owner (Option A); governed by
+   `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md`.**
 6. **Next:** the fix is a new commit; Sharon rechecks that alone. Daisy's F-1 visit continues on
    `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` for the teacher's screen, and she reviews the learner's review on the
    fix commit if its screen or wording changes.
