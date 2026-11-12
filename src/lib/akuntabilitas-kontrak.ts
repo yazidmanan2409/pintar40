@@ -87,4 +87,6 @@ export type PermintaanCetak = { laporan: LaporanCetak; simpul?: string | null };
 /** The action's answer: the reference and the server's name and instant for the footer, or a refusal with no event. */
 export type HasilCetak =
   | { ok: true; ref: string; nama: string; waktu: string }
-  | { ok: false; kode: "CETAK_TIDAK_BOLEH" | "CETAK_GAGAL" };
+  // CETAK_KONTEKS_LAIN (B2-R-A1; Daisy, Bob's condition): refused only for the working context, and the report's school
+  // is one of the person's own contexts; for any other school the answer stays CETAK_TIDAK_BOLEH
+  | { ok: false; kode: "CETAK_TIDAK_BOLEH" | "CETAK_KONTEKS_LAIN" | "CETAK_GAGAL" };

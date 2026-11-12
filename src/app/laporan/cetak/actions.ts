@@ -10,7 +10,7 @@ import { hasilBelajar } from "@/lib/hasil-belajar";
 import { zonaSekolah } from "@/lib/zona-sekolah";
 import { tanggal } from "@/lib/tanggal";
 import { currentLocale } from "@/lib/locale";
-import { sasaranDalamKonteks } from "@/lib/konteks-server";
+import { sasaranDalamKonteks, tempatSaya } from "@/lib/konteks-server";
 import type * as engine from "@/lib/assessment-engine";
 
 /**
@@ -46,7 +46,13 @@ export async function cetakLaporan(p: PermintaanCetak): Promise<HasilCetak> {
     sekolah = (node as { institution_id?: string } | null)?.institution_id ?? null;
   }
   if (p.laporan !== "hasil.belajar" && !sekolah) return tolak;
-  if (!(await sasaranDalamKonteks(p.laporan === "hasil.belajar" ? {} : { sekolah }))) return tolak;
+  if (!(await sasaranDalamKonteks(p.laporan === "hasil.belajar" ? {} : { sekolah }))) {
+    // B2-R-A1 (Daisy's line; the Chief Architect's condition): the context's own answer, with the way to the chooser,
+    // ONLY when the report's school is one of the person's own contexts. For any other school the general refusal, so
+    // the answer never tells a person that a report they cannot read exists, nor sends them to a context they lack
+    if (sekolah && (await tempatSaya()).some((k) => !k.platform && k.tempat === sekolah)) return { ok: false, kode: "CETAK_KONTEKS_LAIN" };
+    return tolak;
+  }
   if (p.laporan === "hasil.belajar") {
     // the page's own read: nothing in it, nothing to print (§5.2 F; B2's correction of /belajar/hasil)
     const bab = await hasilBelajar(supabase as unknown as engine.EngineClient).catch(() => null);

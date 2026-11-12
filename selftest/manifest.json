@@ -5930,6 +5930,11 @@
       "proves": "B2, selftest/b2-layar.test.ts, through the running app, the print action driven by its build id with the page's cookies: an empty learner's report offers no «Cetak laporan» (THE PLAN §5.2 F; the engineer's defect on /belajar/hasil)."
     },
     {
+      "id": "B2-A06",
+      "runner": "app",
+      "proves": "B2-R-A1 (Daisy's line; the Chief Architect's condition), selftest/b2-layar.test.ts through the running app, the print action driven by its build id with the page's cookies: a print refused for the working context answers CETAK_KONTEKS_LAIN, the line with «Mau ke mana hari ini?», only where the report's school is one of the person's own contexts (the platform admin at Beta); Alpha's admin, with no context at Beta, still gets CETAK_TIDAK_BOLEH; neither writes a row."
+    },
+    {
       "id": "L1F2-A01",
       "runner": "app",
       "proves": "L1-F2, selftest/l1f2-layar.test.ts, through the running app's route /api/akun/kartu-kelas and real Auth: a school's reissue of a suspended learner's card answers as for one who is not (status and shape), writes the same account.card_reissued row in the audit log, leaves banned_until at akun_terkunci_sampai(); the new card signs nothing in until reinstatement, and signs in after it (Sharon, settled 12 Nov)."

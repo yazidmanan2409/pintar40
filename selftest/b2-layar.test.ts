@@ -12,6 +12,9 @@
  *   B2-A04  the page as served: the default footer is the short browser line, names no person and carries no
  *           reference-shaped text; «Cetak laporan» is offered
  *   B2-A05  an empty report (a learner with no result) offers no «Cetak laporan»
+ *   B2-A06  B2-R-A1 (Daisy's line; the Chief Architect's condition), one test each way: the platform admin, in Alpha's
+ *           context, printing Beta's summary, where they hold a context of their own, is answered CETAK_KONTEKS_LAIN;
+ *           Alpha's admin, who holds none at Beta, still gets CETAK_TIDAK_BOLEH; neither writes a row
  */
 import { existsSync, readFileSync } from "node:fs";
 import { createServerClient } from "@supabase/ssr";
@@ -21,6 +24,7 @@ import { lit, psql } from "./bob26.test";
 import { pilihKonteksCookie, tersusun } from "./konteks-uji";
 
 const ADMIN = { email: "alpha-admin@synthetic.pintar.test", password: "Sintetis-AlphaAdmin-27!" };
+const SYS = { email: "sysadmin@synthetic.pintar.test", password: "Sintetis-Sys-91!" };
 const SISWA = { email: "alpha-siswa-1@synthetic.pintar.test", password: "Sintetis-AlphaSiswa1-76!" };
 const CTK = /CTK-[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}/;
 
@@ -152,6 +156,30 @@ export const b2AppTests: SelfTest[] = [
         c.expect(buang(dari) === "0", "the test's print rows are still there");
       }
       return c.verdict("a press for another school's summary, and one naming a report that does not print, were refused CETAK_TIDAK_BOLEH and wrote nothing");
+    },
+  },
+  {
+    id: "B2-A06",
+    requires: ["app", "network", "db", "build"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const alpha = sekolahDari("synth-alpha-"), beta = simpulSekolah("synth-beta-");
+      const dari = titik();
+      try {
+        // the platform admin holds Mengelola at every school, Beta's included: the context's own answer
+        const sys = await masukMengelola(ctx, SYS, alpha);
+        const h = await tekan(ctx, sys, `/dekan/ringkasan?simpul=${beta}`, { laporan: "ringkasan.simpul", simpul: beta });
+        if (!c.expect(h !== null, "the build's server-action manifest names no cetakLaporan")) return c.verdict("");
+        c.expect(h?.ok === false && h?.kode === "CETAK_KONTEKS_LAIN", `the platform admin in Alpha's context printing Beta's summary answered ${JSON.stringify(h)} (expected CETAK_KONTEKS_LAIN: Beta is one of their own contexts)`);
+        // Alpha's admin holds no context at Beta: the general refusal, which tells them nothing about Beta
+        const adm = await masukMengelola(ctx, ADMIN, alpha);
+        const h2 = await tekan(ctx, adm, `/dekan/ringkasan?simpul=${beta}`, { laporan: "ringkasan.simpul", simpul: beta });
+        c.expect(h2?.ok === false && h2?.kode === "CETAK_TIDAK_BOLEH", `Alpha's admin printing Beta's summary answered ${JSON.stringify(h2)} (expected CETAK_TIDAK_BOLEH: no context of theirs at Beta)`);
+        c.expect(baris(dari).length === 0, "a refused print left a row");
+      } finally {
+        c.expect(buang(dari) === "0", "the test's print rows are still there");
+      }
+      return c.verdict("a print refused for the working context answered CETAK_KONTEKS_LAIN (Daisy's line with the chooser) where the report's school is one of the person's own contexts, and CETAK_TIDAK_BOLEH where it is not; neither wrote a row");
     },
   },
   {

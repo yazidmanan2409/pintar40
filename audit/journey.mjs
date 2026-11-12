@@ -3267,6 +3267,47 @@ await step("B2J", "Pak Guru Budi prints his class's Ringkasan: the paper carries
     + `the reader, searched for ${ref}: ${JSON.stringify(baris)}`;
 });
 
+// B2 (Daisy's visit, TINJAUAN-B2-bfe949b1.md §3): the reader's completeness notice, as the platform admin sees it, at
+// 320 and 1280 px. One sign-in write failure is planted so the notice shows, and taken away after. The page must not
+// scroll sideways, and «Kesehatan sistem» must have a width and sit inside the banner (it was squeezed into the
+// banner's empty icon column and hung outside it).
+await step("B2N", "the platform admin's «Catatan masuk dan cetak» with the completeness notice: at 320 px no sideways scroll and the health link inside the banner with a width; the same at 1280 px (B2, Daisy's blocker)", async (rec) => {
+  sql(`insert into public.accountability_write_failures as f (day, kind, n, last_at)
+    values ((now() at time zone 'Asia/Jakarta')::date, 'SIGN_IN', 1, now())
+    on conflict (day, kind) do update set n = f.n + 1, last_at = greatest(f.last_at, excluded.last_at)`);
+  const hasil = [];
+  try {
+    for (const lebar of [320, 1280]) {
+      const c = await browser.newContext({ viewport: { width: lebar, height: 900 }, locale: "id-ID", timezoneId: "Asia/Jakarta" });
+      const p = await c.newPage();
+      try {
+        await magicSignIn(p, GLADYS);
+        await keKonteks(p, { tujuan: "MENGELOLA", platform: true });
+        await p.goto(`${APP}/konfigurasi/catatan-masuk`, { waitUntil: "networkidle" });
+        await tutupTur(p);
+        await p.locator("[data-akuntabilitas-tidak-lengkap]").waitFor({ timeout: SLOW });
+        const m = await p.evaluate(() => {
+          const b = document.querySelector("[data-akuntabilitas-tidak-lengkap]");
+          const l = b?.querySelector('a[href="/konfigurasi?periksa=skema"]');
+          const rb = b?.getBoundingClientRect(), rl = l?.getBoundingClientRect();
+          return { lebarHalaman: document.documentElement.scrollWidth, layar: window.innerWidth,
+                   tautan: rl ? Math.round(rl.width) : 0,
+                   didalam: Boolean(rb && rl && rl.left >= rb.left - 0.5 && rl.right <= rb.right + 0.5 && rl.top >= rb.top - 0.5 && rl.bottom <= rb.bottom + 0.5) };
+        });
+        rec.shots.push(await shot(p, `b2-notice-${lebar}`));
+        hasil.push({ lebar, ...m });
+      } finally { await c.close(); }
+    }
+  } finally {
+    // n > 0 is the table's CHECK: the planted one is taken back by deleting a row it made, else by counting it down
+    sql(`delete from public.accountability_write_failures where day = (now() at time zone 'Asia/Jakarta')::date and kind = 'SIGN_IN' and n = 1`);
+    sql(`update public.accountability_write_failures set n = n - 1 where day = (now() at time zone 'Asia/Jakarta')::date and kind = 'SIGN_IN' and n > 1`);
+  }
+  const ok = hasil.length === 2 && hasil.every((h) => h.lebarHalaman <= h.layar && h.tautan > 0 && h.didalam);
+  if (!ok) rec.verdict = "FAIL";
+  return hasil.map((h) => `${h.lebar} px: the page ${h.lebarHalaman} wide on a ${h.layar} screen, the link ${h.tautan} px wide, ${h.didalam ? "inside" : "outside"} the banner`).join("; ");
+});
+
 // CR-52 (J4.8 EC; D-050(a)(d)): the Question Bank, walked against QN5 as D-120 ruled it: «4.0's Question Bank means
 // browse, filter and review with the answer key and reason; no additional authoring workflow». Read only; before S24,
 // which revokes the head of department. The head of department reviews question health (CAN_REVIEW_QUESTION_HEALTH,

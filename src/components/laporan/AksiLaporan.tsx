@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import TautanKembali from "@/components/TautanKembali";
 import BarisHasil from "@/components/BarisHasil";
 import { waktuPerangkat } from "@/lib/tanggal";
@@ -28,6 +29,8 @@ export type KataKaki = {
   pendek: string;
   gagal: string;
   ditolak: string;
+  /** B2-R-A1: «… dari pilihan yang sedang Anda pakai di [Mau ke mana hari ini?]. …», split around the chooser's link */
+  ditolakKonteks: { sebelum: string; tautan: string; sesudah: string };
   locale: "id" | "en";
 };
 
@@ -51,6 +54,7 @@ export default function AksiLaporan({ kembali, cetak, ke = "/", cetakSebagai, ak
   const resmi = useRef(false);
   const [sibuk, setSibuk] = useState(false);
   const [pesan, setPesan] = useState<string | null>(null);
+  const [lainKonteks, setLainKonteks] = useState(false);
 
   const pulihkan = () => {
     resmi.current = false;
@@ -75,9 +79,11 @@ export default function AksiLaporan({ kembali, cetak, ke = "/", cetakSebagai, ak
     if (!cetakSebagai || !aksi || sibuk) return;
     setSibuk(true);
     setPesan(null);
+    setLainKonteks(false);
     const h: HasilCetak = await aksi(cetakSebagai).catch(() => ({ ok: false as const, kode: "CETAK_GAGAL" as const }));
     setSibuk(false);
     if (!h.ok) {
+      if (h.kode === "CETAK_KONTEKS_LAIN") { setLainKonteks(true); return; }
       setPesan(h.kode === "CETAK_TIDAK_BOLEH" ? kaki.ditolak : kaki.gagal);
       return;
     }
@@ -105,6 +111,11 @@ export default function AksiLaporan({ kembali, cetak, ke = "/", cetakSebagai, ak
         ) : null}
       </div>
       {pesan ? <div className="pin-noprint" data-cetak-gagal=""><BarisHasil nada="gagal">{pesan}</BarisHasil></div> : null}
+      {lainKonteks ? (
+        <div className="pin-noprint" data-cetak-gagal="" data-cetak-konteks-lain="">
+          <BarisHasil nada="gagal">{kaki.ditolakKonteks.sebelum}<Link href="/">{kaki.ditolakKonteks.tautan}</Link>{kaki.ditolakKonteks.sesudah}</BarisHasil>
+        </div>
+      ) : null}
     </>
   );
 }

@@ -123,10 +123,11 @@ export default async function CatatanMasuk({ searchParams }: { searchParams: Pro
           <p className="pin-intro">{s("akuntabilitas.arti")}</p>
         </div>
 
+        {/* Daisy (B2 visit): the banner is a grid (icon, content); the sentence and the link are one child, in the content column */}
         {tidakLengkap ? (
           <p className="pin-banner pin-attention" role="status" data-akuntabilitas-tidak-lengkap={tidakLengkap.n}>
-            {s("akuntabilitas.tidak_lengkap").replace("{n}", format.number(tidakLengkap.n, locale)).replace("{waktu}", tanggal(tidakLengkap.terakhir, "cap", locale))}{" "}
-            <Link href="/konfigurasi?periksa=skema">{s("akuntabilitas.tidak_lengkap.tautan")}</Link>
+            <span>{s("akuntabilitas.tidak_lengkap").replace("{n}", format.number(tidakLengkap.n, locale)).replace("{waktu}", tanggal(tidakLengkap.terakhir, "cap", locale))}{" "}
+            <Link href="/konfigurasi?periksa=skema">{s("akuntabilitas.tidak_lengkap.tautan")}</Link></span>
           </p>
         ) : null}
         <form method="get" action="/konfigurasi/catatan-masuk" className="pin-akuntabilitas-saring" aria-label={s("akuntabilitas.saring.judul")} data-akuntabilitas-saring="">

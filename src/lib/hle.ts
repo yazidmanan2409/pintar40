@@ -141,7 +141,7 @@ export type HleEvent =
   | "laporan.metrik.tidak_berlaku" | "laporan.sekolah.dasar_gerbang_tidak_berlaku" | "laporan.sekolah.dasar_gerbang_murid" | "ketiadaan.dilindungi.bab_pasangan.murid" | "ketiadaan.dilindungi.bab_pasangan.peserta" | "laporan.komposisi.awal_akhir_dilindungi" | "laporan.komposisi.keliru_tertahan" | "laporan.komposisi.keliru_belum" | "laporan.komposisi.keliru_kosong" | "mengajar.bukti.bagian_tertahan" | "hasil.safety.tidak_ada" | "pimpinan.kelas.bukti_saja" | "laporan.sekolah.ranah_tertahan_semua" | "laporan.komposisi.kenaikan_dari_pasangan" | "mengajar.murid1.dihitung_ulang" | "mengajar.murid1.dihitung_ulang_alasan" | "hasil.dihitung_ulang" | "hasil.review.kunci_terkini" | "map.kunci_terkini" | "laporan.kisi.arti_tanpa_target" | "laporan.kisi.arti_sebagian" | "laporan.kisi.kunci_sebagian"
   | "laporan.komposisi.topik_di_bawah_sebagian" | "laporan.komposisi.topik_di_bawah_banyak_sebagian" | "laporan.komposisi.topik_semua_sebagian" | "laporan.komposisi.topik_tertahan.satu" | "laporan.komposisi.topik_tertahan.banyak" | "laporan.komposisi.topik_tertahan_semua"
   | "laporan.kelas.judul" | "laporan.institusi.judul"
-  | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak" | "laporan.cetak.kaki.resmi" | "laporan.cetak.kaki.peramban" | "laporan.cetak.kaki.pendek" | "laporan.cetak.gagal" | "laporan.cetak.ditolak" | "laporan.metrik.tanpa_nama" | "laporan.kelas.pd_arti"
+  | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak" | "laporan.cetak.kaki.resmi" | "laporan.cetak.kaki.peramban" | "laporan.cetak.kaki.pendek" | "laporan.cetak.gagal" | "laporan.cetak.ditolak" | "laporan.cetak.ditolak.konteks" | "laporan.metrik.tanpa_nama" | "laporan.kelas.pd_arti"
   | "laporan.cakupan.kelas" | "laporan.cakupan.sekolah"
   // CONTOH LAPORAN (Daisy, approved 7 Nov): the report compositions' own sentences, composed from the figures below
   // them with no cause or advice; every figure keeps its existing label and meaning
@@ -3605,6 +3605,7 @@ const table: Table = {
   "laporan.cetak.gagal": { default: "Cetakan belum dapat dicatat, jadi belum dicetak. Coba lagi.", en: "The print could not be recorded, so nothing was printed. Try again." },
   // B2, engineer's draft for Daisy: a request the reader may not make (only a forged one reaches it)
   "laporan.cetak.ditolak": { default: "Laporan ini tidak dapat dicetak dari akun Anda.", en: "This report cannot be printed from your account." },
+  "laporan.cetak.ditolak.konteks": { default: "Laporan ini tidak dapat dicetak dari pilihan yang sedang Anda pakai di {pilih}. Pilih yang sesuai dengan laporan ini, lalu cetak lagi.", en: "This report cannot be printed from the choice you are using in {pilih}. Choose the one this report belongs to, then print again." },
   // E-C1-1/3: a measure whose name the copy table does not have yet (pending Dr Gladys)
   "laporan.metrik.tanpa_nama": { default: "Ukuran ini belum punya nama", en: "This measure has no name yet" },
   // W3.8 (RV-11): what a report's figures cover and when they were calculated, under its heading and on the paper

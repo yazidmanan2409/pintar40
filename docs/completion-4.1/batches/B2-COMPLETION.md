@@ -5,7 +5,63 @@ and the print step of §8.5 journey 4. **Reviews:** Sharon before build (on this
 build (her composition, `DESAIN-AWAL-4.1.md` §1) and on the candidate, in one visit with B1-R1 to R5, B1-R4's notice and
 S-1's check at 390 and 320 px.
 
-## For Sharon and for Daisy: the result review (this is the prompt)
+## After Daisy's BLOCKED of `bfe949b1…`: the fix (this is the prompt; it supersedes the next)
+
+**Her record:** `ux-1/daisy-experience` at `42683a7134a83feaeed389906512ba895e9f2fe9`,
+`docs/coordination/ux/completion-4.1/TINJAUAN-B2-bfe949b1.md`; Bob's summary `B2-ARCHITECT-NOTES.md` §0 item 7 at
+`7b035ae0f1d455d06eba533cffff3c1492503776`. **Candidate:** the commit on `claude/system-integrity-4.0` that carries
+this section, B2's own; its 40-character hash is in the review queue. It shares one pre-flight and one set of runs
+with L1-F4's fix (Bob's queue), each in its own commit.
+
+**Daisy, one screenshot (no visit):** `docs/completion-4.1/batches/b2-fix/notice-320.png` and `notice-1280.png` (the
+platform admin's reader with the notice, on this commit's build; `notice-320-before.png` is the same page before the
+fix). And the B2-R-A1 line below, in place.
+
+**Sharon, the delta, for the condition only:** the new line is answered only when the report's school is one of the
+person's own contexts (below; B2-A06).
+
+### 1 · The completeness notice's layout (Daisy's blocker)
+
+- **The defect, reproduced before the fix:** at 320 px the page was 345 px wide (it scrolled sideways), and
+  «Kesehatan sistem» was 0 px wide, at 320 and at 1280 px. `.pin-banner` is a grid (an icon column, then the content);
+  the notice put bare text and a link straight into it, so the text took the icon column and the link was squeezed.
+- **The fix:** the sentence and the link are one `<span>`, in the content column
+  (`src/app/konfigurasi/catatan-masuk/page.tsx`). Nothing else changes.
+- **Tests, red first:**
+  - **B2-S02 (static) gains** the check that the sentence and the link are one child of the banner: red before, green
+    after.
+  - **Journey step B2N (rendered).** B2-S02 only reads source files and cannot render, so the 320 px check is a
+    journey step, where pages are rendered (as B2J is). It plants one sign-in write failure so the notice shows, signs
+    in the platform admin at 320 and 1280 px, and asserts that the page is no wider than the screen and that the link
+    has a width and sits inside the banner. It then removes the failure it planted.
+  - **The same measurement run locally on the selftest world, before and after the fix:** before, 320 px: page 345,
+    link 0; 1280 px: link 0 (RED). After, 320 px: page 320, link 133 px inside the banner; 1280 px: link 133 px inside
+    (GREEN).
+
+### 2 · B2-R-A1: the context refusal gets its own line (Daisy's words; Bob's condition)
+
+- **The line** (`laporan.cetak.ditolak.konteks`), word for word, with «Mau ke mana hari ini?» (the chooser's own name,
+  `entry.title`) as the link to the chooser (`/`):
+  - ID: «Laporan ini tidak dapat dicetak dari pilihan yang sedang Anda pakai di [Mau ke mana hari ini?]. Pilih yang
+    sesuai dengan laporan ini, lalu cetak lagi.»
+  - EN: «This report cannot be printed from the choice you are using in [Where would you like to go today?]. Choose
+    the one this report belongs to, then print again.»
+- **The condition (the Chief Architect's):** `cetakLaporan` answers the new code `CETAK_KONTEKS_LAIN` **only** when the
+  print is refused for the working context **and** the report's school is one of the person's own contexts
+  (`tempatSaya()`, a non-platform context at that school). For any other school it answers the general
+  `CETAK_TIDAK_BOLEH`, «Laporan ini tidak dapat dicetak dari akun Anda.», so the line never tells a person that a
+  report they cannot read exists, nor sends them to a context they do not have. Nothing is written either way.
+- **Test, one each way (B2-A06):** the platform admin, in Alpha's context, printing Beta's summary (they hold Mengelola
+  at Beta): `CETAK_KONTEKS_LAIN`; Alpha's admin, who holds no context at Beta, printing the same: `CETAK_TIDAK_BOLEH`.
+  Red before (the platform admin was answered `CETAK_TIDAK_BOLEH`), green after. B2-A03 is unchanged.
+- **Daisy's note:** the case cannot be reproduced in her world (both of the head of department's contexts reach 5B);
+  B2-A06 makes it with the platform admin, who holds a context at every school.
+
+| Column or table | Constraints after this commit | Baseline invariant |
+|---|---|---|
+| none | No migration. The action's answer gains one code; `accountability_events` is not written on either refusal, as before | **INV-13**: the answer reveals nothing of a school the person holds no context at |
+
+## For Sharon and for Daisy: the result review (the first prompt, answered at `bfe949b1`)
 
 **Candidate:** the B2 commit that carries this section on `claude/system-integrity-4.0`. It is one commit above the
 page commit `9b3ea8d9cd13c5da1a8b7992701d9fe43f85e031`, which is above F1-R1b `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b`.

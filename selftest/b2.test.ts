@@ -238,9 +238,15 @@ export const b2Tests: SelfTest[] = [
         && /gagalTulis\.n > 0/.test(hal) && /href="\/konfigurasi\?periksa=skema"/.test(hal), "B1-R4: the notice does not read the narrow count, in the platform's view only, above zero, with its link");
       c.expect(/"akuntabilitas\.tidak_lengkap": \{ default: "Daftar ini mungkin tidak lengkap\. Dalam 7 hari terakhir, PINTAR tidak dapat mencatat sebagian kejadian masuk atau keluar \(terhitung \{n\}, terakhir \{waktu\}\)\.", en: "This list may be incomplete\. In the last 7 days, PINTAR could not record some sign-in or sign-out events \(\{n\} counted, the last at \{waktu\}\)\." \}/.test(hle),
         "B1-R4: the notice's words are not Daisy's");
+      // B1-R4, ADDED (Daisy's B2 visit, TINJAUAN-B2-bfe949b1.md §3): .pin-banner is a two-column grid (icon, content), so the
+      // notice's sentence and its link sit in ONE child element; as bare text they fall into the icon column, the link is
+      // squeezed to zero width and the page scrolls sideways at 320 px. The rendered half is journey step B2N
+      const banner = /<p className="pin-banner pin-attention" role="status" data-akuntabilitas-tidak-lengkap=\{tidakLengkap\.n\}>\s*([\s\S]*?)<\/p>/.exec(hal)?.[1] ?? "";
+      c.expect(/^<span>[\s\S]*akuntabilitas\.tidak_lengkap[\s\S]*<Link href="\/konfigurasi\?periksa=skema">[\s\S]*<\/Link>\s*<\/span>\s*$/.test(banner),
+        "B1-R4: the notice's sentence and its link are not in one child element of the banner (Daisy: bare text falls into the icon column)");
       const kosong = hal.slice(hal.indexOf("baris.length === 0 && hal === 1"), hal.indexOf('<div className="pin-koleksi pin-akuntabilitas">'));
       c.expect(!/aksi=\{/.test(kosong), "B1-R5: an empty state still offers its own «Hapus saringan» beside the filter's");
-      return c.verdict("B1-R1: the refusal names the Admin PINTAR; R2: the platform's view names each row's schools on a second line, «tanpa sekolah» for none; R3: the index lists the reader after «Jejak audit» for its readers only; R4: the notice reads akuntabilitas_gagal_ringkas in the platform's view only, shown above zero with Daisy's words and the health check's link; R5: no empty state adds a second «Hapus saringan»");
+      return c.verdict("B1-R1: the refusal names the Admin PINTAR; R2: the platform's view names each row's schools on a second line, «tanpa sekolah» for none; R3: the index lists the reader after «Jejak audit» for its readers only; R4: the notice reads akuntabilitas_gagal_ringkas in the platform's view only, shown above zero with Daisy's words and the health check's link, the sentence and the link in one child of the banner; R5: no empty state adds a second «Hapus saringan»");
     },
   },
   {
