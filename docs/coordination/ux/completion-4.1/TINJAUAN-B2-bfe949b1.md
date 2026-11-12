@@ -1,7 +1,8 @@
 # B2 «Cetak laporan»: UX visit (Daisy, 12 Nov 2026)
 
 > **What holds now:**
-> - **BLOCKED on `bfe949b11935763a8c8ed7b91f4adcdbcea93645`, on one item only:** the completeness notice's layout (§3). The fix is one wrapper element.
+> - **Superseded 12 Nov:** **PASS on `546d9eb75abb53d41523750e7134cc83889d1089`** (`TINJAUAN-B2-546d9eb7.md`). The notice is fixed, and B2-R-A1's line is built.
+> - ~~**BLOCKED on `bfe949b11935763a8c8ed7b91f4adcdbcea93645`, on one item only:** the completeness notice's layout (§3). The fix is one wrapper element.~~
 > - **Everything else in B2 passes as built:**
 >   - the print path, the official and browser footers, and the failure line;
 >   - the learner's clock;
