@@ -8,7 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
-| B2, printed-report identification | **PASS**, conditional on its CI and journeys (in progress at review); one register item | `bfe949b11935763a8c8ed7b91f4adcdbcea93645` | `B2-bfe949b11935763a8c8ed7b91f4adcdbcea93645.md` |
+| B2, printed-report identification | **PASS**; CI and journeys green; one register item | `bfe949b11935763a8c8ed7b91f4adcdbcea93645` | `B2-bfe949b11935763a8c8ed7b91f4adcdbcea93645.md` |
 | F1-R1b, a key correction withdraws the explanations it makes stale | **PASS**; one page item required; two register items | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` | `F1R1B-97a40ebb0e52a2f0ba558418426f9fc5d71aca4b.md` |
 | L1-F4, interim: historical against new live attachments | not a verdict; **one REQUIRED change before acceptance** (how the line is measured) | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` | `L1F4-INTERIM-ea3c4b6f1d10a2a01281f16e8cce893235bfbef2.md` |
 | F-1 | PASS (12 Nov) | `bc67f72a0e1c6bc39a2c16292f728080b12710d4` | recorded in `C1W-F1-CORRECTION.md` §0 |
