@@ -21,6 +21,11 @@
 4. B2 also takes register items B1-R1 to R5, the completeness notice B1-R4, and the print step of §8.5 journey 4.
 5. Existing defect found by the engineer, corrected in B2: `/belajar/hasil` offers «Cetak laporan» on an empty
    report, against THE PLAN §5.2 F.
+6. **State (13:35 UTC, 12 Nov): B2 is pushed at `bfe949b11935763a8c8ed7b91f4adcdbcea93645`.** CI `43226752867` and journeys
+   `43226758051` were in progress. **Sharon: PASS, conditional on both runs ending green** (her record:
+   `claude/gracious-lamport-0m1qjr` at `26bb987ab1925b7a097a26f23da08fd312d69d21`,
+   `docs/coordination/reviews/sharon/B2-bfe949b11935763a8c8ed7b91f4adcdbcea93645.md`). **Daisy's visit is next.**
+   The Chief Architect's read is §5. B2 closes on Daisy's PASS, both runs green, and the boundary check.
 
 ## 1 · A learner's own-results print (04:05 UTC, 12 Nov 2026)
 
@@ -164,6 +169,27 @@ nothing.
   someone it will refuse.
 - **Daisy's one visit on B2's candidate** also covers S-1, at 390 and 320 px **and at the desktop sidebar**, because
   one of S-1's rules hides a navigation item at every width.
+
+## 5 · Chief Architect's read of the candidate (13:35 UTC, 12 Nov 2026)
+
+Read at `bfe949b11935763a8c8ed7b91f4adcdbcea93645`: the migration, the print action, the footer component, the workflow change. **No blocker.**
+
+- **The content rule is built as the owner approved it.** The record's schools are each shown sitting's own school,
+  from the same database read the page uses. A person scope is accepted only for the requester.
+- **No reference, no official print.** A refused or failed request opens no dialog and changes no footer.
+- **Boundary:** the workflow change only adds B2's plant gate. No request file, no `supabase/config.toml`, nothing
+  outside B2's scope.
+- **Sharon's two build decisions accepted by her; I concur,** including the learner's print dated on its one school's
+  clock, else WIB (display only; the record keeps the server's instant).
+
+**Register (non-blocking; before Z):**
+
+| # | Finding | Disposition |
+|---|---|---|
+| B2-R-S1 (Sharon) | The page can render fewer chapters than the record counts, and the database read restates `my_learning_history`'s selection | Extend B2-P06 as she suggests, at any later commit |
+| B2-R-A1 (Chief Architect) | A class's or a school's print refused because the session is in **another working context** answers «Laporan ini tidak dapat dicetak dari akun Anda.» That is not accurate: the account may print it, in the report's own context. Every other context-bound act offers the chooser. It can only arise when the context changed after the page was opened (another tab) | **Daisy decides at her visit** whether it needs its own line (for example, pointing to the context) or stands. If a line, one small commit |
+
+**Still owed from F1-R1b:** the page's evidence section is not in this push.
 
 ## 2 · Log
 

@@ -42,17 +42,17 @@ channel:
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
-### Review queue (as of 10:40 UTC, 12 Nov; updated at each check)
+### Review queue (as of 13:35 UTC, 12 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
 | ~~**Sharon**~~ | ~~Result review of **F1-R1b**~~ **Done: PASS** on `97a40ebb…`, 12 Nov. One page item for Second Eye | — | her record, `claude/gracious-lamport-0m1qjr` `1076f121fc5d6f1e2414d190f20cf9b6c1be258f` |
 | **Sharon** | Result review of **L1-F4**, on the commit that brings her required change and the race test (with L1-F2). *Interim review done, 12 Nov: one required change* | not yet built | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 items 8 and 9 |
-| **Sharon** | Result review of **B2**, when it is pushed | not yet pushed | `B2-ARCHITECT-NOTES.md` §0 to §4 |
+| ~~**Sharon**~~ | ~~Result review of **B2**~~ **Done: PASS on `bfe949b11935763a8c8ed7b91f4adcdbcea93645`, conditional on its two runs ending green** | — | her record, `claude/gracious-lamport-0m1qjr` `26bb987ab1925b7a097a26f23da08fd312d69d21` |
 | ~~**Daisy**~~ | ~~**F1-R1b's** screens~~ **Done: PASS** on `97a40ebb…`, 12 Nov | — | her record at `a13f30ff4fe0bd53727d7af219068d35d0b1b0ae` |
 | ~~**Daisy**~~ | ~~**L1-F4** wording~~ **Done: PASS** on `ea3c4b6f…`, 12 Nov | — | same record, §2 |
-| **Daisy** | **B2,** one visit, with **S-1** (phone widths and the desktop sidebar) and the time zone on a learner's own print | not yet pushed | `B2-ARCHITECT-NOTES.md` §4 and its log |
-| **Second Eye** | **F1-R1b page item:** fill "Evidence on this commit" on `F1R1B-COMPLETION.md` (CI `43189210169`, journeys `43189229437`, local pre-flight figures). No code; may ride in the next commit | — | `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §0 item 11a |
+| **Daisy** | **B2, one visit, now.** With **S-1** (phone widths and the desktop sidebar), the time zone on a learner's own print, and one question: does a print refused for being in another working context need its own line (B2-R-A1)? | `bfe949b11935763a8c8ed7b91f4adcdbcea93645` | `B2-ARCHITECT-NOTES.md` §4, §5 and its log |
+| **Second Eye** | **F1-R1b page item (still owed; not in B2's push):** fill "Evidence on this commit" on `F1R1B-COMPLETION.md` (CI `43189210169`, journeys `43189229437`, local pre-flight figures). No code; may ride in the next commit | — | `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §0 item 11a |
 | **Second Eye** | **L1-F4 required change (Sharon):** measure history against live attachments by live enrolment at deletion time and a record written at closure, not by timestamps; third order in the race harness. In the L1-F2 commit set | — | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 9; Sharon's `L1F4-INTERIM-ea3c4b6f….md` |
 | **Second Eye** | After B2: **L1-F2 with L1-R2** and the shared two-connection race test (which L1-F4 needs); then the inventory of the eight operations for work-scoped planned maintenance, before A2b | — | `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §2a, §2b; `THE-PLAN-ADDENDUM-1.md` §5d |
 
@@ -119,7 +119,7 @@ This instruction was acted on from the day it was given but had not been written
 | L1-F4, an anonymised person is terminal | **Daisy PASS.** CI and journeys green. **Not accepted: Sharon's interim review requires one change** (how history is told from a live attachment), built with the two-connection race test in the L1-F2 commit set; then her result review | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` |
 | F1-R1b, a key correction clears stale explanations | **ACCEPTED. Sharon PASS, Daisy PASS.** CI `43189210169` and journeys `43189229437` green. Closes when the page's evidence section is filled (page only, confirmed from its diff). Register: F1R1B-R1, F1R1B-R2 | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` |
 | S-1, phone drawer overflow | **Pushed.** Covered by the CI and journeys of the F-1 fix commit above it. Daisy verifies it with B2, at phone widths **and at the desktop sidebar**, because one rule hides a nav item at every width | `61a6dd3b19761dfc91e11ac4f9e0295b64a32c6e` |
-| B2 | **Built; local, in full pre-flight, not pushed** (engineer's report). Then Sharon's result review and Daisy's one visit (with S-1) | local `9fe1bb44a77f5b0bdcfc8df83eb91a80993c01ba` |
+| B2 | **Pushed. Sharon PASS (conditional on its runs).** CI `43226752867` and journeys `43226758051` in progress at 13:35 UTC. **Waiting on Daisy's visit and the runs.** Register: B2-R-S1, B2-R-A1 | `bfe949b11935763a8c8ed7b91f4adcdbcea93645` |
 
 Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `docs/completion-4.1/`.
 
@@ -280,3 +280,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (10:40 UTC) | Sharon's verdicts are now on `claude/gracious-lamport-0m1qjr` (`1076f121fc5d6f1e2414d190f20cf9b6c1be258f`). F1-R1b: PASS, accepted; one page item for Second Eye; register F1R1B-R1, R2. L1-F4: interim review, one required change for Second Eye, with the race test |
 | 12 Nov 2026 (10:56 UTC) | Daisy's early look at S-1 on `97a40ebb…`: no defect, nothing for Second Eye to change first; her verdict still comes with B2's visit. X-4 registered (shorter navigation on Konfigurasi sub-pages) |
 | 12 Nov 2026 (11:50 UTC) | Check: no new commit on any branch. B2 still in the engineer's local pre-flight. Staging checkpoint readiness table drafted in `STATUS-2026-11-12.md` for the owner's return |
+| 12 Nov 2026 (13:35 UTC) | B2 pushed at `bfe949b11935763a8c8ed7b91f4adcdbcea93645` and read (`B2-ARCHITECT-NOTES.md` §5): no blocker. Sharon: PASS, conditional on its runs. Daisy: your visit is open. Second Eye: next is L1-F2 with L1-R2, the race harness and L1-F4's change; the F1-R1b page item is still owed |
