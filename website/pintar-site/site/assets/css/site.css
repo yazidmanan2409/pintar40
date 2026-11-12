@@ -692,3 +692,42 @@ h1, h2, h3, .display, .h1, .h2, .audiences__w, .layers__name, .index__h { overfl
 .demo-band .lead { margin-bottom: var(--s-5); }
 .ph--img .ph__frame::before, .ph--img .ph__frame::after { display: none; }
 .why__photo { margin-bottom: var(--s-8); }
+
+/* ------------------------------------------------------------------ revision 4 */
+/* Home: the classroom and the thread read as one block, the picture beside
+ * the four steps it illustrates. */
+.hero { padding-bottom: var(--section); }
+.situation { border-top: 1px solid var(--line); }
+.situation__grid { align-items: start; row-gap: var(--s-7); }
+.thread[data-layout="v"] .thread__steps { grid-template-columns: 1fr; }
+.thread[data-layout="v"] .thread__step, .thread[data-layout="v"] .thread__step + .thread__step { padding: var(--s-4) var(--s-4) var(--s-5); border-left: 0; border-bottom: 1px solid var(--line); gap: var(--s-2); }
+.thread[data-layout="v"] .thread__step:not(:last-child)::after { content: "↓" / ""; right: var(--s-4); top: auto; bottom: var(--s-3); background: none; color: var(--ink-3); }
+.thread[data-layout="v"] .thread__d { max-width: 40ch; }
+.thread[data-layout="v"] .thread__h { font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem); }
+
+/* The class panel's single evidence line, stacked so it never splits into two ragged columns. */
+.panel__q { display: grid; gap: 2px; color: var(--ink-2); }
+.panel__q b { font-weight: 600; color: var(--ink); }
+
+/* The cycle's direction marks, readable at a glance. */
+.cycle__step::after, .cycle__return::after { font-size: 1.5rem; color: var(--teal); }
+.cycle__return::after { color: var(--on-dark); }
+
+/* A brief look ahead: one row, not a section. */
+.ahead { padding-block: var(--s-8); border-top: 1px solid var(--line); }
+.ahead__in { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 7fr) auto; gap: var(--s-4) var(--s-7); align-items: baseline; }
+.ahead__h { font: 500 var(--t-label)/1.4 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+.ahead__p { color: var(--ink-2); font-size: var(--t-lead); line-height: 1.5; max-width: 40rem; }
+@media (max-width: 900px) { .ahead__in { grid-template-columns: 1fr; } }
+
+/* Onward: the next page in the reading order, above the demo invitation. */
+.onward { border-top: 1px solid var(--line); }
+.onward a { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-5); padding-block: var(--s-7); text-decoration: none; color: var(--ink); }
+.onward__k { font: 500 var(--t-label)/1.4 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+.onward__t { font: 600 clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem)/1.1 var(--sans); letter-spacing: -0.025em; }
+.onward__t::after { content: " →" / ""; color: var(--teal); }
+.onward a:hover .onward__t { color: var(--teal); }
+.aud__more { margin-top: var(--s-5); }
+/* Room for the step arrow, so it never sits on the last line of text. */
+.thread[data-layout="v"] .thread__step:not(:last-child) { padding-bottom: var(--s-7); }
+@media (max-width: 900px) { .thread__step:not(:last-child) { padding-bottom: var(--s-7) !important; } }

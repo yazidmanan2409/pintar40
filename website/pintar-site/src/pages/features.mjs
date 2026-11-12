@@ -139,7 +139,7 @@ export default function features(c) {
   </div>
 </section>
 
-${demoBand(c, { heading: t("Lihat semuanya <em>bekerja bersama.</em>", "See it all <em>working together.</em>") })}
+${demoBand(c, { next: "audiences", heading: t("Lihat semuanya <em>bekerja bersama.</em>", "See it all <em>working together.</em>") })}
 `;
   return {
     title: t("Fitur — PINTAR 4.1", "Features — PINTAR 4.1"),

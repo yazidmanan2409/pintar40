@@ -6,11 +6,11 @@ import { PHOTOS, ROUTES, NAV_LABEL, IMAGE_KIND, imageReady, esc } from "./core.m
 
 // What each image does, and where. The prompts themselves are in images/README.md.
 const IMG_PLAN = {
-  P1: { message: "The situation a teacher recognises: one answer, one misunderstanding, at the desk.", use: "Home, under the hero", ratio: "3:2 generated · 2:1 desktop, 4:5 phone" },
+  P1: { message: "The situation a teacher recognises: one answer, one misunderstanding, at the desk.", use: "Home 01, beside the thread", ratio: "3:2 generated · 2:1 desktop, 4:5 phone" },
   P2: { message: "Evidence turning into tomorrow’s lesson.", use: "Home · Capabilities; Who It’s For · Educators", ratio: "2:3 generated · 4:5" },
   P3: { message: "Learning continues beyond the classroom, with a clear next step.", use: "Who It’s For · Learners", ratio: "2:3 generated · 4:5" },
   P4: { message: "Leadership discusses patterns, on paper, together.", use: "Who It’s For · Leadership", ratio: "3:2 generated · 3:2 desktop, 4:5 phone" },
-  P5: { message: "The institution as a whole, over time; a pause before Trust.", use: "Home pause; Who It’s For · The institution", ratio: "3:2 generated · 2:1 / 4:3" },
+  P5: { message: "The institution as a whole, over time; a pause before Trust.", use: "Who It’s For · The institution", ratio: "3:2 generated · 2:1 / 4:3" },
   P6: { message: "Administration done carefully, as practical work.", use: "Who It’s For · Administrators", ratio: "2:3 generated · 4:5" },
   P7: { message: "A score records the outcome; the working shows the cause.", use: "Why PINTAR · 01 The problem", ratio: "3:2 generated · 2:1 desktop, 4:3 phone" },
   P8: { message: "A guided demonstration is a calm conversation at a school table. No people, so no one is presented as PINTAR staff.", use: "Contact, beside the introduction", ratio: "3:2" },
@@ -18,7 +18,7 @@ const IMG_PLAN = {
 };
 
 const DIAGRAMS = [
-  ["D1", "The evidence-to-decision thread", "Home 01; Why PINTAR hero", "Learning objective → evidence → educator judgement → next teaching step, with four marks (ring, dot, diamond, arrow) and the judgement step tinted. The same marks label the hero panel and the annotated report, so the sequence is recognisable across the site.", "The organising idea, drawn once and reused, not repeated as a slogan."],
+  ["D1", "The evidence-to-decision thread", "Home 01 (vertical, beside P1); Why PINTAR hero", "Learning objective → evidence → educator judgement → next teaching step, with four marks (ring, dot, diamond, arrow) and the judgement step tinted. The same marks label the hero panel and the annotated report, so the sequence is recognisable across the site.", "The organising idea, drawn once and reused, not repeated as a slogan."],
   ["D0", "Class summary (completed)", "Home hero", "One class after a Mastery Check, told along the thread: learning objectives with % of answers correct (3 questions, 24 learners), the hardest questions with counts and the option chosen, then a separate, attributed note «Written by the educator · example» with a judgement and the next step. «Sample data»; «not a screenshot».", "The visitor recognises the situation and sees how evidence becomes tomorrow’s lesson."],
   ["D2", "The learning cycle (serpentine)", "Home 02; Why PINTAR", "Seven stages, 1→4 across the top, 5→7 back along the bottom, and the return to Diagnose. Unchanged.", "The philosophy in one picture."],
   ["D12", "Annotated question report", "Features · Reports and assessment", "One question’s report (answers chosen, with counts), numbered to three notes on what the educator notices. Sample data; the reading is the educator’s.", "Shows what the educator notices and how it informs their judgement, instead of an audience table."],
@@ -34,14 +34,12 @@ const DIAGRAMS = [
 const SECTIONS = [
   ["Home", [
     ["Hero", "«Nilai menunjukkan hasil. Pemahaman menentukan langkah berikutnya.» + D0, the completed class panel"],
-    ["Under the hero", "P1, full width"],
-    ["01 From evidence to decision", "D1, the thread"],
+    ["01 From evidence to decision", "P1 beside D1, the thread, as one block"],
     ["02 How it works", "D2, the cycle"],
     ["03 Capabilities", "P2 + five capabilities + «AI membantu. Pendidik memutuskan.»"],
     ["04 Who it’s for", "Typographic list: four roles and foundations"],
-    ["Pause", "P5"],
     ["05 Trust & Security", "Dark band + D7"],
-    ["06 What comes next", "Two sentences and a link to Features · Future direction"],
+    ["What comes next", "One row: a sentence and a link to Features · Future direction"],
     ["Closing", "Typographic demo band (the second and last demo invitation)"],
   ]],
   ["Why PINTAR", [["Hero", "Typography + D1, the thread"], ["01 The problem", "P7 + three observations"], ["02 Philosophy", "D2 with each stage’s question"], ["03 Principles", "Four principles + D5"], ["Closing", "Demo band"]]],
@@ -111,7 +109,7 @@ export default function review() {
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">
-<title>Website Review 3 — PINTAR public website</title>
+<title>Website Review 4 — PINTAR public website</title>
 <link rel="stylesheet" href="../site/assets/css/site.css">
 <style>
   .rv { padding-block: 5rem 8rem; }
@@ -135,13 +133,22 @@ export default function review() {
 </head>
 <body>
 <main class="wrap rv" id="isi">
-  <p class="label">PINTAR public website · review build 3 · launch wording for PINTAR 4.1</p>
+  <p class="label">PINTAR public website · review build 4 · independent design review · launch wording for PINTAR 4.1</p>
   <h1 class="h1">Understand <em>what to teach next.</em></h1>
   <p class="lead" style="margin-top:1.5rem">This build carries the intended launch wording for when PINTAR 4.1 has been accepted by Dr Gladys and her team. Preparing the wording does not mean acceptance has occurred. Every page is <code>noindex</code> and carries a review strip, and nothing has been deployed. Publication needs the accepted scope, public claims that match it, and the owner’s explicit authorisation.</p>
 
   <section>
     <h2>1. What changed in this revision</h2>
-    <h3>The story</h3>
+    <h3>Revision 4: independent design review</h3>
+    <ul class="dot">
+      <li><b>Assessment:</b> the direction is strong. The type, the restrained palette, the documentary images, the class panel and the Who It’s For rhythm are worth keeping as they are. The weakest page was Home: it explained the same sequence three times in a row (panel, thread, cycle), the class panel was dense, and two of its three images floated between sections.</li>
+      <li><b>Home, recomposed:</b> the classroom image now sits beside the four-step thread as one block under «Pahami apa yang perlu diajarkan berikutnya», so the picture illustrates the sequence. The courtyard pause is removed from Home (it stays on Who It’s For). The look ahead is one row, not a section. The page is about 1,300 px shorter on desktop.</li>
+      <li><b>Class panel, corrected and lighter:</b> 12 of 24 is half the class, not most of it. The educator’s note now reads as a hypothesis to check («Mungkin… Saya perlu memeriksanya di kelas») and the next step starts by asking learners how they answered. One hardest question instead of two, stacked so it no longer splits into ragged columns on phones. The Features report notes are reworded the same way.</li>
+      <li><b>A next step on every page:</b> Why → Features → Who It’s For → Trust each end with an onward link above the demo invitation, and each group on Who It’s For links to the Features section that serves it.</li>
+      <li><b>Small things:</b> the cycle’s direction arrows are larger and teal; the Contact image is shallower on phones so the form arrives sooner.</li>
+      <li><b>Deferred:</b> a sticky section bar on Features; a real product excerpt in place of the illustrated report (after acceptance); higher-resolution originals for the two wide images; a shorter review strip on phones (review builds only).</li>
+    </ul>
+    <h3>The story (revision 3)</h3>
     <ul class="dot">
       <li><b>One organising idea:</b> learning objective → evidence → educator judgement → next teaching step. It is drawn once as a thread with four marks, and the same marks label the hero panel and the annotated report, so the sequence is recognisable without being repeated as a slogan.</li>
       <li><b>Homepage opening:</b> «Nilai menunjukkan hasil. Pemahaman menentukan langkah berikutnya.» / «A score shows the result. Understanding shows what to teach next.» The lead is one simple sentence; the class panel carries the detail.</li>

@@ -71,7 +71,7 @@ export default function why(c) {
   </div>
 </section>
 
-${demoBand(c, { heading: t("Lihat filosofinya <em>dalam praktik.</em>", "See the philosophy <em>in practice.</em>") })}
+${demoBand(c, { next: "features", heading: t("Lihat filosofinya <em>dalam praktik.</em>", "See the philosophy <em>in practice.</em>") })}
 `;
   return {
     title: t("Mengapa PINTAR — Keputusan pendidikan layak didukung bukti", "Why PINTAR — Educational decisions deserve evidence"),

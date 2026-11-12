@@ -119,7 +119,7 @@ export const PHOTOS = {
     en: "A learner’s hands work through a fractions worksheet in pencil; in the margin, drawn fraction bars and crossed-out attempts.",
     alt_id: "Tangan peserta didik menggambar pita pecahan dengan pensil di tepi lembar kerja, beberapa percobaan dicoret, di meja kayu dekat jendela.",
     alt_en: "A learner’s hand draws fraction bars in pencil in the margin of a worksheet, some attempts crossed out, on a wooden desk by a window." },
-  P8: { r: "3/2", rm: "3/2", kind: "generated", pos: "50% 60%", posm: "50% 60%",
+  P8: { r: "3/2", rm: "2/1", kind: "generated", pos: "50% 60%", posm: "50% 60%",
     name_id: "Sebelum percakapan", name_en: "Before the conversation",
     id: "Meja rapat sekolah sesaat sebelum percakapan dimulai: laptop, laporan tercetak, buku catatan, dan dua gelas teh. Belum ada orang.",
     en: "A school meeting table moments before a conversation: a laptop, a printed report, a notebook and two glasses of tea. No one has arrived yet.",
@@ -277,8 +277,12 @@ ${footer(c)}
 export const label = (num, text, cls = "") => `<p class="label ${cls}">${num ? `<span class="label__n">${num}</span>` : ""}${text}</p>`;
 
 /** The demo invitation that closes most pages: typographic, one action. */
-export function demoBand(c, { heading, body } = {}) {
-  return `<section class="section demo-band" aria-labelledby="demo-band-h">
+export function demoBand(c, { heading, body, next } = {}) {
+  // `next` is the page a reader would naturally go to after this one: a quiet
+  // onward link, so no page ends with the demo request as the only way forward.
+  const onward = next ? `<nav class="onward" aria-label="${c.t("Halaman berikutnya", "Next page")}"><div class="wrap"><a href="${c.href(next)}"><span class="onward__k">${c.t("Selanjutnya", "Next")}</span><span class="onward__t">${NAV_LABEL[next][c.lang]}</span></a></div></nav>
+` : "";
+  return `${onward}<section class="section demo-band" aria-labelledby="demo-band-h">
   <div class="wrap cols cols--end">
     <div style="--span:7" data-reveal-group>
       ${label("", c.t("Minta demo", "Request a demo"))}

@@ -7,7 +7,7 @@ import { label, photo, demoBand, NAV_LABEL } from "../core.mjs";
 export default function audiences(c) {
   const t = c.t;
   const roles = [
-    { id: "peserta-didik", photo: "P3", role: t("Peserta didik", "Learners"), who: t("Siswa, mahasiswa, dan peserta pelatihan", "School pupils, students and trainees"),
+    { id: "peserta-didik", photo: "P3", more: ["features", "#belajar-mengajar", t("Belajar dan mengajar", "Learning and teaching")], role: t("Peserta didik", "Learners"), who: t("Siswa, mahasiswa, dan peserta pelatihan", "School pupils, students and trainees"),
       h: t("Tahu apa yang perlu <em>dikerjakan berikutnya.</em>", "Know what <em>to do next.</em>"),
       items: t([
         ["Tugas dan langkah berikutnya", "terlihat di satu halaman."],
@@ -20,7 +20,7 @@ export default function audiences(c) {
         ["Their own results by learning objective,", "without rankings or comparison with classmates."],
         ["Certificates", "whose authenticity others can check."],
       ]) },
-    { id: "pendidik", photo: "P2", role: t("Pendidik", "Educators"), who: t("Guru, dosen, dan fasilitator", "Teachers, lecturers and facilitators"),
+    { id: "pendidik", photo: "P2", more: ["features", "#laporan-asesmen", t("Laporan dan asesmen", "Reports and assessment")], role: t("Pendidik", "Educators"), who: t("Guru, dosen, dan fasilitator", "Teachers, lecturers and facilitators"),
       h: t("Tahu apa yang perlu diulang besok, <em>dan untuk siapa.</em>", "Know what to revisit tomorrow, <em>and for whom.</em>"),
       items: t([
         ["Bagian dan soal yang sulit bagi kelas,", "termasuk pilihan jawaban yang paling banyak dipilih."],
@@ -33,7 +33,7 @@ export default function audiences(c) {
         ["Material you can give to a class,", "plus your own."],
         ["Professional-development programmes", "you take part in, kept apart from performance review."],
       ]) },
-    { id: "pimpinan", photo: "P4", role: t("Pimpinan", "Leadership"), who: t("Kepala sekolah, kepala departemen, dan dekan", "Principals, heads of department and deans"),
+    { id: "pimpinan", photo: "P4", more: ["features", "#laporan-asesmen", t("Laporan dan asesmen", "Reports and assessment")], role: t("Pimpinan", "Leadership"), who: t("Kepala sekolah, kepala departemen, dan dekan", "Principals, heads of department and deans"),
       h: t("Melihat pola, <em>bukan menebak.</em>", "See patterns <em>instead of guessing.</em>"),
       items: t([
         ["Pola penguasaan", "di kelas-kelas dalam wewenang Anda."],
@@ -46,7 +46,7 @@ export default function audiences(c) {
         ["Class and school summaries", "ready to print for a meeting."],
         ["Opening one learner’s record", "only deliberately, and the action is recorded."],
       ]) },
-    { id: "administrator", photo: "P6", role: t("Administrator", "Administrators"), who: t("Operator sekolah dan admin institusi", "School operators and institution administrators"),
+    { id: "administrator", photo: "P6", more: ["features", "#akun-institusi", t("Akun dan institusi", "Accounts and institutions")], role: t("Administrator", "Administrators"), who: t("Operator sekolah dan admin institusi", "School operators and institution administrators"),
       h: t("Mengelola akses, <em>bukan keputusan belajar.</em>", "Manage access, <em>not learning decisions.</em>"),
       items: t([
         ["Akun, kelas, rombel, dan peran", "di satu tempat."],
@@ -59,7 +59,7 @@ export default function audiences(c) {
         ["Transfers, moving up and retirement", "without losing records that need to be kept."],
         ["Consequential changes", "record who, what, when and why."],
       ]) },
-    { id: "institusi", photo: "P5", role: t("Institusi secara keseluruhan", "The institution as a whole"), who: t("Yayasan, badan pengelola, dan pimpinan institusi", "Foundations, governing bodies and institutional leaders"),
+    { id: "institusi", photo: "P5", more: ["trust", "", t("Keamanan dan perlindungan data", "Trust and data protection")], role: t("Institusi secara keseluruhan", "The institution as a whole"), who: t("Yayasan, badan pengelola, dan pimpinan institusi", "Foundations, governing bodies and institutional leaders"),
       h: t("Catatan belajar yang <em>dapat dijelaskan.</em>", "A learning record <em>that can be explained.</em>"),
       items: t([
         ["Materi bersama,", "ditambah materi milik institusi sendiri."],
@@ -94,11 +94,12 @@ ${roles.map((r, i) => `<section class="aud${i % 2 ? " aud--flip" : ""}" id="${r.
       <p class="aud__who">${r.who}</p>
       <h2 class="h2" id="${r.id}-h" data-reveal>${r.h}</h2>
       <ol class="aud__list">${r.items.map(([b, d], k) => `<li data-reveal><span>${String(k + 1).padStart(2, "0")}</span><span><b>${b}</b> ${d}</span></li>`).join("")}</ol>
+      <p class="aud__more" data-reveal><a class="link" href="${c.href(r.more[0], r.more[1])}">${r.more[2]}</a></p>
     </div>
   </div>
 </section>`).join("\n")}
 
-${demoBand(c, { heading: t("Lihat PINTAR <em>dari sudut pandang Anda.</em>", "See PINTAR <em>from where you sit.</em>"), body: t("Ceritakan peran Anda, dan kami menyiapkan demo terpandu dengan data contoh yang sesuai.", "Tell us your role, and we will prepare a guided demonstration with suitable sample data.") })}
+${demoBand(c, { next: "trust", heading: t("Lihat PINTAR <em>dari sudut pandang Anda.</em>", "See PINTAR <em>from where you sit.</em>"), body: t("Ceritakan peran Anda, dan kami menyiapkan demo terpandu dengan data contoh yang sesuai.", "Tell us your role, and we will prepare a guided demonstration with suitable sample data.") })}
 `;
   return {
     title: t("Untuk Siapa — PINTAR", "Who It’s For — PINTAR"),

@@ -105,7 +105,7 @@ To change what is caught, edit the lists. Then run the cases.
 
 ```
 php  website/pintar-site/verify/moderation-cases.php   # 47 moderation cases, ID and EN
-node website/pintar-site/verify/check.mjs              # 1230 browser and server checks (needs php and Chromium)
+node website/pintar-site/verify/check.mjs              # 1256 browser and server checks (needs php and Chromium)
 ```
 
 `check.mjs` covers:

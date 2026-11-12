@@ -48,17 +48,19 @@ export default function home(c) {
     </div>
     <div class="hero__panel" style="--span:5;--start:8">${classPanel(c)}</div>
   </div>
-  <div class="wrap wrap--wide hero__photo" data-reveal>${photo(c, "P1", { sizes: "100vw" })}</div>
 </section>
 
-<section class="section" aria-labelledby="thread-h">
+<section class="section situation" aria-labelledby="thread-h">
   <div class="wrap">
     <div class="section-head section-head--split" data-reveal-group>
       <div>${label("01", t("Dari bukti ke keputusan", "From evidence to decision"))}
       <h2 class="h2" id="thread-h" data-reveal>${t("Pahami apa yang perlu <em>diajarkan berikutnya.</em>", "Understand <em>what to teach next.</em>")}</h2></div>
       <p class="lead" data-reveal>${t("Setiap laporan di PINTAR berangkat dari tujuan pembelajaran dan berakhir di tangan pendidik.", "Every PINTAR report starts from a learning objective and ends in an educator’s hands.")}</p>
     </div>
-    ${thread(c)}
+    <div class="cols situation__grid">
+      <div style="--span:7" data-reveal>${photo(c, "P1", { r: "3/2", sizes: "(max-width: 960px) 100vw, 58vw" })}</div>
+      <div style="--span:5;--start:8">${thread(c, { vertical: true })}</div>
+    </div>
   </div>
 </section>
 
@@ -99,8 +101,6 @@ export default function home(c) {
   </div>
 </section>
 
-<div class="wrap wrap--wide pause" data-reveal>${photo(c, "P5", { sizes: "100vw" })}</div>
-
 <section class="section section--dark" aria-labelledby="trust-h">
   <div class="wrap cols cols--center">
     <div style="--span:5" data-reveal-group>
@@ -113,16 +113,11 @@ export default function home(c) {
   </div>
 </section>
 
-<section class="section ahead" aria-labelledby="road-h">
-  <div class="wrap cols cols--end">
-    <div style="--span:6" data-reveal-group>
-      ${label("06", t("Ke depan", "What comes next"))}
-      <h2 class="h2" id="road-h" data-reveal>${t("Berkembang <em>dengan hati-hati.</em>", "Growing <em>with care.</em>")}</h2>
-    </div>
-    <div style="--span:5;--start:8" data-reveal>
-      <p class="lead">${t("Berikutnya, PINTAR akan membantu menafsirkan bukti lebih dalam, lalu mendukung pertumbuhan pendidik dan intervensi yang diukur.", "Next, PINTAR will help interpret the evidence more deeply, then support educators’ growth and interventions that are measured.")}</p>
-      <p class="actions"><a class="link" href="${c.href("features", "#arah")}">${t("Arah ke depan", "The future direction")}</a></p>
-    </div>
+<section class="ahead" aria-labelledby="road-h">
+  <div class="wrap ahead__in" data-reveal>
+    <h2 class="ahead__h" id="road-h">${t("Ke depan", "What comes next")}</h2>
+    <p class="ahead__p">${t("Berikutnya, PINTAR akan membantu menafsirkan bukti lebih dalam, lalu mendukung pertumbuhan pendidik dan intervensi yang diukur.", "Next, PINTAR will help interpret the evidence more deeply, then support educators’ growth and interventions that are measured.")}</p>
+    <a class="link" href="${c.href("features", "#arah")}">${t("Arah ke depan", "The future direction")}</a>
   </div>
 </section>
 

@@ -24,9 +24,9 @@ export const THREAD = [
 ];
 
 // D1 · The thread: the organising idea, drawn once and reused.
-export function thread(c, { caption = true } = {}) {
+export function thread(c, { caption = true, vertical = false } = {}) {
   const L = c.lang;
-  return `<figure class="thread" data-sequence>
+  return `<figure class="thread"${vertical ? ' data-layout="v"' : ""} data-sequence>
   <ol class="thread__steps" aria-label="${c.t("Dari tujuan pembelajaran ke langkah mengajar berikutnya", "From learning objective to next teaching step")}">${THREAD.map((s, i) => `<li class="thread__step${i === 2 ? " thread__step--human" : ""}" data-step>
       <span class="thread__top">${mark(i + 1)}<span class="thread__n">${String(i + 1).padStart(2, "0")}</span></span>
       <span class="thread__h">${s[L]}</span>
@@ -52,16 +52,15 @@ export function classPanel(c) {
     <p class="panel__note">${c.t("Bagian jawaban yang benar pada soal tiap tujuan: 3 soal, 24 peserta didik. Ini bukti, belum kesimpulan tentang penguasaan.", "The share of correct answers to each objective’s questions: 3 questions, 24 learners. It is evidence, not yet a judgement of mastery.")}</p>
   </div>
   <div class="panel__block">
-    <p class="panel__h"><span>${mark(2)}${c.t("Bukti: soal yang paling sulit", "Evidence: the hardest questions")}</span></p>
-    <ul class="panel__list"><li><span>${c.t("Soal 4 · menyamakan penyebut", "Question 4 · common denominator")}</span><span>${c.t("7 dari 24 benar · 12 memilih B", "7 of 24 correct · 12 chose B")}</span></li>
-      <li><span>${c.t("Soal 9 · membandingkan pecahan", "Question 9 · comparing fractions")}</span><span>${c.t("11 dari 24 benar", "11 of 24 correct")}</span></li></ul>
+    <p class="panel__h"><span>${mark(2)}${c.t("Bukti: soal yang paling sulit", "Evidence: the hardest question")}</span></p>
+    <p class="panel__q"><b>${c.t("Soal 4 · menyamakan penyebut", "Question 4 · common denominator")}</b><span>${c.t("7 dari 24 menjawab benar. 12 dari 24 memilih jawaban B.", "7 of 24 answered correctly. 12 of 24 chose answer B.")}</span></p>
   </div>
   <div class="panel__decision">
     <p class="panel__by">${c.t("Ditulis oleh pendidik · contoh", "Written by the educator · example")}</p>
     <p class="panel__h"><span>${mark(3)}${c.t("Pertimbangan", "Judgement")}</span></p>
-    <p>${c.t("Pilihan B menjumlahkan penyebutnya. Sebagian besar kelas belum menyamakan penyebut sebelum menjumlahkan.", "Option B adds the denominators. Most of the class is not yet finding a common denominator before adding.")}</p>
+    <p>${c.t("Separuh kelas memilih B, jawaban yang menjumlahkan penyebutnya. Mungkin penyamaan penyebut belum dipahami. Saya perlu memeriksanya di kelas.", "Half the class chose B, the answer that adds the denominators. They may not yet understand common denominators. I need to check in class.")}</p>
     <p class="panel__h"><span>${mark(4)}${c.t("Langkah berikutnya", "Next step")}</span></p>
-    <p>${c.t("Besok: ulang penyamaan penyebut dengan pita pecahan. Membandingkan pecahan dilanjutkan sesudahnya.", "Tomorrow: revisit common denominators with fraction strips, then continue with comparing fractions.")}</p>
+    <p>${c.t("Besok: minta beberapa peserta didik menjelaskan cara mereka menjawab Soal 4, lalu ulang penyamaan penyebut dengan pita pecahan bila perlu.", "Tomorrow: ask a few learners to explain how they answered Question 4, then revisit common denominators with fraction strips if needed.")}</p>
   </div>
   <figcaption class="panel__foot">${c.t("Ilustrasi konsep, bukan tangkapan layar. PINTAR menunjukkan buktinya; pertimbangan dan langkah berikutnya ditulis oleh pendidik.", "A concept illustration, not a screenshot. PINTAR shows the evidence; the judgement and the next step are the educator’s.")}</figcaption>
 </figure>`;
@@ -136,12 +135,12 @@ export function reportView(c) {
   const n = (k) => `<span class="note-n" aria-hidden="true">${k}</span>`;
   const notes = c.t([
     "Hanya 7 dari 24 menjawab benar: soal ini sulit bagi kelas.",
-    "Separuh kelas memilih jawaban yang sama, B: kesalahannya berpola, bukan acak.",
-    "Dua tujuan lain di bab ini lebih kuat: yang perlu diulang satu bagian, bukan seluruh bab.",
+    "Separuh kelas memilih jawaban yang sama, B: layak ditanyakan bagaimana mereka sampai ke sana.",
+    "Dua tujuan lain di bab ini lebih kuat: mungkin cukup mengulang satu bagian, bukan seluruh bab.",
   ], [
     "Only 7 of 24 answered correctly: the class found this question hard.",
-    "Half the class chose the same answer, B: the mistake follows a pattern, it is not random.",
-    "The chapter’s other two objectives are stronger: one part needs revisiting, not the whole chapter.",
+    "Half the class chose the same answer, B: worth asking how they got there.",
+    "The chapter’s other two objectives are stronger: revisiting one part may be enough, not the whole chapter.",
   ]);
   return `<figure class="report" data-reveal>
   <div class="report__card">

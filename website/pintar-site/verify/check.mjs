@@ -40,7 +40,7 @@ const ROOT = join(HERE, "..");
 const SITE = join(ROOT, "site");
 const { launch, Page } = await import(join(ROOT, "../mini-pintar/app/verify/driver.mjs"));
 const { CONTRAST_EXPR } = await import(join(ROOT, "../mini-pintar/app/verify/probes.mjs"));
-const { ROUTES } = await import(join(ROOT, "src/core.mjs"));
+const { ROUTES, NAV_LABEL } = await import(join(ROOT, "src/core.mjs"));
 
 const fails = [];
 let checks = 0;
@@ -133,6 +133,14 @@ for (const lang of ["id", "en"]) {
   assert(panel.includes(lang === "id" ? "Data contoh" : "Sample data") && panel.includes(lang === "id" ? "% jawaban benar" : "% of answers correct") && panel.includes(lang === "id" ? "24 peserta didik" : "24 learners"), `${lang}/home: the class panel says sample data, what each percentage measures, and how many learners`);
   assert(panel.includes(lang === "id" ? "belum kesimpulan tentang penguasaan" : "not yet a judgement of mastery"), `${lang}/home: percentage correct is distinguished from a judgement of mastery`);
   assert(/class="panel__decision"/.test(panel) && panel.includes(lang === "id" ? "Ditulis oleh pendidik · contoh" : "Written by the educator · example"), `${lang}/home: the educator's decision is set apart and attributed as an example`);
+  // Revision 4: 12 of 24 is half the class, and an answer pattern is something to investigate, not proof of reasoning.
+  assert(!/Sebagian besar kelas|Most of the class/.test(homeMain + fmain) && panel.includes(lang === "id" ? "Separuh kelas" : "Half the class") && panel.includes(lang === "id" ? "Saya perlu memeriksanya" : "I need to check"), `${lang}/home: the educator's note says half the class, and frames the pattern as something to check`);
+  assert((homeMain.match(/data-photo=/g) || []).length === 2, `${lang}/home: two images, each attached to a section (classroom with the thread, staff room with capabilities)`);
+  for (const [k, nxt] of [["why", "features"], ["features", "audiences"], ["audiences", "trust"]]) {
+    const h = await readFile(join(SITE, ROUTES[k][lang], "index.html"), "utf8");
+    const on = h.slice(h.indexOf('<nav class="onward"'), h.indexOf("</nav>", h.indexOf('<nav class="onward"')));
+    assert(on.includes(NAV_LABEL[nxt][lang].replace("&", "&amp;")) || on.includes(NAV_LABEL[nxt][lang]), `${lang}/${k}: an onward link to the next page in the reading order`);
+  }
   for (const [k, html] of [["home", main], ["why", await readFile(join(SITE, ROUTES.why[lang], "index.html"), "utf8")]]) {
     const th = html.slice(html.indexOf('<figure class="thread"'), html.indexOf("</figure>", html.indexOf('<figure class="thread"')));
     assert((th.match(/data-step/g) || []).length === 4 && th.includes("thread__step--human"), `${lang}/${k}: the evidence-to-decision thread, with the educator's judgement marked`);
