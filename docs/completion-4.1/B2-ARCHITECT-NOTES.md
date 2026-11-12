@@ -49,6 +49,15 @@
      a person that a report they cannot read exists, nor sends them to a context they do not have. One test each way.
    - **Reviews of the fix:** Daisy, one screenshot (no visit). Sharon, the delta, for the condition above only.
      B2 closes on those two, green runs on the fix commit, and the boundary check.
+8. **The fix is pushed at `546d9eb75abb53d41523750e7134cc83889d1089` (20:30 UTC, 12 Nov).**
+   - **Sharon: PASS on the delta;** the condition on B2-R-A1 holds (her record on `claude/gracious-lamport-0m1qjr` at `75b8cc6e0deb267a4f5af96f3be58fcabe40f215`).
+   - **Runs:** CI `43293048714` and journeys `43293054174`, both green on `b24d73ffd0e84b139a02fe26f52fa21c52a94a25`, which carries it. The journeys now include
+     the notice at 320 px (no sideways scroll; the link has width).
+   - **Chief Architect's read:** the wrapper is one `<span>`; the new answer `CETAK_KONTEKS_LAIN` is returned only
+     when the report's school is among the person's own contexts (`tempatSaya()`); every other case keeps the
+     general refusal. Boundary check met.
+   - **Only Daisy's screenshot check remains.** The three screenshots are in the work branch at
+     `docs/completion-4.1/batches/b2-fix/` (`notice-320-before.png`, `notice-320.png`, `notice-1280.png`).
 
 ## 1 · A learner's own-results print (04:05 UTC, 12 Nov 2026)
 

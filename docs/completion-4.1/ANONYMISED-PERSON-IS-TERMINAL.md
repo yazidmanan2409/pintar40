@@ -90,6 +90,17 @@
       - EN: «This account cannot be reopened: its owner's personal data has been deleted. Nothing was changed. If
         this person wants to use PINTAR again, they are registered as a new person.»
       - Suggested key `akun.tinggal.galat.account_anonymised`; the engineer may name it.
+    - **ACCEPTED (20:30 UTC, 12 Nov 2026) at `7e42db9690486e82aab45dcdc4fc1ea5ebb68945`.** Sharon: PASS on the delta;
+      A1 and A2 closed; the race tests L1F4-R01 and L1F4-R02 pass, which meets the owner's condition of item 8 (her
+      record on `claude/gracious-lamport-0m1qjr` at `75b8cc6e0deb267a4f5af96f3be58fcabe40f215`). Runs: CI `43293048714` and journeys `43293054174`, both green on `b24d73ffd0e84b139a02fe26f52fa21c52a94a25`, which carries it
+      (verified together with B2's fix, under the owner's stacked-verification rule). Chief Architect's read: the
+      deletion, the reopen and the reinstatement each take the person row first; the deletion declines any open
+      reopen request with a note. Boundary check met.
+    - **One wording item remains, for Second Eye (no logic).** The refusal as built reads «Akun ini tidak dibuka
+      kembali: data pribadi pemiliknya sudah dihapus. Tidak ada yang diubah.» **That is not Daisy's final line**
+      (above): hers says «tidak dapat dibuka kembali» and ends with the next step, «Bila orang ini ingin memakai
+      PINTAR lagi, ia didaftarkan sebagai orang baru.»; the English says "owner's", not "holder's". Put her ID and EN
+      lines in word for word, in the next commit. Confirmed from its diff. **The record closes then.**
     - **Daisy accepted the certificate count and her two L1-F4 lines** as built at
       `3a63a2b2158ea4834c1f12653c864baf157c0dd5` (read, not rendered; her `CEK-F1R1B-04f68948-L1F4-3a63a2b2.md`).
 

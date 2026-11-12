@@ -96,7 +96,20 @@
      already in use". I read the log myself; no migration or test ran. This is the one case where a re-run is
      allowed. **I queued a re-run of the failed job only, on the same commit, at 19:43 UTC.** A second failure
      would be treated as real.
-   - **L1-F2 closes when that re-run passes.** Nothing else is open on it.
+   - ~~L1-F2 closes when that re-run passes.~~ *(Superseded by item 10.)*
+10. **CLOSED (20:30 UTC, 12 Nov 2026), with L1-R2.** Sharon: PASS on `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` (her
+    record on `claude/gracious-lamport-0m1qjr` at `75b8cc6e0deb267a4f5af96f3be58fcabe40f215`). No screen changed, so Daisy was not asked.
+    - **Runs, stated exactly.** On `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` itself: CI `43272608696` green; journeys
+      `43272615741` job A green; job B stopped by the runner before the database started. My re-run of job B was
+      **cancelled** when the engineer dispatched the next candidate, so it never ran. On the descendant
+      `b24d73ffd0e84b139a02fe26f52fa21c52a94a25`, which contains this commit unchanged: CI `43293048714` and journeys `43293054174`, both green on `b24d73ffd0e84b139a02fe26f52fa21c52a94a25`,
+      job B included.
+    - **Why that is enough.** Job B's failure ran none of our code. Job B has since passed on a tree that contains
+      this commit. The precedent is S-1, closed on the runs of the commit above it. Recorded here so the owner can
+      see the closure does not rest on a green job B on the exact commit.
+    - **The runner fault is fixed at its cause** in `b24d73ffd0e84b139a02fe26f52fa21c52a94a25` (the stack's host ports are
+      reserved out of the ephemeral range). Workflow files only; no request file, no `supabase/config.toml`.
+    - **Boundary check:** met.
    - **Review:** Sharon reviews the next candidate as a delta on this commit. L1-F4's required change may land in
      the same commit set.
 
