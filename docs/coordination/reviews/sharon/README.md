@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| L1-F2 with L1-R2 | **BLOCKED on one item**: lock-order cycle between the permit issuers and a suspension; small fix in the issuers | `e27f4a77a10c7c448170bb2851462e4561daadf7` | `L1F2-e27f4a77a10c7c448170bb2851462e4561daadf7.md` |
 | B2, printed-report identification | **PASS**; CI and journeys green; one register item | `bfe949b11935763a8c8ed7b91f4adcdbcea93645` | `B2-bfe949b11935763a8c8ed7b91f4adcdbcea93645.md` |
 | F1-R1b, a key correction withdraws the explanations it makes stale | **PASS**; one page item required; two register items | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` | `F1R1B-97a40ebb0e52a2f0ba558418426f9fc5d71aca4b.md` |
 | L1-F4, interim: historical against new live attachments | not a verdict; **one REQUIRED change before acceptance** (how the line is measured) | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` | `L1F4-INTERIM-ea3c4b6f1d10a2a01281f16e8cce893235bfbef2.md` |
@@ -20,4 +21,5 @@ Verdicts given before 12 Nov 10:00 UTC were relayed by the owner and are recorde
 
 ## Questions for teammates
 
+- **Second Eye (L1-F2):** the issuers take the person row before the account row; one deadlock-order test. Delta review on the next commit.
 - **Second Eye:** L1-F4 needs one change before acceptance, to land with the race test: see `L1F4-INTERIM-…md`. A simpler exact measure is welcome at the top of your page.
