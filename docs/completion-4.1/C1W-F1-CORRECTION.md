@@ -4,6 +4,30 @@
 > Architect. THE PLAN (`THE-PLAN.md`, owner approved) is **not amended**: its §7.7 already says that F-1 is placed by
 > Sharon's classification and that, if a blocker, it is corrected in C1w's one correction pass before promotion.
 
+## 0 · What holds now (overrides anything below that differs)
+
+1. **Sharon: BLOCKED on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`, for one reader:** the learner's own review,
+   `session_review`, shows the sealed rationale beside the in-force mark. Requirements 1 to 5 are verified;
+   requirement 6 is short by that reader.
+2. **The correction (hers):** in `session_review`, when the chosen option's correctness under the key in force
+   differs from its sealed `is_correct`, return **no rationale** for it (null). Every other row and every uncorrected
+   sitting stays byte-identical. Tests red first on that commit: the now-right answer shows `benar` true and no
+   rationale calling it wrong; a now-wrong answer shows no sealed rationale calling it right; an uncorrected sitting's
+   review is byte-identical; a plant restores the sealed rationale.
+3. **Her judgments, all accepted:** the accessor `hasil_murid_id`; D-060 unchanged with no new catalogue, **ruled
+   explicitly for both `class.misconceptions` (row 1) and `item.correctness_rate` (row 5a)**; row 5b left as is.
+4. **F1-R1 is settled by item 2** as to the learner's review: it is a reader's choice, inside F-1, and is not an
+   owner decision. What remains of F1-R1 is Daisy's establishing pass: whether any **other** screen shows a rationale
+   beside a mark, and whether the learner's screen should say why the explanation is absent (her wording).
+5. **Register, not in this pass:**
+   - **F1-R2:** a Question Health screen that shows both the correctness rate (in force) and distractor uptake's key
+     flag (sealed) for a corrected item says «kunci diperbaiki», so the flag is not read as the key in force.
+   - **Row 5b for the owner, with the 4.5 item-statistics work:** whether distractor uptake's key flag should itself
+     move is a catalogue question.
+6. **Next:** the fix is a new commit; Sharon rechecks that alone. Daisy's F-1 visit continues on
+   `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` for the teacher's screen, and she reviews the learner's review on the
+   fix commit if its screen or wording changes.
+
 ## 1 · Status
 
 | | |
@@ -214,10 +238,32 @@ defects; 11 of 11 groups; CI run `43142431230` success on the first attempt; jou
    is the same contradiction F-1 exists to remove, moved from the mark to the words.
    - **To establish (Daisy, in this visit, where she can):** on which screens a rationale is shown for a sitting's
      answer (the learner's review, the teacher's per-question evidence), and what a corrected question shows there.
-   - **Not decided here.** Possible treatments range from not showing a rationale for an option whose correctness
+   - ~~**Not decided here.** Possible treatments range from not showing a rationale for an option whose correctness
      changed on that sitting, to asking the correcting educator to revise the rationale as part of the correction.
      Both touch C1w's approved correction flow, so it is brought to the owner with the reviewers' findings, not
-     built.
+     built.~~ (**Superseded, 12 Nov:** Sharon ruled the learner's review a reader inside F-1 and required the first
+     treatment there; §0 items 2 and 4. It does not touch the correction flow and needs no owner decision.)
+
+## 9c · Sharon's review (12 Nov 2026), in brief
+
+- **Blocker:** `session_review` gives a learner `benar` from the key in force (since `M/20270115110000`) and `alasan`
+  from the sealed option's rationale. On a corrected sitting a learner who chose the now-right option sees their
+  answer marked right beside «Ini belum tepat», in every mode the review opens for (only PRE_TEST refuses it). The
+  text is authored, but serving it beside an in-force mark is a reader's choice, and requirement 6 covers every
+  reader that marks an answer or derives remediation from it.
+- **Verified:** one accessor for all corrected readers, with the migration refusing a bare sealed read; history
+  immutable; uncorrected sittings identical, by assertion and on data; catalogue untouched; journey 3; boundaries
+  unchanged (`teacher_question_evidence` keeps its checks; the reader is revoked from clients; the withdrawal
+  exclusion still reaches both class-wide views).
+- **Question Health (row 5a's effect):** a corrected item's state can move, for example a signal raised by the wrong
+  key clearing. Every move is an audited transition naming the catalogue version, and an item in a human-decided
+  state is skipped, so a reviewer's decision is not overwritten. Nothing to change.
+- **A sitting still open when its key was corrected** keeps the sealed key until it finalises and is recomputed,
+  consistent with its own result in force.
+
+**Chief Architect's note.** §9b raised the rationale as a finding and wrongly expected it to need the owner. Sharon's
+classification is the better one: the contradiction is produced by what a reader chooses to serve, so it is F-1's
+own defect and its fix belongs here.
 
 ## 10 · Log
 
@@ -229,3 +275,4 @@ defects; 11 of 11 groups; CI run `43142431230` success on the first attempt; jou
 | 11 Nov 2026 (late) | B1 closed on `1fc719b5` (Sharon PASS, Daisy PASS, CI and journeys green). This pass is released. Order at the boundary: the suspended sign-in correction first, then this pass; B2 after both have Sharon's PASS |
 | 12 Nov 2026 (04:30 UTC) | Candidate pushed: `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. Read by the Chief Architect (§9a). For Sharon and Daisy once CI and journeys are green on it |
 | 12 Nov 2026 (09:30 UTC) | CI `43142431230` and journeys `43142435769` success on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. With Sharon and Daisy. Two additions from the Chief Architect (§9b): row 5a to be ruled explicitly; finding F1-R1 on rationale text after a correction |
+| 12 Nov 2026 (10:30 UTC) | Sharon: BLOCKED on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` for `session_review`'s rationale only; requirements 1 to 5 verified; accessor, D-060 (rows 1 and 5a) and row 5b accepted. §0 added. Register F1-R2 opened |
