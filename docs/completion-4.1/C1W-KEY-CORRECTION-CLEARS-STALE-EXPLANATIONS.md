@@ -27,10 +27,11 @@
    corrected key. The option keeps a **durable reference to that correction**; the withdrawn text stays on the
    correction's **audit record**. **Enforced in the database, not merely documented.** Ordinary content creation and
    revision still require complete rationales.
-10. State: **awaiting Sharon's verification of the amended design** (§3c): the database constraints, every affected
-    reader and writer, and the procedure for amending the frozen invariant and its CI manifest. Nothing is built
-    until she has. It gates nothing. Daisy's wording is needed for three lines (§6).
-    *(The earlier states, "released" and then "held on INV-03", are superseded by this item.)*
+10. **Sharon: PASS on the amended design** (read at `bf91ead92b3924f4e6d3aa7c688ab1a9978a29f8`), with required
+    points per item (§3d). They govern where §3c differs.
+11. State: **released to the engineer**, after F-1's fix, as its own commit, before Z. It gates nothing. Daisy's
+    wording is needed for three lines (§6). **One question is with the owner** (§3d point 4.5): whether an
+    authoritative copy of the baseline exists outside the repository.
 
 ## 1 · The defect
 
@@ -229,6 +230,72 @@ be submitted until the rationale is written.*
 - The baseline check in CI passes with the amendment recorded as Sharon specifies, and fails if the document is
   changed without it.
 
+## 3d · Sharon's verification of the amended design (these govern)
+
+**1 · The database constraints.**
+- Add `rationale_withdrawn_by uuid references key_corrections(id) on delete restrict`; drop the NOT NULL; one CHECK:
+  a non-empty rationale and no reference, **or** a null rationale and a reference.
+- **A foreign key alone does not prove the reference was earned.** A trigger on INSERT or UPDATE that sets the
+  reference admits exactly two cases:
+  - **the confirming act:** `koreksi_kunci_berwenang` is true for that correction (the marker names it, it is
+    CONFIRMED, decided by the caller at `now()`), the option belongs to that correction's corrected copy of the
+    target question, and the option's correctness differs from the option it supersedes;
+  - **a copy:** the row is a copy of an option that already holds the same reference, through a verifiable lineage
+    link.
+  Every other path is refused: the draft editor, an upload, a direct write by any role, the service role.
+- **"Writing a rationale again clears the reference" is enforced by the same trigger,** on UPDATE when a non-empty
+  rationale arrives, so no writer has to remember it.
+- The sealed-content guard is unchanged; after approval a write to either column is refused.
+
+**2 · Readers.**
+- **The release digest needs no change.** `content_field` writes `'~'` for null and a length prefix otherwise
+  (`M/20260912124007…`), so a null rationale hashes deterministically and is distinct from any text. **Do not add the
+  reference to the digest:** it is governance, not taught content. *Test:* recomputing every existing release's hash
+  gives the stored value, and a corrected revision's hash is reproducible.
+- `session_review` returns the rationale; a null shows no explanation, which is correct.
+- **The engineer checks and states on the page:** every TypeScript type declaring `rationale` non-nullable and each
+  place it is rendered; Studio's package and question views; the exports (a null becomes an empty cell that
+  re-import then refuses, correctly); the MCQ quality run (reports a missing rationale, does not fail on it).
+  `soal_beda` and `soal_beda_versi` already compare with `is distinct from`.
+- `M/20260915120000…:499` counts options with a non-null rationale. It ran once at migration time and is not a live
+  check, but it holds the old assumption and is listed.
+
+**3 · Writers.**
+- Unchanged, requiring a rationale: the draft editor and `soal_tulis_pilihan`; package ingest and materialise. The
+  trigger refuses any attempt by them to set the reference.
+- `salin_kursus_revisi` copies both columns; its copy is admitted only because the source option holds the same
+  reference.
+- **Required: each copy path keeps a verifiable link to its source option, or refuses to copy an option whose
+  rationale was withdrawn.** That covers the course revision copy, and quick-assessment launch if it copies options
+  (the engineer states which). No path may originate the state.
+- The withdrawn text goes on the correction's record in the same transaction, append-only.
+
+**4 · Amending the frozen invariant and its manifest** (`scripts/baseline-parity.mjs` defines the procedure):
+1. **The marker.** The script reads the **first** match of `Baseline amendment (YYYY-MM-DD)`. The new dated note goes
+   **at the top** of `docs/rebuild/03-PINTAR-INVARIANTS.md`, **above** the 2026-09-12 note, which stays below as
+   history. Placed below, the check would still read the old date and fail.
+2. **The row.** INV-03's rule becomes the owner's wording; its enforcement column becomes "DB: CHECK (non-empty, or
+   null with a withdrawing correction's reference); trigger admitting the reference only from the confirming act or a
+   verified copy"; its test column names the refusal cases.
+3. **The manifest.** In `docs/rebuild/BASELINE-MANIFEST.json`, the entry for document 03 gets the new `sha256` and
+   `bytes`, and `"baseline": "2026-11-12"`.
+4. **The ADR.** An ADR in `docs/adr/`, **in the same commit**: the owner's A1 decision, why A2 and A3 were not taken,
+   and the enforcement. The owner-decision record points to it.
+5. **The source.** The script's comment says the repository copy must match "the authoritative" baseline. **If a
+   copy exists outside the repository, the same amendment goes there,** or the next sync reintroduces the old text.
+- *Test:* the parity check passes on the amendment commit, and fails if document 03 changes without the marker, the
+  manifest or the ADR.
+
+**Chief Architect's notes.**
+- **Point 4.5 is a question only the owner can answer:** whether an authoritative baseline is kept outside this
+  repository. If it is, the amended INV-03 must be put there by the owner or with the owner's authorization; nobody
+  on the team can reach it. Put to the owner.
+- **The lineage link of point 3** uses what C1w already has (`items.supersedes_item_id`, read by `riwayat_soal`) for
+  the question; the engineer states how an option is tied to the option it was copied from (by label within the
+  superseding question, or a column), since the trigger depends on it.
+- The amendment commit changes a frozen baseline document. It is authorized by the owner's decision of 12 Nov and
+  carries that decision's reference in the ADR; it is the only baseline change in 4.1 so far.
+
 ## 4 · The four questions
 
 | Question | To answer on the page |
@@ -281,3 +348,4 @@ call, together with the same question for F-1's fix.
 | 12 Nov 2026 (03:53 UTC) | Sharon: PASS on the design with three required points and six tests (§3a). Released to the engineer, after F-1's fix |
 | 12 Nov 2026 (05:47 UTC) | **Held.** The engineer found that INV-03 and its column constraint forbid a null rationale. Options and a recommendation recorded in §3b; put to the owner |
 | 12 Nov 2026 (05:49 UTC) | Owner: A1. INV-03 amended narrowly, enforced in the database, with a durable reference and the text on the correction's audit record. Awaiting Sharon's verification (§3c) |
+| 12 Nov 2026 (05:54 UTC) | Sharon: PASS on the amended design (§3d): the CHECK and a trigger that admits the reference only from the confirming act or a verified copy; the digest unchanged; the baseline amendment procedure with the marker first, the manifest and an ADR in the same commit. Released to the engineer. One question to the owner: an authoritative baseline outside the repository |
