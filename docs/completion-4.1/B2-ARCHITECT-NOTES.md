@@ -11,8 +11,10 @@
    pre-build review.
 2. **A learner's own-results print (the page's Q1): Sharon's content rule governs** (§1). The Chief Architect's
    suggestion of the learner's live schools is **superseded** by it.
-3. **One choice inside that rule is the owner's to make knowingly** (§1, "the cost"). The content rule is recommended
-   and is the working assumption unless the owner chooses otherwise.
+3. **The owner approved the content rule (12 Nov 2026).** The accountability event identifies the school or schools
+   whose evidence appears in the printout, not the learner's current schools. **Existing visibility and authorization
+   boundaries are preserved. Historical evidence is not attributed to a new school merely because the learner
+   transferred.** (The earlier wording here, that the choice was open, is superseded.)
 4. B2 also takes register items B1-R1 to R5, the completeness notice B1-R4, and the print step of §8.5 journey 4.
 5. Existing defect found by the engineer, corrected in B2: `/belajar/hasil` offers «Cetak laporan» on an empty
    report, against THE PLAN §5.2 F.
@@ -53,6 +55,17 @@ printed report contains**, not the learner's live affiliations.
    results (B finds nothing); a departed learner (the former school finds it, an unrelated school does not); a print
    with no evidence (platform only); a person-scoped print for someone else (refused).
 
+**Decided (owner, 12 Nov 2026, 06:06 UTC): the content rule.** Two conditions of the owner's, each with a test the
+page must carry:
+
+- **Boundaries preserved.** The print action shows the learner only what the page already shows them, and a school
+  admin's reader shows a print event only to a school in its snapshot. Nothing about a person-scoped print widens who
+  can read a result or an event.
+- **No attribution by transfer.** A learner who moved from A to B and prints results earned at A produces an event
+  that belongs to A alone. B, the current school, is in the snapshot only if evidence earned at B is on the
+  printout. This is the second of Sharon's five tests, and it is the one that proves the owner's condition; the
+  transferred learner should be its named case.
+
 **Chief Architect's note.** The content rule is the better architecture: it keeps one rule for every print (the
 owner of the printed evidence), where the suggestion would have introduced a second. One thing for the page to
 state under "what else did that change": B1's reader then shows a school admin an event for a person who is no
@@ -64,3 +77,4 @@ needs any.
 | Date | Entry |
 |---|---|
 | 12 Nov 2026 (04:05 UTC) | Sharon's ruling on the learner's own-results print recorded; the owner's choice put |
+| 12 Nov 2026 (06:06 UTC) | Owner approved the content rule, with boundaries preserved and no attribution of historical evidence by transfer. No open decision on B2 |
