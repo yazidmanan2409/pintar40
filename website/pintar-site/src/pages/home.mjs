@@ -48,6 +48,17 @@ export default function home(c) {
     </div>
     <div class="hero__panel" style="--span:5;--start:8">${classPanel(c)}</div>
   </div>
+  <div class="wrap">
+    <ul class="benefits" aria-label="${t("Manfaat utama", "The main benefits")}">${t([
+      ["Di mana peserta didik kesulitan", "Per tujuan pembelajaran dan per soal, bukan hanya satu nilai."],
+      ["Apa yang diajarkan berikutnya", "Bukti yang jelas untuk dipertimbangkan pendidik saat menyiapkan pelajaran berikutnya."],
+      ["Bukti belajar yang dapat dipercaya", "Hasil tetap terhubung ke materi dan aturan yang dipakai, dari tahun ke tahun."],
+    ], [
+      ["Where learners struggle", "By learning objective and by question, not just one score."],
+      ["What to teach next", "Clear evidence for the educator to weigh when preparing the next lesson."],
+      ["Learning evidence you can trust", "Results stay linked to the material and rules used, year after year."],
+    ]).map(([h, d], i) => `<li data-reveal><span class="benefits__n">${String(i + 1).padStart(2, "0")}</span><b class="benefits__h">${h}</b><span class="benefits__d">${d}</span></li>`).join("")}</ul>
+  </div>
 </section>
 
 <section class="section situation" aria-labelledby="thread-h">

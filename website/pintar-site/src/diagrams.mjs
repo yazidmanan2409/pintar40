@@ -252,9 +252,9 @@ export function layers(c) {
 </figure>`;
 }
 
-// D8 · Versions and the future direction (Features, at the end). Each
-// horizon's status in words; the boundaries between what is available and
-// what is a direction are stated here, once.
+// D8 · Available now / Future direction (Features, at the end). The status
+// leads; version numbers are secondary. The boundaries between what is
+// available and what is a direction are stated here, once.
 export function roadmap(c) {
   const rows = [
     ["available", "4.0", c.t("Fondasi", "Foundation"), c.t("Belajar dan mengajar, laporan dan asesmen, Studio Konten, serta akun dan institusi.", "Learning and teaching, reports and assessment, the Content Studio, and accounts and institutions.")],
@@ -262,14 +262,14 @@ export function roadmap(c) {
     ["direction", "4.5", c.t("Memahami", "Understand"), c.t("Quiet Intelligence: sedikit pengamatan dari bukti yang dapat dijelaskan, termasuk penilaian mutu soal (kesehatan soal).", "Quiet Intelligence: a few explainable observations drawn from the evidence, including judging question quality (question health).")],
     ["direction", "5.0", c.t("Bertindak dan bertumbuh", "Act and grow"), c.t("Perjalanan pertumbuhan pendidik, jalur belajar yang terus menyesuaikan, dan intervensi yang direncanakan lalu diukur.", "Educator growth journeys, learning paths that keep adapting, and interventions that are planned and then measured.")],
   ];
-  const S = { available: c.t("Tersedia", "Available"), direction: c.t("Arah ke depan", "Future direction") };
+  const S = { available: c.t("Tersedia sekarang", "Available now"), direction: c.t("Arah ke depan", "Future direction") };
   return `<ol class="roadmap" data-sequence>
   ${rows.map(([k, v, name, d]) => `<li class="roadmap__item roadmap__item--${k}" data-step>
       <span class="roadmap__mark" aria-hidden="true"></span>
-      <span class="roadmap__v">${v}</span>
+      <span class="roadmap__s">${S[k]}</span>
       <span class="roadmap__name">${name}</span>
       <span class="roadmap__d">${d}</span>
-      <span class="roadmap__s">${S[k]}</span>
+      <span class="roadmap__v">${c.t("Versi", "Version")} ${v}</span>
     </li>`).join("")}
 </ol>`;
 }

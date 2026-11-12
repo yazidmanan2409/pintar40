@@ -133,6 +133,11 @@ for (const lang of ["id", "en"]) {
   assert(panel.includes(lang === "id" ? "Data contoh" : "Sample data") && panel.includes(lang === "id" ? "% jawaban benar" : "% of answers correct") && panel.includes(lang === "id" ? "24 peserta didik" : "24 learners"), `${lang}/home: the class panel says sample data, what each percentage measures, and how many learners`);
   assert(panel.includes(lang === "id" ? "belum kesimpulan tentang penguasaan" : "not yet a judgement of mastery"), `${lang}/home: percentage correct is distinguished from a judgement of mastery`);
   assert(/class="panel__decision"/.test(panel) && panel.includes(lang === "id" ? "Ditulis oleh pendidik · contoh" : "Written by the educator · example"), `${lang}/home: the educator's decision is set apart and attributed as an example`);
+  // Revision 5: three practical benefits beneath the hero; «Tersedia sekarang / Arah ke depan», version numbers secondary.
+  const ben = main.slice(main.indexOf('<ul class="benefits"'), main.indexOf("</ul>", main.indexOf('<ul class="benefits"')));
+  assert((ben.match(/<li/g) || []).length === 3 && main.indexOf('<ul class="benefits"') < main.indexOf('id="thread-h"'), `${lang}/home: three practical benefits beneath the hero, before the first section`);
+  const arah = fmain.slice(fmain.indexOf('id="arah"'));
+  assert(arah.includes(lang === "id" ? "Tersedia sekarang" : "Available now") && arah.includes(lang === "id" ? "Arah ke depan" : "Future direction") && /class="roadmap__s">[^<]+<\/span>\s*<span class="roadmap__name"/.test(arah), `${lang}/features: the status leads the versions section; version numbers are secondary`);
   // Revision 4: 12 of 24 is half the class, and an answer pattern is something to investigate, not proof of reasoning.
   assert(!/Sebagian besar kelas|Most of the class/.test(homeMain + fmain) && panel.includes(lang === "id" ? "Separuh kelas" : "Half the class") && panel.includes(lang === "id" ? "Saya perlu memeriksanya" : "I need to check"), `${lang}/home: the educator's note says half the class, and frames the pattern as something to check`);
   assert((homeMain.match(/data-photo=/g) || []).length === 2, `${lang}/home: two images, each attached to a section (classroom with the thread, staff room with capabilities)`);

@@ -731,3 +731,17 @@ h1, h2, h3, .display, .h1, .h2, .audiences__w, .layers__name, .index__h { overfl
 /* Room for the step arrow, so it never sits on the last line of text. */
 .thread[data-layout="v"] .thread__step:not(:last-child) { padding-bottom: var(--s-7); }
 @media (max-width: 900px) { .thread__step:not(:last-child) { padding-bottom: var(--s-7) !important; } }
+
+/* ------------------------------------------------------------------ revision 5 */
+/* Home: three practical benefits beneath the hero, one quiet row. */
+.benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-5) clamp(1.5rem, 3vw, 3rem); margin-top: var(--s-9); border-top: 1px solid var(--ink); padding-top: var(--s-5); }
+.benefits li { display: grid; gap: var(--s-2); align-content: start; }
+.benefits__n { font: 500 var(--t-label)/1 var(--mono); letter-spacing: 0.08em; color: var(--teal); }
+.benefits__h { font: 600 clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem)/1.2 var(--sans); letter-spacing: -0.015em; color: var(--ink); }
+.benefits__d { color: var(--ink-2); max-width: 32ch; }
+@media (max-width: 860px) { .benefits { grid-template-columns: 1fr; margin-top: var(--s-8); } .benefits li + li { border-top: 1px solid var(--line); padding-top: var(--s-4); } .benefits__d { max-width: 40ch; } }
+
+/* Available now / Future direction: the status leads, the version is secondary. */
+.roadmap__s { margin: 0; font: 500 var(--t-label)/1.3 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--teal); }
+.roadmap__item--direction .roadmap__s { color: var(--ink-3); }
+.roadmap__v { margin-top: var(--s-3); font: 500 var(--t-label)/1.3 var(--mono); letter-spacing: 0.04em; color: var(--ink-3); }

@@ -22,7 +22,7 @@ export default function features(c) {
     studio: { id: "studio-konten", lab: t("Studio Konten", "Content Studio") },
     acct: { id: "akun-institusi", lab: t("Akun dan institusi", "Accounts and institutions") },
     ai: { id: "draf-ai", lab: t("Draf soal dengan bantuan AI", "AI-assisted question drafts") },
-    ahead: { id: "arah", lab: t("Ke depan", "What comes next") },
+    ahead: { id: "arah", lab: t("Tersedia sekarang / Arah ke depan", "Available now / Future direction") },
   };
 
   const body = `
@@ -132,8 +132,8 @@ export default function features(c) {
 <section class="feat feat--wide" id="${S.ahead.id}" aria-labelledby="${S.ahead.id}-h">
   <div class="wrap">
     <div class="feat__text feat__text--split" data-reveal-group>
-      <div>${head("06", S.ahead.id, t("Versi dan arah ke depan", "Versions and the future direction"), t("Hari ini, <em>dan ke depan.</em>", "Today, <em>and what comes next.</em>"), "")}</div>
-      <p class="feat__intro" data-reveal>${t("PINTAR 4.1 menggabungkan fondasi 4.0 dengan bantuan baru untuk menyusun konten. Arah ke depan belum memiliki tanggal dan dapat berubah.", "PINTAR 4.1 brings together the 4.0 foundation and new help with preparing content. The future direction has no dates yet and may change.")}</p>
+      <div>${head("06", S.ahead.id, S.ahead.lab, t("Tersedia sekarang, <em>dan arah ke depan.</em>", "Available now, <em>and the future direction.</em>"), "")}</div>
+      <p class="feat__intro" data-reveal>${t("Semua yang dijelaskan di halaman ini tersedia sekarang. Arah ke depan belum memiliki tanggal dan dapat berubah.", "Everything described on this page is available now. The future direction has no dates yet and may change.")}</p>
     </div>
     ${roadmap(c)}
   </div>

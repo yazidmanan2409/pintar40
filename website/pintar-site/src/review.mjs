@@ -87,7 +87,9 @@ const UNRESOLVED = [
   ["What «penguasaan» percentages represent, and the metric minimum-sample rules", "Metric catalogue and the accepted build", "D0, D5, D12, Features 02"],
   ["Whether change since the Initial Mapping is reported, and how", "Product lead; accepted build", "Not claimed now; could return to D0"],
   ["Certificate verification payload as released", "Release evidence (CRT-01)", "Trust 07, Features 02"],
-  ["Demonstration environment and readiness", "Product lead", "Demo copy and Contact"],
+  ["Demo readiness · recipient: who receives each demo request and owns the reply", "Owner", "Demo invitations, Contact; launch condition"],
+  ["Demo readiness · response expectation: the target time for a first reply", "Owner", "Demo invitations, Contact; launch condition"],
+  ["Demo readiness · a working demo environment with synthetic data, for each audience the site addresses (schools, universities, training programmes)", "Product lead", "Demo invitations, Contact; launch condition"],
   ["Ready-to-use material by subject and level, and source licences", "Content owner (OD-20)", "Features 03 (kept general)"],
   ["Use of AI-generated illustrations at launch, or replacement with licensed or commissioned photography (with consent)", "Owner", "P1–P5"],
   ["Registered address and NIB", "Company deed and NIB (OSS)", "Privacy §1"],
@@ -95,7 +97,7 @@ const UNRESOLVED = [
   ["Email provider for pintarselalu.com, data location, any overseas transfer", "Email service contract", "Privacy §6"],
   ["How long the mailbox keeps email", "Company retention decision", "Privacy §7"],
   ["Data protection officer (UU PDP Art. 53), if required; PSE registration", "Legal counsel", "Privacy §11; launch"],
-  ["Trademark status of PINTAR", "DJKI records", "Terms §2"],
+  ["Trademark status of PINTAR and PINTAR SELALU (another party uses the name). The formal statement «PINTAR SELALU (PINTAR) dikembangkan oleh PT ZAYD PINTAR SELALU (ZPS)» is deferred until clearance", "DJKI records; legal counsel", "Terms §2; footer"],
   ["Production domain, HTTPS, daily cleanup scheduled, mail delivery confirmed", "Hosting configuration; a test message", "Privacy §7; contact form"],
   ["Effective dates of the legal pages", "Owner, after legal review", "Privacy, Terms"],
   ["Repository history: this lane predates main’s rewrite", "Owner’s approval to move the work onto the new main", "Repository"],
@@ -139,6 +141,12 @@ export default function review() {
 
   <section>
     <h2>1. What changed in this revision</h2>
+    <h3>Revision 5: approved small improvements</h3>
+    <ul class="dot">
+      <li><b>Home:</b> three practical benefits beneath the hero (where learners struggle, what to teach next, learning evidence you can trust), set as one calm row.</li>
+      <li><b>Features:</b> the last section is now «Tersedia sekarang / Arah ke depan»; the status leads and version numbers are secondary.</li>
+      <li><b>Launch checklist:</b> demo readiness added as three conditions (recipient, response expectation, working demo environment). The formal PINTAR SELALU statement stays deferred until trademark clearance. The real product excerpt stays deferred until 4.1 acceptance; manual keyboard, screen-reader and real-device checks remain pre-publication work.</li>
+    </ul>
     <h3>Revision 4: independent design review</h3>
     <ul class="dot">
       <li><b>Assessment:</b> the direction is strong. The type, the restrained palette, the documentary images, the class panel and the Who It’s For rhythm are worth keeping as they are. The weakest page was Home: it explained the same sequence three times in a row (panel, thread, cycle), the class panel was dense, and two of its three images floated between sections.</li>
