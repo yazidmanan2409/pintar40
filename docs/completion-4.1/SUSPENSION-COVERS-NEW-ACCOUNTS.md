@@ -19,8 +19,15 @@
    `299c417abbe1be3209e4c7dec5ccabe95f06a737`), **with three required design points** (§2a). They replace the open
    choices of §2 and one test line of §4.
 7. **The same mechanism applies to a closed person:** a new account is created locked, and only the reopening act
-   releases it (Sharon's view; integrity side settled). Two **privacy** questions about closed and anonymised persons
-   remain the owner's (§5a).
+   releases it (Sharon's view; accepted by the owner as a reasonable reading of the approved security design).
+   **Creating a locked account authorizes nothing else:** not a message, and not reconnecting a deleted identity.
+7a. **Privacy principles (owner, 12 Nov 2026; §5b):**
+   - **P-1.** No invitation or activation message is sent to a person while they are suspended or closed. The school
+     sees an ordinary creation, and suppressing the message must not produce a different visible response.
+   - **P-2.** Anonymisation stays meaningful. A deleted identity is never restored through an ordinary
+     account-creation workflow; a returning individual is a new person, and their former history and identity links
+     do not reappear. **How institutional-number matching works today is examined before any implementation is
+     finalized.**
 8. State: **released to the engineer**, to build after the L-1 fix closes, as its own commit, before Z. It gates
    nothing.
 
@@ -139,6 +146,41 @@ engineer has reported what happens today:
 | P-1 | Should a person who asked to leave receive an invitation or activation message when a school later creates an account for them? | No. A person who closed their account should not be contacted by PINTAR on a school's act; the school sees an ordinary creation. The same question arises for a **suspended** person, who would receive an activation they cannot use, and the same answer is suggested. Wording, if any, is Daisy's |
 | P-2 | For an **anonymised** person, may a school start a new identity link from an institutional number? | The deleted identity should never be re-linked: a returning individual is a new person. To be confirmed against what the code does today |
 
+## 5b · The owner's assessment of P-1 and P-2 (12 Nov 2026)
+
+The owner agrees with both preliminary views of §5a, with these points, which govern:
+
+**P-1 · No message while the restriction is active.**
+- A school may create an account record; that does not mean the person should be invited to use an account they
+  cannot access. For someone who asked to close their account it could contradict their decision to leave.
+- The school sees an ordinary creation response and does not learn the person's status.
+- **Nuance (owner):** suppressing the message must not create a different visible success or failure response that
+  indirectly reveals the restriction.
+- *Open, for the engineer's report:* which creation paths send a message at all, and what the school is shown about
+  it today (for example, "invitation sent"). If the school's screen reports a sending, then what it shows for a
+  suppressed one is the nuance above, and its wording is Daisy's.
+- *And then what?* When the restriction ends, the person has an account and was never invited. Whether reinstatement
+  or reopening then sends the message, or the school re-sends it, is to be stated, not left to chance.
+
+**P-2 · Anonymisation must remain meaningful.**
+- If PINTAR anonymised a person at their request, their identity is not reconstructed because a school later
+  submits the same institutional number. Deletion is not reversible through account creation.
+- A returning individual may establish a genuinely new identity, under the normal safeguards. Former learning history
+  and identity links must not silently reappear.
+- **Before anything is finalized (owner):** the team examines how institutional-number matching works today.
+
+**What this is and is not.** These are principles for the correction and for the report that precedes it. P-1's
+suppression is small and belongs with this correction if a message path exists. P-2 is first a **read-only
+examination**; if it shows that matching can re-link an anonymised person today, that is a finding of its own,
+reported to the owner with its correction proposed, not built on inference.
+
+**The engineer's report (before building the message or matching parts):**
+1. For each path that creates an account for a person: is a message sent, by what, and what does the school see?
+2. For a person anonymised by `hapus_data_pribadi`: what remains that an institutional number could match (the
+   number itself, a hash, an enrolment row)? What does creating a learner or staff member with that number do today:
+   a new person, a match to the anonymised one, or a refusal?
+3. One test each showing today's behaviour.
+
 ## 6 · Review and order
 
 - **Sharon, before implementation:** the design direction of §2, the choice of place, and the no-window requirement.
@@ -152,3 +194,4 @@ engineer has reported what happens today:
 |---|---|
 | 12 Nov 2026, 05:30 | Owner approved Option B in principle, with the no-window and reinstatement requirements, and separated the closed-person case. Brief written. Awaiting Sharon's pre-implementation review |
 | 12 Nov 2026, 06:00 | Sharon: PASS on the design with three required points and six tests (§2a); the same mechanism for a closed person. Released to the engineer. Privacy questions P-1 and P-2 held for the owner (§5a) |
+| 12 Nov 2026, 06:30 | Owner's assessment of P-1 and P-2 recorded (§5b): no message while restricted, with no revealing difference in the response; anonymisation is never reversed through account creation; matching examined first. The trigger (§2a) may be built; the message and matching parts wait for the engineer's report |
