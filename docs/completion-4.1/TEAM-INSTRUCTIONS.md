@@ -14,6 +14,50 @@ the small corrections around B2 and the provider evaluation's preparation alongs
 closed, and A2 is built as A2a then A2b.)*
 **Not authorized:** any PR, merge, staging promotion or production change. Staging is not to be modified.
 
+## While the owner is away (owner's standing instruction, 12 November 2026)
+
+The owner is unavailable to relay messages. Everyone proceeds under the existing approved plans, decisions,
+responsibilities and review procedures, and **does not wait for a relay.** Ordinary technical and design questions are
+resolved among the team. All testing, review, evidence and deployment requirements stand. **The owner's absence
+authorizes nothing new:** no merge, staging promotion, production release, expenditure or change to an owner
+decision. A genuinely consequential owner decision is documented, and only the work it affects is held.
+
+**How we reach each other without a relay.** No one on the team can message another directly. The repository is the
+channel:
+
+- **This file is the hub.** Read it, and the review queue below, **at every push, every verdict and every time you
+  finish a piece of work.** The Chief Architect updates it at each check of the branches.
+- **The engineer** needs no prompt to be read: a push to `claude/system-integrity-4.0` is the request. Each
+  completion page says, at the top, which commit is the candidate and what it asks of each reviewer.
+- **Reviewers take their work from the queue below,** on the exact commit named there, without waiting to be asked.
+- **Verdicts are written where the others can read them:** Daisy on `ux-1/daisy-experience`, as she does. **Sharon:
+  no branch of yours is visible to the team today.** Please record each verdict in a file on a branch of your own
+  (for example `reviews/sharon`, under `docs/coordination/reviews/`), named for the commit reviewed, and it will be
+  picked up at the next check. A verdict that exists only in a conversation with the owner cannot reach anyone while
+  the owner is away.
+- **A question for another member** is written at the top of your own page or review, addressed by name. The Chief
+  Architect answers on this branch.
+- **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
+  owner", with the work it holds.
+
+### Review queue (as of 10:04 UTC, 12 Nov; updated at each check)
+
+| For | What | Commit on `claude/system-integrity-4.0` | Read first |
+|---|---|---|---|
+| **Sharon** | Result review of **F1-R1b**, including where the "rationale missing" rule now applies, and the baseline amendment | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` | `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §0, §3d, §3f |
+| **Sharon** | Result review of **L1-F4**, *when its two-connection race test exists* (it is built with L1-F2). Until then: the distinction between historical and new live attachments | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 |
+| **Sharon** | Result review of **B2**, when it is pushed | not yet pushed | `B2-ARCHITECT-NOTES.md` §0 to §4 |
+| **Daisy** | **F1-R1b's** screens and her two open questions (the empty-figure split; «Misunderstanding» or «Misconception») | `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b` | same brief, §6a |
+| **Daisy** | **L1-F4:** confirm the "earned but not issued" line from the screen; the engineer's line for a refused certificate replacement | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` | `ANONYMISED-PERSON-IS-TERMINAL.md` §3c |
+| **Daisy** | **B2,** one visit, with **S-1** (phone widths and the desktop sidebar) and the time zone on a learner's own print | not yet pushed | `B2-ARCHITECT-NOTES.md` §4 and its log |
+| **Second Eye** | After B2: **L1-F2 with L1-R2** and the shared two-connection race test (which L1-F4 needs); then the inventory of the eight operations for work-scoped planned maintenance, before A2b | — | `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §2a, §2b; `THE-PLAN-ADDENDUM-1.md` §5d |
+
+**What may close without the owner:** a correction or a batch closes when its reviewers have passed its exact commit,
+CI and journeys are green on it, and the Chief Architect's boundary check is met. **B2 may close on those terms.**
+**A2a does not start** until the staging checkpoint has been considered by the owner (Addendum 1, condition 3): after
+B2 and the corrections, the engineer continues with L1-F2, L1-R2, the race test and the A2b inventory, and prepares
+A2a's completion page for Sharon's pre-build review, but does not build A2a.
+
 ## The owner's instruction of 11 November 2026 on the execution phase (recorded 12 Nov, on Sharon's check)
 
 This instruction was acted on from the day it was given but had not been written into any record. The owner's words:
@@ -203,3 +247,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (08:21 UTC) | **Correction:** L1-R2 is not the delete alone. Second Eye: build it to `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §2b (the delete; `for update` on the person's accounts in `akun_kunci`; `for share` on the account row first in both permit functions; three tests; two plants). The earlier line of today, that Sharon's one sentence was the design, is superseded |
 | 12 Nov 2026 (08:23 UTC) | Second Eye: L1-R2's delete covers `RECOVERY` and `ACTIVATION` permits only, not `CARD_REISSUE` (`SUSPENSION-COVERS-NEW-ACCOUNTS.md` §2b, "SETTLED"). Card reissue for a locked learner is intended: write it on the page with its one test |
 | 12 Nov 2026 (09:53 UTC) | F1-R1b pushed and read (`C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §3f). B2 built locally. For B2's reviews: the time zone on a learner's own-results print (`B2-ARCHITECT-NOTES.md` log) |
+| 12 Nov 2026 (10:04 UTC) | Owner away; standing instruction recorded at the top of this file, with the review queue. The repository is the team's channel until the owner returns |
