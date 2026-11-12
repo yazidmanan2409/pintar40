@@ -12,7 +12,7 @@
 | Item | State | Commit |
 |---|---|---|
 | B1 | **Closed.** Sharon PASS, Daisy PASS, CI `43110782265` and journeys `43110786290` green | `1fc719b5127313bf24084695fa30d7505e15b5d1` |
-| L-1, suspended sign-in correction | **Building.** Completion page pushed | page at `11171e5bd3e067d2f434f96cba09cf98102b6137` |
+| L-1, suspended sign-in correction | **Candidate pushed; CI and journeys running.** For review by Sharon and Daisy on this commit once both are green | `2ea60c85e4f855eca2175749c4270a170922ee33` |
 | F-1, C1w correction pass | Next, after L-1 | — |
 | S-1, phone drawer overflow | Approved, bounded; before B2's review | — |
 | B2 | Opens when L-1 and F-1 both have Sharon's PASS | — |
@@ -99,3 +99,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 11 Nov 2026, 23:58 | First issue: B1 close record; L-1 additions; F-1; S-1; B2 opening rule; reviewers' checks |
 | 12 Nov 2026, 00:10 | L-1: the indistinguishable answer is per method (Second Eye, Sharon). Daisy's L-1 checks: `ux-1/daisy-experience` `f6bc7aa1d50c9a8179fecd4044a7a631bb57f937` |
 | 12 Nov 2026, 00:15 | L-1, Second Eye: state on the page that the platform admin's reader also shows the ordinary mismatch for suspended or closed attempts, by intent (Sharon). Reconciliation of the brief §5 confirmed by Sharon |
+| 12 Nov 2026, 01:45 | L-1 candidate `2ea60c85e4f855eca2175749c4270a170922ee33`. Sharon: also rule on the engineer's question (a pre-suspension recovery grant used after it) and see the two consequences in `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §6a. Daisy: same commit |

@@ -130,6 +130,41 @@ likely to find something this page did not.
   is of no consequence. Where real rows could exist is a hosted environment that had B1 without this correction,
   which the promotion constraint prevents.
 
+## 6a · Chief Architect's read of the candidate (12 Nov 2026, 01:45 UTC)
+
+Read-only, of `2ea60c85e4f855eca2175749c4270a170922ee33` on `claude/system-integrity-4.0` (the pass's code, tests
+and page; it also records B1's close on `B1-COMPLETION.md`). CI run `43132734581` (second attempt) and journeys run
+`43132738349` were in progress.
+
+| Point of the brief | As built | Standing |
+|---|---|---|
+| The lock value | One function, `akun_terkunci_sampai()`, a fixed instant in 2999; `akun_kunci` writes it; reinstatement still writes null; the migration refuses to finish if any account keeps an unreadable value | Met |
+| Accounts already locked | Rewritten by the migration; tested with none, some, and run twice (AUTH-A02) | Met |
+| Indistinguishable from outside, per method | Auth's own refusal of a banned user (`user_banned`) is mapped to each method's ordinary mismatch in one helper, `src/lib/akun-terkunci.ts`; the page tabulates the answer per method | Met as read; Sharon and Daisy verify by running |
+| A real outage | Stays the method's "unavailable" answer | Met as read |
+| Internal diagnostics | One server-log line per locked refusal, with a reference and no identifier | Met |
+| B1's event | Holds the same per-method code; B1-A04 restated as Sharon and Daisy asked | Met |
+| Response time | Medians of nine attempts per case, per route; no gross difference; a pre-existing 15 ms difference between an unknown and a known card recorded, unchanged | Recorded |
+| Dependence on 4.1 | None in the core: the migration touches only 4.0 objects, the route change is one new module plus 4.0 modules, and the B1 assertions are a separate file | A narrow correction of `main` remains possible |
+
+**A second defect, found by this pass and closed in it.** Under the old 503, a suspended account that entered the
+right recovery PIN was given a recovery grant. Once the lock became readable, that grant could have reset a suspended
+account's password. `recovery_attempt` now answers a locked person as a wrong PIN, after the same hashing work. This
+is the fourth question earning its place: making one thing work exposed what it had been hiding.
+
+**Two consequences for the reviewers to see, both following from "indistinguishable":**
+
+1. A suspended person who keeps entering their correct PIN climbs the wrong-PIN ladder like anyone entering a wrong
+   one, and can reach `PIN_DITANGGUHKAN` with a PIN reset required. **After reinstatement that state remains.** It is
+   the price of not marking the case out, and it is acceptable, but the person who reinstates an account should not
+   be surprised by it. For Daisy and Sharon to note; no change proposed.
+2. **The engineer's question to Sharon: a recovery grant obtained before a suspension and used after it still sets
+   the password** (the sign-in after it is refused). The Chief Architect's view, for her ruling: suspension already
+   ends every session of the person; an outstanding recovery grant is the same kind of thing, a standing permission
+   to act as the account, and should end with them. The natural place is where sessions are ended at locking. That
+   is a change to what suspension does, so it is **outside this bounded correction** unless Sharon judges it the same
+   defect; if she does not, it is recorded as a finding of its own and put to the owner.
+
 ## 7 · Log
 
 | Date | Entry |
@@ -139,3 +174,4 @@ likely to find something this page did not.
 | 11 Nov 2026 (23:55 UTC) | Read-only check of staging: 224 migrations, no locked account, no open suspension. No exposure today. Active hosted test deferred to the first promotion that carries the correction. Engineer's completion page is on the work branch at `11171e5bd3e067d2f434f96cba09cf98102b6137` |
 | 12 Nov 2026 (00:10 UTC) | Daisy's pre-review of the engineer's page: agreed; one clarification taken into §3.2, that the indistinguishable answer is each method's own mismatch. Her check list is on `ux-1/daisy-experience` at `f6bc7aa1d50c9a8179fecd4044a7a631bb57f937` |
 | 12 Nov 2026 (00:15 UTC) | **Sharon confirmed the reconciliation of §5:** the accountability event records the ordinary mismatch; the true reason is kept only in the server log (without the typed identifier) and in the suspension's own audit record, which `tangguhkan_akun` writes with no school, so only the platform admin reads it. **To state on the engineer's page:** the platform admin's accountability reader also shows the ordinary mismatch for these attempts, by intent; the reader is not where suspensions are found. Her condition names the password method; under §3.2 it holds per method |
+| 12 Nov 2026 (01:45 UTC) | Candidate pushed: `2ea60c85e4f855eca2175749c4270a170922ee33`. Read by the Chief Architect (§6a). A second defect (a recovery grant to a suspended account) found and closed by the pass. CI and journeys running |
