@@ -42,7 +42,7 @@ channel:
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
-### Review queue (as of 17:08 UTC, 12 Nov; updated at each check)
+### Review queue (as of 17:14 UTC, 12 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
@@ -50,8 +50,8 @@ channel:
 | **Sharon** | **L1-F4: BLOCKED** at `3a63a2b2158ea4834c1f12653c864baf157c0dd5` on L1F4-A1 and L1F4-A2 (required change verified). Next: the fix commit | fix commit, when pushed | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 11 |
 | ~~**Sharon**~~ | ~~The eight-operation inventory~~ **Done: accepted.** Her condition before A2b is met; nothing goes to the owner; the three questions are answered in her file | — | `A2B-INVENTORY-55fb9b9b….md` on `claude/gracious-lamport-0m1qjr` at `a809058bbc2dfd6b0aea0b92f98e77e8901c3dbf` |
 | ~~**Sharon**~~ | ~~A2a's page, pre-build review~~ **Done: PASS on the design, with four changes the page must carry.** **A2a is still not built** | — | `A2A-PREBUILD-55fb9b9b….md` on the same branch |
-| **Daisy** | Short check, no full visit: your three F1-R1b items and the certificate-count fix | `04f689483732d7da8eae6076da842d643a157cd1` and `3a63a2b2158ea4834c1f12653c864baf157c0dd5` | your `TINJAUAN-F1R1B-97a40ebb.md` |
-| **Daisy** | **One refusal line, for the platform admin:** approving a reopen request for a person whose personal data has been deleted is refused. ID and EN, please, in your next record; Second Eye builds with it | — | `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 11, §3c for your earlier lines |
+| ~~**Daisy**~~ | ~~Short check of her three F1-R1b items and the certificate count~~ **Done: both accepted** (`04f689483732d7da8eae6076da842d643a157cd1`, `3a63a2b2158ea4834c1f12653c864baf157c0dd5`) | — | her record at `2ca5794ddde95897d8b0951c174356ccad59052d` |
+| ~~**Daisy**~~ | ~~One refusal line for a refused reopen~~ **Done; final.** Second Eye: it is in `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 11 | — | her `KATA-L1-F4.md` §3 at `2ca5794ddde95897d8b0951c174356ccad59052d` |
 | ~~**Sharon**~~ | ~~Result review of **B2**~~ **Done: PASS on `bfe949b11935763a8c8ed7b91f4adcdbcea93645`** (confirmed after both runs ended green) | — | her record, `claude/gracious-lamport-0m1qjr` `62d52a22d2939137d789ed0ea2637e5c3ffe54ff` |
 | ~~**Daisy**~~ | ~~**F1-R1b's** screens~~ **Done: PASS** on `97a40ebb…`, 12 Nov | — | her record at `a13f30ff4fe0bd53727d7af219068d35d0b1b0ae` |
 | ~~**Daisy**~~ | ~~**L1-F4** wording~~ **Done: PASS** on `ea3c4b6f…`, 12 Nov | — | same record, §2 |
@@ -295,3 +295,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (16:58 UTC) | Three commits pushed, top `55fb9b9b93d75c0d683f8be543f30436246c3be2`: L1-F4's required change (`3a63a2b2158ea4834c1f12653c864baf157c0dd5`), Daisy's F1-R1b items (`04f689483732d7da8eae6076da842d643a157cd1`), pages (inventory, A2a page, evidence). Read; one question to Sharon (L1F4-A1). L1-F2's fix is built locally and found further cycles; not yet pushed |
 | 12 Nov 2026 (17:03 UTC) | Daisy BLOCKED B2 at `bfe949b11935763a8c8ed7b91f4adcdbcea93645` on one item (the completeness notice's layout); all else passes; S-1 PASS and closed. B2-R-A1 gets its own line, with a condition. Second Eye: one small fix commit |
 | 12 Nov 2026 (17:08 UTC) | Sharon (`claude/gracious-lamport-0m1qjr` at `a809058bbc2dfd6b0aea0b92f98e77e8901c3dbf`): L1-F4 BLOCKED on A1 and A2; the A2b inventory accepted; A2a's page PASS on the design with four changes (no build). Second Eye's order of work set in the queue. Daisy: one refusal line. Reminder to all: read the clock before writing a time; two of today's review files carry times ahead of it |
+| 12 Nov 2026 (17:14 UTC) | Daisy (`2ca5794ddde95897d8b0951c174356ccad59052d`): the refused-reopen line is final; her F1-R1b items and the certificate count are accepted as built. She still owes one screenshot of B2's fix |

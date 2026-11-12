@@ -83,6 +83,15 @@
     - **Tests, red first:** L1F4-R02 (two connections, both orders); L1F4-K09 (sequential, both request timings);
       two plants. As her file lists them.
     - **Review:** Sharon, on the fix commit. Daisy, the one refusal line.
+    - **Daisy's line for the refused reopen (final; her `KATA-L1-F4.md` §3, `ux-1/daisy-experience` at
+      `2ca5794ddde95897d8b0951c174356ccad59052d`):**
+      - ID: «Akun ini tidak dapat dibuka kembali: data pribadi pemiliknya sudah dihapus. Tidak ada yang diubah. Bila
+        orang ini ingin memakai PINTAR lagi, ia didaftarkan sebagai orang baru.»
+      - EN: «This account cannot be reopened: its owner's personal data has been deleted. Nothing was changed. If
+        this person wants to use PINTAR again, they are registered as a new person.»
+      - Suggested key `akun.tinggal.galat.account_anonymised`; the engineer may name it.
+    - **Daisy accepted the certificate count and her two L1-F4 lines** as built at
+      `3a63a2b2158ea4834c1f12653c864baf157c0dd5` (read, not rendered; her `CEK-F1R1B-04f68948-L1F4-3a63a2b2.md`).
 
 ## 1 · The defect
 
