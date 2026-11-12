@@ -27,7 +27,28 @@
    `docs/coordination/reviews/sharon/B2-bfe949b11935763a8c8ed7b91f4adcdbcea93645.md`). **Daisy's visit is next.**
    The Chief Architect's read is §5. B2 closes on Daisy's PASS, both runs green, and the boundary check.
    **Update, 14:18 UTC: both runs ended green; Sharon confirmed her PASS** (her branch at
-   `62d52a22d2939137d789ed0ea2637e5c3ffe54ff`). The boundary check is met (§5). **Only Daisy's visit remains.**
+   `62d52a22d2939137d789ed0ea2637e5c3ffe54ff`). The boundary check is met (§5). ~~Only Daisy's visit remains.~~
+7. **BLOCKED by Daisy on one item (17:03 UTC, 12 Nov): the completeness notice's layout.** Her record governs:
+   `ux-1/daisy-experience` at `42683a7134a83feaeed389906512ba895e9f2fe9`,
+   `docs/coordination/ux/completion-4.1/TINJAUAN-B2-bfe949b1.md`. **Everything else passes:** the print path and
+   both footers, the failure line, the learner's clock, register items R1, R2, R3, R5, the notice's wording and
+   audience, and **S-1 (PASS on this commit)**.
+   - **The defect.** The notice puts bare text and a link into `.pin-banner`, a two-column grid whose first column is
+     sized for an icon. At 320 and 390 px the platform view scrolls sideways (WCAG 1.4.10) and the «Kesehatan
+     sistem» link is cut; at 1280 px the link hangs outside the banner.
+   - **The fix (Daisy).** Wrap the sentence and the link in one `<span>` in `catatan-masuk/page.tsx`. Red first, in
+     B2-S02: with the notice present, no sideways scroll at 320 px and the link has a non-zero width.
+   - **B2-R-A1 is decided: it gets its own line** (Daisy), to ride in the same commit, with «Mau ke mana hari ini?»
+     linking to the chooser:
+     - ID: «Laporan ini tidak dapat dicetak dari pilihan yang sedang Anda pakai di [Mau ke mana hari ini?]. Pilih
+       yang sesuai dengan laporan ini, lalu cetak lagi.»
+     - EN: «This report cannot be printed from the choice you are using in [Where would you like to go today?].
+       Choose the one this report belongs to, then print again.»
+   - **Chief Architect's condition on that line.** It is answered **only when the report's school is one of the
+     person's own contexts.** For any other school the answer stays the general refusal, so the new line never tells
+     a person that a report they cannot read exists, nor sends them to a context they do not have. One test each way.
+   - **Reviews of the fix:** Daisy, one screenshot (no visit). Sharon, the delta, for the condition above only.
+     B2 closes on those two, green runs on the fix commit, and the boundary check.
 
 ## 1 · A learner's own-results print (04:05 UTC, 12 Nov 2026)
 
