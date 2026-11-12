@@ -205,7 +205,9 @@ Pre-flight of THE PLAN §4.1 in full. The page carries the inventory and the nex
 
 | Date (UTC) | Entry |
 |---|---|
-| 12 Nov 2026, 07:30 | Owner approved the principle and a separate bounded correction, with four points for Sharon to verify. Brief written. Awaiting her pre-implementation review |
-| 12 Nov 2026, 08:00 | Sharon: PASS on the design with four required points and six tests (§3a). Released to the engineer. One question put to the owner (§3b). The deletion's new refusal needs Daisy's wording |
-| 12 Nov 2026, 08:20 | Owner: Option A. Earned but not issued, recorded on the review; no certificate created; no identity restored. No open decision remains on this correction |
-| 12 Nov 2026, 09:00 | Daisy's wording for the deletion refusal (final) and a draft for "earned but not issued" recorded (§3c) |
+| 12 Nov 2026 | Owner approved the principle and a separate bounded correction, with four points for Sharon to verify. Brief written. Awaiting her pre-implementation review |
+| 12 Nov 2026 | Sharon: PASS on the design with four required points and six tests (§3a). Released to the engineer. One question put to the owner (§3b). The deletion's new refusal needs Daisy's wording |
+| 12 Nov 2026 | Owner: Option A. Earned but not issued, recorded on the review; no certificate created; no identity restored. No open decision remains on this correction |
+| 12 Nov 2026 | Daisy's wording for the deletion refusal (final) and a draft for "earned but not issued" recorded (§3c) |
+
+> **Correction to this log (12 Nov 2026, 03:45 UTC, read from the clock).** Entries dated 12 Nov after 01:45 UTC carried times that were estimated, not read from a clock, and several were later than the actual time. Those times have been removed. The order of the entries is correct.

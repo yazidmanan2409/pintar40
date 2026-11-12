@@ -20,8 +20,9 @@ superseded it says so at that point and refers back to this list.*
    byte-identical; the accountability event records that outcome with no person and an empty school snapshot. **The
    test compares that response and row, field by field, with those of a genuinely expired grant.** (It does *not*
    record `MASUK_TIDAK_COCOK`; that expectation is withdrawn by Sharon.)
-7. State: BLOCKED by Sharon on `2ea60c85e4f855eca2175749c4270a170922ee33` for item 5 only; the fix is a new commit
-   after F-1's; she rechecks that item alone. Daisy confirms in her F-1 visit; she is not a gate for this pass.
+7. State: BLOCKED by Sharon on `2ea60c85e4f855eca2175749c4270a170922ee33` for item 5 only. **The fix is pushed at
+   `916d12c01345816afcf567b40131e72b9857cf65`** (CI run `43148422727` and journeys run `43148426130` running at
+   03:41 UTC on 12 Nov); she rechecks that item alone when both are green. Daisy confirms in her F-1 visit; she is not a gate for this pass.
 8. Not in this pass: register L1-R1; finding L1-F2 (§6d), put to the owner; any other path found by the bounded
    search.
 
@@ -297,6 +298,26 @@ the owner approved ("do not expand into a general authentication redesign"). **I
 separate correction before Z, with Sharon's review, after her ruling on the choice. It does not hold L-1's recheck,
 F-1, or B2.
 
+## 6e · Chief Architect's read of the fix (12 Nov 2026, 03:45 UTC)
+
+Read-only, of `916d12c01345816afcf567b40131e72b9857cf65` (one migration, `M/20270117110000…`; one route; tests; the
+page; the credential-paths table).
+
+| Required (§0 items 5 and 6, §6b, §6c) | As built |
+|---|---|
+| `recovery_grant_permit` refuses a locked person's grant as `RECOVERY_GRANT_INVALID` | Yes. The grant is dead if any suspension of the person was open at any moment since the grant was created (`ended_at is null or ended_at >= created_at`), so it is also dead after reinstatement |
+| `password_write_permit` refuses a locked person, for activation | Yes, by `orang_ditangguhkan`; the activation route answers as for a locked person in the wizard |
+| `auth_password_write_guard` untouched | Yes, and the migration asserts it |
+| Comparison with a genuinely expired grant, field by field | AUTH-A01, restated; AUTH-A03 new for the activation |
+| The bounded search | `AUTH-SUSPENDED-SIGNIN-CREDENTIAL-PATHS.md`, with L1-F2 reported and not fixed |
+
+**One question for Sharon's recheck (not a finding).** The permit is checked when it is issued; the password is
+written by a separate call a moment later. A suspension that commits between the permit and the write would still
+see the password set, because the guard at the write deliberately does not consult the lock. The interval is the
+permit's own short life and cannot be chosen by an attacker, who does not control when a suspension is imposed. If
+she judges it worth closing, the place is hers to name (for example, the suspension ending outstanding permits, which
+is the optional tidy-up of §6c). Raised so that it is decided, not assumed.
+
 ## 7 · Log
 
 | Date | Entry |
@@ -307,8 +328,10 @@ F-1, or B2.
 | 12 Nov 2026 (00:10 UTC) | Daisy's pre-review of the engineer's page: agreed; one clarification taken into §3.2, that the indistinguishable answer is each method's own mismatch. Her check list is on `ux-1/daisy-experience` at `f6bc7aa1d50c9a8179fecd4044a7a631bb57f937` |
 | 12 Nov 2026 (00:15 UTC) | **Sharon confirmed the reconciliation of §5:** the accountability event records the ordinary mismatch; the true reason is kept only in the server log (without the typed identifier) and in the suspension's own audit record, which `tangguhkan_akun` writes with no school, so only the platform admin reads it. **To state on the engineer's page:** the platform admin's accountability reader also shows the ordinary mismatch for these attempts, by intent; the reader is not where suspensions are found. Her condition names the password method; under §3.2 it holds per method |
 | 12 Nov 2026 (01:45 UTC) | Candidate pushed: `2ea60c85e4f855eca2175749c4270a170922ee33`. Read by the Chief Architect (§6a). A second defect (a recovery grant to a suspended account) found and closed by the pass. CI and journeys running |
-| 12 Nov 2026 (02:20 UTC) | CI `43132734581` success on attempt 2 (attempt 1: a runner could not start its database before any test ran; failed jobs re-run once), journeys `43132738349` success, both on `2ea60c85e4f855eca2175749c4270a170922ee33`. Local: 1075 passed, 0 failed; 156 of 156 planted defects. Review prompt issued to Sharon by the engineer. Daisy's role clarified in §6 |
-| 12 Nov 2026 (03:00 UTC) | Sharon: BLOCKED on `2ea60c85e4f855eca2175749c4270a170922ee33` for the recovery and activation permits acting on a locked account; all else verified. Correction and tests recorded in §6b, with one bounded search added |
-| 12 Nov 2026 (03:20 UTC) | Sharon's ruling on §6a recorded (§6c): checks at use are required, ending grants at locking is optional; the PIN ladder survives reinstatement by design; register item L1-R1 opened |
-| 12 Nov 2026 (04:00 UTC) | Sharon withdrew the `MASUK_TIDAK_COCOK` expectation for a grant used after a suspension; the engineer's reading stands. §0 added as the one current statement; the two superseded passages are marked where they stand |
-| 12 Nov 2026 (05:00 UTC) | L-1 fix committed locally by the engineer at `916d12c01345816afcf567b40131e72b9857cf65`, red first on `2ea60c85e4f855eca2175749c4270a170922ee33`, in full pre-flight. Bounded search reported one further gap, recorded as L1-F2 (§6d) and put to the owner |
+| 12 Nov 2026 | CI `43132734581` success on attempt 2 (attempt 1: a runner could not start its database before any test ran; failed jobs re-run once), journeys `43132738349` success, both on `2ea60c85e4f855eca2175749c4270a170922ee33`. Local: 1075 passed, 0 failed; 156 of 156 planted defects. Review prompt issued to Sharon by the engineer. Daisy's role clarified in §6 |
+| 12 Nov 2026 | Sharon: BLOCKED on `2ea60c85e4f855eca2175749c4270a170922ee33` for the recovery and activation permits acting on a locked account; all else verified. Correction and tests recorded in §6b, with one bounded search added |
+| 12 Nov 2026 | Sharon's ruling on §6a recorded (§6c): checks at use are required, ending grants at locking is optional; the PIN ladder survives reinstatement by design; register item L1-R1 opened |
+| 12 Nov 2026 | Sharon withdrew the `MASUK_TIDAK_COCOK` expectation for a grant used after a suspension; the engineer's reading stands. §0 added as the one current statement; the two superseded passages are marked where they stand |
+| 12 Nov 2026 | L-1 fix committed locally by the engineer at `916d12c01345816afcf567b40131e72b9857cf65`, red first on `2ea60c85e4f855eca2175749c4270a170922ee33`, in full pre-flight. Bounded search reported one further gap, recorded as L1-F2 (§6d) and put to the owner |
+
+> **Correction to this log (12 Nov 2026, 03:45 UTC, read from the clock).** Entries dated 12 Nov after 01:45 UTC carried times that were estimated, not read from a clock, and several were later than the actual time. Those times have been removed. The order of the entries is correct.

@@ -173,7 +173,7 @@ test red.
 
 **Before any push:** THE PLAN §4.1, P1 to P6, in full. **Then:** the exact commit to Sharon, once.
 
-## 9a · Chief Architect's read of the candidate (12 Nov 2026, 04:30 UTC)
+## 9a · Chief Architect's read of the candidate (12 Nov 2026)
 
 Read-only, of `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` on `claude/system-integrity-4.0` (one migration,
 `M/20270117100000…`; tests; six planted defects; one line on the teacher's per-question screen; the engineer's page
@@ -273,6 +273,8 @@ own defect and its fix belongs here.
 | 11 Nov 2026 (evening) | Owner: continue under the approved plan overnight; schedule this pass after B1 closes and before B2. Release rule recorded in §3. Preliminary impact list (§8) and the engineer's brief (§9) added |
 | 11 Nov 2026 (late) | Owner approved a second, separate small correction at the same boundary (`AUTH-SUSPENDED-SIGNIN-CORRECTION.md`). Sequence: B1 closes → this pass and that one, each with Sharon's review → B2 |
 | 11 Nov 2026 (late) | B1 closed on `1fc719b5` (Sharon PASS, Daisy PASS, CI and journeys green). This pass is released. Order at the boundary: the suspended sign-in correction first, then this pass; B2 after both have Sharon's PASS |
-| 12 Nov 2026 (04:30 UTC) | Candidate pushed: `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. Read by the Chief Architect (§9a). For Sharon and Daisy once CI and journeys are green on it |
-| 12 Nov 2026 (09:30 UTC) | CI `43142431230` and journeys `43142435769` success on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. With Sharon and Daisy. Two additions from the Chief Architect (§9b): row 5a to be ruled explicitly; finding F1-R1 on rationale text after a correction |
-| 12 Nov 2026 (10:30 UTC) | Sharon: BLOCKED on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` for `session_review`'s rationale only; requirements 1 to 5 verified; accessor, D-060 (rows 1 and 5a) and row 5b accepted. §0 added. Register F1-R2 opened |
+| 12 Nov 2026 | Candidate pushed: `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. Read by the Chief Architect (§9a). For Sharon and Daisy once CI and journeys are green on it |
+| 12 Nov 2026 | CI `43142431230` and journeys `43142435769` success on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. With Sharon and Daisy. Two additions from the Chief Architect (§9b): row 5a to be ruled explicitly; finding F1-R1 on rationale text after a correction |
+| 12 Nov 2026 | Sharon: BLOCKED on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` for `session_review`'s rationale only; requirements 1 to 5 verified; accessor, D-060 (rows 1 and 5a) and row 5b accepted. §0 added. Register F1-R2 opened |
+
+> **Correction to this log (12 Nov 2026, 03:45 UTC, read from the clock).** Entries dated 12 Nov after 01:45 UTC carried times that were estimated, not read from a clock, and several were later than the actual time. Those times have been removed. The order of the entries is correct.

@@ -259,7 +259,9 @@ proposal above is the record of how it was put. P-1 needs only its guarding test
 
 | Date (UTC) | Entry |
 |---|---|
-| 12 Nov 2026, 05:30 | Owner approved Option B in principle, with the no-window and reinstatement requirements, and separated the closed-person case. Brief written. Awaiting Sharon's pre-implementation review |
-| 12 Nov 2026, 06:00 | Sharon: PASS on the design with three required points and six tests (§2a); the same mechanism for a closed person. Released to the engineer. Privacy questions P-1 and P-2 held for the owner (§5a) |
-| 12 Nov 2026, 06:30 | Owner's assessment of P-1 and P-2 recorded (§5b): no message while restricted, with no revealing difference in the response; anonymisation is never reversed through account creation; matching examined first. The trigger (§2a) may be built; the message and matching parts wait for the engineer's report |
-| 12 Nov 2026, 07:00 | Engineer's examination: P-1 already holds (nothing is sent); P-2 does not (L1-F4: an anonymised person can be re-attached by an import naming their id, and by re-enrolment). Read-only count on staging: no anonymised person. Correction proposed in §5c; awaiting the owner |
+| 12 Nov 2026 | Owner approved Option B in principle, with the no-window and reinstatement requirements, and separated the closed-person case. Brief written. Awaiting Sharon's pre-implementation review |
+| 12 Nov 2026 | Sharon: PASS on the design with three required points and six tests (§2a); the same mechanism for a closed person. Released to the engineer. Privacy questions P-1 and P-2 held for the owner (§5a) |
+| 12 Nov 2026 | Owner's assessment of P-1 and P-2 recorded (§5b): no message while restricted, with no revealing difference in the response; anonymisation is never reversed through account creation; matching examined first. The trigger (§2a) may be built; the message and matching parts wait for the engineer's report |
+| 12 Nov 2026 | Engineer's examination: P-1 already holds (nothing is sent); P-2 does not (L1-F4: an anonymised person can be re-attached by an import naming their id, and by re-enrolment). Read-only count on staging: no anonymised person. Correction proposed in §5c; awaiting the owner |
+
+> **Correction to this log (12 Nov 2026, 03:45 UTC, read from the clock).** Entries dated 12 Nov after 01:45 UTC carried times that were estimated, not read from a clock, and several were later than the actual time. Those times have been removed. The order of the entries is correct.
