@@ -14,6 +14,7 @@
 | B1 | **Closed.** Sharon PASS, Daisy PASS, CI `43110782265` and journeys `43110786290` green | `1fc719b5127313bf24084695fa30d7505e15b5d1` |
 | L-1, suspended sign-in correction | **BLOCKED by Sharon on one item** on `2ea60c85e4f855eca2175749c4270a170922ee33`. The fix is committed locally, in full pre-flight, not pushed; she rechecks that item alone when it is | local `916d12c01345816afcf567b40131e72b9857cf65` |
 | F-1, C1w correction pass | **Pushed; CI `43142431230` and journeys `43142435769` running.** For Sharon and Daisy when the owner gives them this commit, with both green. Daisy's visit also covers her L-1 confirmation | `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` |
+| L1-F2, a suspension covers accounts created after it | Approved in principle (Option B). **Awaiting Sharon's pre-implementation review.** Small, separate, before Z; holds nothing | brief: `SUSPENSION-COVERS-NEW-ACCOUNTS.md` |
 | S-1, phone drawer overflow | Approved, bounded; before B2's review | — |
 | B2 | Opens when L-1 and F-1 both have Sharon's PASS | — |
 
@@ -120,3 +121,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026, 04:00 | All: the rule on keeping instructions current (above). L-1's current statement is `AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §0 |
 | 12 Nov 2026, 04:30 | State table corrected (Daisy noticed it was stale): F-1 is pushed at `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. Sharon: `C1W-F1-CORRECTION.md` §9a, two points to rule explicitly (rows 5a and 5b). Daisy: the one added line, and the L-1 confirmation |
 | 12 Nov 2026, 05:00 | L-1 fix local at `916d12c01345816afcf567b40131e72b9857cf65`. Finding L1-F2 recorded (`AUTH-SUSPENDED-SIGNIN-CORRECTION.md` §6d): not in L-1; Sharon to give her view on the choice at the recheck; decision is the owner's |
+| 12 Nov 2026, 05:30 | Sharon: pre-implementation review of `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §2 (place of the lock, no authentication window, reinstatement) and her view on §5 (closed person). Second Eye: nothing to build yet; report what happens today for §5 when convenient |

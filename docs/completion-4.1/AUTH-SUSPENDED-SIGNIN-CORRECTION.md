@@ -288,7 +288,11 @@ Asked the four questions, B is the only one of the two that keeps what L-1 estab
 and reinstatement reverses it completely. The same reasoning should be checked for a **closed** person, where
 creating a new account at all may be wrong for a different reason.
 
-**Standing.** It is a gap in what suspension covers, not in what a sign-in answers, so it is outside the correction
+**Decided (owner, 12 Nov 2026): Option B approved in principle.** Its brief is
+`SUSPENSION-COVERS-NEW-ACCOUNTS.md`; the closed-person case is a separate finding there. The paragraph below is the
+record of how it was put.
+
+**Standing (as put).** It is a gap in what suspension covers, not in what a sign-in answers, so it is outside the correction
 the owner approved ("do not expand into a general authentication redesign"). **It is put to the owner** as a small,
 separate correction before Z, with Sharon's review, after her ruling on the choice. It does not hold L-1's recheck,
 F-1, or B2.
