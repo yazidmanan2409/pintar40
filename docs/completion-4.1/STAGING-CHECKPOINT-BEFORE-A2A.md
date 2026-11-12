@@ -131,6 +131,12 @@ If a condition cannot be met, or the copy differs from staging after the runbook
 read-only preservation query and the migration count. After: item 1's job run, item 3's synthetic people, item 4's
 removal, and the rehearsal. The preconditions page marks every step as one or the other.
 
+**A correction to §5b's text, found by Second Eye (22:11 UTC, 12 Nov).** §5b item 5 attributes the `audit_log`
+generated-column rewrite to B1. It is migration 215 (the class move-up), **already on staging at 224.** This
+promotion's run therefore cannot time it. The rehearsal's new step times it on the scratch copy (the column rewrite
+and both index builds, as migration 215 wrote them), recorded with `audit_log`'s row count. The purpose of the
+measurement is unchanged: sizing production's window later. **Sharon confirms this at her review** (step 3).
+
 **Chief Architect's note on scope.** Extending `restore-rehearsal.yml`'s comparison is a workflow change on the work
 branch. It is within the boundary: it is the checkpoint's own verification, it touches no request file, and it is
 named in the pull request.
@@ -153,3 +159,4 @@ effect on production. Item 1's committing-procedure result, if negative, is not 
 | 12 Nov 2026, 22:06 | Owner's second instruction recorded: the pull request is explicitly authorized on six conditions; no staging mutation before the merge; Sharon must confirm the scratch-target restore |
 | 12 Nov 2026, 22:08 | Sharon's reading of the six items recorded (§3a); it governs. The scratch-target restore is confirmed as satisfying §5b, with four conditions. Items 3 and 4 corrected |
 | 12 Nov 2026, 22:08 | Sharon's explicit confirmation recorded: a scratch-target restore satisfies §5b item 5; five conditions; the known limit to be stated in the report. The owner's condition is met; nothing is escalated |
+| 12 Nov 2026, 22:11 | Second Eye: the `audit_log` rewrite is migration 215, already on staging; it will be timed on the scratch copy. Recorded as a correction to §5b's text, for Sharon's review. Wording commit local at `049e21ad`, in pre-flight |
