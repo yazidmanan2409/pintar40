@@ -5,6 +5,7 @@
 >   - C2w keeps «Catatan peninjau» / «Reviewer note», already settled in THE PLAN §5.4 F.
 >   - F1-R1b uses «terkait / dikaitkan» / «linked». Its lines in §1 are final unless the engineer's screen shows a reason to adjust.
 > - **I-7:** my answer is in §2. A school would not expect a class's planned maintenance to stop a teacher's other classes, nor a learner's work elsewhere. I recommend the owner decides **per class for planned maintenance, per person for an emergency**. If per person is kept for planned maintenance, §2b gives what the teacher and the scheduling admin must see.
+> - **Recorded (12 Nov):** THE PLAN Addendum 1 at `3bffe6b4c5fae143253bc505533526ad010f649a` records I-6 as a C2w precondition (§4) and I-7 as an open question for the owner (§5c), after Sharon's view on enforcement.
 > - Not a review visit.
 
 **Source:** `PLAN-REASSESSMENT-2026-11-12.md` §3, I-6 and I-7, on `claude/bob-41-master-plan` at `c95501c416715ae2ec7fc28a711f3deb1c860bc3`. Also:
