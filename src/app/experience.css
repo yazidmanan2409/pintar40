@@ -3052,6 +3052,11 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
   text-align: left; text-decoration: none;
   transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
+/* S-1: the context's rail link is the rail's alone (E2). As a nav item it outranked `.pin-konteks-rail { display: none }`,
+   so the expanded sidebar and the phone drawer showed it under the context block as a second, unwrapped copy: at 320 px
+   it widened the open drawer past the screen and its focus ring was cut. The rail's own rules (min-width 1024 px) still
+   show it. */
+.pin-staf .pin-tabs a.pin-konteks-rail { display: none; }
 .pin-staf .pin-tabs a.pin-nav-item .pin-ikon { color: var(--ink-3); }
 .pin-staf .pin-tabs a.pin-nav-item:hover { background: var(--surface-2); color: var(--ink-1); text-decoration: none; }
 .pin-staf .pin-tabs a.pin-nav-item:active { background: var(--surface-3); }
@@ -3563,6 +3568,11 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
   /* open, the drawer is a modal sheet over the page (the page behind is inert), in E1's order: the context control and
      the places, then Bantuan, «Laporkan masalah» and the language, then the reader and «Keluar» */
   .pin-staf[data-laci="buka"] { position: fixed; inset: 0; z-index: var(--z-overlay); align-content: start; overflow-y: auto; }
+  /* S-1 (Daisy's review of 1fc719b5, §2b): fixed to the viewport, the open sheet does not take the shell's pull-out by a
+     gutter on each side (globals.css .pin-shell), which made it 32 px wider than the screen; it keeps the page gutter on
+     both sides instead of the bar's own uneven padding, and its contents may not widen it */
+  .pin-shell.pin-staf[data-laci="buka"] { margin-inline: 0; padding-inline: var(--gutter); }
+  .pin-staf[data-laci="buka"] :is(.pin-laci, .pin-laci > *, .pin-konteks-kontrol, .pin-konteks-blok) { min-width: 0; }
   .pin-staf .pin-laci > .pin-tabs { order: 0; }
   .pin-staf .pin-laci > .pin-staf-bawah { order: 1; }
 }
