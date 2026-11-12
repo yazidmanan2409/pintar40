@@ -22,9 +22,15 @@
    marker; content checks; where the clearing is written). They govern where §2 differs.
 8. **The owner's question is answered:** "not annotated" is distinguished from "none found" by **wording and a
    marker**, with **no new number and no change to any catalogue definition**.
-9. ~~State: **released to the engineer**, after F-1's fix, as its own commit, before Z.~~ **Superseded (12 Nov,
-   05:47 UTC): HELD on a conflict with invariant INV-03 (§3b), which is the owner's to decide.** Nothing is built
-   until then. It still gates nothing. Daisy's wording is needed for three lines (§6).
+9. **INV-03 is amended narrowly (owner, 12 Nov 2026: option A1; §3c).** An empty rationale is permitted **only**
+   where a governed, two-person-approved answer-key correction has withdrawn an explanation that contradicts the
+   corrected key. The option keeps a **durable reference to that correction**; the withdrawn text stays on the
+   correction's **audit record**. **Enforced in the database, not merely documented.** Ordinary content creation and
+   revision still require complete rationales.
+10. State: **awaiting Sharon's verification of the amended design** (§3c): the database constraints, every affected
+    reader and writer, and the procedure for amending the frozen invariant and its CI manifest. Nothing is built
+    until she has. It gates nothing. Daisy's wording is needed for three lines (§6).
+    *(The earlier states, "released" and then "held on INV-03", are superseded by this item.)*
 
 ## 1 · The defect
 
@@ -177,6 +183,52 @@ amendment (the note, the manifest, and the owner-decisions record) so that the b
 it is never null (packages, copies, the canonical payload and its digest, Studio, the MCQ quality run, exports).
 That search was already asked of the engineer in her point 3; it now matters more.
 
+## 3c · The owner's decision on INV-03, and what Sharon is asked to verify (12 Nov 2026)
+
+**Decided: A1.** As stated in §0 item 9. Options A2 and A3 of §3b are not taken.
+
+**Design that follows (for Sharon's verification; the engineer proposes the exact statements):**
+
+1. **One new column on the option** naming the correction that withdrew its rationale (a foreign key to
+   `key_corrections`), and **one constraint replacing the present one:** the rationale is non-empty, **or** it is
+   null and the withdrawing correction is named. Never an empty string; never null without the reference; never the
+   reference with a rationale still present.
+2. **Only the confirming act may set it.** The reference is written by `tegaskan_koreksi_kunci`, on the draft copy,
+   in the statement that writes the corrected key (Sharon's point 7 of §3a). No other writer may set the reference:
+   not the draft editor, not a package upload, not a copy that originates the state. A copy of a corrected revision
+   carries the state it copies.
+3. **Writing a rationale again clears the reference** in the same statement, through the ordinary draft path, so the
+   state cannot outlive its cause.
+4. **The withdrawn text is on the correction's record** (which option, its text, its misconception code), written in
+   the same transaction, and immutable as `key_corrections` rows are.
+5. **Ordinary creation and revision are unchanged:** `soal_draf_masalah` and `lesson_package_check` still refuse an
+   option without a rationale; the correction path runs neither (Sharon's point 5).
+
+**What Sharon is asked to verify (owner's instruction):**
+
+| # | Point |
+|---|---|
+| 1 | **The database constraints.** That the exception cannot be reached except through a governed, two-person-confirmed correction: the constraint, the reference's foreign key, who may write the column, and that a direct write by any role or path other than the confirming act is refused. That the sealed-content guard still refuses any write after approval |
+| 2 | **Every affected reader.** Everything that reads `item_options.rationale`, checked for an assumption that it is never null: the learner's review, Studio's package and question views, the canonical payload and its digest (so a release's hash stays well defined and reproducible), packages and exports, copies, the MCQ quality run, the draft comparison functions (`soal_beda`, `soal_beda_versi`), and any type in the application that declares it non-nullable |
+| 3 | **Every affected writer.** Every path that inserts or updates an option: the draft editor, `soal_tulis_pilihan`, package ingest and materialise, `salin_kursus_revisi`, quick-assessment launch, and the correction itself. Each either requires a rationale, or carries an existing withdrawn state by copying, and none can originate one |
+| 4 | **The procedure for amending the frozen invariant and its CI manifest.** `docs/rebuild/03-PINTAR-INVARIANTS.md` is in the frozen baseline that CI verifies against `BASELINE-MANIFEST.json`. What is the correct, truthful way to record this amendment: the dated "Baseline amendment" note the document already uses, the manifest's entry for the file, and the owner-decision record? The amended wording is the owner's, below |
+
+**The amended invariant (owner-approved in substance; final wording to be confirmed with the procedure):**
+*INV-03. Every Option's rationale is non-empty, except where a governed, two-person-approved answer-key correction
+has withdrawn it because it contradicted the corrected key. Such an Option keeps a durable reference to that
+correction, the withdrawn text is kept on the correction's audit record, and no further revision of its package may
+be submitted until the rationale is written.*
+
+**Tests added by this decision (red first):**
+- A null rationale without the reference, an empty string, and a reference with a rationale present: each refused by
+  the database.
+- The reference set by any path other than the confirming act: refused.
+- An ordinary draft, a package upload and a new revision with a missing rationale: refused as today.
+- Writing the rationale clears the reference; the option is then an ordinary one.
+- The release digest of a corrected revision is computed, stable and reproducible with a null rationale.
+- The baseline check in CI passes with the amendment recorded as Sharon specifies, and fails if the document is
+  changed without it.
+
 ## 4 · The four questions
 
 | Question | To answer on the page |
@@ -228,3 +280,4 @@ call, together with the same question for F-1's fix.
 | 12 Nov 2026 (03:50 UTC) | Owner approved Option A with the conditions of §0. Brief written. Awaiting Sharon's pre-implementation review and Daisy's wording |
 | 12 Nov 2026 (03:53 UTC) | Sharon: PASS on the design with three required points and six tests (§3a). Released to the engineer, after F-1's fix |
 | 12 Nov 2026 (05:47 UTC) | **Held.** The engineer found that INV-03 and its column constraint forbid a null rationale. Options and a recommendation recorded in §3b; put to the owner |
+| 12 Nov 2026 (05:49 UTC) | Owner: A1. INV-03 amended narrowly, enforced in the database, with a durable reference and the text on the correction's audit record. Awaiting Sharon's verification (§3c) |

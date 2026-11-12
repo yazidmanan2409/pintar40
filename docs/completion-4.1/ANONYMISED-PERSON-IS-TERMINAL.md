@@ -20,7 +20,17 @@
    may establish that an anonymised person earned certification. That outcome is recorded accurately in the
    historical review as **earned but not issued**. No new certificate is created, and no anonymised identity is
    restored to issue one.
-7. State: **released to the engineer**, as its own commit, before Z. It gates nothing.
+7. State: **built by the engineer; committed locally at `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2`, in pre-flight,
+   not pushed** (as of 05:49 UTC, 12 Nov).
+8. **Two instructions from the owner for its review (12 Nov 2026):**
+   - **Sharon verifies the distinction between historical attachments and new live attachments.** As built, the
+     deletion's refusal counts only attachments gained after the closure began, because closure leaves school roles
+     in place and every teacher's deletion would otherwise be refused. She confirms where that line is drawn, that a
+     role or enrolment held from before the closure is correctly treated as history to be ended by the deletion's
+     bookkeeping, and that one gained after it is a live attachment that refuses the deletion.
+   - **The two-connection race test is required before final acceptance.** It is not built yet; the engineer plans
+     to build it with L1-F2's race test, and sharing that infrastructure is acceptable. **L1-F4 is not accepted
+     until it passes.** The one-connection demonstration on the page does not stand in for it.
 
 ## 1 · The defect
 
@@ -211,3 +221,4 @@ Pre-flight of THE PLAN §4.1 in full. The page carries the inventory and the nex
 | 12 Nov 2026 | Daisy's wording for the deletion refusal (final) and a draft for "earned but not issued" recorded (§3c) |
 
 > **Correction to this log (12 Nov 2026, 03:45 UTC, read from the clock).** Entries dated 12 Nov after 01:45 UTC carried times that were estimated, not read from a clock, and several were later than the actual time. Those times have been removed. The order of the entries is correct.
+| 12 Nov 2026 (05:49 UTC) | Built; local commit `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2`. Owner: Sharon verifies historical against new live attachments; the two-connection race test must pass before final acceptance |
