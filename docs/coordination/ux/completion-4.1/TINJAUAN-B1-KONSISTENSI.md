@@ -1,5 +1,7 @@
 # B1: UX acceptance under the cross-module integrity standard (Daisy, 11 Nov 2026)
 
+> **What holds now (12 Nov 2026):** this review's verdict («BLOCKED, held for the corrected candidate») is **superseded** by `TINJAUAN-B1-1fc719b5.md`: **PASS on `1fc719b5127313bf24084695fa30d7505e15b5d1`**. B1 is closed. The register here moved there: B1-R4 to B2, B1-R5 and S-1 added. The §3 claim about suspended sign-in is corrected in place (L-1). The rest is history.
+
 **Standard:** `docs/completion-4.1/SYSTEM-INTEGRITY-4.1.md` at `7cc5ea35` (check 4, and §5 for Daisy).
 
 **Implementation reviewed:** `40e89308`. It is still the head of `claude/system-integrity-4.0`; **no corrected candidate has been pushed.** This extends my rendered review `TINJAUAN-B1-40e89308.md` (PASS on the screen, three register findings) with the cross-module points asked for.

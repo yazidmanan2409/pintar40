@@ -1,5 +1,11 @@
 # B1 corrected candidate: final UX and accessibility review (Daisy, 11 Nov 2026)
 
+> **What holds now (12 Nov 2026):**
+> - **B1 is closed on `1fc719b5127313bf24084695fa30d7505e15b5d1`**, with my PASS below and Sharon's (`TEAM-INSTRUCTIONS.md` at `04030845b020a2eadda92b51a3d74f5e002f798f`).
+> - **L-1** (§3) is being corrected in its own pass. I confirm it inside my F-1 visit; see `L1-PRA-TINJAUAN.md`.
+> - **B1-R1 to R5, B1-R4 and S-1** go to my single B2 visit.
+> - Everything below is the record of that review.
+
 **Candidate:** `1fc719b5127313bf24084695fa30d7505e15b5d1` on `claude/system-integrity-4.0`, «B1 correction pass: a school reads only its own school of a sign-in record; cross-module checks; purge capacity; inventory». The SHA arrived with 38 characters; `git rev-parse` resolves it to this commit. This is the commit Sharon reviews.
 
 **What changed since `40e89308`:**

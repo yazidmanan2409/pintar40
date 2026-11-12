@@ -1,5 +1,7 @@
 # B1 «Catatan masuk dan cetak»: final UX review (Daisy, 11 Nov 2026)
 
+> **What holds now (12 Nov 2026):** this PASS on `40e89308` is **superseded**. It was held in `TINJAUAN-B1-KONSISTENSI.md` for the cross-school API defect, then given as **PASS on `1fc719b5127313bf24084695fa30d7505e15b5d1`** in `TINJAUAN-B1-1fc719b5.md`. Its register, B1-R1 to R3, is carried there. History below.
+
 **Candidate:** `40e89308` on `claude/system-integrity-4.0`. The B1 screen is from `380b9e07`: `src/app/konfigurasi/catatan-masuk/page.tsx`, its keys `akuntabilitas.*` in `src/lib/hle.ts`, and `src/lib/akuntabilitas-kontrak.ts`.
 
 **Compared against:** `docs/completion-4.1/batches/B1-COMPLETION.md` («Screens and states»), THE PLAN §5.1 F, and my O-1.
