@@ -137,6 +137,31 @@ promotion's run therefore cannot time it. The rehearsal's new step times it on t
 and both index builds, as migration 215 wrote them), recorded with `audit_log`'s row count. The purpose of the
 measurement is unchanged: sizing production's window later. **Sharon confirms this at her review** (step 3).
 
+### 3b · Chief Architect's rulings on the open points of the preconditions page (23:25 UTC, 12 Nov)
+
+Ordinary technical questions, settled here; Sharon may correct any of them at her review.
+
+1. **How each after-merge check is run, and by whom.** The page states this for every step. **No credential passes
+   through any team member:** a check that needs a secret runs as a dispatched workflow using the repository's
+   existing staging secrets, as the 4.0 staging walks did. If that needs a new workflow file, it is part of the
+   boundary commit and named in the pull request. A step that only a person holding a credential could do is marked
+   so, and is the owner's.
+2. **Password sign-in and PIN recovery for a locked account (item 3).** In this order: (a) a synthetic account that
+   already exists on staging and whose credential is already a repository secret; (b) if none, the method is **not
+   exercised on staging**, the page says so with the reason, and names the local tests that prove it. No new mailbox,
+   and no credential created for this. Sharon rules whether (b) is enough for the item.
+3. **The request hook's delay (item 6).** The owner allows no mutation before the merge. A baseline may be taken
+   before the merge **only if it creates no row at all**: no sign-in, no session. If a baseline needs a signed-in
+   read, there is no baseline; the hook's cost is then measured after the merge by a method the page states. THE PLAN
+   gives D1's budget no number, so the page states its criterion in advance (for example, the difference in medians
+   is smaller than the run-to-run spread) and the report gives the figures.
+4. **The rollback does not turn a lock back into `'infinity'`.** Agreed: `'infinity'` is the value L-1 removed
+   because Auth failed on it. Sharon rules at her review.
+5. **DR-D02's failure during the round-trip run** is settled only by the clean pre-flight on the boundary commit. If
+   it is red there, it is real and is fixed before any push.
+6. **The rollback's restoring of withdrawn explanations before 224's NOT NULL** is right, and is the kind of thing
+   the fourth question exists for.
+
 **Chief Architect's note on scope.** Extending `restore-rehearsal.yml`'s comparison is a workflow change on the work
 branch. It is within the boundary: it is the checkpoint's own verification, it touches no request file, and it is
 named in the pull request.
@@ -160,3 +185,4 @@ effect on production. Item 1's committing-procedure result, if negative, is not 
 | 12 Nov 2026, 22:08 | Sharon's reading of the six items recorded (§3a); it governs. The scratch-target restore is confirmed as satisfying §5b, with four conditions. Items 3 and 4 corrected |
 | 12 Nov 2026, 22:08 | Sharon's explicit confirmation recorded: a scratch-target restore satisfies §5b item 5; five conditions; the known limit to be stated in the report. The owner's condition is met; nothing is escalated |
 | 12 Nov 2026, 22:11 | Second Eye: the `audit_log` rewrite is migration 215, already on staging; it will be timed on the scratch copy. Recorded as a correction to §5b's text, for Sharon's review. Wording commit local at `049e21ad`, in pre-flight |
+| 12 Nov 2026, 23:25 | Wording commit pushed by Second Eye (local `049e21ad`, full hash at the next check). Rollback, preservation query and rehearsal change built and round-trip-tested locally, not yet committed. Rulings on the page's open points recorded (§3b) |
