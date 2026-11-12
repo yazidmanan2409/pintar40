@@ -12,6 +12,9 @@ not issued" line (a draft) and one more draft line (below).
 - **Two readings for Sharon:**
   - the deletion's refusal counts only attachments **gained after the closure began** (§4);
   - "earned but not issued" is shown in the confirmer's preview, and kept in the record as a count (§5).
+- **Not accepted yet (owner, `ANONYMISED-PERSON-IS-TERMINAL.md` §0 item 8):** L1-F4 is accepted only when its race
+  test passes on two real connections. That test is built with L1-F2's, sharing its two-connection harness. Sharon
+  also verifies the line between historical attachments and new live ones (§4).
 - **For Daisy:**
   - her final refusal line is used without `{sekolah}`;
   - her "earned but not issued" line is in as her draft;
@@ -144,9 +147,11 @@ not issued" line (a draft) and one more draft line (below).
 
 The plant harness loads `l1f4.sql`, whose registry check `selftest.run_l1f4_registry()` needs no fixture.
 
-**Not built, recorded:** Sharon's race test 4 on two real connections. The attachment-first order is shown here on
+~~**Not built, recorded:** Sharon's race test 4 on two real connections. The attachment-first order is shown here on
 one connection, with the closure backdated (K06). The two-connection proof needs A1's two-connection pattern, and goes
-with L1-F2's race test, which needs the same.
+with L1-F2's race test, which needs the same.~~ *(superseded by the owner's instruction, `ANONYMISED-PERSON-IS-TERMINAL.md`
+§0 item 8: the two-connection race test is required before acceptance, and the one-connection demonstration does not
+stand in for it. It is built with L1-F2's.)*
 
 ## 7 · The four questions
 

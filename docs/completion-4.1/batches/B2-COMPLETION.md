@@ -14,8 +14,10 @@ S-1's check at 390 and 320 px.
 - **B1 already holds the print event:** `catatPermintaanCetak` (`src/app/api/_akuntabilitas/catat.ts`) writes a
   `PRINT_REQUEST`, fails closed, and returns a `CTK-XXXX-XXXX` reference. `akuntabilitas_catat` validates the scope's
   shape and sets the single owning school. The reader finds a print by its reference.
-- **Q1 is ruled** (`B2-ARCHITECT-NOTES.md` §1 on `claude/bob-41-master-plan` at
-  `2dd28e3ca5b4dcb867e51df17dd8a2213b55a8aa`): a learner's own-results print is **person-scoped**, and its school
+- **Q1 is decided by the owner** (`B2-ARCHITECT-NOTES.md` §0 item 3 and §1 at
+  `03a5862d41c70b22573be64839d9ad6f2d3d7ded`): the content rule, with the existing visibility and authorization
+  boundaries kept, and no historical evidence attributed to a new school by a transfer. First ruled at
+  `2dd28e3ca5b4dcb867e51df17dd8a2213b55a8aa`: a learner's own-results print is **person-scoped**, and its school
   snapshot is the schools whose evidence the printed report contains. It is computed in the database from the report's
   own scope. It is never refused for several schools. The engineer's proposal of one live school is superseded (§2,
   where it stands). The content rule is the owner's to change knowingly; it is the working assumption.
@@ -137,14 +139,14 @@ adds the print step to `audit/journey.mjs`:
 | B2-A04 | A browser print shows the default line and no reference-shaped text | page numbers only |
 | B2-A05 | An empty report offers no «Cetak laporan» | `/belajar/hasil` offers it empty |
 | B2-P01 | Q1: a person with results at A and B prints their own results: the snapshot is {A, B}, and each school's admin finds the reference | no person scope |
-| B2-P02 | The same person with results only from A: the snapshot is {A}, and B's admin finds nothing | no person scope |
+| B2-P02 | **The transferred learner, to Sharon's specification** (`B2-ARCHITECT-NOTES.md` §1 at `a79dc446ca601cf5d918dad77ecccb2c5d9ecf5a`; the owner's condition "no attribution by transfer"). **Fixture:** a learner earns results at A and is moved to B through the product's own transfer path (`transfer_minta`, `transfer_terima`, `transfer_execute`), then prints a report showing those results. **Asserted:** the event's snapshot is `{A}`; A's admin finds the reference, B's admin does not, the platform admin does. **Invariant:** the snapshot comes from each printed sitting's own `institution_id`, never from the learner's current enrolment. **Plant:** the snapshot derived from the live affiliation instead turns it red. **A second report:** one result earned at B is added and both are printed: snapshot `{A, B}`; each school finds that event, and each is shown only its own school (B1's correction). **Also checked:** the reference adds no way for B to read A's evidence (a print's content is never returned to a reader); INV-25 portability is unchanged | no person scope |
 | B2-P03 | A departed learner (no live school) prints their history: the former school finds the reference, an unrelated school does not | no person scope |
 | B2-P04 | A print whose report holds no evidence: the snapshot is empty, and only the platform admin finds it | no person scope |
 | B2-P05 | A person-scoped print naming someone else's `person_id`: refused, and no row is written. And the one-school check: a class-scoped print with two schools is still refused, a person-scoped one is not | no person scope |
 | B2-S01 | Static: every page rendering `AksiLaporan` goes through the action; nothing else calls `window.print()` on a report; the certificate print is untouched | — |
 | B2-S02 | B1-R1, R2, R5 and the R4 notice (platform admin only; a school admin never sees it), through the running app | — |
 | Journey 4 | The print step (§5) | — |
-| Plants | (a) the action returns a reference without writing the event; (b) the footer swaps before the reference returns. Each turns its test red | — |
+| Plants | (a) the action returns a reference without writing the event; (b) the footer swaps before the reference returns; (c) a person-scoped print's snapshot derived from the learner's live affiliation, not from each sitting's `institution_id` (B2-P02 red). Each turns its test red | — |
 
 **Committing tests leave no event row** (P3), proved at the end of each.
 
