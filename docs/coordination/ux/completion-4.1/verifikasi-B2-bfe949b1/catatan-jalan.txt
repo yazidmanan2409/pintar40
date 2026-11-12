@@ -1,0 +1,104 @@
+B2 walk at bfe949b11935763a8c8ed7b91f4adcdbcea93645 (local; Daisy, 12 Nov 2026)
+
+== utama
+guru /edukator/ringkasan?kelas=7913956b-238d-4921-8f68-2a683c4bc004 | default style: "Dicetak dari browser · tanpa nomor referensi"
+guru browser print, no beforeprint (fallback): Angka dihitung 12 Nov 2026, 23.51 WIB dari semua bukti kelas ini sampai saat itu. ¦ Dicetak dari browser · 12 November 2026 pukul 23.51 WIB (jam perangkat) · tanpa nomor referensi                         Halaman 1 dari 7
+guru after beforeprint: "Dicetak dari browser · 12 November 2026 pukul 23.51 WIB (jam perangkat) · tanpa nomor referensi"
+guru browser print with time: Angka dihitung 12 Nov 2026, 23.51 WIB dari semua bukti kelas ini sampai saat itu. ¦ Dicetak dari browser · 12 November 2026 pukul 23.51 WIB (jam perangkat) · tanpa nomor referensi                         Halaman 1 dari 7
+guru after afterprint: "Dicetak dari browser · tanpa nomor referensi"
+guru button: 1
+guru print called: 1 | footer at print: "Dicetak oleh Pak Yusuf (uji laporan) · 12 November 2026 pukul 23.51 WIB · Ref. CTK-9WY8-PG44" | style after: "Dicetak dari browser · tanpa nomor referensi" | result line: 
+guru official paper: Angka dihitung 12 Nov 2026, 23.51 WIB dari semua bukti kelas ini sampai saat itu. ¦ Dicetak oleh Pak Yusuf (uji laporan) · 12 November 2026 pukul 23.51 WIB · Ref. CTK-9WY8-PG44                            Halaman 1 dari 7
+guru axe: []
+dekan /dekan/ringkasan?simpul=1e02acd4-bc79-43bc-b23e-ad2bd7563bc4 | default style: "Dicetak dari browser · tanpa nomor referensi"
+dekan browser print, no beforeprint (fallback): terbaca dari angka sekolah. ¦ Dicetak dari browser · 12 November 2026 pukul 23.51 WIB (jam perangkat) · tanpa nomor referensi                        Halaman 1 dari 3
+dekan after beforeprint: "Dicetak dari browser · 12 November 2026 pukul 23.51 WIB (jam perangkat) · tanpa nomor referensi"
+dekan browser print with time: terbaca dari angka sekolah. ¦ Dicetak dari browser · 12 November 2026 pukul 23.51 WIB (jam perangkat) · tanpa nomor referensi                        Halaman 1 dari 3
+dekan after afterprint: "Dicetak dari browser · tanpa nomor referensi"
+dekan button: 1
+dekan print called: 1 | footer at print: "Dicetak oleh Bu Wulan (uji laporan) · 12 November 2026 pukul 23.51 WIB · Ref. CTK-EVZD-38A0" | style after: "Dicetak dari browser · tanpa nomor referensi" | result line: 
+dekan official paper: terbaca dari angka sekolah. ¦ Dicetak oleh Bu Wulan (uji laporan) · 12 November 2026 pukul 23.51 WIB · Ref. CTK-EVZD-38A0                            Halaman 1 dari 3
+dekan axe: []
+murid /belajar/hasil | default style: "Dicetak dari browser · tanpa nomor referensi"
+murid browser print, no beforeprint (fallback): memecahkan masalah sehari-hari.                                                                pelajari lagi ¦ Dicetak dari browser · 12 November 2026 pukul 23.52 WIB (jam perangkat) · tanpa nomor referensi            Halaman 1 dari 2
+murid after beforeprint: "Dicetak dari browser · 12 November 2026 pukul 23.52 WIB (jam perangkat) · tanpa nomor referensi"
+murid browser print with time: memecahkan masalah sehari-hari.                                                                pelajari lagi ¦ Dicetak dari browser · 12 November 2026 pukul 23.52 WIB (jam perangkat) · tanpa nomor referensi            Halaman 1 dari 2
+murid after afterprint: "Dicetak dari browser · tanpa nomor referensi"
+murid button: 1
+murid print called: 1 | footer at print: "Dicetak oleh Tono Rahayu (5B) · 12 November 2026 pukul 23.52 WIB · Ref. CTK-WV2M-1AD7" | style after: "Dicetak dari browser · tanpa nomor referensi" | result line: 
+murid official paper: memecahkan masalah sehari-hari.                                                       pelajari lagi ¦ Dicetak oleh Tono Rahayu (5B) · 12 November 2026 pukul 23.52 WIB · Ref. CTK-WV2M-1AD7             Halaman 1 dari 2
+murid axe: []
+
+== wita
+murid /belajar/hasil | default style: "Dicetak dari browser · tanpa nomor referensi"
+murid button: 1
+murid print called: 1 | footer at print: "Dicetak oleh Tono Rahayu (5B) · 13 November 2026 pukul 00.55 WITA · Ref. CTK-CPWF-TQAK" | style after: "Dicetak dari browser · tanpa nomor referensi" | result line: 
+murid official paper: memecahkan masalah sehari-hari.                                                       pelajari lagi ¦ Dicetak oleh Tono Rahayu (5B) · 13 November 2026 pukul 00.55 WITA · Ref. CTK-CPWF-TQAK            Halaman 1 dari 2
+guru /edukator/ringkasan?kelas=7913956b-238d-4921-8f68-2a683c4bc004 | default style: "Dicetak dari browser · tanpa nomor referensi"
+guru button: 1
+guru print called: 1 | footer at print: "Dicetak oleh Pak Yusuf (uji laporan) · 13 November 2026 pukul 00.56 WITA · Ref. CTK-GXGT-M73A" | style after: "Dicetak dari browser · tanpa nomor referensi" | result line: 
+guru official paper: Angka dihitung 13 Nov 2026, 00.56 WITA dari semua bukti kelas ini sampai saat itu. ¦ Dicetak oleh Pak Yusuf (uji laporan) · 13 November 2026 pukul 00.56 WITA · Ref. CTK-GXGT-M73A                           Halaman 1 dari 7
+
+== gagal
+guru /edukator/ringkasan?kelas=7913956b-238d-4921-8f68-2a683c4bc004 | default style: "Dicetak dari browser · tanpa nomor referensi"
+guru button: 1
+guru print called: 0 | footer at print:  | style after: "Dicetak dari browser · tanpa nomor referensi" | result line: Cetakan belum dapat dicatat, jadi belum dicetak. Coba lagi.
+
+== baca
+sys index entries: 1 ["Catatan masuk dan cetak"]
+sys 1280 notice/banners: ["status|Daftar ini mungkin tidak lengkap. Dalam 7 hari terakhir, PINTAR tidak dapat mencatat sebagian kejadian masuk atau keluar (terhitung 2, terakhir 12 Nov 2026, 23.57 WIB). Kesehatan sistem"]
+sys 1280 print rows: 8 | 12 Nov 2026, 23.56 WIB Pak Yusuf (uji laporan) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-GXGT-M73A Berhasil ¦ 12 Nov 2026, 23.55 WIB Tono Rahayu (5B) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-CPWF-TQAK Berhasil ¦ 12 Nov 2026, 23.53 WIB Bu Fitri (uji laporan) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-FBFD-T1F3 Berhasil ¦ 12 Nov 2026, 23.52 WIB Tono Rahayu (5B) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-WV2M-1AD7 Berhasil
+sys 1280 sideways: false axe: []
+sys all rows sample: 12 Nov 2026, 23.56 WIB Pak Yusuf (uji laporan) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-GXGT-M73A Berhasil ¦ 12 Nov 2026, 23.55 WIB Tono Rahayu (5B) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-CPWF-TQAK Berhasil ¦ 12 Nov 2026, 23.53 WIB Bu Fitri (uji laporan) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-FBFD-T1F3 Berhasil | tanpa sekolah: 0
+sys learner print by ref: 12 Nov 2026, 23.52 WIB Tono Rahayu (5B) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-WV2M-1AD7 Berhasil
+sys no match Hapus saringan: 1
+sys purged ref Hapus saringan: 1
+sys 390 notice/banners: ["status|Daftar ini mungkin tidak lengkap. Dalam 7 hari terakhir, PINTAR tidak dapat mencatat sebagian kejadian masuk atau keluar (terhitung 2, terakhir 12 Nov 2026, 23.57 WIB). Kesehatan sistem"]
+sys 390 print rows: 8 | 12 Nov 2026, 23.56 WIB Pak Yusuf (uji laporan) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-GXGT-M73A Berhasil ¦ 12 Nov 2026, 23.55 WIB Tono Rahayu (5B) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-CPWF-TQAK Berhasil ¦ 12 Nov 2026, 23.53 WIB Bu Fitri (uji laporan) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-FBFD-T1F3 Berhasil ¦ 12 Nov 2026, 23.52 WIB Tono Rahayu (5B) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-WV2M-1AD7 Berhasil
+sys 390 sideways: true axe: []
+sys 320 notice/banners: ["status|Daftar ini mungkin tidak lengkap. Dalam 7 hari terakhir, PINTAR tidak dapat mencatat sebagian kejadian masuk atau keluar (terhitung 2, terakhir 12 Nov 2026, 23.57 WIB). Kesehatan sistem"]
+sys 320 print rows: 8 | 12 Nov 2026, 23.56 WIB Pak Yusuf (uji laporan) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-GXGT-M73A Berhasil ¦ 12 Nov 2026, 23.55 WIB Tono Rahayu (5B) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-CPWF-TQAK Berhasil ¦ 12 Nov 2026, 23.53 WIB Bu Fitri (uji laporan) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-FBFD-T1F3 Berhasil ¦ 12 Nov 2026, 23.52 WIB Tono Rahayu (5B) SD Cendekia Nusantara (sekolah peragaan) Meminta cetakan resmi · Referensi CTK-WV2M-1AD7 Berhasil
+sys 320 sideways: true axe: []
+wulan index entries: 1 ["Catatan masuk dan cetak"]
+wulan 1280 notice/banners: []
+wulan 1280 print rows: 8 | 12 Nov 2026, 23.56 WIB Pak Yusuf (uji laporan) Meminta cetakan resmi · Referensi CTK-GXGT-M73A Berhasil ¦ 12 Nov 2026, 23.55 WIB Tono Rahayu (5B) Meminta cetakan resmi · Referensi CTK-CPWF-TQAK Berhasil ¦ 12 Nov 2026, 23.53 WIB Bu Fitri (uji laporan) Meminta cetakan resmi · Referensi CTK-FBFD-T1F3 Berhasil ¦ 12 Nov 2026, 23.52 WIB Tono Rahayu (5B) Meminta cetakan resmi · Referensi CTK-WV2M-1AD7 Berhasil
+wulan 1280 sideways: false axe: []
+wulan all rows sample: 12 Nov 2026, 23.56 WIB Pak Yusuf (uji laporan) Meminta cetakan resmi · Referensi CTK-GXGT-M73A Berhasil ¦ 12 Nov 2026, 23.55 WIB Tono Rahayu (5B) Meminta cetakan resmi · Referensi CTK-CPWF-TQAK Berhasil ¦ 12 Nov 2026, 23.53 WIB Bu Fitri (uji laporan) Meminta cetakan resmi · Referensi CTK-FBFD-T1F3 Berhasil | tanpa sekolah: 0
+wulan learner print by ref: 12 Nov 2026, 23.52 WIB Tono Rahayu (5B) Meminta cetakan resmi · Referensi CTK-WV2M-1AD7 Berhasil
+wulan no match Hapus saringan: 1
+wulan purged ref Hapus saringan: 1
+wulan 390 notice/banners: []
+wulan 390 print rows: 8 | 12 Nov 2026, 23.56 WIB Pak Yusuf (uji laporan) Meminta cetakan resmi · Referensi CTK-GXGT-M73A Berhasil ¦ 12 Nov 2026, 23.55 WIB Tono Rahayu (5B) Meminta cetakan resmi · Referensi CTK-CPWF-TQAK Berhasil ¦ 12 Nov 2026, 23.53 WIB Bu Fitri (uji laporan) Meminta cetakan resmi · Referensi CTK-FBFD-T1F3 Berhasil ¦ 12 Nov 2026, 23.52 WIB Tono Rahayu (5B) Meminta cetakan resmi · Referensi CTK-WV2M-1AD7 Berhasil
+wulan 390 sideways: false axe: []
+wulan 320 notice/banners: []
+wulan 320 print rows: 8 | 12 Nov 2026, 23.56 WIB Pak Yusuf (uji laporan) Meminta cetakan resmi · Referensi CTK-GXGT-M73A Berhasil ¦ 12 Nov 2026, 23.55 WIB Tono Rahayu (5B) Meminta cetakan resmi · Referensi CTK-CPWF-TQAK Berhasil ¦ 12 Nov 2026, 23.53 WIB Bu Fitri (uji laporan) Meminta cetakan resmi · Referensi CTK-FBFD-T1F3 Berhasil ¦ 12 Nov 2026, 23.52 WIB Tono Rahayu (5B) Meminta cetakan resmi · Referensi CTK-WV2M-1AD7 Berhasil
+wulan 320 sideways: false axe: []
+guru refusal: PINTAR Catatan masuk dan cetak hanya dibaca admin sekolah untuk sekolahnya, dan Admin PINTAR. Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda. Konfigurasi Masuk sebagai Pak Yusuf
+guru konfigurasi: /konfigurasi | reader link: 0
+
+== the notice's overflow
+platform view at 320: scrollWidth 345 with the notice, 320 without it; at 390: 415 / 390. The link «Kesehatan sistem» has a zero-width box (x 264 at 320, x 1096 at 1280).
+
+== S-1 at this commit
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:1280 {"shell":null,"rail":[],"konteks":[{"cls":"pin-konteks-kontrol","vis":true,"txt":"SD Cendekia Nusantara (sekolah peragaan)"},{"cls":"pin-konteks-blok","vis":tru
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:1280 after toggle {"ciut":"ya","rail":[],"nav":["KonfigurasiKonfigura","PendataanPendataan","Aktivasi akunAktivas","StudioStudio","Keamanan akunKeamana","Sertifikat 
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:1100 {"shell":null,"rail":[],"konteks":[{"cls":"pin-konteks-kontrol","vis":true,"txt":"SD Cendekia Nusantara (sekolah peragaan)"},{"cls":"pin-konteks-blok","vis":fal
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:1100 after toggle {"ciut":"tidak","rail":[],"nav":["KonfigurasiKonfigura","PendataanPendataan","Aktivasi akunAktivas","StudioStudio","Keamanan akunKeamana","Sertifik
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:390 /konfigurasi {"laci":[16,358],"shell":[0,390],"sw":390,"fokus":"KonfigurasiKonfigura","fokusKiri":16,"fokusKanan":16}
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:390 /konfigurasi/audit {"laci":[16,358],"shell":[0,390],"sw":390,"fokus":"KonfigurasiKonfigura","fokusKiri":16,"fokusKanan":16}
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:390 /konfigurasi/catatan-masuk {"laci":[16,358],"shell":[0,390],"sw":390,"fokus":"KonfigurasiKonfigura","fokusKiri":16,"fokusKanan":16}
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:390 /konfigurasi/keamanan {"laci":[16,358],"shell":[0,390],"sw":390,"fokus":"KonfigurasiKonfigura","fokusKiri":16,"fokusKanan":16}
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:390 /pendataan {"laci":[16,358],"shell":[0,390],"sw":390,"fokus":"KonfigurasiKonfigura","fokusKiri":16,"fokusKanan":16}
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:320 /konfigurasi {"laci":[16,288],"shell":[0,320],"sw":320,"fokus":"KonfigurasiKonfigura","fokusKiri":16,"fokusKanan":16}
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:320 /konfigurasi/audit {"laci":[16,288],"shell":[0,320],"sw":320,"fokus":"KonfigurasiKonfigura","fokusKiri":16,"fokusKanan":16}
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:320 /konfigurasi/catatan-masuk {"laci":[16,288],"shell":[0,320],"sw":320,"fokus":"KonfigurasiKonfigura","fokusKiri":16,"fokusKanan":16}
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:320 /konfigurasi/keamanan {"laci":[16,288],"shell":[0,320],"sw":320,"fokus":"KonfigurasiKonfigura","fokusKiri":16,"fokusKanan":16}
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-.log:320 /pendataan {"laci":[16,288],"shell":[0,320],"sw":320,"fokus":"KonfigurasiKonfigura","fokusKiri":16,"fokusKanan":16}
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-1.log:1280 {"shell":null,"rail":[{"vis":false,"txt":"SPMau ke mana hari ini? · Seluruh platfo","lbl":null}],"konteks":[{"cls":"pin-konteks-kontrol","vis":true,"txt":"Sel
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-1.log:1280 after toggle {"ciut":"ya","rail":[true],"nav":["SPMau ke mana hari i","KonfigurasiKonfigura","Aktivasi akunAktivas","Keamanan akunKeamana","Kirim email ujiKiri
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-1.log:1100 {"shell":null,"rail":[{"vis":true,"txt":"SPMau ke mana hari ini? · Seluruh platfo","lbl":null}],"konteks":[{"cls":"pin-konteks-kontrol","vis":true,"txt":"Selu
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-1.log:1100 after toggle {"ciut":"tidak","rail":[false],"nav":["Mau ke mana hari ini","KonfigurasiKonfigura","Aktivasi akunAktivas","Keamanan akunKeamana","Kirim email uji
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-1.log:390 /konfigurasi {"laci":[16,358],"shell":[0,390],"sw":390,"fokus":"Mau ke mana hari ini","fokusKiri":28,"fokusKanan":198}
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-1.log:390 /konfigurasi/audit {"laci":[16,358],"shell":[0,390],"sw":390,"fokus":"Mau ke mana hari ini","fokusKiri":28,"fokusKanan":198}
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-1.log:390 /konfigurasi/catatan-masuk {"laci":[16,358],"shell":[0,390],"sw":415,"fokus":"Mau ke mana hari ini","fokusKiri":28,"fokusKanan":198}
+/tmp/claude-0/-home-user-pintar40/50574818-1ff8-5baf-a9b1-a7f111347b0f/scratchpad/s1b/run-1.log:390 /konfigurasi/keamanan {"laci":[16,358],"shell":[0,390],"sw":390,"fokus":"Mau ke mana hari ini","fokusKiri":28,"fokusKanan":198}
