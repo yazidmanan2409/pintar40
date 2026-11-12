@@ -144,7 +144,11 @@ corrections F-1, L-1, S-1, L1-F2, L1-F4 and F1-R1b, each accepted.
 A2a's D6.6 needs a different shape for the closer. That is the single most valuable thing the checkpoint can tell us
 before A2a is built, and it is the strongest argument for holding the checkpoint before A2a and not at Z.
 
-## 5c · One question raised since this addendum was submitted (not yet decided)
+## 5c · One question raised since this addendum was submitted — **DECIDED by the owner, 12 Nov 2026 (§5d)**
+
+*The text of this section is kept as it was put. Its last paragraph, "brought to the owner as a decision once Sharon
+has given her view", is superseded: the owner ruled directly, and Sharon's and the engineer's work is now a
+precondition of implementation, not of the decision.*
 
 **What a class-scoped PLANNED window stops.** THE PLAN §5.3 D1 says a class window "affects a person" enrolled in or
 teaching that class, and the existing block refuses every request of an affected person. Daisy's answer (12 Nov):
@@ -156,6 +160,67 @@ Her recommendation: planned maintenance governs the class's work; an emergency s
 work" can be enforced is Sharon's and the engineer's question. **This is brought to the owner as a decision once
 Sharon has given her view on enforcement,** because it changes what THE PLAN §5.3 D1 says and it reaches across
 schools. It concerns A2b and does not hold A2a's design, B2 or the checkpoint.
+
+## 5d · Rulings recorded after approval (each by the owner; the approved content above is unchanged)
+
+### R-1 · Planned maintenance is work-scoped; emergency containment stays person-level (owner, 12 Nov 2026)
+
+**The ruling.**
+- **PLANNED maintenance is work-scoped, not person-scoped.** A scheduled window for class 7A must not automatically
+  prevent the same teacher or learner from using unaffected classes, including classes at another school.
+- **EMERGENCY containment retains the approved person-level behaviour and all existing integrity protections.**
+- **Before the planned-maintenance change is implemented,** Sharon and Second Eye establish that the scope can be
+  enforced consistently across all relevant operations, **including cross-context and background writes.**
+- **If any operation cannot be safely scoped,** the specific issue and the options are brought to the owner.
+  **Emergency containment is not weakened, and no unprotected write path is introduced.**
+- Daisy's proposed screen language is the UX direction, subject to the normal review.
+
+**What it changes.** THE PLAN §5.3 D1 says a class-scoped window "affects a person" enrolled in or teaching that
+class. For a PLANNED window that sentence no longer holds: the window governs the class's work. For an EMERGENCY it
+holds unchanged, and so does all of D6.
+
+**Where it lands.**
+
+| Batch | Requirement |
+|---|---|
+| **A2a** | Unchanged in design. Class scope for the **emergency** is person-level, as approved. One addition: A2a's class-scope work must not make a class-scoped PLANNED window person-level in the interval before A2b (Sharon's condition 2 of §5a said such a window "behaves as a school window does today"). **Sharon and the engineer state, in the feasibility work below, how a class-scoped planned window behaves between A2a and A2b so that this ruling is not broken in that interval;** if it cannot be kept, class-scoped PLANNED windows are not offered until A2b |
+| **A2b** | Carries the ruling: the reach of a class-scoped planned window, the start refusal (D4) and the T−15 block applied to that class's work, the warnings (D8) to that class's people, with Daisy's wording as the direction |
+
+**The feasibility work (before any implementation; Sharon and Second Eye).** For a class-scoped PLANNED window,
+establish for **every** operation whether it can be scoped to the class's work and how:
+1. the request-level block (`pintar_permintaan.periksa`, `maintenance_affects`, `maintenance_block_for_me`): today it
+   refuses every request of an affected person; a work-scoped window cannot use it as it stands;
+2. starting work: `start_learning_session`, `may_start_assessment`, the sitting-insert trigger of the T−15 block, D4;
+3. a running sitting of that class: the drain (`maintenance_draining`, D5), unchanged in principle;
+4. staff acts on that class's work: assigning, extending, ending, moving an assignment, a key correction's move of
+   assignments;
+5. **cross-context writes:** a person in the class acting in another class or another school; a platform admin; a
+   teacher of two classes of which one is in the window;
+6. **background writes:** the scheduled closer, finalization, the purge, any job that touches that class's sittings
+   during the window;
+7. the status read and the warnings: who is warned, and that nobody outside the class's work is told they are
+   affected;
+8. school-scoped and platform-scoped PLANNED windows: whether "work-scoped" changes anything for them (a
+   school-scoped window at school X and a teacher who also works at school Y is the same question one level up).
+
+Each operation is recorded as: scoped, and how; not applicable; or **cannot be safely scoped**, with the reason and
+the options. The last kind comes to the owner.
+
+**Wording (Daisy, 12 Nov; the direction, subject to normal review).** Her record:
+`docs/coordination/ux/completion-4.1/I6-I7-JAWABAN.md` on `ux-1/daisy-experience` at
+`e48c49063e3a52d657e305ed5892f1a638ec5afb`.
+- Warning: «Pemeliharaan terjadwal untuk kelas 7A mulai pukul {jam} {zona}. Kelas Anda yang lain tidak terpengaruh.»
+- During the window, on that class's pages: «Kelas 7A sedang dalam pemeliharaan terjadwal sampai pukul {jam} {zona}.
+  Alasan: {alasan}. Kelas Anda yang lain dapat dipakai seperti biasa.»
+- On another class: nothing.
+
+### R-2 · Terminology (owner, 12 Nov 2026: Daisy's I-6 accepted under her existing design authority)
+
+- **C2w's reviewer notes:** «Catatan peninjau» / «Reviewer note».
+- **F1-R1b's missing misconception code:** «belum dikaitkan dengan pemahaman keliru» / «not linked to a
+  misconception».
+- «anotasi» / «annotation» never appears on a screen. F1-R1b never uses «catat», «catatan» or «tercatat»; C2w never
+  uses «kaitkan» or «terkait». Both batches' pages carry this.
 
 ## 6 · Dependencies that now hold
 
@@ -183,3 +248,4 @@ deployment or production database change.
 | 12 Nov 2026 (07:29 UTC) | Sharon confirmed the split of A2 with three conditions (§5a) and listed the hosted behaviours for the checkpoint (§5b). Submitted to the owner for approval |
 | 12 Nov 2026 (07:29 UTC) | §5c added: the reach of a class-scoped planned window, raised by Daisy; with Sharon for her view before it is put to the owner |
 | 12 Nov 2026 (07:30 UTC) | **Owner approved; effective.** Approved as submitted at `0e3c63e11540a004fbb5183c1486378301e7a9f7`, with five conditions recorded in the header. §5c is outside the approved content |
+| 12 Nov 2026 (07:32 UTC) | Owner's ruling R-1 recorded (§5d): planned maintenance is work-scoped; emergency containment unchanged; feasibility by Sharon and the engineer before implementation. R-2: Daisy's two terms accepted |
