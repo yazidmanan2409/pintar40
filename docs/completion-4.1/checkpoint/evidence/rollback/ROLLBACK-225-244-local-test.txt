@@ -1,0 +1,87 @@
+ROLLBACK-225-244.sql, tested locally (Second Eye, 12 Nov 2026). Local Supabase stack, Postgres 17; pg_cron 1.6.4.
+Everything below ran on synthetic local databases only. Nothing ran on staging.
+
+THE TWO REFERENCE DATABASES
+  * "224": migrations 225-244 moved aside; `supabase db reset --local --no-seed` (224 rows, max 20270113160000); copied
+    as database s224 (create database … template postgres); the 20 files moved back.
+  * "244": `supabase db reset` / `migration up` to 244 (244 rows, max 20270117200000).
+  * The schema part of the rollback is migra's difference 244 -> 224 (`migra --unsafe`), reviewed by hand (the file's
+    header says how). Every database below is compared with s224 by migra (with privileges) and by the catalogue
+    fingerprint `catalogue-fingerprint.sql` (beside this file, 4520 lines at 224). The fingerprint covers functions
+    (definition md5, ACL, owner, comment), relations (kind, ACL, owner, RLS), columns (type, not null, default, ACL),
+    constraints, triggers (definition, enabled), policies, indexes, types and enum labels, extensions, schemas (owner,
+    ACL), default privileges, and every table, column, trigger, constraint and schema comment.
+
+TEST 1 · an empty copy at 244 (database r244 = template of 244 without seed), as postgres
+  psql -v ON_ERROR_STOP=1 -f ROLLBACK-225-244.sql                     -> rc 0
+    NOTICE rollback: accountability_store holds 1 row(s); orang_lampiran holds 113 row(s); the other eight new tables 0
+    NOTICE rollback: the database reads 224 (20270113160000)
+  migra --unsafe --with-privileges r244 s224                          -> 0 lines (no difference)
+  the catalogue fingerprint, r244 against s224                        -> identical (4520 lines)
+
+TEST 2 · a seeded database at 244, with a confirmed key correction that withdrew two rationales
+  The data: the seed (`supabase db reset`), and then fable13's world, committed: selftest.f13_kunci_dunia(2, 1); then
+  ajukan_koreksi_kunci by boot-admin and tegaskan_koreksi_kunci by boot-kaprodi. 2 options carry rationale_withdrawn_by;
+  penjelasan_dihapus holds 2 entries.
+  Before the rollback, the corrected item's options against the item they supersede (label | rationale equal |
+  misconception code equal | is_correct):
+    A|f|f|f
+    B|f|f|t
+  psql -v ON_ERROR_STOP=1 -f ROLLBACK-225-244.sql                     -> rc 0
+    NOTICE rollback: key_corrections holds 1 row(s); key_correction_notices 1; assessment_result_bases 2;
+           accountability_store 1; orang_lampiran 113; the other five 0
+    NOTICE rollback: 0 sitting(s) carry A1's closure or hold record
+    NOTICE rollback: 2 option(s) carry a rationale F1-R1b withdrew; PART 1 writes each back
+    NOTICE rollback: the database reads 224 (20270113160000)
+  After: each withdrawn rationale and misconception code is back, equal to the text as authored:
+    A|t|t|f
+    B|t|t|t
+  auth.users with a lock, of all users: 0 of 26 before, 0 of 26 after (no lock changed)
+  audit_log's content md5, before and after                           -> unchanged
+  the catalogue fingerprint against s224                              -> identical, apart from what this test itself
+    loaded: the selftest schema and two temporary namespaces
+  Note: this committed world is not a state the suites expect. fable06's harness cannot remove it, at 244 too (checked
+  separately: a fresh seed, the same world, selftest.run_fable06() fails the same way, with no rollback involved). So
+  the suites are run on TEST 3's clean round trip.
+
+TEST 3 · a clean seeded round trip: 244 -> 224 -> 244, then the whole suite
+  supabase db reset --local (seeded, 244)
+  psql -v ON_ERROR_STOP=1 -f ROLLBACK-225-244.sql                     -> rc 0
+  the catalogue fingerprint against s224                              -> identical
+  supabase migration up --local                                       -> rc 0, "Applying migration" 20 times; 244 / 20270117200000;
+    cron.job: pintar-akuntabilitas-buang-lama 17 19 * * *, pintar-pengerjaan-tutup-terjadwal */5 * * * * (231's installer
+    put them back)
+  The whole suite on that database (CI's strict selftest as run locally: the build, Mailpit, `npm run selftest:local`):
+    1145 passed, 0 failed, 0 skipped, 1 justified skips accepted (local only), 0 contract problem(s) -> GREEN
+    (an earlier run on the same round trip had DR-D02 red only because audit/restore/fakta.sql was edited while that run
+    was in progress: its bundle and its copy were read with two versions of the file. This run, with the files final, is
+    green throughout.)
+
+THE PRESERVATION QUERY ACROSS A REAL PROMOTION (evidence/staging/preservation.sql)
+  A seeded database brought to 224 by this rollback. One user given banned_until = 'infinity', as 224's akun_kunci
+  locks: user 641a1e73-…, synthetic. The "before" read in a read-only transaction:
+    cutoff 2026-11-12 23:15:02.548957+00 · audit_log watermark 320
+    state · migrations 224 / 20270113160000; versions digest d11e89838ecb656c4ca5b06b18941316
+    state · pg_cron absent · state · triggers on auth.users 4
+  Then `supabase migration up --local` (224 -> 244). 233 rewrote that user's lock to 2999-12-31 23:59:59+00.
+  The "after" read, with the cutoff and watermark written into batas:
+    every line from demo_roles to "audit_log up to the watermark"     -> equal to "before"
+    (persons, person_usernames, person_pins, accounts, auth users (locked or not), role_assignments,
+     person_suspensions, account_requests, enrollments, institutions, org_nodes, courses, plp_releases, items,
+     item_options, learning_assignments, assessment_assignments, finished sittings, results, official results,
+     certificates, audit_log)
+    only the three state lines differ: 244 / 20270117200000, digest 1f41d1a48f39e5544ba5d88b79b463d8; pg_cron installed
+    1.6.4; 5 triggers on auth.users
+  Rows created after the cutoff are outside every line: a synthetic person, a suspension for them and an audit_log row,
+  inserted after the "before" read. The "after" read is identical with and without them.
+  Not exercised here: lines 70 to 72 (the seed holds no sitting still open past its deadline, so the scheduled closure
+  had nothing to close). The rule is in the query's header.
+
+THE PRECONDITIONS PAGE'S TWO NEW STATEMENTS, RUN LOCALLY (at 244, after TEST 3)
+  1e to 1g, the committing-procedure proof, exactly as the page writes it:
+    cron.schedule returned jobid 15; the first run: succeeded, "CALL"; uji_cron_41.catatan rows 1 and 2, row 2 after
+    row 1 (23:26:00.00592 and 23:26:00.006336 UTC)
+    the clean-up: unschedule true, 1 run-detail row deleted, the schema dropped with its table and procedure;
+    the nothing-left read: 0 0 0 0
+  6b, the hook timed in a read-only transaction, 200 calls, anon claims: p50 0.004 ms, p95 0.004 ms (local; with no
+    window active the hook returns at once, so on staging the reading is recorded with the claims it used)
