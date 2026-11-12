@@ -15,6 +15,7 @@
 | L-1, suspended sign-in correction | **BLOCKED by Sharon on one item** on `2ea60c85e4f855eca2175749c4270a170922ee33`. The fix is committed locally, in full pre-flight, not pushed; she rechecks that item alone when it is | local `916d12c01345816afcf567b40131e72b9857cf65` |
 | F-1, C1w correction pass | **Pushed; CI `43142431230` and journeys `43142435769` running.** For Sharon and Daisy when the owner gives them this commit, with both green. Daisy's visit also covers her L-1 confirmation | `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` |
 | L1-F2, a suspension covers accounts created after it | Design PASS (Sharon), three required points. **Released to build** after the L-1 fix closes; own commit; before Z; holds nothing | brief: `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0, §2a |
+| L1-F4, an anonymised person can be re-attached | Finding, with a proposed correction. **Awaiting the owner's decision.** Nothing is built | `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §5c |
 | S-1, phone drawer overflow | Approved, bounded; before B2's review | — |
 | B2 | Opens when L-1 and F-1 both have Sharon's PASS | — |
 
@@ -124,3 +125,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026, 05:30 | Sharon: pre-implementation review of `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §2 (place of the lock, no authentication window, reinstatement) and her view on §5 (closed person). Second Eye: nothing to build yet; report what happens today for §5 when convenient |
 | 12 Nov 2026, 06:00 | Second Eye: L1-F2 is released, `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0 and §2a (one trigger on `public.accounts`; `FOR SHARE` on the person first; a guard on `banned_until`; six tests). Also report what happens today for a closed and an anonymised person (§5, §5a). After the L-1 fix; not before B2 if B2 is ready first |
 | 12 Nov 2026, 06:30 | Second Eye: `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §5b. Build the lock trigger as released. Before touching messages or matching, report the three items at the end of §5b (which paths send a message and what the school sees; what an institutional number can match after anonymisation; one test each of today's behaviour) |
+| 12 Nov 2026, 07:00 | Second Eye: P-1 needs only its guarding test, taken with the lock trigger. L1-F4 is with the owner; build nothing for it; the three tests of today's behaviour are still wanted, as evidence |

@@ -28,6 +28,11 @@
      account-creation workflow; a returning individual is a new person, and their former history and identity links
      do not reappear. **How institutional-number matching works today is examined before any implementation is
      finalized.**
+7b. **From the engineer's examination (12 Nov; read from code, tests of today's behaviour still to be written):**
+   - **P-1 is already true:** no account-creation path sends a message to anyone, and every success screen says so.
+     Nothing is to be suppressed. It is kept true by one guarding test (§5c).
+   - **P-2 is not true today:** an anonymised person can be re-attached. This is finding **L1-F4** (§5c), reported to
+     the owner with a proposed correction. **Nothing is built for it until the owner decides.**
 8. State: **released to the engineer**, to build after the L-1 fix closes, as its own commit, before Z. It gates
    nothing.
 
@@ -181,6 +186,68 @@ reported to the owner with its correction proposed, not built on inference.
    a new person, a match to the anonymised one, or a refusal?
 3. One test each showing today's behaviour.
 
+## 5c · The engineer's examination, and finding L1-F4
+
+**Source.** The engineer's read-only examination of 12 Nov 2026, from the code. The three tests of today's behaviour
+are not written yet. The Chief Architect checked one fact independently on the work branch: of all database
+functions, only seven mention `anonymized_at`, and `import_validate`, `import_advance`, `daftarkan_kembali` and
+`murid_keluar` are not among them.
+
+### P-1 · Messages: nothing to suppress
+
+- No account-creation path sends a message: single email account, class card, whole-class cards, a new person,
+  card-to-email conversion. Bulk intake creates people, never accounts.
+- Every success screen tells the school so («PINTAR tidak mengirim…»). No school screen says a message was sent.
+- A person is sent a code only when they ask for one at `/aktifkan`. Reinstatement sends nothing.
+- **So the owner's P-1 holds today, and the nuance (no revealing difference) cannot arise.** To keep it so: one test
+  that a creation for a suspended and for a closed person sends nothing, through the running app and the mail sink,
+  so that a path added later which starts sending is caught.
+- *One consequence to state:* a locked person who asks for a code at `/aktifkan` is answered as L-1 requires, by the
+  route's ordinary answer.
+
+### L1-F4 · An anonymised person can be re-attached (P-2 does not hold today)
+
+| | |
+|---|---|
+| What PINTAR keeps of a school's own numbers | None. No NIS, NISN or nomor induk column exists; a row without a person id always creates a new person; nothing is matched by number. **So the owner's concern in its literal form (a school submitting the same institutional number) cannot re-link anyone** |
+| What survives `hapus_data_pribadi` | PINTAR-issued identifiers: `persons.id`, the PINTAR ID, the institutional identity rows, and the import rows' person and number (their payload is cleared) |
+| **The gap** | An import row may name an existing person by their PINTAR id. Neither `import_validate` nor `import_advance` looks at `anonymized_at`. At the former school the row is refused (that school's identity row is kept). **From another school that can see the person, or from a platform admin, it attaches to the same `persons.id`:** a new number, a pending enrolment, and the person's history back under a live enrolment |
+| Also | `daftarkan_kembali` (re-enrolling a departed learner) and `murid_keluar` (the departed-learners list) do not check anonymisation |
+| Not verified | Which school screens would then show the earlier history; which schools can see an anonymised person's id at all |
+| Exposure today | **None on staging:** a read-only count on 12 Nov found no anonymised person among 1,579. Production does not have the deletion function. The defect is latent |
+
+**Why it matters.** Deletion is the one action in the account lifecycle that is **irreversible by policy**. Today it
+is irreversible for the person's name and address, but not for the person: an ordinary administrative act can give
+the deleted identity a live enrolment again. That is the fourth question failing: the action cannot be reversed by
+the person, but can be undone around them.
+
+**Proposed correction (Chief Architect; for the owner's decision and Sharon's pre-implementation review).**
+
+*Rule:* **an anonymised person is terminal.** Nothing new may attach to them: no enrolment, role, account, card,
+identity or import row. A returning individual is a new person.
+
+1. **One guard where attachments are made,** on the same pattern as the lock of §2a: an insert that would attach a
+   new enrolment, role assignment, account or institutional identity to a person with `anonymized_at` set is refused
+   in the database, so that no present or future path can miss it.
+2. **The paths answer as for a person who does not exist.** `import_validate` reports the row as it reports an
+   unknown person id; `daftarkan_kembali` refuses in the same ordinary way; `murid_keluar` no longer offers an
+   anonymised person for re-enrolment. Nothing tells a school that the id once belonged to someone who asked to be
+   deleted.
+3. **History is untouched.** The rows kept under the PINTAR ID for audit and for the integrity of past results stay
+   exactly as they are. Only new attachment is refused.
+4. **Bounded.** No change to how deletion is requested, decided or performed.
+
+*Tests, red first:* an import naming an anonymised person, from another school and from the platform (red today: it
+attaches); `daftarkan_kembali` on an anonymised learner; `murid_keluar` not listing them; each direct attachment
+refused by the guard; a new person with the same name created normally; every historical row byte-identical.
+
+*To be confirmed by Sharon before building:* whether any legitimate act must still attach something to an anonymised
+person (for example, the deletion's own bookkeeping, or ending an open enrolment), so that the guard refuses new
+attachment and nothing else.
+
+**Standing.** Outside L-1, outside L1-F2's lock, and outside THE PLAN. A separate small correction, before Z, holding
+nothing. **Awaiting the owner's decision.**
+
 ## 6 · Review and order
 
 - **Sharon, before implementation:** the design direction of §2, the choice of place, and the no-window requirement.
@@ -195,3 +262,4 @@ reported to the owner with its correction proposed, not built on inference.
 | 12 Nov 2026, 05:30 | Owner approved Option B in principle, with the no-window and reinstatement requirements, and separated the closed-person case. Brief written. Awaiting Sharon's pre-implementation review |
 | 12 Nov 2026, 06:00 | Sharon: PASS on the design with three required points and six tests (§2a); the same mechanism for a closed person. Released to the engineer. Privacy questions P-1 and P-2 held for the owner (§5a) |
 | 12 Nov 2026, 06:30 | Owner's assessment of P-1 and P-2 recorded (§5b): no message while restricted, with no revealing difference in the response; anonymisation is never reversed through account creation; matching examined first. The trigger (§2a) may be built; the message and matching parts wait for the engineer's report |
+| 12 Nov 2026, 07:00 | Engineer's examination: P-1 already holds (nothing is sent); P-2 does not (L1-F4: an anonymised person can be re-attached by an import naming their id, and by re-enrolment). Read-only count on staging: no anonymised person. Correction proposed in §5c; awaiting the owner |
