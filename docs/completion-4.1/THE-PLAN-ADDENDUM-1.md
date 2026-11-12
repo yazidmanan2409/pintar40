@@ -125,6 +125,19 @@ corrections F-1, L-1, S-1, L1-F2, L1-F4 and F1-R1b, each accepted.
 A2a's D6.6 needs a different shape for the closer. That is the single most valuable thing the checkpoint can tell us
 before A2a is built, and it is the strongest argument for holding the checkpoint before A2a and not at Z.
 
+## 5c · One question raised since this addendum was submitted (not yet decided)
+
+**What a class-scoped PLANNED window stops.** THE PLAN §5.3 D1 says a class window "affects a person" enrolled in or
+teaching that class, and the existing block refuses every request of an affected person. Daisy's answer (12 Nov):
+a school would not expect that. Planned maintenance on 7A would lock a teacher out of 7B, stop a 7A learner's
+elective elsewhere, and, for a teacher at two schools, let school X's planned maintenance stop work at school Y.
+For an **emergency**, holding everything of the affected person is right and is unchanged.
+
+Her recommendation: planned maintenance governs the class's work; an emergency stops the person. Whether "the class's
+work" can be enforced is Sharon's and the engineer's question. **This is brought to the owner as a decision once
+Sharon has given her view on enforcement,** because it changes what THE PLAN §5.3 D1 says and it reaches across
+schools. It concerns A2b and does not hold A2a's design, B2 or the checkpoint.
+
 ## 6 · Dependencies that now hold
 
 - **Promotion:** B1 not ahead of L-1 (met). C1w not ahead of F-1 (met) nor of F1-R1b. L1-F4 not accepted before its
@@ -149,3 +162,4 @@ deployment or production database change.
 |---|---|
 | 12 Nov 2026 (07:26 UTC) | Drafted after the owner's rulings on the reassessment (`PLAN-REASSESSMENT-2026-11-12.md`). Not effective |
 | 12 Nov 2026 (07:29 UTC) | Sharon confirmed the split of A2 with three conditions (§5a) and listed the hosted behaviours for the checkpoint (§5b). Submitted to the owner for approval |
+| 12 Nov 2026 (07:29 UTC) | §5c added: the reach of a class-scoped planned window, raised by Daisy; with Sharon for her view before it is put to the owner |

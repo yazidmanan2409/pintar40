@@ -353,6 +353,33 @@ Three lines, when the engineer asks, each in Indonesian and English:
 On the learner's result, an option with no explanation shows none; whether anything is said in its place is Daisy's
 call, together with the same question for F-1's fix.
 
+## 6a · Daisy's wording and terms (12 Nov 2026)
+
+Her record: `docs/coordination/ux/completion-4.1/I6-I7-JAWABAN.md` on `ux-1/daisy-experience` at
+`e48c49063e3a52d657e305ed5892f1a638ec5afb`. It also holds her lines for the confirmation screen and for Studio's
+corrected revision; the engineer takes those from her file.
+
+**Two terms, kept apart.**
+- **C2w's reviewer notes:** «Catatan peninjau» / «Reviewer note» (already in THE PLAN §5.4 F).
+- **This correction's missing misconception code:** «belum dikaitkan dengan pemahaman keliru» / «not linked to a
+  misconception»; the noun is «pemahaman keliru terkait» / «linked misconception».
+- This correction never uses «catat», «catatan» or «tercatat»; C2w never uses «kaitkan» or «terkait»; **«anotasi» /
+  «annotation» never appears on a screen.** A teacher meets one as a property of an option and the other as a note
+  beside the question.
+
+| Where | ID | EN |
+|---|---|---|
+| The option in Studio | «Pemahaman keliru: belum dikaitkan» | «Misconception: not linked» |
+| Marker on the question | «Sebagian pilihan salah belum dikaitkan dengan pemahaman keliru. Jawaban pada pilihan itu tidak masuk hitungan pemahaman keliru.» | «Some wrong options are not linked to a misconception. Answers on those options are not counted in the misconception figures.» |
+| An empty misconception figure | «Belum ada pemahaman keliru yang terkait dengan jawaban ini.» | «No misconception is linked to these answers yet.» |
+
+The marker tells the teacher what a missing link does to the figures, without adding a number, which is Sharon's
+requirement of §3a point 1. **On the learner's result, an option whose explanation was withdrawn shows nothing in its
+place.** That also settles the remaining question of F-1 (`C1W-F1-CORRECTION.md` §0 B).
+
+*Note on names in code:* the engineer's internal key `tanpa_anotasi` is not shown to anyone; it may stay or be
+renamed, but no screen string uses the word.
+
 ## 7 · Review and order
 
 - **Sharon, before implementation:** §2 and §3. Then one result review on the exact commit.
@@ -371,3 +398,4 @@ call, together with the same question for F-1's fix.
 | 12 Nov 2026 (05:49 UTC) | Owner: A1. INV-03 amended narrowly, enforced in the database, with a durable reference and the text on the correction's audit record. Awaiting Sharon's verification (§3c) |
 | 12 Nov 2026 (05:54 UTC) | Sharon: PASS on the amended design (§3d): the CHECK and a trigger that admits the reference only from the confirming act or a verified copy; the digest unchanged; the baseline amendment procedure with the marker first, the manifest and an ADR in the same commit. Released to the engineer. One question to the owner: an authoritative baseline outside the repository |
 | 12 Nov 2026 (05:56 UTC) | Owner: the repository is the single authoritative baseline (ADR-0019). Verified against the ADR, later ADRs, the decisions record and the parity script (§3e). No conflicting ruling found. The amendment proceeds in the repository |
+| 12 Nov 2026 (07:29 UTC) | Daisy's wording and the two distinct terms recorded (§6a). The learner's result shows nothing in place of a withdrawn explanation |
