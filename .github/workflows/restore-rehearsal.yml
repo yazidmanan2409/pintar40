@@ -97,6 +97,11 @@ jobs:
           printf 'n\nn\n' | supabase init --force >/dev/null
           sed -i 's/^major_version = .*/major_version = 17/' supabase/config.toml
           grep -n '^major_version' supabase/config.toml
+          # Fix at the cause (12 Nov; journeys run 43272615741, the third «address already in use» on 54322 after 7 Nov's
+          # CI 42376999983 and 42377635978): the stack's host ports 54320-54329 lie in Linux's ephemeral range (32768-60999),
+          # so an outbound connection made before the stack starts (npm ci, Docker's image pulls) can be given 54322 as its
+          # source port, and the database then cannot bind it. Reserved here, no outbound connection is given one of them.
+          sudo sysctl -q -w net.ipv4.ip_local_reserved_ports=54320-54329
           supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit
           supabase status -o env > "$RUNNER_TEMP/leer.env"
           val() { grep -E "^$1=" "$RUNNER_TEMP/leer.env" | head -1 | cut -d= -f2- | tr -d '"'; }

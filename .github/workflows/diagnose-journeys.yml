@@ -76,6 +76,11 @@ jobs:
         id: stack
         working-directory: specimen
         run: |
+          # Fix at the cause (12 Nov; journeys run 43272615741, the third «address already in use» on 54322 after 7 Nov's
+          # CI 42376999983 and 42377635978): the stack's host ports 54320-54329 lie in Linux's ephemeral range (32768-60999),
+          # so an outbound connection made before the stack starts (npm ci, Docker's image pulls) can be given 54322 as its
+          # source port, and the database then cannot bind it. Reserved here, no outbound connection is given one of them.
+          sudo sysctl -q -w net.ipv4.ip_local_reserved_ports=54320-54329
           npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta
           npx --no-install supabase db reset --local
           npx --no-install supabase status -o env > "$RUNNER_TEMP/stack.env"
