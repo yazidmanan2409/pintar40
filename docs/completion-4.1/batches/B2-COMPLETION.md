@@ -7,10 +7,16 @@ S-1's check at 390 and 320 px.
 
 ## What holds now
 
-- **Status: pre-build.** This page is written for Sharon's pre-build review while the corrections are in pre-flight.
-  Nothing of B2 is built.
-- **Opens** when Sharon has passed both the L-1 fix and the F-1 fix (scheduling note, 12 Nov). F1-R1b, L1-F2 and L1-F4
-  do not gate it.
+- **Status: OPEN FOR BUILD** (`B2-ARCHITECT-NOTES.md` §0 item 1 at `24e3830d62ff3a7852b3aa76ca1b5053baad934d`).
+  Sharon passed the F-1 fix, the L-1 fix and this page, the last with **five changes, carried below where each
+  stands** (§3 of her review; she checks them at the result review).
+  - ~~Pre-build: written for Sharon's pre-build review; opens when she has passed the L-1 and F-1 fixes~~ (superseded
+    by the opening above).
+- **Daisy's wording is in** (`B2-ARCHITECT-NOTES.md` §4 at `7d31ffda64b8252f6ebcf6bd7ba6d6651c26440e`; her record
+  `B2-MASUKAN.md` at `7c35b666`): the default print line, B1-R1 to R5 and the completeness notice. Final unless she
+  changes it at her visit.
+- **One deviation from THE PLAN §5.2 F, recorded in §3:** the default browser line names no person (Sharon's ruling,
+  Daisy's wording). THE PLAN is not edited.
 - **B1 already holds the print event:** `catatPermintaanCetak` (`src/app/api/_akuntabilitas/catat.ts`) writes a
   `PRINT_REQUEST`, fails closed, and returns a `CTK-XXXX-XXXX` reference. `akuntabilitas_catat` validates the scope's
   shape and sets the single owning school. The reader finds a print by its reference.
@@ -21,13 +27,13 @@ S-1's check at 390 and 320 px.
   snapshot is the schools whose evidence the printed report contains. It is computed in the database from the report's
   own scope. It is never refused for several schools. The engineer's proposal of one live school is superseded (§2,
   where it stands). The content rule is the owner's to change knowingly; it is the working assumption.
-- **Two questions remain for Sharon:** Q2 and Q3 below.
+- **Q2 and Q3 are answered by Sharon** (her changes 5 and 6, below). ~~Two questions remain for Sharon~~ (superseded).
 
 ## 1 · What B2 builds
 
 | # | Piece | Where |
 |---|---|---|
-| 1 | **The print action:** same origin, signed in. It checks that the person may read this report at this scope, then calls `catatPermintaanCetak`, then returns `{ ref, nama, waktu }`, the name and instant being the server's. The instant is in the school's zone | new `src/app/laporan/cetak/actions.ts`; contract in `src/lib/akuntabilitas-kontrak.ts` |
+| 1 | **The print action:** same origin, signed in. It checks that the person may read this report at this scope, then calls `catatPermintaanCetak`, then returns `{ ref, nama, waktu }`, the name and instant being the server's. The instant is in the school's zone. **The requester is the verified session's user on the server (`auth.getUser()`), never a value from the request** (Sharon's change 1): "own prints only" is only as strong as where that id comes from | new `src/app/laporan/cetak/actions.ts`; contract in `src/lib/akuntabilitas-kontrak.ts` |
 | 2 | **«Cetak laporan»** calls the action, sets the referenced footer, opens the print dialog, and restores the default on `afterprint`. On failure the dialog doesn't open and the result line says so | `src/components/laporan/AksiLaporan.tsx` (today `window.print()`) |
 | 3 | **The footer:** the default browser line and the one replacement (§5.2 F, Daisy's composition). Bottom-left of `@page laporan` and `laporan-lebar`; «Halaman n dari m» stays bottom-right | `KepalaCetak.tsx` (or a sibling `KakiCetak`), `src/app/experience.css` |
 | 4 | **No print of an empty report:** «Cetak laporan» is not offered when the report has nothing in it | the three report pages |
@@ -60,8 +66,13 @@ through «Cetak laporan» never shows a reference at all.
 - **Its school snapshot is computed in the database, at print time, from the same scope the report is assembled
   from:** the schools of every sitting, result or certificate the page shows.
   - It is never the route's word, and never the learner's live affiliations.
-  - The page's content is `hasilBelajar`, the learner's own sessions and their outcomes. The snapshot is the institutions
-    of those sessions' assignments: the set the printed page holds evidence from.
+  - The snapshot is **each printed sitting's own `institution_id`** (Sharon's change 3, wording; as in B2-P02).
+    ~~The institutions of those sessions' assignments~~ (superseded).
+  - **One read** (Sharon's change 3, requirement): one database function returns the sittings `/belajar/hasil` shows,
+    for a person (`hasil_belajar_sesi_orang`). The page reads it as the caller (`hasil_belajar_sesi_saya`), and the
+    writer computes the snapshot from the same function. There is no second implementation, so the event and the paper
+    cannot disagree. *Test (B2-P06):* the snapshot equals the set of schools of the sittings on the rendered page, for
+    the same learner and instant.
 - **Several schools: never refused.** The one-school constraint (`accountability_events_print_one_school`) is relaxed
   for the person-scoped kind only. Class- and assignment-scoped prints keep exactly one school, and a test proves
   both sides.
@@ -85,14 +96,25 @@ through «Cetak laporan» never shows a reference at all.
 
 - **Official print:** «Dicetak oleh {nama} · {tanggal, jam, zona} · Ref. CTK-XXXX-XXXX». One line, 7.5–8 pt,
   `--ink-2`, bottom-left, on every page, portrait and wide.
-- **Default (any print not made through the button):** «Dicetak dari browser oleh {nama} · {waktu} · tanpa nomor
-  referensi». If the name and time cannot be filled reliably: «Dicetak dari browser · tanpa nomor referensi». It
-  contains no reference-shaped text.
-  - **Q2 · Where the default's name and time come from.** I propose the name from what the page already rendered for
-    the viewer, and the time from the browser at `beforeprint`. They claim no audit (§5.2 D3). If the page has no
-    viewer name, the short line. Confirm this counts as "reliably".
-- **Swap:** only after the action returns a reference, and before the dialog opens. `afterprint` restores the default.
-  A refused or failed request never swaps.
+- **Default (any print not made through the button): it names no person** (Sharon's change 5; Daisy's wording).
+  - «Dicetak dari browser · {waktu} (jam perangkat) · tanpa nomor referensi» / «Printed from the browser · {waktu}
+    (device clock) · no reference number».
+  - **The stylesheet's default is the fallback, with no time:** «Dicetak dari browser · tanpa nomor referensi» /
+    «Printed from the browser · no reference number». `beforeprint` adds the device's time. It is removed on
+    `afterprint` **and** as soon as `window.print()` returns, so a stale time can never print.
+  - The time uses the official line's formatter, then WIB, WITA or WIT, or «UTC+h» outside Indonesia. It claims no
+    record (§5.2 D3). It contains no reference-shaped text.
+  - **Deviation from THE PLAN §5.2 F** (owner-approved, not edited): §5.2 F adopted «Dicetak dari browser oleh {nama}
+    · …». *Reason:* a stale tab, after a sign-out and another person's sign-in elsewhere, would print a line naming
+    someone who did not print it. Sharon's integrity ruling takes precedence over the composition, and Daisy wrote the
+    replacement. If the owner prefers THE PLAN itself amended, that is the owner's instruction.
+  - ~~«Dicetak dari browser oleh {nama} · {waktu} · tanpa nomor referensi»; Q2, the name from the rendered viewer~~
+    (superseded by the ruling above; Daisy's «oleh {nama}» line is marked superseded in her design document).
+- **Swap:** only after the action returns a reference, and before the dialog opens. **The default is restored as soon
+  as `window.print()` returns, and on `afterprint` as well** (Sharon's change 2: `afterprint` does not fire reliably in
+  every browser, and without the second restore a later Ctrl+P would print the same reference on a second paper). A
+  refused or failed request never swaps. *Test (B2-A06):* with `afterprint` suppressed, the footer is the default
+  again once the dialog returns. ~~`afterprint` restores the default~~ (superseded).
 - **Failure:** «Cetakan belum dapat dicatat, jadi belum dicetak. Coba lagi.» in the existing result line (`BarisHasil`,
   a status region).
 - **Every press is one event and one reference.** Printing twice gives two references; that is intended (§5.2 D6).
@@ -102,22 +124,32 @@ through «Cetak laporan» never shows a reference at all.
 
 | # | Finding | B2's change | Wording |
 |---|---|---|---|
-| B1-R1 | The reader's refusal says «Admin platform» | `akuntabilitas.ditolak` re-worded | Daisy's |
-| B1-R2 | «Seluruh platform» doesn't name each row's school | In the platform view only, each row names its school(s) from `institution_ids`. A school admin's view is unchanged: it holds only their own school | Daisy's (column or line) |
-| B1-R3 | The Konfigurasi index doesn't list the reader (optional) | One entry beside «Jejak audit», if it is one entry | Daisy's |
+| B1-R1 | The reader's refusal says «Admin platform» | `akuntabilitas.ditolak` re-worded | Daisy's: «… dan Admin PINTAR.» / «… and by an Admin PINTAR.» |
+| B1-R2 | «Seluruh platform» doesn't name each row's school | In the platform view only, a second line under the name in «Siapa» names the row's school(s), joined with «, ». A row with no school says «tanpa sekolah» (`akuntabilitas.tanpa_sekolah`). A school admin's view is unchanged | Daisy's: a line, not a column, so the table stays narrow and the phone layout intact |
+| B1-R3 | The Konfigurasi index doesn't list the reader (optional) | One entry after «Jejak audit» in «Staf dan akses», with the existing keys, **shown only to school admins and the platform admin**: a teacher is never offered a link that ends in a refusal | Daisy's |
 | B1-R4 | A failed write leaves a gap no reader shows (owner: before Z) | **The completeness notice**, below | Daisy's |
 | B1-R5 | Two «Hapus saringan» in the no-match and purged-reference states | The empty state's own action is dropped, as in the other Konfigurasi no-match state | — |
 
 **B1-R4, the completeness notice:**
 - **Who sees it:** the platform admin only.
-- **What it reads:** the health read's own count, `pintar_periksa_kesehatan() -> 'gagal_tulis_akuntabilitas'`: the
-  write failures of the last 7 days and the last one's instant. Those counts carry no school, so the notice names none.
-- **When:** shown when the count is above 0. Qualified: "this list may be incomplete", never a number of missing rows
-  presented as exact.
+- **What it reads (Sharon's change 6):** one new definer function, `akuntabilitas_gagal_ringkas()`, gated on
+  `is_system_admin()`. It returns only the count and the last instant of unrecorded writes. ~~The health read's own
+  count, `pintar_periksa_kesehatan()`~~ (superseded: that function is revoked from every client role and would hand
+  the reader the whole health read). *Test (B2-S03):* refused to a school admin and to non-platform staff.
+- **Its window is the sentence's** (Chief Architect's note): the last 7 days as the health check counts them,
+  `day > (today in WIB) − 7` (today and the six days before it, in WIB). The sentence says «Dalam 7 hari terakhir».
+- **Daisy's question, answered: failed print writes are excluded.** A failed print prints nothing, so it leaves no
+  gap. The health check counts all three kinds, `PRINT_REQUEST` included. The new function counts `SIGN_IN` and
+  `SIGN_OUT` only, so the sentence's «kejadian masuk atau keluar» is exact.
+- **Wording (Daisy):** «Daftar ini mungkin tidak lengkap. Dalam 7 hari terakhir, PINTAR tidak dapat mencatat sebagian
+  kejadian masuk atau keluar (terhitung {n}, terakhir {waktu}). Lihat [Kesehatan sistem].» / «This list may be
+  incomplete. In the last 7 days, PINTAR could not record some sign-in or sign-out events ({n} counted, the last at
+  {waktu}). See [System health].»
+- **When:** a status banner above the filter, shown only when the count is above 0. It is absent if the count cannot
+  be read, so it claims nothing. Qualified, never a number of missing rows presented as exact.
 - **Link:** to Konfigurasi's health check (`/konfigurasi?periksa=skema`).
 - **A school admin never sees it**, and so learns nothing of another school.
-- **Q3:** the health read is the platform admin's already. Confirm that the reader calling it in the platform view is
-  in scope, rather than a narrower reader of the one count.
+- ~~**Q3:** confirm the reader calling the health read~~ (answered by Sharon's change 6).
 
 ## 5 · Journey 4's print step (§8.5)
 
@@ -142,7 +174,10 @@ adds the print step to `audit/journey.mjs`:
 | B2-P02 | **The transferred learner, to Sharon's specification** (`B2-ARCHITECT-NOTES.md` §1 at `a79dc446ca601cf5d918dad77ecccb2c5d9ecf5a`; the owner's condition "no attribution by transfer"). **Fixture:** a learner earns results at A and is moved to B through the product's own transfer path (`transfer_minta`, `transfer_terima`, `transfer_execute`), then prints a report showing those results. **Asserted:** the event's snapshot is `{A}`; A's admin finds the reference, B's admin does not, the platform admin does. **Invariant:** the snapshot comes from each printed sitting's own `institution_id`, never from the learner's current enrolment. **Plant:** the snapshot derived from the live affiliation instead turns it red. **A second report:** one result earned at B is added and both are printed: snapshot `{A, B}`; each school finds that event, and each is shown only its own school (B1's correction). **Also checked:** the reference adds no way for B to read A's evidence (a print's content is never returned to a reader); INV-25 portability is unchanged | no person scope |
 | B2-P03 | A departed learner (no live school) prints their history: the former school finds the reference, an unrelated school does not | no person scope |
 | B2-P04 | A print whose report holds no evidence: the snapshot is empty, and only the platform admin finds it | no person scope |
-| B2-P05 | A person-scoped print naming someone else's `person_id`: refused, and no row is written. And the one-school check: a class-scoped print with two schools is still refused, a person-scoped one is not | no person scope |
+| B2-P05 | A person-scoped print naming someone else's `person_id`: refused, and no row is written. **A request carrying another user's id still writes as the session's user, or is refused** (Sharon's change 1). And the one-school check: a class-scoped print with two schools is still refused, a person-scoped one is not | no person scope |
+| B2-P06 | **One read** (Sharon's change 3): the snapshot equals the set of schools of the sittings on the rendered `/belajar/hasil`, for the same learner and instant | no person scope |
+| B2-A06 | **The restore** (Sharon's change 2): with `afterprint` suppressed, the footer is the default again once `window.print()` returns; a second Ctrl+P prints no reference | the swap stays |
+| B2-S03 | **The notice's reader** (Sharon's change 6): `akuntabilitas_gagal_ringkas()` refused to a school admin and to non-platform staff; it counts sign-in and sign-out failures over the sentence's 7 days, never a print's | the function does not exist |
 | B2-S01 | Static: every page rendering `AksiLaporan` goes through the action; nothing else calls `window.print()` on a report; the certificate print is untouched | — |
 | B2-S02 | B1-R1, R2, R5 and the R4 notice (platform admin only; a school admin never sees it), through the running app | — |
 | Journey 4 | The print step (§5) | — |
@@ -184,10 +219,11 @@ adds the print step to `audit/journey.mjs`:
 
 | Interface | Checked how | Evidence | Limitation |
 |---|---|---|---|
-| B1's writer and reader | A press, then a lookup by reference; a forged scope; a failed write | B2-A01 to A03, journey 4 | — |
+| B1's writer and reader | A press, then a lookup by reference; a forged scope; a failed write; the requester from the session | B2-A01 to A03, B2-P05, journey 4 | — |
+| A learner who has left, seen by the former school (Daisy) | No label: the reader never shows a person's status. **An admin may see a print by someone no longer at the school**, and this is correct: the school owns the printed evidence | B2-P03 | — |
 | A person-scoped print's snapshot (Q1) | Two schools; one school; a departed learner; no evidence; someone else's person; the one-school check on both sides | B2-P01 to P05 | — |
 | The three report pages and `/pimpinan` | Static and rendered | B2-S01, B2-A04, B2-A05 | — |
 | Certificates' print | Unchanged, by test | the certificate print tests | — |
 | The reader's platform and school views (R1 to R5, R4's notice) | Through the running app, as both | B2-S02 | — |
 | Retention (O41-13) | A purged reference's state is B1's, unchanged | B1-L01 | — |
-| The phone drawer (S-1) on the reader | 390 and 320 px | Daisy's visit | — |
+| The phone drawer (S-1) on the reader | 390 and 320 px, **and the desktop sidebar** (one of S-1's rules hides a navigation item at every width; Chief Architect's note, §4) | Daisy's visit | — |
