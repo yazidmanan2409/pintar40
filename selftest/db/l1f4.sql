@@ -18,7 +18,13 @@
 --             person held at the closure does not stop it
 --   L1F4-K07  INSERT only: an update ending the anonymised person's role passes
 --   L1F4-K08  a key correction that newly earns a certificate for an anonymised learner records it as earned but not
---             issued, and no certificate row is written (§3b Option A)
+--             issued, and no certificate row is written (§3b Option A); RESTATED (Daisy, 12 Nov): it is not counted among the certificates that
+--             can be issued, in the preview or the outcome
+--   L1F4-K09  (Sharon's required change) a live role, and a pending enrolment, dated before the closure began but not
+--             held at it: the deletion is refused ACCOUNT_LIVE_ATTACHMENT, nothing changed (red before: the timestamps
+--             read them as history and the deletion completed)
+--   L1F4-K10  the closure records what was live when it was made, written once; with only that live, the deletion
+--             completes
 
 create or replace function selftest.l1f4_kode(p_sql text)
 returns text language plpgsql set search_path = public, pg_temp as $$
@@ -74,7 +80,7 @@ declare
   v_a uuid; v_b uuid; v_root_a uuid; v_root_b uuid; u_sys uuid; u_adm_a uuid; u_adm_b uuid; u_g uuid; p_g uuid;
   p_l uuid; u_l uuid; e_l uuid; p_hidup uuid; u_hidup uuid; v_req uuid; v_x uuid := gen_random_uuid(); v_t text; v_u text;
   r record; v_ref uuid; v_live uuid; v_sidik text; v_cert uuid; v_sesi uuid; v_period uuid; v jsonb; v_k uuid;
-  v_post uuid; v_y uuid; v_w uuid; n int;
+  v_post uuid; v_y uuid; v_w uuid; n int; v_d0 text;
 begin
   perform selftest.as_owner();
   begin
@@ -256,13 +262,20 @@ begin
     -- the confirmer's preview: the row says earned, not issued, before the second person confirms
     v := public.koreksi_kunci_dampak(v_k);
     v_t := (select coalesce(e ->> 'sertifikat_tidak_diterbitkan', '-') from jsonb_array_elements(v -> 'daftar') e where (e ->> 'sesi')::uuid = v_w);
+    -- RESTATED (Daisy, TINJAUAN-F1R1B-97a40ebb.md §2.1): the summary's «{n} sertifikat baru dapat diterbitkan» reads this count
+    v_d0 := coalesce(v ->> 'sertifikat_baru_layak', '-') || '|' || coalesce(v ->> 'sertifikat_tidak_diterbitkan', '-');
     v := public.tegaskan_koreksi_kunci(v_k);
     perform selftest.as_owner();
     -- the record: the confirmed correction's outcome counts it
     select k.outcome into v from public.key_corrections k where k.id = v_k;
     v_t := v_t || '|' || coalesce(v ->> 'sertifikat_tidak_diterbitkan', '-');
-    if (v ->> 'sertifikat_baru_layak')::int < 1 then
+    -- RESTATED (Daisy, 12 Nov): the fixture's newly earned certificate is the anonymised learner's, so it is counted as
+    -- earned but not issued and NOT among those that can be issued; the fixture check reads both counts together
+    if coalesce((v ->> 'sertifikat_baru_layak')::int, 0) + coalesce((v ->> 'sertifikat_tidak_diterbitkan')::int, 0) < 1 then
       v_probs := selftest.f11_note(v_probs, 'L1F4-K08', 'the fixture''s correction newly earns no certificate (' || coalesce(v ->> 'sertifikat_baru_layak', '-') || '): nothing to show');
+    elsif v_d0 is distinct from '0|1' or (v ->> 'sertifikat_baru_layak') is distinct from '0' then
+      v_probs := selftest.f11_note(v_probs, 'L1F4-K08', 'the summary counts (can be issued|earned, not issued) read ' || coalesce(v_d0, '-') || ' in the preview and '
+        || coalesce(v ->> 'sertifikat_baru_layak', '-') || ' can be issued in the outcome (expected 0|1 and 0: a certificate that will not be issued is not counted as one that can)');
     elsif v_t is distinct from 'true|1' or exists (select 1 from public.certificates c where c.session_id = v_w) then
       v_probs := selftest.f11_note(v_probs, 'L1F4-K08', 'the anonymised learner''s newly earned certificate read (preview row|outcome count) '
         || coalesce(v_t, 'nothing') || ' (expected true|1: earned, not issued) or a certificate row was written');
@@ -286,7 +299,7 @@ begin
     ('L1F4-K05', 'a certificate already issued is returned as before; a new one is not eligible and nothing is written; a replacement is refused CERT_HOLDER_DELETED'),
     ('L1F4-K06', 'the deletion is refused ACCOUNT_LIVE_ATTACHMENT for a role gained after the closure, changing nothing; once ended it completes, roles and numbers byte-identical'),
     ('L1F4-K07', 'an update ending the anonymised person''s role passes (INSERT only)'),
-    ('L1F4-K08', 'a key correction newly earning a certificate for an anonymised learner records it earned but not issued, and writes no certificate row')
+    ('L1F4-K08', 'a key correction newly earning a certificate for an anonymised learner records it earned but not issued, writes no certificate row, and does not count it among those that can be issued')
   ) z(a, b) loop
     area := 'L1-F4 -- an anonymised person is terminal';
     if v_fatal <> '' then
@@ -303,3 +316,161 @@ begin
   return next;
 end $$;
 revoke all on function selftest.run_l1f4() from public;
+
+-- ═══════════════════════════════════════════════════════════ L1F4-K09 to K11: the closure's record, and the count
+-- Sharon's required change (interim review of ea3c4b6f) and Daisy's check (TINJAUAN-F1R1B-97a40ebb.md §2.1). A suite of
+-- its own, on helpers every plant gate loads (fable04, fable06, fable11, fable13), so its plants can run alone.
+create or replace function selftest.l1f4_sebagai(p_user uuid, p_sql text)
+returns text language plpgsql set search_path = public, pg_temp as $$
+declare v_state text; v_detail text;
+begin
+  perform selftest.as_user_uid(p_user);
+  execute p_sql;
+  perform selftest.as_owner();
+  return 'OK';
+exception when others then
+  get stacked diagnostics v_state = returned_sqlstate, v_detail = pg_exception_detail;
+  perform selftest.as_owner();
+  return v_state || ':' || coalesce(nullif(v_detail, ''), left(sqlerrm, 80));
+end $$;
+revoke all on function selftest.l1f4_sebagai(uuid, text) from public;
+
+-- as the user (whose grant it is: INV-16 reads the authenticated grantor), with the owner's table rights
+create or replace function selftest.l1f4_sebagai_pemilik(p_user uuid, p_sql text)
+returns text language plpgsql set search_path = public, pg_temp as $$
+declare v_state text; v_detail text;
+begin
+  perform selftest.as_user_uid(p_user);
+  reset role;
+  execute p_sql;
+  perform selftest.as_owner();
+  return 'OK';
+exception when others then
+  get stacked diagnostics v_state = returned_sqlstate, v_detail = pg_exception_detail;
+  perform selftest.as_owner();
+  return v_state || ':' || coalesce(nullif(v_detail, ''), sqlerrm);
+end $$;
+revoke all on function selftest.l1f4_sebagai_pemilik(uuid, text) from public;
+
+create or replace function selftest.run_l1f4_tutup()
+returns table (id text, area text, ok boolean, detail text)
+language plpgsql set search_path = public, pg_temp as $$
+#variable_conflict use_column
+declare
+  v_tag text := substr(md5(random()::text), 1, 8); v_probs jsonb := '{}'::jsonb; v_fatal text := '';
+  v_a uuid; v_root_a uuid; u_sys uuid; u_adm_a uuid; u_h uuid; p_h uuid; v_req_h uuid; v_ra_h uuid;
+  v_ref uuid; v_sidik text; v_period uuid; v_t text; v jsonb; v_k uuid; v_post uuid; v_y uuid; v_w uuid; v_d0 text; r record;
+begin
+  perform selftest.as_owner();
+  begin
+    select (selftest.boot_fixture()).inst into v_a;
+    select o.id into v_root_a from public.org_nodes o where o.institution_id = v_a and o.kind = 'INSTITUTION';
+    u_sys := selftest.f11_user('l1f4t-sys-' || v_tag || '@local.invalid', 'SYSTEM_ADMIN', v_root_a);
+    u_adm_a := selftest.f11_user('l1f4t-adm-' || v_tag || '@local.invalid', 'INSTITUTION_ADMIN', v_root_a);
+
+    -- ═══ L1F4-K09, K10 (Sharon's interim review of ea3c4b6f): history is told from a live attachment by what is live
+    -- under the deletion's lock and by what the closure recorded, never by timestamps. H: a teacher at A who closes
+    u_h := selftest.f11_user('l1f4-guru-h-' || v_tag || '@local.invalid', 'EDUCATOR', v_root_a);
+    select a.person_id into p_h from public.accounts a where a.auth_user_id = u_h;
+    select ra.id into v_ra_h from public.role_assignments ra where ra.person_id = p_h and ra.revoked_at is null;
+    if selftest.l1f4_sebagai(u_h, format('select public.minta_akun(%L, true)', 'DELETE_PERSONAL_DATA')) <> 'OK'
+       or selftest.l1f4_sebagai(u_h, format('select public.minta_akun(%L, true)', 'CLOSE')) <> 'OK' then
+      raise exception 'teacher H could not ask for deletion and close';
+    end if;
+    select q.id into v_req_h from public.account_requests q where q.person_id = p_h and q.kind = 'DELETE_PERSONAL_DATA';
+    -- K10 (the record): the closure lists what was live when it was made, and the record is written once
+    v_t := (select x.dipegang_saat_tutup::text from public.person_suspensions x where x.person_id = p_h and x.ended_at is null);
+    if v_t is distinct from jsonb_build_object('peran', jsonb_build_array(v_ra_h), 'pindah', '[]'::jsonb, 'penilai', '[]'::jsonb)::text then
+      v_probs := selftest.f11_note(v_probs, 'L1F4-K10', 'the closure recorded ' || coalesce(v_t, 'nothing') || ' (expected the one role H held: ' || v_ra_h || ')');
+    end if;
+    v_t := selftest.l1f4_kode(format('update public.person_suspensions set dipegang_saat_tutup = %L where person_id = %L and ended_at is null',
+             '{"peran":[],"pindah":[],"penilai":[]}', p_h));
+    if v_t not like '42501:%' then
+      v_probs := selftest.f11_note(v_probs, 'L1F4-K10', 'rewriting the closure''s record answered ' || v_t || ' (expected 42501: written once)');
+    end if;
+    -- K09 (a role): granted in a transaction that BEGAN before the closure and inserted after it, so its created_at is
+    -- earlier than the closure's started_at (the race's outcome, written here directly; L1F4-R01 makes it on two
+    -- connections). Live, and not in the record: the deletion is refused and nothing changes
+    insert into public.org_nodes (institution_id, parent_id, kind, name) values (v_a, v_root_a, 'FACULTY', 'Bagian L1F4 H ' || v_tag)
+    returning org_nodes.id into v_ref;
+    v_t := selftest.l1f4_sebagai_pemilik(u_adm_a, format(
+      'insert into public.role_assignments (person_id, role, scope_node_id, institution_id, valid_from, valid_until, granted_by, created_at) '
+      || 'values (%L, %L, %L, %L, now(), now() + interval %L, (select a.person_id from public.accounts a where a.auth_user_id = %L), '
+      || '(select x.started_at - interval %L from public.person_suspensions x where x.person_id = %L and x.ended_at is null))',
+      p_h, 'EDUCATOR', v_ref, v_a, '1 year', u_adm_a, '1 second', p_h));
+    if v_t <> 'OK' then raise exception 'the school could not grant teacher H a role: %', v_t; end if;
+    v_sidik := md5((select to_jsonb(p)::text from public.persons p where p.id = p_h)
+                   || coalesce((select string_agg(to_jsonb(ra)::text, '|' order by ra.id) from public.role_assignments ra where ra.person_id = p_h), ''));
+    v_t := selftest.l1f4_sebagai(u_sys, format('select public.hapus_data_pribadi(%L, %L)', v_req_h, 'sesuai permintaan'));
+    if v_t <> 'PR140:ACCOUNT_LIVE_ATTACHMENT'
+       or md5((select to_jsonb(p)::text from public.persons p where p.id = p_h)
+              || coalesce((select string_agg(to_jsonb(ra)::text, '|' order by ra.id) from public.role_assignments ra where ra.person_id = p_h), '')) <> v_sidik then
+      v_probs := selftest.f11_note(v_probs, 'L1F4-K09', 'a role created before the closure''s started_at but not held at it: the deletion answered ' || v_t
+        || ' (expected PR140:ACCOUNT_LIVE_ATTACHMENT, nothing changed)');
+    end if;
+    update public.role_assignments set revoked_at = now(), revoked_reason = 'uji L1F4: peran baru diakhiri sekolah'
+     where person_id = p_h and id <> v_ra_h and revoked_at is null;
+    -- K09 (an enrolment): pending, dated before the closure; any live enrolment at deletion was gained after the closure
+    -- (only while H is still live: if the role above wrongly let the deletion through, that is the finding, reported above)
+    if exists (select 1 from public.persons p where p.id = p_h and p.anonymized_at is null) then
+      select ap.id into v_period from public.academic_periods ap where ap.institution_id = v_a order by ap.created_at desc limit 1;
+      v_t := selftest.l1f4_kode(format(
+        'insert into public.enrollments (person_id, institution_id, academic_period_id, status, created_at) values (%L, %L, %L, %L, '
+        || '(select x.started_at - interval %L from public.person_suspensions x where x.person_id = %L and x.ended_at is null))',
+        p_h, v_a, v_period, 'PENDING', '1 second', p_h));
+      if v_t <> 'OK' then raise exception 'teacher H could not be given a pending enrolment: %', v_t; end if;
+      v_t := selftest.l1f4_sebagai(u_sys, format('select public.hapus_data_pribadi(%L, %L)', v_req_h, 'sesuai permintaan'));
+      if v_t <> 'PR140:ACCOUNT_LIVE_ATTACHMENT' then
+        v_probs := selftest.f11_note(v_probs, 'L1F4-K09', 'a pending enrolment dated before the closure: the deletion answered ' || v_t || ' (expected PR140:ACCOUNT_LIVE_ATTACHMENT)');
+      end if;
+      -- the school ends it (enrolments are append-only, INV-23: ended, never deleted)
+      update public.enrollments e set status = 'ENDED', valid_to = now(), end_reason = 'WITHDRAWN' where e.person_id = p_h and e.status = 'PENDING';
+    end if;
+    -- K10 (the record holds): with only what H held at the closure live, the deletion completes
+    if exists (select 1 from public.persons p where p.id = p_h and p.anonymized_at is null) then
+      v_t := selftest.l1f4_sebagai(u_sys, format('select public.hapus_data_pribadi(%L, %L)', v_req_h, 'sesuai permintaan'));
+      if v_t <> 'OK' or not exists (select 1 from public.persons p where p.id = p_h and p.anonymized_at is not null) then
+        v_probs := selftest.f11_note(v_probs, 'L1F4-K10', 'with only the role held at the closure live, the deletion answered ' || v_t || ' (expected OK)');
+      end if;
+    end if;
+
+    -- ═══ L1F4-K11 (Daisy): the summary's «{n} sertifikat baru dapat diterbitkan» does not count a certificate that will
+    -- not be issued: a key correction newly earns one for an anonymised learner and one for a live learner
+    v := selftest.f13_kunci_dunia(2, 1);
+    v_post := (v ->> 'post')::uuid;
+    select i2.id into v_y from public.items i2 join public.lessons l on l.id = i2.lesson_id join public.modules m2 on m2.id = l.module_id
+     where m2.course_id = (v ->> 'course')::uuid and i2.stem like 'Pertanyaan akhir nomor 1%';
+    v_w := selftest.f13_kunci_duduk((v -> 'sesi' ->> 'u1')::uuid, v_post, v_y, 'B');
+    perform selftest.f13_kunci_duduk((v -> 'sesi' ->> 'u2')::uuid, v_post, v_y, 'A');
+    update public.persons set anonymized_at = now(), display_name = pintar_id
+     where id = (select s.person_id from public.assessment_sessions s where s.id = v_w);
+    perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+    v_k := (public.ajukan_koreksi_kunci(v_y, array['B'], 'uji L1F4: kunci soal akhir ini keliru') ->> 'koreksi')::uuid;
+    perform selftest.as_user('boot-kaprodi@bootstrap.pintar.test');
+    v := public.koreksi_kunci_dampak(v_k);
+    perform selftest.as_owner();
+    v_d0 := coalesce(v ->> 'sertifikat_baru_layak', '-') || '|' || coalesce(v ->> 'sertifikat_tidak_diterbitkan', '-');
+    if v_d0 is distinct from '0|1' then
+      v_probs := selftest.f11_note(v_probs, 'L1F4-K11', 'the summary counts (can be issued|earned, not issued) read ' || coalesce(v_d0, '-')
+        || ' (expected 0|1: the anonymised learner''s certificate is not one that can be issued)');
+    end if;
+
+    raise exception 'L1F4T_UNDO';
+  exception when others then
+    begin perform selftest.as_owner(); exception when others then null; end;
+    if sqlerrm <> 'L1F4T_UNDO' then v_fatal := sqlerrm; end if;
+  end;
+  area := 'L1-F4 -- the closure records what it held; the summary counts what will be issued';
+  for r in select * from (values
+    ('L1F4-K09', 'a live role or pending enrolment dated before the closure but not held at it refuses the deletion ACCOUNT_LIVE_ATTACHMENT, changing nothing: timestamps decide nothing'),
+    ('L1F4-K10', 'the closure records the ids live when it was made, written once; with only those live the deletion completes'),
+    ('L1F4-K11', 'a key correction newly earning a certificate for an anonymised learner does not count it among those that can be issued')
+  ) z(a, b) loop
+    id := r.a;
+    ok := v_fatal = '' and not (v_probs ? r.a);
+    detail := case when v_fatal <> '' then 'the L1F4 closure world could not run: ' || v_fatal when ok then r.b else v_probs ->> r.a end;
+    return next;
+  end loop;
+  id := 'L1F4-TUTUP-DONE'; area := 'suite'; ok := true; detail := 'the L1-F4 closure suite ran'; return next;
+end $$;
+revoke all on function selftest.run_l1f4_tutup() from public;

@@ -14,6 +14,7 @@ import { experienceTests } from "./experience.test";
 import { b1Tests } from "./b1.test";
 import { b2Tests } from "./b2.test";
 import { l1f2BalapanTests } from "./l1f2-balapan.test";
+import { l1f4BalapanTests } from "./l1f4-balapan.test";
 import { emailTests } from "./email.test";
 import { d1Tests } from "./d1.test";
 import { retroTests } from "./retro.test";
@@ -2253,4 +2254,5 @@ export const staticTests: SelfTest[] = [
   ...b1Tests,
   ...b2Tests,
   ...l1f2BalapanTests,
+  ...l1f4BalapanTests,
 ];

@@ -2106,7 +2106,27 @@
     {
       "id": "L1F4-K08",
       "runner": "db",
-      "proves": "L1-F4 \u00a73b (owner, Option A): a governed key correction of a post-test question that newly earns a certificate for an anonymised learner records it in the correction's outcome as earned but not issued (sertifikat_tidak_diterbitkan), and no certificate row is written."
+      "proves": "L1-F4 \u00a73b (owner, Option A): a governed key correction of a post-test question that newly earns a certificate for an anonymised learner records it in the correction's outcome as earned but not issued (sertifikat_tidak_diterbitkan), and no certificate row is written. RESTATED (Daisy, 12 Nov): it is not counted among the certificates that can be issued (sertifikat_baru_layak 0), in the preview or the outcome, so the summary line and the row agree."
+    },
+    {
+      "id": "L1F4-K09",
+      "runner": "db",
+      "proves": "L1-F4, Sharon's required change (interim review of ea3c4b6f): a live role and a pending enrolment dated before the closure began but not held at it each refuse the deletion ACCOUNT_LIVE_ATTACHMENT and change nothing; the deletion reads live state and the closure's record, not timestamps."
+    },
+    {
+      "id": "L1F4-K10",
+      "runner": "db",
+      "proves": "L1-F4, Sharon's required change: the closure row records the ids of the roles, open transfers and evaluator grants live when it was made (person_suspensions.dipegang_saat_tutup), a rewrite of that record is refused 42501, and with only those live the deletion completes."
+    },
+    {
+      "id": "L1F4-K11",
+      "runner": "db",
+      "proves": "L1-F4, Daisy's correctness check (TINJAUAN-F1R1B-97a40ebb.md §2.1): a key correction that newly earns a certificate for an anonymised learner counts it as earned but not issued and not among the certificates that can be issued, so «{n} sertifikat baru dapat diterbitkan» and the row agree."
+    },
+    {
+      "id": "L1F4-R01",
+      "runner": "static",
+      "proves": "L1-F4, selftest/l1f4-balapan.test.ts, Sharon's third order on two real connections against the database (migration 20270117170000) (the shared harness selftest/balapan.ts): a role grant whose transaction began before the closure and inserted after it has the earlier created_at, and the deletion is still refused ACCOUNT_LIVE_ATTACHMENT with nothing anonymised; a plant restoring the timestamp comparison lets the same order through."
     },
     {
       "id": "F13-K16",

@@ -7,7 +7,7 @@
  * A race is only proven when it overlapped: the second connection's statement must have waited for the first's
  * commit. `berlaku` says whether it did, measured on the clock: the second took at least the first's remaining hold.
  */
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 
 export type Hasil = { ok: boolean; out: string; err: string; ms: number };
 
@@ -35,4 +35,28 @@ export async function balapan(pertama: string, kedua: string, tahanMs = 2500, tu
   const dua = psqlLain(kedua);
   const [a, b] = await Promise.all([satu, dua]);
   return { satu: a, dua: b, berlaku: b.ms >= tahanMs - tundaMs - 300 };
+}
+
+/**
+ * THE THIRD ORDER (L1-F4, Sharon's interim review of ea3c4b6f): the first transaction BEGINS before the second, but
+ * writes after the second has committed. `awal` runs at its start (its now() is fixed there), then it waits `jedaMs`,
+ * then runs `akhir` and commits; `tengah` runs on its own connection `tundaMs` after the first began. `berlaku` says the
+ * order really happened: `tengah` had finished before the first's wait was over.
+ */
+export async function mulaiLebihDulu(awal: string, akhir: string, tengah: string, jedaMs = 2500, tundaMs = 400): Promise<{ satu: Hasil; dua: Hasil; berlaku: boolean }> {
+  const satu = psqlLain(`begin; ${awal}; select pg_sleep(${jedaMs / 1000}); ${akhir}; commit;`);
+  await tidur(tundaMs);
+  const dua = psqlLain(tengah);
+  const [a, b] = await Promise.all([satu, dua]);
+  return { satu: a, dua: b, berlaku: b.ok && tundaMs + b.ms < jedaMs - 200 };
+}
+
+/** A function's definition, with `dari` replaced by `ke` (a plant), committed; the returned call puts it back exactly. */
+export function gantiFungsi(fn: string, dari: string, ke: string): () => void {
+  const url = process.env.SUPABASE_DB_URL!;
+  const asli = spawnSync("psql", ["-X", "-At", url, "-c", `select pg_get_functiondef('${fn.replace(/'/g, "''")}'::regprocedure)`], { encoding: "utf8" }).stdout ?? "";
+  if (!asli.includes(dari)) throw new Error(`the plant's fragment is not in ${fn}`);
+  const kirim = (def: string) => { const r = spawnSync("psql", ["-X", "-q", "-v", "ON_ERROR_STOP=1", url], { encoding: "utf8", input: def + ";\n" }); if (r.status !== 0) throw new Error(r.stderr); };
+  kirim(asli.replace(dari, ke));
+  return () => kirim(asli);
 }

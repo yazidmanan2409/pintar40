@@ -4412,7 +4412,7 @@ const table: Table = {
   // L1-F4 (owner §3b, Option A): Daisy's DRAFT (ANONYMISED-PERSON-IS-TERMINAL.md §3c); she confirms after seeing the screen
   // F1-R1b, Daisy's line (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md §6a; I6-I7-JAWABAN.md §1 at e48c4906), §6 line 1
   "studio.kunci.dampak.penjelasan_hilang": { default: "Pilihan {x} akan kehilangan alasan dan pemahaman keliru terkaitnya, karena benar-salahnya berubah. Kunci diperbaiki sekarang; alasannya ditulis sesudahnya.", en: "Option {x} will lose its explanation and linked misconception, because whether it is right has changed. The key is corrected now; the explanation is written afterwards." },
-  "studio.kunci.dampak.tidak_diterbitkan": { default: "Memenuhi syarat sertifikat setelah koreksi kunci, tetapi tidak diterbitkan: data pribadi orang ini sudah dihapus.", en: "Met the certificate's requirements after the key correction, but not issued: this person's personal data has been deleted." },
+  "studio.kunci.dampak.tidak_diterbitkan": { default: "Memenuhi syarat, tidak diterbitkan: data pribadi sudah dihapus", en: "Requirements met; not issued: personal data deleted" },
   "studio.kunci.kirim": { default: "Kirim untuk konfirmasi", en: "Send for confirmation" },
   "studio.kunci.menunggu": { default: "Menunggu konfirmasi orang kedua · diusulkan {waktu}", en: "Waiting for a second person's confirmation · proposed {waktu}" },
   "studio.kunci.antrean": { default: "Perbaikan kunci menunggu konfirmasi", en: "Key corrections waiting for confirmation" },
@@ -4590,7 +4590,7 @@ const table: Table = {
   "sertifikat.ganti.gagal.cert_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
   "sertifikat.ganti.gagal.cert_nothing_changed": { default: "Tidak ada yang berbeda dari yang tercatat sekarang. Perbaiki datanya lebih dahulu.", en: "Nothing differs from what is recorded now. Correct the record first." },
   // L1-F4 (§3a.4): DRAFT, the engineer's, for Daisy: a replacement would issue a new certificate to a deleted identity
-  "sertifikat.ganti.gagal.cert_holder_deleted": { default: "Sertifikat ini tidak diganti: data pribadi pemiliknya sudah dihapus atas permintaannya. Sertifikat yang sudah terbit tetap seperti adanya.", en: "This certificate is not replaced: its holder's personal data was deleted at their request. The certificate already issued stays as it is." },
+  "sertifikat.ganti.gagal.cert_holder_deleted": { default: "Sertifikat ini tidak dapat diganti: data pribadi pemiliknya sudah dihapus. Sertifikat yang sudah terbit tetap seperti adanya. Tidak ada yang diubah.", en: "This certificate cannot be replaced: its holder's personal data has been deleted. The certificate already issued stays as it is. Nothing was changed." },
   "sertifikat.ganti.gagal.cert_key_invalid": { default: "Sertifikat pengganti belum dapat dibuat sekarang. Sertifikat ini tetap berlaku; coba lagi nanti.", en: "The replacement cannot be made right now. This certificate stays in force; try again later." },
   "sertifikat.ganti.gagal.cert_replacement_invalid": { default: "Sertifikat pengganti belum dapat diterbitkan. Coba lagi; sertifikat ini tetap berlaku.", en: "The replacement could not be issued. Try again; this certificate stays in force." },
   "sertifikat.ganti.gagal.tidak_ditemukan": { default: "Sertifikat itu tidak ditemukan.", en: "That certificate was not found." },
