@@ -81,7 +81,8 @@ export const b5aTests: SelfTest[] = [
         c.expect(new RegExp(`s\\("${h.cakupan.replace(/\./g, "\\.")}", ${P}, locale\\)\\.replace\\("\\{waktu\\}", tanggal\\(dihitung, "cap", locale, zona\\)\\)`).test(src)
           && /const dihitung = new Date\(\);/.test(src), `${h.f} does not say what the figures cover and when they were calculated`);
         // RESTATED FOR E-K1 (D-173(d)): the way back is the history-back, named as one
-        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\(asal\\.nama, ${P}, locale\\)\\} ke=\\{asal\\.ke\\} cetak=\\{s\\("laporan\\.cetak", ${P}, locale\\)\\} />`).test(src),
+        // RESTATED, B2 (THE PLAN §5.2): the same way back and «Cetak», which now records the print (its action, footer, scope)
+        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\(asal\\.nama, ${P}, locale\\)\\} ke=\\{asal\\.ke\\} cetak=\\{s\\("laporan\\.cetak", ${P}, locale\\)\\} aksi=\\{cetakLaporan\\} kaki=\\{kataKaki\\(locale, ${P}\\)\\}\\s+cetakSebagai=`).test(src),
           `${h.f} lost its way back (named by its origin, H9) or «Cetak»`);
         c.expect(/<KakiPintar className="pin-noprint" \/>/.test(src), `${h.f} has no footer, or prints it`);
         c.expect(/await tawarkanSekolahLain\(/.test(src) && src.indexOf("tawarkanSekolahLain(") < src.indexOf("generate_report"),
@@ -580,7 +581,9 @@ export const b5aTests: SelfTest[] = [
       const lib = kode(baca(ctx.repoRoot, "src/lib/hasil-belajar.ts"));
       c.expect(/await hasilBelajar\(db\)/.test(halaman) && /<KomposisiMurid bab=\{bab\}/.test(halaman), "/belajar/hasil does not draw the composition over hasilBelajar");
       // RESTATED (defect, 10 Nov): a closed lesson's outcome stays seen, so the learner's own list is my_learning_history
-      c.expect(/engine\.myLearningHistory\(db\)/.test(lib) && /engine\.outcome\(db, state\.post_session\)/.test(lib) && /ketuntasan\(outcome\)/.test(lib) && /bagianUlang\(/.test(lib) && !/\.from\(|\.rpc\(/.test(lib),
+      // RESTATED, B2 (Sharon's change 3, one read): which chapters and which sittings are the database's one read
+      // (engine.myResultsShown, hasil_belajar_sesi_saya), the same one a print's record is made from; still the learner's own
+      c.expect(/engine\.myLearningHistory\(db\)/.test(lib) && /engine\.myResultsShown\(db\)/.test(lib) && /engine\.outcome\(db, t\.post_session\)/.test(lib) && /ketuntasan\(outcome\)/.test(lib) && /bagianUlang\(/.test(lib) && !/\.from\(|\.rpc\(/.test(lib),
         "hasilBelajar reads anything but the learner's own engine reads, or decides a verdict of its own");
       c.expect(/href="\/belajar\/hasil"/.test(kode(baca(ctx.repoRoot, "src/app/belajar/page.tsx"))), "Belajar does not link the learner's report");
       return c.verdict("renders «Hasil belajar» (D-195(1), 1-murid): the lead counted from the learner's own chapters with what to study again, per chapter Pemetaan Awal and " +

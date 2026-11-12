@@ -181,6 +181,8 @@ const DB_RUNNERS = [
   { file: "fable38.sql", fn: "selftest.run_fable38()", done: "F38-DONE", emits: ["F38-"] },
   // L1-F4 (owner, 12 Nov): an anonymised person is terminal; reuses fable13's and fable38's helpers, so runs after them
   { file: "l1f4.sql", fn: "selftest.run_l1f4()", done: "L1F4-DONE", emits: ["L1F4-"] },
+  // B2 (THE PLAN §5.2): a printed report is owned by its evidence's schools; reuses fable13's helpers
+  { file: "b2.sql", fn: "selftest.run_b2()", done: "B2-DONE", emits: ["B2-D"] },
 ] as const;
 
 /**

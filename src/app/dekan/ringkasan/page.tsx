@@ -14,6 +14,8 @@ import { navKonteks } from "@/components/NavKonteks";
 import KakiPintar from "@/components/KakiPintar";
 import { BarisLingkup } from "@/components/bukti";
 import AksiLaporan from "@/components/laporan/AksiLaporan";
+import { kataKaki } from "@/lib/kaki-cetak";
+import { cetakLaporan } from "@/app/laporan/cetak/actions";
 import KomposisiSekolah from "@/components/laporan/KomposisiSekolah";
 import { s, card, type Entry } from "../../_intel";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -110,7 +112,8 @@ export default async function RingkasanSekolah({
             </p>
           ) : null}
         </div>
-        <AksiLaporan kembali={s(asal.nama, "staff", locale)} ke={asal.ke} cetak={s("laporan.cetak", "staff", locale)} />
+        <AksiLaporan kembali={s(asal.nama, "staff", locale)} ke={asal.ke} cetak={s("laporan.cetak", "staff", locale)} aksi={cetakLaporan} kaki={kataKaki(locale, "staff")}
+          cetakSebagai={simpul && entries.length > 0 ? { laporan: "ringkasan.simpul", simpul } : null} />
 
         {!template || !simpul ? (
           <Kosong jenis="belum" kalimat={s("laporan.kosong", "staff", locale)} />

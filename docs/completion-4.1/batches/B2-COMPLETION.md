@@ -5,9 +5,41 @@ and the print step of §8.5 journey 4. **Reviews:** Sharon before build (on this
 build (her composition, `DESAIN-AWAL-4.1.md` §1) and on the candidate, in one visit with B1-R1 to R5, B1-R4's notice and
 S-1's check at 390 and 320 px.
 
+## For Sharon and for Daisy: the result review (this is the prompt)
+
+**Candidate:** the B2 commit that carries this section on `claude/system-integrity-4.0`. It is one commit above the
+page commit `9b3ea8d9cd13c5da1a8b7992701d9fe43f85e031`, which is above F1-R1b `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b`.
+Its 40-character hash is in the review queue (TEAM-INSTRUCTIONS.md). Evidence: §12.
+
+**Sharon, please verify:**
+1. **Your five changes**, each where it stands:
+   - the requester from `auth.getUser()` (B2-A01, B2-P05);
+   - the restore on return and on `afterprint` (B2-S01, journey B2J);
+   - one read and the sittings' own schools (B2-P06, B2-D01);
+   - the default line naming no one (B2-A04);
+   - the narrow count (B2-S03).
+2. **Your B2-P02 world as built:** Alpha's own people write and give the chapter; the product's transfer; `{Alpha}`
+   while live `{Beta}`; plant b2-1.
+3. **The column table** in §11.
+4. **Two build decisions:** «Cetak laporan» offered whenever the report has entries; the learner's print dated on its
+   one school's clock, else WIB.
+
+PASS or BLOCKED, on the candidate.
+
+**Daisy, please verify, in one visit:**
+- the footer on paper (journey B2J's PDF, `b2-ringkasan-cetak.pdf`): the official line and the browser line;
+- the failure line, and the one draft, `laporan.cetak.ditolak`;
+- the reader: B1-R1 to R5 and the notice;
+- the Konfigurasi index entry;
+- `/belajar/hasil` with nothing finished;
+- S-1 at 390 and 320 px, and at the desktop sidebar.
+
+**Not a gate, but please check:** a learner's print dated on their one school's clock (Bob's point).
+
 ## What holds now
 
-- **Status: OPEN FOR BUILD** (`B2-ARCHITECT-NOTES.md` §0 item 1 at `24e3830d62ff3a7852b3aa76ca1b5053baad934d`).
+- **Status: BUILT, awaiting Sharon's and Daisy's result reviews** ("As built", §11). Opened for build by
+  `B2-ARCHITECT-NOTES.md` §0 item 1 at `24e3830d62ff3a7852b3aa76ca1b5053baad934d`.
   Sharon passed the F-1 fix, the L-1 fix and this page, the last with **five changes, carried below where each
   stands** (§3 of her review; she checks them at the result review).
   - ~~Pre-build: written for Sharon's pre-build review; opens when she has passed the L-1 and F-1 fixes~~ (superseded
@@ -215,7 +247,7 @@ adds the print step to `audit/journey.mjs`:
 | What happens when things go wrong? | The writer fails: nothing prints (fail closed). The dialog is cancelled: the event stands (a request, not a printout; §5.2 B, "any claim that paper came out of a printer" is out). A browser print: the default line, no reference |
 | Can it be reversed, and what survives? | Nothing is reversed. The row survives 12 months; the paper survives indefinitely |
 
-## 10 · Cross-module inventory (SYSTEM-INTEGRITY-4.1 §2), planned
+## 10 · Cross-module inventory (SYSTEM-INTEGRITY-4.1 §2), as built (the plan's rows, each now with its evidence)
 
 | Interface | Checked how | Evidence | Limitation |
 |---|---|---|---|
@@ -227,3 +259,77 @@ adds the print step to `audit/journey.mjs`:
 | The reader's platform and school views (R1 to R5, R4's notice) | Through the running app, as both | B2-S02 | — |
 | Retention (O41-13) | A purged reference's state is B1's, unchanged | B1-L01 | — |
 | The phone drawer (S-1) on the reader | 390 and 320 px, **and the desktop sidebar** (one of S-1's rules hides a navigation item at every width; Chief Architect's note, §4) | Daisy's visit | — |
+
+## 11 · As built
+
+**Migration** `20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql`:
+
+| Step | What | Where |
+|---|---|---|
+| 1 | **One read of a learner's results.** Per chapter: its state and the sittings `/belajar/hasil` shows. The page reads it as the caller, and the writer reads the same function (Sharon's change 3) | `hasil_belajar_sesi_orang(person)`, `hasil_belajar_sesi_saya()` (LEARNER, registered), `hasil_belajar_sekolah(person)` |
+| 2 | **The person-scoped print.** `{report, person_id}`: the person must be the requester; the snapshot is each shown sitting's own `institution_id`; several schools are never refused; no evidence gives an empty snapshot | `akuntabilitas_catat` (rewritten by fragment, checked); `accountability_events_print_one_school` relaxed for `resource ? 'person_id'` only |
+| 3 | **The notice's reader.** The platform admin's alone: the count and last instant of sign-in and sign-out write failures, `day > (today in WIB) − 7`; a print's failures are not counted | `akuntabilitas_gagal_ringkas()` (STAFF, SYSTEM_ADMIN, registered) |
+
+**The app:**
+
+| Piece | Where |
+|---|---|
+| The print action: the requester from `auth.getUser()`, the person from the session's own profile. A class's or a school's report only in the active context of its school (§2.11, `sasaranDalamKonteks`, before any act). Readability by the page's own read (`generate_report`, the professional-learning record, or `hasilBelajar`). Then B1's fail-closed writer. Answers `{ ref, nama, waktu }` or `CETAK_TIDAK_BOLEH` / `CETAK_GAGAL` | `src/app/laporan/cetak/actions.ts`; the contract `LAPORAN_CETAK`, `PermintaanCetak`, `HasilCetak` in `src/lib/akuntabilitas-kontrak.ts`; `LingkupCetak` gains `{ person_id }` |
+| «Cetak laporan»: the action, passed by the server page, then the official line, then `window.print()`; the default is restored in a `finally` and on `afterprint`. Any other print gets the device-clock line on `beforeprint`. The failure line is `BarisHasil` | `src/components/laporan/AksiLaporan.tsx`; the words, `src/lib/kaki-cetak.ts` |
+| The footer: bottom-left of `@page laporan` and `laporan-lebar`, 7.5 pt, `--ink-2`; «Halaman n dari m» stays bottom-right | `src/app/experience.css` |
+| The four report views: the class summary, the professional-learning summary, the school summary, and the learner's results. Each offers «Cetak laporan» only when its report has entries (for the learner, a finished or closed chapter) | the three report pages |
+| `/belajar/hasil` is built from the one read (`engine.myResultsShown`) | `src/lib/hasil-belajar.ts`, `src/lib/assessment-engine/index.ts` |
+| B1-R1 to R5 and the notice, in Daisy's words | `src/app/konfigurasi/catatan-masuk/page.tsx`, `src/app/konfigurasi/page.tsx`, `src/lib/hle.ts` |
+| Journey 4's print step (§5) | `audit/journey.mjs`, step B2J |
+
+**One engineer's draft for Daisy:** `laporan.cetak.ditolak` («Laporan ini tidak dapat dicetak dari akun Anda.»), the
+answer to a refused print. Only a forged request reaches it.
+
+**Two decisions taken in the build, for the reviews:**
+- **«Cetak laporan» is offered when the report has entries.** That includes a figure stated as absent: an honest
+  absence is content. Today's page offered the button always. The learner's page offers it when a chapter is finished
+  or closed after a Pemetaan Awal.
+- **The learner's own-results print** is dated on that school's clock when the printout holds one school's results
+  (Bob's point, `B2-ARCHITECT-NOTES.md` log), and in WIB when it spans schools or holds none. The schools are the one
+  read's, as the record's are. A school-scoped print uses its school's zone.
+  - ~~It always gives its instant in WIB~~ (superseded by Bob's point).
+
+### Every column and table touched: constraints and the governing invariant
+
+| Column or table | Constraints after this commit | Baseline invariant |
+|---|---|---|
+| `accountability_events.institution_ids` (a print's) | Exactly one school, except a person-scoped print, which may hold any number including none (`accountability_events_print_one_school`). Computed by the writer only; the store stays insert-only and closed to every client role | **INV-13**: a school reads only rows whose snapshot holds it, and is shown only its own school; **INV-25**: no evidence is re-parented by a transfer (B2-P02) |
+| `accountability_events.resource` | `{report, node_id \| learning_assignment_id \| assessment_assignment_id \| person_id}`, exactly two keys; a person scope only the requester's | **INV-08**: the person is the session's, never the request's (B2-P05, B2-A01); **INV-01**: no content in the event |
+| `accountability_events.person_id` | Unchanged: the requester, from the verified session | **INV-08** |
+| `accountability_write_failures` | Unchanged; read by one more definer function, the platform admin's alone | **INV-13** (no school's count reaches another school) |
+| `assessment_sessions`, `learning_assignments`, `enrollments`, `memberships` | Read only, by `hasil_belajar_sesi_orang`; nothing written | **INV-23**: memberships are read as recorded; **INV-25**: each sitting keeps its own school |
+
+### Tests (red first on `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b`)
+
+| Id | Runner | Red on `97a40ebb` |
+|---|---|---|
+| B2-P01 to P06, B2-S03 | static (the database, rolled back; `selftest/b2.test.ts`) | red: the base writer refuses a person scope («a print names its report and exactly one class node or assignment of a school») |
+| B2-D01 | db (`selftest/db/b2.sql`, gate `db-b2-gates`) | red, for the same reason; plant **b2-1** (the snapshot from the live affiliation): red, `expected snapshot {Alpha} while live {Beta}` |
+| B2-S01, B2-S02 | static (the code) | red: no print action, no footer, no register items |
+| B2-A01 to A05 | app (`selftest/b2-layar.test.ts`) | red: no action in the build |
+| Journey 4, B2J | journeys (`audit/journey.mjs`) | not run red: a journey step on the base has no button to press. It is new on this commit |
+
+- **Plants (a) and (b)**, the action returning a reference without writing and the footer swapping before the
+  reference returns, are code-level defects. The plant runner plants SQL only. B2-A01 counts the rows a press writes
+  (a), and B2-S01 reads the order of the press (b). The journey checks the footer at the instant `window.print()` is
+  called and after it returns.
+- **The CI red-case group** "db · bob37 bob24 bob39 bob04 fable04 l1f4" becomes "… l1f4 b2", with B2's gate; CI-W03's
+  list gains `db-b2-gates`.
+- **Restated, with notes:**
+  - **HOD09-K01:** `AksiLaporan` is rendered with a scope and the action, and its controls follow the footer's
+    `<style>`. The two report pages' call carries `aksi`, `kaki` and `cetakSebagai`.
+  - **B5A-LAPORAN-K01:** the same call shape.
+  - **LAPORAN-MURID-01:** `hasilBelajar` reads `engine.myResultsShown`, still the learner's own.
+  - **The migration-count pins:** 238 → 239.
+  - **F22-P05:** the print action is listed as context-bound. A class's or a school's report prints only in the active
+    context of its school; otherwise it is refused (`CETAK_TIDAK_BOLEH`). A learner's own results have no place (C1).
+
+## 12 · Evidence on this commit
+
+To be filled from the pre-flight and CI on the pushed commit.
+

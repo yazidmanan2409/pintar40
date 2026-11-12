@@ -164,7 +164,9 @@ export async function catatAkuntabilitas(headers: Headers, rute: string, f: Fakt
   }
 }
 
-export type LingkupCetak = { node_id: string } | { learning_assignment_id: string } | { assessment_assignment_id: string };
+export type LingkupCetak = { node_id: string } | { learning_assignment_id: string } | { assessment_assignment_id: string }
+  // B2 (Q1, the owner's content rule): a learner's own results; the person is the session's, the schools the evidence's
+  | { person_id: string };
 
 /**
  * B2's print path: the print request's event and its reference, or an error. FAILS CLOSED: without the reference

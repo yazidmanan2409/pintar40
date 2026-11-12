@@ -5885,6 +5885,81 @@
       "proves": "B1, selftest/b1.test.ts, executes the source of src/app/api/_akuntabilitas/catat.ts with its writer replaced: the coarse origin (IPv4 /24, IPv6 /48, an IPv4-mapped address as IPv4) from x-real-ip only; the identifier hash is HMAC-SHA256 with the existing pepper under the store's own label over the normalised identifier; one request writes once (blocker 2), two requests twice, a request whose Auth call was retried once; a failed or timed-out write neither throws nor blocks, is logged without the identifier and counted; a print fails closed."
     },
     {
+      "id": "B2-A01",
+      "runner": "app",
+      "proves": "B2, selftest/b2-layar.test.ts, through the running app, the print action driven by its build id with the page's cookies: a press writes exactly one PRINT_REQUEST, the school's, naming the report, its node and the requester; the answer carries that row's reference, the name the platform holds and the instant on the school's clock; a request carrying another person's or user's id writes as the session's user (Sharon's change 1); each press is its own reference."
+    },
+    {
+      "id": "B2-A02",
+      "runner": "app",
+      "proves": "B2, selftest/b2-layar.test.ts, through the running app, the print action driven by its build id with the page's cookies: with the writer failing, the press answers CETAK_GAGAL, writes nothing and counts the failure once: no reference, no official print."
+    },
+    {
+      "id": "B2-A03",
+      "runner": "app",
+      "proves": "B2, selftest/b2-layar.test.ts, through the running app, the print action driven by its build id with the page's cookies: a press for another school's report, or naming a report that does not print, is refused CETAK_TIDAK_BOLEH and writes nothing."
+    },
+    {
+      "id": "B2-A04",
+      "runner": "app",
+      "proves": "B2, selftest/b2-layar.test.ts, through the running app, the print action driven by its build id with the page's cookies: the page as served carries the short browser line as its footer, names no person (Sharon's change 5) and shows nothing reference-shaped; «Cetak laporan» is offered on a report with figures."
+    },
+    {
+      "id": "B2-A05",
+      "runner": "app",
+      "proves": "B2, selftest/b2-layar.test.ts, through the running app, the print action driven by its build id with the page's cookies: an empty learner's report offers no «Cetak laporan» (THE PLAN §5.2 F; the engineer's defect on /belajar/hasil)."
+    },
+    {
+      "id": "B2-D01",
+      "runner": "db",
+      "proves": "B2's planted-defect gate (selftest/db/b2.sql): a learner who earned results at Alpha (Alpha's own people write, review, release and assign the chapter; both tests sat), moved to Beta by transfer_minta, transfer_terima and transfer_execute, prints them: the snapshot is {Alpha}, never the live {Beta}. Plant b2-1 (the live affiliation) turns it red."
+    },
+    {
+      "id": "B2-S01",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, reading the source (src/components/laporan/AksiLaporan.tsx, the report pages, src/lib/hle.ts's copy table): «Cetak laporan» calls the print action, stops on a refusal, sets the official footer only after its reference, opens the dialog and restores the default in a finally and on afterprint (Sharon's change 2); any other print takes the device-clock line on beforeprint; the default names no person (Sharon's change 5; Daisy's words); the four report views print through the action with their scope; the only other window.print() calls are the certificate's and the class card's, which carry no report footer."
+    },
+    {
+      "id": "B2-S02",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, reading the source (src/app/konfigurasi/catatan-masuk/page.tsx, src/app/konfigurasi/page.tsx, src/lib/hle.ts's copy table): the register taken with B2, in Daisy's words: B1-R1 the refusal names the Admin PINTAR; R2 the platform's view names each row's schools on a second line; R3 the index lists the reader after «Jejak audit» for its readers only; R4 the completeness notice reads the narrow count, platform only, above zero, with the health check's link; R5 no empty state adds a second «Hapus saringan»."
+    },
+    {
+      "id": "B2-P01",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: a learner with results at two schools prints their own results: the snapshot holds both; each school's admin finds the reference and is shown its own school alone; an unrelated school finds nothing; each press is its own reference."
+    },
+    {
+      "id": "B2-P02",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: Sharon's specification and the owner's condition (no attribution by transfer): a learner who earned results at A, moved to B through transfer_minta, transfer_terima and transfer_execute, prints them: the snapshot is {A} although the live school is {B}; A's admin finds the reference, B's does not, the platform admin does; the event names the report and the person, no content."
+    },
+    {
+      "id": "B2-P03",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: a departed learner (no live school) prints their history: the former schools find the reference, an unrelated school does not."
+    },
+    {
+      "id": "B2-P04",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: a print whose report holds no evidence has an empty snapshot and is the platform admin's alone."
+    },
+    {
+      "id": "B2-P05",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: a person-scoped print naming someone else is refused and writes nothing; the one-school check refuses a class-scoped print with two schools and admits a person-scoped one; the action takes the requester from auth.getUser() and the person from the session's own profile (Sharon's change 1)."
+    },
+    {
+      "id": "B2-P06",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: one read (Sharon's change 3): the snapshot is exactly the schools of the sittings hasil_belajar_sesi_saya shows the learner, and /belajar/hasil is built from that read alone."
+    },
+    {
+      "id": "B2-S03",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: the completeness notice's reader (Sharon's change 6): the platform admin's alone; sign-in and sign-out failures of the last seven WIB days, never a print's or an older day's."
+    },
+    {
       "id": "B1-S01",
       "runner": "static",
       "proves": "B1, selftest/b1.test.ts, in the database, rolled back, against supabase/migrations/20270116100000_a_sign_in_a_sign_out_and_a_print_are_kept_on_the_record_for_twelve_months.sql: a successful and a failed sign-in each leave exactly one row; the two-school snapshot (blocker 1: both admins read it, a school left before and one joined after read nothing, later changes move no stored snapshot); an empty snapshot is the platform admin's only; a print at school A by a person at A and B is A's alone, by its resource (execution requirement 3); the network origin is the platform admin's alone; a reference typed in any form finds its print; the writer refuses a signed-in caller, an address, a hash on a success and a print without a school's resource; no client role, the service role included, selects, inserts, updates or deletes."

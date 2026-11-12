@@ -3212,6 +3212,61 @@ await step("B1J", "the school admin looks up who signed in: Pak Guru Budi's fail
     + `every row his ${baris.every((b) => b.siapa === people.guru.name)}, a network-origin column ${asal}`;
 });
 
+// B2 (THE PLAN §8.5 journey 4, the print step; B2-COMPLETION.md §5): Pak Guru Budi opens his class's Ringkasan and
+// presses «Cetak laporan». The page's print dialog is the browser's own, so the journey takes the footer at the instant
+// window.print() is called: the official line with its reference. The default is back as soon as the call returns, with
+// no afterprint (Sharon's change 2, B2-A06); a print the browser starts itself carries the device's clock and no
+// reference; the PDF of the official rendering carries the reference; the school admin types it into «Catatan masuk dan
+// cetak» and finds the one print request, his.
+await step("B2J", "Pak Guru Budi prints his class's Ringkasan: the paper carries «Dicetak oleh … · Ref. CTK-…»; the default footer is back once the dialog returns; the school admin finds the reference (B2, journey 4)", async (rec) => {
+  const gc = await ctx();
+  const gp = await gc.newPage();
+  await magicSignIn(gp, people.guru.email);
+  const kelas = sql(`select ra.scope_node_id from public.role_assignments ra join public.accounts ac on ac.person_id = ra.person_id
+    join auth.users u on u.id = ac.auth_user_id join public.org_nodes n on n.id = ra.scope_node_id
+   where u.email = '${people.guru.email}' and ra.role = 'EDUCATOR' and ra.revoked_at is null and n.kind = 'CLASS' order by n.created_at limit 1`);
+  await gp.goto(`${APP}/edukator/ringkasan?kelas=${kelas}`, { waitUntil: "networkidle" });
+  await tutupTur(gp);
+  const kaki = () => gp.locator("style[data-kaki-cetak]").evaluate((el) => el.textContent ?? "");
+  const awal = await kaki();
+  await gp.evaluate(() => { window.__kakiSaatCetak = []; window.print = () => { window.__kakiSaatCetak.push(document.querySelector("style[data-kaki-cetak]")?.textContent ?? ""); }; });
+  await gp.getByRole("button", { name: "Cetak laporan", exact: true }).click();
+  await gp.waitForFunction(() => (window.__kakiSaatCetak ?? []).length === 1, null, { timeout: SLOW }).catch(() => {});
+  const saatCetak = (await gp.evaluate(() => window.__kakiSaatCetak ?? []))[0] ?? "";
+  const ref = /CTK-[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}/.exec(saatCetak)?.[0] ?? "";
+  const sesudah = await kaki();
+  // a print the browser starts itself (Ctrl+P): beforeprint, then afterprint
+  await gp.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
+  const peramban = await kaki();
+  await gp.evaluate(() => window.dispatchEvent(new Event("afterprint")));
+  const pulih = await kaki();
+  // the official rendering as a PDF: the footer as it stood when the dialog opened
+  await gp.evaluate((teks) => { document.querySelector("style[data-kaki-cetak]").textContent = teks; }, saatCetak);
+  await gp.emulateMedia({ media: "print" });
+  const pdf = `${OUT}/b2-ringkasan-cetak.pdf`;
+  await gp.pdf({ path: pdf, format: "A4", printBackground: true });
+  await gp.emulateMedia({ media: "screen" });
+  let teksPdf = "";
+  try { teksPdf = execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" }); } catch { teksPdf = "(pdftotext unavailable)"; }
+  await gc.close();
+  // the school admin types the reference into the reader
+  await a.goto(`${APP}/konfigurasi/catatan-masuk?cari=${encodeURIComponent(ref.toLowerCase().replace("-", " "))}`, { waitUntil: "networkidle" });
+  await tutupTur(a);
+  rec.shots.push(await shot(a, "b2-catatan-cetak"));
+  const baris = await a.locator("[data-akuntabilitas-baris]").evaluateAll((trs) => trs.map((tr) => ({
+    jenis: tr.getAttribute("data-akuntabilitas-baris"), siapa: (tr.querySelector("[data-akuntabilitas-orang]")?.textContent ?? "").trim(),
+    ref: tr.querySelector("[data-rujukan-cetak]")?.getAttribute("data-rujukan-cetak") ?? "" })));
+  const pdfOk = teksPdf === "(pdftotext unavailable)" || teksPdf.includes(`Ref. ${ref}`);
+  const ok = Boolean(ref) && saatCetak.includes(`Dicetak oleh ${people.guru.name}`) && !/CTK-/.test(awal) && /Dicetak dari browser · tanpa nomor referensi/.test(awal)
+    && sesudah === awal && /\(jam perangkat\)/.test(peramban) && !/CTK-/.test(peramban) && !peramban.includes(people.guru.name) && pulih === awal && pdfOk
+    && baris.length === 1 && baris[0].jenis === "PRINT_REQUEST" && baris[0].ref === ref && baris[0].siapa === people.guru.name;
+  if (!ok) rec.verdict = "FAIL";
+  return `the footer before «${awal.slice(0, 90)}»; at the dialog «${(/content: (".*?");/.exec(saatCetak)?.[1] ?? saatCetak).slice(0, 140)}»; after it returned (no afterprint) `
+    + `${sesudah === awal ? "the default again" : `«${sesudah.slice(0, 90)}»`}; a browser print «${(/content: (".*?");/.exec(peramban)?.[1] ?? "").slice(0, 120)}», then ${pulih === awal ? "the default" : "not restored"}; `
+    + `the PDF ${teksPdf === "(pdftotext unavailable)" ? "was made (no pdftotext to read it)" : teksPdf.includes(`Ref. ${ref}`) ? `carries «Ref. ${ref}»` : "does not carry the reference"}; `
+    + `the reader, searched for ${ref}: ${JSON.stringify(baris)}`;
+});
+
 // CR-52 (J4.8 EC; D-050(a)(d)): the Question Bank, walked against QN5 as D-120 ruled it: «4.0's Question Bank means
 // browse, filter and review with the answer key and reason; no additional authoring workflow». Read only; before S24,
 // which revokes the head of department. The head of department reviews question health (CAN_REVIEW_QUESTION_HEALTH,

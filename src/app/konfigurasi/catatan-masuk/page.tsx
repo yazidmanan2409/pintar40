@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { t, type HleEvent } from "@/lib/hle";
+import { format, t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
 import { konteksHalaman } from "@/lib/konteks-server";
@@ -97,6 +97,20 @@ export default async function CatatanMasuk({ searchParams }: { searchParams: Pro
   };
   const siapa = (b: BarisAkuntabilitas) => (b.person_id ? (b.nama ?? b.pintar_id ?? s("akuntabilitas.tidak_dikenal")) : s("akuntabilitas.tidak_dikenal"));
   const kolomAsal = platformIni || adminSistem;
+  // B1-R2 (Daisy): the platform's view names each row's school or schools, a line under the name; a school's admin
+  // reads only their own school's rows and is shown no second line
+  const idSekolah = platformIni ? [...new Set(baris.flatMap((b) => b.institution_ids))] : [];
+  const { data: namaSek } = idSekolah.length
+    ? await supabase.from("institutions").select("id, name").in("id", idSekolah)
+    : { data: [] as Array<{ id: string; name: string }> };
+  const namaSekolah = new Map(((namaSek ?? []) as Array<{ id: string; name: string }>).map((x) => [x.id, x.name]));
+  const sekolahBaris = (b: BarisAkuntabilitas) => (b.institution_ids.length
+    ? b.institution_ids.map((i) => namaSekolah.get(i) ?? "—").join(", ") : s("akuntabilitas.tanpa_sekolah"));
+  // B1-R4 (Sharon's change 6; Daisy): the platform's view only; its own narrow read; absent when it cannot be read
+  const ringkas = platformIni ? await supabase.rpc("akuntabilitas_gagal_ringkas") : { data: null, error: null };
+  const gagalTulis = !ringkas.error ? (ringkas.data as { n?: unknown; terakhir?: unknown } | null) : null;
+  const tidakLengkap = gagalTulis && typeof gagalTulis.n === "number" && gagalTulis.n > 0 && typeof gagalTulis.terakhir === "string"
+    ? { n: gagalTulis.n, terakhir: gagalTulis.terakhir } : null;
 
   return (
     <>
@@ -109,6 +123,12 @@ export default async function CatatanMasuk({ searchParams }: { searchParams: Pro
           <p className="pin-intro">{s("akuntabilitas.arti")}</p>
         </div>
 
+        {tidakLengkap ? (
+          <p className="pin-banner pin-attention" role="status" data-akuntabilitas-tidak-lengkap={tidakLengkap.n}>
+            {s("akuntabilitas.tidak_lengkap").replace("{n}", format.number(tidakLengkap.n, locale)).replace("{waktu}", tanggal(tidakLengkap.terakhir, "cap", locale))}{" "}
+            <Link href="/konfigurasi?periksa=skema">{s("akuntabilitas.tidak_lengkap.tautan")}</Link>
+          </p>
+        ) : null}
         <form method="get" action="/konfigurasi/catatan-masuk" className="pin-akuntabilitas-saring" aria-label={s("akuntabilitas.saring.judul")} data-akuntabilitas-saring="">
           <label className="pin-bidang">
             <span className="pin-bidang-label">{s("akuntabilitas.cari.label")}</span>
@@ -147,9 +167,10 @@ export default async function CatatanMasuk({ searchParams }: { searchParams: Pro
           <p className="pin-banner pin-attention" role="status" data-akuntabilitas-gagal="">{s("akuntabilitas.gagal")}</p>
         ) : baris.length === 0 && hal === 1 ? (
           rujukan
-            ? <Kosong jenis="tidak_cocok" kalimat={s("akuntabilitas.rujukan_hilang").replace("{tanggal}", sejakKata)} aksi={{ href: "/konfigurasi/catatan-masuk", label: s("akuntabilitas.saring.hapus") }} />
+            // B1-R5: the filter's own «Hapus saringan» is the one way back; the empty state adds none
+            ? <Kosong jenis="tidak_cocok" kalimat={s("akuntabilitas.rujukan_hilang").replace("{tanggal}", sejakKata)} />
             : tersaring
-              ? <Kosong jenis="tidak_cocok" kalimat={s("akuntabilitas.tidak_cocok")} aksi={{ href: "/konfigurasi/catatan-masuk", label: s("akuntabilitas.saring.hapus") }} />
+              ? <Kosong jenis="tidak_cocok" kalimat={s("akuntabilitas.tidak_cocok")} />
               : <Kosong jenis="belum" kalimat={s("akuntabilitas.kosong").replace("{tanggal}", sejakKata)} />
         ) : (
           <div className="pin-koleksi pin-akuntabilitas">
@@ -170,7 +191,8 @@ export default async function CatatanMasuk({ searchParams }: { searchParams: Pro
                   {baris.map((b) => (
                     <tr key={b.id} data-akuntabilitas-baris={b.kind}>
                       <th scope="row" className="pin-tabel-nama" data-label={s("akuntabilitas.kolom.waktu")}>{tanggal(b.at, "cap", locale, zonaBaris(b))}</th>
-                      <td data-label={s("akuntabilitas.kolom.orang")} data-akuntabilitas-orang="">{siapa(b)}</td>
+                      <td data-label={s("akuntabilitas.kolom.orang")} data-akuntabilitas-orang="">{siapa(b)}
+                        {platformIni ? <><br /><span className="pin-meta" data-akuntabilitas-sekolah="">{sekolahBaris(b)}</span></> : null}</td>
                       <td data-label={s("akuntabilitas.kolom.apa")}>{kataJenis(b)}{b.print_ref
                         ? <span className="pin-meta pin-num" data-rujukan-cetak={b.print_ref}> · {s("akuntabilitas.rujukan").replace("{ref}", b.print_ref)}</span> : null}</td>
                       <td data-label={s("akuntabilitas.kolom.cara")}>{kataCara(b)}</td>

@@ -75,3 +75,16 @@ export function ditolakMembaca(e: { code?: string | null; details?: string | nul
 
 /** The page size of the reader (the reader asks for one more, to know there are more). */
 export const UKURAN_AKUNTABILITAS = 50;
+
+/**
+ * B2 · THE PRINTED REPORT (THE PLAN §5.2; B2-COMPLETION.md §1–§3). The four report views that print through
+ * «Cetak laporan», and what each sends as its scope. A learner's own results are person-scoped: the person is the
+ * session's, never the request's (Sharon's change 1).
+ */
+export const LAPORAN_CETAK = ["ringkasan.kelas", "ringkasan.pengembangan", "ringkasan.simpul", "hasil.belajar"] as const;
+export type LaporanCetak = (typeof LAPORAN_CETAK)[number];
+export type PermintaanCetak = { laporan: LaporanCetak; simpul?: string | null };
+/** The action's answer: the reference and the server's name and instant for the footer, or a refusal with no event. */
+export type HasilCetak =
+  | { ok: true; ref: string; nama: string; waktu: string }
+  | { ok: false; kode: "CETAK_TIDAK_BOLEH" | "CETAK_GAGAL" };

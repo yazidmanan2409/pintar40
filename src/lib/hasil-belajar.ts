@@ -52,35 +52,36 @@ export async function adaHasilTertutup(db: engine.EngineClient, aktif: Set<strin
 }
 
 export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]> {
-  // defect (10 Nov): a closed lesson's outcome stays seen; an unfinished one of a closed lesson is no longer «in progress»
-  const tugas = await engine.myLearningHistory(db);
-  const bab = await Promise.all(tugas.map(async (a): Promise<BabHasil | null> => {
+  // B2 (Sharon's change 3): WHICH chapters are shown, in which state and from which sittings, is the database's one read
+  // (hasil_belajar_sesi_saya), the same one a print's record is made from; the titles are the learner's history's.
+  // defect (10 Nov), kept by that read: a closed lesson's outcome stays seen; an unfinished one of a closed lesson is no
+  // longer «in progress», but a finished Tes awal stays as one quiet row (Daisy, 435a2856 §2.1)
+  const [tugas, tampil] = await Promise.all([engine.myLearningHistory(db), engine.myResultsShown(db)]);
+  const perTugas = new Map(tugas.map((a) => [a.learning_assignment_id, a]));
+  const bab = await Promise.all(tampil.map(async (t): Promise<BabHasil | null> => {
+    const a = perTugas.get(t.learning_assignment_id);
+    if (!a) return null;
     // Reporting Quality Gate (9 Nov): a title that already begins with its subject («Matematika Kelas 5 · Bab 1») is not
     // prefixed with it again («Matematika · Matematika Kelas 5 · Bab 1»)
     const judul = namaBab(a.subject, a.title);
-    const state = await engine.cycleState(db, a.learning_assignment_id).catch(() => null);
-    if (!state) return null;
-    const mulai = Boolean(state.pre_session || state.post_session);
-    if (!state.post_session || state.post_status !== "FINALIZED") {
-      // a closed lesson, or one of a Kelas the learner has left, is no longer «in progress»; but a finished Tes awal is a
-      // result the learner earned, and the owner's rule keeps results (Daisy, 435a2856 §2.1): one quiet row, no target
-      if ((a.status && a.status !== "ACTIVE") || a.kini === false) {
-        if (!state.pre_session || state.pre_status !== "FINALIZED") return null;
-        const awal = await engine.outcome(db, state.pre_session).catch(() => null);
-        if (!awal || awal.penguasaan === null || awal.penguasaan === undefined) return null;
-        return { tugas: a.learning_assignment_id, judul, keadaan: "DITUTUP_AWAL", awal: awal.penguasaan, akhir: null, ambang: null,
-                 tercapai: null, benar: 0, total: 0, bagian: [], ulang: [], ...(a.status === "WITHDRAWN" ? { ditarik: true } : {}) };
-      }
-      return mulai ? { tugas: a.learning_assignment_id, judul, keadaan: "BERJALAN", awal: null, akhir: null, ambang: null, tercapai: null, benar: 0, total: 0, bagian: [], ulang: [] } : null;
+    const berjalan: BabHasil = { tugas: a.learning_assignment_id, judul, keadaan: "BERJALAN", awal: null, akhir: null, ambang: null, tercapai: null, benar: 0, total: 0, bagian: [], ulang: [] };
+    if (t.keadaan === "BERJALAN") return berjalan;
+    if (t.keadaan === "DITUTUP_AWAL") {
+      if (!t.pre_session) return null;
+      const awal = await engine.outcome(db, t.pre_session).catch(() => null);
+      if (!awal || awal.penguasaan === null || awal.penguasaan === undefined) return null;
+      return { tugas: a.learning_assignment_id, judul, keadaan: "DITUTUP_AWAL", awal: awal.penguasaan, akhir: null, ambang: null,
+               tercapai: null, benar: 0, total: 0, bagian: [], ulang: [], ...(a.status === "WITHDRAWN" ? { ditarik: true } : {}) };
     }
+    if (!t.post_session) return null;
     const [outcome, review, delta, peta, pelajaran] = await Promise.all([
-      engine.outcome(db, state.post_session).catch(() => null),
-      engine.review(db, state.post_session).catch(() => []),
+      engine.outcome(db, t.post_session).catch(() => null),
+      engine.review(db, t.post_session).catch(() => []),
       engine.delta(db, a.learning_assignment_id).catch(() => null),
-      engine.readingMap(db, state.post_session).catch(() => []),
+      engine.readingMap(db, t.post_session).catch(() => []),
       engine.lessons(db, a.learning_assignment_id).catch(() => []),
     ]);
-    if (!outcome) return { tugas: a.learning_assignment_id, judul, keadaan: "BERJALAN", awal: null, akhir: null, ambang: null, tercapai: null, benar: 0, total: 0, bagian: [], ulang: [] };
+    if (!outcome) return berjalan;
     const tercapai = ketuntasan(outcome);
     const ulang = tercapai === "BELUM" ? bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran) : [];
     const kodeUlang = new Set(ulang.map((u) => u.kode));
@@ -103,5 +104,7 @@ export async function hasilBelajar(db: engine.EngineClient): Promise<BabHasil[]>
       ulang: ulang.map((u) => u.nama),
     };
   }));
-  return bab.filter((b): b is BabHasil => b !== null);
+  // the learner's history's order, as before
+  const urutan = new Map(tugas.map((a, i) => [a.learning_assignment_id, i]));
+  return bab.filter((b): b is BabHasil => b !== null).sort((x, y) => (urutan.get(x.tugas) ?? 0) - (urutan.get(y.tugas) ?? 0));
 }

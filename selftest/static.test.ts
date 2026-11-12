@@ -12,6 +12,7 @@ import { Checks, compiledBundle, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
 import { b1Tests } from "./b1.test";
+import { b2Tests } from "./b2.test";
 import { emailTests } from "./email.test";
 import { d1Tests } from "./d1.test";
 import { retroTests } from "./retro.test";
@@ -2249,4 +2250,5 @@ export const staticTests: SelfTest[] = [
   ...c1wLayarTests.filter((x) => x.id === "C1W-K02"),
   // B1 · accountability events: the source, the helper, the database and the one installer
   ...b1Tests,
+  ...b2Tests,
 ];

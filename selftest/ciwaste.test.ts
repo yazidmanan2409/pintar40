@@ -242,7 +242,9 @@ export const ciwasteTests: SelfTest[] = [
         "db-bob02-gates", "db-bob03-gates", "db-bob04-gates", "db-bob06-gates", "db-bob12-gates", "db-bob24-gates", "db-bob35-gates",
         "db-bob36-gates", "db-bob39-gates", "db-bob37-gates", "db-bob25-gates", "db-bob26-gates", "db-bob50-gates",
         // L1-F4 (owner, 12 Nov): the registry of attaching columns
-        "db-l1f4-gates"];
+        "db-l1f4-gates",
+        // B2 (THE PLAN §5.2): a printed report's schools are its evidence's
+        "db-b2-gates"];
       const ci = readFileSync(join(ctx.repoRoot, ".github/workflows/ci.yml"), "utf8");
       const redCase = ci.slice(ci.indexOf("\n  red-case:\n"), ci.indexOf("\n  baseline-parity:\n"));
       const groups = [...redCase.matchAll(/- \{ group: "([^"]+)", cases: " ([a-z0-9 -]+) " \}/g)].map((x) => ({ group: x[1], cases: x[2].split(" ") }));

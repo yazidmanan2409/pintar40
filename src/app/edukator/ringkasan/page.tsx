@@ -14,6 +14,8 @@ import { navKonteks } from "@/components/NavKonteks";
 import KakiPintar from "@/components/KakiPintar";
 import { BarisLingkup } from "@/components/bukti";
 import AksiLaporan from "@/components/laporan/AksiLaporan";
+import { kataKaki } from "@/lib/kaki-cetak";
+import { cetakLaporan } from "@/app/laporan/cetak/actions";
 import KomposisiKelas from "@/components/laporan/KomposisiKelas";
 import KepalaCetak from "@/components/laporan/KepalaCetak";
 import { awalAkhirKelas, perluPenguatan, sebaranKelas, targetKelas } from "@/lib/pengajar";
@@ -137,7 +139,8 @@ export default async function RingkasanKelas({
             </p>
           ) : null}
         </div>
-        <AksiLaporan kembali={s(asal.nama, untuk, locale)} ke={asal.ke} cetak={s("laporan.cetak", untuk, locale)} />
+        <AksiLaporan kembali={s(asal.nama, untuk, locale)} ke={asal.ke} cetak={s("laporan.cetak", untuk, locale)} aksi={cetakLaporan} kaki={kataKaki(locale, untuk)}
+          cetakSebagai={kelas && entries.length > 0 ? { laporan: "ringkasan.kelas", simpul: kelas } : null} />
 
         {!template || !kelas ? (
           <Kosong jenis="belum" kalimat={s("laporan.kosong", untuk, locale)} />
@@ -188,7 +191,8 @@ async function RingkasanPengembangan({ kelas, asal }: { kelas: string; asal: Ret
               figures cover; it is the class's ordinary nature, not a state to notice, and takes no letter */}
           <p className="pin-intro" data-pd-arti="">{s("laporan.kelas.pd_arti", "staff", locale)}</p>
         </div>
-        <AksiLaporan kembali={s(asal.nama, "staff", locale)} ke={asal.ke} cetak={s("laporan.cetak", "staff", locale)} />
+        <AksiLaporan kembali={s(asal.nama, "staff", locale)} ke={asal.ke} cetak={s("laporan.cetak", "staff", locale)} aksi={cetakLaporan} kaki={kataKaki(locale, "staff")}
+          cetakSebagai={isi && isi.peserta.length > 0 ? { laporan: "ringkasan.pengembangan", simpul: kelas } : null} />
         {isi === null ? (
           <Kosong jenis="belum" kalimat={s("pengembangan.ditolak", "staff", locale)} />
         ) : isi.peserta.length === 0 ? (

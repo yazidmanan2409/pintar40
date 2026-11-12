@@ -35,6 +35,11 @@
       "control_green": 29,
       "what": "BOB-04's whole learning cycle: a course carrying its pre-test and post-test, one assignment making both, the draw following the marks, INV-24 checked at assignment, every refusal's stable code, and a stranger refused the cycle; and the upload refusing a parallel group that spans both tests (D-040)"
     },
+    "db-b2-gates": {
+      "suite": "selftest.run_b2()",
+      "control_green": 1,
+      "what": "B2's content rule (B2-ARCHITECT-NOTES.md §1, the owner's condition): a learner's own-results print is owned by the schools of the sittings it shows, never by the learner's live affiliation, so no evidence is attributed to a new school by a transfer"
+    },
     "db-l1f4-gates": {
       "suite": "selftest.run_l1f4_registry()",
       "control_green": 1,
@@ -654,6 +659,12 @@
       "gate": "db-bob04-gates",
       "expect_red": "F13-K05",
       "expect_detail": "read 5|5|11|0.4545"
+    },
+    {
+      "name": "b2-1",
+      "gate": "db-b2-gates",
+      "expect_red": "B2-D01",
+      "expect_detail": "expected snapshot {Alpha} while live {Beta}"
     },
     {
       "name": "l1f4-1",

@@ -2279,7 +2279,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   <h2 id={`pin-kelompok-${g.kunci.split(".").pop()}`} className="font-medium">{sl(g.kunci as HleEvent)}</h2>
                   <ul className="mt-2 grid gap-1">
                     {baris.map((b) => (
-                      <li key={b}>
+                      <Fragment key={b}>
+                      <li>
                         <Link href={alamatBagian(b, sp.sekolah ? `sekolah=${encodeURIComponent(sp.sekolah)}` : undefined)}
                           className="flex min-h-[var(--control-md)] items-center justify-between gap-3 rounded-[var(--radius-1)] px-3 text-sm hover:bg-surface-2" data-bagian-ke={b}>
                           {judulBagian(b)}
@@ -2287,6 +2288,19 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                           <TandaTautan />
                         </Link>
                       </li>
+                      {/* B1-R3 (Daisy): the sign-in record, after «Jejak audit», for its readers only (a school's admin for that
+                          school, the Admin PINTAR), so nobody is offered a link that ends in a refusal */}
+                      {b === "audit" && (isSys === true || (satuSekolah ? adminInstitutionIds.includes(satuSekolah) : false)) ? (
+                        <li>
+                          <Link href="/konfigurasi/catatan-masuk"
+                            className="flex min-h-[var(--control-md)] items-center justify-between gap-3 rounded-[var(--radius-1)] px-3 text-sm hover:bg-surface-2" data-catatan-masuk-ke="">
+                            {s("akuntabilitas.judul")}
+                            <Ikon nama="chevron-right" />
+                            <TandaTautan />
+                          </Link>
+                        </li>
+                      ) : null}
+                      </Fragment>
                     ))}
                   </ul>
                 </section>

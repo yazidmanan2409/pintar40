@@ -172,6 +172,9 @@ function terjaga(sumber: string): Map<string, boolean> {
 
 /** The server-action files bound to a working context, and their actions exempt by name, each with its reason. */
 const AKSI_TERIKAT: Record<string, Record<string, string>> = {
+  // RESTATED, B2 (THE PLAN §5.2): «Cetak laporan»'s record; a class's or a school's report is of the active context's
+  // school (a learner's own results have no place, C1)
+  "src/app/laporan/cetak/actions.ts": {},
   "src/app/studio/actions.ts": {},
   "src/app/konfigurasi/actions.ts": {},
   "src/app/pendataan/actions.ts": { kemajuanAksi: "a re-read of the job's progress; it acts on nothing" },

@@ -16,6 +16,7 @@ import { INTERNAL_WORDS, t, type HleEvent } from "../src/lib/hle";
 import { bacaJawabanKartu } from "../src/components/masuk/kartu";
 import { bob26AppTests } from "./bob26.test";
 import { akunTerkunciAppTests } from "./akun-terkunci.test";
+import { b2AppTests } from "./b2-layar.test";
 import { bob27AppTests } from "./bob27.test";
 import { bob28AppTests } from "./bob28.test";
 import { bob29AppTests } from "./bob29.test";
@@ -3528,6 +3529,7 @@ export const appTests: SelfTest[] = [
   ...c1wLayarTests.filter((x) => x.id !== "C1W-K02"),
   // B1 · accountability events through the running app (every sign-in path, a failing writer, the reader)
   ...b1AppTests,
+  ...b2AppTests,
   // BOB-50 (D-082(d)): a single Uji Cepat issues no certificate, through the running app
   ...bob50AppTests,
   // BOB-51 (D-057, REL-08): «Kirim email uji», the platform admin's delivery proof, through the running app

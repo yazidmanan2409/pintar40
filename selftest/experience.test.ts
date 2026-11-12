@@ -2175,7 +2175,9 @@ export const experienceTests: SelfTest[] = [
       // against §3: who may be attached to whom, not a mark, a logo, a crest or a theme.
       // MOVED 237 -> 238, RESTATED, F1-R1b (owner, 12 Nov): 20270117140000 (a key correction withdraws the explanations it
       // makes stale; INV-03 amended). Read against §3: which explanation a question carries, not a logo, a crest or a theme.
-      c.expect(migrations.length === 238, `${migrations.length} migrations; the frozen baseline has 238`);
+      // MOVED 238 -> 239, RESTATED, B2 (THE PLAN §5.2): 20270117150000 (a printed report is owned by the schools whose
+      // evidence it shows). Read against §3: who a print belongs to, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 239, `${migrations.length} migrations; the frozen baseline has 239`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4037,7 +4039,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 235 -> 236, RESTATED, F-1 fix (Sharon §0), for 20270117120000 (session_review's rationale): no tour RPC.
       // MOVED 236 -> 237, RESTATED, L1-F4, for 20270117130000 (the attachment guard and its registry): no tour RPC.
       // MOVED 237 -> 238, RESTATED, F1-R1b, for 20270117140000 (the withdrawn explanation and its reference): no tour RPC.
-      c.expect(migs.length === 238, `${migs.length} migrations; the baseline has 238`);
+      // MOVED 238 -> 239, RESTATED, B2, for 20270117150000 (the person-scoped print and its one read): no tour RPC.
+      c.expect(migs.length === 239, `${migs.length} migrations; the baseline has 239`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

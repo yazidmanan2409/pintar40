@@ -40,7 +40,7 @@ export type HleEvent =
   | "akuntabilitas.rujukan_hilang"
   | "akuntabilitas.tidak_dikenal"
   | "akuntabilitas.benda"
-  | "akuntabilitas.ditolak"
+  | "akuntabilitas.ditolak" | "akuntabilitas.tanpa_sekolah" | "akuntabilitas.tidak_lengkap" | "akuntabilitas.tidak_lengkap.tautan"
   | "akuntabilitas.gagal"
   | "akuntabilitas.rujukan"
   | "akuntabilitas.jenis.sign_in_ok"
@@ -141,7 +141,7 @@ export type HleEvent =
   | "laporan.metrik.tidak_berlaku" | "laporan.sekolah.dasar_gerbang_tidak_berlaku" | "laporan.sekolah.dasar_gerbang_murid" | "ketiadaan.dilindungi.bab_pasangan.murid" | "ketiadaan.dilindungi.bab_pasangan.peserta" | "laporan.komposisi.awal_akhir_dilindungi" | "laporan.komposisi.keliru_tertahan" | "laporan.komposisi.keliru_belum" | "laporan.komposisi.keliru_kosong" | "mengajar.bukti.bagian_tertahan" | "hasil.safety.tidak_ada" | "pimpinan.kelas.bukti_saja" | "laporan.sekolah.ranah_tertahan_semua" | "laporan.komposisi.kenaikan_dari_pasangan" | "mengajar.murid1.dihitung_ulang" | "mengajar.murid1.dihitung_ulang_alasan" | "hasil.dihitung_ulang" | "hasil.review.kunci_terkini" | "map.kunci_terkini" | "laporan.kisi.arti_tanpa_target" | "laporan.kisi.arti_sebagian" | "laporan.kisi.kunci_sebagian"
   | "laporan.komposisi.topik_di_bawah_sebagian" | "laporan.komposisi.topik_di_bawah_banyak_sebagian" | "laporan.komposisi.topik_semua_sebagian" | "laporan.komposisi.topik_tertahan.satu" | "laporan.komposisi.topik_tertahan.banyak" | "laporan.komposisi.topik_tertahan_semua"
   | "laporan.kelas.judul" | "laporan.institusi.judul"
-  | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak" | "laporan.metrik.tanpa_nama" | "laporan.kelas.pd_arti"
+  | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak" | "laporan.cetak.kaki.resmi" | "laporan.cetak.kaki.peramban" | "laporan.cetak.kaki.pendek" | "laporan.cetak.gagal" | "laporan.cetak.ditolak" | "laporan.metrik.tanpa_nama" | "laporan.kelas.pd_arti"
   | "laporan.cakupan.kelas" | "laporan.cakupan.sekolah"
   // CONTOH LAPORAN (Daisy, approved 7 Nov): the report compositions' own sentences, composed from the figures below
   // them with no cause or advice; every figure keeps its existing label and meaning
@@ -3375,7 +3375,13 @@ const table: Table = {
   "akuntabilitas.rujukan_hilang": { default: "Referensi ini tidak ditemukan. Catatan cetak disimpan 12 bulan, sejak {tanggal}.", en: "This reference was not found. Print records are kept for 12 months, from {tanggal}." },
   "akuntabilitas.tidak_dikenal": { default: "pengenal tidak dikenal", en: "identifier not recognised" },
   "akuntabilitas.benda": { default: "catatan", en: "entries" },
-  "akuntabilitas.ditolak": { default: "Catatan masuk dan cetak hanya dibaca admin sekolah untuk sekolahnya, dan Admin platform.", en: "The sign-in and print record is read by a school's administrator, for their school, and by the platform administrator." },
+  // B1-R1 (Daisy, B2-ARCHITECT-NOTES.md §4): the platform's administrator by the product's name for the role
+  "akuntabilitas.ditolak": { default: "Catatan masuk dan cetak hanya dibaca admin sekolah untuk sekolahnya, dan Admin PINTAR.", en: "The sign-in and print record is read by a school's administrator, for their school, and by an Admin PINTAR." },
+  // B1-R2 (Daisy): in the platform's view, a row with no school
+  "akuntabilitas.tanpa_sekolah": { default: "tanpa sekolah", en: "no school" },
+  // B1-R4 (Daisy): the completeness notice, the platform's view only, when some sign-in or sign-out could not be recorded
+  "akuntabilitas.tidak_lengkap": { default: "Daftar ini mungkin tidak lengkap. Dalam 7 hari terakhir, PINTAR tidak dapat mencatat sebagian kejadian masuk atau keluar (terhitung {n}, terakhir {waktu}).", en: "This list may be incomplete. In the last 7 days, PINTAR could not record some sign-in or sign-out events ({n} counted, the last at {waktu})." },
+  "akuntabilitas.tidak_lengkap.tautan": { default: "Kesehatan sistem", en: "System health" },
   "akuntabilitas.gagal": { default: "Catatan belum dapat dibaca sekarang. Coba lagi sebentar lagi.", en: "The record cannot be read just now. Try again in a moment." },
   "akuntabilitas.rujukan": { default: "Referensi {ref}", en: "Reference {ref}" },
   "akuntabilitas.jenis.sign_in_ok": { default: "Masuk", en: "Signed in" },
@@ -3590,6 +3596,15 @@ const table: Table = {
   "laporan.kelas.judul": { default: "Ringkasan Kelas", en: "Class Summary" },
   "laporan.institusi.judul": { default: "Ringkasan Sekolah", en: "School Summary" },
   "laporan.cetak": { default: "Cetak laporan", en: "Print report" },
+  // B2 (THE PLAN §5.2 F; B2-COMPLETION.md §3): the official print's footer, one line, bottom-left
+  "laporan.cetak.kaki.resmi": { default: "Dicetak oleh {nama} · {waktu} · Ref. {ref}", en: "Printed by {nama} · {waktu} · Ref. {ref}" },
+  // B2, Daisy's lines (B2-ARCHITECT-NOTES.md §4 at 7d31ffda; Sharon's change 5): any other print names no person
+  "laporan.cetak.kaki.peramban": { default: "Dicetak dari browser · {waktu} (jam perangkat) · tanpa nomor referensi", en: "Printed from the browser · {waktu} (device clock) · no reference number" },
+  "laporan.cetak.kaki.pendek": { default: "Dicetak dari browser · tanpa nomor referensi", en: "Printed from the browser · no reference number" },
+  // B2 §3: the request could not be recorded, so nothing printed
+  "laporan.cetak.gagal": { default: "Cetakan belum dapat dicatat, jadi belum dicetak. Coba lagi.", en: "The print could not be recorded, so nothing was printed. Try again." },
+  // B2, engineer's draft for Daisy: a request the reader may not make (only a forged one reaches it)
+  "laporan.cetak.ditolak": { default: "Laporan ini tidak dapat dicetak dari akun Anda.", en: "This report cannot be printed from your account." },
   // E-C1-1/3: a measure whose name the copy table does not have yet (pending Dr Gladys)
   "laporan.metrik.tanpa_nama": { default: "Ukuran ini belum punya nama", en: "This measure has no name yet" },
   // W3.8 (RV-11): what a report's figures cover and when they were calculated, under its heading and on the paper

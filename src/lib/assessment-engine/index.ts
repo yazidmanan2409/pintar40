@@ -104,6 +104,21 @@ export async function myLearningHistory(db: EngineClient): Promise<AssignmentEnt
 }
 
 /**
+ * B2 (Sharon's change 3, ONE READ): the caller's own chapters as /belajar/hasil shows them, and the sittings each
+ * shows (hasil_belajar_sesi_saya, 20270117150000). A person-scoped print's schools are computed by the database from
+ * the same function, so the printed page and its record cannot disagree.
+ */
+export type BabTampil = {
+  learning_assignment_id: string;
+  keadaan: "SELESAI" | "BERJALAN" | "DITUTUP_AWAL";
+  pre_session: string | null;
+  post_session: string | null;
+};
+export async function myResultsShown(db: EngineClient): Promise<BabTampil[]> {
+  return rows<BabTampil>(await call(db, "hasil_belajar_sesi_saya"));
+}
+
+/**
  * D-195(4): whether one of the caller's OWN learning assignments is professional learning (jenis_belajar_saya,
  * 20270102100000): true, false for a school's curriculum, null for anything else or an unread answer.
  */
