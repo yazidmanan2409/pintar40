@@ -22,6 +22,12 @@
  *            finds the key wrong and walks the three steps with the exact counts, sees her own waiting state with no
  *            button; the second person confirms through the dialog; the results are recalculated; the teacher's report
  *            shows the result in force with its note, and the learner's result page shows it as current, corrected.
+ *   C1W-J02  C1w F-1 (O41-21; C1W-F1-CORRECTION.md §5.5): THE PLAN §8.5 journey 3 across the views the correction pass
+ *            corrects, through the running app: a class sits a Pemetaan Awal whose question is keyed wrongly; the key is
+ *            corrected and confirmed on the screens; the result in force, the class misconception figure («Bukti»),
+ *            the teacher's per-question evidence («Lihat per soal», with the original key said) and the learner's
+ *            reading map («Peta Bacaan») all mark it by the key in force, and agree. Commits a world of its own and
+ *            proves it removed.
  */
 import { randomBytes } from "node:crypto";
 import { spawnSync } from "node:child_process";
@@ -98,9 +104,10 @@ const pertama = (out: string, kunci: string) => new RegExp(`${kunci}=([^\\s|]*)`
  * Found by its names, so a run that died half-way is cleared by the next.
  */
 export type Dunia = { inst: string; kelas: string; course: string; uid: string; pid: string; nama: string };
-export function dunia(tag: string, judul: string, sk: Sekolah = SIKLUS): Dunia | string {
+export function dunia(tag: string, judul: string, sk: Sekolah = SIKLUS, paketSql?: string): Dunia | string {
   bersihkan();
-  const paket = `selftest.f13_paket(${lit(judul)}, 3, 2, false)`;
+  // paketSql: the package as a SQL expression, for a journey whose package carries more (C1W-J02); else the cycle's own
+  const paket = paketSql ?? `selftest.f13_paket(${lit(judul)}, 3, 2, false)`;
   const out = psql(`
     do $$ declare f record; v_i uuid; v_k5 uuid; v_par uuid; v_per uuid; v_k uuid; v_g uuid; v_u uuid; v_p uuid; v_e uuid; v_prog uuid; v_b uuid; v jsonb; begin
       perform set_config('app.seed_intent', 'synthetic', true);
@@ -190,6 +197,41 @@ export function unggah(inst: string, judul: string): string {
 export const soalDi = (course: string, awal: string) => psql(`select i.id from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id
   where m.course_id = ${lit(course)} and i.stem like ${lit(awal + "%")} order by i.created_at, i.id limit 1`);
 const paketDi = (course: string, q = "") => `/studio/paket/${course}${q}`;
+
+/** One more learner of a fixture's class (signs in as muridUji(t1)), made as dunia makes its own. Returns the Auth user. */
+export function tambahMurid(d: Dunia, t1: string): string {
+  return psql(`
+    do $$ declare v_u uuid; v_p uuid; v_e uuid; v_per uuid; v_prog uuid; begin
+      perform set_config('app.seed_intent', 'synthetic', true);
+      select n.academic_period_id into v_per from public.org_nodes n where n.id = ${lit(d.kelas)};
+      select e.programme_id into v_prog from public.enrollments e where e.person_id = ${lit(d.pid)} limit 1;
+      v_u := gen_random_uuid();
+      insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+                              confirmation_token, recovery_token, email_change_token_new, email_change)
+      values (v_u, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', ${lit(muridUji(t1).identitas)}, extensions.crypt(${lit(muridUji(t1).password)}, extensions.gen_salt('bf', 4)), now(),
+              '{"provider":"email","providers":["email"]}', jsonb_build_object('display_name', 'Murid C1W ' || ${lit(t1)}), now(), now(), '', '', '', '');
+      insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+      values (gen_random_uuid(), v_u, v_u::text, jsonb_build_object('sub', v_u::text, 'email', ${lit(muridUji(t1).identitas)}, 'email_verified', true), 'email', now(), now(), now());
+      select a.person_id into v_p from public.accounts a where a.auth_user_id = v_u;
+      update public.persons set display_name = 'Murid C1W ' || ${lit(t1)} where id = v_p;
+      update public.account_setup set state = 'COMPLETE', completed_at = now(), password_set_at = now(), name_confirmed_at = now()
+       where account_id = (select a.id from public.accounts a where a.auth_user_id = v_u);
+      insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status) values (v_p, ${lit(d.inst)}, v_per, v_prog, 'ACTIVE') returning id into v_e;
+      insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_e, ${lit(d.kelas)}, v_per);
+      perform set_config('app.seed_intent', '', true);
+      perform set_config('c1l.murid', v_u::text, false);
+    end $$;
+    select current_setting('c1l.murid');`).split("\n").pop() ?? "";
+}
+/** A package's misconception definitions, removed once nothing names them (the harness's; definitions are append-only). */
+export function hapusMiskonsepsi(kode: string[], inst: string): void {
+  psql(`begin; set local session_replication_role = replica;
+    delete from public.misconception_taxonomy where institution_id = ${lit(inst)} and code in (${kode.map(lit).join(", ")})
+      and not exists (select 1 from public.item_options o where o.institution_id = ${lit(inst)} and o.misconception_code = misconception_taxonomy.code);
+    commit;`);
+}
+/** A stretch of a page's text from a mark, for a failure's message. */
+const cuplik = (t: string, dari: string) => (t.indexOf(dari) >= 0 ? t.slice(t.indexOf(dari), t.indexOf(dari) + 500) : t.slice(0, 500));
 
 export const c1wLayarTests: SelfTest[] = [
   {
@@ -621,6 +663,151 @@ export const c1wLayarTests: SelfTest[] = [
           + "note and the correction's reason; the learner's result page shows 100% as current, marked recalculated, with «Hasil asli: 50%»; the class's assignment is on the corrected release");
       } finally {
         bersihkan();
+      }
+    },
+  },
+  {
+    id: "C1W-J02",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const asal = ctx.appUrl!;
+      const tag = randomBytes(3).toString("hex");
+      const TAG = tag.toUpperCase();
+      const kodeA = `F1J-A-${TAG}`, kodeB = `F1J-B-${TAG}`;
+      const remA = `Ulangi bacaan tentang pilihan A ${tag}.`, remB = `Ulangi bacaan tentang pilihan B ${tag}.`;
+      muat(ctx.repoRoot);
+      // the package: «Pertanyaan awal nomor 1» (X, a Pemetaan Awal question, so its remediation is the learner's reading map)
+      // keyed A where B is right; each of its options names a misconception of the package's own; the lesson has an objective
+      const paket = `jsonb_set(jsonb_set(jsonb_set(jsonb_set(selftest.f13_paket(${lit(`C1W layar f1 ${tag}`)}, 3, 2, false),
+          '{misconceptions}', jsonb_build_array(
+            jsonb_build_object('code', ${lit(kodeA)}, 'label', ${lit(`Keliru A ${tag}`)}, 'description', 'Memilih A pada soal ini.', 'remediation', ${lit(remA)}),
+            jsonb_build_object('code', ${lit(kodeB)}, 'label', ${lit(`Keliru B ${tag}`)}, 'description', 'Memilih B pada soal ini.', 'remediation', ${lit(remB)}))),
+          '{courses,0,modules,0,lessons,0,objective}', '{"statement": "Memahami pecahan senilai."}'),
+          '{courses,0,modules,0,lessons,0,items,0,options,0,misconception_code}', to_jsonb(${lit(kodeA)}::text)),
+          '{courses,0,modules,0,lessons,0,items,0,options,1,misconception_code}', to_jsonb(${lit(kodeB)}::text))`;
+      const d0 = dunia(tag, `C1W layar f1 ${tag}`, BOOT, paket);
+      if (!c.expect(typeof d0 !== "string", String(d0))) return c.verdict("");
+      const d = d0 as Dunia;
+      // ten more learners of the class: the first five more (with the fixture's own) choose B on X, the rest choose A
+      const lain = Array.from({ length: 10 }, (_, i) => `${tag}r${i}`);
+      const uid: string[] = [d.uid];
+      for (const t1 of lain) {
+        const u = tambahMurid(d, t1);
+        if (!c.expect(/^[0-9a-f-]{36}$/.test(u), `learner ${t1} was not made: ${u}`)) return c.verdict("");
+        uid.push(u);
+      }
+      const bersih = () => { bersihkan(); hapusMiskonsepsi([kodeA, kodeB], d.inst); };
+      let selesai = false;
+      try {
+        const rel = terbitkan(d.course, BOOT);
+        c.expect(psql(`select status from public.plp_releases where id = ${lit(rel)}`) === "PUBLISHED", "the package was not published");
+        const X = soalDi(d.course, "Pertanyaan awal nomor 1");
+        const v = sebagai(BOOT_GURU.identitas, `select 'LA=' || (x ->> 'learning_assignment') || '|PRE=' || (x ->> 'pre_assignment')
+          from public.assign_release(${lit(rel)}, ${lit(d.kelas)}, now(), null) x`);
+        const pre = pertama(v, "PRE"), la = pertama(v, "LA");
+        // the class sits its Pemetaan Awal: learners 0-5 choose B on X, 6-10 choose A; every other answer right
+        const sesi = uid.map((u, i) => pertama(sebagaiUid(u, `do $m$ declare s uuid; r record; begin
+            s := public.start_learning_session(${lit(pre)});
+            for r in select p.id, p.item_id from public.presented_items p where p.session_id = s order by p.position loop
+              perform public.record_answer(r.id, 1, case when r.item_id = ${lit(X)}
+                then selftest.f13_kunci_label(r.id, ${lit(i <= 5 ? "B" : "A")})
+                else selftest.f09_answer(r.id, true) end);
+            end loop;
+            perform public.finish_my_session(s);
+            perform set_config('c1l.sesi', s::text, false);
+          end $m$`, "select 'S=' || current_setting('c1l.sesi')"), "S"));
+        c.expect(sesi.every((s) => /^[0-9a-f-]{36}$/.test(s)), `the class's sittings: ${sesi.join(",")}`);
+        const guru0 = await masuk(asal, BOOT_GURU, `MENGAJAR:${d.inst}`);
+        if (!c.expect(typeof guru0 !== "string", String(guru0))) return c.verdict("");
+        const guru = guru0 as Komputer;
+        // before: the class figure names B's misconception (six), not A's
+        const b0 = teks(await (await guru.halaman(`/mengajar/${d.kelas}/bukti`)).text());
+        c.expect(b0.includes(`Keliru B ${tag}`) && !b0.includes(`Keliru A ${tag}`), `before the correction the class's misunderstandings did not name B's alone: «${cuplik(b0, "Pemahaman keliru")}»`);
+
+        // 1. the key correction, through the screens: the school's administrator proposes B, the head of department confirms
+        const admin0 = await masuk(asal, BOOT_ADMIN, `MENGELOLA:${d.inst}`);
+        if (!c.expect(typeof admin0 !== "string", String(admin0))) return c.verdict("");
+        const admin = admin0 as Komputer;
+        const q3 = new URLSearchParams({ pelajaran: "1", kunci: X, langkah: "3", baru: "B", alasan: ALASAN }).toString();
+        const f3 = formDengan(await (await admin.halaman(paketDi(d.course, `?${q3}`))).text(), "data-kunci-kirim", {});
+        if (c.expect(typeof f3 !== "string", `step 3: ${f3}`)) {
+          const r3 = await admin.kirim(paketDi(d.course), { form: f3 as Record<string, string> });
+          c.expect(/c1=KOREKSI_TERKIRIM/.test(ke(r3)), `the proposal: ${ke(r3)}`);
+        }
+        const koreksi = psql(`select id from public.key_corrections where item_id = ${lit(X)} and status = 'PENDING'`);
+        const kadep0 = await masuk(asal, BOOT_KADEP, `MENGELOLA:${d.inst}`);
+        if (!c.expect(typeof kadep0 !== "string" && /^[0-9a-f-]{36}$/.test(koreksi), `the second person or the proposal: ${String(kadep0)} ${koreksi}`)) return c.verdict("");
+        const kadep = kadep0 as Komputer;
+        const fk = formDengan(await (await kadep.halaman(`/studio/tinjau/kunci/${koreksi}`)).text(), "data-kunci-tegaskan", {});
+        if (c.expect(typeof fk !== "string", `the confirmation's form: ${fk}`)) {
+          const rk = await kadep.kirim(`/studio/tinjau/kunci/${koreksi}`, { form: fk as Record<string, string> });
+          c.expect(/hasil=ok/.test(ke(rk)), `the confirmation: ${rk.status} ${ke(rk)}`);
+        }
+
+        // 2. the result in force: every sitting superseded once; the six who chose B now 100%, the five who chose A 67%
+        const kini = psql(`select string_agg((select r.mastery::text from public.assessment_results r where r.id = public.hasil_terkini_id(s.id))
+            || '/' || (select count(*) from public.assessment_results r where r.session_id = s.id), ',' order by s.x)
+          from unnest(array[${sesi.map(lit).join(",")}]::uuid[]) with ordinality s(id, x)`);
+        const harapKini = [...Array(6).fill("1.0000/2"), ...Array(5).fill("0.6667/2")].join(",");
+        c.expect(kini === harapKini, `the results in force: ${kini}; expected ${harapKini}`);
+        const benarKini = kini.split(",").filter((x) => x.startsWith("1.0000")).length;
+
+        // 3. the class misconception figure: A's (five), not B's
+        const b1 = teks(await (await guru.halaman(`/mengajar/${d.kelas}/bukti`)).text());
+        c.expect(b1.includes(`Keliru A ${tag}`) && b1.includes(remA) && !b1.includes(`Keliru B ${tag}`),
+          `after the correction the class's misunderstandings: «${cuplik(b1, "Pemahaman keliru")}»`);
+
+        // 4. the teacher's per-question evidence: X answered rightly by the six, B shown as the key, the original key said
+        const h4 = await (await guru.halaman(`/mengajar/${d.kelas}/soal?penugasan=${pre}`)).text();
+        const blok = tersusun(h4).split(/<li\b[^>]*class="pin-sec pin-soal-baris"/).find((x) => x.includes("Pertanyaan awal nomor 1")) ?? "";
+        const tb = teks(blok);
+        const catatan = id("mengajar.soal.kunci_diperbaiki", "educator").replace("{asli}", "A");
+        c.expect(tb.includes(`${benarKini} dari 11 menjawab tepat`) && /class="pin-opsi-kunci"><span>B(<!-- -->)?\./.test(blok) && !/class="pin-opsi-kunci"><span>A(<!-- -->)?\./.test(blok)
+          && /data-kunci-diperbaiki/.test(blok) && tb.includes(catatan),
+          `the teacher's evidence of X: «${tb.slice(0, 500)}»`);
+        // ... and the five who chose A are the ones named as needing help on it
+        c.expect((tb.match(/Murid C1W [0-9a-f]{6}r[0-9] · A/g) ?? []).length === 5 && !/ · B\b/.test(tb.slice(tb.indexOf(id("mengajar.soal.bantuan", "educator")))),
+          `who needs help on X: «${tb.slice(tb.indexOf(id("mengajar.soal.bantuan", "educator")), tb.indexOf(id("mengajar.soal.bantuan", "educator")) + 400)}»`);
+
+        // 5. the reading map: the learner who chose B is not sent to B's remediation; one who chose A is sent to A's
+        const mw0 = await masuk(asal, muridUji(tag), "BELAJAR");
+        const mr0 = await masuk(asal, muridUji(lain[5]), "BELAJAR");
+        if (!c.expect(typeof mw0 !== "string" && typeof mr0 !== "string", `${String(mw0)} ${String(mr0)}`)) return c.verdict("");
+        const pw = teks(await (await (mw0 as Komputer).halaman(`/belajar/${la}/peta`)).text());
+        const pr = teks(await (await (mr0 as Komputer).halaman(`/belajar/${la}/peta`)).text());
+        c.expect(pw.includes("Memahami pecahan senilai.") && !pw.includes(remB) && !pw.includes(remA), `the reading map of a learner who chose B: «${cuplik(pw, "Memahami")}»`);
+        c.expect(pr.includes(remA) && !pr.includes(remB), `the reading map of a learner who chose A: «${cuplik(pr, "Memahami")}»`);
+
+        // all agreeing: the six right in force are the six the evidence counts and the six no figure or map calls mistaken
+        const sepakat = psql(`select count(*) filter (where public.nilai_jawaban_berlaku(s.id, ${lit(X)}, f.value) = 1)
+            || '|' || (select coalesce(sum(m.occurrences), 0) from public.service_cohort_misconceptions m where m.class_node_id = ${lit(d.kelas)} and m.misconception_code = ${lit(kodeB)})
+            || '|' || (select coalesce(sum(m.occurrences), 0) from public.service_cohort_misconceptions m where m.class_node_id = ${lit(d.kelas)} and m.misconception_code = ${lit(kodeA)})
+          from unnest(array[${sesi.map(lit).join(",")}]::uuid[]) s(id) join public.session_final_responses(s.id) f on f.item_id = ${lit(X)}`);
+        c.expect(sepakat === `${benarKini}|0|5`, `the result in force, the class figure and the marking agree: ${sepakat}; expected ${benarKini}|0|5`);
+        // the original marking stays readable
+        const asli = psql(`select string_agg(r.mastery::text, ',' order by r.mastery) from public.assessment_results r
+          where r.supersedes_result_id is null and r.session_id in (${lit(sesi[0])}, ${lit(sesi[6])})`);
+        c.expect(asli === "0.6667,1.0000", `the sealed results kept: ${asli}`);
+        const vonis = "§8.5 journey 3 across the views F-1 corrects, through the running app: a class of eleven sits a Pemetaan Awal whose X is keyed A "
+          + "where B is right (six choose B, five A); before, the teacher's class page names B's misconception; the school's administrator proposes B and "
+          + "the head of department confirms on the screens; every sitting gains one result in force (six 100%, five 67%), the sealed ones kept; the "
+          + "class page then names A's misconception with its remediation and not B's; «Lihat per soal» counts X right for the six, marks B as the key "
+          + "and says the original key was A, and names the five who chose A as needing help; the reading map of a learner who chose B sends them to "
+          + "neither remediation, and of one who chose A to A's; the result in force, the class figure and the marking agree; the journey's own "
+          + "world (class, package, misconceptions, sittings, places, roles) is removed afterwards and its absence counted";
+        bersih();
+        selesai = true;
+        const sisa = psql(`select (select count(*) from public.org_nodes where name = ${lit(`Kelas C1W ${tag}`)})
+          + (select count(*) from public.courses where title like ${lit(`C1W layar f1 ${tag}%`)})
+          + (select count(*) from public.misconception_taxonomy where code in (${lit(kodeA)}, ${lit(kodeB)}))
+          + (select count(*) from public.assessment_sessions s join public.persons p on p.id = s.person_id where p.display_name like ${lit(`Murid C1W ${tag}%`)})
+          + (select count(*) from public.memberships m join public.enrollments e on e.id = m.enrollment_id join public.persons p on p.id = e.person_id where p.display_name like ${lit(`Murid C1W ${tag}%`)})
+          + (select count(*) from public.role_assignments ra join public.org_nodes n on n.id = ra.scope_node_id where n.name like 'Kelas C1W %')`);
+        c.expect(sisa === "0", `the journey left ${sisa} row(s) of its own behind (class, package, misconceptions, sittings, places, roles)`);
+        return c.verdict(vonis);
+      } finally {
+        if (!selesai) { try { bersih(); } catch { /* the next run's dunia() clears it */ } }
       }
     },
   },

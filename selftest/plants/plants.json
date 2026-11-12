@@ -32,7 +32,7 @@
     },
     "db-bob04-gates": {
       "suite": "selftest.run_fable13()",
-      "control_green": 5,
+      "control_green": 17,
       "what": "BOB-04's whole learning cycle: a course carrying its pre-test and post-test, one assignment making both, the draw following the marks, INV-24 checked at assignment, every refusal's stable code, and a stranger refused the cycle; and the upload refusing a parallel group that spans both tests (D-040)"
     },
     "db-bob06-gates": {
@@ -583,6 +583,42 @@
       "gate": "db-bob04-gates",
       "expect_red": "F13-N03",
       "expect_detail": "a package whose groups span both tests answered"
+    },
+    {
+      "name": "bob04-10",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K01",
+      "expect_detail": "after the correction the class's misconceptions were F13K-B:6:6"
+    },
+    {
+      "name": "bob04-11",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K02",
+      "expect_detail": "who chose B were marked right (expected 6)"
+    },
+    {
+      "name": "bob04-12",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K02",
+      "expect_detail": "A:true:true,B:false:false"
+    },
+    {
+      "name": "bob04-13",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K03",
+      "expect_detail": "is still sent to B's remediation"
+    },
+    {
+      "name": "bob04-14",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K04",
+      "expect_detail": "session_misconceptions read F13K-B|F13K-B"
+    },
+    {
+      "name": "bob04-15",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K05",
+      "expect_detail": "read 5|5|11|0.4545"
     },
     {
       "name": "bob06-1",

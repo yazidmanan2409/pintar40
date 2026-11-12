@@ -2165,7 +2165,9 @@ export const experienceTests: SelfTest[] = [
       // MOVED 232 -> 233 for the bounded auth correction (owner, 11 Nov; 20270116130000: a locked account is locked until
       // one instant Auth can read; PIN recovery answers it as a wrong PIN). Read against §3: an account's lock, not a mark,
       // a logo, a crest or a theme.
-      c.expect(migrations.length === 233, `${migrations.length} migrations; the frozen baseline has 233`);
+      // MOVED 233 -> 234, RESTATED, F-1 (O41-21): C1w's correction pass (20270117100000: every view of a corrected answer
+      // marks it by the key in force). Read against §3: which answers count as right, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 234, `${migrations.length} migrations; the frozen baseline has 234`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4022,7 +4024,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 230 -> 231 for 20270116110000 (B1: the one job installer and its health read): no tour RPC.
       // MOVED 231 -> 232 for 20270116120000 (B1's correction: the reader's snapshot, the purge, the health read): no tour RPC.
       // MOVED 232 -> 233 for 20270116130000 (the auth correction: the lock's instant, PIN recovery of a locked account): no tour RPC.
-      c.expect(migs.length === 233, `${migs.length} migrations; the baseline has 233`);
+      // MOVED 233 -> 234, RESTATED, F-1 (O41-21), for 20270117100000 (the key in force in every view of a corrected answer): no tour RPC.
+      c.expect(migs.length === 234, `${migs.length} migrations; the baseline has 234`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

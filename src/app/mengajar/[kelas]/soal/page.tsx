@@ -31,6 +31,9 @@ export const dynamic = "force-dynamic";
  * sittings of this class's assignment for the class's teacher, and refuses
  * anyone else; a learner still working is not here. No time, device, attempt,
  * integrity signal or Question Health is read, so none can be shown.
+ *
+ * C1w F-1 (O41-21): every mark and the «Kunci» are the key in force; a question
+ * whose key a governed correction changed says so, with its original key.
  */
 export default async function SoalKelas({
   params,
@@ -97,6 +100,11 @@ export default async function SoalKelas({
                     </li>
                   ))}
                 </ul>
+                {q.key_corrected ? (
+                  <p className="pin-meta" data-kunci-diperbaiki="">
+                    {s("mengajar.soal.kunci_diperbaiki").replace("{asli}", q.options.filter((o) => o.was_key).map((o) => o.label).join(", "))}
+                  </p>
+                ) : null}
                 {perluBantuan.length === 0 ? (
                   <p className="pin-meta">{s("mengajar.soal.semua_tepat")}</p>
                 ) : (

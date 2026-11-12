@@ -1999,6 +1999,66 @@
       "proves": "BOB-04 (D-040). prepare_ingest_batch refuses a package whose two pre-test questions share their parallel groups with its two post-test questions: ok=false with ITEM_PARALLEL_CYCLE_MIXED and nothing else, at Soal rows 2, 3, 4 and 5 -- every question of those groups; the same package with separate groups prepares cleanly."
     },
     {
+      "id": "F13-K01",
+      "runner": "db",
+      "proves": "C1w F-1 (O41-21; docs/completion-4.1/C1W-F1-CORRECTION.md row 1), in the database, rolled back, against supabase/migrations/20270117100000_every_view_of_a_corrected_answer_marks_it_by_the_key_in_force.sql: over the official bootstrap school, a class of eleven sits a Pemetaan Awal whose question X is keyed A (sealed) and each of whose two options names a misconception of the package's own; six choose B, five A; the school's administrator proposes B and its head of department confirms. service_cohort_misconceptions (the source of the catalogue figure class.misconceptions) reads the key in force through kunci_berlaku_sesi: before, B's misconception for six learners and not A's; after, A's for five and not B's; metric_evaluate('class.misconceptions') as the class's teacher lists A's (5) and not B's."
+    },
+    {
+      "id": "F13-K02",
+      "runner": "db",
+      "proves": "C1w F-1 row 2, the same world: teacher_question_evidence marks each answer through nilai_jawaban_berlaku and each option's is_key by the key in force: after the correction X is answered rightly by the six who chose B, B is the key shown and A is was_key (the sealed key), the question says key_corrected; each of the six is marked right and each of the five wrong."
+    },
+    {
+      "id": "F13-K03",
+      "runner": "db",
+      "proves": "C1w F-1 row 3, the same world: reading_map's remediation join takes the chosen option as wrong by the key in force: before, a learner who chose B is sent to B's remediation; after, they are not, and a learner who chose A is sent to A's."
+    },
+    {
+      "id": "F13-K04",
+      "runner": "db",
+      "proves": "C1w F-1 row 4, the same world: session_misconceptions reads the key in force: before, B's for a learner who chose B; after, nothing for that learner and A's for one who chose A."
+    },
+    {
+      "id": "F13-K05",
+      "runner": "db",
+      "proves": "C1w F-1 row 5, the same world: service_item_statistics (the source of item.correctness_rate) counts an answer correct by the key in force of its sitting: X's correct count is 5 of 11 before and 6 of 11 (0.5455) after the correction."
+    },
+    {
+      "id": "F13-K06",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 3 for service_cohort_misconceptions: over the uncorrected world (before the correction) its rows, the class's and every other class's, are byte-identical to the same view with its key-in-force fragments put back to the sealed read it replaced (selftest.f13_kunci_segel, the fragments the migration's own check reverses); after the correction every other class is unchanged."
+    },
+    {
+      "id": "F13-K07",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 3 for teacher_question_evidence: before the correction its whole answer is byte-identical to the definition it replaced; after it, every question the correction did not reach reads byte-identically and carries no key_corrected or was_key."
+    },
+    {
+      "id": "F13-K08",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 3 for reading_map: before the correction the maps of a learner of each group are byte-identical to the definition it replaced."
+    },
+    {
+      "id": "F13-K09",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 3 for session_misconceptions: before the correction its rows for a learner of each group are byte-identical to the definition it replaced."
+    },
+    {
+      "id": "F13-K10",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 3 for service_item_statistics: before the correction X's row and every other question's are byte-identical to the definition it replaced; after it, every other question is unchanged."
+    },
+    {
+      "id": "F13-K11",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 2: the sealed question, its options and its release's content digest, every original result, presented question and response of the class's sittings are byte-identical after the correction and after every view above was read; the teacher reads a corrected sitting's chain through riwayat_hasil_sesi (SEALED 0.6667, then KEY_CORRECTED 1.0000, current); each sitting carries exactly one basis."
+    },
+    {
+      "id": "F13-K12",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 4: the live catalogue is still MC-10; class.misconceptions' definition rows in every catalogue version, the count of catalogues, MC-10's sources, calc_class_misconceptions' definition and its governing scope are as pinned on 2ea60c85, before the correction pass (definition, name, version and denominator unchanged)."
+    },
+    {
       "id": "BOB05-K01",
       "runner": "static",
       "proves": "BOB-05 (D-009). keluarPerangkatIni in the source file src/lib/keluar.ts, run against the real supabase-js with a recording fetch, asks Auth for POST /auth/v1/logout?scope=local and forgets this device's session, while the bare default sends scope=global; no other sign-out exists in src/, and /keluar and S15's keluarDariSesi both use it. A classroom card's session lives 60 minutes idle and an email account's 7 days (src/lib/sesi.ts), lookalike addresses are not cards, the address is read from @supabase/ssr's own cookie format whole and chunked, src/proxy.ts re-sends the auth cookies with that lifetime on every signed-in request, src/lib/supabase/server.ts applies it on sign-in and refresh, and supabase/config.toml's Auth idle backstop is 7 days."
@@ -5697,6 +5757,11 @@
       "id": "C1W-J01",
       "runner": "app",
       "proves": "C1w · the item workbench, the screens (docs/completion-4.1/batches/C1W-COMPLETION.md; Daisy's review TINJAUAN-A1-C1W Q5, Q6, §C1·N1, §C1·N2, the missing states, C1-B1, C1-B2, C1-R1..R5), selftest/c1w-layar.test.ts, read from the rendered html of the production build route by route, the journey «a wrong key, found and corrected» through the running app with no engineer: the author writes a question's key in the editor (mistyped); the package is approved, locked and published by the people whose steps they are; the class sits; the content owner walks «Perbaiki kunci jawaban»'s three steps with the exact counts and sees her own waiting state with no button; the second person finds it in «Antrean Tinjauan» and confirms through the dialog; the sitting keeps its sealed result and gains one result in force; the teacher's report shows the result in force with its note and reason; the learner's result page shows it as current, corrected, with the original; the class's assignment is on the corrected release"
+    },
+    {
+      "id": "C1W-J02",
+      "runner": "app",
+      "proves": "C1w F-1 (O41-21; C1W-F1-CORRECTION.md requirement 5), selftest/c1w-layar.test.ts, read from the rendered html of the production build route by route (/mengajar/[kelas]/bukti, /mengajar/[kelas]/soal, /belajar/[tugas]/peta), THE PLAN §8.5 journey 3 across the corrected views, through the running app with no engineer: in the official bootstrap school a class of eleven sits a Pemetaan Awal whose X is keyed A where B is right, each option naming a misconception of the package's own (six choose B, five A); before, the teacher's «Bukti» names B's misconception; the school's administrator proposes B on the three steps and the head of department confirms through the dialog; every sitting gains one result in force (six 100%, five 67%), the sealed ones kept; «Bukti» then names A's misconception with its remediation and not B's; «Lihat per soal» counts X right for the six, marks B as the key, says the original key was A (mengajar.soal.kunci_diperbaiki) and names the five who chose A; the reading map («Peta Bacaan») of a learner who chose B sends them to neither remediation, and of one who chose A to A's; the result in force, the class figure and the marking agree; the journey's committed world is removed and its absence counted."
     },
     {
       "id": "B1-K01",

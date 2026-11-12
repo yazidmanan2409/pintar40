@@ -52,8 +52,8 @@ const dbUrl = flag("db-url") ?? process.env.PINTAR_PLANT_DB_URL ?? process.env.D
 
 /**
  * A digest of everything a plant can plausibly change: function bodies,
- * columns, policies, the grants on tables, columns and functions, and the
- * triggers (public and auth; BOB-26). It is the
+ * columns, policies, the grants on tables, columns and functions, the
+ * triggers (public and auth; BOB-26) and the views' definitions (C1w F-1). It is the
  * harness's evidence that a mutation LANDED and, after the rollback, that it
  * is GONE — without asking each plant to describe itself, and without
  * trusting that a `replace()` found its match.
@@ -86,6 +86,11 @@ select md5(string_agg(x, '|' order by x)) from (
   select 'trg ' || t.tgrelid::regclass::text || '.' || t.tgname || ' ' || t.tgenabled::text
     from pg_trigger t join pg_class c on c.oid = t.tgrelid join pg_namespace n on n.oid = c.relnamespace
    where not t.tgisinternal and n.nspname in ('public', 'auth')
+  union all
+  -- C1w F-1: a view's definition is schema too (a plant that puts a view back to an earlier read moves nothing above)
+  select 'view ' || c.relname || ' ' || md5(pg_get_viewdef(c.oid))
+    from pg_class c join pg_namespace n on n.oid = c.relnamespace
+   where n.nspname = 'public' and c.relkind in ('v', 'm')
   union all
   -- BOB-50: the mode policy is data the lint treats as schema (which mode
   -- certifies), so a policy row that changes is a moved schema too

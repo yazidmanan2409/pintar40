@@ -84,6 +84,7 @@ export type HleEvent =
   | "studio.soal.ringkas" | "studio.soal.pelajaran_label" | "studio.soal.pelajaran_dari" | "studio.soal.posisi" | "studio.soal.buka" | "studio.soal.bacaan" | "studio.soal.gagal" | "studio.soal.pager_label"
   | "mengajar.bukti.per_soal" | "pelajaran.visual.pecahan" | "mengajar.soal.judul" | "mengajar.soal.arti" | "mengajar.soal.terkumpul" | "mengajar.soal.dari" | "mengajar.soal.tepat"
   | "mengajar.soal.kunci" | "mengajar.soal.bantuan" | "mengajar.soal.semua_tepat" | "mengajar.soal.kosong" | "mengajar.soal.tidak_dijawab" | "mengajar.soal.kembali"
+  | "mengajar.soal.kunci_diperbaiki"
   | "mengajar.ulang.judul"
   | "mengajar.ulang.arti"
   | "mengajar.ulang.murid"
@@ -3443,6 +3444,8 @@ const table: Table = {
   "mengajar.soal.dari": { default: "dari", en: "of" },
   "mengajar.soal.tepat": { default: "menjawab tepat", en: "answered rightly" },
   "mengajar.soal.kunci": { default: "Kunci", en: "Key" },
+  // C1w F-1 (O41-21): a question whose key was corrected is marked by the key in force; the original key is still said
+  "mengajar.soal.kunci_diperbaiki": { default: "Kunci soal ini sudah diperbaiki. Jawaban di sini dinilai dengan kunci yang berlaku sekarang; kunci aslinya {asli}.", en: "This question's key was corrected. The answers here are marked by the key in force now; its original key was {asli}." },
   "mengajar.soal.bantuan": { default: "Murid yang mungkin perlu bantuan pada soal ini", en: "Students who may need help with this question" },
   "mengajar.soal.semua_tepat": { default: "Semua yang mengumpulkan menjawab soal ini dengan tepat.", en: "Everyone who handed in answered this question rightly." },
   "mengajar.soal.kosong": { default: "Belum ada jawaban yang dikumpulkan untuk asesmen ini.", en: "No answers have been handed in for this assessment yet." },

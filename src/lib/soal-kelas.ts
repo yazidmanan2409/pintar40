@@ -15,10 +15,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Db = any;
 
-export type OpsiSoal = { label: string; body: string; is_key: boolean };
+/** is_key: the key in force (C1w F-1, O41-21); was_key, only where the question's key was corrected: the sealed key. */
+export type OpsiSoal = { label: string; body: string; is_key: boolean; was_key?: boolean };
 export type SoalKelas = {
   item_id: string; stem: string; stimulus: string | null; options: OpsiSoal[];
   presented: number; answered: number; right: number;
+  /** the question's key in force is not its sealed key (a governed correction) */
+  key_corrected?: boolean;
 };
 export type JawabanMurid = { item_id: string; chosen: string | null; right: boolean };
 export type MuridKelas = { person_id: string; name: string; answers: JawabanMurid[] };
