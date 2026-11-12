@@ -113,6 +113,58 @@ a request, not a printout.
   cannot disagree.
 - **Item 2 is a "what happens when things go wrong" case** found at review instead of in use.
 
+## 4 · Daisy's wording for B2 (12 Nov 2026; final unless she changes it at her visit)
+
+Her record: `docs/coordination/ux/completion-4.1/B2-MASUKAN.md` on `ux-1/daisy-experience` at
+`7c35b666ef7017e0bfb1748428419f38f93e2874`.
+
+**1 · The default browser print line (§3 item 5).** She agrees with Sharon: it names no person. She adds one marker
+so that the device's time cannot pass for PINTAR's record.
+
+- ID: `Dicetak dari browser · {waktu} (jam perangkat) · tanpa nomor referensi`
+- EN: `Printed from the browser · {waktu} (device clock) · no reference number`
+- Fallback: `Dicetak dari browser · tanpa nomor referensi` / `Printed from the browser · no reference number`
+- **How it is built, so a stale time can never print:** the stylesheet's default is the fallback line with no time;
+  `beforeprint` adds the device's time; the time is removed on `afterprint` **and** as soon as `window.print()`
+  returns (the same restore Sharon required for the official line). Format: the official line's formatter, followed by
+  WIB, WITA or WIT, or «UTC+h» if the device is outside Indonesia.
+- Her earlier line with «oleh {nama}» is marked superseded in her design document. The page's question about where
+  the name comes from no longer applies.
+
+**2 · The register.**
+
+| Item | Her input |
+|---|---|
+| B1-R1 | «… dan Admin PINTAR.» / «… and by an Admin PINTAR.» |
+| B1-R2 | Platform view only: a second line under the name in «Siapa» names the row's school or schools, joined with «, ». A row with no school says «tanpa sekolah» / «no school» (new key `akuntabilitas.tanpa_sekolah`). A line, not a column, to keep the table narrow and the phone layout intact. A school admin's view is unchanged |
+| B1-R3 | One entry after «Jejak audit» in «Staf dan akses», with the existing keys, **shown only to school admins and the platform admin**, so that a teacher is never offered a link that ends in a refusal |
+| B1-R5 | Drop the empty state's own «Hapus saringan»; no wording |
+| A print by a learner who has left, seen by the former school | No label. The reader never shows a person's status. The completion page mentions it so that no admin is surprised |
+
+**3 · The completeness notice (B1-R4).** Platform admin only; reads only Sharon's narrow function; a status banner
+above the filter; shown only when the count is above zero; absent if the count cannot be read, so that it claims
+nothing.
+
+- ID: «Daftar ini mungkin tidak lengkap. Dalam 7 hari terakhir, PINTAR tidak dapat mencatat sebagian kejadian masuk
+  atau keluar (terhitung {n}, terakhir {waktu}). Lihat [Kesehatan sistem].»
+- EN: «This list may be incomplete. In the last 7 days, PINTAR could not record some sign-in or sign-out events ({n}
+  counted, the last at {waktu}). See [System health].»
+- **Her question to the engineer:** a failed print write prints nothing and so leaves no gap. If the count includes
+  failed print writes, exclude them; if it cannot, the line says «sebagian kejadian» / «some events».
+
+**Chief Architect's notes.**
+- **THE PLAN is not edited.** §5.2 F carries the earlier browser line. THE PLAN is owner-approved and stays as
+  approved; B2's completion page records the replacement as a deviation, with Sharon's ruling and Daisy's wording as
+  its reason, exactly as B1's page recorded its two. If the owner prefers THE PLAN itself amended, that is the
+  owner's instruction to give.
+- **The notice says "in the last 7 days".** Sharon's function was specified as the count and the last instant. The
+  engineer makes the two agree: either the function counts over the window the sentence names, or the sentence
+  names the window the function counts. Whichever is chosen, the sentence must be true.
+- **B1-R3's visibility rule** is the kind of consequence the standing principle asks for: a link is not offered to
+  someone it will refuse.
+- **Daisy's one visit on B2's candidate** also covers S-1, at 390 and 320 px **and at the desktop sidebar**, because
+  one of S-1's rules hides a navigation item at every width.
+
 ## 2 · Log
 
 | Date | Entry |
@@ -121,3 +173,4 @@ a request, not a printout.
 | 12 Nov 2026 (06:06 UTC) | Owner approved the content rule, with boundaries preserved and no attribution of historical evidence by transfer. No open decision on B2 |
 | 12 Nov 2026 (06:07 UTC) | Sharon's specification of the transferred-learner test recorded |
 | 12 Nov 2026 (06:44 UTC) | Sharon: PASS on the L-1 fix; PASS on B2's page with five changes (§3). **B2 opened for build** |
+| 12 Nov 2026 (06:48 UTC) | Daisy's wording for B2 recorded (§4): the default print line naming no person, the register items, the completeness notice |
