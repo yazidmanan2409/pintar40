@@ -51,8 +51,10 @@
 1. **The request could not be recorded** (no reference). «Cetak laporan» does not open the print dialog, and the action's own result line says so: «Cetakan belum dapat dicatat, jadi belum dicetak. Coba lagi.» / «The print could not be recorded, so nothing was printed. Try again.» This is the existing `AksiLaporan` result-line pattern. **→ Sharon**
 2. **The browser's own Print (Ctrl+P), revised to the owner's direction of 9 Nov.** Only «Cetak laporan» records a print and gets a reference. A browser print is not audited, and its footer must not look as if it were. It keeps the name, time and pages, and says plainly that it has no reference, in the same quiet type:
 
-   > **ID:** `Dicetak dari browser oleh Bu Wulan Prasetyo · 9 Nov 2026, 14.05 WIB · tanpa nomor referensi`
-   > **EN:** `Printed from the browser by Bu Wulan Prasetyo · 9 Nov 2026, 14:05 WIB · no reference number`
+   > ~~**ID:** `Dicetak dari browser oleh Bu Wulan Prasetyo · 9 Nov 2026, 14.05 WIB · tanpa nomor referensi`~~
+   > ~~**EN:** `Printed from the browser by Bu Wulan Prasetyo · 9 Nov 2026, 14:05 WIB · no reference number`~~
+   >
+   > **Superseded 12 Nov 2026.** The browser line names no person: Sharon's ruling, `B2-ARCHITECT-NOTES.md` §3 item 5 at `24e3830d62ff3a7852b3aa76ca1b5053baad934d`. The replacement wording is in `B2-MASUKAN.md` §1. The name-and-time sentence below is superseded with it.
 
    - **No reference-shaped text at all** on a browser print: no «Ref.», no dash placeholder, no reference minted on render.
    - **The default state:** the footer above is the stylesheet's default. «Cetak laporan» replaces it with the referenced line only after the request is recorded. So a page printed any other way can never carry a reference.
