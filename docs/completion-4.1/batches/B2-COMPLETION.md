@@ -331,5 +331,18 @@ answer to a refused print. Only a forged request reaches it.
 
 ## 12 · Evidence on this commit
 
-To be filled from the pre-flight and CI on the pushed commit.
+**Sharon: PASS on `bfe949b11935763a8c8ed7b91f4adcdbcea93645`, conditional on its two runs** (her record on
+`claude/gracious-lamport-0m1qjr`, `B2-bfe949b11935763a8c8ed7b91f4adcdbcea93645.md`). **Both runs are green**, so the
+condition is met. Daisy's visit is still owed (review queue).
+
+| Check | Result |
+|---|---|
+| Whole local suite (fresh reset, fresh build) | 1125 passed, 0 failed, 0 skipped |
+| Planted defects | 169 of 169 (b2-1 new) |
+| CI's red-case job, run locally | 11 of 11 groups |
+| Lint, typecheck, build-identity | clean |
+| CI | run `43226752867`, success |
+| Journeys | run `43226758051`, success (journey 4's print step B2J) |
+
+*(Filled in the commit after B2, as F1-R1b's evidence was: the page cannot carry its own commit's runs.)*
 

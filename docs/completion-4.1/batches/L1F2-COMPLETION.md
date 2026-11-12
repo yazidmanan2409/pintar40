@@ -212,8 +212,21 @@ around the race. The delete's plant (`l1f2-1`) is an ordinary plant.
 
 ## Evidence on this commit
 
-*(Filled from the pre-flight of this commit; CI and journeys run ids after the push.)*
+**Pushed at `e27f4a77a10c7c448170bb2851462e4561daadf7`.** *(Filled in the next commit: a page cannot carry its own
+commit's runs.)*
 
 | Check | Result |
 |---|---|
 | Red first on `bfe949b11935763a8c8ed7b91f4adcdbcea93645` (migration taken out) | 9 of the 11 new or restated ids red. L1F2-A01 and AUTH-A02 are green on base, by design (above) |
+| Whole local suite (fresh reset, fresh build) | 1135 passed, 0 failed, 0 skipped |
+| Planted defects | 170 of 170 (l1f2-1 new) |
+| CI's red-case job, run locally | 11 of 11 groups |
+| Lint, typecheck, build-identity | clean |
+| CI | run `43248100218`, success |
+| Journeys | run `43248126094`, in progress when this was written; its result is in the review queue |
+
+**The first local pre-flight of this commit (before the push) was red,** and both causes were fixed before the push:
+- **F06-S01:** `recovery_grant_permit` and `password_write_permit` were redefined without repeating their revoke from
+  PUBLIC and grant to `service_role` in the same migration (ADR-0021). Both lines are now in it.
+- **B0-S01 to S04, B0-C01, B0-A04:** L1-F2's database suite made a platform admin of its own outside the per-case blocks
+  that are undone, so it outlived the suite, and B0 requires exactly one. The suite now uses the seeded platform admin.
