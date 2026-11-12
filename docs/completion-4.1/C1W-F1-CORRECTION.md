@@ -6,6 +6,21 @@
 
 ## 0 · What holds now (overrides anything below that differs)
 
+**A. F-1 has Sharon's PASS at `bc67f72a0e1c6bc39a2c16292f728080b12710d4`** (12 Nov 2026). Requirement 6 is met by the
+`session_review` fix; requirements 1 to 5 and her three judgments stand as verified on
+`4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. CI `43158752665` (second attempt, after a runner fault before any test)
+and journeys `43158756250` are successful on that commit. **Items 1, 2 and 6 below describe the block and are
+superseded by this item.**
+
+**B. The mandatory pre-promotion blocker of §1 is therefore met.** Daisy passed the teacher's screen on
+`4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`. What remains with her is not a gate: opening the learner's per-question
+disclosure for a corrected sitting, and whether the page should say anything where an explanation is absent.
+
+**C. One dependency is added by the Chief Architect.** C1w's key correction still leaves stale explanations on the
+corrected revision until F1-R1b is in (`C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md`). **C1w should not be
+promoted ahead of F1-R1b**, for the same reason it was not to be promoted ahead of F-1. No promotion is authorized;
+this records the dependency for when one is asked for.
+
 1. **Sharon: BLOCKED on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49`, for one reader:** the learner's own review,
    `session_review`, shows the sealed rationale beside the in-force mark. Requirements 1 to 5 are verified;
    requirement 6 is short by that reader.
@@ -337,3 +352,4 @@ text as it was sat.
 
 > **Correction to this log (12 Nov 2026, 03:45 UTC, read from the clock).** Entries dated 12 Nov after 01:45 UTC carried times that were estimated, not read from a clock, and several were later than the actual time. Those times have been removed. The order of the entries is correct.
 | 12 Nov 2026 (about 04:00 UTC) | Daisy: PASS on `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` for the teacher's screen and her L-1 confirmation. Her statement that no sitting screen shows a rationale is contradicted by the learner's result page (§9d). Her Studio finding raised to the owner as the second part of F1-R1 |
+| 12 Nov 2026 (06:33 UTC) | **Sharon: PASS for `session_review` at `bc67f72a0e1c6bc39a2c16292f728080b12710d4`; F-1 is PASS.** Tests F13-K13 to K15 and plant bob04-16 verified; a multi-select answer returns no rationale either way. The pre-promotion blocker is met; a promotion dependency on F1-R1b recorded |

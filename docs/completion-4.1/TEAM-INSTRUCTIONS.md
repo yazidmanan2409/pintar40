@@ -13,12 +13,12 @@
 |---|---|---|
 | B1 | **Closed.** Sharon PASS, Daisy PASS, CI `43110782265` and journeys `43110786290` green | `1fc719b5127313bf24084695fa30d7505e15b5d1` |
 | L-1, suspended sign-in correction | **Fix green: CI `43148422727` and journeys `43148426130` success.** For Sharon's recheck of the grant item alone | `916d12c01345816afcf567b40131e72b9857cf65` |
-| F-1, C1w correction pass | **Fix green: journeys `43158756250` and CI `43158752665` (second attempt) success.** For Sharon's recheck of the learner's review alone; Daisy opens the learner's disclosure | `bc67f72a0e1c6bc39a2c16292f728080b12710d4` |
+| F-1, C1w correction pass | **PASS (Sharon).** The pre-promotion blocker is met. Remaining with Daisy, not a gate: the learner's disclosure and any wording for an absent explanation | `bc67f72a0e1c6bc39a2c16292f728080b12710d4` |
 | L1-F2, a suspension covers accounts created after it | Design PASS (Sharon), three required points. **Released to build** after the L-1 fix closes; own commit; before Z; holds nothing | brief: `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0, §2a |
-| L1-F4, an anonymised person is terminal | Built; local, in pre-flight. **Not accepted until the two-connection race test passes** (may share L1-F2's setup). Sharon verifies historical against new live attachments | local `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` |
+| L1-F4, an anonymised person is terminal | **Pushed; CI and journeys running** (local pre-flight: 1101 passed, 164 of 164 planted defects, 11 of 11 groups). Not accepted until the two-connection race test passes | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` |
 | F1-R1b, a key correction clears stale explanations | Amended design PASS (Sharon). **Released to build**, after F-1's fix; own commit; before Z; holds nothing. Includes the INV-03 baseline amendment, its manifest entry and an ADR in the same commit | brief: `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §0, §3d |
 | S-1, phone drawer overflow | **Pushed.** Covered by the CI and journeys of the F-1 fix commit above it. Daisy verifies it with B2, at phone widths **and at the desktop sidebar**, because one rule hides a nav item at every width | `61a6dd3b19761dfc91e11ac4f9e0295b64a32c6e` |
-| B2 | **Completion page pushed, for Sharon's pre-build review.** Build opens when she has passed the L-1 fix, the F-1 fix and the page | page at `ca056423de67197b6b8ee9880085b2cb92661d00` |
+| B2 | Page updated with the owner's decision and Sharon's transferred-learner test. **Opens for build on Sharon's recheck of the L-1 fix and her pre-build review of the page** (F-1 is passed) | page at work-branch head `b21bec621a449e8d4d90ed646f7fb09c15dfc6f9` |
 
 Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `docs/completion-4.1/`.
 
@@ -144,3 +144,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (05:56 UTC) | Second Eye: document authority is verified (`C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §3e): amend INV-03 in the repository by §3d point 4; the new ADR takes the next number after 0024 and cites ADR-0019. No external copy is to be waited for |
 | 12 Nov 2026 (06:03 UTC) | F-1 fix is green. Consolidated status written: `STATUS-2026-11-12.md` |
 | 12 Nov 2026 (06:06 UTC) | Second Eye, Sharon: B2's learner own-results print is decided by the owner: the content rule (`B2-ARCHITECT-NOTES.md` §0 item 3 and §1). The transferred learner is the named case of the second test |
+| 12 Nov 2026 (06:33 UTC) | F-1 PASS. B2 now waits on two things, both Sharon's: the L-1 fix recheck (`916d12c01345816afcf567b40131e72b9857cf65`) and the pre-build review of B2's page (work-branch head `b21bec621a449e8d4d90ed646f7fb09c15dfc6f9`) |
