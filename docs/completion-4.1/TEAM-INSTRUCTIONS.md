@@ -12,13 +12,13 @@
 | Item | State | Commit |
 |---|---|---|
 | B1 | **Closed.** Sharon PASS, Daisy PASS, CI `43110782265` and journeys `43110786290` green | `1fc719b5127313bf24084695fa30d7505e15b5d1` |
-| L-1, suspended sign-in correction | **Fix green: CI `43148422727` and journeys `43148426130` success.** For Sharon's recheck of the grant item alone | `916d12c01345816afcf567b40131e72b9857cf65` |
-| F-1, C1w correction pass | **PASS (Sharon).** The pre-promotion blocker is met. Remaining with Daisy, not a gate: the learner's disclosure and any wording for an absent explanation | `bc67f72a0e1c6bc39a2c16292f728080b12710d4` |
-| L1-F2, a suspension covers accounts created after it | Design PASS (Sharon), three required points. **Released to build** after the L-1 fix closes; own commit; before Z; holds nothing | brief: `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0, §2a |
+| L-1, suspended sign-in correction | **CLOSED. Sharon PASS** (12 Nov). Residual L1-R2 goes with L1-F2 | `916d12c01345816afcf567b40131e72b9857cf65` |
+| F-1, C1w correction pass | **CLOSED. Sharon PASS** (12 Nov). Remaining with Daisy, not a gate: the learner's disclosure and any wording for an absent explanation | `bc67f72a0e1c6bc39a2c16292f728080b12710d4` |
+| L1-F2, a suspension covers accounts created after it | Design PASS. **Unblocked** (the L-1 fix has passed). Own commit; before Z. Also takes L1-R2 (delete outstanding password-write permits at locking) and builds the two-connection race setup that L1-F4 needs | brief: `SUSPENSION-COVERS-NEW-ACCOUNTS.md` §0, §2a |
 | L1-F4, an anonymised person is terminal | **Pushed; CI and journeys running** (local pre-flight: 1101 passed, 164 of 164 planted defects, 11 of 11 groups). Not accepted until the two-connection race test passes | `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2` |
 | F1-R1b, a key correction clears stale explanations | Amended design PASS (Sharon). **Released to build**, after F-1's fix; own commit; before Z; holds nothing. Includes the INV-03 baseline amendment, its manifest entry and an ADR in the same commit | brief: `C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md` §0, §3d |
 | S-1, phone drawer overflow | **Pushed.** Covered by the CI and journeys of the F-1 fix commit above it. Daisy verifies it with B2, at phone widths **and at the desktop sidebar**, because one rule hides a nav item at every width | `61a6dd3b19761dfc91e11ac4f9e0295b64a32c6e` |
-| B2 | Page updated with the owner's decision and Sharon's transferred-learner test. **Opens for build on Sharon's recheck of the L-1 fix and her pre-build review of the page** (F-1 is passed) | page at work-branch head `b21bec621a449e8d4d90ed646f7fb09c15dfc6f9` |
+| B2 | **OPEN FOR BUILD.** Pre-build PASS with five changes to carry on the page (`B2-ARCHITECT-NOTES.md` §3). Needs Daisy's wording for the default print line | page at `b21bec621a449e8d4d90ed646f7fb09c15dfc6f9` |
 
 Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `docs/completion-4.1/`.
 
@@ -145,3 +145,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (06:03 UTC) | F-1 fix is green. Consolidated status written: `STATUS-2026-11-12.md` |
 | 12 Nov 2026 (06:06 UTC) | Second Eye, Sharon: B2's learner own-results print is decided by the owner: the content rule (`B2-ARCHITECT-NOTES.md` §0 item 3 and §1). The transferred learner is the named case of the second test |
 | 12 Nov 2026 (06:33 UTC) | F-1 PASS. B2 now waits on two things, both Sharon's: the L-1 fix recheck (`916d12c01345816afcf567b40131e72b9857cf65`) and the pre-build review of B2's page (work-branch head `b21bec621a449e8d4d90ed646f7fb09c15dfc6f9`) |
+| 12 Nov 2026 (06:44 UTC) | **B2 is open.** Second Eye: carry Sharon's five changes onto B2's page (`B2-ARCHITECT-NOTES.md` §3), then build B2 under THE PLAN §5.2 with the full pre-flight; the order of B2 against F1-R1b, L1-F2 and L1-F4's race test is yours, but B2 is the batch and should not wait behind them. L1-F2 takes L1-R2. Daisy: the default print line that names no person (Sharon's ruling, item 5), with or without the time; and your B2 design input for the register R1 to R5 and the completeness notice. Sharon: one result review of B2 on its exact commit |

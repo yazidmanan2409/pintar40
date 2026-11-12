@@ -7,8 +7,11 @@
 
 ## 0 · What holds now
 
-1. **B2 opens for build** when Sharon has passed both the L-1 fix and the F-1 fix, and has passed B2's page in her
-   pre-build review.
+1. **B2 IS OPEN FOR BUILD (Chief Architect, 12 Nov 2026, 06:44 UTC).** Sharon has passed the F-1 fix
+   (`bc67f72a0e1c6bc39a2c16292f728080b12710d4`), the L-1 fix (`916d12c01345816afcf567b40131e72b9857cf65`) and B2's
+   page in her pre-build review (`b21bec621a449e8d4d90ed646f7fb09c15dfc6f9`), the last **with five changes that the
+   page must carry before the build relies on it** (§3). No further pre-build review is needed for them; she checks
+   them at the result review.
 2. **A learner's own-results print (the page's Q1): Sharon's content rule governs** (§1). The Chief Architect's
    suggestion of the learner's live schools is **superseded** by it.
 3. **The owner approved the content rule (12 Nov 2026).** The accountability event identifies the school or schools
@@ -87,6 +90,29 @@ state under "what else did that change": B1's reader then shows a school admin a
 longer at that school, which is correct and should not surprise the admin; the wording of that row is Daisy's if it
 needs any.
 
+## 3 · Sharon's pre-build review of B2's page: PASS on the design, with five changes (12 Nov 2026)
+
+Items 4, 7 and 8 of the engineer's prompt pass as written (B2-P01 to P05; the register R1 to R5; tests, plants, next
+state, the four questions and the inventory). "The dialog cancelled, the event stands" is confirmed: the event records
+a request, not a printout.
+
+| # | Item | Change required |
+|---|---|---|
+| 1 | The print action | **The requester the writer receives comes from the verified session on the server** (`auth.getUser()`), never from the request. "Own prints only" is only as strong as where that id comes from; the page states it. *Test (B2-P05):* a request carrying another user's id still writes as the session's user, or is refused |
+| 2 | The swap of the footer | `afterprint` does not fire reliably in every browser. If it does not, the referenced footer stays on screen and a later Ctrl+P prints the same reference on a second paper. **Also restore as soon as `window.print()` returns,** keeping `afterprint` as well. *Test:* with `afterprint` suppressed |
+| 3 | Q1, the content rule | *Wording:* use "each printed sitting's own `institution_id`" in §2 as in B2-P02; not "the institutions of those sessions' assignments". *Requirement:* **the writer computes the snapshot from the same database read that assembles the learner's results list,** not a second implementation. *Test:* the snapshot equals the set of schools on the rendered page, for the same learner and instant |
+| 5 | Q2, the default browser line | **Not reliable for the name.** A stale tab, after a sign-out and another person's sign-in elsewhere, would print a line naming the wrong person. **The default line names no person:** «Dicetak dari browser · {waktu} · tanpa nomor referensi». The device's time at `beforeprint`, with the device's zone, is acceptable because it claims no record; the short line without a time is the fallback if it clashes with the composition. **The wording is Daisy's** |
+| 6 | Q3, the completeness notice | `pintar_periksa_kesehatan()` is revoked from every client role and would hand the reader the whole health read. **One new definer function, gated on `is_system_admin()`, returning only the count and last instant of unrecorded accountability writes;** the notice reads that. The rest stands: platform only, qualified wording, no school named, a link to the health check. *Test:* refused to a school admin and to non-platform staff |
+
+**Chief Architect's notes.**
+- **Item 5 changes a line of approved UX.** THE PLAN §5.2 F adopted Daisy's browser line. Sharon's ruling is an
+  integrity one (a paper must not name someone who did not print it) and takes precedence over the composition; the
+  replacement wording is Daisy's, and she is asked for it before the footer is built. If she and Sharon cannot agree
+  a line, that comes to the owner; it is not expected.
+- **Item 3's requirement is the standing principle in small:** one reader of the truth, so the event and the paper
+  cannot disagree.
+- **Item 2 is a "what happens when things go wrong" case** found at review instead of in use.
+
 ## 2 · Log
 
 | Date | Entry |
@@ -94,3 +120,4 @@ needs any.
 | 12 Nov 2026 (04:05 UTC) | Sharon's ruling on the learner's own-results print recorded; the owner's choice put |
 | 12 Nov 2026 (06:06 UTC) | Owner approved the content rule, with boundaries preserved and no attribution of historical evidence by transfer. No open decision on B2 |
 | 12 Nov 2026 (06:07 UTC) | Sharon's specification of the transferred-learner test recorded |
+| 12 Nov 2026 (06:44 UTC) | Sharon: PASS on the L-1 fix; PASS on B2's page with five changes (§3). **B2 opened for build** |

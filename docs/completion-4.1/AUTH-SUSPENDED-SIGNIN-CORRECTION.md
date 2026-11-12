@@ -20,9 +20,17 @@ superseded it says so at that point and refers back to this list.*
    byte-identical; the accountability event records that outcome with no person and an empty school snapshot. **The
    test compares that response and row, field by field, with those of a genuinely expired grant.** (It does *not*
    record `MASUK_TIDAK_COCOK`; that expectation is withdrawn by Sharon.)
-7. State: BLOCKED by Sharon on `2ea60c85e4f855eca2175749c4270a170922ee33` for item 5 only. **The fix is pushed at
-   `916d12c01345816afcf567b40131e72b9857cf65`** (CI run `43148422727` and journeys run `43148426130` running at
-   03:41 UTC on 12 Nov); she rechecks that item alone when both are green. Daisy confirms in her F-1 visit; she is not a gate for this pass.
+7. **State: CLOSED. Sharon: PASS on `916d12c01345816afcf567b40131e72b9857cf65`** (12 Nov 2026) for the grant item;
+   her verified items on `2ea60c85e4f855eca2175749c4270a170922ee33` stand. CI `43148422727` and journeys
+   `43148426130` successful on that commit. Daisy confirmed the screens on
+   `4131d7a2cbd30df3f18603e66ec3f08b7c25ad49` (no screen changed since). The page carries its inventory, the
+   next-state row and the four questions. *(The earlier state, BLOCKED on item 5, is superseded.)*
+7a. **One residual on the register, L1-R2 (Sharon, non-blocking):** a password-write permit issued in the
+   milliseconds before a lock commits can still be spent within its one minute. Closing it is one line: `akun_kunci`
+   deletes the person's `password_write_permits` when it locks. **Taken with L1-F2,** which is reviewed by Sharon
+   and works in the same place. This answers the question of §6e.
+7b. **Promotion:** B1 was not to be promoted ahead of this correction; that condition is now met on the work branch.
+   The hosted check with one synthetic suspended account is still owed at the first promotion that carries it.
 8. Not in this pass: register L1-R1; finding L1-F2 (§6d), put to the owner; any other path found by the bounded
    search.
 
@@ -335,3 +343,4 @@ is the optional tidy-up of §6c). Raised so that it is decided, not assumed.
 | 12 Nov 2026 | L-1 fix committed locally by the engineer at `916d12c01345816afcf567b40131e72b9857cf65`, red first on `2ea60c85e4f855eca2175749c4270a170922ee33`, in full pre-flight. Bounded search reported one further gap, recorded as L1-F2 (§6d) and put to the owner |
 
 > **Correction to this log (12 Nov 2026, 03:45 UTC, read from the clock).** Entries dated 12 Nov after 01:45 UTC carried times that were estimated, not read from a clock, and several were later than the actual time. Those times have been removed. The order of the entries is correct.
+| 12 Nov 2026 (06:44 UTC) | **Sharon: PASS on `916d12c01345816afcf567b40131e72b9857cf65`. L-1 is closed.** Residual L1-R2 registered, to be taken with L1-F2 |
