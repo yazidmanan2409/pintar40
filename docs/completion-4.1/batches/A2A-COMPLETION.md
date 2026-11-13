@@ -1,6 +1,6 @@
 # A2a · Emergency containment and class scope for the emergency (completion page, before build)
 
-## State of change A (13 Nov, 22:35 UTC by `date -u`; kept here so that nothing depends on a session's memory)
+## State of change A (13 Nov, 22:45 UTC by `date -u`; kept here so that nothing depends on a session's memory)
 
 **Branches:**
 - `claude/a2a`: this page.
@@ -44,36 +44,6 @@
 - C1 and C2 are required.
 - She makes two additions to the exceptions, both listed under "What is open" below.
 
-**What is green:**
-- A2A-L02 and A2A-L03, each red with its plant.
-- The pins at 246.
-- Typecheck and lint.
-
-**What is red, and why:**
-- A2A-L01 has **76 breaches**, listed in `selftest/a2a-l01-c2-daftar.txt`. They come from commit 7's reading, which sees more than before, and they are **not yet read**. They include:
-  - `akhiri_pendaftaran`'s enrolment before its person, which is C1;
-  - `transfer_minta` and `transfer_request` (the transfer's enrolment key before its person key), and `import_advance`
-    and `handle_new_auth_user` (new rows): all from C1's sweep;
-  - `hitung_ulang_koreksi_kunci` under `finalize_session` (a person after the sitting);
-  - the account lifecycle reaching `auth_password_write_guard` through `akun_kunci`'s `auth.users` update, which does not
-    change the password;
-  - `schedule_maintenance`, the window class;
-  - upgrades on new enrolments (`tempatkan_murid`, `transfer_execute`);
-  - the permit finding (3 breaches).
-
-**What is open:**
-- **C1:** not built.
-  - `akhiri_pendaftaran` is to read the enrolment's person without a lock, then lock the person `FOR UPDATE`, then the
-    enrolment, re-checking that it names the same person.
-  - Proof: a race against `kenaikan_tetapkan` or `transfer_execute`, red on `main`, with a plant.
-  - The sweep comes first. `daftarkan_kembali` does not appear: it takes the person before its enrolment writes.
-- **C2's one-off list,** for reading: not yet produced.
-- **Sharon's two additions:**
-  - **Why no lifecycle act takes a persona `FOR UPDATE` while its evaluation session is open.** `audit_write`'s key
-    names the evaluator, not the persona. The persona's act holds only the persona's rows and the rows it acts on.
-    This page still has to say why no act on the evaluator takes one of those rows.
-  - **(C) cannot freeze while the window functions' "pending B1" exception stands.**
-
 **Sharon's ruling on the permit finding, and her two limits on convergence** (`A2A-CHANGE-A-PERMIT-KEY.md` on
 `claude/gracious-lamport-0m1qjr` at `4f4272c4`; relayed by the Chief Architect at 20:57 UTC; read it in full
 before continuing).
@@ -94,49 +64,40 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**Now (22:35 UTC): change A is complete at `2cea0564`, for the Chief Architect's freeze.**
-- **A2A-L01 is GREEN:** 225 writers of 745 functions, 0 breaches, every exception named.
-- **A2A-L02 to A2A-L06 are green:**
+**State at 22:45 UTC: CHANGE A IS FROZEN at `2cea0564dcc12bede2e3ab3cb63236fce4d0b89e`** (the Chief Architect, 22:44).
+Nothing more is pushed to `claude/a2a-change-a` unless he asks.
+
+**What is green, at `2cea0564`:**
+- **A2A-L01:** 225 writers of 745 functions, 0 breaches, every exception named, every plant reported.
+- **A2A-L02 to A2A-L06:**
   - L02, L03 and L04: each plant red;
   - L05: its plant reaches the sitting while the learner is held;
-  - L06: its plant shows that the attachment guard already orders the person first. Row 7 was not real; the line is
-    redundant and compatible.
-- **The pins are at 249,** and typecheck and lint are clean.
-- **No full pre-flight has been run.** None runs until the freeze.
-- **The register** (each is a named exception in A2A-L01, or has no breach):
-  - **REG-A2A-01:** two enrolments of one person at once. The likely fix is the trigger order.
-  - **REG-A2A-02:** the permit's `auth.users` `KEY SHARE` first, for the day PINTAR deletes auth users.
-  - **REG-A2A-03:** the person `FOR NO KEY UPDATE` (deferred; reference `claude/a2a-nokey`).
-  - **REG-A2A-04:** the race of `recompute_result` against `hitung_ulang_koreksi_kunci` (the fixture is not cheap).
-  - **REG-A2A-05, -06 and -07:** C2's one-off list, under the convergence rule. None touches A2a's objects, and none is
-    an A2A-L01 breach (the tables are unranked). They are:
-    - **-05:** `transfers` before the person in `transfer_execute`, against `transfer_authorize`, `transfer_reject` and
-      `transfer_terima`;
-    - **-06:** the institution's ID counter before the person (`import_advance`, `issue_institutional_id`);
-    - **-07:** `account_activation_grants` before the person (`handle_new_auth_user` against `hapus_data_pribadi`).
-- **Waiting on whom:**
-  - **The Chief Architect:** the freeze, then the PR and the dispatch.
-  - **Sharon:** whether to keep the redundant line from row 7 (her call; it is harmless as it stands).
+  - L06: its plant shows that the attachment guard orders the person first. Row 7 was not real.
+- **The migration pins are at 249** (migrations `20270118100000` to `20270118140000`), and typecheck and lint are clean.
 
-**Since the reading of the 76 (earlier):**
-- C1, the permit exception, Sharon's two additions and C2's one-off list are done (commits 8 to 10, below).
-- A2A-L01 is down to **63**. It is still red, waiting on Sharon's rulings on rows 3, 4, 11 and 13 of the table.
-- A2A-L02, L03 and L04 are green, each with its plant red.
-- The pins are at 247.
-- **Sharon has ruled on the 76** (`A2A-CHANGE-A-76-4530849f.md` at `a127a3ec`). Row 4's race does not deadlock on the current code (below, "Row 4 raced before the fix"), so Second Eye has stopped again, for her ruling on row 4. The other items of her ruling are listed there as still to build.
+**What is red:** nothing in change A's own tests. **No full pre-flight has been run.**
 
-**Remaining work on change A, in order:**
-1. **C1:** `akhiri_pendaftaran`, its race test and the sweep.
-2. **C2:** the one-off reading list. Enrollments are already ranked (commit 7).
-3. **Sharon's two additions** on this page.
-4. **The permit exception,** with its three conditions.
-5. **The rest of the 76 reports,** each classified under the two limits.
-6. Then update this block, with the time from `date -u`, and name change A's complete commit.
+**What is open:**
+- **Sharon's result review** of `2cea0564`, in progress.
+- **After her PASS, and only on the Chief Architect's word:** the full pre-flight, once, on exactly that commit.
+- **Then:** the PR and the dispatch, by the Chief Architect.
+- **Sharon's call:** keep or remove the redundant line from row 7 (harmless as it stands).
+
+**The register** (each is a named exception in A2A-L01, or has no breach):
+- **REG-A2A-01:** two enrolments of one person at once. The likely fix is the trigger order.
+- **REG-A2A-02:** the permit's `auth.users` `KEY SHARE` first, for the day PINTAR deletes auth users.
+- **REG-A2A-03:** the person `FOR NO KEY UPDATE`, deferred. Its reference is `claude/a2a-nokey`, which is never merged.
+- **REG-A2A-04:** the race of `recompute_result` against `hitung_ulang_koreksi_kunci`. Its fixture is not cheap.
+- **REG-A2A-05, -06 and -07:** C2's one-off list (none touches A2a's objects):
+  - **-05:** `transfers` before the person;
+  - **-06:** the institution's ID counter before the person;
+  - **-07:** `account_activation_grants` before the person.
+- **(C) cannot freeze** while the window functions' "pending B1" exception stands.
 
 **Waiting on whom:**
-- **Sharon:** nothing now. The permit finding is ruled.
-- **Second Eye:** the remaining work above, in a fresh session (this one is at its context limit).
-- **The Chief Architect:** the freeze, under the convergence rule. There is no pre-flight and no dispatch before it.
+- **Sharon:** the result review.
+- **The Chief Architect:** the word for the pre-flight, then the PR and the dispatch.
+- **Second Eye:** nothing in change A. A2b's page items are next.
 
 ## Before the build: what the checkpoint settled, and the design constraints
 
@@ -1039,4 +1000,20 @@ early. It is product-adjacent tooling.
 
 ## Friction (the owner's measure; one line, filled at the freeze)
 
-Duration —; full verification attempts —; avoidable rework —; defects caught in development or in acceptance: —.
+**Change A** (frozen at `2cea0564`):
+- **Duration:** about 18:20 to 22:35 UTC, about 4 h 15 min.
+- **Full verification attempts:** 0 so far. The one pre-flight follows Sharon's PASS.
+- **Avoidable rework:**
+  - The NO KEY draft branch was pushed before the instruction not to create it was read.
+  - Five engine defects were found late: first breach only, memo under a cycle cut, catalogue scan order, WHERE
+    sub-selects, and writes after PL/pgSQL words. The count went 3 → 76 → 0 in a second pass.
+  - Rows 7 and 4 were called real before they were raced. Row 7's line is redundant, and row 4's partner was corrected.
+  - A lint error was pushed (fixed in commit 12).
+  - The state block's time was once ahead of the clock.
+- **Defects caught in development:** all of them.
+  - the recovery path (commit 2);
+  - the finalize deadlock and its nine siblings (commit 3);
+  - C1 and its siblings (commit 8);
+  - rows 3 and 4 (commits 11 and 13);
+  - the five engine defects.
+- **Defects caught in acceptance:** none so far.
