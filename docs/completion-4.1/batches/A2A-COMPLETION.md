@@ -1,10 +1,10 @@
 # A2a · Emergency containment and class scope for the emergency (completion page, before build)
 
-## State of change A (13 Nov, 22:32 UTC by `date -u`; kept here so that nothing depends on a session's memory)
+## State of change A (13 Nov, 22:35 UTC by `date -u`; kept here so that nothing depends on a session's memory)
 
 **Branches:**
 - `claude/a2a`: this page.
-- `claude/a2a-change-a`: change A, built on `main` at `a6b47466`. Its head is `e959acdf`.
+- `claude/a2a-change-a`: change A, built on `main` at `a6b47466`. Its head is `2cea0564`.
 - `claude/a2a-nokey` (`289d4865`): the deferred register item's reference. It is left as it is (the Chief Architect will
   not delete it) and never merged.
 - `claude/a2a-l01` (`d748ef05`): superseded, left as it was pushed.
@@ -34,6 +34,10 @@
     - **A2A-L06 is the transfer request's race,** with a finding: row 7 was not real.
     - The pins are at 248.
 12. `e959acdf`: lint (an import).
+13. `2cea0564`: row 4 (Sharon, `A2A-CHANGE-A-ROW4-33a97fa4.md` at `53883ce5`). Migration `20270118140000`:
+    `recompute_result` takes the learner `FOR KEY SHARE`, then the sitting `FOR UPDATE`, as its first two locks.
+    - Its own commit, after row 3's, because commit 11 is pushed and is not rewritten.
+    - The race is REG-A2A-04. No deadlock is claimed.
 
 **Sharon's ruling on commits 3 and 4** (`A2A-CHANGE-A-C3C4-40753420.md` at `dbbf7fde`):
 - Nine of the ten commit-3 lines are accepted, along with A2A-L03 and commit 4.
@@ -90,17 +94,29 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**Now (22:32 UTC):**
-- **A2A-L01 has 1 breach:** row 4 (`recompute_result`). It is not reproduced as a deadlock, so it waits on Sharon (below,
-  "Row 4 raced before the fix").
-- **A2A-L02 to A2A-L06 are green.**
-  - L02, L03 and L04: each plant red.
-  - L05: its plant reaches the sitting while the learner is held.
-  - **L06: its plant does not deadlock.** The transfer's attachment guard (`orang_lampiran_jaga`, BEFORE INSERT) takes
-    the person `FOR SHARE` before the foreign keys. **Row 7 was not real,** and commit 8's line in `transfer_minta` and
-    `transfer_request` is redundant (`KEY SHARE`, then `SHARE`: compatible). For Sharon: keep the line, or remove it.
-- **Waiting on Sharon:** row 4, and the L06 finding.
-- **Then:** Second Eye names change A's complete commit.
+**Now (22:35 UTC): change A is complete at `2cea0564`, for the Chief Architect's freeze.**
+- **A2A-L01 is GREEN:** 225 writers of 745 functions, 0 breaches, every exception named.
+- **A2A-L02 to A2A-L06 are green:**
+  - L02, L03 and L04: each plant red;
+  - L05: its plant reaches the sitting while the learner is held;
+  - L06: its plant shows that the attachment guard already orders the person first. Row 7 was not real; the line is
+    redundant and compatible.
+- **The pins are at 249,** and typecheck and lint are clean.
+- **No full pre-flight has been run.** None runs until the freeze.
+- **The register** (each is a named exception in A2A-L01, or has no breach):
+  - **REG-A2A-01:** two enrolments of one person at once. The likely fix is the trigger order.
+  - **REG-A2A-02:** the permit's `auth.users` `KEY SHARE` first, for the day PINTAR deletes auth users.
+  - **REG-A2A-03:** the person `FOR NO KEY UPDATE` (deferred; reference `claude/a2a-nokey`).
+  - **REG-A2A-04:** the race of `recompute_result` against `hitung_ulang_koreksi_kunci` (the fixture is not cheap).
+  - **REG-A2A-05, -06 and -07:** C2's one-off list, under the convergence rule. None touches A2a's objects, and none is
+    an A2A-L01 breach (the tables are unranked). They are:
+    - **-05:** `transfers` before the person in `transfer_execute`, against `transfer_authorize`, `transfer_reject` and
+      `transfer_terima`;
+    - **-06:** the institution's ID counter before the person (`import_advance`, `issue_institutional_id`);
+    - **-07:** `account_activation_grants` before the person (`handle_new_auth_user` against `hapus_data_pribadi`).
+- **Waiting on whom:**
+  - **The Chief Architect:** the freeze, then the PR and the dispatch.
+  - **Sharon:** whether to keep the redundant line from row 7 (her call; it is harmless as it stands).
 
 **Since the reading of the 76 (earlier):**
 - C1, the permit exception, Sharon's two additions and C2's one-off list are done (commits 8 to 10, below).
