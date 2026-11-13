@@ -8,6 +8,8 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| C3w R-3, a checkable design (early, for the pre-build review) | Five controls with tests and plants; the common-names rule proposed (IDENTIFIER, NAME of learners the educator can see, LIST shape); usability evidence required before acceptance | — | `C3W-R3-DESIGN.md` |
+| Register tests F1R1B-R1, B2-R-S1 | One-line specifications | — | `REGISTER-TESTS-F1R1B-R1-B2-R-S1.md` |
 | Staging checkpoint, the boundary candidate's delta | **BLOCKED on one item**: the clean-up must run on a stop (item 1's scratch job; S's suspension). Bob's five questions answered; the session-pooler fallback **does** satisfy item 2 | `55e7eed9573d7396973b48665cd9d67a048da5bf` | `CHECKPOINT-BOUNDARY-55e7eed9573d7396973b48665cd9d67a048da5bf.md` |
 | Staging checkpoint, the promotion evidence (runbook step 3) | **PASS**; four open points ruled; two lines required on the rollback header and page (app and database go back together; what a rollback re-opens) | `d8db82bde8d7a47e9936a34fd21686ca11adb472` (with `8f27ff25…`) | `CHECKPOINT-EVIDENCE-d8db82bde8d7a47e9936a34fd21686ca11adb472.md` |
 | Staging checkpoint, §5b item 5 (owner's question) | **Yes: a scratch-target restore satisfies item 5**, under five conditions; the hosted restore's own behaviour is recorded as a known limit | `152ecea939f780e7c5038f81229fac61879707ce` (planning branch) | `CHECKPOINT-ITEM5-152ecea939f780e7c5038f81229fac61879707ce.md` |
