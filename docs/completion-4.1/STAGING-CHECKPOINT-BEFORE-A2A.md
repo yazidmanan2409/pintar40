@@ -345,6 +345,22 @@ permitted re-run of that job.
 **Sharon is asked now, before anything is built, to add anything else she can see** in the script, the workflow or
 the page. Second Eye builds to the combined list. The review after the push is then a confirmation against it.
 
+**Sharon's final list (05:00 UTC; `CHECKPOINT-FINAL-LIST-a33c852877686bdd54353c63dfcd995e1c902110.md`,
+`claude/gracious-lamport-0m1qjr` at `778a68bf6d8ab657b36614ed5df6c3ea24081ef5`). She read the script, the workflow and the page whole, with the
+database functions the run calls. Her file is the specification; Second Eye builds to it, and her review after the
+push confirms against it item by item.**
+- Items 1 to 4 above stand, two sharpened: **item 2 also covers line 42** (a recovery sets `person_pins.reset_required`
+  and the helper sets a new PIN; the exclusion carries the person id for line 42 and the Auth user id for 44 and 45);
+  **item 1's `always()` step cannot reinstate S or L** (no session, and no direct write is allowed), so it lists any
+  suspension left open with this run's note and fails the job; that repair is the owner's.
+- **S1:** the app's build is checked again after the last step, and the workflow refuses if `main`'s head is not the
+  dispatched commit.
+- **S2:** an Auth rate limit is recorded `RETRY`, not `DIFFERS`, and stops through the exit path. The Chief Architect
+  reads staging's rate-limit settings before dispatching.
+- **S3:** step 1g unschedules the scratch job first, before any read.
+- Read whole and found sound, not reopened at the confirmation: the step order; the health read; the lock test; 3.3b's
+  effects; item 4's paths; a too-early dispatch stopping at A1.
+
 **After the push:** the Chief Architect moves the frozen branch to that commit and dispatches its CI and journeys
 there. The work branch is not pushed to until Second Eye's own runs on it have finished.
 
@@ -378,3 +394,4 @@ not in the boundary (A2b's page and what follows).
 | 13 Nov 2026, 03:16 | Sharon BLOCKED the boundary candidate `55e7eed9573d7396973b48665cd9d67a048da5bf` on one item: no clean-up on a stop (the scratch job; the suspended teacher account). Her other five answers stand, including that the session-pooler fallback satisfies item 2. My "no blocker" corrected. Fix with Second Eye |
 | 13 Nov 2026, 04:23 | Clean-up fix pushed at `a33c852877686bdd54353c63dfcd995e1c902110`. Boundary frozen at it on `promote/4.1-staging-checkpoint`; CI and journeys dispatched there by the Chief Architect, because the engineer's runs on that commit were cancelled by the next push. With Sharon for the clean-up delta |
 | 13 Nov 2026, 04:57 | `a33c852877686bdd54353c63dfcd995e1c902110`: CI green; journeys job B failed again on the port, with the reservation in place (re-run queued). Sharon BLOCKED on two small items (cancel or timeout; password recovery against preservation). My read adds a third (the app's build is never checked). One consolidated fix specified (§3h); Sharon asked to add to it before the build |
+| 13 Nov 2026, 05:00 | Sharon's final list recorded: her whole-script read, before any build. Second Eye builds to it in one commit |
