@@ -254,8 +254,25 @@ export function semuaKunci(kat: Katalog): Map<string, Kunci[]> {
   return semua;
 }
 
+/** Tables whose rows are never deleted, each with the trigger that refuses it (checked against the catalogue). */
+export const TIDAK_DIHAPUS: Record<string, string> = { persons: "persons_no_delete" };
+/**
+ * A foreign key's FOR KEY SHARE conflicts only with FOR UPDATE and with a delete. On a table that no writer locks FOR
+ * UPDATE and nothing deletes from, it can never wait, so it is not a breach (the NO KEY UPDATE draft, A2a's page §6).
+ * Computed from the catalogue every run: one FOR UPDATE added anywhere on that table puts every such report back.
+ */
+export function kunciKunciAman(kat: Katalog, semua: Map<string, Kunci[]>): Set<string> {
+  const aman = new Set<string>();
+  for (const [t, pemicu] of Object.entries(TIDAK_DIHAPUS)) {
+    const dijaga = (kat.pemicu.get(`${t}|D|B`) ?? []).includes(pemicu);
+    const terkuat = Math.max(0, ...[...semua.values()].flat().filter((x) => x.t === t).map((x) => x.kuat));
+    if (dijaga && terkuat < 3) aman.add(t);
+  }
+  return aman;
+}
+
 /** The first breach of a list: a row taken before the fence, out of order, or an upgrade. */
-export function pelanggaran(l: Kunci[]): string | null {
+export function pelanggaran(l: Kunci[], aman: Set<string> = new Set()): string | null {
   const pagar = l.findIndex((x) => x.t === "FENCE");
   if (pagar > 0) {
     const sebelum = l.slice(0, pagar).find((x) => !(x.t in URUTAN) || URUTAN[x.t] > SIKLUS_HIDUP);
@@ -265,11 +282,14 @@ export function pelanggaran(l: Kunci[]): string | null {
   const kuat = new Map<string, Kunci>();
   for (const x of l) {
     if (!(x.t in URUTAN)) continue;
+    if (x.kuat === 0 && aman.has(x.t)) continue;   // a KEY SHARE that cannot wait (above)
     const r = URUTAN[x.t];
     if (r < puncak) return `${x.t} (rank ${r}) after ${di!.t} (rank ${puncak}) — via ${x.lewat}; earlier via ${di!.lewat}`;
     if (r > puncak) { puncak = r; di = x; }
     const s = kuat.get(x.t);
-    if (s && x.kuat > s.kuat && s.kuat < 2) return `an upgrade on ${x.t}: strength ${s.kuat} via ${s.lewat}, then ${x.kuat} via ${x.lewat}`;
+    // an upgrade deadlocks when it strengthens to NO KEY UPDATE or more (shown on two connections, A2a's page §6:
+    // KEY SHARE then FOR SHARE past a FOR UPDATE waiter did not; KEY SHARE then FOR UPDATE, twice at once, did)
+    if (s && x.kuat >= 2 && s.kuat < 2) return `an upgrade on ${x.t}: strength ${s.kuat} via ${s.lewat}, then ${x.kuat} via ${x.lewat}`;
     if (!s || x.kuat > s.kuat) kuat.set(x.t, x);
   }
   return null;
@@ -286,7 +306,8 @@ export function bacaUrutan(db: string, tanam = "") {
   const kat = bacaKatalog(db, tanam);
   const semua = semuaKunci(kat);
   const salah: string[] = [];
-  for (const [fn, l] of semua) { const v = pelanggaran(l); if (v && !dikecualikan(kat, fn, v)) salah.push(`${fn}: ${v}`); }
+  const aman = kunciKunciAman(kat, semua);
+  for (const [fn, l] of semua) { const v = pelanggaran(l, aman); if (v && !dikecualikan(kat, fn, v)) salah.push(`${fn}: ${v}`); }
   const disebut = (b: string) => Object.keys(URUTAN).some((t) => t !== "FENCE" && new RegExp(`\\b${t.replace(".", "\\.")}\\b`).test(b));
   const dinamis = [...kat.fns].filter(([, bs]) => bs.some((b) => /\bexecute\b/.test(bersih(b)) && disebut(bersih(b)))).map(([f]) => f);
   return { fungsi: [...kat.fns.values()].reduce((n, b) => n + b.length, 0), menyentuh: semua.size, salah, dinamis, semua, kat };
@@ -334,6 +355,32 @@ async function balapanPemulihan(db: string, u: string, p: string, pid: string) {
     psql1(db, `delete from public.password_write_permits where auth_user_id = '${u}' and purpose = 'RECOVERY';
       delete from public.password_recovery_grants where token_hash = '${hash}';
       delete from public.recovery_ladder where typed_id = '${pid}';`);
+  }
+}
+
+// ── A2A-L03 (the NO KEY UPDATE draft): a sitting finalized while its learner is suspended. A takes the locks
+// finalize_session takes, in its order: the sitting FOR UPDATE, then the result row's foreign key to the learner (FOR KEY
+// SHARE, spelled out). B is the real tangguhkan_akun of that learner, as a platform admin (rolled back). On main's code
+// this deadlocked ("deadlock detected"; A2a's page §6); with the lifecycle acts taking FOR NO KEY UPDATE it must not.
+async function balapanSelesaiTangguh(db: string) {
+  const { psqlLain, tidur } = await import("./balapan");
+  const [s, l, st] = psql1(db, `select s.id || '|' || s.person_id || '|' || s.status from public.assessment_sessions s
+    join public.persons p on p.id = s.person_id join public.accounts a on a.person_id = p.id
+    where p.anonymized_at is null and not public.orang_ditangguhkan(p.id) order by s.created_at limit 1`).split("|");
+  const sa = psql1(db, `select u.id from auth.users u join public.accounts a on a.auth_user_id = u.id join public.role_assignments r
+    on r.person_id = a.person_id where r.role = 'SYSTEM_ADMIN' and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until limit 1`);
+  if (!s || !sa) throw new Error("no sitting, or no platform admin, to race with");
+  // an open sitting for the suspension to hold: the fixture's own, put back exactly afterwards
+  psql1(db, `begin; set local session_replication_role = replica; update public.assessment_sessions set status = 'IN_PROGRESS' where id = '${s}'; commit;`);
+  try {
+    const a = psqlLain(`begin; select 1 from public.assessment_sessions where id = '${s}' for update; select pg_sleep(2);
+      select 1 from public.persons where id = '${l}' for key share; commit;`);
+    await tidur(700);
+    const b = psqlLain(`begin; set local request.jwt.claims = '{"sub":"${sa}","role":"authenticated"}';
+      select public.tangguhkan_akun('${l}', 'ADMINISTRATIVE', 'A2A-L03: a race, rolled back'); rollback;`);
+    return await Promise.all([a, b]);
+  } finally {
+    psql1(db, `begin; set local session_replication_role = replica; update public.assessment_sessions set status = '${st}' where id = '${s}'; commit;`);
   }
 }
 
@@ -397,6 +444,20 @@ export const a2aL01Tests: SelfTest[] = [
       c.expect(psql1(db, `select count(*) from public.password_write_permits where auth_user_id = '${u}' and purpose = 'RECOVERY'`) === "0",
         "the test left a permit behind");
       return c.verdict(`Auth's recovery password write went through in ${r.dua.ms} ms while A held the person; with the plant it waited and timed out`);
+    },
+  },
+  {
+    // A2A-L03 — DRAFT (claude/a2a-nokey): the suspension no longer deadlocks with a sitting being finalized
+    id: "A2A-L03",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const db = process.env.SUPABASE_DB_URL!;
+      const [a, b] = await balapanSelesaiTangguh(db);
+      c.expect(!/deadlock detected/i.test(a.err + b.err), `a deadlock: ${a.err || b.err}`);
+      c.expect(a.ok, `the finalize's locks did not complete: ${a.err}`);
+      c.expect(b.ok, `the suspension did not complete: ${b.err}`);
+      return c.verdict(`no deadlock: the finalize's locks went through in ${a.ms} ms, and the suspension waited for the sitting and completed in ${b.ms} ms`);
     },
   },
 ];

@@ -1,0 +1,24 @@
+# A2A-L01 with the NO KEY UPDATE draft applied (claude/a2a-nokey), 13 Nov 2026: the breaches that remain, one per line.
+# Classified on A2a's page §6. Regenerate: npx tsx scripts/dev/a2a-l01-laporan.ts --salah
+akhiri_pendaftaran: persons (rank 1) after assessment_sessions (rank 9) — via akhiri_pendaftaran > [enrollments U] enrollments_programme_alone; earlier via akhiri_pendaftaran > tutup_asesmen_terbuka > session_enforce_deadline > pengerjaan_putus_tenggat
+aktifkan_kembali_akun: auth.users (rank 4) after accounts (rank 5) — via aktifkan_kembali_akun > akun_kunci > sesi_akhiri_orang; earlier via aktifkan_kembali_akun > akun_kunci
+akun_kunci: auth.users (rank 4) after accounts (rank 5) — via akun_kunci > sesi_akhiri_orang; earlier via akun_kunci
+auth_card_email_guard: auth.users (rank 4) after accounts (rank 5) — via auth_card_email_guard > sesi_akhiri_orang; earlier via auth_card_email_guard
+authorize_card_conversion: persons (rank 1) after accounts (rank 5) — via authorize_card_conversion > [card_conversions I] orang_lampiran_jaga > orang_dianonimkan; earlier via authorize_card_conversion
+authorize_card_reissue: persons (rank 1) after accounts (rank 5) — via authorize_card_reissue > [card_reissues I] orang_lampiran_jaga > orang_dianonimkan; earlier via authorize_card_reissue
+authorize_email_correction: persons (rank 1) after accounts (rank 5) — via authorize_email_correction > [email_corrections I] orang_lampiran_jaga > orang_dianonimkan; earlier via authorize_email_correction
+buka_kembali_akun: auth.users (rank 4) after accounts (rank 5) — via buka_kembali_akun > akun_kunci > sesi_akhiri_orang; earlier via buka_kembali_akun > akun_kunci
+finalize_session: an upgrade on assessment_sessions: strength 0 via finalize_session, then 3 via finalize_session > [assessment_results I] koreksi_kunci_saat_selesai > hitung_ulang_koreksi_kunci
+handle_new_auth_user: persons (rank 1) after auth.users (rank 4) — via handle_new_auth_user > [accounts I] akun_baru_terkunci; earlier via handle_new_auth_user
+hapus_data_pribadi: persons (rank 1) after account_requests (rank 2) — via hapus_data_pribadi; earlier via hapus_data_pribadi
+kenaikan_tetapkan: persons (rank 1) after assessment_sessions (rank 9) — via kenaikan_tetapkan > [enrollments U] enrollments_programme_alone; earlier via kenaikan_tetapkan > tutup_asesmen_terbuka > session_enforce_deadline > pengerjaan_putus_tenggat
+minta_akun: auth.users (rank 4) after accounts (rank 5) — via minta_akun > akun_kunci > sesi_akhiri_orang; earlier via minta_akun > akun_kunci
+minta_percobaan: persons (rank 1) after assessment_sessions (rank 9) — via minta_percobaan > [attempt_requests I] orang_lampiran_jaga > orang_dianonimkan; earlier via minta_percobaan
+password_write_permit: persons (rank 1) after accounts (rank 5) — via password_write_permit > [password_write_permits I] orang_lampiran_jaga > orang_dianonimkan; earlier via password_write_permit
+pengerjaan_tahan_orang: person_suspensions (rank 3) after assessment_sessions (rank 9) — via pengerjaan_tahan_orang; earlier via pengerjaan_tahan_orang > pengerjaan_putus_tenggat
+recovery_grant_permit: persons (rank 1) after accounts (rank 5) — via recovery_grant_permit > [password_write_permits I] orang_lampiran_jaga > orang_dianonimkan; earlier via recovery_grant_permit
+tangguhkan_akun: auth.users (rank 4) after accounts (rank 5) — via tangguhkan_akun > akun_kunci > sesi_akhiri_orang; earlier via tangguhkan_akun > akun_kunci
+transfer_execute: persons (rank 1) after assessment_sessions (rank 9) — via transfer_execute > [portable_visibility I] orang_lampiran_jaga > orang_dianonimkan; earlier via transfer_execute > tutup_asesmen_terbuka > session_enforce_deadline > pengerjaan_putus_tenggat
+auth_card_email_guard [auth.users U]: auth.users (rank 4) after accounts (rank 5) — via [auth.users U] auth_card_email_guard > sesi_akhiri_orang; earlier via [auth.users U] auth_card_email_guard
+(GoTrue U auth.users): auth.users (rank 4) after accounts (rank 5) — via GoTrue > [auth.users U] auth_card_email_guard > sesi_akhiri_orang; earlier via GoTrue > [auth.users U] auth_card_email_guard
+(GoTrue I auth.users): persons (rank 1) after auth.users (rank 4) — via GoTrue > [auth.users I] handle_new_auth_user > [accounts I] akun_baru_terkunci; earlier via GoTrue > [auth.users I] handle_new_auth_user
