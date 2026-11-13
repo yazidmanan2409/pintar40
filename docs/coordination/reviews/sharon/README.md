@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Staging checkpoint, the promotion evidence (runbook step 3) | **PASS**; four open points ruled; two lines required on the rollback header and page (app and database go back together; what a rollback re-opens) | `d8db82bde8d7a47e9936a34fd21686ca11adb472` (with `8f27ff25…`) | `CHECKPOINT-EVIDENCE-d8db82bde8d7a47e9936a34fd21686ca11adb472.md` |
 | Staging checkpoint, §5b item 5 (owner's question) | **Yes: a scratch-target restore satisfies item 5**, under five conditions; the hosted restore's own behaviour is recorded as a known limit | `152ecea939f780e7c5038f81229fac61879707ce` (planning branch) | `CHECKPOINT-ITEM5-152ecea939f780e7c5038f81229fac61879707ce.md` |
 | Staging checkpoint, the runbook's §3 | **Corrections** to the reading of my six items (3 and 4 corrected; 5 accepted with conditions; 1, 2, 6 completed); preservation must exclude the checkpoint's synthetic rows. Not yet the evidence review | `c51e6d47212dd335e9b09eed5eea9c98bcca6a9d` (planning branch) | `CHECKPOINT-RUNBOOK-c51e6d47212dd335e9b09eed5eea9c98bcca6a9d.md` |
 | L1-F4, delta (L1F4-A1, A2) | **PASS**; both defects closed; race tests pass | `7e42db9690486e82aab45dcdc4fc1ea5ebb68945` | `L1F4-DELTA-7e42db9690486e82aab45dcdc4fc1ea5ebb68945.md` |
