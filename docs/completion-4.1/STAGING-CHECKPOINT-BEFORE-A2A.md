@@ -219,6 +219,21 @@ CI `43335326671` and journeys `43335340904` green.
 workflow and its script; 6b as a select; the page's "who runs it" corrected for every step. Then: full pre-flight,
 push, CI and journeys, and Sharon's review of the delta.
 
+### 3d · The five questions, asked of the checkpoint itself before it runs (13 Nov 2026, 01:18 UTC)
+
+The owner (13 Nov): *"Apply the five questions rigorously. Let's see fewer avoidable correction cycles, without
+weakening any verification gates."* Applied here first, because the checkpoint is the next thing built and run.
+
+| # | Question | Answer for the checkpoint | Follows |
+|---|---|---|---|
+| 1 | What else reads or writes this state? | **The scheduled jobs.** From the moment 227 and 231 apply, jobs run on staging's **existing** data every few minutes: the closer ends and scores sittings left open past their deadline; the retention job removes records past their term. Staging holds testers' and the demonstration school's data. Nobody has yet counted what the first runs will act on | **Owed in the boundary commit:** for each declared job, a read-only statement that counts what its first run will act on, by school. The Chief Architect runs them before the merge and puts the figures in front of the owner with the pull request. A sitting in the demonstration school being closed and scored is expected behaviour, but the owner sees the number first |
+| 1 | (the same) | The staging app deploys from `main` as well. For the minutes between the app's deploy and `staging.yml` finishing, a 244 app may meet a 224 database | The same as every 4.0 promotion. Stated in the pull request; no check runs until `staging.yml` has finished |
+| 2 | The opposite act? | The rollback, paired with reverting the merge (Sharon's first required line). The synthetic learner stays anonymised, by design | Already owed |
+| 3 | Which locks, and who else takes them? | The checkpoint workflow shares the `staging` concurrency group question with `staging.yml`; its lock test uses a throwaway key | **Owed:** the workflow cannot start while `staging.yml` runs, and says so |
+| 4 | Before from after? | The preservation query's recorded cutoff and audit watermark | Done |
+| 5 | Who runs each check, with what access? | Reads: the Chief Architect. Acts: the dispatched workflow, on existing secrets. **Do the synthetic administrators the page names (SA, PA) exist on staging today, with secrets?** | **Owed:** the page names the exact existing accounts by their role and the secret names (never values), or says which do not exist |
+
+
 ## 4 · Results
 
 | Step | When (UTC) | Result |
@@ -237,3 +252,4 @@ push, CI and journeys, and Sharon's review of the delta.
 | 12 Nov 2026, 22:11 | Second Eye: the `audit_log` rewrite is migration 215, already on staging; it will be timed on the scratch copy. Recorded as a correction to §5b's text, for Sharon's review. Wording commit local at `049e21ad`, in pre-flight |
 | 12 Nov 2026, 23:25 | Wording commit pushed by Second Eye (local `049e21ad`, full hash at the next check). Rollback, preservation query and rehearsal change built and round-trip-tested locally, not yet committed. Rulings on the page's open points recorded (§3b) |
 | 13 Nov 2026, 00:56 | Evidence at `d8db82bde8d7a47e9936a34fd21686ca11adb472` read; Sharon PASS with two required lines. Gap found: the acting steps need credentials, so they run as a dispatched workflow, which must be in the boundary commit. One more commit owed. Migration count read on staging: 224, as expected |
+| 13 Nov 2026, 01:18 | Owner: apply the five questions rigorously. Asked of the checkpoint itself (§3d): three more things owed in the boundary commit, chiefly a count of what each scheduled job's first run will act on in staging's existing data |

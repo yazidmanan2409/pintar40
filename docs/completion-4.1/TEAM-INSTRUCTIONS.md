@@ -64,7 +64,7 @@ channel:
 | ~~**Sharon**~~ | ~~L1-F2's fix: the delta~~ **Done: PASS** on `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`; the foreign-key point answered (none reachable) | — | her record on `claude/gracious-lamport-0m1qjr` at `156382f908a70618f6c899aca0ffa3a42bf1a315` |
 | ~~**Second Eye**~~ | ~~L1-F2's blocker~~ **Fix pushed** at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` | — | — |
 | ~~**Sharon**~~ | ~~A2a's page with her four changes~~ **Done: carried** at `3c46d521a27ae87627d590363b973f5dd7c7c7a3`. **A2a is not built** | — | her branch at `3ad40227b14aee30d8513c5627b7b56c1da0cf79` |
-| **Second Eye** | **Staging checkpoint: one more commit, which becomes the boundary commit.** (1) Sharon's two required lines on the rollback's header and the page. (2) **A dispatched workflow and script that perform every acting after-merge step** (items 1's scratch job, 2, 3, 4, 6c) on the existing staging secrets, in the page's order, stopping at the first difference, uploading evidence, refusing any project but staging. (3) 6b as one `select`. (4) The page's "who runs it" for every step. Then pre-flight, push, CI, journeys | — | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3c; Sharon's `CHECKPOINT-EVIDENCE-d8db82bd….md` |
+| **Second Eye** | **Staging checkpoint: one more commit, which becomes the boundary commit.** (1) Sharon's two required lines on the rollback's header and the page. (2) **A dispatched workflow and script that perform every acting after-merge step** (items 1's scratch job, 2, 3, 4, 6c) on the existing staging secrets, in the page's order, stopping at the first difference, uploading evidence, refusing any project but staging. (3) 6b as one `select`. (4) The page's "who runs it" for every step. (5) **From the five questions (§3d):** for each declared scheduled job, a read-only statement counting what its first run will act on in staging's existing data, by school; the workflow refuses to start while `staging.yml` runs; the page names the existing synthetic administrator accounts by role and secret name, or says which do not exist. Then pre-flight, push, CI, journeys | — | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3c and §3d; Sharon's `CHECKPOINT-EVIDENCE-d8db82bd….md` |
 | **Sharon** | **Evidence at `d8db82bde8d7a47e9936a34fd21686ca11adb472`: PASS (done).** Next: the delta of the commit above it (your two lines; the checkpoint workflow: that it does only the declared acts, on staging only, and stops on a difference) | next commit | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3c |
 | **Daisy** | After the promotion, if a browser can reach staging: one look at the promoted screens (B1's reader, B2's print, the key-correction screens). No action before then | after the merge | `STAGING-CHECKPOINT-BEFORE-A2A.md` §2 step 11 |
 
@@ -248,6 +248,9 @@ new gate and need no new document; the page answers each in a line or two, and S
 
 The Chief Architect answers the same five when writing a brief. Two of the six defects were in his briefs.
 
+**The owner (13 Nov 2026):** *"Good diagnosis, Bob. Apply the five questions rigorously. Let's see fewer avoidable
+correction cycles, without weakening any verification gates."* No gate is removed or shortened by them.
+
 ## Relay rules (after the 38-character SHA and the unreadable prompt file)
 
 - A commit is always given as 40 characters, copied from `git rev-parse`.
@@ -328,3 +331,4 @@ The Chief Architect answers the same five when writing a brief. Two of the six d
 | 12 Nov 2026 (23:25 UTC) | **L1-F4 CLOSED:** Daisy's exact line is in at `049e21ad1875b399a4ed2111897dbda8b14cf1d2`. Every item of the boundary is now closed. Second Eye is building the promotion evidence; rulings on its open points are in `STAGING-CHECKPOINT-BEFORE-A2A.md` §3b |
 | 13 Nov 2026 (00:56 UTC) | Checkpoint evidence at `d8db82bde8d7a47e9936a34fd21686ca11adb472`: Sharon PASS. One more commit owed before the pull request (`STAGING-CHECKPOINT-BEFORE-A2A.md` §3c): her two lines, and a dispatched workflow for the acting steps, because no credential passes through any of us. Staging read: 224 migrations, as expected |
 | 13 Nov 2026 (01:16 UTC) | On the owner's question about anticipating problems: five questions added to the existing design review ("Before any correction is built"). Not a new gate. They apply first to A2a's build and to every brief |
+| 13 Nov 2026 (01:18 UTC) | Owner: apply the five questions rigorously, without weakening any gate. First use: the checkpoint itself (`STAGING-CHECKPOINT-BEFORE-A2A.md` §3d). Second Eye: three more items in the boundary commit |
