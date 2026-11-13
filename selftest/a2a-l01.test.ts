@@ -98,16 +98,18 @@ export function bacaKatalog(db: string, tanam = ""): Katalog {
   const sql = `begin;
 ${tanam}
 select 'F' || chr(31) || p.proname || chr(31) || p.prosrc || chr(30) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-  join pg_language l on l.oid = p.prolang where n.nspname = 'public' and l.lanname in ('plpgsql', 'sql');
+  join pg_language l on l.oid = p.prolang where n.nspname = 'public' and l.lanname in ('plpgsql', 'sql') order by p.proname, p.oid;
 select 'T' || chr(31) || case when n.nspname = 'auth' then 'auth.users' else c.relname end || chr(31) || t.tgtype || chr(31) || p.proname || chr(30)
   from pg_trigger t join pg_class c on c.oid = t.tgrelid join pg_namespace n on n.oid = c.relnamespace join pg_proc p on p.oid = t.tgfoid
- where not t.tgisinternal and (n.nspname = 'public' or (n.nspname = 'auth' and c.relname = 'users'));
+ where not t.tgisinternal and (n.nspname = 'public' or (n.nspname = 'auth' and c.relname = 'users'))
+ order by n.nspname, c.relname, t.tgname;   -- Postgres fires a table's triggers of one timing in name order
 select 'K' || chr(31) || case when sn.nspname = 'auth' then 'auth.' || s.relname else s.relname end || chr(31)
        || case when tn.nspname = 'auth' then 'auth.' || t.relname else t.relname end || chr(31) || k.confdeltype::text || chr(31)
        || (select string_agg(a.attname, ',') from pg_attribute a where a.attrelid = k.conrelid and a.attnum = any (k.conkey)) || chr(30)
   from pg_constraint k join pg_class s on s.oid = k.conrelid join pg_namespace sn on sn.oid = s.relnamespace
   join pg_class t on t.oid = k.confrelid join pg_namespace tn on tn.oid = t.relnamespace
- where k.contype = 'f' and sn.nspname in ('public', 'auth') and tn.nspname in ('public', 'auth');
+ where k.contype = 'f' and sn.nspname in ('public', 'auth') and tn.nspname in ('public', 'auth')
+ order by sn.nspname, s.relname, k.conname;
 rollback;`;
   const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1", "-c", sql], { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
   if (r.status !== 0) throw new Error(`the catalogue read failed: ${r.stderr.slice(0, 300)}`);
@@ -217,10 +219,14 @@ export function semuaKunci(kat: Katalog): Map<string, Kunci[]> {
   const picu = (t: string, ev: string, dari: string, saat?: "B" | "A"): Kunci[] => (saat ? [saat] : ["B", "A"])
     .flatMap((w) => kat.pemicu.get(`${t}|${ev}|${w}`) ?? [])
     .flatMap((tf) => daftar(tf).map((x) => ({ ...x, lewat: `${dari} > [${t} ${ev}] ${x.lewat}` })));
+  // a list computed while a caller's call was cut (a cycle) lacks that caller's locks: it is not kept for other callers
+  // (found by commit 3's sweep: finalize_session's list, first read under pengerjaan_putus_tenggat, lacked its locks)
+  let potong = 0;
   const daftar = (fn: string): Kunci[] => {
     const ada = memo.get(fn);
     if (ada) return ada;
-    if (tumpukan.has(fn)) return [];
+    if (tumpukan.has(fn)) { potong++; return []; }
+    const potongAwal = potong;
     tumpukan.add(fn);
     const out: Kunci[] = [];
     for (const src of kat.fns.get(fn) ?? []) {
@@ -233,7 +239,7 @@ export function semuaKunci(kat: Katalog): Map<string, Kunci[]> {
       }
     }
     tumpukan.delete(fn);
-    memo.set(fn, out);
+    if (potong === potongAwal) memo.set(fn, out);
     return out;
   };
   const semua = new Map<string, Kunci[]>();
@@ -254,25 +260,27 @@ export function semuaKunci(kat: Katalog): Map<string, Kunci[]> {
   return semua;
 }
 
-/** The first breach of a list: a row taken before the fence, out of order, or an upgrade. */
-export function pelanggaran(l: Kunci[]): string | null {
+/** Every breach of a list, in order: a row taken before the fence, a lock out of order, an upgrade. (All of them, not
+ *  the first: a declared exception covers one breach, never the ones after it.) */
+export function pelanggaran(l: Kunci[]): string[] {
+  const out: string[] = [];
   const pagar = l.findIndex((x) => x.t === "FENCE");
   if (pagar > 0) {
     const sebelum = l.slice(0, pagar).find((x) => !(x.t in URUTAN) || URUTAN[x.t] > SIKLUS_HIDUP);
-    if (sebelum) return `${sebelum.t} locked before the fence (B1: the fence is the first lock after ranks 1 to 6) — via ${sebelum.lewat}`;
+    if (sebelum) out.push(`${sebelum.t} locked before the fence (B1: the fence is the first lock after ranks 1 to 6) — via ${sebelum.lewat}`);
   }
   let puncak = 0, di: Kunci | null = null;
   const kuat = new Map<string, Kunci>();
   for (const x of l) {
     if (!(x.t in URUTAN)) continue;
     const r = URUTAN[x.t];
-    if (r < puncak) return `${x.t} (rank ${r}) after ${di!.t} (rank ${puncak}) — via ${x.lewat}; earlier via ${di!.lewat}`;
+    if (r < puncak) out.push(`${x.t} (rank ${r}) after ${di!.t} (rank ${puncak}) — via ${x.lewat}; earlier via ${di!.lewat}`);
     if (r > puncak) { puncak = r; di = x; }
     const s = kuat.get(x.t);
-    if (s && x.kuat > s.kuat && s.kuat < 2) return `an upgrade on ${x.t}: strength ${s.kuat} via ${s.lewat}, then ${x.kuat} via ${x.lewat}`;
+    if (s && x.kuat > s.kuat && s.kuat < 2) out.push(`an upgrade on ${x.t}: strength ${s.kuat} via ${s.lewat}, then ${x.kuat} via ${x.lewat}`);
     if (!s || x.kuat > s.kuat) kuat.set(x.t, x);
   }
-  return null;
+  return [...new Set(out)];
 }
 const dikecualikan = (kat: Katalog, fn: string, v: string) =>
   PENGECUALIAN.some((p) => fn === p.penulis && v.includes(p.lewat) && (!p.syarat || p.syarat(kat)));
@@ -286,7 +294,7 @@ export function bacaUrutan(db: string, tanam = "") {
   const kat = bacaKatalog(db, tanam);
   const semua = semuaKunci(kat);
   const salah: string[] = [];
-  for (const [fn, l] of semua) { const v = pelanggaran(l); if (v && !dikecualikan(kat, fn, v)) salah.push(`${fn}: ${v}`); }
+  for (const [fn, l] of semua) for (const v of pelanggaran(l)) if (!dikecualikan(kat, fn, v)) salah.push(`${fn}: ${v}`);
   const disebut = (b: string) => Object.keys(URUTAN).some((t) => t !== "FENCE" && new RegExp(`\\b${t.replace(".", "\\.")}\\b`).test(b));
   const dinamis = [...kat.fns].filter(([, bs]) => bs.some((b) => /\bexecute\b/.test(bersih(b)) && disebut(bersih(b)))).map(([f]) => f);
   return { fungsi: [...kat.fns.values()].reduce((n, b) => n + b.length, 0), menyentuh: semua.size, salah, dinamis, semua, kat };
