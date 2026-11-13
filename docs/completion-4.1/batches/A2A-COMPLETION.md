@@ -1,6 +1,6 @@
 # A2a · Emergency containment and class scope for the emergency (completion page, before build)
 
-## State of change A (13 Nov, 20:57 UTC by `date -u`; kept here so that nothing depends on a session's memory)
+## State of change A (13 Nov, 21:20 UTC by `date -u`; kept here so that nothing depends on a session's memory)
 
 **Branches:**
 - `claude/a2a`: this page.
@@ -75,6 +75,8 @@ Auth's user deletion.
    Only an inherited cycle elsewhere, whose outcome is 40P01 with nothing lost, may be registered.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
+
+**The 76 are read** (below, "The 76 reports … read in one pass"). Second Eye has stopped there; the Chief Architect decides with Sharon what is fixed.
 
 **Remaining work on change A, in order:**
 1. **C1:** `akhiri_pendaftaran`, its race test and the sweep.
@@ -494,6 +496,51 @@ not fixed).
   - Not raced.
 - **The smallest fix, not built:** each takes the `auth.users` row `FOR KEY SHARE` before the account (the
   person-first shape, one rank down).
+
+## The 76 reports of change A's engine, read in one pass (21:20 UTC by `date -u`)
+
+**How this was read:**
+- The source list is `selftest/a2a-l01-c2-daftar.txt` (change A at `a1e85ee3`).
+- The engine is frozen: the Chief Architect, 21:17.
+- **Nothing is fixed while reading.** Each row is one lock site; "n" is the number of breaches there.
+- **The classes are the Chief Architect's,** plus one that his list does not have, flagged in the counts.
+
+| # | Writers | Lock site (the late lock) | n | Class | Real? | In A2a's area? |
+|---|---|---|---|---|---|---|
+| 1 | 22 finalizing writers (`finalize_session`, submit, deadline, the closer, extend, end, hold, enrolment and promotion paths) | `koreksi_kunci_saat_selesai` → `hitung_ulang_koreksi_kunci`: the new result's `person_id` | 22 | Same-row re-lock: the sitting's learner (`s.person_id` = `v_s.person_id`), taken first by commit 3 | No | Yes (finalize) |
+| 2 | `kenaikan_tetapkan` | its direct person writes after closing sittings | 2 | Same-row re-lock: the population, taken `FOR UPDATE` first | No | No |
+| 3 | `hitung_ulang_koreksi_kunci`, `koreksi_kunci_saat_selesai`, `tegaskan_koreksi_kunci` (read on their own: the key-correction paths) | `hitung_ulang_koreksi_kunci`: the sitting `FOR UPDATE`, then the result's `person_id` | 3 | **REAL inside A2a's area**: finalize's shape (sitting, then learner) | **Yes, by reading** (not raced) | **Yes: BLOCKS** |
+| 4 | `recompute_result` | upgrade on the sitting: the result's key (`KEY SHARE`), then `hitung_ulang_koreksi_kunci`'s `FOR UPDATE` | 1 | **REAL inside A2a's area**: two recomputes of one sitting deadlock | **Yes, by reading** (not raced) | **Yes: BLOCKS** |
+| 5 | `akhiri_pendaftaran` | the enrolment before its person, through every path (6 sites) | 6 | **C1** | Yes (Sharon) | No (enrolment) |
+| 6 | `kenaikan_tetapkan` | the enrolment `FOR UPDATE` after closing sittings (person held first) | 2 | C1's sweep | No: serialised on the person | No |
+| 7 | `transfer_minta`, `transfer_request` | the transfer's foreign keys: the enrolment's `KEY SHARE` before the person's | 2 | C1's sweep | Yes, against C1's person → enrolment `FOR UPDATE` | No |
+| 8 | `import_advance` | the enrolment before its person | 1 | C1's sweep (to read) | to read | No |
+| 9 | `handle_new_auth_user`, Auth's insert | `update enrollments … where person_id = v_person`: `v_person` may be an **existing** person (`v_grant.person_id`, or the `person_id` in `raw_app_meta_data`) | 4 | C1's sweep | Yes, if that person's enrolment is written concurrently | No |
+| 10 | `enrollments_programme_alone [enrollments U]` | the trigger's own R2 reading: the enrolment row, then its person | 1 | C1's sweep (the shape every enrolment writer must meet by taking the person first) | No, of itself | No |
+| 11 | `tempatkan_murid`, `transfer_execute` | upgrade on the person: `orang_lampiran_jaga`'s `FOR SHARE`, then `enrollments_programme_alone`'s `FOR UPDATE`, both BEFORE INSERT on enrollments | 2 | **REAL elsewhere, 40P01 only**: two enrolments of one person at once | Yes, by reading | No: **register**, a named exception |
+| 12 | `(GoTrue I auth.users)`, `handle_new_auth_user` | upgrade on the new `auth.users` row (its key, then `akun_baru_terkunci`'s update) | 2 | New row | No | No |
+| 13 | the account lifecycle through `akun_kunci` (`tangguhkan`, `aktifkan`, `buka`, `minta_akun`), `akun_baru_terkunci`, `handle_new_auth_user`, Auth's insert | `auth_password_write_guard` → the permits, recovery, `sekolah_memegang`, reached through an `auth.users` update that **does not change the password** | 24 | **Not in the Chief Architect's list:** "the password guard returns at once" (the same reading as the deletion's declared exception, commit 6) | No: the guard's first line returns | No |
+| 14 | `password_write_permit`, `recovery_grant_permit`, `authorize_card_reissue` | the permit's key on `auth.users` | 3 | Permit (declared, Sharon's three conditions) | No (Sharon) | No |
+| 15 | `schedule_maintenance` | the actor's key after the window row | 1 | Window, "pending B1" | No reverse path found | Yes: (C) cannot freeze while it stands |
+
+**Counts per class** (76):
+
+| Class | n |
+|---|---|
+| Same-row re-lock | 24 |
+| New row | 2 |
+| `audit_write`'s class | 0 (already declared) |
+| Window, "pending B1" | 1 |
+| Permit | 3 |
+| C1 and its sweep | 16 |
+| **REAL inside A2a's area (blocks)** | **4** (rows 3 and 4: `hitung_ulang_koreksi_kunci`'s sitting before its learner, and `recompute_result`'s upgrade) |
+| REAL elsewhere, 40P01 only (register) | 2 (row 11) |
+| **Not in the list:** the password guard's early return | 24 (row 13) |
+
+**For the Chief Architect and Sharon, before any further product commit:**
+- Rows 3 and 4 are inside A2a's area, and by her first limit they block.
+- Row 13 needs a class.
+- Row 11 needs a register reference.
 
 **Deferred register item: the person `FOR NO KEY UPDATE`** (Sharon, `A2A-L01-FINDING-f09da528.md`).
 - **The draft:** the 15 functions above would take the person `FOR NO KEY UPDATE` instead of `FOR UPDATE`.
