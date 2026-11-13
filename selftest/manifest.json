@@ -6129,6 +6129,11 @@
       "id": "B1-A04",
       "runner": "app",
       "proves": "B1 correction (cross-module checks 2b and the deleted-person presentation), selftest/b1-layar.test.ts, through the running app's routes and its rendered html (route /konfigurasi/catatan-masuk): a staff member of Alpha suspended, then closed, each sign-in attempt (the suspended account with the right and a wrong password; restated for the auth correction, owner 11 Nov) one SIGN_IN_FAILED row answered and recorded exactly as a wrong password (401 MASUK_TIDAK_COCOK), never one naming the account's state, the person and Alpha's snapshot, read by Alpha's admin and not Beta's; after hapus_data_pribadi an attempt with the old address names no one (the platform admin's only) and the person's rows hold no origin and no hash; Alpha's admin and the platform admin read them under the PINTAR ID with no origin, each failure reading «Email, username, atau password belum cocok.»; nothing of the test is left behind."
+    },
+    {
+      "id": "A2A-L01",
+      "runner": "static",
+      "proves": "A2a's page §6 (the owner's decision after the 4.0 look-back; Sharon's catalogue test): every function and procedure in public, and every trigger on the ranked tables, read from the catalogue (no list of names, so A2a's and A3's functions fall under it), takes its row locks, directly, through what it calls and through the row triggers its writes fire, in the order persons → person_suspensions → auth.users → accounts → the fence → sittings, and never upgrades a weaker lock on a table to a stronger one; Auth's own update of auth.users is read as a writer; declared exceptions and dynamic SQL each carry their reason; two plants inside the test's own rolled-back transaction (accounts then persons; FOR SHARE then UPDATE on persons) must both be reported first."
     }
   ]
 }
