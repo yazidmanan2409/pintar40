@@ -3168,6 +3168,146 @@ await step("S23j", "the audit reader: on Konfigurasi → «Jejak audit» the sch
     `the actions as printed: ${JSON.stringify([...new Set(layarAdmin.map((k) => k.split("|")[0]))].slice(0, 8))}; codes on screen ${bocor.length}${bocor.length ? ` (${bocor.slice(0, 3).join(", ")})` : ""}`;
 });
 
+// B1 (THE PLAN §8.5 journey 4, the part before B2's printed report): «who signed in, who failed to». Pak Guru Budi, a
+// real person of this world, types a wrong password on the sign-in screen and then signs in; the school admin opens
+// «Catatan masuk dan cetak» (beside «Jejak audit»), searches his name, and reads both: the failure in the sign-in
+// screen's own words and the success; nothing of another school. Read only.
+await step("B1J", "the school admin looks up who signed in: Pak Guru Budi's failed and successful sign-in on Konfigurasi → «Catatan masuk dan cetak», searched by his name; nothing of another school (B1, journey 4)", async (rec) => {
+  const gc = await ctx();
+  const gp = await gc.newPage();
+  await gp.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+  await gp.locator("#identitas").fill(people.guru.email);
+  await gp.locator("#password").fill("Bukan-Sandinya-2026!");
+  await gp.getByRole("button", { name: "Masuk", exact: true }).click();
+  // the screen's own refusal (it answers no sooner than its floor)
+  await gp.getByText(/belum cocok/).first().waitFor({ timeout: SLOW }).catch(() => {});
+  const ditolak = norm(await gp.getByText(/belum cocok/).first().innerText().catch(() => ""));
+  const masuk = await magicSignIn(gp, people.guru.email);
+  await gc.close();
+  await a.goto(`${APP}/konfigurasi/audit?muat=${Date.now()}`, { waitUntil: "networkidle" });
+  await tutupTur(a);
+  await a.locator('[data-akuntabilitas-tautan] a').click();
+  await a.waitForURL((u) => u.pathname === "/konfigurasi/catatan-masuk", { timeout: SLOW });
+  await a.locator('input[name="cari"]').fill(people.guru.name);
+  await a.getByRole("button", { name: "Tampilkan" }).click();
+  await a.waitForURL((u) => u.searchParams.has("cari"), { timeout: SLOW });
+  await a.waitForLoadState("networkidle");
+  rec.shots.push(await shot(a, "b1-catatan-masuk"));
+  const baris = await a.locator("[data-akuntabilitas-baris]").evaluateAll((trs) => trs.map((tr) => ({
+    jenis: tr.getAttribute("data-akuntabilitas-baris"), siapa: (tr.querySelector("[data-akuntabilitas-orang]")?.textContent ?? "").trim(),
+    hasil: (tr.querySelector("[data-akuntabilitas-hasil]")?.textContent ?? "").replace(/\s+/g, " ").trim() })));
+  const gagal = baris.find((b) => b.jenis === "SIGN_IN_FAILED");
+  const berhasil = baris.find((b) => b.jenis === "SIGN_IN_OK");
+  // the database's own count of Pak Guru Budi's rows that SD may read, against what the screen shows; none of them names another school
+  const diDb = Number(sql(`select count(*) from public.accountability_events e join public.accounts ac on ac.person_id = e.person_id
+    join auth.users u on u.id = ac.auth_user_id where u.email = '${people.guru.email}' and '${ids.sd}' = any (e.institution_ids)`));
+  const lain = Number(sql(`select count(*) from public.accountability_events e join public.accounts ac on ac.person_id = e.person_id
+    join auth.users u on u.id = ac.auth_user_id where u.email = '${people.guru.email}' and not ('${ids.sd}' = any (e.institution_ids))`));
+  const asal = await a.locator("th", { hasText: "Asal jaringan" }).count();
+  const ok = /belum cocok/.test(ditolak) && Boolean(gagal) && gagal.hasil === "Email, username, atau password belum cocok." && Boolean(berhasil) && berhasil.hasil === "Berhasil"
+    && baris.every((b) => b.siapa === people.guru.name) && baris.length === Math.min(50, diDb) && asal === 0;
+  if (!ok) rec.verdict = "FAIL";
+  return `the sign-in screen said «${ditolak.slice(0, 120)}», then he signed in (landed ${masuk.landed}); «Catatan masuk dan cetak» searched «${people.guru.name}»: ${baris.length} row(s) `
+    + `(the database's rows SD may read: ${diDb}; his rows of no SD: ${lain}), the failure «${gagal?.hasil ?? "none"}», the success «${berhasil?.hasil ?? "none"}», `
+    + `every row his ${baris.every((b) => b.siapa === people.guru.name)}, a network-origin column ${asal}`;
+});
+
+// B2 (THE PLAN §8.5 journey 4, the print step; B2-COMPLETION.md §5): Pak Guru Budi opens his class's Ringkasan and
+// presses «Cetak laporan». The page's print dialog is the browser's own, so the journey takes the footer at the instant
+// window.print() is called: the official line with its reference. The default is back as soon as the call returns, with
+// no afterprint (Sharon's change 2, B2-A06); a print the browser starts itself carries the device's clock and no
+// reference; the PDF of the official rendering carries the reference; the school admin types it into «Catatan masuk dan
+// cetak» and finds the one print request, his.
+await step("B2J", "Pak Guru Budi prints his class's Ringkasan: the paper carries «Dicetak oleh … · Ref. CTK-…»; the default footer is back once the dialog returns; the school admin finds the reference (B2, journey 4)", async (rec) => {
+  const gc = await ctx();
+  const gp = await gc.newPage();
+  await magicSignIn(gp, people.guru.email);
+  const kelas = sql(`select ra.scope_node_id from public.role_assignments ra join public.accounts ac on ac.person_id = ra.person_id
+    join auth.users u on u.id = ac.auth_user_id join public.org_nodes n on n.id = ra.scope_node_id
+   where u.email = '${people.guru.email}' and ra.role = 'EDUCATOR' and ra.revoked_at is null and n.kind = 'CLASS' order by n.created_at limit 1`);
+  await gp.goto(`${APP}/edukator/ringkasan?kelas=${kelas}`, { waitUntil: "networkidle" });
+  await tutupTur(gp);
+  const kaki = () => gp.locator("style[data-kaki-cetak]").evaluate((el) => el.textContent ?? "");
+  const awal = await kaki();
+  await gp.evaluate(() => { window.__kakiSaatCetak = []; window.print = () => { window.__kakiSaatCetak.push(document.querySelector("style[data-kaki-cetak]")?.textContent ?? ""); }; });
+  await gp.getByRole("button", { name: "Cetak laporan", exact: true }).click();
+  await gp.waitForFunction(() => (window.__kakiSaatCetak ?? []).length === 1, null, { timeout: SLOW }).catch(() => {});
+  const saatCetak = (await gp.evaluate(() => window.__kakiSaatCetak ?? []))[0] ?? "";
+  const ref = /CTK-[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}/.exec(saatCetak)?.[0] ?? "";
+  const sesudah = await kaki();
+  // a print the browser starts itself (Ctrl+P): beforeprint, then afterprint
+  await gp.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
+  const peramban = await kaki();
+  await gp.evaluate(() => window.dispatchEvent(new Event("afterprint")));
+  const pulih = await kaki();
+  // the official rendering as a PDF: the footer as it stood when the dialog opened
+  await gp.evaluate((teks) => { document.querySelector("style[data-kaki-cetak]").textContent = teks; }, saatCetak);
+  await gp.emulateMedia({ media: "print" });
+  const pdf = `${OUT}/b2-ringkasan-cetak.pdf`;
+  await gp.pdf({ path: pdf, format: "A4", printBackground: true });
+  await gp.emulateMedia({ media: "screen" });
+  let teksPdf = "";
+  try { teksPdf = execFileSync("pdftotext", ["-layout", pdf, "-"], { encoding: "utf8" }); } catch { teksPdf = "(pdftotext unavailable)"; }
+  await gc.close();
+  // the school admin types the reference into the reader
+  await a.goto(`${APP}/konfigurasi/catatan-masuk?cari=${encodeURIComponent(ref.toLowerCase().replace("-", " "))}`, { waitUntil: "networkidle" });
+  await tutupTur(a);
+  rec.shots.push(await shot(a, "b2-catatan-cetak"));
+  const baris = await a.locator("[data-akuntabilitas-baris]").evaluateAll((trs) => trs.map((tr) => ({
+    jenis: tr.getAttribute("data-akuntabilitas-baris"), siapa: (tr.querySelector("[data-akuntabilitas-orang]")?.textContent ?? "").trim(),
+    ref: tr.querySelector("[data-rujukan-cetak]")?.getAttribute("data-rujukan-cetak") ?? "" })));
+  const pdfOk = teksPdf === "(pdftotext unavailable)" || teksPdf.includes(`Ref. ${ref}`);
+  const ok = Boolean(ref) && saatCetak.includes(`Dicetak oleh ${people.guru.name}`) && !/CTK-/.test(awal) && /Dicetak dari browser · tanpa nomor referensi/.test(awal)
+    && sesudah === awal && /\(jam perangkat\)/.test(peramban) && !/CTK-/.test(peramban) && !peramban.includes(people.guru.name) && pulih === awal && pdfOk
+    && baris.length === 1 && baris[0].jenis === "PRINT_REQUEST" && baris[0].ref === ref && baris[0].siapa === people.guru.name;
+  if (!ok) rec.verdict = "FAIL";
+  return `the footer before «${awal.slice(0, 90)}»; at the dialog «${(/content: (".*?");/.exec(saatCetak)?.[1] ?? saatCetak).slice(0, 140)}»; after it returned (no afterprint) `
+    + `${sesudah === awal ? "the default again" : `«${sesudah.slice(0, 90)}»`}; a browser print «${(/content: (".*?");/.exec(peramban)?.[1] ?? "").slice(0, 120)}», then ${pulih === awal ? "the default" : "not restored"}; `
+    + `the PDF ${teksPdf === "(pdftotext unavailable)" ? "was made (no pdftotext to read it)" : teksPdf.includes(`Ref. ${ref}`) ? `carries «Ref. ${ref}»` : "does not carry the reference"}; `
+    + `the reader, searched for ${ref}: ${JSON.stringify(baris)}`;
+});
+
+// B2 (Daisy's visit, TINJAUAN-B2-bfe949b1.md §3): the reader's completeness notice, as the platform admin sees it, at
+// 320 and 1280 px. One sign-in write failure is planted so the notice shows, and taken away after. The page must not
+// scroll sideways, and «Kesehatan sistem» must have a width and sit inside the banner (it was squeezed into the
+// banner's empty icon column and hung outside it).
+await step("B2N", "the platform admin's «Catatan masuk dan cetak» with the completeness notice: at 320 px no sideways scroll and the health link inside the banner with a width; the same at 1280 px (B2, Daisy's blocker)", async (rec) => {
+  sql(`insert into public.accountability_write_failures as f (day, kind, n, last_at)
+    values ((now() at time zone 'Asia/Jakarta')::date, 'SIGN_IN', 1, now())
+    on conflict (day, kind) do update set n = f.n + 1, last_at = greatest(f.last_at, excluded.last_at)`);
+  const hasil = [];
+  try {
+    for (const lebar of [320, 1280]) {
+      const c = await browser.newContext({ viewport: { width: lebar, height: 900 }, locale: "id-ID", timezoneId: "Asia/Jakarta" });
+      const p = await c.newPage();
+      try {
+        await magicSignIn(p, GLADYS);
+        await keKonteks(p, { tujuan: "MENGELOLA", platform: true });
+        await p.goto(`${APP}/konfigurasi/catatan-masuk`, { waitUntil: "networkidle" });
+        await tutupTur(p);
+        await p.locator("[data-akuntabilitas-tidak-lengkap]").waitFor({ timeout: SLOW });
+        const m = await p.evaluate(() => {
+          const b = document.querySelector("[data-akuntabilitas-tidak-lengkap]");
+          const l = b?.querySelector('a[href="/konfigurasi?periksa=skema"]');
+          const rb = b?.getBoundingClientRect(), rl = l?.getBoundingClientRect();
+          return { lebarHalaman: document.documentElement.scrollWidth, layar: window.innerWidth,
+                   tautan: rl ? Math.round(rl.width) : 0,
+                   didalam: Boolean(rb && rl && rl.left >= rb.left - 0.5 && rl.right <= rb.right + 0.5 && rl.top >= rb.top - 0.5 && rl.bottom <= rb.bottom + 0.5) };
+        });
+        rec.shots.push(await shot(p, `b2-notice-${lebar}`));
+        hasil.push({ lebar, ...m });
+      } finally { await c.close(); }
+    }
+  } finally {
+    // n > 0 is the table's CHECK: the planted one is taken back by deleting a row it made, else by counting it down
+    sql(`delete from public.accountability_write_failures where day = (now() at time zone 'Asia/Jakarta')::date and kind = 'SIGN_IN' and n = 1`);
+    sql(`update public.accountability_write_failures set n = n - 1 where day = (now() at time zone 'Asia/Jakarta')::date and kind = 'SIGN_IN' and n > 1`);
+  }
+  const ok = hasil.length === 2 && hasil.every((h) => h.lebarHalaman <= h.layar && h.tautan > 0 && h.didalam);
+  if (!ok) rec.verdict = "FAIL";
+  return hasil.map((h) => `${h.lebar} px: the page ${h.lebarHalaman} wide on a ${h.layar} screen, the link ${h.tautan} px wide, ${h.didalam ? "inside" : "outside"} the banner`).join("; ");
+});
+
 // CR-52 (J4.8 EC; D-050(a)(d)): the Question Bank, walked against QN5 as D-120 ruled it: «4.0's Question Bank means
 // browse, filter and review with the answer key and reason; no additional authoring workflow». Read only; before S24,
 // which revokes the head of department. The head of department reviews question health (CAN_REVIEW_QUESTION_HEALTH,

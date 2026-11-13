@@ -424,8 +424,30 @@ begin
    where d.plp_release_id = r.id and r.course_id = c.id
      and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
   alter table public.release_distributions enable trigger release_distributions_append_only;
+  -- RESTATED, C1w (20270115100000: a published correction replaces its predecessor): a release replaced by a revision
+  -- this reset removes is the line's head again, PUBLISHED and unmarked, as the run that published the revision found it
+  -- (the harness, past the status guard and the write-once marks, for this one statement)
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'plp_releases' and column_name = 'replaced_by_release_id') then
+    set local session_replication_role = replica;
+    update public.plp_releases p set replaced_by_release_id = null, replaced_at = null,
+           status = case when p.withdrawn_at is null then 'PUBLISHED'::public.content_status else p.status end
+      from public.plp_releases r join public.courses c on c.id = r.course_id
+     where p.replaced_by_release_id = r.id and c.institution_id = v_canon
+       and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
+    set local session_replication_role = origin;
+  end if;
   delete from public.plp_releases r using public.courses c
    where r.course_id = c.id and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
+  -- RESTATED, C1w: QAC now meets the package at the head of its line (selftest.qac_head_package), so a school's quick
+  -- assessment may stand on a revision's module; its assignment and selection go with the revision
+  alter table public.assessment_assignments disable trigger assessment_assignments_status;
+  delete from public.quick_assessment_selections q using public.assessment_definitions d, public.modules m, public.courses c
+   where q.definition_id = d.id and d.module_id = m.id and m.course_id = c.id and c.institution_id = v_canon
+     and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
+  delete from public.assessment_assignments a using public.assessment_definitions d, public.modules m, public.courses c
+   where a.assessment_definition_id = d.id and d.module_id = m.id and m.course_id = c.id and c.institution_id = v_canon
+     and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
+  alter table public.assessment_assignments enable trigger assessment_assignments_status;
   delete from public.assessment_definitions d using public.courses c
    where c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'))
      and (d.course_id = c.id or d.module_id in (select m.id from public.modules m where m.course_id = c.id));
@@ -602,9 +624,19 @@ begin
    where u.email = 'alpha-siswa-1@synthetic.pintar.test' and m.valid_to is null limit 1;
   -- a later suite may have withdrawn School A's grant of v1.0 (QAC-T03 does)
   if not public.release_is_distributed_to(p.rel, v_a) then
-    perform selftest.as_user('kanonik-admin@pintar.test');
-    perform public.grant_release_distribution(p.rel, v_a, 'f05-c01 v1.0');
-    perform selftest.as_owner();
+    if (select r.status from public.plp_releases r where r.id = p.rel) = 'PUBLISHED' then
+      perform selftest.as_user('kanonik-admin@pintar.test');
+      perform public.grant_release_distribution(p.rel, v_a, 'f05-c01 v1.0');
+      perform selftest.as_owner();
+    else
+      -- RESTATED, C1w (20270115100000: a published correction replaces its predecessor for new assignments, and a
+      -- replaced release is not distributed anew). Once v1.1 is published, v1.0 is replaced; the race needs School A
+      -- to hold v1.0 as a school granted it BEFORE the replacement would, so the harness records that standing grant
+      -- (the platform admin's, as grant_release_distribution records one). The race itself is unchanged.
+      insert into public.release_distributions (plp_release_id, institution_id, authorized_by_person_id, reason)
+      select p.rel, v_a, a.person_id, 'f05-c01 v1.0, held from before its replacement'
+        from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = 'kanonik-admin@pintar.test';
+    end if;
   end if;
   v_rel2 := selftest.f05_published_revision(p.course, p.canon, p.rel, v_a);
   select fa.la, fa.aa into v_la, v_aa

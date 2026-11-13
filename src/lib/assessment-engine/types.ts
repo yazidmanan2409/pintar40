@@ -65,6 +65,9 @@ export type Outcome = {
   gerbang_keselamatan?: boolean | null;
   lulus?: boolean | null;
   ambang?: number | null;
+  /** C1w (O41-21): the result above is the one a governed key correction put in force; the sealed original is kept */
+  dikoreksi?: boolean;
+  koreksi?: { alasan: string | null; pada: string | null; penguasaan_asli: number | null; sertifikat_ditinjau: boolean };
 };
 
 export type ReadingMapCard = {

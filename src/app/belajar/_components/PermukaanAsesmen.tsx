@@ -14,6 +14,7 @@ import { peranSaya } from "@/lib/tur-negara";
 import { personaPembelajaran } from "@/lib/pembelajaran";
 import { zonaSimpulBanyak } from "@/lib/zona-sekolah";
 import ItemPlayer from "./ItemPlayer";
+import { pengerjaanSaya } from "@/lib/pengerjaan";
 
 /**
  * ONE ASSESSMENT EXPERIENCE, THREE WAYS IN.
@@ -45,7 +46,7 @@ import ItemPlayer from "./ItemPlayer";
  */
 export default async function PermukaanAsesmen({
   penugasan,
-  sesi,
+  sesi: sesiDiberikan,
   locale,
   eyebrow,
   kembali,
@@ -71,6 +72,20 @@ export default async function PermukaanAsesmen({
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
   const s = (k: HleEvent) => t(k, "learner", { locale });
 
+  // A1 (O41-17, Daisy Q5): a held sitting is not played (its teacher resumes or closes it), and one the teacher ended as
+  // not counted is behind the learner: the orientation is offered again, or the sentence that says it was not counted
+  const keadaan = sesiDiberikan ? await pengerjaanSaya(sesiDiberikan).catch(() => null) : null;
+  if (keadaan?.ditahan) {
+    return (
+      <>
+        <CangkangPengalaman locale={locale} current="belajar" />
+        <HalamanPenolakan locale={locale} persona={personaPembelajaran(await peranSaya())} messageKey="siklus.kartu.ditahan" backHref={kembali.href} backKey={kembali.key} />
+      </>
+    );
+  }
+  const tidakDihitung = keadaan?.penutupan === "TEACHER_NOT_COUNTED";
+  const sesi = tidakDihitung ? null : sesiDiberikan;
+
   // ---------------------------------------------------------- D. orientation
   if (!sesi) {
     // W2.16 (DAISY-35 item 2): a refusal here speaks to the reader's own context (the roles are read once per request)
@@ -87,7 +102,8 @@ export default async function PermukaanAsesmen({
         .catch(() => "Asia/Jakarta"),
     ]);
     if (!orientasi) {
-      return <HalamanPenolakan locale={locale} persona={persona} backHref={kembali.href} backKey={kembali.key} />;
+      return <HalamanPenolakan locale={locale} persona={persona} backHref={kembali.href} backKey={kembali.key}
+        messageKey={tidakDihitung ? "siklus.kartu.tidak_dihitung" : undefined} />;
     }
     // DAISY-26 (UX-05): the assessment is called by its own kind, so an Uji
     // Cepat is never titled with the Uji Penguasaan whose player it borrows. A

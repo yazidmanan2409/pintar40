@@ -172,6 +172,9 @@ function terjaga(sumber: string): Map<string, boolean> {
 
 /** The server-action files bound to a working context, and their actions exempt by name, each with its reason. */
 const AKSI_TERIKAT: Record<string, Record<string, string>> = {
+  // RESTATED, B2 (THE PLAN §5.2): «Cetak laporan»'s record; a class's or a school's report is of the active context's
+  // school (a learner's own results have no place, C1)
+  "src/app/laporan/cetak/actions.ts": {},
   "src/app/studio/actions.ts": {},
   "src/app/konfigurasi/actions.ts": {},
   "src/app/pendataan/actions.ts": { kemajuanAksi: "a re-read of the job's progress; it acts on nothing" },
@@ -182,10 +185,16 @@ const AKSI_TERIKAT: Record<string, Record<string, string>> = {
   // W2.10 (Batch 5): the whole-class run's read of one class's waiting learners; the cards are /api/akun/aktivasi's
   "src/app/aktivasi/actions.ts": { anggotaKelasMenungguAksi: "a read of one class's waiting learners for the whole-class run; it acts on nothing, each card is decided per person by /api/akun/aktivasi" },
   "src/app/konfigurasi/sertifikat/actions.ts": {},
+  // C1w: the item workbench's acts check the question's, the package's or the certificate's school against the context
+  "src/app/studio/soal-actions.ts": {},
   // «Kenaikan kelas dan kelulusan» (owner, 9 Nov): both presses ask the class's school as the working context
   "src/app/konfigurasi/kenaikan-aksi.ts": {},
   // E5 and §11 (owner, 9 Nov): both acts ask the person's school as the working context before akhiri_tugas_staf / ubah_peran
   "src/app/konfigurasi/staf/actions.ts": {},
+  // A1: the teacher's acts on a sitting and on a lesson's schedule ask the class as the working context (kelasKonteks);
+  // the decision on a request for another attempt asks the school of the request's class
+  "src/app/mengajar/pengerjaan-aksi.ts": {},
+  "src/app/konfigurasi/kesempatan/actions.ts": {},
 };
 /** Every other server-action file, and why it is not context-bound. */
 const AKSI_BEBAS: Record<string, string> = {

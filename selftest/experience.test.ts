@@ -355,6 +355,10 @@ const RESET_SURFACES = [
   "src/app/konfigurasi/sertifikat/page.tsx",
   // E5 and §11 (owner, 9 Nov): one person's roles and duties, built on the token set and the shared pin-* classes
   "src/app/konfigurasi/staf/page.tsx",
+  // A1 (O41-17): «Permintaan kesempatan tambahan», built on the token set and the shared pin-* classes
+  "src/app/konfigurasi/kesempatan/page.tsx",
+  // B1: «Catatan masuk dan cetak», built on the token set, the Collection's frame and the shared pin-* classes
+  "src/app/konfigurasi/catatan-masuk/page.tsx",
   // Owner ruling 2 (9 Nov): «Minta akun dibuka kembali» on the sign-in page's stage, built on the token set
   "src/app/masuk/buka-kembali/page.tsx",
   // DAISY-20 (Gate 3): «Aktifkan akun PINTAR Anda» on the sign-in page's
@@ -395,6 +399,8 @@ const RESET_SURFACES = [
   "src/app/studio/page.tsx",
   "src/app/studio/paket/[course]/page.tsx",
   "src/app/studio/tinjau/page.tsx",
+  // C1w (Daisy Q6): the second person's page for a waiting key correction, from «Antrean Tinjauan»
+  "src/app/studio/tinjau/kunci/[koreksi]/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */
@@ -2135,7 +2141,53 @@ export const experienceTests: SelfTest[] = [
       // status and a refusal code, not a mark, a logo, a crest or a theme.
       // MOVED 223 -> 224 for D-199 (owner, 10 Nov; 20270113160000: the public certificate check's date is the issuing
       // school's day). Read against §3: one date's calendar day, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 224, `${migrations.length} migrations; the frozen baseline has 224`);
+      // MOVED 224 -> 225 for B0, administrator lock-out protection (20270113170000: the last-holder rule in the role
+      // guard, the renewal, the operator's recovery and the expiry read). Read against §3: roles and their end dates, not
+      // a mark, a logo, a crest or a theme.
+      // MOVED 225 -> 226 for A1, sitting control (20270114100000: the sitting-management capability, the teacher's two
+      // endings, the deadline rule, a held sitting, another attempt and the window). Read against §3: a sitting's state
+      // and who may act on it, not a mark, a logo, a crest or a theme.
+      // MOVED 226 -> 227 for A1's scheduler (20270114110000: pg_cron and the one five-minute job that closes abandoned
+      // sittings, the owner's Option A). Read against §3: an extension and a schedule, not a mark, a logo, a crest or a theme.
+      // MOVED 227 -> 228 for C1w, the item workbench (20270115100000: the draft editor, a question's identity on upload,
+      // a revision of the head, a question's history, a correction replacing its predecessor, a withdrawn release).
+      // Read against §3: questions, their versions and a release's state, not a mark, a logo, a crest or a theme.
+      // MOVED 228 -> 229 for C1w's governed key correction (20270115110000: the correction, the result chain and its
+      // basis, the certificate review). Read against §3: results and a review record, not a mark, a logo, a crest or a theme.
+      // MOVED 229 -> 230 for B1, accountability events (20270116100000: the sign-in and print record, its writer, reader,
+      // purge and the personal-data deletion's narrow exception). Read against §3: who signed in and when, not a mark, a
+      // logo, a crest or a theme.
+      // MOVED 230 -> 231 for B1's one job installer (20270116110000: every scheduled job declared once, installed by one
+      // installer, and a health read). Read against §3: schedules, not a mark, a logo, a crest or a theme.
+      // MOVED 231 -> 232 for B1's correction (20270116120000: a school reads only its own school of a sign-in record's
+      // snapshot; the purge runs until done; overdue rows are reported). Read against §3: who reads a record, not a mark,
+      // a logo, a crest or a theme.
+      // MOVED 232 -> 233 for the bounded auth correction (owner, 11 Nov; 20270116130000: a locked account is locked until
+      // one instant Auth can read; PIN recovery answers it as a wrong PIN). Read against §3: an account's lock, not a mark,
+      // a logo, a crest or a theme.
+      // MOVED 233 -> 234, RESTATED, F-1 (O41-21): C1w's correction pass (20270117100000: every view of a corrected answer
+      // marks it by the key in force). Read against §3: which answers count as right, not a mark, a logo, a crest or a theme.
+      // MOVED 234 -> 235, RESTATED, L-1 (Sharon §6b): 20270117110000 (a locked account is given no password by a grant or an
+      // activation). Read against §3: who may set a password, not a mark, a logo, a crest or a theme.
+      // MOVED 235 -> 236, RESTATED, F-1 fix (Sharon, C1W-F1-CORRECTION.md §0): 20270117120000 (the learner's review gives no
+      // sealed rationale beside a corrected mark). Read against §3: what a mark is explained by, not a logo, a crest or a theme.
+      // MOVED 236 -> 237, RESTATED, L1-F4 (owner, 12 Nov): 20270117130000 (an anonymised person is given nothing new). Read
+      // against §3: who may be attached to whom, not a mark, a logo, a crest or a theme.
+      // MOVED 237 -> 238, RESTATED, F1-R1b (owner, 12 Nov): 20270117140000 (a key correction withdraws the explanations it
+      // makes stale; INV-03 amended). Read against §3: which explanation a question carries, not a logo, a crest or a theme.
+      // MOVED 238 -> 239, RESTATED, B2 (THE PLAN §5.2): 20270117150000 (a printed report is owned by the schools whose
+      // evidence it shows). Read against §3: who a print belongs to, not a mark, a logo, a crest or a theme.
+      // MOVED 239 -> 240, RESTATED, L1-F2 and L1-R2 (owner, 12 Nov): 20270117160000 (a suspension covers the accounts made
+      // after it). Read against §3: who may sign in, not a mark, a logo, a crest or a theme.
+      // MOVED 240 -> 241, RESTATED, L1-F4 (Sharon's required change, 12 Nov): 20270117170000 (a closure records what it
+      // held). Read against §3: when a deletion may proceed, not a mark, a logo, a crest or a theme.
+      // MOVED 241 -> 242, RESTATED, F1-R1b (Daisy's refinement, 12 Nov): 20270117180000 (the teacher's marker reads the
+      // answers in its view). Read against §3: what a teacher is told about answers, not a mark, a logo, a crest or a theme.
+      // MOVED 242 -> 243, RESTATED, L1-F2 (Sharon's result review of e27f4a77): 20270117190000 (the person row before the
+      // account rows). Read against §3: the order of locks, not a mark, a logo, a crest or a theme.
+      // MOVED 243 -> 244, RESTATED, L1-F4 (Sharon's result review of 3a63a2b2): 20270117200000 (an anonymised person is never
+      // reopened). Read against §3: when an account may be reopened, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 244, `${migrations.length} migrations; the frozen baseline has 244`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3983,7 +4035,27 @@ export const experienceTests: SelfTest[] = [
       // MOVED 205 -> 206 for SI-D01's remaining findings: acts on a sitting decided over its place touch no tour RPC.
       // MOVED 222 -> 223 for 20270113150000 (the owner's withdrawn ruling and two defects, 10 Nov): no tour RPC.
       // MOVED 223 -> 224 for 20270113160000 (D-199, the public check's date on the school's clock): no tour RPC.
-      c.expect(migs.length === 224, `${migs.length} migrations; the baseline has 224`);
+      // MOVED 224 -> 225 for 20270113170000 (B0: the last administrator, the renewal, the operator's recovery): no tour RPC.
+      // MOVED 225 -> 226 for 20270114100000 (A1: sitting control, acts on a sitting and its assignment's window): no tour RPC.
+      // MOVED 226 -> 227 for 20270114110000 (A1: the scheduler of abandoned sittings, pg_cron): no tour RPC.
+      // MOVED 227 -> 228 for 20270115100000 (C1w: the draft editor, identity on upload, revision, history, withdrawal): no tour RPC.
+      // MOVED 228 -> 229 for 20270115110000 (C1w: the governed key correction and the certificate review): no tour RPC.
+      // MOVED 229 -> 230 for 20270116100000 (B1: the sign-in and print record): no tour RPC.
+      // MOVED 230 -> 231 for 20270116110000 (B1: the one job installer and its health read): no tour RPC.
+      // MOVED 231 -> 232 for 20270116120000 (B1's correction: the reader's snapshot, the purge, the health read): no tour RPC.
+      // MOVED 232 -> 233 for 20270116130000 (the auth correction: the lock's instant, PIN recovery of a locked account): no tour RPC.
+      // MOVED 233 -> 234, RESTATED, F-1 (O41-21), for 20270117100000 (the key in force in every view of a corrected answer): no tour RPC.
+      // MOVED 234 -> 235, RESTATED, L-1 (Sharon §6b), for 20270117110000 (the two password permits consult the lock): no tour RPC.
+      // MOVED 235 -> 236, RESTATED, F-1 fix (Sharon §0), for 20270117120000 (session_review's rationale): no tour RPC.
+      // MOVED 236 -> 237, RESTATED, L1-F4, for 20270117130000 (the attachment guard and its registry): no tour RPC.
+      // MOVED 237 -> 238, RESTATED, F1-R1b, for 20270117140000 (the withdrawn explanation and its reference): no tour RPC.
+      // MOVED 238 -> 239, RESTATED, B2, for 20270117150000 (the person-scoped print and its one read): no tour RPC.
+      // MOVED 239 -> 240, RESTATED, L1-F2, for 20270117160000 (the lock on the link and the permit delete): no tour RPC.
+      // MOVED 240 -> 241, RESTATED, L1-F4, for 20270117170000 (the closure's record; the deletion's measure): no tour RPC.
+      // MOVED 241 -> 242, RESTATED, F1-R1b, for 20270117180000 (the teacher's marker reads the answers in its view): no tour RPC.
+      // MOVED 242 -> 243, RESTATED, L1-F2, for 20270117190000 (the lock order: person first, auth.users before accounts): no tour RPC.
+      // MOVED 243 -> 244, RESTATED, L1-F4, for 20270117200000 (the deletion and the reopen take the person first): no tour RPC.
+      c.expect(migs.length === 244, `${migs.length} migrations; the baseline has 244`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

@@ -22,7 +22,9 @@ type Db = any;
 
 /** E-A1-1: the misconception an option is coded with, named as the school's taxonomy names it (the code when unnamed). */
 export type MiskonsepsiOpsi = { kode: string; nama: string | null };
-export type OpsiTinjauan = { label: string; isi: string; kunci: boolean; alasan: string; miskonsepsi?: MiskonsepsiOpsi };
+export type OpsiTinjauan = { label: string; isi: string; kunci: boolean;
+  /** F1-R1b: null when a confirmed key correction withdrew it (INV-03 as amended, ADR-0025) */
+  alasan: string | null; miskonsepsi?: MiskonsepsiOpsi };
 export type SoalTinjauan = {
   id: string;
   /** PRE_TEST / POST_TEST when the item belongs to the cycle's tests, else null */
@@ -39,7 +41,7 @@ export type PelajaranTinjauan = { id: string; judul: string; soal: SoalTinjauan[
 type Modul = { id: string; ordinal: number };
 type Pelajaran = { id: string; module_id: string; ordinal: number; title: string };
 type Item = { id: string; lesson_id: string; cycle_role: string | null; bank_type: string; stimulus: string | null; stem: string; created_at: string; predicted_difficulty?: number | null };
-type Opsi = { item_id: string; label: string; body: string; is_correct: boolean; rationale: string; misconception_code?: string | null };
+type Opsi = { item_id: string; label: string; body: string; is_correct: boolean; rationale: string | null; misconception_code?: string | null };
 
 const PERAN_URUT: Record<string, number> = { PRE_TEST: 0, POST_TEST: 1 };
 

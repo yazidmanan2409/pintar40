@@ -359,8 +359,12 @@ export const dr150bTests: SelfTest[] = [
              + (select count(*) from pg_namespace where nspowner = 'pintar_backup'::regrole) + (select count(*) from pg_type where typowner = 'pintar_backup'::regrole);
         select coalesce(string_agg(nspname, ','), '-') from pg_namespace where has_schema_privilege('pintar_backup', oid, 'CREATE');
         select has_database_privilege('pintar_backup', current_database(), 'CREATE');
+        -- RESTATED, A1 (owner, Option A): ONE named exception, DELETE on cron.job_run_details (pg_cron's own run log;
+        -- the grant is PUBLIC's, made by supabase_admin, and cannot be revoked by PINTAR). Every other privilege on that
+        -- table, and every write privilege on every other relation (cron.job included), is still refused here.
         select coalesce(string_agg(c.oid::regclass::text, ','), '-') from pg_class c where c.relkind in ('r','p','v','m','f') and c.oid <> 'pg_catalog.pg_settings'::regclass
-           and (has_table_privilege('pintar_backup', c.oid, 'INSERT,UPDATE,DELETE,TRUNCATE,TRIGGER,REFERENCES'));
+           and (has_table_privilege('pintar_backup', c.oid, 'INSERT,UPDATE,TRUNCATE,TRIGGER,REFERENCES')
+                or (has_table_privilege('pintar_backup', c.oid, 'DELETE') and c.oid is distinct from to_regclass('cron.job_run_details')));
         select count(*) from pg_class c where case when c.relkind = 'S' then has_sequence_privilege('pintar_backup', c.oid, 'USAGE,UPDATE') else false end;
         -- (the selftest schema is CI's own harness, made by the test runner and never deployed: its fixtures are PUBLIC's)
         select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
@@ -370,15 +374,23 @@ export const dr150bTests: SelfTest[] = [
         select count(*) filter (where not has_table_privilege('pintar_backup', c.oid, 'SELECT')) || '/' || count(*)
           from pg_class c join pg_namespace n on n.oid = c.relnamespace
          where c.relkind in ('r','p') and n.nspname in ('public','auth','storage','telemetry','supabase_migrations','pintar_permintaan');
-        select string_agg(x, ',' order by x) from pg_db_role_setting s, unnest(s.setconfig) x where s.setrole = 'pintar_backup'::regrole and s.setdatabase = 0;`);
+        select string_agg(x, ',' order by x) from pg_db_role_setting s, unnest(s.setconfig) x where s.setrole = 'pintar_backup'::regrole and s.setdatabase = 0;
+        -- the exception, as it stands in the catalog: PUBLIC's grant by the table's owner, pintar_backup named nowhere in it
+        select case when to_regclass('cron.job_run_details') is null then 'absent' else (
+          select concat_ws('|', has_table_privilege('pintar_backup', c.oid, 'DELETE'), has_table_privilege('pintar_backup', c.oid, 'INSERT,UPDATE,TRUNCATE,TRIGGER,REFERENCES'),
+                 c.relowner::regrole, exists (select 1 from aclexplode(c.relacl) a where a.grantee = 0 and a.privilege_type = 'DELETE' and a.grantor = c.relowner),
+                 exists (select 1 from aclexplode(c.relacl) a where a.grantee = 'pintar_backup'::regrole))
+            from pg_class c where c.oid = 'cron.job_run_details'::regclass) end;`);
       if (!c.expect(kat.ok, `the catalog could not be read: ${kat.err}`)) return c.verdict("");
-      const [atr, anggota, jadi, milik, skema, db, tulis, urutan, secdef, fungsi, baca, setel] = kat.out.trim().split("\n");
+      const [atr, anggota, jadi, milik, skema, db, tulis, urutan, secdef, fungsi, baca, setel, cron] = kat.out.trim().split("\n");
       c.expect(atr === "t t t f f f f 3", `pintar_backup's attributes (login bypassrls inherit super createdb createrole replication connlimit) are ${atr}`);
       c.expect(anggota === "pg_read_all_data:false", `pintar_backup belongs to ${anggota}, not to pg_read_all_data alone without admin`);
       c.expect(jadi === "0", `${jadi} role(s) can become pintar_backup or inherit its rights`);
       c.expect(milik === "0", `pintar_backup owns ${milik} object(s)`);
       c.expect(skema === "-" && db === "f", `pintar_backup may create in schema(s) ${skema}, or in the database (${db})`);
       c.expect(tulis === "-", `pintar_backup holds a write privilege on ${tulis}`);
+      c.expect(cron === "absent" || cron === "t|f|supabase_admin|t|f",
+        `the one exception is not PUBLIC's DELETE on cron.job_run_details, granted by its owner supabase_admin, and nothing more (delete|other writes|owner|public's grant|named): ${cron}`);
       c.expect(urutan === "0", `pintar_backup may advance ${urutan} sequence(s)`);
       c.expect(secdef === "0", `pintar_backup may execute ${secdef} SECURITY DEFINER function(s)`);
       c.expect(/^0\/\d{3,}$/.test(fungsi ?? ""), `pintar_backup may execute PINTAR functions: ${fungsi}`);
@@ -571,6 +583,8 @@ export const dr150bTests: SelfTest[] = [
   },
   {
     id: "DR-S14",
+    // RESTATED, A1 (owner, Option A): unchanged here; what it reads moved (backup.mjs excludes pg_cron's two tables by name;
+    // backup-profile.sql names DELETE on cron.job_run_details as the one exception). The manifest says so.
     requires: ["db"],
     run: async ({ repoRoot }) => {
       const c = new Checks();
@@ -737,6 +751,8 @@ export const dr150bTests: SelfTest[] = [
   },
   {
     id: "DR-S16",
+    // RESTATED, A1 (owner, Option A): unchanged here; what it reads moved (backup.mjs excludes pg_cron's two tables by name;
+    // backup-profile.sql names DELETE on cron.job_run_details as the one exception). The manifest says so.
     requires: ["db"],
     run: async ({ repoRoot }) => {
       const c = new Checks();
@@ -911,6 +927,16 @@ rollback;
         psql(pg, `alter role pintar_backup password '${kata}'`);
         await storageRest(st, "POST", "bucket", JSON.stringify({ id: BUCKET, name: BUCKET, public: false }));
         for (const [n, b] of Object.entries(files)) await storageRest(st, "POST", `object/${BUCKET}/${n}`, b, "application/octet-stream");
+        // RESTATED, B1 (the correction pass; THE PLAN §6.3): the sign-in record's three tables travel with the bundle. A
+        // row of each is made known on the source first (an event by the writer, a counted failure on a day long past,
+        // so the health read's seven days are untouched; the store's start row is there already) and taken away again
+        // at the end. Was: the bundle's contents were checked as a whole (facts), not B1's tables by name.
+        const b1Event = psql(pg, `select (public.akuntabilitas_catat('SIGN_IN_FAILED', 'PASSWORD', 'MASUK_TIDAK_COCOK', null, null, '${"d".repeat(64)}', '192.0.2.0/24', null)) ->> 'id'`).out.trim();
+        psql(pg, "insert into public.accountability_write_failures (day, kind, n, last_at) values ('2001-01-01', 'SIGN_OUT', 1, '2001-01-01') on conflict do nothing");
+        const b1Isi = (p: Pg) => psql(p, `select (select count(*) from public.accountability_events) || '|' || (select count(*) from public.accountability_store) || '|'
+          || (select count(*) from public.accountability_write_failures) || '|' || (select count(*) from public.accountability_events where id = ${Number(b1Event) || 0}
+             and identifier_hash = '${"d".repeat(64)}' and network_origin = '192.0.2.0/24') || '|' || (select count(*) from public.accountability_write_failures where day = '2001-01-01')`).out.trim();
+        const b1Sumber = b1Isi(pg);
         // 1. the bundle, from CI's database and Storage, as pintar_backup
         const bundle = join(dir, "bundle");
         const bin = pgBin(pg);
@@ -940,6 +966,11 @@ rollback;
         c.expect(a.code === 0 && /SAFE TO REOPEN/.test(a.text) && /facts: \d+ compared, 0 difference/.test(a.text) && /Storage: 2 object|Storage: \d+ object/.test(a.text),
           `the restore into the empty stack: exit ${a.code}; ${a.text.trim().split("\n").slice(-6).join(" | ").slice(0, 900)}`);
         c.note(`logical path on CI: restored and verified in ${Math.round((Date.now() - t0) / 1000)} s`);
+        // RESTATED, B1 (the correction pass): B1's three tables are in the bundle with their rows and come back as they were
+        const dataB1 = readFileSync(join(bundle, "data.sql"), "utf8");
+        c.expect(["accountability_events", "accountability_store", "accountability_write_failures"].every((t) => new RegExp(`^COPY "public"\\."${t}"`, "m").test(dataB1))
+          && /\|1\|1$/.test(b1Sumber) && b1Isi(target) === b1Sumber,
+          `the sign-in record's tables on the restored copy (events|store|failures|the known event|the known failure): ${b1Isi(target)}, on the source ${b1Sumber}`);
         // the new project's default privileges did not open anything: anon's reach equals the source's
         const anon = (p: Pg) => psql(p, "select count(*) filter (where has_table_privilege('anon', c.oid, 'SELECT,INSERT,UPDATE,DELETE')) from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relkind in ('r','v','m','p')").out.trim();
         c.expect(anon(target) === anon(pg), `anon reaches ${anon(target)} public relation(s) on the copy, ${anon(pg)} on its source`);
@@ -977,8 +1008,60 @@ rollback;
         c.expect(g.code !== 0 && !/FILES PUT BACK/.test(g.text) && /has no file in the bundle/.test(g.text) && /1 row\(s\) with no file in the bundle/.test(g.text),
           `a row with no file in the bundle: exit ${g.code}; ${g.text.trim().split("\n").slice(-2).join(" | ").slice(0, 300)}`);
         psql(su, `set storage.allow_delete_query = 'true'; delete from storage.objects where bucket_id = '${BUCKET}' and name = 'made-after.bin'`, { stopOnError: false });
+        // 6. RESTATED, A1 (owner, Option A): the abandoned-sitting job after a restore. pg_cron's own tables are not in the
+        //    bundle; the restore's installer put the one job back; a copy without it is not safe to reopen; installing
+        //    again leaves one; and the job's own command, run on the copy, ends and scores a sitting past its deadline
+        //    RESTATED, B1 (THE PLAN §6.3; F-8): every job the one installer declares (A1's and B1's daily purge) is back
+        //    on the copy, each once, as declared; a job removed by hand is named by the health read and makes the copy
+        //    unsafe to reopen; the one installer, run twice, puts each back once. Was: A1's one job and A1's installer.
+        const JOB = "pintar-pengerjaan-tutup-terjadwal";
+        const JOB_B1 = "pintar-akuntabilitas-buang-lama";
+        const jobs = (p: Pg) => psql(p, `select count(*) || '|' || coalesce(max(schedule || ' ' || command || ' ' || active || ' ' || database), '-') from cron.job where jobname = '${JOB}'`).out.trim();
+        const jobsB1 = (p: Pg) => psql(p, `select count(*) || '|' || coalesce(max(schedule || ' ' || command || ' ' || active || ' ' || database), '-') from cron.job where jobname = '${JOB_B1}'`).out.trim();
+        const dataSql = readFileSync(join(bundle, "data.sql"), "utf8");
+        c.expect(!/^COPY "cron"\./m.test(dataSql) && /^COPY "public"\."assessment_sessions"/m.test(dataSql) && /^COPY "public"\."accountability_events"/m.test(dataSql),
+          "the bundle carries pg_cron's own tables, or not the sittings or the sign-in record");
+        c.expect(/scheduled jobs: done/.test(a.text) && /scheduled jobs: 2 declared, each installed once/.test(a.text)
+          && jobs(target) === `1|*/5 * * * * select public.pengerjaan_tutup_terjadwal() true ${target.PGDATABASE}`
+          && jobsB1(target) === `1|17 19 * * * select public.akuntabilitas_buang_lama() true ${target.PGDATABASE}`,
+          `the jobs on the restored copy: ${jobs(target)}; ${jobsB1(target)}; ${a.text.split("\n").filter((l) => /scheduled job/.test(l)).join(" | ")}`);
+        // the health read on the restored copy, as restored: no declared job missing or different
+        const sehat0 = psql(target, "select (public.pintar_periksa_kesehatan() -> 'hilang')::text || '|' || (public.pintar_periksa_kesehatan() -> 'berbeda')::text").out.trim();
+        c.expect(sehat0 === "[]|[]", `the health read on the restored copy names a job missing or different: ${sehat0}`);
+        psql(target, `select cron.unschedule('${JOB_B1}')`);
+        const sehat = psql(target, "select public.pintar_periksa_kesehatan() -> 'hilang'").out.trim();
+        const h = restore("--verify-only", "--storage");
+        c.expect(sehat === `["${JOB_B1}"]` && h.code !== 0 && !/SAFE TO REOPEN/.test(h.text) && new RegExp(`the scheduled job ${JOB_B1} is not installed \\(missing\\)`).test(h.text),
+          `a copy with a job removed by hand: the health read names ${sehat}; exit ${h.code}; ${h.text.trim().split("\n").slice(-2).join(" | ").slice(0, 300)}`);
+        psql(target, `select cron.unschedule('${JOB}')`);
+        const pasang = psql(target, "select public.pintar_jadwal_pasang() ->> 'ok'; select public.pintar_jadwal_pasang() ->> 'ok';");
+        const i = restore("--verify-only", "--storage");
+        c.expect(pasang.ok && pasang.out.trim() === "true\ntrue" && jobs(target).startsWith("1|") && jobsB1(target).startsWith("1|") && i.code === 0 && /SAFE TO REOPEN/.test(i.text),
+          `the one installer run twice on the copy: ${pasang.out.trim().replace(/\n/g, ",")} ${pasang.err}; jobs ${jobs(target)} / ${jobsB1(target)}; verification exit ${i.code}`);
+        // (last, because it changes the copy: a finished sitting of the copy is made open and overdue again, past the triggers)
+        const jalan = psql(target, `begin; set local session_replication_role = replica;
+          create temp table dr_d02_s on commit drop as select s.id from public.assessment_sessions s
+            where s.status = 'FINALIZED' and exists (select 1 from public.assessment_results r where r.session_id = s.id) order by s.created_at, s.id limit 1;
+          delete from public.result_views where session_id in (select id from dr_d02_s);
+          delete from public.certificates where session_id in (select id from dr_d02_s);
+          delete from public.assessment_results where session_id in (select id from dr_d02_s);
+          delete from public.audit_log where action = 'assessment_session.ended_by_deadline' and target_id in (select id::text from dr_d02_s);
+          update public.assessment_sessions set status = 'IN_PROGRESS', submitted_at = null, finalized_at = null, closure_kind = null, closure_at = null,
+                 authoritative_deadline = now() - interval '1 hour' where id in (select id from dr_d02_s);
+          set local session_replication_role = origin;
+          select set_config('dr.cmd', (select command from cron.job where jobname = '${JOB}'), true);
+          do $j$ begin execute current_setting('dr.cmd'); end $j$;
+          select 'S|' || count(*) || '|' || coalesce(max(s.status || '/' || s.closure_kind || '/' || (select count(*) from public.assessment_results r where r.session_id = s.id)
+                 || '/' || (select count(*) from public.audit_log l where l.target_id = s.id::text and l.action = 'assessment_session.ended_by_deadline')), '-')
+            from public.assessment_sessions s where s.id in (select id from dr_d02_s);
+          commit;`);
+        const hasilJalan = jalan.out.split("\n").find((l) => l.startsWith("S|")) ?? "";
+        c.expect(jalan.ok && hasilJalan === "S|1|FINALIZED/DEADLINE/1/1", `the job's command on the restored copy (sittings|status/closure/results/audit rows): ${hasilJalan} ${jalan.err}`);
       } finally {
         stack?.stop();
+        // P3: B1's known rows taken away from the source again (past the store's guard: the harness's own hand)
+        psql(pg, `begin; set local session_replication_role = replica; delete from public.accountability_events where identifier_hash = '${"d".repeat(64)}' and network_origin = '192.0.2.0/24';
+          delete from public.accountability_write_failures where day = '2001-01-01'; commit;`, { stopOnError: false });
         psql(pg, "alter role pintar_backup password null; select pg_terminate_backend(pid) from pg_stat_activity where usename = 'pintar_backup';", { stopOnError: false });
         await storageRest(st, "DELETE", `object/${BUCKET}`, JSON.stringify({ prefixes: Object.keys(files) }));
         await storageRest(st, "DELETE", `bucket/${BUCKET}`);
@@ -986,7 +1069,9 @@ rollback;
       return c.verdict("a bundle collected by pintar_backup from CI's database and Storage restores into an empty Supabase stack with 0 differences, " +
         "every Storage file read back with its hash, anon's reach as its source's, the extension baseline held and readiness as its source: SAFE TO " +
         "REOPEN; an extension added on the copy makes its verification refuse, and removing it makes it safe again; after a native-like loss " +
-        "(a file gone, its row kept) --files-only puts the file back by hash and changes no row, and a row the bundle has no file for is named");
+        "(a file gone, its row kept) --files-only puts the file back by hash and changes no row, and a row the bundle has no file for is named; " +
+        "pg_cron's own tables are not in the bundle, the restore's one installer puts both declared jobs (the abandoned-sitting job and the sign-in record's purge) back exactly once, a copy with one removed by hand is named by the health read and " +
+        "refused, installing twice leaves one, and the job's own command on the copy ends and scores a sitting past its deadline, once");
     },
   },
   {

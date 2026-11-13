@@ -11,6 +11,10 @@ import { join, relative, basename } from "node:path";
 import { Checks, compiledBundle, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
+import { b1Tests } from "./b1.test";
+import { b2Tests } from "./b2.test";
+import { l1f2BalapanTests } from "./l1f2-balapan.test";
+import { l1f4BalapanTests } from "./l1f4-balapan.test";
 import { emailTests } from "./email.test";
 import { d1Tests } from "./d1.test";
 import { retroTests } from "./retro.test";
@@ -80,6 +84,7 @@ import { bob41Tests } from "./bob41.test";
 import { bob25Tests } from "./bob25.test";
 import { bob42Tests } from "./bob42.test";
 import { bob26Tests } from "./bob26.test";
+import { akunTerkunciTests } from "./akun-terkunci.test";
 import { bob50Tests } from "./bob50.test";
 import { bob51Tests } from "./bob51.test";
 import { emailJujurTests } from "./emailjujur.test";
@@ -118,6 +123,12 @@ import { b5bTests } from "./b5b.test";
 import { b6cTests } from "./b6c.test";
 import { b6kTests } from "./b6k.test";
 import { d168Tests } from "./d168.test";
+import { b0Tests } from "./b0.test";
+import { a1Tests } from "./a1.test";
+import { a1LayarTests } from "./a1-layar.test";
+import { c1wTests } from "./c1w.test";
+import { c1wLayarTests } from "./c1w-layar.test";
+import { b0LayarTests } from "./b0-layar.test";
 import { studio3bTests } from "./studio3b.test";
 import { penutupanTests } from "./penutupan.test";
 import { fable22Tests } from "./fable22.test";
@@ -2190,6 +2201,8 @@ export const staticTests: SelfTest[] = [
   ...bob25Tests,
   ...bob42Tests,
   ...bob26Tests,
+  // the bounded auth correction (owner, 11 Nov): a locked account is each method's ordinary mismatch
+  ...akunTerkunciTests,
   ...bob50Tests,
   ...bob51Tests,
   ...emailJujurTests,
@@ -2231,4 +2244,15 @@ export const staticTests: SelfTest[] = [
   ...b6cTests,
   ...b6kTests,
   ...d168Tests,
+  ...b0Tests,
+  ...b0LayarTests.filter((x) => x.id === "B0-K02"),
+  ...a1Tests,
+  ...a1LayarTests.filter((x) => ["A1-K02", "A1-S08", "A1-S09"].includes(x.id)),
+  ...c1wTests,
+  ...c1wLayarTests.filter((x) => x.id === "C1W-K02"),
+  // B1 · accountability events: the source, the helper, the database and the one installer
+  ...b1Tests,
+  ...b2Tests,
+  ...l1f2BalapanTests,
+  ...l1f4BalapanTests,
 ];

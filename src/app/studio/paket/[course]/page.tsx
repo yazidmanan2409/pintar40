@@ -26,10 +26,19 @@ import SimpanIsian from "@/components/SimpanIsian";
 import { TeksBaris } from "@/components/teks/Teks";
 import { soalPaket } from "@/lib/soal-tinjauan";
 import FokusSoal from "@/components/studio/FokusSoal";
+import FokusJudul from "@/components/studio/FokusJudul";
 import { akarGaris } from "@/lib/pengajar";
 import { jalurIni, konteksHalaman, tempatSaya } from "@/lib/konteks-server";
 import { alamatPilih, melayani } from "@/lib/konteks";
 import { judulHalaman } from "@/lib/judul-halaman";
+import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
+import {
+  BarisKoreksi, FormSoal, PerbaikiKunci, RiwayatSoal,
+  type KoreksiTerakhir, type Suntingan, type Tujuan, type VersiSoal,
+} from "@/components/studio/SoalKerja";
+import { buangDrafAksi } from "../../soal-actions";
+import { bacaMasalah, kalimatKodeC1 } from "@/lib/soal-layar";
+import { kodeKoreksiDariGalat, kunciKodeKoreksi, type DampakKoreksi } from "@/lib/soal-kontrak";
 
 export const generateMetadata = judulHalaman("/studio/paket/[course]");
 
@@ -70,7 +79,10 @@ export const generateMetadata = judulHalaman("/studio/paket/[course]");
  */
 
 type Params = Promise<{ course: string }>;
-type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; baris?: string; pelajaran?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; baris?: string; pelajaran?: string;
+  // C1w: the editor and the key correction, carried in the address (Daisy Q5, Q6)
+  ubah?: string; tambah?: string; kunci?: string; langkah?: string; baru?: string; alasan?: string;
+  c1?: string; c1h?: string; c1s?: string; c1m?: string }>;
 
 type Finding = Temuan;
 
@@ -187,6 +199,61 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   const iniPelajaran = Math.min(Math.max(1, Number.parseInt(sp.pelajaran ?? "1", 10) || 1), Math.max(1, pelajaranSoal.length));
   const sebelumIni = pelajaranSoal.slice(0, iniPelajaran - 1).reduce((n, l) => n + l.soal.length, 0);
 
+  // ── C1w (Daisy Q5, Q6): the workbench's reads, only for the lesson on screen and only for the people they are for
+  const lessonKini = pelajaranSoal[iniPelajaran - 1] ?? null;
+  const idSoalKini = lessonKini?.soal.map((q) => q.id) ?? [];
+  const UUIDRE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const rilisIni = (releases ?? []).at(-1) ?? null;
+  const terbitIni = rilisIni?.status === "PUBLISHED" || rilisIni?.status === "SUPERSEDED";
+  const [{ data: suntinganData }, { data: tujuanRows }, { data: objRows }, { data: koreksiData }] = await Promise.all([
+    can(inst, "CAN_DRAFT") ? supabase.rpc("suntingan_draf", { p_course: courseId }) : Promise.resolve({ data: null }),
+    can(inst, "CAN_DRAFT") && lessonKini
+      ? supabase.from("learning_objectives").select("id, code, statement, lesson_id").eq("lesson_id", lessonKini.id).order("code")
+      : Promise.resolve({ data: [] }),
+    idSoalKini.length > 0 ? supabase.from("items").select("id, objective_ids").in("id", idSoalKini) : Promise.resolve({ data: [] }),
+    terbitIni && idSoalKini.length > 0 ? supabase.rpc("koreksi_kunci_terakhir", { p_items: idSoalKini }) : Promise.resolve({ data: [] }),
+  ]);
+  const suntingan = (suntinganData ?? null) as { dapat_diubah: boolean; status: string; soal: Suntingan[] } | null;
+  const dapatDiubah = can(inst, "CAN_DRAFT") && suntingan?.dapat_diubah === true;
+  const suntinganDari = new Map((suntingan?.soal ?? []).map((x) => [x.item, x]));
+  const tujuanPaket = (tujuanRows ?? []) as Tujuan[];
+  const objektif = new Map(((objRows ?? []) as Array<{ id: string; objective_ids: string[] | null }>).map((x) => [x.id, x.objective_ids ?? []]));
+  const koreksiDari = new Map(((koreksiData ?? []) as KoreksiTerakhir[]).map((k) => [k.item, k]));
+  // «Riwayat soal», per published or sealed question (Daisy Q5); a read refused or failed is said, never left out
+  const riwayatDari = new Map<string, VersiSoal[] | null>();
+  if (terkunci) {
+    await Promise.all(idSoalKini.map(async (q) => {
+      const { data, error } = await supabase.rpc("riwayat_soal", { p_item: q });
+      riwayatDari.set(q, error ? null : ((data as { versi?: VersiSoal[] } | null)?.versi ?? []));
+    }));
+  }
+  // «Kunci jawaban keliru?» is the owner's (ajukan_koreksi_kunci decides): the newest version of a published package
+  const bolehKoreksi = can(inst, "CAN_PUBLISH") && terbitIni && !penerus;
+  const ubahIni = dapatDiubah && sp.ubah && UUIDRE.test(sp.ubah) ? sp.ubah : null;
+  const tambahIni = dapatDiubah && sp.tambah && UUIDRE.test(sp.tambah) ? sp.tambah : null;
+  const kunciIni = bolehKoreksi && sp.kunci && idSoalKini.includes(sp.kunci) ? sp.kunci : null;
+  const langkahKunci = (sp.langkah === "2" ? 2 : sp.langkah === "3" ? 3 : 1) as 1 | 2 | 3;
+  const baruKunci = /^[A-E]$/.test(sp.baru ?? "") ? sp.baru! : "";
+  const alasanKunci = (sp.alasan ?? "").slice(0, 300);
+  let dampakKunci: DampakKoreksi | null = null;
+  let galatKunci: string | null = null;
+  if (kunciIni && langkahKunci > 1) {
+    const { data, error } = await supabase.rpc("pratinjau_koreksi_kunci", { p_item: kunciIni, p_kunci: baruKunci ? [baruKunci] : [] });
+    if (error) galatKunci = s(kunciKodeKoreksi(kodeKoreksiDariGalat(error)));
+    else if (alasanKunci.trim().length < 10) galatKunci = s("studio.koreksi.galat.correction_reason_required");
+    else dampakKunci = data as DampakKoreksi;
+  }
+  // a refused key proposal comes back to step 1 with its sentence
+  if (kunciIni && sp.c1h === "gagal" && sp.c1s === kunciIni && !galatKunci) galatKunci = kalimatKodeC1(sp.c1, s);
+  const c1Kalimat = sp.c1h === "ok" || sp.c1h === "gagal" ? kalimatKodeC1(sp.c1, s) : null;
+  const c1Masalah = sp.c1h === "gagal" && sp.c1 === "MASALAH" ? bacaMasalah(sp.c1m) : [];
+  // the stale save (Daisy, missing state 1): who saved this question since the form was opened
+  const basiOleh = sp.c1h === "gagal" && sp.c1 === "DRAFT_EDIT_CONFLICT" && ubahIni
+    ? (suntinganDari.get(ubahIni)?.nama_pengubah ?? "—") : null;
+  const adaKegunaan = [...new Set(pelajaranSoal.flatMap((l) => l.soal.map((q) => q.peran)).filter((x): x is "PRE_TEST" | "POST_TEST" => x === "PRE_TEST" || x === "POST_TEST"))];
+  const day = (iso: string | null | undefined) => (iso ? tanggal(iso, "baca", locale, zona) : "—");
+
+  const isiK = (k: HleEvent, v: Record<string, string>) => Object.entries(v).reduce((x, [a2, b2]) => x.split(`{${a2}}`).join(b2), s(k));
   const state = (Array.isArray(stateRows) ? stateRows[0] : stateRows) as
     | { surface_state: string; reasons: Hambatan[]; preview_lesson_id: string | null } | undefined;
 
@@ -230,7 +297,11 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
   // Polish batch 2 (UX-16): each move form names the class it moves, and where
   // it is now. The names are read only when the move section is on the page.
-  const bolehPindah = can(inst, "CAN_ASSIGN_LEARNING") && (assignments ?? []).length > 0 && published.length > 1;
+  // C1w (C1-R2): a published correction REPLACES its predecessor (C1w's publish_release), which then no longer reads as
+  // published, so «two published releases» stopped being the condition: an assignment may move when the line holds a
+  // published release other than the one it is on
+  const bolehPindah = can(inst, "CAN_ASSIGN_LEARNING")
+    && (assignments ?? []).some((a) => published.some((r) => r.id !== a.plp_release_id));
   const kelasIds = bolehPindah ? [...new Set((assignments ?? []).map((a) => a.node_id as string))] : [];
   const { data: kelasRows } = kelasIds.length > 0
     ? await supabase.from("org_nodes").select("id, name").in("id", kelasIds)
@@ -307,6 +378,11 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         <section className={card} id="soal" aria-labelledby="pin-soal-judul">
           <h2 id="pin-soal-judul" className="pin-studio-h3">{sl("studio.soal.judul")}</h2>
           <p className="pin-ket">{sl("studio.soal.arti")}</p>
+          {/* Daisy Q5: a submitted draft offers no «Ubah», and says why */}
+          {course.status === "IN_REVIEW" && can(inst, "CAN_DRAFT") ? <p className="pin-meta" data-soal-ditinjau="">{sl("studio.soal.sedang_ditinjau")}</p> : null}
+          {c1Kalimat && !sp.c1s && !ubahIni && !tambahIni && sp.c1 !== "MASALAH" ? (
+            <BarisHasil nada={sp.c1h === "ok" ? "ok" : "gagal"}>{c1Kalimat}{sp.ref && /^[A-Z0-9]{6}$/.test(sp.ref) ? ` ${sl("galat.rujukan")}: ${sp.ref}.` : ""}</BarisHasil>
+          ) : null}
           {!soal.ok ? (
             // A1 «gagal»: a read that failed is said so; no partial list, which could be mistaken for the whole
             <BarisHasil nada="gagal">{sl("studio.soal.gagal")}</BarisHasil>
@@ -349,8 +425,25 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                     <ol className="pin-soal-daftar">
                       {l.soal.map((q, qi) => {
                         const posisi = isi("studio.soal.posisi", { i: format.number(sebelumIni + qi + 1, locale), n: format.number(totalSoal, locale) });
+                        const sunt = suntinganDari.get(q.id) ?? null;
+                        const koreksiQ = koreksiDari.get(q.id) ?? null;
+                        if (ubahIni === q.id) {
+                          return (
+                            <li key={q.id} className="pin-soal" id={`soal-${q.id}`}>
+                              <FormSoal s={sl} course={courseId} pelajaran={iniPelajaran}
+                                judul={isi("studio.soal.ubah.judul", { posisi })} soal={q} lesson={l.id} suntingan={sunt}
+                                tujuan={tujuanPaket} objektifKini={objektif.get(q.id) ?? []} masalah={c1Masalah} basi={basiOleh}
+                                pemilik={pemilik} ditolak={sp.c1h === "gagal" && sp.c1s === q.id} bolehHapus adaKegunaan={[]} />
+                            </li>
+                          );
+                        }
                         return (
-                          <li key={q.id} className="pin-soal">
+                          <li key={q.id} className="pin-soal" id={`soal-${q.id}`}>
+                            {c1Kalimat && sp.c1s === q.id && !(kunciIni === q.id && sp.c1h === "gagal") ? (
+                              <BarisHasil nada={sp.c1h === "ok" ? "ok" : "gagal"}>{c1Kalimat}{sp.ref && /^[A-Z0-9]{6}$/.test(sp.ref) ? ` ${sl("galat.rujukan")}: ${sp.ref}.` : ""}</BarisHasil>
+                            ) : null}
+                            {/* after a save, the keyboard lands on the question it changed (its heading), not the page's top */}
+                            {sp.c1h === "ok" && sp.c1s === q.id ? <FokusJudul id={`pin-soal-${q.id}`} /> : null}
                             <article aria-labelledby={`pin-soal-${q.id}`}>
                               {/* package-wide numbering, the use and the band as text (A1 decisions 1 and 5) */}
                               <p className="pin-soal-meta">
@@ -360,7 +453,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                               {q.stimulus ? (
                                 <div className="pin-soal-bacaan"><p className="pin-soal-bacaan-label">{sl("studio.soal.bacaan")}</p><p><TeksBaris teks={q.stimulus} /></p></div>
                               ) : null}
-                              <h4 id={`pin-soal-${q.id}`} className="pin-soal-stem"><TeksBaris teks={q.pertanyaan} /></h4>
+                              <h4 id={`pin-soal-${q.id}`} tabIndex={-1} className="pin-soal-stem"><TeksBaris teks={q.pertanyaan} /></h4>
                               <ol className="pin-opsi-daftar" aria-label={posisi}>
                                 {q.opsi.map((o) => (
                                   <li key={o.label} className={o.kunci ? "pin-opsi pin-opsi-kunci" : "pin-opsi"}>
@@ -371,24 +464,80 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                                         {/* the key: icon, word, edge and ground; never colour alone (A1 decision 2) */}
                                         {o.kunci ? <> <strong className="pin-pill pin-ok pin-pill-ikon pin-studio-kunci"><Ikon nama="check" />{sl("studio.soal.kunci")}</strong></> : null}
                                       </p>
-                                      <p className="pin-opsi-alasan">{sl("studio.soal.alasan")}: <TeksBaris teks={o.alasan} /></p>
+                                      {/* F1-R1b: a rationale a confirmed key correction withdrew is owed, and says so (INV-03 as amended) */}
+                                      {o.alasan === null ? (
+                                        <p className="pin-opsi-alasan" data-alasan-ditarik=""><strong>{sl("studio.soal.alasan_ditarik").replace("{x}", o.label)}</strong></p>
+                                      ) : (
+                                        <p className="pin-opsi-alasan">{sl("studio.soal.alasan")}: <TeksBaris teks={o.alasan} /></p>
+                                      )}
                                       {/* E-A1-1: the misconception the option is coded with, by its name in the school's taxonomy */}
                                       {o.miskonsepsi ? (
                                         <p className="pin-opsi-alasan" data-miskonsepsi={o.miskonsepsi.kode}>
                                           {sl("studio.soal.miskonsepsi")}: {o.miskonsepsi.nama ?? o.miskonsepsi.kode}
                                           {o.miskonsepsi.nama ? <> <span className="pin-kode">{o.miskonsepsi.kode}</span></> : null}
                                         </p>
+                                      ) : !o.kunci ? (
+                                        /* F1-R1b, Daisy §6a: a wrong option with no code reads in the same place, «belum dikaitkan» */
+                                        <p className="pin-opsi-alasan" data-miskonsepsi-belum="">{sl("studio.soal.miskonsepsi")}: {sl("studio.soal.belum_dikaitkan")}</p>
                                       ) : null}
                                     </div>
                                   </li>
                                 ))}
                               </ol>
+                              {/* F1-R1b (Sharon §3a.1; Daisy §6a): any wrong option not linked to a misconception, said under the options */}
+                              {q.opsi.some((o) => !o.kunci && !o.miskonsepsi) ? (
+                                <p className="pin-meta" data-tak-terkait="">{sl("soal.tak_terkait")}</p>
+                              ) : null}
+                              {/* Daisy Q5: the attribution the page requires, once a question was changed in the app */}
+                              {sunt?.diubah_pada ? (
+                                <p className="pin-ket-3" data-soal-diubah={q.id}>{isi("studio.soal.diubah_oleh", { nama: sunt.nama_pengubah ?? "—", waktu: when(sunt.diubah_pada) })}</p>
+                              ) : null}
+                              {koreksiQ ? <BarisKoreksi s={sl} k={koreksiQ} when={when} /> : null}
+                              {(dapatDiubah || (bolehKoreksi && koreksiQ?.status !== "PENDING" && kunciIni !== q.id)) ? (
+                                <p className="pin-soal-tindakan">
+                                  {dapatDiubah ? (
+                                    <Link className="pin-studio-tautan" data-soal-ubah={q.id}
+                                      href={`/studio/paket/${encodeURIComponent(courseId)}?pelajaran=${iniPelajaran}&ubah=${q.id}#soal-${q.id}`}>
+                                      {sl("studio.soal.ubah")}<span className="pin-sr"> · {posisi}</span>
+                                    </Link>
+                                  ) : null}
+                                  {bolehKoreksi && koreksiQ?.status !== "PENDING" && kunciIni !== q.id ? (
+                                    <Link className="pin-studio-tautan" data-kunci-keliru={q.id}
+                                      href={`/studio/paket/${encodeURIComponent(courseId)}?pelajaran=${iniPelajaran}&kunci=${q.id}&langkah=1#kunci-${q.id}`}>
+                                      {sl("studio.kunci.keliru")}<span className="pin-sr"> · {posisi}</span>
+                                    </Link>
+                                  ) : null}
+                                </p>
+                              ) : null}
+                              {terkunci ? <RiwayatSoal s={sl} versi={riwayatDari.has(q.id) ? riwayatDari.get(q.id)! : []} day={day} /> : null}
                             </article>
+                            {kunciIni === q.id ? (
+                              <PerbaikiKunci s={sl} locale={locale} course={courseId} pelajaran={iniPelajaran} soal={q}
+                                langkah={galatKunci ? 1 : langkahKunci} baru={baruKunci} alasan={alasanKunci} dampak={dampakKunci} galat={galatKunci} />
+                            ) : null}
                           </li>
                         );
                       })}
                     </ol>
                   )}
+                  {/* Daisy Q5: «Tambah soal» at the end of the lesson's list opens the same form, empty */}
+                  {dapatDiubah ? (
+                    tambahIni === l.id ? (
+                      <div id={`tambah-${l.id}`}>
+                        <FormSoal s={sl} course={courseId} pelajaran={iniPelajaran}
+                          judul={isi("studio.soal.tambah.judul", { pelajaran: l.judul })} soal={null} lesson={l.id} suntingan={null}
+                          tujuan={tujuanPaket} objektifKini={[]} masalah={c1Masalah} basi={null}
+                          pemilik={pemilik} ditolak={sp.c1h === "gagal" && sp.tambah === l.id} bolehHapus={false} adaKegunaan={adaKegunaan} />
+                      </div>
+                    ) : (
+                      <p id={`tambah-${l.id}`}>
+                        <Link className={button} data-soal-tambah={l.id}
+                          href={`/studio/paket/${encodeURIComponent(courseId)}?pelajaran=${iniPelajaran}&tambah=${l.id}#tambah-${l.id}`}>
+                          {sl("studio.soal.tambah")}
+                        </Link>
+                      </p>
+                    )
+                  ) : null}
                 </section>
                 {pelajaranSoal.length > 1 ? (
                   // the pager's narrow form (its words out of sight, still its name) is a container rule, as Penomoran's
@@ -505,6 +654,20 @@ export default async function Paket({ params, searchParams }: { params: Params; 
             <Link className={button} href={`/studio/unggah?revisi=${courseId}#buku-kerja`}>{sl("studio.paket.revisi_unggah")}</Link>
           </p>
           <HasilDi q={sp} bagian="revisi" kalimat={banner} />
+        </section>
+      ) : null}
+
+      {/* Daisy Q5: «Buang draf ini», at the bottom of the page, through KonfirmasiBahaya; buang_draf decides */}
+      {dapatDiubah ? (
+        <section className={card} id="buang" aria-labelledby="pin-buang-judul">
+          <h2 id="pin-buang-judul" className="pin-studio-h3">{sl("studio.soal.buang")}</h2>
+          {sp.c1h === "gagal" && !sp.c1s && !ubahIni && !tambahIni && c1Kalimat && sp.c1 === "DRAFT_IN_USE" ? <BarisHasil nada="gagal">{c1Kalimat}</BarisHasil> : null}
+          <form action={buangDrafAksi} className="pin-actions">
+            <input type="hidden" name="course" value={courseId} />
+            <KonfirmasiBahaya id="buang-draf" tombol={sl("studio.soal.buang")}
+              tanya={isiK("studio.soal.buang.tanya", { judul: course.title, n: format.number(totalSoal, locale) })}
+              ya={sl("studio.soal.buang.ya")} batal={sl("studio.soal.batal")} sibuk={s("tombol.memproses")} />
+          </form>
         </section>
       ) : null}
 

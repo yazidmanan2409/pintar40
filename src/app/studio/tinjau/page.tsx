@@ -42,9 +42,37 @@ export default async function Tinjau() {
   const rows = (courses ?? []).filter((c) =>
     institutions.some((i) => i.id === c.institution_id && i.capabilities.includes("CAN_REVIEW")));
 
+  // C1w (Daisy Q6): «Perbaikan kunci menunggu konfirmasi», each school's waiting key corrections, by the database's
+  // own read (koreksi_kunci_antrean refuses anyone who is neither the owner nor a confirmer there)
+  type Antre = { koreksi: string; paket: string | null; kunci_lama: string[]; kunci_baru: string[]; nama_pengaju: string;
+    diajukan_pada: string; milik_sendiri: boolean; sekolah: string };
+  const antre: Antre[] = (await Promise.all(institutions
+    .filter((i) => i.capabilities.includes("CAN_REVIEW") || i.capabilities.includes("CAN_PUBLISH"))
+    .map(async (i) => {
+      const { data, error } = await supabase.rpc("koreksi_kunci_antrean", { p_institution: i.id });
+      return error ? [] : ((data ?? []) as Omit<Antre, "sekolah">[]).map((k) => ({ ...k, sekolah: i.id }));
+    }))).flat();
+
   return (
     <div className="pin-studio-halaman">
       <h2 className="pin-studio-h3">{s("studio.tinjau.judul")}</h2>
+      {antre.length > 0 ? (
+        <section className="pin-studio-halaman" aria-labelledby="pin-antre-kunci" data-antre-kunci={antre.length}>
+          <h3 id="pin-antre-kunci" className="pin-studio-h3">{s("studio.kunci.antrean")}</h3>
+          <div className="pin-list">
+            {antre.map((k) => (
+              <Link key={k.koreksi} href={`/studio/tinjau/kunci/${k.koreksi}`} className="pin-row" data-koreksi={k.koreksi}>
+                <span className="pin-title">{s("studio.kunci.halaman")}</span>
+                <span className="pin-rowmeta">
+                  <span>{s("studio.kunci.antrean.baris").replace("{paket}", k.paket ?? "—").replace("{lama}", k.kunci_lama.join(", "))
+                    .replace("{baru}", k.kunci_baru.join(", ")).replace("{nama}", k.nama_pengaju).replace("{waktu}", when(k.diajukan_pada, locale, zonaDari(k.sekolah)))}</span>
+                  {k.milik_sendiri ? <span>{s("studio.kunci.orang_kedua")}</span> : null}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
       {rows.length === 0 ? (
         <Kosong jenis="belum" kalimat={s("studio.tinjau.kosong")} />
       ) : (

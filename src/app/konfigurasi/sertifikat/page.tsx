@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { t, type HleEvent } from "@/lib/hle";
+import { format, t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
 import { konteksHalaman } from "@/lib/konteks-server";
@@ -18,6 +18,10 @@ import { zonaSekolahBanyak } from "@/lib/zona-sekolah";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { KODE_CABUT, KODE_GANTI, KEADAAN_SERTIFIKAT, type KeadaanSertifikat, type KodeCabut, type KodeGanti } from "@/lib/sertifikat-cabut-kontrak";
 import { kalimatHasil } from "@/lib/galat-kontrak";
+import TombolKirim from "@/components/TombolKirim";
+import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
+import { putuskanTinjauanAksi } from "@/app/studio/soal-actions";
+import { kodeKoreksiDariGalat, kunciKodeKoreksi, KODE_KOREKSI, type KodeKoreksi } from "@/lib/soal-kontrak";
 
 export const generateMetadata = judulHalaman("/konfigurasi/sertifikat");
 export const dynamic = "force-dynamic";
@@ -27,7 +31,9 @@ type Sertifikat = {
   course_title: string; issued_at: string; status: KeadaanSertifikat; revoked_at: string | null; revoked_reason: string | null;
   total: number;
 };
-type Sp = { cari?: string; hal?: string; pilih?: string; hasil?: string; kode?: string; jenis?: string };
+type Sp = { cari?: string; hal?: string; pilih?: string; hasil?: string; kode?: string; jenis?: string; tinjau?: string; ref?: string; baris?: string };
+type Ditinjau = { tinjauan: string; sertifikat: string; nomor: string; nama: string; paket: string | null; dibuka_pada: string;
+  sebelum: number | null; sesudah: number | null; target: number | null; boleh_putuskan: boolean };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -82,6 +88,25 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
   // the owner's ruling (10 Nov): each certificate's dates on its issuing school's clock, one read for the schools listed
   const zonaDari = await zonaSekolahBanyak(supabase, [...daftar.map((c) => c.institution_id), dipilih?.institution_id]);
   const gantiKini = sp.jenis === "ganti";
+  // C1w (O41-19, Daisy Q6): «Sedang ditinjau ({n})» at the top, only when n > 0, in the public page's own words; each
+  // row decided here (putuskan_tinjauan_sertifikat: «Konfirmasi berlaku» or «Cabut», each with a reason, each audited).
+  // A certificate confirmed after its recalculation keeps «Dikonfirmasi setelah dihitung ulang · {alasan}» in the list
+  const [{ data: ditinjauData }, { data: dikonfirmasiData }] = sekolahIni
+    ? await Promise.all([
+        supabase.rpc("tinjauan_sertifikat_antrean", { p_institution: sekolahIni }),
+        supabase.rpc("tinjauan_sertifikat_dikonfirmasi", { p_institution: sekolahIni }),
+      ])
+    : [{ data: [] }, { data: [] }];
+  const ditinjau = ((ditinjauData ?? []) as Ditinjau[]).filter((r) => r.boleh_putuskan);
+  const dikonfirmasi = new Map(((dikonfirmasiData ?? []) as Array<{ sertifikat: string; alasan: string }>).map((r) => [r.sertifikat, r.alasan]));
+  const sedangDitinjau = new Set(((ditinjauData ?? []) as Ditinjau[]).map((r) => r.sertifikat));
+  const zonaTinjau = zonaDari(sekolahIni);
+  const pct = (n: number | null) => (n === null ? "—" : format.percent(n, locale));
+  const kodeTinjau: KodeKoreksi = KODE_KOREKSI.includes(sp.kode as KodeKoreksi) ? (sp.kode as KodeKoreksi) : kodeKoreksiDariGalat(null);
+  const hasilTinjau = sp.tinjau === "dikonfirmasi" ? s("config.tinjau_sertifikat.ok_konfirmasi")
+    : sp.tinjau === "dicabut" ? s("config.tinjau_sertifikat.ok_cabut")
+    : sp.tinjau === "gagal" ? s(kunciKodeKoreksi(kodeTinjau)) + (sp.ref && /^[A-Z0-9]{6}$/.test(sp.ref) ? ` ${s("galat.rujukan")}: ${sp.ref}.` : "")
+    : null;
   const digantikan = dipilih?.status === "SUPERSEDED";
 
   const tautanPilih = (id: string) => {
@@ -119,6 +144,45 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
           <h1 className="pin-h1">{s("sertifikat.kelola.judul")}</h1>
           <p className="pin-intro">{s(platformIni ? "sertifikat.kelola.intro.platform" : "sertifikat.kelola.intro")}</p>
         </div>
+        {hasilTinjau && ditinjau.length === 0 ? <BarisHasil nada={sp.tinjau === "gagal" ? "gagal" : "ok"}>{hasilTinjau}</BarisHasil> : null}
+        {ditinjau.length > 0 ? (
+          <section className="pin-sec pin-sertifikat-ditinjau" id="ditinjau" aria-labelledby="pin-ditinjau-judul" data-sertifikat-ditinjau={ditinjau.length}>
+            <h2 id="pin-ditinjau-judul">{s("config.tinjau_sertifikat.judul").replace("{n}", format.number(ditinjau.length, locale))}</h2>
+            <p className="pin-sub">{s("config.tinjau_sertifikat.arti")}</p>
+            {hasilTinjau ? <BarisHasil nada={sp.tinjau === "gagal" ? "gagal" : "ok"}>{hasilTinjau}</BarisHasil> : null}
+            <ul className="pin-daftar">
+              {ditinjau.map((r) => (
+                <li key={r.tinjauan} className="pin-panel" data-tinjauan={r.tinjauan}>
+                  <p className="pin-judul-baris">
+                    {s("config.tinjau_sertifikat.baris").replace("{nama}", r.nama).replace("{paket}", r.paket ?? "—")
+                      .replace("{asli}", pct(r.sebelum)).replace("{baru}", pct(r.sesudah)).replace("{t}", pct(r.target))
+                      .replace("{tanggal}", tanggal(r.dibuka_pada, "baca", locale, zonaTinjau))}
+                  </p>
+                  <p className="pin-meta pin-num">{r.nomor}</p>
+                  <form action={putuskanTinjauanAksi} className="pin-formulir" id={`tinjau-${r.tinjauan}`}>
+                    <input type="hidden" name="tinjauan" value={r.tinjauan} />
+                    <input type="hidden" name="sertifikat" value={r.sertifikat} />
+                    <div className="pin-bidang">
+                      <label htmlFor={`tinjau-alasan-${r.tinjauan}`} className="pin-bidang-label">{s("config.tinjau_sertifikat.alasan")}</label>
+                      <p className="pin-hint" id={`tinjau-arti-${r.tinjauan}`}>{s("config.tinjau_sertifikat.alasan.arti")}</p>
+                      <textarea id={`tinjau-alasan-${r.tinjauan}`} name="alasan" className="pin-input pin-alasan-isian" required minLength={10} maxLength={300}
+                        aria-describedby={`tinjau-arti-${r.tinjauan}`} />
+                    </div>
+                    <div className="pin-actions">
+                      <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.memproses")} name="keputusan" value="CONFIRMED">
+                        {s("config.tinjau_sertifikat.konfirmasi")}<span className="pin-sr"> · {r.nomor}</span>
+                      </TombolKirim>
+                      <KonfirmasiBahaya id={`cabut-${r.tinjauan}`} tombol={s("config.tinjau_sertifikat.cabut")}
+                        tanya={s("config.tinjau_sertifikat.cabut.tanya").replace("{nomor}", r.nomor)}
+                        ya={s("config.tinjau_sertifikat.cabut")} batal={s("sertifikat.cabut.batal")} sibuk={s("tombol.memproses")}
+                        nama="keputusan" nilai="REVOKED" />
+                    </div>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
         <Koleksi
           id="pin-sertifikat"
           nama={s("sertifikat.kelola.judul")}
@@ -140,7 +204,12 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
               ...(platformIni ? [<span key="s">{c.institution_name}</span>] : []),
               <span key="k">{c.course_title || "—"}</span>,
               <span key="t">{tanggal(c.issued_at, "baca", locale, zonaDari(c.institution_id))}</span>,
-              <span key="e" className={nada(c.status)}>{keadaan(c.status)}</span>,
+              <span key="e">
+                <span className={sedangDitinjau.has(c.id) && c.status === "ISSUED" ? "pin-pill pin-neutral" : nada(c.status)}>
+                  {sedangDitinjau.has(c.id) && c.status === "ISSUED" ? s("verifikasi.status.DITINJAU") : keadaan(c.status)}
+                </span>
+                {dikonfirmasi.has(c.id) ? <span className="pin-meta" data-dikonfirmasi-ulang=""> {s("config.tinjau_sertifikat.dikonfirmasi").replace("{alasan}", dikonfirmasi.get(c.id)!)}</span> : null}
+              </span>,
               c.status === "ISSUED"
                 ? <Link key="a" className="pin-tautan" href={tautanPilih(c.id)} data-cabut-sertifikat={c.id}>{s("sertifikat.kelola.cabut")}</Link>
                 : <span key="a" className="pin-meta">—</span>,

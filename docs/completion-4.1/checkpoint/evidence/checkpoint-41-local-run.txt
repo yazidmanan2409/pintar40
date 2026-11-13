@@ -1,0 +1,66 @@
+audit/staging/checkpoint-41.mjs, run end to end against a local stack (Second Eye, 13 Nov 2026). CHECKPOINT_LOCAL=1:
+the seed's synthetic school Alpha stands in for the Golden School (SA alpha-admin, S alpha-guru, PA the seed's
+platform admin; class 5A); the actors sign in with a server-made session (local only); x-real-ip is supplied (local
+only: no proxy). Local only, never staging. Masked values are not shown.
+
+═══ THE ONE EXIT PATH, tested by forced failures (CHECKPOINT_PAKSA, refused against staging)
+
+TEST 1 · a stop at 1f, after 1e scheduled the scratch job (CHECKPOINT_PAKSA=1f)
+DIFFERS   1f  its first run succeeded, and both rows are there in order :: forced failure at 1f (local test of the clean-up)
+STOPPED at 1f: a result differs from the page. Material discrepancy: record it in the runbook and hold.
+UNDO      item 1's scratch job and schema :: removed; the catalogue reads 0 0 0 0
+  read afterwards: the scratch job 0, the schema 0, the procedure 0; the two pintar-* jobs 2 (untouched)
+
+TEST 2 · a stop at 3.2, with L suspended since 3.1a (CHECKPOINT_PAKSA=3.2)
+DIFFERS   3.2  SA reissues L's card while L is locked (Auth's admin password write): the lock stays :: forced failure at 3.2 (local test of the clean-up)
+STOPPED at 3.2: a result differs from the page. Material discrepancy: record it in the runbook and hold.
+UNDO      L reinstated :: reinstated; no suspension of this run left open
+  read afterwards: L's open suspensions 0, banned_until null; the scratch schema 0
+
+TEST 3 · a throw between S's suspension and reinstatement at 3.3b (CHECKPOINT_PAKSA=3.3b)
+DIFFERS   3.3b  password sign-in on a locked synthetic staff account (S), right and wrong password, field by field :: forced failure at 3.3b (local test of the clean-up)
+STOPPED at 3.3b: a result differs from the page. Material discrepancy: record it in the runbook and hold.
+UNDO      L reinstated :: reinstated; no suspension of this run left open
+  read afterwards: S's open suspensions 0, banned_until null (S reinstated by the step's own finally; L by the exit path)
+
+TEST 4 · the undo itself fails (CHECKPOINT_PAKSA=3.2,undo)
+DIFFERS   3.2  SA reissues L's card while L is locked (Auth's admin password write): the lock stays :: forced failure at 3.2 (local test of the clean-up)
+STOPPED at 3.2: a result differs from the page. Material discrepancy: record it in the runbook and hold.
+UNDO      L reinstated :: FAILED: forced failure at undo (local test of the clean-up); the owner's
+  read afterwards: L's open suspensions 1, as the record says: the owner's
+
+═══ THE WHOLE RUN, after the change
+
+PASS      A1  staging is at 244 :: 244 20270117200000 1f41d1a48f39e5544ba5d88b79b463d8
+PASS      A2  pg_cron is installed; the two jobs once each; the health read clean :: pg_cron 1.6.4; pintar-akuntabilitas-buang-lama 1, pintar-pengerjaan-tutup-terjadwal 1; health true true [] [] []
+PASS      1e  the scratch job: a procedure that commits between two inserts, scheduled once :: jobid 8
+PASS      1f  its first run succeeded, and both rows are there in order :: succeeded|CALL; rows 1,2
+PASS      1g  the clean-up, and the catalogue shows nothing left :: 0 0 0 0; pintar-akuntabilitas-buang-lama 1, pintar-pengerjaan-tutup-terjadwal 1
+PASS      2a  two connections through the transaction pooler (6543), then direct :: transaction pooler :6543: f then t; direct 127.0.0.1: f then t
+RECORDED  2c  the timeouts of the five roles (recorded, against D6.1) :: roles: anon statement_timeout=3s; authenticated statement_timeout=8s; authenticator statement_timeout=8s lock_timeout=8s; postgres ; service_role | database: - | server: idle_in_transaction_session_timeout=0ms lock_timeout=0ms statement_timeout=0ms
+PASS      3·  the actors sign in: SA, then PA in «Seluruh platform» :: SA by a server-made session (local test only); PA by a server-made session (local test only)
+PASS      3a  the five triggers on auth.users and the link lock, each as the repository defines it :: 5 c72efdfe64954caf38c5ca55bd7786a6 true; link lock 11db10649d6009f6876bfe724e8aa15a true
+PASS      3.0  SA rosters L («Sintetis Pemeriksaan edfbfh») into «5A» through /pendataan :: L e34a97a4-03a4-4bec-be51-aae16b8bd088, no account, enrolment 5124c359-861c-4fe5-bc6b-e30e1407b5bb
+PASS      3.1a  PA suspends L, who has no account :: one open ADMINISTRATIVE suspension
+PASS      3.1b  SA gives L a class card: hosted Auth inserts the user, and the account is locked at the first read :: one account; banned_until 2999-12-31 23:59:59+00 at the first read
+PASS      3.2  SA reissues L's card while L is locked (Auth's admin password write): the lock stays :: password written; banned_until 2999-12-31 23:59:59+00 before and after
+PASS      3.3a  L's card with its right PIN, while locked: refused :: answered {"status":401,"body":{"ok":false,"code":"CARD_NOT_MATCHED"}} (compared at 3.4b)
+PASS      3.3b  password sign-in on a locked synthetic staff account (S), right and wrong password, field by field :: both {"status":401,"body":{"ok":false,"code":"MASUK_TIDAK_COCOK"}}; S reinstated
+PASS      3.4  PA reinstates L; the card's wrong-PIN answer equals 3.3a's; the right PIN signs in :: wrong PIN {"status":401,"body":{"ok":false,"code":"CARD_NOT_MATCHED"}} = 3.3a; the right PIN signs in
+PASS      3.5  a refresh while L is locked again: refused, no new session; then reinstated :: refused 400 refresh_token_not_found, no new session; reinstated; L signed in again
+PASS      6a  L's sign-in record has its network origin :: network_origin in the /24 form
+RECORDED  6c  50 authenticated reads of pintar_status_saya as L: p50 and p95 (recorded, not gated) :: p50 2.9 ms, p95 3.7 ms over 50 reads
+PASS      4a  the definers' owner may make every auth write item 4 names :: postgres true, postgres true
+PASS      4b.1  SA ends L's enrolment :: enrolment ENDED
+PASS      4b.2  L asks for the deletion of their personal data, then closes their account :: CLOSE DONE, DELETE_PERSONAL_DATA RECEIVED; locked
+PASS      4b.3  PA deletes L's personal data (/api/akun/hapus-data): L is anonymised, the card account stays locked :: anonymised; the card account locked (a card account carries no personal address: Auth's rows are rewritten for an email account, 4c)
+PASS      4b.4  L is closed and anonymised: terminal :: {"nama":"RMR3JVVQ","anonim":true,"tangguh":{"sejak":"2026-11-13T03:29:05.787561+00:00","catatan":null,"kategori":"CLOSED_AT_REQUEST"},"person_id":"e34a97a4-03a4-4bec-be51-aae16b8bd088","pintar_id":"«redacted»"}
+PASS      4c.0  PA records E, a new person with an email account (/api/akun/aktivasi, NEW_PERSON); E signs in :: E ce812a87-b4c0-4c7d-b819-7a0ada2353a9, an EMAIL account; signed in
+PASS      4c.1  E asks for the deletion of their personal data, then closes their account :: requested and closed; locked
+PASS      4c.2  PA deletes E's personal data: every auth write of item 4 runs, and none is refused :: auth.users anonymised; identities 0; audit entries naming the address 5 -> 0; sessions and tokens 0 0 0
+PASS      4c.3  E is closed and anonymised: terminal :: {"nama":"AV95NCNY","anonim":true,"tangguh":{"sejak":"2026-11-13T03:29:16.918429+00:00","catatan":null,"kategori":"CLOSED_AT_REQUEST"},"person_id":"ce812a87-b4c0-4c7d-b819-7a0ada2353a9","pintar_id":"«redacted»"}
+ALL STEPS DONE: 26 PASS, 2 RECORDED, 0 for the owner. L e34a97a4-03a4-4bec-be51-aae16b8bd088 and E ce812a87-b4c0-4c7d-b819-7a0ada2353a9 stay anonymised and terminal. No password was recovered.
+
+The saved record (checkpoint-41.json): undo [], masuk {SA, PA, E: a server-made session (local test only)}, pemulihan [];
+top-level keys endpoint, finished, ids, masuk, pemulihan, refresh, run, started, steps, timeouts, undo.
+the record scan: 0 JWTs, derived passwords, card numbers or PINs, tokens or addresses (scanned after the whole run).

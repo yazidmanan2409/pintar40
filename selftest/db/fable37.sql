@@ -778,8 +778,12 @@ begin
     else
       if (select s.status::text || '/' || coalesce(s.termination_cause::text, '') from public.assessment_sessions s where s.id = v_ksesi) <> 'TERMINATED/INSTITUTIONAL_REVOCATION' then
         e03 := e03 || 'the open sitting was not ended as an institutional revocation'::text; end if;
-      if (select s.status::text from public.assessment_sessions s where s.id = v_q) <> 'EXPIRED' then
-        e03 := e03 || 'the sitting past its deadline did not expire (it was terminated or left open)'::text; end if;
+      -- RESTATED, A1 (O41-20): a sitting past its deadline is ended by the deadline and scored on what was answered
+      -- (FINALIZED with one result, marked DEADLINE), where 4.0 left it EXPIRED with no result
+      if (select s.status::text || '/' || coalesce(s.closure_kind, '') || '/' || coalesce(s.termination_cause::text, '') || '/'
+                 || (select count(*) from public.assessment_results x where x.session_id = s.id)
+            from public.assessment_sessions s where s.id = v_q) <> 'FINALIZED/DEADLINE//1' then
+        e03 := e03 || 'the sitting past its deadline was not ended by its deadline and scored (it was terminated, left open or left EXPIRED)'::text; end if;
       if not exists (select 1 from public.audit_log a where a.action = 'assessment_session.terminated' and a.target_id = v_ksesi::text
                        and a.summary ->> 'cause' = 'INSTITUTIONAL_REVOCATION') then
         e03 := e03 || 'the ended sitting has no audit row'::text; end if;

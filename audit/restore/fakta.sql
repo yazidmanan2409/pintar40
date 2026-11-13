@@ -19,6 +19,24 @@ select 'T', format('%I.%I', t.table_schema, t.table_name),
 select 'F', 'auth.users triggers',
        coalesce((select string_agg(tgname, ',' order by tgname) from pg_trigger
                   where tgrelid = to_regclass('auth.users') and not tgisinternal), '-');
+-- 4.1 checkpoint (Sharon's condition 2): what B1, L-1, L1-F2 and L1-F4 add, by name and definition hash, so a copy that
+-- reproduces any of them differently is seen: the definitions of the triggers on auth.users (not only their names), the
+-- account-link lock on public.accounts, L1-F4's guards, and the scheduled jobs (names, schedules, commands, role, active;
+-- never a job id, which a reinstall changes). The accountability tables are compared as tables (T lines) above.
+select 'F', 'auth.users triggers (definitions md5)',
+       coalesce((select count(*) || ' ' || md5(string_agg(pg_get_triggerdef(oid), '|' order by tgname)) from pg_trigger
+                  where tgrelid = to_regclass('auth.users') and not tgisinternal), '-');
+select 'F', 'accounts link lock (L1-F2)',
+       coalesce((select md5(pg_get_triggerdef(oid)) from pg_trigger
+                  where tgrelid = to_regclass('public.accounts') and tgname = '_l1f2_accounts_terkunci'), '-');
+select 'F', 'L1-F4 guards (count, definitions md5)',
+       coalesce((select count(*) || ' ' || md5(string_agg(pg_get_triggerdef(g.oid), '|' order by g.tgname)) from pg_trigger g
+                  where g.tgname like '\_l1f4\_%' and not g.tgisinternal), '-');
+select 'F', 'scheduled jobs (pintar-*)',
+       case when to_regclass('cron.job') is null then '-'
+            else (xpath('/row/j/text()', query_to_xml(
+                   'select coalesce(string_agg(jobname || '' '' || schedule || '' '' || command || '' '' || username || '' '' || active, '' ; '' order by jobname), ''none'') as j
+                      from cron.job where jobname like ''pintar-%''', false, true, '')))[1]::text end;
 select 'F', 'authenticator pre-request',
        coalesce((select string_agg(c, ',' order by c) from pg_roles r, unnest(r.rolconfig) c
                   where r.rolname = 'authenticator' and c like 'pgrst.db_pre_request%'), '-');

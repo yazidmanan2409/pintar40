@@ -7,6 +7,7 @@ import { periksaPinPemulihan, type HasilCobaPin } from "@/lib/pemulihan";
 import { kirimPemberitahuanKeamanan } from "@/app/api/_email/keamanan";
 import { jawab, kembaliKe } from "@/app/api/aktifkan/_jawab";
 import { hashIzin, simpanIzin, tokenIzinBaru } from "../_izin";
+import { catatAkuntabilitas, normalPengenal } from "@/app/api/_akuntabilitas/catat";
 
 /**
  * BOB-28: RECOVER WITH A PINTAR ID AND THE PERSONAL PIN, served at
@@ -16,6 +17,9 @@ import { hashIzin, simpanIzin, tokenIzinBaru } from "../_izin";
  * (recovery_by_pin). A match signs nobody in: it gives the browser Gate 4's
  * grant, and /masuk/lupa/password sets the new password. The owner and the
  * platform admin are told after the answer. The decision is src/lib/pemulihan.ts.
+ *
+ * B1: once the answer is final, one event, method RECOVERY_PIN (src/app/api/_akuntabilitas/catat.ts): the PINTAR ID, for the
+ * database to find its person (not stored); never the PIN.
  */
 export const dynamic = "force-dynamic";
 
@@ -63,5 +67,9 @@ export async function POST(request: NextRequest) {
       catatGalat: (ref, apa) => console.error(`[masuk/lupa/pin] ref=${ref} ${apa}`),
     },
   );
+  const pintarId = normalPengenal("pintar_id", fd?.get("id"));
+  await catatAkuntabilitas(request.headers, "masuk/lupa/pin", hasil.body.ok
+    ? { jenis: "SIGN_IN_OK", cara: "RECOVERY_PIN", hasil: "OK", pengenal: pintarId || null }
+    : { jenis: "SIGN_IN_FAILED", cara: "RECOVERY_PIN", hasil: hasil.body.code, pengenal: pintarId || null, diketik: pintarId || null });
   return jawab(hasil);
 }

@@ -26,7 +26,7 @@ import Ikon from "@/components/Ikon";
  */
 export default function TanggalDenganGema({
   jenis = "date", id: idLuar, name, defaultValue, required, min, max, disabled, className = "pin-input",
-  keterangan, kosong, galat, locale, untuk = "staff", zona,
+  keterangan, kosong, galat, locale, untuk = "staff", zona, fokus,
 }: {
   /** "date" for a day; "datetime-local" for a day and a time (on the clock of `zona`; WIB when none). */
   jenis?: "date" | "datetime-local";
@@ -48,6 +48,8 @@ export default function TanggalDenganGema({
   untuk?: Persona;
   /** The zone a time typed here is read in (the school the form is for; the owner's ruling, 10 Nov): its echo's word. */
   zona?: string | null;
+  /** B0: the first field of a form opened in place takes the focus when it arrives (as its text fields do). */
+  fokus?: boolean;
 }) {
   const auto = useId();
   const id = idLuar ?? `tanggal-${auto.replace(/:/g, "")}`;
@@ -84,7 +86,7 @@ export default function TanggalDenganGema({
     <>
       <input
         ref={kolom} className={className} id={id} type={jenis} name={name} defaultValue={defaultValue} required={required}
-        min={min} max={max} disabled={disabled} aria-describedby={dijelaskan} aria-invalid={salah ? "true" : undefined}
+        min={min} max={max} disabled={disabled} autoFocus={fokus} aria-describedby={dijelaskan} aria-invalid={salah ? "true" : undefined}
         onInput={(e) => ubah(e.currentTarget.value)} onChange={(e) => ubah(e.currentTarget.value)}
       />
       <p className="pin-gema" aria-live="polite">

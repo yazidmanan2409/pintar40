@@ -312,6 +312,39 @@ begin
 end $$;
 revoke all on function selftest.qac_reset() from public;
 
+-- RESTATED, C1w (the C1w page: a published correction replaces its predecessor for new assignments; 20270115100000).
+-- The shared canonical package, as the suite meets it: the CURRENT HEAD of its line (the line's PUBLISHED release, its
+-- module, lesson and the canonical tenant's own definition on that module), whether or not FABLE-05 (F05-C01) has
+-- published its v1.1 correction first. A replaced release is no longer distributed or launched anew, so a grant of
+-- the root v1.0 would hold only when this suite runs first.
+create or replace function selftest.qac_head_package()
+returns table (canon uuid, course uuid, modul uuid, les uuid, defn uuid, rel uuid)
+language plpgsql set search_path = public, pg_temp as $$
+declare p record; v_head uuid;
+begin
+  select * into p from selftest.canonical_package();
+  with recursive line as (
+    select c.id, 0 as d from public.courses c where c.id = p.course
+    union all
+    select c.id, line.d + 1 from public.courses c join line on c.supersedes_course_id = line.id where line.d < 64)
+  select l.id into v_head from line l join public.plp_releases r on r.course_id = l.id and r.status = 'PUBLISHED'
+   order by l.d desc limit 1;
+  if v_head is null or v_head = p.course then
+    canon := p.canon; course := p.course; modul := p.modul; les := p.les; defn := p.defn; rel := p.rel;
+    return next; return;
+  end if;
+  canon := p.canon; course := v_head;
+  select m.id into modul from public.modules m
+   where m.course_id = v_head and m.ordinal = (select m0.ordinal from public.modules m0 where m0.id = p.modul);
+  select l.id into les from public.lessons l
+   where l.module_id = modul and l.ordinal = (select l0.ordinal from public.lessons l0 where l0.id = p.les);
+  select d.id into defn from public.assessment_definitions d
+   where d.module_id = modul and d.institution_id = p.canon order by d.created_at, d.id limit 1;
+  select r.id into rel from public.plp_releases r where r.course_id = v_head and r.status = 'PUBLISHED';
+  return next;
+end $$;
+revoke all on function selftest.qac_head_package() from public;
+
 -- ---------------------------------------------------------------------------
 -- The suite.
 -- ---------------------------------------------------------------------------
@@ -330,7 +363,8 @@ declare
 begin
   perform selftest.as_owner();
   perform selftest.qac_reset();
-  select * into p from selftest.canonical_package();
+  -- RESTATED, C1w: the head of the shared package's line (selftest.qac_head_package, above)
+  select * into p from selftest.qac_head_package();
   v_tag := to_char(clock_timestamp(), 'DDHH24MISSUS');
 
   select i.id into v_a from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
@@ -1021,24 +1055,30 @@ begin
     ok := false; detail := detail || 'the grant lapsed on its own; the two levers are not separable here; ';
   end if;
 
-  -- half one: the grant is still ACTIVE, so the school may still use it
+  -- half one: the grant is still ACTIVE, but the owner WITHDREW the release.
+  -- RESTATED, C1w (O41-11, 20270115100000: a release its publisher withdrew starts no new sitting). Until C1w this half
+  -- asserted that a session opened over the withdrawn release; the approved rule is that it does not, and the learner is
+  -- refused with the designed reason (RELEASE_WITHDRAWN), no session row written. Supersession by a published
+  -- CORRECTION (not this) still leaves existing use running; withdrawal of the release now stops it as well.
   perform selftest.as_user('qac-guru-b@synthetic.pintar.test');
   select * into v_row from public.launch_quick_assessment(v_node_b, can2.modul, 3, 30);
   perform selftest.as_owner();
-  s3 := null;
+  s3 := null; v_refused := false; v_msg := '';
   perform selftest.as_user('beta-siswa-1@synthetic.pintar.test');
   begin
     s3 := public.start_learning_session(v_row.assessment_assignment_id);
     perform selftest.as_owner();
   exception when others then
     perform selftest.as_owner();
-    ok := false;
-    detail := detail || format('a superseded release with a live grant refused the learner: %s; ', sqlerrm);
+    v_refused := sqlerrm ~ 'RELEASE_WITHDRAWN'; v_msg := sqlerrm;
   end;
-  if s3 is null then
-    ok := false; detail := detail || 'no session opened over the superseded release; ';
-  elsif (select ss.plp_release_id from public.assessment_sessions ss where ss.id = s3) is distinct from can2.rel then
-    ok := false; detail := detail || 'the session does not cite the superseded canonical release; ';
+  if s3 is not null then
+    ok := false; detail := detail || 'a session opened over the release its publisher withdrew; ';
+  elsif not v_refused then
+    ok := false; detail := detail || format('the start over the withdrawn release was refused for the wrong reason: %s; ', v_msg);
+  end if;
+  if exists (select 1 from public.assessment_sessions ss where ss.assessment_assignment_id = v_row.assessment_assignment_id) then
+    ok := false; detail := detail || 'a session row exists for the withdrawn release; ';
   end if;
 
   -- half two: withdraw the DISTRIBUTION, and the same content stops
@@ -1076,7 +1116,7 @@ begin
   end if;
 
   test_id := 'QAC-T12'; invariant := 'ADR-0018 as amended by 0064 / ADR-0015 §5.2 / ADR-0016';
-  if ok then detail := 'on one canonical package: superseding the release leaves the school using it, because release status gates new sessions nowhere in this system and correction here is an explicit audited move; withdrawing the distribution stops both a new launch and a new session on the assignment already made, and touches no completed attempt'; end if;
+  if ok then detail := 'on one canonical package (RESTATED, C1w): withdrawing the release leaves the grant ACTIVE but refuses the learner''s new session with RELEASE_WITHDRAWN and writes no session (O41-11); withdrawing the distribution stops a new launch and a new session on the assignment already made'; end if;
   return next;
 
   -- =========================================================================

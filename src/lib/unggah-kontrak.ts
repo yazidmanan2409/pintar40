@@ -105,6 +105,8 @@ export const KOLOM: Record<NamaLembar, readonly Kolom[]> = {
     { kunci: "use", judul: "Kegunaan", wajib: false, pilihan: KEGUNAAN, arti: "Pemetaan awal atau Cek penguasaan; kosongkan untuk Latihan." },
     { kunci: "difficulty", judul: "Tingkat kesulitan", wajib: false, pilihan: KESULITAN, arti: "Mudah, Sedang atau Sulit." },
     { kunci: "parallel_group", judul: "Kelompok paralel", wajib: false, arti: "Soal setara diberi label yang sama." },
+    // C1w (Sharon, blocker 4): the question a corrected package's question continues; empty for a new question
+    { kunci: "identity", judul: "Identitas soal", wajib: false, arti: "Hanya saat mengunggah koreksi paket: identitas soal dari versi yang dikoreksi. Kosongkan untuk soal baru." },
   ],
   Pilihan: [
     { kunci: "ref", judul: "Kode soal", wajib: true, arti: "Kode dari lembar Soal." },
@@ -352,7 +354,7 @@ export function bukuKerjaKePaket(lembar: readonly Lembar[]): HasilKonversi {
     const isi = {
       ...baris(s, "Soal"), ref: s.nilai.ref, item_type: kosong(s.nilai.item_type), stem: s.nilai.stem,
       stimulus: kosong(s.nilai.stimulus), petunjuk: kosong(s.nilai.petunjuk), use: kosong(s.nilai.use),
-      difficulty: kosong(s.nilai.difficulty), parallel_group: kosong(s.nilai.parallel_group),
+      difficulty: kosong(s.nilai.difficulty), parallel_group: kosong(s.nilai.parallel_group), identity: kosong(s.nilai.identity),
       options: [] as unknown[],
     };
     induk.items.push(isi);

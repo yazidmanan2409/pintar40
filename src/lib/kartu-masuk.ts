@@ -1,6 +1,7 @@
 import "server-only";
 import { cardEmail, deriveCardSecret, kunciJedaKartu } from "@/lib/card";
 import { rujukan } from "@/lib/galat-kontrak";
+import { AKUN_TERKUNCI_LOG, akunTerkunci } from "@/lib/akun-terkunci";
 import { STATUS_KARTU, type JawabanRuteKartu, type KodeKartuRute } from "@/lib/kartu-kontrak";
 
 /**
@@ -107,6 +108,7 @@ export function asalSendiri(headers: Headers, asalAplikasi: string | null): bool
  * nothing shows the PIN went unjudged.
  */
 export function jenisGalatAuth(e: GalatAuth): { jenis: "TIDAK_COCOK" | "DIBATASI" | "TIDAK_TERSEDIA"; ambilKembali: boolean } {
+  if (akunTerkunci(e)) return { jenis: "TIDAK_COCOK", ambilKembali: false };
   if (e.status === 429 || e.code === "over_request_rate_limit") return { jenis: "DIBATASI", ambilKembali: true };
   if (e.name === "AuthRetryableFetchError" || (e.status !== undefined && e.status >= 500)) return { jenis: "TIDAK_TERSEDIA", ambilKembali: true };
   if (e.status !== undefined && e.status >= 400) return { jenis: "TIDAK_COCOK", ambilKembali: false };
@@ -143,6 +145,7 @@ export async function masukDenganKartu(
 
   if (jawaban.error) {
     const { jenis, ambilKembali } = jenisGalatAuth(jawaban.error);
+    if (akunTerkunci(jawaban.error)) alat.catatGalat(rujukan(), AKUN_TERKUNCI_LOG);
     if (jenis === "TIDAK_COCOK") return gagal("CARD_NOT_MATCHED");
     if (ambilKembali) {
       await alat.selesaikan(kunci, "TIDAK_DINILAI").catch((e) =>

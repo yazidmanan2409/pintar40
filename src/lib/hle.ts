@@ -14,11 +14,77 @@ import { tanggal } from "./tanggal";
 
 export type Persona = "learner" | "educator" | "staff" | "public";
 export type HleEvent =
+  | "akuntabilitas.judul"
+  | "akuntabilitas.arti"
+  | "akuntabilitas.tautan"
+  | "akuntabilitas.tautan_arti"
+  | "akuntabilitas.cari.label"
+  | "akuntabilitas.cari.placeholder"
+  | "akuntabilitas.saring.judul"
+  | "akuntabilitas.saring.jenis"
+  | "akuntabilitas.saring.semua"
+  | "akuntabilitas.saring.dari"
+  | "akuntabilitas.saring.sampai"
+  | "akuntabilitas.saring.tanpa_tanggal"
+  | "akuntabilitas.saring.tombol"
+  | "akuntabilitas.saring.hapus"
+  | "akuntabilitas.kolom.waktu"
+  | "akuntabilitas.kolom.orang"
+  | "akuntabilitas.kolom.apa"
+  | "akuntabilitas.kolom.cara"
+  | "akuntabilitas.kolom.hasil"
+  | "akuntabilitas.kolom.asal"
+  | "akuntabilitas.keterangan"
+  | "akuntabilitas.kosong"
+  | "akuntabilitas.tidak_cocok"
+  | "akuntabilitas.rujukan_hilang"
+  | "akuntabilitas.tidak_dikenal"
+  | "akuntabilitas.benda"
+  | "akuntabilitas.ditolak" | "akuntabilitas.tanpa_sekolah" | "akuntabilitas.tidak_lengkap" | "akuntabilitas.tidak_lengkap.tautan"
+  | "akuntabilitas.gagal"
+  | "akuntabilitas.rujukan"
+  | "akuntabilitas.jenis.sign_in_ok"
+  | "akuntabilitas.jenis.sign_in_failed"
+  | "akuntabilitas.jenis.sign_out"
+  | "akuntabilitas.jenis.print_request"
+  | "akuntabilitas.cara.password"
+  | "akuntabilitas.cara.card"
+  | "akuntabilitas.cara.link"
+  | "akuntabilitas.cara.code"
+  | "akuntabilitas.cara.recovery_pin"
+  | "akuntabilitas.hasil.ok"
+  | "akuntabilitas.hasil.masuk_tidak_cocok"
+  | "akuntabilitas.hasil.masuk_tunggu"
+  | "akuntabilitas.hasil.masuk_dibatasi"
+  | "akuntabilitas.hasil.layanan_tidak_tersedia"
+  | "akuntabilitas.hasil.permintaan_ditolak"
+  | "akuntabilitas.hasil.card_not_matched"
+  | "akuntabilitas.hasil.card_sering"
+  | "akuntabilitas.hasil.card_rate_limited"
+  | "akuntabilitas.hasil.card_request_refused"
+  | "akuntabilitas.hasil.card_unavailable"
+  | "akuntabilitas.hasil.tautan_tidak_terdaftar"
+  | "akuntabilitas.hasil.tautan_tidak_berlaku"
+  | "akuntabilitas.hasil.kode_tidak_cocok"
+  | "akuntabilitas.hasil.kode_tunggu"
+  | "akuntabilitas.hasil.kode_dibatasi"
+  | "akuntabilitas.hasil.id_tidak_sah"
+  | "akuntabilitas.hasil.pin_kosong"
+  | "akuntabilitas.hasil.pin_tidak_cocok"
+  | "akuntabilitas.hasil.pin_terkunci"
+  | "akuntabilitas.hasil.pin_tunggu"
+  | "akuntabilitas.hasil.pin_ditangguhkan"
+  | "akuntabilitas.hasil.akun_belum_aktif"
+  | "akuntabilitas.hasil.password_terlalu_panjang"
+  | "akuntabilitas.hasil.password_lemah"
+  | "akuntabilitas.hasil.pemulihan_berakhir"
+  | "audit.aksi.accountability.purged"
   | "jenis.bank.PRACTICE" | "jenis.bank.TEST" | "jenis.bank.EXAM"
-  | "studio.soal.judul" | "studio.soal.arti" | "studio.soal.jumlah" | "studio.soal.kunci" | "studio.soal.alasan" | "studio.soal.kosong"
+  | "studio.soal.judul" | "studio.soal.arti" | "studio.soal.jumlah" | "studio.soal.kunci" | "studio.soal.alasan" | "studio.soal.alasan_ditarik" | "studio.soal.belum_dikaitkan" | "soal.tak_terkait" | "studio.soal.kosong"
   | "studio.soal.ringkas" | "studio.soal.pelajaran_label" | "studio.soal.pelajaran_dari" | "studio.soal.posisi" | "studio.soal.buka" | "studio.soal.bacaan" | "studio.soal.gagal" | "studio.soal.pager_label"
   | "mengajar.bukti.per_soal" | "pelajaran.visual.pecahan" | "mengajar.soal.judul" | "mengajar.soal.arti" | "mengajar.soal.terkumpul" | "mengajar.soal.dari" | "mengajar.soal.tepat"
   | "mengajar.soal.kunci" | "mengajar.soal.bantuan" | "mengajar.soal.semua_tepat" | "mengajar.soal.kosong" | "mengajar.soal.tidak_dijawab" | "mengajar.soal.kembali"
+  | "mengajar.soal.kunci_diperbaiki"
   | "mengajar.ulang.judul"
   | "mengajar.ulang.arti"
   | "mengajar.ulang.murid"
@@ -72,10 +138,10 @@ export type HleEvent =
   | "laporan.metrik.belum_ada_bukti"
   | "laporan.metrik.dilindungi" | "ketiadaan.dilindungi.bab.murid" | "ketiadaan.dilindungi.bab.peserta"
   | "ketiadaan.dilindungi.kelas.murid" | "ketiadaan.dilindungi.kelas.peserta"
-  | "laporan.metrik.tidak_berlaku" | "laporan.sekolah.dasar_gerbang_tidak_berlaku" | "laporan.sekolah.dasar_gerbang_murid" | "ketiadaan.dilindungi.bab_pasangan.murid" | "ketiadaan.dilindungi.bab_pasangan.peserta" | "laporan.komposisi.awal_akhir_dilindungi" | "laporan.komposisi.keliru_tertahan" | "laporan.komposisi.keliru_belum" | "mengajar.bukti.bagian_tertahan" | "hasil.safety.tidak_ada" | "pimpinan.kelas.bukti_saja" | "laporan.sekolah.ranah_tertahan_semua" | "laporan.komposisi.kenaikan_dari_pasangan" | "mengajar.murid1.dihitung_ulang" | "mengajar.murid1.dihitung_ulang_alasan" | "hasil.dihitung_ulang" | "hasil.review.kunci_terkini" | "map.kunci_terkini" | "laporan.kisi.arti_tanpa_target" | "laporan.kisi.arti_sebagian" | "laporan.kisi.kunci_sebagian"
+  | "laporan.metrik.tidak_berlaku" | "laporan.sekolah.dasar_gerbang_tidak_berlaku" | "laporan.sekolah.dasar_gerbang_murid" | "ketiadaan.dilindungi.bab_pasangan.murid" | "ketiadaan.dilindungi.bab_pasangan.peserta" | "laporan.komposisi.awal_akhir_dilindungi" | "laporan.komposisi.keliru_tertahan" | "laporan.komposisi.keliru_belum" | "laporan.komposisi.keliru_kosong" | "mengajar.bukti.bagian_tertahan" | "hasil.safety.tidak_ada" | "pimpinan.kelas.bukti_saja" | "laporan.sekolah.ranah_tertahan_semua" | "laporan.komposisi.kenaikan_dari_pasangan" | "mengajar.murid1.dihitung_ulang" | "mengajar.murid1.dihitung_ulang_alasan" | "hasil.dihitung_ulang" | "hasil.review.kunci_terkini" | "map.kunci_terkini" | "laporan.kisi.arti_tanpa_target" | "laporan.kisi.arti_sebagian" | "laporan.kisi.kunci_sebagian"
   | "laporan.komposisi.topik_di_bawah_sebagian" | "laporan.komposisi.topik_di_bawah_banyak_sebagian" | "laporan.komposisi.topik_semua_sebagian" | "laporan.komposisi.topik_tertahan.satu" | "laporan.komposisi.topik_tertahan.banyak" | "laporan.komposisi.topik_tertahan_semua"
   | "laporan.kelas.judul" | "laporan.institusi.judul"
-  | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak" | "laporan.metrik.tanpa_nama" | "laporan.kelas.pd_arti"
+  | "laporan.kosong" | "laporan.tak_ada_angka" | "laporan.cetak" | "laporan.cetak.kaki.resmi" | "laporan.cetak.kaki.peramban" | "laporan.cetak.kaki.pendek" | "laporan.cetak.gagal" | "laporan.cetak.ditolak" | "laporan.cetak.ditolak.konteks" | "laporan.metrik.tanpa_nama" | "laporan.kelas.pd_arti"
   | "laporan.cakupan.kelas" | "laporan.cakupan.sekolah"
   // CONTOH LAPORAN (Daisy, approved 7 Nov): the report compositions' own sentences, composed from the figures below
   // them with no cause or advice; every figure keeps its existing label and meaning
@@ -229,6 +295,8 @@ export type HleEvent =
   | "akun.tinggal.galat.account_request_open"
   | "akun.tinggal.galat.account_request_invalid"
   | "akun.tinggal.galat.account_not_closed"
+  | "akun.tinggal.galat.account_live_attachment"
+  | "akun.tinggal.galat.account_anonymised"
   | "akun.tinggal.galat.account_platform_role"
   | "akun.tinggal.galat.account_photo_pending"
   | "akun.tinggal.galat.account_failed"
@@ -327,6 +395,7 @@ export type HleEvent =
   | "staf.tj.can_view_learner_roster"
   | "staf.tj.can_view_learner_result"
   | "staf.tj.can_provision_people"
+  | "staf.tj.can_manage_sittings"
   | "staf.tj.management_decision"
   | "staf.galat.staff_not_allowed"
   | "staf.galat.staff_self"
@@ -343,6 +412,334 @@ export type HleEvent =
   | "staf.galat.role_admin_unconfirmed"
   | "staf.galat.role_remove_invalid"
   | "staf.galat.staff_failed"
+  | "peran.galat.role_last_platform_admin"
+  | "peran.galat.role_last_school_admin"
+  | "peran.galat.role_renew_not_allowed"
+  | "peran.galat.role_renew_not_live"
+  | "peran.galat.role_renew_self"
+  | "peran.galat.role_renew_until_invalid"
+  | "peran.galat.role_renew_reason_required"
+  | "peran.galat.role_read_not_allowed"
+  | "peran.galat.role_expiry_days_invalid"
+  | "peran.galat.role_busy"
+  | "peran.galat.role_failed"
+  | "pengerjaan.galat.sitting_not_allowed"
+  | "pengerjaan.galat.sitting_professional"
+  | "pengerjaan.galat.sitting_reason_required"
+  | "pengerjaan.galat.sitting_note_too_long"
+  | "pengerjaan.galat.sitting_already_ended"
+  | "pengerjaan.galat.sitting_frozen"
+  | "pengerjaan.galat.sitting_not_frozen"
+  | "pengerjaan.galat.sitting_learner_suspended"
+  | "pengerjaan.galat.sitting_end_kind_invalid"
+  | "pengerjaan.galat.sitting_minutes_invalid"
+  | "pengerjaan.galat.sitting_extend_limit"
+  | "pengerjaan.galat.sitting_no_deadline"
+  | "pengerjaan.galat.attempt_not_limited"
+  | "pengerjaan.galat.attempt_sitting_open"
+  | "pengerjaan.galat.attempt_not_needed"
+  | "pengerjaan.galat.attempt_request_open"
+  | "pengerjaan.galat.attempt_decision_not_allowed"
+  | "pengerjaan.galat.attempt_own_request"
+  | "pengerjaan.galat.attempt_already_decided"
+  | "pengerjaan.galat.attempt_reason_required"
+  | "pengerjaan.galat.window_not_allowed"
+  | "pengerjaan.galat.window_assignment_ended"
+  | "pengerjaan.galat.window_invalid"
+  | "pengerjaan.galat.window_unchanged"
+  | "pengerjaan.galat.window_not_changeable"
+  | "pengerjaan.galat.sitting_failed"
+  // C1w: the item workbench's refusals and problems (src/lib/soal-kontrak.ts)
+  | "studio.soal.galat.draft_not_allowed"
+  | "studio.soal.galat.draft_unknown"
+  | "studio.soal.galat.draft_submitted"
+  | "studio.soal.galat.draft_sealed"
+  | "studio.soal.galat.draft_edit_conflict"
+  | "studio.soal.galat.draft_in_use"
+  | "studio.soal.galat.draft_last_test_question"
+  | "studio.soal.galat.draft_shape_invalid"
+  | "studio.soal.galat.draft_note_too_long"
+  | "studio.soal.galat.revision_not_head"
+  | "studio.soal.galat.revision_not_published"
+  | "studio.soal.galat.revision_open_exists"
+  | "studio.soal.galat.revision_summary_required"
+  | "studio.soal.galat.question_not_visible"
+  | "studio.soal.galat.release_state_not_visible"
+  | "studio.soal.galat.draft_failed"
+  | "studio.soal.masalah.item_objective_unknown"
+  | "studio.soal.masalah.item_use_no_test"
+  | "studio.soal.identitas.item_identity_unknown"
+  | "studio.soal.identitas.item_identity_no_predecessor"
+  | "studio.soal.identitas.item_identity_other_course"
+  | "studio.soal.identitas.item_identity_not_predecessor"
+  | "studio.soal.identitas.item_identity_repeated"
+  | "studio.koreksi.galat.correction_not_allowed"
+  | "studio.koreksi.galat.correction_unknown"
+  | "studio.koreksi.galat.correction_item_not_published"
+  | "studio.koreksi.galat.correction_not_in_head"
+  | "studio.koreksi.galat.correction_open_revision"
+  | "studio.koreksi.galat.correction_key_invalid"
+  | "studio.koreksi.galat.correction_key_unchanged"
+  | "studio.koreksi.galat.correction_reason_required"
+  | "studio.koreksi.galat.correction_pending"
+  | "studio.koreksi.galat.correction_already_decided"
+  | "studio.koreksi.galat.correction_own_proposal"
+  | "studio.koreksi.galat.correction_confirm_not_allowed"
+  | "studio.koreksi.galat.correction_proposer_lapsed"
+  | "studio.koreksi.galat.correction_stale"
+  | "studio.koreksi.galat.correction_not_ready"
+  | "studio.koreksi.galat.correction_sitting_not_affected"
+  | "studio.koreksi.galat.correction_concurrent"
+  | "studio.koreksi.galat.result_not_visible"
+  | "studio.koreksi.galat.cert_review_unknown"
+  | "studio.koreksi.galat.cert_review_not_allowed"
+  | "studio.koreksi.galat.cert_review_decided"
+  | "studio.koreksi.galat.cert_review_decision_invalid"
+  | "studio.koreksi.galat.cert_review_reason_required"
+  | "studio.koreksi.galat.correction_failed"
+  | "verifikasi.status.DITINJAU"
+  | "verifikasi.status.DITINJAU.arti"
+  | "hasil.dikoreksi"
+  | "hasil.dikoreksi.tanda"
+  | "hasil.dikoreksi.asli"
+  | "sertifikat.status.DITINJAU"
+  | "sertifikat.ditinjau.arti"
+  | "mengajar.murid1.dikoreksi"
+  | "mengajar.murid1.dikoreksi_alasan"
+  | "mengajar.materi.dihentikan_penerbit"
+  | "mengajar.materi.ada_perbaikan"
+  | "mengajar.materi.pindahkan"
+  | "studio.soal.ubah"
+  | "studio.soal.ubah.judul"
+  | "studio.soal.tambah"
+  | "studio.soal.tambah.judul"
+  | "studio.soal.f.bacaan"
+  | "studio.soal.f.bacaan.arti"
+  | "studio.soal.f.pertanyaan"
+  | "studio.soal.f.pilihan"
+  | "studio.soal.f.pilihan.arti"
+  | "studio.soal.f.pilihan_x"
+  | "studio.soal.f.kunci"
+  | "studio.soal.f.alasan_x"
+  | "studio.soal.f.miskonsepsi_x"
+  | "studio.soal.f.miskonsepsi.arti"
+  | "studio.soal.f.tujuan"
+  | "studio.soal.f.tujuan.tetap"
+  | "studio.soal.f.kegunaan"
+  | "studio.soal.f.kegunaan.latihan"
+  | "studio.soal.simpan"
+  | "studio.soal.batal"
+  | "studio.soal.ringkasan_galat"
+  | "studio.soal.v.kunci"
+  | "studio.soal.v.pilihan_kosong"
+  | "studio.soal.v.pertanyaan_kosong"
+  | "studio.soal.v.alasan_kosong"
+  | "studio.soal.v.pilihan_kurang"
+  | "studio.soal.diubah_oleh"
+  | "studio.soal.tersimpan"
+  | "studio.soal.tersimpan_periksa"
+  | "studio.soal.ditambah"
+  | "studio.soal.dihapus"
+  | "studio.soal.hapus"
+  | "studio.soal.hapus.tanya"
+  | "studio.soal.hapus.ya"
+  | "studio.soal.buang"
+  | "studio.soal.buang.tanya"
+  | "studio.soal.buang.ya"
+  | "studio.soal.dibuang"
+  | "studio.soal.sedang_ditinjau"
+  | "studio.soal.basi"
+  | "studio.soal.basi.muat"
+  | "studio.soal.unggah_menimpa"
+  | "studio.soal.riwayat"
+  | "studio.soal.riwayat.versi"
+  | "studio.soal.riwayat.ini"
+  | "studio.soal.riwayat.asli"
+  | "studio.soal.riwayat.baru"
+  | "studio.soal.riwayat.diperbaiki"
+  | "studio.soal.riwayat.diunggah"
+  | "studio.soal.riwayat.terbit"
+  | "studio.soal.riwayat.belum_terbit"
+  | "studio.soal.riwayat.lihat"
+  | "studio.soal.riwayat.kunci"
+  | "studio.soal.riwayat.pertanyaan"
+  | "studio.soal.riwayat.bacaan"
+  | "studio.soal.riwayat.pilihan_diubah"
+  | "studio.soal.riwayat.pilihan_ditambah"
+  | "studio.soal.riwayat.pilihan_dihapus"
+  | "studio.soal.riwayat.alasan"
+  | "studio.soal.riwayat.miskonsepsi"
+  | "studio.soal.riwayat.tujuan"
+  | "studio.soal.riwayat.tetap"
+  | "studio.soal.riwayat.gagal"
+  | "studio.kunci.keliru"
+  | "studio.kunci.judul"
+  | "studio.kunci.langkah"
+  | "studio.kunci.l1"
+  | "studio.kunci.l2"
+  | "studio.kunci.l3"
+  | "studio.kunci.sekarang"
+  | "studio.kunci.alasan"
+  | "studio.kunci.alasan.arti"
+  | "studio.kunci.lanjut"
+  | "studio.kunci.kembali"
+  | "studio.kunci.dampak"
+  | "studio.kunci.dampak.bila"
+  | "studio.kunci.dampak.kosong"
+  | "studio.kunci.dampak.terbuka"
+  | "studio.kunci.dampak.platform"
+  | "studio.kunci.dampak.kolom.murid"
+  | "studio.kunci.dampak.kolom.kelas"
+  | "studio.kunci.dampak.kolom.hasil"
+  | "studio.kunci.dampak.kolom.target"
+  | "studio.kunci.dampak.kolom.sertifikat"
+  | "studio.kunci.dampak.tetap"
+  | "studio.kunci.dampak.tercapai"
+  | "studio.kunci.dampak.belum"
+  | "studio.kunci.dampak.ditinjau"
+  | "studio.kunci.dampak.tidak_diterbitkan" | "studio.kunci.dampak.penjelasan_hilang"
+  | "studio.kunci.kirim"
+  | "studio.kunci.menunggu"
+  | "studio.kunci.antrean"
+  | "studio.kunci.antrean.baris"
+  | "studio.kunci.kunci_lama"
+  | "studio.kunci.kunci_baru"
+  | "studio.kunci.pengaju"
+  | "studio.kunci.konfirmasi"
+  | "studio.kunci.konfirmasi.tanya"
+  | "studio.kunci.konfirmasi.ya"
+  | "studio.kunci.tolak"
+  | "studio.kunci.tolak.alasan"
+  | "studio.kunci.tolak.arti"
+  | "studio.kunci.ditolak"
+  | "studio.kunci.orang_kedua"
+  | "studio.kunci.selesai"
+  | "studio.kunci.terkirim"
+  | "studio.kunci.tolak.ok"
+  | "studio.kunci.halaman"
+  | "studio.kunci.kembali_antrean"
+  | "studio.kunci.tidak_ada"
+  | "config.tinjau_sertifikat.judul"
+  | "config.tinjau_sertifikat.arti"
+  | "config.tinjau_sertifikat.baris"
+  | "config.tinjau_sertifikat.konfirmasi"
+  | "config.tinjau_sertifikat.alasan"
+  | "config.tinjau_sertifikat.alasan.arti"
+  | "config.tinjau_sertifikat.cabut"
+  | "config.tinjau_sertifikat.cabut.tanya"
+  | "config.tinjau_sertifikat.ok_konfirmasi"
+  | "config.tinjau_sertifikat.ok_cabut"
+  | "config.tinjau_sertifikat.dikonfirmasi"
+  | "config.koreksi_kunci.pemberitahuan"
+  | "config.koreksi_kunci.buka"
+  | "config.koreksi_kunci.audit"
+  | "atur.instrumen"
+  | "atur.buka"
+  | "atur.keadaan.ditahan"
+  | "atur.keadaan.dinilai"
+  | "atur.keadaan.tidak_dihitung"
+  | "atur.keadaan.waktu_habis"
+  | "atur.meta.mulai"
+  | "atur.meta.sisa"
+  | "atur.meta.ditahan"
+  | "atur.meta.ditahan_polos"
+  | "atur.meta.ditahan_menunggu"
+  | "atur.meta.dikumpulkan"
+  | "atur.meta.dinilai"
+  | "atur.meta.tidak_dihitung"
+  | "atur.meta.waktu_habis"
+  | "atur.meta.tambahan"
+  | "atur.meta.diminta"
+  | "atur.meta.disetujui"
+  | "atur.meta.ditolak"
+  | "atur.panel.judul"
+  | "atur.panel.tanpa_tindakan"
+  | "atur.waktu.judul"
+  | "atur.waktu.pilih"
+  | "atur.waktu.menit"
+  | "atur.waktu.tanya"
+  | "atur.waktu.ok"
+  | "atur.akhiri.judul"
+  | "atur.akhiri.legenda"
+  | "atur.akhiri.dinilai"
+  | "atur.akhiri.dinilai.arti"
+  | "atur.akhiri.tidak"
+  | "atur.akhiri.tidak.arti"
+  | "atur.akhiri.tombol_nilai"
+  | "atur.akhiri.tombol_tidak"
+  | "atur.akhiri.tanya_nilai"
+  | "atur.akhiri.tanya_tidak"
+  | "atur.akhiri.ok_nilai"
+  | "atur.akhiri.ok_tidak"
+  | "atur.minta.judul"
+  | "atur.minta.arti"
+  | "atur.minta.sertifikat"
+  | "atur.minta.tombol"
+  | "atur.minta.ok"
+  | "atur.lanjut.judul"
+  | "atur.lanjut.arti"
+  | "atur.lanjut.arti_tanpa_batas"
+  | "atur.lanjut.ok"
+  | "jadwal.buka"
+  | "jadwal.judul"
+  | "jadwal.mulai"
+  | "jadwal.sampai"
+  | "jadwal.sampai.arti"
+  | "jadwal.catatan"
+  | "jadwal.tombol"
+  | "jadwal.ok"
+  | "kesempatan.judul"
+  | "kesempatan.arti"
+  | "kesempatan.menunggu"
+  | "kesempatan.baris.dipakai"
+  | "kesempatan.baris.hasil"
+  | "kesempatan.baris.hasil_saja"
+  | "kesempatan.baris.diminta"
+  | "kesempatan.setujui"
+  | "kesempatan.tolak"
+  | "kesempatan.tolak.alasan"
+  | "kesempatan.tolak.alasan.arti"
+  | "kesempatan.sendiri"
+  | "kesempatan.kosong"
+  | "kesempatan.ok_setuju"
+  | "kesempatan.ok_tolak"
+  | "sync.diakhiri_guru_dinilai"
+  | "sync.diakhiri_guru_tidak_dihitung"
+  | "sync.lihat_hasil"
+  | "sync.waktu_ditambah"
+  | "sync.waktu_habis"
+  | "siklus.kartu.ditahan"
+  | "sync.lanjut_sisa"
+  | "sync.lanjut_polos"
+  | "siklus.kartu.tidak_dihitung"
+  | "siklus.kartu.sekali_lagi"
+  | "sync.mulai_lagi"
+  | "audit.aksi.assessment_session.handed_in_by_teacher"
+  | "audit.aksi.assessment_session.ended_by_deadline"
+  | "audit.aksi.assessment_session.frozen"
+  | "audit.aksi.assessment_session.resumed"
+  | "audit.aksi.attempt_request.requested"
+  | "audit.aksi.attempt_request.approved"
+  | "audit.aksi.attempt_request.declined"
+  | "audit.aksi.learning_assignment.window_changed"
+  | "galat.role_renewed"
+  | "peran.berakhir.judul"
+  | "peran.berakhir.jumlah"
+  | "peran.berakhir.terakhir"
+  | "peran.perpanjang.aksi"
+  | "peran.perpanjang.judul"
+  | "peran.perpanjang.arti"
+  | "peran.perpanjang.sampai_baru"
+  | "peran.perpanjang.sampai_arti"
+  | "peran.perpanjang.alasan_arti"
+  | "peran.perpanjang.sendiri"
+  | "peran.perpanjang.simpan"
+  | "peran.cabut.tanpa_admin"
+  | "peran.saya.judul"
+  | "peran.saya.berakhir"
+  | "peran.saya.berakhir_platform"
+  | "peran.saya.berakhir_sendiri"
+  | "peran.saya.buka"
   | "audit.alasan.retirement"
   | "audit.alasan.resignation"
   | "audit.alasan.dismissal"
@@ -374,6 +771,7 @@ export type HleEvent =
   | "sertifikat.ganti.gagal.cert_not_issued"
   | "sertifikat.ganti.gagal.cert_reason_required"
   | "sertifikat.ganti.gagal.cert_nothing_changed"
+  | "sertifikat.ganti.gagal.cert_holder_deleted"
   | "sertifikat.ganti.gagal.cert_key_invalid"
   | "sertifikat.ganti.gagal.cert_replacement_invalid"
   | "sertifikat.ganti.gagal.tidak_ditemukan"
@@ -1554,7 +1952,7 @@ export type HleEvent =
   | "studio.konten.kode.content_reviewer_required"
   | "studio.konten.kode.content_author_unknown"
   | "studio.konten.kode.content_reviewer_is_author"
-  | "studio.konten.kode.content_check_errors"
+  | "studio.konten.kode.content_check_errors" | "studio.konten.kode.content_rationale_owed"
   | "studio.konten.kode.content_reviewer_not_caller"
   | "studio.konten.kode.content_seal_not_allowed"
   | "studio.konten.kode.content_publish_not_allowed"
@@ -2951,6 +3349,78 @@ const stageTable: Partial<Record<HleEvent, Partial<Record<Stage, { id: string; e
 };
 
 const table: Table = {
+  // B1 · the sign-in and print record (src/lib/akuntabilitas-kontrak.ts): each failure outcome in the sign-in screen's own words
+  "akuntabilitas.judul": { default: "Catatan masuk dan cetak", en: "Sign-in and print record" },
+  "akuntabilitas.arti": { default: "Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi, selama 12 bulan terakhir. Catatan ini hanya dibaca: tidak dapat diekspor atau dihapus.", en: "Who signed in, could not sign in, signed out or asked for an official print, over the last 12 months. This record is read only: it cannot be exported or deleted." },
+  "akuntabilitas.tautan": { default: "Catatan masuk dan cetak", en: "Sign-in and print record" },
+  "akuntabilitas.tautan_arti": { default: "Siapa yang masuk, gagal masuk, keluar, atau meminta cetakan resmi.", en: "Who signed in, could not sign in, signed out or asked for an official print." },
+  "akuntabilitas.cari.label": { default: "Cari nama, PINTAR ID, atau referensi cetak", en: "Search a name, a PINTAR ID or a print reference" },
+  "akuntabilitas.cari.placeholder": { default: "Nama, PINTAR ID, atau CTK-…", en: "Name, PINTAR ID or CTK-…" },
+  "akuntabilitas.saring.judul": { default: "Saring catatan", en: "Filter the record" },
+  "akuntabilitas.saring.jenis": { default: "Jenis", en: "Kind" },
+  "akuntabilitas.saring.semua": { default: "Semua jenis", en: "Every kind" },
+  "akuntabilitas.saring.dari": { default: "Dari tanggal", en: "From" },
+  "akuntabilitas.saring.sampai": { default: "Sampai tanggal", en: "To" },
+  "akuntabilitas.saring.tanpa_tanggal": { default: "Tanpa batas tanggal.", en: "No date limit." },
+  "akuntabilitas.saring.tombol": { default: "Tampilkan", en: "Show" },
+  "akuntabilitas.saring.hapus": { default: "Hapus saringan", en: "Clear the filters" },
+  "akuntabilitas.kolom.waktu": { default: "Waktu", en: "When" },
+  "akuntabilitas.kolom.orang": { default: "Siapa", en: "Who" },
+  "akuntabilitas.kolom.apa": { default: "Apa", en: "What" },
+  "akuntabilitas.kolom.cara": { default: "Cara", en: "How" },
+  "akuntabilitas.kolom.hasil": { default: "Hasil", en: "Outcome" },
+  "akuntabilitas.kolom.asal": { default: "Asal jaringan", en: "Network origin" },
+  "akuntabilitas.keterangan": { default: "Catatan masuk dan cetak, yang terbaru di atas", en: "Sign-in and print record, newest first" },
+  "akuntabilitas.kosong": { default: "Belum ada catatan. Catatan disimpan sejak {tanggal}.", en: "Nothing recorded yet. The record is kept from {tanggal}." },
+  "akuntabilitas.tidak_cocok": { default: "Tidak ada catatan yang cocok dengan saringan ini.", en: "No record matches these filters." },
+  "akuntabilitas.rujukan_hilang": { default: "Referensi ini tidak ditemukan. Catatan cetak disimpan 12 bulan, sejak {tanggal}.", en: "This reference was not found. Print records are kept for 12 months, from {tanggal}." },
+  "akuntabilitas.tidak_dikenal": { default: "pengenal tidak dikenal", en: "identifier not recognised" },
+  "akuntabilitas.benda": { default: "catatan", en: "entries" },
+  // B1-R1 (Daisy, B2-ARCHITECT-NOTES.md §4): the platform's administrator by the product's name for the role
+  "akuntabilitas.ditolak": { default: "Catatan masuk dan cetak hanya dibaca admin sekolah untuk sekolahnya, dan Admin PINTAR.", en: "The sign-in and print record is read by a school's administrator, for their school, and by an Admin PINTAR." },
+  // B1-R2 (Daisy): in the platform's view, a row with no school
+  "akuntabilitas.tanpa_sekolah": { default: "tanpa sekolah", en: "no school" },
+  // B1-R4 (Daisy): the completeness notice, the platform's view only, when some sign-in or sign-out could not be recorded
+  "akuntabilitas.tidak_lengkap": { default: "Daftar ini mungkin tidak lengkap. Dalam 7 hari terakhir, PINTAR tidak dapat mencatat sebagian kejadian masuk atau keluar (terhitung {n}, terakhir {waktu}).", en: "This list may be incomplete. In the last 7 days, PINTAR could not record some sign-in or sign-out events ({n} counted, the last at {waktu})." },
+  "akuntabilitas.tidak_lengkap.tautan": { default: "Kesehatan sistem", en: "System health" },
+  "akuntabilitas.gagal": { default: "Catatan belum dapat dibaca sekarang. Coba lagi sebentar lagi.", en: "The record cannot be read just now. Try again in a moment." },
+  "akuntabilitas.rujukan": { default: "Referensi {ref}", en: "Reference {ref}" },
+  "akuntabilitas.jenis.sign_in_ok": { default: "Masuk", en: "Signed in" },
+  "akuntabilitas.jenis.sign_in_failed": { default: "Tidak berhasil masuk", en: "Could not sign in" },
+  "akuntabilitas.jenis.sign_out": { default: "Keluar", en: "Signed out" },
+  "akuntabilitas.jenis.print_request": { default: "Meminta cetakan resmi", en: "Asked for an official print" },
+  "akuntabilitas.cara.password": { default: "Password", en: "Password" },
+  "akuntabilitas.cara.card": { default: "Kartu kelas", en: "Class card" },
+  "akuntabilitas.cara.link": { default: "Tautan email", en: "Email link" },
+  "akuntabilitas.cara.code": { default: "Kode pemulihan", en: "Recovery code" },
+  "akuntabilitas.cara.recovery_pin": { default: "PINTAR ID dan PIN", en: "PINTAR ID and PIN" },
+  "akuntabilitas.hasil.ok": { default: "Berhasil", en: "Succeeded" },
+  "akuntabilitas.hasil.masuk_tidak_cocok": { default: "Email, username, atau password belum cocok.", en: "The email, username or password didn't match." },
+  "akuntabilitas.hasil.masuk_tunggu": { default: "Sudah terlalu sering dicoba; diminta menunggu.", en: "Tried too many times; asked to wait." },
+  "akuntabilitas.hasil.masuk_dibatasi": { default: "Sedang banyak yang masuk bersamaan; diminta menunggu.", en: "Many people were signing in at once; asked to wait." },
+  "akuntabilitas.hasil.layanan_tidak_tersedia": { default: "PINTAR sedang tidak dapat memeriksa; diminta mencoba lagi.", en: "PINTAR could not check just then; asked to try again." },
+  "akuntabilitas.hasil.permintaan_ditolak": { default: "Halaman perlu dimuat ulang; tidak ada yang diperiksa.", en: "The page needed reloading; nothing was checked." },
+  "akuntabilitas.hasil.card_not_matched": { default: "Nomor kartu atau PIN belum cocok.", en: "The card number or the PIN didn't match." },
+  "akuntabilitas.hasil.card_sering": { default: "Nomor kartu ini sudah terlalu sering dicoba; diminta menunggu.", en: "This card number was tried too many times; asked to wait." },
+  "akuntabilitas.hasil.card_rate_limited": { default: "Sedang banyak yang masuk bersamaan; diminta menunggu.", en: "Many people were signing in at once; asked to wait." },
+  "akuntabilitas.hasil.card_request_refused": { default: "Halaman perlu dimuat ulang; kartu tidak dipakai untuk masuk.", en: "The page needed reloading; the card did not sign in." },
+  "akuntabilitas.hasil.card_unavailable": { default: "PINTAR sedang tidak dapat memeriksa kartu; diminta mencoba lagi.", en: "PINTAR could not check cards just then; asked to try again." },
+  "akuntabilitas.hasil.tautan_tidak_terdaftar": { default: "Tautan diminta untuk alamat yang tidak terhubung dengan akun PINTAR; tidak ada yang dikirim.", en: "A link was asked for an address linked to no PINTAR account; nothing was sent." },
+  "akuntabilitas.hasil.tautan_tidak_berlaku": { default: "Tautan ini sudah tidak berlaku.", en: "This link was no longer valid." },
+  "akuntabilitas.hasil.kode_tidak_cocok": { default: "Kode tidak cocok atau sudah tidak berlaku.", en: "The code didn't match or was no longer valid." },
+  "akuntabilitas.hasil.kode_tunggu": { default: "Kode sudah terlalu sering dicoba; diminta menunggu.", en: "The code was tried too many times; asked to wait." },
+  "akuntabilitas.hasil.kode_dibatasi": { default: "Sedang banyak yang mencoba bersamaan; diminta menunggu.", en: "Many people were trying at once; asked to wait." },
+  "akuntabilitas.hasil.id_tidak_sah": { default: "PINTAR ID belum benar: 8 huruf dan angka.", en: "The PINTAR ID wasn't right: 8 letters and digits." },
+  "akuntabilitas.hasil.pin_kosong": { default: "PIN belum diketik: 4 angka.", en: "No PIN was typed: 4 digits." },
+  "akuntabilitas.hasil.pin_tidak_cocok": { default: "PINTAR ID atau PIN tidak cocok.", en: "The PINTAR ID or the PIN didn't match." },
+  "akuntabilitas.hasil.pin_terkunci": { default: "Pemulihan dengan PIN ditutup sementara setelah beberapa PIN tidak cocok.", en: "Recovery with a PIN was locked for a while after several PINs that didn't match." },
+  "akuntabilitas.hasil.pin_tunggu": { default: "Terlalu banyak percobaan dari perangkat ini; diminta menunggu.", en: "Too many tries from this device; asked to wait." },
+  "akuntabilitas.hasil.pin_ditangguhkan": { default: "Pemulihan dengan PIN dihentikan setelah terlalu banyak PIN tidak cocok.", en: "Recovery with a PIN was stopped after too many PINs that didn't match." },
+  "akuntabilitas.hasil.akun_belum_aktif": { default: "Akun ini belum selesai diaktifkan.", en: "This account hadn't finished activation." },
+  "akuntabilitas.hasil.password_terlalu_panjang": { default: "Password baru terlalu panjang.", en: "The new password was too long." },
+  "akuntabilitas.hasil.password_lemah": { default: "Password baru belum memenuhi syarat.", en: "The new password didn't meet the rules." },
+  "akuntabilitas.hasil.pemulihan_berakhir": { default: "Waktu untuk membuat password baru sudah habis.", en: "The time to make a new password had run out." },
+  "audit.aksi.accountability.purged": { default: "Catatan masuk dan cetak yang lebih dari 12 bulan dihapus", en: "Sign-in and print records older than 12 months removed" },
   // ENUM LABELS. Found by F06-S03: five surfaces rendered a raw enum into a
   // text position -- PRACTICE, PRE_TEST, VISIBILITY_CHANGE and friends -- none
   // of which is in INTERNAL_WORDS, so no word list would ever have caught them.
@@ -2961,6 +3431,8 @@ const table: Table = {
   "studio.soal.jumlah": { default: "soal", en: "questions" },
   "studio.soal.kunci": { default: "Kunci", en: "Key" },
   "studio.soal.alasan": { default: "Alasan", en: "Why" },
+  // F1-R1b, Daisy's line (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md §6a; I6-I7-JAWABAN.md §1 at e48c4906), §6 line 2
+  "studio.soal.alasan_ditarik": { default: "Alasan pilihan {x} ditarik karena kuncinya diperbaiki. Tuliskan alasan yang baru.", en: "The explanation for option {x} was withdrawn when the key was corrected. Write a new one." },
   "studio.soal.kosong": { default: "Paket ini belum berisi soal.", en: "This package has no questions yet." },
   // A1 (D-166(b)): the question review, one lesson at a time (Daisy's T table; presentation, pending copy approval)
   "studio.soal.ringkas": { default: "{soal} soal dalam {pelajaran} pelajaran", en: "{soal} questions in {pelajaran} lessons" },
@@ -2976,6 +3448,10 @@ const table: Table = {
   "alasan.nonaktif.periksa": { default: "Pilih buku kerja dulu.", en: "Choose a workbook first." },
   // E-A1-1: an option's misconception in the reviewer's question list (the metric's own word; pending Dr Gladys)
   "studio.soal.miskonsepsi": { default: "Pemahaman keliru", en: "Misunderstanding" },
+  // F1-R1b, Daisy's line (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md §6a; I6-I7-JAWABAN.md §1 at e48c4906): the option, where «Pemahaman keliru: {label}» stands for a linked one
+  "studio.soal.belum_dikaitkan": { default: "belum dikaitkan", en: "not linked" },
+  // F1-R1b, Daisy's line (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md §6a; I6-I7-JAWABAN.md §1 at e48c4906): the marker on the question, the teacher's per-question view and Studio
+  "soal.tak_terkait": { default: "Sebagian pilihan salah belum dikaitkan dengan pemahaman keliru. Jawaban pada pilihan itu tidak masuk hitungan pemahaman keliru.", en: "Some wrong options are not linked to a misunderstanding. Answers on those options are not counted among recurring misunderstandings." },
   "pelajaran.visual.pecahan": { default: "{n} dari {m} bagian", en: "{n} of {m} parts" },
   "mengajar.bukti.per_soal": { default: "Lihat per soal", en: "See question by question" },
   "mengajar.soal.judul": { default: "Soal mana yang sulit bagi kelas ini", en: "Which questions this class found hard" },
@@ -2984,6 +3460,8 @@ const table: Table = {
   "mengajar.soal.dari": { default: "dari", en: "of" },
   "mengajar.soal.tepat": { default: "menjawab tepat", en: "answered rightly" },
   "mengajar.soal.kunci": { default: "Kunci", en: "Key" },
+  // C1w F-1 (O41-21): a question whose key was corrected is marked by the key in force; the original key is still said
+  "mengajar.soal.kunci_diperbaiki": { default: "Kunci soal ini sudah diperbaiki. Jawaban di sini dinilai dengan kunci yang berlaku sekarang; kunci aslinya {asli}.", en: "This question's key was corrected. The answers here are marked by the key in force now; its original key was {asli}." },
   "mengajar.soal.bantuan": { default: "Murid yang mungkin perlu bantuan pada soal ini", en: "Students who may need help with this question" },
   "mengajar.soal.semua_tepat": { default: "Semua yang mengumpulkan menjawab soal ini dengan tepat.", en: "Everyone who handed in answered this question rightly." },
   "mengajar.soal.kosong": { default: "Belum ada jawaban yang dikumpulkan untuk asesmen ini.", en: "No answers have been handed in for this assessment yet." },
@@ -3119,6 +3597,16 @@ const table: Table = {
   "laporan.kelas.judul": { default: "Ringkasan Kelas", en: "Class Summary" },
   "laporan.institusi.judul": { default: "Ringkasan Sekolah", en: "School Summary" },
   "laporan.cetak": { default: "Cetak laporan", en: "Print report" },
+  // B2 (THE PLAN §5.2 F; B2-COMPLETION.md §3): the official print's footer, one line, bottom-left
+  "laporan.cetak.kaki.resmi": { default: "Dicetak oleh {nama} · {waktu} · Ref. {ref}", en: "Printed by {nama} · {waktu} · Ref. {ref}" },
+  // B2, Daisy's lines (B2-ARCHITECT-NOTES.md §4 at 7d31ffda; Sharon's change 5): any other print names no person
+  "laporan.cetak.kaki.peramban": { default: "Dicetak dari browser · {waktu} (jam perangkat) · tanpa nomor referensi", en: "Printed from the browser · {waktu} (device clock) · no reference number" },
+  "laporan.cetak.kaki.pendek": { default: "Dicetak dari browser · tanpa nomor referensi", en: "Printed from the browser · no reference number" },
+  // B2 §3: the request could not be recorded, so nothing printed
+  "laporan.cetak.gagal": { default: "Cetakan belum dapat dicatat, jadi belum dicetak. Coba lagi.", en: "The print could not be recorded, so nothing was printed. Try again." },
+  // B2, engineer's draft for Daisy: a request the reader may not make (only a forged one reaches it)
+  "laporan.cetak.ditolak": { default: "Laporan ini tidak dapat dicetak dari akun Anda.", en: "This report cannot be printed from your account." },
+  "laporan.cetak.ditolak.konteks": { default: "Laporan ini tidak dapat dicetak dari pilihan yang sedang Anda pakai di {pilih}. Pilih yang sesuai dengan laporan ini, lalu cetak lagi.", en: "This report cannot be printed from the choice you are using in {pilih}. Choose the one this report belongs to, then print again." },
   // E-C1-1/3: a measure whose name the copy table does not have yet (pending Dr Gladys)
   "laporan.metrik.tanpa_nama": { default: "Ukuran ini belum punya nama", en: "This measure has no name yet" },
   // W3.8 (RV-11): what a report's figures cover and when they were calculated, under its heading and on the paper
@@ -3130,6 +3618,9 @@ const table: Table = {
   "laporan.komposisi.keliru_lainnya": { default: "{n} pola lain ada di «Lihat bukti».", en: "{n} more patterns are in «See the evidence»." },
   "laporan.komposisi.keliru_tertahan": { default: "{n} pola lain baru dialami kurang dari {m} murid, jadi belum ditampilkan sebagai pola kelas.", en: "{n} more patterns have been seen in fewer than {m} students, so they are not shown as class patterns yet." },
   "laporan.komposisi.keliru_belum": { default: "Belum ada pola jawaban keliru yang dialami cukup banyak murid untuk disebut pola kelas.", en: "No mistaken-answer pattern has yet been seen in enough students to call it a class pattern." },
+  // F1-R1b, Daisy's line (§6a): an empty misconception figure with nothing withheld; where patterns are withheld under the
+  // class minimum, keliru_belum stands instead, since «nothing linked» would then be false
+  "laporan.komposisi.keliru_kosong": { default: "Belum ada pemahaman keliru yang terkait dengan jawaban ini.", en: "No misunderstanding is linked to these answers yet." },
   "laporan.komposisi.topik_di_bawah_sebagian": { default: "{n} dari {m} topik yang punya angka masih di bawah target: {daftar}.", en: "{n} of the {m} topics with a figure are still below target: {daftar}." },
   "laporan.komposisi.topik_di_bawah_banyak_sebagian": { default: "{n} dari {m} topik yang punya angka masih di bawah target. Yang paling rendah: {nama} ({p}). Semua topik ada di daftar di bawah.", en: "{n} of the {m} topics with a figure are still below target. The lowest: {nama} ({p}). Every topic is in the list below." },
   "laporan.komposisi.topik_semua_sebagian": { default: "Ke-{m} topik yang punya angka sudah mencapai target {target}.", en: "All {m} topics with a figure have reached the {target} target." },
@@ -3612,6 +4103,9 @@ const table: Table = {
   "akun.tinggal.galat.account_request_open": { default: "Permintaan ini sudah diajukan dan sedang dikerjakan.", en: "This request has already been made and is in hand." },
   "akun.tinggal.galat.account_request_invalid": { default: "Permintaan itu tidak ditemukan atau sudah selesai.", en: "That request was not found or is already done." },
   "akun.tinggal.galat.account_not_closed": { default: "Data pribadi dihapus hanya dari akun yang sudah ditutup.", en: "Personal data is deleted only from a closed account." },
+  // L1-F4 (Daisy, final: ANONYMISED-PERSON-IS-TERMINAL.md §3c; the school is not named, and the attachment's kind never is)
+  "akun.tinggal.galat.account_live_attachment": { default: "Data pribadi tidak dihapus: orang ini masih memegang pendaftaran, peran, atau keterkaitan lain yang berlaku di sebuah sekolah. Tidak ada yang diubah, dan permintaannya tetap terbuka. Tanyakan kepada sekolah itu apakah keterkaitan tersebut memang harus diakhiri; setelah diakhiri, tekan «Hapus data pribadi» sekali lagi.", en: "Personal data was not deleted: this person still holds an enrolment, role or other attachment in force at a school. Nothing was changed, and the request stays open. Ask that school whether the attachment should end; once it has ended, press «Delete personal data» once more." },
+  "akun.tinggal.galat.account_anonymised": { default: "Akun ini tidak dapat dibuka kembali: data pribadi pemiliknya sudah dihapus. Tidak ada yang diubah. Bila orang ini ingin memakai PINTAR lagi, ia didaftarkan sebagai orang baru.", en: "This account cannot be reopened: its owner's personal data has been deleted. Nothing was changed. If this person wants to use PINTAR again, they are registered as a new person." },
   // Sharon §16 (6faef690): the last PINTAR Administrator cannot lock the platform out; a photo file not yet removed
   "akun.tinggal.galat.account_platform_role": { default: "Akun yang memegang peran Admin PINTAR tidak dapat ditutup sendiri. Minta Admin PINTAR lain melepaskan peran itu lebih dulu.", en: "An account holding the Admin PINTAR role cannot be closed by its owner. Ask another Admin PINTAR to remove that role first." },
   "akun.tinggal.galat.account_photo_pending": { default: "Data pribadi sudah dihapus, tetapi foto profil belum terhapus dari penyimpanan. Tekan sekali lagi untuk menyelesaikannya.", en: "The personal data has been deleted, but the profile photo has not yet been removed from storage. Press once more to finish." },
@@ -3713,6 +4207,7 @@ const table: Table = {
   "staf.tj.can_view_learner_roster": { default: "Melihat daftar murid", en: "Seeing the student list" },
   "staf.tj.can_view_learner_result": { default: "Melihat hasil murid", en: "Seeing students' results" },
   "staf.tj.can_provision_people": { default: "Mendata orang dan mengaktifkan akun", en: "Recording people and activating accounts" },
+  "staf.tj.can_manage_sittings": { default: "Mengatur sesi asesmen murid", en: "Managing students' assessment sittings" },
   "staf.tj.management_decision": { default: "Memutuskan hal yang menunggu di Pimpinan", en: "Deciding what waits under Management" },
   "staf.galat.staff_not_allowed": { default: "Anda tidak dapat mengubah peran di sekolah ini.", en: "You cannot change roles at this school." },
   "staf.galat.staff_self": { default: "Peran Anda sendiri diubah atau diakhiri oleh admin lain.", en: "Your own roles are changed or ended by another administrator." },
@@ -3729,6 +4224,342 @@ const table: Table = {
   "staf.galat.role_admin_unconfirmed": { default: "Centang konfirmasi untuk menjadikan orang ini Admin sekolah.", en: "Tick the confirmation to make this person a school administrator." },
   "staf.galat.role_remove_invalid": { default: "Peran yang dilepas bukan peran orang ini di sekolah ini.", en: "A role to release is not this person's role at this school." },
   "staf.galat.staff_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
+  // B0 (administrator lock-out protection): the last-holder refusals, the renewal and the expiry read (peran_tolak, PR160)
+  "peran.galat.role_last_platform_admin": { default: "Ini satu-satunya Admin PINTAR yang masih aktif, jadi perannya tidak dapat dicabut. Tunjuk Admin PINTAR kedua lebih dulu.", en: "This is the only active Admin PINTAR, so the role cannot be revoked. Appoint a second Admin PINTAR first." },
+  "peran.galat.role_last_school_admin": { default: "Ini satu-satunya Admin sekolah yang masih aktif di sekolah ini, jadi perannya tidak dapat dicabut. Tunjuk Admin sekolah lain lebih dulu, atau hubungi Admin PINTAR.", en: "This is the only active school administrator at this school, so the role cannot be revoked. Appoint another school administrator first, or contact an Admin PINTAR." },
+  "peran.galat.role_renew_not_allowed": { default: "Anda tidak dapat memperpanjang peran ini.", en: "You cannot renew this role." },
+  "peran.galat.role_renew_not_live": { default: "Peran ini sudah berakhir atau dicabut. Berikan peran itu lagi.", en: "This role has ended or been revoked. Grant it again." },
+  "peran.galat.role_renew_self": { default: "Peran Anda sendiri diperpanjang oleh admin lain.", en: "Your own role is renewed by another administrator." },
+  "peran.galat.role_renew_until_invalid": { default: "Tanggal berlaku sampai yang baru harus setelah hari ini dan setelah tanggal yang sekarang.", en: "The new valid-until date must be after today and after the current one." },
+  "peran.galat.role_renew_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
+  "peran.galat.role_read_not_allowed": { default: "Anda tidak dapat melihat peran ini.", en: "You cannot see these roles." },
+  "peran.galat.role_expiry_days_invalid": { default: "Jumlah hari harus 1 sampai 366.", en: "The number of days must be 1 to 366." },
+  "peran.galat.role_busy": { default: "Admin lain sedang mengubah peran di sini pada saat yang sama, jadi perubahan Anda belum tersimpan. Coba lagi.", en: "Another administrator was changing roles here at the same moment, so your change was not saved. Try again." },
+  "peran.galat.role_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
+  // A1 · sitting control: the refusals of the sitting, attempt and window acts (PR170, src/lib/pengerjaan-kontrak.ts)
+  "pengerjaan.galat.sitting_not_allowed": { default: "Anda tidak dapat mengatur sesi murid di kelas ini.", en: "You cannot manage learners' sittings in this class." },
+  "pengerjaan.galat.sitting_professional": { default: "Tindakan ini tidak tersedia untuk asesmen Pengembangan Profesional.", en: "This action is not available for Professional Development assessments." },
+  "pengerjaan.galat.sitting_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
+  "pengerjaan.galat.sitting_note_too_long": { default: "Catatan paling banyak 300 karakter.", en: "The note is at most 300 characters." },
+  "pengerjaan.galat.sitting_already_ended": { default: "Sesi ini sudah berakhir sebelum perubahan Anda disimpan. Tidak ada yang diubah.", en: "This sitting ended before your change was saved. Nothing was changed." },
+  "pengerjaan.galat.sitting_frozen": { default: "Sesi ini sedang ditahan. Lanjutkan atau akhiri lebih dulu.", en: "This sitting is on hold. Resume it or end it first." },
+  "pengerjaan.galat.sitting_not_frozen": { default: "Sesi ini tidak sedang ditahan.", en: "This sitting is not on hold." },
+  "pengerjaan.galat.sitting_learner_suspended": { default: "Sesi ini baru dapat dilanjutkan atau diakhiri setelah akun murid aktif kembali.", en: "This sitting can be resumed or ended only after the learner's account is active again." },
+  "pengerjaan.galat.sitting_end_kind_invalid": { default: "Pilih salah satu: dinilai atau tidak dihitung.", en: "Choose one: scored or not counted." },
+  "pengerjaan.galat.sitting_minutes_invalid": { default: "Tambahan waktu harus 1 sampai 120 menit.", en: "Extra time must be 1 to 120 minutes." },
+  "pengerjaan.galat.sitting_extend_limit": { default: "Sesi ini sudah tiga kali diberi tambahan waktu.", en: "This sitting has already been given extra time three times." },
+  "pengerjaan.galat.sitting_no_deadline": { default: "Sesi ini tidak memiliki batas waktu, jadi tidak ada waktu yang ditambah.", en: "This sitting has no time limit, so there is no time to add." },
+  "pengerjaan.galat.attempt_not_limited": { default: "Asesmen ini tidak membatasi jumlah kesempatan, jadi tidak ada yang perlu diminta.", en: "This assessment does not limit attempts, so there is nothing to request." },
+  "pengerjaan.galat.attempt_sitting_open": { default: "Murid ini masih memiliki sesi yang terbuka. Akhiri atau lanjutkan dulu sebelum meminta kesempatan lagi.", en: "This learner still has an open sitting. End or resume it before requesting another attempt." },
+  "pengerjaan.galat.attempt_not_needed": { default: "Murid ini masih dapat memulai asesmen ini.", en: "This learner can still start this assessment." },
+  "pengerjaan.galat.attempt_request_open": { default: "Permintaan untuk murid dan asesmen ini sudah menunggu keputusan.", en: "A request for this learner and assessment is already waiting for a decision." },
+  "pengerjaan.galat.attempt_decision_not_allowed": { default: "Anda tidak dapat memutuskan permintaan ini.", en: "You cannot decide this request." },
+  "pengerjaan.galat.attempt_own_request": { default: "Permintaan Anda sendiri diputuskan oleh orang lain.", en: "Your own request is decided by someone else." },
+  "pengerjaan.galat.attempt_already_decided": { default: "Permintaan ini sudah diputuskan.", en: "This request has already been decided." },
+  "pengerjaan.galat.attempt_reason_required": { default: "Tuliskan alasan tidak menyetujui, 10 sampai 300 karakter.", en: "Write why you are declining, 10 to 300 characters." },
+  "pengerjaan.galat.window_not_allowed": { default: "Anda tidak dapat mengubah jadwal materi di kelas ini.", en: "You cannot change the schedule of material in this class." },
+  "pengerjaan.galat.window_assignment_ended": { default: "Materi ini sudah diakhiri atau ditarik, jadi jadwalnya tidak dapat diubah.", en: "This material has been ended or withdrawn, so its schedule cannot be changed." },
+  "pengerjaan.galat.window_invalid": { default: "Waktu tutup harus setelah waktu buka dan setelah saat ini.", en: "The closing time must be after the opening time and after now." },
+  "pengerjaan.galat.window_unchanged": { default: "Jadwalnya sudah seperti itu.", en: "The schedule is already set that way." },
+  "pengerjaan.galat.window_not_changeable": { default: "Jadwal materi ini tidak dapat diubah saat ini.", en: "This material's schedule cannot be changed right now." },
+  "pengerjaan.galat.sitting_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
+  // C1w (O41-10, O41-11, O41-18, O41-19): the item workbench's refusals, said to the staff who meet them
+  "studio.soal.galat.draft_not_allowed": { default: "Anda tidak dapat mengubah soal dalam draf ini.", en: "You cannot change the questions in this draft." },
+  "studio.soal.galat.draft_unknown": { default: "Draf atau soal ini tidak ditemukan.", en: "This draft or question was not found." },
+  "studio.soal.galat.draft_submitted": { default: "Paket ini sedang ditinjau. Soalnya dapat diubah lagi setelah paket dikembalikan kepada Anda.", en: "This package is being reviewed. Its questions can be changed again once it is sent back to you." },
+  "studio.soal.galat.draft_sealed": { default: "Paket ini sudah dikunci atau diterbitkan. Untuk mengubah soalnya, buat revisi paket.", en: "This package is locked or published. To change its questions, make a revision of the package." },
+  "studio.soal.galat.draft_edit_conflict": { default: "Soal ini baru saja disimpan oleh orang lain. Buka lagi soalnya, lalu ulangi perubahan Anda.", en: "Someone else has just saved this question. Open it again, then repeat your change." },
+  "studio.soal.galat.draft_in_use": { default: "Draf atau soal ini sudah dipakai di tempat lain, jadi tidak dapat dihapus.", en: "This draft or question is already used elsewhere, so it cannot be removed." },
+  "studio.soal.galat.draft_last_test_question": { default: "Ini soal terakhir dari tesnya. Sebuah tes memerlukan sedikitnya satu soal.", en: "This is the last question of its test. A test needs at least one question." },
+  "studio.soal.galat.draft_shape_invalid": { default: "Soal belum lengkap. Isi pertanyaan dan pilihan jawabannya, lalu simpan lagi.", en: "The question is incomplete. Fill in the question and its options, then save again." },
+  "studio.soal.galat.draft_note_too_long": { default: "Catatan paling banyak 300 karakter.", en: "The note is at most 300 characters." },
+  "studio.soal.galat.revision_not_head": { default: "Sudah ada versi paket yang lebih baru. Revisi dibuat dari versi terbaru.", en: "A newer version of this package exists. A revision is made from the newest version." },
+  "studio.soal.galat.revision_not_published": { default: "Hanya soal dari paket yang sudah terbit yang dapat direvisi.", en: "Only a question of a published package can be revised." },
+  "studio.soal.galat.revision_open_exists": { default: "Revisi paket ini sudah dibuka. Selesaikan atau buang revisi itu dulu.", en: "A revision of this package is already open. Finish or discard it first." },
+  "studio.soal.galat.revision_summary_required": { default: "Tuliskan apa yang diubah dan mengapa, 10 sampai 1000 karakter.", en: "Write what changes and why, 10 to 1000 characters." },
+  "studio.soal.galat.question_not_visible": { default: "Riwayat soal ini hanya dapat dibaca oleh penyusun dan peninjau sekolahnya.", en: "This question's history is read only by its school's authors and reviewers." },
+  "studio.soal.galat.release_state_not_visible": { default: "Keadaan materi ini hanya dapat dibaca oleh guru dan murid kelasnya.", en: "This material's state is read only by its class's teachers and learners." },
+  "studio.soal.galat.draft_failed": { default: "Perubahan belum tersimpan. Coba lagi.", en: "The change was not saved. Try again." },
+  "studio.soal.masalah.item_objective_unknown": { default: "Tujuan pembelajaran yang dipilih bukan bagian dari paket ini.", en: "The chosen learning objective is not part of this package." },
+  "studio.soal.masalah.item_use_no_test": { default: "Paket ini tidak memiliki tes untuk kegunaan yang dipilih.", en: "This package has no test for the chosen use." },
+  "studio.soal.identitas.item_identity_unknown": { default: "Identitas soal ini tidak dikenal di sekolah ini.", en: "This question identity is not known at this school." },
+  "studio.soal.identitas.item_identity_no_predecessor": { default: "Identitas soal hanya diisi saat mengunggah koreksi sebuah paket.", en: "A question identity is filled in only when uploading a correction of a package." },
+  "studio.soal.identitas.item_identity_other_course": { default: "Identitas soal ini milik paket lain, bukan paket yang dikoreksi.", en: "This question identity belongs to another package, not the one being corrected." },
+  "studio.soal.identitas.item_identity_not_predecessor": { default: "Identitas soal ini milik versi lama paket. Pakai identitas dari versi yang dikoreksi.", en: "This question identity belongs to an older version of the package. Use the identity from the version being corrected." },
+  "studio.soal.identitas.item_identity_repeated": { default: "Identitas soal yang sama dipakai lebih dari sekali dalam berkas ini.", en: "The same question identity is used more than once in this file." },
+  "studio.koreksi.galat.correction_not_allowed": { default: "Koreksi kunci jawaban diajukan oleh pemilik materi di sekolahnya.", en: "An answer-key correction is proposed by the material's owner at its school." },
+  "studio.koreksi.galat.correction_unknown": { default: "Koreksi atau soal ini tidak ditemukan.", en: "This correction or question was not found." },
+  "studio.koreksi.galat.correction_item_not_published": { default: "Hanya soal dari materi yang sudah terbit yang dapat dikoreksi kuncinya.", en: "Only a question of published material can have its answer key corrected." },
+  "studio.koreksi.galat.correction_not_in_head": { default: "Soal ini sudah diubah pada versi paket yang lebih baru. Koreksi soal pada versi itu.", en: "This question was changed in a newer version of the package. Correct the question in that version." },
+  "studio.koreksi.galat.correction_open_revision": { default: "Ada revisi paket ini yang belum selesai, jadi kunci jawaban belum dapat dikoreksi. Selesaikan revisi itu sampai terbit, atau buang draf revisinya, lalu ajukan koreksi kunci lagi.", en: "An unfinished revision of this package is open, so the answer key cannot be corrected yet. Take that revision through to publication, or discard its draft, then propose the key correction again." },
+  "studio.koreksi.galat.correction_key_invalid": { default: "Pilih jawaban benar dari pilihan soal ini: tepat satu untuk soal satu jawaban.", en: "Choose the right answer from this question's options: exactly one for a single-answer question." },
+  "studio.koreksi.galat.correction_key_unchanged": { default: "Jawaban benar yang dipilih sama dengan yang sekarang.", en: "The chosen right answer is the same as the current one." },
+  "studio.koreksi.galat.correction_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
+  "studio.koreksi.galat.correction_pending": { default: "Koreksi untuk soal ini sudah menunggu konfirmasi orang kedua.", en: "A correction of this question is already waiting for a second person." },
+  "studio.koreksi.galat.correction_already_decided": { default: "Koreksi ini sudah dikonfirmasi atau ditolak.", en: "This correction has already been confirmed or declined." },
+  "studio.koreksi.galat.correction_own_proposal": { default: "Koreksi yang Anda ajukan dikonfirmasi oleh orang lain.", en: "A correction you proposed is confirmed by someone else." },
+  "studio.koreksi.galat.correction_confirm_not_allowed": { default: "Anda tidak berwenang mengonfirmasi koreksi kunci untuk materi ini.", en: "You are not authorized to confirm an answer-key correction for this material." },
+  "studio.koreksi.galat.correction_proposer_lapsed": { default: "Pengaju koreksi ini tidak lagi berwenang atas materinya. Koreksi perlu diajukan lagi.", en: "The person who proposed this correction is no longer authorized for the material. It needs to be proposed again." },
+  "studio.koreksi.galat.correction_stale": { default: "Soal ini berubah sejak koreksi diajukan. Koreksi perlu diajukan lagi.", en: "This question changed after the correction was proposed. It needs to be proposed again." },
+  "studio.koreksi.galat.correction_not_ready": { default: "Versi yang sudah dikoreksi belum dapat diterbitkan. Tidak ada yang berubah.", en: "The corrected version could not be published. Nothing was changed." },
+  "studio.koreksi.galat.correction_sitting_not_affected": { default: "Sesi ini tidak memuat soal yang dikoreksi, jadi hasilnya tidak dihitung ulang.", en: "This sitting did not include the corrected question, so its result is not recalculated." },
+  "studio.koreksi.galat.correction_concurrent": { default: "Koreksi lain sedang menghitung ulang sesi yang sama. Tidak ada yang tersimpan; coba lagi.", en: "Another correction was recalculating the same sitting. Nothing was saved; try again." },
+  "studio.koreksi.galat.result_not_visible": { default: "Anda tidak dapat melihat hasil sesi ini.", en: "You cannot see this sitting's results." },
+  "studio.koreksi.galat.cert_review_unknown": { default: "Peninjauan sertifikat ini tidak ditemukan.", en: "This certificate review was not found." },
+  "studio.koreksi.galat.cert_review_not_allowed": { default: "Peninjauan sertifikat diputuskan oleh pihak berwenang di sekolah penerbitnya.", en: "A certificate review is decided by an authorized person at the issuing school." },
+  "studio.koreksi.galat.cert_review_decided": { default: "Peninjauan sertifikat ini sudah diputuskan.", en: "This certificate review has already been decided." },
+  "studio.koreksi.galat.cert_review_decision_invalid": { default: "Pilih salah satu: tetap berlaku atau cabut.", en: "Choose one: keep it valid or revoke it." },
+  "studio.koreksi.galat.cert_review_reason_required": { default: "Tuliskan alasan keputusan, 10 sampai 300 karakter.", en: "Write the reason for the decision, 10 to 300 characters." },
+  "studio.koreksi.galat.correction_failed": { default: "Koreksi belum tersimpan. Coba lagi.", en: "The correction was not saved. Try again." },
+  // C1w on the screens (Daisy, TINJAUAN-A1-C1W: Q5, Q6, §C1·N1, §C1·N2, C1-B1, C1-B2, C1-R1..R5)
+  "verifikasi.status.DITINJAU": { default: "Sedang ditinjau", en: "Under review" },
+  "verifikasi.status.DITINJAU.arti": { default: "Sertifikat ini benar diterbitkan oleh {sekolah}. Penilaian satu soal di asesmennya diperbaiki, dan sekolah penerbit sedang meninjau sertifikat ini. Sampai selesai, sertifikat ini tidak dinyatakan berlaku. Hubungi sekolah penerbit untuk keterangan.", en: "This certificate was genuinely issued by {sekolah}. The marking of one question in its assessment was corrected, and the issuing school is reviewing this certificate. Until that is finished, this certificate is not declared valid. Contact the issuing school for details." },
+  "hasil.dikoreksi": { default: "Hasil ini dihitung ulang karena penilaian satu soal diperbaiki. Hasil asli tetap tersimpan.", en: "This result was recalculated because the marking of one question was corrected. The original result is kept." },
+  "hasil.dikoreksi.tanda": { default: "Dihitung ulang", en: "Recalculated" },
+  "hasil.dikoreksi.asli": { default: "Hasil asli: {asli}", en: "Original result: {asli}" },
+  "sertifikat.status.DITINJAU": { default: "Sedang ditinjau", en: "Under review" },
+  "sertifikat.ditinjau.arti": { default: "Sekolah Anda sedang meninjau sertifikat ini karena penilaian satu soal diperbaiki. Sertifikat tetap tersimpan. Selama ditinjau, pemeriksaan sertifikat menyebutnya sedang ditinjau.", en: "Your school is reviewing this certificate because the marking of one question was corrected. The certificate is kept. While it is under review, the certificate check says it is under review." },
+  "mengajar.murid1.dikoreksi": { default: "Hasil sesi ini dihitung ulang. Hasil yang berlaku sekarang {baru}, juga di halaman hasil murid; hasil asli yang disegel ({asli}) tetap tersimpan.", en: "This sitting's result was recalculated. The result in force is now {baru}, on the student's own result page too; the original sealed result ({asli}) is kept." },
+  "mengajar.murid1.dikoreksi_alasan": { default: "Penilaian satu soal diperbaiki: {alasan}", en: "The marking of one question was corrected: {alasan}" },
+  "mengajar.materi.dihentikan_penerbit": { default: "Dihentikan penerbit · tidak dapat dimulai lagi; hasil tetap dihitung", en: "Stopped by the publisher · cannot be started again; results still count" },
+  "mengajar.materi.ada_perbaikan": { default: "Ada perbaikan · terbit {tanggal}", en: "A correction is available · published {tanggal}" },
+  "mengajar.materi.pindahkan": { default: "Pindahkan penugasan", en: "Move the assignment" },
+  "studio.soal.ubah": { default: "Ubah soal ini", en: "Edit this question" },
+  "studio.soal.ubah.judul": { default: "Ubah soal {posisi}", en: "Edit question {posisi}" },
+  "studio.soal.tambah": { default: "Tambah soal", en: "Add a question" },
+  "studio.soal.tambah.judul": { default: "Soal baru · {pelajaran}", en: "New question · {pelajaran}" },
+  "studio.soal.f.bacaan": { default: "Bacaan", en: "Reading" },
+  "studio.soal.f.bacaan.arti": { default: "Tidak wajib.", en: "Optional." },
+  "studio.soal.f.pertanyaan": { default: "Pertanyaan", en: "Question" },
+  "studio.soal.f.pilihan": { default: "Pilihan", en: "Options" },
+  "studio.soal.f.pilihan.arti": { default: "Dua sampai lima pilihan. Pilihan yang dibiarkan kosong di akhir tidak dipakai.", en: "Two to five options. Options left empty at the end are not used." },
+  "studio.soal.f.pilihan_x": { default: "Pilihan {x}", en: "Option {x}" },
+  "studio.soal.f.kunci": { default: "Kunci jawaban", en: "Answer key" },
+  "studio.soal.f.alasan_x": { default: "Alasan pilihan {x}", en: "Reason for option {x}" },
+  "studio.soal.f.miskonsepsi_x": { default: "Kode miskonsepsi pilihan {x}", en: "Misconception code for option {x}" },
+  "studio.soal.f.miskonsepsi.arti": { default: "Tidak wajib; untuk pilihan yang keliru.", en: "Optional; for a wrong option." },
+  "studio.soal.f.tujuan": { default: "Tujuan", en: "Objective" },
+  "studio.soal.f.tujuan.tetap": { default: "Tujuan pelajaran ini", en: "This lesson's objectives" },
+  "studio.soal.f.kegunaan": { default: "Kegunaan", en: "Use" },
+  "studio.soal.f.kegunaan.latihan": { default: "Latihan", en: "Practice" },
+  "studio.soal.simpan": { default: "Simpan soal", en: "Save question" },
+  "studio.soal.batal": { default: "Batal", en: "Cancel" },
+  "studio.soal.ringkasan_galat": { default: "Soal belum tersimpan. Perbaiki yang berikut:", en: "The question was not saved. Fix the following:" },
+  "studio.soal.v.kunci": { default: "Pilih tepat satu kunci jawaban.", en: "Choose exactly one answer key." },
+  "studio.soal.v.pilihan_kosong": { default: "Pilihan {x} masih kosong.", en: "Option {x} is still empty." },
+  "studio.soal.v.pertanyaan_kosong": { default: "Pertanyaan masih kosong.", en: "The question is still empty." },
+  "studio.soal.v.alasan_kosong": { default: "Alasan pilihan {x} masih kosong.", en: "The reason for option {x} is still empty." },
+  "studio.soal.v.pilihan_kurang": { default: "Isi sedikitnya dua pilihan.", en: "Fill in at least two options." },
+  "studio.soal.diubah_oleh": { default: "Diubah oleh {nama}, {waktu}", en: "Changed by {nama}, {waktu}" },
+  "studio.soal.tersimpan": { default: "Soal tersimpan.", en: "Question saved." },
+  "studio.soal.tersimpan_periksa": { default: "Soal tersimpan. Isi paket perlu diperiksa lagi sebelum diajukan.", en: "Question saved. The package's content needs checking again before it is submitted." },
+  "studio.soal.ditambah": { default: "Soal ditambahkan.", en: "Question added." },
+  "studio.soal.dihapus": { default: "Soal dihapus dari draf.", en: "Question removed from the draft." },
+  "studio.soal.hapus": { default: "Hapus soal", en: "Remove question" },
+  "studio.soal.hapus.tanya": { default: "Hapus soal ini dari draf? Catatan bahwa soal ini pernah ada tetap tersimpan.", en: "Remove this question from the draft? The record that this question existed is kept." },
+  "studio.soal.hapus.ya": { default: "Hapus soal", en: "Remove question" },
+  "studio.soal.buang": { default: "Buang draf ini", en: "Discard this draft" },
+  "studio.soal.buang.tanya": { default: "Buang draf \"{judul}\"? {n} soal di dalamnya dihapus. Catatan audit tetap ada.", en: "Discard the draft \"{judul}\"? Its {n} questions are deleted. The audit record stays." },
+  "studio.soal.buang.ya": { default: "Buang draf", en: "Discard draft" },
+  "studio.soal.dibuang": { default: "Draf \"{judul}\" dibuang.", en: "Draft \"{judul}\" discarded." },
+  "studio.soal.sedang_ditinjau": { default: "Draf ini sedang ditinjau. Soal dapat diubah lagi bila dikembalikan.", en: "This draft is being reviewed. Its questions can be changed again if it is sent back." },
+  "studio.soal.basi": { default: "Soal ini diubah oleh {nama} sejak Anda membukanya. Muat ulang untuk melihat perubahannya.", en: "{nama} changed this question since you opened it. Reload to see the change." },
+  "studio.soal.basi.muat": { default: "Muat ulang", en: "Reload" },
+  "studio.soal.unggah_menimpa": { default: "Unggahan ini mengganti {n} soal yang diubah di aplikasi.", en: "This upload replaces {n} questions that were changed in the app." },
+  "studio.soal.riwayat": { default: "Riwayat soal ({n} versi)", en: "Question history ({n} versions)" },
+  "studio.soal.riwayat.versi": { default: "Versi {n}", en: "Version {n}" },
+  "studio.soal.riwayat.ini": { default: "versi ini", en: "this version" },
+  "studio.soal.riwayat.asli": { default: "asli", en: "original" },
+  "studio.soal.riwayat.baru": { default: "baru di versi paket ini", en: "new in this version of the package" },
+  "studio.soal.riwayat.diperbaiki": { default: "diperbaiki {nama}, {tanggal}", en: "corrected by {nama}, {tanggal}" },
+  "studio.soal.riwayat.diunggah": { default: "diunggah {nama}, {tanggal}", en: "uploaded by {nama}, {tanggal}" },
+  "studio.soal.riwayat.terbit": { default: "terbit {tanggal}", en: "published {tanggal}" },
+  "studio.soal.riwayat.belum_terbit": { default: "belum terbit", en: "not yet published" },
+  "studio.soal.riwayat.lihat": { default: "Lihat versi ini", en: "View this version" },
+  "studio.soal.riwayat.kunci": { default: "Kunci: {dari} → {ke}", en: "Key: {dari} → {ke}" },
+  "studio.soal.riwayat.pertanyaan": { default: "Pertanyaan diubah", en: "Question changed" },
+  "studio.soal.riwayat.bacaan": { default: "Bacaan diubah", en: "Reading changed" },
+  "studio.soal.riwayat.pilihan_diubah": { default: "Pilihan {x} diubah", en: "Option {x} changed" },
+  "studio.soal.riwayat.pilihan_ditambah": { default: "Pilihan {x} ditambahkan", en: "Option {x} added" },
+  "studio.soal.riwayat.pilihan_dihapus": { default: "Pilihan {x} dihapus", en: "Option {x} removed" },
+  "studio.soal.riwayat.alasan": { default: "Alasan pilihan {x} diubah", en: "Reason for option {x} changed" },
+  "studio.soal.riwayat.miskonsepsi": { default: "Kode miskonsepsi pilihan {x} diubah", en: "Misconception code for option {x} changed" },
+  "studio.soal.riwayat.tujuan": { default: "Tujuan diubah", en: "Objective changed" },
+  "studio.soal.riwayat.tetap": { default: "Tidak ada yang diubah", en: "Nothing changed" },
+  "studio.soal.riwayat.gagal": { default: "Riwayat soal ini belum dapat dibaca. Muat ulang halaman ini.", en: "This question's history could not be read. Reload this page." },
+  "studio.kunci.keliru": { default: "Kunci jawaban keliru?", en: "Answer key wrong?" },
+  "studio.kunci.judul": { default: "Perbaiki kunci jawaban", en: "Correct the answer key" },
+  "studio.kunci.langkah": { default: "Langkah {i} dari 3", en: "Step {i} of 3" },
+  "studio.kunci.l1": { default: "Kunci yang benar", en: "The correct key" },
+  "studio.kunci.l2": { default: "Yang terdampak", en: "Who is affected" },
+  "studio.kunci.l3": { default: "Kirim untuk konfirmasi", en: "Send for confirmation" },
+  "studio.kunci.sekarang": { default: "kunci sekarang", en: "current key" },
+  "studio.kunci.alasan": { default: "Alasan", en: "Reason" },
+  "studio.kunci.alasan.arti": { default: "10 sampai 300 karakter. Dicatat dan ditunjukkan kepada orang kedua.", en: "10 to 300 characters. Recorded and shown to the second person." },
+  "studio.kunci.lanjut": { default: "Lanjut", en: "Continue" },
+  "studio.kunci.kembali": { default: "Kembali ke langkah sebelumnya", en: "Back to the previous step" },
+  "studio.kunci.dampak": { default: "Soal ini ada di {n} sesi yang sudah selesai, di {k} sekolah.", en: "This question is in {n} finished sittings, at {k} schools." },
+  "studio.kunci.dampak.bila": { default: "Bila kunci diperbaiki: {a} hasil berubah · {b} keputusan target berubah · {c} sertifikat akan ditinjau sekolahnya · {d} sertifikat baru dapat diterbitkan.", en: "If the key is corrected: {a} results change · {b} target decisions change · {c} certificates will be reviewed by their schools · {d} new certificates can be issued." },
+  "studio.kunci.dampak.kosong": { default: "Tidak ada sesi selesai yang memakai soal ini. Perbaikan berlaku untuk pengerjaan berikutnya.", en: "No finished sitting used this question. The correction applies to the next sittings." },
+  "studio.kunci.dampak.terbuka": { default: "{n} sesi yang belum selesai dihitung dengan kunci yang benar saat selesai.", en: "{n} sittings not yet finished are scored with the correct key when they finish." },
+  "studio.kunci.dampak.platform": { default: "Untuk materi platform, sekolah lain ditunjukkan sebagai jumlah saja.", en: "For platform material, other schools are shown as counts only." },
+  "studio.kunci.dampak.kolom.murid": { default: "Murid", en: "Student" },
+  "studio.kunci.dampak.kolom.kelas": { default: "Kelas", en: "Class" },
+  "studio.kunci.dampak.kolom.hasil": { default: "Hasil", en: "Result" },
+  "studio.kunci.dampak.kolom.target": { default: "Target", en: "Target" },
+  "studio.kunci.dampak.kolom.sertifikat": { default: "Sertifikat", en: "Certificate" },
+  "studio.kunci.dampak.tetap": { default: "tetap", en: "unchanged" },
+  "studio.kunci.dampak.tercapai": { default: "tercapai", en: "met" },
+  "studio.kunci.dampak.belum": { default: "belum tercapai", en: "not met" },
+  "studio.kunci.dampak.ditinjau": { default: "akan ditinjau", en: "will be reviewed" },
+  // L1-F4 (owner §3b, Option A): Daisy's DRAFT (ANONYMISED-PERSON-IS-TERMINAL.md §3c); she confirms after seeing the screen
+  // F1-R1b, Daisy's line (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md §6a; I6-I7-JAWABAN.md §1 at e48c4906), §6 line 1
+  "studio.kunci.dampak.penjelasan_hilang": { default: "Pilihan {x} akan kehilangan alasan dan pemahaman keliru terkaitnya, karena benar-salahnya berubah. Kunci diperbaiki sekarang; alasannya ditulis sesudahnya.", en: "Option {x} will lose its explanation and linked misunderstanding, because whether it is right has changed. The key is corrected now; the explanation is written afterwards." },
+  "studio.kunci.dampak.tidak_diterbitkan": { default: "Memenuhi syarat, tidak diterbitkan: data pribadi sudah dihapus", en: "Requirements met; not issued: personal data deleted" },
+  "studio.kunci.kirim": { default: "Kirim untuk konfirmasi", en: "Send for confirmation" },
+  "studio.kunci.menunggu": { default: "Menunggu konfirmasi orang kedua · diusulkan {waktu}", en: "Waiting for a second person's confirmation · proposed {waktu}" },
+  "studio.kunci.antrean": { default: "Perbaikan kunci menunggu konfirmasi", en: "Key corrections waiting for confirmation" },
+  "studio.kunci.antrean.baris": { default: "Soal di {paket} · kunci {lama} → {baru} · diusulkan {nama}, {waktu}", en: "A question in {paket} · key {lama} → {baru} · proposed by {nama}, {waktu}" },
+  "studio.kunci.kunci_lama": { default: "Kunci sekarang", en: "Current key" },
+  "studio.kunci.kunci_baru": { default: "Kunci yang diusulkan", en: "Proposed key" },
+  "studio.kunci.pengaju": { default: "Diusulkan oleh", en: "Proposed by" },
+  "studio.kunci.konfirmasi": { default: "Konfirmasi perbaikan", en: "Confirm the correction" },
+  "studio.kunci.konfirmasi.tanya": { default: "Hasil {n} sesi dihitung ulang. Hasil asli tetap tersimpan.", en: "The results of {n} sittings are recalculated. The original results are kept." },
+  "studio.kunci.konfirmasi.ya": { default: "Konfirmasi perbaikan", en: "Confirm the correction" },
+  "studio.kunci.tolak": { default: "Tolak", en: "Decline" },
+  "studio.kunci.tolak.alasan": { default: "Alasan menolak", en: "Reason for declining" },
+  "studio.kunci.tolak.arti": { default: "10 sampai 300 karakter. Dicatat dan ditunjukkan kepada pengusulnya.", en: "10 to 300 characters. Recorded and shown to the person who proposed it." },
+  "studio.kunci.ditolak": { default: "Perbaikan ini ditolak oleh {nama}: {alasan}", en: "This correction was declined by {nama}: {alasan}" },
+  "studio.kunci.orang_kedua": { default: "Anda yang mengusulkan perbaikan ini. Orang kedua yang mengonfirmasinya.", en: "You proposed this correction. A second person confirms it." },
+  "studio.kunci.selesai": { default: "Selesai. {n} hasil dihitung ulang pada {waktu}. Hasil asli dan jawaban murid tetap tersimpan.", en: "Done. {n} results recalculated at {waktu}. The original results and the students' answers are kept." },
+  "studio.kunci.terkirim": { default: "Perbaikan terkirim untuk dikonfirmasi orang kedua.", en: "The correction was sent for a second person to confirm." },
+  "studio.kunci.tolak.ok": { default: "Perbaikan ditolak. Pengusulnya melihat alasan Anda.", en: "The correction was declined. Its proposer sees your reason." },
+  "studio.kunci.halaman": { default: "Perbaikan kunci jawaban", en: "Answer-key correction" },
+  "studio.kunci.kembali_antrean": { default: "Antrean Tinjauan", en: "Review queue" },
+  "studio.kunci.tidak_ada": { default: "Perbaikan ini tidak ditemukan.", en: "This correction was not found." },
+  "config.tinjau_sertifikat.judul": { default: "Sedang ditinjau ({n})", en: "Under review ({n})" },
+  "config.tinjau_sertifikat.arti": { default: "Penilaian satu soal diperbaiki, jadi hasil sertifikat-sertifikat ini dihitung ulang. Selama ditinjau, pemeriksaan sertifikat menyebutnya sedang ditinjau.", en: "The marking of one question was corrected, so these certificates' results were recalculated. While under review, the certificate check says each is under review." },
+  "config.tinjau_sertifikat.baris": { default: "{nama} · {paket} · hasil dihitung ulang {asli} → {baru}, target {t} · sejak {tanggal}", en: "{nama} · {paket} · result recalculated {asli} → {baru}, target {t} · since {tanggal}" },
+  "config.tinjau_sertifikat.konfirmasi": { default: "Konfirmasi berlaku", en: "Confirm valid" },
+  "config.tinjau_sertifikat.alasan": { default: "Alasan keputusan", en: "Reason for the decision" },
+  "config.tinjau_sertifikat.alasan.arti": { default: "10 sampai 300 karakter. Dicatat di log audit.", en: "10 to 300 characters. Recorded in the audit log." },
+  "config.tinjau_sertifikat.cabut": { default: "Cabut", en: "Revoke" },
+  "config.tinjau_sertifikat.cabut.tanya": { default: "Cabut sertifikat {nomor}? Pemeriksaan sertifikat lalu menyebutnya dicabut.", en: "Revoke certificate {nomor}? The certificate check will then say it is revoked." },
+  "config.tinjau_sertifikat.ok_konfirmasi": { default: "Sertifikat dikonfirmasi berlaku.", en: "The certificate is confirmed valid." },
+  "config.tinjau_sertifikat.ok_cabut": { default: "Sertifikat dicabut.", en: "The certificate is revoked." },
+  "config.tinjau_sertifikat.dikonfirmasi": { default: "Dikonfirmasi setelah dihitung ulang · {alasan}", en: "Confirmed after recalculation · {alasan}" },
+  "config.koreksi_kunci.pemberitahuan": { default: "Penilaian satu soal di {paket} diperbaiki pada {tanggal}. {a} hasil di sekolah ini dihitung ulang; {c} sertifikat sedang ditinjau.", en: "The marking of one question in {paket} was corrected on {tanggal}. {a} results at this school were recalculated; {c} certificates are under review." },
+  "config.koreksi_kunci.buka": { default: "Buka «Sedang ditinjau»", en: "Open «Under review»" },
+  "config.koreksi_kunci.audit": { default: "Lihat catatan audit", en: "See the audit record" },
+  // A1 on the screens: the teacher's list and act panel, the schedule, the approver's queue, the learner's notices, the audit labels
+  "atur.instrumen": { default: "Instrumen", en: "Instrument" },
+  "atur.buka": { default: "Atur", en: "Manage" },
+  "atur.keadaan.ditahan": { default: "Ditahan", en: "On hold" },
+  "atur.keadaan.dinilai": { default: "Diakhiri guru · dinilai", en: "Ended by teacher · scored" },
+  "atur.keadaan.tidak_dihitung": { default: "Diakhiri guru · tidak dihitung", en: "Ended by teacher · not counted" },
+  "atur.keadaan.waktu_habis": { default: "Waktu habis", en: "Time ran out" },
+  "atur.meta.mulai": { default: "Mulai {waktu}", en: "Started {waktu}" },
+  "atur.meta.sisa": { default: "sisa {n} menit", en: "{n} min left" },
+  "atur.meta.ditahan": { default: "Ditahan · sisa {n} menit", en: "On hold · {n} min left" },
+  "atur.meta.ditahan_polos": { default: "Ditahan", en: "On hold" },
+  "atur.meta.ditahan_menunggu": { default: "Ditahan · menunggu keputusan Anda", en: "On hold · waiting for your decision" },
+  "atur.meta.dikumpulkan": { default: "Dikumpulkan {waktu}", en: "Submitted {waktu}" },
+  "atur.meta.dinilai": { default: "Diakhiri {waktu} · jawaban yang ada dinilai", en: "Ended {waktu} · the saved answers were scored" },
+  "atur.meta.tidak_dihitung": { default: "Diakhiri {waktu} · tidak dihitung, tidak memakai kesempatan", en: "Ended {waktu} · not counted, no attempt used" },
+  "atur.meta.waktu_habis": { default: "Berakhir {waktu} · jawaban yang ada dinilai", en: "Ended {waktu} · the saved answers were scored" },
+  "atur.meta.tambahan": { default: "kesempatan tambahan", en: "extra attempt" },
+  "atur.meta.diminta": { default: "Kesempatan tambahan diminta · menunggu persetujuan", en: "Extra attempt requested · waiting for approval" },
+  "atur.meta.disetujui": { default: "Kesempatan tambahan disetujui {tanggal}", en: "Extra attempt approved {tanggal}" },
+  "atur.meta.ditolak": { default: "Permintaan ditolak · {alasan}", en: "Request declined · {alasan}" },
+  "atur.panel.judul": { default: "Atur · {nama}", en: "Manage · {nama}" },
+  "atur.panel.tanpa_tindakan": { default: "Tidak ada tindakan untuk sesi ini sekarang.", en: "There is nothing to do for this sitting right now." },
+  "atur.waktu.judul": { default: "Tambah waktu", en: "Add time" },
+  "atur.waktu.pilih": { default: "Tambahan waktu", en: "Extra time" },
+  "atur.waktu.menit": { default: "{n} menit", en: "{n} minutes" },
+  "atur.waktu.tanya": { default: "Tambah {n} menit untuk {nama}? Batas baru {waktu}.", en: "Add {n} minutes for {nama}? New deadline {waktu}." },
+  "atur.waktu.ok": { default: "Waktu {nama} ditambah {n} menit. Batas baru {waktu}.", en: "{nama} was given {n} more minutes. New deadline {waktu}." },
+  "atur.akhiri.judul": { default: "Akhiri sesi", en: "End sitting" },
+  "atur.akhiri.legenda": { default: "Bagaimana sesi ini diakhiri?", en: "How is this sitting ended?" },
+  "atur.akhiri.dinilai": { default: "Dinilai: murid sudah selesai, tetapi belum mengumpulkan", en: "Scored: the student has finished but has not submitted" },
+  "atur.akhiri.dinilai.arti": { default: "Jawaban yang sudah tersimpan dinilai. Ini memakai satu kesempatan.", en: "The saved answers are scored. This uses one attempt." },
+  "atur.akhiri.tidak": { default: "Tidak dihitung: murid yang keliru, atau gangguan teknis", en: "Not counted: the wrong student, or a technical fault" },
+  "atur.akhiri.tidak.arti": { default: "Tidak ada hasil, dan tidak memakai kesempatan. Jawaban tetap tersimpan. Murid dapat memulai lagi selama jadwalnya masih terbuka.", en: "No result, and no attempt used. The answers stay saved. The student can start again while the schedule is still open." },
+  "atur.akhiri.tombol_nilai": { default: "Akhiri dan nilai", en: "End and score" },
+  "atur.akhiri.tombol_tidak": { default: "Akhiri tanpa menghitung", en: "End without counting" },
+  "atur.akhiri.tanya_nilai": { default: "Akhiri {instrumen} {nama} dan nilai jawaban yang ada?", en: "End {nama}'s {instrumen} and score the saved answers?" },
+  "atur.akhiri.tanya_tidak": { default: "Akhiri {instrumen} {nama} tanpa menghitung?", en: "End {nama}'s {instrumen} without counting it?" },
+  "atur.akhiri.ok_nilai": { default: "Sesi {nama} diakhiri. Jawaban yang ada dinilai.", en: "{nama}'s sitting was ended. The saved answers were scored." },
+  "atur.akhiri.ok_tidak": { default: "Sesi {nama} diakhiri tanpa dihitung. Tidak memakai kesempatan.", en: "{nama}'s sitting was ended without counting. No attempt was used." },
+  "atur.minta.judul": { default: "Minta satu kesempatan lagi", en: "Request one more attempt" },
+  "atur.minta.arti": { default: "Permintaan ini dikirim untuk disetujui. Sampai disetujui, murid belum dapat mengerjakan lagi. Hasil sebelumnya tetap tersimpan dan tidak berubah.", en: "This request is sent for approval. Until it is approved, the student cannot take it again. Earlier results stay saved and do not change." },
+  "atur.minta.sertifikat": { default: "Karena Uji Penguasaan dapat menghasilkan sertifikat, kesempatan ini perlu disetujui orang lain.", en: "Because the Mastery Check can lead to a certificate, this attempt needs someone else's approval." },
+  "atur.minta.tombol": { default: "Kirim permintaan", en: "Send request" },
+  "atur.minta.ok": { default: "Permintaan dikirim, menunggu persetujuan.", en: "Request sent. Waiting for approval." },
+  "atur.lanjut.judul": { default: "Lanjutkan", en: "Resume" },
+  "atur.lanjut.arti": { default: "Murid melanjutkan dengan sisa waktu yang tersimpan, {n} menit. Waktu tidak ditambah.", en: "The student continues with the preserved time, {n} minutes. No time is added." },
+  "atur.lanjut.arti_tanpa_batas": { default: "Murid melanjutkan sesi ini. Sesi ini tidak memiliki batas waktu, dan tidak ada waktu yang ditambah.", en: "The student continues this sitting. It has no time limit, and no time is added." },
+  "atur.lanjut.ok": { default: "Sesi {nama} dilanjutkan dengan sisa waktu yang tersimpan.", en: "{nama}'s sitting was resumed with the preserved time." },
+  "jadwal.buka": { default: "Ubah jadwal", en: "Change schedule" },
+  "jadwal.judul": { default: "Ubah jadwal · {kursus}", en: "Change schedule · {kursus}" },
+  "jadwal.mulai": { default: "Mulai ({zona})", en: "From ({zona})" },
+  "jadwal.sampai": { default: "Sampai ({zona})", en: "Until ({zona})" },
+  "jadwal.sampai.arti": { default: "Kosongkan bila tanpa batas akhir.", en: "Leave empty for no end date." },
+  "jadwal.catatan": { default: "Murid yang sedang mengerjakan tetap memakai batas waktunya sendiri.", en: "Students who are already working keep their own deadline." },
+  "jadwal.tombol": { default: "Simpan jadwal", en: "Save schedule" },
+  "jadwal.ok": { default: "Jadwal diubah. Murid yang sedang mengerjakan tetap memakai batas waktunya sendiri.", en: "Schedule changed. Students who are already working keep their own deadline." },
+  "kesempatan.judul": { default: "Permintaan kesempatan tambahan", en: "Requests for an extra attempt" },
+  "kesempatan.arti": { default: "Guru meminta satu kesempatan lagi untuk murid yang kesempatannya sudah habis. Keputusan Anda tercatat di jejak audit sekolah.", en: "A teacher asks for one more attempt for a student whose attempts are used up. Your decision is recorded in the school's audit trail." },
+  "kesempatan.menunggu": { default: "permintaan kesempatan tambahan menunggu persetujuan", en: "requests for an extra attempt are waiting for approval" },
+  "kesempatan.baris.dipakai": { default: "{n} kesempatan dipakai", en: "{n} attempts used" },
+  "kesempatan.baris.hasil": { default: "hasil terakhir {hasil}, target {target}", en: "last result {hasil}, target {target}" },
+  "kesempatan.baris.hasil_saja": { default: "hasil terakhir {hasil}", en: "last result {hasil}" },
+  "kesempatan.baris.diminta": { default: "Diminta {guru}, {tanggal} · Alasan: {alasan}", en: "Requested by {guru}, {tanggal} · Reason: {alasan}" },
+  "kesempatan.setujui": { default: "Setujui", en: "Approve" },
+  "kesempatan.tolak": { default: "Tolak", en: "Decline" },
+  "kesempatan.tolak.alasan": { default: "Alasan (wajib bila menolak)", en: "Reason (required to decline)" },
+  "kesempatan.tolak.alasan.arti": { default: "10 sampai 300 karakter. Guru yang meminta dapat membacanya; murid tidak.", en: "10 to 300 characters. The requesting teacher can read it; the student cannot." },
+  "kesempatan.sendiri": { default: "Anda yang meminta ini. Orang lain yang menyetujuinya.", en: "You asked for this. Someone else approves it." },
+  "kesempatan.kosong": { default: "Tidak ada permintaan yang menunggu.", en: "No requests are waiting." },
+  "kesempatan.ok_setuju": { default: "Permintaan disetujui. Murid dapat mengerjakan sekali lagi.", en: "Request approved. The student can take it once more." },
+  "kesempatan.ok_tolak": { default: "Permintaan ditolak. Guru yang meminta dapat melihat alasannya.", en: "Request declined. The requesting teacher can see the reason." },
+  "sync.diakhiri_guru_dinilai": { default: "Guru Anda mengakhiri asesmen ini. Jawaban yang sudah tersimpan dinilai.", en: "Your teacher ended this assessment. The answers already saved are scored." },
+  "sync.diakhiri_guru_tidak_dihitung": { default: "Guru Anda mengakhiri asesmen ini. Asesmen ini tidak dihitung dan tidak memakai kesempatan Anda. Jawaban yang sudah tersimpan tetap ada.", en: "Your teacher ended this assessment. It is not counted and does not use one of your attempts. The answers already saved are kept." },
+  "sync.lihat_hasil": { default: "Lihat hasil", en: "See the result" },
+  "sync.waktu_ditambah": { default: "Waktu Anda ditambah {n} menit.", en: "You were given {n} more minutes." },
+  "sync.waktu_habis": { default: "Waktu habis. Jawaban yang sudah tersimpan sudah dinilai.", en: "Time ran out. The answers already saved have been scored." },
+  "siklus.kartu.ditahan": { default: "Asesmen ini ditahan. Guru Anda akan memutuskan kelanjutannya.", en: "This assessment is on hold. Your teacher will decide what happens next." },
+  "sync.lanjut_sisa": { default: "Lanjutkan · sisa {n} menit", en: "Continue · {n} min left" },
+  "sync.lanjut_polos": { default: "Lanjutkan", en: "Continue" },
+  "siklus.kartu.tidak_dihitung": { default: "Asesmen ini tidak dihitung dan tidak memakai kesempatan Anda. Jawaban yang sudah tersimpan tetap ada.", en: "This assessment is not counted and does not use one of your attempts. The answers already saved are kept." },
+  "siklus.kartu.sekali_lagi": { default: "{instrumen} dapat dikerjakan sekali lagi.", en: "{instrumen} can be taken once more." },
+  "sync.mulai_lagi": { default: "Mulai", en: "Start" },
+  "audit.aksi.assessment_session.handed_in_by_teacher": { default: "Asesmen dikumpulkan oleh guru", en: "Assessment handed in by the teacher" },
+  "audit.aksi.assessment_session.ended_by_deadline": { default: "Asesmen berakhir karena waktunya habis", en: "Assessment ended at its deadline" },
+  "audit.aksi.assessment_session.frozen": { default: "Asesmen ditahan", en: "Assessment put on hold" },
+  "audit.aksi.assessment_session.resumed": { default: "Asesmen dilanjutkan", en: "Assessment resumed" },
+  "audit.aksi.attempt_request.requested": { default: "Kesempatan tambahan diminta", en: "Extra attempt requested" },
+  "audit.aksi.attempt_request.approved": { default: "Kesempatan tambahan disetujui", en: "Extra attempt approved" },
+  "audit.aksi.attempt_request.declined": { default: "Permintaan kesempatan tambahan ditolak", en: "Extra attempt request declined" },
+  "audit.aksi.learning_assignment.window_changed": { default: "Jadwal penugasan diubah", en: "Assignment schedule changed" },
+  // B0 on the screens: the expiry notice, the renewal, the platform admin's warning and the holder's own notice
+  "galat.role_renewed": { default: "Peran diperpanjang.", en: "Role renewed." },
+  "peran.berakhir.judul": { default: "Peran yang segera berakhir", en: "Roles ending soon" },
+  "peran.berakhir.jumlah": { default: "Peran yang berakhir dalam 30 hari ke depan: {n}. Perpanjang sebelum tanggalnya agar orangnya tetap dapat bekerja.", en: "Roles ending within the next 30 days: {n}. Renew each before its date so the person can keep working." },
+  "peran.berakhir.terakhir": { default: "satu-satunya admin yang aktif", en: "the only active administrator" },
+  "peran.perpanjang.aksi": { default: "Perpanjang", en: "Renew" },
+  "peran.perpanjang.judul": { default: "Perpanjang peran", en: "Renew a role" },
+  "peran.perpanjang.arti": { default: "Peran ini mendapat tanggal akhir yang baru. Yang lain tidak berubah.", en: "This role gets a new end date. Nothing else changes." },
+  "peran.perpanjang.sampai_baru": { default: "Berlaku sampai yang baru", en: "New valid-until date" },
+  "peran.perpanjang.sampai_arti": { default: "Setelah {tanggal}, tanggal akhir yang sekarang.", en: "After {tanggal}, the current end date." },
+  "peran.perpanjang.alasan_arti": { default: "10 sampai 300 karakter. Alasan ini dicatat.", en: "10 to 300 characters. This reason is recorded." },
+  "peran.perpanjang.sendiri": { default: "Anda satu-satunya Admin platform yang aktif, jadi Anda memperpanjang peran Anda sendiri. Alasannya dicatat.", en: "You are the only active platform administrator, so you renew your own role. The reason is recorded." },
+  "peran.perpanjang.simpan": { default: "Perpanjang peran", en: "Renew role" },
+  "peran.cabut.tanpa_admin": { default: "Setelah peran ini dilepaskan, sekolah ini tidak memiliki Admin sekolah. Tunjuk yang berikutnya sesudahnya.", en: "Once this role is released, this school has no school administrator. Appoint the next one afterwards." },
+  "peran.saya.judul": { default: "Peran Anda segera berakhir", en: "Your role ends soon" },
+  "peran.saya.berakhir": { default: "Peran Anda sebagai {peran} di {tempat} berakhir pada {tanggal}. Minta admin Anda memperpanjangnya sebelum tanggal itu.", en: "Your role as {peran} at {tempat} ends on {tanggal}. Ask your administrator to renew it before then." },
+  "peran.saya.berakhir_platform": { default: "Peran Anda sebagai {peran} berakhir pada {tanggal}. Minta Admin platform lain memperpanjangnya sebelum tanggal itu.", en: "Your role as {peran} ends on {tanggal}. Ask another platform administrator to renew it before then." },
+  "peran.saya.berakhir_sendiri": { default: "Peran Anda sebagai {peran} berakhir pada {tanggal}, dan Anda satu-satunya Admin platform yang aktif. Perpanjang sendiri di Peran & akses.", en: "Your role as {peran} ends on {tanggal}, and you are the only active platform administrator. Renew it yourself in Roles & access." },
+  "peran.saya.buka": { default: "Buka Peran & akses", en: "Open Roles & access" },
   "audit.alasan.retirement": { default: "Pensiun", en: "Retirement" },
   "audit.alasan.resignation": { default: "Mengundurkan diri", en: "Resignation" },
   "audit.alasan.dismissal": { default: "Diberhentikan", en: "Dismissal" },
@@ -3761,6 +4592,8 @@ const table: Table = {
   "sertifikat.ganti.gagal.cert_not_issued": { default: "Hanya sertifikat yang masih berlaku yang dapat diterbitkan ulang. Sertifikat yang dicabut atau sudah digantikan tetap seperti adanya.", en: "Only a certificate still in force can be reissued. A revoked or replaced certificate stays as it is." },
   "sertifikat.ganti.gagal.cert_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
   "sertifikat.ganti.gagal.cert_nothing_changed": { default: "Tidak ada yang berbeda dari yang tercatat sekarang. Perbaiki datanya lebih dahulu.", en: "Nothing differs from what is recorded now. Correct the record first." },
+  // L1-F4 (§3a.4): DRAFT, the engineer's, for Daisy: a replacement would issue a new certificate to a deleted identity
+  "sertifikat.ganti.gagal.cert_holder_deleted": { default: "Sertifikat ini tidak dapat diganti: data pribadi pemiliknya sudah dihapus. Sertifikat yang sudah terbit tetap seperti adanya. Tidak ada yang diubah.", en: "This certificate cannot be replaced: its holder's personal data has been deleted. The certificate already issued stays as it is. Nothing was changed." },
   "sertifikat.ganti.gagal.cert_key_invalid": { default: "Sertifikat pengganti belum dapat dibuat sekarang. Sertifikat ini tetap berlaku; coba lagi nanti.", en: "The replacement cannot be made right now. This certificate stays in force; try again later." },
   "sertifikat.ganti.gagal.cert_replacement_invalid": { default: "Sertifikat pengganti belum dapat diterbitkan. Coba lagi; sertifikat ini tetap berlaku.", en: "The replacement could not be issued. Try again; this certificate stays in force." },
   "sertifikat.ganti.gagal.tidak_ditemukan": { default: "Sertifikat itu tidak ditemukan.", en: "That certificate was not found." },
@@ -4824,14 +5657,15 @@ const table: Table = {
   "siklus.ambang_belum": { default: "Batas ketuntasan belum ditetapkan.", en: "No pass mark has been set." },
   "mengajar.murid1.target": { default: "target", en: "target" },
   "mengajar.murid1.dihitung_ulang_alasan": { default: "Alasan yang dicatat: {alasan}", en: "Reason recorded: {alasan}" },
-  // D14 (owner, 9 Nov): the learner is told, neutrally, that reports may read a recalculated figure; their own result and certificate do not change
+  // D14 (owner, 9 Nov): the learner is told, neutrally, that reports may read a recalculated figure; their own result does not change.
+  // C1w (C1-B1, O41-21): no line here speaks for the certificate any more, which a governed correction may put under review
   // O-B3 (owner, 9 Nov): the feedback uses the corrected key and says so; the sealed result and certificate do not change.
   // Owner (9 Nov): to a learner it is said in ordinary words («tetap seperti semula»), never «disegel»; the concept stays in
   // the data, the audit and the technical documents
-  "hasil.review.kunci_terkini": { default: "Tanda «Sudah tepat» dan «Belum tepat» pada soal-soal di bawah mengikuti jawaban benar yang sudah diperbaiki, jadi bisa berbeda dari hasil di atas ({benar} dari {total} soal tepat). Hasil di atas dan sertifikat Anda tetap seperti semula.", en: "The «That is right» and «Not right yet» marks on the questions below follow the corrected answers, so they can differ from the result above ({benar} of {total} questions right). The result above and your certificate stay as they were." },
-  "map.kunci_terkini": { default: "Peta ini mengikuti jawaban benar yang sudah diperbaiki, jadi bisa berbeda dari hasil Pemetaan Awal Anda. Hasil Pemetaan Awal Anda tetap seperti semula.", en: "This map follows the corrected answers, so it can differ from your Initial Mapping result. Your Initial Mapping result stays as it was." },
-  "hasil.dihitung_ulang": { default: "Hasil ini kemudian dihitung ulang. Penguasaan dan jumlah jawaban tepat di atas, serta sertifikat Anda, tetap seperti semula; laporan guru dapat menampilkan hasil yang dihitung ulang.", en: "This result was later recalculated. The mastery and the count of right answers above, and your certificate, stay as they were; your teacher's reports may show the recalculated result." },
-  "mengajar.murid1.dihitung_ulang": { default: "Hasil sesi ini dihitung ulang setelah disegel. Laporan memakai hasil terbaru ({baru}); sertifikat dan halaman hasil murid tetap memakai hasil asli yang disegel ({asli}).", en: "This sitting's result was recalculated after it was sealed. Reports use the latest result ({baru}); the certificate and the student's own result page keep the original sealed result ({asli})." },
+  "hasil.review.kunci_terkini": { default: "Tanda «Sudah tepat» dan «Belum tepat» pada soal-soal di bawah mengikuti jawaban benar yang sudah diperbaiki, jadi bisa berbeda dari hasil di atas ({benar} dari {total} soal tepat).", en: "The «That is right» and «Not right yet» marks on the questions below follow the corrected answers, so they can differ from the result above ({benar} of {total} questions right)." },
+  "map.kunci_terkini": { default: "Peta ini mengikuti jawaban benar yang sudah diperbaiki, jadi bisa berbeda dari hasil Pemetaan Awal Anda.", en: "This map follows the corrected answers, so it can differ from your Initial Mapping result." },
+  "hasil.dihitung_ulang": { default: "Hasil ini kemudian dihitung ulang untuk laporan sekolah. Hasil di atas adalah hasil asli, dan tetap tersimpan.", en: "This result was later recalculated for the school's reports. The result above is the original, and it is kept." },
+  "mengajar.murid1.dihitung_ulang": { default: "Hasil sesi ini dihitung ulang setelah disegel. Laporan memakai hasil terbaru ({baru}); hasil asli yang disegel ({asli}) tetap tersimpan dan tetap dipakai halaman hasil murid.", en: "This sitting's result was recalculated after it was sealed. Reports use the latest result ({baru}); the original sealed result ({asli}) is kept, and the student's own result page still uses it." },
   "mengajar.murid1.di_bawah_target": { default: "di bawah target", en: "below target" },
   "hasil.target.tercapai": { default: "Target tercapai.", en: "Target reached." },
   "hasil.target.tercapai_arti": { default: "Penguasaan bab ini memenuhi targetnya.", en: "Mastery of this chapter meets its target." },
@@ -5388,6 +6222,8 @@ const table: Table = {
   "studio.konten.kode.content_author_unknown": { default: "PINTAR tidak tahu siapa penyusun paket ini, jadi tidak dapat memastikan bahwa persetujuannya dari orang lain. Sampaikan kepada yang mengurus PINTAR di sekolah Anda.", en: "PINTAR does not know who wrote this package, so it cannot confirm that the approval comes from someone else. Tell whoever looks after PINTAR at your school." },
   "studio.konten.kode.content_reviewer_is_author": { default: "Anda menyusun paket ini, jadi persetujuannya harus dari orang lain. Minta rekan yang disebut di langkah Setujui isi.", en: "You wrote this package, so the approval must come from someone else. Ask a colleague named at the Approve the content step." },
   "studio.konten.kode.content_check_errors": { default: "Pemeriksaan isi sudah dijalankan dan menemukan hal yang wajib diperbaiki, jadi paket belum ditandai lolos. Lihat Temuan di bawah: perbaiki yang wajib diperbaiki, lalu tandai lolos pemeriksaan lagi.", en: "The content check has run and found things that must be fixed, so the package is not marked as passed yet. See Findings below: fix what must be fixed, then mark the check as passed again." },
+  // F1-R1b, engineer's draft for Daisy (§6 line 2's consequence): the step is held until the explanations are written
+  "studio.konten.kode.content_rationale_owed": { default: "Kunci salah satu soal di paket ini sudah diperbaiki, tetapi alasan pilihannya belum ditulis lagi. Tuliskan alasan untuk setiap pilihan yang bertanda «Alasan pilihan … ditarik», lalu lanjutkan langkah ini.", en: "The key of a question in this package was corrected, but its options' explanations have not been written again. Write an explanation for each option marked «The explanation for option … was withdrawn», then take this step again." },
   "studio.konten.kode.content_reviewer_not_caller": { default: "Persetujuan hanya dapat dicatat atas nama Anda sendiri, bukan atas nama orang lain.", en: "An approval can only be recorded in your own name, not in someone else\u2019s." },
   "studio.konten.kode.content_seal_not_allowed": { default: "Mengunci terbitan bukan wewenang Anda di sekolah ini. Minta orang yang disebut di langkah Kunci terbitan.", en: "Locking the release is not yours to do in this school. Ask someone named at the Lock the release step." },
   "studio.konten.kode.content_publish_not_allowed": { default: "Menerbitkan bukan wewenang Anda di sekolah ini. Minta orang yang disebut di langkah Terbitkan.", en: "Publishing is not yours to do in this school. Ask someone named at the Publish step." },

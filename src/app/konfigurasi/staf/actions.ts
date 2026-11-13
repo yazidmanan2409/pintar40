@@ -6,6 +6,7 @@ import { wajibDalamKonteks } from "@/lib/konteks-server";
 import { batasHari } from "@/lib/hle";
 import { zonaSekolah } from "@/lib/zona-sekolah";
 import { kodeStafDariGalat, type KodeStaf } from "@/lib/staf-kontrak";
+import { KODE_PERAN_DICATAT, kodePeranDariGalat, type KodePeran } from "@/lib/peran-kontrak";
 
 /**
  * E5 «Akhiri tugas di sekolah ini» and §11 «Ubah peran & tanggung jawab» (owner, 9 Nov). Each act is one call with the
@@ -22,7 +23,30 @@ function teks(fd: FormData, k: string): string {
   return typeof v === "string" ? v.trim() : "";
 }
 
-function kembali(orang: string, jenis: "ubah" | "akhiri", hasil: "ok" | "gagal", kode?: KodeStaf, sisa?: Record<string, string>): never {
+/**
+ * B0 · the role guard's last-holder refusal on either act (PR160) and two changes that met (40P01), by their own code
+ * (peran.galat.*); any other refusal stays the staff contract's. A last-holder refusal aborted its own transaction, so
+ * it is recorded here, afterwards, for each administrator role the act would have ended (catat_penolakan_peran writes
+ * only a refusal that stands for this caller).
+ */
+async function kodeTolak(
+  supabase: Awaited<ReturnType<typeof supabaseServer>>, error: { code?: string | null; details?: string | null },
+  orang: string, sekolah: string, hanya?: string[],
+): Promise<KodeStaf | KodePeran> {
+  const kode = kodePeranDariGalat(error);
+  if (kode === "ROLE_FAILED") return kodeStafDariGalat(error);
+  if ((KODE_PERAN_DICATAT as readonly string[]).includes(kode)) {
+    const { data } = await supabase.from("role_assignments").select("id")
+      .eq("person_id", orang).eq("institution_id", sekolah).eq("role", "INSTITUTION_ADMIN").eq("scope_node_id", sekolah).is("revoked_at", null);
+    for (const r of ((data ?? []) as Array<{ id: string }>).filter((x) => !hanya || hanya.includes(x.id))) {
+      const { error: e } = await supabase.rpc("catat_penolakan_peran", { p_assignment: r.id, p_kode: kode });
+      if (e) console.error(`[konfigurasi/staf] the refusal ${kode} was not recorded`, e.code);
+    }
+  }
+  return kode;
+}
+
+function kembali(orang: string, jenis: "ubah" | "akhiri", hasil: "ok" | "gagal", kode?: KodeStaf | KodePeran, sisa?: Record<string, string>): never {
   const q = new URLSearchParams({ orang, jenis, hasil, ...(sisa ?? {}) });
   if (kode) q.set("kode", kode);
   redirect(`/konfigurasi/staf?${q.toString()}#${jenis}`);
@@ -39,7 +63,7 @@ export async function akhiriTugasAksi(fd: FormData): Promise<void> {
     p_person: orang, p_institution: sekolah, p_kategori: teks(fd, "kategori"), p_alasan: teks(fd, "alasan"),
     p_tanggal: HARI.test(tanggal) ? tanggal : null,
   });
-  if (error) kembali(orang, "akhiri", "gagal", kodeStafDariGalat(error));
+  if (error) kembali(orang, "akhiri", "gagal", await kodeTolak(supabase, error, orang, sekolah));
   kembali(orang, "akhiri", "ok");
 }
 
@@ -61,6 +85,6 @@ export async function ubahPeranAksi(fd: FormData): Promise<void> {
     p_person: orang, p_institution: sekolah, p_tambah: tambah, p_cabut: cabut, p_alasan: teks(fd, "alasan"),
     p_sidik: teks(fd, "sidik"), p_konfirmasi_admin: fd.get("konfirmasi_admin") === "ya", p_terapkan: true,
   });
-  if (error) kembali(orang, "ubah", "gagal", kodeStafDariGalat(error));
+  if (error) kembali(orang, "ubah", "gagal", await kodeTolak(supabase, error, orang, sekolah, cabut));
   kembali(orang, "ubah", "ok");
 }

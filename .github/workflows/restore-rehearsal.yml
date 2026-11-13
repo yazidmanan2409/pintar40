@@ -97,6 +97,11 @@ jobs:
           printf 'n\nn\n' | supabase init --force >/dev/null
           sed -i 's/^major_version = .*/major_version = 17/' supabase/config.toml
           grep -n '^major_version' supabase/config.toml
+          # Fix at the cause (12 Nov; journeys run 43272615741, the third «address already in use» on 54322 after 7 Nov's
+          # CI 42376999983 and 42377635978): the stack's host ports 54320-54329 lie in Linux's ephemeral range (32768-60999),
+          # so an outbound connection made before the stack starts (npm ci, Docker's image pulls) can be given 54322 as its
+          # source port, and the database then cannot bind it. Reserved here, no outbound connection is given one of them.
+          sudo sysctl -q -w net.ipv4.ip_local_reserved_ports=54320-54329
           supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit
           supabase status -o env > "$RUNNER_TEMP/leer.env"
           val() { grep -E "^$1=" "$RUNNER_TEMP/leer.env" | head -1 | cut -d= -f2- | tr -d '"'; }
@@ -234,6 +239,73 @@ jobs:
           [ "$rp" = 0 ] || { echo "::error::the restored copy's client rights or Storage buckets still differ from staging's (see above)"; bad=1; }
           exit $bad
 
+      # 4.1 staging checkpoint (Sharon, CHECKPOINT-ITEM5-152ecea9…, conditions 2 to 4; STAGING-CHECKPOINT-BEFORE-A2A.md
+      # §3a). After the promotion, on the copy only: (3) the shared job installer, the runbook's step, run twice: each
+      # declared job exactly once both times, then the health read's job findings clean; the copy's jobs then equal
+      # staging's. (4) The time audit_log's generated-column rewrite takes (migration 215, 20270112210000, already on
+      # staging before this promotion), measured by dropping and re-adding that column and its two indexes on the copy,
+      # with audit_log's row count to scale it. (2) The named facts above (auth.users trigger definitions, the
+      # account-link lock, L1-F4's guards, the jobs) compared. Staging is only read; the copy is written.
+      - name: The runbook step on the copy - the job installer twice, the health read, the jobs compared; and audit_log's rewrite timed
+        env:
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set +e -uo pipefail
+          q() { psql "$LOKAL_DB" -At -v ON_ERROR_STOP=1 -c "$1" 2>&1; }
+          bad=0
+          # a hosted project keeps the extension through a native restore (the runbook: "the copy has the functions and no
+          # job"); a logical restore into the local stack may not, so the copy is given it first, and that is recorded
+          if [ "$(q "select to_regclass('cron.job') is not null")" != "t" ]; then
+            echo "the restore did not bring pg_cron back; the copy is given the extension, as 20270114110000 installs it"
+            q "create extension if not exists pg_cron with schema pg_catalog" || { echo "::error::pg_cron could not be installed on the copy"; exit 1; }
+          fi
+          echo "did the restore bring the jobs back: $(q "select coalesce(string_agg(jobname || ' x' || n, ', ' order by jobname), 'none') from (select jobname, count(*) n from cron.job where jobname like 'pintar-%' group by 1) j")"
+          d=$(q "select count(*) from public.pintar_jadwal_daftar()")
+          for i in 1 2; do
+            out=$(q "select public.pintar_jadwal_pasang() ->> 'ok'")
+            n=$(q "select count(*) from public.pintar_jadwal_daftar() x where (select count(*) from cron.job c where c.jobname = x.jobname) = 1")
+            echo "installer run $i: answered ok=$out; $n of $d declared job(s) present exactly once"
+            [ "$out" = "true" ] && [ "$n" = "$d" ] || { echo "::error::after installer run $i the copy does not hold each declared job exactly once"; bad=1; }
+          done
+          h=$(q "select concat_ws(' ', 'hilang', k -> 'hilang', 'berbeda', k -> 'berbeda', 'tidak_dideklarasikan', k -> 'tidak_dideklarasikan', 'pg_cron', k -> 'pg_cron') from public.pintar_periksa_kesehatan() k")
+          echo "the health read's job findings on the copy: $h"
+          [ "$h" = 'hilang [] berbeda [] tidak_dideklarasikan [] pg_cron true' ] || { echo "::error::the health read on the copy reports a job missing, different or undeclared"; bad=1; }
+          PGOPTIONS='-c default_transaction_read_only=on' psql "$LOKAL_DB" -At -F '|' -f audit/restore/fakta.sql > "$RUNNER_TEMP/pulih4.txt" 2>/dev/null
+          echo "the 4.1 checkpoint's named facts, staging -> the copy (after the installer):"
+          bash audit/restore/banding.sh "$RUNNER_TEMP/sesudah.txt" "$RUNNER_TEMP/sebelum.txt" "$RUNNER_TEMP/pulih4.txt" \
+            | grep -E 'auth.users triggers|accounts link lock|L1-F4 guards|scheduled jobs|public triggers|public\.accountability_' | tee "$RUNNER_TEMP/fakta41.txt"
+          for t in accountability_events accountability_store accountability_write_failures; do
+            grep -q "^T|public\.$t|" "$RUNNER_TEMP/pulih4.txt" || { echo "::error::the copy has no public.$t"; bad=1; }
+          done
+          echo "the accountability tables (rows, content) on the copy: $(grep -E '^T\|public\.accountability_' "$RUNNER_TEMP/pulih4.txt" | cut -d'|' -f2,3 | tr '\n' ' ')"
+          if grep -qE '^(CHANGED|DIFFERS|MISSING)' "$RUNNER_TEMP/fakta41.txt"; then echo "::error::the copy reproduces a trigger, guard, job or accountability table differently from staging"; bad=1; fi
+          # (4) the rewrite, timed on the copy: the column and its two indexes exactly as migration 215 writes them, in one
+          # transaction that is rolled back (the constraint trigger audit_log_run_parent depends on the column, so it is
+          # dropped first inside the same transaction; the rollback puts everything back)
+          psql "$LOKAL_DB" -At -v ON_ERROR_STOP=1 2>&1 <<'SQL' | sed 's/^NOTICE:  //'
+          begin;
+          do $$
+          declare t0 timestamptz; n bigint; a numeric; b numeric; c numeric;
+          begin
+            select count(*) into n from public.audit_log;
+            drop trigger audit_log_run_parent on public.audit_log;
+            alter table public.audit_log drop column run_id;
+            t0 := clock_timestamp();
+            alter table public.audit_log add column if not exists run_id text generated always as (summary ->> 'run_id') stored;
+            a := round(extract(epoch from clock_timestamp() - t0) * 1000);
+            t0 := clock_timestamp();
+            create index if not exists audit_log_run_idx on public.audit_log (institution_id, run_id) where run_id is not null;
+            b := round(extract(epoch from clock_timestamp() - t0) * 1000);
+            t0 := clock_timestamp();
+            create unique index if not exists audit_log_run_parent_uq on public.audit_log (run_id) where action = 'promotion.applied' and run_id is not null;
+            c := round(extract(epoch from clock_timestamp() - t0) * 1000);
+            raise notice 'audit_log: % row(s); migration 215''s rewrite on the copy: column % ms, audit_log_run_idx % ms, audit_log_run_parent_uq % ms (then rolled back)', n, a, b, c;
+          end $$;
+          rollback;
+          SQL
+          [ "${PIPESTATUS[0]}" = "0" ] || { echo "::error::audit_log's rewrite could not be timed on the copy"; bad=1; }
+          exit $bad
+
       - name: Discard the backup
         if: always()
-        run: rm -rf "$RUNNER_TEMP/cadangan" "$RUNNER_TEMP/sikap" "$RUNNER_TEMP"/sebelum.txt "$RUNNER_TEMP"/sesudah.txt "$RUNNER_TEMP"/pulih*.txt "$RUNNER_TEMP"/pemicu.*; echo discarded
+        run: rm -rf "$RUNNER_TEMP/cadangan" "$RUNNER_TEMP/sikap" "$RUNNER_TEMP"/sebelum.txt "$RUNNER_TEMP"/sesudah.txt "$RUNNER_TEMP"/pulih*.txt "$RUNNER_TEMP"/pemicu.* "$RUNNER_TEMP"/fakta41.txt; echo discarded

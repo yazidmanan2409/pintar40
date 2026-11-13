@@ -775,6 +775,16 @@ begin
   ok := true; detail := '';
   select count(*) into n from public.responses where session_id = v_sess;
   perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+  -- RESTATED, A1 (O41-20): a sitting ends at its effective deadline, so the sitting F04-T05 left three hours past its
+  -- deadline is no longer extended (the old fixture relied on it staying open). Both obligations are kept, on a sitting
+  -- whose deadline has not passed: the refusal is asserted first, then the harness gives the same sitting an hour.
+  begin
+    perform public.extend_session_deadline(v_sess, 30, 'selftest probe');
+    ok := false; detail := detail || 'a sitting three hours past its deadline was extended; ';
+  exception when others then null; end;
+  perform selftest.as_owner();
+  update public.assessment_sessions set authoritative_deadline = now() + interval '1 hour' where id = v_sess;
+  perform selftest.as_user('boot-admin@bootstrap.pintar.test');
   begin
     perform public.extend_session_deadline(v_sess, 30, 'selftest probe');
   exception when others then
@@ -808,7 +818,7 @@ begin
   exception when others then null; end;
   perform selftest.as_owner();
   test_id := 'F04-T06'; invariant := 'doc 04 §5 / INV-17';
-  if ok then detail := format('an extension is bounded and audited; a termination names one of the four causes and its actor, retains all %s response(s), and a learner cannot perform one', n2); end if;
+  if ok then detail := format('a sitting past its deadline is not extended; an extension is bounded and audited; a termination names one of the four causes and its actor, retains all %s response(s), and a learner cannot perform one', n2); end if;
   return next;
 
   -- =========================================================================

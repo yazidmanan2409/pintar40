@@ -217,9 +217,11 @@ export const retroTests: SelfTest[] = [
       c.expect(!/"studio\.soal\.(?:sebelumnya|berikutnya)"/.test(readFileSync(join(repoRoot, "src/lib/hle.ts"), "utf8")), "the withdrawn keys studio.soal.sebelumnya / .berikutnya remain (K6)");
       c.expect(/o\.kunci \? <> <strong className="pin-pill pin-ok pin-pill-ikon pin-studio-kunci"><Ikon nama="check" \/>\{sl\("studio\.soal\.kunci"\)\}/.test(bag),
         "the key is not marked by badge, icon and word (never colour alone, WCAG 1.4.1)");
-      c.expect(/\{q\.opsi\.map\(\(o\) => \([\s\S]{0,1200}<p className="pin-opsi-alasan">\{sl\("studio\.soal\.alasan"\)\}: <TeksBaris teks=\{o\.alasan\} \/><\/p>/.test(bag),
-        "an option's reason is not always shown under it");
-      return c.verdict("runs soalPaket over a planted client with the API's 1,000-row limit: 2,500 questions in 500 lessons are all read, an empty lesson kept, and a failed read of any table is a failure, never a list; reads the package page: one whole lesson per view with no disclosure, package-wide numbering, a labelled GET jump with a button, focus on the lesson heading after a move, a named pager with disabled ends, the key by badge, icon and word, and every option's reason shown");
+      // RESTATED, F1-R1b (INV-03 as amended, ADR-0025): an option has its reason, or names the key correction that withdrew
+      // it. Under every option the page shows the reason, or in its place the marker that it is owed; never nothing
+      c.expect(/\{q\.opsi\.map\(\(o\) => \([\s\S]{0,1600}\{o\.alasan === null \? \(\s*<p className="pin-opsi-alasan" data-alasan-ditarik=""><strong>\{sl\("studio\.soal\.alasan_ditarik"\)\.replace\("\{x\}", o\.label\)\}<\/strong><\/p>\s*\) : \(\s*<p className="pin-opsi-alasan">\{sl\("studio\.soal\.alasan"\)\}: <TeksBaris teks=\{o\.alasan\} \/><\/p>\s*\)\}/.test(bag),
+        "an option's reason, or the marker that it is owed, is not always shown under it");
+      return c.verdict("runs soalPaket over a planted client with the API's 1,000-row limit: 2,500 questions in 500 lessons are all read, an empty lesson kept, and a failed read of any table is a failure, never a list; reads the package page: one whole lesson per view with no disclosure, package-wide numbering, a labelled GET jump with a button, focus on the lesson heading after a move, a named pager with disabled ends, the key by badge, icon and word, and every option's reason shown, or the marker that a withdrawn one is owed");
     },
   },
   {
@@ -409,6 +411,9 @@ export const retroTests: SelfTest[] = [
         "src/app/studio/bank/page.tsx": "a finding's locations, under the finding",
         "src/app/studio/unggah/page.tsx": "the guide for another system's export, beside the main path",
         "src/components/studio/TemuanKelompok.tsx": "a group of findings' locations, under the group",
+        // C1w (Daisy Q5, C1-R1): «Riwayat soal (n versi)» is collapsed by her ruling; each earlier version opens read-only
+        "src/components/studio/SoalKerja.tsx": ["a question's history, under the question, which stays shown in full",
+          "one earlier version of a question, read-only, under its line in that history"],
       };
       const ada = new Map<string, number>();
       for (const f of [...tsx(join(repoRoot, "src", "app")), ...tsx(join(repoRoot, "src", "components"))]) {

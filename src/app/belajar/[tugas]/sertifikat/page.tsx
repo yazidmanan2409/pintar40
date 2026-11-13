@@ -162,6 +162,11 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
   };
 
   const replacement = row ? replacementFor(row, all) : null;
+  // C1w (O41-19, Daisy §C1·N1, C1-R4): an issued certificate under review says so on its card, in the learner's
+  // register; it stays the credential, and «Cetak atau simpan PDF» stays, since its QR resolves to the live status
+  const ditinjau = detail.status === "ISSUED" && row
+    ? (await db.rpc("sertifikat_saya_ditinjau", { p_session: row.session_id }).then((x) => x.data, () => false)) === true
+    : false;
 
   // The sheet's accent follows the kind of learning (Daisy §5: plum academic, sage professional learning). NO READ
   // THIS PAGE MAKES SAYS WHICH KIND IT WAS, and the Experience is held never to know it (UX1-AJAR-KONTEKS-01): the
@@ -178,6 +183,14 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
       <CangkangPengalaman locale={locale} current="sertifikat" />
       <main id="isi" tabIndex={-1} className="pin-col">
         {back}
+
+        {ditinjau ? (
+          <div className="pin-banner pin-neutral pin-noprint" role="status" data-ditinjau="">
+            <Ikon nama="info" />
+            <h2>{s("sertifikat.status.DITINJAU")}</h2>
+            <p>{s("sertifikat.ditinjau.arti")}</p>
+          </div>
+        ) : null}
 
         {detail.status === "REVOKED" ? (
           <div className="pin-banner pin-neutral pin-noprint" role="status">

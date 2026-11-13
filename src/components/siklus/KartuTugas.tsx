@@ -18,12 +18,15 @@ export default function KartuTugas({
   locale,
   aksi,
   target = null,
+  catatan = null,
 }: {
   tugas: AssignmentEntry;
   posisi: Posisi;
   locale: Locale;
   /** Where this card leads, and what the button says. */
-  aksi: { href: string; labelKey: Parameters<typeof t>[0] } | null;
+  aksi: { href: string; labelKey: Parameters<typeof t>[0]; label?: string } | null;
+  /** A1: what the chapter's sitting adds (held, not counted, ended at its deadline, one more attempt); never a reason */
+  catatan?: string | null;
   /** D-085 M3: on a finished chapter, whether the target was met (the session's own verdict); null when there is none */
   target?: Ketuntasan | null;
 }) {
@@ -55,10 +58,11 @@ export default function KartuTugas({
         </span>
         {aksi ? (
           <Link className="pin-btn" href={aksi.href}>
-            {s(aksi.labelKey)}
+            {aksi.label ?? s(aksi.labelKey)}
           </Link>
         ) : null}
       </div>
+      {catatan ? <p className="pin-meta" data-catatan-bab="">{catatan}</p> : null}
     </article>
   );
 }

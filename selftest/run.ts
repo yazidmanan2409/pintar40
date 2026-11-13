@@ -179,6 +179,14 @@ const DB_RUNNERS = [
   { file: "fable36.sql", fn: "selftest.run_fable36()", done: "F36-DONE", emits: ["F36-"] },
   { file: "fable37.sql", fn: "selftest.run_fable37()", done: "F37-DONE", emits: ["F37-"] },
   { file: "fable38.sql", fn: "selftest.run_fable38()", done: "F38-DONE", emits: ["F38-"] },
+  // L1-F4 (owner, 12 Nov): an anonymised person is terminal; reuses fable13's and fable38's helpers, so runs after them
+  { file: "l1f4.sql", fn: "selftest.run_l1f4()", done: "L1F4-DONE", emits: ["L1F4-E", "L1F4-K01", "L1F4-K02", "L1F4-K03", "L1F4-K04", "L1F4-K05", "L1F4-K06", "L1F4-K07", "L1F4-K08"] },
+  // L1-F4, Sharon's required change and Daisy's count (12 Nov): the closure's record; on helpers every plant gate loads
+  { file: "l1f4.sql", fn: "selftest.run_l1f4_tutup()", done: "L1F4-TUTUP-DONE", emits: ["L1F4-K09", "L1F4-K10", "L1F4-K11", "L1F4-K12"] },
+  // B2 (THE PLAN §5.2): a printed report is owned by its evidence's schools; reuses fable13's helpers
+  { file: "b2.sql", fn: "selftest.run_b2()", done: "B2-DONE", emits: ["B2-D"] },
+  // L1-F2 and L1-R2 (owner, 12 Nov): a suspension covers the accounts made after it; no permit survives a lock
+  { file: "l1f2.sql", fn: "selftest.run_l1f2()", done: "L1F2-DONE", emits: ["L1F2-S", "L1R2-S"] },
 ] as const;
 
 /**

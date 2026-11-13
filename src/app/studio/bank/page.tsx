@@ -60,7 +60,7 @@ type Saringan = {
   lte(kolom: string, nilai: number): Saringan; gt(kolom: string, nilai: number): Saringan;
   lt(kolom: string, nilai: number): Saringan; gte(kolom: string, nilai: number): Saringan;
 };
-type Opsi = { item_id: string; label: string; body: string; is_correct: boolean; rationale: string };
+type Opsi = { item_id: string; label: string; body: string; is_correct: boolean; rationale: string | null };
 const LABEL_TINJAUAN = {
   UNDER_REVIEW: "studio.bank.kesehatan",
   ACKNOWLEDGED_OK: "studio.bank.akui_ok",
@@ -201,7 +201,10 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                         <li key={o.label} className={o.is_correct ? "pin-opsi pin-opsi-kunci" : "pin-opsi"}>
                           <span className={o.is_correct ? "pin-judul-baris" : undefined}>{o.label}. <TeksBaris teks={o.body} /></span>
                           {o.is_correct ? <strong className="pin-ket"> · {s("studio.soal.kunci")}</strong> : null}
-                          <p className="pin-ket">{s("studio.soal.alasan")}: <TeksBaris teks={o.rationale} /></p>
+                          {/* F1-R1b: withdrawn by a confirmed key correction (INV-03 as amended) */}
+                          {o.rationale === null
+                            ? <p className="pin-ket" data-alasan-ditarik=""><strong>{s("studio.soal.alasan_ditarik").replace("{x}", o.label)}</strong></p>
+                            : <p className="pin-ket">{s("studio.soal.alasan")}: <TeksBaris teks={o.rationale} /></p>}
                         </li>
                       ))}
                     </ul>

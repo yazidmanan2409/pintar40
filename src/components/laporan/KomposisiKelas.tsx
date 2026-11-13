@@ -440,7 +440,8 @@ export default function KomposisiKelas({ entries, locale, persona, jenis, target
                 : s("laporan.komposisi.keliru_lainnya").replace("{n}", format.number(keliru.value.length - KELIRU_MAKS, locale))}
             </p>
           ) : keliru.status === "ok" ? (Array.isArray(keliru.value) && keliru.value.length === 0
-            ? <p className="pin-lk-arti" data-lk-keliru-belum="">{s("laporan.komposisi.keliru_belum")}</p> : null) : tiada(keliru)}
+            ? <p className="pin-lk-arti" data-lk-keliru-belum="">{s(keliru.withheld?.reason === "patterns" && typeof keliru.withheld.count === "number" && keliru.withheld.count > 0
+                ? "laporan.komposisi.keliru_belum" : "laporan.komposisi.keliru_kosong")}</p> : null) : tiada(keliru)}
           {/* owner approval (9 Nov): a pattern seen in fewer learners than the class minimum is no class pattern; said, never counted */}
           {keliru.status === "ok" && keliru.withheld?.reason === "patterns" && typeof keliru.withheld.count === "number" && typeof keliru.withheld.needed === "number" ? (
             <p className="pin-lk-arti" data-lk-keliru-tertahan="">{s("laporan.komposisi.keliru_tertahan")

@@ -230,7 +230,9 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
           ) : keliru && keliru.status === "ok" ? (
             <div className="pin-metric">
               <span className="pin-ml">{s("mengajar.bukti.keliru")}</span>
-              <span className="pin-ms">{s("laporan.komposisi.keliru_belum")}</span>
+              {/* F1-R1b (Daisy §6a): nothing linked, unless patterns are only withheld under the class minimum */}
+              <span className="pin-ms">{s(keliru.withheld?.reason === "patterns" && typeof keliru.withheld.count === "number" && keliru.withheld.count > 0
+                ? "laporan.komposisi.keliru_belum" : "laporan.komposisi.keliru_kosong")}</span>
               {tertahanKeliru}
             </div>
           ) : keliru ? (

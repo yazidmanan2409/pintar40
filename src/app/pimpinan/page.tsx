@@ -1,3 +1,7 @@
+import PeranSayaBerakhir from "@/components/peran/PeranSayaBerakhir";
+import DaftarAntrean from "@/components/kesempatan/DaftarAntrean";
+import FokusPanel from "@/components/FokusPanel";
+import { jumlahKesempatanMenunggu } from "@/lib/pengerjaan";
 import Link from "next/link";
 import KisiTopik, { susunKisi, type KolomKisi } from "@/components/laporan/KisiTopik";
 import { JudulBagian } from "@/components/laporan/tata";
@@ -60,7 +64,7 @@ export const dynamic = "force-dynamic";
 export default async function Pimpinan({
   searchParams,
 }: {
-  searchParams: Promise<{ lingkup?: string; galat?: string; hasil?: string; keputusan?: string }>;
+  searchParams: Promise<{ lingkup?: string; galat?: string; hasil?: string; keputusan?: string; kesempatan?: string; k_hasil?: string; k_kode?: string; untuk?: string }>;
 }) {
   const sp = await searchParams;
   const locale = await currentLocale();
@@ -98,6 +102,7 @@ export default async function Pimpinan({
     tempatCatatan(),
   ]);
 
+  const nKesempatan = await jumlahKesempatanMenunggu(dipilih.institusi);
   const tertib = urutan(keputusan);
   // the owner's ruling (10 Nov): each decision's dates on its own school's clock
   const zonaDari = await zonaSekolahBanyak(await supabaseServer(), tertib.map((k) => k.institusi));
@@ -139,6 +144,21 @@ export default async function Pimpinan({
           <h1 className="pin-h1">{s("pimpinan.judul")}</h1>
           <p className="pin-intro">{s("pimpinan.batas")}</p>
         </div>
+        {/* B0: the reader's own role ending within seven days (nothing when none) */}
+        <PeranSayaBerakhir locale={locale} />
+        {/* A1 (O41-16): requests for another attempt this reader may decide, the same line a school admin reads on Konfigurasi */}
+        {nKesempatan > 0 ? (
+          <p className="pin-noprint" data-menunggu-jenis="kesempatan">
+            <Link className="pin-tautan" href="/pimpinan?kesempatan=buka#kesempatan"><span className="pin-num">{format.number(nKesempatan, locale)}</span> {s("kesempatan.menunggu")}</Link>
+          </p>
+        ) : null}
+        {/* the queue itself, on this home, once the line is followed (and after each decision taken from it) */}
+        {sp.kesempatan === "buka" ? (
+          <>
+            <FokusPanel id="kesempatan" kunci={`${sp.k_hasil ?? ""}:${sp.k_kode ?? ""}:${sp.untuk ?? ""}`} />
+            <DaftarAntrean tempat="pimpinan" sekolah={dipilih.institusi} locale={locale} hasil={sp.k_hasil} kode={sp.k_kode} untuk={sp.untuk} judulTerlihat />
+          </>
+        ) : null}
 
         {/* MORE THAN ONE PART OF THE SCHOOL, AND PLAIN LINKS RATHER THAN A
             SELECT. A picker whose choice is applied by a script is a control

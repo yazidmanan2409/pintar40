@@ -1,0 +1,128 @@
+# STAGING ONLY. The 4.1 staging checkpoint's acting steps (STAGING-CHECKPOINT-BEFORE-A2A.md §3c and §3d; the page
+# docs/completion-4.1/checkpoint/PROMOTION-PRECONDITIONS.md): items 1 (the scratch job), 2 (the lock and the timeouts),
+# 3 (Auth with a locked account), 6c and 4, in the page's order, by audit/staging/checkpoint-41.mjs.
+#
+# HOW IT RUNS:
+#   * Dispatch only, from main, by the Chief Architect, AFTER the owner's merge and after staging.yml has finished.
+#   * It refuses to start while staging.yml is running, and says so. It also shares staging.yml's concurrency group.
+#   * It stops at the first result that differs from the page, and uploads its record, checkpoint-41.json, alone, as an
+#     artifact. No screenshot is uploaded. Every line it logs or saves is redacted of tokens, keys and settings first.
+#
+# ON STAGING'S EXISTING SECRETS ONLY. No credential is created, printed or passed to a person:
+#   * STAGING_SUPABASE_DB_URL: staging's session pooler. Item 1's scratch schema and job, item 2's lock, and every read.
+#   * STAGING_SUPABASE_ACCESS_TOKEN: staging's public (anon) key only, masked, as every staging walk reads it. The
+#     service key is not read: nothing here acts as the service.
+#   * GS_MAILBOX_PASSWORD: the staging test mailbox. It reads the emailed sign-in codes, and it derives the Golden
+#     School staff's passwords as every walk does.
+#
+# NEVER: production. Staging's ref, its database URL and its origin are checked first, as staging.yml checks them, and
+# production's keys are never read. Also never: Auth's Admin API as a person's act; a direct write to a PINTAR table.
+
+name: staging · 4.1 checkpoint, the acting steps (dispatch only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: "The Golden School's slug (its staff are goldenschool+<slug>-admin@ and -guru@)"
+        type: string
+        required: true
+      kelas:
+        description: "The class of that school that the synthetic learner L is rostered into (its name as /pendataan offers it)"
+        type: string
+        required: true
+      confirm:
+        description: "Type: the merge is done and staging.yml has finished"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+  OPERATOR_EMAIL: goldenschool+operator@pintarselalu.com
+
+jobs:
+  checkpoint:
+    name: the checkpoint's acting steps, in the page's order
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: The dispatch's own answers
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+          SLUG: ${{ inputs.slug }}
+        run: |
+          set -euo pipefail
+          [ "$CONFIRM" = "the merge is done and staging.yml has finished" ] || { echo "::error::confirm must read exactly: the merge is done and staging.yml has finished"; exit 1; }
+          printf '%s' "$SLUG" | grep -Eq '^[a-z0-9][a-z0-9-]*$' || { echo "::error::slug is not a slug"; exit 1; }
+      - name: Not while staging.yml runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          n=0
+          for s in in_progress queued waiting requested pending; do
+            c=$(curl -fsS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/staging.yml/runs?status=$s&per_page=1" | python3 -c 'import json,sys; print(json.load(sys.stdin)["total_count"])')
+            n=$((n + c))
+          done
+          if [ "$n" != "0" ]; then echo "::error::staging.yml is running ($n run(s) not finished): the checkpoint does not start until it has finished"; exit 1; fi
+          echo "staging.yml is not running"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Playwright (the audit harness's version)
+        working-directory: audit/staging
+        run: |
+          npm init -y >/dev/null
+          npm i --no-save --no-audit --no-fund playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+      - name: Staging's public key (masked) and database URL (checked, never printed)
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          [ "$STAGING_SUPABASE_PROJECT_REF" != "$PRODUCTION_SUPABASE_PROJECT_REF" ]
+          case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_SUPABASE_PROJECT_REF"*) echo "::error::the database URL names production"; exit 1;; esac
+          case "$STAGING_SUPABASE_DB_URL" in *"$STAGING_SUPABASE_PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::the database URL does not name staging's project"; exit 1;; esac
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os, sys, urllib.request
+          ref = os.environ['STAGING_SUPABASE_PROJECT_REF']
+          req = urllib.request.Request(f'https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true',
+                                       headers={'Authorization': 'Bearer ' + os.environ['STAGING_SUPABASE_ACCESS_TOKEN']})
+          keys = json.load(urllib.request.urlopen(req, timeout=30))
+          for name, var in (('anon', 'ANON_KEY'),):
+              k = next(k['api_key'] for k in keys if k.get('name') == name and (k.get('api_key') or '').startswith('eyJ'))
+              print('::add-mask::' + k, file=sys.stderr, flush=True)
+              print(f'{var}={k}')
+          print(f'SUPABASE_URL=https://{ref}.supabase.co')
+          PY
+      - name: The checkpoint (items 1, 2, 3, 6c and 4; stops at the first difference)
+        working-directory: audit/staging
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          GS_MAILBOX_PASSWORD: ${{ secrets.GS_MAILBOX_PASSWORD }}
+          GS_SLUG: ${{ inputs.slug }}
+          GS_KELAS: ${{ inputs.kelas }}
+          OUT_DIR: ${{ github.workspace }}/out
+        run: node checkpoint-41.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: staging-checkpoint-41
+          # the record only: never a screenshot (a sign-in helper's failure screenshot could show a form)
+          path: out/checkpoint-41.json
+          if-no-files-found: ignore
+          retention-days: 90

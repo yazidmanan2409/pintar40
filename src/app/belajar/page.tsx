@@ -25,6 +25,8 @@ import { judulAsesmen } from "@/lib/judul-asesmen";
 import { tanggal } from "@/lib/tanggal";
 import { zonaSimpulBanyak } from "@/lib/zona-sekolah";
 import { adaHasilTertutup } from "@/lib/hasil-belajar";
+import { catatanBab } from "@/lib/pengerjaan";
+import type { CatatanBab } from "@/lib/pengerjaan-kontrak";
 
 export const generateMetadata = judulHalaman("/belajar");
 
@@ -114,6 +116,9 @@ export default async function Belajar({
   const berikutnya = new Map<string, string>();
   // D-085 M3: a finished chapter's own verdict, so its card says whether the target was met, not only «Selesai»
   const capaian = new Map<string, Ketuntasan | null>();
+  // A1 (Daisy, Q5 and §A1·N1): what a chapter's sitting adds to its card: held, resumed, not counted, ended at its
+  // deadline, or one more attempt granted. Never a reason, and nothing while a request waits or after a decline.
+  const catatan = new Map<string, CatatanBab>();
 
   // One round of reads per assignment, then the ranking. The cycle state says
   // where the learner is; the lessons say how far through the reading they
@@ -126,6 +131,8 @@ export default async function Belajar({
       ]);
       const belum = lessons.find((l) => !lessonRead(l));
       if (belum) berikutnya.set(a.learning_assignment_id, belum.lesson_id);
+      const cat = await catatanBab(state).catch(() => null);
+      if (cat) catatan.set(a.learning_assignment_id, cat);
       if (state.post_session && state.post_status === "FINALIZED") {
         capaian.set(a.learning_assignment_id, ketuntasan(await engine.outcome(db, state.post_session).catch(() => null)));
       }
@@ -206,9 +213,21 @@ export default async function Belajar({
    * Where a step actually leads, and what the button for it says: the step by
    * name (`labelTujuan`, DAISY-26 UX-21). Lessons open at the next unread one.
    */
-  function aksi(k: Kandidat): { href: string; labelKey: HleEvent } | null {
+  function aksi(k: Kandidat): { href: string; labelKey: HleEvent; label?: string } | null {
     const id = k.tugas.learning_assignment_id;
     const label = labelTujuan(k.posisi.langkah, { berjalan: k.berjalan });
+    // A1: a held sitting offers nothing (its teacher decides); a resumed one says how long is left; a granted attempt
+    // and a sitting ended at its deadline lead where their sentence says
+    const cat = catatan.get(id);
+    const instrumen = cat?.instrumen === "PRE_TEST" ? "pemetaan" : "penguasaan";
+    if (cat?.jenis === "ditahan") return null;
+    // (the step's own name stays the button's key; the A1 state gives the words it is drawn with)
+    if (cat?.jenis === "lanjut") {
+      return denganKata(`/belajar/${id}/${instrumen}`, label,
+        cat.sisaMenit === null ? s("sync.lanjut_polos") : s("sync.lanjut_sisa").replace("{n}", format.number(cat.sisaMenit, locale)));
+    }
+    if (cat?.jenis === "sekali_lagi") return denganKata(`/belajar/${id}/${instrumen}`, label, s("sync.mulai_lagi"));
+    if (cat?.jenis === "waktu_habis" && cat.instrumen === "POST_TEST") return denganKata(`/belajar/${id}/hasil`, label, s("sync.lihat_hasil"));
     switch (k.posisi.langkah) {
       // W2.12 (RV-7): never offer a Pemetaan Awal the chapter does not have (the offer led to a refusal page)
       case "PEMETAAN": return tanpaPemetaan(k.posisi) ? null : { href: `/belajar/${id}/pemetaan`, labelKey: label };
@@ -219,6 +238,23 @@ export default async function Belajar({
       }
       case "PENGUASAAN": return { href: `/belajar/${id}/penguasaan`, labelKey: label };
       case "HASIL": return { href: `/belajar/${id}/hasil`, labelKey: label };
+    }
+  }
+
+  /** A1: a step's button drawn with the words its sitting's state gives it. */
+  function denganKata(href: string, kunci: HleEvent, kata: string): { href: string; labelKey: HleEvent; label: string } {
+    return { href, labelKey: kunci, label: kata };
+  }
+
+  /** A1: the card's sentence for a chapter's note, in the learner's register («Anda», «Guru Anda»). */
+  function kalimatCatatan(cat: CatatanBab | undefined): string | null {
+    if (!cat) return null;
+    switch (cat.jenis) {
+      case "ditahan": return s("siklus.kartu.ditahan");
+      case "tidak_dihitung": return s("siklus.kartu.tidak_dihitung");
+      case "waktu_habis": return s("sync.waktu_habis");
+      case "sekali_lagi": return s("siklus.kartu.sekali_lagi").replace("{instrumen}", s(`jenis.mode.${cat.instrumen}` as HleEvent));
+      default: return null;
     }
   }
 
@@ -269,6 +305,7 @@ export default async function Belajar({
             ringkasan={`/belajar/${utama.tugas.learning_assignment_id}`}
             locale={locale}
             persona={persona}
+            catatan={kalimatCatatan(catatan.get(utama.tugas.learning_assignment_id))}
           />
         ) : tugas.length > 0 && !menunggu ? (
           /* THE HONEST END (J6.13), on the home as on «Apa berikutnya»: the same words, standing where the next step would. */
@@ -358,6 +395,7 @@ export default async function Belajar({
                 locale={locale}
                 aksi={aksi(k)}
                 target={capaian.get(k.tugas.learning_assignment_id) ?? null}
+                catatan={kalimatCatatan(catatan.get(k.tugas.learning_assignment_id))}
               />
             ))
           )}

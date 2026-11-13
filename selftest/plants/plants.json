@@ -32,8 +32,28 @@
     },
     "db-bob04-gates": {
       "suite": "selftest.run_fable13()",
-      "control_green": 5,
+      "control_green": 29,
       "what": "BOB-04's whole learning cycle: a course carrying its pre-test and post-test, one assignment making both, the draw following the marks, INV-24 checked at assignment, every refusal's stable code, and a stranger refused the cycle; and the upload refusing a parallel group that spans both tests (D-040)"
+    },
+    "db-l1f2-gates": {
+      "suite": "selftest.run_l1f2()",
+      "control_green": 7,
+      "what": "L1-F2 and L1-R2 (SUSPENSION-COVERS-NEW-ACCOUNTS.md §2a, §2b): an account made for a suspended or closed person is created locked and Auth cannot clear the lock; a lock leaves no RECOVERY or ACTIVATION permit"
+    },
+    "db-l1f4-tutup-gates": {
+      "suite": "selftest.run_l1f4_tutup()",
+      "control_green": 4,
+      "what": "L1-F4, Sharon's required change and Daisy's count (12 Nov): the deletion reads live state and the closure's record, not timestamps; the record is written once; an anonymised learner's certificate is not counted as one that can be issued"
+    },
+    "db-b2-gates": {
+      "suite": "selftest.run_b2()",
+      "control_green": 1,
+      "what": "B2's content rule (B2-ARCHITECT-NOTES.md §1, the owner's condition): a learner's own-results print is owned by the schools of the sittings it shows, never by the learner's live affiliation, so no evidence is attributed to a new school by a transfer"
+    },
+    "db-l1f4-gates": {
+      "suite": "selftest.run_l1f4_registry()",
+      "control_green": 1,
+      "what": "L1-F4's registry: every foreign key to persons(id) classified guarded or exempt with a reason, every guarded column with its trigger"
     },
     "db-bob06-gates": {
       "suite": "selftest.run_fable14()",
@@ -583,6 +603,120 @@
       "gate": "db-bob04-gates",
       "expect_red": "F13-N03",
       "expect_detail": "a package whose groups span both tests answered"
+    },
+    {
+      "name": "bob04-10",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K01",
+      "expect_detail": "after the correction the class's misconceptions were F13K-B:6:6"
+    },
+    {
+      "name": "bob04-11",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K02",
+      "expect_detail": "who chose B were marked right (expected 6)"
+    },
+    {
+      "name": "bob04-12",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K02",
+      "expect_detail": "A:true:true,B:false:false"
+    },
+    {
+      "name": "bob04-13",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K03",
+      "expect_detail": "is still sent to B's remediation"
+    },
+    {
+      "name": "bob04-14",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K04",
+      "expect_detail": "session_misconceptions read F13K-B|F13K-B"
+    },
+    {
+      "name": "bob04-16",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K13",
+      "expect_detail": "true:Ini belum tepat."
+    },
+    {
+      "name": "bob04-17",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K16",
+      "expect_detail": "A:false:Ini tepat."
+    },
+    {
+      "name": "bob04-18",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K22",
+      "expect_detail": "still withdrawn answered went through"
+    },
+    {
+      "name": "bob04-19",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K24",
+      "expect_detail": "X was marked false|false;false|false;false|false"
+    },
+    {
+      "name": "bob04-20",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K24",
+      "expect_detail": "X was marked false|false;false|false;false|false"
+    },
+    {
+      "name": "bob04-21",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K24",
+      "expect_detail": "X was marked true|true;true|true;false|false"
+    },
+    {
+      "name": "bob04-15",
+      "gate": "db-bob04-gates",
+      "expect_red": "F13-K05",
+      "expect_detail": "read 5|5|11|0.4545"
+    },
+    {
+      "name": "l1f2-1",
+      "gate": "db-l1f2-gates",
+      "expect_red": "L1R2-S01",
+      "expect_detail": "mine 1"
+    },
+    {
+      "name": "l1f4-2",
+      "gate": "db-l1f4-tutup-gates",
+      "expect_red": "L1F4-K09",
+      "expect_detail": "a role created before the closure's started_at"
+    },
+    {
+      "name": "l1f4-3",
+      "gate": "db-l1f4-tutup-gates",
+      "expect_red": "L1F4-K10",
+      "expect_detail": "the closure recorded nothing"
+    },
+    {
+      "name": "l1f4-4",
+      "gate": "db-l1f4-tutup-gates",
+      "expect_red": "L1F4-K11",
+      "expect_detail": "read 1|1"
+    },
+    {
+      "name": "l1f4-5",
+      "gate": "db-l1f4-tutup-gates",
+      "expect_red": "L1F4-K12",
+      "expect_detail": "an anonymised person answered OK"
+    },
+    {
+      "name": "b2-1",
+      "gate": "db-b2-gates",
+      "expect_red": "B2-D01",
+      "expect_detail": "expected snapshot {Alpha} while live {Beta}"
+    },
+    {
+      "name": "l1f4-1",
+      "gate": "db-l1f4-gates",
+      "expect_red": "L1F4-E01",
+      "expect_detail": "l1f4_tanam.orang"
     },
     {
       "name": "bob06-1",

@@ -18,7 +18,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 
-const MIGRASI = "supabase/migrations/20261124100000_a_professional_learning_answer_stays_the_participants_own.sql";
+// RESTATED, F-1 (O41-21): 20270117100000 (C1w's F-1 correction pass) re-emits teacher_question_evidence whole, marking
+// by the key in force; the rules this test reads are its definition's now, so it reads that migration (20261124100000
+// re-emitted it last until then). Nothing it asks of the function is changed.
+const MIGRASI = "supabase/migrations/20270117100000_every_view_of_a_corrected_answer_marks_it_by_the_key_in_force.sql";
 const tanpaKomentarSql = (s: string) => s.replace(/--[^\n]*/g, "");
 
 // ═══════════════════════════════════════════════════════════════ the database half
@@ -153,7 +156,7 @@ export const c12Tests: SelfTest[] = [
       const lib = baca("src/lib/soal-kelas.ts");
       c.expect(/buktiSoal\(/.test(hal) && /HalamanPenolakan/.test(hal) && /rpc\("teacher_question_evidence"/.test(lib) && /if \(error \|\| !data\) return null;/.test(lib),
         "«Lihat per soal» no longer reads through teacher_question_evidence alone, or no longer shows the refusal page when refused");
-      return c.verdict("the source: migration 20261124100000 re-emits teacher_question_evidence with one rule added, an academic place only " +
+      return c.verdict("the source: teacher_question_evidence as last re-emitted (20270117100000, F-1; the rule 20261124100000 added), an academic place only " +
         "(fail closed, 42501, between the teacher check and the first read), and keeps D-088(k)'s teacher check, class binding, handed-in-only " +
         "rule and its teaching-evidence-only reads, with its grants as they were (ADR-0021); «Lihat per soal» reads through that function alone and shows the refusal page when refused");
     },

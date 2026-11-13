@@ -8,6 +8,7 @@ import HasilDi from "@/components/HasilDi";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { LANGKAH, bolehMengambil, posisiPaket, kunciSalinan } from "@/components/studio/langkah";
 import Kosong from "@/components/Kosong";
+import BarisHasil from "@/components/BarisHasil";
 import Ikon from "@/components/Ikon";
 import TandaTautan from "@/components/TandaTautan";
 import type { TabStudio } from "@/lib/studio-tab";
@@ -31,7 +32,7 @@ export const generateMetadata = judulHalaman("/studio");
 type Daftar = "ACTION_REQUIRED" | "BLOCKED" | "RELEASE_STEP";
 const DAFTAR: readonly Daftar[] = ["ACTION_REQUIRED", "BLOCKED", "RELEASE_STEP"];
 
-export default async function StudioBeranda({ searchParams }: { searchParams: Promise<{ daftar?: string; bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string }> }) {
+export default async function StudioBeranda({ searchParams }: { searchParams: Promise<{ dibuang?: string; daftar?: string; bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string }> }) {
   const sp = await searchParams;
   const daftar = (DAFTAR as readonly string[]).includes(sp.daftar ?? "") ? sp.daftar as Daftar : null;
   const supabase = await supabaseServer();
@@ -57,10 +58,14 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
   // W1.7 (Batch 3 closure): a package is its line's newest version; a version a correction replaced is history, opened
   // from «Riwayat perbaikan», never a package of its own here (studio_home counts the same way, 20261216100000)
   const { data: digantikan } = await supabase.from("courses").select("supersedes_course_id")
-    .in("institution_id", daftar ? lingkupDaftar : ids).not("supersedes_course_id", "is", null);
+    .in("institution_id", daftar ? lingkupDaftar : ids).not("supersedes_course_id", "is", null)
+    // C1w: a discarded revision replaces nothing; its predecessor is still the line's newest
+    .is("discarded_at", null);
   const lama = [...new Set((digantikan ?? []).map((x) => x.supersedes_course_id as string))];
   let kursusQ = supabase.from("courses").select("id, title, subject, grade_label, institution_id, status, author_person_id")
-    .in("institution_id", daftar ? lingkupDaftar : ids);
+    .in("institution_id", daftar ? lingkupDaftar : ids)
+    // C1w (buang_draf): a discarded draft kept only as a record is not a package
+    .is("discarded_at", null);
   if (lama.length > 0) kursusQ = kursusQ.not("id", "in", `(${lama.join(",")})`);
   if (daftar === "ACTION_REQUIRED") kursusQ = kursusQ.in("status", ["INGESTED", "STRUCTURED", "VALIDATED", "VALIDATION_FAILED"]);
   if (daftar === "RELEASE_STEP") {
@@ -140,6 +145,8 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
 
       <section className="pin-studio-halaman" id="paket">
         <h2 className="pin-studio-h3">{s("studio.paket.judul")}</h2>
+        {/* C1w (Daisy Q5): after «Buang draf ini» the author lands here, told which draft went */}
+        {typeof sp.dibuang === "string" ? <BarisHasil nada="ok">{s("studio.soal.dibuang").replace("{judul}", sp.dibuang.slice(0, 200))}</BarisHasil> : null}
         {daftar ? (
           <p className="pin-meta">
             {s(`studio.bucket.${daftar}` as HleEvent)}

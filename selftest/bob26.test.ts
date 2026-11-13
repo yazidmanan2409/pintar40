@@ -50,7 +50,7 @@ export function psql(sql: string): string {
 export const lit = (s: string) => `'${s.replace(/'/g, "''")}'`;
 
 export type PesanSink = { ID: string; To: Array<{ Address: string }>; Subject: string; Text: string; HTML: string };
-async function sinkCari(alamat: string): Promise<PesanSink[]> {
+export async function sinkCari(alamat: string): Promise<PesanSink[]> {
   const r = await fetch(`${SINK_API}/search?query=${encodeURIComponent(`to:"${alamat}"`)}`);
   const d = (await r.json()) as { messages?: Array<{ ID: string }> };
   const out: PesanSink[] = [];

@@ -23,20 +23,23 @@ export const hod09Tests: SelfTest[] = [
         '  const { renderToStaticMarkup } = await import("react-dom/server");' +
         '  const m = await import("file://" + process.cwd() + "/src/components/laporan/AksiLaporan.tsx");' +
         "  const A = m.default?.default ?? m.default;" +
-        "  process.stdout.write(renderToStaticMarkup(h(A, { kembali: 'Kembali', cetak: 'Cetak laporan' })));" +
+        // RESTATED, B2 (THE PLAN §5.2): «Cetak laporan» is offered for a report with a scope and the print action
+        "  const kaki = { resmi: 'r', peramban: 'p', pendek: 'Dicetak dari browser · tanpa nomor referensi', gagal: 'g', ditolak: 'd', locale: 'id' };" +
+        "  process.stdout.write(renderToStaticMarkup(h(A, { kembali: 'Kembali', cetak: 'Cetak laporan', kaki, cetakSebagai: { laporan: 'ringkasan.kelas', simpul: 'x' }, aksi: async () => ({ ok: false, kode: 'CETAK_GAGAL' }) })));" +
         "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], { cwd: ctx.repoRoot, encoding: "utf8" });
       if (c.expect(anak.status === 0, `the report's controls could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
         const html = anak.stdout;
         const kontrol = [...html.matchAll(/<(a|button)\b([^>]*)>([\s\S]*?)<\/\1>/g)].map((m) => [m[1], /href="([^"]*)"/.exec(m[2])?.[1] ?? "", m[3].replace(/<[^>]+>/g, "").trim()]);
         c.expect(JSON.stringify(kontrol) === JSON.stringify([["a", "/", "← Kembali"], ["button", "", "Cetak laporan"]]),
           `the report offers ${JSON.stringify(kontrol)}; expected a way back (a link to the reader's doors) and print`);
-        c.expect(/^<div class="[^"]*\bpin-noprint\b/.test(html), "the report's controls are printed with it");
+        // RESTATED, B2: the controls follow the print footer's own <style> (the default line), which draws nothing on screen
+        c.expect(/^<style data-kaki-cetak="">[^<]*<\/style><div class="[^"]*\bpin-noprint\b/.test(html), "the report's controls are printed with it");
       }
       const buang = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
       // RESTATED, R0-4: the history-back is the shared TautanKembali (also «Laporkan masalah»'s); AksiLaporan uses it
       const aksi = buang(readFileSync(join(ctx.repoRoot, "src", "components", "laporan", "AksiLaporan.tsx"), "utf8"));
       const kembali = buang(readFileSync(join(ctx.repoRoot, "src", "components", "TautanKembali.tsx"), "utf8"));
-      c.expect(/if \(window\.history\.length > 1\) \{\s*e\.preventDefault\(\);\s*window\.history\.back\(\);/.test(kembali) && /<TautanKembali href=\{ke\}/.test(aksi) && /window\.print\(\)/.test(aksi),
+      c.expect(/if \(window\.history\.length > 1\) \{\s*e\.preventDefault\(\);\s*window\.history\.back\(\);/.test(kembali) && /<TautanKembali href=\{ke\}/.test(aksi) && /window\.print\(\)/.test(aksi), // RESTATED, B2: print is the browser's print of this page, after its record
         "«Kembali» does not return where the reader came from (else their doors), or print is not the browser's print of this page");
       for (const [hal, persona] of [["edukator", "untuk"], ["dekan", "\"staff\""]] as const) { // E-C1-2: the class report's persona is the context's (`untuk`)
         const src = buang(readFileSync(join(ctx.repoRoot, "src", "app", hal, "ringkasan", "page.tsx"), "utf8"));
@@ -44,7 +47,8 @@ export const hod09Tests: SelfTest[] = [
         // `pin-noprint` (asserted on shellStaf below), so the page draws no strip of its own to keep off the paper
         // RESTATED FOR E-K1 (D-173(d)): the way back is the history-back, named as one (KEMBALI_RIWAYAT), never a bare «Kembali»
         // RESTATED FOR H9 (Daisy, C1): named by the place it was opened from (asalLaporan), the history-back otherwise
-        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\(asal\\.nama, ${persona}, locale\\)\\} ke=\\{asal\\.ke\\} cetak=\\{s\\("laporan\\.cetak", ${persona}, locale\\)\\} />`).test(src)
+        // RESTATED, B2 (THE PLAN §5.2): the same call, with the print's action, its footer's words and its scope after it
+        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\(asal\\.nama, ${persona}, locale\\)\\} ke=\\{asal\\.ke\\} cetak=\\{s\\("laporan\\.cetak", ${persona}, locale\\)\\} aksi=\\{cetakLaporan\\} kaki=\\{kataKaki\\(locale, ${persona}\\)\\}\\s+cetakSebagai=`).test(src)
           && /<CangkangStaf locale=\{locale\}/.test(src) && !/<SesiSaya\b/.test(src),
           `/${hal}/ringkasan offers no way back or print, or prints the signed-in strip`);
       }

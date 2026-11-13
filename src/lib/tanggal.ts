@@ -157,6 +157,21 @@ export function tanggal(nilai: string | Date | null | undefined, bentuk: BentukT
 }
 
 /**
+ * B2 (Daisy, B2-ARCHITECT-NOTES.md §4): THE DEVICE'S CLOCK, for the browser print line «Dicetak dari browser · {waktu}
+ * (jam perangkat) · …». The official line's form (resmiJam), on the device's own offset, followed by WIB, WITA or WIT,
+ * or «UTC+h» outside Indonesia. It claims no record: the time is the device's, and the line says so.
+ */
+export function waktuPerangkat(kini: Date, locale: BahasaTanggal = "id"): string {
+  const geser = -kini.getTimezoneOffset();
+  const kata = geser === 420 ? "WIB" : geser === 480 ? "WITA" : geser === 540 ? "WIT"
+    : `UTC${geser >= 0 ? "+" : "−"}${Math.floor(Math.abs(geser) / 60)}${Math.abs(geser) % 60 ? `:${dua(Math.abs(geser) % 60)}` : ""}`;
+  const p = bagianJakarta(kini, geser * 60 * 1000);
+  if (!p) return "";
+  const bhs: BahasaTanggal = locale === "en" ? "en" : "id";
+  return `${p.hari} ${BULAN_PANJANG[bhs][p.bulan - 1]} ${p.tahun} ${PUKUL[bhs]} ${dua(p.jam ?? 0)}.${dua(p.menit ?? 0)} ${kata}`;
+}
+
+/**
  * THE ECHO under a native date field (Daisy, components/DateTime): the field's value (yyyy-mm-dd, or
  * yyyy-mm-ddThh:mm) in words with the day, «Jumat, 9 Okt 2026» or «Jumat, 9 Okt 2026, 07.30 WIB»; "" when the field
  * is empty or holds no real day. Built from the value, never from what the field displays. A time is read on the clock

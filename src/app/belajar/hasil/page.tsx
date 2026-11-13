@@ -11,6 +11,8 @@ import { konteksPembelajaran } from "@/lib/pembelajaran";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KomposisiMurid from "@/components/laporan/KomposisiMurid";
 import AksiLaporan from "@/components/laporan/AksiLaporan";
+import { kataKaki } from "@/lib/kaki-cetak";
+import { cetakLaporan } from "@/app/laporan/cetak/actions";
 import KakiPintar from "@/components/KakiPintar";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { tanggal } from "@/lib/tanggal";
@@ -45,7 +47,9 @@ export default async function HasilBelajar() {
           <h1 className="pin-h1">{s("hasilbelajar.judul")}</h1>
           <p className="pin-intro">{s("hasilbelajar.cakupan").replace("{waktu}", tanggal(new Date(), "cap", locale))}</p>
         </div>
-        <AksiLaporan kembali={s("nav.belajar")} ke="/belajar" cetak={s("laporan.cetak")} />
+        {/* B2 (§5.2 F; the defect found by the engineer): an empty report offers no «Cetak laporan» */}
+        <AksiLaporan kembali={s("nav.belajar")} ke="/belajar" cetak={s("laporan.cetak")} aksi={cetakLaporan} kaki={kataKaki(locale, persona)}
+          cetakSebagai={bab.some((b) => b.keadaan !== "BERJALAN") ? { laporan: "hasil.belajar" } : null} />
         {bab.length === 0 ? (
           <Kosong jenis="belum" kalimat={s("hasilbelajar.kosong")} aksi={{ href: "/belajar", label: s("nav.belajar") }} />
         ) : (

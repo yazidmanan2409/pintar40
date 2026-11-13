@@ -11,6 +11,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
 import type { LearnerAnswer } from "@/lib/assessment-engine";
 import { galatPemeliharaan, HALAMAN_PEMELIHARAAN } from "@/lib/pemeliharaan-kontrak";
+import type { PengerjaanSaya } from "@/lib/pengerjaan-kontrak";
 
 async function db() {
   return (await supabaseServer()) as unknown as engine.EngineClient;
@@ -110,6 +111,21 @@ export async function resumeSession(sessionId: string) {
     return { ok: true as const, status: await engine.resume(await db(), sessionId) };
   } catch (e) {
     return { ok: false as const, ...refusal(e) };
+  }
+}
+
+/**
+ * A1 (A1-R1): how the caller's own sitting stands now (pengerjaan_saya): its status, whether it is held, how it ended
+ * and its deadline. Asked by the open player every 45 seconds and after every send; never a reason, never who.
+ */
+export async function keadaanSesi(sessionId: string) {
+  try {
+    const c = (await supabaseServer({ tulisJikaBerubah: true })) as unknown as { rpc: (f: string, a: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }> };
+    const { data, error } = await c.rpc("pengerjaan_saya", { p_session: sessionId });
+    if (error || !data) return { ok: false as const };
+    return { ok: true as const, keadaan: data as PengerjaanSaya };
+  } catch {
+    return { ok: false as const };
   }
 }
 

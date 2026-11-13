@@ -101,6 +101,13 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
   const pending = (batches ?? []).filter(
     (b) => b.confirmed_at === null && Array.isArray(b.open_questions) && b.open_questions.length > 0,
   );
+  // C1w (Daisy, missing state 2): an upload that would replace questions changed in the app says so before it is
+  // confirmed (unggah_menimpa_suntingan, the database's own count)
+  const menimpa = new Map(await Promise.all(pending.map(async (b) => {
+    const { data } = await supabase.rpc("unggah_menimpa_suntingan", { p_batch: b.id });
+    const x = data as { ada?: boolean; jumlah?: number } | null;
+    return [b.id, x?.ada ? Number(x.jumlah ?? 0) : 0] as const;
+  })));
 
   const institutionField = (
     <label className={label}>
@@ -198,6 +205,9 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
                   .filter((q): q is string => !!q)
                   .map((q, i) => <li key={i}>{q}</li>)}
               </ul>
+              {(menimpa.get(b.id) ?? 0) > 0 ? (
+                <p className="pin-meta" data-unggah-menimpa={menimpa.get(b.id)}>{s("studio.soal.unggah_menimpa").replace("{n}", String(menimpa.get(b.id)))}</p>
+              ) : null}
               <form action={confirmMappingAction}>
                 <input type="hidden" name="batch" value={b.id} />
                 <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.unggah.konfirmasi")}</TombolKirim>

@@ -9,6 +9,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import { peranSaya } from "@/lib/tur-negara";
 import { personaPembelajaran } from "@/lib/pembelajaran";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { kesempatanSaya } from "@/lib/pengerjaan";
 
 export const generateMetadata = judulHalaman("/belajar/[tugas]/pemetaan");
 
@@ -46,12 +47,15 @@ export default async function Pemetaan({ params }: { params: Promise<{ tugas: st
       </>
     );
   }
-  if (state.pre_status === "FINALIZED") redirect(`/belajar/${tugas}/peta`);
+  // A1 (O41-16): once an independent approval has granted one more attempt, the finished sitting no longer closes the
+  // way in: the orientation is offered again (the database decides the start, as always)
+  const sekaliLagi = state.pre_status === "FINALIZED" ? await kesempatanSaya(state.pre_assignment) : false;
+  if (state.pre_status === "FINALIZED" && !sekaliLagi) redirect(`/belajar/${tugas}/peta`);
 
   return (
     <PermukaanAsesmen
       penugasan={state.pre_assignment}
-      sesi={state.pre_session}
+      sesi={sekaliLagi ? null : state.pre_session}
       locale={locale}
       eyebrow={namaBab(mine.subject, mine.title, mine.grade_label)}
       kembali={{ href: `/belajar/${tugas}`, key: "cycle.title" }}

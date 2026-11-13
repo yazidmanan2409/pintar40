@@ -499,7 +499,7 @@
     {
       "id": "F04-T06",
       "runner": "db",
-      "proves": "doc 04 §5 / INV-17 — a deadline extension is capability-gated, bounded and audited; a termination names one of the four causes and its actor, retains recorded work, and a learner cannot perform one"
+      "proves": "doc 04 §5 / INV-17 — a deadline extension is capability-gated, bounded and audited, and (RESTATED, A1, O41-20) is refused on a sitting already past its deadline; a termination names one of the four causes and its actor, retains recorded work, and a learner cannot perform one"
     },
     {
       "id": "F04-T07",
@@ -818,7 +818,7 @@
     {
       "id": "QAC-T12",
       "runner": "db",
-      "proves": "ADR-0018 as amended by 0064 / ADR-0015 §5.2 / ADR-0016: supersession is not withdrawal — superseding a canonical release leaves a school with a live grant still using it, because release status gates new sessions nowhere in this system and correction is an explicit audited move; withdrawing the distribution stops both a new launch and a new session on the assignment already made, and touches no completed attempt",
+      "proves": "ADR-0018 as amended by 0064 / ADR-0015 §5.2 / ADR-0016, RESTATED, C1w (O41-11, 20270115100000): on its own canonical package, the owner's withdrawal of the release leaves the school's grant ACTIVE but refuses a learner's new session over it with the designed reason RELEASE_WITHDRAWN and writes no session (until C1w a session opened); withdrawing the distribution stops both a new launch and a new session on the assignment already made. The suite meets the shared package as the current head of its line (selftest.qac_head_package), so it holds whether or not FABLE-05 published its v1.1 correction first",
       "skip_justification": "needs a reachable Postgres with the migrations and all three seeds applied (CI local stack via SUPABASE_DB_URL); the Task 1 suite reuses FABLE-05's canonical package and builds its own grants, so it needs the schema and the synthetic personas but nothing seeded for it"
     },
     {
@@ -1999,6 +1999,201 @@
       "proves": "BOB-04 (D-040). prepare_ingest_batch refuses a package whose two pre-test questions share their parallel groups with its two post-test questions: ok=false with ITEM_PARALLEL_CYCLE_MIXED and nothing else, at Soal rows 2, 3, 4 and 5 -- every question of those groups; the same package with separate groups prepares cleanly."
     },
     {
+      "id": "F13-K01",
+      "runner": "db",
+      "proves": "C1w F-1 (O41-21; docs/completion-4.1/C1W-F1-CORRECTION.md row 1), in the database, rolled back, against supabase/migrations/20270117100000_every_view_of_a_corrected_answer_marks_it_by_the_key_in_force.sql: over the official bootstrap school, a class of eleven sits a Pemetaan Awal whose question X is keyed A (sealed) and each of whose two options names a misconception of the package's own; six choose B, five A; the school's administrator proposes B and its head of department confirms. service_cohort_misconceptions (the source of the catalogue figure class.misconceptions) reads the key in force through kunci_berlaku_sesi: before, B's misconception for six learners and not A's; after, A's for five and not B's; metric_evaluate('class.misconceptions') as the class's teacher lists A's (5) and not B's."
+    },
+    {
+      "id": "F13-K02",
+      "runner": "db",
+      "proves": "C1w F-1 row 2, the same world: teacher_question_evidence marks each answer through nilai_jawaban_berlaku and each option's is_key by the key in force: after the correction X is answered rightly by the six who chose B, B is the key shown and A is was_key (the sealed key), the question says key_corrected; each of the six is marked right and each of the five wrong."
+    },
+    {
+      "id": "F13-K03",
+      "runner": "db",
+      "proves": "C1w F-1 row 3, the same world: reading_map's remediation join takes the chosen option as wrong by the key in force: before, a learner who chose B is sent to B's remediation; after, they are not, and a learner who chose A is sent to A's."
+    },
+    {
+      "id": "F13-K04",
+      "runner": "db",
+      "proves": "C1w F-1 row 4, the same world: session_misconceptions reads the key in force: before, B's for a learner who chose B; after, nothing for that learner and A's for one who chose A."
+    },
+    {
+      "id": "F13-K05",
+      "runner": "db",
+      "proves": "C1w F-1 row 5, the same world: service_item_statistics (the source of item.correctness_rate) counts an answer correct by the key in force of its sitting: X's correct count is 5 of 11 before and 6 of 11 (0.5455) after the correction."
+    },
+    {
+      "id": "F13-K06",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 3 for service_cohort_misconceptions: over the uncorrected world (before the correction) its rows, the class's and every other class's, are byte-identical to the same view with its key-in-force fragments put back to the sealed read it replaced (selftest.f13_kunci_segel, the fragments the migration's own check reverses); after the correction every other class is unchanged."
+    },
+    {
+      "id": "F13-K07",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 3 for teacher_question_evidence: before the correction its whole answer is byte-identical to the definition it replaced; after it, every question the correction did not reach reads byte-identically and carries no key_corrected or was_key."
+    },
+    {
+      "id": "F13-K08",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 3 for reading_map: before the correction the maps of a learner of each group are byte-identical to the definition it replaced."
+    },
+    {
+      "id": "F13-K09",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 3 for session_misconceptions: before the correction its rows for a learner of each group are byte-identical to the definition it replaced."
+    },
+    {
+      "id": "F13-K10",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 3 for service_item_statistics: before the correction X's row and every other question's are byte-identical to the definition it replaced; after it, every other question is unchanged."
+    },
+    {
+      "id": "F13-K13",
+      "runner": "db",
+      "proves": "C1w F-1, Sharon's correction (C1W-F1-CORRECTION.md §0), selftest/db/fable13.sql (selftest.f13_ulasan): a class sits its post-test; on its first question Y the first learner chooses B; Y's key is corrected from A to B by the school's own two people; that learner's own review (session_review) of Y reads marked right by the key in force, with no rationale (before the correction: wrong, with the sealed «Ini belum tepat.»; supabase/migrations/20270117120000)."
+    },
+    {
+      "id": "F13-K14",
+      "runner": "db",
+      "proves": "C1w F-1, Sharon's correction (§0), selftest.f13_ulasan: the learner who chose A on Y reads it, after the correction to B, marked wrong with no rationale, never the sealed «Ini tepat.» calling it right (before: right, with «Ini tepat.»)."
+    },
+    {
+      "id": "F13-K15",
+      "runner": "db",
+      "proves": "C1w F-1, Sharon's correction (§0), selftest.f13_ulasan: before the correction every row of both learners' reviews carries its chosen option's sealed mark and rationale; after it every row but the corrected question's is byte-identical, and the reviews keep their number of rows."
+    },
+    {
+      "id": "L1F4-E01",
+      "runner": "db",
+      "proves": "L1-F4 (ANONYMISED-PERSON-IS-TERMINAL.md \u00a73a.1), selftest/db/l1f4.sql: every foreign key to persons(id) is classified in public.orang_lampiran as DIJAGA (guarded) or BEBAS (exempt, with its reason), and every DIJAGA column has its BEFORE INSERT guard trigger (_l1f4_<table>_<column>); a table added later with an unclassified foreign key turns this red (plant l1f4-1)."
+    },
+    {
+      "id": "L1F4-K01",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.2: an intake row naming the anonymised person's PINTAR id, checked by import_row_problems as the person's former school's admin, an unrelated school's admin and the platform admin, gives exactly the finding of an id that names no one; the unrelated school cannot read the person (person_visible_to_me false)."
+    },
+    {
+      "id": "L1F4-K02",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.2: daftarkan_kembali naming the anonymised person gives exactly the refusal of an unknown id (PR070 PLACE_NOT_THIS_SCHOOL)."
+    },
+    {
+      "id": "L1F4-K03",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.2: murid_keluar lists a learner who left the school, and no longer lists them once anonymised."
+    },
+    {
+      "id": "L1F4-K04",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.1: every guarded column refuses an insert naming the anonymised person (or their enrolment or account) with PR040 PERSON_UNKNOWN, before any other check, and does not refuse the same insert naming a live person as unknown."
+    },
+    {
+      "id": "L1F4-K05",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.4, \u00a73b Option A: certificate_prepare returns a certificate already issued as before; for an anonymised holder a new one is not eligible and nothing is written; a replacement (sertifikat_koreksi_siapkan, W2.22) is refused PR120 CERT_HOLDER_DELETED."
+    },
+    {
+      "id": "L1F4-K06",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.3: hapus_data_pribadi refuses PR140 ACCOUNT_LIVE_ATTACHMENT when the closed person gained a role after the closure began, changing nothing and leaving the request open; once the school ends that role the deletion completes, with the role held at the closure kept and every role and number byte-identical."
+    },
+    {
+      "id": "L1F4-K07",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73a.1: the guard is INSERT only: an update ending the anonymised person's role passes."
+    },
+    {
+      "id": "L1F4-K08",
+      "runner": "db",
+      "proves": "L1-F4 \u00a73b (owner, Option A): a governed key correction of a post-test question that newly earns a certificate for an anonymised learner records it in the correction's outcome as earned but not issued (sertifikat_tidak_diterbitkan), and no certificate row is written. RESTATED (Daisy, 12 Nov): it is not counted among the certificates that can be issued (sertifikat_baru_layak 0), in the preview or the outcome, so the summary line and the row agree."
+    },
+    {
+      "id": "L1F4-K09",
+      "runner": "db",
+      "proves": "L1-F4, Sharon's required change (interim review of ea3c4b6f): a live role and a pending enrolment dated before the closure began but not held at it each refuse the deletion ACCOUNT_LIVE_ATTACHMENT and change nothing; the deletion reads live state and the closure's record, not timestamps."
+    },
+    {
+      "id": "L1F4-K10",
+      "runner": "db",
+      "proves": "L1-F4, Sharon's required change: the closure row records the ids of the roles, open transfers and evaluator grants live when it was made (person_suspensions.dipegang_saat_tutup), a rewrite of that record is refused 42501, and with only those live the deletion completes."
+    },
+    {
+      "id": "L1F4-K11",
+      "runner": "db",
+      "proves": "L1-F4, Daisy's correctness check (TINJAUAN-F1R1B-97a40ebb.md §2.1): a key correction that newly earns a certificate for an anonymised learner counts it as earned but not issued and not among the certificates that can be issued, so «{n} sertifikat baru dapat diterbitkan» and the row agree."
+    },
+    {
+      "id": "L1F4-K12",
+      "runner": "db",
+      "proves": "L1-F4, Sharon's result review of 3a63a2b2 (L1F4-A2; her L1F4-K09, renamed), selftest/db/l1f4.sql against migration 20270117200000: the deletion ends an open request to reopen with a note; a request made before it and approved after it is refused, and any other open one is refused ACCOUNT_ANONYMISED; the closure stays open and every account stays locked; a request by PINTAR ID after the deletion answers ok and records nothing."
+    },
+    {
+      "id": "L1F4-R01",
+      "runner": "static",
+      "proves": "L1-F4, selftest/l1f4-balapan.test.ts, Sharon's third order on two real connections against the database (migration 20270117170000) (the shared harness selftest/balapan.ts): a role grant whose transaction began before the closure and inserted after it has the earlier created_at, and the deletion is still refused ACCOUNT_LIVE_ATTACHMENT with nothing anonymised; a plant restoring the timestamp comparison lets the same order through."
+    },
+    {
+      "id": "L1F4-R02",
+      "runner": "static",
+      "proves": "L1-F4, selftest/l1f4-balapan.test.ts, Sharon's L1F4-A1 on two real connections against the database (migration 20270117200000): a deletion and a reopen of the same closed person, in both orders, each paused after its first lock; the second waits and is refused, so the person ends either anonymised, closed and locked, or reopened and not anonymised; her plant (the closure checked before the lock) lets both through."
+    },
+    {
+      "id": "F13-K16",
+      "runner": "db",
+      "proves": "F1-R1b (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md \u00a70, \u00a73d), selftest/db/fable13.sql (selftest.f13_penjelasan): after a governed key correction of X from A to B, the corrected copy's two flipped options have no rationale and no misconception code and each names the correction (rationale_withdrawn_by); the correction's record (penjelasan_dihapus) holds what they said, and is not rewritten after the decision; the revision that was sat keeps its options byte for byte (supabase/migrations/20270117140000)."
+    },
+    {
+      "id": "F13-K17",
+      "runner": "db",
+      "proves": "F1-R1b, INV-03 as amended (ADR-0025): an option inserted with no rationale and no reference, with an empty rationale, or with both a rationale and a reference is refused by the check (23514)."
+    },
+    {
+      "id": "F13-K18",
+      "runner": "db",
+      "proves": "F1-R1b: the withdrawal reference set by a direct update, or carried by an insert whose source option does not hold it, is refused by the trigger (42501): only the confirming act and a copy of a withdrawn option may carry it."
+    },
+    {
+      "id": "F13-K19",
+      "runner": "db",
+      "proves": "F1-R1b: a new revision of the corrected course (create_course_revision) carries the withdrawn state on its copy of the question; writing a rationale on the copy clears the reference, and the option is ordinary again."
+    },
+    {
+      "id": "F13-K20",
+      "runner": "db",
+      "proves": "F1-R1b: every release's stored content digest is what course_content_sha256 recomputes, the corrected revision's included (a null rationale hashes deterministically as '~'; the reference is not taught content)."
+    },
+    {
+      "id": "F13-K21",
+      "runner": "db",
+      "proves": "F1-R1b: a second correction flipping the key back restores nothing: the options stay withdrawn under the first correction, and the second correction's record holds nothing for them."
+    },
+    {
+      "id": "F13-K24",
+      "runner": "db",
+      "proves": "F1-R1b (Daisy §6a): a question with two wrong options, one linked to a misconception and one not, is marked by the teacher's per-question view before and after a key correction, and the same question with both linked is not: the marker shows when any wrong option is unlinked and clears only when all are linked. RESTATED (Daisy, §1c item 3): still any, not all, at the level of answers: one answer on an unlinked wrong option marks the question though another wrong answer is on a linked one; an unlinked option nobody chose, or a linked one, marks nothing (plants bob04-20 and bob04-21)."
+    },
+    {
+      "id": "F13-K23",
+      "runner": "db",
+      "proves": "F1-R1b (Sharon §3a.1; Daisy §6a): teacher_question_evidence's per-question marker, ada_tak_terkait, is for every question before and after a key correction whether any option it shows as wrong (by the key in force) has no misconception code; the package holds at least one such question. RESTATED (Daisy, TINJAUAN-F1R1B-97a40ebb.md §1c item 3): on the teacher's view the marker says whether an answer in the view landed on a wrong option with no misconception code."
+    },
+    {
+      "id": "F13-K22",
+      "runner": "db",
+      "proves": "F1-R1b (C1W-KEY-CORRECTION-CLEARS-STALE-EXPLANATIONS.md §3 point 5): a copy of the corrected revision is refused the step past STRUCTURED while one of its options is still withdrawn, and goes through once that option's rationale is written again; the confirming act alone is exempt."
+    },
+    {
+      "id": "F13-K11",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 2: the sealed question, its options and its release's content digest, every original result, presented question and response of the class's sittings are byte-identical after the correction and after every view above was read; the teacher reads a corrected sitting's chain through riwayat_hasil_sesi (SEALED 0.6667, then KEY_CORRECTED 1.0000, current); each sitting carries exactly one basis."
+    },
+    {
+      "id": "F13-K12",
+      "runner": "db",
+      "proves": "C1w F-1 requirement 4: the live catalogue is still MC-10; class.misconceptions' definition rows in every catalogue version, the count of catalogues, MC-10's sources, calc_class_misconceptions' definition and its governing scope are as pinned on 2ea60c85, before the correction pass (definition, name, version and denominator unchanged)."
+    },
+    {
       "id": "BOB05-K01",
       "runner": "static",
       "proves": "BOB-05 (D-009). keluarPerangkatIni in the source file src/lib/keluar.ts, run against the real supabase-js with a recording fetch, asks Auth for POST /auth/v1/logout?scope=local and forgets this device's session, while the bare default sends scope=global; no other sign-out exists in src/, and /keluar and S15's keluarDariSesi both use it. A classroom card's session lives 60 minutes idle and an email account's 7 days (src/lib/sesi.ts), lookalike addresses are not cards, the address is read from @supabase/ssr's own cookie format whole and chunked, src/proxy.ts re-sends the auth cookies with that lifetime on every signed-in request, src/lib/supabase/server.ts applies it on sign-in and refresh, and supabase/config.toml's Auth idle backstop is 7 days."
@@ -3072,6 +3267,24 @@
       "skip_justification": "needs the running app, the local stack and the Mailpit sink"
     },
     {
+      "id": "AUTH-A01",
+      "runner": "app",
+      "proves": "The bounded auth correction, selftest/akun-terkunci.test.ts, through the running app's routes (/masuk/password, /masuk/kartu, /aktifkan/periksa, /masuk/lupa/periksa, /masuk/lupa/pin), real Auth and the mail sink: with a person activated for the test and a class card made for it, each method (password by address and by username, the class card, an activation code, a recovery code, the recovery PIN) answers the account suspended, closed and anonymised, with the right and a wrong credential, with exactly its own ordinary mismatch (MASUK_TIDAK_COCOK, CARD_NOT_MATCHED, KODE_TIDAK_COCOK, PIN_TIDAK_COCOK: the status and body of a wrong credential on an active account); a wrong credential and an unknown identifier are unchanged; reinstated, the password and the card sign in again; RESTATED, L-1 (Sharon §6b): a recovery grant obtained before the suspension, used during it and again after reinstatement, gets exactly a genuinely expired grant's answer (410 PEMULIHAN_BERAKHIR) and B1 row (every column but id and time: no person, no school, the same origin), with the password hash byte-identical, and a fresh recovery after reinstatement sets the password and signs in; nothing of the test is left live (role, session, suspension, lock, event row).",
+      "skip_justification": "needs the running app, the local stack and the Mailpit sink"
+    },
+    {
+      "id": "AUTH-A03",
+      "runner": "app",
+      "proves": "L-1 (Sharon, AUTH-SUSPENDED-SIGNIN-CORRECTION.md §6b), selftest/akun-terkunci.test.ts, through the running app, real Auth and the mail sink: a person whose activation was started is suspended; the wizard's password step answers 401 exactly as to a browser that never signed in, and writes nothing; password_write_permit(ACTIVATION), asked for directly as in the moment after a lock, refuses with ACCOUNT_LOCKED (supabase/migrations/20270117110000); Auth's admin password write is then refused by the password guard and the hash stays byte-identical; reinstated, the activation goes on and sets the password; nothing of the test is left live.",
+      "skip_justification": "needs the running app, the local stack and the Mailpit sink"
+    },
+    {
+      "id": "AUTH-A02",
+      "runner": "app",
+      "proves": "The bounded auth correction, selftest/akun-terkunci.test.ts, the migration 20270116130000 run by psql against the local stack: on a database with no account on the old value it changes nothing; with one locked as before the correction (banned_until 'infinity') Auth fails and /masuk/password answers 503 LAYANAN_TIDAK_TERSEDIA (a real Auth failure is not turned into a mismatch); the migration rewrites that one to akun_terkunci_sampai() and no other, after which the right and a wrong password get a wrong password's answer; run a second time it changes nothing; reinstated, the account signs in; nothing of the test is left live.",
+      "skip_justification": "needs the running app and the local stack"
+    },
+    {
       "id": "BOB26-A03",
       "runner": "app",
       "proves": "BOB-26, selftest/bob26.test.ts: the Gate 0 finding closed by the password write permit (migration 20261112100000): a signed-in session's own PUT /auth/v1/user password change is refused and does not take; the Ironman test through PostgREST: the Guru's PATCH of display_name to «Ironman» is refused, the photo stays theirs.",
@@ -3087,6 +3300,11 @@
       "id": "BOB26-K01",
       "runner": "static",
       "proves": "BOB-26, the source file src/lib/aktivasi.ts executes with its tools replaced (selftest/bob26.test.ts): mintaKode answers alike whether activation_code_target finds an account and sends only after the answer; angkaKode reads «482 913»; masukPassword sends an unknown name to Auth as ALAMAT_TIADA and waits for the floor; kunciIdentitas keeps the two counters apart."
+    },
+    {
+      "id": "AUTH-K01",
+      "runner": "static",
+      "proves": "The bounded auth correction (owner, 11 Nov; AUTH-SUSPENDED-SIGNIN-CORRECTION.md), selftest/akun-terkunci.test.ts, the source files src/lib/aktivasi.ts, src/lib/kartu-masuk.ts and src/lib/pemulihan.ts executed with their tools replaced: Auth's user_banned (400 or 403) is, in the password, activation code, recovery code and card decisions, exactly the method's own non-match, counted and never taken back, and logged once with a reference and no identifier (src/lib/akun-terkunci.ts); after recovery's new password it is the ordinary sign-in-again answer; Auth unreachable stays 503 in each."
     },
     {
       "id": "BOB26-S01",
@@ -3685,17 +3903,17 @@
     {
       "id": "DR-S14",
       "runner": "static",
-      "proves": "#150 WP-B, A5 fail closed (selftest/dr150b.test.ts): executes scripts/recovery/backup.mjs run as pintar_backup against CI's database and Storage (through its S3 API) and a stand-in for AWS S3 that checks every checksum: a clean run uploads the daily and the monthly copy, each with its SHA-256 checksum and its Object Lock retention (35 and 366 days) and its success record after it; the bundle opens with R3's private key, matches its manifest, holds every Storage object with its hash and the extension set, carries no readiness.txt (D-108(d)) and never the password, which appears in no output either. Each planted failure is red and uploads no success record: a table missing from the data dump, a Storage object that is not there, one whose size differs from its metadata, a staging bundle not going to R3, a production bundle going to R3, a checksum S3 rejects, an extension pintar_backup itself added through supautils (D-108(c)(7)) and a production backup with no approved extension baseline. RESTATED FOR D-109: a production bundle going to R1 alone is red too, and so is a production backup before R1 and R2 are held by two separate custodians who have each proven possession (docs/recovery/custody.json), refused before anything is read; the success record carries the bundle's share of the 5 GiB one upload may carry, warned of from 80 % and refused above 5 GiB before any upload."
+      "proves": "#150 WP-B, A5 fail closed (selftest/dr150b.test.ts): executes scripts/recovery/backup.mjs run as pintar_backup against CI's database and Storage (through its S3 API) and a stand-in for AWS S3 that checks every checksum: a clean run uploads the daily and the monthly copy, each with its SHA-256 checksum and its Object Lock retention (35 and 366 days) and its success record after it; the bundle opens with R3's private key, matches its manifest, holds every Storage object with its hash and the extension set, carries no readiness.txt (D-108(d)) and never the password, which appears in no output either. Each planted failure is red and uploads no success record: a table missing from the data dump, a Storage object that is not there, one whose size differs from its metadata, a staging bundle not going to R3, a production bundle going to R3, a checksum S3 rejects, an extension pintar_backup itself added through supautils (D-108(c)(7)) and a production backup with no approved extension baseline. RESTATED FOR D-109: a production bundle going to R1 alone is red too, and so is a production backup before R1 and R2 are held by two separate custodians who have each proven possession (docs/recovery/custody.json), refused before anything is read; the success record carries the bundle's share of the 5 GiB one upload may carry, warned of from 80 % and refused above 5 GiB before any upload. RESTATED, A1 (owner, Option A): pg_cron's own two tables, cron.job and cron.job_run_details, are platform bookkeeping and are excluded from the application backup by name (scripts/recovery/backup.mjs, PG_CRON_TABLES), and nothing else; every other assertion of this test is unchanged."
     },
     {
       "id": "DR-S15",
       "runner": "static",
-      "proves": "#150 WP-B, the backup credential (A7; selftest/dr150b.test.ts): migration 20261125100000 against CI's database: pintar_backup is LOGIN, BYPASSRLS, INHERIT, a member of pg_read_all_data alone without admin, owns nothing, may create in no schema nor the database, holds no write privilege, may advance no sequence and may execute no SECURITY DEFINER function and none of PINTAR's functions, and no role can become it; it executes, signed in as it: a fresh session is read-only by default with 15-minute statement and idle timeouts and a 30-second lock timeout; its facts (every table's rows and content hash, row security bypassed) equal postgres's; scripts/recovery/backup.mjs's five dumps made by it on one shared snapshot are byte-identical to postgres's; with its read-only default switched off (a safety default, not a security boundary) every ordinary INSERT, UPDATE, DELETE, TRUNCATE, COPY FROM, sequence advance, CREATE, ALTER, DROP, COMMENT, policy, trigger, role grant, CREATE ROLE, ALTER ROLE and SET ROLE and an extension off Supabase's allow-list are refused and a GRANT or REVOKE moves no right; RESTATED FOR D-108, an allow-listed extension is shown to be created by supautils as supabase_admin (the documented platform residual, rolled back); a fourth connection is refused."
+      "proves": "#150 WP-B, the backup credential (A7; selftest/dr150b.test.ts): migration 20261125100000 against CI's database: pintar_backup is LOGIN, BYPASSRLS, INHERIT, a member of pg_read_all_data alone without admin, owns nothing, may create in no schema nor the database, holds no write privilege, may advance no sequence and may execute no SECURITY DEFINER function and none of PINTAR's functions, and no role can become it; it executes, signed in as it: a fresh session is read-only by default with 15-minute statement and idle timeouts and a 30-second lock timeout; its facts (every table's rows and content hash, row security bypassed) equal postgres's; scripts/recovery/backup.mjs's five dumps made by it on one shared snapshot are byte-identical to postgres's; with its read-only default switched off (a safety default, not a security boundary) every ordinary INSERT, UPDATE, DELETE, TRUNCATE, COPY FROM, sequence advance, CREATE, ALTER, DROP, COMMENT, policy, trigger, role grant, CREATE ROLE, ALTER ROLE and SET ROLE and an extension off Supabase's allow-list are refused and a GRANT or REVOKE moves no right; RESTATED FOR D-108, an allow-listed extension is shown to be created by supautils as supabase_admin (the documented platform residual, rolled back); a fourth connection is refused. RESTATED, A1 (owner, Option A): ONE named exception to «holds no write privilege»: DELETE on cron.job_run_details, which pg_cron grants to PUBLIC on its own run log (owner supabase_admin) and no PINTAR role can revoke; the test asserts that exception is exactly PUBLIC's DELETE granted by that owner, that pintar_backup holds no other privilege on that table and is named nowhere in its grant, and every other write privilege on every other relation (cron.job included) is still refused; every other assertion is unchanged."
     },
     {
       "id": "DR-S16",
       "runner": "static",
-      "proves": "#150 WP-B, staging's backup path checked read only (D-109(a); selftest/dr150b.test.ts): .github/workflows/staging-backup-path.yml runs by hand from main only with contents: read and only the two credentials staging's apply already holds; scripts/recovery/path-check.mjs takes the session pooler only where Supabase's own pooler configuration and staging's apply agree (the apply on another host, two hosts, none, the transaction port, another project's user or only a read replica's pooler each stop it; an unreadable configuration stops it and asks the owner for the dashboard's value, never guessing) and checks backup-offsite.yml's value against it; every connection off this machine is verify-full against the committed Supabase Root 2021 CA; executed on CI's database, backup.mjs's own exported snapshot is imported by another session with the exporter's view and pg_dump --snapshot dumps the schema from it; pintar_backup's profile (scripts/recovery/backup-profile.sql) equals docs/recovery/pintar-backup-profile.expected, and an INSERT and a CREATE planted for it inside a rolled-back transaction are differences. RESTATED after Supabase refused its pooler configuration to staging's token (run 37414154468): scripts/recovery/path-check.mjs also takes the owner's dashboard value (the dispatch's inputs, passed only through the environment) where it is a <name>.pooler.supabase.com host on port 5432 for postgres.<this project> and staging's apply agrees; a malformed or smuggled value, the transaction port, another project's user, or Supabase and the owner disagreeing each stop it; hosted checks always connect on the session port 5432."
+      "proves": "#150 WP-B, staging's backup path checked read only (D-109(a); selftest/dr150b.test.ts): .github/workflows/staging-backup-path.yml runs by hand from main only with contents: read and only the two credentials staging's apply already holds; scripts/recovery/path-check.mjs takes the session pooler only where Supabase's own pooler configuration and staging's apply agree (the apply on another host, two hosts, none, the transaction port, another project's user or only a read replica's pooler each stop it; an unreadable configuration stops it and asks the owner for the dashboard's value, never guessing) and checks backup-offsite.yml's value against it; every connection off this machine is verify-full against the committed Supabase Root 2021 CA; executed on CI's database, backup.mjs's own exported snapshot is imported by another session with the exporter's view and pg_dump --snapshot dumps the schema from it; pintar_backup's profile (scripts/recovery/backup-profile.sql) equals docs/recovery/pintar-backup-profile.expected, and an INSERT and a CREATE planted for it inside a rolled-back transaction are differences. RESTATED after Supabase refused its pooler configuration to staging's token (run 37414154468): scripts/recovery/path-check.mjs also takes the owner's dashboard value (the dispatch's inputs, passed only through the environment) where it is a <name>.pooler.supabase.com host on port 5432 for postgres.<this project> and staging's apply agrees; a malformed or smuggled value, the transaction port, another project's user, or Supabase and the owner disagreeing each stop it; hosted checks always connect on the session port 5432. RESTATED, A1 (owner, Option A): scripts/recovery/backup-profile.sql's writes_to line carries the same one named exception (DELETE on cron.job_run_details, PUBLIC's grant by pg_cron) and nothing else, so the proven profile is unchanged; every other assertion is unchanged."
     },
     {
       "id": "DR-S12",
@@ -3735,7 +3953,7 @@
     {
       "id": "DR-D02",
       "runner": "static",
-      "proves": "#150 WP-B, the secondary logical path end to end (D-106(j); selftest/dr150b.test.ts): a bundle collected by scripts/recovery/backup.mjs as pintar_backup from CI's database and Storage executes through scripts/recovery/restore-bundle.mjs into a second, empty Supabase stack (a new project's stand-in, with its own default privileges): 0 differences in every table's rows and content hash, every function's definition, owner and execute rights, the table rights, the auth.users triggers, the pre-request and the policies; every Storage file put back and read back with its hash; anon's reach equal to its source's; the extension baseline held; readiness as its source; SAFE TO REOPEN. An extension added on the copy afterwards makes its verification refuse to call it safe (D-108(c)(8)), and removing it makes it safe again. RESTATED FOR #150 WP-C (B9 after a native restore): with a file lost on the copy while its storage.objects row stays, scripts/recovery/restore-bundle.mjs --files-only puts the file back from the bundle, read back by SHA-256, changes no row, and the copy verifies SAFE TO REOPEN again; a row the bundle has no file for is named and the run is red."
+      "proves": "#150 WP-B, the secondary logical path end to end (D-106(j); selftest/dr150b.test.ts): a bundle collected by scripts/recovery/backup.mjs as pintar_backup from CI's database and Storage executes through scripts/recovery/restore-bundle.mjs into a second, empty Supabase stack (a new project's stand-in, with its own default privileges): 0 differences in every table's rows and content hash, every function's definition, owner and execute rights, the table rights, the auth.users triggers, the pre-request and the policies; every Storage file put back and read back with its hash; anon's reach equal to its source's; the extension baseline held; readiness as its source; SAFE TO REOPEN. An extension added on the copy afterwards makes its verification refuse to call it safe (D-108(c)(8)), and removing it makes it safe again. RESTATED FOR #150 WP-C (B9 after a native restore): with a file lost on the copy while its storage.objects row stays, scripts/recovery/restore-bundle.mjs --files-only puts the file back from the bundle, read back by SHA-256, changes no row, and the copy verifies SAFE TO REOPEN again; a row the bundle has no file for is named and the run is red. RESTATED, A1 (owner, Option A): in addition, the bundle carries no pg_cron table and still the sittings; the restore's installer (public.pengerjaan_jadwal_pasang) puts the abandoned-sitting job back exactly once and the verification reads it; a copy without the job is refused SAFE TO REOPEN; installing twice leaves one job and is safe again; and the job's own command, run on the restored copy, ends and scores a sitting past its deadline once; every other assertion is unchanged. RESTATED, B1 (THE PLAN §6.3; C1w finding F-8): every job the one installer declares (A1's and B1's daily purge) is back on the restored copy exactly once, as declared; a job removed by hand is named by the health read (pintar_periksa_kesehatan) and makes the copy unsafe to reopen; the one installer, run twice, puts each back once. RESTATED, B1 (the correction pass): accountability_events, accountability_store and accountability_write_failures are in the bundle with their rows (a known event and a known counted failure among them) and come back on restore as they were; the health read on the restored copy names no job missing or different."
     },
     {
       "id": "DR-D03",
@@ -4899,7 +5117,7 @@
     {
       "id": "F37-E03",
       "runner": "db",
-      "proves": "E3, RESTATED 9 Nov for Sharon's ruling (the journeys found a learner's abandoned sitting blocking a class's year end, with no screen to close it), selftest/db/fable37.sql: ending an enrolment closes the learner's open sittings truthfully: a sitting past its deadline EXPIRES (session_enforce_deadline) and a sitting still open is TERMINATED as INSTITUTIONAL_REVOCATION through terminate_session, with its audit row and its responses kept; the ending is not refused."
+      "proves": "E3, RESTATED 9 Nov for Sharon's ruling (the journeys found a learner's abandoned sitting blocking a class's year end, with no screen to close it), selftest/db/fable37.sql: ending an enrolment closes the learner's open sittings truthfully: a sitting past its deadline is ended by the deadline and scored (RESTATED, A1, O41-20: FINALIZED with one result, marked DEADLINE; 4.0 left it EXPIRED) and a sitting still open is TERMINATED as INSTITUTIONAL_REVOCATION through terminate_session, with its audit row and its responses kept; the ending is not refused."
     },
     {
       "id": "F37-E04",
@@ -4984,7 +5202,7 @@
     {
       "id": "F38-W03",
       "runner": "db",
-      "proves": "W2.21 ended on the record (selftest/db/fable38.sql): with the confirmation, the lesson assignment is ENDED and its assessment CLOSED, so a learner who never started may not start (may_start_assessment); the finished sitting and its result are unchanged; the open sitting is TERMINATED as ADMINISTRATIVE_TERMINATION with the reason, its answers kept and an assessment_session.terminated audit row; the sitting past its deadline EXPIRES; one learning_assignment.ended row records the reason and the counts; the lesson package's release keeps its status (withdrawal is not unpublishing)."
+      "proves": "W2.21 ended on the record (selftest/db/fable38.sql): with the confirmation, the lesson assignment is ENDED and its assessment CLOSED, so a learner who never started may not start (may_start_assessment); the finished sitting and its result are unchanged; the open sitting is TERMINATED as ADMINISTRATIVE_TERMINATION with the reason, its answers kept and an assessment_session.terminated audit row; the sitting past its deadline is ended by the deadline and scored (RESTATED, A1, O41-20: FINALIZED with one result, marked DEADLINE, so its learner counts as finished); one learning_assignment.ended row records the reason and the counts; the lesson package's release keeps its status (withdrawal is not unpublishing)."
     },
     {
       "id": "F38-W04",
@@ -5485,6 +5703,432 @@
       "runner": "db",
       "proves": "W2.18 (Batch 5), measured in selftest/db/fable25.sql: tujuan_belum_tercapai gives a teacher of another class of the same school, a teacher of another school, a school admin with no teaching role, and the class's own teacher asking under another class an empty answer; an anonymous caller is refused.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "B0-S01",
+      "runner": "static",
+      "proves": "B0 · administrator lock-out protection (docs/completion-4.1/batches/B0-COMPLETION.md, blockers 1 and 2), selftest/b0.test.ts, in the database, rolled back, against supabase/migrations/20270113170000_the_last_administrator_is_never_removed.sql: the last-holder rule lives in role_assignments_guard. The platform's last usable SYSTEM_ADMIN role is revoked by nobody (its holder through revoke_role, the database owner, one statement over every holder; ROLE_LAST_PLATFORM_ADMIN); a school's last usable INSTITUTION_ADMIN role is not revoked by a school admin, by a path with no actor, or through «Akhiri tugas» and «Ubah peran» (ROLE_LAST_SCHOOL_ADMIN), and is by a platform admin (revoke_role, «Akhiri tugas», buka_kembali_akun); a second holder who is suspended, closed, anonymised or expired is not the remaining one; with a usable second holder each revocation is accepted; catat_penolakan_peran records a refusal afterwards, and only one that stands"
+    },
+    {
+      "id": "B0-S02",
+      "runner": "static",
+      "proves": "B0, selftest/b0.test.ts, in the database, rolled back, against migration 20270113170000: perpanjang_peran renews a role in one transaction (the old assignment revoked at the instant the new one begins, written by one transaction) leaving exactly one live assignment, audited role.renewed with its reason beside the per-row role.granted and role.revoked; whoever may grant renews and nobody else; a school's only administrator is renewed without tripping the last-holder rule; nobody renews their own role (ROLE_RENEW_SELF) except the platform's only usable administrator, refused once a usable second platform admin exists and allowed while the second is suspended, closed or anonymised; every other self-grant, a forged renewal marker included, and a duplicate standing grant stay refused"
+    },
+    {
+      "id": "B0-S03",
+      "runner": "static",
+      "proves": "B0, selftest/b0.test.ts, in the database, rolled back, against migration 20270113170000: operator_appoint_platform_admin, the operator's recovery of a platform with no usable platform admin, refuses while one exists (OPERATOR_ADMIN_EXISTS) and for a person who does not exist (OPERATOR_PERSON_UNKNOWN), writing nothing; is never a signed-in caller's; with the only platform admin suspended, closed or anonymised it appoints one existing, usable person, audited role.platform_admin_recovered with the reason and the run's reference, and refuses a second appointment"
+    },
+    {
+      "id": "B0-S04",
+      "runner": "static",
+      "proves": "B0, selftest/b0.test.ts, in the database, rolled back, against migration 20270113170000: peran_akan_berakhir lists a role ending in 30 days on the school's clock at 30 and not at 29, and one ending in 31 only from 31; the holder reads their own roles, a school's admin (or a platform admin) that school's, a platform admin the platform's, and nobody anyone else's; each row says whether it is the caller's own and the last usable administrator role; days outside 1 to 366 are refused; peran_pemegang_terakhir answers whoever may revoke"
+    },
+    {
+      "id": "B0-C01",
+      "runner": "static",
+      "proves": "B0 (blocker 2), selftest/b0.test.ts, over two real connections, against migration 20270113170000: two administrators revoke each other. The first holds its transaction open; the second waits on the school's row (the platform's for SYSTEM_ADMIN) and is refused as the last usable holder once the first commits, by revoke_role, «Akhiri tugas» and «Ubah peran» at a school and by revoke_role at the platform, so concurrent revocations cannot reach zero usable administrators. The refused side rolls back whatever it was answered; the seeded administrators stand afterwards"
+    },
+    {
+      "id": "B0-K01",
+      "runner": "static",
+      "proves": "B0, selftest/b0.test.ts, reads supabase/migrations/20270113170000_the_last_administrator_is_never_removed.sql and executes src/lib/peran-kontrak.ts with src/lib/hle.ts: every code peran_tolak raises (PR160) is a signed-in caller's, each with its sentence in Indonesian and English, the operator's, or the recorder's own; a refusal is read by its PR160 DETAIL alone; the last-holder rule is asked by role_assignments_guard, under its row lock, on the revocation, and no revoking function (revoke_role, akhiri_tugas_staf, ubah_peran, buka_kembali_akun) carries a check of its own"
+    },
+    {
+      "id": "B0-K02",
+      "runner": "static",
+      "proves": "B0, selftest/b0-layar.test.ts, reads the workflow file .github/workflows/recover-platform-admin.yml and the source of the role screens: the recovery workflow is a dispatch only, staging's database only (a URL naming production refused), its inputs passed to operator_appoint_platform_admin as psql variables in one call with no other write, nothing of the person or the database printed, and its controlled red (an unknown PINTAR ID: OPERATOR_PERSON_UNKNOWN, nothing written) documented in its header; «Lepaskan», «Perpanjang» (src/app/konfigurasi/actions.ts), «Akhiri tugas» and «Ubah peran» (src/app/konfigurasi/staf/actions.ts) read the role guard's refusal through the one contract and record it with catat_penolakan_peran; «Peran & akses» and the holder's notice ask the database which roles end"
+    },
+    {
+      "id": "B0-A01",
+      "runner": "app",
+      "proves": "B0, selftest/b0-layar.test.ts, the rendered Konfigurasi › «Peran & akses» of the running app as a school's admin: with no role of the school ending within 30 days no notice is drawn; a role ending in 30 days on the school's clock is in the notice by name, counted, with its date as the school reads it and its renewal link; a role ending in 31 days is listed among the roles and is not in the notice"
+    },
+    {
+      "id": "B0-A02",
+      "runner": "app",
+      "proves": "B0, selftest/b0-layar.test.ts, the rendered pages and server actions of the running app as a school's admin: the notice's «Perpanjang» link opens the renewal in place as a native form (a labelled date, a labelled required reason, one submit, so a keyboard reaches all of it) naming the role and its current end date; a short reason, an end date not after the current one and the admin's own role are refused, each with its own sentence on the page, the refused self-renewal recorded as role.renewal_refused; one press renews, leaving one live assignment with the new end date and the old one ended, audited role.renewed, said on the page and gone from the notice"
+    },
+    {
+      "id": "B0-A03",
+      "runner": "app",
+      "proves": "B0, selftest/b0-layar.test.ts, the rendered pages and the existing «Lepaskan» action of the running app: a school's only administrator releasing their own role is answered ROLE_LAST_SCHOOL_ADMIN and the page says the designed last-holder sentence instead of the general failure; the role stands and role.revocation_refused is recorded; the person's page (rendered) says the same sentence and the try-again sentence for «Akhiri tugas» and «Ubah peran»"
+    },
+    {
+      "id": "B0-A04",
+      "runner": "app",
+      "proves": "B0, selftest/b0-layar.test.ts, the rendered «Peran & akses» of the running app as the platform admin: in a school's context, «Lepaskan» opened on the school's only administrator says before its one confirmation that the school will have no administrator (tied to the reason field), and on a teacher's role says nothing; in «Seluruh platform» the only platform admin is offered the renewal of their own role and no release, and its form says why it is allowed and requires a reason"
+    },
+    {
+      "id": "B0-A05",
+      "runner": "app",
+      "proves": "B0, selftest/b0-layar.test.ts, the rendered teacher's home (/mengajar) of the running app: with no role of the teacher ending within 7 days nothing is drawn; a role ending in 8 days on the school's clock is not announced; one ending in 7 days is, by its role and its date as the school reads it, and offers no action that is not the holder's"
+    },
+    {
+      "id": "A1-K01",
+      "runner": "static",
+      "proves": "A1, selftest/a1.test.ts, reads supabase/migrations/20270114100000_a_sitting_is_managed_where_it_was_given.sql and executes src/lib/pengerjaan-kontrak.ts with src/lib/hle.ts: every code pengerjaan_tolak raises (PR170) is a signed-in caller's, each with its sentence in Indonesian and English (a held sitting is never called suspended), or the scheduler's own; a refusal is read by its PR170 DETAIL alone; CAN_MANAGE_SITTINGS is held by exactly EDUCATOR, HEAD_OF_DEPARTMENT and INSTITUTION_ADMIN, a teacher holds no integrity authority, and the staff page has words for the capability; EXPIRED is written by one function (pengerjaan_putus_tenggat), which the lazy check (session_enforce_deadline) and the service-only scheduled entry point (pengerjaan_tutup_terjadwal) both call and neither repeats; that migration enables no extension and schedules nothing (the scheduler's own migration does, below); tangguhkan_akun holds the person's sittings in its own transaction and never writes PAUSED; every client entry is declared in client_rpc_registry and revoked from the signed-out role RESTATED, A1 (owner, Option A): the scheduler's own migration (20270114110000) creates pg_cron in pg_catalog and installs exactly one job (pintar-pengerjaan-tutup-terjadwal, every five minutes, the entry point) through one idempotent installer, pengerjaan_jadwal_pasang, that no client or service role may call; the entry point re-reads each sitting under its row lock and warns what it could not close. RESTATED, B1 (THE PLAN §6.3): A1's job is declared once in the one declaration of every PINTAR job (pintar_jadwal_daftar, migration 20270116110000) and installed by the one installer, pintar_jadwal_pasang (each declared job unscheduled by name first); A1's installer, pengerjaan_jadwal_pasang, is a call to it; neither is a client's or the service role's."
+    },
+    {
+      "id": "A1-S01",
+      "runner": "static",
+      "proves": "A1 · sitting control (docs/completion-4.1/batches/A1-COMPLETION.md, «Pre-build review: outcome»), selftest/a1.test.ts, in the database, rolled back, against supabase/migrations/20270114100000_a_sitting_is_managed_where_it_was_given.sql, on the seeded learning-cycle school with real sittings (start_learning_session, record_answer): blocker 1. CAN_MANAGE_SITTINGS is the teacher's, the head of department's and the school admin's, decided over the sitting's own place: each gives extra time on the class's open sitting (the deadline moves by exactly the minutes given; audited with who, the reason, the minutes, before and after; a 10-300 reason, 1-120 minutes, three times at most), and another class's teacher, the learner and a platform admin are refused, through tambah_waktu_pengerjaan and through extend_session_deadline; the class's teacher is refused every cause of terminate_session and a holder of CAN_REVIEW_INTEGRITY still ends a sitting for an integrity cause; on a professional-learning sitting no school role acts, the new acts are not offered to anyone, and the platform admin extends and ends it as in 4.0"
+    },
+    {
+      "id": "A1-S02",
+      "runner": "static",
+      "proves": "A1 · sitting control (docs/completion-4.1/batches/A1-COMPLETION.md, «Pre-build review: outcome»), selftest/a1.test.ts, in the database, rolled back, against supabase/migrations/20270114100000_a_sitting_is_managed_where_it_was_given.sql, on the seeded learning-cycle school with real sittings (start_learning_session, record_answer): blocker 2. The class's teacher ends one sitting, choosing: SCORED is a hand-in on the learner's behalf (SUBMITTED then FINALIZED by finalize_session; exactly one ordinary result on what was answered, the mastery the scoring gives; the teacher and the reason recorded on the sitting; audited; an attempt), also of a sitting with no answer; NOT_COUNTED is the existing ADMINISTRATIVE_TERMINATION (answers kept, no result, audited, not an attempt). Another class's teacher, the learner and a platform admin are refused; a sitting that has ended answers SITTING_ALREADY_ENDED (a second ending, extra time, the teacher's act arriving after the learner's own hand-in, a sitting past its deadline, which ends by it instead); the learner's next answer and hand-in are answered SESSION_ENDED_SCORED or SESSION_ENDED_NOT_COUNTED; no TERMINATED sitting has a result"
+    },
+    {
+      "id": "A1-S03",
+      "runner": "static",
+      "proves": "A1 · sitting control (docs/completion-4.1/batches/A1-COMPLETION.md, «Pre-build review: outcome»), selftest/a1.test.ts, in the database, rolled back, against supabase/migrations/20270114100000_a_sitting_is_managed_where_it_was_given.sql, on the seeded learning-cycle school with real sittings (start_learning_session, record_answer): blocker 3 and the owner's ruling O41-20. An abandoned sitting an hour past its deadline (red in 4.0: open, no result) ends FINALIZED with one result on the answers recorded (3 of 5, the rest unanswered), marked DEADLINE at its deadline, its start time and answers kept, never a hand-in, audited, one attempt used, identically through the lazy check (session_enforce_deadline) and through the scheduled entry point (pengerjaan_tutup_terjadwal), which no signed-in caller reaches; asked again, nothing more is written; inside the definition's late-sync window it is ended and marked and scored only once the window has closed (finalize_session still answers PR007); an EXPIRED sitting from before the rule is byte-identical after both paths; a sitting with no deadline of its own stays open while its assessment has no closing time and ends, marked WINDOW_CLOSED at the window's closing time, when the window closes; exactly one pg_cron job calls the entry point, every five minutes, active, as a role that may call it"
+    },
+    {
+      "id": "A1-S04",
+      "runner": "static",
+      "proves": "A1 · sitting control (docs/completion-4.1/batches/A1-COMPLETION.md, «Pre-build review: outcome»), selftest/a1.test.ts, in the database, rolled back, against supabase/migrations/20270114100000_a_sitting_is_managed_where_it_was_given.sql, on the seeded learning-cycle school with real sittings (start_learning_session, record_answer): the owner's ruling O41-17. tangguhkan_akun holds every open sitting of the suspended person in its own transaction, at another school too where the fixture has one: its own recorded state (never PAUSED) with why, since when and the whole seconds it had left, audited; while held, extra time, a scored ending, the learner's answer, hand-in and own resume are refused SITTING_FROZEN, and the lazy check and the scheduled entry point skip it although its deadline has passed or its window closed; lifting the suspension leaves the sitting byte-identical and still held; resuming or closing is refused while the account is suspended (SITTING_LEARNER_SUSPENDED) and to another class's teacher, a platform admin and the learner; the class's teacher resumes it with a deadline of exactly now plus the stored remaining time, a closed window notwithstanding and with no extension counted, after which the learner answers again, or closes it as not counted (ADMINISTRATIVE_TERMINATION, answers kept, no result, not an attempt); each act audited"
+    },
+    {
+      "id": "A1-S05",
+      "runner": "static",
+      "proves": "A1 · sitting control (docs/completion-4.1/batches/A1-COMPLETION.md, «Pre-build review: outcome»), selftest/a1.test.ts, in the database, rolled back, against supabase/migrations/20270114100000_a_sitting_is_managed_where_it_was_given.sql, on the seeded learning-cycle school with real sittings (start_learning_session, record_answer): the owner's ruling O41-16. A request for one more attempt is the class's teacher's, with a 10-300 reason, audited, and grants nothing: the learner whose one attempt is used still cannot start. It is refused to another class's teacher, the learner and a platform admin, while a sitting is open, while a request waits and while attempts remain. The decision is a holder of CAN_REVIEW_INTEGRITY over the sitting's place: the requester is refused although they hold that capability (ATTEMPT_OWN_REQUEST), and the learner, a platform admin, a teacher and another class's head of department are refused; the row itself refuses a decision by its requester; the approver's queue lists it for whoever may decide. An approval by a different authorized person gives exactly one more start, the new sitting marked with the request, and leaves the earlier sitting, its result, its answers and its paper byte-identical; a decline needs a reason and grants nothing; both audited"
+    },
+    {
+      "id": "A1-S06",
+      "runner": "static",
+      "proves": "A1 · sitting control (docs/completion-4.1/batches/A1-COMPLETION.md, «Pre-build review: outcome»), selftest/a1.test.ts, in the database, rolled back, against supabase/migrations/20270114100000_a_sitting_is_managed_where_it_was_given.sql, on the seeded learning-cycle school with real sittings (start_learning_session, record_answer): the window. The class's teacher (or the head of department) changes a live lesson assignment's window with a 10-300 reason: the lesson's dates and both assessments' move together, audited with who, the reason, before and after; the sitting already open keeps the deadline it was given; another class's teacher and a learner are refused; a window that closes before it opens, has already closed or has no opening time is refused, and the same window again; an ended assignment's window is not changed (WINDOW_ASSIGNMENT_ENDED) and its assessments stay CLOSED"
+    },
+    {
+      "id": "A1-S07",
+      "runner": "static",
+      "proves": "A1 · sitting control (docs/completion-4.1/batches/A1-COMPLETION.md, «Pre-build review: outcome»), selftest/a1.test.ts, in the database, rolled back, against supabase/migrations/20270114100000_a_sitting_is_managed_where_it_was_given.sql, on the seeded learning-cycle school with real sittings (start_learning_session, record_answer): the reads. daftar_pengerjaan, for one class and one assessment assignment, says each learner's latest sitting: not started; open with its start, its deadline and the seconds left; held with the preserved seconds and whether the learner is reinstated; handed in; ended scored; ended not counted; ended by its deadline (also before the scheduled entry point has run); whether each counts as an attempt and when it ended; in the order of the names, with no score and no rank; it is refused to another class's teacher, a learner, a platform admin and for a class the assessment was not given to. pengerjaan_saya tells a learner how their own sitting ended (by its deadline, handed in by the teacher, not counted) and never why or by whom, and is refused for another learner's sitting; no client reads the closure or hold columns of assessment_sessions"
+    },
+    {
+      "id": "A1-K02",
+      "runner": "static",
+      "proves": "A1 · sitting control, the screens (docs/completion-4.1/batches/A1-COMPLETION.md, «Pre-build review: outcome»; Daisy's review Q4, Q5, A1-B1, A1-R1), selftest/a1-layar.test.ts, from the source and the pure helpers: Daisy's sentences are in src/lib/hle.ts word for word, each with its English; no A1 sentence says a sitting is suspended (a held one is «Ditahan») and no learner sentence shows a reason, «ditolak» or «sesi»; a sitting ended by its deadline is never said as a hand-in; the eight new audit actions have labels in both languages; tindakanUntuk offers only the acts that apply to a row (absent, never disabled); metaBaris writes the row's lines on the school's clock; the teacher's two endings, the assignment's ending and the deadline's are four distinct notices in the player, told apart by the refusal's DETAIL and by pengerjaan_saya; the open player asks how its sitting stands every 45 seconds and on every send, and says added time in a status line; a professional-learning class asks no list and so shows no «Atur»; every act carries its reason and the destructive ones the destructive confirmation; each server action sends its function's declared arguments; the requester's own row in the queue has no form"
+    },
+    {
+      "id": "A1-A01",
+      "runner": "app",
+      "proves": "A1 · sitting control, the screens (docs/completion-4.1/batches/A1-COMPLETION.md, «Pre-build review: outcome»; Daisy's review Q4, Q5, A1-B1, A1-R1), selftest/a1-layar.test.ts, through the running app as the class's teacher on a class of the test's own in the seeded learning-cycle school: «Siapa yang sudah mengumpulkan» shows each learner's state (not started; open with its start and time left; handed in; «Waktu habis» for one past its deadline, never as a hand-in; «Ditahan» for a held one) with the instrument choice and no score; «Atur» only on rows an act applies to, opening one panel under the list with only those acts; «Tambah waktu», «Akhiri dan nilai», «Akhiri tanpa menghitung», «Lanjutkan» and «Kirim permintaan» each through its own form, recorded in the database, audited with the reason and confirmed in its own sentence; a short reason, no way chosen and the sitting having ended before the change was saved (the learner handed in first) are each refused with their own sentence and change nothing; a held sitting offers nothing until its learner is reinstated; a professional-learning class shows no «Atur»; «Ubah jadwal» on the material's row takes a date and a time each on the school's own clock (labelled with its zone, here WITA, with the date echo), refuses a window already closed and a closing time that is not a time, stores a time typed in WITA as that instant on the lesson and both assessments, keeps an open sitting's deadline and is audited"
+    },
+    {
+      "id": "A1-A02",
+      "runner": "app",
+      "proves": "A1 · sitting control, the screens (docs/completion-4.1/batches/A1-COMPLETION.md, «Pre-build review: outcome»; Daisy's review Q4, Q5, A1-B1, A1-R1), selftest/a1-layar.test.ts, through the running app, the approver's queue «Permintaan kesempatan tambahan»: the head of department's home and the school admin's «Yang menunggu» each carry the waiting line and open the queue (the admin's own page, the head's own home); a row gives the learner, class and instrument, the attempts used, who asked, when and why; the requester's own row has no button and says someone else approves it, and a forged approval of it is refused ATTEMPT_OWN_REQUEST with its sentence; «Tolak» without a reason is refused and with one is recorded; «Setujui» is recorded and audited; decided requests leave the queue, which then says nothing waits; the teacher's list shows the approval and the decline with its reason; a teacher is drawn no decision in either place"
+    },
+    {
+      "id": "A1-A03",
+      "runner": "app",
+      "proves": "A1 · sitting control, the screens (docs/completion-4.1/batches/A1-COMPLETION.md, «Pre-build review: outcome»; Daisy's review Q4, Q5, A1-B1, A1-R1), selftest/a1-layar.test.ts, through the running app as the learner on Belajar: a sitting the teacher ended as not counted says its own sentence and its instrument opens the orientation again; a held sitting says «Asesmen ini ditahan. Guru Anda akan memutuskan kelanjutannya.», offers no way in and cannot be entered by its address; once resumed the card offers «Lanjutkan · sisa … menit»; one ended at its deadline says «Waktu habis. Jawaban yang sudah tersimpan sudah dinilai.», never a hand-in; a waiting and a declined request say nothing; an approval says «… dapat dikerjakan sekali lagi.» with «Mulai» and the orientation; no reason is ever on the learner's page"
+    },
+    {
+      "id": "A1-J01",
+      "runner": "app",
+      "proves": "A1 · sitting control, the screens (docs/completion-4.1/batches/A1-COMPLETION.md, «Pre-build review: outcome»; Daisy's review Q4, Q5, A1-B1, A1-R1), selftest/a1-layar.test.ts, the journey «a power cut during Uji Penguasaan» through the running app with no engineer: the learner starts the Uji Penguasaan from its orientation and answers two questions; the class's teacher finds the open sitting on «Siapa yang sudah mengumpulkan», opens «Atur» and ends it as not counted with a reason (its answers kept, no result, no attempt used); Belajar tells the learner it was not counted; the Uji Penguasaan opens its orientation again and the learner starts a second sitting, which the teacher's list shows as open"
+    },
+    {
+      "id": "A1-S08",
+      "runner": "static",
+      "proves": "A1 · sitting control, the scheduler (owner's Option A: pg_cron), selftest/a1-layar.test.ts, against supabase/migrations/20270114110000_an_abandoned_sitting_is_closed_on_a_schedule.sql, in the database on the seeded learning-cycle school with sittings nobody touches again: pg_cron's own command for the one job (read from cron.job), executed with no signed-in actor, ends and scores every sitting past its deadline once (FINALIZED, closure DEADLINE, one result, one audit row) and leaves one within its deadline open; a sitting whose ending raises is listed with its error, warned to the server log and left open, one whose scoring raises is kept EXPIRED with its warning, neither stops the others and the next run picks both up; a further run changes no sitting, result or audit row; installing the schedule twice (pengerjaan_jadwal_pasang) leaves exactly one active five-minute job RESTATED, B1 (THE PLAN §6.3): the schedule is installed twice through the one installer (pintar_jadwal_pasang) and once more through A1's installer, now a call to it, and A1's job is still exactly one, as declared."
+    },
+    {
+      "id": "A1-S09",
+      "runner": "static",
+      "proves": "A1 · sitting control, the scheduler (owner's Option A: pg_cron), selftest/a1-layar.test.ts, against supabase/migrations/20270114110000_an_abandoned_sitting_is_closed_on_a_schedule.sql, with real concurrent database connections: two runs of the job at once on one overdue sitting end it once; the learner's late hand-in racing the job, in either order, ends it once with one result and one audit row; a teacher's «Akhiri tanpa menghitung» racing the job, in either order, gives one outcome and never both, the loser waiting on the row lock and then finding the sitting ended"
+    },
+    {
+      "id": "C1W-K01",
+      "runner": "static",
+      "proves": "C1w, selftest/c1w.test.ts, reads supabase/migrations/20270115100000_a_question_is_written_in_the_app_and_revised_in_its_line.sql and supabase/migrations/20270115110000_a_wrong_key_is_corrected_by_two_people_and_kept_on_the_record.sql and executes src/lib/soal-kontrak.ts with src/lib/hle.ts: every code soal_tolak (PR180) and koreksi_tolak (PR190) raises is the screens' contract's and is raised somewhere, each with its sentence in Indonesian and English, as are the draft editor's own two problems and the upload identity column's five; a refusal is read by its own SQLSTATE and DETAIL alone; recompute_result is not redefined by either migration and the governed recalculation (hitung_ulang_koreksi_kunci) is granted to no client; every client entry is declared in client_rpc_registry and revoked from the signed-out role; the certificate review is a side table and neither certificates nor certificate_status is altered"
+    },
+    {
+      "id": "C1W-S01",
+      "runner": "static",
+      "proves": "C1w · the item workbench (docs/completion-4.1/batches/C1W-COMPLETION.md, «Pre-build review: outcome»), selftest/c1w.test.ts, in the database, rolled back, against supabase/migrations/20270115100000_a_question_is_written_in_the_app_and_revised_in_its_line.sql, on the seeded learning-cycle school with a draft uploaded by this suite's teacher (O41-10): a save of a draft's stem and key is attributed (revision 1 to 2, who, when; an item_draft_edits row naming the key's labels from A to B and no text; an audit row); a second author's save made on the revision read before the first is refused DRAFT_EDIT_CONFLICT and nothing is overwritten; two keys on a single-answer question, an empty option, one option, six options and no key each come back as their problem and nothing is written; another school's administrator is refused; a practice question and a Pemetaan Awal question are added (the test's count follows) and one removed (attributed); a checked (VALIDATED) draft that is edited goes back to STRUCTURED as one package, and that edge is refused outside the editor; an edit or discard while IN_REVIEW is refused DRAFT_SUBMITTED and accepted again once the reviewer sends it back; an edit or discard of a published package is refused DRAFT_SEALED; a fresh draft discarded leaves no course, module or test and its audit and attribution rows; a sent-back draft discarded keeps only its emptied, marked course row for the review outcome that names it; an edit of a discarded question is refused"
+    },
+    {
+      "id": "C1W-S02",
+      "runner": "static",
+      "proves": "C1w · the item workbench (docs/completion-4.1/batches/C1W-COMPLETION.md, «Pre-build review: outcome»), selftest/c1w.test.ts, in the database, rolled back, against supabase/migrations/20270115100000_a_question_is_written_in_the_app_and_revised_in_its_line.sql, on the seeded learning-cycle school (Sharon, blocker 4): an upload revising a published package whose rows carry `identity` sets every item pointer, each to its own original in the predecessor; without the column every question is new; a row citing another course's question (ITEM_IDENTITY_OTHER_COURSE), another school's (answered ITEM_IDENTITY_UNKNOWN), an older version of the same course (ITEM_IDENTITY_NOT_PREDECESSOR), the same question twice (ITEM_IDENTITY_REPEATED) or any identity in an upload that revises nothing (ITEM_IDENTITY_NO_PREDECESSOR) is refused at its row and nothing is materialised; an upload over a draft edited in the app is detectable (unggah_menimpa_suntingan) and one over an unedited course is not; a question pointing to another school's question, written directly, is refused LINEAGE_CROSSES_OWNER"
+    },
+    {
+      "id": "C1W-S03",
+      "runner": "static",
+      "proves": "C1w · the item workbench (docs/completion-4.1/batches/C1W-COMPLETION.md, «Pre-build review: outcome»), selftest/c1w.test.ts, in the database, rolled back, against supabase/migrations/20270115100000_a_question_is_written_in_the_app_and_revised_in_its_line.sql, on the seeded learning-cycle school: revisi_soal on one question of a published package opens a revision of the head in which every question points to its own original (6 of 6, none null) and the revised one to the question named (red on 4.0's screen path: no item pointer); a second open revision is refused; the copy's key is corrected in the draft and the revision goes through review, approval, lock and publication by the school's own people; the predecessor is then SUPERSEDED and marked replaced (not withdrawn; its classes go on; audited RELEASE_REPLACED), a new assignment of it is refused and of the correction accepted; create_course_revision of a course that is no longer the head is refused REVISION_NOT_HEAD and of the head accepted; riwayat_soal gives a reviewer two versions newest first, the key from A to B, each version's release and who made and edited it, and no statistic, and refuses another school"
+    },
+    {
+      "id": "C1W-S04",
+      "runner": "static",
+      "proves": "C1w · the item workbench (docs/completion-4.1/batches/C1W-COMPLETION.md, «Pre-build review: outcome»), selftest/c1w.test.ts, in the database, rolled back, against supabase/migrations/20270115100000_a_question_is_written_in_the_app_and_revised_in_its_line.sql, on the seeded learning-cycle school (O41-11; Daisy C1-B2): a release its publisher withdrew starts no new sitting (red in 4.0: may_start_assessment answers RELEASE_WITHDRAWN and start_learning_session refuses), its withdrawal recorded on the release apart from a replacement; a sitting open at that moment takes its answers and finishes with its result; a finished result stays and its learner still reads it; the class's teacher and learner read DIHENTIKAN_PENERBIT (and no new sitting) through keadaan_terbitan while the assignment stays ACTIVE (never the teacher's withdrawal); another school is refused that read"
+    },
+    {
+      "id": "C1W-S05",
+      "runner": "static",
+      "proves": "C1w · the item workbench (docs/completion-4.1/batches/C1W-COMPLETION.md, «Pre-build review: outcome»), selftest/c1w.test.ts, in the database, rolled back, against supabase/migrations/20270115110000_a_wrong_key_is_corrected_by_two_people_and_kept_on_the_record.sql, on the seeded learning-cycle school with real sittings (O41-11, O41-18, O41-21, O41-22; Sharon blockers 1-3): a teacher, a head of department and a platform admin cannot propose a key correction of a school's content and the school's administrator can (a reason, a changed and valid key, one waiting per question); koreksi_kunci_dampak gives the exact counts by the recalculation's own rule (3 finished sittings, 1 school, 3 changing results, 0 target decisions, 0 certificates, 0 newly earnable, 2 open) with the list, and the proposer sees no confirm; the proposer, a platform admin, a teacher and another school cannot confirm and a head of department confirms through CAN_REVIEW: the corrected revision is published (authored by the proposer, reviewed by the confirmer) and replaces the faulty release, the class's assignment moves to it, each finished sitting that presented the question gets one superseding result naming its correction, the corrected key, the corrected question and its release (the counts as previewed), the original sealed content, results, responses and papers byte-identical; an unaffected sitting is untouched and a governed recalculation of it refused CORRECTION_SITTING_NOT_AFFECTED; recompute_result keeps PR011 and its platform-only authority, and a sitting recalculated ordinarily before the correction chains with no constraint error; a new sitting starts on the corrected release; a sitting open at confirmation is recalculated as it finishes, by its learner's hand-in and by the A1 deadline job (pengerjaan_tutup_terjadwal) that ends and scores an abandoned one; an unrelated open revision of the package refuses both a proposal and a confirmation with CORRECTION_OPEN_REVISION, whose sentence says to finish or discard that revision; platform content (O41-18): a school's administrator and head of department cannot propose, a role on the platform's own tenant proposes and sees the counts only (no list of sittings, other schools as counts), confirms nothing of its own, and the platform admin confirms: the faulty release is replaced, the correction is distributed onward to both schools that held the replaced release, the school's quick-assessment sitting is recalculated and only that school is notified; a certificate newly earnable (bootstrap, OFFICIAL): a sitting with 3 of 6 right under the faulty key is not eligible, the preview counts one certificate newly earnable and one target decision changing, after confirmation the sitting is eligible with no certificate issued by the correction itself, and certificate_prepare issues it by the usual path with the corrected result as passed; the learner reads the corrected result as current, marked corrected, with why and the original, an ordinarily recalculated sitting still reads as sealed (D14), and the teacher reads the whole chain; a second correction of the same package chains again on the recalculated sitting, scored from the original answers with the complete key; exactly one result is current; a decline needs a reason, is never the proposer's and frees the question; every act audited and the school notified"
+    },
+    {
+      "id": "C1W-S06",
+      "runner": "static",
+      "proves": "C1w · the item workbench (docs/completion-4.1/batches/C1W-COMPLETION.md, «Pre-build review: outcome»), selftest/c1w.test.ts, in the database, rolled back, against supabase/migrations/20270115110000_a_wrong_key_is_corrected_by_two_people_and_kept_on_the_record.sql, on the bootstrap school's OFFICIAL post-test with an issued certificate (O41-19; Sharon C1W-4): a correction of a question the sitting never presented leaves the certificate verifying BERLAKU as before; once its supporting result changes the certificate verifies DITINJAU (no reason, no score), its status, payload, signature, number and token unchanged, in the school's «Sedang ditinjau» queue and notice, and its learner reads it corrected and under review; a head of department and a platform admin cannot decide; a decision needs a reason and is CONFIRMED or REVOKED; the school confirms it (BERLAKU again) and a decided review is not decided again; affected again it gets a new review; DIGANTIKAN takes precedence over under review; revoking through the review is revoke_certificate (DICABUT, its reason and audit) and closes it; a decided review is never rewritten"
+    },
+    {
+      "id": "C1W-C01",
+      "runner": "static",
+      "proves": "C1w, selftest/c1w.test.ts, against supabase/migrations/20270115110000_a_wrong_key_is_corrected_by_two_people_and_kept_on_the_record.sql, on two real database connections over a world committed in the seeded learning-cycle school (O41-22 condition 6): two key corrections of one package confirmed at the same moment by two heads of department: the second waits for the first (the course line's lock) and stands on its result; the sitting's chain is the sealed original, the first correction's result, the second's; exactly one result is current, scored from the original answers with both corrections in force; never a raw constraint error"
+    },
+    {
+      "id": "C1W-K02",
+      "runner": "static",
+      "proves": "C1w · the item workbench, the screens (docs/completion-4.1/batches/C1W-COMPLETION.md; Daisy's review TINJAUAN-A1-C1W Q5, Q6, §C1·N1, §C1·N2, the missing states, C1-B1, C1-B2, C1-R1..R5), selftest/c1w-layar.test.ts, from the source and the pure helpers: Daisy's sentences are in src/lib/hle.ts word for word, each with its English; the editor's payload sends options up to the last filled one; a save's problems are said with her three sentences and placed beside their fields, and survive the address only in their own shape; what changed is said in words; step 2 is her two sentences or the «Tidak ada sesi selesai…» state; «Sedang ditinjau» is the public page's neutral third state with the issuing school's name; a teacher never reads «Ditarik» of a publisher's withdrawal and is offered «Pindahkan penugasan» after a replacement; the learner's corrected result is marked with its original; the teacher's note, rendered, gives the result in force and the correction's reason without its prefix; no recalculation line speaks for the certificate; the workbook's Soal sheet carries an optional identity column"
+    },
+    {
+      "id": "C1W-A01",
+      "runner": "app",
+      "proves": "C1w · the item workbench, the screens (docs/completion-4.1/batches/C1W-COMPLETION.md; Daisy's review TINJAUAN-A1-C1W Q5, Q6, §C1·N1, §C1·N2, the missing states, C1-B1, C1-B2, C1-R1..R5), selftest/c1w-layar.test.ts, read from the rendered html of the production build route by route, the running app, as the package's author: «Ubah soal ini» turns one article into its form in place with the fields in Daisy's order; a save with problems lists them at the top and beside each field and writes nothing; a save is attributed «Diubah oleh …»; a save from a form drawn before another save names who saved since; «Tambah soal» and «Hapus soal»; a submitted draft offers no «Ubah» and says why; a locked package's question carries «Riwayat soal (1 versi)» with «Lihat versi ini»; «Buang draf ini» lands on Studio with «Draf \"…\" dibuang.» and the draft is listed no more"
+    },
+    {
+      "id": "C1W-A02",
+      "runner": "app",
+      "proves": "C1w · the item workbench, the screens (docs/completion-4.1/batches/C1W-COMPLETION.md; Daisy's review TINJAUAN-A1-C1W Q5, Q6, §C1·N1, §C1·N2, the missing states, C1-B1, C1-B2, C1-R1..R5), selftest/c1w-layar.test.ts, read from the rendered html of the production build route by route, the running app, a bootstrap certificate under review (O41-19): the public check says «Sedang ditinjau» with Daisy's sentence naming the issuing school, neutral, no reason, never «Berlaku»; the learner's list and card say so and printing is still offered; Konfigurasi › Sertifikat shows «Sedang ditinjau (1)» with «Konfirmasi berlaku» and «Cabut»; confirmed with a reason, the row keeps «Dikonfirmasi setelah dihitung ulang · …» and the public check is «Berlaku» again"
+    },
+    {
+      "id": "C1W-J01",
+      "runner": "app",
+      "proves": "C1w · the item workbench, the screens (docs/completion-4.1/batches/C1W-COMPLETION.md; Daisy's review TINJAUAN-A1-C1W Q5, Q6, §C1·N1, §C1·N2, the missing states, C1-B1, C1-B2, C1-R1..R5), selftest/c1w-layar.test.ts, read from the rendered html of the production build route by route, the journey «a wrong key, found and corrected» through the running app with no engineer: the author writes a question's key in the editor (mistyped); the package is approved, locked and published by the people whose steps they are; the class sits; the content owner walks «Perbaiki kunci jawaban»'s three steps with the exact counts and sees her own waiting state with no button; the second person finds it in «Antrean Tinjauan» and confirms through the dialog; the sitting keeps its sealed result and gains one result in force; the teacher's report shows the result in force with its note and reason; the learner's result page shows it as current, corrected, with the original; the class's assignment is on the corrected release"
+    },
+    {
+      "id": "C1W-J02",
+      "runner": "app",
+      "proves": "C1w F-1 (O41-21; C1W-F1-CORRECTION.md requirement 5), selftest/c1w-layar.test.ts, read from the rendered html of the production build route by route (/mengajar/[kelas]/bukti, /mengajar/[kelas]/soal, /belajar/[tugas]/peta), THE PLAN §8.5 journey 3 across the corrected views, through the running app with no engineer: in the official bootstrap school a class of eleven sits a Pemetaan Awal whose X is keyed A where B is right, each option naming a misconception of the package's own (six choose B, five A); before, the teacher's «Bukti» names B's misconception; the school's administrator proposes B on the three steps and the head of department confirms through the dialog; every sitting gains one result in force (six 100%, five 67%), the sealed ones kept; «Bukti» then names A's misconception with its remediation and not B's; «Lihat per soal» counts X right for the six, marks B as the key, says the original key was A (mengajar.soal.kunci_diperbaiki) and names the five who chose A; the reading map («Peta Bacaan») of a learner who chose B sends them to neither remediation, and of one who chose A to A's; the result in force, the class figure and the marking agree; the journey's committed world is removed and its absence counted."
+    },
+    {
+      "id": "B1-K01",
+      "runner": "static",
+      "proves": "B1 · accountability events (docs/completion-4.1/batches/B1-COMPLETION.md), selftest/b1.test.ts, reads supabase/migrations/20270116100000_a_sign_in_a_sign_out_and_a_print_are_kept_on_the_record_for_twelve_months.sql and src/: every code akuntabilitas_tolak raises (PR200) is the contract's (src/lib/akuntabilitas-kontrak.ts) with its message; each kind, method and failure outcome has one sentence in Indonesian and English (src/lib/hle.ts) naming no mechanism and no Auth text; the store is closed to every client role; the reader is declared and the writer, purge and counter are the service's alone; the writer computes the schools itself; ONLY src/app/api/_akuntabilitas/catat.ts calls the writer, and each route of THE PLAN §5.1 table C calls the helper once, after its decision and before its answer; the origin is alamatKlien's alone; a link request writes a hash-only failure for an unknown address and the success is the callback's."
+    },
+    {
+      "id": "B1-K02",
+      "runner": "static",
+      "proves": "B1, selftest/b1.test.ts, executes the source of src/app/api/_akuntabilitas/catat.ts with its writer replaced: the coarse origin (IPv4 /24, IPv6 /48, an IPv4-mapped address as IPv4) from x-real-ip only; the identifier hash is HMAC-SHA256 with the existing pepper under the store's own label over the normalised identifier; one request writes once (blocker 2), two requests twice, a request whose Auth call was retried once; a failed or timed-out write neither throws nor blocks, is logged without the identifier and counted; a print fails closed."
+    },
+    {
+      "id": "B2-A01",
+      "runner": "app",
+      "proves": "B2, selftest/b2-layar.test.ts, through the running app, the print action driven by its build id with the page's cookies: a press writes exactly one PRINT_REQUEST, the school's, naming the report, its node and the requester; the answer carries that row's reference, the name the platform holds and the instant on the school's clock; a request carrying another person's or user's id writes as the session's user (Sharon's change 1); each press is its own reference."
+    },
+    {
+      "id": "B2-A02",
+      "runner": "app",
+      "proves": "B2, selftest/b2-layar.test.ts, through the running app, the print action driven by its build id with the page's cookies: with the writer failing, the press answers CETAK_GAGAL, writes nothing and counts the failure once: no reference, no official print."
+    },
+    {
+      "id": "B2-A03",
+      "runner": "app",
+      "proves": "B2, selftest/b2-layar.test.ts, through the running app, the print action driven by its build id with the page's cookies: a press for another school's report, or naming a report that does not print, is refused CETAK_TIDAK_BOLEH and writes nothing."
+    },
+    {
+      "id": "B2-A04",
+      "runner": "app",
+      "proves": "B2, selftest/b2-layar.test.ts, through the running app, the print action driven by its build id with the page's cookies: the page as served carries the short browser line as its footer, names no person (Sharon's change 5) and shows nothing reference-shaped; «Cetak laporan» is offered on a report with figures."
+    },
+    {
+      "id": "B2-A05",
+      "runner": "app",
+      "proves": "B2, selftest/b2-layar.test.ts, through the running app, the print action driven by its build id with the page's cookies: an empty learner's report offers no «Cetak laporan» (THE PLAN §5.2 F; the engineer's defect on /belajar/hasil)."
+    },
+    {
+      "id": "B2-A06",
+      "runner": "app",
+      "proves": "B2-R-A1 (Daisy's line; the Chief Architect's condition), selftest/b2-layar.test.ts through the running app, the print action driven by its build id with the page's cookies: a print refused for the working context answers CETAK_KONTEKS_LAIN, the line with «Mau ke mana hari ini?», only where the report's school is one of the person's own contexts (the platform admin at Beta); Alpha's admin, with no context at Beta, still gets CETAK_TIDAK_BOLEH; neither writes a row."
+    },
+    {
+      "id": "L1F2-A01",
+      "runner": "app",
+      "proves": "L1-F2, selftest/l1f2-layar.test.ts, through the running app's route /api/akun/kartu-kelas and real Auth: a school's reissue of a suspended learner's card answers as for one who is not (status and shape), writes the same account.card_reissued row in the audit log, leaves banned_until at akun_terkunci_sampai(); the new card signs nothing in until reinstatement, and signs in after it (Sharon, settled 12 Nov)."
+    },
+    {
+      "id": "L1F2-A02",
+      "runner": "app",
+      "proves": "L1-F2 (P-1's guarding test), selftest/l1f2-layar.test.ts, through the running app's route /api/akun/aktivasi, real Auth and the mail sink: an EMAIL account for a suspended person and a class card for a closed person answer as ordinary creations, send nothing to anyone, and are created locked; an ordinary one is not."
+    },
+    {
+      "id": "L1F2-R01",
+      "runner": "static",
+      "proves": "L1-F2, selftest/l1f2-balapan.test.ts, on two real connections against the database (the shared harness selftest/balapan.ts; migration 20270117160000): a suspension and an account creation for the same person race in both orders and the account ends locked either way; with the link trigger's FOR SHARE removed, the creation-first order leaves it unlocked (the plant); everything committed is removed and proven gone."
+    },
+    {
+      "id": "L1R2-R01",
+      "runner": "static",
+      "proves": "L1-R2, selftest/l1f2-balapan.test.ts, on two real connections against the database (migration 20270117160000): an activation permit's issue and a lock race in both orders: issuer first, the permit is deleted by the lock; lock first, the issuer is refused ACCOUNT_LOCKED and writes none; with the issuer's FOR SHARE removed, issuer first leaves its permit standing (the plant); everything committed is removed and proven gone."
+    },
+    {
+      "id": "L1R2-R02",
+      "runner": "static",
+      "proves": "L1-F2, selftest/l1f2-balapan.test.ts, Sharon's deadlock order on two real connections against the database (migration 20270117190000): an activation permit's issuer holds its first lock and sleeps before its insert while a suspension starts; both complete with no 40P01, the suspension commits after waiting, and no permit survives."
+    },
+    {
+      "id": "L1R2-R03",
+      "runner": "static",
+      "proves": "L1-F2, selftest/l1f2-balapan.test.ts, the engineer's search after Sharon's review, on two real connections against the database (migration 20270117190000): Auth's write of a reissued card holds its auth.users row and sleeps before auth_card_email_guard updates the accounts row while a suspension starts; both complete with no 40P01, the new card number is written and the account ends locked."
+    },
+    {
+      "id": "L1F2-S01",
+      "runner": "db",
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a person suspended before having an account is given one: it is created locked (Sharon §2a)."
+    },
+    {
+      "id": "L1F2-S02",
+      "runner": "db",
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: while the person is suspended, an update clearing banned_until, one of another column and one setting a nearer date each leave the lock (§2a test 4)."
+    },
+    {
+      "id": "L1F2-S03",
+      "runner": "db",
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: suspend, create, reinstate, suspend again: locked, released, locked; reinstatement ends the suspension before it unlocks (§2a test 5)."
+    },
+    {
+      "id": "L1F2-S04",
+      "runner": "db",
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a lock step forced to fail leaves no Auth user and no account; an Auth insert with no grant is refused PR010 under production's rule (§2a tests 1 and 2)."
+    },
+    {
+      "id": "L1F2-S05",
+      "runner": "db",
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a closed person (CLOSED_AT_REQUEST) given an account: it is created locked, and buka_kembali_akun releases it (§2a test 6)."
+    },
+    {
+      "id": "L1R2-S01",
+      "runner": "db",
+      "proves": "L1-F2 and L1-R2, selftest/db/l1f2.sql, one rolled-back transaction each, against migration 20270117160000: a lock deletes the person's RECOVERY and ACTIVATION permits and leaves a CARD_REISSUE permit and other people's; an unlock deletes nothing (§2b point 1)."
+    },
+    {
+      "id": "L1R2-S02",
+      "runner": "db",
+      "proves": "L1-F2, the lock order structurally (Sharon's result review of e27f4a77; migration 20270117190000): recovery_grant_permit, password_write_permit, authorize_card_reissue, authorize_card_conversion and authorize_email_correction each take the person row first; akun_kunci takes auth.users before accounts."
+    },
+    {
+      "id": "B2-D01",
+      "runner": "db",
+      "proves": "B2's planted-defect gate (selftest/db/b2.sql): a learner who earned results at Alpha (Alpha's own people write, review, release and assign the chapter; both tests sat), moved to Beta by transfer_minta, transfer_terima and transfer_execute, prints them: the snapshot is {Alpha}, never the live {Beta}. Plant b2-1 (the live affiliation) turns it red."
+    },
+    {
+      "id": "B2-S01",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, reading the source (src/components/laporan/AksiLaporan.tsx, the report pages, src/lib/hle.ts's copy table): «Cetak laporan» calls the print action, stops on a refusal, sets the official footer only after its reference, opens the dialog and restores the default in a finally and on afterprint (Sharon's change 2); any other print takes the device-clock line on beforeprint; the default names no person (Sharon's change 5; Daisy's words); the four report views print through the action with their scope; the only other window.print() calls are the certificate's and the class card's, which carry no report footer."
+    },
+    {
+      "id": "B2-S02",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, reading the source (src/app/konfigurasi/catatan-masuk/page.tsx, src/app/konfigurasi/page.tsx, src/lib/hle.ts's copy table): the register taken with B2, in Daisy's words: B1-R1 the refusal names the Admin PINTAR; R2 the platform's view names each row's schools on a second line; R3 the index lists the reader after «Jejak audit» for its readers only; R4 the completeness notice reads the narrow count, platform only, above zero, with the health check's link; R5 no empty state adds a second «Hapus saringan»."
+    },
+    {
+      "id": "B2-P01",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: a learner with results at two schools prints their own results: the snapshot holds both; each school's admin finds the reference and is shown its own school alone; an unrelated school finds nothing; each press is its own reference."
+    },
+    {
+      "id": "B2-P02",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: Sharon's specification and the owner's condition (no attribution by transfer): a learner who earned results at A, moved to B through transfer_minta, transfer_terima and transfer_execute, prints them: the snapshot is {A} although the live school is {B}; A's admin finds the reference, B's does not, the platform admin does; the event names the report and the person, no content."
+    },
+    {
+      "id": "B2-P03",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: a departed learner (no live school) prints their history: the former schools find the reference, an unrelated school does not."
+    },
+    {
+      "id": "B2-P04",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: a print whose report holds no evidence has an empty snapshot and is the platform admin's alone."
+    },
+    {
+      "id": "B2-P05",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: a person-scoped print naming someone else is refused and writes nothing; the one-school check refuses a class-scoped print with two schools and admits a person-scoped one; the action takes the requester from auth.getUser() and the person from the session's own profile (Sharon's change 1)."
+    },
+    {
+      "id": "B2-P06",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: one read (Sharon's change 3): the snapshot is exactly the schools of the sittings hasil_belajar_sesi_saya shows the learner, and /belajar/hasil is built from that read alone."
+    },
+    {
+      "id": "B2-S03",
+      "runner": "static",
+      "proves": "B2, selftest/b2.test.ts, in the database, rolled back, through the product's own paths (a chapter written, reviewed, released and assigned at a school by its own people, sat by a learner; the product's transfer), against supabase/migrations/20270117150000_a_printed_report_is_owned_by_the_schools_whose_evidence_it_shows.sql: the completeness notice's reader (Sharon's change 6): the platform admin's alone; sign-in and sign-out failures of the last seven WIB days, never a print's or an older day's."
+    },
+    {
+      "id": "B1-S01",
+      "runner": "static",
+      "proves": "B1, selftest/b1.test.ts, in the database, rolled back, against supabase/migrations/20270116100000_a_sign_in_a_sign_out_and_a_print_are_kept_on_the_record_for_twelve_months.sql: a successful and a failed sign-in each leave exactly one row; the two-school snapshot (blocker 1: both admins read it, a school left before and one joined after read nothing, later changes move no stored snapshot); an empty snapshot is the platform admin's only; a print at school A by a person at A and B is A's alone, by its resource (execution requirement 3); the network origin is the platform admin's alone; a reference typed in any form finds its print; the writer refuses a signed-in caller, an address, a hash on a success and a print without a school's resource; no client role, the service role included, selects, inserts, updates or deletes."
+    },
+    {
+      "id": "B1-S02",
+      "runner": "static",
+      "proves": "B1, selftest/b1.test.ts, in the database, rolled back, against migration 20270116100000 (blocker 3, the L4 regression): after hapus_data_pribadi the person's rows keep kind, instant and person and hold no network origin and no identifier hash; the same update without the deletion's marker, under another person's marker, touching another column, and any delete are refused; another person's rows are untouched."
+    },
+    {
+      "id": "B1-S03",
+      "runner": "static",
+      "proves": "B1, selftest/b1.test.ts, in the database, rolled back, against migration 20270116100000: a row aged twelve months and a day is purged with one audit row (count, oldest and newest instant); rows at eleven months and an hour short of twelve stay; a run that deletes nothing writes no audit row; a delete outside the purge, a younger row under its marker and a truncate are refused; a signed-in caller may not purge; twelve months is the function's constant."
+    },
+    {
+      "id": "B1-S04",
+      "runner": "static",
+      "proves": "B1, selftest/b1.test.ts, in the database, rolled back (THE PLAN §5.1 E, the F07-P11 pattern): metric_sources refuses the sign-in record; assert_accountability_is_not_evidence holds as built and fails, by name, for a calculator reading the store and for a view built over it."
+    },
+    {
+      "id": "B1-R01",
+      "runner": "static",
+      "proves": "B1 · the one job installer (THE PLAN §6.3; C1w finding F-8), selftest/b1.test.ts, in the database, rolled back, against supabase/migrations/20270116110000_every_scheduled_job_is_declared_once_installed_by_one_installer_and_checked.sql: both jobs declared and installed once as declared; a job removed by hand is reported missing, a changed one different, an undeclared pintar-* job named; A1's installer (now a call to the shared one) and the shared one restore each once; counted writer failures make the health read report them; neither installer nor health read is the service role's."
+    },
+    {
+      "id": "B1-C01",
+      "runner": "static",
+      "proves": "B1, selftest/b1.test.ts, against migration 20270116100000, on real database connections with committed aged rows: a purge run that finds every row locked by another run deletes none and does not wait; a run beside another's batch in flight deletes the rest and the next run the locked half (FOR UPDATE SKIP LOCKED); every row is deleted once and the audit rows add up to the rows deleted; nothing of the scenario is left behind (THE PLAN §4.1 P3)."
+    },
+    {
+      "id": "B1-A01",
+      "runner": "app",
+      "proves": "B1 · accountability events through the running app, selftest/b1-layar.test.ts, with live Auth and PostgREST, the seeded teacher and class card: every sign-in path of THE PLAN §5.1 table C and each failure code met on the way (password wrong twice, unknown name, right; class card wrong and right; a recovery code that does not match; a PINTAR ID nobody holds and a malformed one; a new password with no grant; a sign-in link that could not be used at the callback) and each browser's sign-out: each request leaves exactly one row (two attempts two rows) with its kind, method, the route's own code, the person where the identifier named one (the snapshot of their schools), a hash on a failure only and the /24; no text column holds a password, PIN, code, card number, typed name or full address; nothing of the test is left behind."
+    },
+    {
+      "id": "B1-A02",
+      "runner": "app",
+      "proves": "B1, selftest/b1-layar.test.ts, through the running app's routes with a failure planted on the store: the sign-in and the sign-out answer as ever, nothing is written, each failure is counted and the health read (pintar_periksa_kesehatan) reports the count; the plant, the count and the test's rows are gone afterwards."
+    },
+    {
+      "id": "B1-L01",
+      "runner": "app",
+      "proves": "B1 «Catatan masuk dan cetak», selftest/b1-layar.test.ts, through the running app's rendered html (route /konfigurasi/catatan-masuk): a teacher is refused; a school's administrator reads their own sign-in by name without the network origin; the platform administrator reads it with its /24 and never the address; a reference not there, and a print reference the purge itself removed, say the purged reference's own sentence; the purge's run is one audit row of the platform (no school) whose count is the run's own, said in the platform's «Jejak audit» and absent from the school's; no match says so; the kind filter holds; «Jejak audit» links to it; the test's rows are gone afterwards."
+    },
+    {
+      "id": "B1-A03",
+      "runner": "app",
+      "proves": "B1, selftest/b1-layar.test.ts, through the running app's routes, the paths that need the mail sink, with a person activated for the test: the right recovery code (SIGN_IN_OK by CODE) and its new password, a wrong PIN for the person's own ID (the person found by the ID), the right PIN (SIGN_IN_OK by RECOVERY_PIN) and its new password, and each sign-out: one row each, no secret in any text column; no live role, session or event row left behind.",
+      "skip_justification": "B1-A03 needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
+    },
+    {
+      "id": "B1-S05",
+      "runner": "static",
+      "proves": "B1 correction (Sharon's result review at 40e89308), selftest/b1.test.ts, in the database, rolled back, against migration 20270116120000: a person at schools A and B keeps the whole snapshot stored; the reader shows A's admin {A} alone, B's admin {B} alone and the platform admin both; no row a school reads holds the other school's id, a network origin or the other school's print."
+    },
+    {
+      "id": "B1-S06",
+      "runner": "static",
+      "proves": "B1 correction (cross-module check: a transfer), selftest/b1.test.ts, in the database, rolled back, against migration 20270116100000 and the product's own transfer (transfer_minta, transfer_terima, transfer_execute): a learner's sign-in before the move holds {A} and is read by A's admin only; the one after it holds {B} and is read by B's admin only."
+    },
+    {
+      "id": "B1-S07",
+      "runner": "static",
+      "proves": "B1 correction (purge capacity; the purge's audit and a purged reference), selftest/b1.test.ts, in the database, rolled back, against migration 20270116120000: rows past twelve months and a day are a named, not-ok finding of the health read (pintar_periksa_kesehatan); one purge run in batches of one row removes them all; a purged print's reference finds nothing in the reader; the purge's audit row (no school) is read by the platform admin and not by a school's admin."
+    },
+    {
+      "id": "B1-A04",
+      "runner": "app",
+      "proves": "B1 correction (cross-module checks 2b and the deleted-person presentation), selftest/b1-layar.test.ts, through the running app's routes and its rendered html (route /konfigurasi/catatan-masuk): a staff member of Alpha suspended, then closed, each sign-in attempt (the suspended account with the right and a wrong password; restated for the auth correction, owner 11 Nov) one SIGN_IN_FAILED row answered and recorded exactly as a wrong password (401 MASUK_TIDAK_COCOK), never one naming the account's state, the person and Alpha's snapshot, read by Alpha's admin and not Beta's; after hapus_data_pribadi an attempt with the old address names no one (the platform admin's only) and the person's rows hold no origin and no hash; Alpha's admin and the platform admin read them under the PINTAR ID with no origin, each failure reading «Email, username, atau password belum cocok.»; nothing of the test is left behind."
     }
   ]
 }

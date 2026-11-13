@@ -28,7 +28,7 @@ export function kodeDariGalat(e: { code?: string; message?: string; details?: st
  * each has its sentence in hle.ts (`sertifikat.ganti.gagal.<kode>`). A guard (W222-K01) holds them to the migration.
  */
 export const KODE_GANTI_DB = [
-  "CERT_NOT_ALLOWED", "CERT_NOT_ISSUED", "CERT_REASON_REQUIRED", "CERT_NOTHING_CHANGED", "CERT_KEY_INVALID", "CERT_REPLACEMENT_INVALID",
+  "CERT_NOT_ALLOWED", "CERT_NOT_ISSUED", "CERT_REASON_REQUIRED", "CERT_NOTHING_CHANGED", "CERT_KEY_INVALID", "CERT_REPLACEMENT_INVALID", "CERT_HOLDER_DELETED",
 ] as const;
 export const KODE_GANTI = [...KODE_GANTI_DB, "TIDAK_DITEMUKAN", "LAYANAN_TIDAK_TERSEDIA"] as const;
 export type KodeGanti = (typeof KODE_GANTI)[number];

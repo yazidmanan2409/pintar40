@@ -1,13 +1,16 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { COOKIE_HADIR, COOKIE_SELESAI, opsiTanda } from "@/lib/tanda-keluar";
 import { supabaseServer } from "@/lib/supabase/server";
 import { keluarPerangkatIni } from "@/lib/keluar";
 import { appUrl } from "@/lib/env";
 import { tujuanInternal } from "@/lib/tujuan";
 import { TAUTAN_MASUK_CADANGAN } from "@/lib/aktivasi-kontrak";
+import { catatAkuntabilitas, normalPengenal } from "@/app/api/_akuntabilitas/catat";
+import { AKUN_TERKUNCI_LOG, akunTerkunci } from "@/lib/akun-terkunci";
+import { rujukan } from "@/lib/galat-kontrak";
 
 /**
  * WHAT THE SIGN-IN SCREEN IS TOLD, AND WHAT IT IS NOT.
@@ -80,6 +83,18 @@ export async function sendMagicLink(formData: FormData): Promise<HasilKirim> {
   // the identity exists: `kirimUlangDalam` from BOB-25's limit table, never a
   // per-address state (src/app/api/aktifkan/kode, src/lib/aktivasi.ts). This
   // screen keeps D2 whole: no countdown, no held state, one answer.
+  // B1 (execution requirement 2): a request for an address PINTAR does not know is one failed sign-in by link, holding
+  // only the governed hash of the address; sending a link to a known address is not a sign-in and writes nothing (the
+  // success is the callback's, when the link is used). Written before the answer, which stays the same either way.
+  if (error && tidakTerdaftar(error)) {
+    await catatAkuntabilitas(await headers(), "masuk/tautan", { jenis: "SIGN_IN_FAILED", cara: "LINK", hasil: "TAUTAN_TIDAK_TERDAFTAR", diketik: normalPengenal("nama", email) });
+  }
+  // AUTH CORRECTION (owner, 11 Nov): a locked account (suspended or closed) is told what everybody is told; only the
+  // server log says why, never with the address
+  if (error && akunTerkunci(error)) {
+    console.error(`[masuk/tautan] ref=${rujukan()} ${AKUN_TERKUNCI_LOG}`);
+    return "terkirim";
+  }
   if (!error || tidakTerdaftar(error) || terlaluSering(error)) return "terkirim";
   return "gagal";
 }
@@ -158,8 +173,11 @@ export async function tujuanMasuk(raw: unknown): Promise<string> {
 export async function keluarDariSesi(): Promise<void> {
   const supabase = await supabaseServer();
   await supabase.rpc("exit_persona");
+  // B1: who is signing out, read before the session ends (one event, after the sign-out, before the answer)
+  const { data: pengguna } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
   // this device only (D-009, BOB-05), exactly as /keluar
   await keluarPerangkatIni(supabase);
+  if (pengguna.user?.id) await catatAkuntabilitas(await headers(), "masuk/keluar", { jenis: "SIGN_OUT", hasil: "OK", authUserId: pengguna.user.id });
   // L3 (D-132(e)): marked as /keluar marks it, so the person signing in next carries nothing of this session
   const toples = await cookies();
   toples.set(COOKIE_HADIR, "", { path: "/", maxAge: 0 });

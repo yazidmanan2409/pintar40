@@ -203,7 +203,9 @@ export const tanggalTests: SelfTest[] = [
       c.expect(/<TanggalDenganGema id="pin-mulai" name="mulai" defaultValue=\{mulaiAwal\}/.test(siapkan) && /<TanggalDenganGema id="pin-sampai" name="sampai"/.test(siapkan),
         "Siapkan's «mulai» and «sampai» have no echo");
       const konf = kode(readFileSync(join(ctx.repoRoot, "src/app/konfigurasi/page.tsx"), "utf8"));
-      for (const [nama, n, jenis] of [["pm_mulai", 1, "datetime-local"], ["pm_selesai", 1, "datetime-local"], ["terbit", 1, "datetime-local"], ["sampai", 1, "datetime-local"], ["valid_until", 2, null]] as const) {
+      for (const [nama, n, jenis] of [["pm_mulai", 1, "datetime-local"], ["pm_selesai", 1, "datetime-local"], ["terbit", 1, "datetime-local"], ["sampai", 1, "datetime-local"],
+        // RESTATED, B0 (administrator lock-out protection): a third «valid_until», the renewal's new last day on «Peran & akses», echoed like the two before it
+        ["valid_until", 3, null]] as const) {
         const k = konf.match(new RegExp(`<TanggalDenganGema ${jenis ? `jenis="${jenis}" ` : ""}id="[^"]+" name="${nama}"`, "g")) ?? [];
         c.expect(k.length === n, `Konfigurasi's «${nama}» has ${k.length} echoed field(s), not ${n}`);
       }

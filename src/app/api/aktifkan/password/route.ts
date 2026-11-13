@@ -1,6 +1,8 @@
 import type { NextRequest } from "next/server";
 import { supabaseService } from "@/lib/supabase/service";
 import { periksaPassword, type AlasanPasswordLemah } from "@/lib/pengaturan-auth";
+import { AKUN_TERKUNCI_LOG, akunTerkunci } from "@/lib/akun-terkunci";
+import { rujukan } from "@/lib/galat-kontrak";
 import { jawab } from "../_jawab";
 import { detailPr040, mulaiWizard, tidakTersedia } from "../_wizard";
 
@@ -33,6 +35,12 @@ export async function POST(request: NextRequest) {
   const { error: galatIzin } = await layanan.rpc("password_write_permit", { p_auth_user: w.userId, p_purpose: "ACTIVATION" });
   if (galatIzin) {
     if (detailPr040(galatIzin) === "SETUP_NOT_REQUIRED") return jawab({ status: 409, body: { ok: false, code: "SETUP_SUDAH_SELESAI" } });
+    // L-1 (Sharon §6b): a person locked between the wizard's session check and this permit is given no password, and is
+    // answered as any locked person in the wizard is (their session has ended). Only the server log says why.
+    if (detailPr040(galatIzin) === "ACCOUNT_LOCKED") {
+      console.error(`[aktifkan] ref=${rujukan()} the ACTIVATION permit refused a locked (suspended or closed) account; answered as not signed in`);
+      return jawab({ status: 401, body: { ok: false, code: "BELUM_MASUK" } });
+    }
     return tidakTersedia("the password permit could not be given", galatIzin.code);
   }
   const { error } = await layanan.auth.admin.updateUserById(w.userId, { password });
@@ -42,6 +50,12 @@ export async function POST(request: NextRequest) {
     // person is signed straight back in here with the password just set; the
     // new session's cookies replace the ended one's on this response.
     const { error: galatMasuk } = await w.supabase.auth.signInWithPassword({ email: w.email, password });
+    // AUTH CORRECTION (owner, 11 Nov): a person locked (suspended or closed) in the meantime is answered as any locked
+    // person in the wizard is, their session having ended: not signed in. Only the server log says why.
+    if (galatMasuk && akunTerkunci(galatMasuk)) {
+      console.error(`[aktifkan] ref=${rujukan()} ${AKUN_TERKUNCI_LOG}`);
+      return jawab({ status: 401, body: { ok: false, code: "BELUM_MASUK" } });
+    }
     if (galatMasuk) return tidakTersedia("the new password did not sign the person back in", galatMasuk.code ?? String(galatMasuk.status ?? ""));
     return jawab({ status: 200, body: { ok: true } });
   }

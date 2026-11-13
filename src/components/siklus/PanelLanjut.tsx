@@ -20,12 +20,15 @@ export default function PanelLanjut({
   ringkasan,
   locale,
   persona,
+  catatan = null,
 }: {
   subjek: string;
   judul: string;
   posisi: Posisi;
   /** The step's own destination and what its button says. */
-  aksi: { href: string; labelKey: HleEvent } | null;
+  aksi: { href: string; labelKey: HleEvent; label?: string } | null;
+  /** A1: what the chapter's sitting adds (held, not counted, ended at its deadline, one more attempt); never a reason */
+  catatan?: string | null;
   /** The assignment's own page. */
   ringkasan: string;
   locale: Locale;
@@ -45,10 +48,11 @@ export default function PanelLanjut({
           : ""}
       </h2>
       <JejakSiklus posisi={posisi} locale={locale} />
+      {catatan ? <p data-catatan-bab="">{catatan}</p> : null}
       <div className="pin-actions">
         {aksi ? (
           <Link className="pin-btn pin-primary" href={aksi.href}>
-            {s(aksi.labelKey)}
+            {aksi.label ?? s(aksi.labelKey)}
           </Link>
         ) : null}
         {aksi?.href !== ringkasan ? (

@@ -433,6 +433,28 @@ export async function riwayatPenugasan(kelas: string): Promise<Map<string, { jen
     .map((r) => [r.learning_assignment_id, { jenis: r.jenis, pada: r.pada, alasan: r.alasan }]));
 }
 
+/**
+ * C1w (O41-11, Daisy C1-B2 and C1-R2): what the publisher has done to the release each of a class's assignments in
+ * force teaches, by the database's own read (keadaan_terbitan): still running, replaced by a published correction
+ * (with the day the correction was published and the line's newest package, where «Pindahkan penugasan» is), or
+ * stopped by the publisher. Only a release that is not running is returned; a refused read returns nothing.
+ */
+export type KeadaanTerbitanKelas = {
+  keadaan: "DIGANTIKAN" | "DIHENTIKAN_PENERBIT"; sejak: string | null; penggantiTerbit: string | null; kursusKepala: string | null;
+};
+export async function keadaanTerbitanKelas(tugas: readonly Penugasan[]): Promise<Map<string, KeadaanTerbitanKelas>> {
+  const c = await db();
+  const out = new Map<string, KeadaanTerbitanKelas>();
+  await Promise.all(tugas.filter((x) => x.status === "ACTIVE").map(async (x) => {
+    const { data, error } = await c.rpc("keadaan_terbitan", { p_learning_assignment: x.id });
+    const k = (error ? null : data) as { keadaan?: string; sejak?: string | null; pengganti_terbit?: string | null; kursus_kepala?: string | null } | null;
+    if (k && (k.keadaan === "DIGANTIKAN" || k.keadaan === "DIHENTIKAN_PENERBIT")) {
+      out.set(x.id, { keadaan: k.keadaan, sejak: k.sejak ?? null, penggantiTerbit: k.pengganti_terbit ?? null, kursusKepala: k.kursus_kepala ?? null });
+    }
+  }));
+  return out;
+}
+
 /** UX-37: what has already been made available to each of several classes, in one read. */
 export async function penugasanKelas(nodeIds: readonly string[]): Promise<Map<string, Penugasan[]>> {
   const out = new Map<string, Penugasan[]>(nodeIds.map((k) => [k, []]));

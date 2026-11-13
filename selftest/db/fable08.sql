@@ -609,10 +609,32 @@ begin
           'the bootstrap ran while an administrator existed: ' || coalesce(v_msg, '(accepted)'));
       else m_boot_denied := m_boot_denied + 1; end if;
 
-      -- (c) DAY ZERO, reached honestly: every active SYSTEM_ADMIN revoked
-      --     through the guard's own revocation path.
+      -- (c) DAY ZERO. RESTATED, B0 (administrator lock-out protection, migration 20270113170000): the guard's own
+      --     revocation path no longer reaches it -- the platform's last usable administrator role is revoked by
+      --     nobody -- so that refusal is asserted first, by its code; then the state itself, which is this test's
+      --     setup and not the behaviour under test, is made by the database owner with user triggers off for that
+      --     one statement. The bootstrap reads role_assignments and platform_bootstrap only, both as they then are.
+      declare v_b0_state text; v_b0_detail text;
+      begin
+        update public.role_assignments set revoked_at = now()
+         where role = 'SYSTEM_ADMIN' and revoked_at is null;
+        v_probs := selftest.f08_note(v_probs, 'F08-P07',
+          'every active SYSTEM_ADMIN was revoked through the guard: the last usable one was not refused');
+        raise exception using errcode = 'B0UND', message = 'undo';
+      exception
+        when sqlstate 'B0UND' then null;
+        when others then
+          get stacked diagnostics v_b0_state = returned_sqlstate, v_b0_detail = pg_exception_detail;
+          if v_b0_state <> 'PR160' or v_b0_detail is distinct from 'ROLE_LAST_PLATFORM_ADMIN' then
+            v_probs := selftest.f08_note(v_probs, 'F08-P07',
+              'revoking every active SYSTEM_ADMIN was refused as ' || v_b0_state || ':' || coalesce(v_b0_detail, '-')
+              || ', not PR160:ROLE_LAST_PLATFORM_ADMIN');
+          end if;
+      end;
+      set local session_replication_role = replica;
       update public.role_assignments set revoked_at = now()
        where role = 'SYSTEM_ADMIN' and revoked_at is null;
+      set local session_replication_role = origin;
       set local role service_role;
       begin
         if public.bootstrap_first_system_admin('f08-first-' || v_tag || '@local.invalid') <> v_first then
@@ -702,8 +724,12 @@ begin
       --     every SYSTEM_ADMIN there is -- the installation now has none at
       --     all -- and the door is still shut, because what closed it was the
       --     durable record of the act and not the existence of an admin.
+      --     RESTATED, B0: as in (c), the state is setup, made by the owner with user triggers off for the one
+      --     statement (the guard refuses it; asserted in (c)).
+      set local session_replication_role = replica;
       update public.role_assignments set revoked_at = now()
        where role = 'SYSTEM_ADMIN' and revoked_at is null;
+      set local session_replication_role = origin;
       select count(*) into n from public.role_assignments
        where role = 'SYSTEM_ADMIN' and revoked_at is null and now() < valid_until;
       if n <> 0 then

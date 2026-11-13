@@ -6,6 +6,7 @@ import { asalSendiri } from "@/lib/kartu-masuk";
 import { masukPassword } from "@/lib/aktivasi";
 import { tujuanMasuk } from "@/app/masuk/actions";
 import { jawab, kembaliKe } from "@/app/api/aktifkan/_jawab";
+import { catatAkuntabilitas, normalPengenal } from "@/app/api/_akuntabilitas/catat";
 
 /**
  * BOB-26: SIGN IN WITH AN EMAIL OR A USERNAME AND A PASSWORD, served at
@@ -16,6 +17,9 @@ import { jawab, kembaliKe } from "@/app/api/aktifkan/_jawab";
  *
  * The username is resolved here only (C9). Every failure is one code, counted
  * per account, and answered no sooner than a fixed floor (src/lib/aktivasi.ts).
+ *
+ * B1: once the answer is final, one event (src/app/api/_akuntabilitas/catat.ts): the account the name resolved to and, on a
+ * success, the user Auth signed in; never what was typed.
  */
 export const dynamic = "force-dynamic";
 
@@ -37,13 +41,16 @@ export async function POST(request: NextRequest) {
     return r;
   };
   const supabase = await supabaseServer({ fetch: fetchBerpenerus(alamatKlien(request.headers), rekam) });
+  let alamatAkun: string | null = null;
+  let masukSebagai: string | null = null;
   const hasil = await masukPassword(
     { origin, identitas: fd?.get("identitas"), password: fd?.get("password"), lanjut: fd?.get("lanjut") ?? null },
     {
       resolusi: async (identitas) => {
         const { data, error } = await layanan.rpc("signin_resolve", { p_identitas: identitas });
         if (error) throw new Error(error.code ?? "no answer");
-        return typeof data === "string" && data ? data : null;
+        alamatAkun = typeof data === "string" && data ? data : null;
+        return alamatAkun;
       },
       catat: async (kunci) => {
         const { data, error } = await layanan.rpc("identity_attempt", { p_scope: "PASSWORD_SIGNIN", p_kunci: kunci });
@@ -55,7 +62,8 @@ export async function POST(request: NextRequest) {
         if (error) throw new Error(error.code ?? "refused");
       },
       masuk: async (email, password) => {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        masukSebagai = error ? null : data.user?.id ?? null;
         return { error: error ? { status: error.status, code: error.code, name: error.name } : null, jeda };
       },
       keadaan: async () => {
@@ -68,5 +76,8 @@ export async function POST(request: NextRequest) {
       catatGalat: (ref, apa) => console.error(`[masuk/password] ref=${ref} ${apa}`),
     },
   );
+  await catatAkuntabilitas(request.headers, "masuk/password", hasil.body.ok
+    ? { jenis: "SIGN_IN_OK", cara: "PASSWORD", hasil: "OK", authUserId: masukSebagai }
+    : { jenis: "SIGN_IN_FAILED", cara: "PASSWORD", hasil: hasil.body.code, pengenal: alamatAkun, diketik: normalPengenal("nama", fd?.get("identitas")) || null });
   return jawab(hasil);
 }

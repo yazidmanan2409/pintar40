@@ -10,6 +10,8 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import PemilihKelas from "@/components/mengajar/PemilihKelas";
 import AkhiriPenugasan from "@/components/mengajar/AkhiriPenugasan";
+import UbahJadwal from "@/components/mengajar/UbahJadwal";
+import { kodePengerjaanDari } from "@/lib/pengerjaan-kontrak";
 import { kodePenugasanDari } from "@/lib/penugasan-kontrak";
 import Koleksi from "@/components/koleksi/Koleksi";
 import { halamanKoleksi, kueriDiminta, susunKoleksi } from "@/components/koleksi/aturan";
@@ -51,7 +53,7 @@ export default async function Kelas({
   searchParams,
 }: {
   params: Promise<{ kelas: string }>;
-  searchParams: Promise<{ sedia?: string; cari?: string | string[]; hal?: string | string[]; akhiri?: string; kode?: string; diakhiri?: string }>;
+  searchParams: Promise<{ sedia?: string; cari?: string | string[]; hal?: string | string[]; akhiri?: string; kode?: string; diakhiri?: string; jadwal?: string; jadwal_diubah?: string }>;
 }) {
   const { kelas: id } = await params;
   const sp = await searchParams;
@@ -87,6 +89,8 @@ export default async function Kelas({
   const punya = new Set(tugas.filter(ajar.masihBerlaku).map((x) => x.releaseId));
   const diakhiri = tugas.find((x) => x.id === sp.akhiri && x.status === "ACTIVE") ?? null;
   const pratinjau = diakhiri ? await ajar.pratinjauAkhiri(diakhiri.id) : null;
+  // A1: «Ubah jadwal», one lesson in force at a time (never a professional-learning class's here: the database refuses it)
+  const dijadwal = adaBuktiSoal(ctx.ini.jenis) ? tugas.find((x) => x.id === sp.jadwal && x.status === "ACTIVE") ?? null : null;
   const aktif = tugas.filter((x) => x.status === "ACTIVE" && !x.berakhir);
   // Daisy (435a2856, §1.1): the working list holds what a teacher can act on; what has ended or been withdrawn moves to
   // one closed disclosure below it, newest first, so a lesson withdrawn and offered again appears once up there
@@ -94,6 +98,8 @@ export default async function Kelas({
   const selesaiTugas = tugas.filter((x) => x.status === "ENDED" || x.status === "WITHDRAWN")
     .sort((p, q) => (riwayat.get(q.id)?.pada ?? "").localeCompare(riwayat.get(p.id)?.pada ?? ""));
   const judulMateri = (k: string) => k || s("mengajar.materi.tanpa_judul");
+  // C1w (Daisy C1-B2, C1-R2): a release the publisher stopped or replaced says so on its row, never «Ditarik»
+  const keadaanRilis = await ajar.keadaanTerbitanKelas(kerja);
 
   return (
     <>
@@ -202,6 +208,7 @@ export default async function Kelas({
           <p className="pin-sub">{s("mengajar.materi.sub")}</p>
           {/* DAISY-18: "Sediakan" lands here, beside the material it made available */}
           {sedia === "ok" ? <BarisHasil nada="ok">{s("mengajar.sedia.ok")}</BarisHasil> : null}
+          {sp.jadwal_diubah === "ok" ? <BarisHasil nada="ok">{s("jadwal.ok")}</BarisHasil> : null}
           {sp.diakhiri === "ok" || sp.diakhiri === "ditarik" ? <BarisHasil nada="ok">{s(sp.diakhiri === "ditarik" ? "mengajar.akhiri.ok_tarik" : "mengajar.akhiri.ok")}</BarisHasil> : null}
           {kerja.length === 0 && terbit.filter((r) => !punya.has(r.id)).length === 0 ? (
             <Kosong jenis="belum" kalimat={s("mengajar.materi.kosong")} />
@@ -216,13 +223,34 @@ export default async function Kelas({
                     {x.mulai ? <span>{s("mengajar.siap.mulai")} {tanggal(x.mulai, "hari", locale, zona)}</span> : null}
                     <span>{x.sampai ? `${s("mengajar.siap.sampai")} ${tanggal(x.sampai, "hari", locale, zona)}` : s("mengajar.siap.sampai.kosong")}</span>
                   </span>
-                  <span className={`pin-pill ${ajar.nadaMateri(ajar.statusMateri(x))}`}>{s(ajar.statusMateri(x))}</span>
+                  {/* a release the publisher stopped is not «Tersedia»: its row says what holds instead, neutral */}
+                  {keadaanRilis.get(x.id)?.keadaan === "DIHENTIKAN_PENERBIT" ? (
+                    <span className="pin-pill pin-neutral" data-rilis-dihentikan="">{s("mengajar.materi.dihentikan_penerbit")}</span>
+                  ) : <span className={`pin-pill ${ajar.nadaMateri(ajar.statusMateri(x))}`}>{s(ajar.statusMateri(x))}</span>}
+                  {keadaanRilis.get(x.id)?.keadaan === "DIGANTIKAN" ? (
+                    <span className="pin-meta" data-rilis-diperbaiki="">
+                      {s("mengajar.materi.ada_perbaikan").replace("{tanggal}", tanggal(keadaanRilis.get(x.id)!.penggantiTerbit ?? keadaanRilis.get(x.id)!.sejak, "hari", locale, zona))}
+                      {keadaanRilis.get(x.id)!.kursusKepala ? (
+                        <> · <Link className="pin-tautan" href={`/studio/paket/${keadaanRilis.get(x.id)!.kursusKepala}#koreksi`}>
+                          {s("mengajar.materi.pindahkan")}<span className="pin-sr"> · {judulMateri(x.kursus)}</span>
+                        </Link></>
+                      ) : null}
+                    </span>
+                  ) : null}
                   {/* W2.21: an assignment in force can be ended or withdrawn, on the record, from its own row */}
+                  <span className="pin-baris-tindakan">
                   {x.status === "ACTIVE" ? (
                     <Link className="pin-tautan" href={`/mengajar/${id}?akhiri=${x.id}#akhiri`} data-akhiri-buka={x.id}>
                       {s("mengajar.akhiri.buka")}<span className="pin-sr"> · {judulMateri(x.kursus)}</span>
                     </Link>
                   ) : null}
+                  {/* A1: its window can be changed, on the record, from the same row */}
+                  {x.status === "ACTIVE" && adaBuktiSoal(ctx.ini.jenis) ? (
+                    <Link className="pin-tautan" href={`/mengajar/${id}?jadwal=${x.id}#jadwal`} data-jadwal-buka={x.id}>
+                      {s("jadwal.buka")}<span className="pin-sr"> · {judulMateri(x.kursus)}</span>
+                    </Link>
+                  ) : null}
+                  </span>
                 </div>
               ))}
               {terbit
@@ -274,6 +302,8 @@ export default async function Kelas({
             </details>
           ) : null}
         </div>
+
+        {dijadwal ? <UbahJadwal kelasId={id} tugas={dijadwal} zona={zona} kode={kodePengerjaanDari(sp.kode)} locale={locale} /> : null}
 
         {diakhiri && pratinjau ? (
           <AkhiriPenugasan kelasId={id} tugas={diakhiri} pratinjau={pratinjau} kode={kodePenugasanDari(sp.kode)} locale={locale} />
