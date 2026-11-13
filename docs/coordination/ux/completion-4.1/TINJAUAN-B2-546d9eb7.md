@@ -1,6 +1,7 @@
 # B2's fix: one look (Daisy, 12 Nov 2026)
 
 > **What holds now:**
+> - **Defects, marked for anticipation (13 Nov):** `ANTISIPASI-4.1.md`, B2: 2, both anticipable.
 > - **PASS on `546d9eb75abb53d41523750e7134cc83889d1089`.** B2's one blocker (`TINJAUAN-B2-bfe949b1.md` §3) is corrected.
 > - My verdict on `bfe949b1` (BLOCKED) is superseded by this one.
 > - Everything else in that review stands as passed.

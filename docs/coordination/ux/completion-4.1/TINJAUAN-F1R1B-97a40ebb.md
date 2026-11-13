@@ -1,6 +1,7 @@
 # F1-R1b and L1-F4: UX result review (Daisy, 12 Nov 2026)
 
 > **What holds now:**
+> - **Defects, marked for anticipation (13 Nov):** `ANTISIPASI-4.1.md`: 6, all anticipable, 3 of them in my own wording; plus my verification error V-1.
 > - **F1-R1b: PASS on `97a40ebb0e52a2f0ba558418426f9fc5d71aca4b`.** Three small wording changes (§1c) ride the next commit that touches `hle.ts`. They do not block.
 > - **L1-F4: PASS on `ea3c4b6f1d10a2a01281f16e8cce893235bfbef2`** (an ancestor of the commit above, rendered as part of it). Two lines are adjusted (§2), also not blocking.
 > - **The English term is «Misunderstanding».** My three lines that said «misconception» are superseded in §1c.
