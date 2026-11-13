@@ -42,6 +42,21 @@ channel:
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
+### Work in parallel while the checkpoint is in flight (Chief Architect, 13 Nov 2026, 03:55 UTC; on the owner's question)
+
+**The bottleneck is one pipeline:** one engineer, one working tree, and about two hours per commit (the full local
+pre-flight, then CI and journeys, then review), all in series. While it runs, the other three of us mostly wait.
+None of the work below goes through that pipeline, and none of it needs a new authorization. **No gate changes.**
+
+| Who | Now, in parallel | Why it is safe |
+|---|---|---|
+| **Daisy** | (1) **A2a's and A2b's words and screens, at the design stage:** the class-scoped emergency stop and its lift, the status notice, A2b's reason list (D2) and "cannot finish before the window" (D4), using her three habits (search existing strings, where it renders, the neighbouring act). (2) The design note for **X-2** (a learner's old link after a key correction). (3) The inventory for Z's consistency pass (the «Pendataan» naming, X-1, X-3, X-4) | Words and notes only, on her branch. They are ready when the build starts, so the build does not wait for them and she does not find them after it |
+| **Sharon** | (1) **C3w's handling of learner personal information (R-3):** her five requirements turned into a checkable design, with the open question on common names. (2) The one-line test specifications for register items **F1R1B-R1** and **B2-R-S1**. (3) A2b's page, pre-build, when Second Eye pushes it | Design and specifications only. C3w is the batch with the longest lead (it also waits on the provider decision) |
+| **Second Eye** | While a pre-flight runs (scratchpad only, as now): **A2b's completion page**, answering the five questions, and the skeleton of the staging verification report. **After the boundary commit is fixed and frozen (below): the register corrections** F1R1B-R1, B2-R-S1, X-1, X-3, as small commits, up to three on one verification | Pages are not builds. The register corrections are approved work ("before Z") and independent of the checkpoint |
+| **Chief Architect** | The pull request's text and the verification report's structure, drafted now. **A frozen branch at the boundary commit for the pull request,** so the work branch can move on without widening it. The batch-close figures the owner asked for | The pull request then holds exactly the approved boundary, whatever is pushed afterwards |
+
+**Still held, unchanged:** A2a's build, until the checkpoint has passed all verification (owner).
+
 ### Review queue (as of 03:16 UTC, 13 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
@@ -377,3 +392,4 @@ correction cycles, without weakening any verification gates."* No gate is remove
 | 13 Nov 2026 (01:34 UTC) | Baseline completed with Daisy's record: nineteen defects on 12 Nov, all anticipable; question 1 (what else reads or writes this state) is the largest group |
 | 13 Nov 2026 (03:10 UTC) | Boundary candidate `55e7eed9573d7396973b48665cd9d67a048da5bf` pushed and read; with Sharon for the delta; runs in progress. Staging read: the scheduler's first run will end 5 overdue sittings in two synthetic test schools, none in the demonstration school |
 | 13 Nov 2026 (03:16 UTC) | Sharon BLOCKED the boundary candidate on one item: the checkpoint script leaves a job running and an account suspended if it stops midway. Second Eye: the clean-up, then the boundary commit. The Chief Architect's "no blocker" is corrected in the runbook (§3f) |
+| 13 Nov 2026 (03:55 UTC) | On the owner's question about the bottleneck: parallel work assigned to all four that does not pass through the engineer's pipeline (table above the review queue). No gate changes. Two options that would change a rule are with the owner |
