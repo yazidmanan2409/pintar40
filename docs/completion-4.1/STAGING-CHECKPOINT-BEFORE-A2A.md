@@ -375,7 +375,58 @@ not in the boundary (A2b's page and what follows).
 |---|---|---|
 | B2 · migration count, before the merge (read-only; one `select`) | 13 Nov 2026, 00:56 | `224`, `20270113160000`, `d11e89838ecb656c4ca5b06b18941316`: **as expected.** Staging is at 224 and its versions are the repository's first 224 |
 | **First runs of the scheduled jobs** (§3d; `evidence/staging/first-runs.sql`, one read) | 13 Nov 2026, 03:10 | **The closer's first run will end and score 5 sittings, all past their deadline, all in synthetic test schools:** 4 in «Sekolah Uji Kinerja (sintetis)» (deadline 16 Oct; answers kept) and 1 in «Sekolah Uji Daisy 885» (deadline 8 Nov; no answers). **None in the demonstration school or any other school.** The retention job's first run removes nothing (its table is created empty). For the owner, with the pull request |
-| B1 · preservation "before" | — | To be taken on the final boundary commit, just before the pull request |
+| B1 · preservation, **trial read** (the boundary's `preservation.sql` as committed; one `select`) | 13 Nov 2026, 05:05 | **It runs on staging's real data and completes.** Values in §4a. Staging holds 1,579 people, no suspension and no locked account; 5 sittings open, all 5 past their deadline (as the first-runs read said) |
+| B1 · preservation **"before", the one that counts** | — | **Taken when the owner says he is about to merge,** not earlier: every line fingerprints existing rows, so any use of staging between "before" and "after" would show as a difference. Staging is left alone from that reading until the checkpoint ends |
+
+### 4a · The trial preservation read (13 Nov 2026, 05:05 UTC; read-only)
+
+| Line | Value |
+|---|---|
+| cutoff | `2026-11-13 05:05:52.809699+00` |
+| audit_log watermark | `10675` |
+| state · migrations | `224 / 20270113160000; versions digest d11e89838ecb656c4ca5b06b18941316` |
+| state · pg_cron | `absent` |
+| state · triggers on auth.users | `4: on_auth_user_created, pintar_card_email_guard, pintar_email_correction_guard, pintar_password_write_guard` |
+| demo_roles | `4` |
+| demo_results | `10` |
+| demo_official | `10` |
+| demo_certificates | `3` |
+| demo_enrolments | `5` |
+| demo_courses | `1` |
+| demo_audit | `91 (6860)` |
+| demo_people | `bd41b3c9605519cffb916d0352b5148d` |
+| demo_accounts | `7deebf17f87ba3ee6bd192f776db01fb` |
+| results_outside_tests | `ee7d9479ba2f9b7301a2a6899e5d6319` |
+| official_outside_tests | `43f6cc69b6e8eee4854a46f88ebe0385` |
+| certificates_outside_tests | `e428cb7fc08e301b0f96864bf0487ea4` |
+| integrity_signals_outside_tests | `f6e7a4fa62ff7ff83d3e9cd7f36b76c7` |
+| management_decisions_all | `d41d8cd98f00b204e9800998ecf8427e` |
+| persons | `1579 4ff9a8e9c335eeb36501e8b532c8c76d` |
+| person_usernames | `100 072a88136a241be4d483bbdbce1a1b72` |
+| person_pins (without the hash) | `100 75532463e4f5b282c1b05b24b7e1762b` |
+| accounts | `1579 36f959dc32161dbb310e640dcf1cbd2f` |
+| auth users (id, email, locked, password digest) | `1579 9808cca705d476aa656784566961f5c2` |
+| auth users locked | `0` |
+| role_assignments | `99 c9e0d5c267798cb2e4974e829ea63a75` |
+| person_suspensions | `0 d41d8cd98f00b204e9800998ecf8427e` |
+| account_requests | `0 d41d8cd98f00b204e9800998ecf8427e` |
+| enrollments | `1488 fe0fdb6c3202026eefa950d87dab84fd` |
+| institutions | `27 40f65e668cb06bf743f3b7dc741e9d08` |
+| org_nodes | `175 1c11a3cd3707a935d6b0e0b8f81534d1` |
+| courses | `68 3aa3502ddcf4072be04c9b879c37db3e` |
+| plp_releases | `57 f74cdf425da54c86527c8593ec470d3d` |
+| items | `1388 ff2ffb825aabfdfc4fdd330da477b460` |
+| item_options | `5552 56370fd89dddf0543052c1b1ee4a4226` |
+| learning_assignments | `80 366c0b4108bf2460f994203ba6749b23` |
+| assessment_assignments | `182 f046bf7fb4c6d740b54bf7bc3ea30cdd` |
+| assessment_sessions ended at the cutoff | `1774 98de445e3f967fbfd6a212ecd034bd3a` |
+| assessment_results | `1774 5b39b5f16438efc7ae6a5f44f4265e14` |
+| official_results | `248 a5a87784bc98f9f91001646fa55ca119` |
+| certificates | `66 550c32200cbbd51a54c9e6385f468165` |
+| audit_log up to the watermark | `10421 4b9ec8c9379fd34f686097f8a70f0103` |
+| sittings open at this read | `5 0b1e1907a0e719afad143fabf7317636` |
+| of which past their deadline | `5` |
+| closed by the schedule since the cutoff | `0 d41d8cd98f00b204e9800998ecf8427e` |
 
 ## 5 · Log
 
@@ -395,3 +446,4 @@ not in the boundary (A2b's page and what follows).
 | 13 Nov 2026, 04:23 | Clean-up fix pushed at `a33c852877686bdd54353c63dfcd995e1c902110`. Boundary frozen at it on `promote/4.1-staging-checkpoint`; CI and journeys dispatched there by the Chief Architect, because the engineer's runs on that commit were cancelled by the next push. With Sharon for the clean-up delta |
 | 13 Nov 2026, 04:57 | `a33c852877686bdd54353c63dfcd995e1c902110`: CI green; journeys job B failed again on the port, with the reservation in place (re-run queued). Sharon BLOCKED on two small items (cancel or timeout; password recovery against preservation). My read adds a third (the app's build is never checked). One consolidated fix specified (§3h); Sharon asked to add to it before the build |
 | 13 Nov 2026, 05:00 | Sharon's final list recorded: her whole-script read, before any build. Second Eye builds to it in one commit |
+| 13 Nov 2026, 05:06 | Preservation query run on staging as a trial (read-only): it completes; values in §4a. The "before" that counts is taken when the owner is about to merge, and staging is left alone from then until the checkpoint ends |
