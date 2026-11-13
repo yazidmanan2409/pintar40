@@ -56,8 +56,16 @@ mkdirSync(join(OUT, "shots"), { recursive: true });
 
 // ── the record
 const hasil = { run: process.env.GITHUB_RUN_ID ?? "local", started: new Date().toISOString(), steps: [], ids: {} };
-const log = (s) => { console.log(s); if (SUMMARY) appendFileSync(SUMMARY, `${s}\n`); };
-const simpan = () => writeFileSync(join(OUT, "checkpoint-41.json"), JSON.stringify(hasil, null, 2));
+// NOTHING SECRET LEAVES THE RUN (Bob, 13 Nov): every line logged and the record saved pass through bersih(). A JWT, a
+// value under a key that names a token, key, password, PIN, card, cookie or secret, and a setting other than the three
+// timeouts are replaced by «redacted». The masks (::add-mask::) stay as a second guard for the log.
+const RAHASIA = /(access_token|refresh_token|provider_token|token|api_?key|apikey|secret|password|pin|card|kartu|cookie|authorization|hashed_token)/i;
+const bersih = (x) => String(x)
+  .replace(/eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/g, "«redacted»")
+  .replace(/"([A-Za-z_]+)"\s*:\s*("(?:[^"\\]|\\.)*"|\d+)/g, (m, k) => (RAHASIA.test(k) ? `"${k}":"«redacted»"` : m))
+  .replace(/\b(app\.settings\.[a-z_]+|jwt_secret)=\S+/gi, "$1=«redacted»");
+const log = (s) => { const b = bersih(s); console.log(b); if (SUMMARY) appendFileSync(SUMMARY, `${b}\n`); };
+const simpan = () => writeFileSync(join(OUT, "checkpoint-41.json"), bersih(JSON.stringify(hasil, null, 2)));
 const tutupi = (s) => { if (s) console.log(`::add-mask::${s}`); return s; };
 class Beda extends Error {}
 /** One step: PASS, RECORDED (no gate), or the first difference, which ends the run. */
@@ -73,7 +81,6 @@ async function langkah(id, judul, fn) {
     const detail = String(e?.message ?? e).split("\n")[0].slice(0, 400);
     hasil.steps.push({ id, judul, verdict: "DIFFERS", detail, ms: Date.now() - t0 });
     hasil.stopped = id;
-    for (const [n, pg] of halaman) await pg.screenshot({ path: join(OUT, "shots", `berhenti-${id}-${n}.png`), fullPage: true }).catch(() => {});
     hasil.halaman = Object.fromEntries([...halaman].map(([n, pg]) => { try { return [n, new URL(pg.url()).pathname]; } catch { return [n, "?"]; } }));
     log(`DIFFERS   ${id}  ${judul} :: ${detail}`);
     log(`STOPPED at ${id}: a result differs from the page. Material discrepancy: record it in the runbook and hold.`);
@@ -332,7 +339,7 @@ await langkah("3.1a", "PA suspends L, who has no account", async () => {
 let kartu, pin;
 await langkah("3.1b", "SA gives L a class card: hosted Auth inserts the user, and the account is locked at the first read", async () => {
   const r = await rute(SA.ctx, "/api/akun/aktivasi", { json: { mode: "CLASSROOM_CARD", person_id: hasil.ids.L } });
-  harus(r.status === 200 && r.body?.ok && r.body?.card, `the activation answered ${r.status} ${JSON.stringify({ ...r.body, card: undefined, pin: undefined }).slice(0, 200)}`);
+  harus(r.status === 200 && r.body?.ok && r.body?.card, `the activation answered ${r.status} ${String(r.body?.error ?? r.body?.code ?? "(no code)")}`);
   kartu = tutupi(String(r.body.card)); pin = tutupi(String(r.body.pin));
   const k = lKunci();
   hasil.ids.L_user = lUser();
@@ -342,7 +349,7 @@ await langkah("3.1b", "SA gives L a class card: hosted Auth inserts the user, an
 await langkah("3.2", "SA reissues L's card while L is locked (Auth's admin password write): the lock stays", async () => {
   const sebelum = lKunci();
   const r = await rute(SA.ctx, "/api/akun/kartu-kelas", { json: { person_id: hasil.ids.L, alasan: "HILANG" } });
-  harus(r.status === 200 && r.body?.ok && r.body?.kartu?.card, `the reissue answered ${r.status} ${JSON.stringify(r.body?.code ?? r.body).slice(0, 200)}`);
+  harus(r.status === 200 && r.body?.ok && r.body?.kartu?.card, `the reissue answered ${r.status} ${String(r.body?.code ?? "(no code)")}`);
   kartu = tutupi(String(r.body.kartu.card)); pin = tutupi(String(r.body.kartu.pin));
   const sesudah = lKunci();
   harus(sebelum === TERKUNCI && sesudah === TERKUNCI, `banned_until before ${sebelum}, after ${sesudah}`);

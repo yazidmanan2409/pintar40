@@ -5,8 +5,8 @@
 # HOW IT RUNS:
 #   * Dispatch only, from main, by the Chief Architect, AFTER the owner's merge and after staging.yml has finished.
 #   * It refuses to start while staging.yml is running, and says so. It also shares staging.yml's concurrency group.
-#   * It stops at the first result that differs from the page, and uploads its evidence (checkpoint-41.json, the
-#     screenshots) as an artifact.
+#   * It stops at the first result that differs from the page, and uploads its record, checkpoint-41.json, alone, as an
+#     artifact. No screenshot is uploaded. Every line it logs or saves is redacted of tokens, keys and settings first.
 #
 # ON STAGING'S EXISTING SECRETS ONLY. No credential is created, printed or passed to a person:
 #   * STAGING_SUPABASE_DB_URL: staging's session pooler. Item 1's scratch schema and job, item 2's lock, and every read.
@@ -122,6 +122,7 @@ jobs:
         if: ${{ always() }}
         with:
           name: staging-checkpoint-41
-          path: out/
+          # the record only: never a screenshot (a sign-in helper's failure screenshot could show a form)
+          path: out/checkpoint-41.json
           if-no-files-found: ignore
           retention-days: 90

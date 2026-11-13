@@ -31,8 +31,8 @@
       - The acts need credentials, and no credential passes through any person, so the workflow uses staging's
         existing secrets only.
       - Its step ids are this page's numbers.
-      - It stops at the first result that differs, and uploads its record (`checkpoint-41.json`, screenshots) as an
-        artifact.
+      - It stops at the first result that differs, and uploads its record, `checkpoint-41.json`, alone, as an
+        artifact. §3's "The workflow's record, field by field" says what that record holds.
   - The exact statement or request.
   - The result that passes.
 - **The stop rule:** a result that differs is a material discrepancy under the owner's rule (§6): stop, record it, hold.
@@ -132,6 +132,35 @@ select x.who, count(distinct a.id) as accounts,
   - One caveat, on SA and PA: the walks' own sign-in helper, which the workflow reuses, recovers a password that no
     longer matches. It does so by «Lupa password?» with the emailed code, as every walk does. That is the derived
     password again, not a new credential.
+
+### The workflow's record, field by field (what the artifact holds)
+
+The artifact `staging-checkpoint-41` (90 days) holds **one file, `checkpoint-41.json`**, and nothing else. It holds no
+screenshot: a sign-in helper's failure screenshot could show a form. The job log and its summary carry the same step
+lines as the record.
+
+**Every string written to the record, the log or the summary passes through one redaction first** (`bersih()` in the
+script). It replaces with «redacted»:
+- any JWT;
+- any value under a key that names a token, key, password, PIN, card, cookie, authorization or secret;
+- any `app.settings.*` or `jwt_secret` setting.
+
+The secrets the run handles are also masked in the log before use: the card and PIN, the derived passwords, and each
+access and refresh token.
+
+| Field | Holds | Never holds |
+|---|---|---|
+| `run`, `started`, `finished` | The Actions run id and two UTC instants | — |
+| `steps[]` | One entry per step: `id` (the page's number), `judul` (its title), `verdict` (`PASS`, `RECORDED`, `OWNER` or `DIFFERS`), `ms`, `detail` | — |
+| `steps[].detail` | What the step read or compared: counts, md5s of definitions, ids, `banned_until` values, the sign-in routes' refusals as status and `{ok, code}` (the per-request `ref` removed), the refresh's `error_code` alone, timings, and `akun_keadaan`'s answer for L and E (anonymised by then) | A card number or PIN, a password, a token, a cookie, an Auth response body (only the refresh's `error_code` is kept), any address, any setting other than the three timeouts |
+| `ids` | `jobid` (item 1's scratch job), `L`, `L_user`, `enrolment`, `request` (L's deletion request), `S` (S's person id, if 3.3b ran), `E`, `E_user`, `E_request` | An address or a name |
+| `timeouts` | `statement_timeout`, `lock_timeout` and `idle_in_transaction_session_timeout` for the five roles, the database and the server | Any other role or database setting. The read selects only these three by name |
+| `endpoint` | 6c's `n`, `p50` and `p95` in ms | — |
+| `refresh` | 3.5's `error_code` (`user_banned` or `refresh_token_not_found`) | — |
+| `passwordStep` | `OWNER` when 3.3b went to the owner; absent otherwise | — |
+| `directUnreachable` | Set when 2a could not reach the direct host and used the session pooler | — |
+| `transactionControl` | `FAILED` when 1f failed because of transaction control (A2a held) | — |
+| `stopped`, `halaman` | The step it stopped at, and each actor's page path at that moment (for example `/pendataan`) | The page's content |
 
 ### A · The promotion itself
 
