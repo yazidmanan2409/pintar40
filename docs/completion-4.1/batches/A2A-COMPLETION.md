@@ -218,6 +218,38 @@ lock of a person or an account after the fence) is this test's rank rule, not a 
 **It is built first, as its own change** (working rule 5: verification tooling never travels with a product
 change). It is green or red on `main`'s code before any of A2a's product changes is made.
 
+**What a prototype of the engine found on `main`'s code** (13 Nov, the local stack at `a6b47466`; the prototype is a
+scratch script, not committed):
+- It read 745 functions; 61 lock one of the ranked tables, directly or through what they call or fire.
+- Their lists match the order L1-F2 and L1-F4 set. For example:
+  - `tangguhkan_akun`: persons → `auth.users` → accounts → sittings;
+  - `aktifkan_kembali_akun`: persons → suspensions → `auth.users` → accounts.
+- The two plants were caught: a function locking accounts then persons, and a weaker-then-stronger lock on one person.
+  Both were dropped afterwards.
+- **Two reports, one cause:** Auth's password write fires `auth_password_write_guard` while holding the `auth.users`
+  row. On an email recovery with the recovery ladder at level 3, that guard calls `recovery_restore_core` →
+  `audit_write(…, recovery_assist_school(…))` → `sekolah_memegang`, which takes the person `FOR UPDATE`. That is
+  **`auth.users` → persons, against the order.**
+  - **Not reached today:** `recovery_assist_school` first filters on `current_person_id()`. Auth's own connection
+    carries no PINTAR person, so no row passes, and `sekolah_memegang` is not called. But only the planner's order of
+    evaluation makes that so; SQL does not guarantee it.
+  - **The second report is a false positive:** `hapus_data_pribadi` updates `auth.users`, but it never changes the
+    password, so the guard returns at once. That is a branch the engine reads together with the rest: a declared
+    exception, with that reason.
+  - **The sweep for siblings** (rule 3):
+    - `sekolah_memegang` has four other callers, `authorize_account_activation`, `authorize_card_conversion`,
+      `authorize_card_reissue` and `authorize_email_correction`;
+    - each takes the person `FOR UPDATE` through it before anything else, so in order;
+    - none upgrades a weaker lock;
+    - the only other dynamic SQL naming these tables is `assemble_session` (sittings only), declared.
+  - **The smallest fix, proposed for Sharon's ruling and not built:** `recovery_assist_school` answers null at once
+    when `current_person_id()` is null, before it can reach `sekolah_memegang`. It returns exactly what it returns
+    today (null), so the account lifecycle's behaviour does not change. It only makes "no lock without a person" a
+    guarantee rather than a plan.
+- **One rule added to the test from the sweep:** a weaker lock followed by a stronger one on the same table (`FOR
+  SHARE`, then `FOR UPDATE` or an `UPDATE`) fails. Two such transactions on one row deadlock with each other. Today
+  there are none.
+
 ### 7 · Acceptance evidence (working rule 1: named before building)
 
 | What proves it | Who runs it | With what access | Where |
