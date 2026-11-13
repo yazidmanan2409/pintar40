@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2a change A, result review of the frozen commit | **PASS**; both deviations accepted; note: `20270118100000`'s header "Not reached today" is wrong (page and register) | `2cea0564dcc12bede2e3ab3cb63236fce4d0b89e` | `A2A-CHANGE-A-RESULT-2cea0564.md` |
 | Change A row 4 after the race | My pairing was wrong (the unique successor slot serialises two recomputes); a real cycle remains (recompute against `hitung_ulang_koreksi_kunci` on a corrected sitting): the fix stands, race only if the fixture is cheap | page `33a97fa45b7086a9330290a6575615325808000b` | `A2A-CHANGE-A-ROW4-33a97fa4.md` |
 | Change A: the 76 reports | Rows 3 and 4 fixed in A (row 3 is an order breach without a live counterpart; row 4 is real); row 13 one exception plus a caller condition; row 11 register; rows 7 to 9 in C1's own commit; converges | page `4530849f68778ab9afe0f5e7b861fcc13c3070d3` | `A2A-CHANGE-A-76-4530849f.md` |
 | Permit's foreign key on auth.users; the convergence rule | Not real in PINTAR (no delete or FOR UPDATE of auth.users; akun_kunci NO KEY UPDATE; person first): declared with three checked conditions, register only. Convergence accepted, except A2a's own objects block and exceptions are named | page `fffaded0e21f7ca6517c6215b9f22f4d766509bd` | `A2A-CHANGE-A-PERMIT-KEY.md` |
