@@ -51,6 +51,7 @@ import { m4Tests } from "./m4.test";
 import { adm06Tests } from "./adm06.test";
 import { m9Tests } from "./m9.test";
 import { adm19Tests } from "./adm19.test";
+import { a2aL01Tests } from "./a2a-l01.test";
 import { adm02Tests } from "./adm02.test";
 import { adm09Tests } from "./adm09.test";
 import { d088iTests } from "./d088i.test";
@@ -2167,6 +2168,7 @@ export const staticTests: SelfTest[] = [
   ...adm06Tests,
   ...m9Tests,
   ...adm19Tests,
+  ...a2aL01Tests,
   ...adm02Tests,
   ...adm09Tests,
   ...d088iTests,

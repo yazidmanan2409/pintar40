@@ -6129,6 +6129,11 @@
       "id": "B1-A04",
       "runner": "app",
       "proves": "B1 correction (cross-module checks 2b and the deleted-person presentation), selftest/b1-layar.test.ts, through the running app's routes and its rendered html (route /konfigurasi/catatan-masuk): a staff member of Alpha suspended, then closed, each sign-in attempt (the suspended account with the right and a wrong password; restated for the auth correction, owner 11 Nov) one SIGN_IN_FAILED row answered and recorded exactly as a wrong password (401 MASUK_TIDAK_COCOK), never one naming the account's state, the person and Alpha's snapshot, read by Alpha's admin and not Beta's; after hapus_data_pribadi an attempt with the old address names no one (the platform admin's only) and the person's rows hold no origin and no hash; Alpha's admin and the platform admin read them under the PINTAR ID with no origin, each failure reading «Email, username, atau password belum cocok.»; nothing of the test is left behind."
+    },
+    {
+      "id": "A2A-L01",
+      "runner": "static",
+      "proves": "A2a's page §6 (the owner's decision after the 4.0 look-back; Sharon's catalogue test, with her early read of 7b3b3d31): every function and procedure in public, every trigger function in its R2 starting state, and Auth's own writes of auth.users, read from the catalogue (no list of names, so A2a's and A3's functions fall under it), take their row locks (directly; through what they call, in evaluation order; through the triggers their writes fire, in Postgres's order; and, R1, through foreign keys, cascades and upserts from pg_constraint) in the order persons → account_requests → person_suspensions → auth.users → accounts → password_write_permits → the fence → maintenance_windows → sittings, with no upgrade and, B1, no row of any table before the fence but ranks 1 to 6; declared exceptions and dynamic SQL each carry their reason; R3, the per-writer report equals the committed selftest/a2a-l01-laporan.txt; five plants inside the test's own rolled-back transaction must each be reported first."
     }
   ]
 }
