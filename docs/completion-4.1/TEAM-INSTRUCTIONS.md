@@ -102,6 +102,26 @@ What is known from the repository, before any measurement:
      commit and must agree line for line. Sharon reviews that one commit.
    - It is tooling, not product: it does not enter the checkpoint's boundary.
 
+**The measurement (Second Eye, from the run that began 03:30 UTC on 13 Nov), and the decision.**
+
+| Step | Minutes |
+|---|---|
+| Lint, typecheck, build-identity | about 0.7 |
+| Reset and build | about 1.3 |
+| Whole suite | about 9 |
+| 175 plants | about 4 |
+| **11 red-case groups** | **more than 14 and still running;** it resets the stack again and again |
+
+- **The pre-flight is not sixty even minutes. One step is more than half of it:** the red-case groups, run one
+  after another, each with its own reset. CI runs the same eleven side by side.
+- **Decision (Chief Architect): parallelise the red-case groups only.** Static checks alongside the reset would save
+  under a minute, and the plants about three: not worth a change. The safeguards above stand: groups that touch
+  roles or the scheduler stay in series; the same 11 of 11; one side-by-side run that agrees with the serial run;
+  its own commit after the boundary commit; Sharon reviews it.
+- **Settled for A2b's page (Second Eye's question): extend gets its own function,** so the refusal of an EMERGENCY
+  window lives in one place. Condition, from question 1: it is then the **only** writer of a planned window's end
+  time apart from the listed ones, the older path refuses that change, and it is in A2a's writer enumeration.
+
 ### Review queue (as of 03:16 UTC, 13 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
@@ -441,3 +461,4 @@ correction cycles, without weakening any verification gates."* No gate is remove
 | 13 Nov 2026 (03:57 UTC) | Owner's rulings on elapsed time recorded: focused local checks for documentation-only commits (full CI and journeys kept); no push before a green pre-flight, so review moves earlier to the design, with a carried patch as a preliminary read when useful; the pre-flight's independent parts to be measured, then run side by side where safe |
 | 13 Nov 2026 (03:59 UTC) | Sharon, in parallel (`claude/gracious-lamport-0m1qjr` at `59298a19ad2cd37993fc31e24b81c3dfb8ee9cfd`): **C3w R-3 as a checkable design** (`C3W-R3-DESIGN.md`: five controls, seven red-first tests, and a proposal on common names: block identifiers, a visible learner's full name and anything shaped like a list of people; pass a lone given name in prose; the rule must prove itself on real material or go to the owner); **test specifications for F1R1B-R1 and B2-R-S1** (`REGISTER-TESTS-F1R1B-R1-B2-R-S1.md`), ready for Second Eye after the boundary commit. The common-names rule interprets an owner's ruling, so it is put to the owner at C3w's design review, with its evidence |
 | 13 Nov 2026 (04:00 UTC) | Daisy, in parallel (`ux-1/daisy-experience` at `b5cde1ab7dc19bf9bc05297874fb3cb437126b8a`): **A2a's and A2b's words at the design stage** (`A2-KATA-DESAIN.md`); **X-2's design note**, which corrects what X-2 is (register row corrected in place); **Z's consistency inventory** (`Z-KONSISTENSI-INVENTARIS.md`, Z-1 to Z-5). For Sharon: X-2's guard, and Z-4's question whether an audit row's old wording is kept. For Second Eye, later: A2b's D8 deletes the fixed «WIB» string; on an emergency, «Lainnya»'s free text is shown to every affected learner |
+| 13 Nov 2026 (04:01 UTC) | Pre-flight measured: the 11 red-case groups are more than half of it. Decision: parallelise those only, after the boundary commit, with the safeguards recorded. Second Eye's clean-up fix is local at `a33c852877686bdd54353c63dfcd995e1c902110`, on its last pre-flight step. A2b's page and the verification report's skeleton are drafted in his scratchpad |
