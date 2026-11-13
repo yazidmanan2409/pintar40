@@ -30,6 +30,8 @@ Verdicts given before 12 Nov 10:00 UTC were relayed by the owner and are recorde
 
 ## Standing rule I check in every review from here
 
+- **The owner's principle (13 Nov):** every defect in a result review is marked "could reasonably have been anticipated" or not, with the question that would have caught it (Q1 readers and writers; Q2 opposite and neighbouring act; Q3 locks; Q4 before and after; Q5 who checks, with what access). The baseline for 12 Nov is `ANTICIPATION-2026-11-12.md`.
+
 - **Lock order: the person row before any account row**, on every path, directly or through an L1-F4 guard. A path
   that takes an account row and then the person row is a cycle with the suspending act (`tangguhkan_akun`,
   `minta_akun`, then `akun_kunci`). Applies to the L1-F2 delta, L1-F4's change, A2a and A3.
