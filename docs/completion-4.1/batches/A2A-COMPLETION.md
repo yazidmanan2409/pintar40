@@ -64,6 +64,8 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
+**PRE-FLIGHT GREEN on `2cea0564dcc12bede2e3ab3cb63236fce4d0b89e` (23:38 UTC, once):** lint, typecheck, build-identity 11/11; the whole suite on a fresh reset and fresh build, 1151 passed, 0 failed (1 justified local skip); 175/175 plants proved their gate; all 11 red-case groups passed.
+
 **Sharon PASSED change A at `2cea0564`** (`A2A-CHANGE-A-RESULT-2cea0564.md` at `3d708613`; both deviations accepted). The Chief Architect has opened the PR and dispatched the journeys on that SHA. Second Eye's one full pre-flight is running on exactly that commit.
 
 **State at 22:45 UTC: CHANGE A IS FROZEN at `2cea0564dcc12bede2e3ab3cb63236fce4d0b89e`** (the Chief Architect, 22:44).
