@@ -122,7 +122,7 @@ What is known from the repository, before any measurement:
   window lives in one place. Condition, from question 1: it is then the **only** writer of a planned window's end
   time apart from the listed ones, the older path refuses that change, and it is in A2a's writer enumeration.
 
-### Review queue (as of 05:09 UTC, 13 Nov; updated at each check)
+### Review queue (as of 06:17 UTC, 13 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
@@ -144,9 +144,9 @@ What is known from the repository, before any measurement:
 | ~~**Sharon**~~ | ~~L1-F2's fix: the delta~~ **Done: PASS** on `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`; the foreign-key point answered (none reachable) | — | her record on `claude/gracious-lamport-0m1qjr` at `156382f908a70618f6c899aca0ffa3a42bf1a315` |
 | ~~**Second Eye**~~ | ~~L1-F2's blocker~~ **Fix pushed** at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` | — | — |
 | ~~**Sharon**~~ | ~~A2a's page with her four changes~~ **Done: carried** at `3c46d521a27ae87627d590363b973f5dd7c7c7a3`. **A2a is not built** | — | her branch at `3ad40227b14aee30d8513c5627b7b56c1da0cf79` |
-| **Second Eye** | **Build the corrected checkpoint script to Sharon's final list, one commit,** without the journeys retry (dropped). It will be pull request 2, on a branch from `main` after the promotion; do not push it to the work branch before I say where. **On hold: the red-case parallelisation.** Nothing else is pushed to the work branch until the checkpoint closes, except documentation Sharon or Daisy is waiting for | — | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3h, §3i; Sharon's `CHECKPOINT-FINAL-LIST-a33c8528….md` |
+| **Second Eye** | **Part 2: the corrected checkpoint script, one commit, to Sharon's final list, on a branch from `main` at `40ca971ff0d7fd4009a9b822616ee21091027f6a`** (the merge of pull request 19; its tree equals the boundary). Only the script, its workflow, its page and `preservation.sql`. Full pre-flight; push that branch; tell the Chief Architect its hash and stop: he dispatches its CI and journeys. The work branch is restarted from `main` for what is not yet merged (A2b's page) | — | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3h, §3i, §4 |
 | **Sharon** | **One confirmation, now:** does your block on `a33c852877686bdd54353c63dfcd995e1c902110` bear on the promotion itself (the migrations, the rollback, the preservation query), or only on dispatching the checkpoint script? In writing, on your branch. Then the confirmation of the corrected script against your list, when it is pushed | `a33c852877686bdd54353c63dfcd995e1c902110` | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3i |
-| **Daisy** | After the promotion, if a browser can reach staging: one look at the promoted screens (B1's reader, B2's print, the key-correction screens). No action before then | after the merge | `STAGING-CHECKPOINT-BEFORE-A2A.md` §2 step 11 |
+| **Daisy** | **Staging is at 244 now.** If a browser can reach it: one look at the promoted screens (B1's reader, B2's print, the key-correction screens), **reading only: create, change and print nothing with a reference** until part 2 is done. Say which build the app shows, if you can see it | staging | `STAGING-CHECKPOINT-BEFORE-A2A.md` §4 |
 
 ### For Second Eye, from Daisy's review of `97a40ebb…` and `ea3c4b6f…` (non-blocking; one commit, with L1-F2 or sooner)
 
@@ -468,3 +468,4 @@ correction cycles, without weakening any verification gates."* No gate is remove
 | 13 Nov 2026 (04:57 UTC) | Boundary not yet fixed: one consolidated fix specified in the runbook §3h (Sharon's two items, the app-build check, journeys job B's retry). Sharon reviews the list **before** the build. A2b's page: Sharon PASS on the design with three points (`A2B-PREBUILD-ec09e82e….md`) |
 | 13 Nov 2026 (05:09 UTC) | The promotion and the acting checks are separated (runbook §3i). Pull request 1 is `a33c852877686bdd54353c63dfcd995e1c902110` exactly. The corrected script follows as pull request 2. Red-case parallelisation on hold; no workflow or procedure changes until the checkpoint closes (owner) |
 | 13 Nov 2026 (05:36 UTC) | **Pull request 19 opened: the staging promotion at `a33c852877686bdd54353c63dfcd995e1c902110`** (runbook §3i, §4). Not merged; the merge is the owner's. Second Eye: the corrected script to Sharon's list, for pull request 2. A2a held until part 2 passes. **Nobody uses staging once the owner says he is about to merge, until told.** Also: the owner approved in principle a more autonomous GitHub arrangement, to be implemented only after this checkpoint closes |
+| 13 Nov 2026 (06:17 UTC) | **Staging promotion PASSED (part 1).** Pull request 19 merged by the owner; staging at 244; every read-only check as expected; preservation equal on every line (runbook §4). Part 2: the corrected script as pull request 2, from `main`. **A2a held until part 2 passes** |

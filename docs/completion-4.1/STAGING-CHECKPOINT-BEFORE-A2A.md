@@ -61,6 +61,7 @@ everything after it is verification.
 | 9 | Addendum 1 §5b items 1 to 6 (section 3 below) | As section 3 says | After 8 |
 | 10 | Preservation "after": every value equal to "before" | Chief Architect | After 9 |
 | 11 | The staging verification report, on the work branch; Sharon's verdict on it; Daisy's look at the promoted screens if a browser can reach staging | Second Eye; Sharon; Daisy | After 10 |
+| 8-10 | *(13 Nov: part 1, the promotion and its read-only verification, PASSED; see §4. Steps 9's acting checks and step 11 are part 2.)* | | |
 | 12 | **If every item passes: A2a is released for implementation under its existing gates** (owner's words). Recorded here and in `TEAM-INSTRUCTIONS.md` | Chief Architect | After 11 |
 
 On step 6: **explicitly authorized by the owner (§0 item 3a).** *(Superseded, kept: the Chief Architect's own reading
@@ -450,6 +451,23 @@ request template in the repository; the read-only readings.
 | **CI on pull request 19** | 13 Nov 2026, 06:06 | Run `43373122173` (started by opening the pull request): **success** on `a33c852877686bdd54353c63dfcd995e1c902110`. A second, independent green CI run on the exact commit |
 | **B1 · preservation "BEFORE", the one that counts** | 13 Nov 2026, 06:09 | **Cutoff `2026-11-13 06:09:13.421929+00`; audit watermark `10675`.** Every line is identical to the trial read of 05:05 (§4a), so §4a's values are the "before" values. Staging was untouched in that hour. `main` and the frozen branch unchanged. **The owner is cleared to merge** |
 
+| **THE MERGE** | 13 Nov 2026, 06:10 | The owner merged pull request 19. `main` is `40ca971ff0d7fd4009a9b822616ee21091027f6a` (a merge commit). **Its tree is identical to the boundary commit's** (`9d7d4731bf3fb5ade30959b034380780f33c4ece`) |
+| **The acting workflow disabled** | 13 Nov 2026, 06:11 | Disabled by the owner 37 seconds after it was indexed. **Read independently by the Chief Architect: `state: disabled_manually`**, no runs |
+| **`staging.yml`** | 13 Nov 2026, 06:10 to 06:11 | Run `43376883788`: **success.** The 20 migrations applied; its own count and sign-in checks passed |
+| A1 · migrations | 06:12 | `244`, `20270117200000`, digest `1f41d1a48f39e5544ba5d88b79b463d8`: **as expected** |
+| A2 · `pg_cron` (**a stop condition**) | 06:12 | **Installed, version 1.6.4.** The hosted project accepted it |
+| 1a, 1b · the jobs (**a stop condition**) | 06:12 | `pintar-akuntabilitas-buang-lama` once (`17 19 * * *`) and `pintar-pengerjaan-tutup-terjadwal` once (`*/5 * * * *`); commands as declared; role `postgres`, database `postgres`, active; `cron.timezone` `GMT`; no other job. **As expected** |
+| 1c · the health read (**a stop condition**) | 06:12 | `ok` true, `pg_cron` true, `hilang`, `berbeda` and `tidak_dideklarasikan` each empty. **Clean** |
+| 3a · the triggers on `auth.users` (**a stop condition**) | 06:12 | **Five, all enabled: `on_auth_user_created`, `pintar_kunci_tetap_jaga`, and the three guards. Combined definitions digest `5 c72efdfe64954caf38c5ca55bd7786a6`, equal to the repository's.** The hosted project permits them |
+| 3a · the link lock on `accounts` | 06:12 | `_l1f2_accounts_terkunci`, enabled, digest `11db10649d6009f6876bfe724e8aa15a`, equal to the repository's. L1-F4's guards: 32 |
+| 4a · privileges on the `auth` schema | 06:12 | The definers' owner (`postgres`) holds every one of the six: all `true` |
+| 2c · timeouts (recorded, not gated) | 06:12 | `anon`: statement 3 s. `authenticated`: statement 8 s. `authenticator`: statement 8 s, lock 8 s. `postgres`, `service_role`: none set. **For A2a's design: lock timeout × retries + the activation's own work must stay under 8 s** |
+| 6b · the hook's time, after | 06:13 | 200 calls: p50 0.034 ms, **p95 0.046 ms**, max 0.106 ms. **Sharon's gate p95 ≤ 1 ms: met.** *The "before" figure was not taken: the Chief Architect omitted that pre-merge step. The second gate, after ≤ before + 0.5 ms, holds for any "before", because "after" is itself under 0.5 ms. Sharon is asked to accept that reasoning or say otherwise* |
+| State | 06:12 | No suspension, no locked account, no accountability row yet |
+| 1d · the scheduler's first run | 06:15 | `pintar-pengerjaan-tutup-terjadwal`: **succeeded** at 06:15:00, on schedule. No failed run |
+| **Preservation "AFTER"** (cutoff `2026-11-13 06:09:13.421929+00`, watermark `10675`) | 06:16 | **Every preserved line (20 to 62) is identical to "before"**: the demonstration school's six counts and its audit count, all fingerprints of people, accounts, Auth users, roles, enrolments, institutions, courses, items and options, assignments, ended sittings, results, official results, certificates, and the audit log up to the watermark. **The three state lines moved as intended:** migrations 224 to 244; `pg_cron` absent to installed 1.6.4; triggers on `auth.users` 4 to 5. **The sittings lines moved exactly as predicted:** open 5 to 0; "closed by the schedule since the cutoff" 0 to 5, with the same digest (`0b1e1907a0e719afad143fabf7317636`) as the five that were open, so they are those five and no others |
+| **PART 1 · THE PROMOTION** | 13 Nov 2026, 06:17 | **PASSED.** No stop condition met; no discrepancy. Staging is released for ordinary use until part 2's own preservation pair. **Not verified by the Chief Architect, who has no tool for it:** that Vercel has deployed the staging app at the merge commit. Part 2's script checks it mechanically; Daisy's look at the promoted screens will also show it. **A2a remains held until part 2 passes** |
+
 ### 4a · The trial preservation read (13 Nov 2026, 05:05 UTC; read-only)
 
 | Line | Value |
@@ -524,3 +542,4 @@ request template in the repository; the read-only readings.
 | 13 Nov 2026, 05:15 | Owner accepts manual disabling of the acting workflow right after the merge, subject to Sharon confirming the safeguards; the Chief Architect verifies the disabled state before any further step. Journeys re-run still in progress |
 | 13 Nov 2026, 05:36 | All conditions for pull request 1 met; opened as number 19 at `a33c852877686bdd54353c63dfcd995e1c902110`. Waiting for the owner: he says when he is about to merge, the "before" reading is taken, he merges and disables the acting workflow, the Chief Architect verifies it reads disabled, then the read-only verification |
 | 13 Nov 2026, 06:09 | Pull request 19's own CI green (`43373122173`). Preservation "before" taken: cutoff `2026-11-13 06:09:13.421929+00`, watermark `10675`, every line equal to §4a. Owner cleared to merge |
+| 13 Nov 2026, 06:17 | **Part 1 passed.** Pull request 19 merged by the owner at 06:10; acting workflow verified disabled; `staging.yml` green; 244 migrations; `pg_cron` 1.6.4 with both jobs and a clean health read; five triggers on `auth.users` with the repository's definitions; preservation equal on every line; the scheduler closed exactly the five predicted sittings. Part 2 (the corrected script, pull request 2) next. A2a held |
