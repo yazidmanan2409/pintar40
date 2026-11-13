@@ -1,48 +1,65 @@
 # A2a · Emergency containment and class scope for the emergency (completion page, before build)
 
-## State of change A (13 Nov, 21:30 UTC; kept here so that nothing depends on a session's memory)
+## State of change A (13 Nov, 20:57 UTC by `date -u`; kept here so that nothing depends on a session's memory)
 
 **Branches:**
 - `claude/a2a`: this page.
-- `claude/a2a-change-a`: change A, built on `main` at `a6b47466`. Its head is `c446030c`.
-- `claude/a2a-nokey` (`289d4865`): the reference for the deferred register item "the person `FOR NO KEY UPDATE`".
-  It is left exactly as it is and never merged.
+- `claude/a2a-change-a`: change A, built on `main` at `a6b47466`. Its head is `a1e85ee3`.
+- `claude/a2a-nokey` (`289d4865`): the deferred register item's reference. It is left as it is (the Chief Architect will
+  not delete it) and never merged.
 - `claude/a2a-l01` (`d748ef05`): superseded, left as it was pushed.
 
-**The commits of change A:**
-1. `f09da528`: A2A-L01, the lock-order catalogue test, its plants and its report. Red on `main`, recorded.
-2. `d9bad797`: Auth's recovery password write no longer waits on a person (migration `20270118100000`). A2A-L02 is
-   its two-connection proof.
-3. `96f3c308`: a sitting is written after its learner (migration `20270118110000`). It covers `finalize_session` and
-   nine siblings. A2A-L03 is its two-connection proof.
-4. `40753420`: three defects in A2A-L01's engine. Verification tooling only.
-5. `c4d53975`: the class-level declared exceptions: `audit_write` (one exception, one assertion), new `auth.users`
-   rows, and the window functions ("pending B1", removed in C).
-6. `c446030c`: the same-row re-locks, declared one by one. Each names its variable and carries a condition on the
-   writer's own lock list.
+**Commits** (new commits only; no amend, no rewrite):
+1. `f09da528`: A2A-L01, the lock-order catalogue test. Red on `main`, recorded.
+2. `d9bad797`: Auth's recovery password write no longer waits on a person. Proof: A2A-L02.
+3. `96f3c308`: a sitting is written after its learner, in ten functions. Proof: A2A-L03.
+4. `40753420`: three engine defects.
+5. `c4d53975`: the class-level exceptions (`audit_write`, new `auth.users` rows, the window functions).
+6. `c446030c`: the same-row re-locks, declared one by one.
+7. `a1e85ee3`: C2, on the engine.
+   - `enrollments` is ranked immediately after `persons`.
+   - Tables in a WHERE sub-select are no longer lock targets.
+   - An under-report is fixed: writes after a PL/pgSQL word (`begin`, `then`, …) were not read.
 
-**What is green, and what is red:**
-- **Green:** A2A-L02 and A2A-L03, each red with its plant; the two migration pins at 246; typecheck and lint.
-- **Red:** A2A-L01, with 3 breaches (232 before the exceptions). The 3 are **a new finding, not fixed**: "The
-  permit's key on `auth.users`", below.
-- No full pre-flight has been run.
+**Sharon's ruling on commits 3 and 4** (`A2A-CHANGE-A-C3C4-40753420.md` at `dbbf7fde`):
+- Nine of the ten commit-3 lines are accepted, along with A2A-L03 and commit 4.
+- C1 and C2 are required.
+- She makes two additions to the exceptions, both listed under "What is open" below.
+
+**What is green:**
+- A2A-L02 and A2A-L03, each red with its plant.
+- The pins at 246.
+- Typecheck and lint.
+
+**What is red, and why:**
+- A2A-L01 has **76 breaches**, listed in `selftest/a2a-l01-c2-daftar.txt`. They come from commit 7's reading, which sees more than before, and they are **not yet read**. They include:
+  - `akhiri_pendaftaran`'s enrolment before its person, which is C1;
+  - `transfer_minta` and `transfer_request` (the transfer's enrolment key before its person key), and `import_advance`
+    and `handle_new_auth_user` (new rows): all from C1's sweep;
+  - `hitung_ulang_koreksi_kunci` under `finalize_session` (a person after the sitting);
+  - the account lifecycle reaching `auth_password_write_guard` through `akun_kunci`'s `auth.users` update, which does not
+    change the password;
+  - `schedule_maintenance`, the window class;
+  - upgrades on new enrolments (`tempatkan_murid`, `transfer_execute`);
+  - the permit finding (3 breaches).
+
+**What is open:**
+- **C1:** not built.
+  - `akhiri_pendaftaran` is to read the enrolment's person without a lock, then lock the person `FOR UPDATE`, then the
+    enrolment, re-checking that it names the same person.
+  - Proof: a race against `kenaikan_tetapkan` or `transfer_execute`, red on `main`, with a plant.
+  - The sweep comes first. `daftarkan_kembali` does not appear: it takes the person before its enrolment writes.
+- **C2's one-off list,** for reading: not yet produced.
+- **Sharon's two additions:**
+  - **Why no lifecycle act takes a persona `FOR UPDATE` while its evaluation session is open.** `audit_write`'s key
+    names the evaluator, not the persona. The persona's act holds only the persona's rows and the rows it acts on.
+    This page still has to say why no act on the evaluator takes one of those rows.
+  - **(C) cannot freeze while the window functions' "pending B1" exception stands.**
 
 **Waiting on whom:**
-- **Sharon:** her ruling on commit 3, which changes the locking of ten functions. No more product code is changed in
-  change A until she has read it.
-- **The Chief Architect and Sharon:** the new finding. Fix it in change A, declare it, or carry it.
-- **The Chief Architect:** the freeze of change A. There is no pre-flight and no dispatch before it.
-
-**RELEASED FOR IMPLEMENTATION, 13 Nov 2026.**
-- Sharon wrote **PART 2 ACCEPTED** (`PART2-VERDICT.md` on `claude/gracious-lamport-0m1qjr` at `2c90d178`). The staging
-  checkpoint is closed, and the Chief Architect released A2a.
-- `main` is at `a6b47466d3f8242b2740f81c186a5cb0f341eac0`; staging serves it at 244.
-- **Not built yet.** This revision is for Sharon's early read, before code. It adds the section below,
-  "Before the build: what the checkpoint settled, and the design constraints". Everything after that section is the
-  reviewed design, unchanged, with Sharon's four required changes.
-
-*(Superseded: "Not built. This page is for Sharon's pre-build review only. A2a does not start until the owner has
-considered the staging checkpoint.")*
+- **Sharon:** the permit finding.
+- **Second Eye:** C1 and C2's reading, in a fresh session (this one is at its context limit).
+- **The Chief Architect:** the freeze, under the convergence rule. There is no pre-flight and no dispatch before it.
 
 ## Before the build: what the checkpoint settled, and the design constraints
 
