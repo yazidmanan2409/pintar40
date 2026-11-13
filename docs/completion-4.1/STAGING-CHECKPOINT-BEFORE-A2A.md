@@ -395,6 +395,22 @@ after the merge). She passed the migrations' evidence, the rollback file and the
 - **Condition:** Sharon confirms in writing that her block does not bear on the promotion itself. If she says it
   does, this is withdrawn and the owner is told.
 
+**Sharon's confirmation (05:11 UTC; `CHECKPOINT-SPLIT-CONFIRMATION-a33c852877686bdd54353c63dfcd995e1c902110.md`,
+`claude/gracious-lamport-0m1qjr` at `8d68a5f9`):** her block concerns only dispatching the checkpoint script and
+**does not bear on the promotion.** Pull request 1 at that commit, with read-only verification, is not blocked by
+her. Four conditions:
+1. **The script is made unrunnable, not merely left undispatched:** the workflow is disabled in Actions right after
+   the merge, before anything else, and that is recorded in §4. *The Chief Architect has no tool that disables a
+   workflow, so, as she requires, the owner is told before the merge: it is one action of his in the Actions page.*
+2. The journeys re-run finishes green on that commit before the pull request is opened. A runner fault on the re-run
+   is not a pass.
+3. The read-only checks keep their stop rule. Two are material: `pg_cron` installed with both jobs once each and a
+   clean health read; and the five triggers on `auth.users` with matching definitions.
+4. Part 1 passes the promotion, not the checkpoint. A2a stays held until part 2's acting checks pass.
+
+For part 2: its own preservation pair with a cutoff after part 1; its end-of-run build check compares against part
+2's own commit.
+
 **Before pull request 1 is opened, all of:** the journeys re-run green on `a33c852877686bdd54353c63dfcd995e1c902110`
 (in progress; its stack started, the walk is running); Sharon's confirmation above. Already done: CI green on it;
 scope against `main` (20 migrations, 213 files, no request file, no `supabase/config.toml`, a clean merge); no pull
@@ -479,3 +495,4 @@ request template in the repository; the read-only readings.
 | 13 Nov 2026, 05:00 | Sharon's final list recorded: her whole-script read, before any build. Second Eye builds to it in one commit |
 | 13 Nov 2026, 05:06 | Preservation query run on staging as a trial (read-only): it completes; values in §4a. The "before" that counts is taken when the owner is about to merge, and staging is left alone from then until the checkpoint ends |
 | 13 Nov 2026, 05:09 | Decision (§3i): the promotion goes as pull request 1 at `a33c852877686bdd54353c63dfcd995e1c902110` with read-only verification; the acting checks follow as pull request 2 with the corrected script. Sharon asked to confirm her block does not bear on the promotion |
+| 13 Nov 2026, 05:11 | Sharon confirmed in writing: her block does not bear on the promotion. Four conditions recorded (§3i). Waiting only on the journeys re-run before pull request 1 is opened |
