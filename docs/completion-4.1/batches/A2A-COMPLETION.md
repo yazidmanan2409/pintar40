@@ -1,7 +1,158 @@
 # A2a · Emergency containment and class scope for the emergency (completion page, before build)
 
-**Not built. This page is for Sharon's pre-build review only.** A2a does not start until the owner has considered
-the staging checkpoint (Addendum 1, condition 3; TEAM-INSTRUCTIONS.md, "What may close without the owner").
+**RELEASED FOR IMPLEMENTATION, 13 Nov 2026.**
+- Sharon wrote **PART 2 ACCEPTED** (`PART2-VERDICT.md` on `claude/gracious-lamport-0m1qjr` at `2c90d178`). The staging
+  checkpoint is closed, and the Chief Architect released A2a.
+- `main` is at `a6b47466d3f8242b2740f81c186a5cb0f341eac0`; staging serves it at 244.
+- **Not built yet.** This revision is for Sharon's early read, before code. It adds the section below,
+  "Before the build: what the checkpoint settled, and the design constraints". Everything after that section is the
+  reviewed design, unchanged, with Sharon's four required changes.
+
+*(Superseded: "Not built. This page is for Sharon's pre-build review only. A2a does not start until the owner has
+considered the staging checkpoint.")*
+
+## Before the build: what the checkpoint settled, and the design constraints
+
+### 1 · The closer is a committing procedure that cron `CALL`s, proven on hosted staging
+
+D6.6 stands as designed: `pengerjaan_tutup_terjadwal` becomes a procedure that commits per small batch, with the shared
+fence inside each batch. The installer's job text changes from `select …` to `call …`.
+- **Proven on hosted staging this morning** (Part 2, row 4; `docs/completion-4.1/checkpoint/PART2-EVIDENCE.md` on
+  `claude/bob-41-master-plan`). One scheduled run of `CALL _probe_p2.p()` finished `succeeded`, message `CALL`. It wrote
+  three rows in three transactions, in order (xids 77402, 77403, 77404). The scratch objects were then removed:
+  `0 0 0 0`.
+- *(Superseded: "Depends on checkpoint item 1" in D6.6's row, and the section "What A2a depends on that is not yet
+  proven", below.)*
+
+### 2 · The fence is taken only inside the database (Sharon's ruling, Part 2 row 5)
+
+**The condition.** The fence (D6.1: a transaction-level advisory lock) is taken only inside database functions,
+reached through PostgREST (an RPC) or `pg_cron` (the closer's `CALL`). It is never taken by a client through the
+transaction pooler (port 6543), and never by the app's own code.
+- **Why that suffices:** each PostgREST RPC, and each of the closer's batches, is one transaction in the database. A
+  transaction-level lock then lives exactly as long as the decision it fences, whatever pool the request came through.
+- **What the app is today:** `src/` holds no database driver, no pooler address and no `pg_advisory` call. It reaches
+  the database only through Supabase's client, which is PostgREST. Read on `a6b47466`.
+
+**Built as one fence function**, so there is one place to read:
+- `public.pagar_darurat(p_eksklusif boolean)`, `security definer`. It sets its own lock timeout (§3) and takes
+  `pg_advisory_xact_lock` (exclusive) or `pg_advisory_xact_lock_shared` on one fixed key.
+- Every fenced decision calls it as the first lock of its transaction, apart from the person → accounts locks of
+  required change 3.
+
+**The test, A2A-F01 · "the fence is taken only inside the database":**
+1. **From the catalogue:**
+   - exactly one function's definition takes an advisory lock on the fence key: `pagar_darurat`;
+   - every function and procedure that calls `pagar_darurat` is one of three kinds: an RPC (`EXECUTE` granted to
+     `authenticated`, never to `anon`), the closer procedure, or a trigger function on a table that clients write only
+     through such RPCs;
+   - none of them is granted to `anon`.
+2. **From the repository:**
+   - no file under `src/` imports a database driver (`pg`, `postgres`), names a pooler address or port (`:6543`,
+     `pooler.supabase.com`), or calls `pg_advisory`;
+   - no migration takes an advisory lock on the fence key outside `pagar_darurat`.
+3. **Plants:**
+   - a second function taking the fence key directly turns it red;
+   - so does an advisory-lock call added under `src/`.
+
+It runs in the static and database runners, locally and in CI. No hosted run is needed: the hosted half is
+PostgREST's and `pg_cron`'s own transaction model, and row 4 proved `pg_cron`'s.
+
+### 3 · The hosted timeouts are design constraints, with the arithmetic
+
+**Read on staging at Part 1** (item 2c):
+
+| Role | `statement_timeout` | `lock_timeout` |
+|---|---|---|
+| `authenticated` | 8 s | (none: the session's applies) |
+| `authenticator` | 8 s | 8 s |
+| `anon` | 3 s | — |
+
+An RPC runs as `authenticated` on `authenticator`'s session. So **a whole fenced call must finish in 8 s**, and the
+session's default lock wait (8 s) would use all of it. Hence:
+- **The fence function sets its own `lock_timeout`, never the session's.** The value depends on which side takes it:
+
+| Who takes the fence | Mode | `lock_timeout` | Attempts | Worst wait | Its own work under the fence | Worst total | Under 8 s by |
+|---|---|---|---|---|---|---|---|
+| The activation (`stop_pintar_now`) | exclusive | 1.5 s | 3, with 100 ms between, each in a subtransaction (`lock_not_available` is caught) | 3 × 1.5 + 2 × 0.1 = **4.7 s** | the window row, `T_stop`, the audit row: budget **0.5 s**; the marking runs after, in its own batches (D6.7) | **5.2 s** | **2.8 s** |
+| The lift (fenced, through `change_maintenance … 'AKHIRI'` and the lift action) | exclusive | 1.5 s | 3 | 4.7 s | `T_lift`, the window's end, the audit row: 0.5 s | 5.2 s | 2.8 s |
+| A protected decision (D6.2's table) | shared | 2 s | 1 | 2 s | its own work, as today: the slowest, `finalize_session`, budget 1 s | 3 s | 5 s |
+| The closer, each batch (`pg_cron`, as `postgres`: no role timeout) | shared | 2 s | 1; a batch that waits longer is left for the next run, and the skip is counted (R1) | 2 s | one small batch | — | not bound by 8 s |
+
+- **The exclusive side holds the fence only for its own work** (≤ 0.5 s). So a shared taker's real wait is that, not
+  its 2 s limit.
+- **When the activation gets no fence** after three attempts, it refuses with the designed line: «Penghentian belum
+  berlaku. Tidak ada yang dihentikan.» (THE PLAN §5.3 F). The lift refuses with Daisy's «Penghentian belum diakhiri.
+  Tidak ada yang berubah. Coba lagi.»
+- **When a shared taker gets no fence,** it refuses with its own code in A1's domain: the act is retried, never
+  half-done.
+- **Measured, not assumed:**
+  - the activation's and the lift's work under the fence is timed in the scale job (scenario 8, 50,000 sittings), and
+    must stay under 0.5 s;
+  - the stop's wait on the fence is measured there as well.
+  - A result over budget comes back to this page before the freeze.
+- **No fenced function is granted to `anon`** (3 s), as A2A-F01 asserts.
+
+### 4 · The five questions, for the state A2a touches
+
+The state: `maintenance_windows` (the new `node_ids`; `ended_at` for an emergency); the sitting's deadline, its held
+state and its two causes; the fence; the closer's selection; and the audit rows.
+
+1. **What else reads or writes it?**
+   - Readers: every reader of a window's schools (required change 1's table), the request hook, the status read, the
+     pause page and the banner.
+   - Writers: the writer enumeration (required change 4), from the catalogue, with triggers and dynamic SQL included.
+   - Also: the closer (cron); the suspension and the reinstatement (A1's held state, D6.5); the enrolment, transfer and
+     promotion paths (O1, M-1); and the response trigger.
+2. **The opposite and the neighbouring act:**
+   - stop and lift;
+   - stop twice, lift twice (scenario 9: no second audit row);
+   - a second stop before the release (scenario 5);
+   - a suspension during a stop, and a reinstatement during it (scenario 6, D6.5);
+   - `change_maintenance … 'AKHIRI'` on an emergency, which goes through the fenced lift (condition 1);
+   - a PLANNED window with a class (refused by the CHECK);
+   - a teacher of the stopped class who also teaches another class: stopped there too, because the emergency is
+     person-level (R-1). Daisy's line says so on the form and on the pause page.
+3. **Which locks, in what order, and who else takes them:**
+   - **person → accounts → fence → sittings in id order** (required change 3);
+   - the fence is exclusive for the activation and the lift, shared for the protected decisions and each of the
+     closer's batches;
+   - the hook takes no lock;
+   - the rule: no transaction holding the fence asks for a person or an account row afterwards (a structural test,
+     and B6 on two connections).
+4. **How "before" is told from "after":**
+   - `T_stop` and `T_lift` are read with `clock_timestamp()` under the exclusive fence;
+   - the protection read is a later statement at READ COMMITTED, after the fence, so it sees every committed stop;
+   - a decision that passed its fence before the stop is "before", and its write stands (scenario 7);
+   - the marking and the release are idempotent and resumable (D6.7, scenario 9).
+5. **Who runs each check, with what access, and where it renders:**
+   - the database runner (as `postgres`, two real connections through `selftest/balapan.ts`) for B1 to B6, the
+     ordering and the enumeration;
+   - the static runner for A2A-F01;
+   - the dedicated scale job for scenario 8;
+   - CI and journeys on the frozen commit for "stop one class during Uji Penguasaan, lift it, and the class finishes
+     with the time it had";
+   - Daisy's screens at 390 and 320 px (her list in `A2-KATA-DESAIN.md`): the form in Konfigurasi, `/pemeliharaan`,
+     and the list row.
+   - On hosted staging: nothing new. Row 4 has already shown `pg_cron`'s `CALL`, and no staging write is planned in
+     A2a.
+
+### 5 · Daisy's words (`A2-KATA-DESAIN.md` on `ux-1/daisy-experience` at `b5cde1ab`)
+
+Carried into `src/lib/hle.ts`, in Indonesian and English, exactly as she wrote them:
+
+| Her section | Where it renders | What is built |
+|---|---|---|
+| A1 · the emergency form | Konfigurasi › «Pemeliharaan dan pengumuman» › «Hentikan sekarang» (Admin PINTAR) | «Satu kelas atau lebih»; the class list after one school is chosen; the person-level hint; the impact sentence in its class form ({n} counts everyone the stop reaches, the classes' teachers included) |
+| A2 · the node refusal | the form's result line, `role="alert"` | `galat.maintenance_node_invalid`, one line for the four causes (required change 2's designed code) |
+| A3 · the pause page | `/pemeliharaan` | «PINTAR dihentikan sementara untuk kelas {kelas}»; the other-class line, only where true; `.arti` for a class |
+| A4 · the lift | the maintenance list | the row «Dihentikan · kelas …»; «Akhiri penghentian» behind `KonfirmasiBahaya`; the confirmation; the result line; the refused lift |
+| A5 · the status read | `pintar_status_saya` | the class's people only; no banner; nobody else in the school sees anything |
+
+- **Her check for the page:** a failed status read is never taken as "no stop". The open player keeps its existing
+  behaviour on a failed read, and the next request shows the pause page.
+- A2b's sections (B1 to B3) are A2b's.
+
 **Source:** THE PLAN §5.3 (A2), Addendum 1 §5a (the split and Sharon's three conditions), §5b (the checkpoint) and
 §5d R-1 (planned maintenance is work-scoped), on `claude/bob-41-master-plan` at
 `e8a3996925ba46539125dc8e8cd5706fb6703695`. Code read on `claude/system-integrity-4.0` at
@@ -144,7 +295,7 @@ The design text is THE PLAN §5.3 D6, unchanged. This table says where A2a build
 | D6.3 · One time rule | The effective deadline moves by exactly the protected interval: the own deadline changed; a window-timed sitting's shift recorded beside it and added where its closing time is read; no grace created where A1 gives none; an `EXPIRED` sitting inside its grace protected without being held. `pengerjaan_jaga` allows exactly the release's transition | `pengerjaan_tenggat_efektif`, the deadline decider, `pengerjaan_jaga` |
 | D6.4 · Overlapping and successive stops | The protected interval as the union of the person's active EMERGENCY windows; release once, at the last lift; a pending release applied before a second hold | the release rule |
 | D6.5 · Suspension holds | The held state carries both causes; `pengerjaan_ditahan` answers yes for either; the lift removes the emergency hold only | A1's held state, extended (no second system) |
-| D6.6 · The scheduled closer | A procedure committing per small batch, the shared fence inside each; selection excludes protected and held sittings in the query and uses the shifted closing time. The job text `select …` → `call …`; A1-S08, A1-S09 and the DR tests restated with notes | `pengerjaan_tutup_terjadwal`; the shared installer. **Depends on checkpoint item 1** (a `pg_cron` job may `CALL` a committing procedure) |
+| D6.6 · The scheduled closer | A procedure committing per small batch, the shared fence inside each; selection excludes protected and held sittings in the query and uses the shifted closing time. The job text `select …` → `call …`; A1-S08, A1-S09 and the DR tests restated with notes | `pengerjaan_tutup_terjadwal`; the shared installer. ~~**Depends on checkpoint item 1**~~ *(proven on hosted staging: §1 above)* |
 | D6.7 · Marking and release | Bounded batches, sittings in id order, `SKIP LOCKED`, idempotent, resumable; first touch releases by the same rule | new marking and release procedures |
 | D6.8 · Failure behaviour | No half-stop; retried marking and release give identical outcomes; a failed lift leaves the stop in force | activation and lift |
 | D6.9 · Audit | One row at effect (`T_stop`), one when marking completes, one at the lift (`T_lift`, released, left held); each O1 refusal audited; enrolment terminations keep their ordinary record | `audit_log` |
@@ -214,6 +365,9 @@ the dedicated 50,000-sitting scale job are all A2a's. **Added by this page:** th
 condition 1's fence test on `ended_at`, and the writer enumeration.
 
 ## What A2a depends on that is not yet proven
+
+*(Superseded, 13 Nov: both items are settled. Item 1 is proven on hosted staging (§1 above, Part 2 row 4). Item 2 is
+accepted by construction under Sharon's condition, stated and tested in §2, with the timeouts in §3. Kept as written.)*
 
 - **Checkpoint item 1** (Addendum §5b): a `pg_cron` job may `CALL` a procedure that commits between batches. D6.6
   needs it. If it does not hold on hosted staging, the closer needs a different shape, and this page comes back to
