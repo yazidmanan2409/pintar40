@@ -231,6 +231,23 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 - **The impact analysis names, for every column and table touched, its constraints and the baseline invariant that
   governs it** (`docs/rebuild/03-PINTAR-INVARIANTS.md`), not only the callers and readers.
 
+### The owner's principle (13 Nov 2026), for everyone
+
+> **Think thoroughly before building. Build carefully. Verify rigorously.** All three matter. None replaces the
+> others. The objective isn't to eliminate mistakes entirely; that's unrealistic. It's to stop making mistakes we
+> could reasonably have anticipated.
+
+Why, in the owner's words: prevention is often considerably cheaper than cure. At roughly one hour per commit, every
+foreseeable defect caught during planning saves a correction and verification cycle.
+
+What it means in practice:
+- **Think:** the five questions below are answered on the page before a build, and in every brief.
+- **Build:** unchanged. Red first; one concern per commit; the full pre-flight before every push.
+- **Verify:** unchanged. Both reviewers on the exact commit, CI, journeys, the boundary check. **Thinking earlier
+  removes no check.**
+- **How we will know:** at each result review, a defect is marked "could reasonably have been anticipated" or not,
+  with which of the five questions would have caught it. The count is reported to the owner at each batch's close.
+
 ### Five questions the design review answers before a build (Chief Architect, 13 Nov 2026; on the owner's question)
 
 The owner asked whether we anticipate as well as we detect. On 12 Nov we did not: six defects were found after the
@@ -332,3 +349,4 @@ correction cycles, without weakening any verification gates."* No gate is remove
 | 13 Nov 2026 (00:56 UTC) | Checkpoint evidence at `d8db82bde8d7a47e9936a34fd21686ca11adb472`: Sharon PASS. One more commit owed before the pull request (`STAGING-CHECKPOINT-BEFORE-A2A.md` §3c): her two lines, and a dispatched workflow for the acting steps, because no credential passes through any of us. Staging read: 224 migrations, as expected |
 | 13 Nov 2026 (01:16 UTC) | On the owner's question about anticipating problems: five questions added to the existing design review ("Before any correction is built"). Not a new gate. They apply first to A2a's build and to every brief |
 | 13 Nov 2026 (01:18 UTC) | Owner: apply the five questions rigorously, without weakening any gate. First use: the checkpoint itself (`STAGING-CHECKPOINT-BEFORE-A2A.md` §3d). Second Eye: three more items in the boundary commit |
+| 13 Nov 2026 (01:31 UTC) | The owner's principle recorded for everyone: think thoroughly before building, build carefully, verify rigorously; none replaces the others. At each result review, defects are marked anticipable or not, and the count is reported at each batch's close |
