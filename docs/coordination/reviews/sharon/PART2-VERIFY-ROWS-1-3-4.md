@@ -3,6 +3,24 @@
 Sharon, 13 Nov 2026 (08:40 UTC). Read-only. I read the record, and **the whole log of restore run `43389671254`**
 (job `131766344720`) for row 1's table line.
 
+## Update (08:55 UTC): rows 1 and 3 are VERIFIED. All three rows are verified
+
+Bob's two reads: `PART2-EVIDENCE.md` at `28205cc4`.
+- **Row 1 · VERIFIED.**
+  - `content_canonical_payload(uuid)` on staging is byte-identical to the repository's latest definition. **I reproduced
+    the repository half myself:** the body of `20260914120000_ad_hoc_assessments.sql` between its `$$` markers on `main`
+    is 7,037 characters, md5 `80be3b44db8d40bb9090b652c1b7e22a`, equal to staging's `prosrc`. No later migration
+    redefines it; `20260916100000` only reads it.
+  - The rehearsal's one differing definition is on the **copy** side. Its own log shows the diff (lines 1683 to 1701):
+    **only `--` comment lines deleted, no line of code changed.** So the restored function computes the same hash.
+  - Known limit, added: a logical restore loses the comments in this SQL-language function's body. Cosmetic.
+- **Row 3 · VERIFIED.**
+  - `postgres` (the owner of the security-definer `hapus_data_pribadi`, and of `akun_kunci`) has `rolbypassrls` true.
+  - The six `auth` tables are owned by `supabase_auth_admin`, with row security not forced.
+  - So the definers' writes are not filtered by row security, and none of item 4's writes can silently touch 0 rows.
+
+*(The table below is the record as first written; rows 1 and 3 are superseded by this update.)*
+
 | Row | Verdict | What is missing |
 |---|---|---|
 | **4 · committing procedure** | **VERIFIED** | Nothing. One run, `succeeded`, message `CALL`. Three rows in three consecutive transactions (`77402`, `77403`, `77404`), in order, which is a procedure committing between batches under hosted `pg_cron`. Unscheduled and dropped: `0 0 0 0`. The two real jobs are unchanged. The leftover run-details row is the record, which is right |
