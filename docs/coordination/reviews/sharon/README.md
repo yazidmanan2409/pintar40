@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Change A: the 76 reports | Rows 3 and 4 fixed in A (row 3 is an order breach without a live counterpart; row 4 is real); row 13 one exception plus a caller condition; row 11 register; rows 7 to 9 in C1's own commit; converges | page `4530849f68778ab9afe0f5e7b861fcc13c3070d3` | `A2A-CHANGE-A-76-4530849f.md` |
 | Permit's foreign key on auth.users; the convergence rule | Not real in PINTAR (no delete or FOR UPDATE of auth.users; akun_kunci NO KEY UPDATE; person first): declared with three checked conditions, register only. Convergence accepted, except A2a's own objects block and exceptions are named | page `fffaded0e21f7ca6517c6215b9f22f4d766509bd` | `A2A-CHANGE-A-PERMIT-KEY.md` |
 | A2a change A, commits 3 and 4 (early read) | Commit 3 accepted except C1: `akhiri_pendaftaran` takes the person before the enrolment row (an inherited enrolment→person cycle against promotion and transfer); commit 4 accepted with C2: rank `enrollments` after persons | `40753420c997c5e830fed683f64d9cf450cf2101` | `A2A-CHANGE-A-C3C4-40753420.md` |
 | A2b early read of the page | NO BLOCKER in the design; the page must carry my three points plus the corrected lock order, A2b's change_maintenance edit on A2a's B1 form, and a rule-1 evidence table | `d711d4b266c4f1457ee8f70ac6859b299cd4c38c` | `A2B-EARLY-READ-d711d4b2.md` |
