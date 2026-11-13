@@ -1,10 +1,10 @@
 # A2a · Emergency containment and class scope for the emergency (completion page, before build)
 
-## State of change A (13 Nov, 20:40 UTC; kept here so that nothing depends on a session's memory)
+## State of change A (13 Nov, 21:30 UTC; kept here so that nothing depends on a session's memory)
 
 **Branches:**
 - `claude/a2a`: this page.
-- `claude/a2a-change-a`: change A, built on `main` at `a6b47466`. Its head is `40753420`.
+- `claude/a2a-change-a`: change A, built on `main` at `a6b47466`. Its head is `c446030c`.
 - `claude/a2a-nokey` (`289d4865`): the reference for the deferred register item "the person `FOR NO KEY UPDATE`".
   It is left exactly as it is and never merged.
 - `claude/a2a-l01` (`d748ef05`): superseded, left as it was pushed.
@@ -16,21 +16,21 @@
 3. `96f3c308`: a sitting is written after its learner (migration `20270118110000`). It covers `finalize_session` and
    nine siblings. A2A-L03 is its two-connection proof.
 4. `40753420`: three defects in A2A-L01's engine. Verification tooling only.
+5. `c4d53975`: the class-level declared exceptions: `audit_write` (one exception, one assertion), new `auth.users`
+   rows, and the window functions ("pending B1", removed in C).
+6. `c446030c`: the same-row re-locks, declared one by one. Each names its variable and carries a condition on the
+   writer's own lock list.
 
 **What is green, and what is red:**
 - **Green:** A2A-L02 and A2A-L03, each red with its plant; the two migration pins at 246; typecheck and lint.
-- **Red:** A2A-L01, with 232 breaches. It is red because the declared exceptions are not yet written:
-  - 128 go through `audit_write`: one class-level exception, with one assertion;
-  - the rest are same-row re-locks (one by one, each naming its variable), new `auth.users` rows (one exception) and
-    the window functions (one exception, "pending B1", removed in C);
-  - anything left after that is a new finding. It is listed on this page and not fixed.
+- **Red:** A2A-L01, with 3 breaches (232 before the exceptions). The 3 are **a new finding, not fixed**: "The
+  permit's key on `auth.users`", below.
 - No full pre-flight has been run.
 
 **Waiting on whom:**
 - **Sharon:** her ruling on commit 3, which changes the locking of ten functions. No more product code is changed in
   change A until she has read it.
-- **Second Eye:** the declared exceptions (verification tooling only), then the change A commit to name to the Chief
-  Architect.
+- **The Chief Architect and Sharon:** the new finding. Fix it in change A, declare it, or carry it.
 - **The Chief Architect:** the freeze of change A. There is no pre-flight and no dispatch before it.
 
 **RELEASED FOR IMPLEMENTATION, 13 Nov 2026.**
@@ -425,9 +425,9 @@ applied (`claude/a2a-nokey` at `289d4865`), the foreign-key reports fall away, a
     can end their own professional-learning sitting. **So it is fixed in commit 3.**
   - `lanjutkan_pengerjaan`, `tutup_pengerjaan_ditahan`: the `KEY SHARE` is the actor's. Besides, both write only a
     held (frozen) sitting, which the hold does not take (`pengerjaan_ditahan_periksa`). Confirmed.
-  - `open_assessment_session`, `start_learning_session`: **not yet confirmed.** The function takes no lock on the
-    learner itself; the person lock comes through the new sitting's insert trigger. It is read with the declared
-    exceptions.
+  - `open_assessment_session`, `start_learning_session`: **confirmed.** The first lock is the learner `FOR SHARE`,
+    taken by the new sitting's insert trigger (`orang_lampiran_jaga` on `NEW.person_id`). The `person_suspensions`
+    key is `frozen_suspension_id`, which is null on a new sitting.
   - The five `KEY SHARE` → `FOR SHARE` upgrades: compatible. The holder may strengthen past a `FOR UPDATE` waiter;
     raced, no deadlock.
   - `transfer_execute`: its first `KEY SHARE` is `audit_write`'s, which is null outside evaluation.
@@ -435,6 +435,20 @@ applied (`claude/a2a-nokey` at `289d4865`), the foreign-key reports fall away, a
   - 128 are through `audit_write`: one declared exception, with its `pg_proc` assertion.
   - 104 are at about 48 lock sites, each read one by one: the same-row re-locks naming their variable, the new
     `auth.users` rows, and the window functions.
+
+**New finding, not fixed: the permit's key on `auth.users`** (commit 6; the Chief Architect's rule: listed, not raced,
+not fixed).
+- `password_write_permit`, `recovery_grant_permit` and `authorize_card_reissue` each lock the account (`FOR SHARE`,
+  or `FOR UPDATE`). They then insert `password_write_permits`, whose foreign key takes that account's `auth.users` row
+  `FOR KEY SHARE`. The row is not held first, so this is `auth.users` (rank 4) after accounts (rank 5).
+- **The reading:**
+  - `KEY SHARE` waits only on `FOR UPDATE` or `DELETE` of that `auth.users` row. Auth's ordinary writes are
+    non-key updates, and do not conflict with it.
+  - A cycle needs a transaction that deletes the auth user (or takes it `FOR UPDATE`) and then reaches that account
+    while one of these holds it. Auth's deletion of a user, cascading to the account, would be one.
+  - Not raced.
+- **The smallest fix, not built:** each takes the `auth.users` row `FOR KEY SHARE` before the account (the
+  person-first shape, one rank down).
 
 **Deferred register item: the person `FOR NO KEY UPDATE`** (Sharon, `A2A-L01-FINDING-f09da528.md`).
 - **The draft:** the 15 functions above would take the person `FOR NO KEY UPDATE` instead of `FOR UPDATE`.
@@ -447,7 +461,7 @@ applied (`claude/a2a-nokey` at `289d4865`), the foreign-key reports fall away, a
 
 **The branches:**
 - `claude/a2a`: this page.
-- `claude/a2a-change-a`: change A, `f09da528`, `d9bad797`, `96f3c308`, `40753420`.
+- `claude/a2a-change-a`: change A, `f09da528` … `c446030c` (six commits; the state above).
 - `claude/a2a-nokey`: the deferred register item's reference (above); left exactly as it is, never merged.
 - *`claude/a2a-l01` (`d748ef05`) is superseded by `claude/a2a-change-a` and left as it was pushed.*
 
