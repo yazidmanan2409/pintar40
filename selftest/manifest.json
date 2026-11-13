@@ -6129,6 +6129,36 @@
       "id": "B1-A04",
       "runner": "app",
       "proves": "B1 correction (cross-module checks 2b and the deleted-person presentation), selftest/b1-layar.test.ts, through the running app's routes and its rendered html (route /konfigurasi/catatan-masuk): a staff member of Alpha suspended, then closed, each sign-in attempt (the suspended account with the right and a wrong password; restated for the auth correction, owner 11 Nov) one SIGN_IN_FAILED row answered and recorded exactly as a wrong password (401 MASUK_TIDAK_COCOK), never one naming the account's state, the person and Alpha's snapshot, read by Alpha's admin and not Beta's; after hapus_data_pribadi an attempt with the old address names no one (the platform admin's only) and the person's rows hold no origin and no hash; Alpha's admin and the platform admin read them under the PINTAR ID with no origin, each failure reading «Email, username, atau password belum cocok.»; nothing of the test is left behind."
+    },
+    {
+      "id": "A2A-L01",
+      "runner": "static",
+      "proves": "A2a's page §6 (the owner's decision after the 4.0 look-back; Sharon's catalogue test, with her early read of 7b3b3d31): every function and procedure in public, every trigger function in its R2 starting state, and Auth's own writes of auth.users, read from the catalogue (no list of names, so A2a's and A3's functions fall under it), take their row locks (directly; through what they call, in evaluation order; through the triggers their writes fire, in Postgres's order; and, R1, through foreign keys, cascades and upserts from pg_constraint) in the order persons → account_requests → person_suspensions → auth.users → accounts → password_write_permits → the fence → maintenance_windows → sittings, with no upgrade and, B1, no row of any table before the fence but ranks 1 to 6; declared exceptions and dynamic SQL each carry their reason; R3, the per-writer report equals the committed selftest/a2a-l01-laporan.txt; five plants inside the test's own rolled-back transaction must each be reported first."
+    },
+    {
+      "id": "A2A-L02",
+      "runner": "static",
+      "proves": "Sharon's ruling 3 (early read of 7b3b3d31), the evidence for A2A-L01's declared exception: on two real connections, connection A holds a synthetic person FOR UPDATE while connection B, carrying no PINTAR person, makes Auth's level-3 email-recovery password write with a 1 s lock timeout (permit, grant and ladder committed before and removed after; B rolled back); B goes through without waiting, because recovery_assist_school answers null with no person (migration 20270118100000); with its plant (recovery_assist_school reaching sekolah_memegang) the same write waits on A and times out; nothing is left behind."
+    },
+    {
+      "id": "A2A-L03",
+      "runner": "static",
+      "proves": "Sharon's ruling on A2A-L01 (A2A-L01-FINDING-f09da528.md; migration 20270118110000): on two real connections, connection A takes a learner FOR UPDATE and then that learner's sittings in the statuses the hold takes, in pengerjaan_tahan_orang's own query (tangguhkan_akun's order), while connection B runs the real finalize_session of a copy of a sitting IN_PROGRESS a day past its deadline (committed before, removed after; both rolled back); B waits for A and then finishes, with no deadlock, because finalize_session and pengerjaan_putus_tenggat take the learner FOR KEY SHARE before the sitting; with the plant (both of those first locks removed, 245's code) the same race ends in \"deadlock detected\"."
+        },
+    {
+      "id": "A2A-L04",
+      "runner": "static",
+      "proves": "Sharon's C1 (A2A-CHANGE-A-C3C4-40753420.md; migration 20270118120000): on two real connections, connection A takes a learner FOR UPDATE and then, 1.5 s later, that learner's live enrolment FOR UPDATE (kenaikan_tetapkan's and transfer_execute's order), while connection B runs the real akhiri_pendaftaran of that enrolment as its school's admin (both rolled back); B waits for A and then finishes, with no deadlock, because akhiri_pendaftaran reads the enrolment's person unlocked, locks the person FOR UPDATE and only then the enrolment; with the plant (commit 3's order: the enrolment, then its person) the same race ends in \"deadlock detected\"."
+    },
+    {
+      "id": "A2A-L05",
+      "runner": "static",
+      "proves": "Sharon's ruling on the 76, row 3 (A2A-CHANGE-A-76-4530849f.md; migration 20270118130000): on two real connections, connection A holds a learner FOR UPDATE for 1.5 s while connection B runs the real hitung_ulang_koreksi_kunci of that learner's finalized sitting with a confirmed key correction (a fixture committed before and removed after; both rolled back); B waits for A before it touches the sitting, because the learner is taken FOR KEY SHARE first; with the plant (that line removed) B reaches the sitting while the learner is held. No deadlock is claimed: Sharon found no live counterpart."
+    },
+    {
+      "id": "A2A-L06",
+      "runner": "static",
+      "proves": "Sharon's ruling on the 76 (rows 7 to 9 in C1's commit; migration 20270118120000): on two real connections, connection A takes a learner FOR UPDATE and then, 1.5 s later, that learner's live enrolment FOR UPDATE (akhiri_pendaftaran's order after C1), while connection B runs the real transfer_minta of that enrolment to another school as its school's admin (both rolled back); B waits for A and then finishes, with no deadlock, because transfer_minta takes the person FOR KEY SHARE before the transfer's foreign keys check the enrolment; with the plant (that line removed) B still waits for A and nothing deadlocks, because the transfer's attachment guard (orang_lampiran_jaga, BEFORE INSERT) already takes the person FOR SHARE before the foreign keys: the race showed row 7 was not real, and the line is redundant but compatible."
     }
   ]
 }

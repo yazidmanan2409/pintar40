@@ -1,0 +1,64 @@
+# A2A-L01's red run on main's code (a6b47466), 13 Nov 2026, before any fix: the breaches it reports, one per line.
+# Classified on A2a's page §6 ("What the corrected engine reports on main's code"). Regenerate: npx tsx scripts/dev/a2a-l01-laporan.ts --salah
+admin_reset_recovery: persons (rank 1) after auth.users (rank 4) — via admin_reset_recovery > sesi_akhiri_orang > sesi_akhiri_inti > audit_write; earlier via admin_reset_recovery > sesi_akhiri_orang
+akhiri_pendaftaran: persons (rank 1) after assessment_sessions (rank 9) — via akhiri_pendaftaran > tutup_asesmen_terbuka > session_enforce_deadline > pengerjaan_putus_tenggat > audit_write; earlier via akhiri_pendaftaran > tutup_asesmen_terbuka > session_enforce_deadline > pengerjaan_putus_tenggat
+akhiri_pengerjaan: persons (rank 1) after assessment_sessions (rank 9) — via akhiri_pengerjaan > pengerjaan_putus_tenggat > audit_write; earlier via akhiri_pengerjaan
+akhiri_penugasan: persons (rank 1) after assessment_sessions (rank 9) — via akhiri_penugasan > session_enforce_deadline > pengerjaan_putus_tenggat > audit_write; earlier via akhiri_penugasan > session_enforce_deadline > pengerjaan_putus_tenggat
+aktifkan_kembali_akun: persons (rank 1) after person_suspensions (rank 3) — via aktifkan_kembali_akun; earlier via aktifkan_kembali_akun
+akun_kunci: auth.users (rank 4) after accounts (rank 5) — via akun_kunci > sesi_akhiri_orang; earlier via akun_kunci
+assume_persona: persons (rank 1) after auth.users (rank 4) — via assume_persona > audit_write; earlier via assume_persona
+auth_card_email_guard: auth.users (rank 4) after accounts (rank 5) — via auth_card_email_guard > sesi_akhiri_orang; earlier via auth_card_email_guard
+auth_email_correction_guard: persons (rank 1) after auth.users (rank 4) — via auth_email_correction_guard > sesi_akhiri_orang > sesi_akhiri_inti > audit_write; earlier via auth_email_correction_guard > sesi_akhiri_orang
+auth_password_write_guard: persons (rank 1) after password_write_permits (rank 6) — via auth_password_write_guard > recovery_restore_core > recovery_assist_school > sekolah_memegang; earlier via auth_password_write_guard
+authorize_card_conversion: persons (rank 1) after accounts (rank 5) — via authorize_card_conversion > [card_conversions I] orang_lampiran_jaga > orang_dianonimkan; earlier via authorize_card_conversion
+authorize_card_reissue: persons (rank 1) after accounts (rank 5) — via authorize_card_reissue > [card_reissues I] orang_lampiran_jaga > orang_dianonimkan; earlier via authorize_card_reissue
+authorize_email_correction: persons (rank 1) after accounts (rank 5) — via authorize_email_correction > [email_corrections I] orang_lampiran_jaga > orang_dianonimkan; earlier via authorize_email_correction
+buka_kembali_akun: persons (rank 1) after person_suspensions (rank 3) — via buka_kembali_akun; earlier via buka_kembali_akun
+certificate_prepare: an upgrade on persons: strength 0 via certificate_prepare, then 1 via certificate_prepare > [certificate_identity_snapshots I] orang_lampiran_jaga > orang_dianonimkan
+change_maintenance: persons (rank 1) after maintenance_windows (rank 8) — via change_maintenance; earlier via change_maintenance
+extend_session_deadline: persons (rank 1) after assessment_sessions (rank 9) — via extend_session_deadline > pengerjaan_putus_tenggat > audit_write; earlier via extend_session_deadline > pengerjaan_putus_tenggat
+finalize_session: persons (rank 1) after assessment_sessions (rank 9) — via finalize_session; earlier via finalize_session
+finish_my_session: persons (rank 1) after assessment_sessions (rank 9) — via finish_my_session > submit_session > session_enforce_deadline > pengerjaan_putus_tenggat > audit_write; earlier via finish_my_session > submit_session > session_enforce_deadline > pengerjaan_putus_tenggat
+handle_new_auth_user: persons (rank 1) after auth.users (rank 4) — via handle_new_auth_user > [accounts I] akun_baru_terkunci; earlier via handle_new_auth_user
+hapus_data_pribadi: persons (rank 1) after account_requests (rank 2) — via hapus_data_pribadi; earlier via hapus_data_pribadi
+hitung_ulang_koreksi_kunci: persons (rank 1) after assessment_sessions (rank 9) — via hitung_ulang_koreksi_kunci > audit_write; earlier via hitung_ulang_koreksi_kunci
+kenaikan_tetapkan: persons (rank 1) after assessment_sessions (rank 9) — via kenaikan_tetapkan > tutup_asesmen_terbuka > session_enforce_deadline > pengerjaan_putus_tenggat > audit_write; earlier via kenaikan_tetapkan > tutup_asesmen_terbuka > session_enforce_deadline > pengerjaan_putus_tenggat
+koreksi_kunci_saat_selesai: persons (rank 1) after assessment_sessions (rank 9) — via koreksi_kunci_saat_selesai > hitung_ulang_koreksi_kunci > audit_write; earlier via koreksi_kunci_saat_selesai > hitung_ulang_koreksi_kunci
+lanjutkan_pengerjaan: persons (rank 1) after assessment_sessions (rank 9) — via lanjutkan_pengerjaan; earlier via lanjutkan_pengerjaan > pengerjaan_ditahan_periksa
+maintenance_list: persons (rank 1) after maintenance_windows (rank 8) — via maintenance_list > maintenance_record_edges > audit_write; earlier via maintenance_list > maintenance_record_edges
+maintenance_record_edges: persons (rank 1) after maintenance_windows (rank 8) — via maintenance_record_edges > audit_write; earlier via maintenance_record_edges
+minta_akun: auth.users (rank 4) after accounts (rank 5) — via minta_akun > akun_kunci > sesi_akhiri_orang; earlier via minta_akun > akun_kunci
+minta_percobaan: persons (rank 1) after assessment_sessions (rank 9) — via minta_percobaan > pengerjaan_putus_tenggat > audit_write; earlier via minta_percobaan
+move_learner_to_class: an upgrade on persons: strength 0 via move_learner_to_class > [memberships U] membership_audit > audit_write, then 1 via move_learner_to_class > [memberships I] orang_lampiran_jaga > orang_dianonimkan
+open_assessment_session: persons (rank 1) after person_suspensions (rank 3) — via open_assessment_session; earlier via open_assessment_session
+password_write_permit: persons (rank 1) after accounts (rank 5) — via password_write_permit > [password_write_permits I] orang_lampiran_jaga > orang_dianonimkan; earlier via password_write_permit
+pengerjaan_putus_tenggat: persons (rank 1) after assessment_sessions (rank 9) — via pengerjaan_putus_tenggat > audit_write; earlier via pengerjaan_putus_tenggat
+pengerjaan_tahan_orang: persons (rank 1) after assessment_sessions (rank 9) — via pengerjaan_tahan_orang > pengerjaan_putus_tenggat > audit_write; earlier via pengerjaan_tahan_orang > pengerjaan_putus_tenggat
+pengerjaan_tutup_terjadwal: persons (rank 1) after assessment_sessions (rank 9) — via pengerjaan_tutup_terjadwal > pengerjaan_putus_tenggat > audit_write; earlier via pengerjaan_tutup_terjadwal
+pintar_status_saya: persons (rank 1) after maintenance_windows (rank 8) — via pintar_status_saya > maintenance_record_edges > audit_write; earlier via pintar_status_saya > maintenance_record_edges
+publish_notice: persons (rank 1) after maintenance_windows (rank 8) — via publish_notice; earlier via publish_notice
+record_integrity_review: an upgrade on persons: strength 0 via record_integrity_review > audit_write, then 1 via record_integrity_review > refer_integrity_signal > [management_decisions I] orang_lampiran_jaga > orang_dianonimkan
+recovery_by_pin: an upgrade on persons: strength 0 via recovery_by_pin > recovery_attempt > audit_write, then 1 via recovery_by_pin > recovery_grant_issue > [password_recovery_grants I] orang_lampiran_jaga > orang_dianonimkan
+recovery_grant_issue: persons (rank 1) after auth.users (rank 4) — via recovery_grant_issue > audit_write; earlier via recovery_grant_issue
+recovery_grant_permit: persons (rank 1) after accounts (rank 5) — via recovery_grant_permit > [password_write_permits I] orang_lampiran_jaga > orang_dianonimkan; earlier via recovery_grant_permit
+sertifikat_koreksi_siapkan: an upgrade on persons: strength 0 via sertifikat_koreksi_siapkan, then 1 via sertifikat_koreksi_siapkan > [certificate_identity_snapshots I] orang_lampiran_jaga > orang_dianonimkan
+sesi_akhiri_orang: persons (rank 1) after auth.users (rank 4) — via sesi_akhiri_orang > sesi_akhiri_inti > audit_write; earlier via sesi_akhiri_orang
+sesi_akhiri_saya: persons (rank 1) after auth.users (rank 4) — via sesi_akhiri_saya > sesi_akhiri_inti > audit_write; earlier via sesi_akhiri_saya
+sesi_akhiri_semua: persons (rank 1) after auth.users (rank 4) — via sesi_akhiri_semua > sesi_akhiri_inti > audit_write; earlier via sesi_akhiri_semua
+sesi_periksa: persons (rank 1) after auth.users (rank 4) — via sesi_periksa > sesi_akhiri_inti > audit_write; earlier via sesi_periksa
+sesi_tetapkan_perangkat: persons (rank 1) after auth.users (rank 4) — via sesi_tetapkan_perangkat > audit_write; earlier via sesi_tetapkan_perangkat
+session_enforce_deadline: persons (rank 1) after assessment_sessions (rank 9) — via session_enforce_deadline > pengerjaan_putus_tenggat > audit_write; earlier via session_enforce_deadline > pengerjaan_putus_tenggat
+start_learning_session: persons (rank 1) after person_suspensions (rank 3) — via start_learning_session > open_assessment_session; earlier via start_learning_session > open_assessment_session
+submit_session: persons (rank 1) after assessment_sessions (rank 9) — via submit_session > session_enforce_deadline > pengerjaan_putus_tenggat > audit_write; earlier via submit_session > session_enforce_deadline > pengerjaan_putus_tenggat
+tambah_waktu_pengerjaan: persons (rank 1) after assessment_sessions (rank 9) — via tambah_waktu_pengerjaan > pengerjaan_putus_tenggat > audit_write; earlier via tambah_waktu_pengerjaan
+tangguhkan_akun: auth.users (rank 4) after accounts (rank 5) — via tangguhkan_akun > akun_kunci > sesi_akhiri_orang; earlier via tangguhkan_akun > akun_kunci
+tegaskan_koreksi_kunci: persons (rank 1) after assessment_sessions (rank 9) — via tegaskan_koreksi_kunci > hitung_ulang_koreksi_kunci > audit_write; earlier via tegaskan_koreksi_kunci > hitung_ulang_koreksi_kunci
+terminate_session: persons (rank 1) after assessment_sessions (rank 9) — via terminate_session; earlier via terminate_session
+transfer_execute: an upgrade on persons: strength 0 via transfer_execute > [memberships U] membership_audit > audit_write, then 3 via transfer_execute > [enrollments U] enrollments_programme_alone
+tutup_asesmen_terbuka: persons (rank 1) after assessment_sessions (rank 9) — via tutup_asesmen_terbuka > session_enforce_deadline > pengerjaan_putus_tenggat > audit_write; earlier via tutup_asesmen_terbuka > session_enforce_deadline > pengerjaan_putus_tenggat
+tutup_pengerjaan_ditahan: persons (rank 1) after assessment_sessions (rank 9) — via tutup_pengerjaan_ditahan; earlier via tutup_pengerjaan_ditahan > pengerjaan_ditahan_periksa
+auth_password_write_guard [auth.users U]: persons (rank 1) after password_write_permits (rank 6) — via [auth.users U] auth_password_write_guard > recovery_restore_core > recovery_assist_school > sekolah_memegang; earlier via [auth.users U] auth_password_write_guard
+auth_card_email_guard [auth.users U]: auth.users (rank 4) after accounts (rank 5) — via [auth.users U] auth_card_email_guard > sesi_akhiri_orang; earlier via [auth.users U] auth_card_email_guard
+auth_email_correction_guard [auth.users U]: persons (rank 1) after auth.users (rank 4) — via [auth.users U] auth_email_correction_guard > sesi_akhiri_orang > sesi_akhiri_inti > audit_write; earlier via [auth.users U]
+(GoTrue U auth.users): persons (rank 1) after password_write_permits (rank 6) — via GoTrue > [auth.users U] auth_password_write_guard > recovery_restore_core > recovery_assist_school > sekolah_memegang; earlier via GoTrue > [auth.users U] auth_password_write_guard
+(GoTrue I auth.users): persons (rank 1) after auth.users (rank 4) — via GoTrue > [auth.users I] handle_new_auth_user > [accounts I] akun_baru_terkunci; earlier via GoTrue > [auth.users I] handle_new_auth_user

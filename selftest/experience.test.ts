@@ -2187,7 +2187,17 @@ export const experienceTests: SelfTest[] = [
       // account rows). Read against §3: the order of locks, not a mark, a logo, a crest or a theme.
       // MOVED 243 -> 244, RESTATED, L1-F4 (Sharon's result review of 3a63a2b2): 20270117200000 (an anonymised person is never
       // reopened). Read against §3: when an account may be reopened, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 244, `${migrations.length} migrations; the frozen baseline has 244`);
+      // MOVED 244 -> 245, RESTATED, A2A-L01 (A2a's page §6): 20270118100000 (no school is asked for without a person).
+      // Read against §3: the order of locks, not a mark, a logo, a crest or a theme.
+      // MOVED 245 -> 246, RESTATED, A2A-L01 (Sharon, A2A-L01-FINDING-f09da528.md): 20270118110000 (a sitting is written
+      // after its learner). Read against §3: the order of locks, not a mark, a logo, a crest or a theme.
+      // MOVED 246 -> 247, RESTATED, A2A-L01 C1 (Sharon, A2A-CHANGE-A-C3C4-40753420.md): 20270118120000 (an enrolment is
+      // ended after its learner). Read against §3: the order of locks, not a mark, a logo, a crest or a theme.
+      // MOVED 247 -> 248, RESTATED, A2A-L01 row 3 (Sharon, A2A-CHANGE-A-76-4530849f.md): 20270118130000 (a key correction
+      // takes the learner first). Read against §3: the order of locks, not a mark, a logo, a crest or a theme.
+      // MOVED 248 -> 249, RESTATED, A2A-L01 row 4 (Sharon, A2A-CHANGE-A-ROW4-33a97fa4.md): 20270118140000 (a recomputation
+      // takes the learner, then the sitting). Read against §3: the order of locks, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 249, `${migrations.length} migrations; the frozen baseline has 249`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4055,7 +4065,12 @@ export const experienceTests: SelfTest[] = [
       // MOVED 241 -> 242, RESTATED, F1-R1b, for 20270117180000 (the teacher's marker reads the answers in its view): no tour RPC.
       // MOVED 242 -> 243, RESTATED, L1-F2, for 20270117190000 (the lock order: person first, auth.users before accounts): no tour RPC.
       // MOVED 243 -> 244, RESTATED, L1-F4, for 20270117200000 (the deletion and the reopen take the person first): no tour RPC.
-      c.expect(migs.length === 244, `${migs.length} migrations; the baseline has 244`);
+      // MOVED 244 -> 245, RESTATED, A2A-L01, for 20270118100000 (no school is asked for without a person): no tour RPC.
+      // MOVED 245 -> 246, RESTATED, A2A-L01, for 20270118110000 (a sitting is written after its learner): no tour RPC.
+      // MOVED 246 -> 247, RESTATED, A2A-L01 C1, for 20270118120000 (an enrolment is ended after its learner): no tour RPC.
+      // MOVED 247 -> 248, RESTATED, A2A-L01 row 3, for 20270118130000 (a key correction takes the learner first): no tour RPC.
+      // MOVED 248 -> 249, RESTATED, A2A-L01 row 4, for 20270118140000 (a recomputation takes the learner first): no tour RPC.
+      c.expect(migs.length === 249, `${migs.length} migrations; the baseline has 249`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
