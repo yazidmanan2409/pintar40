@@ -343,7 +343,7 @@ reproduced deadlock is evidence; a reading is a claim"):
 
 | Function | The later lock, and whose person row | Real, or an over-report | Reproduced |
 |---|---|---|---|
-| `finalize_session` (and every path that finalizes: submit, deadline, the closer) | the result row's `person_id`: **the sitting's own learner** (`KEY SHARE`), after the sitting `FOR UPDATE` | **Real.** A suspension of that learner takes the learner, then their open sittings | **Yes: deadlock detected,** against the real `tangguhkan_akun` (A2A-L03, red without the draft) |
+| `finalize_session` (and every path that finalizes: submit, deadline, the closer) | the result row's `person_id`: **the sitting's own learner** (`KEY SHARE`), after the sitting `FOR UPDATE` | **Real.** A suspension of that learner takes the learner, then their open sittings | **Yes: deadlock detected,** against the real `tangguhkan_akun` (the draft's A2A-L03, red without the draft; change A's own A2A-L03, below, races the real `finalize_session`) |
 | `terminate_session`, `tutup_pengerjaan_ditahan`, `lanjutkan_pengerjaan` | `terminated_by`, `closure_by`, `unfrozen_by`: **the actor** | Over-report: the actor's suspension never holds this learner's sitting | no (no cycle to race) |
 | `open_assessment_session` | the new sitting's `person_id`: the learner, already held `FOR SHARE` by the same function | Over-report: the same row | no |
 | `certificate_prepare`, `sertifikat_koreksi_siapkan` (upgrade `KEY SHARE` → `FOR SHARE`) | the same person | **Safe:** Postgres lets the holder strengthen to `FOR SHARE` past a `FOR UPDATE` waiter | **Yes, no deadlock** (two connections) |
@@ -363,10 +363,59 @@ applied (`claude/a2a-nokey` at `289d4865`), the foreign-key reports fall away, a
 - The rest of the 22 are the classes above: same-row re-locks and new rows. With a ruling, they would become declared
   exceptions, each with its reason.
 
-**The three branches:**
+**Sharon's ruling on these reports** (`A2A-L01-FINDING-f09da528.md` at `09f1706c`), carried in change A:
+- **Commit 3, `96f3c308`: a sitting is written after its learner** (migration `20270118110000`).
+  - `finalize_session` takes its learner `FOR KEY SHARE` as its first lock, before the deadline update.
+  - **A2A-L03**, two real connections:
+    - A takes the learner `FOR UPDATE`, then the learner's sittings by `pengerjaan_tahan_orang`'s own query;
+    - B runs the real `finalize_session` of a sitting past its deadline;
+    - on 245's code: **"deadlock detected"**; with the fix, B waits for A, then finishes;
+    - its plant (the first locks removed) turns it red again.
+  - **The sweep for siblings found the same shape in nine more, fixed in the same shape, same commit:**
+    - `pengerjaan_putus_tenggat` (every finalizing path passes through it);
+    - `akhiri_pengerjaan`, `tambah_waktu_pengerjaan`, `pengerjaan_tutup_terjadwal`, `tutup_asesmen_terbuka`;
+    - `akhiri_penugasan` (its learners, in id order);
+    - `terminate_session` (see below), all `FOR KEY SHARE`;
+    - `minta_percobaan` `FOR SHARE`, because it takes `FOR SHARE` later, so there is no upgrade;
+    - `akhiri_pendaftaran` `FOR UPDATE`, because its enrolment trigger takes `FOR UPDATE` later. This is the second
+      real class above.
+  - **Read, not changed:** `kenaikan_tetapkan` and `transfer_execute` already hold the learner `FOR UPDATE` before they
+    close sittings.
+- **Commit 4, `40753420`: three defects in the engine**, found by that sweep. Verification tooling only.
+  - It reported only the first breach of each writer, so a declared exception would have hidden the ones after it.
+    It now reports every breach.
+  - A lock list read under a call cycle was memoised without the cut caller's locks. That was an under-report.
+  - It read the catalogue in scan order. Triggers now fire in Postgres's name order, and the report is the same on
+    every read.
+- **The over-reports, one line each:**
+  - `terminate_session`: **not confirmed.** Nothing stops the actor being the sitting's own learner: a system admin
+    can end their own professional-learning sitting. **So it is fixed in commit 3.**
+  - `lanjutkan_pengerjaan`, `tutup_pengerjaan_ditahan`: the `KEY SHARE` is the actor's. Besides, both write only a
+    held (frozen) sitting, which the hold does not take (`pengerjaan_ditahan_periksa`). Confirmed.
+  - `open_assessment_session`, `start_learning_session`: **not yet confirmed.** The function takes no lock on the
+    learner itself; the person lock comes through the new sitting's insert trigger. It is read with the declared
+    exceptions.
+  - The five `KEY SHARE` → `FOR SHARE` upgrades: compatible. The holder may strengthen past a `FOR UPDATE` waiter;
+    raced, no deadlock.
+  - `transfer_execute`: its first `KEY SHARE` is `audit_write`'s, which is null outside evaluation.
+- **Still open before change A is green:** A2A-L01 now lists all 232 breaches.
+  - 128 are through `audit_write`: one declared exception, with its `pg_proc` assertion.
+  - 104 are at about 48 lock sites, each read one by one: the same-row re-locks naming their variable, the new
+    `auth.users` rows, and the window functions.
+
+**Deferred register item: the person `FOR NO KEY UPDATE`** (Sharon, `A2A-L01-FINDING-f09da528.md`).
+- **The draft:** the 15 functions above would take the person `FOR NO KEY UPDATE` instead of `FOR UPDATE`.
+- **Deferred, for Sharon's reason:** it loses the serialisation of inserts into the exempt (BEBAS) tables against the
+  lifecycle acts. The deletion's scrub could then miss a row committed just after it.
+- **Its branch:** `claude/a2a-nokey` at `289d4865` was pushed before the instruction not to create it was read.
+  - It is not merged, and nothing is built on it.
+  - It is left as it is until the Chief Architect says whether to delete it.
+- The fix of record is the person-first order (commit 3).
+
+**The branches:**
 - `claude/a2a`: this page.
-- `claude/a2a-change-a`: change A, two commits, `f09da528` and `d9bad797`.
-- `claude/a2a-nokey`: the draft, for its ruling only, never merged into change A.
+- `claude/a2a-change-a`: change A, `f09da528`, `d9bad797`, `96f3c308`, `40753420`.
+- `claude/a2a-nokey`: the deferred draft (above).
 - *`claude/a2a-l01` (`d748ef05`) is superseded by `claude/a2a-change-a` and left as it was pushed.*
 
 **It is built first, as its own change** (working rule 5: verification tooling never travels with a product
