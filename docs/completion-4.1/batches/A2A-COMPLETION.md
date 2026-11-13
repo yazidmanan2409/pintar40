@@ -1,5 +1,38 @@
 # A2a · Emergency containment and class scope for the emergency (completion page, before build)
 
+## State of change A (13 Nov, 20:40 UTC; kept here so that nothing depends on a session's memory)
+
+**Branches:**
+- `claude/a2a`: this page.
+- `claude/a2a-change-a`: change A, built on `main` at `a6b47466`. Its head is `40753420`.
+- `claude/a2a-nokey` (`289d4865`): the reference for the deferred register item "the person `FOR NO KEY UPDATE`".
+  It is left exactly as it is and never merged.
+- `claude/a2a-l01` (`d748ef05`): superseded, left as it was pushed.
+
+**The commits of change A:**
+1. `f09da528`: A2A-L01, the lock-order catalogue test, its plants and its report. Red on `main`, recorded.
+2. `d9bad797`: Auth's recovery password write no longer waits on a person (migration `20270118100000`). A2A-L02 is
+   its two-connection proof.
+3. `96f3c308`: a sitting is written after its learner (migration `20270118110000`). It covers `finalize_session` and
+   nine siblings. A2A-L03 is its two-connection proof.
+4. `40753420`: three defects in A2A-L01's engine. Verification tooling only.
+
+**What is green, and what is red:**
+- **Green:** A2A-L02 and A2A-L03, each red with its plant; the two migration pins at 246; typecheck and lint.
+- **Red:** A2A-L01, with 232 breaches. It is red because the declared exceptions are not yet written:
+  - 128 go through `audit_write`: one class-level exception, with one assertion;
+  - the rest are same-row re-locks (one by one, each naming its variable), new `auth.users` rows (one exception) and
+    the window functions (one exception, "pending B1", removed in C);
+  - anything left after that is a new finding. It is listed on this page and not fixed.
+- No full pre-flight has been run.
+
+**Waiting on whom:**
+- **Sharon:** her ruling on commit 3, which changes the locking of ten functions. No more product code is changed in
+  change A until she has read it.
+- **Second Eye:** the declared exceptions (verification tooling only), then the change A commit to name to the Chief
+  Architect.
+- **The Chief Architect:** the freeze of change A. There is no pre-flight and no dispatch before it.
+
 **RELEASED FOR IMPLEMENTATION, 13 Nov 2026.**
 - Sharon wrote **PART 2 ACCEPTED** (`PART2-VERDICT.md` on `claude/gracious-lamport-0m1qjr` at `2c90d178`). The staging
   checkpoint is closed, and the Chief Architect released A2a.
@@ -415,7 +448,7 @@ applied (`claude/a2a-nokey` at `289d4865`), the foreign-key reports fall away, a
 **The branches:**
 - `claude/a2a`: this page.
 - `claude/a2a-change-a`: change A, `f09da528`, `d9bad797`, `96f3c308`, `40753420`.
-- `claude/a2a-nokey`: the deferred draft (above).
+- `claude/a2a-nokey`: the deferred register item's reference (above); left exactly as it is, never merged.
 - *`claude/a2a-l01` (`d748ef05`) is superseded by `claude/a2a-change-a` and left as it was pushed.*
 
 **It is built first, as its own change** (working rule 5: verification tooling never travels with a product
