@@ -77,7 +77,49 @@ const syaratJaga = (kat: Katalog) => {
 };
 const ALASAN_JAGA = "Auth's password write runs with no PINTAR person, and recovery_assist_school answers null without one (and for "
   + "oneself) before it can reach sekolah_memegang: migration 20270118100000, shown on two connections by A2A-L02";
-export const PENGECUALIAN: { penulis: string; lewat: string; alasan: string; syarat?: (kat: Katalog) => boolean }[] = [
+/** audit_write's foreign key to persons (Sharon's condition on the class): audit_log refers to persons only through
+ *  evaluation_actor_person_id, and audit_write fills it only from an open evaluation session whose persona is the
+ *  acting user (it is the evaluator, never the persona); outside an evaluation it is null and a null key locks nothing. */
+const syaratAudit = (kat: Katalog) => {
+  const ke = (kat.fkKeluar.get("audit_log") ?? []).filter((f) => f.ke === "persons");
+  if (ke.length !== 1 || ke[0].kolom.join() !== "evaluation_actor_person_id") return false;
+  const srcs = kat.fns.get("audit_write") ?? [];
+  if (srcs.length !== 1) return false;
+  const b = bersih(srcs[0]).replace(/\s+/g, " ");
+  const isi = b.match(/\bv_eval_actor\b/g)?.length ?? 0;
+  return b.includes("select s.evaluator_person_id, s.id into v_eval_actor, v_eval_session from public.evaluation_sessions s "
+      + "where s.persona_auth_user_id = auth.uid() and s.ended_at is null")
+    && b.includes("v_eval_actor := null") && /evaluation_actor_person_id, evaluation_session_id\) values \([^;]*v_eval_actor, v_eval_session\)/.test(b)
+    && isi === 4;   // declared, selected into, cleared, inserted: nowhere else
+};
+const ALASAN_AUDIT = "audit_write's only foreign key to persons, evaluation_actor_person_id, is filled only while the acting user is "
+  + "a persona in an open evaluation session (synthetic human evaluation), and then names the evaluator; outside one it is "
+  + "null and takes no lock. Within one, the persona's act holds the persona's rows and the rows it acts on, never the "
+  + "evaluator's, and no lifecycle act on the evaluator takes a row the persona's act holds (the page, §6)";
+/** The late lock of a breach: the path after "— via" (order) or "then N via" (upgrade). */
+const lewatAkhir = (v: string) => v.match(/ — via (.*?); earlier via /)?.[1] ?? v.match(/, then \d via (.*)$/)?.[1] ?? "";
+/** An upgrade's first, weaker lock: the path after "strength N via". */
+const lewatAwalNaik = (v: string) => v.match(/^an upgrade on \S+: strength \d via (.*?), then \d via /)?.[1] ?? "";
+type Lewat = string | RegExp | ((v: string) => boolean);
+export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syarat?: (kat: Katalog) => boolean }[] = [
+  // the class (the Chief Architect, 13 Nov: one exception, one assertion): every writer, a lock through audit_write —
+  // the late lock of a breach, or the first lock of an upgrade (a null key took no lock, so there is nothing to upgrade)
+  { penulis: "*", lewat: (v) => /(^| > )audit_write$/.test(lewatAkhir(v)) || /(^| > )audit_write$/.test(lewatAwalNaik(v)),
+    alasan: ALASAN_AUDIT, syarat: syaratAudit },
+  // a new auth.users row (the Chief Architect: one exception): handle_new_auth_user runs only on Auth's insert of
+  // auth.users, and the row it holds is the one being inserted, which no other transaction can see
+  ...["(GoTrue I auth.users)", "handle_new_auth_user"].map((penulis) => ({
+    penulis, lewat: (v: string) => /^persons \(rank 1\) after auth\.users \(rank 4\) — /.test(v)
+      && /; earlier via (GoTrue > \[auth\.users I\] )?handle_new_auth_user$/.test(v),
+    alasan: "the auth.users row held is the new row Auth is inserting: no other transaction can see it, so none can hold it",
+    syarat: (kat: Katalog) => [...kat.pemicu].every(([k, fs]) => !fs.includes("handle_new_auth_user") || /^auth\.users\|I\|/.test(k)),
+  })),
+  // the window functions (the Chief Architect: one exception, "pending B1", removed in C, where B1 reorders them):
+  // the actor's foreign key after the window row; no reverse path was found
+  ...["change_maintenance", "publish_notice"].map((penulis) => ({
+    penulis, lewat: /^change_maintenance$|^publish_notice$/,
+    alasan: "PENDING B1: the actor's key after the window row, no reverse path found; re-read after B1, in change C, and this exception removed there",
+  })),
   ...["(GoTrue U auth.users)", "auth_password_write_guard", "auth_password_write_guard [auth.users U]"].map((penulis) => ({
     penulis, lewat: "recovery_assist_school > sekolah_memegang", alasan: ALASAN_JAGA, syarat: syaratJaga,
   })),
@@ -283,7 +325,9 @@ export function pelanggaran(l: Kunci[]): string[] {
   return [...new Set(out)];
 }
 const dikecualikan = (kat: Katalog, fn: string, v: string) =>
-  PENGECUALIAN.some((p) => fn === p.penulis && v.includes(p.lewat) && (!p.syarat || p.syarat(kat)));
+  PENGECUALIAN.some((p) => (p.penulis === "*" || fn === p.penulis)
+    && (typeof p.lewat === "string" ? v.includes(p.lewat) : typeof p.lewat === "function" ? p.lewat(v) : p.lewat.test(lewatAkhir(v)))
+    && (!p.syarat || p.syarat(kat)));
 
 /** R3: the per-function report, one line per writer, of the ranked tables it locks in order (strength in brackets). */
 export function laporan(semua: Map<string, Kunci[]>): string {
