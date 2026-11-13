@@ -48,7 +48,7 @@
 | L-1 | Suspended sign-in answered 503 (4.0; found at B1) | 2 (the opposite act: a suspended account signing in) and 5 |
 | S-1 | The open drawer was 8 px wider than the screen (4.0 shell) | 5 |
 | X-1 | Two `<main id="isi">` on a refusal inside Studio | 1 (what else provides `<main>`: the layout) |
-| X-2 | An old link to a moved assignment shows the generic error page | 2 (the neighbouring act: the assignment's move) |
+| X-2 | ~~An old link to a moved assignment shows the generic error page~~ (restated 13 Nov): six sub-pages under `/belajar/[tugas]/` lack the main page's ownership check | 1 (what else reads the assignment id); `X2-CATATAN-DESAIN.md` |
 | X-3 | An unknown correction id shows a refusal, not «not found» | 2 |
 | N-1 | Konfigurasi's sub-pages show a shorter navigation than the index | 1 |
 
