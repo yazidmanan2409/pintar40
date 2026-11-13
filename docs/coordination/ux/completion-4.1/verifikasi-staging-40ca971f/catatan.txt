@@ -1,0 +1,27 @@
+1280 / | 200 | {"url":"/","h1":"Mau ke mana hari ini?","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Mau ke mana hari ini?"} | axe []
+   text: PINTAR Mau ke mana hari ini? Saya mau belajar Saya mengajar Saya mengelola sekolah
+1280 /masuk | 200 | {"url":"/masuk","h1":"Selamat datang di PINTAR","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Selamat datang di PINTAR"} | axe []
+   text: PINTAR ID EN Selamat datang di PINTAR Masuk dengan email atau username, dan password Anda. Email atau username Password 👁 Masuk Lupa password? Akun Anda sudah ditutup? Minta dibuka kembali Belum mengaktifkan akun? Aktifkan akun Punya kartu kelas? Gunakan kartu kelas Pendidikan yang lebih adil, untuk lebih banyak kesempatan. Belajar dengan bukti. Memahami sebelum memutuskan. PINTAR membantu meliha
+1280 /aktifkan | 200 | {"url":"/aktifkan","h1":"Aktifkan akun PINTAR Anda","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Aktifkan akun PINTAR Anda"} | axe []
+   text: PINTAR ID EN Aktifkan akun PINTAR Anda Masukkan email yang didaftarkan sekolah Anda. Jika alamat ini terdaftar dan akunnya belum aktif, PINTAR mengirim kode aktivasi ke sana. Alamat email Kirim kode Akun Anda sudah aktif? Masuk ke PINTAR Pendidikan yang lebih adil, untuk lebih banyak kesempatan. Belajar dengan bukti. Memahami sebelum memutuskan. PINTAR membantu melihat apa yang sedang terjadi dala
+1280 /masuk/lupa | 200 | {"url":"/masuk/lupa","h1":"Lupa password","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Lupa password · PINTAR"} | axe []
+   text: PINTAR ID EN Lupa password Ketik email atau username akun PINTAR Anda. Jika akun itu sudah aktif, PINTAR mengirim kode ke email akun itu untuk membuat password baru. Email atau username Kirim kode Pakai PINTAR ID dan PIN Belum pernah mengaktifkan akun? Aktifkan akun Kembali ke halaman masuk Pendidikan yang lebih adil, untuk lebih banyak kesempatan. Belajar dengan bukti. Memahami sebelum memutuskan
+1280 /masuk/buka-kembali | 200 | {"url":"/masuk/buka-kembali","h1":"Minta akun dibuka kembali","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Minta akun dibuka kembali · PINTAR"} | axe []
+   text: PINTAR ID EN Minta akun dibuka kembali Akun yang sudah ditutup tidak dibuka dengan sendirinya. Admin PINTAR membaca permintaan ini, memastikan bahwa Anda pemilik akun itu, lalu memutuskan. Catatan Anda tetap tersimpan selama akun tertutup. EMAIL ATAU USERNAME PESAN UNTUK ADMIN PINTAR Tuliskan mengapa Anda ingin kembali dan bagaimana Admin PINTAR dapat menghubungi Anda untuk memastikan identitas An
+1280 /verifikasi/TIDAKADA00000000 | 200 | {"url":"/verifikasi/TIDAKADA00000000","h1":"Verifikasi Sertifikat","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Verifikasi Sertifikat · PINTAR"} | axe []
+   text: PEMERIKSAAN Verifikasi Sertifikat Hasil pemeriksaan untuk tautan yang Anda buka. STATUS Sertifikat dengan tautan ini tidak ditemukan. Periksa kembali tautan atau kode yang Anda terima. Halaman ini memastikan sertifikat yang Anda pegang benar diterbitkan. Nama pemegang tertera pada sertifikatnya. Dr. dr. Gladys DT Tubarad, M.Pd.Ked PT ZAYD PINTAR SELALU info@pintarselalu.com pintarselalu.com
+1280 non-GET requests made by the pages themselves: []
+390 / | 200 | {"url":"/","h1":"Mau ke mana hari ini?","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Mau ke mana hari ini?"} | axe []
+390 /masuk | 200 | {"url":"/masuk","h1":"Selamat datang di PINTAR","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Selamat datang di PINTAR"} | axe []
+390 /aktifkan | 200 | {"url":"/aktifkan","h1":"Aktifkan akun PINTAR Anda","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Aktifkan akun PINTAR Anda"} | axe []
+390 /masuk/lupa | 200 | {"url":"/masuk/lupa","h1":"Lupa password","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Lupa password · PINTAR"} | axe []
+390 /masuk/buka-kembali | 200 | {"url":"/masuk/buka-kembali","h1":"Minta akun dibuka kembali","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Minta akun dibuka kembali · PINTAR"} | axe []
+390 /verifikasi/TIDAKADA00000000 | 200 | {"url":"/verifikasi/TIDAKADA00000000","h1":"Verifikasi Sertifikat","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Verifikasi Sertifikat · PINTAR"} | axe []
+390 non-GET requests made by the pages themselves: []
+320 / | 200 | {"url":"/","h1":"Mau ke mana hari ini?","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Mau ke mana hari ini?"} | axe []
+320 /masuk | 200 | {"url":"/masuk","h1":"Selamat datang di PINTAR","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Selamat datang di PINTAR"} | axe []
+320 /aktifkan | 200 | {"url":"/aktifkan","h1":"Aktifkan akun PINTAR Anda","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Aktifkan akun PINTAR Anda"} | axe []
+320 /masuk/lupa | 200 | {"url":"/masuk/lupa","h1":"Lupa password","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Lupa password · PINTAR"} | axe []
+320 /masuk/buka-kembali | 200 | {"url":"/masuk/buka-kembali","h1":"Minta akun dibuka kembali","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Minta akun dibuka kembali · PINTAR"} | axe []
+320 /verifikasi/TIDAKADA00000000 | 200 | {"url":"/verifikasi/TIDAKADA00000000","h1":"Verifikasi Sertifikat","mains":1,"isi":1,"sideways":false,"lang":"id","title":"Verifikasi Sertifikat · PINTAR"} | axe []
+320 non-GET requests made by the pages themselves: []

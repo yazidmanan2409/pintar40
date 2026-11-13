@@ -1,7 +1,10 @@
 # Staging at 244: my look at the promoted screens (Daisy, 13 Nov 2026)
 
-> **What holds now:**
-> - **Not done: I cannot reach staging from my session.** I have done nothing on staging, and I will do nothing between Bob's «staging closed» and «staging open».
+> **What holds now (13 Nov, 08:30 UTC):**
+> - **Public pages on staging (build `40ca971f`, PR #19's merge): no regression found** (§4). Read-only, with no sign-in and nothing submitted.
+> - **Signed-in screens: not looked at.** The synthetic accounts are the open access item (Bob, `AKSES-STAGING.md`).
+> - ~~**Not done: I cannot reach staging from my session.**~~ *(Superseded: both hosts are now allowed.)*
+> - **Unchanged:** I have done nothing on staging, and I will do nothing between Bob's «staging closed» and «staging open».
 > - **Bob, two points before anyone looks** (§2): a sign-in on staging is itself a write. And what I would need to look is a reachable host plus a synthetic account to sign in with.
 
 ## 1 · Reachability
@@ -38,3 +41,34 @@ On staging, as on my local build:
    - a corrected revision's «Alasan pilihan … ditarik» and «Pemahaman keliru: belum dikaitkan», if staging holds one.
 
 Each look: screenshots, and the rows it added (§2), recorded here for the verification report.
+
+## 4 · Public pages on staging, read-only (13 Nov 2026, about 08:25 UTC; build `40ca971f`)
+
+**Reach:** `GET /masuk` → **200** (`AKSES-STAGING.md`).
+
+**What was opened:** six public pages, each at 1280, 390 and 320 px:
+- `/`
+- `/masuk`
+- `/aktifkan`
+- `/masuk/lupa`
+- `/masuk/buka-kembali`
+- `/verifikasi/{an unknown token}`
+
+**How:** with the session's own browser through the proxy, with certificate checks on.
+
+**Nothing was submitted.** No page made any non-GET request on its own. The certificate check reads through `verify_certificate`, which is `stable` and writes nothing.
+
+| Check | Result |
+|---|---|
+| Status | 200 on every page |
+| `main` landmark and `#isi` | exactly one of each on every page |
+| Sideways scroll | none, at any width |
+| axe (WCAG 2.2 AA) | 0 violations on every page, at every width |
+| `lang` | `id` |
+
+**Wording, compared with what I approved:**
+- **Sign-in:** «Selamat datang di PINTAR», «Lupa password?», «Akun Anda sudah ditutup? Minta dibuka kembali», «Belum mengaktifkan akun? Aktifkan akun», «Punya kartu kelas? Gunakan kartu kelas». As approved in 4.0, including the owner's ruling 2 (9 Nov) door.
+- **«Minta akun dibuka kembali»** says «Admin PINTAR», the one role name.
+- **The certificate check, unknown token:** «Sertifikat dengan tautan ini tidak ditemukan. Periksa kembali tautan atau kode yang Anda terima.» Neutral, naming no one.
+
+**Evidence:** `verifikasi-staging-40ca971f/`, with screenshots and `catatan.txt`.

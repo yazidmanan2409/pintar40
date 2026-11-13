@@ -2,7 +2,9 @@
 
 > **What holds now:** read-only, no sign-in, no write. The owner authorised this one request (13 Nov), and Bob++ assigned it.
 
-**1 · The request.** `GET https://staging.pintarselalu.com/masuk`, once, from my session, 13 Nov 2026:
+**1 · The request.** *(Repeated 13 Nov, after both hosts were allowed: `GET /masuk` → **200**.)*
+
+**First attempt:** `GET https://staging.pintarselalu.com/masuk`, once, from my session, 13 Nov 2026:
 
 ```
 curl: (56) CONNECT tunnel failed, response 403
