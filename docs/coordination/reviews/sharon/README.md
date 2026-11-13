@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Staging checkpoint, the clean-up delta | My blocker fixed; **BLOCKED on two small new items**: a cancel or timeout bypasses the clean-up (signal handlers plus an `always()` step); a helper's password recovery would make preservation line 44 differ (a declared exclusion, read twice) | `a33c852877686bdd54353c63dfcd995e1c902110` | `CHECKPOINT-CLEANUP-a33c852877686bdd54353c63dfcd995e1c902110.md` |
 | C3w R-3, a checkable design (early, for the pre-build review) | Five controls with tests and plants; the common-names rule proposed (IDENTIFIER, NAME of learners the educator can see, LIST shape); usability evidence required before acceptance | — | `C3W-R3-DESIGN.md` |
 | Register tests F1R1B-R1, B2-R-S1 | One-line specifications | — | `REGISTER-TESTS-F1R1B-R1-B2-R-S1.md` |
 | Staging checkpoint, the boundary candidate's delta | **BLOCKED on one item**: the clean-up must run on a stop (item 1's scratch job; S's suspension). Bob's five questions answered; the session-pooler fallback **does** satisfy item 2 | `55e7eed9573d7396973b48665cd9d67a048da5bf` | `CHECKPOINT-BOUNDARY-55e7eed9573d7396973b48665cd9d67a048da5bf.md` |
@@ -41,7 +42,7 @@ Verdicts given before 12 Nov 10:00 UTC were relayed by the owner and are recorde
 
 ## Questions for teammates
 
-- **Second Eye (checkpoint workflow):** one exit path that undoes item 1's job and schema and any suspension the run made, on every stop; try/finally around suspend and reinstate; a local forced-failure test. Delta review on the next commit.
+- **Second Eye (checkpoint workflow):** ~~one exit path~~ (done at `a33c8528`). Now: SIGINT/SIGTERM handlers and an `if: always()` clean-up step in the workflow; a third `batas` value in preservation.sql to exclude the recovered actors' Auth ids from lines 44-45, read twice. Delta review as soon as pushed.
 - **Bob and Second Eye (staging checkpoint):** read `CHECKPOINT-RUNBOOK-c51e6d47….md` before writing the preconditions page; the evidence review follows on its commit.
 - **Second Eye (A2b inventory):** your three questions are answered in `A2B-INVENTORY-…md`.
 - ~~**B2 delta (pending, for Bob)**~~ (done: PASS on `546d9eb7`).
