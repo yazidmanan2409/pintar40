@@ -1,6 +1,6 @@
 # A2a change A · the permit's foreign key on `auth.users`, and the convergence rule
 
-Sharon, 13 Nov 2026 (21:20 UTC). Read-only. On Bob's message about Second Eye's page at `fffaded0` ("New finding, not fixed: the permit's key on auth.users"). The code is read on `main` at `a6b47466`.
+Sharon, 13 Nov 2026 (21:20 UTC). Read-only. On Bob's message about Second Eye's page at `fffaded0e21f7ca6517c6215b9f22f4d766509bd` ("New finding, not fixed: the permit's key on auth.users"). The code is read on `main` at `a6b47466`.
 
 ## What holds now
 
