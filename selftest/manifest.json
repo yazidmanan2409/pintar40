@@ -6139,6 +6139,11 @@
       "id": "A2A-L02",
       "runner": "static",
       "proves": "Sharon's ruling 3 (early read of 7b3b3d31), the evidence for A2A-L01's declared exception: on two real connections, connection A holds a synthetic person FOR UPDATE while connection B, carrying no PINTAR person, makes Auth's level-3 email-recovery password write with a 1 s lock timeout (permit, grant and ladder committed before and removed after; B rolled back); B goes through without waiting, because recovery_assist_school answers null with no person (migration 20270118100000); with its plant (recovery_assist_school reaching sekolah_memegang) the same write waits on A and times out; nothing is left behind."
+    },
+    {
+      "id": "A2A-L03",
+      "runner": "static",
+      "proves": "Sharon's ruling on A2A-L01 (A2A-L01-FINDING-f09da528.md; migration 20270118110000): on two real connections, connection A takes a learner FOR UPDATE and then that learner's sittings in the statuses the hold takes, in pengerjaan_tahan_orang's own query (tangguhkan_akun's order), while connection B runs the real finalize_session of a copy of a sitting IN_PROGRESS a day past its deadline (committed before, removed after; both rolled back); B waits for A and then finishes, with no deadlock, because finalize_session and pengerjaan_putus_tenggat take the learner FOR KEY SHARE before the sitting; with the plant (both of those first locks removed, 245's code) the same race ends in \"deadlock detected\"."
     }
   ]
 }

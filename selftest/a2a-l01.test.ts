@@ -337,6 +337,39 @@ async function balapanPemulihan(db: string, u: string, p: string, pid: string) {
   }
 }
 
+// ── A2A-L03: finalize_session against the hold, on two real connections (Sharon, A2A-L01-FINDING-f09da528.md)
+const SESI_L03 = "a2a10300-0000-4000-8000-000000000001";
+/** The fixture: a copy of a finalized sitting, IN_PROGRESS and a day past its deadline, committed (replica role: no
+ *  trigger; the copy is the only row the test makes, and it is removed after). Returns its learner. */
+function sesiL03(db: string): string {
+  return psql1(db, `begin; set local session_replication_role = replica;
+    insert into public.assessment_sessions
+    select (jsonb_populate_record(s, jsonb_build_object('id', '${SESI_L03}', 'status', 'IN_PROGRESS',
+      'authoritative_deadline', now() - interval '1 day', 'finalized_at', null, 'submitted_at', null,
+      'closure_kind', null, 'closure_at', null, 'frozen_at', null, 'unfrozen_at', null))).*
+      from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;
+    commit;
+    select person_id from public.assessment_sessions where id = '${SESI_L03}';`).split("\n").pop()!;
+}
+/** A: the hold's own order (tangguhkan_akun → pengerjaan_tahan_orang): the learner FOR UPDATE, then, 1.5 s later, the
+ *  learner's sittings in the statuses the hold takes, by pengerjaan_tahan_orang's own query; rolled back. B, 0.5 s after
+ *  A began: the real finalize_session of the fixture, rolled back. */
+async function balapanTahan(db: string, orang: string) {
+  const { psqlLain, tidur } = await import("./balapan");
+  const a = psqlLain(`begin; select 1 from public.persons where id = '${orang}' for update; select pg_sleep(1.5);
+    select count(*) from (select a.id from public.assessment_sessions a where a.person_id = '${orang}'
+      and a.status in ('CREATED', 'IN_PROGRESS', 'PAUSED') and not (a.frozen_at is not null and a.unfrozen_at is null)
+      order by a.id for update) z; select pg_sleep(0.3); rollback;`);
+  await tidur(500);
+  const b = psqlLain(`begin; select public.finalize_session('${SESI_L03}'); rollback;`);
+  const [satu, dua] = await Promise.all([a, b]);
+  return { satu, dua };
+}
+// the plant: both of the learner's first locks finalize_session reaches removed (its own, and pengerjaan_putus_tenggat's,
+// which it calls first) — the code as it was on 245
+const KUNCI_FINAL = "  perform 1 from public.persons where id = v_s.person_id for key share;\n";
+const KUNCI_TENGGAT = "  perform 1 from public.persons p, public.assessment_sessions a where a.id = p_session and p.id = a.person_id for key share of p;\n";
+
 export const a2aL01Tests: SelfTest[] = [
   {
     id: "A2A-L01",
@@ -397,6 +430,38 @@ export const a2aL01Tests: SelfTest[] = [
       c.expect(psql1(db, `select count(*) from public.password_write_permits where auth_user_id = '${u}' and purpose = 'RECOVERY'`) === "0",
         "the test left a permit behind");
       return c.verdict(`Auth's recovery password write went through in ${r.dua.ms} ms while A held the person; with the plant it waited and timed out`);
+    },
+  },
+  {
+    // A2A-L03 — a sitting is written after its learner (Sharon, A2A-L01-FINDING-f09da528.md; migration 20270118110000):
+    // finalize_session of a sitting past its deadline, while the hold holds the learner and wants that sitting, waits
+    // for the hold and then finishes; no deadlock. Red with its plant (the learner's first locks removed: 245's code).
+    id: "A2A-L03",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const db = process.env.SUPABASE_DB_URL!;
+      const { gantiFungsi } = await import("./balapan");
+      const orang = sesiL03(db);
+      c.expect(/^[0-9a-f-]{36}$/.test(orang), "no finalized sitting to copy for the fixture");
+      try {
+        const r = await balapanTahan(db, orang);
+        c.expect(r.satu.ok, `the hold (A) failed: ${r.satu.err}`);
+        c.expect(r.dua.ok, `finalize_session (B) failed while the hold held its learner: ${r.dua.err}`);
+        c.expect(r.dua.ms >= 1100, `finalize_session took ${r.dua.ms} ms: it did not wait for the hold, so the race did not overlap`);
+        // the plant: 245's order (the sitting first) must deadlock
+        const balik1 = gantiFungsi("public.finalize_session(uuid)", KUNCI_FINAL, "");
+        let tanam: Awaited<ReturnType<typeof balapanTahan>>;
+        try {
+          const balik2 = gantiFungsi("public.pengerjaan_putus_tenggat(uuid,boolean)", KUNCI_TENGGAT, "");
+          try { tanam = await balapanTahan(db, orang); } finally { balik2(); }
+        } finally { balik1(); }
+        const mati = [tanam.satu, tanam.dua].filter((x) => !x.ok && /deadlock detected/.test(x.err));
+        c.expect(mati.length === 1, `with the plant (the sitting before its learner) there was no deadlock: A ${tanam.satu.ok ? "ok" : tanam.satu.err}; B ${tanam.dua.ok ? "ok" : tanam.dua.err}`);
+        return c.verdict(`finalize_session waited ${r.dua.ms} ms for the hold, then finished; with the plant (245's order) "deadlock detected"`);
+      } finally {
+        psql1(db, `begin; set local session_replication_role = replica; delete from public.assessment_sessions where id = '${SESI_L03}'; commit;`);
+      }
     },
   },
 ];
