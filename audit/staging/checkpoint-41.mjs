@@ -85,10 +85,75 @@ async function langkah(id, judul, fn) {
     log(`DIFFERS   ${id}  ${judul} :: ${detail}`);
     log(`STOPPED at ${id}: a result differs from the page. Material discrepancy: record it in the runbook and hold.`);
     simpan();
-    await browser?.close().catch(() => {});
-    process.exit(1);
+    await selesai(1);
   }
 }
+
+// ═══════════════════════════════════════════════════ THE ONE EXIT PATH (Sharon, CHECKPOINT-BOUNDARY-55e7eed9…)
+// Every stop and the success end here. Before the process ends it undoes what this run did on staging and has not
+// undone yet, reading staging for each, never trusting what the run believes it did:
+//   * item 1's scratch job and schema, if 1g has not completed (by name: 1e starts only when neither exists);
+//   * every person this run suspended who is still suspended by it (an open ADMINISTRATIVE suspension with this run's
+//     note), reinstated through the same function, with PA's session.
+// The undo does not make a stop a pass: the step that differed still stops the checkpoint. Each undo is written to
+// checkpoint-41.json (`undo`); an undo that fails is written as FAILED and is the owner's. L and E are not undone:
+// they stay as they are, recorded.
+const CATATAN = `Pemeriksaan staging 4.1 (run ${RUN}): akun sintetis`;
+const ditangguhkan = new Map();   // person id -> label, from just before a suspension is asked for
+let selesai1g = false, PA = null, selesaiSudah = false;
+hasil.undo = [];
+async function rapikan() {
+  // item 1
+  if (!selesai1g) {
+    try {
+      const ada = baca(`select (select count(*) from cron.job where jobname = 'uji-41-prosedur-komit') || ' ' ||
+          (select count(*) from pg_namespace where nspname = 'uji_cron_41')`);
+      if (ada !== "0 0") {
+        tulis(`select cron.unschedule(jobid) from cron.job where jobname = 'uji-41-prosedur-komit'`);
+        if (hasil.ids.jobid) tulis(`delete from cron.job_run_details where jobid = ${Number(hasil.ids.jobid)}`);
+        tulis(`drop schema if exists uji_cron_41 cascade`);
+        const r = baca(`select (select count(*) from cron.job where jobname = 'uji-41-prosedur-komit') || ' ' ||
+            (select count(*) from cron.job_run_details where jobid = ${Number(hasil.ids.jobid ?? 0)}) || ' ' ||
+            (select count(*) from pg_namespace where nspname = 'uji_cron_41') || ' ' || (select count(*) from pg_proc where proname = 'dua_kali')`);
+        hasil.undo.push({ apa: "item 1's scratch job and schema", hasil: r === "0 0 0 0" ? `removed; the catalogue reads ${r}` : `FAILED: the catalogue reads ${r}; the owner's`, ok: r === "0 0 0 0" });
+      }
+    } catch (e) {
+      hasil.undo.push({ apa: "item 1's scratch job and schema", hasil: `FAILED: ${String(e?.message ?? e).split("\n")[0].slice(0, 200)}; the owner's`, ok: false });
+    }
+  }
+  // suspensions this run made and has not ended
+  for (const [orang, label] of ditangguhkan) {
+    try {
+      const buka = baca(`select count(*) from public.person_suspensions where person_id = ${lit(orang)} and ended_at is null
+          and category = 'ADMINISTRATIVE' and note = ${lit(CATATAN)}`);
+      if (buka === "0") { ditangguhkan.delete(orang); continue; }
+      if (!PA) throw new Error("PA has no session to reinstate with");
+      paksa("undo");   // the local test of an undo that itself fails
+      const r = await fungsi(PA, "aktifkan_kembali_akun", { p_person: orang, p_alasan: `Pemeriksaan staging 4.1 berhenti; dipulihkan oleh run ${RUN}` });
+      const sisa = baca(`select count(*) from public.person_suspensions where person_id = ${lit(orang)} and ended_at is null and note = ${lit(CATATAN)}`);
+      const ok = r.status < 300 && sisa === "0";
+      hasil.undo.push({ apa: `${label} reinstated`, hasil: ok ? "reinstated; no suspension of this run left open" : `FAILED: ${r.status}, ${sisa} left open; the owner's`, ok });
+      if (ok) ditangguhkan.delete(orang);
+    } catch (e) {
+      hasil.undo.push({ apa: `${label} reinstated`, hasil: `FAILED: ${String(e?.message ?? e).split("\n")[0].slice(0, 200)}; the owner's`, ok: false });
+    }
+  }
+  for (const u of hasil.undo.slice(-10)) log(`UNDO      ${u.apa} :: ${u.hasil}`);
+  simpan();
+}
+async function selesai(kode) {
+  if (selesaiSudah) return;
+  selesaiSudah = true;
+  await rapikan().catch((e) => { hasil.undo.push({ apa: "the clean-up", hasil: `FAILED: ${String(e?.message ?? e).slice(0, 200)}; the owner's`, ok: false }); simpan(); });
+  await browser?.close().catch(() => {});
+  process.exit(kode);
+}
+// anything that escapes a step still leaves through the one exit path
+process.on("unhandledRejection", (e) => { hasil.stopped ??= "(outside a step)"; log(`STOPPED outside a step: ${String(e?.message ?? e).split("\n")[0].slice(0, 300)}`); simpan(); void selesai(1); });
+process.on("uncaughtException", (e) => { hasil.stopped ??= "(outside a step)"; log(`STOPPED outside a step: ${String(e?.message ?? e).split("\n")[0].slice(0, 300)}`); simpan(); void selesai(1); });
+// the engineer's local test forces a failure at a named point; refused against staging
+const PAKSA = LOCAL ? (process.env.CHECKPOINT_PAKSA ?? "") : "";
+const paksa = (titik) => { if (PAKSA.split(",").includes(titik)) throw new Beda(`forced failure at ${titik} (local test of the clean-up)`); };
 const harus = (ok, pesan) => { if (!ok) throw new Beda(pesan); };
 
 // ── the database: a read in a read-only transaction; item 1's and item 2's statements as written on the page
@@ -106,13 +171,16 @@ const keadaanDari = (email) => {
       where a.auth_user_id = u.id limit 1), 'NONE') from auth.users u where lower(u.email) = lower(${lit(email)}) limit 1`);
   return r === "" ? null : r;
 };
-async function masuk(email, { platform = false } = {}) {
+hasil.masuk = {};
+hasil.pemulihan = [];   // the roles whose password the walks' helper recovered by emailed code (an act on staging)
+async function masuk(email, { platform = false, peran }) {
   const ctx = await konteks();
   const page = await ctx.newPage();
   if (LOCAL) {
     await ctx.addCookies(sessionCookies(await session(email)));
     await page.goto(`${APP}/`, { timeout: SLOW });
     await page.waitForLoadState("networkidle").catch(() => {});
+    hasil.masuk[peran] = "a server-made session (local test only)";
     if (["/perangkat", "/aktifkan"].includes(new URL(page.url()).pathname)) {
       const { selesaikan, kredensial } = await import("./masuk.mjs");
       await selesaikan(page, kredensial(email));
@@ -120,7 +188,10 @@ async function masuk(email, { platform = false } = {}) {
   } else {
     const { masukStaf } = await import("./masuk.mjs");
     await page.goto(`${APP}/masuk`, { timeout: SLOW });
-    await masukStaf(page, email, keadaanDari);
+    const r = await masukStaf(page, email, keadaanDari);
+    // never S: S signs in only through /masuk/password at 3.3b, and is never recovered
+    hasil.masuk[peran] = r.jalan;
+    if (/Lupa password/.test(r.jalan)) hasil.pemulihan.push(peran);
   }
   if (platform) {
     // a platform administrator acts in «Seluruh platform» (D-132 C7), chosen as a person chooses it
@@ -207,9 +278,11 @@ await langkah("1e", "the scratch job: a procedure that commits between two inser
       commit;
     end $$;`);
   hasil.ids.jobid = tulis(`select cron.schedule('uji-41-prosedur-komit', '* * * * *', 'call uji_cron_41.dua_kali()')`);
+  simpan();
   return { detail: `jobid ${hasil.ids.jobid}` };
 });
 await langkah("1f", "its first run succeeded, and both rows are there in order", async () => {
+  paksa("1f");
   let run = "";
   for (let i = 0; i < 30 && !/^(succeeded|failed)\|/.test(run); i++) {
     await tunggu(10_000);
@@ -236,6 +309,7 @@ await langkah("1g", "the clean-up, and the catalogue shows nothing left", async 
       (select count(*) from pg_namespace where nspname = 'uji_cron_41') || ' ' || (select count(*) from pg_proc where proname = 'dua_kali')`);
   harus(r === "0 0 0 0", `left behind: ${r}`);
   const jobs = baca(`select string_agg(jobname || ' ' || n, ', ' order by jobname) from (select jobname, count(*) n from cron.job where jobname like 'pintar-%' group by 1) j`);
+  selesai1g = true;
   harus(jobs === "pintar-akuntabilitas-buang-lama 1, pintar-pengerjaan-tutup-terjadwal 1", `cron.job then reads ${jobs}`);
   return { detail: `${r}; ${jobs}` };
 });
@@ -296,17 +370,23 @@ await langkah("2c", "the timeouts of the five roles (recorded, against D6.1)", a
 
 // ═══════════════════════════════════════════════════════════════════════════ item 3 · Auth with a locked account
 browser = await chromium.launch();
-const SA = await masuk(SA_EMAIL);
-const PA = await masuk(PA_EMAIL, { platform: true });
+let SA;
+await langkah("3·", "the actors sign in: SA, then PA in «Seluruh platform»", async () => {
+  SA = await masuk(SA_EMAIL, { peran: "SA" });
+  PA = await masuk(PA_EMAIL, { platform: true, peran: "PA" });
+  return { detail: `SA by ${hasil.masuk.SA}; PA by ${hasil.masuk.PA}${hasil.pemulihan.length ? `; RECOVERED: ${hasil.pemulihan.join(", ")}` : ""}` };
+});
 const lUser = () => baca(`select a.auth_user_id from public.accounts a where a.person_id = ${lit(hasil.ids.L)} order by a.id limit 1`);
 const lKunci = () => baca(`select coalesce(u.banned_until::text, 'null') from auth.users u where u.id = ${lit(lUser())}`);
-const tangguhkan = async (person) => {
-  const r = await fungsi(PA, "tangguhkan_akun", { p_person: person, p_kategori: "ADMINISTRATIVE", p_catatan: "Pemeriksaan staging 4.1 (akun sintetis)" });
+const tangguhkan = async (person, label) => {
+  ditangguhkan.set(person, label);   // before asking: a suspension whose answer is lost is still found and undone
+  const r = await fungsi(PA, "tangguhkan_akun", { p_person: person, p_kategori: "ADMINISTRATIVE", p_catatan: CATATAN });
   harus(r.status < 300, `tangguhkan_akun answered ${r.status} ${JSON.stringify(r.body).slice(0, 200)}`);
 };
 const pulihkan = async (person) => {
   const r = await fungsi(PA, "aktifkan_kembali_akun", { p_person: person, p_alasan: "Pemeriksaan staging 4.1 selesai untuk langkah ini" });
   harus(r.status < 300, `aktifkan_kembali_akun answered ${r.status} ${JSON.stringify(r.body).slice(0, 200)}`);
+  ditangguhkan.delete(person);
 };
 const masukKartu = async (ctx, kartu, pin) => rute(ctx, "/masuk/kartu", { form: { kartu, pin } });
 
@@ -331,7 +411,7 @@ await langkah("3.0", `SA rosters L («${L_NAMA}») into «${KELAS}» through /pe
   return { detail: `L ${id}, no account, enrolment ${enr}` };
 });
 await langkah("3.1a", "PA suspends L, who has no account", async () => {
-  await tangguhkan(hasil.ids.L);
+  await tangguhkan(hasil.ids.L, "L");
   const r = baca(`select count(*) from public.person_suspensions where person_id = ${lit(hasil.ids.L)} and ended_at is null and category = 'ADMINISTRATIVE'`);
   harus(r === "1", `open suspensions: ${r}`);
   return { detail: "one open ADMINISTRATIVE suspension" };
@@ -347,6 +427,7 @@ await langkah("3.1b", "SA gives L a class card: hosted Auth inserts the user, an
   return { detail: `one account; banned_until ${k} at the first read` };
 });
 await langkah("3.2", "SA reissues L's card while L is locked (Auth's admin password write): the lock stays", async () => {
+  paksa("3.2");
   const sebelum = lKunci();
   const r = await rute(SA.ctx, "/api/akun/kartu-kelas", { json: { person_id: hasil.ids.L, alasan: "HILANG" } });
   harus(r.status === 200 && r.body?.ok && r.body?.kartu?.card, `the reissue answered ${r.status} ${String(r.body?.code ?? "(no code)")}`);
@@ -380,12 +461,17 @@ await langkah("3.3b", "password sign-in on a locked synthetic staff account (S),
     return { verdict: "OWNER", detail: `S's derived password does not sign in (${jawaban(hidup)}): no existing secret holds it; this step goes to the owner` };
   }
   hasil.ids.S = sid;
-  await tangguhkan(sid);
-  const c1 = await konteks();
-  const benar = await rute(c1, "/masuk/password", { form: { identitas: S_EMAIL, password: pw } });
-  const salah = await rute(c1, "/masuk/password", { form: { identitas: S_EMAIL, password: `${pw}x` } });
-  await c1.close();
-  await pulihkan(sid);
+  let benar, salah;
+  await tangguhkan(sid, "S");
+  try {
+    const c1 = await konteks();
+    benar = await rute(c1, "/masuk/password", { form: { identitas: S_EMAIL, password: pw } });
+    paksa("3.3b");
+    salah = await rute(c1, "/masuk/password", { form: { identitas: S_EMAIL, password: `${pw}x` } });
+    await c1.close();
+  } finally {
+    await pulihkan(sid);
+  }
   penolakanRute(benar, "the locked password sign-in"); penolakanRute(salah, "the wrong password");
   harus(jawaban(benar) === jawaban(salah), `locked, right password ${jawaban(benar)} ≠ wrong password ${jawaban(salah)}`);
   harus(!benar.body?.ok, "a locked staff account signed in with its password");
@@ -407,12 +493,16 @@ await langkah("3.4", "PA reinstates L; the card's wrong-PIN answer equals 3.3a's
 });
 await langkah("3.5", "a refresh while L is locked again: refused, no new session; then reinstated", async () => {
   const t = await token(lSesi.ctx);
-  await tangguhkan(hasil.ids.L);
-  const r = await fetch(`${SB}/auth/v1/token?grant_type=refresh_token`, {
-    method: "POST", headers: { apikey: ANON, "Content-Type": "application/json" }, body: JSON.stringify({ refresh_token: t.refresh_token }),
-  });
-  const j = await r.json().catch(() => ({}));
-  await pulihkan(hasil.ids.L);
+  let r, j;
+  await tangguhkan(hasil.ids.L, "L");
+  try {
+    r = await fetch(`${SB}/auth/v1/token?grant_type=refresh_token`, {
+      method: "POST", headers: { apikey: ANON, "Content-Type": "application/json" }, body: JSON.stringify({ refresh_token: t.refresh_token }),
+    });
+    j = await r.json().catch(() => ({}));
+  } finally {
+    await pulihkan(hasil.ids.L);
+  }
   harus(!j.access_token, "the refresh gave a new session to a locked account");
   // the suspension ends L's sessions (akun_kunci deletes them), so Auth may find no token to call banned: either code is a
   // refusal with no new session; which one is recorded (the page, 3.5)
@@ -509,7 +599,7 @@ await langkah("4c.0", "PA records E, a new person with an email account (/api/ak
   const [pid, uid, kind] = id.split(" ");
   harus(kind === "EMAIL", `E's account reads ${id || "absent"}`);
   hasil.ids.E = pid; hasil.ids.E_user = uid;
-  E = await masuk(E_EMAIL);
+  E = await masuk(E_EMAIL, { peran: "E" });
   return { detail: `E ${pid}, an EMAIL account; signed in` };
 });
 await langkah("4c.1", "E asks for the deletion of their personal data, then closes their account", async () => {
@@ -548,6 +638,8 @@ await langkah("4c.3", "E is closed and anonymised: terminal", async () => {
 
 hasil.finished = new Date().toISOString();
 simpan();
+await rapikan();
 log(`ALL STEPS DONE: ${hasil.steps.filter((s) => s.verdict === "PASS").length} PASS, ${hasil.steps.filter((s) => s.verdict === "RECORDED").length} RECORDED, `
-  + `${hasil.steps.filter((s) => s.verdict === "OWNER").length} for the owner. L ${hasil.ids.L} and E ${hasil.ids.E} stay anonymised and terminal.`);
-await browser.close();
+  + `${hasil.steps.filter((s) => s.verdict === "OWNER").length} for the owner. L ${hasil.ids.L} and E ${hasil.ids.E} stay anonymised and terminal.`
+  + (hasil.pemulihan.length ? ` Passwords recovered by emailed code: ${hasil.pemulihan.join(", ")}.` : " No password was recovered."));
+await selesai(0);

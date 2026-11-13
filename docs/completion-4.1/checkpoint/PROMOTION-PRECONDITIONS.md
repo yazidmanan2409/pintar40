@@ -131,7 +131,8 @@ select x.who, count(distinct a.id) as accounts,
   - **No credential is created.**
   - One caveat, on SA and PA: the walks' own sign-in helper, which the workflow reuses, recovers a password that no
     longer matches. It does so by «Lupa password?» with the emailed code, as every walk does. That is the derived
-    password again, not a new credential.
+    password again, not a new credential, but it is an act on staging. Its rows are listed in "If the workflow
+    stops" below, and the record says whether it happened (`pemulihan`).
 
 ### The workflow's record, field by field (what the artifact holds)
 
@@ -161,6 +162,61 @@ access and refresh token.
 | `directUnreachable` | Set when 2a could not reach the direct host and used the session pooler | — |
 | `transactionControl` | `FAILED` when 1f failed because of transaction control (A2a held) | — |
 | `stopped`, `halaman` | The step it stopped at, and each actor's page path at that moment (for example `/pendataan`) | The page's content |
+| `undo[]` | One entry per undo the exit path made: `apa` (what), `hasil` (`removed; the catalogue reads 0 0 0 0`, `reinstated; …`, or `FAILED: …; the owner's`), `ok` | — |
+| `masuk` | For SA, PA and E: how each signed in (`the password`, `activated by the emailed code`, or `«Lupa password?» by the emailed code, then the password`) | The password or the code |
+| `pemulihan[]` | The roles whose password the walks' helper **recovered** by emailed code (`SA`, `PA`); empty when none was. Never `S`: S never passes through that helper | — |
+
+### If the workflow stops: what is left on staging, stage by stage
+
+(Sharon, `CHECKPOINT-BOUNDARY-55e7eed9….md`; runbook §3f.)
+- **There is one exit path, run on every stop and at the end of a successful run.** A step that differs, and an
+  error outside any step, both go through it.
+- **Before the process ends, it undoes what this run did and has not yet undone.** It reads staging to find these,
+  rather than trusting the run's own memory:
+  - **Item 1's scratch job and schema**, if 1g has not completed. It finds them by name (1e starts only when neither
+    exists), unschedules the job, deletes its run details and drops the schema. It records the catalogue read
+    afterwards, which must be `0 0 0 0`.
+  - **Every person this run suspended who is still suspended by it**: an open `ADMINISTRATIVE` suspension carrying
+    this run's note. Each is reinstated through the same function, `aktifkan_kembali_akun`, with PA's session.
+- **3.3b and 3.5 also suspend and reinstate inside `try`/`finally`**, so a throw between the two still reinstates.
+- **Each undo is written to `checkpoint-41.json` (`undo`).** An undo that itself fails is written as `FAILED`, and it
+  is the owner's.
+- **The undo does not make a stop a pass:** the step that differed still stops the checkpoint.
+- **L and E are not undone.** They are left as they are and recorded: they are synthetic, and the record names them.
+
+| A stop at | Left on staging after the exit path | Recorded |
+|---|---|---|
+| A1, A2 | Nothing: these steps only read | the stop |
+| 1e (after scheduling) or 1f | **Nothing from item 1.** The job is unscheduled, its run details deleted and the schema dropped; `0 0 0 0` | `undo`: item 1's scratch job and schema |
+| 1g | The same as 1f, if 1g's own clean-up did not complete | `undo`, if needed |
+| 2a, 2c | Nothing: the advisory lock ends with its transaction | the stop |
+| 3· (signing in) | Whatever the walks' helper did to sign SA or PA in. A password recovery is listed below and in `pemulihan` | `masuk`, `pemulihan` |
+| 3a | Nothing new | the stop |
+| 3.0 | L, rostered (person, enrolment, import job): **left, recorded** | `ids.L`, `ids.enrolment` |
+| 3.1a to 3.3a | L, rostered; **L's suspension is ended by the exit path** (L, with a class card from 3.1b on, is then live and unlocked) | `undo`: L reinstated |
+| 3.3b | S, **reinstated by the step's own `finally`** (or by the exit path if that also failed); L reinstated by the exit path | `undo` |
+| 3.4, 3.5 | L, live (3.5's own suspension reinstated by its `finally`, or by the exit path) | `undo`, if needed |
+| 6a, 6c, 4a | L, live, with a class card: left, recorded | the stop |
+| 4b.1 to 4b.4 | L at the stage reached (enrolment ended; requests made; closed; or anonymised): left, recorded | the stop |
+| 4c.0 to 4c.3 | L anonymised; E at the stage reached (made; signed in; closed; or anonymised): left, recorded | `ids.E` |
+| (success) | L and E anonymised and terminal; nothing else of the run's acts | `undo` empty |
+
+**A password recovery by the reused sign-in helper is an act on staging** (Bob's item 6). The workflow signs SA and PA
+in with the walks' own helper (`masukStaf` in `audit/staging/masuk.mjs`). If an actor's derived password no longer
+opens the account, the helper recovers it as its owner would: «Lupa password?», a code by email, and the derived
+password set again. **It never does this for S** (3.3b tries S's password once and, if it fails, records `OWNER`). If
+a recovery happens, it writes, for that one account:
+- `public.identity_attempts`: the code check's attempt rows, settled;
+- `public.email_send_log`: one row for the emailed code;
+- `public.password_recovery_grants`: one grant, issued and then consumed;
+- `public.password_write_permits`: one `RECOVERY` permit, transient and consumed;
+- `public.audit_log`: `identity.recovery_verified` and `identity.password_set`;
+- `public.accountability_events`: the recovery's sign-in;
+- in Auth: `auth.users.encrypted_password` (the derived password again, through the service route's admin password
+  write), `auth.one_time_tokens` and `auth.audit_log_entries` for the emailed code, and the new session.
+
+Whether a recovery happened, and for which role, is in `checkpoint-41.json` (`pemulihan`; `masuk` says how each actor
+signed in), and in the run's last line.
 
 ### A · The promotion itself
 
@@ -540,5 +596,10 @@ staging without the owner.
     `staging.yml` runs.
   - It acts only through the product's paths, as the synthetic actors above, and stops at the first difference.
   - It was run end to end against a local stack (`CHECKPOINT_LOCAL=1`, with the seed's synthetic school standing in
-    for the Golden School): 25 steps PASS and 2 RECORDED (test record:
-    `evidence/checkpoint-41-local-run.txt`).
+    for the Golden School): 26 steps PASS and 2 RECORDED.
+  - **The one exit path was tested by forced failures:**
+    - a stop at 1f leaves no job or schema;
+    - a stop at 3.2 reinstates L;
+    - a throw inside 3.3b reinstates S;
+    - an undo that itself fails is recorded as `FAILED`, the owner's.
+  - Test record: `evidence/checkpoint-41-local-run.txt`.
