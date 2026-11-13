@@ -56,9 +56,37 @@
     This page still has to say why no act on the evaluator takes one of those rows.
   - **(C) cannot freeze while the window functions' "pending B1" exception stands.**
 
+**Sharon's ruling on the permit finding, and her two limits on convergence** (`A2A-CHANGE-A-PERMIT-KEY.md` on
+`claude/gracious-lamport-0m1qjr` at `4f4272c4`; relayed by the Chief Architect at 20:57 UTC; read it in full
+before continuing).
+
+**The permit finding is not real in PINTAR's code.** Nothing deletes `auth.users`, locks it `FOR UPDATE`, or calls
+Auth's user deletion.
+- **It is declared** as a named exception in A2A-L01, not fixed, with three checked conditions:
+  1. a repository check in A2A-F01's form, with a plant: no delete or `FOR UPDATE` of `auth.users`, and no call to
+     Auth's user deletion;
+  2. the structural check in `20270117190000` also asserts that `akun_kunci` locks `FOR NO KEY UPDATE`;
+  3. the three permit functions take the person first. The existing check covers this; it is named.
+- **The `KEY SHARE`-first fix is a register item,** for the day PINTAR deletes auth users.
+
+**The two limits, now binding:**
+1. **Anything that touches what A2a adds or changes BLOCKS A2a, and is not registered.** That is the fence, held
+   sittings, `maintenance_windows`, `change_maintenance`, the closer, and any function in the writer enumeration.
+   Only an inherited cycle elsewhere, whose outcome is 40P01 with nothing lost, may be registered.
+2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
+   green A2A-L01 in which every exception is named, never green by omission.
+
+**Remaining work on change A, in order:**
+1. **C1:** `akhiri_pendaftaran`, its race test and the sweep.
+2. **C2:** the one-off reading list. Enrollments are already ranked (commit 7).
+3. **Sharon's two additions** on this page.
+4. **The permit exception,** with its three conditions.
+5. **The rest of the 76 reports,** each classified under the two limits.
+6. Then update this block, with the time from `date -u`, and name change A's complete commit.
+
 **Waiting on whom:**
-- **Sharon:** the permit finding.
-- **Second Eye:** C1 and C2's reading, in a fresh session (this one is at its context limit).
+- **Sharon:** nothing now. The permit finding is ruled.
+- **Second Eye:** the remaining work above, in a fresh session (this one is at its context limit).
 - **The Chief Architect:** the freeze, under the convergence rule. There is no pre-flight and no dispatch before it.
 
 ## Before the build: what the checkpoint settled, and the design constraints
