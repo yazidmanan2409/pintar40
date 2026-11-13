@@ -42,7 +42,7 @@ channel:
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
-### Review queue (as of 00:56 UTC, 13 Nov; updated at each check)
+### Review queue (as of 03:10 UTC, 13 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
@@ -64,8 +64,8 @@ channel:
 | ~~**Sharon**~~ | ~~L1-F2's fix: the delta~~ **Done: PASS** on `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`; the foreign-key point answered (none reachable) | — | her record on `claude/gracious-lamport-0m1qjr` at `156382f908a70618f6c899aca0ffa3a42bf1a315` |
 | ~~**Second Eye**~~ | ~~L1-F2's blocker~~ **Fix pushed** at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` | — | — |
 | ~~**Sharon**~~ | ~~A2a's page with her four changes~~ **Done: carried** at `3c46d521a27ae87627d590363b973f5dd7c7c7a3`. **A2a is not built** | — | her branch at `3ad40227b14aee30d8513c5627b7b56c1da0cf79` |
-| **Second Eye** | **Staging checkpoint: one more commit, which becomes the boundary commit.** (1) Sharon's two required lines on the rollback's header and the page. (2) **A dispatched workflow and script that perform every acting after-merge step** (items 1's scratch job, 2, 3, 4, 6c) on the existing staging secrets, in the page's order, stopping at the first difference, uploading evidence, refusing any project but staging. (3) 6b as one `select`. (4) The page's "who runs it" for every step. (5) **From the five questions (§3d):** for each declared scheduled job, a read-only statement counting what its first run will act on in staging's existing data, by school; the workflow refuses to start while `staging.yml` runs; the page names the existing synthetic administrator accounts by role and secret name, or says which do not exist. Then pre-flight, push, CI, journeys | — | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3c and §3d; Sharon's `CHECKPOINT-EVIDENCE-d8db82bd….md` |
-| **Sharon** | **Evidence at `d8db82bde8d7a47e9936a34fd21686ca11adb472`: PASS (done).** Next: the delta of the commit above it (your two lines; the checkpoint workflow: that it does only the declared acts, on staging only, and stops on a difference) | next commit | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3c |
+| ~~**Second Eye**~~ | ~~Staging checkpoint: the boundary commit~~ **Pushed** at `55e7eed9573d7396973b48665cd9d67a048da5bf`. Nothing further owed; A2a is still not built | — | — |
+| **Sharon** | **The boundary candidate's delta:** your two lines; the checkpoint workflow (only the declared acts, staging only, stops on a difference); the staff password derived from an existing secret and checked first; the "direct" lock test's fallback to the session pooler | `55e7eed9573d7396973b48665cd9d67a048da5bf` (delta on `d8db82bde8d7a47e9936a34fd21686ca11adb472`) | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3c to §3e |
 | **Daisy** | After the promotion, if a browser can reach staging: one look at the promoted screens (B1's reader, B2's print, the key-correction screens). No action before then | after the merge | `STAGING-CHECKPOINT-BEFORE-A2A.md` §2 step 11 |
 
 ### For Second Eye, from Daisy's review of `97a40ebb…` and `ea3c4b6f…` (non-blocking; one commit, with L1-F2 or sooner)
@@ -373,3 +373,4 @@ correction cycles, without weakening any verification gates."* No gate is remove
 | 13 Nov 2026 (01:31 UTC) | The owner's principle recorded for everyone: think thoroughly before building, build carefully, verify rigorously; none replaces the others. At each result review, defects are marked anticipable or not, and the count is reported at each batch's close |
 | 13 Nov 2026 (01:34 UTC) | Baseline for the owner's principle: Sharon classed the nine defects of her 12 Nov reviews, all anticipable; with three found elsewhere, twelve. The Chief Architect's earlier "six" is corrected in place |
 | 13 Nov 2026 (01:34 UTC) | Baseline completed with Daisy's record: nineteen defects on 12 Nov, all anticipable; question 1 (what else reads or writes this state) is the largest group |
+| 13 Nov 2026 (03:10 UTC) | Boundary candidate `55e7eed9573d7396973b48665cd9d67a048da5bf` pushed and read; with Sharon for the delta; runs in progress. Staging read: the scheduler's first run will end 5 overdue sittings in two synthetic test schools, none in the demonstration school |

@@ -234,11 +234,32 @@ weakening any verification gates."* Applied here first, because the checkpoint i
 | 5 | Who runs each check, with what access? | Reads: the Chief Architect. Acts: the dispatched workflow, on existing secrets. **Do the synthetic administrators the page names (SA, PA) exist on staging today, with secrets?** | **Owed:** the page names the exact existing accounts by their role and the secret names (never values), or says which do not exist |
 
 
+### 3e · The boundary candidate `55e7eed9573d7396973b48665cd9d67a048da5bf`: Chief Architect's read (13 Nov 2026, 03:10 UTC)
+
+Two commits above the evidence: `8b3e07a3e80e31298a88e5912de34cc528866599` (the workflow, Sharon's two lines, 6b as
+one select, `first-runs.sql`, the page) and `55e7eed9573d7396973b48665cd9d67a048da5bf` (redaction; the artifact is the
+record alone). CI `43355398130` and journeys `43355401326` were in progress.
+
+- **Scope against `main`:** still no request file and no `supabase/config.toml`. New: `staging-checkpoint-41.yml`,
+  `audit/staging/checkpoint-41.mjs`, and documents under `docs/completion-4.1/checkpoint/`.
+- **The workflow, read in full.** Dispatch only; its job runs only on `main`; a typed confirmation; it refuses while
+  `staging.yml` has any unfinished run and shares its concurrency group; it checks the database URL names staging and
+  not production before anything connects; it reads the database URL, staging's public key and the test mailbox's
+  password, and not the service key; it uploads `checkpoint-41.json` alone, with every line redacted of tokens, keys,
+  passwords, PINs, card numbers and settings. Permissions: read only.
+- **Its dispatch needs two inputs** (the synthetic school's slug and a class name). The Chief Architect reads them
+  from staging before dispatching; they are not secrets.
+- **Five questions:** answered by §3d, and its three owed items are in.
+- **Still owed before the pull request:** green CI and journeys on `55e7eed9573d7396973b48665cd9d67a048da5bf`;
+  Sharon's review of the delta (her two lines; the workflow; the derived staff password; the "direct" lock test's
+  fallback); then preservation "before" and 6b on staging.
+
 ## 4 · Results
 
 | Step | When (UTC) | Result |
 |---|---|---|
 | B2 · migration count, before the merge (read-only; one `select`) | 13 Nov 2026, 00:56 | `224`, `20270113160000`, `d11e89838ecb656c4ca5b06b18941316`: **as expected.** Staging is at 224 and its versions are the repository's first 224 |
+| **First runs of the scheduled jobs** (§3d; `evidence/staging/first-runs.sql`, one read) | 13 Nov 2026, 03:10 | **The closer's first run will end and score 5 sittings, all past their deadline, all in synthetic test schools:** 4 in «Sekolah Uji Kinerja (sintetis)» (deadline 16 Oct; answers kept) and 1 in «Sekolah Uji Daisy 885» (deadline 8 Nov; no answers). **None in the demonstration school or any other school.** The retention job's first run removes nothing (its table is created empty). For the owner, with the pull request |
 | B1 · preservation "before" | — | To be taken on the final boundary commit, just before the pull request |
 
 ## 5 · Log
@@ -254,3 +275,4 @@ weakening any verification gates."* Applied here first, because the checkpoint i
 | 13 Nov 2026, 00:56 | Evidence at `d8db82bde8d7a47e9936a34fd21686ca11adb472` read; Sharon PASS with two required lines. Gap found: the acting steps need credentials, so they run as a dispatched workflow, which must be in the boundary commit. One more commit owed. Migration count read on staging: 224, as expected |
 | 13 Nov 2026, 01:18 | Owner: apply the five questions rigorously. Asked of the checkpoint itself (§3d): three more things owed in the boundary commit, chiefly a count of what each scheduled job's first run will act on in staging's existing data |
 | 13 Nov 2026, 02:04 | Second Eye: boundary candidate local at `8b3e07a3e80e31298a88e5912de34cc528866599`, in pre-flight, not pushed. It carries the dispatched workflow `staging-checkpoint-41.yml` (dispatch from `main` only, typed confirmation, staging only, existing secrets, tested end to end locally), 6b as one select, `first-runs.sql`, Sharon's two lines. For Sharon: the staff password is derived from an existing secret and checked before use, else that step is the owner's; the "direct" lock test may fall back to the session pooler. For the Chief Architect's read on push: the uploaded record and screenshots hold no token, key or setting value (a local run once printed a local JWT secret; fixed before any push) |
+| 13 Nov 2026, 03:10 | Boundary candidate pushed at `55e7eed9573d7396973b48665cd9d67a048da5bf` and read (§3e): no blocker. First-runs read on staging: 5 overdue sittings in two synthetic test schools will be ended and scored; none in the demonstration school. Waiting on its runs and Sharon's delta |
