@@ -103,6 +103,48 @@ const ALASAN_AUDIT = "audit_write's only foreign key to persons, evaluation_acto
 const lewatAkhir = (v: string) => v.match(/ — via (.*?); earlier via /)?.[1] ?? v.match(/, then \d via (.*)$/)?.[1] ?? "";
 /** An upgrade's first, weaker lock: the path after "strength N via". */
 const lewatAwalNaik = (v: string) => v.match(/^an upgrade on \S+: strength \d via (.*?), then \d via /)?.[1] ?? "";
+/** The permit's condition 1 (Sharon, A2A-CHANGE-A-PERMIT-KEY.md), in A2A-F01's form: no migration, nothing under src/
+ *  (or supabase/functions/), deletes from auth.users, takes it FOR UPDATE, or calls Auth's user deletion. */
+export function authUsersDihapus(berkas: { path: string; text: string }[]): string[] {
+  const salah: string[] = [];
+  for (const f of berkas) {
+    const t = f.path.endsWith(".sql") ? bersih(f.text) : f.text.replace(/\/\/[^\n]*/g, " ").replace(/\/\*[\s\S]*?\*\//g, " ");
+    if (/delete\s+from\s+(?:only\s+)?auth\.users\b/i.test(t)) salah.push(`${f.path}: deletes from auth.users`);
+    if (f.path.endsWith(".sql") && /\bfrom\s+auth\.users\b[^;]*\bfor\s+update\b/.test(t))
+      salah.push(`${f.path}: takes auth.users FOR UPDATE`);
+    if (/\bdeleteUser\s*\(/.test(t) || /\/admin\/users\/[^'"`]*['"`]\s*,\s*\{\s*method:\s*['"`]DELETE/i.test(t))
+      salah.push(`${f.path}: calls Auth's user deletion`);
+  }
+  return salah;
+}
+let repoAuthUsers: string[] | null = null;
+function bacaRepoAuthUsers(): string[] {
+  if (repoAuthUsers) return repoAuthUsers;
+  const { readdirSync, statSync } = require("node:fs") as typeof import("node:fs");
+  const berkas: { path: string; text: string }[] = [];
+  const jalan = (d: string) => {
+    let isi: string[] = [];
+    try { isi = readdirSync(d); } catch { return; }
+    for (const n of isi) {
+      const q = join(d, n);
+      if (statSync(q).isDirectory()) { if (n !== "node_modules") jalan(q); }
+      else if (/\.(sql|ts|tsx|js|mjs)$/.test(n)) berkas.push({ path: q, text: readFileSync(q, "utf8") });
+    }
+  };
+  for (const d of ["supabase/migrations", "src", "supabase/functions"]) jalan(join(process.cwd(), d));
+  return (repoAuthUsers = authUsersDihapus(berkas));
+}
+const syaratIzin = (kat: Katalog, l?: Kunci[]) => {
+  // 1. the repository: nothing deletes auth users, nor takes them FOR UPDATE
+  if (bacaRepoAuthUsers().length) return false;
+  // 2. akun_kunci's auth.users lock is FOR NO KEY UPDATE (asserted here, from the catalogue: 20270117190000 is deployed)
+  const ak = (kat.fns.get("akun_kunci") ?? []).map((b) => bersih(b).replace(/\s+/g, " "));
+  if (ak.length !== 1 || !/from auth\.users u where u\.id in \([^;]*\) order by u\.id for no key update/.test(ak[0])
+      || /\bfrom auth\.users\b[^;]*\bfor update\b/.test(ak[0])) return false;
+  // 3. the permit function takes the person before the account (the existing check of 20270117190000 holds it)
+  const i = l?.findIndex((x) => x.t === "persons") ?? -1, j = l?.findIndex((x) => x.t === "accounts") ?? -1;
+  return i >= 0 && j > i;
+};
 type Lewat = string | RegExp | ((v: string) => boolean);
 /** A same-row re-lock's mechanical half: the writer took the late lock's table, at least as strongly, before anything of a
  *  higher rank. (Its other half, that it is the same row, is the variable each entry names.) */
@@ -157,6 +199,13 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
   ...["certificate_prepare", "sertifikat_koreksi_siapkan"].map((penulis) => ({ penulis,
     lewat: (v: string) => /^an upgrade on persons: strength 0 via .*, then 1 via /.test(v),
     alasan: "KEY SHARE then FOR SHARE: the holder strengthens past a FOR UPDATE waiter; raced, no deadlock" })),
+  // THE PERMIT'S KEY ON auth.users (Sharon, A2A-CHANGE-A-PERMIT-KEY.md; register: "auth.users FOR KEY SHARE before the
+  // account, for the day PINTAR deletes auth users"): a KEY SHARE waits only on a delete or FOR UPDATE of the row, which
+  // nothing in PINTAR takes; her three conditions are checked
+  ...["password_write_permit", "recovery_grant_permit", "authorize_card_reissue"].map((penulis) => ({ penulis,
+    lewat: (v: string) => /^auth\.users \(rank 4\) after accounts \(rank 5\) — /.test(v) && lewatAkhir(v) === penulis,
+    alasan: "REGISTER (the permit's key): no delete or FOR UPDATE of auth.users anywhere; akun_kunci takes FOR NO KEY UPDATE; the person is taken first",
+    syarat: (kat: Katalog, l?: Kunci[]) => syaratIzin(kat, l) })),
   samaBaris("sesi_akhiri_orang", "device_sessions.auth_user_id is p_auth_user, the account's auth.users row its caller holds first (akun_kunci; Auth's own write; the auth.users trigger's row)"),
   samaBaris("orang_dianonimkan", "p_person is the attachment's NEW.person_id (orang_lampiran_jaga), the person the writer took first"),
   samaBaris("authorize_card_conversion", "card_conversions.person_id is p_person, taken FOR UPDATE first by sekolah_memegang"),
@@ -573,6 +622,15 @@ export const a2aL01Tests: SelfTest[] = [
       c.expect(t.salah.some((s) => s.startsWith("_a2a_l01_p5:") && /learning_assignments locked before the fence/.test(s)), "plant P5 (a row before the fence, B1) was not reported");
       const p2 = bacaUrutan(db, TANAM.P2);
       c.expect(p2.salah.some((s) => s.startsWith("tangguhkan_akun:") && /auth\.users \(rank 4\) after accounts/.test(s)), "plant P2 (akun_kunci locking accounts before auth.users) was not reported at tangguhkan_akun");
+      // the permit's condition 1, its plants (A2A-F01's form): each planted text is caught; the repository is clean
+      const izinTanam = authUsersDihapus([
+        { path: "tanam.sql", text: "delete from auth.users where id = x;" },
+        { path: "tanam2.sql", text: "select 1 from auth.users u where u.id = x for update;" },
+        { path: "src/tanam.ts", text: "await admin.auth.admin.deleteUser(id);" },
+      ]);
+      c.expect(izinTanam.length === 3, `the permit's repository check missed a plant: ${izinTanam.join("; ")}`);
+      c.expect(authUsersDihapus([{ path: "ok.sql", text: "perform 1 from auth.users u where u.id = x for no key update;" }]).length === 0,
+        "the permit's repository check reported FOR NO KEY UPDATE");
       // the real code
       const r = bacaUrutan(db);
       c.expect(r.menyentuh >= 40, `only ${r.menyentuh} writer(s) were found touching the ranked tables: the engine reads too little`);
