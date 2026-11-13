@@ -513,3 +513,26 @@ exists. Nothing is running on staging; `staging-checkpoint-41.yml` stays disable
 
 **Next session starts with:** Sharon's and Daisy's early read of A2a's page at `be219c39` (with item 2 added to it),
 then the build.
+
+## Five working rules from what went wrong before (owner agreed, 13 Nov 2026) — in force from the next session
+
+Each answers a mistake that happened more than once. They add no review round and no document.
+
+1. **The acceptance evidence is named before building.** The batch's page lists what proves it done, who runs each
+   check, with what access, and where.
+2. **Freeze binds everyone, the Chief Architect included.** After the freeze nothing is added. A late idea is either a
+   blocker with its reason, or a note for the next batch.
+3. **A defect is swept for its siblings before it is fixed.** First question after any finding: where else does this
+   shape exist? The fix covers all of them at once. (The lock-order catalogue test is this rule made permanent for the
+   account lifecycle.)
+4. **One thing in acceptance at a time, one dispatcher.** Only the Chief Architect dispatches CI and journeys during
+   acceptance; nothing else is pushed to that branch meanwhile.
+5. **A product change and verification tooling never travel in the same change.** A new probe or check is its own
+   small change with its own review.
+
+Unchanged: reviewers read before the expensive step; the five design questions are answered on the page before code;
+half a day without the expected result means stop and reassess. Each batch's page records in one line whether its
+defects were caught in development or in acceptance.
+
+**First act of the next session:** brief Second Eye, Sharon and Daisy on these five, then A2a's page (lock-order test
+added) goes to its early read.
