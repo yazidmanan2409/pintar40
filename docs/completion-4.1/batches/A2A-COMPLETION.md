@@ -64,6 +64,8 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
+**Sharon PASSED change A at `2cea0564`** (`A2A-CHANGE-A-RESULT-2cea0564.md` at `3d708613`; both deviations accepted). The Chief Architect has opened the PR and dispatched the journeys on that SHA. Second Eye's one full pre-flight is running on exactly that commit.
+
 **State at 22:45 UTC: CHANGE A IS FROZEN at `2cea0564dcc12bede2e3ab3cb63236fce4d0b89e`** (the Chief Architect, 22:44).
 Nothing more is pushed to `claude/a2a-change-a` unless he asks.
 
@@ -92,6 +94,11 @@ Nothing more is pushed to `claude/a2a-change-a` unless he asks.
   - **-05:** `transfers` before the person;
   - **-06:** the institution's ID counter before the person;
   - **-07:** `account_activation_grants` before the person.
+- **REG-A2A-08:** the header of migration `20270118100000` (Sharon's note in `A2A-CHANGE-A-RESULT-2cea0564.md` at
+  `3d708613`, not blocking).
+  - It still says the recovery path was "Not reached today". A2A-L02 shows it was reached on `main`.
+  - The correction is recorded here. It is made in the header of the next migration that touches
+    `recovery_assist_school`, not in change A, which is frozen.
 - **(C) cannot freeze** while the window functions' "pending B1" exception stands.
 
 **Waiting on whom:**
