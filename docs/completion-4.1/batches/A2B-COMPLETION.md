@@ -50,7 +50,7 @@
 
 | # | What | Where |
 |---|---|---|
-| 1 | **The place guard.** `maintenance_affects_place(node, at)`: true when an active PLANNED window, or one approaching (for starts), scopes this node or an ancestor at class or school level. One indexed read, skipped entirely when no such window is open | New function; reads `maintenance_windows`, including A2a's class-node column, and the node tree |
+| 1 | **The place guard.** `maintenance_affects_place(node, at)`: true when an active PLANNED window, or one approaching (for starts), scopes this node or an ancestor at class or school level. One indexed read, skipped entirely when no such window is open. **"Active" and "approaching" are read against `clock_timestamp()`, never `now()`** (Sharon, early read of `d711d4b2`, item 1). A transaction that began before `starts_at` and writes after it is refused. Test: such a transaction, on its own connection, is refused | New function; reads `maintenance_windows`, including A2a's class-node column, and the node tree |
 | 2 | **The request hook loses class- and school-scoped PLANNED windows.** It keeps person-level refusal only for EMERGENCY (any scope) and PLANNED at platform scope (R-1; inventory rows 1 and 8) | `pintar_permintaan.periksa`, `maintenance_affects`, `maintenance_block_for_me` |
 | 3 | **Every writer of a class's work asks the place question.** Classed from A2a's D6.2 writer enumeration as **refused**, **allowed** or **system closure**. The enumeration fails on an unclassified writer (Sharon) | The writers in the table below |
 | 4 | **Starting work:** the sitting-insert trigger asks the place question, with D4 in the same trigger; `may_start_assessment` gives the same answer for the screen (a new check: it has none today); lesson progress is guarded in `record_lesson_progress` | `enforce_no_new_sitting_in_maintenance`, `may_start_assessment`, `record_lesson_progress` |
@@ -60,6 +60,17 @@
 | 8 | **The work-scoped refusal:** `PR040` with detail `MAINTENANCE_PLACE`, naming nothing but the place. Never `PT503`, so no reader sends the person to the pause page | The guarded writers; `src/lib/galat-kontrak.ts` |
 | 9 | **The status read** returns, per window, whether it is person-level or work-scoped, the class or school it names, and the school's zone (D8). `PengingatPemeliharaan` redirects only for person-level windows, and shows the banner for work-scoped ones | `pintar_status_saya`, `PengingatPemeliharaan.tsx`, `src/app/pemeliharaan/page.tsx` |
 | 10 | **D8 · every time in the school's zone,** named (WIB, WITA, WIT). A platform-wide window shows each reader their own school's zone. No polling is added | `jamWib(…)` replaced by a zone-aware formatter that reads `institutions.zona_waktu` (`20270112195000`) |
+
+### Lifting A2a's emergency-only CHECK (Sharon, early read of `d711d4b2`, item 3)
+
+- **The CHECK and the parameter move together.** A2a's CHECK (a class-scoped window is EMERGENCY only) is dropped in
+  the same migration that adds the node parameter to `schedule_maintenance`.
+- **A designed refusal.** `schedule_maintenance` refuses a bad node (unknown, not a class of the school, or not the
+  school's) with a designed code, before any constraint fires.
+- **A2a's validation trigger** then covers PLANNED class windows as well as EMERGENCY ones.
+- **Test:**
+  - a PLANNED class window is accepted;
+  - a bad node is refused with the designed code, not a raw constraint error.
 
 ### Every writer of a class's work, classed (Sharon's rulings; inventory row 4)
 
@@ -148,8 +159,19 @@ the table. Their own readers are unchanged: a refused write writes nothing.
 ### 3 · Which locks, in what order, and who else takes them?
 
 - **The place guard takes no row lock** (Sharon). It reads `maintenance_windows` and the object's place inside the
-  writer's own transaction. So it adds nothing to the person-before-account order, and nothing to A2a's fence order:
-  person → accounts → fence → sittings in id order.
+  writer's own transaction. So it adds nothing to the order in force (Sharon, A2a early read, ruling 1): persons →
+  enrolments → account requests → suspensions → `auth.users` → accounts → `password_write_permits` → the fence →
+  `maintenance_windows` → sittings. (Enrolments, immediately after persons, are change A's C2.)
+- **A2A-L01 covers A2b's new writers** (Sharon, item 4):
+  - it reads every function from the catalogue, so `perpanjang_pemeliharaan` and resume early fall under it the day
+    they land;
+  - `perpanjang_pemeliharaan` takes the window row only, takes no fence, and locks nothing after it;
+  - `maintenance_record_edges` and `change_maintenance` are re-read under it.
+- **A2b's change to `change_maintenance`** (row 7b: refuse a later `ends_at`) **is made to A2a's B1 form,** where the
+  fence comes before the window row for an EMERGENCY `AKHIRI`. It is not made to today's form, which would bring back
+  B1's cycle.
+  - A2b is built after change C (A2a's B1), so it edits the function as C leaves it.
+  - The "pending B1" exception for the window functions is gone by then.
 - **Extend and resume early:** take the window's row `FOR UPDATE` (as `change_maintenance` does today), check that its
   kind is PLANNED and it has not ended, write `ends_at` and the audit row, and commit. They take no person, account,
   fence or sitting lock, and no other window's row.
@@ -169,8 +191,16 @@ the table. Their own readers are unchanged: a refused write writes nothing.
 
 ### 4 · How is "before" told from "after"?
 
-- **A window's state** is told by `starts_at`, `ends_at`, `ended_at` and `activation_recorded_at`, never by a clock on
-  the client. Extend and resume early write their before and after in the audit row.
+- **A window's state** is told by `starts_at`, `ends_at` and `ended_at`, read against `clock_timestamp()`, never by a
+  clock on the client. **`activation_recorded_at` is audit only** (Sharon, item 2): it records when the edge recorder
+  wrote the activation, and nothing decides on it. Extend and resume early write their before and after in the audit
+  row.
+- **Extend is refused once `ends_at <= clock_timestamp()`,** with a designed code. A window that has ended is not
+  lengthened.
+  - **Test, both orders, on two connections, against the edge recorder:**
+    - extend, then the recorder;
+    - the recorder (holding the row, `skip locked`), then extend.
+  - Either way: exactly one activation row, and at most one deactivation row, per window.
 - **Old windows** (before A2b) have `reason_code` null and keep their text. Every reader shows the text when the code
   is null. A test covers a pre-A2b row.
 - **A scope that changes:** a window's scope is never changed after it is scheduled (as today). A new scope is a new
@@ -212,6 +242,19 @@ the table. Their own readers are unchanged: a refused write writes nothing.
   - the start refusal (D4) on the start screen.
 
   Daisy's screens decide each; her review is at the design stage (Bob, 13 Nov).
+- **The acceptance evidence** (working rule 1, in A2a's §7 form; Sharon, item 5):
+
+| Evidence | Who runs it | With what access | Where |
+|---|---|---|---|
+| The database suites (M148 extended; the place guard; D4; the reason list; extend and resume; the guard's `clock_timestamp()` race; extend against the edge recorder, both orders; the PLANNED class window and the bad node) | Second Eye builds them; the suite runs them | the repository; the local stack | the database runner: locally in development; CI on the frozen commit |
+| A2A-L01 over A2b's writers, and the writer enumeration (A2a's D6.2) | the suite | the repository; the local stack | the static and database runners; CI on the frozen commit |
+| The static tests (`MAINTENANCE_PLACE` never to the pause page; `PT503` only from the person-level hook; `lesson_progress` by `record_lesson_progress` alone) | the suite | the repository | the static runner; CI |
+| The app tests (no redirect; the banner at 320 px; the class's notice; another class carries nothing) | the suite | the local stack and the built app | the app runner; CI |
+| The journey (7A planned; a teacher of 7A and 7B) | the Chief Architect dispatches; the journey runner | the frozen commit's build | CI, after the freeze |
+| **The hook-timing measurement** (the 6b statement, before and after; p95 ≤ 1 ms with no window active, after ≤ before + 0.5 ms; and with a work-scoped window active) | **Second Eye runs it**; Sharon reads it | the local stack, at the frozen commit, the same statement as the checkpoint's 6b | **the local stack** (the same machine for before and after) |
+
+- **Hosted staging:** no proof needs it. Each property is the database's, and the local stack runs the same Postgres.
+  Sharon's reading is the same.
 - **The hook's timing** is re-measured with the 6b statement of the checkpoint page, before and after. The gate is
   Sharon's: p95 ≤ 1 ms with no window active, after ≤ before + 0.5 ms. The cost with a work-scoped window active is
   measured too, since the hook no longer reads it.
