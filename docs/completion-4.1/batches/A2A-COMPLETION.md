@@ -1,6 +1,6 @@
 # A2a · Emergency containment and class scope for the emergency (completion page, before build)
 
-## State of change A (13 Nov, 22:12 UTC by `date -u`; kept here so that nothing depends on a session's memory)
+## State of change A (13 Nov, 22:14 UTC by `date -u`; kept here so that nothing depends on a session's memory)
 
 **Branches:**
 - `claude/a2a`: this page.
@@ -87,7 +87,7 @@ Auth's user deletion.
 - A2A-L01 is down to **63**. It is still red, waiting on Sharon's rulings on rows 3, 4, 11 and 13 of the table.
 - A2A-L02, L03 and L04 are green, each with its plant red.
 - The pins are at 247.
-- Second Eye has stopped for her ruling. Nothing else is fixed.
+- **Sharon has ruled on the 76** (`A2A-CHANGE-A-76-4530849f.md` at `a127a3ec`). Row 4's race does not deadlock on the current code (below, "Row 4 raced before the fix"), so Second Eye has stopped again, for her ruling on row 4. The other items of her ruling are listed there as still to build.
 
 **Remaining work on change A, in order:**
 1. **C1:** `akhiri_pendaftaran`, its race test and the sweep.
@@ -581,6 +581,32 @@ person `FOR UPDATE`, it lists the unranked tables locked before that person, and
   **Not yet read.**
 - **For Sharon's reading.** Under the convergence rule, anything real here goes to the page and then to the register,
   unless it touches what A2a adds or changes. None of these tables is one of A2a's.
+
+**Row 4 (`recompute_result`) raced before the fix, 22:14 UTC: no deadlock. For Sharon.**
+- **The race:** two connections, each running the real `recompute_result` as a system admin on one sitting with a
+  root result (`250af4a0…`), then rolled back.
+- **Both succeeded:**
+  - B waited on `results_one_successor`, the unique index, until A rolled back, then went through.
+- **The reading:**
+  - In one insert, Postgres checks the unique index **before** the foreign-key (RI) triggers. So the second
+    recompute blocks on the first's uncommitted result before it takes its `KEY SHARE` on the sitting.
+  - The two never hold the `KEY SHARE` at the same time. The engine reads the statement in text order and cannot see
+    that.
+  - The later `FOR UPDATE` comes only through `koreksi_kunci_saat_selesai` → `hitung_ulang_koreksi_kunci`, when the
+    sitting has a confirmed key correction. The local data has none.
+- **So "red on `main` with deadlock detected" is not shown, and may not be reproducible.** The fix (the learner, then
+  the sitting `FOR UPDATE`, as the first two locks) is not built until Sharon rules on this.
+- **Done since her ruling:** rows 7 and 9 are already in C1's own commit (`4c8f70b4`).
+- **`import_advance`, read:** it only **inserts** enrolments (`v_enr`, a new row), for a new or an existing person.
+  Its enrolment is never one another transaction can hold, so it is not C1's shape and is not changed.
+- **Still to build** after her ruling on row 4:
+  - row 3 (`hitung_ulang_koreksi_kunci`: the learner `FOR KEY SHARE` first; structural check, a race against a holder of
+    the learner, and a plant; no claim of a reproduced deadlock);
+  - the transfer request's race test, with its plant;
+  - row 13 (the password guard's early return, with the caller's condition and its plant);
+  - row 11 (REG-A2A-01).
+- **Register names:** the permit's `KEY SHARE`-first fix is REG-A2A-02; the deferred `FOR NO KEY UPDATE` is
+  REG-A2A-03.
 
 **Deferred register item: the person `FOR NO KEY UPDATE`** (Sharon, `A2A-L01-FINDING-f09da528.md`).
 - **The draft:** the 15 functions above would take the person `FOR NO KEY UPDATE` instead of `FOR UPDATE`.
