@@ -362,6 +362,14 @@ push confirms against it item by item.**
 - Read whole and found sound, not reopened at the confirmation: the step order; the health read; the lock test; 3.3b's
   effects; item 4's paths; a too-early dispatch stopping at A1.
 
+**One addition for part 2's commit, from a read of staging (07:23 UTC, 13 Nov).** The workflow takes the school's
+slug as a typed input and checks only that it is shaped like a slug. Staging holds 24 schools whose staff follow the
+`goldenschool+<slug>-…` pattern, **and one of them is the demonstration school, `sekolah-demo-pintar`.** A mistyped or
+mistaken input would have the run roster a synthetic learner and suspend a teacher there. **The script refuses any
+slug that does not begin with `sekolah-uji-`, before it connects to anything,** and the page names the one school the
+run uses and why. The Chief Architect dispatches with that school only. *(It meets the line: it would damage
+staging. Sharon confirms it with the rest.)*
+
 **After the push:** the Chief Architect moves the frozen branch to that commit and dispatches its CI and journeys
 there. The work branch is not pushed to until Second Eye's own runs on it have finished.
 
@@ -545,3 +553,4 @@ request template in the repository; the read-only readings.
 | 13 Nov 2026, 06:17 | **Part 1 passed.** Pull request 19 merged by the owner at 06:10; acting workflow verified disabled; `staging.yml` green; 244 migrations; `pg_cron` 1.6.4 with both jobs and a clean health read; five triggers on `auth.users` with the repository's definitions; preservation equal on every line; the scheduler closed exactly the five predicted sittings. Part 2 (the corrected script, pull request 2) next. A2a held |
 | 13 Nov 2026, 06:20 | Sharon independently confirms part 1 passed (her `CHECKPOINT-PART1-40ca971f….md`, `claude/gracious-lamport-0m1qjr` at `e0089c3d`): tree equal, workflow disabled, `staging.yml` green; both stop conditions met; preservation equal. She accepts the reasoning on the hook's missing "before" reading; no re-measure. Open: the app's build, covered by part 2 |
 | 13 Nov 2026, 06:26 | Daisy cannot reach staging (her session's network refuses the host, and she has no synthetic account), so step 11's look at the promoted screens is **not done; it was conditional and is not a gate.** Her note (`STAGING-LIHAT-244.md`, `ux-1/daisy-experience` at `0647335acdf937620c3116d5f007e5280c97dda0`) lists what she would look at. Her caution is adopted: on staging a sign-in is itself a write (an accountability event, a session), so nobody signs in during part 2's preservation pair, and «Cetak laporan» is never pressed in a look |
+| 13 Nov 2026, 07:23 | Part 2 not yet pushed. Read of staging: 24 synthetic-staff schools, including the demonstration school. One guard added to part 2's specification: the script refuses a slug outside `sekolah-uji-` |
