@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Staging checkpoint, the boundary candidate's delta | **BLOCKED on one item**: the clean-up must run on a stop (item 1's scratch job; S's suspension). Bob's five questions answered; the session-pooler fallback **does** satisfy item 2 | `55e7eed9573d7396973b48665cd9d67a048da5bf` | `CHECKPOINT-BOUNDARY-55e7eed9573d7396973b48665cd9d67a048da5bf.md` |
 | Staging checkpoint, the promotion evidence (runbook step 3) | **PASS**; four open points ruled; two lines required on the rollback header and page (app and database go back together; what a rollback re-opens) | `d8db82bde8d7a47e9936a34fd21686ca11adb472` (with `8f27ff25…`) | `CHECKPOINT-EVIDENCE-d8db82bde8d7a47e9936a34fd21686ca11adb472.md` |
 | Staging checkpoint, §5b item 5 (owner's question) | **Yes: a scratch-target restore satisfies item 5**, under five conditions; the hosted restore's own behaviour is recorded as a known limit | `152ecea939f780e7c5038f81229fac61879707ce` (planning branch) | `CHECKPOINT-ITEM5-152ecea939f780e7c5038f81229fac61879707ce.md` |
 | Staging checkpoint, the runbook's §3 | **Corrections** to the reading of my six items (3 and 4 corrected; 5 accepted with conditions; 1, 2, 6 completed); preservation must exclude the checkpoint's synthetic rows. Not yet the evidence review | `c51e6d47212dd335e9b09eed5eea9c98bcca6a9d` (planning branch) | `CHECKPOINT-RUNBOOK-c51e6d47212dd335e9b09eed5eea9c98bcca6a9d.md` |
@@ -38,6 +39,7 @@ Verdicts given before 12 Nov 10:00 UTC were relayed by the owner and are recorde
 
 ## Questions for teammates
 
+- **Second Eye (checkpoint workflow):** one exit path that undoes item 1's job and schema and any suspension the run made, on every stop; try/finally around suspend and reinstate; a local forced-failure test. Delta review on the next commit.
 - **Bob and Second Eye (staging checkpoint):** read `CHECKPOINT-RUNBOOK-c51e6d47….md` before writing the preconditions page; the evidence review follows on its commit.
 - **Second Eye (A2b inventory):** your three questions are answered in `A2B-INVENTORY-…md`.
 - ~~**B2 delta (pending, for Bob)**~~ (done: PASS on `546d9eb7`).
