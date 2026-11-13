@@ -536,6 +536,28 @@ async function balapanTahan(db: string, orang: string) {
 const KUNCI_FINAL = "  perform 1 from public.persons where id = v_s.person_id for key share;\n";
 const KUNCI_TENGGAT = "  perform 1 from public.persons p, public.assessment_sessions a where a.id = p_session and p.id = a.person_id for key share of p;\n";
 
+// ── A2A-L04: akhiri_pendaftaran against person → enrolment, on two real connections (Sharon, C1)
+const L04_BARU = "  select e.person_id into v_orang from public.enrollments e where e.id = p_enrollment;\n"
+  + "  perform 1 from public.persons where id = v_orang for update;\n"
+  + "  select e.id, e.person_id, e.institution_id, e.status, e.valid_from into en\n"
+  + "    from public.enrollments e where e.id = p_enrollment for update;\n";
+// the plant: commit 3's order (the enrolment row, then its person)
+const L04_LAMA = "  select e.id, e.person_id, e.institution_id, e.status, e.valid_from into en\n"
+  + "    from public.enrollments e where e.id = p_enrollment for update;\n"
+  + "  perform 1 from public.persons where id = en.person_id for update;\n";
+/** A: kenaikan_tetapkan's and transfer_execute's order, the person FOR UPDATE, then (1.5 s later) the enrolment FOR
+ *  UPDATE; rolled back. B, 0.5 s after: the real akhiri_pendaftaran as the school's admin; rolled back. */
+async function balapanDaftar(e: string, orang: string, admin: string) {
+  const { psqlLain, tidur } = await import("./balapan");
+  const a = psqlLain(`begin; select 1 from public.persons where id = '${orang}' for update; select pg_sleep(1.5);
+    select 1 from public.enrollments where id = '${e}' for update; select pg_sleep(0.3); rollback;`);
+  await tidur(500);
+  const b = psqlLain(`begin; select set_config('request.jwt.claims', '{"sub":"${admin}","role":"authenticated"}', true);
+    select public.akhiri_pendaftaran('${e}', 'WITHDRAWN', null, null); rollback;`);
+  const [satu, dua] = await Promise.all([a, b]);
+  return { satu, dua };
+}
+
 export const a2aL01Tests: SelfTest[] = [
   {
     id: "A2A-L01",
@@ -628,6 +650,34 @@ export const a2aL01Tests: SelfTest[] = [
       } finally {
         psql1(db, `begin; set local session_replication_role = replica; delete from public.assessment_sessions where id = '${SESI_L03}'; commit;`);
       }
+    },
+  },
+  {
+    // A2A-L04 — an enrolment is ended after its learner (Sharon, C1; migration 20270118120000): akhiri_pendaftaran,
+    // while another transaction holds the learner and wants the enrolment (kenaikan_tetapkan's, transfer_execute's
+    // order), waits and then finishes; no deadlock. Red with its plant (commit 3's order: the enrolment, then the person).
+    id: "A2A-L04",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const db = process.env.SUPABASE_DB_URL!;
+      const { gantiFungsi } = await import("./balapan");
+      const [e, orang, admin] = psql1(db, `select e.id || '|' || e.person_id || '|' || a.auth_user_id from public.enrollments e
+        join public.role_assignments r on r.role = 'INSTITUTION_ADMIN' and r.institution_id = e.institution_id
+         and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until
+        join public.accounts a on a.person_id = r.person_id
+       where e.status = 'ACTIVE' and e.valid_to is null and r.person_id <> e.person_id order by e.id limit 1`).split("|");
+      c.expect(!!e && !!orang && !!admin, "no live enrolment with a school admin to test with");
+      const r = await balapanDaftar(e, orang, admin);
+      c.expect(r.satu.ok, `A (person, then enrolment) failed: ${r.satu.err}`);
+      c.expect(r.dua.ok, `akhiri_pendaftaran (B) failed while A held the learner: ${r.dua.err}`);
+      c.expect(r.dua.ms >= 1100, `akhiri_pendaftaran took ${r.dua.ms} ms: it did not wait for A, so the race did not overlap`);
+      const balik = gantiFungsi("public.akhiri_pendaftaran(uuid,text,text,date)", L04_BARU, L04_LAMA);
+      let tanam: Awaited<ReturnType<typeof balapanDaftar>>;
+      try { tanam = await balapanDaftar(e, orang, admin); } finally { balik(); }
+      const mati = [tanam.satu, tanam.dua].filter((x) => !x.ok && /deadlock detected/.test(x.err));
+      c.expect(mati.length === 1, `with the plant (the enrolment before its person) there was no deadlock: A ${tanam.satu.ok ? "ok" : tanam.satu.err}; B ${tanam.dua.ok ? "ok" : tanam.dua.err}`);
+      return c.verdict(`akhiri_pendaftaran waited ${r.dua.ms} ms for the learner, then finished; with the plant (commit 3's order) "deadlock detected"`);
     },
   },
 ];

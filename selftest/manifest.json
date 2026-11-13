@@ -6144,6 +6144,11 @@
       "id": "A2A-L03",
       "runner": "static",
       "proves": "Sharon's ruling on A2A-L01 (A2A-L01-FINDING-f09da528.md; migration 20270118110000): on two real connections, connection A takes a learner FOR UPDATE and then that learner's sittings in the statuses the hold takes, in pengerjaan_tahan_orang's own query (tangguhkan_akun's order), while connection B runs the real finalize_session of a copy of a sitting IN_PROGRESS a day past its deadline (committed before, removed after; both rolled back); B waits for A and then finishes, with no deadlock, because finalize_session and pengerjaan_putus_tenggat take the learner FOR KEY SHARE before the sitting; with the plant (both of those first locks removed, 245's code) the same race ends in \"deadlock detected\"."
+        },
+    {
+      "id": "A2A-L04",
+      "runner": "static",
+      "proves": "Sharon's C1 (A2A-CHANGE-A-C3C4-40753420.md; migration 20270118120000): on two real connections, connection A takes a learner FOR UPDATE and then, 1.5 s later, that learner's live enrolment FOR UPDATE (kenaikan_tetapkan's and transfer_execute's order), while connection B runs the real akhiri_pendaftaran of that enrolment as its school's admin (both rolled back); B waits for A and then finishes, with no deadlock, because akhiri_pendaftaran reads the enrolment's person unlocked, locks the person FOR UPDATE and only then the enrolment; with the plant (commit 3's order: the enrolment, then its person) the same race ends in \"deadlock detected\"."
     }
   ]
 }

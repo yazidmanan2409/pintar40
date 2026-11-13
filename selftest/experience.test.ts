@@ -2191,7 +2191,9 @@ export const experienceTests: SelfTest[] = [
       // Read against §3: the order of locks, not a mark, a logo, a crest or a theme.
       // MOVED 245 -> 246, RESTATED, A2A-L01 (Sharon, A2A-L01-FINDING-f09da528.md): 20270118110000 (a sitting is written
       // after its learner). Read against §3: the order of locks, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 246, `${migrations.length} migrations; the frozen baseline has 246`);
+      // MOVED 246 -> 247, RESTATED, A2A-L01 C1 (Sharon, A2A-CHANGE-A-C3C4-40753420.md): 20270118120000 (an enrolment is
+      // ended after its learner). Read against §3: the order of locks, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 247, `${migrations.length} migrations; the frozen baseline has 247`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4061,7 +4063,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 243 -> 244, RESTATED, L1-F4, for 20270117200000 (the deletion and the reopen take the person first): no tour RPC.
       // MOVED 244 -> 245, RESTATED, A2A-L01, for 20270118100000 (no school is asked for without a person): no tour RPC.
       // MOVED 245 -> 246, RESTATED, A2A-L01, for 20270118110000 (a sitting is written after its learner): no tour RPC.
-      c.expect(migs.length === 246, `${migs.length} migrations; the baseline has 246`);
+      // MOVED 246 -> 247, RESTATED, A2A-L01 C1, for 20270118120000 (an enrolment is ended after its learner): no tour RPC.
+      c.expect(migs.length === 247, `${migs.length} migrations; the baseline has 247`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
