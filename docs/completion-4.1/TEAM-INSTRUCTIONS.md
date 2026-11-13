@@ -122,7 +122,7 @@ What is known from the repository, before any measurement:
   window lives in one place. Condition, from question 1: it is then the **only** writer of a planned window's end
   time apart from the listed ones, the older path refuses that change, and it is in A2a's writer enumeration.
 
-### Review queue (as of 04:23 UTC, 13 Nov; updated at each check)
+### Review queue (as of 04:57 UTC, 13 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
@@ -144,8 +144,8 @@ What is known from the repository, before any measurement:
 | ~~**Sharon**~~ | ~~L1-F2's fix: the delta~~ **Done: PASS** on `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`; the foreign-key point answered (none reachable) | — | her record on `claude/gracious-lamport-0m1qjr` at `156382f908a70618f6c899aca0ffa3a42bf1a315` |
 | ~~**Second Eye**~~ | ~~L1-F2's blocker~~ **Fix pushed** at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` | — | — |
 | ~~**Sharon**~~ | ~~A2a's page with her four changes~~ **Done: carried** at `3c46d521a27ae87627d590363b973f5dd7c7c7a3`. **A2a is not built** | — | her branch at `3ad40227b14aee30d8513c5627b7b56c1da0cf79` |
-| ~~**Second Eye**~~ | ~~Checkpoint script: clean up on every stop~~ **Pushed** at `a33c852877686bdd54353c63dfcd995e1c902110`. **Next, in order: the red-case parallelisation (own commit; Sharon reviews); then the register corrections** F1R1B-R1, B2-R-S1, X-1, X-3. A2a is not built | — | "The owner's rulings on elapsed time", above |
-| **Sharon** | **The clean-up delta, now:** `a33c852877686bdd54353c63dfcd995e1c902110` against `55e7eed9573d7396973b48665cd9d67a048da5bf`. It is the last review before the pull request. Then A2b's page (pre-build) and Daisy's X-2 note | `a33c852877686bdd54353c63dfcd995e1c902110` (also the head of `promote/4.1-staging-checkpoint`) | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3f, §3g |
+| **Second Eye** | **One consolidated fix, built to the list in `STAGING-CHECKPOINT-BEFORE-A2A.md` §3h** (wait for Sharon's additions first): (1) signal handlers and an `always()` clean-up step; (2) preservation's exclusion list and the double "after" read; (3) the app's build checked against the dispatched commit before L is created; (4) one retry for journeys job B's stack start, and the port fix's claim corrected. **Do not push anything else to the work branch while a boundary run is in flight.** Then the red-case parallelisation and the register corrections | — | §3h; Sharon's review of `a33c8528…` |
+| **Sharon** | **Clean-up delta: reviewed (blocker fixed; two new small items).** **Now, before the build:** read §3h's list and add anything else you can see in the script, the workflow or the page, so the next commit is the last. Then the confirmation on the pushed commit. Also done: A2b's page, PASS on the design with three points | — | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3h |
 | **Daisy** | After the promotion, if a browser can reach staging: one look at the promoted screens (B1's reader, B2's print, the key-correction screens). No action before then | after the merge | `STAGING-CHECKPOINT-BEFORE-A2A.md` §2 step 11 |
 
 ### For Second Eye, from Daisy's review of `97a40ebb…` and `ea3c4b6f…` (non-blocking; one commit, with L1-F2 or sooner)
@@ -344,6 +344,8 @@ page that had him signing in to staging (question 5).
 
 **13 Nov, so far (the checkpoint's own preparation): 8 anticipable, 2 not.** Seven found by Second Eye's local end-to-end run (5 anticipable: questions 1, 2, 5, 5, 5; 2 not), one in Sharon's reading of item 4 (question 1, by her account), one found by Sharon in the script (no clean-up on a stop: question 2), and the Chief Architect's read that missed it (question 2). All ten were caught **before staging was touched.**
 
+**13 Nov, added since:** four more in the checkpoint's preparation, all anticipable: a cancel or timeout bypassing the clean-up (question 5); a password recovery against the preservation fingerprint (question 1; the Chief Architect asked for the recovery to be recorded and did not connect it to the fingerprint); the app's build never checked (question 5); and two runs cancelled by a push to the same branch (question 3, a lock: the workflows' concurrency group; the Chief Architect's sequencing). A2b's page, reviewed before any build: three points found at the design stage.
+
 **So the baseline for 12 Nov is nineteen defects, all of which could reasonably have been anticipated.** *(The "six"
 below, and an earlier "twelve" here, understated it.)* By question: 1, what else reads or writes: 7. 2, the opposite
 or neighbouring act: 4. 3, locks: 4. 4, before from after: 1. 5, who runs it and where it renders: 4 (one defect
@@ -463,3 +465,4 @@ correction cycles, without weakening any verification gates."* No gate is remove
 | 13 Nov 2026 (04:00 UTC) | Daisy, in parallel (`ux-1/daisy-experience` at `b5cde1ab7dc19bf9bc05297874fb3cb437126b8a`): **A2a's and A2b's words at the design stage** (`A2-KATA-DESAIN.md`); **X-2's design note**, which corrects what X-2 is (register row corrected in place); **Z's consistency inventory** (`Z-KONSISTENSI-INVENTARIS.md`, Z-1 to Z-5). For Sharon: X-2's guard, and Z-4's question whether an audit row's old wording is kept. For Second Eye, later: A2b's D8 deletes the fixed «WIB» string; on an emergency, «Lainnya»'s free text is shown to every affected learner |
 | 13 Nov 2026 (04:01 UTC) | Pre-flight measured: the 11 red-case groups are more than half of it. Decision: parallelise those only, after the boundary commit, with the safeguards recorded. Second Eye's clean-up fix is local at `a33c852877686bdd54353c63dfcd995e1c902110`, on its last pre-flight step. A2b's page and the verification report's skeleton are drafted in his scratchpad |
 | 13 Nov 2026 (04:23 UTC) | Boundary commit: `a33c852877686bdd54353c63dfcd995e1c902110`, frozen on `promote/4.1-staging-checkpoint`; its CI and journeys dispatched there. Sharon: the clean-up delta. A2b's page is pushed on the work branch (`63f27b3ed3fe8012958fc8ae862cb2b6c40072a1`), outside the boundary, for Sharon's and Daisy's answers |
+| 13 Nov 2026 (04:57 UTC) | Boundary not yet fixed: one consolidated fix specified in the runbook §3h (Sharon's two items, the app-build check, journeys job B's retry). Sharon reviews the list **before** the build. A2b's page: Sharon PASS on the design with three points (`A2B-PREBUILD-ec09e82e….md`) |

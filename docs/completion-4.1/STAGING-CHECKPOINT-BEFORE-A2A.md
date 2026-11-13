@@ -305,6 +305,54 @@ Her record governs: `claude/gracious-lamport-0m1qjr` at `183554b32b2148537f59782
 - **Owed:** those two runs green; Sharon's review of the clean-up delta; then the read-only readings and the pull
   request.
 
+### 3h · `a33c852877686bdd54353c63dfcd995e1c902110` is not the boundary commit: one last consolidated fix (13 Nov 2026, 04:57 UTC)
+
+**Its runs, on the frozen branch.** CI `43365152777`: green. Journeys `43365156148`: job A green; **job B failed at
+stack start, "failed to bind host port for 0.0.0.0:54322 … address already in use"**, before any migration or test.
+That is the same failure as on 12 Nov, and **it happened with the port reservation in place.** So the reservation
+(`b24d73ffd0e84b139a02fe26f52fa21c52a94a25`) did not remove it, and its stated cause is unproven. I queued the one
+permitted re-run of that job.
+
+**Sharon: her blocker is fixed; BLOCKED on two new small items** (her
+`CHECKPOINT-CLEANUP-…a33c8528….md`, `claude/gracious-lamport-0m1qjr` at `4ac74cd1a602214d2a71acbf840f331792cd21f5`). Both pass the line I drew with the owner
+(a fix only if it would damage staging or invalidate a result):
+1. **A cancel or a timeout bypasses the clean-up** (damages staging: the scratch job is left firing). Fix: signal
+   handlers for SIGINT and SIGTERM that go through the one exit path, **and** an `if: always()` step in the workflow
+   that removes the scratch job and schema by name with `psql` and prints the catalogue read, because a kill cannot
+   be caught.
+2. **A recovery of SA's or PA's password changes a fingerprinted value** (invalidates a result: preservation line 44
+   hashes each Auth user's password digest, so a declared act would trip the stop rule). Fix: `preservation.sql`
+   takes a list of Auth user ids to leave out of lines 44 and 45 only; the "after" read is run twice, as is, and
+   with the recovered accounts' ids from the record, where every line must be equal.
+   - Her two notes, taken in the same commit: say on the page that an undone suspension leaves L with a class card
+     nobody holds; delete the run details by job name before the unschedule.
+
+**One more, from the Chief Architect's own read of the script (question 5: which build does it run against?).**
+3. **Nothing checks that staging's app is serving the promoted build.** The app deploys to staging from `main` through
+   Vercel's own connection, separately from `staging.yml`. Step A proves the *database* is at 244. Items 3, 4 and 6c
+   then act through the *app's* routes. If that deployment is late or failed, they run against the older app on the
+   newer database, and a result could differ for no real reason, or pass on code that is not the candidate
+   (invalidates a result). Fix: the app stamps its commit on every audit row it writes (`build_sha`). **Right after
+   the actors' sign-ins and before L is created, read the newest audit row those sign-ins wrote and require its
+   `build_sha` to equal the commit the workflow was dispatched on.** Otherwise stop: nothing has been created yet.
+
+**And the runner fault (not the script, but it blocks the boundary's evidence).**
+4. Job B of the journeys starts its stack with no retry; CI's shared action has one. Give job B's stack start the
+   same single retry, and correct the port fix's claim: the reservation is kept as harmless, but "the cause" is
+   **not established.** Finding it is register item **CI-1**, before Z.
+
+**To make this the last cycle (the owner's ruling on review before the push).** This list is the specification.
+**Sharon is asked now, before anything is built, to add anything else she can see** in the script, the workflow or
+the page. Second Eye builds to the combined list. The review after the push is then a confirmation against it.
+
+**After the push:** the Chief Architect moves the frozen branch to that commit and dispatches its CI and journeys
+there. The work branch is not pushed to until Second Eye's own runs on it have finished.
+
+**For after the merge (recorded now so it is not found then).** If the owner merges by squash, as pull request 17
+was, `main` gets a new commit. The Chief Architect then checks that `main`'s tree equals the boundary commit's tree
+exactly, before anything else is read; and Second Eye restarts the work branch from `main` for the commits that are
+not in the boundary (A2b's page and what follows).
+
 ## 4 · Results
 
 | Step | When (UTC) | Result |
@@ -329,3 +377,4 @@ Her record governs: `claude/gracious-lamport-0m1qjr` at `183554b32b2148537f59782
 | 13 Nov 2026, 03:10 | Boundary candidate pushed at `55e7eed9573d7396973b48665cd9d67a048da5bf` and read (§3e): no blocker. First-runs read on staging: 5 overdue sittings in two synthetic test schools will be ended and scored; none in the demonstration school. Waiting on its runs and Sharon's delta |
 | 13 Nov 2026, 03:16 | Sharon BLOCKED the boundary candidate `55e7eed9573d7396973b48665cd9d67a048da5bf` on one item: no clean-up on a stop (the scratch job; the suspended teacher account). Her other five answers stand, including that the session-pooler fallback satisfies item 2. My "no blocker" corrected. Fix with Second Eye |
 | 13 Nov 2026, 04:23 | Clean-up fix pushed at `a33c852877686bdd54353c63dfcd995e1c902110`. Boundary frozen at it on `promote/4.1-staging-checkpoint`; CI and journeys dispatched there by the Chief Architect, because the engineer's runs on that commit were cancelled by the next push. With Sharon for the clean-up delta |
+| 13 Nov 2026, 04:57 | `a33c852877686bdd54353c63dfcd995e1c902110`: CI green; journeys job B failed again on the port, with the reservation in place (re-run queued). Sharon BLOCKED on two small items (cancel or timeout; password recovery against preservation). My read adds a third (the app's build is never checked). One consolidated fix specified (§3h); Sharon asked to add to it before the build |
