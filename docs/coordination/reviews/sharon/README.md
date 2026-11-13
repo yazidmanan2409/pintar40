@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2a change A, commits 3 and 4 (early read) | Commit 3 accepted except C1: `akhiri_pendaftaran` takes the person before the enrolment row (an inherited enrolment→person cycle against promotion and transfer); commit 4 accepted with C2: rank `enrollments` after persons | `40753420c997c5e830fed683f64d9cf450cf2101` | `A2A-CHANGE-A-C3C4-40753420.md` |
 | A2b early read of the page | NO BLOCKER in the design; the page must carry my three points plus the corrected lock order, A2b's change_maintenance edit on A2a's B1 form, and a rule-1 evidence table | `d711d4b266c4f1457ee8f70ac6859b299cd4c38c` | `A2B-EARLY-READ-d711d4b2.md` |
 | A2A-L01 red run on main: ruling | One real path (`finalize_session` vs the learner's suspension): fix it alone, person first; defer FOR NO KEY UPDATE (loses BEBAS inserts' serialisation, unread); (C) buildable after the fix; exceptions accepted with conditions | `f09da528a64adb98ca584bcb653e9f41cff1e1b9` | `A2A-L01-FINDING-f09da528.md` |
 | A2a early read of the page (lock-order test, fix, evidence) | NO BLOCKER TO BUILD the first change; ONE BLOCKER for the lift's code (window row against the fence, B1); R1–R3 for the test; the order corrected | `7b3b3d31191e5cff4a02823b591eea018cd4aa1f` | `A2A-EARLY-READ-7b3b3d31.md` |
