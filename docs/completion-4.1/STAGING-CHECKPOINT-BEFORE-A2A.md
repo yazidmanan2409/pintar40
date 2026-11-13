@@ -254,6 +254,37 @@ record alone). CI `43355398130` and journeys `43355401326` were in progress.
   Sharon's review of the delta (her two lines; the workflow; the derived staff password; the "direct" lock test's
   fallback); then preservation "before" and 6b on staging.
 
+### 3f · BLOCKED by Sharon on one item at `55e7eed9573d7396973b48665cd9d67a048da5bf` (13 Nov 2026, 03:16 UTC)
+
+Her record governs: `claude/gracious-lamport-0m1qjr` at `183554b32b2148537f597828a74db0b4d029fd11`,
+`docs/coordination/reviews/sharon/CHECKPOINT-BOUNDARY-55e7eed9573d7396973b48665cd9d67a048da5bf.md`.
+
+- **The blocker: the script does not clean up when it stops.** It stops by exiting, with no exit handler. Two acts
+  on staging are undone only by a later step:
+  1. **Item 1's scratch job** is scheduled every minute at step 1e and removed only at 1g. A stop at 1f leaves it
+     firing on staging, and that includes the very result the item exists to find (the procedure failing on
+     transaction control).
+  2. **The teacher account S** is suspended and then reinstated in 3.3b. A failure between the two leaves S
+     suspended; other walks use S.
+- **The fix (Sharon):** one exit path, run on every stop and on success, that unschedules and drops the scratch job
+  if 1g has not run and reinstates anyone this run suspended; suspend and reinstate in `try`/`finally`; each undo
+  written to the record; a local test that forces both failures.
+- **This does not weaken the owner's stop rule.** A stop still stops and holds. The clean-up only returns the
+  checkpoint's own two temporary acts, so that staging is left as the checkpoint found it. Nothing else is repaired.
+  **If a clean-up step itself fails, the record says so and that is the owner's.**
+- **Correction to my read (§3e).** I wrote "no blocker". I checked what the workflow does and did not ask what it
+  leaves behind when it stops. That is question 2, the opposite act, on the failure path: anticipable, and mine.
+  *(§3e's "no blocker" is superseded.)*
+- **Her answers to the five points, which stand:** her two lines are in as written; the workflow does only the
+  declared acts; the derived staff password is acceptable (an `OWNER` step is not a material discrepancy); **the
+  session-pooler fallback does satisfy item 2** (only the transaction pooler could break a transaction-level lock,
+  and that is tested; the reasoning goes in the report); E and the refresh answer are agreed.
+- **One addition from the Chief Architect, same commit.** The page lists what remains on staging for a stop at each
+  stage: the synthetic people L and E, in whatever state they had reached, are **left as they are and recorded**;
+  they are the checkpoint's own rows and removing them is the product's path, not a clean-up.
+- **Owed:** the fixed commit (it becomes the boundary commit), full pre-flight, CI and journeys on it, and Sharon's
+  review of the clean-up delta.
+
 ## 4 · Results
 
 | Step | When (UTC) | Result |
@@ -276,3 +307,4 @@ record alone). CI `43355398130` and journeys `43355401326` were in progress.
 | 13 Nov 2026, 01:18 | Owner: apply the five questions rigorously. Asked of the checkpoint itself (§3d): three more things owed in the boundary commit, chiefly a count of what each scheduled job's first run will act on in staging's existing data |
 | 13 Nov 2026, 02:04 | Second Eye: boundary candidate local at `8b3e07a3e80e31298a88e5912de34cc528866599`, in pre-flight, not pushed. It carries the dispatched workflow `staging-checkpoint-41.yml` (dispatch from `main` only, typed confirmation, staging only, existing secrets, tested end to end locally), 6b as one select, `first-runs.sql`, Sharon's two lines. For Sharon: the staff password is derived from an existing secret and checked before use, else that step is the owner's; the "direct" lock test may fall back to the session pooler. For the Chief Architect's read on push: the uploaded record and screenshots hold no token, key or setting value (a local run once printed a local JWT secret; fixed before any push) |
 | 13 Nov 2026, 03:10 | Boundary candidate pushed at `55e7eed9573d7396973b48665cd9d67a048da5bf` and read (§3e): no blocker. First-runs read on staging: 5 overdue sittings in two synthetic test schools will be ended and scored; none in the demonstration school. Waiting on its runs and Sharon's delta |
+| 13 Nov 2026, 03:16 | Sharon BLOCKED the boundary candidate `55e7eed9573d7396973b48665cd9d67a048da5bf` on one item: no clean-up on a stop (the scratch job; the suspended teacher account). Her other five answers stand, including that the session-pooler fallback satisfies item 2. My "no blocker" corrected. Fix with Second Eye |

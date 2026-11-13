@@ -42,7 +42,7 @@ channel:
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
-### Review queue (as of 03:10 UTC, 13 Nov; updated at each check)
+### Review queue (as of 03:16 UTC, 13 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
@@ -64,8 +64,8 @@ channel:
 | ~~**Sharon**~~ | ~~L1-F2's fix: the delta~~ **Done: PASS** on `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`; the foreign-key point answered (none reachable) | — | her record on `claude/gracious-lamport-0m1qjr` at `156382f908a70618f6c899aca0ffa3a42bf1a315` |
 | ~~**Second Eye**~~ | ~~L1-F2's blocker~~ **Fix pushed** at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` | — | — |
 | ~~**Sharon**~~ | ~~A2a's page with her four changes~~ **Done: carried** at `3c46d521a27ae87627d590363b973f5dd7c7c7a3`. **A2a is not built** | — | her branch at `3ad40227b14aee30d8513c5627b7b56c1da0cf79` |
-| ~~**Second Eye**~~ | ~~Staging checkpoint: the boundary commit~~ **Pushed** at `55e7eed9573d7396973b48665cd9d67a048da5bf`. Nothing further owed; A2a is still not built | — | — |
-| **Sharon** | **The boundary candidate's delta:** your two lines; the checkpoint workflow (only the declared acts, staging only, stops on a difference); the staff password derived from an existing secret and checked first; the "direct" lock test's fallback to the session pooler | `55e7eed9573d7396973b48665cd9d67a048da5bf` (delta on `d8db82bde8d7a47e9936a34fd21686ca11adb472`) | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3c to §3e |
+| **Second Eye** | **Checkpoint script: clean up on every stop** (Sharon's blocker at `55e7eed9573d7396973b48665cd9d67a048da5bf`). One exit path that unschedules and drops the scratch job if 1g has not run and reinstates anyone this run suspended; suspend and reinstate in `try`/`finally`; each undo in the record; a local test forcing both failures; the page lists what is left on staging for a stop at each stage. Then pre-flight, push, CI, journeys: that head is the boundary commit | — | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3f; Sharon's `CHECKPOINT-BOUNDARY-55e7eed9….md` |
+| **Sharon** | **Boundary candidate: BLOCKED on one item** (no clean-up on a stop) at `55e7eed9573d7396973b48665cd9d67a048da5bf`. Next: the clean-up delta on the fixed commit | fixed commit, when pushed | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3f |
 | **Daisy** | After the promotion, if a browser can reach staging: one look at the promoted screens (B1's reader, B2's print, the key-correction screens). No action before then | after the merge | `STAGING-CHECKPOINT-BEFORE-A2A.md` §2 step 11 |
 
 ### For Second Eye, from Daisy's review of `97a40ebb…` and `ea3c4b6f…` (non-blocking; one commit, with L1-F2 or sooner)
@@ -262,6 +262,8 @@ lines, by her account. Older problems (L-1, S-1, X-1, X-4) are listed there and 
 **The Chief Architect's own, in neither record: two.** INV-03 missed in his brief (question 1), and the checkpoint
 page that had him signing in to staging (question 5).
 
+**13 Nov, so far (the checkpoint's own preparation): 8 anticipable, 2 not.** Seven found by Second Eye's local end-to-end run (5 anticipable: questions 1, 2, 5, 5, 5; 2 not), one in Sharon's reading of item 4 (question 1, by her account), one found by Sharon in the script (no clean-up on a stop: question 2), and the Chief Architect's read that missed it (question 2). All ten were caught **before staging was touched.**
+
 **So the baseline for 12 Nov is nineteen defects, all of which could reasonably have been anticipated.** *(The "six"
 below, and an earlier "twelve" here, understated it.)* By question: 1, what else reads or writes: 7. 2, the opposite
 or neighbouring act: 4. 3, locks: 4. 4, before from after: 1. 5, who runs it and where it renders: 4 (one defect
@@ -374,3 +376,4 @@ correction cycles, without weakening any verification gates."* No gate is remove
 | 13 Nov 2026 (01:34 UTC) | Baseline for the owner's principle: Sharon classed the nine defects of her 12 Nov reviews, all anticipable; with three found elsewhere, twelve. The Chief Architect's earlier "six" is corrected in place |
 | 13 Nov 2026 (01:34 UTC) | Baseline completed with Daisy's record: nineteen defects on 12 Nov, all anticipable; question 1 (what else reads or writes this state) is the largest group |
 | 13 Nov 2026 (03:10 UTC) | Boundary candidate `55e7eed9573d7396973b48665cd9d67a048da5bf` pushed and read; with Sharon for the delta; runs in progress. Staging read: the scheduler's first run will end 5 overdue sittings in two synthetic test schools, none in the demonstration school |
+| 13 Nov 2026 (03:16 UTC) | Sharon BLOCKED the boundary candidate on one item: the checkpoint script leaves a job running and an account suspended if it stops midway. Second Eye: the clean-up, then the boundary commit. The Chief Architect's "no blocker" is corrected in the runbook (§3f) |
