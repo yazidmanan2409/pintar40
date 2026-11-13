@@ -521,6 +521,22 @@ accepted by construction under Sharon's condition, stated and tested in §2, wit
 | An emergency stop at class, school or platform scope | No affected sitting is ended, scored or re-timed while it holds; after the lift every sitting has exactly the time it had; suspension holds survive |
 | A class-scoped PLANNED window | Cannot be created (the CHECK). Arrives in A2b, work-scoped |
 
+## Size, in development (the Chief Architect's packaging, 13 Nov: three changes)
+
+- **(A) A2A-L01**, with its plants, its declared exceptions and the `recovery_assist_school` fix: **about half a day.**
+  The engine exists as a prototype. The work is porting it into the database runner (the ranks and the foreign-key
+  rule as data), the three plants, the one-line migration and its own test.
+- **(B) the scale job for scenario 8:** **about half a day.**
+- **(C) A2a's product changes:** **about three days**, as estimated above, without (A) and (B).
+
+**The single most likely thing to go wrong in (C): D6.3's one time rule.**
+- Every reader of a sitting's closing time must add the protected interval. That means the effective deadline, the
+  window-timed `closes_at`, the grace and late sync, the closer's selection, the teacher's list and the player.
+- **Missing one re-times or ends a sitting silently**, and only scenarios B3, B4 and B5 would show it.
+- **So, before any of D6.3 is written:** the same catalogue enumeration as the writers', but for the readers of
+  `closure_deadline`, `closes_at` and the grace, each classed as shift-aware or not. That turns a missed reader into a
+  red test, not a finding at acceptance.
+
 ## Friction (the owner's measure; one line, filled at the freeze)
 
 Duration —; full verification attempts —; avoidable rework —; defects caught in development or in acceptance: —.
