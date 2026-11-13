@@ -42,7 +42,7 @@ channel:
 - **For the owner's return:** anything that needs the owner is recorded in `STATUS-2026-11-12.md` under "Held for the
   owner", with the work it holds.
 
-### Review queue (as of 22:00 UTC, 12 Nov; updated at each check)
+### Review queue (as of 00:56 UTC, 13 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
 |---|---|---|---|
@@ -64,8 +64,8 @@ channel:
 | ~~**Sharon**~~ | ~~L1-F2's fix: the delta~~ **Done: PASS** on `9db58dd51aa4f785741bbb2e9fa33c76312b57d5`; the foreign-key point answered (none reachable) | — | her record on `claude/gracious-lamport-0m1qjr` at `156382f908a70618f6c899aca0ffa3a42bf1a315` |
 | ~~**Second Eye**~~ | ~~L1-F2's blocker~~ **Fix pushed** at `9db58dd51aa4f785741bbb2e9fa33c76312b57d5` | — | — |
 | ~~**Sharon**~~ | ~~A2a's page with her four changes~~ **Done: carried** at `3c46d521a27ae87627d590363b973f5dd7c7c7a3`. **A2a is not built** | — | her branch at `3ad40227b14aee30d8513c5627b7b56c1da0cf79` |
-| **Second Eye** | **Staging checkpoint, authorized by the owner.** (1) L1-F4's refusal line, Daisy's exact words. (2) Promotion evidence on the work branch, as the 4.0 promotions had: `ROLLBACK-225-244.sql`, `preservation.sql`, and a preconditions page with the exact check for each §5b item. (3) Full pre-flight, push, CI and journeys: that head is the boundary commit. **A2a is still not built** until the checkpoint passes | — | `STAGING-CHECKPOINT-BEFORE-A2A.md` §1 to §3, **and §3a: Sharon's reading governs the checks** (her `CHECKPOINT-RUNBOOK-c51e6d47….md`) |
-| **Sharon** | Review the rollback file, the preservation query and the checks for §5b's six items, when pushed. **The owner requires your explicit confirmation that a scratch-target restore satisfies §5b item 5; if it does not, say so and everything stops for the owner.** After the promotion: your verdict on the staging verification report | when pushed | `STAGING-CHECKPOINT-BEFORE-A2A.md` §2 steps 3 and 11, §3 |
+| **Second Eye** | **Staging checkpoint: one more commit, which becomes the boundary commit.** (1) Sharon's two required lines on the rollback's header and the page. (2) **A dispatched workflow and script that perform every acting after-merge step** (items 1's scratch job, 2, 3, 4, 6c) on the existing staging secrets, in the page's order, stopping at the first difference, uploading evidence, refusing any project but staging. (3) 6b as one `select`. (4) The page's "who runs it" for every step. Then pre-flight, push, CI, journeys | — | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3c; Sharon's `CHECKPOINT-EVIDENCE-d8db82bd….md` |
+| **Sharon** | **Evidence at `d8db82bde8d7a47e9936a34fd21686ca11adb472`: PASS (done).** Next: the delta of the commit above it (your two lines; the checkpoint workflow: that it does only the declared acts, on staging only, and stops on a difference) | next commit | `STAGING-CHECKPOINT-BEFORE-A2A.md` §3c |
 | **Daisy** | After the promotion, if a browser can reach staging: one look at the promoted screens (B1's reader, B2's print, the key-correction screens). No action before then | after the merge | `STAGING-CHECKPOINT-BEFORE-A2A.md` §2 step 11 |
 
 ### For Second Eye, from Daisy's review of `97a40ebb…` and `ea3c4b6f…` (non-blocking; one commit, with L1-F2 or sooner)
@@ -309,3 +309,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (22:06 UTC) | Owner: the staging-checkpoint pull request is authorized once the boundary commit, Sharon's review, pre-flight, CI, journeys and the read-only preconditions are complete; no staging mutation before the merge; Sharon must confirm the scratch-target restore; A2a held until the checkpoint passes |
 | 12 Nov 2026 (22:08 UTC) | Sharon corrected the checkpoint's six checks before anything is built on them, and confirmed the scratch-target restore satisfies §5b with four conditions (`STAGING-CHECKPOINT-BEFORE-A2A.md` §3a). Second Eye builds the preconditions page on her reading |
 | 12 Nov 2026 (23:25 UTC) | **L1-F4 CLOSED:** Daisy's exact line is in at `049e21ad1875b399a4ed2111897dbda8b14cf1d2`. Every item of the boundary is now closed. Second Eye is building the promotion evidence; rulings on its open points are in `STAGING-CHECKPOINT-BEFORE-A2A.md` §3b |
+| 13 Nov 2026 (00:56 UTC) | Checkpoint evidence at `d8db82bde8d7a47e9936a34fd21686ca11adb472`: Sharon PASS. One more commit owed before the pull request (`STAGING-CHECKPOINT-BEFORE-A2A.md` §3c): her two lines, and a dispatched workflow for the acting steps, because no credential passes through any of us. Staging read: 224 migrations, as expected |

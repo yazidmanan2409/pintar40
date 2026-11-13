@@ -51,8 +51,8 @@ everything after it is verification.
 | # | Step | Who | State |
 |---|---|---|---|
 | 1 | L1-F4's refusal line carries Daisy's exact words (wording only) | Second Eye | **Done** at `049e21ad1875b399a4ed2111897dbda8b14cf1d2` |
-| 2 | **Promotion evidence, on the work branch, following the 4.0 pattern** (`docs/completion-4.0/batch-5/`): `ROLLBACK-225-244.sql` for the 20 migrations; `preservation.sql` (read-only; the 4.0 query, extended for what these batches add); a preconditions page naming, for each §5b item, the exact check, the expected result, and whether it only reads or acts on staging | Second Eye | Owed |
-| 3 | Sharon reviews the rollback file, the preservation query and the checks of step 2. **The scratch-target restore: confirmed by Sharon as satisfying §5b item 5, with four conditions (§3a)** | Sharon | Restore confirmed; the rest after 2 |
+| 2 | *(Pushed at `d8db82bde8d7a47e9936a34fd21686ca11adb472`; one more commit owed, §3c.)* **Promotion evidence, on the work branch, following the 4.0 pattern** (`docs/completion-4.0/batch-5/`): `ROLLBACK-225-244.sql` for the 20 migrations; `preservation.sql` (read-only; the 4.0 query, extended for what these batches add); a preconditions page naming, for each §5b item, the exact check, the expected result, and whether it only reads or acts on staging | Second Eye | Owed |
+| 3 | Sharon reviews the rollback file, the preservation query and the checks of step 2. **The scratch-target restore: confirmed by Sharon as satisfying §5b item 5, with four conditions (§3a)** | Sharon | **PASS on the evidence at `d8db82bde8d7a47e9936a34fd21686ca11adb472`**, with two required lines (§3c); her review of the §3c commit's delta is owed |
 | 4 | **The boundary commit:** the head carrying 1 and 2, with a green pre-flight, CI and journeys on that exact commit | Second Eye; confirmed by the Chief Architect | After 1 to 3 |
 | 5 | Preservation "before" and the migration count on staging (read-only) | Chief Architect | Before the merge |
 | 6 | The pull request into `main`, at the boundary commit, titled as the 4.0 promotions were, stating the commit, the migrations, the rollback file and that nothing touches production | Chief Architect opens it | After 4 and 5 |
@@ -172,9 +172,59 @@ refused by the hosted project or breaks Auth's own writes; a locked account can 
 effect on production. Item 1's committing-procedure result, if negative, is not a failure of the promotion but it
 **changes A2a's design** (D6.6): A2a is then not released, and its page returns to Sharon.
 
+### 3c · The evidence at `d8db82bde8d7a47e9936a34fd21686ca11adb472`: read, reviewed, and one more commit owed (13 Nov 2026, 00:56 UTC)
+
+**Pushed by Second Eye:** the rehearsal change (`8f27ff256d27cf98a97e7a849c85597de59805c0`) and the evidence
+(`d8db82bde8d7a47e9936a34fd21686ca11adb472`): `docs/completion-4.1/checkpoint/` with `PROMOTION-PRECONDITIONS.md`,
+`ROLLBACK-225-244.sql` and its test record, `evidence/staging/preservation.sql`. Pre-flight green (engineer's report);
+CI `43335326671` and journeys `43335340904` green.
+
+**Sharon: PASS on the evidence** (her `CHECKPOINT-EVIDENCE-d8db82bde8d7a47e9936a34fd21686ca11adb472.md`,
+`claude/gracious-lamport-0m1qjr` at `33e1c648c53b31db4439c6f1750f1dbca0e1b839`). Her rulings, which stand:
+- **Required, two lines on the rollback's header and the page (no code):** (1) a rollback returns the *database* to
+  224, but staging's app is deployed from `main`, so it is paired with reverting the merge, in a stated order, and
+  both are the owner's to decide; (2) what a rollback re-opens under 224's code (L1-F4, L1-F2, L1-R2), so nobody
+  approves a reopen or creates an account for a suspended or anonymised person on staging until 244 is back.
+- **Password sign-in on a locked account: to be exercised** on an existing synthetic staff account (not a platform
+  administrator), right password and wrong password, compared field by field. **PIN recovery: skipped,** reason
+  recorded (decided in the database, proven locally; an attempt would add to the recovery ladder).
+- **The hook (6b): allowed before the merge in a read-only transaction.** Gate: p95 ≤ 1 ms with no window active,
+  before and after, and after ≤ before + 0.5 ms. The endpoint timing (6c) is recorded, not gated.
+- **`banned_until` kept in the rollback: accepted.** **The rewrite timed on the copy: confirmed.**
+- **To watch:** if staging's own data makes a preserved line differ after the promotion, that is a stop; it is not
+  explained away on staging.
+
+**Chief Architect's read.** Scope against `main`: 20 migrations; no request file; no `supabase/config.toml`; the
+`.github` changes are CI's plant gates, the runner port fix, `recover-platform-admin.yml` (B0) and the rehearsal.
+`preservation.sql` is a single read. **One gap, which decides the boundary commit:**
+
+- The page says "unless stated otherwise, the Chief Architect runs it" for the after-merge steps. Many of them **act
+  as staging's synthetic administrators** (sign-ins, suspending, creating a card, deleting) or need **two database
+  connections, one through the pooler.** Those need credentials. **No credential passes through any team member**
+  (the owner's standing rule; §3b ruling 1). The Chief Architect can read staging's database; he cannot and must not
+  sign in as anyone.
+- **So the acting steps run as one dispatched workflow** on the repository's existing staging secrets, as the 4.0
+  staging walks did (`staging-golden-school*.yml`, `staging-platform-operator.yml`): items 1 (the scratch job), 2,
+  3, 4 and 6c, in the page's order, stopping at the first result that differs, uploading its evidence, with the same
+  refusal of any project but staging that `staging.yml` has. A workflow can only be dispatched once it is on
+  `main`, so **it must be in the boundary commit.**
+- **Sharon's "a synthetic staff account whose password the operator holds":** the operator is that workflow. If no
+  existing staging secret holds such an account's password, the page says so plainly; that one step is then the
+  owner's to run or to waive, and it is brought to him with the pull request. It is not solved by creating or
+  passing a credential.
+- **6b is restated as one `select` that returns its figures** (a `do` block's notice cannot be read through the
+  database tool the Chief Architect has), and is run the same way before and after.
+
+**Owed, as one more commit on the work branch (it becomes the boundary commit):** Sharon's two lines; the checkpoint
+workflow and its script; 6b as a select; the page's "who runs it" corrected for every step. Then: full pre-flight,
+push, CI and journeys, and Sharon's review of the delta.
+
 ## 4 · Results
 
-*(Filled as each step completes.)*
+| Step | When (UTC) | Result |
+|---|---|---|
+| B2 · migration count, before the merge (read-only; one `select`) | 13 Nov 2026, 00:56 | `224`, `20270113160000`, `d11e89838ecb656c4ca5b06b18941316`: **as expected.** Staging is at 224 and its versions are the repository's first 224 |
+| B1 · preservation "before" | — | To be taken on the final boundary commit, just before the pull request |
 
 ## 5 · Log
 
@@ -186,3 +236,4 @@ effect on production. Item 1's committing-procedure result, if negative, is not 
 | 12 Nov 2026, 22:08 | Sharon's explicit confirmation recorded: a scratch-target restore satisfies §5b item 5; five conditions; the known limit to be stated in the report. The owner's condition is met; nothing is escalated |
 | 12 Nov 2026, 22:11 | Second Eye: the `audit_log` rewrite is migration 215, already on staging; it will be timed on the scratch copy. Recorded as a correction to §5b's text, for Sharon's review. Wording commit local at `049e21ad`, in pre-flight |
 | 12 Nov 2026, 23:25 | Wording commit pushed by Second Eye (local `049e21ad`, full hash at the next check). Rollback, preservation query and rehearsal change built and round-trip-tested locally, not yet committed. Rulings on the page's open points recorded (§3b) |
+| 13 Nov 2026, 00:56 | Evidence at `d8db82bde8d7a47e9936a34fd21686ca11adb472` read; Sharon PASS with two required lines. Gap found: the acting steps need credentials, so they run as a dispatched workflow, which must be in the boundary commit. One more commit owed. Migration count read on staging: 224, as expected |
