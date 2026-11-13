@@ -411,6 +411,24 @@ her. Four conditions:
 For part 2: its own preservation pair with a cutoff after part 1; its end-of-run build check compares against part
 2's own commit.
 
+**The owner on the blocked workflow (13 Nov 2026, recorded 05:15 UTC):**
+> I accept the proposed manual-disable procedure, subject to Sharon confirming that the existing safeguards are
+> sufficient. Do not change the boundary commit or restart verification merely to alter the workflow. Once journeys
+> is green on the exact commit and Sharon confirms, present PR 1 with the required evidence. I will merge PR 1 and
+> immediately disable the acting checkpoint workflow using your instructions. You must independently verify that it
+> is disabled before proceeding with any subsequent checkpoint activity. If disabling fails or the workflow cannot be
+> found, stop and inform me. A2a remains held until Part 2 passes.
+
+- **The procedure:** the owner merges; opens
+  `https://github.com/yazidmanan2409/pintar40/actions/workflows/staging-checkpoint-41.yml`; the "…" button at the top
+  right; "Disable workflow"; tells the Chief Architect.
+- **The Chief Architect then reads the workflow's state** and proceeds only if it reads disabled. If it cannot be
+  found or does not read disabled: stop, and tell the owner.
+- **Why it cannot be done before the merge without rework:** a workflow that has never run and is not on `main` is
+  not known to Actions, so it cannot be disabled; and making it unrunnable in the file changes the boundary commit.
+  Until it is disabled, its own guard holds: it refuses to start while `staging.yml` runs, and needs a typed
+  confirmation and two inputs. **Sharon is asked to confirm these safeguards are sufficient.**
+
 **Before pull request 1 is opened, all of:** the journeys re-run green on `a33c852877686bdd54353c63dfcd995e1c902110`
 (in progress; its stack started, the walk is running); Sharon's confirmation above. Already done: CI green on it;
 scope against `main` (20 migrations, 213 files, no request file, no `supabase/config.toml`, a clean merge); no pull
@@ -496,3 +514,4 @@ request template in the repository; the read-only readings.
 | 13 Nov 2026, 05:06 | Preservation query run on staging as a trial (read-only): it completes; values in §4a. The "before" that counts is taken when the owner is about to merge, and staging is left alone from then until the checkpoint ends |
 | 13 Nov 2026, 05:09 | Decision (§3i): the promotion goes as pull request 1 at `a33c852877686bdd54353c63dfcd995e1c902110` with read-only verification; the acting checks follow as pull request 2 with the corrected script. Sharon asked to confirm her block does not bear on the promotion |
 | 13 Nov 2026, 05:11 | Sharon confirmed in writing: her block does not bear on the promotion. Four conditions recorded (§3i). Waiting only on the journeys re-run before pull request 1 is opened |
+| 13 Nov 2026, 05:15 | Owner accepts manual disabling of the acting workflow right after the merge, subject to Sharon confirming the safeguards; the Chief Architect verifies the disabled state before any further step. Journeys re-run still in progress |
