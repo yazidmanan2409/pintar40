@@ -101,7 +101,21 @@ const lewatAkhir = (v: string) => v.match(/ — via (.*?); earlier via /)?.[1] ?
 /** An upgrade's first, weaker lock: the path after "strength N via". */
 const lewatAwalNaik = (v: string) => v.match(/^an upgrade on \S+: strength \d via (.*?), then \d via /)?.[1] ?? "";
 type Lewat = string | RegExp | ((v: string) => boolean);
-export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syarat?: (kat: Katalog) => boolean }[] = [
+/** A same-row re-lock's mechanical half: the writer took the late lock's table, at least as strongly, before anything of a
+ *  higher rank. (Its other half, that it is the same row, is the variable each entry names.) */
+const dipegangDulu = (l: Kunci[], v: string) => {
+  const t = v.split(" ")[0], akhir = lewatAkhir(v);
+  if (!(t in URUTAN) || !akhir) return false;
+  const k = Math.max(...l.filter((x) => x.t === t && x.lewat === akhir).map((x) => x.kuat));
+  const i = l.findIndex((x) => x.t in URUTAN && URUTAN[x.t] > URUTAN[t]);
+  return i > 0 && l.slice(0, i).some((x) => x.t === t && x.kuat >= k);
+};
+/** One same-row re-lock: the lock site (the late path's end), the variable that makes it the row already held. */
+const samaBaris = (site: string, variabel: string) => ({
+  penulis: "*", lewat: new RegExp(`(^| > )${site.replace(/[[\]]/g, "\\$&")}$`),
+  alasan: `same row: ${variabel}`, syarat: (_k: Katalog, l?: Kunci[], v?: string) => !!l && !!v && dipegangDulu(l, v),
+});
+export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syarat?: (kat: Katalog, l?: Kunci[], v?: string) => boolean }[] = [
   // the class (the Chief Architect, 13 Nov: one exception, one assertion): every writer, a lock through audit_write —
   // the late lock of a breach, or the first lock of an upgrade (a null key took no lock, so there is nothing to upgrade)
   { penulis: "*", lewat: (v) => /(^| > )audit_write$/.test(lewatAkhir(v)) || /(^| > )audit_write$/.test(lewatAwalNaik(v)),
@@ -120,6 +134,69 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
     penulis, lewat: /^change_maintenance$|^publish_notice$/,
     alasan: "PENDING B1: the actor's key after the window row, no reverse path found; re-read after B1, in change C, and this exception removed there",
   })),
+  // same-row re-locks, one by one (Sharon's condition), each naming the variable that makes it the row already held
+  samaBaris("finalize_session", "assessment_results.person_id, set from the sitting, is its learner v_s.person_id, taken first by finalize_session or its caller"),
+  samaBaris("pengerjaan_putus_tenggat", "the learner of p_session (p.id = a.person_id), taken first by the caller on the same sitting's learner"),
+  samaBaris("tutup_asesmen_terbuka", "the enrolment's person (e.person_id), taken first; terminated_by_person_id is v_actor, see the page for the actor's key"),
+  samaBaris("[enrollments U] enrollments_programme_alone", "the enrolment's person en.person_id, taken FOR UPDATE first (akhiri_pendaftaran; kenaikan_tetapkan's population)"),
+  samaBaris("akhiri_pendaftaran", "en.person_id, in kenaikan_tetapkan's population, taken FOR UPDATE first"),
+  samaBaris("[attempt_requests I] orang_lampiran_jaga > orang_dianonimkan", "attempt_requests.person_id is s.person_id, taken FOR SHARE first"),
+  samaBaris("[memberships I] orang_lampiran_jaga > orang_dianonimkan", "the new membership's enrolment's person, in the population taken FOR UPDATE first"),
+  samaBaris("[portable_visibility I] orang_lampiran_jaga > orang_dianonimkan", "portable_visibility.person_id is t.person_id, taken FOR UPDATE first by the enrolment trigger"),
+  samaBaris("minta_percobaan", "attempt_requests.person_id is s.person_id, taken FOR SHARE first"),
+  samaBaris("transfer_execute", "portable_visibility.person_id is t.person_id, taken FOR UPDATE first by the enrolment trigger"),
+  samaBaris("terminate_session", "the learner v_s.person_id is taken first; terminated_by_person_id is v_actor, the same row or not the hold's"),
+  // a trigger function read on its own: it only ever runs as auth.users' UPDATE trigger, read with that row held (R2), where it passes
+  ...["auth_card_email_guard", "auth_password_write_guard"].map((penulis) => ({ penulis, lewat: /(^| > )sesi_akhiri_orang$/,
+    alasan: "a trigger function only of auth.users UPDATE: its R2 reading, with the row held, passes",
+    syarat: (kat: Katalog) => [...kat.pemicu].every(([k, fs]) => !fs.includes(penulis) || /^auth\.users\|U\|/.test(k)) })),
+  // KEY SHARE, then FOR SHARE, on one person: compatible (Sharon); raced on two connections, no deadlock
+  ...["certificate_prepare", "sertifikat_koreksi_siapkan"].map((penulis) => ({ penulis,
+    lewat: (v: string) => /^an upgrade on persons: strength 0 via .*, then 1 via /.test(v),
+    alasan: "KEY SHARE then FOR SHARE: the holder strengthens past a FOR UPDATE waiter; raced, no deadlock" })),
+  samaBaris("sesi_akhiri_orang", "device_sessions.auth_user_id is p_auth_user, the account's auth.users row its caller holds first (akun_kunci; Auth's own write; the auth.users trigger's row)"),
+  samaBaris("orang_dianonimkan", "p_person is the attachment's NEW.person_id (orang_lampiran_jaga), the person the writer took first"),
+  samaBaris("authorize_card_conversion", "card_conversions.person_id is p_person, taken FOR UPDATE first by sekolah_memegang"),
+  samaBaris("authorize_card_reissue", "card_reissues.person_id is p_person, taken FOR UPDATE first by sekolah_memegang"),
+  samaBaris("authorize_email_correction", "email_corrections.person_id is p_person, taken FOR UPDATE first by sekolah_memegang"),
+  samaBaris("buka_kembali_akun", "account_requests is r.id, taken FOR UPDATE first"),
+  // the actor's key after the person's own rows: the actor's hold takes only the actor's rows, never this person's
+  ...["aktifkan_kembali_akun", "buka_kembali_akun"].map((penulis) => ({ penulis,
+    lewat: (v: string) => /^persons \(rank 1\) after (person_suspensions|accounts) /.test(v) && lewatAkhir(v) === penulis,
+    alasan: "ended_by / revoked_by / decided_by is v_actor: if the actor is the person, the row taken first FOR UPDATE; if not, a hold "
+      + "on the actor takes the actor's suspension and accounts, never this person's",
+    syarat: (_k: Katalog, l?: Kunci[]) => !!l && l[0]?.t === "persons" && l[0].kuat === 3 })),
+  samaBaris("open_assessment_session", "the new sitting's person_id is NEW.person_id, which orang_lampiran_jaga takes FOR SHARE first (its "
+    + "person_suspensions key is frozen_suspension_id, null on a new sitting)"),
+  samaBaris("hapus_data_pribadi", "p_person, taken FOR UPDATE first"),
+  // the deletion's auth.users update never changes the password, so auth_password_write_guard returns at once: what the
+  // engine reads after it (the permits, the recovery, sekolah_memegang) is never reached from the deletion
+  { penulis: "hapus_data_pribadi", lewat: (v: string) => /\[auth\.users U\] auth_password_write_guard/.test(v),
+    alasan: "the deletion does not write encrypted_password; the guard returns when it is unchanged",
+    syarat: (kat: Katalog) => !(kat.fns.get("hapus_data_pribadi") ?? []).some((b) => /encrypted_password/.test(bersih(b)))
+      && (kat.fns.get("auth_password_write_guard") ?? []).every((b) => bersih(b).replace(/\s+/g, " ")
+        .includes("if new.encrypted_password is not distinct from old.encrypted_password or coalesce(new.encrypted_password, '') = '' then return new;")) },
+  // the actor's key after the sitting (Sharon: confirm none can act where the actor is the sitting's own learner)
+  ...["akhiri_pengerjaan", "akhiri_penugasan"].map((site) => ({ ...samaBaris(site, ""), alasan: "closure_by / terminated_by_person_id is "
+    + "v_actor: if the actor is the learner, it is the row taken first (the learner, commit 3, checked); if not, the actor's hold "
+    + "takes only the actor's own sittings, and this act holds the learner's", syarat: (_k: Katalog, l?: Kunci[]) =>
+      !!l && l.findIndex((x) => x.t === "persons") >= 0 && l.findIndex((x) => x.t === "persons") < l.findIndex((x) => x.t === "assessment_sessions") })),
+  ...["lanjutkan_pengerjaan", "tutup_pengerjaan_ditahan"].map((site) => ({ penulis: site, lewat: new RegExp(`^${site}$`),
+    alasan: "unfrozen_by / terminated_by_person_id is v_actor, and the sitting is a held (frozen) one, which the hold does not take: "
+      + "pengerjaan_ditahan_periksa refuses any other", syarat: (kat: Katalog) => (kat.fns.get("pengerjaan_ditahan_periksa") ?? [])
+      .every((b) => bersih(b).replace(/\s+/g, " ").includes("if not public.pengerjaan_ditahan(s) then perform public.pengerjaan_tolak(''); end if;")) })),
+  // the hold itself: unfrozen_by_person_id is set to null (a null key takes no lock); frozen_suspension_id is the suspension
+  // its only caller, tangguhkan_akun, inserted earlier in the same transaction (a new row no one else can see)
+  ...["pengerjaan_tahan_orang", "tangguhkan_akun"].map((penulis) => ({ penulis,
+    lewat: (v: string) => /^(persons|person_suspensions) \(rank \d\) after assessment_sessions/.test(v) && /(^| > )pengerjaan_tahan_orang$/.test(lewatAkhir(v)),
+    alasan: "persons: unfrozen_by_person_id = null takes no lock; person_suspensions: frozen_suspension_id is the row tangguhkan_akun "
+      + "inserted in this transaction", syarat: (kat: Katalog) => {
+      const h = (kat.fns.get("pengerjaan_tahan_orang") ?? []).map((b) => bersih(b));
+      const t = bersih((kat.fns.get("tangguhkan_akun") ?? [""])[0]);
+      const pemanggil = [...kat.fns].filter(([n, bs]) => n !== "pengerjaan_tahan_orang" && bs.some((b) => /\bpengerjaan_tahan_orang\s*\(/.test(bersih(b)))).map(([n]) => n);
+      return h.length === 1 && /unfrozen_by_person_id = null/.test(h[0]) && pemanggil.join() === "tangguhkan_akun"
+        && t.indexOf("insert into public.person_suspensions") >= 0 && t.indexOf("insert into public.person_suspensions") < t.indexOf("pengerjaan_tahan_orang(");
+    } })),
   ...["(GoTrue U auth.users)", "auth_password_write_guard", "auth_password_write_guard [auth.users U]"].map((penulis) => ({
     penulis, lewat: "recovery_assist_school > sekolah_memegang", alasan: ALASAN_JAGA, syarat: syaratJaga,
   })),
@@ -324,10 +401,10 @@ export function pelanggaran(l: Kunci[]): string[] {
   }
   return [...new Set(out)];
 }
-const dikecualikan = (kat: Katalog, fn: string, v: string) =>
+const dikecualikan = (kat: Katalog, fn: string, v: string, l?: Kunci[]) =>
   PENGECUALIAN.some((p) => (p.penulis === "*" || fn === p.penulis)
     && (typeof p.lewat === "string" ? v.includes(p.lewat) : typeof p.lewat === "function" ? p.lewat(v) : p.lewat.test(lewatAkhir(v)))
-    && (!p.syarat || p.syarat(kat)));
+    && (!p.syarat || p.syarat(kat, l, v)));
 
 /** R3: the per-function report, one line per writer, of the ranked tables it locks in order (strength in brackets). */
 export function laporan(semua: Map<string, Kunci[]>): string {
@@ -338,7 +415,7 @@ export function bacaUrutan(db: string, tanam = "") {
   const kat = bacaKatalog(db, tanam);
   const semua = semuaKunci(kat);
   const salah: string[] = [];
-  for (const [fn, l] of semua) for (const v of pelanggaran(l)) if (!dikecualikan(kat, fn, v)) salah.push(`${fn}: ${v}`);
+  for (const [fn, l] of semua) for (const v of pelanggaran(l)) if (!dikecualikan(kat, fn, v, l)) salah.push(`${fn}: ${v}`);
   const disebut = (b: string) => Object.keys(URUTAN).some((t) => t !== "FENCE" && new RegExp(`\\b${t.replace(".", "\\.")}\\b`).test(b));
   const dinamis = [...kat.fns].filter(([, bs]) => bs.some((b) => /\bexecute\b/.test(bersih(b)) && disebut(bersih(b)))).map(([f]) => f);
   return { fungsi: [...kat.fns.values()].reduce((n, b) => n + b.length, 0), menyentuh: semua.size, salah, dinamis, semua, kat };
