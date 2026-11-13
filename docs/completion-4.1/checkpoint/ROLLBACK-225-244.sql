@@ -56,6 +56,22 @@
 --     - persons anonymised by hapus_data_pribadi.
 --     All of them are valid 224 rows. The 224 functions read them as 224 would.
 --
+-- TWO LINES REQUIRED BY SHARON (CHECKPOINT-EVIDENCE-d8db82bde8d7a47e9936a34fd21686ca11adb472.md):
+--   1. THE DATABASE AND THE APP GO BACK TOGETHER. This script returns staging's DATABASE to 224. Staging's app deploys
+--      from main, so a 244 app on a 224 database calls functions that no longer exist. A rollback is therefore paired
+--      with reverting the merge on main (the app back to 224's commit), in this order:
+--        (1) revert the merge on main and wait for the app's deploy at 224's commit;
+--        (2) then run this script.
+--      Between the two, a 224 app meets a 244 database, as at every 4.0 promotion the other way round. Both are the
+--      owner's to decide.
+--   2. WHAT A ROLLBACK RE-OPENS. Under 224's code:
+--        * L1-F4: an anonymised person can be reopened again (L1F4-A2), the checkpoint's own synthetic L and E
+--          included;
+--        * L1-F2: a suspended person's new account is created open;
+--        * L1-R2: password-write permits are not deleted when an account is locked.
+--      While a rollback stands, nobody approves a reopen, or creates an account for a suspended or anonymised person,
+--      on staging, until 244 is applied again.
+--
 -- TESTED LOCALLY (evidence/rollback/ROLLBACK-225-244-local-test.txt):
 --   * on an empty copy at 244: migra afterwards finds no difference from 224, privileges included, and a catalogue
 --     fingerprint is identical (functions with their ACLs, owners and comments; tables, columns, constraints, triggers,
