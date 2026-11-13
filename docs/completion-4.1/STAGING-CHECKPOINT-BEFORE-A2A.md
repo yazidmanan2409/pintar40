@@ -443,6 +443,10 @@ request template in the repository; the read-only readings.
 | B1 · preservation, **trial read** (the boundary's `preservation.sql` as committed; one `select`) | 13 Nov 2026, 05:05 | **It runs on staging's real data and completes.** Values in §4a. Staging holds 1,579 people, no suspension and no locked account; 5 sittings open, all 5 past their deadline (as the first-runs read said) |
 | B1 · preservation **"before", the one that counts** | — | **Taken when the owner says he is about to merge,** not earlier: every line fingerprints existing rows, so any use of staging between "before" and "after" would show as a difference. Staging is left alone from that reading until the checkpoint ends |
 
+| **Journeys on the boundary commit** | 13 Nov 2026, 05:25 | Run `43365156148`, attempt 2: **both jobs green on `a33c852877686bdd54353c63dfcd995e1c902110`** (attempt 1's second job stopped on the runner's port fault before any migration; the one permitted re-run passed in full). CI `43365152777`: green |
+| **Sharon on the acting workflow** | 13 Nov 2026 | Confirmed: it cannot be made unrunnable before the merge without changing the boundary commit; the owner's manual disabling right after the merge stands; no team member dispatches it (her branch at `4b65879c9e082b27ef9d9d1ebaa9561e436f56e7`) |
+| **Pull request 1 opened** | 13 Nov 2026, 05:36 | **https://github.com/yazidmanan2409/pintar40/pull/19**, `promote/4.1-staging-checkpoint` into `main`, at `a33c852877686bdd54353c63dfcd995e1c902110`. Not merged. The merge is the owner's |
+
 ### 4a · The trial preservation read (13 Nov 2026, 05:05 UTC; read-only)
 
 | Line | Value |
@@ -515,3 +519,4 @@ request template in the repository; the read-only readings.
 | 13 Nov 2026, 05:09 | Decision (§3i): the promotion goes as pull request 1 at `a33c852877686bdd54353c63dfcd995e1c902110` with read-only verification; the acting checks follow as pull request 2 with the corrected script. Sharon asked to confirm her block does not bear on the promotion |
 | 13 Nov 2026, 05:11 | Sharon confirmed in writing: her block does not bear on the promotion. Four conditions recorded (§3i). Waiting only on the journeys re-run before pull request 1 is opened |
 | 13 Nov 2026, 05:15 | Owner accepts manual disabling of the acting workflow right after the merge, subject to Sharon confirming the safeguards; the Chief Architect verifies the disabled state before any further step. Journeys re-run still in progress |
+| 13 Nov 2026, 05:36 | All conditions for pull request 1 met; opened as number 19 at `a33c852877686bdd54353c63dfcd995e1c902110`. Waiting for the owner: he says when he is about to merge, the "before" reading is taken, he merges and disables the acting workflow, the Chief Architect verifies it reads disabled, then the read-only verification |
