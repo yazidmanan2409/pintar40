@@ -1,10 +1,10 @@
 # A2a · Emergency containment and class scope for the emergency (completion page, before build)
 
-## State of change A (13 Nov, 22:14 UTC by `date -u`; kept here so that nothing depends on a session's memory)
+## State of change A (13 Nov, 22:32 UTC by `date -u`; kept here so that nothing depends on a session's memory)
 
 **Branches:**
 - `claude/a2a`: this page.
-- `claude/a2a-change-a`: change A, built on `main` at `a6b47466`. Its head is `675b71df`.
+- `claude/a2a-change-a`: change A, built on `main` at `a6b47466`. Its head is `e959acdf`.
 - `claude/a2a-nokey` (`289d4865`): the deferred register item's reference. It is left as it is (the Chief Architect will
   not delete it) and never merged.
 - `claude/a2a-l01` (`d748ef05`): superseded, left as it was pushed.
@@ -26,6 +26,14 @@
 9. `0353f1fe`: the permit exception, with Sharon's three conditions. Condition 2 is asserted from the catalogue,
    because `20270117190000` is deployed, so its own check is not edited. **This differs from her wording, for her ruling.**
 10. `675b71df`: C2's one-off list, for reading.
+11. `e73842e1`: Sharon's ruling on the 76.
+    - **Row 3 is fixed** (migration `20270118130000`): the key correction takes the learner first. Proof: A2A-L05.
+    - **Rows 13 and 11 are declared.** Row 13 is the password guard's early return, with its plant P6. Row 11 is
+      REG-A2A-01.
+    - Every other report is declared by name.
+    - **A2A-L06 is the transfer request's race,** with a finding: row 7 was not real.
+    - The pins are at 248.
+12. `e959acdf`: lint (an import).
 
 **Sharon's ruling on commits 3 and 4** (`A2A-CHANGE-A-C3C4-40753420.md` at `dbbf7fde`):
 - Nine of the ten commit-3 lines are accepted, along with A2A-L03 and commit 4.
@@ -82,7 +90,19 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**Since the reading of the 76:**
+**Now (22:32 UTC):**
+- **A2A-L01 has 1 breach:** row 4 (`recompute_result`). It is not reproduced as a deadlock, so it waits on Sharon (below,
+  "Row 4 raced before the fix").
+- **A2A-L02 to A2A-L06 are green.**
+  - L02, L03 and L04: each plant red.
+  - L05: its plant reaches the sitting while the learner is held.
+  - **L06: its plant does not deadlock.** The transfer's attachment guard (`orang_lampiran_jaga`, BEFORE INSERT) takes
+    the person `FOR SHARE` before the foreign keys. **Row 7 was not real,** and commit 8's line in `transfer_minta` and
+    `transfer_request` is redundant (`KEY SHARE`, then `SHARE`: compatible). For Sharon: keep the line, or remove it.
+- **Waiting on Sharon:** row 4, and the L06 finding.
+- **Then:** Second Eye names change A's complete commit.
+
+**Since the reading of the 76 (earlier):**
 - C1, the permit exception, Sharon's two additions and C2's one-off list are done (commits 8 to 10, below).
 - A2A-L01 is down to **63**. It is still red, waiting on Sharon's rulings on rows 3, 4, 11 and 13 of the table.
 - A2A-L02, L03 and L04 are green, each with its plant red.
