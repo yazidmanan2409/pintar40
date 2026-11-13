@@ -301,6 +301,43 @@ lock of a person or an account after the fence) is this test's rank rule, not a 
 - the smallest fix proposed here;
 - if the fix would change approved account-lifecycle behaviour, stopped and taken to the Chief Architect.
 
+**What the corrected engine reports on `main`'s code** (change A, commit 1, `claude/a2a-change-a` at `f09da528`;
+the red run in `selftest/a2a-l01-merah-main.txt`, the per-writer report in `selftest/a2a-l01-laporan.txt`). **A new
+finding, put here before anything is fixed** (the Chief Architect's instruction). Nothing in it is fixed.
+- **The engine first found three errors of its own**, fixed before its reading was trusted:
+  - `auth.*` names were read as a table called `auth`, which lost every real `auth.users` lock;
+  - foreign-key checks were placed before BEFORE triggers (Postgres runs them as AFTER triggers);
+  - a call's arguments were read after the call.
+- **It reads 216 writers, and reports 62 breaches: 56 out of order, 6 upgrades.** By cause:
+
+| Cause | Breaches | Reading |
+|---|---|---|
+| A foreign key's `FOR KEY SHARE` on a person after a higher rank, **through `audit_write`** | 30 | **Over-reports in ordinary use.** `audit_log`'s only foreign keys are `evaluation_actor_person_id` and `evaluation_session_id`. `audit_write` fills them only while the acting user is a persona in an open evaluation session (the synthetic human-evaluation feature). Otherwise they are null, and a null foreign key takes no lock. A declared exception with that reason, and with a condition the test checks, is the proposal |
+| A re-lock of a row the function already holds (the attachment guards' `FOR SHARE` on the person; `sesi_akhiri_orang`'s `KEY SHARE` on the `auth.users` row `akun_kunci` or Auth already holds; the reinstatement; the deletion) | about 11 | **Harmless when it is the same row, and in each one read it is.** The engine reads tables, not rows |
+| A new `auth.users` row (Auth's insert, `handle_new_auth_user`) | 2 | Harmless: no one else can see the row |
+| Auth's recovery password write → `sekolah_memegang` | 3 | **The known finding.** Closed by commit 2 |
+| The window functions (`change_maintenance`, `publish_notice`, the list): the actor's foreign key after the window row | about 4 | No reverse path found. `change_maintenance`'s order changes under B1 anyway |
+| **A person's `KEY SHARE` after a sitting:** `finalize_session`, `terminate_session`, `lanjutkan_pengerjaan`, `tutup_pengerjaan_ditahan`, `open_assessment_session`; and the six upgrades (`KEY SHARE`, then `FOR SHARE` or `FOR UPDATE`, on a person) | about 12 | **Possibly real, inherited (4.0 and A1), not yet read to the end.** Where the foreign key is the sitting's own learner, a suspension of that learner (person `FOR UPDATE` → their sittings) can deadlock with it. Postgres detects that and aborts one side with 40P01: one act fails with an error, nothing is lost. **This is the shape A2a's fence and held sittings sit in** |
+
+- **The sweep's common cause:** 15 functions take `persons` `FOR UPDATE`, and a foreign key's `KEY SHARE` conflicts
+  with exactly that:
+  - `akhiri_tugas_staf`, `aktifkan_kembali_akun`, `buka_kembali_akun`, `confirm_my_name`, `correct_person_name`;
+  - `daftarkan_kembali`, `enrol_for_professional_learning`, `enrollments_programme_alone`, `hapus_data_pribadi`;
+  - `issue_institutional_id`, `kenaikan_tetapkan`, `minta_akun`, `sekolah_memegang`, `tangguhkan_akun`, `ubah_peran`.
+- **The smallest fix that covers the whole class at its source, proposed and NOT built:** those 15 take the person
+  `FOR NO KEY UPDATE` instead of `FOR UPDATE`.
+  - A person's key never changes, and no person is ever deleted (`persons_no_delete`).
+  - `FOR NO KEY UPDATE` still excludes every other lifecycle act, because it conflicts with itself, with `FOR SHARE`
+    and with `FOR UPDATE`. L1-F2's and L1-F4's designed serialisation (the guards' `FOR SHARE`) is kept.
+  - What stops is only a foreign-key check waiting on a lifecycle act. So every cycle of this shape is gone, and the
+    test could prove it from the catalogue, without exceptions: "a `KEY SHARE` on a table that no function locks
+    `FOR UPDATE` and nothing deletes cannot wait".
+  - **It changes approved account-lifecycle locking in 15 functions.** That is beyond change A. Under the Chief
+    Architect's rule it is stopped here, for him and Sharon. L1-F2's page names the foreign key `FOR KEY SHARE` as one
+    of the incidental serialisers of account creation against suspension; the designed one stays.
+- **Until that decision:** change A's commit 2 (the recovery fix and its two-connection test) can be built as ruled.
+  A2A-L01 stays red on the other reports, which is correct in development, and no freeze is possible while it is.
+
 **It is built first, as its own change** (working rule 5: verification tooling never travels with a product
 change). It is green or red on `main`'s code before any of A2a's product changes is made.
 
