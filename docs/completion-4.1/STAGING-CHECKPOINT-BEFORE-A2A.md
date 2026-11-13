@@ -285,6 +285,26 @@ Her record governs: `claude/gracious-lamport-0m1qjr` at `183554b32b2148537f59782
 - **Owed:** the fixed commit (it becomes the boundary commit), full pre-flight, CI and journeys on it, and Sharon's
   review of the clean-up delta.
 
+### 3g · The clean-up fix is pushed; the boundary is frozen at it (13 Nov 2026, 04:23 UTC)
+
+- **The fix:** `a33c852877686bdd54353c63dfcd995e1c902110` (one exit path that undoes the run's own acts on every stop
+  and on success, reading staging and not the run's memory; suspensions in `try`/`finally`; each undo recorded, a
+  failed undo recorded `FAILED` and the owner's; a recovery of SA's or PA's password recorded; what a stop leaves at
+  each stage on the page). Pre-flight green (engineer's report).
+- **What happened to its runs.** The engineer dispatched CI and journeys on it, then pushed a documentation commit
+  (A2b's page and the report's skeleton, `63f27b3ed3fe8012958fc8ae862cb2b6c40072a1`) a minute later, as I had asked
+  him to do after the push. The newer dispatch cancelled the first pair. **My sequencing caused that:** I should have
+  said "after its runs finish".
+- **The boundary commit is `a33c852877686bdd54353c63dfcd995e1c902110`, not the head.** A2b's design page is not part
+  of the approved boundary, and the owner's instruction is that the pull request holds nothing unrelated.
+- **So the boundary is frozen on its own branch:** `promote/4.1-staging-checkpoint`, created at that commit by the
+  Chief Architect (an existing, pre-flighted commit; nothing new was pushed). The pull request will be from that
+  branch. The work branch can move on without widening it.
+- **CI and journeys dispatched on the frozen branch, for that exact commit,** by the Chief Architect at 04:23
+  UTC. The run numbers are recorded at the next check.
+- **Owed:** those two runs green; Sharon's review of the clean-up delta; then the read-only readings and the pull
+  request.
+
 ## 4 · Results
 
 | Step | When (UTC) | Result |
@@ -308,3 +328,4 @@ Her record governs: `claude/gracious-lamport-0m1qjr` at `183554b32b2148537f59782
 | 13 Nov 2026, 02:04 | Second Eye: boundary candidate local at `8b3e07a3e80e31298a88e5912de34cc528866599`, in pre-flight, not pushed. It carries the dispatched workflow `staging-checkpoint-41.yml` (dispatch from `main` only, typed confirmation, staging only, existing secrets, tested end to end locally), 6b as one select, `first-runs.sql`, Sharon's two lines. For Sharon: the staff password is derived from an existing secret and checked before use, else that step is the owner's; the "direct" lock test may fall back to the session pooler. For the Chief Architect's read on push: the uploaded record and screenshots hold no token, key or setting value (a local run once printed a local JWT secret; fixed before any push) |
 | 13 Nov 2026, 03:10 | Boundary candidate pushed at `55e7eed9573d7396973b48665cd9d67a048da5bf` and read (§3e): no blocker. First-runs read on staging: 5 overdue sittings in two synthetic test schools will be ended and scored; none in the demonstration school. Waiting on its runs and Sharon's delta |
 | 13 Nov 2026, 03:16 | Sharon BLOCKED the boundary candidate `55e7eed9573d7396973b48665cd9d67a048da5bf` on one item: no clean-up on a stop (the scratch job; the suspended teacher account). Her other five answers stand, including that the session-pooler fallback satisfies item 2. My "no blocker" corrected. Fix with Second Eye |
+| 13 Nov 2026, 04:23 | Clean-up fix pushed at `a33c852877686bdd54353c63dfcd995e1c902110`. Boundary frozen at it on `promote/4.1-staging-checkpoint`; CI and journeys dispatched there by the Chief Architect, because the engineer's runs on that commit were cancelled by the next push. With Sharon for the clean-up delta |
