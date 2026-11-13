@@ -248,6 +248,15 @@ What it means in practice:
 - **How we will know:** at each result review, a defect is marked "could reasonably have been anticipated" or not,
   with which of the five questions would have caught it. The count is reported to the owner at each batch's close.
 
+**The baseline (12 Nov 2026; Sharon's `ANTICIPATION-2026-11-12.md`, `claude/gracious-lamport-0m1qjr` at
+`3d6849b5e341323ce69d357bbb4bcac2940dd1ab`).** Her reviews found **nine** defects that day. **All nine could reasonably have been
+anticipated.** By question: locks and their order, 4; the opposite and neighbouring act, 2; what else reads or writes
+the state, 2; before from after, 1; who runs each check, 1 (one defect counts under two questions). Three trace to
+her own designs, by her account. Outside her reviews, three more of the same kind: B2's notice at 320 px (Daisy), the
+checkpoint page that had the Chief Architect signing in, and INV-03 missed in his brief. **So the Chief Architect's
+"six" below understates it: the day's figure is twelve, all anticipable.** A2a's 28 readers and its fence order were
+found at the design stage, before any build, which is what the questions are for.
+
 ### Five questions the design review answers before a build (Chief Architect, 13 Nov 2026; on the owner's question)
 
 The owner asked whether we anticipate as well as we detect. On 12 Nov we did not: six defects were found after the
@@ -350,3 +359,4 @@ correction cycles, without weakening any verification gates."* No gate is remove
 | 13 Nov 2026 (01:16 UTC) | On the owner's question about anticipating problems: five questions added to the existing design review ("Before any correction is built"). Not a new gate. They apply first to A2a's build and to every brief |
 | 13 Nov 2026 (01:18 UTC) | Owner: apply the five questions rigorously, without weakening any gate. First use: the checkpoint itself (`STAGING-CHECKPOINT-BEFORE-A2A.md` §3d). Second Eye: three more items in the boundary commit |
 | 13 Nov 2026 (01:31 UTC) | The owner's principle recorded for everyone: think thoroughly before building, build carefully, verify rigorously; none replaces the others. At each result review, defects are marked anticipable or not, and the count is reported at each batch's close |
+| 13 Nov 2026 (01:34 UTC) | Baseline for the owner's principle: Sharon classed the nine defects of her 12 Nov reviews, all anticipable; with three found elsewhere, twelve. The Chief Architect's earlier "six" is corrected in place |
