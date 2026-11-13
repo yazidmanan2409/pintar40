@@ -13,6 +13,21 @@ considered the staging checkpoint.")*
 
 ## Before the build: what the checkpoint settled, and the design constraints
 
+**The early reads of `7b3b3d31`, carried below where each belongs.**
+- Sharon: `A2A-EARLY-READ-7b3b3d31.md` on `claude/gracious-lamport-0m1qjr` at `1b919c92`.
+- Daisy: `A2A-BACA-AWAL-7b3b3d31.md` on `ux-1/daisy-experience` at `6a2055dd`.
+
+| From | What | Where now |
+|---|---|---|
+| Sharon B1 (blocker, the lift only) | the window row and the fence were taken in both orders | §4 Q3; §6's order; condition 1 |
+| Sharon rulings 1 to 5 | the corrected order; foreign keys count; the fix with its addition and its two-connection test; two commits; R1 to R3 | §6 |
+| Sharon, §3 | a shared taker's worst wait is 2.0 s, not 0.5 s; the fence's timeout is a `SET` clause | §2, §3 |
+| Daisy 1a (blocker, page only) | THE PLAN §5.3 F items 1 to 6, exact text | §5 |
+| Daisy 1b (blocker, page only) | the fence refusal's line; the learner's existing retry path | §3, §5 |
+| Daisy §2 | the activation refusal's whole line; her ten screens | §3, §7 |
+| Daisy §3 | she cannot open Actions artifacts: screenshots go on a branch | §7 |
+| The Chief Architect | the scale job's four limits | §7, Size |
+
 ### 1 · The closer is a committing procedure that cron `CALL`s, proven on hosted staging
 
 D6.6 stands as designed: `pengerjaan_tutup_terjadwal` becomes a procedure that commits per small batch, with the shared
@@ -34,23 +49,34 @@ transaction pooler (port 6543), and never by the app's own code.
 - **What the app is today:** `src/` holds no database driver, no pooler address and no `pg_advisory` call. It reaches
   the database only through Supabase's client, which is PostgREST. Read on `a6b47466`.
 
-**Built as one fence function**, so there is one place to read:
-- `public.pagar_darurat(p_eksklusif boolean)`, `security definer`. It sets its own lock timeout (§3) and takes
-  `pg_advisory_xact_lock` (exclusive) or `pg_advisory_xact_lock_shared` on one fixed key.
-- Every fenced decision calls it as the first lock of its transaction, apart from the person → accounts locks of
-  required change 3.
+~~**Built as one fence function** … `public.pagar_darurat(p_eksklusif boolean)` … It sets its own lock timeout.~~
+*(Superseded by Sharon's required setting, early read §6: the timeout is a `SET` clause, not `set_config(…, true)`,
+which would leave the short timeout on every later row lock in the caller's transaction. A `SET` clause holds one
+value per function, and the two sides need two values, so there are two functions on one key.)*
+
+**Built as two fence functions on one fixed key**, so there is one place to read:
+- `public.pagar_darurat_eksklusif()`, `security definer`, **`set lock_timeout = '1500ms'`**: takes
+  `pg_advisory_xact_lock`. Used by the activation and the lift.
+- `public.pagar_darurat_bersama()`, `security definer`, **`set lock_timeout = '2s'`**: takes
+  `pg_advisory_xact_lock_shared`. Used by every protected decision and each of the closer's batches.
+- The `SET` clause applies only while the function runs; the transaction-level lock it takes lasts to the end of the
+  transaction. The caller's own `lock_timeout` is untouched.
+- **Every fenced decision calls one of them as its first lock after the lifecycle ranks** (§6's rule: no other row
+  before the fence).
 
 **The test, A2A-F01 · "the fence is taken only inside the database":**
 1. **From the catalogue:**
-   - exactly one function's definition takes an advisory lock on the fence key: `pagar_darurat`;
-   - every function and procedure that calls `pagar_darurat` is one of three kinds: an RPC (`EXECUTE` granted to
+   - exactly two functions take an advisory lock on the fence key: `pagar_darurat_eksklusif` and
+     `pagar_darurat_bersama`, each with its `SET lock_timeout` clause;
+   - every function and procedure that calls one of them is one of three kinds: an RPC (`EXECUTE` granted to
      `authenticated`, never to `anon`), the closer procedure, or a trigger function on a table that clients write only
      through such RPCs;
    - none of them is granted to `anon`.
 2. **From the repository:**
-   - no file under `src/` imports a database driver (`pg`, `postgres`), names a pooler address or port (`:6543`,
-     `pooler.supabase.com`), or calls `pg_advisory`;
-   - no migration takes an advisory lock on the fence key outside `pagar_darurat`.
+   - no deployed code path imports a database driver (`pg`, `postgres`), names a pooler address or port (`:6543`,
+     `pooler.supabase.com`), or calls `pg_advisory`: `src/` today, and `supabase/functions/` if it is ever added
+     (Sharon's note, early read §6);
+   - no migration takes an advisory lock on the fence key outside the two fence functions.
 3. **Plants:**
    - a second function taking the fence key directly turns it red;
    - so does an advisory-lock call added under `src/`.
@@ -70,26 +96,49 @@ PostgREST's and `pg_cron`'s own transaction model, and row 4 proved `pg_cron`'s.
 
 An RPC runs as `authenticated` on `authenticator`'s session. So **a whole fenced call must finish in 8 s**, and the
 session's default lock wait (8 s) would use all of it. Hence:
-- **The fence function sets its own `lock_timeout`, never the session's.** The value depends on which side takes it:
+- **Each fence function carries its own `lock_timeout` as a `SET` clause, never the session's** (§2). The value
+  depends on which side takes it:
 
 | Who takes the fence | Mode | `lock_timeout` | Attempts | Worst wait | Its own work under the fence | Worst total | Under 8 s by |
 |---|---|---|---|---|---|---|---|
 | The activation (`stop_pintar_now`) | exclusive | 1.5 s | 3, with 100 ms between, each in a subtransaction (`lock_not_available` is caught) | 3 × 1.5 + 2 × 0.1 = **4.7 s** | the window row, `T_stop`, the audit row: budget **0.5 s**; the marking runs after, in its own batches (D6.7) | **5.2 s** | **2.8 s** |
 | The lift (fenced, through `change_maintenance … 'AKHIRI'` and the lift action) | exclusive | 1.5 s | 3 | 4.7 s | `T_lift`, the window's end, the audit row: 0.5 s | 5.2 s | 2.8 s |
-| A protected decision (D6.2's table) | shared | 2 s | 1 | 2 s | its own work, as today: the slowest, `finalize_session`, budget 1 s | 3 s | 5 s |
+| A protected decision (D6.2's table) | shared | 2 s | 1 | **2.0 s** (below) | its own work, as today: the slowest, `finalize_session`, budget 1 s | **3.0 s** | **5.0 s** |
 | The closer, each batch (`pg_cron`, as `postgres`: no role timeout) | shared | 2 s | 1; a batch that waits longer is left for the next run, and the skip is counted (R1) | 2 s | one small batch | — | not bound by 8 s |
 
-- **The exclusive side holds the fence only for its own work** (≤ 0.5 s). So a shared taker's real wait is that, not
-  its 2 s limit.
-- **When the activation gets no fence** after three attempts, it refuses with the designed line: «Penghentian belum
-  berlaku. Tidak ada yang dihentikan.» (THE PLAN §5.3 F). The lift refuses with Daisy's «Penghentian belum diakhiri.
-  Tidak ada yang berubah. Coba lagi.»
-- **When a shared taker gets no fence,** it refuses with its own code in A1's domain: the act is retried, never
-  half-done.
+- ~~**The exclusive side holds the fence only for its own work** (≤ 0.5 s). So a shared taker's real wait is that, not
+  its 2 s limit.~~ *(Wrong; Sharon, early read §6.)*
+- **A shared taker's worst wait is 2.0 s, its whole limit.**
+  - While an exclusive request is queued, a new shared request queues behind it.
+  - The exclusive request waits up to 1.5 s for the shared holders already in, then holds the fence for its work
+    (≤ 0.5 s): 1.5 + 0.5 = **2.0 s**.
+  - So during an activation or a lift, **some protected decisions are refused.** That is clean: the act is not done,
+    with Daisy's line (below). The refusals are **counted in scenario 8**, not assumed away.
+- **The arithmetic still holds under the timeouts:**
+
+  | Side | Worst total | Under 8 s by |
+  |---|---|---|
+  | The exclusive side | 3 × 1.5 + 2 × 0.1 + 0.5 = **5.2 s** | 2.8 s |
+  | A shared taker | 2.0 + 1.0 = **3.0 s** | 5.0 s |
+
+  Between the activation's attempts the exclusive request leaves the queue, so the shared requests behind it go
+  through.
+- **A whole call over 8 s is rolled back** (`statement_timeout`), so it is a refusal, never a half-done act.
+- **When the activation gets no fence** after three attempts, it refuses with THE PLAN §5.3 F's whole line: «Penghentian
+  belum berlaku. Tidak ada yang dihentikan. Coba lagi.» *(Corrected: Daisy, early read §2; the last words were
+  missing.)* The lift refuses with Daisy's «Penghentian belum diakhiri. Tidak ada yang berubah. Coba lagi.»
+- **When a shared taker gets no fence,** it refuses with its own code in A1's domain, and with Daisy's line (early read
+  1b), never the stopped-class refusal, because the class may not be stopped at all:
+  - ID: «PINTAR sedang memproses penghentian atau pembukaannya, jadi ini belum dapat dilakukan. Tidak ada yang diubah.
+    Coba lagi sebentar lagi.»
+  - EN: «PINTAR is processing a stop or its end, so this cannot be done yet. Nothing was changed. Try again in a
+    moment.»
+  - **A learner's save or hand-in that meets it takes the player's existing retry path.** «Tersimpan» does not appear
+    until the answer is accepted. No new learner line.
 - **Measured, not assumed:**
   - the activation's and the lift's work under the fence is timed in the scale job (scenario 8, 50,000 sittings), and
     must stay under 0.5 s;
-  - the stop's wait on the fence is measured there as well.
+  - the stop's wait on the fence is measured there as well, and so are the shared takers refused while it waits.
   - A result over budget comes back to this page before the freeze.
 - **No fenced function is granted to `anon`** (3 s), as A2A-F01 asserts.
 
@@ -114,7 +163,12 @@ state and its two causes; the fence; the closer's selection; and the audit rows.
    - a teacher of the stopped class who also teaches another class: stopped there too, because the emergency is
      person-level (R-1). Daisy's line says so on the form and on the pause page.
 3. **Which locks, in what order, and who else takes them:**
-   - **person → accounts → fence → sittings in id order** (required change 3);
+   - **the order is §6's** (Sharon's corrected order, early read ruling 1): persons → `account_requests` →
+     `person_suspensions` → `auth.users` → `accounts` → `password_write_permits` → the fence → `maintenance_windows` →
+     sittings in id order;
+   - **`change_maintenance` on an EMERGENCY window** (Sharon's B1) reads the window's kind without a lock, takes the
+     fence, and only then locks the window row. Before this, it took the row first and then the fenced lift: window →
+     fence on one path, fence → window on the lift's, so two lifts of one window could deadlock (40P01);
    - the fence is exclusive for the activation and the lift, shared for the protected decisions and each of the
      closer's batches;
    - the hook takes no lock;
@@ -149,6 +203,21 @@ Carried into `src/lib/hle.ts`, in Indonesian and English, exactly as she wrote t
 | A4 · the lift | the maintenance list | the row «Dihentikan · kelas …»; «Akhiri penghentian» behind `KonfirmasiBahaya`; the confirmation; the result line; the refused lift |
 | A5 · the status read | `pintar_status_saya` | the class's people only; no banner; nobody else in the school sees anything |
 
+**And THE PLAN §5.3 F items 1 to 6, carried exactly as THE PLAN has them** (`THE-PLAN.md` on
+`claude/bob-41-master-plan` at `17cf4a7e`; Daisy's early-read blocker 1a). In Indonesian and English, in `hle.ts`:
+
+| THE PLAN §5.3 F | Where it renders | Key | Text |
+|---|---|---|---|
+| Item 1, during the stop: **replaces** today's sentence «Bila waktunya habis selama penghentian, beri tahu guru Anda.», which D-1 makes false (a held sitting loses no time) | the pause page | `pemeliharaan.darurat.asesmen` | «Penghentian ini tidak mengumpulkan dan tidak menilai asesmen yang sedang dikerjakan. Asesmen itu ditahan bersama jawaban yang sudah tersimpan dan sisa waktunya. Setelah PINTAR kembali, buka lagi asesmen tersebut; sisa waktunya sama seperti saat dihentikan.» · EN «This stop does not submit or score an assessment that was in progress. It is held with the answers already saved and the time that was left. When PINTAR is back, open that assessment again; the time left is what it was when the stop began.» |
+| Item 2, after the lift, for a learner whose sitting was held | «PINTAR dapat digunakan» | `pemeliharaan.kembali.*` | «Asesmen yang ditahan selama penghentian dapat dibuka lagi. Jawaban yang sudah «Tersimpan» tetap ada, dan sisa waktunya sama seperti saat dihentikan.» · EN «An assessment held during the stop can be opened again. Answers that showed «Saved» are still there, and the time left is what it was when the stop began.» |
+| Item 3, on reopening the sitting, `role="status"` | the player | new | «Asesmen ini ditahan selama penghentian. Sisa waktu Anda: {n} menit.» · EN «This assessment was held during the stop. Your time left: {n} min.» |
+| Item 4, the new refusals | each act's result line | new | A teacher's act on a stopped class: «Kelas {kelas} sedang dihentikan oleh Admin PINTAR. Tindakan ini dapat dilakukan setelah penghentian diakhiri. Tidak ada yang diubah.» · EN «Class {kelas} has been stopped by an Admin PINTAR. This can be done once the stop has ended. Nothing was changed.» Ending or withdrawing an assignment (O1): «Penugasan ini tidak dapat diakhiri atau ditarik selama penghentian. Tidak ada yang diubah.» · EN «This assignment cannot be ended or withdrawn during a stop. Nothing was changed.» The promotion run (M-1): «Kenaikan kelas belum dapat diterapkan: asesmen {n} murid sedang ditahan karena penghentian. Coba lagi setelah penghentian diakhiri.» · EN «The promotion cannot be applied yet: {n} students' assessments are on hold because of the stop. Try again once the stop has ended.» The activation that did not take effect: «Penghentian belum berlaku. Tidak ada yang dihentikan. Coba lagi.» · EN «The stop has not taken effect. Nothing was stopped. Try again.» *(The start refused before a window is A2b's D4.)* |
+| Item 5, the teacher's list during a stop, with no «Atur»; after the lift the row returns to its live state with no notice | `/mengajar/[kelas]/siapa` | new | «Ditahan · dilanjutkan setelah penghentian diakhiri» · EN «On hold · continues once the stop has ended». A suspension-held sitting keeps A1's «Ditahan · menunggu keputusan Anda» |
+| Item 6, one name for the role | `pemeliharaan.darurat.arti` | existing | «Admin PINTAR» in place of «Admin platform» |
+
+**And the fence refusal** (Daisy, early read 1b), for an admin's or a teacher's act in the moment a stop or a lift
+takes effect: the line in §3.
+
 - **Her check for the page:** a failed status read is never taken as "no stop". The open player keeps its existing
   behaviour on a failed read, and the next request shows the pause page.
 - A2b's sections (B1 to B3) are A2b's.
@@ -161,25 +230,42 @@ Carried into `src/lib/hle.ts`, in Indonesian and English, exactly as she wrote t
 - Sharon's required change 3 above is the third time the order has had to be written down.
 - This test makes the order permanent, under working rule 3 ("a defect is swept for its siblings").
 
-**The order:**
+**The order, as Sharon corrected it** (early read, ruling 1; superseding the six-rank table that stood here):
 
-| Rank | What | Note |
+| Rank | What | Why there |
 |---|---|---|
 | 1 | `persons` | |
-| 2 | `person_suspensions` | after the person, before Auth's row, as the reinstatement takes it today (L1-F4) |
-| 3 | `auth.users` | |
-| 4 | `accounts` | |
-| 5 | the fence | A2a, required change 3 |
-| 6 | `assessment_sessions` | the sittings; in id order within the table |
+| 2 | `account_requests` | `hapus_data_pribadi` and `buka_kembali_akun` take it between the person and the suspension (L1-F4) |
+| 3 | `person_suspensions` | the reinstatement takes it after the person and the request |
+| 4 | `auth.users` | |
+| 5 | `accounts` | |
+| 6 | `password_write_permits` | the password guard deletes it while it holds `auth.users` |
+| 7 | the fence | required change 3 |
+| 8 | `maintenance_windows` | Sharon's B1: after the fence |
+| 9 | `assessment_sessions` | the sittings, in id order within the table |
 
-The owner's rule names ranks 1, 3 and 4. Ranks 2, 5 and 6 are placed where today's code and required change 3 put
-them. **Sharon rules on that placement in her read.**
+**And one rule for every table, not only the ranked ones** (Sharon's B1, its sweep): **the fence is the first lock
+after ranks 1 to 6.** A fenced function that locks any other row before its fence fails. That covers
+`maintenance_windows`, and every sibling: D6.2's acts lock sittings, `learning_assignments` and `lesson_progress`.
+
+**Sharon's three required changes to the test** (early read §5):
+- **R1, foreign keys count** (ruling 2), added from `pg_constraint`:
+  - an insert, and an update of a foreign-key column, take `FOR KEY SHARE` on the table referred to;
+  - `ON DELETE CASCADE` and `SET NULL` take a lock on the referring table after the deleted row;
+  - `INSERT … ON CONFLICT DO UPDATE` and `MERGE` count as updates.
+
+  A report this produces (for example `audit_write`'s actor) is a declared exception only with its reason.
+- **R2, triggers:** an UPDATE or DELETE trigger function starts with its table's rank held; an INSERT trigger starts with
+  nothing held.
+- **R3, the report:** the engine's full per-function list is committed with the test, so a later run can be compared
+  with it.
 
 **The test: A2A-L01 · "the account lifecycle takes its rows in one order"** (the database runner).
 1. **From the catalogue, never a list of names:**
    - it reads every function and procedure in `public`, and every trigger function on the four tables;
    - functions A2a and A3 add fall under it the day they land.
-2. **For each function, the ordered list of row locks it takes on the six ranks:**
+2. **For each function, the ordered list of row locks it takes on the nine ranks** (and, for the "fence first" rule, on
+   every table):
    - `select … for update`, `for no key update`, `for share` or `for key share` on the table; `update`; `delete`;
      a call to the fence function;
    - transitively, the locks of every function it calls, found by name in the catalogue (cycle-safe);
@@ -194,20 +280,20 @@ them. **Sharon rules on that placement in her read.**
 5. **Shown to fail before it is trusted** (three plants):
    - (P1) inside the test's own rolled-back transaction, a function that locks `accounts` and then `persons` must be
      reported;
-   - (P2, `scripts/dev/plants.mjs`) `akun_kunci` with its `auth.users` and `accounts` locks swapped turns it red;
+   - (P2) `akun_kunci` with its `auth.users` and `accounts` locks swapped turns it red. *(Corrected: it runs inside the
+     test's own rolled-back transaction, like P1, because `scripts/dev/plants.mjs` drives only the SQL suites. Postgres
+     DDL is transactional, so the plant replaces the real function there and nowhere else);*
    - (P3, once the fence exists) a fenced function that locks `accounts` after the fence turns it red.
 
 **What it does not establish** (said here, so a green run is not over-read):
 - **Branches:** it reads every branch of a function in text order together. It may over-report, never under-report,
   for straight-line code. An over-report is resolved by reading the function and, if the order is in fact safe, by a
   declared exception with its reason.
-- **Foreign keys:** an insert of a row that refers to a person takes `FOR KEY SHARE` on that person by itself, and
-  the text does not show it. **Listed as a limit; Sharon rules whether it counts.** If it does, the test adds it from
-  `pg_constraint`.
+- ~~**Foreign keys:** … listed as a limit; Sharon rules whether it counts.~~ *(Ruled: they count, R1 above.)*
 - **Order between rows of one table** (sittings in id order, accounts in id order) is proven by the two-connection
   race tests (`selftest/balapan.ts`), not here.
 
-**Sittings and the fence are covered** by the same lists (ranks 5 and 6). So required change 3's structural test (no
+**Sittings, the fence and the window are covered** by the same lists (ranks 7 to 9). So required change 3's structural test (no
 lock of a person or an account after the fence) is this test's rank rule, not a second test.
 
 **If it finds an existing writer out of order**, that is a real defect:
@@ -217,6 +303,13 @@ lock of a person or an account after the fence) is this test's rank rule, not a 
 
 **It is built first, as its own change** (working rule 5: verification tooling never travels with a product
 change). It is green or red on `main`'s code before any of A2a's product changes is made.
+
+**As two commits in one change** (Sharon, ruling 4):
+1. A2A-L01, its plants and its report, **with its red run on `main`'s code recorded**.
+2. The fix, its two-connection test and the declared exception.
+
+The test is seen to bite before the product is touched. *(The first build, `claude/a2a-l01` at `d748ef05`, put both in
+one commit. It is kept as it was pushed, and superseded by the two-commit change.)*
 
 **What a prototype of the engine found on `main`'s code** (13 Nov, the local stack at `a6b47466`; the prototype is a
 scratch script, not committed):
@@ -242,10 +335,18 @@ scratch script, not committed):
     - each takes the person `FOR UPDATE` through it before anything else, so in order;
     - none upgrades a weaker lock;
     - the only other dynamic SQL naming these tables is `assemble_session` (sittings only), declared.
-  - **The smallest fix, proposed for Sharon's ruling and not built:** `recovery_assist_school` answers null at once
-    when `current_person_id()` is null, before it can reach `sekolah_memegang`. It returns exactly what it returns
-    today (null), so the account lifecycle's behaviour does not change. It only makes "no lock without a person" a
-    guarantee rather than a plan.
+  - **The smallest fix, accepted by Sharon with one addition** (early read, ruling 3):
+    - `recovery_assist_school` becomes plpgsql, `stable`, with its grants kept;
+    - it returns null at once **when `current_person_id()` is null, or when it equals `p_person`**. The second
+      condition matters because the filter `p_person is distinct from current_person_id()` rested on the same planner
+      order;
+    - both cases return null today, so the behaviour is preserved.
+  - **It stays a declared exception,** because the engine reads every branch together and still sees the call. It is
+    backed by a two-connection test:
+    - connection A holds the person `FOR UPDATE`;
+    - connection B, carrying no PINTAR person, makes the level-3 recovery's password write with a 1 s `lock_timeout`;
+    - B must succeed;
+    - plant: `sekolah_memegang` reached with no early return turns it red.
 - **One rule added to the test from the sweep:** a weaker lock followed by a stronger one on the same table (`FOR
   SHARE`, then `FOR UPDATE` or an `UPDATE`) fails. Two such transactions on one row deadlock with each other. Today
   there are none.
@@ -257,12 +358,41 @@ scratch script, not committed):
 | A2A-L01 and its plants; A2A-F01 and its plants (§2) | Second Eye builds them; the suite runs them | the repository; the local stack | the static and database runners: locally in development; CI on the frozen commit |
 | Sharon's nine scenarios and the per-blocker tests B1 to B6, R1 and R2, on two real connections (`selftest/balapan.ts`) | Second Eye builds them; the suite runs them | the local stack | the database runner: local; CI |
 | The writer enumeration (required change 4) and its plants; the reader test (required change 1); the two "Between A2a and A2b" tests; condition 1's `ended_at` test | the same | the same | the same |
-| **Scenario 8 at scale** (50,000 affected sittings; R1's skip count; R2's 5 s at p95; the activation's and the lift's work under the fence ≤ 0.5 s, §3) | the Chief Architect dispatches; Second Eye builds the job | GitHub Actions, on a runner's local stack | **a dedicated job, which does not exist today. It is its own small change** (rule 5), built and reviewed before A2a's freeze. A CI-sized variant runs in the suite |
+| **Scenario 8 at scale** (50,000 affected sittings; R1's skip count; R2's 5 s at p95; the activation's and the lift's work under the fence ≤ 0.5 s, §3; the shared takers refused while it waits, counted) | the Chief Architect dispatches, once, on A2a's frozen commit; Second Eye builds the job | GitHub Actions, on the runner's own local stack | **change (B): a dedicated job, which does not exist today**, built and reviewed before A2a's freeze, within the four limits below. A CI-sized variant runs in the suite |
 | The journey "stop one class during Uji Penguasaan, lift it, and the class finishes with the time it had" | the Chief Architect dispatches journeys on the frozen commit; Second Eye runs it locally in development | Actions; the local stack | journeys (job A or B) |
-| Daisy's screens at 390 and 320 px (her list in `A2-KATA-DESAIN.md`) | Daisy | the journeys' screenshot artifacts on GitHub, and the frozen commit | journeys' artifacts, on the frozen commit |
+| Daisy's ten screens (below) | Daisy | **the screenshots committed to `docs/completion-4.1/batches/a2a-layar/` on the frozen commit's branch.** She cannot open Actions artifacts: the download goes to an Azure blob host her proxy refuses, and the host varies per run (her early read §3). Committed by Second Eye after the freeze's verification, as a documentation-only commit, not a code change | the repository |
 | Sharon's result review | Sharon | the repository at the frozen commit | read-only |
 | The full pre-flight, once | Second Eye | the local stack | local, on the frozen commit |
 | CI | the Chief Architect, through the pull request | Actions | CI |
+
+**Daisy's ten screens** (her early read §2), each at 390 and 320 px, and item 3 also at 1280:
+1. the emergency form with a class chosen, by keyboard, with the person-level hint and the impact sentence;
+2. the node refusal;
+3. the pause page for a learner of the class;
+4. the pause page for a teacher who also teaches another class (the other-class line);
+5. the player on reopening after the lift (item 3's line, with the time left);
+6. «PINTAR dapat digunakan» after the lift (item 2);
+7. the teacher's list during the stop (item 5);
+8. the list row and «Akhiri penghentian», with its confirmation and result line, as an Admin PINTAR;
+9. the same row as the school's own admin («Hanya Admin PINTAR …»), with nothing else showing;
+10. the refused lift.
+
+**The scale job (change B): its four limits** (the owner's condition, through the Chief Architect, 13 Nov):
+1. **Tied to an existing requirement.** It measures only scenario 8 of Sharon's accepted nine, and only the numbers
+   already on this page:
+   - R1's skip count;
+   - R2's 5 s at p95;
+   - the activation's and the lift's work under the fence, ≤ 0.5 s (§3's input);
+   - with Sharon's correction, the shared takers refused while the exclusive side waits, counted.
+
+   No new measurement, no new threshold.
+2. **Bounded.** Dispatch only. Synthetic data on the runner's own local stack, never staging, never production. One
+   job with a hard timeout of 20 minutes. It reads no secret beyond what CI already uses, and it fails on any of the
+   numbers.
+3. **Small.** It reuses the existing harness (`selftest/balapan.ts`, and the local stack set-up CI already does): one
+   script and one workflow, or one job added to an existing workflow if that is smaller. If it needs a new framework
+   or more than a few hundred lines, Second Eye stops and tells the Chief Architect before building it.
+4. **Not part of the per-push CI.** The Chief Architect dispatches it once, on A2a's frozen commit.
 
 **Hosted-only proof: none is needed beyond yesterday's.**
 - `pg_cron` `CALL`ing a committing procedure is proven (Part 2 row 4).
@@ -409,7 +539,7 @@ PASS or BLOCKED, on the commit that carries this page.
 
 | # | Condition | How A2a answers it |
 |---|---|---|
-| 1 | **A2a owns every path that ends an emergency.** `change_maintenance(…, 'AKHIRI', …)` can end an EMERGENCY window today; in A2a it goes through D6's fenced lift. A2b's extend and resume early apply to PLANNED windows only. *Test:* every function that sets `ended_at` on an EMERGENCY window takes the fence; it joins D6.2's enumeration | `change_maintenance` with `AKHIRI` on an EMERGENCY window calls the fenced lift (exclusive fence, `T_lift` read under it, then commit; release afterwards). The enumeration test lists every function that writes `maintenance_windows.ended_at` and requires the fence for an EMERGENCY row |
+| 1 | **A2a owns every path that ends an emergency.** `change_maintenance(…, 'AKHIRI', …)` can end an EMERGENCY window today; in A2a it goes through D6's fenced lift, **taking the fence before it locks the window row** (Sharon's B1, early read). A2b's extend and resume early apply to PLANNED windows only. *Test:* every function that sets `ended_at` on an EMERGENCY window takes the fence; it joins D6.2's enumeration | `change_maintenance` with `AKHIRI` on an EMERGENCY window calls the fenced lift (exclusive fence, `T_lift` read under it, then commit; release afterwards). The enumeration test lists every function that writes `maintenance_windows.ended_at` and requires the fence for an EMERGENCY row |
 | 2 | **The status read for class scope** (refined by Sharon under R-1: class-scoped **emergency** windows only) | `pintar_status_saya` returns a class-scoped EMERGENCY window to the people it affects (enrolled in or teaching the class), and to no one else in the school. Class-scoped PLANNED windows and their warnings are A2b's |
 | 3 | **A2b lands before A3** | The sequence of Addendum §2 already has it. A2a's enumeration test and lock order are written so that A3 extends them |
 
@@ -523,10 +653,18 @@ accepted by construction under Sharon's condition, stated and tested in §2, wit
 
 ## Size, in development (the Chief Architect's packaging, 13 Nov: three changes)
 
-- **(A) A2A-L01**, with its plants, its declared exceptions and the `recovery_assist_school` fix: **about half a day.**
-  The engine exists as a prototype. The work is porting it into the database runner (the ranks and the foreign-key
-  rule as data), the three plants, the one-line migration and its own test.
-- **(B) the scale job for scenario 8:** **about half a day.**
+- **(A) A2A-L01**, with its plants, its declared exceptions and the `recovery_assist_school` fix: ~~about half a day~~
+  **about one day.** A first build exists (`claude/a2a-l01` at `d748ef05`, four plants, red then green). Sharon's
+  early read adds:
+  - R1, the foreign keys, cascades and upserts;
+  - R2 and R3;
+  - the window rank, and the "fence first" rule for every table;
+  - the fix's second condition;
+  - the two-connection test with its plant.
+
+  **The risk:** R1 may report new paths on `main`'s code. Each would be swept and brought to the Chief Architect before
+  it is fixed, not fixed inside (A).
+- **(B) the scale job for scenario 8:** **about half a day**, within its four limits (§7).
 - **(C) A2a's product changes:** **about three days**, as estimated above, without (A) and (B).
 
 **The single most likely thing to go wrong in (C): D6.3's one time rule.**
