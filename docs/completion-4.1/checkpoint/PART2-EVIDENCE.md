@@ -82,3 +82,19 @@ row-level security"; say whether enabled-with-no-policy-not-forced meets it, giv
 ## Row 5 · advisory lock — by construction, pending A2a's page confirming the fence is taken only inside database functions reached through PostgREST or `pg_cron`.
 
 ## Rows 2 (walk) and 6 · open. One small dispatched run at one `sekolah-uji-` school, being built by Second Eye; you read its diff before it is frozen.
+
+## Sharon's two follow-up reads (her `PART2-VERIFY-ROWS-1-3-4.md`, `5b4c39d2`)
+
+**Row 1 · `content_canonical_payload(uuid)`, staging against the repository at 244.** Read 08:20. Staging's `prosrc`:
+7037 characters, md5 `80be3b44db8d40bb9090b652c1b7e22a`. The repository's last definition (only two migrations define
+it; the later is `20260914120000_ad_hoc_assessments.sql` on `main` at `40ca971f`), body between the `$$` markers:
+7037 characters, md5 `80be3b44db8d40bb9090b652c1b7e22a`. **Byte-identical, comments included**, so no stripping was
+needed. The difference the rehearsal printed is the restored copy lacking comment lines, not staging differing from
+the repository.
+
+**Row 3 · who may write the six `auth` tables.** Read 08:20:36.
+- `postgres`: `rolbypassrls` **true**, `rolsuper` false.
+- Owner of each of `audit_log_entries`, `identities`, `one_time_tokens`, `refresh_tokens`, `sessions`, `users`:
+  `supabase_auth_admin` (`rolbypassrls` false; it is the owner, and row security is not forced).
+- `public.hapus_data_pribadi`: owner `postgres`, security definer.
+So the deletion's `auth` writes run as a role holding BYPASSRLS; row security enabled with no policy does not silence them.
