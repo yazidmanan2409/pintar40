@@ -1,10 +1,10 @@
 # A2a · Emergency containment and class scope for the emergency (completion page, before build)
 
-## State of change A (13 Nov, 21:20 UTC by `date -u`; kept here so that nothing depends on a session's memory)
+## State of change A (13 Nov, 22:12 UTC by `date -u`; kept here so that nothing depends on a session's memory)
 
 **Branches:**
 - `claude/a2a`: this page.
-- `claude/a2a-change-a`: change A, built on `main` at `a6b47466`. Its head is `a1e85ee3`.
+- `claude/a2a-change-a`: change A, built on `main` at `a6b47466`. Its head is `675b71df`.
 - `claude/a2a-nokey` (`289d4865`): the deferred register item's reference. It is left as it is (the Chief Architect will
   not delete it) and never merged.
 - `claude/a2a-l01` (`d748ef05`): superseded, left as it was pushed.
@@ -16,6 +16,12 @@
 4. `40753420`: three engine defects.
 5. `c4d53975`: the class-level exceptions (`audit_write`, new `auth.users` rows, the window functions).
 6. `c446030c`: the same-row re-locks, declared one by one.
+8. `4c8f70b4`: C1. `akhiri_pendaftaran` takes the person before its enrolment, with `transfer_minta`, `transfer_request`
+   and `handle_new_auth_user` in the same shape. Proof: A2A-L04 (on 246, "deadlock detected"; green with the fix;
+   red with its plant).
+9. `6f…`/see the log: the permit exception, with Sharon's three conditions. Condition 2 is asserted from the catalogue,
+   because `20270117190000` is deployed, so its own check is not edited. **This differs from her wording, for her ruling.**
+10. `675b71df`: C2's one-off list, for reading.
 7. `a1e85ee3`: C2, on the engine.
    - `enrollments` is ranked immediately after `persons`.
    - Tables in a WHERE sub-select are no longer lock targets.
@@ -76,7 +82,12 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**The 76 are read** (below, "The 76 reports … read in one pass"). Second Eye has stopped there; the Chief Architect decides with Sharon what is fixed.
+**Since the reading of the 76:**
+- C1, the permit exception, Sharon's two additions and C2's one-off list are done (commits 8 to 10, below).
+- A2A-L01 is down to **63**. It is still red, waiting on Sharon's rulings on rows 3, 4, 11 and 13 of the table.
+- A2A-L02, L03 and L04 are green, each with its plant red.
+- The pins are at 247.
+- Second Eye has stopped for her ruling. Nothing else is fixed.
 
 **Remaining work on change A, in order:**
 1. **C1:** `akhiri_pendaftaran`, its race test and the sweep.
@@ -541,6 +552,35 @@ not fixed).
 - Rows 3 and 4 are inside A2a's area, and by her first limit they block.
 - Row 13 needs a class.
 - Row 11 needs a register reference.
+
+**Sharon's two additions to the declared exceptions** (A2A-CHANGE-A-C3C4-40753420.md §3):
+- **Why no lifecycle act takes a persona `FOR UPDATE` while its evaluation session is open** (the `audit_write`
+  class):
+  - `audit_write`'s only key to persons, `evaluation_actor_person_id`, names the **evaluator**, read from the open
+    evaluation session whose `persona_auth_user_id` is the acting user. It never names the persona.
+  - The persona's act holds the persona's own rows and the rows it acts on. The evaluator's `KEY SHARE` can wait only
+    on a lifecycle act on the evaluator, which takes the evaluator's person first and then the evaluator's own rows.
+  - The persona's act holds none of the evaluator's rows: a persona is a separate synthetic person, with its own auth
+    user and accounts. So the act on the evaluator never waits on the persona's act, and there is no cycle.
+  - The condition the test checks: the key is filled only there (`syaratAudit`, commit 5).
+- **(C) cannot freeze while the window functions' "pending B1" exception stands.** It is removed in (C), after B1's
+  re-read of `change_maintenance`, `publish_notice` and `schedule_maintenance`. (C)'s freeze checks that it is gone.
+
+**C2's one-off list, read once** (`selftest/a2a-l01-c2-sebelum-orang.txt`, commit 10). For each writer that takes a
+person `FOR UPDATE`, it lists the unranked tables locked before that person, and their counterparts.
+- **`akun_kunci` and Auth's own update** lock the auth-side rows (sessions, tokens, `account_setup`, pins, card
+  conversions) before a person. `akun_kunci` is always called with the person already held by its caller (L1-F2's
+  order), so its own list starts after that lock. No reverse path was found.
+- **`auth_password_write_guard` and `recovery_restore(_core)`:** the recovery rows before the person, on the
+  recovery path that commit 2 closed for Auth. Not read further.
+- **`transfer_execute`:** `transfers` `FOR UPDATE` before the person. The counterparts (`transfer_authorize`,
+  `transfer_reject`, `transfer_terima`) are **not yet read**.
+- **`import_advance` and `issue_institutional_id`:** the institution `FOR UPDATE` (the ID counter) before the person.
+  **Not yet read**, against callers that hold a person and then issue an ID.
+- **`handle_new_auth_user`:** `account_activation_grants` before the person; its counterpart is `hapus_data_pribadi`.
+  **Not yet read.**
+- **For Sharon's reading.** Under the convergence rule, anything real here goes to the page and then to the register,
+  unless it touches what A2a adds or changes. None of these tables is one of A2a's.
 
 **Deferred register item: the person `FOR NO KEY UPDATE`** (Sharon, `A2A-L01-FINDING-f09da528.md`).
 - **The draft:** the 15 functions above would take the person `FOR NO KEY UPDATE` instead of `FOR UPDATE`.
