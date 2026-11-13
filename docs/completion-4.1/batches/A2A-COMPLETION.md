@@ -1,6 +1,6 @@
 # A2a · Emergency containment and class scope for the emergency (completion page, before build)
 
-## State of change A (13 Nov, 22:45 UTC by `date -u`; kept here so that nothing depends on a session's memory)
+## State of change A, then B and C (13 Nov, 22:45 UTC by `date -u`; kept here so that nothing depends on a session's memory)
 
 **Branches:**
 - `claude/a2a`: this page.
@@ -63,6 +63,31 @@ Auth's user deletion.
    Only an inherited cycle elsewhere, whose outcome is 40P01 with nothing lost, may be registered.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
+
+**CHANGE A IS MERGED** (PR 21 → `main` `0ea4b8ad`) and on staging: 249 migrations; health, environment facts and
+preservation all green. Every gate passed on the first attempt (the Chief Architect, 23:56).
+
+**Change B is stopped before the build, on one question for the Chief Architect** (23:57 UTC by `date -u`):
+- **What change B measures** (its four limits, §7):
+  - the activation's and the lift's work under the fence, ≤ 0.5 s;
+  - the stop's wait on the fence;
+  - the shared takers refused while it waits;
+  - R1's skip count and R2's 5 s at p95, over 50,000 sittings of a stopped class.
+- **None of those functions is on `main` at `0ea4b8ad`:** no fence (`pagar_darurat_*`), no class stop, no lift, no held
+  class sittings. They are A2a's product, which change C builds.
+- **So B built before C has nothing to measure,** unless it measures stand-ins. That would be a new measurement, which
+  limit 1 forbids.
+- **The options:**
+  1. **Build B after C's product exists,** on C's branch or after C merges. It is still its own change, verification
+     tooling only, dispatched once on C's frozen commit (limit 4). C's freeze then waits on B's one run. **Second Eye
+     proposes this.**
+  2. **Build B's harness now** (the 50,000-sitting fixture, the workflow with its 20-minute timeout, and the reporting
+     that fails on a number), with its measurements wired in when C lands. The harness cannot be shown to work until
+     then.
+- **Until the Chief Architect decides:**
+  - no branch `claude/a2a-change-b` is cut, and nothing is built;
+  - change C's first commit, the catalogue enumeration of the readers of `closure_deadline`, `closes_at` and the grace,
+    can start on a branch from `main` if he says so.
 
 **PRE-FLIGHT GREEN on `2cea0564dcc12bede2e3ab3cb63236fce4d0b89e` (23:38 UTC, once):** lint, typecheck, build-identity 11/11; the whole suite on a fresh reset and fresh build, 1151 passed, 0 failed (1 justified local skip); 175/175 plants proved their gate; all 11 red-case groups passed.
 
