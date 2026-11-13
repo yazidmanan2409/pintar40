@@ -231,6 +231,23 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 - **The impact analysis names, for every column and table touched, its constraints and the baseline invariant that
   governs it** (`docs/rebuild/03-PINTAR-INVARIANTS.md`), not only the callers and readers.
 
+### Five questions the design review answers before a build (Chief Architect, 13 Nov 2026; on the owner's question)
+
+The owner asked whether we anticipate as well as we detect. On 12 Nov we did not: six defects were found after the
+build, and each was visible from the design. They share one cause: **the design looked at the new thing, not at
+what already touches the same state.** These five questions go **inside the existing design review**. They are not a
+new gate and need no new document; the page answers each in a line or two, and Sharon checks the answers.
+
+| # | Question | The 12 Nov defect it would have caught |
+|---|---|---|
+| 1 | **What else reads or writes this state?** Listed from the catalogue or the code, not from memory | L1F4-A2: "a deleted person is terminal" was designed without the reopen path. F1-R1b: INV-03's NOT NULL |
+| 2 | **What is the opposite act, and the neighbouring one?** Delete and reopen; suspend and reinstate; lock and reissue | L1F4-A1: a deletion racing a reopen |
+| 3 | **Which rows does it lock, in what order, and who else locks them?** Including locks taken by triggers on tables it inserts into | L1-F2's cycle, and the three functions and the Auth write with the same one |
+| 4 | **How is "before" told from "after"?** By a lock or a record, never by two clocks | L1-F4's timestamp comparison |
+| 5 | **Who runs each check, with what access, and where does it render?** | The checkpoint page that had the Chief Architect signing in; B2's notice, checked in source but not at 320 px |
+
+The Chief Architect answers the same five when writing a brief. Two of the six defects were in his briefs.
+
 ## Relay rules (after the 38-character SHA and the unreadable prompt file)
 
 - A commit is always given as 40 characters, copied from `git rev-parse`.
@@ -310,3 +327,4 @@ Work branch: `claude/system-integrity-4.0`. Briefs and records: this branch, `do
 | 12 Nov 2026 (22:08 UTC) | Sharon corrected the checkpoint's six checks before anything is built on them, and confirmed the scratch-target restore satisfies §5b with four conditions (`STAGING-CHECKPOINT-BEFORE-A2A.md` §3a). Second Eye builds the preconditions page on her reading |
 | 12 Nov 2026 (23:25 UTC) | **L1-F4 CLOSED:** Daisy's exact line is in at `049e21ad1875b399a4ed2111897dbda8b14cf1d2`. Every item of the boundary is now closed. Second Eye is building the promotion evidence; rulings on its open points are in `STAGING-CHECKPOINT-BEFORE-A2A.md` §3b |
 | 13 Nov 2026 (00:56 UTC) | Checkpoint evidence at `d8db82bde8d7a47e9936a34fd21686ca11adb472`: Sharon PASS. One more commit owed before the pull request (`STAGING-CHECKPOINT-BEFORE-A2A.md` §3c): her two lines, and a dispatched workflow for the acting steps, because no credential passes through any of us. Staging read: 224 migrations, as expected |
+| 13 Nov 2026 (01:16 UTC) | On the owner's question about anticipating problems: five questions added to the existing design review ("Before any correction is built"). Not a new gate. They apply first to A2a's build and to every brief |
