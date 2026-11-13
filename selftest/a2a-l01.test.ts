@@ -39,6 +39,9 @@ import { Checks, type SelfTest } from "./lib";
 // ── THE ORDER, AS DATA (Sharon, early read of 7b3b3d31, ruling 1)
 export const URUTAN: Record<string, number> = {
   persons: 1,
+  // C2 (Sharon, A2A-CHANGE-A-C3C4-40753420.md): every enrolment write fires enrollments_programme_alone, which takes the
+  // person FOR UPDATE, so the enrolment is part of the person's order: immediately after it (1.5 keeps the other ranks)
+  enrollments: 1.5,
   account_requests: 2,
   person_suspensions: 3,
   "auth.users": 4,
@@ -254,7 +257,17 @@ rollback;`;
 type Peristiwa = { k: "KUNCI"; t: string; kuat: number } | { k: "PANGGIL"; f: string } | { k: "PICU"; t: string; ev: string; saat: "B" | "A" };
 
 /** One statement's events, in order: the calls inside it first, then its own locks, then what its writes fire. */
-function peristiwa(stmt: string, kat: Katalog): Peristiwa[] {
+/** A statement's write, past the PL/pgSQL words before it in the same piece of text (found by C2's sweep: "begin insert
+ *  into enrollments …" inside an exception block, and "… then update …", were not read as writes: an under-report). */
+const KENDALI = /^\s*(?:(?:begin|then|else|loop|end\s+if|end\s+loop|end|exception\s+when\s+[\s\S]*?\bthen|(?:if|elsif)\s+[\s\S]*?\bthen|(?:for|while)\s+[\s\S]*?\bloop|declare\b[\s\S]*?\bbegin|<<[a-z_0-9]+>>)\b\s*)+/;
+const tanpaKendali = (stmt: string) => {
+  const m = stmt.match(KENDALI);
+  if (!m) return stmt;
+  const sisa = stmt.slice(m[0].length);
+  return /^(?:with\b|insert\b|update\b|delete\b|merge\b)/.test(sisa) ? sisa : stmt;
+};
+function peristiwa(stmt0: string, kat: Katalog): Peristiwa[] {
+  const stmt = tanpaKendali(stmt0);
   const ev: Peristiwa[] = [];
   // the calls, in the order they run: a call's arguments run before it, so each call is placed at its closing
   // parenthesis (found by the first run: "perform audit_write(…, recovery_assist_school(p))" read audit_write first)
@@ -316,10 +329,14 @@ function peristiwa(stmt: string, kat: Katalog): Peristiwa[] {
     const alias = new Map<string, string>();
     const dari: string[] = [];
     const BUKAN = ["where", "on", "join", "for", "order", "limit", "left", "inner", "using", "set", "cross", "lateral", "natural", "group", "having", "union", "into", "unnest"];
+    // C2's reading (found by ranking enrollments): without OF, Postgres locks the tables of the top-level FROM, not those
+    // of a sub-select in the WHERE clause; a sub-select in FROM is still counted (there the clause reaches into it)
+    const atas = tanpaSubWhere(stmt);
     for (const fm of stmt.matchAll(new RegExp(`\\b(?:from|join)\\s+(${TBL.source})(?:\\s+(?:as\\s+)?([a-z_][a-z0-9_]*))?`, "g"))) {
       const t = namaTabel(fm[1]);
       if (BUKAN.includes(t)) continue;
-      dari.push(t); alias.set(t.replace(/^auth\./, ""), t); alias.set(t, t);
+      if (atas.includes(fm[0])) dari.push(t);
+      alias.set(t.replace(/^auth\./, ""), t); alias.set(t, t);
       const a = fm[fm.length - 1];
       if (a && !BUKAN.includes(a)) alias.set(a, t);
     }
@@ -327,6 +344,26 @@ function peristiwa(stmt: string, kat: Katalog): Peristiwa[] {
     for (const t of ts) ev.push({ k: "KUNCI", t, kuat });
   }
   return ev;
+}
+
+/** The statement with every parenthesised sub-select after its top-level WHERE removed. */
+function tanpaSubWhere(stmt: string): string {
+  let d = 0, w = -1;
+  for (let i = 0; i < stmt.length; i++) {
+    const ch = stmt[i];
+    if (ch === "(") d++; else if (ch === ")") d--;
+    else if (d === 0 && /\bwhere\b/.test(stmt.slice(i, i + 6)) && (i === 0 || /\W/.test(stmt[i - 1]))) { w = i; break; }
+  }
+  if (w < 0) return stmt;
+  let out = stmt.slice(0, w), i = w;
+  while (i < stmt.length) {
+    if (stmt[i] === "(" && /^\(\s*select\b/.test(stmt.slice(i))) {
+      let dd = 0, j = i;
+      for (; j < stmt.length; j++) { if (stmt[j] === "(") dd++; else if (stmt[j] === ")" && --dd === 0) break; }
+      out += "( )"; i = j + 1;
+    } else { out += stmt[i]; i++; }
+  }
+  return out;
 }
 
 export type Kunci = { t: string; kuat: number; lewat: string };
