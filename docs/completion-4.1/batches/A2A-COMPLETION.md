@@ -16,16 +16,16 @@
 4. `40753420`: three engine defects.
 5. `c4d53975`: the class-level exceptions (`audit_write`, new `auth.users` rows, the window functions).
 6. `c446030c`: the same-row re-locks, declared one by one.
-8. `4c8f70b4`: C1. `akhiri_pendaftaran` takes the person before its enrolment, with `transfer_minta`, `transfer_request`
-   and `handle_new_auth_user` in the same shape. Proof: A2A-L04 (on 246, "deadlock detected"; green with the fix;
-   red with its plant).
-9. `6f…`/see the log: the permit exception, with Sharon's three conditions. Condition 2 is asserted from the catalogue,
-   because `20270117190000` is deployed, so its own check is not edited. **This differs from her wording, for her ruling.**
-10. `675b71df`: C2's one-off list, for reading.
 7. `a1e85ee3`: C2, on the engine.
    - `enrollments` is ranked immediately after `persons`.
    - Tables in a WHERE sub-select are no longer lock targets.
    - An under-report is fixed: writes after a PL/pgSQL word (`begin`, `then`, …) were not read.
+8. `4c8f70b4`: C1. `akhiri_pendaftaran` takes the person before its enrolment, with `transfer_minta`, `transfer_request`
+   and `handle_new_auth_user` in the same shape. Proof: A2A-L04 (on 246, "deadlock detected"; green with the fix;
+   red with its plant).
+9. `0353f1fe`: the permit exception, with Sharon's three conditions. Condition 2 is asserted from the catalogue,
+   because `20270117190000` is deployed, so its own check is not edited. **This differs from her wording, for her ruling.**
+10. `675b71df`: C2's one-off list, for reading.
 
 **Sharon's ruling on commits 3 and 4** (`A2A-CHANGE-A-C3C4-40753420.md` at `dbbf7fde`):
 - Nine of the ten commit-3 lines are accepted, along with A2A-L03 and commit 4.
