@@ -447,6 +447,9 @@ request template in the repository; the read-only readings.
 | **Sharon on the acting workflow** | 13 Nov 2026 | Confirmed: it cannot be made unrunnable before the merge without changing the boundary commit; the owner's manual disabling right after the merge stands; no team member dispatches it (her branch at `4b65879c9e082b27ef9d9d1ebaa9561e436f56e7`) |
 | **Pull request 1 opened** | 13 Nov 2026, 05:36 | **https://github.com/yazidmanan2409/pintar40/pull/19**, `promote/4.1-staging-checkpoint` into `main`, at `a33c852877686bdd54353c63dfcd995e1c902110`. Not merged. The merge is the owner's |
 
+| **CI on pull request 19** | 13 Nov 2026, 06:06 | Run `43373122173` (started by opening the pull request): **success** on `a33c852877686bdd54353c63dfcd995e1c902110`. A second, independent green CI run on the exact commit |
+| **B1 · preservation "BEFORE", the one that counts** | 13 Nov 2026, 06:09 | **Cutoff `2026-11-13 06:09:13.421929+00`; audit watermark `10675`.** Every line is identical to the trial read of 05:05 (§4a), so §4a's values are the "before" values. Staging was untouched in that hour. `main` and the frozen branch unchanged. **The owner is cleared to merge** |
+
 ### 4a · The trial preservation read (13 Nov 2026, 05:05 UTC; read-only)
 
 | Line | Value |
@@ -520,3 +523,4 @@ request template in the repository; the read-only readings.
 | 13 Nov 2026, 05:11 | Sharon confirmed in writing: her block does not bear on the promotion. Four conditions recorded (§3i). Waiting only on the journeys re-run before pull request 1 is opened |
 | 13 Nov 2026, 05:15 | Owner accepts manual disabling of the acting workflow right after the merge, subject to Sharon confirming the safeguards; the Chief Architect verifies the disabled state before any further step. Journeys re-run still in progress |
 | 13 Nov 2026, 05:36 | All conditions for pull request 1 met; opened as number 19 at `a33c852877686bdd54353c63dfcd995e1c902110`. Waiting for the owner: he says when he is about to merge, the "before" reading is taken, he merges and disables the acting workflow, the Chief Architect verifies it reads disabled, then the read-only verification |
+| 13 Nov 2026, 06:09 | Pull request 19's own CI green (`43373122173`). Preservation "before" taken: cutoff `2026-11-13 06:09:13.421929+00`, watermark `10675`, every line equal to §4a. Owner cleared to merge |
