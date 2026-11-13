@@ -32,7 +32,7 @@
  * locking learning_assignments before the fence (B1's rule).
  */
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 
@@ -120,7 +120,6 @@ export function authUsersDihapus(berkas: { path: string; text: string }[]): stri
 let repoAuthUsers: string[] | null = null;
 function bacaRepoAuthUsers(): string[] {
   if (repoAuthUsers) return repoAuthUsers;
-  const { readdirSync, statSync } = require("node:fs") as typeof import("node:fs");
   const berkas: { path: string; text: string }[] = [];
   const jalan = (d: string) => {
     let isi: string[] = [];
