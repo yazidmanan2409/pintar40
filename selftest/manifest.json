@@ -6149,6 +6149,16 @@
       "id": "A2A-L04",
       "runner": "static",
       "proves": "Sharon's C1 (A2A-CHANGE-A-C3C4-40753420.md; migration 20270118120000): on two real connections, connection A takes a learner FOR UPDATE and then, 1.5 s later, that learner's live enrolment FOR UPDATE (kenaikan_tetapkan's and transfer_execute's order), while connection B runs the real akhiri_pendaftaran of that enrolment as its school's admin (both rolled back); B waits for A and then finishes, with no deadlock, because akhiri_pendaftaran reads the enrolment's person unlocked, locks the person FOR UPDATE and only then the enrolment; with the plant (commit 3's order: the enrolment, then its person) the same race ends in \"deadlock detected\"."
+    },
+    {
+      "id": "A2A-L05",
+      "runner": "static",
+      "proves": "Sharon's ruling on the 76, row 3 (A2A-CHANGE-A-76-4530849f.md; migration 20270118130000): on two real connections, connection A holds a learner FOR UPDATE for 1.5 s while connection B runs the real hitung_ulang_koreksi_kunci of that learner's finalized sitting with a confirmed key correction (a fixture committed before and removed after; both rolled back); B waits for A before it touches the sitting, because the learner is taken FOR KEY SHARE first; with the plant (that line removed) B reaches the sitting while the learner is held. No deadlock is claimed: Sharon found no live counterpart."
+    },
+    {
+      "id": "A2A-L06",
+      "runner": "static",
+      "proves": "Sharon's ruling on the 76 (rows 7 to 9 in C1's commit; migration 20270118120000): on two real connections, connection A takes a learner FOR UPDATE and then, 1.5 s later, that learner's live enrolment FOR UPDATE (akhiri_pendaftaran's order after C1), while connection B runs the real transfer_minta of that enrolment to another school as its school's admin (both rolled back); B waits for A and then finishes, with no deadlock, because transfer_minta takes the person FOR KEY SHARE before the transfer's foreign keys check the enrolment; with the plant (that line removed) B still waits for A and nothing deadlocks, because the transfer's attachment guard (orang_lampiran_jaga, BEFORE INSERT) already takes the person FOR SHARE before the foreign keys: the race showed row 7 was not real, and the line is redundant but compatible."
     }
   ]
 }

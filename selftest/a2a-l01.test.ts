@@ -168,15 +168,16 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
   // a new auth.users row (the Chief Architect: one exception): handle_new_auth_user runs only on Auth's insert of
   // auth.users, and the row it holds is the one being inserted, which no other transaction can see
   ...["(GoTrue I auth.users)", "handle_new_auth_user"].map((penulis) => ({
-    penulis, lewat: (v: string) => /^persons \(rank 1\) after auth\.users \(rank 4\) — /.test(v)
-      && /; earlier via (GoTrue > \[auth\.users I\] )?handle_new_auth_user$/.test(v),
+    penulis, lewat: (v: string) => (/^persons \(rank 1\) after auth\.users \(rank 4\) — /.test(v)
+      && /; earlier via (GoTrue > \[auth\.users I\] )?handle_new_auth_user$/.test(v))
+      || /^an upgrade on auth\.users: strength 0 via (GoTrue > \[auth\.users I\] )?handle_new_auth_user, then 2 via .*\[accounts I\] akun_baru_terkunci$/.test(v),
     alasan: "the auth.users row held is the new row Auth is inserting: no other transaction can see it, so none can hold it",
     syarat: (kat: Katalog) => [...kat.pemicu].every(([k, fs]) => !fs.includes("handle_new_auth_user") || /^auth\.users\|I\|/.test(k)),
   })),
   // the window functions (the Chief Architect: one exception, "pending B1", removed in C, where B1 reorders them):
   // the actor's foreign key after the window row; no reverse path was found
-  ...["change_maintenance", "publish_notice"].map((penulis) => ({
-    penulis, lewat: /^change_maintenance$|^publish_notice$/,
+  ...["change_maintenance", "publish_notice", "schedule_maintenance"].map((penulis) => ({
+    penulis, lewat: /^change_maintenance$|^publish_notice$|^schedule_maintenance$/,
     alasan: "PENDING B1: the actor's key after the window row, no reverse path found; re-read after B1, in change C, and this exception removed there",
   })),
   // same-row re-locks, one by one (Sharon's condition), each naming the variable that makes it the row already held
@@ -196,7 +197,7 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
     alasan: "a trigger function only of auth.users UPDATE: its R2 reading, with the row held, passes",
     syarat: (kat: Katalog) => [...kat.pemicu].every(([k, fs]) => !fs.includes(penulis) || /^auth\.users\|U\|/.test(k)) })),
   // KEY SHARE, then FOR SHARE, on one person: compatible (Sharon); raced on two connections, no deadlock
-  ...["certificate_prepare", "sertifikat_koreksi_siapkan"].map((penulis) => ({ penulis,
+  ...["certificate_prepare", "sertifikat_koreksi_siapkan", "transfer_minta", "transfer_request"].map((penulis) => ({ penulis,
     lewat: (v: string) => /^an upgrade on persons: strength 0 via .*, then 1 via /.test(v),
     alasan: "KEY SHARE then FOR SHARE: the holder strengthens past a FOR UPDATE waiter; raced, no deadlock" })),
   // THE PERMIT'S KEY ON auth.users (Sharon, A2A-CHANGE-A-PERMIT-KEY.md; register: "auth.users FOR KEY SHARE before the
@@ -206,6 +207,26 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
     lewat: (v: string) => /^auth\.users \(rank 4\) after accounts \(rank 5\) — /.test(v) && lewatAkhir(v) === penulis,
     alasan: "REGISTER (the permit's key): no delete or FOR UPDATE of auth.users anywhere; akun_kunci takes FOR NO KEY UPDATE; the person is taken first",
     syarat: (kat: Katalog, l?: Kunci[]) => syaratIzin(kat, l) })),
+  // ROW 13 (Sharon, A2A-CHANGE-A-76-4530849f.md §2): "the password guard's early return". auth_password_write_guard
+  // returns at once when encrypted_password is unchanged; this covers a breach only when every caller reaching it
+  // through its own UPDATE of auth.users does not set encrypted_password (Auth's password write, commit 2's real path,
+  // stays outside: it is never such a caller)
+  { penulis: "*", lewat: (v: string) => /\[auth\.users U\] auth_password_write_guard/.test(v),
+    alasan: "the password guard's early return: the caller's update of auth.users leaves encrypted_password as it was",
+    syarat: (kat: Katalog, _l?: Kunci[], v?: string) => {
+      const jaga = (kat.fns.get("auth_password_write_guard") ?? []).every((b) => bersih(b).replace(/\s+/g, " ")
+        .includes("if new.encrypted_password is not distinct from old.encrypted_password or coalesce(new.encrypted_password, '') = '' then return new;"));
+      const pemanggil = [...(v ?? "").matchAll(/([a-z_0-9]+|GoTrue) > \[auth\.users U\] auth_password_write_guard/g)].map((m) => m[1]);
+      return jaga && pemanggil.length > 0 && pemanggil.every((f) => f !== "GoTrue" && (kat.fns.get(f) ?? []).length > 0
+        && (kat.fns.get(f) ?? []).every((b) => bersih(b).split(";").filter((st) => /\bupdate\s+auth\.users\b/.test(st))
+          .every((st) => !/\bencrypted_password\b/.test(st))));
+    } },
+  // ROW 11, REGISTER REG-A2A-01 (Sharon, §3): two enrolments of one person at once (tempatkan_murid, transfer_execute):
+  // orang_lampiran_jaga FOR SHARE, then enrollments_programme_alone FOR UPDATE, both BEFORE INSERT on enrollments; a
+  // 40P01 only, outside A2a's area. Likely fix: order the triggers by name so the FOR UPDATE fires first.
+  ...["tempatkan_murid", "transfer_execute"].map((penulis) => ({ penulis,
+    lewat: (v: string) => /^an upgrade on persons: strength 1 via .*\[enrollments I\] orang_lampiran_jaga > orang_dianonimkan, then 3 via .*\[enrollments I\] enrollments_programme_alone$/.test(v),
+    alasan: "REGISTER REG-A2A-01: two enrolments of one person at once; 40P01 only; fix: the FOR UPDATE trigger first, by name" })),
   samaBaris("sesi_akhiri_orang", "device_sessions.auth_user_id is p_auth_user, the account's auth.users row its caller holds first (akun_kunci; Auth's own write; the auth.users trigger's row)"),
   samaBaris("orang_dianonimkan", "p_person is the attachment's NEW.person_id (orang_lampiran_jaga), the person the writer took first"),
   samaBaris("authorize_card_conversion", "card_conversions.person_id is p_person, taken FOR UPDATE first by sekolah_memegang"),
@@ -228,6 +249,26 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
     syarat: (kat: Katalog) => !(kat.fns.get("hapus_data_pribadi") ?? []).some((b) => /encrypted_password/.test(bersih(b)))
       && (kat.fns.get("auth_password_write_guard") ?? []).every((b) => bersih(b).replace(/\s+/g, " ")
         .includes("if new.encrypted_password is not distinct from old.encrypted_password or coalesce(new.encrypted_password, '') = '' then return new;")) },
+  samaBaris("hitung_ulang_koreksi_kunci", "the recalculated result's person_id is the sitting's learner, taken FOR KEY SHARE first (row 3, migration 20270118130000)"),
+  samaBaris("transfer_minta", "the transfer's person_id is e.person_id, taken FOR KEY SHARE first (C1, migration 20270118120000)"),
+  samaBaris("transfer_request", "the transfer's person_id is e.person_id, taken FOR KEY SHARE first (C1, migration 20270118120000)"),
+  samaBaris("kenaikan_tetapkan", "the population, taken FOR UPDATE first"),
+  samaBaris("[enrollments I] enrollments_programme_alone", "the new enrolment's person, in the population taken FOR UPDATE first"),
+  // kenaikan_tetapkan's enrolment after the sittings it closed: serialised on the learner it holds FOR UPDATE first;
+  // every enrolment writer takes the person first (C1), so none holds the enrolment while waiting for it (Sharon, row 6)
+  { penulis: "kenaikan_tetapkan", lewat: (v: string) => /^enrollments \(rank 1\.5\) after assessment_sessions/.test(v),
+    alasan: "serialised on the learner: the population is taken FOR UPDATE first, and every enrolment writer takes the person first",
+    syarat: (_k: Katalog, l?: Kunci[]) => !!l && l.findIndex((x) => x.t === "persons" && x.kuat === 3) >= 0
+      && l.findIndex((x) => x.t === "persons" && x.kuat === 3) < l.findIndex((x) => x.t === "assessment_sessions") },
+  // import_advance: the enrolment it holds is the one it inserted (v_enr), a new row no one else can see (Sharon, row 8)
+  { penulis: "import_advance", lewat: (v: string) => /^persons \(rank 1\) after enrollments/.test(v),
+    alasan: "new row: the enrolment is v_enr, the one this transaction inserted",
+    syarat: (kat: Katalog) => (kat.fns.get("import_advance") ?? []).every((b) => /returning enrollments\.id into v_enr/.test(bersih(b))
+      && !/\bupdate\s+public\.enrollments\b/.test(bersih(b))) },
+  // the trigger's own R2 reading is the shape every enrolment writer must meet by taking the person first; the writers
+  // are each read on their own lists above
+  { penulis: "enrollments_programme_alone [enrollments U]", lewat: /(^| > )\[enrollments U\] enrollments_programme_alone$/,
+    alasan: "the trigger itself: its writers take the person first (C1), and each is read on its own" },
   // the actor's key after the sitting (Sharon: confirm none can act where the actor is the sitting's own learner)
   ...["akhiri_pengerjaan", "akhiri_penugasan"].map((site) => ({ ...samaBaris(site, ""), alasan: "closure_by / terminated_by_person_id is "
     + "v_actor: if the actor is the learner, it is the row taken first (the learner, commit 3, checked); if not, the actor's hold "
@@ -519,6 +560,8 @@ begin perform 1 from public.persons where id = p for share; update public.person
 end $t$;`,
   P3: `create function public._a2a_l01_p3(p uuid) returns void language plpgsql as $t$
 begin perform public.pagar_darurat_bersama(); perform 1 from public.accounts a where a.person_id = p for update; end $t$;`,
+  P6: `create function public._a2a_l01_p6(p uuid) returns void language plpgsql as $t$
+begin perform 1 from public.persons where id = p for update; update auth.users set encrypted_password = 'x' where id = p; end $t$;`,
   P5: `create function public._a2a_l01_p5(p uuid) returns void language plpgsql as $t$
 begin perform 1 from public.learning_assignments la where la.id = p for update; perform public.pagar_darurat_bersama(); end $t$;`,
 };
@@ -607,6 +650,36 @@ async function balapanDaftar(e: string, orang: string, admin: string) {
   return { satu, dua };
 }
 
+// ── A2A-L05: a key correction takes the learner first (Sharon, the 76, row 3; migration 20270118130000)
+const KOREKSI_L05 = "a2a10500-0000-4000-8000-000000000001";
+const KUNCI_KOREKSI = "  perform 1 from public.persons p, public.assessment_sessions a where a.id = p_session and p.id = a.person_id for key share of p;\n";
+/** A holds the learner FOR UPDATE for 1.5 s; B, 0.5 s after, runs the real hitung_ulang_koreksi_kunci of a sitting
+ *  with a confirmed correction (the fixture: it does not touch this sitting's questions, so B is refused once it holds
+ *  the sitting). Both rolled back. B's time says whether it took the learner before the sitting. */
+async function balapanKoreksi(sesi: string, orang: string) {
+  const { psqlLain, tidur } = await import("./balapan");
+  const a = psqlLain(`begin; select 1 from public.persons where id = '${orang}' for update; select pg_sleep(1.5); rollback;`);
+  await tidur(500);
+  const b = psqlLain(`begin; select public.hitung_ulang_koreksi_kunci('${sesi}', '${KOREKSI_L05}'); rollback;`);
+  const [satu, dua] = await Promise.all([a, b]);
+  return { satu, dua };
+}
+
+// ── A2A-L06: a transfer is requested after its learner (Sharon, C1 rows 7; migration 20270118120000)
+const L06_KUNCI = "  perform 1 from public.persons where id = e.person_id for key share;\n";
+/** A: akhiri_pendaftaran's order after C1, the person FOR UPDATE, then (1.5 s later) the enrolment FOR UPDATE; B, 0.5 s
+ *  after: the real transfer_minta of that enrolment as its school's admin. Both rolled back. */
+async function balapanPindah(e: string, orang: string, admin: string, tujuan: string) {
+  const { psqlLain, tidur } = await import("./balapan");
+  const a = psqlLain(`begin; select 1 from public.persons where id = '${orang}' for update; select pg_sleep(1.5);
+    select 1 from public.enrollments where id = '${e}' for update; select pg_sleep(0.3); rollback;`);
+  await tidur(500);
+  const b = psqlLain(`begin; select set_config('request.jwt.claims', '{"sub":"${admin}","role":"authenticated"}', true);
+    select public.transfer_minta('${e}', '${tujuan}', 'A2A-L06 race'); rollback;`);
+  const [satu, dua] = await Promise.all([a, b]);
+  return { satu, dua };
+}
+
 export const a2aL01Tests: SelfTest[] = [
   {
     id: "A2A-L01",
@@ -620,6 +693,9 @@ export const a2aL01Tests: SelfTest[] = [
       c.expect(t.salah.some((s) => s.startsWith("_a2a_l01_p1b:") && /an upgrade on persons/.test(s)), "plant P1b (FOR SHARE, then UPDATE, on persons) was not reported");
       c.expect(t.salah.some((s) => s.startsWith("_a2a_l01_p3:") && /accounts \(rank 5\) after FENCE/.test(s)), "plant P3 (accounts after the fence) was not reported");
       c.expect(t.salah.some((s) => s.startsWith("_a2a_l01_p5:") && /learning_assignments locked before the fence/.test(s)), "plant P5 (a row before the fence, B1) was not reported");
+      // P6 (row 13's condition): a lifecycle update that sets the password is not covered by the guard's early return
+      const p6 = bacaUrutan(db, TANAM.P6);
+      c.expect(p6.salah.some((s) => s.startsWith("_a2a_l01_p6:") && /auth_password_write_guard/.test(s)), "plant P6 (an update of auth.users setting the password) was not reported");
       const p2 = bacaUrutan(db, TANAM.P2);
       c.expect(p2.salah.some((s) => s.startsWith("tangguhkan_akun:") && /auth\.users \(rank 4\) after accounts/.test(s)), "plant P2 (akun_kunci locking accounts before auth.users) was not reported at tangguhkan_akun");
       // the permit's condition 1, its plants (A2A-F01's form): each planted text is caught; the repository is clean
@@ -736,6 +812,78 @@ export const a2aL01Tests: SelfTest[] = [
       const mati = [tanam.satu, tanam.dua].filter((x) => !x.ok && /deadlock detected/.test(x.err));
       c.expect(mati.length === 1, `with the plant (the enrolment before its person) there was no deadlock: A ${tanam.satu.ok ? "ok" : tanam.satu.err}; B ${tanam.dua.ok ? "ok" : tanam.dua.err}`);
       return c.verdict(`akhiri_pendaftaran waited ${r.dua.ms} ms for the learner, then finished; with the plant (commit 3's order) "deadlock detected"`);
+    },
+  },
+  {
+    // A2A-L05 — a key correction takes the learner before the sitting (Sharon, the 76, row 3): while another
+    // transaction holds the learner, hitung_ulang_koreksi_kunci waits before it touches the sitting. No deadlock is
+    // claimed: Sharon found no live counterpart. Red with its plant (the learner's line removed: it reaches the sitting).
+    id: "A2A-L05",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const db = process.env.SUPABASE_DB_URL!;
+      const { gantiFungsi } = await import("./balapan");
+      const [sesi, orang, soal, lain] = psql1(db, `select s.id || '|' || s.person_id || '|' || p.item_id || '|'
+          || (select q.id from public.persons q where q.id <> s.person_id order by q.id limit 1)
+        from public.assessment_sessions s join public.presented_items p on p.session_id = s.id
+       where s.status = 'FINALIZED' order by s.id, p.item_id limit 1`).split("|");
+      c.expect(!!sesi && !!orang && !!soal && !!lain, "no finalized sitting with a presented question to test with");
+      const nol = "00000000-0000-0000-0000-000000000000";
+      psql1(db, `begin; set local session_replication_role = replica;
+        insert into public.key_corrections (id, institution_id, line_root_course_id, asked_item_id, item_id, course_id, release_id,
+          question_digest, key_before, key_after, reason, proposed_by_person_id, status, corrected_item_id, decided_at, decided_by_person_id)
+        values ('${KOREKSI_L05}', '${nol}', '${nol}', '${soal}', '${soal}', '${nol}', '${nol}', 'x', '{}', '{${soal}}',
+          'A2A-L05 race fixture', '${lain}', 'CONFIRMED', '${soal}', now(), '${orang}') on conflict (id) do nothing; commit;`);
+      try {
+        const r = await balapanKoreksi(sesi, orang);
+        c.expect(r.satu.ok, `A (the learner held) failed: ${r.satu.err}`);
+        c.expect(r.dua.ms >= 800, `hitung_ulang_koreksi_kunci took ${r.dua.ms} ms while the learner was held: it did not wait for the learner first`);
+        const balik = gantiFungsi("public.hitung_ulang_koreksi_kunci(uuid,uuid)", KUNCI_KOREKSI, "");
+        let tanam: Awaited<ReturnType<typeof balapanKoreksi>>;
+        try { tanam = await balapanKoreksi(sesi, orang); } finally { balik(); }
+        c.expect(tanam.dua.ms < 500 && /not recalculated|did not present/.test(tanam.dua.err),
+          `with the plant (the sitting before the learner) B did not reach the sitting while the learner was held: ${tanam.dua.ms} ms, ${tanam.dua.err || "ok"}`);
+        return c.verdict(`hitung_ulang_koreksi_kunci waited ${r.dua.ms} ms for the learner before its sitting; with the plant it reached the sitting in ${tanam.dua.ms} ms`);
+      } finally {
+        psql1(db, `begin; set local session_replication_role = replica; delete from public.key_corrections where id = '${KOREKSI_L05}'; commit;`);
+      }
+    },
+  },
+  {
+    // A2A-L06 — a transfer is requested after its learner (Sharon, C1 with rows 7 to 9): transfer_minta, while
+    // akhiri_pendaftaran's order (person, then enrolment) holds the learner, waits and then finishes; no deadlock.
+    // Its plant (the line removed) shows the attachment guard already takes the person first: row 7 was not real.
+    id: "A2A-L06",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const db = process.env.SUPABASE_DB_URL!;
+      const { gantiFungsi } = await import("./balapan");
+      const [e, orang, admin, tujuan] = psql1(db, `select e.id || '|' || e.person_id || '|' || a.auth_user_id || '|'
+          || (select i.id from public.institutions i where i.is_active and i.id <> e.institution_id order by i.id limit 1)
+        from public.enrollments e
+        join public.role_assignments r on r.role = 'INSTITUTION_ADMIN' and r.institution_id = e.institution_id
+         and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until
+        join public.accounts a on a.person_id = r.person_id
+       where e.status = 'ACTIVE' and e.valid_to is null and r.person_id <> e.person_id
+         and not exists (select 1 from public.transfers t where t.from_enrollment_id = e.id and t.status in ('REQUESTED', 'AUTHORIZED'))
+       order by e.id limit 1`).split("|");
+      c.expect(!!e && !!orang && !!admin && !!tujuan, "no live enrolment, school admin and second school to test with");
+      const r = await balapanPindah(e, orang, admin, tujuan);
+      c.expect(r.satu.ok, `A (person, then enrolment) failed: ${r.satu.err}`);
+      c.expect(r.dua.ok, `transfer_minta (B) failed while A held the learner: ${r.dua.err}`);
+      c.expect(r.dua.ms >= 1100, `transfer_minta took ${r.dua.ms} ms: it did not wait for A, so the race did not overlap`);
+      const balik = gantiFungsi("public.transfer_minta(uuid,uuid,text)", L06_KUNCI, "");
+      let tanam: Awaited<ReturnType<typeof balapanPindah>>;
+      try { tanam = await balapanPindah(e, orang, admin, tujuan); } finally { balik(); }
+      // FOUND BY THIS RACE (for Sharon): without the line, the transfer's attachment guard (orang_lampiran_jaga, BEFORE
+      // INSERT) already takes the person FOR SHARE before the foreign keys check the enrolment, so the plant does not
+      // deadlock: row 7 was not real, and the line is redundant (KEY SHARE, then SHARE: compatible). The plant is kept
+      // as the evidence of that order: B still waits for the learner before the enrolment.
+      c.expect(tanam.satu.ok && tanam.dua.ok && tanam.dua.ms >= 1100,
+        `with the plant, the guard did not order the person first: A ${tanam.satu.ok ? "ok" : tanam.satu.err}; B ${tanam.dua.ok ? `ok in ${tanam.dua.ms} ms` : tanam.dua.err}`);
+      return c.verdict(`transfer_minta waited ${r.dua.ms} ms for the learner, then finished; without the line it still waited (${tanam.dua.ms} ms): the attachment guard takes the person first`);
     },
   },
 ];
