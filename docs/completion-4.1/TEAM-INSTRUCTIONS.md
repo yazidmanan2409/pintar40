@@ -485,3 +485,31 @@ gate. To verify at the release-readiness stage, not before:
    "prevent self-review" would block the owner approving what the automation started, and the gate is not yet separate);
 5. no Vercel, Supabase or GitHub path deploys to production outside that gate.
 No production action is authorised by this note.
+
+## Owner's decisions after the 4.0 look-back (13 Nov 2026) — in force from the next session
+
+**State at close of 13 Nov.** Checkpoint Part 2 ACCEPTED (Sharon, `PART2-VERDICT.md`, `2c90d178`); record in
+`checkpoint/PART2-EVIDENCE.md`. `main` and staging: `a6b47466`, 244 migrations. A2a is released but **stopped for the
+day**: only its page is pushed (`claude/a2a` at `be219c39`, documentation, not yet read by Sharon or Daisy); no A2a code
+exists. Nothing is running on staging; `staging-checkpoint-41.yml` stays disabled. Production untouched.
+
+1. **4.0 is preserved; 4.1 continues.** No overhaul, no reopening completed work, no speculative refactoring.
+2. **The one confirmed inherited weakness is corrected inside A2a:** Sharon's catalogue test that every function which
+   locks or writes `persons`, `auth.users`, `accounts` or `person_suspensions` takes them in the order
+   persons → `auth.users` → accounts. It covers all such writers, including those A2a adds, and A3's when A3 is built.
+   Existing account-lifecycle behaviour and every approved safeguard are preserved.
+3. **Method:** develop and test cheaply → independent review → freeze the candidate → rigorous acceptance. No basic
+   discovery during expensive release checks. The oversized checkpoint machinery is not rebuilt.
+4. **Simple:** no new bureaucracy, documents, approval layers or broad clean-ups. Demonstrated problems are fixed at
+   their source by the smallest safe correction.
+5. **Friction, from existing records only** (no new reporting): per batch, approximate duration, number of full
+   verification attempts, avoidable rework. One line per batch in its completion page. If difficulty recurs, first say
+   whether the cause is architecture, feature complexity or operations, before adding any machinery.
+6. **Roadmap:** A2a → A2b → C2w → A3 → C3w → Z under existing requirements and reviews. Sharon's conditions, the
+   8-second timeout constraint and every acceptance gate stand. Reviewer sign-in on staging and the separate GitHub
+   automation identity are handled at their readiness points. Production needs the owner's separate authorisation.
+7. **The look-back is closed** (Sharon's `LOOKBACK-4.0.md`; run records: CI failure share flat at about 17–19%, journeys
+   falling). Second Eye's input is taken only if it materially changes the conclusion.
+
+**Next session starts with:** Sharon's and Daisy's early read of A2a's page at `be219c39` (with item 2 added to it),
+then the build.
