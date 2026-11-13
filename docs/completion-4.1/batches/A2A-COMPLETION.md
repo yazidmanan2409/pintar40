@@ -338,6 +338,37 @@ finding, put here before anything is fixed** (the Chief Architect's instruction)
 - **Until that decision:** change A's commit 2 (the recovery fix and its two-connection test) can be built as ruled.
   A2A-L01 stays red on the other reports, which is correct in development, and no freeze is possible while it is.
 
+**The possibly-real reports, read to the end and raced on two connections** (the Chief Architect, 13 Nov: "a
+reproduced deadlock is evidence; a reading is a claim"):
+
+| Function | The later lock, and whose person row | Real, or an over-report | Reproduced |
+|---|---|---|---|
+| `finalize_session` (and every path that finalizes: submit, deadline, the closer) | the result row's `person_id`: **the sitting's own learner** (`KEY SHARE`), after the sitting `FOR UPDATE` | **Real.** A suspension of that learner takes the learner, then their open sittings | **Yes: deadlock detected,** against the real `tangguhkan_akun` (A2A-L03, red without the draft) |
+| `terminate_session`, `tutup_pengerjaan_ditahan`, `lanjutkan_pengerjaan` | `terminated_by`, `closure_by`, `unfrozen_by`: **the actor** | Over-report: the actor's suspension never holds this learner's sitting | no (no cycle to race) |
+| `open_assessment_session` | the new sitting's `person_id`: the learner, already held `FOR SHARE` by the same function | Over-report: the same row | no |
+| `certificate_prepare`, `sertifikat_koreksi_siapkan` (upgrade `KEY SHARE` → `FOR SHARE`) | the same person | **Safe:** Postgres lets the holder strengthen to `FOR SHARE` past a `FOR UPDATE` waiter | **Yes, no deadlock** (two connections) |
+| `move_learner_to_class`, `record_integrity_review`, `recovery_by_pin`, `transfer_execute` (upgrades) | the first `KEY SHARE` is `audit_write`'s, whose keys are null outside evaluation | Over-report | the shape `KEY SHARE` → `FOR UPDATE`, twice at once, **does** deadlock (two connections); these four do not take that first lock |
+| Auth's recovery password write (commit 2) | `sekolah_memegang` `FOR UPDATE` on the person, while Auth holds `auth.users` | **Real, and reachable on `main`**, not latent as this page said: the planner does evaluate it | **Yes:** on `main` the write waited and timed out (A2A-L02 without the fix) |
+
+**A second real class, hidden until now.** The test reports only the first breach of each function. With the draft
+applied (`claude/a2a-nokey` at `289d4865`), the foreign-key reports fall away, and later breaches show (59 → 22, in
+`selftest/a2a-l01-merah-nokey.txt`):
+- `akhiri_pendaftaran`, `kenaikan_tetapkan` and `transfer_execute` close a learner's open sittings (`tutup_asesmen_terbuka`
+  → finalize) **before** they lock the learner (through `enrollments_programme_alone`, or a guard's `FOR SHARE`). A
+  suspension takes the learner, then the sittings: the reverse.
+- `minta_percobaan` takes the learner `FOR SHARE` after locking a sitting.
+- These are full-strength locks, not foreign keys: **real by reading, not yet raced.** The draft does not cover them.
+  Their fix is an order change in those functions (the person first), not a lock strength. It is not built, and it
+  is for the Chief Architect and Sharon.
+- The rest of the 22 are the classes above: same-row re-locks and new rows. With a ruling, they would become declared
+  exceptions, each with its reason.
+
+**The three branches:**
+- `claude/a2a`: this page.
+- `claude/a2a-change-a`: change A, two commits, `f09da528` and `d9bad797`.
+- `claude/a2a-nokey`: the draft, for its ruling only, never merged into change A.
+- *`claude/a2a-l01` (`d748ef05`) is superseded by `claude/a2a-change-a` and left as it was pushed.*
+
 **It is built first, as its own change** (working rule 5: verification tooling never travels with a product
 change). It is green or red on `main`'s code before any of A2a's product changes is made.
 
@@ -360,9 +391,9 @@ scratch script, not committed):
   row. On an email recovery with the recovery ladder at level 3, that guard calls `recovery_restore_core` →
   `audit_write(…, recovery_assist_school(…))` → `sekolah_memegang`, which takes the person `FOR UPDATE`. That is
   **`auth.users` → persons, against the order.**
-  - **Not reached today:** `recovery_assist_school` first filters on `current_person_id()`. Auth's own connection
-    carries no PINTAR person, so no row passes, and `sekolah_memegang` is not called. But only the planner's order of
-    evaluation makes that so; SQL does not guarantee it.
+  - ~~**Not reached today:** … only the planner's order of evaluation makes that so.~~ *(Wrong, shown by A2A-L02: on
+    `main`, Auth's recovery password write waited on a held person and timed out. The planner does evaluate
+    `sekolah_memegang` there. The path is reachable today, and change A's commit 2 closes it.)*
   - **The second report is a false positive:** `hapus_data_pribadi` updates `auth.users`, but it never changes the
     password, so the guard returns at once. That is a branch the engine reads together with the rest: a declared
     exception, with that reason.
@@ -703,6 +734,10 @@ accepted by construction under Sharon's condition, stated and tested in §2, wit
   it is fixed, not fixed inside (A).
 - **(B) the scale job for scenario 8:** **about half a day**, within its four limits (§7).
 - **(C) A2a's product changes:** **about three days**, as estimated above, without (A) and (B).
+
+**Accepted in principle (the Chief Architect, 13 Nov):** the catalogue enumeration of the readers of
+`closure_deadline`, `closes_at` and the grace, built before any of D6.3, as its own small commit inside (C), reviewed
+early. It is product-adjacent tooling.
 
 **The single most likely thing to go wrong in (C): D6.3's one time rule.**
 - Every reader of a sitting's closing time must add the protected interval. That means the effective deadline, the
