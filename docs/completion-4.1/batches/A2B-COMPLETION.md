@@ -4,12 +4,25 @@
 > - **Nothing is built.** A2b follows A2a, and A2a is not built until the staging checkpoint passes.
 > - Written while the checkpoint's clean-up commit was in pre-flight (Bob, 13 Nov: "work in parallel"). Committed as
 >   documentation only, for Sharon's pre-build review and Daisy's words and screens: they answer the questions below.
-> - **Focused checks for a documentation-only commit** (the owner's ruling, 13 Nov; every changed path is a `.md`
->   under `docs/`), run before the commit, then full CI and journeys after the push:
->   1. `git diff --cached --name-only | grep -vE '^docs/.*\.md$'` must print nothing (documentation only);
->   2. `npm run -s guard:scan` (the sensitive scan, whole tree);
->   3. `npm run -s lint`;
->   4. `git diff --cached -U0 | grep -nE 'claude-(opus|sonnet|haiku|fable)'` must print nothing (no model identifier).
+> - **Focused checks for a documentation-only commit** (the owner's ruling, 13 Nov: TEAM-INSTRUCTIONS.md, "The
+>   owner's rulings on elapsed time", 1). Documentation-only means every changed path is a `.md` or an image under
+>   `docs/`. Run before the commit; then full CI and journeys after the push. The exact commands:
+>   1. **documentation only:** `git diff --cached --name-only | grep -vE '^docs/.*\.(md|png|jpe?g|gif|svg|webp)$'`
+>      prints nothing;
+>   2. **the sensitive scan:** `npm run -s guard:scan`;
+>   3. **baseline parity:** `npm run -s baseline:parity`;
+>   4. **the static tests that read documents** (`ciwaste`, `dr150`, `dr150b`, `dr150c`, `retro`, `secguard`,
+>      `static`, `studio3b`): `npm run -s selftest:only -- --only=<every id in those eight files>`, with
+>      `SUPABASE_DB_URL` set to a **freshly reset** local stack (`npx supabase db reset --local`). Asking for an id of a
+>      database file runs that file's whole runner, so its suites need a clean database: on a database left by earlier
+>      runs, F01-T10 failed once, and it passed after the reset. The ids are listed by
+>      `grep -ohE 'id: "[A-Z0-9-]+"' selftest/{ciwaste,dr150,dr150b,dr150c,retro,secguard,static,studio3b}.test.ts`, without
+>      the two UUID fixtures in `static.test.ts`, which are not test ids (`grep -vE '"[0-9]{8}-'`).
+>
+>   *(Superseded, kept: the first list, used for `63f27b3ed3fe8012958fc8ae862cb2b6c40072a1`, named lint and a model-name
+>   grep, and missed baseline parity and the static tests that read documents. Both were then run on that commit:
+>   parity OK, 25 documents byte-identical; the tests 60 passed and 0 failed, and the seven needing a database 41
+>   passed, 0 failed.)*
 
 ## What governs it
 
