@@ -98,3 +98,85 @@ the repository.
   `supabase_auth_admin` (`rolbypassrls` false; it is the owner, and row security is not forced).
 - `public.hapus_data_pribadi`: owner `postgres`, security definer.
 So the deletion's `auth` writes run as a role holding BYPASSRLS; row security enabled with no policy does not silence them.
+
+## Rows 2 and 6 · the hosted Auth probe — run [43404098183](https://github.com/yazidmanan2409/pintar40/actions/runs/43404098183), success, first attempt
+
+**Candidate and gates.** Frozen `e172ba82` (two new files). Sharon's early read: no blocker (`efd535f9`). CI and journeys
+A and B green on that SHA (runs 43394114720, 43394112452); local pre-flight green (`d278994b` on `claude/part2-probes`).
+Merged as PR 20 → `main` `a6b47466d3f8242b2740f81c186a5cb0f341eac0`. `git diff --name-only 40ca971f a6b47466`: only
+`.github/workflows/staging-auth-probe-41.yml` and `audit/staging/auth-probe-41.mjs`.
+
+**Just before the run.** environment-facts run 43403789613, 09:44: `staging | dpl_5LLnRJqGytXAhRb1PPPAG9cmFhCS (READY) |
+a6b47466d3f8 | 244 | 244 | GREEN`. Sharon's precondition, read 09:46:18: SA and PA both `account_setup.state` COMPLETE,
+`person_pins.reset_required` false, not locked; open suspensions on staging 0.
+
+**Fixture.** `sekolah-uji-b5-1104`, class «Kelas 5A». Dispatched from `main` 09:46:22.
+
+**The run's lines, as printed:**
+
+```
+PASS      P0  SA, then PA in «Seluruh platform», sign in with their password (no recovery) :: both by the password
+PASS      P1  the app serving staging is the dispatched commit :: the app's 2 audit row(s) carry build_sha a6b47466d3f8242b2740f81c186a5cb0f341eac0
+PASS      P2  SA rosters L into «Kelas 5A» through /pendataan; L has no account :: L 7833c46f-a92a-474b-aa15-165278c8babc; account 0
+PASS      P3  PA suspends L, who has no account :: suspended: yes; account 0
+PASS      P4  SA gives L a class card through the app; the account is locked at its first read :: account 1; locked at the first read: yes (banned_until 2999-12-31 23:59:59+00)
+PASS      P5  ONE sign-in with the card's right PIN while locked: refused with the ordinary mismatch :: refused: yes, 401 CARD_NOT_MATCHED; still locked: yes
+PASS      P6  PA reinstates L; the account reads released :: released: yes (banned_until null)
+PASS      P7  L signs in with the card (for the clean-up); the sign-in records carry a network origin :: signed in: yes; records: SIGN_IN_FAILED 20.65.227.0/24, SIGN_IN_OK 20.65.227.0/24
+PASS      P8  the clean-up through the product: enrolment ended, deletion and closure requested, personal data deleted :: enrolment ENDED; CLOSE DONE, DELETE_PERSONAL_DATA RECEIVED; anonymised true, account 1, enrolment ENDED, open suspensions 1 (this run's: 0)
+PASS      P9  the app's audit rows written since P0 still carry the dispatched commit :: the app's 7 audit row(s) carry build_sha a6b47466d3f8242b2740f81c186a5cb0f341eac0; written by a direct function call, with no build: account.suspended, account.reactivated, membership.closed, enrollment.ended, enrollment.ended_with_reason
+ALL STEPS DONE: 10 PASS. L 7833c46f-a92a-474b-aa15-165278c8babc is anonymised, closed and terminal.
+LEFT      L 7833c46f-a92a-474b-aa15-165278c8babc: anonymised true, account 1, enrolment ENDED, open suspensions 1 (this run's: 0)
+no suspension of this run is left open
+```
+
+For your judgment: L ends with one open suspension that is not this run's (Second Eye: the account closure's own
+terminal `CLOSED_AT_REQUEST` state on the anonymised person, the designed end state of a closed account). L's account
+row remains, as closure leaves it. Say if either is not the end state you expect.
+
+**Preservation pair** (`evidence/staging/preservation.sql`, unchanged text). Before: 09:45:54.883301+00, watermark 10680.
+After: read 09:56:30 with those two values written into `batas`. **Every line is identical, 1 to 72** (`diff` of the two
+outputs is empty). The preserved lines:
+
+```
+20|4
+21|10
+22|10
+23|3
+24|5
+25|1
+26|91 (6860)
+27|bd41b3c9605519cffb916d0352b5148d
+28|7deebf17f87ba3ee6bd192f776db01fb
+29|25dc4819f4dc97e50eff2f351e8a3751
+30|43f6cc69b6e8eee4854a46f88ebe0385
+31|e428cb7fc08e301b0f96864bf0487ea4
+32|f6e7a4fa62ff7ff83d3e9cd7f36b76c7
+33|d41d8cd98f00b204e9800998ecf8427e
+40|1579 4ff9a8e9c335eeb36501e8b532c8c76d
+41|100 072a88136a241be4d483bbdbce1a1b72
+42|100 75532463e4f5b282c1b05b24b7e1762b
+43|1579 36f959dc32161dbb310e640dcf1cbd2f
+44|1579 9808cca705d476aa656784566961f5c2
+45|0
+46|99 c9e0d5c267798cb2e4974e829ea63a75
+47|0 d41d8cd98f00b204e9800998ecf8427e
+48|0 d41d8cd98f00b204e9800998ecf8427e
+49|1488 fe0fdb6c3202026eefa950d87dab84fd
+50|27 40f65e668cb06bf743f3b7dc741e9d08
+51|175 1c11a3cd3707a935d6b0e0b8f81534d1
+52|68 3aa3502ddcf4072be04c9b879c37db3e
+53|57 f74cdf425da54c86527c8593ec470d3d
+54|1388 ff2ffb825aabfdfc4fdd330da477b460
+55|5552 56370fd89dddf0543052c1b1ee4a4226
+56|80 366c0b4108bf2460f994203ba6749b23
+57|182 f046bf7fb4c6d740b54bf7bc3ea30cdd
+58|1779 24b29f40d240ee5d937d85e48bb76f87
+59|1779 27080cba6c490044c2e8ae7703b78d51
+60|249 f9ab228f0c9ec5cba4ff5ba4fef26f64
+61|66 550c32200cbbd51a54c9e6385f468165
+62|10426 6606107df3f958fb62d628b450abf678
+70|0 d41d8cd98f00b204e9800998ecf8427e
+71|0
+72|0 d41d8cd98f00b204e9800998ecf8427e
+```
