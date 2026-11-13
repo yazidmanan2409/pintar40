@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| **Checkpoint Part 2, overall** | **PART 2 ACCEPTED.** Rows 1-4 and 6 verified on hosted staging; row 5 accepted by construction on A2a's page condition. Bob's two end-state points are as designed | `e739b46bee03377084ac6426eca807a04ca13275` (planning branch); `main` `a6b47466` | `PART2-VERDICT.md` |
 | Part 2, the auth probe (early read) | **NO BLOCKER TO FREEZE.** One dispatch precondition: SA's and PA's set-up and PIN states read clean first (else `selesaikan()` could change preservation lines 41-42). Bob's three points accepted | `e172ba82ef1abb03606a49a090da3692fee98f5e` | `PART2-AUTH-PROBE-EARLY-e172ba82ef1abb03606a49a090da3692fee98f5e.md` |
 | Part 2, rows 1, 3, 4 | **All three VERIFIED** (08:55): 4 at once; 1 after reproducing `content_canonical_payload`'s repository md5 and reading the copy's comment-only diff; 3 after `postgres` `rolbypassrls` true | `639e6f569190b958d3ec61f4896abdf8bfd3d671` (planning branch) | `PART2-VERIFY-ROWS-1-3-4.md` |
 | Staging checkpoint, Part 2: the smaller-evidence ruling (owner-authorised) | Items 1-5 accepted with conditions; item 6 needs option (b), a bounded hosted probe on one synthetic learner. Part 2 is not accepted until the evidence is complete | — | `PART2-EVIDENCE-RULING.md` |
