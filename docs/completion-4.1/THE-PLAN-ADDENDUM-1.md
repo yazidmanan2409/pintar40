@@ -347,6 +347,20 @@ owner with the options. It is not decided here.
 Carried out by `STAGING-CHECKPOINT-BEFORE-A2A.md`. §5b's "No staging action is authorized" is **superseded for the
 checkpoint only**; production stays outside every authorization.
 
+### Less elapsed time, no weaker gate (owner, 13 Nov 2026, recorded 03:57 UTC)
+
+> **Option 1:** Do not push before a fully green pre-flight. Instead, find a safe way for Sharon and Daisy to review the exact candidate locally or through a read-only artifact while pre-flight runs. Final approval must still be against the verified commit.
+>
+> **Option 2:** Approved for strictly documentation-only changes. Use focused local checks, but retain full CI and journeys after pushing. Any code, configuration, workflow, migration, or other executable change requires the existing full pre-flight.
+>
+> One more thing: examine whether independent parts of the 60-minute local pre-flight can safely execute concurrently. No new bureaucracy, no compromise in verification.
+>
+> Our objective is not to keep everyone busy. It is to deliver completed, correct work with less avoidable elapsed time.
+
+- **Option 2 is a departure from THE PLAN §4.1,** which says the pre-flight "exempts no kind of commit". It is the
+  owner's, for documentation-only commits alone, and is carried out as `TEAM-INSTRUCTIONS.md` states.
+- Nothing else in §4.1 changes. No push precedes a fully green pre-flight.
+
 ## 6 · Dependencies that now hold
 
 - **Promotion:** B1 not ahead of L-1 (met). C1w not ahead of F-1 (met) nor of F1-R1b. L1-F4 not accepted before its

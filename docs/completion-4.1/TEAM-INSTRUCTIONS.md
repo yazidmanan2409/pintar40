@@ -57,6 +57,51 @@ None of the work below goes through that pipeline, and none of it needs a new au
 
 **Still held, unchanged:** A2a's build, until the checkpoint has passed all verification (owner).
 
+### The owner's rulings on elapsed time (13 Nov 2026)
+
+> *Our objective is not to keep everyone busy. It is to deliver completed, correct work with less avoidable elapsed time.*
+
+**1 · Documentation-only commits: focused local checks (approved).**
+- **Documentation-only means:** every changed path is under `docs/`, and is a `.md` file or an image. **Anything
+  else is not documentation-only:** code, tests, configuration, workflows, migrations, and also any `.sql`, `.mjs`
+  or `.json` file wherever it sits (the rollback file, the preservation query and the manifest are executable or read
+  by tests). If in doubt, it is not documentation-only.
+- **Focused local checks:** the sensitive scan, baseline parity, and the static tests that read documents. Second
+  Eye names the exact commands on the commit's page the first time, and they stay the same after that.
+- **After the push: CI and journeys in full,** as for every commit. Reviews as before.
+- Everything else keeps the full pre-flight of THE PLAN §4.1.
+
+**2 · Reviewing a candidate while its pre-flight runs: no push before a green pre-flight (owner).**
+The four of us share only two channels: the repository, and the owner. So, without a push:
+- **The standard way: the review moves to the design.** The reviewer's specification of a fix (as Sharon wrote for
+  the lock order and the clean-up) or the page's answers to the five questions is reviewed **before** the build.
+  The review after the push is then a short confirmation of a delta against that specification.
+- **For a small, review-critical commit, when the owner is available to carry it:** Second Eye prints the commit as
+  a patch, with its commit hash and tree hash. The reviewer reads it as a preliminary read and says what they see.
+  **It is not a verdict.** The verdict is given on the pushed commit, after green pre-flight, CI and journeys, and
+  only if its hash is the one that was read.
+- Nothing is pushed to any branch, under any name, before the pre-flight is green.
+
+**3 · Running independent parts of the pre-flight at the same time (the owner asked; under examination).**
+What is known from the repository, before any measurement:
+- CI already runs the 11 red-case groups as separate jobs, each on its own database. So the groups are independent
+  by construction; locally they run one after another on one stack.
+- `scripts/dev/golden-db.sh` already clones a prepared database.
+- Lint, typecheck and the build need no database.
+- **What cannot be run side by side:** anything that changes what the whole database server shares (roles and their
+  memberships, the scheduler's jobs), and the tests that need the app and Auth, which are bound to one database.
+
+**Asked of Second Eye, as two small steps, with no new document:**
+1. **Measure, from the last pre-flight's own log:** the minutes each step took (lint, typecheck, build-identity; the
+   reset and build; the whole suite; the 175 plants; the 11 red-case groups). One table in his next report.
+2. **Then, only where the numbers justify it,** as test tooling in its own commit after the boundary commit: run the
+   static checks alongside the database reset; run the plants and the red-case groups on cloned databases in
+   parallel, **except** those that touch roles or the scheduler, which stay in series.
+   - **No compromise in verification:** the same counts must come out (175 of 175; 11 of 11), each plant still red
+     for its own reason and green without it. Before it replaces the serial run, both are run once on the same
+     commit and must agree line for line. Sharon reviews that one commit.
+   - It is tooling, not product: it does not enter the checkpoint's boundary.
+
 ### Review queue (as of 03:16 UTC, 13 Nov; updated at each check)
 
 | For | What | Commit on `claude/system-integrity-4.0` | Read first |
@@ -393,3 +438,4 @@ correction cycles, without weakening any verification gates."* No gate is remove
 | 13 Nov 2026 (03:10 UTC) | Boundary candidate `55e7eed9573d7396973b48665cd9d67a048da5bf` pushed and read; with Sharon for the delta; runs in progress. Staging read: the scheduler's first run will end 5 overdue sittings in two synthetic test schools, none in the demonstration school |
 | 13 Nov 2026 (03:16 UTC) | Sharon BLOCKED the boundary candidate on one item: the checkpoint script leaves a job running and an account suspended if it stops midway. Second Eye: the clean-up, then the boundary commit. The Chief Architect's "no blocker" is corrected in the runbook (§3f) |
 | 13 Nov 2026 (03:55 UTC) | On the owner's question about the bottleneck: parallel work assigned to all four that does not pass through the engineer's pipeline (table above the review queue). No gate changes. Two options that would change a rule are with the owner |
+| 13 Nov 2026 (03:57 UTC) | Owner's rulings on elapsed time recorded: focused local checks for documentation-only commits (full CI and journeys kept); no push before a green pre-flight, so review moves earlier to the design, with a carried patch as a preliminary read when useful; the pre-flight's independent parts to be measured, then run side by side where safe |
