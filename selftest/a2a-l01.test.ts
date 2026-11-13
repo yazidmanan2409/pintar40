@@ -65,7 +65,23 @@ export type Katalog = {
 };
 /** Reports read and found safe: the writer, the path it reaches, why, and (where the safety is in code) the condition
  *  the catalogue must still show, so the exception lapses the moment that code does. */
-export const PENGECUALIAN: { penulis: string; lewat: string; alasan: string; syarat?: (kat: Katalog) => boolean }[] = [];
+const JAGA_TANPA_ORANG = "if public.current_person_id() is null or public.current_person_id() = p_person then return null;";
+/** The recovery path (change A, commit 2): safe only while recovery_assist_school answers null, for no person and for
+ *  oneself, before it can reach sekolah_memegang (migration 20270118100000). A2A-L02 shows it on two connections. */
+const syaratJaga = (kat: Katalog) => {
+  const srcs = kat.fns.get("recovery_assist_school") ?? [];
+  return srcs.length > 0 && srcs.every((src) => {
+    const b = bersih(src), jaga = b.indexOf(JAGA_TANPA_ORANG);
+    return jaga >= 0 && jaga < b.indexOf("sekolah_memegang");
+  });
+};
+const ALASAN_JAGA = "Auth's password write runs with no PINTAR person, and recovery_assist_school answers null without one (and for "
+  + "oneself) before it can reach sekolah_memegang: migration 20270118100000, shown on two connections by A2A-L02";
+export const PENGECUALIAN: { penulis: string; lewat: string; alasan: string; syarat?: (kat: Katalog) => boolean }[] = [
+  ...["(GoTrue U auth.users)", "auth_password_write_guard", "auth_password_write_guard [auth.users U]"].map((penulis) => ({
+    penulis, lewat: "recovery_assist_school > sekolah_memegang", alasan: ALASAN_JAGA, syarat: syaratJaga,
+  })),
+];
 /** Functions that build SQL with `execute` naming a ranked table, each read by hand. */
 export const SQL_DINAMIS: Record<string, string> = {
   assemble_session: "builds the sitting's item query; it locks no ranked row (its dynamic SQL reads items)",
@@ -292,6 +308,35 @@ begin perform public.pagar_darurat_bersama(); perform 1 from public.accounts a w
 begin perform 1 from public.learning_assignments la where la.id = p for update; perform public.pagar_darurat_bersama(); end $t$;`,
 };
 
+// ── A2A-L02: the recovery path on two real connections (Sharon's ruling 3)
+const PLANT_TANPA_JAGA = `create or replace function public.recovery_assist_school(p_person uuid) returns uuid language plpgsql stable
+  security definer set search_path = public, pg_temp as $t$
+begin if public.sekolah_memegang(p_person, gen_random_uuid()) then return null; end if; return null; end $t$`;   // a non-null school: sekolah_memegang returns before its lock on a null one
+function psql1(db: string, sql: string) {
+  const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1", "-c", sql], { encoding: "utf8" });
+  if (r.status !== 0) throw new Error(r.stderr.slice(0, 300));
+  return r.stdout.trim();
+}
+/** A holds the person FOR UPDATE; B, with no PINTAR person, makes Auth's level-3 email-recovery password write with a 1 s
+ *  lock timeout and rolls it back. The permit, the grant and the ladder are committed before, and removed after. */
+async function balapanPemulihan(db: string, u: string, p: string, pid: string) {
+  const { balapan } = await import("./balapan");
+  const { randomBytes } = await import("node:crypto");
+  const hash = randomBytes(32).toString("hex");   // the grant's token_hash is a 64-character hex digest
+  psql1(db, `insert into public.password_write_permits (auth_user_id, purpose, expires_at) values ('${u}', 'RECOVERY', now() + interval '10 min');
+    insert into public.password_recovery_grants (token_hash, auth_user_id, via, expires_at) values ('${hash}', '${u}', 'EMAIL', now() + interval '10 min');
+    insert into public.recovery_ladder (typed_id, level, suspended_at) values ('${pid}', 3, now())
+      on conflict (typed_id) do update set level = 3, suspended_at = now();`);
+  try {
+    return await balapan(`select 1 from public.persons where id = '${p}' for update`,
+      `begin; set local lock_timeout = '1s'; update auth.users set encrypted_password = extensions.crypt('a2a-l02', extensions.gen_salt('bf')) where id = '${u}'; rollback;`);
+  } finally {
+    psql1(db, `delete from public.password_write_permits where auth_user_id = '${u}' and purpose = 'RECOVERY';
+      delete from public.password_recovery_grants where token_hash = '${hash}';
+      delete from public.recovery_ladder where typed_id = '${pid}';`);
+  }
+}
+
 export const a2aL01Tests: SelfTest[] = [
   {
     id: "A2A-L01",
@@ -324,6 +369,34 @@ export const a2aL01Tests: SelfTest[] = [
         c.expect(false, `the lock report differs from selftest/a2a-l01-laporan.txt (regenerate with npx tsx scripts/dev/a2a-l01-laporan.ts and read the difference):\n  ${beda.join("\n  ")}`);
       }
       return c.verdict(`${r.menyentuh} writers of ${r.fungsi} functions lock the ranked tables in order, no upgrade, no row before the fence; five plants reported; the report as committed`);
+    },
+  },
+  {
+    // A2A-L02 — Auth's recovery password write never waits on a person a lifecycle act holds (Sharon's ruling 3):
+    // the declared exception's evidence. Red with its plant: recovery_assist_school reaching sekolah_memegang.
+    id: "A2A-L02",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const db = process.env.SUPABASE_DB_URL!;
+      const [u, p, pid] = psql1(db, `select u.id || '|' || a.person_id || '|' || ps.pintar_id from auth.users u
+        join public.accounts a on a.auth_user_id = u.id and a.kind = 'EMAIL' join public.persons ps on ps.id = a.person_id
+        where ps.anonymized_at is null and ps.pintar_id is not null order by u.id limit 1`).split("|");
+      c.expect(!!u && !!p && !!pid, "no synthetic person with an email account to test with");
+      const r = await balapanPemulihan(db, u, p, pid);
+      c.expect(r.satu.ok, `connection A did not hold the person: ${r.satu.err}`);
+      c.expect(r.dua.ok, `Auth's recovery password write waited on the person A held: ${r.dua.err || "(failed)"}`);
+      c.expect(r.dua.ms < 2000, `Auth's recovery password write took ${r.dua.ms} ms while A held the person: it waited`);
+      // the plant: the guard removed, so the path reaches sekolah_memegang; the same race must now fail
+      const asli = psql1(db, `select pg_get_functiondef('public.recovery_assist_school(uuid)'::regprocedure)`);
+      psql1(db, PLANT_TANPA_JAGA);
+      let tanam: Awaited<ReturnType<typeof balapanPemulihan>>;
+      try { tanam = await balapanPemulihan(db, u, p, pid); } finally { psql1(db, asli); }
+      c.expect(!tanam.dua.ok && /lock timeout|canceling statement due to lock/i.test(tanam.dua.err),
+        `with the plant (sekolah_memegang reached), the write did not wait on A's lock: ${tanam.dua.ok ? "it succeeded" : tanam.dua.err}`);
+      c.expect(psql1(db, `select count(*) from public.password_write_permits where auth_user_id = '${u}' and purpose = 'RECOVERY'`) === "0",
+        "the test left a permit behind");
+      return c.verdict(`Auth's recovery password write went through in ${r.dua.ms} ms while A held the person; with the plant it waited and timed out`);
     },
   },
 ];

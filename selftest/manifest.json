@@ -6134,6 +6134,11 @@
       "id": "A2A-L01",
       "runner": "static",
       "proves": "A2a's page §6 (the owner's decision after the 4.0 look-back; Sharon's catalogue test, with her early read of 7b3b3d31): every function and procedure in public, every trigger function in its R2 starting state, and Auth's own writes of auth.users, read from the catalogue (no list of names, so A2a's and A3's functions fall under it), take their row locks (directly; through what they call, in evaluation order; through the triggers their writes fire, in Postgres's order; and, R1, through foreign keys, cascades and upserts from pg_constraint) in the order persons → account_requests → person_suspensions → auth.users → accounts → password_write_permits → the fence → maintenance_windows → sittings, with no upgrade and, B1, no row of any table before the fence but ranks 1 to 6; declared exceptions and dynamic SQL each carry their reason; R3, the per-writer report equals the committed selftest/a2a-l01-laporan.txt; five plants inside the test's own rolled-back transaction must each be reported first."
+    },
+    {
+      "id": "A2A-L02",
+      "runner": "static",
+      "proves": "Sharon's ruling 3 (early read of 7b3b3d31), the evidence for A2A-L01's declared exception: on two real connections, connection A holds a synthetic person FOR UPDATE while connection B, carrying no PINTAR person, makes Auth's level-3 email-recovery password write with a 1 s lock timeout (permit, grant and ladder committed before and removed after; B rolled back); B goes through without waiting, because recovery_assist_school answers null with no person (migration 20270118100000); with its plant (recovery_assist_school reaching sekolah_memegang) the same write waits on A and times out; nothing is left behind."
     }
   ]
 }
