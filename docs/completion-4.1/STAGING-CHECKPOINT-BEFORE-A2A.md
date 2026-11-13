@@ -369,6 +369,37 @@ was, `main` gets a new commit. The Chief Architect then checks that `main`'s tre
 exactly, before anything else is read; and Second Eye restarts the work branch from `main` for the commits that are
 not in the boundary (A2b's page and what follows).
 
+### 3i · The decision: the promotion and the acting checks are separated (13 Nov 2026, 05:09 UTC). **This governs.**
+
+**The owner (13 Nov):** retain `a33c852877686bdd54353c63dfcd995e1c902110` as the boundary; green CI and journeys on that
+exact commit; Sharon's review; the read-only evidence; the pull request for his review; no merge without his
+authorization; protect the runs; do not widen the checkpoint; no further changes to the verification workflow or to
+how the team works until the checkpoint is closed. Then: *"do what you have to do to get positive result … do it
+right, the first time."*
+
+**Sharon's block on that commit is on the checkpoint script only** (the program that performs the acting checks
+after the merge). She passed the migrations' evidence, the rollback file and the preservation query. So:
+
+| Part | What | Carried by | Gate |
+|---|---|---|---|
+| **1 · The promotion** | The 20 migrations reach staging. Everything that only reads is verified: the migration count and digest; `pg_cron` installed and the two jobs once each; the health read; the triggers on `auth.users` and their definitions; the timeouts; the hook's time; preservation "before" and "after", taken minutes apart around the merge | **Pull request 1: `a33c852877686bdd54353c63dfcd995e1c902110`, exactly,** from `promote/4.1-staging-checkpoint` | The owner's merge |
+| **2 · The acting checks** | Items 1 (the scratch job), 2 (the lock), 3 (Auth with a locked account), 4 (runtime writes to `auth`), 6c, and the restore rehearsal, with their own preservation "before" and "after" around the run | **Pull request 2: the corrected script, its workflow and its page only,** built to Sharon's final list, on a branch from `main` after part 1 | Sharon's confirmation against her list; pre-flight, CI and journeys on that exact commit; the owner's merge |
+
+- **The script in pull request 1 is never dispatched.** Only the Chief Architect dispatches it, and he does not.
+- **A2a is held until both parts have passed.**
+- **Preservation is read in two pairs,** each pair minutes apart, so that use of staging between the parts cannot
+  show up as a difference. Staging is left alone during each pair.
+- **Dropped from the fix, by the owner's instruction on workflow changes:** the retry for the journeys' second job.
+  The port fault's cause stays open as register item CI-1. **On hold until the checkpoint closes:** the red-case
+  parallelisation.
+- **Condition:** Sharon confirms in writing that her block does not bear on the promotion itself. If she says it
+  does, this is withdrawn and the owner is told.
+
+**Before pull request 1 is opened, all of:** the journeys re-run green on `a33c852877686bdd54353c63dfcd995e1c902110`
+(in progress; its stack started, the walk is running); Sharon's confirmation above. Already done: CI green on it;
+scope against `main` (20 migrations, 213 files, no request file, no `supabase/config.toml`, a clean merge); no pull
+request template in the repository; the read-only readings.
+
 ## 4 · Results
 
 | Step | When (UTC) | Result |
@@ -447,3 +478,4 @@ not in the boundary (A2b's page and what follows).
 | 13 Nov 2026, 04:57 | `a33c852877686bdd54353c63dfcd995e1c902110`: CI green; journeys job B failed again on the port, with the reservation in place (re-run queued). Sharon BLOCKED on two small items (cancel or timeout; password recovery against preservation). My read adds a third (the app's build is never checked). One consolidated fix specified (§3h); Sharon asked to add to it before the build |
 | 13 Nov 2026, 05:00 | Sharon's final list recorded: her whole-script read, before any build. Second Eye builds to it in one commit |
 | 13 Nov 2026, 05:06 | Preservation query run on staging as a trial (read-only): it completes; values in §4a. The "before" that counts is taken when the owner is about to merge, and staging is left alone from then until the checkpoint ends |
+| 13 Nov 2026, 05:09 | Decision (§3i): the promotion goes as pull request 1 at `a33c852877686bdd54353c63dfcd995e1c902110` with read-only verification; the acting checks follow as pull request 2 with the corrected script. Sharon asked to confirm her block does not bear on the promotion |
