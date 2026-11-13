@@ -2,7 +2,7 @@
 
 > **What holds now:** read-only, no sign-in, no write. The owner authorised this one request (13 Nov), and Bob++ assigned it.
 
-**1 · The request.** *(Repeated 13 Nov, after both hosts were allowed: `GET /masuk` → **200**.)*
+**1 · The request.** *(Repeated 13 Nov, after both hosts were allowed: `GET /masuk` → **200**. The public pages showed no regression: 200, one `main`, no sideways scroll and axe 0 at 1280, 390 and 320 px, and wording as approved. Detail: `STAGING-LIHAT-244.md` §4.)*
 
 **First attempt:** `GET https://staging.pintarselalu.com/masuk`, once, from my session, 13 Nov 2026:
 
