@@ -252,9 +252,21 @@ What it means in practice:
 `3d6849b5e341323ce69d357bbb4bcac2940dd1ab`).** Her reviews found **nine** defects that day. **All nine could reasonably have been
 anticipated.** By question: locks and their order, 4; the opposite and neighbouring act, 2; what else reads or writes
 the state, 2; before from after, 1; who runs each check, 1 (one defect counts under two questions). Three trace to
-her own designs, by her account. Outside her reviews, three more of the same kind: B2's notice at 320 px (Daisy), the
-checkpoint page that had the Chief Architect signing in, and INV-03 missed in his brief. **So the Chief Architect's
-"six" below understates it: the day's figure is twelve, all anticipable.** A2a's 28 readers and its fence order were
+her own designs, by her account.
+
+**Daisy's record (`ANTISIPASI-4.1.md`, `ux-1/daisy-experience` at `7e52ceed6234f91d9247d582bac7a2beb950a10b`):
+eight** defects in her reviews, **all anticipable.** B2: the notice at 320 px (question 5) and the context refusal
+blaming the account (question 2). F1-R1b and L1-F4's wording: six, by questions 1, 2 and 5; three were in her own
+lines, by her account. Older problems (L-1, S-1, X-1, X-4) are listed there and not counted against these batches.
+
+**The Chief Architect's own, in neither record: two.** INV-03 missed in his brief (question 1), and the checkpoint
+page that had him signing in to staging (question 5).
+
+**So the baseline for 12 Nov is nineteen defects, all of which could reasonably have been anticipated.** *(The "six"
+below, and an earlier "twelve" here, understated it.)* By question: 1, what else reads or writes: 7. 2, the opposite
+or neighbouring act: 4. 3, locks: 4. 4, before from after: 1. 5, who runs it and where it renders: 4 (one defect
+counts twice). Reviewers' own errors of checking, not counted as defects: the Chief Architect's read that found no
+lock cycle, and Daisy's statement that no learner screen showed a rationale; both are question 1. A2a's 28 readers and its fence order were
 found at the design stage, before any build, which is what the questions are for.
 
 ### Five questions the design review answers before a build (Chief Architect, 13 Nov 2026; on the owner's question)
@@ -360,3 +372,4 @@ correction cycles, without weakening any verification gates."* No gate is remove
 | 13 Nov 2026 (01:18 UTC) | Owner: apply the five questions rigorously, without weakening any gate. First use: the checkpoint itself (`STAGING-CHECKPOINT-BEFORE-A2A.md` §3d). Second Eye: three more items in the boundary commit |
 | 13 Nov 2026 (01:31 UTC) | The owner's principle recorded for everyone: think thoroughly before building, build carefully, verify rigorously; none replaces the others. At each result review, defects are marked anticipable or not, and the count is reported at each batch's close |
 | 13 Nov 2026 (01:34 UTC) | Baseline for the owner's principle: Sharon classed the nine defects of her 12 Nov reviews, all anticipable; with three found elsewhere, twelve. The Chief Architect's earlier "six" is corrected in place |
+| 13 Nov 2026 (01:34 UTC) | Baseline completed with Daisy's record: nineteen defects on 12 Nov, all anticipable; question 1 (what else reads or writes this state) is the largest group |
