@@ -143,3 +143,5 @@ Every column equal, and `auth.audit_log_entries` grown by exactly the probe's en
   password); that equality is the route's, not Auth's, and this probe does not test it.
 - **It does not show** the product's own path to the lock (a suspension through `tangguhkan_akun`, which also ends
   sessions), or Auth's admin password write on a locked user (the checkpoint's 3.2). It writes the lock directly.
+
+**Pre-flight on the frozen probe `e172ba82ef1abb03606a49a090da3692fee98f5e`: GREEN** (lint, typecheck, build-identity 11/11; whole suite 1145 passed, 0 failed; plants 175/175; red-case 11/11). The class input is `Kelas 5A`, exactly as the admin walk named it (`audit/staging/golden-school-admin.mjs:74`).
