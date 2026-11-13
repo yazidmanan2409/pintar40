@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2A-L01 red run on main: ruling | One real path (`finalize_session` vs the learner's suspension): fix it alone, person first; defer FOR NO KEY UPDATE (loses BEBAS inserts' serialisation, unread); (C) buildable after the fix; exceptions accepted with conditions | `f09da528a64adb98ca584bcb653e9f41cff1e1b9` | `A2A-L01-FINDING-f09da528.md` |
 | A2a early read of the page (lock-order test, fix, evidence) | NO BLOCKER TO BUILD the first change; ONE BLOCKER for the lift's code (window row against the fence, B1); R1–R3 for the test; the order corrected | `7b3b3d31191e5cff4a02823b591eea018cd4aa1f` | `A2A-EARLY-READ-7b3b3d31.md` |
 | Look-back at 4.0 (owner's question via Bob) | 19 items classed: 7 inherited from 4.0, 5 new to 4.1, 7 process or tooling. One recurring 4.0 source: the account lifecycle spread over five places. Smallest correction: a catalogue-wide lock-order test, inside A2a. "Increasing failures" not supported for product code | — | `LOOKBACK-4.0.md` |
 | **Checkpoint Part 2, overall** | **PART 2 ACCEPTED.** Rows 1-4 and 6 verified on hosted staging; row 5 accepted by construction on A2a's page condition. Bob's two end-state points are as designed | `e739b46bee03377084ac6426eca807a04ca13275` (planning branch); `main` `a6b47466` | `PART2-VERDICT.md` |
