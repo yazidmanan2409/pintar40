@@ -180,3 +180,17 @@ outputs is empty). The preserved lines:
 71|0
 72|0 d41d8cd98f00b204e9800998ecf8427e
 ```
+
+## Closure · 13 Nov 2026, 10:02 UTC
+
+**PART 2 ACCEPTED** by Sharon: `PART2-VERDICT.md` on `claude/gracious-lamport-0m1qjr` at `2c90d178`. With Part 1, all six
+items of Addendum 1 §5b are proven on hosted staging or accepted on the stated condition. **The staging checkpoint
+before A2a is closed.**
+
+Her optional read, taken 10:01:48: L `7833c46f…`'s card account `banned_until` `2999-12-31 23:59:59+00`, anonymised,
+one open suspension (the closure's own). The designed end state.
+
+**A2a is released for implementation** under its existing gates, carrying: Sharon's four required changes
+(`A2A-PREBUILD-55fb9b9b….md`); row 5's condition (the page states and tests that the fence is taken only inside database
+functions reached through PostgREST or `pg_cron`); the 8-second statement timeout as a design constraint; her result
+review. `staging-checkpoint-41.yml` stays disabled; `checkpoint-41.mjs` stays as reference.
