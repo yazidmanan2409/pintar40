@@ -153,6 +153,103 @@ Carried into `src/lib/hle.ts`, in Indonesian and English, exactly as she wrote t
   behaviour on a failed read, and the next request shows the pause page.
 - A2b's sections (B1 to B3) are A2b's.
 
+### 6 · The lock-order safeguard (the owner's decision after the 4.0 look-back; Sharon's catalogue test)
+
+**Why it is here.**
+- 4.0 declared no lock order for a person's rows, and each function took them in its own order.
+- L1-F2 and L1-F4 each found a cycle by review, and each cost a block and a rework round.
+- Sharon's required change 3 above is the third time the order has had to be written down.
+- This test makes the order permanent, under working rule 3 ("a defect is swept for its siblings").
+
+**The order:**
+
+| Rank | What | Note |
+|---|---|---|
+| 1 | `persons` | |
+| 2 | `person_suspensions` | after the person, before Auth's row, as the reinstatement takes it today (L1-F4) |
+| 3 | `auth.users` | |
+| 4 | `accounts` | |
+| 5 | the fence | A2a, required change 3 |
+| 6 | `assessment_sessions` | the sittings; in id order within the table |
+
+The owner's rule names ranks 1, 3 and 4. Ranks 2, 5 and 6 are placed where today's code and required change 3 put
+them. **Sharon rules on that placement in her read.**
+
+**The test: A2A-L01 · "the account lifecycle takes its rows in one order"** (the database runner).
+1. **From the catalogue, never a list of names:**
+   - it reads every function and procedure in `public`, and every trigger function on the four tables;
+   - functions A2a and A3 add fall under it the day they land.
+2. **For each function, the ordered list of row locks it takes on the six ranks:**
+   - `select … for update`, `for no key update`, `for share` or `for key share` on the table; `update`; `delete`;
+     a call to the fence function;
+   - transitively, the locks of every function it calls, found by name in the catalogue (cycle-safe);
+   - the locks of the row triggers its updates and deletes fire on those tables;
+   - **an `insert` of a new row is not counted** (no one else can see the row until it commits); the triggers it
+     fires are counted. That is how L1-F4's guards take the person.
+3. **The verdict:**
+   - **a function fails if a later lock has a lower rank than an earlier one;**
+   - taking the same rank again is allowed (the order between rows of one table is the race tests' job).
+4. **Dynamic SQL:** a function that builds SQL with `execute` naming these tables must be on a declared list, with its
+   reason. A new one fails.
+5. **Shown to fail before it is trusted** (three plants):
+   - (P1) inside the test's own rolled-back transaction, a function that locks `accounts` and then `persons` must be
+     reported;
+   - (P2, `scripts/dev/plants.mjs`) `akun_kunci` with its `auth.users` and `accounts` locks swapped turns it red;
+   - (P3, once the fence exists) a fenced function that locks `accounts` after the fence turns it red.
+
+**What it does not establish** (said here, so a green run is not over-read):
+- **Branches:** it reads every branch of a function in text order together. It may over-report, never under-report,
+  for straight-line code. An over-report is resolved by reading the function and, if the order is in fact safe, by a
+  declared exception with its reason.
+- **Foreign keys:** an insert of a row that refers to a person takes `FOR KEY SHARE` on that person by itself, and
+  the text does not show it. **Listed as a limit; Sharon rules whether it counts.** If it does, the test adds it from
+  `pg_constraint`.
+- **Order between rows of one table** (sittings in id order, accounts in id order) is proven by the two-connection
+  race tests (`selftest/balapan.ts`), not here.
+
+**Sittings and the fence are covered** by the same lists (ranks 5 and 6). So required change 3's structural test (no
+lock of a person or an account after the fence) is this test's rank rule, not a second test.
+
+**If it finds an existing writer out of order**, that is a real defect:
+- swept first, for every sibling;
+- the smallest fix proposed here;
+- if the fix would change approved account-lifecycle behaviour, stopped and taken to the Chief Architect.
+
+**It is built first, as its own change** (working rule 5: verification tooling never travels with a product
+change). It is green or red on `main`'s code before any of A2a's product changes is made.
+
+### 7 · Acceptance evidence (working rule 1: named before building)
+
+| What proves it | Who runs it | With what access | Where |
+|---|---|---|---|
+| A2A-L01 and its plants; A2A-F01 and its plants (§2) | Second Eye builds them; the suite runs them | the repository; the local stack | the static and database runners: locally in development; CI on the frozen commit |
+| Sharon's nine scenarios and the per-blocker tests B1 to B6, R1 and R2, on two real connections (`selftest/balapan.ts`) | Second Eye builds them; the suite runs them | the local stack | the database runner: local; CI |
+| The writer enumeration (required change 4) and its plants; the reader test (required change 1); the two "Between A2a and A2b" tests; condition 1's `ended_at` test | the same | the same | the same |
+| **Scenario 8 at scale** (50,000 affected sittings; R1's skip count; R2's 5 s at p95; the activation's and the lift's work under the fence ≤ 0.5 s, §3) | the Chief Architect dispatches; Second Eye builds the job | GitHub Actions, on a runner's local stack | **a dedicated job, which does not exist today. It is its own small change** (rule 5), built and reviewed before A2a's freeze. A CI-sized variant runs in the suite |
+| The journey "stop one class during Uji Penguasaan, lift it, and the class finishes with the time it had" | the Chief Architect dispatches journeys on the frozen commit; Second Eye runs it locally in development | Actions; the local stack | journeys (job A or B) |
+| Daisy's screens at 390 and 320 px (her list in `A2-KATA-DESAIN.md`) | Daisy | the journeys' screenshot artifacts on GitHub, and the frozen commit | journeys' artifacts, on the frozen commit |
+| Sharon's result review | Sharon | the repository at the frozen commit | read-only |
+| The full pre-flight, once | Second Eye | the local stack | local, on the frozen commit |
+| CI | the Chief Architect, through the pull request | Actions | CI |
+
+**Hosted-only proof: none is needed beyond yesterday's.**
+- `pg_cron` `CALL`ing a committing procedure is proven (Part 2 row 4).
+- The fence's transaction model is accepted by construction (row 5), and A2A-F01 tests it.
+- The timeouts are read, and §3 holds a 2.8 s margin under them, with the work measured by the scale job.
+- **If Sharon wants hosted timing of the activation:** that would mean stopping one class at a test school on staging,
+  a staging act. It would be its own small change after promotion, not part of A2a. It is not planned.
+- **The promotion of A2a to staging** follows the existing steps: `staging.yml` applies the migrations, and the Chief
+  Architect takes the preservation pair. Nothing new.
+
+### 8 · Already on this page (the Chief Architect's checklist)
+
+| Item | Where |
+|---|---|
+| Sharon's four required changes | "Sharon's pre-build review", required changes 1 to 4 |
+| Row 5's condition, with its named test | §2 (A2A-F01) |
+| The 8-second arithmetic | §3: 3 × 1.5 s + 2 × 0.1 s + 0.5 s = 5.2 s, under 8 s by 2.8 s; the shared side 3 s |
+| The five design questions | §4 |
+
 **Source:** THE PLAN §5.3 (A2), Addendum 1 §5a (the split and Sharon's three conditions), §5b (the checkpoint) and
 §5d R-1 (planned maintenance is work-scoped), on `claude/bob-41-master-plan` at
 `e8a3996925ba46539125dc8e8cd5706fb6703695`. Code read on `claude/system-integrity-4.0` at
@@ -391,3 +488,7 @@ accepted by construction under Sharon's condition, stated and tested in §2, wit
 |---|---|
 | An emergency stop at class, school or platform scope | No affected sitting is ended, scored or re-timed while it holds; after the lift every sitting has exactly the time it had; suspension holds survive |
 | A class-scoped PLANNED window | Cannot be created (the CHECK). Arrives in A2b, work-scoped |
+
+## Friction (the owner's measure; one line, filled at the freeze)
+
+Duration —; full verification attempts —; avoidable rework —; defects caught in development or in acceptance: —.
