@@ -536,3 +536,16 @@ defects were caught in development or in acceptance.
 
 **First act of the next session:** brief Second Eye, Sharon and Daisy on these five, then A2a's page (lock-order test
 added) goes to its early read.
+
+## A2a change A merged and on staging (13 Nov 2026, 23:52 UTC)
+
+- PR #21, frozen `2cea0564`, merged as `0ea4b8ad`. Gates on the frozen commit: Sharon's result review PASS
+  (`A2A-CHANGE-A-RESULT-2cea0564.md`, `3d708613`); CI run 43522043800 green; journeys A and B (run 43522043225) green;
+  Second Eye's full pre-flight green (1151 passed, 175/175 plants, 11/11 red cases). Each on the first attempt.
+- `staging.yml` run 43529748093 green; staging at 249 / `20270118140000`, health ok. environment-facts run 43530225481
+  green on `0ea4b8ad`.
+- Preservation pair: before 23:47:20.61819+00 / watermark 10697; after, read with those values. Every preserved line
+  (20–62) and the sittings lines (70–72) identical; only line 10 (migrations 244 → 249) moved, as designed.
+- Register from change A: REG-A2A-01 to -08 (A2a's page). Friction: about 18:20 to 22:35 UTC to the freeze; one full
+  verification attempt; all ten defects caught in development.
+- Next: change B (the scale job, within the owner's four limits), then change C (A2a's product changes).
