@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2b, pre-build review of its page | **PASS on the design, with three required points**: the guard reads the clock, not `now()`; extend refused once elapsed, state never from `activation_recorded_at`; how A2a's CHECK is lifted | `ec09e82e49348fbe710d585897520b67aef4c327` | `A2B-PREBUILD-ec09e82e49348fbe710d585897520b67aef4c327.md` |
 | Staging checkpoint, the clean-up delta | My blocker fixed; **BLOCKED on two small new items**: a cancel or timeout bypasses the clean-up (signal handlers plus an `always()` step); a helper's password recovery would make preservation line 44 differ (a declared exclusion, read twice) | `a33c852877686bdd54353c63dfcd995e1c902110` | `CHECKPOINT-CLEANUP-a33c852877686bdd54353c63dfcd995e1c902110.md` |
 | C3w R-3, a checkable design (early, for the pre-build review) | Five controls with tests and plants; the common-names rule proposed (IDENTIFIER, NAME of learners the educator can see, LIST shape); usability evidence required before acceptance | — | `C3W-R3-DESIGN.md` |
 | Register tests F1R1B-R1, B2-R-S1 | One-line specifications | — | `REGISTER-TESTS-F1R1B-R1-B2-R-S1.md` |
