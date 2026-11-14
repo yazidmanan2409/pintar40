@@ -6203,7 +6203,7 @@
     {
       "id": "A2A-C707",
       "runner": "static",
-      "proves": "Sharon's C7-2 in full (A2A-C-BEFORE-FREEZE-8bc74097.md, section 3): a class stop lifted 45 minutes after T_stop, no release batch run; on its own sitting still marked by the stop, its unshifted deadline already passed, each act as its own actor (added time, the teacher's end and extend as the class's teacher; terminate for an integrity cause as the school admin; the hand-in through the learner's gate and resume as the learner) succeeds, with the sitting released and its deadline moved by at least the stop's 2700 s first; none raises SITTING_EMERGENCY_HELD. The enrolment's end is A2A-C702's. With the plant (the helper's release removed) the acts are refused SITTING_EMERGENCY_HELD. One transaction, each act in a subtransaction, rolled back."
+      "proves": "Sharon's C7-2 in full (A2A-C-BEFORE-FREEZE-8bc74097.md, section 3): a class stop lifted 45 minutes after T_stop, no release batch run; on its own sitting still marked by the stop, its unshifted deadline already passed, each act as its own actor (added time, the teacher's end and extend as the class's teacher; terminate for an integrity cause as the school admin; the hand-in through the learner's gate and resume as the learner) succeeds, with the sitting released and its deadline moved by at least the stop's 2700 s first; none raises SITTING_EMERGENCY_HELD. The enrolment's end is A2A-C702's. With the plant (the helper's release removed) the acts are refused SITTING_EMERGENCY_HELD. One transaction, each act in a subtransaction, rolled back (on the database: the functions' prosrc, and the migration's fixtures)."
     },
     {
       "id": "A2A-C708",
@@ -6213,12 +6213,12 @@
     {
       "id": "A2A-C709",
       "runner": "static",
-      "proves": "Sharon's C17-1 (A2A-C-15-22-c3e88873.md): \"EXPIRED inside its grace\" is one helper, pengerjaan_dalam_tenggang_pada, used by protection and both markings (the batch and the lift's), on the grace readers' own basis (authoritative_deadline plus the definition's grace; a window-timed sitting has no grace under A1). Committed and removed: a class stop; an own-deadline EXPIRED sitting a minute past its deadline (inside its 300 s grace) is protected and marked; a window-timed EXPIRED sitting is neither; after the lift 45 minutes after T_stop and the release, the decider leaves the first unscored, inside its moved grace. Plant: protection judged on closure_deadline makes the window-timed sitting protected but never marked."
+      "proves": "Sharon's C17-1 (A2A-C-15-22-c3e88873.md): \"EXPIRED inside its grace\" is one helper, pengerjaan_dalam_tenggang_pada, used by protection and both markings (the batch and the lift's), on the grace readers' own basis (authoritative_deadline plus the definition's grace; a window-timed sitting has no grace under A1). Committed and removed: a class stop; an own-deadline EXPIRED sitting a minute past its deadline (inside its 300 s grace) is protected and marked; a window-timed EXPIRED sitting is neither; after the lift 45 minutes after T_stop and the release, the decider leaves the first unscored, inside its moved grace. Plant: protection judged on closure_deadline makes the window-timed sitting protected but never marked (on the database: migration 20270119140000's helper, read in prosrc)."
     },
     {
       "id": "A2A-C710",
       "runner": "static",
-      "proves": "Sharon's addendum on (a) (A2A-C-15-22-c3e88873.md at 80abe68b): the exclusive side's audit exception rests on no evaluation persona being able to stop or lift. Rolled back: as a school admin of the class's school, stop_pintar_now on that class is refused, and change_maintenance AKHIRI on an EMERGENCY window there is refused with the stop still in force; and the CHECK evaluation_personas_never_system_admin exists. A2A-L01 asserts it too, with C19-1's structural condition (the shared fence takes the open evaluation session's evaluator FOR KEY SHARE before its lock)."
+      "proves": "Sharon's addendum on (a) (A2A-C-15-22-c3e88873.md at 80abe68b): the exclusive side's audit exception rests on no evaluation persona being able to stop or lift. Rolled back: as a school admin of the class's school, stop_pintar_now on that class is refused, and change_maintenance AKHIRI on an EMERGENCY window there is refused with the stop still in force; and the CHECK evaluation_personas_never_system_admin exists. A2A-L01 asserts it too, with C19-1's structural condition (the shared fence takes the open evaluation session's evaluator FOR KEY SHARE before its lock) (on the database: the shared fence's prosrc, migration 20270119140000)."
     },
     {
       "id": "A2A-C711",
@@ -6228,7 +6228,7 @@
     {
       "id": "A2A-C712",
       "runner": "static",
-      "proves": "Sharon's C30-1 (A2A-C-30-8cbda9cc.md at 88d8ffec): after a 45-minute class stop lifted with no batch and no other touch, the learner's answer is judged on the credited deadline: inside the credited time it is LIVE, inside the credited grace LATE_SYNC and scored, because record_answer reaches pengerjaan_pagar (through pengerjaan_gerbang) before it reads the deadline. Each case in one transaction, rolled back. Plant: record_answer without the helper before its read (the credit then comes in the response's trigger, after the decision)."
+      "proves": "Sharon's C30-1 (A2A-C-30-8cbda9cc.md at 88d8ffec): after a 45-minute class stop lifted with no batch and no other touch, the learner's answer is judged on the credited deadline: inside the credited time it is LIVE, inside the credited grace LATE_SYNC and scored, because record_answer reaches pengerjaan_pagar (through pengerjaan_gerbang) before it reads the deadline. Each case in one transaction, rolled back. Plant: record_answer without the helper before its read (the credit then comes in the response's trigger, after the decision) (on the database: record_answer's prosrc and migration 20270119180000)."
     },
     {
       "id": "A2A-C713",

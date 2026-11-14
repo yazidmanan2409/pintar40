@@ -506,20 +506,25 @@ a2aDaruratTests.push({
 
 // ═══════════════════════════════════════════════════════════ A2A-C704 · the promotion run during a stop (M-1)
 
+const TAHUN_BARU = "a2a1c704-0000-4000-8000-0000000000e1";
+
 /** A class with a learner holding an open sitting, a later school year, the school's admin; a class stop. The
  *  promotion's preview and its application are each tried in a subtransaction; then the stop is lifted and the
  *  preview tried again. One transaction, rolled back. Returns each attempt's SQLSTATE|DETAIL|HINT, or OK. */
 function kenaikanSaatBerhenti(db: string): { pratinjau: string; terapkan: string; sesudah: string; ditahan: number; err: string } {
-  const b = psqlStdin(db, `select k.id || '|' || ap.id || '|' || pop.person_id || '|' || pop.enrollment_id || '|' || k.institution_id || '|' || a.auth_user_id
+  // the class needs a learner and a school admin; a later school year is added inside the rolled-back transaction when
+  // the school has none (the whole manifest moves the seed's learners before this test runs)
+  const b = psqlStdin(db, `select k.id || '|' || coalesce((select ap.id::text from public.academic_periods ap where ap.institution_id = k.institution_id
+         and ap.id <> kp.id and ap.starts_on > kp.starts_on order by ap.starts_on limit 1), '${TAHUN_BARU}') || '|' || pop.person_id || '|' || pop.enrollment_id
+         || '|' || k.institution_id || '|' || a.auth_user_id || '|' || kp.ends_on
   from public.org_nodes k join public.academic_periods kp on kp.id = k.academic_period_id
-  join public.academic_periods ap on ap.institution_id = k.institution_id and ap.id <> kp.id and ap.starts_on > kp.starts_on
   cross join lateral public.kenaikan_populasi(k.id) pop
   join public.role_assignments r on r.role = 'INSTITUTION_ADMIN' and r.institution_id = k.institution_id
    and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until and r.person_id <> pop.person_id
   join public.accounts a on a.person_id = r.person_id
   where k.kind = 'CLASS' and pop.sumber = 'KELAS' order by k.id, pop.person_id limit 1;`);
-  const [kelas, tahun, person, enr, inst, admin] = b.split("|");
-  if (!admin) throw new Error("no class with a later school year, a learner and a school admin: the seed changed");
+  const [kelas, tahun, person, enr, inst, admin, akhirTahun] = b.split("|");
+  if (!admin) throw new Error("no class with a learner and a school admin: the seed changed");
   const coba = (terapkan: boolean) => `pg_temp.a2a_coba($q$select public.kenaikan_tetapkan('${kelas}', '${tahun}', '[]'::jsonb, false, ${terapkan})$q$)`;
   const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: `
 begin;
@@ -532,6 +537,8 @@ exception when others then
   return sqlstate || '|' || coalesce(d, '') || '|' || coalesce(h, '');
 end $f$;
 set local session_replication_role = replica;
+${tahun === TAHUN_BARU ? `insert into public.academic_periods (id, institution_id, name, starts_on, ends_on)
+values ('${TAHUN_BARU}', '${inst}', 'A2A-C704 tahun berikut', '${akhirTahun}'::date + 1, '${akhirTahun}'::date + 365);` : ""}
 insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('id', '${SESI}', 'status', 'IN_PROGRESS', 'person_id', '${person}',
   'enrollment_id', '${enr}', 'institution_id', '${inst}', 'class_node_id', '${kelas}', 'cohort_node_id', null,
@@ -1223,7 +1230,21 @@ a2aDaruratTests.push({
  *  definition with a late-sync grace of at least two minutes, a single-choice item presented). */
 type FiksurJawab = Fiksur & { murid: string; guru: string; sumber: string };
 function fiksurJawab(db: string): FiksurJawab {
-  const f = fiksur(db);
+  // a live learner with an account, in a class whose teacher has one (searched whole: the manifest moves the seed's
+  // first learner before these tests run)
+  const g = psqlStdin(db, `select e.id || '|' || e.person_id || '|' || m.id || '|' || m.node_id || '|' || e.institution_id || '|' || e.status
+  from public.enrollments e join public.memberships m on m.enrollment_id = e.id and m.valid_to is null
+  join public.org_nodes n on n.id = m.node_id and n.kind = 'CLASS'
+  where e.status = 'ACTIVE' and e.valid_to is null
+    and exists (select 1 from public.accounts a where a.person_id = e.person_id)
+    and not exists (select 1 from public.person_suspensions ps where ps.person_id = e.person_id and ps.ended_at is null)
+    and exists (select 1 from public.role_assignments rg join public.accounts ag on ag.person_id = rg.person_id
+                 where rg.role = 'EDUCATOR' and rg.scope_node_id = m.node_id and rg.revoked_at is null and now() >= rg.valid_from
+                   and now() < rg.valid_until and rg.person_id <> e.person_id)
+  order by e.id limit 1;`);
+  const [enr, person, mem, node, inst, st] = g.split("|");
+  if (!st) throw new Error("no live learner with an account in a class whose teacher has one: the seed changed");
+  const f: Fiksur = { enr, person, mem, node, inst, lain: "", st, er: "" };
   const b = psqlStdin(db, `select (select a.auth_user_id from public.accounts a where a.person_id = '${f.person}' order by a.auth_user_id limit 1)
   || '|' || (select ag.auth_user_id from public.role_assignments rg join public.accounts ag on ag.person_id = rg.person_id
               where rg.role = 'EDUCATOR' and rg.scope_node_id = '${f.node}' and rg.revoked_at is null and now() >= rg.valid_from
