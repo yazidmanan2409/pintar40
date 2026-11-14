@@ -64,6 +64,66 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
+## MONDAY HANDOVER (Second Eye, 14 Nov 09:15 UTC by `date -u`; weekend shutdown by the owner's direction)
+
+**Change C, proposed for freeze at `f74c606069cbfdce9004138e3bdc99623f01af8b`** (`claude/a2a-change-c`; the Chief
+Architect declares the freeze). The tree is clean, and nothing is unpushed.
+
+**Evidence: the full pre-flight on that exact commit** (one run; CI's steps locally):
+
+| Step | Result |
+|---|---|
+| lint, typecheck | rc 0, rc 0 |
+| build identity | 11 pass, 0 fail |
+| the whole manifest, fresh reset and fresh build (regression, concurrency, static, app) | **1167 passed, 0 failed**, 0 skipped, 1 local-only justified skip: GREEN |
+| planted defects | **175/175** proved their gate |
+| red cases | **all 11 groups** passed |
+
+- The run before it, on `0a256e0e`, had one red: A2A-C706, test-only. Its fixture picked an assignment whose window an
+  earlier suite had made unchangeable. It is fixed in `f74c6060`, and nothing was waived.
+
+**Reviews on record:**
+- **Sharon:** no blocker on everything up to `a6ce33e7`. Commit 32 is at `25039fcf` (C30-1 and C30-2 closed; C18-1
+  closed in development), commits 33 to 36 at `ebde9e57`, commit 37 and A2A-C714 at `64270ccc`.
+  Her **result review on the frozen commit** is next.
+- **Daisy:** no blocker on `d355ebba` (`A2A-LAYAR-d355ebba.md` at `6702eadd`). Her one correction is commit 38. Her
+  §4 "notes for next batch" are not for C.
+
+**Outstanding, in order:**
+1. **The freeze declaration** (Bob), then **Sharon's result review** of `f74c6060`.
+2. **Change B, not started** (the owner: not this weekend):
+   - built on `claude/a2a-change-b`, branched from the frozen commit;
+   - its diff touches only `selftest/`, `scripts/`, `.github/workflows/` and `audit/`. If it needs `supabase/migrations/`
+     or `src/`, stop and tell the Chief Architect;
+   - its one job prints the **four measurements** (§7):
+     - R1's skip count;
+     - R2's 5 s at p95;
+     - the activation's and the lift's work under the fence, ≤ 0.5 s;
+     - the shared takers refused while the fence waits, a count for Sharon to judge.
+   - It also carries **scenario 8's three numbers** that close C18-1: the lift ≤ 0.5 s with no batch run; the release
+     batch's throughput; and D1's read cost. They were measured locally at commit 30: lift 4 ms, D1 read ~0.38 ms per
+     sitting, 379 ms per 1,000.
+   - C is not merged until B's scale evidence holds on the frozen commit.
+3. **Environment requirement:**
+   - the search_path lint (jalur_pengecualian_cacat) reads `cron.job`, so pg_cron must be present wherever the lint
+     runs, the hosted post-promotion reads 1 and 2 included;
+   - A1 already requires pg_cron.
+4. **Deferred, not in C:**
+   - O1's post-lift departure rule, the M-1 note, D6.9's audit rows, B3 to B6: no reviewer has asked for them before
+     the freeze;
+   - Daisy's §3 note on `/mengajar/[kelas]/siapa` at phone width, on Z's register.
+
+**Where everything is:**
+- Product and tests: `claude/a2a-change-c`. The last migration is `20270119210000`; the A2a tests are in
+  `selftest/a2a-c-darurat.test.ts` (A2A-K01 and C701 to C714), `a2a-c-pembaca.test.ts` and `a2a-l01.test.ts`.
+- Screens: `docs/completion-4.1/batches/a2a-layar/` (batch 1) and `a2a-layar-2/` (batch 2, 28 files).
+- This page: `claude/a2a`.
+- Reviews: Sharon's on `claude/gracious-lamport-0m1qjr` (`docs/coordination/reviews/sharon/`); Daisy's on
+  `ux-1/daisy-experience` (`docs/coordination/ux/completion-4.1/`).
+- Handoffs go by one-shot scheduled message into each reviewer's session (the owner's convention). Daisy acknowledges
+  in `TERIMA.md`.
+- The local pre-flight logs lived in the session's scratchpad. They are ephemeral; the counts above are the record.
+
 **CHANGE C AT A GLANCE** (14 Nov, 06:26 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
 - **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `ca063fb3`. The order is A → C → B, and C
