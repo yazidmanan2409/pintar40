@@ -216,6 +216,30 @@ begin
     E'''reason'', btrim(p_reason), ''t_stop'', w.t_stop, ''t_lift'', v_lift, ''marked_at_lift'', v_tandai));');
 end $$;
 
+-- The lift that cannot take the exclusive fence within its timeout is refused with its own code, Daisy's line
+-- («Penghentian belum diakhiri. Tidak ada yang berubah. Coba lagi.»): the stop stays fully in force (D6.8). The code is
+-- inserted into the live maintenance_refuse, as R1 did, so every existing line stays as it was.
+do $$
+declare v text := pg_get_functiondef('public.maintenance_refuse(text)'::regprocedure);
+        v_old text := E'      else ''the maintenance action could not be completed''';
+        n int;
+begin
+  n := (length(v) - length(replace(v, v_old, ''))) / length(v_old);
+  if n <> 1 then raise exception 'A2a lift: maintenance_refuse has its anchor % time(s), not once', n; end if;
+  execute replace(v, v_old,
+       E'      when ''MAINTENANCE_LIFT_NOT_DONE''    then ''the stop has not been ended; nothing was changed; try again''\n'
+    || v_old);
+end $$;
+do $$
+begin
+  perform pg_temp.a2a_sisip('public.change_maintenance(uuid,text,text)',
+    E'    perform public.pagar_darurat_eksklusif();\n',
+    E'    begin\n      perform public.pagar_darurat_eksklusif();\n'
+    || E'    exception when lock_not_available then\n'
+    || E'      perform public.maintenance_refuse(case when p_action = ''AKHIRI'' then ''MAINTENANCE_LIFT_NOT_DONE'' else ''MAINTENANCE_STOP_NOT_IN_FORCE'' end);\n'
+    || E'    end;\n');
+end $$;
+
 -- An EMERGENCY window that took effect and has ended has its T_lift (Sharon's (b)); the ended_at fallback in the shift
 -- then serves only windows made before A2a, which have no T_stop.
 alter table public.maintenance_windows add constraint maintenance_windows_lift_recorded

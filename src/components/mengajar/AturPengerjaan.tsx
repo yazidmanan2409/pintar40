@@ -20,7 +20,9 @@ import FokusPanel from "@/components/FokusPanel";
  *
  * A HELD SITTING IS «DITAHAN». The teacher is never told why it is held; only that it waits for them.
  */
-export default function AturPengerjaan({ kelasId, penugasan, baris, instrumen, sertifikat, zona, locale, kode, tindakan, kembali }: {
+export default function AturPengerjaan({ kelasId, kelasNama, penugasan, baris, instrumen, sertifikat, zona, locale, kode, tindakan, kembali }: {
+  /** A2a: the class's name, for the stopped-class refusal («Kelas {kelas} …») */
+  kelasNama?: string;
   kelasId: string;
   penugasan: string;
   baris: BarisPengerjaan;
@@ -54,7 +56,8 @@ export default function AturPengerjaan({ kelasId, penugasan, baris, instrumen, s
       <p id={`atur-${untuk}-alasan-arti`} className="pin-hint">{s("mengajar.akhiri.alasan.arti")}</p>
     </div>
   );
-  const galat = (untuk: Tindakan) => (kode && tindakan === untuk ? <BarisHasil nada="gagal">{s(kunciKodePengerjaan(kode))}</BarisHasil> : null);
+  const pesan = (k: KodePengerjaan) => s(kunciKodePengerjaan(k)).replace("{kelas}", kelasNama ?? "");
+  const galat = (untuk: Tindakan) => (kode && tindakan === untuk ? <BarisHasil nada="gagal">{pesan(kode)}</BarisHasil> : null);
   const pilihan = (kunci: HleEvent, nilai: string) => {
     const [depan, ...sisa] = s(kunci).split(": ");
     return (
@@ -74,7 +77,7 @@ export default function AturPengerjaan({ kelasId, penugasan, baris, instrumen, s
       <FokusPanel id="atur" kunci={`${sesi}:${kode ?? ""}:${tindakan ?? ""}`} />
       <h2 id="pin-atur-judul">{isi(s("atur.panel.judul"), { nama })}</h2>
       {/* a refusal that names no act of this panel (the act no longer applies: the sitting moved on) is said once, here */}
-      {kode && !(ada as string[]).includes(tindakan ?? "") ? <BarisHasil nada="gagal">{s(kunciKodePengerjaan(kode))}</BarisHasil> : null}
+      {kode && !(ada as string[]).includes(tindakan ?? "") ? <BarisHasil nada="gagal">{pesan(kode)}</BarisHasil> : null}
       {ada.length === 0 ? <p className="pin-sub" data-atur-kosong="">{s("atur.panel.tanpa_tindakan")}</p> : null}
 
       {ada.includes("waktu") ? (

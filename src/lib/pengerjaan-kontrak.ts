@@ -16,6 +16,9 @@ export const KODE_PENGERJAAN_DB = [
   "ATTEMPT_NOT_LIMITED", "ATTEMPT_SITTING_OPEN", "ATTEMPT_NOT_NEEDED", "ATTEMPT_REQUEST_OPEN",
   "ATTEMPT_DECISION_NOT_ALLOWED", "ATTEMPT_OWN_REQUEST", "ATTEMPT_ALREADY_DECIDED", "ATTEMPT_REASON_REQUIRED",
   "WINDOW_NOT_ALLOWED", "WINDOW_ASSIGNMENT_ENDED", "WINDOW_INVALID", "WINDOW_UNCHANGED", "WINDOW_NOT_CHANGEABLE",
+  // A2a D6.2: the class is stopped (Daisy's teacher line, «{kelas}» filled by the screen); the fence busy (her line);
+  // held by a stop (the guard's code: it reaches a screen only through a path no act takes, said as the stopped class)
+  "SITTING_CLASS_STOPPED", "SITTING_FENCE_BUSY", "SITTING_EMERGENCY_HELD",
 ] as const;
 export const KODE_PENGERJAAN = [...KODE_PENGERJAAN_DB, "SITTING_FAILED"] as const;
 export type KodePengerjaan = (typeof KODE_PENGERJAAN)[number];
@@ -50,6 +53,8 @@ export type CaraAkhiri = (typeof CARA_AKHIRI)[number];
 export const KEADAAN_PENGERJAAN = [
   "NOT_STARTED", "OPEN", "FROZEN", "HANDED_IN", "ENDED_SCORED", "ENDED_NOT_COUNTED", "ENDED_BY_DEADLINE",
   "ENDED_WITH_ASSIGNMENT", "ENDED_OTHER", "EXPIRED_UNSCORED",
+  // A2a: held by an emergency stop (or protected by one before marking reaches it); no act until the lift
+  "HELD_STOP",
 ] as const;
 export type KeadaanPengerjaan = (typeof KEADAAN_PENGERJAAN)[number];
 
@@ -96,7 +101,7 @@ export function tindakanUntuk(b: Pick<BarisPengerjaan, "keadaan" | "tenggat" | "
   if (!b.sesi_id) return [];
   if (b.keadaan === "OPEN") return [...(b.tenggat !== null && (b.diperpanjang ?? 0) < 3 ? ["waktu" as const] : []), "akhiri"];
   if (b.keadaan === "FROZEN") return b.murid_aktif ? ["lanjut", "tutup"] : [];
-  if (b.keadaan === "NOT_STARTED") return [];
+  if (b.keadaan === "NOT_STARTED" || b.keadaan === "HELD_STOP") return [];   // A2a: no «Atur» during a stop (Daisy)
   const habis = b.batas_percobaan !== null && b.percobaan_terpakai >= b.batas_percobaan;
   return habis && b.permintaan_status !== "PENDING" && !b.izin_belum_dipakai ? ["minta"] : [];
 }

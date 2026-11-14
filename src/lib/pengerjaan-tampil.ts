@@ -32,6 +32,7 @@ export type LencanaA1 = "ditahan" | "dinilai" | "tidak_dihitung" | "waktu_habis"
 export function lencanaA1(b: Pick<BarisPengerjaan, "keadaan"> | undefined): LencanaA1 | null {
   switch (b?.keadaan) {
     case "FROZEN": return "ditahan";
+    case "HELD_STOP": return "ditahan";
     case "ENDED_SCORED": return "dinilai";
     case "ENDED_NOT_COUNTED": return "tidak_dihitung";
     case "ENDED_BY_DEADLINE": return "waktu_habis";
@@ -56,6 +57,7 @@ export function metaBaris(b: BarisPengerjaan, o: { locale: Locale; zona: string 
       utama = b.murid_aktif ? s("atur.meta.ditahan_menunggu") : sisa !== null ? isi(s("atur.meta.ditahan"), { n: sisa }) : s("atur.meta.ditahan_polos");
       break;
     }
+    case "HELD_STOP": utama = s("atur.meta.ditahan_henti"); break;
     case "HANDED_IN": utama = isi(s("atur.meta.dikumpulkan"), { waktu: w(b.berakhir_pada) }); break;
     case "ENDED_SCORED": utama = isi(s("atur.meta.dinilai"), { waktu: w(b.berakhir_pada) }); break;
     case "ENDED_NOT_COUNTED": utama = isi(s("atur.meta.tidak_dihitung"), { waktu: w(b.berakhir_pada) }); break;

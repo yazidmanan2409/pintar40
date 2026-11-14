@@ -153,6 +153,13 @@ begin
       || E'                and (s.darurat_sejak is not null or public.pengerjaan_dilindungi(s.id))) then\n'
       || E'    perform public.pengerjaan_tolak(''SITTING_CLASS_STOPPED'');\n'
       || E'  end if;\n');
+  -- the teacher's list (Daisy, THE PLAN §5.3 F item 5): a sitting held by a stop, or protected by one before marking
+  -- reaches it, is HELD_STOP («Ditahan · dilanjutkan setelah penghentian diakhiri», no «Atur»); a suspension-held one
+  -- keeps A1's FROZEN, which comes first
+  perform pg_temp.a2a_sisip('public.daftar_pengerjaan(uuid,uuid)',
+    E'                when s.status in (''CREATED'', ''IN_PROGRESS'', ''PAUSED'') and t.tenggat is not null and t.tenggat <= now() then ''ENDED_BY_DEADLINE''\n',
+    E'                when s.status in (''CREATED'', ''IN_PROGRESS'', ''PAUSED'') and (s.darurat_sejak is not null or public.pengerjaan_dilindungi(s.id)) then ''HELD_STOP''\n'
+    || E'                when s.status in (''CREATED'', ''IN_PROGRESS'', ''PAUSED'') and t.tenggat is not null and t.tenggat <= now() then ''ENDED_BY_DEADLINE''\n');
   -- the closer: the fence before each candidate's sitting (D6.6 makes it a procedure committing per batch, so the fence
   -- is not held for a whole run)
   perform pg_temp.a2a_sisip('public.pengerjaan_tutup_terjadwal(integer)',

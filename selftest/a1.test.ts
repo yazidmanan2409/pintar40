@@ -227,6 +227,15 @@ export const a1Tests: SelfTest[] = [
       const kode = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((x) => x[1]);
       c.expect(kode.length >= 20, `pengerjaan_tolak names ${kode.length} code(s)`);
       const dipakai = new Set([...sql.matchAll(/pengerjaan_tolak\('([A-Z_]+)'\)/g)].map((x) => x[1]));
+      // RESTATED, A2a change C (migration 20270119140000): later migrations insert codes into the live pengerjaan_tolak
+      // (written inside a quoted string, so with doubled quotes) and raise them; they are read too, so the screens'
+      // contract and its sentences cover them. Was: A1's migration only.
+      const migDir = join(repoRoot, "supabase", "migrations");
+      for (const n of readdirSync(migDir).filter((x) => x.endsWith(".sql") && x > MIGRASI.split("/").pop()!).sort()) {
+        const m = readFileSync(join(migDir, n), "utf8");
+        if (/pengerjaan_tolak\(text\)/.test(m)) for (const x of m.matchAll(/when ''([A-Z_]+)''\s+then/g)) if (!kode.includes(x[1])) kode.push(x[1]);
+        for (const x of m.matchAll(/pengerjaan_tolak\('{1,2}([A-Z_]+)'{1,2}\)/g)) dipakai.add(x[1]);
+      }
       for (const k of dipakai) c.expect(kode.includes(k), `${k} is raised without a message of its own`);
       for (const k of kode) {
         c.expect((KODE_PENGERJAAN_DB as readonly string[]).includes(k) || k === "SITTING_JOB_NOT_SERVICE", `the database raises ${k}, which the screens' contract does not know`);

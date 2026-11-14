@@ -140,6 +140,8 @@ export const KODE_PESERTA = [
 export const KODE_PEMELIHARAAN = [
   "MAINTENANCE_NOT_ALLOWED", "MAINTENANCE_INPUT_INVALID", "MAINTENANCE_NOT_OPEN", "MAINTENANCE_CONFIRMATION",
   "MAINTENANCE_NO_NEW_START", "NOTICE_INPUT_INVALID", "NOTICE_NOT_OPEN", "MAINTENANCE_ACTIVE",
+  // A2a: a class that is not one school's; the stop not taken effect (Daisy's line); the lift not done (Daisy's line)
+  "MAINTENANCE_NODE_INVALID", "MAINTENANCE_STOP_NOT_IN_FORCE", "MAINTENANCE_LIFT_NOT_DONE",
 ] as const;
 
 /**
