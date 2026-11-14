@@ -64,9 +64,9 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**CHANGE C AT A GLANCE** (14 Nov, 05:17 UTC by `date -u`; the source of truth for a fresh session). The details follow
+**CHANGE C AT A GLANCE** (14 Nov, 05:32 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
-- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `6b8a96f9`. The order is A → C → B, and C
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `f308b0bf`. The order is A → C → B, and C
   is not merged until B's scale evidence holds on C's frozen commit.
 - **Commits:**
   1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
@@ -262,6 +262,67 @@ below.
       - The lift that cannot take the fence is now refused with its own code, `MAINTENANCE_LIFT_NOT_DONE`.
       - A1-K01 is restated so that every new code has both sentences.
   24. `6b8a96f9` · **The first screenshots, in `a2a-layar/`.**
+
+  **Sharon's read of commits 15 to 22** (`A2A-C-15-22-c3e88873.md`, at `9411390b`, with the addendum at
+  `80abe68b`), built as commits 25 to 29:
+  25. `b92da6f5` · **C17-1, one grace rule.** Your one helper, `pengerjaan_dalam_tenggang_pada(s, t)`, is used by
+      protection and both markings. **I chose its basis differently from your text; please rule.**
+      - It is built on the basis the grace readers already use: `authoritative_deadline` plus the definition's grace.
+      - Under A1, a window-timed sitting has no grace at all. The decider scores it as soon as it expires,
+        `finalize_session` checks grace only for an own deadline, and `record_answer` treats a sitting with no own
+        deadline as always LIVE, with no late sync.
+      - Marking such a sitting and making the readers add the shift would give window-timed sittings a grace they do
+        not have today. That is a change to A1's approved behaviour, so it is not built.
+      - With one basis, a window-timed EXPIRED sitting is neither protected nor marked, consistently. A2A-C709 checks
+        this, with your plant (protection on `closure_deadline`).
+      - If you want window-timed sittings to have a grace, that is a ruling for A1, and I will build it.
+  26. `11d906bd` · **C19-1 and (a).**
+      - The shared fence itself (`pagar_darurat_bersama`) takes the open evaluation session's evaluator
+        `FOR KEY SHARE` before its lock, so every caller gets it. The migration checks this structurally.
+      - A2A-L01 accepts the audit row's evaluator key after a fence only while
+        `evaluation_personas_never_system_admin` exists and the shared fence takes the evaluator first.
+      - A2A-C710: a school admin's stop and lift are both refused.
+      - The C9-2 exception names exactly the seven functions you approved.
+  27. `81f423f3` · **C15-1, its own change.** `restore-bundle.mjs`'s A1 branch accepts either job command. A bundle
+      from before change C keeps `select …`, so replacing the command outright would misjudge it.
+  28. `b23b7f49` · **N1.** `pengerjaan_tutup_terjadwal` is revoked from `service_role`. Only the owner runs it, and
+      the tests do so as the owner.
+  29. `f308b0bf` · **C18-1: the lift's marking now starts from the window's people. It does not meet the budget.**
+      - **Measured locally, worst case** (50,000 affected sittings, no batch run before the lift, under the
+        exclusive fence):
+
+        | Step | Time |
+        |---|---|
+        | Selecting the 50,000 sittings from the window's people | 12 ms |
+        | Writing them through the table's triggers | 5.5 s |
+        | The same write with no triggers at all | 0.9 s |
+
+      - **So no marking at the lift can meet the 0.5 s budget at this scale.** Following your ruling for this case,
+        here is the design that does not mark at the lift. **Not built before your read.**
+        1. **The lift** records `t_lift` only (and the notices and the audit row), under the exclusive fence. Its work
+           there is small.
+        2. **A watermark per sitting:** `darurat_dikredit_sampai`, the end of the last chain already credited.
+           - A lifted window `w` credits a sitting once, if:
+             - the sitting is unmarked;
+             - it was open, or inside its grace, at `w.t_stop`;
+             - its person was affected at `w.t_stop`;
+             - and `w.t_stop` is at or after the watermark.
+           - The credit is the union chain from `w`, as for a mark.
+           - The release sets the watermark to the chain's end, so no window is credited twice. A marked sitting's
+             release sets it too.
+        3. **Where it is applied:**
+           - at first touch, in `pengerjaan_pagar` when not protected, as the release is now;
+           - in the release batch, which also finds unmarked sittings from recently lifted windows' people, through
+             the same partial index, in bounded committed batches, with no fence.
+        4. **Before the lift,** marking stays as now (the batch). A late or interrupted batch then loses nothing:
+           what it missed is credited after the lift, once.
+        5. **The tests:**
+           - A2A-K01's interrupted-marking case becomes "no batch at all, lift, then first touch or batch": exactly
+             `t_lift − t_stop`;
+           - a second touch credits nothing;
+           - two overlapping stops credit the union once;
+           - plant: no watermark, so a second touch credits twice.
+      - Until you rule, the code still marks at the lift, which is correct but slow at scale. C18-1 stays open.
 
 **Daisy, ready for your first look** (`docs/completion-4.1/batches/a2a-layar/` on `claude/a2a-change-c` at `6b8a96f9`):
 - `1-daftar-saat-henti-kaprodi-{390,320,1280}`: the list during a stop, seen by someone above the class.
