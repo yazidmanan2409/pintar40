@@ -684,3 +684,7 @@ Option (2), one batch per function call, is refused because it would reopen the 
 
 **Friction.** The test omission is caught by the owner's step 4, the full regression run before the freeze. That run
 now includes the whole static manifest.
+- **Sharon: YES (07:09 UTC), with two additions, both binding.**
+  - The lint also asserts that each procedure's owner is the cron job's username. `set_config(…, false)` is
+    session-wide, so only that session should carry it.
+  - "First act" means before any commit, and gets its own plant.
