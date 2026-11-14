@@ -64,9 +64,9 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**CHANGE C AT A GLANCE** (14 Nov, 04:45 UTC by `date -u`; the source of truth for a fresh session). The details follow
+**CHANGE C AT A GLANCE** (14 Nov, 04:54 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
-- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `cd89c570`. The order is A → C → B, and C
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `4a45c3a7`. The order is A → C → B, and C
   is not merged until B's scale evidence holds on C's frozen commit.
 - **Commits:**
   1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
@@ -231,20 +231,32 @@ below.
         before the fence.
       - **`ubah_jadwal_penugasan`:** the shared fence comes after its two assignment rows. Under it, the reschedule
         is refused `SITTING_CLASS_STOPPED` while any open sitting is protected or held. A2A-C706 checks it.
-- **Green locally: the whole regression set (64), A2A-L01 included, and every maintenance test (23).** Also
-  A2A-K01, A2A-C702 to C706, A2A-L02 to L06, T01, F01, M148-D02, B1-R01, DR-D02, F06, F24, F37, and A1's K01, K02,
+  20. `8bd7a134` · **C7-2's full test (A2A-C707).** A stop is lifted and no release batch runs. Each act, as its own
+      actor, then succeeds, with the sitting released with the shift first:
+      - added time, the teacher's end and extend, by the teacher;
+      - terminate for an integrity cause, by the school admin;
+      - the hand-in through the gate, and resume, by the learner.
+
+      `SITTING_EMERGENCY_HELD` is never raised. Ending the enrolment is A2A-C702's. Plant: no release in the helper.
+  21. `4a45c3a7` · **C7-3's shift test, from A2A-T01's table (A2A-C708).** Every HARUS and KLIEN reader has a case,
+      or the test fails; a planted uncovered reader is reported.
+      - **6 value probes and 4 decisions:** after a lift, for a window-timed sitting and an own-deadline one, each
+        agrees with the effective deadline.
+      - **The KLIEN line:** AturPengerjaan's `tenggat + n` equals the server's added time.
+      - **11 consistent by construction:** none reads `closes_at`, checked on its source.
+      - **Plant:** the teacher's list reading `closes_at` raw.
+      - **A finding for Daisy and Sharon:** `session_state` shows no deadline for a window-timed sitting, as before
+        A2a. So the player has no countdown there, and never shows the unshifted time.
+- **Green locally: the whole regression set (66), A2A-L01 included, and every maintenance test (23).** Also
+  A2A-K01, A2A-C702 to C708, A2A-L02 to L06, T01, F01, M148-D02, B1-R01, DR-D02, F06, F24, F37, and A1's K01, K02,
   S01 to S09 and J01. The migration pins are at 255.
 - **Open with Sharon:**
   - her confirmations on commit 19: `tangguhkan_akun` under C9-2's exception, and the evaluation-session residual in
     (a);
   - her read of commit 15 (D6.6, the closer's procedure), and the widened protection in commit 11, now commit 17's rule;
   - her note (c), for the register: release only under a transaction marker.
-- **Still to build before C's freeze, from Sharon's read:**
-  - C7-2's full test: after a lift with no release batch, each act succeeds with the shift applied first:
-    terminate, the teacher's end, added time, extend, resume, the learner's gate. `SITTING_EMERGENCY_HELD` is never
-    raised once a chain has ended.
-  - C7-3's shift test taken from A2A-T01's table: every HARUS reader gives the same effective deadline after a lift,
-    for an own-deadline sitting and a window-timed one, and the KLIEN line equals the server's value.
+- **Sharon's read before the freeze:** every item is built (commits 11 to 21), except the join refusal (REG-A2A-09, not
+  built, as you ruled).
 - **Then, in order:**
   1. O1 after the lift: the departure's rule for a sitting preserved through a stop. Also `akhiri_penugasan`'s
      refusal (O1).
