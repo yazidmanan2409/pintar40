@@ -420,6 +420,13 @@ below.
   **Sharon, ready for your read:** commit 32 (`ca063fb3`). Commit 31 is Daisy's (wording and the status read); it
   touches no sitting.
 
+  **Handoff under the owner's convention** (06:27 UTC by `date -u`). Second Eye has no `send_message` tool in this
+  session, and ListAgents reaches no other session, so this page is the message. **Bob, please relay it to Sharon.**
+  - **To Sharon:** branch `claude/a2a-change-c`, commit `ca063fb3`. Read migration `20270119180000` and, in
+    `selftest/a2a-c-darurat.test.ts`, A2A-C712, A2A-C713, A2A-C708's new rule (`bacaSebelumSentuh`,
+    `MESIN_TENGGAT`), and A2A-C711's TANDAI and BATCH cases.
+  - **To Daisy:** commit `2d94d939` (blockers 1 to 3). Her screenshots follow, with the rest of her strings.
+
 **Daisy, ready for your first look** (`docs/completion-4.1/batches/a2a-layar/` on `claude/a2a-change-c` at `6b8a96f9`):
 - `1-daftar-saat-henti-kaprodi-{390,320,1280}`: the list during a stop, seen by someone above the class.
   - The class's own teacher is stopped too, because their role is scoped at the class (D7). So the list during a
