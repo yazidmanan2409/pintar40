@@ -71,19 +71,29 @@ returns boolean language sql stable security definer set search_path = public, p
 $$;
 revoke all on function public.maintenance_affects_pada(public.maintenance_windows, uuid, timestamptz) from public, anon, authenticated, service_role;
 
--- A sitting is protected while an active EMERGENCY window affects its person now, OR the sitting was already open at the
--- window's T_stop and the window affected its person then (the owner's review, on C7-1: a learner moved or transferred
--- after T_stop but before the marking reaches them keeps the protection the stop gave them). The person's own
--- protection (orang_dilindungi: the request-level refusal) stays current, as Sharon ruled.
-create function public.pengerjaan_dilindungi(p_session uuid) returns boolean
-language sql stable security definer set search_path = public, pg_temp as $$
-  select coalesce((select exists (select 1 from public.maintenance_windows w
-                                   where w.kind = 'EMERGENCY' and w.t_stop is not null and w.ended_at is null
-                                     and (public.maintenance_affects(w, s.person_id)
-                                          or (s.created_at <= w.t_stop and public.maintenance_affects_pada(w, s.person_id, w.t_stop))))
-                     from public.assessment_sessions s where s.id = p_session), false)
+-- ═══════════════════════════════════════════════════════════ one instant for an EMERGENCY window (Sharon's C10-1)
+-- Sharon (A2A-C-BEFORE-FREEZE-8bc74097.md, C10-1 and her 04:50 addendum): for an EMERGENCY window, the request hook,
+-- protection and marking all judge "affected" at the window's T_stop. A person moved out after T_stop stays stopped and
+-- held until the lift and is given the stopped time back; a person who joins after T_stop is neither stopped nor held,
+-- and loses nothing. PLANNED windows keep the current reading. So maintenance_affects itself answers, for an EMERGENCY
+-- window, as of its T_stop: every reader (the hook maintenance_block_for_me, pintar_status_saya, the no-new-sitting
+-- guard, orang_dilindungi, pengerjaan_dilindungi) reads the same instant. The current reading is kept, unchanged, as
+-- maintenance_affects_kini.
+do $$
+declare v text := pg_get_functiondef('public.maintenance_affects(public.maintenance_windows,uuid)'::regprocedure);
+        v_head text := 'CREATE OR REPLACE FUNCTION public.maintenance_affects(';
+begin
+  if position(v_head in v) <> 1 then raise exception 'A2a C10-1: maintenance_affects does not start as expected'; end if;
+  execute 'CREATE OR REPLACE FUNCTION public.maintenance_affects_kini(' || substr(v, length(v_head) + 1);
+end $$;
+revoke all on function public.maintenance_affects_kini(public.maintenance_windows, uuid) from public, anon, authenticated, service_role;
+
+create or replace function public.maintenance_affects(w public.maintenance_windows, p_person uuid)
+returns boolean language sql stable security definer set search_path = public, pg_temp as $$
+  select case when w.kind = 'EMERGENCY' and w.t_stop is not null then public.maintenance_affects_pada(w, p_person, w.t_stop)
+              else public.maintenance_affects_kini(w, p_person) end
 $$;
-revoke all on function public.pengerjaan_dilindungi(uuid) from public, anon, authenticated, service_role;
+
 
 -- The length of the protected interval of a hold: from the holding window's T_stop, the union of that window and every
 -- later EMERGENCY window that affected the person AT ITS OWN T_stop, chained while each starts before the chain ends.
@@ -111,6 +121,25 @@ begin
   return v_akhir - v_awal;
 end $$;
 revoke all on function public.penghentian_geser(uuid, uuid) from public, anon, authenticated, service_role;
+
+-- A sitting is protected by an EMERGENCY window w in force when its person was affected by w at w.t_stop and the sitting
+-- was open, or EXPIRED inside its grace, at w.t_stop; or when it carries a mark whose chain is still in force (C10-1).
+create function public.pengerjaan_dilindungi(p_session uuid) returns boolean
+language sql stable security definer set search_path = public, pg_temp as $$
+  select coalesce((
+    select exists (select 1 from public.maintenance_windows w
+                    where w.kind = 'EMERGENCY' and w.t_stop is not null and w.ended_at is null
+                      and s.created_at <= w.t_stop
+                      and public.maintenance_affects_pada(w, s.person_id, w.t_stop)
+                      and (s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')
+                           or (s.status = 'EXPIRED' and s.closure_at <= w.t_stop
+                               and w.t_stop <= s.closure_deadline
+                                    + make_interval(secs => coalesce((select d.late_sync_grace_seconds from public.assessment_definitions d
+                                                                       where d.id = s.assessment_definition_id), 0)))))
+        or (s.darurat_sejak is not null and public.penghentian_geser(s.person_id, s.darurat_jendela_id) is null)
+      from public.assessment_sessions s where s.id = p_session), false)
+$$;
+revoke all on function public.pengerjaan_dilindungi(uuid) from public, anon, authenticated, service_role;
 
 -- D6.3/B4: the window-timed shift is added where the window's closing time is read for the sitting
 create or replace function public.pengerjaan_tenggat_efektif(p_session uuid) returns timestamptz

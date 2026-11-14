@@ -52,35 +52,56 @@ delete from public.maintenance_windows where id = '${JENDELA}';
 commit;`);
 }
 
-/** One run of the ordering; `cara` is MOVED (another class of the school) or TRANSFERRED (the enrolment ends, the
- *  learner leaves the school). Returns the deadline's move in seconds, and whether the sitting was marked and released. */
-function satuKali(db: string, cara: "MOVED" | "TRANSFERRED"): { geser: number; ditandai: boolean; dilepas: boolean } {
+type Cara = "MOVED" | "TRANSFERRED" | "TEACHER" | "JOINED";
+/** A teacher (EDUCATOR) whose role is scoped at a class, for the role-ending case. */
+function fiksurGuru(db: string): { person: string; ra: string; node: string; inst: string; sampai: string } {
+  const b = psqlStdin(db, `select ra.person_id || '|' || ra.id || '|' || ra.scope_node_id || '|' || n.institution_id || '|' || ra.valid_until
+  from public.role_assignments ra join public.org_nodes n on n.id = ra.scope_node_id and n.kind = 'CLASS'
+  where ra.role = 'EDUCATOR' and ra.revoked_at is null and now() >= ra.valid_from and now() < ra.valid_until order by ra.id limit 1;`);
+  const [person, ra, node, inst, sampai] = b.split("|");
+  if (!sampai) throw new Error("no teacher with a role scoped at a class: the seed changed");
+  return { person, ra, node, inst, sampai };
+}
+
+/** One run of the ordering (Sharon's A2A-K01): a class stop takes effect (T_stop) → the change → marking runs, late → the
+ *  stop is lifted 45 minutes after T_stop → the release. `cara`: MOVED (the learner to another class of the school),
+ *  TRANSFERRED (the enrolment ends), TEACHER (a teacher of the class, whose role ends), JOINED (a learner moved INTO the
+ *  stopped class after T_stop: Sharon's addendum, neither stopped nor held). Returns the deadline's move in seconds,
+ *  whether the sitting was marked and released, and whether the person was stopped right after the change. */
+function satuKali(db: string, cara: Cara): { geser: number; ditandai: boolean; dilepas: boolean; dihentikan: boolean } {
   const f = fiksur(db);
-  const pindah = cara === "MOVED"
+  const g = cara === "TEACHER" ? fiksurGuru(db) : null;
+  const orang = g ? g.person : f.person;
+  const kelasHenti = g ? g.node : cara === "JOINED" ? f.lain : f.node;
+  const sekolah = g ? g.inst : f.inst;
+  const pindah = cara === "MOVED" || cara === "JOINED"
     ? `update public.memberships set valid_to = clock_timestamp(), close_reason = 'MOVED' where id = '${f.mem}';
        insert into public.memberships (enrollment_id, node_id, academic_period_id, valid_from)
        select '${f.enr}', '${f.lain}', m.academic_period_id, clock_timestamp() from public.memberships m where m.id = '${f.mem}';`
-    : `update public.memberships set valid_to = clock_timestamp(), close_reason = 'ENROLLMENT_ENDED' where id = '${f.mem}';
-       update public.enrollments set valid_to = clock_timestamp(), status = 'ENDED', end_reason = 'TRANSFERRED_OUT' where id = '${f.enr}';`;
+    : cara === "TRANSFERRED"
+      ? `update public.memberships set valid_to = clock_timestamp(), close_reason = 'ENROLLMENT_ENDED' where id = '${f.mem}';
+         update public.enrollments set valid_to = clock_timestamp(), status = 'ENDED', end_reason = 'TRANSFERRED_OUT' where id = '${f.enr}';`
+      : `update public.role_assignments set valid_until = clock_timestamp() where id = '${g!.ra}';`;
   try {
     const out = psqlStdin(db, `
 begin; set local session_replication_role = replica;
 insert into public.assessment_sessions
-select (jsonb_populate_record(s, jsonb_build_object('id', '${SESI}', 'status', 'IN_PROGRESS', 'person_id', '${f.person}',
+select (jsonb_populate_record(s, jsonb_build_object('id', '${SESI}', 'status', 'IN_PROGRESS', 'person_id', '${orang}',
   'authoritative_deadline', now() + interval '30 minutes', 'created_at', now() - interval '5 minutes', 'finalized_at', null, 'submitted_at', null,
   'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'darurat_sejak', null, 'darurat_jendela_id', null))).*
   from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;
 -- 1. the stop takes effect (T_stop)
 insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, reason, created_by_person_id, activation_recorded_at)
-select '${JENDELA}', 'EMERGENCY', false, array['${f.inst}'::uuid], array['${f.node}'::uuid], now(), clock_timestamp(), 'A2A-C701',
+select '${JENDELA}', 'EMERGENCY', false, array['${sekolah}'::uuid], array['${kelasHenti}'::uuid], now(), clock_timestamp(), 'A2A-K01',
        (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), now();
 commit;
 select pg_sleep(0.2);
--- 2. the learner is moved or transferred, before marking has run
+-- 2. the change, before marking has run
 begin; set local session_replication_role = replica;
 ${pindah}
 commit;
+select 'DIHENTIKAN|' || public.orang_dilindungi('${orang}')::text;
 create temp table a2a_c701_b as select authoritative_deadline as d from public.assessment_sessions where id = '${SESI}';
 -- 3. marking runs, late
 call public.pengerjaan_tandai_darurat(50);
@@ -93,38 +114,43 @@ call public.pengerjaan_lepas_darurat_semua(50);
 select 'HASIL|' || extract(epoch from (s.authoritative_deadline - b.d))::int || '|' || (s.darurat_sejak is null)::text
   from public.assessment_sessions s, a2a_c701_b b where s.id = '${SESI}';`);
     const baris = out.split("\n");
-    const d = baris.find((l) => l.startsWith("DITANDAI|"))?.split("|")[1] === "true";
-    const h = baris.find((l) => l.startsWith("HASIL|"))?.split("|") ?? [];
-    return { geser: Number(h[1] ?? -1), ditandai: d, dilepas: h[2] === "true" };
+    const ambil = (k: string) => baris.find((l) => l.startsWith(k + "|"))?.split("|") ?? [];
+    const h = ambil("HASIL");
+    return { geser: Number(h[1] ?? -1), ditandai: ambil("DITANDAI")[1] === "true", dilepas: h[2] === "true", dihentikan: ambil("DIHENTIKAN")[1] === "true" };
   } finally {
     bersihkan(db, f);
+    if (g) psqlStdin(db, `begin; set local session_replication_role = replica; update public.role_assignments set valid_until = '${g.sampai}' where id = '${g.ra}'; commit;`);
   }
 }
 
 // the plant: marking judged by the placement now, as draft 7 had it
 const TANDAI_SEKARANG_DARI = `                               and s.created_at <= w.t_stop
                                and public.maintenance_affects_pada(w, s.person_id, w.t_stop)`;
-const TANDAI_SEKARANG_KE = `                               and public.maintenance_affects(w, s.person_id)`;
+const TANDAI_SEKARANG_KE = `                               and public.maintenance_affects_kini(w, s.person_id)`;
 
 export const a2aDaruratTests: SelfTest[] = [
   {
-    id: "A2A-C701",
+    // Sharon's A2A-K01 (A2A-C-BEFORE-FREEZE-8bc74097.md, C10-1); was A2A-C701 at commit 11
+    id: "A2A-K01",
     requires: ["db"],
     run: async () => {
       const c = new Checks();
       const db = process.env.SUPABASE_DB_URL!;
       const { gantiFungsi } = await import("./balapan");
       const harus = LAMA_MENIT * 60;
-      for (const cara of ["MOVED", "TRANSFERRED"] as const) {
+      for (const cara of ["MOVED", "TRANSFERRED", "TEACHER"] as const) {
         const r = satuKali(db, cara);
-        c.expect(r.ditandai, `${cara}: the sitting was not marked after the learner left the class (marking judged now, not as of T_stop)`);
-        c.expect(r.dilepas && r.geser === harus, `${cara}: the deadline moved by ${r.geser} s, not the stop's ${harus} s (released: ${r.dilepas})`);
+        c.expect(r.dihentikan, `${cara}: after the change the person is no longer stopped (the hook must judge at T_stop)`);
+        c.expect(r.ditandai, `${cara}: the sitting was not marked after the change (marking judged now, not as of T_stop)`);
+        c.expect(r.dilepas && r.geser === harus, `${cara}: the deadline moved by ${r.geser} s, not T_lift − T_stop = ${harus} s (released: ${r.dilepas})`);
       }
+      const j = satuKali(db, "JOINED");
+      c.expect(!j.dihentikan && !j.ditandai && j.geser === 0, `a learner who joined the class after T_stop was stopped (${j.dihentikan}), held (${j.ditandai}) or re-timed (${j.geser} s)`);
       const balik = gantiFungsi("public.pengerjaan_tandai_darurat(integer)", TANDAI_SEKARANG_DARI, TANDAI_SEKARANG_KE);
       let tanam: ReturnType<typeof satuKali>;
       try { tanam = satuKali(db, "MOVED"); } finally { balik(); }
       c.expect(!tanam.ditandai && tanam.geser === 0, `with the plant (marking judged now) the moved learner still kept the time: ${JSON.stringify(tanam)}`);
-      return c.verdict(`stop → moved or transferred → late marking → lift: each learner's deadline moved by exactly ${LAMA_MENIT} min; with the plant (marking judged now) the moved learner lost it`);
+      return c.verdict(`stop → moved, transferred, or a teacher's role ended → late marking → lift: each still stopped after the change, marked, and moved by exactly T_lift − T_stop (${LAMA_MENIT} min); a learner who joined the stopped class after T_stop is neither stopped nor held, deadline unchanged; with the plant (marking judged now) the moved learner lost the time`);
     },
   },
 ];
