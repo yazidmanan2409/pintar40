@@ -585,3 +585,10 @@ authorised A → C → B, with these conditions (summarised; his message governs
   activation's and the lift's work under the fence, ≤ 0.5 s; (4) the shared takers refused while the fence waits,
   counted (Sharon's 2.0 s correction). Measurement 4 is a reported count; Sharon judges it. "The three numbers" in
   earlier messages was shorthand that left it out.
+
+**Before C's freeze (owner's review, 14 Nov; no owner decision):** the late-marking case (stop takes effect → learner
+moves → marking runs → lift) is C7-1's permanent regression; Sharon rules on the three lock-order and privilege
+questions on A2a's page; C7-2 (first-touch release) and C7-3 (consistent deadline reads) close. **At C's staging
+promotion, a stop condition:** read-only, the hosted `pg_cron` job's owner can `CALL` the batch procedures and make
+their writes, and `anon`, `authenticated` and `service_role` are refused on the six revoked routines (Sharon names the
+exact reads).
