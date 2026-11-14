@@ -654,3 +654,33 @@ No other coordination mechanism is added.
   - Daisy's session can receive messages but cannot send them. Her acknowledgements go in `TERIMA.md` on
     `ux-1/daisy-experience`, which Bob reads at every check-in. That is the "messaging unavailable" case, so Bob
     relays for her.
+
+### Security-lint exception for three committing procedures (14 Nov 2026, 07:05 UTC)
+
+**What was found.** Second Eye ran the full static manifest for the first time since change C began. His regression
+set had left it out. The platform lint (F05-T21, F01-T13, DR-D01) has been red since commit 15 on three procedures:
+`pengerjaan_tandai_darurat`, `pengerjaan_tutup_berkala` and `pengerjaan_lepas_darurat_semua`.
+
+**Why they cannot be fixed the usual way.** PostgreSQL forbids a SET clause, or SECURITY DEFINER, on a procedure that
+commits. Committing between batches is Sharon's approved C15 design.
+
+**What Bob checked on the branch.** All three are SECURITY INVOKER, and EXECUTE is revoked from public, anon,
+authenticated and service_role.
+
+**Bob's ruling: option (1), subject to Sharon's yes.** It is a declared exception that the lint enforces, never a
+weakening of it.
+
+- **Exact list.** The lint keeps a list of exactly these three names. Any other unpinned function or procedure stays
+  red.
+- **Conditions asserted for each listed name:**
+  - it is a procedure;
+  - it is not SECURITY DEFINER;
+  - nobody in public, anon, authenticated or service_role can execute it;
+  - its first act is `set_config('search_path', 'public, pg_temp', false)`;
+  - every name in it is schema-qualified.
+- **Plants:** one per condition.
+
+Option (2), one batch per function call, is refused because it would reopen the C15 ruling.
+
+**Friction.** The test omission is caught by the owner's step 4, the full regression run before the freeze. That run
+now includes the whole static manifest.
