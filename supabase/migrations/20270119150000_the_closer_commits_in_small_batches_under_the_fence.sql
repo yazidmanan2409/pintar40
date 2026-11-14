@@ -90,8 +90,10 @@ begin
   end if;
   return jsonb_build_object('ok', true, 'diperiksa', v_periksa, 'dinilai', v_nilai, 'menunggu', v_tunggu, 'dilewati', v_lewat, 'gagal', v_gagal);
 end $$;
-revoke all on function public.pengerjaan_tutup_terjadwal(integer) from public, anon, authenticated;
-grant execute on function public.pengerjaan_tutup_terjadwal(integer) to service_role;
+-- Sharon's N1 (A2A-C-15-22-c3e88873.md): the function holds the shared fence for up to 5000 candidates in one
+-- transaction, and nothing in production calls it (the job calls the procedure; no app path names it), so the server key
+-- loses it too: only the owner (the tests, a person on the database) runs it. Was: granted to service_role (A1).
+revoke all on function public.pengerjaan_tutup_terjadwal(integer) from public, anon, authenticated, service_role;
 
 -- ═══════════════════════════════════════════════════════════ the job (R2, D6.7)
 create procedure public.pengerjaan_tutup_berkala(p_batas integer default 500, p_kecil integer default 20)
@@ -255,7 +257,8 @@ begin
      or position('t_lift = v_lift' in pg_get_functiondef('public.change_maintenance(uuid,text,text)'::regprocedure)) = 0 then
     raise exception 'A2a (b): the lift does not complete the marking and record T_lift';
   end if;
-  if has_function_privilege('service_role', 'public.pengerjaan_tutup_satu(uuid)', 'execute')
+  if has_function_privilege('service_role', 'public.pengerjaan_tutup_terjadwal(integer)', 'execute')
+     or has_function_privilege('service_role', 'public.pengerjaan_tutup_satu(uuid)', 'execute')
      or has_function_privilege('service_role', 'public.pengerjaan_tutup_calon(integer)', 'execute')
      or has_function_privilege('authenticated', 'public.pengerjaan_tutup_berkala(integer,integer)', 'execute')
      or has_function_privilege('service_role', 'public.pengerjaan_tutup_berkala(integer,integer)', 'execute') then
