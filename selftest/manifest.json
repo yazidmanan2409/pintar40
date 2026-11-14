@@ -6234,6 +6234,11 @@
       "id": "A2A-C713",
       "runner": "static",
       "proves": "Sharon's C30-2 (A2A-C-30-8cbda9cc.md at 88d8ffec; migration 20270119180000): a sitting's time runs only while it is neither stopped nor held by A1. Stop, then suspension, then lift, then reinstatement and resume: the time left equals the time left at T_stop (unmarked, and marked at T_stop), and a touch after adds nothing. Suspension, then a stop inside the hold, then lift, then reinstatement and resume: the time left equals the time left at the suspension, and a touch after adds nothing. A held sitting touched after a lift: the act succeeds and nothing is credited. Each in one transaction, rolled back. Plants: the hold measured at the hold; no watermark at the resume; the credit not skipped while held."
+    },
+    {
+      "id": "A2A-C714",
+      "runner": "static",
+      "proves": "Bob's ruling on the search_path question (option 1) with Sharon's yes and her additions: on the database's catalogue, platform_schema_lint and docs/audit/launch-readiness.sql count every unpinned public function and procedure through jalur_tanpa_pin() (migration 20270119210000). Exactly three committing procedures are excused, each only while all hold: a procedure; not SECURITY DEFINER; no EXECUTE for PUBLIC, anon, authenticated or service_role; set_config('search_path', 'public, pg_temp', false) its first statement, before any commit; every public name schema-qualified; owned by the cron job's user. Nine plants in rolled-back transactions (another unpinned procedure, a function of the same name, SECURITY DEFINER, EXECUTE for authenticated, EXECUTE for PUBLIC, no first act, the first act after the first commit, a bare name, another owner) each count again with their cause."
     }
   ]
 }

@@ -1407,3 +1407,57 @@ a2aDaruratTests.push({
     return c.verdict(`time runs only while a sitting is neither stopped nor held: stop → suspension → lift → resume leaves the 50 minutes left at T_stop (unmarked and marked), and a touch after adds nothing; suspension → stop inside the hold → lift → resume leaves the 30 minutes left at the hold, and a touch after adds nothing; a held sitting touched after a lift: the act succeeds, nothing credited; plants: the hold measured at the hold (${p1.hasil.sisa_lanjut} s), no watermark at the resume (${p2.hasil.sisa_sentuh} s), the credit not skipped while held (${p3.err ? "refused" : p3.hasil.sentuh})`);
   },
 });
+
+// ═══════════════════════════════════════════════════════════ A2A-C714 · the three committing procedures, an enforced exception
+
+/** Bob's ruling (option 1) with Sharon's yes and her additions (a) and (b): the platform lint counts every unpinned public
+ *  function and procedure through jalur_tanpa_pin(); exactly three procedures are excused, and each only while all
+ *  conditions hold. Each plant runs in its own transaction, rolled back, and must make the count 1 and name its cause. */
+const LEPAS_SEMUA = "public.pengerjaan_lepas_darurat_semua(integer)";
+const JALUR_PERTAMA = "  perform set_config('search_path', 'public, pg_temp', false);   -- the first act (pinned by hand: it commits)\n";
+function tanamJalur(db: string, tanam: string): string {
+  const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: `begin;
+${tanam}
+select public.jalur_tanpa_pin() || '|' || coalesce(public.jalur_pengecualian_cacat(to_regprocedure('${LEPAS_SEMUA}')), 'ok');
+rollback;` });
+  return r.status === 0 ? r.stdout.trim().split("\n").pop() ?? "" : `ERR ${(r.stderr ?? "").trim().split("\n")[0]}`;
+}
+const ganti = (dari: string, ke: string) => `do $$ declare v text := pg_get_functiondef('${LEPAS_SEMUA}'::regprocedure);
+begin
+  if position(${"$q$"}${dari}${"$q$"} in v) = 0 then raise exception 'plant anchor missing'; end if;
+  execute replace(v, ${"$q$"}${dari}${"$q$"}, ${ke ? "$q$" + ke + "$q$" : "''"});
+end $$;`;
+
+a2aDaruratTests.push({
+  id: "A2A-C714",
+  requires: ["db"],
+  run: async ({ repoRoot }) => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const bersih = tanamJalur(db, "");
+    c.expect(bersih === "0|ok", `unplanted, the lint's count and the release batch's standing: ${bersih}, not 0|ok`);
+    const sumber = psqlStdin(db, "select prosrc from pg_proc where proname = 'platform_schema_lint';");
+    c.expect(sumber.includes("public.jalur_pengecualian_cacat(p.oid) is not null"), "platform_schema_lint does not count through the one rule");
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    c.expect(readFileSync(join(repoRoot, "docs", "audit", "launch-readiness.sql"), "utf8").includes("public.jalur_tanpa_pin()"),
+      "the launch readiness row does not count through the one rule");
+    const plants: Array<[string, string, RegExp]> = [
+      ["another unpinned procedure", "create procedure public.a2a_c714_tanam() language plpgsql as $p$ begin null; end $p$;", /^1\|ok$/],
+      ["not a procedure (prokind)", `drop procedure ${LEPAS_SEMUA}; create function public.pengerjaan_lepas_darurat_semua(p_batas integer) returns void language plpgsql as $p$ begin perform set_config('search_path', 'public, pg_temp', false); end $p$;`, /^1\|not a procedure$/],
+      ["SECURITY DEFINER", `alter procedure ${LEPAS_SEMUA} security definer;`, /^1\|SECURITY DEFINER$/],
+      ["EXECUTE for authenticated", `grant execute on procedure ${LEPAS_SEMUA} to authenticated;`, /^1\|EXECUTE for authenticated$/],
+      ["EXECUTE for PUBLIC", `grant execute on procedure ${LEPAS_SEMUA} to public;`, /^1\|EXECUTE for PUBLIC$/],
+      ["no first act", ganti(JALUR_PERTAMA, ""), /^1\|its first act is not/],
+      ["the first act after the first commit (Sharon's (b))", ganti(JALUR_PERTAMA, "").replace("end $$;", "") +
+        `  v := pg_get_functiondef('${LEPAS_SEMUA}'::regprocedure);\n  execute regexp_replace(v, '    commit;', '    commit;\n' || ${"$q$"}${JALUR_PERTAMA}${"$q$"});\nend $$;`, /^1\|its first act is not/],
+      ["a bare name", ganti("public.pengerjaan_kredit_darurat(r.id)", "pengerjaan_kredit_darurat(r.id)"), /^1\|a bare name: pengerjaan_kredit_darurat$/],
+      ["owned by another role (Sharon's (a))", `create role a2a_c714_lain nologin; grant a2a_c714_lain to current_user; grant create on schema public to a2a_c714_lain; alter procedure ${LEPAS_SEMUA} owner to a2a_c714_lain;`, /^1\|owned by a2a_c714_lain/],
+    ];
+    for (const [nama, tanam, harus] of plants) {
+      const r = tanamJalur(db, tanam);
+      c.expect(harus.test(r), `with the plant "${nama}" the lint read ${r}`);
+    }
+    return c.verdict(`the platform lint and the launch readiness row count every unpinned public function and procedure through jalur_tanpa_pin(): 0 unplanted, the three committing procedures excused while each condition holds (a procedure, not SECURITY DEFINER, no EXECUTE beyond its owner, set_config('search_path', ...) its first statement before any commit, every public name schema-qualified, owned by the cron job's user); ${plants.length} plants on the release batch's procedure, each counted again with its cause: ${plants.map((p) => p[0]).join("; ")}`);
+  },
+});
