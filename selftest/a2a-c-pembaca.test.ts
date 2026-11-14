@@ -1,0 +1,130 @@
+/**
+ * A2A-T01 — EVERY READER OF A SITTING'S CLOSING TIME, CLASSED (A2a's page, "The single most likely thing to go wrong in
+ * (C)"; the owner's condition 1 for the order A → C → B; change C's first commit, before any of D6.3).
+ *
+ * D6.3's one time rule moves a sitting's effective deadline by exactly the protected interval. Every reader of a
+ * sitting's closing time must then add that interval: the effective deadline, the window-timed `closes_at`, the grace
+ * and late sync, the closer's selection, the teacher's list and the player. A missed reader re-times or ends a sitting
+ * silently. So every reader is found, from the catalogue and from the repository, and classed here:
+ *   HARUS  it reads a LIVE sitting's closing time to decide or show something: D6.3 makes it shift-aware;
+ *   TIDAK  it reads something else: an assignment's start or scheduling window, a definition's grace setting, the
+ *          initial deadline being written, or a type.
+ * It fails on a reader not in the table (a missed reader is red), and on a table entry that no longer reads (a stale
+ * class). Two plants, a function and an app file, must each be reported first.
+ *
+ * WHAT IT DOES NOT ESTABLISH YET: that a HARUS reader adds the shift. That is D6.3's own test, which uses this table.
+ */
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { Checks, type SelfTest } from "./lib";
+import { bacaKatalog, bersih } from "./a2a-l01.test";
+
+/** What a reader of a sitting's closing time names, in the database and in the app. */
+const KOLOM_DB = ["closure_deadline", "closes_at", "authoritative_deadline", "late_sync_grace_seconds",
+  "pengerjaan_tenggat_efektif", "late_sync_until"];
+const POLA_SRC = /closes_at|authoritative_deadline|closure_deadline|late_sync|closesAt|authoritativeDeadline|closureDeadline|lateSync|tenggat_efektif|tenggatEfektif/;
+
+type Kelas = { kelas: "HARUS" | "TIDAK"; alasan: string };
+const H = (alasan: string): Kelas => ({ kelas: "HARUS", alasan });
+const T = (alasan: string): Kelas => ({ kelas: "TIDAK", alasan });
+const JENDELA = "the assignment's window for starting or scheduling a sitting, not a running sitting's closing time";
+const SETELAN = "the definition's grace setting (configuration), not a sitting's time";
+
+/** The database's readers, by function. */
+export const PEMBACA_DB: Record<string, Kelas> = {
+  pengerjaan_tenggat_efektif: H("THE effective deadline: own deadline, else the assignment's closes_at; D6.3 adds the shift here first"),
+  pengerjaan_putus_tenggat: H("the deadline decider: ends a sitting past its deadline, scores it after the grace"),
+  pengerjaan_tutup_terjadwal: H("the closer's selection: which sittings are past their deadline"),
+  finalize_session: H("the grace: refuses to score inside the late-sync window from the deadline"),
+  record_answer: H("late sync: accepts an answer inside the grace after the deadline"),
+  maintenance_draining: H("whether a sitting is still in time (deadline + grace) while maintenance drains"),
+  may_continue_session: H("whether the sitting may continue: its deadline"),
+  session_state: H("the player's deadline: what the learner's screen counts down to"),
+  daftar_pengerjaan: H("the teacher's list: each sitting's deadline and extensions"),
+  pengerjaan_saya: H("the learner's own list: the effective deadline"),
+  pengerjaan_tahan_orang: H("the hold: the remaining time it freezes, from the effective deadline"),
+  extend_session_deadline: H("an extension: the new deadline from the effective one"),
+  tambah_waktu_pengerjaan: H("the teacher's added time: from the effective deadline"),
+  lanjutkan_pengerjaan: H("resuming a held sitting: its new deadline from the time it had"),
+  pengerjaan_jaga: H("the guard on deadline writes: D6.3 lets exactly the release's transition through"),
+  open_assessment_session: T("writes the initial deadline of a new sitting; nothing is shifted yet"),
+  assessment_orientation: T(JENDELA),
+  my_open_assessments: T(JENDELA),
+  may_start_assessment: T(JENDELA),
+  start_learning_session: T(JENDELA),
+  assign_release: T(JENDELA),
+  launch_quick_assessment: T(JENDELA),
+  ubah_jadwal_penugasan: T(JENDELA),
+  maintenance_collisions: T("counts assignments that close inside a maintenance window: scheduling, not a sitting"),
+  content_canonical_payload: T(SETELAN),
+  lesson_package_materialise: T(SETELAN),
+  salin_kursus_revisi: T(SETELAN),
+  save_assessment_definition: T(SETELAN),
+};
+
+/** The app's readers, by file. */
+export const PEMBACA_SRC: Record<string, Kelas> = {
+  "src/lib/assessment-engine/index.ts": H("the player: reads session_state's deadline (shifted server-side; it must not compute its own)"),
+  "src/lib/assessment-engine/types.ts": T("types only: no value is read"),
+  "src/lib/pengajar.ts": T("the teacher's assignments: OPEN or CLOSED by the assignment's closes_at, not a sitting's time"),
+  "src/app/belajar/page.tsx": T("the learner's assignment list: the assignment's closing date"),
+  "src/components/siklus/OrientasiAsesmen.tsx": T("the orientation before a start: the assignment's closing date"),
+  "src/app/studio/actions.ts": T(SETELAN),
+  "src/lib/aturan-asesmen.ts": T(SETELAN),
+};
+
+/** The database's readers: every function in `public` whose source names a closing-time column or the effective
+ *  deadline; `tanam` is DDL run first, inside a rolled-back transaction. */
+export function pembacaDb(db: string, tanam = ""): string[] {
+  const kat = bacaKatalog(db, tanam);
+  return [...kat.fns].filter(([, bs]) => bs.some((b) => KOLOM_DB.some((c) => new RegExp(`\\b${c}\\b`).test(bersih(b)))))
+    .map(([fn]) => fn).sort();
+}
+/** The app's readers: every file under src/ that names one; `tambahan` adds planted files. */
+export function pembacaSrc(root: string, tambahan: { path: string; text: string }[] = []): string[] {
+  const out: string[] = [];
+  const jalan = (d: string) => {
+    for (const n of readdirSync(d)) {
+      const q = join(d, n);
+      if (statSync(q).isDirectory()) jalan(q);
+      else if (/\.(ts|tsx)$/.test(n) && POLA_SRC.test(readFileSync(q, "utf8"))) out.push(q.slice(root.length + 1));
+    }
+  };
+  jalan(join(root, "src"));
+  for (const t of tambahan) if (POLA_SRC.test(t.text)) out.push(t.path);
+  return out.sort();
+}
+/** What does not match the table: readers not classed, and classed names that no longer read. */
+export function bedaKelas(ada: string[], tabel: Record<string, Kelas>): { baru: string[]; basi: string[] } {
+  return { baru: ada.filter((x) => !(x in tabel)), basi: Object.keys(tabel).filter((x) => !ada.includes(x)) };
+}
+
+const TANAM_FN = `create function public._a2a_t01_tanam(p uuid) returns timestamptz language sql as $t$
+  select s.authoritative_deadline from public.assessment_sessions s where s.id = p $t$;`;
+const TANAM_SRC = { path: "src/_a2a_t01_tanam.ts", text: "export const batas = (s: { closes_at: string }) => s.closes_at;" };
+
+export const a2aPembacaTests: SelfTest[] = [
+  {
+    id: "A2A-T01",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const db = process.env.SUPABASE_DB_URL!;
+      // the plants first
+      const t1 = bedaKelas(pembacaDb(db, TANAM_FN), PEMBACA_DB);
+      c.expect(t1.baru.includes("_a2a_t01_tanam"), "the planted function reading a sitting's deadline was not reported");
+      const t2 = bedaKelas(pembacaSrc(repoRoot, [TANAM_SRC]), PEMBACA_SRC);
+      c.expect(t2.baru.includes(TANAM_SRC.path), "the planted app file reading closes_at was not reported");
+      // the real code
+      const d = bedaKelas(pembacaDb(db), PEMBACA_DB);
+      c.expect(d.baru.length === 0, `database readers of a sitting's closing time not classed (A2a's page, D6.3): ${d.baru.join(", ")}`);
+      c.expect(d.basi.length === 0, `classed database readers that no longer read a closing time: ${d.basi.join(", ")}`);
+      const s = bedaKelas(pembacaSrc(repoRoot), PEMBACA_SRC);
+      c.expect(s.baru.length === 0, `app readers of a sitting's closing time not classed: ${s.baru.join(", ")}`);
+      c.expect(s.basi.length === 0, `classed app readers that no longer read a closing time: ${s.basi.join(", ")}`);
+      const n = (t: Record<string, Kelas>, k: string) => Object.values(t).filter((x) => x.kelas === k).length;
+      return c.verdict(`${Object.keys(PEMBACA_DB).length} database and ${Object.keys(PEMBACA_SRC).length} app readers of a sitting's closing time, each classed `
+        + `(${n(PEMBACA_DB, "HARUS") + n(PEMBACA_SRC, "HARUS")} must add the shift, ${n(PEMBACA_DB, "TIDAK") + n(PEMBACA_SRC, "TIDAK")} read something else); both plants reported`);
+    },
+  },
+];

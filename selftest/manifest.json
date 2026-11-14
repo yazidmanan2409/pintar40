@@ -6159,6 +6159,11 @@
       "id": "A2A-L06",
       "runner": "static",
       "proves": "Sharon's ruling on the 76 (rows 7 to 9 in C1's commit; migration 20270118120000): on two real connections, connection A takes a learner FOR UPDATE and then, 1.5 s later, that learner's live enrolment FOR UPDATE (akhiri_pendaftaran's order after C1), while connection B runs the real transfer_minta of that enrolment to another school as its school's admin (both rolled back); B waits for A and then finishes, with no deadlock, because transfer_minta takes the person FOR KEY SHARE before the transfer's foreign keys check the enrolment; with the plant (that line removed) B still waits for A and nothing deadlocks, because the transfer's attachment guard (orang_lampiran_jaga, BEFORE INSERT) already takes the person FOR SHARE before the foreign keys: the race showed row 7 was not real, and the line is redundant but compatible."
+    },
+    {
+      "id": "A2A-T01",
+      "runner": "static",
+      "proves": "A2a's page, D6.3 (the single most likely thing to go wrong in change C; the owner's condition 1 for the order A → C → B): every reader of a sitting's closing time — every function in public whose source names closure_deadline, closes_at, authoritative_deadline, late_sync_grace_seconds, late_sync_until or pengerjaan_tenggat_efektif, read from the catalogue, and every file under src/ that names one — is classed in selftest/a2a-c-pembaca.test.ts as HARUS (it reads a live sitting's closing time, so D6.3 makes it shift-aware) or TIDAK (it reads an assignment's window, a definition's setting, the initial deadline, or a type), each with its reason; it fails on a reader not classed and on a classed name that no longer reads; a planted function and a planted app file are each reported first."
     }
   ]
 }
