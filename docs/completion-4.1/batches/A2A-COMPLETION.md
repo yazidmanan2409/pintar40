@@ -138,6 +138,35 @@ Architect (`TEAM-INSTRUCTIONS.md` at `33be0fa1`).
   - `my_open_assessments` and `may_start_assessment` stay TIDAK.
 - **Reply to Sharon** (02:22 UTC; Second Eye has no tool to message her session, so it is here): all three notes are
   carried in `e303f1a9`, and §3 is built to your shape.
+- **Two new drafts for Sharon** (03:01 UTC):
+  - **Commit 6, `8a014fde`: the class-scope stop** (D1, D7; required changes 1 to 3).
+    - `node_ids`, with a CHECK and a validation trigger.
+    - `t_stop` and `t_lift`, read under the fence. `starts_at` stays the readers' column, so M148-D02 is unchanged.
+    - `maintenance_affects` is node-aware.
+    - `stop_pintar_now(…, p_nodes)`:
+      - refuses a bad class with `MAINTENANCE_NODE_INVALID`;
+      - takes the actor's person before the fence;
+      - makes three attempts of 1.5 s, else `MAINTENANCE_STOP_NOT_IN_FORCE`;
+      - reads `T_stop` under the fence.
+    - Checked by hand: a class stop reaches its class's people and nobody else in the school.
+  - **Commit 7, `3249cce8`: held sittings with their time** (D6.3, D6.4, D6.5, D6.7). This is the risky core.
+    - A1's held state is extended with `darurat_sejak` and `darurat_geser_detik`. `pengerjaan_ditahan` answers yes for
+      either cause.
+    - The protection check, and the union shift rule (`penghentian_geser`).
+    - The guard allows exactly the hold and the release transitions.
+    - Marking and release are procedures, in bounded batches with SKIP LOCKED.
+    - **One point to read: they are plain procedures, not SECURITY DEFINER.** Postgres refuses COMMIT inside a SECURITY
+      DEFINER procedure, and inside one with a SET clause.
+    - Checked by hand: a 40-minute stop, lifted, moves the deadline by exactly 00:40:00.
+    - A1's S01 to S09 stay green.
+  - **Not yet:**
+    - D6.2's check in each act;
+    - the closer procedure;
+    - the fenced lift, with AKHIRI and `T_lift`;
+    - the audit rows;
+    - the B3 to B6 tests;
+    - Daisy's §2 and §3;
+    - the screens.
 - **D6.3 is cleared to build** (01:42 UTC by `date -u`).
 - **Next:** A2a's product changes as this page has them.
   - The risky database parts are pushed as unfinished drafts as they exist: the fence, the closer procedure, held
