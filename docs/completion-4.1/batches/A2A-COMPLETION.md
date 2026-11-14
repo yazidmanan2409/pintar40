@@ -203,6 +203,25 @@ Architect (`TEAM-INSTRUCTIONS.md` at `33be0fa1`).
          not these);
        - and judge an inherited fact, not changed here: `service_role` holds full table grants on
          `assessment_sessions` on `main`.
+- **The owner's two points left with Sharon** (03:11 UTC; no owner decision needed):
+  - **Lock order.** Racing an admin's stop against a suspension of the same admin tests the two known paths, and
+    both take the person row first.
+    - **The remaining question for Sharon:** does any reachable path hold the shared fence and then ask for a
+      conflicting lock (`FOR UPDATE` or `DELETE`) on that same person row, directly, through a trigger, or through a
+      called function?
+    - A2A-L01 reads triggers and called functions transitively, and reports none today. Sharon traces it beyond the
+      engine's reading.
+    - If she finds one, the two-connection test targets exactly that interaction.
+  - **Privileges.** Sharon to verify on the hosted stack:
+    - the actual job role can `CALL` the batch procedures and make their writes;
+    - the revoked roles (`anon`, `authenticated`, `service_role`) are refused.
+    - **The inherited `service_role` table grants matter to A2a only if a reachable write can use them to bypass the
+      sitting guard.** Locally:
+      - `service_role` is not superuser and has no replication right, so it cannot set
+        `session_replication_role = replica`;
+      - the guard trigger is enabled in its normal mode (`O`), so its writes still pass `pengerjaan_jaga`;
+      - its `bypassrls` does not affect triggers.
+    - Sharon assesses that path on the hosted roles, without reopening the wider grants model.
 - **D6.3 is cleared to build** (01:42 UTC by `date -u`).
 - **Next:** A2a's product changes as this page has them.
   - The risky database parts are pushed as unfinished drafts as they exist: the fence, the closer procedure, held
