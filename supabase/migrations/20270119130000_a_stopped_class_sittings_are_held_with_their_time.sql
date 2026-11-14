@@ -38,12 +38,7 @@ language sql stable security definer set search_path = public, pg_temp as $$
                   where w.kind = 'EMERGENCY' and w.t_stop is not null and w.ended_at is null
                     and public.maintenance_affects(w, p_person))
 $$;
-create function public.pengerjaan_dilindungi(p_session uuid) returns boolean
-language sql stable security definer set search_path = public, pg_temp as $$
-  select coalesce((select public.orang_dilindungi(s.person_id) from public.assessment_sessions s where s.id = p_session), false)
-$$;
 revoke all on function public.orang_dilindungi(uuid) from public, anon, authenticated, service_role;
-revoke all on function public.pengerjaan_dilindungi(uuid) from public, anon, authenticated, service_role;
 
 -- D6.5: held for either cause
 create or replace function public.pengerjaan_ditahan(s public.assessment_sessions) returns boolean
@@ -75,6 +70,20 @@ returns boolean language sql stable security definer set search_path = public, p
                     and e.valid_from <= p_t and (e.valid_to is null or e.valid_to > p_t)))))
 $$;
 revoke all on function public.maintenance_affects_pada(public.maintenance_windows, uuid, timestamptz) from public, anon, authenticated, service_role;
+
+-- A sitting is protected while an active EMERGENCY window affects its person now, OR the sitting was already open at the
+-- window's T_stop and the window affected its person then (the owner's review, on C7-1: a learner moved or transferred
+-- after T_stop but before the marking reaches them keeps the protection the stop gave them). The person's own
+-- protection (orang_dilindungi: the request-level refusal) stays current, as Sharon ruled.
+create function public.pengerjaan_dilindungi(p_session uuid) returns boolean
+language sql stable security definer set search_path = public, pg_temp as $$
+  select coalesce((select exists (select 1 from public.maintenance_windows w
+                                   where w.kind = 'EMERGENCY' and w.t_stop is not null and w.ended_at is null
+                                     and (public.maintenance_affects(w, s.person_id)
+                                          or (s.created_at <= w.t_stop and public.maintenance_affects_pada(w, s.person_id, w.t_stop))))
+                     from public.assessment_sessions s where s.id = p_session), false)
+$$;
+revoke all on function public.pengerjaan_dilindungi(uuid) from public, anon, authenticated, service_role;
 
 -- The length of the protected interval of a hold: from the holding window's T_stop, the union of that window and every
 -- later EMERGENCY window that affected the person AT ITS OWN T_stop, chained while each starts before the chain ends.
@@ -219,15 +228,17 @@ begin
     with c as (
       select s.id, j.id as jendela, j.t_stop as sejak
         from public.assessment_sessions s
+        -- judged as of each window's T_stop (the owner's review, on C7-1): a sitting already open by then, of a person
+        -- the window affected at that instant, whether or not they have since been moved, transferred or re-roled
         cross join lateral (select w.id, w.t_stop from public.maintenance_windows w
                              where w.kind = 'EMERGENCY' and w.t_stop is not null and w.ended_at is null
-                               and public.maintenance_affects(w, s.person_id)
+                               and s.created_at <= w.t_stop
+                               and public.maintenance_affects_pada(w, s.person_id, w.t_stop)
                              order by w.t_stop, w.id limit 1) j
        where s.darurat_sejak is null
          and (s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')
               or (s.status = 'EXPIRED' and s.authoritative_deadline is not null
                   and not exists (select 1 from public.assessment_results r where r.session_id = s.id)))
-         and public.orang_dilindungi(s.person_id)
        order by s.id limit p_batas for update of s skip locked)
     update public.assessment_sessions s set darurat_sejak = c.sejak, darurat_jendela_id = c.jendela from c
      where s.id = c.id and c.sejak is not null
