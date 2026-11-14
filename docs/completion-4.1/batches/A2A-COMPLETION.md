@@ -64,9 +64,9 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**CHANGE C AT A GLANCE** (14 Nov, 05:51 UTC by `date -u`; the source of truth for a fresh session). The details follow
+**CHANGE C AT A GLANCE** (14 Nov, 06:26 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
-- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `8cbda9cc`. The order is A → C → B, and C
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `ca063fb3`. The order is A → C → B, and C
   is not merged until B's scale evidence holds on C's frozen commit.
 - **Commits:**
   1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
@@ -359,7 +359,66 @@ below.
         touch, never an outcome.
       - **Green locally:** the whole regression set (69) and every maintenance test (23).
 
-  **Sharon, ready for your read:** commit 30.
+  31. `2d94d939` · **Daisy's blockers 1 to 3** (`A2A-LAYAR-f308b0bf.md` at `e6471f61`; migration `20270119170000`).
+      - The status read (`pintar_status_saya`) answers, for an EMERGENCY class stop, the classes it holds (`kelas`) and
+        whether the reader also has another class or school (`kelas_lain`).
+      - The pause page of a class stop: «PINTAR dihentikan sementara untuk kelas {kelas}», the class form of the
+        explanation, and the other-class line only where true.
+      - `galat.maintenance_node_invalid` is her approved A2 line.
+      - Screenshots: still to come, with the other strings (below).
+  32. `ca063fb3` · **Your C30-1 and C30-2** (`A2A-C-30-8cbda9cc.md` at `88d8ffec`; migration `20270119180000`). Bob
+      ordered these before Daisy's items.
+      - **The rule,** composed from D-1 and A1's hold: a sitting's time runs only while it is neither stopped nor held
+        by A1. Building it needed no change to either approved rule.
+      - **C30-2, as you wrote it:**
+        - At an A1 hold of a sitting a stop is holding, the time left is measured at the T_stop of the chain in force.
+          A new helper, `penghentian_berlaku(s)`, gives that chain's first window, walking from the watermark; for a
+          marked sitting it is `darurat_jendela_id`.
+        - While held: `penghentian_kredit` returns zero; `pengerjaan_kredit_darurat` skips (never raises); the marking
+          batch skips held sittings; and a release clears the mark with no shift and moves the watermark.
+        - At the resume, `lanjutkan_pengerjaan` moves the watermark past every chain lifted by then (a second update
+          of the same row, after the resume's own).
+      - **A2A-C713**, each case in one transaction, rolled back, with a plant for each:
+
+        | Case | Time left | Plant |
+        |---|---|---|
+        | Stop → suspension → lift → resume (scenario 6), unmarked and marked | 50 min, the time left at T_stop; a touch after adds nothing | The hold measured at the hold: 1800 s |
+        | Suspension → stop inside the hold → lift → resume | 30 min, the time left at the hold; a touch after adds nothing | No watermark at the resume: 3900 s |
+        | A held sitting touched after a lift | The act succeeds; nothing credited | The credit not skipped while held: refused SITTING_FROZEN |
+
+      - **C30-1:** `record_answer` already reaches `pengerjaan_pagar` before it reads the deadline, through
+        `pengerjaan_gerbang`. D6.2 spliced the fence into the gate in commit 9 (`2a3695b2`), and the gate is `record_answer`'s first
+        act, so the credit is persisted before the read. What was missing was the proof and the rule, now added:
+        - **A2A-C712:** after a 45-minute stop lifted, with no batch and no touch, an answer inside the credited time
+          is LIVE, and one inside the credited grace is LATE_SYNC and scored. Plant: `record_answer` without the
+          helper, which gave LATE_SYNC and `+retained_unscored`.
+        - **A2A-C708, your structural rule:** every HARUS reader of `authoritative_deadline` reads it through
+          `pengerjaan_tenggat_efektif`, or touches first (`pengerjaan_pagar`, or `pengerjaan_gerbang`,
+          `pengerjaan_ditahan_periksa` or `pengerjaan_putus_tenggat`, whose first act it is). Seven credit-machinery
+          functions are named, each with its reason; the closer's selection is one, on your own read. Plant:
+          `record_answer` without the helper is reported.
+      - **The sweep** (Bob: every writer that decides on the deadline before crediting, and every guard path where
+        SITTING_FROZEN could block the credit):
+        - **Writers:** all reach `pengerjaan_pagar` first (A2A-C702), `record_answer` through the gate. No other writer
+          decides first.
+        - **Guard paths:** the frozen branch raised on the credit's deadline move. The credit and the release now
+          skip or clear while held, and the resume's watermark write passes the credit branch. Closing a held sitting
+          and ending it reach the credit through the helper, which now skips.
+        - **Two siblings found and fixed,** each in A2A-C711 with a plant:
+          - **S1:** the marking batch fixed a mark without the credit of an earlier lifted stop not yet given, and the
+            release's watermark then passed that stop. Now a marked sitting's pending credit is the lifted chains
+            before its mark, given with its release (capped at the mark). A mark is set at the start of the chain in
+            force. Case: 10 then 30 minutes, given 40 minutes once. Plant: no credit before a mark gave 1800 s.
+          - **S2:** the release batch's credit pass re-selected the same first rows, so a page with nothing to credit
+            ended the pass. It now walks in id order. Case: one row a page, past an EXPIRED sitting with nothing to
+            give. Plant: 0 s.
+      - **A2A-L01:** the report changes only by same-row re-locks of the sitting, the release's new held branch and
+        the resume's watermark write. Green.
+      - **Green locally:** the whole regression set with C712 and C713 (71), on a fresh reset.
+      - **Still owed for the close, from your ruling:** scenario 8's three numbers on the frozen commit (change B).
+
+  **Sharon, ready for your read:** commit 32 (`ca063fb3`). Commit 31 is Daisy's (wording and the status read); it
+  touches no sitting.
 
 **Daisy, ready for your first look** (`docs/completion-4.1/batches/a2a-layar/` on `claude/a2a-change-c` at `6b8a96f9`):
 - `1-daftar-saat-henti-kaprodi-{390,320,1280}`: the list during a stop, seen by someone above the class.
