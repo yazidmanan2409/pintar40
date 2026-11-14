@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2a change C commits 2 to 4, and Daisy §3 | Fence: NO BLOCKER (N1 revoke `service_role`, N2 the literal key); B1: NO BLOCKER (`kind` never written: test it); A2A-T01 meets E1 and E2; Daisy §3: a separate sitting-keyed read, never a resume branch in `may_start_assessment`; in C, with tests | `e076520c828eb88c6f05922e5bade2b6d6c1f126` | `A2A-C-DRAFTS-e076520c.md` |
 | A2a change C commit 1 (A2A-T01, readers of a sitting's closing time) | NO BLOCKER TO BUILD D6.3; E1 (`frozen_remaining_seconds`, callers of the deadline functions) and E2 (the app's `tenggat`, `sisa_detik` and related names; four unlisted files; a third plant) before D6.3's shift test; the 19 TIDAK correct | `768eb032a497e692c4db203b6fff21dcb3448b6e` | `A2A-C-T01-768eb032.md` |
 | A2a change A, result review of the frozen commit | **PASS**; both deviations accepted; note: `20270118100000`'s header "Not reached today" is wrong (page and register) | `2cea0564dcc12bede2e3ab3cb63236fce4d0b89e` | `A2A-CHANGE-A-RESULT-2cea0564.md` |
 | Change A row 4 after the race | My pairing was wrong (the unique successor slot serialises two recomputes); a real cycle remains (recompute against `hitung_ulang_koreksi_kunci` on a corrected sitting): the fix stands, race only if the fixture is cheap | page `33a97fa45b7086a9330290a6575615325808000b` | `A2A-CHANGE-A-ROW4-33a97fa4.md` |
