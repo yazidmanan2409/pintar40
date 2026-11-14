@@ -639,3 +639,18 @@ No other coordination mechanism is added.
 - **No owner ruling** unless the implementation genuinely conflicts with an approved requirement.
 - **The distinction the owner drew:** Sharon's reviews show the architecture is sound. They do not make change C
   technically closed. C closes only on the verified implementation.
+
+### Change C check-in, 14 Nov 2026, 06:35 UTC
+
+- **Commits 31 and 32:**
+  - commit 31 (`2d94d939`) fixes two of Daisy's three blockers in code: the pause page names the stopped class, and
+    the refusal is her approved line;
+  - commit 32 (`ca063fb3`) is the C30-1 and C30-2 fixes.
+- **Handoff:** both were handed off only as a note on the A2a page, so neither reviewer was told. Bob relayed both at
+  06:37.
+- **Friction, the first under the convention.**
+  - A note on a page isn't a handoff. Second Eye has been given the route, a one-shot message to the reviewer's
+    session.
+  - Daisy's session can receive messages but cannot send them. Her acknowledgements go in `TERIMA.md` on
+    `ux-1/daisy-experience`, which Bob reads at every check-in. That is the "messaging unavailable" case, so Bob
+    relays for her.
