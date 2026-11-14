@@ -22,8 +22,8 @@
 --   note_item_view                                          refused
 --   the learner's gate (pengerjaan_gerbang) and the response trigger   refused
 --   tutup_asesmen_terbuka (the departure: akhiri_pendaftaran, transfer_execute)   preserved, unscored, for the stop (O1)
--- NOT HERE, for Sharon: the assignment-level acts (ubah_jadwal_penugasan, akhiri_penugasan and the promotion run's M-1
--- refusal, which today reaches tutup_asesmen_terbuka and so preserves rather than refuses). Each locks an unranked row
+--   kenaikan_tetapkan (the promotion run)                    refused, PROMO_STOPPED with the count (M-1)
+-- NOT HERE, for Sharon: the assignment-level acts (ubah_jadwal_penugasan, akhiri_penugasan). Each locks an unranked row
 -- (the assignment, the transfer) before its learners, and the fence must be the first lock after the lifecycle ranks
 -- with no person after it; their order is a design question. Also still to build (O1): after the lift, the departure's
 -- rule applied to a sitting preserved through the stop, judged against its shifted deadline and audited naming the stop.
@@ -113,6 +113,28 @@ begin
     E'    if public.session_enforce_deadline(s.id) in',
     E'    if public.pengerjaan_pagar(s.id) then continue; end if;   -- O1: preserved, unscored, for the stop\n'
       || E'    if public.session_enforce_deadline(s.id) in');
+  -- the promotion run (owner ruling M-1, 11 Nov): a school's year-end administrative act, refused during a stop for a
+  -- class with a learner whose sitting is protected, saying how many (PROMO_STOPPED, the count in HINT). On the apply
+  -- path the population is already held (rank 1), so the shared fence comes next, before any sitting; the preview
+  -- writes nothing and reads protection as it stands, so the refusal is seen at the review before the confirmation.
+  perform pg_temp.a2a_sisip('public.kenaikan_tetapkan(uuid,uuid,jsonb,boolean,boolean)',
+    E'declare k record;', E'declare v_ditahan integer; k record;');
+  perform pg_temp.a2a_sisip('public.kenaikan_tetapkan(uuid,uuid,jsonb,boolean,boolean)',
+    E'      order by pr.id for update;\n  end if;\n',
+    E'      order by pr.id for update;\n  end if;\n'
+      || E'  -- A2a M-1: the population, the shared fence, then protection read under it\n'
+      || E'  if p_terapkan then\n'
+      || E'    begin\n      perform public.pagar_darurat_bersama();\n'
+      || E'    exception when lock_not_available then\n      perform public.pengerjaan_tolak(''SITTING_FENCE_BUSY'');\n    end;\n'
+      || E'  end if;\n'
+      || E'  select count(distinct a.person_id) into v_ditahan\n'
+      || E'    from public.kenaikan_populasi(p_kelas) pop\n'
+      || E'    join public.assessment_sessions a on a.person_id = pop.person_id and a.enrollment_id = pop.enrollment_id\n'
+      || E'   where a.status in (''CREATED'', ''IN_PROGRESS'', ''PAUSED'') and public.pengerjaan_dilindungi(a.id);\n'
+      || E'  if v_ditahan > 0 then\n'
+      || E'    raise exception using errcode = ''PR070'', detail = ''PROMO_STOPPED'', hint = v_ditahan::text,\n'
+      || E'      message = ''the promotion cannot be applied during a stop: '' || v_ditahan || '' learner(s) have a sitting held by it'';\n'
+      || E'  end if;\n');
   -- the closer: the fence before each candidate's sitting (D6.6 makes it a procedure committing per batch, so the fence
   -- is not held for a whole run)
   perform pg_temp.a2a_sisip('public.pengerjaan_tutup_terjadwal(integer)',
@@ -145,6 +167,9 @@ begin
       raise exception 'A2a D6.2: % does not take the fence and read protection', r.fn;
     end if;
   end loop;
+  if position('PROMO_STOPPED' in pg_get_functiondef('public.kenaikan_tetapkan(uuid,uuid,jsonb,boolean,boolean)'::regprocedure)) = 0 then
+    raise exception 'A2a M-1: kenaikan_tetapkan does not refuse during a stop';
+  end if;
   if has_function_privilege('service_role', 'public.tutup_asesmen_terbuka(uuid,text)', 'execute') then
     raise exception 'A2a D6.2: tutup_asesmen_terbuka is still granted to service_role';
   end if;

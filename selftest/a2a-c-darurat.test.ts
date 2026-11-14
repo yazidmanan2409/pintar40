@@ -331,3 +331,81 @@ a2aDaruratTests.push({
     return c.verdict(`every HARUS reader reading closes_at adds darurat_geser_detik; a window-timed sitting whose assignment closed 10 min ago, released from a 45-min stop: effective deadline and the teacher's list +2700 s (OPEN), the decider and the closer leave it IN_PROGRESS; with the plants the decider ended it (${tanam.putus}) and the list was reported`);
   },
 });
+
+// ═══════════════════════════════════════════════════════════ A2A-C704 · the promotion run during a stop (M-1)
+
+/** A class with a learner holding an open sitting, a later school year, the school's admin; a class stop. The
+ *  promotion's preview and its application are each tried in a subtransaction; then the stop is lifted and the
+ *  preview tried again. One transaction, rolled back. Returns each attempt's SQLSTATE|DETAIL|HINT, or OK. */
+function kenaikanSaatBerhenti(db: string): { pratinjau: string; terapkan: string; sesudah: string; ditahan: number; err: string } {
+  const b = psqlStdin(db, `select k.id || '|' || ap.id || '|' || pop.person_id || '|' || pop.enrollment_id || '|' || k.institution_id || '|' || a.auth_user_id
+  from public.org_nodes k join public.academic_periods kp on kp.id = k.academic_period_id
+  join public.academic_periods ap on ap.institution_id = k.institution_id and ap.id <> kp.id and ap.starts_on > kp.starts_on
+  cross join lateral public.kenaikan_populasi(k.id) pop
+  join public.role_assignments r on r.role = 'INSTITUTION_ADMIN' and r.institution_id = k.institution_id
+   and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until and r.person_id <> pop.person_id
+  join public.accounts a on a.person_id = r.person_id
+  where k.kind = 'CLASS' and pop.sumber = 'KELAS' order by k.id, pop.person_id limit 1;`);
+  const [kelas, tahun, person, enr, inst, admin] = b.split("|");
+  if (!admin) throw new Error("no class with a later school year, a learner and a school admin: the seed changed");
+  const coba = (terapkan: boolean) => `pg_temp.a2a_coba($q$select public.kenaikan_tetapkan('${kelas}', '${tahun}', '[]'::jsonb, false, ${terapkan})$q$)`;
+  const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: `
+begin;
+create function pg_temp.a2a_coba(p_sql text) returns text language plpgsql as $f$
+declare d text; h text;
+begin
+  execute p_sql; return 'OK';
+exception when others then
+  get stacked diagnostics d = pg_exception_detail, h = pg_exception_hint;
+  return sqlstate || '|' || coalesce(d, '') || '|' || coalesce(h, '');
+end $f$;
+set local session_replication_role = replica;
+insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${SESI}', 'status', 'IN_PROGRESS', 'person_id', '${person}',
+  'enrollment_id', '${enr}', 'institution_id', '${inst}', 'class_node_id', '${kelas}', 'cohort_node_id', null,
+  'authoritative_deadline', now() + interval '30 minutes', 'created_at', now() - interval '10 minutes', 'finalized_at', null,
+  'submitted_at', null, 'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
+  'darurat_sejak', null, 'darurat_jendela_id', null))).*
+  from public.assessment_sessions s where s.status = 'FINALIZED' order by (s.institution_id = '${inst}') desc, s.id limit 1;
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, reason, created_by_person_id, activation_recorded_at)
+select '${JENDELA}', 'EMERGENCY', false, array['${inst}'::uuid], array['${kelas}'::uuid], now(), now(), 'A2A-C704',
+       (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), now();
+set local session_replication_role = origin;
+select 'DITAHAN|' || count(distinct a.person_id) from public.kenaikan_populasi('${kelas}') pop
+  join public.assessment_sessions a on a.person_id = pop.person_id and a.enrollment_id = pop.enrollment_id
+ where a.status in ('CREATED', 'IN_PROGRESS', 'PAUSED') and public.pengerjaan_dilindungi(a.id);
+select set_config('request.jwt.claims', '{"sub":"${admin}","role":"authenticated"}', true);
+select 'PRATINJAU|' || ${coba(false)};
+select 'TERAPKAN|' || ${coba(true)};
+set local session_replication_role = replica;
+update public.maintenance_windows set ended_at = now(), t_lift = now() where id = '${JENDELA}';
+set local session_replication_role = origin;
+select 'SESUDAH|' || ${coba(false)};
+rollback;` });
+  const ambil = (k: string) => (r.stdout ?? "").split("\n").find((l) => l.startsWith(k + "|"))?.slice(k.length + 1) ?? "";
+  return { pratinjau: ambil("PRATINJAU"), terapkan: ambil("TERAPKAN"), sesudah: ambil("SESUDAH"), ditahan: Number(ambil("DITAHAN") || -1),
+    err: (r.stderr ?? "").trim().split("\n")[0] ?? "" };
+}
+
+a2aDaruratTests.push({
+  id: "A2A-C704",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    const r = kenaikanSaatBerhenti(db);
+    c.expect(!r.err, `the run failed: ${r.err}`);
+    c.expect(r.ditahan >= 1, `no learner of the class is held by the stop: ${r.ditahan}`);
+    const mau = `PR070|PROMO_STOPPED|${r.ditahan}`;
+    c.expect(r.pratinjau === mau, `the promotion's preview during the stop answered ${r.pratinjau}, not ${mau}`);
+    c.expect(r.terapkan === mau, `the promotion's application during the stop answered ${r.terapkan}, not ${mau}`);
+    c.expect(!r.sesudah.includes("PROMO_STOPPED"), `after the lift the promotion is still refused for the stop: ${r.sesudah}`);
+    const balik = gantiFungsi("public.kenaikan_tetapkan(uuid,uuid,jsonb,boolean,boolean)", "  if v_ditahan > 0 then\n", "  if false then\n");
+    let tanam: ReturnType<typeof kenaikanSaatBerhenti>;
+    try { tanam = kenaikanSaatBerhenti(db); } finally { balik(); }
+    c.expect(!tanam.terapkan.includes("PROMO_STOPPED"), `with the plant (no refusal) the application was still refused for the stop: ${tanam.terapkan}`);
+    return c.verdict(`during a class stop the promotion's preview and application are refused PR070 PROMO_STOPPED with ${r.ditahan} learner(s) in HINT; after the lift it goes on to its own checks (${r.sesudah}); with the plant the application went on (${tanam.terapkan})`);
+  },
+});

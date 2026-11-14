@@ -26,8 +26,10 @@ async function sekolahKelas(kelas: string): Promise<string | null> {
   return (data as { institution_id?: string } | null)?.institution_id ?? null;
 }
 
-function kodeDari(error: { code?: string | null; message?: string | null; details?: string | null } | null, fn: string): Record<string, string> {
+function kodeDari(error: { code?: string | null; message?: string | null; details?: string | null; hint?: string | null } | null, fn: string): Record<string, string> {
   const kode = kodeGalat(error);
+  // A2a M-1: the refusal during a stop says how many learners are held (its HINT, digits only)
+  if (kode === "PROMO_STOPPED") return { kn_kode: kode, kn_n: /^\d+$/.test(error?.hint ?? "") ? error!.hint! : "" };
   if (kode !== "ACTION_FAILED") return { kn_kode: kode };
   const ref = rujukan();
   console.error(`[kenaikan ${ref}] ${fn} failed`, error?.code, error?.message);

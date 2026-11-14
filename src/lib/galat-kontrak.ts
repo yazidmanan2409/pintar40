@@ -77,7 +77,9 @@ export const KODE_PINDAH_KELAS = ["MOVE_NOT_CURRENT", "MOVE_NOT_A_KELAS", "MOVE_
   "PROMO_CHANGED", "PROMO_UNDECIDED", "PROMO_TEACHERS_UNREVIEWED", "PROMO_YEAR_INVALID", "PROMO_DECISION_INVALID",
   "PROMO_TARGET_INVALID", "PROMO_NO_TRANSFER", "PROMO_ALREADY_IN_YEAR",
   // Sharon's follow-up (10 Nov): the run's own record was not complete, so nothing of it was applied
-  "PROMO_RUN_INCOMPLETE"] as const;
+  "PROMO_RUN_INCOMPLETE",
+  // A2a M-1 (owner ruling, 11 Nov): refused during an emergency stop; the number of learners held is in HINT
+  "PROMO_STOPPED"] as const;
 
 /**
  * D-088(b), BOB-49: a lesson whose pass mark the school has not set cannot be given to a class or launched as an Uji

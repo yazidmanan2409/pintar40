@@ -1660,6 +1660,7 @@ export type HleEvent =
   | "galat.promo_no_transfer"
   | "galat.promo_already_in_year"
   | "galat.promo_run_incomplete"
+  | "galat.promo_stopped"
   | "galat.enrol_not_live"
   | "galat.enrol_reason_invalid"
   | "galat.enrol_explanation_required"
@@ -5903,6 +5904,8 @@ const table: Table = {
   "galat.promo_target_invalid": { default: "Kelas tujuan harus kelas aktif tahun ajaran baru di sekolah ini.", en: "The destination must be an active class of the new school year at this school." },
   "galat.promo_no_transfer": { default: "«Ikut perpindahan yang sedang berjalan» hanya untuk murid yang perpindahannya sedang berjalan.", en: "«Follows the transfer under way» is only for a student whose transfer is under way." },
   "galat.promo_already_in_year": { default: "Ada murid yang sudah terdaftar di tahun ajaran baru.", en: "A student is already enrolled in the new school year." },
+  // A2a M-1, Daisy's sentence (THE PLAN §5.3 F, item 4; English with her PASS at 401d2d38); {n} from the refusal's HINT
+  "galat.promo_stopped": { default: "Kenaikan kelas belum dapat diterapkan: asesmen {n} murid sedang ditahan karena penghentian. Coba lagi setelah penghentian diakhiri.", en: "The promotion cannot be applied yet: {n} students' assessments are on hold because of the stop. Try again once the stop has ended." },
   "galat.promo_run_incomplete": { default: "Kenaikan kelas ini tidak diterapkan: catatannya tidak lengkap. Tidak ada yang berubah. Coba lagi; bila terulang, laporkan masalah ini.", en: "This year-end promotion was not applied: its record was incomplete. Nothing has changed. Try again; if it happens again, report the problem." },
   "galat.enrol_not_live": { default: "Pendaftaran ini sudah berakhir.", en: "This enrolment has already ended." },
   "galat.enrol_reason_invalid": { default: "Pilih salah satu alasan yang tersedia.", en: "Choose one of the listed reasons." },
