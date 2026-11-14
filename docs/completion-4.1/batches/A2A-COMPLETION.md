@@ -64,9 +64,9 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**CHANGE C AT A GLANCE** (14 Nov, 04:59 UTC by `date -u`; the source of truth for a fresh session). The details follow
+**CHANGE C AT A GLANCE** (14 Nov, 05:17 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
-- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `c3e88873`. The order is A → C → B, and C
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `6b8a96f9`. The order is A → C → B, and C
   is not merged until B's scale evidence holds on C's frozen commit.
 - **Commits:**
   1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
@@ -253,6 +253,36 @@ below.
         batches. Both are marked, and both move by exactly the stop. Red with the plant.
       - **Your note on commit 14:** `PROMO_STOPPED` now counts every non-final sitting that is protected or marked,
         so a protected EXPIRED sitting inside its grace (B3) counts.
+
+  23. `8aec7e88` · **Daisy's words, word for word, from THE PLAN §5.3 F and this page §3.**
+      - The line during a stop is replaced (your blocker 2), and «Admin PINTAR» replaces «Admin platform».
+      - The refusals: the stopped class (`{kelas}` filled with the class's name), the fence busy, the stop not taken
+        effect, the lift not done, and a class from another school.
+      - The teacher's list: `HELD_STOP`, «Ditahan · dilanjutkan setelah penghentian diakhiri», with no «Atur».
+      - The lift that cannot take the fence is now refused with its own code, `MAINTENANCE_LIFT_NOT_DONE`.
+      - A1-K01 is restated so that every new code has both sentences.
+  24. `6b8a96f9` · **The first screenshots, in `a2a-layar/`.**
+
+**Daisy, ready for your first look** (`docs/completion-4.1/batches/a2a-layar/` on `claude/a2a-change-c` at `6b8a96f9`):
+- `1-daftar-saat-henti-kaprodi-{390,320,1280}`: the list during a stop, seen by someone above the class.
+  - The class's own teacher is stopped too, because their role is scoped at the class (D7). So the list during a
+    stop is seen only from above.
+  - A school admin cannot open this page today (it is not offered to their account), so there is no admin shot.
+- `2-halaman-jeda-murid-{390,1280}`: the learner's pause page, with your replaced line and «Admin PINTAR».
+- `4-halaman-jeda-guru-kelas-390`: the class's own teacher, stopped too.
+- **Questions for you:**
+  - **Does the list's badge read right?** It says «Ditahan», as A1's suspension hold does; only the line under the
+    name says why.
+  - **Two things I saw that are not this change's, I believe** (to confirm against `main`):
+    - a stray dark square under the «Pemetaan Awal / Uji Penguasaan» tabs;
+    - at 390 the «Belum mengerjakan» badge is cut at the right edge of the table.
+- **Not built yet, for your next look:**
+  - the emergency form's class scope and its impact sentence;
+  - «Akhiri penghentian» behind `KonfirmasiBahaya`;
+  - the after-the-lift line (your item 2) and the player's line (item 3, to Sharon's shape);
+  - `akhiri_penugasan`'s refusal (O1).
+- **The stopped-class refusal on the reschedule form** has no screenshot yet. It is the same result line as A1's
+  refusals, with your sentence, and A2A-C706 checks the refusal itself in the database.
 
 **Sharon, ready for your read now:** commit 15 (`fe5f4a42`, D6.6, the closer's procedure), with its lint fix 16
 (`66dc7b02`), and commits 17 to 22. The page lists two confirmations wanted on commit 19.
