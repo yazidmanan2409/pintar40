@@ -46,6 +46,7 @@ language sql stable security definer set search_path = public, pg_temp as $$
   select s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')
      and ((s.frozen_at is not null and s.unfrozen_at is null) or s.darurat_sejak is not null)
 $$;
+revoke execute on function public.pengerjaan_ditahan(public.assessment_sessions) from public;   -- ADR-0021
 
 -- ═══════════════════════════════════════════════════════════ the shift (D6.3, D6.4)
 -- C7-1: whether a window affected a person AT an instant: the memberships, enrolments and roles valid then, not now.
@@ -93,6 +94,7 @@ returns boolean language sql stable security definer set search_path = public, p
   select case when w.kind = 'EMERGENCY' and w.t_stop is not null then public.maintenance_affects_pada(w, p_person, w.t_stop)
               else public.maintenance_affects_kini(w, p_person) end
 $$;
+revoke execute on function public.maintenance_affects(public.maintenance_windows, uuid) from public;   -- ADR-0021
 
 
 -- The length of the protected interval of a hold: from the holding window's T_stop, the union of that window and every
@@ -160,6 +162,7 @@ language sql stable security definer set search_path = public, pg_temp as $$
                     + make_interval(secs => s.darurat_geser_detik))
     from public.assessment_sessions s where s.id = p_session
 $$;
+revoke execute on function public.pengerjaan_tenggat_efektif(uuid) from public;   -- ADR-0021
 
 -- ═══════════════════════════════════════════════════════════ the guard (D6.3: exactly the release's transition)
 create or replace function public.pengerjaan_jaga() returns trigger
@@ -219,6 +222,7 @@ begin
   end if;
   return new;
 end $$;
+revoke execute on function public.pengerjaan_jaga() from public;   -- ADR-0021
 
 -- ═══════════════════════════════════════════════════════════ marking and release (D6.7), bookkeeping
 -- One sitting released by the rule (the gate, the decider and the batches all use it). Returns true when released.

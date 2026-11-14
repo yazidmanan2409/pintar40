@@ -74,6 +74,7 @@ begin
     geser := geser + g; sampai := w.t_stop + g;
   end loop;
 end $$;
+revoke execute on function public.penghentian_kredit(public.assessment_sessions) from public;   -- ADR-0021
 
 -- the credit: skipped, not refused, while held (C30-2); never for a marked sitting (its release gives it)
 create or replace function public.pengerjaan_kredit_darurat(p_session uuid) returns boolean
@@ -94,6 +95,7 @@ begin
   end if;
   return true;
 end $$;
+revoke execute on function public.pengerjaan_kredit_darurat(uuid) from public;   -- ADR-0021
 
 -- the release: the stop's shift and the credit of the lifted chains before the mark (S1); under A1's hold, the mark is
 -- cleared with no shift and the watermark moved past the chain (C30-2: the held time left covers it)
@@ -123,6 +125,7 @@ begin
   end if;
   return true;
 end $$;
+revoke execute on function public.pengerjaan_lepas_darurat(uuid) from public;   -- ADR-0021
 
 -- the marking: never a sitting held by A1 (C30-2); the mark at the start of the chain in force (S1)
 create or replace procedure public.pengerjaan_tandai_darurat(p_batas integer default 200)

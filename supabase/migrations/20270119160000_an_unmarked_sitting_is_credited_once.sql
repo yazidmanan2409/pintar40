@@ -79,6 +79,7 @@ language sql stable security definer set search_path = public, pg_temp as $$
          + (public.penghentian_kredit(s)).geser
     from public.assessment_sessions s where s.id = p_session
 $$;
+revoke execute on function public.pengerjaan_tenggat_efektif(uuid) from public;   -- ADR-0021
 
 -- ═══════════════════════════════════════════════════════════ the credit, persisted once
 create function public.pengerjaan_kredit_darurat(p_session uuid) returns boolean
