@@ -3,7 +3,12 @@
 > **What holds now:**
 > - **The approved wording does not cover it.** One new line for the teacher (§2). On the learner's side, **no new words, but a reachability fix** (§3): today the learner cannot get back to the sitting at all, so no line could help.
 > - **Within A2a's scope:** it is D-1's own behaviour ("held sittings resume with the time they had").
-> - **Question for Bob and Sharon:** §3 changes which rows a learner's list returns. It is a behaviour change, not wording, so Sharon decides its shape.
+> - ~~**Question for Bob and Sharon:** §3 changes which rows a learner's list returns.~~ **Ruled by Sharon (14 Nov; `A2A-C-DRAFTS-e076520c.md` at `76de7fb5`):**
+>   - The finding is real, and **also inherited from A1's suspension hold**.
+>   - **The shape:** a separate read keyed on the learner's own open sitting. Never a resume branch in `may_start_assessment`, which would let a new sitting start after `closes_at`. Belajar keeps the row while such a sitting exists, and opens it by its id, gated by the sitting's shifted deadline.
+>   - **My words stand as written** (§3).
+>   - Second Eye builds it in change C.
+> - **Screen 11 therefore also covers the suspension case:** a learner reinstated after a suspension hold, whose standalone assignment closed meanwhile, finds the row with «Lanjutkan · sisa {n} menit».
 > - **Read at:** `main` `a6b47466`, with Sharon's note in `A2A-C-T01-768eb032.md` (`afc2566e`).
 
 ## 1 · Where it happens, swept for siblings
