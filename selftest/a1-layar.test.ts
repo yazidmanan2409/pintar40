@@ -258,8 +258,8 @@ const akhirSesi = (sesi: string) => psql(`select s.status || '/' || coalesce(s.c
 /** A1-S08's plants removed (also by the clean-up, should a run stop half-way: they are committed since D6.6). */
 const S08_TANAM_LEPAS = `drop trigger if exists a1_s08_rusak on public.assessment_sessions;
 drop trigger if exists a1_s08_rusak on public.assessment_results;`;
-/** The job's own command, read from pg_cron and executed as pg_cron executes it (no signed-in actor, no claims). */
-const PERINTAH = `(select command from cron.job where jobname = '${JOB}')`;
+// RESTATED, D6.6: the job's own command is read from pg_cron where each test runs it (S08 through psql's \gexec, S09 as
+// a statement of its own), at the top level as pg_cron executes it. Was: PERINTAH, a subquery executed in a DO block.
 
 export const a1LayarTests: SelfTest[] = [
   {
