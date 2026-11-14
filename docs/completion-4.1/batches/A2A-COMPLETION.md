@@ -64,9 +64,9 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**CHANGE C AT A GLANCE** (14 Nov, 04:27 UTC by `date -u`; the source of truth for a fresh session). The details follow
+**CHANGE C AT A GLANCE** (14 Nov, 04:45 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
-- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `66dc7b02`. The order is A → C → B, and C
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `cd89c570`. The order is A → C → B, and C
   is not merged until B's scale evidence holds on C's frozen commit.
 - **Commits:**
   1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
@@ -193,21 +193,65 @@ below.
           names the unaffected overdue one. Plant: with the exclusion removed, the three fill the limit.
       - **R2's timing** (activation under the fence ≤ 0.5 s) is change B's measurement, on C's frozen commit.
   16. `66dc7b02` · Lint: A1-S08's unused constant removed after the restatement.
-- **Green locally:** A2A-C701 to C705, B1-R01, DR-D02, A2A-L02 to L06 (L01 apart), F06, F24, F37, A2A-L03, A2A-L05, A2A-T01, A2A-F01, M148-D02, and A1's K01, S01 to S09 and J01. The pins are at
-  254. **A2A-L01 is red on three, for Sharon.**
-- **Open with Sharon:** the owner's three questions and two points (below), and her read of drafts 6 to 8.
-- **Next, in order:**
-  0. The C7-1 teacher-role test. Moved and transferred are A2A-C701 (commit 11), C7-2 is commit 12 and C7-3 is commit 13.
-     Also O1's rule after the lift, for a sitting preserved through a departure. M-1 is commit 14.
-  1. D6.2's assignment-level acts (`ubah_jadwal_penugasan`, `akhiri_penugasan`, `tutup_asesmen_terbuka`, the
-     promotion), after Sharon's ruling on their order. Daisy's refusal lines go into `hle.ts`.
-  2. ~~D6.6~~ done (commit 15).
-  3. The fenced lift, including AKHIRI on an EMERGENCY window, with `T_lift`. **Sharon's own early read.**
-  4. D6.9: the audit rows.
-  5. The B3 to B6 tests, and the required-change-1 test through every reader.
-  6. Daisy's §3, to Sharon's shape, with its three tests.
-  7. Daisy's §2 teacher line.
-  8. The screens, with screenshots in `a2a-layar/`.
+
+  **Sharon's read of drafts 9 and 10** (`A2A-C-BEFORE-FREEZE-8bc74097.md`, at `5bd857a5`, with the addendum at
+  `82ebd576`) was adopted by the Chief Architect, apart from the join refusal (REG-A2A-09, not built). It is built
+  as commits 17 to 19:
+  17. `0ed66bde` · **C10-1.**
+      - For an EMERGENCY window, `maintenance_affects` answers as of the window's `T_stop`. PLANNED windows keep the
+        current reading, kept unchanged as `maintenance_affects_kini`. So the hook, the status read, the no-new-sitting
+        guard, `orang_dilindungi`, protection and marking all read one instant.
+      - `pengerjaan_dilindungi` uses your rule: open, or EXPIRED inside its grace, at `T_stop`; or a mark whose chain
+        is still in force.
+      - **A2A-K01** (formerly A2A-C701) covers the learner moved, the learner transferred, and the teacher whose role
+        ends. Each is still stopped after the change, is marked, and moves by exactly `T_lift − T_stop`. A joiner
+        after `T_stop` is neither stopped nor held, and their deadline is unchanged.
+  18. `8112c53b` · **(b), the lift.**
+      - `change_maintenance` AKHIRI, under the exclusive fence, records `t_lift = clock_timestamp()` with `ended_at`.
+      - Then, last of its writes, it marks every sitting the window still protects that no batch has marked yet.
+      - There is a CHECK that an ended EMERGENCY window with `t_stop` has `t_lift`. The audit row carries
+        `t_stop`, `t_lift` and `marked_at_lift`.
+      - **A2A-K01, marking interrupted halfway:** one of two sittings is held by a second connection while the
+        batch runs, so the batch marks only the first. After the real lift and the release, both sittings move by
+        exactly `t_lift − t_stop`. Plant: a lift that does not complete the marking.
+  19. `cd89c570` · **C9-2 and (a). A2A-L01 is green.**
+      - **One B1 exception, with its condition asserted (`syaratEksklusif`):** every holder of the exclusive fence
+        locks after it only ranks 7 to 9, the persons it took before the fence, and audit rows. No unranked table it
+        locks there is locked before a fence anywhere. Plant: an exclusive holder that locks an assignment row breaks
+        the condition, and the exception stops covering `akhiri_penugasan`.
+      - **Sharon, please confirm two things:**
+        - the exception names `tangguhkan_akun` (its Auth-side rows before the shared fence) on your C9-2 reason, as
+          well as the assignment-level acts and the enrolment path;
+        - (a) is asserted as: no exception covers ranks 1 to 6 after the fence, except the same row already held and
+          `audit_write`'s key. That key is mechanically null outside an evaluation session. The one residual case is
+          a persona in an open evaluation session who stops or lifts. The key would then name the evaluator after
+          the fence. Your ruling is wanted.
+      - **Found while writing the condition, and fixed (required change 3):** `change_maintenance` wrote the acting
+        admin after the exclusive fence without having taken them first. It now takes the actor `FOR KEY SHARE`
+        before the fence.
+      - **`ubah_jadwal_penugasan`:** the shared fence comes after its two assignment rows. Under it, the reschedule
+        is refused `SITTING_CLASS_STOPPED` while any open sitting is protected or held. A2A-C706 checks it.
+- **Green locally: the whole regression set (64), A2A-L01 included, and every maintenance test (23).** Also
+  A2A-K01, A2A-C702 to C706, A2A-L02 to L06, T01, F01, M148-D02, B1-R01, DR-D02, F06, F24, F37, and A1's K01, K02,
+  S01 to S09 and J01. The migration pins are at 255.
+- **Open with Sharon:**
+  - her confirmations on commit 19: `tangguhkan_akun` under C9-2's exception, and the evaluation-session residual in
+    (a);
+  - her read of commit 15 (D6.6, the closer's procedure), and the widened protection in commit 11, now commit 17's rule;
+  - her note (c), for the register: release only under a transaction marker.
+- **Still to build before C's freeze, from Sharon's read:**
+  - C7-2's full test: after a lift with no release batch, each act succeeds with the shift applied first:
+    terminate, the teacher's end, added time, extend, resume, the learner's gate. `SITTING_EMERGENCY_HELD` is never
+    raised once a chain has ended.
+  - C7-3's shift test taken from A2A-T01's table: every HARUS reader gives the same effective deadline after a lift,
+    for an own-deadline sitting and a window-timed one, and the KLIEN line equals the server's value.
+- **Then, in order:**
+  1. O1 after the lift: the departure's rule for a sitting preserved through a stop. Also `akhiri_penugasan`'s
+     refusal (O1).
+  2. D6.9: the remaining audit rows (marking completed; released and held counts at the lift).
+  3. The B3 to B6 tests, and the required-change-1 test through every reader.
+  4. Daisy's §3 to Sharon's shape, §2's teacher line, and the D6.2 refusal lines in `hle.ts`.
+  5. The screens, with screenshots in `a2a-layar/`.
 - **Reviewers:** Second Eye cannot message their sessions from here. Pointers for them are on this page; the Chief
   Architect relays.
 
