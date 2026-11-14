@@ -14,7 +14,7 @@
 --   pagar_darurat_bersama()    lock_timeout 2s      every protected decision, and each of the closer's batches
 -- Every fenced decision calls one of them as its first lock after the lifecycle ranks (A2A-L01's rule B1).
 --
--- The key: 7201190000000001 ("A2a, 19 Jan 2027, the fence"), fixed, named only here.
+-- The key: 7201190000000001 ("A2a, 19 Jan 2027, the fence"), a literal, never computed (N2), named only here.
 
 create function public.pagar_darurat_eksklusif() returns void
 language plpgsql security definer set search_path = public, pg_temp set lock_timeout = '1500ms' as $$
@@ -29,8 +29,9 @@ begin
 end $$;
 
 -- Only the fenced functions call them; no client does.
-revoke all on function public.pagar_darurat_eksklusif() from public, anon, authenticated;
-revoke all on function public.pagar_darurat_bersama() from public, anon, authenticated;
+-- N1 (Sharon, A2A-C-DRAFTS-e076520c.md): service_role too
+revoke all on function public.pagar_darurat_eksklusif() from public, anon, authenticated, service_role;
+revoke all on function public.pagar_darurat_bersama() from public, anon, authenticated, service_role;
 
 -- ═══════════════════════════════════════════════════════════ the migration's own check (ADR-0003: structural)
 do $$
@@ -41,7 +42,8 @@ begin
     if not exists (select 1 from pg_proc p where p.oid = r.fn::regprocedure and r.setelan = any (p.proconfig)) then
       raise exception 'A2a fence: % does not carry its SET clause %', r.fn, r.setelan;
     end if;
-    if has_function_privilege('anon', r.fn, 'execute') or has_function_privilege('authenticated', r.fn, 'execute') then
+    if has_function_privilege('anon', r.fn, 'execute') or has_function_privilege('authenticated', r.fn, 'execute')
+       or has_function_privilege('service_role', r.fn, 'execute') then
       raise exception 'A2a fence: % is callable by a client', r.fn;
     end if;
   end loop;

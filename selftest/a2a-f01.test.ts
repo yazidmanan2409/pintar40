@@ -20,9 +20,10 @@ const PAGAR = { pagar_darurat_eksklusif: "lock_timeout=1500ms", pagar_darurat_be
 const MIGRASI_PAGAR = "20270119100000_the_emergency_fence_is_taken_only_inside_the_database.sql";
 
 function psqlBaris(db: string, sql: string): string[][] {
-  const r = spawnSync("psql", [db, "-XqAt", "-F", "\x1f", "-v", "ON_ERROR_STOP=1", "-c", sql], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  // rows end with \x1e, not a newline: a function's source spans many lines
+  const r = spawnSync("psql", [db, "-XqAt", "-F", "\x1f", "-R", "\x1e", "-v", "ON_ERROR_STOP=1", "-c", sql], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
   if (r.status !== 0) throw new Error(r.stderr.slice(0, 300));
-  return r.stdout.split("\n").filter(Boolean).map((l) => l.split("\x1f"));
+  return r.stdout.split("\x1e").map((l) => l.replace(/^\n+/, "")).map((l) => l.replace(/\n+$/, "")).filter(Boolean).map((l) => l.split("\x1f"));
 }
 
 /** The catalogue's half; `tanam` is DDL run first, inside a rolled-back transaction. Returns what is wrong. */
@@ -79,6 +80,26 @@ export function periksaRepoPagar(root: string, tambahan: { path: string; text: s
   return salah;
 }
 
+/** Sharon (A2A-C-DRAFTS-e076520c.md, on B1): B1's unlocked read of a window's kind rests on this: nothing writes
+ *  maintenance_windows.kind except the insert. From the catalogue: no UPDATE of maintenance_windows sets kind, and no
+ *  INSERT … ON CONFLICT on it updates kind. Part of A2a's writer enumeration. */
+export function jenisJendelaDitulis(db: string, tanam = ""): string[] {
+  const q = "select p.proname, p.prosrc from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'";
+  const baris = psqlBaris(db, tanam ? `begin; ${tanam}; ${q}; rollback;` : q);
+  const salah: string[] = [];
+  for (const [fn, src] of baris) {
+    const t = (src ?? "").replace(/--[^\n]*/g, " ").toLowerCase();
+    for (const st of t.split(";")) {
+      if (/\bupdate\s+(?:public\.)?maintenance_windows\b[\s\S]*\bset\b[\s\S]*\bkind\s*=/.test(st)
+          || /\binsert\s+into\s+(?:public\.)?maintenance_windows\b[\s\S]*\bon\s+conflict\b[\s\S]*\bdo\s+update\b[\s\S]*\bkind\s*=/.test(st))
+        salah.push(`${fn} writes maintenance_windows.kind after the insert`);
+    }
+  }
+  return salah;
+}
+const TANAM_JENIS = `create function public._a2a_f02_tanam(p uuid) returns void language plpgsql as $t$
+begin update public.maintenance_windows set kind = 'PLANNED' where id = p; end $t$`;
+
 const TANAM_FN = `create function public._a2a_f01_tanam() returns void language plpgsql as $t$
 begin perform pg_advisory_xact_lock(${KUNCI_PAGAR}); end $t$`;
 const TANAM_SRC = { path: "src/_a2a_f01_tanam.ts", text: "await sql`select pg_advisory_xact_lock(1)`;" };
@@ -96,7 +117,10 @@ export const a2aF01Tests: SelfTest[] = [
       c.expect(k.length === 0, `the fence, from the catalogue:\n  ${k.join("\n  ")}`);
       const r = periksaRepoPagar(repoRoot);
       c.expect(r.length === 0, `the fence, from the repository:\n  ${r.join("\n  ")}`);
-      return c.verdict("the fence key is taken only by pagar_darurat_eksklusif (1500ms) and pagar_darurat_bersama (2s); every caller is an RPC, the closer or a trigger, none granted to anon; no driver, pooler or advisory lock in the deployed code; both plants reported");
+      c.expect(jenisJendelaDitulis(db, TANAM_JENIS).some((x) => x.startsWith("_a2a_f02_tanam")), "the planted update of a window's kind was not reported");
+      const j = jenisJendelaDitulis(db);
+      c.expect(j.length === 0, `a window's kind is written after its insert (B1's unlocked read rests on it):\n  ${j.join("\n  ")}`);
+      return c.verdict("the fence key is taken only by pagar_darurat_eksklusif (1500ms) and pagar_darurat_bersama (2s); every caller is an RPC, the closer or a trigger, none granted to anon; no driver, pooler or advisory lock in the deployed code; nothing writes a window's kind after its insert; three plants reported");
     },
   },
 ];
