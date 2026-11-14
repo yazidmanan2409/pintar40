@@ -64,9 +64,9 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**CHANGE C AT A GLANCE** (14 Nov, 03:39 UTC by `date -u`; the source of truth for a fresh session). The details follow
+**CHANGE C AT A GLANCE** (14 Nov, 03:53 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
-- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `8bc74097`. The order is A → C → B, and C
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `47a3cf74`. The order is A → C → B, and C
   is not merged until B's scale evidence holds on C's frozen commit.
 - **Commits:**
   1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
@@ -104,11 +104,26 @@ below.
         - C7-2, first-touch release in every writer of a sitting's status or deadline, enforced by the enumeration;
         - C7-3, the HARUS readers adding `darurat_geser_detik`;
         - the tests for a learner transferred, and a teacher's role ending, during the stop.
-- **Green locally:** A2A-L03, A2A-L05, A2A-T01, A2A-F01, M148-D02, and A1's K01, S01 to S09 and J01. The pins are at
+  11. `47a3cf74` · DRAFT · **late marking, found on the owner's review of C7-1** (via the Chief Architect, 03:46).
+      - **The defect, on 8bc74097:** a learner moved or transferred after `T_stop` but before the marking batch reached
+        their sitting was never marked, because marking filtered on protection *now*. At the lift they got nothing back.
+      - **Fixed at the source** (migration `20270119130000`):
+        - marking takes the earliest active window with `s.created_at <= t_stop` and
+          `maintenance_affects_pada(w, person, t_stop)`, and no longer filters on current protection;
+        - `pengerjaan_dilindungi` also protects a sitting open by an active window's `T_stop` whose learner it
+          affected at that `T_stop`. So every act that calls `pengerjaan_pagar` refuses or skips that learner's sitting
+          until the lift, even after the move. **Sharon: this widens the protection read by D6.1 and D6.2; please
+          confirm it is the intended reading.**
+      - **A2A-C701, permanent:** stop takes effect → moved to another class, or transferred out → marking runs late →
+        lift 45 minutes after `T_stop` → release. The deadline moves by exactly 2700 s in both cases. Plant: marking
+        judged by `maintenance_affects` now (draft 7's form). The sitting is not marked and nothing moves.
+      - **Not yet covered:** a teacher's role ending during the stop. No seeded teacher has a sitting in a
+        class-scoped stop, so this needs its own fixture.
+- **Green locally:** A2A-C701, A2A-L03, A2A-L05, A2A-T01, A2A-F01, M148-D02, and A1's K01, S01 to S09 and J01. The pins are at
   254. **A2A-L01 is red on three, for Sharon.**
 - **Open with Sharon:** the owner's three questions and two points (below), and her read of drafts 6 to 8.
 - **Next, in order:**
-  0. Sharon's C7-2 and C7-3, and the C7-1 tests (moved, transferred, a teacher's role ending), as selftests.
+  0. Sharon's C7-2 and C7-3, and the C7-1 teacher-role test (moved and transferred are A2A-C701, commit 11).
   1. D6.2's assignment-level acts (`ubah_jadwal_penugasan`, `akhiri_penugasan`, `tutup_asesmen_terbuka`, the
      promotion), after Sharon's ruling on their order. Daisy's refusal lines go into `hle.ts`.
   2. D6.6: the closer as a procedure, its selection by the shifted closing time, and the job `select` → `call`.
