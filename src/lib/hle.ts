@@ -7629,7 +7629,7 @@ const table: Table = {
   "mengajar.sedia.kode.assign_reason_required": { default: "Tuliskan alasannya, 10 sampai 300 karakter.", en: "Write the reason, 10 to 300 characters." },
   "mengajar.sedia.kode.assign_in_progress": { default: "Masih ada murid yang mengerjakan asesmen materi ini. Centang konfirmasi untuk mengakhirinya, atau kembali setelah mereka selesai.", en: "Some students are still answering an assessment of this material. Tick the confirmation to end it, or come back once they have finished." },
   // A2a, Daisy (THE PLAN item 4, TINJAUAN-THE-PLAN-r5.md O-2): ending or withdrawing during a stop has its own line
-  "mengajar.sedia.kode.assign_class_stopped": { default: "Penugasan ini tidak dapat diakhiri atau ditarik selama penghentian. Tidak ada yang diubah.", en: "This assignment cannot be ended or withdrawn during the stop. Nothing was changed." },
+  "mengajar.sedia.kode.assign_class_stopped": { default: "Penugasan ini tidak dapat diakhiri atau ditarik selama penghentian. Tidak ada yang diubah.", en: "This assignment cannot be ended or withdrawn during a stop. Nothing was changed." },
   "mengajar.siap.langkah1": { default: "Pilih materi", en: "Choose material" },
   "mengajar.siap.langkah2": { default: "Tinjau yang akan diterima murid", en: "Review what students receive" },
   "mengajar.siap.langkah3": { default: "Sediakan", en: "Make available" },
