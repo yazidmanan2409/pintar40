@@ -178,6 +178,69 @@ delete from public.maintenance_windows where id = '${JENDELA}';
 commit;`);
   }
 }
+/** Sharon's K2 (A2A-C-11-14-35ee833a.md), in her form: marking in batches of one (p_batas = 1), two learners of the
+ *  stopped class; the first batch marks the first (the second is held by another connection, SKIP LOCKED: the batch
+ *  stops there); between batches the second learner is moved to another class; the second batch marks them as of
+ *  T_stop; then the lift and the release: both move by exactly t_lift − t_stop. */
+async function antarBatch(db: string): Promise<{ satu: string; dua: string; tepat: string; err: string }> {
+  const { psqlLain, tidur } = await import("./balapan");
+  const b = psqlStdin(db, `select e1.person_id || '|' || e2.person_id || '|' || m1.node_id || '|' || e1.institution_id || '|' || m2.id || '|' || e2.id || '|'
+     || (select n2.id from public.org_nodes n2 where n2.kind = 'CLASS' and n2.institution_id = e1.institution_id and n2.id <> m1.node_id order by n2.id limit 1)
+  from public.enrollments e1 join public.memberships m1 on m1.enrollment_id = e1.id and m1.valid_to is null
+  join public.org_nodes n on n.id = m1.node_id and n.kind = 'CLASS'
+  join public.memberships m2 on m2.node_id = m1.node_id and m2.valid_to is null and m2.enrollment_id <> e1.id
+  join public.enrollments e2 on e2.id = m2.enrollment_id and e2.status = 'ACTIVE' and e2.person_id <> e1.person_id
+  where e1.status = 'ACTIVE'
+    and exists (select 1 from public.org_nodes n2 where n2.kind = 'CLASS' and n2.institution_id = e1.institution_id and n2.id <> m1.node_id)
+  order by e1.id, e2.id limit 1;`);
+  const [p1, p2, kelas, inst, mem2, enr2, lain] = b.split("|");
+  if (!lain) throw new Error("no class with two learners in a school with a second class: the seed changed");
+  const S1 = "a2a1c701-0000-4000-8000-000000000021", S2 = "a2a1c701-0000-4000-8000-000000000022";
+  const sesi = (id: string, orang: string) => `insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${orang}',
+  'authoritative_deadline', now() + interval '30 minutes', 'created_at', now() - interval '5 minutes', 'finalized_at', null, 'submitted_at', null,
+  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'darurat_sejak', null, 'darurat_jendela_id', null))).*
+  from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;`;
+  try {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+${sesi(S1, p1)}
+${sesi(S2, p2)}
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, reason, created_by_person_id, activation_recorded_at)
+select '${JENDELA}', 'EMERGENCY', false, array['${inst}'::uuid], array['${kelas}'::uuid], now(), clock_timestamp(), 'A2A-K01 between batches',
+       (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), now();
+commit;`);
+    const pegang = psqlLain(`begin; select 1 from public.assessment_sessions where id = '${S2}' for update; select pg_sleep(1.5); commit;`);
+    await tidur(300);
+    psqlStdin(db, "call public.pengerjaan_tandai_darurat(1);");
+    const satu = psqlStdin(db, `select string_agg((darurat_sejak is not null)::text, ',' order by id) from public.assessment_sessions where id in ('${S1}', '${S2}');`);
+    await pegang;
+    // between batches: the second learner moved to another class
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+update public.memberships set valid_to = clock_timestamp(), close_reason = 'MOVED' where id = '${mem2}';
+insert into public.memberships (enrollment_id, node_id, academic_period_id, valid_from)
+select '${enr2}', '${lain}', m.academic_period_id, clock_timestamp() from public.memberships m where m.id = '${mem2}';
+commit;`);
+    psqlStdin(db, "call public.pengerjaan_tandai_darurat(1);");
+    const dua = psqlStdin(db, `select string_agg((darurat_sejak is not null)::text, ',' order by id) from public.assessment_sessions where id in ('${S1}', '${S2}');`);
+    const out = psqlStdin(db, `create temp table a2a_k2_d as select id, authoritative_deadline as d from public.assessment_sessions where id in ('${S1}', '${S2}');
+begin; set local session_replication_role = replica;
+update public.maintenance_windows set ended_at = t_stop + interval '${LAMA_MENIT} minutes', t_lift = t_stop + interval '${LAMA_MENIT} minutes' where id = '${JENDELA}';
+commit;
+call public.pengerjaan_lepas_darurat_semua(1);
+select 'TEPAT|' || string_agg(((s.authoritative_deadline - d.d) = interval '${LAMA_MENIT} minutes' and s.darurat_sejak is null)::text, ',' order by s.id)
+  from public.assessment_sessions s join a2a_k2_d d on d.id = s.id;`);
+    const tepat = out.split("\n").find((l) => l.startsWith("TEPAT|"))?.slice(6) ?? "";
+    return { satu, dua, tepat, err: "" };
+  } finally {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+delete from public.assessment_sessions where id in ('${S1}', '${S2}');
+delete from public.memberships where enrollment_id = '${enr2}' and node_id = '${lain}' and valid_from > now() - interval '1 hour';
+update public.memberships set valid_to = null, close_reason = null where id = '${mem2}';
+delete from public.maintenance_windows where id = '${JENDELA}';
+commit;`);
+  }
+}
 const ANGKAT_TANDAI = "    if v_lift is not null then v_tandai := public.pengerjaan_tandai_saat_angkat(w.id); end if;\n";
 
 // the plant: marking judged by the placement now, as draft 7 had it
@@ -212,11 +275,19 @@ export const a2aDaruratTests: SelfTest[] = [
       let tpTanam: Awaited<ReturnType<typeof terputus>>;
       try { tpTanam = await terputus(db); } finally { balikA(); }
       c.expect(tpTanam.tepat !== "true,true", `with the plant (the lift not completing the marking) both sittings still moved: ${JSON.stringify(tpTanam)}`);
+      // Sharon's K2: batches of one, the second learner moved between batches; with the plant (marking judged now) red
+      const ab = await antarBatch(db);
+      c.expect(ab.satu === "true,false" && ab.dua === "true,true", `batches of one, the second learner moved between them: marked ${ab.satu} after the first batch, ${ab.dua} after the second`);
+      c.expect(ab.tepat === "true,true", `after the lift and the release (batches of one) the two did not each move by exactly the stop: ${ab.tepat}`);
+      const balikB = gantiFungsi("public.pengerjaan_tandai_darurat(integer)", TANDAI_SEKARANG_DARI, TANDAI_SEKARANG_KE);
+      let abTanam: Awaited<ReturnType<typeof antarBatch>>;
+      try { abTanam = await antarBatch(db); } finally { balikB(); }
+      c.expect(abTanam.tepat !== "true,true", `with the plant (marking judged now) the learner moved between batches still kept the time: ${JSON.stringify(abTanam)}`);
       const balik = gantiFungsi("public.pengerjaan_tandai_darurat(integer)", TANDAI_SEKARANG_DARI, TANDAI_SEKARANG_KE);
       let tanam: ReturnType<typeof satuKali>;
       try { tanam = satuKali(db, "MOVED"); } finally { balik(); }
       c.expect(!tanam.ditandai && tanam.geser === 0, `with the plant (marking judged now) the moved learner still kept the time: ${JSON.stringify(tanam)}`);
-      return c.verdict(`stop → moved, transferred, or a teacher's role ended → late marking → lift: each still stopped after the change, marked, and moved by exactly T_lift − T_stop (${LAMA_MENIT} min); a learner who joined the stopped class after T_stop is neither stopped nor held, deadline unchanged; marking interrupted half-way, then the real lift: both sittings moved by exactly T_lift − T_stop (with the plant, the lift not completing the marking, the unmarked one did not: ${tpTanam.tepat}); with the plant (marking judged now) the moved learner lost the time`);
+      return c.verdict(`stop → moved, transferred, or a teacher's role ended → late marking → lift: each still stopped after the change, marked, and moved by exactly T_lift − T_stop (${LAMA_MENIT} min); a learner who joined the stopped class after T_stop is neither stopped nor held, deadline unchanged; marking in batches of one with the second learner moved between them: both moved by exactly the stop (red with the plant); marking interrupted half-way, then the real lift: both sittings moved by exactly T_lift − T_stop (with the plant, the lift not completing the marking, the unmarked one did not: ${tpTanam.tepat}); with the plant (marking judged now) the moved learner lost the time`);
     },
   },
 ];

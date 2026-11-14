@@ -131,7 +131,10 @@ begin
       || E'  select count(distinct a.person_id) into v_ditahan\n'
       || E'    from public.kenaikan_populasi(p_kelas) pop\n'
       || E'    join public.assessment_sessions a on a.person_id = pop.person_id and a.enrollment_id = pop.enrollment_id\n'
-      || E'   where a.status in (''CREATED'', ''IN_PROGRESS'', ''PAUSED'') and public.pengerjaan_dilindungi(a.id);\n'
+      -- Sharon's note on commit 14: every non-final sitting, so a protected EXPIRED one inside its grace (B3) counts
+      || E'   where a.status in (''CREATED'', ''IN_PROGRESS'', ''PAUSED'', ''EXPIRED'')\n'
+      || E'     and not exists (select 1 from public.assessment_results r where r.session_id = a.id)\n'
+      || E'     and (public.pengerjaan_dilindungi(a.id) or a.darurat_sejak is not null);\n'
       || E'  if v_ditahan > 0 then\n'
       || E'    raise exception using errcode = ''PR070'', detail = ''PROMO_STOPPED'', hint = v_ditahan::text,\n'
       || E'      message = ''the promotion cannot be applied during a stop: '' || v_ditahan || '' learner(s) have a sitting held by it'';\n'
