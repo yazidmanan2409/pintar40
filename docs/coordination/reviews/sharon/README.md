@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| Monday handover: A2a change C | Everything up to `a6ce33e7` read, no blockers; the result review's scope, scenario 8's numbers, the eight hosted reads, the open items | `a6ce33e7c9b5c8d8797d78c5d2b4f8efad5c6361` | `HANDOVER-MONDAY-A2A-C.md` |
 | A2a change C commits 33 to 36 | NO BLOCKER: the readers check their caller in the body; `akhiri_penugasan` keeps the person, fence, protection, then credit order; 34 revokes only; 36 is the app only | `a6ce33e7c9b5c8d8797d78c5d2b4f8efad5c6361` | `A2A-C-33-36-a6ce33e7.md` |
 | A2a change C commit 37 and A2A-C714 (search_path exception) | NO BLOCKER: enforced as ruled (list, conditions, owner, first act, nine plants); commits 33 to 36 not yet handed to me | `a6ce33e7c9b5c8d8797d78c5d2b4f8efad5c6361` | `A2A-C-37-a6ce33e7.md` |
 | A2a change C commit 32 (C30-1, C30-2) | NO BLOCKER; C30-2 closed (with S1 and S2 swept, A2A-C713's three cases with plants); C30-1 closed: my finding was wrong (A1's gate already runs before `record_answer`'s read), with A2A-C708's rule and A2A-C712 kept; C18-1 closed in development, scale numbers remain | `ca063fb3d9a7d88e716c16ad31c83f7324fbbe25` | `A2A-C-32-ca063fb3.md` |
