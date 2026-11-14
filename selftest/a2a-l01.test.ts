@@ -254,6 +254,7 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
       && (kat.fns.get("auth_password_write_guard") ?? []).every((b) => bersih(b).replace(/\s+/g, " ")
         .includes("if new.encrypted_password is not distinct from old.encrypted_password or coalesce(new.encrypted_password, '') = '' then return new;")) },
   samaBaris("hitung_ulang_koreksi_kunci", "the recalculated result's person_id is the sitting's learner, taken FOR KEY SHARE first (row 3, migration 20270118130000)"),
+  samaBaris("stop_pintar_now", "the window's created_by_person_id is v_me, taken FOR KEY SHARE before the fence (required change 3: no person row is waited on after it)"),
   samaBaris("recompute_result", "the new result's person_id is the sitting's learner, taken FOR KEY SHARE first (row 4, migration 20270118140000)"),
   samaBaris("transfer_minta", "the transfer's person_id is e.person_id, taken FOR KEY SHARE first (C1, migration 20270118120000)"),
   samaBaris("transfer_request", "the transfer's person_id is e.person_id, taken FOR KEY SHARE first (C1, migration 20270118120000)"),
