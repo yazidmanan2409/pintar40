@@ -6164,6 +6164,11 @@
       "id": "A2A-T01",
       "runner": "static",
       "proves": "A2a's page, D6.3 (the single most likely thing to go wrong in change C; the owner's condition 1 for the order A → C → B): every reader of a sitting's closing time — every function in public whose source names closure_deadline, closes_at, authoritative_deadline, late_sync_grace_seconds, late_sync_until or pengerjaan_tenggat_efektif, read from the catalogue, and every file under src/ that names one — is classed in selftest/a2a-c-pembaca.test.ts as HARUS (it reads a live sitting's closing time, so D6.3 makes it shift-aware) or TIDAK (it reads an assignment's window, a definition's setting, the initial deadline, or a type), each with its reason; it fails on a reader not classed and on a classed name that no longer reads; a planted function and a planted app file are each reported first."
+    },
+    {
+      "id": "A2A-F01",
+      "runner": "static",
+      "proves": "A2a's page §2 (Sharon's ruling, Part 2 row 5; her note, early read §6; migration 20270119100000): from the catalogue, exactly two functions take an advisory lock on the fence key, pagar_darurat_eksklusif (SET lock_timeout 1500ms) and pagar_darurat_bersama (SET lock_timeout 2s), and every function or procedure that calls one is an RPC granted to authenticated, the closer procedure, or a trigger function, none granted to anon; from the repository, nothing under src/ or supabase/functions/ imports a database driver, names the transaction pooler or calls pg_advisory, and no migration names the fence key outside the fence's own; a planted second taker of the key and a planted advisory-lock call under src/ are each reported first."
     }
   ]
 }
