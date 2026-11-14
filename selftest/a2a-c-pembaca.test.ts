@@ -7,6 +7,7 @@
  * and late sync, the closer's selection, the teacher's list and the player. A missed reader re-times or ends a sitting
  * silently. So every reader is found, from the catalogue and from the repository, and classed here:
  *   HARUS  it reads a LIVE sitting's closing time to decide or show something: D6.3 makes it shift-aware;
+ *   KLIEN  an explicit client computation from the server's shifted value (checked by D6.3's shift test);
  *   TIDAK  it reads something else: an assignment's start or scheduling window, a definition's grace setting, the
  *          initial deadline being written, or a type.
  * It fails on a reader not in the table (a missed reader is red), and on a table entry that no longer reads (a stale
@@ -20,13 +21,21 @@ import { Checks, type SelfTest } from "./lib";
 import { bacaKatalog, bersih } from "./a2a-l01.test";
 
 /** What a reader of a sitting's closing time names, in the database and in the app. */
+// E1 (Sharon, A2A-C-T01-768eb032.md): frozen_remaining_seconds is a sitting's time left under another name
 const KOLOM_DB = ["closure_deadline", "closes_at", "authoritative_deadline", "late_sync_grace_seconds",
-  "pengerjaan_tenggat_efektif", "late_sync_until"];
-const POLA_SRC = /closes_at|authoritative_deadline|closure_deadline|late_sync|closesAt|authoritativeDeadline|closureDeadline|lateSync|tenggat_efektif|tenggatEfektif/;
+  "pengerjaan_tenggat_efektif", "late_sync_until", "frozen_remaining_seconds"];
+/** E1: a call to a function that returns a deadline is a read of it, so a new caller is found and classed. */
+const FUNGSI_TENGGAT = ["session_state", "pengerjaan_saya", "daftar_pengerjaan", "pengerjaan_tenggat_efektif"];
+// E2: the names the app uses for a sitting's deadline, read in code only (comments removed, as bersih does for SQL)
+const POLA_SRC = /closes_at|authoritative_deadline|closure_deadline|late_sync|closesAt|authoritativeDeadline|closureDeadline|lateSync|tenggat_efektif|tenggatEfektif|\btenggat\b|sisa_detik|sisa_ditahan_detik|berakhir_pada|\bdeadline\b/;
+const kodeSaja = (t: string) => t.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
 
-type Kelas = { kelas: "HARUS" | "TIDAK"; alasan: string };
+type Kelas = { kelas: "HARUS" | "TIDAK" | "KLIEN"; alasan: string };
 const H = (alasan: string): Kelas => ({ kelas: "HARUS", alasan });
 const T = (alasan: string): Kelas => ({ kelas: "TIDAK", alasan });
+/** An explicit client computation from the server's shifted value: D6.3's shift test checks it against the server. */
+const K = (alasan: string): Kelas => ({ kelas: "KLIEN", alasan });
+const TAMPIL = "shows the server's shifted value; never computes its own deadline (Sharon, E2)";
 const JENDELA = "the assignment's window for starting or scheduling a sitting, not a running sitting's closing time";
 const SETELAN = "the definition's grace setting (configuration), not a sitting's time";
 
@@ -48,6 +57,7 @@ export const PEMBACA_DB: Record<string, Kelas> = {
   lanjutkan_pengerjaan: H("resuming a held sitting: its new deadline from the time it had"),
   pengerjaan_jaga: H("the guard on deadline writes: D6.3 lets exactly the release's transition through"),
   open_assessment_session: T("writes the initial deadline of a new sitting; nothing is shifted yet"),
+  tutup_pengerjaan_ditahan: T("records the held time left (frozen_remaining_seconds) in its audit row; decides nothing on it"),
   assessment_orientation: T(JENDELA),
   my_open_assessments: T(JENDELA),
   may_start_assessment: T(JENDELA),
@@ -71,13 +81,20 @@ export const PEMBACA_SRC: Record<string, Kelas> = {
   "src/components/siklus/OrientasiAsesmen.tsx": T("the orientation before a start: the assignment's closing date"),
   "src/app/studio/actions.ts": T(SETELAN),
   "src/lib/aturan-asesmen.ts": T(SETELAN),
+  "src/lib/pengerjaan-kontrak.ts": T(TAMPIL),
+  "src/lib/pengerjaan-tampil.ts": T(TAMPIL),
+  "src/app/belajar/_components/ItemPlayer.tsx": T(TAMPIL),
+  "src/app/mengajar/[kelas]/siapa/page.tsx": T("the added-time result line: " + TAMPIL),
+  "src/lib/hle.ts": T("the wording dictionary: the word deadline in sentences; no value is read"),
+  "src/components/mengajar/AturPengerjaan.tsx": K("the added-time confirmation: Date.parse(tenggat) + n minutes, from the server's shifted tenggat"),
 };
 
 /** The database's readers: every function in `public` whose source names a closing-time column or the effective
  *  deadline; `tanam` is DDL run first, inside a rolled-back transaction. */
 export function pembacaDb(db: string, tanam = ""): string[] {
   const kat = bacaKatalog(db, tanam);
-  return [...kat.fns].filter(([, bs]) => bs.some((b) => KOLOM_DB.some((c) => new RegExp(`\\b${c}\\b`).test(bersih(b)))))
+  return [...kat.fns].filter(([fn, bs]) => bs.some((b) => KOLOM_DB.some((c) => new RegExp(`\\b${c}\\b`).test(bersih(b)))
+      || FUNGSI_TENGGAT.some((f) => f !== fn && new RegExp(`\\b${f}\\s*\\(`).test(bersih(b)))))
     .map(([fn]) => fn).sort();
 }
 /** The app's readers: every file under src/ that names one; `tambahan` adds planted files. */
@@ -87,11 +104,11 @@ export function pembacaSrc(root: string, tambahan: { path: string; text: string 
     for (const n of readdirSync(d)) {
       const q = join(d, n);
       if (statSync(q).isDirectory()) jalan(q);
-      else if (/\.(ts|tsx)$/.test(n) && POLA_SRC.test(readFileSync(q, "utf8"))) out.push(q.slice(root.length + 1));
+      else if (/\.(ts|tsx)$/.test(n) && POLA_SRC.test(kodeSaja(readFileSync(q, "utf8")))) out.push(q.slice(root.length + 1));
     }
   };
   jalan(join(root, "src"));
-  for (const t of tambahan) if (POLA_SRC.test(t.text)) out.push(t.path);
+  for (const t of tambahan) if (POLA_SRC.test(kodeSaja(t.text))) out.push(t.path);
   return out.sort();
 }
 /** What does not match the table: readers not classed, and classed names that no longer read. */
@@ -102,6 +119,8 @@ export function bedaKelas(ada: string[], tabel: Record<string, Kelas>): { baru: 
 const TANAM_FN = `create function public._a2a_t01_tanam(p uuid) returns timestamptz language sql as $t$
   select s.authoritative_deadline from public.assessment_sessions s where s.id = p $t$;`;
 const TANAM_SRC = { path: "src/_a2a_t01_tanam.ts", text: "export const batas = (s: { closes_at: string }) => s.closes_at;" };
+// the third plant (E2): an app file reading the app's own name for a sitting's deadline
+const TANAM_SRC2 = { path: "src/_a2a_t01_tanam2.tsx", text: "export const Sisa = (k: { tenggat: string }) => Date.parse(k.tenggat);" };
 
 export const a2aPembacaTests: SelfTest[] = [
   {
@@ -115,6 +134,7 @@ export const a2aPembacaTests: SelfTest[] = [
       c.expect(t1.baru.includes("_a2a_t01_tanam"), "the planted function reading a sitting's deadline was not reported");
       const t2 = bedaKelas(pembacaSrc(repoRoot, [TANAM_SRC]), PEMBACA_SRC);
       c.expect(t2.baru.includes(TANAM_SRC.path), "the planted app file reading closes_at was not reported");
+      c.expect(bedaKelas(pembacaSrc(repoRoot, [TANAM_SRC2]), PEMBACA_SRC).baru.includes(TANAM_SRC2.path), "the planted app file reading tenggat was not reported");
       // the real code
       const d = bedaKelas(pembacaDb(db), PEMBACA_DB);
       c.expect(d.baru.length === 0, `database readers of a sitting's closing time not classed (A2a's page, D6.3): ${d.baru.join(", ")}`);
@@ -124,7 +144,7 @@ export const a2aPembacaTests: SelfTest[] = [
       c.expect(s.basi.length === 0, `classed app readers that no longer read a closing time: ${s.basi.join(", ")}`);
       const n = (t: Record<string, Kelas>, k: string) => Object.values(t).filter((x) => x.kelas === k).length;
       return c.verdict(`${Object.keys(PEMBACA_DB).length} database and ${Object.keys(PEMBACA_SRC).length} app readers of a sitting's closing time, each classed `
-        + `(${n(PEMBACA_DB, "HARUS") + n(PEMBACA_SRC, "HARUS")} must add the shift, ${n(PEMBACA_DB, "TIDAK") + n(PEMBACA_SRC, "TIDAK")} read something else); both plants reported`);
+        + `(${n(PEMBACA_DB, "HARUS") + n(PEMBACA_SRC, "HARUS")} must add the shift, ${n(PEMBACA_SRC, "KLIEN")} a client computation, ${n(PEMBACA_DB, "TIDAK") + n(PEMBACA_SRC, "TIDAK")} read something else or show the server's value); three plants reported`);
     },
   },
 ];
