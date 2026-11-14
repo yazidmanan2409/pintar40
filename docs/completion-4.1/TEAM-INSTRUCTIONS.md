@@ -705,3 +705,58 @@ now includes the whole static manifest.
 6. **A blocker:** explicitly unfreeze, correct, review, then step 3 again before refreezing.
 
 **Change C now:** Second Eye's full run on `f74c6060` is that commit's one full pre-flight.
+
+## Weekend shutdown: change C NOT frozen; a clean checkpoint at `f74c6060` (Chief Architect, 14 Nov 2026, 09:20 UTC)
+
+### The run
+
+Second Eye's full pre-flight on `f74c606069cbfdce9004138e3bdc99623f01af8b` is green:
+
+- lint and typecheck: return code 0;
+- build identity: 11 passed;
+- the whole manifest, freshly reset and built: 1167 passed, 0 failed;
+- plants: 175 of 175 caught;
+- red cases: all 11 groups passed.
+
+The tree is clean and everything is pushed.
+
+### Why there is no freeze
+
+His handover lists as "deferred, not in C" four items that are **approved A2a requirements**, not optional:
+
+- **O1 after the lift:** a departure's rule for a sitting preserved through a stop, and `akhiri_penugasan`'s refusal
+  (D6.2).
+- **M-1:** the promotion run is refused for a learner with a protected sitting. Today it preserves the sitting instead
+  of refusing (D6.2).
+- **D6.9's remaining audit rows:** marking completed, and the released and held counts at the lift.
+- **The per-blocker tests B3 to B6** of THE PLAN §5.3 H, with the required-change-1 test through every reader.
+
+The A2a page lists all four as "then, in order" before the freeze. Freezing without them would freeze a candidate
+known to be incomplete. Sharon's result review would then fail it, and it would have to be unfrozen.
+
+The owner's directive is: "If Change C cannot safely freeze, preserve the current state and stop at a clean
+checkpoint. Do not rush or waive any gate." So C stops at a clean checkpoint, `f74c6060`.
+
+### Monday, in order
+
+1. **Second Eye** builds the four items above, with tests, red first. Handoff per commit; Sharon reads each.
+2. A new candidate, then the one full pre-flight on it (the freeze sequence, §4 of `PLAN-A2B-C2W.md`).
+3. If it's green: freeze, then Sharon's result review of the frozen commit.
+4. Change B on `claude/a2a-change-b` from the frozen commit: tooling only; the four measurements; scenario 8's three
+   numbers.
+5. If B's evidence holds: merge C, then B; staging promotion with the preservation pair, and Sharon's eight hosted
+   privilege reads as a stop condition. pg_cron must be present where the search_path lint runs.
+
+### Friction
+
+An approved item was relabelled as deferred in a handover. The rule stands: only the owner or a reviewer's ruling
+removes approved scope, and an engineer's "nobody asked for it" never does.
+
+### Where everyone is
+
+| Who | Handover | Where |
+|---|---|---|
+| Sharon | `0aab9152` | `claude/gracious-lamport-0m1qjr` |
+| Daisy | `e990def9` | `ux-1/daisy-experience` |
+| Second Eye | `cfafc1a2` | the A2a page, `claude/a2a`. Read it with this note: "proposed for freeze" is superseded by "clean checkpoint", and his "deferred" items are Monday's first work |
+| Bob | this section | this file |
