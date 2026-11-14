@@ -173,11 +173,16 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
     alasan: "the auth.users row held is the new row Auth is inserting: no other transaction can see it, so none can hold it",
     syarat: (kat: Katalog) => [...kat.pemicu].every(([k, fs]) => !fs.includes("handle_new_auth_user") || /^auth\.users\|I\|/.test(k)),
   })),
-  // the window functions (the Chief Architect: one exception, "pending B1", removed in C, where B1 reorders them):
-  // the actor's foreign key after the window row; no reverse path was found
+  // the window functions, RE-READ AFTER B1 (change C; the "pending B1" exception is removed): the actor's foreign key
+  // after the window row. A cycle would need a transaction that holds a person FOR UPDATE and then locks a window row;
+  // the condition checks, over every writer's list, that none does. (Sharon reads this re-read.)
   ...["change_maintenance", "publish_notice", "schedule_maintenance"].map((penulis) => ({
-    penulis, lewat: /^change_maintenance$|^publish_notice$|^schedule_maintenance$/,
-    alasan: "PENDING B1: the actor's key after the window row, no reverse path found; re-read after B1, in change C, and this exception removed there",
+    penulis, lewat: (v: string) => /^persons \(rank 1\) after maintenance_windows \(rank 8\) — /.test(v) && lewatAkhir(v) === penulis,
+    alasan: "re-read after B1: the actor's key after the window row; no transaction that holds a person FOR UPDATE locks a window",
+    syarat: (kat: Katalog) => ![...semuaKunci(kat).values()].some((l) => {
+      const i = l.findIndex((x) => x.t === "persons" && x.kuat === 3);
+      return i >= 0 && l.slice(i + 1).some((x) => x.t === "maintenance_windows");
+    }),
   })),
   // same-row re-locks, one by one (Sharon's condition), each naming the variable that makes it the row already held
   samaBaris("finalize_session", "assessment_results.person_id, set from the sitting, is its learner v_s.person_id, taken first by finalize_session or its caller"),
