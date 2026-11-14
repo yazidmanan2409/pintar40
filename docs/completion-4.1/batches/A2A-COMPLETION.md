@@ -1,6 +1,6 @@
 # A2a · Emergency containment and class scope for the emergency (completion page, before build)
 
-## State of change A, then B and C (13 Nov, 22:45 UTC by `date -u`; kept here so that nothing depends on a session's memory)
+## State of change A, then C and B (14 Nov, 22:45 UTC by `date -u`; kept here so that nothing depends on a session's memory)
 
 **Branches:**
 - `claude/a2a`: this page.
@@ -63,6 +63,25 @@ Auth's user deletion.
    Only an inherited cycle elsewhere, whose outcome is 40P01 with nothing lost, may be registered.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
+
+**CHANGE C IS IN DEVELOPMENT** (14 Nov, 00:47 UTC by `date -u`). The order is now A → C → B: the owner, through the Chief
+Architect (`TEAM-INSTRUCTIONS.md` at `33be0fa1`).
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`.
+- **Commit 1, `768eb032`: every reader of a sitting's closing time, classed (A2A-T01).** It is **unverified, pushed for
+  Sharon's early read.**
+  - **35 readers:** 28 in the database, 7 in the app.
+    - 16 are HARUS: they must add the shift.
+    - 19 are TIDAK: an assignment's window, a definition's setting, the initial deadline, or a type.
+  - A missed reader, or a stale class, is red.
+  - Two plants, a function and an app file, are each reported.
+  - A2A-L01 stays green.
+- **Nothing of D6.3 is built** until Sharon has read commit 1.
+- **Next:** A2a's product changes as this page has them.
+  - The risky database parts are pushed as unfinished drafts as they exist: the fence, the closer procedure, held
+    sittings.
+  - Screens go out early, with screenshots in `docs/completion-4.1/batches/a2a-layar/`.
+- **Change B** follows C's freeze, branched from C's frozen commit. **C is not merged** until B's scale evidence holds on
+  that commit.
 
 **CHANGE A IS MERGED** (PR 21 → `main` `0ea4b8ad`) and on staging: 249 migrations; health, environment facts and
 preservation all green. Every gate passed on the first attempt (the Chief Architect, 23:56).
