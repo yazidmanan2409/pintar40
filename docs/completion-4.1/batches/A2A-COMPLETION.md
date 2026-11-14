@@ -64,9 +64,9 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**CHANGE C AT A GLANCE** (14 Nov, 05:32 UTC by `date -u`; the source of truth for a fresh session). The details follow
+**CHANGE C AT A GLANCE** (14 Nov, 05:51 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
-- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `f308b0bf`. The order is A → C → B, and C
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `8cbda9cc`. The order is A → C → B, and C
   is not merged until B's scale evidence holds on C's frozen commit.
 - **Commits:**
   1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
@@ -323,6 +323,43 @@ below.
            - two overlapping stops credit the union once;
            - plant: no watermark, so a second touch credits twice.
       - Until you rule, the code still marks at the lift, which is correct but slow at scale. C18-1 stays open.
+  30. `8cbda9cc` · **C18-1, built to your ruling** (`A2A-C-C18-1-AND-23-28.md` at `50dab36f`, with D1;
+      migration `20270119160000`).
+      - **The lift** records `T_lift` only. Its marking is removed, and the function is dropped.
+      - **The watermark**, `darurat_dikredit_sampai`:
+        - the pending credit is the union chain from the earliest lifted stop at or after the watermark, on the
+          T_stop rule;
+        - a release writes the watermark too;
+        - the guard allows only the credit's transition, and the watermark never goes back.
+      - **D1:** `pengerjaan_tenggat_efektif` adds the pending credit. `session_state`, `may_continue_session`,
+        `maintenance_draining` and `daftar_pengerjaan` read it.
+      - **The credit write** locks the sitting `FOR UPDATE` and re-reads the watermark under that lock. It runs at
+        first touch (in `pengerjaan_pagar`, after the fence) and in the release batch (SKIP LOCKED).
+      - **A2A-C711, with no batch at all:**
+        - a read before any touch shows the shifted deadline;
+        - the first touch credits exactly `t_lift − t_stop`, and a second touch credits nothing;
+        - two concurrent touches credit once;
+        - overlapping stops are credited as their union, once;
+        - the batch alone credits once;
+        - plant: with no watermark, a second touch credits again.
+      - **A2A-K01's plants** now break the T_stop reading in the credit as well. Otherwise the credit would rescue
+        what the plant's marking lost, which is the design working, but the plant would no longer test anything.
+      - **Measured locally for scenario 8** (50,000 affected sittings, no batch run):
+
+        | Step | Time |
+        |---|---|
+        | The lift's work under the exclusive fence | 4 ms (was 5.5 s) |
+        | D1's read, per pending sitting | about 0.38 ms |
+        | D1's read, 1,000 pending sittings | 379 ms |
+
+        Change B records these on C's frozen commit.
+      - **Not changed, for your note:** the closer's selection (`pengerjaan_tutup_calon`) still reads without the
+        pending credit. A lifted unmarked sitting past its unshifted deadline can be selected. `pengerjaan_tutup_satu`
+        then credits it through the helper, and the decider leaves it open. It costs a candidate slot until its first
+        touch, never an outcome.
+      - **Green locally:** the whole regression set (69) and every maintenance test (23).
+
+  **Sharon, ready for your read:** commit 30.
 
 **Daisy, ready for your first look** (`docs/completion-4.1/batches/a2a-layar/` on `claude/a2a-change-c` at `6b8a96f9`):
 - `1-daftar-saat-henti-kaprodi-{390,320,1280}`: the list during a stop, seen by someone above the class.
