@@ -116,6 +116,28 @@ Architect (`TEAM-INSTRUCTIONS.md` at `33be0fa1`).
     - §3 is not built until you rule.
   - **Daisy:** §2's teacher line is built next, with your two screens (11, 12) added to the review list, as
     screenshots in `a2a-layar/`.
+- **Sharon's early read of commits 2 to 4** (`A2A-C-DRAFTS-e076520c.md` at `76de7fb5`; she messaged Second Eye
+  directly).
+  - **The fence: no blocker. B1: no blocker. A2A-T01: accepted.**
+  - **Commit 5, `e303f1a9`, carries her notes:**
+    - **N1:** the fence functions are revoked from `service_role` too, and the migration asserts it.
+    - **N2:** the fence key is a literal, `7201190000000001`, never computed.
+    - **B1's invariant:** nothing writes `maintenance_windows.kind` except the insert. It is tested in A2A-F01, with a
+      plant.
+    - Found while adding it: A2A-F01's reader split a function's source on newlines, which could miss a write. Fixed.
+- **Sharon's ruling on Daisy's §3** (the same file):
+  - **A separate read keyed on the sitting** (`pengerjaan_saya`, or a new learner-scoped read classed HARUS), never a
+    resume branch in `may_start_assessment`.
+  - Belajar keeps the row while the learner has an open, non-final sitting. It opens by the sitting's id through
+    `session_state`, never through `start_learning_session`.
+  - The resume is gated by the shifted effective deadline, not by `closes_at`.
+  - **Tests:**
+    - after `closes_at` has passed during the stop, the sitting is still listed, opens, and finishes with its time;
+    - `may_start_assessment` still refuses a new start after `closes_at`;
+    - the same after a suspension's reinstatement (A1's sibling).
+  - `my_open_assessments` and `may_start_assessment` stay TIDAK.
+- **Reply to Sharon** (02:22 UTC; Second Eye has no tool to message her session, so it is here): all three notes are
+  carried in `e303f1a9`, and §3 is built to your shape.
 - **D6.3 is cleared to build** (01:42 UTC by `date -u`).
 - **Next:** A2a's product changes as this page has them.
   - The risky database parts are pushed as unfinished drafts as they exist: the fence, the closer procedure, held
