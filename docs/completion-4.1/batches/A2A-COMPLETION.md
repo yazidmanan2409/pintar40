@@ -89,7 +89,18 @@ Architect (`TEAM-INSTRUCTIONS.md` at `33be0fa1`).
     row afterwards. **For Sharon to read.**
   - Not yet: AKHIRI on an EMERGENCY window through D6's fenced lift.
 - **Green:** A2A-L01, A2A-T01 and A2A-F01, with the pins at 251. **The drafts are up at 01:40 UTC by `date -u`.**
-- **Nothing of D6.3 is built** until Sharon has read commit 1.
+- **Sharon's early read of commit 1** (`A2A-C-T01-768eb032.md` at `afc2566e`): **no blocker to D6.3.** Her 19 TIDAK
+  are correct.
+- **Commit 4, `e076520c`: her E1 and E2,** before D6.3's shift test.
+  - **E1:** `frozen_remaining_seconds` is searched, and a call to a function that returns a deadline counts as a read.
+  - **E2:** the app's own names (`tenggat`, `sisa_detik`, `sisa_ditahan_detik`, `berakhir_pada`, `deadline`) are read in
+    code only.
+  - `AturPengerjaan.tsx` is classed KLIEN: an explicit client computation, checked by D6.3's test.
+  - There is a third plant.
+  - **The count is now 42 readers:** 16 HARUS, 1 KLIEN, 25 TIDAK.
+- **For Daisy (Sharon's note, not a blocker):** after a stop, an assignment can show CLOSED by its own `closes_at` while
+  its shifted sittings still run. The words are hers.
+- **D6.3 is cleared to build** (01:42 UTC by `date -u`).
 - **Next:** A2a's product changes as this page has them.
   - The risky database parts are pushed as unfinished drafts as they exist: the fence, the closer procedure, held
     sittings.
