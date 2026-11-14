@@ -669,9 +669,19 @@ function jadwalSaatBerhenti(db: string): { saat: string; tetap: string; sesudah:
   join public.assessment_assignments aa on aa.learning_assignment_id = la.id
   join public.role_assignments r on r.role = 'EDUCATOR' and r.scope_node_id = la.node_id and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until
   join public.accounts a on a.person_id = r.person_id
-  where la.status = 'ACTIVE' and not public.release_is_professional(la.plp_release_id) order by la.id, aa.id limit 1;`);
-  const [la, kelas, inst, guru, aa] = b.split("|");
-  if (!aa) throw new Error("no live class assignment with a teacher: the seed changed");
+  where la.status = 'ACTIVE' and not public.release_is_professional(la.plp_release_id) order by la.id, aa.id limit 20;`);
+  // the first candidate whose window can be changed at all (its own guards: content still shared with the school, no
+  // sealed pass mark), tried in a rolled-back transaction: the whole manifest changes the seed's first one before this
+  const bisa = b.split("\n").find((baris) => {
+    const id = baris.split("|")[0];
+    return spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: `begin;
+update public.learning_assignments set available_from = now() + interval '1 hour', available_until = now() + interval '3 days' where id = '${id}';
+update public.assessment_assignments set opens_at = now() + interval '1 hour', closes_at = now() + interval '3 days'
+ where learning_assignment_id = '${id}' and status in ('SCHEDULED', 'OPEN');
+rollback;` }).status === 0;
+  }) ?? "";
+  const [la, kelas, inst, guru, aa] = bisa.split("|");
+  if (!aa) throw new Error("no live class assignment with a teacher whose window can be changed: the seed changed");
   const coba = `pg_temp.a2a_coba($q$select public.ubah_jadwal_penugasan('${la}', now() + interval '1 hour', now() + interval '3 days', 'A2A-C706: jadwal baru saat berhenti')$q$)`;
   const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: `
 begin;
