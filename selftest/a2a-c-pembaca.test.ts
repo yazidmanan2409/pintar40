@@ -56,6 +56,8 @@ export const PEMBACA_DB: Record<string, Kelas> = {
   tambah_waktu_pengerjaan: H("the teacher's added time: from the effective deadline"),
   lanjutkan_pengerjaan: H("resuming a held sitting: its new deadline from the time it had"),
   pengerjaan_jaga: H("the guard on deadline writes: D6.3 lets exactly the release's transition through"),
+  pengerjaan_lepas_darurat: H("the release itself: moves the effective deadline by the protected interval (D6.3)"),
+  pengerjaan_tandai_darurat: H("the marking: an EXPIRED sitting is protected only inside its grace at T_stop (D6.3/B3)"),
   open_assessment_session: T("writes the initial deadline of a new sitting; nothing is shifted yet"),
   tutup_pengerjaan_ditahan: T("records the held time left (frozen_remaining_seconds) in its audit row; decides nothing on it"),
   assessment_orientation: T(JENDELA),
