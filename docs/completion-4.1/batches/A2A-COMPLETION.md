@@ -64,9 +64,9 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**CHANGE C AT A GLANCE** (14 Nov, 04:14 UTC by `date -u`; the source of truth for a fresh session). The details follow
+**CHANGE C AT A GLANCE** (14 Nov, 04:27 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
-- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `35ee833a`. The order is A → C → B, and C
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `66dc7b02`. The order is A → C → B, and C
   is not merged until B's scale evidence holds on C's frozen commit.
 - **Commits:**
   1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
@@ -163,7 +163,37 @@ below.
         lift, the preview goes on to its own checks. Plant: with the refusal removed, the application goes on.
       - **Daisy:** this is one new sentence on the promotion's review and apply screens. Its screenshot comes with the
         screens batch in `a2a-layar/`.
-- **Green locally:** A2A-C701 to C704, A2A-L02 to L06 (L01 apart), F06, F24, F37, A2A-L03, A2A-L05, A2A-T01, A2A-F01, M148-D02, and A1's K01, S01 to S09 and J01. The pins are at
+  15. `fe5f4a42` · DRAFT · **D6.6, the closer commits in small batches under the fence** (migration `20270119150000`).
+      **Sharon, a risky piece, for your read.**
+      - **R1:** one selection, `pengerjaan_tutup_calon`. It excludes held and protected sittings in the query and uses
+        the shifted closing time.
+      - **R2:** the job is a procedure, `pengerjaan_tutup_berkala`. It reads its candidates once, then decides each
+        through `pengerjaan_tutup_satu` (the learner, the shared fence, the sitting, the deadline rule), committing
+        every 20.
+      - **The bookkeeping runs after the closer:** marking, then release, each in its own committed batches.
+        - The order matters. Run first, the bookkeeping made A2A-L01 read sitting locks before the closer's person
+          locks across the procedure.
+        - Run last, the whole procedure keeps the learner, the fence, the sitting, then sittings only.
+        - A sitting released at the end of a run is a candidate on the next run, five minutes on.
+      - **What stays:**
+        - the service-only entry point `pengerjaan_tutup_terjadwal`, with the same answer, on the same selection and
+          step;
+        - the one declaration's job is now `call public.pengerjaan_tutup_berkala()`, reinstalled through the one
+          installer. pg_cron ran it at 04:25 and it succeeded.
+      - **Restated with notes, as D6.6 says:**
+        - **A1-S08:** the command is run at the top level, as pg_cron runs it. The plants are committed and removed,
+          and the run is read from the log and the sittings.
+        - **A1-S09:** the job-first races still overlap, through a harness trigger that slows the job's own write.
+        - **A1-K01:** the declaration is read from the last migration that defines it.
+        - **B1-R01** and **DR-D02:** the command is run at the top level.
+        - **The migration-count pins:** 254 → 255.
+      - **A2A-C705:**
+        - the job is the committing procedure, and neither a client nor the server key may call it;
+        - R1: with two held sittings and one protected sitting created first, the selection asked for three still
+          names the unaffected overdue one. Plant: with the exclusion removed, the three fill the limit.
+      - **R2's timing** (activation under the fence ≤ 0.5 s) is change B's measurement, on C's frozen commit.
+  16. `66dc7b02` · Lint: A1-S08's unused constant removed after the restatement.
+- **Green locally:** A2A-C701 to C705, B1-R01, DR-D02, A2A-L02 to L06 (L01 apart), F06, F24, F37, A2A-L03, A2A-L05, A2A-T01, A2A-F01, M148-D02, and A1's K01, S01 to S09 and J01. The pins are at
   254. **A2A-L01 is red on three, for Sharon.**
 - **Open with Sharon:** the owner's three questions and two points (below), and her read of drafts 6 to 8.
 - **Next, in order:**
@@ -171,7 +201,7 @@ below.
      Also O1's rule after the lift, for a sitting preserved through a departure. M-1 is commit 14.
   1. D6.2's assignment-level acts (`ubah_jadwal_penugasan`, `akhiri_penugasan`, `tutup_asesmen_terbuka`, the
      promotion), after Sharon's ruling on their order. Daisy's refusal lines go into `hle.ts`.
-  2. D6.6: the closer as a procedure, its selection by the shifted closing time, and the job `select` → `call`.
+  2. ~~D6.6~~ done (commit 15).
   3. The fenced lift, including AKHIRI on an EMERGENCY window, with `T_lift`. **Sharon's own early read.**
   4. D6.9: the audit rows.
   5. The B3 to B6 tests, and the required-change-1 test through every reader.
