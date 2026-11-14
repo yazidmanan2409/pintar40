@@ -592,3 +592,20 @@ questions on A2a's page; C7-2 (first-touch release) and C7-3 (consistent deadlin
 promotion, a stop condition:** read-only, the hosted `pg_cron` job's owner can `CALL` the batch procedures and make
 their writes, and `anon`, `authenticated` and `service_role` are refused on the six revoked routines (Sharon names the
 exact reads).
+
+### Change C check-in, 14 Nov 2026, 06:04 UTC
+
+- **Commit 30** (`8cbda9cc`, 05:50): the no-mark-at-lift design with D1 is built, with test A2A-C711. It is with
+  Sharon for an early read against her C18-1 ruling (`50dab36f`).
+- **Daisy's early screen review** (`A2A-LAYAR-f308b0bf.md`, her branch at `e6471f61`) has three blockers:
+  - the pause page has no class form;
+  - the teacher's pause page has no other-class line;
+  - the node-refusal line differs from her approved one.
+
+  Several approved strings are still unbuilt, and nine of her twelve screens are still missing. Second Eye has all of
+  this and has been told to keep building.
+- **For Z, not change C:** Daisy's §3 note, phone-width overflow on `/mengajar/[kelas]/siapa` (A1's page), and its
+  siblings `soal` and `bukti`. It joins the X-1 to X-4 list.
+- **Friction:** a third handoff gap. Commit 30 waited 14 minutes with no reviewer told, and Second Eye stopped after
+  pushing it. It was caught by the 30-minute check-in. The rule stands: whoever pushes tells the reviewer, then keeps
+  building.
