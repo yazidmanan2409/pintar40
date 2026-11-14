@@ -44,6 +44,29 @@ begin
     || v_old);
 end $$;
 
+-- ═══════════════════════════════════════════════════════════ the shared fence takes the evaluator first (C19-1)
+-- Sharon's C19-1 (A2A-C-15-22-c3e88873.md, addendum at 80abe68b): a persona's decision in an open evaluation session
+-- writes an audit row naming the evaluator (audit_write's evaluation_actor_person_id), which takes the evaluator FOR KEY
+-- SHARE after the fence. A suspension of the evaluator, holding them FOR UPDATE before its own shared fence and queued
+-- behind a waiting stop, then closes a three-way cycle. So the shared fence itself takes the open evaluation session's
+-- evaluator FOR KEY SHARE before its advisory lock: every caller gets it, beside the learner, before the fence; the
+-- audit row then re-takes a row already held. Under the same 2 s lock_timeout: a wait there is the fence's busy refusal.
+-- (Inserted into the live definition, so its SET clause stays and no migration but the fence's own names its key: A2A-F01.)
+do $$
+declare v text := pg_get_functiondef('public.pagar_darurat_bersama()'::regprocedure);
+        v_old text := E'  perform pg_advisory_xact_lock_shared(';
+        n int;
+begin
+  n := (length(v) - length(replace(v, v_old, ''))) / length(v_old);
+  if n <> 1 then raise exception 'A2a C19-1: pagar_darurat_bersama has its anchor % time(s), not once', n; end if;
+  execute replace(v, v_old,
+       E'  perform 1 from public.persons p\n'
+    || E'   where p.id = (select s.evaluator_person_id from public.evaluation_sessions s\n'
+    || E'                  where s.persona_auth_user_id = auth.uid() and s.ended_at is null limit 1)\n'
+    || E'     for key share of p;   -- C19-1: the evaluator before the fence\n'
+    || v_old);
+end $$;
+
 -- ═══════════════════════════════════════════════════════════ the helper
 create function public.pengerjaan_pagar(p_session uuid) returns boolean
 language plpgsql security definer set search_path = public, pg_temp as $$
@@ -192,6 +215,12 @@ begin
       raise exception 'A2a D6.2: % does not take the fence and read protection', r.fn;
     end if;
   end loop;
+  -- C19-1, structural: the shared fence takes the open evaluation session's evaluator FOR KEY SHARE before its lock
+  if position('evaluator_person_id' in pg_get_functiondef('public.pagar_darurat_bersama()'::regprocedure)) = 0
+     or position('evaluator_person_id' in pg_get_functiondef('public.pagar_darurat_bersama()'::regprocedure))
+        > position('pg_advisory_xact_lock_shared' in pg_get_functiondef('public.pagar_darurat_bersama()'::regprocedure)) then
+    raise exception 'A2a C19-1: the shared fence does not take the evaluator before its lock';
+  end if;
   if position('PROMO_STOPPED' in pg_get_functiondef('public.kenaikan_tetapkan(uuid,uuid,jsonb,boolean,boolean)'::regprocedure)) = 0 then
     raise exception 'A2a M-1: kenaikan_tetapkan does not refuse during a stop';
   end if;

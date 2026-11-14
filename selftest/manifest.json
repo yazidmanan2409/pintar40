@@ -6214,6 +6214,11 @@
       "id": "A2A-C709",
       "runner": "static",
       "proves": "Sharon's C17-1 (A2A-C-15-22-c3e88873.md): \"EXPIRED inside its grace\" is one helper, pengerjaan_dalam_tenggang_pada, used by protection and both markings (the batch and the lift's), on the grace readers' own basis (authoritative_deadline plus the definition's grace; a window-timed sitting has no grace under A1). Committed and removed: a class stop; an own-deadline EXPIRED sitting a minute past its deadline (inside its 300 s grace) is protected and marked; a window-timed EXPIRED sitting is neither; after the lift 45 minutes after T_stop and the release, the decider leaves the first unscored, inside its moved grace. Plant: protection judged on closure_deadline makes the window-timed sitting protected but never marked."
+    },
+    {
+      "id": "A2A-C710",
+      "runner": "static",
+      "proves": "Sharon's addendum on (a) (A2A-C-15-22-c3e88873.md at 80abe68b): the exclusive side's audit exception rests on no evaluation persona being able to stop or lift. Rolled back: as a school admin of the class's school, stop_pintar_now on that class is refused, and change_maintenance AKHIRI on an EMERGENCY window there is refused with the stop still in force; and the CHECK evaluation_personas_never_system_admin exists. A2A-L01 asserts it too, with C19-1's structural condition (the shared fence takes the open evaluation session's evaluator FOR KEY SHARE before its lock)."
     }
   ]
 }

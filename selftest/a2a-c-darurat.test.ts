@@ -1001,3 +1001,53 @@ a2aDaruratTests.push({
     return c.verdict("one grace rule (pengerjaan_dalam_tenggang_pada, the grace readers' own basis) for protection and both markings: an own-deadline EXPIRED sitting inside its grace at T_stop is protected and marked, and after the lift the decider leaves it inside its moved grace; a window-timed EXPIRED sitting (no grace under A1) is neither; with the plant (protection on closure_deadline) the window-timed one is protected but never marked");
   },
 });
+
+// ═══════════════════════════════════════════════════════════ A2A-C710 · only an Admin PINTAR stops or lifts ((a))
+
+/** Sharon's addendum on (a): the exclusive side's audit exception rests on no persona (never a system admin) being able
+ *  to stop or lift. So: the stop and the lift both refuse a non-admin (a school admin of the class's school). Rolled
+ *  back. Returns each refusal's SQLSTATE|DETAIL, and whether the window is still in force after the refused lift. */
+function hanyaAdmin(db: string): { henti: string; angkat: string; masihBerlaku: string; err: string } {
+  const f = fiksur(db);
+  const admin = psqlStdin(db, `select a.auth_user_id from public.role_assignments r join public.accounts a on a.person_id = r.person_id
+    where r.role = 'INSTITUTION_ADMIN' and r.institution_id = '${f.inst}' and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until order by r.id limit 1;`);
+  if (!admin) throw new Error("no school admin with an account for the class's school: the seed changed");
+  const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: `
+begin;
+create function pg_temp.a2a_coba(p_sql text) returns text language plpgsql as $f$
+declare d text;
+begin
+  execute p_sql; return 'OK';
+exception when others then
+  get stacked diagnostics d = pg_exception_detail;
+  return sqlstate || '|' || coalesce(d, '');
+end $f$;
+set local session_replication_role = replica;
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, reason, created_by_person_id, activation_recorded_at)
+select '${JENDELA}', 'EMERGENCY', false, array['${f.inst}'::uuid], array['${f.node}'::uuid], now(), now(), 'A2A-C710',
+       (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), now();
+set local session_replication_role = origin;
+select set_config('request.jwt.claims', '{"sub":"${admin}","role":"authenticated"}', true);
+select 'HENTI|' || pg_temp.a2a_coba($q$select public.stop_pintar_now(false, array['${f.inst}'::uuid], 'Masalah keamanan', 'HENTIKAN SEKARANG', array['${f.node}'::uuid])$q$);
+select 'ANGKAT|' || pg_temp.a2a_coba($q$select public.change_maintenance('${JENDELA}', 'AKHIRI', 'A2A-C710: bukan Admin PINTAR')$q$);
+select 'BERLAKU|' || (ended_at is null)::text from public.maintenance_windows where id = '${JENDELA}';
+rollback;` });
+  const ambil = (k: string) => (r.stdout ?? "").split("\n").find((l) => l.startsWith(k + "|"))?.slice(k.length + 1) ?? "";
+  return { henti: ambil("HENTI"), angkat: ambil("ANGKAT"), masihBerlaku: ambil("BERLAKU"), err: r.status === 0 ? "" : (r.stderr ?? "").trim().split("\n")[0] ?? "" };
+}
+
+a2aDaruratTests.push({
+  id: "A2A-C710",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const r = hanyaAdmin(db);
+    c.expect(!r.err, `the run failed: ${r.err}`);
+    c.expect(r.henti !== "OK" && r.henti !== "", `a school admin's stop was not refused: ${r.henti}`);
+    c.expect(r.angkat !== "OK" && r.angkat !== "" && r.masihBerlaku === "true", `a school admin's lift was not refused, or the stop ended: ${r.angkat}, still in force ${r.masihBerlaku}`);
+    const persona = psqlStdin(db, "select count(*) from pg_constraint where conname = 'evaluation_personas_never_system_admin' and contype = 'c';");
+    c.expect(persona === "1", "evaluation_personas_never_system_admin is gone: a persona could be a system admin");
+    return c.verdict(`only an Admin PINTAR stops or lifts: a school admin's stop is refused (${r.henti}) and their lift is refused (${r.angkat}) with the stop still in force; no evaluation persona can be a system admin (evaluation_personas_never_system_admin)`);
+  },
+});

@@ -196,8 +196,17 @@ export function syaratEksklusif(kat: Katalog): string[] {
 /** Sharon's (a): no declared exception covers a lifecycle row (ranks 1 to 6) after the fence, except the mechanical
  *  same-row re-lock (a row the writer already held, at least as strongly, before the fence) and audit_write's key
  *  (mechanically null outside an evaluation session). Returns the offenders. */
-export function lifecycleSetelahPagar(kat: Katalog, semua: Map<string, Kunci[]>): string[] {
+export function lifecycleSetelahPagar(kat: Katalog, semua: Map<string, Kunci[]>, db?: string): string[] {
   const out: string[] = [];
+  // Sharon's addendum on (a) and C19-1 (A2A-C-15-22-c3e88873.md): audit_write's evaluator key after a fence is approved
+  // only while (1) no evaluation persona can be a system admin (evaluation_personas_never_system_admin), so no persona
+  // stops or lifts: the exclusive side; and (2) the shared fence takes the open evaluation session's evaluator FOR KEY
+  // SHARE before its lock (C19-1), so the audit row re-takes a row already held: the shared side
+  const bersama = (kat.fns.get("pagar_darurat_bersama") ?? []).map(bersih).join("\n");
+  const penilaiDulu = bersama.indexOf("evaluator_person_id") >= 0 && bersama.indexOf("evaluator_person_id") < bersama.indexOf("pg_advisory_xact_lock_shared");
+  const bukanAdmin = !db || psql1(db, "select count(*) from pg_constraint where conname = 'evaluation_personas_never_system_admin' and contype = 'c'") === "1";
+  if (!penilaiDulu) out.push("the shared fence does not take the open evaluation session's evaluator before its lock (C19-1)");
+  if (!bukanAdmin) out.push("evaluation_personas_never_system_admin is gone: a persona could stop or lift (the exclusive side of (a))");
   for (const [fn, l] of semua) for (const v of pelanggaran(l)) {
     if (!/^[a-z_.]+ \(rank [\d.]+\) after FENCE \(rank 7\)/.test(v)) continue;
     const p = pengecualianUntuk(kat, fn, v, l);
@@ -794,7 +803,7 @@ export const a2aL01Tests: SelfTest[] = [
         "with C9-2's condition broken, its exception still covered akhiri_penugasan");
       const eks = syaratEksklusif(r.kat);
       c.expect(eks.length === 0, `C9-2's condition (a holder of the exclusive fence locks only ranks 7 to 9 after it):\n  ${eks.join("\n  ")}`);
-      const siklus = lifecycleSetelahPagar(r.kat, r.semua);
+      const siklus = lifecycleSetelahPagar(r.kat, r.semua, db);
       c.expect(siklus.length === 0, `Sharon's (a): a declared exception covers a lifecycle row after the fence:\n  ${siklus.join("\n  ")}`);
       const baru = r.dinamis.filter((f) => !(f in SQL_DINAMIS));
       c.expect(baru.length === 0, `dynamic SQL naming a ranked table, not declared: ${baru.join(", ")}`);
