@@ -255,6 +255,9 @@ const akhirSesi = (sesi: string) => psql(`select s.status || '/' || coalesce(s.c
   || '/' || (select count(*) from public.audit_log l where l.target_id = s.id::text and l.action = 'assessment_session.ended_by_deadline')
   || '/' || (select count(*) from public.audit_log l where l.target_id = s.id::text and l.action in ('assessment_session.terminated', 'assessment_session.handed_in_by_teacher'))
   from public.assessment_sessions s where s.id = ${lit(sesi)}`);
+/** A1-S08's plants removed (also by the clean-up, should a run stop half-way: they are committed since D6.6). */
+const S08_TANAM_LEPAS = `drop trigger if exists a1_s08_rusak on public.assessment_sessions;
+drop trigger if exists a1_s08_rusak on public.assessment_results;`;
 /** The job's own command, read from pg_cron and executed as pg_cron executes it (no signed-in actor, no claims). */
 const PERINTAH = `(select command from cron.job where jobname = '${JOB}')`;
 
@@ -283,16 +286,21 @@ export const a1LayarTests: SelfTest[] = [
             from public.assessment_sessions s where s.id = ${lit(s[n])})`;
         const keadaan = `select 'K|' || concat_ws(' ', ${(["x", "y", "z1", "z2", "w"]).map((n) => `'${n}=' || ${ringkas(n)}`).join(", ")})`;
         const hasilnya = (out: string, awalan: string) => out.split("\n").find((l) => l.startsWith(awalan))?.slice(awalan.length) ?? "";
-        // one transaction, rolled back: a failure planted for z1 (its ending) and z2 (its scoring); run 1; the plants
-        // removed; run 2; run 3; the schedule installed twice
+        // RESTATED, A2a change C, D6.6 (THE PLAN §5.3; migration 20270119150000): the job's command is now a procedure that
+        // commits in small batches, so it runs as pg_cron runs it, at the top level (psql's \gexec), never inside a
+        // transaction; the plants are committed and removed again (here, and in the clean-up). The run's own answer is no
+        // longer returned (a procedure answers nothing): what it did is read from the sittings, the results, the audit
+        // rows and the server log. Was: one transaction, rolled back, the command executed in a DO block three times.
+        // A failure planted for z1 (its ending) and z2 (its scoring); run 1; the plants removed; run 2; run 3; the
+        // schedule installed twice (that part still rolled back)
         const r = spawnSync("psql", ["-X", "-At", "-v", "ON_ERROR_STOP=1", process.env.SUPABASE_DB_URL!], { encoding: "utf8", input: `
-begin;
-create function selftest.a1_s08_rusak_akhir() returns trigger language plpgsql as $f$
+${S08_TANAM_LEPAS}
+create or replace function selftest.a1_s08_rusak_akhir() returns trigger language plpgsql as $f$
 begin
   if new.id = ${lit(s.z1)} and new.status = 'EXPIRED' then raise exception 'A1-S08: planted failure ending z1'; end if;
   return new;
 end $f$;
-create function selftest.a1_s08_rusak_nilai() returns trigger language plpgsql as $f$
+create or replace function selftest.a1_s08_rusak_nilai() returns trigger language plpgsql as $f$
 begin
   if new.session_id = ${lit(s.z2)} then raise exception 'A1-S08: planted failure scoring z2'; end if;
   return new;
@@ -300,47 +308,42 @@ end $f$;
 create trigger a1_s08_rusak before update on public.assessment_sessions for each row execute function selftest.a1_s08_rusak_akhir();
 create trigger a1_s08_rusak before insert on public.assessment_results for each row execute function selftest.a1_s08_rusak_nilai();
 ${keadaan.replace("'K|'", "'K0|'")};
-create temp table a1_s08_jalan (n int, hasil jsonb);
-do $j$ declare v jsonb; begin execute ${PERINTAH} into v; insert into a1_s08_jalan values (1, v); end $j$;
-select 'R1|' || hasil::text from a1_s08_jalan where n = 1;
+select 'R1|start';
+select command from cron.job where jobname = '${JOB}' \\gexec
 ${keadaan.replace("'K|'", "'K1|'")};
-drop trigger a1_s08_rusak on public.assessment_sessions;
-drop trigger a1_s08_rusak on public.assessment_results;
-do $j$ declare v jsonb; begin execute ${PERINTAH} into v; insert into a1_s08_jalan values (2, v); end $j$;
-select 'R2|' || hasil::text from a1_s08_jalan where n = 2;
+${S08_TANAM_LEPAS}
+select command from cron.job where jobname = '${JOB}' \\gexec
 ${keadaan.replace("'K|'", "'K2|'")};
 select 'A2|' || (select count(*) from public.audit_log) || '|' || (select count(*) from public.assessment_results);
-do $j$ declare v jsonb; begin execute ${PERINTAH} into v; insert into a1_s08_jalan values (3, v); end $j$;
-select 'R3|' || hasil::text from a1_s08_jalan where n = 3;
+select command from cron.job where jobname = '${JOB}' \\gexec
 ${keadaan.replace("'K|'", "'K3|'")};
 select 'A3|' || (select count(*) from public.audit_log) || '|' || (select count(*) from public.assessment_results);
 -- RESTATED, B1 (THE PLAN §6.3): installed twice through the ONE installer of every PINTAR job, then once through A1's
 -- installer (now a call to it); A1's job is still exactly one, as declared. Was: A1's own installer, twice.
+begin;
 select 'P|' || (public.pintar_jadwal_pasang() ->> 'ok') || '|' || (public.pintar_jadwal_pasang() ->> 'ok') || '|' || (public.pengerjaan_jadwal_pasang() ->> 'ok') || '|'
   || (select count(*) || ' ' || min(schedule) || ' ' || min(command) from cron.job where jobname = '${JOB}');
 rollback;
 ` });
         const out = r.stdout ?? "", err = r.stderr ?? "";
         if (!c.expect(r.status === 0, `the scenario did not run: ${err.trim().split("\n").slice(-3).join(" | ")}`)) return c.verdict("");
-        const R1 = JSON.parse(hasilnya(out, "R1|") || "{}"), R2 = JSON.parse(hasilnya(out, "R2|") || "{}"), R3 = JSON.parse(hasilnya(out, "R3|") || "{}");
         // before: every sitting open, nothing ended
         c.expect(hasilnya(out, "K0|") === "x=IN_PROGRESS/-/0/0 y=IN_PROGRESS/-/0/0 z1=IN_PROGRESS/-/0/0 z2=IN_PROGRESS/-/0/0 w=IN_PROGRESS/-/0/0", `before the job: ${hasilnya(out, "K0|")}`);
         // 1. the job's own command, with no user interaction, ends and scores the abandoned sittings past their deadline
         // 4. one sitting whose ending raises and one whose scoring raises stop nothing else, are reported, and stay to be retried
         c.expect(hasilnya(out, "K1|") === "x=FINALIZED/DEADLINE/1/1 y=FINALIZED/DEADLINE/1/1 z1=IN_PROGRESS/-/0/0 z2=EXPIRED/DEADLINE/0/1 w=IN_PROGRESS/-/0/0",
           `after run 1 (failures planted for z1 and z2): ${hasilnya(out, "K1|")}`);
-        c.expect(Array.isArray(R1.gagal) && R1.gagal.some((g: { session_id: string; message: string }) => g.session_id === s.z1 && /planted failure ending z1/.test(g.message)) && R1.menunggu >= 1,
-          `run 1 does not report z1's failure or z2's wait: ${JSON.stringify(R1).slice(0, 400)}`);
-        c.expect(new RegExp(`pengerjaan_tutup_terjadwal: \\d+ of \\d+ sitting\\(s\\) could not be closed and will be tried again on the next run: .*${s.z1}`).test(err)
+        // RESTATED, D6.6: run 1's report is its warning (the procedure answers nothing); z2's wait is its state (K1)
+        c.expect(new RegExp(`pengerjaan_tutup_terjadwal: \\d+ of \\d+ sitting\\(s\\) could not be closed and will be tried again on the next run: .*${s.z1}`).test(err) && /planted failure ending z1/.test(err)
           && new RegExp(`A1: sitting ${s.z2} ended by its deadline and could not be scored yet: A1-S08: planted failure scoring z2`).test(err),
           `the failures are not warned to the server log with their sittings: ${err.split("\n").filter((l) => /WARNING/.test(l)).join(" | ").slice(0, 500)}`);
-        c.expect(hasilnya(out, "K2|") === "x=FINALIZED/DEADLINE/1/1 y=FINALIZED/DEADLINE/1/1 z1=FINALIZED/DEADLINE/1/1 z2=FINALIZED/DEADLINE/1/1 w=IN_PROGRESS/-/0/0"
-          && Array.isArray(R2.gagal) && !R2.gagal.some((g: { session_id: string }) => g.session_id === s.z1 || g.session_id === s.z2),
-          `run 2, the failures gone, does not pick both up: ${hasilnya(out, "K2|")}; ${JSON.stringify(R2).slice(0, 300)}`);
+        c.expect(hasilnya(out, "K2|") === "x=FINALIZED/DEADLINE/1/1 y=FINALIZED/DEADLINE/1/1 z1=FINALIZED/DEADLINE/1/1 z2=FINALIZED/DEADLINE/1/1 w=IN_PROGRESS/-/0/0",
+          `run 2, the failures gone, does not pick both up: ${hasilnya(out, "K2|")}`);
         // 2. idempotent: a third run changes nothing (no sitting, no result, no audit row); installing twice leaves one job
-        c.expect(hasilnya(out, "K3|") === hasilnya(out, "K2|") && hasilnya(out, "A3|") === hasilnya(out, "A2|") && R3.dinilai === 0,
-          `run 3 changed something: ${hasilnya(out, "K3|")}; audit/results ${hasilnya(out, "A2|")} -> ${hasilnya(out, "A3|")}; ${JSON.stringify(R3).slice(0, 300)}`);
-        c.expect(hasilnya(out, "P|") === `true|true|true|1 */5 * * * * select public.pengerjaan_tutup_terjadwal()`, `the schedule installed twice through the one installer and once through A1's: ${hasilnya(out, "P|")}`);
+        c.expect(hasilnya(out, "K3|") === hasilnya(out, "K2|") && hasilnya(out, "A3|") === hasilnya(out, "A2|"),
+          `run 3 changed something: ${hasilnya(out, "K3|")}; audit/results ${hasilnya(out, "A2|")} -> ${hasilnya(out, "A3|")}`);
+        // RESTATED, D6.6: the job calls the closer's procedure. Was: select public.pengerjaan_tutup_terjadwal()
+        c.expect(hasilnya(out, "P|") === `true|true|true|1 */5 * * * * call public.pengerjaan_tutup_berkala()`, `the schedule installed twice through the one installer and once through A1's: ${hasilnya(out, "P|")}`);
         // the job's schedule and role, as pg_cron holds them
         c.expect(psql(`select count(*) || '|' || min(schedule) || '|' || bool_and(active) || '|' || min(database) = '1|*/5 * * * *|true|' || current_database() from cron.job where jobname = '${JOB}'`) === "t",
           "the database does not hold exactly one active five-minute job by that name");
@@ -350,6 +353,7 @@ rollback;
           + "one whose scoring raised is kept EXPIRED with its warning; neither stops the others, and the next run picks both up; a third run "
           + "changes no sitting, result or audit row; installing the schedule twice through the one installer, and again through A1's, leaves one job");
       } finally {
+        psql(S08_TANAM_LEPAS);
         bersihkan();
       }
     },
@@ -366,26 +370,39 @@ rollback;
       const d = d0 as Dunia;
       try {
         const m = d.murid;
-        const jalankan = `begin; do $j$ begin execute ${PERINTAH}; end $j$; select pg_sleep(3); commit;`;
+        // RESTATED, A2a change C, D6.6 (migration 20270119150000): the job's command is a procedure that commits in small
+        // batches, so it cannot be held open in a transaction any more (was: the command in a DO block, then pg_sleep(3)
+        // before the commit). The job-first orders are kept overlapping by slowing the job's own first write to the
+        // job-first sittings (a committed harness trigger, 2.5 s, removed after): while the job holds the row, the other
+        // party waits on it and then finds the sitting ended, as before. The other orders are unchanged.
+        const jalankan = psql(`select command from cron.job where jobname = '${JOB}'`);
         const sebagaiTeks = (uid: string, sql: string) => `begin; select selftest.as_user_uid(${lit(uid)}); ${sql}; select pg_sleep(3); commit;`;
         const guru = psql(`select id from auth.users where email = ${lit(GURU.identitas)}`);
         // 3a. two real connections run the job at once on the same overdue sitting
         const a = mulai(m.buka.uid, d.pre, 2);
+        const b = mulai(m.serah.uid, d.pre, 2), b2 = mulai(m.dinilai.uid, d.pre, 2);
+        const t1 = mulai(m.tidak.uid, d.pre, 2), t2 = mulai(m.tenggat.uid, d.pre, 2);
+        psql(`create or replace function selftest.a1_s09_lambat() returns trigger language plpgsql as $f$
+          begin
+            if new.id in (${[a, b2, t2].map(lit).join(", ")}) and new.status = 'EXPIRED' and old.status <> 'EXPIRED'
+               and public.current_person_id() is null then perform pg_sleep(2.5); end if;
+            return new;
+          end $f$;
+          drop trigger if exists a1_s09_lambat on public.assessment_sessions;
+          create trigger a1_s09_lambat before update on public.assessment_sessions for each row execute function selftest.a1_s09_lambat();`);
         tenggat(a, "- interval '1 hour'");
-        const [j1, j2] = await Promise.all([psqlLain(jalankan), tidur(1000).then(() => psqlLain(jalankan.replace("select pg_sleep(3);", "")))]);
+        const [j1, j2] = await Promise.all([psqlLain(jalankan), tidur(1000).then(() => psqlLain(jalankan))]);
         c.expect(j1.ok && j2.ok && akhirSesi(a) === "FINALIZED/DEADLINE/1/1/0", `two runs at once: ${akhirSesi(a)} (${j1.err} ${j2.err})`);
         // 3b. the job races the learner's own hand-in arriving after the deadline (the lazy path), each order
-        const b = mulai(m.serah.uid, d.pre, 2), b2 = mulai(m.dinilai.uid, d.pre, 2);
         tenggat(b, "- interval '1 hour'"); tenggat(b2, "- interval '1 hour'");
-        const [l1, l2] = await Promise.all([psqlLain(sebagaiTeks(m.serah.uid, `select public.finish_my_session(${lit(b)}, null)`)), tidur(1000).then(() => psqlLain(jalankan.replace("select pg_sleep(3);", "")))]);
+        const [l1, l2] = await Promise.all([psqlLain(sebagaiTeks(m.serah.uid, `select public.finish_my_session(${lit(b)}, null)`)), tidur(1000).then(() => psqlLain(jalankan))]);
         const [l3, l4] = await Promise.all([psqlLain(jalankan), tidur(1000).then(() => psqlLain(`begin; select selftest.as_user_uid(${lit(m.dinilai.uid)}); select public.finish_my_session(${lit(b2)}, null); commit;`))]);
         c.expect(akhirSesi(b) === "FINALIZED/DEADLINE/1/1/0" && akhirSesi(b2) === "FINALIZED/DEADLINE/1/1/0",
           `the learner's late hand-in racing the job: learner first ${akhirSesi(b)} (${l1.ok ? "ok" : l1.err} / ${l2.ok ? "ok" : l2.err}); job first ${akhirSesi(b2)} (${l3.ok ? "ok" : l3.err} / ${l4.ok ? "ok" : l4.err})`);
         // 3c. the job races a teacher ending the same overdue sitting, each order: one outcome, never both
-        const t1 = mulai(m.tidak.uid, d.pre, 2), t2 = mulai(m.tenggat.uid, d.pre, 2);
         tenggat(t1, "- interval '1 hour'"); tenggat(t2, "- interval '1 hour'");
         const [g1, g2] = await Promise.all([psqlLain(sebagaiTeks(guru, `select public.akhiri_pengerjaan(${lit(t1)}, 'NOT_COUNTED', 'uji A1: berlomba dengan jadwal')`)),
-          tidur(1000).then(() => psqlLain(jalankan.replace("select pg_sleep(3);", "")))]);
+          tidur(1000).then(() => psqlLain(jalankan))]);
         const [g3, g4] = await Promise.all([psqlLain(jalankan),
           tidur(1000).then(() => psqlLain(`begin; select selftest.as_user_uid(${lit(guru)}); select public.akhiri_pengerjaan(${lit(t2)}, 'NOT_COUNTED', 'uji A1: berlomba dengan jadwal'); commit;`))]);
         const satu = (x: string) => ["FINALIZED/DEADLINE/1/1/0", "TERMINATED/TEACHER_NOT_COUNTED/0/0/1", "TERMINATED/TEACHER_NOT_COUNTED/0/1/1"].includes(x);
@@ -398,6 +415,7 @@ rollback;
           + `racing the job, either order, gives one outcome and never both (teacher first ${akhirSesi(t1)}; job first ${akhirSesi(t2)}); the loser waits on the row lock and `
           + "then finds the sitting ended (status/closure/results/deadline audit rows/teacher audit rows)");
       } finally {
+        psql("drop trigger if exists a1_s09_lambat on public.assessment_sessions");
         bersihkan();
       }
     },

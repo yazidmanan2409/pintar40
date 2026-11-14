@@ -409,3 +409,72 @@ a2aDaruratTests.push({
     return c.verdict(`during a class stop the promotion's preview and application are refused PR070 PROMO_STOPPED with ${r.ditahan} learner(s) in HINT; after the lift it goes on to its own checks (${r.sesudah}); with the plant the application went on (${tanam.terapkan})`);
   },
 });
+
+// ═══════════════════════════════════════════════════════════ A2A-C705 · the closer never starves, in small batches (D6.6)
+
+/** R1: four overdue sittings created long ago (so they come first): two held by a lifted-never stop (marked), one
+ *  protected by an active class stop but not yet marked, and one of a learner no stop affects. Asked for three
+ *  candidates, the closer's selection must name the unaffected one. Rolled back. */
+function calonTanpaLapar(db: string): { ada: boolean; berapa: number; err: string } {
+  const f = fiksur(db);
+  const b = psqlStdin(db, `select s.id from public.assessment_sessions s where s.person_id <> '${f.person}'
+     and not exists (select 1 from public.memberships m where m.enrollment_id in (select e.id from public.enrollments e where e.person_id = s.person_id) and m.node_id = '${f.node}')
+   order by s.id limit 1;`);
+  if (!b) throw new Error("no sitting of a learner outside the stopped class: the seed changed");
+  const ids = ["a2a1c705-0000-4000-8000-000000000001", "a2a1c705-0000-4000-8000-000000000002", "a2a1c705-0000-4000-8000-000000000003", "a2a1c705-0000-4000-8000-000000000004"];
+  /** One overdue sitting copied from `sumber` (an SQL expression), as `orang` (an SQL expression), created at `umur`. */
+  const sesi = (id: string, sumber: string, orang: string, umur: string, ditahan: boolean) => `insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${id}', 'status', 'IN_PROGRESS', 'person_id', ${orang},
+  'authoritative_deadline', timestamptz '2001-01-01', 'created_at', timestamptz '${umur}', 'finalized_at', null, 'submitted_at', null,
+  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'darurat_sejak', ${ditahan ? "now()" : "null"}, 'darurat_jendela_id', ${ditahan ? `'${JENDELA}'` : "null"}))).*
+  from public.assessment_sessions s where s.id = ${sumber};`;
+  const asal = "(select id from a2a_c705_s)";
+  const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: `
+begin;
+set local session_replication_role = replica;
+create temp table a2a_c705_s as select id from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;
+${sesi(ids[0], asal, `'${f.person}'`, "2000-01-01 00:00:01", true)}
+${sesi(ids[1], asal, `'${f.person}'`, "2000-01-01 00:00:02", true)}
+${sesi(ids[2], asal, `'${f.person}'`, "2000-01-01 00:00:03", false)}
+${sesi(ids[3], `'${b}'`, "s.person_id", "2000-01-01 00:00:04", false)}
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, reason, created_by_person_id, activation_recorded_at)
+select '${JENDELA}', 'EMERGENCY', false, array['${f.inst}'::uuid], array['${f.node}'::uuid], now(), now(), 'A2A-C705',
+       (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), now();
+set local session_replication_role = origin;
+select 'CALON|' || ('${ids[3]}' = any(array(select public.pengerjaan_tutup_calon(3))))::text || '|'
+  || (select count(*) from public.pengerjaan_tutup_calon(3) x where x::text like 'a2a1c705-%');
+rollback;` });
+  const h = (r.stdout ?? "").split("\n").find((l) => l.startsWith("CALON|"))?.split("|") ?? [];
+  return { ada: h[1] === "true", berapa: Number(h[2] ?? -1), err: r.status === 0 ? "" : (r.stderr ?? "").trim().split("\n")[0] ?? "" };
+}
+const CALON_KECUALI = `     and a.darurat_sejak is null
+     and not public.pengerjaan_dilindungi(a.id)
+`;
+
+a2aDaruratTests.push({
+  id: "A2A-C705",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    // R2, structurally: the job is the procedure, which commits; the selection and the step are internal
+    const [jenis, perintah, komit, hak] = psqlStdin(db, `select p.prokind::text || '|' || (select command from cron.job where jobname = 'pintar-pengerjaan-tutup-terjadwal')
+        || '|' || (p.prosrc ~* '\\mcommit\\M')::text || '|'
+        || (has_function_privilege('service_role', 'public.pengerjaan_tutup_berkala(integer,integer)', 'execute')
+            or has_function_privilege('authenticated', 'public.pengerjaan_tutup_berkala(integer,integer)', 'execute'))::text
+      from pg_proc p where p.oid = 'public.pengerjaan_tutup_berkala(integer,integer)'::regprocedure;`).split("|");
+    c.expect(jenis === "p" && perintah === "call public.pengerjaan_tutup_berkala()" && komit === "true" && hak === "false",
+      `the job is not the committing procedure, callable by neither a client nor the server key: kind ${jenis}, «${perintah}», commits ${komit}, granted ${hak}`);
+    // R1
+    const r = calonTanpaLapar(db);
+    c.expect(!r.err, `R1's run failed: ${r.err}`);
+    c.expect(r.ada && r.berapa === 1, `asked for three, the closer's selection did not name the unaffected overdue sitting first (named it: ${r.ada}; of the four: ${r.berapa})`);
+    const balik = gantiFungsi("public.pengerjaan_tutup_calon(integer)", CALON_KECUALI, "");
+    let tanam: ReturnType<typeof calonTanpaLapar>;
+    try { tanam = calonTanpaLapar(db); } finally { balik(); }
+    c.expect(!tanam.ada, `with the plant (held and protected not excluded) the unaffected sitting was still selected: ${JSON.stringify(tanam)}`);
+    return c.verdict(`the job is «${perintah}», a procedure that commits (in batches of 20) and that neither a client nor the server key may call; asked for three candidates with two held and one protected sitting first, the selection names the unaffected overdue one and none of the three; with the plant (no exclusion) the three fill the limit and it waits (R1)`);
+  },
+});

@@ -43,7 +43,9 @@ const SETELAN = "the definition's grace setting (configuration), not a sitting's
 export const PEMBACA_DB: Record<string, Kelas> = {
   pengerjaan_tenggat_efektif: H("THE effective deadline: own deadline, else the assignment's closes_at; D6.3 adds the shift here first"),
   pengerjaan_putus_tenggat: H("the deadline decider: ends a sitting past its deadline, scores it after the grace"),
-  pengerjaan_tutup_terjadwal: H("the closer's selection: which sittings are past their deadline"),
+  // D6.6 (migration 20270119150000): the closer's selection moved into one function the job's procedure and the
+  // service-only entry point share; the entry point itself no longer reads a closing time
+  pengerjaan_tutup_calon: H("the closer's selection: which sittings are past their (shifted) deadline, held and protected ones excluded (R1)"),
   finalize_session: H("the grace: refuses to score inside the late-sync window from the deadline"),
   record_answer: H("late sync: accepts an answer inside the grace after the deadline"),
   maintenance_draining: H("whether a sitting is still in time (deadline + grace) while maintenance drains"),

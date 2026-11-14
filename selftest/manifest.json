@@ -6189,6 +6189,11 @@
       "id": "A2A-C704",
       "runner": "static",
       "proves": "The owner's ruling M-1 (THE PLAN §5.3 D6.2; migration 20270119140000): in one rolled-back transaction, a class with a learner holding an open sitting and a later school year is stopped by a class-scoped emergency window; as the school's admin, kenaikan_tetapkan's preview and its application are each refused PR070 with DETAIL PROMO_STOPPED and the number of held learners in HINT (the application after the population and the shared fence); after the lift the preview goes on to its own checks; with the plant (the refusal removed) the application is not refused for the stop. The app shows Daisy's sentence with {n} from HINT (galat.promo_stopped)."
+    },
+    {
+      "id": "A2A-C705",
+      "runner": "static",
+      "proves": "THE PLAN §5.3 D6.6 (Sharon's R1, R2; migration 20270119150000): the closer's job is `call public.pengerjaan_tutup_berkala()`, a procedure that commits (in batches of 20, so the shared fence each candidate takes is held for one batch at most; its timing is change B's measurement) and that neither a client nor the server key may call; and R1, rolled back: with two held sittings and one protected (an active class stop, not yet marked) created first, the closer's selection asked for three names the unaffected overdue sitting and none of the three; with the plant (the exclusion removed) the three fill the limit and the unaffected one waits."
     }
   ]
 }

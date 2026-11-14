@@ -716,7 +716,8 @@ ${DUNIA}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the database's own JSON
       const v = r.v as Record<string, any>;
       const DUA = [["pintar-akuntabilitas-buang-lama", "17 19 * * *", "select public.akuntabilitas_buang_lama()"],
-        ["pintar-pengerjaan-tutup-terjadwal", "*/5 * * * *", "select public.pengerjaan_tutup_terjadwal()"]];
+        // RESTATED, A2a change C, D6.6 (migration 20270119150000): the closer's job calls its procedure. Was: select public.pengerjaan_tutup_terjadwal()
+        ["pintar-pengerjaan-tutup-terjadwal", "*/5 * * * *", "call public.pengerjaan_tutup_berkala()"]];
       c.expect(JSON.stringify(v.daftar) === JSON.stringify(DUA), `the declaration: ${JSON.stringify(v.daftar)}`);
       c.expect(JSON.stringify(v.cron) === JSON.stringify(DUA.map((d) => [...d, true, true])), `cron.job holds ${JSON.stringify(v.cron)}`);
       c.expect(v.sehat0?.ok === true || (v.sehat0?.hilang?.length === 0 && v.sehat0?.berbeda?.length === 0), `the health read as installed: ${JSON.stringify(v.sehat0)}`);

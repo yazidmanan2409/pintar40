@@ -34,7 +34,7 @@
  *           never why.
  */
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { t } from "../src/lib/hle";
@@ -45,7 +45,9 @@ const MIGRASI = "supabase/migrations/20270114100000_a_sitting_is_managed_where_i
 const MIGRASI_JADWAL = "supabase/migrations/20270114110000_an_abandoned_sitting_is_closed_on_a_schedule.sql";
 /** B1 (THE PLAN §6.3): the one installer that installs every PINTAR job, A1's among them; A1's installer is a call to it. */
 const MIGRASI_PEMASANG = "supabase/migrations/20270116110000_every_scheduled_job_is_declared_once_installed_by_one_installer_and_checked.sql";
-const TUGAS = { nama: "pintar-pengerjaan-tutup-terjadwal", jadwal: "*/5 * * * *", perintah: "select public.pengerjaan_tutup_terjadwal()" } as const;
+// RESTATED, A2a change C, D6.6 (THE PLAN §5.3; migration 20270119150000): the job calls the closer's procedure, which commits in
+// small batches under the fence and runs the marking and the release; the service-only entry point stays. Was: select public.pengerjaan_tutup_terjadwal()
+const TUGAS = { nama: "pintar-pengerjaan-tutup-terjadwal", jadwal: "*/5 * * * *", perintah: "call public.pengerjaan_tutup_berkala()" } as const;
 const ALASAN = "uji A1: alasan yang cukup panjang";
 
 function db(): string {
@@ -272,7 +274,13 @@ export const a1Tests: SelfTest[] = [
         // one job through its own installer (that migration is unchanged; the definitions it pinned are superseded).
         let pemasangSql = "";
         try { pemasangSql = readFileSync(join(repoRoot, MIGRASI_PEMASANG), "utf8").replace(/^\s*--.*$/gm, ""); } catch { pemasangSql = ""; }
-        const daftar = /create or replace function public\.pintar_jadwal_daftar\(\)[\s\S]*?\$\$;/.exec(pemasangSql)?.[0] ?? "";
+        // RESTATED, A2a change C, D6.6 (migration 20270119150000): the declaration is read from the LAST migration that
+        // defines it (D6.6 changed the closer's command to its procedure); the installer is still B1's. Was: B1's migration.
+        const migDir = join(repoRoot, "supabase", "migrations");
+        const daftarSql = readdirSync(migDir).filter((n) => n.endsWith(".sql")).sort()
+          .map((n) => readFileSync(join(migDir, n), "utf8").replace(/^\s*--.*$/gm, ""))
+          .filter((s) => /create or replace function public\.pintar_jadwal_daftar\(\)/.test(s)).pop() ?? "";
+        const daftar = /create or replace function public\.pintar_jadwal_daftar\(\)[\s\S]*?\$\$;/.exec(daftarSql)?.[0] ?? "";
         const dideklarasikan = [...daftar.matchAll(/\('([^']*)', '([^']*)', '([^']*)'\)/g)].filter((x) => x[1] === TUGAS.nama);
         c.expect(dideklarasikan.length === 1 && dideklarasikan[0][2] === TUGAS.jadwal && dideklarasikan[0][3] === TUGAS.perintah,
           `the one declaration names ${dideklarasikan.map((x) => `${x[1]} «${x[2]}» ${x[3]}`).join("; ") || "nothing"} for A1; expected exactly ${TUGAS.nama} «${TUGAS.jadwal}» ${TUGAS.perintah}`);
@@ -575,7 +583,7 @@ export const a1Tests: SelfTest[] = [
         langkah("tak_ada_hasil", null, `select count(*) from public.assessment_sessions s join public.assessment_results r on r.session_id = s.id where s.status::text = 'TERMINATED'`),
         // the schedule itself: exactly one job of that name, every five minutes, calling the entry point, as a role that may
         langkah("tugas", null, `select count(*) || '|' || min(j.schedule) || '|' || min(j.command) || '|' || bool_and(j.active) || '|'
-            || bool_and(has_function_privilege(j.username, 'public.pengerjaan_tutup_terjadwal(integer)', 'execute'))
+            || bool_and(has_function_privilege(j.username, 'public.pengerjaan_tutup_berkala(integer,integer)', 'execute'))   -- RESTATED, D6.6: the procedure the job calls
            from cron.job j where j.jobname = '${TUGAS.nama}'`),
         langkah("tugas_lain", null, `select count(*) from cron.job j where j.command ilike '%pengerjaan_tutup_terjadwal%' and j.jobname <> '${TUGAS.nama}'`),
       ];
