@@ -1,6 +1,6 @@
 # A2a · Emergency containment and class scope for the emergency (completion page, before build)
 
-## State of change A, then C and B (14 Nov, 22:45 UTC by `date -u`; kept here so that nothing depends on a session's memory)
+## State of change A, then C and B (14 Nov, 03:24 UTC by `date -u`; kept here so that nothing depends on a session's memory)
 
 **Branches:**
 - `claude/a2a`: this page.
@@ -63,6 +63,39 @@ Auth's user deletion.
    Only an inherited cycle elsewhere, whose outcome is 40P01 with nothing lost, may be registered.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
+
+**CHANGE C AT A GLANCE** (14 Nov, 03:24 UTC by `date -u`; the source of truth for a fresh session). The details follow
+below.
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `c3cbe3c4`. The order is A → C → B, and C
+  is not merged until B's scale evidence holds on C's frozen commit.
+- **Commits:**
+  1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
+  2. `7607ac75` · DRAFT · the fence: `pagar_darurat_eksklusif` (1500ms) and `pagar_darurat_bersama` (2s), with
+     A2A-F01. **Sharon: read, no blocker** (N1, N2).
+  3. `bd2f3247` · DRAFT · B1: `change_maintenance` takes the fence before an EMERGENCY window's row. "Pending B1" is
+     removed from A2A-L01. **Sharon: read, no blocker** (the kind invariant).
+  4. `e076520c` · A2A-T01 to E1 and E2. **Sharon: accepted.**
+  5. `e303f1a9` · N1, N2 and the kind invariant (A2A-F01). Sharon's notes, carried.
+  6. `8a014fde` · DRAFT · the class-scope stop: `node_ids`, its CHECK and trigger; `t_stop` and `t_lift`;
+     `maintenance_affects` node-aware; `stop_pintar_now(…, p_nodes)` under the fence. **Sharon: not yet read.**
+  7. `3249cce8` · DRAFT · held sittings with their time: A1's held state extended (`darurat_sejak`,
+     `darurat_geser_detik`), protection, the union shift, the guard's two transitions, marking and release.
+     **Sharon: not yet read.**
+  8. `c3cbe3c4` · DRAFT · two fixes to 7, found on the owner's questions: a second stop no longer loses the first's
+     time (D6.4), and `service_role` is revoked from the six new routines. **Sharon: not yet read.**
+- **Green locally:** A2A-L01, A2A-T01, A2A-F01, M148-D02, and A1's S01 to S09. The pins are at 253.
+- **Open with Sharon:** the owner's three questions and two points (below), and her read of drafts 6 to 8.
+- **Next, in order:**
+  1. D6.2: the protection check in each act, with Daisy's refusal lines in `hle.ts`, and the fence refusal.
+  2. D6.6: the closer as a procedure, its selection by the shifted closing time, and the job `select` → `call`.
+  3. The fenced lift, including AKHIRI on an EMERGENCY window, with `T_lift`. **Sharon's own early read.**
+  4. D6.9: the audit rows.
+  5. The B3 to B6 tests, and the required-change-1 test through every reader.
+  6. Daisy's §3, to Sharon's shape, with its three tests.
+  7. Daisy's §2 teacher line.
+  8. The screens, with screenshots in `a2a-layar/`.
+- **Reviewers:** Second Eye cannot message their sessions from here. Pointers for them are on this page; the Chief
+  Architect relays.
 
 **CHANGE C IS IN DEVELOPMENT** (14 Nov, 00:47 UTC by `date -u`). The order is now A → C → B: the owner, through the Chief
 Architect (`TEAM-INSTRUCTIONS.md` at `33be0fa1`).
