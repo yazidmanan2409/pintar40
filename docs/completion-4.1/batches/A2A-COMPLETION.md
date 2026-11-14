@@ -75,6 +75,20 @@ Architect (`TEAM-INSTRUCTIONS.md` at `33be0fa1`).
   - A missed reader, or a stale class, is red.
   - Two plants, a function and an app file, are each reported.
   - A2A-L01 stays green.
+- **Commit 2, `7607ac75`, DRAFT: the fence** (migration `20270119100000`), for Sharon's early read.
+  - Two functions on one fixed key, each with its `SET lock_timeout`:
+    - `pagar_darurat_eksklusif` (1500ms), for the activation and the lift;
+    - `pagar_darurat_bersama` (2s), for the protected decisions and the closer's batches.
+  - Neither is callable by a client, and nothing calls either yet.
+  - **A2A-F01** (row 5's condition) checks the catalogue's half and the repository's, with two plants.
+- **Commit 3, `bd2f3247`, DRAFT: Sharon's B1** (migration `20270119110000`), for Sharon's early read.
+  - On an EMERGENCY window, `change_maintenance` reads the kind without a lock, takes the exclusive fence, then locks
+    the window row.
+  - **The "pending B1" exception is removed** from A2A-L01. The three window functions' actor key after the window row
+    is re-read after B1 and declared on its own condition: no transaction that holds a person `FOR UPDATE` locks a window
+    row afterwards. **For Sharon to read.**
+  - Not yet: AKHIRI on an EMERGENCY window through D6's fenced lift.
+- **Green:** A2A-L01, A2A-T01 and A2A-F01, with the pins at 251. **The drafts are up at 01:40 UTC by `date -u`.**
 - **Nothing of D6.3 is built** until Sharon has read commit 1.
 - **Next:** A2a's product changes as this page has them.
   - The risky database parts are pushed as unfinished drafts as they exist: the fence, the closer procedure, held
