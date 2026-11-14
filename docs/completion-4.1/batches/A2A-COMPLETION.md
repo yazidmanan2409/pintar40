@@ -64,9 +64,9 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**CHANGE C AT A GLANCE** (14 Nov, 04:08 UTC by `date -u`; the source of truth for a fresh session). The details follow
+**CHANGE C AT A GLANCE** (14 Nov, 04:14 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
-- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `00b946a2`. The order is A → C → B, and C
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `35ee833a`. The order is A → C → B, and C
   is not merged until B's scale evidence holds on C's frozen commit.
 - **Commits:**
   1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
@@ -154,12 +154,21 @@ below.
         the list both give +2700 s, OPEN. The decider and the closer both leave it IN_PROGRESS.
       - **Plants:** with the decider reading `closes_at` raw, it ends and scores the sitting. With the list reading it
         raw, the list is reported.
-- **Green locally:** A2A-C701, A2A-C702, A2A-C703, A2A-L02 to L06 (L01 apart), F06, F24, F37, A2A-L03, A2A-L05, A2A-T01, A2A-F01, M148-D02, and A1's K01, S01 to S09 and J01. The pins are at
+  14. `35ee833a` · DRAFT · **M-1, the promotion run is refused during a stop.**
+      - `kenaikan_tetapkan` takes the shared fence on the apply path, after the population lock (rank 1). It then reads
+        protection over the population's open sittings. If any is held, it refuses with PR070, DETAIL `PROMO_STOPPED`,
+        and the number of learners in HINT. The preview refuses the same way, so the refusal is seen at the review.
+      - The app shows Daisy's sentence word for word (`galat.promo_stopped`), with `{n}` taken from HINT.
+      - **A2A-C704:** during a class stop, the preview and the application are both refused with the count. After the
+        lift, the preview goes on to its own checks. Plant: with the refusal removed, the application goes on.
+      - **Daisy:** this is one new sentence on the promotion's review and apply screens. Its screenshot comes with the
+        screens batch in `a2a-layar/`.
+- **Green locally:** A2A-C701 to C704, A2A-L02 to L06 (L01 apart), F06, F24, F37, A2A-L03, A2A-L05, A2A-T01, A2A-F01, M148-D02, and A1's K01, S01 to S09 and J01. The pins are at
   254. **A2A-L01 is red on three, for Sharon.**
 - **Open with Sharon:** the owner's three questions and two points (below), and her read of drafts 6 to 8.
 - **Next, in order:**
   0. The C7-1 teacher-role test. Moved and transferred are A2A-C701 (commit 11), C7-2 is commit 12 and C7-3 is commit 13.
-     Also O1's rule after the lift for a sitting preserved through a departure, and M-1's refusal in the promotion run.
+     Also O1's rule after the lift, for a sitting preserved through a departure. M-1 is commit 14.
   1. D6.2's assignment-level acts (`ubah_jadwal_penugasan`, `akhiri_penugasan`, `tutup_asesmen_terbuka`, the
      promotion), after Sharon's ruling on their order. Daisy's refusal lines go into `hle.ts`.
   2. D6.6: the closer as a procedure, its selection by the shifted closing time, and the job `select` → `call`.
