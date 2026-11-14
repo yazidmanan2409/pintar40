@@ -427,6 +427,16 @@ below.
     `MESIN_TENGGAT`), and A2A-C711's TANDAI and BATCH cases.
   - **To Daisy:** commit `2d94d939` (blockers 1 to 3). Her screenshots follow, with the rest of her strings.
 
+**Commits 33 to 37 and the search_path exception** (14 Nov, 07:41 UTC by `date -u`; head `a6ce33e7`):
+- Commit 33 (`ce42b88c`): Daisy's remaining words and the reads behind them.
+- Commit 34 (`5a5dbae5`): ADR-0021 revokes.
+- Commit 35 (`80e2d7c3`): the tests hold when the whole manifest runs first.
+- Commit 36 (`36781d2c`): «Hentikan sekarang» in a school's own context.
+- Screens batch 2 (`d355ebba`): with Daisy, verdict due by 08:40.
+- Commit 37 (`15518c4a`) and A2A-C714 (`a6ce33e7`): the search_path exception. **Sharon: no blocker** (`A2A-C-37-a6ce33e7.md` at `64270ccc`).
+  - **Her note, for every environment:** the lint (jalur_pengecualian_cacat) reads `cron.job`, so it needs the pg_cron extension wherever it runs: local, CI, staging and hosted. A1 already requires pg_cron (Option A).
+- Commits 33 to 36 handed to Sharon at 07:40.
+
 **Daisy, ready for your first look** (`docs/completion-4.1/batches/a2a-layar/` on `claude/a2a-change-c` at `6b8a96f9`):
 - `1-daftar-saat-henti-kaprodi-{390,320,1280}`: the list during a stop, seen by someone above the class.
   - The class's own teacher is stopped too, because their role is scoped at the class (D7). So the list during a
