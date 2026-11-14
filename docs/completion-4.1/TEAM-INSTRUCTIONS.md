@@ -609,3 +609,19 @@ exact reads).
 - **Friction:** a third handoff gap. Commit 30 waited 14 minutes with no reviewer told, and Second Eye stopped after
   pushing it. It was caught by the 30-minute check-in. The rule stands: whoever pushes tells the reviewer, then keeps
   building.
+
+## Handoff convention (owner, 14 Nov 2026)
+
+Bob should not have to discover finished work through check-ins. Every handoff follows one sequence: **work ready →
+notify reviewer → reviewer acknowledges → review begins.**
+
+- **Work ready.** Whoever pushes something for review sends one message to the reviewer, copying Bob. It gives the
+  branch, the commit and what to read. Second Eye messages Sharon and Daisy, and they message him back.
+- **Acknowledge.** The reviewer replies on receipt, copying Bob, with the commit and when to expect the verdict. The
+  reply is one line and does not wait for the review.
+- **No acknowledgement within 15 minutes:** the sender tells Bob, and Bob relays.
+- **Direct messaging unavailable:** Bob relays the handoff and remains responsible for it.
+- **The builder keeps building** while the review runs.
+- **Bob's 30-minute check-ins stay as a backstop only.** A handoff that a check-in finds is recorded as friction.
+
+No other coordination mechanism is added.
