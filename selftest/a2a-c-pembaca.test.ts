@@ -30,7 +30,7 @@ const FUNGSI_TENGGAT = ["session_state", "pengerjaan_saya", "daftar_pengerjaan",
 const POLA_SRC = /closes_at|authoritative_deadline|closure_deadline|late_sync|closesAt|authoritativeDeadline|closureDeadline|lateSync|tenggat_efektif|tenggatEfektif|\btenggat\b|sisa_detik|sisa_ditahan_detik|berakhir_pada|\bdeadline\b/;
 const kodeSaja = (t: string) => t.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
 
-type Kelas = { kelas: "HARUS" | "TIDAK" | "KLIEN"; alasan: string };
+export type Kelas = { kelas: "HARUS" | "TIDAK" | "KLIEN"; alasan: string };
 const H = (alasan: string): Kelas => ({ kelas: "HARUS", alasan });
 const T = (alasan: string): Kelas => ({ kelas: "TIDAK", alasan });
 /** An explicit client computation from the server's shifted value: D6.3's shift test checks it against the server. */

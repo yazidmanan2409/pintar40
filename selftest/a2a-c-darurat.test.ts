@@ -17,7 +17,7 @@
 import { spawnSync } from "node:child_process";
 import { Checks, type SelfTest } from "./lib";
 import { psqlBaris } from "./a2a-f01.test";
-import { PEMBACA_DB } from "./a2a-c-pembaca.test";
+import { PEMBACA_DB, PEMBACA_SRC, type Kelas } from "./a2a-c-pembaca.test";
 
 function psqlStdin(db: string, sql: string): string {
   const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: sql });
@@ -739,5 +739,124 @@ a2aDaruratTests.push({
     const ditahan = Object.entries(tanam.hasil).filter(([, h]) => /SITTING_EMERGENCY_HELD/.test(h)).map(([k]) => k);
     c.expect(ditahan.length > 0, `with the plant (no release in the helper) no act was refused SITTING_EMERGENCY_HELD: ${JSON.stringify(tanam.hasil)}`);
     return c.verdict(`after a lift with no release batch, each of ${TINDAKAN.map((x) => x.nama).join(", ")} succeeds as its own actor, the sitting released with the stop's 45 min first; none raises SITTING_EMERGENCY_HELD; with the plant (no release) ${ditahan.length} of them did (${ditahan.join(", ")})`);
+  },
+});
+
+// ═══════════════════════════════════════════════════════════ A2A-C708 · D6.3's shift test, from A2A-T01's table (C7-3)
+
+/** Sharon's C7-3 (A2A-C-BEFORE-FREEZE-8bc74097.md, section 3): every HARUS reader of A2A-T01 reads the same effective
+ *  deadline after a lift. Each is covered one of three ways, and a HARUS reader with no case fails the test:
+ *   NILAI       it returns a deadline: probed, it equals pengerjaan_tenggat_efektif;
+ *   KEPUTUSAN   it decides on the deadline: probed, it treats the sitting as still inside its shifted time;
+ *   KONSTRUKSI  it reads only authoritative_deadline (moved in place by the release), the effective deadline, or a
+ *               stored remaining time, never closes_at: so it is consistent for both kinds of sitting, and that is
+ *               checked on its source. */
+type CaraGeser = "NILAI" | "KEPUTUSAN" | "KONSTRUKSI";
+export const KASUS_GESER: Record<string, CaraGeser> = {
+  pengerjaan_tenggat_efektif: "NILAI", daftar_pengerjaan: "NILAI", pengerjaan_saya: "NILAI", session_state: "NILAI",
+  pengerjaan_putus_tenggat: "KEPUTUSAN", pengerjaan_tutup_calon: "KEPUTUSAN", may_continue_session: "KEPUTUSAN", maintenance_draining: "KEPUTUSAN",
+  finalize_session: "KONSTRUKSI", record_answer: "KONSTRUKSI", pengerjaan_tahan_orang: "KONSTRUKSI", extend_session_deadline: "KONSTRUKSI",
+  tambah_waktu_pengerjaan: "KONSTRUKSI", lanjutkan_pengerjaan: "KONSTRUKSI", pengerjaan_jaga: "KONSTRUKSI", pengerjaan_lepas_darurat: "KONSTRUKSI",
+  pengerjaan_tandai_darurat: "KONSTRUKSI", pengerjaan_tandai_saat_angkat: "KONSTRUKSI", pengerjaan_dilindungi: "KONSTRUKSI",
+  // the app: the player shows session_state's value (probed above); AturPengerjaan's client computation is checked
+  // against the server's own added time below
+  "src/lib/assessment-engine/index.ts": "NILAI", "src/components/mengajar/AturPengerjaan.tsx": "NILAI",
+};
+/** The HARUS and KLIEN readers of A2A-T01's tables that have no case here (the coverage half). */
+export function tanpaKasus(db: Record<string, Kelas>, src: Record<string, Kelas>, kasus: Record<string, CaraGeser>): string[] {
+  return [...Object.entries(db), ...Object.entries(src)].filter(([, k]) => k.kelas === "HARUS" || k.kelas === "KLIEN")
+    .map(([n]) => n).filter((n) => !(n in kasus)).sort();
+}
+
+/** The probes, rolled back: W, a window-timed sitting whose assignment closed 10 minutes ago, released from a 45-minute
+ *  stop (darurat_geser_detik 2700); O, an own-deadline sitting of the same learner released the same way (its deadline
+ *  moved in place). As the learner, the teacher and the job, each probe answers true when it agrees. */
+function probeGeser(db: string): { hasil: Record<string, string>; err: string } {
+  const b = psqlStdin(db, `select s.id || '|' || aa.id || '|' || aa.node_id || '|' || am.auth_user_id || '|' || ag.auth_user_id || '|' || s.person_id
+  from public.assessment_sessions s join public.assessment_assignments aa on aa.id = s.assessment_assignment_id
+  join public.org_nodes n on n.id = aa.node_id and n.kind = 'CLASS' and s.class_node_id = aa.node_id
+  join public.learning_assignments la on la.id = aa.learning_assignment_id and not public.release_is_professional(la.plp_release_id)
+  join public.accounts am on am.person_id = s.person_id
+  join public.role_assignments rg on rg.role = 'EDUCATOR' and rg.scope_node_id = aa.node_id and rg.revoked_at is null and now() >= rg.valid_from and now() < rg.valid_until
+  join public.accounts ag on ag.person_id = rg.person_id
+  where rg.person_id <> s.person_id order by s.id limit 1;`);
+  const [sumber, aa, kelas, murid, guru, orang] = b.split("|");
+  if (!orang) throw new Error("no sitting of a class assignment whose learner and teacher have accounts: the seed changed");
+  const W = "a2a1c708-0000-4000-8000-000000000001", O = "a2a1c708-0000-4000-8000-000000000002";
+  const salin = (id: string, tenggat: string, geser: number, dibuat: string) => `insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${id}', 'status', 'IN_PROGRESS', 'authoritative_deadline', ${tenggat},
+  'created_at', ${dibuat}, 'started_at', ${dibuat}, 'finalized_at', null, 'submitted_at', null,
+  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
+  'deadline_extended_count', 0, 'cohort_node_id', null, 'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_geser_detik', ${geser}))).*
+  from public.assessment_sessions s where s.id = '${sumber}';`;
+  const sebagai = (uid: string) => `select set_config('request.jwt.claims', '{"sub":"${uid}","role":"authenticated"}', true);`;
+  const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: `
+begin;
+set local session_replication_role = replica;
+update public.assessment_assignments set closes_at = now() - interval '10 minutes' where id = '${aa}';
+${salin(O, "now() + interval '35 minutes'", 0, "now() - interval '3 minutes'")}
+${salin(W, "null", 2700, "now() - interval '2 minutes'")}
+-- the learner's other sittings of this assignment go (rolled back), after the copies: the list shows W
+delete from public.assessment_sessions x where x.person_id = '${orang}' and x.assessment_assignment_id = '${aa}' and x.id not in ('${W}', '${O}');
+set local session_replication_role = origin;
+create temp table e as select public.pengerjaan_tenggat_efektif('${W}') as w, public.pengerjaan_tenggat_efektif('${O}') as o,
+  (select closes_at from public.assessment_assignments where id = '${aa}') as c;
+select 'pengerjaan_tenggat_efektif|' || (e.w = e.c + interval '2700 seconds' and e.o = now() + interval '35 minutes')::text from e;
+${sebagai(murid)}
+-- the player's read, before anything else touches W: an own-deadline sitting shows its moved deadline; a window-timed one
+-- shows none (no countdown, as before A2a), never the unshifted closing time
+select 'session_state|' || ((select x.authoritative_deadline from public.session_state('${O}') x) = e.o
+  and (select x.authoritative_deadline is null from public.session_state('${W}') x))::text from e;
+select 'src/lib/assessment-engine/index.ts|' || ((select x.authoritative_deadline from public.session_state('${O}') x) = e.o)::text from e;
+${sebagai(guru)}
+create temp table d as select d.sesi_id, d.tenggat from public.daftar_pengerjaan('${kelas}', '${aa}') d where d.person_id = '${orang}';
+select 'daftar_pengerjaan|' || coalesce((select (d.sesi_id = '${W}' and d.tenggat = e.w)::text from d, e), 'false');
+create temp table k as select public.tambah_waktu_pengerjaan('${W}', 10, 'A2A-C708: the client formula') as j;
+select 'src/components/mengajar/AturPengerjaan.tsx|' || coalesce((select ((k.j ->> 'tenggat_baru')::timestamptz = d.tenggat + interval '10 minutes')::text from k, d), 'false');
+${sebagai(murid)}
+select 'pengerjaan_saya|' || ((public.pengerjaan_saya('${W}') ->> 'tenggat')::timestamptz = e.w + interval '10 minutes'
+  and (public.pengerjaan_saya('${O}') ->> 'tenggat')::timestamptz = e.o)::text from e;
+select 'may_continue_session|' || ((select x.ok from public.may_continue_session('${W}') x) and (select x.ok from public.may_continue_session('${O}') x))::text;
+select 'maintenance_draining|' || public.maintenance_draining('${orang}')::text;
+select set_config('request.jwt.claims', '', true);
+select 'pengerjaan_putus_tenggat|' || (public.pengerjaan_putus_tenggat('${W}', true) = 'IN_PROGRESS' and public.pengerjaan_putus_tenggat('${O}', true) = 'IN_PROGRESS')::text;
+select 'pengerjaan_tutup_calon|' || (not exists (select 1 from public.pengerjaan_tutup_calon(5000) x where x in ('${W}', '${O}')))::text;
+rollback;` });
+  const hasil: Record<string, string> = {};
+  for (const l of (r.stdout ?? "").split("\n")) { const i = l.lastIndexOf("|"); if (i > 0) hasil[l.slice(0, i)] = l.slice(i + 1); }
+  return { hasil, err: r.status === 0 ? "" : (r.stderr ?? "").trim().split("\n")[0] ?? "" };
+}
+
+a2aDaruratTests.push({
+  id: "A2A-C708",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    // coverage, from A2A-T01's own tables; its plant first: a HARUS reader with no case
+    c.expect(tanpaKasus({ ...PEMBACA_DB, _a2a_c708_tanam: { kelas: "HARUS", alasan: "plant" } }, PEMBACA_SRC, KASUS_GESER).includes("_a2a_c708_tanam"),
+      "a planted HARUS reader with no case was not reported");
+    const tanpa = tanpaKasus(PEMBACA_DB, PEMBACA_SRC, KASUS_GESER);
+    c.expect(tanpa.length === 0, `HARUS or KLIEN readers of A2A-T01 with no case in D6.3's shift test: ${tanpa.join(", ")}`);
+    // KONSTRUKSI, on the source
+    const src = new Map<string, string>();
+    for (const [fn, s] of psqlBaris(db, "select p.proname, p.prosrc from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'"))
+      src.set(fn, (src.get(fn) ?? "") + "\n" + (s ?? "").replace(/--[^\n]*/g, " "));
+    for (const [fn, cara] of Object.entries(KASUS_GESER)) if (cara === "KONSTRUKSI")
+      c.expect(src.has(fn) && !/\bcloses_at\b/.test(src.get(fn)!), `${fn} is classed as consistent by construction, but ${src.has(fn) ? "reads closes_at" : "does not exist"}`);
+    // NILAI and KEPUTUSAN, probed
+    const r = probeGeser(db);
+    c.expect(!r.err, `the probes failed: ${r.err}`);
+    for (const [n, cara] of Object.entries(KASUS_GESER)) if (cara !== "KONSTRUKSI")
+      c.expect(r.hasil[n] === "true", `${n} (${cara}) does not agree with the effective deadline after a lift: ${r.hasil[n] ?? "(no answer)"}`);
+    // the plant: the teacher's list reading closes_at raw
+    const balik = gantiFungsi("public.daftar_pengerjaan(uuid,uuid)", "aa.closes_at + make_interval(secs => s.darurat_geser_detik)", "aa.closes_at");
+    let tanam: ReturnType<typeof probeGeser>;
+    try { tanam = probeGeser(db); } finally { balik(); }
+    c.expect(tanam.hasil.daftar_pengerjaan === "false", `with the plant (the list reading closes_at raw) the list still agreed: ${JSON.stringify(tanam.hasil)}`);
+    const n = (k: CaraGeser) => Object.values(KASUS_GESER).filter((x) => x === k).length;
+    return c.verdict(`every HARUS and KLIEN reader of A2A-T01 has a case (${n("NILAI")} value probes, ${n("KEPUTUSAN")} decisions, ${n("KONSTRUKSI")} by construction, never reading closes_at); after a lift, for a window-timed and an own-deadline sitting, each probe agrees with the effective deadline, and AturPengerjaan's client formula equals the server's added time; plants: an uncovered reader, and the list reading closes_at raw`);
   },
 });

@@ -6204,6 +6204,11 @@
       "id": "A2A-C707",
       "runner": "static",
       "proves": "Sharon's C7-2 in full (A2A-C-BEFORE-FREEZE-8bc74097.md, section 3): a class stop lifted 45 minutes after T_stop, no release batch run; on its own sitting still marked by the stop, its unshifted deadline already passed, each act as its own actor (added time, the teacher's end and extend as the class's teacher; terminate for an integrity cause as the school admin; the hand-in through the learner's gate and resume as the learner) succeeds, with the sitting released and its deadline moved by at least the stop's 2700 s first; none raises SITTING_EMERGENCY_HELD. The enrolment's end is A2A-C702's. With the plant (the helper's release removed) the acts are refused SITTING_EMERGENCY_HELD. One transaction, each act in a subtransaction, rolled back."
+    },
+    {
+      "id": "A2A-C708",
+      "runner": "static",
+      "proves": "Sharon's C7-3, D6.3's shift test (A2A-C-BEFORE-FREEZE-8bc74097.md, section 3), taking its list from A2A-T01's tables: every HARUS and KLIEN reader has a case, or the test fails (a planted uncovered reader is reported). Value readers (the effective deadline, the teacher's list, the learner's own read, and session_state with the player through it (an own-deadline sitting shows its moved deadline; a window-timed one shows none, as before A2a, never the unshifted closing time)) and decisions (the decider, the closer's selection, may_continue_session, the maintenance drain) are probed after a lift, for a window-timed sitting whose assignment closed 10 minutes ago and an own-deadline sitting, each released from a 45-minute stop: each agrees with the effective deadline (the window-timed one at closes_at + 2700 s), and AturPengerjaan's client formula (the list's tenggat + n minutes) equals the server's added time. The rest are consistent by construction (they read only authoritative_deadline, the effective deadline or a stored remaining time), checked on their source: none reads closes_at. Plant: the teacher's list reading closes_at raw disagrees."
     }
   ]
 }
