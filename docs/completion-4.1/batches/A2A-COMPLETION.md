@@ -64,9 +64,9 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**CHANGE C AT A GLANCE** (14 Nov, 03:53 UTC by `date -u`; the source of truth for a fresh session). The details follow
+**CHANGE C AT A GLANCE** (14 Nov, 04:04 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
-- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `47a3cf74`. The order is A → C → B, and C
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `b649e2df`. The order is A → C → B, and C
   is not merged until B's scale evidence holds on C's frozen commit.
 - **Commits:**
   1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
@@ -119,11 +119,33 @@ below.
         judged by `maintenance_affects` now (draft 7's form). The sitting is not marked and nothing moves.
       - **Not yet covered:** a teacher's role ending during the stop. No seeded teacher has a sitting in a
         class-scoped stop, so this needs its own fixture.
-- **Green locally:** A2A-C701, A2A-L03, A2A-L05, A2A-T01, A2A-F01, M148-D02, and A1's K01, S01 to S09 and J01. The pins are at
+  12. `b649e2df` · DRAFT · **C7-2, first-touch release** (Sharon's required item).
+      - `pengerjaan_pagar` now releases at once a sitting that is no longer protected but still marked. The order is
+        the person, then the shared fence, then the sitting. The two separate release calls are folded into it.
+      - **The departure** (`tutup_asesmen_terbuka`, reached from `akhiri_pendaftaran`, `transfer_execute` and the
+        promotion run) takes the shared fence after the person and the enrolment, before its first sitting. Each
+        sitting then goes through the helper:
+        - a protected sitting is preserved, unscored, for the stop (O1);
+        - a lifted one is released with its shift, and only then judged.
+      - **Two grants found and removed:**
+        - `tutup_asesmen_terbuka` from `service_role`, an inherited default that A2A-F01 caught;
+        - `maintenance_windows_node_check()` (commit 6) from every role. F06-P08 found the default grant to anon on
+          this SECURITY DEFINER trigger function. The sibling sweep found no other new routine with a client grant.
+      - **A2A-C702:** every function that updates a sitting reaches the helper before its first update, or is declared
+        with its reason. The declared ones are the release, the marking and the attempt mark, plus `akhiri_penugasan`,
+        named as not yet built.
+      - **Sharon's test, as you wrote it:** a stop is lifted, no release batch runs, and the enrolment is ended. It
+        succeeds. The sitting is released with exactly 2700 s first, then ended unscored as
+        `INSTITUTIONAL_REVOCATION`. Plant: no release in the helper. The departure is refused with
+        `SITTING_EMERGENCY_HELD`.
+      - **Still open for O1:** after the lift, the departure's rule is not yet applied to a sitting preserved through
+        the stop. The promotion run's M-1 refusal is not built either: today the promotion preserves such a sitting
+        instead of refusing.
+- **Green locally:** A2A-C701, A2A-C702, A2A-L02 to L06 (L01 apart), F06, F24, F37, A2A-L03, A2A-L05, A2A-T01, A2A-F01, M148-D02, and A1's K01, S01 to S09 and J01. The pins are at
   254. **A2A-L01 is red on three, for Sharon.**
 - **Open with Sharon:** the owner's three questions and two points (below), and her read of drafts 6 to 8.
 - **Next, in order:**
-  0. Sharon's C7-2 and C7-3, and the C7-1 teacher-role test (moved and transferred are A2A-C701, commit 11).
+  0. Sharon's C7-3, and the C7-1 teacher-role test (moved and transferred are A2A-C701, commit 11; C7-2 is commit 12).
   1. D6.2's assignment-level acts (`ubah_jadwal_penugasan`, `akhiri_penugasan`, `tutup_asesmen_terbuka`, the
      promotion), after Sharon's ruling on their order. Daisy's refusal lines go into `hle.ts`.
   2. D6.6: the closer as a procedure, its selection by the shifted closing time, and the job `select` → `call`.
