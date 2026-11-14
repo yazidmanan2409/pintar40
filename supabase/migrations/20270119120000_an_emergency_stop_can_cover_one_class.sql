@@ -43,6 +43,9 @@ begin
 end $$;
 create trigger maintenance_windows_node_check before insert or update of node_ids, platform, institution_ids
   on public.maintenance_windows for each row execute function public.maintenance_windows_node_check();
+-- a trigger function is run by its trigger, never called: no role needs EXECUTE (F06-P08 found the default grant to
+-- anon and authenticated on this SECURITY DEFINER function; removed, with service_role, as N1 did for the fence)
+revoke all on function public.maintenance_windows_node_check() from public, anon, authenticated, service_role;
 
 -- Required change 1: the one reader every other goes through. With node_ids, the school match alone no longer counts:
 -- a learner placed now (membership valid_to is null) at one of the classes, or a live role whose scope node is one of

@@ -19,7 +19,7 @@ export const KUNCI_PAGAR = "7201190000000001";
 const PAGAR = { pagar_darurat_eksklusif: "lock_timeout=1500ms", pagar_darurat_bersama: "lock_timeout=2s" } as const;
 const MIGRASI_PAGAR = "20270119100000_the_emergency_fence_is_taken_only_inside_the_database.sql";
 
-function psqlBaris(db: string, sql: string): string[][] {
+export function psqlBaris(db: string, sql: string): string[][] {
   // rows end with \x1e, not a newline: a function's source spans many lines
   const r = spawnSync("psql", [db, "-XqAt", "-F", "\x1f", "-R", "\x1e", "-v", "ON_ERROR_STOP=1", "-c", sql], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
   if (r.status !== 0) throw new Error(r.stderr.slice(0, 300));

@@ -4,23 +4,29 @@
 -- One helper, pengerjaan_pagar(p_session), is every sitting act's first call:
 --   1. the learner FOR KEY SHARE (the lifecycle rank comes before the fence: required change 3);
 --   2. the shared fence (pagar_darurat_bersama, 2 s);
---   3. a NEW statement, at READ COMMITTED, reading whether the learner is protected (D6.1's guarantee rests on it).
+--   3. a NEW statement, at READ COMMITTED, reading whether the learner is protected (D6.1's guarantee rests on it);
+--   4. when it is not, and the sitting is still marked from a stop whose chain has ended, the release, at once (D6.7's
+--      first touch; Sharon's C7-2). Every writer of a sitting's status or deadline reaches this helper before its write
+--      (A2A-C702 enforces it over the catalogue), so no writer ends, scores or re-times a sitting on its unshifted time
+--      between the lift and the release batch.
 -- A decision that took the fence before an activation commits before it; one that takes it after reads the window.
 -- The fence not taken within its 2 s is a refusal of its own (SITTING_FENCE_BUSY, Daisy's fence line), never the
 -- stopped-class refusal: the class may not be stopped at all.
 --
 -- What each act does on a protected sitting (THE PLAN D6.2's table):
---   pengerjaan_putus_tenggat   skipped: nothing ended or scored (and, when not protected, a pending release is applied
---                              first: the decider releases on first touch, D6.7)
+--   pengerjaan_putus_tenggat   skipped: nothing ended or scored
 --   finalize_session           not run (refused)
 --   akhiri_pengerjaan, terminate_session                    refused (O1)
 --   tambah_waktu_pengerjaan, extend_session_deadline        refused
 --   lanjutkan_pengerjaan, tutup_pengerjaan_ditahan          refused (through pengerjaan_ditahan_periksa)
 --   note_item_view                                          refused
---   the learner's gate (pengerjaan_gerbang) and the response trigger   refused (the gate releases on first touch)
--- NOT HERE, for Sharon: the assignment-level acts (ubah_jadwal_penugasan, akhiri_penugasan, tutup_asesmen_terbuka and
--- the promotion run). Each locks an unranked row (the assignment, the enrolment) before its learners, and the fence
--- must be the first lock after the lifecycle ranks with no person after it; their order is a design question.
+--   the learner's gate (pengerjaan_gerbang) and the response trigger   refused
+--   tutup_asesmen_terbuka (the departure: akhiri_pendaftaran, transfer_execute)   preserved, unscored, for the stop (O1)
+-- NOT HERE, for Sharon: the assignment-level acts (ubah_jadwal_penugasan, akhiri_penugasan and the promotion run's M-1
+-- refusal, which today reaches tutup_asesmen_terbuka and so preserves rather than refuses). Each locks an unranked row
+-- (the assignment, the transfer) before its learners, and the fence must be the first lock after the lifecycle ranks
+-- with no person after it; their order is a design question. Also still to build (O1): after the lift, the departure's
+-- rule applied to a sitting preserved through the stop, judged against its shifted deadline and audited naming the stop.
 
 -- ═══════════════════════════════════════════════════════════ the codes
 do $$
@@ -47,7 +53,13 @@ begin
   exception when lock_not_available then
     perform public.pengerjaan_tolak('SITTING_FENCE_BUSY');
   end;
-  return public.pengerjaan_dilindungi(p_session);
+  if public.pengerjaan_dilindungi(p_session) then return true; end if;
+  -- C7-2: the first touch releases. The unlocked read is safe: a sitting is marked only while protected, and nothing
+  -- becomes protected while this transaction holds the shared fence (activation takes it exclusively).
+  if exists (select 1 from public.assessment_sessions a where a.id = p_session and a.darurat_sejak is not null) then
+    perform public.pengerjaan_lepas_darurat(p_session);
+  end if;
+  return false;
 end $$;
 revoke all on function public.pengerjaan_pagar(uuid) from public, anon, authenticated, service_role;
 
@@ -70,8 +82,7 @@ begin
     E'\nbegin\n' || t
     || E'  if public.pengerjaan_pagar(p_session) then\n'
     || E'    return (select a.status from public.assessment_sessions a where a.id = p_session);   -- skipped: nothing ended or scored\n'
-    || E'  end if;\n'
-    || E'  perform public.pengerjaan_lepas_darurat(p_session);   -- D6.7: the decider releases on first touch\n');
+    || E'  end if;\n');
   perform pg_temp.a2a_sisip('public.finalize_session(uuid)', E'\nbegin\n', E'\nbegin\n' || t || tolak);
   perform pg_temp.a2a_sisip('public.terminate_session(uuid,termination_cause,text)', E'\nbegin\n', E'\nbegin\n' || t || tolak);
   perform pg_temp.a2a_sisip('public.akhiri_pengerjaan(uuid,text,text)', E'\nbegin\n', E'\nbegin\n' || t || tolak);
@@ -79,8 +90,7 @@ begin
   perform pg_temp.a2a_sisip('public.extend_session_deadline(uuid,integer,text)', E'\nbegin\n', E'\nbegin\n' || t || tolak);
   perform pg_temp.a2a_sisip('public.pengerjaan_ditahan_periksa(uuid)', E'\nbegin\n', E'\nbegin\n' || t || tolak);
   perform pg_temp.a2a_sisip('public.pengerjaan_gerbang(uuid,text)', E'\nbegin\n',
-    E'\nbegin\n' || t || tolak
-    || E'  perform public.pengerjaan_lepas_darurat(p_session);   -- D6.7: the learner''s gate releases on first touch\n');
+    E'\nbegin\n' || t || tolak);
   perform pg_temp.a2a_sisip('public.note_item_view(uuid)',
     E'  if v_session is null then raise exception ''unknown presented item %'', p_presented_item; end if;\n',
     E'  if v_session is null then raise exception ''unknown presented item %'', p_presented_item; end if;\n' || t
@@ -90,6 +100,19 @@ begin
     E'  select * into s from public.assessment_sessions where id = p_session for update;\n',
     t || E'  perform public.pengerjaan_pagar(p_session);\n'
       || E'  select * into s from public.assessment_sessions where id = p_session for update;\n');
+  -- the departure (akhiri_pendaftaran, transfer_execute; O1): the person and the enrolment are already held (ranks 1 and
+  -- 1.5), so the shared fence comes next, before the first sitting is locked. Each sitting then goes through the helper:
+  -- a protected one is preserved, unscored, for the stop (O1); an unprotected one still marked from a lifted stop is
+  -- released with its shift first (C7-2), and only then judged by the deadline rule.
+  perform pg_temp.a2a_sisip('public.tutup_asesmen_terbuka(uuid,text)',
+    E'  for s in select a.id, a.institution_id from public.assessment_sessions a\n',
+    t || E'  begin\n    perform public.pagar_darurat_bersama();\n'
+      || E'  exception when lock_not_available then\n    perform public.pengerjaan_tolak(''SITTING_FENCE_BUSY'');\n  end;\n'
+      || E'  for s in select a.id, a.institution_id from public.assessment_sessions a\n');
+  perform pg_temp.a2a_sisip('public.tutup_asesmen_terbuka(uuid,text)',
+    E'    if public.session_enforce_deadline(s.id) in',
+    E'    if public.pengerjaan_pagar(s.id) then continue; end if;   -- O1: preserved, unscored, for the stop\n'
+      || E'    if public.session_enforce_deadline(s.id) in');
   -- the closer: the fence before each candidate's sitting (D6.6 makes it a procedure committing per batch, so the fence
   -- is not held for a whole run)
   perform pg_temp.a2a_sisip('public.pengerjaan_tutup_terjadwal(integer)',
@@ -102,6 +125,12 @@ begin
     || E'  if public.pengerjaan_pagar(new.session_id) then perform public.pengerjaan_tolak(''SITTING_CLASS_STOPPED''); end if;\n');
 end $$;
 
+-- The departure's helper now takes the fence; it is called only by akhiri_pendaftaran, transfer_execute and the
+-- promotion run, never by a client nor the server key. Supabase's default privileges granted it to service_role; that
+-- grant is removed, as N1 did for the fence itself (A2A-F01: a caller of the fence is an RPC, the closer, a trigger or
+-- internal).
+revoke all on function public.tutup_asesmen_terbuka(uuid, text) from public, anon, authenticated, service_role;
+
 -- ═══════════════════════════════════════════════════════════ the migration's own check (ADR-0003: structural)
 do $$
 declare r record;
@@ -110,9 +139,13 @@ begin
       'public.terminate_session(uuid,termination_cause,text)', 'public.akhiri_pengerjaan(uuid,text,text)',
       'public.tambah_waktu_pengerjaan(uuid,integer,text)', 'public.extend_session_deadline(uuid,integer,text)',
       'public.pengerjaan_ditahan_periksa(uuid)', 'public.pengerjaan_gerbang(uuid,text)', 'public.note_item_view(uuid)',
-      'public.enforce_response_write()', 'public.minta_percobaan(uuid,text)', 'public.pengerjaan_tutup_terjadwal(integer)']) x loop
+      'public.enforce_response_write()', 'public.minta_percobaan(uuid,text)', 'public.pengerjaan_tutup_terjadwal(integer)',
+      'public.tutup_asesmen_terbuka(uuid,text)']) x loop
     if position('public.pengerjaan_pagar(' in pg_get_functiondef(r.fn)) = 0 then
       raise exception 'A2a D6.2: % does not take the fence and read protection', r.fn;
     end if;
   end loop;
+  if has_function_privilege('service_role', 'public.tutup_asesmen_terbuka(uuid,text)', 'execute') then
+    raise exception 'A2a D6.2: tutup_asesmen_terbuka is still granted to service_role';
+  end if;
 end $$;
