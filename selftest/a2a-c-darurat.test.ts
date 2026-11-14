@@ -17,6 +17,7 @@
 import { spawnSync } from "node:child_process";
 import { Checks, type SelfTest } from "./lib";
 import { psqlBaris } from "./a2a-f01.test";
+import { PEMBACA_DB } from "./a2a-c-pembaca.test";
 
 function psqlStdin(db: string, sql: string): string {
   const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: sql });
@@ -241,5 +242,92 @@ a2aDaruratTests.push({
     c.expect(!(tanam.ok && tanam.dilepas && tanam.geser === 45 * 60 && tanam.status === "TERMINATED"), `with the plant (no release in the helper) the departure still came out right: ${JSON.stringify(tanam)}`);
     const tunggu = Object.entries(PENULIS_DIKECUALIKAN).filter(([, v]) => v.menunggu).map(([k]) => k);
     return c.verdict(`${daftar.length} writers of a sitting, each taking the helper (and so the first-touch release) before its first write or declared (${Object.keys(PENULIS_DIKECUALIKAN).length}, of which ${tunggu.length} not yet built: ${tunggu.join(", ")}); a stop lifted with no release batch, then the learner's enrolment ended: it succeeds, the sitting released with exactly 45 min first and ended unscored; with the plant (no release) ${tanam.ok ? tanam.status + ", moved " + tanam.geser + " s" : "refused: " + tanam.err}`);
+  },
+});
+
+// ═══════════════════════════════════════════════════════════ A2A-C703 · every reader adds the shift (Sharon's C7-3)
+
+/** A2A-T01's HARUS readers in the database that read the assignment's closes_at as a sitting's closing time without
+ *  the stop's shift. A sitting with its own deadline is shifted in place at release, so authoritative_deadline needs
+ *  nothing; closes_at carries no shift of its own. */
+export function pembacaTanpaGeser(db: string): string[] {
+  const src = new Map<string, string>();
+  for (const [fn, s] of psqlBaris(db, "select p.proname, p.prosrc from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'"))
+    src.set(fn, (src.get(fn) ?? "") + "\n" + (s ?? "").replace(/--[^\n]*/g, " "));
+  return Object.entries(PEMBACA_DB).filter(([, k]) => k.kelas === "HARUS").map(([fn]) => fn)
+    .filter((fn) => /\bcloses_at\b/.test(src.get(fn) ?? "") && !/\bdarurat_geser_detik\b/.test(src.get(fn) ?? "")).sort();
+}
+
+/** A window-timed sitting (no deadline of its own) whose assignment closed 10 minutes ago, released from a 45-minute
+ *  stop (darurat_geser_detik 2700): read by the effective deadline, the teacher's list, the decider and the closer.
+ *  One transaction, rolled back. */
+function bacaBergeser(db: string): { ok: boolean; err: string; efektif: number; daftar: number; keadaan: string; putus: string; tutup: string } {
+  const b = psqlStdin(db, `select s.id || '|' || aa.id || '|' || aa.node_id || '|' || a.auth_user_id
+  from public.assessment_sessions s join public.assessment_assignments aa on aa.id = s.assessment_assignment_id
+  join public.org_nodes n on n.id = aa.node_id and n.kind = 'CLASS' and s.class_node_id = aa.node_id
+  join public.learning_assignments la on la.id = aa.learning_assignment_id and not public.release_is_professional(la.plp_release_id)
+  join public.role_assignments r on r.role = 'INSTITUTION_ADMIN' and r.institution_id = s.institution_id
+   and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until and r.person_id <> s.person_id
+  join public.accounts a on a.person_id = r.person_id
+  order by s.id limit 1;`);
+  const [sumber, aa, kelas, admin] = b.split("|");
+  if (!admin) throw new Error("no sitting of a class assignment with a school admin: the seed changed");
+  const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: `
+begin;
+set local session_replication_role = replica;
+update public.assessment_assignments set closes_at = now() - interval '10 minutes' where id = '${aa}';
+insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${SESI}', 'status', 'IN_PROGRESS', 'authoritative_deadline', null,
+  'created_at', now() - interval '1 minute', 'started_at', now() - interval '1 minute', 'finalized_at', null, 'submitted_at', null,
+  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
+  'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_geser_detik', 2700))).*
+  from public.assessment_sessions s where s.id = '${sumber}';
+delete from public.assessment_results where session_id = '${SESI}';
+-- the learner's other sittings of this assignment go (rolled back), so the teacher's list shows this one
+delete from public.assessment_sessions x using public.assessment_sessions s
+ where s.id = '${SESI}' and x.person_id = s.person_id and x.assessment_assignment_id = s.assessment_assignment_id and x.id <> s.id;
+set local session_replication_role = origin;
+create temp table a2a_c703_c as select closes_at as c from public.assessment_assignments where id = '${aa}';
+select 'EFEKTIF|' || extract(epoch from (public.pengerjaan_tenggat_efektif('${SESI}') - c.c))::int from a2a_c703_c c;
+select set_config('request.jwt.claims', '{"sub":"${admin}","role":"authenticated"}', true);
+select 'DAFTAR|' || extract(epoch from (d.tenggat - c.c))::int || '|' || d.keadaan from public.daftar_pengerjaan('${kelas}', '${aa}') d, a2a_c703_c c where d.sesi_id = '${SESI}';
+select set_config('request.jwt.claims', '', true);
+select 'PUTUS|' || public.pengerjaan_putus_tenggat('${SESI}', true);
+select public.pengerjaan_tutup_terjadwal(500) is not null;
+select 'TUTUP|' || status from public.assessment_sessions where id = '${SESI}';
+rollback;` });
+  const ambil = (k: string) => (r.stdout ?? "").split("\n").find((l) => l.startsWith(k + "|"))?.split("|") ?? [];
+  return { ok: r.status === 0, err: (r.stderr ?? "").trim().split("\n")[0] ?? "", efektif: Number(ambil("EFEKTIF")[1] ?? -1),
+    daftar: Number(ambil("DAFTAR")[1] ?? -1), keadaan: ambil("DAFTAR")[2] ?? "", putus: ambil("PUTUS")[1] ?? "", tutup: ambil("TUTUP")[1] ?? "" };
+}
+const PUTUS_BARU = "      v_tenggat := public.pengerjaan_tenggat_efektif(p_session);   -- A2a D6.3: closes_at with the stop's shift\n";
+const PUTUS_LAMA = "      select aa.closes_at into v_tenggat from public.assessment_assignments aa where aa.id = v.assessment_assignment_id;\n";
+
+a2aDaruratTests.push({
+  id: "A2A-C703",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    const tanpa = pembacaTanpaGeser(db);
+    c.expect(tanpa.length === 0, `HARUS readers that read closes_at without the stop's shift (C7-3): ${tanpa.join(", ")}`);
+    const r = bacaBergeser(db);
+    c.expect(r.ok, `the shifted readers' run failed: ${r.err}`);
+    c.expect(r.efektif === 2700, `the effective deadline is closes_at + ${r.efektif} s, not + 2700`);
+    c.expect(r.daftar === 2700 && r.keadaan === "OPEN", `the teacher's list shows closes_at + ${r.daftar} s, ${r.keadaan} (AturPengerjaan computes from it)`);
+    c.expect(r.putus === "IN_PROGRESS", `the decider ended a sitting inside its shifted time: ${r.putus}`);
+    c.expect(r.tutup === "IN_PROGRESS", `the closer ended a sitting inside its shifted time: ${r.tutup}`);
+    // the plants: the decider and the teacher's list as they were
+    const balik = gantiFungsi("public.pengerjaan_putus_tenggat(uuid,boolean)", PUTUS_BARU, PUTUS_LAMA);
+    let tanam: ReturnType<typeof bacaBergeser>;
+    try { tanam = bacaBergeser(db); } finally { balik(); }
+    c.expect(tanam.putus !== "IN_PROGRESS", `with the plant (the decider reading closes_at raw) the sitting was not ended: ${JSON.stringify(tanam)}`);
+    const balik2 = gantiFungsi("public.daftar_pengerjaan(uuid,uuid)", "aa.closes_at + make_interval(secs => s.darurat_geser_detik)", "aa.closes_at");
+    let tanam2: string[];
+    try { tanam2 = pembacaTanpaGeser(db); } finally { balik2(); }
+    c.expect(tanam2.includes("daftar_pengerjaan"), "with the plant (the teacher's list reading closes_at raw) the reader was not reported");
+    return c.verdict(`every HARUS reader reading closes_at adds darurat_geser_detik; a window-timed sitting whose assignment closed 10 min ago, released from a 45-min stop: effective deadline and the teacher's list +2700 s (OPEN), the decider and the closer leave it IN_PROGRESS; with the plants the decider ended it (${tanam.putus}) and the list was reported`);
   },
 });

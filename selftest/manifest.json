@@ -6179,6 +6179,11 @@
       "id": "A2A-C702",
       "runner": "static",
       "proves": "Sharon's C7-2 (first-touch release; migration 20270119140000): from the catalogue, every function in public that updates assessment_sessions takes pengerjaan_pagar (which, on a sitting no longer protected but still marked from a lifted stop, applies the release with its shift) before its first update, directly or through a function that does, or is on a short declared list with its reason (the release, the marking, the attempt mark, and akhiri_penugasan, not yet built, named as such); a stale declaration and a planted writer without the helper are reported. Then Sharon's test, in one rolled-back transaction: a class stop holds the learner's sitting, the stop is lifted 45 minutes after T_stop, no release batch runs, and the school's admin ends the learner's enrolment: it succeeds, the sitting is released with exactly 2700 s first and ended unscored as INSTITUTIONAL_REVOCATION on its shifted deadline; with the plant (the helper's release removed) it does not come out that way."
+    },
+    {
+      "id": "A2A-C703",
+      "runner": "static",
+      "proves": "Sharon's C7-3 (D6.3's shift test against A2A-T01; migration 20270119130000): every database reader A2A-T01 classes HARUS that reads an assignment's closes_at as a sitting's closing time also adds darurat_geser_detik (a sitting's own authoritative_deadline is moved in place at release); and, in one rolled-back transaction, a window-timed sitting whose assignment closed 10 minutes ago, released from a 45-minute stop: pengerjaan_tenggat_efektif and the teacher's list (daftar_pengerjaan, from which AturPengerjaan computes) give closes_at + 2700 s and OPEN, and the decider and the scheduled closer leave it IN_PROGRESS; with the plants (the decider reading closes_at raw; the teacher's list reading closes_at raw) the decider ends it (and scores it) and the list is reported."
     }
   ]
 }

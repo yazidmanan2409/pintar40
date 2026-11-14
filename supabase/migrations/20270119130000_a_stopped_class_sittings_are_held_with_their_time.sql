@@ -273,6 +273,35 @@ end $$;
 revoke all on procedure public.pengerjaan_tandai_darurat(integer) from public, anon, authenticated, service_role;
 revoke all on procedure public.pengerjaan_lepas_darurat_semua(integer) from public, anon, authenticated, service_role;
 
+-- ═══════════════════════════════════════════════════════════ every reader adds the shift (D6.3; Sharon's C7-3)
+-- A sitting with its own deadline has it moved in place at release, so a raw read of authoritative_deadline is already
+-- shifted. A window-timed sitting keeps the assignment's closes_at and carries darurat_geser_detik instead: every
+-- reader of A2A-T01's HARUS list that reads closes_at as a sitting's closing time adds it. Three did not.
+create or replace function pg_temp.a2a_sisip(p_fn regprocedure, p_anchor text, p_baru text) returns void
+language plpgsql as $$
+declare v text := pg_get_functiondef(p_fn); n int;
+begin
+  n := (length(v) - length(replace(v, p_anchor, ''))) / greatest(length(p_anchor), 1);
+  if n <> 1 then raise exception 'A2a D6.3: % has its anchor % time(s), not once', p_fn, n; end if;
+  execute replace(v, p_anchor, p_baru);
+end $$;
+do $$
+begin
+  -- the decider
+  perform pg_temp.a2a_sisip('public.pengerjaan_putus_tenggat(uuid,boolean)',
+    E'      select aa.closes_at into v_tenggat from public.assessment_assignments aa where aa.id = v.assessment_assignment_id;\n',
+    E'      v_tenggat := public.pengerjaan_tenggat_efektif(p_session);   -- A2a D6.3: closes_at with the stop''s shift\n');
+  -- the closer's selection
+  perform pg_temp.a2a_sisip('public.pengerjaan_tutup_terjadwal(integer)',
+    E'(select aa.closes_at from public.assessment_assignments aa where aa.id = a.assessment_assignment_id)) <= now())',
+    E'(select aa.closes_at from public.assessment_assignments aa where aa.id = a.assessment_assignment_id)\n'
+    || E'                           + make_interval(secs => a.darurat_geser_detik)) <= now())   -- A2a D6.3: the stop''s shift');
+  -- the teacher's list (and so AturPengerjaan's client computation, from its tenggat)
+  perform pg_temp.a2a_sisip('public.daftar_pengerjaan(uuid,uuid)',
+    E'(select coalesce(s.authoritative_deadline, aa.closes_at) as tenggat)',
+    E'(select coalesce(s.authoritative_deadline, aa.closes_at + make_interval(secs => s.darurat_geser_detik)) as tenggat)');
+end $$;
+
 -- ═══════════════════════════════════════════════════════════ the migration's own check (ADR-0003: structural)
 do $$
 declare r record;
