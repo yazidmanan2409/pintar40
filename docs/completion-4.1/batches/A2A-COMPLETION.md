@@ -64,9 +64,9 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**CHANGE C AT A GLANCE** (14 Nov, 04:04 UTC by `date -u`; the source of truth for a fresh session). The details follow
+**CHANGE C AT A GLANCE** (14 Nov, 04:08 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
-- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `b649e2df`. The order is A → C → B, and C
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `00b946a2`. The order is A → C → B, and C
   is not merged until B's scale evidence holds on C's frozen commit.
 - **Commits:**
   1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
@@ -141,11 +141,25 @@ below.
       - **Still open for O1:** after the lift, the departure's rule is not yet applied to a sitting preserved through
         the stop. The promotion run's M-1 refusal is not built either: today the promotion preserves such a sitting
         instead of refusing.
-- **Green locally:** A2A-C701, A2A-C702, A2A-L02 to L06 (L01 apart), F06, F24, F37, A2A-L03, A2A-L05, A2A-T01, A2A-F01, M148-D02, and A1's K01, S01 to S09 and J01. The pins are at
+  13. `00b946a2` · DRAFT · **C7-3, every reader adds the shift** (Sharon's required item; D6.3's shift test).
+      - A sitting's own `authoritative_deadline` is moved in place at release. So only a raw read of the
+        assignment's `closes_at`, as a window-timed sitting's closing time, can miss the shift. Three HARUS readers
+        did, and now add it:
+        - the decider (`pengerjaan_putus_tenggat`), through `pengerjaan_tenggat_efektif`;
+        - the closer's selection (`pengerjaan_tutup_terjadwal`);
+        - the teacher's list (`daftar_pengerjaan`). AturPengerjaan's KLIEN computation starts from this list's
+          `tenggat`.
+      - **A2A-C703:** no HARUS reader reads `closes_at` without `darurat_geser_detik`. Rolled back: a window-timed
+        sitting whose assignment closed 10 minutes ago, released from a 45-minute stop. The effective deadline and
+        the list both give +2700 s, OPEN. The decider and the closer both leave it IN_PROGRESS.
+      - **Plants:** with the decider reading `closes_at` raw, it ends and scores the sitting. With the list reading it
+        raw, the list is reported.
+- **Green locally:** A2A-C701, A2A-C702, A2A-C703, A2A-L02 to L06 (L01 apart), F06, F24, F37, A2A-L03, A2A-L05, A2A-T01, A2A-F01, M148-D02, and A1's K01, S01 to S09 and J01. The pins are at
   254. **A2A-L01 is red on three, for Sharon.**
 - **Open with Sharon:** the owner's three questions and two points (below), and her read of drafts 6 to 8.
 - **Next, in order:**
-  0. Sharon's C7-3, and the C7-1 teacher-role test (moved and transferred are A2A-C701, commit 11; C7-2 is commit 12).
+  0. The C7-1 teacher-role test. Moved and transferred are A2A-C701 (commit 11), C7-2 is commit 12 and C7-3 is commit 13.
+     Also O1's rule after the lift for a sitting preserved through a departure, and M-1's refusal in the promotion run.
   1. D6.2's assignment-level acts (`ubah_jadwal_penugasan`, `akhiri_penugasan`, `tutup_asesmen_terbuka`, the
      promotion), after Sharon's ruling on their order. Daisy's refusal lines go into `hle.ts`.
   2. D6.6: the closer as a procedure, its selection by the shifted closing time, and the job `select` → `call`.
