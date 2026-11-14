@@ -64,9 +64,9 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**CHANGE C AT A GLANCE** (14 Nov, 04:54 UTC by `date -u`; the source of truth for a fresh session). The details follow
+**CHANGE C AT A GLANCE** (14 Nov, 04:59 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
-- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `4a45c3a7`. The order is A → C → B, and C
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `c3e88873`. The order is A → C → B, and C
   is not merged until B's scale evidence holds on C's frozen commit.
 - **Commits:**
   1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
@@ -247,6 +247,15 @@ below.
       - **Plant:** the teacher's list reading `closes_at` raw.
       - **A finding for Daisy and Sharon:** `session_state` shows no deadline for a window-timed sitting, as before
         A2a. So the player has no countdown there, and never shows the unshifted time.
+  22. `c3e88873` · **Sharon's read of commits 11 to 14** (`A2A-C-11-14-35ee833a.md`, at `9be479a6`).
+      - **K1** was already built in commit 17, after her addendum, and **K2's teacher case** is in A2A-K01.
+      - **Added here, K2's interrupted marking in your form:** batches of one, with the second learner moved between
+        batches. Both are marked, and both move by exactly the stop. Red with the plant.
+      - **Your note on commit 14:** `PROMO_STOPPED` now counts every non-final sitting that is protected or marked,
+        so a protected EXPIRED sitting inside its grace (B3) counts.
+
+**Sharon, ready for your read now:** commit 15 (`fe5f4a42`, D6.6, the closer's procedure), with its lint fix 16
+(`66dc7b02`), and commits 17 to 22. The page lists two confirmations wanted on commit 19.
 - **Green locally: the whole regression set (66), A2A-L01 included, and every maintenance test (23).** Also
   A2A-K01, A2A-C702 to C708, A2A-L02 to L06, T01, F01, M148-D02, B1-R01, DR-D02, F06, F24, F37, and A1's K01, K02,
   S01 to S09 and J01. The migration pins are at 255.
