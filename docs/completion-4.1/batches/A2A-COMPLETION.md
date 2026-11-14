@@ -167,6 +167,42 @@ Architect (`TEAM-INSTRUCTIONS.md` at `33be0fa1`).
     - the B3 to B6 tests;
     - Daisy's §2 and §3;
     - the screens.
+- **Three questions for Sharon, on drafts 6 and 7, while they are cheap to change** (the owner, 03:08 UTC; with what
+  Second Eye found, and what is still hers to trace):
+  1. **Does the acting admin's lock create a reverse order?**
+     - **The question:** `stop_pintar_now` takes the admin's person row `FOR KEY SHARE`, then the exclusive fence.
+       If a path holds the shared fence and then needs that person row, activation stalls to its timeout.
+     - **Second Eye's reading:**
+       - `KEY SHARE` waits only on `FOR UPDATE` or `DELETE`. So a cycle needs a path that holds the shared fence and
+         then takes the admin's person `FOR UPDATE`.
+       - A2A-L01 forbids any person lock after the fence. Its only exception is the stop's own re-lock of the same row,
+         which never waits.
+       - The nearest neighbour is a suspension of that admin. It takes the person `FOR UPDATE` and then (D6.5) the
+         shared fence. That is person, then fence, on both sides, so it serialises with no cycle.
+     - **Not settled by the static check.** A two-connection test comes with D6.5's fenced suspension hold, when that
+       path exists:
+       - `tangguhkan_akun` of the admin holds the person while the same admin stops a class. The stop waits, then
+         takes effect;
+       - a plant, a shared-fence path that then locks that person `FOR UPDATE`, must stall to the timeout.
+     - Sharon to trace any other path.
+  2. **Do all emergency decisions use `T_stop` and `T_lift`?**
+     - **Found and fixed, commit 8 `c3cbe3c4`:** a stop, a lift, and a second stop before the first release was applied
+       lost the second interval. Release now goes by the chain having ended, and marking applies a pending release
+       before it records a new hold. A 40-minute stop, then a 30-minute stop, gives exactly 01:10:00.
+     - The shift uses `t_stop` and `t_lift` only. It falls back to `ended_at` only until the fenced lift writes
+       `t_lift`.
+     - Sharon to read every place time is restored, and the protection read uses `t_stop is not null` and
+       `ended_at is null`.
+  3. **Can the hosted role run the batches with bounded privileges?**
+     - **Found and fixed, commit 8:** Supabase's default privileges had granted `service_role` EXECUTE on the six new
+       routines. These include `pengerjaan_lepas_darurat` (SECURITY DEFINER, moves a deadline) and both batch
+       procedures. All six are revoked, and the migration asserts it.
+     - The batch procedures cannot be SECURITY DEFINER, because they commit. So they run as the job's owner.
+     - **For Sharon:**
+       - confirm that the hosted `pg_cron` job's owner can `CALL` them (Part 2 row 4 proved a committing procedure,
+         not these);
+       - and judge an inherited fact, not changed here: `service_role` holds full table grants on
+         `assessment_sessions` on `main`.
 - **D6.3 is cleared to build** (01:42 UTC by `date -u`).
 - **Next:** A2a's product changes as this page has them.
   - The risky database parts are pushed as unfinished drafts as they exist: the fence, the closer procedure, held
