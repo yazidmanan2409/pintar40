@@ -61,6 +61,8 @@ export const PEMBACA_DB: Record<string, Kelas> = {
   pengerjaan_lepas_darurat: H("the release itself: moves the effective deadline by the protected interval (D6.3)"),
   // C17-1 (migration 20270119130000): the one grace rule protection and both markings use (B3)
   pengerjaan_dalam_tenggang_pada: H("whether an EXPIRED sitting was inside its grace at an instant: authoritative_deadline plus grace, the grace readers' own basis (B3, C17-1)"),
+  // C18-1 (migration 20270119160000): the credit of an unmarked sitting of a lifted stop moves its deadline
+  pengerjaan_kredit_darurat: H("the credit (C18-1): moves an unmarked sitting's deadline, or its window-timed shift, by the lifted stops it has not been given"),
   pengerjaan_tandai_darurat: H("the marking: an EXPIRED sitting is protected only inside its grace at T_stop (D6.3/B3)"),
   open_assessment_session: T("writes the initial deadline of a new sitting; nothing is shifted yet"),
   tutup_pengerjaan_ditahan: T("records the held time left (frozen_remaining_seconds) in its audit row; decides nothing on it"),

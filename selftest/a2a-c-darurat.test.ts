@@ -241,12 +241,17 @@ delete from public.maintenance_windows where id = '${JENDELA}';
 commit;`);
   }
 }
-const ANGKAT_TANDAI = "    if v_lift is not null then v_tandai := public.pengerjaan_tandai_saat_angkat(w.id); end if;\n";
+// C18-1 (commit 30): the lift no longer marks; what the interrupted batch missed is credited once by the release batch
+const KREDIT_BATCH = "      if public.pengerjaan_kredit_darurat(r.id) then n := n + 1; end if;\n";
 
 // the plant: marking judged by the placement now, as draft 7 had it
 const TANDAI_SEKARANG_DARI = `                               and s.created_at <= w.t_stop
                                and public.maintenance_affects_pada(w, s.person_id, w.t_stop)`;
 const TANDAI_SEKARANG_KE = `                               and public.maintenance_affects_kini(w, s.person_id)`;
+// C18-1: the credit judges placement at T_stop too, so the plant breaks it there as well (else the credit would give
+// the moved learner the time the plant's marking lost)
+const KREDIT_PADA = "public.maintenance_affects_pada(x, s.person_id, x.t_stop)";
+const KREDIT_KINI = "public.maintenance_affects_kini(x, s.person_id)";
 
 export const a2aDaruratTests: SelfTest[] = [
   {
@@ -266,28 +271,30 @@ export const a2aDaruratTests: SelfTest[] = [
       }
       const j = satuKali(db, "JOINED");
       c.expect(!j.dihentikan && !j.ditandai && j.geser === 0, `a learner who joined the class after T_stop was stopped (${j.dihentikan}), held (${j.ditandai}) or re-timed (${j.geser} s)`);
-      // marking interrupted half-way, then the real lift: the lift completes the marking under the exclusive fence
+      // marking interrupted half-way, then the real lift and the release batch: the unmarked sitting is credited once
       const tp = await terputus(db);
       c.expect(!tp.err, `the interrupted run failed: ${tp.err}`);
       c.expect(tp.separuh === "true,false", `the marking batch was not interrupted half-way (marked: ${tp.separuh})`);
       c.expect(tp.tepat === "true,true", `after the lift and the release, the two sittings did not each move by exactly T_lift − T_stop: ${tp.tepat}`);
-      const balikA = gantiFungsi("public.change_maintenance(uuid,text,text)", ANGKAT_TANDAI, "    v_tandai := 0;\n");
+      const balikA = gantiFungsi("public.pengerjaan_lepas_darurat_semua(integer)", KREDIT_BATCH, "      null;\n");
       let tpTanam: Awaited<ReturnType<typeof terputus>>;
       try { tpTanam = await terputus(db); } finally { balikA(); }
-      c.expect(tpTanam.tepat !== "true,true", `with the plant (the lift not completing the marking) both sittings still moved: ${JSON.stringify(tpTanam)}`);
+      c.expect(tpTanam.tepat !== "true,true", `with the plant (the release batch not crediting) both sittings still moved: ${JSON.stringify(tpTanam)}`);
       // Sharon's K2: batches of one, the second learner moved between batches; with the plant (marking judged now) red
       const ab = await antarBatch(db);
       c.expect(ab.satu === "true,false" && ab.dua === "true,true", `batches of one, the second learner moved between them: marked ${ab.satu} after the first batch, ${ab.dua} after the second`);
       c.expect(ab.tepat === "true,true", `after the lift and the release (batches of one) the two did not each move by exactly the stop: ${ab.tepat}`);
       const balikB = gantiFungsi("public.pengerjaan_tandai_darurat(integer)", TANDAI_SEKARANG_DARI, TANDAI_SEKARANG_KE);
+      const balikB2 = gantiFungsi("public.penghentian_kredit(public.assessment_sessions)", KREDIT_PADA, KREDIT_KINI);
       let abTanam: Awaited<ReturnType<typeof antarBatch>>;
-      try { abTanam = await antarBatch(db); } finally { balikB(); }
+      try { abTanam = await antarBatch(db); } finally { balikB2(); balikB(); }
       c.expect(abTanam.tepat !== "true,true", `with the plant (marking judged now) the learner moved between batches still kept the time: ${JSON.stringify(abTanam)}`);
       const balik = gantiFungsi("public.pengerjaan_tandai_darurat(integer)", TANDAI_SEKARANG_DARI, TANDAI_SEKARANG_KE);
+      const balik2 = gantiFungsi("public.penghentian_kredit(public.assessment_sessions)", KREDIT_PADA, KREDIT_KINI);
       let tanam: ReturnType<typeof satuKali>;
-      try { tanam = satuKali(db, "MOVED"); } finally { balik(); }
+      try { tanam = satuKali(db, "MOVED"); } finally { balik2(); balik(); }
       c.expect(!tanam.ditandai && tanam.geser === 0, `with the plant (marking judged now) the moved learner still kept the time: ${JSON.stringify(tanam)}`);
-      return c.verdict(`stop → moved, transferred, or a teacher's role ended → late marking → lift: each still stopped after the change, marked, and moved by exactly T_lift − T_stop (${LAMA_MENIT} min); a learner who joined the stopped class after T_stop is neither stopped nor held, deadline unchanged; marking in batches of one with the second learner moved between them: both moved by exactly the stop (red with the plant); marking interrupted half-way, then the real lift: both sittings moved by exactly T_lift − T_stop (with the plant, the lift not completing the marking, the unmarked one did not: ${tpTanam.tepat}); with the plant (marking judged now) the moved learner lost the time`);
+      return c.verdict(`stop → moved, transferred, or a teacher's role ended → late marking → lift: each still stopped after the change, marked, and moved by exactly T_lift − T_stop (${LAMA_MENIT} min); a learner who joined the stopped class after T_stop is neither stopped nor held, deadline unchanged; marking in batches of one with the second learner moved between them: both moved by exactly the stop (red with the plant); marking interrupted half-way, then the real lift: both sittings moved by exactly T_lift − T_stop (with the plant, the batch not crediting, the unmarked one did not: ${tpTanam.tepat}); with the plant (marking judged now) the moved learner lost the time`);
     },
   },
 ];
@@ -299,7 +306,7 @@ export const a2aDaruratTests: SelfTest[] = [
 export const PENULIS_DIKECUALIKAN: Record<string, { alasan: string; menunggu?: true }> = {
   pengerjaan_lepas_darurat: { alasan: "the release itself" },
   pengerjaan_tandai_darurat: { alasan: "the marking: writes only the held state of a sitting protected at its window's T_stop (D6.2's declared list)" },
-  pengerjaan_tandai_saat_angkat: { alasan: "the lift's completion of the marking, under the exclusive fence: the marking's own write (D6.7)" },
+  pengerjaan_kredit_darurat: { alasan: "the credit of an unmarked sitting of a lifted stop (C18-1): reached from pengerjaan_pagar after the fence, and from the release batch; writes only the deadline (or the window-timed shift) and the watermark" },
   percobaan_tandai: { alasan: "writes only attempt_request_id, at a new sitting's start (start_learning_session): neither status, deadline nor held state" },
   akhiri_penugasan: { alasan: "D6.2's assignment-level acts, after Sharon's ruling on their order (draft 9)", menunggu: true },
 };
@@ -488,7 +495,7 @@ a2aDaruratTests.push({
     let tanam: ReturnType<typeof bacaBergeser>;
     try { tanam = bacaBergeser(db); } finally { balik(); }
     c.expect(tanam.putus !== "IN_PROGRESS", `with the plant (the decider reading closes_at raw) the sitting was not ended: ${JSON.stringify(tanam)}`);
-    const balik2 = gantiFungsi("public.daftar_pengerjaan(uuid,uuid)", "aa.closes_at + make_interval(secs => s.darurat_geser_detik)", "aa.closes_at");
+    const balik2 = gantiFungsi("public.daftar_pengerjaan(uuid,uuid)", "(select public.pengerjaan_tenggat_efektif(s.id) as tenggat)", "(select coalesce(s.authoritative_deadline, aa.closes_at) as tenggat)");
     let tanam2: string[];
     try { tanam2 = pembacaTanpaGeser(db); } finally { balik2(); }
     c.expect(tanam2.includes("daftar_pengerjaan"), "with the plant (the teacher's list reading closes_at raw) the reader was not reported");
@@ -828,7 +835,7 @@ export const KASUS_GESER: Record<string, CaraGeser> = {
   pengerjaan_putus_tenggat: "KEPUTUSAN", pengerjaan_tutup_calon: "KEPUTUSAN", may_continue_session: "KEPUTUSAN", maintenance_draining: "KEPUTUSAN",
   finalize_session: "KONSTRUKSI", record_answer: "KONSTRUKSI", pengerjaan_tahan_orang: "KONSTRUKSI", extend_session_deadline: "KONSTRUKSI",
   tambah_waktu_pengerjaan: "KONSTRUKSI", lanjutkan_pengerjaan: "KONSTRUKSI", pengerjaan_jaga: "KONSTRUKSI", pengerjaan_lepas_darurat: "KONSTRUKSI",
-  pengerjaan_tandai_darurat: "KONSTRUKSI", pengerjaan_tandai_saat_angkat: "KONSTRUKSI", pengerjaan_dalam_tenggang_pada: "KONSTRUKSI",
+  pengerjaan_tandai_darurat: "KONSTRUKSI", pengerjaan_kredit_darurat: "KONSTRUKSI", pengerjaan_dalam_tenggang_pada: "KONSTRUKSI",
   // the app: the player shows session_state's value (probed above); AturPengerjaan's client computation is checked
   // against the server's own added time below
   "src/lib/assessment-engine/index.ts": "NILAI", "src/components/mengajar/AturPengerjaan.tsx": "NILAI",
@@ -923,7 +930,7 @@ a2aDaruratTests.push({
     for (const [n, cara] of Object.entries(KASUS_GESER)) if (cara !== "KONSTRUKSI")
       c.expect(r.hasil[n] === "true", `${n} (${cara}) does not agree with the effective deadline after a lift: ${r.hasil[n] ?? "(no answer)"}`);
     // the plant: the teacher's list reading closes_at raw
-    const balik = gantiFungsi("public.daftar_pengerjaan(uuid,uuid)", "aa.closes_at + make_interval(secs => s.darurat_geser_detik)", "aa.closes_at");
+    const balik = gantiFungsi("public.daftar_pengerjaan(uuid,uuid)", "(select public.pengerjaan_tenggat_efektif(s.id) as tenggat)", "(select coalesce(s.authoritative_deadline, aa.closes_at) as tenggat)");
     let tanam: ReturnType<typeof probeGeser>;
     try { tanam = probeGeser(db); } finally { balik(); }
     c.expect(tanam.hasil.daftar_pengerjaan === "false", `with the plant (the list reading closes_at raw) the list still agreed: ${JSON.stringify(tanam.hasil)}`);
@@ -1049,5 +1056,98 @@ a2aDaruratTests.push({
     const persona = psqlStdin(db, "select count(*) from pg_constraint where conname = 'evaluation_personas_never_system_admin' and contype = 'c';");
     c.expect(persona === "1", "evaluation_personas_never_system_admin is gone: a persona could be a system admin");
     return c.verdict(`only an Admin PINTAR stops or lifts: a school admin's stop is refused (${r.henti}) and their lift is refused (${r.angkat}) with the stop still in force; no evaluation persona can be a system admin (evaluation_personas_never_system_admin)`);
+  },
+});
+
+// ═══════════════════════════════════════════════════════════ A2A-C711 · an unmarked sitting is credited once (C18-1)
+
+/** Sharon's ruling on C18-1 (A2A-C-C18-1-AND-23-28.md): the lift does not mark; a lifted stop gives an unmarked sitting
+ *  its time once. Each case on its own committed fixture, removed after: a learner of a class with an open sitting
+ *  created an hour ago (own deadline 30 minutes on), and lifted class stops inserted as they stand after their lift. No
+ *  marking batch ever runs. Returns the deadline's move in seconds after each step. */
+async function kreditSekali(db: string, kasus: "SENTUH" | "BERSAMAAN" | "TUMPANG" | "BATCH"):
+  Promise<{ baca: number; sekali: number; dua: number; tumpang: number }> {
+  const { psqlLain } = await import("./balapan");
+  const f = fiksur(db);
+  const S = "a2a1c711-0000-4000-8000-000000000001";
+  const W1 = "a2a1c711-0000-4000-8000-0000000000a1", W2 = "a2a1c711-0000-4000-8000-0000000000a2";
+  // one stop 50 to 5 minutes ago (45 min); for TUMPANG a second, 40 to 0 minutes ago, overlapping it (union 50 min)
+  const jendela = (id: string, mulai: number, akhir: number) => `
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, ended_at, t_lift, reason, created_by_person_id, activation_recorded_at)
+select '${id}', 'EMERGENCY', false, array['${f.inst}'::uuid], array['${f.node}'::uuid], now() - interval '${mulai} minutes', now() - interval '${mulai} minutes',
+       now() - interval '${akhir} minutes', now() - interval '${akhir} minutes', 'A2A-C711',
+       (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), now() - interval '${mulai} minutes';`;
+  try {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+-- the learner placed in the class since well before the stops (the seed's rows begin when it was loaded)
+create table if not exists public._a2a_c711_asal as select '${f.mem}'::uuid as mem, m.valid_from as m_dari, '${f.enr}'::uuid as enr, e.valid_from as e_dari
+  from public.memberships m, public.enrollments e where m.id = '${f.mem}' and e.id = '${f.enr}';
+update public.memberships set valid_from = valid_from - interval '1 day' where id = '${f.mem}';
+update public.enrollments set valid_from = valid_from - interval '1 day' where id = '${f.enr}';
+insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${S}', 'status', 'IN_PROGRESS', 'person_id', '${f.person}',
+  'authoritative_deadline', now() + interval '30 minutes', 'created_at', now() - interval '60 minutes', 'finalized_at', null, 'submitted_at', null,
+  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null))).*
+  from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;
+${jendela(W1, 50, 5)}
+${kasus === "TUMPANG" ? jendela(W2, 40, 0) : ""}
+create table if not exists public._a2a_c711_awal (d timestamptz);
+delete from public._a2a_c711_awal;
+insert into public._a2a_c711_awal select authoritative_deadline from public.assessment_sessions where id = '${S}';
+commit;`);
+    const gerak = () => Number(psqlStdin(db, `select extract(epoch from (s.authoritative_deadline - a.d))::int from public.assessment_sessions s, public._a2a_c711_awal a where s.id = '${S}';`));
+    // a READ before any touch shows the shifted deadline (D1)
+    const baca = Number(psqlStdin(db, `select extract(epoch from (public.pengerjaan_tenggat_efektif('${S}') - a.d))::int from public._a2a_c711_awal a;`));
+    let sekali = -1, dua = -1;
+    if (kasus === "BATCH") {
+      psqlStdin(db, "call public.pengerjaan_lepas_darurat_semua(50);");
+      sekali = gerak();
+      psqlStdin(db, "call public.pengerjaan_lepas_darurat_semua(50);");
+      dua = gerak();
+    } else if (kasus === "BERSAMAAN") {
+      const satu = `begin; select public.pengerjaan_kredit_darurat('${S}'); select pg_sleep(0.5); commit;`;
+      await Promise.all([psqlLain(satu), psqlLain(satu)]);
+      sekali = gerak(); dua = sekali;
+    } else {
+      // the first touch: the decider, through pengerjaan_pagar
+      psqlStdin(db, `select public.pengerjaan_putus_tenggat('${S}', false);`);
+      sekali = gerak();
+      psqlStdin(db, `select public.pengerjaan_putus_tenggat('${S}', false);`);
+      dua = gerak();
+    }
+    return { baca, sekali, dua, tumpang: kasus === "TUMPANG" ? 50 * 60 : 45 * 60 };
+  } finally {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+delete from public.assessment_sessions where id = '${S}';
+delete from public.maintenance_windows where id in ('${W1}', '${W2}');
+drop table if exists public._a2a_c711_awal;
+update public.memberships m set valid_from = a.m_dari from public._a2a_c711_asal a where m.id = a.mem;
+update public.enrollments e set valid_from = a.e_dari from public._a2a_c711_asal a where e.id = a.enr;
+drop table if exists public._a2a_c711_asal;
+commit;`);
+  }
+}
+const KREDIT_TANDA = "darurat_dikredit_sampai = k.sampai\n     where id = s.id;";
+
+a2aDaruratTests.push({
+  id: "A2A-C711",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    for (const kasus of ["SENTUH", "BERSAMAAN", "TUMPANG", "BATCH"] as const) {
+      const r = await kreditSekali(db, kasus);
+      c.expect(r.baca === r.tumpang, `${kasus}: a read before any touch showed the deadline moved by ${r.baca} s, not ${r.tumpang} (D1)`);
+      c.expect(r.sekali === r.tumpang, `${kasus}: the first credit moved the deadline by ${r.sekali} s, not exactly ${r.tumpang}`);
+      c.expect(r.dua === r.tumpang, `${kasus}: a second touch moved it to ${r.dua} s: credited more than once`);
+    }
+    // the plant: the credit does not write its watermark (own-deadline branch), so a second touch credits again
+    const balik = gantiFungsi("public.pengerjaan_kredit_darurat(uuid)", KREDIT_TANDA, "darurat_dikredit_sampai = s.darurat_dikredit_sampai\n     where id = s.id;");
+    let tanam: Awaited<ReturnType<typeof kreditSekali>>;
+    try { tanam = await kreditSekali(db, "SENTUH"); } finally { balik(); }
+    c.expect(tanam.dua > tanam.sekali, `with the plant (no watermark) a second touch did not credit again: ${JSON.stringify(tanam)}`);
+    return c.verdict(`with no marking batch at all: a read before any touch shows the moved deadline (D1); the first touch (the decider) credits exactly T_lift − T_stop and a second touch nothing; two concurrent credits give it once; two overlapping stops are credited as their union (50 min) once; the release batch alone credits once; with the plant (no watermark) a second touch credited again (${tanam.dua} s after ${tanam.sekali})`);
   },
 });
