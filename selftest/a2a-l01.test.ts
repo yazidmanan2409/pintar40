@@ -254,6 +254,8 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
       && (kat.fns.get("auth_password_write_guard") ?? []).every((b) => bersih(b).replace(/\s+/g, " ")
         .includes("if new.encrypted_password is not distinct from old.encrypted_password or coalesce(new.encrypted_password, '') = '' then return new;")) },
   samaBaris("hitung_ulang_koreksi_kunci", "the recalculated result's person_id is the sitting's learner, taken FOR KEY SHARE first (row 3, migration 20270118130000)"),
+  samaBaris("pengerjaan_pagar", "the learner and the shared fence, already held by the act's own first call to pengerjaan_pagar (a shared advisory lock re-taken by its holder does not wait)"),
+  samaBaris("tambah_waktu_pengerjaan", "the learner of p_session, already taken FOR KEY SHARE by pengerjaan_pagar before the fence (change A's line, now a re-lock)"),
   samaBaris("stop_pintar_now", "the window's created_by_person_id is v_me, taken FOR KEY SHARE before the fence (required change 3: no person row is waited on after it)"),
   samaBaris("recompute_result", "the new result's person_id is the sitting's learner, taken FOR KEY SHARE first (row 4, migration 20270118140000)"),
   samaBaris("transfer_minta", "the transfer's person_id is e.person_id, taken FOR KEY SHARE first (C1, migration 20270118120000)"),
@@ -632,6 +634,7 @@ async function balapanTahan(db: string, orang: string) {
 // the plant: both of the learner's first locks finalize_session reaches removed (its own, and pengerjaan_putus_tenggat's,
 // which it calls first) — the code as it was on 245
 const KUNCI_FINAL = "  perform 1 from public.persons where id = v_s.person_id for key share;\n";
+const KUNCI_PAGAR_L03 = "  perform 1 from public.persons p, public.assessment_sessions a where a.id = p_session and p.id = a.person_id for key share of p;\n  begin\n";
 const KUNCI_TENGGAT = "  perform 1 from public.persons p, public.assessment_sessions a where a.id = p_session and p.id = a.person_id for key share of p;\n";
 
 // ── A2A-L04: akhiri_pendaftaran against person → enrolment, on two real connections (Sharon, C1)
@@ -782,7 +785,11 @@ export const a2aL01Tests: SelfTest[] = [
         let tanam: Awaited<ReturnType<typeof balapanTahan>>;
         try {
           const balik2 = gantiFungsi("public.pengerjaan_putus_tenggat(uuid,boolean)", KUNCI_TENGGAT, "");
-          try { tanam = await balapanTahan(db, orang); } finally { balik2(); }
+          try {
+            // change C's D6.2 helper also takes the learner first; the plant removes it too, to restore 245's order
+            const balik3 = gantiFungsi("public.pengerjaan_pagar(uuid)", KUNCI_PAGAR_L03, "  begin\n");
+            try { tanam = await balapanTahan(db, orang); } finally { balik3(); }
+          } finally { balik2(); }
         } finally { balik1(); }
         const mati = [tanam.satu, tanam.dua].filter((x) => !x.ok && /deadlock detected/.test(x.err));
         c.expect(mati.length === 1, `with the plant (the sitting before its learner) there was no deadlock: A ${tanam.satu.ok ? "ok" : tanam.satu.err}; B ${tanam.dua.ok ? "ok" : tanam.dua.err}`);

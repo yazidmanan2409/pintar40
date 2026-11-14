@@ -2205,7 +2205,9 @@ export const experienceTests: SelfTest[] = [
       // Read against §3: a scope, not a mark, a logo, a crest or a theme.
       // MOVED 252 -> 253, RESTATED, A2a change C: 20270119130000 (a stopped class's sittings are held with their time).
       // Read against §3: a sitting's time, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 253, `${migrations.length} migrations; the frozen baseline has 253`);
+      // MOVED 253 -> 254, RESTATED, A2a change C: 20270119140000 (a stopped class's sitting is not ended, scored or re-timed).
+      // Read against §3: a sitting's protection, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 254, `${migrations.length} migrations; the frozen baseline has 254`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4082,7 +4084,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 250 -> 251, RESTATED, A2a change C, for 20270119110000 (B1): no tour RPC.
       // MOVED 251 -> 252, RESTATED, A2a change C, for 20270119120000 (the class-scope stop): no tour RPC.
       // MOVED 252 -> 253, RESTATED, A2a change C, for 20270119130000 (held sittings): no tour RPC.
-      c.expect(migs.length === 253, `${migs.length} migrations; the baseline has 253`);
+      // MOVED 253 -> 254, RESTATED, A2a change C, for 20270119140000 (D6.2 at sitting level): no tour RPC.
+      c.expect(migs.length === 254, `${migs.length} migrations; the baseline has 254`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

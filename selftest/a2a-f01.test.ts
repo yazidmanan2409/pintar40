@@ -39,12 +39,16 @@ export function periksaKatalogPagar(db: string, tanam = ""): string[] {
     if (mau && !setelan.split(",").includes(mau)) salah.push(`${fn} does not carry its SET clause ${mau}`);
   }
   const pemanggil = q(`select p.proname, p.prokind, (p.prorettype = 'trigger'::regtype)::text,
-      has_function_privilege('authenticated', p.oid, 'execute')::text, has_function_privilege('anon', p.oid, 'execute')::text
+      has_function_privilege('authenticated', p.oid, 'execute')::text, has_function_privilege('anon', p.oid, 'execute')::text,
+      has_function_privilege('service_role', p.oid, 'execute')::text
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and p.prosrc ~ 'pagar_darurat_(eksklusif|bersama)\\s*\\(' and p.proname !~ '^pagar_darurat_' order by 1`);
-  for (const [fn, jenis, pemicu, auth, anon] of pemanggil) {
+  for (const [fn, jenis, pemicu, auth, anon, layanan] of pemanggil) {
     if (anon === "true") salah.push(`${fn} calls the fence and is granted to anon`);
-    if (!(jenis === "p" || pemicu === "true" || auth === "true")) salah.push(`${fn} calls the fence but is neither an RPC, the closer procedure, nor a trigger function`);
+    // the fourth kind (change C's D6.2 helper, pengerjaan_pagar): internal, callable by no client role nor the server key,
+    // so reached only from the database's own entry points
+    const dalam = auth !== "true" && anon !== "true" && layanan !== "true";
+    if (!(jenis === "p" || pemicu === "true" || auth === "true" || dalam)) salah.push(`${fn} calls the fence but is neither an RPC, the closer procedure, a trigger function, nor internal`);
   }
   for (const fn of Object.keys(PAGAR)) {
     const g = q(`select has_function_privilege('anon', 'public.${fn}()', 'execute')::text`);
