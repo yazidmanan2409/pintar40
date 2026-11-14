@@ -82,6 +82,17 @@ Architect (`TEAM-INSTRUCTIONS.md` at `33be0fa1`).
   - Screens go out early, with screenshots in `docs/completion-4.1/batches/a2a-layar/`.
 - **Change B** follows C's freeze, branched from C's frozen commit. **C is not merged** until B's scale evidence holds on
   that commit.
+  - **The owner's two precisions for B** (`TEAM-INSTRUCTIONS.md` at `a09400a8`; relayed 00:48 UTC):
+    1. **Two commits, one product.** The scale evidence names C's frozen commit (the product) and B's commit (the
+       tooling). B's diff from C's frozen commit touches only `selftest/`, `scripts/`, `.github/workflows/` and
+       `audit/`. If B needs anything under `supabase/migrations/` or `src/`, Second Eye stops and tells the Chief
+       Architect, because that would be measuring a different product.
+    2. **Four measurements, as §7 has them:**
+       - R1's skip count;
+       - R2's 5 s at p95;
+       - the activation's and the lift's work under the fence, ≤ 0.5 s;
+       - the shared takers refused while the fence waits, a count for Sharon to judge.
+       The job prints all four.
 
 **CHANGE A IS MERGED** (PR 21 → `main` `0ea4b8ad`) and on staging: 249 migrations; health, environment facts and
 preservation all green. Every gate passed on the first attempt (the Chief Architect, 23:56).
