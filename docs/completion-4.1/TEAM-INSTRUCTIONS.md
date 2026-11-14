@@ -625,3 +625,17 @@ notify reviewer → reviewer acknowledges → review begins.**
 - **Bob's 30-minute check-ins stay as a backstop only.** A handoff that a check-in finds is recorded as friction.
 
 No other coordination mechanism is added.
+
+## Order of work to C's freeze (owner's verdict, 14 Nov 2026)
+
+1. Correct C30-1 and C30-2, with tests for overlapping controls (a stop combined with A1's suspension hold) and for
+   answer-saving after a lift.
+2. Sharon verifies the corrections.
+3. Daisy's approved wording is built, and her outstanding screen review is completed.
+4. The full regression and concurrency checks run before C is frozen. Second Eye runs them in development, and C is
+   frozen only on a green run. The one full pre-flight still runs afterwards, on the frozen candidate.
+5. Then change B's independent scale verification.
+
+- **No owner ruling** unless the implementation genuinely conflicts with an approved requirement.
+- **The distinction the owner drew:** Sharon's reviews show the architecture is sound. They do not make change C
+  technically closed. C closes only on the verified implementation.
