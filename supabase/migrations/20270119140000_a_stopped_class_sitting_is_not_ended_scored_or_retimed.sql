@@ -23,7 +23,8 @@
 --   the learner's gate (pengerjaan_gerbang) and the response trigger   refused
 --   tutup_asesmen_terbuka (the departure: akhiri_pendaftaran, transfer_execute)   preserved, unscored, for the stop (O1)
 --   kenaikan_tetapkan (the promotion run)                    refused, PROMO_STOPPED with the count (M-1)
--- NOT HERE, for Sharon: the assignment-level acts (ubah_jadwal_penugasan, akhiri_penugasan). Each locks an unranked row
+--   ubah_jadwal_penugasan                                    refused while any open sitting is protected or held (C9-2)
+-- NOT HERE yet: akhiri_penugasan (refused where a protected sitting would be ended, O1). Each locks an unranked row
 -- (the assignment, the transfer) before its learners, and the fence must be the first lock after the lifecycle ranks
 -- with no person after it; their order is a design question. Also still to build (O1): after the lift, the departure's
 -- rule applied to a sitting preserved through the stop, judged against its shifted deadline and audited naming the stop.
@@ -134,6 +135,20 @@ begin
       || E'  if v_ditahan > 0 then\n'
       || E'    raise exception using errcode = ''PR070'', detail = ''PROMO_STOPPED'', hint = v_ditahan::text,\n'
       || E'      message = ''the promotion cannot be applied during a stop: '' || v_ditahan || '' learner(s) have a sitting held by it'';\n'
+      || E'  end if;\n');
+  -- the window changed (ubah_jadwal_penugasan; Sharon's C9-2): it re-times sittings through the assignments' closes_at,
+  -- which the sitting guard cannot see. After its two assignment rows (C9-2's one B1 exception: an unranked row before
+  -- the SHARED fence, safe because no holder of the exclusive fence locks anything after it but ranks 7 to 9, asserted in
+  -- A2A-L01), the shared fence; then, under it, refused while any open sitting of the assignment is protected or held.
+  perform pg_temp.a2a_sisip('public.ubah_jadwal_penugasan(uuid,timestamp with time zone,timestamp with time zone,text)',
+    E'  perform 1 from public.assessment_assignments aa where aa.learning_assignment_id = p_la order by aa.id for update;\n',
+    E'  perform 1 from public.assessment_assignments aa where aa.learning_assignment_id = p_la order by aa.id for update;\n'
+      || t || E'  begin\n    perform public.pagar_darurat_bersama();\n'
+      || E'  exception when lock_not_available then\n    perform public.pengerjaan_tolak(''SITTING_FENCE_BUSY'');\n  end;\n'
+      || E'  if exists (select 1 from public.assessment_sessions s join public.assessment_assignments aa on aa.id = s.assessment_assignment_id\n'
+      || E'              where aa.learning_assignment_id = p_la and s.status in (''CREATED'', ''IN_PROGRESS'', ''PAUSED'')\n'
+      || E'                and (s.darurat_sejak is not null or public.pengerjaan_dilindungi(s.id))) then\n'
+      || E'    perform public.pengerjaan_tolak(''SITTING_CLASS_STOPPED'');\n'
       || E'  end if;\n');
   -- the closer: the fence before each candidate's sitting (D6.6 makes it a procedure committing per batch, so the fence
   -- is not held for a whole run)

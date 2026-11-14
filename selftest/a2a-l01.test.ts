@@ -159,7 +159,65 @@ const samaBaris = (site: string, variabel: string) => ({
   penulis: "*", lewat: new RegExp(`(^| > )${site.replace(/[[\]]/g, "\\$&")}$`),
   alasan: `same row: ${variabel}`, syarat: (_k: Katalog, l?: Kunci[], v?: string) => !!l && !!v && dipegangDulu(l, v),
 });
+/** C9-2's condition (Sharon, A2A-C-BEFORE-FREEZE-8bc74097.md): an unranked row taken before the SHARED fence forms a
+ *  cycle only with a holder of the EXCLUSIVE fence that then wants that row. So: every function that calls
+ *  pagar_darurat_eksklusif locks nothing after its fence but ranks 7 to 9, the persons it took before the fence (the
+ *  actor, required change 3) and audit_write's rows; and no unranked table it locks after its fence is locked before a
+ *  fence by any writer. Returns what breaks it (empty: the condition holds). */
+const eksklusifMemo = new WeakMap<Katalog, string[]>();
+export function syaratEksklusif(kat: Katalog): string[] {
+  const ada = eksklusifMemo.get(kat);
+  if (ada) return ada;
+  const semua = semuaKunci(kat);
+  const salah: string[] = [];
+  const sebelumPagar = new Set<string>();
+  for (const [, l] of semua) {
+    const i = l.findIndex((x) => x.t === "FENCE");
+    if (i > 0) for (const x of l.slice(0, i)) if (!(x.t in URUTAN)) sebelumPagar.add(x.t);
+  }
+  for (const [fn, bs] of kat.fns) {
+    if (fn === "pagar_darurat_eksklusif" || !bs.some((b) => /\bpagar_darurat_eksklusif\s*\(/.test(bersih(b)))) continue;
+    const l = semua.get(fn) ?? [];
+    const i = l.findIndex((x) => x.t === "FENCE");
+    const dulu = new Set(l.slice(0, Math.max(i, 0)).map((x) => x.t));
+    for (const x of l.slice(i + 1)) {
+      if (/(^| > )audit_write( |$)/.test(x.lewat)) continue;
+      if (x.t in URUTAN) {
+        if (URUTAN[x.t] >= 7 || (x.t === "persons" && dulu.has("persons"))) continue;
+        salah.push(`${fn} takes the exclusive fence and then ${x.t} (rank ${URUTAN[x.t]}) — via ${x.lewat}`);
+      } else if (sebelumPagar.has(x.t)) {
+        salah.push(`${fn} takes the exclusive fence and then ${x.t}, which another writer locks before a fence — via ${x.lewat}`);
+      }
+    }
+  }
+  eksklusifMemo.set(kat, salah);
+  return salah;
+}
+/** Sharon's (a): no declared exception covers a lifecycle row (ranks 1 to 6) after the fence, except the mechanical
+ *  same-row re-lock (a row the writer already held, at least as strongly, before the fence) and audit_write's key
+ *  (mechanically null outside an evaluation session). Returns the offenders. */
+export function lifecycleSetelahPagar(kat: Katalog, semua: Map<string, Kunci[]>): string[] {
+  const out: string[] = [];
+  for (const [fn, l] of semua) for (const v of pelanggaran(l)) {
+    if (!/^[a-z_.]+ \(rank [\d.]+\) after FENCE \(rank 7\)/.test(v)) continue;
+    const p = pengecualianUntuk(kat, fn, v, l);
+    // the two mechanical exceptions: the same row already held, and audit_write's key (null outside an evaluation session;
+    // the residual case, a persona of an open evaluation session stopping or lifting, is on the page for Sharon)
+    if (p && !p.alasan.startsWith("same row:") && p.alasan !== ALASAN_AUDIT) out.push(`${fn}: ${v} (covered by «${p.alasan.slice(0, 80)}»)`);
+  }
+  return out;
+}
+
 export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syarat?: (kat: Katalog, l?: Kunci[], v?: string) => boolean }[] = [
+  // C9-2 (Sharon, A2A-C-BEFORE-FREEZE-8bc74097.md), ONE B1 exception: the assignment-level acts and the enrolment path
+  // keep their order (the assignment, enrolment or transfer row, then the learners, then the shared fence per sitting).
+  // tangguhkan_akun (D6.5's suspension hold, its Auth-side rows before the shared fence) rests on the same reason; it is
+  // named here for Sharon to confirm. Valid only while syaratEksklusif holds.
+  ...["akhiri_penugasan", "ubah_jadwal_penugasan", "tutup_asesmen_terbuka", "kenaikan_tetapkan", "akhiri_pendaftaran", "transfer_execute",
+      "tangguhkan_akun"].map((penulis) => ({ penulis,
+    lewat: (v: string) => / locked before the fence \(B1: /.test(v),
+    alasan: "C9-2: an unranked row before the SHARED fence; no holder of the exclusive fence locks anything after it but ranks 7 to 9, its own actor and audit rows, nor any table another writer locks before a fence",
+    syarat: (kat: Katalog) => syaratEksklusif(kat).length === 0 })),
   // the class (the Chief Architect, 13 Nov: one exception, one assertion): every writer, a lock through audit_write —
   // the late lock of a breach, or the first lock of an upgrade (a null key took no lock, so there is nothing to upgrade)
   { penulis: "*", lewat: (v) => /(^| > )audit_write$/.test(lewatAkhir(v)) || /(^| > )audit_write$/.test(lewatAwalNaik(v)),
@@ -536,6 +594,10 @@ export function pelanggaran(l: Kunci[]): string[] {
   }
   return [...new Set(out)];
 }
+const pengecualianUntuk = (kat: Katalog, fn: string, v: string, l?: Kunci[]) =>
+  PENGECUALIAN.find((p) => (p.penulis === "*" || fn === p.penulis)
+    && (typeof p.lewat === "string" ? v.includes(p.lewat) : typeof p.lewat === "function" ? p.lewat(v) : p.lewat.test(lewatAkhir(v)))
+    && (!p.syarat || p.syarat(kat, l, v)));
 const dikecualikan = (kat: Katalog, fn: string, v: string, l?: Kunci[]) =>
   PENGECUALIAN.some((p) => (p.penulis === "*" || fn === p.penulis)
     && (typeof p.lewat === "string" ? v.includes(p.lewat) : typeof p.lewat === "function" ? p.lewat(v) : p.lewat.test(lewatAkhir(v)))
@@ -722,6 +784,18 @@ export const a2aL01Tests: SelfTest[] = [
       for (const fn of ["tangguhkan_akun", "aktifkan_kembali_akun", "akun_kunci", "hapus_data_pribadi", "(GoTrue U auth.users)"])
         c.expect(r.semua.has(fn), `${fn} was not read as a locker: the engine reads too little`);
       c.expect(r.salah.length === 0, `out of the order, upgraded, or a row before the fence (${r.salah.length}):\n  ${r.salah.join("\n  ")}`);
+      // C9-2's condition, asserted (its exception is valid only while it holds), and Sharon's (a); its plant first: a
+      // holder of the exclusive fence that then locks an assignment row, which the acts lock before the shared fence
+      const tEks = bacaUrutan(db, `create function public._a2a_l01_eks(p uuid) returns void language plpgsql as $t$
+        begin perform public.pagar_darurat_eksklusif(); perform 1 from public.learning_assignments where id = p for update; end $t$;`);
+      c.expect(syaratEksklusif(tEks.kat).some((s) => s.startsWith("_a2a_l01_eks takes the exclusive fence and then learning_assignments")),
+        "the planted exclusive-fence holder locking an assignment row was not reported (C9-2's condition)");
+      c.expect(tEks.salah.some((s) => s.startsWith("akhiri_penugasan:") && /locked before the fence/.test(s)),
+        "with C9-2's condition broken, its exception still covered akhiri_penugasan");
+      const eks = syaratEksklusif(r.kat);
+      c.expect(eks.length === 0, `C9-2's condition (a holder of the exclusive fence locks only ranks 7 to 9 after it):\n  ${eks.join("\n  ")}`);
+      const siklus = lifecycleSetelahPagar(r.kat, r.semua);
+      c.expect(siklus.length === 0, `Sharon's (a): a declared exception covers a lifecycle row after the fence:\n  ${siklus.join("\n  ")}`);
       const baru = r.dinamis.filter((f) => !(f in SQL_DINAMIS));
       c.expect(baru.length === 0, `dynamic SQL naming a ranked table, not declared: ${baru.join(", ")}`);
       // R3: the committed report is the one the code gives
@@ -732,7 +806,7 @@ export const a2aL01Tests: SelfTest[] = [
         const beda = [...[...b].filter((x) => !a.has(x)).map((x) => `+ ${x}`), ...[...a].filter((x) => !b.has(x)).map((x) => `- ${x}`)].slice(0, 12);
         c.expect(false, `the lock report differs from selftest/a2a-l01-laporan.txt (regenerate with npx tsx scripts/dev/a2a-l01-laporan.ts and read the difference):\n  ${beda.join("\n  ")}`);
       }
-      return c.verdict(`${r.menyentuh} writers of ${r.fungsi} functions lock the ranked tables in order, no upgrade, no row before the fence; five plants reported; the report as committed`);
+      return c.verdict(`${r.menyentuh} writers of ${r.fungsi} functions lock the ranked tables in order, no upgrade, no row before the fence but under C9-2's one exception, whose condition holds; no lifecycle row after the fence but the same row held before it (Sharon's (a)); five plants reported; the report as committed`);
     },
   },
   {

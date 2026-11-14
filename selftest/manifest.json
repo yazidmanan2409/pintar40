@@ -6194,6 +6194,11 @@
       "id": "A2A-C705",
       "runner": "static",
       "proves": "THE PLAN §5.3 D6.6 (Sharon's R1, R2; migration 20270119150000): the closer's job is `call public.pengerjaan_tutup_berkala()`, a procedure that commits (in batches of 20, so the shared fence each candidate takes is held for one batch at most; its timing is change B's measurement) and that neither a client nor the server key may call; and R1, rolled back: with two held sittings and one protected (an active class stop, not yet marked) created first, the closer's selection asked for three names the unaffected overdue sitting and none of the three; with the plant (the exclusion removed) the three fill the limit and the unaffected one waits."
+    },
+    {
+      "id": "A2A-C706",
+      "runner": "static",
+      "proves": "Sharon's C9-2 (A2A-C-BEFORE-FREEZE-8bc74097.md; migration 20270119140000): ubah_jadwal_penugasan re-times sittings through the assignments' closes_at, which the sitting guard cannot see, so after its two assignment rows it takes the shared fence and, under it, refuses SITTING_CLASS_STOPPED while any open sitting of the assignment is protected or held. Rolled back: during a class stop the class's teacher reschedules its assignment and is refused PR170 SITTING_CLASS_STOPPED, with the assignments' closing times and the window-timed sitting's effective deadline unchanged; after the lift the same change goes through; with the plant (the refusal removed) it goes through during the stop."
     }
   ]
 }

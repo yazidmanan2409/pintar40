@@ -192,6 +192,14 @@ do $$
 begin
   perform pg_temp.a2a_sisip('public.change_maintenance(uuid,text,text)',
     E'declare v_me uuid;', E'declare v_lift timestamptz; v_tandai integer; v_me uuid;');
+  -- required change 3, found writing C9-2's condition: the lift wrote the actor (ended_by_person_id, the notices'
+  -- withdrawn_by_person_id, the audit row) after the exclusive fence without having taken them before it. A suspension of
+  -- that admin, holding them FOR UPDATE before its shared fence, would then wait on the fence while the lift waited on them.
+  -- The actor FOR KEY SHARE first, as stop_pintar_now does.
+  perform pg_temp.a2a_sisip('public.change_maintenance(uuid,text,text)',
+    E'  -- A2a B1 (Sharon): an EMERGENCY window is changed under the fence, taken before its row\n',
+    E'  perform 1 from public.persons p where p.id = v_me for key share;   -- required change 3: the actor before the fence\n'
+    || E'  -- A2a B1 (Sharon): an EMERGENCY window is changed under the fence, taken before its row\n');
   perform pg_temp.a2a_sisip('public.change_maintenance(uuid,text,text)',
     E'  else\n    update public.maintenance_windows\n       set ended_at = now(), ended_by_person_id = v_me,',
     E'  else\n'

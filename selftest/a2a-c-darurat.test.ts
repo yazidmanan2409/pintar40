@@ -571,3 +571,79 @@ a2aDaruratTests.push({
     return c.verdict(`the job is «${perintah}», a procedure that commits (in batches of 20) and that neither a client nor the server key may call; asked for three candidates with two held and one protected sitting first, the selection names the unaffected overdue one and none of the three; with the plant (no exclusion) the three fill the limit and it waits (R1)`);
   },
 });
+
+// ═══════════════════════════════════════════════════════════ A2A-C706 · rescheduling a stopped class's assignment (C9-2)
+
+/** A live class assignment, its teacher, a learner's open sitting of it; a class stop. The teacher reschedules the
+ *  assignment: refused SITTING_CLASS_STOPPED, the assignments' closing times and the sitting's effective deadline
+ *  unchanged; after the lift the same change goes through. One transaction, rolled back. */
+function jadwalSaatBerhenti(db: string): { saat: string; tetap: string; sesudah: string; err: string } {
+  const b = psqlStdin(db, `select la.id || '|' || la.node_id || '|' || la.institution_id || '|' || a.auth_user_id || '|' || aa.id
+  from public.learning_assignments la join public.org_nodes n on n.id = la.node_id and n.kind = 'CLASS'
+  join public.assessment_assignments aa on aa.learning_assignment_id = la.id
+  join public.role_assignments r on r.role = 'EDUCATOR' and r.scope_node_id = la.node_id and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until
+  join public.accounts a on a.person_id = r.person_id
+  where la.status = 'ACTIVE' and not public.release_is_professional(la.plp_release_id) order by la.id, aa.id limit 1;`);
+  const [la, kelas, inst, guru, aa] = b.split("|");
+  if (!aa) throw new Error("no live class assignment with a teacher: the seed changed");
+  const coba = `pg_temp.a2a_coba($q$select public.ubah_jadwal_penugasan('${la}', now() + interval '1 hour', now() + interval '3 days', 'A2A-C706: jadwal baru saat berhenti')$q$)`;
+  const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: `
+begin;
+create function pg_temp.a2a_coba(p_sql text) returns text language plpgsql as $f$
+declare d text;
+begin
+  execute p_sql; return 'OK';
+exception when others then
+  get stacked diagnostics d = pg_exception_detail;
+  return sqlstate || '|' || coalesce(d, '');
+end $f$;
+set local session_replication_role = replica;
+insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${SESI}', 'status', 'IN_PROGRESS',
+  'person_id', (select e.person_id from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+                 where m.node_id = '${kelas}' and m.valid_to is null and e.status = 'ACTIVE' order by e.id limit 1),
+  'institution_id', '${inst}', 'assessment_assignment_id', '${aa}', 'class_node_id', '${kelas}', 'cohort_node_id', null,
+  'authoritative_deadline', null, 'created_at', now() - interval '10 minutes', 'finalized_at', null, 'submitted_at', null,
+  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
+  'darurat_sejak', null, 'darurat_jendela_id', null))).*
+  from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, reason, created_by_person_id, activation_recorded_at)
+select '${JENDELA}', 'EMERGENCY', false, array['${inst}'::uuid], array['${kelas}'::uuid], now(), now(), 'A2A-C706',
+       (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), now();
+set local session_replication_role = origin;
+create temp table a2a_c706_t as select (select string_agg(coalesce(closes_at::text, '-'), ',' order by id) from public.assessment_assignments where learning_assignment_id = '${la}') as c,
+  coalesce(public.pengerjaan_tenggat_efektif('${SESI}')::text, '-') as e;
+select set_config('request.jwt.claims', '{"sub":"${guru}","role":"authenticated"}', true);
+select 'SAAT|' || ${coba};
+select 'TETAP|' || ((select string_agg(coalesce(closes_at::text, '-'), ',' order by id) from public.assessment_assignments where learning_assignment_id = '${la}') = t.c
+  and coalesce(public.pengerjaan_tenggat_efektif('${SESI}')::text, '-') = t.e)::text from a2a_c706_t t;
+set local session_replication_role = replica;
+update public.maintenance_windows set ended_at = now(), t_lift = now() where id = '${JENDELA}';
+set local session_replication_role = origin;
+select 'SESUDAH|' || ${coba};
+rollback;` });
+  const ambil = (k: string) => (r.stdout ?? "").split("\n").find((l) => l.startsWith(k + "|"))?.slice(k.length + 1) ?? "";
+  return { saat: ambil("SAAT"), tetap: ambil("TETAP"), sesudah: ambil("SESUDAH"), err: r.status === 0 ? "" : (r.stderr ?? "").trim().split("\n")[0] ?? "" };
+}
+const JADWAL_TOLAK = "    perform public.pengerjaan_tolak('SITTING_CLASS_STOPPED');\n  end if;\n";
+
+a2aDaruratTests.push({
+  id: "A2A-C706",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    const r = jadwalSaatBerhenti(db);
+    c.expect(!r.err, `the run failed: ${r.err}`);
+    c.expect(r.saat === "PR170|SITTING_CLASS_STOPPED", `rescheduling the stopped class's assignment answered ${r.saat}, not PR170|SITTING_CLASS_STOPPED`);
+    c.expect(r.tetap === "true", "the refused rescheduling changed an assignment's closing time or the sitting's effective deadline");
+    c.expect(r.sesudah === "OK", `after the lift the same rescheduling answered ${r.sesudah}`);
+    const balik = gantiFungsi("public.ubah_jadwal_penugasan(uuid,timestamp with time zone,timestamp with time zone,text)", JADWAL_TOLAK, "    null;\n  end if;\n");
+    let tanam: ReturnType<typeof jadwalSaatBerhenti>;
+    try { tanam = jadwalSaatBerhenti(db); } finally { balik(); }
+    c.expect(tanam.saat === "OK", `with the plant (no refusal) the rescheduling was still refused: ${tanam.saat}`);
+    return c.verdict("during a class stop the teacher's rescheduling of the class's assignment is refused SITTING_CLASS_STOPPED under the shared fence, the assignments' closing times and the sitting's effective deadline unchanged; after the lift it goes through; with the plant it went through during the stop");
+  },
+});
