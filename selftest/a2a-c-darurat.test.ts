@@ -647,3 +647,97 @@ a2aDaruratTests.push({
     return c.verdict("during a class stop the teacher's rescheduling of the class's assignment is refused SITTING_CLASS_STOPPED under the shared fence, the assignments' closing times and the sitting's effective deadline unchanged; after the lift it goes through; with the plant it went through during the stop");
   },
 });
+
+// ═══════════════════════════════════════════════════════════ A2A-C707 · every act after a lift, before the batch (C7-2)
+
+/** Sharon's C7-2, in full: a class stop, lifted (45 minutes after T_stop), no release batch run. Each act, as its own
+ *  actor, on its own sitting still marked by the stop, unshifted deadline already passed: it succeeds, the sitting
+ *  released with the stop's shift first; SITTING_EMERGENCY_HELD is never raised. One transaction, each act in a
+ *  subtransaction, rolled back. Returns act → "OK|released|moved seconds" or its refusal. */
+const TINDAKAN: { nama: string; aktor: "guru" | "admin" | "murid"; status: string; sql: (s: string) => string }[] = [
+  { nama: "tambah_waktu_pengerjaan", aktor: "guru", status: "IN_PROGRESS", sql: (s) => `select public.tambah_waktu_pengerjaan('${s}', 10, 'A2A-C707: tambah waktu')` },
+  { nama: "akhiri_pengerjaan", aktor: "guru", status: "IN_PROGRESS", sql: (s) => `select public.akhiri_pengerjaan('${s}', 'NOT_COUNTED', 'A2A-C707: akhiri tanpa menghitung')` },
+  { nama: "extend_session_deadline", aktor: "guru", status: "IN_PROGRESS", sql: (s) => `select public.extend_session_deadline('${s}', 10, 'A2A-C707: perpanjang')` },
+  { nama: "terminate_session", aktor: "admin", status: "IN_PROGRESS", sql: (s) => `select public.terminate_session('${s}', 'SECURITY_INTERVENTION', 'A2A-C707: integritas')` },
+  // the learner's gate, through the hand-in (pausing is a definition's option; the hand-in reaches the gate always)
+  { nama: "finish_my_session (the gate)", aktor: "murid", status: "IN_PROGRESS", sql: (s) => `select public.finish_my_session('${s}', null)` },
+  { nama: "resume_session", aktor: "murid", status: "PAUSED", sql: (s) => `select public.resume_session('${s}')` },
+];
+function setiapTindakan(db: string): { hasil: Record<string, string>; err: string } {
+  const b = psqlStdin(db, `select e.person_id || '|' || e.id || '|' || m.node_id || '|' || e.institution_id || '|' || am.auth_user_id || '|' || ag.auth_user_id || '|' || aa.auth_user_id
+  from public.enrollments e join public.memberships m on m.enrollment_id = e.id and m.valid_to is null
+  join public.org_nodes n on n.id = m.node_id and n.kind = 'CLASS'
+  join public.accounts am on am.person_id = e.person_id
+  join public.role_assignments rg on rg.role = 'EDUCATOR' and rg.scope_node_id = m.node_id and rg.revoked_at is null and now() >= rg.valid_from and now() < rg.valid_until
+  join public.accounts ag on ag.person_id = rg.person_id
+  join public.role_assignments ra on ra.role = 'INSTITUTION_ADMIN' and ra.institution_id = e.institution_id and ra.revoked_at is null and now() >= ra.valid_from and now() < ra.valid_until
+  join public.accounts aa on aa.person_id = ra.person_id
+  where e.status = 'ACTIVE' and rg.person_id <> e.person_id and ra.person_id <> e.person_id order by e.id limit 1;`);
+  const [orang, enr, kelas, inst, murid, guru, admin] = b.split("|");
+  if (!admin) throw new Error("no class with a learner, a teacher and a school admin who have accounts: the seed changed");
+  const aktor = { guru, admin, murid };
+  const id = (i: number) => `a2a1c707-0000-4000-8000-00000000000${i}`;
+  const per = TINDAKAN.map((x, i) => `
+insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${id(i)}', 'status', '${x.status}', 'person_id', '${orang}',
+  'enrollment_id', '${enr}', 'institution_id', '${inst}', 'class_node_id', '${kelas}', 'cohort_node_id', null,
+  'authoritative_deadline', now() - interval '10 minutes', 'created_at', now() - interval '60 minutes', 'started_at', now() - interval '60 minutes',
+  'finalized_at', null, 'submitted_at', null, 'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null,
+  'unfrozen_at', null, 'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
+  'deadline_extended_count', 0, 'darurat_sejak', now() - interval '50 minutes', 'darurat_jendela_id', '${JENDELA}'))).*
+  from public.assessment_sessions s where s.status = 'FINALIZED' order by (s.institution_id = '${inst}') desc, s.id limit 1;`).join("\n");
+  const coba = TINDAKAN.map((x, i) => `
+select set_config('request.jwt.claims', '{"sub":"${aktor[x.aktor]}","role":"authenticated"}', true);
+create temp table a2a_c707_${i} as select pg_temp.a2a_coba($q$${x.sql(id(i))}$q$) as h;
+-- a statement of its own: the act's writes are read after it, not in its snapshot
+select 'T${i}|' || (select h from a2a_c707_${i}) || '|' || coalesce((select (s.darurat_sejak is null)::text || '|'
+   || extract(epoch from (s.authoritative_deadline - (now() - interval '10 minutes')))::int from public.assessment_sessions s where s.id = '${id(i)}'), '-');`).join("\n");
+  const sqlC707 = `
+begin;
+create function pg_temp.a2a_coba(p_sql text) returns text language plpgsql as $f$
+declare d text;
+begin
+  execute p_sql; return 'OK';
+exception when others then
+  get stacked diagnostics d = pg_exception_detail;
+  return sqlstate || ':' || coalesce(d, '') || ':' || left(sqlerrm, 80);
+end $f$;
+set local session_replication_role = replica;
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, ended_at, t_lift, reason, created_by_person_id, activation_recorded_at)
+select '${JENDELA}', 'EMERGENCY', false, array['${inst}'::uuid], array['${kelas}'::uuid], now() - interval '50 minutes', now() - interval '50 minutes',
+       now() - interval '5 minutes', now() - interval '5 minutes', 'A2A-C707',
+       (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), now() - interval '50 minutes';
+${per}
+set local session_replication_role = origin;
+${coba}
+rollback;`;
+  const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: sqlC707 });
+  const hasil: Record<string, string> = {};
+  for (const l of (r.stdout ?? "").split("\n")) { const m = /^T(\d+)\|(.*)$/.exec(l); if (m) hasil[TINDAKAN[Number(m[1])].nama] = m[2]; }
+  return { hasil, err: r.status === 0 ? "" : (r.stderr ?? "").trim().split("\n")[0] ?? "" };
+}
+
+a2aDaruratTests.push({
+  id: "A2A-C707",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    const r = setiapTindakan(db);
+    c.expect(!r.err, `the run failed: ${r.err}`);
+    for (const x of TINDAKAN) {
+      const h = r.hasil[x.nama] ?? "(not run)";
+      const [ok, dilepas, geser] = h.split("|");
+      c.expect(ok === "OK", `${x.nama} after the lift, before the batch, did not succeed: ${h}`);
+      c.expect(!/SITTING_EMERGENCY_HELD/.test(h), `${x.nama} raised SITTING_EMERGENCY_HELD on a sitting whose chain had ended`);
+      c.expect(dilepas === "true" && Number(geser) >= 45 * 60, `${x.nama}: the sitting was not released with the stop's shift first (released ${dilepas}, moved ${geser} s)`);
+    }
+    const balik = gantiFungsi("public.pengerjaan_pagar(uuid)", RILIS_PAGAR, "    null;\n");
+    let tanam: ReturnType<typeof setiapTindakan>;
+    try { tanam = setiapTindakan(db); } finally { balik(); }
+    const ditahan = Object.entries(tanam.hasil).filter(([, h]) => /SITTING_EMERGENCY_HELD/.test(h)).map(([k]) => k);
+    c.expect(ditahan.length > 0, `with the plant (no release in the helper) no act was refused SITTING_EMERGENCY_HELD: ${JSON.stringify(tanam.hasil)}`);
+    return c.verdict(`after a lift with no release batch, each of ${TINDAKAN.map((x) => x.nama).join(", ")} succeeds as its own actor, the sitting released with the stop's 45 min first; none raises SITTING_EMERGENCY_HELD; with the plant (no release) ${ditahan.length} of them did (${ditahan.join(", ")})`);
+  },
+});

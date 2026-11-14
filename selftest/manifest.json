@@ -6199,6 +6199,11 @@
       "id": "A2A-C706",
       "runner": "static",
       "proves": "Sharon's C9-2 (A2A-C-BEFORE-FREEZE-8bc74097.md; migration 20270119140000): ubah_jadwal_penugasan re-times sittings through the assignments' closes_at, which the sitting guard cannot see, so after its two assignment rows it takes the shared fence and, under it, refuses SITTING_CLASS_STOPPED while any open sitting of the assignment is protected or held. Rolled back: during a class stop the class's teacher reschedules its assignment and is refused PR170 SITTING_CLASS_STOPPED, with the assignments' closing times and the window-timed sitting's effective deadline unchanged; after the lift the same change goes through; with the plant (the refusal removed) it goes through during the stop."
+    },
+    {
+      "id": "A2A-C707",
+      "runner": "static",
+      "proves": "Sharon's C7-2 in full (A2A-C-BEFORE-FREEZE-8bc74097.md, section 3): a class stop lifted 45 minutes after T_stop, no release batch run; on its own sitting still marked by the stop, its unshifted deadline already passed, each act as its own actor (added time, the teacher's end and extend as the class's teacher; terminate for an integrity cause as the school admin; the hand-in through the learner's gate and resume as the learner) succeeds, with the sitting released and its deadline moved by at least the stop's 2700 s first; none raises SITTING_EMERGENCY_HELD. The enrolment's end is A2A-C702's. With the plant (the helper's release removed) the acts are refused SITTING_EMERGENCY_HELD. One transaction, each act in a subtransaction, rolled back."
     }
   ]
 }
