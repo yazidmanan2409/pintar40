@@ -79,3 +79,14 @@ Could reasonably have been anticipated: yes (Q2, the neighbouring act). D6.5 sai
   - the lift ≤ 0.5 s with no batch run;
   - the release batch's throughput;
   - the cost of D1's read.
+
+## Addendum (07:40 UTC): is C30-2's rule new behaviour? No. It composes D-1 and A1's hold
+
+- **Taken separately,** each approved rule is unchanged:
+  - **A1 alone:** the time left is frozen at the hold and given back on resume.
+  - **D-1 alone:** a stopped sitting resumes with the time it had at `T_stop`.
+- **Only where both apply** does the rule decide, and it gives the learner what D-1 already promises: the time they had when they were first stopped.
+  - A hold that comes during a stop measures from `T_stop`, which gives at least as much as A1's own measure.
+  - A stop that comes during a hold adds nothing, because A1's frozen time already preserves it.
+- No refusal, no act and no wording changes. The teacher's held line (`sisa_ditahan_detik`) shows that same time left.
+- **Nothing for the owner.**
