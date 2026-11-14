@@ -6224,6 +6224,16 @@
       "id": "A2A-C711",
       "runner": "static",
       "proves": "Sharon's ruling on C18-1 (A2A-C-C18-1-AND-23-28.md at 50dab36f; migration 20270119160000): the lift does not mark; a lifted stop gives an unmarked sitting its time once, recorded by a watermark (darurat_dikredit_sampai). With no marking batch ever run, on committed fixtures removed after: a read before any touch (pengerjaan_tenggat_efektif, D1) already shows the deadline moved by the stop; the first touch (the decider, through pengerjaan_pagar) credits exactly T_lift − T_stop and a second touch nothing; two concurrent credits on two connections give it once (the sitting's lock, the watermark re-read under it); two overlapping stops are credited as their union, once; the release batch alone credits once. Plant: the credit not writing its watermark, so a second touch credits again."
+    },
+    {
+      "id": "A2A-C712",
+      "runner": "static",
+      "proves": "Sharon's C30-1 (A2A-C-30-8cbda9cc.md at 88d8ffec): after a 45-minute class stop lifted with no batch and no other touch, the learner's answer is judged on the credited deadline: inside the credited time it is LIVE, inside the credited grace LATE_SYNC and scored, because record_answer reaches pengerjaan_pagar (through pengerjaan_gerbang) before it reads the deadline. Each case in one transaction, rolled back. Plant: record_answer without the helper before its read (the credit then comes in the response's trigger, after the decision)."
+    },
+    {
+      "id": "A2A-C713",
+      "runner": "static",
+      "proves": "Sharon's C30-2 (A2A-C-30-8cbda9cc.md at 88d8ffec; migration 20270119180000): a sitting's time runs only while it is neither stopped nor held by A1. Stop, then suspension, then lift, then reinstatement and resume: the time left equals the time left at T_stop (unmarked, and marked at T_stop), and a touch after adds nothing. Suspension, then a stop inside the hold, then lift, then reinstatement and resume: the time left equals the time left at the suspension, and a touch after adds nothing. A held sitting touched after a lift: the act succeeds and nothing is credited. Each in one transaction, rolled back. Plants: the hold measured at the hold; no watermark at the resume; the credit not skipped while held."
     }
   ]
 }

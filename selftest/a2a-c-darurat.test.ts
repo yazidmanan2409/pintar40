@@ -242,7 +242,8 @@ commit;`);
   }
 }
 // C18-1 (commit 30): the lift no longer marks; what the interrupted batch missed is credited once by the release batch
-const KREDIT_BATCH = "      if public.pengerjaan_kredit_darurat(r.id) then n := n + 1; end if;\n";
+// (C30-2 S2: the pass walks in id order, so the call stands alone)
+const KREDIT_BATCH = "      perform public.pengerjaan_kredit_darurat(r.id);\n";
 
 // the plant: marking judged by the placement now, as draft 7 had it
 const TANDAI_SEKARANG_DARI = `                               and s.created_at <= w.t_stop
@@ -840,6 +841,30 @@ export const KASUS_GESER: Record<string, CaraGeser> = {
   // against the server's own added time below
   "src/lib/assessment-engine/index.ts": "NILAI", "src/components/mengajar/AturPengerjaan.tsx": "NILAI",
 };
+/** Sharon's C30-1 (A2A-C-30-8cbda9cc.md): a HARUS reader of authoritative_deadline reads it through
+ *  pengerjaan_tenggat_efektif, or touches the sitting (pengerjaan_pagar, or a helper whose first act it is) before its
+ *  first read, so it decides on the credited deadline. The credit machinery itself is named, with why. */
+export const MESIN_TENGGAT: Record<string, string> = {
+  pengerjaan_jaga: "the guard: it checks a write, decides nothing on the deadline",
+  pengerjaan_tenggat_efektif: "D1 itself: the raw deadline plus the pending credit",
+  pengerjaan_kredit_darurat: "the credit: it moves the deadline by the pending credit, under the sitting's lock",
+  pengerjaan_lepas_darurat: "the release: it moves the deadline by the stop's shift and the credit before the mark",
+  pengerjaan_tandai_darurat: "the marking: it records when a hold began, never moves or decides on the deadline",
+  pengerjaan_dalam_tenggang_pada: "the grace helper: judged at the instant it is given",
+  pengerjaan_tutup_calon: "the closer's selection: each selected sitting is credited at pengerjaan_tutup_satu's first touch, then judged (Sharon's read of commit 30)",
+};
+const SENTUH = /public\.(pengerjaan_pagar|pengerjaan_gerbang|pengerjaan_ditahan_periksa|pengerjaan_putus_tenggat)\(/;
+/** The HARUS readers that read authoritative_deadline neither through the effective deadline nor after a touch. */
+export function bacaSebelumSentuh(src: Map<string, string>, harus: string[]): string[] {
+  return harus.filter((fn) => {
+    const s = src.get(fn);
+    if (!s || fn in MESIN_TENGGAT) return false;
+    const baca = s.search(/\bauthoritative_deadline\b/);
+    if (baca < 0 || s.includes("pengerjaan_tenggat_efektif")) return false;
+    const sentuh = s.search(SENTUH);
+    return sentuh < 0 || sentuh > baca;
+  }).sort();
+}
 /** The HARUS and KLIEN readers of A2A-T01's tables that have no case here (the coverage half). */
 export function tanpaKasus(db: Record<string, Kelas>, src: Record<string, Kelas>, kasus: Record<string, CaraGeser>): string[] {
   return [...Object.entries(db), ...Object.entries(src)].filter(([, k]) => k.kelas === "HARUS" || k.kelas === "KLIEN")
@@ -924,6 +949,14 @@ a2aDaruratTests.push({
       src.set(fn, (src.get(fn) ?? "") + "\n" + (s ?? "").replace(/--[^\n]*/g, " "));
     for (const [fn, cara] of Object.entries(KASUS_GESER)) if (cara === "KONSTRUKSI")
       c.expect(src.has(fn) && !/\bcloses_at\b/.test(src.get(fn)!), `${fn} is classed as consistent by construction, but ${src.has(fn) ? "reads closes_at" : "does not exist"}`);
+    // C30-1: every HARUS reader of authoritative_deadline reads it through the effective deadline or after a touch;
+    // its plant: record_answer without the helper before its read
+    const harus = Object.entries(PEMBACA_DB).filter(([, k]) => k.kelas === "HARUS").map(([n]) => n);
+    const sebelum = bacaSebelumSentuh(src, harus);
+    c.expect(sebelum.length === 0, `HARUS readers that read authoritative_deadline before any touch and not through pengerjaan_tenggat_efektif: ${sebelum.join(", ")}`);
+    const tanpaSentuh = new Map(src);
+    tanpaSentuh.set("record_answer", (src.get("record_answer") ?? "").replace(/perform public\.pengerjaan_gerbang\(v_session, 'ANSWER'\);/, ""));
+    c.expect(bacaSebelumSentuh(tanpaSentuh, harus).includes("record_answer"), "the plant (record_answer without the helper before its read) was not reported");
     // NILAI and KEPUTUSAN, probed
     const r = probeGeser(db);
     c.expect(!r.err, `the probes failed: ${r.err}`);
@@ -935,7 +968,7 @@ a2aDaruratTests.push({
     try { tanam = probeGeser(db); } finally { balik(); }
     c.expect(tanam.hasil.daftar_pengerjaan === "false", `with the plant (the list reading closes_at raw) the list still agreed: ${JSON.stringify(tanam.hasil)}`);
     const n = (k: CaraGeser) => Object.values(KASUS_GESER).filter((x) => x === k).length;
-    return c.verdict(`every HARUS and KLIEN reader of A2A-T01 has a case (${n("NILAI")} value probes, ${n("KEPUTUSAN")} decisions, ${n("KONSTRUKSI")} by construction, never reading closes_at); after a lift, for a window-timed and an own-deadline sitting, each probe agrees with the effective deadline, and AturPengerjaan's client formula equals the server's added time; plants: an uncovered reader, and the list reading closes_at raw`);
+    return c.verdict(`every HARUS reader of authoritative_deadline reads it through the effective deadline or after a touch (C30-1; ${Object.keys(MESIN_TENGGAT).length} credit-machinery functions named; its plant, record_answer without the helper, reported); every HARUS and KLIEN reader of A2A-T01 has a case (${n("NILAI")} value probes, ${n("KEPUTUSAN")} decisions, ${n("KONSTRUKSI")} by construction, never reading closes_at); after a lift, for a window-timed and an own-deadline sitting, each probe agrees with the effective deadline, and AturPengerjaan's client formula equals the server's added time; plants: an uncovered reader, and the list reading closes_at raw`);
   },
 });
 
@@ -1065,12 +1098,15 @@ a2aDaruratTests.push({
  *  its time once. Each case on its own committed fixture, removed after: a learner of a class with an open sitting
  *  created an hour ago (own deadline 30 minutes on), and lifted class stops inserted as they stand after their lift. No
  *  marking batch ever runs. Returns the deadline's move in seconds after each step. */
-async function kreditSekali(db: string, kasus: "SENTUH" | "BERSAMAAN" | "TUMPANG" | "BATCH"):
-  Promise<{ baca: number; sekali: number; dua: number; tumpang: number }> {
+async function kreditSekali(db: string, kasus: "SENTUH" | "BERSAMAAN" | "TUMPANG" | "BATCH" | "TANDAI"):
+  Promise<{ baca: number; sekali: number; dua: number; tumpang: number; bacaHarus: number }> {
   const { psqlLain } = await import("./balapan");
   const f = fiksur(db);
   const S = "a2a1c711-0000-4000-8000-000000000001";
   const W1 = "a2a1c711-0000-4000-8000-0000000000a1", W2 = "a2a1c711-0000-4000-8000-0000000000a2";
+  // S2 (C30-2's sweep): a sitting of the same learner the release batch selects but has nothing to give (EXPIRED long
+  // before the stops, outside its grace), first in id order; the batch, one row a page, must walk past it
+  const S0 = "a2a1c711-0000-4000-8000-000000000000";
   // one stop 50 to 5 minutes ago (45 min); for TUMPANG a second, 40 to 0 minutes ago, overlapping it (union 50 min)
   const jendela = (id: string, mulai: number, akhir: number) => `
 insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, ended_at, t_lift, reason, created_by_person_id, activation_recorded_at)
@@ -1090,8 +1126,15 @@ select (jsonb_populate_record(s, jsonb_build_object('id', '${S}', 'status', 'IN_
   'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
   'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null))).*
   from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;
-${jendela(W1, 50, 5)}
+${kasus === "TANDAI" ? jendela(W1, 50, 40) : jendela(W1, 50, 5)}
 ${kasus === "TUMPANG" ? jendela(W2, 40, 0) : ""}
+${kasus === "TANDAI" ? jendela(W2, 30, 0).replace(/now\(\) - interval '0 minutes', now\(\) - interval '0 minutes'/, "null, null") : ""}
+${kasus === "BATCH" ? `insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${S0}', 'status', 'EXPIRED', 'person_id', '${f.person}',
+  'authoritative_deadline', now() - interval '170 minutes', 'created_at', now() - interval '180 minutes', 'finalized_at', null, 'submitted_at', null,
+  'closure_kind', 'DEADLINE', 'closure_at', now() - interval '170 minutes', 'closure_deadline', now() - interval '170 minutes',
+  'frozen_at', null, 'unfrozen_at', null, 'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null))).*
+  from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;` : ""}
 create table if not exists public._a2a_c711_awal (d timestamptz);
 delete from public._a2a_c711_awal;
 insert into public._a2a_c711_awal select authoritative_deadline from public.assessment_sessions where id = '${S}';
@@ -1100,10 +1143,21 @@ commit;`);
     // a READ before any touch shows the shifted deadline (D1)
     const baca = Number(psqlStdin(db, `select extract(epoch from (public.pengerjaan_tenggat_efektif('${S}') - a.d))::int from public._a2a_c711_awal a;`));
     let sekali = -1, dua = -1;
-    if (kasus === "BATCH") {
+    if (kasus === "TANDAI") {
+      // S1: an earlier stop (W1, 10 minutes) lifted and not yet given; W2 in force since 30 minutes ago; the marking
+      // batch marks the sitting, W2 is lifted now, the release: both stops, once
+      psqlStdin(db, "call public.pengerjaan_tandai_darurat(50);");
+      psqlStdin(db, `begin; set local session_replication_role = replica;
+update public.maintenance_windows set ended_at = now(), t_lift = now() where id = '${W2}';
+commit;`);
       psqlStdin(db, "call public.pengerjaan_lepas_darurat_semua(50);");
       sekali = gerak();
       psqlStdin(db, "call public.pengerjaan_lepas_darurat_semua(50);");
+      dua = gerak();
+    } else if (kasus === "BATCH") {
+      psqlStdin(db, "call public.pengerjaan_lepas_darurat_semua(1);");
+      sekali = gerak();
+      psqlStdin(db, "call public.pengerjaan_lepas_darurat_semua(1);");
       dua = gerak();
     } else if (kasus === "BERSAMAAN") {
       const satu = `begin; select public.pengerjaan_kredit_darurat('${S}'); select pg_sleep(0.5); commit;`;
@@ -1116,10 +1170,11 @@ commit;`);
       psqlStdin(db, `select public.pengerjaan_putus_tenggat('${S}', false);`);
       dua = gerak();
     }
-    return { baca, sekali, dua, tumpang: kasus === "TUMPANG" ? 50 * 60 : 45 * 60 };
+    const tumpang = kasus === "TUMPANG" ? 50 * 60 : kasus === "TANDAI" ? 40 * 60 : 45 * 60;
+    return { baca, sekali, dua, tumpang, bacaHarus: kasus === "TANDAI" ? 10 * 60 : tumpang };
   } finally {
     psqlStdin(db, `begin; set local session_replication_role = replica;
-delete from public.assessment_sessions where id = '${S}';
+delete from public.assessment_sessions where id in ('${S}', '${S0}');
 delete from public.maintenance_windows where id in ('${W1}', '${W2}');
 drop table if exists public._a2a_c711_awal;
 update public.memberships m set valid_from = a.m_dari from public._a2a_c711_asal a where m.id = a.mem;
@@ -1137,9 +1192,9 @@ a2aDaruratTests.push({
     const c = new Checks();
     const db = process.env.SUPABASE_DB_URL!;
     const { gantiFungsi } = await import("./balapan");
-    for (const kasus of ["SENTUH", "BERSAMAAN", "TUMPANG", "BATCH"] as const) {
+    for (const kasus of ["SENTUH", "BERSAMAAN", "TUMPANG", "BATCH", "TANDAI"] as const) {
       const r = await kreditSekali(db, kasus);
-      c.expect(r.baca === r.tumpang, `${kasus}: a read before any touch showed the deadline moved by ${r.baca} s, not ${r.tumpang} (D1)`);
+      c.expect(r.baca === r.bacaHarus, `${kasus}: a read before any touch showed the deadline moved by ${r.baca} s, not ${r.bacaHarus} (D1)`);
       c.expect(r.sekali === r.tumpang, `${kasus}: the first credit moved the deadline by ${r.sekali} s, not exactly ${r.tumpang}`);
       c.expect(r.dua === r.tumpang, `${kasus}: a second touch moved it to ${r.dua} s: credited more than once`);
     }
@@ -1148,6 +1203,186 @@ a2aDaruratTests.push({
     let tanam: Awaited<ReturnType<typeof kreditSekali>>;
     try { tanam = await kreditSekali(db, "SENTUH"); } finally { balik(); }
     c.expect(tanam.dua > tanam.sekali, `with the plant (no watermark) a second touch did not credit again: ${JSON.stringify(tanam)}`);
-    return c.verdict(`with no marking batch at all: a read before any touch shows the moved deadline (D1); the first touch (the decider) credits exactly T_lift − T_stop and a second touch nothing; two concurrent credits give it once; two overlapping stops are credited as their union (50 min) once; the release batch alone credits once; with the plant (no watermark) a second touch credited again (${tanam.dua} s after ${tanam.sekali})`);
+    // S1's plant: a marked sitting's pending credit nothing (as before C30-2's sweep): the earlier stop is lost
+    const balik1 = gantiFungsi("public.penghentian_kredit(assessment_sessions)", "       and (s.darurat_sejak is null or x.t_stop < s.darurat_sejak)\n", "       and s.darurat_sejak is null\n");
+    let tanam1: Awaited<ReturnType<typeof kreditSekali>>;
+    try { tanam1 = await kreditSekali(db, "TANDAI"); } finally { balik1(); }
+    c.expect(tanam1.sekali < tanam1.tumpang, `with S1's plant (no credit before a mark) the earlier stop was still given: ${JSON.stringify(tanam1)}`);
+    // S2's plant: the credit pass ends at a page with nothing to give
+    const balik2 = gantiFungsi("public.pengerjaan_lepas_darurat_semua(integer)", "      n := n + 1; v_dari := r.id;", "      v_dari := r.id;");
+    let tanam2: Awaited<ReturnType<typeof kreditSekali>>;
+    try { tanam2 = await kreditSekali(db, "BATCH"); } finally { balik2(); }
+    c.expect(tanam2.sekali === 0, `with S2's plant (the pass ends at a page with nothing to give) the sitting after it was still credited: ${JSON.stringify(tanam2)}`);
+    return c.verdict(`with no marking batch (but in S1's case): a read before any touch shows the moved deadline (D1); the first touch (the decider) credits exactly T_lift − T_stop and a second touch nothing; two concurrent credits give it once; two overlapping stops are credited as their union (50 min) once; the release batch alone, one row a page, walks past a sitting with nothing to give and credits once (S2); a stop lifted before a later stop marks the sitting is given with that stop's release, once (S1: 40 min); plants: no watermark, a second touch credited again (${tanam.dua} s after ${tanam.sekali}); no credit before a mark (${tanam1.sekali} s); the pass ending at a page with nothing to give (${tanam2.sekali} s)`);
+  },
+});
+
+// ═══════════════════════════════════════════════════════════ A2A-C712 · an answer after a lift is judged on the credited deadline (C30-1)
+
+/** The fixtures of C712 and C713: the C701 learner, their class's teacher, accounts for both, and a source sitting (its
+ *  definition with a late-sync grace of at least two minutes, a single-choice item presented). */
+type FiksurJawab = Fiksur & { murid: string; guru: string; sumber: string };
+function fiksurJawab(db: string): FiksurJawab {
+  const f = fiksur(db);
+  const b = psqlStdin(db, `select (select a.auth_user_id from public.accounts a where a.person_id = '${f.person}' order by a.auth_user_id limit 1)
+  || '|' || (select ag.auth_user_id from public.role_assignments rg join public.accounts ag on ag.person_id = rg.person_id
+              where rg.role = 'EDUCATOR' and rg.scope_node_id = '${f.node}' and rg.revoked_at is null and now() >= rg.valid_from
+                and now() < rg.valid_until and rg.person_id <> '${f.person}' order by rg.id limit 1)
+  || '|' || (select s.id from public.assessment_sessions s join public.assessment_definitions d on d.id = s.assessment_definition_id
+              where s.status = 'FINALIZED' and d.late_sync_grace_seconds >= 120
+                and exists (select 1 from public.presented_items p join public.items i on i.id = p.item_id
+                             where p.session_id = s.id and i.item_type = 'MCQ_SINGLE' and p.position = 1)
+              order by s.id limit 1);`);
+  const [murid, guru, sumber] = b.split("|");
+  if (!sumber) throw new Error("no learner and teacher with accounts, or no sitting with a grace and a single-choice item: the seed changed");
+  return { ...f, murid, guru, sumber };
+}
+/** The sitting S of the C701 learner in their class (copied from the source), created an hour ago; the learner placed
+ *  there since a day before (the seed's rows begin when it was loaded). Inside one transaction, rolled back. */
+function sesiSalinan(f: FiksurJawab, S: string, tenggat: string): string {
+  return `set local session_replication_role = replica;
+update public.memberships set valid_from = valid_from - interval '1 day' where id = '${f.mem}';
+update public.enrollments set valid_from = valid_from - interval '1 day' where id = '${f.enr}';
+insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${S}', 'status', 'IN_PROGRESS', 'person_id', '${f.person}',
+  'enrollment_id', '${f.enr}', 'class_node_id', '${f.node}', 'cohort_node_id', null,
+  'authoritative_deadline', ${tenggat}, 'created_at', now() - interval '60 minutes', 'finalized_at', null, 'submitted_at', null,
+  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null))).*
+  from public.assessment_sessions s where s.id = '${f.sumber}';`;
+}
+const jendelaKelas = (f: Fiksur, id: string, mulai: string, akhir: string | null) => `
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, ended_at, t_lift, reason, created_by_person_id, activation_recorded_at)
+select '${id}', 'EMERGENCY', false, array['${f.inst}'::uuid], array['${f.node}'::uuid], ${mulai}, ${mulai}, ${akhir ?? "null"}, ${akhir ?? "null"}, 'A2A-C712/C713',
+       (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), ${mulai};`;
+const sebagaiOrang = (uid: string) => `select set_config('request.jwt.claims', '{"sub":"${uid}","role":"authenticated"}', true);`;
+function barisKunci(db: string, sql: string): { hasil: Record<string, string>; err: string } {
+  const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: sql });
+  const hasil: Record<string, string> = {};
+  for (const l of (r.stdout ?? "").split("\n")) { const i = l.indexOf("|"); if (i > 0) hasil[l.slice(0, i)] = l.slice(i + 1); }
+  return { hasil, err: r.status === 0 ? "" : (r.stderr ?? "").trim().split("\n").filter((x) => /ERROR|DETAIL/.test(x)).join(" ") };
+}
+
+/** Sharon's C30-1: after a 45-minute stop lifted 5 minutes ago, with no batch and no other touch, the learner answers.
+ *  DALAM: the deadline was 2 minutes ago, credited 43 minutes on: the answer is in time (LIVE). TENGGANG: the deadline was
+ *  46 minutes ago, credited a minute ago, inside the definition's grace: LATE_SYNC, scored. Rolled back. */
+function jawabSesudahAngkat(db: string, f: FiksurJawab, kasus: "DALAM" | "TENGGANG") {
+  const S = "a2a1c712-0000-4000-8000-000000000001", P = "a2a1c712-0000-4000-8000-0000000000c1", W = "a2a1c712-0000-4000-8000-0000000000a1";
+  return barisKunci(db, `begin;
+${sesiSalinan(f, S, kasus === "DALAM" ? "now() - interval '2 minutes'" : "now() - interval '46 minutes'")}
+insert into public.presented_items (id, session_id, item_id, institution_id, position, presented_at)
+select '${P}', '${S}', p.item_id, p.institution_id, p.position, now() - interval '59 minutes'
+  from public.presented_items p where p.session_id = '${f.sumber}' and p.position = 1;
+${jendelaKelas(f, W, "now() - interval '50 minutes'", "now() - interval '5 minutes'")}
+set local session_replication_role = origin;
+${sebagaiOrang(f.murid)}
+select 'hasil|' || r.outcome from public.record_answer('${P}', 1, '{"posisi": 1}'::jsonb) r;
+select set_config('request.jwt.claims', '', true);
+select 'mode|' || r.receipt_mode from public.responses r where r.session_id = '${S}';
+rollback;`);
+}
+const JAWAB_SENTUH = "  perform public.pengerjaan_gerbang(v_session, 'ANSWER');   -- A1\n";
+
+a2aDaruratTests.push({
+  id: "A2A-C712",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    const f = fiksurJawab(db);
+    const dalam = jawabSesudahAngkat(db, f, "DALAM"), tenggang = jawabSesudahAngkat(db, f, "TENGGANG");
+    c.expect(!dalam.err && !tenggang.err, `the answers failed: ${dalam.err} ${tenggang.err}`);
+    c.expect(dalam.hasil.mode === "LIVE" && dalam.hasil.hasil === "RECORDED", `an answer inside the credited time: ${JSON.stringify(dalam.hasil)}, not LIVE and RECORDED`);
+    c.expect(tenggang.hasil.mode === "LATE_SYNC" && tenggang.hasil.hasil === "RECORDED", `an answer inside the credited grace: ${JSON.stringify(tenggang.hasil)}, not LATE_SYNC and scored`);
+    // the plant: record_answer without the helper (the credit then comes in the response's trigger, after the decision)
+    const balik = gantiFungsi("public.record_answer(uuid,integer,jsonb,timestamp with time zone,receipt_mode)", JAWAB_SENTUH, "");
+    let t1: ReturnType<typeof jawabSesudahAngkat>, t2: ReturnType<typeof jawabSesudahAngkat>;
+    try { t1 = jawabSesudahAngkat(db, f, "DALAM"); t2 = jawabSesudahAngkat(db, f, "TENGGANG"); } finally { balik(); }
+    c.expect(t1.hasil.mode !== "LIVE" && t2.hasil.hasil !== "RECORDED", `with the plant the answers were still judged on the credited deadline: ${JSON.stringify(t1.hasil)} ${JSON.stringify(t2.hasil)}`);
+    return c.verdict(`after a 45-minute stop lifted with no batch and no touch: an answer inside the credited time is LIVE, one inside the credited grace LATE_SYNC and scored (record_answer reaches pengerjaan_pagar, through pengerjaan_gerbang, before it reads the deadline); with the plant (no helper before the read) they were ${t1.hasil.mode} and ${t2.hasil.hasil}`);
+  },
+});
+
+// ═══════════════════════════════════════════════════════════ A2A-C713 · A1's hold meets a stop: time runs only while neither (C30-2)
+
+type UrutanTahan = "HENTI_TAHAN" | "HENTI_TANDAI_TAHAN" | "TAHAN_HENTI" | "BEKU_SENTUH";
+/** Sharon's C30-2, each case in one transaction, rolled back. S has its own deadline 30 minutes on, created an hour ago.
+ *  HENTI_TAHAN (scenario 6): a class stop from 20 minutes ago; a suspension now holds S; the stop is lifted a minute ago,
+ *    the suspension ended; the teacher resumes S; then a touch. Time left at T_stop: 50 minutes, after the resume and
+ *    after the touch. HENTI_TANDAI_TAHAN: the same with S marked at T_stop before the hold.
+ *  TAHAN_HENTI: the suspension holds S (30 minutes left) and its hold is dated 50 minutes ago; a stop from 40 to 5
+ *    minutes ago, inside the hold; the suspension ends; the resume; a touch. Time left: 30 minutes, both times.
+ *  BEKU_SENTUH: as TAHAN_HENTI, but S is still held when touched (the decider) after the lift: the act succeeds and
+ *    nothing is credited (the deadline and the watermark unchanged). */
+function tahanBertemuHenti(db: string, f: FiksurJawab, urutan: UrutanTahan) {
+  const S = "a2a1c713-0000-4000-8000-000000000001", W = "a2a1c713-0000-4000-8000-0000000000a1", T = "a2a1c713-0000-4000-8000-0000000000b1";
+  const hentiDulu = urutan === "HENTI_TAHAN" || urutan === "HENTI_TANDAI_TAHAN";
+  const sisa = `extract(epoch from (authoritative_deadline - now()))::int`;
+  return barisKunci(db, `begin;
+${sesiSalinan(f, S, "now() + interval '30 minutes'")}
+${hentiDulu ? jendelaKelas(f, W, "now() - interval '20 minutes'", null) : ""}
+${urutan === "HENTI_TANDAI_TAHAN" ? `update public.assessment_sessions set darurat_sejak = now() - interval '20 minutes', darurat_jendela_id = '${W}' where id = '${S}';` : ""}
+insert into public.person_suspensions (id, person_id, category, started_by, started_at)
+select '${T}', '${f.person}', 'OTHER', (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1),
+       now() - interval '${hentiDulu ? 10 : 50} minutes';
+set local session_replication_role = origin;
+select 'ditahan|' || public.pengerjaan_tahan_orang('${f.person}', '${T}');
+select 'sisa_ditahan|' || frozen_remaining_seconds from public.assessment_sessions where id = '${S}';
+set local session_replication_role = replica;
+${hentiDulu
+    ? `update public.maintenance_windows set ended_at = now() - interval '1 minute', t_lift = now() - interval '1 minute' where id = '${W}';`
+    : `update public.assessment_sessions set frozen_at = now() - interval '50 minutes' where id = '${S}';
+${jendelaKelas(f, W, "now() - interval '40 minutes'", "now() - interval '5 minutes'")}`}
+${urutan === "BEKU_SENTUH" ? "" : `update public.person_suspensions set ended_at = now(), ended_by = started_by, end_reason = 'A2A-C713: reinstated' where id = '${T}';`}
+set local session_replication_role = origin;
+${urutan === "BEKU_SENTUH"
+    ? `select 'efektif|' || extract(epoch from (public.pengerjaan_tenggat_efektif('${S}') - now()))::int;
+select 'sentuh|' || public.pengerjaan_putus_tenggat('${S}', false);
+select 'sesudah|' || ${sisa} || '|' || (darurat_dikredit_sampai is null)::text from public.assessment_sessions where id = '${S}';`
+    : `${sebagaiOrang(f.guru)}
+select 'lanjut|' || (public.lanjutkan_pengerjaan('${S}', 'A2A-C713') ->> 'ok');
+select set_config('request.jwt.claims', '', true);
+select 'sisa_lanjut|' || ${sisa} from public.assessment_sessions where id = '${S}';
+select 'sentuh|' || public.pengerjaan_putus_tenggat('${S}', false);
+select 'sisa_sentuh|' || ${sisa} from public.assessment_sessions where id = '${S}';`}
+rollback;`);
+}
+const TAHAN_DI_TSTOP = "(select w.t_stop from public.maintenance_windows w where w.id = public.penghentian_berlaku(v)), now()";
+const LANJUT_TANDA = "   where a.id = p_session and k.sampai is not null\n";
+const KREDIT_BEKU = "     or (s.frozen_at is not null and s.unfrozen_at is null) then return; end if;";
+
+a2aDaruratTests.push({
+  id: "A2A-C713",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    const f = fiksurJawab(db);
+    const dekat = (x: string | undefined, n: number) => x !== undefined && Math.abs(Number(x) - n) <= 2;
+    for (const u of ["HENTI_TAHAN", "HENTI_TANDAI_TAHAN", "TAHAN_HENTI"] as const) {
+      const r = tahanBertemuHenti(db, f, u), n = u === "TAHAN_HENTI" ? 1800 : 3000;
+      c.expect(!r.err, `${u}: failed: ${r.err}`);
+      c.expect(dekat(r.hasil.sisa_ditahan, n), `${u}: the hold recorded ${r.hasil.sisa_ditahan} s left, not ${n}`);
+      c.expect(r.hasil.lanjut === "true" && dekat(r.hasil.sisa_lanjut, n), `${u}: after the resume ${r.hasil.sisa_lanjut} s left, not ${n}`);
+      c.expect(dekat(r.hasil.sisa_sentuh, n), `${u}: after a touch ${r.hasil.sisa_sentuh} s left, not ${n} (credited for time under the hold)`);
+    }
+    const b = tahanBertemuHenti(db, f, "BEKU_SENTUH");
+    c.expect(!b.err && b.hasil.sentuh === "IN_PROGRESS", `a held sitting touched after a lift: ${b.err || b.hasil.sentuh}, not a successful act`);
+    c.expect(dekat(b.hasil.efektif, 1800) && /^(179[89]|180[012])\|true$/.test(b.hasil.sesudah ?? ""),
+      `a held sitting touched after a lift was credited: effective ${b.hasil.efektif} s, after ${b.hasil.sesudah}`);
+    // the plants, one per case
+    let p1: ReturnType<typeof tahanBertemuHenti>, p2: ReturnType<typeof tahanBertemuHenti>, p3: ReturnType<typeof tahanBertemuHenti>;
+    let balik = gantiFungsi("public.pengerjaan_tahan_orang(uuid,uuid)", TAHAN_DI_TSTOP, "null::timestamptz, now()");
+    try { p1 = tahanBertemuHenti(db, f, "HENTI_TAHAN"); } finally { balik(); }
+    c.expect(!dekat(p1.hasil.sisa_lanjut, 3000), `with the plant (the hold measured at the hold) the resume still gave ${p1.hasil.sisa_lanjut} s`);
+    balik = gantiFungsi("public.lanjutkan_pengerjaan(uuid,text)", LANJUT_TANDA, "   where a.id = p_session and false\n");
+    try { p2 = tahanBertemuHenti(db, f, "TAHAN_HENTI"); } finally { balik(); }
+    c.expect(!dekat(p2.hasil.sisa_sentuh, 1800), `with the plant (no watermark at the resume) a touch after it still left ${p2.hasil.sisa_sentuh} s`);
+    balik = gantiFungsi("public.penghentian_kredit(assessment_sessions)", KREDIT_BEKU, "     then return; end if;");
+    try { p3 = tahanBertemuHenti(db, f, "BEKU_SENTUH"); } finally { balik(); }
+    c.expect(p3.err !== "" || p3.hasil.sentuh !== "IN_PROGRESS", `with the plant (the credit not skipped while held) the touch still succeeded uncredited: ${JSON.stringify(p3.hasil)}`);
+    return c.verdict(`time runs only while a sitting is neither stopped nor held: stop → suspension → lift → resume leaves the 50 minutes left at T_stop (unmarked and marked), and a touch after adds nothing; suspension → stop inside the hold → lift → resume leaves the 30 minutes left at the hold, and a touch after adds nothing; a held sitting touched after a lift: the act succeeds, nothing credited; plants: the hold measured at the hold (${p1.hasil.sisa_lanjut} s), no watermark at the resume (${p2.hasil.sisa_sentuh} s), the credit not skipped while held (${p3.err ? "refused" : p3.hasil.sentuh})`);
   },
 });
