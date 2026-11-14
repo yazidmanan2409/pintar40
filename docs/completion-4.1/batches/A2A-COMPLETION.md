@@ -66,8 +66,10 @@ Auth's user deletion.
 
 ## MONDAY HANDOVER (Second Eye, 14 Nov 09:15 UTC by `date -u`; weekend shutdown by the owner's direction)
 
-**Change C, proposed for freeze at `f74c606069cbfdce9004138e3bdc99623f01af8b`** (`claude/a2a-change-c`; the Chief
-Architect declares the freeze). The tree is clean, and nothing is unpushed.
+**Change C is NOT frozen.** `f74c606069cbfdce9004138e3bdc99623f01af8b` (`claude/a2a-change-c`) is a **clean checkpoint**
+(the Chief Architect, 09:23; `TEAM-INSTRUCTIONS.md` at `286d1207`). The tree is clean, and nothing is unpushed.
+Correction to this handover as first written: I listed four approved A2a requirements as deferred. They are not optional.
+This page has them under "then, in order", before the freeze.
 
 **Evidence: the full pre-flight on that exact commit** (one run; CI's steps locally):
 
@@ -90,8 +92,15 @@ Architect declares the freeze). The tree is clean, and nothing is unpushed.
   §4 "notes for next batch" are not for C.
 
 **Outstanding, in order:**
-1. **The freeze declaration** (Bob), then **Sharon's result review** of `f74c6060`.
-2. **Change B, not started** (the owner: not this weekend):
+1. **Monday, first thing: the four remaining A2a requirements.** Each is built red first and handed to Sharon as its own
+   commit:
+   - **O1 after the lift**, with akhiri_penugasan's refusal;
+   - **M-1's promotion refusal;**
+   - **D6.9's remaining audit rows;**
+   - **the B3 to B6 tests**, with required change 1's test.
+2. **Then a new freeze candidate:** the one full pre-flight on it, the freeze declaration (Bob), and Sharon's result
+   review.
+3. **Change B, not started** (the owner: not this weekend):
    - built on `claude/a2a-change-b`, branched from the frozen commit;
    - its diff touches only `selftest/`, `scripts/`, `.github/workflows/` and `audit/`. If it needs `supabase/migrations/`
      or `src/`, stop and tell the Chief Architect;
@@ -104,14 +113,11 @@ Architect declares the freeze). The tree is clean, and nothing is unpushed.
      batch's throughput; and D1's read cost. They were measured locally at commit 30: lift 4 ms, D1 read ~0.38 ms per
      sitting, 379 ms per 1,000.
    - C is not merged until B's scale evidence holds on the frozen commit.
-3. **Environment requirement:**
+4. **Environment requirement:**
    - the search_path lint (jalur_pengecualian_cacat) reads `cron.job`, so pg_cron must be present wherever the lint
      runs, the hosted post-promotion reads 1 and 2 included;
    - A1 already requires pg_cron.
-4. **Deferred, not in C:**
-   - O1's post-lift departure rule, the M-1 note, D6.9's audit rows, B3 to B6: no reviewer has asked for them before
-     the freeze;
-   - Daisy's §3 note on `/mengajar/[kelas]/siapa` at phone width, on Z's register.
+5. **Not in C:** Daisy's §3 note on `/mengajar/[kelas]/siapa` at phone width, on Z's register.
 
 **Where everything is:**
 - Product and tests: `claude/a2a-change-c`. The last migration is `20270119210000`; the A2a tests are in
