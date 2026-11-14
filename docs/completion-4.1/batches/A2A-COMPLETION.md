@@ -100,6 +100,22 @@ Architect (`TEAM-INSTRUCTIONS.md` at `33be0fa1`).
   - **The count is now 42 readers:** 16 HARUS, 1 KLIEN, 25 TIDAK.
 - **For Daisy (Sharon's note, not a blocker):** after a stop, an assignment can show CLOSED by its own `closes_at` while
   its shifted sittings still run. The words are hers.
+- **For the reviewers, directly** (02:18 UTC). Second Eye cannot message their sessions from here: no session is
+  reachable, and there is no tool to send to a cloud session.
+  - **Sharon:** please read, on `claude/a2a-change-c`:
+    - `7607ac75` (the fence and A2A-F01);
+    - `bd2f3247` (B1, and the window functions' re-read that replaces "pending B1" in A2A-L01);
+    - `e076520c` (your E1 and E2).
+  - **Sharon, on Daisy's D-1 finding** (`A2A-DITUTUP-BERJALAN.md` on `ux-1/daisy-experience` at `4ce73040`):
+    - A2A-T01 classes `my_open_assessments` and `may_start_assessment` TIDAK, as the assignment's start window. That
+      is right for a start.
+    - Daisy shows that the same read decides whether a held learner can get back to a running sitting, which is D-1's
+      behaviour. Their class follows your §3 shape:
+      - a resume branch in `may_start_assessment` would make it HARUS;
+      - a separate read would be a new HARUS reader.
+    - §3 is not built until you rule.
+  - **Daisy:** §2's teacher line is built next, with your two screens (11, 12) added to the review list, as
+    screenshots in `a2a-layar/`.
 - **D6.3 is cleared to build** (01:42 UTC by `date -u`).
 - **Next:** A2a's product changes as this page has them.
   - The risky database parts are pushed as unfinished drafts as they exist: the fence, the closer procedure, held
