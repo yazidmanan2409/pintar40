@@ -572,6 +572,16 @@ authorised A → C → B, with these conditions (summarised; his message governs
 3. B in development on `claude/a2a-change-b`, branched from C's frozen commit, verification tooling only; Sharon's
    early read; B frozen; its own review and checks.
 4. The scale job dispatched once, on C's frozen commit (B's tooling at B's frozen commit).
-5. Only if the three numbers hold: C's PR merges, then B's. Staging promotion with the preservation pair.
+5. Only if the scale evidence holds: C's PR merges, then B's. Staging promotion with the preservation pair.
 6. If they do not hold: C is explicitly unfrozen, corrected, re-reviewed and refrozen, and steps 2 and 4 repeat on the
    new commit.
+
+**Two precisions (owner, 14 Nov):**
+- **Two commits, one product.** The scale evidence names both: C's frozen commit (the product measured) and B's commit
+  (the tooling). B's diff from C's frozen commit may touch only verification tooling (`selftest/`, `scripts/`,
+  `.github/workflows/`, `audit/`); a diff that touches `supabase/migrations/` or `src/` means B is measuring a different
+  product, and the run does not count. The Chief Architect checks this mechanically before dispatch.
+- **Four measurements, not three.** As A2a's page §7 has them: (1) R1's skip count; (2) R2's 5 s at p95; (3) the
+  activation's and the lift's work under the fence, ≤ 0.5 s; (4) the shared takers refused while the fence waits,
+  counted (Sharon's 2.0 s correction). Measurement 4 is a reported count; Sharon judges it. "The three numbers" in
+  earlier messages was shorthand that left it out.
