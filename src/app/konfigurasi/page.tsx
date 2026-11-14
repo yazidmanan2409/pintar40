@@ -556,7 +556,10 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const kelola = kelolaSemua;
   // A2a (Daisy A1): the emergency form's class step. Classes appear once one school is chosen; once classes are chosen,
   // the impact sentence is asked of the database on the stop's own people rule, before the phrase is typed
-  const hkSekolah = platformIni && sp.hk_sekolah && sekolahKu.some((i) => i.id === sp.hk_sekolah) ? sp.hk_sekolah : null;
+  // A2a (Daisy A1): «Hentikan sekarang» is Admin PINTAR's, in «Seluruh platform» (the whole platform) and in a school's own
+  // context (that school, or one or more of its classes): a stop is made where its school is the working context (L3)
+  const hentiDiSini = isSys === true && (platformIni || satuSekolah !== null);
+  const hkSekolah = hentiDiSini && sp.hk_sekolah && sekolahKu.some((i) => i.id === sp.hk_sekolah) ? sp.hk_sekolah : null;
   const hkKelas = (Array.isArray(sp.hk_kelas) ? sp.hk_kelas : sp.hk_kelas ? [sp.hk_kelas] : []).filter((x) => /^[0-9a-f-]{36}$/i.test(x));
   const [{ data: kelasHentiData }, dampakHenti] = await Promise.all([
     hkSekolah ? supabase.rpc("penghentian_kelas_sekolah", { p_sekolah: hkSekolah }) : Promise.resolve({ data: null }),
@@ -1565,12 +1568,13 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               {result("pemeliharaan", "umumkan")}
             </section>
 
-            {platformIni ? (
+            {hentiDiSini ? (
               <section className="mt-6 grid gap-2 rounded-[var(--radius-1)] border border-line-1 px-3 py-3" data-hentikan="1" aria-labelledby="pin-pm-henti">
                 <h2 id="pin-pm-henti" className="font-medium">{sl("config.pemeliharaan.darurat.judul")}</h2>
                 <p className="text-sm text-ink-2">{sl("config.pemeliharaan.darurat.arti")}</p>
                 {/* A2a (Daisy A1): «Satu kelas atau lebih», two plain-GET steps (one school, then its classes) before the
                     impact sentence; the stop itself is the form below, which then carries the school and the classes */}
+                {sekolahKu.length > 0 ? (
                 <form method="get" action="/konfigurasi/pemeliharaan#pin-pm-henti" className="grid max-w-[var(--measure-narrow)] gap-2" data-henti-kelas="1">
                   <fieldset className="grid gap-1 text-sm">
                     <legend className="text-ink-2">{sl("config.pemeliharaan.darurat.kelas")}</legend>
@@ -1591,6 +1595,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   ) : null}
                   <div><button type="submit" className={button}>{sl("config.pemeliharaan.periksa")}</button></div>
                 </form>
+                ) : null}
                 {hkDitolak ? (
                   <BarisHasil nada="gagal">{sl("galat.maintenance_node_invalid")}</BarisHasil>
                 ) : dampak ? (
@@ -1608,7 +1613,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   ) : (
                   <fieldset className="grid gap-1 text-sm">
                     <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
-                    <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" /> {sl("config.pemeliharaan.platform")}</label>
+                    {platformIni ? <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" /> {sl("config.pemeliharaan.platform")}</label> : null}
                     {sekolahKu.map((i) => (
                       <label key={i.id} className="flex items-center gap-2"><input type="checkbox" name="sekolah" value={i.id} /> {i.name}</label>
                     ))}
