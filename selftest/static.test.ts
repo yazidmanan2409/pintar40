@@ -101,6 +101,7 @@ import { d102Tests } from "./d102.test";
 import { c12Tests } from "./c12.test";
 import { dr150Tests } from "./dr150.test";
 import { dr150bTests } from "./dr150b.test";
+import { drgdTests } from "./drgd.test";
 import { dr150cTests } from "./dr150c.test";
 import { rilis40Tests } from "./rilis40.test";
 import { ciwasteTests } from "./ciwaste.test";
@@ -2220,6 +2221,7 @@ export const staticTests: SelfTest[] = [
   ...c12Tests,
   ...dr150Tests,
   ...dr150bTests,
+  ...drgdTests,
   ...dr150cTests,
   ...rilis40Tests,
   ...ciwasteTests,
