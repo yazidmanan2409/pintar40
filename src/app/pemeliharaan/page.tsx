@@ -97,10 +97,13 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
       </>
     );
   } else {
+    // A2a, THE PLAN item 2: after the lift, a person whose sitting was held is told it can be opened again
+    const { data: dilepas } = await supabase.rpc("pengerjaan_dilepas_saya");
     isi = (
       <>
         <h1 className="pin-mh1">{s("pemeliharaan.kembali.judul")}</h1>
         <p className="pin-lede-m" role="status">{s("pemeliharaan.kembali.arti")}</p>
+        {typeof dilepas === "number" && dilepas > 0 ? <p className="pin-lede-m" data-kembali-ditahan="">{s("pemeliharaan.kembali.ditahan")}</p> : null}
         <Link className="pin-mbtn pin-mbtn-1" href="/">{s("pemeliharaan.kembali.tautan")}</Link>
       </>
     );

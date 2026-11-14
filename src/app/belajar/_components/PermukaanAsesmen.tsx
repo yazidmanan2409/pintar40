@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { menitTersisa } from "@/lib/pengerjaan-tampil";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
@@ -161,6 +162,14 @@ export default async function PermukaanAsesmen({
           three ways out of a timed task is inviting the learner to take one. */}
       <CangkangPengalaman locale={locale} kind="focus" />
       <main id="isi" tabIndex={-1} className="pin-col">
+        {/* A2a, THE PLAN item 3: on reopening a sitting a stop held, once, until it is answered again */}
+        {keadaan?.dilepas_henti ? (
+          <p className="pin-mm" role="status" data-dilepas-henti="">
+            {keadaan.tenggat
+              ? s("pengerjaan.dilepas_henti").replace("{n}", String(menitTersisa(keadaan.tenggat)))
+              : s("pengerjaan.dilepas_henti_tanpa")}
+          </p>
+        ) : null}
         <ItemPlayer
           sessionId={sesi}
           paper={paper}

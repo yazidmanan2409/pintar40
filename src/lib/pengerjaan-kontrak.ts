@@ -72,6 +72,8 @@ export type BarisPengerjaan = {
 /** pengerjaan_saya's answer: the learner's own sitting, how it stands and how it ended; never why, never who. */
 export type PengerjaanSaya = {
   status: string; ditahan: boolean;
+  /** A2a (THE PLAN item 3): a sitting a stop held, free again and not yet answered since */
+  dilepas_henti?: boolean;
   /** an open sitting the teacher resumed after it was held */
   dilanjutkan?: boolean;
   penutupan: "DEADLINE" | "TEACHER_SCORED" | "TEACHER_NOT_COUNTED" | "ASSIGNMENT_ENDED" | "OTHER" | null;

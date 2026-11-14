@@ -68,6 +68,10 @@ export const PEMBACA_DB: Record<string, Kelas> = {
   tutup_pengerjaan_ditahan: T("records the held time left (frozen_remaining_seconds) in its audit row; decides nothing on it"),
   assessment_orientation: T(JENDELA),
   my_open_assessments: T(JENDELA),
+  // A2a (Daisy, DITUTUP §2 and §3): the assignment's own closes_at, to know it has closed; a sitting's time only
+  // through pengerjaan_tenggat_efektif
+  pengerjaan_terbuka_saya: T("DITUTUP §3: the assignment's closes_at (has it passed?) and the sitting's effective deadline"),
+  penugasan_masih_dikerjakan: T("DITUTUP §2: the assignment's closes_at (has it passed?) and its sittings' effective deadlines"),
   may_start_assessment: T(JENDELA),
   start_learning_session: T(JENDELA),
   assign_release: T(JENDELA),
@@ -92,6 +96,7 @@ export const PEMBACA_SRC: Record<string, Kelas> = {
   "src/lib/pengerjaan-kontrak.ts": T(TAMPIL),
   "src/lib/pengerjaan-tampil.ts": T(TAMPIL),
   "src/app/belajar/_components/ItemPlayer.tsx": T(TAMPIL),
+  "src/app/belajar/_components/PermukaanAsesmen.tsx": T("THE PLAN item 3: the minutes left from pengerjaan_saya's tenggat, the effective deadline"),
   "src/app/mengajar/[kelas]/siapa/page.tsx": T("the added-time result line: " + TAMPIL),
   "src/lib/hle.ts": T("the wording dictionary: the word deadline in sentences; no value is read"),
   "src/components/mengajar/AturPengerjaan.tsx": K("the added-time confirmation: Date.parse(tenggat) + n minutes, from the server's shifted tenggat"),

@@ -47,7 +47,7 @@ import { tahunAjaranPada } from "@/lib/struktur-kontrak";
 import PanelStruktur from "@/components/struktur/PanelStruktur";
 import TombolKirim from "@/components/TombolKirim";
 import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
-import { kataZona, tanggal, type BentukTanggal } from "@/lib/tanggal";
+import { jam, kataZona, tanggal, type BentukTanggal } from "@/lib/tanggal";
 import BarisHasil from "@/components/BarisHasil";
 import { sekolahPendataan } from "@/lib/pendataan";
 import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
@@ -138,6 +138,8 @@ type SearchParams = Promise<{
   cari_orang?: string;
   // #148: the first step of scheduling, asked by a plain GET so the second step can show what the window would meet
   pm_cek?: string; pm_platform?: string; pm_sekolah?: string | string[]; pm_mulai?: string; pm_selesai?: string;
+  // A2a (Daisy A1): the emergency form's class step, a plain GET: the one school, then its classes
+  hk_sekolah?: string; hk_kelas?: string | string[];
   // D-101 (2): «Admin sekolah» named on Peran & akses, waiting for its second press
   angkat?: string; lingkup?: string; sampai?: string; pertama?: string;
   /** B1: the record whose one action is open in place (its row shows its short form), one at a time. */
@@ -552,6 +554,19 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   // W2.10 (Batch 4): the database narrows them to the school (maintenance_list's p_sekolah) and pages them; the
   // browser compared the schools' names with the context's school id, so a school's own windows never showed
   const kelola = kelolaSemua;
+  // A2a (Daisy A1): the emergency form's class step. Classes appear once one school is chosen; once classes are chosen,
+  // the impact sentence is asked of the database on the stop's own people rule, before the phrase is typed
+  const hkSekolah = platformIni && sp.hk_sekolah && sekolahKu.some((i) => i.id === sp.hk_sekolah) ? sp.hk_sekolah : null;
+  const hkKelas = (Array.isArray(sp.hk_kelas) ? sp.hk_kelas : sp.hk_kelas ? [sp.hk_kelas] : []).filter((x) => /^[0-9a-f-]{36}$/i.test(x));
+  const [{ data: kelasHentiData }, dampakHenti] = await Promise.all([
+    hkSekolah ? supabase.rpc("penghentian_kelas_sekolah", { p_sekolah: hkSekolah }) : Promise.resolve({ data: null }),
+    hkSekolah && hkKelas.length > 0 ? supabase.rpc("penghentian_dampak", { p_sekolah: hkSekolah, p_kelas: hkKelas }) : Promise.resolve(null),
+  ]);
+  const kelasHenti = (Array.isArray(kelasHentiData) ? kelasHentiData : []) as Array<{ id: string; nama: string; tahun: string | null }>;
+  const dampak = dampakHenti && !dampakHenti.error && dampakHenti.data ? (dampakHenti.data as { orang: number; asesmen: number }) : null;
+  const hkDitolak = dampakHenti !== null && Boolean(dampakHenti.error);
+  const namaSekolahHk = (hkSekolah ? new Map(sekolahKu.map((i) => [i.id, i.name])).get(hkSekolah) : undefined) ?? TANPA_NAMA;
+  const namaKelasHk = kelasHenti.filter((k) => hkKelas.includes(k.id)).map((k) => k.nama).join(", ");
 
   // W2.13 / UX-33 (Batch 4): WHAT WAITS, WITH A COUNT, EACH OPENING WHERE IT IS DONE. Only what this reader may act on in
   // this working context, each counted by the database under the reader's own row security (never listed): a school's
@@ -1410,16 +1425,28 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   {kelola.pemeliharaan.map((w) => {
                     // B1 §1 «Records»: a window's one action (end or cancel it) at its row's end, named with the window,
                     // opening its reason in place
-                    const kata = sl(w.keadaan === "AKTIF" ? "config.pemeliharaan.akhiri" : "config.pemeliharaan.batalkan");
+                    // A2a (Daisy A4): a class stop in force names its classes, when and by whom; its lift is «Akhiri penghentian»
+                    const daruratKelas = w.jenis === "EMERGENCY" && w.kelas !== null && w.keadaan === "AKTIF";
+                    const kata = daruratKelas ? sl("config.pemeliharaan.darurat.akhiri")
+                      : sl(w.keadaan === "AKTIF" ? "config.pemeliharaan.akhiri" : "config.pemeliharaan.batalkan");
                     const nama = `${w.platform ? sl("config.pemeliharaan.platform") : w.sekolah.join(", ")}, ${when(w.mulai, "hariJam", zonaJendela(w.platform))}`;
                     return (
                     <li key={w.id} id={`jendela-${w.id}`} data-jendela={w.id} data-terbuka={ubah === w.id ? "" : undefined}
                       className={`grid gap-1 rounded-[var(--radius-1)] px-3 py-2 ${ubah === w.id ? "bg-surface-2" : "border-b border-line-1"}`}>
+                      {daruratKelas ? (
+                        <span className="text-ink-1" data-baris-henti="">
+                          <strong>{sl("config.pemeliharaan.darurat.baris").replace("{kelas}", (w.kelas ?? []).join(", "))
+                            .replace("{jam}", jam(w.sejak ?? w.mulai, zonaJendela(w.platform))).replace("{zona}", kataZona(zonaJendela(w.platform)))
+                            .replace("{nama}", w.oleh ?? TANPA_NAMA)}</strong>
+                          {" · "}{w.sekolah.join(", ")}
+                        </span>
+                      ) : (
                       <span className="text-ink-1">
                         <strong>{sl(`config.pemeliharaan.keadaan.${w.keadaan}` as HleEvent)}</strong>
                         {" · "}{sl(`config.pemeliharaan.jenis.${w.jenis}` as HleEvent)}
                         {" · "}{w.platform ? sl("config.pemeliharaan.platform") : w.sekolah.join(", ")}
                       </span>
+                      )}
                       <span className="text-ink-2">
                         {when(w.mulai, "hariJam", zonaJendela(w.platform))} {w.selesai ? <>{sl("config.pemeliharaan.hingga")} {when(w.selesai, "hariJam", zonaJendela(w.platform))}</> : <>· {sl("config.pemeliharaan.tanpa_akhir")}</>}
                       </span>
@@ -1435,17 +1462,22 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         ) : (
                           <form action={ubahPemeliharaanAction} className="flex flex-wrap items-end gap-2" aria-label={`${kata} · ${nama}`}><input type="hidden" name="asal" value="jendela" /><input type="hidden" name="hal_jendela" value={String(halJendela)} />
                             <input type="hidden" name="jendela" value={w.id} />
+                            {daruratKelas ? <input type="hidden" name="darurat" value="1" /> : null}
                             <label className={label}>{sl("config.pemeliharaan.alasan")}
                               <input name="alasan" className={field} required maxLength={300} autoComplete="off" autoFocus />
                             </label>
                             {w.keadaan !== "AKTIF" ? (
                               <TombolKirim className={button} name="aksi" value="MULAI" sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.mulai_sekarang")}</TombolKirim>
                             ) : null}
-                            <KonfirmasiBahaya sibuk={s("tombol.memproses")} id={`jendela-${w.id}`} tombol={kata} tanya={sl("config.pemeliharaan.akhiri.tanya")} ya={kata}
+                            <KonfirmasiBahaya sibuk={s("tombol.memproses")} id={`jendela-${w.id}`} tombol={kata}
+                              tanya={daruratKelas ? sl("config.pemeliharaan.darurat.akhiri_tanya").replace("{kelas}", (w.kelas ?? []).join(", ")).replace("{m}", String(w.ditahan ?? 0))
+                                : sl("config.pemeliharaan.akhiri.tanya")} ya={kata}
                               batal={s("bahaya.batal")} nama="aksi" nilai="AKHIRI" />
                             <Link href={tautanUbah(null, `jendela-${w.id}`)} className={tautanTempat}>{s("config.angkat.batal")}</Link>
                           </form>
                         )
+                      ) : daruratKelas ? (
+                        <p className="text-ink-2" data-hanya-admin="">{sl("config.pemeliharaan.darurat.hanya_admin")}</p>
                       ) : null}
                     </li>
                     );
@@ -1537,7 +1569,43 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               <section className="mt-6 grid gap-2 rounded-[var(--radius-1)] border border-line-1 px-3 py-3" data-hentikan="1" aria-labelledby="pin-pm-henti">
                 <h2 id="pin-pm-henti" className="font-medium">{sl("config.pemeliharaan.darurat.judul")}</h2>
                 <p className="text-sm text-ink-2">{sl("config.pemeliharaan.darurat.arti")}</p>
+                {/* A2a (Daisy A1): «Satu kelas atau lebih», two plain-GET steps (one school, then its classes) before the
+                    impact sentence; the stop itself is the form below, which then carries the school and the classes */}
+                <form method="get" action="/konfigurasi/pemeliharaan#pin-pm-henti" className="grid max-w-[var(--measure-narrow)] gap-2" data-henti-kelas="1">
+                  <fieldset className="grid gap-1 text-sm">
+                    <legend className="text-ink-2">{sl("config.pemeliharaan.darurat.kelas")}</legend>
+                    {sekolahKu.map((i) => (
+                      <label key={i.id} className="flex items-center gap-2"><input type="radio" name="hk_sekolah" value={i.id} defaultChecked={hkSekolah === i.id} /> {i.name}</label>
+                    ))}
+                  </fieldset>
+                  {hkSekolah && kelasHenti.length > 0 ? (
+                    <fieldset className="grid gap-1 text-sm" aria-describedby="pin-hk-petunjuk">
+                      <legend className="text-ink-2">{namaSekolahHk}</legend>
+                      {kelasHenti.map((k) => (
+                        <label key={k.id} className="flex items-center gap-2">
+                          <input type="checkbox" name="hk_kelas" value={k.id} defaultChecked={hkKelas.includes(k.id)} /> {k.tahun ? `${k.nama} · ${k.tahun}` : k.nama}
+                        </label>
+                      ))}
+                      <p id="pin-hk-petunjuk" className="text-ink-2">{sl("config.pemeliharaan.darurat.kelas_petunjuk")}</p>
+                    </fieldset>
+                  ) : null}
+                  <div><button type="submit" className={button}>{sl("config.pemeliharaan.periksa")}</button></div>
+                </form>
+                {hkDitolak ? (
+                  <BarisHasil nada="gagal">{sl("galat.maintenance_node_invalid")}</BarisHasil>
+                ) : dampak ? (
+                  <p role="status" className="max-w-[var(--measure-narrow)] rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 text-sm" data-dampak="1">
+                    {sl("config.pemeliharaan.darurat.dampak").replace("{kelas}", namaKelasHk || TANPA_NAMA).replace("{sekolah}", namaSekolahHk)
+                      .replace("{n}", String(dampak.orang)).replace("{m}", String(dampak.asesmen))}
+                  </p>
+                ) : null}
                 <form action={hentikanSekarangAction} className="grid max-w-[var(--measure-narrow)] gap-2"><input type="hidden" name="asal" value="henti" />
+                  {dampak && hkSekolah ? (
+                    <>
+                      <input type="hidden" name="sekolah" value={hkSekolah} />
+                      {hkKelas.map((k) => <input key={k} type="hidden" name="kelas" value={k} />)}
+                    </>
+                  ) : (
                   <fieldset className="grid gap-1 text-sm">
                     <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
                     <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" /> {sl("config.pemeliharaan.platform")}</label>
@@ -1545,6 +1613,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                       <label key={i.id} className="flex items-center gap-2"><input type="checkbox" name="sekolah" value={i.id} /> {i.name}</label>
                     ))}
                   </fieldset>
+                  )}
                   <label className={label}>{sl("config.pemeliharaan.alasan")}
                     <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
                   </label>

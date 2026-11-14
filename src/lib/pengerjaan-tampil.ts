@@ -76,3 +76,8 @@ export function metaBaris(b: BarisPengerjaan, o: { locale: Locale; zona: string 
   } else if (b.permintaan_status === "DECLINED") out.push(isi(s("atur.meta.ditolak"), { alasan: b.keputusan_alasan ?? "" }));
   return out;
 }
+
+/** A2a (THE PLAN item 3; DITUTUP §3): the whole minutes left before a deadline, never below zero. */
+export function menitTersisa(tenggat: string, sekarang: Date = new Date()): number {
+  return Math.max(0, Math.ceil((Date.parse(tenggat) - sekarang.valueOf()) / 60000));
+}

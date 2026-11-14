@@ -215,6 +215,8 @@ export const KODE_SUKSES = [
   "PD_ENROLLED",
   // #148: maintenance scheduled, started now, ended (or cancelled), stopped at once; a notice published or withdrawn
   "MAINTENANCE_SCHEDULED", "MAINTENANCE_STARTED", "MAINTENANCE_ENDED", "MAINTENANCE_STOPPED", "NOTICE_PUBLISHED", "NOTICE_WITHDRAWN",
+  // A2a (Daisy A4): an emergency stop lifted, with the held assessments that can be reopened
+  "MAINTENANCE_STOP_ENDED",
   // W1.6: a package sent back to its author, with the reviewer's reason
   "SENT_BACK",
 ] as const;
@@ -490,7 +492,11 @@ export function kalimatHasil(
   const bagian = [s(h.ok ? awal.ok : awal.gagal)];
   // L3: a code whose words are still Dr Gladys's says nothing of its own (src/lib/istilah-menunggu.ts)
   const menunggu = h.kode === "CONTEXT_OTHER_PLACE" ? istilah("context.other_school") : undefined;
-  if (h.kode && menunggu !== null) bagian.push((menunggu ?? s(kunciKode(h.kode))) + (h.n !== null ? ` ${h.n}.` : ""));
+  if (h.kode && menunggu !== null) {
+    const kalimat = menunggu ?? s(kunciKode(h.kode));
+    // A2a: a sentence that places its count ({n}) says it there; any other still ends with it
+    bagian.push(h.n !== null && kalimat.includes("{n}") ? kalimat.replace("{n}", String(h.n)) : kalimat + (h.n !== null ? ` ${h.n}.` : ""));
+  }
   for (const m of h.masalah) {
     bagian.push(s(kunciMasalahPaket(m.code)) + (m.sheet ? ` (${m.sheet}${m.row ? ` ${m.row}` : ""})` : ""));
   }

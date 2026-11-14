@@ -164,6 +164,14 @@ export type JendelaKelola = {
   pesan: string | null;
   alasan: string;
   menguasai: boolean;
+  /** A2a (Daisy A4): a class stop's classes; null for a school or platform window */
+  kelas: string[] | null;
+  /** A2a: an emergency stop's T_stop */
+  sejak: string | null;
+  /** A2a: who stopped it */
+  oleh: string | null;
+  /** A2a: the sittings an emergency stop holds (or held, once lifted); null for any other window */
+  ditahan: number | null;
 };
 
 export type PengumumanKelola = {
@@ -193,6 +201,9 @@ export function bacaDaftarKelola(data: unknown): DaftarKelola {
       sekolah: Array.isArray(x.sekolah) ? x.sekolah.filter((s): s is string => typeof s === "string") : [],
       mulai, selesai: waktu(x.selesai), diakhiri: waktu(x.diakhiri), pesan: teks(x.pesan), alasan: x.alasan as string,
       menguasai: x.menguasai === true,
+      kelas: Array.isArray(x.kelas) && x.kelas.length > 0 && x.kelas.every((k) => typeof k === "string") ? (x.kelas as string[]) : null,
+      sejak: waktu(x.sejak), oleh: teks(x.oleh),
+      ditahan: typeof x.ditahan === "number" && Number.isInteger(x.ditahan) && x.ditahan >= 0 ? x.ditahan : null,
     });
   }
   const pengumuman: PengumumanKelola[] = [];

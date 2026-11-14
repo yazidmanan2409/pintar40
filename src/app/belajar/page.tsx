@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { menitTersisa } from "@/lib/pengerjaan-tampil";
 import Kosong from "@/components/Kosong";
 import { redirect } from "next/navigation";
 import Ikon from "@/components/Ikon";
@@ -161,8 +162,15 @@ export default async function Belajar({
   // returns exactly what `may_start_assessment()` accepts, so this list adds
   // no authority — everything in it is genuinely startable right now.
   const terbuka = await engine.openAssessments(db);
+  // A2a, Daisy (A2A-DITUTUP-BERJALAN.md §3; Sharon's shape): the learner's own open sitting of a standalone assignment
+  // whose closes_at passed while a stop (or A1's hold) kept it, by its own read: the row stays, and opens the sitting
+  const { data: berjalanData } = await (db as unknown as { rpc: (f: string) => Promise<{ data: unknown }> }).rpc("pengerjaan_terbuka_saya");
+  const berjalan = (Array.isArray(berjalanData) ? berjalanData : [] as unknown[])
+    .map((r) => r as engine.OpenAssessment & { sesi_id: string; tenggat: string })
+    .filter((r) => r && typeof r.assessment_assignment_id === "string" && typeof r.tenggat === "string"
+      && !terbuka.some((a) => a.assessment_assignment_id === r.assessment_assignment_id));
   // the owner's ruling (10 Nov): each open assessment on its own school's clock (the row names its class, not its school)
-  const zonaDari = terbuka.length > 0 ? await zonaSimpulBanyak(db, terbuka.map((a) => a.node_id)) : () => "Asia/Jakarta";
+  const zonaDari = terbuka.length + berjalan.length > 0 ? await zonaSimpulBanyak(db, [...terbuka, ...berjalan].map((a) => a.node_id)) : () => "Asia/Jakarta";
 
   // D-085 M3 (J5.12): what a teacher has asked this learner to read again. Its own section after the next step, so
   // the home's order (W18, D-088(d)) is unchanged; a failed read shows nothing rather than an error.
@@ -269,7 +277,7 @@ export default async function Belajar({
   // D-084 J6.13 (STU-18): WHETHER ANYTHING IS WAITING. A learner whose every chapter is finished, with no open
   // assessment, no lesson a teacher asked to be read again and no feedback still owed, is told so in so many words
   // where the next step would stand, and is not told that something is under way today.
-  const menunggu = Boolean(utama) || terbuka.length > 0 || diminta.length > 0 || umpanBalik.some((u) => !u.sudahDijawab);
+  const menunggu = Boolean(utama) || terbuka.length > 0 || berjalan.length > 0 || diminta.length > 0 || umpanBalik.some((u) => !u.sudahDijawab);
 
   return (
     <>
@@ -431,9 +439,20 @@ export default async function Belajar({
 
         {/* Q-12. Absent when there is nothing open, like every other section
             here that has nothing to say. */}
-        {terbuka.length > 0 ? (
+        {terbuka.length + berjalan.length > 0 ? (
           <section className="pin-sec">
             <h2>{s("siklus.terbuka")}</h2>
+            {berjalan.map((a) => (
+              <div className="pin-tugas" key={a.assessment_assignment_id} data-berjalan-lewat="">
+                <span className="pin-ttitle">{judulAsesmen({ judul: a.title, mode: a.mode, dibuka: a.opens_at }, locale, zonaDari(a.node_id))}</span>
+                <div className="pin-tfoot">
+                  <span className="pin-tstatus">{format.number(a.item_count, locale)} {s("siklus.soal")} · {a.node_name}</span>
+                  <Link className="pin-btn" href={`/belajar/asesmen/${a.assessment_assignment_id}`}>
+                    {s("sync.lanjut_sisa").replace("{n}", String(menitTersisa(a.tenggat)))}
+                  </Link>
+                </div>
+              </div>
+            ))}
             {terbuka.map((a) => (
               <div className="pin-tugas" key={a.assessment_assignment_id}>
                 <span className="pin-ttitle">{judulAsesmen({ judul: a.title, mode: a.mode, dibuka: a.opens_at }, locale, zonaDari(a.node_id))}</span>

@@ -406,7 +406,8 @@ export const m148Tests: SelfTest[] = [
         "Konfigurasi does not check the window against the assessments before scheduling, or offers «Hentikan sekarang» beyond Admin platform");
       // the schools a window or notice may name are the school picker's own (sekolahDitawarkan): never the national library
       const bagian148 = konf.slice(konf.indexOf('<section id="pemeliharaan"'), konf.indexOf("</section>", konf.indexOf('data-hentikan="1"')));
-      c.expect((bagian148.match(/sekolahKu\.map\(/g) ?? []).length === 3 && !/myInstitutions/.test(bagian148),
+      // RESTATED 3 -> 4, A2a change C (Daisy A1): the emergency form's class step chooses its one school from the same list
+      c.expect((bagian148.match(/sekolahKu\.map\(/g) ?? []).length === 4 && !/myInstitutions/.test(bagian148),
         "the maintenance section offers schools beyond the school picker's own, the national library among them");
       const aksi = baca("src", "app", "konfigurasi", "actions.ts");
       for (const fn of ["schedule_maintenance", "change_maintenance", "stop_pintar_now", "publish_notice", "withdraw_notice"]) {

@@ -149,14 +149,22 @@ export const penugasanTests: SelfTest[] = [
     run: async (ctx) => {
       const c = new Checks();
       const root = ctx.repoRoot;
-      const sql = readFileSync(join(root, "supabase", "migrations", "20270113100000_an_assignment_is_ended_or_withdrawn_on_the_record.sql"), "utf8")
-        .replace(/--[^\n]*/g, "");
+      // RESTATED, A2a change C (THE PLAN item 4): the two functions' LATEST definitions, wherever a later migration
+      // wrote them whole (20270119200000 adds ASSIGN_CLASS_STOPPED), not the first migration's
+      const dir = join(root, "supabase", "migrations");
+      const terakhir = (re: RegExp) => {
+        for (const f of readdirSync(dir).filter((x) => x.endsWith(".sql")).sort().reverse()) {
+          const m = re.exec(readFileSync(join(dir, f), "utf8").replace(/--[^\n]*/g, ""));
+          if (m) return m[0];
+        }
+        return "";
+      };
       // the codes penugasan_tolak knows are exactly the contract's, and akhiri_penugasan raises every one of them
-      const tolak = /create or replace function public\.penugasan_tolak[\s\S]*?\$\$;/.exec(sql)?.[0] ?? "";
+      const tolak = terakhir(/create or replace function public\.penugasan_tolak[\s\S]*?\$\$;/);
       const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).sort();
       c.expect(JSON.stringify(dariDb) === JSON.stringify([...KODE_AKHIRI_DB].sort()),
         `penugasan_tolak knows ${dariDb.join(",")} and the contract names ${KODE_AKHIRI_DB.join(",")}`);
-      const akhiri = /create or replace function public\.akhiri_penugasan\(p_la[\s\S]*?end \$\$;/.exec(sql)?.[0] ?? "";
+      const akhiri = terakhir(/create or replace function public\.akhiri_penugasan\(p_la[\s\S]*?end \$\$;/);
       for (const k of KODE_AKHIRI_DB) c.expect(akhiri.includes(`penugasan_tolak('${k}')`), `akhiri_penugasan never raises ${k}`);
       // each is read by its DETAIL, and a planted unknown stays ASSIGN_FAILED
       for (const k of KODE_AKHIRI_DB) c.expect(kodeGalatPenugasan({ code: "PR050", details: k }) === k, `${k} is not read back as itself`);

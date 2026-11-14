@@ -15,6 +15,7 @@ import { judulHalaman } from "@/lib/judul-halaman";
 import { judulAsesmen } from "@/lib/judul-asesmen";
 import { zonaSekolah } from "@/lib/zona-sekolah";
 import { supabaseServer } from "@/lib/supabase/server";
+import { jam, kataZona } from "@/lib/tanggal";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/uji-cepat/hasil");
 
@@ -64,7 +65,13 @@ export default async function HasilUjiCepat({
   }
   const { tugas, hasil } = baca;
   // the owner's ruling (10 Nov): named by when it opened on the class's school's clock
-  const zona = await zonaSekolah(await supabaseServer(), ctx.ini.institusi);
+  const supabase = await supabaseServer();
+  const [zona, { data: masihData }] = await Promise.all([
+    zonaSekolah(supabase, ctx.ini.institusi),
+    // A2a (DITUTUP §2): the assignment's sittings still running on their shifted time after its own close
+    supabase.rpc("penugasan_masih_dikerjakan", { p_aa: tugas.id }),
+  ]);
+  const masih = masihData && typeof masihData === "object" ? (masihData as { murid: number; sampai: string | null }) : null;
   const benda = s(kataAnggota("mengajar.bukti.murid", ctx.ini.jenis));
   const isi = (k: HleEvent, ganti: Record<string, string>) =>
     Object.entries(ganti).reduce((a, [kunci, v]) => a.split(`{${kunci}}`).join(v), s(k));
@@ -93,6 +100,12 @@ export default async function HasilUjiCepat({
           <p className="pin-eyebrow">{judulAsesmen(tugas, locale, zona)}</p>
           <h1 className="pin-h1">{s("mengajar.cepat.hasil.judul")}</h1>
         </div>
+        {/* A2a, Daisy (A2A-DITUTUP-BERJALAN.md §2): closed by its own time while held sittings still run */}
+        {masih && masih.murid > 0 && masih.sampai ? (
+          <p className="pin-mm" role="status" data-masih-ditahan="">
+            {s("mengajar.cepat.hasil.masih_ditahan").replace("{n}", n(masih.murid)).replace("{jam}", jam(masih.sampai, zona)).replace("{zona}", kataZona(zona))}
+          </p>
+        ) : null}
 
         {/* THE CLASS FIRST: the figure, and always its base. D-176: the figure needs AMBANG_NILAI_KELAS scores */}
         {hasil.kelas.dinilai === 0 ? (
