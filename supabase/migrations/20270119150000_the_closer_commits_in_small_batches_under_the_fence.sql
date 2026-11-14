@@ -140,12 +140,89 @@ do $$ begin
   if to_regnamespace('cron') is not null then perform public.pintar_jadwal_pasang(); end if;
 end $$;
 
+-- ═══════════════════════════════════════════════════════════ the lift (Sharon's (b); D6.7, D6.8)
+-- Lifting an EMERGENCY window (change_maintenance AKHIRI, already under the exclusive fence since B1):
+--   1. T_lift = clock_timestamp() under the exclusive fence, written with ended_at (Sharon's (b)), and the notices
+--      withdrawn, as before;
+--   2. then, last of the writes (sittings are rank 9, after the window and the notices' people), the marking is
+--      completed for this window, in one statement, under the fence: every sitting the window still
+--      protects (open at its T_stop, of a person affected then; or EXPIRED inside its grace) that no batch has marked yet
+--      is marked as the marking batch would mark it. So an interrupted or late marking batch changes no outcome: the
+--      release then gives every such sitting exactly T_lift − T_stop (Sharon's A2A-K01, marking interrupted half-way);
+--   3. the audit row carries T_lift and how many the lift marked (D6.9, in part).
+-- A sitting cannot become protected meanwhile: no activation runs while this transaction holds the exclusive fence.
+create function public.pengerjaan_tandai_saat_angkat(p_window uuid) returns integer
+language plpgsql security definer set search_path = public, pg_temp as $$
+declare n integer;
+begin
+  with c as (
+    select s.id, j.id as jendela, j.t_stop as sejak
+      from public.maintenance_windows w0
+      join public.assessment_sessions s on s.created_at <= w0.t_stop and s.darurat_sejak is null
+      cross join lateral (select w.id, w.t_stop from public.maintenance_windows w
+                           -- the windows in force, and the one being lifted (ended in this same transaction)
+                           where w.kind = 'EMERGENCY' and w.t_stop is not null and (w.ended_at is null or w.id = p_window)
+                             and s.created_at <= w.t_stop
+                             and public.maintenance_affects_pada(w, s.person_id, w.t_stop)
+                           order by w.t_stop, w.id limit 1) j
+     where w0.id = p_window and w0.kind = 'EMERGENCY' and w0.t_stop is not null
+       and public.maintenance_affects_pada(w0, s.person_id, w0.t_stop)
+       and (s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')
+            or (s.status = 'EXPIRED' and s.authoritative_deadline is not null
+                and not exists (select 1 from public.assessment_results r where r.session_id = s.id)))
+     order by s.id for update of s)
+  update public.assessment_sessions s set darurat_sejak = c.sejak, darurat_jendela_id = c.jendela from c
+   where s.id = c.id
+     and (s.status <> 'EXPIRED' or c.sejak <= s.authoritative_deadline + make_interval(secs => coalesce(
+           (select d.late_sync_grace_seconds from public.assessment_definitions d where d.id = s.assessment_definition_id), 0)));
+  get diagnostics n = row_count;
+  return n;
+end $$;
+revoke all on function public.pengerjaan_tandai_saat_angkat(uuid) from public, anon, authenticated, service_role;
+
+create or replace function pg_temp.a2a_sisip(p_fn regprocedure, p_anchor text, p_baru text) returns void
+language plpgsql as $$
+declare v text := pg_get_functiondef(p_fn); n int;
+begin
+  n := (length(v) - length(replace(v, p_anchor, ''))) / greatest(length(p_anchor), 1);
+  if n <> 1 then raise exception 'A2a lift: % has its anchor % time(s), not once', p_fn, n; end if;
+  execute replace(v, p_anchor, p_baru);
+end $$;
+do $$
+begin
+  perform pg_temp.a2a_sisip('public.change_maintenance(uuid,text,text)',
+    E'declare v_me uuid;', E'declare v_lift timestamptz; v_tandai integer; v_me uuid;');
+  perform pg_temp.a2a_sisip('public.change_maintenance(uuid,text,text)',
+    E'  else\n    update public.maintenance_windows\n       set ended_at = now(), ended_by_person_id = v_me,',
+    E'  else\n'
+    || E'    -- A2a (b): an EMERGENCY lift records T_lift under the exclusive fence\n'
+    || E'    if w.kind = ''EMERGENCY'' and w.t_stop is not null then v_lift := clock_timestamp(); end if;\n'
+    || E'    update public.maintenance_windows\n       set ended_at = now(), t_lift = v_lift, ended_by_person_id = v_me,');
+  perform pg_temp.a2a_sisip('public.change_maintenance(uuid,text,text)',
+    E'    v_to := ''BERAKHIR'';\n',
+    E'    v_to := ''BERAKHIR'';\n'
+    || E'    -- A2a D6.7: then, last of the writes, the marking completed for this window under the same fence\n'
+    || E'    if v_lift is not null then v_tandai := public.pengerjaan_tandai_saat_angkat(w.id); end if;\n');
+  perform pg_temp.a2a_sisip('public.change_maintenance(uuid,text,text)',
+    E'''reason'', btrim(p_reason)));',
+    E'''reason'', btrim(p_reason), ''t_stop'', w.t_stop, ''t_lift'', v_lift, ''marked_at_lift'', v_tandai));');
+end $$;
+
+-- An EMERGENCY window that took effect and has ended has its T_lift (Sharon's (b)); the ended_at fallback in the shift
+-- then serves only windows made before A2a, which have no T_stop.
+alter table public.maintenance_windows add constraint maintenance_windows_lift_recorded
+  check (kind <> 'EMERGENCY' or t_stop is null or ended_at is null or t_lift is not null);
+
 -- ═══════════════════════════════════════════════════════════ the migration's own check (ADR-0003: structural)
 do $$
 begin
   if exists (select 1 from public.pintar_jadwal_daftar() d where d.jobname = 'pintar-pengerjaan-tutup-terjadwal'
                and d.command <> 'call public.pengerjaan_tutup_berkala()') then
     raise exception 'A2a D6.6: the closer''s job is not the procedure';
+  end if;
+  if position('pengerjaan_tandai_saat_angkat(' in pg_get_functiondef('public.change_maintenance(uuid,text,text)'::regprocedure)) = 0
+     or position('t_lift = v_lift' in pg_get_functiondef('public.change_maintenance(uuid,text,text)'::regprocedure)) = 0 then
+    raise exception 'A2a (b): the lift does not complete the marking and record T_lift';
   end if;
   if has_function_privilege('service_role', 'public.pengerjaan_tutup_satu(uuid)', 'execute')
      or has_function_privilege('service_role', 'public.pengerjaan_tutup_calon(integer)', 'execute')

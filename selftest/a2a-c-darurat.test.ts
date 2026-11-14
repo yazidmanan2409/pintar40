@@ -123,6 +123,63 @@ select 'HASIL|' || extract(epoch from (s.authoritative_deadline - b.d))::int || 
   }
 }
 
+/** Sharon's A2A-K01, marking interrupted half-way: two learners of a class hold sittings; a class stop takes effect; a
+ *  second connection holds the second sitting while the marking batch runs, so the batch marks the first and skips the
+ *  second (SKIP LOCKED: a batch stopped half-way); then the real lift (change_maintenance AKHIRI, as Admin PINTAR) and
+ *  the release. Both must move by exactly T_lift − T_stop. */
+async function terputus(db: string): Promise<{ separuh: string; tepat: string; err: string }> {
+  const { psqlLain, tidur } = await import("./balapan");
+  const b = psqlStdin(db, `select e1.person_id || '|' || e2.person_id || '|' || m1.node_id || '|' || e1.institution_id || '|' || a.auth_user_id
+  from public.enrollments e1 join public.memberships m1 on m1.enrollment_id = e1.id and m1.valid_to is null
+  join public.org_nodes n on n.id = m1.node_id and n.kind = 'CLASS'
+  join public.memberships m2 on m2.node_id = m1.node_id and m2.valid_to is null and m2.enrollment_id <> e1.id
+  join public.enrollments e2 on e2.id = m2.enrollment_id and e2.status = 'ACTIVE' and e2.person_id <> e1.person_id
+  cross join lateral (select ac.auth_user_id from public.role_assignments r join public.accounts ac on ac.person_id = r.person_id
+                       where r.role = 'SYSTEM_ADMIN' and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until
+                       order by r.id limit 1) a
+  where e1.status = 'ACTIVE' order by e1.id, e2.id limit 1;`);
+  const [p1, p2, kelas, inst, admin] = b.split("|");
+  if (!admin) throw new Error("no class with two learners and an Admin PINTAR: the seed changed");
+  const S1 = "a2a1c701-0000-4000-8000-000000000011", S2 = "a2a1c701-0000-4000-8000-000000000012";
+  const sesi = (id: string, orang: string) => `insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${orang}',
+  'authoritative_deadline', now() + interval '30 minutes', 'created_at', now() - interval '5 minutes', 'finalized_at', null, 'submitted_at', null,
+  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'darurat_sejak', null, 'darurat_jendela_id', null))).*
+  from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;`;
+  try {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+${sesi(S1, p1)}
+${sesi(S2, p2)}
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, reason, created_by_person_id, activation_recorded_at)
+select '${JENDELA}', 'EMERGENCY', false, array['${inst}'::uuid], array['${kelas}'::uuid], now(), clock_timestamp(), 'A2A-K01 interrupted',
+       (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), now();
+commit;`);
+    const pegang = psqlLain(`begin; select 1 from public.assessment_sessions where id = '${S2}' for update; select pg_sleep(2); commit;`);
+    await tidur(400);
+    psqlStdin(db, "call public.pengerjaan_tandai_darurat(50);");
+    const separuh = psqlStdin(db, `select string_agg((darurat_sejak is not null)::text, ',' order by id) from public.assessment_sessions where id in ('${S1}', '${S2}');`);
+    await pegang;
+    const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: `
+create temp table a2a_k01_d as select id, authoritative_deadline as d from public.assessment_sessions where id in ('${S1}', '${S2}');
+begin;
+select set_config('request.jwt.claims', '{"sub":"${admin}","role":"authenticated"}', true);
+select public.change_maintenance('${JENDELA}', 'AKHIRI', 'A2A-K01: the lift') is not null;
+commit;
+call public.pengerjaan_lepas_darurat_semua(50);
+select 'TEPAT|' || string_agg(((s.authoritative_deadline - d.d) = (w.t_lift - w.t_stop) and s.darurat_sejak is null)::text, ',' order by s.id)
+  from public.assessment_sessions s join a2a_k01_d d on d.id = s.id, public.maintenance_windows w where w.id = '${JENDELA}';` });
+    const tepat = (r.stdout ?? "").split("\n").find((l) => l.startsWith("TEPAT|"))?.slice(6) ?? "";
+    return { separuh, tepat, err: r.status === 0 ? "" : (r.stderr ?? "").trim().split("\n")[0] ?? "" };
+  } finally {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+delete from public.assessment_sessions where id in ('${S1}', '${S2}');
+delete from public.maintenance_windows where id = '${JENDELA}';
+commit;`);
+  }
+}
+const ANGKAT_TANDAI = "    if v_lift is not null then v_tandai := public.pengerjaan_tandai_saat_angkat(w.id); end if;\n";
+
 // the plant: marking judged by the placement now, as draft 7 had it
 const TANDAI_SEKARANG_DARI = `                               and s.created_at <= w.t_stop
                                and public.maintenance_affects_pada(w, s.person_id, w.t_stop)`;
@@ -146,11 +203,20 @@ export const a2aDaruratTests: SelfTest[] = [
       }
       const j = satuKali(db, "JOINED");
       c.expect(!j.dihentikan && !j.ditandai && j.geser === 0, `a learner who joined the class after T_stop was stopped (${j.dihentikan}), held (${j.ditandai}) or re-timed (${j.geser} s)`);
+      // marking interrupted half-way, then the real lift: the lift completes the marking under the exclusive fence
+      const tp = await terputus(db);
+      c.expect(!tp.err, `the interrupted run failed: ${tp.err}`);
+      c.expect(tp.separuh === "true,false", `the marking batch was not interrupted half-way (marked: ${tp.separuh})`);
+      c.expect(tp.tepat === "true,true", `after the lift and the release, the two sittings did not each move by exactly T_lift − T_stop: ${tp.tepat}`);
+      const balikA = gantiFungsi("public.change_maintenance(uuid,text,text)", ANGKAT_TANDAI, "    v_tandai := 0;\n");
+      let tpTanam: Awaited<ReturnType<typeof terputus>>;
+      try { tpTanam = await terputus(db); } finally { balikA(); }
+      c.expect(tpTanam.tepat !== "true,true", `with the plant (the lift not completing the marking) both sittings still moved: ${JSON.stringify(tpTanam)}`);
       const balik = gantiFungsi("public.pengerjaan_tandai_darurat(integer)", TANDAI_SEKARANG_DARI, TANDAI_SEKARANG_KE);
       let tanam: ReturnType<typeof satuKali>;
       try { tanam = satuKali(db, "MOVED"); } finally { balik(); }
       c.expect(!tanam.ditandai && tanam.geser === 0, `with the plant (marking judged now) the moved learner still kept the time: ${JSON.stringify(tanam)}`);
-      return c.verdict(`stop → moved, transferred, or a teacher's role ended → late marking → lift: each still stopped after the change, marked, and moved by exactly T_lift − T_stop (${LAMA_MENIT} min); a learner who joined the stopped class after T_stop is neither stopped nor held, deadline unchanged; with the plant (marking judged now) the moved learner lost the time`);
+      return c.verdict(`stop → moved, transferred, or a teacher's role ended → late marking → lift: each still stopped after the change, marked, and moved by exactly T_lift − T_stop (${LAMA_MENIT} min); a learner who joined the stopped class after T_stop is neither stopped nor held, deadline unchanged; marking interrupted half-way, then the real lift: both sittings moved by exactly T_lift − T_stop (with the plant, the lift not completing the marking, the unmarked one did not: ${tpTanam.tepat}); with the plant (marking judged now) the moved learner lost the time`);
     },
   },
 ];
@@ -162,6 +228,7 @@ export const a2aDaruratTests: SelfTest[] = [
 export const PENULIS_DIKECUALIKAN: Record<string, { alasan: string; menunggu?: true }> = {
   pengerjaan_lepas_darurat: { alasan: "the release itself" },
   pengerjaan_tandai_darurat: { alasan: "the marking: writes only the held state of a sitting protected at its window's T_stop (D6.2's declared list)" },
+  pengerjaan_tandai_saat_angkat: { alasan: "the lift's completion of the marking, under the exclusive fence: the marking's own write (D6.7)" },
   percobaan_tandai: { alasan: "writes only attempt_request_id, at a new sitting's start (start_learning_session): neither status, deadline nor held state" },
   akhiri_penugasan: { alasan: "D6.2's assignment-level acts, after Sharon's ruling on their order (draft 9)", menunggu: true },
 };
