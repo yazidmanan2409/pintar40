@@ -173,8 +173,7 @@ begin
      order by s.id for update of s)
   update public.assessment_sessions s set darurat_sejak = c.sejak, darurat_jendela_id = c.jendela from c
    where s.id = c.id
-     and (s.status <> 'EXPIRED' or c.sejak <= s.authoritative_deadline + make_interval(secs => coalesce(
-           (select d.late_sync_grace_seconds from public.assessment_definitions d where d.id = s.assessment_definition_id), 0)));
+     and (s.status <> 'EXPIRED' or public.pengerjaan_dalam_tenggang_pada(s, c.sejak));   -- C17-1: the one helper
   get diagnostics n = row_count;
   return n;
 end $$;

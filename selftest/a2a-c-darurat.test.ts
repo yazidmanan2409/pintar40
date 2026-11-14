@@ -828,7 +828,7 @@ export const KASUS_GESER: Record<string, CaraGeser> = {
   pengerjaan_putus_tenggat: "KEPUTUSAN", pengerjaan_tutup_calon: "KEPUTUSAN", may_continue_session: "KEPUTUSAN", maintenance_draining: "KEPUTUSAN",
   finalize_session: "KONSTRUKSI", record_answer: "KONSTRUKSI", pengerjaan_tahan_orang: "KONSTRUKSI", extend_session_deadline: "KONSTRUKSI",
   tambah_waktu_pengerjaan: "KONSTRUKSI", lanjutkan_pengerjaan: "KONSTRUKSI", pengerjaan_jaga: "KONSTRUKSI", pengerjaan_lepas_darurat: "KONSTRUKSI",
-  pengerjaan_tandai_darurat: "KONSTRUKSI", pengerjaan_tandai_saat_angkat: "KONSTRUKSI", pengerjaan_dilindungi: "KONSTRUKSI",
+  pengerjaan_tandai_darurat: "KONSTRUKSI", pengerjaan_tandai_saat_angkat: "KONSTRUKSI", pengerjaan_dalam_tenggang_pada: "KONSTRUKSI",
   // the app: the player shows session_state's value (probed above); AturPengerjaan's client computation is checked
   // against the server's own added time below
   "src/lib/assessment-engine/index.ts": "NILAI", "src/components/mengajar/AturPengerjaan.tsx": "NILAI",
@@ -929,5 +929,75 @@ a2aDaruratTests.push({
     c.expect(tanam.hasil.daftar_pengerjaan === "false", `with the plant (the list reading closes_at raw) the list still agreed: ${JSON.stringify(tanam.hasil)}`);
     const n = (k: CaraGeser) => Object.values(KASUS_GESER).filter((x) => x === k).length;
     return c.verdict(`every HARUS and KLIEN reader of A2A-T01 has a case (${n("NILAI")} value probes, ${n("KEPUTUSAN")} decisions, ${n("KONSTRUKSI")} by construction, never reading closes_at); after a lift, for a window-timed and an own-deadline sitting, each probe agrees with the effective deadline, and AturPengerjaan's client formula equals the server's added time; plants: an uncovered reader, and the list reading closes_at raw`);
+  },
+});
+
+// ═══════════════════════════════════════════════════════════ A2A-C709 · one grace rule for protection and marking (C17-1)
+
+/** Sharon's C17-1: "EXPIRED inside its grace" is one helper (pengerjaan_dalam_tenggang_pada), used by protection and
+ *  both markings, on the grace readers' own basis (authoritative_deadline plus the definition's grace). A class stop;
+ *  two EXPIRED sittings of a learner of the class, of a definition with a grace: A with its own deadline a minute
+ *  before T_stop (inside its grace), B window-timed (no deadline of its own: no grace under A1). The marking runs;
+ *  protection and marking must agree on each. Then the lift 45 minutes after T_stop and the release: A keeps its grace,
+ *  moved by the stop, so the decider does not score it. Committed fixtures, removed after. */
+function tenggangSatuAturan(db: string): { a: string; b: string; sesudah: string; err: string } {
+  const f = fiksur(db);
+  const A = "a2a1c709-0000-4000-8000-000000000001", B = "a2a1c709-0000-4000-8000-000000000002";
+  const salin = (id: string, tenggat: string, tutup: string) => `insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${id}', 'status', 'EXPIRED', 'person_id', '${f.person}',
+  'authoritative_deadline', ${tenggat}, 'created_at', now() - interval '40 minutes', 'started_at', now() - interval '40 minutes',
+  'closure_kind', 'DEADLINE', 'closure_at', now() - interval '1 minute', 'closure_deadline', ${tutup},
+  'finalized_at', null, 'submitted_at', null, 'frozen_at', null, 'unfrozen_at', null, 'termination_cause', null,
+  'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_geser_detik', 0))).*
+  from public.assessment_sessions s join public.assessment_definitions d on d.id = s.assessment_definition_id
+ where d.late_sync_grace_seconds > 0 order by s.id limit 1;`;
+  try {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+${salin(A, "now() - interval '1 minute'", "now() - interval '1 minute'")}
+${salin(B, "null", "now() - interval '1 minute'")}
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, reason, created_by_person_id, activation_recorded_at)
+select '${JENDELA}', 'EMERGENCY', false, array['${f.inst}'::uuid], array['${f.node}'::uuid], now(), clock_timestamp(), 'A2A-C709',
+       (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), now();
+commit;`);
+    psqlStdin(db, "call public.pengerjaan_tandai_darurat(50);");
+    const keadaan = (id: string) => psqlStdin(db, `select public.pengerjaan_dilindungi('${id}')::text || '|' || (darurat_sejak is not null)::text
+      from public.assessment_sessions where id = '${id}';`);
+    const a = keadaan(A), b = keadaan(B);
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+update public.maintenance_windows set ended_at = t_stop + interval '45 minutes', t_lift = t_stop + interval '45 minutes' where id = '${JENDELA}';
+commit;`);
+    psqlStdin(db, "call public.pengerjaan_lepas_darurat_semua(50);");
+    const sesudah = psqlStdin(db, `select public.pengerjaan_putus_tenggat('${A}', true)::text || '|'
+      || (select count(*) from public.assessment_results r where r.session_id = '${A}');`);
+    return { a, b, sesudah, err: "" };
+  } finally {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+delete from public.assessment_results where session_id in ('${A}', '${B}');
+delete from public.audit_log where target_id in ('${A}', '${B}');
+delete from public.assessment_sessions where id in ('${A}', '${B}');
+delete from public.maintenance_windows where id = '${JENDELA}';
+commit;`);
+  }
+}
+const TENGGANG_SATU = "or public.pengerjaan_dalam_tenggang_pada(s, w.t_stop)))   -- C17-1: the one helper";
+const TENGGANG_DUA = `or (s.status = 'EXPIRED' and s.closure_at <= w.t_stop and w.t_stop <= s.closure_deadline + interval '5 minutes')))`;
+
+a2aDaruratTests.push({
+  id: "A2A-C709",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    const r = tenggangSatuAturan(db);
+    c.expect(r.a === "true|true", `the own-deadline EXPIRED sitting inside its grace at T_stop: protected|marked ${r.a}, not true|true`);
+    c.expect(r.b === "false|false", `the window-timed EXPIRED sitting (no grace under A1): protected|marked ${r.b}, not false|false`);
+    c.expect(r.sesudah === "EXPIRED|0", `after the lift and the release the decider scored the sitting inside its moved grace: ${r.sesudah}`);
+    // the plant: protection judged on closure_deadline (draft 17's basis), marking on the grace readers'
+    const balik = gantiFungsi("public.pengerjaan_dilindungi(uuid)", TENGGANG_SATU, TENGGANG_DUA);
+    let tanam: ReturnType<typeof tenggangSatuAturan>;
+    try { tanam = tenggangSatuAturan(db); } finally { balik(); }
+    c.expect(tanam.b === "true|false", `with the plant (protection on closure_deadline) the window-timed sitting was not protected-but-unmarked: ${tanam.b}`);
+    return c.verdict("one grace rule (pengerjaan_dalam_tenggang_pada, the grace readers' own basis) for protection and both markings: an own-deadline EXPIRED sitting inside its grace at T_stop is protected and marked, and after the lift the decider leaves it inside its moved grace; a window-timed EXPIRED sitting (no grace under A1) is neither; with the plant (protection on closure_deadline) the window-timed one is protected but never marked");
   },
 });

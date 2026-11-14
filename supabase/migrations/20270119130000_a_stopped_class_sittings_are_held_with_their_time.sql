@@ -122,6 +122,20 @@ begin
 end $$;
 revoke all on function public.penghentian_geser(uuid, uuid) from public, anon, authenticated, service_role;
 
+-- Sharon's C17-1: "EXPIRED inside its grace" is judged by ONE helper, used by protection and both markings. Its basis is
+-- the one the grace readers themselves use (record_answer's late sync, finalize_session, the decider's scoring):
+-- authoritative_deadline plus the definition's grace. A window-timed sitting has no grace under A1 (no deadline of its
+-- own: the decider scores it as soon as it expires and record_answer has no late sync for it), so it is never inside one.
+create function public.pengerjaan_dalam_tenggang_pada(s public.assessment_sessions, p_t timestamptz) returns boolean
+language sql stable security definer set search_path = public, pg_temp as $$
+  select s.status = 'EXPIRED' and s.authoritative_deadline is not null and p_t is not null
+     and (s.closure_at is null or s.closure_at <= p_t)
+     and not exists (select 1 from public.assessment_results r where r.session_id = s.id)
+     and p_t <= s.authoritative_deadline + make_interval(secs => coalesce(
+           (select d.late_sync_grace_seconds from public.assessment_definitions d where d.id = s.assessment_definition_id), 0))
+$$;
+revoke all on function public.pengerjaan_dalam_tenggang_pada(public.assessment_sessions, timestamptz) from public, anon, authenticated, service_role;
+
 -- A sitting is protected by an EMERGENCY window w in force when its person was affected by w at w.t_stop and the sitting
 -- was open, or EXPIRED inside its grace, at w.t_stop; or when it carries a mark whose chain is still in force (C10-1).
 create function public.pengerjaan_dilindungi(p_session uuid) returns boolean
@@ -132,10 +146,7 @@ language sql stable security definer set search_path = public, pg_temp as $$
                       and s.created_at <= w.t_stop
                       and public.maintenance_affects_pada(w, s.person_id, w.t_stop)
                       and (s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')
-                           or (s.status = 'EXPIRED' and s.closure_at <= w.t_stop
-                               and w.t_stop <= s.closure_deadline
-                                    + make_interval(secs => coalesce((select d.late_sync_grace_seconds from public.assessment_definitions d
-                                                                       where d.id = s.assessment_definition_id), 0)))))
+                           or public.pengerjaan_dalam_tenggang_pada(s, w.t_stop)))   -- C17-1: the one helper
         or (s.darurat_sejak is not null and public.penghentian_geser(s.person_id, s.darurat_jendela_id) is null)
       from public.assessment_sessions s where s.id = p_session), false)
 $$;
@@ -271,9 +282,8 @@ begin
        order by s.id limit p_batas for update of s skip locked)
     update public.assessment_sessions s set darurat_sejak = c.sejak, darurat_jendela_id = c.jendela from c
      where s.id = c.id and c.sejak is not null
-       -- B3: an EXPIRED sitting is protected only while still inside its grace at T_stop
-       and (s.status <> 'EXPIRED' or c.sejak <= s.authoritative_deadline + make_interval(secs => coalesce(
-             (select d.late_sync_grace_seconds from public.assessment_definitions d where d.id = s.assessment_definition_id), 0)));
+       -- B3: an EXPIRED sitting is protected only while still inside its grace at T_stop (C17-1: the one helper)
+       and (s.status <> 'EXPIRED' or public.pengerjaan_dalam_tenggang_pada(s, c.sejak));
     get diagnostics n = row_count;
     commit;
     exit when n = 0;
