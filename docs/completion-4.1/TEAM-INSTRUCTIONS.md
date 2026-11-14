@@ -688,3 +688,20 @@ now includes the whole static manifest.
   - The lint also asserts that each procedure's owner is the cron job's username. `set_config(…, false)` is
     session-wide, so only that session should carry it.
   - "First act" means before any commit, and gets its own plant.
+
+## The freeze sequence, defined once (Chief Architect, 14 Nov 2026; `PLAN-A2B-C2W.md` §4)
+
+**The pre-freeze full run is the one full pre-flight.** It is not repeated after the freeze. This supersedes the
+06:13 note above, which said the acceptance pre-flight still runs afterwards.
+
+1. **Development:** focused checks only. They are rehearsals, not evidence.
+2. **Candidate:** both reviewers are clear on every commit, and the engineer names a candidate commit.
+3. **The one full pre-flight, on that exact commit:** full regression, the concurrency tests, the whole static
+   manifest, every plant and every red case.
+4. **Freeze, if green:** Bob freezes exactly that commit, with the run as its evidence. If red: no freeze; fix, then
+   step 3 again.
+5. **Acceptance on the frozen commit:** Sharon's result review, Daisy's screen review, PR and CI, journeys,
+   measurements, merge, staging with preservation readings.
+6. **A blocker:** explicitly unfreeze, correct, review, then step 3 again before refreezing.
+
+**Change C now:** Second Eye's full run on `f74c6060` is that commit's one full pre-flight.
