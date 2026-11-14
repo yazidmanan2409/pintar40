@@ -35,8 +35,8 @@ create function public.pengerjaan_dilindungi(p_session uuid) returns boolean
 language sql stable security definer set search_path = public, pg_temp as $$
   select coalesce((select public.orang_dilindungi(s.person_id) from public.assessment_sessions s where s.id = p_session), false)
 $$;
-revoke all on function public.orang_dilindungi(uuid) from public, anon, authenticated;
-revoke all on function public.pengerjaan_dilindungi(uuid) from public, anon, authenticated;
+revoke all on function public.orang_dilindungi(uuid) from public, anon, authenticated, service_role;
+revoke all on function public.pengerjaan_dilindungi(uuid) from public, anon, authenticated, service_role;
 
 -- D6.5: held for either cause
 create or replace function public.pengerjaan_ditahan(s public.assessment_sessions) returns boolean
@@ -67,7 +67,7 @@ begin
   end loop;
   return v_akhir - p_sejak;
 end $$;
-revoke all on function public.penghentian_geser(uuid, timestamptz) from public, anon, authenticated;
+revoke all on function public.penghentian_geser(uuid, timestamptz) from public, anon, authenticated, service_role;
 
 -- D6.3/B4: the window-timed shift is added where the window's closing time is read for the sitting
 create or replace function public.pengerjaan_tenggat_efektif(p_session uuid) returns timestamptz
@@ -155,7 +155,7 @@ begin
   end if;
   return true;
 end $$;
-revoke all on function public.pengerjaan_lepas_darurat(uuid) from public, anon, authenticated;
+revoke all on function public.pengerjaan_lepas_darurat(uuid) from public, anon, authenticated, service_role;
 
 -- Marking: protected sittings not yet marked, in id order, a bounded batch per transaction, SKIP LOCKED. A pending
 -- release is applied before a second hold is recorded (D6.4): a marked sitting is skipped here, and released first.
@@ -163,8 +163,21 @@ revoke all on function public.pengerjaan_lepas_darurat(uuid) from public, anon, 
 -- control there); it runs as its job's owner, and every name in it is schema-qualified.
 create procedure public.pengerjaan_tandai_darurat(p_batas integer default 200)
 language plpgsql as $$
-declare n integer;
+declare n integer; x record;
 begin
+  -- D6.4: a pending release is applied before a second hold is recorded. A sitting still marked from a stop whose chain
+  -- has ended (its shift is known) is released first, by the same rule, then marked again with the new stop's T_stop;
+  -- otherwise the second stop's interval would be lost (found on review of commit 7: a stop, a lift, a second stop).
+  loop
+    n := 0;
+    for x in select s.id from public.assessment_sessions s
+              where s.darurat_sejak is not null and public.penghentian_geser(s.person_id, s.darurat_sejak) is not null
+              order by s.id limit p_batas for update skip locked loop
+      if public.pengerjaan_lepas_darurat(x.id) then n := n + 1; end if;
+    end loop;
+    commit;
+    exit when n = 0;
+  end loop;
   loop
     with c as (
       select s.id, (select min(w.t_stop) from public.maintenance_windows w
@@ -188,7 +201,8 @@ begin
   end loop;
 end $$;
 
--- Release: marked sittings whose person is no longer protected, in id order, bounded batches, SKIP LOCKED
+-- Release: marked sittings whose chain of stops has ended (its shift is known), whether or not a later stop now
+-- protects the person (D6.4), in id order, bounded batches, SKIP LOCKED
 create procedure public.pengerjaan_lepas_darurat_semua(p_batas integer default 200)
 language plpgsql as $$
 declare r record; n integer;
@@ -196,7 +210,7 @@ begin
   loop
     n := 0;
     for r in select s.id from public.assessment_sessions s
-              where s.darurat_sejak is not null and not public.orang_dilindungi(s.person_id)
+              where s.darurat_sejak is not null and public.penghentian_geser(s.person_id, s.darurat_sejak) is not null
               order by s.id limit p_batas for update skip locked loop
       if public.pengerjaan_lepas_darurat(r.id) then n := n + 1; end if;
     end loop;
@@ -204,5 +218,21 @@ begin
     exit when n = 0;
   end loop;
 end $$;
-revoke all on procedure public.pengerjaan_tandai_darurat(integer) from public, anon, authenticated;
-revoke all on procedure public.pengerjaan_lepas_darurat_semua(integer) from public, anon, authenticated;
+-- Bounded privileges (the owner's question 3): only the job's owner runs the batches; service_role, the server-side
+-- key, holds none of these (Supabase's default privileges would otherwise grant it)
+revoke all on procedure public.pengerjaan_tandai_darurat(integer) from public, anon, authenticated, service_role;
+revoke all on procedure public.pengerjaan_lepas_darurat_semua(integer) from public, anon, authenticated, service_role;
+
+-- ═══════════════════════════════════════════════════════════ the migration's own check (ADR-0003: structural)
+do $$
+declare r record;
+begin
+  for r in select p.oid::regprocedure as fn from pg_proc p
+            where p.proname in ('orang_dilindungi', 'pengerjaan_dilindungi', 'penghentian_geser', 'pengerjaan_lepas_darurat',
+                                'pengerjaan_tandai_darurat', 'pengerjaan_lepas_darurat_semua') loop
+    if has_function_privilege('anon', r.fn, 'execute') or has_function_privilege('authenticated', r.fn, 'execute')
+       or has_function_privilege('service_role', r.fn, 'execute') then
+      raise exception 'A2a D6: % is callable by a client or the server key', r.fn;
+    end if;
+  end loop;
+end $$;
