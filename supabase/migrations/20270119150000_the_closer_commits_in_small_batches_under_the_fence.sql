@@ -153,32 +153,61 @@ end $$;
 --      release then gives every such sitting exactly T_lift − T_stop (Sharon's A2A-K01, marking interrupted half-way);
 --   3. the audit row carries T_lift and how many the lift marked (D6.9, in part).
 -- A sitting cannot become protected meanwhile: no activation runs while this transaction holds the exclusive fence.
+-- Sharon's C18-1 (A2A-C-15-22-c3e88873.md): the lift's completion runs under the EXCLUSIVE fence and inside the 8 s
+-- statement limit, and is needed most when the batch has fallen behind. So it never scans sittings nor calls
+-- maintenance_affects_pada per row: it starts from the window's PEOPLE at T_stop (the class's memberships and roles valid
+-- then; the school's enrolments and roles; or everyone, for a platform stop), joins their live unmarked sittings
+-- through a partial index on person_id, and takes this window as the holder unless an earlier EMERGENCY window is still
+-- in force (then, and only then, the earliest holder is read per sitting, as the batch does).
 create function public.pengerjaan_tandai_saat_angkat(p_window uuid) returns integer
 language plpgsql security definer set search_path = public, pg_temp as $$
-declare n integer;
+declare w public.maintenance_windows; n integer; v_lain boolean;
 begin
-  with c as (
-    select s.id, j.id as jendela, j.t_stop as sejak
-      from public.maintenance_windows w0
-      join public.assessment_sessions s on s.created_at <= w0.t_stop and s.darurat_sejak is null
-      cross join lateral (select w.id, w.t_stop from public.maintenance_windows w
-                           -- the windows in force, and the one being lifted (ended in this same transaction)
-                           where w.kind = 'EMERGENCY' and w.t_stop is not null and (w.ended_at is null or w.id = p_window)
-                             and s.created_at <= w.t_stop
-                             and public.maintenance_affects_pada(w, s.person_id, w.t_stop)
-                           order by w.t_stop, w.id limit 1) j
-     where w0.id = p_window and w0.kind = 'EMERGENCY' and w0.t_stop is not null
-       and public.maintenance_affects_pada(w0, s.person_id, w0.t_stop)
-       and (s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')
-            or (s.status = 'EXPIRED' and s.authoritative_deadline is not null
-                and not exists (select 1 from public.assessment_results r where r.session_id = s.id)))
+  select * into w from public.maintenance_windows x where x.id = p_window;
+  if w.id is null or w.kind <> 'EMERGENCY' or w.t_stop is null then return 0; end if;
+  v_lain := exists (select 1 from public.maintenance_windows x
+                     where x.kind = 'EMERGENCY' and x.t_stop is not null and x.ended_at is null and x.id <> w.id and x.t_stop <= w.t_stop);
+  with orang as (
+    -- the people the window affected at its T_stop, set-based (maintenance_affects_pada's three scopes)
+    select e.person_id from public.enrollments e join public.memberships m on m.enrollment_id = e.id
+     where cardinality(w.node_ids) > 0 and m.node_id = any (w.node_ids)
+       and m.valid_from <= w.t_stop and (m.valid_to is null or m.valid_to > w.t_stop)
+       and e.valid_from <= w.t_stop and (e.valid_to is null or e.valid_to > w.t_stop)
+    union
+    select ra.person_id from public.role_assignments ra join public.org_nodes sn on sn.id = ra.scope_node_id
+     where cardinality(w.node_ids) > 0 and (sn.id = any (w.node_ids) or sn.jalur && w.node_ids)
+       and w.t_stop >= ra.valid_from and w.t_stop < ra.valid_until and (ra.revoked_at is null or ra.revoked_at > w.t_stop)
+    union
+    select e.person_id from public.enrollments e
+     where not w.platform and cardinality(w.node_ids) = 0 and e.institution_id = any (w.institution_ids)
+       and e.valid_from <= w.t_stop and (e.valid_to is null or e.valid_to > w.t_stop)
+    union
+    select ra.person_id from public.role_assignments ra join public.org_nodes sn on sn.id = ra.scope_node_id
+     where not w.platform and cardinality(w.node_ids) = 0 and sn.institution_id = any (w.institution_ids)
+       and w.t_stop >= ra.valid_from and w.t_stop < ra.valid_until and (ra.revoked_at is null or ra.revoked_at > w.t_stop)
+  ),
+  c as (
+    select s.id,
+           case when not v_lain then w.id
+                else (select x.id from public.maintenance_windows x
+                       where x.kind = 'EMERGENCY' and x.t_stop is not null and (x.ended_at is null or x.id = w.id)
+                         and s.created_at <= x.t_stop and public.maintenance_affects_pada(x, s.person_id, x.t_stop)
+                       order by x.t_stop, x.id limit 1) end as jendela
+      from public.assessment_sessions s
+     where s.darurat_sejak is null and s.created_at <= w.t_stop
+       and s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED', 'EXPIRED')
+       and (w.platform or s.person_id in (select o.person_id from orang o))
      order by s.id for update of s)
-  update public.assessment_sessions s set darurat_sejak = c.sejak, darurat_jendela_id = c.jendela from c
+  update public.assessment_sessions s set darurat_sejak = j.t_stop, darurat_jendela_id = j.id
+    from c join public.maintenance_windows j on j.id = c.jendela
    where s.id = c.id
-     and (s.status <> 'EXPIRED' or public.pengerjaan_dalam_tenggang_pada(s, c.sejak));   -- C17-1: the one helper
+     and (s.status <> 'EXPIRED' or public.pengerjaan_dalam_tenggang_pada(s, j.t_stop));   -- C17-1: the one helper
   get diagnostics n = row_count;
   return n;
 end $$;
+-- the live, unmarked sittings by person: the lift's join, and the batch's
+create index if not exists assessment_sessions_hidup_per_orang on public.assessment_sessions (person_id)
+  where darurat_sejak is null and status in ('CREATED', 'IN_PROGRESS', 'PAUSED', 'EXPIRED');
 revoke all on function public.pengerjaan_tandai_saat_angkat(uuid) from public, anon, authenticated, service_role;
 
 create or replace function pg_temp.a2a_sisip(p_fn regprocedure, p_anchor text, p_baru text) returns void
