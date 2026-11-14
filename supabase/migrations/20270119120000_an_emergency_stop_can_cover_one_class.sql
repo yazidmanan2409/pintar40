@@ -14,6 +14,9 @@ alter table public.maintenance_windows add column node_ids uuid[] not null defau
 -- D6.1: the instants of effect, read with clock_timestamp() under the exclusive fence, and the only ones used for time
 -- arithmetic (D6.3, D6.4). starts_at stays the readers' column (the transaction's now(), at or before T_stop).
 alter table public.maintenance_windows add column t_stop timestamptz, add column t_lift timestamptz;
+-- R2 (Sharon): an EMERGENCY window open when this migration is applied has no T_stop, and would protect nobody. Its
+-- T_stop is its starts_at: the stop was in force from then.
+update public.maintenance_windows set t_stop = starts_at where kind = 'EMERGENCY' and ended_at is null and t_stop is null;
 alter table public.maintenance_windows add constraint maintenance_windows_emergency_instants
   check ((t_stop is null or kind = 'EMERGENCY') and (t_lift is null or (t_stop is not null and t_lift >= t_stop)));
 
@@ -78,23 +81,19 @@ end $$;
 -- The refusals, in A1's domain (PR110), with their designed codes:
 --   MAINTENANCE_NODE_INVALID       a bad class, refused here before the trigger would (required change 2)
 --   MAINTENANCE_STOP_NOT_IN_FORCE  the exclusive fence not taken in three attempts: nothing is stopped (D6.8)
-create or replace function public.maintenance_refuse(p_code text) returns void
-language plpgsql security definer set search_path = public, pg_temp as $$
+-- R1 (Sharon, A2A-C-DRAFTS-6-8-c3cbe3c4.md): the two codes are inserted into the live definition, so every existing line,
+-- MAINTENANCE_NOT_ALLOWED's full sentence included, stays exactly as it was
+do $$
+declare v text := pg_get_functiondef('public.maintenance_refuse(text)'::regprocedure);
+        v_old text := E'      else ''the maintenance action could not be completed''';
+        n int;
 begin
-  raise exception using
-    errcode = 'PR110',
-    detail  = p_code,
-    message = case p_code
-      when 'MAINTENANCE_NOT_ALLOWED'      then 'maintenance and notices are set by the school''s Admin sekolah (INSTITUTION_ADMIN) for that school, or by Admin platform (SYSTEM_ADMIN)'
-      when 'MAINTENANCE_INPUT_INVALID'    then 'a window needs a scope, a start no earlier than now, an end after it, a reason (1-300) and a message of at most 500 characters'
-      when 'MAINTENANCE_NOT_OPEN'         then 'this maintenance window has already ended'
-      when 'MAINTENANCE_CONFIRMATION'     then 'stopping PINTAR at once is confirmed by typing HENTIKAN SEKARANG and giving a reason'
-      when 'MAINTENANCE_NO_NEW_START'     then 'planned maintenance begins within 15 minutes or is under way; no new assessment starts until it ends'
-      when 'NOTICE_INPUT_INVALID'         then 'a notice needs a scope, a message (1-500), and an expiry after its publication'
-      when 'NOTICE_NOT_OPEN'              then 'this notice has already been withdrawn'
-      when 'MAINTENANCE_NODE_INVALID'     then 'a class stop names classes of one school, chosen with that school, and is not platform-wide'
-      when 'MAINTENANCE_STOP_NOT_IN_FORCE' then 'the stop has not taken effect; nothing was stopped; try again'
-      else 'the maintenance action could not be completed' end;
+  n := (length(v) - length(replace(v, v_old, ''))) / length(v_old);
+  if n <> 1 then raise exception 'A2a D7: maintenance_refuse has its anchor % time(s), not once', n; end if;
+  execute replace(v, v_old,
+       E'      when ''MAINTENANCE_NODE_INVALID''     then ''a class stop names classes of one school, chosen with that school, and is not platform-wide''\n'
+    || E'      when ''MAINTENANCE_STOP_NOT_IN_FORCE'' then ''the stop has not taken effect; nothing was stopped; try again''\n'
+    || v_old);
 end $$;
 
 drop function public.stop_pintar_now(boolean, uuid[], text, text);

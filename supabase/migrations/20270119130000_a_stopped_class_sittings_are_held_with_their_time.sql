@@ -20,7 +20,14 @@
 
 alter table public.assessment_sessions
   add column darurat_sejak timestamptz,
+  -- C7-1 (Sharon, A2A-C-DRAFTS-6-8-c3cbe3c4.md): the window that held it; the shift's chain starts from it
+  -- No foreign key, on purpose: a key would take the window FOR KEY SHARE after the sitting at every hold and release,
+  -- against the order (… the fence → maintenance_windows → sittings). Windows are never deleted (no function deletes
+  -- one), and the release reads the window by id only.
+  add column darurat_jendela_id uuid,
   add column darurat_geser_detik integer not null default 0 check (darurat_geser_detik >= 0);
+alter table public.assessment_sessions add constraint assessment_sessions_darurat_shape
+  check ((darurat_sejak is null) = (darurat_jendela_id is null));
 create index assessment_sessions_darurat_idx on public.assessment_sessions (person_id) where darurat_sejak is not null;
 
 -- ═══════════════════════════════════════════════════════════ protection (D6.1, D6.2)
@@ -46,28 +53,55 @@ language sql stable security definer set search_path = public, pg_temp as $$
 $$;
 
 -- ═══════════════════════════════════════════════════════════ the shift (D6.3, D6.4)
--- The length of the protected interval that began at p_sejak for this person: the union of their EMERGENCY windows,
--- chained from p_sejak while each next window starts before the chain ends. Null while the chain has a window not yet
--- lifted (the person is still protected: nothing is released).
-create function public.penghentian_geser(p_person uuid, p_sejak timestamptz) returns interval
+-- C7-1: whether a window affected a person AT an instant: the memberships, enrolments and roles valid then, not now.
+-- A learner moved or transferred during a stop, or a teacher whose role ended during it, was still affected at T_stop.
+create function public.maintenance_affects_pada(w public.maintenance_windows, p_person uuid, p_t timestamptz)
+returns boolean language sql stable security definer set search_path = public, pg_temp as $$
+  select p_person is not null and p_t is not null and (w.platform
+    or (cardinality(w.node_ids) = 0 and (
+         exists (select 1 from public.role_assignments ra join public.org_nodes s on s.id = ra.scope_node_id
+                  where ra.person_id = p_person and s.institution_id = any (w.institution_ids)
+                    and p_t >= ra.valid_from and p_t < ra.valid_until and (ra.revoked_at is null or ra.revoked_at > p_t))
+      or exists (select 1 from public.enrollments e
+                  where e.person_id = p_person and e.institution_id = any (w.institution_ids)
+                    and e.valid_from <= p_t and (e.valid_to is null or e.valid_to > p_t))))
+    or (cardinality(w.node_ids) > 0 and (
+         exists (select 1 from public.role_assignments ra join public.org_nodes s on s.id = ra.scope_node_id
+                  where ra.person_id = p_person and (s.id = any (w.node_ids) or s.jalur && w.node_ids)
+                    and p_t >= ra.valid_from and p_t < ra.valid_until and (ra.revoked_at is null or ra.revoked_at > p_t))
+      or exists (select 1 from public.enrollments e join public.memberships m on m.enrollment_id = e.id
+                  where e.person_id = p_person and m.node_id = any (w.node_ids)
+                    and m.valid_from <= p_t and (m.valid_to is null or m.valid_to > p_t)
+                    and e.valid_from <= p_t and (e.valid_to is null or e.valid_to > p_t)))))
+$$;
+revoke all on function public.maintenance_affects_pada(public.maintenance_windows, uuid, timestamptz) from public, anon, authenticated, service_role;
+
+-- The length of the protected interval of a hold: from the holding window's T_stop, the union of that window and every
+-- later EMERGENCY window that affected the person AT ITS OWN T_stop, chained while each starts before the chain ends.
+-- Null while the chain has a window still in force (nothing is released). C7-1: never "affects now".
+create function public.penghentian_geser(p_person uuid, p_jendela uuid) returns interval
 language plpgsql stable security definer set search_path = public, pg_temp as $$
-declare v_akhir timestamptz := p_sejak; w record; v_lanjut boolean := true;
+declare v_awal timestamptz; v_akhir timestamptz; w record; v_lanjut boolean := true;
 begin
+  select x.t_stop, case when x.ended_at is null then null else coalesce(x.t_lift, x.ended_at) end into v_awal, v_akhir
+    from public.maintenance_windows x where x.id = p_jendela;
+  if v_awal is null then return interval '0'; end if;
+  if v_akhir is null then return null; end if;   -- the holding window is still in force
   while v_lanjut loop
     v_lanjut := false;
     for w in select x.t_stop, coalesce(x.t_lift, x.ended_at) as t_lift, x.ended_at
                from public.maintenance_windows x
-              where x.kind = 'EMERGENCY' and x.t_stop is not null and x.t_stop <= v_akhir
-                and (x.ended_at is null or coalesce(x.t_lift, x.ended_at) > v_akhir)
-                and public.maintenance_affects(x, p_person)
+              where x.kind = 'EMERGENCY' and x.t_stop is not null and x.id <> p_jendela
+                and x.t_stop <= v_akhir and (x.ended_at is null or coalesce(x.t_lift, x.ended_at) > v_akhir)
+                and public.maintenance_affects_pada(x, p_person, x.t_stop)
     loop
-      if w.ended_at is null then return null; end if;   -- still in force
+      if w.ended_at is null then return null; end if;
       v_akhir := w.t_lift; v_lanjut := true;
     end loop;
   end loop;
-  return v_akhir - p_sejak;
+  return v_akhir - v_awal;
 end $$;
-revoke all on function public.penghentian_geser(uuid, timestamptz) from public, anon, authenticated, service_role;
+revoke all on function public.penghentian_geser(uuid, uuid) from public, anon, authenticated, service_role;
 
 -- D6.3/B4: the window-timed shift is added where the window's closing time is read for the sitting
 create or replace function public.pengerjaan_tenggat_efektif(p_session uuid) returns timestamptz
@@ -117,7 +151,9 @@ begin
     end if;
   elsif old.darurat_sejak is not null and new.darurat_sejak is not null then
     -- held: no ending, no scoring, no re-timing
-    if new.darurat_sejak is distinct from old.darurat_sejak then raise exception 'when an emergency hold began is recorded once'; end if;
+    if new.darurat_sejak is distinct from old.darurat_sejak or new.darurat_jendela_id is distinct from old.darurat_jendela_id then
+      raise exception 'when and by which window an emergency hold began is recorded once';
+    end if;
     if new.status is distinct from old.status or new.authoritative_deadline is distinct from old.authoritative_deadline
        or new.darurat_geser_detik is distinct from old.darurat_geser_detik then
       perform public.pengerjaan_tolak('SITTING_EMERGENCY_HELD');
@@ -143,14 +179,15 @@ declare s public.assessment_sessions; v_geser interval;
 begin
   select * into s from public.assessment_sessions where id = p_session for update;
   if s.id is null or s.darurat_sejak is null then return false; end if;
-  v_geser := public.penghentian_geser(s.person_id, s.darurat_sejak);
+  v_geser := public.penghentian_geser(s.person_id, s.darurat_jendela_id);
   if v_geser is null then return false; end if;   -- still protected
   if s.authoritative_deadline is not null then
     update public.assessment_sessions
-       set authoritative_deadline = s.authoritative_deadline + v_geser, darurat_sejak = null where id = s.id;
+       set authoritative_deadline = s.authoritative_deadline + v_geser, darurat_sejak = null, darurat_jendela_id = null where id = s.id;
   else
     update public.assessment_sessions
-       set darurat_geser_detik = s.darurat_geser_detik + ceil(extract(epoch from v_geser))::integer, darurat_sejak = null
+       set darurat_geser_detik = s.darurat_geser_detik + ceil(extract(epoch from v_geser))::integer, darurat_sejak = null,
+           darurat_jendela_id = null
      where id = s.id;
   end if;
   return true;
@@ -171,7 +208,7 @@ begin
   loop
     n := 0;
     for x in select s.id from public.assessment_sessions s
-              where s.darurat_sejak is not null and public.penghentian_geser(s.person_id, s.darurat_sejak) is not null
+              where s.darurat_sejak is not null and public.penghentian_geser(s.person_id, s.darurat_jendela_id) is not null
               order by s.id limit p_batas for update skip locked loop
       if public.pengerjaan_lepas_darurat(x.id) then n := n + 1; end if;
     end loop;
@@ -180,17 +217,19 @@ begin
   end loop;
   loop
     with c as (
-      select s.id, (select min(w.t_stop) from public.maintenance_windows w
-                     where w.kind = 'EMERGENCY' and w.t_stop is not null and w.ended_at is null
-                       and public.maintenance_affects(w, s.person_id)) as sejak
+      select s.id, j.id as jendela, j.t_stop as sejak
         from public.assessment_sessions s
+        cross join lateral (select w.id, w.t_stop from public.maintenance_windows w
+                             where w.kind = 'EMERGENCY' and w.t_stop is not null and w.ended_at is null
+                               and public.maintenance_affects(w, s.person_id)
+                             order by w.t_stop, w.id limit 1) j
        where s.darurat_sejak is null
          and (s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')
               or (s.status = 'EXPIRED' and s.authoritative_deadline is not null
                   and not exists (select 1 from public.assessment_results r where r.session_id = s.id)))
          and public.orang_dilindungi(s.person_id)
        order by s.id limit p_batas for update of s skip locked)
-    update public.assessment_sessions s set darurat_sejak = c.sejak from c
+    update public.assessment_sessions s set darurat_sejak = c.sejak, darurat_jendela_id = c.jendela from c
      where s.id = c.id and c.sejak is not null
        -- B3: an EXPIRED sitting is protected only while still inside its grace at T_stop
        and (s.status <> 'EXPIRED' or c.sejak <= s.authoritative_deadline + make_interval(secs => coalesce(
@@ -210,7 +249,7 @@ begin
   loop
     n := 0;
     for r in select s.id from public.assessment_sessions s
-              where s.darurat_sejak is not null and public.penghentian_geser(s.person_id, s.darurat_sejak) is not null
+              where s.darurat_sejak is not null and public.penghentian_geser(s.person_id, s.darurat_jendela_id) is not null
               order by s.id limit p_batas for update skip locked loop
       if public.pengerjaan_lepas_darurat(r.id) then n := n + 1; end if;
     end loop;
@@ -229,7 +268,7 @@ declare r record;
 begin
   for r in select p.oid::regprocedure as fn from pg_proc p
             where p.proname in ('orang_dilindungi', 'pengerjaan_dilindungi', 'penghentian_geser', 'pengerjaan_lepas_darurat',
-                                'pengerjaan_tandai_darurat', 'pengerjaan_lepas_darurat_semua') loop
+                                'pengerjaan_tandai_darurat', 'pengerjaan_lepas_darurat_semua', 'maintenance_affects_pada') loop
     if has_function_privilege('anon', r.fn, 'execute') or has_function_privilege('authenticated', r.fn, 'execute')
        or has_function_privilege('service_role', r.fn, 'execute') then
       raise exception 'A2a D6: % is callable by a client or the server key', r.fn;
