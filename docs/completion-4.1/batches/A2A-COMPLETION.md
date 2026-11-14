@@ -64,9 +64,9 @@ Auth's user deletion.
 2. **Every register item is a NAMED declared exception in A2A-L01, with its register reference.** The freeze is on a
    green A2A-L01 in which every exception is named, never green by omission.
 
-**CHANGE C AT A GLANCE** (14 Nov, 03:24 UTC by `date -u`; the source of truth for a fresh session). The details follow
+**CHANGE C AT A GLANCE** (14 Nov, 03:32 UTC by `date -u`; the source of truth for a fresh session). The details follow
 below.
-- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `c3cbe3c4`. The order is A → C → B, and C
+- **Branch:** `claude/a2a-change-c`, from `main` at `0ea4b8ad`. Its head is `2a3695b2`. The order is A → C → B, and C
   is not merged until B's scale evidence holds on C's frozen commit.
 - **Commits:**
   1. `768eb032` · A2A-T01, every reader of a sitting's closing time, classed. **Sharon: read, no blocker** (E1, E2).
@@ -83,10 +83,19 @@ below.
      **Sharon: not yet read.**
   8. `c3cbe3c4` · DRAFT · two fixes to 7, found on the owner's questions: a second stop no longer loses the first's
      time (D6.4), and `service_role` is revoked from the six new routines. **Sharon: not yet read.**
-- **Green locally:** A2A-L01, A2A-T01, A2A-F01, M148-D02, and A1's S01 to S09. The pins are at 253.
+  9. `2a3695b2` · DRAFT · D6.2 at sitting level.
+     - `pengerjaan_pagar` takes the learner, then the shared fence, then reads protection under it. A busy fence
+       gives `SITTING_FENCE_BUSY`.
+     - The decider skips a protected sitting and releases on first touch. The acts refuse
+       `SITTING_CLASS_STOPPED`. `minta_percobaan` and the closer take the fence first.
+     - **Sharon: not yet read.**
+     - **A2A-L01 is red on three, for her ruling** (below, "The fence's order in the assignment-level acts").
+- **Green locally:** A2A-L03, A2A-L05, A2A-T01, A2A-F01, M148-D02, and A1's K01, S01 to S09 and J01. The pins are at
+  254. **A2A-L01 is red on three, for Sharon.**
 - **Open with Sharon:** the owner's three questions and two points (below), and her read of drafts 6 to 8.
 - **Next, in order:**
-  1. D6.2: the protection check in each act, with Daisy's refusal lines in `hle.ts`, and the fence refusal.
+  1. D6.2's assignment-level acts (`ubah_jadwal_penugasan`, `akhiri_penugasan`, `tutup_asesmen_terbuka`, the
+     promotion), after Sharon's ruling on their order. Daisy's refusal lines go into `hle.ts`.
   2. D6.6: the closer as a procedure, its selection by the shifted closing time, and the job `select` → `call`.
   3. The fenced lift, including AKHIRI on an EMERGENCY window, with `T_lift`. **Sharon's own early read.**
   4. D6.9: the audit rows.
@@ -96,6 +105,20 @@ below.
   8. The screens, with screenshots in `a2a-layar/`.
 - **Reviewers:** Second Eye cannot message their sessions from here. Pointers for them are on this page; the Chief
   Architect relays.
+
+**The fence's order in the assignment-level acts: a question for Sharon** (draft 9, 03:32 UTC).
+- **The rule:** the fence is the first lock after the lifecycle ranks, and no person lock comes after it (B1;
+  required change 3).
+- **Three acts lock an unranked row before their learners:**
+  - `akhiri_penugasan`: the learning assignment and its assessment assignments, so that no new sitting can start;
+  - `transfer_execute`: the transfer;
+  - `tangguhkan_akun`, as a D6.5 fenced decision: the Auth-side rows (`card_conversions` and the like), through
+    `akun_kunci`, before its sittings' fence.
+- **Second Eye's proposal:** read the learners unlocked; take them, then the fence, then the unranked row; re-check
+  that the set did not change, as C1 did for the enrolment.
+  - That moves a lock earlier in three approved functions. It changes no behaviour.
+  - **Does Sharon accept the shape?** Or should these unranked rows be ranked (as C2 did for enrolments)?
+- Until then, A2A-L01 is red on exactly these three, and nothing else of the assignment level is built.
 
 **CHANGE C IS IN DEVELOPMENT** (14 Nov, 00:47 UTC by `date -u`). The order is now A → C → B: the owner, through the Chief
 Architect (`TEAM-INSTRUCTIONS.md` at `33be0fa1`).
