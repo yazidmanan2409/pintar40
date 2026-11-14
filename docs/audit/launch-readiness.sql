@@ -158,13 +158,9 @@ select 'identity is Person-centred (no tenant column on persons)',
            and column_name in ('institution_id','class_id','cohort_id','node_id'))
 union all
 select 'every function pins its search_path',
-       (select count(*) = 0 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
-         where n.nspname='public' and p.prokind in ('f','p')
-           and not exists (select 1 from unnest(coalesce(p.proconfig,'{}')) c where c like 'search_path=%')),
-       (select count(*)::text || ' function(s) without a pinned search_path' from pg_proc p
-          join pg_namespace n on n.oid=p.pronamespace
-         where n.nspname='public' and p.prokind in ('f','p')
-           and not exists (select 1 from unnest(coalesce(p.proconfig,'{}')) c where c like 'search_path=%'))
+       -- A2a: the three batch procedures that commit are excused only while each condition holds (jalur_pengecualian_cacat)
+       (select public.jalur_tanpa_pin() = 0),
+       (select public.jalur_tanpa_pin()::text || ' function(s) without a pinned search_path')
 union all
 select 'audit trail is append-only AND populated',
        (select count(*) > 0 from public.audit_log)
