@@ -131,3 +131,17 @@ The code is read against `main` at `0ea4b8ad`.
 - For every HARUS reader in A2A-T01, a sitting with a shift reads the same effective deadline. Run it once for an own-deadline sitting and once for a window-timed one, after a lift.
 - The KLIEN line (`AturPengerjaan`) equals the server's new deadline.
 - **The test fails for a HARUS reader it does not cover.** It takes its list from A2A-T01's table, not from its own.
+
+## Addendum (04:50 UTC): is refusing joins into a stopped class required? No. It is defensive only (REG-A2A-09)
+
+**The failure that needs a fix:** a person who joins after `T_stop` is stopped by a hook that reads **current** placement, but is not protected by C10-1's rule, which reads placement at `T_stop`. Their sittings' clock runs while they cannot work: they lose time.
+
+**What is required is one rule, not a refusal:**
+- for an EMERGENCY window, **the hook, protection and marking all judge "affected" at the window's `T_stop`** (`maintenance_affects_pada(w, person, w.t_stop)`);
+- a joiner is then neither stopped nor held, and loses nothing;
+- a person moved out stays stopped and held until the lift, and is given back the stopped time.
+- PLANNED windows keep the current reading.
+
+So the join refusal goes to the register as REG-A2A-09 and is not built in C. *(Superseded: my recommendation above to refuse the join, and its alternative of holding from `valid_from`.)*
+
+**The test:** a learner joins a class after its stop takes effect. They are not stopped, their sitting is not held, and their deadline is unchanged.
