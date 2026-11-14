@@ -549,3 +549,29 @@ added) goes to its early read.
 - Register from change A: REG-A2A-01 to -08 (A2a's page). Friction: about 18:20 to 22:35 UTC to the freeze; one full
   verification attempt; all ten defects caught in development.
 - Next: change B (the scale job, within the owner's four limits), then change C (A2a's product changes).
+
+## A2a's order changed to A → C → B (owner, 14 Nov 2026)
+
+Second Eye showed that change B (the scale job) cannot measure the stop and the lift until change C exists. The owner
+authorised A → C → B, with these conditions (summarised; his message governs):
+1. C starts from `main` at `0ea4b8ad`, with the inventory and tests of every reader of a sitting's closing time
+   (`closure_deadline`, `closes_at`, grace) as its first commit.
+2. Early reviews stay mandatory: Sharon on the risky database parts, Daisy on screens and wording before the freeze.
+   Previously approved behaviour and conditions are preserved.
+3. B stays separate, built against C's real implementation, within the four existing limits; nothing new measured.
+4. The scale job measures one fixed, identifiable commit of C. **C is not accepted as A2a until its scale evidence is
+   satisfactory.**
+5. The full acceptance process stands. Changing a frozen candidate means an explicit unfreeze, correction, review and
+   refreeze.
+6. Directly related defects and their siblings are fixed; 4.0 is not reopened broadly; no unrelated improvements.
+
+**The sequence (the Chief Architect's):**
+1. C in development on `claude/a2a-change-c` from `0ea4b8ad`; early reads as it goes.
+2. C frozen at a named commit; Sharon's result review, Daisy's screen review; then one full pre-flight, the PR (CI,
+   left open, not merged) and journeys, all on that commit.
+3. B in development on `claude/a2a-change-b`, branched from C's frozen commit, verification tooling only; Sharon's
+   early read; B frozen; its own review and checks.
+4. The scale job dispatched once, on C's frozen commit (B's tooling at B's frozen commit).
+5. Only if the three numbers hold: C's PR merges, then B's. Staging promotion with the preservation pair.
+6. If they do not hold: C is explicitly unfrozen, corrected, re-reviewed and refrozen, and steps 2 and 4 repeat on the
+   new commit.
