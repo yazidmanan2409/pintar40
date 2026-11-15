@@ -2214,7 +2214,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 258 -> 260, RESTATED, A2a change C: 20270119190000 and 20270119200000 (Daisy's A1, A4, THE PLAN items 2-4, DITUTUP §2-§3).
       // MOVED 260 -> 261, RESTATED, A2a change C: 20270119210000 (the three committing procedures, an enforced exception).
       // MOVED 261 -> 262, RESTATED, A2a change C: 20270119220000 (O1 after the lift).
-      c.expect(migrations.length === 262, `${migrations.length} migrations; the frozen baseline has 262`);
+      // MOVED 262 -> 263, RESTATED, A2a change C: 20270119230000 (D6.9's rows).
+      c.expect(migrations.length === 263, `${migrations.length} migrations; the frozen baseline has 263`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4099,7 +4100,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 258 -> 260, RESTATED, A2a change C, for 20270119190000 and 20270119200000 (Daisy's words and reads): no tour RPC.
       // MOVED 260 -> 261, RESTATED, A2a change C, for 20270119210000 (the search_path exception): no tour RPC.
       // MOVED 261 -> 262, RESTATED, A2a change C, for 20270119220000 (O1 after the lift): no tour RPC.
-      c.expect(migs.length === 262, `${migs.length} migrations; the baseline has 262`);
+      // MOVED 262 -> 263, RESTATED, A2a change C, for 20270119230000 (D6.9's rows): no tour RPC.
+      c.expect(migs.length === 263, `${migs.length} migrations; the baseline has 263`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

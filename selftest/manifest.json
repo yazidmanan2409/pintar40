@@ -6244,6 +6244,11 @@
       "id": "A2A-C715",
       "runner": "static",
       "proves": "THE PLAN §5.3 D6.2, O1 after the lift (migration 20270119220000), on the database with committed fixtures put back after: during a class stop the school's admin ends a learner's enrolment (akhiri_pendaftaran); both protected sittings are preserved unscored, with the departure's actor and reason recorded once and audited. After the lift the release batch (pengerjaan_lepas_darurat_semua) applies the ordinary departure rule on the shifted deadline: a sitting inside it is terminated INSTITUTIONAL_REVOCATION by the departure's actor with its reason, unscored, answers kept; one past it and its grace is judged by the deadline rule, never terminated; each audited after the lift, naming the stop. Plant: the release batch without the departure pass leaves the preserved sitting open."
+    },
+    {
+      "id": "A2A-C716",
+      "runner": "static",
+      "proves": "THE PLAN §5.3 D6.9's remaining rows and scenario 9's once-only (migration 20270119230000), on the database's audit log with committed fixtures put back after: a class stop holds a learner's open sitting and one held for a suspension; the marking batch, run twice, writes one maintenance.marking_completed row naming T_stop and how many it holds (the open sitting marked, the suspended one not); after the lift the release batch, run twice, writes one maintenance.release_completed row naming T_lift, the released count and the one left held for a suspension. Plant: the once-only guard removed, a second marking row is written."
     }
   ]
 }

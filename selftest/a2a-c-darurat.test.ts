@@ -1567,3 +1567,87 @@ a2aDaruratTests.push({
     return c.verdict(`a class stop; the school's admin ends the learner's enrolment during it: both protected sittings are preserved, unscored, with who and why recorded; after the lift the release batch applies the ordinary departure rule on the shifted deadline: the one inside it terminated INSTITUTIONAL_REVOCATION by the departure's actor with its reason, unscored, and the one past it and its grace judged by the deadline rule (${bSt}), never terminated; each audited at the departure and after the lift, naming the stop; with the plant (no departure pass) the preserved sitting stayed ${tanam.a[0]}`);
   },
 });
+
+// ═══════════════════════════════════════════════════════════ A2A-C716 · D6.9: the marking and the release, counted once
+
+/** THE PLAN §5.3 D6.9: one row when marking completes (how many held), one after the lift (T_lift; how many released,
+ *  how many held for a suspension and left held); scenario 9: stopping or lifting twice writes no second row. A class
+ *  stop holds the learner's open sitting A and their sitting B held by A1 (a suspension). The marking batch runs twice;
+ *  the stop is lifted; the release batch runs twice. Committed fixtures (the batches commit), put back after. */
+function hitungHenti(db: string) {
+  const f = fiksur(db);
+  const A = "a2a1c716-0000-4000-8000-000000000001", B = "a2a1c716-0000-4000-8000-000000000002", W = "a2a1c716-0000-4000-8000-0000000000a1";
+  const salin = (id: string, beku: boolean) => `insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${f.person}',
+  'enrollment_id', '${f.enr}', 'institution_id', '${f.inst}', 'class_node_id', '${f.node}', 'cohort_node_id', null,
+  'authoritative_deadline', now() + interval '30 minutes', 'created_at', now() - interval '60 minutes', 'finalized_at', null, 'submitted_at', null,
+  'closure_kind', null, 'closure_at', null, 'closure_deadline', null,
+  'frozen_at', ${beku ? "now() - interval '45 minutes'" : "null"}, 'frozen_cause', ${beku ? "'ACCOUNT_SUSPENDED'" : "null"},
+  'frozen_suspension_id', null, 'frozen_remaining_seconds', ${beku ? "1800" : "null"}, 'unfrozen_at', null, 'unfrozen_by_person_id', null,
+  'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null, 'darurat_keluar', null))).*
+  from public.assessment_sessions s where s.status = 'FINALIZED' order by s.id limit 1;`;
+  const baris = (aksi: string) => psqlStdin(db, `select count(*) || '|' || coalesce(max(summary::text), '{}') from public.audit_log
+    where action = '${aksi}' and target_id = '${W}';`);
+  try {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+create table if not exists public._a2a_c716_asal as select '${f.mem}'::uuid as mem, m.valid_from as m_dari, '${f.enr}'::uuid as enr, e.valid_from as e_dari
+  from public.memberships m, public.enrollments e where m.id = '${f.mem}' and e.id = '${f.enr}';
+update public.memberships set valid_from = valid_from - interval '1 day' where id = '${f.mem}';
+update public.enrollments set valid_from = valid_from - interval '1 day' where id = '${f.enr}';
+${salin(A, false)}
+${salin(B, true)}
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, reason, created_by_person_id, activation_recorded_at)
+select '${W}', 'EMERGENCY', false, array['${f.inst}'::uuid], array['${f.node}'::uuid], now() - interval '20 minutes', now() - interval '20 minutes', 'A2A-C716',
+       (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), now() - interval '20 minutes';
+commit;`);
+    psqlStdin(db, "call public.pengerjaan_tandai_darurat(50);");
+    psqlStdin(db, "call public.pengerjaan_tandai_darurat(50);");
+    const tanda = baris("maintenance.marking_completed");
+    const ditandai = psqlStdin(db, `select string_agg(coalesce(darurat_jendela_id = '${W}', false)::text, ',' order by id) from public.assessment_sessions where id in ('${A}', '${B}');`);
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+update public.maintenance_windows set ended_at = now(), t_lift = now() where id = '${W}';
+commit;`);
+    psqlStdin(db, "call public.pengerjaan_lepas_darurat_semua(50);");
+    psqlStdin(db, "call public.pengerjaan_lepas_darurat_semua(50);");
+    const lepas = baris("maintenance.release_completed");
+    const sesudah = psqlStdin(db, `select string_agg(coalesce(darurat_jendela_id::text, '-') || ':' || (frozen_at is not null and unfrozen_at is null)::text, ',' order by id)
+      from public.assessment_sessions where id in ('${A}', '${B}');`);
+    return { tanda, ditandai, lepas, sesudah };
+  } finally {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+delete from public.audit_log where target_id in ('${A}', '${B}', '${W}');
+delete from public.assessment_sessions where id in ('${A}', '${B}');
+delete from public.maintenance_windows where id = '${W}';
+update public.memberships m set valid_from = a.m_dari from public._a2a_c716_asal a where m.id = a.mem;
+update public.enrollments e set valid_from = a.e_dari from public._a2a_c716_asal a where e.id = a.enr;
+drop table if exists public._a2a_c716_asal;
+commit;`);
+  }
+}
+const TANDA_SEKALI = "and not exists (select 1 from public.audit_log l where l.action = 'maintenance.marking_completed' and l.target_id = w.id::text)";
+
+a2aDaruratTests.push({
+  id: "A2A-C716",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    const r = hitungHenti(db);
+    const [nTanda, tanda] = r.tanda.split("|");
+    const t = JSON.parse(tanda || "{}") as { held?: number; t_stop?: string };
+    c.expect(nTanda === "1" && (t.held ?? 0) >= 1 && !!t.t_stop, `the marking completed: ${r.tanda}, not one row with how many it holds and T_stop`);
+    c.expect(r.ditandai === "true,false", `the stop marked the open sitting and not the one held for a suspension: ${r.ditandai}`);
+    const [nLepas, lepas] = r.lepas.split("|");
+    const l = JSON.parse(lepas || "{}") as { released?: number; held_for_suspension?: number; t_lift?: string };
+    c.expect(nLepas === "1" && (l.released ?? 0) >= 1 && l.held_for_suspension === 1 && !!l.t_lift,
+      `the release completed: ${r.lepas}, not one row with T_lift, the released count and 1 left held for a suspension`);
+    c.expect(r.sesudah === "-:false,-:true", `after the release, the open sitting released and the suspended one left held: ${r.sesudah}`);
+    // the plant: the marking's row not guarded once, so a second run writes a second row
+    const balik = gantiFungsi("public.pengerjaan_tandai_darurat(integer)", TANDA_SEKALI, "and true");
+    let tanam: ReturnType<typeof hitungHenti>;
+    try { tanam = hitungHenti(db); } finally { balik(); }
+    c.expect(tanam.tanda.split("|")[0] !== "1", `with the plant (no once-only guard) the marking still wrote one row: ${tanam.tanda}`);
+    return c.verdict(`a class stop holding an open sitting and one held for a suspension: the marking batch, run twice, writes one maintenance.marking_completed row (held ${t.held}, T_stop); after the lift the release batch, run twice, writes one maintenance.release_completed row (T_lift, released ${l.released}, held for a suspension ${l.held_for_suspension}); with the plant (no once-only guard) the marking wrote ${tanam.tanda.split("|")[0]} rows`);
+  },
+});
