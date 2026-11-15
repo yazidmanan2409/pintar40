@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2a change C commit 43 (the O1 refusal audit) | NO BLOCKER in the design; (a) and (b) agreed; **C41-2 swept to five places** (promotion count, reschedule refusal, three audit branches: `pengerjaan_dilindungi` only); still open: C41-1, C41-2 | `0ea8ac0ce0f1215684957addb0d8eb21438ec24e` | `A2A-C-43-0ea8ac0c.md` |
 | A2a change C commit 42 (C39-1) | NO BLOCKER: C39-1 closed (termination rolling back with the refused act accepted; N42-1 note); the D6.9 rename accepted; C718 fixture accepted; F01-T10 and B1-S01 a register item; C41-1, C41-2 and the refusal audit still open | `3def2e9bad5a56669c71388e470c0e07979fb713` | `A2A-C-42-3def2e9b.md` |
 | A2a change C commit 41 (B3 to B6, required change 1 tests) | **BLOCKER C41-1** (B4 and B5 encode `ended_at − starts_at` on fixtures where they equal `T_lift` and `T_stop`); B3, B6 and A2A-C718 accepted | `759540ef179a529ba137d9d59bff7975c1c5e01e` | `A2A-C-41-759540ef.md` |
 | A2a change C commit 40 (D6.9's rows) | NO BLOCKER; the lift's counts in `release_completed` accepted (note it on the page); note: "released" should count from the watermark, or be renamed | `0a6ddca1d6716b8d4318a22f6993f22c28ec7e6e` | `A2A-C-40-0a6ddca1.md` |
