@@ -98,7 +98,7 @@ each its own commit handed to Sharon (copy Bob): 39 `d77609ec` O1 after the lift
 F01-T10, B1-S01 (and B1-S05) and F05-T07 repeatable on a reused database (test defects, causes in the commit). M-1 is
 commit 14, confirmed by Sharon. 46 `c04c088e`: a refusal recorded once per caller, target, code and stop (Sharon's note
 on 43). Sharon: no blocker on 39 to 45 (verdicts `4a865aaf`, `064e9d00`, `f0cd6242`, `ae479d83`, `d79ee46a`, `9eae2d53`);
-46 with her. The candidate is `c04c088e`, its full pre-flight running.
+46 no blocker (`ddb27175`). Nothing open on C up to `c04c088e`, the candidate; its full pre-flight running.
 
 **Outstanding, in order:**
 1. **Monday, first thing: the four remaining A2a requirements** (built: see above). Each is built red first and handed
@@ -131,6 +131,9 @@ on 43). Sharon: no blocker on 39 to 45 (verdicts `4a865aaf`, `064e9d00`, `f0cd62
    a departure preserved through a stop, its learner who opens `/belajar/asesmen/[penugasan]` directly is shown the player
    (the page reads `assessment_sessions` through RLS). The list no longer offers it (N42-1); every answer there is refused,
    the next committing touch terminates the sitting, and nothing is scored (C719). The display is Daisy's.
+7. **Registered, not in C (Sharon, verdict on commit 46 at `ddb27175`):** `catat_penolakan_henti`'s dedupe is per caller,
+   target, code and stops in force; two calls at the same instant can each find no row and write one (two refused acts
+   at once by one person on one target). Not locked.
 
 **Where everything is:**
 - Product and tests: `claude/a2a-change-c`. The last migration is `20270119210000`; the A2a tests are in
