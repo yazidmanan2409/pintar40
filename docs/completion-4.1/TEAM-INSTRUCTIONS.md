@@ -760,3 +760,51 @@ removes approved scope, and an engineer's "nobody asked for it" never does.
 | Daisy | `e990def9` | `ux-1/daisy-experience` |
 | Second Eye | `cfafc1a2` | the A2a page, `claude/a2a`. Read it with this note: "proposed for freeze" is superseded by "clean checkpoint", and his "deferred" items are Monday's first work |
 | Bob | this section | this file |
+
+## CHANGE C FROZEN at `c04c088ea65f7eff32c07aadf0a91b16e098e3ed` (Chief Architect, 15 Nov 2026, 22:57 UTC)
+
+This is commit 46 on `claude/a2a-change-c`. The branch head was verified equal to it, and the tree is clean.
+
+**The one full pre-flight, on that exact commit** (fresh reset and fresh build; CI's steps run locally by Second Eye):
+
+| Check | Result |
+|---|---|
+| Lint, typecheck | Return code 0 each |
+| Build identity | 11 passed, 0 failed |
+| Whole manifest: regression, concurrency, static, app | 1173 passed, 0 failed, 0 skipped. One skip is local-only and justified |
+| Plants | 175 of 175 caught |
+| Red cases | All 11 groups passed |
+
+**Sharon:** "Nothing is open on C up to `c04c088e`" (`A2A-C-46-c04c088e.md`, `ddb27175`). Each of the owner's items is
+closed:
+
+| Item | Closed by |
+|---|---|
+| C39-1, departure at first touch | `ae479d83` |
+| The refusal audit and its dedupe | `d79ee46a`, `ddb27175` |
+| D6.9, the rows and the released count | `064e9d00`, `9eae2d53` |
+| C717 and C718, with the six disabled triggers accepted | `84ddf56e` |
+| C41-1 and C41-2 (C41-2 swept to six places) | `9eae2d53` |
+| M-1 confirmed | `84ddf56e` |
+| N42-1, and the reused-database test fixes (F01-T10, B1-S01 and S05, F05-T07; causes in commit 45) | `9eae2d53` |
+
+**Registered by Sharon's rulings, not in C** (the A2a page, `claude/a2a` `945c5fa2`, items 6 and 7):
+
+- the departed learner's direct sitting URL;
+- the refusal record's simultaneous-call race.
+
+**Not yet accepted as A2a.** That waits on:
+
+1. Sharon's result review of `c04c088e`, starting now;
+2. change B's scale evidence on this commit;
+3. PR and CI, and the journeys;
+4. merge, then staging promotion with the preservation pair. Sharon's eight hosted privilege reads are a stop
+   condition, and pg_cron must be present where the search_path lint runs.
+
+**Change B starts now** on `claude/a2a-change-b`, branched from `c04c088e`:
+
+- tooling only: its diff may touch `selftest/`, `scripts/`, `.github/workflows/` and `audit/`, nothing else;
+- the owner's four measurements;
+- scenario 8's three C18-1 numbers.
+
+Any change to C from here means an explicit unfreeze, correction, review and a new pre-flight.
