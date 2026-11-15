@@ -508,11 +508,12 @@ a2aDaruratTests.push({
 // ═══════════════════════════════════════════════════════════ A2A-C704 · the promotion run during a stop (M-1)
 
 const TAHUN_BARU = "a2a1c704-0000-4000-8000-0000000000e1";
+const KENAIKAN_BASI = "     and public.pengerjaan_dilindungi(a.id);   -- C41-2: a stale mark after the lift holds nothing";
 
 /** A class with a learner holding an open sitting, a later school year, the school's admin; a class stop. The
  *  promotion's preview and its application are each tried in a subtransaction; then the stop is lifted and the
  *  preview tried again. One transaction, rolled back. Returns each attempt's SQLSTATE|DETAIL|HINT, or OK. */
-function kenaikanSaatBerhenti(db: string): { pratinjau: string; terapkan: string; sesudah: string; ditahan: number; err: string } {
+function kenaikanSaatBerhenti(db: string): { pratinjau: string; terapkan: string; sesudah: string; basi: string; ditahan: number; err: string } {
   // the class needs a learner and a school admin; a later school year is added inside the rolled-back transaction when
   // the school has none (the whole manifest moves the seed's learners before this test runs)
   const b = psqlStdin(db, `select k.id || '|' || coalesce((select ap.id::text from public.academic_periods ap where ap.institution_id = k.institution_id
@@ -562,9 +563,14 @@ set local session_replication_role = replica;
 update public.maintenance_windows set ended_at = now(), t_lift = now() where id = '${JENDELA}';
 set local session_replication_role = origin;
 select 'SESUDAH|' || ${coba(false)};
+-- C41-2: the marking batch had marked the sitting; lifted, no release batch yet: the stale mark holds nothing
+set local session_replication_role = replica;
+update public.assessment_sessions set darurat_sejak = (select t_stop from public.maintenance_windows where id = '${JENDELA}'), darurat_jendela_id = '${JENDELA}' where id = '${SESI}';
+set local session_replication_role = origin;
+select 'BASI|' || ${coba(true)};
 rollback;` });
   const ambil = (k: string) => (r.stdout ?? "").split("\n").find((l) => l.startsWith(k + "|"))?.slice(k.length + 1) ?? "";
-  return { pratinjau: ambil("PRATINJAU"), terapkan: ambil("TERAPKAN"), sesudah: ambil("SESUDAH"), ditahan: Number(ambil("DITAHAN") || -1),
+  return { pratinjau: ambil("PRATINJAU"), terapkan: ambil("TERAPKAN"), sesudah: ambil("SESUDAH"), basi: ambil("BASI"), ditahan: Number(ambil("DITAHAN") || -1),
     err: (r.stderr ?? "").trim().split("\n")[0] ?? "" };
 }
 
@@ -582,11 +588,18 @@ a2aDaruratTests.push({
     c.expect(r.pratinjau === mau, `the promotion's preview during the stop answered ${r.pratinjau}, not ${mau}`);
     c.expect(r.terapkan === mau, `the promotion's application during the stop answered ${r.terapkan}, not ${mau}`);
     c.expect(!r.sesudah.includes("PROMO_STOPPED"), `after the lift the promotion is still refused for the stop: ${r.sesudah}`);
+    c.expect(!!r.basi && !r.basi.includes("PROMO_STOPPED"), `C41-2: after the lift, with the stop's mark not yet released (no batch), the application is still refused for the stop: ${r.basi}`);
     const balik = gantiFungsi("public.kenaikan_tetapkan(uuid,uuid,jsonb,boolean,boolean)", "  if v_ditahan > 0 then\n", "  if false then\n");
     let tanam: ReturnType<typeof kenaikanSaatBerhenti>;
     try { tanam = kenaikanSaatBerhenti(db); } finally { balik(); }
     c.expect(!tanam.terapkan.includes("PROMO_STOPPED"), `with the plant (no refusal) the application was still refused for the stop: ${tanam.terapkan}`);
-    return c.verdict(`during a class stop the promotion's preview and application are refused PR070 PROMO_STOPPED with ${r.ditahan} learner(s) in HINT; after the lift it goes on to its own checks (${r.sesudah}); with the plant the application went on (${tanam.terapkan})`);
+    // C41-2's plant: the stale mark counted again
+    const balik2 = gantiFungsi("public.kenaikan_tetapkan(uuid,uuid,jsonb,boolean,boolean)", KENAIKAN_BASI,
+      "     and (public.pengerjaan_dilindungi(a.id) or a.darurat_sejak is not null);");
+    let tanam2: ReturnType<typeof kenaikanSaatBerhenti>;
+    try { tanam2 = kenaikanSaatBerhenti(db); } finally { balik2(); }
+    c.expect(tanam2.basi.includes("PROMO_STOPPED"), `with C41-2's plant (the stale mark counted) the application after the lift was not refused: ${tanam2.basi}`);
+    return c.verdict(`during a class stop the promotion's preview and application are refused PR070 PROMO_STOPPED with ${r.ditahan} learner(s) in HINT; after the lift it goes on to its own checks (${r.sesudah}), and so does the application while the stop's mark is not yet released (C41-2: ${r.basi}); plants: no refusal, the application went on (${tanam.terapkan}); the stale mark counted, refused (${tanam2.basi})`);
   },
 });
 
@@ -1578,6 +1591,7 @@ a2aDaruratTests.push({
 function hitungHenti(db: string) {
   const f = fiksur(db);
   const A = "a2a1c716-0000-4000-8000-000000000001", B = "a2a1c716-0000-4000-8000-000000000002", W = "a2a1c716-0000-4000-8000-0000000000a1";
+  const C = "a2a1c716-0000-4000-8000-000000000003";   // D6.9's count: credited at first touch, finished before the batch
   const salin = (id: string, beku: boolean) => `insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${f.person}',
   'enrollment_id', '${f.enr}', 'institution_id', '${f.inst}', 'class_node_id', '${f.node}', 'cohort_node_id', null,
@@ -1605,19 +1619,27 @@ commit;`);
     psqlStdin(db, "call public.pengerjaan_tandai_darurat(50);");
     const tanda = baris("maintenance.marking_completed");
     const ditandai = psqlStdin(db, `select string_agg(coalesce(darurat_jendela_id = '${W}', false)::text, ',' order by id) from public.assessment_sessions where id in ('${A}', '${B}');`);
+    // C: open at T_stop, never marked (it joins after the marking ran); after the lift its first touch credits it, and
+    // it is finished before the release batch runs
     psqlStdin(db, `begin; set local session_replication_role = replica;
+${salin(C, false)}
 update public.maintenance_windows set ended_at = now(), t_lift = now() where id = '${W}';
+commit;`);
+    psqlStdin(db, `select public.pengerjaan_putus_tenggat('${C}', true);`);
+    const kreditC = psqlStdin(db, `select (darurat_dikredit_sampai is not null)::text from public.assessment_sessions where id = '${C}';`);
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+update public.assessment_sessions set status = 'FINALIZED', finalized_at = now(), submitted_at = now() where id = '${C}';
 commit;`);
     psqlStdin(db, "call public.pengerjaan_lepas_darurat_semua(50);");
     psqlStdin(db, "call public.pengerjaan_lepas_darurat_semua(50);");
     const lepas = baris("maintenance.release_completed");
     const sesudah = psqlStdin(db, `select string_agg(coalesce(darurat_jendela_id::text, '-') || ':' || (frozen_at is not null and unfrozen_at is null)::text, ',' order by id)
       from public.assessment_sessions where id in ('${A}', '${B}');`);
-    return { tanda, ditandai, lepas, sesudah };
+    return { tanda, ditandai, lepas, sesudah, kreditC };
   } finally {
     psqlStdin(db, `begin; set local session_replication_role = replica;
-delete from public.audit_log where target_id in ('${A}', '${B}', '${W}');
-delete from public.assessment_sessions where id in ('${A}', '${B}');
+delete from public.audit_log where target_id in ('${A}', '${B}', '${C}', '${W}');
+delete from public.assessment_sessions where id in ('${A}', '${B}', '${C}');
 delete from public.maintenance_windows where id = '${W}';
 update public.memberships m set valid_from = a.m_dari from public._a2a_c716_asal a where m.id = a.mem;
 update public.enrollments e set valid_from = a.e_dari from public._a2a_c716_asal a where e.id = a.enr;
@@ -1625,6 +1647,7 @@ drop table if exists public._a2a_c716_asal;
 commit;`);
   }
 }
+const RILIS_HITUNG = "                'released', count(*) filter (where s.darurat_dikredit_sampai is not null\n                  and s.darurat_dikredit_sampai >= w2.t_stop + public.penghentian_geser(s.person_id, w2.id)),\n";
 const TANDA_SEKALI = "and not exists (select 1 from public.audit_log l where l.action = 'maintenance.marking_completed' and l.target_id = w.id::text)";
 
 a2aDaruratTests.push({
@@ -1640,16 +1663,24 @@ a2aDaruratTests.push({
     c.expect(nTanda === "1" && (t.held ?? 0) >= 1 && !!t.t_stop, `the marking completed: ${r.tanda}, not one row with how many it holds and T_stop`);
     c.expect(r.ditandai === "true,false", `the stop marked the open sitting and not the one held for a suspension: ${r.ditandai}`);
     const [nLepas, lepas] = r.lepas.split("|");
-    const l = JSON.parse(lepas || "{}") as { affected_still_open_released?: number; held_for_suspension?: number; t_lift?: string };
-    c.expect(nLepas === "1" && (l.affected_still_open_released ?? 0) >= 1 && l.held_for_suspension === 1 && !!l.t_lift,
-      `the release completed: ${r.lepas}, not one row with T_lift, the released count and 1 left held for a suspension`);
+    const l = JSON.parse(lepas || "{}") as { released?: number; held_for_suspension?: number; t_lift?: string };
+    c.expect(r.kreditC === "true", `the sitting touched after the lift was not credited at first touch: ${r.kreditC}`);
+    c.expect(nLepas === "1" && l.released === 2 && l.held_for_suspension === 1 && !!l.t_lift,
+      `the release completed: ${r.lepas}, not one row with T_lift, released 2 (the one the batch released and the one credited at first touch and finished before it) and 1 left held for a suspension`);
     c.expect(r.sesudah === "-:false,-:true", `after the release, the open sitting released and the suspended one left held: ${r.sesudah}`);
     // the plant: the marking's row not guarded once, so a second run writes a second row
     const balik = gantiFungsi("public.pengerjaan_tandai_darurat(integer)", TANDA_SEKALI, "and true");
     let tanam: ReturnType<typeof hitungHenti>;
     try { tanam = hitungHenti(db); } finally { balik(); }
     c.expect(tanam.tanda.split("|")[0] !== "1", `with the plant (no once-only guard) the marking still wrote one row: ${tanam.tanda}`);
-    return c.verdict(`a class stop holding an open sitting and one held for a suspension: the marking batch, run twice, writes one maintenance.marking_completed row (held ${t.held}, T_stop); after the lift the release batch, run twice, writes one maintenance.release_completed row (T_lift, affected still open and released ${l.affected_still_open_released}, held for a suspension ${l.held_for_suspension}); with the plant (no once-only guard) the marking wrote ${tanam.tanda.split("|")[0]} rows`);
+    // D6.9's plant: the count of the sittings still open at the batch (commit 40's), which misses the finished one
+    const balik2 = gantiFungsi("public.pengerjaan_lepas_darurat_semua(integer)", RILIS_HITUNG,
+      "                'released', count(*) filter (where s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED') and not (s.frozen_at is not null and s.unfrozen_at is null)),\n");
+    let tanam2: ReturnType<typeof hitungHenti>;
+    try { tanam2 = hitungHenti(db); } finally { balik2(); }
+    const l2 = JSON.parse(tanam2.lepas.split("|").slice(1).join("|") || "{}") as { released?: number };
+    c.expect(l2.released !== 2, `with D6.9's plant (the sittings still open at the batch) the released count was still 2: ${tanam2.lepas}`);
+    return c.verdict(`a class stop holding an open sitting and one held for a suspension: the marking batch, run twice, writes one maintenance.marking_completed row (held ${t.held}, T_stop); after the lift the release batch, run twice, writes one maintenance.release_completed row (T_lift, released ${l.released}, the one credited at first touch and finished before the batch among them, held for a suspension ${l.held_for_suspension}); with the plant (no once-only guard) the marking wrote ${tanam.tanda.split("|")[0]} rows; with D6.9's plant (only sittings still open counted) released ${l2.released}`);
   },
 });
 
@@ -1659,6 +1690,13 @@ a2aDaruratTests.push({
  *  learner's own class with a class stop (T_stop = starts_at, T_lift = ended_at). No marking or release batch runs: the
  *  first touch and the credit (C18-1) carry the stop's time, as they do in production between batch runs. */
 type KasusB = "B3_DALAM" | "B3_LEWAT" | "B3_SERAH" | "B4" | "B5" | "B6";
+/** Sharon's C41-1: a stop as hosted records it, starts_at 3 s before T_stop and ended_at 2 s before T_lift, so a rule
+ *  read from starts_at and ended_at is told apart from the approved one (T_stop and T_lift only). */
+const jendelaHosted = (f: Fiksur, id: string, tStop: string, tLift: string | null) => `
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, ended_at, t_lift, reason, created_by_person_id, activation_recorded_at)
+select '${id}', 'EMERGENCY', false, array['${f.inst}'::uuid], array['${f.node}'::uuid], ${tStop} - interval '3 seconds', ${tStop},
+       ${tLift ? `${tLift} - interval '2 seconds'` : "null"}, ${tLift ?? "null"}, 'A2A-C717',
+       (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), ${tStop};`;
 function skenarioB(db: string, f: FiksurJawab, g: number, kasus: KasusB) {
   const S = "a2a1c717-0000-4000-8000-000000000001", P = "a2a1c717-0000-4000-8000-0000000000c1";
   const W1 = "a2a1c717-0000-4000-8000-0000000000a1", W3 = "a2a1c717-0000-4000-8000-0000000000a3";
@@ -1682,14 +1720,14 @@ ${jendelaKelas(f, W1, detik(tStop), detik(angkat))}`;
     susun = `${sesiSalinan(f, S, "null")}
 update public.assessment_assignments set closes_at = now() - interval '40 minutes'
  where id = (select assessment_assignment_id from public.assessment_sessions where id = '${S}');
-${jendelaKelas(f, W1, "now() - interval '50 minutes'", "now() - interval '5 minutes'")}`;
+${jendelaHosted(f, W1, "now() - interval '50 minutes'", "now() - interval '5 minutes'")}`;
   } else if (kasus === "B5") {
     // re-stop: W1 50 to 60 minutes ago (10 min), lifted; the gap; W3 from 40 minutes ago, lifted 5 minutes ago; no release
     // ran between them. D0 10 minutes on: W1 restores D1 = D0 + 10 min; the final = W3.ended_at + (D1 − W3.starts_at)
     susun = `${sesiSalinan(f, S, "now() + interval '10 minutes'")}
 update public.assessment_sessions set created_at = now() - interval '70 minutes' where id = '${S}';
-${jendelaKelas(f, W1, "now() - interval '60 minutes'", "now() - interval '50 minutes'")}
-${jendelaKelas(f, W3, "now() - interval '40 minutes'", "now() - interval '5 minutes'")}`;
+${jendelaHosted(f, W1, "now() - interval '60 minutes'", "now() - interval '50 minutes'")}
+${jendelaHosted(f, W3, "now() - interval '40 minutes'", "now() - interval '5 minutes'")}`;
   } else {
     // B6: the stop 20 minutes ago; suspended 10 minutes ago (held, the time left measured at T_stop); the deadline then
     // passes (D0 5 minutes ago, raw); the stop lifts a minute ago; the suspension stays
@@ -1718,16 +1756,18 @@ select 'serah|' || (public.finish_my_session('${S}', '{"${P}": 1}'::jsonb) is no
 select set_config('request.jwt.claims', '', true);
 select 'status|' || status from public.assessment_sessions where id = '${S}';`;
   } else if (kasus === "B4") {
+    // B4 = closes_at + (T_lift − T_stop)
     periksa = `select 'tepat|' || (public.pengerjaan_tenggat_efektif('${S}')
-      = (select x.ended_at from public.maintenance_windows x where x.id = '${W1}')
-        + ((select aa.closes_at from public.assessment_assignments aa join public.assessment_sessions s on s.assessment_assignment_id = aa.id where s.id = '${S}')
-           - (select x.t_stop from public.maintenance_windows x where x.id = '${W1}')))::text;
+      = (select aa.closes_at from public.assessment_assignments aa join public.assessment_sessions s on s.assessment_assignment_id = aa.id where s.id = '${S}')
+        + (select x.t_lift - x.t_stop from public.maintenance_windows x where x.id = '${W1}'))::text;
 select 'putus|' || public.pengerjaan_putus_tenggat('${S}', true);`;
   } else if (kasus === "B5") {
     periksa = `create temp table b5 as select authoritative_deadline as d0 from public.assessment_sessions where id = '${S}';
 select 'putus|' || public.pengerjaan_putus_tenggat('${S}', false);
-select 'tepat|' || (s.authoritative_deadline = (select x.ended_at from public.maintenance_windows x where x.id = '${W3}')
-      + ((b5.d0 + interval '10 minutes') - (select x.t_stop from public.maintenance_windows x where x.id = '${W3}')))::text
+-- B5 = W3.T_lift + (W1's restored deadline − W3.T_stop), W1's restored deadline = D0 + (W1.T_lift − W1.T_stop)
+select 'tepat|' || (s.authoritative_deadline = (select x.t_lift from public.maintenance_windows x where x.id = '${W3}')
+      + ((b5.d0 + (select x.t_lift - x.t_stop from public.maintenance_windows x where x.id = '${W1}'))
+         - (select x.t_stop from public.maintenance_windows x where x.id = '${W3}')))::text
   from public.assessment_sessions s, b5 where s.id = '${S}';`;
   } else {
     periksa = `create temp table b6 as select frozen_remaining_seconds as r from public.assessment_sessions where id = '${S}';
@@ -1747,6 +1787,7 @@ rollback;`);
 const B3_KREDIT = "and (s.status <> 'EXPIRED' or public.pengerjaan_dalam_tenggang_pada(s, x.t_stop))";
 const B4_EFEKTIF = "         + (public.penghentian_kredit(s)).geser";
 const B5_RANTAI = "    geser := geser + g; sampai := w.t_stop + g;";
+const GESER_TLIFT = "  select x.t_stop, case when x.ended_at is null then null else coalesce(x.t_lift, x.ended_at) end into v_awal, v_akhir";
 const B6_TAHAN = "  if public.pengerjaan_ditahan(v) then return v.status; end if;\n";
 
 a2aDaruratTests.push({
@@ -1767,8 +1808,8 @@ a2aDaruratTests.push({
     c.expect(b3b.hasil.mode === "LATE_SYNC" && /retained_unscored/.test(b3b.hasil.jawab ?? ""),
       `B3: an answer after the restored grace: ${JSON.stringify(b3b.hasil)}, not kept unscored`);
     c.expect(b3c.hasil.serah === "true" && b3c.hasil.status === "FINALIZED", `B3: a manifest-complete hand-in after the lift: ${JSON.stringify(b3c.hasil)}, not closed early`);
-    c.expect(b4.hasil.tepat === "true" && b4.hasil.putus === "IN_PROGRESS", `B4: the window-timed sitting: ${JSON.stringify(b4.hasil)}, not ended_at + (closes_at − starts_at) and left open`);
-    c.expect(b5.hasil.tepat === "true", `B5: the re-stop's final deadline: ${JSON.stringify(b5.hasil)}, not W3.ended_at + (W1's restored deadline − W3.starts_at)`);
+    c.expect(b4.hasil.tepat === "true" && b4.hasil.putus === "IN_PROGRESS", `B4: the window-timed sitting: ${JSON.stringify(b4.hasil)}, not closes_at + (T_lift − T_stop) and left open`);
+    c.expect(b5.hasil.tepat === "true", `B5: the re-stop's final deadline: ${JSON.stringify(b5.hasil)}, not W3.T_lift + (W1's restored deadline − W3.T_stop)`);
     c.expect(b6.hasil.putus === "IN_PROGRESS" && b6.hasil.calon === "true" && /^true:true:\d$/.test(b6.hasil.tahan ?? ""),
       `B6: the suspended sitting after the lift: ${JSON.stringify(b6.hasil)}, not still held as ACCOUNT_SUSPENDED with the time left at T_stop, untouched by the scheduler`);
     // the plants, one per scenario
@@ -1779,9 +1820,15 @@ a2aDaruratTests.push({
     c.expect(p4.hasil.tepat !== "true", `B4's plant (the effective deadline without the stop's time) still matched: ${JSON.stringify(p4.hasil)}`);
     const p5 = tanam("public.penghentian_kredit(assessment_sessions)", B5_RANTAI, "    geser := g; sampai := w.t_stop + g;", "B5");
     c.expect(p5.hasil.tepat !== "true", `B5's plant (only the last stop counted) still matched: ${JSON.stringify(p5.hasil)}`);
+    // C41-1's plant: the shift read from starts_at and ended_at
+    for (const k of ["B4", "B5"] as const) {
+      const p = tanam("public.penghentian_geser(uuid,uuid)", GESER_TLIFT,
+        "  select x.starts_at, case when x.ended_at is null then null else x.ended_at end into v_awal, v_akhir", k);
+      c.expect(p.hasil.tepat !== "true", `C41-1's plant (the shift from ended_at − starts_at) still matched ${k}: ${JSON.stringify(p.hasil)}`);
+    }
     const p6 = tanam("public.pengerjaan_putus_tenggat(uuid,boolean)", B6_TAHAN, "", "B6");
     c.expect(p6.hasil.putus !== "IN_PROGRESS" || !!p6.err, `B6's plant (the scheduler not skipping a held sitting) still left it open: ${JSON.stringify(p6.hasil)}`);
-    return c.verdict(`THE PLAN §5.3 H, scenarios 3 to 6, on a class stop (grace ${g} s): B3 an answer within the restored grace is LATE_SYNC and scored while the scoring waits, one after it is kept unscored, and a manifest-complete hand-in after the lift closes the sitting early; B4 the window-timed sitting has ended_at + (closes_at − starts_at) and is not ended; B5 the re-stop's final deadline is W3.ended_at + (W1's restored deadline − W3.starts_at); B6 the sitting suspended during the stop stays held as ACCOUNT_SUSPENDED with the time left at T_stop after the lift, and the scheduler neither ends nor selects it; one plant each, each caught`);
+    return c.verdict(`THE PLAN §5.3 H, scenarios 3 to 6, on a class stop (grace ${g} s): B3 an answer within the restored grace is LATE_SYNC and scored while the scoring waits, one after it is kept unscored, and a manifest-complete hand-in after the lift closes the sitting early; B4 the window-timed sitting has closes_at + (T_lift − T_stop) and is not ended; B5 the re-stop's final deadline is W3.T_lift + (W1's restored deadline − W3.T_stop), both on stops whose starts_at and ended_at differ from T_stop and T_lift as hosted records them; B6 the sitting suspended during the stop stays held as ACCOUNT_SUSPENDED with the time left at T_stop after the lift, and the scheduler neither ends nor selects it; one plant each and C41-1's (the shift from ended_at − starts_at) on B4 and B5, each caught`);
   },
 });
 
@@ -1921,8 +1968,14 @@ select 'saat|' || status || ':' || (darurat_keluar is not null)::text from publi
 set local session_replication_role = replica;
 update public.maintenance_windows set ended_at = now() - interval '5 minutes', t_lift = now() - interval '5 minutes' where id = '${W}';
 set local session_replication_role = origin;
--- the learner answers and hands in
+-- N42-1: the departed learner's open sittings do not offer it (its assessment made one the list would show)
+set local session_replication_role = replica;
+update public.assessment_assignments set learning_assignment_id = null, status = 'OPEN', closes_at = now() - interval '1 minute'
+ where id = (select assessment_assignment_id from public.assessment_sessions where id = '${S}');
+set local session_replication_role = origin;
 ${sebagaiOrang(f.murid)}
+select 'tawar|' || count(*) from public.pengerjaan_terbuka_saya() x where x.sesi_id = '${S}';
+-- the learner answers and hands in
 select 'jawab|' || pg_temp.a2a_coba($q$select r.outcome from public.record_answer('${P}', 1, '{"posisi": 1}'::jsonb) r$q$);
 select 'serah|' || pg_temp.a2a_coba($q$select (public.finish_my_session('${S}', '{}'::jsonb) is not null)::text$q$);
 select set_config('request.jwt.claims', '', true);
@@ -1952,6 +2005,7 @@ a2aDaruratTests.push({
     const h = r.hasil;
     c.expect(h.keluar === "OK:true" && h.saat === "IN_PROGRESS:true", `the departure during the stop: ${h.keluar}, ${h.saat}, not done with the sitting preserved`);
     c.expect(/^REFUSED/.test(h.jawab ?? "") && /^REFUSED/.test(h.serah ?? ""), `after the lift, before any batch, the learner's answer (${h.jawab}) and hand-in (${h.serah}) were not refused`);
+    c.expect(h.tawar === "0", `N42-1: after the lift the departed learner's open sittings still offered the preserved one: ${h.tawar}`);
     c.expect(h.sesudah === "IN_PROGRESS:0", `after the refused acts: ${h.sesudah}, not unscored (each refusal rolls back its own transaction)`);
     const [st, sebab, oleh, alasan, hasil, audit, akhir] = (h.akhir ?? "").split("|");
     c.expect(h.putus === "TERMINATED" && st === "TERMINATED" && sebab === "INSTITUTIONAL_REVOCATION" && oleh === r.admin && alasan.startsWith("Pendaftaran diakhiri") && hasil === "0",
@@ -1963,7 +2017,12 @@ a2aDaruratTests.push({
     try { tanam = keluarSentuhPertama(db); } finally { balik(); }
     c.expect(/^OK/.test(tanam.hasil.serah ?? "") || tanam.hasil.putus !== "TERMINATED",
       `with the plant (no first-touch application) the hand-in was still refused and the sitting ended: ${JSON.stringify(tanam.hasil)}`);
-    return c.verdict(`a departure during a class stop, then the lift, no batch: the learner's answer and hand-in are refused (${h.jawab}, ${h.serah}) and nothing is scored; the next committing touch (the decider) ends it TERMINATED INSTITUTIONAL_REVOCATION by the departure's actor with its reason, unscored, departure_applied audited once naming the stop, and a second touch adds nothing; with the plant (no first-touch application) the hand-in was ${tanam.hasil.serah} and the sitting ${tanam.hasil.sesudah}`);
+    // N42-1's plant: the list without its departure clause offers the sitting
+    const balik2 = gantiFungsi("public.pengerjaan_terbuka_saya()", "     and s.darurat_keluar is null   -- N42-1: a departure preserved through a stop is not offered to its learner\n", "");
+    let tanam2: ReturnType<typeof keluarSentuhPertama>;
+    try { tanam2 = keluarSentuhPertama(db); } finally { balik2(); }
+    c.expect(tanam2.hasil.tawar === "1", `with N42-1's plant (no departure clause) the list still did not offer the sitting (the check would not bite): ${tanam2.hasil.tawar}`);
+    return c.verdict(`a departure during a class stop, then the lift, no batch: the learner's answer and hand-in are refused (${h.jawab}, ${h.serah}) and nothing is scored; the next committing touch (the decider) ends it TERMINATED INSTITUTIONAL_REVOCATION by the departure's actor with its reason, unscored, departure_applied audited once naming the stop, and a second touch adds nothing; the departed learner's open sittings do not offer it (N42-1; with its plant they do); with the plant (no first-touch application) the hand-in was ${tanam.hasil.serah} and the sitting ${tanam.hasil.sesudah}`);
   },
 });
 
@@ -1991,6 +2050,7 @@ ${sesiSalinan(f, S, "now() + interval '30 minutes'")}
 update public.assessment_sessions set institution_id = '${f.inst}' where id = '${S}';
 -- the sitting's lesson given to the class (the copied source's may be another school's)
 update public.learning_assignments set node_id = '${f.node}', status = 'ACTIVE' where id = ${LA};
+update public.assessment_assignments set node_id = '${f.node}' where id = (select assessment_assignment_id from public.assessment_sessions where id = '${S}');
 ${jendelaKelas(f, W, "now() - interval '10 minutes'", null)}
 set local session_replication_role = origin;
 create function pg_temp.a2a_coba(p_sql text) returns text language plpgsql as $c$
@@ -1998,6 +2058,8 @@ declare v text; d text;
 begin execute p_sql into v; return 'OK';
 exception when others then get stacked diagnostics d = pg_exception_detail; return 'REFUSED:' || sqlstate || ':' || coalesce(nullif(d, ''), sqlerrm); end $c$;
 select 'dilindungi|' || public.pengerjaan_dilindungi('${S}')::text;
+${sebagaiOrang(f.guru)}
+select 'daftar_tahan|' || coalesce((select x.keadaan from public.daftar_pengerjaan('${f.node}', (select assessment_assignment_id from public.assessment_sessions where id = '${S}')) x where x.sesi_id = '${S}'), '-');
 ${coba("guru_sesi", f.guru, `'${S}'`, "SITTING_CLASS_STOPPED")}
 ${coba("guru_jadwal", f.guru, LA, "SITTING_CLASS_STOPPED")}
 ${coba("guru_akhiri", f.guru, LA, "ASSIGN_CLASS_STOPPED")}
@@ -2015,11 +2077,21 @@ set local session_replication_role = replica;
 update public.maintenance_windows set ended_at = now(), t_lift = now() where id = '${W}';
 set local session_replication_role = origin;
 ${coba("sesudah", f.guru, `'${S}'`, "SITTING_CLASS_STOPPED")}
+-- C41-2's siblings: the stop's mark not yet released (no batch) holds nothing after the lift
+select set_config('request.jwt.claims', '', true);
+set local session_replication_role = replica;
+update public.assessment_sessions set darurat_sejak = now() - interval '10 minutes', darurat_jendela_id = '${W}' where id = '${S}';
+set local session_replication_role = origin;
+${coba("basi_sesi", f.guru, `'${S}'`, "SITTING_CLASS_STOPPED")}
+${coba("basi_akhiri", f.guru, LA, "ASSIGN_CLASS_STOPPED")}
+select 'daftar_basi|' || coalesce((select x.keadaan from public.daftar_pengerjaan('${f.node}', (select assessment_assignment_id from public.assessment_sessions where id = '${S}')) x where x.sesi_id = '${S}'), '-');
+select 'basi_jadwal|' || pg_temp.a2a_coba($q$select public.ubah_jadwal_penugasan(${LA}, now() + interval '1 hour', now() + interval '2 hours', 'A2A-C720 the stale mark')::text$q$);
 select set_config('request.jwt.claims', '', true);
 select 'baris_akhir|' || count(*) from public.audit_log where action like '%.stop_refused' and (target_id = '${S}' or target_id = ${LA}::text or target_id = '${f.node}');
 rollback;`);
 }
-const HENTI_TAHAN = "      if not (public.pengerjaan_dilindungi(s.id) or (s.darurat_sejak is not null and s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')))\n         or not";
+const HENTI_TAHAN = "      if not public.pengerjaan_dilindungi(s.id)\n         or not";
+const JADWAL_BASI = "and public.pengerjaan_dilindungi(s.id)) then   -- C41-2";
 
 a2aDaruratTests.push({
   id: "A2A-C720",
@@ -2033,11 +2105,14 @@ a2aDaruratTests.push({
     const h = r.hasil;
     c.expect(h.dilindungi === "true", `the fixture's sitting is not protected by the stop: ${h.dilindungi}`);
     for (const k of ["guru_sesi", "guru_jadwal", "guru_akhiri", "admin_naik"]) c.expect(h[k] === "OK", `${k}: a refusal that stands was not recorded: ${h[k]}`);
-    for (const k of ["murid", "pagar", "asing", "guru_naik", "sesudah"])
+    for (const k of ["murid", "pagar", "asing", "guru_naik", "sesudah", "basi_sesi", "basi_akhiri"])
       c.expect(/^REFUSED:PR170:STOP_REFUSAL_NOT_FOUND$/.test(h[k] ?? ""), `${k}: a refusal that does not stand for the caller was recorded or failed otherwise: ${h[k]}`);
     c.expect(h.baris === "4:4:assessment_session.stop_refused/SITTING_CLASS_STOPPED,learning_assignment.stop_refused/ASSIGN_CLASS_STOPPED,learning_assignment.stop_refused/SITTING_CLASS_STOPPED,promotion.stop_refused/PROMO_STOPPED",
       `the rows: ${h.baris}, not one per refused act, each naming the stop`);
     c.expect(h.baris_akhir === "4", `after the lift a teacher's call still wrote a row: ${h.baris_akhir}`);
+    c.expect(h.daftar_tahan === "HELD_STOP" && !!h.daftar_basi && h.daftar_basi !== "-" && h.daftar_basi !== "HELD_STOP",
+      `C41-2: the teacher's list during the stop (${h.daftar_tahan}) and after the lift with the mark not yet released (${h.daftar_basi}), not HELD_STOP and then not`);
+    c.expect(!!h.basi_jadwal && !/SITTING_CLASS_STOPPED/.test(h.basi_jadwal), `C41-2: after the lift, with the stop's mark not yet released, «Ubah jadwal» was refused for the stop: ${h.basi_jadwal}`);
     // the screens: each action refused one of the three codes calls the record once, afterwards
     const { readFileSync } = await import("node:fs");
     const { join } = await import("node:path");
@@ -2052,6 +2127,17 @@ a2aDaruratTests.push({
     let tanam: ReturnType<typeof catatHenti>;
     try { tanam = catatHenti(db); } finally { balik(); }
     c.expect(tanam.hasil.sesudah === "OK", `with the plant (a forged record) the teacher's call after the lift was still refused: ${tanam.hasil.sesudah}`);
-    return c.verdict(`a class stop in force: the teacher records SITTING_CLASS_STOPPED on the sitting and on the assignment («Ubah jadwal») and ASSIGN_CLASS_STOPPED, the school's admin PROMO_STOPPED on the Kelas: four rows, one per call, each naming the stop; refused STOP_REFUSAL_NOT_FOUND: the learner, SITTING_FENCE_BUSY, another code, the teacher's PROMO_STOPPED, and the teacher's call after the lift; the four screen actions call it after the refusal; with the plant (a forged record) the call after the lift was recorded`);
+    // C41-2's sibling plant: «Ubah jadwal» counting the stale mark again
+    const balik2 = gantiFungsi("public.ubah_jadwal_penugasan(uuid,timestamp with time zone,timestamp with time zone,text)", JADWAL_BASI,
+      "and (s.darurat_sejak is not null or public.pengerjaan_dilindungi(s.id))) then");
+    let tanam2: ReturnType<typeof catatHenti>;
+    try { tanam2 = catatHenti(db); } finally { balik2(); }
+    const balik3 = gantiFungsi("public.daftar_pengerjaan(uuid,uuid)", "and public.pengerjaan_dilindungi(s.id) then 'HELD_STOP'",
+      "and (s.darurat_sejak is not null or public.pengerjaan_dilindungi(s.id)) then 'HELD_STOP'");
+    let tanam3: ReturnType<typeof catatHenti>;
+    try { tanam3 = catatHenti(db); } finally { balik3(); }
+    c.expect(tanam3.hasil.daftar_basi === "HELD_STOP", `with the list's sibling plant (the stale mark counted) it did not say HELD_STOP after the lift: ${tanam3.hasil.daftar_basi}`);
+    c.expect(/SITTING_CLASS_STOPPED/.test(tanam2.hasil.basi_jadwal ?? ""), `with C41-2's sibling plant (the stale mark counted) «Ubah jadwal» was not refused: ${tanam2.hasil.basi_jadwal}`);
+    return c.verdict(`a class stop in force: the teacher records SITTING_CLASS_STOPPED on the sitting and on the assignment («Ubah jadwal») and ASSIGN_CLASS_STOPPED, the school's admin PROMO_STOPPED on the Kelas: four rows, one per call, each naming the stop; refused STOP_REFUSAL_NOT_FOUND: the learner, SITTING_FENCE_BUSY, another code, the teacher's PROMO_STOPPED, and the teacher's call after the lift, also while the stop's mark is not yet released; «Ubah jadwal» goes on to its own checks then and the teacher's list no longer says HELD_STOP (C41-2's siblings; with their plants refused for the stop and HELD_STOP); the four screen actions call it after the refusal; with the plant (a forged record) the call after the lift was recorded`);
   },
 });
