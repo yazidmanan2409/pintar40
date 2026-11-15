@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2a change C commit 46 (the refusal record once per stop) | NO BLOCKER; the simultaneous-call race registered; nothing open up to `c04c088e` | `c04c088ea65f7eff32c07aadf0a91b16e098e3ed` | `A2A-C-46-c04c088e.md` |
 | A2a change C commits 44 and 45 | NO BLOCKER: C41-1 and C41-2 closed (six places), D6.9 count and N42-1 closed; the direct-URL display registered; commit 45's four test fixes accepted; nothing blocks naming the candidate | `783cfff47b03d0676854d8dafe947dd18352514e` | `A2A-C-44-45-783cfff4.md` |
 | A2a change C commit 43 (the O1 refusal audit) | NO BLOCKER in the design; (a) and (b) agreed; **C41-2 swept to five places** (promotion count, reschedule refusal, three audit branches: `pengerjaan_dilindungi` only); still open: C41-1, C41-2 | `0ea8ac0ce0f1215684957addb0d8eb21438ec24e` | `A2A-C-43-0ea8ac0c.md` |
 | A2a change C commit 42 (C39-1) | NO BLOCKER: C39-1 closed (termination rolling back with the refused act accepted; N42-1 note); the D6.9 rename accepted; C718 fixture accepted; F01-T10 and B1-S01 a register item; C41-1, C41-2 and the refusal audit still open | `3def2e9bad5a56669c71388e470c0e07979fb713` | `A2A-C-42-3def2e9b.md` |
