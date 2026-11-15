@@ -808,3 +808,8 @@ closed:
 - scenario 8's three C18-1 numbers.
 
 Any change to C from here means an explicit unfreeze, correction, review and a new pre-flight.
+- **Sharon's result review of `c04c088e`: PASS on the code** (`f3f5fa38`).
+- **P1:** the lift makes one fence attempt, then `MAINTENANCE_LIFT_NOT_DONE`; §3 had said three. The owner ruled on
+  15 Nov: **keep one attempt.** §3 is corrected on the A2a page, documentation only, with no unfreeze.
+- **The lifts refused under shared load** are reported beside measurement 4's count. They are a reported figure, not a
+  new gate.
