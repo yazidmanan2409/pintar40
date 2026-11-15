@@ -264,6 +264,7 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
   samaBaris("transfer_execute", "portable_visibility.person_id is t.person_id, taken FOR UPDATE first by the enrolment trigger"),
   samaBaris("terminate_session", "the learner v_s.person_id is taken first; terminated_by_person_id is v_actor, the same row or not the hold's"),
   // A2a O1 after the lift (migration 20270119220000): the learner and the departure's actor, both taken first FOR KEY SHARE
+  samaBaris("pengerjaan_keluar_terapkan", "terminated_by_person_id is the departure's actor (darurat_keluar ->> 'oleh'), taken FOR KEY SHARE with the learner, in id order, before the fence by the act's first call to pengerjaan_pagar (C39-1, migration 20270119240000) or by pengerjaan_keluar_sesudah_henti; a departure's enrolment is ended, so no second departure reaches the sitting with another actor"),
   samaBaris("pengerjaan_keluar_sesudah_henti", "the learner (a.person_id) and the departure's actor (darurat_keluar ->> 'oleh', which terminated_by_person_id names), both taken FOR KEY SHARE first"),
   // a trigger function read on its own: it only ever runs as auth.users' UPDATE trigger, read with that row held (R2), where it passes
   ...["auth_card_email_guard", "auth_password_write_guard"].map((penulis) => ({ penulis, lewat: /(^| > )sesi_akhiri_orang$/,
@@ -707,7 +708,12 @@ async function balapanTahan(db: string, orang: string) {
 // the plant: both of the learner's first locks finalize_session reaches removed (its own, and pengerjaan_putus_tenggat's,
 // which it calls first) — the code as it was on 245
 const KUNCI_FINAL = "  perform 1 from public.persons where id = v_s.person_id for key share;\n";
-const KUNCI_PAGAR_L03 = "  perform 1 from public.persons p, public.assessment_sessions a where a.id = p_session and p.id = a.person_id for key share of p;\n  begin\n";
+const KUNCI_PAGAR_L03 = "  -- A2A-L01: the learner, and the actor of a departure preserved through a stop (its termination names them), first\n"
+  + "  perform 1 from public.persons p\n"
+  + "   where p.id in (select a.person_id from public.assessment_sessions a where a.id = p_session\n"
+  + "                  union select (a.darurat_keluar ->> 'oleh')::uuid from public.assessment_sessions a\n"
+  + "                   where a.id = p_session and a.darurat_keluar is not null)\n"
+  + "   order by p.id for key share;\n  begin\n";
 const KUNCI_TENGGAT = "  perform 1 from public.persons p, public.assessment_sessions a where a.id = p_session and p.id = a.person_id for key share of p;\n";
 
 // ── A2A-L04: akhiri_pendaftaran against person → enrolment, on two real connections (Sharon, C1)

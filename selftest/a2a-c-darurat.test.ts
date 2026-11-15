@@ -308,6 +308,7 @@ export const PENULIS_DIKECUALIKAN: Record<string, { alasan: string; menunggu?: t
   pengerjaan_lepas_darurat: { alasan: "the release itself" },
   pengerjaan_tandai_darurat: { alasan: "the marking: writes only the held state of a sitting protected at its window's T_stop (D6.2's declared list)" },
   pengerjaan_kredit_darurat: { alasan: "the credit of an unmarked sitting of a lifted stop (C18-1): reached from pengerjaan_pagar after the fence, and from the release batch; writes only the deadline (or the window-timed shift) and the watermark" },
+  pengerjaan_keluar_terapkan: { alasan: "the departure's inner step (C39-1): reached only from pengerjaan_pagar, after its release and credit, when the sitting is no longer protected; it takes the people and the fence again in order, then ends the sitting by the ordinary rule" },
   percobaan_tandai: { alasan: "writes only attempt_request_id, at a new sitting's start (start_learning_session): neither status, deadline nor held state" },
   akhiri_penugasan: { alasan: "D6.2's assignment-level acts, after Sharon's ruling on their order (draft 9)", menunggu: true },
 };
@@ -1639,8 +1640,8 @@ a2aDaruratTests.push({
     c.expect(nTanda === "1" && (t.held ?? 0) >= 1 && !!t.t_stop, `the marking completed: ${r.tanda}, not one row with how many it holds and T_stop`);
     c.expect(r.ditandai === "true,false", `the stop marked the open sitting and not the one held for a suspension: ${r.ditandai}`);
     const [nLepas, lepas] = r.lepas.split("|");
-    const l = JSON.parse(lepas || "{}") as { released?: number; held_for_suspension?: number; t_lift?: string };
-    c.expect(nLepas === "1" && (l.released ?? 0) >= 1 && l.held_for_suspension === 1 && !!l.t_lift,
+    const l = JSON.parse(lepas || "{}") as { affected_still_open_released?: number; held_for_suspension?: number; t_lift?: string };
+    c.expect(nLepas === "1" && (l.affected_still_open_released ?? 0) >= 1 && l.held_for_suspension === 1 && !!l.t_lift,
       `the release completed: ${r.lepas}, not one row with T_lift, the released count and 1 left held for a suspension`);
     c.expect(r.sesudah === "-:false,-:true", `after the release, the open sitting released and the suspended one left held: ${r.sesudah}`);
     // the plant: the marking's row not guarded once, so a second run writes a second row
@@ -1648,7 +1649,7 @@ a2aDaruratTests.push({
     let tanam: ReturnType<typeof hitungHenti>;
     try { tanam = hitungHenti(db); } finally { balik(); }
     c.expect(tanam.tanda.split("|")[0] !== "1", `with the plant (no once-only guard) the marking still wrote one row: ${tanam.tanda}`);
-    return c.verdict(`a class stop holding an open sitting and one held for a suspension: the marking batch, run twice, writes one maintenance.marking_completed row (held ${t.held}, T_stop); after the lift the release batch, run twice, writes one maintenance.release_completed row (T_lift, released ${l.released}, held for a suspension ${l.held_for_suspension}); with the plant (no once-only guard) the marking wrote ${tanam.tanda.split("|")[0]} rows`);
+    return c.verdict(`a class stop holding an open sitting and one held for a suspension: the marking batch, run twice, writes one maintenance.marking_completed row (held ${t.held}, T_stop); after the lift the release batch, run twice, writes one maintenance.release_completed row (T_lift, affected still open and released ${l.affected_still_open_released}, held for a suspension ${l.held_for_suspension}); with the plant (no once-only guard) the marking wrote ${tanam.tanda.split("|")[0]} rows`);
   },
 });
 
@@ -1794,17 +1795,18 @@ a2aDaruratTests.push({
  *  maintenance_collisions plans a PLANNED window, which A2a cannot make at class scope: both stay as they were.) */
 function bacaKelas(db: string) {
   const f = fiksurJawab(db);
-  // another learner of the same school, with an account and no role; in the transaction their class membership, if it
-  // is K, is moved into K2, a sibling class made for it (the seed's school may have one class)
-  const lain = psqlStdin(db, `select e.person_id || '|' || a.auth_user_id || '|' || e.id
-    from public.enrollments e join public.accounts a on a.person_id = e.person_id
-   where e.institution_id = '${f.inst}' and e.status = 'ACTIVE' and e.valid_to is null and e.person_id <> '${f.person}'
-     and not exists (select 1 from public.role_assignments r where r.person_id = e.person_id and r.revoked_at is null)
-     and not exists (select 1 from public.person_suspensions ps where ps.person_id = e.person_id and ps.ended_at is null)
-   order by exists (select 1 from public.memberships m where m.enrollment_id = e.id and m.valid_to is null and m.node_id = '${f.node}') desc, e.id limit 1;`);
-  const [lainOrang, lainUid, lainEnr] = lain.split("|");
+  // another learner, with an account, no role and no suspension, enrolled in the transaction at the same school in K2, a
+  // sibling class made for it (independent of the seed: its school may have one class and one such learner)
+  const lain = psqlStdin(db, `select p.id || '|' || a.auth_user_id from public.persons p join public.accounts a on a.person_id = p.id
+   where p.id <> '${f.person}' and exists (select 1 from public.enrollments e where e.person_id = p.id and e.status = 'ACTIVE')
+     and not exists (select 1 from public.enrollments e where e.person_id = p.id and e.institution_id = '${f.inst}')
+     and not exists (select 1 from public.role_assignments r where r.person_id = p.id and r.revoked_at is null)
+     and not exists (select 1 from public.person_suspensions ps where ps.person_id = p.id and ps.ended_at is null)
+   order by p.id limit 1;`);
+  const [lainOrang, lainUid] = lain.split("|");
+  const lainEnr = "a2a1c718-0000-4000-8000-0000000000e1", lainMem = "a2a1c718-0000-4000-8000-0000000000e3";
   const lainKelas = "a2a1c718-0000-4000-8000-0000000000e2";
-  if (!lainEnr) return { err: "no other learner of the school with an account and no role: the seed changed", hasil: {} as Record<string, string> };
+  if (!lainUid) return { err: "no other learner with an account, no role and no suspension: the seed changed", hasil: {} as Record<string, string> };
   const guru = psqlStdin(db, `select rg.person_id || '|' || a.auth_user_id from public.role_assignments rg join public.accounts a on a.person_id = rg.person_id
     where rg.role = 'EDUCATOR' and rg.scope_node_id = '${f.node}' and rg.revoked_at is null and now() >= rg.valid_from and now() < rg.valid_until
     order by rg.id limit 1;`).split("|");
@@ -1820,13 +1822,17 @@ select set_config('request.jwt.claims', '', true);`;
   return barisKunci(db, `begin;
 set local session_replication_role = replica;
 update public.memberships set valid_from = valid_from - interval '1 day' where id = '${f.mem}';
-update public.enrollments set valid_from = valid_from - interval '1 day' where id in ('${f.enr}', '${lainEnr}');
+update public.enrollments set valid_from = valid_from - interval '1 day' where id = '${f.enr}';
 insert into public.org_nodes (id, institution_id, parent_id, kind, name, jalur, academic_period_id, is_active, created_at, learning_context)
 select '${lainKelas}', n.institution_id, n.parent_id, n.kind, n.name || ' (K2)', n.jalur[1:cardinality(n.jalur) - 1] || '${lainKelas}'::uuid,
        n.academic_period_id, true, now() - interval '2 days', n.learning_context
   from public.org_nodes n where n.id = '${f.node}';
-update public.memberships set valid_from = valid_from - interval '1 day' where enrollment_id = '${lainEnr}' and valid_to is null;
-update public.memberships set node_id = '${lainKelas}' where enrollment_id = '${lainEnr}' and valid_to is null and node_id = '${f.node}';
+update public.role_assignments set valid_from = valid_from - interval '1 day'
+ where person_id = '${guru[0]}' and role = 'EDUCATOR' and scope_node_id = '${f.node}' and revoked_at is null;
+insert into public.enrollments select (jsonb_populate_record(e, jsonb_build_object('id', '${lainEnr}', 'person_id', '${lainOrang}'))).*
+  from public.enrollments e where e.id = '${f.enr}';
+insert into public.memberships select (jsonb_populate_record(m, jsonb_build_object('id', '${lainMem}', 'enrollment_id', '${lainEnr}', 'node_id', '${lainKelas}'))).*
+  from public.memberships m where m.id = '${f.mem}';
 ${jendelaKelas(f, W, "now() - interval '10 minutes'", null)}
 set local session_replication_role = origin;
 select 'affects|' || public.maintenance_affects(w, '${f.person}')::text || ':' || public.maintenance_affects(w, '${lainOrang}')::text
@@ -1876,5 +1882,87 @@ a2aDaruratTests.push({
     c.expect(tanam.hasil.affects !== "true:false:true" || tanam.hasil.hook_lain !== "none",
       `with the plant (a class window read by its school) another class's learner was still not reached: ${JSON.stringify(tanam.hasil)}`);
     return c.verdict(`a class stop names its school, and every reader of the table narrows it to the class: maintenance_affects reaches the class's learner and teacher and not another class's learner of the same school; the request hook and pintar_status_saya stop the class's people only; the sitting-start trigger refuses the class (${(h.mulai_kelas ?? "").split(":")[0]}) and lets the other class start; maintenance_controls is Admin PINTAR's; with the plant (the window read by its school) another class's learner was reached`);
+  },
+});
+
+// ═══════════════════════════════════════════════════════════ A2A-C719 · C39-1: the departure is applied at first touch
+
+/** Sharon's C39-1: during a class stop the school's admin ends the learner's enrolment; the protected sitting is
+ *  preserved. The stop is lifted; before any batch run the learner answers and hands in. The first touch applies the
+ *  departure before the act, so each act is refused and nothing is scored; a refused act's transaction rolls back with
+ *  its refusal, and the departure lands at the next touch that commits (here the decider, as the closer and the
+ *  learner's status read run it): TERMINATED INSTITUTIONAL_REVOCATION by the departure's actor with its reason, audited
+ *  once. One transaction, each act in a subtransaction, rolled back. */
+function keluarSentuhPertama(db: string) {
+  const f = fiksurJawab(db);
+  const adm = psqlStdin(db, `select r.person_id || '|' || a.auth_user_id from public.role_assignments r join public.accounts a on a.person_id = r.person_id
+    where r.role = 'INSTITUTION_ADMIN' and r.institution_id = '${f.inst}' and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until
+      and r.person_id <> '${f.person}' order by r.id limit 1;`).split("|");
+  if (!adm[1]) return { err: "no school admin with an account: the seed changed", hasil: {} as Record<string, string>, admin: "" };
+  const S = "a2a1c719-0000-4000-8000-000000000001", P = "a2a1c719-0000-4000-8000-0000000000c1", W = "a2a1c719-0000-4000-8000-0000000000a1";
+  const r = barisKunci(db, `begin;
+${sesiSalinan(f, S, "now() + interval '30 minutes'")}
+-- the school's own sitting (the departure ends only those): the source may be another school's
+update public.assessment_sessions set institution_id = '${f.inst}' where id = '${S}';
+insert into public.presented_items (id, session_id, item_id, institution_id, position, presented_at)
+select '${P}', '${S}', p.item_id, '${f.inst}', p.position, now() - interval '59 minutes'
+  from public.presented_items p where p.session_id = '${f.sumber}' and p.position = 1;
+${jendelaKelas(f, W, "now() - interval '40 minutes'", null)}
+set local session_replication_role = origin;
+create function pg_temp.a2a_coba(p_sql text) returns text language plpgsql as $c$
+declare v text;
+begin execute p_sql into v; return 'OK:' || coalesce(v, ''); exception when others then return 'REFUSED:' || sqlstate; end $c$;
+-- the departure, during the stop, by the school's admin
+${sebagaiOrang(adm[1])}
+select 'keluar|' || pg_temp.a2a_coba($q$select (public.akhiri_pendaftaran('${f.enr}', 'WITHDRAWN', null, null) is not null)::text$q$);
+select set_config('request.jwt.claims', '', true);
+select 'saat|' || status || ':' || (darurat_keluar is not null)::text from public.assessment_sessions where id = '${S}';
+-- the lift; no batch
+set local session_replication_role = replica;
+update public.maintenance_windows set ended_at = now() - interval '5 minutes', t_lift = now() - interval '5 minutes' where id = '${W}';
+set local session_replication_role = origin;
+-- the learner answers and hands in
+${sebagaiOrang(f.murid)}
+select 'jawab|' || pg_temp.a2a_coba($q$select r.outcome from public.record_answer('${P}', 1, '{"posisi": 1}'::jsonb) r$q$);
+select 'serah|' || pg_temp.a2a_coba($q$select (public.finish_my_session('${S}', '{}'::jsonb) is not null)::text$q$);
+select set_config('request.jwt.claims', '', true);
+select 'sesudah|' || status || ':' || (select count(*) from public.assessment_results x where x.session_id = '${S}') from public.assessment_sessions where id = '${S}';
+-- the next touch that commits: the decider
+select 'putus|' || public.pengerjaan_putus_tenggat('${S}', true);
+select 'akhir|' || s.status || '|' || coalesce(s.termination_cause::text, '') || '|' || coalesce(s.terminated_by_person_id::text, '')
+  || '|' || left(coalesce(s.termination_reason, ''), 20) || '|' || (select count(*) from public.assessment_results x where x.session_id = s.id)
+  || '|' || (select count(*) from public.audit_log l where l.target_id = s.id::text and l.action = 'assessment_session.departure_applied' and l.summary ->> 'stop' = '${W}')
+  || '|' || (select count(*) from public.audit_log l where l.target_id = s.id::text and l.action = 'assessment_session.terminated')
+  from public.assessment_sessions s where s.id = '${S}';
+select 'lagi|' || public.pengerjaan_putus_tenggat('${S}', true) || ':' || (select count(*) from public.audit_log l where l.target_id = '${S}' and l.action = 'assessment_session.departure_applied');
+rollback;`);
+  return { ...r, admin: adm[0] };
+}
+const KELUAR_SENTUH = "    perform public.pengerjaan_keluar_terapkan(p_session);\n";
+
+a2aDaruratTests.push({
+  id: "A2A-C719",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    const r = keluarSentuhPertama(db);
+    c.expect(!r.err, `failed: ${r.err}`);
+    const h = r.hasil;
+    c.expect(h.keluar === "OK:true" && h.saat === "IN_PROGRESS:true", `the departure during the stop: ${h.keluar}, ${h.saat}, not done with the sitting preserved`);
+    c.expect(/^REFUSED/.test(h.jawab ?? "") && /^REFUSED/.test(h.serah ?? ""), `after the lift, before any batch, the learner's answer (${h.jawab}) and hand-in (${h.serah}) were not refused`);
+    c.expect(h.sesudah === "IN_PROGRESS:0", `after the refused acts: ${h.sesudah}, not unscored (each refusal rolls back its own transaction)`);
+    const [st, sebab, oleh, alasan, hasil, audit, akhir] = (h.akhir ?? "").split("|");
+    c.expect(h.putus === "TERMINATED" && st === "TERMINATED" && sebab === "INSTITUTIONAL_REVOCATION" && oleh === r.admin && alasan.startsWith("Pendaftaran diakhiri") && hasil === "0",
+      `the next committing touch: ${h.putus}, ${h.akhir}, not terminated unscored by the departure's actor with its reason`);
+    c.expect(audit === "1" && akhir === "1" && h.lagi === "TERMINATED:1", `the departure applied was not audited once naming the stop: ${h.akhir}, again ${h.lagi}`);
+    // the plant: no first-touch application, so the hand-in scores the departed learner's sitting
+    const balik = gantiFungsi("public.pengerjaan_pagar(uuid)", KELUAR_SENTUH, "    null;\n");
+    let tanam: ReturnType<typeof keluarSentuhPertama>;
+    try { tanam = keluarSentuhPertama(db); } finally { balik(); }
+    c.expect(/^OK/.test(tanam.hasil.serah ?? "") || tanam.hasil.putus !== "TERMINATED",
+      `with the plant (no first-touch application) the hand-in was still refused and the sitting ended: ${JSON.stringify(tanam.hasil)}`);
+    return c.verdict(`a departure during a class stop, then the lift, no batch: the learner's answer and hand-in are refused (${h.jawab}, ${h.serah}) and nothing is scored; the next committing touch (the decider) ends it TERMINATED INSTITUTIONAL_REVOCATION by the departure's actor with its reason, unscored, departure_applied audited once naming the stop, and a second touch adds nothing; with the plant (no first-touch application) the hand-in was ${tanam.hasil.serah} and the sitting ${tanam.hasil.sesudah}`);
   },
 });

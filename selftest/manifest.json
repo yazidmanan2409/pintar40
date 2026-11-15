@@ -6259,6 +6259,11 @@
       "id": "A2A-C718",
       "runner": "static",
       "proves": "A2a's required change 1 (migration 20270119120000's class scope), executes on the database in one rolled-back transaction: a class stop names its school, and every reader narrows it to the class: maintenance_affects reaches the class's learner and teacher and not a learner of another class of the same school; maintenance_block_for_me and pintar_status_saya stop the class's people only; the sitting-start trigger refuses the class and lets the other class start; maintenance_controls gives an emergency to Admin PINTAR, not the school's admin. Plant: the class branch matching on the school reaches the other class's learner."
+    },
+    {
+      "id": "A2A-C719",
+      "runner": "static",
+      "proves": "Sharon's C39-1 (migration 20270119240000), executes on the database in one rolled-back transaction: during a class stop the school's admin ends a learner's enrolment and the protected sitting is preserved; after the lift, before any batch run, the learner's answer and hand-in are refused because the first touch (pengerjaan_pagar) applies the departure before the act, and nothing is scored; the next committing touch (the decider) ends it TERMINATED INSTITUTIONAL_REVOCATION by the departure's actor with its reason, unscored, departure_applied audited once naming the stop. Plant: no first-touch application lets the hand-in score it."
     }
   ]
 }
