@@ -913,7 +913,7 @@ session's default lock wait (8 s) would use all of it. Hence:
 | Who takes the fence | Mode | `lock_timeout` | Attempts | Worst wait | Its own work under the fence | Worst total | Under 8 s by |
 |---|---|---|---|---|---|---|---|
 | The activation (`stop_pintar_now`) | exclusive | 1.5 s | 3, with 100 ms between, each in a subtransaction (`lock_not_available` is caught) | 3 × 1.5 + 2 × 0.1 = **4.7 s** | the window row, `T_stop`, the audit row: budget **0.5 s**; the marking runs after, in its own batches (D6.7) | **5.2 s** | **2.8 s** |
-| The lift (fenced, through `change_maintenance … 'AKHIRI'` and the lift action) | exclusive | 1.5 s | 3 | 4.7 s | `T_lift`, the window's end, the audit row: 0.5 s | 5.2 s | 2.8 s |
+| The lift (fenced, through `change_maintenance … 'AKHIRI'` and the lift action) | exclusive | 1.5 s | **1** (corrected, P1: the code at `8aec7e88` makes one attempt, then refuses MAINTENANCE_LIFT_NOT_DONE with Daisy's «Penghentian belum diakhiri … Coba lagi»; a refused lift leaves the stop in force, D6.8, and the admin retries. Accepted as frozen by Sharon, result review `f3f5fa38`) | 1.5 s | `T_lift`, the window's end, the audit row: 0.5 s | **2.0 s** | **6.0 s** |
 | A protected decision (D6.2's table) | shared | 2 s | 1 | **2.0 s** (below) | its own work, as today: the slowest, `finalize_session`, budget 1 s | **3.0 s** | **5.0 s** |
 | The closer, each batch (`pg_cron`, as `postgres`: no role timeout) | shared | 2 s | 1; a batch that waits longer is left for the next run, and the skip is counted (R1) | 2 s | one small batch | — | not bound by 8 s |
 
@@ -929,7 +929,7 @@ session's default lock wait (8 s) would use all of it. Hence:
 
   | Side | Worst total | Under 8 s by |
   |---|---|---|
-  | The exclusive side | 3 × 1.5 + 2 × 0.1 + 0.5 = **5.2 s** | 2.8 s |
+  | The exclusive side (the activation; the lift is 1.5 + 0.5 = 2.0 s, P1) | 3 × 1.5 + 2 × 0.1 + 0.5 = **5.2 s** | 2.8 s |
   | A shared taker | 2.0 + 1.0 = **3.0 s** | 5.0 s |
 
   Between the activation's attempts the exclusive request leaves the queue, so the shared requests behind it go
