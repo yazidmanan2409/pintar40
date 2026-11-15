@@ -1966,3 +1966,92 @@ a2aDaruratTests.push({
     return c.verdict(`a departure during a class stop, then the lift, no batch: the learner's answer and hand-in are refused (${h.jawab}, ${h.serah}) and nothing is scored; the next committing touch (the decider) ends it TERMINATED INSTITUTIONAL_REVOCATION by the departure's actor with its reason, unscored, departure_applied audited once naming the stop, and a second touch adds nothing; with the plant (no first-touch application) the hand-in was ${tanam.hasil.serah} and the sitting ${tanam.hasil.sesudah}`);
   },
 });
+
+// ═══════════════════════════════════════════════════════════ A2A-C720 · the O1 refusals, recorded afterwards
+
+/** Sharon's question 3 (A2A-C-39-d77609ec.md): each O1 refusal audited, on catat_penolakan_henti, the second call after
+ *  the refused transaction, which records only a refusal that still stands for the caller. A class stop in force holds
+ *  the learner's sitting; its learning assignment is given to the class. The class's teacher records
+ *  SITTING_CLASS_STOPPED (the sitting, and the assignment's «Ubah jadwal») and ASSIGN_CLASS_STOPPED; the school's admin
+ *  PROMO_STOPPED on the Kelas. Each is one row naming the stop. Refused: the learner, the fence's retry code, an unknown
+ *  code, the admin's PROMO_STOPPED on a class with nothing held, and the teacher's after the lift. One transaction,
+ *  rolled back. */
+function catatHenti(db: string) {
+  const f = fiksurJawab(db);
+  const adm = psqlStdin(db, `select a.auth_user_id from public.role_assignments r join public.accounts a on a.person_id = r.person_id
+    where r.role = 'INSTITUTION_ADMIN' and r.institution_id = '${f.inst}' and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until
+      and r.person_id <> '${f.person}' order by r.id limit 1;`);
+  if (!adm) return { err: "no school admin with an account: the seed changed", hasil: {} as Record<string, string> };
+  const S = "a2a1c720-0000-4000-8000-000000000001", W = "a2a1c720-0000-4000-8000-0000000000a1";
+  const coba = (k: string, uid: string, sasaran: string, kode: string) => `${sebagaiOrang(uid)}
+select '${k}|' || pg_temp.a2a_coba($q$select public.catat_penolakan_henti(${sasaran}, '${kode}')::text$q$);`;
+  const LA = `(select aa.learning_assignment_id from public.assessment_assignments aa join public.assessment_sessions s on s.assessment_assignment_id = aa.id where s.id = '${S}')`;
+  return barisKunci(db, `begin;
+${sesiSalinan(f, S, "now() + interval '30 minutes'")}
+update public.assessment_sessions set institution_id = '${f.inst}' where id = '${S}';
+-- the sitting's lesson given to the class (the copied source's may be another school's)
+update public.learning_assignments set node_id = '${f.node}', status = 'ACTIVE' where id = ${LA};
+${jendelaKelas(f, W, "now() - interval '10 minutes'", null)}
+set local session_replication_role = origin;
+create function pg_temp.a2a_coba(p_sql text) returns text language plpgsql as $c$
+declare v text; d text;
+begin execute p_sql into v; return 'OK';
+exception when others then get stacked diagnostics d = pg_exception_detail; return 'REFUSED:' || sqlstate || ':' || coalesce(nullif(d, ''), sqlerrm); end $c$;
+select 'dilindungi|' || public.pengerjaan_dilindungi('${S}')::text;
+${coba("guru_sesi", f.guru, `'${S}'`, "SITTING_CLASS_STOPPED")}
+${coba("guru_jadwal", f.guru, LA, "SITTING_CLASS_STOPPED")}
+${coba("guru_akhiri", f.guru, LA, "ASSIGN_CLASS_STOPPED")}
+${coba("admin_naik", adm, `'${f.node}'`, "PROMO_STOPPED")}
+${coba("murid", f.murid, `'${S}'`, "SITTING_CLASS_STOPPED")}
+${coba("pagar", f.guru, `'${S}'`, "SITTING_FENCE_BUSY")}
+${coba("asing", f.guru, `'${S}'`, "ROLE_LAST_SCHOOL_ADMIN")}
+${coba("guru_naik", f.guru, `'${f.node}'`, "PROMO_STOPPED")}
+select set_config('request.jwt.claims', '', true);
+select 'baris|' || count(*) || ':' || count(*) filter (where summary -> 'windows' @> to_jsonb(array['${W}'])) || ':'
+  || string_agg(action || '/' || (summary ->> 'refusal'), ',' order by action, summary ->> 'refusal')
+  from public.audit_log where action like '%.stop_refused' and (target_id = '${S}' or target_id = ${LA}::text or target_id = '${f.node}');
+-- the lift: the refusal no longer stands
+set local session_replication_role = replica;
+update public.maintenance_windows set ended_at = now(), t_lift = now() where id = '${W}';
+set local session_replication_role = origin;
+${coba("sesudah", f.guru, `'${S}'`, "SITTING_CLASS_STOPPED")}
+select set_config('request.jwt.claims', '', true);
+select 'baris_akhir|' || count(*) from public.audit_log where action like '%.stop_refused' and (target_id = '${S}' or target_id = ${LA}::text or target_id = '${f.node}');
+rollback;`);
+}
+const HENTI_TAHAN = "      if not (public.pengerjaan_dilindungi(s.id) or (s.darurat_sejak is not null and s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')))\n         or not";
+
+a2aDaruratTests.push({
+  id: "A2A-C720",
+  requires: ["db"],
+  run: async ({ repoRoot }) => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    const r = catatHenti(db);
+    c.expect(!r.err, `failed: ${r.err}`);
+    const h = r.hasil;
+    c.expect(h.dilindungi === "true", `the fixture's sitting is not protected by the stop: ${h.dilindungi}`);
+    for (const k of ["guru_sesi", "guru_jadwal", "guru_akhiri", "admin_naik"]) c.expect(h[k] === "OK", `${k}: a refusal that stands was not recorded: ${h[k]}`);
+    for (const k of ["murid", "pagar", "asing", "guru_naik", "sesudah"])
+      c.expect(/^REFUSED:PR170:STOP_REFUSAL_NOT_FOUND$/.test(h[k] ?? ""), `${k}: a refusal that does not stand for the caller was recorded or failed otherwise: ${h[k]}`);
+    c.expect(h.baris === "4:4:assessment_session.stop_refused/SITTING_CLASS_STOPPED,learning_assignment.stop_refused/ASSIGN_CLASS_STOPPED,learning_assignment.stop_refused/SITTING_CLASS_STOPPED,promotion.stop_refused/PROMO_STOPPED",
+      `the rows: ${h.baris}, not one per refused act, each naming the stop`);
+    c.expect(h.baris_akhir === "4", `after the lift a teacher's call still wrote a row: ${h.baris_akhir}`);
+    // the screens: each action refused one of the three codes calls the record once, afterwards
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const baca = (p: string) => readFileSync(join(repoRoot, p), "utf8");
+    const atur = baca("src/app/mengajar/pengerjaan-aksi.ts"), ajar = baca("src/app/mengajar/actions.ts"), naik = baca("src/app/konfigurasi/kenaikan-aksi.ts");
+    c.expect((atur.match(/if \(error\) await tolak\(db, t, /g) ?? []).length === 5 && /await catatPenolakanHenti\(db, t\.sesi, kode,/.test(atur)
+      && /await catatPenolakanHenti\(db, la, kode, "jadwal"\)/.test(atur), "the teacher's sitting acts or «Ubah jadwal» do not record their refusal afterwards");
+    c.expect(/await catatPenolakanHenti\(db, penugasan, kode, "akhiri"\)/.test(ajar), "ending an assignment does not record its refusal afterwards");
+    c.expect(/await catatPenolakanHenti\([^)]*kelas, kodeGalat\(error\), "kenaikan"\)/.test(naik), "the promotion does not record its refusal afterwards");
+    // the plant: the sitting's check forged, so a caller records a refusal the stop no longer holds
+    const balik = gantiFungsi("public.catat_penolakan_henti(uuid,text)", HENTI_TAHAN, "      if false\n         or not");
+    let tanam: ReturnType<typeof catatHenti>;
+    try { tanam = catatHenti(db); } finally { balik(); }
+    c.expect(tanam.hasil.sesudah === "OK", `with the plant (a forged record) the teacher's call after the lift was still refused: ${tanam.hasil.sesudah}`);
+    return c.verdict(`a class stop in force: the teacher records SITTING_CLASS_STOPPED on the sitting and on the assignment («Ubah jadwal») and ASSIGN_CLASS_STOPPED, the school's admin PROMO_STOPPED on the Kelas: four rows, one per call, each naming the stop; refused STOP_REFUSAL_NOT_FOUND: the learner, SITTING_FENCE_BUSY, another code, the teacher's PROMO_STOPPED, and the teacher's call after the lift; the four screen actions call it after the refusal; with the plant (a forged record) the call after the lift was recorded`);
+  },
+});

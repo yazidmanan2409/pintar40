@@ -30,6 +30,7 @@ bootstrap_first_system_admin: persons(1) persons(0) persons(0) persons(0) person
 buang_draf: persons(0) persons(0) persons(0) persons(0) persons(0) persons(0) persons(0)
 buka_kembali_akun: persons(3) account_requests(3) person_suspensions(3) person_suspensions(2) persons(0) persons(0) persons(0) persons(0) auth.users(2) auth.users(2) accounts(2) accounts(0) auth.users(0) persons(0) persons(0) accounts(2) persons(0) auth.users(0) persons(0) persons(0) password_write_permits(3) persons(3) persons(0) auth.users(0) persons(0) auth.users(0) persons(0) persons(0) auth.users(0) persons(0) password_write_permits(3) account_requests(2) persons(0) persons(0)
 cari_sekolah_tujuan: persons(0)
+catat_penolakan_henti: persons(0)
 catat_penolakan_peran: persons(0)
 certificate_prepare: persons(0) persons(1) persons(0) persons(1) persons(0) persons(0) assessment_sessions(0) persons(0)
 certificate_seal: persons(0)

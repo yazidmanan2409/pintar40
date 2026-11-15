@@ -6,6 +6,7 @@ import { kelas as kelasKonteks } from "@/lib/pengajar";
 import { zonaSekolah } from "@/lib/zona-sekolah";
 import { waktuSekolah } from "@/lib/pemeliharaan-kontrak";
 import { CARA_AKHIRI, MENIT_TAMBAHAN, kodePengerjaanDariGalat } from "@/lib/pengerjaan-kontrak";
+import { catatPenolakanHenti } from "@/lib/henti-catat";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -30,10 +31,12 @@ async function baca(fd: FormData): Promise<Tujuan> {
 }
 const siapa = (t: Tujuan, isi: Record<string, string>, jangkar: string): never =>
   redirect(`/mengajar/${encodeURIComponent(t.kelas)}/siapa?${new URLSearchParams({ penugasan: t.penugasan, ...isi }).toString()}#${jangkar}`);
-/** A refusal returns to the open panel with its code; a success to the list with its result line. */
-const tolak = (t: Tujuan, tindakan: string, error: { code?: string | null; details?: string | null; message?: string } | null): never => {
+/** A refusal returns to the open panel with its code; a success to the list with its result line. An O1 refusal (the
+ *  class stopped) is recorded first, afterwards, by its second call (A2a D6.9). */
+const tolak = async (db: any, t: Tujuan, tindakan: string, error: { code?: string | null; details?: string | null; message?: string } | null): Promise<never> => {
   const kode = kodePengerjaanDariGalat(error);
   if (kode === "SITTING_FAILED") console.error(`[atur] ${tindakan} failed`, error?.code, error?.message);
+  await catatPenolakanHenti(db, t.sesi, kode, `atur ${tindakan}`);
   return siapa(t, { sesi: t.sesi, tindakan, kode }, "atur");
 };
 const berhasil = (t: Tujuan, hasil: string, lagi: Record<string, string> = {}): never => siapa(t, { hasil, untuk: t.sesi, ...lagi }, "pin-siapa-hasil");
@@ -45,7 +48,7 @@ export async function tambahWaktuAksi(fd: FormData): Promise<void> {
   const { error } = await db.rpc("tambah_waktu_pengerjaan", {
     p_session: t.sesi, p_menit: (MENIT_TAMBAHAN as readonly number[]).includes(menit) ? menit : null, p_alasan: bersih(fd.get("alasan")),
   });
-  if (error) tolak(t, "waktu", error);
+  if (error) await tolak(db, t, "waktu", error);
   berhasil(t, "waktu", { n: String(menit) });
 }
 
@@ -56,7 +59,7 @@ export async function akhiriSesiAksi(fd: FormData): Promise<void> {
   const { error } = await db.rpc("akhiri_pengerjaan", {
     p_session: t.sesi, p_cara: (CARA_AKHIRI as readonly string[]).includes(cara) ? cara : null, p_alasan: bersih(fd.get("alasan")),
   });
-  if (error) tolak(t, "akhiri", error);
+  if (error) await tolak(db, t, "akhiri", error);
   berhasil(t, cara === "SCORED" ? "dinilai" : "tidak_dihitung");
 }
 
@@ -64,7 +67,7 @@ export async function mintaKesempatanAksi(fd: FormData): Promise<void> {
   const t = await baca(fd);
   const db = (await supabaseServer()) as any;
   const { error } = await db.rpc("minta_percobaan", { p_session: t.sesi, p_alasan: bersih(fd.get("alasan")) });
-  if (error) tolak(t, "minta", error);
+  if (error) await tolak(db, t, "minta", error);
   berhasil(t, "diminta");
 }
 
@@ -72,7 +75,7 @@ export async function lanjutkanSesiAksi(fd: FormData): Promise<void> {
   const t = await baca(fd);
   const db = (await supabaseServer()) as any;
   const { error } = await db.rpc("lanjutkan_pengerjaan", { p_session: t.sesi, p_catatan: bersih(fd.get("alasan")) });
-  if (error) tolak(t, "lanjut", error);
+  if (error) await tolak(db, t, "lanjut", error);
   berhasil(t, "dilanjutkan");
 }
 
@@ -80,7 +83,7 @@ export async function tutupDitahanAksi(fd: FormData): Promise<void> {
   const t = await baca(fd);
   const db = (await supabaseServer()) as any;
   const { error } = await db.rpc("tutup_pengerjaan_ditahan", { p_session: t.sesi, p_alasan: bersih(fd.get("alasan")) });
-  if (error) tolak(t, "tutup", error);
+  if (error) await tolak(db, t, "tutup", error);
   berhasil(t, "tidak_dihitung");
 }
 
@@ -104,6 +107,7 @@ export async function ubahJadwalAksi(fd: FormData): Promise<void> {
   if (error) {
     const kode = kodePengerjaanDariGalat(error);
     if (kode === "SITTING_FAILED") console.error("[jadwal] ubah_jadwal_penugasan failed", error?.code, error?.message);
+    await catatPenolakanHenti(db, la, kode, "jadwal");
     redirect(`/mengajar/${encodeURIComponent(kelas)}?${new URLSearchParams({ jadwal: la, kode }).toString()}#jadwal`);
   }
   redirect(`/mengajar/${encodeURIComponent(kelas)}?jadwal_diubah=ok#materi`);

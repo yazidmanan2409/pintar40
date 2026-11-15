@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { wajibDalamKonteks } from "@/lib/konteks-server";
 import { kodeGalat, rujukan } from "@/lib/galat-kontrak";
+import { catatPenolakanHenti } from "@/lib/henti-catat";
 import { adalahUuid, dariForm, kodekan, urai } from "@/lib/kenaikan";
 
 /**
@@ -62,6 +63,10 @@ export async function terapkanKenaikanAksi(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc("kenaikan_tetapkan", {
     p_kelas: kelas, p_tahun_baru: tahun, p_keputusan: keputusan, p_guru_ditinjau: fd.get("guru_ditinjau") === "ya", p_terapkan: true,
   });
-  if (error) ke(kelas, tahun, "tinjau", { kn_d: kodekan(keputusan), ...kodeDari(error, "kenaikan_tetapkan") });
+  if (error) {
+    // A2a D6.9: a refusal during a stop is recorded afterwards (the preview is a review, not an act: not recorded)
+    await catatPenolakanHenti(supabase as unknown as Parameters<typeof catatPenolakanHenti>[0], kelas, kodeGalat(error), "kenaikan");
+    ke(kelas, tahun, "tinjau", { kn_d: kodekan(keputusan), ...kodeDari(error, "kenaikan_tetapkan") });
+  }
   ke(kelas, tahun, "selesai");
 }

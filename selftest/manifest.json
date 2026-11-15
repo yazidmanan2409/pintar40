@@ -6264,6 +6264,11 @@
       "id": "A2A-C719",
       "runner": "static",
       "proves": "Sharon's C39-1 (migration 20270119240000), executes on the database in one rolled-back transaction: during a class stop the school's admin ends a learner's enrolment and the protected sitting is preserved; after the lift, before any batch run, the learner's answer and hand-in are refused because the first touch (pengerjaan_pagar) applies the departure before the act, and nothing is scored; the next committing touch (the decider) ends it TERMINATED INSTITUTIONAL_REVOCATION by the departure's actor with its reason, unscored, departure_applied audited once naming the stop. Plant: no first-touch application lets the hand-in score it."
+    },
+    {
+      "id": "A2A-C720",
+      "runner": "static",
+      "proves": "Sharon's answer to question 3 (migration 20270119250000), executes on the database in one rolled-back transaction and reads the screens' source: each O1 refusal is recorded afterwards by catat_penolakan_henti, only while it stands for the caller. With a class stop in force the class's teacher records SITTING_CLASS_STOPPED on the sitting and on the assignment («Ubah jadwal») and ASSIGN_CLASS_STOPPED, and the school's admin PROMO_STOPPED on the Kelas: one row per call, each naming the stop. Refused STOP_REFUSAL_NOT_FOUND: the learner, SITTING_FENCE_BUSY, another code, a teacher's PROMO_STOPPED, and the teacher's call after the lift. The teacher's sitting acts, «Ubah jadwal», ending an assignment and applying a promotion call it after the refusal. Plant: a forged record after the lift."
     }
   ]
 }

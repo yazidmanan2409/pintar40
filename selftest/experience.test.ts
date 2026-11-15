@@ -2216,7 +2216,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 261 -> 262, RESTATED, A2a change C: 20270119220000 (O1 after the lift).
       // MOVED 262 -> 263, RESTATED, A2a change C: 20270119230000 (D6.9's rows).
       // MOVED 263 -> 264, RESTATED, A2a change C: 20270119240000 (C39-1, the departure at first touch).
-      c.expect(migrations.length === 264, `${migrations.length} migrations; the frozen baseline has 264`);
+      // MOVED 264 -> 265, RESTATED, A2a change C: 20270119250000 (the O1 refusal audit).
+      c.expect(migrations.length === 265, `${migrations.length} migrations; the frozen baseline has 265`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4103,7 +4104,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 261 -> 262, RESTATED, A2a change C, for 20270119220000 (O1 after the lift): no tour RPC.
       // MOVED 262 -> 263, RESTATED, A2a change C, for 20270119230000 (D6.9's rows): no tour RPC.
       // MOVED 263 -> 264, RESTATED, A2a change C, for 20270119240000 (C39-1): no tour RPC.
-      c.expect(migs.length === 264, `${migs.length} migrations; the baseline has 264`);
+      // MOVED 264 -> 265, RESTATED, A2a change C, for 20270119250000 (the O1 refusal audit): no tour RPC.
+      c.expect(migs.length === 265, `${migs.length} migrations; the baseline has 265`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
