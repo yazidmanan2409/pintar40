@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2a change C commit 40 (D6.9's rows) | NO BLOCKER; the lift's counts in `release_completed` accepted (note it on the page); note: "released" should count from the watermark, or be renamed | `0a6ddca1d6716b8d4318a22f6993f22c28ec7e6e` | `A2A-C-40-0a6ddca1.md` |
 | A2a change C commit 39 (O1 after the lift) | **BLOCKER C39-1**: the departure applied only by the batch, not at first touch (a departed learner's sitting can be scored); (3) yes: audit the O1 refusals on the `catat_penolakan_peran` precedent; M-1 and `akhiri_penugasan` agreed | `d77609ec16bdcf4e4b00fbec9edec8f5869fa581` | `A2A-C-39-d77609ec.md` |
 | A2b boundary tests K1 to K7 (PLAN-A2B-C2W §2.3) | K1 to K7 agreed; K8 to K12 required before product code (an elapsed extend, the recorder race, class PLANNED and the CHECK, work scope and current placement, PLANNED with EMERGENCY) | `43ce13bfedce7b7c813eb5fe28f1f811b4184e3e` | `A2B-K-TESTS-43ce13bf.md` |
 | Monday handover: A2a change C | Everything up to `a6ce33e7` read, no blockers; the result review's scope, scenario 8's numbers, the eight hosted reads, the open items | `a6ce33e7c9b5c8d8797d78c5d2b4f8efad5c6361` | `HANDOVER-MONDAY-A2A-C.md` |
