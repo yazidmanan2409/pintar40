@@ -263,6 +263,8 @@ export const PENGECUALIAN: { penulis: string; lewat: Lewat; alasan: string; syar
   samaBaris("minta_percobaan", "attempt_requests.person_id is s.person_id, taken FOR SHARE first"),
   samaBaris("transfer_execute", "portable_visibility.person_id is t.person_id, taken FOR UPDATE first by the enrolment trigger"),
   samaBaris("terminate_session", "the learner v_s.person_id is taken first; terminated_by_person_id is v_actor, the same row or not the hold's"),
+  // A2a O1 after the lift (migration 20270119220000): the learner and the departure's actor, both taken first FOR KEY SHARE
+  samaBaris("pengerjaan_keluar_sesudah_henti", "the learner (a.person_id) and the departure's actor (darurat_keluar ->> 'oleh', which terminated_by_person_id names), both taken FOR KEY SHARE first"),
   // a trigger function read on its own: it only ever runs as auth.users' UPDATE trigger, read with that row held (R2), where it passes
   ...["auth_card_email_guard", "auth_password_write_guard"].map((penulis) => ({ penulis, lewat: /(^| > )sesi_akhiri_orang$/,
     alasan: "a trigger function only of auth.users UPDATE: its R2 reading, with the row held, passes",

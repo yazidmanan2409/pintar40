@@ -6239,6 +6239,11 @@
       "id": "A2A-C714",
       "runner": "static",
       "proves": "Bob's ruling on the search_path question (option 1) with Sharon's yes and her additions: on the database's catalogue, platform_schema_lint and docs/audit/launch-readiness.sql count every unpinned public function and procedure through jalur_tanpa_pin() (migration 20270119210000). Exactly three committing procedures are excused, each only while all hold: a procedure; not SECURITY DEFINER; no EXECUTE for PUBLIC, anon, authenticated or service_role; set_config('search_path', 'public, pg_temp', false) its first statement, before any commit; every public name schema-qualified; owned by the cron job's user. Nine plants in rolled-back transactions (another unpinned procedure, a function of the same name, SECURITY DEFINER, EXECUTE for authenticated, EXECUTE for PUBLIC, no first act, the first act after the first commit, a bare name, another owner) each count again with their cause."
+    },
+    {
+      "id": "A2A-C715",
+      "runner": "static",
+      "proves": "THE PLAN §5.3 D6.2, O1 after the lift (migration 20270119220000), on the database with committed fixtures put back after: during a class stop the school's admin ends a learner's enrolment (akhiri_pendaftaran); both protected sittings are preserved unscored, with the departure's actor and reason recorded once and audited. After the lift the release batch (pengerjaan_lepas_darurat_semua) applies the ordinary departure rule on the shifted deadline: a sitting inside it is terminated INSTITUTIONAL_REVOCATION by the departure's actor with its reason, unscored, answers kept; one past it and its grace is judged by the deadline rule, never terminated; each audited after the lift, naming the stop. Plant: the release batch without the departure pass leaves the preserved sitting open."
     }
   ]
 }

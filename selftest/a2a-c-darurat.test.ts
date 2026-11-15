@@ -1226,7 +1226,7 @@ a2aDaruratTests.push({
     try { tanam1 = await kreditSekali(db, "TANDAI"); } finally { balik1(); }
     c.expect(tanam1.sekali < tanam1.tumpang, `with S1's plant (no credit before a mark) the earlier stop was still given: ${JSON.stringify(tanam1)}`);
     // S2's plant: the credit pass ends at a page with nothing to give
-    const balik2 = gantiFungsi("public.pengerjaan_lepas_darurat_semua(integer)", "      n := n + 1; v_dari := r.id;", "      v_dari := r.id;");
+    const balik2 = gantiFungsi("public.pengerjaan_lepas_darurat_semua(integer)", "      perform public.pengerjaan_kredit_darurat(r.id);\n      n := n + 1; v_dari := r.id;", "      perform public.pengerjaan_kredit_darurat(r.id);\n      v_dari := r.id;");
     let tanam2: Awaited<ReturnType<typeof kreditSekali>>;
     try { tanam2 = await kreditSekali(db, "BATCH"); } finally { balik2(); }
     c.expect(tanam2.sekali === 0, `with S2's plant (the pass ends at a page with nothing to give) the sitting after it was still credited: ${JSON.stringify(tanam2)}`);
@@ -1469,5 +1469,101 @@ a2aDaruratTests.push({
       c.expect(harus.test(r), `with the plant "${nama}" the lint read ${r}`);
     }
     return c.verdict(`the platform lint and the launch readiness row count every unpinned public function and procedure through jalur_tanpa_pin(): 0 unplanted, the three committing procedures excused while each condition holds (a procedure, not SECURITY DEFINER, no EXECUTE beyond its owner, set_config('search_path', ...) its first statement before any commit, every public name schema-qualified, owned by the cron job's user); ${plants.length} plants on the release batch's procedure, each counted again with its cause: ${plants.map((p) => p[0]).join("; ")}`);
+  },
+});
+
+// ═══════════════════════════════════════════════════════════ A2A-C715 · O1 after the lift: the departure's rule
+
+/** THE PLAN §5.3 D6.2 (O1): during a class stop the school's admin ends a learner's enrolment; the learner's two
+ *  protected sittings are preserved, unscored. A: its own deadline 30 minutes on. B: its own deadline 50 minutes ago
+ *  (already overdue at T_stop, never closed). The stop (T_stop 40 minutes ago) is lifted 5 minutes ago, 35 minutes
+ *  long, and the release batch runs. A, inside its shifted deadline, is terminated unscored by the departure's actor
+ *  with its reason, answers kept; B, past its shifted deadline (15 minutes ago) and its grace, is scored by the ordinary
+ *  rule, never terminated. Each is audited, naming the stop. Committed fixtures (the batch commits), put back after. */
+function keluarSesudahHenti(db: string) {
+  const b = psqlStdin(db, `select e.id || '|' || e.person_id || '|' || m.id || '|' || m.node_id || '|' || e.institution_id || '|' || a.auth_user_id
+     || '|' || r.person_id || '|' || e.status || '|' || coalesce(e.end_reason::text, '')
+  from public.enrollments e join public.memberships m on m.enrollment_id = e.id and m.valid_to is null
+  join public.org_nodes n on n.id = m.node_id and n.kind = 'CLASS'
+  join public.role_assignments r on r.role = 'INSTITUTION_ADMIN' and r.institution_id = e.institution_id
+   and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until and r.person_id <> e.person_id
+  join public.accounts a on a.person_id = r.person_id
+  where e.status = 'ACTIVE' and e.valid_to is null
+    and not exists (select 1 from public.assessment_sessions x where x.enrollment_id = e.id and x.status in ('CREATED', 'IN_PROGRESS', 'PAUSED', 'EXPIRED'))
+  order by e.id limit 1;`);
+  const [enr, person, mem, node, inst, admin, adminPerson, st, er] = b.split("|");
+  if (!st) throw new Error("no live learner with no open sitting, in a class with a school admin: the seed changed");
+  const A = "a2a1c715-0000-4000-8000-000000000001", B = "a2a1c715-0000-4000-8000-000000000002", W = "a2a1c715-0000-4000-8000-0000000000a1";
+  const salin = (id: string, tenggat: string, dibuat: string) => `insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${person}',
+  'enrollment_id', '${enr}', 'institution_id', '${inst}', 'class_node_id', '${node}', 'cohort_node_id', null,
+  'authoritative_deadline', ${tenggat}, 'created_at', ${dibuat}, 'started_at', ${dibuat}, 'finalized_at', null, 'submitted_at', null,
+  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
+  'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null, 'darurat_keluar', null))).*
+  from public.assessment_sessions s where s.status = 'FINALIZED' order by (s.institution_id = '${inst}') desc, s.id limit 1;`;
+  try {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+create table if not exists public._a2a_c715_asal as select '${mem}'::uuid as mem, m.valid_from as m_dari from public.memberships m where m.id = '${mem}';
+create table if not exists public._a2a_c715_asal_e as select '${enr}'::uuid as enr, e.valid_from as e_dari from public.enrollments e where e.id = '${enr}';
+update public.memberships set valid_from = valid_from - interval '1 day' where id = '${mem}';
+update public.enrollments set valid_from = valid_from - interval '1 day' where id = '${enr}';
+${salin(A, "now() + interval '30 minutes'", "now() - interval '60 minutes'")}
+${salin(B, "now() - interval '50 minutes'", "now() - interval '70 minutes'")}
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, t_stop, reason, created_by_person_id, activation_recorded_at)
+select '${W}', 'EMERGENCY', false, array['${inst}'::uuid], array['${node}'::uuid], now() - interval '40 minutes', now() - interval '40 minutes', 'A2A-C715',
+       (select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' order by id limit 1), now() - interval '40 minutes';
+commit;`);
+    // the departure, during the stop, by the school's admin
+    psqlStdin(db, `begin; select set_config('request.jwt.claims', '{"sub":"${admin}","role":"authenticated"}', true);
+select public.akhiri_pendaftaran('${enr}', 'WITHDRAWN', null, null) is not null; commit;`);
+    const saat = psqlStdin(db, `select string_agg(status || ':' || (darurat_keluar is not null)::text, ',' order by id) from public.assessment_sessions where id in ('${A}', '${B}');`);
+    // the lift, then the release batch
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+update public.maintenance_windows set ended_at = now() - interval '5 minutes', t_lift = now() - interval '5 minutes' where id = '${W}';
+commit;`);
+    psqlStdin(db, "call public.pengerjaan_lepas_darurat_semua(50);");
+    const nilai = (id: string) => psqlStdin(db, `select s.status || '|' || coalesce(s.termination_cause::text, '') || '|' || coalesce(s.terminated_by_person_id::text, '')
+      || '|' || coalesce(s.termination_reason, '') || '|' || (select count(*) from public.assessment_results x where x.session_id = s.id)
+      || '|' || (select count(*) from public.audit_log l where l.target_id = s.id::text and l.action = 'assessment_session.departure_applied' and l.summary ->> 'stop' = '${W}')
+      || '|' || (select count(*) from public.audit_log l where l.target_id = s.id::text and l.action = 'assessment_session.departure_preserved')
+      from public.assessment_sessions s where s.id = '${id}';`).split("|");
+    return { saat, a: nilai(A), b: nilai(B), adminPerson };
+  } finally {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+delete from public.assessment_results where session_id in ('${A}', '${B}');
+delete from public.audit_log where target_id in ('${A}', '${B}', '${W}');
+delete from public.assessment_sessions where id in ('${A}', '${B}');
+delete from public.maintenance_windows where id = '${W}';
+update public.memberships m set valid_from = a.m_dari, valid_to = null, close_reason = null from public._a2a_c715_asal a where m.id = a.mem;
+update public.enrollments e set valid_from = a.e_dari, valid_to = null, status = '${st}', end_reason = ${er ? `'${er}'` : "null"} from public._a2a_c715_asal_e a where e.id = a.enr;
+drop table if exists public._a2a_c715_asal; drop table if exists public._a2a_c715_asal_e;
+commit;`);
+  }
+}
+const KELUAR_BATCH = "      perform public.pengerjaan_keluar_sesudah_henti(r.id);\n";
+
+a2aDaruratTests.push({
+  id: "A2A-C715",
+  requires: ["db"],
+  run: async () => {
+    const c = new Checks();
+    const db = process.env.SUPABASE_DB_URL!;
+    const { gantiFungsi } = await import("./balapan");
+    const r = keluarSesudahHenti(db);
+    c.expect(r.saat === "IN_PROGRESS:true,IN_PROGRESS:true", `during the stop the departure did not preserve both sittings with who and why: ${r.saat}`);
+    const [aSt, aSebab, aOleh, aAlasan, aHasil, aAudit, aSimpan] = r.a;
+    c.expect(aSt === "TERMINATED" && aSebab === "INSTITUTIONAL_REVOCATION" && aOleh === r.adminPerson && aAlasan.startsWith("Pendaftaran diakhiri") && aHasil === "0",
+      `the sitting inside its shifted deadline: ${r.a.join("|")}, not terminated unscored by the departure's actor with its reason`);
+    c.expect(aAudit === "1" && aSimpan === "1", `the sitting inside its shifted deadline was not audited at the departure and after the lift naming the stop: ${aSimpan}, ${aAudit}`);
+    const [bSt, bSebab, , , , bAudit] = r.b;
+    c.expect((bSt === "FINALIZED" || bSt === "EXPIRED") && bSebab === "" && bAudit === "1",
+      `the sitting past its shifted deadline: ${r.b.join("|")}, not judged by the ordinary rule (scored, never terminated) and audited naming the stop`);
+    // the plant: the release batch without the departure's pass
+    const balik = gantiFungsi("public.pengerjaan_lepas_darurat_semua(integer)", KELUAR_BATCH, "      null;\n");
+    let tanam: ReturnType<typeof keluarSesudahHenti>;
+    try { tanam = keluarSesudahHenti(db); } finally { balik(); }
+    c.expect(tanam.a[0] === "IN_PROGRESS", `with the plant (no departure pass in the release batch) the preserved sitting was still ended: ${tanam.a.join("|")}`);
+    return c.verdict(`a class stop; the school's admin ends the learner's enrolment during it: both protected sittings are preserved, unscored, with who and why recorded; after the lift the release batch applies the ordinary departure rule on the shifted deadline: the one inside it terminated INSTITUTIONAL_REVOCATION by the departure's actor with its reason, unscored, and the one past it and its grace judged by the deadline rule (${bSt}), never terminated; each audited at the departure and after the lift, naming the stop; with the plant (no departure pass) the preserved sitting stayed ${tanam.a[0]}`);
   },
 });
