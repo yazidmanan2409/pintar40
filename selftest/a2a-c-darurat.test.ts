@@ -2051,6 +2051,11 @@ update public.assessment_sessions set institution_id = '${f.inst}' where id = '$
 -- the sitting's lesson given to the class (the copied source's may be another school's)
 update public.learning_assignments set node_id = '${f.node}', status = 'ACTIVE' where id = ${LA};
 update public.assessment_assignments set node_id = '${f.node}' where id = (select assessment_assignment_id from public.assessment_sessions where id = '${S}');
+-- the teacher's list shows each learner's latest sitting of the assignment: the learner's other sittings of it (the seed's,
+-- made after this one on a fresh database) dated before this one, in this transaction only
+update public.assessment_sessions set created_at = created_at - interval '2 days'
+ where person_id = '${f.person}' and id <> '${S}'
+   and assessment_assignment_id = (select assessment_assignment_id from public.assessment_sessions where id = '${S}');
 ${jendelaKelas(f, W, "now() - interval '10 minutes'", null)}
 set local session_replication_role = origin;
 create function pg_temp.a2a_coba(p_sql text) returns text language plpgsql as $c$
@@ -2061,6 +2066,7 @@ select 'dilindungi|' || public.pengerjaan_dilindungi('${S}')::text;
 ${sebagaiOrang(f.guru)}
 select 'daftar_tahan|' || coalesce((select x.keadaan from public.daftar_pengerjaan('${f.node}', (select assessment_assignment_id from public.assessment_sessions where id = '${S}')) x where x.sesi_id = '${S}'), '-');
 ${coba("guru_sesi", f.guru, `'${S}'`, "SITTING_CLASS_STOPPED")}
+${coba("guru_sesi_lagi", f.guru, `'${S}'`, "SITTING_CLASS_STOPPED")}
 ${coba("guru_jadwal", f.guru, LA, "SITTING_CLASS_STOPPED")}
 ${coba("guru_akhiri", f.guru, LA, "ASSIGN_CLASS_STOPPED")}
 ${coba("admin_naik", adm, `'${f.node}'`, "PROMO_STOPPED")}
@@ -2084,6 +2090,7 @@ update public.assessment_sessions set darurat_sejak = now() - interval '10 minut
 set local session_replication_role = origin;
 ${coba("basi_sesi", f.guru, `'${S}'`, "SITTING_CLASS_STOPPED")}
 ${coba("basi_akhiri", f.guru, LA, "ASSIGN_CLASS_STOPPED")}
+${coba("basi_naik", adm, `'${f.node}'`, "PROMO_STOPPED")}
 select 'daftar_basi|' || coalesce((select x.keadaan from public.daftar_pengerjaan('${f.node}', (select assessment_assignment_id from public.assessment_sessions where id = '${S}')) x where x.sesi_id = '${S}'), '-');
 select 'basi_jadwal|' || pg_temp.a2a_coba($q$select public.ubah_jadwal_penugasan(${LA}, now() + interval '1 hour', now() + interval '2 hours', 'A2A-C720 the stale mark')::text$q$);
 select set_config('request.jwt.claims', '', true);
@@ -2104,11 +2111,11 @@ a2aDaruratTests.push({
     c.expect(!r.err, `failed: ${r.err}`);
     const h = r.hasil;
     c.expect(h.dilindungi === "true", `the fixture's sitting is not protected by the stop: ${h.dilindungi}`);
-    for (const k of ["guru_sesi", "guru_jadwal", "guru_akhiri", "admin_naik"]) c.expect(h[k] === "OK", `${k}: a refusal that stands was not recorded: ${h[k]}`);
-    for (const k of ["murid", "pagar", "asing", "guru_naik", "sesudah", "basi_sesi", "basi_akhiri"])
+    for (const k of ["guru_sesi", "guru_sesi_lagi", "guru_jadwal", "guru_akhiri", "admin_naik"]) c.expect(h[k] === "OK", `${k}: a refusal that stands was not recorded: ${h[k]}`);
+    for (const k of ["murid", "pagar", "asing", "guru_naik", "sesudah", "basi_sesi", "basi_akhiri", "basi_naik"])
       c.expect(/^REFUSED:PR170:STOP_REFUSAL_NOT_FOUND$/.test(h[k] ?? ""), `${k}: a refusal that does not stand for the caller was recorded or failed otherwise: ${h[k]}`);
     c.expect(h.baris === "4:4:assessment_session.stop_refused/SITTING_CLASS_STOPPED,learning_assignment.stop_refused/ASSIGN_CLASS_STOPPED,learning_assignment.stop_refused/SITTING_CLASS_STOPPED,promotion.stop_refused/PROMO_STOPPED",
-      `the rows: ${h.baris}, not one per refused act, each naming the stop`);
+      `the rows: ${h.baris}, not one per refused act and stop (the teacher's second identical call writes none), each naming the stop`);
     c.expect(h.baris_akhir === "4", `after the lift a teacher's call still wrote a row: ${h.baris_akhir}`);
     c.expect(h.daftar_tahan === "HELD_STOP" && !!h.daftar_basi && h.daftar_basi !== "-" && h.daftar_basi !== "HELD_STOP",
       `C41-2: the teacher's list during the stop (${h.daftar_tahan}) and after the lift with the mark not yet released (${h.daftar_basi}), not HELD_STOP and then not`);
@@ -2127,6 +2134,11 @@ a2aDaruratTests.push({
     let tanam: ReturnType<typeof catatHenti>;
     try { tanam = catatHenti(db); } finally { balik(); }
     c.expect(tanam.hasil.sesudah === "OK", `with the plant (a forged record) the teacher's call after the lift was still refused: ${tanam.hasil.sesudah}`);
+    // the note on commit 43's plant: no dedupe, so the second identical call writes a second row
+    const balik4 = gantiFungsi("public.catat_penolakan_henti(uuid,text)", "  if v_ada is not null then return v_ada; end if;\n", "");
+    let tanam4: ReturnType<typeof catatHenti>;
+    try { tanam4 = catatHenti(db); } finally { balik4(); }
+    c.expect((tanam4.hasil.baris ?? "").startsWith("5:"), `with the dedupe's plant the second identical call still wrote no row: ${tanam4.hasil.baris}`);
     // C41-2's sibling plant: «Ubah jadwal» counting the stale mark again
     const balik2 = gantiFungsi("public.ubah_jadwal_penugasan(uuid,timestamp with time zone,timestamp with time zone,text)", JADWAL_BASI,
       "and (s.darurat_sejak is not null or public.pengerjaan_dilindungi(s.id))) then");
@@ -2138,6 +2150,6 @@ a2aDaruratTests.push({
     try { tanam3 = catatHenti(db); } finally { balik3(); }
     c.expect(tanam3.hasil.daftar_basi === "HELD_STOP", `with the list's sibling plant (the stale mark counted) it did not say HELD_STOP after the lift: ${tanam3.hasil.daftar_basi}`);
     c.expect(/SITTING_CLASS_STOPPED/.test(tanam2.hasil.basi_jadwal ?? ""), `with C41-2's sibling plant (the stale mark counted) «Ubah jadwal» was not refused: ${tanam2.hasil.basi_jadwal}`);
-    return c.verdict(`a class stop in force: the teacher records SITTING_CLASS_STOPPED on the sitting and on the assignment («Ubah jadwal») and ASSIGN_CLASS_STOPPED, the school's admin PROMO_STOPPED on the Kelas: four rows, one per call, each naming the stop; refused STOP_REFUSAL_NOT_FOUND: the learner, SITTING_FENCE_BUSY, another code, the teacher's PROMO_STOPPED, and the teacher's call after the lift, also while the stop's mark is not yet released; «Ubah jadwal» goes on to its own checks then and the teacher's list no longer says HELD_STOP (C41-2's siblings; with their plants refused for the stop and HELD_STOP); the four screen actions call it after the refusal; with the plant (a forged record) the call after the lift was recorded`);
+    return c.verdict(`a class stop in force: the teacher records SITTING_CLASS_STOPPED on the sitting and on the assignment («Ubah jadwal») and ASSIGN_CLASS_STOPPED, the school's admin PROMO_STOPPED on the Kelas: four rows, one per refused act and stop (a second identical call returns the first row, and with its plant writes a fifth), each naming the stop; refused STOP_REFUSAL_NOT_FOUND: the learner, SITTING_FENCE_BUSY, another code, the teacher's PROMO_STOPPED, and the teacher's call after the lift, also while the stop's mark is not yet released (all three codes); «Ubah jadwal» goes on to its own checks then and the teacher's list no longer says HELD_STOP (C41-2's siblings; with their plants refused for the stop and HELD_STOP); the four screen actions call it after the refusal; with the plant (a forged record) the call after the lift was recorded`);
   },
 });
