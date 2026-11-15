@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2b boundary tests K1 to K7 (PLAN-A2B-C2W §2.3) | K1 to K7 agreed; K8 to K12 required before product code (an elapsed extend, the recorder race, class PLANNED and the CHECK, work scope and current placement, PLANNED with EMERGENCY) | `43ce13bfedce7b7c813eb5fe28f1f811b4184e3e` | `A2B-K-TESTS-43ce13bf.md` |
 | Monday handover: A2a change C | Everything up to `a6ce33e7` read, no blockers; the result review's scope, scenario 8's numbers, the eight hosted reads, the open items | `a6ce33e7c9b5c8d8797d78c5d2b4f8efad5c6361` | `HANDOVER-MONDAY-A2A-C.md` |
 | A2a change C commits 33 to 36 | NO BLOCKER: the readers check their caller in the body; `akhiri_penugasan` keeps the person, fence, protection, then credit order; 34 revokes only; 36 is the app only | `a6ce33e7c9b5c8d8797d78c5d2b4f8efad5c6361` | `A2A-C-33-36-a6ce33e7.md` |
 | A2a change C commit 37 and A2A-C714 (search_path exception) | NO BLOCKER: enforced as ruled (list, conditions, owner, first act, nine plants); commits 33 to 36 not yet handed to me | `a6ce33e7c9b5c8d8797d78c5d2b4f8efad5c6361` | `A2A-C-37-a6ce33e7.md` |
