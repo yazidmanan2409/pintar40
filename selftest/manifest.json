@@ -6249,6 +6249,16 @@
       "id": "A2A-C716",
       "runner": "static",
       "proves": "THE PLAN §5.3 D6.9's remaining rows and scenario 9's once-only (migration 20270119230000), on the database's audit log with committed fixtures put back after: a class stop holds a learner's open sitting and one held for a suspension; the marking batch, run twice, writes one maintenance.marking_completed row naming T_stop and how many it holds (the open sitting marked, the suspended one not); after the lift the release batch, run twice, writes one maintenance.release_completed row naming T_lift, the released count and the one left held for a suspension. Plant: the once-only guard removed, a second marking row is written."
+    },
+    {
+      "id": "A2A-C717",
+      "runner": "static",
+      "proves": "THE PLAN §5.3 H, scenarios 3 to 6, on the database in rolled-back transactions on a class stop with no batch run: B3 a sitting EXPIRED inside its grace at T_stop: an answer inside the restored grace is LATE_SYNC and scored while the decider leaves the scoring waiting, one after it is kept unscored, and a manifest-complete hand-in after the lift closes it early; B4 a window-timed sitting whose closes_at passes during the stop has the effective deadline ended_at + (closes_at − starts_at) and is not ended; B5 a re-stop's final deadline is W3.ended_at + (W1's restored deadline − W3.starts_at); B6 a sitting suspended during the stop stays held as ACCOUNT_SUSPENDED after the lift with the time left at T_stop, and the scheduler neither ends nor selects it. One plant each (an EXPIRED sitting given no time back; the effective deadline without the stop; only the last stop counted; the decider not skipping a held sitting), each caught."
+    },
+    {
+      "id": "A2A-C718",
+      "runner": "static",
+      "proves": "A2a's required change 1 (migration 20270119120000's class scope), executes on the database in one rolled-back transaction: a class stop names its school, and every reader narrows it to the class: maintenance_affects reaches the class's learner and teacher and not a learner of another class of the same school; maintenance_block_for_me and pintar_status_saya stop the class's people only; the sitting-start trigger refuses the class and lets the other class start; maintenance_controls gives an emergency to Admin PINTAR, not the school's admin. Plant: the class branch matching on the school reaches the other class's learner."
     }
   ]
 }
