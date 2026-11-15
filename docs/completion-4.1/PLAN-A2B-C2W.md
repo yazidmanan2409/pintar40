@@ -62,7 +62,8 @@ class's or school's work, and nothing else. The system shows people:
 | A work-scoped refusal is `PR040`, `MAINTENANCE_PLACE`, and never `PT503`. Nobody is sent to the pause page for it | Sharon |
 | The place guard reads the clock at the moment of writing, takes no person or account lock, and is skipped entirely when no window is open | Sharon |
 | Every writer of a class's work is classed as refused, allowed or system closure, in a test that fails on any unclassified writer | Sharon; the A2b page |
-| Banner stages re-read the status before showing. No polling is added | Decision 3 above |
+| Banner stages re-read the status before showing; a failed re-read shows no new stage. No polling is added | Decision 3 above; Daisy's addition (`A2B-C2W-KATA.md`, `ux-1/daisy-experience`, 16 Nov) |
+| D8's screens: six, each captured in a WIB and a WITA school, in two batches | Daisy, same file |
 
 ### 2.3 Boundaries, written as tests before any product code
 
@@ -147,7 +148,7 @@ changes a question, a score or a report, and no learner ever sees one.
 | Notes naming a misconception-taxonomy code are out of scope | Owner, M-3 |
 | The words are «Catatan peninjau» and «belum dikaitkan dengan pemahaman keliru». «anotasi» never appears on a screen | Owner, ruling 30 |
 | Notes do not print | Daisy, O-3 |
-| **I-5:** a note written before a key correction stays attached to its revision. Wherever it is read against a later revision whose key differs, it says plainly that it was written before the key was corrected, and which revision it describes | Decided here; Daisy writes the words. If Sharon and Daisy find it must be hidden instead, that changes what reviewers see and comes to the owner |
+| **I-5:** a note written before a key correction stays attached to its revision. Wherever it is read against a later revision whose key differs, it says plainly that it was written before the key was corrected, and which revision it describes | Decided here. Daisy's words, Studio and teacher variants, using F-1's «kunci … yang berlaku sekarang», are in `A2B-C2W-KATA.md`. If Sharon and Daisy find it must be hidden instead, that changes what reviewers see and comes to the owner |
 
 ### 3.4 Acceptance evidence, named before the build
 
