@@ -91,9 +91,16 @@ This page has them under "then, in order", before the freeze.
 - **Daisy:** no blocker on `d355ebba` (`A2A-LAYAR-d355ebba.md` at `6702eadd`). Her one correction is commit 38. Her
   §4 "notes for next batch" are not for C.
 
+**Monday's progress (15 Nov, `claude/a2a-change-c`):** the four requirements and Sharon's findings on them are built,
+each its own commit handed to Sharon (copy Bob): 39 `d77609ec` O1 after the lift; 40 `0a6ddca1` D6.9's rows; 41
+`759540ef` B3 to B6 and required change 1's test; 42 `3def2e9b` C39-1, the departure at first touch (Sharon: CLOSED);
+43 `0ea8ac0c` the O1 refusal audit; 44 `bfc9f50f` C41-1, C41-2 with its siblings, D6.9's count, N42-1; 45 `783cfff4`
+F01-T10, B1-S01 (and B1-S05) and F05-T07 repeatable on a reused database (test defects, causes in the commit). M-1 is
+commit 14, confirmed by Sharon. Waiting: Sharon's verdicts on 41's closure, 43, 44 and 45; then the candidate.
+
 **Outstanding, in order:**
-1. **Monday, first thing: the four remaining A2a requirements.** Each is built red first and handed to Sharon as its own
-   commit:
+1. **Monday, first thing: the four remaining A2a requirements** (built: see above). Each is built red first and handed
+   to Sharon as its own commit:
    - **O1 after the lift**, with akhiri_penugasan's refusal;
    - **M-1's promotion refusal;**
    - **D6.9's remaining audit rows;**
@@ -1583,7 +1590,7 @@ The design text is THE PLAN §5.3 D6, unchanged. This table says where A2a build
 | D6.6 · The scheduled closer | A procedure committing per small batch, the shared fence inside each; selection excludes protected and held sittings in the query and uses the shifted closing time. The job text `select …` → `call …`; A1-S08, A1-S09 and the DR tests restated with notes | `pengerjaan_tutup_terjadwal`; the shared installer. ~~**Depends on checkpoint item 1**~~ *(proven on hosted staging: §1 above)* |
 | D6.7 · Marking and release | Bounded batches, sittings in id order, `SKIP LOCKED`, idempotent, resumable; first touch releases by the same rule | new marking and release procedures |
 | D6.8 · Failure behaviour | No half-stop; retried marking and release give identical outcomes; a failed lift leaves the stop in force | activation and lift |
-| D6.9 · Audit | One row at effect (`T_stop`), one when marking completes, one at the lift (`T_lift`, released, left held); each O1 refusal audited; enrolment terminations keep their ordinary record | `audit_log` |
+| D6.9 · Audit | One row at effect (`T_stop`), one when marking completes, one at the lift (`T_lift`, released, left held); each O1 refusal audited; enrolment terminations keep their ordinary record. **Where the counts are (Sharon, `A2A-C-40-0a6ddca1.md`, refining the one lift row into two without changing what is recorded):** the lift's own row (`maintenance.ended_now`) records `T_lift`; the counts are in `maintenance.release_completed`, written once per stop by the release batch within one run of the closer's job, naming the stop, `T_stop` and `T_lift`: `released` = the stop's people's sittings whose credit watermark reaches the chain's end, wherever they now stand (commit 44; commit 42's interim name `affected_still_open_released` is gone); `held_for_suspension` = those A1 still holds. `maintenance.marking_completed` records how many the marking holds. O1 refusals: `assessment_session.stop_refused`, `learning_assignment.stop_refused`, `promotion.stop_refused` (commit 43, `catat_penolakan_henti`) | `audit_log` |
 
 ~~**Lock order** (THE PLAN §6.2): the emergency fence first, then sittings in id order, in short transactions. L1-F2's
 locks (the person's row, then the person's `accounts` rows) touch no sitting and take no fence, so they add no cycle.~~
