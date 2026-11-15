@@ -96,7 +96,9 @@ each its own commit handed to Sharon (copy Bob): 39 `d77609ec` O1 after the lift
 `759540ef` B3 to B6 and required change 1's test; 42 `3def2e9b` C39-1, the departure at first touch (Sharon: CLOSED);
 43 `0ea8ac0c` the O1 refusal audit; 44 `bfc9f50f` C41-1, C41-2 with its siblings, D6.9's count, N42-1; 45 `783cfff4`
 F01-T10, B1-S01 (and B1-S05) and F05-T07 repeatable on a reused database (test defects, causes in the commit). M-1 is
-commit 14, confirmed by Sharon. Waiting: Sharon's verdicts on 41's closure, 43, 44 and 45; then the candidate.
+commit 14, confirmed by Sharon. 46 `c04c088e`: a refusal recorded once per caller, target, code and stop (Sharon's note
+on 43). Sharon: no blocker on 39 to 45 (verdicts `4a865aaf`, `064e9d00`, `f0cd6242`, `ae479d83`, `d79ee46a`, `9eae2d53`);
+46 with her. The candidate is `c04c088e`, its full pre-flight running.
 
 **Outstanding, in order:**
 1. **Monday, first thing: the four remaining A2a requirements** (built: see above). Each is built red first and handed
@@ -125,6 +127,10 @@ commit 14, confirmed by Sharon. Waiting: Sharon's verdicts on 41's closure, 43, 
      runs, the hosted post-promotion reads 1 and 2 included;
    - A1 already requires pg_cron.
 5. **Not in C:** Daisy's §3 note on `/mengajar/[kelas]/siapa` at phone width, on Z's register.
+6. **Registered, not in C (Sharon, `A2A-C-44-45-783cfff4.md` at `9eae2d53`):** after the lift and before a touch commits
+   a departure preserved through a stop, its learner who opens `/belajar/asesmen/[penugasan]` directly is shown the player
+   (the page reads `assessment_sessions` through RLS). The list no longer offers it (N42-1); every answer there is refused,
+   the next committing touch terminates the sitting, and nothing is scored (C719). The display is Daisy's.
 
 **Where everything is:**
 - Product and tests: `claude/a2a-change-c`. The last migration is `20270119210000`; the A2a tests are in
