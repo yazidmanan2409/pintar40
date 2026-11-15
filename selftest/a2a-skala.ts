@@ -39,10 +39,10 @@ const W_ALASAN = "A2a change B · scenario 8";
 type Hasil = { ok: boolean; out: string; err: string; ms: number };
 
 /** psql on a connection of its own; `ms` is the last statement's own time (psql's \timing). */
-function psqlT(sql: string, sub?: string): Promise<Hasil> {
+function psqlT(sql: string, sub?: string, app = "a2a-skala"): Promise<Hasil> {
   const awal = sub ? `select set_config('request.jwt.claims', '{"sub":"${sub}","role":"authenticated"}', false);\n` : "";
   return new Promise((selesai) => {
-    const p = spawn("psql", ["-X", "-q", "-At", "-v", "ON_ERROR_STOP=1", DB], { stdio: ["pipe", "pipe", "pipe"] });
+    const p = spawn("psql", ["-X", "-q", "-At", "-v", "ON_ERROR_STOP=1", DB], { stdio: ["pipe", "pipe", "pipe"], env: { ...process.env, PGAPPNAME: app } });
     let out = "", err = "";
     p.stdout.on("data", (b) => { out += b; });
     p.stderr.on("data", (b) => { err += b; });
@@ -62,6 +62,11 @@ function psql(sql: string): string {
 const p95 = (xs: number[]) => { const s = [...xs].sort((a, b) => a - b); return s.length ? s[Math.min(s.length - 1, Math.ceil(0.95 * s.length) - 1)] : NaN; };
 const p50 = (xs: number[]) => { const s = [...xs].sort((a, b) => a - b); return s.length ? s[Math.floor((s.length - 1) / 2)] : NaN; };
 const bulat = (x: number) => Math.round(x * 10) / 10;
+
+const t0 = Date.now();
+let tFase = t0;
+/** The run's own budget against the job's 20 minutes, printed as it goes (not one of the measurements). */
+function fase(nama: string) { const t = Date.now(); console.log(`phase ${nama}: ${Math.round((t - tFase) / 1000)} s (total ${Math.round((t - t0) / 1000)} s)`); tFase = t; }
 
 async function main() {
   if (!DB) throw new Error("SUPABASE_DB_URL is not set");
@@ -118,6 +123,7 @@ commit;
 analyze public.assessment_sessions;`);
   const U = (g: number) => `a2a1b000-0000-4000-8000-${String(g).padStart(12, "0")}`;
   const kena = Number(psql(`select count(*) from public.assessment_sessions where class_node_id = '${kelas}' and status = 'IN_PROGRESS';`));
+  fase("the fixture");
   console.log(`fixture: class ${kelas}, ${kena} open sittings of its learners; the unaffected learner's 1 overdue and ${PENGAMBIL} open sittings`);
 
   const henti = () => psqlT(`select public.stop_pintar_now(false, array['${inst}'::uuid], '${W_ALASAN}', 'HENTIKAN SEKARANG', array['${kelas}'::uuid]);`, sys);
@@ -137,6 +143,7 @@ analyze public.assessment_sessions;`);
   // the release batch: the credit of every affected sitting, in its committed batches, no fence
   const lepas = await psqlT(`call public.pengerjaan_lepas_darurat_semua(200);`);
   const dikredit = Number(psql(`select count(*) from public.assessment_sessions where class_node_id = '${kelas}' and darurat_dikredit_sampai is not null;`));
+  fase("the activation, the lift, D1 and the release batch");
   hasil.activation_uncontended_ms = bulat(a1.ms);
   hasil.lift_no_batch_ms = bulat(l1.ms);
   hasil.marked_before_lift = ditandai;
@@ -156,6 +163,7 @@ analyze public.assessment_sessions;`);
   const l2 = await angkat(w2);
   hasil.r1 = { candidates: calon.length, affected_among_candidates: calonKena, ended: selesai, skipped: calon.length - selesai, failed_in_run: gagalR1,
     unaffected_overdue_status_after_first_run: u0, run_ms: bulat(jalan.ms) };
+  fase("R1");
   hasil.activation_uncontended_2_ms = bulat(a2.ms);
   hasil.lift_2_ms = l2.ok ? bulat(l2.ms) : `refused: ${l2.err}`;
 
@@ -171,7 +179,9 @@ analyze public.assessment_sessions;`);
       await tidur(50);
     }
   })());
-  const penutup = (async () => { let n = 0; while (jalanTerus) { await psqlT(`call public.pengerjaan_tutup_berkala(500, 20);`); n++; await tidur(1000); } return n; })();
+  // the closer, running throughout: one pass after another; at 50,000 sittings a pass (its marking and release
+  // batches included) outlasts the cycles, so the pass under way when they end is cancelled, not waited for
+  const penutup = (async () => { let n = 0; while (jalanTerus) { await psqlT(`call public.pengerjaan_tutup_berkala(500, 20);`, undefined, "a2a-skala-penutup"); n++; if (jalanTerus) await tidur(1000); } return n; })();
   await tidur(5000);   // the baseline: the shared takers and the closer, no stop
   const dasar = catatan.filter((c) => c.ok).map((c) => c.ms);
   const aktif: number[] = [], angkatMs: number[] = [];
@@ -196,10 +206,12 @@ analyze public.assessment_sessions;`);
   }
   jalanTerus = false;
   await Promise.all(pengambil);
+  psql(`select pg_cancel_backend(pid) from pg_stat_activity where application_name = 'a2a-skala-penutup' and pid <> pg_backend_pid();`);
   const putaran = await penutup;
+  fase("R2 and the refusals");
   const semasa = catatan.filter((c) => jendela.some(([a, b]) => c.t + (c.ms || 0) >= a && c.t <= b));
   hasil.r2 = { activations: aktif.length, refused_activations: aktifDitolak, p50_ms: bulat(p50(aktif)), p95_ms: bulat(p95(aktif)), max_ms: bulat(Math.max(...aktif)),
-    lifts: angkatMs.length, lift_p95_ms: bulat(p95(angkatMs)), closer_runs_during: putaran };
+    lifts: angkatMs.length, lift_p95_ms: bulat(p95(angkatMs)), closer_passes_started_during: putaran };
   hasil.queue_delay = { baseline_p95_ms: bulat(p95(dasar)), during_stop_or_lift_p95_ms: bulat(p95(semasa.filter((c) => c.ok).map((c) => c.ms))),
     during_max_ms: bulat(Math.max(0, ...semasa.filter((c) => c.ok).map((c) => c.ms))) };
   hasil.refused = { shared_takers_total_calls: catatan.length, shared_takers_refused_fence_busy: catatan.filter((c) => c.sibuk).length,
