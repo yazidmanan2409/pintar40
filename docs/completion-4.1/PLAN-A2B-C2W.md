@@ -78,6 +78,14 @@ written.
 | K5 | A running sitting when the window starts | Not cut off: it drains through its existing deadline and grace, and the system closer still ends it |
 | K6 | Extend during a window, or ending it early | The guard follows the new end at once. A write refused before the change succeeds after an early end |
 | K7 | An emergency window | Extend and resume early refuse it. A2a's fenced lift is the only way it ends, and A2a's regression stays green |
+| K8 | Extend after the window has ended | Refused, judged by the clock, never by `activation_recorded_at` (Sharon) |
+| K9 | Extend against the edge recorder | Both orders on two connections: exactly one activation and at most one deactivation per window (Sharon) |
+| K10 | Lifting A2a's emergency-only CHECK | Dropped in the migration that adds the node parameter. A PLANNED class window is accepted, and a bad class gets the designed refusal first (Sharon) |
+| K11 | Work scope | A teacher of 7A and 7B is refused only on 7A's work, and a person at two schools only at the window's school. `MAINTENANCE_PLACE` is never `PT503`. PLANNED reads current placement; only EMERGENCY reads T_stop (Sharon) |
+| K12 | A PLANNED and an EMERGENCY window over the same class | The emergency governs, and A2a's regression stays green (Sharon) |
+
+**Sharon agreed K1 to K7 as written** and required K8 to K12 before any product code (`A2B-K-TESTS-43ce13bf.md` at
+`cfa23583`, 16 Nov). In K5, "its existing deadline" means the **effective** deadline, including any stop's shift.
 
 ### 2.4 Acceptance evidence, named before the build (rule 1)
 
