@@ -222,6 +222,17 @@ meet **both** conditions, across its 30 items:
 
   I recommend Q1 and Q2 as proposed: simple, and set by the add-on's purpose.
 
+**4.3b How the rules are applied (Bob, 16 Nov; for `score.mjs`, not a change of substance)**
+- **Accepted** means a resolved review burden of at least 1. So 0.5 is not accepted and 1.5 is.
+- **Every resolved correctness 0 on a valid item is critical.** The rubric's correctness covers the key, an
+  unambiguous stem and exactly one correct option.
+- Critical items still count toward Q2, at their resolved scores.
+- **A flag is "upheld"** when the third educator scores correctness 0.
+- **A malformed item** (one that fails the item schema inside an otherwise valid response) scores 0 and is not shown to
+  judges or to Sharon. Only that item is voided. A whole response that fails goes down the retry and missing path (§4.1).
+- Thresholds are applied by `score.mjs` (`claude/e-runner-prep`), whose self-test covers these cases. The older
+  `kit.mjs score` rule is retired.
+
 **4.4 The sealed map**
 - The runner's operator session runs `kit.mjs blind` and keeps the provider-to-code map **outside the repository**. It
   commits only the map's SHA-256 before judging starts. The operator is not a judge, not Sharon and not Daisy.
