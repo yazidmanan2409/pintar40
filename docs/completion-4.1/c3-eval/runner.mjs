@@ -255,13 +255,16 @@ export async function runEval(cfg) {
         inFlight++; maxInFlight = Math.max(maxInFlight, inFlight);
         if (inFlight > CONCURRENCY) throw new Fatal(`in-flight bound broken: ${inFlight}`);
         let res = null, err = null;
+        const t0 = Date.now();
         try { res = await adapter.call({ provider, model: price.model, b, attempt, text, schema, maxOutput, seq, key: keys[provider] }); } catch (x) { err = x; }
         inFlight--;
+        const duration_ms = Date.now() - t0;
         const reportedUsage = !!res && !!res.usage && Number.isFinite(res.usage.input) && Number.isFinite(res.usage.output);
         const actual = reportedUsage ? costMicro(res.usage.input, res.usage.output, price) : wc.micro;
         const settle = { cost_usd: usd(actual), cost_basis: reportedUsage ? 'usage' : 'reservation',
           actual_input_tokens: reportedUsage ? res.usage.input : null, actual_output_tokens: reportedUsage ? res.usage.output : null,
-          request_id: res?.request_id ?? null, model_version: res?.model_version ?? null };
+          request_id: res?.request_id ?? null, model_version: res?.model_version ?? null,
+          duration_ms, rate_limit: res?.rate_limit ?? err?.rate_limit ?? null };
         if (actual > wc.micro) {
           ledger.settle(e, { ...settle, status: 'overrun', reason: `reported cost ${usd(actual)} exceeds its reservation ${usd(wc.micro)}` });
           abort = { kind: 'overrun', reason: `${provider} bab${b} attempt ${attempt}: ${e.reason}` }; log(`ABORT    ${abort.reason}`); break outer;

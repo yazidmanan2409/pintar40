@@ -217,3 +217,11 @@ For scale only: at the unverified Anthropic hint in `prices.json` ($2/$10), one 
   reservation by the excess.
 - **The educational quality** of anything: the mock's items are placeholders, and validity here is only the kit's
   structural check.
+
+## Addition, 16 Nov (owner's cost-evidence list)
+
+Each ledger attempt now also records `duration_ms` (the provider's response time, measured around the call) and
+`rate_limit` (whatever rate-limit information the adapter returns from the response or the error; `null` until the
+adapters are verified against official documentation). With the existing fields, the ledger supports cost per attempt,
+per valid draft and (with the judges' results) per accepted draft, tokens, retry and failure rates, response times and
+rate limits. Self-test re-run: all passed. Scoring is unchanged.
