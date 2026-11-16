@@ -148,6 +148,42 @@ const TINDAKAN = /\.rpc\(|\)\s*\.(?:insert|update|upsert|delete)\(/;
 /** The context checks themselves (src/lib/konteks-server.ts; pengajar.ts's kelas, which narrows to the context). */
 const PENJAGA = ["wajibDalamKonteks", "sasaranDalamKonteks", "kelasKonteks"];
 
+/** A2b S-1: the public tables the session role (authenticated) holds no SELECT on, as far as src reads any: A2B-S1G
+ *  holds this list equal to the catalogue for every table src names. */
+export const TAK_TERBACA = ["broadcast_notices", "evaluation_personas", "maintenance_windows", "release_distributions"] as const;
+/** Reads of a TAK_TERBACA table through the service client, by file and table, each with its reason. */
+export const BACA_LAYANAN: Record<string, Record<string, string>> = {
+  "src/app/api/evaluation/assume/route.ts": { evaluation_personas: "the evaluation persona route reads its personas with the service client (supabaseService), never the session" },
+};
+/** The one variable table read in src, by file: its map's values are each checked as literal reads. */
+const BACA_PETA: Record<string, RegExp> = { "src/lib/konteks-server.ts": /\.from\(SUMBER_SEKOLAH\[jenis\]\)/ };
+/** Every app read that names a table the session cannot select, or names no table this rule can read. */
+export function bacaanTakTerbaca(sumber: string, berkas: string): string[] {
+  const s = tanpaKomentar(sumber);
+  const salah: string[] = [];
+  for (const m of s.matchAll(/(\bstorage\s*)?\.from\(\s*([^)]*?)\s*\)/g)) {
+    if (m[1]) continue;
+    const arg = m[2];
+    const lit = /^["'`]([a-z_]+)["'`]$/.exec(arg)?.[1];
+    if (!lit) {
+      if (BACA_PETA[berkas]?.test(m[0])) continue;
+      if (/^(?:Array|Buffer|Object|Uint8Array)$/.test(s.slice(Math.max(0, m.index! - 12), m.index!).match(/(\w+)\s*$/)?.[1] ?? "")) continue;
+      salah.push(`.from(${arg}) names its table by a variable: this rule cannot see what it reads`);
+      continue;
+    }
+    if ((TAK_TERBACA as readonly string[]).includes(lit) && !BACA_LAYANAN[berkas]?.[lit]) {
+      salah.push(`reads ${lit} through the session, which holds no SELECT on it: the read comes back empty`);
+    }
+  }
+  if (BACA_PETA[berkas]) {
+    const peta = /const SUMBER_SEKOLAH = \{([\s\S]*?)\};/.exec(s)?.[1] ?? "";
+    for (const m of peta.matchAll(/(\w+):\s*"([a-z_]+)"/g)) {
+      if ((TAK_TERBACA as readonly string[]).includes(m[2])) salah.push(`SUMBER_SEKOLAH.${m[1]} reads ${m[2]} through the session, which holds no SELECT on it`);
+    }
+  }
+  return salah;
+}
+
 /**
  * Which top-level functions of a context-bound file check the context before they act: a check (or a call to a
  * function of the same file that checks) comes before the first database act in the body. A function with no act
@@ -569,6 +605,18 @@ export const fable22Tests: SelfTest[] = [
       // 5. the check is a narrowing only: it never grants, and no system path makes a device session for it
       const server = tanpaKomentar(baca(ctx.repoRoot, "src/lib/konteks-server.ts"));
       c.expect(!/supabaseService|service_role|device_sessions/.test(server), "the context check reaches for the service key or writes a device session");
+      // 6. RESTATED (A2b, S-1: Sharon, A2B-BATCH2-APP-a186b1a7.md; the Chief Architect, 16 Nov 11:51): THE CHECK READS
+      //    WHAT IT CHECKS. A target read the session cannot make comes back empty, and an empty target passed the check
+      //    having checked nothing. So no app read names a table the session role cannot select (TAK_TERBACA, held equal
+      //    to the catalogue by A2B-S1G), and every table read names its table literally, so this rule can see it. A read
+      //    through the service client is named here with its reason. The plants: S-1's cakupanBaris (a variable table
+      //    of two unreadable ones) and a literal read of maintenance_windows are each caught.
+      const salahBaca = (sumber: string, berkas: string) => bacaanTakTerbaca(sumber, berkas);
+      for (const p of src) for (const x of salahBaca(baca(ctx.repoRoot, p), p)) c.expect(false, `${p}: ${x}`);
+      const tanamS1 = salahBaca(`async function cakupanBaris(supabase: any, tabel: "maintenance_windows" | "broadcast_notices", id: string) {
+  const { data } = await supabase.from(tabel).select("platform, institution_ids").eq("id", id).limit(1); }`, "src/app/konfigurasi/actions.ts");
+      const tanamLiteral = salahBaca(`const { data } = await supabase.from("maintenance_windows").select("ends_at");`, "src/app/konfigurasi/actions.ts");
+      c.expect(tanamS1.length === 1 && tanamLiteral.length === 1, `the plants: S-1's variable read ${tanamS1.length}, a literal unreadable read ${tanamLiteral.length} (each must be caught once)`);
       return c.verdict(`§2.11 (D-132(k)): all ${n} context-bound server actions in ${Object.keys(AKSI_TERIKAT).length} files check their `
         + `target against the active context before acting (exempt by name: ${bebas.join("; ")}), and the ${Object.keys(RUTE_TERIKAT).length} `
         + "context-bound API routes before their act; every other server-action file and route is exempt by name with its reason "

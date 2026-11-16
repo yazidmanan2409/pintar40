@@ -1061,6 +1061,29 @@ select 'paparan|' || coalesce((select exposure::text from public.client_rpc_regi
 select 'anon|' || coalesce((select has_function_privilege('anon', p.oid, 'execute')::text from pg_proc p where p.proname = 'pemeliharaan_jendela_tempat' and p.pronamespace = 'public'::regnamespace), 'tidak ada');
 rollback;`);
 }
+/** S-1 (Sharon, A2B-BATCH2-APP-a186b1a7.md; the Chief Architect, 16 Nov 11:51): «Tarik pengumuman»'s place for the
+ *  notice's controller, as withdraw_notice decides it (maintenance_may_act over the notice's own platform flag and
+ *  schools). A two-school controller is given the notice's school; a school's admin of another school, and an unknown
+ *  id, are refused alike (no existence oracle). */
+function k20(db: string, d: Dunia) {
+  const N = ID("e8");
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+insert into public.broadcast_notices (id, platform, institution_ids, message, publish_at, expires_at, created_by_person_id)
+values ('${N}', false, array['${d.Y}'::uuid], 'Pengumuman sekolah Y', now() - interval '1 hour', now() + interval '1 day', '${d.sys}');
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.sysUid)}
+select 'baca|' || coalesce((select (j ->> 'platform') || ':' || (j -> 'sekolah' ->> 0) from (select public.pemeliharaan_pengumuman_tempat('${N}') as j) x), 'null');
+${sebagai(d.adminXUid)}
+select 'lain|' || pg_temp.a2b_coba($q$select public.pemeliharaan_pengumuman_tempat('${N}')$q$);
+select 'entah|' || pg_temp.a2b_coba($q$select public.pemeliharaan_pengumuman_tempat('${ID("dead")}')$q$);
+${tanpaOrang}
+select 'langsung|' || has_table_privilege('authenticated', 'public.broadcast_notices', 'select')::text;
+select 'paparan|' || coalesce((select exposure::text from public.client_rpc_registry where function_name = 'pemeliharaan_pengumuman_tempat'), 'tidak ada');
+select 'anon|' || coalesce((select has_function_privilege('anon', p.oid, 'execute')::text from pg_proc p where p.proname = 'pemeliharaan_pengumuman_tempat' and p.pronamespace = 'public'::regnamespace), 'tidak ada');
+rollback;`);
+}
 const D12_SAAT = "then public.penghentian_geser(s.person_id, s.darurat_jendela_id) end, interval '0')";
 const D12_TANAM = "then null::interval end, interval '0')";
 const D13_SAAT = "'ditahan', s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')   -- D1-3: a stale mark holds nothing";
@@ -2133,6 +2156,49 @@ rollback;`);
       c.expect(h.paparan === "STAFF" && h.anon === "false", `a STAFF read, closed to anon: ${h.paparan}, ${h.anon}`);
       return "pemeliharaan_jendela_tempat gives a window's controller its place (platform, schools, classes), its end and the zone its times are typed in (its one school's, here WITA); a teacher is refused; a STAFF read closed to anon; a staff client still holds no select on the table";
     }),
+  },
+  {
+    id: "A2B-K20",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = k20(db, d); const h = r.hasil;
+      c.expect(!r.err, `K20 failed to run: ${r.err}`);
+      c.expect(h.langsung === "false", `the control: a staff client holds no SELECT on broadcast_notices: ${h.langsung}`);
+      c.expect(h.baca === `false:${d.Y}`, `the notice's controller is given its place: ${h.baca}`);
+      c.expect(h.lain === "PR110:MAINTENANCE_NOT_ALLOWED" && h.entah === "PR110:MAINTENANCE_NOT_ALLOWED", `another school's admin, and an unknown id, are refused alike: ${h.lain}, ${h.entah}`);
+      c.expect(h.paparan === "STAFF" && h.anon === "false", `a STAFF read, closed to anon: ${h.paparan}, ${h.anon}`);
+      return "pemeliharaan_pengumuman_tempat gives a notice's controller (withdraw_notice's rule) its platform flag and schools; another school's admin and an unknown id are refused alike; STAFF, closed to anon; a staff client holds no select on the table";
+    }),
+  },
+  {
+    id: "A2B-S1G",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const db = process.env.SUPABASE_DB_URL!;
+      // F22-P05 part 6's list of tables the session cannot read, held equal to the catalogue for every table src names
+      const { TAK_TERBACA } = await import("./fable22.test");
+      const nama = new Set<string>();
+      const jalanSrc = (d: string): string[] => readdirSync(d).flatMap((n) => { const f = join(d, n); return statSync(f).isDirectory() ? jalanSrc(f) : /\.tsx?$/.test(n) ? [f] : []; });
+      for (const f of jalanSrc(join(repoRoot, "src"))) {
+        const t = readFileSync(f, "utf8");
+        for (const m of t.matchAll(/(\bstorage\s*)?\.from\(\s*["'`]([a-z_]+)["'`]\s*\)/g)) if (!m[1]) nama.add(m[2]);
+        const peta = /const SUMBER_SEKOLAH = \{([\s\S]*?)\};/.exec(t)?.[1];
+        if (peta) for (const m of peta.matchAll(/\w+:\s*"([a-z_]+)"/g)) nama.add(m[1]);
+      }
+      const daftar = [...new Set([...nama, ...TAK_TERBACA])].sort();
+      const baris = psqlBaris(db, `select x, coalesce((select has_any_column_privilege('authenticated', c.oid, 'select') from pg_class c
+        where c.relnamespace = 'public'::regnamespace and c.relname = x), true)::text from unnest(array[${daftar.map((x) => `'${x}'`).join(",")}]::text[]) x order by 1`);
+      // both ways: every table src reads by name that the session cannot select is listed, and every listed table is one
+      // the session cannot select (a list entry src no longer reads stays: it is what the rule refuses next time)
+      const tak = baris.filter(([x, b]) => b === "false" && nama.has(x)).map(([x]) => x);
+      const tidakAda = tak.filter((x) => !(TAK_TERBACA as readonly string[]).includes(x));
+      const terbaca = baris.filter(([x, b]) => b === "true" && (TAK_TERBACA as readonly string[]).includes(x)).map(([x]) => x);
+      c.expect(tidakAda.length === 0, `src reads, by name, tables the session cannot select that TAK_TERBACA does not list: ${JSON.stringify(tidakAda)}`);
+      c.expect(terbaca.length === 0, `TAK_TERBACA lists tables the session can select: ${JSON.stringify(terbaca)}`);
+      c.expect(nama.size >= 40, `only ${nama.size} tables found read in src: the scan is not reading it`);
+      return c.verdict(`of the ${nama.size} tables src reads by name, ${tak.join(", ")} cannot be selected by the session, and each is in F22-P05's TAK_TERBACA (${TAK_TERBACA.join(", ")}), every one of which the session cannot select`);
+    },
   },
   {
     id: "A2B-K13",

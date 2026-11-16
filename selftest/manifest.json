@@ -3586,7 +3586,7 @@
     {
       "id": "F22-P05",
       "runner": "static",
-      "proves": "L3 §2.11 (D-132(k)), read from the source files: every exported server action of the six context-bound files (Studio, Konfigurasi, Pendataan, Pimpinan, umpan balik, Mengajar) checks its target against the active context before its first database act (the one re-read exempt by name), and the four context-bound API routes (activation, class-card re-issue, PIN recovery reset, media upload) before their act, each saying CONTEXT_OTHER_PLACE; every other server-action file and API route is exempt by name with its reason (signing in, the chooser, Belajar's own work, a person's own account, personas, public pages, and the explicitly platform-scoped test email and its history); the checker catches a removed check and a check moved after its act; the check uses no service key and makes no device session."
+      "proves": "L3 §2.11 (D-132(k)), read from the source files: every exported server action of the six context-bound files (Studio, Konfigurasi, Pendataan, Pimpinan, umpan balik, Mengajar) checks its target against the active context before its first database act (the one re-read exempt by name), and the four context-bound API routes (activation, class-card re-issue, PIN recovery reset, media upload) before their act, each saying CONTEXT_OTHER_PLACE; every other server-action file and API route is exempt by name with its reason (signing in, the chooser, Belajar's own work, a person's own account, personas, public pages, and the explicitly platform-scoped test email and its history); the checker catches a removed check and a check moved after its act; the check uses no service key and makes no device session. RESTATED (A2b S-1; the Chief Architect, 16 Nov 11:51), part 6: the check reads what it checks: no app read names a table the session role cannot select (TAK_TERBACA, held equal to the catalogue by A2B-S1G) unless through the service client, named with its reason; every .from names its table literally (SUMBER_SEKOLAH's values are each checked); the plants (S-1's variable read of two unreadable tables, a literal read of maintenance_windows) are each caught."
     },
     {
       "id": "BOB50-A01",
@@ -6449,6 +6449,21 @@
       "id": "A2B-K19",
       "runner": "static",
       "proves": "Found capturing D8-6 (a staff client reads no row of maintenance_windows, so «Perpanjang»'s screen read nothing and its action read a typed end in WIB); executes in a rolled-back transaction: pemeliharaan_jendela_tempat(p_window) gives the window's controller (its school's admin) its platform flag, schools, classes, end and the zone its times are typed in (its one school's, here WITA); a teacher is refused MAINTENANCE_NOT_ALLOWED; a STAFF read closed to anon; the control: a direct read of the table returns no row. E01 adds that the extend action and form read through it, never the table."
+    },
+    {
+      "id": "A2B-K20",
+      "runner": "static",
+      "proves": "S-1 (Sharon, A2B-BATCH2-APP-a186b1a7.md; the Chief Architect, 16 Nov 11:51); executes in a rolled-back transaction: pemeliharaan_pengumuman_tempat(p_notice) gives a notice's controller (withdraw_notice's maintenance_may_act over the notice's platform flag and schools) its place; another school's admin and an unknown id are refused MAINTENANCE_NOT_ALLOWED alike (no existence oracle); STAFF, closed to anon; the control: authenticated holds no select on broadcast_notices."
+    },
+    {
+      "id": "A2B-S1G",
+      "runner": "static",
+      "proves": "S-1: F22-P05 part 6's TAK_TERBACA is held equal to the catalogue: every table src names in a .from(…) (and SUMBER_SEKOLAH's values) that the session cannot select (has_any_column_privilege('authenticated', …, 'select')) is listed, and every listed table is one the session cannot select. Reads the source and the database."
+    },
+    {
+      "id": "A2B-S1A",
+      "runner": "app",
+      "proves": "S-1 (Sharon, A2B-BATCH2-APP-a186b1a7.md; the Chief Architect, 16 Nov 11:51); executed against the running build, each server action posted as a browser without script posts it, with its id from the build's manifest: a controller of Alpha and Beta (Alpha's Admin sekolah, given Beta's for the test), working in Alpha, is refused for the context (the chooser) on Beta's «Akhiri sekarang», «Mulai sekarang» and «Tarik pengumuman», with nothing written; an unknown window and an unknown notice are refused MAINTENANCE_NOT_ALLOWED before any write; working in Beta, the same «Akhiri sekarang» ends Beta's window. The plant is the build before the fix (the direct read), shown red."
     },
     {
       "id": "A2B-K13",
