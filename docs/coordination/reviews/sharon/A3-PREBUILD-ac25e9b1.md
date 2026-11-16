@@ -86,3 +86,9 @@ Sharon, 16 Nov 2026 (22:40 UTC). Read-only.
   - An unknown sitting id, and a sitting the caller does not control, both answer SITTING_NOT_CONTROLLER.
   - RECOVERY_NOTHING and the authorisation codes are given only after the controller check has passed.
 - The words are Daisy's.
+
+## Addendum, 22:50 UTC: Second Eye's risk list (via Bob)
+
+- **Agreed, and added as red case 11: a null `sesi_saya()` must refuse.** On a card sign-in or a shared-computer sign-in, `sesi_saya()` can come back null. Every recovery and controller boundary must then refuse with SITTING_NOT_CONTROLLER. It must never treat null as "no other device, so allowed". This is the same fail-closed principle as S-1 and A2B-R3.
+- **The 20 writer functions, 7 of them with no row lock,** are covered by D5's sweep and the enumeration test (§3, condition 2).
+- **The 9 plants and 5 `ci.yml` anchors to re-aim:** each is re-aimed with its defect unchanged and shown red, as A2b's 3g, 3h and 3i were. None may be loosened to make it pass.
