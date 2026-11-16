@@ -57,6 +57,7 @@ import { lingkupPeran } from "@/lib/lingkup-peran";
 import { alamatCatatan, formulirPeserta, tempatCatatan } from "@/lib/pengembangan";
 import { kunciKodeLaporan, kunciStatusLaporan, langkahBerikut, laporanTriase, type KodeLaporan } from "@/lib/lapor-masalah";
 import { pindahkanLaporanAksi } from "@/app/lapor/actions";
+import FokusPeringatan from "@/components/FokusPeringatan";
 import { bolehPerpanjang, daftarKelola, jamPenuh, KODE_ALASAN, kodeAlasan, KONFIRMASI_HENTIKAN, kunciAkhiriTanya, kunciAlasan, waktuSekolah } from "@/lib/pemeliharaan";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { transferMintaAction, transferTerimaAction } from "./actions";
@@ -138,6 +139,9 @@ type SearchParams = Promise<{
   cari_orang?: string;
   // #148: the first step of scheduling, asked by a plain GET so the second step can show what the window would meet
   pm_cek?: string; pm_platform?: string; pm_sekolah?: string | string[]; pm_mulai?: string; pm_selesai?: string; pm_kelas?: string | string[]; panjang?: string; pp_selesai?: string;
+  // A2b (Daisy, BL-1): a refused form's entered values, drawn again
+  pm_pesan?: string; pm_alasan_kode?: string; pm_alasan?: string; pm_umumkan?: string; pp_alasan?: string;
+  pu_platform?: string; pu_sekolah?: string | string[]; pu_pesan?: string; pu_terbit?: string; pu_sampai?: string;
   // A2a (Daisy A1): the emergency form's class step, a plain GET: the one school, then its classes
   hk_sekolah?: string; hk_kelas?: string | string[];
   // D-101 (2): «Admin sekolah» named on Peran & akses, waiting for its second press
@@ -542,6 +546,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const pmSekolah = (Array.isArray(sp.pm_sekolah) ? sp.pm_sekolah : sp.pm_sekolah ? [sp.pm_sekolah] : [])
     .filter((x) => /^[0-9a-f-]{36}$/i.test(x));
   const pmPlatform = platformIni && sp.pm_platform === "1";
+  const puSekolah = (Array.isArray(sp.pu_sekolah) ? sp.pu_sekolah : sp.pu_sekolah ? [sp.pu_sekolah] : []).filter((x) => /^[0-9a-f-]{36}$/i.test(x));
   // the owner's ruling (10 Nov): a window for one school is typed on that school's clock; for the platform or several, WIB
   // (as jadwalkanPemeliharaanAction reads it)
   const zonaPmPilih = await zonaSekolah(supabase, !pmPlatform && pmSekolah.length === 1 ? pmSekolah[0] : null);
@@ -1471,7 +1476,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     <input type="hidden" name="mulai" value={sp.pm_mulai ?? ""} />
                     <input type="hidden" name="selesai" value={sp.pm_selesai ?? ""} />
                     <label className={label}>{sl("config.pemeliharaan.pesan")} <span className="pin-opsional">{sl("bentuk.opsional")}</span>
-                      <textarea name="pesan" className={field} maxLength={500} rows={2} />
+                      <textarea name="pesan" className={field} maxLength={500} rows={2} defaultValue={sp.pm_pesan ?? ""} />
                     </label>
                     {/* A2b D2 (Daisy, A2-KATA-DESAIN B1): the reason from the list, required; «Lainnya» with its text */}
                     <fieldset className="grid gap-1 text-sm" aria-describedby="pin-pm-alasan-petunjuk" data-pm-alasan="">
@@ -1479,21 +1484,22 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                       <p id="pin-pm-alasan-petunjuk" className="text-ink-2">{sl("config.pemeliharaan.alasan.petunjuk")}</p>
                       {KODE_ALASAN.map((k) => (
                         <label key={k} className="flex items-center gap-2">
-                          <input type="radio" name="alasan_kode" value={k} required /> {sl(`pemeliharaan.alasan.${k}`)}
+                          <input type="radio" name="alasan_kode" value={k} defaultChecked={sp.pm_alasan_kode === k} required /> {sl(`pemeliharaan.alasan.${k}`)}
                         </label>
                       ))}
                       <label className={label}>{sl("config.pemeliharaan.alasan.jelaskan")}
-                        <input name="alasan" className={field} maxLength={120} autoComplete="off" />
+                        <input name="alasan" className={field} maxLength={120} autoComplete="off" defaultValue={sp.pm_alasan ?? ""} />
                       </label>
                     </fieldset>
                     <label className="flex items-center gap-2 text-sm">
-                      <input type="checkbox" name="umumkan" value="1" /> {sl("config.pemeliharaan.umumkan")}
+                      <input type="checkbox" name="umumkan" value="1" defaultChecked={sp.pm_umumkan === "1"} /> {sl("config.pemeliharaan.umumkan")}
                     </label>
                     <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.jadwalkan")}</TombolKirim></div>
                   </form>
                 </div>
               ) : null}
               {result("pemeliharaan", "jadwal")}
+              {sp.hasil === "gagal" && asalKini === "jadwal" ? <FokusPeringatan /> : null}
             </section>
 
             <section className="mt-4" aria-labelledby="pin-pm-daftar">
@@ -1505,6 +1511,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     // opening its reason in place
                     // A2a (Daisy A4): a class stop in force names its classes, when and by whom; its lift is «Akhiri penghentian»
                     const daruratKelas = w.jenis === "EMERGENCY" && w.kelas !== null && w.keadaan === "AKTIF";
+                    const akhiriTerencana = w.jenis === "PLANNED" && w.keadaan === "AKTIF";
                     const kata = daruratKelas ? sl("config.pemeliharaan.darurat.akhiri")
                       : sl(w.keadaan === "AKTIF" ? "config.pemeliharaan.akhiri" : "config.pemeliharaan.batalkan");
                     const nama = `${w.platform ? sl("config.pemeliharaan.platform") : w.sekolah.join(", ")}, ${when(w.mulai, "hariJam", zonaJendela(w.platform))}`;
@@ -1522,6 +1529,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                       <span className="text-ink-1">
                         <strong>{sl(`config.pemeliharaan.keadaan.${w.keadaan}` as HleEvent)}</strong>
                         {" · "}{sl(`config.pemeliharaan.jenis.${w.jenis}` as HleEvent)}
+                        {/* A2b (Daisy, BL-2): a class window names its class(es) in its row, before the confirmation does */}
+                        {w.kelas && w.kelas.length > 0 ? <>{" · "}{sl("pemeliharaan.tempat.kelas").replace("{kelas}", w.kelas.join(", "))}</> : null}
                         {" · "}{w.platform ? sl("config.pemeliharaan.platform") : w.sekolah.join(", ")}
                       </span>
                       )}
@@ -1529,7 +1538,12 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         {when(w.mulai, "hariJam", zonaJendela(w.platform))} {w.selesai ? <>{sl("config.pemeliharaan.hingga")} {when(w.selesai, "hariJam", zonaJendela(w.platform))}</> : <>· {sl("config.pemeliharaan.tanpa_akhir")}</>}
                       </span>
                       {w.pesan ? <span className="text-ink-2">{w.pesan}</span> : null}
-                      <span className="text-xs text-ink-3">{sl("config.pemeliharaan.alasan")}: {kataAlasan(w)}</span>
+                      {/* A2b (Daisy, BL-2; THE PLAN §5.3 F): who scheduled it */}
+                      {w.jenis === "PLANNED" && w.oleh ? <span className="text-xs text-ink-3">{sl("config.pemeliharaan.dijadwalkan_oleh").replace("{nama}", w.oleh)}</span> : null}
+                      {/* A2b (Daisy, C-5): a coded reason is shown to the affected, so it reads «Alasan: …»; an old free text keeps
+                          «Alasan (dicatat): …» */}
+                      <span className="text-xs text-ink-3">{w.jenis === "PLANNED" && kunciAlasan(kodeAlasan(w.alasan))
+                        ? sl("pemeliharaan.alasan.baris").replace("{alasan}", kataAlasan(w)) : `${sl("config.pemeliharaan.alasan")}: ${w.alasan}`}</span>
                       {w.menguasai && w.keadaan !== "BERAKHIR" ? (
                         ubah !== w.id ? (
                           <div>
@@ -1541,9 +1555,11 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                           <form action={ubahPemeliharaanAction} className="flex flex-wrap items-end gap-2" aria-label={`${kata} · ${nama}`}><input type="hidden" name="asal" value="jendela" /><input type="hidden" name="hal_jendela" value={String(halJendela)} />
                             <input type="hidden" name="jendela" value={w.id} />
                             {daruratKelas ? <input type="hidden" name="darurat" value="1" /> : null}
-                            <label className={label}>{sl("config.pemeliharaan.alasan")}
-                              <input name="alasan" className={field} required maxLength={300} autoComplete="off" autoFocus />
-                            </label>
+                            {akhiriTerencana ? null : (
+                              <label className={label}>{sl("config.pemeliharaan.alasan")}
+                                <input name="alasan" className={field} required maxLength={300} autoComplete="off" autoFocus />
+                              </label>
+                            )}
                             {w.keadaan !== "AKTIF" ? (
                               <TombolKirim className={button} name="aksi" value="MULAI" sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.mulai_sekarang")}</TombolKirim>
                             ) : null}
@@ -1552,8 +1568,16 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                                 // A2b (Daisy, A2B-PERPANJANG-KATA §2): a planned window under way says what follows, in its scope
                                 : w.jenis === "PLANNED" && w.keadaan === "AKTIF" ? sl(kunciAkhiriTanya(w)).replace("{kelas}", (w.kelas ?? []).join(", "))
                                 : sl("config.pemeliharaan.akhiri.tanya")} ya={kata}
-                              batal={s("bahaya.batal")} nama="aksi" nilai="AKHIRI" />
-                            <Link href={tautanUbah(null, `jendela-${w.id}`)} className={tautanTempat}>{s("config.angkat.batal")}</Link>
+                              batal={s("bahaya.batal")} nama="aksi" nilai="AKHIRI"
+                              // A2b (Daisy, C-6): a planned window's early end opens as its confirmation, the reason inside it
+                              // and one «Batal», which closes the panel
+                              terbuka={akhiriTerencana || undefined} batalKe={akhiriTerencana ? tautanUbah(null, `jendela-${w.id}`) : undefined}
+                              akibat={akhiriTerencana ? (
+                                <label className={label}>{sl("config.pemeliharaan.alasan")}
+                                  <input name="alasan" className={field} required maxLength={300} autoComplete="off" autoFocus />
+                                </label>
+                              ) : undefined} />
+                            {akhiriTerencana ? null : <Link href={tautanUbah(null, `jendela-${w.id}`)} className={tautanTempat}>{s("config.angkat.batal")}</Link>}
                           </form>
                         )
                       ) : daruratKelas ? (
@@ -1602,7 +1626,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                                 <input type="hidden" name="jendela" value={w.id} /><input type="hidden" name="baris" value={w.id} />
                                 <input type="hidden" name="selesai" value={sp.pp_selesai ?? ""} />
                                 <label className={label}>{sl("config.pemeliharaan.alasan")}
-                                  <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
+                                  <input name="alasan" className={field} required maxLength={300} autoComplete="off" defaultValue={sp.pp_alasan ?? ""} />
                                 </label>
                                 <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.perpanjang.simpan")}</TombolKirim>
                                 <Link href={tautanUbah(null, `jendela-${w.id}`)} className={tautanTempat}>
@@ -1625,6 +1649,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 <Kosong jenis="belum" kalimat={sl("config.pemeliharaan.kosong")} />
               )}
               {result("pemeliharaan", "jendela")}
+              {sp.hasil === "gagal" && asalKini === "jendela" ? <FokusPeringatan /> : null}
               <Penomoran halaman={halJendela} lagi={kelola?.lagiPemeliharaan === true} ke={(n) => tautanHalaman(jalanIni, sp, "hal_jendela", n, "pemeliharaan")} locale={locale}
                 benda={sl("koleksi.benda.jendela")} jumlah={kelola?.pemeliharaan.length ?? 0} />
             </section>
@@ -1679,28 +1704,29 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 <fieldset className="grid gap-1 text-sm">
                   <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
                   {platformIni ? (
-                    <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" /> {sl("config.pemeliharaan.platform")}</label>
+                    <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" defaultChecked={sp.pu_platform === "1"} /> {sl("config.pemeliharaan.platform")}</label>
                   ) : null}
                   {sekolahKu.map((i) => (
-                    <label key={i.id} className="flex items-center gap-2"><input type="checkbox" name="sekolah" value={i.id} /> {i.name}</label>
+                    <label key={i.id} className="flex items-center gap-2"><input type="checkbox" name="sekolah" value={i.id} defaultChecked={puSekolah.includes(i.id)} /> {i.name}</label>
                   ))}
                 </fieldset>
                 <label className={label}>{sl("config.pemeliharaan.pengumuman.pesan")}
-                  <input name="pesan" className={field} required maxLength={500} autoComplete="off" />
+                  <input name="pesan" className={field} required maxLength={500} autoComplete="off" defaultValue={sp.pu_pesan ?? ""} />
                 </label>
                 <div className="pin-baris-isian">
                   <div className={label}>
                     <label htmlFor="cfg-pengumuman-terbit">{sl("config.pemeliharaan.pengumuman.terbit").replace("{zona}", kataZona(zonaPm))}</label>
-                    <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-terbit" name="terbit" className={field} locale={locale} zona={zonaPm} />
+                    <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-terbit" name="terbit" className={field} defaultValue={sp.pu_terbit ?? ""} locale={locale} zona={zonaPm} />
                   </div>
                   <div className={label}>
                     <label htmlFor="cfg-pengumuman-sampai">{sl("config.pemeliharaan.pengumuman.sampai").replace("{zona}", kataZona(zonaPm))}</label>
-                    <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-sampai" name="sampai" className={field} required locale={locale} zona={zonaPm} />
+                    <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-sampai" name="sampai" className={field} defaultValue={sp.pu_sampai ?? ""} required locale={locale} zona={zonaPm} />
                   </div>
                 </div>
                 <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.pengumuman.terbitkan")}</TombolKirim></div>
               </form>
               {result("pemeliharaan", "umumkan")}
+              {sp.hasil === "gagal" && asalKini === "umumkan" ? <FokusPeringatan /> : null}
             </section>
 
             {hentiDiSini ? (

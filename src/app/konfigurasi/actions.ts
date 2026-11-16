@@ -598,6 +598,31 @@ function cakupan(fd: FormData): { platform: boolean; sekolah: string[] } {
 }
 
 const kembaliPemeliharaan = (h: HasilAksi, fd?: FormData): never => back("pemeliharaan", h, fd);
+/** A2b (Daisy's batch 2 review, BL-1 and its sweep): a refused form comes back with every value the person entered,
+ *  under its form's own names, so the page draws it again as it was (a class kept, never silently a whole school).
+ *  Only a refusal carries them; a done act returns to the empty form. The page reads each back as a field's default
+ *  value; none reaches the result line. */
+function kembaliDenganIsian(h: HasilAksi, fd: FormData, isian: Array<[string, string]>, jangkar: string): never {
+  const q = queryHasil("pemeliharaan", h, fd);
+  if (!h.ok) for (const [k, v] of isian) if (v !== "") q.append(k, v.slice(0, 500));
+  redirect(alamatBagian("pemeliharaan", q, jangkar));
+}
+const semua = (fd: FormData, k: string) => fd.getAll(k).map((v) => String(v).trim()).filter((v) => v !== "");
+const kembaliJadwal = (h: HasilAksi, fd: FormData): never => kembaliDenganIsian(h, fd, [
+  ["pm_cek", "1"], ["pm_platform", str(fd, "platform") === "1" ? "1" : ""],
+  ...semua(fd, "sekolah").filter((v) => uuidOrNull(v)).map((v): [string, string] => ["pm_sekolah", v]),
+  ...semua(fd, "kelas").filter((v) => uuidOrNull(v)).map((v): [string, string] => ["pm_kelas", v]),
+  ["pm_mulai", str(fd, "mulai")], ["pm_selesai", str(fd, "selesai")], ["pm_pesan", str(fd, "pesan")],
+  ["pm_alasan_kode", str(fd, "alasan_kode")], ["pm_alasan", str(fd, "alasan")], ["pm_umumkan", str(fd, "umumkan") === "1" ? "1" : ""],
+], "pin-pm-jadwal");
+const kembaliPanjang = (h: HasilAksi, fd: FormData): never => kembaliDenganIsian(h, fd, [
+  ["panjang", uuidOrNull(str(fd, "jendela")) ?? ""], ["pp_selesai", str(fd, "selesai")], ["pp_alasan", str(fd, "alasan")],
+], `jendela-${uuidOrNull(str(fd, "jendela")) ?? "pin-pm-daftar"}`);
+const kembaliUmumkan = (h: HasilAksi, fd: FormData): never => kembaliDenganIsian(h, fd, [
+  ["pu_platform", str(fd, "platform") === "1" ? "1" : ""],
+  ...semua(fd, "sekolah").filter((v) => uuidOrNull(v)).map((v): [string, string] => ["pu_sekolah", v]),
+  ["pu_pesan", str(fd, "pesan")], ["pu_terbit", str(fd, "terbit")], ["pu_sampai", str(fd, "sampai")],
+], "pin-pm-umum");
 
 /** The zone a window's or notice's typed times are read in: its one school's; WIB for the platform or several. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -620,14 +645,14 @@ export async function jadwalkanPemeliharaanAction(fd: FormData): Promise<void> {
   const mulai = mulaiTeks ? waktuSekolah(mulaiTeks, zona) : null;
   const selesai = waktuSekolah(str(fd, "selesai"), zona);
   if ((mulaiTeks && !mulai) || (!platform && sekolah.length === 0)) {
-    kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" }, fd);
+    kembaliJadwal({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" }, fd);
   }
   // A2b D2 (Daisy, A2-KATA-DESAIN B1): one of the planned reasons; «Lainnya» with its text, up to 120 characters; any
   // other with none (the reason is the code). Said before the call; the database stays the gate.
   const kode = kodeAlasan(str(fd, "alasan_kode"));
   const teksAlasan = str(fd, "alasan");
   if (!kode || (kode === "LAINNYA" && (teksAlasan.length === 0 || [...teksAlasan].length > ALASAN_LAINNYA_MAKS))) {
-    kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_REASON_INVALID" }, fd);
+    kembaliJadwal({ ok: false, kode: "MAINTENANCE_REASON_INVALID" }, fd);
   }
   // A2b D1 (Daisy, A2B-PILIH-KELAS-KATA): the chosen classes of one school; the database refuses any other shape (K10)
   const kelas = Array.from(new Set(fd.getAll("kelas").map((v) => uuidOrNull(String(v))).filter((v): v is string => Boolean(v))));
@@ -640,7 +665,7 @@ export async function jadwalkanPemeliharaanAction(fd: FormData): Promise<void> {
   if (error) {
     const h = ditolak("schedule_maintenance", error);
     // a class refused on the planned form is said in the planned form's words, never the emergency stop's
-    kembaliPemeliharaan(!h.ok && h.kode === "MAINTENANCE_NODE_INVALID" ? { ok: false, kode: "MAINTENANCE_PLANNED_NODE_INVALID" } : h, fd);
+    kembaliJadwal(!h.ok && h.kode === "MAINTENANCE_NODE_INVALID" ? { ok: false, kode: "MAINTENANCE_PLANNED_NODE_INVALID" } : h, fd);
   }
   revalidatePath("/konfigurasi");
   kembaliPemeliharaan({ ok: true, kode: "MAINTENANCE_SCHEDULED" }, fd);
@@ -675,20 +700,20 @@ async function tempatPengumuman(supabase: any, pengumuman: string | null, fd: Fo
  *  perpanjang_pemeliharaan stays the gate (an emergency, an ended window, a past end). */
 export async function perpanjangPemeliharaanAction(fd: FormData): Promise<void> {
   const jendela = uuidOrNull(str(fd, "jendela"));
-  if (!jendela) kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" }, fd);
+  if (!jendela) kembaliPanjang({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" }, fd);
   const supabase = await supabaseServer();
   // the working context is checked against the window's own schools before the act (§2.11), and the new end is read on
   // its own clock
   const tempat = await tempatJendela(supabase, jendela, fd);
   await cakupanDalamKonteks(tempat);
   const selesaiBaru = waktuSekolah(str(fd, "selesai"), tempat.zona ?? null);
-  if (!str(fd, "alasan")) kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_EXTEND_REASON" }, fd);
+  if (!str(fd, "alasan")) kembaliPanjang({ ok: false, kode: "MAINTENANCE_EXTEND_REASON" }, fd);
   const akhirKini = tempat.selesai ?? null;
   if (!selesaiBaru || (akhirKini !== null && Date.parse(selesaiBaru) <= Date.parse(akhirKini))) {
-    kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_EXTEND_NOT_LATER" }, fd);
+    kembaliPanjang({ ok: false, kode: "MAINTENANCE_EXTEND_NOT_LATER" }, fd);
   }
   const { error } = await supabase.rpc("perpanjang_pemeliharaan", { p_window: jendela, p_ends_at: selesaiBaru, p_reason: str(fd, "alasan") });
-  if (error) kembaliPemeliharaan(ditolak("perpanjang_pemeliharaan", error), fd);
+  if (error) kembaliPanjang(ditolak("perpanjang_pemeliharaan", error), fd);
   revalidatePath("/konfigurasi");
   kembaliPemeliharaan({ ok: true, kode: "MAINTENANCE_EXTENDED" }, fd);
 }
@@ -739,13 +764,13 @@ export async function terbitkanPengumumanAction(fd: FormData): Promise<void> {
   const terbit = terbitTeks ? waktuSekolah(terbitTeks, zona) : null;
   const sampai = waktuSekolah(str(fd, "sampai"), zona);
   if ((terbitTeks && !terbit) || !sampai || !str(fd, "pesan") || (!platform && sekolah.length === 0)) {
-    kembaliPemeliharaan({ ok: false, kode: "NOTICE_INPUT_INVALID" }, fd);
+    kembaliUmumkan({ ok: false, kode: "NOTICE_INPUT_INVALID" }, fd);
   }
   await cakupanDalamKonteks({ platform, sekolah });
   const { error } = await supabase.rpc("publish_notice", {
     p_platform: platform, p_institutions: platform ? [] : sekolah, p_message: str(fd, "pesan"), p_publish_at: terbit, p_expires_at: sampai,
   });
-  if (error) kembaliPemeliharaan(ditolak("publish_notice", error), fd);
+  if (error) kembaliUmumkan(ditolak("publish_notice", error), fd);
   revalidatePath("/konfigurasi");
   kembaliPemeliharaan({ ok: true, kode: "NOTICE_PUBLISHED" }, fd);
 }
