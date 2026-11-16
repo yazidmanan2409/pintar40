@@ -1100,8 +1100,8 @@ export const a2bBatasTests: SelfTest[] = [
       c.expect(panggil === 1, `the banner must read again in exactly one place: ${panggil}`);
       const selaInterval = /setInterval\(([\s\S]*?)\);/.exec(src)?.[1] ?? "";
       c.expect(!/bacaUlang|rpc|fetch|statusSaya/.test(selaInterval), `the banner's interval (the minutes on screen) must read nothing: ${selaInterval.slice(0, 80)}`);
-      c.expect(/setTimeout\(async \(\) => \{\s*bacaan\.current \+= 1;\s*const baru = await bacaUlangStatusSaya\(\);/.test(src),
-        "the read must be the boundary timeout's first act, counted");
+      c.expect(/setTimeout\(async \(\) => \{\s*bacaan\.current \+= 1;\s*(\/\/[^\n]*\n\s*)*const baru = await bacaUlangStatusSaya\(\)\.catch\(\(\) => null\);/.test(src),
+        "the read must be the boundary timeout's first act, counted, and a read the browser cannot complete (no connection: the call throws) must count as a failed read (commit 10)");
       c.expect(/bacaan\.current < BACA_ULANG_MAKS/.test(src) && /jendelaDiumumkan\(jendela, jam\(\)\)/.test(src),
         "the boundary must be armed only while a window is announced and under the cap");
       c.expect(/const detik = gagal \? undefined : window\.setInterval/.test(src) && /setGagal\(!baru\)/.test(src) && /\{gagal \? <><strong>\{\(jendela\.kelas \? s\("pemeliharaan\.basi\.kelas"\)/.test(src),
@@ -1126,7 +1126,7 @@ export const a2bBatasTests: SelfTest[] = [
       c.expect(en.startsWith(" on ") && /\b17\b/.test(en), `in English « on {tanggal}»: «${en}»`);
       c.expect(hariLain("2026-11-16T15:45:00Z", wita, kini) === "", "a time later the same day adds nothing");
       const pita = readFileSync(join(repoRoot, "src/components/pemeliharaan/PengingatPemeliharaan.tsx"), "utf8");
-      c.expect(/\.replace\("\{jam\}", jamJendela\(jendela\.mulai, jendela\) \+ hariLain\(jendela\.mulai, jendela, Date\.now\(\), locale\)\)/.test(pita),
+      c.expect(/\.replace\("\{jam\}", jamJendela\(jendela\.mulai, jendela\) \+ hariLain\(jendela\.mulai, jendela, kini, locale\)\)/.test(pita),
         "the last-check line must date the window's start when it falls on another day");
       return c.verdict(`a maintenance time on another day carries its date, read in the window's zone (an hour after 22.30 WIB is the same day in WIB and the next in WITA: «${id}»); the banner's last-check line dates the window's start with it (D4's sentence, which also used it, is removed by the Chief Architect's D4 ruling)`);
     },

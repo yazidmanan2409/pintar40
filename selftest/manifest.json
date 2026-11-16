@@ -6323,7 +6323,7 @@
     {
       "id": "A2B-B01",
       "runner": "static",
-      "proves": "The Chief Architect's R-B (PLAN-A2B-C2W.md at e15fe966), the banner's re-read: reads the source of PengingatPemeliharaan and runs the pure planner of pemeliharaan-kontrak.ts. At most one read of the status per stage boundary still ahead (T−60, T−30, T−15, T=0), at most four per window per open page, only while a planned window is announced and has not begun; a failed read keeps the stage on screen; an early end shows no further stage; an extension shows the new one. In the source the one read (bacaUlangStatusSaya) is the boundary timeout's first act, counted against the cap; the interval that moves the minutes reads nothing; no other file calls the read."
+      "proves": "The Chief Architect's R-B (PLAN-A2B-C2W.md at e15fe966), the banner's re-read: reads the source of PengingatPemeliharaan and runs the pure planner of pemeliharaan-kontrak.ts. At most one read of the status per stage boundary still ahead (T−60, T−30, T−15, T=0), at most four per window per open page, only while a planned window is announced and has not begun; a failed read keeps the stage on screen; an early end shows no further stage; an extension shows the new one. In the source the one read (bacaUlangStatusSaya) is the boundary timeout's first act, counted against the cap, and a read the browser cannot complete (the call throws) counts as a failed read (commit 10); the interval that moves the minutes reads nothing; no other file calls the read."
     },
     {
       "id": "A2B-H01",
