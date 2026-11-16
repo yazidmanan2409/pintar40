@@ -1133,6 +1133,25 @@ export const a2bBatasTests: SelfTest[] = [
     },
   },
   {
+    id: "A2B-P01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const src = readFileSync(join(repoRoot, "src/app/pemeliharaan/page.tsx"), "utf8");
+      const tempat = src.indexOf('w.keadaan === "AKTIF" && w.cakupan === "TEMPAT"');
+      const umum = src.indexOf('} else if (w && w.jenis === "PLANNED" && w.keadaan === "AKTIF") {');
+      c.expect(tempat > 0 && umum > tempat, "a work-scoped window under way must have its own branch, judged before the generic one");
+      const cabang = tempat > 0 && umum > tempat ? src.slice(tempat, umum) : "";
+      c.expect(/pemeliharaan\.tempat\.berlangsung/.test(cabang) && /pemeliharaan\.tempat\.arti/.test(cabang),
+        "the work-scoped branch must name the place and say the rest of PINTAR stays usable");
+      c.expect(!/pemeliharaan\.pita\.berjalan|pemeliharaan\.judul"|pemeliharaan\.langkah/.test(cabang),
+        "the work-scoped branch must not say PINTAR cannot be used");
+      c.expect(/mulai === "ditolak" && w && w\.jenis === "PLANNED" && w\.keadaan !== "AKTIF" && w\.cakupan === "ORANG"/.test(src),
+        "the T−15 refusal copy must be limited to a platform-wide window (R-A)");
+      return c.verdict("the maintenance page: a class or school window under way has its own branch, before the generic one, naming the place and saying the rest of PINTAR stays usable, never that PINTAR cannot be used; the T−15 refusal copy is a platform window's only");
+    },
+  },
+  {
     id: "A2B-K13",
     requires: ["db"],
     run: jalan((c, db, d) => {
