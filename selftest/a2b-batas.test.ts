@@ -1053,7 +1053,7 @@ ${sebagai(d.adminXUid)}
 select 'baca|' || coalesce((select (j ->> 'platform') || ':' || (j -> 'sekolah' ->> 0) || ':' || (j -> 'kelas' ->> 0) || ':' || (j ->> 'zona') || ':'
   || ((j ->> 'selesai')::timestamptz = (select ends_at from public.maintenance_windows where id = '${W1}'))::text
   from (select public.pemeliharaan_jendela_tempat('${W1}') as j) x), 'null');
-select 'langsung|' || (select count(*) from public.maintenance_windows where id = '${W1}');
+select 'langsung|' || has_table_privilege('authenticated', 'public.maintenance_windows', 'select')::text;
 ${sebagai(d.guruUid)}
 select 'guru|' || pg_temp.a2b_coba($q$select public.pemeliharaan_jendela_tempat('${W1}')$q$);
 ${tanpaOrang}
@@ -2117,11 +2117,13 @@ rollback;`);
     run: jalan((c, db, d) => {
       const r = k19(db, d); const h = r.hasil;
       c.expect(!r.err, `K19 failed to run: ${r.err}`);
-      c.expect(h.langsung === "0", `the control: a staff client reads no row of maintenance_windows directly: ${h.langsung}`);
+      // this harness runs as the owner with a person's claims, so row security never applies here: the control is the
+      // grant itself (the API answers «permission denied for table maintenance_windows» to a school's admin)
+      c.expect(h.langsung === "false", `the control: a staff client may not select maintenance_windows at all: ${h.langsung}`);
       c.expect(h.baca === `false:${d.X}:${d.kA}:Asia/Makassar:true`, `the window's controller is given its place, its end and its school's zone: ${h.baca}`);
       c.expect(h.guru === "PR110:MAINTENANCE_NOT_ALLOWED", `anyone else is refused: ${h.guru}`);
       c.expect(h.paparan === "STAFF" && h.anon === "false", `a STAFF read, closed to anon: ${h.paparan}, ${h.anon}`);
-      return "pemeliharaan_jendela_tempat gives a window's controller its place (platform, schools, classes), its end and the zone its times are typed in (its one school's, here WITA); a teacher is refused; a STAFF read closed to anon; a staff client still reads no row of the table directly";
+      return "pemeliharaan_jendela_tempat gives a window's controller its place (platform, schools, classes), its end and the zone its times are typed in (its one school's, here WITA); a teacher is refused; a STAFF read closed to anon; a staff client still holds no select on the table";
     }),
   },
   {
