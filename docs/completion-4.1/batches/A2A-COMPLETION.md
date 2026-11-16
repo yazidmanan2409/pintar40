@@ -134,6 +134,10 @@ on 43). Sharon: no blocker on 39 to 45 (verdicts `4a865aaf`, `064e9d00`, `f0cd62
 7. **Registered, not in C (Sharon, verdict on commit 46 at `ddb27175`):** `catat_penolakan_henti`'s dedupe is per caller,
    target, code and stops in force; two calls at the same instant can each find no row and write one (two refused acts
    at once by one person on one target). Not locked.
+8. **Registered (Sharon, judgement of run 43778010841 at `0199f598`):** a sweep of `selftest/db`'s committing suites for
+   clean-ups that put back less than they changed. ADM09-S01's one failure was such a clean-up in A2A-C715 (it reopened
+   the Kelas and not the Tingkat after a departure), found, reproduced and fixed in change B (`cfeaaaaa`, Sharon:
+   accepted); the SQL suites that commit were not read line by line.
 
 **Where everything is:**
 - Product and tests: `claude/a2a-change-c`. The last migration is `20270119210000`; the A2a tests are in
