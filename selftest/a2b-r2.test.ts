@@ -145,7 +145,7 @@ select set_config('request.jwt.claims', '', true);
 select 'langsung|' || has_table_privilege('authenticated', 'public.release_distributions', 'select')::text;
 select 'paparan|' || coalesce((select string_agg(function_name || ':' || exposure::text, ',' order by function_name) from public.client_rpc_registry where function_name in ('distribusi_tempat', 'distribusi_berlaku')), 'tidak ada');
 select 'hak|' || coalesce((select string_agg(p.proname || ':' || has_function_privilege('anon', p.oid, 'execute')::text || ':' || has_function_privilege('service_role', p.oid, 'execute')::text
-  || ':' || has_function_privilege('authenticated', p.oid, 'execute')::text || ':' || p.provolatile, ',' order by p.proname)
+  || ':' || has_function_privilege('authenticated', p.oid, 'execute')::text || ':' || p.provolatile::text, ',' order by p.proname)
   from pg_proc p where p.pronamespace = 'public'::regnamespace and p.proname in ('distribusi_tempat', 'distribusi_berlaku')), 'tidak ada');
 rollback;`);
       const h = r.hasil;

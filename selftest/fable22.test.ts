@@ -156,13 +156,11 @@ export const BACA_LAYANAN: Record<string, Record<string, string>> = {
   "src/app/api/evaluation/assume/route.ts": { evaluation_personas: "the evaluation persona route reads its personas with the service client (supabaseService), never the session" },
 };
 /** A2B-R2 (the Chief Architect, 16 Nov 11:59: option (b), placed as C2w's first item): Studio's reads of
- *  release_distributions through the session, named by file, line and table, each removed in C2w. Each entry is held
- *  to its line: a moved or changed read fails here, so the exception cannot outlive what it names. */
-export const BACA_PENGECUALIAN: Array<{ berkas: string; baris: number; tabel: string; alasan: string }> = [
-  { berkas: "src/app/studio/actions.ts", baris: 328, tabel: "release_distributions", alasan: "A2B-R2, C2w: withdrawDistributionAction's context read (fail-open, as S-1)" },
-  { berkas: "src/app/studio/kanonik/page.tsx", baris: 91, tabel: "release_distributions", alasan: "A2B-R2, C2w: the Kanonik page's list of active distributions (always empty)" },
-  { berkas: "src/lib/konteks-server.ts", baris: 160, tabel: "release_distributions", alasan: "A2B-R2, C2w: SUMBER_SEKOLAH.distribusi (no caller today)" },
-];
+ *  release_distributions through the session were named here by file, line and table, each held to its line. C2w
+ *  removed all three with the fix (distribusi_tempat, distribusi_berlaku; SUMBER_SEKOLAH.distribusi gone), so the
+ *  list is empty (Sharon's condition: the exception is removed with the fix). An entry still means the same: one read,
+ *  named by its line, that fails here once it moves. */
+export const BACA_PENGECUALIAN: Array<{ berkas: string; baris: number; tabel: string; alasan: string }> = [];
 /** The one variable table read in src, by file: its map's values are each checked as literal reads. */
 const BACA_PETA: Record<string, RegExp> = { "src/lib/konteks-server.ts": /\.from\(SUMBER_SEKOLAH\[jenis\]\)/ };
 /** Every app read that names a table the session cannot select, or names no table this rule can read. */
@@ -630,7 +628,7 @@ export const fable22Tests: SelfTest[] = [
   const { data } = await supabase.from(tabel).select("platform, institution_ids").eq("id", id).limit(1); }`, "src/app/konfigurasi/actions.ts");
       const tanamLiteral = salahBaca(`const { data } = await supabase.from("maintenance_windows").select("ends_at");`, "src/app/konfigurasi/actions.ts");
       c.expect(tanamS1.length === 1 && tanamLiteral.length === 1, `the plants: S-1's variable read ${tanamS1.length}, a literal unreadable read ${tanamLiteral.length} (each must be caught once)`);
-      // A2B-R2's named exceptions each still hold the read they name, at their line (removed in C2w)
+      // any named exception still holds the read it names, at its line (A2B-R2's three were removed in C2w)
       for (const e of BACA_PENGECUALIAN) {
         const garis = baca(ctx.repoRoot, e.berkas).split("\n")[e.baris - 1] ?? "";
         c.expect(garis.includes(`"${e.tabel}"`), `the exception ${e.berkas}:${e.baris} (${e.alasan}) no longer names ${e.tabel} at its line: remove or move it`);
