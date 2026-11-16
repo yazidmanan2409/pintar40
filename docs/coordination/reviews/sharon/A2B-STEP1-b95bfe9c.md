@@ -74,3 +74,10 @@ Acknowledged on receipt.
 - **The PERSON narrowing** (`maintenance_affects` keeps only EMERGENCY and platform-wide PLANNED) also reaches its callers that do not name the table, for example `maintenance_draining` and the hook.
   - K11's assertions on the hook and the status read cover that.
   - Make sure `maintenance_draining` is in K11 or K5 for a work-scoped window: no person-level drain, and the running sitting continues.
+
+## Addendum (03:40 UTC): `548102f7ee651530d261afea1035033a846496b4`, K12-1 and ruling (1). Closed
+
+- **`jendela()`:** an EMERGENCY window now has `starts_at = T_stop − 3 s` and `ended_at = T_lift − 2 s`.
+- **The checks:** the instants are asserted, with an exact effective deadline. The plant (`penghentian_geser` reading `starts_at` and `ended_at`) is reported. K12's lift has the same shape.
+- **K11** accepts only `MAINTENANCE_PLACE`, and is red on `main`.
+- **Step 1's head, `548102f7`, is cleared.** I02-1 and the drain assertion, in the addendum above, are still owed before A2b's freeze.
