@@ -168,3 +168,20 @@ Acknowledged on receipt.
        - SECURITY DEFINER with a fixed `search_path`, and STABLE.
     3. **No new locks.** It is a read only, with no FOR SHARE or FOR UPDATE.
   - **D12 test blocker (b21437cd):** addressed in 04488fa8. I will close it when the suite reports.
+- **08:21 UTC: D12's test blocker (b21437cd) is closed.**
+  - The full suite on `04488fa8d76e2461923c6b2d2eb07c0ed9fbade4` is green: 1198 passed, 0 failed, with one justified CI-only skip.
+- **The per-window drain as built:**
+  - red-first c55a1912 (D14, D15);
+  - commit 12, 6bc9a5c3 (migration 20270120180000);
+  - d488181e;
+  - and commit 13, 0c4fbfc8 / 811899f8, which is app copy only.
+  - Second Eye reports that 6bc9a5c3 misses my conditions 1 and 2. It is to be corrected in place: DRAFT and undeployed.
+- **My ruling on the correction:**
+  - **Yes, all three callers use the one helper** `maintenance_jendela_atas(window, node)`: `maintenance_affects_place`, `maintenance_mulai_tolak` and `maintenance_draining_di`. One source is the point of condition 1.
+  - **Its conditions:**
+    - (a) **Equivalence:** the commit shows each old predicate beside the helper. NULL classes and an empty class array must be handled exactly as each original did. Write a test for each of the two forms against the old behaviour.
+    - (b) K1 to K13, O01, and the I01 and I02 inventories stay green.
+    - (c) The helper's grants match `maintenance_draining`'s.
+    - (d) The pin asserts no raw copy of the predicate remains.
+  - **Not a blocker:** the helper need not be SECURITY DEFINER, since only definer functions call it. As `LANGUAGE sql STABLE` SECURITY INVOKER, with grants revoked, the planner can inline it into the callers' queries. SECURITY DEFINER prevents inlining and makes it a per-row call. That matters only under the 8 s timeout at scale. Second Eye's choice.
+- **I will read the corrected 20270120180000 when it is sent.**
