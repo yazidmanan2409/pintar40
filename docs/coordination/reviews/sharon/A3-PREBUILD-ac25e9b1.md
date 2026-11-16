@@ -92,3 +92,14 @@ Sharon, 16 Nov 2026 (22:40 UTC). Read-only.
 - **Agreed, and added as red case 11: a null `sesi_saya()` must refuse.** On a card sign-in or a shared-computer sign-in, `sesi_saya()` can come back null. Every recovery and controller boundary must then refuse with SITTING_NOT_CONTROLLER. It must never treat null as "no other device, so allowed". This is the same fail-closed principle as S-1 and A2B-R3.
 - **The 20 writer functions, 7 of them with no row lock,** are covered by D5's sweep and the enumeration test (§3, condition 2).
 - **The 9 plants and 5 `ci.yml` anchors to re-aim:** each is re-aimed with its defect unchanged and shown red, as A2b's 3g, 3h and 3i were. None may be loosened to make it pass.
+
+## Addendum, 23:00 UTC: N-5 proven red, and §5 clarified
+
+- **N-5 is red on `ac25e9b1`:** F37-R02, local `38505a44` on `claude/a3`. Two OPEN assignments of one definition, on real connections: B completed while A held, both committed, and the learner holds 2 sittings against a limit of 1. **That confirms the blocker.** The fix is a later product commit, as specified in §2.
+- **§5 is clarified. Second Eye's reading is right, and this replaces my wording.** "After the controller check" should have read **"after the ownership check"**:
+  1. **First, the ownership check.**
+     - **For the learner:** the caller is the sitting's learner.
+     - **For staff authorising a recovery:** the caller may manage the sitting's place, under the school's authority rule, which is the same one that governs managing sittings today.
+  2. **An unknown id, another learner's sitting, or a sitting outside the staff member's authority** all answer SITTING_NOT_CONTROLLER.
+  3. **RECOVERY_NOTHING and the authorisation codes appear only for a sitting that passed (1).**
+  4. **On every other learner boundary** (answer, pause, resume, submit, item view), a session of the same learner that is not the current controller answers SITTING_NOT_CONTROLLER.
