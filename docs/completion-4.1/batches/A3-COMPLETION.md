@@ -64,17 +64,48 @@ Read from the live function bodies on a fresh reset, not from THE PLAN's `3a190d
 - **Learner and staff boundaries:** the person `FOR KEY SHARE`, then the emergency fence shared, then the sitting
   `FOR UPDATE`, then the controller check (learner boundaries only), then A1's gate and the boundary's own checks.
   This matches A2A-L01's ranks: persons (1), FENCE (7), `assessment_sessions` (9).
-- **The start:** the person, then the fence, then the advisory lock **keyed (person, definition, version)**, then the
-  assignment `FOR SHARE`, then the new sitting.
+- **The start, as built (`aed35103`; Sharon's rulings 5ac3645d and 78b4de2d replace her 22:40 order):** the person, then
+  the fence (both in the controller commit), then **`learning_assignments` `FOR KEY SHARE`** (when the assignment has
+  one), then **`assessment_assignments` `FOR SHARE`**, then **the key read under them**, then the advisory lock **keyed
+  (person, definition, version)**, then the count, then the sitting.
   - The key was (person, assignment). N-5 re-keys it: the count it guards has been per (definition, version, school,
-    year) since `20270113140000`.
+    year) since `20270113140000`. **Its columns are held for the owner's revision rule** (Bob, 22:41 and 22:46): if no
+    revision reopens an assessment, the key and count follow Sharon's lineage design instead.
+  - The share lock comes before the key read because an assignment's definition is moved by the release move and by
+    `koreksi_kunci_pindah` (F37-R03). The learning assignment comes first because «Akhiri penugasan» and both moves take
+    it before the assessment assignments (F37-R04: a deadlock under the share-first order).
 - **Condition 1:**
   - No lock of a lower rank is taken after the sitting row lock. A1's gate and the controller check only read
     `maintenance_windows` (8), `accounts`, `password_write_permits` and the persons; they never lock them.
-  - The advisory key and `assessment_assignments` get their place in A2A-L01's ranks and its committed report.
+  - ~~The advisory key and `assessment_assignments` get their place in A2A-L01's ranks~~ **Superseded by Sharon's L01
+    ruling (b), a1b66843:** ranking the two tables makes A2A-L01 report 28 breaches (23 distinct) in nine functions,
+    because «Akhiri» and the moves take the assignments before the persons. They stay unranked; **A3-L1P** checks the pair
+    instead (learning before assessment assignments, in all 10 functions that lock both, with a plant). The full
+    ranking is registered for Z.
 - **Condition 2, D5's sweep:** `terminate_session`, `extend_session_deadline`, `finalize_session`, `submit_session`,
   `pause_session`, `resume_session` and `percobaan_tandai` each take the sitting `FOR UPDATE` in this order. The
   enumeration test fails on any new writer that does not.
+
+## The sweep of persons `FOR UPDATE` (Sharon's condition, a1b66843)
+
+The 23 distinct breaches A2A-L01 reported with the two tables ranked are persons `FOR KEY SHARE` taken after an assignment
+or a sitting. `KEY SHARE` conflicts only with `FOR UPDATE`, a `DELETE` or a key update, so the catalogue was swept for
+those, with what each holds at that moment (A2A-L01's per-function report, the two tables ranked, on `aed35103`):
+
+| Function | Takes persons `FOR UPDATE` | Then locks an assignment | Then locks a sitting |
+|---|---|---|---|
+| `tangguhkan_akun` (suspension), `akhiri_pendaftaran` (departure), `kenaikan_tetapkan` (promotion) | first, holding nothing | no | yes |
+| `hapus_data_pribadi`, `daftarkan_kembali`, `akhiri_tugas_staf`, `ubah_peran`, `aktifkan_kembali_akun`, `buka_kembali_akun`, `correct_person_name`, `confirm_my_name`, `issue_institutional_id`, `enrol_for_professional_learning`, `sekolah_memegang`, `minta_akun`, `handle_new_auth_user`, `enrollments_programme_alone` | first, holding nothing | no | no |
+
+No function deletes a persons row or updates its key.
+
+- **None of the 17 locks an assignment.** So the breaches that take persons after an assignment (the start,
+  `open_assessment_session`, `tegaskan_koreksi_kunci`, `assign_release`, both moves, «Akhiri») cannot close a cycle with
+  them.
+- **The three that lock sittings** could pair only with «Akhiri»'s "persons after a sitting" (its deadline path).
+  «Akhiri» takes the persons of every open sitting `FOR KEY SHARE` before it touches any sitting, so that later
+  `KEY SHARE` is of a row it already holds. **F37-R05** proves it on real connections for the departure, in both orders,
+  each function parked at the emergency fence in turn: no deadlock.
 
 ## The codes (D12, PR170; accepted by Sharon, §5, with one condition)
 
@@ -122,7 +153,9 @@ Red first on `ac25e9b1`; then green on the build.
 | # | Evidence | State |
 |---|---|---|
 | A3-1 | C1-D125 §5's cases 1, 2, 3, 5, 6, 8, 9 and 10 (case 4 is F37-R01; case 7 is A3-7). **Sharon's ten:** S1 identity from verified claims only, a forged parameter recovering nothing; S2 a client generation ignored, and every superseded-generation write refused (answer, pause, resume, submit); S3 the scored result across generations; S4 `RECOVERY_NOTHING` with nothing written for a FINALIZED, submitted, expired or terminated sitting; S5 the authorisation used once, expiring, bound to its sitting and learner, and no low-stakes self-recovery for an Uji Penguasaan; S6 the deadline, answers and attempt count preserved; S7 recover against submit, recover and an emergency stop's marking, in both orders, one outcome each; S8 ruling 42's legs; S9 who may recover, with an unknown id answering the same code; S10 the audit rows (actor, generations from and to) and the superseded device's stated state in the built app; **S11 a null `sesi_saya()` refuses, never allows** (her addendum) | **A3-R01 red** (`c6a4da20`): cases 1, 2 and 3, S11 (a caller with no session id writes today), and B's hand-in. The rest wait for the recovery act's name and Daisy's answer |
-| A3-R1 (N-5) | Two OPEN assignments of one definition, two connections. The second start is refused ATTEMPT_LIMIT_REACHED, and the learner holds exactly `attempt_limit` sittings. The structural check asserts that the lock's key names the definition, not the assignment | **F37-R02 red** (`38505a44`): 2 sittings against a limit of 1 |
+| A3-R1 (N-5) | Two OPEN assignments of one definition, two connections. The second start is refused ATTEMPT_LIMIT_REACHED, and the learner holds exactly `attempt_limit` sittings. The structural check asserts that the lock's key names the definition, not the assignment | **F37-R02 red** (`38505a44`), green on `cd5b37c3` and after |
+| A3-R1, the order | F37-R03: a start's key read under the share lock, a definition moved meanwhile (red on `cd5b37c3`, `05bee973`). F37-R04: two starts and «Akhiri», no deadlock (red on `eaa37aea`, `fb9565ba`). F37-R05: a departure and «Akhiri», both orders, no deadlock. A3-R1V: a sat definition's version is immutable (INV-04), with a plant. A3-L1P: learning before assessment assignments, pairwise, with a plant (red on `eaa37aea`'s body). The migration's verification block checks the whole chain | **All green on `aed35103`** (F37: 43 passed, 0 failed) |
+| A3-R1, the revision rule | Whether any revision of an assessment gives a learner who sat an earlier one a fresh attempt: the owner's rule (Bob, 22:46). A read-only probe stands in C1W-S05 (`38a20cc0`), asserted by nothing until the ruling | Pending the owner |
 | A3-2 | The two-connection set on `run.ts`'s race harness: two devices answering at once; finish on A with B in flight; answer while paused from the other device; old A after a recovery; two recoveries at once; a recovery racing a teacher's ending, an extension, the scheduled closer, an emergency hold and the lift; two concurrent first writes claiming an uncontrolled sitting. Each commits by design and leaves no sitting, authorisation or role behind (P3) | Not yet written |
 | A3-3 | Every learner boundary refuses a non-controller. **The enumeration test:** every writer of the two tables, triggers included, either checks the controller or is on the service list, and takes the sitting row lock in the order above (Sharon §3, condition 2). **The lock-order lint**, with the advisory key and `assessment_assignments` ranked (condition 1) | Not yet written |
 | A3-4 | A recovery leaves every earlier response byte-identical (`value_digest`, `received_at`); the final answer follows (generation, `client_seq`); the scored result asserted (S3) | Not yet written |
