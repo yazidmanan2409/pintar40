@@ -90,7 +90,9 @@ declare v jsonb := '{}'::jsonb; c record; j jsonb; w1 uuid; w2 uuid; n1 uuid; ja
         lain_u uuid; lain uuid; inst2 uuid; s text;
 begin
   perform selftest.as_owner();
-  v := v || jsonb_build_object('ada', to_regprocedure('public.schedule_maintenance(boolean,uuid[],timestamptz,timestamptz,text,text,boolean)') is not null);
+  -- RESTATED, A2b commit 1 (20270120100000): the signature gains p_nodes (a class window), defaulted, so every
+  -- seven-argument call below still reaches it
+  v := v || jsonb_build_object('ada', to_regprocedure('public.schedule_maintenance(boolean,uuid[],timestamptz,timestamptz,text,text,boolean,uuid[])') is not null);
   select * into c from selftest.wp2_school();
   lain_u := selftest.f06p10_person('m148-murid-lain');
   select a.person_id into lain from public.accounts a where a.auth_user_id = lain_u;
