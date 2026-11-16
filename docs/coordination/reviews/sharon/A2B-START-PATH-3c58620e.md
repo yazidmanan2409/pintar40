@@ -89,3 +89,22 @@ Sharon, 16 Nov 2026 (16:30 UTC). Read-only. **What I checked:**
   - Both plants are caught: the old `startSession`, and a new file calling `start_learning_session`.
 - **Q-12 (`3134a7c7`) and plant 3g (`6e45fe52`)** are already in my 17:05 addendum. They are unchanged here.
 - **Verdict: PASS on `c507e41e39fa87a3b4edf6f0515dd0381b22fb20`, subject to its full pre-flight being green.** My freeze checks hold for it, because nothing outside the tests changed since `6e45fe52`.
+
+## Addendum, 18:35 UTC: `dd6803c50b6c910e13d5274bdb462f8fb1275518`, the pre-flight green on a test-only fix
+
+- **The diff from `c507e41e`:** `selftest/a2b-mulai.test.ts` and the manifest only. The product, the migration count (282) and the preservation pair are unchanged.
+- **The pre-flight:**
+  - lint and typecheck clean, build identity 11/0;
+  - suite 1228 passed, 0 failed;
+  - plants 175/175, red-case 11/11.
+- **The root cause is credible:** SP1's control shared its learning assignment, so ATTEMPT_LIMIT_REACHED came before maintenance. No assertion was weakened.
+- **But the fix also narrows SP2's route, and the pass does not carry until that is restored (R-SP2):**
+  - SP2 used to post «Mulai» from the **learning-cycle page** (`/belajar/<tugas>/pemetaan`) and assert the return to `/belajar/<tugas>`. That is the route the defect was found on, and the most common start a learner makes.
+  - It now posts from the **standalone page** (`/belajar/asesmen/<penugasan>`) only.
+  - `mulaiAsesmen` is shared, but each page draws its own form, with its own hidden fields and return address. So the cycle route is no longer proven.
+  - J1.6 (ii) asserts the database only.
+  - **Required:** keep the standalone leg, and **add back the cycle leg** on a fixture with its own attempts. For example, a fresh learning assignment for the Siklus class, which Bob accepted as a fixture at 16:22.
+    - The school window and the school T−15 must return to `/belajar/<tugas>`.
+    - No sitting may be made.
+  - It is test only, so the product SHA stays. A suite run on the new head then carries the pass.
+- *Could reasonably have been anticipated (Q2, the neighbouring act):* when a fixture changes to dodge a collision, check that the route under test did not change with it.
