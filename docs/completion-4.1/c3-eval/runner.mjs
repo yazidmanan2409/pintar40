@@ -4,7 +4,8 @@
 //   node runner.mjs --plan                      worst-case cost table under the dry-run assumed prices (no call)
 //   node runner.mjs --dry-run [options]         the whole run against an offline mock provider (no network)
 //   node runner.mjs --self-test                 scenarios (a), (b), the extra branches and the adapter checks, offline
-//   node runner.mjs [options]                   a real run: REFUSES today (adapters not verified, no keys)
+//   node runner.mjs --live [options]            a real run: REFUSES today (adapters not verified, no keys).
+//                                               Without --live a real run is always refused.
 //
 // Options: --out <dir>  --providers anthropic,openai  --max-output <tokens>
 //          --cap-provider <usd>  --cap-total <usd>  (can only LOWER the caps in prices.json, never raise them)
@@ -386,7 +387,7 @@ export async function runEval(cfg) {
         const af = join(pdir, 'attempts', `bab${b}.a${attempt}.json`);
         writeFileSync(af, res.raw);
         const v = kitValidate(af, b);
-        usageCalls[provider].push({ bab: b, attempt, request_id: res.request_id, input_tokens: reportedUsage ? res.usage.input : wc.input_bound,
+        usageCalls[provider].push({ bab: b, attempt, request_id: res.request_id, model_version: res.model_version ?? null, input_tokens: reportedUsage ? res.usage.input : wc.input_bound,
           output_tokens: reportedUsage ? res.usage.output : maxOutput, usage_reported: reportedUsage, valid: v.valid });
         ledger.settle(e, { ...settle, status: v.valid ? 'ok' : 'invalid_output', response_sha256: sha(res.raw), valid_items: v.items.filter((x) => x.valid).length, problems: v.problems.slice(0, 5), retryable: !v.valid });
         log(`${(v.valid ? 'ok' : 'invalid_output').padEnd(16)} ${provider} bab${b} attempt ${attempt}: cost ${usd(actual)} (${reportedUsage ? 'usage' : 'no usage → reservation kept'})${!v.valid && attempt < MAX_ATTEMPTS ? ' → retry' : ''}`);
@@ -446,21 +447,26 @@ function capsFrom(table, args) {
   if (!(perProvider > 0 && total > 0)) throw new Fatal('caps must be positive numbers');
   return { perProvider, total };
 }
-export function liveGate(table, providers, env = process.env) {
+export function liveGate(table, providers, env = process.env, adapters = ADAPTERS) {
   const problems = [];
   for (const p of providers) {
     const e = table.providers[p];
     if (!e) { problems.push(`${p}: not in prices.json`); continue; }
-    if (e.excluded || ADAPTERS[p]?.excluded) problems.push(`${p}: excluded: ${e.excluded ?? 'adapter excluded'}`);
+    if (e.excluded || adapters[p]?.excluded) problems.push(`${p}: excluded: ${e.excluded ?? 'adapter excluded'}`);
     for (const k of ['model', 'model_date', 'input', 'output']) if (e[k] === UNVERIFIED || e[k] === undefined || e[k] === null) problems.push(`${p}: ${k} is UNVERIFIED`);
     for (const k of ['input', 'output']) if (e[k] !== UNVERIFIED && !(typeof e[k] === 'number' && e[k] > 0)) problems.push(`${p}: ${k} price is not a positive number`);
     if (!e.source || !e.read_on) problems.push(`${p}: price source and read_on date not pinned`);
     else if (e.grade !== 'A') problems.push(`${p}: price is not grade A`);
-    const a = ADAPTERS[p];
+    const a = adapters[p];
     if (!a?.verified) problems.push(`${p}: API adapter not verified against the official documentation${a?.unverified_fields?.length ? '; no grade-A fact for: ' + a.unverified_fields.map((f) => f.split(':')[0]).join(', ') : ''}`);
     if (!env[e.key_env]) problems.push(`${p}: no key in ${e.key_env}`);
   }
   return problems;
+}
+// A real run needs BOTH the explicit --live flag and a passing gate. `adapters` is a test-only override.
+export function realRunProblems(args, table, providers, env = process.env, adapters = ADAPTERS) {
+  const problems = args.live ? [] : ['no --live flag: a real run starts only with node runner.mjs --live, and only when every check below passes'];
+  return problems.concat(liveGate(table, providers, env, adapters));
 }
 const dryPrices = (table, providers) => Object.fromEntries(providers.map((p) => [p, { model: `${p}-mock-model`, model_date: 'dry-run', input: table.dry_run_assumed.input, output: table.dry_run_assumed.output, data_retention: 'none (offline mock)' }]));
 // the pinned prices with the mock: still offline. Refuses while a price is not pinned.
@@ -652,6 +658,8 @@ async function selfTest() {
   const u = JSON.parse(readFileSync(join(a.outDir, 'openai', 'usage.json'), 'utf8'));
   const PROV = ['model', 'model_date', 'endpoint', 'api_version', 'run_at', 'run_by', 'generation', 'data_retention', 'price_per_mtok'];
   check(PROV.every((k) => u[k] !== undefined && u[k] !== null && u[k] !== '') && u.calls.length === 2 && u.calls.every((c) => c.request_id), '(a) usage.json carries every provenance field the kit checks');
+  check(u.calls.every((c) => c.model_version === 'openai-mock-model@mock') && a.ledger.entries.filter((e) => ['ok', 'invalid_output'].includes(e.status)).every((e) => e.model_version && e.model_version.endsWith('@mock'))
+    && prov.model_version === 'anthropic-mock-model@mock', '(a) the model version the response reports is recorded per attempt (ledger, usage.json calls) and in the draft provenance');
   const bl = mkdtempSync(join(tmpdir(), 'c3-runner-blind-')); tmp.push(bl);
   execFileSync(process.execPath, [KIT, 'blind', a.outDir, bl], { encoding: 'utf8' });
   const map = JSON.parse(readFileSync(join(bl, 'SEALED', 'map.json'), 'utf8'));
@@ -695,6 +703,14 @@ async function selfTest() {
   const g2 = liveGate(table, providers, dummyKeys); const unverified = providers.filter((p) => !ADAPTERS[p].verified);
   check(unverified.every((p) => g2.some((x) => x.startsWith(`${p}: API adapter not verified`))) && (g2.length > 0) === (unverified.length > 0), `with keys present, a real run still refuses while an adapter is unverified (${unverified.join(', ') || 'none'})`);
   check(liveGate(table, ['google'], { GEMINI_API_KEY: 'DUMMY-KEY-PLACEHOLDER' }).some((x) => /^google: excluded: Not eligible/.test(x)), 'google is refused as excluded, even with a key');
+  // the --live flag: required in addition to the gate
+  const allVerified = Object.fromEntries(Object.entries(ADAPTERS).map(([p, x]) => [p, { ...x, verified: true }]));   // test-only override
+  check(liveGate(table, providers, dummyKeys, allVerified).length === 0, 'test-only override: with dummy keys and adapters marked verified, the gate itself passes');
+  const nl = realRunProblems({}, table, providers, dummyKeys, allVerified);
+  check(nl.length === 1 && /--live/.test(nl[0]), 'without --live a real run is refused, even with dummy keys and (hypothetically) verified adapters; the refusal names --live');
+  const lv = realRunProblems({ live: true }, table, providers, dummyKeys);
+  check(lv.length > 0 && !lv.some((x) => /--live/.test(x)) && unverified.every((p) => lv.some((x) => x.startsWith(`${p}: API adapter not verified`))), `with --live and dummy keys, a real run is still refused while an adapter is unverified (${unverified.join(', ') || 'none'})`);
+  check(realRunProblems({ live: true }, table, providers, dummyKeys, allVerified).length === 0, 'test-only override: --live, keys and verified adapters together are the only way through');
   check(fetches === 0, 'no network call was attempted');
   globalThis.fetch = realFetch;
   const plan = planTable(prices, providers, DEFAULT_MAX_OUTPUT);
@@ -712,13 +728,14 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i++) {
     const k = argv[i]; if (!k.startsWith('--')) throw new Fatal(`unexpected argument ${k}`);
     const name = k.slice(2);
-    if (['dry-run', 'self-test', 'plan', 'real-prices'].includes(name)) a[name] = true;
+    if (['dry-run', 'self-test', 'plan', 'real-prices', 'live'].includes(name)) a[name] = true;
     else { const v = argv[++i]; if (v === undefined) throw new Fatal(`${k} needs a value`); a[name] = v; }
   }
   return a;
 }
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (args.live && (args['self-test'] || args['dry-run'] || args.plan)) throw new Fatal('--live cannot be combined with --self-test, --dry-run or --plan');
   if (args['self-test']) return selfTest();
   const table = loadPrices();
   const providers = (args.providers ?? eligible(table).join(',')).split(',').filter(Boolean);
@@ -741,7 +758,7 @@ async function main() {
     return r.exitCode;
   }
   if (args['real-prices']) throw new Fatal('--real-prices applies only to --plan and --dry-run');
-  const problems = liveGate(table, providers);
+  const problems = realRunProblems(args, table, providers);
   if (problems.length) { console.error('real run refused:\n' + problems.map((x) => '- ' + x).join('\n')); return 1; }
   const prices = Object.fromEntries(providers.map((p) => [p, table.providers[p]]));
   const keys = Object.fromEntries(providers.map((p) => [p, process.env[table.providers[p].key_env]]));

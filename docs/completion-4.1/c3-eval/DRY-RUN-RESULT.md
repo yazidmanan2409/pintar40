@@ -409,5 +409,17 @@ real run refused:
 ```
 
 With `DUMMY-KEY-PLACEHOLDER` in both key variables, the two "no key" lines go and the run is still refused.
-`node runner.mjs --providers google` exits 1: "google is excluded: Not eligible …". The runner has no separate live
-flag. A real run starts only when no flag is given and the gate passes.
+`node runner.mjs --providers google` exits 1: "google is excluded: Not eligible …".
+
+### Addition, 16 Nov: a required `--live` flag, and the served model version
+
+A real run now needs **both** `node runner.mjs --live` **and** a passing gate. Without `--live`, `node runner.mjs`
+exits 1, and the first refusal line names the flag: "no --live flag: a real run starts only with node runner.mjs
+--live, and only when every check below passes". With `--live` it is still refused today, with or without keys,
+because both adapters are unverified. `--live` cannot be combined with `--self-test`, `--dry-run` or `--plan`. The
+model version string each response reports is recorded per attempt (ledger `model_version`, and now also in each
+`usage.json` call row), and the judged attempt's version is in `bab<n>.provenance.json`. Next to the `model_date`
+label "undated alias, ID read 2026-11-16", this captures the version actually served. Self-test re-run: exit 0,
+**83 PASS, 0 FAIL**. New checks: the model version is recorded; with dummy keys and adapters marked verified through a
+test-only override, a run without `--live` is refused; `--live` with the real, unverified adapters is refused; and only
+`--live` with keys and verified adapters gets through the gate. No network call was attempted.
