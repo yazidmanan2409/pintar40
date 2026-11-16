@@ -1121,13 +1121,16 @@ jobs:
           # 3h. UX-1 Slice 2: the orientation window must not become a doorway.
           #     Authorization boundary -- stop delegating to may_start_assessment
           #     and a learner of another tenant reads someone else's assignment.
+          #     A2b commit 7 (20270120170000) moved the boundary into one predicate: may_start's answer is ok, or its
+          #     refusal is one of the two maintenance codes (judged last, so every other check has passed). The
+          #     plant removes that predicate, which is the delegation.
           cat > /tmp/f06-3h.sql <<'SQL'
           begin;
           do $d$
           declare orig text; src text;
           begin
             orig := pg_get_functiondef('public.assessment_orientation(uuid)'::regprocedure);
-            src := replace(orig, 'and (select e.ok from public.may_start_assessment(aa.id) e)', '');
+            src := replace(orig, 'and (m.ok or m.reason in (''MAINTENANCE_PLACE'', ''MAINTENANCE_NO_NEW_START''))', '');
             if src = orig then raise exception 'the plant did not reach assessment_orientation'; end if;
             execute src;
           end $d$;
