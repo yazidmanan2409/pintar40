@@ -1,0 +1,139 @@
+d8-1-wib-t60-murid-390	/belajar	overflow 0px	Pemeliharaan dalam 60 menit.
+d8-1-wib-t60-murid-320	/belajar	overflow 0px	Pemeliharaan dalam 60 menit.
+d8-1-wib-t60-murid-1280	/belajar	overflow 0px	Pemeliharaan dalam 60 menit.
+d8-1-wib-t60-guru-390	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	Pemeliharaan dalam 60 menit.
+d8-1-wib-t60-guru-320	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	Pemeliharaan dalam 60 menit.
+d8-1-wib-t60-guru-1280	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	Pemeliharaan dalam 60 menit.
+d8-1-wib-t15-murid-390	/belajar	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wib-t15-murid-320	/belajar	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wib-t15-murid-1280	/belajar	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wib-t15-guru-390	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wib-t15-guru-320	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wib-t15-guru-1280	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wib-mulai-murid-390	/belajar	overflow 0px	
+d8-1-wib-mulai-murid-320	/belajar	overflow 0px	
+d8-1-wib-mulai-murid-1280	/belajar	overflow 0px	
+d8-1-wib-mulai-guru-390	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	
+d8-1-wib-mulai-guru-320	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	
+d8-1-wib-mulai-guru-1280	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	
+d8-2-wib-mulai-murid-390	/pemeliharaan	overflow 0px	
+d8-2-wib-mulai-murid-320	/pemeliharaan	overflow 0px	
+d8-1-wib-diperpanjang-murid-390	/belajar	overflow 0px	
+d8-1-wib-diperpanjang-murid-320	/belajar	overflow 0px	
+d8-1-wib-diperpanjang-murid-1280	/belajar	overflow 0px	
+d8-1-wib-diperpanjang-guru-390	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	
+d8-1-wib-diperpanjang-guru-320	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	
+d8-2-wib-diperpanjang-murid-390	/pemeliharaan	overflow 0px	
+d8-2-wib-diperpanjang-murid-320	/pemeliharaan	overflow 0px	
+d8-1-wib-kelas-ini-guru-390	/mengajar/8ada994d-a0a8-401f-aeab-ffbdfc5ad583	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wib-kelas-ini-guru-320	/mengajar/8ada994d-a0a8-401f-aeab-ffbdfc5ad583	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wib-kelas-lain-guru-390	/mengajar/62985c69-8510-4793-b980-428bbfd85906	overflow 0px	
+d8-1-wib-kelas-lain-guru-320	/mengajar/62985c69-8510-4793-b980-428bbfd85906	overflow 0px	
+d8-1-wib-gagal-sebelum-murid-390	/belajar	overflow 0px	Pemeliharaan dalam 30 menit.
+d8-1-wib-gagal-murid-390	/belajar	overflow 0px	Pemeliharaan dalam 30 menit.
+d8-1-wib-gagal-murid-320	/belajar	overflow 0px	Pemeliharaan dalam 30 menit.
+d8-1-wib-gagal: POSTs aborted: 1
+d8-3-wib-kelas-t15-pemetaan-390	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-3-wib-kelas-t15-pemetaan-320	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-3-wib-kelas-berlangsung-pemetaan-390	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	
+d8-3-wib-kelas-berlangsung-pemetaan-320	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	
+d8-3-wib-sekolah-berlangsung-pemetaan-390	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	
+d8-3-wib-sekolah-berlangsung-pemetaan-320	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	
+d8-3-wib-papan-ketik	no disabled Mulai
+  a «Langsung ke isi»
+  button «ID»
+  button «EN»
+  button[describedby=pin-sesi-ket-kepala] «KeluarKeluar»
+  button «A8/4»
+  button «B4/4»
+  button «C1/2»
+  button «D2/8»
+  button «Perlu contoh?»
+  button «Sudah cukup, terima kasih»
+  button «Berikutnya»
+  body «Langsung ke isiPemeliharaan dalam 10 menit. Pemeli»
+  a «Langsung ke isi»
+  button «ID»
+  button «EN»
+  button[describedby=pin-sesi-ket-kepala] «KeluarKeluar»
+  button «A8/4»
+  button «B4/4»
+  button «C1/2»
+  button «D2/8»
+  button «Perlu contoh?»
+  button «Sudah cukup, terima kasih»
+  button «Berikutnya»
+  body «Langsung ke isiPemeliharaan dalam 10 menit. Pemeli»
+  a «Langsung ke isi»
+d8-1-wita-t60-murid-390	/belajar	overflow 0px	Pemeliharaan dalam 60 menit.
+d8-1-wita-t60-murid-320	/belajar	overflow 0px	Pemeliharaan dalam 60 menit.
+d8-1-wita-t60-murid-1280	/belajar	overflow 0px	Pemeliharaan dalam 60 menit.
+d8-1-wita-t60-guru-390	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	Pemeliharaan dalam 60 menit.
+d8-1-wita-t60-guru-320	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	Pemeliharaan dalam 60 menit.
+d8-1-wita-t60-guru-1280	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	Pemeliharaan dalam 60 menit.
+d8-1-wita-t15-murid-390	/belajar	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wita-t15-murid-320	/belajar	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wita-t15-murid-1280	/belajar	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wita-t15-guru-390	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wita-t15-guru-320	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wita-t15-guru-1280	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wita-mulai-murid-390	/belajar	overflow 0px	
+d8-1-wita-mulai-murid-320	/belajar	overflow 0px	
+d8-1-wita-mulai-murid-1280	/belajar	overflow 0px	
+d8-1-wita-mulai-guru-390	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	
+d8-1-wita-mulai-guru-320	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	
+d8-1-wita-mulai-guru-1280	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	
+d8-2-wita-mulai-murid-390	/pemeliharaan	overflow 0px	
+d8-2-wita-mulai-murid-320	/pemeliharaan	overflow 0px	
+d8-1-wita-diperpanjang-murid-390	/belajar	overflow 0px	
+d8-1-wita-diperpanjang-murid-320	/belajar	overflow 0px	
+d8-1-wita-diperpanjang-murid-1280	/belajar	overflow 0px	
+d8-1-wita-diperpanjang-guru-390	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	
+d8-1-wita-diperpanjang-guru-320	/mengajar/92b8c664-5414-4d91-974b-098784a77b66	overflow 0px	
+d8-2-wita-diperpanjang-murid-390	/pemeliharaan	overflow 0px	
+d8-2-wita-diperpanjang-murid-320	/pemeliharaan	overflow 0px	
+d8-1-wita-kelas-ini-guru-390	/mengajar/8ada994d-a0a8-401f-aeab-ffbdfc5ad583	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wita-kelas-ini-guru-320	/mengajar/8ada994d-a0a8-401f-aeab-ffbdfc5ad583	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-1-wita-kelas-lain-guru-390	/mengajar/62985c69-8510-4793-b980-428bbfd85906	overflow 0px	
+d8-1-wita-kelas-lain-guru-320	/mengajar/62985c69-8510-4793-b980-428bbfd85906	overflow 0px	
+d8-1-wita-gagal-sebelum-murid-390	/belajar	overflow 0px	Pemeliharaan dalam 30 menit.
+d8-1-wita-gagal-murid-390	/belajar	overflow 0px	Pemeliharaan dalam 30 menit.
+d8-1-wita-gagal-murid-320	/belajar	overflow 0px	Pemeliharaan dalam 30 menit.
+d8-1-wita-gagal: POSTs aborted: 1
+d8-3-wita-kelas-t15-pemetaan-390	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-3-wita-kelas-t15-pemetaan-320	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	Pemeliharaan dalam 15 menit.
+d8-3-wita-kelas-berlangsung-pemetaan-390	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	
+d8-3-wita-kelas-berlangsung-pemetaan-320	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	
+d8-3-wita-sekolah-berlangsung-pemetaan-390	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	
+d8-3-wita-sekolah-berlangsung-pemetaan-320	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	
+d8-3-wita-papan-ketik	no disabled Mulai
+  a «Langsung ke isi»
+  button «ID»
+  button «EN»
+  button[describedby=pin-sesi-ket-kepala] «KeluarKeluar»
+  button «A8/4»
+  button «B4/4»
+  button «C1/2»
+  button «D2/8»
+  button «Perlu contoh?»
+  button «Sudah cukup, terima kasih»
+  button «Berikutnya»
+  body «Langsung ke isiPemeliharaan dalam 10 menit. Pemeli»
+  a «Langsung ke isi»
+  button «ID»
+  button «EN»
+  button[describedby=pin-sesi-ket-kepala] «KeluarKeluar»
+  button «A8/4»
+  button «B4/4»
+  button «C1/2»
+  button «D2/8»
+  button «Perlu contoh?»
+  button «Sudah cukup, terima kasih»
+  button «Berikutnya»
+  body «Langsung ke isiPemeliharaan dalam 10 menit. Pemeli»
+  a «Langsung ke isi»
+d8-4 started: http://127.0.0.1:3999/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan
+d8-4-wib-pemutar-murid-390	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	
+d8-4-wib-pemutar-murid-320	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	
+d8-4-wita-pemutar-murid-390	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	
+d8-4-wita-pemutar-murid-320	/belajar/34c30c31-bb8d-440b-898e-37d00934ac49/pemetaan	overflow 0px	
