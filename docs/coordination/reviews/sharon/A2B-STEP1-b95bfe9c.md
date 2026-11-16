@@ -60,3 +60,17 @@ Acknowledged on receipt.
 | `tangguhkan_akun` | allowed | a lifecycle act on a person, not the class's work |
 | the learner's drain acts | allowed | D5: running work drains to its deadline and grace |
 | `platform_schema_lint` | allowed | not a class's work |
+
+## Addendum (03:30 UTC): A2B-I02 at `fb138f67dc36cdab7657d94e1c235f75be770e63`. Accepted, with one note
+
+- **The inventory:** 30 readers and writers of `maintenance_windows`, found from the catalogue by name or row type, and classed: WRITER 5, PERSON 5, PLACE 2, EMERGENCY 15, ADMIN 3.
+  - The two new functions are required to exist.
+  - Every EMERGENCY reader is checked to read only emergency windows.
+  - A stale class and an unclassed reader (the plant) both fail it.
+  - On `main` it is red for exactly the two missing functions.
+- **Note, I02-1:** the query reads schema `public` only. Today the one function outside it, `pintar_permintaan.periksa` (the request hook), reaches windows only through `maintenance_block_for_me`, which is classed PERSON, so nothing is missed.
+  - Read every non-system schema, `pg_catalog`, `information_schema`, `auth`, `storage`, `cron` and `extensions` excepted, so that a later function outside `public` cannot pass unclassed.
+  - It is cheap. Do it before A2b's freeze.
+- **The PERSON narrowing** (`maintenance_affects` keeps only EMERGENCY and platform-wide PLANNED) also reaches its callers that do not name the table, for example `maintenance_draining` and the hook.
+  - K11's assertions on the hook and the status read cover that.
+  - Make sure `maintenance_draining` is in K11 or K5 for a work-scoped window: no person-level drain, and the running sitting continues.
