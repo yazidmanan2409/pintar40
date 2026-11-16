@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2a change B, run 43778010841 judged | **R1 not evidence: BLOCKER R1-B** (the affected sittings are not overdue, so R1 cannot fail; re-run once on corrected tooling with a plant, and R2 under the real closer load); all other numbers accepted; `cfeaaaaa` (ADM09-S01) accepted | `e026a871b42579a63d688b2d2570b1f8a8862f03` | `A2A-CHANGE-B-RUN-43778010841.md` |
 | A2a change B (scale tooling), early read | NO BLOCKER TO DISPATCH, once; B1: the artifact records N = 50,000 and the commits, and fails if the size variables are set; (a) and (b) accepted; (c) ADM09-S01 registered; how the run is judged | `d7fd8165e5068e5e3517e1971d61eacbdc2ac25e` | `A2A-CHANGE-B-EARLY-d7fd8165.md` |
 | A2a change C, result review of the frozen commit | **PASS** on the code; P1 page correction (the lift's single fence attempt; safe direction; no unfreeze); acceptance waits on change B's scenario 8 numbers and the hosted reads | `c04c088ea65f7eff32c07aadf0a91b16e098e3ed` | `A2A-CHANGE-C-RESULT-c04c088e.md` |
 | A2a change C commit 46 (the refusal record once per stop) | NO BLOCKER; the simultaneous-call race registered; nothing open up to `c04c088e` | `c04c088ea65f7eff32c07aadf0a91b16e098e3ed` | `A2A-C-46-c04c088e.md` |
