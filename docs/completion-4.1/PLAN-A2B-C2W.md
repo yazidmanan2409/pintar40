@@ -217,3 +217,35 @@ authorisation.
 | Weekly usage limit | Batched screens, diff-only reviews, one full pre-flight per candidate |
 
 Forecasts are not commitments. The January forecast for 4.1 is unchanged; the owner sets the date after Z.
+
+## Two rulings before A2b's freeze (Chief Architect, 16 Nov 2026, from the owner's review)
+
+### R-A · The refusal code on each side of a planned window's start (pinned by test)
+
+| When | Who is refused | Code | Pause page? |
+|---|---|---|---|
+| From T−15 up to the window's start | A new start on work the window will cover; other work proceeds | `MAINTENANCE_NO_NEW_START` (T−15 stays, D4) | **No** |
+| From the start to the window's end (active) | Every classed writer of the window's place | `MAINTENANCE_PLACE` (Sharon's ruling (1)) | **No** |
+| Either interval, any other class or school | Nobody | — | — |
+
+- **Tests:** one start at T−1 minute and one at the start plus 1 second, on the same class and on another class. Each
+  asserts its code, the place scoping, and no redirect.
+- **Static test:** neither code maps to `PT503` or reaches the pause page.
+- **Daisy:** confirms the learner's sentence for each code.
+
+### R-B · Warning refresh: a bounded amendment to D8, made explicit
+
+- **The conflict:** D8 as approved says the warnings at 60, 30 and 15 minutes run on timers from one server read, with
+  no polling added. Decision 3 of this plan (each stage re-reads before it shows) goes beyond that text. It is
+  recorded here as a deliberate amendment under the owner's delegation of the final plan (14 Nov), not as an implied
+  one.
+- **The amendment:**
+  - one status read at each stage boundary, at most 4 per window per open page;
+  - only while a window is announced;
+  - no interval timer, so it is not polling;
+  - a failed read shows no new stage (Daisy).
+- **Why:** without it, a window extended or ended early would leave a stale warning on screen. The owner's review of
+  this plan asked for defined behaviour in exactly that case.
+- **Condition:** Sharon confirms the read is `pintar_status_saya`'s existing cost, within A12's timing limits.
+- **The owner may overrule it.** Plain D8 behaviour would then be accepted: timers from one read, and a stale stage
+  possible until the next page load.
