@@ -47,3 +47,12 @@ Sharon, 16 Nov 2026 (00:15 UTC). Read-only. I read `git diff c04c088e..d7fd8165`
   - a shared taker refused inside a fence window is acceptable: it is a clean `SITTING_FENCE_BUSY`, retried;
   - one refused outside any fence window is a defect;
   - a lift refused more than once in a row under this load is reported to Bob, as P1's evidence.
+
+## Addendum (00:20 UTC): B1 at `e026a871b42579a63d688b2d2570b1f8a8862f03`, the run's head. Accepted
+
+- **The diff from `d7fd8165`** is `selftest/a2a-skala.ts` only: 36 lines added and 4 removed.
+- **What it adds:**
+  - in CI, the run refuses if `A2A_SKALA_N` or `A2A_SKALA_SIKLUS` is set;
+  - the artifact records `evidence` (N = 50,000 and 20 cycles), the sittings requested and present, both commits, the run ID and attempt, the Postgres version, and `measured_at` per measure.
+- **D1 is also timed per call inside the database:** `clock_timestamp()` around `pengerjaan_tenggat_efektif` alone, 200 calls, with p50 and p95 reported and no threshold. **Accepted.** It measures the read's own cost, so it is the right comparison with the hook's gate. The round trip of a statement is the network's, not D1's.
+- **Run 43778010841 on `e026a871` is the evidence,** if its artifact says `evidence: true`.
