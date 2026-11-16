@@ -1103,13 +1103,15 @@ jobs:
           # 3g. Q-12: the learner doorway must add no authority. It returns what
           #     may_start_assessment() accepts; stop deferring to that predicate
           #     and a learner of another tenant sees someone else's class work.
+          #     A2b reopened (20270120240000, Daisy's Q-12 ruling): the delegation is one predicate now, may_start's answer is ok
+          #     or its refusal is one of the two maintenance codes; the plant removes it, which is the same defect.
           cat > /tmp/f06-3g.sql <<'SQL'
           begin;
           do $d$
           declare orig text; src text;
           begin
             orig := pg_get_functiondef('public.my_open_assessments()'::regprocedure);
-            src := replace(orig, 'and (select s.ok from public.may_start_assessment(aa.id) s)', '');
+            src := replace(orig, 'and (select s.ok or s.reason in (''MAINTENANCE_PLACE'', ''MAINTENANCE_NO_NEW_START'') from public.may_start_assessment(aa.id) s)', '');
             if src = orig then raise exception 'the plant did not reach my_open_assessments'; end if;
             execute src;
           end $d$;
