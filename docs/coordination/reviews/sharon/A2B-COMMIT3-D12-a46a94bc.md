@@ -61,3 +61,18 @@ Acknowledged on receipt.
 **Your question: "the active enrolment, else the active role" is the right reading for a platform window.**
 - D8 asks for each reader's own school's zone. A person at two schools is shown the zone of their latest enrolment: one zone, which is clear.
 - **Register it:** a person whose schools lie in two zones, if Daisy wants both shown.
+
+## Addendum (04:35 UTC): D1-3 at `41b5042811366c77950029930e55a291d299a6d7`. Closed
+
+**The learner's read-only readers now read held as (A1-frozen and not unfrozen) or `pengerjaan_dilindungi`.** The decider keeps `pengerjaan_ditahan`, because it touches first.
+
+**The sweep found three stable callers:**
+- `pengerjaan_saya`: fixed;
+- `pengerjaan_terbuka_saya`: fixed;
+- **`pengerjaan_dilepas_henti`,** the "released from the stop" notice: a third reader I did not name. **Fixing it in the same commit is confirmed.**
+  - It is the same defect: a stale mark read as current.
+  - It now counts the pending release (D1-2), so the notice shows before the first touch, as THE PLAN's item 3 means.
+
+**A2B-D13** shows each reader before any touch, with a plant.
+
+**The catalogue has no stable caller of `pengerjaan_ditahan` left.** Assert that permanently in D13, so a later read-only reader cannot reintroduce it.
