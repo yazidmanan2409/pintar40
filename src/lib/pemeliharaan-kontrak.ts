@@ -152,6 +152,30 @@ export function jamWib(iso: string, zona?: string | null): string {
   return jam(iso, zona);
 }
 
+/**
+ * A2b (the Chief Architect's R-B, PLAN-A2B-C2W.md at e15fe966; Daisy, A2B-C2W-KATA.md §1): the banner re-reads the
+ * status at a stage boundary before it shows that stage: at most one read per boundary, so at most four per window per
+ * open page (T−60, T−30, T−15, T=0); only while a planned window is announced (not yet begun, within the hour); never on
+ * an interval; a failed read shows nothing new. These are the boundaries still ahead, in ms from now.
+ */
+export const BACA_ULANG_MAKS = 4;
+export function batasTahap(mulai: string, sekarangMs: number, selisihMs = 0): number[] {
+  const sisa = Date.parse(mulai) - (sekarangMs + selisihMs);
+  if (!Number.isFinite(sisa) || sisa <= 0 || sisa > 60 * 60_000) return [];
+  return [60, 30, 15, 0].map((b) => sisa - b * 60_000).filter((t) => t > 0);
+}
+/** R-B: whether the banner may re-read for this window at all: a planned window announced and not yet begun. */
+export function jendelaDiumumkan(j: JendelaSaya | null, sekarangMs: number, selisihMs = 0): j is JendelaSaya {
+  return Boolean(j && j.jenis === "PLANNED" && j.keadaan !== "AKTIF" && batasTahap(j.mulai, sekarangMs, selisihMs).length > 0);
+}
+/** R-B: the stage to show after a boundary's read: the new read's stage, or, when the read failed, the stage already shown. */
+export function tahapSetelahBaca(sebelum: 60 | 30 | 15 | 0 | null, hasil: StatusSaya | null, sekarangMs: number, selisihMs = 0): 60 | 30 | 15 | 0 | null {
+  if (!hasil) return sebelum;
+  const j = jendelaUtama(hasil);
+  if (!j || j.jenis !== "PLANNED") return null;
+  return j.keadaan === "AKTIF" ? 0 : tahapPeringatan(j.mulai, sekarangMs, selisihMs);
+}
+
 /** A2b (D8): a time of a window as its reader reads it: «22.00 WITA», in the window's zone. */
 export function jamJendela(iso: string, j: Pick<JendelaSaya, "zona">): string {
   return `${jam(iso, j.zona)} ${kataZona(j.zona)}`;

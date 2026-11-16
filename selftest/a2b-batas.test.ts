@@ -29,6 +29,9 @@
 import { spawnSync } from "node:child_process";
 import { Checks, type SelfTest } from "./lib";
 import { psqlBaris } from "./a2a-f01.test";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { batasTahap, jendelaDiumumkan, tahapSetelahBaca, BACA_ULANG_MAKS, type JendelaSaya, type StatusSaya } from "../src/lib/pemeliharaan-kontrak";
 
 // ─────────────────────────────────────────────────────────────────────────── helpers
 
@@ -823,6 +826,16 @@ const jalan = (fn: (c: Checks, db: string, d: Dunia) => Promise<string> | string
   return c.verdict(ringkas);
 };
 
+/** R-B's window and status, for the pure planner (no database). */
+const jendelaUji = (mulaiMs: number, o: Partial<JendelaSaya> = {}): JendelaSaya => ({ id: "w", jenis: "PLANNED", keadaan: "TERJADWAL",
+  mulai: new Date(mulaiMs).toISOString(), selesai: null, pesan: null, menguasai: false, berjalan: false, terkumpul: null, kelas: ["7A"],
+  kelasLain: false, kelasId: ["k"], cakupan: "TEMPAT", sekolah: "S", zona: "Asia/Makassar", ...o });
+const statusUji = (j: JendelaSaya[]): StatusSaya => ({ pemeliharaan: j, pengumuman: [], terhenti: null, sekarang: null });
+/** Every .ts and .tsx file under src. */
+function berkasSrc(dir: string): string[] {
+  return readdirSync(dir).flatMap((n) => { const f = join(dir, n); return statSync(f).isDirectory() ? berkasSrc(f) : /\.tsx?$/.test(n) ? [f] : []; });
+}
+
 export const a2bBatasTests: SelfTest[] = [
   {
     id: "A2B-I01",
@@ -983,6 +996,43 @@ export const a2bBatasTests: SelfTest[] = [
       c.expect(!(tanam.hasil.ditahan ?? "").startsWith("false"), `with the plant (pengerjaan_saya reading the mark) the sitting still read as not held: ${tanam.hasil.ditahan}`);
       return `a marked sitting of a lifted stop, before any touch: pengerjaan_saya says not held and released from the stop, and pengerjaan_terbuka_saya offers it; no read-only function calls pengerjaan_ditahan any more (the decider's writers keep it, after pengerjaan_pagar); with the plant pengerjaan_saya said held (${tanam.hasil.ditahan})`;
     }),
+  },
+  {
+    id: "A2B-B01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const T = Date.parse("2026-11-20T03:00:00Z"), m = 60_000;
+      // the boundaries: at most one read per boundary, at most four per window, only while it is announced
+      c.expect(JSON.stringify(batasTahap(new Date(T + 50 * m).toISOString(), T)) === JSON.stringify([20 * m, 35 * m, 50 * m]),
+        `a window 50 min away: reads at T−30, T−15 and T=0 only: ${JSON.stringify(batasTahap(new Date(T + 50 * m).toISOString(), T))}`);
+      // a window is listed from T−60, so its T−60 stage is the page's own first read: three boundaries remain, within the cap
+      c.expect(batasTahap(new Date(T + 60 * m).toISOString(), T).length === 3 && BACA_ULANG_MAKS === 4,
+        `a window exactly 60 min away: three reads ahead, within the cap of four: ${batasTahap(new Date(T + 60 * m).toISOString(), T).length}`);
+      c.expect(batasTahap(new Date(T + 61 * m).toISOString(), T).length === 0, "a window more than an hour away is not announced: no read");
+      c.expect(batasTahap(new Date(T - m).toISOString(), T).length === 0, "a window already begun: no read");
+      c.expect(!jendelaDiumumkan(null, T) && !jendelaDiumumkan(jendelaUji(T + 10 * m, { keadaan: "AKTIF" }), T)
+        && !jendelaDiumumkan(jendelaUji(T + 10 * m, { jenis: "EMERGENCY" }), T) && jendelaDiumumkan(jendelaUji(T + 10 * m), T),
+        "only a planned window announced and not begun is re-read");
+      // a failed read shows nothing new; an extension or an early end shows at the next stage
+      c.expect(tahapSetelahBaca(30, null, T) === 30, "a failed read must keep the stage on screen");
+      c.expect(tahapSetelahBaca(30, statusUji([]), T) === null, "after an early end or a cancellation, no further stage");
+      c.expect(tahapSetelahBaca(30, statusUji([jendelaUji(T + 40 * m)]), T) === 60, "after an extension, the stage the new start gives");
+      // the source: the one read is called only at a boundary's timeout, never on an interval, by the banner alone
+      const src = readFileSync(join(repoRoot, "src/components/pemeliharaan/PengingatPemeliharaan.tsx"), "utf8");
+      const panggil = [...src.matchAll(/bacaUlangStatusSaya\(/g)].length;
+      c.expect(panggil === 1, `the banner must read again in exactly one place: ${panggil}`);
+      const selaInterval = /setInterval\(([\s\S]*?)\);/.exec(src)?.[1] ?? "";
+      c.expect(!/bacaUlang|rpc|fetch|statusSaya/.test(selaInterval), `the banner's interval (the minutes on screen) must read nothing: ${selaInterval.slice(0, 80)}`);
+      c.expect(/setTimeout\(async \(\) => \{\s*bacaan\.current \+= 1;\s*const baru = await bacaUlangStatusSaya\(\);/.test(src),
+        "the read must be the boundary timeout's first act, counted");
+      c.expect(/bacaan\.current < BACA_ULANG_MAKS/.test(src) && /jendelaDiumumkan\(jendela, jam\(\)\)/.test(src),
+        "the boundary must be armed only while a window is announced and under the cap");
+      const lain = berkasSrc(join(repoRoot, "src")).filter((f) => !/PengingatPemeliharaan\.tsx$|pemeliharaan[\/]actions\.ts$/.test(f)
+        && readFileSync(f, "utf8").includes("bacaUlangStatusSaya"));
+      c.expect(lain.length === 0, `no other file may call the banner's re-read: ${lain.join(", ")}`);
+      return c.verdict(`the banner's re-read (R-B): reads source and runs the pure planner: at most one read per stage boundary still ahead and at most ${BACA_ULANG_MAKS} per window, only for a planned window announced and not begun; a failed read keeps the stage on screen, an early end shows nothing further, an extension the new stage; in the source the one read is the boundary timeout's first act, counted against the cap, the interval reads nothing, and no other file calls it`);
+    },
   },
   {
     id: "A2B-K06",

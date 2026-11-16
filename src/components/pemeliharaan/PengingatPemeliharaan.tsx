@@ -1,35 +1,50 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { t, type Locale } from "@/lib/hle";
 import {
-  HALAMAN_PEMELIHARAAN, jamJendela, jendelaDiHalaman, jendelaUtama, menitTersisa, permukaanAsesmen, tahapBerikutMs,
-  tahapPeringatan, type StatusSaya,
+  BACA_ULANG_MAKS, HALAMAN_PEMELIHARAAN, jamJendela, jendelaDiHalaman, jendelaDiumumkan, jendelaUtama, menitTersisa,
+  permukaanAsesmen, tahapBerikutMs, tahapPeringatan, tahapSetelahBaca, type StatusSaya,
 } from "@/lib/pemeliharaan-kontrak";
+import { bacaUlangStatusSaya } from "@/app/pemeliharaan/actions";
 
 /**
  * #148 (D-094(c)(d)(e), D-100(b)): THE MAINTENANCE LINE, timed by the browser.
  *
- * The status arrives once with the page (no polling). From T-60 the line says when PINTAR goes into maintenance, in
- * words that fit the surface: on an assessment, that a sitting under way can still be finished and handed in, and
- * that an answer counts once «Tersimpan» shows; elsewhere, to finish and leave. From T-15, that no new assessment
- * starts. The three notices (60, 30, 15) are announced once each; the minutes shown follow the clock. At T=0 a reader
- * the window stops goes to the maintenance page, which the server would send them to on their next request anyway; a
- * sitting under way and the window's own administrators stay. A reader the database already stops goes there at once.
- * Live notices are one line each.
+ * The status arrives with the page. From T-60 the line says when maintenance begins, in words that fit the surface: on
+ * an assessment, that a sitting under way can still be finished and handed in, and that an answer counts once
+ * «Tersimpan» shows; elsewhere, to finish and leave. From T-15, that no new assessment starts. The three notices (60,
+ * 30, 15) are announced once each; the minutes shown follow the clock. At T=0 a reader the window stops goes to the
+ * maintenance page; a sitting under way and the window's own administrators stay. A reader the database already stops
+ * goes there at once. Live notices are one line each.
  *
  * A2b (R-1; Daisy, A2B-C2W-KATA.md): a class or school window is work-scoped (cakupan TEMPAT). It never sends anyone
  * to the maintenance page; its line names the class (or school) and says that only its work is paused, and it is not
  * shown on another class's own pages. Every time is in the window's school's zone (D8), never a fixed «WIB».
+ *
+ * A2b (the Chief Architect's R-B, e15fe966): each stage is shown only after the status is read again at its boundary:
+ * one read per boundary (at most BACA_ULANG_MAKS per window per open page), only while a planned window is announced,
+ * never on an interval. An extension or an early end is therefore shown at the next stage, and a stale stage never
+ * shows. A read that fails shows nothing new: the stage on screen stays.
  */
-export default function PengingatPemeliharaan({ locale, status }: { locale: Locale; status: StatusSaya }) {
+export default function PengingatPemeliharaan({ locale, status: awal }: { locale: Locale; status: StatusSaya }) {
   const path = usePathname() ?? "/";
+  const [status, setStatus] = useState<StatusSaya>(awal);
   // the database's clock as it answered: the first render reads it on the server and in the browser alike, and from
   // then on this browser's clock moves it, offset once by the difference measured as the page arrived
-  const [kini, setKini] = useState<number | null>(() => (status.sekarang ? Date.parse(status.sekarang) : null));
+  const [kini, setKini] = useState<number | null>(() => (awal.sekarang ? Date.parse(awal.sekarang) : null));
   const utama = jendelaUtama(status);
   const jendela = utama && jendelaDiHalaman(utama, path) ? utama : null;
+  // the stage on screen: set as the page arrives, then only by a boundary's successful read (R-B)
+  const [tahap, setTahap] = useState<60 | 30 | 15 | 0 | null>(() => {
+    const j = jendelaUtama(awal);
+    if (!j || j.jenis !== "PLANNED" || !awal.sekarang) return null;
+    return j.keadaan === "AKTIF" ? 0 : tahapPeringatan(j.mulai, Date.parse(awal.sekarang));
+  });
+  const bacaan = useRef(0);
+  // each boundary's read, failed or not, re-arms the next boundary (and only the next)
+  const [putaran, setPutaran] = useState(0);
   const kecuali = path === HALAMAN_PEMELIHARAAN;
 
   useEffect(() => {
@@ -38,35 +53,40 @@ export default function PengingatPemeliharaan({ locale, status }: { locale: Loca
       window.location.replace(HALAMAN_PEMELIHARAAN);
       return;
     }
-    if (!jendela || jendela.jenis !== "PLANNED" || jendela.keadaan === "AKTIF") return;
-    const selisih = status.sekarang ? Date.parse(status.sekarang) - Date.now() : 0;
+    const selisih = awal.sekarang ? Date.parse(awal.sekarang) - Date.now() : 0;
     const jam = () => Date.now() + selisih;
-    // the minutes on screen follow the clock; the timer is this browser's own, nothing is asked of the server
+    if (!jendelaDiumumkan(jendela, jam())) return;
+    // the minutes on screen follow the clock: this browser's own timer, which asks the server nothing
     const detik = window.setInterval(() => setKini(jam()), 30_000);
-    let tahap: number | undefined;
-    const jadwal = () => {
-      const tunggu = tahapBerikutMs(jendela.mulai, jam());
-      if (tunggu === null) return;
-      tahap = window.setTimeout(() => {
+    // R-B: one timeout, for the next boundary only; at it, one read, then the stage that read gives
+    let batas: number | undefined;
+    const tunggu = tahapBerikutMs(jendela.mulai, jam());
+    if (tunggu !== null && bacaan.current < BACA_ULANG_MAKS) {
+      batas = window.setTimeout(async () => {
+        bacaan.current += 1;
+        const baru = await bacaUlangStatusSaya();
         setKini(jam());
-        if (tahapPeringatan(jendela.mulai, jam()) === 0) {
-          // A2b (R-1): only a person-level window stops its reader; a work-scoped one only pauses its place's work
-          if (jendela.cakupan === "ORANG" && !jendela.berjalan && !jendela.menguasai) window.location.replace(HALAMAN_PEMELIHARAAN);
-          return;
+        setTahap((sebelum) => tahapSetelahBaca(sebelum, baru, jam()));
+        setPutaran((n) => n + 1);
+        if (!baru) return;   // a failed read shows nothing new: the stage on screen stays
+        setStatus(baru);
+        const j = jendelaUtama(baru);
+        // A2b (R-1): only a person-level window stops its reader at T=0; a work-scoped one only pauses its place's work
+        if (baru.terhenti || (j && j.cakupan === "ORANG" && j.jenis === "PLANNED" && tahapSetelahBaca(null, baru, jam()) === 0
+            && !j.berjalan && !j.menguasai)) {
+          window.location.replace(HALAMAN_PEMELIHARAAN);
         }
-        jadwal();
       }, tunggu + 250);
-    };
-    jadwal();
-    return () => { window.clearInterval(detik); if (tahap) window.clearTimeout(tahap); };
-  }, [kecuali, status.terhenti, status.sekarang, jendela]);
+    }
+    return () => { window.clearInterval(detik); if (batas) window.clearTimeout(batas); };
+    // a boundary's read re-arms the next boundary; the status read replaces the window
+  }, [kecuali, status.terhenti, awal.sekarang, jendela, putaran]);
 
   if (kecuali) return null;
   const s = (k: Parameters<typeof t>[0]) => t(k, "learner", { locale });
   const baris: React.ReactNode[] = [];
 
   if (jendela && jendela.jenis === "PLANNED" && kini !== null) {
-    const tahap = jendela.keadaan === "AKTIF" ? 0 : tahapPeringatan(jendela.mulai, kini);
     const asesmen = permukaanAsesmen(path);
     const tempat = jendela.cakupan === "TEMPAT";
     // A2b: the class (or school) a work-scoped window is for, in its words
@@ -104,15 +124,14 @@ export default function PengingatPemeliharaan({ locale, status }: { locale: Loca
     baris.push(<p key={n.id}><strong>{s("pemeliharaan.pita.pengumuman")}:</strong> {n.pesan}</p>);
   }
   if (baris.length === 0) return null;
-  const tahapUmum = jendela && jendela.jenis === "PLANNED" && kini !== null ? tahapPeringatan(jendela.mulai, kini) : null;
 
   return (
     <div className="pin-msg pin-msg-note" data-pemeliharaan="1">
       {baris}
       {/* each of the three notices is announced once, not every minute the line changes */}
       <span className="sr-only" role="status" aria-live="polite">
-        {tahapUmum === 60 || tahapUmum === 30 || tahapUmum === 15
-          ? `${s("pemeliharaan.pita.dalam")} ${tahapUmum} ${s("pemeliharaan.pita.menit")}.` : ""}
+        {tahap === 60 || tahap === 30 || tahap === 15
+          ? `${s("pemeliharaan.pita.dalam")} ${tahap} ${s("pemeliharaan.pita.menit")}.` : ""}
       </span>
     </div>
   );
