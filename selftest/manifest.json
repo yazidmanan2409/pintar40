@@ -6278,7 +6278,7 @@
     {
       "id": "A2B-I02",
       "runner": "static",
-      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3 and §2.5; Bob's dispatch of 16 Nov), written before any product code, red first on main eff99f98 for what A2b adds. Every function that names maintenance_windows, or takes or returns its row, is classed WRITER, PERSON, PLACE, EMERGENCY or ADMIN by what A2b asks of it; A2b's two new functions (perpanjang_pemeliharaan, maintenance_affects_place) are named and must exist; every EMERGENCY reader reads only emergency windows or delegates to one that does, so a PLANNED class window never reaches A2a's machinery; a stale class is reported; plant: an unclassed reader is reported."
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3 and §2.5; Bob's dispatch of 16 Nov), written before any product code, red first on main eff99f98 for what A2b adds. Reads the catalogue (pg_proc's source and signatures): every function that names maintenance_windows, or takes or returns its row, is classed WRITER, PERSON, PLACE, EMERGENCY or ADMIN by what A2b asks of it; A2b's two new functions (perpanjang_pemeliharaan, maintenance_affects_place) are named and must exist; every EMERGENCY reader reads only emergency windows or delegates to one that does, so a PLANNED class window never reaches A2a's machinery; every schema but the system's is read (Sharon's I02-1); a stale class is reported; plants: an unclassed reader in public and one in a schema of its own are reported."
     },
     {
       "id": "A2B-K01",
@@ -6303,7 +6303,7 @@
     {
       "id": "A2B-K05",
       "runner": "static",
-      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K5, a running sitting when a planned class window starts: not cut off. Its effective deadline (pengerjaan_tenggat_efektif, with a lifted stop's credited shift) is honoured; the learner's answer is taken; the decider leaves it open before that deadline and A1's closer ends it after its grace. The stop is in the hosted shape (Sharon's K12-1: starts_at 3 s before T_stop, ended_at 2 s before T_lift) and the effective deadline is exactly T_lift − T_stop on; plant: the shift read from starts_at and ended_at moves it."
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K5, a running sitting when a planned class window starts: not cut off. Its effective deadline (pengerjaan_tenggat_efektif, with a lifted stop's credited shift) is honoured; the learner is stopped as no person (maintenance_block_for_me none) while maintenance_draining still says the sitting runs; the learner's answer is taken; the decider leaves it open before that deadline and A1's closer ends it after its grace. The stop is in the hosted shape (Sharon's K12-1: starts_at 3 s before T_stop, ended_at 2 s before T_lift) and the effective deadline is exactly T_lift − T_stop on; plant: the shift read from starts_at and ended_at moves it."
     },
     {
       "id": "A2B-K06",

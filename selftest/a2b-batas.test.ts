@@ -344,9 +344,15 @@ const HANYA_DARURAT = /'EMERGENCY'|\bt_stop\b/;
 
 /** The functions that name maintenance_windows or take or return its row, and what is wrong with the classing. */
 export function inventarisJendela(db: string, tanam = ""): { fungsi: string[]; salah: string[] } {
-  const q = `select p.proname, p.prosrc, ('public.maintenance_windows'::regtype = any (p.proargtypes::oid[]::regtype[])
-       or p.prorettype = 'public.maintenance_windows'::regtype)::text
-  from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'`;
+  // Sharon's I02-1: every schema but the system's, so a later function outside public cannot pass unclassed
+  const q = `select case when n.nspname = 'public' then p.proname else n.nspname || '.' || p.proname end, p.prosrc,
+       ('public.maintenance_windows'::regtype = any (p.proargtypes::oid[]::regtype[])
+        or p.prorettype = 'public.maintenance_windows'::regtype)::text
+  from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+ where n.nspname not in ('pg_catalog', 'information_schema', 'auth', 'storage', 'cron', 'extensions', 'pg_toast',
+                         'selftest')   -- the test harness's own helpers, which build fixtures: not product code
+   and n.nspname not like 'pg_temp%' and n.nspname not like 'pg_toast%'
+   and p.prolang <> (select l.oid from pg_language l where l.lanname = 'c')`;
   const src = new Map<string, string>();
   const jenis = new Set<string>();
   for (const [fn, s, t] of psqlBaris(db, tanam ? `begin; ${tanam}; ${q}; rollback;` : q)) {
@@ -370,7 +376,8 @@ export function inventarisJendela(db: string, tanam = ""): { fungsi: string[]; s
   }
   return { fungsi, salah };
 }
-const TANAM_I02 = `create function public._a2b_i02_tanam() returns bigint language sql as $t$ select count(*) from public.maintenance_windows $t$`;
+const TANAM_I02 = `create function public._a2b_i02_tanam() returns bigint language sql as $t$ select count(*) from public.maintenance_windows $t$;
+create schema _a2b_i02_lain; create function _a2b_i02_lain.baca() returns bigint language sql as $t$ select count(*) from public.maintenance_windows $t$`;
 
 // ═══════════════════════════════════════════════════════════ the boundary tests
 
@@ -473,6 +480,10 @@ set local session_replication_role = origin;
 ${ALAT}
 ${sebagai(d.muridUid)}
 select 'jawab|' || pg_temp.a2b_tetap($q$select public.record_answer('${d.PA}', 1, '{"posisi": 1}'::jsonb)$q$);
+-- after the first touch (the answer released the stop's mark): no person-level drain, and the sitting still runs.
+-- (Before that touch maintenance_draining reads the marked sitting's own deadline: reported to Sharon, A2a's.)
+select 'blok|' || coalesce(public.maintenance_block_for_me(), 'none');
+select 'kuras|' || public.maintenance_draining('${d.murid}')::text;
 ${tanpaOrang}
 select 'efektif|' || extract(epoch from (public.pengerjaan_tenggat_efektif('${d.SA}') - now()))::int;
 select 'saat|' || extract(epoch from (t_lift - t_stop))::int || ':' || extract(epoch from (t_stop - starts_at))::int || ':' || extract(epoch from (t_lift - ended_at))::int
@@ -765,10 +776,11 @@ export const a2bBatasTests: SelfTest[] = [
       const db = process.env.SUPABASE_DB_URL!;
       const tanam = inventarisJendela(db, TANAM_I02);
       c.expect(tanam.salah.some((s) => s.startsWith("_a2b_i02_tanam ")), "the planted reader of maintenance_windows was not reported as unclassed");
+      c.expect(tanam.salah.some((s) => s.startsWith("_a2b_i02_lain.baca ")), "the planted reader in a schema outside public was not reported (I02-1)");
       const { fungsi, salah } = inventarisJendela(db);
       c.expect(salah.length === 0, `the readers and writers of maintenance_windows:\n  ${salah.join("\n  ")}`);
       const n = (k: KelasJendela) => Object.values(KELAS_JENDELA).filter((v) => v.kelas === k).length;
-      return c.verdict(`${fungsi.length} functions read or write maintenance_windows, each classed: ${n("WRITER")} writers, ${n("PERSON")} person-level readers, ${n("PLACE")} place readers, ${n("EMERGENCY")} emergency-only readers (each reads only emergency windows or delegates to one that does), ${n("ADMIN")} for the scheduling screen; the planted unclassed reader is reported`);
+      return c.verdict(`${fungsi.length} functions read or write maintenance_windows, each classed: ${n("WRITER")} writers, ${n("PERSON")} person-level readers, ${n("PLACE")} place readers, ${n("EMERGENCY")} emergency-only readers (each reads only emergency windows or delegates to one that does), ${n("ADMIN")} for the scheduling screen; the planted unclassed readers (in public, and in a schema of its own: I02-1) are reported; every schema but the system's is read`);
     },
   },
   {
@@ -834,6 +846,8 @@ export const a2bBatasTests: SelfTest[] = [
       c.expect(!r.err, `K5 failed to run: ${r.err}`);
       c.expect(r.hasil.saat === "2700:3:2", `K5 (K12-1's shape): the stop's T_lift − T_stop is 2700 s, its starts_at 3 s before T_stop and its ended_at 2 s before T_lift: ${r.hasil.saat}`);
       c.expect(r.hasil.efektif === "900", `K5: the effective deadline (own deadline 30 min ago, T_lift − T_stop = 45 min credited) must be exactly 900 s ahead: ${r.hasil.efektif} s`);
+      c.expect(r.hasil.blok === "none", `K5: a work-scoped window must stop the learner with a running sitting as no person (no person-level drain): ${r.hasil.blok}`);
+      c.expect(r.hasil.kuras === "true", `K5: maintenance_draining must still say the learner's sitting is running (it continues): ${r.hasil.kuras}`);
       c.expect(r.hasil.jawab === "OK", `K5: the learner's answer in a running sitting, during a planned window on its class, must be taken (the drain): ${r.hasil.jawab}`);
       c.expect(r.hasil.status_awal === "IN_PROGRESS", `K5: before its effective deadline the decider must leave it open: ${r.hasil.putus_awal} → ${r.hasil.status_awal}`);
       c.expect(r.hasil.putus_akhir === "OK" && r.hasil.status_akhir !== "IN_PROGRESS", `K5: past its deadline and grace the decider (A1's closer) must end it during the window: ${r.hasil.putus_akhir} → ${r.hasil.status_akhir}`);
