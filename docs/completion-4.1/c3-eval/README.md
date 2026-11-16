@@ -12,6 +12,7 @@ and credentials follow only once the providers' actual terms and access are read
 | `material/bab1.md`, `material/bab2.md` | The frozen material: the synthetic SD Kelas 5 Matematika chapters (F-4), with their objectives (coded B1-T1…B2-T4), known misconceptions and lessons. **No question, option or key from the chapters is sent** |
 | `material/MANIFEST.json` | The SHA-256 of each source, material, request, prompt and schema. These are recorded with every draft for provenance |
 | `kit.mjs` | `material`, `request`, `validate`, `blind`, `score` and `selftest`. Dependency-free; no network |
+| `score.mjs` | Scoring under E-DECISION-PACK §4.1–§4.3a (16 Nov): one provider code's judge sheets plus Sharon's flags, checked against the flags file's committed SHA-256. Output: the resolved table, critical count, Q1, Q2 per criterion (Q1 and Q2 PROPOSED, awaiting owner approval), the verdict and flag counts. Input formats are in its header. `node score.mjs --self-test` |
 
 `node docs/completion-4.1/c3-eval/kit.mjs selftest` runs the whole pipeline offline, on planted cases:
 - material and requests regenerate byte-identical;
@@ -81,6 +82,15 @@ node kit.mjs seal-key out jawaban-k.csv                           # one seal onl
 # educators fill out/reviewer/judgements-template.csv (J1, J2, R)
 node kit.mjs score out judgements.csv runs                        # → out/C3-EVALUATION-RESULTS.draft.md
 ```
+
+**Under the 16 Nov pack (E-DECISION-PACK §4):**
+- the runner takes `--pack-sha <40-hex>`, the frozen pack's commit, and records it in every provenance record. A
+  `--live` run without a valid value is refused before any request is built;
+- `kit.mjs blind` builds what the judges and Sharon receive from an allowlist of item fields (`reviewer/items.json`,
+  `kunci/items.json`, and the sheets rendered from them). No model, provider, request or response id, header, usage
+  field or timestamp can pass through;
+- `node score.mjs <sheets.json> <flags.json> --flags-sha256 <hex>` scores one provider code by the pack's two-judge
+  rules. It refuses when the flags file does not match its committed hash.
 
 `runs/` and `out/` hold provider output and judgements. They live outside the repository (in the evaluation's private
 folder) until the owner has reviewed them. The results document is then committed as `../C3-EVALUATION-RESULTS.md`.

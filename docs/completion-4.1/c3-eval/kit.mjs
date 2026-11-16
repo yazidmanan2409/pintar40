@@ -116,6 +116,38 @@ function validateResponse(raw, b) {
 
 // ───────────────────────────── blinding
 const norm = (s) => String(s).replace(/\r\n?/g, '\n').replace(/[ \t]+/g, ' ').trim();
+const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+// What the judges and Sharon receive is BUILT from these allowlists, never copied from a response: any other field a
+// response or the runner's records carry (model, provider, request or response ids, headers, usage and token counts,
+// timestamps, fingerprints, anything new) cannot reach them. assertAllowlisted checks the result again before writing.
+const BLIND_ITEM_FIELDS = ['item_id', 'chapter', 'objective_code', 'stem', 'options', 'key', 'key_rationale', 'distractors'];
+const BLIND_OPTION_FIELDS = ['label', 'body'];
+const BLIND_DISTRACTOR_FIELDS = ['label', 'misconception_code', 'misconception'];
+const KEYCHECK_ITEM_FIELDS = ['item_id', 'chapter', 'stem', 'options'];   // Sharon: no key, rationale or distractor
+const BLIND_FILES = ['kunci/items.json', 'kunci/jawaban-k-template.csv', 'kunci/lembar-kunci-tanpa-kunci.md', 'reviewer/items.json', 'reviewer/judgements-template.csv', 'reviewer/lembar-penilaian.md'];
+function assertAllowlisted(list, fields, where) {
+  const nested = { options: BLIND_OPTION_FIELDS, distractors: BLIND_DISTRACTOR_FIELDS };
+  for (const it of list) {
+    if (!eq(Object.keys(it), fields)) throw new Error(`blind (${where}): item fields ${Object.keys(it).join(',')} are not the allowlist ${fields.join(',')}`);
+    for (const [k, v] of Object.entries(it)) {
+      if (nested[k]) { if (!Array.isArray(v) || v.some((o) => !o || !eq(Object.keys(o), nested[k]) || Object.values(o).some((x) => typeof x !== 'string'))) throw new Error(`blind (${where}): ${it.item_id} ${k} carries a field outside ${nested[k].join(',')}`); }
+      else if (!['string', 'number'].includes(typeof v)) throw new Error(`blind (${where}): ${it.item_id} ${k} is not a plain value`);
+    }
+  }
+}
+const txt = (v, dflt = '') => (typeof v === 'string' ? norm(v) : dflt);
+// one item as the judges see it, built field by field from the allowlist
+function blindItem(id, b, it) {
+  return {
+    item_id: id, chapter: b, objective_code: txt(it.objective_code, '—'), stem: txt(it.stem),
+    options: LABELS.map((l) => it.options.find((o) => o.label === l)).map((o) => ({ label: o.label, body: txt(o.body) })),
+    key: txt(it.key), key_rationale: txt(it.key_rationale, '—'),
+    distractors: (Array.isArray(it.distractors) ? it.distractors : []).filter((d) => d && typeof d === 'object')
+      .map((d) => ({ label: txt(d.label), misconception_code: txt(d.misconception_code), misconception: txt(d.misconception) }))
+      .sort((x, y) => x.label.localeCompare(y.label)),
+  };
+}
+const keycheckItem = (x) => ({ item_id: x.item_id, chapter: x.chapter, stem: x.stem, options: x.options.map((o) => ({ label: o.label, body: o.body })) });
 function shuffle(a) { const x = a.slice(); for (let i = x.length - 1; i > 0; i--) { const j = randomInt(i + 1); [x[i], x[j]] = [x[j], x[i]]; } return x; }
 
 function cmdBlind(runsDir, outDir) {
@@ -126,6 +158,7 @@ function cmdBlind(runsDir, outDir) {
   const sheets = { full: ['# Lembar penilaian (blind)', ''], nokey: ['# Lembar pemeriksaan kunci (tanpa kunci)', ''] };
   const csv = ['item_id,judge,role,key_correct,alignment,distractors,language,notes'];
   const kcsv = ['item_id,answer'];
+  const blinded = [], keycheck = [];
   providers.forEach((p, i) => { sealed.providers[codes[i]] = { folder: p }; });
   for (const b of [1, 2]) {
     const pool = [];
@@ -144,23 +177,28 @@ function cmdBlind(runsDir, outDir) {
     shuffle(pool).forEach((e, n) => {
       const id = `B${b}-${String(n + 1).padStart(3, '0')}`;
       sealed.items[id] = { provider: e.code, bab: b, index: e.index, schema_valid: e.valid, key: e.it.key };
-      const opts = LABELS.map((l) => e.it.options.find((o) => o.label === l)).map((o) => `   ${o.label}. ${norm(o.body)}`);
-      const ds = (Array.isArray(e.it.distractors) ? e.it.distractors : []).filter(Boolean).sort((x, y) => String(x.label).localeCompare(String(y.label)));
-      sheets.full.push(`### ${id} · tujuan ${norm(e.it.objective_code ?? '—')}`, '', norm(e.it.stem), '', ...opts, '',
-        `   Kunci: ${e.it.key}. Alasan: ${norm(e.it.key_rationale ?? '—')}`,
-        ...ds.map((d) => `   Pengecoh ${d.label}: ${norm(d.misconception_code ?? '')} ${norm(d.misconception ?? '')}`), '');
-      sheets.nokey.push(`### ${id}`, '', norm(e.it.stem), '', ...opts, '', '   Jawaban Anda: ____', '');
+      // everything below is rendered from the allowlisted copy only
+      const x = blindItem(id, b, e.it); const k = keycheckItem(x);
+      blinded.push(x); keycheck.push(k);
+      const opts = x.options.map((o) => `   ${o.label}. ${o.body}`);
+      sheets.full.push(`### ${id} · tujuan ${x.objective_code}`, '', x.stem, '', ...opts, '',
+        `   Kunci: ${x.key}. Alasan: ${x.key_rationale}`,
+        ...x.distractors.map((d) => `   Pengecoh ${d.label}: ${d.misconception_code} ${d.misconception}`), '');
+      sheets.nokey.push(`### ${id}`, '', k.stem, '', ...k.options.map((o) => `   ${o.label}. ${o.body}`), '', '   Jawaban Anda: ____', '');
       for (const role of ['J1', 'J2']) csv.push(`${id},,${role},,,,,`);
       kcsv.push(`${id},`);
     });
   }
+  assertAllowlisted(blinded, BLIND_ITEM_FIELDS, 'reviewer'); assertAllowlisted(keycheck, KEYCHECK_ITEM_FIELDS, 'kunci');
   mkdirSync(join(outDir, 'reviewer'), { recursive: true }); mkdirSync(join(outDir, 'SEALED'), { recursive: true });
   writeFileSync(join(outDir, 'reviewer', 'lembar-penilaian.md'), sheets.full.join('\n') + '\n');
+  writeFileSync(join(outDir, 'reviewer', 'items.json'), JSON.stringify(blinded, null, 2) + '\n');
   // Sharon's key check (role K) is blind: K receives only kunci/, records an answer per item, and seals it (seal-key)
   // before any full sheet is opened; the kit, not K, compares the answers with the keys
   mkdirSync(join(outDir, 'kunci'), { recursive: true });
   writeFileSync(join(outDir, 'kunci', 'lembar-kunci-tanpa-kunci.md'), sheets.nokey.join('\n') + '\n');
   writeFileSync(join(outDir, 'kunci', 'jawaban-k-template.csv'), kcsv.join('\n') + '\n');
+  writeFileSync(join(outDir, 'kunci', 'items.json'), JSON.stringify(keycheck, null, 2) + '\n');
   writeFileSync(join(outDir, 'reviewer', 'judgements-template.csv'), csv.join('\n') + '\n');
   writeFileSync(join(outDir, 'SEALED', 'map.json'), JSON.stringify(sealed, null, 2) + '\n');
   return sealed;
@@ -276,6 +314,57 @@ function asResponse(b, mutate) {
   if (r.items.length !== PER_CHAPTER) throw new Error(`selftest: chapter ${b} has ${r.items.length} usable items`);
   return JSON.stringify(mutate ? mutate(r) : r);
 }
+// Blind strips identifying fields: plant every kind of field a provider response or the runner's records could carry
+// (model id, provider name, request and response ids, headers, usage and token counts, timestamps, fingerprints),
+// at the top level, in items, options and distractors, and in the files beside the responses. Then check the blinded
+// output against the ALLOWLIST of item fields (not a denylist alone), and that no planted value survives anywhere in
+// what the judges and Sharon receive.
+function blindStripTest(t, check) {
+  const runs = join(t, 'runs-planted'), out = join(t, 'out-planted');
+  const S = 'ZQXSENTINEL';   // every planted value carries this marker
+  const plant = (r, tag) => {
+    Object.assign(r, { id: `resp_${S}_${tag}`, object: 'response', model: `${S}-model-${tag}`, provider: `${S}-provider-${tag}`, system_fingerprint: `fp_${S}`,
+      created: 1763276400, created_at: '2026-11-16T07:00:00Z', request_id: `req_${S}`, headers: { 'x-request-id': `req_${S}`, 'request-id': `req_${S}`, 'openai-organization': S },
+      usage: { input_tokens: 777001, output_tokens: 777002, total_tokens: 777003, cache_read_input_tokens: 777004 }, stop_reason: `${S}_stop` });
+    r.items.forEach((it, i) => {
+      Object.assign(it, { model: `${S}-model`, model_version: `${S}@v`, response_id: `resp_${S}_${i}`, request_id: `req_${S}_${i}`, provider: S, usage: { output_tokens: 777100 + i },
+        timestamp: '2026-11-16T07:00:01Z', headers: { 'retry-after': S }, _meta: { provider: S, model: S }, [`x-${S}`]: S });
+      it.options.forEach((o) => { o.provider = S; o.model = S; });
+      it.distractors.forEach((d) => { d.request_id = S; d.usage = { tokens: 777200 }; });
+    });
+    return r;
+  };
+  for (const [folder, tag] of [[`${S}FOLDERA`, 'a'], [`${S}FOLDERB`, 'b']]) {
+    const d = join(runs, folder); mkdirSync(join(d, 'attempts'), { recursive: true });
+    for (const b of [1, 2]) {
+      writeFileSync(join(d, `bab${b}.json`), asResponse(b, (r) => plant(r, tag)));
+      writeFileSync(join(d, `bab${b}.provenance.json`), JSON.stringify({ model: S, provider: S, request_id: S, run_at: '2026-11-16T07:00:00Z' }));
+      writeFileSync(join(d, 'attempts', `bab${b}.a1.json`), JSON.stringify({ model: S }));
+    }
+    writeFileSync(join(d, 'usage.json'), JSON.stringify({ model: S, model_date: S, calls: [{ request_id: S, input_tokens: 777300, output_tokens: 777301 }] }));
+  }
+  cmdBlind(runs, out);
+  const files = [];
+  const walk = (dir) => { for (const e of readdirSync(dir, { withFileTypes: true })) { const p = join(dir, e.name); if (e.isDirectory()) walk(p); else files.push(p); } };
+  walk(join(out, 'reviewer')); walk(join(out, 'kunci'));
+  const rel = files.map((f) => f.slice(out.length + 1)).sort();
+  check(eq(rel, BLIND_FILES), `blind writes only its own files to reviewer/ and kunci/ (${BLIND_FILES.join(', ')}): no provenance, usage or attempt file is copied`);
+  const items = existsSync(join(out, 'reviewer', 'items.json')) ? JSON.parse(readFileSync(join(out, 'reviewer', 'items.json'), 'utf8')) : [];
+  const kitems = existsSync(join(out, 'kunci', 'items.json')) ? JSON.parse(readFileSync(join(out, 'kunci', 'items.json'), 'utf8')) : [];
+  check(items.length === 60 && kitems.length === 60, 'the planted responses are still blinded (renderable): 60 items for the judges, 60 for the key check');
+  check(items.length > 0 && items.every((it) => eq(Object.keys(it), BLIND_ITEM_FIELDS) && it.options.every((o) => eq(Object.keys(o), BLIND_OPTION_FIELDS)) && it.distractors.every((d) => eq(Object.keys(d), BLIND_DISTRACTOR_FIELDS))),
+    `judges' items.json holds exactly the allowlisted fields, at every level: item ${BLIND_ITEM_FIELDS.join(', ')}; option ${BLIND_OPTION_FIELDS.join(', ')}; distractor ${BLIND_DISTRACTOR_FIELDS.join(', ')}`);
+  check(kitems.length > 0 && kitems.every((it) => eq(Object.keys(it), KEYCHECK_ITEM_FIELDS) && it.options.every((o) => eq(Object.keys(o), BLIND_OPTION_FIELDS))), `key-check items.json holds exactly ${KEYCHECK_ITEM_FIELDS.join(', ')} (no key, rationale or distractor)`);
+  check(items.every((it) => Object.values(it).every((v) => typeof v === 'string' || typeof v === 'number' || Array.isArray(v))), 'every blinded value is a plain string, number or array of allowlisted objects (no nested object passes through)');
+  const all = files.map((f) => readFileSync(f, 'utf8')).join('\n');
+  check(!all.includes(S) && !/77700\d|7771\d\d|7772\d\d|7773\d\d/.test(all), 'no planted value survives in any file the judges or Sharon receive: model, provider, request/response ids, headers, usage/token counts, fingerprint, folder names');
+  check(!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(all) && !/1763276400/.test(all), 'no timestamp survives in the blinded files');
+  check(!/"(model|model_version|provider|request_id|response_id|id|object|headers|usage|[a-z_]*tokens?|created|created_at|timestamp|system_fingerprint|stop_reason|_meta)"\s*:/.test(all), 'no identifying field name appears as a key in the blinded JSON (denylist, as a second check beside the allowlist)');
+  let threw = false; try { assertAllowlisted([{ ...items[0], model: 'x' }], BLIND_ITEM_FIELDS, 'reviewer'); } catch { threw = true; }
+  let threwNested = false; try { assertAllowlisted([{ ...items[0], options: [{ label: 'A', body: 'x', provider: 'x' }] }], BLIND_ITEM_FIELDS, 'reviewer'); } catch { threwNested = true; }
+  check(threw && threwNested, 'the allowlist guard that runs before any blinded file is written refuses an extra field, top-level or nested');
+}
+
 function cmdSelftest() {
   const t = mkdtempSync(join(tmpdir(), 'c3-eval-')); const runs = join(t, 'runs'), out = join(t, 'out');
   const fails = []; const check = (ok, m) => { if (!ok) fails.push(m); console.log(`${ok ? 'PASS' : 'FAIL'}  ${m}`); };
@@ -341,6 +430,7 @@ function cmdSelftest() {
   }
   writeFileSync(join(t, 'j2.csv'), lines.filter((l) => !/,R,/.test(l)).join('\n') + '\n');
   check(!score(out, join(t, 'j2.csv'), runs).ok, 'scoring refuses a disagreement with no resolver');
+  blindStripTest(t, check);
   console.log(`\n${fails.length ? fails.length + ' FAILED' : 'all passed'} (scratch: ${t})`);
   process.exit(fails.length ? 1 : 0);
 }

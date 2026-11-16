@@ -532,3 +532,23 @@ real run refused:
 **Sharon reviews this change before any live run.**
 
 **Addition, 16 Nov (Sharon's note N4, addendum `6c113f68`):** when all three attempts of one request end as transport errors or unparsable 2xx responses (now classified separately as `unparsable_2xx`), the runner stops that provider. No further chapters are called, the remaining requests are recorded `not_attempted`, and every reservation is kept as its cost. Fewer than three such attempts do not stop it. Self-test re-run: exit 0, **116 PASS, 0 FAIL**, no network. The new checks are scenario (g) and an anthropic check that a 200 with an unparsable body becomes `unparsable_2xx`.
+
+**Addition, 16 Nov (E-DECISION-PACK §4, offline preparation):**
+- `runner.mjs --pack-sha <40-hex>`: recorded in each `bab<n>.provenance.json`, `usage.json`, the ledger run and
+  entries, and `summary.json`. A real run without a valid lowercase 40-hex value is refused by the gate before any
+  request is built, and `runEval` refuses it again. The self-test drives the refusal in memory with spy adapters and
+  a spy run: no request built, no call, no fetch. Runner self-test: exit 0, **123 PASS, 0 FAIL**, no network.
+- `kit.mjs blind` builds the judges' and Sharon's files from an allowlist of item fields. A new self-test plants model,
+  provider, request and response ids, headers, usage and token fields, timestamps and fingerprints at every level, and
+  in the files beside the responses. It asserts that the output holds exactly the allowlisted fields and that no
+  planted value survives. Kit self-test: exit 0, **33 PASS, 0 FAIL**.
+- `score.mjs`: the pack's two-judge resolution and qualify rules for one provider code. Self-test: **44 PASS, 0 FAIL**.
+- The real-run refusal now reads:
+
+```
+real run refused:
+- no --live flag: a real run starts only with node runner.mjs --live, and only when every check below passes
+- no --pack-sha: a real run records the frozen decision pack's commit SHA (40 lowercase hex characters)
+- anthropic: no key in ANTHROPIC_API_KEY
+- openai: no key in OPENAI_API_KEY
+```
