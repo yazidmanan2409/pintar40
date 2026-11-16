@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
-import { jamPenuh, jendelaUtama, statusSaya } from "@/lib/pemeliharaan";
+import { jamPenuh, jendelaUtama, kapitalAwal, statusSaya } from "@/lib/pemeliharaan";
 import MerekPintar from "@/components/MerekPintar";
 import PengalihBahasa from "@/components/PengalihBahasa";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -99,7 +99,7 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
     isi = (
       <>
         <h1 className="pin-mh1" data-cakupan="TEMPAT">{s("pemeliharaan.tempat.berlangsung").replace("{untuk}", untuk)}</h1>
-        <p className="pin-lede-m">{s("pemeliharaan.tempat.arti").replace("{untuk}", untuk)}</p>
+        <p className="pin-lede-m">{kapitalAwal(s("pemeliharaan.tempat.arti").replace("{untuk}", untuk))}</p>
         <p className="pin-lede-m">
           {s("pemeliharaan.sejak")} {jam(w.mulai)}.{" "}
           {w.selesai ? <>{s("pemeliharaan.kira")} {jam(w.selesai)}.</> : s("pemeliharaan.kira_belum")}

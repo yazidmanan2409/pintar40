@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { t, type Locale } from "@/lib/hle";
 import {
-  BACA_ULANG_MAKS, HALAMAN_PEMELIHARAAN, jamJendela, jamPenuh, jendelaDiHalaman, jendelaDiumumkan, jendelaUtama, menitTersisa,
+  BACA_ULANG_MAKS, HALAMAN_PEMELIHARAAN, jamJendela, jamPenuh, kapitalAwal, jendelaDiHalaman, jendelaDiumumkan, jendelaUtama, menitTersisa,
   permukaanAsesmen, tahapBerikutMs, tahapPeringatan, tahapSetelahBaca, type StatusSaya,
 } from "@/lib/pemeliharaan-kontrak";
 import { bacaUlangStatusSaya } from "@/app/pemeliharaan/actions";
@@ -105,7 +105,7 @@ export default function PengingatPemeliharaan({ locale, status: awal }: { locale
       baris.push(
         <p key="aktif">
           <strong>{s("pemeliharaan.tempat.berlangsung").replace("{untuk}", untuk)}</strong>{" "}
-          {s("pemeliharaan.tempat.arti").replace("{untuk}", untuk)}{" "}
+          {kapitalAwal(s("pemeliharaan.tempat.arti").replace("{untuk}", untuk))}{" "}
           {jendela.selesai ? <>{s("pemeliharaan.pita.selesai_kira")} {jamPenuh(jendela.selesai, jendela, kini, locale)}.</> : null}
         </p>,
       );

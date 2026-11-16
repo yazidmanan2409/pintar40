@@ -187,9 +187,15 @@ export function arahTolakMulai(kode: string, cakupan: string | null | undefined)
   return kode === "MAINTENANCE_NO_NEW_START" && cakupan === "ORANG" ? "JEDA" : "LAYAR";
 }
 
-/** A2b (D8): a time of a window as its reader reads it: «22.00 WITA», in the window's zone. */
+/** A2b (D8): a time of a window as its reader reads it: «22.00 WITA», in the window's zone; a non-breaking space keeps
+ *  the time and its zone word together (Daisy, 16 Nov). */
 export function jamJendela(iso: string, j: Pick<JendelaSaya, "zona">): string {
-  return `${jam(iso, j.zona)} ${kataZona(j.zona)}`;
+  return `${jam(iso, j.zona)}\u00a0${kataZona(j.zona)}`;
+}
+
+/** Daisy (16 Nov, C-1's EN): a sentence that opens with its place («{untuk}'s work …») starts with a capital. */
+export function kapitalAwal(s: string): string {
+  return s.charAt(0).toLocaleUpperCase("id-ID") + s.slice(1);
 }
 
 /**
