@@ -8,8 +8,8 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
-| A2b batch 2 classes (bound, archived, class-aware count, picker) | PASS subject to the suite on c903e71f: bound before lookup; count through the one predicate plus ancestors, cannot understate; picker scoped and STAFF | `c903e71f4104ed0df3fd752730ef602f19814bc1` | `A2B-CLASSES-c903e71f.md` |
-| A2b batch 2 E05 (change_maintenance reads the clock) | PASS subject to the suite on c903e71f: one v_kini after the locks, clock for PLANNED, now() for EMERGENCY (values pinned) | `ef1c6a7b05f1f1a9fe40324db3bc1f596b104589` | `A2B-E05-CLOCK-ef1c6a7b.md` |
+| A2b batch 2 classes (bound, archived, class-aware count, picker) | PASS (suite at c903e71f). Bound before lookup; count through the one predicate plus ancestors, cannot understate; picker scoped and STAFF | `c903e71f4104ed0df3fd752730ef602f19814bc1` | `A2B-CLASSES-c903e71f.md` |
+| A2b batch 2 E05 (change_maintenance reads the clock) | PASS (suite at c903e71f: 1213 passed, the 5 failures app-only; L01 unchanged). One v_kini after the locks, clock for PLANNED, now() for EMERGENCY (values pinned) | `ef1c6a7b05f1f1a9fe40324db3bc1f596b104589` | `A2B-E05-CLOCK-ef1c6a7b.md` |
 | A2b batch 2 D2 database commit (reason codes) | PASS: VALID CHECK as ruled, DROP+CREATE with commit 1's grants, preservation pinned; accepted limit: audit_log.at is the transaction start (A07 compares the summary) | `1c1b8d1c6459d121ff39f68febad8d94e0c6922c` (head `ef1c6a7b05f1f1a9fe40324db3bc1f596b104589`) | `A2B-D2-DB-1c1b8d1c.md` |
 | A2b batch 2 red tests (D2, Perpanjang, Akhiri, D8-5/6) | GO for the DB commit; p_reason_code defaulting to NULL accepted; before its PASS: T1 free text with a non-LAINNYA code, T2 unaffected status read, T3 CHECK validated, T4 120 characters not bytes, T5 plants for A06/A07 | `d837181d455612346f9fd9f90d468d38a5fb754b` | `A2B-BATCH2-TESTS-d837181d.md` |
 | A2b batch 2: preparation | No verdict yet: Bob's rulings (overlap allowed, K14, emergency reasons free text) and my checklist for the red tests | (pending) | `A2B-BATCH2-PREP.md` |

@@ -17,3 +17,10 @@ Sharon, 16 Nov 2026 (10:40 UTC). Read-only. **What I reviewed:**
   - My earlier ask was that this branch stay "byte-identical". **That is superseded, and I accept the change:** the statements are shared between the two kinds, so the text cannot stay the same. Equal values, pinned by E05 and A2a's tests staying green, is the right test. That is Bob's ruling, "values unchanged".
 - **The audit:** a PLANNED early end's summary gains `ended_at = v_kini`, which is what A07 compares. An EMERGENCY summary is unchanged.
 - **No lock is added or reordered.** A2A-L01's report for `change_maintenance` must be unchanged in the suite.
+
+## Addendum, 10:35 UTC: PASS, unconditional
+
+- **The full suite at `c903e71f4104ed0df3fd752730ef602f19814bc1` is in:** fresh database, 1213 passed and 5 failed.
+- **The five failures** are exactly the unbuilt app half: R03, E01, E02, E03 and C10.
+- **Every batch 2 database test is green,** as are M148, A2A-*, I01 and I02.
+- **A2A-L01's committed report is unchanged.** `change_maintenance`'s lock line is the same, so the clock fix moved no lock.

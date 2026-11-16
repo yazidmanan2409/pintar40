@@ -26,3 +26,10 @@ Sharon, 16 Nov 2026 (10:50 UTC). Read-only. **What I reviewed:**
   - registered as STAFF / SCOPE / INSTITUTION_ADMIN.
   - The privacy point of my checklist is met: no other school's class names reach the form.
 - **The "above it" condition** is the reverse relation (an ancestor of a chosen class). It is not a copy of the "window covers node" predicate, so D15's no-copy rule is not engaged.
+
+## Addendum, 10:35 UTC: PASS, unconditional
+
+- **The full suite at `c903e71f4104ed0df3fd752730ef602f19814bc1` is in:** fresh database, 1213 passed and 5 failed.
+- **The five failures** are exactly the unbuilt app half: R03, E01, E02, E03 and C10.
+- **Every batch 2 database test is green,** as are M148, A2A-*, I01 and I02.
+- **A2A-L01's committed report is unchanged.** `change_maintenance`'s lock line is the same, so the clock fix moved no lock.
