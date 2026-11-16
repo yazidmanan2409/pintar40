@@ -42,6 +42,15 @@ A2a (C frozen; B, then merge, Monday) ─► A2b ─► C2w ─► A3 ─► C3w
 
 ## 2. A2b: planned maintenance
 
+> **D4 is SUPERSEDED** (16 Nov 2026; R-C below; owner's endorsement the same day). THE PLAN §5.3 D4 and every D4
+> mention in this section ("cannot finish before the window", K3's original wording, A4's D4 line, the d4 sentences)
+> no longer apply.
+> - **Why:** D4 measures "start plus the sitting's duration", and no assessment in PINTAR has a duration. Commit 3's
+>   reading against the assignment's close was wrong, so the check is removed rather than left dormant.
+> - **The permanent test A2B-D4X** fails if it is ever reintroduced.
+> - **Reinstating D4** needs a per-assessment time limit (a schema change, a candidate for 4.2) and a new approved
+>   rule.
+
 ### 2.1 Purpose
 
 A school can schedule maintenance for one class or for the whole school. The maintenance refuses changes to that
@@ -285,5 +294,8 @@ Forecasts are not commitments. The January forecast for 4.1 is unchanged; the ow
     `MAINTENANCE_PLACE` once a work-scoped window is active.
   - Commit 3's CANNOT_FINISH branch and the `pemeliharaan.d4.*` keys come out; Sharon rules remove versus dormant.
   - K3 is re-specified: a start well before a window, on an assignment that closes after it, is allowed.
+- **Endorsed by the owner, 16 Nov 2026.** The behaviour carried into acceptance:
+  - a sitting may start before the T−15 cutoff even if its deadline falls after the window begins (K3);
+  - once started, it drains through its deadline and any applicable grace (K5).
 - **Consequence, for the owner:** D4's "cannot finish before the window" has no effect until assessments carry their
   own time limit. That would be a schema and product change outside A2b, a candidate for 4.2.
