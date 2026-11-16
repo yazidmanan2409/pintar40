@@ -167,6 +167,14 @@ move afterwards.
   - Sharon also **audits the process:** that every item had two independent scores, that disagreements went to the
     third educator, and that the map stayed sealed. Her flags, and what the educators decided on each, are listed in the
     report.
+  - **Sharon's conditions** (review `E-PACK-R3-SCORING-c3112336.md`, `a17f487c`), adopted:
+    1. Her flags are made **blind**, and committed with their SHA-256 **before she sees any judge's score**.
+    2. Every flag states its reason. A flag the third educator rejects stays rejected.
+    3. Flag counts, and how many the educators upheld, are reported **per provider after unblinding**.
+    4. The audit states its limit: **it cannot prove that two judges did not confer.**
+  - **Disclosure (Sharon):** she is an Anthropic model checking keys that can send an Anthropic provider's items to
+    adjudication, and she may recognise her model family's style through the blinding. **The owner may prefer a key
+    checker who is not an Anthropic model** (open, §6).
 - **The 0–2 criteria:** if the two judges are 1 apart, the item scores the average. If they are 2 apart, the third
   judge also scores it and the item takes the **median of the three**.
 - **Daisy** reviews the Indonesian as advice to the judges; her opinion is not a score.
@@ -194,8 +202,12 @@ meet **both** conditions, across its 30 items:
 
 - **Missing or malformed items** score 0 and count as not accepted (§4.1). A provider that loses a whole chapter (15
   items) therefore cannot qualify. That is intended: three attempts per chapter allow ordinary transport faults.
-- The threshold is applied **after all resolution, before the map is opened** (§4.4), so it is fixed in ignorance of
-  which provider is which.
+- The threshold is **frozen before the first paid call,** and the frozen pack's commit SHA is recorded (Sharon). It is
+  **applied** after all resolution and before the map is opened (§4.4).
+- **Q1 and the critical-key rule read the same resolved table:** one table per provider, after the third educator's
+  decisions.
+- **One edge case, harmless and stated:** a provider that loses a whole chapter fails Q1, but can still pass Q2 at
+  exactly 1.0. Q1 alone decides that case.
 - **What 30 items can show:** 24 of 30 is a point estimate of 80%, with an uncertainty of roughly ±15 points. The
   threshold is a minimum bar for qualifying a provider for the first evaluation, not a guarantee of quality in use.
   C3w keeps a human educator's review of every draft whatever the provider (THE PLAN §5.6).
@@ -250,7 +262,16 @@ a number of approved questions for a fixed cost.
 3. **Judges: the three-educator structure and the §5 profile are approved.** The judges are **not yet nominated**;
    their names stay pending.
 
-**Open for the owner now:** approve §4.3a (or one of its alternatives), then §4 freezes.
+**Open for the owner now:**
+- approve §4.3a (or one of its alternatives), then §4 freezes;
+- **the key checker (Sharon's disclosure, §4.2):** Sharon, as amended, or a key checker who is not an Anthropic
+  model. Choosing the second needs no other change to §4.2.
+
+**No-cost preparation that follows from Sharon's review** (offline, on `claude/e-runner-prep`; no call, key or spend):
+- a **self-tested scoring script,** run by the operator: the resolutions, the critical count, Q1 and Q2, with their edge
+  cases;
+- **provenance carries the frozen pack's SHA,** and the runner refuses a live run without it;
+- `blind` **strips the model and request fields,** with a check in the self-test.
 
 **Before the paid run (one request, after the second dry run):**
 
