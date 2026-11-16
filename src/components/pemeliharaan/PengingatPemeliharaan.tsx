@@ -45,6 +45,10 @@ export default function PengingatPemeliharaan({ locale, status: awal }: { locale
   const bacaan = useRef(0);
   // each boundary's read, failed or not, re-arms the next boundary (and only the next)
   const [putaran, setPutaran] = useState(0);
+  // R-B (the owner's ruling, PLAN c82444b8): after a failed re-read the minutes stop and the last-known start is shown
+  const [gagal, setGagal] = useState(false);
+  // the database's clock at the last successful read: Daisy's {jam_baca} (A2B-RA-KALIMAT.md §4)
+  const [bacaTerakhir, setBacaTerakhir] = useState<string | null>(awal.sekarang);
   const kecuali = path === HALAMAN_PEMELIHARAAN;
 
   useEffect(() => {
@@ -56,8 +60,9 @@ export default function PengingatPemeliharaan({ locale, status: awal }: { locale
     const selisih = awal.sekarang ? Date.parse(awal.sekarang) - Date.now() : 0;
     const jam = () => Date.now() + selisih;
     if (!jendelaDiumumkan(jendela, jam())) return;
-    // the minutes on screen follow the clock: this browser's own timer, which asks the server nothing
-    const detik = window.setInterval(() => setKini(jam()), 30_000);
+    // the minutes on screen follow the clock: this browser's own timer, which asks the server nothing; it stops once a
+    // re-read has failed (the owner's ruling), so a countdown never runs on a start that may have moved
+    const detik = gagal ? undefined : window.setInterval(() => setKini(jam()), 30_000);
     // R-B: one timeout, for the next boundary only; at it, one read, then the stage that read gives
     let batas: number | undefined;
     const tunggu = tahapBerikutMs(jendela.mulai, jam());
@@ -68,8 +73,10 @@ export default function PengingatPemeliharaan({ locale, status: awal }: { locale
         setKini(jam());
         setTahap((sebelum) => tahapSetelahBaca(sebelum, baru, jam()));
         setPutaran((n) => n + 1);
+        setGagal(!baru);
         if (!baru) return;   // a failed read shows nothing new: the stage on screen stays
         setStatus(baru);
+        setBacaTerakhir(baru.sekarang);
         const j = jendelaUtama(baru);
         // A2b (R-1): only a person-level window stops its reader at T=0; a work-scoped one only pauses its place's work
         if (baru.terhenti || (j && j.cakupan === "ORANG" && j.jenis === "PLANNED" && tahapSetelahBaca(null, baru, jam()) === 0
@@ -78,9 +85,9 @@ export default function PengingatPemeliharaan({ locale, status: awal }: { locale
         }
       }, tunggu + 250);
     }
-    return () => { window.clearInterval(detik); if (batas) window.clearTimeout(batas); };
+    return () => { if (detik) window.clearInterval(detik); if (batas) window.clearTimeout(batas); };
     // a boundary's read re-arms the next boundary; the status read replaces the window
-  }, [kecuali, status.terhenti, awal.sekarang, jendela, putaran]);
+  }, [kecuali, status.terhenti, awal.sekarang, jendela, putaran, gagal]);
 
   if (kecuali) return null;
   const s = (k: Parameters<typeof t>[0]) => t(k, "learner", { locale });
@@ -110,7 +117,11 @@ export default function PengingatPemeliharaan({ locale, status: awal }: { locale
     } else if (tahap !== null) {
       baris.push(
         <p key="menjelang">
-          <strong>{s("pemeliharaan.pita.dalam")} {menitTersisa(jendela.mulai, kini)} {s("pemeliharaan.pita.menit")}.</strong>{" "}
+          {/* after a failed re-read, no countdown: the last-known start, as of the last read (R-B; Daisy §4) */}
+          {gagal ? <><strong>{(jendela.kelas ? s("pemeliharaan.basi.kelas").replace("{kelas}", jendela.kelas.join(", "))
+              : tempat ? s("pemeliharaan.basi.sekolah") : s("pemeliharaan.basi.platform"))
+              .replace("{jam_baca}", bacaTerakhir ? jamJendela(bacaTerakhir, jendela) : "—").replace("{jam}", jamJendela(jendela.mulai, jendela))}</strong>{" "}</>
+            : <><strong>{s("pemeliharaan.pita.dalam")} {menitTersisa(jendela.mulai, kini)} {s("pemeliharaan.pita.menit")}.</strong>{" "}</>}
           {tempat ? s("pemeliharaan.tempat.pukul").replace("{untuk}", untuk) : s("pemeliharaan.pita.pukul")} {jamJendela(jendela.mulai, jendela)}.{" "}
           {jendela.selesai ? <>{s("pemeliharaan.pita.selesai_kira")} {jamJendela(jendela.selesai, jendela)}. </> : null}
           {asesmen ? s("pemeliharaan.pita.asesmen") : tempat ? s("pemeliharaan.tempat.biasa") : s("pemeliharaan.pita.biasa")}{" "}

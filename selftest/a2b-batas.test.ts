@@ -1067,6 +1067,8 @@ export const a2bBatasTests: SelfTest[] = [
         "the read must be the boundary timeout's first act, counted");
       c.expect(/bacaan\.current < BACA_ULANG_MAKS/.test(src) && /jendelaDiumumkan\(jendela, jam\(\)\)/.test(src),
         "the boundary must be armed only while a window is announced and under the cap");
+      c.expect(/const detik = gagal \? undefined : window\.setInterval/.test(src) && /setGagal\(!baru\)/.test(src) && /\{gagal \? <><strong>\{\(jendela\.kelas \? s\("pemeliharaan\.basi\.kelas"\)/.test(src),
+        "after a failed re-read the minutes must stop and the last-known start alone be shown (the owner's ruling, PLAN c82444b8)");
       const lain = berkasSrc(join(repoRoot, "src")).filter((f) => !/PengingatPemeliharaan\.tsx$|pemeliharaan[\/]actions\.ts$/.test(f)
         && readFileSync(f, "utf8").includes("bacaUlangStatusSaya"));
       c.expect(lain.length === 0, `no other file may call the banner's re-read: ${lain.join(", ")}`);

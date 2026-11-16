@@ -388,9 +388,13 @@ export const m148Tests: SelfTest[] = [
         "the proxy does not send a stopped page to /pemeliharaan and refuse the rest 503");
       c.expect(/<PitaPemeliharaan locale=\{locale\} \/>/.test(baca("src", "app", "layout.tsx")), "the root layout does not carry the maintenance line");
       const pita = baca("src", "components", "pemeliharaan", "PengingatPemeliharaan.tsx");
+      // RESTATED, A2b commit 6 (the owner's bounded D8 amendment, R-B, PLAN-A2B-C2W.md): the banner asks the server again
+      // only through its one stage-boundary re-read (bacaUlangStatusSaya, at most four per window, A2B-B01), never by a
+      // client of its own; it still times the stages itself and never sends a draining learner or the window's admin away
       c.expect(!/fetch\(|\.rpc\(|supabase/i.test(pita.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, "")) && /tahapBerikutMs\(/.test(pita)
-        && /window\.location\.replace\(HALAMAN_PEMELIHARAAN\)/.test(pita) && /!jendela\.berjalan && !jendela\.menguasai/.test(pita)
-        && /permukaanAsesmen\(path\)/.test(pita), "the browser asks the server again, does not time the notices itself, or sends a draining learner away at T=0");
+        && /window\.location\.replace\(HALAMAN_PEMELIHARAAN\)/.test(pita) && /!j\.berjalan && !j\.menguasai/.test(pita)
+        && (pita.match(/bacaUlangStatusSaya\(/g) ?? []).length === 1
+        && /permukaanAsesmen\(path\)/.test(pita), "the browser asks the server outside its one boundary re-read, does not time the notices itself, or sends a draining learner away at T=0");
       const lib = baca("src", "lib", "pemeliharaan.ts");
       c.expect(/rpc\("pintar_status_saya"\)/.test(lib) && /adalahCookieSesi/.test(lib), "the status is not one read, or is asked of nobody signed in");
       // a locked or ended session's refusal of the read is expected, not a failure to log (audit walk 37260826024)

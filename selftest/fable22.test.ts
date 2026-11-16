@@ -204,6 +204,8 @@ const AKSI_BEBAS: Record<string, string> = {
   "src/app/belajar/actions.ts": "Belajar has no place (C1): the learner's own work, and an attempt is bound by its controller (D-125(e))",
   "src/app/belajar/umpan-balik/actions.ts": "Belajar has no place (C1): the learner's own answer to a feedback round",
   "src/app/lapor/actions.ts": "one's own problem report: a neutral surface",
+  // A2b (R-B): the banner's re-read of the reader's own status, which every page reads already and acts on nothing
+  "src/app/pemeliharaan/actions.ts": "the reader's own maintenance status, read again at a stage boundary: it changes nothing (R-B)",
   "src/app/evaluasi/actions.ts": "an evaluation persona has no session row and so no context (C10)",
   "src/app/tur/actions.ts": "the tour's evaluation persona (C10)",
   "src/app/konfigurasi/email-uji/actions.ts": "explicitly platform-scoped (D-132(k)): the send history is the platform administrator's, by its own scope",
