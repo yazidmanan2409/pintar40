@@ -147,3 +147,41 @@ Sharon, 16 Nov 2026 (22:40 UTC). Read-only.
   - Under ruling 1's text ("a new version … brings its own allowance") a correction gives a fresh attempt.
   - Whether a key *correction* should count as a "new version" for attempts is Bob's or the owner's to rule.
   - F37-R03 as above does not depend on the answer.
+
+## Addendum, 23:50 UTC: how a corrected revision links to its original (Bob's question)
+
+**What I read, on `ac25e9b14d51928f6991f8932b3bb572a262c096`:** `koreksi_kunci_pindah` and `tegaskan_koreksi_kunci` (20270115110000), and `salin_kursus_revisi` (20270115100000). I also searched the schema for lineage columns.
+
+**The facts:**
+1. **Lineage lives at the course level.**
+   - `courses.supersedes_course_id` chains each revision to the one it replaces (20260915120000).
+   - `modules.supersedes_module_id` does the same for chapters, and `items.supersedes_item_id` for questions.
+   - Key corrections are grouped by `key_corrections.line_root_course_id`.
+2. **An assessment definition has no lineage column.** `salin_kursus_revisi` inserts a **new definition row**, with a new id, for each definition of the course.
+   - It sets the new definition's `course_id` or `module_id` to the new revision's.
+   - It sets `version` to the highest existing `version` plus 1, among definitions with the same institution, title and mode.
+   - So the link to the original is implicit: the course or module chain, plus the same title and mode.
+3. **The consequence, wider than key corrections.** Today's count, per (definition id, version), gives a fresh allowance after **every** course revision made by `salin_kursus_revisi`, not only after a key correction.
+   - So the owner's question is really: *does any revision of an assessment re-open it?*
+   - Ruling 1's text ("a new version … brings its own allowance") currently says yes.
+
+**What the key would be, if the owner rules "count across revisions": add an explicit lineage, not a derived one.**
+- **A new column, `assessment_definitions.lineage_root_definition_id`,** NOT NULL and immutable once set.
+  - `salin_kursus_revisi` sets it to the source definition's root.
+  - A new definition is its own root.
+  - Existing rows are backfilled from the course or module chain plus title and mode. The migration then verifies that every non-root revision found **exactly one** predecessor, or it refuses.
+- **The lock key and `may_start`'s count both use (person, `lineage_root_definition_id`),** within the school and the school year, as ruled on 10 Nov.
+- **Why not derive it at run time from title and mode:**
+  - a renamed title breaks the line, and the learner gets a fresh attempt;
+  - two unrelated definitions with one title merge, and the learner is wrongly refused;
+  - and a recursive walk would have to run under the lock.
+  - An explicit, immutable root avoids all three. Because it never changes, it is also safe to read under the assignment's share lock, as ruled above.
+- **The tests:**
+  - **red first:** a learner who sat revision 1 is refused on the corrected revision 2 once the limit is reached;
+  - **a race:** two starts, on assignments of revisions 1 and 2, serialise on the one key;
+  - **the backfill check:** each revision maps to exactly one root;
+  - **no fresh attempt after a revision** (if the owner rules that way).
+
+**Held, as Bob ruled, until the owner answers:** the N-5 re-key's columns.
+- If the owner keeps ruling 1 as written, the key stays (person, definition, version), with the share-lock order above.
+- If he rules "count across revisions", the key becomes (person, `lineage_root_definition_id`).
