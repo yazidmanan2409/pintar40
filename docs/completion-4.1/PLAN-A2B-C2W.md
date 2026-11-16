@@ -232,6 +232,10 @@ Forecasts are not commitments. The January forecast for 4.1 is unchanged; the ow
   asserts its code, the place scoping, and no redirect.
 - **Static test:** neither code maps to `PT503` or reaches the pause page.
 - **Daisy:** confirms the learner's sentence for each code.
+- **Sharon confirmed R-A** (16 Nov). Both codes are read on `clock_timestamp()`.
+- **The no-redirect rule is for WORK-SCOPED windows only.** A platform-wide PLANNED window keeps today's person-level
+  behaviour: the redirect to `/pemeliharaan?mulai=ditolak` stays, per R-1.
+- **The test pins both cases.**
 
 ### R-B · Warning refresh: a bounded amendment to D8, made explicit
 
@@ -247,6 +251,9 @@ Forecasts are not commitments. The January forecast for 4.1 is unchanged; the ow
 - **Why:** without it, a window extended or ended early would leave a stale warning on screen. The owner's review of
   this plan asked for defined behaviour in exactly that case.
 - **Condition:** Sharon confirms the read is `pintar_status_saya`'s existing cost, within A12's timing limits.
+- **Sharon confirmed R-B** (16 Nov).
+  - `pintar_status_saya` is not on the request path, so A12's hook gate is untouched.
+  - One status read, timed at p95 beside A12, is reported as a figure. It is not a gate.
 - **Approved by the owner, 16 Nov 2026.**
 - **A failed re-read while a warning is already showing:**
   - the warning stays, because hiding a likely-valid warning is worse;
