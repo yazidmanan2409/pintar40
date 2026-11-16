@@ -84,7 +84,7 @@ Where it renders: the maintenance list in Konfigurasi.
 
 ### B1 · The reason list (D2)
 
-Where it renders: the planned form and the emergency form. It replaces the free «Alasan (dicatat)» (`config.pemeliharaan.alasan`).
+Where it renders: the planned form ~~and the emergency form~~. *(Bob, 16 Nov: **PLANNED only in A2b.** The emergency form keeps its free text, because changing A2a's accepted `stop_pintar_now` would reopen its staging evidence. The emergency codes are register item A2B-R1, deferred to a later batch.)* It replaces the free «Alasan (dicatat)» (`config.pemeliharaan.alasan`).
 
 | Element | ID | EN |
 |---|---|---|

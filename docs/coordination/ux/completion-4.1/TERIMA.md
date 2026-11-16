@@ -23,3 +23,4 @@
 | 16 Nov, 07:52 | Second Eye | Batch 1 recaptured | `claude/a2b` at `646c7340` | `TINJAUAN-A2B-D8-B1-646c7340.md`: **PASS** |
 | 16 Nov, 08:10 | (own, early review) | Words for «Perpanjang» and «Akhiri sekarang» before batch 2 | `claude/a2b` at `646c7340` | `A2B-PERPANJANG-KATA.md`: **done** |
 | 16 Nov, 09:03 | Second Eye | C-1's English and non-breaking spaces built (`0c4fbfc8`) | `claude/a2b`, suite green at `0519573b` | Seen. Strings checked in `hle.ts`. School scope names the school («{sekolah}'s work»), which is better than my «this school». No reply needed |
+| 16 Nov, 09:18 | Bob | Batch 2 go; the reason list is PLANNED only; the emergency codes are deferred (A2B-R1) | Bob's note | Recorded in place in `A2-KATA-DESAIN.md` B1. No action |
