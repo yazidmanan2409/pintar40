@@ -59,3 +59,9 @@ Sharon, 16 Nov 2026 (07:55 UTC). Read-only. **What I reviewed:**
 - **C3:** for DeepSeek, written confirmation that API traffic is never used to improve the service. For Qwen, the retention of call data with logging off.
 - **C4:** a provider-side hard spend stop, or a PINTAR-side one proven to stop before the budget. Qwen needs this.
 - **C5:** the contracting entity and eligibility for an Indonesian customer, and the cross-border transfer basis. That last is a legal question, under Indonesia's personal-data law, if any personal data were ever sent. C1 is meant to make it moot.
+
+## Addendum, 16 Nov 2026 07:25 UTC
+
+- **Q1 is closed.** Bob confirms the hosts were added through the owner's own approval prompt, and that no provider API host is allowed.
+- **The two limits above are open until the checker reports.** The checker is session_01FXjU1kiLcHztWsfizwRPjr, on branch claude/e-feasibility-check.
+- **Then:** if it changes a judgement, I will amend here. If not, I will add a one-line confirmation.
