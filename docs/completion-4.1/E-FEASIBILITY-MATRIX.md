@@ -8,7 +8,13 @@ official pages in the `pintar40` environment.
 > three meets E's baseline, and none can be accepted on present evidence.** None has a DPA or published processing
 > terms, a subprocessor list, or a stated retention period for API content; Kimi has no readable terms. Before any
 > reconsideration, her conditions C1–C5 must be met (§2). Her addendum 2 (`6a4f7f49`) reviewed this matrix: **the
-> recommendation stands**, with eight grading fixes, now applied. She judged on the note's quotes as given; a checker for her
+> recommendation stands**, with eight grading fixes, now applied. Her addendum 3 (`c9f1b7b3`), on the checker's
+> evidence (`c6b34771`), supersedes "no DPA" for Qwen and supports the minors reading; C4 still fails. **None of
+> the three is acceptable on present evidence.**
+>
+> **Qwen's open questions for you or legal:** (a) does its DPA apply under Indonesian law; (b) the subcontractor
+> list; (c) the retention period; (d) whether a prepaid Token Plan gives a hard stop; (e) whether Alibaba "operates"
+> in Indonesia. She judged on the note's quotes as given; a checker for her
 > is re-reading the contractual, privacy and security quotes to E's standard (`claude/e-feasibility-check`).
 > **The documentation hosts used were added through your approval prompt;** no API host is allowed.
 
@@ -27,14 +33,14 @@ official pages in the `pintar40` environment.
 | **Structured MCQ output** | ? | ✖ JSON object only, no schema mode; invalid output can come back as blank text | ✔ Strict JSON Schema |
 | **Indonesian (official statement)** | ? | ? | ? |
 | **Commercial eligibility, Indonesia** | ? | ? No country list; console blocked | ? Contracting entity in an agreement not yet read |
-| **Governing law** | ? | ✖ PRC mainland, Hangzhou courts | ? Singapore per the product terms; confirmed only once the contracting entity is read |
-| **Age clause** | ? | ✔ "Primarily intended for adults"; minors only with a guardian. *Addresses the account user, who would be an educator* | ✖ "Not intended for minors … Minors must not use" the services. *Sharon: it governs who uses Alibaba's platform (the account holder), not PINTAR's audience, so it is narrower than Google's §20(d). An educator-only feature can satisfy it under a strict C1, subject to the checker's reading of the surrounding terms* |
-| **Training on API data** | ? | ✖ May use inputs and outputs; an opt-out exists, but whether it covers API traffic is unknown | ✔ "Will never use your data for model training" |
-| **Storage and processing** | ? | ✖ Stored in the PRC | ✔ Stored in the chosen region (Singapore, `ap-southeast-1`); ? inference location not stated (the "International" scope is undefined) |
+| **Governing law and contracting entity** | ? | ✖ PRC mainland, Hangzhou courts | Singapore law; Alibaba Cloud (Singapore) Pte Ltd by the catch-all clause for unlisted jurisdictions (B) |
+| **Age clause** | ? | ✔ "Primarily intended for adults"; minors only with a guardian. *Addresses the account user, who would be an educator* | ✖ "Not intended for minors … Minors must not use" the services. *Sharon (addendum 3): supported. The clause sits in the platform Privacy Policy, straight after "no direct relationship with the end users of our customers", so it governs Alibaba's own users. Qwen is not in ruling 36's position, under the strict C1* |
+| **Training on API data** | ? | ✖ May use inputs and outputs; an opt-out exists, but whether it covers API traffic is unknown | ✔ No training, contractually (Product Terms §4.48.1(e)), "unless you separately provide your consent" (new condition C3a) |
+| **Storage and processing** | ? | ✖ Stored in the PRC | ✔ Stored in the chosen region (Singapore, `ap-southeast-1`); inference on global nodes excluding the Chinese mainland |
 | **Retention** | ? | "As long as necessary" | Stored; period not found |
-| **DPA or data-processing terms** *(the decisive difference from E's providers, per Sharon)* | ? | ? Not found | ? Not found |
+| **DPA or data-processing terms** *(the decisive difference from E's providers, per Sharon)* | ? | ? Not found | ✔ A DPA in the Membership Agreement. Whether it applies under Indonesian law: legal question. Subcontractor list behind login; no retention period during the term |
 | **Zero retention; subprocessor list** | ? | ? None found | ? None found |
-| **Provider-side hard stop** | ? | ✔ Prepaid balance; HTTP 402 when exhausted | ✖ Postpaid by default; no paid-usage cap found (free-quota-only mode only) |
+| **Provider-side hard stop** | ? | ✔ Prepaid balance; HTTP 402 when exhausted | ✖ No cap: alerts only, and service stops once the balance is below zero, with bills lagging 2–10 minutes. A prepaid Token Plan might meet C4 (unread) |
 | **Rate limits; reliability** | ? | ✔ Concurrency 2,500 / 500; status page unreachable | ✔ 15,000 RPM / 5M TPM; 99.9% SLA |
 | **Usage and request ID per response (S-5 ledger)** | ? | ✔ Usage with cache split; body `id` | ✔ Usage; UUID request ID |
 | **Price, US$ per 1M tokens, in / out** | ? | flash $0.30 / $1.20 at peak (half off-peak); pro $1.32 / $3.96 | plus $0.40 / $1.60 list (a 20% promotion runs now); flash $0.15 / $0.47 |
@@ -51,7 +57,8 @@ met. Not acceptable on present evidence.**
   - **C1, by design, strictly:** no personal or learner data is sent, and an input check enforces it. **No learner
     action may cause a call, directly or indirectly** (no feedback on a learner's answers, no hints on demand), and
     drafts reach learners only after an educator reviews and publishes them. C3w already requires this (R-3, D9), and it also addresses DeepSeek's and Qwen's age clauses.
-  - **C2:** a DPA, a subprocessor list and a stated retention period.
+  - **C2:** a DPA, a subprocessor list and a stated retention period. *Qwen: partly met (a DPA exists; the list is behind login; no retention period).*
+  - **C3a (Qwen):** the training exception's consent is never given, and any console opt-in is checked before use.
   - **C3:** for Qwen, the retention of call content with logging off; for DeepSeek, the API training opt-out in writing.
   - **C4, mandatory:** a provider-side hard spend stop (a cap or a prepaid balance). PINTAR's own stop is not a
     substitute: a leaked key on a postpaid account spends outside PINTAR's ledger without limit (Sharon, correcting
