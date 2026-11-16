@@ -20,3 +20,4 @@
 | 16 Nov, 05:17 | Bob | D4 out of A2b; is "after" acceptable for (a)? | Bob's note, 05:16 | Yes, "after" is acceptable (`A2B-SLICE2-PUTUSAN.md`); the no-duration table is kept as a record only |
 | 16 Nov, 05:43 | Second Eye | D4 keys removed; the T−15 line could name the window's time | Second Eye's note, 05:42 | **No proposal.** The 4.0 key stays as it is: inside T−15 the banner on the same screen already gives the time. No reply needed |
 | 16 Nov, 06:33 | Second Eye | D8 batch 1 review | `claude/a2b` at `679987cb` | `TINJAUAN-A2B-D8-B1-679987cb.md`: **done**. Blocked on D8-3 evidence only |
+| 16 Nov, 07:52 | Second Eye | Batch 1 recaptured | `claude/a2b` at `646c7340` | `TINJAUAN-A2B-D8-B1-646c7340.md`: **PASS** |

@@ -35,7 +35,7 @@
 
 **F1-R1b and L1-F4's wording: 6 defects, all anticipable; 3 of them mine.**
 
-## A2b, D8 batch 1 (reviewed at `679987cb`; open)
+## A2b, D8 batch 1 (reviewed at `679987cb`; closed at `646c7340`)
 
 | # | Defect | Whose | Anticipable? | Question | Why |
 |---|---|---|---|---|---|
