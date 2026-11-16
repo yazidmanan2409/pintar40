@@ -891,3 +891,22 @@ Both go to Z's triage list, with owners.
 | A preserved line for `maintenance_windows` | Sharon | Bob | **Mandatory before A2b's promotion** |
 - **Change B merged:** [PR #23](https://github.com/yazidmanan2409/pintar40/pull/23) as `eff99f98` (CI 18 of 18).
   **A2a is complete on `main`.** A2b starts from `eff99f98`.
+
+### A defect found in accepted A2a: D1-2 (Sharon, 16 Nov, `a7d0b378`)
+
+**What happens:** after a stop is lifted, a sitting that was **marked** (held) shows its old, unshifted deadline until
+its release runs: either the learner's first touch, or the release batch, which runs every 5 minutes. During that time
+every read-only reader shows the wrong deadline:
+
+- the player's countdown;
+- `may_continue_session`;
+- the learner's and the teacher's lists.
+
+**Why it was missed:** Sharon's D1 ruling covered unmarked sittings only. She says it could reasonably have been
+anticipated.
+
+**Fix:** in A2b, as its own commit, with a test and a plant. It is not registered. A2b's K5 then asserts the drain
+before the first touch.
+
+**Exposure:** staging only; production is untouched. A2a's acceptance stands, with this known defect recorded against
+it until the fix is promoted with A2b.
