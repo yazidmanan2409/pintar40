@@ -51,7 +51,9 @@
 | A2B-D8 | Batch 2: the intro states the platform rule for every scope | build | **Yes** | **1** | Sibling of the D8-2 fix |
 | A2B-D9 | Batch 2: a double «Batal» | build | **Yes** | **2** | Noted at A2a |
 
-**So far: 9 defects, all anticipable; 2 of them mine.** Plus V-2 (mine, D4's duration), recorded above.
+| A2B-D10 | Reopened: the Q-12 list's filter reads the start check, so the maintenance refusals hid rows | build | **Yes** | **1** | What else reads `may_start_assessment` |
+
+**So far: 10 defects, all anticipable; 2 of them mine.** Plus V-2 (mine, D4's duration), recorded above.
 
 ## My own verification error, recorded with the defects
 
