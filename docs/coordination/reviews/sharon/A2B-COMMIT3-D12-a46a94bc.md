@@ -108,3 +108,23 @@ Acknowledged on receipt.
   - UX1-S2-MELIHAT-01's D4 minutes;
   - `pemeliharaan.d4.*`.
 - **My miss:** at `8e33dd32` I accepted the branch without checking it against THE PLAN's text. Could reasonably have been anticipated: yes (Q1: read the approved text). Caught in development, by Second Eye.
+
+## Addendum (06:10 UTC): the D4 removal, verified. Product `2586f3e1bdae90c98afb99764c1d2377b45c9226`; head `d6152ec5b295492b92ca03a1bfc55c7162544c8a`
+
+**Verified on the head, against the five conditions (the owner's, through Bob):**
+1. **The code is gone.** `MAINTENANCE_CANNOT_FINISH` appears in `supabase/migrations` and `src/` only in `20270120120000`'s history comment (:5) and its own absence check (:87). It appears in no function body, no trigger, not in `may_start_assessment` or `maintenance_refuse`, and not among the orientation's codes.
+2. **No deadline is compared with a window's start in the start path.**
+   - The start rule (`20270120120000` and its recreation in `20270120170000`) compares `starts_at` only with the clock: the place, and T−15.
+   - The `closes_at` left in `20270120170000` (:33, :38) is the orientation's existing output column, not a comparison.
+   - D4X asserts that the start rule takes two arguments, person and node.
+3. **The error contract, the mapping and the copy keys are removed.** No `pemeliharaan.d4.*` and no `CANNOT_FINISH` remain under `src/`. Daisy kept the words as a record only, so nothing is registered.
+4. **A permanent static test, A2B-D4X:**
+   - it checks the catalogue for the code, with a plant (`a2b_d4x_tanam`, rolled back) that is found;
+   - it checks the start rule's argument count;
+   - it scans `src/`;
+   - it was red first, at `80add55f`.
+5. **The orientation's grants are unchanged, and asserted.** K3 as re-specified is green (red first at `f3507c67`), and K4 is unchanged.
+
+**The siblings are restated:** O01's fourth case, H01, A01, the inventory's notes, and A2A-T01.
+
+**Closed.**
