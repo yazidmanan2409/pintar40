@@ -12,11 +12,15 @@
 -- The correction: start_learning_session is REDEFINED IN FULL (A3's rule: one body for later plants and readers, never
 -- a text patch). It is exactly its definition on ac25e9b1 (20270112120000, A1's and C1w's text patches, A2b's
 -- start-path refusals of 20270120240000) except the start lock and its order:
---   the assignment FOR SHARE, then the key read under it, then the advisory lock keyed (learner, definition, version),
---   then the count, then the sitting.
+--   the learning assignment FOR KEY SHARE (when there is one), then the assignment FOR SHARE, then the key read under
+--   it, then the advisory lock keyed (learner, definition, version), then the count, then the sitting.
 -- The order is Sharon's ruling of 16 Nov 22:37 (5ac3645d), which replaces her 22:40 order (advisory first): an
 -- assignment's definition is moved by the release move and by koreksi_kunci_pindah, so a key read before the share lock
--- could lock one definition and count another (F37-R03, red on this migration's first form, cd5b37c3). The person and
+-- could lock one definition and count another (F37-R03, red on this migration's first form, cd5b37c3). The learning
+-- assignment comes first (Sharon, 16 Nov 22:46, 78b4de2d): «Akhiri penugasan» and both moves take it, then the assessment
+-- assignments, so a start holding an assessment assignment while needing the learning assignment could deadlock with them
+-- (F37-R04, red on eaa37aea). The ranks, for A2A-L01: the fence, learning_assignments, assessment_assignments, the
+-- advisory key, assessment_sessions. The person and
 -- the fence ahead of it are A3's controller commit, not this one. Nothing else changes: no table, column, grant or caller.
 --
 -- Sweep (siblings of the key): minta_percobaan keys its own advisory lock (learner, assignment) for a request of one
@@ -43,6 +47,16 @@ begin
   -- A3-R1 (Sharon, 16 Nov 22:37, 5ac3645d): taken FIRST, before the start's key is read. An assignment's definition is
   -- moved by the release move and by koreksi_kunci_pindah (C1w), each holding this row FOR UPDATE; under the share lock
   -- no move can commit, so the key read below is the definition this start will count and sit (F37-R03).
+  -- A3-R1 (Sharon, 16 Nov 22:46, 78b4de2d; F37-R04): and BEFORE IT, the learning assignment FOR KEY SHARE, when the
+  -- assignment has one. «Akhiri penugasan» and both moves lock the learning assignment FOR UPDATE and then its assessment
+  -- assignments; a start that held its assessment assignment and then needed the learning assignment (the sitting's
+  -- foreign key takes it FOR KEY SHARE) could deadlock with «Akhiri» (proven: F37-R04 on eaa37aea). Taken first, the
+  -- start queues behind «Akhiri» before it holds anything «Akhiri» waits for, and the insert's KEY SHARE is already held.
+  -- An assignment's learning_assignment_id is never updated (only filtered on), so the unlocked read of it is safe; an
+  -- ad-hoc assignment has none and takes no lock here.
+  perform 1 from public.learning_assignments
+   where id = (select aa.learning_assignment_id from public.assessment_assignments aa where aa.id = p_assessment_assignment)
+     for key share;
   perform 1 from public.assessment_assignments where id = p_assessment_assignment for share;
   -- A3-R1 (Sharon's N-5, A3-PREBUILD-ac25e9b1.md §2; F37-R02): ONE START AT A TIME PER LEARNER AND ASSESSMENT, keyed by
   -- what the attempt count counts. may_start_assessment counts the learner's sittings of this definition and version
@@ -199,14 +213,16 @@ begin
   if position(''':'' || p_assessment_assignment::text, 0)' in v) > 0 then
     raise exception 'A3-R1: start_learning_session still takes a lock keyed by the assignment';
   end if;
-  -- Sharon's order (5ac3645d): the assignment's share lock, then the key read under it, then the advisory lock, then
-  -- the count (SI-D02: the lock before the count)
+  -- Sharon's order (5ac3645d; 78b4de2d): the learning assignment's key share, then the assignment's share lock, then the
+  -- key read under it, then the advisory lock, then the count (SI-D02: the lock before the count)
   if position('perform pg_advisory_xact_lock(' in v) = 0
+     or position('for key share' in v) = 0
+     or position('for key share' in v) > position('for share' in v)
      or position('for share' in v) = 0
      or position('for share' in v) > position('into v_kunci_def, v_kunci_versi' in v)
      or position('into v_kunci_def, v_kunci_versi' in v) > position('perform pg_advisory_xact_lock(' in v)
      or position('perform pg_advisory_xact_lock(' in v) > position('from public.may_start_assessment(' in v) then
-    raise exception 'A3-R1: start_learning_session does not take the assignment''s share lock, read its key under it, then lock the key, before it counts';
+    raise exception 'A3-R1: start_learning_session does not lock the learning assignment, then the assignment, read its key under them, then lock the key, before it counts';
   end if;
   -- A2b's start-path refusals, kept
   if position('then perform public.maintenance_tolak_tempat(); end if;' in v) = 0
