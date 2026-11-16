@@ -11,8 +11,10 @@
  * platform-wide one), so a learner who pressed «Mulai» on a start screen loaded before T−15 or before the window got an
  * error page. 4.0's T−15 start had reached the trigger's PR110 and been redirected as designed.
  *
- * The learner is the Siklus school's (siklus-email); the assignment is a fresh copy of the class's Pemetaan Awal, so
- * the learner has never started it and may_start's maintenance answer is the deciding one.
+ * The learner is the Siklus school's (siklus-email); the assignment is the journey fixture: a standalone copy of the
+ * class's Pemetaan Awal whose definition is marked ad-hoc, as a Uji Cepat's is. Its attempts are its own, so no sitting
+ * another test leaves (the suite's earlier ones sit the class's Pemetaan Awal, which counts by learning assignment and
+ * mode) can refuse it first, and may_start's maintenance answer is the deciding one.
  *   A2B-SP1 (database, rolled back): with no window the start succeeds (the control); inside a planned school window
  *     under way it raises PR040 with DETAIL MAINTENANCE_PLACE; with a planned school window starting in 10 minutes,
  *     and with a platform-wide one, PR110 with DETAIL MAINTENANCE_NO_NEW_START. The plant (after the fix): the
@@ -30,7 +32,7 @@ import { lit, psql } from "./bob26.test";
 
 const MURID = { email: "siklus-email@synthetic.pintar.test", password: "Sintetis-SiklusEmail-84!" };
 const ID = (n: string) => `a2b5f000-0000-4000-8000-${n.padStart(12, "0")}`;
-const SALINAN = ID("aa1"), W = ID("b01");
+const W = ID("b01");
 
 /** The Siklus school, its class's Pemetaan Awal assignment (the original), and the learner's auth id. */
 function dunia(): { inst: string; asli: string; la: string; uid: string } {
@@ -46,12 +48,6 @@ function dunia(): { inst: string; asli: string; la: string; uid: string } {
   const uid = psql(`select id from auth.users where email = ${lit(MURID.email)}`);
   return { inst, asli, la, uid };
 }
-/** The journey fixture's copy of an assignment, with a new id (the harness's hand: triggers off for the copy only). */
-const salinSql = (asli: string) => `set local session_replication_role = replica;
-create temp table if not exists sp_salin on commit drop as select * from public.assessment_assignments where id = ${lit(asli)};
-update sp_salin set id = ${lit(SALINAN)};
-insert into public.assessment_assignments select * from sp_salin;
-set local session_replication_role = origin;`;
 /** A planned window: of the school (or the platform), starting `mulai` from now, an hour long. */
 const jendelaSql = (inst: string, platform: boolean, mulai: string) => `set local session_replication_role = replica;
 insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, ends_at, reason, reason_code, created_by_person_id, activation_recorded_at)
@@ -70,14 +66,14 @@ function baris(sql: string): { hasil: Record<string, string>; err: string } {
 /** One case of SP1, in its own rolled-back transaction: the start's answer as sqlstate:detail, or OK. */
 function kasus(d: ReturnType<typeof dunia>, k: string, jendela: string, tanam: boolean): string {
   const r = baris(`begin;
-${salinSql(d.asli)}
+${adhocSql(d.inst, "now() - interval '1 day'")}
 ${jendela}
 ${tanam ? `select pg_temp_sp_tanam();` : ""}
 create function pg_temp.sp_coba() returns text language plpgsql as $c$
 declare s text; dt text;
 begin
   perform set_config('request.jwt.claims', json_build_object('sub', '${d.uid}', 'role', 'authenticated')::text, true);
-  perform public.start_learning_session('${SALINAN}');
+  perform public.start_learning_session('${AA_ADHOC}');
   return 'OK';
 exception when others then get stacked diagnostics s = returned_sqlstate, dt = pg_exception_detail; return s || ':' || coalesce(dt, '');
 end $c$;
@@ -114,18 +110,19 @@ async function mulai(ctx: Context, cookie: string, aksi: string, penugasan: stri
   fd.set(`$ACTION_ID_${aksi}`, "");
   fd.set("penugasan", penugasan);
   fd.set("kembali", kembali);
-  // the action is posted to the page that draws its form (the Pemetaan Awal's start screen), as Next requires
-  const r = await fetch(`${ctx.appUrl}${kembali}/pemetaan`, { method: "POST", body: fd, redirect: "manual", headers: { cookie, origin: ctx.appUrl! } });
+  // the action is posted to the page that draws its form (the standalone assessment's start screen), as Next requires
+  const r = await fetch(`${ctx.appUrl}${kembali}`, { method: "POST", body: fd, redirect: "manual", headers: { cookie, origin: ctx.appUrl! } });
   const ke = r.headers.get("location") ?? "";
   return ke ? decodeURIComponent(new URL(ke, "http://x").pathname + new URL(ke, "http://x").search) : `status ${r.status}`;
 }
 function bersihkan(): string {
   psql(`begin; set local session_replication_role = replica;
 delete from public.maintenance_windows where id = ${lit(W)};
-delete from public.assessment_sessions where assessment_assignment_id = ${lit(SALINAN)};
-delete from public.assessment_assignments where id = ${lit(SALINAN)};
+delete from public.assessment_sessions where assessment_assignment_id = ${lit(AA_ADHOC)};
+delete from public.assessment_assignments where id = ${lit(AA_ADHOC)};
+delete from public.assessment_definitions where id = ${lit(D_ADHOC)};
 commit;`);
-  return psql(`select (select count(*) from public.maintenance_windows where id = ${lit(W)}) + (select count(*) from public.assessment_assignments where id = ${lit(SALINAN)})`);
+  return psql(`select (select count(*) from public.maintenance_windows where id = ${lit(W)}) + (select count(*) from public.assessment_assignments where id = ${lit(AA_ADHOC)})`);
 }
 
 export const a2bMulaiDbTests: SelfTest[] = [
@@ -151,7 +148,7 @@ export const a2bMulaiDbTests: SelfTest[] = [
         c.expect(tt !== "PR040:MAINTENANCE_PLACE" && t15 !== "PR110:MAINTENANCE_NO_NEW_START",
           `the plant (the generic P0001 raise back) must be caught: place ${tt}, T−15 ${t15}`);
       }
-      return c.verdict("start_learning_session, for the Siklus learner's never-started copy of the class's Pemetaan Awal: no window, it starts; inside a planned school window under way it raises PR040 MAINTENANCE_PLACE; with a planned school or platform-wide window starting in 10 minutes it raises PR110 MAINTENANCE_NO_NEW_START, each with its DETAIL, as the sitting-insert trigger does; the plant restoring the generic P0001 raise is caught");
+      return c.verdict("start_learning_session, for the Siklus learner on the journey fixture (a standalone, ad-hoc copy of the class's Pemetaan Awal, its attempts its own): no window, it starts; inside a planned school window under way it raises PR040 MAINTENANCE_PLACE; with a planned school or platform-wide window starting in 10 minutes it raises PR110 MAINTENANCE_NO_NEW_START, each with its DETAIL, as the sitting-insert trigger does; the plant restoring the generic P0001 raise is caught");
     },
   },
   {
@@ -284,15 +281,15 @@ export const a2bMulaiAppTests: SelfTest[] = [
       const aksi = idAksi(ctx, "src/app/belajar/actions.ts", "mulaiAsesmen");
       if (!c.expect(aksi !== null, "the build's manifest names no mulaiAsesmen")) return c.verdict("");
       if (!c.expect(/^[0-9a-f-]{36}$/.test(d.asli), "the Siklus learner's Pemetaan Awal is missing")) return c.verdict("");
-      const kembali = `/belajar/${d.la}`;
-      const sesi = () => psql(`select count(*) from public.assessment_sessions where assessment_assignment_id = ${lit(SALINAN)}`);
+      const kembali = `/belajar/asesmen/${AA_ADHOC}`;
+      const sesi = () => psql(`select count(*) from public.assessment_sessions where assessment_assignment_id = ${lit(AA_ADHOC)}`);
       try {
-        psql(`begin; ${salinSql(d.asli)} commit;`);
+        psql(`begin; ${adhocSql(d.inst, "now() - interval '1 day'")} commit;`);
         const cookie = await masuk(ctx);
         const kasusApp = async (jendela: string) => {
           psql(`begin; set local session_replication_role = replica; delete from public.maintenance_windows where id = ${lit(W)}; commit;`);
           psql(`begin; ${jendela} commit;`);
-          return mulai(ctx, cookie, aksi!, SALINAN, kembali);
+          return mulai(ctx, cookie, aksi!, AA_ADHOC, kembali);
         };
         const tempat = await kasusApp(jendelaSql(d.inst, false, "-5 minutes"));
         c.expect(tempat === kembali, `inside a school window «Mulai» must send the learner back to the start screen (R-A), never an error: ${tempat}`);
@@ -304,7 +301,7 @@ export const a2bMulaiAppTests: SelfTest[] = [
       } finally {
         c.expect(bersihkan() === "0", "the test's window or assignment copy is still there");
       }
-      return c.verdict("mulaiAsesmen against the build, «Mulai» posted as a browser without script posts it, for a never-started copy of the Siklus class's Pemetaan Awal: inside a school window the learner returns to the start screen (R-A); at a platform-wide T−15 to /pemeliharaan?mulai=ditolak (4.0); at a school-wide T−15 to the start screen; never an error page, and no sitting is made");
+      return c.verdict("mulaiAsesmen against the build, «Mulai» posted as a browser without script posts it from /belajar/asesmen/<penugasan>, for the journey fixture (a standalone, ad-hoc copy of the Siklus class's Pemetaan Awal): inside a school window the learner returns to the start screen (R-A); at a platform-wide T−15 to /pemeliharaan?mulai=ditolak (4.0); at a school-wide T−15 to the start screen; never an error page, and no sitting is made");
     },
   },
 ];
