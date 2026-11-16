@@ -383,6 +383,21 @@ single provider.** Consequences for C3w's page (assessment §9), for Sharon's an
   come with the commercial launch.
 - **E is unchanged** in providers, scoring, threshold and budget; its result becomes qualification evidence.
 
+### C-3 · Schools may use their own AI and import the result (owner, 16 Nov 2026)
+
+Ruling 41. A content-import decision, not an AI integration: one PINTAR format that any capable AI can produce. The
+assessment is `EXTERNAL-AI-CONTENT-ASSESSMENT.md`. The existing workbook (lessons and MCQs), its example, the
+structured package and row-level validation already support it.
+
+- **No product change in 4.1.** Sample prompts and import instructions (X-1) are prepared as onboarding material
+  before Z: Daisy's wording, Sharon's review of the data warning.
+- **For C3w's design review:**
+  - D3's provenance can also hold a self-declared external origin, with the AI's name as a value, distinct from
+    PINTAR's verified provenance (X-4's boundary only; no column, screen or test in 4.1).
+  - A guardrail: no C3w change may make the workbook or structured import harder.
+- **4.2 candidates:** a paste-friendly route, if the walkthrough shows it is needed (X-2); a question-only import into
+  an existing draft package (X-3); the optional "drafted with {AI}" field (X-4).
+
 ### Staging checkpoint authorized (owner, 12 Nov 2026, recorded 22:00 UTC)
 
 > Approved. Proceed with the staging checkpoint under Addendum 1 §5b, using the final accepted boundary commit after the wording correction and required green checks. Verify all prescribed staging conditions, including both Auth-user triggers. Stop on any material discrepancy. No production action is authorized. Once the checkpoint passes, release A2a for implementation under its existing gates.
@@ -439,3 +454,4 @@ deployment or production database change.
 | 16 Nov 2026 | **C-1 recorded** (ruling 38): AI-assisted MCQ generation is an optional paid school add-on. C3w's design-review requirements and the pending S-1/S-2 approval recorded; no implementation change |
 | 16 Nov 2026 | **Ruling 39:** S-1 and S-2 approved, amending §5.6 D7; S-4's accounting revised so bookkeeping failures never permanently consume an allowance; S-3 to S-7 to Sharon's and Daisy's C3w pre-build review |
 | 16 Nov 2026 | **C-2 recorded** (ruling 40): schools choose their AI from PINTAR's qualified options; C3w does not assume a single provider (S-8); E unchanged |
+| 16 Nov 2026 | **C-3 recorded** (ruling 41): schools may use their own AI and import the result through the standard workflow, at no fee; existing formats suffice; X-1 onboarding material before Z; X-2 to X-4 proposed for 4.2; no 4.1 scope change |

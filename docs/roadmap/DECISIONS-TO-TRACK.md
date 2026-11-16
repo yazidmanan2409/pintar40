@@ -40,6 +40,7 @@ belongs in the execution records, not here.
 | The 4.2 list itself | **Corrected in roadmap Rev 3.1** (owner-approved 16 Nov) |
 | Retention enforcement: which version | Unassigned. Not in the owner's 4.2 record |
 | Assessment-specific time limits | Candidate only |
+| External AI import (ruling 41): X-2 paste-friendly route, X-3 question-only import, X-4 self-declared AI field | Candidates for the 4.2 plan. X-2 decided after the walkthrough |
 | Cross-school role boundaries (H-02) | Design under existing authority |
 
 ## D · Needed for 4.5 planning
