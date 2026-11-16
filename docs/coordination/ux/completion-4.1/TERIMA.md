@@ -15,3 +15,4 @@
 | 15 Nov, 20:02 | Bob | Monday resume: A2b decision 3 and D8 screens; C2w I-5 words | `PLAN-A2B-C2W.md` at `43ce13bf` | `A2B-C2W-KATA.md`: **done** |
 | 16 Nov, 04:05 | Bob | R-A: the learner's sentence per code; R-B amendment | `PLAN-A2B-C2W.md` at `e15fe966` | `A2B-RA-KALIMAT.md`: **done** |
 | 16 Nov, 04:10 | Bob | R-B: the line for a warning whose re-read failed; tell Second Eye | Bob's ruling, 16 Nov | `A2B-RA-KALIMAT.md` §4: **done** |
+| 16 Nov, 05:00 | Bob | Slice-2 ruling on UX1-S2-MELIHAT-01's restatement (a) and (b) | `claude/a2b` at `8e147195` | `A2B-SLICE2-PUTUSAN.md`: **done**. (a) yes: sentence visible with the disabled «Mulai». (b) yes: {d} from the DB's own field; untimed work never shows it |
