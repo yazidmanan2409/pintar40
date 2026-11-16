@@ -13,6 +13,8 @@ Sharon, 16 Nov 2026 (07:55 UTC). Read-only. **What I reviewed:**
 
 ## What holds now
 
+> **Amended by addendum 3 (the checker's results):** Qwen **does** have a published DPA. Its scope for Indonesia is a legal question. The verdict, that none can be accepted on present evidence, is unchanged.
+
 - **On the evidence in the note, none of the three meets the baseline E holds Anthropic and OpenAI to:**
   - a stated no-training rule that covers API traffic;
   - a retention period;
@@ -50,7 +52,7 @@ Sharon, 16 Nov 2026 (07:55 UTC). Read-only. **What I reviewed:**
 
 **§4's table:**
 - **It is consistent with §1 to §3,** keeps fact and interpretation apart, and marks the per-draft costs as the assistant's own arithmetic.
-- **One row to add, "DPA / data-processing terms":** NOT FOUND for all three. It is the decisive difference from Anthropic and OpenAI.
+- **One row to add, "DPA / data-processing terms":** ~~NOT FOUND for all three.~~ *Superseded by addendum 3: Qwen's DPA exists, so only DeepSeek and Kimi are NOT FOUND.* It is the decisive difference from Anthropic and OpenAI.
 
 ## What any of the three would need before reconsideration
 
@@ -108,3 +110,48 @@ Sharon, 16 Nov 2026 (07:55 UTC). Read-only. **What I reviewed:**
 **Not checked by me:** the claim that C3w already requires C1 (R-3, D9). It is cited, and I did not reopen those rulings.
 
 **Still open:** the checker's results on the quotations themselves (addendum 1).
+
+## Addendum 3, 16 Nov 2026 07:50 UTC: the checker's results
+
+**What I read:** `docs/completion-4.1/E-FEASIBILITY-CHECK.md` on `claude/e-feasibility-check` at `c6b347711a8dd92559f245249894f787e4cc7349`. I read the counts, the differences and the new findings.
+- Of the 36 A-graded quotes, 32 are verbatim, 3 are verbatim but context matters, and 1 has a minor wording difference.
+- Kimi is still unreachable.
+
+**Judgements this changes:**
+1. **Qwen has a DPA (N-Q2). My "no DPA for all three" is superseded for Qwen.**
+   - What it gives: the selected region, a subcontractor list with 10 working days' notice and a right to object, and deletion or return on termination.
+   - What remains open:
+     - **whether it applies.** It is triggered by "Data Protection Legislation" ("including but not limited to" GDPR and UK GDPR), and whether Indonesia's personal-data law counts is **for legal**;
+     - the subcontractor list sits behind login, so it is unread;
+     - **no retention period during the term (N-Q7)**, since deletion on termination is not a retention period.
+   - **So C2 is partly met for Qwen.** It is not met for DeepSeek: DeepSeek makes PINTAR the controller and accepts no processor obligations (N-D4).
+2. **Qwen's no-training rule is contractual (§4.48.1(e))**, which is stronger than the notice I judged.
+   - It has an exception "unless you separately provide your consent".
+   - **New condition C3a:** whoever administers the account must not give that consent. Any console opt-in must be checked before use.
+3. **T1, the minors clause, is supported.**
+   - It sits in the platform Privacy Policy, straight after text saying Alibaba has "no direct relationship with the end users of our customers".
+   - That fits my reading: the clause addresses users of Alibaba's platform, not a customer's end users. Qwen is not in ruling 36's position.
+   - **The strict C1 still applies unchanged:** no learner-triggered call, no learner content, and educator review before publication. The final reading stays legal's.
+4. **T2, the hard stop, stands.**
+   - The only stop is service loss once the available balance is **below zero**, with bills lagging 2–10 minutes (N-Q6). That allows overshoot, and it is not a cap.
+   - **One route to meeting C4:** a prepaid Token Plan, if its key stops when the quota runs out. That is unread, and is the question to ask.
+5. **Corrections to my T3 fixes:**
+   - **Fix 2 becomes "B":** an Indonesian customer probably contracts with Alibaba Cloud (Singapore) Private Limited, by the catch-all (N-Q1). Indonesia is not named.
+   - **Fix 3 is answered:** the International scope is "global nodes excluding Chinese mainland" (N-Q3). The matrix should say so rather than "not stated".
+
+**Judgements this does not change:**
+- **DeepSeek stays not now.**
+  - The S-D9 clause on improving the service is conditioned on "strict de-identification" and sits in the general Terms of Use. Whether it reaches the API is still open (N-D1).
+  - It still stores and processes in the PRC with no non-PRC region (N-D3), has no DPA, and makes the developer the controller (N-D4).
+  - §5.4's forfeiture of an unconsumed balance is a commercial point, not a blocker.
+- **Kimi stays unassessed.**
+- **None of the three can be accepted on present evidence.**
+
+**Qwen's open items, the questions for the owner or legal before any evaluation:**
+- (a) does the DPA apply under Indonesian law;
+- (b) the subcontractor list, read after login;
+- (c) the retention period during the term;
+- (d) whether the Token Plan gives a hard stop;
+- (e) whether Alibaba "operates" in Indonesia.
+
+**Could reasonably have been anticipated:** yes, for my "no DPA" (Q1, readers and writers). I accepted the note's NOT FOUND without asking where a DPA usually sits, in the Membership Agreement, which the note had left unread (G6). The checker found it there.
