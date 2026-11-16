@@ -220,3 +220,22 @@ Sharon, 16 Nov 2026 (22:40 UTC). Read-only.
   - F37-R01 to R03 stay green;
   - INV-04 is asserted.
 - The key's columns remain held, as Bob ruled, for the owner's attempt-rule answer.
+
+## Addendum, 17 Nov 00:20 UTC: the A2A-L01 ranks for the two assignment tables. Ruling: (b), with one piece of evidence.
+
+- **The order is built:** `aed35103`, local, with F37-R01 to R04 and A3-R1V green (F37 43/0) and R04 red on `eaa37aea`. **Accepted.**
+- **Ranking the two tables after the fence** puts 23 distinct violations into nine existing functions (`akhiri_penugasan`, both moves, `tegaskan_koreksi_kunci`, `assign_release`, `minta_percobaan`, and the start itself through the insert's foreign keys).
+  - They exist today. They were only invisible because the tables were unranked.
+  - Most are `persons` taken **after** an assignment or a sitting.
+- **Ruling: (b) for A3.**
+  - The two tables stay unranked in L01, and a **dedicated pairwise check** is added:
+    - every function that locks both takes `learning_assignments` before `assessment_assignments`;
+    - no start holds an assessment assignment while it waits on a learning assignment.
+  - F37-R04 is the behavioural proof.
+  - **(a)**, reordering those functions to persons, then the fence, then learning, then assessment, **is registered for Z.** It is outside A3's boundary list.
+- **The condition for (b), required before A3's page is accepted: prove the persons-after waits cannot deadlock.**
+  - Each of them is `FOR KEY SHARE` on `persons`, and KEY SHARE conflicts only with `FOR UPDATE`, a DELETE, or an update of a key column.
+  - **Required:** a catalogue sweep listing every function that takes `persons` FOR UPDATE, deletes a `persons` row, or updates its key, with what it holds at that moment.
+  - **If there are none,** the 23 are harmless now, and that goes on record with the sweep's output.
+  - **If there is one** that can also wait on a sitting or an assignment (an account departure, for example), that pair is a real deadlock. It then gets a red test in A3, not a Z item.
+  - *Could reasonably have been anticipated (Q3, the locks):* L01 ranks by table, not by lock strength, so an unranked table hides waits that a strength-aware reading would check.
