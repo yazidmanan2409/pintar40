@@ -6316,6 +6316,11 @@
       "proves": "A2b commit 4 (migration 20270120140000), D8 and R-1; executes on the database in one rolled-back transaction: pintar_status_saya says per window whether it stops the reader as a person (cakupan ORANG: an EMERGENCY, or a platform-wide PLANNED window) or only their work in a place (TEMPAT: a class or school PLANNED window), names the class and the school, and gives the zone its times are shown in: the window's school's (WITA in the fixture), or for a platform-wide window the reader's own school's. A class's planned window is not listed for another class's learner."
     },
     {
+      "id": "A2B-D13",
+      "runner": "static",
+      "proves": "A2a's D1 gap, its sibling D1-3, fixed in A2b (Sharon's ruling at 8e33dd32; migration 20270120150000); executes on the database in D12's rolled-back fixture and reads the catalogue: before any touch, pengerjaan_saya says a marked sitting of a lifted stop is not held and released from the stop, and pengerjaan_terbuka_saya offers it; no stable function calls pengerjaan_ditahan (which counts a stale mark as held) any more. Plant: pengerjaan_saya reading the mark again."
+    },
+    {
       "id": "A2B-K06",
       "runner": "static",
       "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K6, extend during a window and end it early: perpanjang_pemeliharaan by the school's admin moves the end the guard reads at once (still refused after the old end); resume early (change_maintenance AKHIRI) lifts the refusal at once; one maintenance.extended audit row with before, after and reason."

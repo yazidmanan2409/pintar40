@@ -510,7 +510,10 @@ function d12(db: string, d: Dunia) {
   return barisKunci(db, `begin;
 ${duniaSql(d, "now() - interval '30 minutes'")}
 update public.assessment_sessions set darurat_sejak = now() - interval '50 minutes', darurat_jendela_id = '${W2}' where id = '${d.SA}';
-update public.assessment_assignments set node_id = '${d.kA}', closes_at = null
+-- placed at 7A (the teacher's list), outside any chapter, open and past its close (the learner's open list shows a
+-- sitting running past its assignment's close; its own deadline is the sitting's)
+update public.assessment_assignments set node_id = '${d.kA}', closes_at = now() - interval '1 minute', status = 'OPEN',
+       learning_assignment_id = null
  where id = (select assessment_assignment_id from public.assessment_sessions where id = '${d.SA}');
 -- the learner's other sittings of that assessment, earlier, so the teacher's list shows this one
 update public.assessment_sessions set created_at = created_at - interval '400 days', started_at = started_at - interval '400 days'
@@ -524,6 +527,9 @@ select 'keadaan|' || extract(epoch from ((select x.authoritative_deadline from p
 select 'lanjut|' || (select x.ok::text || ':' || x.reason from public.may_continue_session('${d.SA}') x);
 select 'saya|' || extract(epoch from ((public.pengerjaan_saya('${d.SA}') ->> 'tenggat')::timestamptz - now()))::int;
 select 'kuras|' || public.maintenance_draining('${d.murid}')::text;
+-- D1-3: the learner's own reads count no stale mark as a hold
+select 'ditahan|' || (public.pengerjaan_saya('${d.SA}') ->> 'ditahan') || ':' || (public.pengerjaan_saya('${d.SA}') ->> 'dilepas_henti');
+select 'terbuka|' || count(*) from public.pengerjaan_terbuka_saya() x where x.sesi_id = '${d.SA}';
 ${sebagai(d.guruUid)}
 select 'daftar|' || coalesce((select extract(epoch from (x.tenggat - now()))::int::text from public.daftar_pengerjaan('${d.kA}',
   (select assessment_assignment_id from public.assessment_sessions where id = '${d.SA}')) x where x.sesi_id = '${d.SA}'), 'none');
@@ -536,6 +542,14 @@ rollback;`);
 }
 const D12_SAAT = "then public.penghentian_geser(s.person_id, s.darurat_jendela_id) end, interval '0')";
 const D12_TANAM = "then null::interval end, interval '0')";
+const D13_SAAT = "'ditahan', s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')   -- D1-3: a stale mark holds nothing";
+const D13_TANAM = "'ditahan', public.pengerjaan_ditahan(s) or s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')";
+/** D1-3's sweep: the stable (read-only) functions that call pengerjaan_ditahan, which counts a stale mark as held. */
+export function pembacaDitahan(db: string): string[] {
+  return psqlBaris(db, `select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and p.provolatile in ('s', 'i') and p.proname <> 'pengerjaan_ditahan'
+      and regexp_replace(p.prosrc, '--[^' || chr(10) || ']*', '', 'g') ~ 'pengerjaan_ditahan[[:space:]]*[(]' order by 1`).map(([f]) => f);
+}
 
 /** The status read (A2b commit 4; D8; R-1): a PLANNED class window on 7A, school X in WITA; a platform-wide PLANNED
  *  window; an EMERGENCY class stop on 7B. Read by the teacher of 7A and 7B, by 7B's learner, and by school Y's learner. */
@@ -950,6 +964,24 @@ export const a2bBatasTests: SelfTest[] = [
       c.expect(g2?.c === "ORANG", `an EMERGENCY class stop is person-level (ORANG): ${JSON.stringify(g2)}`);
       c.expect(!murid2[W1] && murid2[W2]?.c === "ORANG" && murid2[W3]?.c === "ORANG", `7B's learner: not told of 7A's planned window; told of 7B's stop and the platform window: ${JSON.stringify(murid2)}`);
       return `the status read says who a window stops: a class or school PLANNED window is TEMPAT, named by its class and school and shown in its school's zone (WITA here), and reaches only the people with work in its place; a platform-wide PLANNED window and an emergency are ORANG, the platform's in the reader's own school's zone`;
+    }),
+  },
+  {
+    id: "A2B-D13",
+    requires: ["db"],
+    run: jalan(async (c, db, d) => {
+      const r = d12(db, d);
+      c.expect(!r.err, `D1-3 failed to run: ${r.err}`);
+      c.expect(r.hasil.ditahan === "false:true", `D1-3: pengerjaan_saya must say the sitting is not held and released from the stop, before any touch: ${r.hasil.ditahan}`);
+      c.expect(r.hasil.terbuka === "1", `D1-3: pengerjaan_terbuka_saya must offer the learner the sitting: ${r.hasil.terbuka}`);
+      const sisa = pembacaDitahan(db);
+      c.expect(sisa.length === 0, `D1-3's sweep: a read-only function still counts a stale mark as held (calls pengerjaan_ditahan): ${sisa.join(", ")}`);
+      const { gantiFungsi } = await import("./balapan");
+      const balik = gantiFungsi("public.pengerjaan_saya(uuid)", D13_SAAT, D13_TANAM);
+      let tanam: ReturnType<typeof d12>;
+      try { tanam = d12(db, d); } finally { balik(); }
+      c.expect(!(tanam.hasil.ditahan ?? "").startsWith("false"), `with the plant (pengerjaan_saya reading the mark) the sitting still read as not held: ${tanam.hasil.ditahan}`);
+      return `a marked sitting of a lifted stop, before any touch: pengerjaan_saya says not held and released from the stop, and pengerjaan_terbuka_saya offers it; no read-only function calls pengerjaan_ditahan any more (the decider's writers keep it, after pengerjaan_pagar); with the plant pengerjaan_saya said held (${tanam.hasil.ditahan})`;
     }),
   },
   {
