@@ -35,3 +35,4 @@
 | 16 Nov, 15:50 | Second Eye | X-1 paste test | `X1-PASTE-TEST.md` at `ecfd1042` (local) | Decided: one paragraph per cell, in both prompts. §A.5 unconfirmed until the walkthrough. **X-1 complete from my side** |
 | 16 Nov, 15:52 | Second Eye | C2w A2B-R2: «Tarik izin» on an unknown or not-yours grant answers ACTION_NOT_ALLOWED; the list now shows open grants | local `claude/c2w`, unpushed | Noted, no new words. A capture when pushed: yes, the list with one grant, at 390 |
 | 16 Nov, 16:30 | Bob | Q-12 rows vanish during maintenance: hide or show? | Bob's note, 16:28 | `A2B-DAFTAR-Q12-PUTUSAN.md`: **show, as before A2b**; no disabled control on the list; in this fix |
+| 16 Nov, 22:20 | Bob | A3: D12's codes and recovery screens; D-2's no-loop | `PLAN-A3-C3W-Z.md` §2 | `A3-KODE-PEMULIHAN.md`: **done**; Sharon's half pending |
