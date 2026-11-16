@@ -2,8 +2,14 @@
 
 Bob, 16 November 2026. **Exploratory only.** It does not change E (providers, scoring rules, budget) and authorises
 nothing. **Facts:** `E-FEASIBILITY-ADDITIONAL-PROVIDERS.md` on `claude/e-feasibility-more` (`b608c6e0`), read from
-official pages in the `pintar40` environment. **Sharon is reviewing the contractual, privacy and security findings**
-independently; this recommendation is subject to her verdict.
+official pages in the `pintar40` environment.
+
+> **Sharon's verdict** (`docs/coordination/reviews/sharon/E-FEASIBILITY-MORE-REVIEW.md`, `1f07977e`): **none of the
+> three meets E's baseline, and none can be accepted on present evidence.** None has a DPA or published processing
+> terms, a subprocessor list, or a stated retention period for API content; Kimi has no readable terms. Before any
+> reconsideration, her conditions C1–C5 must be met (§2). She judged on the note's quotes as given; a checker for her
+> is re-reading the contractual, privacy and security quotes to E's standard (`claude/e-feasibility-check`).
+> **The documentation hosts used were added through your approval prompt;** no API host is allowed.
 
 > **Disclosure.** The research and this note were prepared by Anthropic models, and Anthropic is one of E's
 > providers. The comparison below uses the providers' own quoted text, graded, so it can be checked.
@@ -25,7 +31,8 @@ independently; this recommendation is subject to her verdict.
 | **Training on API data** | ? | ✖ May use inputs and outputs; an opt-out exists, but whether it covers API traffic is unknown | ✔ "Will never use your data for model training" |
 | **Storage and processing** | ? | ✖ Stored in the PRC | ✔ The chosen region (Singapore, `ap-southeast-1`) |
 | **Retention** | ? | "As long as necessary" | Stored; period not found |
-| **Zero retention; subprocessor list; DPA** | ? | ? None found | ? None found |
+| **DPA or data-processing terms** *(the decisive difference from E's providers, per Sharon)* | ? | ✖ Not found | ✖ Not found |
+| **Zero retention; subprocessor list** | ? | ? None found | ? None found |
 | **Provider-side hard stop** | ? | ✔ Prepaid balance; HTTP 402 when exhausted | ✖ Postpaid by default; no paid-usage cap found (free-quota-only mode only) |
 | **Rate limits; reliability** | ? | ✔ Concurrency 2,500 / 500; status page unreachable | ✔ 15,000 RPM / 5M TPM; 99.9% SLA |
 | **Usage and request ID per response (S-5 ledger)** | ? | ✔ Usage with cache split; body `id` | ✔ Usage; UUID request ID |
@@ -35,15 +42,19 @@ independently; this recommendation is subject to her verdict.
 
 ## 2 · Recommendation
 
-**1 · Qwen (`qwen3.7-plus`): the one candidate worth a later controlled evaluation, on three conditions met first.**
+**1 · Qwen (`qwen3.7-plus`): the one candidate worth a later controlled evaluation, but only once Sharon's C1–C5 are
+met. Not acceptable on present evidence.**
 - **Why:** it is the only one with strict schema output, Singapore law and storage, a stated no-training commitment,
   a published SLA and full per-response accounting. It is roughly five times cheaper per draft than E's providers.
-- **Conditions,** all no-cost reading and review:
-  1. Sharon's reading of Alibaba's minors clause for an educator-only feature inside a platform learners use.
-  2. The Membership Agreement and billing pages read: who contracts with an Indonesian school's provider, and
-     whether a hard spending cap exists. **Without a provider-side stop it cannot qualify for schools.** S-2's
-     per-provider ceiling would rest on PINTAR's ledger alone, which is one stop where every other provider has two.
-  3. The retention period for stored call data, and a DPA or data-transfer terms.
+- **Sharon's conditions, C1–C5,** before any reconsideration of any of the three:
+  - **C1, by design:** no personal or learner data is sent, the feature is for educators only, and an input check
+    enforces it. C3w already requires this (R-3, D9), and it also addresses DeepSeek's and Qwen's age clauses.
+  - **C2:** a DPA, a subprocessor list and a stated retention period.
+  - **C3:** for Qwen, the retention of call content with logging off; for DeepSeek, the API training opt-out in writing.
+  - **C4:** a provider-side hard spend stop. Qwen is postpaid with no cap found. **Without one it cannot qualify:**
+    S-2's per-provider ceiling would rest on PINTAR's ledger alone.
+  - **C5:** the contracting entity and eligibility for Indonesia, and the basis for transfer abroad. The transfer basis
+    is a legal question for you; C1 makes it largely moot.
 - **When:** after E, as a separate evaluation under your approval, on E's frozen kit and rules, so E is not delayed.
 
 **2 · DeepSeek: not now.**
@@ -56,7 +67,7 @@ independently; this recommendation is subject to her verdict.
 - Its JSON mode is also weaker for MCQ output.
 - An evaluation would spend judges' time on a provider that could not then be offered to schools. That is the same
   logic as ruling 36's for Google.
-- **Reconsider only if** DeepSeek offers a non-PRC region, a DPA and a confirmed API training opt-out.
+- **Reconsider only if** C1–C5 are met, including a non-PRC region or a transfer basis you accept, a DPA, and a confirmed API training opt-out.
 
 **3 · Kimi: unassessed, so not now.**
 - Its documentation and legal pages sit on hosts that were not allowed (`platform.kimi.ai`, `www.kimi.ai`).
