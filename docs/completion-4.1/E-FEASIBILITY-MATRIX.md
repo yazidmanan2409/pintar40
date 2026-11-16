@@ -21,7 +21,7 @@ official pages in the `pintar40` environment.
 > **Disclosure.** The research and this note were prepared by Anthropic models, and Anthropic is one of E's
 > providers. The comparison below uses the providers' own quoted text, graded, so it can be checked.
 
-**Legend:** ✔ verified on an official page · ✖ verified, and a problem · ? not found or not reachable ·
+**Legend:** ✔ verified on an official page · ✖ verified, and a problem · ◐ verified, compatible only under the condition stated · ? not found or not reachable ·
 *italic* = my interpretation.
 
 ## 1 · Matrix
@@ -34,13 +34,13 @@ official pages in the `pintar40` environment.
 | **Indonesian (official statement)** | ? | ? | ? |
 | **Commercial eligibility, Indonesia** | ? | ? No country list; console blocked | ? Contracting entity in an agreement not yet read |
 | **Governing law and contracting entity** | ? | ✖ PRC mainland, Hangzhou courts | Singapore law; Alibaba Cloud (Singapore) Pte Ltd by the catch-all clause for unlisted jurisdictions (B) |
-| **Age clause** | ? | ✔ "Primarily intended for adults"; minors only with a guardian. *Addresses the account user, who would be an educator* | ✖ "Not intended for minors … Minors must not use" the services. *Sharon (addendum 3): supported. The clause sits in the platform Privacy Policy, straight after "no direct relationship with the end users of our customers", so it governs Alibaba's own users. Qwen is not in ruling 36's position, under the strict C1* |
+| **Age clause** | ? | ✔ "Primarily intended for adults"; minors only with a guardian. *Addresses the account user, who would be an educator* | **◐ Conditional: compatible with educator-only use, provided no learner action can trigger a call, directly or indirectly (strict C1).** "Not intended for minors … Minors must not use" the services. *Sharon (addendum 3): supported. The clause sits in the platform Privacy Policy, straight after "no direct relationship with the end users of our customers", so it governs Alibaba's own users. Qwen is not in ruling 36's position, under the strict C1* |
 | **Training on API data** | ? | ✖ May use inputs and outputs; an opt-out exists, but whether it covers API traffic is unknown | ✔ No training, contractually (Product Terms §4.48.1(e)), "unless you separately provide your consent" (new condition C3a) |
 | **Storage and processing** | ? | ✖ Stored in the PRC | ✔ Stored in the chosen region (Singapore, `ap-southeast-1`); inference on global nodes excluding the Chinese mainland |
 | **Retention** | ? | "As long as necessary" | Stored; period not found |
 | **DPA or data-processing terms** *(the decisive difference from E's providers, per Sharon)* | ? | ? Not found | ✔ A DPA in the Membership Agreement. Whether it applies under Indonesian law: legal question. Subcontractor list behind login; no retention period during the term |
 | **Zero retention; subprocessor list** | ? | ? None found | ? None found |
-| **Provider-side hard stop** | ? | ✔ Prepaid balance; HTTP 402 when exhausted | ✖ No cap: alerts only, and service stops once the balance is below zero, with bills lagging 2–10 minutes. A prepaid Token Plan might meet C4 (unread) |
+| **Provider-side hard stop** | ? | ✔ Prepaid balance; HTTP 402 when exhausted | ✖ No cap: alerts only, and service stops once the balance is below zero, with bills lagging 2–10 minutes. A prepaid Token Plan might meet C4 (unread). **Its existence alone leaves C4 open:** verify that paid API calls are refused when its credits run out, and that usage cannot spill onto postpaid billing |
 | **Rate limits; reliability** | ? | ✔ Concurrency 2,500 / 500; status page unreachable | ✔ 15,000 RPM / 5M TPM; 99.9% SLA |
 | **Usage and request ID per response (S-5 ledger)** | ? | ✔ Usage with cache split; body `id` | ✔ Usage; UUID request ID |
 | **Price, US$ per 1M tokens, in / out** | ? | flash $0.30 / $1.20 at peak (half off-peak); pro $1.32 / $3.96 | plus $0.40 / $1.60 list (a 20% promotion runs now); flash $0.15 / $0.47 |
@@ -60,7 +60,8 @@ met. Not acceptable on present evidence.**
   - **C2:** a DPA, a subprocessor list and a stated retention period. *Qwen: partly met (a DPA exists; the list is behind login; no retention period).*
   - **C3a (Qwen):** the training exception's consent is never given, and any console opt-in is checked before use.
   - **C3:** for Qwen, the retention of call content with logging off; for DeepSeek, the API training opt-out in writing.
-  - **C4, mandatory:** a provider-side hard spend stop (a cap or a prepaid balance). PINTAR's own stop is not a
+  - **C4, mandatory:** a provider-side hard spend stop (a cap or a prepaid balance). For a prepaid plan, C4 is met only
+    if paid API calls are **refused** when its credits run out and usage **cannot spill onto postpaid billing**. PINTAR's own stop is not a
     substitute: a leaked key on a postpaid account spends outside PINTAR's ledger without limit (Sharon, correcting
     her first C4). Qwen is postpaid with no cap found, so **it cannot qualify on present evidence.**
   - **C5:** the contracting entity and eligibility for Indonesia, and the basis for transfer abroad. The transfer basis
