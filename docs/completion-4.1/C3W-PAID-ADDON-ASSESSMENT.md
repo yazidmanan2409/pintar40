@@ -3,6 +3,11 @@
 Bob, Chief Architect, 16 November 2026. Owner decision of the same date, recorded as ruling 38
 (`OWNER-RULINGS-4.1.md` §7) and in Addendum 1 §5d, C-1.
 
+> **Owner, 16 Nov (ruling 39): S-1 and S-2 approved** as the minimal architectural additions to C3w. S-3 to S-7
+> proceed as refinements of approved requirements, subject to Sharon's and Daisy's reviews. Accounting must be
+> reconcilable and **must not permanently consume allowances through bookkeeping failures** (S-4 revised below).
+> No billing, payment gateway, pricing packages or school-admin purchasing screens in 4.1. E unchanged.
+
 **Read against:** THE PLAN §5.6 (C3w, D1–D11, F, G, H, I) and §5.7 (E); Addendum 1 R-3; rulings D-5, D-6, D-8,
 O41-1, O41-6. **Nothing here changes implementation.** C3w is not started; it follows A3.
 
@@ -31,24 +36,34 @@ O41-1, O41-6. **Nothing here changes implementation.** C3w is not started; it fo
 All but S-1 and S-2 are **precisions of approved text** (D1, D5, D6, D7, D11, I-4), needing no scope change. They
 become requirements on C3w's page for Sharon's and Daisy's pre-build review.
 
-- **S-1 · The school limit is a school entitlement record** *(needs your approval: small change to D7)*. One row per
+- **S-1 · The school limit is a school entitlement record** *(**approved**, ruling 39; a change to D7)*. One row per
   school: on or off, an allowance, an optional start and end. Absent, off, expired or exhausted: **refused before any
   call**, as D7 already refuses an unset limit. In 4.1 the platform operator (you) sets it, as D-6 already says. No
   school-admin screen, no billing, no payment. The allowance period is a window, not a calendar month, so neither a
   monthly allowance nor prepaid credits is presumed.
-- **S-2 · One platform-wide ceiling above all schools** *(needs your approval, same change)*. It is PINTAR's own
+- **S-2 · One platform-wide ceiling above all schools** *(**approved**, ruling 39)*. It is PINTAR's own
   stop, matching the provider account's limit, so that the sum of school allowances can never exceed what PINTAR
   pays for.
 - **S-3 · Reserve, then call.** Before each provider attempt, the server reserves that attempt's **worst-case cost**
   against the school's allowance, the educator's limit and the platform ceiling, in one transaction holding the
   school's entitlement row lock. Concurrent requests queue on that lock and cannot both pass. After the call, the
-  reservation is settled to the reported cost. If no usage is reported, the reservation is kept as the cost. A cost
-  above its reservation stops generation for the platform and is reported. (This is the mechanism E's runner
-  already proves offline.)
-- **S-4 · Every attempt is accounted.** Each retry is its own ledger attempt under the one request. A failed,
-  timed-out, cancelled or abandoned attempt counts against the allowance at its reported cost, or its reservation.
-  A reservation left open by a crash is settled at the reservation after a fixed timeout. So retries cannot evade
-  accounting, and a provider outage consumes a bounded allowance, not unlimited calls.
+  reservation is settled to the reported cost. If no usage is reported, the reservation stays held as unreconciled (S-4), not consumed. A cost
+  above its reservation stops generation for the platform and is reported. (E's runner proves the reservation
+  offline; its rule of keeping a missing-usage reservation as cost is right for E's fixed budget, not for C3w's
+  allowances, per S-4.)
+- **S-4 · Every attempt is accounted, and bookkeeping never consumes an allowance for good** *(revised for the
+  owner's ruling 39)*. Each retry is its own ledger attempt under the one request. An attempt ends in one of:
+  - **settled** at the provider's reported cost (success, invalid output, or a failure the provider reports usage
+    for);
+  - **released**, consuming nothing, when it is known no request reached the provider (refused or crashed before
+    sending);
+  - **unreconciled**, when a request may have reached the provider but no usage came back (timeout, abandoned,
+    crash after sending). Its reservation is **held, not consumed**: it still counts against the school's allowance
+    and the platform ceiling, so spend stays safe, and it is marked as held, not as cost.
+  Unreconciled holds are cleared by reconciliation against the provider's own usage records, which settles them at
+  the cost found or releases them. A hold older than a fixed age is flagged to the operator. So retries cannot evade
+  accounting, an outage consumes a bounded hold rather than unlimited calls, and a crash or a lost response cannot
+  burn a school's allowance permanently. The design's reconciliation step is Sharon's to review.
 - **S-5 · The ledger is self-sufficient for reconciliation:** the school fixed at request time; the requester; the
   model identifier and price basis as values; tokens; reserved and settled cost; outcome per attempt. No source text
   beyond D5's hash and reference; no key.
@@ -118,8 +133,6 @@ The runner now records response time and rate-limit information per attempt (`cl
 ## 8 · Decisions for you
 
 - **Now:** none required. Development continues.
-- **Before C3w's build (its pre-build review, after A3):** approve S-1 and S-2 together. That is one small change to
-  D7: the per-school limit becomes a school entitlement record with an optional end date and a period that is not
-  a calendar month, plus a platform-wide ceiling. Everything else in §2 is precision of approved text and goes to
-  Sharon and Daisy as review requirements.
+- ~~Before C3w's build: approve S-1 and S-2.~~ **Approved, ruling 39 (16 Nov).** S-3 to S-7 go to Sharon and Daisy
+  as review requirements at C3w's pre-build review.
 - **Later:** the pricing model and everything in §3, informed by E.

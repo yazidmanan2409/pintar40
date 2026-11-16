@@ -352,13 +352,17 @@ Daisy), read against THE PLAN §5.6 and not as new scope:
 
 - **Precisions of approved text (D1, D5, D6, D7, D11, I-4):** reserve each attempt's worst-case cost before the call,
   under the school's row lock; count every attempt, failed, cancelled or abandoned included; settle crash-orphaned
-  reservations at the reservation; the ledger holds the school fixed at request time, the model and price basis as
+  reservations by S-4's reconciliation, not as consumption; the ledger holds the school fixed at request time, the model and price basis as
   values, tokens and reserved and settled cost; the entitlement is checked **only** at the generation request, with
   tests that an ended entitlement leaves drafts, questions, assessments, results, certificates, reports and
   provenance usable; distinct refusal codes; Daisy's limit wording made period-neutral, with a next step and no price.
-- **Pending the owner's approval before C3w's build (S-1, S-2):** the per-school limit of D7 becomes a school
-  entitlement record (on or off, an allowance, an optional start and end, not a calendar month), set by the operator
-  in 4.1; plus one platform-wide ceiling above all schools. Until approved, D7 stands as written.
+- **Approved by the owner, 16 Nov (ruling 39), amending D7 (S-1, S-2):** the per-school limit of D7 becomes an
+  explicit school entitlement record (activation status, an allowance, an optional validity period, neutral between
+  monthly and prepaid), set by the operator in 4.1; plus one platform-wide spending ceiling above all schools. D7's
+  per-educator limit and "refused until set" stand.
+- **Accounting (ruling 39):** an attempt is settled, released or unreconciled. An unreconciled reservation is held
+  against the allowance and the ceiling, never consumed by bookkeeping alone, and is cleared by reconciliation with
+  the provider's usage records (assessment §2, S-4).
 - **Not in 4.1:** pricing, the allowance model, billing, payment, school-admin purchasing or usage screens, retail
   prices, and whether failed attempts are charged to a school.
 - **E is unchanged** in design and scoring. Its report adds the owner's cost evidence beside the blinded results.
@@ -417,3 +421,4 @@ deployment or production database change.
 | 12 Nov 2026 (07:39 UTC) | **Register reconciled:** R-1 covers school-scoped planned windows (option A); the statements that recorded it as open are marked superseded. Sharon's analysis accepted as the technical direction. R-3 recorded: no learner personal information to a provider, enforced by design at C3w |
 | 12 Nov 2026 (07:40 UTC) | Sharon's five requirements for R-3 recorded for C3w's pre-build review, with one consequence to settle there: what counts as a match when ordinary teaching text contains common names |
 | 16 Nov 2026 | **C-1 recorded** (ruling 38): AI-assisted MCQ generation is an optional paid school add-on. C3w's design-review requirements and the pending S-1/S-2 approval recorded; no implementation change |
+| 16 Nov 2026 | **Ruling 39:** S-1 and S-2 approved, amending §5.6 D7; S-4's accounting revised so bookkeeping failures never permanently consume an allowance; S-3 to S-7 to Sharon's and Daisy's C3w pre-build review |
