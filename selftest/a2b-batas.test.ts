@@ -1896,8 +1896,12 @@ rollback;`);
       c.expect(/MAINTENANCE_EXTENDED/.test(fn), "a done extension must say so (MAINTENANCE_EXTENDED)");
       // found capturing D8-6: the window's place, end and zone come from pemeliharaan_jendela_tempat (a staff client
       // reads no row of maintenance_windows), so the typed end is read on the window's own clock
-      c.expect(/rpc\("pemeliharaan_jendela_tempat"/.test(fn) && !/from\("maintenance_windows"\)/.test(fn) && fn.indexOf('rpc("pemeliharaan_jendela_tempat"') < panggil,
-        "the extend action must read the window's place, end and zone through pemeliharaan_jendela_tempat before its call, never the table");
+      // RESTATED (F22-P05: an action's first .rpc( is its act, so the working-context check must precede it): the read is
+      // the helper tempatJendela, called before the context check and the extend; the helper makes the one read
+      const pembantu = /async function tempatJendela[\s\S]*?\n}\n/.exec(aksi)?.[0] ?? "";
+      c.expect(/rpc\("pemeliharaan_jendela_tempat"/.test(pembantu) && /tempatJendela\(/.test(fn) && fn.indexOf("tempatJendela(") < panggil
+        && !/from\("maintenance_windows"\)/.test(fn) && !/from\("maintenance_windows"\)/.test(pembantu),
+        "the extend action must read the window's place, end and zone through pemeliharaan_jendela_tempat (tempatJendela) before its call, never the table");
       // the Chief Architect (16 Nov 09:44): the extend form shows the advisory count for the added period, as the
       // schedule form does; it refuses nothing
       const halamanP = readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8");
