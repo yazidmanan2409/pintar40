@@ -6,7 +6,7 @@
 >   - ~~**Second Eye's paste test** (point 5): it decides one rule in the prompts, marked ⟨TES⟩.~~ **Decided (16 Nov, 15:50), on Second Eye's test** (`X1-PASTE-TEST.md`, his C2w branch at `ecfd1042`):
 >     - quoted text kept literal quotes in the usual case, a rendered chat table, and PINTAR stored them unflagged;
 >     - so both prompts now say **one paragraph per cell, no line breaks**, which is clean on both paths;
->     - the cost is the paragraphs, which the teacher can see and fix while checking the draft (step 5).
+>     - the cost is the paragraphs. The teacher can split them **in the workbook cell before upload** (step 3). Studio on `main` has no lesson-body editor, so the guide does not promise one.
 > - **§A.5's message list is unconfirmed.** No real AI output was tested: ruling 42 allows no external calls. The owner's walkthrough (§6 of Bob's draft) is where it is confirmed.
 >   - ~~**The answer on common first names** (point 3), given provisionally in §D.~~ Accepted by Sharon, widened: any learner known at the school, and no real local detail.
 > - **Checked against the product on `main`.**
@@ -63,12 +63,12 @@ Jadi jangan pernah memasukkan:
 
 1. Di **Studio › Buat Paket**, pada bagian **Unggah buku kerja pelajaran**, pilih **Unduh templat Excel**. Bila perlu, unduh juga **Unduh contoh isian** untuk melihat contohnya.
 2. Salin salah satu perintah di bawah (A atau B) ke AI Anda. Ganti setiap **[isi]** dan tempel materi Anda di tempat yang disediakan.
-3. AI menjawab dengan satu tabel untuk setiap lembar. Salin setiap tabel ke lembar yang sama namanya di templat, mulai dari **baris 2**. Baris 1 sudah berisi judul kolom.
+3. AI menjawab dengan satu tabel untuk setiap lembar. Salin setiap tabel ke lembar yang sama namanya di templat, mulai dari **baris 2**. Baris 1 sudah berisi judul kolom. Isi pelajaran dari AI datang sebagai satu paragraf. Bila perlu, bagi menjadi beberapa paragraf langsung di selnya (di Excel: Alt+Enter) sebelum mengunggah.
 4. Unggah buku kerja itu di **Studio › Buat Paket**.
    - PINTAR memeriksa setiap baris lebih dulu.
    - Bila ada yang salah, PINTAR menyebut lembarnya, barisnya dan masalahnya, dan **belum menyimpan apa pun**.
    - Perbaiki baris itu, lalu unggah lagi.
-5. Baca setiap pelajaran, setiap soal dan kuncinya. Perbaiki yang salah, lalu pilih **Ajukan untuk ditinjau**. Isi pelajaran dari AI datang sebagai satu paragraf; rapikan paragrafnya saat Anda memeriksa.
+5. Baca setiap pelajaran, setiap soal dan kuncinya. Perbaiki yang salah, lalu pilih **Ajukan untuk ditinjau**.
 
 **Bila AI Anda dapat membuat berkas Excel sendiri,** Anda boleh memintanya langsung mengisi templat itu. Menyalin tabel tetap berhasil untuk AI mana pun.
 
