@@ -54,3 +54,29 @@ Sharon, 16 Nov 2026 (16:30 UTC). Read-only. **What I checked:**
 - `startSession` is removed, but nothing stops it from coming back.
 - **Add a static test:** no exported server action in `src/app` calls `start_learning_session`, or `open_assessment_session`, except `mulaiAsesmen`. Its plant restores `startSession` and must go red.
 - If such a test already exists, cite it.
+
+## Addendum, 17:05 UTC: the candidate moves to `6e45fe5266a9b85bcd07d03022f0a27ee0bfa93e`. `b2f6a552` is superseded.
+
+**What I read:**
+- Second Eye's mapping of `7d00a549`, `3134a7c7` and `6e45fe52`;
+- `may_start_assessment`'s A2b edit at 20270120120000:71–79.
+
+**My 16:50 point that the list "can only shrink" is superseded, marked here and not deleted.** Daisy's Q-12 ruling now keeps the row during a window. `my_open_assessments`' gate becomes `s.ok or s.reason in ('MAINTENANCE_PLACE', 'MAINTENANCE_NO_NEW_START')`.
+
+**Why this still cannot leak another school's row, checked in source:**
+- A2b's maintenance answer is inserted just before `may_start_assessment`'s final `ok := true; reason := 'OK'`. Every other rule is judged before it: enrolment, membership, the assignment's place, attempts.
+- So a row reaches a maintenance reason only if every other rule would have accepted it.
+- `maintenance_mulai_tolak` yields only those two codes.
+- A2B-Q12's other-school leg asserts it: `alpha-siswa-1` never sees the row. An assessment that is not yet open is still dropped, even inside a window.
+
+**T-SP is closed by A2B-SP3.** No exported function in `belajar/actions.ts` starts a sitting without mapping PR110 and PR040. `mulaiAsesmen` is the one start. The plant (3c58620e's `startSession`) is caught.
+
+**`6e45fe52` (CI only):** plant 3g is re-anchored to the new predicate, and the defect is unchanged.
+
+**The preservation pair stands:** still 282 migrations, no column, and the query text is unchanged.
+
+**Verdict: PASS on `6e45fe5266a9b85bcd07d03022f0a27ee0bfa93e`, subject to a green full pre-flight.** My freeze checks are re-run on it:
+- **The A2B-R2 exceptions:** unchanged on this line. They were removed on C2w.
+- **The `now()` branch:** still registered.
+- **Staging:** marked PENDING OWNER AUTHORISATION.
+- **The preservation pair:** ready.

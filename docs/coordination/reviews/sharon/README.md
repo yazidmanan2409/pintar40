@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2b new candidate (start path, Q-12, SP3) | PASS subject to a green pre-flight. Q-12 keeps rows in a window; no leak, because maintenance is judged last in may_start (checked in source; Q12's other-school leg). T-SP closed by SP3. Freeze checks re-run | `6e45fe5266a9b85bcd07d03022f0a27ee0bfa93e` | `A2B-START-PATH-3c58620e.md` (addendum) |
 | A2b start-path fix (new candidate) | PASS on the fix, subject to a green pre-flight and T-SP (a static test that no exported action but mulaiAsesmen starts a sitting, as Bob ruled); my_open_assessments cannot leak (it can only shrink) | `b2f6a5529c8130b920126c19a25ac994c86aafb7` | `A2B-START-PATH-3c58620e.md` (addendum) |
 | A2b start path (maintenance refusals as bare P0001) | BLOCKER for promotion, confirmed: start_learning_session hides PR040/PR110, so the learner sees an error page (regresses 4.0's T−15). Fix with the codes, red first through mulaiAsesmen, sweep callers, unfreeze and refreeze; J1.6 asserts PR040 after the fix | `3c58620ed6bdd27e3303e4d5decc462b648c2496` | `A2B-START-PATH-3c58620e.md` |
 | C2w A2B-R2 (Studio withdrawal place read), as text | PASS on the text, subject to diffing the pushed SHAs; withdraw's rule, no oracle, fail-closed helper, library context, last exception removed; Second Eye's three questions all yes | `c9d9ae4e` (local, unpushed) | `C2W-R2-c9d9ae4e.md` |
