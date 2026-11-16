@@ -155,11 +155,20 @@ export const TAK_TERBACA = ["broadcast_notices", "evaluation_personas", "mainten
 export const BACA_LAYANAN: Record<string, Record<string, string>> = {
   "src/app/api/evaluation/assume/route.ts": { evaluation_personas: "the evaluation persona route reads its personas with the service client (supabaseService), never the session" },
 };
+/** A2B-R2 (the Chief Architect, 16 Nov 11:59: option (b), placed as C2w's first item): Studio's reads of
+ *  release_distributions through the session, named by file, line and table, each removed in C2w. Each entry is held
+ *  to its line: a moved or changed read fails here, so the exception cannot outlive what it names. */
+export const BACA_PENGECUALIAN: Array<{ berkas: string; baris: number; tabel: string; alasan: string }> = [
+  { berkas: "src/app/studio/actions.ts", baris: 328, tabel: "release_distributions", alasan: "A2B-R2, C2w: withdrawDistributionAction's context read (fail-open, as S-1)" },
+  { berkas: "src/app/studio/kanonik/page.tsx", baris: 91, tabel: "release_distributions", alasan: "A2B-R2, C2w: the Kanonik page's list of active distributions (always empty)" },
+  { berkas: "src/lib/konteks-server.ts", baris: 160, tabel: "release_distributions", alasan: "A2B-R2, C2w: SUMBER_SEKOLAH.distribusi (no caller today)" },
+];
 /** The one variable table read in src, by file: its map's values are each checked as literal reads. */
 const BACA_PETA: Record<string, RegExp> = { "src/lib/konteks-server.ts": /\.from\(SUMBER_SEKOLAH\[jenis\]\)/ };
 /** Every app read that names a table the session cannot select, or names no table this rule can read. */
 export function bacaanTakTerbaca(sumber: string, berkas: string): string[] {
-  const s = tanpaKomentar(sumber);
+  // comments blanked with their newlines kept, so a match's line is the file's own (BACA_PENGECUALIAN)
+  const s = sumber.replace(/\/\*[\s\S]*?\*\//g, (k) => k.replace(/[^\n]/g, " ")).replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
   const salah: string[] = [];
   for (const m of s.matchAll(/(\bstorage\s*)?\.from\(\s*([^)]*?)\s*\)/g)) {
     if (m[1]) continue;
@@ -171,6 +180,8 @@ export function bacaanTakTerbaca(sumber: string, berkas: string): string[] {
       salah.push(`.from(${arg}) names its table by a variable: this rule cannot see what it reads`);
       continue;
     }
+    const baris = s.slice(0, m.index!).split("\n").length;
+    if (BACA_PENGECUALIAN.some((e) => e.berkas === berkas && e.tabel === lit && e.baris === baris)) continue;
     if ((TAK_TERBACA as readonly string[]).includes(lit) && !BACA_LAYANAN[berkas]?.[lit]) {
       salah.push(`reads ${lit} through the session, which holds no SELECT on it: the read comes back empty`);
     }
@@ -178,6 +189,8 @@ export function bacaanTakTerbaca(sumber: string, berkas: string): string[] {
   if (BACA_PETA[berkas]) {
     const peta = /const SUMBER_SEKOLAH = \{([\s\S]*?)\};/.exec(s)?.[1] ?? "";
     for (const m of peta.matchAll(/(\w+):\s*"([a-z_]+)"/g)) {
+      const baris = s.slice(0, s.indexOf(m[0])).split("\n").length;
+      if (BACA_PENGECUALIAN.some((e) => e.berkas === berkas && e.tabel === m[2] && e.baris === baris)) continue;
       if ((TAK_TERBACA as readonly string[]).includes(m[2])) salah.push(`SUMBER_SEKOLAH.${m[1]} reads ${m[2]} through the session, which holds no SELECT on it`);
     }
   }
@@ -617,6 +630,11 @@ export const fable22Tests: SelfTest[] = [
   const { data } = await supabase.from(tabel).select("platform, institution_ids").eq("id", id).limit(1); }`, "src/app/konfigurasi/actions.ts");
       const tanamLiteral = salahBaca(`const { data } = await supabase.from("maintenance_windows").select("ends_at");`, "src/app/konfigurasi/actions.ts");
       c.expect(tanamS1.length === 1 && tanamLiteral.length === 1, `the plants: S-1's variable read ${tanamS1.length}, a literal unreadable read ${tanamLiteral.length} (each must be caught once)`);
+      // A2B-R2's named exceptions each still hold the read they name, at their line (removed in C2w)
+      for (const e of BACA_PENGECUALIAN) {
+        const garis = baca(ctx.repoRoot, e.berkas).split("\n")[e.baris - 1] ?? "";
+        c.expect(garis.includes(`"${e.tabel}"`), `the exception ${e.berkas}:${e.baris} (${e.alasan}) no longer names ${e.tabel} at its line: remove or move it`);
+      }
       return c.verdict(`§2.11 (D-132(k)): all ${n} context-bound server actions in ${Object.keys(AKSI_TERIKAT).length} files check their `
         + `target against the active context before acting (exempt by name: ${bebas.join("; ")}), and the ${Object.keys(RUTE_TERIKAT).length} `
         + "context-bound API routes before their act; every other server-action file and route is exempt by name with its reason "
