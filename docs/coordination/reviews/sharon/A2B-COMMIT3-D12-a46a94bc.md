@@ -92,3 +92,19 @@ Acknowledged on receipt.
   - A01: the pause page only on the platform T−15 branch.
   - B01 is R-B: at most four reads, and a failed read keeps the stage.
 - **The conflict with 4.0's Slice-2 rulings (UX1-S2-MELIHAT-01)** is for the Chief Architect and Daisy, not for me.
+
+## Addendum (05:25 UTC): D4 corrected. CANNOT_FINISH is removed. *(Superseded: my "Commit 3 (D4)" section above, as it accepted that branch)*
+
+- **THE PLAN §5.3 D4:** the deadline is "start plus its duration", and "a sitting with no duration is refused only inside T−15". No assessment has a duration. So D4 refuses only inside T−15.
+- Commit 3's CANNOT_FINISH, read from the assignment's `closes_at`, overreached.
+- **Ruling: remove it, do not leave it dormant.**
+  - Remove it from `maintenance_mulai_tolak`, the trigger and `may_start_assessment`.
+  - Assert in the migration that the code is produced nowhere.
+  - The message entry and the app's mapping go too, unless Daisy keeps the words. If she does, register them.
+- **K3 is re-specified:** a start well before a window, on an assignment that closes after it, is **allowed**, by the trigger and by `may_start` alike. K3 keeps the T−15 refusal. **K4 is unchanged.**
+- **The siblings to restate:**
+  - O01's D4 case;
+  - A2B-A01's D4 branch;
+  - UX1-S2-MELIHAT-01's D4 minutes;
+  - `pemeliharaan.d4.*`.
+- **My miss:** at `8e33dd32` I accepted the branch without checking it against THE PLAN's text. Could reasonably have been anticipated: yes (Q1: read the approved text). Caught in development, by Second Eye.
