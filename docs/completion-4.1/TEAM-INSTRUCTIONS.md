@@ -46,6 +46,13 @@ E's three owner decisions (providers, scoring rules, judges) stay visible in sta
 
 **Principles:** no silent scope expansion; no bypassed security or deployment gates; no false completion claims.
 
+## A2b FROZEN (16 Nov 2026, 15:08 UTC)
+
+`3c58620ed6bdd27e3303e4d5decc462b648c2496` on `claude/a2b`. Pre-flight green (suite 1224/0, plants 175/175, red-case
+11/11; A12 met). PR #24 open for CI only; journeys dispatched on the candidate. **Staging PENDING OWNER
+AUTHORISATION** (the "before" read precedes the merge; owner offline overnight). C2w started on its own branch from the
+candidate. Status report: `STATUS-2026-11-16.md`.
+
 ## While the owner is away (owner's standing instruction, 12 November 2026)
 
 The owner is unavailable to relay messages. Everyone proceeds under the existing approved plans, decisions,
