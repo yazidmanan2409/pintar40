@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| E · provider facts, independent review | Fit for E's decision pack with F1 to F6 corrected; G1 (OpenAI's terms) and G2 (Anthropic's subprocessors) for the owner to read; Google not eligible under §20(d) without written clarification; disclosure: every reviewer here is an Anthropic model | `22ff0ddd5447eb4a451d8ac8776a1446945e84f0` | `E-PROVIDER-FACTS-REVIEW.md` |
 | A2b commit 3 (D4) and D1-2 | NO BLOCKER on either; D1-2 closed; D1-3 approved (the two read-only readers read held as A1-frozen or protected, with a test, a plant and a sweep) | `a46a94bc3a704613e34d7b48f1d22e600d693fc2` | `A2B-COMMIT3-D12-a46a94bc.md` |
 | A2b commit 2, 2a, the test commit; an A2a finding | NO BLOCKER on A2b; C1-1 and I02-1 closed; M148-D01 restatement confirmed (R-1); note: the person-level start branch on `now()`; **D1-2 required** (a marked sitting's pending release missing from the effective deadline: its own commit, with a test and a plant) | `4010fe838205dc40d878981140b6dd4f446006cc` | `A2B-COMMIT2-4010fe83.md` |
 | A2b product commit 1 (class PLANNED windows, extend) | NO BLOCKER in the design; **C1-1** the grants (`authenticated` only, `service_role` revoked); a class window has the banner only, node notices registered | `60af5cc2378dd446cd7ff63e923b348ed4d07551` | `A2B-COMMIT1-60af5cc2.md` |
