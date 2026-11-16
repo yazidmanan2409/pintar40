@@ -273,3 +273,17 @@ Forecasts are not commitments. The January forecast for 4.1 is unchanged; the ow
     countdown.
 - **The owner could have overruled it.** Plain D8 behaviour would then be accepted: timers from one read, and a stale stage
   possible until the next page load.
+
+### R-C · D4 applies only to sittings with a duration, and PINTAR has none today (Chief Architect, 16 Nov 2026)
+
+- **The finding** (Second Eye): no assessment has its own time limit. A sitting's deadline is its assignment's
+  `closes_at`. Commit 3 measured "cannot finish" against that close, so a class window weeks ahead would have blocked
+  every start in the class.
+- **The ruling follows THE PLAN §5.3 D4's text:** the deadline is "start plus its duration", and "a sitting with no
+  duration is refused only inside T−15 as today".
+  - Every sitting is untimed, so A2b refuses starts only inside T−15 (`MAINTENANCE_NO_NEW_START`), and with
+    `MAINTENANCE_PLACE` once a work-scoped window is active.
+  - Commit 3's CANNOT_FINISH branch and the `pemeliharaan.d4.*` keys come out; Sharon rules remove versus dormant.
+  - K3 is re-specified: a start well before a window, on an assignment that closes after it, is allowed.
+- **Consequence, for the owner:** D4's "cannot finish before the window" has no effect until assessments carry their
+  own time limit. That would be a schema and product change outside A2b, a candidate for 4.2.
