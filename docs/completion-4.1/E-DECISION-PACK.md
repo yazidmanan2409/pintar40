@@ -124,10 +124,16 @@ never called.
 | (c) A 400; three 5xx; a reported cost above its reservation | Not retried; failed after 3 attempts; aborted at once |
 | **A real run** | **Refuses** while any price is UNVERIFIED, any adapter unverified, or a key missing |
 
-**Before a paid run, still to do at no cost:**
-1. Enter the verified prices in `prices.json`.
-2. Check both adapters against the providers' official API reference. The research session is recording it now.
-3. Repeat the dry run with the real prices. I will send you the result with the go request.
+**No-cost preparation: DONE (16 Nov), `claude/e-runner-prep` at `716ae93b`, Sharon PASS (`6c113f68`).**
+1. Verified prices entered: `claude-sonnet-5-5` and `gpt-6.1-sol`, US$2 / US$10 (grade A). Google excluded and its adapter
+   deleted.
+2. Both adapters checked field by field against the official API reference (E-PROVIDER-FACTS §6, §6c) and
+   **verified**: every success-path field grade A; Anthropic's undocumented credit-exhaustion error accepted only
+   because its handling is proven fail-closed (any non-documented error stops the provider, no retry, reservation
+   kept as cost; an exhaustive sweep of 1,800 cases per adapter).
+3. Dry run at real prices: worst case **US$0.764 per provider, US$1.529 total**; mock run US$0.502. Self-test 116/0,
+   offline, re-run independently by Sharon.
+4. A real run additionally needs the `--live` flag; it is refused without it or without keys.
 
 ## 4 · Scoring rules, frozen before the first call
 
