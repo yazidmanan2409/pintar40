@@ -167,7 +167,7 @@ Her record: `ux-1/daisy-experience` at `a13f30ff4fe0bd53727d7af219068d35d0b1b0ae
 
 | # | Finding | Disposition |
 |---|---|---|
-| A2B-R1 | Daisy's B1 proposes the reason list for the emergency form too (KEAMANAN, INTEGRITAS). THE PLAN §5.3 D2 is the scheduler's list for PLANNED windows, and A2a's `stop_pintar_now` is accepted on staging | **Deferred, not refused.** A2b codes PLANNED rows only; EMERGENCY keeps free text, with a test pinning `stop_pintar_now`'s signature. A candidate for a later batch, with its own decision (Bob) |
+| A2B-R1 | Daisy's B1 proposes the same five-reason list (RUTIN … LAINNYA) for the emergency form too. The two extra emergency codes, KEAMANAN and INTEGRITAS, were Second Eye's proposal in his batch 2 plan, not Daisy's (*attribution corrected 16 Nov at Daisy's request*). THE PLAN §5.3 D2 is the scheduler's list for PLANNED windows, and A2a's `stop_pintar_now` is accepted on staging | **Deferred, not refused.** A2b codes PLANNED rows only; EMERGENCY keeps free text, with a test pinning `stop_pintar_now`'s signature. A candidate for a later batch, with its own decision (Bob) |
 
 ### Register additions (Daisy, 12 Nov; all predate this work; before Z)
 
