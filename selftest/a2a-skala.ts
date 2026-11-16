@@ -36,7 +36,7 @@ const PENGAMBIL = 8;   // the shared takers: protected decisions on unaffected s
 const PRODUK = "c04c088ea65f7eff32c07aadf0a91b16e098e3ed";
 const W_ALASAN = "A2a change B · scenario 8";
 
-type Hasil = { ok: boolean; out: string; err: string; ms: number };
+type Hasil = { ok: boolean; out: string; err: string; ms: number; semua: number[] };
 
 /** psql on a connection of its own; `ms` is the last statement's own time (psql's \timing). */
 function psqlT(sql: string, sub?: string, app = "a2a-skala"): Promise<Hasil> {
@@ -49,7 +49,7 @@ function psqlT(sql: string, sub?: string, app = "a2a-skala"): Promise<Hasil> {
     p.on("close", (code) => {
       const kali = [...out.matchAll(/^Time: ([0-9.]+) ms/gm)].map((m) => Number(m[1]));
       const isi = out.split("\n").filter((l) => l && !/^Time: /.test(l));
-      selesai({ ok: code === 0, out: isi.join("\n").trim(), err: err.trim().split("\n").filter((l) => /ERROR|DETAIL|WARNING/.test(l)).join(" | "), ms: kali.length ? kali[kali.length - 1] : NaN });
+      selesai({ ok: code === 0, out: isi.join("\n").trim(), err: err.trim().split("\n").filter((l) => /ERROR|DETAIL|WARNING/.test(l)).join(" | "), ms: kali.length ? kali[kali.length - 1] : NaN, semua: kali });
     });
     p.stdin.end(`${awal}\\timing on\n${sql}\n`);
   });
@@ -70,6 +70,10 @@ function fase(nama: string) { const t = Date.now(); console.log(`phase ${nama}: 
 
 async function main() {
   if (!DB) throw new Error("SUPABASE_DB_URL is not set");
+  // Sharon's B1: only N = 50,000 and the full cycles are evidence; in CI neither may be set
+  if ((process.env.CI || process.env.GITHUB_ACTIONS) && (process.env.A2A_SKALA_N !== undefined || process.env.A2A_SKALA_SIKLUS !== undefined)) {
+    throw new Error("A2A_SKALA_N or A2A_SKALA_SIKLUS is set in CI: a run of another size is not the evidence");
+  }
   // the two commits the evidence names: the tooling's, and the product's, byte-identical where the product lives
   const alat = spawnSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).stdout.trim();
   const sama = spawnSync("git", ["diff", "--quiet", PRODUK, "HEAD", "--", "supabase", "src"]).status === 0;
@@ -128,19 +132,44 @@ analyze public.assessment_sessions;`);
 
   const henti = () => psqlT(`select public.stop_pintar_now(false, array['${inst}'::uuid], '${W_ALASAN}', 'HENTIKAN SEKARANG', array['${kelas}'::uuid]);`, sys);
   const angkat = (w: string) => psqlT(`select public.change_maintenance('${w}', 'AKHIRI', '${W_ALASAN}') ->> 'state';`, sys);
-  const hasil: Record<string, unknown> = { tooling_commit: alat, product_commit: PRODUK, sittings: kena, cycles: SIKLUS, shared_takers: PENGAMBIL };
+  // B1: what the run is, and when each measure was taken
+  const waktu: Record<string, string> = {};
+  const tandai = (k: string) => { waktu[k] = new Date().toISOString(); };
+  const hasil: Record<string, unknown> = { evidence: N === 50000 && SIKLUS === 20, sittings_requested: N, sittings: kena, cycles: SIKLUS, shared_takers: PENGAMBIL,
+    tooling_commit: alat, product_commit: PRODUK, run_id: process.env.GITHUB_RUN_ID ?? "local", run_attempt: process.env.GITHUB_RUN_ATTEMPT ?? "local",
+    postgres_version: psql("select version();"), measured_at: waktu };
 
   // ── 3 and scenario 8: the activation and the lift, uncontended, with no batch run before the lift ──────────────
+  tandai("activation_uncontended");
   const a1 = await henti();
   if (!a1.ok) throw new Error(`the activation failed: ${a1.err}`);
   const w1 = a1.out.split("\n").pop()!;
+  tandai("lift_no_batch");
   const l1 = await angkat(w1);
   if (!l1.ok) throw new Error(`the lift failed: ${l1.err}`);
   const ditandai = Number(psql(`select count(*) from public.assessment_sessions where darurat_jendela_id is not null;`));
-  // D1: the pending-credit read, on 1,000 affected sittings with the lifted stop pending
+  // D1: the pending-credit read, on 1,000 affected sittings with the lifted stop pending; and 200 calls each timed, for
+  // its p95 (Sharon judges it against the hook's gate)
+  tandai("d1_read");
+  // each call timed inside the database (clock_timestamp() around the read alone), so a statement's round trip is not
+  // counted as the read's cost
+  const d1Satu = psql(`create function pg_temp.a2a_d1() returns text language plpgsql as $f$
+declare r record; t0 timestamptz; ms float8[] := '{}';
+begin
+  for r in select id from public.assessment_sessions where class_node_id = '${kelas}' and status = 'IN_PROGRESS'
+             and darurat_dikredit_sampai is null order by id desc limit 200 loop
+    t0 := clock_timestamp();
+    perform public.pengerjaan_tenggat_efektif(r.id);
+    ms := ms || (extract(epoch from (clock_timestamp() - t0)) * 1000)::float8;
+  end loop;
+  return (select cardinality(ms) || '|' || round(percentile_cont(0.5) within group (order by x)::numeric, 4) || '|'
+               || round(percentile_cont(0.95) within group (order by x)::numeric, 4) from unnest(ms) x);
+end $f$;
+select pg_temp.a2a_d1();`).split("|");
   const d1 = await psqlT(`select count(public.pengerjaan_tenggat_efektif(id)) from (select id from public.assessment_sessions
      where class_node_id = '${kelas}' and status = 'IN_PROGRESS' and darurat_dikredit_sampai is null order by id limit 1000) x;`);
   // the release batch: the credit of every affected sitting, in its committed batches, no fence
+  tandai("release_batch");
   const lepas = await psqlT(`call public.pengerjaan_lepas_darurat_semua(200);`);
   const dikredit = Number(psql(`select count(*) from public.assessment_sessions where class_node_id = '${kelas}' and darurat_dikredit_sampai is not null;`));
   fase("the activation, the lift, D1 and the release batch");
@@ -148,9 +177,11 @@ analyze public.assessment_sessions;`);
   hasil.lift_no_batch_ms = bulat(l1.ms);
   hasil.marked_before_lift = ditandai;
   hasil.d1_read_ms_per_call = bulat(d1.ms / 1000 * 1000) / 1000;
+  hasil.d1_read_single_calls = { calls: Number(d1Satu[0]), p50_ms: Number(d1Satu[1]), p95_ms: Number(d1Satu[2]), timed: "inside the database, around the read alone" };
   hasil.release_batch = { ms: bulat(lepas.ms), credited: dikredit, per_second: Math.round(dikredit / (lepas.ms / 1000)) };
 
   // ── 1. R1: a stop in force over the 50,000; the first scheduler run ───────────────────────────────────────────
+  tandai("r1");
   const a2 = await henti();
   if (!a2.ok) throw new Error(`the second activation failed: ${a2.err}`);
   const w2 = a2.out.split("\n").pop()!;
@@ -182,6 +213,7 @@ analyze public.assessment_sessions;`);
   // the closer, running throughout: one pass after another; at 50,000 sittings a pass (its marking and release
   // batches included) outlasts the cycles, so the pass under way when they end is cancelled, not waited for
   const penutup = (async () => { let n = 0; while (jalanTerus) { await psqlT(`call public.pengerjaan_tutup_berkala(500, 20);`, undefined, "a2a-skala-penutup"); n++; if (jalanTerus) await tidur(1000); } return n; })();
+  tandai("r2_and_refusals");
   await tidur(5000);   // the baseline: the shared takers and the closer, no stop
   const dasar = catatan.filter((c) => c.ok).map((c) => c.ms);
   const aktif: number[] = [], angkatMs: number[] = [];
