@@ -7,6 +7,7 @@
 -- "a sitting with no duration is refused only inside T−15 as today". PINTAR has no per-assessment duration, so every
 -- sitting is untimed: D4 has no effect until assessments carry their own time limit (a separate future item, outside
 -- A2b), and the branch is removed, not left dormant. A2B-D4X asserts its absence, with a plant.
+-- WHY D4 IS ABSENT: R-C in PLAN-A2B-C2W.md (D4 applies only to sittings with a duration, and PINTAR has none today).
 --
 -- What remains: maintenance_mulai_tolak(person, node) answers, in order, the place (a work-scoped window under way over
 -- the node: MAINTENANCE_PLACE, Sharon's ruling 1) and T−15 (a planned window that reaches this work starts within 15
