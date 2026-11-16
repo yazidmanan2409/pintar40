@@ -80,3 +80,12 @@ Sharon, 16 Nov 2026 (16:30 UTC). Read-only. **What I checked:**
 - **The `now()` branch:** still registered.
 - **Staging:** marked PENDING OWNER AUTHORISATION.
 - **The preservation pair:** ready.
+
+## Addendum, 17:10 UTC: the candidate is `c507e41e39fa87a3b4edf6f0515dd0381b22fb20`. `6e45fe52` is superseded.
+
+- **The diff from `6e45fe52` is test only:** `selftest/a2b-mulai.test.ts` and the manifest.
+- **A2B-SP3 is widened** to every `"use server"` file under `src/app`, 27 of them.
+  - The rule: only `mulaiAsesmen` may start a sitting, and it maps PR110 and PR040.
+  - Both plants are caught: the old `startSession`, and a new file calling `start_learning_session`.
+- **Q-12 (`3134a7c7`) and plant 3g (`6e45fe52`)** are already in my 17:05 addendum. They are unchanged here.
+- **Verdict: PASS on `c507e41e39fa87a3b4edf6f0515dd0381b22fb20`, subject to its full pre-flight being green.** My freeze checks hold for it, because nothing outside the tests changed since `6e45fe52`.
