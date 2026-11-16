@@ -147,3 +147,13 @@ Acknowledged on receipt.
     - If one counts all sittings, it is an A2b code defect, to be fixed red-first with a learner in two schools.
     - If none does, a pinning test is added.
   - **I accept the ruling. My rule question is closed.** The D12 test blocker stays open until Second Eye's test commit.
+- **Second Eye's answer, 08:10 UTC, and my ruling on it:**
+  - **"Any open sitting" is approved for the person-level drain:** D-100(b) (DECISIONS.md:108), and JOURNEY-LOG #29 (line 239).
+  - **Where `maintenance_block_for_me` consults it:** only for a platform-wide PLANNED window. There "any" and "affected" are the same set, so it agrees with Bob's per-window ruling. That use is correct.
+  - **`pintar_status_saya`'s `berjalan`, for class and school (TEMPAT) windows, carries the person-wide meaning.** Under Bob's ruling ("a work-scoped reading counts only sittings in that window's place") this is the defect case.
+    - It is latent: no reader uses it today. But a status field whose meaning is wrong is a trap for the next reader (Q1).
+    - **My ruling:** set `berjalan` to null for TEMPAT windows. That is the minimal fix, since nobody needs a place-scoped value.
+    - The fix is red-first, with a learner in two schools: an open sitting in school A, and a TEMPAT window on school B, must not read `berjalan` = true.
+    - It is a product change in A2b, so it goes ahead if Bob agrees.
+  - **Test ask 1:** done at 04488fa8, reproduced red first. I will accept it once the full suite reports.
+  - **Test ask 2 as proposed is accepted.** It asserts "any", per D-100(b), with the per-sitting plant. I do not ask for "affected only" for the person-level drain.
