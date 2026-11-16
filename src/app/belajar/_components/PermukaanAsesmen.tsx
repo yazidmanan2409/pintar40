@@ -16,7 +16,7 @@ import { personaPembelajaran } from "@/lib/pembelajaran";
 import { zonaSimpulBanyak } from "@/lib/zona-sekolah";
 import ItemPlayer from "./ItemPlayer";
 import { pengerjaanSaya } from "@/lib/pengerjaan";
-import { arahTolakMulai, jamJendela } from "@/lib/pemeliharaan-kontrak";
+import { arahTolakMulai, hariLain, jamJendela } from "@/lib/pemeliharaan-kontrak";
 
 /**
  * ONE ASSESSMENT EXPERIENCE, THREE WAYS IN.
@@ -126,9 +126,12 @@ export default async function PermukaanAsesmen({
           const kelas = orientasi.tolak_kelas && orientasi.tolak_kelas.length > 0 ? orientasi.tolak_kelas.join(", ") : null;
           const kunci: HleEvent = kelas ? (orientasi.tolak_selesai ? "pemeliharaan.d4.kelas_akhir" : "pemeliharaan.d4.kelas_tanpa_akhir")
             : orientasi.tolak_selesai ? "pemeliharaan.d4.akhir" : "pemeliharaan.d4.tanpa_akhir";
+          // the end (or the start) on another day carries its date (Daisy, A2-KATA-DESAIN.md B2)
+          const kini = Date.now();
+          const waktu = (iso: string) => jamJendela(iso, zonaTolak) + hariLain(iso, zonaTolak, kini, locale);
           return s(kunci).replace("{d}", menit).replace("{kelas}", kelas ?? "")
-            .replace("{jam}", orientasi.tolak_mulai ? jamJendela(orientasi.tolak_mulai, zonaTolak) : "—")
-            .replace("{jam_selesai}", orientasi.tolak_selesai ? jamJendela(orientasi.tolak_selesai, zonaTolak) : "—");
+            .replace("{jam}", orientasi.tolak_mulai ? waktu(orientasi.tolak_mulai) : "—")
+            .replace("{jam_selesai}", orientasi.tolak_selesai ? waktu(orientasi.tolak_selesai) : "—");
         })();
     return (
       <>

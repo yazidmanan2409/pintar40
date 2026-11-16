@@ -10,7 +10,7 @@
  * browser times T-60/30/15 itself, with no polling (D-094(d)).
  */
 
-import { geserZona, jam, kataZona } from "./tanggal";
+import { bagianJakarta, geserZona, jam, kataZona, tanggal } from "./tanggal";
 
 export const HALAMAN_PEMELIHARAAN = "/pemeliharaan";
 
@@ -190,6 +190,18 @@ export function arahTolakMulai(kode: string, cakupan: string | null | undefined)
 /** A2b (D8): a time of a window as its reader reads it: «22.00 WITA», in the window's zone. */
 export function jamJendela(iso: string, j: Pick<JendelaSaya, "zona">): string {
   return `${jam(iso, j.zona)} ${kataZona(j.zona)}`;
+}
+
+/**
+ * A2b (Daisy, A2-KATA-DESAIN.md B2 and A2B-RA-KALIMAT.md §4): a window's time that falls on another day than the
+ * reader's today, both read in the window's zone, carries its date after the zone word: «…, Selasa, 17 Nov 2026» (ID),
+ * «… on Tuesday, 17 Nov 2026» (EN). Nothing when it is the same day.
+ */
+export function hariLain(iso: string, j: Pick<JendelaSaya, "zona">, kiniMs: number, locale: string = "id"): string {
+  const geser = geserZona(j.zona);
+  const a = bagianJakarta(iso, geser), b = bagianJakarta(new Date(kiniMs), geser);
+  if (!a || !b || (a.tahun === b.tahun && a.bulan === b.bulan && a.hari === b.hari)) return "";
+  return locale === "en" ? ` on ${tanggal(iso, "hari", "en", j.zona)}` : `, ${tanggal(iso, "hari", "id", j.zona)}`;
 }
 
 /**

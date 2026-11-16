@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { t, type Locale } from "@/lib/hle";
 import {
-  BACA_ULANG_MAKS, HALAMAN_PEMELIHARAAN, jamJendela, jendelaDiHalaman, jendelaDiumumkan, jendelaUtama, menitTersisa,
+  BACA_ULANG_MAKS, HALAMAN_PEMELIHARAAN, hariLain, jamJendela, jendelaDiHalaman, jendelaDiumumkan, jendelaUtama, menitTersisa,
   permukaanAsesmen, tahapBerikutMs, tahapPeringatan, tahapSetelahBaca, type StatusSaya,
 } from "@/lib/pemeliharaan-kontrak";
 import { bacaUlangStatusSaya } from "@/app/pemeliharaan/actions";
@@ -120,7 +120,7 @@ export default function PengingatPemeliharaan({ locale, status: awal }: { locale
           {/* after a failed re-read, no countdown: the last-known start, as of the last read (R-B; Daisy §4) */}
           {gagal ? <><strong>{(jendela.kelas ? s("pemeliharaan.basi.kelas").replace("{kelas}", jendela.kelas.join(", "))
               : tempat ? s("pemeliharaan.basi.sekolah") : s("pemeliharaan.basi.platform"))
-              .replace("{jam_baca}", bacaTerakhir ? jamJendela(bacaTerakhir, jendela) : "—").replace("{jam}", jamJendela(jendela.mulai, jendela))}</strong>{" "}</>
+              .replace("{jam_baca}", bacaTerakhir ? jamJendela(bacaTerakhir, jendela) : "—").replace("{jam}", jamJendela(jendela.mulai, jendela) + hariLain(jendela.mulai, jendela, Date.now(), locale))}</strong>{" "}</>
             : <><strong>{s("pemeliharaan.pita.dalam")} {menitTersisa(jendela.mulai, kini)} {s("pemeliharaan.pita.menit")}.</strong>{" "}</>}
           {tempat ? s("pemeliharaan.tempat.pukul").replace("{untuk}", untuk) : s("pemeliharaan.pita.pukul")} {jamJendela(jendela.mulai, jendela)}.{" "}
           {jendela.selesai ? <>{s("pemeliharaan.pita.selesai_kira")} {jamJendela(jendela.selesai, jendela)}. </> : null}
