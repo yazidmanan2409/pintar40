@@ -1,0 +1,864 @@
+/**
+ * A2b, STEP 1 · THE INVENTORY TEST AND THE BOUNDARY TESTS K1 TO K12, RED FIRST (PLAN-A2B-C2W.md §2.3 and §2.5; Sharon's
+ * A2B-K-TESTS-43ce13bf.md at cfa23583: K1 to K7 agreed as written, K8 to K12 required before any product code).
+ *
+ * Written before any product code, on main at eff99f98. Each test states the behaviour A2b must have; a test that is
+ * red on main is red because that behaviour does not exist yet, never because its fixture failed: every test first
+ * checks its own baseline (the act it judges succeeds when no window is open), and reports a broken fixture as such.
+ *
+ * THE INTERFACE THESE TESTS FIX (for Sharon's read; each is a name or code the product commits must provide):
+ *   * the place guard: public.maintenance_affects_place(node uuid, at timestamptz), called by every refused writer
+ *     (directly, or by its trigger for a start); it reads clock_timestamp(), never now();
+ *   * the work-scoped refusal: errcode PR040, detail MAINTENANCE_PLACE (never PT503);
+ *   * D4: errcode PR110, detail MAINTENANCE_CANNOT_FINISH, from the sitting-insert trigger, when the new sitting's own
+ *     deadline (authoritative_deadline) falls after the starts_at of a planned window that reaches its work; T−15 stays
+ *     MAINTENANCE_NO_NEW_START, as today;
+ *   * extend: public.perpanjang_pemeliharaan(p_window uuid, p_ends_at timestamptz, p_reason text), PLANNED only;
+ *     refused on an EMERGENCY window with PR110 MAINTENANCE_EMERGENCY_LIFT_ONLY, and on a window that has ended (judged
+ *     by clock_timestamp() against ends_at and ended_at) with PR110 MAINTENANCE_NOT_OPEN; resume early is the existing
+ *     change_maintenance(…, 'AKHIRI', …);
+ *   * the node parameter: schedule_maintenance(…, p_nodes => uuid[]); a bad class refused with PR110
+ *     MAINTENANCE_NODE_INVALID before any constraint; the CHECK maintenance_windows_class_is_emergency gone.
+ *
+ * Fixtures: one transaction each, rolled back, except K1's lock-wait leg and K9, which need two real connections and
+ * so commit their rows (with the replica role) and remove them after, whatever the run did. Where a fixture needs a
+ * PLANNED class window before K10's migration exists, the CHECK is dropped inside the rolled-back transaction (a no-op
+ * once K10's migration has dropped it).
+ */
+import { spawnSync } from "node:child_process";
+import { Checks, type SelfTest } from "./lib";
+import { psqlBaris } from "./a2a-f01.test";
+
+// ─────────────────────────────────────────────────────────────────────────── helpers
+
+function psqlStdin(db: string, sql: string): string {
+  const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: sql });
+  if (r.status !== 0) throw new Error(r.stderr.slice(0, 400));
+  return r.stdout.trim();
+}
+/** Runs a script; every output line `kunci|nilai` becomes hasil[kunci]. */
+function barisKunci(db: string, sql: string): { hasil: Record<string, string>; err: string } {
+  const r = spawnSync("psql", [db, "-XqAt", "-v", "ON_ERROR_STOP=1"], { encoding: "utf8", input: sql });
+  const hasil: Record<string, string> = {};
+  for (const l of (r.stdout ?? "").split("\n")) { const i = l.indexOf("|"); if (i > 0) hasil[l.slice(0, i)] = l.slice(i + 1); }
+  return { hasil, err: r.status === 0 ? "" : (r.stderr ?? "").trim().split("\n").filter((x) => /ERROR|DETAIL/.test(x)).join(" ") };
+}
+const sebagai = (uid: string) => `select set_config('request.jwt.claims', '{"sub":"${uid}","role":"authenticated"}', true);`;
+const tanpaOrang = `select set_config('request.jwt.claims', '', true);`;
+
+/** pg_temp.a2b_coba(sql): runs the act in a subtransaction and undoes it, returning OK or sqlstate:detail.
+ *  pg_temp.a2b_tetap(sql): the same, but keeps what the act wrote. */
+const ALAT = `
+create function pg_temp.a2b_coba(p_sql text) returns text language plpgsql as $c$
+declare v_s text; v_d text;
+begin
+  execute p_sql;
+  raise exception using errcode = 'P0001', message = 'A2B_OK';
+exception when others then
+  get stacked diagnostics v_s = returned_sqlstate, v_d = pg_exception_detail;
+  if sqlerrm = 'A2B_OK' then return 'OK'; end if;
+  return v_s || ':' || coalesce(v_d, '');
+end $c$;
+create function pg_temp.a2b_tetap(p_sql text) returns text language plpgsql as $c$
+declare v_s text; v_d text;
+begin
+  execute p_sql;
+  return 'OK';
+exception when others then
+  get stacked diagnostics v_s = returned_sqlstate, v_d = pg_exception_detail;
+  return v_s || ':' || coalesce(v_d, '');
+end $c$;`;
+const TEMPAT = "PR040:MAINTENANCE_PLACE";
+const ALASAN = "A2b boundary test: K";
+
+/** The world of the two-place cases. School X: class 7A (the seed's class of a learner whose teacher has an account) and
+ *  7B, made for the test (a copy of 7A's node); the teacher T teaches both; a learner in each, each with an open sitting
+ *  (S_A in 7A, S_B in 7B). School Y: another school's class CY, where T also teaches, with its learner's open sitting
+ *  S_Y. All read once from the seed; the rows are created inside the caller's transaction. */
+type Dunia = {
+  X: string; Y: string; kA: string; kB: string; kY: string;
+  guru: string; guruUid: string; murid: string; muridUid: string; enrA: string; memA: string;
+  murid2: string; murid2Uid: string; enrB: string; memB: string;
+  muridY: string; enrY: string; adminX: string; adminXUid: string; sysUid: string; sys: string;
+  sumber: string; SA: string; SB: string; SY: string; PA: string;
+};
+const ID = (n: string) => `a2b00001-0000-4000-8000-${n.padStart(12, "0")}`;
+export function dunia(db: string): Dunia {
+  const g = psqlStdin(db, `select e.id || '|' || e.person_id || '|' || m.id || '|' || m.node_id || '|' || e.institution_id
+     || '|' || a.auth_user_id || '|' || rg.person_id || '|' || ag.auth_user_id
+  from public.enrollments e join public.memberships m on m.enrollment_id = e.id and m.valid_to is null
+  join public.org_nodes n on n.id = m.node_id and n.kind = 'CLASS'
+  join public.accounts a on a.person_id = e.person_id
+  join public.role_assignments rg on rg.role = 'EDUCATOR' and rg.scope_node_id = m.node_id and rg.revoked_at is null
+   and now() >= rg.valid_from and now() < rg.valid_until and rg.person_id <> e.person_id
+  join public.accounts ag on ag.person_id = rg.person_id
+  where e.status = 'ACTIVE' and e.valid_to is null
+    and not exists (select 1 from public.person_suspensions ps where ps.person_id in (e.person_id, rg.person_id) and ps.ended_at is null)
+  order by e.id, rg.id limit 1;`);
+  const [enrA, murid, memA, kA, X, muridUid, guru, guruUid] = g.split("|");
+  if (!guruUid) throw new Error("no live learner with an account in a class whose teacher has one: the seed changed");
+  const y = psqlStdin(db, `select e.id || '|' || e.person_id || '|' || m.node_id || '|' || e.institution_id
+  from public.enrollments e join public.memberships m on m.enrollment_id = e.id and m.valid_to is null
+  join public.org_nodes n on n.id = m.node_id and n.kind = 'CLASS'
+  where e.status = 'ACTIVE' and e.valid_to is null and e.institution_id <> '${X}' and e.person_id not in ('${murid}', '${guru}')
+  order by e.id limit 1;`);
+  const [enrY, muridY, kY, Y] = y.split("|");
+  if (!Y) throw new Error("no learner in a class of a second school: the seed changed");
+  const l2 = psqlStdin(db, `select p.id || '|' || a.auth_user_id from public.persons p join public.accounts a on a.person_id = p.id
+   where p.id not in ('${murid}', '${guru}', '${muridY}')
+     and not exists (select 1 from public.enrollments e where e.person_id = p.id and e.institution_id = '${X}')
+     and not exists (select 1 from public.role_assignments r where r.person_id = p.id and r.revoked_at is null)
+     and not exists (select 1 from public.person_suspensions ps where ps.person_id = p.id and ps.ended_at is null)
+   order by p.id limit 1;`).split("|");
+  if (!l2[1]) throw new Error("no second learner with an account, no role and no suspension: the seed changed");
+  const adm = psqlStdin(db, `select r.person_id || '|' || a.auth_user_id from public.role_assignments r join public.accounts a on a.person_id = r.person_id
+    where r.role = 'INSTITUTION_ADMIN' and r.institution_id = '${X}' and r.revoked_at is null and now() >= r.valid_from and now() < r.valid_until
+      and r.person_id not in ('${murid}', '${guru}') order by r.id limit 1;`).split("|");
+  const sys = psqlStdin(db, `select r.person_id || '|' || a.auth_user_id from public.role_assignments r join public.accounts a on a.person_id = r.person_id
+    where r.role = 'SYSTEM_ADMIN' and r.revoked_at is null order by r.id limit 1;`).split("|");
+  const sumber = psqlStdin(db, `select s.id from public.assessment_sessions s join public.assessment_definitions d on d.id = s.assessment_definition_id
+    where s.status = 'FINALIZED' and d.late_sync_grace_seconds >= 120
+      and exists (select 1 from public.presented_items p join public.items i on i.id = p.item_id
+                   where p.session_id = s.id and i.item_type = 'MCQ_SINGLE' and p.position = 1)
+    order by s.id limit 1;`);
+  if (!adm[1] || !sys[1] || !sumber) throw new Error("no school admin, no Admin PINTAR, or no source sitting with a single-choice item: the seed changed");
+  return { X, Y, kA, kB: ID("b7"), kY, guru, guruUid, murid, muridUid, enrA, memA, murid2: l2[0], murid2Uid: l2[1],
+    enrB: ID("e2"), memB: ID("e3"), muridY, enrY, adminX: adm[0], adminXUid: adm[1], sys: sys[0], sysUid: sys[1], sumber,
+    SA: ID("5a"), SB: ID("5b"), SY: ID("59"), PA: ID("ca") };
+}
+/** A sitting of `orang` in `kelas`, copied from the source, open since an hour ago, its own deadline as given. */
+const sesi = (d: Dunia, id: string, orang: string, enr: string, kelas: string, inst: string, tenggat: string) => `
+insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', '${id}', 'status', 'IN_PROGRESS', 'person_id', '${orang}',
+  'enrollment_id', '${enr}', 'institution_id', '${inst}', 'class_node_id', '${kelas}', 'cohort_node_id', null,
+  'authoritative_deadline', ${tenggat}, 'created_at', now() - interval '60 minutes', 'finalized_at', null, 'submitted_at', null,
+  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'termination_cause', null, 'termination_reason', null, 'terminated_by_person_id', null, 'attempt_request_id', null,
+  'deadline_extended_count', 0, 'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null,
+  'darurat_keluar', null))).*
+  from public.assessment_sessions s where s.id = '${d.sumber}';
+delete from public.assessment_results where session_id = '${id}';`;
+/** The world's rows, inside the caller's transaction (the replica role is left on: the caller sets origin). */
+export function duniaSql(d: Dunia, tenggat = "now() + interval '30 minutes'"): string {
+  return `set local session_replication_role = replica;
+update public.memberships set valid_from = valid_from - interval '1 day' where id = '${d.memA}';
+update public.enrollments set valid_from = valid_from - interval '1 day' where id = '${d.enrA}';
+update public.role_assignments set valid_from = valid_from - interval '1 day'
+ where person_id = '${d.guru}' and role = 'EDUCATOR' and scope_node_id = '${d.kA}' and revoked_at is null;
+-- 7B: a second class of school X, a copy of 7A's node
+insert into public.org_nodes (id, institution_id, parent_id, kind, name, jalur, academic_period_id, is_active, created_at, learning_context)
+select '${d.kB}', n.institution_id, n.parent_id, n.kind, n.name || ' (7B)', n.jalur[1:cardinality(n.jalur) - 1] || '${d.kB}'::uuid,
+       n.academic_period_id, true, now() - interval '2 days', n.learning_context
+  from public.org_nodes n where n.id = '${d.kA}';
+-- T teaches 7B, and CY at school Y
+insert into public.role_assignments (id, person_id, role, scope_node_id, institution_id, valid_from, valid_until, granted_by)
+select '${ID("71")}', r.person_id, r.role, '${d.kB}', r.institution_id, now() - interval '1 day', r.valid_until, r.granted_by
+  from public.role_assignments r where r.person_id = '${d.guru}' and r.role = 'EDUCATOR' and r.scope_node_id = '${d.kA}' and r.revoked_at is null
+ order by r.id limit 1;
+insert into public.role_assignments (id, person_id, role, scope_node_id, institution_id, valid_from, valid_until, granted_by)
+select '${ID("72")}', '${d.guru}', 'EDUCATOR', '${d.kY}', '${d.Y}', now() - interval '1 day', now() + interval '300 days', null;
+-- the learner of 7B
+insert into public.enrollments select (jsonb_populate_record(e, jsonb_build_object('id', '${d.enrB}', 'person_id', '${d.murid2}'))).*
+  from public.enrollments e where e.id = '${d.enrA}';
+insert into public.memberships select (jsonb_populate_record(m, jsonb_build_object('id', '${d.memB}', 'enrollment_id', '${d.enrB}', 'node_id', '${d.kB}'))).*
+  from public.memberships m where m.id = '${d.memA}';
+update public.memberships set valid_from = valid_from - interval '1 day'
+ where enrollment_id = '${d.enrY}' and valid_to is null;
+update public.enrollments set valid_from = valid_from - interval '1 day' where id = '${d.enrY}';
+${sesi(d, d.SA, d.murid, d.enrA, d.kA, d.X, tenggat)}
+${sesi(d, d.SB, d.murid2, d.enrB, d.kB, d.X, tenggat)}
+${sesi(d, d.SY, d.muridY, d.enrY, d.kY, d.Y, tenggat)}
+insert into public.presented_items (id, session_id, item_id, institution_id, position, presented_at)
+select '${d.PA}', '${d.SA}', p.item_id, '${d.X}', p.position, now() - interval '59 minutes'
+  from public.presented_items p where p.session_id = '${d.sumber}' and p.position = 1;
+alter table public.maintenance_windows drop constraint if exists maintenance_windows_class_is_emergency;`;
+}
+/** A window, written directly (the replica role must be on). `nodes`: the classes of a class window, or none. */
+export function jendela(d: Dunia, id: string, o: { kind?: "PLANNED" | "EMERGENCY"; inst?: string; nodes?: string[]; mulai: string; akhir?: string | null; selesai?: string | null; aktifDicatat?: string | null }): string {
+  const kind = o.kind ?? "PLANNED";
+  const nodes = o.nodes?.length ? `array[${o.nodes.map((n) => `'${n}'::uuid`).join(", ")}]` : "'{}'::uuid[]";
+  const tstop = kind === "EMERGENCY" ? o.mulai : "null";
+  const tlift = kind === "EMERGENCY" && o.selesai ? o.selesai : "null";
+  return `insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, ends_at, ended_at, t_stop, t_lift, reason, created_by_person_id, activation_recorded_at)
+values ('${id}', '${kind}', false, array['${o.inst ?? d.X}'::uuid], ${nodes}, ${o.mulai}, ${o.akhir ?? "null"}, ${o.selesai ?? "null"}, ${tstop}, ${tlift},
+        '${ALASAN}', '${d.sys}', ${o.aktifDicatat === undefined ? o.mulai : o.aktifDicatat ?? "null"});`;
+}
+/** The teacher's act on a sitting: A1's extend (a refused writer: staff change to running work). */
+const aksiGuru = (S: string) => `$q$select public.tambah_waktu_pengerjaan('${S}', 5, '${ALASAN} act')$q$`;
+/** A start: the sitting-insert trigger alone (the seed's sittings are copies, so provenance, the course's release, the
+ *  status machine and the pass mark would refuse a copy for their own reasons; they are off in this transaction only). */
+const MATI_PICU = `alter table public.assessment_sessions disable trigger _l1f4_assessment_sessions_person_id, disable trigger assessment_sessions_provenance,
+  disable trigger assessment_sessions_release_is_its_course, disable trigger assessment_sessions_status,
+  disable trigger assessment_sessions_the_pass_mark_is_sealed, disable trigger assessment_sessions_zz_exposed_is_not_assessed;`;
+const mulai = (d: Dunia, orang: string, enr: string, kelas: string, tenggat: string) => `$q$insert into public.assessment_sessions
+select (jsonb_populate_record(s, jsonb_build_object('id', gen_random_uuid(), 'status', 'CREATED', 'person_id', '${orang}',
+  'enrollment_id', '${enr}', 'institution_id', '${d.X}', 'class_node_id', '${kelas}', 'cohort_node_id', null, 'created_at', now(),
+  'authoritative_deadline', ${tenggat}, 'started_at', null, 'finalized_at', null, 'submitted_at', null,
+  'closure_kind', null, 'closure_at', null, 'closure_deadline', null, 'frozen_at', null, 'unfrozen_at', null,
+  'termination_cause', null, 'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null,
+  'darurat_keluar', null))).* from public.assessment_sessions s where s.id = '${d.sumber}'$q$`;
+
+const W1 = ID("a1"), W2 = ID("a2"), W3 = ID("a3");
+
+// ═══════════════════════════════════════════════════════════ A2B-I01 · every writer of a class's work, classed
+
+/** The tables a class's work lives in (Sharon's inventory row 4): a function that writes one of them, or a client entry
+ *  point that reaches one, is classed. */
+const KERJA = /\b(?:insert\s+into|update|delete\s+from)\s+(?:public\.)?(assessment_sessions|learning_assignments|assessment_assignments|lesson_progress|attempt_requests)\b/i;
+type Kelas = "REFUSED" | "REFUSED_QUIETLY" | "REFUSED_GRANT" | "ALLOWED" | "SYSTEM" | "INNER";
+/** The classing, Sharon's rulings (A2B-COMPLETION.md, "Every writer of a class's work, classed"). Entries marked
+ *  `baru` were not named in her table: classed here for her read. */
+export const KELAS_PENULIS: Record<string, { kelas: Kelas; alasan: string; baru?: true }> = {
+  start_learning_session: { kelas: "REFUSED", alasan: "a start is new work: the sitting-insert trigger (place, D4, T−15)" },
+  record_lesson_progress: { kelas: "REFUSED_QUIETLY", alasan: "progress is the class's work; its own code, no redirect, reading stays open" },
+  assign_release: { kelas: "REFUSED", alasan: "assigning: a routine staff change to the class's work" },
+  ubah_jadwal_penugasan: { kelas: "REFUSED", alasan: "a schedule change" },
+  tambah_waktu_pengerjaan: { kelas: "REFUSED", alasan: "A1's extend: a staff change to running work" },
+  lanjutkan_pengerjaan: { kelas: "REFUSED", alasan: "A1's resume: a staff change to running work" },
+  extend_session_deadline: { kelas: "REFUSED", alasan: "the older staff extend, the same act as A1's", baru: true },
+  akhiri_pengerjaan: { kelas: "REFUSED", alasan: "a teacher's early end of a sitting (Sharon)" },
+  akhiri_penugasan: { kelas: "REFUSED", alasan: "«Akhiri», «Tarik» (Sharon)" },
+  terminate_session: { kelas: "REFUSED", alasan: "a staff-initiated ending of a sitting, as akhiri_pengerjaan", baru: true },
+  tutup_pengerjaan_ditahan: { kelas: "REFUSED", alasan: "a staff-initiated ending of a held sitting, as akhiri_pengerjaan", baru: true },
+  launch_quick_assessment: { kelas: "REFUSED", alasan: "a new assignment and new sittings" },
+  launch_selected_quick_assessment: { kelas: "REFUSED", alasan: "the same act as launch_quick_assessment, for chosen learners", baru: true },
+  move_learning_assignment_release: { kelas: "REFUSED", alasan: "a routine staff change" },
+  kenaikan_tetapkan: { kelas: "REFUSED", alasan: "refused as a whole act: if any class it touches is under an active planned window, nothing is promoted" },
+  minta_percobaan: { kelas: "REFUSED", alasan: "a further attempt is new work" },
+  putuskan_percobaan: { kelas: "REFUSED_GRANT", alasan: "a decline is allowed (closes a pending request); a grant is refused (opens new work)" },
+  koreksi_kunci_pindah: { kelas: "ALLOWED", alasan: "changes only what new starts use; an integrity correction across classes" },
+  tegaskan_koreksi_kunci: { kelas: "ALLOWED", alasan: "confirms a key correction, as koreksi_kunci_pindah", baru: true },
+  akhiri_pendaftaran: { kelas: "ALLOWED", alasan: "a departure: a person leaving is not the class's work being changed" },
+  transfer_execute: { kelas: "ALLOWED", alasan: "a transfer: a person moving" },
+  tangguhkan_akun: { kelas: "ALLOWED", alasan: "a suspension acts on a person, not on the class's work", baru: true },
+  record_answer: { kelas: "ALLOWED", alasan: "the drain (D5, K5): a running sitting is worked on to its deadline and grace", baru: true },
+  pause_session: { kelas: "ALLOWED", alasan: "the drain (D5, K5)", baru: true },
+  resume_session: { kelas: "ALLOWED", alasan: "the drain (D5, K5)", baru: true },
+  submit_session: { kelas: "ALLOWED", alasan: "the drain (D5, K5): a learner hands in", baru: true },
+  finish_my_session: { kelas: "ALLOWED", alasan: "the drain (D5, K5): a learner finishes", baru: true },
+  assistance_state: { kelas: "ALLOWED", alasan: "a learner's read during the drain; reaches a writer only through the deadline rule (a system closure)", baru: true },
+  open_assistance: { kelas: "ALLOWED", alasan: "a learner's act inside a running sitting (the drain)", baru: true },
+  note_item_view: { kelas: "ALLOWED", alasan: "a learner's item view inside a running sitting (the drain)", baru: true },
+  platform_schema_lint: { kelas: "ALLOWED", alasan: "writes no work: reaches a writer's name only as a lint over the catalogue", baru: true },
+  finalize_session: { kelas: "SYSTEM", alasan: "finalization: a window must never keep work open past its end" },
+  pengerjaan_putus_tenggat: { kelas: "SYSTEM", alasan: "A1's decider: the drain's own end" },
+  tutup_asesmen_terbuka: { kelas: "SYSTEM", alasan: "the closure of open sittings, reached from departures and promotions" },
+  open_assessment_session: { kelas: "INNER", alasan: "the insert of a start, reached only from start paths; the trigger guards the row" },
+  percobaan_tandai: { kelas: "INNER", alasan: "writes only attempt_request_id, at a start" },
+  pengerjaan_lepas_darurat: { kelas: "INNER", alasan: "A2a's release of a stop's mark (first touch, the batch)" },
+  pengerjaan_kredit_darurat: { kelas: "INNER", alasan: "A2a's credit of a lifted stop" },
+  pengerjaan_tandai_darurat: { kelas: "INNER", alasan: "A2a's marking" },
+  pengerjaan_tahan_orang: { kelas: "INNER", alasan: "A1's hold, on a suspension" },
+  pengerjaan_keluar_terapkan: { kelas: "INNER", alasan: "A2a's departure applied at first touch" },
+};
+const PENJAGA = /\bmaintenance_affects_place\s*\(/;
+const PICU_MULAI = "enforce_no_new_sitting_in_maintenance";
+
+/** Every function of the class's work, and what is wrong with the classing. `tanam`: DDL first, rolled back. */
+export function inventaris(db: string, tanam = ""): { fungsi: string[]; salah: string[] } {
+  const q = "select p.proname, p.prosrc from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'";
+  const r = "select function_name from public.client_rpc_registry";
+  const src = new Map<string, string>();
+  const baris = psqlBaris(db, tanam ? `begin; ${tanam}; ${q}; rollback;` : q);
+  for (const [fn, s] of baris) src.set(fn, (src.get(fn) ?? "") + "\n" + (s ?? "").replace(/--[^\n]*/g, " "));
+  const klien = new Set(psqlBaris(db, r).map(([f]) => f));
+  const langsung = new Set([...src].filter(([, s]) => KERJA.test(s)).map(([f]) => f));
+  const nama = [...src.keys()];
+  const panggil = new Map<string, string[]>();
+  for (const [f, s] of src) panggil.set(f, nama.filter((g) => g !== f && s.includes(g) && new RegExp(`\\b${g}\\s*\\(`).test(s)));
+  const sampai = (f: string, lihat = new Set<string>()): boolean => {
+    if (langsung.has(f)) return true;
+    if (lihat.has(f)) return false;
+    lihat.add(f);
+    return (panggil.get(f) ?? []).some((g) => sampai(g, lihat));
+  };
+  /** whether the function, or one it calls, asks the place question */
+  const bertanya = (f: string, lihat = new Set<string>()): boolean => {
+    if (PENJAGA.test(src.get(f) ?? "")) return true;
+    if (lihat.has(f)) return false;
+    lihat.add(f);
+    return (panggil.get(f) ?? []).some((g) => bertanya(g, lihat));
+  };
+  const fungsi = [...new Set([...langsung, ...[...klien].filter((f) => src.has(f) && sampai(f))])].sort();
+  const salah: string[] = [];
+  for (const f of fungsi) {
+    const k = KELAS_PENULIS[f];
+    if (!k) { salah.push(`${f} writes a class's work (or reaches a writer from a client) and is not classed`); continue; }
+    const lewatPicu = f === "start_learning_session" && PENJAGA.test(src.get(PICU_MULAI) ?? "");
+    if (["REFUSED", "REFUSED_QUIETLY", "REFUSED_GRANT"].includes(k.kelas) && !bertanya(f) && !lewatPicu)
+      salah.push(`${f} is classed ${k.kelas} and does not ask the place question (maintenance_affects_place)`);
+    if (k.kelas === "SYSTEM" && PENJAGA.test(src.get(f) ?? ""))
+      salah.push(`${f} is a system closure and asks the place question: a window must never keep work open`);
+  }
+  for (const f of Object.keys(KELAS_PENULIS)) if (!fungsi.includes(f)) salah.push(`${f} is classed but no longer writes a class's work`);
+  return { fungsi, salah };
+}
+const TANAM_INV = `create function public._a2b_i01_tanam(p uuid) returns void language plpgsql as $t$
+begin update public.learning_assignments set status = status where id = p; end $t$`;
+
+// ═══════════════════════════════════════════════════════════ the boundary tests
+
+/** K1 (a), one connection: a school-wide planned window starts 1.5 s after the transaction began; the teacher's act
+ *  before the start, and after it in the same transaction (its now() still before the start). A start (the sitting
+ *  insert) the same way across T−15. */
+function k1Satu(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${jendela(d, W1, { mulai: "clock_timestamp() + interval '1.5 seconds'", akhir: "clock_timestamp() + interval '1 hour'", aktifDicatat: null })}
+${jendela(d, W2, { inst: d.Y, mulai: "clock_timestamp() + interval '15 minutes 1.5 seconds'", akhir: "clock_timestamp() + interval '2 hours'", aktifDicatat: null })}
+${MATI_PICU}
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.guruUid)}
+select 'sebelum|' || pg_temp.a2b_coba(${aksiGuru(d.SA)});
+${tanpaOrang}
+select 'mulai_sebelum|' || pg_temp.a2b_coba(${mulai(d, d.muridY, d.enrY, d.kY, "null").replace(`'${d.X}', 'class_node_id'`, `'${d.Y}', 'class_node_id'`)});
+select pg_sleep(2);
+${sebagai(d.guruUid)}
+select 'sesudah|' || pg_temp.a2b_coba(${aksiGuru(d.SA)});
+${tanpaOrang}
+select 'mulai_sesudah|' || pg_temp.a2b_coba(${mulai(d, d.muridY, d.enrY, d.kY, "null").replace(`'${d.X}', 'class_node_id'`, `'${d.Y}', 'class_node_id'`)});
+select 'now_sebelum|' || (now() < (select starts_at from public.maintenance_windows where id = '${W1}'))::text;
+rollback;`);
+}
+
+/** K1 (b), two connections: the window starts while the teacher's transaction waits on the sitting's row, held by
+ *  another; it reaches its write after the start. Only what the case needs is committed (the sitting S_A, copied, and a
+ *  school-wide planned window, valid before K10), and removed after, whatever the run did. */
+async function k1Kunci(db: string, d: Dunia) {
+  const { psqlLain, tidur } = await import("./balapan");
+  const bersih = `begin; set local session_replication_role = replica;
+delete from public.audit_log where target_table in ('maintenance_windows', 'assessment_sessions') and target_id in ('${W1}', '${d.SA}');
+delete from public.maintenance_windows where id = '${W1}';
+delete from public.assessment_sessions where id = '${d.SA}';
+commit;`;
+  try {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+${sesi(d, d.SA, d.murid, d.enrA, d.kA, d.X, "now() + interval '30 minutes'")}
+${jendela(d, W1, { mulai: "clock_timestamp() + interval '2 seconds'", akhir: "clock_timestamp() + interval '1 hour'", aktifDicatat: null })}
+commit;`);
+    const pemegang = psqlLain(`begin; select 1 from public.assessment_sessions where id = '${d.SA}' for update; select pg_sleep(3.5); commit;`);
+    await tidur(400);
+    const t = await psqlLain(`begin; ${ALAT} ${sebagai(d.guruUid)} select 'HASIL|' || pg_temp.a2b_coba(${aksiGuru(d.SA)}) || '|' || (now() < (select starts_at from public.maintenance_windows where id = '${W1}'))::text || '|' || (clock_timestamp() >= (select starts_at from public.maintenance_windows where id = '${W1}'))::text; rollback;`);
+    const p = await pemegang;
+    const h = (t.out.split("\n").find((l) => l.startsWith("HASIL|")) ?? "").split("|");
+    return { ok: t.ok && p.ok, err: t.err || p.err, hasil: h[1] ?? "", mulaiSebelum: h[2] === "true", tulisSesudah: h[3] === "true", tunggu: t.ms };
+  } finally {
+    psqlStdin(db, bersih);
+  }
+}
+
+/** K2: a window that began an hour ago ends 1.5 s into the transaction; the act before the end, and after it in the
+ *  same transaction (its now() still before the end). */
+function k2(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${jendela(d, W1, { mulai: "now() - interval '1 hour'", akhir: "clock_timestamp() + interval '1.5 seconds'" })}
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.guruUid)}
+select 'sebelum|' || pg_temp.a2b_coba(${aksiGuru(d.SA)});
+select pg_sleep(2);
+select 'sesudah|' || pg_temp.a2b_coba(${aksiGuru(d.SA)});
+select 'now_sebelum|' || (now() < (select ends_at from public.maintenance_windows where id = '${W1}'))::text;
+rollback;`);
+}
+
+/** K3 and K4: a start whose own deadline falls after a planned class window's start (in 30 min; deadline in 60 min)
+ *  or before it (deadline in 20 min); an untimed start 20 min and 10 min before a window (T−15 only). */
+function k3k4(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${jendela(d, W1, { nodes: [d.kA], mulai: "now() + interval '30 minutes'", akhir: "now() + interval '2 hours'", aktifDicatat: null })}
+${jendela(d, W2, { nodes: [d.kB], mulai: "now() + interval '10 minutes'", akhir: "now() + interval '2 hours'", aktifDicatat: null })}
+${MATI_PICU}
+set local session_replication_role = origin;
+${ALAT}
+select 'awal|' || pg_temp.a2b_coba(${mulai(d, d.muridY, d.enrY, d.kY, "now() + interval '60 minutes'").replace(`'${d.X}', 'class_node_id'`, `'${d.Y}', 'class_node_id'`)});
+select 'k3_lewat|' || pg_temp.a2b_coba(${mulai(d, d.murid, d.enrA, d.kA, "now() + interval '60 minutes'")});
+select 'k3_cukup|' || pg_temp.a2b_coba(${mulai(d, d.murid, d.enrA, d.kA, "now() + interval '20 minutes'")});
+select 'k4_20|' || pg_temp.a2b_coba(${mulai(d, d.murid, d.enrA, d.kA, "null")});
+select 'k4_10|' || pg_temp.a2b_coba(${mulai(d, d.murid2, d.enrB, d.kB, "null")});
+select 'k3_10|' || pg_temp.a2b_coba(${mulai(d, d.murid2, d.enrB, d.kB, "now() + interval '5 minutes'")});
+rollback;`);
+}
+
+/** K5: a running sitting when a planned class window starts drains through its effective deadline and grace: the
+ *  learner's answer is taken; the decider leaves it open before its effective deadline and ends it after its grace.
+ *  The effective deadline: the sitting was held by an emergency stop of 45 min, lifted 5 min ago, its own deadline 30
+ *  min ago, so its effective deadline is 15 min ahead (the stop's shift, credited at first touch). */
+function k5(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d, "now() - interval '30 minutes'")}
+update public.assessment_sessions set darurat_sejak = now() - interval '50 minutes', darurat_jendela_id = '${W2}' where id = '${d.SA}';
+${jendela(d, W2, { kind: "EMERGENCY", nodes: [d.kA], mulai: "now() - interval '50 minutes'", selesai: "now() - interval '5 minutes'" })}
+${jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '1 minute'", akhir: "now() + interval '2 hours'" })}
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.muridUid)}
+select 'jawab|' || pg_temp.a2b_tetap($q$select public.record_answer('${d.PA}', 1, '{"posisi": 1}'::jsonb)$q$);
+${tanpaOrang}
+select 'efektif|' || extract(epoch from (public.pengerjaan_tenggat_efektif('${d.SA}') - now()))::int;
+select 'putus_awal|' || pg_temp.a2b_tetap($q$select public.pengerjaan_putus_tenggat('${d.SA}', false)$q$);
+select 'status_awal|' || status from public.assessment_sessions where id = '${d.SA}';
+-- past the effective deadline and its grace: the decider (A1's closer runs it) ends it
+set local session_replication_role = replica;
+update public.assessment_sessions set authoritative_deadline = now() - interval '2 hours', darurat_sejak = null, darurat_dikredit_sampai = null where id = '${d.SA}';
+set local session_replication_role = origin;
+select 'putus_akhir|' || pg_temp.a2b_tetap($q$select public.pengerjaan_putus_tenggat('${d.SA}', false)$q$);
+select 'status_akhir|' || status from public.assessment_sessions where id = '${d.SA}';
+rollback;`);
+}
+
+/** K6: extend during a window, then end it early. The window ends 1.5 s in; it is extended by an hour; after the old
+ *  end the act is still refused; then resume early (AKHIRI), and the act succeeds at once. */
+function k6(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${jendela(d, W1, { mulai: "now() - interval '10 minutes'", akhir: "clock_timestamp() + interval '1.5 seconds'" })}
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.guruUid)}
+select 'awal|' || pg_temp.a2b_coba(${aksiGuru(d.SA)});
+${sebagai(d.adminXUid)}
+select 'perpanjang|' || pg_temp.a2b_tetap($q$select public.perpanjang_pemeliharaan('${W1}', clock_timestamp() + interval '1 hour', '${ALASAN}6 extend')$q$);
+select pg_sleep(2);
+${sebagai(d.guruUid)}
+select 'sesudah_perpanjang|' || pg_temp.a2b_coba(${aksiGuru(d.SA)});
+${sebagai(d.adminXUid)}
+select 'akhiri|' || pg_temp.a2b_tetap($q$select public.change_maintenance('${W1}', 'AKHIRI', '${ALASAN}6 resume early')$q$);
+${sebagai(d.guruUid)}
+select 'sesudah_akhiri|' || pg_temp.a2b_coba(${aksiGuru(d.SA)});
+${tanpaOrang}
+select 'audit|' || count(*) filter (where action = 'maintenance.extended' and (summary ? 'before') and (summary ? 'after') and (summary ? 'reason'))
+  from public.audit_log where target_table = 'maintenance_windows' and target_id = '${W1}';
+rollback;`);
+}
+
+/** The functions that write maintenance_windows.ends_at (an update setting it, or an insert naming it). */
+export function penulisAkhir(db: string): string[] {
+  const out = new Set<string>();
+  for (const [fn, s] of psqlBaris(db, "select p.proname, p.prosrc from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'")) {
+    const t = (s ?? "").replace(/--[^\n]*/g, " ");
+    if (/\bupdate\s+(?:public\.)?maintenance_windows\b[^;]*\bset\b[^;]*\bends_at\s*=/i.test(t)
+        || /\binsert\s+into\s+(?:public\.)?maintenance_windows\s*\([^)]*\bends_at\b/i.test(t)) out.add(fn);
+  }
+  return [...out].sort();
+}
+/** Every writer of a window's end (the Chief Architect's three conditions, 13 Nov): schedule_maintenance at insert and
+ *  the extend. stop_pintar_now writes no end (an emergency ends only by its lift, ended_at); change_maintenance writes
+ *  ended_at and starts_at, never ends_at. */
+const PENULIS_AKHIR = ["perpanjang_pemeliharaan", "schedule_maintenance"];
+
+/** K7 and A8: an emergency class stop in force; extend refuses it; the school admin's AKHIRI is refused; Admin PINTAR's
+ *  AKHIRI is A2a's fenced lift (T_lift recorded). */
+function k7(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${jendela(d, W2, { kind: "EMERGENCY", nodes: [d.kA], mulai: "now() - interval '10 minutes'" })}
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.sysUid)}
+select 'perpanjang_sys|' || pg_temp.a2b_coba($q$select public.perpanjang_pemeliharaan('${W2}', clock_timestamp() + interval '1 hour', '${ALASAN}7 extend')$q$);
+${sebagai(d.adminXUid)}
+select 'perpanjang_admin|' || pg_temp.a2b_coba($q$select public.perpanjang_pemeliharaan('${W2}', clock_timestamp() + interval '1 hour', '${ALASAN}7 extend')$q$);
+select 'akhiri_admin|' || pg_temp.a2b_coba($q$select public.change_maintenance('${W2}', 'AKHIRI', '${ALASAN}7 resume early')$q$);
+${sebagai(d.sysUid)}
+select 'akhiri_sys|' || pg_temp.a2b_tetap($q$select public.change_maintenance('${W2}', 'AKHIRI', '${ALASAN}7 lift')$q$);
+${tanpaOrang}
+select 'angkat|' || (t_lift is not null and ended_at is not null and ends_at is null)::text from public.maintenance_windows where id = '${W2}';
+rollback;`);
+}
+
+/** K8: extend a window that has ended by its time, whether or not the recorder marked the end; and one that ends 1.5 s
+ *  into the transaction (its now() before the end). And a window that started with no activation recorded: extend
+ *  allowed (the state is never read from activation_recorded_at). */
+function k8(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${jendela(d, W1, { mulai: "now() - interval '1 hour'", akhir: "now() - interval '1 second'" })}
+update public.maintenance_windows set deactivation_recorded_at = null where id = '${W1}';
+${jendela(d, W2, { inst: d.Y, mulai: "now() - interval '1 hour'", akhir: "clock_timestamp() + interval '1.5 seconds'" })}
+${jendela(d, W3, { mulai: "now() - interval '5 minutes'", akhir: "now() + interval '1 hour'", aktifDicatat: null })}
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.adminXUid)}
+select 'berakhir_takdicatat|' || pg_temp.a2b_coba($q$select public.perpanjang_pemeliharaan('${W1}', clock_timestamp() + interval '1 hour', '${ALASAN}8 extend')$q$);
+set local session_replication_role = replica;
+update public.maintenance_windows set deactivation_recorded_at = now() where id = '${W1}';
+set local session_replication_role = origin;
+select 'berakhir_dicatat|' || pg_temp.a2b_coba($q$select public.perpanjang_pemeliharaan('${W1}', clock_timestamp() + interval '1 hour', '${ALASAN}8 extend')$q$);
+select 'aktif_takdicatat|' || pg_temp.a2b_coba($q$select public.perpanjang_pemeliharaan('${W3}', clock_timestamp() + interval '2 hours', '${ALASAN}8 extend')$q$);
+select pg_sleep(2);
+${sebagai(d.sysUid)}
+select 'baru_berakhir|' || pg_temp.a2b_coba($q$select public.perpanjang_pemeliharaan('${W2}', clock_timestamp() + interval '1 hour', '${ALASAN}8 extend')$q$);
+${tanpaOrang}
+select 'akhir_tetap|' || (ends_at < now())::text from public.maintenance_windows where id = '${W1}';
+rollback;`);
+}
+
+/** K9, two connections, both orders, committed rows removed after. Order 1, the recorder first: the window has ended
+ *  by its time; the recorder marks its end and holds the row; the extend waits, then is refused. Order 2, extend
+ *  first: the window's end is 1 s away; the extend holds the row past the old end; the recorder skips it, and its next
+ *  run reads the new end. Either way: one activation row and at most one deactivation row. */
+async function k9(db: string, d: Dunia, urutan: 1 | 2) {
+  const { psqlLain, tidur } = await import("./balapan");
+  const siap = urutan === 1
+    ? jendela(d, W1, { mulai: "now() - interval '1 hour'", akhir: "now() - interval '1 second'", aktifDicatat: null })
+    : jendela(d, W1, { mulai: "now() - interval '1 hour'", akhir: "clock_timestamp() + interval '1 second'", aktifDicatat: null });
+  const rekam = `select set_config('request.jwt.claims', '', true); select public.maintenance_record_edges();`;
+  const panjang = `${sebagai(d.adminXUid)} select public.perpanjang_pemeliharaan('${W1}', clock_timestamp() + interval '1 hour', '${ALASAN}9 extend');`;
+  try {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+${siap}
+update public.maintenance_windows set deactivation_recorded_at = null where id = '${W1}';
+commit;`);
+    let satu, dua;
+    if (urutan === 1) {
+      const a = psqlLain(`begin; ${rekam} select pg_sleep(2.5); commit;`);
+      await tidur(500);
+      const b = psqlLain(`begin; ${ALAT} ${sebagai(d.adminXUid)} select 'HASIL|' || pg_temp.a2b_tetap($q$select public.perpanjang_pemeliharaan('${W1}', clock_timestamp() + interval '1 hour', '${ALASAN}9 extend')$q$); commit;`);
+      [satu, dua] = await Promise.all([a, b]);
+    } else {
+      const a = psqlLain(`begin; ${panjang} select pg_sleep(2.5); commit;`);
+      await tidur(1500);
+      const b = psqlLain(`begin; ${rekam} commit;`);
+      [satu, dua] = await Promise.all([a, b]);
+      await psqlLain(`begin; ${rekam} commit;`);
+    }
+    const n = psqlStdin(db, `select count(*) filter (where action = 'maintenance.activated') || '|' || count(*) filter (where action = 'maintenance.deactivated')
+      || '|' || (select (ends_at > now())::text from public.maintenance_windows where id = '${W1}')
+      from public.audit_log where target_table = 'maintenance_windows' and target_id = '${W1}';`).split("|");
+    const hasilPanjang = urutan === 1 ? ((dua.out.split("\n").find((l) => l.startsWith("HASIL|")) ?? "").split("|")[1] ?? "") : (satu.ok ? "OK" : satu.err);
+    return { ok: urutan === 1 ? satu.ok && dua.ok : dua.ok, err: [satu.err, dua.err].filter(Boolean).join(" ; "),
+      aktif: Number(n[0]), nonaktif: Number(n[1]), diperpanjang: n[2] === "true", panjang: hasilPanjang, tunggu: urutan === 1 ? dua.ms : satu.ms };
+  } finally {
+    psqlStdin(db, `begin; set local session_replication_role = replica;
+delete from public.audit_log where target_table = 'maintenance_windows' and target_id = '${W1}';
+delete from public.maintenance_windows where id = '${W1}';
+commit;`);
+  }
+}
+
+/** K10: schedule a PLANNED class window through schedule_maintenance (the school admin); a bad class each way. */
+function k10(db: string, d: Dunia, kelas: string) {
+  return barisKunci(db, `begin;
+${duniaSql(d).replace("alter table public.maintenance_windows drop constraint if exists maintenance_windows_class_is_emergency;", "")}
+set local session_replication_role = origin;
+${ALAT}
+select 'check|' || count(*) from pg_constraint where conname = 'maintenance_windows_class_is_emergency';
+${sebagai(d.adminXUid)}
+select 'jadwal|' || pg_temp.a2b_coba($q$select public.schedule_maintenance(p_platform => false, p_institutions => array['${d.X}'::uuid],
+  p_starts_at => now() + interval '2 hours', p_ends_at => now() + interval '3 hours', p_message => null, p_reason => '${ALASAN}10',
+  p_notice => false, p_nodes => array['${kelas}'::uuid]) is not null$q$);
+${tanpaOrang}
+select 'picu|' || pg_temp.a2b_coba($q$insert into public.maintenance_windows (kind, platform, institution_ids, node_ids, starts_at, ends_at, reason, created_by_person_id)
+  values ('PLANNED', false, array['${d.X}'::uuid], array['${kelas}'::uuid], now() + interval '2 hours', now() + interval '3 hours', '${ALASAN}10', '${d.sys}')$q$);
+rollback;`);
+}
+
+/** K11: work scope. A planned window on 7A: the teacher of 7A and 7B is refused on 7A's work only, never PT503, never
+ *  stopped as a person. A school-wide planned window at X: the same teacher, who also teaches CY at school Y, is
+ *  refused at X only. Placement now: a learner moved from 7A to 7B after the 7A window began starts in 7B; a learner
+ *  moved into 7A after it began is refused there. */
+function k11(db: string, d: Dunia, kasus: "KELAS" | "SEKOLAH") {
+  const w = kasus === "KELAS"
+    ? jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '10 minutes'", akhir: "now() + interval '1 hour'" })
+    : jendela(d, W1, { mulai: "now() - interval '10 minutes'", akhir: "now() + interval '1 hour'" });
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${w}
+${MATI_PICU}
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.guruUid)}
+select 'aksi_A|' || pg_temp.a2b_coba(${aksiGuru(d.SA)});
+select 'aksi_B|' || pg_temp.a2b_coba(${aksiGuru(d.SB)});
+select 'aksi_Y|' || pg_temp.a2b_coba(${aksiGuru(d.SY)});
+select 'kait|' || pg_temp.a2b_coba($q$select pintar_permintaan.periksa()$q$);
+select 'blok|' || coalesce(public.maintenance_block_for_me(), 'none');
+${tanpaOrang}
+${kasus === "KELAS" ? `-- the moves, after the window began
+set local session_replication_role = replica;
+update public.memberships set valid_to = now() - interval '5 minutes', close_reason = 'MOVED' where id = '${d.memA}';
+insert into public.memberships (enrollment_id, node_id, academic_period_id, valid_from)
+select '${d.enrA}', '${d.kB}', m.academic_period_id, now() - interval '5 minutes' from public.memberships m where m.id = '${d.memA}';
+update public.memberships set valid_to = now() - interval '5 minutes', close_reason = 'MOVED' where id = '${d.memB}';
+insert into public.memberships (enrollment_id, node_id, academic_period_id, valid_from)
+select '${d.enrB}', '${d.kA}', m.academic_period_id, now() - interval '5 minutes' from public.memberships m where m.id = '${d.memB}';
+set local session_replication_role = origin;
+select 'pindah_keluar|' || pg_temp.a2b_coba(${mulai(d, d.murid, d.enrA, d.kB, "null")});
+select 'pindah_masuk|' || pg_temp.a2b_coba(${mulai(d, d.murid2, d.enrB, d.kA, "null")});` : ""}
+rollback;`);
+}
+
+/** K12: a planned and an emergency window over 7A. The emergency governs: the teacher's act is refused with A2a's code,
+ *  the learner is stopped as a person. After the lift (the planned window still on): the learner's answer is taken
+ *  (the stop's credit), the release batch runs, the school's admin ends an enrolment (a departure), and the teacher's
+ *  act is refused by the planned window's place, not by the stop. */
+function k12(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+update public.assessment_sessions set darurat_sejak = now() - interval '20 minutes', darurat_jendela_id = '${W2}' where id = '${d.SA}';
+${jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '30 minutes'", akhir: "now() + interval '2 hours'" })}
+${jendela(d, W2, { kind: "EMERGENCY", nodes: [d.kA], mulai: "now() - interval '20 minutes'" })}
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.guruUid)}
+select 'aksi_henti|' || pg_temp.a2b_coba(${aksiGuru(d.SA)});
+${sebagai(d.muridUid)}
+select 'blok_henti|' || coalesce(public.maintenance_block_for_me(), 'none');
+${tanpaOrang}
+set local session_replication_role = replica;
+update public.maintenance_windows set ended_at = now() - interval '1 minute', t_lift = now() - interval '1 minute' where id = '${W2}';
+set local session_replication_role = origin;
+${sebagai(d.muridUid)}
+select 'blok_angkat|' || coalesce(public.maintenance_block_for_me(), 'none');
+select 'jawab_angkat|' || pg_temp.a2b_coba($q$select public.record_answer('${d.PA}', 1, '{"posisi": 1}'::jsonb)$q$);
+${tanpaOrang}
+-- the release at first touch (the release batch is a committing procedure, so it cannot run in a rolled-back
+-- transaction; here its per-sitting step, the helper every writer takes first)
+select 'rilis|' || pg_temp.a2b_coba($q$select public.pengerjaan_pagar('${d.SA}')$q$);
+${sebagai(d.guruUid)}
+select 'aksi_angkat|' || pg_temp.a2b_coba(${aksiGuru(d.SA)});
+${sebagai(d.adminXUid)}
+select 'keluar_angkat|' || pg_temp.a2b_coba($q$select public.akhiri_pendaftaran('${d.enrB}', 'WITHDRAWN', null, null)$q$);
+rollback;`);
+}
+
+/** A window-free baseline: the teacher's act on each sitting, and a start, succeed with no window open. */
+function dasar(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${MATI_PICU}
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.guruUid)}
+select 'A|' || pg_temp.a2b_coba(${aksiGuru(d.SA)});
+select 'B|' || pg_temp.a2b_coba(${aksiGuru(d.SB)});
+select 'Y|' || pg_temp.a2b_coba(${aksiGuru(d.SY)});
+${tanpaOrang}
+select 'mulai|' || pg_temp.a2b_coba(${mulai(d, d.murid, d.enrA, d.kA, "now() + interval '60 minutes'")});
+${sebagai(d.muridUid)}
+select 'jawab|' || pg_temp.a2b_coba($q$select public.record_answer('${d.PA}', 1, '{"posisi": 1}'::jsonb)$q$);
+rollback;`);
+}
+/** Fails the test on a broken fixture, so that red is never a fixture's. */
+function cekDasar(c: Checks, db: string, d: Dunia): boolean {
+  const b = dasar(db, d);
+  const ok = !b.err && b.hasil.A === "OK" && b.hasil.B === "OK" && b.hasil.Y === "OK" && b.hasil.mulai === "OK" && b.hasil.jawab === "OK";
+  c.expect(ok, `THE FIXTURE, not the behaviour: with no window open, the teacher's act on S_A, S_B, S_Y, a start and an answer must succeed: ${b.err || JSON.stringify(b.hasil)}`);
+  return ok;
+}
+
+const jalan = (fn: (c: Checks, db: string, d: Dunia) => Promise<string> | string) => async () => {
+  const c = new Checks();
+  const db = process.env.SUPABASE_DB_URL!;
+  const d = dunia(db);
+  if (!cekDasar(c, db, d)) return c.verdict("the fixture failed; the boundary was not judged");
+  const ringkas = await fn(c, db, d);
+  return c.verdict(ringkas);
+};
+
+export const a2bBatasTests: SelfTest[] = [
+  {
+    id: "A2B-I01",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const db = process.env.SUPABASE_DB_URL!;
+      const tanam = inventaris(db, TANAM_INV);
+      c.expect(tanam.salah.some((s) => s.startsWith("_a2b_i01_tanam ")), "the planted writer of a class's work was not reported as unclassed");
+      const { fungsi, salah } = inventaris(db);
+      c.expect(salah.length === 0, `the writers of a class's work (Sharon's classing):\n  ${salah.join("\n  ")}`);
+      const baru = Object.entries(KELAS_PENULIS).filter(([, v]) => v.baru).map(([k]) => k);
+      return c.verdict(`${fungsi.length} functions write a class's work or reach a writer from a client; each is classed (${Object.keys(KELAS_PENULIS).length}; ${baru.length} classed here beyond Sharon's table: ${baru.join(", ")}); every refused one asks the place question; no system closure does; the planted unclassed writer is reported`);
+    },
+  },
+  {
+    id: "A2B-K01",
+    requires: ["db"],
+    run: jalan(async (c, db, d) => {
+      const r = k1Satu(db, d);
+      c.expect(!r.err, `K1 (one connection) failed to run: ${r.err}`);
+      const h = r.hasil;
+      c.expect(h.now_sebelum === "true", `K1: the transaction's now() must still be before the start (else the case is not made): ${h.now_sebelum}`);
+      c.expect(h.sebelum === "OK", `K1: before the start the teacher's act must succeed: ${h.sebelum}`);
+      c.expect(h.sesudah === TEMPAT, `K1: a transaction that began before the start and writes after it must be refused ${TEMPAT}: ${h.sesudah}`);
+      c.expect(h.mulai_sebelum === "OK", `K1: a start 15 min and more before a window must succeed: ${h.mulai_sebelum}`);
+      c.expect(h.mulai_sesudah === "PR110:MAINTENANCE_NO_NEW_START", `K1: a start whose transaction began before T−15 and inserts after it must be refused PR110:MAINTENANCE_NO_NEW_START: ${h.mulai_sesudah}`);
+      const k = await k1Kunci(db, d);
+      c.expect(k.ok, `K1 (two connections) failed to run: ${k.err}`);
+      c.expect(k.mulaiSebelum && k.tulisSesudah && k.tunggu >= 2500, `K1: the case was not made (began before the start ${k.mulaiSebelum}, wrote after it ${k.tulisSesudah}, waited ${k.tunggu} ms)`);
+      c.expect(k.hasil === TEMPAT, `K1: a transaction that waited on a lock before the start and reached its write after it must be refused ${TEMPAT}: ${k.hasil}`);
+      return `the window's start, read on the clock: the teacher's act before it succeeds; in the same transaction after it, refused ${TEMPAT}; across T−15, a start refused MAINTENANCE_NO_NEW_START; on two connections, a transaction that waited ${k.tunggu} ms on the sitting's row across the start is refused`;
+    }),
+  },
+  {
+    id: "A2B-K02",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = k2(db, d);
+      c.expect(!r.err, `K2 failed to run: ${r.err}`);
+      c.expect(r.hasil.now_sebelum === "true", `K2: the transaction's now() must still be before the end (else the case is not made): ${r.hasil.now_sebelum}`);
+      c.expect(r.hasil.sebelum === TEMPAT, `K2: before the end the act must be refused ${TEMPAT}: ${r.hasil.sebelum}`);
+      c.expect(r.hasil.sesudah === "OK", `K2: after the end, read on the clock at the moment of writing, the act must succeed: ${r.hasil.sesudah}`);
+      return `the window's end, read on the clock: refused before it; after it, in the same transaction (its now() before the end), the act succeeds`;
+    }),
+  },
+  {
+    id: "A2B-K03",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = k3k4(db, d);
+      c.expect(!r.err, `K3 failed to run: ${r.err}`);
+      c.expect(r.hasil.awal === "OK", `K3: a timed start where no window reaches its work must succeed: ${r.hasil.awal}`);
+      c.expect(r.hasil.k3_lewat === "PR110:MAINTENANCE_CANNOT_FINISH", `K3: a start whose deadline (60 min) falls after a planned class window's start (30 min) must be refused PR110:MAINTENANCE_CANNOT_FINISH: ${r.hasil.k3_lewat}`);
+      c.expect(r.hasil.k3_cukup === "OK", `K3: a start whose deadline (20 min) falls before the window's start (30 min) must succeed: ${r.hasil.k3_cukup}`);
+      c.expect(r.hasil.k3_10 === "PR110:MAINTENANCE_NO_NEW_START", `K3: inside T−15 a timed start is still refused by T−15 (it stays): ${r.hasil.k3_10}`);
+      return `D4: a start that cannot finish before a planned class window is refused MAINTENANCE_CANNOT_FINISH; one that finishes before it succeeds; T−15 stays`;
+    }),
+  },
+  {
+    id: "A2B-K04",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = k3k4(db, d);
+      c.expect(!r.err, `K4 failed to run: ${r.err}`);
+      c.expect(r.hasil.k4_20 === "OK", `K4: an untimed start 30 min before a planned class window must succeed (T−15 only): ${r.hasil.k4_20}`);
+      c.expect(r.hasil.k4_10 === "PR110:MAINTENANCE_NO_NEW_START", `K4: an untimed start 10 min before a planned class window must be refused by T−15, as today: ${r.hasil.k4_10}`);
+      return `D4, an untimed start: T−15 only, as today (allowed 30 min before the window, refused 10 min before)`;
+    }),
+  },
+  {
+    id: "A2B-K05",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = k5(db, d);
+      c.expect(!r.err, `K5 failed to run: ${r.err}`);
+      const e = Number(r.hasil.efektif);
+      c.expect(e > 800 && e < 1000, `K5: the effective deadline (own deadline 30 min ago, a 45 min stop credited) must be about 15 min ahead: ${r.hasil.efektif} s`);
+      c.expect(r.hasil.jawab === "OK", `K5: the learner's answer in a running sitting, during a planned window on its class, must be taken (the drain): ${r.hasil.jawab}`);
+      c.expect(r.hasil.status_awal === "IN_PROGRESS", `K5: before its effective deadline the decider must leave it open: ${r.hasil.putus_awal} → ${r.hasil.status_awal}`);
+      c.expect(r.hasil.putus_akhir === "OK" && r.hasil.status_akhir !== "IN_PROGRESS", `K5: past its deadline and grace the decider (A1's closer) must end it during the window: ${r.hasil.putus_akhir} → ${r.hasil.status_akhir}`);
+      return `a running sitting when a planned class window starts drains: the answer is taken; open to its effective deadline (${r.hasil.efektif} s ahead, the stop's shift credited); the closer ends it after its grace (${r.hasil.status_akhir})`;
+    }),
+  },
+  {
+    id: "A2B-K06",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = k6(db, d);
+      c.expect(!r.err, `K6 failed to run: ${r.err}`);
+      const h = r.hasil;
+      c.expect(h.awal === TEMPAT, `K6: during the window the act must be refused ${TEMPAT}: ${h.awal}`);
+      c.expect(h.perpanjang === "OK", `K6: the school's admin's extend (perpanjang_pemeliharaan) must succeed: ${h.perpanjang}`);
+      c.expect(h.sesudah_perpanjang === TEMPAT, `K6: after the old end, the guard must follow the new end: ${h.sesudah_perpanjang}`);
+      c.expect(h.akhiri === "OK", `K6: resume early (AKHIRI) must succeed: ${h.akhiri}`);
+      c.expect(h.sesudah_akhiri === "OK", `K6: after an early end the refused act must succeed at once: ${h.sesudah_akhiri}`);
+      c.expect(h.audit === "1", `K6: one maintenance.extended audit row with before, after and reason: ${h.audit}`);
+      return `extend moves the end the guard reads at once (refused after the old end); resume early lifts the refusal at once; the extend is audited with before, after and reason`;
+    }),
+  },
+  {
+    id: "A2B-K07",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = k7(db, d);
+      c.expect(!r.err, `K7 failed to run: ${r.err}`);
+      const h = r.hasil;
+      c.expect(h.perpanjang_sys === "PR110:MAINTENANCE_EMERGENCY_LIFT_ONLY", `K7: extend on an EMERGENCY window must be refused PR110:MAINTENANCE_EMERGENCY_LIFT_ONLY (Admin PINTAR): ${h.perpanjang_sys}`);
+      c.expect(/^PR110:/.test(h.perpanjang_admin ?? ""), `K7: extend on an EMERGENCY window by the school's admin must be refused: ${h.perpanjang_admin}`);
+      c.expect(h.akhiri_admin === "PR110:MAINTENANCE_NOT_ALLOWED", `K7: resume early on an EMERGENCY window by the school's admin must be refused: ${h.akhiri_admin}`);
+      c.expect(h.akhiri_sys === "OK" && h.angkat === "true", `K7: Admin PINTAR's AKHIRI must be A2a's fenced lift (T_lift recorded, ends_at untouched): ${h.akhiri_sys}, ${h.angkat}`);
+      const ada = penulisAkhir(db);
+      const lebih = ada.filter((f) => !PENULIS_AKHIR.includes(f)), kurang = PENULIS_AKHIR.filter((f) => !ada.includes(f));
+      c.expect(lebih.length === 0 && kurang.length === 0, `K7: the writers of maintenance_windows.ends_at must be exactly ${PENULIS_AKHIR.join(", ")}: also ${lebih.join(", ") || "none"}; missing ${kurang.join(", ") || "none"}`);
+      return `an emergency is never extended or ended early: extend refuses it; the school's admin's AKHIRI is refused; Admin PINTAR's AKHIRI is A2a's fenced lift; the writers of a window's end are exactly ${PENULIS_AKHIR.join(", ")}`;
+    }),
+  },
+  {
+    id: "A2B-K08",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = k8(db, d);
+      c.expect(!r.err, `K8 failed to run: ${r.err}`);
+      const h = r.hasil;
+      c.expect(h.berakhir_takdicatat === "PR110:MAINTENANCE_NOT_OPEN", `K8: extending a window ended by its time, its end not yet recorded, must be refused PR110:MAINTENANCE_NOT_OPEN: ${h.berakhir_takdicatat}`);
+      c.expect(h.berakhir_dicatat === "PR110:MAINTENANCE_NOT_OPEN", `K8: the same with its end recorded: ${h.berakhir_dicatat}`);
+      c.expect(h.baru_berakhir === "PR110:MAINTENANCE_NOT_OPEN", `K8: a window that ended after the transaction began (its now() before the end) must be refused, read on the clock: ${h.baru_berakhir}`);
+      c.expect(h.aktif_takdicatat === "OK", `K8: a window that started with no activation recorded must be extendable (the state is never read from activation_recorded_at): ${h.aktif_takdicatat}`);
+      c.expect(h.akhir_tetap === "true", `K8: the ended window's end must be unchanged: ${h.akhir_tetap}`);
+      return `a window that has ended is never extended, read on the clock against ends_at, whether or not the recorder marked it; activation_recorded_at decides nothing`;
+    }),
+  },
+  {
+    id: "A2B-K09",
+    requires: ["db"],
+    run: jalan(async (c, db, d) => {
+      const a = await k9(db, d, 1);
+      c.expect(a.ok, `K9 order 1 failed to run: ${a.err}`);
+      c.expect(a.tunggu >= 1500, `K9 order 1: the extend did not wait for the recorder (${a.tunggu} ms): the race was not made`);
+      c.expect(a.panjang === "PR110:MAINTENANCE_NOT_OPEN", `K9 order 1 (the recorder first): the extend must then be refused PR110:MAINTENANCE_NOT_OPEN: ${a.panjang}`);
+      c.expect(a.aktif === 1 && a.nonaktif === 1 && !a.diperpanjang, `K9 order 1: one activation, one deactivation, the end unchanged: ${a.aktif}, ${a.nonaktif}, extended ${a.diperpanjang}`);
+      const b = await k9(db, d, 2);
+      c.expect(b.ok, `K9 order 2 failed to run: ${b.err}`);
+      c.expect(b.panjang === "OK", `K9 order 2 (extend first): the extend must succeed: ${b.panjang}`);
+      c.expect(b.aktif === 1 && b.nonaktif === 0 && b.diperpanjang, `K9 order 2: the recorder skipped the held row and its next run read the new end: one activation, no deactivation, extended: ${b.aktif}, ${b.nonaktif}, ${b.diperpanjang}`);
+      return `extend against the edge recorder, both orders on two connections: the recorder first, the extend waits and is refused (1 activation, 1 deactivation); extend first, the recorder skips and its next run reads the new end (1 activation, 0 deactivations)`;
+    }),
+  },
+  {
+    id: "A2B-K10",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const baik = k10(db, d, d.kA);
+      c.expect(!baik.err, `K10 failed to run: ${baik.err}`);
+      c.expect(baik.hasil.check === "0", `K10: A2a's CHECK maintenance_windows_class_is_emergency must be dropped: ${baik.hasil.check} found`);
+      c.expect(baik.hasil.jadwal === "OK", `K10: a PLANNED class window scheduled by the school's admin through schedule_maintenance(…, p_nodes) must be accepted: ${baik.hasil.jadwal}`);
+      const lain = k10(db, d, d.kY), bukan = k10(db, d, d.X), entah = k10(db, d, ID("dead"));
+      for (const [nama, r] of [["another school's class", lain], ["a node that is not a class", bukan], ["an unknown node", entah]] as const) {
+        c.expect(r.hasil.jadwal === "PR110:MAINTENANCE_NODE_INVALID", `K10: ${nama} must be refused by schedule_maintenance with PR110:MAINTENANCE_NODE_INVALID before any constraint: ${r.hasil.jadwal}`);
+      }
+      c.expect(lain.hasil.picu === "PR080:MAINTENANCE_CLASS_SCOPE_INVALID", `K10: A2a's node trigger must cover a PLANNED window (another school's class written directly): ${lain.hasil.picu}`);
+      return `A2a's emergency-only CHECK is gone; a PLANNED class window is scheduled by the school's admin; a bad class (another school's, not a class, unknown) is refused MAINTENANCE_NODE_INVALID before any constraint; the node trigger covers PLANNED`;
+    }),
+  },
+  {
+    id: "A2B-K11",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const k = k11(db, d, "KELAS");
+      c.expect(!k.err, `K11 (class) failed to run: ${k.err}`);
+      c.expect(k.hasil.aksi_A === TEMPAT, `K11: a planned window on 7A: the teacher's act on 7A's work must be refused ${TEMPAT}: ${k.hasil.aksi_A}`);
+      c.expect(k.hasil.aksi_B === "OK" && k.hasil.aksi_Y === "OK", `K11: the same teacher's act on 7B's and school Y's work must succeed: 7B ${k.hasil.aksi_B}, Y ${k.hasil.aksi_Y}`);
+      c.expect(k.hasil.kait === "OK" && k.hasil.blok === "none", `K11: a work-scoped window never stops the teacher as a person (no PT503, no redirect): hook ${k.hasil.kait}, block ${k.hasil.blok}`);
+      c.expect(k.hasil.pindah_keluar === "OK", `K11: PLANNED reads current placement: a learner moved from 7A to 7B after the window began starts in 7B: ${k.hasil.pindah_keluar}`);
+      // to Sharon: the code a start carries when refused during an active work-scoped window (the place's, or T−15's as today)
+      c.expect([TEMPAT, "PR110:MAINTENANCE_NO_NEW_START"].includes(k.hasil.pindah_masuk ?? ""), `K11: a learner moved into 7A after the window began is refused there (${TEMPAT} or PR110:MAINTENANCE_NO_NEW_START): ${k.hasil.pindah_masuk}`);
+      const s = k11(db, d, "SEKOLAH");
+      c.expect(!s.err, `K11 (school) failed to run: ${s.err}`);
+      c.expect(s.hasil.aksi_A === TEMPAT && s.hasil.aksi_B === TEMPAT, `K11: a school-wide planned window at X: the teacher's acts at X must be refused ${TEMPAT}: 7A ${s.hasil.aksi_A}, 7B ${s.hasil.aksi_B}`);
+      c.expect(s.hasil.aksi_Y === "OK", `K11: the same teacher's act at school Y must succeed (R-1's cross-school case): ${s.hasil.aksi_Y}`);
+      c.expect(s.hasil.kait === "OK" && s.hasil.blok === "none", `K11: a school-wide planned window is work-scoped too: hook ${s.hasil.kait}, block ${s.hasil.blok}`);
+      return `work scope: a teacher of 7A and 7B is refused only on 7A's work; at two schools, only at the window's; never PT503 nor stopped as a person; PLANNED reads current placement (moved out starts, moved in is refused)`;
+    }),
+  },
+  {
+    id: "A2B-K12",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = k12(db, d);
+      c.expect(!r.err, `K12 failed to run: ${r.err}`);
+      const h = r.hasil;
+      c.expect(h.aksi_henti === "PR170:SITTING_CLASS_STOPPED", `K12: with both windows over 7A the emergency governs: the teacher's act must be refused with A2a's PR170:SITTING_CLASS_STOPPED: ${h.aksi_henti}`);
+      c.expect(h.blok_henti === "EMERGENCY", `K12: the learner must be stopped as a person by the emergency: ${h.blok_henti}`);
+      c.expect(h.blok_angkat === "none", `K12: after the lift, with the planned window still on, the learner must not be stopped as a person: ${h.blok_angkat}`);
+      c.expect(h.jawab_angkat === "OK", `K12: after the lift the learner's answer (A2a's credit) must be taken: ${h.jawab_angkat}`);
+      c.expect(h.rilis === "OK", `K12: after the lift the release batch must run: ${h.rilis}`);
+      c.expect(h.keluar_angkat === "OK", `K12: after the lift a departure must be allowed: ${h.keluar_angkat}`);
+      c.expect(h.aksi_angkat === TEMPAT, `K12: after the lift the teacher's act is refused by the planned window's place: ${h.aksi_angkat}`);
+      return `a planned and an emergency window over one class: the emergency governs (A2a's refusal, stopped as a person); after the lift the planned guard refuses nothing A2a allows (the answer, the release batch, a departure) and refuses the teacher's act by place`;
+    }),
+  },
+];

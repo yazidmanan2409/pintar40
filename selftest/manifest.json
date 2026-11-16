@@ -6269,6 +6269,71 @@
       "id": "A2A-C720",
       "runner": "static",
       "proves": "Sharon's answer to question 3 (migration 20270119250000), executes on the database in one rolled-back transaction and reads the screens' source: each O1 refusal is recorded afterwards by catat_penolakan_henti, only while it stands for the caller. With a class stop in force the class's teacher records SITTING_CLASS_STOPPED on the sitting and on the assignment («Ubah jadwal») and ASSIGN_CLASS_STOPPED, and the school's admin PROMO_STOPPED on the Kelas: one row per call, each naming the stop. Refused STOP_REFUSAL_NOT_FOUND: the learner, SITTING_FENCE_BUSY, another code, a teacher's PROMO_STOPPED, and the teacher's call after the lift. The teacher's sitting acts, «Ubah jadwal», ending an assignment and applying a promotion call it after the refusal. Plant: a forged record after the lift. C41-2's siblings (migration 20270119260000): after the lift, with the stop's mark not yet released, the record refuses, «Ubah jadwal» goes on to its own checks and the teacher's list (daftar_pengerjaan) no longer says HELD_STOP; plants: the stale mark counted in each. Sharon's note on commit 43 (migration 20270119270000): a refusal is recorded once per caller, target, code and stops in force (a second identical call returns the first row); plant: no dedupe writes a second."
+    },
+    {
+      "id": "A2B-I01",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. Every writer of a class's work (a function that writes assessment_sessions, learning_assignments, assessment_assignments, lesson_progress or attempt_requests, or a client entry point that reaches one) is classed REFUSED, REFUSED_QUIETLY, REFUSED_GRANT, ALLOWED, SYSTEM or INNER, from Sharon's classing (A2B-COMPLETION.md); every refused one asks the place question (maintenance_affects_place), directly, through a function it calls, or (a start) through the sitting-insert trigger; no system closure does; a stale class is reported; plant: an unclassed writer is reported."
+    },
+    {
+      "id": "A2B-K01",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K1, the window starts: read on the clock. The teacher's act (A1's extend) before a planned window's start succeeds; in the same transaction after it (its now() still before) it is refused PR040 MAINTENANCE_PLACE; a start whose transaction began before T−15 and inserts after it is refused MAINTENANCE_NO_NEW_START; on two connections, a transaction that waits on the sitting's row across the start and reaches its write after it is refused."
+    },
+    {
+      "id": "A2B-K02",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K2, the window ends: an act refused before a planned window's end succeeds after it, in the same transaction (its now() before the end), read on the clock at the moment of writing."
+    },
+    {
+      "id": "A2B-K03",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K3, D4 for a timed sitting: a start whose own deadline falls after a planned class window's start is refused PR110 MAINTENANCE_CANNOT_FINISH; one that ends before it succeeds; inside T−15 MAINTENANCE_NO_NEW_START stays."
+    },
+    {
+      "id": "A2B-K04",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K4, D4 for an untimed sitting: T−15 only, as today (allowed 30 min before a planned class window, refused 10 min before with MAINTENANCE_NO_NEW_START)."
+    },
+    {
+      "id": "A2B-K05",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K5, a running sitting when a planned class window starts: not cut off. Its effective deadline (pengerjaan_tenggat_efektif, with a lifted stop's credited shift) is honoured; the learner's answer is taken; the decider leaves it open before that deadline and A1's closer ends it after its grace."
+    },
+    {
+      "id": "A2B-K06",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K6, extend during a window and end it early: perpanjang_pemeliharaan by the school's admin moves the end the guard reads at once (still refused after the old end); resume early (change_maintenance AKHIRI) lifts the refusal at once; one maintenance.extended audit row with before, after and reason."
+    },
+    {
+      "id": "A2B-K07",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K7 and A8, an emergency window: extend refuses it (PR110 MAINTENANCE_EMERGENCY_LIFT_ONLY, Admin PINTAR; refused for the school's admin); the school's admin's AKHIRI is refused; Admin PINTAR's AKHIRI is A2a's fenced lift (T_lift recorded); the functions that write maintenance_windows.ends_at are exactly perpanjang_pemeliharaan and schedule_maintenance."
+    },
+    {
+      "id": "A2B-K08",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K8, extend after the window has ended: refused PR110 MAINTENANCE_NOT_OPEN, read on the clock against ends_at, whether or not the recorder marked the end, including a window that ended after the transaction began; a started window with no activation recorded is extendable (activation_recorded_at decides nothing)."
+    },
+    {
+      "id": "A2B-K09",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K9, extend against the edge recorder, both orders on two connections: the recorder first (it marks the end and holds the row), the extend waits and is refused; extend first (it holds the row past the old end), the recorder skips it and its next run reads the new end. Either way one activation row and at most one deactivation row per window."
+    },
+    {
+      "id": "A2B-K10",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K10, lifting A2a's emergency-only CHECK: maintenance_windows_class_is_emergency is gone; a PLANNED class window is scheduled through schedule_maintenance(…, p_nodes) by the school's admin; another school's class, a node that is not a class and an unknown node are refused PR110 MAINTENANCE_NODE_INVALID before any constraint; A2a's node trigger covers a PLANNED window."
+    },
+    {
+      "id": "A2B-K11",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K11, work scope (R-1): a planned window on 7A refuses the teacher of 7A and 7B only on 7A's work; a school-wide planned window at X refuses the same teacher at X and not at school Y; neither stops the teacher as a person (the request hook passes; maintenance_block_for_me is none: no PT503, no redirect); PLANNED reads current placement (a learner moved out of 7A after the window began starts in 7B; one moved in is refused there)."
+    },
+    {
+      "id": "A2B-K12",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K12, a planned and an emergency window over one class: the emergency governs (the teacher's act refused PR170 SITTING_CLASS_STOPPED; the learner stopped as a person); after the lift, with the planned window still on, the planned guard refuses nothing A2a allows (the learner's answer, the first-touch release, a departure) and refuses the teacher's act by place."
     }
   ]
 }
