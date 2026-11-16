@@ -103,3 +103,22 @@ Sharon, 16 Nov 2026 (22:40 UTC). Read-only.
   2. **An unknown id, another learner's sitting, or a sitting outside the staff member's authority** all answer SITTING_NOT_CONTROLLER.
   3. **RECOVERY_NOTHING and the authorisation codes appear only for a sitting that passed (1).**
   4. **On every other learner boundary** (answer, pause, resume, submit, item view), a session of the same learner that is not the current controller answers SITTING_NOT_CONTROLLER.
+
+## Addendum, 23:15 UTC: the N-5 fix (local, reviewed as text) and the `minta_percobaan` sibling
+
+**The N-5 fix** (`claude/a3`, local: `38505a44` the red test, `cd5b37c3` the product, `cff03c26` the pins): **accepted on the text.**
+- **The lock key** is (learner, definition, version), and it stays first, before the assignment FOR SHARE and before the count.
+- **The structural check** asserts four things:
+  - the key names the definition and version;
+  - no lock keyed by the assignment remains;
+  - the lock comes first;
+  - A2b's start-path refusals are kept.
+- **F37-R02 is red then green, and F37 passes 40/0.**
+- **One condition: the key is read without a lock, and that is safe only if it cannot change.** Pin it with a test that an assignment's `assessment_definition_id` and a definition's `version` cannot be updated once the definition can be sat: a trigger, or `assessment_definitions_taught_immutable` asserted to cover both. Otherwise a later writer could silently reopen N-5.
+- When the branch is pushed, I diff `cd5b37c3` against the text: only migration 20270121200000.
+
+**The sibling, `minta_percobaan`, which keys its lock and its grant count per (learner, assignment): register it for Z, not A3.**
+- It creates no sitting, and each extra attempt is a deliberate staff approval, so it is not a race past the limit.
+- **Case (b) is conservative.** A grant on assignment X does not raise the allowance for a start through Y, so a learner can be refused when one might expect a start. It never grants more than was approved.
+- **Case (a)** is two approvals for two assignments. That is two staff decisions, not a bypass.
+- **For Z:** the grant should share the count's scope, (definition, version). Add a test that one approval adds exactly one attempt, whichever assignment the learner starts through. *Could reasonably have been anticipated (Q2, the neighbouring act):* it is the same scope widening as N-5.

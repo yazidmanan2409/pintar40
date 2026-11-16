@@ -40,3 +40,5 @@ This list is updated as items arrive. Each line names where it is due.
 - **Then:** the new candidate, the preservation pair redone, the journeys, and my freeze checks re-run.
 
 **A3 pre-build:** done in `A3-PREBUILD-ac25e9b1.md`. N-4 and N-5 are answered there, and ruling 42 is agreed with conditions.
+
+**Z register triage (added):** `minta_percobaan` and `percobaan_izin_jumlah` are keyed per (learner, assignment), while the attempt count is per (definition, version). Align them, with a test that one approval adds exactly one attempt through any assignment (A3-PREBUILD addendum, 23:15).
