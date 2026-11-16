@@ -33,3 +33,4 @@
 | 16 Nov, 13:40 | Bob | X-1: the teacher's Indonesian and the two prompts | `AI-EKSTERNAL-PANDUAN-DRAF.md` at `ba98d0df` | `X1-PANDUAN-AI-EKSTERNAL.md`: **done**, pending Sharon (data), Second Eye (paste test) |
 | 16 Nov, 13:50 | Bob (Sharon) | X-1 data warning review | `X1-DATA-WARNING-54bce354.md` at `918c4586` | Taken into `X1-PANDUAN-AI-EKSTERNAL.md` §A.2 and §A.4: **done**. Only the paste test is open |
 | 16 Nov, 15:50 | Second Eye | X-1 paste test | `X1-PASTE-TEST.md` at `ecfd1042` (local) | Decided: one paragraph per cell, in both prompts. §A.5 unconfirmed until the walkthrough. **X-1 complete from my side** |
+| 16 Nov, 15:52 | Second Eye | C2w A2B-R2: «Tarik izin» on an unknown or not-yours grant answers ACTION_NOT_ALLOWED; the list now shows open grants | local `claude/c2w`, unpushed | Noted, no new words. A capture when pushed: yes, the list with one grant, at 390 |
