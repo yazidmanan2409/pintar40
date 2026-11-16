@@ -1,6 +1,10 @@
-# E · AI provider evaluation: decision pack for the owner (revision 2)
+# E · AI provider evaluation: decision pack for the owner (revision 3)
 
-Prepared by Bob, 16 November 2026. **For your decision. Nothing is activated:** no account, credential, network
+Prepared by Bob, 16 November 2026. **Revision 3, same day:** the owner's decisions on revision 2 are recorded
+(ruling 43, §6). §4.2 is amended, and §4.3a's threshold is **proposed, not frozen**. §4 freezes only when the owner
+approves that threshold.
+
+**For your decision. Nothing is activated:** no account, credential, network
 egress to a provider API, call, transmission of material or spending.
 
 **Evidence:**
@@ -153,20 +157,53 @@ move afterwards.
 
 **4.2 Judges and disagreements**
 - Two educators score every valid item independently, without seeing each other's scores.
-- **Correctness (0/1, a wrong key is critical):** Sharon checks every key independently as well. If both judges and
-  Sharon agree, that stands. If any one of them differs, the **third judge decides**, with each one's reason in front
-  of them, and that decision is final.
+- **Correctness (0/1, a wrong key is critical). Amended, owner, 16 Nov.** Final educational judgments belong to
+  the human educators.
+  - If the two judges agree, their score stands, unless Sharon has flagged the item.
+  - If they disagree, the **third educator** decides, with both judges' reasons in front of them, and that decision is
+    final.
+  - **Sharon's role:** she checks every key independently and may **flag** a suspected wrong key. A flag sends the item
+    to the third educator, even when the two judges agreed. It never changes a score by itself.
+  - Sharon also **audits the process:** that every item had two independent scores, that disagreements went to the
+    third educator, and that the map stayed sealed. Her flags, and what the educators decided on each, are listed in the
+    report.
 - **The 0–2 criteria:** if the two judges are 1 apart, the item scores the average. If they are 2 apart, the third
   judge also scores it and the item takes the **median of the three**.
 - **Daisy** reviews the Indonesian as advice to the judges; her opinion is not a score.
 
 **4.3 Qualification and the no-pass outcome**
-- **A provider qualifies** if it has **no more than 1 critical key error in 30** (the plan's rule) and passes the
-  contract, security and operational checks (ruling 40).
+- **A provider qualifies** only if it meets all three of these:
+  - **no more than 1 critical key error in 30** (the plan's rule);
+  - the **minimum educational-quality threshold** in §4.3a (owner, 16 Nov: "a provider must demonstrate educational
+    usefulness, not merely avoid critical wrong keys");
+  - the contract, security and operational checks (ruling 40).
 - Qualified providers are **ranked for the evidence**, not for selection: summed educational score, then valid rate,
   then cost.
 - **If no provider qualifies,** the report says so. Nothing is selected, C3w is not shortened, and it comes to you
   (THE PLAN §5.6 J). Changing the prompt and running again would need your separate approval and a new freeze.
+
+**4.3a Minimum educational-quality threshold (PROPOSED by Bob, for the owner's approval; not frozen)**
+
+It uses only the existing rubric (plan §5) and the existing definition of an accepted draft (§4.5). A provider must
+meet **both** conditions, across its 30 items:
+
+| # | Condition | Threshold | Why |
+|---|---|---|---|
+| **Q1** | **Accepted items:** the key is correct, and the review burden is 1 or 2 after resolution, so the item is usable as it stands or after a light edit | **at least 24 of 30 (80%)** | This is the add-on's whole case: it saves an educator's time. If more than 1 item in 5 must be rewritten or rejected, there is little saving |
+| **Q2** | **No weak dimension:** the average score across the 30 items for each 0–2 criterion (objective alignment, distractor quality, Indonesian language, review burden) | **at least 1.0 for each of the four** | A good total must not hide a dimension that is consistently poor, such as distractors that no misconception would produce |
+
+- **Missing or malformed items** score 0 and count as not accepted (§4.1). A provider that loses a whole chapter (15
+  items) therefore cannot qualify. That is intended: three attempts per chapter allow ordinary transport faults.
+- The threshold is applied **after all resolution, before the map is opened** (§4.4), so it is fixed in ignorance of
+  which provider is which.
+- **What 30 items can show:** 24 of 30 is a point estimate of 80%, with an uncertainty of roughly ±15 points. The
+  threshold is a minimum bar for qualifying a provider for the first evaluation, not a guarantee of quality in use.
+  C3w keeps a human educator's review of every draft whatever the provider (THE PLAN §5.6).
+- **Alternatives,** if you prefer:
+  - **stricter:** Q1 at 27 of 30 (90%);
+  - **with a quality floor at the top:** add Q3, at least 10 of 30 items with review burden 2 (approve as is).
+
+  I recommend Q1 and Q2 as proposed: simple, and set by the add-on's purpose.
 
 **4.4 The sealed map**
 - The runner's operator session runs `kit.mjs blind` and keeps the provider-to-code map **outside the repository**. It
@@ -198,11 +235,22 @@ a number of approved questions for a fixed cost.
 
 ## 6 · What you need to decide
 
-**Now, so E can be prepared without cost:**
-1. **Providers:** Anthropic `claude-sonnet-5-5` and OpenAI `gpt-6.1-sol`. Google out unless written clarification
-   arrives. And the Google inquiry's send date, if it was sent.
-2. **Scoring rules:** approve §4 as written, or amend it. It freezes at your approval.
-3. **Judges:** name three educators to the §5 profile.
+**Decided by the owner, 16 Nov (ruling 43):**
+1. **Providers: approved as E's two evaluation candidates,** Anthropic and OpenAI, **subject to verification of the
+   exact model IDs and the outstanding eligibility and terms** (G1, G2, §2). Google remains excluded. **This does not
+   qualify either provider commercially.**
+   - The model IDs `claude-sonnet-5-5` and `gpt-6.1-sol` are re-verified against the official model pages in the
+     no-cost preparation immediately before the paid run, and again at the second dry run.
+2. **Scoring: approved in principle, with two amendments before freezing.**
+   - (a) Correctness disagreements go to the third educator; Sharon flags and audits (§4.2, done).
+   - (b) A minimum educational-quality threshold, which **Bob proposes in §4.3a for approval.**
+
+   Kept as they are: the denominator of 30, no retry for quality, blind judging, the sealed map, and the cost and
+   reliability reporting. **§4 freezes when the owner approves §4.3a.**
+3. **Judges: the three-educator structure and the §5 profile are approved.** The judges are **not yet nominated**;
+   their names stay pending.
+
+**Open for the owner now:** approve §4.3a (or one of its alternatives), then §4 freezes.
 
 **Before the paid run (one request, after the second dry run):**
 
