@@ -1,6 +1,6 @@
 # A2b · D8 batch 2 (Konfigurasi): D8-5 and D8-6, for Daisy
 
-Captured at `c4a4ab53` on `claude/a2b`, local stack, as Sekolah Sintetis Siklus's Admin sekolah (and one of its learners
+Captured at `a186b1a7` on `claude/a2b`, local stack, as Sekolah Sintetis Siklus's Admin sekolah (and one of its learners
 for the reason shown to the affected). WIB, then WITA (the school's zone set to Asia/Makassar for the second pass).
 Every page at 390 px, the main ones also at 320 px; every shot recorded 0 px of horizontal overflow (CAPTURE-LOG.txt).
 The script lives outside the repository (disposable), as batch 1's.
@@ -15,11 +15,10 @@ The script lives outside the repository (disposable), as batch 1's.
 | `d8-6-*-baris` | a planned class window under way in the list: its reason in words, «Akhiri sekarang» and «Perpanjang» |
 | `d8-6-*-perpanjang-buka`, `d8-6-wib-perpanjang-kunci` | «Perpanjang pemeliharaan» open: «Sekarang diperkirakan selesai pukul …», «Selesai baru ({zona})» focused by keyboard |
 | `d8-6-*-perpanjang-periksa` | step 2 after «Periksa waktu ini»: the advisory count for the added period; the reason, «Simpan perpanjangan», «Batal» |
-| `d8-6-*-perpanjang-tidak-lebih-lambat` | the refusal: «Waktu selesai baru harus lebih lambat dari pukul 20.05 WIB. Tidak ada yang diubah.» |
-| `d8-6-*-perpanjang-hasil` | the result: «Pemeliharaan diperpanjang sampai pukul 21.06 WIB. Pemberitahuan …» (the word is under Daisy's ruling) |
+| `d8-6-*-perpanjang-tidak-lebih-lambat` | the refusal: «Waktu selesai baru harus lebih lambat dari pukul …» (the row's current end) Tidak ada yang diubah.» |
+| `d8-6-*-perpanjang-hasil` | the result: «Pemeliharaan diperpanjang sampai pukul 21.28 WIB. Yang terdampak akan melihat waktu selesai yang baru.» (Daisy's ruling, c802f40d) |
 | `d8-6-*-akhiri-tanya` | «Akhiri sekarang», the class-scope confirmation: «Akhiri pemeliharaan sekarang? Pekerjaan kelas 5S dapat diubah lagi segera.» |
 | `d8-6-*-akhiri-hasil` | the result: «Pemeliharaan diakhiri.» (ended_at recorded: CAPTURE-LOG) |
 
-Open for Daisy: (1) «Pemberitahuan» in galat.maintenance_extended against DAISY-25 (D-019); proposal «Pengumuman». (2)
-«Perpanjang» in two steps (the advisory needs the new end first). (3) After a refused schedule (no reason) the form
+Ruled by Daisy (c802f40d): the extend result's line, and «Perpanjang» in two steps. Open for Daisy: after a refused schedule (no reason) the form
 returns to its first step with the school and times kept but not the chosen class: as the form behaved before A2b.
