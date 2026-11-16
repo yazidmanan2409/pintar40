@@ -118,7 +118,7 @@ insert into public.assessment_sessions
 select (jsonb_populate_record(src, jsonb_build_object('id', ('a2a1b000-0000-4000-8000-' || lpad(g::text, 12, '0'))::uuid, 'status', 'IN_PROGRESS',
   'person_id', '${luar[0]}', 'enrollment_id', '${luar[1]}', 'cohort_node_id', null,
   'authoritative_deadline', case when g = 0 then now() - interval '10 minutes' else now() + interval '3 hours' end,
-  'created_at', now() - interval '20 minutes', 'started_at', now() - interval '20 minutes',
+  'created_at', case when g = 0 then now() - interval '5 minutes' else now() - interval '20 minutes' end, 'started_at', now() - interval '20 minutes',
   'finalized_at', null, 'submitted_at', null, 'closure_kind', null, 'closure_at', null, 'closure_deadline', null,
   'frozen_at', null, 'unfrozen_at', null, 'termination_cause', null, 'darurat_sejak', null, 'darurat_jendela_id', null,
   'darurat_dikredit_sampai', null, 'darurat_keluar', null, 'attempt_request_id', null))).*
@@ -181,10 +181,28 @@ select pg_temp.a2a_d1();`).split("|");
   hasil.release_batch = { ms: bulat(lepas.ms), credited: dikredit, per_second: Math.round(dikredit / (lepas.ms / 1000)) };
 
   // ── 1. R1: a stop in force over the 50,000; the first scheduler run ───────────────────────────────────────────
+  // Sharon's R1-B: the 50,000 fall due 3 s after the stop takes effect, so at the closer's run every one is overdue and
+  // only R1's exclusion keeps them out of its limit (U0 was made after them; the selection orders by created_at)
+  psql(`begin; set local session_replication_role = replica;
+update public.assessment_sessions set authoritative_deadline = now() + interval '3 seconds'
+ where class_node_id = '${kelas}' and status in ('CREATED', 'IN_PROGRESS', 'PAUSED');
+commit;`);
   tandai("r1");
   const a2 = await henti();
   if (!a2.ok) throw new Error(`the second activation failed: ${a2.err}`);
   const w2 = a2.out.split("\n").pop()!;
+  await tidur(4000);
+  const lewat = Number(psql(`select count(*) from public.assessment_sessions where class_node_id = '${kelas}' and status in ('CREATED', 'IN_PROGRESS', 'PAUSED') and authoritative_deadline <= now();`));
+  // R1's plant, once, in a rolled-back transaction: the selection without its exclusion fills its limit with the
+  // stopped class and starves U0
+  const tanam = psql(`begin;
+do $t$ begin
+  execute replace(pg_get_functiondef('public.pengerjaan_tutup_calon(integer)'::regprocedure),
+    E'     and a.darurat_sejak is null\n     and not public.pengerjaan_dilindungi(a.id)\n', '');
+end $t$;
+select count(*) filter (where s.class_node_id = '${kelas}') || '|' || count(*) || '|' || coalesce(bool_or(s.id = '${U(0)}'), false)::text
+  from public.pengerjaan_tutup_calon(500) x join public.assessment_sessions s on s.id = x;
+rollback;`).split("\n").filter((l) => l.includes("|")).pop()!.split("|");
   const calon = psql(`select coalesce(string_agg(x::text, ','), '') from public.pengerjaan_tutup_calon(500) x;`).split(",").filter(Boolean);
   const calonKena = calon.length ? Number(psql(`select count(*) from public.assessment_sessions where id in (${calon.map((x) => `'${x}'`).join(",")}) and class_node_id = '${kelas}';`)) : 0;
   const jalan = await psqlT(`call public.pengerjaan_tutup_berkala(500, 20);`);
@@ -192,8 +210,9 @@ select pg_temp.a2a_d1();`).split("|");
   const u0 = psql(`select status from public.assessment_sessions where id = '${U(0)}';`);
   const gagalR1 = (jalan.err.match(/could not be closed/) ? Number((/: (\d+) of/.exec(jalan.err) ?? [])[1] ?? 0) : 0);
   const l2 = await angkat(w2);
-  hasil.r1 = { candidates: calon.length, affected_among_candidates: calonKena, ended: selesai, skipped: calon.length - selesai, failed_in_run: gagalR1,
-    unaffected_overdue_status_after_first_run: u0, run_ms: bulat(jalan.ms) };
+  hasil.r1 = { affected_overdue_at_the_run: lewat, candidates: calon.length, affected_among_candidates: calonKena, ended: selesai, skipped: calon.length - selesai,
+    failed_in_run: gagalR1, unaffected_overdue_status_after_first_run: u0, run_ms: bulat(jalan.ms),
+    plant_without_the_exclusion: { candidates: Number(tanam[1]), affected_among_them: Number(tanam[0]), unaffected_overdue_among_them: tanam[2] === "true" } };
   fase("R1");
   hasil.activation_uncontended_2_ms = bulat(a2.ms);
   hasil.lift_2_ms = l2.ok ? bulat(l2.ms) : `refused: ${l2.err}`;
@@ -213,7 +232,12 @@ select pg_temp.a2a_d1();`).split("|");
   // the closer, running throughout: one pass after another; at 50,000 sittings a pass (its marking and release
   // batches included) outlasts the cycles, so the pass under way when they end is cancelled, not waited for
   const penutup = (async () => { let n = 0; while (jalanTerus) { await psqlT(`call public.pengerjaan_tutup_berkala(500, 20);`, undefined, "a2a-skala-penutup"); n++; if (jalanTerus) await tidur(1000); } return n; })();
+  // Sharon's R1-B: R2 with the closer working on the 50,000. The second stop's release (the release batch, as the
+  // closer's own bookkeeping would run it) leaves them unmarked, credited and overdue, so the closer's passes select and
+  // decide them between the stops
+  if (l2.ok) psql(`call public.pengerjaan_lepas_darurat_semua(200);`);
   tandai("r2_and_refusals");
+  const terbukaAwal = Number(psql(`select count(*) from public.assessment_sessions where class_node_id = '${kelas}' and status in ('CREATED', 'IN_PROGRESS', 'PAUSED');`));
   await tidur(5000);   // the baseline: the shared takers and the closer, no stop
   const dasar = catatan.filter((c) => c.ok).map((c) => c.ms);
   const aktif: number[] = [], angkatMs: number[] = [];
@@ -240,10 +264,12 @@ select pg_temp.a2a_d1();`).split("|");
   await Promise.all(pengambil);
   psql(`select pg_cancel_backend(pid) from pg_stat_activity where application_name = 'a2a-skala-penutup' and pid <> pg_backend_pid();`);
   const putaran = await penutup;
+  const terbukaAkhir = Number(psql(`select count(*) from public.assessment_sessions where class_node_id = '${kelas}' and status in ('CREATED', 'IN_PROGRESS', 'PAUSED');`));
   fase("R2 and the refusals");
   const semasa = catatan.filter((c) => jendela.some(([a, b]) => c.t + (c.ms || 0) >= a && c.t <= b));
   hasil.r2 = { activations: aktif.length, refused_activations: aktifDitolak, p50_ms: bulat(p50(aktif)), p95_ms: bulat(p95(aktif)), max_ms: bulat(Math.max(...aktif)),
-    lifts: angkatMs.length, lift_p95_ms: bulat(p95(angkatMs)), closer_passes_started_during: putaran };
+    lifts: angkatMs.length, lift_p95_ms: bulat(p95(angkatMs)), closer_passes_started_during: putaran,
+    closer_work: { stopped_class_open_at_start: terbukaAwal, ended_by_the_closer_during: terbukaAwal - terbukaAkhir } };
   hasil.queue_delay = { baseline_p95_ms: bulat(p95(dasar)), during_stop_or_lift_p95_ms: bulat(p95(semasa.filter((c) => c.ok).map((c) => c.ms))),
     during_max_ms: bulat(Math.max(0, ...semasa.filter((c) => c.ok).map((c) => c.ms))) };
   hasil.refused = { shared_takers_total_calls: catatan.length, shared_takers_refused_fence_busy: catatan.filter((c) => c.sibuk).length,
@@ -252,11 +278,15 @@ select pg_temp.a2a_d1();`).split("|");
   for (const j of cron.split(",").filter(Boolean)) psql(`select cron.alter_job(${j}, active := true);`);
 
   // ── the gates: only the plan's thresholds ──────────────────────────────────────────────────────────────────────
-  const r1 = hasil.r1 as { unaffected_overdue_status_after_first_run: string };
+  const r1 = hasil.r1 as { unaffected_overdue_status_after_first_run: string; affected_among_candidates: number; affected_overdue_at_the_run: number;
+    plant_without_the_exclusion: { candidates: number; affected_among_them: number; unaffected_overdue_among_them: boolean } };
   const gerbang: Array<[string, boolean]> = [
     ["3 · the activation's work under the fence ≤ 0.5 s (uncontended, both samples)", a1.ms <= 500 && a2.ms <= 500],
     ["3 · scenario 8 · the lift's work under the fence ≤ 0.5 s, no batch run before it", l1.ms <= 500 && ditandai === 0],
-    ["1 · R1 · the unaffected overdue sitting ended on the first scheduler run", !["CREATED", "IN_PROGRESS", "PAUSED"].includes(r1.unaffected_overdue_status_after_first_run)],
+    ["1 · R1 · the unaffected overdue sitting ended on the first scheduler run, none of the overdue stopped sittings a candidate",
+      !["CREATED", "IN_PROGRESS", "PAUSED"].includes(r1.unaffected_overdue_status_after_first_run) && r1.affected_among_candidates === 0 && r1.affected_overdue_at_the_run === kena],
+    ["1 · R1 · its plant bites: without the exclusion the limit is filled by the stopped class and the unaffected one is not selected",
+      r1.plant_without_the_exclusion.affected_among_them === 500 && !r1.plant_without_the_exclusion.unaffected_overdue_among_them],
     ["2 · R2 · activation takes effect within 5 s at p95, the closer running", aktif.length > 0 && p95(aktif) <= 5000],
   ];
   hasil.gates = Object.fromEntries(gerbang.map(([k, v]) => [k, v ? "PASS" : "FAIL"]));
