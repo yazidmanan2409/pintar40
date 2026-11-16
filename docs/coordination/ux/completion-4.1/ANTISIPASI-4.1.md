@@ -44,7 +44,9 @@
 | A2B-D3 | «pekerjaannya» with no owner, above work from several classes | build | **Yes** | **5** | Where it renders: `/belajar` holds every class |
 | A2B-D4 | A time on another day shown without its date | build, and my D8 list | **Yes** | **2** | The neighbouring case: an end after midnight |
 
-**So far: 4 defects, all anticipable; 1 of them mine.** Plus V-2 (mine, D4's duration), recorded above.
+| A2B-D5 | My «Perpanjang» result line said «pemberitahuan», which DAISY-25 (my own rule) refuses | **mine** | **Yes** | **1** | What else reads this word: my own D-019 sweep. I did not search the rules before writing it |
+
+**So far: 5 defects, all anticipable; 2 of them mine.** Plus V-2 (mine, D4's duration), recorded above.
 
 ## My own verification error, recorded with the defects
 

@@ -20,7 +20,7 @@
 | Reason field | `config.pemeliharaan.alasan` «Alasan (dicatat)», required | «Reason (recorded)» |
 | Submit | «Simpan perpanjangan» | «Save the extension» |
 | Cancel | «Batal» | «Cancel» |
-| Result line (`role="status"`) | «Pemeliharaan diperpanjang sampai pukul {jam} {zona}. Pemberitahuan untuk yang terdampak ikut berubah.» | «Maintenance extended to {jam} {zona}. The notices for those affected change with it.» |
+| Result line (`role="status"`) | ~~«… Pemberitahuan untuk yang terdampak ikut berubah.»~~ **(16 Nov, 11:05; DAISY-25 refuses «pemberitahuan»)** «Pemeliharaan diperpanjang sampai pukul {jam} {zona}. Yang terdampak akan melihat waktu selesai yang baru.» | ~~«… The notices for those affected change with it.»~~ «Maintenance extended to {jam} {zona}. Those affected will see the new end.» |
 | Refused: the new end is not later | «Waktu selesai baru harus lebih lambat dari pukul {jam} {zona}. Tidak ada yang diubah.» | «The new end must be later than {jam} {zona}. Nothing was changed.» |
 | Refused: no reason | «Tulis alasan perpanjangannya. Tidak ada yang diubah.» | «Write the reason for the extension. Nothing was changed.» |
 | Refused: the window has ended meanwhile | `galat.maintenance_not_open` «Pemeliharaan ini sudah berakhir.», unchanged | unchanged |
@@ -29,6 +29,10 @@
 **Notes on the words:**
 - «Batal» vs «Batalkan»: the row's «Batalkan» cancels the **window**; the form's «Batal» closes the **form**. This is the double «Batal» I noted for A2a. Keep the two words apart, never two «Batalkan».
 - An end on another day takes «, {hari} {tanggal}», as C-3. Non-breaking spaces as in batch 1.
+
+**Rulings, 16 Nov 11:05, on Second Eye's build (`84681d51`):**
+- **The result line:** my «pemberitahuan» broke DAISY-25, my own rule (PINTAR sends no notifications). I did not take Second Eye's «Pengumuman» either: it is true only when the window was also published as an announcement, which is optional. The banner and the pause page always change, so the line now says what is always true, and promises nothing sent.
+- **«Perpanjang» in two steps** (the new end with «Periksa waktu ini» and the count for the added period, then the reason and save): **accepted.** The person sees what the extension meets before writing why, as the planned form does. The words are unchanged.
 
 ## 2 · «Akhiri sekarang» on a planned window (resume early)
 

@@ -27,3 +27,4 @@
 | 16 Nov, 09:35 | Bob | The planned form's class picker words; add it to D8-5 | Bob's note, 09:34 | `A2B-PILIH-KELAS-KATA.md`: **done**. The hint and the impact sentence must not be reused |
 | 16 Nov, 10:23 | Bob | Owner directive of 16 Nov (proceed through 4.1; PENDING OWNER AUTHORISATION at staging clicks); X-1 Indonesian after A2b's freeze | `TEAM-INSTRUCTIONS.md` at `670aeb4e`, first section, read | Noted. X-1 when the draft arrives |
 | 16 Nov, 10:29 | Bob | Ruling 42; PLAN-A3-C3W-Z.md (`f942eb97`). R-3's matching rule is mine and Sharon's at C3w's pre-build review; A3 follows DESAIN-AWAL §4 and O-4 | Bob's note | To read when quiet; nothing before A2b's freeze |
+| 16 Nov, 11:05 | Second Eye | «pemberitahuan» in the extend result line breaks DAISY-25; two-step «Perpanjang» | `claude/a2b` at `84681d51` | Ruled in `A2B-PERPANJANG-KATA.md`: «Yang terdampak akan melihat waktu selesai yang baru.»; two steps accepted (A2B-D5, mine) |
