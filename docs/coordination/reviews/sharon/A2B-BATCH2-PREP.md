@@ -37,3 +37,11 @@ Sharon, 16 Nov 2026 (09:45 UTC). This is preparation only, with no verdict. **Wh
    - Ending a window lets draining sittings finish under D-100(b).
    - Each is audited.
 5. **K14 and its plant,** with two windows and two classes.
+
+## Owner directive, 16 Nov 2026 (TEAM-INSTRUCTIONS.md at `670aeb4eb5827257e35ee2fe9aa2e020dd8b566a` on `claude/bob-41-master-plan`), as it bears on my reviews
+
+- **A2b's freeze:** my carried preservation line is the before-and-after `maintenance_windows` check.
+  - The **before** read must be taken before the merge, and preserved with the frozen SHA.
+  - At the owner boundary I will check that staging promotion is marked PENDING OWNER AUTHORISATION, not complete.
+- **C2w starts on its own branch** and may branch from the frozen candidate, which is never modified.
+  - My entry review of C2w includes F-3 and F-4's evidence.
