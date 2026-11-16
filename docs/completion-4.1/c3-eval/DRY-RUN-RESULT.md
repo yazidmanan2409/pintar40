@@ -552,3 +552,23 @@ real run refused:
 - anthropic: no key in ANTHROPIC_API_KEY
 - openai: no key in OPENAI_API_KEY
 ```
+
+**Addition, 16 Nov (coordinator's rulings 5, 7 and 8 on the pack's open points):**
+- **Malformed items (§4.1):**
+  - `kit.mjs blind` shows the judges and Sharon only schema-valid items. An item that fails the item schema is
+    malformed: never shown, so its format cannot unblind, and it scores 0. Only that item is voided, not its draft.
+  - `SEALED/map.json` records the 30 slots per code (valid, malformed, missing), in the form `score.mjs` reads.
+- **`kit.mjs score` is retired.** It refuses with exit 1 and points to `score.mjs` and the 16 Nov amendment.
+- **The frozen set now covers `kit.mjs` and `score.mjs`.**
+  - `material/MANIFEST.json` gains `kit_sha256` and `score_sha256`. The material and request hashes are unchanged:
+    `node kit.mjs material` regenerates them byte-identical.
+  - The kit self-test checks both hashes. The runner's gate refuses a real run while either file differs from its
+    hash.
+  - **Sharon re-confirms the freeze on this head before any live run.**
+- **Self-tests, all offline and exit 0:**
+  - kit: **33 PASS, 0 FAIL**. The checks that used the retired `kit.mjs score` were replaced by the malformed-slot,
+    slots, retirement and freeze checks.
+  - runner: **125 PASS, 0 FAIL**.
+  - score: **44 PASS, 0 FAIL**.
+- **Offline dry run** (`--dry-run --pack-sha <40-hex>`): exit 0. `kit.mjs blind` on its output gives 60 items, with
+  30 valid slots per code.
