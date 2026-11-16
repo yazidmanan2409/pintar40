@@ -108,3 +108,9 @@ Sharon, 16 Nov 2026 (16:30 UTC). Read-only. **What I checked:**
     - No sitting may be made.
   - It is test only, so the product SHA stays. A suite run on the new head then carries the pass.
 - *Could reasonably have been anticipated (Q2, the neighbouring act):* when a fixture changes to dodge a collision, check that the route under test did not change with it.
+- **Bob's two questions on `dd6803c5`, 18:40 UTC:**
+  - **The control is still meaningful.** SP1 asserts `tanpa === "OK"` (line 140): with no window, the learner starts the ad-hoc copy. So the fixture can start at all, and every refusal leg is a real refusal, not an attempt limit.
+  - **The ad-hoc definition does not bypass a maintenance branch.**
+    - `may_start_assessment` takes the maintenance node from the learner's class membership, or else the assignment's `node_id`. It does not take it from the learning assignment, so `learning_assignment_id` being null changes nothing.
+    - The proof is the legs themselves: the three maintenance cases each assert the exact code (PR040, then PR110 twice). A bypass would have read OK, and it does not.
+  - **So SP1 stands as written.** R-SP2 above, the restored cycle leg, is still required.
