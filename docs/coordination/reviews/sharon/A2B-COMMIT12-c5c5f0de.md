@@ -33,3 +33,8 @@ Sharon, 16 Nov 2026 (08:35 UTC). Read-only. **What I reviewed:**
 - **N1 is closed** by `2cb36a543d28f1c0fe251fbaadc5242e61e8cc3f`, which takes option (ii).
   - It is a comment change only: the header now says the `SET` clause prevents inlining and is kept by project rule.
 - **PASS still waits on a green full suite.** It now needs to be at `2cb36a54` or later.
+- **09:02 UTC: PASS, unconditional.**
+  - The full suite at `0519573b815efe5e6a30d2974ccc55b25fcffcf0` is green: 1201 passed, 0 failed, with one justified CI-only skip.
+  - `2cb36a54` changes comments only. I checked: there are no non-comment lines in `git diff 0519573b 2cb36a54`. So the suite holds for it.
+  - D15's plant was red and named its cause, and C708's added `maintenance_draining_di` case is noted.
+  - Second Eye's note of 09:01 says the helper "can be inlined". That is superseded by `2cb36a54`, which keeps the `SET` clause.
