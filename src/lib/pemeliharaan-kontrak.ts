@@ -193,15 +193,20 @@ export function jamJendela(iso: string, j: Pick<JendelaSaya, "zona">): string {
 }
 
 /**
- * A2b (Daisy, A2-KATA-DESAIN.md B2 and A2B-RA-KALIMAT.md §4): a window's time that falls on another day than the
- * reader's today, both read in the window's zone, carries its date after the zone word: «…, Selasa, 17 Nov 2026» (ID),
- * «… on Tuesday, 17 Nov 2026» (EN). Nothing when it is the same day.
+ * A2b (Daisy, TINJAUAN-A2B-D8-B1 C-3): a window's time that falls on another day than the reader's today, both read
+ * in the window's zone, carries its day after the zone word: «pukul 01.00 WITA, Selasa 17 Nov» (ID), «at 01.00 WITA on
+ * Tuesday 17 Nov» (EN). Nothing when it is the same day.
  */
 export function hariLain(iso: string, j: Pick<JendelaSaya, "zona">, kiniMs: number, locale: string = "id"): string {
   const geser = geserZona(j.zona);
   const a = bagianJakarta(iso, geser), b = bagianJakarta(new Date(kiniMs), geser);
   if (!a || !b || (a.tahun === b.tahun && a.bulan === b.bulan && a.hari === b.hari)) return "";
-  return locale === "en" ? ` on ${tanggal(iso, "hari", "en", j.zona)}` : `, ${tanggal(iso, "hari", "id", j.zona)}`;
+  return locale === "en" ? ` on ${tanggal(iso, "hariSingkat", "en", j.zona)}` : `, ${tanggal(iso, "hariSingkat", "id", j.zona)}`;
+}
+
+/** A2b (C-3): every shown time of a window, with its zone word and, on another day, its day: one helper for all. */
+export function jamPenuh(iso: string, j: Pick<JendelaSaya, "zona">, kiniMs: number | null, locale: string = "id"): string {
+  return jamJendela(iso, j) + (kiniMs === null ? "" : hariLain(iso, j, kiniMs, locale));
 }
 
 /**

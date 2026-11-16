@@ -5205,9 +5205,10 @@ const table: Table = {
   "pemeliharaan.tempat.kelas": { default: "kelas {kelas}", en: "class {kelas}" },
   "pemeliharaan.tempat.sekolah": { default: "{sekolah}", en: "{sekolah}" },
   "pemeliharaan.tempat.berlangsung": { default: "Pemeliharaan untuk {untuk} sedang berlangsung.", en: "Maintenance for {untuk} is under way." },
-  "pemeliharaan.tempat.arti": { default: "Pekerjaannya tidak dapat diubah sampai pemeliharaan selesai. Bagian PINTAR yang lain tetap dapat dipakai, dan asesmen yang sedang dikerjakan tetap dapat diselesaikan.", en: "Its work cannot be changed until maintenance ends. The rest of PINTAR can still be used, and an assessment under way can still be finished." },
+  // Daisy, TINJAUAN-A2B-D8-B1 C-1: the work's owner is named ({untuk}: «kelas {kelas}» or the school), never «-nya»
+  "pemeliharaan.tempat.arti": { default: "Pekerjaan {untuk} tidak dapat diubah sampai pemeliharaan selesai. Bagian PINTAR yang lain tetap dapat dipakai, dan asesmen yang sedang dikerjakan tetap dapat diselesaikan.", en: "The work of {untuk} cannot be changed until maintenance ends. The rest of PINTAR can still be used, and an assessment under way can still be finished." },
   "pemeliharaan.tempat.pukul": { default: "Pemeliharaan untuk {untuk} mulai pukul", en: "Maintenance for {untuk} starts at" },
-  "pemeliharaan.tempat.biasa": { default: "Selama pemeliharaan, pekerjaannya tidak dapat diubah. Bagian PINTAR yang lain tetap dapat dipakai.", en: "During maintenance its work cannot be changed. The rest of PINTAR can still be used." },
+  "pemeliharaan.tempat.biasa": { default: "Selama pemeliharaan, pekerjaan {untuk} tidak dapat diubah. Bagian PINTAR yang lain tetap dapat dipakai.", en: "During maintenance, {untuk}'s work cannot be changed. The rest of PINTAR can still be used." },
   "pemeliharaan.pita.dalam": { default: "Pemeliharaan dalam", en: "Maintenance in" },
   "pemeliharaan.pita.menit": { default: "menit", en: "minutes" },
   "pemeliharaan.pita.pukul": { default: "PINTAR akan menjalani pemeliharaan pukul", en: "PINTAR goes into maintenance at" },
