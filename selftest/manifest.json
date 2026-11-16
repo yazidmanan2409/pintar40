@@ -6534,6 +6534,11 @@
       "id": "A2B-R2A",
       "runner": "app",
       "proves": "A2B-R2 (Second Eye's S-1 sweep, 16 Nov; the Chief Architect, 16 Nov 11:59: C2w's first item); executed against the running build, each server action posted as a browser without script posts it, with its id from the build's manifest: Admin platform working in Sekolah Sintetis Alpha is refused for the context (the chooser) on «Tarik izin» of the library's grant to Alpha, with nothing written; an unknown grant is refused ACTION_NOT_ALLOWED before any write; working in Pustaka PINTAR, the Kanonik «Tarik izin» form offers the open grant, and the same act withdraws it (DISTRIBUTION_WITHDRAWN). Red on 3c58620e: the context check read nothing, and the form offered no grant."
+    },
+    {
+      "id": "C2W-F4R",
+      "runner": "static",
+      "proves": "F-4 (THE PLAN §7.7; PLAN-A2B-C2W.md §3.2, before C2w and before C3w's build), on two real connections with the shared helper (selftest/balapan.ts), in both orders: two teachers of the draft's class save revision 1 of one draft question at once; the first holds the question's row (ubah_soal_draf's FOR UPDATE) for 2.5 s, the second starts while it holds it, waits, and is refused PR180 DRAFT_EDIT_CONFLICT; the question is then at revision 2 with the first's words and editor; item_draft_edits holds exactly one ITEM_EDITED row, 1 to 2, by the first (no edit lost, none duplicated); a race that did not overlap proves nothing and fails. Two locks serialise a save, draf_kunci's FOR UPDATE on the course and ubah_soal_draf's on the question, either alone enough; the plant removes both, so the second save passes the revision check and is no longer refused DRAFT_EDIT_CONFLICT (it fails on item_options' unique key, a refusal with no name, or succeeds), and is caught; both functions are put back and checked. Committed rows are removed and proved gone."
     }
   ]
 }
