@@ -311,7 +311,7 @@ Sources:
 | Rate-limit headers | `anthropic-ratelimit-requests-{limit,remaining,reset}`, `anthropic-ratelimit-tokens-{limit,remaining,reset}`, `anthropic-ratelimit-input-tokens-{limit,remaining,reset}`, `anthropic-ratelimit-output-tokens-{limit,remaining,reset}`, and `retry-after` on 429s | A |
 | Rate limit | HTTP **429** `rate_limit_error`, with `retry-after`. A ramp limit is also 429 `rate_limit_error`, with `error.details.error_code` `ramp_limit_exceeded` | A |
 | Spend limit | **Tier cap:** HTTP **429** `rate_limit_error`, `error.details.error_code` `enforced_spend_limit_reached`, **no `retry-after`**; retries fail until access resumes. **Your own limit:** HTTP **400** `invalid_request_error`, message beginning "You have reached your specified API usage limits" (workspace: "…specified workspace API usage limits") | A |
-| Credit exhaustion | HTTP **402** `billing_error`: "There's an issue with your billing or payment information." No error specific to an exhausted credit balance was found | B |
+| Credit exhaustion | **Message documented, status and type not.** The API-credits page: "If the organization has no credits left, API requests stop", and "When the balance is exhausted, requests return: `Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.`" No HTTP status or `error.type` is given for it. The errors page's nearest entry is 402 `billing_error` ("There's an issue with your billing or payment information"), but no page links the two. Match on the message text, and treat 402 as possible, not confirmed. Source: https://platform.claude.com/docs/en/about-claude/api-credits-for-subscribers | A (message) / B (402 `billing_error`) |
 | Server error | HTTP **500** `api_error`; **504** `timeout_error`; **529** `overloaded_error` | A |
 | Error body shape | `{ "type": "error", "error": { "type", "message", … }, "request_id" }` | A |
 | Idempotency key | **Not found.** No idempotency header or parameter is documented for `POST /v1/messages`. The SDKs retry transient failures twice by default, so a retry can be billed twice | not found |
@@ -347,3 +347,59 @@ the model page says "Tool calling requires the Responses API". `gpt-6.1-sol` lis
   and no `retry-after`; OpenAI uses the codes above.
 - **Turn off automatic SDK retries, or bound them.** Neither API documents idempotency, so a retried request may be billed
   twice.
+
+### 6c · Response shape, structured-output schema rules and token totals
+
+Added 16 Nov 2026 (10:41 UTC) for the adapter check on `claude/e-runner-prep` (`ab8a1d6a`). Read on 16 Nov 2026 from
+platform.claude.com and developers.openai.com. **No API was called.**
+
+Additional sources:
+- https://platform.claude.com/docs/en/about-claude/api-credits-for-subscribers
+- https://developers.openai.com/api/docs/guides/prompt-caching
+- https://developers.openai.com/api/docs/guides/reasoning
+- Pages already listed in §6: Create a Message, Structured outputs (both providers), Create a response
+
+**Anthropic Messages API**
+
+| Item | Documented fact | Grade |
+|---|---|---|
+| Where the text is | Response body `content: array of ContentBlock`. A text block is a `TextBlock` with `type: "text"` and `text`. The reference example response is `"content": [ { "citations": null, "text": "Hi! My name is Claude.", "type": "text" } ]`. Other block types can occur, so select by `type == "text"`; the docs' own examples do (`next(block.text for block in response.content if block.type == "text")`) | A |
+| Structured JSON output | "Claude returns valid JSON that matches your schema in the response's text content block." The JSON arrives as a **string** in `content[].text` (`type: "text"`). The adapter parses it; there is no separate parsed field in the HTTP response. `parsed_output` is an SDK helper | A |
+| When the JSON may not match | `stop_reason: "refusal"`: "You'll receive a 200 status code", "You'll be billed for the tokens generated", and "The output might not match your schema". `stop_reason: "max_tokens"`: "The output might be incomplete and not match your schema." Enum casing: "Structured outputs don't guarantee the capitalization of string `enum` and `const` values"; "Compare enum values case-insensitively" | A |
+| Supported schema keywords | "All basic types: object, array, string, integer, number, boolean, null"; `enum` (scalars only); `const`; `anyOf` and `allOf` ("`allOf` with `$ref` not supported"); `$ref`, `$def`, `definitions` (not external); `default`; `required` and `additionalProperties` ("must be set to `false` for objects"); string `format`s `date-time`, `time`, `date`, `duration`, `email`, `hostname`, `uri`, `ipv4`, `ipv6`, `uuid`; `minItems` ("only values 0 and 1 supported"); `pattern` (simple regex) | A |
+| Rejected schema keywords | "Recursive schemas"; "Complex types within enums"; external `$ref`; "Numerical constraints (such as `minimum`, `maximum`, `multipleOf`)"; "String constraints (`minLength`, `maxLength`)"; "Array constraints beyond `minItems` of 0 or 1"; "`additionalProperties` set to anything other than `false`". "If you use an unsupported feature, you'll receive a 400 error with details." | A |
+| Complexity limits | At most 24 optional parameters in total ("Each parameter not listed in `required` counts") and 16 parameters with union types, across all strict schemas in a request. Beyond that: "Schema is too complex for compilation" (400) | A |
+| Token totals | `input_tokens` **excludes** cache tokens: "Total input tokens in a request is the summation of `input_tokens`, `cache_creation_input_tokens`, and `cache_read_input_tokens`." `output_tokens` **includes** reasoning: "`output_tokens` remains the inclusive, authoritative total used for billing", and `output_tokens_details.thinking_tokens` is "Always ≤ `output_tokens`". **No `total_tokens` field is documented** | A |
+
+**OpenAI Responses API**
+
+| Item | Documented fact | Grade |
+|---|---|---|
+| Where the text is | Response body `output: array of ResponseOutputItem`. A message item is `ResponseOutputMessage` (`type: "message"`, `role: "assistant"`, `content[]`). Each content part is either `type: "output_text"` with `text` (and `annotations`, `logprobs`), or `ResponseOutputRefusal` (`type: "refusal"`, `refusal: string`). The reference example: `"output": [ { "type": "message", …, "content": [ { "type": "output_text", "text": "…" } ] } ]` | A |
+| Other output items | `output[]` can hold other item types, such as `type: "reasoning"` and tool calls (e.g. `file_search_call`). Select items by `type == "message"`, not by position | A (types) / B (advice) |
+| `output_text` convenience | "**SDK-only** convenience property that contains the aggregated text output from all `output_text` items in the `output` array … Supported in the Python and JavaScript SDKs." It is not in the raw HTTP JSON, so an HTTP adapter must aggregate the parts itself | A |
+| Structured JSON output | The JSON is returned as the `text` of an `output_text` part, which the adapter parses. A refusal arrives as a `refusal` part instead | A (shape) / B (that the JSON is in `output_text`, from the field definitions; no single quoted sentence) |
+| `Content-Type: application/json` | Used in every reference example: `curl https://api.openai.com/v1/responses -H 'Content-Type: application/json'`. The overview names `Content-Type` among the "common headers" but has no table marking it required | A (documented in examples) / B (required) |
+| Supported schema keywords | Types: "String, Number, Boolean, Integer, Object, Array, Enum, anyOf". String: `pattern`; `format` (`date-time`, `time`, `date`, `duration`, `email`, `hostname`, `ipv4`, `ipv6`, `uuid`). Number: `multipleOf`, `maximum`, `exclusiveMaximum`, `minimum`, `exclusiveMinimum`. Array: `minItems`, `maxItems`. "Definitions are supported"; "Recursive schemas are supported" | A |
+| Required rules | "The root level object of a schema must be an object, and not use `anyOf`"; "all fields or function parameters must be specified as `required`"; "`additionalProperties: false` must always be set in objects" | A |
+| Rejected schema keywords | "Composition: `allOf`, `not`, `dependentRequired`, `dependentSchemas`, `if`, `then`, `else`". "If you turn on Structured Outputs by supplying `strict: true` and call the API with an unsupported JSON Schema, you will receive an error." | A |
+| Size limits | "up to 5000 object properties total, with up to 10 levels of nesting"; total string length of names, enum and const values ≤ 120,000 characters; "up to 1000 enum values across all enum properties" | A |
+| Token totals | `input_tokens` **includes** cached and cache-write tokens. The prompt-caching guide's worked example: "1,000 input tokens are ordinary input: `12000 - 4000 - 7000`" (input_tokens − cached_tokens − cache_write_tokens). Reasoning tokens "are billed as output tokens", and `output_tokens_details` is "A detailed breakdown of the output tokens", so `reasoning_tokens` is part of `output_tokens`. `total_tokens`: "The total number of tokens used" (the example: 328 + 52 = 380) | A (input, billing) / B (reasoning ⊂ `output_tokens`, from "breakdown") |
+
+**The two APIs count input differently.** Anthropic's `input_tokens` leaves out cache reads and writes; OpenAI's
+includes them. A cost adapter that treats the two fields as the same will be wrong whenever caching is in play.
+
+**Checking `docs/completion-4.1/c3-eval/item-schema.json`** (as on `origin/claude/bob-41-master-plan`, last changed in `d325f84`)
+
+The schema's validating keywords are `type`, `properties`, `required`, `additionalProperties: false`, `items`, and
+string `enum`. Its annotation keywords are `$schema`, `title` and `description`.
+
+| Check | Anthropic | OpenAI | Grade |
+|---|---|---|---|
+| Root is an object, not `anyOf` | n/a | yes | A |
+| Every object has `additionalProperties: false` | yes, all four objects | yes | A |
+| Every property listed in `required` | yes. That means 0 optional parameters, against Anthropic's limit of 24 | yes; OpenAI requires it | A |
+| Unsupported constraints (`minItems` > 1, `maxItems`, `minLength`, `minimum`, `allOf`, `not`, `if`) | none used. The fixed counts (15 items, 4 options, 3 distractors) are left to `kit.mjs validate`, which is correct, because Anthropic rejects `minItems` above 1 | none used | A |
+| Enums | string-only enums (`"A"`–`"D"`) | yes | A |
+| `$schema`, `title`, `description` | Not addressed by either page. Neither lists them as supported or rejected, so their acceptance is **not documented**. If either provider rejects the schema, removing `$schema` is the first thing to try | same | B |
+| Enum casing | Anthropic does not guarantee the case of `enum` values. The labels are single capital letters, so the risk is low, but the validator should compare case-insensitively or normalise | n/a | A (caveat) / B (risk) |
