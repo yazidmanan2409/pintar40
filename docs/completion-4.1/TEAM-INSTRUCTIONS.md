@@ -888,6 +888,7 @@ Both go to Z's triage list, with owners.
 | A departed learner opening a sitting directly by its web address | Sharon's ruling; the A2a page, item 6 | Second Eye | Triage at Z; re-checked when A3 changes the start path |
 | Two simultaneous refused acts can each write an audit row | Sharon's ruling; the A2a page, item 7 | Second Eye | Triage at Z |
 | Phone-width overflow on `/mengajar/[kelas]/siapa`, and its siblings `soal` and `bukti` | Daisy | Daisy | Triage at Z, with X-1 to X-4 |
+| A2b's trigger: the person-level start branch still reads `now()` instead of `clock_timestamp()` | Sharon's note on A2b commit 2 | Second Eye | Triage at Z |
 | A preserved line for `maintenance_windows` | Sharon | Bob | **Mandatory before A2b's promotion** |
 - **Change B merged:** [PR #23](https://github.com/yazidmanan2409/pintar40/pull/23) as `eff99f98` (CI 18 of 18).
   **A2a is complete on `main`.** A2b starts from `eff99f98`.
@@ -910,3 +911,14 @@ before the first touch.
 
 **Exposure:** staging only; production is untouched. A2a's acceptance stands, with this known defect recorded against
 it until the fix is promoted with A2b.
+
+### A2b: an approved 4.0 test restated (16 Nov, pending Daisy)
+
+Second Eye restated `UX1-S2-MELIHAT-01`, which pins two of 4.0's Slice-2 rulings, to fit A2b:
+
+- **(a)** exactly one disabled control is allowed: «Mulai» on the maintenance branch;
+- **(b)** D4's duration sentence moves to `pemeliharaan.d4.*`, and the orientation copy stays free of durations.
+
+**Rule:** a test pinning an approved ruling is restated only with its author's ruling. Daisy authored Slice-2's UX
+rulings and is asked whether each restatement keeps the intent. If not, the screen changes, not the test. This blocks
+A2b's freeze until she rules.
