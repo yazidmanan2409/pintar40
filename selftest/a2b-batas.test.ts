@@ -668,6 +668,11 @@ ${KODE_ALASAN.map((k) => `select 'baris_${k}|' || pg_temp.a2b_coba(${baris("PLAN
 select 'baris_asing|' || pg_temp.a2b_coba(${baris("PLANNED", "'ASING'", "x")});
 select 'baris_darurat_kode|' || pg_temp.a2b_coba(${baris("EMERGENCY", "'RUTIN'", "Masalah keamanan")});
 select 'baris_lainnya_panjang|' || pg_temp.a2b_coba(${baris("PLANNED", "'LAINNYA'", "x".repeat(121))});
+select 'baris_e120|' || pg_temp.a2b_coba(${baris("PLANNED", "'LAINNYA'", "é".repeat(120))});
+select 'baris_e121|' || pg_temp.a2b_coba(${baris("PLANNED", "'LAINNYA'", "é".repeat(121))});
+select 'baris_kode_teks|' || pg_temp.a2b_coba(${baris("PLANNED", "'RUTIN'", "Teks bebas apa saja")});
+select 'sah|' || coalesce((select count(*) || ':' || bool_and(c.convalidated)::text from pg_constraint c
+  where c.conrelid = 'public.maintenance_windows'::regclass and c.contype = 'c' and pg_get_constraintdef(c.oid) ~ 'reason_code'), 'none');
 select 'baris_lama|' || pg_temp.a2b_coba(${baris("PLANNED", "null", "Teks bebas lama")});
 select 'baris_darurat_lama|' || pg_temp.a2b_coba(${baris("EMERGENCY", "null", "Masalah keamanan")});
 ${sebagai(d.adminXUid)}
@@ -676,6 +681,13 @@ select 'jadwal_asing|' || pg_temp.a2b_coba(${jadwal("'ASING'", "x")});
 select 'jadwal_lainnya_kosong|' || pg_temp.a2b_coba(${jadwal("'LAINNYA'", " ")});
 select 'jadwal_lainnya|' || pg_temp.a2b_coba(${jadwal("'LAINNYA'", "Pemadaman listrik gedung")});
 select 'jadwal_tanpa_kode|' || pg_temp.a2b_coba(${jadwal("null", "Teks bebas")});
+select 'jadwal_kode_teks|' || pg_temp.a2b_coba(${jadwal("'RUTIN'", "Teks bebas apa saja")});
+select 'jadwal_e120|' || pg_temp.a2b_coba(${jadwal("'LAINNYA'", "é".repeat(120))});
+select 'jadwal_e121|' || pg_temp.a2b_coba(${jadwal("'LAINNYA'", "é".repeat(121))});
+create temp table rutin as select public.schedule_maintenance(p_platform => false, p_institutions => array['${d.X}'::uuid],
+  p_starts_at => now() + interval '4 hours', p_ends_at => now() + interval '5 hours', p_message => null, p_reason => '',
+  p_notice => false, p_nodes => '{}', p_reason_code => 'RUTIN') as id;
+select 'rutin_tersimpan|' || coalesce((select reason_code || '=' || reason from public.maintenance_windows where id = (select id from rutin)), 'none');
 select 'tersimpan|' || coalesce((select string_agg(coalesce(reason_code, '-') || '=' || reason, ',' order by reason_code nulls last)
   from public.maintenance_windows where created_by_person_id = '${d.adminX}' and starts_at > now()), 'none');
 ${tanpaOrang}
@@ -694,6 +706,9 @@ set local session_replication_role = origin;
 ${sebagai(d.muridUid)}
 select 'w1|' || coalesce((select coalesce(x ->> 'alasan_kode', '-') || ':' || coalesce(x ->> 'alasan', '-') from jsonb_array_elements(public.pintar_status_saya() -> 'pemeliharaan') x where x ->> 'id' = '${W1}'), 'tidak tercantum');
 select 'w3|' || coalesce((select coalesce(x ->> 'alasan_kode', '-') || ':' || coalesce(x ->> 'alasan', '-') from jsonb_array_elements(public.pintar_status_saya() -> 'pemeliharaan') x where x ->> 'id' = '${W3}'), 'tidak tercantum');
+${sebagai(d.murid2Uid)}
+select 'w1_7b|' || coalesce((select count(*) from jsonb_array_elements(public.pintar_status_saya() -> 'pemeliharaan') x where x ->> 'id' in ('${W1}', '${W3}'))::text, 'null');
+select 'teks_7b|' || (position('PEMBARUAN' in public.pintar_status_saya()::text) = 0 and position('Teks bebas lama' in public.pintar_status_saya()::text) = 0)::text;
 ${tanpaOrang}
 rollback;`);
 }
@@ -807,6 +822,12 @@ select 'sekarang_a|' || public.maintenance_affects_place('${d.kA}', clock_timest
 select 'sekarang_b|' || public.maintenance_affects_place('${d.kB}', clock_timestamp())::text;
 rollback;`);
 }
+/** Sharon's T5 plants (A2B-BATCH2-TESTS-d837181d.md): A06, the extend leaves the notice's end where it was; A07, the
+ *  early end stamps ended_at a second off the audit row's instant. */
+const A06_SAAT = "update public.broadcast_notices set expires_at = p_ends_at";
+const A06_TANAM = "update public.broadcast_notices set expires_at = expires_at";
+const A07_SAAT = "set ended_at = now(), t_lift = v_lift";
+const A07_TANAM = "set ended_at = now() - interval '1 second', t_lift = v_lift";
 const K16_SAAT = "and public.maintenance_jendela_atas(w, n))";
 const K16_TANAM = `and public.maintenance_jendela_atas(w, n)
        and w.ends_at = (select min(x.ends_at) from public.maintenance_windows x where (x.ended_at is null or x.ended_at > p_at)
@@ -1675,6 +1696,14 @@ rollback;`);
       c.expect(h.baris_asing?.startsWith("23514"), `a code outside the approved list must be refused by the CHECK: ${h.baris_asing}`);
       c.expect(h.baris_darurat_kode?.startsWith("23514"), `an EMERGENCY row must carry no code (the Chief Architect, 16 Nov: A2a's emergency reasons stay free text): ${h.baris_darurat_kode}`);
       c.expect(h.baris_lainnya_panjang?.startsWith("23514"), `LAINNYA's text must be at most 120 characters: ${h.baris_lainnya_panjang}`);
+      // Sharon, A2B-BATCH2-TESTS-d837181d.md: T1 (a code other than LAINNYA carries no free text: refused, and the row
+      // stores the code as its reason), T3 (the CHECK validated, never NOT VALID), T4 (120 characters, not bytes)
+      c.expect(h.baris_kode_teks?.startsWith("23514") && h.jadwal_kode_teks === "PR110:MAINTENANCE_INPUT_INVALID",
+        `T1: a code other than LAINNYA with free text must be refused (CHECK 23514; schedule_maintenance PR110 MAINTENANCE_INPUT_INVALID), never kept as alasan: ${h.baris_kode_teks}, ${h.jadwal_kode_teks}`);
+      c.expect(h.rutin_tersimpan === "RUTIN=RUTIN", `T1: a coded window stores its code as its reason: ${h.rutin_tersimpan}`);
+      c.expect(/^[1-9]\d*:true$/.test(h.sah ?? ""), `T3: the reason CHECK must exist and be validated (convalidated): ${h.sah}`);
+      c.expect(h.baris_e120 === "OK" && h.baris_e121?.startsWith("23514") && h.jadwal_e120 === "OK" && h.jadwal_e121 === "PR110:MAINTENANCE_INPUT_INVALID",
+        `T4: LAINNYA's limit counts characters: 120 × é accepted, 121 refused (row ${h.baris_e120}, ${h.baris_e121}; schedule ${h.jadwal_e120}, ${h.jadwal_e121})`);
       c.expect(h.baris_lama === "OK" && h.baris_darurat_lama === "OK", `rows with no code (existing rows, and every emergency) stay valid: ${h.baris_lama}, ${h.baris_darurat_lama}`);
       c.expect(h.jadwal_rutin === "OK", `schedule_maintenance must accept an approved code with no free text: ${h.jadwal_rutin}`);
       c.expect(h.jadwal_asing === "PR110:MAINTENANCE_INPUT_INVALID" && h.jadwal_lainnya_kosong === "PR110:MAINTENANCE_INPUT_INVALID",
@@ -1693,30 +1722,44 @@ rollback;`);
       c.expect(!r.err, `R02 failed to run: ${r.err}`);
       c.expect(r.hasil.w1 === "PEMBARUAN:PEMBARUAN", `the status read must give a coded window's code to the affected: ${r.hasil.w1}`);
       c.expect(r.hasil.w3 === "-:Teks bebas lama", `an old row with no code gives its own text: ${r.hasil.w3}`);
-      return ("the status read gives the affected a PLANNED window's reason: its code, or an old row's text");
+      // Sharon's T2: someone not affected (a learner of 7B, a class the windows do not touch) gets no entry, so no reason
+      c.expect(r.hasil.w1_7b === "0" && r.hasil.teks_7b === "true", `T2: a 7B learner gets no entry for 7A's windows and no reason text: ${r.hasil.w1_7b}, ${r.hasil.teks_7b}`);
+      return ("the status read gives the affected a PLANNED window's reason: its code, or an old row's text; a learner of an untouched class gets neither the entry nor the reason");
     }),
   },
   {
     id: "A2B-A06",
     requires: ["db"],
-    run: jalan((c, db, d) => {
+    run: jalan(async (c, db, d) => {
       const r = a67(db, d); const h = r.hasil;
       c.expect(!r.err, `A6/A7 failed to run: ${r.err}`);
       c.expect(h.perpanjang === "OK" && h.a6_audit === "true", `A6: the extension's audit row must hold before, after, reason and actor: ${h.perpanjang}, ${h.a6_audit}`);
       c.expect(h.a6_pengumuman === "true", `A6: the window's notice must move with the new end: ${h.a6_pengumuman}`);
       c.expect(h.a6_tempat === "true", `A6: the place guard must follow the new end at once (refused past the old end): ${h.a6_tempat}`);
-      return ("A6, extend end to end: the audit row holds before, after, reason and actor; the notice's end moves with it; the place guard follows the new end at once");
+      // Sharon's T5: the plant (the notice's expires_at left unmoved) must be caught
+      const { gantiFungsi } = await import("./balapan");
+      const balik = gantiFungsi("public.perpanjang_pemeliharaan(uuid,timestamptz,text)", A06_SAAT, A06_TANAM);
+      let tanam: ReturnType<typeof a67>;
+      try { tanam = a67(db, d); } finally { balik(); }
+      c.expect(!tanam.err && tanam.hasil.a6_pengumuman === "false", `with the plant (the notice left unmoved) A6 must see the notice's old end: ${tanam.err || tanam.hasil.a6_pengumuman}`);
+      return ("A6, extend end to end: the audit row holds before, after, reason and actor; the notice's end moves with it; the place guard follows the new end at once; with the plant (the notice left unmoved) red");
     }),
   },
   {
     id: "A2B-A07",
     requires: ["db"],
-    run: jalan((c, db, d) => {
+    run: jalan(async (c, db, d) => {
       const r = a67(db, d); const h = r.hasil;
       c.expect(!r.err, `A6/A7 failed to run: ${r.err}`);
       c.expect(h.akhiri === "OK" && h.a7_audit === "true", `A7: the early end's audit row must hold the planned end (before), the moment it ended (after, its own time), reason and actor: ${h.akhiri}, ${h.a7_audit}`);
       c.expect(h.a7_tempat === "false", `A7: work must resume at once after the early end: ${h.a7_tempat}`);
-      return ("A7, resume early end to end: the audit row holds the planned end, the moment it ended, the reason and the actor; the class's work resumes at once");
+      // Sharon's T5: the plant (ended_at not the audit's instant) must be caught
+      const { gantiFungsi } = await import("./balapan");
+      const balik = gantiFungsi("public.change_maintenance(uuid,text,text)", A07_SAAT, A07_TANAM);
+      let tanam: ReturnType<typeof a67>;
+      try { tanam = a67(db, d); } finally { balik(); }
+      c.expect(!tanam.err && tanam.hasil.a7_audit === "false", `with the plant (ended_at a second before the audit's instant) A7 must see the mismatch: ${tanam.err || tanam.hasil.a7_audit}`);
+      return ("A7, resume early end to end: the audit row holds the planned end, the moment it ended, the reason and the actor; the class's work resumes at once; with the plant (ended_at not the audit's instant) red");
     }),
   },
   {

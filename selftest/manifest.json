@@ -6363,22 +6363,22 @@
     {
       "id": "A2B-R01",
       "runner": "static",
-      "proves": "Batch 2, D2 in the database (THE PLAN §5.3 D2; Daisy A2-KATA-DESAIN B1; the Chief Architect, 16 Nov 09:16); executes in a rolled-back transaction: maintenance_windows.reason_code accepts the five planned codes (RUTIN, PEMBARUAN, GANGGUAN, JARINGAN_LISTRIK, LAINNYA), refuses a foreign code, refuses any code on an EMERGENCY row, and LAINNYA's text over 120 characters; rows with no code (existing rows, every emergency) stay valid; schedule_maintenance(..., p_reason_code) refuses a foreign code and LAINNYA without text with MAINTENANCE_INPUT_INVALID and accepts the old call with no code; stop_pintar_now's signature is unchanged."
+      "proves": "Batch 2, D2 in the database (THE PLAN §5.3 D2; Daisy A2-KATA-DESAIN B1; the Chief Architect, 16 Nov 09:16); executes in a rolled-back transaction: maintenance_windows.reason_code accepts the five planned codes (RUTIN, PEMBARUAN, GANGGUAN, JARINGAN_LISTRIK, LAINNYA), refuses a foreign code, refuses any code on an EMERGENCY row, and LAINNYA's text over 120 characters; rows with no code (existing rows, every emergency) stay valid; schedule_maintenance(..., p_reason_code) refuses a foreign code and LAINNYA without text with MAINTENANCE_INPUT_INVALID and accepts the old call with no code; stop_pintar_now's signature is unchanged. Sharon's additions (A2B-BATCH2-TESTS-d837181d.md): T1, a code other than LAINNYA with free text is refused (the CHECK, and schedule_maintenance with MAINTENANCE_INPUT_INVALID) and a coded window stores its code as its reason; T3, the reason CHECK exists and is validated (pg_constraint.convalidated); T4, LAINNYA's limit counts characters (120 × é accepted, 121 refused, at the row and at schedule_maintenance)."
     },
     {
       "id": "A2B-R02",
       "runner": "static",
-      "proves": "Batch 2, D2 for the affected; executes in a rolled-back transaction: pintar_status_saya gives a PLANNED window's reason code (alasan_kode) and text (alasan); an old row with no code gives its own text."
+      "proves": "Batch 2, D2 for the affected; executes in a rolled-back transaction: pintar_status_saya gives a PLANNED window's reason code (alasan_kode) and text (alasan); an old row with no code gives its own text. Sharon's T2: a learner of an untouched class (7B) gets no entry for the windows and no reason text."
     },
     {
       "id": "A2B-A06",
       "runner": "static",
-      "proves": "PLAN-A2B-C2W.md §2.4 A6, extend end to end; executes in a rolled-back transaction as the school's admin: perpanjang_pemeliharaan writes an audit row (maintenance.extended) holding before, after, reason and actor; the window's notice moves with the new end; the place guard follows the new end at once."
+      "proves": "PLAN-A2B-C2W.md §2.4 A6, extend end to end; executes in a rolled-back transaction as the school's admin: perpanjang_pemeliharaan writes an audit row (maintenance.extended) holding before, after, reason and actor; the window's notice moves with the new end; the place guard follows the new end at once. Plant (Sharon's T5): the extend leaves the notice's expires_at unmoved; A6 sees the old end (red)."
     },
     {
       "id": "A2B-A07",
       "runner": "static",
-      "proves": "PLAN-A2B-C2W.md §2.4 A7, resume early end to end; executes in a rolled-back transaction as the school's admin: change_maintenance AKHIRI writes an audit row (maintenance.ended_now) holding the planned end, the moment it ended (the row's own time equals ended_at), the reason and the actor; the class's work resumes at once."
+      "proves": "PLAN-A2B-C2W.md §2.4 A7, resume early end to end; executes in a rolled-back transaction as the school's admin: change_maintenance AKHIRI writes an audit row (maintenance.ended_now) holding the planned end, the moment it ended (the row's own time equals ended_at), the reason and the actor; the class's work resumes at once. Plant (Sharon's T5): the early end stamps ended_at a second before the audit row's instant; A7 sees the mismatch (red)."
     },
     {
       "id": "A2B-R03",
