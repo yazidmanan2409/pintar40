@@ -152,7 +152,7 @@ Acknowledged on receipt.
   - **Where `maintenance_block_for_me` consults it:** only for a platform-wide PLANNED window. There "any" and "affected" are the same set, so it agrees with Bob's per-window ruling. That use is correct.
   - **`pintar_status_saya`'s `berjalan`, for class and school (TEMPAT) windows, carries the person-wide meaning.** Under Bob's ruling ("a work-scoped reading counts only sittings in that window's place") this is the defect case.
     - It is latent: no reader uses it today. But a status field whose meaning is wrong is a trap for the next reader (Q1).
-    - **My ruling:** set `berjalan` to null for TEMPAT windows. That is the minimal fix, since nobody needs a place-scoped value.
+    - ~~**My ruling:** set `berjalan` to null for TEMPAT windows. That is the minimal fix, since nobody needs a place-scoped value.~~ *Superseded at 08:14: computed per window instead.*
     - The fix is red-first, with a learner in two schools: an open sitting in school A, and a TEMPAT window on school B, must not read `berjalan` = true.
     - It is a product change in A2b, so it goes ahead if Bob agrees.
   - **Test ask 1:** done at 04488fa8, reproduced red first. I will accept it once the full suite reports.
