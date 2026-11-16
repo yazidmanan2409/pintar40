@@ -811,6 +811,185 @@ const K16_SAAT = "and public.maintenance_jendela_atas(w, n))";
 const K16_TANAM = `and public.maintenance_jendela_atas(w, n)
        and w.ends_at = (select min(x.ends_at) from public.maintenance_windows x where (x.ended_at is null or x.ended_at > p_at)
                           and x.kind = 'PLANNED' and not x.platform and x.institution_ids && w.institution_ids))`;
+/** Sharon's batch 2 checklist (A2B-BATCH2-PREP.md at 7fb0bc39), point 1: the reason CHECK over rows that already exist.
+ *  The migration that adds reason_code marks its maintenance_windows section with the two lines below; the test takes
+ *  the table back to before it (the column dropped, in its own rolled-back transaction), writes PLANNED and EMERGENCY
+ *  rows of every shape that exists today, then runs that section over them: each row comes through unchanged (its
+ *  to_jsonb minus the new column), with no code. */
+export const R04_MULAI = "-- A2B-R04 maintenance_windows: begin";
+export const R04_SELESAI = "-- A2B-R04 maintenance_windows: end";
+export function bagianR04(repoRoot: string): { berkas: string; sql: string } | null {
+  const dir = join(repoRoot, "supabase/migrations");
+  for (const f of readdirSync(dir).sort()) {
+    const s = readFileSync(join(dir, f), "utf8");
+    const a = s.indexOf(R04_MULAI), b = s.indexOf(R04_SELESAI);
+    if (a >= 0 && b > a) return { berkas: f, sql: s.slice(a + R04_MULAI.length, b) };
+  }
+  return null;
+}
+function r04(db: string, d: Dunia, bagian: string) {
+  const baris = (id: string, kind: string, nodes: string, awal: string, akhir: string, selesai: string, tstop: string, tlift: string) =>
+    `insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, ends_at, ended_at, t_stop, t_lift,
+  message, reason, created_by_person_id, activation_recorded_at)
+values ('${id}', '${kind}', false, array['${d.X}'::uuid], ${nodes}, ${awal}, ${akhir}, ${selesai}, ${tstop}, ${tlift},
+  'Pesan lama', 'Teks bebas lama ${id.slice(-2)}', '${d.sys}', ${awal});`;
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+alter table public.maintenance_windows drop column if exists reason_code cascade;
+${baris(ID("r1"), "PLANNED", "'{}'::uuid[]", "now() + interval '1 day'", "now() + interval '2 days'", "null", "null", "null")}
+${baris(ID("r2"), "PLANNED", `array['${d.kA}'::uuid]`, "now() - interval '10 minutes'", "now() + interval '1 hour'", "null", "null", "null")}
+${baris(ID("r3"), "PLANNED", "'{}'::uuid[]", "now() - interval '2 days'", "now() - interval '1 day'", "now() - interval '1 day'", "null", "null")}
+${baris(ID("r4"), "EMERGENCY", `array['${d.kA}'::uuid]`, "now() - interval '50 minutes'", "null", "now() - interval '5 minutes'", "now() - interval '50 minutes'", "now() - interval '5 minutes'")}
+${baris(ID("r5"), "EMERGENCY", "'{}'::uuid[]", "now() - interval '5 minutes'", "null", "null", "now() - interval '5 minutes'", "null")}
+create temp table sebelum as select w.id, to_jsonb(w) as j from public.maintenance_windows w;
+select 'sebelum|' || count(*) from sebelum;
+${bagian}
+select 'hilang|' || count(*) from sebelum s where not exists (select 1 from public.maintenance_windows w where w.id = s.id);
+select 'berubah|' || count(*) from sebelum s join public.maintenance_windows w on w.id = s.id where (to_jsonb(w) - 'reason_code') <> s.j;
+select 'berkode|' || count(*) from sebelum s join public.maintenance_windows w on w.id = s.id where w.reason_code is not null;
+select 'kolom|' || count(*) from information_schema.columns where table_schema = 'public' and table_name = 'maintenance_windows' and column_name = 'reason_code';
+rollback;`);
+}
+/** Point 2: p_nodes from the form, at the database. Duplicates are stored once; an empty array is a school window; an
+ *  inactive (archived) class is refused MAINTENANCE_NODE_INVALID, as an unknown one is; an array of more than
+ *  P_NODES_MAKS entries is refused MAINTENANCE_INPUT_INVALID before any lookup (PROPOSED bound, for the Chief
+ *  Architect: no school has nearly so many classes, and the bound keeps a client from sending an unbounded array).
+ *  The picker's list: the school's ACTIVE classes, for the school's own admin; refused to a teacher. */
+export const P_NODES_MAKS = 500;
+function k17(db: string, d: Dunia) {
+  const jadwal = (nodes: string) => `$q$select public.schedule_maintenance(p_platform => false, p_institutions => array['${d.X}'::uuid],
+  p_starts_at => now() + interval '2 hours', p_ends_at => now() + interval '3 hours', p_message => null, p_reason => '${ALASAN}17',
+  p_notice => false, p_nodes => ${nodes})$q$`;
+  const banyak = `array_fill('${d.kA}'::uuid, array[${P_NODES_MAKS + 1}])`;
+  const tepat = `array_fill('${d.kA}'::uuid, array[${P_NODES_MAKS}])`;
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+update public.org_nodes set is_active = false where id = '${d.kB}';
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.adminXUid)}
+create temp table dua as select public.schedule_maintenance(p_platform => false, p_institutions => array['${d.X}'::uuid],
+  p_starts_at => now() + interval '2 hours', p_ends_at => now() + interval '3 hours', p_message => null, p_reason => '${ALASAN}17',
+  p_notice => false, p_nodes => array['${d.kA}'::uuid, '${d.kA}'::uuid]) as id;
+create temp table kosong as select public.schedule_maintenance(p_platform => false, p_institutions => array['${d.X}'::uuid],
+  p_starts_at => now() + interval '2 hours', p_ends_at => now() + interval '3 hours', p_message => null, p_reason => '${ALASAN}17',
+  p_notice => false, p_nodes => '{}') as id;
+${tanpaOrang}
+select 'duplikat|' || (select array_to_string(node_ids, ',') from public.maintenance_windows where id = (select id from dua));
+select 'kosong|' || (select cardinality(node_ids) || ':' || cardinality(institution_ids) from public.maintenance_windows where id = (select id from kosong));
+${sebagai(d.adminXUid)}
+select 'arsip|' || pg_temp.a2b_coba(${jadwal(`array['${d.kB}'::uuid]`)});
+select 'banyak|' || pg_temp.a2b_coba(${jadwal(banyak)});
+select 'tepat|' || pg_temp.a2b_coba(${jadwal(tepat)});
+select 'daftar_a|' || coalesce((select count(*) from jsonb_array_elements(public.pemeliharaan_kelas_sekolah('${d.X}')) x where x ->> 'id' = '${d.kA}')::text, 'null');
+select 'daftar_arsip|' || coalesce((select count(*) from jsonb_array_elements(public.pemeliharaan_kelas_sekolah('${d.X}')) x where x ->> 'id' = '${d.kB}')::text, 'null');
+select 'daftar_luar|' || coalesce((select count(*) from jsonb_array_elements(public.pemeliharaan_kelas_sekolah('${d.X}')) x
+  join public.org_nodes n on n.id = (x ->> 'id')::uuid where n.institution_id <> '${d.X}' or n.kind <> 'CLASS')::text, 'null');
+${sebagai(d.guruUid)}
+select 'daftar_guru|' || pg_temp.a2b_coba($q$select public.pemeliharaan_kelas_sekolah('${d.X}')$q$);
+${tanpaOrang}
+rollback;`);
+}
+/** Point 3: maintenance_collisions with the class choice has schedule_maintenance's authority checks, and returns
+ *  counts only (its two keys, no names). */
+function k18(db: string, d: Dunia) {
+  const tabrak = (inst: string, nodes: string, platform = "false") => `$q$select public.maintenance_collisions(p_platform => ${platform}, p_institutions => ${inst},
+  p_starts_at => now() + interval '2 hours', p_ends_at => now() + interval '3 hours', p_nodes => ${nodes})$q$`;
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+update public.org_nodes set is_active = false where id = '${d.kB}';
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.adminXUid)}
+select 'baik|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid]`, `array['${d.kA}'::uuid]`)});
+select 'kunci|' || coalesce((select string_agg(k, ',' order by k) from jsonb_object_keys(public.maintenance_collisions(p_platform => false,
+  p_institutions => array['${d.X}'::uuid], p_starts_at => now() + interval '2 hours', p_ends_at => now() + interval '3 hours',
+  p_nodes => array['${d.kA}'::uuid])) k), 'null');
+select 'kelas_lain|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid]`, `array['${d.kY}'::uuid]`)});
+select 'sekolah_lain|' || pg_temp.a2b_coba(${tabrak(`array['${d.Y}'::uuid]`, `array['${d.kY}'::uuid]`)});
+select 'bukan_kelas|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid]`, `array['${d.X}'::uuid]`)});
+select 'arsip|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid]`, `array['${d.kB}'::uuid]`)});
+select 'dua_sekolah|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid, '${d.Y}'::uuid]`, `array['${d.kA}'::uuid]`)});
+select 'banyak|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid]`, `array_fill('${d.kA}'::uuid, array[${P_NODES_MAKS + 1}])`)});
+${sebagai(d.sysUid)}
+select 'platform_kelas|' || pg_temp.a2b_coba(${tabrak("'{}'::uuid[]", `array['${d.kA}'::uuid]`, "true")});
+${sebagai(d.guruUid)}
+select 'guru|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid]`, `array['${d.kA}'::uuid]`)});
+${tanpaOrang}
+select 'anon|' || coalesce((select bool_or(has_function_privilege('anon', p.oid, 'execute'))::text from pg_proc p
+  where p.proname = 'maintenance_collisions' and p.pronamespace = 'public'::regnamespace), 'tidak ada');
+rollback;`);
+}
+/** Point 4, «Perpanjang»: an extension never shortens, never keeps the end, never ends in the past, never moves the
+ *  start or the place; it has no start parameter. */
+function e04(db: string, d: Dunia) {
+  const panjang = (akhir: string, alasan = `${ALASAN}E4`) => `$q$select public.perpanjang_pemeliharaan('${W1}', ${akhir}, '${alasan}')$q$`;
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '10 minutes'", akhir: "now() + interval '1 hour'" })}
+set local session_replication_role = origin;
+${ALAT}
+create temp table sebelum as select starts_at, ends_at, node_ids, institution_ids, platform, kind from public.maintenance_windows where id = '${W1}';
+${sebagai(d.adminXUid)}
+select 'pendek|' || pg_temp.a2b_coba(${panjang("(select ends_at from sebelum) - interval '10 minutes'")});
+select 'sama|' || pg_temp.a2b_coba(${panjang("(select ends_at from sebelum)")});
+select 'lalu|' || pg_temp.a2b_coba(${panjang("clock_timestamp() - interval '1 minute'")});
+select 'tanpa_alasan|' || pg_temp.a2b_coba(${panjang("(select ends_at from sebelum) + interval '30 minutes'", " ")});
+${sebagai(d.guruUid)}
+select 'guru|' || pg_temp.a2b_coba(${panjang("(select ends_at from sebelum) + interval '30 minutes'")});
+${sebagai(d.adminXUid)}
+select 'baik|' || pg_temp.a2b_tetap(${panjang("(select ends_at from sebelum) + interval '30 minutes'")});
+${tanpaOrang}
+select 'tetap|' || (w.starts_at = s.starts_at and w.node_ids = s.node_ids and w.institution_ids = s.institution_ids and w.platform = s.platform
+  and w.kind = s.kind and w.ends_at = s.ends_at + interval '30 minutes')::text from public.maintenance_windows w, sebelum s where w.id = '${W1}';
+select 'tanda|' || pg_get_function_identity_arguments('public.perpanjang_pemeliharaan'::regproc);
+rollback;`);
+}
+/** Point 4, «Akhiri sekarang» on a PLANNED window: read on the database's clock and stamped by it (the K8 rule that
+ *  perpanjang_pemeliharaan already keeps; change_maintenance reads maintenance_state(w, now()) and writes
+ *  ended_at = now(), the transaction's start). A window that ended 0.5 s into the transaction is refused
+ *  MAINTENANCE_NOT_OPEN and keeps no ended_at; one under way is ended at the clock's instant, not the transaction's;
+ *  «Mulai sekarang» on a window whose start passed after the transaction began is refused as already under way. */
+function e05(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '10 minutes'", akhir: "clock_timestamp() + interval '1.5 seconds'" })}
+${jendela(d, W2, { nodes: [d.kB], mulai: "now() - interval '10 minutes'", akhir: "now() + interval '1 hour'" })}
+${jendela(d, W3, { nodes: [d.kA], mulai: "clock_timestamp() + interval '1.5 seconds'", akhir: "now() + interval '1 hour'", aktifDicatat: null })}
+set local session_replication_role = origin;
+${ALAT}
+select pg_sleep(2);
+${sebagai(d.adminXUid)}
+select 'sudah_berakhir|' || pg_temp.a2b_coba($q$select public.change_maintenance('${W1}', 'AKHIRI', '${ALASAN}E5')$q$);
+create temp table jam as select clock_timestamp() as sebelum;
+select 'akhiri|' || pg_temp.a2b_tetap($q$select public.change_maintenance('${W2}', 'AKHIRI', '${ALASAN}E5')$q$);
+select 'mulai_lewat|' || pg_temp.a2b_coba($q$select public.change_maintenance('${W3}', 'MULAI', '${ALASAN}E5')$q$);
+${tanpaOrang}
+select 'w1_tetap|' || (ended_at is null)::text from public.maintenance_windows where id = '${W1}';
+select 'cap_jam|' || (w.ended_at >= j.sebelum)::text from public.maintenance_windows w, jam j where w.id = '${W2}';
+select 'tempat|' || public.maintenance_affects_place('${d.kB}', clock_timestamp())::text;
+rollback;`);
+}
+/** Point 4, D-100(b): a sitting running in a class when its planned window is ended early is left to finish: its
+ *  status and its own deadline unchanged, its answer taken, never ended by the early end. */
+function e06(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${SENDIRI(d)}
+${jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '10 minutes'", akhir: "now() + interval '1 hour'" })}
+set local session_replication_role = origin;
+${ALAT}
+create temp table sebelum as select status, authoritative_deadline from public.assessment_sessions where id = '${d.SA}';
+${sebagai(d.adminXUid)}
+select 'akhiri|' || pg_temp.a2b_tetap($q$select public.change_maintenance('${W1}', 'AKHIRI', '${ALASAN}E6')$q$);
+${tanpaOrang}
+select 'sitting|' || (s.status = b.status and s.authoritative_deadline = b.authoritative_deadline and s.termination_cause is null)::text
+  from public.assessment_sessions s, sebelum b where s.id = '${d.SA}';
+${sebagai(d.muridUid)}
+select 'jawab|' || pg_temp.a2b_tetap($q$select public.record_answer('${d.PA}', 1, '{"posisi": 1}'::jsonb)$q$);
+${tanpaOrang}
+rollback;`);
+}
 const D12_SAAT = "then public.penghentian_geser(s.person_id, s.darurat_jendela_id) end, interval '0')";
 const D12_TANAM = "then null::interval end, interval '0')";
 const D13_SAAT = "'ditahan', s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')   -- D1-3: a stale mark holds nothing";
@@ -1085,12 +1264,12 @@ function cekDasar(c: Checks, db: string, d: Dunia): boolean {
   return ok;
 }
 
-const jalan = (fn: (c: Checks, db: string, d: Dunia) => Promise<string> | string) => async () => {
+const jalan = (fn: (c: Checks, db: string, d: Dunia, repoRoot: string) => Promise<string> | string) => async ({ repoRoot }: { repoRoot: string }) => {
   const c = new Checks();
   const db = process.env.SUPABASE_DB_URL!;
   const d = dunia(db);
   if (!cekDasar(c, db, d)) return c.verdict("the fixture failed; the boundary was not judged");
-  const ringkas = await fn(c, db, d);
+  const ringkas = await fn(c, db, d, repoRoot);
   return c.verdict(ringkas);
 };
 
@@ -1721,6 +1900,100 @@ rollback;`);
       try { tanam = k16(db, d); } finally { balik(); }
       c.expect(tanam.hasil.nanti_a !== "true", `with the plant (the guard reads only the earliest-ending window) 7A was still refused after the school window's end: ${tanam.hasil.nanti_a}`);
       return `the owner's combined scenario: a class window and an overlapping school window are both accepted; 7A's extension is accepted; while both are in force both classes are refused; after the school window's end 7A stays refused to its extended end and 7B resumes (on the clock, and with the school window ended early); a 7A learner is told 7A's window alone, a 7B learner nothing; with the plant (only the earliest-ending window read) 7A was wrongly released (${tanam.hasil.nanti_a})`;
+    }),
+  },
+  {
+    id: "A2B-R04",
+    requires: ["db"],
+    run: jalan((c, db, d, repoRoot) => {
+      // Sharon's batch 2 checklist, point 1: the maintenance_windows preservation line
+      const b = bagianR04(repoRoot);
+      c.expect(b !== null, `a migration must mark its maintenance_windows section with «${R04_MULAI}» and «${R04_SELESAI}»`);
+      if (!b) return "no migration carries the marked section";
+      const r = r04(db, d, b.sql); const h = r.hasil;
+      c.expect(!r.err, `R04 failed to run ${b.berkas}'s section over existing rows: ${r.err}`);
+      c.expect(Number(h.sebelum) >= 5 && h.hilang === "0" && h.berubah === "0", `every existing PLANNED and EMERGENCY row must come through unchanged: ${h.sebelum} rows, ${h.hilang} missing, ${h.berubah} changed`);
+      c.expect(h.berkode === "0" && h.kolom === "1", `the existing rows carry no code (nullable, no backfill), and the column exists: ${h.berkode} coded, column ${h.kolom}`);
+      return `${b.berkas}'s maintenance_windows section, run over ${h.sebelum} existing rows (a school and a class PLANNED window, an ended one, a lifted and a running EMERGENCY): none missing, none changed outside reason_code, none given a code`;
+    }),
+  },
+  {
+    id: "A2B-K17",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      // Sharon's batch 2 checklist, point 2: p_nodes from the form; the database is the gate
+      const r = k17(db, d); const h = r.hasil;
+      c.expect(!r.err, `K17 failed to run: ${r.err}`);
+      c.expect(h.duplikat === d.kA, `a class named twice is stored once: ${h.duplikat}`);
+      c.expect(h.kosong === "0:1", `an empty class list is a school window: ${h.kosong}`);
+      c.expect(h.arsip === "PR110:MAINTENANCE_NODE_INVALID", `an inactive (archived) class must be refused MAINTENANCE_NODE_INVALID: ${h.arsip}`);
+      c.expect(h.banyak === "PR110:MAINTENANCE_INPUT_INVALID" && h.tepat === "OK", `more than ${P_NODES_MAKS} entries must be refused MAINTENANCE_INPUT_INVALID, ${P_NODES_MAKS} accepted: ${h.banyak}, ${h.tepat}`);
+      c.expect(h.daftar_a === "1" && h.daftar_arsip === "0" && h.daftar_luar === "0", `the picker lists the school's active classes only, nothing of another school and no non-class: 7A ${h.daftar_a}, archived ${h.daftar_arsip}, outside ${h.daftar_luar}`);
+      c.expect(h.daftar_guru === "PR110:MAINTENANCE_NOT_ALLOWED", `the picker's list is refused to a teacher: ${h.daftar_guru}`);
+      return `p_nodes at the database: a duplicate stored once; an empty list a school window; an archived class refused NODE_INVALID; more than ${P_NODES_MAKS} entries refused INPUT_INVALID (${P_NODES_MAKS} accepted); the picker lists the school's active classes only, and is refused to a teacher. Another school's class, a non-class and an unknown node: K10`;
+    }),
+  },
+  {
+    id: "A2B-K18",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      // Sharon's batch 2 checklist, point 3: the class choice in the collision check, with schedule_maintenance's checks
+      const r = k18(db, d); const h = r.hasil;
+      c.expect(!r.err, `K18 failed to run: ${r.err}`);
+      c.expect(h.baik === "OK", `the school's admin's check for their own class must run: ${h.baik}`);
+      c.expect(h.kunci === "asesmen,terakhir_selesai", `the check returns counts only (its two keys, no names): ${h.kunci}`);
+      for (const k of ["kelas_lain", "bukan_kelas", "arsip", "dua_sekolah", "platform_kelas"] as const) {
+        c.expect(h[k] === "PR110:MAINTENANCE_NODE_INVALID", `${k}: refused MAINTENANCE_NODE_INVALID, as schedule_maintenance refuses it: ${h[k]}`);
+      }
+      c.expect(h.sekolah_lain === "PR110:MAINTENANCE_NOT_ALLOWED" && h.guru === "PR110:MAINTENANCE_NOT_ALLOWED", `another school's check, and a teacher's, refused MAINTENANCE_NOT_ALLOWED: ${h.sekolah_lain}, ${h.guru}`);
+      c.expect(h.banyak === "PR110:MAINTENANCE_INPUT_INVALID", `more than ${P_NODES_MAKS} entries refused MAINTENANCE_INPUT_INVALID: ${h.banyak}`);
+      c.expect(h.anon === "false", `closed to anon: ${h.anon}`);
+      return `maintenance_collisions(…, p_nodes): the school's admin's own class checked; counts only (asesmen, terakhir_selesai); another school's class, a non-class, an archived class, two schools and a platform check with classes refused NODE_INVALID; another school, and a teacher, NOT_ALLOWED; more than ${P_NODES_MAKS} entries INPUT_INVALID; closed to anon`;
+    }),
+  },
+  {
+    id: "A2B-E04",
+    requires: ["db"],
+    run: jalan((c, db, d, repoRoot) => {
+      // Sharon's batch 2 checklist, point 4: an extension cannot shorten or move the start
+      const r = e04(db, d); const h = r.hasil;
+      c.expect(!r.err, `E04 failed to run: ${r.err}`);
+      for (const k of ["pendek", "sama", "lalu", "tanpa_alasan"] as const) c.expect(h[k] === "PR110:MAINTENANCE_INPUT_INVALID", `${k}: refused MAINTENANCE_INPUT_INVALID: ${h[k]}`);
+      c.expect(h.guru === "PR110:MAINTENANCE_NOT_ALLOWED", `a teacher's extend refused: ${h.guru}`);
+      c.expect(h.baik === "OK" && h.tetap === "true", `a later end is accepted and moves the end alone (start, place and kind unchanged): ${h.baik}, ${h.tetap}`);
+      c.expect(h.tanda === "p_window uuid, p_ends_at timestamp with time zone, p_reason text", `the extend takes no start: ${h.tanda}`);
+      // the lock order: A2A-L01 reads every function from the catalogue; both writers stand in its committed report
+      const lap = readFileSync(join(repoRoot, "selftest/a2a-l01-laporan.txt"), "utf8");
+      c.expect(/^perpanjang_pemeliharaan: persons\(0\) maintenance_windows/m.test(lap) && /^change_maintenance: persons\(0\) FENCE/m.test(lap),
+        "perpanjang_pemeliharaan and change_maintenance must stand in A2A-L01's report, the actor first");
+      return "an extension refuses a shorter end, the same end, a past end and no reason (INPUT_INVALID) and a teacher (NOT_ALLOWED); a later end moves the end alone; it takes no start; its lock order and «Akhiri»'s are A2A-L01's (the actor first, then the window)";
+    }),
+  },
+  {
+    id: "A2B-E05",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      // Sharon's batch 2 checklist, point 4: «Akhiri sekarang» on the database clock (the K8 rule, swept to change_maintenance)
+      const r = e05(db, d); const h = r.hasil;
+      c.expect(!r.err, `E05 failed to run: ${r.err}`);
+      c.expect(h.sudah_berakhir === "PR110:MAINTENANCE_NOT_OPEN" && h.w1_tetap === "true", `a planned window that ended on the clock after the transaction began must be refused MAINTENANCE_NOT_OPEN and keep no ended_at: ${h.sudah_berakhir}, ${h.w1_tetap}`);
+      c.expect(h.akhiri === "OK" && h.cap_jam === "true", `an early end must be stamped with the clock's instant, never the transaction's start: ${h.akhiri}, ${h.cap_jam}`);
+      c.expect(h.tempat === "false", `the class's work resumes at once: ${h.tempat}`);
+      c.expect(h.mulai_lewat === "PR110:MAINTENANCE_INPUT_INVALID", `«Mulai sekarang» on a window whose start passed on the clock is refused as under way: ${h.mulai_lewat}`);
+      return "«Akhiri sekarang» on a planned window reads the clock: a window ended after the transaction began is refused NOT_OPEN and keeps no ended_at; an early end is stamped with the clock's instant; «Mulai sekarang» on a window already under way on the clock is refused";
+    }),
+  },
+  {
+    id: "A2B-E06",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      // Sharon's batch 2 checklist, point 4: ending a window lets draining sittings finish (D-100(b))
+      const r = e06(db, d); const h = r.hasil;
+      c.expect(!r.err, `E06 failed to run: ${r.err}`);
+      c.expect(h.lain === "0", `the learner's other open sittings are removed first: ${h.lain}`);
+      c.expect(h.akhiri === "OK" && h.sitting === "true", `the early end leaves the running sitting as it was (status, its own deadline, not ended): ${h.akhiri}, ${h.sitting}`);
+      c.expect(h.jawab === "OK", `its answer is taken after the early end: ${h.jawab}`);
+      return "ending a planned class window early leaves a running sitting to finish under D-100(b): its status and deadline unchanged, not ended, its answer taken";
     }),
   },
   {

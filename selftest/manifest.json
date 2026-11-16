@@ -6416,6 +6416,36 @@
       "proves": "The owner's combined scenario (the Chief Architect, 16 Nov 09:41; named K16 because K13 is R-A's); executes in a rolled-back transaction: a school admin schedules a planned window on class 7A and an overlapping school-wide planned window, both through schedule_maintenance (step 2 is not refused: maintenance_collisions counts assessments, never windows); 7A's is extended with perpanjang_pemeliharaan; on the clock after the school window's end and before 7A's extended end, 7A's work is refused and 7B's resumes; with the school window ended early the same holds now, and the status read tells a 7A learner 7A's window alone and a 7B learner nothing. Plant: the place guard reading only the earliest-ending window releases 7A."
     },
     {
+      "id": "A2B-R04",
+      "runner": "static",
+      "proves": "Sharon's batch 2 checklist, point 1 (A2B-BATCH2-PREP.md at 7fb0bc39): the maintenance_windows preservation line; executes in a rolled-back transaction: the table taken back to before D2 (reason_code dropped), PLANNED and EMERGENCY rows of every existing shape written (a school and a class window, an ended one, a lifted and a running emergency), then the migration's section marked «-- A2B-R04 maintenance_windows: begin/end» run over them: none missing, none changed outside reason_code (to_jsonb compared), none given a code; the column exists after."
+    },
+    {
+      "id": "A2B-K17",
+      "runner": "static",
+      "proves": "Sharon's batch 2 checklist, point 2: p_nodes from the form, the database the gate; executes in a rolled-back transaction as the school's admin: a class named twice is stored once; an empty list is a school window; an inactive (archived) class is refused MAINTENANCE_NODE_INVALID; more than 500 entries are refused MAINTENANCE_INPUT_INVALID before any lookup (500 accepted; the bound is PROPOSED); pemeliharaan_kelas_sekolah lists the school's active classes only, nothing of another school and no non-class, and is refused to a teacher. Another school's class, a non-class and an unknown node are K10's."
+    },
+    {
+      "id": "A2B-K18",
+      "runner": "static",
+      "proves": "Sharon's batch 2 checklist, point 3: maintenance_collisions with the class choice has schedule_maintenance's authority checks and returns counts only; executes in a rolled-back transaction: the school's admin's own class runs and returns exactly asesmen and terakhir_selesai; another school's class, a non-class, an archived class, two schools with classes, and a platform check with classes are refused MAINTENANCE_NODE_INVALID; another school's check and a teacher's are refused MAINTENANCE_NOT_ALLOWED; more than 500 entries MAINTENANCE_INPUT_INVALID; closed to anon."
+    },
+    {
+      "id": "A2B-E04",
+      "runner": "static",
+      "proves": "Sharon's batch 2 checklist, point 4, «Perpanjang»; executes in a rolled-back transaction: a shorter end, the same end, a past end and a blank reason are refused MAINTENANCE_INPUT_INVALID, a teacher MAINTENANCE_NOT_ALLOWED; a later end moves the end alone (start, classes, schools, platform and kind unchanged); perpanjang_pemeliharaan takes no start (its signature pinned); reads the committed A2A-L01 report: it and change_maintenance take the actor first, then the window, under A2A-L01's catalogue test."
+    },
+    {
+      "id": "A2B-E05",
+      "runner": "static",
+      "proves": "Sharon's batch 2 checklist, point 4, «Akhiri sekarang» on the database clock (the K8 rule swept from perpanjang_pemeliharaan to change_maintenance); executes in a rolled-back transaction 2 s old: a planned class window that ended on the clock after the transaction began is refused MAINTENANCE_NOT_OPEN and keeps no ended_at; an early end of one under way is stamped with the clock's instant, not the transaction's start, and its class's work resumes; «Mulai sekarang» on a window whose start passed on the clock is refused MAINTENANCE_INPUT_INVALID (under way)."
+    },
+    {
+      "id": "A2B-E06",
+      "runner": "static",
+      "proves": "Sharon's batch 2 checklist, point 4, D-100(b); executes in a rolled-back transaction, the learner's other open sittings removed: a sitting running in 7A when 7A's planned window is ended early keeps its status and its own deadline, is not ended, and its answer is taken after the end."
+    },
+    {
       "id": "A2B-K13",
       "runner": "static",
       "proves": "The Chief Architect's R-A (PLAN-A2B-C2W.md at e15fe966); executes on the database in rolled-back transactions: one minute before a planned class window's start a start in the class is refused PR110 MAINTENANCE_NO_NEW_START, and one second after it PR040 MAINTENANCE_PLACE; another class's start proceeds on both sides; the class's learner passes the request hook on both sides (never PT503, no redirect)."
