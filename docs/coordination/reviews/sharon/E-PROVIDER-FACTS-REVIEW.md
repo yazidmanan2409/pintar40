@@ -60,7 +60,7 @@ My session cannot reach the documentation hosts. **The verbatim checks are the c
   - Anthropic's cell leaves out flagged content (up to 2 years, and scores 7 years).
   - OpenAI's leaves out that `/v1/batches` is kept until deleted and is not ZDR-eligible.
 - **F4:** §1c says "Guidelines for organisations serving minors" is listed. **State what they require:** age verification, content moderation, a child-safety system prompt, COPPA-type compliance and AI disclosure, for organisations whose minors "directly interact" with the product.
-  - My reading, as interpretation: an educator-only feature is arguably not direct interaction. But PINTAR as a whole serves minors, so the guidelines should be followed (checker §3a).
+  - ~~My reading, as interpretation: an educator-only feature is arguably not direct interaction. But PINTAR as a whole serves minors, so the guidelines should be followed (checker §3a).~~ *Superseded by ruling 44 (owner, 16 Nov, `e682af54`): the feature is educator-only and the minors question is closed. Each provider gets one contractual check, that it permits the educator-only workflow; for Anthropic that check reads YES.*
 - **F5:** add Anthropic's absence of documented enforcement lag and alerts, the Enterprise-only Spend Limits API, and OpenAI's `credit_balance_exhausted`. Upgrade the usage-limit stop to A, on the checker's evidence.
 - **F6:** upgrade to A what the checker re-read directly: the Start-tier rate limits and the Google §16 number. Mark every other inference as B, in its own column, not in the prose.
 

@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| E · ruling 44 (the minors question closed) | Applied: my "follow the minors guidelines anyway" (F4) and my feasibility age judgements are marked superseded; data-handling checks stay as ordinary contract checks | `e682af54` | `E-PROVIDER-FACTS-REVIEW.md`, `E-FEASIBILITY-MORE-REVIEW.md` |
 | E pack r3 · my §4.2 role and the §4.3a threshold | Workable, with: my flags sealed before any score is seen, with reasons, and reported per provider (I am an Anthropic model judging an Anthropic provider, so the owner may prefer another checker); §4.3a frozen before the first paid call; a self-tested scoring script; provenance names the pack SHA; blind strips model fields | `c3112336ccd56d0e8e9f99a55ea5ee0956fd353d` | `E-PACK-R3-SCORING-c3112336.md` |
 | A2b new candidate (start path, Q-12, SP3) | PASS subject to a green pre-flight. Q-12 keeps rows in a window; no leak, because maintenance is judged last in may_start (checked in source; Q12's other-school leg). T-SP closed by SP3. Freeze checks re-run | `6e45fe5266a9b85bcd07d03022f0a27ee0bfa93e` | `A2B-START-PATH-3c58620e.md` (addendum) |
 | A2b start-path fix (new candidate) | PASS on the fix, subject to a green pre-flight and T-SP (a static test that no exported action but mulaiAsesmen starts a sitting, as Bob ruled); my_open_assessments cannot leak (it can only shrink) | `b2f6a5529c8130b920126c19a25ac994c86aafb7` | `A2B-START-PATH-3c58620e.md` (addendum) |

@@ -13,6 +13,10 @@ Sharon, 16 Nov 2026 (07:55 UTC). Read-only. **What I reviewed:**
 
 ## What holds now
 
+> **Ruling 44 (owner, 16 Nov, `e682af54`) closes the minors question.** My age judgements below (DeepSeek's and Qwen's age clauses, T1, and the age part of C1) are superseded, and they stay as written for the record.
+> - The only age check now is whether the provider permits the educator-only workflow. For Qwen, the matrix reads yes.
+> - C1's data part still stands as an ordinary data-handling check: no personal data and no learner content are sent.
+
 > **Amended by addendum 3 (the checker's results):** Qwen **does** have a published DPA. Its scope for Indonesia is a legal question. The verdict, that none can be accepted on present evidence, is unchanged.
 
 - **On the evidence in the note, none of the three meets the baseline E holds Anthropic and OpenAI to:**
