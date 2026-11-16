@@ -3,7 +3,11 @@
 > **What holds now:**
 > - **The teacher-facing guide and both prompts are final from my side** (§A, §B, §C), pending one thing.
 >   - ~~**Sharon:** the data warning (§A.2), point 2.~~ **Taken in (16 Nov, 13:50):** Sharon's review (`X1-DATA-WARNING-54bce354.md` at `918c4586`). §A.2 is rewritten to lead with the rule, with all five additions and the optional exam line. Her Q2 lines are added, citing no law. Q3 widens the checklist.
->   - **Second Eye's paste test** (point 5): it decides one rule in the prompts, marked ⟨TES⟩.
+>   - ~~**Second Eye's paste test** (point 5): it decides one rule in the prompts, marked ⟨TES⟩.~~ **Decided (16 Nov, 15:50), on Second Eye's test** (`X1-PASTE-TEST.md`, his C2w branch at `ecfd1042`):
+>     - quoted text kept literal quotes in the usual case, a rendered chat table, and PINTAR stored them unflagged;
+>     - so both prompts now say **one paragraph per cell, no line breaks**, which is clean on both paths;
+>     - the cost is the paragraphs, which the teacher can see and fix while checking the draft (step 5).
+> - **§A.5's message list is unconfirmed.** No real AI output was tested: ruling 42 allows no external calls. The owner's walkthrough (§6 of Bob's draft) is where it is confirmed.
 >   - ~~**The answer on common first names** (point 3), given provisionally in §D.~~ Accepted by Sharon, widened: any learner known at the school, and no real local detail.
 > - **Checked against the product on `main`.**
 >   - Every column header in Bob's draft matches `unggah-kontrak.ts` `KOLOM` exactly, and so does every list value: Tingkat berpikir, Kegunaan, Tingkat kesulitan, Benar, Jenjang, and the labels A–E.
@@ -64,7 +68,7 @@ Jadi jangan pernah memasukkan:
    - PINTAR memeriksa setiap baris lebih dulu.
    - Bila ada yang salah, PINTAR menyebut lembarnya, barisnya dan masalahnya, dan **belum menyimpan apa pun**.
    - Perbaiki baris itu, lalu unggah lagi.
-5. Baca setiap pelajaran, setiap soal dan kuncinya. Perbaiki yang salah, lalu pilih **Ajukan untuk ditinjau**.
+5. Baca setiap pelajaran, setiap soal dan kuncinya. Perbaiki yang salah, lalu pilih **Ajukan untuk ditinjau**. Isi pelajaran dari AI datang sebagai satu paragraf; rapikan paragrafnya saat Anda memeriksa.
 
 **Bila AI Anda dapat membuat berkas Excel sendiri,** Anda boleh memintanya langsung mengisi templat itu. Menyalin tabel tetap berhasil untuk AI mana pun.
 
@@ -91,7 +95,7 @@ PINTAR menyebut lembar dan barisnya. Yang paling sering muncul dari jawaban AI:
 | «Isi kolom ini tidak ada dalam daftar pilihannya.» | Pakai salah satu isian yang disebut di lembar **Cara mengisi** di templat |
 | «Kolom wajib ini tidak ada di baris judul lembar.» | Jangan ubah baris 1. Salin tabel mulai baris 2 |
 
-*(Second Eye confirms which codes actually come up most in the paste test. The table changes only if his list differs.)*
+*(Unconfirmed: the most common messages from real AI output are seen first at the owner's walkthrough. The table changes only if they differ.)*
 
 ### 6 · Batasnya
 
@@ -128,7 +132,7 @@ Aturan:
 2. Biarkan kosong: Konteks, Media, Transkrip, Jenis soal, Kelompok paralel, Identitas soal dan Kode miskonsepsi.
 3. No bab dan No pelajaran berupa angka 1, 2, 3 dan seterusnya. No bab tidak boleh kembar. No pelajaran tidak boleh kembar di dalam bab yang sama.
 4. Isi pelajaran ditulis untuk murid, dalam bahasa Indonesia yang baik dan sesuai kelasnya.
-5. ⟨TES⟩ Teks yang lebih dari satu baris, misalnya Isi pelajaran, ditulis di dalam tanda kutip ganda "…" supaya tetap satu sel.
+5. Tulis setiap isian dalam satu paragraf saja. Jangan memakai baris baru di dalam sel.
 6. Tingkat berpikir diisi salah satu dari: Mengingat, Memahami, Menerapkan, Menganalisis, Mengevaluasi, Mencipta.
 7. Kode soal ditulis S1, S2, S3 dan seterusnya, tidak boleh kembar, dan dipakai lagi di lembar Pilihan.
 8. Kegunaan dikosongkan untuk latihan, atau diisi "Pemetaan awal" atau "Cek penguasaan".
@@ -165,7 +169,7 @@ Lembar Pilihan: Kode soal | Pilihan | Teks pilihan | Benar | Alasan | Kode misko
 Aturan:
 1. Biarkan kosong: Jenis soal, Kelompok paralel, Identitas soal dan Kode miskonsepsi.
 2. No bab dan No pelajaran sama dengan yang ditulis di atas, di setiap baris.
-3. ⟨TES⟩ Teks yang lebih dari satu baris, misalnya Bacaan, ditulis di dalam tanda kutip ganda "…" supaya tetap satu sel.
+3. Tulis setiap isian dalam satu paragraf saja. Jangan memakai baris baru di dalam sel.
 4. Kode soal dimulai dari kode di atas, lalu naik satu-satu (misalnya S11, S12, S13), tidak boleh kembar, dan dipakai lagi di lembar Pilihan.
 5. Kegunaan dikosongkan untuk latihan, atau diisi "Pemetaan awal" atau "Cek penguasaan".
 6. Tingkat kesulitan diisi seperti di atas, di setiap baris.
@@ -195,9 +199,7 @@ Aturan:
 
 **Prompt B:** written out in full. The draft's "[the same rules as Prompt A …]" would make teachers assemble a prompt from two pieces.
 
-**⟨TES⟩ (point 5):**
-- If Second Eye's paste test shows that quoted multi-line text does not survive as one cell, the rule becomes: «Tulis teks dalam satu paragraf saja; jangan memakai baris baru di dalam sel.»
-- The guide then loses nothing else.
+**Point 5 (paste test): decided.** The prompts ask for one paragraph per cell (see What holds now).
 
 **English version of the guide:** not made. The guide is for Indonesian schools, as the prompts are. Say if the owner wants one.
 
