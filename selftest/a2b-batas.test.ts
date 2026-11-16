@@ -329,6 +329,7 @@ export const KELAS_JENDELA: Record<string, { kelas: KelasJendela; alasan: string
   maintenance_affects_pada: { kelas: "PERSON", alasan: "the same, at an instant (EMERGENCY's T_stop)" },
   maintenance_block_for_me: { kelas: "PERSON", alasan: "the request hook's question: person-level windows only after A2b (K11: none for a work-scoped window)" },
   pintar_status_saya: { kelas: "PERSON", alasan: "the status read: says person-level or work-scoped, the place and the zone (D8)" },
+  maintenance_jendela_atas: { kelas: "PLACE", alasan: "the one place predicate (Sharon, 16 Nov): the window's school holds the node and its classes are none or on the node's path; called by maintenance_affects_place, maintenance_mulai_tolak and maintenance_draining_di (D15, D16)" },
   maintenance_draining_di: { kelas: "PLACE", alasan: "draining per window (the Chief Architect, 16 Nov): only sittings in the window's place, every sitting for a platform-wide window; read by pintar_status_saya's 'berjalan' (D14, D15)" },
   maintenance_affects_place: { kelas: "PLACE", alasan: "A2b's place guard (clock_timestamp(), no lock)", menunggu: true },
   enforce_no_new_sitting_in_maintenance: { kelas: "PLACE", alasan: "the sitting-insert trigger: the place and T−15 (K1, K3, K4)" },
@@ -1269,7 +1270,58 @@ rollback;`);
       const blok = psqlBaris(db, `select pg_get_functiondef('public.maintenance_block_for_me()'::regprocedure)`).map(([x]) => x).join("\n");
       const lewati = blok.indexOf("continue when w.kind = 'PLANNED' and not w.platform"), baca = blok.indexOf("maintenance_draining(");
       c.expect(lewati > 0 && baca > lewati, "maintenance_block_for_me must skip class and school windows before it reads the person-wide drain");
-      return "the person-wide drain, maintenance_draining(person), has one caller, maintenance_block_for_me, which reads it only after skipping class and school windows (pin: a later caller cannot reuse the person-level reading)";
+      // Sharon's conditions (16 Nov 08:14, 08:21): one place predicate, called by every place reader, with no raw copy left
+      const salinan = psqlBaris(db, `select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.proname <> 'maintenance_jendela_atas'
+        and regexp_replace(p.prosrc, '--[^' || chr(10) || ']*', '', 'g') ~ 'node_ids[[:space:]]*&&[[:space:]]*n[.]jalur' order by 1`).map(([f]) => f);
+      c.expect(salinan.length === 0, `no function may carry a copy of the place predicate (node_ids && n.jalur): ${salinan.join(", ")}`);
+      const pakai = psqlBaris(db, `select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace
+        and p.prosrc ~ 'maintenance_jendela_atas[[:space:]]*[(]' and p.proname <> 'maintenance_jendela_atas' order by 1`).map(([f]) => f);
+      c.expect(JSON.stringify(pakai) === JSON.stringify(["maintenance_affects_place", "maintenance_draining_di", "maintenance_mulai_tolak"]),
+        `the place readers must all call maintenance_jendela_atas: ${pakai.join(", ")}`);
+      // grants equal to maintenance_draining's, for the reader and the helper; read only
+      // who may execute it, role by role, and whether PUBLIC holds it (its ACL's '=X' entry)
+      const hak = (f: string) => psqlBaris(db, `select string_agg(r || '=' || has_function_privilege(r, '${f}'::regprocedure, 'execute')::text, ',' order by r)
+        || ',public=' || coalesce((select bool_or(a::text like '=X%') from pg_proc p, unnest(p.proacl) a where p.oid = '${f}'::regprocedure), true)::text
+        from unnest(array['anon', 'authenticated', 'service_role']) r`)[0]?.[0] ?? "";
+      const dasar = hak("public.maintenance_draining(uuid)");
+      for (const f of ["public.maintenance_draining_di(uuid,public.maintenance_windows)", "public.maintenance_jendela_atas(public.maintenance_windows,public.org_nodes)"])
+        c.expect(hak(f) === dasar, `${f} must have maintenance_draining's grants (${dasar}): ${hak(f)}`);
+      const bacaSaja = psqlBaris(db, `select p.provolatile::text || ':' || (regexp_replace(p.prosrc, '--[^' || chr(10) || ']*', '', 'g') ~* 'for[[:space:]]+(share|update|no key update|key share)')::text
+        from pg_proc p where p.oid = 'public.maintenance_draining_di(uuid,public.maintenance_windows)'::regprocedure`)[0]?.[0];
+      c.expect(bacaSaja === "s:false", `maintenance_draining_di must be STABLE and take no row lock: ${bacaSaja}`);
+      return "the person-wide drain, maintenance_draining(person), has one caller, maintenance_block_for_me, which reads it only after skipping class and school windows (pin: a later caller cannot reuse the person-level reading); the place predicate exists once, maintenance_jendela_atas, called by maintenance_affects_place, maintenance_mulai_tolak and maintenance_draining_di, with no copy left; the reader and the helper carry maintenance_draining's grants; the reader is STABLE and takes no row lock";
+    }),
+  },
+  {
+    id: "A2B-D16",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      // Sharon's (a): NULL classes and an empty class array behave exactly as the old expression did, and the rest
+      const lama = "n.institution_id = any (w.institution_ids) and (cardinality(w.node_ids) = 0 or w.node_ids && n.jalur)";
+      const kasus: [string, string, string][] = [
+        ["kelas", `array['${d.kA}']::uuid[]`, `'${d.kA}'`], ["kelas lain", `array['${d.kA}']::uuid[]`, `'${d.kY}'`],
+        ["sekolah", "'{}'::uuid[]", `'${d.kA}'`], ["sekolah lain", "'{}'::uuid[]", `'${d.kY}'`],
+        ["kelas null", "null::uuid[]", `'${d.kA}'`], ["simpul null", `array['${d.kA}']::uuid[]`, "null::uuid"],
+        ["sekolah, simpul null", "'{}'::uuid[]", "null::uuid"]];
+      const hasil = kasus.map(([nama, kelas, simpul]) => {
+        const [x] = psqlBaris(db, `with w as (select (jsonb_populate_record(null::public.maintenance_windows,
+            jsonb_build_object('institution_ids', jsonb_build_array('${d.X}'), 'platform', false))) as w),
+          w2 as (select (jsonb_populate_record(w, jsonb_build_object('node_ids', to_jsonb(${kelas})))) as w from w),
+          n as (select (select x from public.org_nodes x where x.id = ${simpul}) as n)
+          select coalesce(public.maintenance_jendela_atas(w2.w, n.n)::text, 'null') || ':' ||
+                 coalesce((select ${lama.replaceAll("w.", "(w2.w).").replaceAll("n.", "(n.n).")})::text, 'null')
+            from w2, n`);
+        return [nama, x?.[0] ?? "?"] as const;
+      });
+      for (const [nama, x] of hasil) {
+        const [baru, dulu] = x.split(":");
+        c.expect(baru === dulu, `${nama}: the helper must answer as the old predicate did: helper ${baru}, old ${dulu}`);
+      }
+      const peta = Object.fromEntries(hasil);
+      c.expect(peta["kelas"] === "true:true" && peta["kelas lain"] === "false:false" && peta["sekolah"] === "true:true" && peta["sekolah lain"] === "false:false",
+        `the ordinary cases: ${JSON.stringify(peta)}`);
+      c.expect(peta["kelas null"] === "null:null" && peta["simpul null"] === "null:null", `NULL classes and a NULL node read as NULL, never as covered: ${JSON.stringify(peta)}`);
+      return `the one place predicate answers as each old copy did on every edge: ${hasil.map(([n, x]) => `${n} ${x.split(":")[0]}`).join("; ")}`;
     }),
   },
   {

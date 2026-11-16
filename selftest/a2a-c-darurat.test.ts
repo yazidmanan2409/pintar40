@@ -865,6 +865,8 @@ type CaraGeser = "NILAI" | "KEPUTUSAN" | "KONSTRUKSI";
 export const KASUS_GESER: Record<string, CaraGeser> = {
   pengerjaan_tenggat_efektif: "NILAI", daftar_pengerjaan: "NILAI", pengerjaan_saya: "NILAI", session_state: "NILAI",
   pengerjaan_putus_tenggat: "KEPUTUSAN", pengerjaan_tutup_calon: "KEPUTUSAN", may_continue_session: "KEPUTUSAN", maintenance_draining: "KEPUTUSAN",
+  // A2b commit 12: the per-window reader, probed with a class window over the sitting's class
+  maintenance_draining_di: "KEPUTUSAN",
   finalize_session: "KONSTRUKSI", record_answer: "KONSTRUKSI", pengerjaan_tahan_orang: "KONSTRUKSI", extend_session_deadline: "KONSTRUKSI",
   tambah_waktu_pengerjaan: "KONSTRUKSI", lanjutkan_pengerjaan: "KONSTRUKSI", pengerjaan_jaga: "KONSTRUKSI", pengerjaan_lepas_darurat: "KONSTRUKSI",
   pengerjaan_tandai_darurat: "KONSTRUKSI", pengerjaan_kredit_darurat: "KONSTRUKSI", pengerjaan_dalam_tenggang_pada: "KONSTRUKSI",
@@ -956,6 +958,9 @@ select 'pengerjaan_saya|' || ((public.pengerjaan_saya('${W}') ->> 'tenggat')::ti
   and (public.pengerjaan_saya('${O}') ->> 'tenggat')::timestamptz = e.o)::text from e;
 select 'may_continue_session|' || ((select x.ok from public.may_continue_session('${W}') x) and (select x.ok from public.may_continue_session('${O}') x))::text;
 select 'maintenance_draining|' || public.maintenance_draining('${orang}')::text;
+select 'maintenance_draining_di|' || public.maintenance_draining_di('${orang}', jsonb_populate_record(null::public.maintenance_windows,
+  jsonb_build_object('id', gen_random_uuid(), 'kind', 'PLANNED', 'platform', false, 'node_ids', jsonb_build_array('${kelas}'),
+                     'institution_ids', (select jsonb_build_array(n.institution_id) from public.org_nodes n where n.id = '${kelas}'))))::text;
 select set_config('request.jwt.claims', '', true);
 select 'pengerjaan_putus_tenggat|' || (public.pengerjaan_putus_tenggat('${W}', true) = 'IN_PROGRESS' and public.pengerjaan_putus_tenggat('${O}', true) = 'IN_PROGRESS')::text;
 select 'pengerjaan_tutup_calon|' || (not exists (select 1 from public.pengerjaan_tutup_calon(5000) x where x in ('${W}', '${O}')))::text;

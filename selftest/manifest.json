@@ -6353,7 +6353,12 @@
     {
       "id": "A2B-D15",
       "runner": "static",
-      "proves": "The pin for the same ruling; reads the catalogue: the person-wide drain, maintenance_draining(person), has exactly one caller, maintenance_block_for_me, which reads it only after skipping class and school PLANNED windows, so no later caller reuses the person-level reading for a window it does not suit."
+      "proves": "The pin for the same ruling and Sharon's conditions; reads the catalogue: the person-wide drain, maintenance_draining(person), has exactly one caller, maintenance_block_for_me, which reads it only after skipping class and school PLANNED windows; the place predicate exists once, maintenance_jendela_atas, called by maintenance_affects_place, maintenance_mulai_tolak and maintenance_draining_di, and no function carries a copy; the reader and the helper carry maintenance_draining's grants; the reader is STABLE and takes no row lock."
+    },
+    {
+      "id": "A2B-D16",
+      "runner": "static",
+      "proves": "Sharon's condition (a) on the one place predicate (16 Nov 08:21); executes on the database: maintenance_jendela_atas(window, node) answers exactly as the old copied expression did, for a class window on its class and on another, a school window (empty classes) on its school and on another, NULL classes and a NULL node (NULL, never 'covered')."
     },
     {
       "id": "A2B-K13",
