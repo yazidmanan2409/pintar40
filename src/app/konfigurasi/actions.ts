@@ -660,13 +660,16 @@ export async function perpanjangPemeliharaanAction(fd: FormData): Promise<void> 
   const jendela = uuidOrNull(str(fd, "jendela"));
   if (!jendela) kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" }, fd);
   const supabase = await supabaseServer();
-  const tempat = await cakupanBaris(supabase, "maintenance_windows", jendela);
-  await cakupanDalamKonteks(tempat);
-  const zona = await zonaPemeliharaan(supabase, tempat);
-  const selesaiBaru = waktuSekolah(str(fd, "selesai"), zona);
+  // a staff client holds no select on maintenance_windows: the window's controller reads its place, end and zone
+  // (pemeliharaan_jendela_tempat), so the working context is checked against its schools and the new end is read on
+  // its own clock; anyone else is refused there, as the extend itself would refuse them
+  const { data: t, error: galatTempat } = await supabase.rpc("pemeliharaan_jendela_tempat", { p_window: jendela });
+  if (galatTempat) kembaliPemeliharaan(ditolak("pemeliharaan_jendela_tempat", galatTempat), fd);
+  const tempat = (t ?? {}) as { platform?: boolean; sekolah?: string[]; selesai?: string | null; zona?: string };
+  await cakupanDalamKonteks({ platform: tempat.platform === true, sekolah: tempat.sekolah ?? [] });
+  const selesaiBaru = waktuSekolah(str(fd, "selesai"), tempat.zona ?? null);
   if (!str(fd, "alasan")) kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_EXTEND_REASON" }, fd);
-  const { data: kini } = await supabase.from("maintenance_windows").select("ends_at").eq("id", jendela).limit(1);
-  const akhirKini = (kini?.[0] as { ends_at?: string | null } | undefined)?.ends_at ?? null;
+  const akhirKini = tempat.selesai ?? null;
   if (!selesaiBaru || (akhirKini !== null && Date.parse(selesaiBaru) <= Date.parse(akhirKini))) {
     kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_EXTEND_NOT_LATER" }, fd);
   }

@@ -562,11 +562,13 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   // its one school's clock, else WIB)
   const idPanjang = uuidSah(sp.panjang) ? sp.panjang! : null;
   const idBarisPm = idPanjang ?? (sp.bagian === "pemeliharaan" && uuidSah(sp.baris) ? sp.baris! : null);
+  // a staff client holds no select on maintenance_windows: the window's controller reads its place, end and zone here
   const { data: barisPmData } = idBarisPm
-    ? await supabase.from("maintenance_windows").select("id, platform, institution_ids, node_ids, ends_at").eq("id", idBarisPm).limit(1)
+    ? await supabase.rpc("pemeliharaan_jendela_tempat", { p_window: idBarisPm })
     : { data: null };
-  const barisPm = (barisPmData?.[0] ?? null) as { id: string; platform: boolean; institution_ids: string[]; node_ids: string[]; ends_at: string | null } | null;
-  const zonaBarisPm = barisPm ? await zonaSekolah(supabase, !barisPm.platform && barisPm.institution_ids.length === 1 ? barisPm.institution_ids[0] : null) : null;
+  const tempatPm = (barisPmData ?? null) as { platform: boolean; sekolah: string[]; kelas: string[]; selesai: string | null; zona: string } | null;
+  const barisPm = tempatPm ? { platform: tempatPm.platform === true, institution_ids: tempatPm.sekolah ?? [], node_ids: tempatPm.kelas ?? [], ends_at: tempatPm.selesai ?? null } : null;
+  const zonaBarisPm = tempatPm?.zona ?? null;
   const ppSelesai = idPanjang && barisPm && zonaBarisPm ? waktuSekolah(sp.pp_selesai, zonaBarisPm) : null;
   // the Chief Architect (16 Nov 09:44): the extend shows the advisory count for the added period, as the schedule form
   // does for its own; it refuses nothing
