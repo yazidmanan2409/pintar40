@@ -69,7 +69,9 @@ export default function PengingatPemeliharaan({ locale, status: awal }: { locale
     if (tunggu !== null && bacaan.current < BACA_ULANG_MAKS) {
       batas = window.setTimeout(async () => {
         bacaan.current += 1;
-        const baru = await bacaUlangStatusSaya();
+        // a read the browser cannot complete (no connection: the server action's request fails and the call throws) is a
+        // failed read too, not only a server-side null: found in Daisy's batch 1 capture, where the countdown ran on
+        const baru = await bacaUlangStatusSaya().catch(() => null);
         setKini(jam());
         setTahap((sebelum) => tahapSetelahBaca(sebelum, baru, jam()));
         setPutaran((n) => n + 1);
