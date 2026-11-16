@@ -46,6 +46,19 @@ E's three owner decisions (providers, scoring rules, judges) stay visible in sta
 
 **Principles:** no silent scope expansion; no bypassed security or deployment gates; no false completion claims.
 
+## Owner, 16 Nov 2026, about 19:25 UTC: `claude/c2w` push granted; A2b's boundary restated
+
+- **Second Eye may push `claude/c2w`.** This is strictly a push to a development branch. It authorises no merge, no
+  staging promotion and no production action.
+- **A2b:**
+  - finish the current test-only corrections (J1.6's own fixture; Sharon's R-SP2);
+  - then, on the one exact candidate: the full pre-flight, the journeys (both jobs), PR #24's CI and Sharon's review;
+  - then refreeze.
+  - Once ready, Bob presents the specific read-only "before" operation on staging for the owner's authorisation.
+    **Nothing goes past that boundary without approval.**
+- **E:** its three decisions stay pending. No paid provider calls or spending are authorised.
+- Continue the approved sequence wherever dependencies allow.
+
 ## A2b's freeze REOPENED for one defect (16 Nov 2026, 16:20 UTC)
 
 The journeys on `3c58620e` (run 43893436917) exposed a product regression. Since A2b commit 3,
