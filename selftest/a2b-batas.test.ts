@@ -174,14 +174,20 @@ select '${d.PA}', '${d.SA}', p.item_id, '${d.X}', p.position, now() - interval '
   from public.presented_items p where p.session_id = '${d.sumber}' and p.position = 1;
 alter table public.maintenance_windows drop constraint if exists maintenance_windows_class_is_emergency;`;
 }
-/** A window, written directly (the replica role must be on). `nodes`: the classes of a class window, or none. */
+/** A window, written directly (the replica role must be on). `nodes`: the classes of a class window, or none.
+ *  An EMERGENCY window takes the hosted shape (Sharon's K12-1, C41-1's): `mulai` is its T_stop and `selesai` its
+ *  T_lift; its row's starts_at is 3 s before T_stop and its ended_at 2 s before T_lift, so a reader that took the
+ *  shift from starts_at and ended_at would be off by a second. */
 export function jendela(d: Dunia, id: string, o: { kind?: "PLANNED" | "EMERGENCY"; inst?: string; nodes?: string[]; mulai: string; akhir?: string | null; selesai?: string | null; aktifDicatat?: string | null }): string {
   const kind = o.kind ?? "PLANNED";
   const nodes = o.nodes?.length ? `array[${o.nodes.map((n) => `'${n}'::uuid`).join(", ")}]` : "'{}'::uuid[]";
-  const tstop = kind === "EMERGENCY" ? o.mulai : "null";
-  const tlift = kind === "EMERGENCY" && o.selesai ? o.selesai : "null";
+  const darurat = kind === "EMERGENCY";
+  const tstop = darurat ? o.mulai : "null";
+  const tlift = darurat && o.selesai ? o.selesai : "null";
+  const awal = darurat ? `(${o.mulai}) - interval '3 seconds'` : o.mulai;
+  const selesai = darurat && o.selesai ? `(${o.selesai}) - interval '2 seconds'` : o.selesai ?? "null";
   return `insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, ends_at, ended_at, t_stop, t_lift, reason, created_by_person_id, activation_recorded_at)
-values ('${id}', '${kind}', false, array['${o.inst ?? d.X}'::uuid], ${nodes}, ${o.mulai}, ${o.akhir ?? "null"}, ${o.selesai ?? "null"}, ${tstop}, ${tlift},
+values ('${id}', '${kind}', false, array['${o.inst ?? d.X}'::uuid], ${nodes}, ${awal}, ${o.akhir ?? "null"}, ${selesai}, ${tstop}, ${tlift},
         '${ALASAN}', '${d.sys}', ${o.aktifDicatat === undefined ? o.mulai : o.aktifDicatat ?? "null"});`;
 }
 /** The teacher's act on a sitting: A1's extend (a refused writer: staff change to running work). */
@@ -469,6 +475,8 @@ ${sebagai(d.muridUid)}
 select 'jawab|' || pg_temp.a2b_tetap($q$select public.record_answer('${d.PA}', 1, '{"posisi": 1}'::jsonb)$q$);
 ${tanpaOrang}
 select 'efektif|' || extract(epoch from (public.pengerjaan_tenggat_efektif('${d.SA}') - now()))::int;
+select 'saat|' || extract(epoch from (t_lift - t_stop))::int || ':' || extract(epoch from (t_stop - starts_at))::int || ':' || extract(epoch from (t_lift - ended_at))::int
+  from public.maintenance_windows where id = '${W2}';
 select 'putus_awal|' || pg_temp.a2b_tetap($q$select public.pengerjaan_putus_tenggat('${d.SA}', false)$q$);
 select 'status_awal|' || status from public.assessment_sessions where id = '${d.SA}';
 -- past the effective deadline and its grace: the decider (A1's closer runs it) ends it
@@ -479,6 +487,10 @@ select 'putus_akhir|' || pg_temp.a2b_tetap($q$select public.pengerjaan_putus_ten
 select 'status_akhir|' || status from public.assessment_sessions where id = '${d.SA}';
 rollback;`);
 }
+
+/** K12-1's plant: penghentian_geser reading the window's row (starts_at, ended_at) instead of its instants. */
+const GESER_SAAT = "select x.t_stop, case when x.ended_at is null then null else coalesce(x.t_lift, x.ended_at) end into v_awal, v_akhir";
+const GESER_BARIS = "select x.starts_at, case when x.ended_at is null then null else x.ended_at end into v_awal, v_akhir";
 
 /** K6: extend during a window, then end it early. The window ends 1.5 s in; it is extended by an hour; after the old
  *  end the act is still refused; then resume early (AKHIRI), and the act succeeds at once. */
@@ -680,7 +692,7 @@ ${sebagai(d.muridUid)}
 select 'blok_henti|' || coalesce(public.maintenance_block_for_me(), 'none');
 ${tanpaOrang}
 set local session_replication_role = replica;
-update public.maintenance_windows set ended_at = now() - interval '1 minute', t_lift = now() - interval '1 minute' where id = '${W2}';
+update public.maintenance_windows set ended_at = now() - interval '1 minute 2 seconds', t_lift = now() - interval '1 minute' where id = '${W2}';
 set local session_replication_role = origin;
 ${sebagai(d.muridUid)}
 select 'blok_angkat|' || coalesce(public.maintenance_block_for_me(), 'none');
@@ -817,15 +829,21 @@ export const a2bBatasTests: SelfTest[] = [
   {
     id: "A2B-K05",
     requires: ["db"],
-    run: jalan((c, db, d) => {
+    run: jalan(async (c, db, d) => {
       const r = k5(db, d);
       c.expect(!r.err, `K5 failed to run: ${r.err}`);
-      const e = Number(r.hasil.efektif);
-      c.expect(e > 800 && e < 1000, `K5: the effective deadline (own deadline 30 min ago, a 45 min stop credited) must be about 15 min ahead: ${r.hasil.efektif} s`);
+      c.expect(r.hasil.saat === "2700:3:2", `K5 (K12-1's shape): the stop's T_lift − T_stop is 2700 s, its starts_at 3 s before T_stop and its ended_at 2 s before T_lift: ${r.hasil.saat}`);
+      c.expect(r.hasil.efektif === "900", `K5: the effective deadline (own deadline 30 min ago, T_lift − T_stop = 45 min credited) must be exactly 900 s ahead: ${r.hasil.efektif} s`);
       c.expect(r.hasil.jawab === "OK", `K5: the learner's answer in a running sitting, during a planned window on its class, must be taken (the drain): ${r.hasil.jawab}`);
       c.expect(r.hasil.status_awal === "IN_PROGRESS", `K5: before its effective deadline the decider must leave it open: ${r.hasil.putus_awal} → ${r.hasil.status_awal}`);
       c.expect(r.hasil.putus_akhir === "OK" && r.hasil.status_akhir !== "IN_PROGRESS", `K5: past its deadline and grace the decider (A1's closer) must end it during the window: ${r.hasil.putus_akhir} → ${r.hasil.status_akhir}`);
-      return `a running sitting when a planned class window starts drains: the answer is taken; open to its effective deadline (${r.hasil.efektif} s ahead, the stop's shift credited); the closer ends it after its grace (${r.hasil.status_akhir})`;
+      // Sharon's K12-1 plant: the shift read from the row's starts_at and ended_at instead of T_stop and T_lift
+      const { gantiFungsi } = await import("./balapan");
+      const balik = gantiFungsi("public.penghentian_geser(uuid,uuid)", GESER_SAAT, GESER_BARIS);
+      let tanam: ReturnType<typeof k5>;
+      try { tanam = k5(db, d); } finally { balik(); }
+      c.expect(tanam.hasil.efektif !== "900", `with the plant (the shift read from starts_at and ended_at) the effective deadline was still 900 s: ${JSON.stringify(tanam.hasil)}`);
+      return `a running sitting when a planned class window starts drains: the answer is taken; open to its effective deadline (exactly ${r.hasil.efektif} s ahead: T_lift − T_stop credited, the window in the hosted shape); the closer ends it after its grace (${r.hasil.status_akhir}); with the plant (the shift from starts_at and ended_at) ${tanam.hasil.efektif} s`;
     }),
   },
   {
@@ -918,8 +936,9 @@ export const a2bBatasTests: SelfTest[] = [
       c.expect(k.hasil.aksi_B === "OK" && k.hasil.aksi_Y === "OK", `K11: the same teacher's act on 7B's and school Y's work must succeed: 7B ${k.hasil.aksi_B}, Y ${k.hasil.aksi_Y}`);
       c.expect(k.hasil.kait === "OK" && k.hasil.blok === "none", `K11: a work-scoped window never stops the teacher as a person (no PT503, no redirect): hook ${k.hasil.kait}, block ${k.hasil.blok}`);
       c.expect(k.hasil.pindah_keluar === "OK", `K11: PLANNED reads current placement: a learner moved from 7A to 7B after the window began starts in 7B: ${k.hasil.pindah_keluar}`);
-      // to Sharon: the code a start carries when refused during an active work-scoped window (the place's, or T−15's as today)
-      c.expect([TEMPAT, "PR110:MAINTENANCE_NO_NEW_START"].includes(k.hasil.pindah_masuk ?? ""), `K11: a learner moved into 7A after the window began is refused there (${TEMPAT} or PR110:MAINTENANCE_NO_NEW_START): ${k.hasil.pindah_masuk}`);
+      // Sharon's ruling (A2B-STEP1-b95bfe9c.md, question 1): an ACTIVE work-scoped window refuses a start with the
+      // place's code; MAINTENANCE_NO_NEW_START stays for T−15
+      c.expect(k.hasil.pindah_masuk === TEMPAT, `K11: a learner moved into 7A after the window began is refused there ${TEMPAT}: ${k.hasil.pindah_masuk}`);
       const s = k11(db, d, "SEKOLAH");
       c.expect(!s.err, `K11 (school) failed to run: ${s.err}`);
       c.expect(s.hasil.aksi_A === TEMPAT && s.hasil.aksi_B === TEMPAT, `K11: a school-wide planned window at X: the teacher's acts at X must be refused ${TEMPAT}: 7A ${s.hasil.aksi_A}, 7B ${s.hasil.aksi_B}`);
