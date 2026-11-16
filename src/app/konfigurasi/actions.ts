@@ -611,13 +611,6 @@ async function cakupanDalamKonteks(c: { platform: boolean; sekolah: readonly str
   for (const x of c.sekolah) await wajibDalamKonteks({ sekolah: x }, "pemeliharaan");
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function cakupanBaris(supabase: any, tabel: "maintenance_windows" | "broadcast_notices", id: string | null) {
-  if (!id) return { platform: false, sekolah: [] as string[] };
-  const { data } = await supabase.from(tabel).select("platform, institution_ids").eq("id", id).limit(1);
-  const r = (data?.[0] ?? null) as { platform?: boolean; institution_ids?: string[] } | null;
-  return { platform: r?.platform === true, sekolah: r?.institution_ids ?? [] };
-}
 
 export async function jadwalkanPemeliharaanAction(fd: FormData): Promise<void> {
   const { platform, sekolah } = cakupan(fd);
@@ -653,13 +646,28 @@ export async function jadwalkanPemeliharaanAction(fd: FormData): Promise<void> {
   kembaliPemeliharaan({ ok: true, kode: "MAINTENANCE_SCHEDULED" }, fd);
 }
 
-/** A staff client holds no select on maintenance_windows: the window's controller reads its place, end and zone
- *  (pemeliharaan_jendela_tempat, read only); anyone else is refused there, as the extend itself would refuse them. */
+/** S-1 (Sharon, A2B-BATCH2-APP-a186b1a7.md; the Chief Architect, 16 Nov 11:51): a staff client holds no select on
+ *  maintenance_windows or broadcast_notices, so a window's or a notice's place is read for its controller through the
+ *  database (pemeliharaan_jendela_tempat, pemeliharaan_pengumuman_tempat, read only). FAIL CLOSED: a refusal, no row,
+ *  or a place with neither the platform nor a school refuses the act with MAINTENANCE_NOT_ALLOWED before any write,
+ *  so the working-context check never passes on a target it could not read. */
+type TempatBaris = { platform: boolean; sekolah: string[]; selesai?: string | null; zona?: string };
+function tempatAtauTolak(data: unknown, error: { code?: string | null; message?: string | null } | null, fn: string, fd: FormData): TempatBaris {
+  if (error) kembaliPemeliharaan(ditolak(fn, error), fd);
+  const t = (data && typeof data === "object" ? data : null) as { platform?: unknown; sekolah?: unknown; selesai?: unknown; zona?: unknown } | null;
+  const sekolah = Array.isArray(t?.sekolah) ? t!.sekolah.filter((x): x is string => typeof x === "string" && uuidOrNull(x) !== null) : [];
+  if (!t || (t.platform !== true && sekolah.length === 0)) kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_NOT_ALLOWED" }, fd);
+  return { platform: t!.platform === true, sekolah, selesai: typeof t!.selesai === "string" ? t!.selesai : null, zona: typeof t!.zona === "string" ? t!.zona : undefined };
+}
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function tempatJendela(supabase: any, jendela: string | null, fd: FormData) {
+async function tempatJendela(supabase: any, jendela: string | null, fd: FormData): Promise<TempatBaris> {
   const { data, error } = await supabase.rpc("pemeliharaan_jendela_tempat", { p_window: jendela });
-  if (error) kembaliPemeliharaan(ditolak("pemeliharaan_jendela_tempat", error), fd);
-  return (data ?? {}) as { platform?: boolean; sekolah?: string[]; selesai?: string | null; zona?: string };
+  return tempatAtauTolak(data, error, "pemeliharaan_jendela_tempat", fd);
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function tempatPengumuman(supabase: any, pengumuman: string | null, fd: FormData): Promise<TempatBaris> {
+  const { data, error } = await supabase.rpc("pemeliharaan_pengumuman_tempat", { p_notice: pengumuman });
+  return tempatAtauTolak(data, error, "pemeliharaan_pengumuman_tempat", fd);
 }
 
 /** «Perpanjang» (A2b D3; Daisy, A2B-PERPANJANG-KATA §1): a planned window's new end, typed on its school's clock (WIB
@@ -672,7 +680,7 @@ export async function perpanjangPemeliharaanAction(fd: FormData): Promise<void> 
   // the working context is checked against the window's own schools before the act (§2.11), and the new end is read on
   // its own clock
   const tempat = await tempatJendela(supabase, jendela, fd);
-  await cakupanDalamKonteks({ platform: tempat.platform === true, sekolah: tempat.sekolah ?? [] });
+  await cakupanDalamKonteks(tempat);
   const selesaiBaru = waktuSekolah(str(fd, "selesai"), tempat.zona ?? null);
   if (!str(fd, "alasan")) kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_EXTEND_REASON" }, fd);
   const akhirKini = tempat.selesai ?? null;
@@ -692,7 +700,7 @@ export async function ubahPemeliharaanAction(fd: FormData): Promise<void> {
     kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" }, fd);
   }
   const supabase = await supabaseServer();
-  await cakupanDalamKonteks(await cakupanBaris(supabase, "maintenance_windows", jendela));
+  await cakupanDalamKonteks(await tempatJendela(supabase, jendela, fd));
   const { error } = await supabase.rpc("change_maintenance", { p_window: jendela, p_action: aksi, p_reason: str(fd, "alasan") });
   if (error) kembaliPemeliharaan(ditolak("change_maintenance", error), fd);
   revalidatePath("/konfigurasi");
@@ -746,7 +754,7 @@ export async function tarikPengumumanAction(fd: FormData): Promise<void> {
   const pengumuman = uuidOrNull(str(fd, "pengumuman"));
   if (!pengumuman || !str(fd, "alasan")) kembaliPemeliharaan({ ok: false, kode: "NOTICE_INPUT_INVALID" }, fd);
   const supabase = await supabaseServer();
-  await cakupanDalamKonteks(await cakupanBaris(supabase, "broadcast_notices", pengumuman));
+  await cakupanDalamKonteks(await tempatPengumuman(supabase, pengumuman, fd));
   const { error } = await supabase.rpc("withdraw_notice", { p_notice: pengumuman, p_reason: str(fd, "alasan") });
   if (error) kembaliPemeliharaan(ditolak("withdraw_notice", error), fd);
   revalidatePath("/konfigurasi");
