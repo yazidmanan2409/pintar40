@@ -158,6 +158,11 @@ type SearchParams = Promise<{
 } & ParamKenaikan>;
 
 export default async function Konfigurasi({ searchParams, params }: { searchParams: SearchParams; params?: Promise<{ bagian?: string }> }) {
+  // A2b D3 (Daisy, A2B-PERPANJANG-KATA §1): the extend's two result sentences place the row's end («pukul {jam} {zona}»),
+  // the new one once extended, the current one when the new end was not later. The page's own copy reader is the
+  // module's, filling that one token pair from the row acted on (set below, once it is read) for this request only.
+  const isiPm: { jam: string | null } = { jam: null };
+  const s = (event: HleEvent) => { const v = t(event, "staff"); return isiPm.jam ? v.replace("{jam}\u00a0{zona}", isiPm.jam) : v; };
   // One parallel read of the viewer and their roles (DAISY-02/03).
   const [viewer, peran] = await Promise.all([currentViewer(), peranSaya()]);
   const supabase = await supabaseServer();
@@ -518,14 +523,10 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
       {sl(sp.lapor === "MOVED" ? "lapor.triase.ok" : kunciKodeLaporan(sp.lapor as KodeLaporan))}
     </BarisHasil>
   ) : null;
-  // A2b D3 (Daisy, A2B-PERPANJANG-KATA §1): the extend's two sentences place the row's end («pukul {jam} {zona}»): the
-  // new end once extended, the current one when the new end was not later. Read at render, from the row acted on
-  const isiJamBaris = (kal: string | null) =>
-    kal && barisPm?.ends_at && zonaBarisPm ? kal.replace("{jam}\u00a0{zona}", jamPm(barisPm.ends_at, zonaBarisPm)) : kal;
   const result = (section: string, asal?: string) =>
     sp.bagian === section && sp.hasil && (asal ? asalKini === asal : asalKini === null) ? (
       <BarisHasil nada={sp.hasil === "ok" ? "ok" : "gagal"}>
-        {isiJamBaris(kalimatHasil(sp, s, { ok: "config.result.ok", gagal: "config.result.failed" }))}
+        {kalimatHasil(sp, s, { ok: "config.result.ok", gagal: "config.result.failed" })}
       </BarisHasil>
     ) : null;
 
@@ -711,6 +712,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   // A2b (Daisy, A2B-PERPANJANG-KATA §1): a window's time with its zone word, and its day when it is another day (C-3)
   const kiniPm = new Date().valueOf();
   const jamPm = (iso: string, zona: string | null) => jamPenuh(iso, { zona }, kiniPm, locale);
+  if (barisPm?.ends_at && zonaBarisPm) isiPm.jam = jamPm(barisPm.ends_at, zonaBarisPm);
   // D2: a coded reason in its own words; an old row's text, or «Lainnya»'s, as written
   const kataAlasan = (w: { jenis: string; alasan: string }) => {
     const k = w.jenis === "PLANNED" ? kunciAlasan(kodeAlasan(w.alasan)) : null;
@@ -1571,13 +1573,13 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                             {barisPm.ends_at ? (
                               <p className="text-ink-2">{sl("config.pemeliharaan.perpanjang.sekarang").replace("{jam}\u00a0{zona}", jamPm(barisPm.ends_at, zonaBarisPm))}</p>
                             ) : null}
-                            <form method="get" action={`${jalanIni}#jendela-${w.id}`} className="flex flex-wrap items-end gap-2">
+                            <form method="get" action="/konfigurasi/pemeliharaan#pin-pm-daftar" className="flex flex-wrap items-end gap-2">
                               <input type="hidden" name="panjang" value={w.id} />
                               {typeof sp.sekolah === "string" && sp.sekolah ? <input type="hidden" name="sekolah" value={sp.sekolah} /> : null}
                               {typeof sp.hal_jendela === "string" && sp.hal_jendela ? <input type="hidden" name="hal_jendela" value={sp.hal_jendela} /> : null}
                               <div className={label}>
-                                <label htmlFor={`pp-selesai-${w.id}`}>{sl("config.pemeliharaan.perpanjang.selesai_baru").replace("{zona}", kataZona(zonaBarisPm))}</label>
-                                <TanggalDenganGema jenis="datetime-local" id={`pp-selesai-${w.id}`} name="pp_selesai" className={field} defaultValue={sp.pp_selesai ?? ""} locale={locale} zona={zonaBarisPm} />
+                                <label htmlFor="cfg-pp-selesai">{sl("config.pemeliharaan.perpanjang.selesai_baru").replace("{zona}", kataZona(zonaBarisPm))}</label>
+                                <TanggalDenganGema jenis="datetime-local" id="cfg-pp-selesai" name="pp_selesai" className={field} defaultValue={sp.pp_selesai ?? ""} locale={locale} zona={zonaBarisPm} />
                               </div>
                               <button type="submit" className={button}>{sl("config.pemeliharaan.periksa")}</button>
                             </form>
