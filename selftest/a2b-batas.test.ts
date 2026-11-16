@@ -2201,6 +2201,25 @@ rollback;`);
     },
   },
   {
+    id: "A2B-B2W",
+    requires: [],
+    run: async () => {
+      const c = new Checks();
+      // Daisy's batch 2 review (f9ffc948): C-4's intro, and BL-2's «Dijadwalkan oleh {nama}»
+      const kata: Array<[string, string, string]> = [
+        ["config.pemeliharaan.arti", "Jadwalkan pemeliharaan supaya orang yang terdampak tahu lebih dulu. Mulai 60 menit sebelumnya, pita peringatan tampil; mulai 15 menit sebelumnya, asesmen baru tidak dapat dimulai. Pemeliharaan untuk sekolah atau kelas menahan perubahan pada pekerjaannya, dan bagian PINTAR yang lain tetap dapat dipakai. Pemeliharaan seluruh platform membuat PINTAR tidak dapat dipakai. Asesmen yang sedang dikerjakan tetap dapat diselesaikan dan dikumpulkan.",
+          "Schedule maintenance so that those affected know in advance. From 60 minutes before, a warning banner shows; from 15 minutes before, no new assessment can be started. Maintenance for a school or a class holds changes to its work, and the rest of PINTAR can still be used. Maintenance for the whole platform makes PINTAR unavailable. Assessments in progress can still be finished and submitted."],
+        ["config.pemeliharaan.dijadwalkan_oleh", "Dijadwalkan oleh {nama}", "Scheduled by {nama}"],
+      ];
+      const kunci = new Set<string>(allKeys());
+      for (const [k, id, en] of kata) {
+        c.expect(kunci.has(k) && t(k as HleEvent, "staff", { locale: "id" }) === id && t(k as HleEvent, "staff", { locale: "en" }) === en,
+          `${k} must say Daisy's words: ${kunci.has(k) ? `«${t(k as HleEvent, "staff", { locale: "id" })}» / «${t(k as HleEvent, "staff", { locale: "en" })}»` : "missing"}`);
+      }
+      return c.verdict("Daisy's batch 2 words: the form's intro says what a school or class window holds and what a platform window stops (C-4), and «Dijadwalkan oleh {nama}» (BL-2), in both languages");
+    },
+  },
+  {
     id: "A2B-K13",
     requires: ["db"],
     run: jalan((c, db, d) => {

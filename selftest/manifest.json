@@ -6466,6 +6466,16 @@
       "proves": "S-1 (Sharon, A2B-BATCH2-APP-a186b1a7.md; the Chief Architect, 16 Nov 11:51); executed against the running build, each server action posted as a browser without script posts it, with its id from the build's manifest: a controller of Alpha and Beta (Alpha's Admin sekolah, given Beta's for the test), working in Alpha, is refused for the context (the chooser) on Beta's «Akhiri sekarang», «Mulai sekarang» and «Tarik pengumuman», with nothing written; an unknown window and an unknown notice are refused MAINTENANCE_NOT_ALLOWED before any write; working in Beta, the same «Akhiri sekarang» ends Beta's window. The plant is the build before the fix (the direct read), shown red."
     },
     {
+      "id": "A2B-B2K",
+      "runner": "app",
+      "proves": "Daisy's batch 2 review (TINJAUAN-A2B-D8-B2-7a079eb2.md at f9ffc948; the Chief Architect: in this batch), against the running build with the actions posted as a browser without script posts them: a refused schedule comes back with every entered value (school, class, times, message, reason, announcement box), step two redrawn with them and the refusal an alert that takes focus (BL-1); the extend's refusal keeps its new end and reason with its form open, and the announcement's its scope and message (the sweep); the list row names its class and «Dijadwalkan oleh {nama}» (BL-2); a coded reason reads «Alasan: …» and an old free text «Alasan (dicatat): …» (C-5); «Akhiri sekarang» opens with the reason field inside its confirmation and one «Batal» (C-6)."
+    },
+    {
+      "id": "A2B-B2W",
+      "runner": "static",
+      "proves": "Daisy's batch 2 words (f9ffc948): config.pemeliharaan.arti says what a school or class window holds and what a platform window stops (C-4), and config.pemeliharaan.dijadwalkan_oleh «Dijadwalkan oleh {nama}» / «Scheduled by {nama}» (BL-2), in both languages."
+    },
+    {
       "id": "A2B-K13",
       "runner": "static",
       "proves": "The Chief Architect's R-A (PLAN-A2B-C2W.md at e15fe966); executes on the database in rolled-back transactions: one minute before a planned class window's start a start in the class is refused PR110 MAINTENANCE_NO_NEW_START, and one second after it PR040 MAINTENANCE_PLACE; another class's start proceeds on both sides; the class's learner passes the request hook on both sides (never PT503, no redirect)."

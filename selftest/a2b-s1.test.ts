@@ -84,7 +84,94 @@ commit;`);
 }
 const ditolakKonteks = (ke: string) => /alasan=lain/.test(ke) || /CONTEXT_OTHER_PLACE/.test(ke);
 
+/** A page as the session reads it, its HTML. */
+async function halaman(ctx: Context, cookie: string, jalan: string): Promise<string> {
+  const r = await fetch(`${ctx.appUrl}${jalan}`, { headers: { cookie }, redirect: "manual" });
+  return r.text();
+}
+/** The address an action sent the person to, as a path and its query. */
+const alamat = (ke: string) => { const u = new URL(ke, "http://x"); return { jalan: u.pathname + u.search, q: u.searchParams }; };
+/** The one list row of a window, its HTML. */
+const barisJendela = (html: string, id: string) => {
+  const a = html.indexOf(`data-jendela="${id}"`);
+  if (a < 0) return "";
+  const b = html.indexOf("</li>", a);
+  return html.slice(a, b < 0 ? undefined : b);
+};
+const teks = (h: string) => h.replace(/<[^>]+>/g, " ").replace(/&nbsp;|\u00a0/g, " ").replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+const WK = ID("c1"), WT = ID("c2");
+
 export const a2bS1Tests: SelfTest[] = [
+  {
+    id: "A2B-B2K",
+    requires: ["app", "network", "db", "build"],
+    run: async (ctx) => {
+      // Daisy's batch 2 review (TINJAUAN-A2B-D8-B2-7a079eb2.md at f9ffc948), the Chief Architect: in this batch
+      const c = new Checks();
+      const A = psql("select id from public.institutions where name = 'Sekolah Sintetis Alpha'");
+      const K = psql(`select id from public.org_nodes where institution_id = ${lit(A)} and kind = 'CLASS' and is_active order by name limit 1`);
+      const namaK = psql(`select name from public.org_nodes where id = ${lit(K)}`);
+      const sys = psql("select person_id from public.role_assignments where role = 'SYSTEM_ADMIN' and revoked_at is null order by id limit 1");
+      const admin = psql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = ${lit(ADMIN.email)}`);
+      const namaAdmin = psql(`select display_name from public.persons where id = ${lit(admin)}`);
+      const jadwal = idAksi(ctx, "src/app/konfigurasi/actions.ts", "jadwalkanPemeliharaanAction");
+      const panjang = idAksi(ctx, "src/app/konfigurasi/actions.ts", "perpanjangPemeliharaanAction");
+      const umumkan = idAksi(ctx, "src/app/konfigurasi/actions.ts", "terbitkanPengumumanAction");
+      if (!c.expect(jadwal !== null && panjang !== null && umumkan !== null, "the build's manifest names no schedule, extend or publish action")) return c.verdict("");
+      psql(`begin; set local session_replication_role = replica;
+delete from public.maintenance_windows where id in (${lit(WK)}, ${lit(WT)});
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, ends_at, reason, reason_code, created_by_person_id, activation_recorded_at)
+values (${lit(WK)}, 'PLANNED', false, array[${lit(A)}]::uuid[], array[${lit(K)}]::uuid[], now() - interval '10 minutes', now() + interval '1 hour', 'PEMBARUAN', 'PEMBARUAN', ${lit(admin)}, now() - interval '10 minutes'),
+       (${lit(WT)}, 'PLANNED', false, array[${lit(A)}]::uuid[], '{}', now() + interval '1 day', now() + interval '1 day 1 hour', 'Teks bebas lama', null, ${lit(sys)}, null);
+commit;`);
+      try {
+        const cookie = await masuk(ctx);
+        await pilihKonteksCookie(ctx.appUrl!, cookie, `MENGELOLA:${A}`);
+        // BL-1: a refused schedule keeps every entered value, reopens step two, and draws the alert
+        const isi = { asal: "jadwal", sekolah: A, kelas: K, mulai: "2030-01-05T19:00", selesai: "2030-01-05T21:00", pesan: "Pesan uji BL-1", alasan_kode: "LAINNYA", alasan: "", umumkan: "1" };
+        const ke1 = alamat(await kirim(ctx, cookie, jadwal!, isi));
+        const q1 = ke1.q;
+        c.expect(q1.get("kode") === "MAINTENANCE_REASON_INVALID" && q1.get("pm_cek") === "1" && q1.get("pm_sekolah") === A && q1.get("pm_kelas") === K
+          && q1.get("pm_mulai") === isi.mulai && q1.get("pm_selesai") === isi.selesai && q1.get("pm_pesan") === isi.pesan
+          && q1.get("pm_alasan_kode") === "LAINNYA" && q1.get("pm_umumkan") === "1",
+          `BL-1: a refused schedule must come back with every entered value: ${ke1.jalan}`);
+        const h1 = await halaman(ctx, cookie, ke1.jalan);
+        c.expect(new RegExp(`name="pm_kelas" value="${K}" checked`).test(h1) && new RegExp(`name="kelas" value="${K}"`).test(h1),
+          "BL-1: the class stays chosen (its checkbox) and step two carries it");
+        c.expect(/name="alasan_kode" value="LAINNYA" checked/.test(h1) && /Pesan uji BL-1<\/textarea>/.test(h1) && /name="umumkan" value="1" checked/.test(h1),
+          "BL-1: step two is redrawn with its reason, message and announcement box as entered");
+        c.expect(/name="pm_mulai" value="2030-01-05T19:00"/.test(h1) && /name="pm_selesai" value="2030-01-05T21:00"/.test(h1), "BL-1: the times stay in their fields");
+        c.expect(/role="alert"/.test(h1) && /data-fokus-peringatan/.test(h1), "BL-1: the refusal is an alert that takes focus");
+        // the sweep: the extend's refusal keeps its new end and reason, and its form stays open
+        const ke2 = alamat(await kirim(ctx, cookie, panjang!, { asal: "jendela", hal_jendela: "1", jendela: WK, baris: WK, selesai: "2020-01-01T08:00", alasan: "Alasan uji" }));
+        c.expect(ke2.q.get("kode") === "MAINTENANCE_EXTEND_NOT_LATER" && ke2.q.get("panjang") === WK && ke2.q.get("pp_selesai") === "2020-01-01T08:00" && ke2.q.get("pp_alasan") === "Alasan uji",
+          `the extend's refusal must keep its new end and reason, its form open: ${ke2.jalan}`);
+        const h2 = await halaman(ctx, cookie, ke2.jalan);
+        c.expect(/data-perpanjang=""/.test(h2) && /name="alasan"[^>]*value="Alasan uji"/.test(h2), "the extend form is open again with its reason");
+        // the sweep: the announcement's refusal keeps its scope and message
+        const ke3 = alamat(await kirim(ctx, cookie, umumkan!, { asal: "umumkan", sekolah: A, pesan: "Pengumuman uji BL-1", terbit: "", sampai: "" }));
+        c.expect(ke3.q.get("kode") === "NOTICE_INPUT_INVALID" && ke3.q.get("pu_sekolah") === A && ke3.q.get("pu_pesan") === "Pengumuman uji BL-1",
+          `the announcement's refusal must keep its scope and message: ${ke3.jalan}`);
+        const h3 = await halaman(ctx, cookie, ke3.jalan);
+        c.expect(new RegExp(`name="sekolah" value="${A}" checked`).test(h3) && /name="pesan"[^>]*value="Pengumuman uji BL-1"/.test(h3), "the announcement form is drawn again as entered");
+        // BL-2 and C-5: the row names the class and who scheduled it; a coded reason is «Alasan: …», old text «Alasan (dicatat): …»
+        const daftar = await halaman(ctx, cookie, "/konfigurasi/pemeliharaan");
+        const bk = teks(barisJendela(daftar, WK)), bt = teks(barisJendela(daftar, WT));
+        c.expect(bk.includes(`kelas ${namaK}`) && bk.includes(`Dijadwalkan oleh ${namaAdmin}`), `BL-2: the class window's row must name its class and who scheduled it: «${bk.slice(0, 260)}»`);
+        c.expect(bk.includes("Alasan: Pembaruan sistem") && !bk.includes("Alasan (dicatat): Pembaruan sistem") && bt.includes("Alasan (dicatat): Teks bebas lama"),
+          `C-5: a coded reason reads «Alasan: …», an old free text «Alasan (dicatat): …»: «${bk.slice(0, 200)}» / «${bt.slice(0, 200)}»`);
+        // C-6: «Akhiri sekarang» opens its confirmation with the reason inside the box, and one «Batal»
+        const terbuka = barisJendela(await halaman(ctx, cookie, `/konfigurasi/pemeliharaan?ubah=${WK}`), WK);
+        const kotak = terbuka.slice(terbuka.indexOf("data-bahaya-tanya"));
+        c.expect(terbuka.includes("data-bahaya-tanya") && /name="alasan"/.test(kotak) && (teks(terbuka).match(/\bBatal\b/g) ?? []).length === 1,
+          `C-6: the end confirmation must hold the reason field inside its box, with one «Batal»: ${(teks(terbuka).match(/\bBatal\b/g) ?? []).length} «Batal»; field in box ${/name="alasan"/.test(kotak)}`);
+      } finally {
+        psql(`begin; set local session_replication_role = replica; delete from public.maintenance_windows where id in (${lit(WK)}, ${lit(WT)}) or reason = 'Pengumuman uji BL-1'; commit;`);
+        c.expect(psql(`select count(*) from public.maintenance_windows where id in (${lit(WK)}, ${lit(WT)})`) === "0", "the test's windows are still there");
+      }
+      return c.verdict("Daisy's batch 2 review against the build: a refused schedule keeps its school, class, times, message, reason and announcement box, redraws step two and focuses its alert (BL-1); the extend's refusal keeps its new end and reason with its form open, and the announcement's its scope and message (the sweep); the row names its class and «Dijadwalkan oleh» (BL-2); a coded reason reads «Alasan: …» and old text «Alasan (dicatat): …» (C-5); «Akhiri sekarang» opens with the reason inside its box and one «Batal» (C-6)");
+    },
+  },
   {
     id: "A2B-S1A",
     requires: ["app", "network", "db", "build"],
