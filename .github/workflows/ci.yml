@@ -1147,14 +1147,18 @@ jobs:
           create or replace function public.assessment_orientation(p_assessment_assignment uuid)
           returns table (mode public.assessment_mode, title text, item_count smallint, allows_pause boolean,
                          hesitation_window_seconds integer, opens_at timestamptz, closes_at timestamptz,
-                         attempt_limit smallint, attempts_used integer)
+                         attempt_limit smallint, attempts_used integer,
+                         -- A2b commit 7 (20270120170000) added the maintenance refusal's five columns; the plant keeps
+                         -- the function's shape and leaves them null, so the defect is still only "looking starts"
+                         tolak_pemeliharaan text, tolak_cakupan text, tolak_mulai timestamptz, tolak_selesai timestamptz,
+                         tolak_kelas text[])
           language plpgsql security definer set search_path = public, pg_temp as $f$
           declare v_s uuid;
           begin
             v_s := public.start_learning_session(p_assessment_assignment);
             return query select st.mode, 'x'::text, st.item_count::smallint, st.allows_pause,
                                 st.hesitation_window_seconds, null::timestamptz, st.authoritative_deadline,
-                                1::smallint, 1
+                                1::smallint, 1, null::text, null::text, null::timestamptz, null::timestamptz, null::text[]
                            from public.session_state(v_s) st;
           end $f$;
           select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'UX1-S2-ORIENT-01';
