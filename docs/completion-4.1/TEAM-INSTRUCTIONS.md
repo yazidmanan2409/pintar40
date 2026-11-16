@@ -868,7 +868,9 @@ probes unwind). The `selftest/db` sibling sweep is done and accepted (`9dd1c75f`
 - **Sharon:** C's promotion passes (`A2A-C-PROMOTION-READS.md`, addendum `fdffee31`).
   - All eight hosted reads match. Read 3: job 5 succeeded at 02:00 and 02:05.
   - N1: false for all three roles. pg_cron 1.6.4.
-  - The preservation pair (`86490991`) is identical on lines 20 to 62 and 70 to 72; only line 10 (249 → 267) differs.
+  - The preservation pair (`86490991`): under the corrected comparison, which leaves out change C's five new
+    `assessment_sessions` columns by name, lines 20 to 62 and 70 to 72 are identical. Only line 10 (249 → 267)
+    differs. `maintenance_windows` is not covered.
   - Environment facts: run 43789456025, green.
 - **With her result PASS (`f3f5fa38`) and the scale evidence (`6fd9fbcc`), A2a is accepted.**
 - **Change B,** [PR #23](https://github.com/yazidmanan2409/pintar40/pull/23), tooling only: merges when its CI is
@@ -876,3 +878,14 @@ probes unwind). The `selftest/db` sibling sweep is done and accepted (`9dd1c75f`
 - **Required before A2b's promotion (Sharon):** a preserved line for `maintenance_windows` in the preservation query,
   leaving out A2a's `node_ids`, `t_stop` and `t_lift` by name. It is added to A2b's acceptance evidence.
 - **Next:** A2b, per `PLAN-A2B-C2W.md`. It starts from `main` once B is merged.
+
+### Carried forward from A2a (owner, 16 Nov): register items that must not be forgotten
+
+Both go to Z's triage list, with owners.
+
+| Item | Source | Owner | When |
+|---|---|---|---|
+| A departed learner opening a sitting directly by its web address | Sharon's ruling; the A2a page, item 6 | Second Eye | Triage at Z; re-checked when A3 changes the start path |
+| Two simultaneous refused acts can each write an audit row | Sharon's ruling; the A2a page, item 7 | Second Eye | Triage at Z |
+| Phone-width overflow on `/mengajar/[kelas]/siapa`, and its siblings `soal` and `bukti` | Daisy | Daisy | Triage at Z, with X-1 to X-4 |
+| A preserved line for `maintenance_windows` | Sharon | Bob | **Mandatory before A2b's promotion** |
