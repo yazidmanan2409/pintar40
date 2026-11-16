@@ -27,3 +27,9 @@ Sharon, 16 Nov 2026 (08:35 UTC). Read-only. **What I reviewed:**
   - **(ii) Keep it,** and drop "inlinable" from the header and the commit text.
   - Either is fine, because performance was only my note, not a condition. What matters is that a comment in the schema does not state something false.
   - *Could reasonably have been anticipated (Q5, who checks):* nothing tests the inlining claim. I raised the idea without saying the `SET` clause must go.
+
+## Addendum, 16 Nov 2026
+
+- **N1 is closed** by `2cb36a543d28f1c0fe251fbaadc5242e61e8cc3f`, which takes option (ii).
+  - It is a comment change only: the header now says the `SET` clause prevents inlining and is kept by project rule.
+- **PASS still waits on a green full suite.** It now needs to be at `2cb36a54` or later.
