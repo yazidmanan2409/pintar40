@@ -537,6 +537,28 @@ rollback;`);
 const D12_SAAT = "then public.penghentian_geser(s.person_id, s.darurat_jendela_id) end, interval '0')";
 const D12_TANAM = "then null::interval end, interval '0')";
 
+/** The status read (A2b commit 4; D8; R-1): a PLANNED class window on 7A, school X in WITA; a platform-wide PLANNED
+ *  window; an EMERGENCY class stop on 7B. Read by the teacher of 7A and 7B, by 7B's learner, and by school Y's learner. */
+function s01(db: string, d: Dunia) {
+  const baca = (uid: string, k: string) => `${sebagai(uid)}
+select '${k}|' || coalesce((select jsonb_object_agg(x ->> 'id', jsonb_build_object('c', x ->> 'cakupan', 'z', x ->> 'zona', 'k', x -> 'kelas', 's', x ->> 'sekolah'))
+  from jsonb_array_elements(public.pintar_status_saya() -> 'pemeliharaan') x)::text, '{}');`;
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+update public.institutions set zona_waktu = 'Asia/Makassar' where id = '${d.X}';
+update public.institutions set zona_waktu = 'Asia/Jayapura' where id = '${d.Y}';
+${jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '10 minutes'", akhir: "now() + interval '1 hour'" })}
+insert into public.maintenance_windows (id, kind, platform, institution_ids, node_ids, starts_at, ends_at, reason, created_by_person_id, activation_recorded_at)
+values ('${W3}', 'PLANNED', true, '{}', '{}', now() + interval '30 minutes', now() + interval '2 hours', '${ALASAN}S01', '${d.sys}', null);
+${jendela(d, W2, { kind: "EMERGENCY", nodes: [d.kB], mulai: "now() - interval '5 minutes'" })}
+select 'namaA|' || name from public.org_nodes where id = '${d.kA}';
+set local session_replication_role = origin;
+${baca(d.guruUid, "guru")}
+${baca(d.murid2Uid, "murid2")}
+${tanpaOrang}
+rollback;`);
+}
+
 /** K6: extend during a window, then end it early. The window ends 1.5 s in; it is extended by an hour; after the old
  *  end the act is still refused; then resume early (AKHIRI), and the act succeeds at once. */
 function k6(db: string, d: Dunia) {
@@ -912,6 +934,22 @@ export const a2bBatasTests: SelfTest[] = [
       try { tanam = d12(db, d); } finally { balik(); }
       c.expect(tanam.hasil.efektif !== "900" && tanam.hasil.kuras !== "true", `with the plant (the marked case removed) the readers still showed the shift: ${JSON.stringify(tanam.hasil)}`);
       return `a marked sitting of a lifted stop, before any release or touch: the effective deadline, session_state, pengerjaan_saya and daftar_pengerjaan all read it 900 s ahead (the stop's 45 min on a deadline 30 min past), may_continue_session lets it go on and maintenance_draining says it runs; the release then changes nothing (still 900 s); with the plant (the marked case removed) ${tanam.hasil.efektif} s and draining ${tanam.hasil.kuras}`;
+    }),
+  },
+  {
+    id: "A2B-S01",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = s01(db, d);
+      c.expect(!r.err, `the status read failed to run: ${r.err}`);
+      const guru = JSON.parse(r.hasil.guru ?? "{}"), murid2 = JSON.parse(r.hasil.murid2 ?? "{}");
+      const g1 = guru[W1], g3 = guru[W3], g2 = guru[W2];
+      c.expect(g1?.c === "TEMPAT" && g1?.z === "Asia/Makassar" && JSON.stringify(g1?.k) === JSON.stringify([r.hasil.namaA]) && Boolean(g1?.s),
+        `a PLANNED class window, to the teacher of its class: work-scoped (TEMPAT), the school's zone (WITA), the class and the school named: ${JSON.stringify(g1)}`);
+      c.expect(g3?.c === "ORANG" && g3?.z === "Asia/Makassar" && !g3?.s, `a platform-wide PLANNED window: person-level (ORANG), in the reader's own school's zone: ${JSON.stringify(g3)}`);
+      c.expect(g2?.c === "ORANG", `an EMERGENCY class stop is person-level (ORANG): ${JSON.stringify(g2)}`);
+      c.expect(!murid2[W1] && murid2[W2]?.c === "ORANG" && murid2[W3]?.c === "ORANG", `7B's learner: not told of 7A's planned window; told of 7B's stop and the platform window: ${JSON.stringify(murid2)}`);
+      return `the status read says who a window stops: a class or school PLANNED window is TEMPAT, named by its class and school and shown in its school's zone (WITA here), and reaches only the people with work in its place; a platform-wide PLANNED window and an emergency are ORANG, the platform's in the reader's own school's zone`;
     }),
   },
   {
