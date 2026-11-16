@@ -10,7 +10,7 @@ belongs in the execution records, not here.
 
 | Decision | Gate | State |
 |---|---|---|
-| E's preconditions: provider data terms (P1), network egress (P4), one capped key per provider (P5), named educator judges (P7) | Before E runs; E gates C3w | **Open.** E is prepared, not run. Decision pack ready for review: `docs/completion-4.1/E-DECISION-PACK.md` |
+| E's preconditions: provider data terms (P1), network egress (P4), one capped key per provider (P5), named educator judges (P7) | Before E runs; E gates C3w | **Open.** Decision pack revision 2 (16 Nov) asks for providers, the frozen scoring rules and the judges now; terms, limits, network, keys and go before the paid run |
 | Provider selection and limits for C3w | After E's results | Not yet due |
 | C3w S-1/S-2: the school limit becomes a school entitlement record (on/off, allowance, optional window) plus a platform-wide ceiling. Small change to D7 under ruling 38 (C-1) | At C3w's pre-build review, after A3 | **Approved 16 Nov (ruling 39).** S-3 to S-7 to Sharon's and Daisy's C3w pre-build review |
 | Z: staging promotion and scheduling the walkthrough | After all batches close and the candidate's evidence | Not yet due |
