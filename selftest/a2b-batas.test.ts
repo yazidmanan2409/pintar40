@@ -31,7 +31,7 @@ import { Checks, type SelfTest } from "./lib";
 import { psqlBaris } from "./a2a-f01.test";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { arahTolakMulai, batasTahap, jendelaDiumumkan, tahapSetelahBaca, BACA_ULANG_MAKS, type JendelaSaya, type StatusSaya } from "../src/lib/pemeliharaan-kontrak";
+import { arahTolakMulai, batasTahap, hariLain, jendelaDiumumkan, tahapSetelahBaca, BACA_ULANG_MAKS, type JendelaSaya, type StatusSaya } from "../src/lib/pemeliharaan-kontrak";
 
 // ─────────────────────────────────────────────────────────────────────────── helpers
 
@@ -1107,6 +1107,29 @@ export const a2bBatasTests: SelfTest[] = [
         && readFileSync(f, "utf8").includes("bacaUlangStatusSaya"));
       c.expect(lain.length === 0, `no other file may call the banner's re-read: ${lain.join(", ")}`);
       return c.verdict(`the banner's re-read (R-B): reads source and runs the pure planner: at most one read per stage boundary still ahead and at most ${BACA_ULANG_MAKS} per window, only for a planned window announced and not begun; a failed read keeps the stage on screen, an early end shows nothing further, an extension the new stage; in the source the one read is the boundary timeout's first act, counted against the cap, the interval reads nothing, and no other file calls it`);
+    },
+  },
+  {
+    id: "A2B-H01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // 22.30 WIB = 23.30 WITA on 16 Nov; an end an hour later is 23.30 WIB the same day, but 00.30 WITA on 17 Nov
+      const kini = Date.parse("2026-11-16T15:30:00Z"), akhir = "2026-11-16T16:30:00Z";
+      const wib = { zona: "Asia/Jakarta" }, wita = { zona: "Asia/Makassar" };
+      c.expect(hariLain(akhir, wib, kini) === "", `the same day in the window's zone (WIB) adds nothing: «${hariLain(akhir, wib, kini)}»`);
+      const id = hariLain(akhir, wita, kini), en = hariLain(akhir, wita, kini, "en");
+      c.expect(id.startsWith(", ") && /\b17\b/.test(id) && /2026/.test(id), `another day in the window's zone (WITA) adds «, {tanggal}» with the 17th: «${id}»`);
+      c.expect(en.startsWith(" on ") && /\b17\b/.test(en), `in English « on {tanggal}»: «${en}»`);
+      c.expect(hariLain("2026-11-16T15:45:00Z", wita, kini) === "", "a time later the same day adds nothing");
+      const muka = readFileSync(join(repoRoot, "src/app/belajar/_components/PermukaanAsesmen.tsx"), "utf8");
+      c.expect(/const waktu = \(iso: string\) => jamJendela\(iso, zonaTolak\) \+ hariLain\(iso, zonaTolak, kini, locale\);/.test(muka)
+        && /\.replace\("\{jam\}", orientasi\.tolak_mulai \? waktu\(/.test(muka) && /\.replace\("\{jam_selesai\}", orientasi\.tolak_selesai \? waktu\(/.test(muka),
+        "D4's sentence must date its start and its end when either falls on another day");
+      const pita = readFileSync(join(repoRoot, "src/components/pemeliharaan/PengingatPemeliharaan.tsx"), "utf8");
+      c.expect(/\.replace\("\{jam\}", jamJendela\(jendela\.mulai, jendela\) \+ hariLain\(jendela\.mulai, jendela, Date\.now\(\), locale\)\)/.test(pita),
+        "the last-check line must date the window's start when it falls on another day");
+      return c.verdict(`a maintenance time on another day carries its date, read in the window's zone (an hour after 22.30 WIB is the same day in WIB and the next in WITA: «${id}»); D4's start and end and the last-check line's start use it`);
     },
   },
   {
