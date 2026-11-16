@@ -14,6 +14,38 @@ the small corrections around B2 and the provider evaluation's preparation alongs
 closed, and A2 is built as A2a then A2b.)*
 **Not authorized:** any PR, merge, staging promotion or production change. Staging is not to be modified.
 
+## Owner directive, 16 November 2026: proceed through 4.1; a pending owner click is not a standstill
+
+**Sequence:** A2b → C2w → A3 → C3w → Z, then the post-4.1 rationalisation and performance audit, then 4.2 planning.
+Development, tests, reviews and internal verification continue without waiting for owner instructions. Escalate only
+material decisions, genuine blockers, spending approvals or production actions.
+
+**At an owner authorisation boundary** (any staging step that needs the owner to click Allow, approve access or
+otherwise act):
+1. **Stop at it.** Never bypass it, and never treat approval as implied.
+2. **Preserve:** the exact frozen candidate (SHA), its evidence, the pending staging actions, and the before-and-after
+   preservation checks. The **before** read is still taken **before the merge**, so the merge waits with it.
+3. **Mark** staging promotion and staging-dependent acceptance as **PENDING OWNER AUTHORISATION**, never complete.
+4. **Move on:** start the next approved batch on its own branch. It may branch from the frozen candidate, which is
+   never modified; anything the candidate needs afterwards is a new commit on the candidate's own line, under the
+   freeze rules.
+5. **Resume** the staging work when the owner authorises it.
+
+**Per batch:**
+- **A2b:** second screen batch, Sharon's tests, Daisy's review, exact-candidate pre-flight, freeze, PR, CI, journeys,
+  authorised staging with preservation checks.
+- **C2w:** next. Verify F-3 and F-4's evidence first; build any missing prerequisite before dependent work.
+- **A3:** after C2w, keeping the approved single-writer and recovery safeguards.
+- **C3w:** all approved design and implementation preparation continues (rulings 38–41, R-3). **No external provider
+  calls, no costs, no bypass of E's qualification and authorisation gates.**
+- **Z:** integrated verification and staging promotion only when every prerequisite and authorisation is met. No
+  acceptance on incomplete evidence.
+
+**In parallel:** X-1 (external-AI prompts and instructions) after A2b's freeze; E's authorised no-cost preparation.
+E's three owner decisions (providers, scoring rules, judges) stay visible in status reports, not raised repeatedly.
+
+**Principles:** no silent scope expansion; no bypassed security or deployment gates; no false completion claims.
+
 ## While the owner is away (owner's standing instruction, 12 November 2026)
 
 The owner is unavailable to relay messages. Everyone proceeds under the existing approved plans, decisions,
