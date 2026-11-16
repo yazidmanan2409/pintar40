@@ -76,3 +76,19 @@ Acknowledged on receipt.
 **A2B-D13** shows each reader before any touch, with a plant.
 
 **The catalogue has no stable caller of `pengerjaan_ditahan` left.** Assert that permanently in D13, so a later read-only reader cannot reintroduce it.
+
+## Addendum (05:05 UTC): the database parts up to `8e1471952c00120e5b6dc89f0538995aed16ace8`. NO BLOCKER
+
+- **`23bb8d8e`:** the status read gives `kelas_id`, a class window's own node ids. The banner can then stay off another class's pages. It reveals nothing beyond the reader's own window.
+- **`1aad80ad` and `8e147195` (commit 3's orientation defect):**
+  - `maintenance_mulai_tolak` returns `(kode, mulai, cakupan, jendela)` and asks `maintenance_affects_place` first. It is internal and revoked from every role.
+  - `assessment_orientation` returns its row when `may_start` is ok, or when the refusal is one of the three maintenance codes. They are judged last, so another refusal still hides it.
+  - Its grants are kept exactly as on `main` and asserted.
+  - A2B-I01 caught the first version's inlined place lookup, and the commit corrects it. **That is the inventory doing its job.**
+- **The tests:**
+  - K13 is R-A: NO_NEW_START at T−1 min and PLACE at T+1 s; another class proceeds; never PT503.
+  - K3: `may_start` equals the trigger, refused and allowed.
+  - O01 shows the orientation present in four cases, with a plant.
+  - A01: the pause page only on the platform T−15 branch.
+  - B01 is R-B: at most four reads, and a failed read keeps the stage.
+- **The conflict with 4.0's Slice-2 rulings (UX1-S2-MELIHAT-01)** is for the Chief Architect and Daisy, not for me.
