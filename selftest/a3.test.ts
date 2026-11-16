@@ -239,8 +239,8 @@ select 'akar_diri|' || pg_temp.coba($s$select count(*)::text from public.assessm
 select 'periksa|' || pg_temp.coba($s$select public.garis_definisi_periksa()::text$s$);
 -- a definition inserted without a root is its own root
 select 'baru|' || pg_temp.coba($s$with x as (insert into public.assessment_definitions
-    select (jsonb_populate_record(d, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000001', 'version', d.version + 100)
-      - 'lineage_root_definition_id')).* from public.assessment_definitions d order by d.id limit 1
+    select (jsonb_populate_record(d, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000001', 'version', d.version + 100,
+      'lineage_root_definition_id', null))).* from public.assessment_definitions d order by d.id limit 1
     returning id, lineage_root_definition_id) select (lineage_root_definition_id = id)::text from x$s$);
 -- the root cannot change
 select 'ubah|' || pg_temp.coba($s$update public.assessment_definitions set lineage_root_definition_id = id
