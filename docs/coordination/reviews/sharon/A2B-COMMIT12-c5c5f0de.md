@@ -39,3 +39,4 @@ Sharon, 16 Nov 2026 (08:35 UTC). Read-only. **What I reviewed:**
   - D15's plant was red and named its cause, and C708's added `maintenance_draining_di` case is noted.
   - Second Eye's note of 09:01 says the helper "can be inlined". That is superseded by `2cb36a54`, which keeps the `SET` clause.
 - **09:06 UTC: my N1 option (i) was wrong for this project.** Every public function must pin its `search_path`, by the lint `jalur_tanpa_pin()` and by dr150. So (ii) was the only valid choice, and Second Eye was right to take it. *Could reasonably have been anticipated (Q2, the neighbouring act):* I did not check the project's own rule for function definitions.
+- **09:30 UTC: confirmed.** The full suite at the head, `2cb36a543d28f1c0fe251fbaadc5242e61e8cc3f`, is green (1201 passed, 0 failed).
