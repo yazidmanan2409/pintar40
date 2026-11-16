@@ -16,7 +16,7 @@ import { personaPembelajaran } from "@/lib/pembelajaran";
 import { zonaSimpulBanyak } from "@/lib/zona-sekolah";
 import ItemPlayer from "./ItemPlayer";
 import { pengerjaanSaya } from "@/lib/pengerjaan";
-import { arahTolakMulai, hariLain, jamJendela } from "@/lib/pemeliharaan-kontrak";
+import { arahTolakMulai } from "@/lib/pemeliharaan-kontrak";
 
 /**
  * ONE ASSESSMENT EXPERIENCE, THREE WAYS IN.
@@ -117,22 +117,11 @@ export default async function PermukaanAsesmen({
     // maintenance page, as before)
     const tolak = orientasi.tolak_pemeliharaan ?? null;
     const dimatikan = tolak !== null && arahTolakMulai(tolak, orientasi.tolak_cakupan) === "LAYAR";
-    const zonaTolak = { zona };
+    // the Chief Architect's D4 ruling (THE PLAN §5.3 D4): PINTAR has no per-assessment duration, so the database refuses
+    // only a place under maintenance or inside T−15, and this screen says no duration
     const kalimatTolak = !dimatikan ? null
       : tolak === "MAINTENANCE_PLACE" ? s("pemeliharaan.pita.asesmen_baru")
-      : tolak === "MAINTENANCE_NO_NEW_START" ? s("galat.maintenance_no_new_start")
-      : (() => {
-          const menit = orientasi.closes_at ? String(menitTersisa(orientasi.closes_at)) : "—";
-          const kelas = orientasi.tolak_kelas && orientasi.tolak_kelas.length > 0 ? orientasi.tolak_kelas.join(", ") : null;
-          const kunci: HleEvent = kelas ? (orientasi.tolak_selesai ? "pemeliharaan.d4.kelas_akhir" : "pemeliharaan.d4.kelas_tanpa_akhir")
-            : orientasi.tolak_selesai ? "pemeliharaan.d4.akhir" : "pemeliharaan.d4.tanpa_akhir";
-          // the end (or the start) on another day carries its date (Daisy, A2-KATA-DESAIN.md B2)
-          const kini = Date.now();
-          const waktu = (iso: string) => jamJendela(iso, zonaTolak) + hariLain(iso, zonaTolak, kini, locale);
-          return s(kunci).replace("{d}", menit).replace("{kelas}", kelas ?? "")
-            .replace("{jam}", orientasi.tolak_mulai ? waktu(orientasi.tolak_mulai) : "—")
-            .replace("{jam_selesai}", orientasi.tolak_selesai ? waktu(orientasi.tolak_selesai) : "—");
-        })();
+      : s("galat.maintenance_no_new_start");
     return (
       <>
         <CangkangPengalaman locale={locale} current="belajar" />

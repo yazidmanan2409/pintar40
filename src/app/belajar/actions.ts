@@ -202,7 +202,7 @@ export async function mulaiAsesmen(formData: FormData) {
     // A2b (the Chief Architect's R-A): a maintenance refusal is said where its scope puts it. Only a platform-wide
     // window's T−15 keeps 4.0's page; every other one returns to the start screen, whose orientation now shows «Mulai»
     // disabled with its sentence. The scope is the database's own, read with the refusal (assessment_orientation).
-    const kodeTolak = (err.code === "PR110" && (err.detail === "MAINTENANCE_NO_NEW_START" || err.detail === "MAINTENANCE_CANNOT_FINISH"))
+    const kodeTolak = (err.code === "PR110" && err.detail === "MAINTENANCE_NO_NEW_START")
       || (err.code === "PR040" && err.detail === "MAINTENANCE_PLACE") ? err.detail as string : null;
     if (kodeTolak) {
       const o = await engine.orientation(await db(), penugasan).catch(() => null);

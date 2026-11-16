@@ -142,9 +142,9 @@ export const KODE_PEMELIHARAAN = [
   "MAINTENANCE_NO_NEW_START", "NOTICE_INPUT_INVALID", "NOTICE_NOT_OPEN", "MAINTENANCE_ACTIVE",
   // A2a: a class that is not one school's; the stop not taken effect (Daisy's line); the lift not done (Daisy's line)
   "MAINTENANCE_NODE_INVALID", "MAINTENANCE_STOP_NOT_IN_FORCE", "MAINTENANCE_LIFT_NOT_DONE",
-  // A2b: D4's start that cannot finish before a window; an emergency is never extended; a class or school's planned
-  // window pauses its work (PR040, read below: never PT503, never the maintenance page)
-  "MAINTENANCE_CANNOT_FINISH", "MAINTENANCE_EMERGENCY_LIFT_ONLY", "MAINTENANCE_PLACE",
+  // A2b: an emergency is never extended; a class or school's planned window pauses its work (PR040, read below: never
+  // PT503, never the maintenance page)
+  "MAINTENANCE_EMERGENCY_LIFT_ONLY", "MAINTENANCE_PLACE",
 ] as const;
 
 /**
