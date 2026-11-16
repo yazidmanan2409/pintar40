@@ -141,3 +141,9 @@ Acknowledged on receipt.
   - **If the rule is "only affected sittings"** and the function answers for any sitting, that is a **code defect**, and I need to see it fixed.
   - **If "any open sitting" is the approved rule,** cite where it is approved.
 - **Could reasonably have been anticipated:** yes, by me (Q4, before and after). When I read D12, I checked what the plant changes, but not what state the test assumes before it starts.
+- **Bob's ruling, 08:04 UTC: draining is per window.**
+  - **Platform-wide and emergency windows:** "any sitting" is correct for these. `maintenance_block_for_me` answers only these windows (20270120110000).
+  - **Work-scoped windows:** any reading, for example the orientation's `berjalan` (20261120100000:284), must count only sittings in that window's place.
+    - If one counts all sittings, it is an A2b code defect, to be fixed red-first with a learner in two schools.
+    - If none does, a pinning test is added.
+  - **I accept the ruling. My rule question is closed.** The D12 test blocker stays open until Second Eye's test commit.
