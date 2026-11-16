@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
-import { jamPenuh, jendelaUtama, kapitalAwal, statusSaya } from "@/lib/pemeliharaan";
+import { barisAlasan, jamPenuh, jendelaUtama, kapitalAwal, statusSaya } from "@/lib/pemeliharaan";
 import MerekPintar from "@/components/MerekPintar";
 import PengalihBahasa from "@/components/PengalihBahasa";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -73,6 +73,8 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
           {w.selesai ? <>{s("pemeliharaan.kira")} {jam(w.selesai)}.</> : s("pemeliharaan.kira_belum")}
         </p>
         {w.pesan ? <p className="pin-msg pin-msg-note"><strong>{s("pemeliharaan.pesan")}</strong> {w.pesan}</p> : null}
+        {/* A2b D2 (Daisy, B1): the planned window's reason, «Alasan: {alasan}» (pemeliharaan.alasan.baris) */}
+        {barisAlasan(w, s) ? <p className="pin-lede-m">{barisAlasan(w, s)}</p> : null}
         {w.terkumpul ? <p className="pin-lede-m" role="status">{s("pemeliharaan.terkumpul")} {jam(w.terkumpul)}.</p> : null}
         <p className="pin-lede-m">{s("pemeliharaan.aman")}</p>
         <p className="pin-lede-m"><strong>{s("pemeliharaan.langkah")}</strong></p>
@@ -105,6 +107,8 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
           {w.selesai ? <>{s("pemeliharaan.kira")} {jam(w.selesai)}.</> : s("pemeliharaan.kira_belum")}
         </p>
         {w.pesan ? <p className="pin-msg pin-msg-note"><strong>{s("pemeliharaan.pesan")}</strong> {w.pesan}</p> : null}
+        {/* A2b D2 (Daisy, B1): the planned window's reason, «Alasan: {alasan}» (pemeliharaan.alasan.baris) */}
+        {barisAlasan(w, s) ? <p className="pin-lede-m">{barisAlasan(w, s)}</p> : null}
         <Link className="pin-mbtn pin-mbtn-1" href="/">{s("pemeliharaan.kembali.tautan")}</Link>
       </>
     );

@@ -9,7 +9,7 @@ import { adaAdminSekolah, akarSekolah, calonAdminPertama, orangSekolah } from "@
 import { kodeGalatStruktur, rujukanGalat, type HasilStruktur } from "@/lib/struktur-kontrak";
 import { kodeAntarSekolah, kodeGalat, queryHasil, type HasilAksi } from "@/lib/galat-kontrak";
 import { bacaPersen } from "@/lib/batas-ketuntasan";
-import { KONFIRMASI_HENTIKAN, waktuSekolah } from "@/lib/pemeliharaan-kontrak";
+import { ALASAN_LAINNYA_MAKS, KONFIRMASI_HENTIKAN, kodeAlasan, waktuSekolah } from "@/lib/pemeliharaan-kontrak";
 import { batasHari } from "@/lib/hle";
 import { zonaSekolah } from "@/lib/zona-sekolah";
 import { KODE_PERAN_DICATAT, kodePeranDariGalat } from "@/lib/peran-kontrak";
@@ -626,17 +626,54 @@ export async function jadwalkanPemeliharaanAction(fd: FormData): Promise<void> {
   const mulaiTeks = str(fd, "mulai");
   const mulai = mulaiTeks ? waktuSekolah(mulaiTeks, zona) : null;
   const selesai = waktuSekolah(str(fd, "selesai"), zona);
-  if ((mulaiTeks && !mulai) || (!platform && sekolah.length === 0) || !str(fd, "alasan")) {
+  if ((mulaiTeks && !mulai) || (!platform && sekolah.length === 0)) {
     kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" }, fd);
   }
+  // A2b D2 (Daisy, A2-KATA-DESAIN B1): one of the planned reasons; «Lainnya» with its text, up to 120 characters; any
+  // other with none (the reason is the code). Said before the call; the database stays the gate.
+  const kode = kodeAlasan(str(fd, "alasan_kode"));
+  const teksAlasan = str(fd, "alasan");
+  if (!kode || (kode === "LAINNYA" && (teksAlasan.length === 0 || [...teksAlasan].length > ALASAN_LAINNYA_MAKS))) {
+    kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_REASON_INVALID" }, fd);
+  }
+  // A2b D1 (Daisy, A2B-PILIH-KELAS-KATA): the chosen classes of one school; the database refuses any other shape (K10)
+  const kelas = Array.from(new Set(fd.getAll("kelas").map((v) => uuidOrNull(String(v))).filter((v): v is string => Boolean(v))));
   await cakupanDalamKonteks({ platform, sekolah });
   const { error } = await supabase.rpc("schedule_maintenance", {
     p_platform: platform, p_institutions: platform ? [] : sekolah, p_starts_at: mulai, p_ends_at: selesai,
-    p_message: str(fd, "pesan") || null, p_reason: str(fd, "alasan"), p_notice: str(fd, "umumkan") === "1",
+    p_message: str(fd, "pesan") || null, p_reason: kode === "LAINNYA" ? teksAlasan : "", p_notice: str(fd, "umumkan") === "1",
+    p_nodes: kelas, p_reason_code: kode,
   });
-  if (error) kembaliPemeliharaan(ditolak("schedule_maintenance", error), fd);
+  if (error) {
+    const h = ditolak("schedule_maintenance", error);
+    // a class refused on the planned form is said in the planned form's words, never the emergency stop's
+    kembaliPemeliharaan(!h.ok && h.kode === "MAINTENANCE_NODE_INVALID" ? { ok: false, kode: "MAINTENANCE_PLANNED_NODE_INVALID" } : h, fd);
+  }
   revalidatePath("/konfigurasi");
   kembaliPemeliharaan({ ok: true, kode: "MAINTENANCE_SCHEDULED" }, fd);
+}
+
+/** «Perpanjang» (A2b D3; Daisy, A2B-PERPANJANG-KATA §1): a planned window's new end, typed on its school's clock (WIB
+ *  for the platform or several), later than its current end, with a reason. The two refusals are said before the call;
+ *  perpanjang_pemeliharaan stays the gate (an emergency, an ended window, a past end). */
+export async function perpanjangPemeliharaanAction(fd: FormData): Promise<void> {
+  const jendela = uuidOrNull(str(fd, "jendela"));
+  if (!jendela) kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" }, fd);
+  const supabase = await supabaseServer();
+  const tempat = await cakupanBaris(supabase, "maintenance_windows", jendela);
+  await cakupanDalamKonteks(tempat);
+  const zona = await zonaPemeliharaan(supabase, tempat);
+  const selesaiBaru = waktuSekolah(str(fd, "selesai"), zona);
+  if (!str(fd, "alasan")) kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_EXTEND_REASON" }, fd);
+  const { data: kini } = await supabase.from("maintenance_windows").select("ends_at").eq("id", jendela).limit(1);
+  const akhirKini = (kini?.[0] as { ends_at?: string | null } | undefined)?.ends_at ?? null;
+  if (!selesaiBaru || (akhirKini !== null && Date.parse(selesaiBaru) <= Date.parse(akhirKini))) {
+    kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_EXTEND_NOT_LATER" }, fd);
+  }
+  const { error } = await supabase.rpc("perpanjang_pemeliharaan", { p_window: jendela, p_ends_at: selesaiBaru, p_reason: str(fd, "alasan") });
+  if (error) kembaliPemeliharaan(ditolak("perpanjang_pemeliharaan", error), fd);
+  revalidatePath("/konfigurasi");
+  kembaliPemeliharaan({ ok: true, kode: "MAINTENANCE_EXTENDED" }, fd);
 }
 
 export async function ubahPemeliharaanAction(fd: FormData): Promise<void> {

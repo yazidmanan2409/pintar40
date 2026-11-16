@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { t, type Locale } from "@/lib/hle";
 import {
-  BACA_ULANG_MAKS, HALAMAN_PEMELIHARAAN, jamJendela, jamPenuh, kapitalAwal, jendelaDiHalaman, jendelaDiumumkan, jendelaUtama, menitTersisa,
+  BACA_ULANG_MAKS, barisAlasan, HALAMAN_PEMELIHARAAN, jamJendela, jamPenuh, kapitalAwal, jendelaDiHalaman, jendelaDiumumkan, jendelaUtama, menitTersisa,
   permukaanAsesmen, tahapBerikutMs, tahapPeringatan, tahapSetelahBaca, type StatusSaya,
 } from "@/lib/pemeliharaan-kontrak";
 import { bacaUlangStatusSaya } from "@/app/pemeliharaan/actions";
@@ -133,6 +133,9 @@ export default function PengingatPemeliharaan({ locale, status: awal }: { locale
       );
     }
     if (tahap !== null && jendela.pesan) baris.push(<p key="pesan">{jendela.pesan}</p>);
+    // A2b D2 (Daisy, B1): the planned window's reason, «Alasan: {alasan}» (pemeliharaan.alasan.baris)
+    const alasan = tahap !== null ? barisAlasan(jendela, s) : null;
+    if (alasan) baris.push(<p key="alasan">{alasan}</p>);
   }
   for (const n of status.pengumuman) {
     baris.push(<p key={n.id}><strong>{s("pemeliharaan.pita.pengumuman")}:</strong> {n.pesan}</p>);

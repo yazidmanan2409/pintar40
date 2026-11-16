@@ -47,7 +47,30 @@ export type JendelaSaya = {
   zona: string | null;
   /** A2a: the reader also has another class or school, so the stop reaches them there too (Daisy's line) */
   kelasLain: boolean;
+  /** A2b D2: a planned window's reason code (one of KODE_ALASAN), null for an old row or an emergency */
+  alasanKode?: KodeAlasan | null;
+  /** A2b D2: a planned window's reason as stored: the code itself, or an old row's own text; null for an emergency */
+  alasan?: string | null;
 };
+
+/** A2b D2 (Daisy, A2-KATA-DESAIN B1): the planned reasons, in the form's order. */
+export const KODE_ALASAN = ["RUTIN", "PEMBARUAN", "GANGGUAN", "JARINGAN_LISTRIK", "LAINNYA"] as const;
+export type KodeAlasan = (typeof KODE_ALASAN)[number];
+export const ALASAN_LAINNYA_MAKS = 120;
+export function kodeAlasan(v: unknown): KodeAlasan | null {
+  return typeof v === "string" && (KODE_ALASAN as readonly string[]).includes(v) ? (v as KodeAlasan) : null;
+}
+/** The reason line shown to the affected (Daisy, B1: «Alasan: {alasan}»): a code's own words, else the stored text
+ *  (LAINNYA's, or an old row's); null when the window gives none (an emergency). `s` is the caller's copy reader. */
+export function barisAlasan(j: Pick<JendelaSaya, "alasanKode" | "alasan">, s: (k: "pemeliharaan.alasan.baris" | `pemeliharaan.alasan.${KodeAlasan}`) => string): string | null {
+  const k = kunciAlasan(j.alasanKode ?? null);
+  const isi = k ? s(k) : j.alasan ?? null;
+  return isi ? s("pemeliharaan.alasan.baris").replace("{alasan}", isi) : null;
+}
+/** The copy key of a coded reason, or null for free text (an old row's, or LAINNYA's own words). */
+export function kunciAlasan(kode: KodeAlasan | null | undefined): `pemeliharaan.alasan.${KodeAlasan}` | null {
+  return kode && kode !== "LAINNYA" ? `pemeliharaan.alasan.${kode}` : null;
+}
 
 export type PengumumanSaya = { id: string; pesan: string; sampai: string };
 
@@ -85,6 +108,8 @@ export function bacaStatusSaya(data: unknown): StatusSaya {
       cakupan: x.cakupan === "TEMPAT" && x.jenis === "PLANNED" ? "TEMPAT" : "ORANG",
       sekolah: teks(x.sekolah),
       zona: teks(x.zona),
+      alasanKode: x.jenis === "PLANNED" ? kodeAlasan(x.alasan_kode) : null,
+      alasan: x.jenis === "PLANNED" ? teks(x.alasan) : null,
     });
   }
   const pengumuman: PengumumanSaya[] = [];
@@ -238,6 +263,19 @@ export function jendelaUtama(s: StatusSaya): JendelaSaya | null {
 // ------------------------------------------------------------------ the administrator's side
 
 /* The controls' refusals (PR110) are the action contract's: KODE_PEMELIHARAAN in galat-kontrak.ts. */
+
+/** A2b D3 (Daisy, A2B-PERPANJANG-KATA §1): «Perpanjang» is offered on a planned window with an end, scheduled or under
+ *  way, that the reader controls. An emergency is never extended (A8); a window with no end has nothing to extend. */
+export function bolehPerpanjang(w: { jenis: string; keadaan: string; selesai: string | null; menguasai: boolean }): boolean {
+  return w.jenis === "PLANNED" && w.selesai !== null && w.menguasai && ["TERJADWAL", "MENJELANG", "AKTIF"].includes(w.keadaan);
+}
+
+/** A2b (Daisy, A2B-PERPANJANG-KATA §2): the early end's confirmation says what follows, in the window's own scope. */
+export function kunciAkhiriTanya(w: { platform: boolean; kelas: readonly string[] | null }):
+  "config.pemeliharaan.akhiri.tanya_kelas" | "config.pemeliharaan.akhiri.tanya_sekolah" | "config.pemeliharaan.akhiri.tanya_platform" {
+  if (w.platform) return "config.pemeliharaan.akhiri.tanya_platform";
+  return w.kelas && w.kelas.length > 0 ? "config.pemeliharaan.akhiri.tanya_kelas" : "config.pemeliharaan.akhiri.tanya_sekolah";
+}
 
 /** A window as the administrator's list returns it. */
 export type JendelaKelola = {

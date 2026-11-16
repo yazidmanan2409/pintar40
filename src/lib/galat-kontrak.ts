@@ -145,6 +145,10 @@ export const KODE_PEMELIHARAAN = [
   // A2b: an emergency is never extended; a class or school's planned window pauses its work (PR040, read below: never
   // PT503, never the maintenance page)
   "MAINTENANCE_EMERGENCY_LIFT_ONLY", "MAINTENANCE_PLACE",
+  // A2b batch 2: the screen's own refusals before the call (Daisy, A2-KATA-DESAIN B1 and A2B-PERPANJANG-KATA §1): no
+  // reason chosen or «Lainnya» empty; the extend's new end not later, or its reason missing; and a class refused on
+  // the planned form, said in the planned form's words (A2B-PILIH-KELAS-KATA §1). The database stays the gate.
+  "MAINTENANCE_REASON_INVALID", "MAINTENANCE_EXTEND_NOT_LATER", "MAINTENANCE_EXTEND_REASON", "MAINTENANCE_PLANNED_NODE_INVALID",
 ] as const;
 
 /**
@@ -220,6 +224,8 @@ export const KODE_SUKSES = [
   "MAINTENANCE_SCHEDULED", "MAINTENANCE_STARTED", "MAINTENANCE_ENDED", "MAINTENANCE_STOPPED", "NOTICE_PUBLISHED", "NOTICE_WITHDRAWN",
   // A2a (Daisy A4): an emergency stop lifted, with the held assessments that can be reopened
   "MAINTENANCE_STOP_ENDED",
+  // A2b batch 2: a planned window extended (its new end said on its row)
+  "MAINTENANCE_EXTENDED",
   // W1.6: a package sent back to its author, with the reviewer's reason
   "SENT_BACK",
 ] as const;

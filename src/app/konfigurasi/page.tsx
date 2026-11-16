@@ -22,7 +22,7 @@ import {
   daftarkanPesertaAction, grantRoleAction, hentikanSekarangAction, jadwalkanPemeliharaanAction, pindahKelasAction,
   akhiriPendaftaranAction, daftarkanKembaliAction, perpanjangPeranAction, revokeRoleAction, saveReportTemplateAction, tarikPengumumanAction, terbitkanPengumumanAction,
   tetapkanBatasAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction, transferRequestAction,
-  tunjukAdminPertamaAction, ubahPemeliharaanAction, tempatkanMuridAction, aturZonaWaktuAction } from "./actions";
+  tunjukAdminPertamaAction, ubahPemeliharaanAction, perpanjangPemeliharaanAction, tempatkanMuridAction, aturZonaWaktuAction } from "./actions";
 import { adaAdminSekolah, calonAdminPertama } from "@/lib/admin-pertama";
 import { pelajaranDanBatas } from "@/lib/batas-ketuntasan";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
@@ -57,7 +57,7 @@ import { lingkupPeran } from "@/lib/lingkup-peran";
 import { alamatCatatan, formulirPeserta, tempatCatatan } from "@/lib/pengembangan";
 import { kunciKodeLaporan, kunciStatusLaporan, langkahBerikut, laporanTriase, type KodeLaporan } from "@/lib/lapor-masalah";
 import { pindahkanLaporanAksi } from "@/app/lapor/actions";
-import { daftarKelola, KONFIRMASI_HENTIKAN, waktuSekolah } from "@/lib/pemeliharaan";
+import { bolehPerpanjang, daftarKelola, jamPenuh, KODE_ALASAN, kodeAlasan, KONFIRMASI_HENTIKAN, kunciAkhiriTanya, kunciAlasan, waktuSekolah } from "@/lib/pemeliharaan";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { transferMintaAction, transferTerimaAction } from "./actions";
 import KonfirmasiBahaya from "@/components/KonfirmasiBahaya";
@@ -137,7 +137,7 @@ type SearchParams = Promise<{
   cari_sekolah?: string;
   cari_orang?: string;
   // #148: the first step of scheduling, asked by a plain GET so the second step can show what the window would meet
-  pm_cek?: string; pm_platform?: string; pm_sekolah?: string | string[]; pm_mulai?: string; pm_selesai?: string;
+  pm_cek?: string; pm_platform?: string; pm_sekolah?: string | string[]; pm_mulai?: string; pm_selesai?: string; pm_kelas?: string | string[]; panjang?: string; pp_selesai?: string;
   // A2a (Daisy A1): the emergency form's class step, a plain GET: the one school, then its classes
   hk_sekolah?: string; hk_kelas?: string | string[];
   // D-101 (2): «Admin sekolah» named on Peran & akses, waiting for its second press
@@ -438,6 +438,13 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     if (id) q.set("ubah", id);
     return `${jalanIni}${q.size ? `?${q.toString()}` : ""}#${jangkar}`;
   };
+  // A2b D3: «Perpanjang» opens in its row the same way (?panjang=), keeping the school and the list's page
+  const tautanPanjang = (id: string, jangkar: string) => {
+    const q = new URLSearchParams();
+    for (const k of ["sekolah", "hal_jendela"] as const) if (typeof sp[k] === "string" && sp[k]) q.set(k, sp[k]!);
+    q.set("panjang", id);
+    return `${jalanIni}?${q.toString()}#${jangkar}`;
+  };
   // B0 · administrator lock-out protection, on «Peran & akses» only. (1) The roles ending within 30 days, counted by the
   // database on the school's clock (peran_akan_berakhir): this school's in a school's context, the platform's in
   // «Seluruh platform». (2) The one role whose renewal form is open (?perpanjang=), read from the whole list so a role
@@ -458,8 +465,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     ? await Promise.all([terakhir(peranSendiri?.id), terakhir(isSys === true && dibuka?.role === "INSTITUTION_ADMIN" ? dibuka.id : null)])
     : [false, false];
   // nobody renews their own role, except the platform's only active administrator (the database decides again)
-  const bolehPerpanjang = (a: { id: string; person_id: string }) => a.person_id !== viewer.personId || (sendiriTerakhir && a.id === peranSendiri?.id);
-  const diperpanjang = diPeran && uuidSah(sp.perpanjang) ? semuaPeran.find((a) => a.id === sp.perpanjang && bolehPerpanjang(a)) ?? null : null;
+  const bolehPerpanjangPeran = (a: { id: string; person_id: string }) => a.person_id !== viewer.personId || (sendiriTerakhir && a.id === peranSendiri?.id);
+  const diperpanjang = diPeran && uuidSah(sp.perpanjang) ? semuaPeran.find((a) => a.id === sp.perpanjang && bolehPerpanjangPeran(a)) ?? null : null;
   const tautanPerpanjang = (id: string | null) => {
     const q = new URLSearchParams();
     for (const k of ["sekolah", "hal_peran"] as const) if (typeof sp[k] === "string" && sp[k]) q.set(k, sp[k]!);
@@ -511,10 +518,14 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
       {sl(sp.lapor === "MOVED" ? "lapor.triase.ok" : kunciKodeLaporan(sp.lapor as KodeLaporan))}
     </BarisHasil>
   ) : null;
+  // A2b D3 (Daisy, A2B-PERPANJANG-KATA §1): the extend's two sentences place the row's end («pukul {jam} {zona}»): the
+  // new end once extended, the current one when the new end was not later. Read at render, from the row acted on
+  const isiJamBaris = (kal: string | null) =>
+    kal && barisPm?.ends_at && zonaBarisPm ? kal.replace("{jam}\u00a0{zona}", jamPm(barisPm.ends_at, zonaBarisPm)) : kal;
   const result = (section: string, asal?: string) =>
     sp.bagian === section && sp.hasil && (asal ? asalKini === asal : asalKini === null) ? (
       <BarisHasil nada={sp.hasil === "ok" ? "ok" : "gagal"}>
-        {kalimatHasil(sp, s, { ok: "config.result.ok", gagal: "config.result.failed" })}
+        {isiJamBaris(kalimatHasil(sp, s, { ok: "config.result.ok", gagal: "config.result.failed" }))}
       </BarisHasil>
     ) : null;
 
@@ -536,7 +547,33 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const pmMulai = sp.pm_mulai ? waktuSekolah(sp.pm_mulai, zonaPmPilih) : null;
   const pmSelesai = waktuSekolah(sp.pm_selesai, zonaPmPilih);
   const pmCek = sp.pm_cek === "1" && (pmPlatform || pmSekolah.length > 0) && (!sp.pm_mulai || pmMulai !== null);
-  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan, peserta, catatanPd, { isi: laporan, lagi: lagiLapor }, kelolaSemua, { data: tabrakan }] = await Promise.all([
+  // A2b D1 (Daisy, A2B-PILIH-KELAS-KATA): once one school is chosen, its classes, from the school admin's own list; the
+  // count is then asked for the chosen classes (the assessments reaching them), the scheduling form carries them
+  const pmSatuSekolah = !pmPlatform && pmSekolah.length === 1 ? pmSekolah[0] : null;
+  const pmKelas = pmSatuSekolah ? (Array.isArray(sp.pm_kelas) ? sp.pm_kelas : sp.pm_kelas ? [sp.pm_kelas] : [])
+    .filter((x) => /^[0-9a-f-]{36}$/i.test(x)) : [];
+  const { data: kelasPmData } = pmSatuSekolah
+    ? await supabase.rpc("pemeliharaan_kelas_sekolah", { p_sekolah: pmSatuSekolah })
+    : { data: null };
+  const kelasPm = (Array.isArray(kelasPmData) ? kelasPmData : []) as Array<{ id: string; nama: string; tahun: string | null }>;
+  // A2b D3 (Daisy, A2B-PERPANJANG-KATA §1): «Perpanjang» open on one row (?panjang=), or its result said on that row
+  // (?baris=): the window's own row read for its end, its place and the zone its times are typed in (the action's rule:
+  // its one school's clock, else WIB)
+  const idPanjang = uuidSah(sp.panjang) ? sp.panjang! : null;
+  const idBarisPm = idPanjang ?? (sp.bagian === "pemeliharaan" && uuidSah(sp.baris) ? sp.baris! : null);
+  const { data: barisPmData } = idBarisPm
+    ? await supabase.from("maintenance_windows").select("id, platform, institution_ids, node_ids, ends_at").eq("id", idBarisPm).limit(1)
+    : { data: null };
+  const barisPm = (barisPmData?.[0] ?? null) as { id: string; platform: boolean; institution_ids: string[]; node_ids: string[]; ends_at: string | null } | null;
+  const zonaBarisPm = barisPm ? await zonaSekolah(supabase, !barisPm.platform && barisPm.institution_ids.length === 1 ? barisPm.institution_ids[0] : null) : null;
+  const ppSelesai = idPanjang && barisPm && zonaBarisPm ? waktuSekolah(sp.pp_selesai, zonaBarisPm) : null;
+  // the Chief Architect (16 Nov 09:44): the extend shows the advisory count for the added period, as the schedule form
+  // does for its own; it refuses nothing
+  const { data: tabrakanPerpanjang } = barisPm && ppSelesai && barisPm.ends_at && Date.parse(ppSelesai) > Date.parse(barisPm.ends_at)
+    ? await supabase.rpc("maintenance_collisions", { p_platform: barisPm.platform, p_institutions: barisPm.institution_ids,
+        p_starts_at: barisPm.ends_at, p_ends_at: ppSelesai, p_nodes: barisPm.node_ids ?? [] })
+    : { data: null };
+  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan, peserta, catatanPd, { isi: laporan, lagi: lagiLapor }, kelolaSemua, { data: tabrakan, error: galatTabrakan }] = await Promise.all([
     bacaanStruktur, currentLocale(), bacaanAkar,
     // L3: sekolahPendataan is already the working context's school (none in «Seluruh platform»), /pendataan's own rule
     sekolahPendataan().then((x) => x.length > 0).catch(() => false),
@@ -546,8 +583,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
     laporanTriase(platformIni ? null : sekolahIni, halLapor),
     daftarKelola({ jendela: halJendela, pengumuman: halPengumuman, sekolah: !lama && !platformKonteks ? satuSekolah : null }),
     pmCek
-      ? supabase.rpc("maintenance_collisions", { p_platform: pmPlatform, p_institutions: pmPlatform ? [] : pmSekolah, p_starts_at: pmMulai, p_ends_at: pmSelesai })
-      : Promise.resolve({ data: null }),
+      ? supabase.rpc("maintenance_collisions", { p_platform: pmPlatform, p_institutions: pmPlatform ? [] : pmSekolah, p_starts_at: pmMulai, p_ends_at: pmSelesai, p_nodes: pmKelas })
+      : Promise.resolve({ data: null, error: null }),
   ]);
   // L3: maintenance windows and notices of this context: the school's own in Mengelola · a school; every one the
   // reader may act on in «Seluruh platform» (and before L3, for an evaluation persona)
@@ -671,6 +708,14 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const zonaPm = !platformIni && sekolahKu.length === 1 ? zonaKonteks : "Asia/Jakarta";
   /** a window or notice for the platform, or listed in «Seluruh platform» by names alone, is written in WIB */
   const zonaJendela = (platform: boolean) => (platform || !satuSekolah ? "Asia/Jakarta" : zonaKonteks);
+  // A2b (Daisy, A2B-PERPANJANG-KATA §1): a window's time with its zone word, and its day when it is another day (C-3)
+  const kiniPm = new Date().valueOf();
+  const jamPm = (iso: string, zona: string | null) => jamPenuh(iso, { zona }, kiniPm, locale);
+  // D2: a coded reason in its own words; an old row's text, or «Lainnya»'s, as written
+  const kataAlasan = (w: { jenis: string; alasan: string }) => {
+    const k = w.jenis === "PLANNED" ? kunciAlasan(kodeAlasan(w.alasan)) : null;
+    return k ? sl(k) : w.alasan;
+  };
   // J3.2 (ADM-02): what setup remains at the school shown, from what this page already read
   const persiapan = struktur?.ok
     ? persiapanSekolah(struktur.rows, (assignments ?? []) as PeranTerbaca[],
@@ -1369,6 +1414,19 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     </label>
                   ))}
                 </fieldset>
+                {/* A2b D1 (Daisy, A2B-PILIH-KELAS-KATA §1): once one school is chosen, its classes; none chosen is the
+                    whole school. The planned hint, never the emergency's: the class's work is held, its people are not */}
+                {pmSatuSekolah && kelasPm.length > 0 ? (
+                  <fieldset className="grid gap-1 text-sm" aria-describedby="pin-pm-kelas-petunjuk" data-pm-kelas="">
+                    <legend className="text-ink-2">{sl("config.pemeliharaan.darurat.kelas")}</legend>
+                    {kelasPm.map((k) => (
+                      <label key={k.id} className="flex items-center gap-2">
+                        <input type="checkbox" name="pm_kelas" value={k.id} defaultChecked={pmKelas.includes(k.id)} /> {k.tahun ? `${k.nama} · ${k.tahun}` : k.nama}
+                      </label>
+                    ))}
+                    <p id="pin-pm-kelas-petunjuk" className="text-ink-2">{sl("config.pemeliharaan.kelas_petunjuk")}</p>
+                  </fieldset>
+                ) : null}
                 <div className="pin-baris-isian">
                   <div className={label}>
                     <label htmlFor="cfg-pm-mulai">{sl("config.pemeliharaan.mulai").replace("{zona}", kataZona(zonaPm))}</label>
@@ -1399,18 +1457,31 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     </div>
                   ) : tabrakan ? (
                     <p role="status">{sl("config.pemeliharaan.tabrakan.nihil")}</p>
+                  ) : galatTabrakan ? (
+                    <BarisHasil nada="gagal">{sl(galatTabrakan.details === "MAINTENANCE_NODE_INVALID" ? "galat.maintenance_planned_node_invalid" : "galat.maintenance_input_invalid")}</BarisHasil>
                   ) : null}
                   <form action={jadwalkanPemeliharaanAction} className="grid gap-2"><input type="hidden" name="asal" value="jadwal" />
                     {pmPlatform ? <input type="hidden" name="platform" value="1" /> : null}
                     {pmPlatform ? null : pmSekolah.map((id) => <input key={id} type="hidden" name="sekolah" value={id} />)}
+                    {pmKelas.map((k) => <input key={k} type="hidden" name="kelas" value={k} />)}
                     <input type="hidden" name="mulai" value={sp.pm_mulai ?? ""} />
                     <input type="hidden" name="selesai" value={sp.pm_selesai ?? ""} />
                     <label className={label}>{sl("config.pemeliharaan.pesan")} <span className="pin-opsional">{sl("bentuk.opsional")}</span>
                       <textarea name="pesan" className={field} maxLength={500} rows={2} />
                     </label>
-                    <label className={label}>{sl("config.pemeliharaan.alasan")}
-                      <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
-                    </label>
+                    {/* A2b D2 (Daisy, A2-KATA-DESAIN B1): the reason from the list, required; «Lainnya» with its text */}
+                    <fieldset className="grid gap-1 text-sm" aria-describedby="pin-pm-alasan-petunjuk" data-pm-alasan="">
+                      <legend className="text-ink-2">{sl("config.pemeliharaan.alasan.legenda")}</legend>
+                      <p id="pin-pm-alasan-petunjuk" className="text-ink-2">{sl("config.pemeliharaan.alasan.petunjuk")}</p>
+                      {KODE_ALASAN.map((k) => (
+                        <label key={k} className="flex items-center gap-2">
+                          <input type="radio" name="alasan_kode" value={k} required /> {sl(`pemeliharaan.alasan.${k}`)}
+                        </label>
+                      ))}
+                      <label className={label}>{sl("config.pemeliharaan.alasan.jelaskan")}
+                        <input name="alasan" className={field} maxLength={120} autoComplete="off" />
+                      </label>
+                    </fieldset>
                     <label className="flex items-center gap-2 text-sm">
                       <input type="checkbox" name="umumkan" value="1" /> {sl("config.pemeliharaan.umumkan")}
                     </label>
@@ -1454,7 +1525,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         {when(w.mulai, "hariJam", zonaJendela(w.platform))} {w.selesai ? <>{sl("config.pemeliharaan.hingga")} {when(w.selesai, "hariJam", zonaJendela(w.platform))}</> : <>· {sl("config.pemeliharaan.tanpa_akhir")}</>}
                       </span>
                       {w.pesan ? <span className="text-ink-2">{w.pesan}</span> : null}
-                      <span className="text-xs text-ink-3">{sl("config.pemeliharaan.alasan")}: {w.alasan}</span>
+                      <span className="text-xs text-ink-3">{sl("config.pemeliharaan.alasan")}: {kataAlasan(w)}</span>
                       {w.menguasai && w.keadaan !== "BERAKHIR" ? (
                         ubah !== w.id ? (
                           <div>
@@ -1474,6 +1545,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                             ) : null}
                             <KonfirmasiBahaya sibuk={s("tombol.memproses")} id={`jendela-${w.id}`} tombol={kata}
                               tanya={daruratKelas ? sl("config.pemeliharaan.darurat.akhiri_tanya").replace("{kelas}", (w.kelas ?? []).join(", ")).replace("{m}", String(w.ditahan ?? 0))
+                                // A2b (Daisy, A2B-PERPANJANG-KATA §2): a planned window under way says what follows, in its scope
+                                : w.jenis === "PLANNED" && w.keadaan === "AKTIF" ? sl(kunciAkhiriTanya(w)).replace("{kelas}", (w.kelas ?? []).join(", "))
                                 : sl("config.pemeliharaan.akhiri.tanya")} ya={kata}
                               batal={s("bahaya.batal")} nama="aksi" nilai="AKHIRI" />
                             <Link href={tautanUbah(null, `jendela-${w.id}`)} className={tautanTempat}>{s("config.angkat.batal")}</Link>
@@ -1481,6 +1554,64 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         )
                       ) : daruratKelas ? (
                         <p className="text-ink-2" data-hanya-admin="">{sl("config.pemeliharaan.darurat.hanya_admin")}</p>
+                      ) : null}
+                      {/* A2b D3 (Daisy, A2B-PERPANJANG-KATA §1): «Perpanjang» on a planned window with an end, scheduled or
+                          under way, that the reader controls. Two steps, as scheduling: the new end is checked first, with
+                          the advisory count for the added period; then the reason and «Simpan perpanjangan» */}
+                      {bolehPerpanjang(w) ? (
+                        idPanjang !== w.id || !barisPm || !zonaBarisPm ? (
+                          <div>
+                            <Link href={tautanPanjang(w.id, `jendela-${w.id}`)} className={button} data-buka-perpanjang="">
+                              {sl("config.pemeliharaan.perpanjang")}<span className="pin-sr"> · {nama}</span>
+                            </Link>
+                          </div>
+                        ) : (
+                          <div className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2" role="group" aria-labelledby={`perpanjang-${w.id}`} data-perpanjang="">
+                            <h3 id={`perpanjang-${w.id}`} className="font-medium">{sl("config.pemeliharaan.perpanjang.judul")}</h3>
+                            {barisPm.ends_at ? (
+                              <p className="text-ink-2">{sl("config.pemeliharaan.perpanjang.sekarang").replace("{jam}\u00a0{zona}", jamPm(barisPm.ends_at, zonaBarisPm))}</p>
+                            ) : null}
+                            <form method="get" action={`${jalanIni}#jendela-${w.id}`} className="flex flex-wrap items-end gap-2">
+                              <input type="hidden" name="panjang" value={w.id} />
+                              {typeof sp.sekolah === "string" && sp.sekolah ? <input type="hidden" name="sekolah" value={sp.sekolah} /> : null}
+                              {typeof sp.hal_jendela === "string" && sp.hal_jendela ? <input type="hidden" name="hal_jendela" value={sp.hal_jendela} /> : null}
+                              <div className={label}>
+                                <label htmlFor={`pp-selesai-${w.id}`}>{sl("config.pemeliharaan.perpanjang.selesai_baru").replace("{zona}", kataZona(zonaBarisPm))}</label>
+                                <TanggalDenganGema jenis="datetime-local" id={`pp-selesai-${w.id}`} name="pp_selesai" className={field} defaultValue={sp.pp_selesai ?? ""} locale={locale} zona={zonaBarisPm} />
+                              </div>
+                              <button type="submit" className={button}>{sl("config.pemeliharaan.periksa")}</button>
+                            </form>
+                            {tabrakanPerpanjang && Number((tabrakanPerpanjang as { asesmen?: number }).asesmen) > 0 ? (
+                              <div className="pin-banner pin-attention" role="status" data-tabrakan-perpanjang="">
+                                <Ikon nama="triangle-alert" />
+                                <p className="text-ink-1">
+                                  <strong>{sl("config.pemeliharaan.tabrakan.perhatian")}</strong>{" "}
+                                  {Number((tabrakanPerpanjang as { asesmen: number }).asesmen)} {sl("config.pemeliharaan.tabrakan.jumlah")}
+                                </p>
+                              </div>
+                            ) : tabrakanPerpanjang ? (
+                              <p role="status">{sl("config.pemeliharaan.tabrakan.nihil")}</p>
+                            ) : null}
+                            {ppSelesai ? (
+                              <form action={perpanjangPemeliharaanAction} className="flex flex-wrap items-end gap-2" aria-label={`${sl("config.pemeliharaan.perpanjang.judul")} · ${nama}`}>
+                                <input type="hidden" name="asal" value="jendela" /><input type="hidden" name="hal_jendela" value={String(halJendela)} />
+                                <input type="hidden" name="jendela" value={w.id} /><input type="hidden" name="baris" value={w.id} />
+                                <input type="hidden" name="selesai" value={sp.pp_selesai ?? ""} />
+                                <label className={label}>{sl("config.pemeliharaan.alasan")}
+                                  <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
+                                </label>
+                                <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.perpanjang.simpan")}</TombolKirim>
+                                <Link href={tautanUbah(null, `jendela-${w.id}`)} className={tautanTempat}>
+                                  {sl("config.pemeliharaan.perpanjang.batal")}
+                                </Link>
+                              </form>
+                            ) : (
+                              <div><Link href={tautanUbah(null, `jendela-${w.id}`)} className={tautanTempat}>
+                                {sl("config.pemeliharaan.perpanjang.batal")}
+                              </Link></div>
+                            )}
+                          </div>
+                        )
                       ) : null}
                     </li>
                     );
@@ -1952,7 +2083,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         <span className="text-ink-2"> · {r.tempat ?? sl("config.pemeliharaan.platform")} · {sl("config.label.valid_until").toLowerCase()} {tanggal(r.valid_until, "baca", locale, r.zona)}
                           {r.pemegang_terakhir ? <> · {sl("peran.berakhir.terakhir")}</> : null}</span>
                       </span>
-                      {bolehPerpanjang(r) ? (
+                      {bolehPerpanjangPeran(r) ? (
                         <Link href={tautanPerpanjang(r.id)} className={button} data-buka-perpanjang={r.id}>
                           {sl("peran.perpanjang.aksi")}<span className="pin-sr"> · {r.nama} · {roleLabel(r.role)}</span>
                         </Link>
@@ -2008,7 +2139,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                       : (personName.get(a.person_id) ?? TANPA_NAMA)} · {roleLabel(a.role)}
                     <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? TANPA_NAMA : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {when(a.valid_until, "baca", zonaBaris(a.institution_id))}</span>
                   </span>
-                  {ubah !== a.id && bolehPerpanjang(a) ? (
+                  {ubah !== a.id && bolehPerpanjangPeran(a) ? (
                     <span className="flex flex-wrap items-center gap-2">
                       {/* B0: a role is renewed where it is listed (whoever may grant it; the platform's only active
                           administrator their own), named with its record like the row's other action */}
