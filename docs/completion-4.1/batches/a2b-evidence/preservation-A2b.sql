@@ -1,9 +1,9 @@
 -- A2b's staging promotion: the preservation query (PLAN-A2B-C2W.md A13; the Chief Architect's GO of 16 Nov; restated
 -- for Sharon's freeze checks P1 to P3, A2B-FREEZE-3c58620e.md at e07e67a6).
 --
--- THE PAIR IS 267 -> 281. Staging holds 267 migrations today (A2a change C, the last promotion). A2b adds fourteen,
--- 268 to 281 (20270120100000 to 20270120230000). Line 10 is expected to read "267 / 20270119270000" BEFORE the merge
--- and "281 / 20270120230000" AFTER it; nothing else under "preserved" may move.
+-- THE PAIR IS 267 -> 282. Staging holds 267 migrations today (A2a change C, the last promotion). A2b adds fifteen,
+-- 268 to 282 (20270120100000 to 20270120240000; the last is the start path, A2b reopened 16 Nov). Line 10 is expected to
+-- read "267 / 20270119270000" BEFORE the merge and "282 / 20270120240000" AFTER it; nothing else under "preserved" may move.
 --
 -- READ ONLY. Run it in a read-only transaction, once BEFORE the merge and once AFTER the promotion's last check. Nothing
 -- here writes.
@@ -17,10 +17,10 @@
 --
 -- WHAT IS LEFT OUT, AND WHY: only what A2b adds, plus three exclusions each with its own reason.
 --   * `baru` and `mw_keluar` hold the one column A2b adds to data that already exists, maintenance_windows.reason_code
---     (20270120190000). It exists only at 281, so leaving it out by name is what lets the same text read at 267 and at
---     281. Its value on the existing rows is held on its own line instead: line 64, no window created before the cutoff
+--     (20270120190000). It exists only after A2b, so leaving it out by name is what lets the same text read at 267 and
+--     at 282. Its value on the existing rows is held on its own line instead: line 64, no window created before the cutoff
 --     carries a code (the migration adds the column with no default and fills nothing).
---     A2b's fourteen migrations add no other column, alter no other column, change no column's type, and change no
+--     A2b's fifteen migrations add no other column, alter no other column, change no column's type, and change no
 --     existing row: every insert and update they carry is inside a function body, or a new client_rpc_registry row
 --     (created after the cutoff, outside every fingerprint). So every other existing column is fingerprinted,
 --     including the darurat_* and closure_* columns of assessment_sessions and the node_ids, t_stop and t_lift of
@@ -45,7 +45,7 @@
 --     deactivation the tick has not yet recorded (expected 0 at the "before" read; if not 0, line 63 may move by
 --     exactly those rows).
 --
--- Rehearsed locally 267 -> 281 with planted windows: PRESERVATION-A2B.md.
+-- Rehearsed locally 267 -> 282 with planted windows: PRESERVATION-A2B.md.
 with batas as (
   select coalesce(null::timestamptz, now()) as saat,
          coalesce(null::bigint, (select max(id) from public.audit_log)) as audit_id
@@ -65,7 +65,7 @@ sidik(n, garis, nilai) as (
   select 1, 'cutoff (write into batas.saat after the merge)', (select saat::text from batas)
   union all select 2, 'audit_log watermark (write into batas.audit_id after the merge)', (select audit_id::text from batas)
 
-  -- ── state: expected to move from 267 to 281 by the promotion (line 10; the header)
+  -- ── state: expected to move from 267 to 282 by the promotion (line 10; the header)
   union all select 10, 'state · migrations',
     (select count(*) || ' / ' || max(version) || '; versions digest ' || md5(string_agg(version, ',' order by version))
        from supabase_migrations.schema_migrations)
