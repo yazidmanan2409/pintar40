@@ -4,6 +4,10 @@
 Every network call is blocked during a dry run and the self-test: `fetch` is replaced by a function that throws, and
 the self-test asserts that it was never invoked. A real run refuses to start today (see §5).
 
+> **Later on 16 Nov:** prices are pinned, Google is excluded, and the adapters were checked against the official API
+> reference. That update is the section "Adapter verification against official docs, 16 Nov" at the end. §2 and §3
+> below record the first dry run (three providers, assumed $15/$75 prices) and are kept as they were run.
+
 The kit itself (`kit.mjs`, the prompt, the schema, the material, `MANIFEST.json`) is unchanged and still frozen.
 The runner calls it as a subprocess (`kit.mjs request`, `kit.mjs validate`) and checks every request against
 `MANIFEST.json` before use, rather than re-implementing it.
@@ -13,7 +17,7 @@ The runner calls it as a subprocess (`kit.mjs request`, `kit.mjs validate`) and 
 | File | Purpose |
 |---|---|
 | `runner.mjs` | The runner: reservation ledger, caps, retries, mock provider, real adapters (unverified), self-test |
-| `prices.json` | Price table per provider (USD per 1M tokens), the caps (8 / 25) and the dry-run assumption. Every model, model date and price is `"UNVERIFIED"` |
+| `prices.json` | Price table per provider (USD per 1M tokens), the caps (8 / 25) and the dry-run assumption. Since the later 16 Nov update: anthropic `claude-sonnet-5-5` and openai `gpt-6.1-sol` pinned at $2 / $10 (grade A); google excluded |
 | `out/` | Real-run output: `ledger.json`, `summary.json`, `<provider>/…`. Gitignored |
 | `out-dry-run*/` | Dry-run output, kept apart from `out/` because `kit.mjs blind` treats every folder in its input as a provider. Gitignored |
 
@@ -209,9 +213,11 @@ For scale only: at the unverified Anthropic hint in `prices.json` ($2/$10), one 
 - **The adapters.** The three real adapters (endpoint, headers, output-cap and structured-output parameters) were
   written without network access or the official documentation. They are marked `verified: false`, and a real run
   refuses until each is checked against the official SDK documentation (README: "written … against each provider's
-  official SDK documentation").
+  official SDK documentation"). *Later on 16 Nov:* the anthropic and openai adapters were checked against
+  E-PROVIDER-FACTS.md §6 and corrected; both stay `verified: false` for the fields listed in the last section.
 - **Official prices.** Every price is `UNVERIFIED`. The $15/$75 figures are an assumption, not a quote. The cost
-  figures above are worst-case bounds under that assumption, not estimates of the real bill.
+  figures above are worst-case bounds under that assumption, not estimates of the real bill. *Later on 16 Nov:* the two
+  prices were pinned at $2 / $10 (grade A); see the last section for the worst case at those prices.
 - **The input estimator** (chars ÷ 3, then ×1.2) is assumed conservative for Indonesian text. A real tokenizer could
   count more. The runner detects that only after the call (the overrun abort), so one call could exceed its
   reservation by the excess.
@@ -225,3 +231,183 @@ Each ledger attempt now also records `duration_ms` (the provider's response time
 adapters are verified against official documentation). With the existing fields, the ledger supports cost per attempt,
 per valid draft and (with the judges' results) per accepted draft, tokens, retry and failure rates, response times and
 rate limits. Self-test re-run: all passed. Scoring is unchanged.
+
+## Adapter verification against official docs, 16 Nov
+
+**No provider API was called, no key was created or used, nothing was spent, no material was sent.** The source is
+`docs/completion-4.1/E-PROVIDER-FACTS.md` (branch `claude/e-provider-facts`, `82f4a43b`): §1b and §2b for prices, §6 for
+the API reference, as corrected after Sharon's review (`291c5ab7`). The adapters were compared field by field with §6,
+mismatches fixed, and the comparison turned into offline self-test assertions.
+
+### What changed
+
+- **Prices pinned** (`prices.json`): anthropic `claude-sonnet-5-5` and openai `gpt-6.1-sol`, each $2 input / $10 output
+  per 1M tokens, grade A, read 2026-11-16, with the pricing and model page URLs. OpenAI's surcharge above 272K input
+  tokens (2× input, 1.5× output for the full request) is recorded and applied by `costMicro` if ever reached. E never
+  reaches it: the largest input bound is 3,930 tokens. `model_date` reads "undated alias, ID read 2026-11-16": neither
+  provider's ID is a dated snapshot in §1a or §2a. The model version actually served is recorded per response.
+  Caps unchanged: US$8 per provider, US$25 total.
+- **Google excluded.** It is out of the default provider set (`enabled: false`, `excluded` with the reason:
+  Service Specific Terms §20(d), the owner's decision). The runner refuses `--providers google` in every mode, and the
+  real-run gate refuses it even with a key. The adapter code is kept, unchanged.
+- **Spend and billing stops.** Both providers use 429 for spend stops as well as rate limits (§6, "For the adapters").
+  Errors are now classified by status and error code. A stop is never retried, and no further call goes to that
+  provider. The rest of its requests are recorded as failed (`not_attempted`), and the run ends with exit 4.
+- **New dry-run option** `--real-prices` (for `--plan` and `--dry-run`): the pinned prices with the offline mock.
+
+### The comparison
+
+| Field | Adapter before | §6 fact (grade) | Adapter now |
+|---|---|---|---|
+| **anthropic** endpoint | `POST https://api.anthropic.com/v1/messages` | same (A) | unchanged |
+| auth header | `x-api-key: <key>` | `Authorization: Bearer <key>`; `x-api-key` is the "Legacy fallback" (A) | **fixed:** `Authorization: Bearer` |
+| version header | `anthropic-version: 2023-06-01` | current `2026-10-21` (A value; "required" is B, so it is always sent) | **fixed:** `2026-10-21` |
+| content-type | `application/json` | same (A) | unchanged |
+| user prompt | `messages: [{role: "user", content}]` | `messages`, each with `role` and `content` (A) | unchanged |
+| system prompt | none | `system` is optional (A) | none (as in usage.json: `system_prompt: ''`) |
+| max output | `max_tokens` | `max_tokens` (A) | unchanged |
+| structured output | **none sent** | `output_config.format = {type: "json_schema", schema}` (A) | **fixed:** sent, with `item-schema.json` |
+| usage | `input_tokens`, `output_tokens` | total input = `input_tokens + cache_creation_input_tokens + cache_read_input_tokens`; `output_tokens` is the billing total (A) | **fixed:** the three input fields summed |
+| request id | header `request-id`, else the message `id` | header `request-id`; error bodies carry `request_id` (A) | **fixed:** header only on success (the message id is not the request id); header, else body `request_id`, on errors |
+| rate-limit info | none | `anthropic-ratelimit-*` and `retry-after` (A) | **fixed:** those headers kept, nothing else |
+| 429 rate limit / ramp | retried | `rate_limit_error` with `retry-after`; `ramp_limit_exceeded` (A) | retried |
+| 429 tier spend cap | **retried** | `enforced_spend_limit_reached`, no `retry-after`, retries fail (A) | **fixed:** `spend_stop`. A 429 with neither `retry-after` nor a rate-limit code also stops (fails closed) |
+| 400 own spend limit | not retried, but later chapters still called | 400 "You have reached your specified (workspace) API usage limits" (A) | **fixed:** `spend_stop`; other 400s: `http_4xx`, not retried |
+| credit exhaustion | not retried (generic 4xx) | 402 `billing_error`; no credit-specific error found (**B**) | `billing_stop` (fails closed) |
+| 5xx | retried | 500 `api_error`, 504 `timeout_error`, 529 `overloaded_error` (A) | retried |
+| response text | `content[]` of type `text` | **not in §6a** | unchanged, **unverified** |
+| **openai** endpoint | `POST /v1/chat/completions` | the documented route is `POST https://api.openai.com/v1/responses` (A) | **fixed:** Responses API |
+| auth header | `Authorization: Bearer` | same (A) | unchanged |
+| version header | none | none required; path-versioned `v1` (A) | unchanged |
+| content-type | `application/json` | **not stated in §6b** | unchanged, **unverified** |
+| client request id | none | optional `X-Client-Request-Id`, ASCII ≤512, logged for lookup (A) | **added:** one per attempt, also in the ledger |
+| user prompt | `messages: [{role: "user"}]` | `input` (string or messages) (A) | **fixed:** `input` |
+| system prompt | none | `instructions` is optional (A) | none |
+| max output | `max_completion_tokens` | `max_output_tokens`, includes reasoning tokens, min 16 (A) | **fixed:** `max_output_tokens` |
+| structured output | `response_format.json_schema{name, strict, schema}` | `text.format = {type: "json_schema", name, schema, strict: true}` (A) | **fixed:** `text.format` |
+| storage | not set (default true) | `store` defaults to true; set false (A) | **added:** `store: false` |
+| usage | `prompt_tokens`, `completion_tokens` | `input_tokens`, `input_tokens_details.{cached_tokens, cache_write_tokens}`, `output_tokens`, `output_tokens_details.reasoning_tokens` (A); whether the totals include the details is not stated | **fixed:** settled at an upper bound that holds either way: input + cache details; output + reasoning, capped at `max_output_tokens`. The raw usage is kept in the ledger (`usage_raw`) |
+| request id | header `x-request-id`, else the response `id` | header `x-request-id` (A) | **fixed:** header only |
+| rate-limit info | none | `x-ratelimit-*` (incl. project-tokens), `Retry-After` (A) | **fixed:** those headers kept |
+| 429 rate limit / slow_down | retried | 429 "Rate limit reached for requests", `slow_down` (A) | retried |
+| 429 spend / usage limit | **retried** | `organization_spend_limit_exceeded`, `project_spend_limit_exceeded`, `organization_usage_limit_exceeded`, type `insufficient_quota`; retrying "won't restore API access" (A) | **fixed:** `spend_stop` |
+| 429 credit exhausted | **retried** | `credit_balance_exhausted` (A) | **fixed:** `billing_stop` |
+| 5xx | retried | 500; 503 `service_unavailable_error` / `server_is_overloaded` (A) | retried |
+| 400 | not retried | documented only for a bad `X-Client-Request-Id` | not retried (fails closed) |
+| response text | `choices[0].message.content` | **not in §6b** | `output[]` items of type `message`, parts of type `output_text`; **unverified** |
+
+`model_version` (the response's `model` field) is not in §6 for either provider. It is provenance only, and nothing
+depends on it.
+
+### Verdict: both adapters stay `verified: false`
+
+The rule: `verified: true` only if every field the adapter depends on rests on a grade-A fact.
+
+| Adapter | Fields without a grade-A fact |
+|---|---|
+| anthropic | (1) **response text location**: the text is read from `content[]` blocks of type `text`; §6a documents no response-content field. (2) **credit exhaustion**: 402 `billing_error` is grade B. The adapter treats it as a stop, so this one fails closed |
+| openai | (1) **response text location**: read from `output[]` → `content[]` parts of type `output_text`; §6b documents no response-content field. (2) **`content-type: application/json`** request header: not stated in §6b |
+
+Closing them needs one more documentation read, not an API call: the response-body shape of `POST /v1/messages` and
+`POST /v1/responses` (the reference pages already cited in §6), Anthropic's error for an exhausted credit balance, and
+OpenAI's request content type. Two residual risks are outside the field list:
+- **The schema subset.** Anthropic supports only a "subset of the JSON Schema language". OpenAI's strict mode has
+  its own rules. `item-schema.json` uses `type`, `required`, `enum` and `additionalProperties: false` (every property
+  required), plus `$schema`, `title` and `description` at the root. Whether each provider accepts it is not in §6. A
+  rejection would be a 400: not retried, and bounded by one reservation (≤ US$0.128).
+- **No idempotency key** at either provider (§6). Each retry is a separate reservation, kept as its cost when no usage
+  comes back, so a double charge stays inside the caps.
+
+### `node runner.mjs --self-test` (exit 0, 78 PASS, 0 FAIL)
+
+Scenarios (a), (b), (b2), (b3) and (c) are as before, for the two providers (7 attempts in scenario (a); `kit.mjs blind`
+reads 60 items). New:
+
+```
+── scenario d-spend-stops (caps: 8.000000 per provider, 25.000000 total)
+  spend_stop       anthropic bab1 attempt 1: HTTP 429 enforced_spend_limit_reached → no further call to anthropic
+  ok               openai bab1 attempt 1: cost 0.227190 (usage)
+  spend_stop       openai bab2 attempt 1: HTTP 429 organization_spend_limit_exceeded → no further call to openai
+PASS  (d) anthropic tier spend cap (429 enforced_spend_limit_reached): one attempt, not retried, bab2 not attempted
+PASS  (d) openai spend limit (429 organization_spend_limit_exceeded) on bab2: not retried; bab1 unaffected
+PASS  (d) the run ends with exit 4 and names the three failed requests and the stop
+PASS  (d) a stop keeps its reservation as its cost and records its request id and error code
+```
+
+Adapter checks, offline, with the key `DUMMY-KEY-PLACEHOLDER`, for the bab1 request:
+- **Request:** the URL, method, the exact header set, and the exact body keys and values (above) for each adapter.
+- **Wire path:** `httpCall` is given a local function in place of `fetch`. It answers from memory. The check asserts
+  that exactly the built request is sent and the response parsed. Global `fetch` stays blocked throughout.
+- **Response:** a canned response shaped as §6 documents it. Usage is extracted (anthropic input 2,415 = 2,400 + 10 + 5;
+  openai output bound 2,900, and never above 12,000), as are the request id from the header (not the message or
+  response id) and only the documented rate-limit headers.
+- **Errors:** every documented error maps to its class.
+  - anthropic: 429 with `retry-after` and 429 `ramp_limit_exceeded` are retried; 429 `enforced_spend_limit_reached`
+    and a bare 429 are `spend_stop`; the two 400 spend-limit messages are `spend_stop`; another 400 is `http_4xx`;
+    402 is `billing_stop`; 500, 504 and 529 are retried.
+  - openai: 429 rate limit and `slow_down` are retried; the three spend and usage codes and `insufficient_quota` are
+    `spend_stop`; `credit_balance_exhausted` is `billing_stop`; 500 and 503 are retried; 400 is not.
+- **Surcharge:** at 272,001 input tokens the full request costs 2× input and 1.5× output.
+
+The gate:
+
+```
+PASS  a real run refuses without keys
+PASS  prices, model IDs and sources are pinned for anthropic and openai (grade A, read 2026-11-16)
+PASS  with keys present, a real run still refuses while an adapter is unverified (anthropic, openai)
+PASS  google is refused as excluded, even with a key
+PASS  no network call was attempted
+PASS  plan at the assumed $15/$75: worst case with every retry 11.464470 within US$25; per provider 5.732235 within US$8
+PASS  plan at the pinned $2/$10: worst case with every retry 1.528596 (per provider 0.764298)
+
+all passed (temporary folders removed)
+```
+
+### Worst case at the pinned prices: `node runner.mjs --plan --real-prices` (exit 0)
+
+`ceil(ceil(chars / 3) × 1.2) × $2/M + 12,000 × $10/M` per call:
+
+| Provider | Chapter | Chars (request + schema) | Input estimate | Input bound (×1.2) | Max output | Worst case per call (USD) |
+|---|---|---|---|---|---|---|
+| anthropic | bab1 | 9,823 | 3,275 | 3,930 | 12,000 | 0.127860 |
+| anthropic | bab2 | 8,631 | 2,877 | 3,453 | 12,000 | 0.126906 |
+| openai | bab1 | 9,823 | 3,275 | 3,930 | 12,000 | 0.127860 |
+| openai | bab2 | 8,631 | 2,877 | 3,453 | 12,000 | 0.126906 |
+
+| | 1 attempt per request (2 calls) | All retries used (6 calls) | Cap |
+|---|---|---|---|
+| anthropic | 0.254766 | **0.764298** | 8.00 |
+| openai | 0.254766 | **0.764298** | 8.00 |
+| **total, two providers** | 0.509532 | **1.528596** | 25.00 |
+
+With every attempt at its output cap and every input at its bound, the run costs at most **US$1.53**. That is about
+19% of one provider cap and 6% of the total cap.
+
+### `node runner.mjs --dry-run --real-prices` (scenario (a) at $2/$10, exit 0)
+
+| Provider | Chapter | Attempt | Status | Reserved (USD) | Input tokens | Output tokens | Cost (USD) | Basis |
+|---|---|---|---|---|---|---|---|---|
+| anthropic | bab1 | 1 | invalid_output (planted) | 0.127860 | 2456 | 2531 | 0.030222 | usage |
+| anthropic | bab1 | 2 | ok | 0.127860 | 2456 | 2538 | 0.030292 | usage |
+| anthropic | bab2 | 1 | http_429 (planted) | 0.126906 | — | — | 0.126906 | reservation |
+| anthropic | bab2 | 2 | ok | 0.126906 | 2158 | 2538 | 0.029696 | usage |
+| openai | bab1 | 1 | transport_error (planted) | 0.127860 | — | — | 0.127860 | reservation |
+| openai | bab1 | 2 | ok | 0.127860 | 2456 | 2538 | 0.030292 | usage |
+| openai | bab2 | 1 | ok, no usage (planted) | 0.126906 | — | — | 0.126906 | reservation |
+
+Summary: anthropic 0.217116, openai 0.285058; **total 0.502174** (mock tokens; the faults keep three reservations as
+cost). There are 30 valid drafts per provider and no open reservation. `out-dry-run/` was deleted afterwards.
+
+### `node runner.mjs` (a real run, exit 1), with and without keys
+
+```
+real run refused:
+- anthropic: API adapter not verified against the official documentation; no grade-A fact for: response text location, credit exhaustion
+- anthropic: no key in ANTHROPIC_API_KEY
+- openai: API adapter not verified against the official documentation; no grade-A fact for: response text location, content-type
+- openai: no key in OPENAI_API_KEY
+```
+
+With `DUMMY-KEY-PLACEHOLDER` in both key variables, the two "no key" lines go and the run is still refused.
+`node runner.mjs --providers google` exits 1: "google is excluded: Not eligible …". The runner has no separate live
+flag. A real run starts only when no flag is given and the gate passes.

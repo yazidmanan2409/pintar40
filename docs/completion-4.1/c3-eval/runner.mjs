@@ -3,12 +3,15 @@
 //
 //   node runner.mjs --plan                      worst-case cost table under the dry-run assumed prices (no call)
 //   node runner.mjs --dry-run [options]         the whole run against an offline mock provider (no network)
-//   node runner.mjs --self-test                 scenarios (a), (b) and the extra branches, offline, with assertions
-//   node runner.mjs [options]                   a real run: REFUSES today (prices, models and adapters unverified)
+//   node runner.mjs --self-test                 scenarios (a), (b), the extra branches and the adapter checks, offline
+//   node runner.mjs [options]                   a real run: REFUSES today (adapters not verified, no keys)
 //
-// Options: --out <dir>  --providers anthropic,openai,google  --max-output <tokens>
+// Options: --out <dir>  --providers anthropic,openai  --max-output <tokens>
 //          --cap-provider <usd>  --cap-total <usd>  (can only LOWER the caps in prices.json, never raise them)
 //          --scenario normal|ceiling   (dry run only: which mock fault plan; ceiling = total cap 0.05)
+//          --real-prices               (--plan and --dry-run only: use the pinned prices in prices.json, not the
+//                                       deliberately high dry-run assumption; still no network)
+// The default provider set is anthropic and openai. google is excluded (prices.json says why) and is refused.
 //
 // Budget rules, applied before EVERY attempt:
 //   input_estimate  = ceil((request chars + schema chars) / 3)      no tokenizer: conservative estimator
@@ -20,8 +23,10 @@
 //   After the call the reservation is replaced by the cost from the usage the provider returns; with no usage
 //   (including a 429, a 5xx or a transport error) the reservation is kept as the cost (conservative).
 //   A reported cost above its reservation is an overrun: the run aborts at once.
-// Retries: at most 2 per request (3 attempts), each a separate reservation, only on a transport error, a 429/5xx,
-// or output that kit.mjs validate measures invalid. Concurrency is 1: never more than one reservation in flight.
+// Retries: at most 2 per request (3 attempts), each a separate reservation, only on a transport error, a retryable
+// 429 (a rate limit, not a spend or billing stop), a 5xx, or output that kit.mjs validate measures invalid.
+// A spend or billing stop (classified by status AND error code, E-PROVIDER-FACTS.md §6) is never retried and ends
+// every further call to that provider. Concurrency is 1: never more than one reservation in flight.
 // Money is held as integer micro-USD (1e-6 USD), rounded UP, so float error never loosens a cap.
 //
 // The unit of a call is one chapter request (kit.mjs request <1|2>), which asks for 15 items: 2 requests and
@@ -34,14 +39,14 @@
 //   <out>/<provider>/usage.json              the kit's usage.json (provenance + calls with tokens)
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync, mkdirSync, existsSync, renameSync, mkdtempSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, renameSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const KIT = join(HERE, 'kit.mjs');
-const PROVIDERS = ['anthropic', 'openai', 'google'];
+const PROVIDERS = ['anthropic', 'openai', 'google'];   // every adapter known; the eligible set comes from prices.json
 const CHAPTERS = [1, 2];
 const PER_CHAPTER = 15;
 const MAX_ATTEMPTS = 3;            // 1 + at most 2 retries per request
@@ -76,8 +81,12 @@ function kitValidate(file, b) {
 
 // ───────────────────────────── cost
 const estimateInputTokens = (chars) => Math.ceil(chars / CHARS_PER_TOKEN);
-// prices are USD per 1M tokens, so tokens × price is micro-USD; rounded up
-const costMicro = (inTok, outTok, p) => Math.ceil(inTok * p.input + outTok * p.output);
+// prices are USD per 1M tokens, so tokens × price is micro-USD; rounded up. A documented long-prompt surcharge
+// (prices.json `surcharge`, e.g. OpenAI above 272K input tokens) applies to the full request.
+function costMicro(inTok, outTok, p) {
+  const s = p.surcharge && inTok > p.surcharge.above_input_tokens ? p.surcharge : null;
+  return Math.ceil(inTok * p.input * (s ? s.input_multiplier : 1) + outTok * p.output * (s ? s.output_multiplier : 1));
+}
 function worstCase(chars, maxOutput, p) {
   const est = estimateInputTokens(chars);
   const inBound = Math.ceil(est * INPUT_MARGIN);
@@ -122,38 +131,121 @@ class Ledger {
 }
 
 // ───────────────────────────── providers
-// Real adapters. NOT verified: written from memory of each API's shape, with no network and no documentation read in
-// this session. Before any real call each must be checked against the provider's official API documentation
-// (endpoint, headers, output-cap parameter, structured-output parameter, usage fields) and `verified` set to true.
-class HttpError extends Error { constructor(status, body) { super(`HTTP ${status}`); this.status = status; this.body = body; } }
+// Each real adapter is split into build (the request), parse (a 2xx response) and classifyError (a non-2xx response),
+// so the self-test can check every field offline. httpCall joins them with fetch; it is never reached in a dry run or
+// the self-test, where fetch is replaced by a function that throws.
+//
+// anthropic and openai were compared field by field with E-PROVIDER-FACTS.md §6 (read 16 Nov 2026 from the official
+// API reference; table in DRY-RUN-RESULT.md, "Adapter verification against official docs, 16 Nov"). `verified` is true
+// only when every field the adapter depends on rests on a grade-A fact; `unverified_fields` lists what does not.
+// google was written from memory and never checked; it is excluded (prices.json) and kept only as code.
+class HttpError extends Error {
+  constructor(status, body, extra = {}) { super(`HTTP ${status}${extra.cls?.code ? ' ' + extra.cls.code : ''}`); this.status = status; this.body = body; Object.assign(this, extra); }
+}
+const tryJson = (t) => { try { return JSON.parse(t); } catch { return null; } };
+// only the headers §6 names, so nothing else from a response is copied into the ledger
+function pickHeaders(headers, names) {
+  const h = new Headers(headers ?? {}); const o = {};
+  for (const n of names) { const v = h.get(n); if (v !== null) o[n] = v; }
+  return Object.keys(o).length ? o : null;
+}
+const ANTHROPIC_RL = ['retry-after', ...['requests', 'tokens', 'input-tokens', 'output-tokens'].flatMap((k) => ['limit', 'remaining', 'reset'].map((x) => `anthropic-ratelimit-${k}-${x}`))];
+const OPENAI_RL = ['retry-after', ...['limit', 'remaining', 'reset'].flatMap((x) => ['requests', 'tokens', 'project-tokens'].map((k) => `x-ratelimit-${x}-${k}`))];
+const OPENAI_SPEND_CODES = ['organization_spend_limit_exceeded', 'project_spend_limit_exceeded', 'organization_usage_limit_exceeded'];
+
+async function httpCall(adapter, args, fetchImpl = globalThis.fetch) {
+  const q = adapter.build(args);
+  const r = await fetchImpl(q.url, { method: q.method, headers: q.headers, body: JSON.stringify(q.body), signal: AbortSignal.timeout(600_000) });
+  const bodyText = await r.text();
+  if (!r.ok) { const cls = adapter.classifyError({ status: r.status, headers: r.headers, bodyText }); throw new HttpError(r.status, bodyText, { cls, request_id: cls.request_id, rate_limit: cls.rate_limit }); }
+  return adapter.parse({ status: r.status, headers: r.headers, bodyText, maxOutput: args.maxOutput });
+}
+
 const ADAPTERS = {
   anthropic: {
-    verified: false, endpoint: 'https://api.anthropic.com/v1/messages', api_version: '2023-06-01',
-    async call({ model, text, maxOutput, key }) {
-      const r = await fetch(this.endpoint, { method: 'POST', signal: AbortSignal.timeout(600_000),
-        headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': this.api_version },
-        body: JSON.stringify({ model, max_tokens: maxOutput, messages: [{ role: 'user', content: text }] }) });
-      const body = await r.text(); if (!r.ok) throw new HttpError(r.status, body);
-      const j = JSON.parse(body);
-      return { raw: (j.content ?? []).filter((c) => c.type === 'text').map((c) => c.text).join(''), request_id: r.headers.get('request-id') ?? j.id ?? null, model_version: j.model ?? null,
-        usage: j.usage ? { input: j.usage.input_tokens, output: j.usage.output_tokens } : null };
+    verified: false,
+    unverified_fields: [
+      'response text location: the adapter reads the generated text from content[] blocks of type "text" (content[].text); §6a documents no response-content field',
+      'credit exhaustion: HTTP 402 billing_error is grade B in §6a ("No error specific to an exhausted credit balance was found"); the adapter treats 402 as a billing stop, which fails closed',
+    ],
+    endpoint: 'https://api.anthropic.com/v1/messages', api_version: '2026-10-21',
+    build({ model, text, schema, maxOutput, key }) {
+      return { url: this.endpoint, method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${key}`, 'anthropic-version': this.api_version },
+        body: { model, max_tokens: maxOutput, messages: [{ role: 'user', content: text }],
+          output_config: { format: { type: 'json_schema', schema: JSON.parse(schema) } } } };
     },
+    parse({ headers, bodyText }) {
+      const h = new Headers(headers ?? {}); const j = JSON.parse(bodyText); const u = j.usage;
+      const ok = u && Number.isFinite(u.input_tokens) && Number.isFinite(u.output_tokens);
+      return { raw: (j.content ?? []).filter((c) => c.type === 'text').map((c) => c.text).join(''),
+        request_id: h.get('request-id'), model_version: j.model ?? null,
+        // §6a: total input = input_tokens + cache_creation_input_tokens + cache_read_input_tokens; output_tokens is the billing total
+        usage: ok ? { input: u.input_tokens + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0), output: u.output_tokens } : null,
+        usage_raw: u ?? null, rate_limit: pickHeaders(h, ANTHROPIC_RL) };
+    },
+    classifyError({ status, headers, bodyText }) {
+      const h = new Headers(headers ?? {}); const j = tryJson(bodyText); const e = j?.error ?? {};
+      const code = e.details?.error_code ?? null; const msg = String(e.message ?? '');
+      const base = { http: status, type: e.type ?? null, code, request_id: h.get('request-id') ?? j?.request_id ?? null, rate_limit: pickHeaders(h, ANTHROPIC_RL) };
+      if (status === 429 && code === 'enforced_spend_limit_reached') return { ...base, status: 'spend_stop', retry: false, stop: true };
+      // a documented rate limit carries retry-after; a ramp limit carries its code. Any other 429 fails closed.
+      if (status === 429 && (h.get('retry-after') !== null || code === 'ramp_limit_exceeded')) return { ...base, status: 'http_429', retry: true };
+      if (status === 429) return { ...base, status: 'spend_stop', retry: false, stop: true, note: '429 without retry-after or a rate-limit code: treated as a stop' };
+      if (status === 400 && /^You have reached your specified (workspace )?API usage limits/.test(msg)) return { ...base, status: 'spend_stop', retry: false, stop: true };
+      if (status === 402) return { ...base, status: 'billing_stop', retry: false, stop: true };
+      if (status >= 500) return { ...base, status: 'http_5xx', retry: true };   // 500 api_error, 504 timeout_error, 529 overloaded_error
+      return { ...base, status: 'http_4xx', retry: false };
+    },
+    async call(args) { return httpCall(this, args); },
   },
   openai: {
-    verified: false, endpoint: 'https://api.openai.com/v1/chat/completions', api_version: 'v1',
-    async call({ model, text, schema, maxOutput, key }) {
-      const r = await fetch(this.endpoint, { method: 'POST', signal: AbortSignal.timeout(600_000),
-        headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
-        body: JSON.stringify({ model, max_completion_tokens: maxOutput, messages: [{ role: 'user', content: text }],
-          response_format: { type: 'json_schema', json_schema: { name: 'c3_items', strict: true, schema: JSON.parse(schema) } } }) });
-      const body = await r.text(); if (!r.ok) throw new HttpError(r.status, body);
-      const j = JSON.parse(body);
-      return { raw: j.choices?.[0]?.message?.content ?? '', request_id: r.headers.get('x-request-id') ?? j.id ?? null, model_version: j.model ?? null,
-        usage: j.usage ? { input: j.usage.prompt_tokens, output: j.usage.completion_tokens } : null };
+    verified: false,
+    unverified_fields: [
+      'response text location: the adapter reads the generated text from output[] items of type "message", content[] parts of type "output_text" (.text); §6b documents no response-content field',
+      'content-type: application/json request header: not stated in §6b',
+    ],
+    endpoint: 'https://api.openai.com/v1/responses', api_version: 'v1',
+    build({ model, text, schema, maxOutput, key, clientRequestId }) {
+      const headers = { 'content-type': 'application/json', authorization: `Bearer ${key}` };
+      // §6b: logged by OpenAI for lookup if a response is lost; ASCII, at most 512 characters (otherwise a 400)
+      if (clientRequestId) { if (!/^[\x20-\x7e]{1,512}$/.test(clientRequestId)) throw new Fatal('X-Client-Request-Id must be ASCII, ≤512 chars'); headers['x-client-request-id'] = clientRequestId; }
+      return { url: this.endpoint, method: 'POST', headers,
+        body: { model, input: text, max_output_tokens: maxOutput, store: false,
+          text: { format: { type: 'json_schema', name: 'c3_items', schema: JSON.parse(schema), strict: true } } } };
     },
+    parse({ headers, bodyText, maxOutput }) {
+      const h = new Headers(headers ?? {}); const j = JSON.parse(bodyText); const u = j.usage;
+      const ok = u && Number.isFinite(u.input_tokens) && Number.isFinite(u.output_tokens);
+      // §6b names the detail fields but does not say whether input_tokens includes the cached tokens, or output_tokens the
+      // reasoning tokens. Settle on an upper bound that holds either way: input + cache details; output + reasoning, but
+      // never above max_output_tokens, which already includes reasoning (§6b, A). The raw usage is kept.
+      let usage = null;
+      if (ok) {
+        const d = u.input_tokens_details ?? {}; const r = u.output_tokens_details?.reasoning_tokens ?? 0;
+        const outBound = Number.isFinite(maxOutput) ? Math.max(u.output_tokens, Math.min(maxOutput, u.output_tokens + r)) : u.output_tokens + r;
+        usage = { input: u.input_tokens + (d.cached_tokens ?? 0) + (d.cache_write_tokens ?? 0), output: outBound };
+      }
+      const raw = (j.output ?? []).filter((o) => o.type === 'message').flatMap((o) => o.content ?? []).filter((c) => c.type === 'output_text').map((c) => c.text).join('');
+      return { raw, request_id: h.get('x-request-id'), model_version: j.model ?? null, usage, usage_raw: u ?? null, rate_limit: pickHeaders(h, OPENAI_RL) };
+    },
+    classifyError({ status, headers, bodyText }) {
+      const h = new Headers(headers ?? {}); const j = tryJson(bodyText); const e = j?.error ?? {};
+      const code = e.code ?? null;
+      const base = { http: status, type: e.type ?? null, code, request_id: h.get('x-request-id'), rate_limit: pickHeaders(h, OPENAI_RL) };
+      // §6b: "Retrying billing, spend, or quota errors won't restore API access."
+      if (status === 429 && code === 'credit_balance_exhausted') return { ...base, status: 'billing_stop', retry: false, stop: true };
+      if (status === 429 && (OPENAI_SPEND_CODES.includes(code) || e.type === 'insufficient_quota')) return { ...base, status: 'spend_stop', retry: false, stop: true };
+      if (status === 429) return { ...base, status: 'http_429', retry: true };    // "Rate limit reached for requests", slow_down
+      if (status >= 500) return { ...base, status: 'http_5xx', retry: true };     // 500; 503 service_unavailable_error / server_is_overloaded
+      return { ...base, status: 'http_4xx', retry: false };
+    },
+    async call(args) { return httpCall(this, args); },
   },
   google: {
-    verified: false, endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent', api_version: 'v1beta',
+    verified: false, excluded: true,
+    unverified_fields: ['every field: written from memory; the Google API documentation could not be read (E-PROVIDER-FACTS.md §0)'],
+    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent', api_version: 'v1beta',
     async call({ model, text, maxOutput, key }) {
       const r = await fetch(this.endpoint.replace('{model}', encodeURIComponent(model)), { method: 'POST', signal: AbortSignal.timeout(600_000),
         headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
@@ -168,7 +260,8 @@ const ADAPTERS = {
 };
 
 // The offline mock: schema-valid JSON unless a fault is planned for (provider, chapter, attempt).
-// Faults: malformed | 429 | 500 | 400 | transport | no_usage | overrun
+// Faults: malformed | 429 | 500 | 400 | transport | no_usage | overrun | spend_stop (a canned §6 spend-stop error,
+// classified by the provider's real classifyError)
 function mockProvider(faults = {}) {
   const used = [];
   const m = manifest();
@@ -195,6 +288,7 @@ function mockProvider(faults = {}) {
       if (f === '429') throw new HttpError(429, '{"error":"rate limited (mock)"}');
       if (f === '500') throw new HttpError(500, '{"error":"server error (mock)"}');
       if (f === '400') throw new HttpError(400, '{"error":"bad request (mock)"}');
+      if (f === 'spend_stop') { const c = CANNED_SPEND_STOP[provider]; const cls = ADAPTERS[provider].classifyError(c); throw new HttpError(c.status, c.bodyText, { cls, request_id: cls.request_id, rate_limit: cls.rate_limit }); }
       let raw = JSON.stringify({ items: items(b, provider, attempt) });
       if (f === 'malformed') raw = '```json\n' + raw.slice(0, raw.length - 40) + '\n```';
       const out = Math.ceil(raw.length / 4);
@@ -207,8 +301,15 @@ function mockProvider(faults = {}) {
   };
 }
 
+// canned spend stops, shaped as E-PROVIDER-FACTS.md §6 documents them
+const CANNED_SPEND_STOP = {
+  anthropic: { status: 429, headers: { 'request-id': 'req_mock_spend' }, bodyText: JSON.stringify({ type: 'error', error: { type: 'rate_limit_error', message: 'spend limit (mock)', details: { error_code: 'enforced_spend_limit_reached' } }, request_id: 'req_mock_spend' }) },
+  openai: { status: 429, headers: { 'x-request-id': 'req_mock_spend' }, bodyText: JSON.stringify({ error: { type: 'insufficient_quota', code: 'organization_spend_limit_exceeded', message: 'spend limit (mock)' } }) },
+};
+
 // ───────────────────────────── the run
 function classify(err) {
+  if (err instanceof HttpError && err.cls) return err.cls;     // a verified-against-§6 adapter classified it by status and code
   if (err instanceof HttpError) {
     if (err.status === 429) return { status: 'http_429', retry: true };
     if (err.status >= 500) return { status: 'http_5xx', retry: true, http: err.status };
@@ -229,12 +330,14 @@ export async function runEval(cfg) {
   const items = {};      // `${provider}:bab${b}` → { valid, attempts, judged_attempt }
   const usageCalls = Object.fromEntries(providers.map((p) => [p, []]));
   const modelVersion = {};
+  const stopped = {};    // provider → the spend or billing stop that ended its calls
 
   outer: for (const provider of providers) {
     const adapter = adapterFor(provider); const price = prices[provider];
     const pdir = join(outDir, provider); mkdirSync(join(pdir, 'attempts'), { recursive: true });
     for (const b of CHAPTERS) {
       const id = `${provider}:bab${b}`;
+      if (stopped[provider]) { items[id] = { valid: false, attempts: 0, outcome: 'not_attempted', reason: `provider stopped: ${stopped[provider]}` }; continue; }
       if (mode !== 'dry-run' && ledger.doc.entries.some((e) => e.provider === provider && e.chapter === b && e.status === 'ok')) { items[id] = { valid: true, skipped: 'already valid in the ledger' }; continue; }
       const it = items[id] = { valid: false, attempts: 0, outcome: null };
       const text = req[b];
@@ -256,24 +359,26 @@ export async function runEval(cfg) {
         if (inFlight > CONCURRENCY) throw new Fatal(`in-flight bound broken: ${inFlight}`);
         let res = null, err = null;
         const t0 = Date.now();
-        try { res = await adapter.call({ provider, model: price.model, b, attempt, text, schema, maxOutput, seq, key: keys[provider] }); } catch (x) { err = x; }
+        const clientRequestId = `${runId}.${provider}.bab${b}.a${attempt}`;
+        try { res = await adapter.call({ provider, model: price.model, b, attempt, text, schema, maxOutput, seq, key: keys[provider], clientRequestId }); } catch (x) { err = x; }
         inFlight--;
         const duration_ms = Date.now() - t0;
         const reportedUsage = !!res && !!res.usage && Number.isFinite(res.usage.input) && Number.isFinite(res.usage.output);
         const actual = reportedUsage ? costMicro(res.usage.input, res.usage.output, price) : wc.micro;
         const settle = { cost_usd: usd(actual), cost_basis: reportedUsage ? 'usage' : 'reservation',
           actual_input_tokens: reportedUsage ? res.usage.input : null, actual_output_tokens: reportedUsage ? res.usage.output : null,
-          request_id: res?.request_id ?? null, model_version: res?.model_version ?? null,
-          duration_ms, rate_limit: res?.rate_limit ?? err?.rate_limit ?? null };
+          request_id: res?.request_id ?? err?.request_id ?? null, client_request_id: clientRequestId, model_version: res?.model_version ?? null,
+          usage_raw: res?.usage_raw ?? null, duration_ms, rate_limit: res?.rate_limit ?? err?.rate_limit ?? null };
         if (actual > wc.micro) {
           ledger.settle(e, { ...settle, status: 'overrun', reason: `reported cost ${usd(actual)} exceeds its reservation ${usd(wc.micro)}` });
           abort = { kind: 'overrun', reason: `${provider} bab${b} attempt ${attempt}: ${e.reason}` }; log(`ABORT    ${abort.reason}`); break outer;
         }
         if (err) {
           const c = classify(err);
-          ledger.settle(e, { ...settle, status: c.status, http_status: c.http ?? (c.status === 'http_429' ? 429 : null), error: String(err.message).slice(0, 200), retryable: c.retry });
-          log(`${c.status.padEnd(16)} ${provider} bab${b} attempt ${attempt}: ${err.message}${c.retry && attempt < MAX_ATTEMPTS ? ' → retry' : ''}`);
+          ledger.settle(e, { ...settle, status: c.status, http_status: c.http ?? (c.status === 'http_429' ? 429 : null), error_type: c.type ?? null, error_code: c.code ?? null, error: String(err.message).slice(0, 200), retryable: c.retry });
+          log(`${c.status.padEnd(16)} ${provider} bab${b} attempt ${attempt}: ${err.message}${c.retry && attempt < MAX_ATTEMPTS ? ' → retry' : ''}${c.stop ? ' → no further call to ' + provider : ''}`);
           it.outcome = c.status;
+          if (c.stop) { stopped[provider] = `${c.status} (HTTP ${c.http}${c.code ? ', ' + c.code : ''})`; break; }   // the next chapter sees stopped
           if (!c.retry) break;
           continue;
         }
@@ -318,7 +423,7 @@ export async function runEval(cfg) {
     const es = ledger.doc.entries.filter((e) => e.provider === p && e.run_id === runId);
     const by = {}; for (const e of es) by[e.status] = (by[e.status] ?? 0) + 1;
     const s = ledger.sums(p);
-    per[p] = { attempts: es.filter((e) => e.status !== 'refused').length, by_status: by, spent_usd: usd(s.spent), open_reservations_usd: usd(s.reserved),
+    per[p] = { attempts: es.filter((e) => e.status !== 'refused').length, by_status: by, stopped: stopped[p] ?? null, spent_usd: usd(s.spent), open_reservations_usd: usd(s.reserved),
       requests_valid: CHAPTERS.filter((b) => items[`${p}:bab${b}`]?.valid).length, drafts_valid: PER_CHAPTER * CHAPTERS.filter((b) => items[`${p}:bab${b}`]?.valid).length };
   }
   const failed = Object.entries(items).filter(([, v]) => !v.valid).map(([k]) => k);
@@ -346,15 +451,27 @@ export function liveGate(table, providers, env = process.env) {
   for (const p of providers) {
     const e = table.providers[p];
     if (!e) { problems.push(`${p}: not in prices.json`); continue; }
+    if (e.excluded || ADAPTERS[p]?.excluded) problems.push(`${p}: excluded: ${e.excluded ?? 'adapter excluded'}`);
     for (const k of ['model', 'model_date', 'input', 'output']) if (e[k] === UNVERIFIED || e[k] === undefined || e[k] === null) problems.push(`${p}: ${k} is UNVERIFIED`);
     for (const k of ['input', 'output']) if (e[k] !== UNVERIFIED && !(typeof e[k] === 'number' && e[k] > 0)) problems.push(`${p}: ${k} price is not a positive number`);
     if (!e.source || !e.read_on) problems.push(`${p}: price source and read_on date not pinned`);
-    if (!ADAPTERS[p]?.verified) problems.push(`${p}: API adapter not verified against the official documentation`);
+    else if (e.grade !== 'A') problems.push(`${p}: price is not grade A`);
+    const a = ADAPTERS[p];
+    if (!a?.verified) problems.push(`${p}: API adapter not verified against the official documentation${a?.unverified_fields?.length ? '; no grade-A fact for: ' + a.unverified_fields.map((f) => f.split(':')[0]).join(', ') : ''}`);
     if (!env[e.key_env]) problems.push(`${p}: no key in ${e.key_env}`);
   }
   return problems;
 }
 const dryPrices = (table, providers) => Object.fromEntries(providers.map((p) => [p, { model: `${p}-mock-model`, model_date: 'dry-run', input: table.dry_run_assumed.input, output: table.dry_run_assumed.output, data_retention: 'none (offline mock)' }]));
+// the pinned prices with the mock: still offline. Refuses while a price is not pinned.
+function realDryPrices(table, providers) {
+  return Object.fromEntries(providers.map((p) => {
+    const e = table.providers[p];
+    if (![e.input, e.output].every((x) => typeof x === 'number' && x > 0)) throw new Fatal(`${p}: price not pinned in prices.json; --real-prices needs it`);
+    return [p, { model: `${p}-mock-model`, model_date: 'dry-run', input: e.input, output: e.output, surcharge: e.surcharge, data_retention: 'none (offline mock)' }];
+  }));
+}
+const eligible = (table) => PROVIDERS.filter((p) => table.providers[p]?.enabled && !table.providers[p]?.excluded && !ADAPTERS[p]?.excluded);
 
 // ───────────────────────────── the worst-case plan (no call)
 export function planTable(prices, providers, maxOutput) {
@@ -384,54 +501,161 @@ function printPlan(plan, prices, caps) {
 }
 
 // ───────────────────────────── self-test
-const FAULTS_NORMAL = { 'anthropic:bab1:1': 'malformed', 'anthropic:bab2:1': '429', 'openai:bab1:1': 'transport', 'google:bab2:1': 'no_usage' };
-const FAULTS_EXTRA = { 'anthropic:bab1:1': '400', 'openai:bab1:1': '500', 'openai:bab1:2': '500', 'openai:bab1:3': '500', 'google:bab1:1': 'overrun' };
+const FAULTS_NORMAL = { 'anthropic:bab1:1': 'malformed', 'anthropic:bab2:1': '429', 'openai:bab1:1': 'transport', 'openai:bab2:1': 'no_usage' };
+const FAULTS_EXTRA = { 'anthropic:bab1:1': '400', 'openai:bab1:1': '500', 'openai:bab1:2': '500', 'openai:bab1:3': '500', 'openai:bab2:1': 'overrun' };
+const FAULTS_STOP = { 'anthropic:bab1:1': 'spend_stop', 'openai:bab2:1': 'spend_stop' };
+const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+// Offline checks of the two real adapters against E-PROVIDER-FACTS.md §6: the request each builds, a canned response
+// shaped as §6 documents it, and every documented error. A dummy key placeholder only; global fetch stays blocked, and
+// the wire check hands httpCall a local function in its place, which answers from memory.
+async function adapterChecks(check, table) {
+  const KEY = 'DUMMY-KEY-PLACEHOLDER'; const schema = schemaText(); const text = kitRequest(1);
+  const args = (p) => ({ provider: p, model: table.providers[p].model, b: 1, attempt: 1, text, schema, maxOutput: DEFAULT_MAX_OUTPUT, key: KEY, clientRequestId: `live-2026-11-16T07-00-00-000Z.${p}.bab1.a1` });
+  const wire = async (adapter, a, status, headers, bodyText) => {
+    const seen = []; const fake = async (url, init) => { seen.push({ url, init }); return new Response(bodyText, { status, headers }); };
+    let res = null, err = null; try { res = await httpCall(adapter, a, fake); } catch (x) { err = x; }
+    return { seen, res, err };
+  };
+  const classes = (name, A, cases) => {
+    for (const [label, c, status, retry] of cases) {
+      const k = A.classifyError(c);
+      check(k.status === status && k.retry === retry && (k.stop === true) === status.endsWith('_stop'), `${name} error: ${label} → ${status}, ${retry ? 'retried' : 'not retried'}${status.endsWith('_stop') ? ', no further call' : ''}`);
+    }
+  };
+
+  // ── anthropic, §6a
+  {
+    const A = ADAPTERS.anthropic; const q = A.build(args('anthropic'));
+    check(q.method === 'POST' && q.url === 'https://api.anthropic.com/v1/messages', 'anthropic request: POST https://api.anthropic.com/v1/messages');
+    check(eq(q.headers, { 'content-type': 'application/json', authorization: `Bearer ${KEY}`, 'anthropic-version': '2026-10-21' }), 'anthropic request headers: content-type application/json, Authorization: Bearer <key>, anthropic-version 2026-10-21 (no legacy x-api-key)');
+    const f = q.body.output_config?.format ?? {};
+    check(eq(Object.keys(q.body).sort(), ['max_tokens', 'messages', 'model', 'output_config']) && q.body.model === 'claude-sonnet-5-5' && q.body.max_tokens === DEFAULT_MAX_OUTPUT
+      && eq(q.body.messages, [{ role: 'user', content: text }]) && eq(Object.keys(f).sort(), ['schema', 'type']) && f.type === 'json_schema' && eq(f.schema, JSON.parse(schema)),
+      'anthropic request body: model claude-sonnet-5-5, max_tokens 12000, messages [user: the chapter request], output_config.format {type json_schema, schema: item-schema.json}; no system prompt');
+    const okH = { 'request-id': 'req_018Eselftest', 'anthropic-ratelimit-requests-remaining': '3999', 'anthropic-ratelimit-output-tokens-reset': '2026-11-16T07:00:30Z', 'x-unrelated': 'dropped' };
+    const okB = JSON.stringify({ id: 'msg_selftest', type: 'message', role: 'assistant', model: 'claude-sonnet-5-5', content: [{ type: 'text', text: '{"items":[]}' }],
+      usage: { input_tokens: 2400, output_tokens: 2500, cache_creation_input_tokens: 10, cache_read_input_tokens: 5 } });
+    const r = A.parse({ status: 200, headers: okH, bodyText: okB });
+    check(r.usage?.input === 2415 && r.usage?.output === 2500, 'anthropic response usage: input = input_tokens + cache_creation_input_tokens + cache_read_input_tokens (2415), output = output_tokens (2500)');
+    check(r.request_id === 'req_018Eselftest', 'anthropic response: request id from the request-id header, not the message id');
+    check(r.rate_limit?.['anthropic-ratelimit-requests-remaining'] === '3999' && r.rate_limit?.['anthropic-ratelimit-output-tokens-reset'] && !('x-unrelated' in r.rate_limit), 'anthropic response: the documented anthropic-ratelimit-* headers are kept, nothing else');
+    check(r.raw === '{"items":[]}' && r.model_version === 'claude-sonnet-5-5', 'anthropic response: text and model extracted');
+    const w = await wire(A, args('anthropic'), 200, okH, okB);
+    check(w.seen.length === 1 && w.seen[0].url === A.endpoint && w.seen[0].init.method === 'POST' && eq(w.seen[0].init.headers, q.headers) && eq(JSON.parse(w.seen[0].init.body), q.body) && w.res?.usage?.input === 2415,
+      'anthropic wire path (local function, no network): httpCall sends exactly the built request and parses the response');
+    const ae = (status, error, h = {}) => ({ status, headers: { 'request-id': 'req_err', ...h }, bodyText: JSON.stringify({ type: 'error', error, request_id: 'req_err_body' }) });
+    classes('anthropic', A, [
+      ['429 rate_limit_error with retry-after', ae(429, { type: 'rate_limit_error', message: 'rate limited' }, { 'retry-after': '7' }), 'http_429', true],
+      ['429 rate_limit_error, error_code ramp_limit_exceeded', ae(429, { type: 'rate_limit_error', message: 'ramp', details: { error_code: 'ramp_limit_exceeded' } }), 'http_429', true],
+      ['429 rate_limit_error, error_code enforced_spend_limit_reached, no retry-after (tier spend cap)', ae(429, { type: 'rate_limit_error', message: 'cap', details: { error_code: 'enforced_spend_limit_reached' } }), 'spend_stop', false],
+      ['429 without retry-after or a rate-limit code (fails closed)', ae(429, { type: 'rate_limit_error', message: '?' }), 'spend_stop', false],
+      ['400 "You have reached your specified API usage limits" (own spend limit)', ae(400, { type: 'invalid_request_error', message: 'You have reached your specified API usage limits. You will regain access on …' }), 'spend_stop', false],
+      ['400 "…specified workspace API usage limits" (workspace limit)', ae(400, { type: 'invalid_request_error', message: 'You have reached your specified workspace API usage limits.' }), 'spend_stop', false],
+      ['400 other invalid_request_error', ae(400, { type: 'invalid_request_error', message: 'messages: field required' }), 'http_4xx', false],
+      ['402 billing_error (credit exhaustion, grade B)', ae(402, { type: 'billing_error', message: "There's an issue with your billing or payment information." }), 'billing_stop', false],
+      ['500 api_error', ae(500, { type: 'api_error', message: 'internal' }), 'http_5xx', true],
+      ['504 timeout_error', ae(504, { type: 'timeout_error', message: 'timeout' }), 'http_5xx', true],
+      ['529 overloaded_error', ae(529, { type: 'overloaded_error', message: 'overloaded' }), 'http_5xx', true],
+    ]);
+    const noHdr = A.classifyError({ status: 500, headers: {}, bodyText: JSON.stringify({ type: 'error', error: { type: 'api_error', message: 'x' }, request_id: 'req_err_body' }) });
+    const hdr = A.classifyError(ae(429, { type: 'rate_limit_error', message: 'x' }, { 'retry-after': '7' }));
+    check(noHdr.request_id === 'req_err_body' && hdr.request_id === 'req_err' && hdr.rate_limit?.['retry-after'] === '7', 'anthropic error: request id from the header, else the error body\'s request_id; retry-after kept');
+    const we = await wire(A, args('anthropic'), 429, { 'request-id': 'req_spend' }, JSON.stringify({ type: 'error', error: { type: 'rate_limit_error', message: 'cap', details: { error_code: 'enforced_spend_limit_reached' } }, request_id: 'req_spend' }));
+    check(we.err instanceof HttpError && classify(we.err).status === 'spend_stop' && we.err.request_id === 'req_spend', 'anthropic wire path: a spend-stop response becomes a spend_stop error carrying its request id');
+  }
+
+  // ── openai, §6b
+  {
+    const A = ADAPTERS.openai; const q = A.build(args('openai'));
+    check(q.method === 'POST' && q.url === 'https://api.openai.com/v1/responses', 'openai request: POST https://api.openai.com/v1/responses (Responses API)');
+    check(eq(q.headers, { 'content-type': 'application/json', authorization: `Bearer ${KEY}`, 'x-client-request-id': args('openai').clientRequestId }), 'openai request headers: content-type application/json, Authorization: Bearer <key>, X-Client-Request-Id; no version header');
+    const f = q.body.text?.format ?? {};
+    check(eq(Object.keys(q.body).sort(), ['input', 'max_output_tokens', 'model', 'store', 'text']) && q.body.model === 'gpt-6.1-sol' && q.body.input === text && q.body.max_output_tokens === DEFAULT_MAX_OUTPUT && q.body.store === false
+      && eq(f, { type: 'json_schema', name: 'c3_items', schema: JSON.parse(schema), strict: true }),
+      'openai request body: model gpt-6.1-sol, input (the chapter request), max_output_tokens 12000, store false, text.format {type json_schema, name, schema, strict true}; no instructions');
+    let bad = null; try { A.build({ ...args('openai'), clientRequestId: 'naïve' }); } catch (x) { bad = x; }
+    check(bad instanceof Fatal && args('openai').clientRequestId.length <= 512, 'openai request: X-Client-Request-Id is ASCII and at most 512 characters, or the request is not built');
+    const okH = { 'x-request-id': 'req_selftest', 'x-ratelimit-remaining-requests': '4999', 'x-ratelimit-reset-tokens': '6ms', 'openai-version': '2020-10-01', 'x-unrelated': 'dropped' };
+    const okB = JSON.stringify({ id: 'resp_selftest', object: 'response', model: 'gpt-6.1-sol', output: [{ type: 'reasoning', summary: [] }, { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '{"items":[]}' }] }],
+      usage: { input_tokens: 2400, input_tokens_details: { cached_tokens: 0, cache_write_tokens: 0 }, output_tokens: 2600, output_tokens_details: { reasoning_tokens: 300 }, total_tokens: 5000 } });
+    const r = A.parse({ status: 200, headers: okH, bodyText: okB, maxOutput: DEFAULT_MAX_OUTPUT });
+    check(r.usage?.input === 2400 && r.usage?.output === 2900 && r.usage_raw?.output_tokens === 2600, 'openai response usage: input_tokens (+ cache details) 2400; output settled at the upper bound output_tokens + reasoning_tokens (2900); raw usage kept');
+    const capped = A.parse({ status: 200, headers: okH, bodyText: JSON.stringify({ output: [], usage: { input_tokens: 10, output_tokens: 11900, output_tokens_details: { reasoning_tokens: 500 } } }), maxOutput: DEFAULT_MAX_OUTPUT });
+    check(capped.usage.output === DEFAULT_MAX_OUTPUT, 'openai response usage: the output bound never exceeds max_output_tokens, which includes reasoning');
+    check(r.request_id === 'req_selftest', 'openai response: request id from the x-request-id header, not the response id');
+    check(r.rate_limit?.['x-ratelimit-remaining-requests'] === '4999' && r.rate_limit?.['x-ratelimit-reset-tokens'] === '6ms' && !('x-unrelated' in r.rate_limit) && !('openai-version' in r.rate_limit), 'openai response: the documented x-ratelimit-* headers are kept, nothing else');
+    check(r.raw === '{"items":[]}' && r.model_version === 'gpt-6.1-sol', 'openai response: output_text and model extracted');
+    const w = await wire(A, args('openai'), 200, okH, okB);
+    check(w.seen.length === 1 && w.seen[0].url === A.endpoint && eq(w.seen[0].init.headers, q.headers) && eq(JSON.parse(w.seen[0].init.body), q.body) && w.res?.usage?.output === 2900,
+      'openai wire path (local function, no network): httpCall sends exactly the built request and parses the response');
+    const oe = (status, error, h = {}) => ({ status, headers: { 'x-request-id': 'req_err', ...h }, bodyText: JSON.stringify({ error }) });
+    classes('openai', A, [
+      ['429 "Rate limit reached for requests"', oe(429, { message: 'Rate limit reached for requests', type: 'requests' }, { 'retry-after': '1' }), 'http_429', true],
+      ['429 rate_limit_error / slow_down', oe(429, { type: 'rate_limit_error', code: 'slow_down', message: 'increased too quickly' }), 'http_429', true],
+      ['429 organization_spend_limit_exceeded', oe(429, { type: 'insufficient_quota', code: 'organization_spend_limit_exceeded', message: 'x' }), 'spend_stop', false],
+      ['429 project_spend_limit_exceeded', oe(429, { type: 'insufficient_quota', code: 'project_spend_limit_exceeded', message: 'x' }), 'spend_stop', false],
+      ['429 organization_usage_limit_exceeded (approved usage limit)', oe(429, { code: 'organization_usage_limit_exceeded', message: 'x' }), 'spend_stop', false],
+      ['429 credit_balance_exhausted', oe(429, { type: 'insufficient_quota', code: 'credit_balance_exhausted', message: 'x' }), 'billing_stop', false],
+      ['429 error.type insufficient_quota, other code', oe(429, { type: 'insufficient_quota', code: 'something_else', message: 'x' }), 'spend_stop', false],
+      ['500 server error', oe(500, { type: 'server_error', message: 'The server had an error while processing your request' }), 'http_5xx', true],
+      ['503 service_unavailable_error / server_is_overloaded', oe(503, { type: 'service_unavailable_error', code: 'server_is_overloaded', message: 'x' }), 'http_5xx', true],
+      ['400 invalid request', oe(400, { type: 'invalid_request_error', message: 'x' }), 'http_4xx', false],
+    ]);
+    check(A.classifyError(oe(429, { code: 'credit_balance_exhausted' })).request_id === 'req_err', 'openai error: request id from the x-request-id header');
+  }
+  // the documented long-prompt surcharge (never reached by E)
+  const op = table.providers.openai;
+  check(costMicro(272000, 1000, op) === 272000 * 2 + 1000 * 10 && costMicro(272001, 1000, op) === Math.ceil(272001 * 4 + 1000 * 15), 'openai price: above 272K input tokens the full request costs 2× input and 1.5× output');
+}
 
 async function selfTest() {
   const fails = []; const check = (ok, msg) => { if (!ok) fails.push(msg); console.log(`${ok ? 'PASS' : 'FAIL'}  ${msg}`); };
-  const table = loadPrices(); const providers = PROVIDERS; const prices = dryPrices(table, providers);
+  const table = loadPrices(); const providers = eligible(table); const prices = dryPrices(table, providers); const tmp = [];
   // no network at all: any fetch fails the test
   let fetches = 0; const realFetch = globalThis.fetch; globalThis.fetch = async () => { fetches++; throw new Error('network forbidden in self-test'); };
   const scen = async (name, faults, capArgs) => {
-    const outDir = mkdtempSync(join(tmpdir(), `c3-runner-${name}-`));
+    const outDir = mkdtempSync(join(tmpdir(), `c3-runner-${name}-`)); tmp.push(outDir);
     const caps = capsFrom(table, capArgs); const mock = mockProvider(faults); const breaches = [];
     // the invariant, checked at every reservation: no open reservation lets spend exceed a cap
     const onReserve = (l) => { const p = l.sums(l.doc.entries.at(-1).provider), t = l.sums();
       if (p.spent + p.reserved > caps.perProvider) breaches.push(`provider ${usd(p.spent + p.reserved)}`);
       if (t.spent + t.reserved > caps.total) breaches.push(`total ${usd(t.spent + t.reserved)}`);
       if (t.reserved > 0 && l.doc.entries.filter((e) => e.status === 'reserved').length > CONCURRENCY) breaches.push('more than one open reservation'); };
-    console.log(`\n── scenario ${name} (caps: ${usd(caps.perProvider)} per provider, ${usd(caps.total)} total) → ${outDir}`);
+    console.log(`\n── scenario ${name} (caps: ${usd(caps.perProvider)} per provider, ${usd(caps.total)} total)`);
     const r = await runEval({ mode: 'dry-run', outDir, providers, prices, caps, maxOutput: DEFAULT_MAX_OUTPUT, adapterFor: () => mock, onReserve, log: (s) => console.log('  ' + s) });
     const t = r.ledger.entries.reduce((s, e) => s + toMicro(e.cost_usd ?? 0), 0);
     return { ...r, outDir, caps, mock, breaches, spentMicro: t };
   };
   const count = (r, p, st) => r.ledger.entries.filter((e) => (!p || e.provider === p) && (!st || e.status === st) && e.status !== 'refused').length;
 
+  check(eq(providers, ['anthropic', 'openai']), 'default provider set: anthropic and openai (google excluded)');
   // (a) the normal plan with every planted fault
   const a = await scen('a-normal', FAULTS_NORMAL, {});
   check(a.exitCode === 0, '(a) completes with exit 0');
   check(a.breaches.length === 0 && a.spentMicro <= a.caps.total, '(a) no reservation let spend exceed a cap');
   check(a.mock.used.length === 4 && Object.keys(FAULTS_NORMAL).every((k) => a.mock.used.some((u) => u.startsWith(k))), '(a) all four planted faults were injected');
-  check(count(a, 'anthropic') === 4 && count(a, 'openai') === 3 && count(a, 'google') === 2, '(a) attempts per provider: anthropic 4, openai 3, google 2 (9 in all)');
+  check(count(a, 'anthropic') === 4 && count(a, 'openai') === 3, '(a) attempts per provider: anthropic 4, openai 3 (7 in all)');
   check(count(a, 'anthropic', 'invalid_output') === 1 && count(a, 'anthropic', 'http_429') === 1 && count(a, 'openai', 'transport_error') === 1, '(a) malformed → invalid_output, 429 → http_429, transport → transport_error, each retried once');
-  const nu = a.ledger.entries.find((e) => e.provider === 'google' && e.chapter === 2);
+  const nu = a.ledger.entries.find((e) => e.provider === 'openai' && e.chapter === 2);
   check(nu.status === 'ok' && nu.cost_basis === 'reservation' && nu.cost_usd === nu.reserved_usd, '(a) the response with no usage keeps its reservation as its cost');
   check(a.ledger.entries.filter((e) => ['http_429', 'transport_error'].includes(e.status)).every((e) => e.cost_usd === e.reserved_usd), '(a) a 429 or transport error keeps its reservation as its cost');
   check(a.ledger.entries.filter((e) => e.cost_basis === 'usage').every((e) => toMicro(e.cost_usd) <= toMicro(e.reserved_usd)), '(a) every usage-based cost is within its reservation');
   check(providers.every((p) => a.summary.per_provider[p].drafts_valid === 30 && a.summary.per_provider[p].requests_valid === 2), '(a) 30 valid drafts (2 requests × 15) per provider');
   check(a.summary.max_in_flight === 1, '(a) never more than one call in flight');
+  check(a.ledger.entries.every((e) => e.status === 'refused' || /^dry-run-.*\.(anthropic|openai)\.bab[12]\.a[123]$/.test(e.client_request_id)), '(a) every attempt carries its own client request id');
   const prov = JSON.parse(readFileSync(join(a.outDir, 'anthropic', 'bab1.provenance.json'), 'utf8'));
   const m = manifest();
   check(prov.attempt === 2 && prov.model && prov.model_version && prov.request_id && prov.prompt_version === m.prompt_version && prov.source_excerpt_sha256 === m.chapters.bab1.material_sha256
     && prov.response_sha256 === sha(readFileSync(join(a.outDir, 'anthropic', 'bab1.json'))), '(a) draft provenance: model, version, request id, prompt version, source excerpt hash; the judged file is the first valid attempt');
   check(existsSync(join(a.outDir, 'anthropic', 'attempts', 'bab1.a1.json')), '(a) the invalid attempt is kept');
-  const u = JSON.parse(readFileSync(join(a.outDir, 'google', 'usage.json'), 'utf8'));
+  const u = JSON.parse(readFileSync(join(a.outDir, 'openai', 'usage.json'), 'utf8'));
   const PROV = ['model', 'model_date', 'endpoint', 'api_version', 'run_at', 'run_by', 'generation', 'data_retention', 'price_per_mtok'];
   check(PROV.every((k) => u[k] !== undefined && u[k] !== null && u[k] !== '') && u.calls.length === 2 && u.calls.every((c) => c.request_id), '(a) usage.json carries every provenance field the kit checks');
-  const bl = mkdtempSync(join(tmpdir(), 'c3-runner-blind-'));
+  const bl = mkdtempSync(join(tmpdir(), 'c3-runner-blind-')); tmp.push(bl);
   execFileSync(process.execPath, [KIT, 'blind', a.outDir, bl], { encoding: 'utf8' });
   const map = JSON.parse(readFileSync(join(bl, 'SEALED', 'map.json'), 'utf8'));
-  check(Object.keys(map.items).length === 90, '(a) kit.mjs blind reads the runner output: 90 items (3 providers × 30)');
+  check(Object.keys(map.items).length === 60, '(a) kit.mjs blind reads the runner output: 60 items (2 providers × 30)');
 
   // (b) forced ceiling: total cap 0.05 → refused before the first call
   const b = await scen('b-ceiling-0.05', FAULTS_NORMAL, { 'cap-total': 0.05 });
@@ -449,16 +673,36 @@ async function selfTest() {
   const c = await scen('c-branches', FAULTS_EXTRA, {});
   check(count(c, 'anthropic', 'http_4xx') === 1 && c.ledger.entries.filter((e) => e.provider === 'anthropic' && e.chapter === 1).length === 1, '(c) a 400 is not retried');
   check(count(c, 'openai', 'http_5xx') === 3 && c.summary.items['openai:bab1'].valid === false, '(c) three 5xx: retries exhausted at 3 attempts, request failed');
-  check(c.exitCode === 3 && c.summary.abort?.kind === 'overrun' && count(c, 'google') === 1, '(c) a reported cost above its reservation aborts at once (exit 3), no further call');
+  check(c.exitCode === 3 && c.summary.abort?.kind === 'overrun' && count(c, 'openai') === 4, '(c) a reported cost above its reservation aborts at once (exit 3), no further call');
+
+  // (d) a spend or billing stop: never retried, and no further call to that provider
+  const d = await scen('d-spend-stops', FAULTS_STOP, {});
+  check(count(d, 'anthropic') === 1 && count(d, 'anthropic', 'spend_stop') === 1 && d.summary.items['anthropic:bab2'].outcome === 'not_attempted', '(d) anthropic tier spend cap (429 enforced_spend_limit_reached): one attempt, not retried, bab2 not attempted');
+  check(count(d, 'openai', 'ok') === 1 && count(d, 'openai', 'spend_stop') === 1 && count(d, 'openai') === 2, '(d) openai spend limit (429 organization_spend_limit_exceeded) on bab2: not retried; bab1 unaffected');
+  check(d.exitCode === 4 && eq(d.summary.failed_requests.sort(), ['anthropic:bab1', 'anthropic:bab2', 'openai:bab2']) && d.summary.per_provider.anthropic.stopped, '(d) the run ends with exit 4 and names the three failed requests and the stop');
+  check(d.ledger.entries.filter((e) => e.status === 'spend_stop').every((e) => e.cost_usd === e.reserved_usd && e.request_id === 'req_mock_spend' && e.error_code), '(d) a stop keeps its reservation as its cost and records its request id and error code');
+
+  // the adapters against E-PROVIDER-FACTS.md §6
+  console.log('\n── adapters against E-PROVIDER-FACTS.md §6 (offline)');
+  await adapterChecks(check, table);
 
   // the real-run gate
+  console.log('\n── the real-run gate');
   const g = liveGate(table, providers, {});
-  check(g.some((x) => /input is UNVERIFIED/.test(x)) && g.some((x) => /adapter not verified/.test(x)) && g.some((x) => /no key/.test(x)), 'a real run refuses: UNVERIFIED prices, unverified adapters, no keys');
+  check(providers.every((p) => g.includes(`${p}: no key in ${table.providers[p].key_env}`)), 'a real run refuses without keys');
+  check(!g.some((x) => /UNVERIFIED|not pinned|not grade A/.test(x)), 'prices, model IDs and sources are pinned for anthropic and openai (grade A, read 2026-11-16)');
+  const dummyKeys = Object.fromEntries(providers.map((p) => [table.providers[p].key_env, 'DUMMY-KEY-PLACEHOLDER']));
+  const g2 = liveGate(table, providers, dummyKeys); const unverified = providers.filter((p) => !ADAPTERS[p].verified);
+  check(unverified.every((p) => g2.some((x) => x.startsWith(`${p}: API adapter not verified`))) && (g2.length > 0) === (unverified.length > 0), `with keys present, a real run still refuses while an adapter is unverified (${unverified.join(', ') || 'none'})`);
+  check(liveGate(table, ['google'], { GEMINI_API_KEY: 'DUMMY-KEY-PLACEHOLDER' }).some((x) => /^google: excluded: Not eligible/.test(x)), 'google is refused as excluded, even with a key');
   check(fetches === 0, 'no network call was attempted');
   globalThis.fetch = realFetch;
   const plan = planTable(prices, providers, DEFAULT_MAX_OUTPUT);
-  check(Object.values(plan.per).every((v) => v.all <= toMicro(8)) && plan.total <= toMicro(25), `plan: worst case with every retry ${usd(plan.total)} within US$25; per provider ${usd(Object.values(plan.per)[0].all)} within US$8`);
-  console.log(`\n${fails.length ? fails.length + ' FAILED' : 'all passed'}`);
+  check(Object.values(plan.per).every((v) => v.all <= toMicro(8)) && plan.total <= toMicro(25), `plan at the assumed $15/$75: worst case with every retry ${usd(plan.total)} within US$25; per provider ${usd(Object.values(plan.per)[0].all)} within US$8`);
+  const rp = planTable(realDryPrices(table, providers), providers, DEFAULT_MAX_OUTPUT);
+  check(Object.values(rp.per).every((v) => v.all === 764298) && rp.total === 1528596, `plan at the pinned $2/$10: worst case with every retry ${usd(rp.total)} (per provider ${usd(Object.values(rp.per)[0].all)})`);
+  for (const t of tmp) rmSync(t, { recursive: true, force: true });
+  console.log(`\n${fails.length ? fails.length + ' FAILED' : 'all passed'} (temporary folders removed)`);
   return fails.length ? 1 : 0;
 }
 
@@ -468,7 +712,7 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i++) {
     const k = argv[i]; if (!k.startsWith('--')) throw new Fatal(`unexpected argument ${k}`);
     const name = k.slice(2);
-    if (['dry-run', 'self-test', 'plan'].includes(name)) a[name] = true;
+    if (['dry-run', 'self-test', 'plan', 'real-prices'].includes(name)) a[name] = true;
     else { const v = argv[++i]; if (v === undefined) throw new Fatal(`${k} needs a value`); a[name] = v; }
   }
   return a;
@@ -477,21 +721,26 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args['self-test']) return selfTest();
   const table = loadPrices();
-  const providers = (args.providers ?? PROVIDERS.filter((p) => table.providers[p]?.enabled).join(',')).split(',').filter(Boolean);
-  for (const p of providers) if (!PROVIDERS.includes(p)) throw new Fatal(`unknown provider ${p}`);
+  const providers = (args.providers ?? eligible(table).join(',')).split(',').filter(Boolean);
+  for (const p of providers) {
+    if (!PROVIDERS.includes(p)) throw new Fatal(`unknown provider ${p}`);
+    if (table.providers[p]?.excluded) throw new Fatal(`${p} is excluded: ${table.providers[p].excluded}`);
+  }
   const maxOutput = args['max-output'] ? Number(args['max-output']) : DEFAULT_MAX_OUTPUT;
   if (!(Number.isInteger(maxOutput) && maxOutput > 0)) throw new Fatal('--max-output must be a positive integer');
   if (args.scenario === 'ceiling' && args['cap-total'] === undefined) args['cap-total'] = 0.05;
   const caps = capsFrom(table, args);
-  if (args.plan) { const pr = dryPrices(table, providers); printPlan(planTable(pr, providers, maxOutput), pr, caps); return 0; }
+  const offlinePrices = () => (args['real-prices'] ? realDryPrices : dryPrices)(table, providers);
+  if (args.plan) { const pr = offlinePrices(); printPlan(planTable(pr, providers, maxOutput), pr, caps); return 0; }
   if (args['dry-run']) {
     globalThis.fetch = async () => { throw new Error('network forbidden in a dry run'); };
     const outDir = args.out ?? join(HERE, 'out-dry-run');   // never inside out/: kit.mjs blind treats every folder there as a provider
     const mock = mockProvider(FAULTS_NORMAL);
-    const r = await runEval({ mode: 'dry-run', outDir, providers, prices: dryPrices(table, providers), caps, maxOutput, adapterFor: () => mock });
+    const r = await runEval({ mode: 'dry-run', outDir, providers, prices: offlinePrices(), caps, maxOutput, adapterFor: () => mock });
     console.log(JSON.stringify({ exit_code: r.exitCode, abort: r.summary.abort, total_spent_usd: r.summary.total_spent_usd, caps_usd: r.summary.caps_usd, per_provider: r.summary.per_provider, out: outDir }, null, 2));
     return r.exitCode;
   }
+  if (args['real-prices']) throw new Fatal('--real-prices applies only to --plan and --dry-run');
   const problems = liveGate(table, providers);
   if (problems.length) { console.error('real run refused:\n' + problems.map((x) => '- ' + x).join('\n')); return 1; }
   const prices = Object.fromEntries(providers.map((p) => [p, table.providers[p]]));
