@@ -57,7 +57,7 @@ Sharon, 16 Nov 2026 (07:55 UTC). Read-only. **What I reviewed:**
 - **C1, by design:** the feature sends **no personal data** and no learner content. Educators submit only curriculum text, enforced by an input check, not by instruction. Learners cannot reach it. The design must show this before any provider whose terms bar minors is used.
 - **C2:** a DPA, or equivalent processing terms, a subprocessor list, and a stated retention period for API content.
 - **C3:** for DeepSeek, written confirmation that API traffic is never used to improve the service. For Qwen, the retention of call data with logging off.
-- **C4:** a provider-side hard spend stop, or a PINTAR-side one proven to stop before the budget. Qwen needs this.
+- ~~**C4:** a provider-side hard spend stop, or a PINTAR-side one proven to stop before the budget. Qwen needs this.~~ *Superseded by addendum 2, T2: a provider-side stop is required.*
 - **C5:** the contracting entity and eligibility for an Indonesian customer, and the cross-border transfer basis. That last is a legal question, under Indonesia's personal-data law, if any personal data were ever sent. C1 is meant to make it moot.
 
 ## Addendum, 16 Nov 2026 07:25 UTC
@@ -65,3 +65,46 @@ Sharon, 16 Nov 2026 (07:55 UTC). Read-only. **What I reviewed:**
 - **Q1 is closed.** Bob confirms the hosts were added through the owner's own approval prompt, and that no provider API host is allowed.
 - **The two limits above are open until the checker reports.** The checker is session_01FXjU1kiLcHztWsfizwRPjr, on branch claude/e-feasibility-check.
 - **Then:** if it changes a judgement, I will amend here. If not, I will add a one-line confirmation.
+
+## Addendum 2, 16 Nov 2026 07:40 UTC: Bob's matrix and his three questions
+
+**What I read:** `docs/completion-4.1/E-FEASIBILITY-MATRIX.md` on `claude/bob-41-master-plan` at `3ef7cdf1d0496a346bdf160ce3361b735e5ca2a6`.
+
+**Verdict:** the recommendation stands, with three corrections: one to my own C4, and two to the matrix's grading.
+- Qwen is at most a candidate for a later evaluation.
+- DeepSeek is not to be evaluated now.
+- Kimi is not assessed.
+
+**T1 · Alibaba's "not intended for minors … Minors must not use" clause, for an educator-only feature inside a platform learners use.**
+- **As quoted, the clause governs who uses Alibaba's platform and services,** that is, who holds the account and makes the calls. It does not govern the audience of the customer's product.
+  - That differs from Google's §20(d), which reached apps "directed towards or likely to be accessed by" minors, and so the platform itself.
+  - On the quoted text, an educator-only feature can satisfy it.
+- **The clause holds only under C1, made strict:**
+  - **No learner action may cause a call**, directly or indirectly. That rules out, for example, generating feedback on a learner's answer, or hints on demand.
+  - **No learner content is sent.**
+  - **Generated material reaches learners only after an educator reviews and publishes it.**
+  - A learner-triggered call would be "use" by a minor through PINTAR, whatever the account.
+- **This is conditional on the checker.** If the full terms around the clause also reach end users or "applications directed to" minors, Qwen falls under ruling 36's logic for Google, and is ineligible like Google. *Could reasonably have been anticipated (Q2, the neighbouring act): the clause was quoted without its surrounding section.*
+
+**T2 · Should a provider-side hard stop be a qualification check under ruling 40? Yes, a mandatory one. This corrects my own C4.**
+- **My C4 allowed a PINTAR-side stop as an alternative. That was wrong.** A ledger in PINTAR bounds only the calls PINTAR makes. It does not bound a **leaked or misused API key**, which can be spent outside PINTAR without limit on a postpaid account.
+  - Only a provider-side cap, or a prepaid balance, bounds that loss.
+  - E's US$25 enforcement for Anthropic and OpenAI already relies on provider-side limits, so this keeps the same standard.
+  - *Could reasonably have been anticipated (Q5, who checks): I asked who enforces the budget, not who enforces it once the key is out of PINTAR's hands.*
+- **On present evidence, then, Qwen cannot qualify.** It has no cap beyond a free-quota-only mode. The matrix's §2 C4 wording ("without one it cannot qualify") is right, and my file now matches it.
+
+**T3 · Interpretation or not-found stated as fact.** Each of these is a correction to the matrix, not a blocker:
+1. **✖ is used for findings that are only not-found.** The legend makes ✖ mean "verified, and a problem", but the DPA row marks "Not found" with ✖ for both providers.
+   - So does §2's list of "four verified points" against DeepSeek, which includes "no DPA … found".
+   - Not found is "?", not a verified absence. Grade them "?" and say "not found", or verify the absence.
+2. **Governing law for Qwen is marked ✔ Singapore** while the contracting entity for Indonesia is unread (G6). The law may follow the entity, so it should be "?" until the agreement is read.
+3. **Storage for Qwen is marked ✔ Singapore.** That is true of stored data, but the "International" inference scope is undefined (G6). Add "inference location not stated".
+4. **"All three APIs fit D8's one interface"** (§3) contradicts the matrix, where Kimi's API fit is "?". Say "the two readable APIs".
+5. **"Roughly five times cheaper"** is the assistant's own arithmetic on estimates, so it should be in italic. By the matrix's own ranges the factor is about 6, so state it as "an estimated 5–6×".
+6. **"Could not then be offered to schools"** (DeepSeek) should read "*could not be offered on present evidence*".
+7. **"Qwen's conditions would cover most of" Kimi via Alibaba** is interpretation. Third-party models on Model Studio may carry their own terms. Put it in italic, and record it as unverified.
+8. **§4 says "its three conditions" for Qwen,** while §2 has five (C1–C5). Make it "C1–C5".
+
+**Not checked by me:** the claim that C3w already requires C1 (R-3, D9). It is cited, and I did not reopen those rulings.
+
+**Still open:** the checker's results on the quotations themselves (addendum 1).

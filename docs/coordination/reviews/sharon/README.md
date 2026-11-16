@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| E · Bob's feasibility matrix (T1–T3) | Recommendation stands. T1: Alibaba's minors clause is acceptable only under a strict C1 (no learner-triggered call), pending the checker's reading of the surrounding terms. T2: a provider-side hard stop is mandatory, so my C4 is corrected (a leaked key bypasses PINTAR's ledger). T3: eight grading fixes | `3ef7cdf1d0496a346bdf160ce3361b735e5ca2a6` | `E-FEASIBILITY-MORE-REVIEW.md` (addendum 2) |
 | E · exploratory note on Kimi, DeepSeek and Qwen | None meets E's baseline on present evidence (no DPA, subprocessors, retention; Kimi unreadable); quotes NOT verified by me (no checker); Q1: confirm the owner approved the eight allowlist hosts; C1 to C5 before any reconsideration | `b608c6e006d2d51d89caa6db8dd1433621852c7a` | `E-FEASIBILITY-MORE-REVIEW.md` |
 | E · provider facts, independent review | Fit for E's decision pack with F1 to F6 corrected; G1 (OpenAI's terms) and G2 (Anthropic's subprocessors) for the owner to read; Google not eligible under §20(d) without written clarification; disclosure: every reviewer here is an Anthropic model | `22ff0ddd5447eb4a451d8ac8776a1446945e84f0` | `E-PROVIDER-FACTS-REVIEW.md` |
 | A2b commit 3 (D4) and D1-2 | NO BLOCKER on either; D1-2 closed; D1-3 approved (the two read-only readers read held as A1-frozen or protected, with a test, a plant and a sweep) | `a46a94bc3a704613e34d7b48f1d22e600d693fc2` | `A2B-COMMIT3-D12-a46a94bc.md` |
