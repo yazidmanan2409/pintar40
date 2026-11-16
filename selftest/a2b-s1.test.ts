@@ -100,6 +100,10 @@ const barisJendela = (html: string, id: string) => {
 };
 const teks = (h: string) => h.replace(/<[^>]+>/g, " ").replace(/&nbsp;|\u00a0/g, " ").replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 const WK = ID("c1"), WT = ID("c2");
+/** An <input> of the page by its name and value, attributes in any order (React writes checked="" before value). */
+const masukan = (html: string, nama: string, nilai: string) =>
+  [...html.matchAll(/<input\b[^>]*>/g)].map((m) => m[0]).find((x) => x.includes(`name="${nama}"`) && x.includes(`value="${nilai}"`)) ?? "";
+const tercentang = (html: string, nama: string, nilai: string) => /\bchecked=""/.test(masukan(html, nama, nilai));
 
 export const a2bS1Tests: SelfTest[] = [
   {
@@ -136,24 +140,25 @@ commit;`);
           && q1.get("pm_alasan_kode") === "LAINNYA" && q1.get("pm_umumkan") === "1",
           `BL-1: a refused schedule must come back with every entered value: ${ke1.jalan}`);
         const h1 = await halaman(ctx, cookie, ke1.jalan);
-        c.expect(new RegExp(`name="pm_kelas" value="${K}" checked`).test(h1) && new RegExp(`name="kelas" value="${K}"`).test(h1),
+        c.expect(tercentang(h1, "pm_kelas", K) && masukan(h1, "kelas", K) !== "",
           "BL-1: the class stays chosen (its checkbox) and step two carries it");
-        c.expect(/name="alasan_kode" value="LAINNYA" checked/.test(h1) && /Pesan uji BL-1<\/textarea>/.test(h1) && /name="umumkan" value="1" checked/.test(h1),
+        c.expect(tercentang(h1, "alasan_kode", "LAINNYA") && /Pesan uji BL-1<\/textarea>/.test(h1) && tercentang(h1, "umumkan", "1"),
           "BL-1: step two is redrawn with its reason, message and announcement box as entered");
-        c.expect(/name="pm_mulai" value="2030-01-05T19:00"/.test(h1) && /name="pm_selesai" value="2030-01-05T21:00"/.test(h1), "BL-1: the times stay in their fields");
+        c.expect(masukan(h1, "pm_mulai", "2030-01-05T19:00") !== "" && masukan(h1, "pm_selesai", "2030-01-05T21:00") !== "", "BL-1: the times stay in their fields");
         c.expect(/role="alert"/.test(h1) && /data-fokus-peringatan/.test(h1), "BL-1: the refusal is an alert that takes focus");
         // the sweep: the extend's refusal keeps its new end and reason, and its form stays open
         const ke2 = alamat(await kirim(ctx, cookie, panjang!, { asal: "jendela", hal_jendela: "1", jendela: WK, baris: WK, selesai: "2020-01-01T08:00", alasan: "Alasan uji" }));
         c.expect(ke2.q.get("kode") === "MAINTENANCE_EXTEND_NOT_LATER" && ke2.q.get("panjang") === WK && ke2.q.get("pp_selesai") === "2020-01-01T08:00" && ke2.q.get("pp_alasan") === "Alasan uji",
           `the extend's refusal must keep its new end and reason, its form open: ${ke2.jalan}`);
         const h2 = await halaman(ctx, cookie, ke2.jalan);
-        c.expect(/data-perpanjang=""/.test(h2) && /name="alasan"[^>]*value="Alasan uji"/.test(h2), "the extend form is open again with its reason");
+        c.expect(/data-perpanjang=""/.test(h2) && masukan(h2, "alasan", "Alasan uji") !== "", "the extend form is open again with its reason");
         // the sweep: the announcement's refusal keeps its scope and message
         const ke3 = alamat(await kirim(ctx, cookie, umumkan!, { asal: "umumkan", sekolah: A, pesan: "Pengumuman uji BL-1", terbit: "", sampai: "" }));
         c.expect(ke3.q.get("kode") === "NOTICE_INPUT_INVALID" && ke3.q.get("pu_sekolah") === A && ke3.q.get("pu_pesan") === "Pengumuman uji BL-1",
           `the announcement's refusal must keep its scope and message: ${ke3.jalan}`);
         const h3 = await halaman(ctx, cookie, ke3.jalan);
-        c.expect(new RegExp(`name="sekolah" value="${A}" checked`).test(h3) && /name="pesan"[^>]*value="Pengumuman uji BL-1"/.test(h3), "the announcement form is drawn again as entered");
+        c.expect([...h3.matchAll(/<input\b[^>]*>/g)].some((m) => m[0].includes('type="checkbox"') && m[0].includes(`value="${A}"`) && m[0].includes('name="sekolah"') && /\bchecked=""/.test(m[0]))
+          && masukan(h3, "pesan", "Pengumuman uji BL-1") !== "", "the announcement form is drawn again as entered");
         // BL-2 and C-5: the row names the class and who scheduled it; a coded reason is «Alasan: …», old text «Alasan (dicatat): …»
         const daftar = await halaman(ctx, cookie, "/konfigurasi/pemeliharaan");
         const bk = teks(barisJendela(daftar, WK)), bt = teks(barisJendela(daftar, WT));
