@@ -8,6 +8,10 @@
 //                                               Without --live a real run is always refused.
 //
 // Options: --out <dir>  --providers anthropic,openai  --max-output <tokens>
+//          --pack-sha <40-hex>          the commit SHA of the frozen decision pack (E-DECISION-PACK §4.3a, Sharon).
+//                                       Recorded in every provenance record. REQUIRED for --live: a real run without a
+//                                       valid lowercase 40-hex value is refused before any request is built. Optional
+//                                       for --dry-run (recorded as null when absent; refused when malformed)
 //          --cap-provider <usd>  --cap-total <usd>  (can only LOWER the caps in prices.json, never raise them)
 //          --scenario normal|ceiling   (dry run only: which mock fault plan; ceiling = total cap 0.05)
 //          --real-prices               (--plan and --dry-run only: use the pinned prices in prices.json, not the
@@ -58,6 +62,7 @@ const INPUT_MARGIN = 1.2;
 const DEFAULT_MAX_OUTPUT = 12000;  // hard output cap per call: 15 items of JSON in Indonesian
 const LABELS = ['A', 'B', 'C', 'D'];
 const UNVERIFIED = 'UNVERIFIED';
+const PACK_SHA_RE = /^[0-9a-f]{40}$/;   // a full git commit SHA, lowercase
 const MICRO = 1e6;
 
 const sha = (s) => createHash('sha256').update(s).digest('hex');
@@ -353,9 +358,12 @@ function classify(err) {
 
 export async function runEval(cfg) {
   const { mode, outDir, providers, prices, caps, maxOutput, adapterFor, onReserve, keys = {}, log = console.log } = cfg;
+  const packSha = cfg.packSha ?? null;
+  if (packSha !== null && !PACK_SHA_RE.test(packSha)) throw new Fatal('pack SHA must be 40 lowercase hex characters');
+  if (mode === 'live' && packSha === null) throw new Fatal('a real run needs the frozen decision pack\'s commit SHA (--pack-sha)');
   const runId = `${mode}-${new Date().toISOString().replace(/[:.]/g, '-')}`;
   const ledger = new Ledger(join(outDir, 'ledger.json'), caps, { fresh: mode === 'dry-run', onReserve });
-  const run = { run_id: runId, mode, started_at: new Date().toISOString(), providers, max_output_tokens: maxOutput, concurrency: CONCURRENCY, max_attempts: MAX_ATTEMPTS };
+  const run = { run_id: runId, mode, pack_sha: packSha, started_at: new Date().toISOString(), providers, max_output_tokens: maxOutput, concurrency: CONCURRENCY, max_attempts: MAX_ATTEMPTS };
   ledger.doc.runs.push(run); ledger.save();
   const m = manifest(); const schema = schemaText();
   const req = Object.fromEntries(CHAPTERS.map((b) => [b, kitRequest(b)]));
@@ -379,7 +387,7 @@ export async function runEval(cfg) {
       for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
         const wc = worstCase(chars, maxOutput, price);
         const seq = ledger.doc.entries.filter((e) => e.provider === provider && e.status !== 'refused').length + 1;
-        const base = { run_id: runId, provider, model: price.model, chapter: b, request_index: seq, attempt, input_chars: chars,
+        const base = { run_id: runId, pack_sha: packSha, provider, model: price.model, chapter: b, request_index: seq, attempt, input_chars: chars,
           input_tokens_estimate: wc.input_estimate, input_tokens_bound: wc.input_bound, max_output_tokens: maxOutput,
           price_per_mtok: { input: price.input, output: price.output }, reserved_usd: usd(wc.micro), reserved_at: new Date().toISOString() };
         const chk = ledger.check(provider, wc.micro);
@@ -432,7 +440,7 @@ export async function runEval(cfg) {
         if (v.valid || !it.valid) {
           writeFileSync(join(pdir, `bab${b}.json`), res.raw);
           writeFileSync(join(pdir, `bab${b}.provenance.json`), JSON.stringify({
-            mode, run_id: runId, provider, model: price.model, model_version: res.model_version, model_date: price.model_date,
+            mode, run_id: runId, pack_sha: packSha, provider, model: price.model, model_version: res.model_version, model_date: price.model_date,
             request_id: res.request_id, attempt, prompt_version: m.prompt_version, prompt_sha256: m.prompt_sha256, schema_sha256: m.schema_sha256,
             schema_sent_sha256: sha(JSON.stringify(wireSchema(schema))), schema_sent_omits: SCHEMA_ANNOTATIONS,
             source: m.chapters[`bab${b}`].source, source_sha256: m.chapters[`bab${b}`].source_sha256,
@@ -452,7 +460,7 @@ export async function runEval(cfg) {
     if (!usageCalls[p].length) continue;
     const a = adapterFor(p); const pr = prices[p];
     writeFileSync(join(outDir, p, 'usage.json'), JSON.stringify({
-      model: pr.model, model_version: modelVersion[p] ?? null, model_date: pr.model_date, endpoint: a.endpoint, api_version: a.api_version,
+      pack_sha: packSha, model: pr.model, model_version: modelVersion[p] ?? null, model_date: pr.model_date, endpoint: a.endpoint, api_version: a.api_version,
       run_at: run.started_at, run_by: process.env.C3_RUN_BY || 'runner.mjs', generation: { temperature: 'provider default', max_tokens: maxOutput, system_prompt: '' },
       data_retention: pr.data_retention ?? UNVERIFIED, price_per_mtok: { input: pr.input, output: pr.output }, mode, calls: usageCalls[p],
     }, null, 2) + '\n');
@@ -468,7 +476,7 @@ export async function runEval(cfg) {
   const failed = Object.entries(items).filter(([, v]) => !v.valid).map(([k]) => k);
   const exitCode = abort ? (abort.kind === 'overrun' ? 3 : 2) : failed.length ? 4 : 0;
   const tot = ledger.sums();
-  const summary = { run_id: runId, mode, finished_at: new Date().toISOString(), exit_code: exitCode, abort, failed_requests: failed,
+  const summary = { run_id: runId, mode, pack_sha: packSha, finished_at: new Date().toISOString(), exit_code: exitCode, abort, failed_requests: failed,
     caps_usd: ledger.doc.caps_usd, total_spent_usd: usd(tot.spent), open_reservations_usd: usd(tot.reserved), max_in_flight: maxInFlight, per_provider: per, items };
   Object.assign(run, { finished_at: summary.finished_at, exit_code: exitCode, abort }); ledger.save();
   writeFileSync(join(outDir, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
@@ -505,7 +513,22 @@ export function liveGate(table, providers, env = process.env, adapters = ADAPTER
 // A real run needs BOTH the explicit --live flag and a passing gate. `adapters` is a test-only override.
 export function realRunProblems(args, table, providers, env = process.env, adapters = ADAPTERS) {
   const problems = args.live ? [] : ['no --live flag: a real run starts only with node runner.mjs --live, and only when every check below passes'];
+  const ps = args['pack-sha'];
+  if (ps === undefined || ps === true) problems.push('no --pack-sha: a real run records the frozen decision pack\'s commit SHA (40 lowercase hex characters)');
+  else if (!PACK_SHA_RE.test(String(ps))) problems.push(`--pack-sha ${JSON.stringify(String(ps)).slice(0, 60)} is not a 40-character lowercase hex commit SHA`);
   return problems.concat(liveGate(table, providers, env, adapters));
+}
+// The real run's entry point. Every check runs first; on any problem it returns the refusal and nothing else happens:
+// no key is read into the call arguments, no request is built, no adapter or fetch is touched.
+// `adapters` and `run` are test-only overrides (the self-test passes spies; main passes the real ones).
+export async function liveRun({ args, table, providers, env = process.env, adapters = ADAPTERS, run = runEval, log = console.log }) {
+  const problems = realRunProblems(args, table, providers, env, adapters);
+  if (problems.length) return { refused: true, problems };
+  const prices = Object.fromEntries(providers.map((p) => [p, table.providers[p]]));
+  const keys = Object.fromEntries(providers.map((p) => [p, env[table.providers[p].key_env]]));
+  const outDir = args.out ?? join(HERE, 'out');
+  const r = await run({ mode: 'live', outDir, providers, prices, caps: capsFrom(table, args), maxOutput: args.maxOutput ?? DEFAULT_MAX_OUTPUT, keys, packSha: args['pack-sha'], adapterFor: (p) => adapters[p], log });
+  return { refused: false, outDir, ...r };
 }
 const dryPrices = (table, providers) => Object.fromEntries(providers.map((p) => [p, { model: `${p}-mock-model`, model_date: 'dry-run', input: table.dry_run_assumed.input, output: table.dry_run_assumed.output, data_retention: 'none (offline mock)' }]));
 // the pinned prices with the mock: still offline. Refuses while a price is not pinned.
@@ -717,12 +740,14 @@ async function adapterChecks(check, table) {
   check(costMicro(272000, 1000, op) === 272000 * 2 + 1000 * 10 && costMicro(272001, 1000, op) === Math.ceil(272001 * 4 + 1000 * 15), 'openai price: above 272K input tokens the full request costs 2× input and 1.5× output');
 }
 
+// a syntactically valid 40-hex value for the self-test only; the real one is the frozen pack's commit, given at run time
+const TEST_PACK_SHA = '0123456789abcdef0123456789abcdef01234567';
 async function selfTest() {
   const fails = []; const check = (ok, msg) => { if (!ok) fails.push(msg); console.log(`${ok ? 'PASS' : 'FAIL'}  ${msg}`); };
   const table = loadPrices(); const providers = eligible(table); const prices = dryPrices(table, providers); const tmp = [];
   // no network at all: any fetch fails the test
   let fetches = 0; const realFetch = globalThis.fetch; globalThis.fetch = async () => { fetches++; throw new Error('network forbidden in self-test'); };
-  const scen = async (name, faults, capArgs) => {
+  const scen = async (name, faults, capArgs, packSha = TEST_PACK_SHA) => {
     const outDir = mkdtempSync(join(tmpdir(), `c3-runner-${name}-`)); tmp.push(outDir);
     const caps = capsFrom(table, capArgs); const mock = mockProvider(faults); const breaches = [];
     // the invariant, checked at every reservation: no open reservation lets spend exceed a cap
@@ -731,7 +756,7 @@ async function selfTest() {
       if (t.spent + t.reserved > caps.total) breaches.push(`total ${usd(t.spent + t.reserved)}`);
       if (t.reserved > 0 && l.doc.entries.filter((e) => e.status === 'reserved').length > CONCURRENCY) breaches.push('more than one open reservation'); };
     console.log(`\n── scenario ${name} (caps: ${usd(caps.perProvider)} per provider, ${usd(caps.total)} total)`);
-    const r = await runEval({ mode: 'dry-run', outDir, providers, prices, caps, maxOutput: DEFAULT_MAX_OUTPUT, adapterFor: () => mock, onReserve, log: (s) => console.log('  ' + s) });
+    const r = await runEval({ mode: 'dry-run', outDir, providers, prices, caps, maxOutput: DEFAULT_MAX_OUTPUT, adapterFor: () => mock, onReserve, packSha, log: (s) => console.log('  ' + s) });
     const t = r.ledger.entries.reduce((s, e) => s + toMicro(e.cost_usd ?? 0), 0);
     return { ...r, outDir, caps, mock, breaches, spentMicro: t };
   };
@@ -766,6 +791,13 @@ async function selfTest() {
   execFileSync(process.execPath, [KIT, 'blind', a.outDir, bl], { encoding: 'utf8' });
   const map = JSON.parse(readFileSync(join(bl, 'SEALED', 'map.json'), 'utf8'));
   check(Object.keys(map.items).length === 60, '(a) kit.mjs blind reads the runner output: 60 items (2 providers × 30)');
+  // the pack SHA in every provenance record
+  const provFiles = providers.flatMap((p) => CHAPTERS.map((b) => JSON.parse(readFileSync(join(a.outDir, p, `bab${b}.provenance.json`), 'utf8'))));
+  const usages = providers.map((p) => JSON.parse(readFileSync(join(a.outDir, p, 'usage.json'), 'utf8')));
+  const summ = JSON.parse(readFileSync(join(a.outDir, 'summary.json'), 'utf8'));
+  check(provFiles.length === 4 && provFiles.every((x) => x.pack_sha === TEST_PACK_SHA) && usages.every((x) => x.pack_sha === TEST_PACK_SHA)
+    && a.ledger.runs.every((x) => x.pack_sha === TEST_PACK_SHA) && a.ledger.entries.length > 0 && a.ledger.entries.every((x) => x.pack_sha === TEST_PACK_SHA) && summ.pack_sha === TEST_PACK_SHA,
+    '(a) --pack-sha is recorded in every provenance record: each bab<n>.provenance.json, usage.json, the ledger run and every ledger entry, summary.json');
 
   // (b) forced ceiling: total cap 0.05 → refused before the first call
   const b = await scen('b-ceiling-0.05', FAULTS_NORMAL, { 'cap-total': 0.05 });
@@ -831,14 +863,34 @@ async function selfTest() {
   // the --live flag: required in addition to the gate
   const allVerified = Object.fromEntries(Object.entries(ADAPTERS).map(([p, x]) => [p, { ...x, verified: true }]));   // test-only override
   check(liveGate(table, providers, dummyKeys, allVerified).length === 0, 'test-only override: with dummy keys and adapters marked verified, the gate itself passes');
-  const nl = realRunProblems({}, table, providers, dummyKeys, allVerified);
+  const nl = realRunProblems({ 'pack-sha': TEST_PACK_SHA }, table, providers, dummyKeys, allVerified);
   check(nl.length === 1 && /--live/.test(nl[0]), 'without --live a real run is refused, even with dummy keys and (hypothetically) verified adapters; the refusal names --live');
-  const lv = realRunProblems({ live: true }, table, providers, dummyKeys);
+  const lv = realRunProblems({ live: true, 'pack-sha': TEST_PACK_SHA }, table, providers, dummyKeys);
   check((lv.length > 0) === (unverified.length > 0) && !lv.some((x) => /--live/.test(x)) && unverified.every((p) => lv.some((x) => x.startsWith(`${p}: API adapter not verified`))), `with --live and dummy keys, a real run is still refused while an adapter is unverified (${unverified.join(', ') || 'none'})`);
-  check(realRunProblems({ live: true }, table, providers, dummyKeys, allVerified).length === 0, 'test-only override: --live, keys and verified adapters together are the only way through');
+  check(realRunProblems({ live: true, 'pack-sha': TEST_PACK_SHA }, table, providers, dummyKeys, allVerified).length === 0, 'test-only override: --live, --pack-sha, keys and verified adapters together are the only way through');
   const verifiedOnly = providers.filter((p) => ADAPTERS[p].verified);
-  check(verifiedOnly.every((p) => realRunProblems({ live: true }, table, [p], dummyKeys).length === 0 && realRunProblems({}, table, [p], dummyKeys).length === 1),
+  check(verifiedOnly.every((p) => realRunProblems({ live: true, 'pack-sha': TEST_PACK_SHA }, table, [p], dummyKeys).length === 0 && realRunProblems({ 'pack-sha': TEST_PACK_SHA }, table, [p], dummyKeys).length === 1),
     `the real adapters as they stand: ${verifiedOnly.join(', ') || 'none'} would pass the gate alone with --live and a key, and is refused without --live (checked in memory; no call made)`);
+  // --pack-sha: a real run without a valid 40-hex value is refused BEFORE any request is built. Checked in memory with
+  // spies: adapters whose build/call count and throw, a run function that counts, and fetch still blocked (above).
+  console.log('\n── --pack-sha (in memory; no request is built)');
+  const spy = { built: 0, called: 0, runs: 0 };
+  const spyAdapters = Object.fromEntries(Object.entries(ADAPTERS).map(([p, x]) => [p, { ...x, verified: true,
+    build() { spy.built++; throw new Error('spy: a request was built'); }, async call() { spy.called++; throw new Error('spy: a call was made'); } }]));
+  const spyRun = async (cfg) => { spy.runs++; spy.cfg = cfg; return { exitCode: 0, summary: { pack_sha: cfg.packSha } }; };
+  const live = (extra) => liveRun({ args: { live: true, ...extra }, table, providers, env: dummyKeys, adapters: spyAdapters, run: spyRun, log: () => {} });
+  const r0 = await live({});
+  check(r0.refused && r0.problems.length === 1 && /no --pack-sha/.test(r0.problems[0]), '--live with keys and verified adapters but no --pack-sha: refused, and the refusal names --pack-sha');
+  const badShas = ['abc', TEST_PACK_SHA.slice(0, 39), TEST_PACK_SHA + '8', TEST_PACK_SHA.toUpperCase().replace(/[0-9]/g, 'A'), 'g'.repeat(40), ' ' + TEST_PACK_SHA.slice(1), true, ''];
+  const rb = []; for (const v of badShas) rb.push(await live({ 'pack-sha': v }));
+  check(rb.every((x) => x.refused && x.problems.length === 1 && /--pack-sha/.test(x.problems[0])), `a malformed --pack-sha is refused: ${badShas.length} cases (short, long, uppercase, non-hex, leading space, flag with no value, empty)`);
+  check(spy.built === 0 && spy.called === 0 && spy.runs === 0 && fetches === 0, 'every --pack-sha refusal happened before any request was built: no adapter build, no call, no run, no fetch');
+  check(realRunProblems({ live: true, 'pack-sha': TEST_PACK_SHA }, table, providers, dummyKeys, spyAdapters).length === 0, 'a valid 40-hex --pack-sha clears this check (the other gates unchanged)');
+  const rOk = await live({ 'pack-sha': TEST_PACK_SHA });
+  check(!rOk.refused && spy.runs === 1 && spy.cfg.packSha === TEST_PACK_SHA && spy.cfg.mode === 'live' && spy.built === 0 && spy.called === 0,
+    'with a valid --pack-sha the (spy) run receives it; the spy builds nothing and no adapter is touched');
+  let thrown = null; try { await runEval({ mode: 'live', outDir: tmpdir(), providers, prices, caps: capsFrom(table, {}), maxOutput: 1, adapterFor: () => spyAdapters.anthropic, packSha: null, log: () => {} }); } catch (x) { thrown = x; }
+  check(thrown instanceof Fatal && /--pack-sha/.test(thrown.message) && spy.built === 0, 'runEval itself refuses a live run with no pack SHA, before reading the kit or building a request (a second guard)');
   check(fetches === 0, 'no network call was attempted');
   globalThis.fetch = realFetch;
   const plan = planTable(prices, providers, DEFAULT_MAX_OUTPUT);
@@ -857,6 +909,7 @@ function parseArgs(argv) {
     const k = argv[i]; if (!k.startsWith('--')) throw new Fatal(`unexpected argument ${k}`);
     const name = k.slice(2);
     if (['dry-run', 'self-test', 'plan', 'real-prices', 'live'].includes(name)) a[name] = true;
+    else if (name === 'pack-sha') { const v = argv[i + 1]; if (v === undefined || v.startsWith('--')) a[name] = true; else { a[name] = v; i++; } }   // left for realRunProblems to refuse
     else { const v = argv[++i]; if (v === undefined) throw new Fatal(`${k} needs a value`); a[name] = v; }
   }
   return a;
@@ -875,24 +928,21 @@ async function main() {
   if (!(Number.isInteger(maxOutput) && maxOutput > 0)) throw new Fatal('--max-output must be a positive integer');
   if (args.scenario === 'ceiling' && args['cap-total'] === undefined) args['cap-total'] = 0.05;
   const caps = capsFrom(table, args);
+  if (!args.live && args['pack-sha'] !== undefined && !PACK_SHA_RE.test(String(args['pack-sha']))) throw new Fatal('--pack-sha must be a 40-character lowercase hex commit SHA');
   const offlinePrices = () => (args['real-prices'] ? realDryPrices : dryPrices)(table, providers);
   if (args.plan) { const pr = offlinePrices(); printPlan(planTable(pr, providers, maxOutput), pr, caps); return 0; }
   if (args['dry-run']) {
     globalThis.fetch = async () => { throw new Error('network forbidden in a dry run'); };
     const outDir = args.out ?? join(HERE, 'out-dry-run');   // never inside out/: kit.mjs blind treats every folder there as a provider
     const mock = mockProvider(FAULTS_NORMAL);
-    const r = await runEval({ mode: 'dry-run', outDir, providers, prices: offlinePrices(), caps, maxOutput, adapterFor: () => mock });
+    const r = await runEval({ mode: 'dry-run', outDir, providers, prices: offlinePrices(), caps, maxOutput, adapterFor: () => mock, packSha: args['pack-sha'] ?? null });
     console.log(JSON.stringify({ exit_code: r.exitCode, abort: r.summary.abort, total_spent_usd: r.summary.total_spent_usd, caps_usd: r.summary.caps_usd, per_provider: r.summary.per_provider, out: outDir }, null, 2));
     return r.exitCode;
   }
   if (args['real-prices']) throw new Fatal('--real-prices applies only to --plan and --dry-run');
-  const problems = realRunProblems(args, table, providers);
-  if (problems.length) { console.error('real run refused:\n' + problems.map((x) => '- ' + x).join('\n')); return 1; }
-  const prices = Object.fromEntries(providers.map((p) => [p, table.providers[p]]));
-  const keys = Object.fromEntries(providers.map((p) => [p, process.env[table.providers[p].key_env]]));
-  const outDir = args.out ?? join(HERE, 'out');
-  const r = await runEval({ mode: 'live', outDir, providers, prices, caps, maxOutput, keys, adapterFor: (p) => ADAPTERS[p] });
-  console.log(JSON.stringify({ exit_code: r.exitCode, abort: r.summary.abort, total_spent_usd: r.summary.total_spent_usd, per_provider: r.summary.per_provider, out: outDir }, null, 2));
+  const r = await liveRun({ args: { ...args, maxOutput }, table, providers });
+  if (r.refused) { console.error('real run refused:\n' + r.problems.map((x) => '- ' + x).join('\n')); return 1; }
+  console.log(JSON.stringify({ exit_code: r.exitCode, abort: r.summary.abort, total_spent_usd: r.summary.total_spent_usd, pack_sha: r.summary.pack_sha, per_provider: r.summary.per_provider, out: r.outDir }, null, 2));
   return r.exitCode;
 }
 main().then((code) => process.exit(code), (e) => { console.error(e instanceof Fatal ? `runner: ${e.message}` : e); process.exit(1); });
