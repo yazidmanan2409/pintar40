@@ -180,6 +180,7 @@ begin
   end if;
   return new;
 end $$;
+revoke all on function public.enforce_no_new_sitting_in_maintenance() from public, anon, authenticated;
 
 -- ───────────────────────────────────────────────────────────── the request hook: person-level windows only
 do $$

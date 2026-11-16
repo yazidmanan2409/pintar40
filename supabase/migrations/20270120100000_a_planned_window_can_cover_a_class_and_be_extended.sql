@@ -82,8 +82,9 @@ begin
   end if;
   return v_id;
 end $$;
-revoke all on function public.schedule_maintenance(boolean, uuid[], timestamptz, timestamptz, text, text, boolean, uuid[]) from public, anon;
-grant execute on function public.schedule_maintenance(boolean, uuid[], timestamptz, timestamptz, text, text, boolean, uuid[]) to authenticated, service_role;
+-- CORRECTED IN PLACE (undeployed; Sharon's C1-1, A2B-COMMIT1-60af5cc2.md): to authenticated only, as main's
+revoke all on function public.schedule_maintenance(boolean, uuid[], timestamptz, timestamptz, text, text, boolean, uuid[]) from public, anon, service_role;
+grant execute on function public.schedule_maintenance(boolean, uuid[], timestamptz, timestamptz, text, text, boolean, uuid[]) to authenticated;
 
 -- ───────────────────────────────────────────────────────────── D3: extend
 create function public.perpanjang_pemeliharaan(p_window uuid, p_ends_at timestamptz, p_reason text)
@@ -93,10 +94,13 @@ declare v_me uuid := public.current_person_id(); w public.maintenance_windows; v
 begin
   -- A2A-L01: the actor first (the audit row names them), then the window's row; no fence, nothing after it
   perform 1 from public.persons p where p.id = v_me for key share;
+  -- Addendum 1 §5a, condition 1: an emergency ends only by A2a's fenced lift (its kind never changes: read unlocked,
+  -- so an emergency's row is never locked here; Sharon's note on commit 1)
+  if (select x.kind from public.maintenance_windows x where x.id = p_window) = 'EMERGENCY' then
+    perform public.maintenance_refuse('MAINTENANCE_EMERGENCY_LIFT_ONLY');
+  end if;
   select * into w from public.maintenance_windows where id = p_window for update;
   if v_me is null or w.id is null then perform public.maintenance_refuse('MAINTENANCE_NOT_ALLOWED'); end if;
-  -- Addendum 1 §5a, condition 1: an emergency ends only by A2a's fenced lift
-  if w.kind = 'EMERGENCY' then perform public.maintenance_refuse('MAINTENANCE_EMERGENCY_LIFT_ONLY'); end if;
   if not public.maintenance_controls(w) then perform public.maintenance_refuse('MAINTENANCE_NOT_ALLOWED'); end if;
   -- K8: ended, read on the clock (never now(), never activation_recorded_at)
   v_kini := clock_timestamp();
@@ -117,8 +121,8 @@ begin
                        'before', w.ends_at, 'after', p_ends_at, 'reason', btrim(p_reason)));
   return jsonb_build_object('ok', true, 'window', w.id, 'ends_at_before', w.ends_at, 'ends_at', p_ends_at);
 end $$;
-revoke all on function public.perpanjang_pemeliharaan(uuid, timestamptz, text) from public, anon;
-grant execute on function public.perpanjang_pemeliharaan(uuid, timestamptz, text) to authenticated, service_role;
+revoke all on function public.perpanjang_pemeliharaan(uuid, timestamptz, text) from public, anon, service_role;
+grant execute on function public.perpanjang_pemeliharaan(uuid, timestamptz, text) to authenticated;
 
 insert into public.client_rpc_registry (function_name, exposure, note, authorization_kind, authorization_requirement) values
   ('perpanjang_pemeliharaan', 'STAFF',
@@ -147,6 +151,10 @@ begin
      or to_regprocedure('public.perpanjang_pemeliharaan(uuid,timestamp with time zone,text)') is null
      or has_function_privilege('anon', 'public.perpanjang_pemeliharaan(uuid,timestamp with time zone,text)'::regprocedure, 'execute')
      or has_function_privilege('anon', 'public.schedule_maintenance(boolean,uuid[],timestamp with time zone,timestamp with time zone,text,text,boolean,uuid[])'::regprocedure, 'execute')
+     or has_function_privilege('service_role', 'public.schedule_maintenance(boolean,uuid[],timestamp with time zone,timestamp with time zone,text,text,boolean,uuid[])'::regprocedure, 'execute')
+     or has_function_privilege('service_role', 'public.perpanjang_pemeliharaan(uuid,timestamp with time zone,text)'::regprocedure, 'execute')
+     or not has_function_privilege('authenticated', 'public.perpanjang_pemeliharaan(uuid,timestamp with time zone,text)'::regprocedure, 'execute')
+     or not has_function_privilege('authenticated', 'public.schedule_maintenance(boolean,uuid[],timestamp with time zone,timestamp with time zone,text,text,boolean,uuid[])'::regprocedure, 'execute')
      or position('MAINTENANCE_EMERGENCY_LIFT_ONLY' in pg_get_functiondef('public.maintenance_refuse(text)'::regprocedure)) = 0 then
     raise exception 'A2b commit 1: the CHECK, the node parameter, the extend or its refusal is not as intended';
   end if;

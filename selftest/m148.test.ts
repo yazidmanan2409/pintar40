@@ -451,13 +451,18 @@ export const m148Tests: SelfTest[] = [
         `T-20: ${JSON.stringify(x.t20)}`);
       c.expect(x.t10?.keadaan === "MENJELANG" && x.t10?.mulai_baru === "PR110:MAINTENANCE_NO_NEW_START" && x.t10?.pintu === "LEWAT", `T-10: ${JSON.stringify(x.t10)}`);
       const n = x.t0 ?? {};
-      c.expect(n.murid_b === "PT503:PINTAR_PEMELIHARAAN" && n.guru === "PT503:PINTAR_PEMELIHARAAN" && n.murid_b_periksa === "PT503:PINTAR_PEMELIHARAAN"
-        && n.murid_b_status === "LEWAT" && n.murid_b_keluar === "LEWAT" && n.terhenti === "PLANNED" && n.keadaan === "AKTIF",
+      // RESTATED, A2b commit 2 (20270120110000), the owner's R-1: a school's PLANNED window is work-scoped. It stops no
+      // one as a person (the request hook and the session check pass; the status read's person-level stop is null),
+      // and a new start during it is refused by the place (Sharon's ruling 1, A2B-STEP1-b95bfe9c.md). Was: PT503
+      // PINTAR_PEMELIHARAAN for the school's people, terhenti PLANNED, and the start refused MAINTENANCE_NO_NEW_START.
+      c.expect(n.murid_b === "LEWAT" && n.guru === "LEWAT" && n.murid_b_periksa === "LEWAT"
+        && n.murid_b_status === "LEWAT" && n.murid_b_keluar === "LEWAT" && n.terhenti === null && n.keadaan === "AKTIF",
         `T=0, the school's people: ${JSON.stringify(n)}`);
-      c.expect(n.murid_a === "LEWAT" && n.murid_a_berjalan === "true" && n.murid_a_baru === "PR110:MAINTENANCE_NO_NEW_START",
+      c.expect(n.murid_a === "LEWAT" && n.murid_a_berjalan === "true" && n.murid_a_baru === "PR040:MAINTENANCE_PLACE",
         `T=0, the learner whose sitting is running: ${JSON.stringify([n.murid_a, n.murid_a_berjalan, n.murid_a_baru])}`);
       c.expect(n.admin === "LEWAT" && n.admin_menguasai === "true" && n.sekolah_lain === "LEWAT", `T=0, its admin and another school: ${JSON.stringify([n.admin, n.admin_menguasai, n.sekolah_lain])}`);
-      c.expect(x.kumpul === "SUBMITTED" && x.sesi === "SUBMITTED" && x.setelah_kumpul === "PT503:PINTAR_PEMELIHARAAN" && x.terkumpul === true,
+      // RESTATED, A2b commit 2 (R-1): after handing in, the learner is not stopped as a person either (was PT503)
+      c.expect(x.kumpul === "SUBMITTED" && x.sesi === "SUBMITTED" && x.setelah_kumpul === "LEWAT" && x.terkumpul === true,
         `the drain: handed in ${x.kumpul} (${x.sesi}), then ${x.setelah_kumpul}, acknowledged ${x.terkumpul}`);
       c.expect(x.akhiri_guru === "PR110:MAINTENANCE_NOT_ALLOWED" && x.akhiri_tanpa_alasan === "PR110:MAINTENANCE_INPUT_INVALID" && x.akhiri === "BERAKHIR"
         && x.akhiri_lagi === "PR110:MAINTENANCE_NOT_OPEN" && x.setelah_akhir === "LEWAT" && x.pengumuman_akhir === 0,
@@ -472,9 +477,9 @@ export const m148Tests: SelfTest[] = [
       return c.verdict("migration 20261120100000, planned maintenance, against the database and rolled back: a Guru, a school admin for the " +
         "platform or another school are refused, as are a start in the past and no reason, and no client reads the windows; the school's " +
         "admin schedules it with its notice and is told what it would meet; at T-20 the school is told and may still start a sitting; from " +
-        "T-15 a new sitting is refused (PR110 MAINTENANCE_NO_NEW_START) while requests pass; at T=0 the school's learners, Guru and the " +
-        "session check are refused PT503 PINTAR_PEMELIHARAAN, the status read and leaving pass; the learner already sitting drains (their " +
-        "requests pass, no new sitting) and hands in (SUBMITTED), after which they too are stopped and told it was received; the window's " +
+        "T-15 a new sitting is refused (PR110 MAINTENANCE_NO_NEW_START) while requests pass; at T=0 (R-1, A2b: work-scoped) the school's " +
+        "learners, Guru and the session check pass and no one is stopped as a person, a new sitting is refused by the place (PR040 " +
+        "MAINTENANCE_PLACE); the learner already sitting drains and hands in (SUBMITTED), told it was received; the window's " +
         "admin and another school's people pass; a Guru cannot end it, its admin ends it with a reason (BERAKHIR, notice withdrawn) and " +
         "everyone passes; a window ended by the clock stops nobody; a notice reaches its school only and goes when withdrawn; audit_log holds " +
         "each step with from and to states, the automatic start and end as SYSTEM with no person");
