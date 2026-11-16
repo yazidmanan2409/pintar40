@@ -92,7 +92,9 @@ begin
   perform selftest.as_owner();
   -- RESTATED, A2b commit 1 (20270120100000): the signature gains p_nodes (a class window), defaulted, so every
   -- seven-argument call below still reaches it
-  v := v || jsonb_build_object('ada', to_regprocedure('public.schedule_maintenance(boolean,uuid[],timestamptz,timestamptz,text,text,boolean,uuid[])') is not null);
+  -- RESTATED, A2b batch 2 (D2, 20270120190000): it gains p_reason_code after p_nodes, defaulted to null (Sharon,
+  -- A2B-BATCH2-TESTS-d837181d.md: accepted), so every call below still reaches it unchanged
+  v := v || jsonb_build_object('ada', to_regprocedure('public.schedule_maintenance(boolean,uuid[],timestamptz,timestamptz,text,text,boolean,uuid[],text)') is not null);
   select * into c from selftest.wp2_school();
   lain_u := selftest.f06p10_person('m148-murid-lain');
   select a.person_id into lain from public.accounts a where a.auth_user_id = lain_u;
