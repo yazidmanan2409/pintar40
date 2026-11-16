@@ -17,8 +17,10 @@
 - **Ruling 42** (owner, 16 Nov): the recovery rule in work-scoped windows (decision 2), subject to Sharon, who agrees
   (§4 of her review).
 - **Sharon's pre-build review**, `docs/coordination/reviews/sharon/A3-PREBUILD-ac25e9b1.md`
-  (`a58eae49e66b22324e25bccde14653194b2545ff`, `claude/gracious-lamport-0m1qjr`). Its conditions are carried below
-  as written. **Its ten restated red cases supersede N-4's lost text.**
+  first at `a58eae49e66b22324e25bccde14653194b2545ff`, then **with its 22:50 addendum at
+  `afc3fb103c6ee41cd4688bd4a6ae98839c9ccd3f`** (`claude/gracious-lamport-0m1qjr`), which is the version used. Its
+  conditions are carried below as written. **Its ten restated red cases, and the eleventh of its addendum, supersede
+  N-4's lost text.** Her confirmation of F37-R02 and of the codes' order is at `7fa4de5d830ece739971c706a68c50d8e4a3beab`.
 - **Daisy's design input:** `DESAIN-AWAL-4.1.md` §4 (`ux-1/daisy-experience`), with her neutral forms (O-4). The Exam
   Mode sentence is dropped (O41-9). Daisy answers on the codes and on the same-device screen.
 
@@ -80,11 +82,16 @@ Read from the live function bodies on a fresh reset, not from THE PLAN's `3a190d
   `RECOVERY_AUTHORISATION_USED` and `RECOVERY_NOTHING`. The words are Daisy's.
 - **No existence oracle:** an unknown sitting id, and a sitting the caller does not control, both answer
   `SITTING_NOT_CONTROLLER`. The other codes come only after that check.
-- **Asked of Sharon (16 Nov 22:18), pending her answer.** Recovery is asked by a session that is not the controller, so
-  for the recovery act I read "that check" as ownership:
-  - an unknown id, another learner's sitting or another school's sitting answers `SITTING_NOT_CONTROLLER`;
-  - for the learner's own sitting, `RECOVERY_NOTHING` and the authorisation codes follow;
-  - on every other boundary, a non-controller session of the same learner answers `SITTING_NOT_CONTROLLER`.
+- **The order, as Sharon settled it** (`7fa4de5d`, replacing her §5's "after the controller check"):
+  1. **Ownership first.** The caller is the sitting's learner, or, for staff authorising, someone who may manage the
+     sitting's place under today's rule.
+  2. An unknown id, another learner's sitting, or a sitting outside that authority answers `SITTING_NOT_CONTROLLER`.
+  3. `RECOVERY_NOTHING` and the authorisation codes appear only after (1).
+  4. On every other learner boundary, a session of the same learner that is not the controller answers
+     `SITTING_NOT_CONTROLLER`.
+- **Fail-closed (red case 11, her addendum):** a null `sesi_saya()`, which a card or shared-computer sign-in can give,
+  refuses with `SITTING_NOT_CONTROLLER` at every recovery and controller boundary. It is never read as "no other
+  device, so allowed".
 
 ## Ruling 42, decision 2 (Sharon agrees, §4, with three conditions)
 
@@ -106,7 +113,7 @@ Read from the live function bodies on a fresh reset, not from THE PLAN's `3a190d
 | N-4: Sharon's ten further red cases | **Met:** restated in her review (`a58eae49` §1); they supersede the lost text |
 | N-5: Sharon's verdict on the SI-D02 stronger race | **Met:** F37-R01's stronger form accepted. Its finding, the lock key narrower than the count, is registered A3-R1 (`0d3f8ec9`) and proven red by F37-R02 (`38505a44`) |
 | The start path's lock order | **Met:** accepted by Sharon, with the key re-keyed per N-5 |
-| Pre-build reviews | **Sharon's: done** (`a58eae49`), with one clarification asked (the codes). **Daisy's: pending**, on the journeys, the words, the codes and the same-device screen |
+| Pre-build reviews | **Sharon's: done** (`afc3fb10`, with the codes' order settled at `7fa4de5d`). **Daisy's: pending**, on the journeys, the words, the codes' sentences and the same-device screen; only the screens wait on it (Bob, 22:19) |
 
 ## The evidence, with Sharon's conditions folded in
 
@@ -114,7 +121,7 @@ Red first on `ac25e9b1`; then green on the build.
 
 | # | Evidence | State |
 |---|---|---|
-| A3-1 | C1-D125 §5's cases 1, 2, 3, 5, 6, 8, 9 and 10 (case 4 is F37-R01; case 7 is A3-7). **Sharon's ten:** S1 identity from verified claims only, a forged parameter recovering nothing; S2 a client generation ignored, and every superseded-generation write refused (answer, pause, resume, submit); S3 the scored result across generations; S4 `RECOVERY_NOTHING` with nothing written for a FINALIZED, submitted, expired or terminated sitting; S5 the authorisation used once, expiring, bound to its sitting and learner, and no low-stakes self-recovery for an Uji Penguasaan; S6 the deadline, answers and attempt count preserved; S7 recover against submit, recover and an emergency stop's marking, in both orders, one outcome each; S8 ruling 42's legs; S9 who may recover, with an unknown id answering the same code; S10 the audit rows (actor, generations from and to) and the superseded device's stated state in the built app | **A3-R01 red** (`c6a4da20`): cases 1, 2 and 3, a caller with no session id, and B's hand-in. The rest wait for the recovery act's name and Daisy's answer |
+| A3-1 | C1-D125 §5's cases 1, 2, 3, 5, 6, 8, 9 and 10 (case 4 is F37-R01; case 7 is A3-7). **Sharon's ten:** S1 identity from verified claims only, a forged parameter recovering nothing; S2 a client generation ignored, and every superseded-generation write refused (answer, pause, resume, submit); S3 the scored result across generations; S4 `RECOVERY_NOTHING` with nothing written for a FINALIZED, submitted, expired or terminated sitting; S5 the authorisation used once, expiring, bound to its sitting and learner, and no low-stakes self-recovery for an Uji Penguasaan; S6 the deadline, answers and attempt count preserved; S7 recover against submit, recover and an emergency stop's marking, in both orders, one outcome each; S8 ruling 42's legs; S9 who may recover, with an unknown id answering the same code; S10 the audit rows (actor, generations from and to) and the superseded device's stated state in the built app; **S11 a null `sesi_saya()` refuses, never allows** (her addendum) | **A3-R01 red** (`c6a4da20`): cases 1, 2 and 3, S11 (a caller with no session id writes today), and B's hand-in. The rest wait for the recovery act's name and Daisy's answer |
 | A3-R1 (N-5) | Two OPEN assignments of one definition, two connections. The second start is refused ATTEMPT_LIMIT_REACHED, and the learner holds exactly `attempt_limit` sittings. The structural check asserts that the lock's key names the definition, not the assignment | **F37-R02 red** (`38505a44`): 2 sittings against a limit of 1 |
 | A3-2 | The two-connection set on `run.ts`'s race harness: two devices answering at once; finish on A with B in flight; answer while paused from the other device; old A after a recovery; two recoveries at once; a recovery racing a teacher's ending, an extension, the scheduled closer, an emergency hold and the lift; two concurrent first writes claiming an uncontrolled sitting. Each commits by design and leaves no sitting, authorisation or role behind (P3) | Not yet written |
 | A3-3 | Every learner boundary refuses a non-controller. **The enumeration test:** every writer of the two tables, triggers included, either checks the controller or is on the service list, and takes the sitting row lock in the order above (Sharon §3, condition 2). **The lock-order lint**, with the advisory key and `assessment_assignments` ranked (condition 1) | Not yet written |
@@ -137,6 +144,8 @@ Red first on `ac25e9b1`; then green on the build.
   - the five `ci.yml` red-case anchors on `start_learning_session`, `may_start_assessment` and
     `pengerjaan_gerbang`;
   - A2a's and A2b's own plants.
+  - **Each is re-aimed with its defect unchanged and shown red, as A2b's 3g, 3h and 3i were. None is loosened to make
+    it pass** (Sharon's addendum).
 - **The source readers are re-pointed:** A1-K01 and A1-K02, `a1.test.ts`, `aturan.test.ts`, `experience.test.ts`'s
   migration pins, and `run.ts`'s races.
 - **The order of commits:**
@@ -147,9 +156,12 @@ Red first on `ac25e9b1`; then green on the build.
 
 ## Open before the build
 
-1. **Sharon:** the clarification on the codes' order for the recovery act.
-2. **Daisy:** the journeys and words, the codes' sentences, and the same-device screen (D11, D-2, her O-4 neutral
+1. **Daisy:** the journeys and words, the codes' sentences, and the same-device screen (D11, D-2, her O-4 neutral
    forms).
-3. **The owner:** a push branch for A3. Until then it stays local.
-4. **Bob and the owner:** whether N-5's exposure, latent since `20270113140000`, needs anything beyond A3's fix. It is
-   not checked here, and staging and production are outside this work.
+2. **The owner:** a push branch for A3. Until then it stays local.
+
+*Answered:*
+- **N-5's exposure** (Bob, 22:23). `20270113140000` is on main, so it is on staging, which holds synthetic data
+  only. Production is at migration 111 and has neither 4.0 nor 4.1. No production action and no staging check are
+  needed; A3's release corrects it. The register's "latent since 4.0" is corrected (A3-R1).
+- **The codes' order** (Sharon, `7fa4de5d`): settled above.
