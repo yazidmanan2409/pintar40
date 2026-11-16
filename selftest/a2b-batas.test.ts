@@ -352,6 +352,7 @@ export const KELAS_JENDELA: Record<string, { kelas: KelasJendela; alasan: string
   penghentian_orang: { kelas: "EMERGENCY", alasan: "a stop's people at T_stop" },
   maintenance_controls: { kelas: "ADMIN", alasan: "who may change a window (the scheduling screen)" },
   maintenance_list: { kelas: "ADMIN", alasan: "the scheduling screen's list" },
+  maintenance_collisions: { kelas: "ADMIN", alasan: "the scheduling screen's advisory count; with classes it builds the proposed window as a maintenance_windows value for the one place predicate, reading no row of the table (K14, K18, D15)" },
   maintenance_state: { kelas: "ADMIN", alasan: "a window's state at an instant (TERJADWAL, MENJELANG, AKTIF, BERAKHIR)" },
 };
 const HANYA_DARURAT = /'EMERGENCY'|\bt_stop\b/;
@@ -769,7 +770,7 @@ select 'kelas_b|' || coalesce((public.maintenance_collisions(p_platform => false
 select 'daftar|' || coalesce((select count(*) from jsonb_array_elements(public.pemeliharaan_kelas_sekolah('${d.X}')) x where x ->> 'id' = '${d.kA}')::text, 'null');
 select 'daftar_lain|' || pg_temp.a2b_coba($q$select public.pemeliharaan_kelas_sekolah('${d.Y}')$q$);
 ${tanpaOrang}
-select 'paparan|' || coalesce((select exposure from public.client_rpc_registry where function_name = 'pemeliharaan_kelas_sekolah'), 'tidak ada');
+select 'paparan|' || coalesce((select exposure::text from public.client_rpc_registry where function_name = 'pemeliharaan_kelas_sekolah'), 'tidak ada');
 select 'anon|' || coalesce((select has_function_privilege('anon', p.oid, 'execute')::text from pg_proc p where p.proname = 'pemeliharaan_kelas_sekolah' and p.pronamespace = 'public'::regnamespace), 'tidak ada');
 rollback;`);
 }
