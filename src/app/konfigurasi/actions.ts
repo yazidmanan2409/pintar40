@@ -33,6 +33,16 @@ function back(section: string, h: HasilAksi, fd?: FormData): never {
   redirect(adalahBagian(section) ? alamatBagian(section, queryHasil(section, h, fd), section) : `/konfigurasi?${queryHasil(section, h, fd).toString()}#${section}`);
 }
 
+/** A2b (Daisy's batch 2 review, BL-1 and its sweep): a refused form comes back with every value the person entered,
+ *  under its form's own names, so the page draws it again as it was (a class kept, never silently a whole school).
+ *  Only a refusal carries them; a done act returns to the empty form. The page reads each back as a field's default
+ *  value; none reaches the result line. */
+function kembaliDenganIsian(h: HasilAksi, fd: FormData, isian: Array<[string, string]>, jangkar: string): never {
+  const q = queryHasil("pemeliharaan", h, fd);
+  if (!h.ok) for (const [k, v] of isian) if (v !== "") q.append(k, v.slice(0, 500));
+  redirect(alamatBagian("pemeliharaan", q, jangkar));
+}
+
 /** A refusal as its code; one nobody named is logged with the reference the page shows. */
 function ditolak(fn: string, error: { code?: string | null; message?: string | null } | null): HasilAksi {
   const kode = kodeGalat(error);
@@ -598,15 +608,6 @@ function cakupan(fd: FormData): { platform: boolean; sekolah: string[] } {
 }
 
 const kembaliPemeliharaan = (h: HasilAksi, fd?: FormData): never => back("pemeliharaan", h, fd);
-/** A2b (Daisy's batch 2 review, BL-1 and its sweep): a refused form comes back with every value the person entered,
- *  under its form's own names, so the page draws it again as it was (a class kept, never silently a whole school).
- *  Only a refusal carries them; a done act returns to the empty form. The page reads each back as a field's default
- *  value; none reaches the result line. */
-function kembaliDenganIsian(h: HasilAksi, fd: FormData, isian: Array<[string, string]>, jangkar: string): never {
-  const q = queryHasil("pemeliharaan", h, fd);
-  if (!h.ok) for (const [k, v] of isian) if (v !== "") q.append(k, v.slice(0, 500));
-  redirect(alamatBagian("pemeliharaan", q, jangkar));
-}
 const semua = (fd: FormData, k: string) => fd.getAll(k).map((v) => String(v).trim()).filter((v) => v !== "");
 const kembaliJadwal = (h: HasilAksi, fd: FormData): never => kembaliDenganIsian(h, fd, [
   ["pm_cek", "1"], ["pm_platform", str(fd, "platform") === "1" ? "1" : ""],
