@@ -1155,6 +1155,31 @@ export const a2bBatasTests: SelfTest[] = [
     },
   },
   {
+    id: "A2B-D4X",
+    requires: ["db"],
+    run: jalan((c, db) => {
+      // the Chief Architect's D4 ruling (16 Nov 05:16): with no per-assessment duration, D4's calculation is gone from the
+      // database and the app, not hidden. The detector is one query; the plant creates a function carrying the code in a
+      // rolled-back transaction and the same query must find it
+      const cari = `select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosrc like '%MAINTENANCE_CANNOT_FINISH%'`;
+      const r = barisKunci(db, `begin;
+select 'fungsi|' || (${cari});
+select 'argumen|' || coalesce((select string_agg(p.pronargs::text, ',') from pg_proc p where p.pronamespace = 'public'::regnamespace and p.proname = 'maintenance_mulai_tolak'), 'tidak ada');
+create function public.a2b_d4x_tanam() returns text language sql as $t$ select 'MAINTENANCE_CANNOT_FINISH' $t$;
+select 'tanam|' || (${cari});
+rollback;`);
+      c.expect(!r.err, `D4X failed to run: ${r.err}`);
+      c.expect(r.hasil.tanam !== undefined && Number(r.hasil.tanam) > Number(r.hasil.fungsi ?? 0), `the plant (a function carrying the code) must be found by the detector: ${r.hasil.tanam}`);
+      c.expect(r.hasil.fungsi === "0", `no database function may carry MAINTENANCE_CANNOT_FINISH: ${r.hasil.fungsi}`);
+      c.expect(r.hasil.argumen === "2", `the start rule must take no deadline (person, node only): ${r.hasil.argumen} argument(s)`);
+      const sisa = berkasSrc(join(process.cwd(), "src")).filter((f) => /CANNOT_FINISH|pemeliharaan\.d4\./.test(readFileSync(f, "utf8")));
+      c.expect(sisa.length === 0, `no app file may carry D4's code or sentences: ${sisa.join(", ")}`);
+      const muka = readFileSync(join(process.cwd(), "src/app/belajar/_components/PermukaanAsesmen.tsx"), "utf8");
+      c.expect(!/menitTersisa\(orientasi\.closes_at\)|\{d\}/.test(muka), "the start screen must compute no {d} from the assignment's close");
+      return `D4's calculation is gone, not hidden: no database function carries MAINTENANCE_CANNOT_FINISH (the planted one is found), the start rule takes person and node only, and no app file carries the code, the pemeliharaan.d4.* sentences or a {d} from the close`;
+    }),
+  },
+  {
     id: "A2B-K13",
     requires: ["db"],
     run: jalan((c, db, d) => {

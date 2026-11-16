@@ -2808,6 +2808,13 @@ export const experienceTests: SelfTest[] = [
       c.expect((surface.match(/disabled/g) ?? []).length === 1 && /<button type="button" className="pin-btn pin-primary" disabled aria-describedby="mulai-tolak">/.test(surface)
         && /const dimatikan = tolak !== null && arahTolakMulai\(tolak, orientasi\.tolak_cakupan\) === "LAYAR";/.test(surface),
         "the assessment surface renders a disabled control other than R-A's maintenance «Mulai», which is how a refused orientation comes back as a greyed-out page");
+      // Daisy's condition (a) (A2B-SLICE2-PUTUSAN.md; the owner, 16 Nov: before or after, so long as it is clear): whenever
+      // that «Mulai» is disabled, its sentence is VISIBLE text beside it, not only reachable through aria-describedby (a
+      // disabled control leaves the tab order), and it always has one
+      c.expect(/<p id="mulai-tolak" className="pin-mm" role="status">\{kalimatTolak\}<\/p>/.test(surface)
+        && !/id="mulai-tolak"[^>]*(sr-only|hidden|aria-hidden)/.test(surface)
+        && /const kalimatTolak = !dimatikan \? null\s*: tolak === "MAINTENANCE_PLACE" \? s\("pemeliharaan\.pita\.asesmen_baru"\)/.test(surface),
+        "a disabled «Mulai» must carry its sentence as visible text, tied by aria-describedby, and never be disabled without one");
       // No second eligibility opinion in this process: may_start_assessment is
       // the database's answer and the RPCs ask it themselves.
       c.expect(!/\bmayStart\b/.test(surface),

@@ -6336,6 +6336,11 @@
       "proves": "A2b commit 9 (D8-2, R-1); reads the maintenance page's source: a class or school window under way has its own branch, judged before the generic one, naming the place (pemeliharaan.tempat.berlangsung) and saying the rest of PINTAR stays usable (pemeliharaan.tempat.arti), and none of the copy that says PINTAR cannot be used; the ?mulai=ditolak copy (a platform window's T−15) is limited to platform-wide windows."
     },
     {
+      "id": "A2B-D4X",
+      "runner": "static",
+      "proves": "The Chief Architect's D4 ruling (16 Nov 05:16; THE PLAN §5.3 D4: no duration, T−15 only), the calculation gone and not hidden; executes one catalogue query on the database in a rolled-back transaction and reads source: no public function's body carries MAINTENANCE_CANNOT_FINISH, maintenance_mulai_tolak takes two arguments (person, node: no deadline), no file under src/ carries CANNOT_FINISH or the pemeliharaan.d4.* sentences, and the start screen computes no {d} from the assignment's close. Plant: a function carrying the code, created in the same transaction, is found by the same query."
+    },
+    {
       "id": "A2B-K13",
       "runner": "static",
       "proves": "The Chief Architect's R-A (PLAN-A2B-C2W.md at e15fe966); executes on the database in rolled-back transactions: one minute before a planned class window's start a start in the class is refused PR110 MAINTENANCE_NO_NEW_START, and one second after it PR040 MAINTENANCE_PLACE; another class's start proceeds on both sides; the class's learner passes the request hook on both sides (never PT503, no redirect)."
