@@ -128,3 +128,16 @@ Acknowledged on receipt.
 **The siblings are restated:** O01's fourth case, H01, A01, the inventory's notes, and A2A-T01.
 
 **Closed.**
+
+## Addendum, 16 Nov 2026 08:00 UTC: D12's plant depends on leftover state (Second Eye's report)
+
+- **What was reported:** after a restart, D12's plant was installed and moved `efektif` off 900. But `kuras` stayed true. `maintenance_draining(person)` asks about any sitting the learner has, so an open sitting left by screen captures can satisfy it, in the plant run and in the main assertion.
+  - **The test can pass for the wrong reason, so this is a test blocker.**
+  - Second Eye is tracing it. D12 will reset its own state, and its siblings will be swept for the same reliance.
+- **Required in the test commit:**
+  1. D12 creates and removes its own sittings, and **asserts that the learner has no other open sitting before it starts**.
+  2. **One added case:** a learner with an open sitting that the window does **not** affect. Its expected `kuras` must follow the approved rule.
+- **A question on the rule, not only the test:** is `maintenance_draining(person)` meant to be true for **any** open sitting, or only for a sitting the window affects (A2b's R-1)?
+  - **If the rule is "only affected sittings"** and the function answers for any sitting, that is a **code defect**, and I need to see it fixed.
+  - **If "any open sitting" is the approved rule,** cite where it is approved.
+- **Could reasonably have been anticipated:** yes, by me (Q4, before and after). When I read D12, I checked what the plant changes, but not what state the test assumes before it starts.
