@@ -55,3 +55,25 @@ No calls are made, nothing is spent, and no material leaves PINTAR.
 3. **Unchanged:** the runner's caps, gates and adapters (my `E-RUNNER-4a591fa3.md`).
    - `kit.mjs blind` must strip every field that names a provider or model (`model_version`, request ids and the like) from what judges and I see.
    - A one-line check of that belongs in the script's self-test.
+
+## Addendum, 16 Nov 2026 20:20 UTC: the conditions built, at `68ebe2fda37c03016ddca36d9668418865f8d587` on `claude/e-runner-prep`
+
+**What I did:**
+- ran every self-test myself, offline: no keys, the proxy pointed at a dead port, a scratch copy. The results were **runner 125/0, score 44/0, kit 33/0 and report 21/0**, with no FAIL anywhere;
+- read the `--pack-sha` gate and `score.mjs`'s flag hash and critical rule.
+
+**Verdict: PASS. My (a) to (c) are met.**
+- **The pack SHA is a hard gate:** `--pack-sha` must be 40 hex characters. A live run without it is refused, and the run record carries `pack_sha`.
+- **The live gate also refuses** if kit, score or report have drifted from MANIFEST.json.
+- **`score.mjs`:**
+  - It **checks the flags file's SHA-256 before parsing**, and refuses on a mismatch or with no hash given. A changed flags file is never scored.
+  - "Critical" means any valid item whose resolved correctness is 0, and Q1 and the critical rule read the same resolved table, which is my (b)3.
+  - Q1 and Q2 are marked PROPOSED until the owner freezes them.
+- **`kit.mjs blind`** is built from allowlists and shows only schema-valid items, so no model or request field can reach judges or me.
+- **`report.mjs`** refuses unless the map matches its committed hash and the final scores exist, and it never writes scores.
+- **The pack's §4.3b interpretations are accepted:**
+  - an item is accepted when its burden is at least 1 after resolution, so a 0.5 average is not accepted;
+  - "upheld" means the third educator scores the item 0;
+  - a malformed item is voided on its own and never shown.
+- **One process note, not code:** `--flags-sha256` is typed by the operator. The report should show that it equals the hash committed **before** the judges' sheets were exchanged, with both commit times, so the check proves order and not only integrity.
+- **The freeze is confirmed on this head** for E's offline preparation. No call, key or spend is authorised.
