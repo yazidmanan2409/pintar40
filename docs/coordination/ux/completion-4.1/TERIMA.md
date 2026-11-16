@@ -29,3 +29,4 @@
 | 16 Nov, 10:29 | Bob | Ruling 42; PLAN-A3-C3W-Z.md (`f942eb97`). R-3's matching rule is mine and Sharon's at C3w's pre-build review; A3 follows DESAIN-AWAL §4 and O-4 | Bob's note | To read when quiet; nothing before A2b's freeze |
 | 16 Nov, 11:05 | Second Eye | «pemberitahuan» in the extend result line breaks DAISY-25; two-step «Perpanjang» | `claude/a2b` at `84681d51` | Ruled in `A2B-PERPANJANG-KATA.md`: «Yang terdampak akan melihat waktu selesai yang baru.»; two steps accepted (A2B-D5, mine) |
 | 16 Nov, 11:47 | Second Eye | D8 batch 2 captures | `claude/a2b` at `7a079eb2` | `TINJAUAN-A2B-D8-B2-7a079eb2.md`: **BLOCKED** (BL-1 refusal drops the class; BL-2 the row omits the class); C-4 to C-6 |
+| 16 Nov, 12:44 | Second Eye | Batch 2 recaptured | `claude/a2b` at `31443ff0` | `TINJAUAN-A2B-D8-B2-31443ff0.md`: **PASS**. D8 cleared for freeze; «Lainnya» row reason is N-5 for Z |
