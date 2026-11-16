@@ -2223,7 +2223,9 @@ export const experienceTests: SelfTest[] = [
       // Read against §3: a scope and an end, not a mark, a logo, a crest or a theme.
       // MOVED 268 -> 269, RESTATED, A2b commit 2: 20270120110000 (a planned window refuses its place's work).
       // Read against §3: a place, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 269, `${migrations.length} migrations; the frozen baseline has 269`);
+      // MOVED 269 -> 270, RESTATED, A2b commit 3: 20270120120000 (a start that cannot finish before a window is refused).
+      // Read against §3: a deadline, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 270, `${migrations.length} migrations; the frozen baseline has 270`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4115,7 +4117,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 266 -> 267, RESTATED, A2a change C, for 20270119270000 (the refusal dedupe): no tour RPC.
       // MOVED 267 -> 268, RESTATED, A2b commit 1, for 20270120100000 (the class window and the extend): no tour RPC.
       // MOVED 268 -> 269, RESTATED, A2b commit 2, for 20270120110000 (the place guard): no tour RPC.
-      c.expect(migs.length === 269, `${migs.length} migrations; the baseline has 269`);
+      // MOVED 269 -> 270, RESTATED, A2b commit 3, for 20270120120000 (D4): no tour RPC.
+      c.expect(migs.length === 270, `${migs.length} migrations; the baseline has 270`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

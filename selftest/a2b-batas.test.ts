@@ -321,6 +321,7 @@ export const KELAS_JENDELA: Record<string, { kelas: KelasJendela; alasan: string
   pintar_status_saya: { kelas: "PERSON", alasan: "the status read: says person-level or work-scoped, the place and the zone (D8)" },
   maintenance_affects_place: { kelas: "PLACE", alasan: "A2b's place guard (clock_timestamp(), no lock)", menunggu: true },
   enforce_no_new_sitting_in_maintenance: { kelas: "PLACE", alasan: "the sitting-insert trigger: the place, D4 and T−15 (K1, K3, K4)" },
+  maintenance_mulai_tolak: { kelas: "PLACE", alasan: "A2b's one start rule (the place, T−15, D4), read by the trigger and by may_start_assessment" },
   catat_penolakan_henti: { kelas: "EMERGENCY", alasan: "A2a's O1 refusal record" },
   orang_dilindungi: { kelas: "EMERGENCY", alasan: "A2a's protection of a person" },
   pengerjaan_dilindungi: { kelas: "EMERGENCY", alasan: "A2a's protection of a sitting" },
