@@ -71,5 +71,6 @@
 - **Before I give a line:**
   - I search the existing strings for the concept and the field it names (1);
   - I ask where it renders and at what width (5);
-  - I ask what the neighbouring act says (2).
+  - I ask what the neighbouring act says (2);
+  - **I run my lines through the suite's own wording rules** (DAISY-25's promise pattern among them), not only the strings. Added after A2B-D5. A sweep of every A2a and A2b line I have given (16 Nov, 11:15) finds no other hit.
 - **At each result review:** a table like the ones above, in the review itself.
