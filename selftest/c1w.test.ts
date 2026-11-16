@@ -838,6 +838,12 @@ export const c1wTests: SelfTest[] = [
         langkah("tegas", "kadep", `select concat_ws('|', x ->> 'ok', x ->> 'dihitung_ulang', x ->> 'hasil_berubah_tercatat', x ->> 'sesi_terbuka', x ->> 'penugasan_dipindah', x ->> 'versi')
              from public.tegaskan_koreksi_kunci(${G("k1")}) x`),
         langkah("tegas_lagi", "kadep2", tegaskan("k1")),
+        // PENDING THE OWNER'S RULE (A3, N-5's follow-up; Bob 16 Nov 22:46; Sharon's facts at 478c8750): does a revision of an
+        // assessment give a learner who sat the earlier revision a fresh attempt? m1 sat the Pemetaan Awal (s1) on the
+        // revision k1 replaced; the assignment now sits on the corrected one. Read only, and ASSERTED BY NOTHING until the
+        // owner rules: then A3 asserts it (refused ATTEMPT_LIMIT_REACHED under "attempts count across revisions", with the
+        // lineage key; allowed, citing the ruling, if today's rule stands).
+        langkah("a3_revisi_m1", "m1", `select string_agg(x.ok || ',' || x.reason, '') from public.may_start_assessment(${G("p1_pre")}) x`),
         // the originals: byte-identical
         langkah("asli", null, `select (pg_temp.c1_sidik_sesi(${G("s1")}) = ${S("sidik1")}) || '|' || (pg_temp.c1_sidik_kursus(${G("p1")}) = ${S("sidik_kursus")})
              || '|' || (pg_temp.c1_sidik_sesi(${G("s1_post")}) = ${S("sidik_post")})`),
