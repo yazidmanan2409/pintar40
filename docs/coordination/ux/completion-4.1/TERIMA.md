@@ -25,3 +25,4 @@
 | 16 Nov, 09:03 | Second Eye | C-1's English and non-breaking spaces built (`0c4fbfc8`) | `claude/a2b`, suite green at `0519573b` | Seen. Strings checked in `hle.ts`. School scope names the school («{sekolah}'s work»), which is better than my «this school». No reply needed |
 | 16 Nov, 09:18 | Bob | Batch 2 go; the reason list is PLANNED only; the emergency codes are deferred (A2B-R1) | Bob's note | Recorded in place in `A2-KATA-DESAIN.md` B1. No action |
 | 16 Nov, 09:35 | Bob | The planned form's class picker words; add it to D8-5 | Bob's note, 09:34 | `A2B-PILIH-KELAS-KATA.md`: **done**. The hint and the impact sentence must not be reused |
+| 16 Nov, 10:23 | Bob | Owner directive of 16 Nov (proceed through 4.1; PENDING OWNER AUTHORISATION at staging clicks); X-1 Indonesian after A2b's freeze | `TEAM-INSTRUCTIONS.md` at `670aeb4e`, first section, read | Noted. X-1 when the draft arrives |
