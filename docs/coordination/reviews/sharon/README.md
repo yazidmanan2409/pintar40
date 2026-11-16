@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2b start-path fix (new candidate) | PASS on the fix, subject to a green pre-flight and T-SP (a static test that no exported action but mulaiAsesmen starts a sitting, as Bob ruled); my_open_assessments cannot leak (it can only shrink) | `b2f6a5529c8130b920126c19a25ac994c86aafb7` | `A2B-START-PATH-3c58620e.md` (addendum) |
 | A2b start path (maintenance refusals as bare P0001) | BLOCKER for promotion, confirmed: start_learning_session hides PR040/PR110, so the learner sees an error page (regresses 4.0's T−15). Fix with the codes, red first through mulaiAsesmen, sweep callers, unfreeze and refreeze; J1.6 asserts PR040 after the fix | `3c58620ed6bdd27e3303e4d5decc462b648c2496` | `A2B-START-PATH-3c58620e.md` |
 | C2w A2B-R2 (Studio withdrawal place read), as text | PASS on the text, subject to diffing the pushed SHAs; withdraw's rule, no oracle, fail-closed helper, library context, last exception removed; Second Eye's three questions all yes | `c9d9ae4e` (local, unpushed) | `C2W-R2-c9d9ae4e.md` |
 | A2b freeze checks | Code: no objection; R2 exceptions, now() registration and PENDING status hold. Preservation query must be fixed before the before-read: P1 inherited 4.0/A2a exclusions (about 30 columns, plus t_stop/t_lift/node_ids) must be cut to A2b's reason_code; P2 stale 224/244 text; P3 unfinished-window line recommended | `3c58620ed6bdd27e3303e4d5decc462b648c2496` | `A2B-FREEZE-3c58620e.md` |

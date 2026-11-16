@@ -23,3 +23,34 @@ Sharon, 16 Nov 2026 (16:30 UTC). Read-only. **What I checked:**
 - **J1.6, leg 2, asserts PR040 after the fix.** I do not accept an interim assertion of `may_start`'s MAINTENANCE_PLACE: that would encode the defect as the rule. B4-W11 may go ahead now, as it meets conditions 1 and 3.
 
 **Could reasonably have been anticipated:** yes, by me (Q2, the neighbouring act). When I reviewed commit 3, I checked `may_start_assessment`'s new answers and the trigger. I did not follow its consumer, `start_learning_session`, which turns any refusal into one generic message. M148's T−15 legs go through the insert, so they could not see it either.
+
+## Addendum, 16:50 UTC: the fix, reviewed at `b2f6a5529c8130b920126c19a25ac994c86aafb7`, the proposed new candidate
+
+**What I read:**
+- migration 20270120240000 in full;
+- the diff from `14cb6e04` (its stat, the selftest hunks, and `src/app/belajar/actions.ts`'s exports);
+- `my_open_assessments` at 20260920090000.
+- **Not yet seen:** the full pre-flight.
+
+**PASS on the fix, subject to a green pre-flight and one test, T-SP.**
+
+- **The migration:**
+  - It adds two lines before `start_learning_session`'s generic raise, anchored exactly once. MAINTENANCE_PLACE goes through `maintenance_tolak_tempat()`, the trigger's own PR040, and NO_NEW_START through `maintenance_refuse(…)`, PR110.
+  - Every other reason is unchanged. There is no table, column or grant.
+  - Its verification block holds the order and the grants.
+- **The evidence:**
+  - **A2B-SP1:** PR040 and PR110 for a school window, and for a school and a platform window at T−15. It was red as P0001 at `3c58620e`, and its plant is caught.
+  - **A2B-SP2:** «Mulai» posted to the built app returns to the assignment, or to `/pemeliharaan?mulai=ditolak` for the platform T−15. No sitting is made. It was red as HTTP 500 at `3c58620e`.
+  - **J1.6 (ii)** asserts PR040 under the learner's own claims. It is restated positively, with no weakening.
+- **The sweep:** `start_learning_session` is the only caller of `open_assessment_session`, which is the only writer of a sitting. `may_start_assessment`'s other callers raise nothing, and `mulaiAsesmen` is now the only start in the app.
+  - `src/app/belajar/actions.ts` at the candidate exports no start action. `startSession` is gone.
+- **`my_open_assessments` cannot leak another school's rows.**
+  - Its rows are exactly those `may_start_assessment` accepts for the caller (line 18), with `current_person_id()` required.
+  - A maintenance answer can only turn `ok` false, never true, so hiding rows can only shrink the set.
+  - Hiding them, or disabling «Mulai», is Daisy's ruling. Either way it is not a privacy question.
+- **The preservation pair** is restated for 267 → 282. Only line 10 moves, and the controls still bite.
+
+**T-SP, required:** Bob's ruling (16:28) asks for "a test that no unhandled start action is exported". I find none in the diff.
+- `startSession` is removed, but nothing stops it from coming back.
+- **Add a static test:** no exported server action in `src/app` calls `start_learning_session`, or `open_assessment_session`, except `mulaiAsesmen`. Its plant restores `startSession` and must go red.
+- If such a test already exists, cite it.
