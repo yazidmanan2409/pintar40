@@ -842,3 +842,23 @@ probes unwind). The `selftest/db` sibling sweep is done and accepted (`9dd1c75f`
 - [PR #22](https://github.com/yazidmanan2409/pintar40/pull/22) merges `claude/a2a-change-c` at `c04c088e`, with CI.
 - Journeys are dispatched on `c04c088e`.
 - Then merge C, then B's PR, then staging with the preservation pair, the eight hosted reads, and pg_cron present.
+
+## Change C merged and promoted to staging (16 Nov 2026, 01:55 UTC)
+
+- **Merge:** [PR #22](https://github.com/yazidmanan2409/pintar40/pull/22) merged as `bbed52e4` after CI (18 of 18 checks)
+  and journeys run 43783561156 passed on `c04c088e`.
+- **Staging:** `staging.yml` run 43789058922 succeeded. Staging is at 267 / `20270119270000`, with pg_cron 1.6.4.
+- **Sharon's eight hosted reads:**
+  - 1, 2 and 4 to 8 are as expected;
+  - the closer job (jobid 5) calls both batches;
+  - read 3, the job's first run after promotion, is pending.
+- **[PR #23](https://github.com/yazidmanan2409/pintar40/pull/23):** change B, opened.
+
+### Process miss, recorded as friction: the "before" preservation read was not taken before the merge
+
+- **What happened:** `staging.yml` applies migrations on push to `main` within about 60 s. The read at 01:56:54
+  already showed 267.
+- **The substitute, for Sharon's ruling:** every preserved line equals change A's after reading at 249 (cutoff
+  13 Nov 23:47:20, watermark 10697). The watermark is unchanged, and there are 0 open sittings.
+- **Rule from now on:** the "before" read is taken BEFORE the merge button, for every promotion. The merge waits for
+  it.
