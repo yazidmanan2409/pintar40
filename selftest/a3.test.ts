@@ -237,23 +237,38 @@ select 'akar_diri|' || pg_temp.coba($s$select count(*)::text from public.assessm
   or not exists (select 1 from public.assessment_definitions r where r.id = d.lineage_root_definition_id and r.lineage_root_definition_id = r.id
                   and r.institution_id = d.institution_id)$s$);
 select 'periksa|' || pg_temp.coba($s$select public.garis_definisi_periksa()::text$s$);
+-- a chapter of our own, still being drafted (the harness's hand): a course and a module copied at INGESTED, so the
+-- definitions below go in under every guard but the frozen-content one, which protects sealed courses
+set local session_replication_role = replica;
+insert into public.courses select (jsonb_populate_record(c, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000008', 'status', 'INGESTED'))).*
+  from public.courses c where c.id = (select m.course_id from public.modules m
+    where m.id = (select d.module_id from public.assessment_definitions d where d.module_id is not null order by d.id limit 1));
+insert into public.modules select (jsonb_populate_record(m, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000009',
+    'course_id', 'a3a1e000-0000-4000-8000-a30100000008', 'status', 'INGESTED'))).*
+  from public.modules m where m.id = (select d.module_id from public.assessment_definitions d where d.module_id is not null order by d.id limit 1);
+set local session_replication_role = origin;
 -- a definition inserted without a root is its own root
 select 'baru|' || pg_temp.coba($s$with x as (insert into public.assessment_definitions
     select (jsonb_populate_record(d, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000001', 'version', d.version + 100,
-      'lineage_root_definition_id', null))).* from public.assessment_definitions d order by d.id limit 1
+      'lineage_root_definition_id', null, 'status', 'INGESTED', 'module_id', 'a3a1e000-0000-4000-8000-a30100000009'))).* from public.assessment_definitions d where d.module_id is not null order by d.id limit 1
     returning id, lineage_root_definition_id) select (lineage_root_definition_id = id)::text from x$s$);
+-- a revision of our own, on the original's line (root copied whole), for the update and the plant to aim at
+select 'revisi|' || pg_temp.coba($s$with x as (insert into public.assessment_definitions
+    select (jsonb_populate_record(d, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000007', 'version', d.version + 500,
+      'status', 'INGESTED', 'module_id', 'a3a1e000-0000-4000-8000-a30100000009'))).* from public.assessment_definitions d where d.module_id is not null order by d.id limit 1
+    returning id, lineage_root_definition_id) select (lineage_root_definition_id <> id)::text from x$s$);
 -- the root cannot change
 select 'ubah|' || pg_temp.coba($s$update public.assessment_definitions set lineage_root_definition_id = id
-  where id = (select d.id from public.assessment_definitions d where d.lineage_root_definition_id <> d.id order by d.id limit 1) returning 'UPDATED'$s$);
+  where id = 'a3a1e000-0000-4000-8000-a30100000007' returning 'UPDATED'$s$);
 -- a root must be a root of the same school
 select 'bukan_akar|' || pg_temp.coba($s$with x as (insert into public.assessment_definitions
     select (jsonb_populate_record(d, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000002', 'version', d.version + 200,
-      'lineage_root_definition_id', (select d2.id from public.assessment_definitions d2 where d2.lineage_root_definition_id <> d2.id order by d2.id limit 1)))).*
-      from public.assessment_definitions d order by d.id limit 1 returning 'INSERTED') select * from x$s$);
+      'lineage_root_definition_id', 'a3a1e000-0000-4000-8000-a30100000007', 'status', 'INGESTED', 'module_id', 'a3a1e000-0000-4000-8000-a30100000009'))).*
+      from public.assessment_definitions d where d.module_id is not null order by d.id limit 1 returning 'INSERTED') select * from x$s$);
 -- the plant: the root's guard trigger disabled, the same update goes through
 alter table public.assessment_definitions disable trigger assessment_definitions_lineage_root;
 select 'tanam|' || pg_temp.coba($s$update public.assessment_definitions set lineage_root_definition_id = id
-  where id = (select d.id from public.assessment_definitions d where d.lineage_root_definition_id <> d.id order by d.id limit 1) returning 'UPDATED'$s$);
+  where id = 'a3a1e000-0000-4000-8000-a30100000007' returning 'UPDATED'$s$);
 rollback;`;
       const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=0", "-qAt", "-c", sql, db()], { encoding: "utf8" });
       const v: Record<string, string> = {};
@@ -262,6 +277,7 @@ rollback;`;
       c.expect(v.akar_diri === "ok:0", `every definition's root must be a root (its own root) of the same school: ${v.akar_diri ?? "no answer"}`);
       c.expect(v.periksa === "ok:0", `the line check must find no definition with more than one predecessor: ${v.periksa ?? "no answer"}`);
       c.expect(v.baru === "ok:true", `a definition inserted without a root must be its own root: ${v.baru ?? "no answer"}`);
+      c.expect(v.revisi === "ok:true", `a definition inserted with its original's root must keep it (a revision on the line): ${v.revisi ?? "no answer"}`);
       c.expect(!!v.ubah && !v.ubah.startsWith("ok:"), `a definition's root must not change: ${v.ubah ?? "no answer"}`);
       c.expect(!!v.bukan_akar && !v.bukan_akar.startsWith("ok:"), `a root that is not itself a root must be refused: ${v.bukan_akar ?? "no answer"}`);
       c.expect(v.tanam === "ok:UPDATED", `the plant (the root's guard disabled) must let the root change, or this pin proves nothing: ${v.tanam ?? "no answer"}`);
