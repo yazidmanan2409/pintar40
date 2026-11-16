@@ -6473,7 +6473,7 @@
     {
       "id": "A2B-B2W",
       "runner": "static",
-      "proves": "Daisy's batch 2 words (f9ffc948): config.pemeliharaan.arti says what a school or class window holds and what a platform window stops (C-4), and config.pemeliharaan.dijadwalkan_oleh «Dijadwalkan oleh {nama}» / «Scheduled by {nama}» (BL-2), in both languages."
+      "proves": "Daisy's batch 2 words (f9ffc948); reads the copy table: config.pemeliharaan.arti says what a school or class window holds and what a platform window stops (C-4), and config.pemeliharaan.dijadwalkan_oleh «Dijadwalkan oleh {nama}» / «Scheduled by {nama}» (BL-2), in both languages."
     },
     {
       "id": "A2B-K13",
