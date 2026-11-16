@@ -122,3 +122,28 @@ Sharon, 16 Nov 2026 (22:40 UTC). Read-only.
 - **Case (b) is conservative.** A grant on assignment X does not raise the allowance for a start through Y, so a learner can be refused when one might expect a start. It never grants more than was approved.
 - **Case (a)** is two approvals for two assignments. That is two staff decisions, not a bypass.
 - **For Z:** the grant should share the count's scope, (definition, version). Add a test that one approval adds exactly one attempt, whichever assignment the learner starts through. *Could reasonably have been anticipated (Q2, the neighbouring act):* it is the same scope widening as N-5.
+
+## Addendum, 23:30 UTC: my immutability condition was wrong, as Second Eye found. A simpler fix.
+
+- **Second Eye is right.**
+  - A definition's `version` is immutable once the definition can be sat (INV-04).
+  - **But an assignment's `assessment_definition_id` is not.** `move_learning_assignment_release` and C1w's `koreksi_kunci_pindah` change it by design, under the learning assignment FOR UPDATE, then the assignment row.
+  - So my condition, as written, would fail by design. **It is withdrawn,** superseded here.
+- **The gap is real:** the key is read without a lock, then the advisory lock is taken, then the assignment FOR SHARE. A move that commits between the read and the share lock leaves the start holding the old key while the count uses the new one.
+- **My ruling: take the assignment FOR SHARE first, then read the key, then the advisory lock.** That replaces both of Second Eye's options (a second advisory lock, or a retryable refusal).
+  - **The order on the start path:** person FOR KEY SHARE, then the fence (shared), then `assessment_assignments` FOR SHARE, then the key read under that lock, then the advisory lock (definition, version), then the count, then the new sitting.
+  - **No gap:** while the share lock is held, no move can commit, so the key the start locks is the key it counts.
+  - **No deadlock:**
+    - two starts take compatible share locks and then serialise on the advisory key;
+    - a move or «Akhiri penugasan» waits for the share lock, and neither takes the advisory lock;
+    - a start never waits on an assignment while it holds an advisory key.
+  - **It changes the order ruled at 22:40 (§3).** "Advisory before the assignment" becomes "the assignment, then the advisory". The ranks in A2A-L01 are recorded so.
+- **The tests:**
+  - INV-04 asserted for `version`;
+  - **F37-R03, on real connections:** start A holds after the share lock; a key correction (`koreksi_kunci_pindah`) on the same assignment **waits** until A ends, then commits; the next start takes the new key;
+  - the structural check: the share lock comes before the key read and the advisory lock, and the advisory lock comes before the count;
+  - **a deadlock check:** two starts on two assignments of one definition, plus «Akhiri penugasan» on one of them, all at once. All finish, with no deadlock error.
+- **Second Eye's question,** whether a corrected key's new revision counts the old revision's sittings, **is a product rule, not mine.**
+  - Under ruling 1's text ("a new version … brings its own allowance") a correction gives a fresh attempt.
+  - Whether a key *correction* should count as a "new version" for attempts is Bob's or the owner's to rule.
+  - F37-R03 as above does not depend on the answer.
