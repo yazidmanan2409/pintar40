@@ -43,3 +43,21 @@ Acknowledged on receipt.
 - **The decider keeps `pengerjaan_ditahan`,** because it touches first.
 - **Test:** in D12's fixture, both readers show the sitting as open and offered. Add a plant.
 - **Sweep once more,** under rule 3: any other stable reader of `pengerjaan_ditahan`, listed in the commit.
+
+## Addendum (04:25 UTC): commit 4, the status read (`8509224a34526914dd712e880c56d13ba67d8acf`). NO BLOCKER
+
+**`pintar_status_saya` gives each window:**
+- `cakupan`: ORANG for an EMERGENCY or a platform-wide PLANNED window, and TEMPAT for a class or school PLANNED window. Only ORANG redirects.
+- `kelas` and `kelas_lain` for a class window of either kind;
+- `sekolah`;
+- `zona`.
+
+**The listing is unchanged** (`maintenance_affects`), so a work-scoped window reaches only the people with work in its place. A2B-S01 shows it: 7B's learner does not see 7A's window.
+
+**`zona_saya(person)`:**
+- the zone of the person's active enrolment's school, else their active role's, else Asia/Jakarta;
+- internal, and revoked from every role.
+
+**Your question: "the active enrolment, else the active role" is the right reading for a platform window.**
+- D8 asks for each reader's own school's zone. A person at two schools is shown the zone of their latest enrolment: one zone, which is clear.
+- **Register it:** a person whose schools lie in two zones, if Daisy wants both shown.
