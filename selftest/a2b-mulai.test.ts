@@ -19,8 +19,10 @@
  *     under way it raises PR040 with DETAIL MAINTENANCE_PLACE; with a planned school window starting in 10 minutes,
  *     and with a platform-wide one, PR110 with DETAIL MAINTENANCE_NO_NEW_START. The plant (after the fix): the
  *     function given back the generic P0001 raise; the same cases must then fail.
- *   A2B-SP2 (the running build, «Mulai» posted as a browser without script posts it): in the school window the
- *     learner is sent back to the start screen (R-A), at a platform-wide T−15 to /pemeliharaan?mulai=ditolak (4.0),
+ *   A2B-SP2 (the running build, «Mulai» posted as a browser without script posts it), on both routes, each from the
+ *     page that draws its own form: the cycle's /belajar/<tugas>/pemetaan (where J1.6 found the defect) for a fresh
+ *     learning assignment of the Siklus class, and the standalone start screen for the journey fixture. In the school
+ *     window the learner is sent back to that route's start screen (R-A), at a platform-wide T−15 to /pemeliharaan?mulai=ditolak (4.0),
  *     at a school-wide T−15 back to the start screen; never an error page, and no sitting is made.
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
@@ -105,13 +107,14 @@ function idAksi(ctx: Context, berkas: string, nama: string): string | null {
   return null;
 }
 /** «Mulai» posted as a browser without script posts it: where it sends the learner, or its status when it does not. */
-async function mulai(ctx: Context, cookie: string, aksi: string, penugasan: string, kembali: string): Promise<string> {
+async function mulai(ctx: Context, cookie: string, aksi: string, penugasan: string, kembali: string, halaman: string): Promise<string> {
   const fd = new FormData();
   fd.set(`$ACTION_ID_${aksi}`, "");
   fd.set("penugasan", penugasan);
   fd.set("kembali", kembali);
-  // the action is posted to the page that draws its form (the standalone assessment's start screen), as Next requires
-  const r = await fetch(`${ctx.appUrl}${kembali}`, { method: "POST", body: fd, redirect: "manual", headers: { cookie, origin: ctx.appUrl! } });
+  // the action is posted to the page that draws its form (the cycle's /pemetaan, or the standalone start screen), as
+  // Next requires; each page draws its own form, its own hidden fields and its own way back
+  const r = await fetch(`${ctx.appUrl}${halaman}`, { method: "POST", body: fd, redirect: "manual", headers: { cookie, origin: ctx.appUrl! } });
   const ke = r.headers.get("location") ?? "";
   return ke ? decodeURIComponent(new URL(ke, "http://x").pathname + new URL(ke, "http://x").search) : `status ${r.status}`;
 }
@@ -121,9 +124,27 @@ delete from public.maintenance_windows where id = ${lit(W)};
 delete from public.assessment_sessions where assessment_assignment_id = ${lit(AA_ADHOC)};
 delete from public.assessment_assignments where id = ${lit(AA_ADHOC)};
 delete from public.assessment_definitions where id = ${lit(D_ADHOC)};
+delete from public.assessment_sessions where assessment_assignment_id = ${lit(AA_SIKLUS)};
+delete from public.assessment_assignments where id = ${lit(AA_SIKLUS)};
+delete from public.learning_assignments where id = ${lit(LA_SIKLUS)};
 commit;`);
-  return psql(`select (select count(*) from public.maintenance_windows where id = ${lit(W)}) + (select count(*) from public.assessment_assignments where id = ${lit(AA_ADHOC)})`);
+  return psql(`select (select count(*) from public.maintenance_windows where id = ${lit(W)}) + (select count(*) from public.assessment_assignments where id in (${lit(AA_ADHOC)}, ${lit(AA_SIKLUS)}))
+    + (select count(*) from public.learning_assignments where id = ${lit(LA_SIKLUS)})`);
 }
+/**
+ * The cycle leg's fixture: a fresh learning assignment for the Siklus class (a copy of the class's, new id), and a copy
+ * of its Pemetaan Awal on it. may_start counts a PRE_TEST's attempts by learning assignment and mode, so the new one's
+ * are its own and no sitting another test leaves can refuse it first (the harness's hand: triggers off for the copies).
+ */
+const LA_SIKLUS = ID("aa2"), AA_SIKLUS = ID("c03");
+const siklusSql = (la: string, asli: string) => `set local session_replication_role = replica;
+create temp table sp_la on commit drop as select * from public.learning_assignments where id = ${lit(la)};
+update sp_la set id = ${lit(LA_SIKLUS)};
+insert into public.learning_assignments select * from sp_la;
+create temp table sp_aa on commit drop as select * from public.assessment_assignments where id = ${lit(asli)};
+update sp_aa set id = ${lit(AA_SIKLUS)}, learning_assignment_id = ${lit(LA_SIKLUS)};
+insert into public.assessment_assignments select * from sp_aa;
+set local session_replication_role = origin;`;
 
 export const a2bMulaiDbTests: SelfTest[] = [
   {
@@ -281,27 +302,33 @@ export const a2bMulaiAppTests: SelfTest[] = [
       const aksi = idAksi(ctx, "src/app/belajar/actions.ts", "mulaiAsesmen");
       if (!c.expect(aksi !== null, "the build's manifest names no mulaiAsesmen")) return c.verdict("");
       if (!c.expect(/^[0-9a-f-]{36}$/.test(d.asli), "the Siklus learner's Pemetaan Awal is missing")) return c.verdict("");
-      const kembali = `/belajar/asesmen/${AA_ADHOC}`;
-      const sesi = () => psql(`select count(*) from public.assessment_sessions where assessment_assignment_id = ${lit(AA_ADHOC)}`);
+      const sesi = () => psql(`select count(*) from public.assessment_sessions where assessment_assignment_id in (${lit(AA_ADHOC)}, ${lit(AA_SIKLUS)})`);
       try {
-        psql(`begin; ${adhocSql(d.inst, "now() - interval '1 day'")} commit;`);
+        psql(`begin; ${adhocSql(d.inst, "now() - interval '1 day'")} ${siklusSql(d.la, d.asli)} commit;`);
         const cookie = await masuk(ctx);
-        const kasusApp = async (jendela: string) => {
-          psql(`begin; set local session_replication_role = replica; delete from public.maintenance_windows where id = ${lit(W)}; commit;`);
-          psql(`begin; ${jendela} commit;`);
-          return mulai(ctx, cookie, aksi!, AA_ADHOC, kembali);
-        };
-        const tempat = await kasusApp(jendelaSql(d.inst, false, "-5 minutes"));
-        c.expect(tempat === kembali, `inside a school window «Mulai» must send the learner back to the start screen (R-A), never an error: ${tempat}`);
-        const t15p = await kasusApp(jendelaSql(d.inst, true, "10 minutes"));
-        c.expect(t15p === "/pemeliharaan?mulai=ditolak", `at a platform-wide T−15 «Mulai» must send the learner to /pemeliharaan?mulai=ditolak (4.0): ${t15p}`);
-        const t15s = await kasusApp(jendelaSql(d.inst, false, "10 minutes"));
-        c.expect(t15s === kembali, `at a school-wide T−15 «Mulai» must send the learner back to the start screen (R-A): ${t15s}`);
+        // each leg: the route's own form, its own way back (the cycle's, where J1.6 found the defect; the standalone's)
+        const jalur = [
+          { nama: "cycle", aa: AA_SIKLUS, kembali: `/belajar/${LA_SIKLUS}`, halaman: `/belajar/${LA_SIKLUS}/pemetaan` },
+          { nama: "standalone", aa: AA_ADHOC, kembali: `/belajar/asesmen/${AA_ADHOC}`, halaman: `/belajar/asesmen/${AA_ADHOC}` },
+        ];
+        for (const j of jalur) {
+          const kasusApp = async (jendela: string) => {
+            psql(`begin; set local session_replication_role = replica; delete from public.maintenance_windows where id = ${lit(W)}; commit;`);
+            psql(`begin; ${jendela} commit;`);
+            return mulai(ctx, cookie, aksi!, j.aa, j.kembali, j.halaman);
+          };
+          const tempat = await kasusApp(jendelaSql(d.inst, false, "-5 minutes"));
+          c.expect(tempat === j.kembali, `${j.nama}: inside a school window «Mulai» must send the learner back to ${j.kembali} (R-A), never an error: ${tempat}`);
+          const t15p = await kasusApp(jendelaSql(d.inst, true, "10 minutes"));
+          c.expect(t15p === "/pemeliharaan?mulai=ditolak", `${j.nama}: at a platform-wide T−15 «Mulai» must send the learner to /pemeliharaan?mulai=ditolak (4.0): ${t15p}`);
+          const t15s = await kasusApp(jendelaSql(d.inst, false, "10 minutes"));
+          c.expect(t15s === j.kembali, `${j.nama}: at a school-wide T−15 «Mulai» must send the learner back to ${j.kembali} (R-A): ${t15s}`);
+        }
         c.expect(sesi() === "0", `no sitting may be made by a refused start: ${sesi()}`);
       } finally {
-        c.expect(bersihkan() === "0", "the test's window or assignment copy is still there");
+        c.expect(bersihkan() === "0", "the test's window, learning assignment or assignment copies are still there");
       }
-      return c.verdict("mulaiAsesmen against the build, «Mulai» posted as a browser without script posts it from /belajar/asesmen/<penugasan>, for the journey fixture (a standalone, ad-hoc copy of the Siklus class's Pemetaan Awal): inside a school window the learner returns to the start screen (R-A); at a platform-wide T−15 to /pemeliharaan?mulai=ditolak (4.0); at a school-wide T−15 to the start screen; never an error page, and no sitting is made");
+      return c.verdict("mulaiAsesmen against the build, «Mulai» posted as a browser without script posts it, on both routes, each from the page that draws its form: the cycle's /belajar/<tugas>/pemetaan for a fresh learning assignment of the Siklus class (its attempts its own), returning to /belajar/<tugas>; and /belajar/asesmen/<penugasan> for the journey fixture (a standalone, ad-hoc copy), returning there. Inside a school window the learner returns to the start screen (R-A); at a platform-wide T−15 to /pemeliharaan?mulai=ditolak (4.0); at a school-wide T−15 to the start screen; never an error page, and no sitting is made");
     },
   },
 ];
