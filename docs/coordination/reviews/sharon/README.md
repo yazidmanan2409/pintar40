@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2b S-1 built (fail-closed context reads) | PASS (suite 1224/0): controller-only reads, refusal before any write, S1A red then green against the build, static rule, R2 exceptions line-held | `c1e78e44ca213f11920ee49a70758b10e66f4a70` | `A2B-BATCH2-APP-a186b1a7.md` (addendum) |
 | E · runner fail-closed errors (N3) | PASS; self-test re-run by me offline, 112/0. Fail-closed rule accepted; transport and unparsable-2xx retries accepted; N4: three non-response attempts should stop the provider | `ecfbbecc6d76d580ca42c0b36b0e7cad5bb9edb6` | `E-RUNNER-4a591fa3.md` (addendum) |
 | A2b batch 2 app half | PASS (suite 1219/0 at a186b1a7). S-1: cakupanBaris reads tables staff cannot select, so the context check fails open for Akhiri/Mulai/withdraw-notice; recommend fixing before the freeze, failing closed, red-first | `a186b1a7742274414b5d6d11516453dc38df0f7c` | `A2B-BATCH2-APP-a186b1a7.md` |
 | E · offline runner (caps, gates, adapters) | PASS for readiness: --live plus a full gate; reservation before every call; stops never retried; unknown 429 fails closed; keys env-only. N1 one-call overrun accepted; N2 delete the Google adapter | `4a591fa3d4f0f0c3cdf5ea3e62e52a87d48421e2` | `E-RUNNER-4a591fa3.md` |

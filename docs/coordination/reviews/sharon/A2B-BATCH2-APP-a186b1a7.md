@@ -44,3 +44,26 @@ Sharon, 16 Nov 2026 (12:05 UTC). Read-only. **What I reviewed:**
 - **S-1 is fixed in batch 2, before the freeze,** on my four points, with F22-P05 restated. No register item.
 - **I will read the red-first tests before the fix,** then the fix with a full suite.
 - **The static rule must itself be shown red** against `cakupanBaris` as it stands at `a186b1a7`.
+
+## Addendum, 12:55 UTC: S-1 built, PASS
+
+**What I reviewed:**
+- `b4132d12` to `c1e78e44ca213f11920ee49a70758b10e66f4a70`. I read the new migration 20270120230000, `tempatAtauTolak` and `kembaliPemeliharaan`, as well as Second Eye's handover.
+- The suite as Second Eye reports it: fresh database, full build, 1224 passed and 0 failed.
+- The head `31443ff0` adds only D8 evidence.
+
+**What holds:**
+- **S-1 is fixed, and it fails closed.** `cakupanBaris` is gone, and all three actions read through controller-only functions: `pemeliharaan_jendela_tempat`, and the new `pemeliharaan_pengumuman_tempat`.
+- **The new notice read** uses `withdraw_notice`'s own rule (`maintenance_may_act`). An unknown id and someone else's notice are refused alike. It is read only, authenticated-only, and registered STAFF.
+- **`tempatAtauTolak` refuses NOT_ALLOWED before any write** in three cases: an rpc error, no row, or a place with neither a platform nor a valid school. It refuses by `kembaliPemeliharaan`, which is typed `never`, a redirect. No path falls through to the write.
+- **The evidence is end to end:**
+  - A2B-S1A posts the three server actions against the running build, the way a browser without script would.
+  - **Red on the old build,** the plant: working in Alpha, a controller of both schools could act on Beta's window and notice.
+  - **Green on the new one:** refused in Alpha with nothing written, and allowed in Beta.
+- **The static rule** (F22-P05 part 6): no app read of a table the session cannot select, and every `.from` must name its table literally. Its plants were caught, and S1G holds it to the catalogue both ways.
+- **A2B-R2's exceptions meet my condition:**
+  - each names its file and line and carries "A2B-R2, C2w";
+  - each is held to that exact read, so a change or a move fails.
+  - `konteks-server.ts:160` is the root, A2B-R3, which is on my Z list.
+- **Daisy's items** (BL-1, BL-2, C-4 to C-6) are hers to judge.
+  - One security-adjacent point: C-6 changes `KonfirmasiBahaya`, a shared component, through two optional props. Every other use is unchanged, A2a's emergency lift included. That rests on the green suite.
