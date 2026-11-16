@@ -46,14 +46,7 @@
     },
     "google": {
       "enabled": false,
-      "excluded": "Not eligible (owner's decision, 16 Nov 2026): Google Cloud Service Specific Terms §20(d) prohibits a Generative AI Service in an online service \"directed towards or is likely to be accessed by individuals under the age of 18\" (E-PROVIDER-FACTS.md §3-II e, A; Sharon's review point 1). PINTAR is used by learners under 18. The adapter code is kept, but google is not in the default provider set and the runner refuses it.",
-      "model": "UNVERIFIED",
-      "model_date": "UNVERIFIED",
-      "input": "UNVERIFIED",
-      "output": "UNVERIFIED",
-      "source": null,
-      "read_on": null,
-      "key_env": "GEMINI_API_KEY"
+      "excluded": "Not eligible (owner's decision, 16 Nov 2026): Google Cloud Service Specific Terms §20(d) prohibits a Generative AI Service in an online service \"directed towards or is likely to be accessed by individuals under the age of 18\" (E-PROVIDER-FACTS.md §3-II e, A; Sharon's review point 1). PINTAR is used by learners under 18. There is no google adapter, and the runner refuses google in every mode."
     }
   }
 }

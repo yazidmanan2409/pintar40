@@ -13,6 +13,7 @@
 //          --real-prices               (--plan and --dry-run only: use the pinned prices in prices.json, not the
 //                                       deliberately high dry-run assumption; still no network)
 // The default provider set is anthropic and openai. google is excluded (prices.json says why) and is refused.
+// It has no adapter.
 //
 // Budget rules, applied before EVERY attempt:
 //   input_estimate  = ceil((request chars + schema chars) / 3)      no tokenizer: conservative estimator
@@ -47,7 +48,7 @@ import { tmpdir } from 'node:os';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const KIT = join(HERE, 'kit.mjs');
-const PROVIDERS = ['anthropic', 'openai', 'google'];   // every adapter known; the eligible set comes from prices.json
+const PROVIDERS = ['anthropic', 'openai'];   // the adapters that exist; the eligible set comes from prices.json
 const CHAPTERS = [1, 2];
 const PER_CHAPTER = 15;
 const MAX_ATTEMPTS = 3;            // 1 + at most 2 retries per request
@@ -139,7 +140,8 @@ class Ledger {
 // anthropic and openai were compared field by field with E-PROVIDER-FACTS.md §6a, §6b and §6c (read 16 Nov 2026 from
 // the official API reference; tables in DRY-RUN-RESULT.md). `verified` is true only when every field the adapter
 // depends on rests on a grade-A fact; `unverified_fields` lists what does not.
-// google was written from memory and never checked; it is excluded (prices.json) and kept only as code.
+// There is no google adapter: Google is ineligible (prices.json gives the §20(d) reason) and its adapter, written
+// without documentation, was removed.
 class HttpError extends Error {
   constructor(status, body, extra = {}) { super(`HTTP ${status}${extra.cls?.code ? ' ' + extra.cls.code : ''}`); this.status = status; this.body = body; Object.assign(this, extra); }
 }
@@ -265,21 +267,6 @@ const ADAPTERS = {
       return { ...base, status: 'http_4xx', retry: false };
     },
     async call(args) { return httpCall(this, args); },
-  },
-  google: {
-    verified: false, excluded: true,
-    unverified_fields: ['every field: written from memory; the Google API documentation could not be read (E-PROVIDER-FACTS.md §0)'],
-    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent', api_version: 'v1beta',
-    async call({ model, text, maxOutput, key }) {
-      const r = await fetch(this.endpoint.replace('{model}', encodeURIComponent(model)), { method: 'POST', signal: AbortSignal.timeout(600_000),
-        headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
-        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text }] }], generationConfig: { maxOutputTokens: maxOutput, responseMimeType: 'application/json' } }) });
-      const body = await r.text(); if (!r.ok) throw new HttpError(r.status, body);
-      const j = JSON.parse(body); const u = j.usageMetadata;
-      // thinking tokens are billed as output: counted with the candidates
-      return { raw: (j.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? '').join(''), request_id: j.responseId ?? null, model_version: j.modelVersion ?? null,
-        usage: u ? { input: u.promptTokenCount, output: (u.candidatesTokenCount ?? 0) + (u.thoughtsTokenCount ?? 0) } : null };
-    },
   },
 };
 
@@ -476,7 +463,8 @@ export function liveGate(table, providers, env = process.env, adapters = ADAPTER
   for (const p of providers) {
     const e = table.providers[p];
     if (!e) { problems.push(`${p}: not in prices.json`); continue; }
-    if (e.excluded || adapters[p]?.excluded) problems.push(`${p}: excluded: ${e.excluded ?? 'adapter excluded'}`);
+    if (e.excluded) { problems.push(`${p}: excluded: ${e.excluded}`); continue; }
+    if (!adapters[p]) { problems.push(`${p}: no adapter`); continue; }
     for (const k of ['model', 'model_date', 'input', 'output']) if (e[k] === UNVERIFIED || e[k] === undefined || e[k] === null) problems.push(`${p}: ${k} is UNVERIFIED`);
     for (const k of ['input', 'output']) if (e[k] !== UNVERIFIED && !(typeof e[k] === 'number' && e[k] > 0)) problems.push(`${p}: ${k} price is not a positive number`);
     if (!e.source || !e.read_on) problems.push(`${p}: price source and read_on date not pinned`);
@@ -501,7 +489,7 @@ function realDryPrices(table, providers) {
     return [p, { model: `${p}-mock-model`, model_date: 'dry-run', input: e.input, output: e.output, surcharge: e.surcharge, data_retention: 'none (offline mock)' }];
   }));
 }
-const eligible = (table) => PROVIDERS.filter((p) => table.providers[p]?.enabled && !table.providers[p]?.excluded && !ADAPTERS[p]?.excluded);
+const eligible = (table) => PROVIDERS.filter((p) => table.providers[p]?.enabled && !table.providers[p]?.excluded);
 
 // ───────────────────────────── the worst-case plan (no call)
 export function planTable(prices, providers, maxOutput) {
@@ -754,7 +742,8 @@ async function selfTest() {
   const dummyKeys = Object.fromEntries(providers.map((p) => [table.providers[p].key_env, 'DUMMY-KEY-PLACEHOLDER']));
   const g2 = liveGate(table, providers, dummyKeys); const unverified = providers.filter((p) => !ADAPTERS[p].verified);
   check(unverified.every((p) => g2.some((x) => x.startsWith(`${p}: API adapter not verified`))) && (g2.length > 0) === (unverified.length > 0), `with keys present, a real run still refuses while an adapter is unverified (${unverified.join(', ') || 'none'})`);
-  check(liveGate(table, ['google'], { GEMINI_API_KEY: 'DUMMY-KEY-PLACEHOLDER' }).some((x) => /^google: excluded: Not eligible/.test(x)), 'google is refused as excluded, even with a key');
+  const gg = liveGate(table, ['google'], {});
+  check(!('google' in ADAPTERS) && !PROVIDERS.includes('google') && gg.length === 1 && /^google: excluded: Not eligible .*§20\(d\)/.test(gg[0]), 'google: no adapter; refused with the §20(d) reason from prices.json');
   // the --live flag: required in addition to the gate
   const allVerified = Object.fromEntries(Object.entries(ADAPTERS).map(([p, x]) => [p, { ...x, verified: true }]));   // test-only override
   check(liveGate(table, providers, dummyKeys, allVerified).length === 0, 'test-only override: with dummy keys and adapters marked verified, the gate itself passes');
@@ -795,8 +784,8 @@ async function main() {
   const table = loadPrices();
   const providers = (args.providers ?? eligible(table).join(',')).split(',').filter(Boolean);
   for (const p of providers) {
-    if (!PROVIDERS.includes(p)) throw new Fatal(`unknown provider ${p}`);
     if (table.providers[p]?.excluded) throw new Fatal(`${p} is excluded: ${table.providers[p].excluded}`);
+    if (!PROVIDERS.includes(p)) throw new Fatal(`unknown provider ${p}`);
   }
   const maxOutput = args['max-output'] ? Number(args['max-output']) : DEFAULT_MAX_OUTPUT;
   if (!(Number.isInteger(maxOutput) && maxOutput > 0)) throw new Fatal('--max-output must be a positive integer');

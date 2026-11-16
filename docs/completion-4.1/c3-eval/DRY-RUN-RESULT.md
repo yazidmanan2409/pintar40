@@ -470,3 +470,5 @@ real run refused:
 
 The worst case is unchanged: 0.764298 per provider, 1.528596 in total. The plan still counts the full schema's
 1,852 characters, more than is sent.
+
+**Addition, 16 Nov (Sharon's note N2, `E-RUNNER-4a591fa3.md`):** the Google adapter was deleted, together with its self-test case. It had been written without documentation, and Google is ineligible. Google remains in `prices.json` only as an excluded entry with the §20(d) reason, and `--providers google` is still refused with that reason in every mode. Self-test re-run: exit 0, **93 PASS, 0 FAIL**, no network. The old Google check was replaced by "google: no adapter; refused with the §20(d) reason from prices.json".
