@@ -623,6 +623,30 @@ select 'sesudah|' || extract(epoch from (public.pengerjaan_tenggat_efektif('${d.
   || ':' || (darurat_sejak is null)::text from public.assessment_sessions where id = '${d.SA}';
 rollback;`);
 }
+/** The Chief Architect's ruling (16 Nov 08:03, on Sharon's question): draining is PER WINDOW, a person drains for a
+ *  window only through a sitting that window affects. 7A's class window under way; the learner is also enrolled at
+ *  school Y. "lain": their 7A sitting is handed in and they have an open sitting in CY at school Y; "sini": their 7A
+ *  sitting runs and they have none at Y. The status read's 'berjalan' for 7A's window, as the learner. */
+function d14(db: string, d: Dunia, kasus: "lain" | "sini") {
+  const enrYA = ID("d4"), memYA = ID("d5"), SYA = ID("d6");
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${SENDIRI(d)}
+insert into public.enrollments select (jsonb_populate_record(e, jsonb_build_object('id', '${enrYA}', 'person_id', '${d.murid}'))).*
+  from public.enrollments e where e.id = '${d.enrY}';
+insert into public.memberships select (jsonb_populate_record(m, jsonb_build_object('id', '${memYA}', 'enrollment_id', '${enrYA}'))).*
+  from public.memberships m where m.enrollment_id = '${d.enrY}' and m.valid_to is null order by m.valid_from desc limit 1;
+${kasus === "lain" ? `update public.assessment_sessions set status = 'FINALIZED', finalized_at = now(), submitted_at = now() where id = '${d.SA}';
+${sesi(d, SYA, d.murid, enrYA, d.kY, d.Y, "now() + interval '1 hour'")}` : ""}
+${jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '10 minutes'", akhir: "now() + interval '1 hour'" })}
+set local session_replication_role = origin;
+${sebagai(d.muridUid)}
+select 'berjalan|' || coalesce((select x ->> 'berjalan' from jsonb_array_elements(public.pintar_status_saya() -> 'pemeliharaan') x
+  where x ->> 'id' = '${W1}'), 'tidak tercantum');
+select 'blok|' || coalesce(public.maintenance_block_for_me(), 'none');
+${tanpaOrang}
+rollback;`);
+}
 const D12_SAAT = "then public.penghentian_geser(s.person_id, s.darurat_jendela_id) end, interval '0')";
 const D12_TANAM = "then null::interval end, interval '0')";
 const D13_SAAT = "'ditahan', s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')   -- D1-3: a stale mark holds nothing";
@@ -1212,6 +1236,33 @@ rollback;`);
         "the pause page must show every time through jamPenuh, today read on the database's clock");
       return c.verdict("Daisy's batch 1 corrections: C-1, pemeliharaan.tempat.arti and .biasa name the work's owner ({untuk}, filled at every use) and never say «pekerjaannya»; C-2, the stage's start sentence is dropped while the last-check line shows; C-3, every window time on the banner and the pause page goes through jamPenuh, which dates another day");
     },
+  },
+  {
+    id: "A2B-D14",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const lain = d14(db, d, "lain"), sini = d14(db, d, "sini");
+      c.expect(!lain.err && !sini.err, `D14 failed to run: ${lain.err} ${sini.err}`);
+      c.expect(lain.hasil.berjalan === "false", `a class window at school X must not read "your sitting continues" through the learner's open sitting at school Y (draining is per window): berjalan ${lain.hasil.berjalan}`);
+      c.expect(sini.hasil.berjalan === "true", `a class window must read "your sitting continues" through the learner's open sitting in its own class: berjalan ${sini.hasil.berjalan}`);
+      c.expect(lain.hasil.blok === "none" && sini.hasil.blok === "none", `a work-scoped window stops no one as a person (R-1), in both cases: ${lain.hasil.blok}, ${sini.hasil.blok}`);
+      return "draining is per window (the Chief Architect, 16 Nov): a two-school learner's open sitting at school Y does not make school X's class window read 'berjalan'; their open sitting in the window's own class does; neither stops them as a person";
+    }),
+  },
+  {
+    id: "A2B-D15",
+    requires: ["db"],
+    run: jalan((c, db) => {
+      // the pin: the person-wide reading has one caller, the person-level stop, which reads it only after skipping
+      // class and school windows; any other caller would read it for a window it does not suit
+      const pemanggil = psqlBaris(db, `select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace
+        and p.proname <> 'maintenance_draining' and regexp_replace(p.prosrc, '--[^' || chr(10) || ']*', '', 'g') ~ 'maintenance_draining[[:space:]]*[(]' order by 1`).map(([f]) => f);
+      c.expect(JSON.stringify(pemanggil) === JSON.stringify(["maintenance_block_for_me"]), `maintenance_draining(person) must have exactly one caller, maintenance_block_for_me: ${pemanggil.join(", ")}`);
+      const blok = psqlBaris(db, `select pg_get_functiondef('public.maintenance_block_for_me()'::regprocedure)`).map(([x]) => x).join("\n");
+      const lewati = blok.indexOf("continue when w.kind = 'PLANNED' and not w.platform"), baca = blok.indexOf("maintenance_draining(");
+      c.expect(lewati > 0 && baca > lewati, "maintenance_block_for_me must skip class and school windows before it reads the person-wide drain");
+      return "the person-wide drain, maintenance_draining(person), has one caller, maintenance_block_for_me, which reads it only after skipping class and school windows (pin: a later caller cannot reuse the person-level reading)";
+    }),
   },
   {
     id: "A2B-K13",

@@ -6346,6 +6346,16 @@
       "proves": "Daisy's review of D8 batch 1 (TINJAUAN-A2B-D8-B1-679987cb), C-1 to C-3; reads source and the copy: C-1, pemeliharaan.tempat.arti and .biasa name the work's owner ({untuk}: kelas {kelas} or the school), filled at every use on the banner and the pause page, never «pekerjaannya» or «its work»; C-2, while the failed-read line shows, the stage's own start sentence is dropped; C-3, every window time on the banner (except the read's own time) and on the pause page is shown through jamPenuh, which adds «, {hari} {tanggal}» on another day."
     },
     {
+      "id": "A2B-D14",
+      "runner": "static",
+      "proves": "The Chief Architect's ruling on Sharon's question (16 Nov 08:03): draining is per window; executes on the database in rolled-back transactions: a learner also enrolled at a second school, their 7A sitting handed in and an open sitting at the second school, reads 'berjalan' false for 7A's class window in pintar_status_saya; with their 7A sitting running and none elsewhere, true; neither is stopped as a person (R-1). Each fixture removes the learner's other open sittings first."
+    },
+    {
+      "id": "A2B-D15",
+      "runner": "static",
+      "proves": "The pin for the same ruling; reads the catalogue: the person-wide drain, maintenance_draining(person), has exactly one caller, maintenance_block_for_me, which reads it only after skipping class and school PLANNED windows, so no later caller reuses the person-level reading for a window it does not suit."
+    },
+    {
       "id": "A2B-K13",
       "runner": "static",
       "proves": "The Chief Architect's R-A (PLAN-A2B-C2W.md at e15fe966); executes on the database in rolled-back transactions: one minute before a planned class window's start a start in the class is refused PR110 MAINTENANCE_NO_NEW_START, and one second after it PR040 MAINTENANCE_PLACE; another class's start proceeds on both sides; the class's learner passes the request hook on both sides (never PT503, no redirect)."
