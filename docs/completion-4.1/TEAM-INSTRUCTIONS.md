@@ -46,6 +46,20 @@ E's three owner decisions (providers, scoring rules, judges) stay visible in sta
 
 **Principles:** no silent scope expansion; no bypassed security or deployment gates; no false completion claims.
 
+## A2b REFROZEN at `ac25e9b14d51928f6991f8932b3bb572a262c096` (16 Nov 2026, about 22:00 UTC)
+
+The reopening for the start-path defect is closed. All evidence below is on this exact SHA:
+- **Second Eye's pre-flight:** fresh reset and fresh build; lint and typecheck 0; build-identity 11/0; suite 1228 passed,
+  0 failed, 1 justified local skip; plants 175/175; red-case 11/11; job A's journeys locally, all green.
+- **PR #24's CI:** run 43958833562, success.
+- **audit-journeys:** run 43959284163 (ref=claude/a2b, inputs.ref=ac25e9b1), success, jobs A and B.
+- **Sharon:** PASS, freeze checks hold, R-SP2 closed (`5e51fa8b`); the definition copies do not weaken J1.6 or SP2.
+- **Migrations:** 282; the preservation pair is 267 → 282. The product is unchanged since c507e41e (fix (a), reviewed).
+
+**Next: the owner's boundary.** The read-only "before" preservation read on staging (`keijhmdtsgrfvnvocfvk`),
+then the merge, staging's migration, the "after" read and the hosted checks. **PENDING OWNER AUTHORISATION.** Nothing
+past the boundary without his approval. Until then the candidate stays frozen: no commit to `claude/a2b`.
+
 ## Owner, 16 Nov 2026, about 19:25 UTC: `claude/c2w` push granted; A2b's boundary restated
 
 - **Second Eye may push `claude/c2w`.** This is strictly a push to a development branch. It authorises no merge, no
