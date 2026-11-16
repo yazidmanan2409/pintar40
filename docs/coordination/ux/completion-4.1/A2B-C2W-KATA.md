@@ -35,7 +35,7 @@ Every one of them is captured **twice**: once in a **WIB** school, and once in a
 | # | Screen | States to capture |
 |---|---|---|
 | D8-1 | **The banner** (`PengingatPemeliharaan`, `PitaPemeliharaan`; root layout): for a learner and for a teacher | T−60, T−15 (amber), started, extended. **Class-scoped:** on the class's own pages, and **nothing** on another class's page (R-1) |
-| D8-2 | **The planned pause page** (`/pemeliharaan`) | Started, with the reason (D2), the expected end, and «diperpanjang sampai …»; class-scoped title |
+| D8-2 | **The planned pause page** (`/pemeliharaan`) | Started, with the reason (D2), the expected end ~~, and «diperpanjang sampai …»~~ (next batch: `A2B-PERPANJANG-KATA.md`); class-scoped title |
 | D8-3 | **The learner's start refusal (D4)**, the disabled «Mulai» with its sentence, on the chapter start (`/belajar/[tugas]/…`) and on a standalone assessment's orientation | The four variants of `A2-KATA-DESAIN.md` B2 (with an end; with no end; class-scoped; the end on another day) |
 | D8-4 | **The player** during a planned window, for a learner whose sitting is running | The quiet line that they can finish and that the time does not change |
 | D8-5 | **Konfigurasi › «Pemeliharaan dan pengumuman»**, the planned form | The labels with {zona}; the reason list (D2) with «Lainnya»; «Periksa waktu ini» with the collision lines («Asesmen terakhir diperkirakan selesai …», «Pertimbangkan memulai pemeliharaan setelah …») |
