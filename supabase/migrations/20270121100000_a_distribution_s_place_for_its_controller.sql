@@ -53,10 +53,9 @@ insert into public.client_rpc_registry (function_name, exposure, note) values
   ('distribusi_berlaku', 'PLATFORM',
    'C2w A2B-R2: the ACTIVE grants its caller may withdraw (withdraw_release_distribution''s rule); nothing to anyone '
    || 'else. Read only: the Kanonik page''s «Tarik izin» list.')
-on conflict (function_name) do update
-   set exposure = excluded.exposure, note = excluded.note,
-       authorization_kind = excluded.authorization_kind,
-       authorization_requirement = excluded.authorization_requirement;
+-- Sharon (C2W-R2-c9d9ae4e.md): do nothing on a conflict, so a re-run never blanks a row's existing kind; the
+-- verification block below still holds both rows at PLATFORM
+on conflict (function_name) do nothing;
 
 do $$
 declare f regprocedure;
