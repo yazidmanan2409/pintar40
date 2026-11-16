@@ -10,7 +10,7 @@ belongs in the execution records, not here.
 
 | Decision | Gate | State |
 |---|---|---|
-| E's preconditions: provider data terms (P1), network egress (P4), one capped key per provider (P5), named educator judges (P7) | Before E runs; E gates C3w | **Open.** E is prepared, not run (`C3-EVALUATION-PLAN.md`). To be brought as one pack |
+| E's preconditions: provider data terms (P1), network egress (P4), one capped key per provider (P5), named educator judges (P7) | Before E runs; E gates C3w | **Open.** E is prepared, not run. Decision pack ready for review: `docs/completion-4.1/E-DECISION-PACK.md` |
 | Provider selection and limits for C3w | After E's results | Not yet due |
 | Z: staging promotion and scheduling the walkthrough | After all batches close and the candidate's evidence | Not yet due |
 
@@ -25,7 +25,7 @@ belongs in the execution records, not here.
 | Decision | State |
 |---|---|
 | The 4.2 plan and its sequencing | Not yet due |
-| The 4.2 list itself: confirm it against `OWNER-DECISIONS-2026-11-11.md` §4, plus EXECUTION-PLAN §4's two items | Correction proposed (`REV3-HANDOVER-ASSESSMENT.md`, M-03) |
+| The 4.2 list itself | **Corrected in roadmap Rev 3.1** (owner-approved 16 Nov) |
 | Retention enforcement: which version | Unassigned. Not in the owner's 4.2 record |
 | Assessment-specific time limits | Candidate only |
 | Cross-school role boundaries (H-02) | Design under existing authority |
