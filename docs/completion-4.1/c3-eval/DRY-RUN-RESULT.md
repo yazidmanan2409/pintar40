@@ -530,3 +530,5 @@ real run refused:
 ```
 
 **Sharon reviews this change before any live run.**
+
+**Addition, 16 Nov (Sharon's note N4, addendum `6c113f68`):** when all three attempts of one request end as transport errors or unparsable 2xx responses (now classified separately as `unparsable_2xx`), the runner stops that provider. No further chapters are called, the remaining requests are recorded `not_attempted`, and every reservation is kept as its cost. Fewer than three such attempts do not stop it. Self-test re-run: exit 0, **116 PASS, 0 FAIL**, no network. The new checks are scenario (g) and an anthropic check that a 200 with an unparsable body becomes `unparsable_2xx`.

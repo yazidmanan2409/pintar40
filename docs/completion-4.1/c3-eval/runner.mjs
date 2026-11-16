@@ -171,7 +171,16 @@ async function httpCall(adapter, args, fetchImpl = globalThis.fetch) {
   const r = await fetchImpl(q.url, { method: q.method, headers: q.headers, body: JSON.stringify(q.body), signal: AbortSignal.timeout(600_000) });
   const bodyText = await r.text();
   if (!r.ok) { const cls = adapter.classifyError({ status: r.status, headers: r.headers, bodyText }); throw new HttpError(r.status, bodyText, { cls, request_id: cls.request_id, rate_limit: cls.rate_limit }); }
-  return adapter.parse({ status: r.status, headers: r.headers, bodyText, maxOutput: args.maxOutput });
+  return parseOrThrow(adapter, { status: r.status, headers: r.headers, bodyText, maxOutput: args.maxOutput });
+}
+// a 2xx whose body cannot be parsed is an "unparsable 2xx": retried like a transport error, but it counts towards the
+// no-usable-response stop (Sharon N4: three such attempts on one request stop the provider)
+function parseOrThrow(adapter, resp) {
+  try { return adapter.parse(resp); } catch (x) {
+    const h = new Headers(resp.headers ?? {});
+    const e = new Error(`unparsable ${resp.status} response: ${String(x.message).slice(0, 80)}`); e.unparsable = true;
+    e.request_id = h.get('request-id') ?? h.get('x-request-id'); throw e;
+  }
 }
 
 const ADAPTERS = {
@@ -303,6 +312,7 @@ function mockProvider(faults = {}) {
       const f = faults[`${provider}:bab${b}:${attempt}`];
       if (f) used.push(`${provider}:bab${b}:${attempt}:${f}`);
       if (f === 'transport') { const e = new Error('mock transport error: connection reset'); e.transport = true; throw e; }
+      if (f === 'unparsable') parseOrThrow(ADAPTERS[provider], { status: 200, headers: {}, bodyText: '<html>truncated (mock)', maxOutput });
       // every HTTP fault is a canned response, classified by the provider's real classifyError
       if (CANNED[f]) { const c = CANNED[f][provider]; const cls = ADAPTERS[provider].classifyError(c); throw new HttpError(c.status, c.bodyText, { cls, request_id: cls.request_id, rate_limit: cls.rate_limit }); }
       let raw = JSON.stringify({ items: items(b, provider, attempt) });
@@ -336,7 +346,9 @@ function classify(err) {
   if (err instanceof HttpError && err.cls) return err.cls;     // a verified-against-§6 adapter classified it by status and code
   // an HTTP error no adapter classified: fail closed (never reached by the two adapters or the mock)
   if (err instanceof HttpError) return { status: err.status >= 500 ? 'http_5xx' : 'http_4xx', retry: false, stop: true, http: err.status };
-  return { status: 'transport_error', retry: true };
+  // no usable response: retried (at most 2 retries); three on one request stop the provider (runEval)
+  if (err?.unparsable) return { status: 'unparsable_2xx', retry: true, noResponse: true };
+  return { status: 'transport_error', retry: true, noResponse: true };
 }
 
 export async function runEval(cfg) {
@@ -361,6 +373,7 @@ export async function runEval(cfg) {
       if (stopped[provider]) { items[id] = { valid: false, attempts: 0, outcome: 'not_attempted', reason: `provider stopped: ${stopped[provider]}` }; continue; }
       if (mode !== 'dry-run' && ledger.doc.entries.some((e) => e.provider === provider && e.chapter === b && e.status === 'ok')) { items[id] = { valid: true, skipped: 'already valid in the ledger' }; continue; }
       const it = items[id] = { valid: false, attempts: 0, outcome: null };
+      let noResponse = 0;   // attempts of this request that ended as a transport error or an unparsable 2xx
       const text = req[b];
       const chars = text.length + schema.length;   // the schema is sent (or listed) with the request: counted as input
       for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
@@ -400,6 +413,10 @@ export async function runEval(cfg) {
           log(`${c.status.padEnd(16)} ${provider} bab${b} attempt ${attempt}: ${err.message}${c.retry && attempt < MAX_ATTEMPTS ? ' → retry' : ''}${c.stop ? ' → no further call to ' + provider : ''}`);
           it.outcome = c.status;
           if (c.stop) { stopped[provider] = `${c.status} (HTTP ${c.http}${c.code ? ', ' + c.code : ''})`; break; }   // the next chapter sees stopped
+          if (c.noResponse && ++noResponse === MAX_ATTEMPTS) {   // Sharon N4
+            stopped[provider] = `no usable response in ${MAX_ATTEMPTS} attempts on bab${b} (transport errors or unparsable 2xx)`;
+            log(`STOPPED  ${provider}: ${stopped[provider]} → no further call to ${provider}`); break;
+          }
           if (!c.retry) break;
           continue;
         }
@@ -599,6 +616,9 @@ async function adapterChecks(check, table) {
     const noHdr = A.classifyError({ status: 500, headers: {}, bodyText: JSON.stringify({ type: 'error', error: { type: 'api_error', message: 'x' }, request_id: 'req_err_body' }) });
     const hdr = A.classifyError(ae(429, { type: 'rate_limit_error', message: 'x' }, { 'retry-after': '7' }));
     check(noHdr.request_id === 'req_err_body' && hdr.request_id === 'req_err' && hdr.rate_limit?.['retry-after'] === '7', 'anthropic error: request id from the header, else the error body\'s request_id; retry-after kept');
+    const wu = await wire(A, args('anthropic'), 200, { 'request-id': 'req_bad' }, '<html>cut');
+    check(wu.err?.unparsable === true && wu.err.request_id === 'req_bad' && classify(wu.err).status === 'unparsable_2xx' && classify(wu.err).retry === true,
+      'anthropic wire path: a 200 with an unparsable body becomes unparsable_2xx (retried, counted towards the N4 stop), request id kept');
     const we = await wire(A, args('anthropic'), 429, { 'request-id': 'req_spend' }, JSON.stringify({ type: 'error', error: { type: 'rate_limit_error', message: 'cap', details: { error_code: 'enforced_spend_limit_reached' } }, request_id: 'req_spend' }));
     check(we.err instanceof HttpError && classify(we.err).status === 'spend_stop' && we.err.request_id === 'req_spend', 'anthropic wire path: a spend-stop response becomes a spend_stop error carrying its request id');
   }
@@ -781,6 +801,18 @@ async function selfTest() {
   const f1 = await scen('f-402-unknown-type', { 'anthropic:bab1:1': '402_unknown', 'openai:bab1:1': '402_unknown' }, {});
   check(stopsAt(f1, 'anthropic', 'billing_stop') && stopsAt(f1, 'openai', 'http_4xx'), '(f) a 402 with an unknown type: each provider stops after one attempt, not retried, reservation kept as cost');
   check(e1.exitCode === 4 && f1.exitCode === 4 && e1.summary.failed_requests.length === 4 && f1.summary.failed_requests.length === 4, '(e)(f) both runs end with exit 4, all four requests failed, no call after the stop');
+
+  // (g) Sharon N4: three attempts with no usable response (transport errors or unparsable 2xx) stop the provider;
+  // fewer than three do not
+  const g1 = await scen('g-no-usable-response', { 'anthropic:bab1:1': 'transport', 'anthropic:bab1:2': 'unparsable', 'anthropic:bab1:3': 'transport',
+    'openai:bab1:1': 'transport', 'openai:bab1:2': 'unparsable' }, {});
+  const gA = g1.ledger.entries.filter((e) => e.provider === 'anthropic');
+  check(gA.length === 3 && eq(gA.map((e) => e.status), ['transport_error', 'unparsable_2xx', 'transport_error']) && gA.every((e) => e.cost_usd === e.reserved_usd && e.cost_basis === 'reservation')
+    && g1.summary.items['anthropic:bab2'].outcome === 'not_attempted' && /no usable response in 3 attempts/.test(g1.summary.per_provider.anthropic.stopped ?? ''),
+    '(g) anthropic bab1: transport, unparsable 2xx, transport → provider stopped, bab2 not attempted, all three reservations kept as cost');
+  check(count(g1, 'openai') === 4 && g1.summary.per_provider.openai.stopped === null && g1.summary.per_provider.openai.requests_valid === 2,
+    '(g) openai bab1: two such attempts then a valid one → not stopped; bab2 runs');
+  check(g1.exitCode === 4 && eq(g1.summary.failed_requests.sort(), ['anthropic:bab1', 'anthropic:bab2']), '(g) the run ends with exit 4 and names anthropic\'s two requests as failed');
 
   // the adapters against E-PROVIDER-FACTS.md §6
   console.log('\n── adapters against E-PROVIDER-FACTS.md §6 (offline)');
