@@ -29,6 +29,7 @@ belongs in the execution records, not here.
 | Allowance size, renewal, expiry, top-up, margin, retail prices | Not yet due. Same evidence |
 | Billing, payment and school-admin purchasing and usage screens, and their release | Unassigned. Not in 4.1 |
 | Whether a school is charged for failed attempts and provider outages | Unassigned. Decided with the pricing model |
+| The school-facing AI comparison: its wording, evidence and prices (ruling 40) | Not yet due. After E and the pricing model; wording Daisy's |
 | Additional providers (Kimi, DeepSeek, Qwen): whether any deserves a later controlled educational-quality evaluation | **Exploratory research under way (owner, 16 Nov).** No change to E's providers, rules or budget without separate approval |
 
 ## C · Needed for 4.2 planning (near Z)

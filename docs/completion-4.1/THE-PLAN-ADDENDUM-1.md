@@ -367,6 +367,22 @@ Daisy), read against THE PLAN §5.6 and not as new scope:
   prices, and whether failed attempts are charged to a school.
 - **E is unchanged** in design and scoring. Its report adds the owner's cost evidence beside the blinded results.
 
+### C-2 · Schools choose their AI from PINTAR's qualified options (owner, 16 Nov 2026)
+
+Ruling 40. PINTAR qualifies providers; each school chooses; PINTAR manages the integration. **C3w must not assume a
+single provider.** Consequences for C3w's page (assessment §9), for Sharon's and Daisy's pre-build review:
+
+- THE PLAN §5.6 D8 and G1: "the owner has selected the provider" reads "the owner has **qualified** one or more
+  providers"; one adapter per qualified provider behind D8's one interface.
+- S-8: an operator-managed registry of AI options (qualified, suspended, withdrawn). The school entitlement (S-1)
+  records the school's selected option; the request resolves it at reservation time; the ledger records it (S-5).
+- S-2 gains a ceiling per provider beside the platform ceiling.
+- D8's copy rule: provider names may appear in staff and administrator copy; never on a learner surface. INV-32
+  unchanged.
+- In 4.1 the operator sets each school's option. The school-facing comparison, its prices and school self-selection
+  come with the commercial launch.
+- **E is unchanged** in providers, scoring, threshold and budget; its result becomes qualification evidence.
+
 ### Staging checkpoint authorized (owner, 12 Nov 2026, recorded 22:00 UTC)
 
 > Approved. Proceed with the staging checkpoint under Addendum 1 §5b, using the final accepted boundary commit after the wording correction and required green checks. Verify all prescribed staging conditions, including both Auth-user triggers. Stop on any material discrepancy. No production action is authorized. Once the checkpoint passes, release A2a for implementation under its existing gates.
@@ -422,3 +438,4 @@ deployment or production database change.
 | 12 Nov 2026 (07:40 UTC) | Sharon's five requirements for R-3 recorded for C3w's pre-build review, with one consequence to settle there: what counts as a match when ordinary teaching text contains common names |
 | 16 Nov 2026 | **C-1 recorded** (ruling 38): AI-assisted MCQ generation is an optional paid school add-on. C3w's design-review requirements and the pending S-1/S-2 approval recorded; no implementation change |
 | 16 Nov 2026 | **Ruling 39:** S-1 and S-2 approved, amending §5.6 D7; S-4's accounting revised so bookkeeping failures never permanently consume an allowance; S-3 to S-7 to Sharon's and Daisy's C3w pre-build review |
+| 16 Nov 2026 | **C-2 recorded** (ruling 40): schools choose their AI from PINTAR's qualified options; C3w does not assume a single provider (S-8); E unchanged |

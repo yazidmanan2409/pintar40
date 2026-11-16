@@ -136,3 +136,58 @@ The runner now records response time and rate-limit information per attempt (`cl
 - ~~Before C3w's build: approve S-1 and S-2.~~ **Approved, ruling 39 (16 Nov).** S-3 to S-7 go to Sharon and Daisy
   as review requirements at C3w's pre-build review.
 - **Later:** the pricing model and everything in §3, informed by E.
+
+## 9 · Ruling 40 (owner, 16 Nov): schools choose their AI from PINTAR's qualified options
+
+> PINTAR shortlists and qualifies the AI providers; each school chooses which one it uses, from a transparent,
+> evidence-based comparison showing each approved option's advantages, limitations and price. PINTAR qualifies
+> providers, schools choose, PINTAR manages the integration. E stays the initial controlled evaluation, but C3w must
+> not assume there will only ever be one selected provider.
+
+### 9.1 What it changes in C3w's approved text
+
+| Text | Now | Becomes |
+|---|---|---|
+| D8, G1 entry gate: "the owner has selected the provider from E's results" | One provider, one adapter | The owner **qualifies** one or more providers from E's results and the contractual, security and operational checks. One adapter per qualified provider behind D8's one interface |
+| S-1 (ruling 39): the school entitlement | Status, allowance, validity | Also **the school's selected option**. A school can only select a qualified one |
+| S-2 (ruling 39): the platform ceiling | One ceiling | One platform ceiling **plus one ceiling per provider**, matching each provider account's own limit |
+| S-5: the ledger | Model and price basis as values | Also the **option the attempt was reserved under**, so each provider's spend reconciles against its own account |
+| D8: "nothing about the provider appears in a schema name or in copy" | No provider in copy | Schema names stay vendor-free (INV-32). **Provider names may appear in staff and administrator copy** (the comparison, the provenance line Daisy already designed). Never on a learner surface |
+
+### 9.2 S-8 · The smallest addition: a registry of qualified options
+
+- **One operator-managed table of AI options:** a neutral key, the display name, the model identifier and price basis
+  as values, and a state: *qualified*, *suspended* or *withdrawn*. Only a qualified option can be selected or used.
+- **The request resolves the option from the school's entitlement at reservation time** and records it on the ledger.
+  A request never names a provider itself, so a teacher never sees model IDs, keys or tokens.
+- **The key stays per provider, server-side** (D8). Schools never hold one.
+
+### 9.3 "And then what?" and "What else did that change?"
+
+| Event | Outcome |
+|---|---|
+| A school changes its option | New requests use the new option. A request already reserved finishes on the option it reserved under. Existing questions keep their provenance (D3 records the model) and stay usable. Unaccepted drafts stay the educator's to accept, edit or delete |
+| An option is suspended or withdrawn (quality, terms, security or outage) | Schools on it cannot generate until it returns or they choose another; the screen says so, with a next step. Nothing already generated is touched |
+| Two schools on different options | Each request routes to its own school's option, and spends against that school's allowance, that provider's ceiling and the platform ceiling. A test proves it |
+| The allowance | Stays neutral (ruling 39). If it is later expressed in money or credits, a change of option needs no conversion. If in drafts, the pricing model must say how a change converts. That is a commercial decision, not 4.1's |
+| Data protection | R-3 and D9 apply identically to every option. Each option's terms are qualified separately, so a school's choice never widens what is sent |
+| E | Unchanged: providers, scoring, threshold and budget. Its result becomes the **qualification evidence** instead of a single pick: a provider passing the existing critical-key bar and the other checks is qualifiable; its blinded scores become the evidence for the matrix |
+| The comparison schools see | Wording is Daisy's, from independently evaluated results only, never promotional claims. Prices follow the later commercial model. Not in 4.1 |
+| The conflict of interest disclosed in E | Choice reduces it: PINTAR no longer picks a favourite for every school, and the evidence is shown |
+
+### 9.4 In 4.1, and later
+
+- **In 4.1 (C3w, under its existing gates):** S-8's registry; the entitlement's selected option; per-provider
+  ceilings; the ledger's option; adapters only for the providers qualified from E; the test of two schools on two
+  options. In 4.1 **the operator sets each school's option**, as he sets the entitlement (ruling 39).
+- **Later, with the commercial launch:** the school-facing comparison and its prices, school administrators choosing
+  the option themselves, and qualifying further providers (Kimi, DeepSeek, Qwen or others) through their own
+  controlled evaluation, under separate approval.
+
+### 9.5 Decisions
+
+- **None needed now.** I have recorded ruling 40 and read its consequences as above. Two points I've taken as the
+  defaults, which you can correct:
+  1. **Qualification uses E's existing critical-key threshold** plus the contractual, security and operational checks.
+     E's scoring is unchanged; only the use of its result changes, from picking one provider to qualifying each.
+  2. **In 4.1 the operator selects each school's option;** school self-selection comes with the commercial launch.
