@@ -236,6 +236,13 @@ Forecasts are not commitments. The January forecast for 4.1 is unchanged; the ow
 - **The no-redirect rule is for WORK-SCOPED windows only.** A platform-wide PLANNED window keeps today's person-level
   behaviour: the redirect to `/pemeliharaan?mulai=ditolak` stays, per R-1.
 - **The test pins both cases.**
+- **The app follows from that** (Bob, 16 Nov):
+  - a PLATFORM-WIDE window's NO_NEW_START redirects to `/pemeliharaan?mulai=ditolak`, as today (#148);
+  - for a WORK-SCOPED window, either code leaves the learner on the start screen, with «Mulai» disabled, Daisy's D8-3
+    sentence and the refusal line;
+  - the branch depends on the window's scope, which the status read returns.
+- **Three tests:** a platform-wide start at T−15 redirects; a work-scoped start at T−15 stays; a work-scoped start
+  in an active window stays.
 
 ### R-B · Warning refresh: a bounded amendment to D8, made explicit
 
@@ -246,7 +253,8 @@ Forecasts are not commitments. The January forecast for 4.1 is unchanged; the ow
 - **The amendment:**
   - one status read at each stage boundary, at most 4 per window per open page;
   - only while a window is announced;
-  - no interval timer, so it is not polling;
+  - no timed server reads, so it is not polling. The existing 30 s local tick, which reads nothing and only moves the
+    minutes shown, stays; it stops when a re-read fails;
   - a failed read shows no new stage (Daisy).
 - **Why:** without it, a window extended or ended early would leave a stale warning on screen. The owner's review of
   this plan asked for defined behaviour in exactly that case.
