@@ -230,6 +230,10 @@ meet **both** conditions, across its 30 items:
 - **A flag is "upheld"** when the third educator scores correctness 0.
 - **A malformed item** (one that fails the item schema inside an otherwise valid response) scores 0 and is not shown to
   judges or to Sharon. Only that item is voided. A whole response that fails goes down the retry and missing path (§4.1).
+- **A response with more than 15 items:** only the first 15 count, and the extra items are not shown. They are
+  recorded in the sealed map.
+- **The §4.5 evidence** is produced by `report.mjs`, which runs **only after the map is opened** and checked against
+  its hash, so the cost figures are never seen before the scores are final.
 - Thresholds are applied by `score.mjs` (`claude/e-runner-prep`), whose self-test covers these cases. The older
   `kit.mjs score` rule is retired.
 
