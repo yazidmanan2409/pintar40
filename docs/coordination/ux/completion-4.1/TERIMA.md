@@ -19,3 +19,4 @@
 | 16 Nov, 05:15 | Second Eye | (a) the sentence renders after «Mulai»; (b) no assessment has a time limit | Second Eye's note, 05:12 | `A2B-SLICE2-PUTUSAN.md` corrected: (a) after satisfies; (b) D4 lines drop the duration (V-2, mine) |
 | 16 Nov, 05:17 | Bob | D4 out of A2b; is "after" acceptable for (a)? | Bob's note, 05:16 | Yes, "after" is acceptable (`A2B-SLICE2-PUTUSAN.md`); the no-duration table is kept as a record only |
 | 16 Nov, 05:43 | Second Eye | D4 keys removed; the T−15 line could name the window's time | Second Eye's note, 05:42 | **No proposal.** The 4.0 key stays as it is: inside T−15 the banner on the same screen already gives the time. No reply needed |
+| 16 Nov, 06:33 | Second Eye | D8 batch 1 review | `claude/a2b` at `679987cb` | `TINJAUAN-A2B-D8-B1-679987cb.md`: **done**. Blocked on D8-3 evidence only |
