@@ -247,5 +247,14 @@ Forecasts are not commitments. The January forecast for 4.1 is unchanged; the ow
 - **Why:** without it, a window extended or ended early would leave a stale warning on screen. The owner's review of
   this plan asked for defined behaviour in exactly that case.
 - **Condition:** Sharon confirms the read is `pintar_status_saya`'s existing cost, within A12's timing limits.
-- **The owner may overrule it.** Plain D8 behaviour would then be accepted: timers from one read, and a stale stage
+- **Approved by the owner, 16 Nov 2026.**
+- **A failed re-read while a warning is already showing:**
+  - the warning stays, because hiding a likely-valid warning is worse;
+  - its live countdown stops, and it shows instead the window's start time, from the last successful read, in the
+    school's zone (D8);
+  - nothing implies the information is current;
+  - the next stage's read retries, and a successful read restores the normal display.
+  - Daisy words it. Second Eye's banner test covers it: a failed read after a stage is showing leaves no ticking
+    countdown.
+- **The owner could have overruled it.** Plain D8 behaviour would then be accepted: timers from one read, and a stale stage
   possible until the next page load.
