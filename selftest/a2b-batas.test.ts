@@ -480,11 +480,10 @@ ${jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '1 minute'", akhir: "
 set local session_replication_role = origin;
 ${ALAT}
 ${sebagai(d.muridUid)}
-select 'jawab|' || pg_temp.a2b_tetap($q$select public.record_answer('${d.PA}', 1, '{"posisi": 1}'::jsonb)$q$);
--- after the first touch (the answer released the stop's mark): no person-level drain, and the sitting still runs.
--- (Before that touch maintenance_draining reads the marked sitting's own deadline: reported to Sharon, A2a's.)
+-- before any touch (D1-2: the marked sitting's pending release is read): no person-level drain; the sitting still runs
 select 'blok|' || coalesce(public.maintenance_block_for_me(), 'none');
 select 'kuras|' || public.maintenance_draining('${d.murid}')::text;
+select 'jawab|' || pg_temp.a2b_tetap($q$select public.record_answer('${d.PA}', 1, '{"posisi": 1}'::jsonb)$q$);
 ${tanpaOrang}
 select 'efektif|' || extract(epoch from (public.pengerjaan_tenggat_efektif('${d.SA}') - now()))::int;
 select 'saat|' || extract(epoch from (t_lift - t_stop))::int || ':' || extract(epoch from (t_stop - starts_at))::int || ':' || extract(epoch from (t_lift - ended_at))::int
@@ -503,6 +502,40 @@ rollback;`);
 /** K12-1's plant: penghentian_geser reading the window's row (starts_at, ended_at) instead of its instants. */
 const GESER_SAAT = "select x.t_stop, case when x.ended_at is null then null else coalesce(x.t_lift, x.ended_at) end into v_awal, v_akhir";
 const GESER_BARIS = "select x.starts_at, case when x.ended_at is null then null else x.ended_at end into v_awal, v_akhir";
+
+/** D1-2 (Sharon, A2B-COMMIT2-4010fe83.md): a sitting marked by a class stop of 45 min, lifted 5 min ago, its own deadline
+ *  30 min ago; no release batch, no touch. Every reader of its deadline shows it shifted (15 min ahead); the release
+ *  then changes nothing they show. The assessment assignment is placed at 7A so the teacher's list reads it. */
+function d12(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d, "now() - interval '30 minutes'")}
+update public.assessment_sessions set darurat_sejak = now() - interval '50 minutes', darurat_jendela_id = '${W2}' where id = '${d.SA}';
+update public.assessment_assignments set node_id = '${d.kA}', closes_at = null
+ where id = (select assessment_assignment_id from public.assessment_sessions where id = '${d.SA}');
+-- the learner's other sittings of that assessment, earlier, so the teacher's list shows this one
+update public.assessment_sessions set created_at = created_at - interval '400 days', started_at = started_at - interval '400 days'
+ where person_id = '${d.murid}' and id <> '${d.SA}'
+   and assessment_assignment_id = (select assessment_assignment_id from public.assessment_sessions where id = '${d.SA}');
+${jendela(d, W2, { kind: "EMERGENCY", nodes: [d.kA], mulai: "now() - interval '50 minutes'", selesai: "now() - interval '5 minutes'" })}
+set local session_replication_role = origin;
+select 'efektif|' || extract(epoch from (public.pengerjaan_tenggat_efektif('${d.SA}') - now()))::int;
+${sebagai(d.muridUid)}
+select 'keadaan|' || extract(epoch from ((select x.authoritative_deadline from public.session_state('${d.SA}') x) - now()))::int;
+select 'lanjut|' || (select x.ok::text || ':' || x.reason from public.may_continue_session('${d.SA}') x);
+select 'saya|' || extract(epoch from ((public.pengerjaan_saya('${d.SA}') ->> 'tenggat')::timestamptz - now()))::int;
+select 'kuras|' || public.maintenance_draining('${d.murid}')::text;
+${sebagai(d.guruUid)}
+select 'daftar|' || coalesce((select extract(epoch from (x.tenggat - now()))::int::text from public.daftar_pengerjaan('${d.kA}',
+  (select assessment_assignment_id from public.assessment_sessions where id = '${d.SA}')) x where x.sesi_id = '${d.SA}'), 'none');
+${tanpaOrang}
+-- the release, then the same reader: nothing it shows changes
+select 'rilis|' || public.pengerjaan_lepas_darurat('${d.SA}')::text;
+select 'sesudah|' || extract(epoch from (public.pengerjaan_tenggat_efektif('${d.SA}') - now()))::int
+  || ':' || (darurat_sejak is null)::text from public.assessment_sessions where id = '${d.SA}';
+rollback;`);
+}
+const D12_SAAT = "then public.penghentian_geser(s.person_id, s.darurat_jendela_id) end, interval '0')";
+const D12_TANAM = "then null::interval end, interval '0')";
 
 /** K6: extend during a window, then end it early. The window ends 1.5 s in; it is extended by an hour; after the old
  *  end the act is still refused; then resume early (AKHIRI), and the act succeeds at once. */
@@ -859,6 +892,26 @@ export const a2bBatasTests: SelfTest[] = [
       try { tanam = k5(db, d); } finally { balik(); }
       c.expect(tanam.hasil.efektif !== "900", `with the plant (the shift read from starts_at and ended_at) the effective deadline was still 900 s: ${JSON.stringify(tanam.hasil)}`);
       return `a running sitting when a planned class window starts drains: the answer is taken; open to its effective deadline (exactly ${r.hasil.efektif} s ahead: T_lift − T_stop credited, the window in the hosted shape); the closer ends it after its grace (${r.hasil.status_akhir}); with the plant (the shift from starts_at and ended_at) ${tanam.hasil.efektif} s`;
+    }),
+  },
+  {
+    id: "A2B-D12",
+    requires: ["db"],
+    run: jalan(async (c, db, d) => {
+      const r = d12(db, d);
+      c.expect(!r.err, `D1-2 failed to run: ${r.err}`);
+      const h = r.hasil;
+      for (const k of ["efektif", "keadaan", "saya", "daftar"] as const)
+        c.expect(h[k] === "900", `D1-2: ${k}: a marked sitting of a lifted stop must read its deadline shifted by the stop (exactly 900 s ahead) before any touch: ${h[k]}`);
+      c.expect(h.lanjut === "true:OK", `D1-2: may_continue_session must let the learner continue: ${h.lanjut}`);
+      c.expect(h.kuras === "true", `D1-2: maintenance_draining must say the sitting runs: ${h.kuras}`);
+      c.expect(h.rilis === "true" && h.sesudah === "900:true", `D1-2: the release must then change nothing a reader shows (released, still 900 s): ${h.rilis}, ${h.sesudah}`);
+      const { gantiFungsi } = await import("./balapan");
+      const balik = gantiFungsi("public.pengerjaan_tenggat_efektif(uuid)", D12_SAAT, D12_TANAM);
+      let tanam: ReturnType<typeof d12>;
+      try { tanam = d12(db, d); } finally { balik(); }
+      c.expect(tanam.hasil.efektif !== "900" && tanam.hasil.kuras !== "true", `with the plant (the marked case removed) the readers still showed the shift: ${JSON.stringify(tanam.hasil)}`);
+      return `a marked sitting of a lifted stop, before any release or touch: the effective deadline, session_state, pengerjaan_saya and daftar_pengerjaan all read it 900 s ahead (the stop's 45 min on a deadline 30 min past), may_continue_session lets it go on and maintenance_draining says it runs; the release then changes nothing (still 900 s); with the plant (the marked case removed) ${tanam.hasil.efektif} s and draining ${tanam.hasil.kuras}`;
     }),
   },
   {
