@@ -28,6 +28,7 @@
  */
 import { spawnSync } from "node:child_process";
 import { Checks, type SelfTest } from "./lib";
+import { t } from "../src/lib/hle";
 import { psqlBaris } from "./a2a-f01.test";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -1122,11 +1123,12 @@ export const a2bBatasTests: SelfTest[] = [
       const wib = { zona: "Asia/Jakarta" }, wita = { zona: "Asia/Makassar" };
       c.expect(hariLain(akhir, wib, kini) === "", `the same day in the window's zone (WIB) adds nothing: «${hariLain(akhir, wib, kini)}»`);
       const id = hariLain(akhir, wita, kini), en = hariLain(akhir, wita, kini, "en");
-      c.expect(id.startsWith(", ") && /\b17\b/.test(id) && /2026/.test(id), `another day in the window's zone (WITA) adds «, {tanggal}» with the 17th: «${id}»`);
-      c.expect(en.startsWith(" on ") && /\b17\b/.test(en), `in English « on {tanggal}»: «${en}»`);
+      // Daisy's C-3 form (TINJAUAN-A2B-D8-B1): «, {hari} {tanggal}», no year and no comma between them
+      c.expect(id === ", Selasa 17 Nov", `another day in the window's zone (WITA) adds «, Selasa 17 Nov»: «${id}»`);
+      c.expect(en === " on Tuesday 17 Nov", `in English « on Tuesday 17 Nov»: «${en}»`);
       c.expect(hariLain("2026-11-16T15:45:00Z", wita, kini) === "", "a time later the same day adds nothing");
       const pita = readFileSync(join(repoRoot, "src/components/pemeliharaan/PengingatPemeliharaan.tsx"), "utf8");
-      c.expect(/\.replace\("\{jam\}", jamJendela\(jendela\.mulai, jendela\) \+ hariLain\(jendela\.mulai, jendela, kini, locale\)\)/.test(pita),
+      c.expect(/\.replace\("\{jam\}", jamPenuh\(jendela\.mulai, jendela, kini, locale\)\)/.test(pita),
         "the last-check line must date the window's start when it falls on another day");
       return c.verdict(`a maintenance time on another day carries its date, read in the window's zone (an hour after 22.30 WIB is the same day in WIB and the next in WITA: «${id}»); the banner's last-check line dates the window's start with it (D4's sentence, which also used it, is removed by the Chief Architect's D4 ruling)`);
     },
@@ -1174,6 +1176,32 @@ rollback;`);
       c.expect(!/menitTersisa\(orientasi\.closes_at\)|\{d\}/.test(muka), "the start screen must compute no {d} from the assignment's close");
       return `D4's calculation is gone, not hidden: no database function carries MAINTENANCE_CANNOT_FINISH (the planted one is found), the start rule takes person and node only, and no app file carries the code, the pemeliharaan.d4.* sentences or a {d} from the close`;
     }),
+  },
+  {
+    id: "A2B-C01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // Daisy's review of D8 batch 1 (TINJAUAN-A2B-D8-B1-679987cb), C-1 to C-3
+      const pita = readFileSync(join(repoRoot, "src/components/pemeliharaan/PengingatPemeliharaan.tsx"), "utf8");
+      const jeda = readFileSync(join(repoRoot, "src/app/pemeliharaan/page.tsx"), "utf8");
+      // C-1: the work's owner is named, never «-nya»
+      for (const k of ["pemeliharaan.tempat.arti", "pemeliharaan.tempat.biasa"] as const) {
+        const id = t(k, "learner", { locale: "id" }), en = t(k, "learner", { locale: "en" });
+        c.expect(id.includes("pekerjaan {untuk}") || id.includes("Pekerjaan {untuk}"), `${k} must name the work's owner: «${id}»`);
+        c.expect(!/pekerjaannya/i.test(id) && !/\bits work\b/i.test(en), `${k} must not say «pekerjaannya» or «its work»: «${id}» / «${en}»`);
+      }
+      const tanpaGanti = [...`${pita}\n${jeda}`.matchAll(/s\("pemeliharaan\.tempat\.(arti|biasa)"\)(?!\.replace\("\{untuk\}", untuk\))/g)].length;
+      c.expect(tanpaGanti === 0, `every use of pemeliharaan.tempat.arti and .biasa must fill {untuk}: ${tanpaGanti} do not`);
+      // C-2: while the last-check line shows, the stage's own start sentence is dropped
+      c.expect(/\{gagal \? null : <>\{tempat \? s\("pemeliharaan\.tempat\.pukul"\)/.test(pita), "while the last-check line shows, the stage's start sentence must be dropped");
+      // C-3: every shown window time carries its day when it is another: one helper, on the banner and the page
+      const bare = [...pita.matchAll(/jamJendela\(([^)]*)\)/g)].map((m) => m[1]).filter((a) => !/^bacaTerakhir,/.test(a));
+      c.expect(bare.length === 0, `the banner must show every window time through jamPenuh (only the read's own time, {jam_baca}, is today's): ${bare.join(" | ")}`);
+      c.expect(/const jam = \(iso: string\) => jamPenuh\(iso, w \?\? \{ zona: null \}, kini, locale\);/.test(jeda) && !/jamJendela\(/.test(jeda),
+        "the pause page must show every time through jamPenuh, today read on the database's clock");
+      return c.verdict("Daisy's batch 1 corrections: C-1, pemeliharaan.tempat.arti and .biasa name the work's owner ({untuk}, filled at every use) and never say «pekerjaannya»; C-2, the stage's start sentence is dropped while the last-check line shows; C-3, every window time on the banner and the pause page goes through jamPenuh, which dates another day");
+    },
   },
   {
     id: "A2B-K13",

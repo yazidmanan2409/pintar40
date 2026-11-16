@@ -6328,7 +6328,7 @@
     {
       "id": "A2B-H01",
       "runner": "static",
-      "proves": "A2b commit 8 (Daisy, A2-KATA-DESAIN.md B2; A2B-RA-KALIMAT.md §4); runs the pure helper hariLain and reads source: a window's time on another day than the reader's today, both read in the window's zone, carries «, {tanggal}» (EN « on {tanggal}»), and nothing on the same day; an hour after 22.30 WIB is the same day in WIB and the next in WITA. the banner's last-check line dates the window's start (D4's sentence, which also did, is removed by the Chief Architect's D4 ruling)."
+      "proves": "A2b commit 8 (Daisy, A2-KATA-DESAIN.md B2; A2B-RA-KALIMAT.md §4); runs the pure helper hariLain and reads source: a window's time on another day than the reader's today, both read in the window's zone, carries «, {hari} {tanggal}» («, Selasa 17 Nov»; EN « on Tuesday 17 Nov», Daisy's C-3 form), and nothing on the same day; an hour after 22.30 WIB is the same day in WIB and the next in WITA. the banner's last-check line dates the window's start (D4's sentence, which also did, is removed by the Chief Architect's D4 ruling)."
     },
     {
       "id": "A2B-P01",
@@ -6339,6 +6339,11 @@
       "id": "A2B-D4X",
       "runner": "static",
       "proves": "The Chief Architect's D4 ruling (16 Nov 05:16; THE PLAN §5.3 D4: no duration, T−15 only), the calculation gone and not hidden; executes one catalogue query on the database in a rolled-back transaction and reads source: no public function's body carries MAINTENANCE_CANNOT_FINISH, maintenance_mulai_tolak takes two arguments (person, node: no deadline), no file under src/ carries CANNOT_FINISH or the pemeliharaan.d4.* sentences, and the start screen computes no {d} from the assignment's close. Plant: a function carrying the code, created in the same transaction, is found by the same query."
+    },
+    {
+      "id": "A2B-C01",
+      "runner": "static",
+      "proves": "Daisy's review of D8 batch 1 (TINJAUAN-A2B-D8-B1-679987cb), C-1 to C-3; reads source and the copy: C-1, pemeliharaan.tempat.arti and .biasa name the work's owner ({untuk}: kelas {kelas} or the school), filled at every use on the banner and the pause page, never «pekerjaannya» or «its work»; C-2, while the failed-read line shows, the stage's own start sentence is dropped; C-3, every window time on the banner (except the read's own time) and on the pause page is shown through jamPenuh, which adds «, {hari} {tanggal}» on another day."
     },
     {
       "id": "A2B-K13",
