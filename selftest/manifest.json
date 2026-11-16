@@ -6411,6 +6411,11 @@
       "proves": "The class picker in the app; reads source: once one school is chosen the planned form offers its classes (pm_kelas) from pemeliharaan_kelas_sekolah; the collision check is asked for them (p_nodes); the scheduling form carries them (kelas) and jadwalkanPemeliharaanAction passes them as p_nodes, the database staying the gate."
     },
     {
+      "id": "A2B-K16",
+      "runner": "static",
+      "proves": "The owner's combined scenario (the Chief Architect, 16 Nov 09:41; named K16 because K13 is R-A's); executes in a rolled-back transaction: a school admin schedules a planned window on class 7A and an overlapping school-wide planned window, both through schedule_maintenance (step 2 is not refused: maintenance_collisions counts assessments, never windows); 7A's is extended with perpanjang_pemeliharaan; on the clock after the school window's end and before 7A's extended end, 7A's work is refused and 7B's resumes; with the school window ended early the same holds now, and the status read tells a 7A learner 7A's window alone and a 7B learner nothing. Plant: the place guard reading only the earliest-ending window releases 7A."
+    },
+    {
       "id": "A2B-K13",
       "runner": "static",
       "proves": "The Chief Architect's R-A (PLAN-A2B-C2W.md at e15fe966); executes on the database in rolled-back transactions: one minute before a planned class window's start a start in the class is refused PR110 MAINTENANCE_NO_NEW_START, and one second after it PR040 MAINTENANCE_PLACE; another class's start proceeds on both sides; the class's learner passes the request hook on both sides (never PT503, no redirect)."

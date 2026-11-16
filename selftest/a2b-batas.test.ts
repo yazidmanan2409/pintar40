@@ -756,6 +756,60 @@ select 'paparan|' || coalesce((select exposure from public.client_rpc_registry w
 select 'anon|' || coalesce((select has_function_privilege('anon', p.oid, 'execute')::text from pg_proc p where p.proname = 'pemeliharaan_kelas_sekolah' and p.pronamespace = 'public'::regnamespace), 'tidak ada');
 rollback;`);
 }
+/** The owner's combined scenario (the Chief Architect, 16 Nov 09:41): a planned window on class 7A and an overlapping
+ *  school-wide planned window, both scheduled through schedule_maintenance (step 2 is not refused: the collision check
+ *  counts assessments, never windows); 7A's is extended; the school's ends first. Read on the clock at a time after the
+ *  school window's end, and then with the school window ended early, through the status read of a 7A and a 7B learner. */
+function k16(db: string, d: Dunia) {
+  const jadwal = (kelas: string, alasan: string) => `$q$select public.schedule_maintenance(p_platform => false, p_institutions => array['${d.X}'::uuid],
+  p_starts_at => now() + interval '2 hours', p_ends_at => now() + interval '3 hours', p_message => null, p_reason => '${alasan}',
+  p_notice => false, p_nodes => ${kelas})::text$q$`;
+  const daftar = (uid: string, k: string) => `${sebagai(uid)}
+select '${k}|' || coalesce((select string_agg(x ->> 'id', ',' order by x ->> 'id') from jsonb_array_elements(public.pintar_status_saya() -> 'pemeliharaan') x
+  where x ->> 'keadaan' = 'AKTIF'), '');`;
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.adminXUid)}
+create temp table wa as select (public.schedule_maintenance(p_platform => false, p_institutions => array['${d.X}'::uuid],
+  p_starts_at => now() + interval '2 hours', p_ends_at => now() + interval '3 hours', p_message => null, p_reason => '${ALASAN}16A',
+  p_notice => false, p_nodes => array['${d.kA}'::uuid])) as id;
+select 'langkah2|' || pg_temp.a2b_coba(${jadwal("'{}'", `${ALASAN}16S`)});
+create temp table ws as select (public.schedule_maintenance(p_platform => false, p_institutions => array['${d.X}'::uuid],
+  p_starts_at => now() + interval '2 hours', p_ends_at => now() + interval '3 hours', p_message => null, p_reason => '${ALASAN}16S',
+  p_notice => false, p_nodes => '{}')) as id;
+${tanpaOrang}
+-- both under way now: 7A's ends in 30 min, the school's in 20 min
+set local session_replication_role = replica;
+update public.maintenance_windows set starts_at = now() - interval '10 minutes', ends_at = now() + interval '30 minutes' where id = (select id from wa);
+update public.maintenance_windows set starts_at = now() - interval '5 minutes', ends_at = now() + interval '20 minutes' where id = (select id from ws);
+set local session_replication_role = origin;
+select 'wa|' || (select id from wa)::text;
+select 'ws|' || (select id from ws)::text;
+${sebagai(d.adminXUid)}
+select 'perpanjang|' || pg_temp.a2b_tetap(format('select public.perpanjang_pemeliharaan(%L, now() + interval ''90 minutes'', %L)', (select id from wa), 'Perlu waktu lebih'));
+${tanpaOrang}
+-- step 4, on the clock: at +10 min both windows are in force; at +60 min the school's has ended and 7A's (extended) has not
+select 'kini_a|' || public.maintenance_affects_place('${d.kA}', clock_timestamp() + interval '10 minutes')::text;
+select 'kini_b|' || public.maintenance_affects_place('${d.kB}', clock_timestamp() + interval '10 minutes')::text;
+select 'nanti_a|' || public.maintenance_affects_place('${d.kA}', clock_timestamp() + interval '60 minutes')::text;
+select 'nanti_b|' || public.maintenance_affects_place('${d.kB}', clock_timestamp() + interval '60 minutes')::text;
+-- the school's window ends (early, now), before 7A's extended end: the status read for a 7A and a 7B learner
+${sebagai(d.adminXUid)}
+select 'akhiri|' || pg_temp.a2b_tetap(format('select public.change_maintenance(%L, %L, %L)', (select id from ws), 'AKHIRI', 'Selesai'));
+${tanpaOrang}
+${daftar(d.muridUid, "murid_a")}
+${daftar(d.murid2Uid, "murid_b")}
+${tanpaOrang}
+select 'sekarang_a|' || public.maintenance_affects_place('${d.kA}', clock_timestamp())::text;
+select 'sekarang_b|' || public.maintenance_affects_place('${d.kB}', clock_timestamp())::text;
+rollback;`);
+}
+const K16_SAAT = "and public.maintenance_jendela_atas(w, n))";
+const K16_TANAM = `and public.maintenance_jendela_atas(w, n)
+       and w.ends_at = (select min(x.ends_at) from public.maintenance_windows x where (x.ended_at is null or x.ended_at > p_at)
+                          and x.kind = 'PLANNED' and not x.platform and x.institution_ids && w.institution_ids))`;
 const D12_SAAT = "then public.penghentian_geser(s.person_id, s.darurat_jendela_id) end, interval '0')";
 const D12_TANAM = "then null::interval end, interval '0')";
 const D13_SAAT = "'ditahan', s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')   -- D1-3: a stale mark holds nothing";
@@ -1642,6 +1696,26 @@ rollback;`);
       c.expect(/fd\.getAll\("kelas"\)/.test(jadwal) && /p_nodes: kelas/.test(jadwal), "the scheduling action must pass the chosen classes as p_nodes; the database (K10) stays the gate");
       return c.verdict("the planned form's class step: the chosen school's classes from the school admin's own list, the collision check narrowed to them, and the scheduling action passing them as p_nodes");
     },
+  },
+  {
+    id: "A2B-K16",
+    requires: ["db"],
+    run: jalan(async (c, db, d) => {
+      const r = k16(db, d); const h = r.hasil;
+      c.expect(!r.err, `K16 failed to run: ${r.err}`);
+      c.expect(h.langkah2 === "OK", `step 2: a school-wide planned window overlapping a class window must be accepted (the collision check counts assessments, never windows): ${h.langkah2}`);
+      c.expect(h.perpanjang === "OK", `step 3: the class window's extension must be accepted: ${h.perpanjang}`);
+      c.expect(h.kini_a === "true" && h.kini_b === "true", `while both windows are in force, both classes' work is refused: ${h.kini_a}, ${h.kini_b}`);
+      c.expect(h.nanti_a === "true" && h.nanti_b === "false", `after the school window's end and before 7A's extended end: 7A refused, 7B resumed: 7A ${h.nanti_a}, 7B ${h.nanti_b}`);
+      c.expect(h.akhiri === "OK" && h.sekarang_a === "true" && h.sekarang_b === "false", `with the school window ended now: 7A refused, 7B resumed: ${h.akhiri}, 7A ${h.sekarang_a}, 7B ${h.sekarang_b}`);
+      c.expect(h.murid_a === h.wa && h.murid_b === "", `the status read: a 7A learner is told 7A's window alone, a 7B learner nothing: 7A [${h.murid_a}] (expected ${h.wa}), 7B [${h.murid_b}]`);
+      const { gantiFungsi } = await import("./balapan");
+      const balik = gantiFungsi("public.maintenance_affects_place(uuid,timestamptz)", K16_SAAT, K16_TANAM);
+      let tanam: ReturnType<typeof k16>;
+      try { tanam = k16(db, d); } finally { balik(); }
+      c.expect(tanam.hasil.nanti_a !== "true", `with the plant (the guard reads only the earliest-ending window) 7A was still refused after the school window's end: ${tanam.hasil.nanti_a}`);
+      return `the owner's combined scenario: a class window and an overlapping school window are both accepted; 7A's extension is accepted; while both are in force both classes are refused; after the school window's end 7A stays refused to its extended end and 7B resumes (on the clock, and with the school window ended early); a 7A learner is told 7A's window alone, a 7B learner nothing; with the plant (only the earliest-ending window read) 7A was wrongly released (${tanam.hasil.nanti_a})`;
+    }),
   },
   {
     id: "A2B-K13",
