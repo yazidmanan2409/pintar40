@@ -10,8 +10,8 @@ and credentials follow only once the providers' actual terms and access are read
 | `prompt-v2.md` | The one request, in Indonesian, sent byte-identical to every provider as a single user message. v2 has Daisy's 9 Nov review applied; v1 (`prompt-v1.md`) is kept for the record. Any change makes a new version |
 | `item-schema.json` | The output contract (stem, A–D options, key, a misconception per wrong option, objective code, one-line rationale). It is kept to the schema subset every provider's structured output accepts; counts and cross-field rules are checked by the kit |
 | `material/bab1.md`, `material/bab2.md` | The frozen material: the synthetic SD Kelas 5 Matematika chapters (F-4), with their objectives (coded B1-T1…B2-T4), known misconceptions and lessons. **No question, option or key from the chapters is sent** |
-| `material/MANIFEST.json` | The SHA-256 of each source, material, request, prompt and schema. These are recorded with every draft for provenance |
-| `kit.mjs` | `material`, `request`, `validate`, `blind`, `score` and `selftest`. Dependency-free; no network |
+| `material/MANIFEST.json` | The SHA-256 of each source, material, request, prompt and schema, and of `kit.mjs` and `score.mjs` (the frozen set). These are recorded with every draft for provenance |
+| `kit.mjs` | `material`, `request`, `validate`, `blind`, `seal-key` and `selftest`. `score` is retired and refuses (use `score.mjs`). Dependency-free; no network |
 | `score.mjs` | Scoring under E-DECISION-PACK §4.1–§4.3a (16 Nov): one provider code's judge sheets plus Sharon's flags, checked against the flags file's committed SHA-256. Output: the resolved table, critical count, Q1, Q2 per criterion (Q1 and Q2 PROPOSED, awaiting owner approval), the verdict and flag counts. Input formats are in its header. `node score.mjs --self-test` |
 
 `node docs/completion-4.1/c3-eval/kit.mjs selftest` runs the whole pipeline offline, on planted cases:
@@ -20,34 +20,38 @@ and credentials follow only once the providers' actual terms and access are read
 - a wrapped response is measured invalid, not repaired;
 - per-item defects are caught;
 - the reviewer files carry no provider or model name, and the key-check sheet shows no key;
-- a provider with two critical keys is not recommended;
-- validity and cost are computed;
-- scoring refuses an unresolved disagreement or a missing independent key check.
+- an item that fails the item schema is not shown to the judges or to Sharon; only that item is voided;
+- the SEALED map records 30 slots per code (valid, malformed, missing), which `score.mjs` reads;
+- `kit.mjs score` refuses (retired);
+- `kit.mjs` and `score.mjs` match their hashes in `MANIFEST.json`.
 
-## The scoring method (as `C3-EVALUATION-PLAN.md` §5)
+## The scoring method (E-DECISION-PACK §4.1–§4.3a, amended by the owner 16 Nov)
 
-Each item gets three rows in `judgements-template.csv`:
-- **J1, J2:** two educators score correctness 0/1, alignment 0–2, distractors 0–2 and language 0–2.
-- **R:** a third educator resolves only the criteria where J1 and J2 differ.
-- **K:** Sharon's independent key check. She solves the item from `lembar-kunci-tanpa-kunci.md` without seeing the
-  key, then records 0/1.
+`score.mjs` applies it, one provider code at a time. Its header documents the input formats. The method:
+- **Slots:** always 30 per provider, 15 per chapter. Each slot is one of three kinds:
+  - **valid:** shown and judged;
+  - **malformed:** the item fails the item schema. It is never shown to the judges or to Sharon, so its format cannot
+    unblind, and it scores 0 on every criterion. Only that item is voided, not its draft;
+  - **missing:** there is no item at that position. A whole-response failure takes the runner's retry path; if no
+    attempt succeeds, its 15 slots are missing.
 
-**An item is critical** if the educators' resolved correctness is 0, or Sharon's check is 0. Where the two differ, the
-item is listed for the owner.
+  `kit.mjs blind` writes the slots into `SEALED/map.json` (`slots`).
+- **Judges:**
+  - two educators (J1, J2) score every valid item;
+  - correctness stands when they agree, unless Sharon has flagged the item. If they disagree, or the item is flagged,
+    the third educator (J3) decides;
+  - on a 0–2 criterion, a 1-point gap scores the average. A 2-point gap takes the median of J1, J2 and J3.
+- **Sharon's flags:** her flags file's SHA-256 is committed before she sees any score. `score.mjs` refuses a file that
+  does not match it. A flag is **upheld** when the third educator scores correctness 0.
+- **Critical:** a valid item whose resolved correctness is 0. **Accepted:** resolved correctness 1 and resolved review
+  burden ≥ 1. 0.5 is not accepted; 1.5 is.
+- **Qualify:** critical ≤ 1, Q1 accepted ≥ 24/30, and Q2 each 0–2 criterion's mean ≥ 1.0. Critical items count
+  toward Q2 as resolved. Q1 and Q2 are **PROPOSED**, awaiting owner approval. Ruling 40's checks are separate.
 
-**The educational score** is correctness + alignment + distractors + language (0–7) per item. A critical item scores
-0 for correctness.
+The older `kit.mjs score` (a resolver row R, and Sharon's blind check of 0 made an item critical) predates the 16 Nov
+amendment. It is retired and refuses with a pointer to `score.mjs`.
 
-**Missing or unrenderable items:**
-- They count against validity (out of 30) and contribute no score.
-- An item that is invalid but renderable is still judged.
-- Validity is measured, never repaired.
-
-**Decision rule:**
-- A provider with more than 1 critical key in 30 is not recommended.
-- The rest are ranked by educational score, then validity, then billed cost.
-
-The blinding map is revealed last, in `C3-EVALUATION-RESULTS.draft.md`, for the owner.
+The blinding map is revealed last, for the owner.
 
 ## Provider requirements (before any paid call)
 
@@ -76,11 +80,11 @@ It is the one part of the kit not prepared yet, because it depends on the actual
 ```sh
 node kit.mjs material && git diff --exit-code material/          # material unchanged since review
 # runner: writes runs/<provider>/bab1.json, bab2.json, usage.json (raw responses, unmodified)
-node kit.mjs blind runs out                                       # out/reviewer → educators; out/kunci → Sharon only; out/SEALED → nobody
+node kit.mjs blind runs out                                       # out/reviewer → educators; out/kunci → Sharon only; out/SEALED → nobody (malformed items are in neither)
 # Sharon solves out/kunci/lembar-kunci-tanpa-kunci.md and seals her answers BEFORE any full sheet is opened:
 node kit.mjs seal-key out jawaban-k.csv                           # one seal only; the kit compares answers with keys
-# educators fill out/reviewer/judgements-template.csv (J1, J2, R)
-node kit.mjs score out judgements.csv runs                        # → out/C3-EVALUATION-RESULTS.draft.md
+# Sharon commits the SHA-256 of her flags file before she sees any score; educators score J1, J2 (and J3 where sent)
+node score.mjs sheets-<code>.json flags.json --flags-sha256 <hex> # per provider code; slots from out/SEALED/map.json
 ```
 
 **Under the 16 Nov pack (E-DECISION-PACK §4):**
@@ -101,11 +105,13 @@ folder) until the owner has reviewed them. The results document is then committe
   - Sharon receives only `out/kunci/`: the stem and the options, with no key, rationale or provider.
   - She records one answer per item and seals it with `seal-key` before any full sheet is opened. A second seal is
     refused.
-  - The kit compares her answers with the keys, and scoring refuses to run until they are sealed.
+  - The retired `kit.mjs score` compared her answers with the keys. Under the 16 Nov amendment, her role is blind
+    **flags**, committed with their SHA-256 before she sees any score and resolved by the third educator (`score.mjs`).
 - **Provenance per run** (`usage.json`): `model`, `model_date`, `endpoint`, `api_version`, `run_at`, `run_by`,
   `generation` (temperature, maximum tokens, system prompt), `data_retention`, `price_per_mtok`, and a `request_id` per
   call.
-  - The results mark a run whose record is incomplete.
+  - The retired `kit.mjs score` marked a run whose record was incomplete. No tool reports this, or the §4.5 cost
+    figures, until one is ruled on.
   - Each raw response file is hashed into the sealed map at blind time.
 - **Equal schema instructions:** v2 lists the fields in the prompt text itself, so a provider without structured output
   receives the same conditions. Sharon checks that the list matches `item-schema.json` exactly.
@@ -113,5 +119,6 @@ folder) until the owner has reviewed them. The results document is then committe
 ## Freeze
 
 The kit is frozen at the commit that adds this line. `material/MANIFEST.json` holds the SHA-256 of the v2 prompt, the
-schema, both materials and both requests. Any change after this needs a new version and a new freeze, and no external
+schema, both materials and both requests, and (since 16 Nov, ruling 8) of `kit.mjs` and `score.mjs`. A real run is
+refused while either file differs from its hash, and Sharon re-confirms the freeze on the head that records them. Any change after this needs a new version and a new freeze, and no external
 evaluation runs on an unfrozen kit.
