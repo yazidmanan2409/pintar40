@@ -37,6 +37,10 @@ const PENILAI = { email: "penilai@evaluasi.pintar.test", password: "Penilai-Eval
 // the learning-cycle school's learner, whose class holds an open Uji Penguasaan that allows a pause (allows_pause) and
 // offers help after its hesitation window; b5-ujung reads only this learner's lessons, and this walk runs last
 const MURID = { email: "siklus-email@synthetic.pintar.test", password: "Sintetis-SiklusEmail-84!" };
+// J1.6, restated under R-1 (A2b): the learning-cycle school's admin and teacher, and another school's learner
+const ADMIN_SIKLUS = { email: "siklus-admin@synthetic.pintar.test", password: "Sintetis-SiklusAdmin-33!" };
+const GURU_SIKLUS = { email: "siklus-guru@synthetic.pintar.test", password: "Sintetis-SiklusGuru-11!" };
+const MURID_LAIN = { email: "alpha-siswa-1@synthetic.pintar.test", password: "Sintetis-AlphaSiswa1-76!" };
 
 mkdirSync(OUT, { recursive: true });
 const langkah = [];
@@ -61,6 +65,12 @@ function sql(q) {
   return r.stdout.trim();
 }
 const lit = (s) => `'${String(s).replace(/'/g, "''")}'`;
+/** A psql script (several statements, its own transaction), its non-empty output lines. */
+function sqlSkrip(q) {
+  const r = spawnSync("psql", ["-X", "-q", "-At", "-v", "ON_ERROR_STOP=1", DB], { encoding: "utf8", input: q });
+  if (r.status !== 0) throw new Error(`sql: ${(r.stderr || "").trim().split("\n").pop()}`);
+  return r.stdout.trim().split("\n").filter(Boolean);
+}
 async function cookies(p) {
   const jar = new Map();
   const client = createServerClient(SB, ANON, {
@@ -262,25 +272,36 @@ await step("J6.7", "the learner pauses the Uji Penguasaan with «Simpan & Jeda»
   await sesiMurid.context.close();
 });
 
-await step("J1.6", "maintenance as people meet it: the school's teacher is told in advance, is sent to the maintenance page when it starts, and works again when it ends", async (rec) => {
-  const a = await masuk(browser, ADMIN);
-  const g = await masuk(browser, GURU);
-  const alpha = sql(`select i.id from public.institutions i join public.role_assignments r on r.institution_id = i.id
+// RESTATED under R-1 (THE PLAN §5.3; A2b, PLAN-A2B-C2W.md §2.3; the Chief Architect, 16 Nov 16:21; Sharon's conditions,
+// 16 Nov): a school's planned window is work-scoped. It no longer sends its people to the maintenance page (that is a
+// person-level window's, platform-wide or an emergency); the school's work is refused in place, MAINTENANCE_PLACE, and
+// every other school works as before. 4.0's J1.6 asserted the redirect for a school window, which R-1 replaced; the
+// redirect itself is the platform-wide window's and is held by the selftest (M148, A2B-SP2). Moved to the
+// learning-cycle school, whose learner has assessments (Alpha has none to start). Nothing is weakened: the teacher is
+// told in advance as before, and each R-1 behaviour is asserted positively.
+await step("J1.6", "maintenance as people meet it (R-1): the school's teacher is told in advance; while its window runs the school's learner and teacher are not sent away, a new start there is refused PR040 MAINTENANCE_PLACE, and another school's learner is unaffected; it works again when it ends", async (rec) => {
+  const a = await masuk(browser, ADMIN_SIKLUS);
+  const g = await masuk(browser, GURU_SIKLUS);
+  const m = await masuk(browser, MURID);
+  const lain = await masuk(browser, MURID_LAIN);
+  const siklus = sql(`select i.id from public.institutions i join public.role_assignments r on r.institution_id = i.id
     join public.accounts ac on ac.person_id = r.person_id join auth.users u on u.id = ac.auth_user_id
-    where u.email = ${lit(ADMIN.email)} and r.role = 'INSTITUTION_ADMIN' limit 1`);
+    where u.email = ${lit(ADMIN_SIKLUS.email)} and r.role = 'INSTITUTION_ADMIN' and r.revoked_at is null limit 1`);
   const jkt = (menit) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
     .format(new Date(Date.now() + menit * 60000)).replace(" ", "T");
   const alasan = `W6.10 J1.6 ${Date.now()}`;
-  // the school admin schedules a window that starts in 30 minutes
+  // the school admin schedules a window over the school that starts in 30 minutes, its reason chosen on the screen
   await a.page.goto(`${APP}/konfigurasi/pemeliharaan`, { waitUntil: "networkidle" });
   const jadwal = a.page.locator('section[aria-labelledby="pin-pm-jadwal"]');
-  await jadwal.locator(`input[name="pm_sekolah"][value="${alpha}"]`).check();
+  await jadwal.locator(`input[name="pm_sekolah"][value="${siklus}"]`).check();
   await jadwal.locator("#cfg-pm-mulai").fill(jkt(30));
   await jadwal.locator("#cfg-pm-selesai").fill(jkt(90));
   await jadwal.getByRole("button", { name: "Periksa waktu ini" }).click();
   await a.page.waitForURL((u) => u.searchParams.get("pm_cek") === "1", { timeout: SLOW });
   const langkah2 = a.page.locator('[data-tabrakan="1"]');
   await langkah2.waitFor({ timeout: SLOW });
+  // A2b D2: the reason is chosen from the list; «Lainnya» keeps the walk's text as the stored reason
+  await langkah2.getByRole("radio", { name: "Lainnya", exact: true }).check();
   await langkah2.locator('input[name="alasan"]').fill(alasan);
   await langkah2.getByRole("button", { name: "Jadwalkan pemeliharaan" }).click();
   await a.page.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
@@ -300,26 +321,58 @@ await step("J1.6", "maintenance as people meet it: the school's teacher is told 
     await terbuka.locator('button[name="aksi"][value="MULAI"]').click();
     await a.page.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
     harus(rec, sql(`select (starts_at <= now())::text from public.maintenance_windows where id = ${lit(jendela)}`) === "true", "the window has started");
-    // the teacher's next page
+    // (i) R-1: the school's learner and teacher are not sent away; they are told, in place
+    await m.page.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+    harus(rec, jalan(m.page) === "/belajar", `while it runs the school's learner stays on their page, not sent to /pemeliharaan (${jalan(m.page)})`);
+    harus(rec, await m.page.locator('[data-pemeliharaan="1"]').first().isVisible().catch(() => false), "the school's learner sees the maintenance notice in place");
+    await shot(m.page, rec, "pemeliharaan-sekolah-murid");
     await g.page.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
-    await g.page.waitForURL((u) => u.pathname === "/pemeliharaan", { timeout: 15000 }).catch(() => {});
-    const judul = (await g.page.locator("h1").first().innerText().catch(() => "")).trim();
-    harus(rec, jalan(g.page) === "/pemeliharaan" || /pemeliharaan/i.test(judul), `while it runs the teacher meets the maintenance page (${jalan(g.page)}, «${judul}»)`);
-    await shot(g.page, rec, "pemeliharaan-berjalan");
+    harus(rec, jalan(g.page) === "/mengajar", `while it runs the school's teacher stays on their page (${jalan(g.page)})`);
+    // (ii) R-1: a new start there is refused PR040 MAINTENANCE_PLACE. THE JOURNEY FIXTURE: the learner needs an
+    // assessment they have never started (J6.4 has used the Pemetaan Awal's one attempt and opened the Uji
+    // Penguasaan), and no product function makes a second assignment of the same definition. So a copy of the class's
+    // Pemetaan Awal assignment, with a new id, is made in a transaction that is rolled back, and the learner's start is
+    // asked of the product's own start_learning_session inside it, under the learner's own claims.
+    const mulai = sqlSkrip(`begin;
+set local session_replication_role = replica;
+create temp table j16 on commit drop as select aa.* from public.assessment_assignments aa
+  join public.assessment_definitions d on d.id = aa.assessment_definition_id
+ where aa.institution_id = ${lit(siklus)} and d.mode = 'PRE_TEST' and aa.status = 'OPEN' order by aa.id limit 1;
+update j16 set id = gen_random_uuid();
+insert into public.assessment_assignments select * from j16;
+set local session_replication_role = origin;
+create function pg_temp.j16_mulai() returns text language plpgsql as $c$
+declare s text; d text;
+begin
+  perform set_config('request.jwt.claims', json_build_object('sub', (select id from auth.users where email = ${lit(MURID.email)}), 'role', 'authenticated')::text, true);
+  perform public.start_learning_session((select id from j16));
+  return 'OK';
+exception when others then get stacked diagnostics s = returned_sqlstate, d = pg_exception_detail; return s || ':' || coalesce(d, '');
+end $c$;
+select 'mulai|' || pg_temp.j16_mulai();
+rollback;`).find((l) => l.startsWith("mulai|"))?.slice(6) ?? "no answer";
+    harus(rec, mulai === "PR040:MAINTENANCE_PLACE", `a new start in the school is refused PR040 MAINTENANCE_PLACE (${mulai})`);
+    // (iii) R-1: another school's learner is unaffected: no notice, no redirect
+    await lain.page.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+    harus(rec, jalan(lain.page) === "/belajar" && !(await lain.page.locator('[data-pemeliharaan="1"]').first().isVisible().catch(() => false)),
+      `another school's learner is unaffected: on ${jalan(lain.page)}, no maintenance notice`);
     // the admin ends it
     await a.page.goto(`${APP}/konfigurasi/pemeliharaan?ubah=${jendela}#jendela-${jendela}`, { waitUntil: "networkidle" });
     const lagi = a.page.locator(`li[data-jendela="${jendela}"][data-terbuka]`);
-    await lagi.locator('input[name="alasan"]').fill("Selesai (W6.10)");
-    await lagi.locator("[data-bahaya-buka]").click();   // B4: the act asks first, in place
+    // B4: the act asks first, in place. A2b C-6: a planned window under way opens «Akhiri sekarang» already asking (its
+    // confirmation drawn open, the reason inside it); anything else asks when its opener is pressed
+    if (!(await lagi.locator("[data-bahaya-tanya]").count())) await lagi.locator("[data-bahaya-buka]").click();
+    await lagi.locator('[data-bahaya-tanya] input[name="alasan"]').fill("Selesai (W6.10)");
     await lagi.locator('button[name="aksi"][value="AKHIRI"]').click();
     await a.page.waitForURL((u) => u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
     harus(rec, sql(`select (ended_at is not null)::text from public.maintenance_windows where id = ${lit(jendela)}`) === "true", "the window has ended");
     await g.page.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
-    harus(rec, jalan(g.page) === "/mengajar", `after it ends the teacher works again (${jalan(g.page)})`);
+    harus(rec, jalan(g.page) === "/mengajar" && !(await g.page.locator('[data-pemeliharaan="1"]').first().isVisible().catch(() => false)),
+      `after it ends the teacher works again, the notice gone (${jalan(g.page)})`);
   } finally {
     // never leave a window open for the rest of the run
     try { if (sql(`select (ended_at is null)::text from public.maintenance_windows where id = ${lit(jendela)}`) === "true") sql(`update public.maintenance_windows set ended_at = now(), end_reason = 'W6.10 cleanup' where id = ${lit(jendela)}`); } catch (e) { rec.catatan.push(`!! cleanup: ${e.message}`); }
-    await a.context.close(); await g.context.close();
+    await a.context.close(); await g.context.close(); await m.context.close(); await lain.context.close();
   }
 });
 
