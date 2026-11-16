@@ -13,12 +13,18 @@
  *           in A's sitting is refused; a caller with no verified session id is refused. Session A's own answer is
  *           accepted throughout (the control). Red on ac25e9b1: every one of B's writes lands, the higher sequence
  *           wins from either session, and a caller with no session id writes.
+ *   A3-L1P  Sharon's L01 ruling (b) (16 Nov 22:54, a1b66843): learning_assignments and assessment_assignments stay
+ *           unranked in A2A-L01; this pairwise check, read by A2A-L01's own reader with the two tables ranked for its
+ *           own run only, requires that every function that locks both takes learning_assignments first (the order of
+ *           «Akhiri», both moves and the start since A3-R1), so no start can hold an assessment assignment while it waits on
+ *           a learning assignment. A plant that locks them the other way round is reported.
  *   A3-R1V  A3-R1's pin (Sharon, 5ac3645d): a definition that has been sat cannot have its version updated (INV-04), so
  *           the start's (definition, version) key, read under the assignment's share lock, cannot name a moving version.
  */
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
+import { URUTAN, bacaUrutan, type Kunci } from "./a2a-l01.test";
 
 function db(): string {
   return process.env.SUPABASE_DB_URL!;
@@ -138,7 +144,50 @@ function jalankan(c: Checks, repoRoot: string): Record<string, string> | null {
 
 const diterima = (x: string | undefined) => (x ?? "").startsWith("ok:");
 
+/** The first index of each table in one function's lock list (A2A-L01's reading), or -1. */
+function pertama(l: Kunci[], t: string): number {
+  return l.findIndex((k) => k.t === t);
+}
+/** A3-L1P: the functions that lock assessment_assignments before learning_assignments, read with both tables ranked. */
+function aaSebelumLa(db: string, tanam = ""): { salah: string[]; keduanya: number } {
+  const asli = { la: URUTAN.learning_assignments, aa: URUTAN.assessment_assignments };
+  URUTAN.learning_assignments = 8.3;
+  URUTAN.assessment_assignments = 8.6;
+  try {
+    const r = bacaUrutan(db, tanam);
+    const salah: string[] = [];
+    let keduanya = 0;
+    for (const [fn, l] of r.semua) {
+      const la = pertama(l, "learning_assignments"), aa = pertama(l, "assessment_assignments");
+      if (la < 0 || aa < 0) continue;
+      keduanya++;
+      if (aa < la) salah.push(`${fn}: assessment_assignments before learning_assignments — via ${l[aa].lewat}`);
+    }
+    return { salah, keduanya };
+  } finally {
+    if (asli.la === undefined) delete URUTAN.learning_assignments; else URUTAN.learning_assignments = asli.la;
+    if (asli.aa === undefined) delete URUTAN.assessment_assignments; else URUTAN.assessment_assignments = asli.aa;
+  }
+}
+const TANAM_L1P = `create function public._a3_l1p_tanam(p uuid) returns void language plpgsql as $t$
+begin perform 1 from public.assessment_assignments a where a.id = p for share;
+      perform 1 from public.learning_assignments la where la.id = p for key share; end $t$;`;
+
 export const a3DbTests: SelfTest[] = [
+  {
+    id: "A3-L1P",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const nyata = aaSebelumLa(db());
+      c.expect(nyata.keduanya > 0, "no function locks both learning_assignments and assessment_assignments (the reader found nothing to check)");
+      c.expect(nyata.salah.length === 0, `functions that lock an assessment assignment before its learning assignment:\n  ${nyata.salah.join("\n  ")}`);
+      const tanam = aaSebelumLa(db(), TANAM_L1P);
+      c.expect(tanam.salah.some((x) => x.startsWith("_a3_l1p_tanam:")), "the plant (assessment_assignments, then learning_assignments) was not reported");
+      c.expect(URUTAN.learning_assignments === undefined && URUTAN.assessment_assignments === undefined, "A2A-L01's ranks were not restored after the check");
+      return c.verdict(`A2A-L01's reader, with the two tables ranked for this check only: all ${nyata.keduanya} functions that lock both learning_assignments and assessment_assignments take learning_assignments first; a plant locking them the other way round is reported; A2A-L01's ranks are left as they were`);
+    },
+  },
   {
     id: "A3-R01",
     requires: ["db"],

@@ -5505,6 +5505,11 @@
       "proves": "Sharon's deadlock check for her start order (16 Nov 22:37, 5ac3645d), under real concurrency (runStartsAndEndingWithoutDeadlock in selftest/run.ts): start_learning_session (the assignment FOR SHARE, then the (learner, definition, version) key, then the sitting) and akhiri_penugasan (the learning assignment FOR UPDATE, then its assessment assignments FOR UPDATE) execute against the migrations at once. A learner starts the first of two OPEN assignments of one definition and holds; a staff member who may end the learning assignment (CAN_ASSIGN_LEARNING over its place, which boleh_akhiri_penugasan reads) ends it meanwhile; the learner starts the second. None of the three dies in a deadlock or hangs to its timeout. All three roll back; the copied second assignment is removed afterwards."
     },
     {
+      "id": "F37-R05",
+      "runner": "db",
+      "proves": "Sharon's sweep condition (16 Nov 22:54, a1b66843), under real concurrency (runEndingAndDepartureWithoutDeadlock in selftest/run.ts): akhiri_pendaftaran (a departure: the person FOR UPDATE, then the fence, then the learner's sittings) and akhiri_penugasan («Akhiri»: the persons of its open sittings FOR KEY SHARE before any sitting, and a KEY SHARE of the same rows after one, through its deadline path) execute against the migrations, for a learner with an open sitting. A third connection holds the emergency fence exclusively for 1.2 s, so each function parks at its fence in turn while the other runs into it, in both orders. Neither dies in a deadlock. Both roll back; the learner's test sitting is removed afterwards."
+    },
+    {
       "id": "LAPORAN-KELAS-01",
       "runner": "static",
       "proves": "CONTOH LAPORAN 2-guru/2b (Daisy, «DESIGN DIRECTION APPROVED», 7 Nov), selftest/b5a.test.ts: src/components/laporan/KomposisiKelas.tsx rendered over envelopes shaped like the specimen's: the lead sentence counted from the topic rows («2 dari 4 topik masih di bawah target: …»), the bands and comprehension under it with R4-02's one decimal (74,8% against a 75% target), rows below the target amber and in words against a labelled target line (G-03), the class's population said apart from the bands, which are drawn over the assessed in the legend's order, the gain with the people it is computed from (MC-8), the misunderstanding with its remedy and the pointer to it, sections lettered A–F (G-02), «Lihat bukti» linked for the teacher, an action sentence under each figure (S-3); the not-yet report (2b) keeps each figure's place with how far it is from appearing; a class with no one sealed target draws no line and names the lowest topic; R4-02 rounding (59,6%, 62%); and Ringkasan Kelas draws it over generate_report's envelopes and the class's sealed target (targetKelas)."
@@ -6564,6 +6569,11 @@
       "id": "A3-R01",
       "runner": "static",
       "proves": "A3's first red case, written before the build (THE PLAN §5.5 G2; PLAN-A3-C3W-Z.md A3-1; C1-D125-INVESTIGATION.md §5 cases 1, 2 and 3): executes start_learning_session, record_answer, pause_session, resume_session, submit_session and session_final_responses against the migrations, in one rolled-back transaction, for a learner of the seeded learning-cycle Kelas whose two signed-in devices are two verified Auth session ids in the claims (sesi_saya()). The sitting is started and answered on session A. Session B's answer to another question, its higher-sequence answer to A's question, its answer while A has paused, and its hand-in of A's sitting are each refused, and the final answer stays A's; a caller with no verified session id is refused; A's own answers, pause and resume are accepted. It names no refusal code (D12 waits for Sharon's review). Red on ac25e9b1: every write of B's lands, the higher sequence wins from either session, and a caller with no session id writes."
+    },
+    {
+      "id": "A3-L1P",
+      "runner": "static",
+      "proves": "Sharon's L01 ruling (b) for A3 (16 Nov 22:54, a1b66843): reads every function and trigger in the migrations' catalogue with A2A-L01's own lock reader (bacaUrutan), with learning_assignments and assessment_assignments ranked for this check only and A2A-L01's ranks restored afterwards. Every function that locks both takes learning_assignments first (as «Akhiri penugasan», both moves and, since A3-R1, start_learning_session do), so no start holds an assessment assignment while waiting on a learning assignment. A plant locking them the other way round, inside the reader's rolled-back transaction, is reported. The two tables stay unranked in A2A-L01; their full ranking is registered for Z."
     },
     {
       "id": "A3-R1V",
