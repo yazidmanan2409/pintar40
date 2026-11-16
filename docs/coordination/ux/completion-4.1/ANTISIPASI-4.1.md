@@ -46,7 +46,12 @@
 
 | A2B-D5 | My «Perpanjang» result line said «pemberitahuan», which DAISY-25 (my own rule) refuses | **mine** | **Yes** | **1** | What else reads this word: my own D-019 sweep. I did not search the rules before writing it |
 
-**So far: 5 defects, all anticipable; 2 of them mine.** Plus V-2 (mine, D4's duration), recorded above.
+| A2B-D6 | Batch 2: a refused schedule drops the class (BL-1) | build | **Yes** | **4**, 1 | The form after a refusal |
+| A2B-D7 | Batch 2: the row omits the class and «Dijadwalkan oleh» (BL-2) | build | **Yes** | **5** | Where the scope renders |
+| A2B-D8 | Batch 2: the intro states the platform rule for every scope | build | **Yes** | **1** | Sibling of the D8-2 fix |
+| A2B-D9 | Batch 2: a double «Batal» | build | **Yes** | **2** | Noted at A2a |
+
+**So far: 9 defects, all anticipable; 2 of them mine.** Plus V-2 (mine, D4's duration), recorded above.
 
 ## My own verification error, recorded with the defects
 
