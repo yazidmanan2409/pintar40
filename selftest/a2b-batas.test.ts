@@ -733,7 +733,8 @@ rollback;`);
  *  more assignment of school X at 7B. */
 function k14(db: string, d: Dunia) {
   const sesuai = (kelas: string) => `(select count(*) from public.assessment_assignments aa join public.org_nodes n on n.id = aa.node_id
-  where aa.status in ('SCHEDULED', 'OPEN') and aa.institution_id = '${d.X}' and (n.id = '${kelas}' or n.jalur @> array['${kelas}'::uuid])
+  where aa.status in ('SCHEDULED', 'OPEN') and aa.institution_id = '${d.X}'
+    and (n.id = '${kelas}' or n.jalur @> array['${kelas}'::uuid] or (select k.jalur from public.org_nodes k where k.id = '${kelas}') @> array[n.id])
     and coalesce(aa.opens_at, aa.created_at) < now() + interval '3 hours' and (aa.closes_at is null or aa.closes_at > now() + interval '2 hours' - interval '15 minutes'))`;
   return barisKunci(db, `begin;
 ${duniaSql(d)}
@@ -1615,6 +1616,11 @@ rollback;`);
         && fn.indexOf("MAINTENANCE_EXTEND_NOT_LATER") > 0 && fn.indexOf("MAINTENANCE_EXTEND_NOT_LATER") < panggil,
         "Daisy's two refusals (no reason; not later) must be checked before the call; the database stays the gate");
       c.expect(/MAINTENANCE_EXTENDED/.test(fn), "a done extension must say so (MAINTENANCE_EXTENDED)");
+      // the Chief Architect (16 Nov 09:44): the extend form shows the advisory count for the added period, as the
+      // schedule form does; it refuses nothing
+      const halamanP = readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8");
+      c.expect(/rpc\("maintenance_collisions", \{[^}]*p_starts_at: [^,}]*selesai[^}]*p_nodes:/.test(halamanP) || /tabrakanPerpanjang/.test(halamanP),
+        "the extend form must show the advisory count for the added period (maintenance_collisions from the current end to the new end, for the window's classes)");
       const halaman = readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8");
       c.expect(/bolehPerpanjang\(w\)/.test(halaman) && /perpanjangPemeliharaanAction/.test(halaman), "the list row must offer «Perpanjang» only where bolehPerpanjang allows, with its form");
       c.expect(!/config\.pemeliharaan\.perpanjang\.batal"\)[^\n]*Batalkan/.test(halaman) && /config\.pemeliharaan\.perpanjang\.batal/.test(halaman),
@@ -1671,7 +1677,7 @@ rollback;`);
     run: jalan((c, db, d) => {
       const r = k14(db, d); const h = r.hasil;
       c.expect(!r.err, `K14 failed to run: ${r.err}`);
-      c.expect(h.kelas === h.harap_kelas && Number(h.harap_kelas) >= 1, `the collision check for a class window must count that class's assessments (and those under it): ${h.kelas}, expected ${h.harap_kelas}`);
+      c.expect(h.kelas === h.harap_kelas && Number(h.harap_kelas) >= 1, `the advisory count for a class window must count the assessments that reach that class: its own, those under it, and those set above it (school-wide or its cohort) (the Chief Architect, 16 Nov 09:44): ${h.kelas}, expected ${h.harap_kelas}`);
       c.expect(h.kelas_b === h.harap_kelas_b, `for another class of the same school, that class's own: ${h.kelas_b}, expected ${h.harap_kelas_b}`);
       const sekolah = Number((h.sekolah ?? "").split(":")[1]);
       c.expect(sekolah >= Number(h.harap_kelas) + Number(h.harap_kelas_b), `the school-wide check still counts the whole school: ${h.sekolah}`);

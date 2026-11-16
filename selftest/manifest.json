@@ -6388,7 +6388,7 @@
     {
       "id": "A2B-E01",
       "runner": "static",
-      "proves": "Batch 2, «Perpanjang» (Daisy, A2B-PERPANJANG-KATA §1; D3; A6's screen half); runs the pure rule and reads source and copy: bolehPerpanjang offers it only on a planned window with an end, scheduled or under way, controlled by the reader (never an emergency); Daisy's words; the action checks no reason and not-later before calling perpanjang_pemeliharaan (the database stays the gate); its «Batal» apart from the row's «Batalkan»."
+      "proves": "Batch 2, «Perpanjang» (Daisy, A2B-PERPANJANG-KATA §1; D3; A6's screen half); runs the pure rule and reads source and copy: bolehPerpanjang offers it only on a planned window with an end, scheduled or under way, controlled by the reader (never an emergency); Daisy's words; the action checks no reason and not-later before calling perpanjang_pemeliharaan (the database stays the gate); the form shows the advisory count of assessments for the added period, refusing nothing; its «Batal» apart from the row's «Batalkan»."
     },
     {
       "id": "A2B-E02",
@@ -6403,7 +6403,7 @@
     {
       "id": "A2B-K14",
       "runner": "static",
-      "proves": "The class picker on the planned form (the Chief Architect, 16 Nov 09:33; THE PLAN §5.3 D1); executes in a rolled-back transaction as the school's admin: maintenance_collisions(…, p_nodes) counts the chosen classes' own assessments (and those under them), the school-wide check still the whole school; pemeliharaan_kelas_sekolah offers a school's admin that school's classes and refuses another school's with MAINTENANCE_NOT_ALLOWED; it is a STAFF read closed to anon. Another school's class at scheduling is K10's (MAINTENANCE_NODE_INVALID)."
+      "proves": "The class picker on the planned form (the Chief Architect, 16 Nov 09:33; THE PLAN §5.3 D1); executes in a rolled-back transaction as the school's admin: maintenance_collisions(…, p_nodes), the advisory count (it refuses nothing; overlap between windows is allowed, the Chief Architect 16 Nov 09:44), counts the assessments that reach the chosen classes: their own, those under them, and those set above them (school-wide or the cohort); the school-wide check still the whole school; pemeliharaan_kelas_sekolah offers a school's admin that school's classes and refuses another school's with MAINTENANCE_NOT_ALLOWED; it is a STAFF read closed to anon. Another school's class at scheduling is K10's (MAINTENANCE_NODE_INVALID)."
     },
     {
       "id": "A2B-C10",
