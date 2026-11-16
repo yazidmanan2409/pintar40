@@ -947,9 +947,11 @@ select 'kelas_lain|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid]`, `arra
 select 'sekolah_lain|' || pg_temp.a2b_coba(${tabrak(`array['${d.Y}'::uuid]`, `array['${d.kY}'::uuid]`)});
 select 'bukan_kelas|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid]`, `array['${d.X}'::uuid]`)});
 select 'arsip|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid]`, `array['${d.kB}'::uuid]`)});
-select 'dua_sekolah|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid, '${d.Y}'::uuid]`, `array['${d.kA}'::uuid]`)});
 select 'banyak|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid]`, `array_fill('${d.kA}'::uuid, array[${P_NODES_MAKS + 1}])`)});
 ${sebagai(d.sysUid)}
+-- two schools with classes: Admin PINTAR may act on both, so the class check is what refuses it (authority first, as
+-- schedule_maintenance; a school's admin is refused NOT_ALLOWED before it)
+select 'dua_sekolah|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid, '${d.Y}'::uuid]`, `array['${d.kA}'::uuid]`)});
 select 'platform_kelas|' || pg_temp.a2b_coba(${tabrak("'{}'::uuid[]", `array['${d.kA}'::uuid]`, "true")});
 ${sebagai(d.guruUid)}
 select 'guru|' || pg_temp.a2b_coba(${tabrak(`array['${d.X}'::uuid]`, `array['${d.kA}'::uuid]`)});
