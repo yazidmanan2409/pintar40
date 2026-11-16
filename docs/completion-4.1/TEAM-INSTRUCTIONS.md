@@ -813,3 +813,9 @@ Any change to C from here means an explicit unfreeze, correction, review and a n
   15 Nov: **keep one attempt.** §3 is corrected on the A2a page, documentation only, with no unfreeze.
 - **The lifts refused under shared load** are reported beside measurement 4's count. They are a reported figure, not a
   new gate.
+- **Change B's scale run:** run 43778010841, started 00:02 UTC on 16 Nov from `e026a871`, which sits on `c04c088e`. The
+  diff touches only the workflow and `selftest/a2a-skala.ts`.
+- **Friction:** it was dispatched before Sharon had read `e026a871`, the B1 commit added after her read of `d7fd8165`.
+  Bob's condition was dispatch after her read. Second Eye said so plainly.
+- **The run counts as evidence only if Sharon confirms `e026a871`.** Otherwise there is one new run on the commit she
+  clears.
