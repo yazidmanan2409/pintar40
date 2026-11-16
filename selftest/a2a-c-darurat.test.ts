@@ -932,7 +932,10 @@ update public.assessment_assignments set closes_at = now() - interval '10 minute
 ${salin(O, "now() + interval '35 minutes'", 0, "now() - interval '3 minutes'")}
 ${salin(W, "null", 2700, "now() - interval '2 minutes'")}
 -- the learner's other sittings of this assignment go (rolled back), after the copies: the list shows W
-delete from public.assessment_sessions x where x.person_id = '${orang}' and x.assessment_assignment_id = '${aa}' and x.id not in ('${W}', '${O}');
+-- A2b (Sharon, 16 Nov): also the person's other OPEN sittings, of any assignment, so the person-wide reader below
+-- (maintenance_draining) is answered by W and O alone, never by leftover state
+delete from public.assessment_sessions x where x.person_id = '${orang}' and x.id not in ('${W}', '${O}')
+   and (x.assessment_assignment_id = '${aa}' or x.status <> 'FINALIZED');
 set local session_replication_role = origin;
 create temp table e as select public.pengerjaan_tenggat_efektif('${W}') as w, public.pengerjaan_tenggat_efektif('${O}') as o,
   (select closes_at from public.assessment_assignments where id = '${aa}') as c;

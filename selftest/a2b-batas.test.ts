@@ -201,6 +201,12 @@ const aksiGuru = (S: string) => `$q$select public.tambah_waktu_pengerjaan('${S}'
 const MATI_PICU = `alter table public.assessment_sessions disable trigger _l1f4_assessment_sessions_person_id, disable trigger assessment_sessions_provenance,
   disable trigger assessment_sessions_release_is_its_course, disable trigger assessment_sessions_status,
   disable trigger assessment_sessions_the_pass_mark_is_sealed, disable trigger assessment_sessions_zz_exposed_is_not_assessed;`;
+/** Sharon (16 Nov, D12's plant after a restart): a reader of a PERSON-wide answer (maintenance_draining) is answered
+ *  by any sitting the learner has, so the fixture removes the learner's other open sittings in its own rolled-back
+ *  transaction and reports how many remain (asserted 0), never trusting the database's leftover state. */
+const SENDIRI = (d: Dunia) => `set local session_replication_role = replica;
+delete from public.assessment_sessions where person_id = '${d.murid}' and id not in ('${d.SA}', '${d.SB}', '${d.SY}') and status <> 'FINALIZED';
+select 'lain|' || count(*) from public.assessment_sessions where person_id = '${d.murid}' and id not in ('${d.SA}', '${d.SB}', '${d.SY}') and status <> 'FINALIZED';`;
 const mulai = (d: Dunia, orang: string, enr: string, kelas: string, tenggat: string) => `$q$insert into public.assessment_sessions
 select (jsonb_populate_record(s, jsonb_build_object('id', gen_random_uuid(), 'status', 'CREATED', 'person_id', '${orang}',
   'enrollment_id', '${enr}', 'institution_id', '${d.X}', 'class_node_id', '${kelas}', 'cohort_node_id', null, 'created_at', now(),
@@ -549,6 +555,7 @@ const O01_TANAM = "and m.ok";
 function k5(db: string, d: Dunia) {
   return barisKunci(db, `begin;
 ${duniaSql(d, "now() - interval '30 minutes'")}
+${SENDIRI(d)}
 update public.assessment_sessions set darurat_sejak = now() - interval '50 minutes', darurat_jendela_id = '${W2}' where id = '${d.SA}';
 ${jendela(d, W2, { kind: "EMERGENCY", nodes: [d.kA], mulai: "now() - interval '50 minutes'", selesai: "now() - interval '5 minutes'" })}
 ${jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '1 minute'", akhir: "now() + interval '2 hours'" })}
@@ -584,6 +591,7 @@ const GESER_BARIS = "select x.starts_at, case when x.ended_at is null then null 
 function d12(db: string, d: Dunia) {
   return barisKunci(db, `begin;
 ${duniaSql(d, "now() - interval '30 minutes'")}
+${SENDIRI(d)}
 update public.assessment_sessions set darurat_sejak = now() - interval '50 minutes', darurat_jendela_id = '${W2}' where id = '${d.SA}';
 -- placed at 7A (the teacher's list), outside any chapter, open and past its close (the learner's open list shows a
 -- sitting running past its assignment's close; its own deadline is the sitting's)
@@ -1004,6 +1012,7 @@ export const a2bBatasTests: SelfTest[] = [
     run: jalan(async (c, db, d) => {
       const r = k5(db, d);
       c.expect(!r.err, `K5 failed to run: ${r.err}`);
+      c.expect(r.hasil.lain === "0", `K5: the learner must have no other open sitting in the fixture (maintenance_draining is person-wide): ${r.hasil.lain}`);
       c.expect(r.hasil.saat === "2700:3:2", `K5 (K12-1's shape): the stop's T_lift − T_stop is 2700 s, its starts_at 3 s before T_stop and its ended_at 2 s before T_lift: ${r.hasil.saat}`);
       c.expect(r.hasil.efektif === "900", `K5: the effective deadline (own deadline 30 min ago, T_lift − T_stop = 45 min credited) must be exactly 900 s ahead: ${r.hasil.efektif} s`);
       c.expect(r.hasil.blok === "none", `K5: a work-scoped window must stop the learner with a running sitting as no person (no person-level drain): ${r.hasil.blok}`);
@@ -1027,6 +1036,7 @@ export const a2bBatasTests: SelfTest[] = [
       const r = d12(db, d);
       c.expect(!r.err, `D1-2 failed to run: ${r.err}`);
       const h = r.hasil;
+      c.expect(h.lain === "0", `D1-2: the learner must have no other open sitting in the fixture (a person-wide reader would answer for it): ${h.lain}`);
       for (const k of ["efektif", "keadaan", "saya", "daftar"] as const)
         c.expect(h[k] === "900", `D1-2: ${k}: a marked sitting of a lifted stop must read its deadline shifted by the stop (exactly 900 s ahead) before any touch: ${h[k]}`);
       c.expect(h.lanjut === "true:OK", `D1-2: may_continue_session must let the learner continue: ${h.lanjut}`);
