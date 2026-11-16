@@ -6524,6 +6524,16 @@
       "id": "A2B-K12",
       "runner": "static",
       "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K12, a planned and an emergency window over one class: the emergency governs (the teacher's act refused PR170 SITTING_CLASS_STOPPED; the learner stopped as a person); after the lift, with the planned window still on, the planned guard refuses nothing A2a allows (the learner's answer, the first-touch release, a departure) and refuses the teacher's act by place. Emergency windows in the hosted shape (K12-1)."
+    },
+    {
+      "id": "A2B-R2D",
+      "runner": "static",
+      "proves": "A2B-R2 (Second Eye's S-1 sweep, 16 Nov; the Chief Architect, 16 Nov 11:59: C2w's first item); executes in a rolled-back transaction with a planted library course, published release and grant to Alpha: distribusi_tempat(p_distribution) gives Admin platform (withdraw_release_distribution's rule: SYSTEM_ADMIN or CAN_PUBLISH in the owning library) the grant's release, owning library and receiving school; Alpha's admin, and an unknown id, are refused alike with withdraw's own sentence (no existence oracle); distribusi_berlaku() lists the open grant to Admin platform and nothing to Alpha's admin; both PLATFORM in the registry, stable, executable by authenticated alone; the control: authenticated holds no select on release_distributions. Red on 3c58620e (neither function exists)."
+    },
+    {
+      "id": "A2B-R2A",
+      "runner": "app",
+      "proves": "A2B-R2 (Second Eye's S-1 sweep, 16 Nov; the Chief Architect, 16 Nov 11:59: C2w's first item); executed against the running build, each server action posted as a browser without script posts it, with its id from the build's manifest: Admin platform working in Sekolah Sintetis Alpha is refused for the context (the chooser) on «Tarik izin» of the library's grant to Alpha, with nothing written; an unknown grant is refused ACTION_NOT_ALLOWED before any write; working in Pustaka PINTAR, the Kanonik «Tarik izin» form offers the open grant, and the same act withdraws it (DISTRIBUTION_WITHDRAWN). Red on 3c58620e: the context check read nothing, and the form offered no grant."
     }
   ]
 }

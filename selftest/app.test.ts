@@ -18,6 +18,7 @@ import { bob26AppTests } from "./bob26.test";
 import { akunTerkunciAppTests } from "./akun-terkunci.test";
 import { b2AppTests } from "./b2-layar.test";
 import { a2bS1Tests } from "./a2b-s1.test";
+import { a2bR2AppTests } from "./a2b-r2.test";
 import { l1f2AppTests } from "./l1f2-layar.test";
 import { bob27AppTests } from "./bob27.test";
 import { bob28AppTests } from "./bob28.test";
@@ -3533,6 +3534,7 @@ export const appTests: SelfTest[] = [
   ...b1AppTests,
   ...b2AppTests,
   ...a2bS1Tests,
+  ...a2bR2AppTests,
   ...l1f2AppTests,
   // BOB-50 (D-082(d)): a single Uji Cepat issues no certificate, through the running app
   ...bob50AppTests,
