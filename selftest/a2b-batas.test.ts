@@ -467,6 +467,43 @@ select 'k3_cukup|' || pg_temp.a2b_coba(${mulai(d, d.murid, d.enrA, d.kA, "now() 
 select 'k4_20|' || pg_temp.a2b_coba(${mulai(d, d.murid, d.enrA, d.kA, "null")});
 select 'k4_10|' || pg_temp.a2b_coba(${mulai(d, d.murid2, d.enrB, d.kB, "null")});
 select 'k3_10|' || pg_temp.a2b_coba(${mulai(d, d.murid2, d.enrB, d.kB, "now() + interval '5 minutes'")});
+-- Sharon (03:59): the screen's answer, may_start_assessment, beside the trigger's, one refused and one allowed: the
+-- learner's assessment assignment at 7A, open, outside a chapter, no attempt limit; its close is the deadline a start
+-- would get (start_learning_session sets it), 60 min (after the window's start at 30) and then 20 min
+set local session_replication_role = replica;
+update public.assessment_assignments set node_id = '${d.kA}', institution_id = '${d.X}', status = 'OPEN', opens_at = null,
+       closes_at = now() + interval '60 minutes', learning_assignment_id = null
+ where id = (select assessment_assignment_id from public.assessment_sessions where id = '${d.SA}');
+update public.assessment_definitions set attempt_limit = null
+ where id = (select assessment_definition_id from public.assessment_sessions where id = '${d.SA}');
+set local session_replication_role = origin;
+${sebagai(d.muridUid)}
+select 'layar_lewat|' || (select x.ok::text || ':' || x.reason from public.may_start_assessment((select assessment_assignment_id from public.assessment_sessions where id = '${d.SA}')) x);
+set local session_replication_role = replica;
+update public.assessment_assignments set closes_at = now() + interval '20 minutes'
+ where id = (select assessment_assignment_id from public.assessment_sessions where id = '${d.SA}');
+set local session_replication_role = origin;
+select 'layar_cukup|' || (select x.ok::text || ':' || x.reason from public.may_start_assessment((select assessment_assignment_id from public.assessment_sessions where id = '${d.SA}')) x);
+${tanpaOrang}
+rollback;`);
+}
+
+/** The Chief Architect's R-A (PLAN-A2B-C2W.md at e15fe966): the code on each side of a planned class window's start.
+ *  One minute before it a start in the class is refused MAINTENANCE_NO_NEW_START; one second after it,
+ *  MAINTENANCE_PLACE; another class's start proceeds in both. Neither code is PT503. */
+function rA(db: string, d: Dunia, sisi: "SEBELUM" | "SESUDAH") {
+  const awal = sisi === "SEBELUM" ? "clock_timestamp() + interval '1 minute'" : "clock_timestamp() - interval '1 second'";
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${jendela(d, W1, { nodes: [d.kA], mulai: awal, akhir: "clock_timestamp() + interval '2 hours'", aktifDicatat: null })}
+${MATI_PICU}
+set local session_replication_role = origin;
+${ALAT}
+select 'kelas|' || pg_temp.a2b_coba(${mulai(d, d.murid, d.enrA, d.kA, "null")});
+select 'lain|' || pg_temp.a2b_coba(${mulai(d, d.murid2, d.enrB, d.kB, "null")});
+${sebagai(d.muridUid)}
+select 'kait|' || pg_temp.a2b_coba($q$select pintar_permintaan.periksa()$q$);
+${tanpaOrang}
 rollback;`);
 }
 
@@ -907,7 +944,9 @@ export const a2bBatasTests: SelfTest[] = [
       c.expect(r.hasil.k3_lewat === "PR110:MAINTENANCE_CANNOT_FINISH", `K3: a start whose deadline (60 min) falls after a planned class window's start (30 min) must be refused PR110:MAINTENANCE_CANNOT_FINISH: ${r.hasil.k3_lewat}`);
       c.expect(r.hasil.k3_cukup === "OK", `K3: a start whose deadline (20 min) falls before the window's start (30 min) must succeed: ${r.hasil.k3_cukup}`);
       c.expect(r.hasil.k3_10 === "PR110:MAINTENANCE_NO_NEW_START", `K3: inside T−15 a timed start is still refused by T−15 (it stays): ${r.hasil.k3_10}`);
-      return `D4: a start that cannot finish before a planned class window is refused MAINTENANCE_CANNOT_FINISH; one that finishes before it succeeds; T−15 stays`;
+      c.expect(r.hasil.layar_lewat === "false:MAINTENANCE_CANNOT_FINISH", `K3: may_start_assessment must give the trigger's answer for the start that cannot finish (the screen must not offer it): ${r.hasil.layar_lewat}`);
+      c.expect(r.hasil.layar_cukup === "true:OK", `K3: may_start_assessment must give the trigger's answer for the start that finishes in time: ${r.hasil.layar_cukup}`);
+      return `D4: a start that cannot finish before a planned class window is refused MAINTENANCE_CANNOT_FINISH; one that finishes before it succeeds; T−15 stays; may_start_assessment gives the trigger's answer for both (the screen never offers what the trigger refuses)`;
     }),
   },
   {
@@ -1033,6 +1072,19 @@ export const a2bBatasTests: SelfTest[] = [
       c.expect(lain.length === 0, `no other file may call the banner's re-read: ${lain.join(", ")}`);
       return c.verdict(`the banner's re-read (R-B): reads source and runs the pure planner: at most one read per stage boundary still ahead and at most ${BACA_ULANG_MAKS} per window, only for a planned window announced and not begun; a failed read keeps the stage on screen, an early end shows nothing further, an extension the new stage; in the source the one read is the boundary timeout's first act, counted against the cap, the interval reads nothing, and no other file calls it`);
     },
+  },
+  {
+    id: "A2B-K13",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const a = rA(db, d, "SEBELUM"), b = rA(db, d, "SESUDAH");
+      c.expect(!a.err && !b.err, `R-A failed to run: ${a.err} ${b.err}`);
+      c.expect(a.hasil.kelas === "PR110:MAINTENANCE_NO_NEW_START", `R-A: one minute before a planned class window, a start in the class must be refused PR110:MAINTENANCE_NO_NEW_START: ${a.hasil.kelas}`);
+      c.expect(b.hasil.kelas === TEMPAT, `R-A: one second after its start, a start in the class must be refused ${TEMPAT}: ${b.hasil.kelas}`);
+      c.expect(a.hasil.lain === "OK" && b.hasil.lain === "OK", `R-A: another class's start must proceed on both sides: ${a.hasil.lain}, ${b.hasil.lain}`);
+      c.expect(a.hasil.kait === "OK" && b.hasil.kait === "OK", `R-A: the class's learner is never PT503 (no redirect) on either side: ${a.hasil.kait}, ${b.hasil.kait}`);
+      return `the code on each side of a planned class window's start: T−1 min MAINTENANCE_NO_NEW_START, T+1 s MAINTENANCE_PLACE; another class starts on both sides; the class's learner passes the request hook on both (never PT503)`;
+    }),
   },
   {
     id: "A2B-K06",

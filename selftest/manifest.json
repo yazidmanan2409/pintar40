@@ -6293,7 +6293,7 @@
     {
       "id": "A2B-K03",
       "runner": "static",
-      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K3, D4 for a timed sitting: a start whose own deadline falls after a planned class window's start is refused PR110 MAINTENANCE_CANNOT_FINISH; one that ends before it succeeds; inside T−15 MAINTENANCE_NO_NEW_START stays."
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K3, D4 for a timed sitting: a start whose own deadline falls after a planned class window's start is refused PR110 MAINTENANCE_CANNOT_FINISH; one that ends before it succeeds; inside T−15 MAINTENANCE_NO_NEW_START stays; may_start_assessment, the screen's answer, gives the trigger's for a start that cannot finish (MAINTENANCE_CANNOT_FINISH) and one that finishes in time (OK)."
     },
     {
       "id": "A2B-K04",
@@ -6324,6 +6324,11 @@
       "id": "A2B-B01",
       "runner": "static",
       "proves": "The Chief Architect's R-B (PLAN-A2B-C2W.md at e15fe966), the banner's re-read: reads the source of PengingatPemeliharaan and runs the pure planner of pemeliharaan-kontrak.ts. At most one read of the status per stage boundary still ahead (T−60, T−30, T−15, T=0), at most four per window per open page, only while a planned window is announced and has not begun; a failed read keeps the stage on screen; an early end shows no further stage; an extension shows the new one. In the source the one read (bacaUlangStatusSaya) is the boundary timeout's first act, counted against the cap; the interval that moves the minutes reads nothing; no other file calls the read."
+    },
+    {
+      "id": "A2B-K13",
+      "runner": "static",
+      "proves": "The Chief Architect's R-A (PLAN-A2B-C2W.md at e15fe966); executes on the database in rolled-back transactions: one minute before a planned class window's start a start in the class is refused PR110 MAINTENANCE_NO_NEW_START, and one second after it PR040 MAINTENANCE_PLACE; another class's start proceeds on both sides; the class's learner passes the request hook on both sides (never PT503, no redirect)."
     },
     {
       "id": "A2B-K06",
