@@ -33,3 +33,15 @@ on conflict (function_name) do update
    set exposure = excluded.exposure, note = excluded.note,
        authorization_kind = excluded.authorization_kind,
        authorization_requirement = excluded.authorization_requirement;
+
+do $$
+declare f regprocedure := 'public.pemeliharaan_jendela_tempat(uuid)';
+begin
+  if has_function_privilege('anon', f, 'execute') or has_function_privilege('service_role', f, 'execute')
+     or not has_function_privilege('authenticated', f, 'execute')
+     or position('maintenance_controls(w)' in pg_get_functiondef(f)) = 0
+     or (select provolatile from pg_proc where oid = f) <> 's'
+     or not exists (select 1 from public.client_rpc_registry where function_name = 'pemeliharaan_jendela_tempat' and exposure = 'STAFF') then
+    raise exception 'A2b batch 2: the window''s place read, its grants, its controller check or its registry entry is not as intended';
+  end if;
+end $$;

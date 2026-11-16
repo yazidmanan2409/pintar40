@@ -5329,7 +5329,7 @@ const table: Table = {
   "config.pemeliharaan.perpanjang.selesai_baru": { default: "Selesai baru ({zona})", en: "New end ({zona})" },
   "config.pemeliharaan.perpanjang.simpan": { default: "Simpan perpanjangan", en: "Save the extension" },
   "config.pemeliharaan.perpanjang.batal": { default: "Batal", en: "Cancel" },
-  "galat.maintenance_extended": { default: "Pemeliharaan diperpanjang sampai pukul {jam} {zona}. Pemberitahuan untuk yang terdampak ikut berubah.", en: "Maintenance extended to {jam} {zona}. The notices for those affected change with it." },
+  "galat.maintenance_extended": { default: "Pemeliharaan diperpanjang sampai pukul {jam} {zona}. Yang terdampak akan melihat waktu selesai yang baru.", en: "Maintenance extended to {jam} {zona}. Those affected will see the new end." },
   "galat.maintenance_extend_not_later": { default: "Waktu selesai baru harus lebih lambat dari pukul {jam} {zona}. Tidak ada yang diubah.", en: "The new end must be later than {jam} {zona}. Nothing was changed." },
   "galat.maintenance_extend_reason": { default: "Tulis alasan perpanjangannya. Tidak ada yang diubah.", en: "Write the reason for the extension. Nothing was changed." },
   "config.pemeliharaan.akhiri.tanya_kelas": { default: "Akhiri pemeliharaan sekarang? Pekerjaan kelas {kelas} dapat diubah lagi segera.", en: "End maintenance now? Class {kelas}'s work can be changed again at once." },

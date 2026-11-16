@@ -653,6 +653,15 @@ export async function jadwalkanPemeliharaanAction(fd: FormData): Promise<void> {
   kembaliPemeliharaan({ ok: true, kode: "MAINTENANCE_SCHEDULED" }, fd);
 }
 
+/** A staff client holds no select on maintenance_windows: the window's controller reads its place, end and zone
+ *  (pemeliharaan_jendela_tempat, read only); anyone else is refused there, as the extend itself would refuse them. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function tempatJendela(supabase: any, jendela: string | null, fd: FormData) {
+  const { data, error } = await supabase.rpc("pemeliharaan_jendela_tempat", { p_window: jendela });
+  if (error) kembaliPemeliharaan(ditolak("pemeliharaan_jendela_tempat", error), fd);
+  return (data ?? {}) as { platform?: boolean; sekolah?: string[]; selesai?: string | null; zona?: string };
+}
+
 /** «Perpanjang» (A2b D3; Daisy, A2B-PERPANJANG-KATA §1): a planned window's new end, typed on its school's clock (WIB
  *  for the platform or several), later than its current end, with a reason. The two refusals are said before the call;
  *  perpanjang_pemeliharaan stays the gate (an emergency, an ended window, a past end). */
@@ -660,12 +669,9 @@ export async function perpanjangPemeliharaanAction(fd: FormData): Promise<void> 
   const jendela = uuidOrNull(str(fd, "jendela"));
   if (!jendela) kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_INPUT_INVALID" }, fd);
   const supabase = await supabaseServer();
-  // a staff client holds no select on maintenance_windows: the window's controller reads its place, end and zone
-  // (pemeliharaan_jendela_tempat), so the working context is checked against its schools and the new end is read on
-  // its own clock; anyone else is refused there, as the extend itself would refuse them
-  const { data: t, error: galatTempat } = await supabase.rpc("pemeliharaan_jendela_tempat", { p_window: jendela });
-  if (galatTempat) kembaliPemeliharaan(ditolak("pemeliharaan_jendela_tempat", galatTempat), fd);
-  const tempat = (t ?? {}) as { platform?: boolean; sekolah?: string[]; selesai?: string | null; zona?: string };
+  // the working context is checked against the window's own schools before the act (§2.11), and the new end is read on
+  // its own clock
+  const tempat = await tempatJendela(supabase, jendela, fd);
   await cakupanDalamKonteks({ platform: tempat.platform === true, sekolah: tempat.sekolah ?? [] });
   const selesaiBaru = waktuSekolah(str(fd, "selesai"), tempat.zona ?? null);
   if (!str(fd, "alasan")) kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_EXTEND_REASON" }, fd);
