@@ -8,9 +8,9 @@ since THE PLAN was written, and names the evidence before the build.
 
 | # | Decision | For whom | When |
 |---|---|---|---|
-| **1** | **C3w is built in two steps.** C3w-1, everything with the provider replaced by the local stub, starts after A3 without waiting for E. C3w-2 (the qualified providers' adapters, the limits, the supervised staging run) waits for E, your qualification and your limits. THE PLAN §5.6 G1 lists the provider selection in the entry gate for the whole batch | **Owner** | Before C3w starts. **Recommended:** it takes E off the critical path for most of C3w. No provider call, cost or credential comes earlier |
-| 2 | A recovery during a work-scoped planned window | Chief Architect, settled at A3's pre-build review with Sharon | See §2.3. Escalated only if Sharon disagrees |
-| 3 | R-3's matching rule (what counts as a learner's name in teaching text) | Sharon and Daisy at C3w's pre-build review | Comes to the owner only if no rule both protects learners and keeps ordinary text usable (Addendum 1, R-3) |
+| **1** | **APPROVED by the owner, 16 Nov (ruling 42).** **C3w is built in two steps.** C3w-1, everything with the provider replaced by the local stub, starts after A3 without waiting for E. C3w-2 (the qualified providers' adapters, the limits, the supervised staging run) waits for E, your qualification and your limits. THE PLAN §5.6 G1 lists the provider selection in the entry gate for the whole batch | **Owner** | Before C3w starts. **Recommended:** it takes E off the critical path for most of C3w. No provider call, cost or credential comes earlier |
+| 2 | A recovery during a work-scoped planned window | **Owner, 16 Nov (ruling 42): proceed with the proposed rule if Sharon agrees.** The recovery preserves the original deadline, accepted answers and attempt count; emergency and platform-wide restrictions unchanged | Settled at A3's pre-build review |
+| 3 | R-3's matching rule (what counts as a learner's name in teaching text) | Sharon and Daisy at C3w's pre-build review (**owner confirmed, 16 Nov**) | Comes to the owner only if no rule both protects learners and keeps ordinary text usable (Addendum 1, R-3) |
 
 Everything else below is already decided.
 
@@ -127,6 +127,8 @@ reaches a learner. **AI drafts. Educators decide.**
 |---|---|---|
 | **C3w-1** | The database (requests and ledger with reservations, provenance, the entitlement and both ceilings, the options registry, the Studio reader, the acceptance step, R-3's check), the contract, the server with the **provider replaced by the local stub**, the screens, all tests, the rendered check | A3 closed; C1w and B1 verified; Studio journeys green; Daisy's Studio consistency findings applied; Sharon's and Daisy's pre-build reviews of the whole design |
 | **C3w-2** | One adapter per provider you qualify; their prices in the registry; the limits you set; network egress and the key; **one supervised generation on staging against the real provider**, recorded; the educator's key check of those drafts | E's results; your qualification (ruling 40); your numerical limits (D-6); E's finding on licensing and data terms (D-5); egress and key, entered by you |
+
+**C3w-1 is not acceptance of C3w as a whole** (owner, 16 Nov). No external call, spending or bypass of a provider gate in C3w-1.
 
 **Why:** C3w-1 is most of the batch and needs no provider. If C3w waits for E as a whole, Z waits for E's
 evaluation and judging. Built to the stub, it ships "not available at this school" until C3w-2, as D7 already
