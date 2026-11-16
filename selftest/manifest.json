@@ -6544,6 +6544,11 @@
       "id": "A2B-SP3",
       "runner": "static",
       "proves": "The Chief Architect (16 Nov 16:27) and Sharon (9b68fcad, T-SP): across every server-action file under src/app (\"use server\"), no exported action starts a sitting (engine.startSession, start_learning_session, open_assessment_session) except src/app/belajar/actions.ts's mulaiAsesmen, which maps PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE; the unused, postable startSession action (3c58620e) is gone; two plants, startSession restored and a start in another server file, are each caught."
+    },
+    {
+      "id": "A3-R01",
+      "runner": "static",
+      "proves": "A3's first red case, written before the build (THE PLAN §5.5 G2; PLAN-A3-C3W-Z.md A3-1; C1-D125-INVESTIGATION.md §5 cases 1, 2 and 3): executes start_learning_session, record_answer, pause_session, resume_session, submit_session and session_final_responses against the migrations, in one rolled-back transaction, for a learner of the seeded learning-cycle Kelas whose two signed-in devices are two verified Auth session ids in the claims (sesi_saya()). The sitting is started and answered on session A. Session B's answer to another question, its higher-sequence answer to A's question, its answer while A has paused, and its hand-in of A's sitting are each refused, and the final answer stays A's; a caller with no verified session id is refused; A's own answers, pause and resume are accepted. It names no refusal code (D12 waits for Sharon's review). Red on ac25e9b1: every write of B's lands, the higher sequence wins from either session, and a caller with no session id writes."
     }
   ]
 }
