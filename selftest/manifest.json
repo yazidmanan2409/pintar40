@@ -6446,6 +6446,11 @@
       "proves": "Sharon's batch 2 checklist, point 4, D-100(b); executes in a rolled-back transaction, the learner's other open sittings removed: a sitting running in 7A when 7A's planned window is ended early keeps its status and its own deadline, is not ended, and its answer is taken after the end. Plant (Sharon, 11eca8bb): the early end closing the window's running sittings; E06 sees the sitting changed (red)."
     },
     {
+      "id": "A2B-K19",
+      "runner": "static",
+      "proves": "Found capturing D8-6 (a staff client reads no row of maintenance_windows, so «Perpanjang»'s screen read nothing and its action read a typed end in WIB); executes in a rolled-back transaction: pemeliharaan_jendela_tempat(p_window) gives the window's controller (its school's admin) its platform flag, schools, classes, end and the zone its times are typed in (its one school's, here WITA); a teacher is refused MAINTENANCE_NOT_ALLOWED; a STAFF read closed to anon; the control: a direct read of the table returns no row. E01 adds that the extend action and form read through it, never the table."
+    },
+    {
       "id": "A2B-K13",
       "runner": "static",
       "proves": "The Chief Architect's R-A (PLAN-A2B-C2W.md at e15fe966); executes on the database in rolled-back transactions: one minute before a planned class window's start a start in the class is refused PR110 MAINTENANCE_NO_NEW_START, and one second after it PR040 MAINTENANCE_PLACE; another class's start proceeds on both sides; the class's learner passes the request hook on both sides (never PT503, no redirect)."

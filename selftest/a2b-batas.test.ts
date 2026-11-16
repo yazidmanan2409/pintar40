@@ -352,6 +352,7 @@ export const KELAS_JENDELA: Record<string, { kelas: KelasJendela; alasan: string
   penghentian_orang: { kelas: "EMERGENCY", alasan: "a stop's people at T_stop" },
   maintenance_controls: { kelas: "ADMIN", alasan: "who may change a window (the scheduling screen)" },
   maintenance_list: { kelas: "ADMIN", alasan: "the scheduling screen's list" },
+  pemeliharaan_jendela_tempat: { kelas: "ADMIN", alasan: "«Perpanjang»'s read of its window's place, end and zone, for the window's controller (K19)", menunggu: true },
   maintenance_collisions: { kelas: "ADMIN", alasan: "the scheduling screen's advisory count; with classes it builds the proposed window as a maintenance_windows value for the one place predicate, reading no row of the table (K14, K18, D15)" },
   maintenance_state: { kelas: "ADMIN", alasan: "a window's state at an instant (TERJADWAL, MENJELANG, AKTIF, BERAKHIR)" },
 };
@@ -1036,6 +1037,28 @@ select 'sitting|' || (s.status = b.status and s.authoritative_deadline = b.autho
 ${sebagai(d.muridUid)}
 select 'jawab|' || pg_temp.a2b_tetap($q$select public.record_answer('${d.PA}', 1, '{"posisi": 1}'::jsonb)$q$);
 ${tanpaOrang}
+rollback;`);
+}
+/** «Perpanjang»'s place (found capturing D8-6: a staff client cannot read maintenance_windows, so the screen read no
+ *  row, and the action read a typed end in WIB whatever the window's school): pemeliharaan_jendela_tempat(p_window)
+ *  gives the window's controller its place, its end and the zone its times are typed in; anyone else is refused. */
+function k19(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '10 minutes'", akhir: "now() + interval '1 hour'" })}
+update public.institutions set zona_waktu = 'Asia/Makassar' where id = '${d.X}';
+set local session_replication_role = origin;
+${ALAT}
+${sebagai(d.adminXUid)}
+select 'baca|' || coalesce((select (j ->> 'platform') || ':' || (j -> 'sekolah' ->> 0) || ':' || (j -> 'kelas' ->> 0) || ':' || (j ->> 'zona') || ':'
+  || ((j ->> 'selesai')::timestamptz = (select ends_at from public.maintenance_windows where id = '${W1}'))::text
+  from (select public.pemeliharaan_jendela_tempat('${W1}') as j) x), 'null');
+select 'langsung|' || (select count(*) from public.maintenance_windows where id = '${W1}');
+${sebagai(d.guruUid)}
+select 'guru|' || pg_temp.a2b_coba($q$select public.pemeliharaan_jendela_tempat('${W1}')$q$);
+${tanpaOrang}
+select 'paparan|' || coalesce((select exposure::text from public.client_rpc_registry where function_name = 'pemeliharaan_jendela_tempat'), 'tidak ada');
+select 'anon|' || coalesce((select has_function_privilege('anon', p.oid, 'execute')::text from pg_proc p where p.proname = 'pemeliharaan_jendela_tempat' and p.pronamespace = 'public'::regnamespace), 'tidak ada');
 rollback;`);
 }
 const D12_SAAT = "then public.penghentian_geser(s.person_id, s.darurat_jendela_id) end, interval '0')";
@@ -1867,12 +1890,18 @@ rollback;`);
         && fn.indexOf("MAINTENANCE_EXTEND_NOT_LATER") > 0 && fn.indexOf("MAINTENANCE_EXTEND_NOT_LATER") < panggil,
         "Daisy's two refusals (no reason; not later) must be checked before the call; the database stays the gate");
       c.expect(/MAINTENANCE_EXTENDED/.test(fn), "a done extension must say so (MAINTENANCE_EXTENDED)");
+      // found capturing D8-6: the window's place, end and zone come from pemeliharaan_jendela_tempat (a staff client
+      // reads no row of maintenance_windows), so the typed end is read on the window's own clock
+      c.expect(/rpc\("pemeliharaan_jendela_tempat"/.test(fn) && !/from\("maintenance_windows"\)/.test(fn) && fn.indexOf('rpc("pemeliharaan_jendela_tempat"') < panggil,
+        "the extend action must read the window's place, end and zone through pemeliharaan_jendela_tempat before its call, never the table");
       // the Chief Architect (16 Nov 09:44): the extend form shows the advisory count for the added period, as the
       // schedule form does; it refuses nothing
       const halamanP = readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8");
       c.expect(/rpc\("maintenance_collisions", \{[^}]*p_starts_at: [^,}]*selesai[^}]*p_nodes:/.test(halamanP) || /tabrakanPerpanjang/.test(halamanP),
         "the extend form must show the advisory count for the added period (maintenance_collisions from the current end to the new end, for the window's classes)");
       const halaman = readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8");
+      c.expect(/rpc\("pemeliharaan_jendela_tempat"/.test(halaman) && !/from\("maintenance_windows"\)/.test(halaman),
+        "the extend form must read its window's place, end and zone through pemeliharaan_jendela_tempat, never the table");
       c.expect(/bolehPerpanjang\(w\)/.test(halaman) && /perpanjangPemeliharaanAction/.test(halaman), "the list row must offer «Perpanjang» only where bolehPerpanjang allows, with its form");
       c.expect(!/config\.pemeliharaan\.perpanjang\.batal"\)[^\n]*Batalkan/.test(halaman) && /config\.pemeliharaan\.perpanjang\.batal/.test(halaman),
         "the form's «Batal» must be its own key, never the row's «Batalkan»");
@@ -2080,6 +2109,19 @@ rollback;`);
       try { tanam = e06(db, d); } finally { balik(); }
       c.expect(!tanam.err && tanam.hasil.sitting === "false", `with the plant (running sittings closed by the early end) E06 must see the sitting changed: ${tanam.err || tanam.hasil.sitting}`);
       return "ending a planned class window early leaves a running sitting to finish under D-100(b): its status and deadline unchanged, not ended, its answer taken; with the plant (the early end closes running sittings) red";
+    }),
+  },
+  {
+    id: "A2B-K19",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = k19(db, d); const h = r.hasil;
+      c.expect(!r.err, `K19 failed to run: ${r.err}`);
+      c.expect(h.langsung === "0", `the control: a staff client reads no row of maintenance_windows directly: ${h.langsung}`);
+      c.expect(h.baca === `false:${d.X}:${d.kA}:Asia/Makassar:true`, `the window's controller is given its place, its end and its school's zone: ${h.baca}`);
+      c.expect(h.guru === "PR110:MAINTENANCE_NOT_ALLOWED", `anyone else is refused: ${h.guru}`);
+      c.expect(h.paparan === "STAFF" && h.anon === "false", `a STAFF read, closed to anon: ${h.paparan}, ${h.anon}`);
+      return "pemeliharaan_jendela_tempat gives a window's controller its place (platform, schools, classes), its end and the zone its times are typed in (its one school's, here WITA); a teacher is refused; a STAFF read closed to anon; a staff client still reads no row of the table directly";
     }),
   },
   {
