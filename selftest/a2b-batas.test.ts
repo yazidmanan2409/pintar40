@@ -32,7 +32,7 @@ import { t } from "../src/lib/hle";
 import { psqlBaris } from "./a2a-f01.test";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { arahTolakMulai, batasTahap, hariLain, jendelaDiumumkan, tahapSetelahBaca, BACA_ULANG_MAKS, type JendelaSaya, type StatusSaya } from "../src/lib/pemeliharaan-kontrak";
+import { arahTolakMulai, batasTahap, hariLain, jamJendela, kapitalAwal, jendelaDiumumkan, tahapSetelahBaca, BACA_ULANG_MAKS, type JendelaSaya, type StatusSaya } from "../src/lib/pemeliharaan-kontrak";
 
 // ─────────────────────────────────────────────────────────────────────────── helpers
 
@@ -1159,8 +1159,10 @@ export const a2bBatasTests: SelfTest[] = [
       c.expect(hariLain(akhir, wib, kini) === "", `the same day in the window's zone (WIB) adds nothing: «${hariLain(akhir, wib, kini)}»`);
       const id = hariLain(akhir, wita, kini), en = hariLain(akhir, wita, kini, "en");
       // Daisy's C-3 form (TINJAUAN-A2B-D8-B1): «, {hari} {tanggal}», no year and no comma between them
-      c.expect(id === ", Selasa 17 Nov", `another day in the window's zone (WITA) adds «, Selasa 17 Nov»: «${id}»`);
-      c.expect(en === " on Tuesday 17 Nov", `in English « on Tuesday 17 Nov»: «${en}»`);
+      c.expect(id === ", Selasa 17\u00a0Nov", `another day in the window's zone (WITA) adds «, Selasa 17 Nov», the day and month joined by a non-breaking space (Daisy, 16 Nov): ${JSON.stringify(id)}`);
+      c.expect(en === " on Tuesday 17\u00a0Nov", `in English « on Tuesday 17 Nov», likewise: ${JSON.stringify(en)}`);
+      const jz = jamJendela("2026-11-16T09:14:00Z", wita);
+      c.expect(jz === "17.14\u00a0WITA", `a time and its zone word are joined by a non-breaking space (Daisy, 16 Nov): ${JSON.stringify(jz)}`);
       c.expect(hariLain("2026-11-16T15:45:00Z", wita, kini) === "", "a time later the same day adds nothing");
       const pita = readFileSync(join(repoRoot, "src/components/pemeliharaan/PengingatPemeliharaan.tsx"), "utf8");
       c.expect(/\.replace\("\{jam\}", jamPenuh\(jendela\.mulai, jendela, kini, locale\)\)/.test(pita),
@@ -1225,8 +1227,13 @@ rollback;`);
         const id = t(k, "learner", { locale: "id" }), en = t(k, "learner", { locale: "en" });
         c.expect(id.includes("pekerjaan {untuk}") || id.includes("Pekerjaan {untuk}"), `${k} must name the work's owner: «${id}»`);
         c.expect(!/pekerjaannya/i.test(id) && !/\bits work\b/i.test(en), `${k} must not say «pekerjaannya» or «its work»: «${id}» / «${en}»`);
+        // Daisy (16 Nov): the EN has one form, «{untuk}'s work»
+        c.expect(en.includes("{untuk}'s work") && !/work of \{untuk\}/.test(en), `${k}'s EN must use the one form «{untuk}'s work»: «${en}»`);
       }
       const tanpaGanti = [...`${pita}\n${jeda}`.matchAll(/s\("pemeliharaan\.tempat\.(arti|biasa)"\)(?!\.replace\("\{untuk\}", untuk\))/g)].length;
+      // a sentence that opens with its place starts with a capital («Class 5S's work …»): every use of .arti
+      const artiTanpaKapital = [...`${pita}\n${jeda}`.matchAll(/(.{0,12})s\("pemeliharaan\.tempat\.arti"\)/g)].filter((m) => !m[1].endsWith("kapitalAwal(")).length;
+      c.expect(artiTanpaKapital === 0 && kapitalAwal("class 5S's work") === "Class 5S's work", `every use of pemeliharaan.tempat.arti must capitalise its opening: ${artiTanpaKapital} do not`);
       c.expect(tanpaGanti === 0, `every use of pemeliharaan.tempat.arti and .biasa must fill {untuk}: ${tanpaGanti} do not`);
       // C-2: while the last-check line shows, the stage's own start sentence is dropped
       c.expect(/\{gagal \? null : <>\{tempat \? s\("pemeliharaan\.tempat\.pukul"\)/.test(pita), "while the last-check line shows, the stage's start sentence must be dropped");
