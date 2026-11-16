@@ -75,3 +75,11 @@ None of these blocks GO. Each is a test to add, or an existing one to cite.
 5. **E04 and E06, green on arrival, need a plant each before the database commit's PASS**, as in T5:
    - for E04, an extend that accepts an equal end;
    - for E06, an early end that also closes running sittings.
+- **Bob's rulings, 10:00 UTC:**
+  - the 500 bound, refused before any lookup in both functions;
+  - the E05 clock fix is in batch 2, PLANNED only, with the EMERGENCY branch pinned and A07 re-specified first;
+  - ids: K16 is the owner's sequence, and K14 is the class count and picker.
+  - **My read of e740f572 is the addendum above,** so the tests are GO for product code, with the plants for E04 and E06 still to be added.
+  - **Two points for the fix:**
+    - `v_kini` is taken **after** the FENCE and the window's lock, not at entry;
+    - A07's re-specification prefers `audit_log.at = v_kini`, passed explicitly, over comparing the summary.
