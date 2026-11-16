@@ -24,11 +24,12 @@ These gaps matter to the decision. None of them is a finding about the provider.
 | `ai.google.dev/gemini-api/...` (every path tried: pricing, terms, models, rate-limits, billing) | It redirects (HTTP 301) to `aistudio.google.com/docs/...`, a host that is **not** on the approved list | **The Gemini Developer API could not be read at all.** Sections 3a–3e for that route are "not found" |
 | `cloud.google.com/vertex-ai/generative-ai/docs/...` and `cloud.google.com/billing/docs/...` | They redirect to `docs.cloud.google.com`, which is not on the list | Vertex model IDs, quotas and budget behaviour: not found |
 | `openai.com/policies/...` (services agreement, usage policies, sub-processor list, DPA, enterprise privacy) and `help.openai.com` | HTTP 403 with a bot-challenge page served by the site itself, not by our proxy | OpenAI's legal terms could not be read. The developer docs on `developers.openai.com` were readable |
-| `www.anthropic.com/subprocessors` | It redirects to `trust.anthropic.com/subprocessors`, which is not on the list | We have the link, but could not read the list itself |
+| `www.anthropic.com/subprocessors` | It redirects to `trust.anthropic.com/subprocessors`. That host was added with the owner's approval on 16 Nov 2026, in a second, single-host change. The page is a JavaScript app (Vanta Trust Center): the HTML served contains no subprocessor entries | We have the link, but the list itself could not be read without a browser |
 
-Reading those pages would need `aistudio.google.com`, `docs.cloud.google.com` and `trust.anthropic.com` added, plus a
-browser able to pass openai.com's bot challenge. I did not request these. The brief allowed one network change, and
-the owner approved that one.
+Follow-up of 16 Nov 2026 (07:08 UTC): at the Chief Architect's request, only `trust.anthropic.com` was added. The owner
+approved it. `aistudio.google.com` and `docs.cloud.google.com` were not requested: Google is out unless written
+clarification of §20(d) arrives. No attempt was made to get past openai.com's bot challenge; the owner reads OpenAI's
+terms himself.
 
 ---
 
@@ -70,7 +71,7 @@ Documents:
 | Retention | "For Anthropic API users, we automatically delete inputs and outputs on our backend within 30 days of receipt or generation", except for services you control (such as the Files API), a zero-retention agreement, Usage Policy enforcement, or law. Flagged content: "up to 2 years", and classification scores "up to 7 years". Source: https://privacy.claude.com/en/articles/7996866 (updated Jul 1, 2026) | A |
 | Zero retention | Available by arrangement: "To request ZDR for your organization, contact the Anthropic sales team." Under ZDR, "Anthropic does not store customer prompts or responses at rest after the API response is returned." Covered Models (Fable/Mythos 5.x) require 30-day retention and are not ZDR-eligible. **Sonnet 5.5 is not listed as a Covered Model.** Source: https://platform.claude.com/docs/en/build-with-claude/zero-data-retention (redirects to `/docs/en/manage-claude/api-and-data-retention`) | A |
 | Location | `inference_geo`: `"global"` (default) or `"us"` ("Inference runs only in US-based infrastructure"). Also: "Currently, "us" is the only available workspace geo" for data at rest. No EU or Asia option found. Source: https://platform.claude.com/docs/en/build-with-claude/data-residency | A |
-| Subprocessors | DPA: "Anthropic's list of subprocessors is available at https://www.anthropic.com/subprocessors." That URL redirects to `trust.anthropic.com`, which was not reachable, so the list was not read | B |
+| Subprocessors | DPA: "Anthropic's list of subprocessors is available at https://www.anthropic.com/subprocessors." That URL redirects to https://trust.anthropic.com/subprocessors. The page was fetched on 16 Nov 2026 (HTTP 200). It is a JavaScript-rendered Trust Center (scripts from `assets.vanta.com`), and the HTML contains no subprocessor names. **The list itself was not read.** Reading it needs a real browser; it may also need a sign-in, which I could not determine | B (link A; contents not found) |
 | Synthetic, non-personal educational text | No term found that restricts it. The Usage Policy lists "General information or educational content" among the uses that do not trigger high-risk requirements. It treats grading that "determines admission, graduation, licensure, or certification" as high-risk. "Products serving minors … must comply with the additional guidelines." No explicit statement about synthetic text was found | B |
 
 ### 1d · Spend controls
@@ -78,12 +79,16 @@ Documents:
 | Control | Effect | Grade |
 |---|---|---|
 | Tier monthly spend cap (Start $500, Build $1,000, Scale $200,000; Custom has none) | **Stops requests.** "API usage pauses until 00:00 UTC on the first day of the next month". Requests return HTTP 429 `enforced_spend_limit_reached` | A |
-| Your own spend limit (organisation; per-workspace too, but not on the default workspace) | **Stops requests.** HTTP 400 "You have reached your specified API usage limits" | A |
-| Spend alerts | Not found on the rate-limits page | — |
+| Your own spend limit (organisation; per-workspace too, but not on the default workspace) | **Stops requests.** HTTP 400 "You have reached your specified API usage limits" (for a workspace limit: "…specified workspace API usage limits") | A |
+| Organisation limit when a dedicated workspace is used | **Still applies.** Workspaces page: "Workspace limits can keep a workspace below your organization's limits, but they can't raise those limits" and "Organization-wide limits always apply, even if workspace limits add up to more." Also: "You cannot set spend limits on the Default Workspace." So a dedicated, non-default workspace is needed for a workspace cap. The note sits under both spend and rate limits; that it covers the organisation **spend** cap is my reading | A (text) / B (spend scope) |
+| Spend alerts | **Alert only, by email.** "If Anthropic bills your organization directly, you can also set up email alerts for when spending reaches an amount you choose: click **Add notification** … next to **Email notifications**." This is described for workspace spend limits. No organisation-level alert text was found | A (workspace) / not found (org) |
+| Per-member spend limits API | Not applicable. "The Spend Limits API is available to Claude Enterprise organizations only. It is not available to Claude Platform (Claude Console) organizations." | A |
 | Default rate limits, Start tier, Sonnet 5.5 | 4,000 RPM / 2,000,000 ITPM / 400,000 OTPM. Read from a flattened table; the Evaluation tier may be lower | B |
-| Billing or enforcement lag | Not found | — |
+| Spend-limit enforcement lag | **Not found.** No statement on how quickly a spend limit takes effect, or whether spend can overrun it. Indirect only: the Usage and Cost Analytics API says cost "Data typically refreshes within 4 hours of the underlying usage and can take up to 24 hours", and values "can be revised … until about 7 days after the end of the calendar month". That concerns reporting, not enforcement, so the evaluation should not assume the cap is exact | B |
 
-Source: https://platform.claude.com/docs/en/api/rate-limits
+Sources: https://platform.claude.com/docs/en/api/rate-limits · https://platform.claude.com/docs/en/manage-claude/workspaces ·
+https://platform.claude.com/docs/en/manage-claude/spend-limits-api · https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+(read 16 Nov 2026, `.md` versions)
 
 ---
 
@@ -217,13 +222,14 @@ The Gemini API Additional Terms version is **not found** (see 3-I).
 | Default retention | ≤30 days | ≤30 days (abuse logs) | "no longer than reasonably necessary" |
 | Zero retention | by arrangement | prior approval | not found as a separate option |
 | Region control | US-only option (+10%) | US / EU (+10%) | Multi-Region (data-residency list) |
-| Hard spend stop | yes (cap and own limit) | yes (hard limit; small lag) | not found |
+| Hard spend stop | yes (cap and own limit; lag not documented) | yes (hard limit; small lag) | not found |
 | Under-18 term | guidelines for products serving minors | not read | §20(d) prohibits "likely to be accessed by" under-18s |
 
 ## 5 · Sources read (all on 2026-11-16)
 
 platform.claude.com/docs/en/{about-claude/pricing, about-claude/models/overview, api/rate-limits,
-build-with-claude/zero-data-retention, build-with-claude/data-residency} · privacy.claude.com/en/articles/{7996866,
+build-with-claude/zero-data-retention, build-with-claude/data-residency, manage-claude/workspaces,
+manage-claude/spend-limits-api, manage-claude/usage-cost-analytics-api} · trust.anthropic.com/subprocessors (JavaScript only) · privacy.claude.com/en/articles/{7996866,
 7996868} · www.anthropic.com/legal/{commercial-terms, aup, data-processing-addendum} · support.claude.com article
 9307344 · developers.openai.com/api/docs/{models, models/gpt-6.1-sol, models/gpt-6.1-terra, pricing, guides/your-data,
 guides/rate-limits, guides/spend-limits, guides/data-residency} · cloud.google.com/{terms/service-terms,
