@@ -2244,7 +2244,9 @@ export const experienceTests: SelfTest[] = [
       // MOVED 280 -> 281, RESTATED, A2b batch 2: 20270120230000 (a notice's place for its controller, S-1).
       // MOVED 281 -> 282, RESTATED, A2b reopened: 20270120240000 (a start refused for maintenance says its code): a
       // replaced function body; no table, no column.
-      c.expect(migrations.length === 282, `${migrations.length} migrations; the frozen baseline has 282`);
+      // MOVED 282 -> 283, RESTATED, A3: 20270121200000 (the start lock covers what the attempt count counts, A3-R1): a
+      // replaced function body; no table, no column.
+      c.expect(migrations.length === 283, `${migrations.length} migrations; the frozen baseline has 283`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4163,7 +4165,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 279 -> 280, RESTATED, A2b batch 2, for 20270120220000 (a window's place for its controller): no tour RPC.
       // MOVED 280 -> 281, RESTATED, A2b batch 2, for 20270120230000 (a notice's place for its controller, S-1): no tour RPC.
       // MOVED 281 -> 282, RESTATED, A2b reopened, for 20270120240000 (a start refused for maintenance says its code): no tour RPC.
-      c.expect(migs.length === 282, `${migs.length} migrations; the baseline has 282`);
+      // MOVED 282 -> 283, RESTATED, A3, for 20270121200000 (the start lock covers what the attempt count counts): no tour RPC.
+      c.expect(migs.length === 283, `${migs.length} migrations; the baseline has 283`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

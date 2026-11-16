@@ -380,8 +380,9 @@ async function runAttemptLimitRaceAcrossAssignments(dbUrl: string): Promise<Outc
  * F37-R01 — SI-D02 (System Integrity, 9 Nov): an attempt limit holds under two concurrent starts. A learner one attempt
  * short of an assignment's attempt_limit (chosen from the world, may_start_assessment OK) starts on connection A, which
  * holds its transaction open; connection B starts the same assignment meanwhile. Before 20270112120000 B completed while
- * A held (0.07 s, both would commit: two attempts against a limit of one); now B waits on the per-(learner, assignment)
- * advisory lock while A holds. BOTH ROLL BACK, so nothing is left behind.
+ * A held (0.07 s, both would commit: two attempts against a limit of one); now B waits on the start's advisory lock
+ * while A holds: per (learner, assignment) from 20270112120000, per (learner, definition, version) since A3-R1
+ * (20270121200000, which F37-R02 proves across two assignments). BOTH ROLL BACK, so nothing is left behind.
  */
 async function runAttemptLimitRace(dbUrl: string): Promise<Outcome> {
   const psql = (sql: string) => spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, dbUrl], { encoding: "utf8" });
@@ -472,7 +473,7 @@ async function runAttemptLimitRace(dbUrl: string): Promise<Outcome> {
   if (bersih.status !== 0 || pulih !== String(Number(batas) - 1)) masalah.push(`A's sitting could not be removed afterwards (${(bersih.stderr || pulih || "").trim().slice(0, 160)})`);
   return masalah.length ? gagal(masalah.join("; ")) : {
     id, runner: "db", status: "PASS",
-    detail: `a learner one attempt short of a limit of ${batas} started on A, which held and then COMMITTED; B's start waited on the (learner, assignment) lock while A held, and after A's commit was refused ATTEMPT_LIMIT_REACHED; the learner held exactly ${sesudah} sitting(s), the limit (A's sitting removed afterwards; the world back to ${pulih})`,
+    detail: `a learner one attempt short of a limit of ${batas} started on A, which held and then COMMITTED; B's start waited on the start lock (learner, definition, version) while A held, and after A's commit was refused ATTEMPT_LIMIT_REACHED; the learner held exactly ${sesudah} sitting(s), the limit (A's sitting removed afterwards; the world back to ${pulih})`,
   };
 }
 
