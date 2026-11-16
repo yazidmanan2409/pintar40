@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2b candidate after R-SP2 | PASS; freeze checks hold. SP2 covers the cycle and standalone routes, red without the fix, the no-sitting check runs before cleanup; refreeze after CI and journeys are green | `ac25e9b14d51928f6991f8932b3bb572a262c096` | `A2B-START-PATH-3c58620e.md` (addendum) |
 | E · ruling 44 (the minors question closed) | Applied: my "follow the minors guidelines anyway" (F4) and my feasibility age judgements are marked superseded; data-handling checks stay as ordinary contract checks | `e682af54` | `E-PROVIDER-FACTS-REVIEW.md`, `E-FEASIBILITY-MORE-REVIEW.md` |
 | E pack r3 · my §4.2 role and the §4.3a threshold | Workable, with: my flags sealed before any score is seen, with reasons, and reported per provider (I am an Anthropic model judging an Anthropic provider, so the owner may prefer another checker); §4.3a frozen before the first paid call; a self-tested scoring script; provenance names the pack SHA; blind strips model fields | `c3112336ccd56d0e8e9f99a55ea5ee0956fd353d` | `E-PACK-R3-SCORING-c3112336.md` |
 | A2b new candidate (start path, Q-12, SP3) | PASS subject to a green pre-flight. Q-12 keeps rows in a window; no leak, because maintenance is judged last in may_start (checked in source; Q12's other-school leg). T-SP closed by SP3. Freeze checks re-run | `6e45fe5266a9b85bcd07d03022f0a27ee0bfa93e` | `A2B-START-PATH-3c58620e.md` (addendum) |

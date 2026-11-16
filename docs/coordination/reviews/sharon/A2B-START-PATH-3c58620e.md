@@ -114,3 +114,21 @@ Sharon, 16 Nov 2026 (16:30 UTC). Read-only. **What I checked:**
     - `may_start_assessment` takes the maintenance node from the learner's class membership, or else the assignment's `node_id`. It does not take it from the learning assignment, so `learning_assignment_id` being null changes nothing.
     - The proof is the legs themselves: the three maintenance cases each assert the exact code (PR040, then PR110 twice). A bypass would have read OK, and it does not.
   - **So SP1 stands as written.** R-SP2 above, the restored cycle leg, is still required.
+
+## Addendum, 21:30 UTC: R-SP2 closed. The pass carries to `ac25e9b14d51928f6991f8932b3bb572a262c096`.
+
+- **The diff `dd6803c5..ac25e9b1`** touches only `selftest/a2b-mulai.test.ts`, `selftest/manifest.json` and `audit/b8-jalan.mjs`. The product is unchanged.
+- **SP2 now runs both routes,** each posted from the page that draws its form:
+  - **the learning cycle:** `/belajar/<LA>/pemetaan`, returning to `/belajar/<LA>`, on its own learning assignment, assessment copy and definition copy, so its attempts are its own;
+  - **the standalone page:** `/belajar/asesmen/<id>`.
+- **On each route:**
+  - a school window → that route's start screen;
+  - a platform T−15 → `/pemeliharaan?mulai=ditolak`;
+  - a school T−15 → that route's start screen.
+- **The "no sitting" assertion** (`sesi() === "0"`) runs **before** the cleanup deletes anything, so it is a real check.
+- **Red without the fix:** HTTP 500 on every case of both routes.
+- **J1.6's PR040 assertion is unchanged.** The audit diff only adds `may_start`'s answer to the message, and moves J1.6 to its own fixture.
+- **On the head,** as reported: suite 1228 passed and 0 failed, plants 175/175, red-case 11/11, and job A's journeys passing locally.
+- **Verdict: PASS on `ac25e9b14d51928f6991f8932b3bb572a262c096`, and my freeze checks hold for it.**
+  - Before the refreeze, what remains is the CI on this SHA and the dispatched journeys, both green.
+  - Staging remains PENDING OWNER AUTHORISATION.
