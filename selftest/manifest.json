@@ -6401,6 +6401,16 @@
       "proves": "Batch 2, A8's screen half; reads source and copy: an emergency row keeps A2a's lift and its confirmation; the scope confirmation is a planned window's only; the refusal of a direct call (MAINTENANCE_EMERGENCY_LIFT_ONLY) says Daisy's sentence."
     },
     {
+      "id": "A2B-K14",
+      "runner": "static",
+      "proves": "The class picker on the planned form (the Chief Architect, 16 Nov 09:33; THE PLAN §5.3 D1); executes in a rolled-back transaction as the school's admin: maintenance_collisions(…, p_nodes) counts the chosen classes' own assessments (and those under them), the school-wide check still the whole school; pemeliharaan_kelas_sekolah offers a school's admin that school's classes and refuses another school's with MAINTENANCE_NOT_ALLOWED; it is a STAFF read closed to anon. Another school's class at scheduling is K10's (MAINTENANCE_NODE_INVALID)."
+    },
+    {
+      "id": "A2B-C10",
+      "runner": "static",
+      "proves": "The class picker in the app; reads source: once one school is chosen the planned form offers its classes (pm_kelas) from pemeliharaan_kelas_sekolah; the collision check is asked for them (p_nodes); the scheduling form carries them (kelas) and jadwalkanPemeliharaanAction passes them as p_nodes, the database staying the gate."
+    },
+    {
       "id": "A2B-K13",
       "runner": "static",
       "proves": "The Chief Architect's R-A (PLAN-A2B-C2W.md at e15fe966); executes on the database in rolled-back transactions: one minute before a planned class window's start a start in the class is refused PR110 MAINTENANCE_NO_NEW_START, and one second after it PR040 MAINTENANCE_PLACE; another class's start proceeds on both sides; the class's learner passes the request hook on both sides (never PT503, no redirect)."

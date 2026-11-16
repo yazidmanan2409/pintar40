@@ -728,6 +728,34 @@ select 'a7_audit|' || coalesce((select (a.summary ->> 'ends_at')::timestamptz = 
 select 'a7_tempat|' || public.maintenance_affects_place('${d.kA}', clock_timestamp())::text;
 rollback;`);
 }
+/** The class picker on the planned form (the Chief Architect, 16 Nov 09:33; THE PLAN §5.3 D1): the collision check
+ *  narrowed to the chosen classes, and the school admin's own class list. 7A's assignment open across the window; one
+ *  more assignment of school X at 7B. */
+function k14(db: string, d: Dunia) {
+  const sesuai = (kelas: string) => `(select count(*) from public.assessment_assignments aa join public.org_nodes n on n.id = aa.node_id
+  where aa.status in ('SCHEDULED', 'OPEN') and aa.institution_id = '${d.X}' and (n.id = '${kelas}' or n.jalur @> array['${kelas}'::uuid])
+    and coalesce(aa.opens_at, aa.created_at) < now() + interval '3 hours' and (aa.closes_at is null or aa.closes_at > now() + interval '2 hours' - interval '15 minutes'))`;
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+update public.assessment_assignments set node_id = '${d.kA}', institution_id = '${d.X}', status = 'OPEN', opens_at = now() - interval '1 day',
+       closes_at = now() + interval '1 day' where id = (select assessment_assignment_id from public.assessment_sessions where id = '${d.SA}');
+set local session_replication_role = origin;
+${ALAT}
+select 'harap_kelas|' || ${sesuai(d.kA)};
+select 'harap_kelas_b|' || ${sesuai(d.kB)};
+${sebagai(d.adminXUid)}
+select 'sekolah|' || pg_temp.a2b_tetap($q$select 1$q$) || ':' || (public.maintenance_collisions(false, array['${d.X}'::uuid], now() + interval '2 hours', now() + interval '3 hours') ->> 'asesmen');
+select 'kelas|' || coalesce((public.maintenance_collisions(p_platform => false, p_institutions => array['${d.X}'::uuid], p_starts_at => now() + interval '2 hours',
+  p_ends_at => now() + interval '3 hours', p_nodes => array['${d.kA}'::uuid]) ->> 'asesmen'), 'null');
+select 'kelas_b|' || coalesce((public.maintenance_collisions(p_platform => false, p_institutions => array['${d.X}'::uuid], p_starts_at => now() + interval '2 hours',
+  p_ends_at => now() + interval '3 hours', p_nodes => array['${d.kB}'::uuid]) ->> 'asesmen'), 'null');
+select 'daftar|' || coalesce((select count(*) from jsonb_array_elements(public.pemeliharaan_kelas_sekolah('${d.X}')) x where x ->> 'id' = '${d.kA}')::text, 'null');
+select 'daftar_lain|' || pg_temp.a2b_coba($q$select public.pemeliharaan_kelas_sekolah('${d.Y}')$q$);
+${tanpaOrang}
+select 'paparan|' || coalesce((select exposure from public.client_rpc_registry where function_name = 'pemeliharaan_kelas_sekolah'), 'tidak ada');
+select 'anon|' || coalesce((select has_function_privilege('anon', p.oid, 'execute')::text from pg_proc p where p.proname = 'pemeliharaan_kelas_sekolah' and p.pronamespace = 'public'::regnamespace), 'tidak ada');
+rollback;`);
+}
 const D12_SAAT = "then public.penghentian_geser(s.person_id, s.darurat_jendela_id) end, interval '0')";
 const D12_TANAM = "then null::interval end, interval '0')";
 const D13_SAAT = "'ditahan', s.status in ('CREATED', 'IN_PROGRESS', 'PAUSED')   -- D1-3: a stale mark holds nothing";
@@ -1581,6 +1609,38 @@ rollback;`);
         "an emergency row keeps A2a's own lift and its confirmation");
       c.expect(/w\.jenis === "PLANNED"[^\n]*kunciAkhiriTanya|kunciAkhiriTanya\(w\)/.test(halaman), "the scope confirmation is a planned window's only");
       return c.verdict("A8 on the screen: an emergency row keeps A2a's lift and offers neither «Perpanjang» nor the planned early end (bolehPerpanjang refuses it, E01); a direct call is refused in Daisy's words");
+    },
+  },
+  {
+    id: "A2B-K14",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = k14(db, d); const h = r.hasil;
+      c.expect(!r.err, `K14 failed to run: ${r.err}`);
+      c.expect(h.kelas === h.harap_kelas && Number(h.harap_kelas) >= 1, `the collision check for a class window must count that class's assessments (and those under it): ${h.kelas}, expected ${h.harap_kelas}`);
+      c.expect(h.kelas_b === h.harap_kelas_b, `for another class of the same school, that class's own: ${h.kelas_b}, expected ${h.harap_kelas_b}`);
+      const sekolah = Number((h.sekolah ?? "").split(":")[1]);
+      c.expect(sekolah >= Number(h.harap_kelas) + Number(h.harap_kelas_b), `the school-wide check still counts the whole school: ${h.sekolah}`);
+      c.expect(h.daftar === "1", `a school's admin must be offered that school's classes for a planned window: ${h.daftar}`);
+      c.expect(h.daftar_lain === "PR110:MAINTENANCE_NOT_ALLOWED", `another school's classes are refused to them: ${h.daftar_lain}`);
+      c.expect(h.paparan === "STAFF" && h.anon === "false", `the class list is a STAFF read, closed to anon: ${h.paparan}, ${h.anon}`);
+      return `the planned form's class step (D1): maintenance_collisions(…, p_nodes) counts the chosen classes' own assessments (${h.kelas} for 7A, ${h.kelas_b} for 7B; the school ${sekolah}); pemeliharaan_kelas_sekolah offers a school's admin that school's classes and refuses another school's; a STAFF read, closed to anon. Another school's class at scheduling is refused by the database (K10, MAINTENANCE_NODE_INVALID)`;
+    }),
+  },
+  {
+    id: "A2B-C10",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const halaman = readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8");
+      const aksi = readFileSync(join(repoRoot, "src/app/konfigurasi/actions.ts"), "utf8");
+      // the check step: classes once one school is chosen, from the school admin's own list; the check narrowed to them
+      c.expect(/pemeliharaan_kelas_sekolah/.test(halaman) && /name="pm_kelas"/.test(halaman), "the planned form must offer the chosen school's classes (pm_kelas, from pemeliharaan_kelas_sekolah)");
+      c.expect(/rpc\("maintenance_collisions", \{[^}]*p_nodes:/.test(halaman), "the collision check must be asked for the chosen classes (p_nodes)");
+      c.expect(/pmKelas\.map\(\(k\) => <input key=\{k\} type="hidden" name="kelas" value=\{k\} \/>\)/.test(halaman), "the scheduling form must carry the chosen classes (kelas)");
+      const jadwal = /export async function jadwalkanPemeliharaanAction[\s\S]*?\n}\n/.exec(aksi)?.[0] ?? "";
+      c.expect(/fd\.getAll\("kelas"\)/.test(jadwal) && /p_nodes: kelas/.test(jadwal), "the scheduling action must pass the chosen classes as p_nodes; the database (K10) stays the gate");
+      return c.verdict("the planned form's class step: the chosen school's classes from the school admin's own list, the collision check narrowed to them, and the scheduling action passing them as p_nodes");
     },
   },
   {
