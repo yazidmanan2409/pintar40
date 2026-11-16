@@ -862,3 +862,17 @@ probes unwind). The `selftest/db` sibling sweep is done and accepted (`9dd1c75f`
   13 Nov 23:47:20, watermark 10697). The watermark is unchanged, and there are 0 open sittings.
 - **Rule from now on:** the "before" read is taken BEFORE the merge button, for every promotion. The merge waits for
   it.
+
+## A2a ACCEPTED on staging (16 Nov 2026, 02:16 UTC)
+
+- **Sharon:** C's promotion passes (`A2A-C-PROMOTION-READS.md`, addendum `fdffee31`).
+  - All eight hosted reads match. Read 3: job 5 succeeded at 02:00 and 02:05.
+  - N1: false for all three roles. pg_cron 1.6.4.
+  - The preservation pair (`86490991`) is identical on lines 20 to 62 and 70 to 72; only line 10 (249 → 267) differs.
+  - Environment facts: run 43789456025, green.
+- **With her result PASS (`f3f5fa38`) and the scale evidence (`6fd9fbcc`), A2a is accepted.**
+- **Change B,** [PR #23](https://github.com/yazidmanan2409/pintar40/pull/23), tooling only: merges when its CI is
+  green.
+- **Required before A2b's promotion (Sharon):** a preserved line for `maintenance_windows` in the preservation query,
+  leaving out A2a's `node_ids`, `t_stop` and `t_lift` by name. It is added to A2b's acceptance evidence.
+- **Next:** A2b, per `PLAN-A2B-C2W.md`. It starts from `main` once B is merged.

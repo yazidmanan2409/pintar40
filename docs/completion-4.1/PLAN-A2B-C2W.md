@@ -104,7 +104,7 @@ written.
 | A10 | App: no redirect for a work-scoped window; the class's notice shown; another class shown nothing; banner stages re-read; times in the school's zone (WIB, WITA, WIT) | Second Eye | CI |
 | A11 | Rendered check at 1280, 390 and 320 px, with keyboard, on every screen D8 touches (the list is fixed before the build) | Second Eye captures; Daisy reviews | Screenshots on the frozen commit |
 | A12 | **Request hook timing.** Sharon's limit: p95 ≤ 1 ms with no window active, and after ≤ before + 0.5 ms; also with a work-scoped window active | Second Eye runs it, Sharon reads it | Local stack, on the frozen commit |
-| A13 | Journeys A and B; staging promotion with preservation readings before and after | Bob | Actions; staging |
+| A13 | Journeys A and B; staging promotion with preservation readings before and after. The **before** read is taken **before the merge**. The query gains a preserved line for `maintenance_windows`, leaving out A2a's `node_ids`, `t_stop` and `t_lift` by name (Sharon, `fdffee31`) | Bob | Actions; staging |
 
 ### 2.5 How it is run
 
