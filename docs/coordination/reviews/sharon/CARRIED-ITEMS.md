@@ -31,3 +31,10 @@ This list is updated as items arrive. Each line names where it is due.
 - `sasaranDalamKonteks` treats an empty read as "in context", across about 38 `sekolahDari` callers.
 - To assess: can any caller be fed an empty read in practice? Is a fail-closed default safe for all of them?
 - Recorded in TEAM-INSTRUCTIONS at `71ed6196`.
+
+**A2b start-path fix, and the refreeze (Bob, 16:28):**
+- **The removed `startSession` action** (`src/app/belajar/actions.ts:20`): there must be a test that no unhandled start action is exported.
+- **`my_open_assessments` now hides Q-12 rows during a window or at T−15.**
+  - Hiding them, or disabling «Mulai», is Daisy's ruling.
+  - Either way I check that no other school's rows can appear, and that the read stays scoped to the caller.
+- **Then:** the new candidate, the preservation pair redone, the journeys, and my freeze checks re-run.
