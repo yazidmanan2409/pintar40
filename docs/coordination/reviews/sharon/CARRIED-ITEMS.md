@@ -38,3 +38,5 @@ This list is updated as items arrive. Each line names where it is due.
   - Hiding them, or disabling «Mulai», is Daisy's ruling.
   - Either way I check that no other school's rows can appear, and that the read stays scoped to the caller.
 - **Then:** the new candidate, the preservation pair redone, the journeys, and my freeze checks re-run.
+
+**A3 pre-build:** done in `A3-PREBUILD-ac25e9b1.md`. N-4 and N-5 are answered there, and ruling 42 is agreed with conditions.
