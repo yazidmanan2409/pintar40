@@ -148,7 +148,7 @@ The runner now records response time and rate-limit information per attempt (`cl
 
 | Text | Now | Becomes |
 |---|---|---|
-| D8, G1 entry gate: "the owner has selected the provider from E's results" | One provider, one adapter | The owner **qualifies** one or more providers from E's results and the contractual, security and operational checks. One adapter per qualified provider behind D8's one interface |
+| D8, G1 entry gate: "the owner has selected the provider from E's results" | One provider, one adapter | The owner **qualifies** one or more providers from E's results and the contractual, security and operational checks. The operational checks include a **mandatory provider-side hard spend stop** (a cap or a prepaid balance), since a leaked key on a postpaid account spends outside PINTAR's ledger (Sharon, 16 Nov). One adapter per qualified provider behind D8's one interface |
 | S-1 (ruling 39): the school entitlement | Status, allowance, validity | Also **the school's selected option**. A school can only select a qualified one |
 | S-2 (ruling 39): the platform ceiling | One ceiling | One platform ceiling **plus one ceiling per provider**, matching each provider account's own limit |
 | S-5: the ledger | Model and price basis as values | Also the **option the attempt was reserved under**, so each provider's spend reconciles against its own account |
