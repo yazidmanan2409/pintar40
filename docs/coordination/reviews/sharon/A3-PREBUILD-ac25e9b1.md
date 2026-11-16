@@ -257,3 +257,35 @@ Sharon, 16 Nov 2026 (22:40 UTC). Read-only.
 - **A3-L1P is accepted.** All 10 functions that lock both tables take `learning_assignments` first, the plant is reported, the check is red on `eaa37aea`'s start, and A2A-L01 is unchanged.
 - **F06-S01 (ADR-0021), found by the static set, is fixed** in `d960c93f`: the grants are restated in the redefining file, and the grantees are unchanged. **The full pre-flight on `8861ffc3` is still owed to me.**
 - **Still held for the owner:** the key's columns.
+
+## Addendum, 17 Nov 00:45 UTC: my formal approval of the deadlock solution, with the lineage key (owner's rulings 45 to 47, `181638b9`)
+
+**APPROVED: the start's lock order as built in `aed35103`** (my 00:05 ruling), now with ruling 46's lineage key:
+1. the person, FOR KEY SHARE;
+2. the fence, shared;
+3. `learning_assignments` FOR KEY SHARE, when the assignment has one;
+4. `assessment_assignments` FOR SHARE;
+5. under that lock, read `assessment_definitions.lineage_root_definition_id` for the assignment's current definition;
+6. `pg_advisory_xact_lock` on (learner, lineage root);
+7. `may_start`'s count, over the same lineage, within the school and school year;
+8. the sitting.
+
+**Why the lineage key keeps every property that was proved:**
+- **The root is immutable,** and it is read under the assignment's share lock. A move or a key correction cannot commit between the read and the count, which is F37-R03's property.
+- **Every revision of one assessment shares the root, so every revision shares the lock.** N-5's two-assignment race, and its cross-revision form, serialise on one key. That is F37-R02, plus a new revision-1 against revision-2 race.
+- **The order of row locks is unchanged** from `aed35103`, so F37-R04 (no deadlock with «Akhiri»), F37-R05 and A3-L1P hold as they are.
+
+**What the lineage build must add (my 23:50 design, now the build):**
+- **The column:** `lineage_root_definition_id`, NOT NULL, immutable by trigger, set by `salin_kursus_revisi` from the source's root. A new definition is its own root.
+- **The backfill:** from the course and module chain plus title and mode. It refuses unless each revision finds exactly one predecessor.
+- **The count:** `may_start` counts over the lineage. Version-specific history and audit stay untouched, as ruling 46 requires.
+  - **No reset path exists.** An exceptional reset needs the owner's explicit authorisation, so there must be no function that grants one.
+- **Red first:**
+  - a revision-1 sitting refuses revision 2 at the limit;
+  - the cross-revision race;
+  - the backfill's uniqueness;
+  - the immutability trigger, with its plant;
+  - F37-R01 to R05 and A3-L1P re-run on the new key.
+- **The two pins from 00:35 still apply:** «Akhiri»'s person-before-sitting order, and every `persons` FOR UPDATE being its function's first lock.
+
+**The affected implementation may proceed on this.** I review the lineage migration and the re-keyed start when they are pushed.
