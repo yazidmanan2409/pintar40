@@ -6361,6 +6361,46 @@
       "proves": "Sharon's condition (a) on the one place predicate (16 Nov 08:21); executes on the database: maintenance_jendela_atas(window, node) answers exactly as the old copied expression did, for a class window on its class and on another, a school window (empty classes) on its school and on another, NULL classes and a NULL node (NULL, never 'covered')."
     },
     {
+      "id": "A2B-R01",
+      "runner": "static",
+      "proves": "Batch 2, D2 in the database (THE PLAN §5.3 D2; Daisy A2-KATA-DESAIN B1; the Chief Architect, 16 Nov 09:16); executes in a rolled-back transaction: maintenance_windows.reason_code accepts the five planned codes (RUTIN, PEMBARUAN, GANGGUAN, JARINGAN_LISTRIK, LAINNYA), refuses a foreign code, refuses any code on an EMERGENCY row, and LAINNYA's text over 120 characters; rows with no code (existing rows, every emergency) stay valid; schedule_maintenance(..., p_reason_code) refuses a foreign code and LAINNYA without text with MAINTENANCE_INPUT_INVALID and accepts the old call with no code; stop_pintar_now's signature is unchanged."
+    },
+    {
+      "id": "A2B-R02",
+      "runner": "static",
+      "proves": "Batch 2, D2 for the affected; executes in a rolled-back transaction: pintar_status_saya gives a PLANNED window's reason code (alasan_kode) and text (alasan); an old row with no code gives its own text."
+    },
+    {
+      "id": "A2B-A06",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §2.4 A6, extend end to end; executes in a rolled-back transaction as the school's admin: perpanjang_pemeliharaan writes an audit row (maintenance.extended) holding before, after, reason and actor; the window's notice moves with the new end; the place guard follows the new end at once."
+    },
+    {
+      "id": "A2B-A07",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §2.4 A7, resume early end to end; executes in a rolled-back transaction as the school's admin: change_maintenance AKHIRI writes an audit row (maintenance.ended_now) holding the planned end, the moment it ended (the row's own time equals ended_at), the reason and the actor; the class's work resumes at once."
+    },
+    {
+      "id": "A2B-R03",
+      "runner": "static",
+      "proves": "Batch 2, D2 in the app (Daisy, A2-KATA-DESAIN B1); reads source and the copy: Daisy's words; the planned form's required radio group of the five reasons with «Lainnya»'s text at most 120; the scheduling action refuses no choice before the call and passes p_reason_code; the banner and the pause page say «Alasan: {alasan}»; bacaStatusSaya carries the code."
+    },
+    {
+      "id": "A2B-E01",
+      "runner": "static",
+      "proves": "Batch 2, «Perpanjang» (Daisy, A2B-PERPANJANG-KATA §1; D3; A6's screen half); runs the pure rule and reads source and copy: bolehPerpanjang offers it only on a planned window with an end, scheduled or under way, controlled by the reader (never an emergency); Daisy's words; the action checks no reason and not-later before calling perpanjang_pemeliharaan (the database stays the gate); its «Batal» apart from the row's «Batalkan»."
+    },
+    {
+      "id": "A2B-E02",
+      "runner": "static",
+      "proves": "Batch 2, «Akhiri sekarang» on a planned window (Daisy, A2B-PERPANJANG-KATA §2; A7's screen half); runs the pure rule and reads source and copy: kunciAkhiriTanya picks the confirmation by scope (class, school, platform) in Daisy's words, and the planned row uses it."
+    },
+    {
+      "id": "A2B-E03",
+      "runner": "static",
+      "proves": "Batch 2, A8's screen half; reads source and copy: an emergency row keeps A2a's lift and its confirmation; the scope confirmation is a planned window's only; the refusal of a direct call (MAINTENANCE_EMERGENCY_LIFT_ONLY) says Daisy's sentence."
+    },
+    {
       "id": "A2B-K13",
       "runner": "static",
       "proves": "The Chief Architect's R-A (PLAN-A2B-C2W.md at e15fe966); executes on the database in rolled-back transactions: one minute before a planned class window's start a start in the class is refused PR110 MAINTENANCE_NO_NEW_START, and one second after it PR040 MAINTENANCE_PLACE; another class's start proceeds on both sides; the class's learner passes the request hook on both sides (never PT503, no redirect)."

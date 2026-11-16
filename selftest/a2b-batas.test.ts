@@ -28,7 +28,7 @@
  */
 import { spawnSync } from "node:child_process";
 import { Checks, type SelfTest } from "./lib";
-import { t } from "../src/lib/hle";
+import { allKeys, t, type HleEvent } from "../src/lib/hle";
 import { psqlBaris } from "./a2a-f01.test";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -647,6 +647,85 @@ select 'berjalan|' || coalesce((select x ->> 'berjalan' from jsonb_array_element
   where x ->> 'id' = '${W1}'), 'tidak tercantum');
 select 'blok|' || coalesce(public.maintenance_block_for_me(), 'none');
 ${tanpaOrang}
+rollback;`);
+}
+/** Batch 2, D2 (THE PLAN §5.3 D2; Daisy A2-KATA-DESAIN B1; the Chief Architect, 16 Nov 09:16: PLANNED rows only, A2a's
+ *  emergency writer unchanged): the reason code on the row, its CHECK, schedule_maintenance's p_reason_code, and the
+ *  status read's reason for the affected. */
+const KODE_ALASAN = ["RUTIN", "PEMBARUAN", "GANGGUAN", "JARINGAN_LISTRIK", "LAINNYA"] as const;
+function r01(db: string, d: Dunia) {
+  const baris = (jenis: string, kode: string, alasan: string) => `$q$insert into public.maintenance_windows (kind, platform, institution_ids,
+  node_ids, starts_at, ends_at, reason, reason_code, created_by_person_id, t_stop) values ('${jenis}', false, array['${d.X}'::uuid], '{}',
+  now() + interval '1 day', now() + interval '2 days', '${alasan}', ${kode}, '${d.sys}', ${jenis === "EMERGENCY" ? "now() + interval '1 day'" : "null"})$q$`;
+  const jadwal = (kode: string, alasan: string) => `$q$select public.schedule_maintenance(p_platform => false, p_institutions => array['${d.X}'::uuid],
+  p_starts_at => now() + interval '2 hours', p_ends_at => now() + interval '3 hours', p_message => null, p_reason => '${alasan}',
+  p_notice => false, p_nodes => '{}', p_reason_code => ${kode}) is not null$q$`;
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+set local session_replication_role = origin;
+${ALAT}
+${KODE_ALASAN.map((k) => `select 'baris_${k}|' || pg_temp.a2b_coba(${baris("PLANNED", `'${k}'`, k === "LAINNYA" ? "Pemadaman listrik gedung" : k)});`).join("\n")}
+select 'baris_asing|' || pg_temp.a2b_coba(${baris("PLANNED", "'ASING'", "x")});
+select 'baris_darurat_kode|' || pg_temp.a2b_coba(${baris("EMERGENCY", "'RUTIN'", "Masalah keamanan")});
+select 'baris_lainnya_panjang|' || pg_temp.a2b_coba(${baris("PLANNED", "'LAINNYA'", "x".repeat(121))});
+select 'baris_lama|' || pg_temp.a2b_coba(${baris("PLANNED", "null", "Teks bebas lama")});
+select 'baris_darurat_lama|' || pg_temp.a2b_coba(${baris("EMERGENCY", "null", "Masalah keamanan")});
+${sebagai(d.adminXUid)}
+select 'jadwal_rutin|' || pg_temp.a2b_coba(${jadwal("'RUTIN'", "")});
+select 'jadwal_asing|' || pg_temp.a2b_coba(${jadwal("'ASING'", "x")});
+select 'jadwal_lainnya_kosong|' || pg_temp.a2b_coba(${jadwal("'LAINNYA'", " ")});
+select 'jadwal_lainnya|' || pg_temp.a2b_coba(${jadwal("'LAINNYA'", "Pemadaman listrik gedung")});
+select 'jadwal_tanpa_kode|' || pg_temp.a2b_coba(${jadwal("null", "Teks bebas")});
+select 'tersimpan|' || coalesce((select string_agg(coalesce(reason_code, '-') || '=' || reason, ',' order by reason_code nulls last)
+  from public.maintenance_windows where created_by_person_id = '${d.adminX}' and starts_at > now()), 'none');
+${tanpaOrang}
+select 'darurat_tanda|' || pg_get_function_identity_arguments('public.stop_pintar_now'::regproc);
+rollback;`);
+}
+/** The status read gives a PLANNED window's reason to the affected (D2): a code, or an old row's text. */
+function r02(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '10 minutes'", akhir: "now() + interval '1 hour'" })}
+${jendela(d, W3, { nodes: [d.kA], mulai: "now() + interval '20 minutes'", akhir: "now() + interval '2 hours'" })}
+update public.maintenance_windows set reason_code = 'PEMBARUAN', reason = 'PEMBARUAN' where id = '${W1}';
+update public.maintenance_windows set reason = 'Teks bebas lama' where id = '${W3}';
+set local session_replication_role = origin;
+${sebagai(d.muridUid)}
+select 'w1|' || coalesce((select coalesce(x ->> 'alasan_kode', '-') || ':' || coalesce(x ->> 'alasan', '-') from jsonb_array_elements(public.pintar_status_saya() -> 'pemeliharaan') x where x ->> 'id' = '${W1}'), 'tidak tercantum');
+select 'w3|' || coalesce((select coalesce(x ->> 'alasan_kode', '-') || ':' || coalesce(x ->> 'alasan', '-') from jsonb_array_elements(public.pintar_status_saya() -> 'pemeliharaan') x where x ->> 'id' = '${W3}'), 'tidak tercantum');
+${tanpaOrang}
+rollback;`);
+}
+/** A6 and A7 end to end (PLAN-A2B-C2W.md §2.4): extend, then resume early, as the school's admin; the audit rows, the
+ *  notice, and the place guard at once. */
+function a67(db: string, d: Dunia) {
+  return barisKunci(db, `begin;
+${duniaSql(d)}
+${jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '10 minutes'", akhir: "now() + interval '30 minutes'" })}
+insert into public.broadcast_notices (id, platform, institution_ids, message, publish_at, expires_at, created_by_person_id, maintenance_window_id)
+select '${ID("e7")}', false, array['${d.X}'::uuid], 'Pemeliharaan kelas', now() - interval '1 hour', w.ends_at, '${d.sys}', w.id
+  from public.maintenance_windows w where w.id = '${W1}';
+set local session_replication_role = origin;
+${ALAT}
+create temp table sebelum as select ends_at from public.maintenance_windows where id = '${W1}';
+${sebagai(d.adminXUid)}
+select 'perpanjang|' || pg_temp.a2b_tetap($q$select public.perpanjang_pemeliharaan('${W1}', now() + interval '90 minutes', 'Pembaruan belum selesai')$q$);
+${tanpaOrang}
+select 'a6_audit|' || coalesce((select (a.summary ->> 'before')::timestamptz = s.ends_at and (a.summary ->> 'after')::timestamptz = w.ends_at
+    and a.summary ->> 'reason' = 'Pembaruan belum selesai' and a.actor_person_id = '${d.adminX}'
+  from public.audit_log a, sebelum s, public.maintenance_windows w
+ where a.action = 'maintenance.extended' and a.target_id = '${W1}' and w.id = '${W1}' order by a.id desc limit 1)::text, 'tidak ada');
+select 'a6_pengumuman|' || ((select expires_at from public.broadcast_notices where id = '${ID("e7")}') = (select ends_at from public.maintenance_windows where id = '${W1}'))::text;
+select 'a6_tempat|' || public.maintenance_affects_place('${d.kA}', clock_timestamp() + interval '60 minutes')::text;
+${sebagai(d.adminXUid)}
+select 'akhiri|' || pg_temp.a2b_tetap($q$select public.change_maintenance('${W1}', 'AKHIRI', 'Pembaruan selesai lebih cepat')$q$);
+${tanpaOrang}
+select 'a7_audit|' || coalesce((select (a.summary ->> 'ends_at')::timestamptz = w.ends_at and a.at = w.ended_at
+    and a.summary ->> 'reason' = 'Pembaruan selesai lebih cepat' and a.actor_person_id = '${d.adminX}' and a.summary ->> 'to_state' = 'BERAKHIR'
+  from public.audit_log a, public.maintenance_windows w
+ where a.action = 'maintenance.ended_now' and a.target_id = '${W1}' and w.id = '${W1}' order by a.id desc limit 1)::text, 'tidak ada');
+select 'a7_tempat|' || public.maintenance_affects_place('${d.kA}', clock_timestamp())::text;
 rollback;`);
 }
 const D12_SAAT = "then public.penghentian_geser(s.person_id, s.darurat_jendela_id) end, interval '0')";
@@ -1323,6 +1402,186 @@ rollback;`);
       c.expect(peta["kelas null"] === "null:null" && peta["simpul null"] === "null:null", `NULL classes and a NULL node read as NULL, never as covered: ${JSON.stringify(peta)}`);
       return `the one place predicate answers as each old copy did on every edge: ${hasil.map(([n, x]) => `${n} ${x.split(":")[0]}`).join("; ")}`;
     }),
+  },
+  {
+    id: "A2B-R01",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = r01(db, d); const h = r.hasil;
+      c.expect(!r.err, `R01 failed to run: ${r.err}`);
+      for (const k of KODE_ALASAN) c.expect(h[`baris_${k}`] === "OK", `a PLANNED row with the approved code ${k} must be accepted: ${h[`baris_${k}`]}`);
+      c.expect(h.baris_asing?.startsWith("23514"), `a code outside the approved list must be refused by the CHECK: ${h.baris_asing}`);
+      c.expect(h.baris_darurat_kode?.startsWith("23514"), `an EMERGENCY row must carry no code (the Chief Architect, 16 Nov: A2a's emergency reasons stay free text): ${h.baris_darurat_kode}`);
+      c.expect(h.baris_lainnya_panjang?.startsWith("23514"), `LAINNYA's text must be at most 120 characters: ${h.baris_lainnya_panjang}`);
+      c.expect(h.baris_lama === "OK" && h.baris_darurat_lama === "OK", `rows with no code (existing rows, and every emergency) stay valid: ${h.baris_lama}, ${h.baris_darurat_lama}`);
+      c.expect(h.jadwal_rutin === "OK", `schedule_maintenance must accept an approved code with no free text: ${h.jadwal_rutin}`);
+      c.expect(h.jadwal_asing === "PR110:MAINTENANCE_INPUT_INVALID" && h.jadwal_lainnya_kosong === "PR110:MAINTENANCE_INPUT_INVALID",
+        `schedule_maintenance must refuse a code outside the list and LAINNYA without text, with MAINTENANCE_INPUT_INVALID: ${h.jadwal_asing}, ${h.jadwal_lainnya_kosong}`);
+      c.expect(h.jadwal_lainnya === "OK" && h.jadwal_tanpa_kode === "OK", `LAINNYA with its text, and the old free-text call (no code; 4.0's and A2a's callers), are accepted: ${h.jadwal_lainnya}, ${h.jadwal_tanpa_kode}`);
+      c.expect(h.darurat_tanda === "p_platform boolean, p_institutions uuid[], p_reason text, p_confirmation text, p_nodes uuid[]",
+        `stop_pintar_now's signature must be unchanged (A2a's evidence is not reopened): ${h.darurat_tanda}`);
+      return (`D2 in the database: the five planned codes accepted, a foreign code refused, an EMERGENCY row with a code refused, LAINNYA's text at most 120; rows with no code stay valid; schedule_maintenance takes p_reason_code (refusing a foreign code and LAINNYA without text, accepting the old call with none); stop_pintar_now unchanged`);
+    }),
+  },
+  {
+    id: "A2B-R02",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = r02(db, d);
+      c.expect(!r.err, `R02 failed to run: ${r.err}`);
+      c.expect(r.hasil.w1 === "PEMBARUAN:PEMBARUAN", `the status read must give a coded window's code to the affected: ${r.hasil.w1}`);
+      c.expect(r.hasil.w3 === "-:Teks bebas lama", `an old row with no code gives its own text: ${r.hasil.w3}`);
+      return ("the status read gives the affected a PLANNED window's reason: its code, or an old row's text");
+    }),
+  },
+  {
+    id: "A2B-A06",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = a67(db, d); const h = r.hasil;
+      c.expect(!r.err, `A6/A7 failed to run: ${r.err}`);
+      c.expect(h.perpanjang === "OK" && h.a6_audit === "true", `A6: the extension's audit row must hold before, after, reason and actor: ${h.perpanjang}, ${h.a6_audit}`);
+      c.expect(h.a6_pengumuman === "true", `A6: the window's notice must move with the new end: ${h.a6_pengumuman}`);
+      c.expect(h.a6_tempat === "true", `A6: the place guard must follow the new end at once (refused past the old end): ${h.a6_tempat}`);
+      return ("A6, extend end to end: the audit row holds before, after, reason and actor; the notice's end moves with it; the place guard follows the new end at once");
+    }),
+  },
+  {
+    id: "A2B-A07",
+    requires: ["db"],
+    run: jalan((c, db, d) => {
+      const r = a67(db, d); const h = r.hasil;
+      c.expect(!r.err, `A6/A7 failed to run: ${r.err}`);
+      c.expect(h.akhiri === "OK" && h.a7_audit === "true", `A7: the early end's audit row must hold the planned end (before), the moment it ended (after, its own time), reason and actor: ${h.akhiri}, ${h.a7_audit}`);
+      c.expect(h.a7_tempat === "false", `A7: work must resume at once after the early end: ${h.a7_tempat}`);
+      return ("A7, resume early end to end: the audit row holds the planned end, the moment it ended, the reason and the actor; the class's work resumes at once");
+    }),
+  },
+  {
+    id: "A2B-R03",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // D2 in the app (Daisy, A2-KATA-DESAIN B1): the words, the planned form, the action, and the reason shown to the affected
+      const kata: Record<string, string> = {
+        "config.pemeliharaan.alasan.legenda": "Alasan",
+        "config.pemeliharaan.alasan.petunjuk": "Alasan yang dipilih ditampilkan kepada orang yang terdampak.",
+        "pemeliharaan.alasan.RUTIN": "Pemeliharaan rutin", "pemeliharaan.alasan.PEMBARUAN": "Pembaruan sistem",
+        "pemeliharaan.alasan.GANGGUAN": "Perbaikan gangguan", "pemeliharaan.alasan.JARINGAN_LISTRIK": "Pemeliharaan jaringan atau listrik",
+        "pemeliharaan.alasan.LAINNYA": "Lainnya", "config.pemeliharaan.alasan.jelaskan": "Jelaskan singkat",
+        "galat.maintenance_reason_invalid": "Pilih alasannya. Bila memilih «Lainnya», jelaskan singkat, sampai 120 karakter.",
+        "pemeliharaan.alasan.baris": "Alasan: {alasan}",
+      };
+      const kunci = new Set<string>(allKeys());
+      for (const [k, v] of Object.entries(kata)) {
+        c.expect(kunci.has(k) && t(k as HleEvent, "staff", { locale: "id" }) === v, `${k} must say «${v}»: ${kunci.has(k) ? t(k as HleEvent, "staff", { locale: "id" }) : "missing"}`);
+      }
+      const halaman = readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8");
+      const aksi = readFileSync(join(repoRoot, "src/app/konfigurasi/actions.ts"), "utf8");
+      for (const k of KODE_ALASAN) c.expect(halaman.includes(`value="${k}"`) || /KODE_ALASAN\.map/.test(halaman), `the planned form must offer the reason ${k}`);
+      c.expect(/name="alasan_kode"/.test(halaman) && /type="radio"/.test(halaman) && /<fieldset/.test(halaman), "the planned form's reason must be a required radio group in a fieldset (alasan_kode)");
+      c.expect(/name="alasan"[^>]*maxLength=\{120\}/.test(halaman), "«Lainnya»'s text field must take at most 120 characters");
+      const jadwal = /export async function jadwalkanPemeliharaanAction[\s\S]*?\n}\n/.exec(aksi)?.[0] ?? "";
+      c.expect(/MAINTENANCE_REASON_INVALID/.test(jadwal) && jadwal.indexOf("MAINTENANCE_REASON_INVALID") < jadwal.indexOf('rpc("schedule_maintenance"'),
+        "the scheduling action must refuse no reason, or «Lainnya» without text, before it calls the database");
+      c.expect(/p_reason_code:/.test(jadwal), "the scheduling action must pass p_reason_code");
+      const pita = readFileSync(join(repoRoot, "src/components/pemeliharaan/PengingatPemeliharaan.tsx"), "utf8");
+      const jeda = readFileSync(join(repoRoot, "src/app/pemeliharaan/page.tsx"), "utf8");
+      c.expect(/pemeliharaan\.alasan\.baris/.test(pita) && /pemeliharaan\.alasan\.baris/.test(jeda), "the banner and the pause page must show «Alasan: {alasan}»");
+      const kontrak = await import("../src/lib/pemeliharaan-kontrak") as Record<string, unknown>;
+      const baca = kontrak.bacaStatusSaya as (d: unknown) => { pemeliharaan: Array<Record<string, unknown>> };
+      const j = baca({ pemeliharaan: [{ id: "w", jenis: "PLANNED", keadaan: "AKTIF", mulai: "2026-11-16T03:00:00Z", alasan_kode: "RUTIN", alasan: "RUTIN" }], pengumuman: [] }).pemeliharaan[0];
+      c.expect(j?.alasanKode === "RUTIN", `bacaStatusSaya must carry the reason code: ${JSON.stringify(j?.alasanKode)}`);
+      return c.verdict("D2 in the app: Daisy's words; a required radio group of the five planned reasons with «Lainnya»'s text at most 120; the action refuses no choice before the call and passes p_reason_code; the banner and the pause page say «Alasan: …»");
+    },
+  },
+  {
+    id: "A2B-E01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // «Perpanjang» (Daisy, A2B-PERPANJANG-KATA §1; D3; A6's screen half)
+      const kontrak = await import("../src/lib/pemeliharaan-kontrak") as Record<string, unknown>;
+      const boleh = kontrak.bolehPerpanjang as ((w: Record<string, unknown>) => boolean) | undefined;
+      c.expect(typeof boleh === "function", "pemeliharaan-kontrak must export bolehPerpanjang");
+      if (boleh) {
+        const w = { jenis: "PLANNED", keadaan: "TERJADWAL", selesai: "2026-11-16T05:00:00Z", menguasai: true };
+        c.expect(boleh(w) && boleh({ ...w, keadaan: "AKTIF" }) && boleh({ ...w, keadaan: "MENJELANG" }), "a planned window with an end, scheduled or under way, can be extended");
+        c.expect(!boleh({ ...w, selesai: null }), "a window with no end has nothing to extend");
+        c.expect(!boleh({ ...w, jenis: "EMERGENCY" }), "an emergency is never extended (A8)");
+        c.expect(!boleh({ ...w, keadaan: "BERAKHIR" }) && !boleh({ ...w, menguasai: false }), "an ended window, or one the reader does not control, offers no extension");
+      }
+      const kata: Record<string, string> = {
+        "config.pemeliharaan.perpanjang": "Perpanjang", "config.pemeliharaan.perpanjang.judul": "Perpanjang pemeliharaan",
+        "config.pemeliharaan.perpanjang.sekarang": "Sekarang diperkirakan selesai pukul {jam} {zona}.",
+        "config.pemeliharaan.perpanjang.selesai_baru": "Selesai baru ({zona})", "config.pemeliharaan.perpanjang.simpan": "Simpan perpanjangan",
+        "config.pemeliharaan.perpanjang.batal": "Batal",
+        "galat.maintenance_extended": "Pemeliharaan diperpanjang sampai pukul {jam} {zona}. Pemberitahuan untuk yang terdampak ikut berubah.",
+        "galat.maintenance_extend_not_later": "Waktu selesai baru harus lebih lambat dari pukul {jam} {zona}. Tidak ada yang diubah.",
+        "galat.maintenance_extend_reason": "Tulis alasan perpanjangannya. Tidak ada yang diubah.",
+      };
+      const kunci = new Set<string>(allKeys());
+      for (const [k, v] of Object.entries(kata)) {
+        c.expect(kunci.has(k) && t(k as HleEvent, "staff", { locale: "id" }) === v, `${k} must say «${v}»: ${kunci.has(k) ? JSON.stringify(t(k as HleEvent, "staff", { locale: "id" })) : "missing"}`);
+      }
+      const aksi = readFileSync(join(repoRoot, "src/app/konfigurasi/actions.ts"), "utf8");
+      const fn = /export async function perpanjangPemeliharaanAction[\s\S]*?\n}\n/.exec(aksi)?.[0] ?? "";
+      c.expect(fn.length > 0, "actions.ts must export perpanjangPemeliharaanAction");
+      const panggil = fn.indexOf('rpc("perpanjang_pemeliharaan"');
+      c.expect(panggil > 0 && /p_window:/.test(fn) && /p_ends_at:/.test(fn) && /p_reason:/.test(fn), "the extend action must call perpanjang_pemeliharaan(p_window, p_ends_at, p_reason)");
+      c.expect(fn.indexOf("MAINTENANCE_EXTEND_REASON") > 0 && fn.indexOf("MAINTENANCE_EXTEND_REASON") < panggil
+        && fn.indexOf("MAINTENANCE_EXTEND_NOT_LATER") > 0 && fn.indexOf("MAINTENANCE_EXTEND_NOT_LATER") < panggil,
+        "Daisy's two refusals (no reason; not later) must be checked before the call; the database stays the gate");
+      c.expect(/MAINTENANCE_EXTENDED/.test(fn), "a done extension must say so (MAINTENANCE_EXTENDED)");
+      const halaman = readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8");
+      c.expect(/bolehPerpanjang\(w\)/.test(halaman) && /perpanjangPemeliharaanAction/.test(halaman), "the list row must offer «Perpanjang» only where bolehPerpanjang allows, with its form");
+      c.expect(!/config\.pemeliharaan\.perpanjang\.batal"\)[^\n]*Batalkan/.test(halaman) && /config\.pemeliharaan\.perpanjang\.batal/.test(halaman),
+        "the form's «Batal» must be its own key, never the row's «Batalkan»");
+      return c.verdict("«Perpanjang»: offered only on a planned window with an end that is scheduled or under way and controlled by the reader; Daisy's words; the action checks no reason and not-later before calling perpanjang_pemeliharaan, which stays the gate; its «Batal» apart from the row's «Batalkan»");
+    },
+  },
+  {
+    id: "A2B-E02",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // «Akhiri sekarang» on a planned window under way (Daisy, A2B-PERPANJANG-KATA §2; A7's screen half)
+      const kontrak = await import("../src/lib/pemeliharaan-kontrak") as Record<string, unknown>;
+      const kunciTanya = kontrak.kunciAkhiriTanya as ((w: Record<string, unknown>) => string) | undefined;
+      c.expect(typeof kunciTanya === "function", "pemeliharaan-kontrak must export kunciAkhiriTanya");
+      if (kunciTanya) {
+        c.expect(kunciTanya({ platform: false, kelas: ["7A"] }) === "config.pemeliharaan.akhiri.tanya_kelas"
+          && kunciTanya({ platform: false, kelas: null }) === "config.pemeliharaan.akhiri.tanya_sekolah"
+          && kunciTanya({ platform: true, kelas: null }) === "config.pemeliharaan.akhiri.tanya_platform", "the confirmation is chosen by the window's scope");
+      }
+      const kata: Record<string, string> = {
+        "config.pemeliharaan.akhiri.tanya_kelas": "Akhiri pemeliharaan sekarang? Pekerjaan kelas {kelas} dapat diubah lagi segera.",
+        "config.pemeliharaan.akhiri.tanya_sekolah": "Akhiri pemeliharaan sekarang? Pekerjaan sekolah ini dapat diubah lagi segera.",
+        "config.pemeliharaan.akhiri.tanya_platform": "Akhiri pemeliharaan sekarang? PINTAR dapat dipakai lagi segera.",
+      };
+      const kunci = new Set<string>(allKeys());
+      for (const [k, v] of Object.entries(kata)) {
+        c.expect(kunci.has(k) && t(k as HleEvent, "staff", { locale: "id" }) === v, `${k} must say «${v}»: ${kunci.has(k) ? t(k as HleEvent, "staff", { locale: "id" }) : "missing"}`);
+      }
+      const halaman = readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8");
+      c.expect(/kunciAkhiriTanya\(w\)/.test(halaman), "a planned row under way must confirm its early end in its scope's words");
+      return c.verdict("«Akhiri sekarang» on a planned window under way: its confirmation says what follows in the window's scope (class, school, platform), Daisy's words");
+    },
+  },
+  {
+    id: "A2B-E03",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // A8's screen half: the emergency keeps A2a's lift; neither act on its row; a direct call refused in Daisy's words
+      const v = t("galat.maintenance_emergency_lift_only" as HleEvent, "staff", { locale: "id" });
+      c.expect(v === "Penghentian darurat tidak dapat diperpanjang atau diakhiri di sini. Tidak ada yang diubah.", `the emergency refusal must say Daisy's sentence: «${v}»`);
+      const halaman = readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8");
+      c.expect(/const tanyaAkhiri = daruratKelas \?/.test(halaman) || /daruratKelas \? sl\("config\.pemeliharaan\.darurat\.akhiri_tanya"\)/.test(halaman),
+        "an emergency row keeps A2a's own lift and its confirmation");
+      c.expect(/w\.jenis === "PLANNED"[^\n]*kunciAkhiriTanya|kunciAkhiriTanya\(w\)/.test(halaman), "the scope confirmation is a planned window's only");
+      return c.verdict("A8 on the screen: an emergency row keeps A2a's lift and offers neither «Perpanjang» nor the planned early end (bolehPerpanjang refuses it, E01); a direct call is refused in Daisy's words");
+    },
   },
   {
     id: "A2B-K13",
