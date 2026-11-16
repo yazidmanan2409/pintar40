@@ -254,7 +254,134 @@ async function runDb(dbUrl: string): Promise<Outcome[]> {
   if (!only || only.includes("F05-C01")) out.push(await runMoveStartRace(dbUrl));
   if (!only || only.includes("F37-R01")) out.push(await runAttemptLimitRace(dbUrl));
   if (!only || only.includes("F37-R02")) out.push(await runAttemptLimitRaceAcrossAssignments(dbUrl));
+  if (!only || only.includes("F37-R03")) out.push(await runAttemptLimitRaceKeyMoves(dbUrl));
   return out;
+}
+
+/**
+ * F37-R03 (A3, N-5's follow-up) — Sharon's ruling of 16 Nov 22:37 (5ac3645d): THE START'S KEY IS READ UNDER THE
+ * ASSIGNMENT'S SHARE LOCK. An assignment's definition is not immutable: the release move and C1w's key correction
+ * (koreksi_kunci_pindah) both UPDATE assessment_assignments.assessment_definition_id, holding the row FOR UPDATE. A
+ * start that reads its (definition, version) key BEFORE it holds the assignment can lock the old definition's key and
+ * then count the new one, while a second start under the new key shares no lock with it.
+ *   The world: a learner one attempt short of definition D's limit; a second OPEN assignment of D (aa2); a copy D' of
+ * D (the harness's hand, committed; removed afterwards). T0 starts aa2 and holds, so it holds D's key. A starts aa and
+ * is made to wait on that key. M moves aa to D' (a direct UPDATE of the row, the same row lock koreksi_kunci_pindah
+ * takes). T0 rolls back; A goes on. While A holds, B starts aa.
+ *   Required: for each definition, the learner holds at most attempt_limit sittings, and none of A, B, M fails with a
+ * deadlock. Under the key read before the share lock, M commits at once, A counts D' under D's key, B takes D''s key
+ * unhindered, and both sit D'. Under Sharon's order, M waits on A's share lock, so A sits D and B, after M, sits D'.
+ */
+async function runAttemptLimitRaceKeyMoves(dbUrl: string): Promise<Outcome> {
+  const psql = (sql: string) => spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, dbUrl], { encoding: "utf8" });
+  const race = (sql: string) =>
+    new Promise<{ code: number; out: string }>((done) => {
+      const p = spawn("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, dbUrl], { stdio: ["ignore", "pipe", "pipe"] });
+      let buf = "";
+      p.stdout.setEncoding("utf8"); p.stderr.setEncoding("utf8");
+      p.stdout.on("data", (d: string) => (buf += d)); p.stderr.on("data", (d: string) => (buf += d));
+      p.on("close", (code: number | null) => done({ code: code ?? 1, out: buf.trim() }));
+    });
+  const tunggu = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
+  const id = "F37-R03";
+  const gagal = (detail: string): Outcome => ({ id, runner: "db", status: "FAIL", detail });
+  const sebagai = (uid: string) =>
+    `select set_config('request.jwt.claims', json_build_object('sub','${uid}','role','authenticated')::text, true), ` +
+    `set_config('request.jwt.claim.sub','${uid}',true); set local role authenticated;`;
+  const keadaan = (tanda: string) =>
+    psql(`select coalesce(wait_event_type, '') || ':' || coalesce(wait_event, '') from pg_stat_activity where query like '%${tanda}%' and pid <> pg_backend_pid()`).stdout.trim();
+  const sampai = async (tanda: string, cocok: (k: string) => boolean, kali = 60) => {
+    for (let i = 0; i < kali; i++) { if (cocok(keadaan(tanda))) return true; await tunggu(100); }
+    return false;
+  };
+  // a learner with no sitting of a definition whose limit is 1, who may start it now (as F37-R02 finds one)
+  const calon = psql(`select a.id || '|' || ac.auth_user_id || '|' || e.person_id from public.assessment_assignments a
+      join public.assessment_definitions d on d.id = a.assessment_definition_id
+      join public.org_nodes n on n.jalur @> array[a.node_id]
+      join public.memberships m on m.node_id = n.id and m.valid_to is null
+      join public.enrollments e on e.id = m.enrollment_id and e.status = 'ACTIVE'
+      join public.accounts ac on ac.person_id = e.person_id
+     where a.status = 'OPEN' and d.attempt_limit = 1
+       and not exists (select 1 from public.assessment_sessions s where s.person_id = e.person_id and s.assessment_definition_id = d.id)
+     limit 40`).stdout.trim().split("\n").filter(Boolean);
+  let aa = "", uid = "", orang = "";
+  for (const c of calon) {
+    const [x, u, p] = c.split("|");
+    const r = psql(`begin; ${sebagai(u)} select ok from public.may_start_assessment('${x}'); rollback;`).stdout.trim().split("\n").pop();
+    if (r === "t") { aa = x; uid = u; orang = p; break; }
+  }
+  if (!aa) return gagal("the world holds no learner with no sitting of a limit-1 definition who may start it (the race cannot be set up)");
+  const defD = psql(`select assessment_definition_id from public.assessment_assignments where id = '${aa}'`).stdout.trim();
+  const aa2 = psql(`select gen_random_uuid()`).stdout.trim();
+  const defD2 = psql(`select gen_random_uuid()`).stdout.trim();
+  const buat = psql(`begin; set local session_replication_role = replica;
+    insert into public.assessment_assignments select (jsonb_populate_record(a, jsonb_build_object('id', '${aa2}'))).*
+      from public.assessment_assignments a where a.id = '${aa}';
+    insert into public.assessment_definitions select (jsonb_populate_record(d, jsonb_build_object('id', '${defD2}', 'title', d.title || ' (F37-R03)'))).*
+      from public.assessment_definitions d where d.id = '${defD}';
+    commit;`);
+  const awal = psql(`select coalesce(max(created_at), 'epoch') from public.assessment_sessions where person_id = '${orang}'`).stdout.trim();
+  const ids = `(select id from public.assessment_sessions where person_id = '${orang}' and assessment_assignment_id in ('${aa}', '${aa2}') and created_at > '${awal}')`;
+  const masalah: string[] = [];
+  let hitung = "";
+  if (buat.status !== 0) masalah.push(`the fixture could not be made: ${(buat.stderr || "").trim().split("\n").pop()}`);
+  else {
+    const t = Date.now().toString(36);
+    const t0 = race(`begin; ${sebagai(uid)} select public.start_learning_session('${aa2}'); select pg_sleep(4) /*f37r03-t0-${t}*/; rollback;`);
+    if (!(await sampai(`f37r03-t0-${t}`, (k) => k === "Timeout:PgSleep"))) { await t0; masalah.push("T0 never held D's key"); }
+    else {
+      const a = race(`begin; ${sebagai(uid)} select public.start_learning_session('${aa}') /*f37r03-a-${t}*/; select pg_sleep(3) /*f37r03-as-${t}*/; commit;`);
+      // A waits: on D's key (the key read first) or, under Sharon's order, on the key after taking the share lock
+      const aMenunggu = await sampai(`f37r03-a-${t}`, (k) => k.startsWith("Lock:"), 30);
+      const m = race(`set statement_timeout = '20s'; begin; set local session_replication_role = replica;
+        update public.assessment_assignments set assessment_definition_id = '${defD2}' where id = '${aa}' /*f37r03-m-${t}*/; commit;`);
+      await tunggu(500);
+      const sesudahM = keadaan(`f37r03-m-${t}`);
+      const [r0] = await Promise.all([t0]);
+      // B, while A holds its sitting open
+      if (!(await sampai(`f37r03-as-${t}`, (k) => k === "Timeout:PgSleep", 80))) masalah.push("A never reached its hold after starting");
+      const b = race(`set statement_timeout = '20s'; begin; ${sebagai(uid)} select public.start_learning_session('${aa}') /*f37r03-b-${t}*/; commit;`);
+      const [ra, rm, rb] = await Promise.all([a, m, b]);
+      hitung = psql(`select coalesce(string_agg(assessment_definition_id::text || '=' || n, ', ' order by n desc), 'none') from (
+          select assessment_definition_id, count(*) n from public.assessment_sessions where id in ${ids} group by 1) x`).stdout.trim();
+      const lebih = psql(`select count(*) from (select 1 from public.assessment_sessions where id in ${ids} group by assessment_definition_id having count(*) > 1) x`).stdout.trim();
+      if (!aMenunggu) masalah.push("A never waited on a lock while T0 held D's key (the race was not set up)");
+      if (r0.code !== 0) masalah.push(`T0 failed: ${r0.out.split("\n").pop()}`);
+      for (const [nama, r] of [["A", ra], ["M", rm], ["B", rb]] as const) {
+        if (/deadlock/i.test(r.out)) masalah.push(`${nama} died in a deadlock`);
+        else if (nama !== "B" && r.code !== 0) masalah.push(`${nama} failed: ${r.out.split("\n").pop()}`);
+      }
+      if (rb.code !== 0 && !/ATTEMPT_LIMIT_REACHED/.test(rb.out)) masalah.push(`B failed, and not by the attempt limit: ${rb.out.split("\n").pop()}`);
+      if (lebih !== "0") masalah.push(`the learner holds more than one sitting of one definition after the move (${hitung}): the start counted the moved definition under the old definition's key; M ${sesudahM ? `was ${sesudahM} while A held` : "had committed at once"}`);
+    }
+  }
+  // teardown of the test's own rows: the sittings, the copied assignment and definition; aa back to D
+  const bersih = psql(`begin; set local session_replication_role = replica;
+    delete from public.presented_item_views where session_id in ${ids};
+    delete from public.responses where session_id in ${ids};
+    delete from public.presented_items where session_id in ${ids};
+    delete from telemetry.hesitation_events where session_id in ${ids};
+    delete from telemetry.assistance_events where session_id in ${ids};
+    delete from public.assistance_grants where session_id in ${ids};
+    delete from public.integrity_signals where session_id in ${ids};
+    delete from public.evidence_class_overrides where session_id in ${ids};
+    delete from public.result_views where session_id in ${ids};
+    delete from public.assessment_results where session_id in ${ids};
+    delete from public.assessment_sessions where id in ${ids};
+    update public.assessment_assignments set assessment_definition_id = '${defD}' where id = '${aa}';
+    delete from public.assessment_assignments where id = '${aa2}';
+    delete from public.assessment_definitions where id = '${defD2}';
+    commit;
+    select (select count(*) from public.assessment_sessions where person_id = '${orang}' and created_at > '${awal}')
+         || '|' || (select count(*) from public.assessment_assignments where id = '${aa2}')
+         || '|' || (select count(*) from public.assessment_definitions where id = '${defD2}')
+         || '|' || (select (assessment_definition_id = '${defD}')::text from public.assessment_assignments where id = '${aa}');`);
+  const pulih = bersih.stdout.trim().split("\n").pop();
+  if (bersih.status !== 0 || pulih !== "0|0|0|true") masalah.push(`the test's rows could not be removed afterwards (${(bersih.stderr || pulih || "").trim().slice(0, 160)})`);
+  return masalah.length ? gagal(masalah.join("; ")) : {
+    id, runner: "db", status: "PASS",
+    detail: `T0 held definition D's key; A's start of aa waited; the assignment was moved to D' meanwhile; B started aa while A held. The learner holds at most one sitting of each definition (${hitung}), and nothing deadlocked: the start's key is read under the assignment's share lock (the test's rows removed afterwards)`,
+  };
 }
 
 /**
