@@ -13,6 +13,8 @@
  *           in A's sitting is refused; a caller with no verified session id is refused. Session A's own answer is
  *           accepted throughout (the control). Red on ac25e9b1: every one of B's writes lands, the higher sequence
  *           wins from either session, and a caller with no session id writes.
+ *   A3-R1V  A3-R1's pin (Sharon, 5ac3645d): a definition that has been sat cannot have its version updated (INV-04), so
+ *           the start's (definition, version) key, read under the assignment's share lock, cannot name a moving version.
  */
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
@@ -162,6 +164,45 @@ export const a3DbTests: SelfTest[] = [
       return c.verdict(
         "two signed-in sessions of one learner, one sitting: started and answered on session A; session B's answers, its higher-sequence overwrite, its answer while A is paused and its hand-in are each refused, and the final answer stays A's; a caller with no verified session id is refused; A's own answers, pause and resume are accepted",
       );
+    },
+  },
+  {
+    // A3-R1's pin (Sharon, 5ac3645d): the start reads its key's version under the assignment's share lock, which holds
+    // the assignment's definition still; the version itself must not change once the definition can be sat (INV-04).
+    id: "A3-R1V",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const sql = `begin;
+create function pg_temp.coba(p_def uuid) returns text language plpgsql as $f$
+declare s text; m text;
+begin
+  update public.assessment_definitions set version = version + 1 where id = p_def;
+  return 'UPDATED';
+exception when others then get stacked diagnostics s = returned_sqlstate, m = message_text; return s || ':' || m;
+end $f$;
+select 'def|' || d.id || '|' || pg_temp.coba(d.id)
+  from public.assessment_definitions d
+ where exists (select 1 from public.assessment_sessions s where s.assessment_definition_id = d.id)
+ order by d.id limit 3;
+-- the plant: the guard's trigger off, inside this rolled-back transaction; the same UPDATE must then go through
+alter table public.assessment_definitions disable trigger assessment_definitions_taught_immutable;
+select 'tanam|' || d.id || '|' || pg_temp.coba(d.id)
+  from public.assessment_definitions d
+ where exists (select 1 from public.assessment_sessions s where s.assessment_definition_id = d.id)
+ order by d.id limit 1;
+rollback;`;
+      const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { encoding: "utf8" });
+      if (!c.expect(r.status === 0, `the probe could not run: ${(r.stderr || "").trim().split("\n").pop()}`)) return c.verdict("");
+      const baris = r.stdout.split("\n").filter((l) => l.startsWith("def|"));
+      if (!c.expect(baris.length > 0, "the world holds no definition that has been sat (the pin cannot be asked)")) return c.verdict("");
+      for (const b of baris) {
+        const [, d, hasil] = b.split("|");
+        c.expect(/immutable once the course is frozen \(INV-04\)/.test(hasil ?? ""), `definition ${d}, already sat: its version must not change (INV-04): ${hasil}`);
+      }
+      const tanam = r.stdout.split("\n").find((l) => l.startsWith("tanam|"));
+      c.expect((tanam ?? "").endsWith("|UPDATED"), `the plant (the taught-immutable trigger disabled) must let the version move, or this pin proves nothing: ${tanam}`);
+      return c.verdict(`for ${baris.length} definition(s) that have been sat, an UPDATE of the version is refused with INV-04 (enforce_taught_content_immutable), so the start's (definition, version) key read under the assignment's share lock names a version that cannot move; with the guard's trigger disabled (the plant) the update goes through; rolled back`);
     },
   },
 ];

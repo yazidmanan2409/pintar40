@@ -6564,6 +6564,11 @@
       "id": "A3-R01",
       "runner": "static",
       "proves": "A3's first red case, written before the build (THE PLAN §5.5 G2; PLAN-A3-C3W-Z.md A3-1; C1-D125-INVESTIGATION.md §5 cases 1, 2 and 3): executes start_learning_session, record_answer, pause_session, resume_session, submit_session and session_final_responses against the migrations, in one rolled-back transaction, for a learner of the seeded learning-cycle Kelas whose two signed-in devices are two verified Auth session ids in the claims (sesi_saya()). The sitting is started and answered on session A. Session B's answer to another question, its higher-sequence answer to A's question, its answer while A has paused, and its hand-in of A's sitting are each refused, and the final answer stays A's; a caller with no verified session id is refused; A's own answers, pause and resume are accepted. It names no refusal code (D12 waits for Sharon's review). Red on ac25e9b1: every write of B's lands, the higher sequence wins from either session, and a caller with no session id writes."
+    },
+    {
+      "id": "A3-R1V",
+      "runner": "static",
+      "proves": "A3-R1's pin, asked by Sharon (5ac3645d): executes an UPDATE of assessment_definitions.version against the migrations, in a rolled-back transaction, for up to three definitions the world has sat, and each is refused by enforce_taught_content_immutable with INV-04. The start's (definition, version) key is read under the assignment's share lock, which holds the assignment's definition still; this asserts the version cannot move either. The plant, the guard's trigger disabled in the same rolled-back transaction, lets the update through, so the pin can fail."
     }
   ]
 }
