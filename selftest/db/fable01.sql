@@ -277,14 +277,16 @@ begin
   test_id := 'F01-T08'; invariant := 'INV-23'; if ok then detail := 'memberships closed+recreated; history answerable; audited'; end if; return next;
 
   -- F01-T09 append-only identity records (INV-23) as alpha-admin
+  -- REPEATABLE (A2a change B, the sibling sweep): each probe of a seed row that a defect let through is recorded, then
+  -- undone by the raise its own block catches, so a regression cannot commit a change to the seed's learner
   ok := true; detail := '';
   select id into v_id from public.memberships where enrollment_id = e_as1 and node_id = a_cls6b and valid_to is null;
-  begin update public.memberships set node_id = a_cls5a where id = v_id; ok := false; detail := detail || 'membership node mutated; '; exception when others then null; end;
-  begin delete from public.memberships where id = v_id; ok := false; detail := detail || 'membership deleted; '; exception when others then null; end;
-  begin delete from public.enrollments where id = e_as1; ok := false; detail := detail || 'enrollment deleted; '; exception when others then null; end;
-  begin update public.enrollments set institution_id = beta where id = e_as1; ok := false; detail := detail || 'enrollment re-parented; '; exception when others then null; end;
+  begin update public.memberships set node_id = a_cls5a where id = v_id; ok := false; detail := detail || 'membership node mutated; '; raise exception 'F01_UNDO' using errcode = 'PT901'; exception when others then null; end;
+  begin delete from public.memberships where id = v_id; ok := false; detail := detail || 'membership deleted; '; raise exception 'F01_UNDO' using errcode = 'PT901'; exception when others then null; end;
+  begin delete from public.enrollments where id = e_as1; ok := false; detail := detail || 'enrollment deleted; '; raise exception 'F01_UNDO' using errcode = 'PT901'; exception when others then null; end;
+  begin update public.enrollments set institution_id = beta where id = e_as1; ok := false; detail := detail || 'enrollment re-parented; '; raise exception 'F01_UNDO' using errcode = 'PT901'; exception when others then null; end;
   perform selftest.as_owner();
-  begin delete from public.persons where id = p_as1; ok := false; detail := detail || 'person deleted (owner); '; exception when others then null; end;
+  begin delete from public.persons where id = p_as1; ok := false; detail := detail || 'person deleted (owner); '; raise exception 'F01_UNDO' using errcode = 'PT901'; exception when others then null; end;
   select count(*) into n from information_schema.columns where table_schema='public' and table_name='persons' and column_name in ('institution_id','class_id','cohort_id','node_id');
   if n > 0 then ok := false; detail := detail || 'persons has institution/class column; '; end if;
   test_id := 'F01-T09'; invariant := 'INV-23'; if ok then detail := 'no overwrite/delete path exists'; end if; return next;

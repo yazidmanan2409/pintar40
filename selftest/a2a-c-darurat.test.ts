@@ -1518,8 +1518,12 @@ select (jsonb_populate_record(s, jsonb_build_object('id', '${id}', 'status', 'IN
   from public.assessment_sessions s where s.status = 'FINALIZED' order by (s.institution_id = '${inst}') desc, s.id limit 1;`;
   try {
     psqlStdin(db, `begin; set local session_replication_role = replica;
-create table if not exists public._a2a_c715_asal as select '${mem}'::uuid as mem, m.valid_from as m_dari from public.memberships m where m.id = '${mem}';
-create table if not exists public._a2a_c715_asal_e as select '${enr}'::uuid as enr, e.valid_from as e_dari from public.enrollments e where e.id = '${enr}';
+-- every membership the enrolment has open (its Kelas and its Tingkat): the departure closes them all, so all are put
+-- back (ADM09-S01's cause: only the Kelas was, and a learner left without their Tingkat failed it in a later run)
+create table if not exists public._a2a_c715_asal as select m.id as mem, m.valid_from as m_dari from public.memberships m
+ where m.enrollment_id = '${enr}' and m.valid_to is null;
+create table if not exists public._a2a_c715_asal_e as select '${enr}'::uuid as enr, e.valid_from as e_dari,
+  (select count(*) from public.memberships m where m.enrollment_id = e.id and m.valid_to is null) as buka from public.enrollments e where e.id = '${enr}';
 update public.memberships set valid_from = valid_from - interval '1 day' where id = '${mem}';
 update public.enrollments set valid_from = valid_from - interval '1 day' where id = '${enr}';
 ${salin(A, "now() + interval '30 minutes'", "now() - interval '60 minutes'")}
@@ -1551,10 +1555,15 @@ delete from public.assessment_sessions where id in ('${A}', '${B}');
 delete from public.maintenance_windows where id = '${W}';
 update public.memberships m set valid_from = a.m_dari, valid_to = null, close_reason = null from public._a2a_c715_asal a where m.id = a.mem;
 update public.enrollments e set valid_from = a.e_dari, valid_to = null, status = '${st}', end_reason = ${er ? `'${er}'` : "null"} from public._a2a_c715_asal_e a where e.id = a.enr;
-drop table if exists public._a2a_c715_asal; drop table if exists public._a2a_c715_asal_e;
 commit;`);
+    // the learner as they were: exactly the memberships open before, open again (a committed fixture leaves nothing)
+    c715Pulih = psqlStdin(db, `select (select buka from public._a2a_c715_asal_e) || '|' || (select count(*) from public.memberships m
+      where m.enrollment_id = '${enr}' and m.valid_to is null) || '|' || (select count(*) from public._a2a_c715_asal a
+      join public.memberships m on m.id = a.mem and m.valid_to is null);`);
+    psqlStdin(db, `drop table if exists public._a2a_c715_asal; drop table if exists public._a2a_c715_asal_e;`);
   }
 }
+let c715Pulih = "";
 const KELUAR_BATCH = "      perform public.pengerjaan_keluar_sesudah_henti(r.id);\n";
 
 a2aDaruratTests.push({
@@ -1565,6 +1574,9 @@ a2aDaruratTests.push({
     const db = process.env.SUPABASE_DB_URL!;
     const { gantiFungsi } = await import("./balapan");
     const r = keluarSesudahHenti(db);
+    const [sebelum, terbuka, kembali] = c715Pulih.split("|");
+    c.expect(Number(sebelum) >= 1 && sebelum === terbuka && sebelum === kembali,
+      `the learner was not put back as they were: ${sebelum} membership(s) open before, ${terbuka} open after, ${kembali} of them the same (ADM09-S01's cause)`);
     c.expect(r.saat === "IN_PROGRESS:true,IN_PROGRESS:true", `during the stop the departure did not preserve both sittings with who and why: ${r.saat}`);
     const [aSt, aSebab, aOleh, aAlasan, aHasil, aAudit, aSimpan] = r.a;
     c.expect(aSt === "TERMINATED" && aSebab === "INSTITUTIONAL_REVOCATION" && aOleh === r.adminPerson && aAlasan.startsWith("Pendaftaran diakhiri") && aHasil === "0",

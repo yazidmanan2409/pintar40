@@ -1,0 +1,50 @@
+# A2a change B · the scale job for scenario 8 (A2a page §7, "the scale job: its four limits"; THE PLAN §5.3 H).
+#
+# Dispatched once, on A2a's frozen product commit, by pushing the tooling commit to the run branch
+# `claude/a2a-change-b-run` (a workflow_dispatch event needs the workflow on the default branch, which change B is not
+# on). It is not part of the per-push CI: no other branch, no pull request, no schedule runs it.
+#
+# Synthetic data on the runner's own local stack, never staging, never production; no secret beyond none; one job,
+# 20 minutes. It fails on any of the plan's thresholds and prints every number, naming the tooling commit and the
+# product commit (selftest/a2a-skala.ts checks that supabase/ and src/ are the frozen commit's, byte for byte).
+name: a2a scale (scenario 8)
+
+on:
+  push:
+    branches: [claude/a2a-change-b-run]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  scenario-8:
+    name: scenario 8 · 50,000 sittings, the stop and the lift
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # the frozen product commit, to compare the product against
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: The local stack, every migration on a clean database, the synthetic seed
+        id: stack
+        uses: ./.github/actions/local-stack
+      - name: Scenario 8 at scale
+        env:
+          SUPABASE_DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: npx --no-install tsx selftest/a2a-skala.ts
+      - name: The numbers, as recorded
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a2a-scale-scenario-8
+          path: a2a-skala-hasil.json
+          if-no-files-found: warn
