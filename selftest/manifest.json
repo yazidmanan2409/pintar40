@@ -6293,7 +6293,7 @@
     {
       "id": "A2B-K03",
       "runner": "static",
-      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K3, D4 for a timed sitting: a start whose own deadline falls after a planned class window's start is refused PR110 MAINTENANCE_CANNOT_FINISH; one that ends before it succeeds; inside T−15 MAINTENANCE_NO_NEW_START stays; may_start_assessment, the screen's answer, gives the trigger's for a start that cannot finish (MAINTENANCE_CANNOT_FINISH) and one that finishes in time (OK)."
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K3, re-specified by the Chief Architect's D4 ruling (16 Nov 05:16; THE PLAN §5.3 D4: the deadline is \"start plus its duration\", and a sitting with no duration is refused only inside T−15): PINTAR has no per-assessment duration and an assignment's close is not one, so a start 30 min before a planned class window succeeds whether the work closes after the window's start (60 min) or before it (20 min); inside T−15 MAINTENANCE_NO_NEW_START stays; may_start_assessment, the screen's answer, gives the trigger's for both (true, OK)."
     },
     {
       "id": "A2B-K04",

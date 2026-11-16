@@ -975,12 +975,15 @@ export const a2bBatasTests: SelfTest[] = [
       const r = k3k4(db, d);
       c.expect(!r.err, `K3 failed to run: ${r.err}`);
       c.expect(r.hasil.awal === "OK", `K3: a timed start where no window reaches its work must succeed: ${r.hasil.awal}`);
-      c.expect(r.hasil.k3_lewat === "PR110:MAINTENANCE_CANNOT_FINISH", `K3: a start whose deadline (60 min) falls after a planned class window's start (30 min) must be refused PR110:MAINTENANCE_CANNOT_FINISH: ${r.hasil.k3_lewat}`);
+      // the Chief Architect's D4 ruling (16 Nov 05:16), THE PLAN §5.3 D4's text: the deadline D4 reads is "start plus its
+      // duration"; PINTAR has no per-assessment duration, so every sitting is untimed and is refused only inside T−15. An
+      // assignment's close is not a duration: a start well before a window, closing after it, is allowed
+      c.expect(r.hasil.k3_lewat === "OK", `K3: a start 30 min before a planned class window, on work that closes after the window's start (60 min), must succeed (the close is not a duration): ${r.hasil.k3_lewat}`);
       c.expect(r.hasil.k3_cukup === "OK", `K3: a start whose deadline (20 min) falls before the window's start (30 min) must succeed: ${r.hasil.k3_cukup}`);
       c.expect(r.hasil.k3_10 === "PR110:MAINTENANCE_NO_NEW_START", `K3: inside T−15 a timed start is still refused by T−15 (it stays): ${r.hasil.k3_10}`);
-      c.expect(r.hasil.layar_lewat === "false:MAINTENANCE_CANNOT_FINISH", `K3: may_start_assessment must give the trigger's answer for the start that cannot finish (the screen must not offer it): ${r.hasil.layar_lewat}`);
+      c.expect(r.hasil.layar_lewat === "true:OK", `K3: may_start_assessment must give the trigger's answer for that start, on an assignment closing after the window (the screen offers it): ${r.hasil.layar_lewat}`);
       c.expect(r.hasil.layar_cukup === "true:OK", `K3: may_start_assessment must give the trigger's answer for the start that finishes in time: ${r.hasil.layar_cukup}`);
-      return `D4: a start that cannot finish before a planned class window is refused MAINTENANCE_CANNOT_FINISH; one that finishes before it succeeds; T−15 stays; may_start_assessment gives the trigger's answer for both (the screen never offers what the trigger refuses)`;
+      return `D4 as THE PLAN §5.3 words it (the Chief Architect's ruling, 16 Nov): an assignment's close is not a duration, so a start 30 min before a planned class window succeeds whether its work closes after the window or before it; inside T−15 a start is refused MAINTENANCE_NO_NEW_START; may_start_assessment gives the trigger's answer for both`;
     }),
   },
   {
