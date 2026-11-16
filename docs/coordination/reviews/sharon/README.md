@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2b step 1 (A2B-I01, K01 to K12) | CLEARED for product code; K12-1 (the emergency fixture's `t_stop` and `t_lift` apart from `starts_at` and `ended_at`, with a plant) before A2b's freeze; (1) MAINTENANCE_PLACE for an active work-scoped window; (2) first touch is enough for K12; the eleven `baru` classes accepted | `b95bfe9c57856eddf15ec4cf19593c74c10f56fd` | `A2B-STEP1-b95bfe9c.md` |
 | A2a change C promotion: hosted reads and preservation | Reads 1, 2 and 4 to 8 match; 3 pending (job 5 succeeded with CALL); A's after standing as C's before accepted, given P2 (the same query, C's columns named); N1 confirm `pengerjaan_tutup_terjadwal`; before-before-merge registered | PR #22 `bbed52e4b1d61bb1c57bc6d4883933dee76630c4` | `A2A-C-PROMOTION-READS.md` |
 | A2a change B, re-run 43782374237 judged | **Scale evidence HOLDS**: all five gates pass, R1's plant included; R1-B closed; D1 0.38 ms p95; 0 refusals; A2a acceptance rests on Bob's CI, journeys and the hosted reads | `70b3e37d0eb216144955d2d9e134a173de4a954c` | `A2A-CHANGE-B-RUN-43782374237.md` |
 | A2a change B, run 43778010841 judged | **R1 not evidence: BLOCKER R1-B** (the affected sittings are not overdue, so R1 cannot fail; re-run once on corrected tooling with a plant, and R2 under the real closer load); all other numbers accepted; `cfeaaaaa` (ADM09-S01) accepted | `e026a871b42579a63d688b2d2570b1f8a8862f03` | `A2A-CHANGE-B-RUN-43778010841.md` |
