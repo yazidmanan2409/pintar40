@@ -472,3 +472,61 @@ The worst case is unchanged: 0.764298 per provider, 1.528596 in total. The plan 
 1,852 characters, more than is sent.
 
 **Addition, 16 Nov (Sharon's note N2, `E-RUNNER-4a591fa3.md`):** the Google adapter was deleted, together with its self-test case. It had been written without documentation, and Google is ineligible. Google remains in `prices.json` only as an excluded entry with the §20(d) reason, and `--providers google` is still refused with that reason in every mode. Self-test re-run: exit 0, **93 PASS, 0 FAIL**, no network. The old Google check was replaced by "google: no adapter; refused with the §20(d) reason from prices.json".
+
+### The fail-closed rule for error handling, and anthropic verified (16 Nov)
+
+**The rule** (the coordinator's ruling, 16 Nov):
+- **Success path:** every field needs a grade-A fact. That means the request, the response text, usage and the
+  request id.
+- **Error handling:** a field may instead be accepted if the adapter's handling is provably fail-closed for every
+  possible value. Any non-2xx response that is not a documented retryable error must:
+  - stop all further calls to that provider;
+  - not be retried;
+  - keep its reservation as its cost, unless usage is reported.
+
+**Why:** an undocumented error can then never cause a retry or a further call, so it cannot spend money. Its cost stays
+bounded by the one reservation already held.
+
+E-PROVIDER-FACTS.md (`312dab55`) records Anthropic's credit-exhaustion status and type as **not documented**. Only the
+stop and its message are documented.
+
+**What the code does:**
+- **Retried:** only the documented retryable errors.
+  - anthropic: a 429 that is not `enforced_spend_limit_reached` and carries `retry-after` or `ramp_limit_exceeded`;
+    500, 504 and 529.
+  - openai: a 429 that is not a spend, usage or credit stop and carries `Retry-After`, `slow_down`,
+    `rate_limit_error` or "Rate limit reached…"; 500 and 503.
+- **Everything else stops the provider.** That covers every other status, type or body, including an unknown 4xx,
+  an unknown 5xx, a 402 of any type, and an empty or non-JSON body. Such a response is classified `spend_stop`,
+  `billing_stop`, `http_4xx` or `http_5xx`. In each case it is not retried, the rest of that provider's requests are
+  recorded `not_attempted`, and the reservation is kept as its cost.
+- **Credit exhaustion (anthropic):** any 402, or any message starting "Your credit balance is too low", is a
+  `billing_stop`.
+- **The mock:** its HTTP faults now go through the real classifiers.
+
+**Self-test, new cases:**
+- per adapter: an unknown 4xx (418), an unknown 5xx (599), and a 402 with an unknown type;
+- full runs: (e) an unknown 4xx and an unknown 5xx, and (f) a 402 with an unknown type. Each stops its provider after
+  one attempt, with no retry, and keeps the reservation as cost;
+- an exhaustive sweep for each adapter: every status 300–599 × 6 body shapes (1,800 cases). Only the documented
+  retryable errors are retried, and all others stop the provider.
+
+Scenario (c)'s plain 400 now also stops anthropic.
+
+**Verdicts:**
+- **anthropic: `verified: true`.** Every success-path field is grade A. The one exception, credit exhaustion, is
+  recorded in `fail_closed_fields` as "not documented; fail-closed".
+- **openai: `verified: true`** (unchanged).
+
+Self-test: exit 0, **112 PASS, 0 FAIL**, no network.
+
+**The gate now passes for both adapters.** A real run is refused only for the missing `--live` flag and keys:
+
+```
+real run refused:
+- no --live flag: a real run starts only with node runner.mjs --live, and only when every check below passes
+- anthropic: no key in ANTHROPIC_API_KEY
+- openai: no key in OPENAI_API_KEY
+```
+
+**Sharon reviews this change before any live run.**

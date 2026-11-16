@@ -176,10 +176,11 @@ async function httpCall(adapter, args, fetchImpl = globalThis.fetch) {
 
 const ADAPTERS = {
   anthropic: {
-    verified: false,
-    unverified_fields: [
-      'credit exhaustion: HTTP 402 billing_error is grade B in §6a ("No error specific to an exhausted credit balance was found"), and §6c adds nothing; the adapter treats 402 as a billing stop, which fails closed',
-    ],
+    // Success path (request, response text, usage, request id): all grade A (§6a, §6c). Error handling is accepted
+    // under the fail-closed rule (classifyError below); one error field rests on that rule instead of a grade-A fact.
+    verified: true,
+    unverified_fields: [],
+    fail_closed_fields: ['credit exhaustion: not documented; fail-closed (any 402, or a message starting "Your credit balance is too low", is a billing stop; every other undocumented error stops the provider too)'],
     endpoint: 'https://api.anthropic.com/v1/messages', api_version: '2026-10-21',
     build({ model, text, schema, maxOutput, key }) {
       return { url: this.endpoint, method: 'POST',
@@ -204,16 +205,19 @@ const ADAPTERS = {
       const h = new Headers(headers ?? {}); const j = tryJson(bodyText); const e = j?.error ?? {};
       const code = e.details?.error_code ?? null; const msg = String(e.message ?? '');
       const base = { http: status, type: e.type ?? null, code, request_id: h.get('request-id') ?? j?.request_id ?? null, rate_limit: pickHeaders(h, ANTHROPIC_RL) };
-      if (status === 429 && code === 'enforced_spend_limit_reached') return { ...base, status: 'spend_stop', retry: false, stop: true };
-      // a documented rate limit carries retry-after; a ramp limit carries its code. Any other 429 fails closed.
-      if (status === 429 && (h.get('retry-after') !== null || code === 'ramp_limit_exceeded')) return { ...base, status: 'http_429', retry: true };
-      if (status === 429) return { ...base, status: 'spend_stop', retry: false, stop: true, note: '429 without retry-after or a rate-limit code: treated as a stop' };
-      if (status === 400 && /^You have reached your specified (workspace )?API usage limits/.test(msg)) return { ...base, status: 'spend_stop', retry: false, stop: true };
-      if (status === 402) return { ...base, status: 'billing_stop', retry: false, stop: true };
-      // only the documented server errors are retried: 500 api_error, 504 timeout_error, 529 overloaded_error
-      if ([500, 504, 529].includes(status)) return { ...base, status: 'http_5xx', retry: true };
-      if (status >= 500) return { ...base, status: 'http_5xx', retry: false, note: 'undocumented 5xx: not retried' };
-      return { ...base, status: 'http_4xx', retry: false };
+      // Fail-closed rule (coordinator's ruling, 16 Nov): only the documented retryable errors are retried, i.e. a 429 that is
+      // not a tier spend cap and carries retry-after or a rate-limit code (§6a), and 500 api_error, 504 timeout_error,
+      // 529 overloaded_error. EVERY other non-2xx response, whatever its status, type or body, stops all further calls
+      // to this provider and is not retried; with no usage, its reservation is kept as its cost.
+      const retryable = (status === 429 && code !== 'enforced_spend_limit_reached' && (h.get('retry-after') !== null || code === 'ramp_limit_exceeded'))
+        || [500, 504, 529].includes(status);
+      if (retryable) return { ...base, status: status === 429 ? 'http_429' : 'http_5xx', retry: true, stop: false };
+      let st = status >= 500 ? 'http_5xx' : 'http_4xx';
+      if (status === 429) st = 'spend_stop';      // enforced_spend_limit_reached (A), or a 429 that is not a documented rate limit
+      if (status === 400 && /^You have reached your specified (workspace )?API usage limits/.test(msg)) st = 'spend_stop';
+      // credit exhaustion: status and type not documented; the message is (§6a, 312dab55). 402 billing_error too.
+      if (status === 402 || /^Your credit balance is too low/.test(msg)) st = 'billing_stop';
+      return { ...base, status: st, retry: false, stop: true };
     },
     async call(args) { return httpCall(this, args); },
   },
@@ -257,22 +261,25 @@ const ADAPTERS = {
       const h = new Headers(headers ?? {}); const j = tryJson(bodyText); const e = j?.error ?? {};
       const code = e.code ?? null;
       const base = { http: status, type: e.type ?? null, code, request_id: h.get('x-request-id'), rate_limit: pickHeaders(h, OPENAI_RL) };
+      // Fail-closed rule: only the documented retryable errors are retried, i.e. a 429 rate limit ("Rate limit reached for
+      // requests", rate_limit_error / slow_down, or Retry-After present) that is not a spend, usage or credit stop (§6b),
+      // and 500 and 503. EVERY other non-2xx response stops all further calls to this provider and is not retried.
       // §6b: "Retrying billing, spend, or quota errors won't restore API access."
-      if (status === 429 && code === 'credit_balance_exhausted') return { ...base, status: 'billing_stop', retry: false, stop: true };
-      if (status === 429 && (OPENAI_SPEND_CODES.includes(code) || e.type === 'insufficient_quota')) return { ...base, status: 'spend_stop', retry: false, stop: true };
-      if (status === 429) return { ...base, status: 'http_429', retry: true };    // "Rate limit reached for requests", slow_down
-      // only the documented server errors are retried: 500; 503 service_unavailable_error / server_is_overloaded
-      if ([500, 503].includes(status)) return { ...base, status: 'http_5xx', retry: true };
-      if (status >= 500) return { ...base, status: 'http_5xx', retry: false, note: 'undocumented 5xx: not retried' };
-      return { ...base, status: 'http_4xx', retry: false };
+      const stopCode = code === 'credit_balance_exhausted' || OPENAI_SPEND_CODES.includes(code) || e.type === 'insufficient_quota';
+      const rateLimit = h.get('retry-after') !== null || code === 'slow_down' || e.type === 'rate_limit_error' || /^Rate limit reached/.test(String(e.message ?? ''));
+      const retryable = (status === 429 && !stopCode && rateLimit) || [500, 503].includes(status);
+      if (retryable) return { ...base, status: status === 429 ? 'http_429' : 'http_5xx', retry: true, stop: false };
+      let st = status >= 500 ? 'http_5xx' : 'http_4xx';
+      if (status === 429) st = code === 'credit_balance_exhausted' ? 'billing_stop' : 'spend_stop';
+      return { ...base, status: st, retry: false, stop: true };
     },
     async call(args) { return httpCall(this, args); },
   },
 };
 
 // The offline mock: schema-valid JSON unless a fault is planned for (provider, chapter, attempt).
-// Faults: malformed | 429 | 500 | 400 | transport | no_usage | overrun | spend_stop (a canned §6 spend-stop error,
-// classified by the provider's real classifyError)
+// Faults: malformed | transport | no_usage | overrun, and the canned HTTP errors in CANNED (429 | 500 | 400 |
+// spend_stop | unknown_4xx | unknown_5xx | 402_unknown), each classified by the provider's real classifyError
 function mockProvider(faults = {}) {
   const used = [];
   const m = manifest();
@@ -296,10 +303,8 @@ function mockProvider(faults = {}) {
       const f = faults[`${provider}:bab${b}:${attempt}`];
       if (f) used.push(`${provider}:bab${b}:${attempt}:${f}`);
       if (f === 'transport') { const e = new Error('mock transport error: connection reset'); e.transport = true; throw e; }
-      if (f === '429') throw new HttpError(429, '{"error":"rate limited (mock)"}');
-      if (f === '500') throw new HttpError(500, '{"error":"server error (mock)"}');
-      if (f === '400') throw new HttpError(400, '{"error":"bad request (mock)"}');
-      if (f === 'spend_stop') { const c = CANNED_SPEND_STOP[provider]; const cls = ADAPTERS[provider].classifyError(c); throw new HttpError(c.status, c.bodyText, { cls, request_id: cls.request_id, rate_limit: cls.rate_limit }); }
+      // every HTTP fault is a canned response, classified by the provider's real classifyError
+      if (CANNED[f]) { const c = CANNED[f][provider]; const cls = ADAPTERS[provider].classifyError(c); throw new HttpError(c.status, c.bodyText, { cls, request_id: cls.request_id, rate_limit: cls.rate_limit }); }
       let raw = JSON.stringify({ items: items(b, provider, attempt) });
       if (f === 'malformed') raw = '```json\n' + raw.slice(0, raw.length - 40) + '\n```';
       const out = Math.ceil(raw.length / 4);
@@ -312,20 +317,25 @@ function mockProvider(faults = {}) {
   };
 }
 
-// canned spend stops, shaped as E-PROVIDER-FACTS.md §6 documents them
-const CANNED_SPEND_STOP = {
-  anthropic: { status: 429, headers: { 'request-id': 'req_mock_spend' }, bodyText: JSON.stringify({ type: 'error', error: { type: 'rate_limit_error', message: 'spend limit (mock)', details: { error_code: 'enforced_spend_limit_reached' } }, request_id: 'req_mock_spend' }) },
-  openai: { status: 429, headers: { 'x-request-id': 'req_mock_spend' }, bodyText: JSON.stringify({ error: { type: 'insufficient_quota', code: 'organization_spend_limit_exceeded', message: 'spend limit (mock)' } }) },
+// canned HTTP errors: the documented ones shaped as E-PROVIDER-FACTS.md §6 shows them, and three undocumented ones
+const anthErr = (status, error, h = {}) => ({ status, headers: { 'request-id': 'req_mock', ...h }, bodyText: JSON.stringify({ type: 'error', error, request_id: 'req_mock' }) });
+const oaiErr = (status, error, h = {}) => ({ status, headers: { 'x-request-id': 'req_mock', ...h }, bodyText: JSON.stringify({ error }) });
+const CANNED = {
+  '429': { anthropic: anthErr(429, { type: 'rate_limit_error', message: 'rate limited (mock)' }, { 'retry-after': '1' }), openai: oaiErr(429, { message: 'Rate limit reached for requests (mock)' }) },
+  '500': { anthropic: anthErr(500, { type: 'api_error', message: 'server error (mock)' }), openai: oaiErr(500, { type: 'server_error', message: 'The server had an error while processing your request' }) },
+  '400': { anthropic: anthErr(400, { type: 'invalid_request_error', message: 'bad request (mock)' }), openai: oaiErr(400, { type: 'invalid_request_error', message: 'bad request (mock)' }) },
+  spend_stop: { anthropic: anthErr(429, { type: 'rate_limit_error', message: 'spend limit (mock)', details: { error_code: 'enforced_spend_limit_reached' } }),
+    openai: oaiErr(429, { type: 'insufficient_quota', code: 'organization_spend_limit_exceeded', message: 'spend limit (mock)' }) },
+  unknown_4xx: { anthropic: anthErr(418, { type: 'mystery_error', message: 'unknown (mock)' }), openai: oaiErr(418, { type: 'mystery_error', code: 'mystery', message: 'unknown (mock)' }) },
+  unknown_5xx: { anthropic: anthErr(502, { type: 'mystery_error', message: 'unknown (mock)' }), openai: oaiErr(502, { type: 'mystery_error', message: 'unknown (mock)' }) },
+  '402_unknown': { anthropic: anthErr(402, { type: 'mystery_error', message: 'unknown (mock)' }), openai: oaiErr(402, { type: 'mystery_error', code: 'mystery', message: 'unknown (mock)' }) },
 };
 
 // ───────────────────────────── the run
 function classify(err) {
   if (err instanceof HttpError && err.cls) return err.cls;     // a verified-against-§6 adapter classified it by status and code
-  if (err instanceof HttpError) {
-    if (err.status === 429) return { status: 'http_429', retry: true };
-    if (err.status >= 500) return { status: 'http_5xx', retry: true, http: err.status };
-    return { status: 'http_4xx', retry: false, http: err.status };
-  }
+  // an HTTP error no adapter classified: fail closed (never reached by the two adapters or the mock)
+  if (err instanceof HttpError) return { status: err.status >= 500 ? 'http_5xx' : 'http_4xx', retry: false, stop: true, http: err.status };
   return { status: 'transport_error', retry: true };
 }
 
@@ -538,7 +548,7 @@ async function adapterChecks(check, table) {
   const classes = (name, A, cases) => {
     for (const [label, c, status, retry] of cases) {
       const k = A.classifyError(c);
-      check(k.status === status && k.retry === retry && (k.stop === true) === status.endsWith('_stop'), `${name} error: ${label} → ${status}, ${retry ? 'retried' : 'not retried'}${status.endsWith('_stop') ? ', no further call' : ''}`);
+      check(k.status === status && k.retry === retry && k.stop === !retry, `${name} error: ${label} → ${status}, ${retry ? 'retried' : 'not retried, no further call to the provider'}`);
     }
   };
 
@@ -578,6 +588,13 @@ async function adapterChecks(check, table) {
       ['504 timeout_error', ae(504, { type: 'timeout_error', message: 'timeout' }), 'http_5xx', true],
       ['529 overloaded_error', ae(529, { type: 'overloaded_error', message: 'overloaded' }), 'http_5xx', true],
       ['502 (undocumented 5xx, fails closed)', ae(502, { type: 'api_error', message: 'bad gateway' }), 'http_5xx', false],
+      ['unknown 4xx (418, unknown type)', ae(418, { type: 'mystery_error', message: '?' }), 'http_4xx', false],
+      ['unknown 5xx (599, unknown type)', ae(599, { type: 'mystery_error', message: '?' }), 'http_5xx', false],
+      ['402 with an unknown type', ae(402, { type: 'mystery_error', message: '?' }), 'billing_stop', false],
+      ['400 "Your credit balance is too low…" (documented message, status not documented)', ae(400, { type: 'invalid_request_error', message: 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.' }), 'billing_stop', false],
+      ['429 enforced_spend_limit_reached even with retry-after', ae(429, { type: 'rate_limit_error', message: 'cap', details: { error_code: 'enforced_spend_limit_reached' } }, { 'retry-after': '5' }), 'spend_stop', false],
+      ['500 with a non-JSON body', { status: 500, headers: {}, bodyText: '<html>oops</html>' }, 'http_5xx', true],
+      ['403 with a non-JSON body', { status: 403, headers: {}, bodyText: '<html>forbidden</html>' }, 'http_4xx', false],
     ]);
     const noHdr = A.classifyError({ status: 500, headers: {}, bodyText: JSON.stringify({ type: 'error', error: { type: 'api_error', message: 'x' }, request_id: 'req_err_body' }) });
     const hdr = A.classifyError(ae(429, { type: 'rate_limit_error', message: 'x' }, { 'retry-after': '7' }));
@@ -627,8 +644,33 @@ async function adapterChecks(check, table) {
       ['503 service_unavailable_error / server_is_overloaded', oe(503, { type: 'service_unavailable_error', code: 'server_is_overloaded', message: 'x' }), 'http_5xx', true],
       ['400 invalid request', oe(400, { type: 'invalid_request_error', message: 'x' }), 'http_4xx', false],
       ['502 (undocumented 5xx, fails closed)', oe(502, { type: 'server_error', message: 'bad gateway' }), 'http_5xx', false],
+      ['unknown 4xx (418, unknown type)', oe(418, { type: 'mystery_error', code: 'mystery', message: '?' }), 'http_4xx', false],
+      ['unknown 5xx (599, unknown type)', oe(599, { type: 'mystery_error', message: '?' }), 'http_5xx', false],
+      ['402 with an unknown type', oe(402, { type: 'mystery_error', code: 'mystery', message: '?' }), 'http_4xx', false],
+      ['429 with an unknown code and no rate-limit sign (fails closed)', oe(429, { type: 'mystery_error', code: 'mystery', message: '?' }), 'spend_stop', false],
+      ['429 spend code even with Retry-After', oe(429, { type: 'insufficient_quota', code: 'project_spend_limit_exceeded', message: 'x' }, { 'retry-after': '1' }), 'spend_stop', false],
+      ['403 with a non-JSON body', { status: 403, headers: {}, bodyText: 'forbidden' }, 'http_4xx', false],
     ]);
     check(A.classifyError(oe(429, { code: 'credit_balance_exhausted' })).request_id === 'req_err', 'openai error: request id from the x-request-id header');
+  }
+  // the fail-closed rule, exhaustively over statuses: every non-2xx is either a documented retryable error, or it is
+  // not retried and stops the provider. Bodies: documented rate-limit shapes, unknown, empty and non-JSON.
+  const RETRYABLE = { anthropic: (st, c) => (st === 429 && c.rl && !c.spend) || [500, 504, 529].includes(st), openai: (st, c) => (st === 429 && c.rl && !c.spend) || [500, 503].includes(st) };
+  const bodies = {
+    anthropic: [[{ rl: false }, (st) => anthErr(st, { type: 'mystery_error', message: '?' })], [{ rl: true }, (st) => anthErr(st, { type: 'rate_limit_error', message: 'x' }, { 'retry-after': '3' })],
+      [{ rl: true }, (st) => anthErr(st, { type: 'rate_limit_error', message: 'x', details: { error_code: 'ramp_limit_exceeded' } })], [{ rl: true, spend: true }, (st) => anthErr(st, { type: 'rate_limit_error', message: 'x', details: { error_code: 'enforced_spend_limit_reached' } }, { 'retry-after': '3' })],
+      [{ rl: false }, (st) => ({ status: st, headers: {}, bodyText: '' })], [{ rl: false }, (st) => ({ status: st, headers: {}, bodyText: 'not json' })]],
+    openai: [[{ rl: false }, (st) => oaiErr(st, { type: 'mystery_error', code: 'mystery', message: '?' })], [{ rl: true }, (st) => oaiErr(st, { message: 'Rate limit reached for requests' })],
+      [{ rl: true }, (st) => oaiErr(st, { type: 'rate_limit_error', code: 'slow_down', message: 'x' })], [{ rl: true, spend: true }, (st) => oaiErr(st, { type: 'insufficient_quota', code: 'credit_balance_exhausted', message: 'x' }, { 'retry-after': '3' })],
+      [{ rl: false }, (st) => ({ status: st, headers: {}, bodyText: '' })], [{ rl: false }, (st) => ({ status: st, headers: {}, bodyText: 'not json' })]],
+  };
+  for (const name of ['anthropic', 'openai']) {
+    let n = 0; const bad = [];
+    for (let st = 300; st <= 599; st++) for (const [c, mk] of bodies[name]) {
+      n++; const k = ADAPTERS[name].classifyError(mk(st)); const want = RETRYABLE[name](st, c);
+      if (want ? !(k.retry === true && k.stop === false) : !(k.retry === false && k.stop === true)) bad.push(`${st}:${JSON.stringify(c)}→${k.status}`);
+    }
+    check(bad.length === 0, `${name} fail-closed rule, every status 300–599 × ${bodies[name].length} body shapes (${n} cases): only documented retryable errors are retried; all others stop the provider${bad.length ? ' — ' + bad.slice(0, 5).join(', ') : ''}`);
   }
   // item-schema.json against the §6c schema rules of both providers, as sent
   const orig = JSON.parse(schema); const sent = wireSchema(schema); const kw = new Set(); const objs = []; const enums = []; const nestedAnno = [];
@@ -719,7 +761,7 @@ async function selfTest() {
 
   // extra branches: non-retryable 4xx, retries exhausted, usage above the reservation
   const c = await scen('c-branches', FAULTS_EXTRA, {});
-  check(count(c, 'anthropic', 'http_4xx') === 1 && c.ledger.entries.filter((e) => e.provider === 'anthropic' && e.chapter === 1).length === 1, '(c) a 400 is not retried');
+  check(count(c, 'anthropic', 'http_4xx') === 1 && count(c, 'anthropic') === 1 && c.summary.items['anthropic:bab2'].outcome === 'not_attempted', '(c) a plain 400 is not retried and stops the provider (bab2 not attempted)');
   check(count(c, 'openai', 'http_5xx') === 3 && c.summary.items['openai:bab1'].valid === false, '(c) three 5xx: retries exhausted at 3 attempts, request failed');
   check(c.exitCode === 3 && c.summary.abort?.kind === 'overrun' && count(c, 'openai') === 4, '(c) a reported cost above its reservation aborts at once (exit 3), no further call');
 
@@ -728,7 +770,17 @@ async function selfTest() {
   check(count(d, 'anthropic') === 1 && count(d, 'anthropic', 'spend_stop') === 1 && d.summary.items['anthropic:bab2'].outcome === 'not_attempted', '(d) anthropic tier spend cap (429 enforced_spend_limit_reached): one attempt, not retried, bab2 not attempted');
   check(count(d, 'openai', 'ok') === 1 && count(d, 'openai', 'spend_stop') === 1 && count(d, 'openai') === 2, '(d) openai spend limit (429 organization_spend_limit_exceeded) on bab2: not retried; bab1 unaffected');
   check(d.exitCode === 4 && eq(d.summary.failed_requests.sort(), ['anthropic:bab1', 'anthropic:bab2', 'openai:bab2']) && d.summary.per_provider.anthropic.stopped, '(d) the run ends with exit 4 and names the three failed requests and the stop');
-  check(d.ledger.entries.filter((e) => e.status === 'spend_stop').every((e) => e.cost_usd === e.reserved_usd && e.request_id === 'req_mock_spend' && e.error_code), '(d) a stop keeps its reservation as its cost and records its request id and error code');
+  check(d.ledger.entries.filter((e) => e.status === 'spend_stop').every((e) => e.cost_usd === e.reserved_usd && e.request_id === 'req_mock' && e.error_code), '(d) a stop keeps its reservation as its cost and records its request id and error code');
+
+  // (e), (f) undocumented errors in a full run: each stops its provider at once, with no retry, reservation kept as cost
+  const stopsAt = (r, p, st) => count(r, p) === 1 && count(r, p, st) === 1 && r.summary.items[`${p}:bab2`].outcome === 'not_attempted' && r.summary.per_provider[p].stopped
+    && r.ledger.entries.filter((e) => e.provider === p && e.status === st).every((e) => e.cost_usd === e.reserved_usd && e.cost_basis === 'reservation' && e.retryable === false);
+  const e1 = await scen('e-unknown-4xx-5xx', { 'anthropic:bab1:1': 'unknown_4xx', 'openai:bab1:1': 'unknown_5xx' }, {});
+  check(stopsAt(e1, 'anthropic', 'http_4xx'), '(e) anthropic unknown 4xx (418, unknown type): one attempt, not retried, provider stopped, reservation kept as cost');
+  check(stopsAt(e1, 'openai', 'http_5xx'), '(e) openai unknown 5xx (502): one attempt, not retried, provider stopped, reservation kept as cost');
+  const f1 = await scen('f-402-unknown-type', { 'anthropic:bab1:1': '402_unknown', 'openai:bab1:1': '402_unknown' }, {});
+  check(stopsAt(f1, 'anthropic', 'billing_stop') && stopsAt(f1, 'openai', 'http_4xx'), '(f) a 402 with an unknown type: each provider stops after one attempt, not retried, reservation kept as cost');
+  check(e1.exitCode === 4 && f1.exitCode === 4 && e1.summary.failed_requests.length === 4 && f1.summary.failed_requests.length === 4, '(e)(f) both runs end with exit 4, all four requests failed, no call after the stop');
 
   // the adapters against E-PROVIDER-FACTS.md §6
   console.log('\n── adapters against E-PROVIDER-FACTS.md §6 (offline)');
@@ -750,7 +802,7 @@ async function selfTest() {
   const nl = realRunProblems({}, table, providers, dummyKeys, allVerified);
   check(nl.length === 1 && /--live/.test(nl[0]), 'without --live a real run is refused, even with dummy keys and (hypothetically) verified adapters; the refusal names --live');
   const lv = realRunProblems({ live: true }, table, providers, dummyKeys);
-  check(lv.length > 0 && !lv.some((x) => /--live/.test(x)) && unverified.every((p) => lv.some((x) => x.startsWith(`${p}: API adapter not verified`))), `with --live and dummy keys, a real run is still refused while an adapter is unverified (${unverified.join(', ') || 'none'})`);
+  check((lv.length > 0) === (unverified.length > 0) && !lv.some((x) => /--live/.test(x)) && unverified.every((p) => lv.some((x) => x.startsWith(`${p}: API adapter not verified`))), `with --live and dummy keys, a real run is still refused while an adapter is unverified (${unverified.join(', ') || 'none'})`);
   check(realRunProblems({ live: true }, table, providers, dummyKeys, allVerified).length === 0, 'test-only override: --live, keys and verified adapters together are the only way through');
   const verifiedOnly = providers.filter((p) => ADAPTERS[p].verified);
   check(verifiedOnly.every((p) => realRunProblems({ live: true }, table, [p], dummyKeys).length === 0 && realRunProblems({}, table, [p], dummyKeys).length === 1),
