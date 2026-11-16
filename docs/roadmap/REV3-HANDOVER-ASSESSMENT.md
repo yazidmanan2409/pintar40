@@ -123,7 +123,7 @@ my 13 November status report, which summarised §4 imprecisely. **That error is 
 - **Per batch:** the completion page gains two short lines, "And then what?" (end state, failure and recovery) and
   "What else changed?" (consumers, reports, permissions, history). Each points to its row in Appendix A. Reviewers
   already check these; the lines make it explicit. Nothing new is written for future-version features.
-- **Integrated journeys:** Z keeps THE PLAN's five journeys as its acceptance scenarios. At Z, I map each to the
+- **Integrated journeys:** Z's acceptance scenarios are THE PLAN §8.5's five journeys, **as amended by Addendum 1**: a sixth journey (an account's life), and Journey 3 extended with a sitting on the corrected revision and the rewriting of withdrawn explanations. *(Corrected 16 Nov; first written as "five".)* At Z, I map each to the
   applicable parts of roadmap journeys A, B, C and I, as a coverage note and not as new tests.
 - **Decision register:** one short file, `docs/roadmap/DECISIONS-TO-TRACK.md`, holding sections A to F of your
   handover. Each entry is updated only when a decision is made or its gate approaches.
