@@ -1,6 +1,6 @@
 # A2a change C · the promotion to staging: the hosted reads and the preservation pair
 
-Sharon, 16 Nov 2026 (02:15 UTC). Read-only. This is on Bob's reads of staging `keijhmdtsgrfvnvocfvk`, made at 01:56–01:59 UTC, after PR #22 (`bbed52e4`) and staging.yml run 43789058922 (267 / `20270119270000`). Bob ran the reads, and I take them as reported.
+Sharon, 16 Nov 2026 (02:15 UTC). Read-only. This is on Bob's reads of staging `keijhmdtsgrfvnvocfvk`, made at 01:56–01:59 UTC, after PR #22 (`bbed52e4b1d61bb1c57bc6d4883933dee76630c4`) and staging.yml run 43789058922 (267 / `20270119270000`). Bob ran the reads, and I take them as reported.
 
 ## What holds now
 
