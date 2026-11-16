@@ -44,3 +44,18 @@ Sharon, 16 Nov 2026 (15:25 UTC). Read-only. **What I reviewed:**
 - **Recommended:** a preserved line for unfinished windows that leaves out only the columns a legitimate act writes (`ends_at`, `ended_at`, `ended_by_person_id`, `end_reason`, `activation_recorded_at`, `deactivation_recorded_at`, `starts_at` for MULAI).
   - **The rule for it:** any difference must match an `audit_log` row above the watermark.
   - It covers `kind`, `platform`, `institution_ids`, `node_ids`, `reason`, `created_by_person_id`, `t_stop`, `t_lift`, and a `reason_code` that stays null.
+
+## Addendum, 15:40 UTC: the preservation query restated at `14cb6e045f685a3f39e6fb089b5a355a43087dbd`. P1 to P3 closed.
+
+- **It is docs only.** The diff from `3c58620e` touches only the four files under `a2b-evidence/`, so the code under test is unchanged.
+- **P1:**
+  - `baru` and `mw_keluar` hold only `reason_code`. The `darurat_*` and `closure_*` columns, and every window's stop and lift times, are now fingerprinted.
+  - Line 64 reads `reason_code` itself: no window from before the cutoff carries a code.
+  - The three remaining exclusions (44, 58, and the two-part reading of windows) each state their reason, and I accept them.
+- **P2:** the text reads 267 → 281, and line 10's expected before and after values are named.
+- **P3:** line 75 covers unfinished windows, leaving out only `reason_code` and the seven columns an act writes. Line 76 lists the audit rows that must account for any difference on line 75.
+- **The dry run was redone, 267 → 281,** with five planted windows, finished and unfinished, an emergency with `t_stop` and `t_lift` among them. **Only line 10 moved.**
+  - **The controls bite:** `t_lift` +1 s changes 63, and `node_ids` changed on an unfinished window changes 75.
+  - An extend written directly leaves 75 unchanged, as designed.
+  - Second Eye notes that this control writes no audit row, which a real «Perpanjang» does. That is stated correctly.
+- **Verdict: the preservation pair is ready for the owner's "before" read.** It is to be run as written, with the cutoff and watermark entered as the runbook says.
