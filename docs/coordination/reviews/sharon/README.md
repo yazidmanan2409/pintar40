@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2b commit 2, 2a, the test commit; an A2a finding | NO BLOCKER on A2b; C1-1 and I02-1 closed; M148-D01 restatement confirmed (R-1); note: the person-level start branch on `now()`; **D1-2 required** (a marked sitting's pending release missing from the effective deadline: its own commit, with a test and a plant) | `4010fe838205dc40d878981140b6dd4f446006cc` | `A2B-COMMIT2-4010fe83.md` |
 | A2b product commit 1 (class PLANNED windows, extend) | NO BLOCKER in the design; **C1-1** the grants (`authenticated` only, `service_role` revoked); a class window has the banner only, node notices registered | `60af5cc2378dd446cd7ff63e923b348ed4d07551` | `A2B-COMMIT1-60af5cc2.md` |
 | A2b step 1 (A2B-I01, K01 to K12) | CLEARED for product code; K12-1 (the emergency fixture's `t_stop` and `t_lift` apart from `starts_at` and `ended_at`, with a plant) before A2b's freeze; (1) MAINTENANCE_PLACE for an active work-scoped window; (2) first touch is enough for K12; the eleven `baru` classes accepted | `b95bfe9c57856eddf15ec4cf19593c74c10f56fd` | `A2B-STEP1-b95bfe9c.md` |
 | A2a change C promotion: hosted reads and preservation | Reads 1, 2 and 4 to 8 match; 3 pending (job 5 succeeded with CALL); A's after standing as C's before accepted, given P2 (the same query, C's columns named); N1 confirm `pengerjaan_tutup_terjadwal`; before-before-merge registered | PR #22 `bbed52e4b1d61bb1c57bc6d4883933dee76630c4` | `A2A-C-PROMOTION-READS.md` |
