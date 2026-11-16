@@ -19,8 +19,10 @@
 -- same expression means the same edge cases: classes '{}' (a school window) covers every node of the school; classes
 -- NULL (the column is NOT NULL, so only a constructed row) makes cardinality NULL and the whole predicate NULL, which
 -- every caller reads as "not covered", exactly as before; a NULL node (a left join that found none) is NULL likewise.
--- A2B-D16 asserts the helper equals the old expression on all of them. It is LANGUAGE sql STABLE SECURITY INVOKER
--- (inlinable by the planner, Sharon's note) with maintenance_draining's grants; its callers are SECURITY DEFINER.
+-- A2B-D16 asserts the helper equals the old expression on all of them. It is LANGUAGE sql STABLE SECURITY INVOKER with
+-- maintenance_draining's grants; its callers are SECURITY DEFINER. It keeps SET search_path, so the planner does not
+-- inline it (a SET clause prevents inlining; Sharon's N1): every public function must pin its search_path (the
+-- platform lint's jalur_tanpa_pin(), dr150's "every function pins its search_path"), and that rule wins here.
 --
 -- The per-window reader: maintenance_draining_di(person, window) counts only sittings whose place (the sitting's
 -- class, else its cohort, else its learning assignment's node) the window covers, and every sitting for a platform-wide
