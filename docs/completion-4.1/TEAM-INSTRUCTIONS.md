@@ -819,3 +819,26 @@ Any change to C from here means an explicit unfreeze, correction, review and a n
   Bob's condition was dispatch after her read. Second Eye said so plainly.
 - **The run counts as evidence only if Sharon confirms `e026a871`.** Otherwise there is one new run on the commit she
   clears.
+
+## A2a scale evidence holds; change C's PR opened (16 Nov 2026, 01:00 UTC)
+
+**Run 43782374237** (tooling `70b3e37d`, cleared before the push; product `c04c088e`): Sharon says the scale evidence
+HOLDS (`6fd9fbcc`).
+
+- R1: 50,000 overdue, 0 stopped among the candidates, and R1's plant bites.
+- R2: p95 28.6 ms.
+- Activation 20.1 ms and 5.7 ms; lift 5.8 ms.
+- 0 of 3,966 shared takers refused; 0 lifts refused.
+- D1 p95 0.38 ms; release at 1,639 per second.
+- R1-B is closed.
+
+**The first run, 43778010841, is superseded:** R1-B was found in its tooling.
+
+**Change B now also carries** `cfeaaaaa` (the cause of ADM09-S01: A2A-C715's clean-up) and `dd382fe2` (F01-T09's
+probes unwind). The `selftest/db` sibling sweep is done and accepted (`9dd1c75f`).
+
+**Acceptance path now:**
+
+- [PR #22](https://github.com/yazidmanan2409/pintar40/pull/22) merges `claude/a2a-change-c` at `c04c088e`, with CI.
+- Journeys are dispatched on `c04c088e`.
+- Then merge C, then B's PR, then staging with the preservation pair, the eight hosted reads, and pg_cron present.
