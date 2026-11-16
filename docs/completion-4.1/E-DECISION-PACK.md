@@ -103,6 +103,14 @@ Prepared by Bob, 16 November 2026. **For review only.**
 | All three, with up to 3× retries | **Under about US$10 total** |
 | Ceiling | US$25 approved; US$10 provider-side limit and US$8 script stop per provider |
 
+**Added 16 Nov (ruling 38, C-1: AI generation is a paid school add-on).** E's design and scoring are unchanged. Its
+report adds, beside the blinded results and never in the scoring: cost per attempt, per valid draft and per accepted
+draft; tokens; retry and failure rates; response times; rate limits met; cost variability. Regeneration cost is
+estimated from cost per attempt, since E measures none. Ledger cost is provider cost, not a price to schools.
+**The no-cost dry run** (`claude/e-runner-prep`) puts the worst case, at an assumed flagship price, at US$5.73 per
+provider and US$17.20 for three with every retry used, above this table's "under about US$10" and within US$25.
+This table is corrected in the revised pack.
+
 ## 9 · Security and privacy
 
 - **No personal data leaves PINTAR.**

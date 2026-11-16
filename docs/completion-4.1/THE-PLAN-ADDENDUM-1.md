@@ -340,6 +340,29 @@ substance of this control. It is Sharon's and Daisy's to design on C3w's page, w
 the send is blocked. If no rule both protects learners and leaves ordinary teaching text usable, that comes to the
 owner with the options. It is not decided here.
 
+### C-1 · AI-assisted MCQ generation is an optional paid school add-on (owner, 16 Nov 2026)
+
+> PINTAR's AI-assisted MCQ generation is an optional, separately paid service for schools. Design C3w so that
+> school-level activation, usage limits and cost accountability can be supported safely. Preserve the existing
+> educational workflow and educator authority. Do not introduce unnecessary complexity or expand the current release
+> without approval. AI drafts. Educators decide. Schools control whether they purchase the service.
+
+Ruling 38. The assessment is `C3W-PAID-ADDON-ASSESSMENT.md`. **For C3w's page and its pre-build review** (Sharon and
+Daisy), read against THE PLAN §5.6 and not as new scope:
+
+- **Precisions of approved text (D1, D5, D6, D7, D11, I-4):** reserve each attempt's worst-case cost before the call,
+  under the school's row lock; count every attempt, failed, cancelled or abandoned included; settle crash-orphaned
+  reservations at the reservation; the ledger holds the school fixed at request time, the model and price basis as
+  values, tokens and reserved and settled cost; the entitlement is checked **only** at the generation request, with
+  tests that an ended entitlement leaves drafts, questions, assessments, results, certificates, reports and
+  provenance usable; distinct refusal codes; Daisy's limit wording made period-neutral, with a next step and no price.
+- **Pending the owner's approval before C3w's build (S-1, S-2):** the per-school limit of D7 becomes a school
+  entitlement record (on or off, an allowance, an optional start and end, not a calendar month), set by the operator
+  in 4.1; plus one platform-wide ceiling above all schools. Until approved, D7 stands as written.
+- **Not in 4.1:** pricing, the allowance model, billing, payment, school-admin purchasing or usage screens, retail
+  prices, and whether failed attempts are charged to a school.
+- **E is unchanged** in design and scoring. Its report adds the owner's cost evidence beside the blinded results.
+
 ### Staging checkpoint authorized (owner, 12 Nov 2026, recorded 22:00 UTC)
 
 > Approved. Proceed with the staging checkpoint under Addendum 1 §5b, using the final accepted boundary commit after the wording correction and required green checks. Verify all prescribed staging conditions, including both Auth-user triggers. Stop on any material discrepancy. No production action is authorized. Once the checkpoint passes, release A2a for implementation under its existing gates.
@@ -393,3 +416,4 @@ deployment or production database change.
 | 12 Nov 2026 (07:37 UTC) | Sharon's answer to the eight operations recorded: all can be scoped safely, by moving the refusal from the request to the writers of the work. The engineer's inventory is still owed before A2b |
 | 12 Nov 2026 (07:39 UTC) | **Register reconciled:** R-1 covers school-scoped planned windows (option A); the statements that recorded it as open are marked superseded. Sharon's analysis accepted as the technical direction. R-3 recorded: no learner personal information to a provider, enforced by design at C3w |
 | 12 Nov 2026 (07:40 UTC) | Sharon's five requirements for R-3 recorded for C3w's pre-build review, with one consequence to settle there: what counts as a match when ordinary teaching text contains common names |
+| 16 Nov 2026 | **C-1 recorded** (ruling 38): AI-assisted MCQ generation is an optional paid school add-on. C3w's design-review requirements and the pending S-1/S-2 approval recorded; no implementation change |

@@ -12,6 +12,7 @@ belongs in the execution records, not here.
 |---|---|---|
 | E's preconditions: provider data terms (P1), network egress (P4), one capped key per provider (P5), named educator judges (P7) | Before E runs; E gates C3w | **Open.** E is prepared, not run. Decision pack ready for review: `docs/completion-4.1/E-DECISION-PACK.md` |
 | Provider selection and limits for C3w | After E's results | Not yet due |
+| C3w S-1/S-2: the school limit becomes a school entitlement record (on/off, allowance, optional window) plus a platform-wide ceiling. Small change to D7 under ruling 38 (C-1) | At C3w's pre-build review, after A3 | Proposed in `C3W-PAID-ADDON-ASSESSMENT.md` §2. Not yet due |
 | Z: staging promotion and scheduling the walkthrough | After all batches close and the candidate's evidence | Not yet due |
 
 ## B · Needed before production data
@@ -19,6 +20,15 @@ belongs in the execution records, not here.
 | Decision | State |
 |---|---|
 | R-2: educational-evidence retention, deletion and pseudonymisation | Open |
+
+## B2 · Commercial, AI-assisted generation (ruling 38, C-1)
+
+| Decision | State |
+|---|---|
+| Pricing model: monthly allowance, prepaid credits or another arrangement | **Not yet due.** After E's cost evidence and realistic operating costs. Not to be requested before then |
+| Allowance size, renewal, expiry, top-up, margin, retail prices | Not yet due. Same evidence |
+| Billing, payment and school-admin purchasing and usage screens, and their release | Unassigned. Not in 4.1 |
+| Whether a school is charged for failed attempts and provider outages | Unassigned. Decided with the pricing model |
 
 ## C · Needed for 4.2 planning (near Z)
 
