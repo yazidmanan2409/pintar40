@@ -6331,6 +6331,16 @@
       "proves": "The Chief Architect's R-A (PLAN-A2B-C2W.md at e15fe966); executes on the database in rolled-back transactions: one minute before a planned class window's start a start in the class is refused PR110 MAINTENANCE_NO_NEW_START, and one second after it PR040 MAINTENANCE_PLACE; another class's start proceeds on both sides; the class's learner passes the request hook on both sides (never PT503, no redirect)."
     },
     {
+      "id": "A2B-O01",
+      "runner": "static",
+      "proves": "A2b commit 7 (migration 20270120170000), the defect commit 3 brought and the Chief Architect's condition 4; executes on the database in rolled-back transactions: assessment_orientation is shown under a maintenance refusal, with its code and the refusing window's scope from one call: inside a platform window's T−15 (NO_NEW_START, ORANG), a class window's T−15 (NO_NEW_START, TEMPAT), during it (PLACE, TEMPAT) and before it for a start that cannot finish (CANNOT_FINISH, TEMPAT), each with the window's start, end and class; with no window, no refusal. Plant: the old condition (shown only when may_start is ok) shows nothing inside the platform window's T−15."
+    },
+    {
+      "id": "A2B-A01",
+      "runner": "static",
+      "proves": "The Chief Architect's R-A in the app; reads source and runs the pure rule arahTolakMulai: a platform window's T−15 keeps 4.0's redirect to /pemeliharaan?mulai=ditolak; a work-scoped window's T−15, a work-scoped window under way and D4 stay on the start screen; the start action redirects to the maintenance page only on that platform branch; MAINTENANCE_PLACE is read as its own refusal (PR040), never as PT503's MAINTENANCE_ACTIVE; the start screen disables «Mulai» and ties its sentence by aria-describedby."
+    },
+    {
       "id": "A2B-K06",
       "runner": "static",
       "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K6, extend during a window and end it early: perpanjang_pemeliharaan by the school's admin moves the end the guard reads at once (still refused after the old end); resume early (change_maintenance AKHIRI) lifts the refusal at once; one maintenance.extended audit row with before, after and reason."

@@ -176,6 +176,17 @@ export function tahapSetelahBaca(sebelum: 60 | 30 | 15 | 0 | null, hasil: Status
   return j.keadaan === "AKTIF" ? 0 : tahapPeringatan(j.mulai, sekarangMs, selisihMs);
 }
 
+/**
+ * A2b (the Chief Architect's R-A, PLAN-A2B-C2W.md): where a maintenance refusal of a start is said. A platform-wide
+ * window's T−15 keeps 4.0's #148 page exactly (JEDA: the redirect to /pemeliharaan?mulai=ditolak); every work-scoped
+ * refusal, and D4's for any window, stays on the start screen (LAYAR: «Mulai» disabled with its sentence), never
+ * redirected. The scope comes from the same database call as the refusal (assessment_orientation's tolak_cakupan).
+ */
+export type ArahTolakMulai = "JEDA" | "LAYAR";
+export function arahTolakMulai(kode: string, cakupan: string | null | undefined): ArahTolakMulai {
+  return kode === "MAINTENANCE_NO_NEW_START" && cakupan === "ORANG" ? "JEDA" : "LAYAR";
+}
+
 /** A2b (D8): a time of a window as its reader reads it: «22.00 WITA», in the window's zone. */
 export function jamJendela(iso: string, j: Pick<JendelaSaya, "zona">): string {
   return `${jam(iso, j.zona)} ${kataZona(j.zona)}`;

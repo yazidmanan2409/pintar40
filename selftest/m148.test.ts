@@ -400,8 +400,10 @@ export const m148Tests: SelfTest[] = [
       // a locked or ended session's refusal of the read is expected, not a failure to log (audit walk 37260826024)
       c.expect(/error\.code !== "PT423" && error\.code !== "PT401"/.test(lib), "a locked session's status read is logged as a failure");
       const aksiBelajar = baca("src", "app", "belajar", "actions.ts");
-      c.expect(/err\.code === "PR110" && err\.detail === "MAINTENANCE_NO_NEW_START"\) redirect\(`\$\{HALAMAN_PEMELIHARAAN\}\?mulai=ditolak`\)/.test(aksiBelajar),
-        "a start refused before maintenance is shown as an error rather than explained");
+      // RESTATED, A2b commit 7 (the Chief Architect's R-A): a platform window's T−15 keeps this page exactly; a work-scoped
+      // refusal stays on the start screen (A2B-A01)
+      c.expect(/if \(arahTolakMulai\(kodeTolak, cakupan\) === "JEDA"\) redirect\(`\$\{HALAMAN_PEMELIHARAAN\}\?mulai=ditolak`\)/.test(aksiBelajar),
+        "a start refused before a platform window's maintenance is shown as an error rather than explained");
       const halaman = baca("src", "app", "pemeliharaan", "page.tsx");
       c.expect(/status\.terhenti === "EMERGENCY"/.test(halaman) && /pemeliharaan\.darurat\.asesmen/.test(halaman) && /w\.terkumpul/.test(halaman)
         && /mulai === "ditolak"/.test(halaman) && /action="\/keluar" method="post"/.test(halaman),

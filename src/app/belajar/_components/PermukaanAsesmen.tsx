@@ -16,6 +16,7 @@ import { personaPembelajaran } from "@/lib/pembelajaran";
 import { zonaSimpulBanyak } from "@/lib/zona-sekolah";
 import ItemPlayer from "./ItemPlayer";
 import { pengerjaanSaya } from "@/lib/pengerjaan";
+import { arahTolakMulai, jamJendela } from "@/lib/pemeliharaan-kontrak";
 
 /**
  * ONE ASSESSMENT EXPERIENCE, THREE WAYS IN.
@@ -111,6 +112,24 @@ export default async function PermukaanAsesmen({
     // kind with no product name shows its own title.
     const namaKunci = kunciNamaAsesmen(orientasi.mode);
     const nama = namaKunci ? s(namaKunci) : orientasi.title;
+    // A2b (R-A; Daisy, A2-KATA-DESAIN.md B2 and A2B-RA-KALIMAT.md): a maintenance refusal said on this screen disables
+    // «Mulai» and ties its sentence to it; a platform-wide window's T−15 keeps 4.0's button (pressing it leads to the
+    // maintenance page, as before)
+    const tolak = orientasi.tolak_pemeliharaan ?? null;
+    const dimatikan = tolak !== null && arahTolakMulai(tolak, orientasi.tolak_cakupan) === "LAYAR";
+    const zonaTolak = { zona };
+    const kalimatTolak = !dimatikan ? null
+      : tolak === "MAINTENANCE_PLACE" ? s("pemeliharaan.pita.asesmen_baru")
+      : tolak === "MAINTENANCE_NO_NEW_START" ? s("galat.maintenance_no_new_start")
+      : (() => {
+          const menit = orientasi.closes_at ? String(menitTersisa(orientasi.closes_at)) : "—";
+          const kelas = orientasi.tolak_kelas && orientasi.tolak_kelas.length > 0 ? orientasi.tolak_kelas.join(", ") : null;
+          const kunci: HleEvent = kelas ? (orientasi.tolak_selesai ? "siklus.d4.kelas_akhir" : "siklus.d4.kelas_tanpa_akhir")
+            : orientasi.tolak_selesai ? "siklus.d4.akhir" : "siklus.d4.tanpa_akhir";
+          return s(kunci).replace("{d}", menit).replace("{kelas}", kelas ?? "")
+            .replace("{jam}", orientasi.tolak_mulai ? jamJendela(orientasi.tolak_mulai, zonaTolak) : "—")
+            .replace("{jam_selesai}", orientasi.tolak_selesai ? jamJendela(orientasi.tolak_selesai, zonaTolak) : "—");
+        })();
     return (
       <>
         <CangkangPengalaman locale={locale} current="belajar" />
@@ -125,7 +144,14 @@ export default async function PermukaanAsesmen({
             mode={mode}
             eyebrow={eyebrow}
             judul={nama}
-            mulai={
+            mulai={dimatikan ? (
+              <div className="pin-stack" data-mulai-ditolak={tolak}>
+                <button type="button" className="pin-btn pin-primary" disabled aria-describedby="mulai-tolak">
+                  {s("cycle.open")} {nama}
+                </button>
+                <p id="mulai-tolak" className="pin-mm" role="status">{kalimatTolak}</p>
+              </div>
+            ) : (
               <form action={mulaiAsesmen}>
                 <input type="hidden" name="penugasan" value={penugasan} />
                 <input type="hidden" name="kembali" value={diriHref} />
@@ -133,7 +159,7 @@ export default async function PermukaanAsesmen({
                   {s("cycle.open")} {nama}
                 </TombolKirim>
               </form>
-            }
+            )}
             kembali={{ href: kembali.href, label: s("siklus.nanti") }}
           />
           <KakiPintar />
