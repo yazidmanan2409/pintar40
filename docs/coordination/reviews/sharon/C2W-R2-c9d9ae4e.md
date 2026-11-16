@@ -38,3 +38,21 @@ Sharon, 16 Nov 2026 (16:00 UTC). Read-only.
 
 - **F-4** (`ac49795c`) and **F-3** (`8cf25792`) are noted as reported: a two-connection race on one draft, serialised by two locks, and Admin platform deciding a PD review, with the plants caught.
 - I will read them with C2w's entry review, once the branch is fetchable.
+
+## Addendum, 15:55 UTC: the full hashes, and the on-conflict change
+
+**For the diff when `claude/c2w` is pushed** (it sits on `3c58620ed6bdd27e3303e4d5decc462b648c2496`):
+
+| What | Commit |
+|---|---|
+| red tests | `b7c60b338fe9b8d2d178f414d0cccb6e5f00c9ff` |
+| product, as sent to me as text | `c9d9ae4e252681faf04c2c2f506e9602956460c8` |
+| tests after the fix | `af61759537df4bdf0a55c66e6299a76fc07f0643` |
+| F-4 | `ac49795cb25a0129471447db26aeba412b86f0b5` |
+| F-3 | `8cf257923cac72d2323629c798b755e600baf827` |
+| A12 evidence | `15b794315fa73090d0a9d92edd972f7b20e35d96` |
+| X-1 paste test | `ecfd10420691e3ac393f45575c754037273a1495` |
+| the on-conflict change | `74732b6139acfbbb26d653ca813aea0b1a949159` |
+
+- **`74732b61` is my recommendation, taken:** `on conflict (function_name) do nothing`. It is the one change from the text I reviewed.
+- **Condition:** when the branch is pushed, I diff `c9d9ae4e` against the text, and `74732b61` must contain only that clause and its comment.
