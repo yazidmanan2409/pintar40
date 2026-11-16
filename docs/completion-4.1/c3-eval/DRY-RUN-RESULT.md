@@ -301,6 +301,8 @@ depends on it.
 
 ### Verdict: both adapters stay `verified: false`
 
+*Superseded by "Re-check against §6c, 16 Nov" below: openai is now verified; anthropic is not.*
+
 The rule: `verified: true` only if every field the adapter depends on rests on a grade-A fact.
 
 | Adapter | Fields without a grade-A fact |
@@ -423,3 +425,48 @@ label "undated alias, ID read 2026-11-16", this captures the version actually se
 **83 PASS, 0 FAIL**. New checks: the model version is recorded; with dummy keys and adapters marked verified through a
 test-only override, a run without `--live` is refused; `--live` with the real, unverified adapters is refused; and only
 `--live` with keys and verified adapters gets through the gate. No network call was attempted.
+
+### Re-check against §6c, 16 Nov
+
+§6c (`claude/e-provider-facts` at `08e3221d`) documents the response shape, the structured-output schema rules and the
+token totals. The open fields were re-checked against it. **No API was called.**
+
+| Open field | §6c | Result |
+|---|---|---|
+| anthropic response text | `content[]`, select `type == "text"`, read `text`; the JSON is a string there (A) | matches; **closed** |
+| anthropic credit exhaustion | nothing new; 402 `billing_error` stays B | **still open** (fails closed: a stop) |
+| openai response text | `output[]` items of `type: "message"`, `content[]` parts of `type: "output_text"` with `text` (A); top-level `output_text` is SDK-only | matches; **closed**. A `refusal` part is now recorded |
+| openai `Content-Type` | in every reference example (A); "required" is B, but it is always sent | **closed** |
+| anthropic tokens | `input_tokens` excludes cache tokens; `output_tokens` includes thinking (A) | unchanged: the three input fields summed, output as is |
+| openai tokens | `input_tokens` **includes** cached and cache-write (A); `reasoning_tokens` within `output_tokens` is B | **fixed:** input = `input_tokens` (the cache details were being added); output keeps the bound `min(max_output, output + reasoning)` |
+
+**The schema.** Every validating keyword in `item-schema.json` is documented as supported by both providers: `type`,
+`properties`, `items`, `required` (every property, so 0 optional parameters), `additionalProperties: false` on all four
+objects, and string-only `enum`. The root is an object with no `anyOf`. No count, length or number constraint and no
+composition is used. Only the root annotations `$schema`, `title` and `description` are undocumented (§6c, B). They do
+not validate, so the adapters now send the schema **without those three keys**. Everything else is byte-for-byte the
+frozen schema, and `item-schema.json` is unchanged. `kit.mjs validate` still checks every response in full. Provenance
+records both the kit's `schema_sha256` and `schema_sent_sha256` with the omitted keys. **No incompatibility was
+found.** One caveat: Anthropic does not guarantee the case of `enum` values. A lower-case label would be measured
+invalid by the frozen validator and retried; the raw response is never altered.
+
+**Also tightened:** only the documented server errors are retried (anthropic 500, 504 and 529; openai 500 and 503). Any
+other 5xx is not retried, so it fails closed.
+
+**Verdict:**
+- **openai: `verified: true`.** Every relied-on field is grade A.
+- **anthropic: `verified: false`.** Credit exhaustion is the only field without a grade-A fact.
+
+The default run (both providers) is still refused. `--live --providers openai` with a key would pass the gate; the
+self-test checks this in memory only. Self-test: exit 0, **93 PASS, 0 FAIL**, no network.
+
+```
+real run refused:
+- no --live flag: a real run starts only with node runner.mjs --live, and only when every check below passes
+- anthropic: API adapter not verified against the official documentation; no grade-A fact for: credit exhaustion
+- anthropic: no key in ANTHROPIC_API_KEY
+- openai: no key in OPENAI_API_KEY
+```
+
+The worst case is unchanged: 0.764298 per provider, 1.528596 in total. The plan still counts the full schema's
+1,852 characters, more than is sent.

@@ -136,9 +136,9 @@ class Ledger {
 // so the self-test can check every field offline. httpCall joins them with fetch; it is never reached in a dry run or
 // the self-test, where fetch is replaced by a function that throws.
 //
-// anthropic and openai were compared field by field with E-PROVIDER-FACTS.md §6 (read 16 Nov 2026 from the official
-// API reference; table in DRY-RUN-RESULT.md, "Adapter verification against official docs, 16 Nov"). `verified` is true
-// only when every field the adapter depends on rests on a grade-A fact; `unverified_fields` lists what does not.
+// anthropic and openai were compared field by field with E-PROVIDER-FACTS.md §6a, §6b and §6c (read 16 Nov 2026 from
+// the official API reference; tables in DRY-RUN-RESULT.md). `verified` is true only when every field the adapter
+// depends on rests on a grade-A fact; `unverified_fields` lists what does not.
 // google was written from memory and never checked; it is excluded (prices.json) and kept only as code.
 class HttpError extends Error {
   constructor(status, body, extra = {}) { super(`HTTP ${status}${extra.cls?.code ? ' ' + extra.cls.code : ''}`); this.status = status; this.body = body; Object.assign(this, extra); }
@@ -152,6 +152,16 @@ function pickHeaders(headers, names) {
 }
 const ANTHROPIC_RL = ['retry-after', ...['requests', 'tokens', 'input-tokens', 'output-tokens'].flatMap((k) => ['limit', 'remaining', 'reset'].map((x) => `anthropic-ratelimit-${k}-${x}`))];
 const OPENAI_RL = ['retry-after', ...['limit', 'remaining', 'reset'].flatMap((x) => ['requests', 'tokens', 'project-tokens'].map((k) => `x-ratelimit-${x}-${k}`))];
+// The schema as sent. item-schema.json (frozen) carries three root annotation keywords, $schema, title and description,
+// whose acceptance neither provider documents (§6c, B). They have no validating effect, so they are left out of the
+// copy sent. Every keyword that remains (type, properties, items, required, additionalProperties: false, string enum)
+// is documented as supported by both (§6c, A). kit.mjs validate still checks every response in full.
+const SCHEMA_ANNOTATIONS = ['$schema', 'title', 'description'];
+function wireSchema(schemaText) {
+  const s = JSON.parse(schemaText);
+  for (const k of SCHEMA_ANNOTATIONS) delete s[k];
+  return s;
+}
 const OPENAI_SPEND_CODES = ['organization_spend_limit_exceeded', 'project_spend_limit_exceeded', 'organization_usage_limit_exceeded'];
 
 async function httpCall(adapter, args, fetchImpl = globalThis.fetch) {
@@ -166,22 +176,25 @@ const ADAPTERS = {
   anthropic: {
     verified: false,
     unverified_fields: [
-      'response text location: the adapter reads the generated text from content[] blocks of type "text" (content[].text); §6a documents no response-content field',
-      'credit exhaustion: HTTP 402 billing_error is grade B in §6a ("No error specific to an exhausted credit balance was found"); the adapter treats 402 as a billing stop, which fails closed',
+      'credit exhaustion: HTTP 402 billing_error is grade B in §6a ("No error specific to an exhausted credit balance was found"), and §6c adds nothing; the adapter treats 402 as a billing stop, which fails closed',
     ],
     endpoint: 'https://api.anthropic.com/v1/messages', api_version: '2026-10-21',
     build({ model, text, schema, maxOutput, key }) {
       return { url: this.endpoint, method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `Bearer ${key}`, 'anthropic-version': this.api_version },
         body: { model, max_tokens: maxOutput, messages: [{ role: 'user', content: text }],
-          output_config: { format: { type: 'json_schema', schema: JSON.parse(schema) } } } };
+          output_config: { format: { type: 'json_schema', schema: wireSchema(schema) } } } };
     },
     parse({ headers, bodyText }) {
       const h = new Headers(headers ?? {}); const j = JSON.parse(bodyText); const u = j.usage;
       const ok = u && Number.isFinite(u.input_tokens) && Number.isFinite(u.output_tokens);
+      // §6c: the JSON arrives as a string in content[] blocks of type "text"; other block types are skipped
       return { raw: (j.content ?? []).filter((c) => c.type === 'text').map((c) => c.text).join(''),
         request_id: h.get('request-id'), model_version: j.model ?? null,
-        // §6a: total input = input_tokens + cache_creation_input_tokens + cache_read_input_tokens; output_tokens is the billing total
+        // §6c: "refusal" and "max_tokens" are 200s whose output may not match the schema; kit.mjs validate decides
+        finish: { stop_reason: j.stop_reason ?? null },
+        // §6a/§6c: input_tokens excludes the cache tokens, so total input = input_tokens + cache_creation_input_tokens +
+        // cache_read_input_tokens; output_tokens is "the inclusive, authoritative total used for billing" (incl. thinking)
         usage: ok ? { input: u.input_tokens + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0), output: u.output_tokens } : null,
         usage_raw: u ?? null, rate_limit: pickHeaders(h, ANTHROPIC_RL) };
     },
@@ -195,17 +208,19 @@ const ADAPTERS = {
       if (status === 429) return { ...base, status: 'spend_stop', retry: false, stop: true, note: '429 without retry-after or a rate-limit code: treated as a stop' };
       if (status === 400 && /^You have reached your specified (workspace )?API usage limits/.test(msg)) return { ...base, status: 'spend_stop', retry: false, stop: true };
       if (status === 402) return { ...base, status: 'billing_stop', retry: false, stop: true };
-      if (status >= 500) return { ...base, status: 'http_5xx', retry: true };   // 500 api_error, 504 timeout_error, 529 overloaded_error
+      // only the documented server errors are retried: 500 api_error, 504 timeout_error, 529 overloaded_error
+      if ([500, 504, 529].includes(status)) return { ...base, status: 'http_5xx', retry: true };
+      if (status >= 500) return { ...base, status: 'http_5xx', retry: false, note: 'undocumented 5xx: not retried' };
       return { ...base, status: 'http_4xx', retry: false };
     },
     async call(args) { return httpCall(this, args); },
   },
   openai: {
-    verified: false,
-    unverified_fields: [
-      'response text location: the adapter reads the generated text from output[] items of type "message", content[] parts of type "output_text" (.text); §6b documents no response-content field',
-      'content-type: application/json request header: not stated in §6b',
-    ],
+    // Every relied-on field is grade A (§6b, §6c). Content-Type: A as documented in every reference example (whether it
+    // is required is B, but it is always sent). Output usage: whether output_tokens includes reasoning_tokens is B, so
+    // the adapter does not rely on it: it settles on a bound that holds either way (below).
+    verified: true,
+    unverified_fields: [],
     endpoint: 'https://api.openai.com/v1/responses', api_version: 'v1',
     build({ model, text, schema, maxOutput, key, clientRequestId }) {
       const headers = { 'content-type': 'application/json', authorization: `Bearer ${key}` };
@@ -213,22 +228,28 @@ const ADAPTERS = {
       if (clientRequestId) { if (!/^[\x20-\x7e]{1,512}$/.test(clientRequestId)) throw new Fatal('X-Client-Request-Id must be ASCII, ≤512 chars'); headers['x-client-request-id'] = clientRequestId; }
       return { url: this.endpoint, method: 'POST', headers,
         body: { model, input: text, max_output_tokens: maxOutput, store: false,
-          text: { format: { type: 'json_schema', name: 'c3_items', schema: JSON.parse(schema), strict: true } } } };
+          text: { format: { type: 'json_schema', name: 'c3_items', schema: wireSchema(schema), strict: true } } } };
     },
     parse({ headers, bodyText, maxOutput }) {
       const h = new Headers(headers ?? {}); const j = JSON.parse(bodyText); const u = j.usage;
       const ok = u && Number.isFinite(u.input_tokens) && Number.isFinite(u.output_tokens);
-      // §6b names the detail fields but does not say whether input_tokens includes the cached tokens, or output_tokens the
-      // reasoning tokens. Settle on an upper bound that holds either way: input + cache details; output + reasoning, but
-      // never above max_output_tokens, which already includes reasoning (§6b, A). The raw usage is kept.
+      // §6c: input_tokens INCLUDES cached and cache-write tokens (A), so it is the total input; the cache discount is not
+      // taken (conservative). Whether output_tokens includes reasoning_tokens is B ("breakdown"), so output settles on a
+      // bound that holds either way: output + reasoning, never above max_output_tokens, which includes reasoning (§6b, A).
+      // The raw usage is kept.
       let usage = null;
       if (ok) {
-        const d = u.input_tokens_details ?? {}; const r = u.output_tokens_details?.reasoning_tokens ?? 0;
+        const r = u.output_tokens_details?.reasoning_tokens ?? 0;
         const outBound = Number.isFinite(maxOutput) ? Math.max(u.output_tokens, Math.min(maxOutput, u.output_tokens + r)) : u.output_tokens + r;
-        usage = { input: u.input_tokens + (d.cached_tokens ?? 0) + (d.cache_write_tokens ?? 0), output: outBound };
+        usage = { input: u.input_tokens, output: outBound };
       }
-      const raw = (j.output ?? []).filter((o) => o.type === 'message').flatMap((o) => o.content ?? []).filter((c) => c.type === 'output_text').map((c) => c.text).join('');
-      return { raw, request_id: h.get('x-request-id'), model_version: j.model ?? null, usage, usage_raw: u ?? null, rate_limit: pickHeaders(h, OPENAI_RL) };
+      // §6c: select output[] items by type "message" (not position), then aggregate their "output_text" parts; output_text
+      // at the top level is SDK-only. A "refusal" part carries no JSON; it is recorded, and kit.mjs validate decides.
+      const parts = (j.output ?? []).filter((o) => o.type === 'message').flatMap((o) => o.content ?? []);
+      const raw = parts.filter((c) => c.type === 'output_text').map((c) => c.text).join('');
+      const refusal = parts.filter((c) => c.type === 'refusal').map((c) => c.refusal).join('') || null;
+      return { raw, request_id: h.get('x-request-id'), model_version: j.model ?? null, finish: { status: j.status ?? null, refusal },
+        usage, usage_raw: u ?? null, rate_limit: pickHeaders(h, OPENAI_RL) };
     },
     classifyError({ status, headers, bodyText }) {
       const h = new Headers(headers ?? {}); const j = tryJson(bodyText); const e = j?.error ?? {};
@@ -238,7 +259,9 @@ const ADAPTERS = {
       if (status === 429 && code === 'credit_balance_exhausted') return { ...base, status: 'billing_stop', retry: false, stop: true };
       if (status === 429 && (OPENAI_SPEND_CODES.includes(code) || e.type === 'insufficient_quota')) return { ...base, status: 'spend_stop', retry: false, stop: true };
       if (status === 429) return { ...base, status: 'http_429', retry: true };    // "Rate limit reached for requests", slow_down
-      if (status >= 500) return { ...base, status: 'http_5xx', retry: true };     // 500; 503 service_unavailable_error / server_is_overloaded
+      // only the documented server errors are retried: 500; 503 service_unavailable_error / server_is_overloaded
+      if ([500, 503].includes(status)) return { ...base, status: 'http_5xx', retry: true };
+      if (status >= 500) return { ...base, status: 'http_5xx', retry: false, note: 'undocumented 5xx: not retried' };
       return { ...base, status: 'http_4xx', retry: false };
     },
     async call(args) { return httpCall(this, args); },
@@ -369,7 +392,7 @@ export async function runEval(cfg) {
         const settle = { cost_usd: usd(actual), cost_basis: reportedUsage ? 'usage' : 'reservation',
           actual_input_tokens: reportedUsage ? res.usage.input : null, actual_output_tokens: reportedUsage ? res.usage.output : null,
           request_id: res?.request_id ?? err?.request_id ?? null, client_request_id: clientRequestId, model_version: res?.model_version ?? null,
-          usage_raw: res?.usage_raw ?? null, duration_ms, rate_limit: res?.rate_limit ?? err?.rate_limit ?? null };
+          usage_raw: res?.usage_raw ?? null, finish: res?.finish ?? null, duration_ms, rate_limit: res?.rate_limit ?? err?.rate_limit ?? null };
         if (actual > wc.micro) {
           ledger.settle(e, { ...settle, status: 'overrun', reason: `reported cost ${usd(actual)} exceeds its reservation ${usd(wc.micro)}` });
           abort = { kind: 'overrun', reason: `${provider} bab${b} attempt ${attempt}: ${e.reason}` }; log(`ABORT    ${abort.reason}`); break outer;
@@ -397,6 +420,7 @@ export async function runEval(cfg) {
           writeFileSync(join(pdir, `bab${b}.provenance.json`), JSON.stringify({
             mode, run_id: runId, provider, model: price.model, model_version: res.model_version, model_date: price.model_date,
             request_id: res.request_id, attempt, prompt_version: m.prompt_version, prompt_sha256: m.prompt_sha256, schema_sha256: m.schema_sha256,
+            schema_sent_sha256: sha(JSON.stringify(wireSchema(schema))), schema_sent_omits: SCHEMA_ANNOTATIONS,
             source: m.chapters[`bab${b}`].source, source_sha256: m.chapters[`bab${b}`].source_sha256,
             source_excerpt_sha256: m.chapters[`bab${b}`].material_sha256, request_sha256: m.chapters[`bab${b}`].request_sha256,
             response_sha256: sha(res.raw), schema_valid: v.valid, valid_items: v.items.filter((x) => x.valid).length,
@@ -537,8 +561,8 @@ async function adapterChecks(check, table) {
     check(eq(q.headers, { 'content-type': 'application/json', authorization: `Bearer ${KEY}`, 'anthropic-version': '2026-10-21' }), 'anthropic request headers: content-type application/json, Authorization: Bearer <key>, anthropic-version 2026-10-21 (no legacy x-api-key)');
     const f = q.body.output_config?.format ?? {};
     check(eq(Object.keys(q.body).sort(), ['max_tokens', 'messages', 'model', 'output_config']) && q.body.model === 'claude-sonnet-5-5' && q.body.max_tokens === DEFAULT_MAX_OUTPUT
-      && eq(q.body.messages, [{ role: 'user', content: text }]) && eq(Object.keys(f).sort(), ['schema', 'type']) && f.type === 'json_schema' && eq(f.schema, JSON.parse(schema)),
-      'anthropic request body: model claude-sonnet-5-5, max_tokens 12000, messages [user: the chapter request], output_config.format {type json_schema, schema: item-schema.json}; no system prompt');
+      && eq(q.body.messages, [{ role: 'user', content: text }]) && eq(Object.keys(f).sort(), ['schema', 'type']) && f.type === 'json_schema' && eq(f.schema, wireSchema(schema)),
+      'anthropic request body: model claude-sonnet-5-5, max_tokens 12000, messages [user: the chapter request], output_config.format {type json_schema, schema: item-schema.json without its root annotations}; no system prompt');
     const okH = { 'request-id': 'req_018Eselftest', 'anthropic-ratelimit-requests-remaining': '3999', 'anthropic-ratelimit-output-tokens-reset': '2026-11-16T07:00:30Z', 'x-unrelated': 'dropped' };
     const okB = JSON.stringify({ id: 'msg_selftest', type: 'message', role: 'assistant', model: 'claude-sonnet-5-5', content: [{ type: 'text', text: '{"items":[]}' }],
       usage: { input_tokens: 2400, output_tokens: 2500, cache_creation_input_tokens: 10, cache_read_input_tokens: 5 } });
@@ -547,6 +571,8 @@ async function adapterChecks(check, table) {
     check(r.request_id === 'req_018Eselftest', 'anthropic response: request id from the request-id header, not the message id');
     check(r.rate_limit?.['anthropic-ratelimit-requests-remaining'] === '3999' && r.rate_limit?.['anthropic-ratelimit-output-tokens-reset'] && !('x-unrelated' in r.rate_limit), 'anthropic response: the documented anthropic-ratelimit-* headers are kept, nothing else');
     check(r.raw === '{"items":[]}' && r.model_version === 'claude-sonnet-5-5', 'anthropic response: text and model extracted');
+    const mixed = A.parse({ status: 200, headers: okH, bodyText: JSON.stringify({ model: 'claude-sonnet-5-5', stop_reason: 'max_tokens', content: [{ type: 'thinking', thinking: 'x' }, { citations: null, text: '{"items":', type: 'text' }, { type: 'text', text: '[]}' }], usage: { input_tokens: 1, output_tokens: 2 } }) });
+    check(mixed.raw === '{"items":[]}' && mixed.finish.stop_reason === 'max_tokens', 'anthropic response (§6c): only content blocks of type "text" are joined, other block types skipped; stop_reason recorded');
     const w = await wire(A, args('anthropic'), 200, okH, okB);
     check(w.seen.length === 1 && w.seen[0].url === A.endpoint && w.seen[0].init.method === 'POST' && eq(w.seen[0].init.headers, q.headers) && eq(JSON.parse(w.seen[0].init.body), q.body) && w.res?.usage?.input === 2415,
       'anthropic wire path (local function, no network): httpCall sends exactly the built request and parses the response');
@@ -563,6 +589,7 @@ async function adapterChecks(check, table) {
       ['500 api_error', ae(500, { type: 'api_error', message: 'internal' }), 'http_5xx', true],
       ['504 timeout_error', ae(504, { type: 'timeout_error', message: 'timeout' }), 'http_5xx', true],
       ['529 overloaded_error', ae(529, { type: 'overloaded_error', message: 'overloaded' }), 'http_5xx', true],
+      ['502 (undocumented 5xx, fails closed)', ae(502, { type: 'api_error', message: 'bad gateway' }), 'http_5xx', false],
     ]);
     const noHdr = A.classifyError({ status: 500, headers: {}, bodyText: JSON.stringify({ type: 'error', error: { type: 'api_error', message: 'x' }, request_id: 'req_err_body' }) });
     const hdr = A.classifyError(ae(429, { type: 'rate_limit_error', message: 'x' }, { 'retry-after': '7' }));
@@ -578,7 +605,7 @@ async function adapterChecks(check, table) {
     check(eq(q.headers, { 'content-type': 'application/json', authorization: `Bearer ${KEY}`, 'x-client-request-id': args('openai').clientRequestId }), 'openai request headers: content-type application/json, Authorization: Bearer <key>, X-Client-Request-Id; no version header');
     const f = q.body.text?.format ?? {};
     check(eq(Object.keys(q.body).sort(), ['input', 'max_output_tokens', 'model', 'store', 'text']) && q.body.model === 'gpt-6.1-sol' && q.body.input === text && q.body.max_output_tokens === DEFAULT_MAX_OUTPUT && q.body.store === false
-      && eq(f, { type: 'json_schema', name: 'c3_items', schema: JSON.parse(schema), strict: true }),
+      && eq(f, { type: 'json_schema', name: 'c3_items', schema: wireSchema(schema), strict: true }),
       'openai request body: model gpt-6.1-sol, input (the chapter request), max_output_tokens 12000, store false, text.format {type json_schema, name, schema, strict true}; no instructions');
     let bad = null; try { A.build({ ...args('openai'), clientRequestId: 'naïve' }); } catch (x) { bad = x; }
     check(bad instanceof Fatal && args('openai').clientRequestId.length <= 512, 'openai request: X-Client-Request-Id is ASCII and at most 512 characters, or the request is not built');
@@ -586,7 +613,11 @@ async function adapterChecks(check, table) {
     const okB = JSON.stringify({ id: 'resp_selftest', object: 'response', model: 'gpt-6.1-sol', output: [{ type: 'reasoning', summary: [] }, { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '{"items":[]}' }] }],
       usage: { input_tokens: 2400, input_tokens_details: { cached_tokens: 0, cache_write_tokens: 0 }, output_tokens: 2600, output_tokens_details: { reasoning_tokens: 300 }, total_tokens: 5000 } });
     const r = A.parse({ status: 200, headers: okH, bodyText: okB, maxOutput: DEFAULT_MAX_OUTPUT });
-    check(r.usage?.input === 2400 && r.usage?.output === 2900 && r.usage_raw?.output_tokens === 2600, 'openai response usage: input_tokens (+ cache details) 2400; output settled at the upper bound output_tokens + reasoning_tokens (2900); raw usage kept');
+    check(r.usage?.input === 2400 && r.usage?.output === 2900 && r.usage_raw?.output_tokens === 2600, 'openai response usage: input = input_tokens (2400); output settled at the upper bound output_tokens + reasoning_tokens (2900); raw usage kept');
+    const cached = A.parse({ status: 200, headers: okH, bodyText: JSON.stringify({ output: [], usage: { input_tokens: 12000, input_tokens_details: { cached_tokens: 4000, cache_write_tokens: 7000 }, output_tokens: 10 } }), maxOutput: DEFAULT_MAX_OUTPUT });
+    check(cached.usage.input === 12000, 'openai response usage (§6c): input_tokens already includes cached and cache-write tokens, so 12,000 is not added to (the §6c worked example)');
+    const refused = A.parse({ status: 200, headers: okH, bodyText: JSON.stringify({ status: 'completed', output: [{ type: 'message', role: 'assistant', content: [{ type: 'refusal', refusal: 'no' }] }], usage: { input_tokens: 1, output_tokens: 1 } }), maxOutput: DEFAULT_MAX_OUTPUT });
+    check(refused.raw === '' && refused.finish.refusal === 'no' && refused.finish.status === 'completed', 'openai response (§6c): a refusal part gives no text (kit.mjs validate then measures it invalid) and is recorded');
     const capped = A.parse({ status: 200, headers: okH, bodyText: JSON.stringify({ output: [], usage: { input_tokens: 10, output_tokens: 11900, output_tokens_details: { reasoning_tokens: 500 } } }), maxOutput: DEFAULT_MAX_OUTPUT });
     check(capped.usage.output === DEFAULT_MAX_OUTPUT, 'openai response usage: the output bound never exceeds max_output_tokens, which includes reasoning');
     check(r.request_id === 'req_selftest', 'openai response: request id from the x-request-id header, not the response id');
@@ -607,9 +638,30 @@ async function adapterChecks(check, table) {
       ['500 server error', oe(500, { type: 'server_error', message: 'The server had an error while processing your request' }), 'http_5xx', true],
       ['503 service_unavailable_error / server_is_overloaded', oe(503, { type: 'service_unavailable_error', code: 'server_is_overloaded', message: 'x' }), 'http_5xx', true],
       ['400 invalid request', oe(400, { type: 'invalid_request_error', message: 'x' }), 'http_4xx', false],
+      ['502 (undocumented 5xx, fails closed)', oe(502, { type: 'server_error', message: 'bad gateway' }), 'http_5xx', false],
     ]);
     check(A.classifyError(oe(429, { code: 'credit_balance_exhausted' })).request_id === 'req_err', 'openai error: request id from the x-request-id header');
   }
+  // item-schema.json against the §6c schema rules of both providers, as sent
+  const orig = JSON.parse(schema); const sent = wireSchema(schema); const kw = new Set(); const objs = []; const enums = []; const nestedAnno = [];
+  const walk = (n, root) => {
+    for (const k of Object.keys(n)) kw.add(k);
+    if (!root) for (const k of SCHEMA_ANNOTATIONS) if (k in n) nestedAnno.push(k);
+    if (n.type === 'object') objs.push(n);
+    if (n.enum) enums.push(n.enum);
+    for (const c of Object.values(n.properties ?? {})) walk(c, false);
+    if (n.items) walk(n.items, false);
+  };
+  walk(orig, true); const origKw = new Set(kw); kw.clear(); objs.length = 0; enums.length = 0; walk(sent, true);
+  const canon = (x) => (Array.isArray(x) ? x.map(canon) : x && typeof x === 'object' ? Object.fromEntries(Object.keys(x).sort().map((k) => [k, canon(x[k])])) : x);
+  check(eq(canon({ ...sent, ...Object.fromEntries(SCHEMA_ANNOTATIONS.filter((k) => k in orig).map((k) => [k, orig[k]])) }), canon(orig)) && nestedAnno.length === 0 && SCHEMA_ANNOTATIONS.every((k) => !(k in sent)) && [...origKw].filter((k) => !kw.has(k)).sort().join() === [...SCHEMA_ANNOTATIONS].sort().join(),
+    'schema sent: item-schema.json minus only its root annotations ($schema, title, description), which do not validate; every validating keyword is unchanged');
+  const ALLOWED = ['additionalProperties', 'enum', 'items', 'properties', 'required', 'type'];
+  check([...kw].every((k) => ALLOWED.includes(k)), `schema sent uses only keywords both providers document as supported (§6c): ${[...kw].sort().join(', ')}`);
+  check(sent.type === 'object' && !('anyOf' in sent) && objs.length === 4 && objs.every((o) => o.additionalProperties === false && eq([...o.required].sort(), Object.keys(o.properties).sort())),
+    'schema sent: root is an object without anyOf; all 4 objects have additionalProperties false and every property required (0 optional parameters; Anthropic limit 24)');
+  check(enums.length > 0 && enums.every((e) => e.every((x) => typeof x === 'string')) && !['minItems', 'maxItems', 'minLength', 'maxLength', 'minimum', 'maximum', 'pattern', 'format', 'allOf', 'anyOf', 'not', 'if', '$ref'].some((k) => kw.has(k)),
+    'schema sent: string-only enums; no array, string or number constraints and no composition (counts stay with kit.mjs validate)');
   // the documented long-prompt surcharge (never reached by E)
   const op = table.providers.openai;
   check(costMicro(272000, 1000, op) === 272000 * 2 + 1000 * 10 && costMicro(272001, 1000, op) === Math.ceil(272001 * 4 + 1000 * 15), 'openai price: above 272K input tokens the full request costs 2× input and 1.5× output');
@@ -711,6 +763,9 @@ async function selfTest() {
   const lv = realRunProblems({ live: true }, table, providers, dummyKeys);
   check(lv.length > 0 && !lv.some((x) => /--live/.test(x)) && unverified.every((p) => lv.some((x) => x.startsWith(`${p}: API adapter not verified`))), `with --live and dummy keys, a real run is still refused while an adapter is unverified (${unverified.join(', ') || 'none'})`);
   check(realRunProblems({ live: true }, table, providers, dummyKeys, allVerified).length === 0, 'test-only override: --live, keys and verified adapters together are the only way through');
+  const verifiedOnly = providers.filter((p) => ADAPTERS[p].verified);
+  check(verifiedOnly.every((p) => realRunProblems({ live: true }, table, [p], dummyKeys).length === 0 && realRunProblems({}, table, [p], dummyKeys).length === 1),
+    `the real adapters as they stand: ${verifiedOnly.join(', ') || 'none'} would pass the gate alone with --live and a key, and is refused without --live (checked in memory; no call made)`);
   check(fetches === 0, 'no network call was attempted');
   globalThis.fetch = realFetch;
   const plan = planTable(prices, providers, DEFAULT_MAX_OUTPUT);
