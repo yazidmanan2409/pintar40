@@ -331,14 +331,21 @@ await step("J1.6", "maintenance as people meet it (R-1): the school's teacher is
     // (ii) R-1: a new start there is refused PR040 MAINTENANCE_PLACE. THE JOURNEY FIXTURE: the learner needs an
     // assessment they have never started (J6.4 has used the Pemetaan Awal's one attempt and opened the Uji
     // Penguasaan), and no product function makes a second assignment of the same definition. So a copy of the class's
-    // Pemetaan Awal assignment, with a new id, is made in a transaction that is rolled back, and the learner's start is
-    // asked of the product's own start_learning_session inside it, under the learner's own claims.
-    const mulai = sqlSkrip(`begin;
+    // Pemetaan Awal assignment, with a new id, ON ITS OWN COPY OF THE DEFINITION (new id), is made in a transaction that
+    // is rolled back, and the learner's start is asked of the product's own start_learning_session inside it, under the
+    // learner's own claims. The definition is copied because may_start counts the attempts of one definition and
+    // version under any assignment within one school and one school year: on the class's own definition the copy
+    // carried J6.4's finished sitting and was refused ATTEMPT_LIMIT_REACHED before maintenance was judged (run
+    // 43928667230 on dd6803c5). may_start's own answer is read beside the start's, so a refusal says which rule refused.
+    const keluarMulai = sqlSkrip(`begin;
 set local session_replication_role = replica;
 create temp table j16 on commit drop as select aa.* from public.assessment_assignments aa
   join public.assessment_definitions d on d.id = aa.assessment_definition_id
  where aa.institution_id = ${lit(siklus)} and d.mode = 'PRE_TEST' and aa.status = 'OPEN' order by aa.id limit 1;
-update j16 set id = gen_random_uuid();
+create temp table j16d on commit drop as select d.* from public.assessment_definitions d where d.id = (select assessment_definition_id from j16);
+update j16d set id = gen_random_uuid(), title = title || ' (jalan J1.6)';
+insert into public.assessment_definitions select * from j16d;
+update j16 set id = gen_random_uuid(), assessment_definition_id = (select id from j16d);
 insert into public.assessment_assignments select * from j16;
 set local session_replication_role = origin;
 create function pg_temp.j16_mulai() returns text language plpgsql as $c$
@@ -349,9 +356,13 @@ begin
   return 'OK';
 exception when others then get stacked diagnostics s = returned_sqlstate, d = pg_exception_detail; return s || ':' || coalesce(d, '');
 end $c$;
+select 'klaim|' || set_config('request.jwt.claims', json_build_object('sub', (select id from auth.users where email = ${lit(MURID.email)}), 'role', 'authenticated')::text, true);
+select 'boleh|' || (select m.reason from public.may_start_assessment((select id from j16)) m);
 select 'mulai|' || pg_temp.j16_mulai();
-rollback;`).find((l) => l.startsWith("mulai|"))?.slice(6) ?? "no answer";
-    harus(rec, mulai === "PR040:MAINTENANCE_PLACE", `a new start in the school is refused PR040 MAINTENANCE_PLACE (${mulai})`);
+rollback;`);
+    const mulai = keluarMulai.find((l) => l.startsWith("mulai|"))?.slice(6) ?? "no answer";
+    const boleh = keluarMulai.find((l) => l.startsWith("boleh|"))?.slice(6) ?? "no answer";
+    harus(rec, mulai === "PR040:MAINTENANCE_PLACE", `a new start in the school is refused PR040 MAINTENANCE_PLACE (${mulai}; may_start: ${boleh})`);
     // (iii) R-1: another school's learner is unaffected: no notice, no redirect
     await lain.page.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
     harus(rec, jalan(lain.page) === "/belajar" && !(await lain.page.locator('[data-pemeliharaan="1"]').first().isVisible().catch(() => false)),

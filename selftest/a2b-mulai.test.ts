@@ -13,8 +13,8 @@
  *
  * The learner is the Siklus school's (siklus-email); the assignment is the journey fixture: a standalone copy of the
  * class's Pemetaan Awal whose definition is marked ad-hoc, as a Uji Cepat's is. Its attempts are its own, so no sitting
- * another test leaves (the suite's earlier ones sit the class's Pemetaan Awal, which counts by learning assignment and
- * mode) can refuse it first, and may_start's maintenance answer is the deciding one.
+ * another test leaves can refuse it first (may_start counts the attempts of one definition and version, under any
+ * assignment, within one school and one school year; the suite's earlier tests sit the class's Pemetaan Awal), and may_start's maintenance answer is the deciding one.
  *   A2B-SP1 (database, rolled back): with no window the start succeeds (the control); inside a planned school window
  *     under way it raises PR040 with DETAIL MAINTENANCE_PLACE; with a planned school window starting in 10 minutes,
  *     and with a platform-wide one, PR110 with DETAIL MAINTENANCE_NO_NEW_START. The plant (after the fix): the
@@ -127,22 +127,30 @@ delete from public.assessment_definitions where id = ${lit(D_ADHOC)};
 delete from public.assessment_sessions where assessment_assignment_id = ${lit(AA_SIKLUS)};
 delete from public.assessment_assignments where id = ${lit(AA_SIKLUS)};
 delete from public.learning_assignments where id = ${lit(LA_SIKLUS)};
+delete from public.assessment_definitions where id = ${lit(D_SIKLUS)};
 commit;`);
   return psql(`select (select count(*) from public.maintenance_windows where id = ${lit(W)}) + (select count(*) from public.assessment_assignments where id in (${lit(AA_ADHOC)}, ${lit(AA_SIKLUS)}))
-    + (select count(*) from public.learning_assignments where id = ${lit(LA_SIKLUS)})`);
+    + (select count(*) from public.learning_assignments where id = ${lit(LA_SIKLUS)})
+    + (select count(*) from public.assessment_definitions where id in (${lit(D_ADHOC)}, ${lit(D_SIKLUS)}))`);
 }
 /**
- * The cycle leg's fixture: a fresh learning assignment for the Siklus class (a copy of the class's, new id), and a copy
- * of its Pemetaan Awal on it. may_start counts a PRE_TEST's attempts by learning assignment and mode, so the new one's
- * are its own and no sitting another test leaves can refuse it first (the harness's hand: triggers off for the copies).
+ * The cycle leg's fixture: a fresh learning assignment for the Siklus class (a copy of the class's, new id), and on it
+ * a copy of its Pemetaan Awal whose definition is a copy too (new id, not ad-hoc: a cycle's own). may_start counts
+ * the attempts of one definition and version under any assignment within one school and one school year, so a new
+ * learning assignment alone would not do: its definition's attempts must be its own, so that no sitting another test
+ * leaves (J6.4's, the suite's) can refuse it first (the harness's hand: triggers off for the copies).
  */
-const LA_SIKLUS = ID("aa2"), AA_SIKLUS = ID("c03");
+const LA_SIKLUS = ID("aa2"), AA_SIKLUS = ID("c03"), D_SIKLUS = ID("d03");
 const siklusSql = (la: string, asli: string) => `set local session_replication_role = replica;
 create temp table sp_la on commit drop as select * from public.learning_assignments where id = ${lit(la)};
 update sp_la set id = ${lit(LA_SIKLUS)};
 insert into public.learning_assignments select * from sp_la;
+create temp table sp_d on commit drop as select d.* from public.assessment_definitions d
+  join public.assessment_assignments aa on aa.assessment_definition_id = d.id where aa.id = ${lit(asli)};
+update sp_d set id = ${lit(D_SIKLUS)}, title = title || ' (uji SP2, siklus)';
+insert into public.assessment_definitions select * from sp_d;
 create temp table sp_aa on commit drop as select * from public.assessment_assignments where id = ${lit(asli)};
-update sp_aa set id = ${lit(AA_SIKLUS)}, learning_assignment_id = ${lit(LA_SIKLUS)};
+update sp_aa set id = ${lit(AA_SIKLUS)}, learning_assignment_id = ${lit(LA_SIKLUS)}, assessment_definition_id = ${lit(D_SIKLUS)};
 insert into public.assessment_assignments select * from sp_aa;
 set local session_replication_role = origin;`;
 
@@ -328,7 +336,7 @@ export const a2bMulaiAppTests: SelfTest[] = [
       } finally {
         c.expect(bersihkan() === "0", "the test's window, learning assignment or assignment copies are still there");
       }
-      return c.verdict("mulaiAsesmen against the build, «Mulai» posted as a browser without script posts it, on both routes, each from the page that draws its form: the cycle's /belajar/<tugas>/pemetaan for a fresh learning assignment of the Siklus class (its attempts its own), returning to /belajar/<tugas>; and /belajar/asesmen/<penugasan> for the journey fixture (a standalone, ad-hoc copy), returning there. Inside a school window the learner returns to the start screen (R-A); at a platform-wide T−15 to /pemeliharaan?mulai=ditolak (4.0); at a school-wide T−15 to the start screen; never an error page, and no sitting is made");
+      return c.verdict("mulaiAsesmen against the build, «Mulai» posted as a browser without script posts it, on both routes, each from the page that draws its form: the cycle's /belajar/<tugas>/pemetaan for a fresh learning assignment of the Siklus class with its own copy of the Pemetaan Awal's definition (its attempts its own), returning to /belajar/<tugas>; and /belajar/asesmen/<penugasan> for the journey fixture (a standalone, ad-hoc copy), returning there. Inside a school window the learner returns to the start screen (R-A); at a platform-wide T−15 to /pemeliharaan?mulai=ditolak (4.0); at a school-wide T−15 to the start screen; never an error page, and no sitting is made");
     },
   },
 ];
