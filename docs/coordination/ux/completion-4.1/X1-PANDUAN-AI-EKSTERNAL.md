@@ -1,10 +1,10 @@
 # X-1 · The teacher's guide to using their own AI, in Indonesian (Daisy, 16 Nov 2026)
 
 > **What holds now:**
-> - **The teacher-facing guide and both prompts are final from my side** (§A, §B, §C), pending three things.
->   - **Sharon:** the data warning (§A.2), point 2.
+> - **The teacher-facing guide and both prompts are final from my side** (§A, §B, §C), pending one thing.
+>   - ~~**Sharon:** the data warning (§A.2), point 2.~~ **Taken in (16 Nov, 13:50):** Sharon's review (`X1-DATA-WARNING-54bce354.md` at `918c4586`). §A.2 is rewritten to lead with the rule, with all five additions and the optional exam line. Her Q2 lines are added, citing no law. Q3 widens the checklist.
 >   - **Second Eye's paste test** (point 5): it decides one rule in the prompts, marked ⟨TES⟩.
->   - **The answer on common first names** (point 3), given provisionally in §D.
+>   - ~~**The answer on common first names** (point 3), given provisionally in §D.~~ Accepted by Sharon, widened: any learner known at the school, and no real local detail.
 > - **Checked against the product on `main`.**
 >   - Every column header in Bob's draft matches `unggah-kontrak.ts` `KOLOM` exactly, and so does every list value: Tingkat berpikir, Kegunaan, Tingkat kesulitan, Benar, Jenjang, and the labels A–E.
 >   - **Five details in the draft did not match the product**, and are corrected here (§E).
@@ -27,19 +27,33 @@ AI hanya membuat draf. Anda yang memeriksa dan bertanggung jawab atas isinya.
 - **Setiap soal harus punya tepat satu jawaban benar, dan kuncinya harus benar.** Kunci yang salah adalah kesalahan paling berat pada sebuah soal.
 - Setelah diunggah, materi menjadi **draf**, sama seperti materi yang Anda tulis sendiri. Pendidik lain meninjaunya sebelum materi dapat diterbitkan.
 
-### 2 · Sebelum mulai: yang tidak boleh masuk ke AI *(menunggu tinjauan Sharon)*
+### 2 · Sebelum mulai: yang tidak boleh masuk ke AI
 
-- **Data murid, sedikit pun:**
+**Aturannya: jangan memasukkan apa pun yang dapat mengenali seorang murid, langsung maupun bila digabung dengan keterangan lain.** Contohnya: «murid kelas 5A yang rumahnya dekat pasar dan baru pindah bulan lalu» tidak menyebut nama, tetapi orang di sekolah tahu siapa dia.
+
+Jadi jangan pernah memasukkan:
+- **Data murid:**
   - nama;
-  - ID PINTAR;
-  - NISN;
-  - daftar kelas;
-  - foto;
-  - jawaban, nilai atau laporan.
-- **Data pribadi guru lain atau data sekolah yang tidak untuk umum.**
+  - NISN, NIK atau ID PINTAR;
+  - tanggal lahir;
+  - alamat, nomor telepon atau email;
+  - data orang tua atau wali.
+- **Catatan tentang murid:**
+  - nilai, jawaban atau laporan;
+  - kehadiran;
+  - catatan perilaku;
+  - keadaan kesehatan atau kebutuhan khusus.
+- **Tulisan atau karya murid sendiri, walaupun tanpa nama.**
+- **Daftar kelas, foto, tangkapan layar PINTAR, dan berkas yang diunduh dari PINTAR.**
+- **Kata sandi, tautan masuk, kode undangan, dan tautan akun atau kelas mana pun.**
+- **Data pribadi guru lain, dan data sekolah yang tidak untuk umum.**
+- **Soal ujian yang harus tetap rahasia.**
 - **Materi yang bukan hak Anda.** Pakai hanya materi Anda sendiri, materi sekolah, atau materi yang lisensinya mengizinkan.
 
-Apa pun yang Anda tempel ke AI di luar PINTAR diolah oleh perusahaan AI itu, menurut aturannya sendiri. PINTAR tidak dapat melihatnya dan tidak dapat menariknya kembali.
+**Tentang layanan AI itu sendiri:**
+- Apa pun yang Anda tempel ke AI di luar PINTAR diolah oleh perusahaan AI itu, menurut aturannya sendiri. PINTAR tidak dapat melihatnya dan tidak dapat menariknya kembali.
+- Apakah teks Anda disimpan atau dipakai untuk melatih AI bergantung pada aturan layanan itu dan pengaturan akun Anda. **Pakai akun yang disetujui sekolah, dan periksa pengaturannya lebih dulu.**
+- **Anda dan sekolah Anda bertanggung jawab atas apa yang Anda tempel.**
 
 ### 3 · Langkah-langkahnya
 
@@ -56,7 +70,7 @@ Apa pun yang Anda tempel ke AI di luar PINTAR diolah oleh perusahaan AI itu, men
 
 ### 4 · Sebelum mengunggah: periksa lima hal
 
-- [ ] Tidak ada nama murid Anda, NISN atau ID PINTAR di mana pun, **termasuk dalam soal cerita**.
+- [ ] Tidak ada data yang dapat mengenali murid (lihat bagian 2) di mana pun, **termasuk dalam soal cerita**. Ganti nama yang sama dengan nama murid yang Anda kenal di sekolah, dan hindari rincian setempat yang nyata (nama jalan, toko atau tetangga).
 - [ ] Setiap soal punya tepat satu «Ya» di kolom **Benar**.
 - [ ] Setiap pilihan punya **Alasan**.
 - [ ] Setiap **Kode soal** di lembar Pilihan juga ada di lembar Soal.
@@ -169,7 +183,7 @@ Aturan:
 
 **Point 3, common first names in word problems (provisional; R-3 decides the rule for the product):**
 - The prompts ask the AI for **invented names**.
-- The checklist asks the teacher to replace any name that matches a learner in their own class.
+- The checklist asks the teacher to replace any name that matches a learner **known at the school** (Sharon's widening), and to avoid real local detail.
 - **Neither the prompt nor PINTAR can know a class's names, so the teacher's check is the safeguard.**
 - If R-3's rule later blocks names at upload, the guide will name that rule. Until then it promises no check PINTAR does not make.
 
