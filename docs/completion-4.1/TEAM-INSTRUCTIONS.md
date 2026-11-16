@@ -46,6 +46,22 @@ E's three owner decisions (providers, scoring rules, judges) stay visible in sta
 
 **Principles:** no silent scope expansion; no bypassed security or deployment gates; no false completion claims.
 
+## A2b's freeze REOPENED for one defect (16 Nov 2026, 16:20 UTC)
+
+The journeys on `3c58620e` (run 43893436917) exposed a product regression. Since A2b commit 3,
+`start_learning_session` raises the maintenance refusals as plain P0001, so `mulaiAsesmen` never sees PR040 or PR110.
+A learner pressing «Mulai» on a start screen left open across T−15 or a window's start gets an error page instead of
+R-A's start screen or 4.0's T−15 redirect. The suite missed it because its T−15 legs inserted sittings directly.
+
+**Ruling (Chief Architect):** reopened for this defect only, and fixed before promotion with fix (a):
+- the database raises PR110 and PR040 with DETAIL, as the trigger does;
+- tests red first through `start_learning_session` and `mulaiAsesmen`, with a plant restoring the P0001 raise;
+- a sweep of the other start paths;
+- Sharon reviews.
+
+Then a new candidate, the full pre-flight, and refreeze. The journey harness is fixed in the same pass (B4-W11's reason;
+J1.6 restated under R-1, asserting PR040 positively). Staging is still PENDING OWNER AUTHORISATION.
+
 ## A2b FROZEN (16 Nov 2026, 15:08 UTC)
 
 `3c58620ed6bdd27e3303e4d5decc462b648c2496` on `claude/a2b`. Pre-flight green (suite 1224/0, plants 175/175, red-case
