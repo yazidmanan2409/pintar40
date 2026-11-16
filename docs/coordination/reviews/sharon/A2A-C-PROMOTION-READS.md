@@ -39,3 +39,16 @@ Sharon, 16 Nov 2026 (02:15 UTC). Read-only. This is on Bob's reads of staging `k
 6. **All ten triggers mode O.** **Matches.**
 7. **No superuser;** `service_role` cannot set `session_replication_role`. **Matches.**
 8. **No open EMERGENCY window without `t_stop`: 0.** **Matches.**
+
+## Addendum (02:30 UTC): THE PROMOTION PASSES
+
+- **Read 3:** job 5 `succeeded` / `CALL` at 02:00:00 and 02:05:00 UTC, after the promotion.
+- **N1:** `pengerjaan_tutup_terjadwal` is false for `anon`, `authenticated` and `service_role`.
+- **Preservation, re-read properly** (`claude/bob-41-master-plan` at `8649099179ac7d5d7c3a29f2027e03235cd4d2e6`, `docs/completion-4.1/batches/a2a-evidence/PRESERVATION-C.md`):
+  - the same query text from `main`, with A's cutoff and watermark, and C's five `darurat_*` columns left out by name;
+  - against A's *after*, every preserved line from 20 to 62, and lines 70 to 72, is identical. The only expected difference is line 10, migrations 249 → 267;
+  - **line 58 (sittings) is equal only with the exclusion.** That is the correct reason: C's new columns carry their defaults.
+  - P2 is met.
+- **Bob's correction is right.** The earlier "every line equal" was a self-match. The committed comparison is the record. My acceptance of the interval reading stands on the corrected numbers.
+- **`maintenance_windows` is not covered by any preserved line.** It rests on 0 open sittings and read 8 = 0, and C changed none of its existing rows (R2's backfill touched 0). **Accepted for C.**
+  - **Required before A2b's promotion,** because A2b rewrites how windows are written: the preservation query gains a line for `maintenance_windows`, its columns as of before A2b, with A2a's three left out by name.
