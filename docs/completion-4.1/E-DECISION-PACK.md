@@ -177,6 +177,8 @@ move afterwards.
     2. Every flag states its reason. A flag the third educator rejects stays rejected.
     3. Flag counts, and how many the educators upheld, are reported **per provider after unblinding**.
     4. The audit states its limit: **it cannot prove that two judges did not confer.**
+    5. **Order, not only integrity** (Sharon, `44ed16e5`): the audit shows that the `--flags-sha256` the operator
+       types equals the hash committed **before** the judges' sheets were exchanged, with both commit times.
   - **Disclosure (Sharon):** she is an Anthropic model checking keys that can send an Anthropic provider's items to
     adjudication, and she may recognise her model family's style through the blinding. **The owner may prefer a key
     checker who is not an Anthropic model** (open, §6).
