@@ -6328,7 +6328,7 @@
     {
       "id": "A2B-H01",
       "runner": "static",
-      "proves": "A2b commit 8 (Daisy, A2-KATA-DESAIN.md B2; A2B-RA-KALIMAT.md §4); runs the pure helper hariLain and reads source: a window's time on another day than the reader's today, both read in the window's zone, carries «, {tanggal}» (EN « on {tanggal}»), and nothing on the same day; an hour after 22.30 WIB is the same day in WIB and the next in WITA. D4's disabled «Mulai» sentence dates its start and its end, and the banner's last-check line its start."
+      "proves": "A2b commit 8 (Daisy, A2-KATA-DESAIN.md B2; A2B-RA-KALIMAT.md §4); runs the pure helper hariLain and reads source: a window's time on another day than the reader's today, both read in the window's zone, carries «, {tanggal}» (EN « on {tanggal}»), and nothing on the same day; an hour after 22.30 WIB is the same day in WIB and the next in WITA. the banner's last-check line dates the window's start (D4's sentence, which also did, is removed by the Chief Architect's D4 ruling)."
     },
     {
       "id": "A2B-P01",
@@ -6348,7 +6348,7 @@
     {
       "id": "A2B-O01",
       "runner": "static",
-      "proves": "A2b commit 7 (migration 20270120170000), the defect commit 3 brought and the Chief Architect's condition 4; executes on the database in rolled-back transactions: assessment_orientation is shown under a maintenance refusal, with its code and the refusing window's scope from one call: inside a platform window's T−15 (NO_NEW_START, ORANG), a class window's T−15 (NO_NEW_START, TEMPAT), during it (PLACE, TEMPAT) and before it for a start that cannot finish (CANNOT_FINISH, TEMPAT), each with the window's start, end and class; with no window, no refusal. Plant: the old condition (shown only when may_start is ok) shows nothing inside the platform window's T−15."
+      "proves": "A2b commit 7 (migration 20270120170000), the defect commit 3 brought and the Chief Architect's condition 4; executes on the database in rolled-back transactions: assessment_orientation is shown under a maintenance refusal, with its code and the refusing window's scope from one call: inside a platform window's T−15 (NO_NEW_START, ORANG), a class window's T−15 (NO_NEW_START, TEMPAT), and during it (PLACE, TEMPAT), each with the window's start, end and class; 30 min before it, on work closing after it, no refusal (the Chief Architect's D4 ruling); with no window, no refusal. Plant: the old condition (shown only when may_start is ok) shows nothing inside the platform window's T−15."
     },
     {
       "id": "A2B-A01",

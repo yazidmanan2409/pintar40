@@ -73,9 +73,6 @@ export const PEMBACA_DB: Record<string, Kelas> = {
   pengerjaan_terbuka_saya: T("DITUTUP §3: the assignment's closes_at (has it passed?) and the sitting's effective deadline"),
   penugasan_masih_dikerjakan: T("DITUTUP §2: the assignment's closes_at (has it passed?) and its sittings' effective deadlines"),
   may_start_assessment: T(JENDELA),
-  // A2b commit 3 (D4): the sitting-insert trigger reads the NEW sitting's own deadline at its start, before it is
-  // live, to judge whether it can finish before a planned window; no stop has shifted it yet
-  enforce_no_new_sitting_in_maintenance: T("D4 at a start: the new sitting's own deadline, before any stop can have shifted it"),
   start_learning_session: T(JENDELA),
   assign_release: T(JENDELA),
   launch_quick_assessment: T(JENDELA),

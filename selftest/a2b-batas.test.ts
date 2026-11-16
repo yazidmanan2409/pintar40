@@ -11,9 +11,9 @@
  *   * the place guard: public.maintenance_affects_place(node uuid, at timestamptz), called by every refused writer
  *     (directly, or by its trigger for a start); it reads clock_timestamp(), never now();
  *   * the work-scoped refusal: errcode PR040, detail MAINTENANCE_PLACE (never PT503);
- *   * D4: errcode PR110, detail MAINTENANCE_CANNOT_FINISH, from the sitting-insert trigger, when the new sitting's own
- *     deadline (authoritative_deadline) falls after the starts_at of a planned window that reaches its work; T−15 stays
- *     MAINTENANCE_NO_NEW_START, as today;
+ *   * D4: as THE PLAN §5.3 words it (the Chief Architect's ruling, 16 Nov), a sitting with no duration is refused only
+ *     inside T−15; PINTAR has no per-assessment duration, so a start is refused MAINTENANCE_NO_NEW_START inside T−15,
+ *     as today, and never for its assignment's close (K3, A2B-D4X);
  *   * extend: public.perpanjang_pemeliharaan(p_window uuid, p_ends_at timestamptz, p_reason text), PLANNED only;
  *     refused on an EMERGENCY window with PR110 MAINTENANCE_EMERGENCY_LIFT_ONLY, and on a window that has ended (judged
  *     by clock_timestamp() against ends_at and ended_at) with PR110 MAINTENANCE_NOT_OPEN; resume early is the existing
@@ -219,7 +219,7 @@ type Kelas = "REFUSED" | "REFUSED_QUIETLY" | "REFUSED_GRANT" | "ALLOWED" | "SYST
 /** The classing, Sharon's rulings (A2B-COMPLETION.md, "Every writer of a class's work, classed"). Entries marked
  *  `baru` were not named in her table: classed here for her read. */
 export const KELAS_PENULIS: Record<string, { kelas: Kelas; alasan: string; baru?: true }> = {
-  start_learning_session: { kelas: "REFUSED", alasan: "a start is new work: the sitting-insert trigger (place, D4, T−15)" },
+  start_learning_session: { kelas: "REFUSED", alasan: "a start is new work: the sitting-insert trigger (place, T−15)" },
   record_lesson_progress: { kelas: "REFUSED_QUIETLY", alasan: "progress is the class's work; its own code, no redirect, reading stays open" },
   assign_release: { kelas: "REFUSED", alasan: "assigning: a routine staff change to the class's work" },
   ubah_jadwal_penugasan: { kelas: "REFUSED", alasan: "a schedule change" },
@@ -323,9 +323,9 @@ export const KELAS_JENDELA: Record<string, { kelas: KelasJendela; alasan: string
   maintenance_block_for_me: { kelas: "PERSON", alasan: "the request hook's question: person-level windows only after A2b (K11: none for a work-scoped window)" },
   pintar_status_saya: { kelas: "PERSON", alasan: "the status read: says person-level or work-scoped, the place and the zone (D8)" },
   maintenance_affects_place: { kelas: "PLACE", alasan: "A2b's place guard (clock_timestamp(), no lock)", menunggu: true },
-  enforce_no_new_sitting_in_maintenance: { kelas: "PLACE", alasan: "the sitting-insert trigger: the place, D4 and T−15 (K1, K3, K4)" },
+  enforce_no_new_sitting_in_maintenance: { kelas: "PLACE", alasan: "the sitting-insert trigger: the place and T−15 (K1, K3, K4)" },
   assessment_orientation: { kelas: "PLACE", alasan: "commit 7: the start screen's orientation, which names the window that refuses the start (its start, end and classes), from maintenance_mulai_tolak's one call" },
-  maintenance_mulai_tolak: { kelas: "PLACE", alasan: "A2b's one start rule (the place, T−15, D4), read by the trigger and by may_start_assessment" },
+  maintenance_mulai_tolak: { kelas: "PLACE", alasan: "A2b's one start rule (the place, then T−15), read by the trigger and by may_start_assessment" },
   catat_penolakan_henti: { kelas: "EMERGENCY", alasan: "A2a's O1 refusal record" },
   orang_dilindungi: { kelas: "EMERGENCY", alasan: "A2a's protection of a person" },
   pengerjaan_dilindungi: { kelas: "EMERGENCY", alasan: "A2a's protection of a sitting" },
@@ -538,7 +538,7 @@ select 'tolak|' || coalesce(o.tolak_pemeliharaan, 'null') || ':' || coalesce(o.t
 ${tanpaOrang}
 rollback;`);
 }
-const O01_SAAT = "and (m.ok or m.reason in ('MAINTENANCE_PLACE', 'MAINTENANCE_NO_NEW_START', 'MAINTENANCE_CANNOT_FINISH'))";
+const O01_SAAT = "and (m.ok or m.reason in ('MAINTENANCE_PLACE', 'MAINTENANCE_NO_NEW_START'))";
 const O01_TANAM = "and m.ok";
 
 /** K5: a running sitting when a planned class window starts drains through its effective deadline and grace: the
@@ -1125,14 +1125,10 @@ export const a2bBatasTests: SelfTest[] = [
       c.expect(id.startsWith(", ") && /\b17\b/.test(id) && /2026/.test(id), `another day in the window's zone (WITA) adds «, {tanggal}» with the 17th: «${id}»`);
       c.expect(en.startsWith(" on ") && /\b17\b/.test(en), `in English « on {tanggal}»: «${en}»`);
       c.expect(hariLain("2026-11-16T15:45:00Z", wita, kini) === "", "a time later the same day adds nothing");
-      const muka = readFileSync(join(repoRoot, "src/app/belajar/_components/PermukaanAsesmen.tsx"), "utf8");
-      c.expect(/const waktu = \(iso: string\) => jamJendela\(iso, zonaTolak\) \+ hariLain\(iso, zonaTolak, kini, locale\);/.test(muka)
-        && /\.replace\("\{jam\}", orientasi\.tolak_mulai \? waktu\(/.test(muka) && /\.replace\("\{jam_selesai\}", orientasi\.tolak_selesai \? waktu\(/.test(muka),
-        "D4's sentence must date its start and its end when either falls on another day");
       const pita = readFileSync(join(repoRoot, "src/components/pemeliharaan/PengingatPemeliharaan.tsx"), "utf8");
       c.expect(/\.replace\("\{jam\}", jamJendela\(jendela\.mulai, jendela\) \+ hariLain\(jendela\.mulai, jendela, Date\.now\(\), locale\)\)/.test(pita),
         "the last-check line must date the window's start when it falls on another day");
-      return c.verdict(`a maintenance time on another day carries its date, read in the window's zone (an hour after 22.30 WIB is the same day in WIB and the next in WITA: «${id}»); D4's start and end and the last-check line's start use it`);
+      return c.verdict(`a maintenance time on another day carries its date, read in the window's zone (an hour after 22.30 WIB is the same day in WIB and the next in WITA: «${id}»); the banner's last-check line dates the window's start with it (D4's sentence, which also used it, is removed by the Chief Architect's D4 ruling)`);
     },
   },
   {
@@ -1203,14 +1199,15 @@ rollback;`);
         `inside T−15 of a PLATFORM window the orientation must be shown, refused NO_NEW_START with scope ORANG (4.0's «Mulai», then its page): ${h.P.hasil.baris} ${h.P.hasil.tolak}`);
       c.expect(h.K.hasil.tolak === `MAINTENANCE_NO_NEW_START:TEMPAT:true:true:${nama}`, `inside T−15 of 7A's window: NO_NEW_START, TEMPAT, its class: ${h.K.hasil.tolak}`);
       c.expect(h.A.hasil.tolak === `MAINTENANCE_PLACE:TEMPAT:true:true:${nama}`, `during 7A's window: PLACE, TEMPAT, its class: ${h.A.hasil.tolak}`);
-      c.expect(h.D.hasil.tolak === `MAINTENANCE_CANNOT_FINISH:TEMPAT:true:true:${nama}`, `before 7A's window, a start that cannot finish: CANNOT_FINISH, TEMPAT, its start and end: ${h.D.hasil.tolak}`);
+      // the Chief Architect's D4 ruling: 30 min before 7A's window, on work closing after it, there is no refusal
+      c.expect(h.D.hasil.baris === "1" && h.D.hasil.tolak === "null:null:false:false:null", `30 min before 7A's window, on work closing after it: the orientation, no refusal (D4 has no duration to judge): ${h.D.hasil.tolak}`);
       c.expect(h.N.hasil.baris === "1" && h.N.hasil.tolak === "null:null:false:false:null", `with no window: the orientation, no refusal: ${h.N.hasil.tolak}`);
       const { gantiFungsi } = await import("./balapan");
       const balik = gantiFungsi("public.assessment_orientation(uuid)", O01_SAAT, O01_TANAM);
       let tanam: ReturnType<typeof o01>;
       try { tanam = o01(db, d, "P"); } finally { balik(); }
       c.expect(tanam.hasil.baris === "0", `with the plant (the old "ok only" condition) the orientation was still shown inside a platform window's T−15: ${tanam.hasil.baris}`);
-      return `the orientation under a maintenance refusal: shown with its code and the window's scope from one call, inside a platform window's T−15 (NO_NEW_START, ORANG), a class window's T−15 (NO_NEW_START, TEMPAT), during it (PLACE) and before it for a start that cannot finish (CANNOT_FINISH), each with the window's start, end and class; with no window, no refusal; with the plant (commit 3's "ok only") no orientation at all (${tanam.hasil.baris} rows)`;
+      return `the orientation under a maintenance refusal: shown with its code and the window's scope from one call, inside a platform window's T−15 (NO_NEW_START, ORANG), a class window's T−15 (NO_NEW_START, TEMPAT), and during it (PLACE), each with the window's start, end and class; 30 min before it, on work closing after it, and with no window, no refusal; with the plant (commit 3's "ok only") no orientation at all (${tanam.hasil.baris} rows)`;
     }),
   },
   {
@@ -1222,15 +1219,15 @@ rollback;`);
       c.expect(arahTolakMulai("MAINTENANCE_NO_NEW_START", "ORANG") === "JEDA", "a platform window's T−15 must keep 4.0's page (redirect)");
       c.expect(arahTolakMulai("MAINTENANCE_NO_NEW_START", "TEMPAT") === "LAYAR", "a work-scoped window's T−15 must stay on the start screen");
       c.expect(arahTolakMulai("MAINTENANCE_PLACE", "TEMPAT") === "LAYAR", "a work-scoped window under way must stay on the start screen");
-      c.expect(arahTolakMulai("MAINTENANCE_CANNOT_FINISH", "ORANG") === "LAYAR" && arahTolakMulai("MAINTENANCE_PLACE", null) === "LAYAR",
-        "D4, and a refusal of unknown scope that is not T−15, stay on the start screen");
+      c.expect(arahTolakMulai("MAINTENANCE_PLACE", "ORANG") === "LAYAR" && arahTolakMulai("MAINTENANCE_PLACE", null) === "LAYAR",
+        "a refusal that is not T−15, whatever its scope, stays on the start screen");
       const tanpaKomentar = (x: string) => x.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, "");
       const aksi = tanpaKomentar(readFileSync(join(repoRoot, "src/app/belajar/actions.ts"), "utf8"));
       const keJeda = [...aksi.matchAll(/redirect\(`?\$?\{?HALAMAN_PEMELIHARAAN[^\n]*/g)].map((m) => m[0]);
       c.expect(/if \(arahTolakMulai\(kodeTolak, cakupan\) === "JEDA"\) redirect\(`\$\{HALAMAN_PEMELIHARAAN\}\?mulai=ditolak`\);/.test(aksi),
         "the start action's redirect to the maintenance page for a refused start must be the platform branch only");
-      c.expect(!/MAINTENANCE_PLACE"\)\s*redirect\(`?\$?\{?HALAMAN_PEMELIHARAAN/.test(aksi) && !/MAINTENANCE_CANNOT_FINISH"\)\s*redirect\(`?\$?\{?HALAMAN_PEMELIHARAAN/.test(aksi),
-        `PLACE or CANNOT_FINISH must never be sent to the maintenance page: ${keJeda.join(" | ")}`);
+      c.expect(!/MAINTENANCE_PLACE"\)\s*redirect\(`?\$?\{?HALAMAN_PEMELIHARAAN/.test(aksi),
+        `PLACE must never be sent to the maintenance page: ${keJeda.join(" | ")}`);
       const kontrak = tanpaKomentar(readFileSync(join(repoRoot, "src/lib/galat-kontrak.ts"), "utf8"));
       c.expect(/if \(state === "PR040" && e\?\.details === "MAINTENANCE_PLACE"\) return "MAINTENANCE_PLACE";/.test(kontrak)
         && !/MAINTENANCE_PLACE[^\n]*MAINTENANCE_ACTIVE|MAINTENANCE_ACTIVE[^\n]*MAINTENANCE_PLACE/.test(kontrak),
