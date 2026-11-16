@@ -239,3 +239,21 @@ Sharon, 16 Nov 2026 (22:40 UTC). Read-only.
   - **If there are none,** the 23 are harmless now, and that goes on record with the sweep's output.
   - **If there is one** that can also wait on a sitting or an assignment (an account departure, for example), that pair is a real deadlock. It then gets a red test in A3, not a Z item.
   - *Could reasonably have been anticipated (Q3, the locks):* L01 ranks by table, not by lock strength, so an unranked table hides waits that a strength-aware reading would check.
+
+## Addendum, 17 Nov 00:35 UTC: the sweep, A3-L1P and F37-R05 (local `8861ffc3`, reviewed as text). The condition is met.
+
+- **The sweep found 17 functions that take `persons` FOR UPDATE.** Each takes it **first, holding nothing else.**
+  - None of them locks an assignment.
+  - Three of them lock sittings afterwards: the suspension, the departure and the promotion.
+  - No function deletes a `persons` row or updates its key.
+- **So "persons after an assignment" cannot close a cycle.** The 23 L01 breaches are harmless now, and are recorded as such, with the sweep's table in A3-COMPLETION.md.
+- **The one possible pair, «Akhiri»'s "persons after a sitting", is closed by its order.** «Akhiri» takes the `persons` of every open sitting FOR KEY SHARE **before** any sitting, so its later KEY SHARE is of a row it already holds.
+  - **F37-R05** proves it on real connections for the departure, in both orders.
+  - **The suspension and the promotion need no race of their own.** They have the same shape: the person first, holding nothing, then the fence, then the sittings. The structural argument covers all 17.
+  - **One requirement instead: pin the property the argument rests on.**
+    - A structural check that `akhiri_penugasan` takes every open sitting's `persons` before its first sitting lock.
+    - A check that every `persons` FOR UPDATE in the catalogue is its function's first lock.
+    - **Either can be added to A3-L1P.** Without the pins, a later edit could silently reopen the pair.
+- **A3-L1P is accepted.** All 10 functions that lock both tables take `learning_assignments` first, the plant is reported, the check is red on `eaa37aea`'s start, and A2A-L01 is unchanged.
+- **F06-S01 (ADR-0021), found by the static set, is fixed** in `d960c93f`: the grants are restated in the redefining file, and the grantees are unchanged. **The full pre-flight on `8861ffc3` is still owed to me.**
+- **Still held for the owner:** the key's columns.
