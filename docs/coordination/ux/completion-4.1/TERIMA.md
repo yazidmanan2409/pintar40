@@ -17,3 +17,4 @@
 | 16 Nov, 04:10 | Bob | R-B: the line for a warning whose re-read failed; tell Second Eye | Bob's ruling, 16 Nov | `A2B-RA-KALIMAT.md` §4: **done** |
 | 16 Nov, 05:00 | Bob | Slice-2 ruling on UX1-S2-MELIHAT-01's restatement (a) and (b) | `claude/a2b` at `8e147195` | `A2B-SLICE2-PUTUSAN.md`: **done**. (a) yes: sentence visible with the disabled «Mulai». (b) yes: {d} from the DB's own field; untimed work never shows it |
 | 16 Nov, 05:15 | Second Eye | (a) the sentence renders after «Mulai»; (b) no assessment has a time limit | Second Eye's note, 05:12 | `A2B-SLICE2-PUTUSAN.md` corrected: (a) after satisfies; (b) D4 lines drop the duration (V-2, mine) |
+| 16 Nov, 05:17 | Bob | D4 out of A2b; is "after" acceptable for (a)? | Bob's note, 05:16 | Yes, "after" is acceptable (`A2B-SLICE2-PUTUSAN.md`); the no-duration table is kept as a record only |

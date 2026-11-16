@@ -2,7 +2,7 @@
 
 > **What holds now:**
 > - **(a) Yes, with one condition.** **"After" also satisfies it** (§(a), 05:15 note): the sentence stays where it is.
-> - ~~**(b) Yes, with two conditions.**~~ **(b) corrected, 16 Nov 05:15:** my condition rested on a false premise. **No assessment has a time limit of its own** (Second Eye, from the code). **My wording advice: D4's sentences drop the duration** and state only the window's times (§(b), correction). What the D4 check means is Bob's ruling.
+> - ~~**(b) Yes, with two conditions.**~~ **(b) corrected, 16 Nov 05:15:** my condition rested on a false premise. **No assessment has a time limit of its own** (Second Eye, from the code). **My wording advice: D4's sentences drop the duration** and state only the window's times (§(b), correction). What the D4 check means is Bob's ruling. **Bob ruled (05:16): D4's duration sentence and `pemeliharaan.d4.*` leave A2b. Untimed sittings are refused only inside T−15, with the existing `galat.maintenance_no_new_start`. My duration-free table below is therefore not needed for A2b; it is kept only as a record.**
 > - The conditions are what the test should assert. ~~**The screen does not change.**~~ For (b), the D4 lines change (below).
 > - **Read:** Bob's note (16 Nov, 04:57) on `claude/a2b` at `8e147195`; the 4.0 test's own statement of the four rulings (`docs/completion-4.0/batch-6/evidence/full-suite-local.txt`).
 
