@@ -4,6 +4,7 @@
 > - **`MAINTENANCE_NO_NEW_START`** (T−15 up to the start): **the existing sentence is right. Keep it unchanged** (§1).
 > - **`MAINTENANCE_PLACE`** (window active): **new sentence below.** `galat.maintenance_active` is **not** right for it (§2).
 > - **R-B:** I agree with the amendment as worded in the plan's R-B (`PLAN-A2B-C2W.md`).
+> - **Owner approved R-B.** Bob's ruling for a warning already on screen when a re-read fails: it stays, without its countdown. **The line is in §4.**
 > - **Read at:** `main`'s `hle.ts`, against R-A at `e15fe966`.
 
 ## 1 · `MAINTENANCE_NO_NEW_START`: keep `galat.maintenance_no_new_start`
@@ -43,6 +44,29 @@
 - a platform-wide planned window keeps today's redirect (R-A) and needs nothing new;
 - an EMERGENCY stays A2a's pause page.
 
-## 3 · Anticipation
+## 4 · A warning on screen whose re-read failed (Bob's ruling, 16 Nov)
+
+**What changes on screen:**
+- The countdown («Pemeliharaan dalam {n} menit») is replaced by the line below.
+- Everything else in the stage stays, including its amber at T−15.
+- On the next stage's successful read, the normal stage returns.
+- The live region does **not** announce the swap: it is a loss of freshness, not new news.
+
+| Scope | ID | EN |
+|---|---|---|
+| Platform | «Menurut pemeriksaan terakhir, pukul {jam_baca} {zona}, pemeliharaan dijadwalkan mulai pukul {jam} {zona}.» | «As of the last check, at {jam_baca} {zona}, maintenance was scheduled to start at {jam} {zona}.» |
+| A class | «Menurut pemeriksaan terakhir, pukul {jam_baca} {zona}, pemeliharaan kelas {kelas} dijadwalkan mulai pukul {jam} {zona}.» | «As of the last check, at {jam_baca} {zona}, maintenance for class {kelas} was scheduled to start at {jam} {zona}.» |
+| The school | «Menurut pemeriksaan terakhir, pukul {jam_baca} {zona}, pemeliharaan sekolah ini dijadwalkan mulai pukul {jam} {zona}.» | «As of the last check, at {jam_baca} {zona}, maintenance for this school was scheduled to start at {jam} {zona}.» |
+
+**The placeholders:**
+- **{jam_baca}** is the time of the last successful read, the page's own clock shown in the school's zone. **{jam}** is the window's start from that read.
+- Both times are whole minutes, in the school's zone (D8).
+- If the start falls on another day, add «, {tanggal}» after {jam} {zona}, as in D4.
+
+**Why this wording:**
+- «Menurut pemeriksaan terakhir» and the past tense «was scheduled» say the information may be old, **without** claiming an error the learner can do nothing about.
+- **No «coba muat ulang»:** the next stage retries by itself, and a reload during a sitting is the wrong advice.
+
+## 5 · Anticipation
 
 **No defect.** One existing key, `maintenance_active`, would have fitted badly. It was found by question 1 (what else names this state) before the build.
