@@ -1873,7 +1873,9 @@ rollback;`);
         "config.pemeliharaan.perpanjang.sekarang": "Sekarang diperkirakan selesai pukul {jam} {zona}.",
         "config.pemeliharaan.perpanjang.selesai_baru": "Selesai baru ({zona})", "config.pemeliharaan.perpanjang.simpan": "Simpan perpanjangan",
         "config.pemeliharaan.perpanjang.batal": "Batal",
-        "galat.maintenance_extended": "Pemeliharaan diperpanjang sampai pukul {jam} {zona}. Pemberitahuan untuk yang terdampak ikut berubah.",
+        // RESTATED (Daisy, A2B-PERPANJANG-KATA.md at c802f40d, 16 Nov 11:05): «pemberitahuan» broke DAISY-25 (D-019); the
+        // line says what is always true, that those affected see the new end
+        "galat.maintenance_extended": "Pemeliharaan diperpanjang sampai pukul {jam} {zona}. Yang terdampak akan melihat waktu selesai yang baru.",
         "galat.maintenance_extend_not_later": "Waktu selesai baru harus lebih lambat dari pukul {jam} {zona}. Tidak ada yang diubah.",
         "galat.maintenance_extend_reason": "Tulis alasan perpanjangannya. Tidak ada yang diubah.",
       };
@@ -1881,6 +1883,8 @@ rollback;`);
       for (const [k, v] of Object.entries(kata)) {
         c.expect(kunci.has(k) && t(k as HleEvent, "staff", { locale: "id" }) === v, `${k} must say «${v}»: ${kunci.has(k) ? JSON.stringify(t(k as HleEvent, "staff", { locale: "id" })) : "missing"}`);
       }
+      const en = t("galat.maintenance_extended" as HleEvent, "staff", { locale: "en" });
+      c.expect(en === "Maintenance extended to {jam} {zona}. Those affected will see the new end.", `galat.maintenance_extended (EN) must say Daisy's line: «${en}»`);
       const aksi = readFileSync(join(repoRoot, "src/app/konfigurasi/actions.ts"), "utf8");
       const fn = /export async function perpanjangPemeliharaanAction[\s\S]*?\n}\n/.exec(aksi)?.[0] ?? "";
       c.expect(fn.length > 0, "actions.ts must export perpanjangPemeliharaanAction");
