@@ -34,4 +34,4 @@ Sharon, 16 Nov 2026 (10:30 UTC). Read-only. **What I reviewed:**
 - the change_maintenance clock fix (E05);
 - the picker and the class-aware count (K14, K17, K18), through `maintenance_jendela_atas` and with the 500 bound;
 - then the app commits;
-- **and later edits to this migration.** The branch head `ef1c6a7b05f1f1a9fe40324db3bc1f596b104589` shows this migration file further changed after `1c1b8d1c`. I will read those changes with their own commits.
+- ~~**and later edits to this migration.** The branch head `ef1c6a7b05f1f1a9fe40324db3bc1f596b104589` shows this migration file further changed after `1c1b8d1c`. I will read those changes with their own commits.~~ *Withdrawn, 10:25: the file is unchanged since 1c1b8d1c, and my line numbers came from a comment-stripped grep. The later edits to `schedule_maintenance` are in 20270120210000 (c903e71f), read with that commit.*
