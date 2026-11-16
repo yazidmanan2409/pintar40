@@ -21,8 +21,8 @@
  *     learner is sent back to the start screen (R-A), at a platform-wide T−15 to /pemeliharaan?mulai=ditolak (4.0),
  *     at a school-wide T−15 back to the start screen; never an error page, and no sitting is made.
  */
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { join, relative } from "node:path";
 import { spawnSync } from "node:child_process";
 import { createServerClient } from "@supabase/ssr";
 import { Checks, compiledBundle, type Context, type SelfTest } from "./lib";
@@ -159,15 +159,26 @@ export const a2bMulaiDbTests: SelfTest[] = [
     requires: [],
     run: async ({ repoRoot }) => {
       const c = new Checks();
-      const src = readFileSync(join(repoRoot, "src", "app", "belajar", "actions.ts"), "utf8");
-      const salah = mulaiTakTertangani(src);
-      c.expect(salah.length === 0, `src/app/belajar/actions.ts: ${salah.join("; ")}`);
-      c.expect(/export\s+async\s+function\s+mulaiAsesmen\b/.test(src) && !/export\s+async\s+function\s+startSession\b/.test(src),
+      const semua = berkasApp(repoRoot);
+      const salah: string[] = [];
+      let aksi = 0;
+      for (const f of semua) {
+        const rel = relative(repoRoot, f).replace(/\\/g, "/");
+        const src = readFileSync(f, "utf8");
+        if (/^\s*["']use server["']/.test(src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1"))) aksi++;
+        salah.push(...mulaiTakSah(rel, src));
+      }
+      c.expect(aksi >= 10, `only ${aksi} server-action file(s) found under src/app: the scan is not reading them`);
+      c.expect(salah.length === 0, salah.join("; "));
+      const belajar = readFileSync(join(repoRoot, MULAI_SAH.berkas), "utf8");
+      c.expect(/export\s+async\s+function\s+mulaiAsesmen\b/.test(belajar) && !/export\s+async\s+function\s+startSession\b/.test(belajar),
         "mulaiAsesmen must be the one start, and the unhandled startSession action must not return");
-      // the plant: 3c58620e's unhandled export, appended, must be caught
-      const tanam = mulaiTakTertangani(`${src}\nexport async function startSession(id: string) {\n  return engine.startSession(await db(), id);\n}\n`);
-      c.expect(tanam.length === 1 && /startSession/.test(tanam[0]), `the plant (an exported start with no maintenance handling) must be caught once: ${JSON.stringify(tanam)}`);
-      return c.verdict("src/app/belajar/actions.ts: every exported function that starts a sitting maps PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE (mulaiAsesmen, the one start); the unhandled startSession action is gone, and a plant restoring it is caught");
+      // the plants: 3c58620e's startSession restored; a start from another server-action file
+      const t1 = mulaiTakSah(MULAI_SAH.berkas, `${belajar}\nexport async function startSession(id: string) {\n  return engine.startSession(await db(), id);\n}\n`);
+      const t2 = mulaiTakSah("src/app/studio/actions.ts", `"use server";\nexport async function mulaiLain(fd: FormData) {\n  await (await supabaseServer()).rpc("start_learning_session", { p_assessment_assignment: String(fd.get("a")) });\n}\n`);
+      c.expect(t1.length === 1 && /startSession/.test(t1[0]) && t2.length === 1 && /mulaiLain/.test(t2[0]),
+        `the plants (startSession restored; a start in another server file) must each be caught once: ${JSON.stringify([t1, t2])}`);
+      return c.verdict(`across the ${aksi} server-action files under src/app, no exported action starts a sitting (engine.startSession, start_learning_session, open_assessment_session) except mulaiAsesmen, which maps PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE; the unhandled startSession is gone; the plants restoring it, and a start in another server file, are each caught`);
     },
   },
   {
@@ -236,21 +247,31 @@ rollback;`);
   return r.err ? `error: ${r.err}` : `${r.hasil.murid}:${r.hasil.lain}`;
 }
 
-/** The Chief Architect (16 Nov 16:27): src/app/belajar/actions.ts exports no start that leaves a maintenance refusal unhandled.
- *  Every exported function that starts a sitting (engine.startSession / start_learning_session) must map PR110
- *  MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE; the one such today is mulaiAsesmen. */
-export function mulaiTakTertangani(sumber: string): string[] {
+/** The Chief Architect (16 Nov 16:27) and Sharon (9b68fcad, T-SP): no exported server action anywhere in src/app starts a
+ *  sitting except mulaiAsesmen, and it maps PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE. A start is a
+ *  call to engine.startSession, or an rpc of start_learning_session or open_assessment_session. */
+const MULAI_SAH = { berkas: "src/app/belajar/actions.ts", nama: "mulaiAsesmen" };
+export function mulaiTakSah(berkas: string, sumber: string): string[] {
   const s = sumber.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+  if (!/^\s*["']use server["']/.test(s)) return [];
   const salah: string[] = [];
-  const awal = [...s.matchAll(/export\s+async\s+function\s+(\w+)\s*\(/g)];
+  const awal = [...s.matchAll(/export\s+(?:async\s+)?function\s+(\w+)\s*\(|export\s+const\s+(\w+)\s*=\s*async\b/g)];
   awal.forEach((m, i) => {
+    const nama = m[1] ?? m[2];
     const badan = s.slice(m.index!, i + 1 < awal.length ? awal[i + 1].index : undefined);
-    if (!/\b(?:engine\.startSession|start_learning_session)\b/.test(badan)) return;
+    if (!/\bengine\.startSession\b|["'`](?:start_learning_session|open_assessment_session)["'`]/.test(badan)) return;
+    if (berkas !== MULAI_SAH.berkas || nama !== MULAI_SAH.nama) { salah.push(`${berkas}: ${nama} starts a sitting; only ${MULAI_SAH.nama} may`); return; }
     const tertangani = /err\.code === "PR110" && err\.detail === "MAINTENANCE_NO_NEW_START"/.test(badan)
       && /err\.code === "PR040" && err\.detail === "MAINTENANCE_PLACE"/.test(badan);
-    if (!tertangani) salah.push(`${m[1]} starts a sitting without mapping PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE`);
+    if (!tertangani) salah.push(`${berkas}: ${nama} starts a sitting without mapping PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE`);
   });
   return salah;
+}
+function berkasApp(akar: string): string[] {
+  const keluar: string[] = [];
+  const jalan = (d: string) => { for (const n of readdirSync(d)) { const f = join(d, n); if (statSync(f).isDirectory()) jalan(f); else if (/\.tsx?$/.test(n)) keluar.push(f); } };
+  jalan(join(akar, "src", "app"));
+  return keluar;
 }
 
 export const a2bMulaiAppTests: SelfTest[] = [

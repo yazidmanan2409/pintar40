@@ -6543,7 +6543,7 @@
     {
       "id": "A2B-SP3",
       "runner": "static",
-      "proves": "The Chief Architect (16 Nov 16:27): src/app/belajar/actions.ts exports no start that leaves a maintenance refusal unhandled: every exported function that starts a sitting (engine.startSession / start_learning_session) maps PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE; mulaiAsesmen is the one start and the unused, postable startSession action (3c58620e) is gone; the plant, that export appended to the source, is caught."
+      "proves": "The Chief Architect (16 Nov 16:27) and Sharon (9b68fcad, T-SP): across every server-action file under src/app (\"use server\"), no exported action starts a sitting (engine.startSession, start_learning_session, open_assessment_session) except src/app/belajar/actions.ts's mulaiAsesmen, which maps PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE; the unused, postable startSession action (3c58620e) is gone; two plants, startSession restored and a start in another server file, are each caught."
     }
   ]
 }
