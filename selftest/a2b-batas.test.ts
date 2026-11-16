@@ -329,6 +329,7 @@ export const KELAS_JENDELA: Record<string, { kelas: KelasJendela; alasan: string
   maintenance_affects_pada: { kelas: "PERSON", alasan: "the same, at an instant (EMERGENCY's T_stop)" },
   maintenance_block_for_me: { kelas: "PERSON", alasan: "the request hook's question: person-level windows only after A2b (K11: none for a work-scoped window)" },
   pintar_status_saya: { kelas: "PERSON", alasan: "the status read: says person-level or work-scoped, the place and the zone (D8)" },
+  maintenance_draining_di: { kelas: "PLACE", alasan: "draining per window (the Chief Architect, 16 Nov): only sittings in the window's place, every sitting for a platform-wide window; read by pintar_status_saya's 'berjalan' (D14, D15)" },
   maintenance_affects_place: { kelas: "PLACE", alasan: "A2b's place guard (clock_timestamp(), no lock)", menunggu: true },
   enforce_no_new_sitting_in_maintenance: { kelas: "PLACE", alasan: "the sitting-insert trigger: the place and T−15 (K1, K3, K4)" },
   assessment_orientation: { kelas: "PLACE", alasan: "commit 7: the start screen's orientation, which names the window that refuses the start (its start, end and classes), from maintenance_mulai_tolak's one call" },

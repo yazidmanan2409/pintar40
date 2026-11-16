@@ -49,6 +49,9 @@ export const PEMBACA_DB: Record<string, Kelas> = {
   finalize_session: H("the grace: refuses to score inside the late-sync window from the deadline"),
   record_answer: H("late sync: accepts an answer inside the grace after the deadline"),
   maintenance_draining: H("whether a sitting is still in time (deadline + grace) while maintenance drains"),
+  // A2b commit 12 (the Chief Architect, 16 Nov): the same liveness as maintenance_draining, per window; its deadline is
+  // the effective one (pengerjaan_tenggat_efektif), as there
+  maintenance_draining_di: H("whether a sitting in the window's place is still in time (effective deadline + grace) while maintenance drains"),
   may_continue_session: H("whether the sitting may continue: its deadline"),
   session_state: H("the player's deadline: what the learner's screen counts down to"),
   daftar_pengerjaan: H("the teacher's list: each sitting's deadline and extensions"),
