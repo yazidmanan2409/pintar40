@@ -105,6 +105,8 @@ Where it renders: the planned form and the emergency form. It replaces the free 
 
 ### B2 · "Cannot finish before the window" (D4)
 
+> **Superseded in part (16 Nov):** the «memerlukan {d} menit» lines below rest on a time limit no assessment has. The lines without a duration are in `A2B-SLICE2-PUTUSAN.md`, §(b) correction. The T−15 row is unchanged.
+
 THE PLAN §5.3 F has the line, tied by `aria-describedby` to the disabled «Mulai». It replaces `pemeliharaan.menjelang.arti`:
 
 | Case | ID | EN |
