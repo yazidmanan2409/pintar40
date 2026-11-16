@@ -889,3 +889,5 @@ Both go to Z's triage list, with owners.
 | Two simultaneous refused acts can each write an audit row | Sharon's ruling; the A2a page, item 7 | Second Eye | Triage at Z |
 | Phone-width overflow on `/mengajar/[kelas]/siapa`, and its siblings `soal` and `bukti` | Daisy | Daisy | Triage at Z, with X-1 to X-4 |
 | A preserved line for `maintenance_windows` | Sharon | Bob | **Mandatory before A2b's promotion** |
+- **Change B merged:** [PR #23](https://github.com/yazidmanan2409/pintar40/pull/23) as `eff99f98` (CI 18 of 18).
+  **A2a is complete on `main`.** A2b starts from `eff99f98`.
