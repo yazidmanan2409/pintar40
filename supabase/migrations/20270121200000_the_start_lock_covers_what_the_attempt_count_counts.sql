@@ -203,6 +203,11 @@ begin
 end $function$
 ;
 
+-- ADR-0021 (F06-S01): a function created in a migration has EXECUTE revoked from PUBLIC in the same migration. The grants
+-- are exactly those it held on ac25e9b1: authenticated (the learner's start) and service_role; never PUBLIC or anon.
+revoke all on function public.start_learning_session(uuid) from public, anon;
+grant execute on function public.start_learning_session(uuid) to authenticated, service_role;
+
 do $$
 declare v text := (select prosrc from pg_proc where oid = 'public.start_learning_session(uuid)'::regprocedure);
 begin
