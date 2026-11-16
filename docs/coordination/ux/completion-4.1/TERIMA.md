@@ -13,3 +13,4 @@
 | 14 Nov, 07:35 | Second Eye | The batch: remaining strings and screens, 28 files in `a2a-layar-2/` | `d355ebba` | `A2A-LAYAR-d355ebba.md`, by about 08:40 UTC |
 | 14 Nov, 07:5x | Daisy | **Verdict:** `A2A-LAYAR-d355ebba.md`: **NO BLOCKER**; one one-word correction (item 4 English, «a stop») | `d355ebba` | done |
 | 15 Nov, 20:02 | Bob | Monday resume: A2b decision 3 and D8 screens; C2w I-5 words | `PLAN-A2B-C2W.md` at `43ce13bf` | `A2B-C2W-KATA.md`: **done** |
+| 16 Nov, 04:05 | Bob | R-A: the learner's sentence per code; R-B amendment | `PLAN-A2B-C2W.md` at `e15fe966` | `A2B-RA-KALIMAT.md`: **done** |
