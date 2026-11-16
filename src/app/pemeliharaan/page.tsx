@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
-import { jamWib, jendelaUtama, statusSaya } from "@/lib/pemeliharaan";
+import { jamJendela, jendelaUtama, statusSaya } from "@/lib/pemeliharaan";
 import MerekPintar from "@/components/MerekPintar";
 import PengalihBahasa from "@/components/PengalihBahasa";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -36,7 +36,8 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
   const status = await statusSaya();
   const w = jendelaUtama(status);
   const s = (k: HleEvent) => t(k, "learner", { locale });
-  const jam = (iso: string) => `${jamWib(iso)} ${s("pemeliharaan.zona")}`;
+  // A2b (D8): every time in the window's school's zone (for a platform window, the reader's own), never a fixed «WIB»
+  const jam = (iso: string) => (w ? jamJendela(iso, w) : jamJendela(iso, { zona: null }));
 
   let isi: React.ReactNode;
   if (status.terhenti === "EMERGENCY") {

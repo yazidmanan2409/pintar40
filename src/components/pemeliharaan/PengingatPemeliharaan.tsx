@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { t, type Locale } from "@/lib/hle";
 import {
-  HALAMAN_PEMELIHARAAN, jamWib, jendelaUtama, menitTersisa, permukaanAsesmen, tahapBerikutMs, tahapPeringatan,
-  type StatusSaya,
+  HALAMAN_PEMELIHARAAN, jamJendela, jendelaDiHalaman, jendelaUtama, menitTersisa, permukaanAsesmen, tahapBerikutMs,
+  tahapPeringatan, type StatusSaya,
 } from "@/lib/pemeliharaan-kontrak";
 
 /**
@@ -18,13 +18,18 @@ import {
  * the window stops goes to the maintenance page, which the server would send them to on their next request anyway; a
  * sitting under way and the window's own administrators stay. A reader the database already stops goes there at once.
  * Live notices are one line each.
+ *
+ * A2b (R-1; Daisy, A2B-C2W-KATA.md): a class or school window is work-scoped (cakupan TEMPAT). It never sends anyone
+ * to the maintenance page; its line names the class (or school) and says that only its work is paused, and it is not
+ * shown on another class's own pages. Every time is in the window's school's zone (D8), never a fixed «WIB».
  */
 export default function PengingatPemeliharaan({ locale, status }: { locale: Locale; status: StatusSaya }) {
   const path = usePathname() ?? "/";
   // the database's clock as it answered: the first render reads it on the server and in the browser alike, and from
   // then on this browser's clock moves it, offset once by the difference measured as the page arrived
   const [kini, setKini] = useState<number | null>(() => (status.sekarang ? Date.parse(status.sekarang) : null));
-  const jendela = jendelaUtama(status);
+  const utama = jendelaUtama(status);
+  const jendela = utama && jendelaDiHalaman(utama, path) ? utama : null;
   const kecuali = path === HALAMAN_PEMELIHARAAN;
 
   useEffect(() => {
@@ -45,7 +50,8 @@ export default function PengingatPemeliharaan({ locale, status }: { locale: Loca
       tahap = window.setTimeout(() => {
         setKini(jam());
         if (tahapPeringatan(jendela.mulai, jam()) === 0) {
-          if (!jendela.berjalan && !jendela.menguasai) window.location.replace(HALAMAN_PEMELIHARAAN);
+          // A2b (R-1): only a person-level window stops its reader; a work-scoped one only pauses its place's work
+          if (jendela.cakupan === "ORANG" && !jendela.berjalan && !jendela.menguasai) window.location.replace(HALAMAN_PEMELIHARAAN);
           return;
         }
         jadwal();
@@ -62,7 +68,19 @@ export default function PengingatPemeliharaan({ locale, status }: { locale: Loca
   if (jendela && jendela.jenis === "PLANNED" && kini !== null) {
     const tahap = jendela.keadaan === "AKTIF" ? 0 : tahapPeringatan(jendela.mulai, kini);
     const asesmen = permukaanAsesmen(path);
-    if (tahap === 0) {
+    const tempat = jendela.cakupan === "TEMPAT";
+    // A2b: the class (or school) a work-scoped window is for, in its words
+    const untuk = jendela.kelas ? s("pemeliharaan.tempat.kelas").replace("{kelas}", jendela.kelas.join(", "))
+      : s("pemeliharaan.tempat.sekolah").replace("{sekolah}", jendela.sekolah ?? "");
+    if (tahap === 0 && tempat) {
+      baris.push(
+        <p key="aktif">
+          <strong>{s("pemeliharaan.tempat.berlangsung").replace("{untuk}", untuk)}</strong>{" "}
+          {s("pemeliharaan.tempat.arti")}{" "}
+          {jendela.selesai ? <>{s("pemeliharaan.pita.selesai_kira")} {jamJendela(jendela.selesai, jendela)}.</> : null}
+        </p>,
+      );
+    } else if (tahap === 0) {
       baris.push(
         <p key="aktif">
           <strong>{s("pemeliharaan.pita.berlangsung")}</strong>{" "}
@@ -73,9 +91,9 @@ export default function PengingatPemeliharaan({ locale, status }: { locale: Loca
       baris.push(
         <p key="menjelang">
           <strong>{s("pemeliharaan.pita.dalam")} {menitTersisa(jendela.mulai, kini)} {s("pemeliharaan.pita.menit")}.</strong>{" "}
-          {s("pemeliharaan.pita.pukul")} {jamWib(jendela.mulai)} {s("pemeliharaan.zona")}.{" "}
-          {jendela.selesai ? <>{s("pemeliharaan.pita.selesai_kira")} {jamWib(jendela.selesai)} {s("pemeliharaan.zona")}. </> : null}
-          {asesmen ? s("pemeliharaan.pita.asesmen") : s("pemeliharaan.pita.biasa")}{" "}
+          {tempat ? s("pemeliharaan.tempat.pukul").replace("{untuk}", untuk) : s("pemeliharaan.pita.pukul")} {jamJendela(jendela.mulai, jendela)}.{" "}
+          {jendela.selesai ? <>{s("pemeliharaan.pita.selesai_kira")} {jamJendela(jendela.selesai, jendela)}. </> : null}
+          {asesmen ? s("pemeliharaan.pita.asesmen") : tempat ? s("pemeliharaan.tempat.biasa") : s("pemeliharaan.pita.biasa")}{" "}
           {tahap === 15 ? s("pemeliharaan.pita.asesmen_baru") : null}
         </p>,
       );

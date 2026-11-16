@@ -142,6 +142,9 @@ export const KODE_PEMELIHARAAN = [
   "MAINTENANCE_NO_NEW_START", "NOTICE_INPUT_INVALID", "NOTICE_NOT_OPEN", "MAINTENANCE_ACTIVE",
   // A2a: a class that is not one school's; the stop not taken effect (Daisy's line); the lift not done (Daisy's line)
   "MAINTENANCE_NODE_INVALID", "MAINTENANCE_STOP_NOT_IN_FORCE", "MAINTENANCE_LIFT_NOT_DONE",
+  // A2b: D4's start that cannot finish before a window; an emergency is never extended; a class or school's planned
+  // window pauses its work (PR040, read below: never PT503, never the maintenance page)
+  "MAINTENANCE_CANNOT_FINISH", "MAINTENANCE_EMERGENCY_LIFT_ONLY", "MAINTENANCE_PLACE",
 ] as const;
 
 /**
@@ -336,6 +339,8 @@ export function kodeGalat(e: GalatDb): KodeGalat {
     return (KODE_PEMELIHARAAN as readonly string[]).includes(e?.details ?? "") ? e!.details as KodePemeliharaan : "ACTION_FAILED";
   }
   if (state === "PT503") return "MAINTENANCE_ACTIVE";
+  // A2b (R-1): a work-scoped planned window's refusal is the place's, said where the act was pressed
+  if (state === "PR040" && e?.details === "MAINTENANCE_PLACE") return "MAINTENANCE_PLACE";
   // W1.6: a send-back's four refusals by their DETAIL (42501 or PR040), before any message pattern
   if ((state === "42501" || state === "PR040") && (KODE_KEMBALI as readonly string[]).includes(e?.details ?? "")) {
     return e!.details as KodeKembali;

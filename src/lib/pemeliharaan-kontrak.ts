@@ -10,7 +10,7 @@
  * browser times T-60/30/15 itself, with no polling (D-094(d)).
  */
 
-import { geserZona, jam } from "./tanggal";
+import { geserZona, jam, kataZona } from "./tanggal";
 
 export const HALAMAN_PEMELIHARAAN = "/pemeliharaan";
 
@@ -34,8 +34,17 @@ export type JendelaSaya = {
   berjalan: boolean;
   /** the reader handed in an assessment since the window began */
   terkumpul: string | null;
-  /** A2a: the classes an EMERGENCY class stop holds (null for a school or platform stop) */
+  /** A2a: the classes a class window names (A2b: an EMERGENCY class stop or a PLANNED class window; null otherwise) */
   kelas: string[] | null;
+  /** A2b: those classes' ids, which a class's own pages carry in their route (/mengajar/{kelas}) */
+  kelasId: string[] | null;
+  /** A2b (R-1): ORANG, the window stops the reader as a person (an emergency, or platform-wide planned maintenance:
+   *  the only kind that redirects); TEMPAT, it pauses only the work of its class or school (the banner, never a redirect) */
+  cakupan: "ORANG" | "TEMPAT";
+  /** A2b: the school a school or class window is for */
+  sekolah: string | null;
+  /** A2b (D8): the zone its times are shown in, the window's school's (for a platform window, the reader's own) */
+  zona: string | null;
   /** A2a: the reader also has another class or school, so the stop reaches them there too (Daisy's line) */
   kelasLain: boolean;
 };
@@ -71,6 +80,11 @@ export function bacaStatusSaya(data: unknown): StatusSaya {
       pesan: teks(x.pesan), menguasai: x.menguasai === true, berjalan: x.berjalan === true, terkumpul: waktu(x.terkumpul),
       kelas: Array.isArray(x.kelas) && x.kelas.length > 0 && x.kelas.every((k) => typeof k === "string" && k.length > 0) ? (x.kelas as string[]) : null,
       kelasLain: x.kelas_lain === true,
+      kelasId: Array.isArray(x.kelas_id) && x.kelas_id.length > 0 && x.kelas_id.every((k) => typeof k === "string" && k.length > 0) ? (x.kelas_id as string[]) : null,
+      // a window of unknown scope is read as person-level: the safe side (it may redirect; it never hides a stop)
+      cakupan: x.cakupan === "TEMPAT" && x.jenis === "PLANNED" ? "TEMPAT" : "ORANG",
+      sekolah: teks(x.sekolah),
+      zona: teks(x.zona),
     });
   }
   const pengumuman: PengumumanSaya[] = [];
@@ -136,6 +150,22 @@ export function tahapBerikutMs(mulai: string, sekarangMs: number, selisihMs = 0)
 // W3.3 (Batch 2; RV-16): from the one date helper, «22.00» in both languages (24-hour with a full stop, never «22:00»).
 export function jamWib(iso: string, zona?: string | null): string {
   return jam(iso, zona);
+}
+
+/** A2b (D8): a time of a window as its reader reads it: «22.00 WITA», in the window's zone. */
+export function jamJendela(iso: string, j: Pick<JendelaSaya, "zona">): string {
+  return `${jam(iso, j.zona)} ${kataZona(j.zona)}`;
+}
+
+/**
+ * A2b (R-1; Daisy, A2B-C2W-KATA.md D8-1): whether a work-scoped window is told on this page. A class window is told on
+ * the reader's pages but not on another class's own pages (/mengajar/{kelas}); a school window everywhere. A
+ * person-level window is always told.
+ */
+export function jendelaDiHalaman(j: JendelaSaya, path: string): boolean {
+  if (j.cakupan !== "TEMPAT" || !j.kelasId) return true;
+  const m = /^\/mengajar\/([^/]+)/.exec(path);
+  return !m || j.kelasId.includes(decodeURIComponent(m[1]));
 }
 
 /** The window that matters most to this reader now: an emergency, else an active window, else the nearest. */

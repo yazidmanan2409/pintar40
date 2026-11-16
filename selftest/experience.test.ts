@@ -2231,7 +2231,9 @@ export const experienceTests: SelfTest[] = [
       // Read against §3: a scope and a zone, not a mark, a logo, a crest or a theme.
       // MOVED 272 -> 273, RESTATED, A2b's D1-3: 20270120150000 (a learner's reads do not count a stale mark as held).
       // Read against §3: a sitting's hold, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 273, `${migrations.length} migrations; the frozen baseline has 273`);
+      // MOVED 273 -> 274, RESTATED, A2b commit 5: 20270120160000 (the status read gives a class window's classes).
+      // Read against §3: a class, not a mark, a logo, a crest or a theme.
+      c.expect(migrations.length === 274, `${migrations.length} migrations; the frozen baseline has 274`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4127,7 +4129,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 270 -> 271, RESTATED, A2b's D1-2, for 20270120130000: no tour RPC.
       // MOVED 271 -> 272, RESTATED, A2b commit 4, for 20270120140000 (the status read): no tour RPC.
       // MOVED 272 -> 273, RESTATED, A2b's D1-3, for 20270120150000: no tour RPC.
-      c.expect(migs.length === 273, `${migs.length} migrations; the baseline has 273`);
+      // MOVED 273 -> 274, RESTATED, A2b commit 5, for 20270120160000: no tour RPC.
+      c.expect(migs.length === 274, `${migs.length} migrations; the baseline has 274`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
