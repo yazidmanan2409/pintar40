@@ -6534,6 +6534,16 @@
       "id": "A2B-SP2",
       "runner": "app",
       "proves": "A2b reopened for the start path: mulaiAsesmen against the running build, «Mulai» posted as a browser without script posts it with its id from the build's manifest, as the Siklus learner on a never-started copy of the class's Pemetaan Awal: inside a planned school window under way the learner is sent back to the start screen (R-A); at a platform-wide T−15 to /pemeliharaan?mulai=ditolak (4.0's designed path); at a school-wide T−15 back to the start screen; never an error page, and no sitting is made. Red on 3c58620e (the generic P0001 was rethrown: an error page)."
+    },
+    {
+      "id": "A2B-Q12",
+      "runner": "static",
+      "proves": "Daisy's ruling (A2B-DAFTAR-Q12-PUTUSAN.md at ab730614; the Chief Architect, 16 Nov 16:27: in this fix): my_open_assessments, /belajar's standalone (Q-12) list, executed in rolled-back transactions on a standalone copy of the Siklus class's Pemetaan Awal whose definition is marked ad-hoc (the journey fixture): the Siklus learner's row stays inside a planned school window under way, at a school-wide T−15 and at a platform-wide T−15, as with no window; another school's learner (alpha-siswa-1) never sees it; a refusal that is not maintenance (not yet open) still drops it, inside a window too; a running sitting stays reachable through its own read (pengerjaan_saya) inside the window. Red on b2f6a552 (the row dropped for MAINTENANCE_PLACE and MAINTENANCE_NO_NEW_START)."
+    },
+    {
+      "id": "A2B-SP3",
+      "runner": "static",
+      "proves": "The Chief Architect (16 Nov 16:27): src/app/belajar/actions.ts exports no start that leaves a maintenance refusal unhandled: every exported function that starts a sitting (engine.startSession / start_learning_session) maps PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE; mulaiAsesmen is the one start and the unused, postable startSession action (3c58620e) is gone; the plant, that export appended to the source, is caught."
     }
   ]
 }

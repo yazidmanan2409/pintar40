@@ -22,6 +22,7 @@
  *     at a school-wide T−15 back to the start screen; never an error page, and no sitting is made.
  */
 import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { createServerClient } from "@supabase/ssr";
 import { Checks, compiledBundle, type Context, type SelfTest } from "./lib";
@@ -153,7 +154,104 @@ export const a2bMulaiDbTests: SelfTest[] = [
       return c.verdict("start_learning_session, for the Siklus learner's never-started copy of the class's Pemetaan Awal: no window, it starts; inside a planned school window under way it raises PR040 MAINTENANCE_PLACE; with a planned school or platform-wide window starting in 10 minutes it raises PR110 MAINTENANCE_NO_NEW_START, each with its DETAIL, as the sitting-insert trigger does; the plant restoring the generic P0001 raise is caught");
     },
   },
+  {
+    id: "A2B-SP3",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const src = readFileSync(join(repoRoot, "src", "app", "belajar", "actions.ts"), "utf8");
+      const salah = mulaiTakTertangani(src);
+      c.expect(salah.length === 0, `src/app/belajar/actions.ts: ${salah.join("; ")}`);
+      c.expect(/export\s+async\s+function\s+mulaiAsesmen\b/.test(src) && !/export\s+async\s+function\s+startSession\b/.test(src),
+        "mulaiAsesmen must be the one start, and the unhandled startSession action must not return");
+      // the plant: 3c58620e's unhandled export, appended, must be caught
+      const tanam = mulaiTakTertangani(`${src}\nexport async function startSession(id: string) {\n  return engine.startSession(await db(), id);\n}\n`);
+      c.expect(tanam.length === 1 && /startSession/.test(tanam[0]), `the plant (an exported start with no maintenance handling) must be caught once: ${JSON.stringify(tanam)}`);
+      return c.verdict("src/app/belajar/actions.ts: every exported function that starts a sitting maps PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE (mulaiAsesmen, the one start); the unhandled startSession action is gone, and a plant restoring it is caught");
+    },
+  },
+  {
+    id: "A2B-Q12",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const d = dunia();
+      const lain = psql("select id from auth.users where email = 'alpha-siswa-1@synthetic.pintar.test'");
+      if (!c.expect(/^[0-9a-f-]{36}$/.test(d.asli) && /^[0-9a-f-]{36}$/.test(lain), "the Siklus learner's Pemetaan Awal or Alpha's learner is missing")) return c.verdict("");
+      const tanpa = daftarKasus(d.inst, d.uid, lain, "");
+      const tempat = daftarKasus(d.inst, d.uid, lain, jendelaSql(d.inst, false, "-5 minutes"));
+      const t15s = daftarKasus(d.inst, d.uid, lain, jendelaSql(d.inst, false, "10 minutes"));
+      const t15p = daftarKasus(d.inst, d.uid, lain, jendelaSql(d.inst, true, "10 minutes"));
+      const belumBuka = daftarKasus(d.inst, d.uid, lain, jendelaSql(d.inst, false, "-5 minutes"), "now() + interval '1 day'");
+      c.expect(tanpa === "1:0", `the control: with no window the standalone row is the learner's and no other school's (learner:other ${tanpa})`);
+      c.expect(tempat === "1:0", `inside a school window under way the row stays on the learner's list (Daisy: shown, its refusal on the orientation), never another school's: ${tempat}`);
+      c.expect(t15s === "1:0" && t15p === "1:0", `at a school-wide and a platform-wide T−15 the row stays: school ${t15s}, platform ${t15p}`);
+      c.expect(belumBuka === "0:0", `a refusal that is not maintenance still drops the row (not yet open, inside a window): ${belumBuka}`);
+      // (3) a running sitting stays reachable through its own read while the window runs
+      const r = baris(`begin;
+${adhocSql(d.inst, "now() - interval '1 day'")}
+${sebagai(d.uid)}
+select set_config('q12.s', public.start_learning_session(${lit(AA_ADHOC)})::text, true);
+${jendelaSql(d.inst, false, "-5 minutes")}
+${sebagai(d.uid)}
+create function pg_temp.q12_baca() returns text language plpgsql as $c$
+declare v jsonb; s text; dt text;
+begin
+  v := public.pengerjaan_saya(current_setting('q12.s')::uuid);
+  return 'OK:' || coalesce(v ->> 'status', jsonb_typeof(v));
+exception when others then get stacked diagnostics s = returned_sqlstate, dt = pg_exception_detail; return s || ':' || coalesce(dt, '');
+end $c$;
+select 'baca|' || pg_temp.q12_baca();
+rollback;`);
+      c.expect(!r.err && /^OK:/.test(r.hasil.baca ?? ""), `a running sitting stays reachable through its own read (pengerjaan_saya) inside the window: ${r.err || r.hasil.baca}`);
+      return c.verdict("my_open_assessments (/belajar's standalone list) keeps the learner's row inside a school window and at a school-wide and platform-wide T−15, as with no window (Daisy, ab730614: shown; the refusal is the orientation's), never another school's; a refusal that is not maintenance (not yet open) still drops it; a running sitting is read through its own read (pengerjaan_saya) inside the window");
+    },
+  },
 ];
+
+/** Daisy (A2B-DAFTAR-Q12-PUTUSAN.md at ab730614; the Chief Architect, 16 Nov 16:27): /belajar's standalone (Q-12) list keeps a
+ *  row a maintenance refusal stops; its other refusals still drop it. A standalone copy of the class's Pemetaan Awal,
+ *  its definition marked ad-hoc as a Uji Cepat's is (the journey fixture, rolled back). */
+const D_ADHOC = ID("d02"), AA_ADHOC = ID("c02");
+const adhocSql = (inst: string, buka: string) => `set local session_replication_role = replica;
+create temp table q12d on commit drop as select d.* from public.assessment_definitions d join public.assessment_assignments aa on aa.assessment_definition_id = d.id
+ where aa.institution_id = ${lit(inst)} and d.mode = 'PRE_TEST' and aa.status = 'OPEN' order by aa.id limit 1;
+update q12d set id = ${lit(D_ADHOC)}, is_ad_hoc = true, title = title || ' (uji Q-12)';
+insert into public.assessment_definitions select * from q12d;
+create temp table q12a on commit drop as select aa.* from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
+ where aa.institution_id = ${lit(inst)} and d.mode = 'PRE_TEST' and aa.status = 'OPEN' order by aa.id limit 1;
+update q12a set id = ${lit(AA_ADHOC)}, learning_assignment_id = null, assessment_definition_id = ${lit(D_ADHOC)}, opens_at = ${buka};
+insert into public.assessment_assignments select * from q12a;
+set local session_replication_role = origin;`;
+const sebagai = (uid: string) => `select set_config('request.jwt.claims', json_build_object('sub', '${uid}', 'role', 'authenticated')::text, true);`;
+function daftarKasus(inst: string, murid: string, lain: string, jendela: string, buka = "now() - interval '1 day'"): string {
+  const r = baris(`begin;
+${adhocSql(inst, buka)}
+${jendela}
+${sebagai(murid)}
+select 'murid|' || count(*) from public.my_open_assessments() where assessment_assignment_id = ${lit(AA_ADHOC)};
+${sebagai(lain)}
+select 'lain|' || count(*) from public.my_open_assessments() where assessment_assignment_id = ${lit(AA_ADHOC)};
+rollback;`);
+  return r.err ? `error: ${r.err}` : `${r.hasil.murid}:${r.hasil.lain}`;
+}
+
+/** The Chief Architect (16 Nov 16:27): src/app/belajar/actions.ts exports no start that leaves a maintenance refusal unhandled.
+ *  Every exported function that starts a sitting (engine.startSession / start_learning_session) must map PR110
+ *  MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE; the one such today is mulaiAsesmen. */
+export function mulaiTakTertangani(sumber: string): string[] {
+  const s = sumber.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+  const salah: string[] = [];
+  const awal = [...s.matchAll(/export\s+async\s+function\s+(\w+)\s*\(/g)];
+  awal.forEach((m, i) => {
+    const badan = s.slice(m.index!, i + 1 < awal.length ? awal[i + 1].index : undefined);
+    if (!/\b(?:engine\.startSession|start_learning_session)\b/.test(badan)) return;
+    const tertangani = /err\.code === "PR110" && err\.detail === "MAINTENANCE_NO_NEW_START"/.test(badan)
+      && /err\.code === "PR040" && err\.detail === "MAINTENANCE_PLACE"/.test(badan);
+    if (!tertangani) salah.push(`${m[1]} starts a sitting without mapping PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE`);
+  });
+  return salah;
+}
 
 export const a2bMulaiAppTests: SelfTest[] = [
   {
