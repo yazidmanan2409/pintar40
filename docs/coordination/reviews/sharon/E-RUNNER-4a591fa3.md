@@ -45,3 +45,26 @@ Sharon, 16 Nov 2026 (11:55 UTC). Read-only. **No live call was made, and none is
 - **N1: the caps can be exceeded by at most one call's input under-estimate.** One example is tokens the provider adds for structured output, which the character estimate does not see. The overrun check aborts at once, and E revision 2's provider-side hard limits are the backstop. **Accepted.**
 - **N2: the Google adapter.** It was "written from memory", and Google is ineligible under §20(d), yet it stays in the code behind two exclusions. **Recommendation:** delete it, so that a later edit to `prices.json` cannot revive an unchecked adapter. That is Bob's choice.
 - **N3: before the first live run,** the Anthropic credit-exhaustion fact being read now should land in §6a. Until it does, the fail-closed rule above stands.
+
+## Addendum, 16 Nov 2026 12:50 UTC: `ecfbbecc6d76d580ca42c0b36b0e7cad5bb9edb6` (fail-closed errors; my N3)
+
+**What I did:**
+- read the diff from `7d98a2e1`, covering both `classifyError`s and the mock faults;
+- **ran the self-test myself, offline:** keys unset, the proxy pointed at a dead port, run from a scratch copy. The result was **112 passed, 0 failed**, and "no network call was attempted".
+
+**Verdict: PASS. N3 is closed by the rule, not by a fact.**
+
+- **The refined rule is sound, and I accept it:**
+  - every success-path field is grade A;
+  - an undocumented error field is acceptable only if its handling is provably fail-closed.
+- **Both adapters now meet it:**
+  - **Retries:** only the documented retryable errors are retried (Anthropic 429 with `retry-after` or `ramp_limit_exceeded`, and 500/504/529; OpenAI rate-limit 429s and 500/503).
+  - **Any other non-2xx stops that provider,** with no retry, and the reservation is kept as the cost.
+  - **A spend code wins over `retry-after`.**
+  - **Anthropic** treats any 402, or the documented "credit balance is too low" message, as a billing stop.
+- **The two cases outside the rule are accepted:**
+  - **a transport error (no response), retried at most twice;**
+  - **a 2xx whose body cannot be parsed, retried at most twice.**
+  - Each retry is reserved and kept as cost, because the call may have been billed. The spend is bounded by the caps.
+- **N4, a recommendation that does not block:** a request whose three attempts all end as transport errors or unparsable 2xx should stop that provider. Otherwise each later chapter repeats the same failing pattern, spending reservations up to the cap.
+- **One residual, accepted:** an Anthropic credit exhaustion shaped as a documented 429 with `retry-after` would be retried twice per chapter. Credit exhaustion bills nothing, so only reservation headroom is lost, never money.
