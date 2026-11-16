@@ -6581,9 +6581,14 @@
       "proves": "Sharon's L01 ruling (b) for A3 (16 Nov 22:54, a1b66843): reads every function and trigger in the migrations' catalogue with A2A-L01's own lock reader (bacaUrutan), with learning_assignments and assessment_assignments ranked for this check only and A2A-L01's ranks restored afterwards. Every function that locks both takes learning_assignments first (as «Akhiri penugasan», both moves and, since A3-R1, start_learning_session do), so no start holds an assessment assignment while waiting on a learning assignment. A plant locking them the other way round, inside the reader's rolled-back transaction, is reported. The two tables stay unranked in A2A-L01; their full ranking is registered for Z."
     },
     {
-      "id": "A3-R1V",
+      "id": "A3-LN1",
       "runner": "static",
-      "proves": "A3-R1's pin, asked by Sharon (5ac3645d): executes an UPDATE of assessment_definitions.version against the migrations, in a rolled-back transaction, for up to three definitions the world has sat, and each is refused by enforce_taught_content_immutable with INV-04. The start's (definition, version) key is read under the assignment's share lock, which holds the assignment's definition still; this asserts the version cannot move either. The plant, the guard's trigger disabled in the same rolled-back transaction, lets the update through, so the pin can fail."
+      "proves": "The owner's ruling 46 with Sharon's lineage design (478c8750), red first; it replaces A3-R1V, whose claim (a sat definition's version is immutable) the full suite on 8861ffc3 showed false for ad-hoc definitions. Executes against the migrations, in a rolled-back transaction: assessment_definitions.lineage_root_definition_id exists and is NOT NULL; every definition's root is itself a root of the same school; garis_definisi_periksa finds no definition with more than one predecessor; a definition inserted without a root is its own root; an UPDATE of a root is refused; an insert naming a root that is not a root is refused; the plant (the root's guard trigger disabled) lets the update through."
+    },
+    {
+      "id": "A3-LN2",
+      "runner": "static",
+      "proves": "Ruling 46's backfill strictness (Sharon, 478c8750: every non-root revision finds exactly one predecessor, or the migration refuses), red first: executes garis_definisi_periksa against the migrations, in a rolled-back transaction, on a revision the harness makes (a course copied with supersedes_course_id, its module with supersedes_module_id, the module's definition copied into it at a higher version): with exactly one predecessor the check passes; with a second same-titled, same-mode definition in the superseded module it must refuse, naming the predecessor."
     }
   ]
 }

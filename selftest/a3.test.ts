@@ -18,8 +18,9 @@
  *           own run only, requires that every function that locks both takes learning_assignments first (the order of
  *           «Akhiri», both moves and the start since A3-R1), so no start can hold an assessment assignment while it waits on
  *           a learning assignment. A plant that locks them the other way round is reported.
- *   A3-R1V  A3-R1's pin (Sharon, 5ac3645d): a definition that has been sat cannot have its version updated (INV-04), so
- *           the start's (definition, version) key, read under the assignment's share lock, cannot name a moving version.
+ *   A3-LN1  ruling 46's lineage (Sharon, 478c8750; replaces A3-R1V, whose claim was false for ad-hoc definitions): every
+ *           definition has a NOT NULL, immutable lineage root that is a root of its own school; a new one is its own root.
+ *   A3-LN2  the line check refuses a revision with two predecessors (the backfill's strictness).
  */
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
@@ -216,42 +217,102 @@ export const a3DbTests: SelfTest[] = [
     },
   },
   {
-    // A3-R1's pin (Sharon, 5ac3645d): the start reads its key's version under the assignment's share lock, which holds
-    // the assignment's definition still; the version itself must not change once the definition can be sat (INV-04).
-    id: "A3-R1V",
+    // A3, ruling 46 (Sharon's lineage design, 478c8750): REPLACES A3-R1V, whose claim was false (a sat ad-hoc definition's
+    // version is NOT immutable: enforce_taught_content_immutable exempts ad-hoc definitions; the full suite on 8861ffc3
+    // found one). The start's key and may_start's count use the lineage root instead, which this pins.
+    id: "A3-LN1",
     requires: ["db"],
     run: async () => {
       const c = new Checks();
       const sql = `begin;
-create function pg_temp.coba(p_def uuid) returns text language plpgsql as $f$
-declare s text; m text;
+create function pg_temp.coba(p_sql text) returns text language plpgsql as $f$
+declare v text; s text; m text;
 begin
-  update public.assessment_definitions set version = version + 1 where id = p_def;
-  return 'UPDATED';
-exception when others then get stacked diagnostics s = returned_sqlstate, m = message_text; return s || ':' || m;
+  execute p_sql into v; return 'ok:' || coalesce(v, '');
+exception when others then get stacked diagnostics s = returned_sqlstate, m = message_text; return s || ':' || left(m, 120);
 end $f$;
-select 'def|' || d.id || '|' || pg_temp.coba(d.id)
-  from public.assessment_definitions d
- where exists (select 1 from public.assessment_sessions s where s.assessment_definition_id = d.id)
- order by d.id limit 3;
--- the plant: the guard's trigger off, inside this rolled-back transaction; the same UPDATE must then go through
-alter table public.assessment_definitions disable trigger assessment_definitions_taught_immutable;
-select 'tanam|' || d.id || '|' || pg_temp.coba(d.id)
-  from public.assessment_definitions d
- where exists (select 1 from public.assessment_sessions s where s.assessment_definition_id = d.id)
- order by d.id limit 1;
+select 'kolom|' || coalesce((select (is_nullable = 'NO')::text from information_schema.columns
+  where table_schema = 'public' and table_name = 'assessment_definitions' and column_name = 'lineage_root_definition_id'), 'absent');
+select 'akar_diri|' || pg_temp.coba($s$select count(*)::text from public.assessment_definitions d where d.lineage_root_definition_id is null
+  or not exists (select 1 from public.assessment_definitions r where r.id = d.lineage_root_definition_id and r.lineage_root_definition_id = r.id
+                  and r.institution_id = d.institution_id)$s$);
+select 'periksa|' || pg_temp.coba($s$select public.garis_definisi_periksa()::text$s$);
+-- a definition inserted without a root is its own root
+select 'baru|' || pg_temp.coba($s$with x as (insert into public.assessment_definitions
+    select (jsonb_populate_record(d, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000001', 'version', d.version + 100)
+      - 'lineage_root_definition_id')).* from public.assessment_definitions d order by d.id limit 1
+    returning id, lineage_root_definition_id) select (lineage_root_definition_id = id)::text from x$s$);
+-- the root cannot change
+select 'ubah|' || pg_temp.coba($s$update public.assessment_definitions set lineage_root_definition_id = id
+  where id = (select d.id from public.assessment_definitions d where d.lineage_root_definition_id <> d.id order by d.id limit 1) returning 'UPDATED'$s$);
+-- a root must be a root of the same school
+select 'bukan_akar|' || pg_temp.coba($s$with x as (insert into public.assessment_definitions
+    select (jsonb_populate_record(d, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000002', 'version', d.version + 200,
+      'lineage_root_definition_id', (select d2.id from public.assessment_definitions d2 where d2.lineage_root_definition_id <> d2.id order by d2.id limit 1)))).*
+      from public.assessment_definitions d order by d.id limit 1 returning 'INSERTED') select * from x$s$);
+-- the plant: the root's guard trigger disabled, the same update goes through
+alter table public.assessment_definitions disable trigger assessment_definitions_lineage_root;
+select 'tanam|' || pg_temp.coba($s$update public.assessment_definitions set lineage_root_definition_id = id
+  where id = (select d.id from public.assessment_definitions d where d.lineage_root_definition_id <> d.id order by d.id limit 1) returning 'UPDATED'$s$);
 rollback;`;
-      const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { encoding: "utf8" });
-      if (!c.expect(r.status === 0, `the probe could not run: ${(r.stderr || "").trim().split("\n").pop()}`)) return c.verdict("");
-      const baris = r.stdout.split("\n").filter((l) => l.startsWith("def|"));
-      if (!c.expect(baris.length > 0, "the world holds no definition that has been sat (the pin cannot be asked)")) return c.verdict("");
-      for (const b of baris) {
-        const [, d, hasil] = b.split("|");
-        c.expect(/immutable once the course is frozen \(INV-04\)/.test(hasil ?? ""), `definition ${d}, already sat: its version must not change (INV-04): ${hasil}`);
-      }
-      const tanam = r.stdout.split("\n").find((l) => l.startsWith("tanam|"));
-      c.expect((tanam ?? "").endsWith("|UPDATED"), `the plant (the taught-immutable trigger disabled) must let the version move, or this pin proves nothing: ${tanam}`);
-      return c.verdict(`for ${baris.length} definition(s) that have been sat, an UPDATE of the version is refused with INV-04 (enforce_taught_content_immutable), so the start's (definition, version) key read under the assignment's share lock names a version that cannot move; with the guard's trigger disabled (the plant) the update goes through; rolled back`);
+      const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=0", "-qAt", "-c", sql, db()], { encoding: "utf8" });
+      const v: Record<string, string> = {};
+      for (const l of r.stdout.split("\n")) { const i = l.indexOf("|"); if (i > 0) v[l.slice(0, i)] = l.slice(i + 1); }
+      c.expect(v.kolom === "true", `assessment_definitions.lineage_root_definition_id must exist and be NOT NULL: ${v.kolom ?? "no answer"}`);
+      c.expect(v.akar_diri === "ok:0", `every definition's root must be a root (its own root) of the same school: ${v.akar_diri ?? "no answer"}`);
+      c.expect(v.periksa === "ok:0", `the line check must find no definition with more than one predecessor: ${v.periksa ?? "no answer"}`);
+      c.expect(v.baru === "ok:true", `a definition inserted without a root must be its own root: ${v.baru ?? "no answer"}`);
+      c.expect(!!v.ubah && !v.ubah.startsWith("ok:"), `a definition's root must not change: ${v.ubah ?? "no answer"}`);
+      c.expect(!!v.bukan_akar && !v.bukan_akar.startsWith("ok:"), `a root that is not itself a root must be refused: ${v.bukan_akar ?? "no answer"}`);
+      c.expect(v.tanam === "ok:UPDATED", `the plant (the root's guard disabled) must let the root change, or this pin proves nothing: ${v.tanam ?? "no answer"}`);
+      return c.verdict("assessment_definitions.lineage_root_definition_id exists, NOT NULL, and every root is a root of its own school; the line check finds no definition with two predecessors; a new definition is its own root; a root never changes, and a root that is not a root is refused; with the guard's trigger disabled (the plant) the change goes through; rolled back");
+    },
+  },
+  {
+    // A3, ruling 46: the line check refuses an ambiguous predecessor (Sharon, 478c8750: "verifies that every non-root
+    // revision found exactly one predecessor, or it refuses"). A revised course's definition is given a second same-titled,
+    // same-mode definition in the course it supersedes (the harness's hand, rolled back): the check must refuse.
+    id: "A3-LN2",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const sql = `begin;
+create function pg_temp.coba(p_sql text) returns text language plpgsql as $f$
+declare v text; s text; m text;
+begin
+  execute p_sql into v; return 'ok:' || coalesce(v, '');
+exception when others then get stacked diagnostics s = returned_sqlstate, m = message_text; return s || ':' || left(m, 160);
+end $f$;
+create temp table ln2 on commit drop as
+select d0.* from public.assessment_definitions d0 where d0.module_id is not null and not d0.is_ad_hoc order by d0.id limit 1;
+select 'ada|' || count(*) from ln2;
+set local session_replication_role = replica;
+-- revision 2 of the course (supersedes it), its module's revision (supersedes the module), and revision 2 of the
+-- definition in that module (version + 300): exactly one predecessor, as salin_kursus_revisi makes them
+insert into public.courses select (jsonb_populate_record(c, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000004', 'supersedes_course_id', c.id))).*
+  from public.courses c where c.id = (select m.course_id from public.modules m where m.id = (select module_id from ln2));
+insert into public.modules select (jsonb_populate_record(m, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000006',
+    'course_id', 'a3a1e000-0000-4000-8000-a30100000004', 'supersedes_module_id', m.id))).*
+  from public.modules m where m.id = (select module_id from ln2);
+insert into public.assessment_definitions select (jsonb_populate_record(d0, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000005',
+    'module_id', 'a3a1e000-0000-4000-8000-a30100000006', 'version', d0.version + 300))).*
+  from public.assessment_definitions d0 where d0.id = (select id from ln2);
+set local session_replication_role = origin;
+select 'tunggal|' || pg_temp.coba($s$select public.garis_definisi_periksa()::text$s$);
+-- a second same-titled, same-mode definition in the superseded module: two predecessors
+set local session_replication_role = replica;
+insert into public.assessment_definitions select (jsonb_populate_record(d0, jsonb_build_object('id', 'a3a1e000-0000-4000-8000-a30100000003', 'version', d0.version + 400))).*
+  from public.assessment_definitions d0 where d0.id = (select id from ln2);
+set local session_replication_role = origin;
+select 'ganda|' || pg_temp.coba($s$select public.garis_definisi_periksa()::text$s$);
+rollback;`;
+      const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=0", "-qAt", "-c", sql, db()], { encoding: "utf8" });
+      const v: Record<string, string> = {};
+      for (const l of r.stdout.split("\n")) { const i = l.indexOf("|"); if (i > 0) v[l.slice(0, i)] = l.slice(i + 1); }
+      if (!c.expect(v.ada === "1", `the world must hold a course's definition to revise (the case cannot be set up): ${v.ada ?? "no answer"}`)) return c.verdict("");
+      c.expect(v.tunggal === "ok:0", `a revision with exactly one predecessor must pass the line check: ${v.tunggal ?? "no answer"}`);
+      c.expect(!!v.ganda && !v.ganda.startsWith("ok:") && /predecessor|pendahulu/i.test(v.ganda), `a revision with two same-titled, same-mode predecessors must be refused by the line check: ${v.ganda ?? "no answer"}`);
+      return c.verdict("a revision of a course (supersedes_course_id) with a revision of its definition passes garis_definisi_periksa, the check the lineage backfill runs; given a second same-titled, same-mode definition in the course it supersedes, the check refuses; rolled back");
     },
   },
 ];
