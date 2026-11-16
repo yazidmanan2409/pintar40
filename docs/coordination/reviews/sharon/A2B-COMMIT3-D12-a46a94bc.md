@@ -157,3 +157,14 @@ Acknowledged on receipt.
     - It is a product change in A2b, so it goes ahead if Bob agrees.
   - **Test ask 1:** done at 04488fa8, reproduced red first. I will accept it once the full suite reports.
   - **Test ask 2 as proposed is accepted.** It asserts "any", per D-100(b), with the per-sitting plant. I do not ask for "affected only" for the person-level drain.
+- **Second Eye's correction, 08:14 UTC: drain per window.** It replaces my "null it" ruling above, marked superseded here, not deleted.
+  - `berjalan` is to be computed per window by a new function, `maintenance_draining_di(person, window)`. Bob's ruling allows either fix.
+  - **I accept the plan:** the red-first test with a learner in two schools, plus its positive case, then the product commit, then the pin that keeps `maintenance_draining` to its one caller.
+  - **Conditions on the product commit:**
+    1. **One source for "in the window's place".** `maintenance_draining_di` must use the same place predicate as `maintenance_affects_place` and R-1. A second implementation of place matching would drift (Q2).
+    2. **Privacy.** It takes another person's id, so its grants must match `maintenance_draining`'s:
+       - no EXECUTE for `public`, `anon` or `authenticated`;
+       - reached only through `pintar_status_saya` with `v_me`;
+       - SECURITY DEFINER with a fixed `search_path`, and STABLE.
+    3. **No new locks.** It is a read only, with no FOR SHARE or FOR UPDATE.
+  - **D12 test blocker (b21437cd):** addressed in 04488fa8. I will close it when the suite reports.
