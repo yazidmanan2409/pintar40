@@ -2,7 +2,8 @@
  * A2b, STEP 1 · THE INVENTORY TEST AND THE BOUNDARY TESTS K1 TO K12, RED FIRST (PLAN-A2B-C2W.md §2.3 and §2.5; Sharon's
  * A2B-K-TESTS-43ce13bf.md at cfa23583: K1 to K7 agreed as written, K8 to K12 required before any product code).
  *
- * Written before any product code, on main at eff99f98. Each test states the behaviour A2b must have; a test that is
+ * A2B-I01 classes every writer of a class's work; A2B-I02 every reader and writer of maintenance_windows (Bob's
+ * dispatch, 16 Nov 02:30 UTC). Written before any product code, on main at eff99f98. Each test states the behaviour A2b must have; a test that is
  * red on main is red because that behaviour does not exist yet, never because its fixture failed: every test first
  * checks its own baseline (the act it judges succeeds when no window is open), and reports a broken fixture as such.
  *
@@ -295,6 +296,75 @@ export function inventaris(db: string, tanam = ""): { fungsi: string[]; salah: s
 }
 const TANAM_INV = `create function public._a2b_i01_tanam(p uuid) returns void language plpgsql as $t$
 begin update public.learning_assignments set status = status where id = p; end $t$`;
+
+// ═══════════════════════════════════════════════════════════ A2B-I02 · every reader and writer of maintenance_windows, classed
+
+type KelasJendela = "WRITER" | "PERSON" | "PLACE" | "EMERGENCY" | "ADMIN";
+/** Every function that names maintenance_windows, or takes or returns its row, classed by what A2b asks of it.
+ *  `menunggu`: A2b's new function, named so the enumeration is never green by omission. */
+export const KELAS_JENDELA: Record<string, { kelas: KelasJendela; alasan: string; menunggu?: true }> = {
+  schedule_maintenance: { kelas: "WRITER", alasan: "the insert of a PLANNED window; A2b adds the node parameter (K10) and the reason code (D2)" },
+  change_maintenance: { kelas: "WRITER", alasan: "start now, cancel, resume early (AKHIRI) for PLANNED; A2a's fenced lift for EMERGENCY (B1's form); writes no ends_at (K7)" },
+  maintenance_record_edges: { kelas: "WRITER", alasan: "the edge recorder (audit marks only, skip locked); unchanged; K9" },
+  stop_pintar_now: { kelas: "WRITER", alasan: "A2a's emergency insert; unchanged" },
+  perpanjang_pemeliharaan: { kelas: "WRITER", alasan: "A2b's extend: the only new writer of a planned window's end (K6 to K9)", menunggu: true },
+  maintenance_affects: { kelas: "PERSON", alasan: "whether a window reaches a person: A2b keeps only EMERGENCY and platform-wide PLANNED here (R-1; K11)" },
+  maintenance_affects_kini: { kelas: "PERSON", alasan: "the same, on current placement" },
+  maintenance_affects_pada: { kelas: "PERSON", alasan: "the same, at an instant (EMERGENCY's T_stop)" },
+  maintenance_block_for_me: { kelas: "PERSON", alasan: "the request hook's question: person-level windows only after A2b (K11: none for a work-scoped window)" },
+  pintar_status_saya: { kelas: "PERSON", alasan: "the status read: says person-level or work-scoped, the place and the zone (D8)" },
+  maintenance_affects_place: { kelas: "PLACE", alasan: "A2b's place guard (clock_timestamp(), no lock)", menunggu: true },
+  enforce_no_new_sitting_in_maintenance: { kelas: "PLACE", alasan: "the sitting-insert trigger: the place, D4 and T−15 (K1, K3, K4)" },
+  catat_penolakan_henti: { kelas: "EMERGENCY", alasan: "A2a's O1 refusal record" },
+  orang_dilindungi: { kelas: "EMERGENCY", alasan: "A2a's protection of a person" },
+  pengerjaan_dilindungi: { kelas: "EMERGENCY", alasan: "A2a's protection of a sitting" },
+  pengerjaan_keluar_terapkan: { kelas: "EMERGENCY", alasan: "A2a's departure after a stop" },
+  pengerjaan_lepas_darurat_semua: { kelas: "EMERGENCY", alasan: "A2a's release batch" },
+  pengerjaan_pagar: { kelas: "EMERGENCY", alasan: "A2a's first-touch helper" },
+  pengerjaan_tahan_orang: { kelas: "EMERGENCY", alasan: "A1's hold, reading a stop's T_stop" },
+  pengerjaan_tandai_darurat: { kelas: "EMERGENCY", alasan: "A2a's marking" },
+  penghentian_berlaku: { kelas: "EMERGENCY", alasan: "the stop in force" },
+  penghentian_dampak: { kelas: "EMERGENCY", alasan: "a stop's reach" },
+  penghentian_ditahan: { kelas: "EMERGENCY", alasan: "a stop's held count" },
+  penghentian_ditahan_jendela: { kelas: "EMERGENCY", alasan: "Admin PINTAR's held count of one window, through penghentian_ditahan" },
+  penghentian_geser: { kelas: "EMERGENCY", alasan: "a stop's shift" },
+  penghentian_kredit: { kelas: "EMERGENCY", alasan: "a lifted stop's credit" },
+  penghentian_orang: { kelas: "EMERGENCY", alasan: "a stop's people at T_stop" },
+  maintenance_controls: { kelas: "ADMIN", alasan: "who may change a window (the scheduling screen)" },
+  maintenance_list: { kelas: "ADMIN", alasan: "the scheduling screen's list" },
+  maintenance_state: { kelas: "ADMIN", alasan: "a window's state at an instant (TERJADWAL, MENJELANG, AKTIF, BERAKHIR)" },
+};
+const HANYA_DARURAT = /'EMERGENCY'|\bt_stop\b/;
+
+/** The functions that name maintenance_windows or take or return its row, and what is wrong with the classing. */
+export function inventarisJendela(db: string, tanam = ""): { fungsi: string[]; salah: string[] } {
+  const q = `select p.proname, p.prosrc, ('public.maintenance_windows'::regtype = any (p.proargtypes::oid[]::regtype[])
+       or p.prorettype = 'public.maintenance_windows'::regtype)::text
+  from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'`;
+  const src = new Map<string, string>();
+  const jenis = new Set<string>();
+  for (const [fn, s, t] of psqlBaris(db, tanam ? `begin; ${tanam}; ${q}; rollback;` : q)) {
+    src.set(fn, (src.get(fn) ?? "") + "\n" + (s ?? "").replace(/--[^\n]*/g, " "));
+    if (t === "true") jenis.add(fn);
+  }
+  const fungsi = [...src].filter(([f, s]) => /\bmaintenance_windows\b/i.test(s) || jenis.has(f)).map(([f]) => f).sort();
+  const salah: string[] = [];
+  for (const f of fungsi) {
+    const k = KELAS_JENDELA[f];
+    if (!k) { salah.push(`${f} reads or writes maintenance_windows and is not classed`); continue; }
+    if (k.kelas === "EMERGENCY") {
+      const callees = [...src.keys()].filter((g) => g !== f && new RegExp(`\\b${g}\\s*\\(`).test(src.get(f)!));
+      if (!HANYA_DARURAT.test(src.get(f)!) && !callees.some((g) => KELAS_JENDELA[g]?.kelas === "EMERGENCY"))
+        salah.push(`${f} is classed EMERGENCY and neither reads only emergency windows nor delegates to an EMERGENCY reader: a PLANNED class window would reach it`);
+    }
+  }
+  for (const [f, k] of Object.entries(KELAS_JENDELA)) {
+    if (!src.has(f)) salah.push(k.menunggu ? `${f} (A2b's, ${k.kelas}) does not exist yet` : `${f} is classed but no longer exists`);
+    else if (!fungsi.includes(f)) salah.push(`${f} is classed but no longer reads or writes maintenance_windows`);
+  }
+  return { fungsi, salah };
+}
+const TANAM_I02 = `create function public._a2b_i02_tanam() returns bigint language sql as $t$ select count(*) from public.maintenance_windows $t$`;
 
 // ═══════════════════════════════════════════════════════════ the boundary tests
 
@@ -673,6 +743,20 @@ export const a2bBatasTests: SelfTest[] = [
       c.expect(salah.length === 0, `the writers of a class's work (Sharon's classing):\n  ${salah.join("\n  ")}`);
       const baru = Object.entries(KELAS_PENULIS).filter(([, v]) => v.baru).map(([k]) => k);
       return c.verdict(`${fungsi.length} functions write a class's work or reach a writer from a client; each is classed (${Object.keys(KELAS_PENULIS).length}; ${baru.length} classed here beyond Sharon's table: ${baru.join(", ")}); every refused one asks the place question; no system closure does; the planted unclassed writer is reported`);
+    },
+  },
+  {
+    id: "A2B-I02",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const db = process.env.SUPABASE_DB_URL!;
+      const tanam = inventarisJendela(db, TANAM_I02);
+      c.expect(tanam.salah.some((s) => s.startsWith("_a2b_i02_tanam ")), "the planted reader of maintenance_windows was not reported as unclassed");
+      const { fungsi, salah } = inventarisJendela(db);
+      c.expect(salah.length === 0, `the readers and writers of maintenance_windows:\n  ${salah.join("\n  ")}`);
+      const n = (k: KelasJendela) => Object.values(KELAS_JENDELA).filter((v) => v.kelas === k).length;
+      return c.verdict(`${fungsi.length} functions read or write maintenance_windows, each classed: ${n("WRITER")} writers, ${n("PERSON")} person-level readers, ${n("PLACE")} place readers, ${n("EMERGENCY")} emergency-only readers (each reads only emergency windows or delegates to one that does), ${n("ADMIN")} for the scheduling screen; the planted unclassed reader is reported`);
     },
   },
   {

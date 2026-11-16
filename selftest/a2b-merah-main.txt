@@ -1,7 +1,7 @@
 # A2b step 1: the inventory test and K1 to K12, run on main's code (eff99f98), 16 Nov 2026, before any product code.
 # Each FAIL is the behaviour A2b adds, not yet built; each test first checked its own fixture with no window open.
 # K4 and K5 PASS on main by design: they guard what A2b must keep (T−15 for an untimed start; the drain).
-# Regenerate: SUPABASE_DB_URL=… npm run -s selftest:only -- --only=A2B-I01,A2B-K01,…,A2B-K12 (on a freshly reset local stack).
+# Regenerate: SUPABASE_DB_URL=… npm run -s selftest:only -- --only=A2B-I01,A2B-I02,A2B-K01,…,A2B-K12 (on a freshly reset local stack).
 A2B-I01     FAIL    the writers of a class's work (Sharon's classing):
   akhiri_pengerjaan is classed REFUSED and does not ask the place question (maintenance_affects_place)
   akhiri_penugasan is classed REFUSED and does not ask the place question (maintenance_affects_place)
@@ -20,6 +20,9 @@ A2B-I01     FAIL    the writers of a class's work (Sharon's classing):
   terminate_session is classed REFUSED and does not ask the place question (maintenance_affects_place)
   tutup_pengerjaan_ditahan is classed REFUSED and does not ask the place question (maintenance_affects_place)
   ubah_jadwal_penugasan is classed REFUSED and does not ask the place question (maintenance_affects_place)
+A2B-I02     FAIL    the readers and writers of maintenance_windows:
+  perpanjang_pemeliharaan (A2b's, WRITER) does not exist yet
+  maintenance_affects_place (A2b's, PLACE) does not exist yet
 A2B-K01     FAIL    K1: a transaction that began before the start and writes after it must be refused PR040:MAINTENANCE_PLACE: OK; K1: a start whose transaction began before T−15 and inserts after it must be refused PR110:MAINTENANCE_NO_NEW_START: OK; K1: a transaction that waited on a lock before the start and reached its write after it must be refused PR040:MAINTENANCE_PLACE: OK
 A2B-K02     FAIL    K2: before the end the act must be refused PR040:MAINTENANCE_PLACE: OK
 A2B-K03     FAIL    K3: a start whose deadline (60 min) falls after a planned class window's start (30 min) must be refused PR110:MAINTENANCE_CANNOT_FINISH: OK
