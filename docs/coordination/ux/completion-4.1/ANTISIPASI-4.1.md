@@ -35,6 +35,17 @@
 
 **F1-R1b and L1-F4's wording: 6 defects, all anticipable; 3 of them mine.**
 
+## A2b, D8 batch 1 (reviewed at `679987cb`; open)
+
+| # | Defect | Whose | Anticipable? | Question | Why |
+|---|---|---|---|---|---|
+| A2B-D1 | D8-3 captured on a learner with a running sitting, so the start screen never showed | build (capture) | **Yes** | **5** | The start screen exists only for a learner without an open sitting |
+| A2B-D2 | The failed-read line repeats the stage's start sentence | **mine** (`A2B-RA-KALIMAT.md` §4) | **Yes** | **4** | I did not read the stage as it renders after the swap |
+| A2B-D3 | «pekerjaannya» with no owner, above work from several classes | build | **Yes** | **5** | Where it renders: `/belajar` holds every class |
+| A2B-D4 | A time on another day shown without its date | build, and my D8 list | **Yes** | **2** | The neighbouring case: an end after midnight |
+
+**So far: 4 defects, all anticipable; 1 of them mine.** Plus V-2 (mine, D4's duration), recorded above.
+
 ## My own verification error, recorded with the defects
 
 | # | Error | Anticipable? | Question | Correction |
