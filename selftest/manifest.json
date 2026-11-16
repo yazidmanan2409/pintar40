@@ -6353,7 +6353,7 @@
     {
       "id": "A2B-D15",
       "runner": "static",
-      "proves": "The pin for the same ruling and Sharon's conditions; reads the catalogue: the person-wide drain, maintenance_draining(person), has exactly one caller, maintenance_block_for_me, which reads it only after skipping class and school PLANNED windows; the place predicate exists once, maintenance_jendela_atas, called by maintenance_affects_place, maintenance_mulai_tolak and maintenance_draining_di, and no function carries a copy; the reader and the helper carry maintenance_draining's grants; the reader is STABLE and takes no row lock."
+      "proves": "The pin for the same ruling and Sharon's conditions; reads the catalogue: the person-wide drain, maintenance_draining(person), has exactly one caller, maintenance_block_for_me, which reads it only after skipping class and school PLANNED windows; the place predicate exists once, maintenance_jendela_atas, called by maintenance_affects_place, maintenance_mulai_tolak and maintenance_draining_di, and no function carries a copy; the reader and the helper carry maintenance_draining's grants; the reader is STABLE and takes no row lock. maintenance_collisions with p_nodes calls the one place predicate too (Sharon, 11eca8bb)."
     },
     {
       "id": "A2B-D16",
@@ -6363,7 +6363,7 @@
     {
       "id": "A2B-R01",
       "runner": "static",
-      "proves": "Batch 2, D2 in the database (THE PLAN §5.3 D2; Daisy A2-KATA-DESAIN B1; the Chief Architect, 16 Nov 09:16); executes in a rolled-back transaction: maintenance_windows.reason_code accepts the five planned codes (RUTIN, PEMBARUAN, GANGGUAN, JARINGAN_LISTRIK, LAINNYA), refuses a foreign code, refuses any code on an EMERGENCY row, and LAINNYA's text over 120 characters; rows with no code (existing rows, every emergency) stay valid; schedule_maintenance(..., p_reason_code) refuses a foreign code and LAINNYA without text with MAINTENANCE_INPUT_INVALID and accepts the old call with no code; stop_pintar_now's signature is unchanged. Sharon's additions (A2B-BATCH2-TESTS-d837181d.md): T1, a code other than LAINNYA with free text is refused (the CHECK, and schedule_maintenance with MAINTENANCE_INPUT_INVALID) and a coded window stores its code as its reason; T3, the reason CHECK exists and is validated (pg_constraint.convalidated); T4, LAINNYA's limit counts characters (120 × é accepted, 121 refused, at the row and at schedule_maintenance)."
+      "proves": "Batch 2, D2 in the database (THE PLAN §5.3 D2; Daisy A2-KATA-DESAIN B1; the Chief Architect, 16 Nov 09:16); executes in a rolled-back transaction: maintenance_windows.reason_code accepts the five planned codes (RUTIN, PEMBARUAN, GANGGUAN, JARINGAN_LISTRIK, LAINNYA), refuses a foreign code, refuses any code on an EMERGENCY row, and LAINNYA's text over 120 characters; rows with no code (existing rows, every emergency) stay valid; schedule_maintenance(..., p_reason_code) refuses a foreign code and LAINNYA without text with MAINTENANCE_INPUT_INVALID and accepts the old call with no code; stop_pintar_now's signature is unchanged. Sharon's additions (A2B-BATCH2-TESTS-d837181d.md): T1, a code other than LAINNYA with free text is refused (the CHECK, and schedule_maintenance with MAINTENANCE_INPUT_INVALID) and a coded window stores its code as its reason; T3, the reason CHECK exists and is validated (pg_constraint.convalidated); T4, LAINNYA's limit counts characters (120 × é accepted, 121 refused, at the row and at schedule_maintenance). LAINNYA with text that is only spaces is refused at the row (Sharon, char_length(btrim(reason)))."
     },
     {
       "id": "A2B-R02",
@@ -6378,7 +6378,7 @@
     {
       "id": "A2B-A07",
       "runner": "static",
-      "proves": "PLAN-A2B-C2W.md §2.4 A7, resume early end to end; executes in a rolled-back transaction as the school's admin: change_maintenance AKHIRI writes an audit row (maintenance.ended_now) holding the planned end, the moment it ended (the row's own time equals ended_at), the reason and the actor; the class's work resumes at once. Plant (Sharon's T5): the early end stamps ended_at a second before the audit row's instant; A7 sees the mismatch (red)."
+      "proves": "PLAN-A2B-C2W.md §2.4 A7, resume early end to end; executes in a rolled-back transaction as the school's admin: change_maintenance AKHIRI writes an audit row (maintenance.ended_now) holding the planned end, the moment it ended (the row's own time equals ended_at), the reason and the actor; the class's work resumes at once. Plant (Sharon's T5): the early end stamps ended_at a second before the audit row's instant; A7 sees the mismatch (red). RESTATED (the Chief Architect, 16 Nov 09:59; audit_write takes no time): the moment it ended is the audit summary's ended_at, equal to the window's; the plant moves to the stamp (ended_at = v_kini - 1 s)."
     },
     {
       "id": "A2B-R03",
@@ -6418,7 +6418,7 @@
     {
       "id": "A2B-R04",
       "runner": "static",
-      "proves": "Sharon's batch 2 checklist, point 1 (A2B-BATCH2-PREP.md at 7fb0bc39): the maintenance_windows preservation line; executes in a rolled-back transaction: the table taken back to before D2 (reason_code dropped), PLANNED and EMERGENCY rows of every existing shape written (a school and a class window, an ended one, a lifted and a running emergency), then the migration's section marked «-- A2B-R04 maintenance_windows: begin/end» run over them: none missing, none changed outside reason_code (to_jsonb compared), none given a code; the column exists after."
+      "proves": "Sharon's batch 2 checklist, point 1 (A2B-BATCH2-PREP.md at 7fb0bc39): the maintenance_windows preservation line; executes in a rolled-back transaction: the table taken back to before D2 (reason_code dropped), PLANNED and EMERGENCY rows of every existing shape written (a school and a class window, an ended one, a lifted and a running emergency), then the migration's section marked «-- A2B-R04 maintenance_windows: begin/end» run over them: none missing, none changed outside reason_code (to_jsonb compared), none given a code; the column exists after. Reads the migration: it changes maintenance_windows (its table or rows) only inside the marked section (Sharon, 11eca8bb)."
     },
     {
       "id": "A2B-K17",
@@ -6433,17 +6433,17 @@
     {
       "id": "A2B-E04",
       "runner": "static",
-      "proves": "Sharon's batch 2 checklist, point 4, «Perpanjang»; executes in a rolled-back transaction: a shorter end, the same end, a past end and a blank reason are refused MAINTENANCE_INPUT_INVALID, a teacher MAINTENANCE_NOT_ALLOWED; a later end moves the end alone (start, classes, schools, platform and kind unchanged); perpanjang_pemeliharaan takes no start (its signature pinned); reads the committed A2A-L01 report: it and change_maintenance take the actor first, then the window, under A2A-L01's catalogue test."
+      "proves": "Sharon's batch 2 checklist, point 4, «Perpanjang»; executes in a rolled-back transaction: a shorter end, the same end, a past end and a blank reason are refused MAINTENANCE_INPUT_INVALID, a teacher MAINTENANCE_NOT_ALLOWED; a later end moves the end alone (start, classes, schools, platform and kind unchanged); perpanjang_pemeliharaan takes no start (its signature pinned); reads the committed A2A-L01 report: it and change_maintenance take the actor first, then the window, under A2A-L01's catalogue test. Plant (Sharon, 11eca8bb): the extend accepting an equal end; E04 sees it go through (red)."
     },
     {
       "id": "A2B-E05",
       "runner": "static",
-      "proves": "Sharon's batch 2 checklist, point 4, «Akhiri sekarang» on the database clock (the K8 rule swept from perpanjang_pemeliharaan to change_maintenance); executes in a rolled-back transaction 2 s old: a planned class window that ended on the clock after the transaction began is refused MAINTENANCE_NOT_OPEN and keeps no ended_at; an early end of one under way is stamped with the clock's instant, not the transaction's start, and its class's work resumes; «Mulai sekarang» on a window whose start passed on the clock is refused MAINTENANCE_INPUT_INVALID (under way)."
+      "proves": "Sharon's batch 2 checklist, point 4, «Akhiri sekarang» on the database clock (the K8 rule swept from perpanjang_pemeliharaan to change_maintenance); executes in a rolled-back transaction 2 s old: a planned class window that ended on the clock after the transaction began is refused MAINTENANCE_NOT_OPEN and keeps no ended_at; an early end of one under way is stamped with the clock's instant, not the transaction's start, and its class's work resumes; «Mulai sekarang» on a window whose start passed on the clock is refused MAINTENANCE_INPUT_INVALID (under way). The Chief Architect (16 Nov 09:59): fixed in batch 2, PLANNED branch only; the EMERGENCY branch (A2a's fenced lift) pinned unchanged: lifted as Admin PINTAR in the same 2 s old transaction, its ended_at is the transaction's now() and its T_lift the clock."
     },
     {
       "id": "A2B-E06",
       "runner": "static",
-      "proves": "Sharon's batch 2 checklist, point 4, D-100(b); executes in a rolled-back transaction, the learner's other open sittings removed: a sitting running in 7A when 7A's planned window is ended early keeps its status and its own deadline, is not ended, and its answer is taken after the end."
+      "proves": "Sharon's batch 2 checklist, point 4, D-100(b); executes in a rolled-back transaction, the learner's other open sittings removed: a sitting running in 7A when 7A's planned window is ended early keeps its status and its own deadline, is not ended, and its answer is taken after the end. Plant (Sharon, 11eca8bb): the early end closing the window's running sittings; E06 sees the sitting changed (red)."
     },
     {
       "id": "A2B-K13",

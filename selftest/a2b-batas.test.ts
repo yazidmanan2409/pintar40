@@ -215,7 +215,7 @@ select (jsonb_populate_record(s, jsonb_build_object('id', gen_random_uuid(), 'st
   'termination_cause', null, 'darurat_sejak', null, 'darurat_jendela_id', null, 'darurat_dikredit_sampai', null,
   'darurat_keluar', null))).* from public.assessment_sessions s where s.id = '${d.sumber}'$q$`;
 
-const W1 = ID("a1"), W2 = ID("a2"), W3 = ID("a3");
+const W1 = ID("a1"), W2 = ID("a2"), W3 = ID("a3"), W4 = ID("a4");
 
 // ═══════════════════════════════════════════════════════════ A2B-I01 · every writer of a class's work, classed
 
@@ -329,7 +329,7 @@ export const KELAS_JENDELA: Record<string, { kelas: KelasJendela; alasan: string
   maintenance_affects_pada: { kelas: "PERSON", alasan: "the same, at an instant (EMERGENCY's T_stop)" },
   maintenance_block_for_me: { kelas: "PERSON", alasan: "the request hook's question: person-level windows only after A2b (K11: none for a work-scoped window)" },
   pintar_status_saya: { kelas: "PERSON", alasan: "the status read: says person-level or work-scoped, the place and the zone (D8)" },
-  maintenance_jendela_atas: { kelas: "PLACE", alasan: "the one place predicate (Sharon, 16 Nov): the window's school holds the node and its classes are none or on the node's path; called by maintenance_affects_place, maintenance_mulai_tolak and maintenance_draining_di (D15, D16)" },
+  maintenance_jendela_atas: { kelas: "PLACE", alasan: "the one place predicate (Sharon, 16 Nov): the window's school holds the node and its classes are none or on the node's path; called by maintenance_affects_place, maintenance_collisions, maintenance_mulai_tolak and maintenance_draining_di (D15, D16)" },
   maintenance_draining_di: { kelas: "PLACE", alasan: "draining per window (the Chief Architect, 16 Nov): only sittings in the window's place, every sitting for a platform-wide window; read by pintar_status_saya's 'berjalan' (D14, D15)" },
   maintenance_affects_place: { kelas: "PLACE", alasan: "A2b's place guard (clock_timestamp(), no lock)", menunggu: true },
   enforce_no_new_sitting_in_maintenance: { kelas: "PLACE", alasan: "the sitting-insert trigger: the place and T−15 (K1, K3, K4)" },
@@ -668,6 +668,7 @@ ${KODE_ALASAN.map((k) => `select 'baris_${k}|' || pg_temp.a2b_coba(${baris("PLAN
 select 'baris_asing|' || pg_temp.a2b_coba(${baris("PLANNED", "'ASING'", "x")});
 select 'baris_darurat_kode|' || pg_temp.a2b_coba(${baris("EMERGENCY", "'RUTIN'", "Masalah keamanan")});
 select 'baris_lainnya_panjang|' || pg_temp.a2b_coba(${baris("PLANNED", "'LAINNYA'", "x".repeat(121))});
+select 'baris_lainnya_spasi|' || pg_temp.a2b_coba(${baris("PLANNED", "'LAINNYA'", "   ")});
 select 'baris_e120|' || pg_temp.a2b_coba(${baris("PLANNED", "'LAINNYA'", "é".repeat(120))});
 select 'baris_e121|' || pg_temp.a2b_coba(${baris("PLANNED", "'LAINNYA'", "é".repeat(121))});
 select 'baris_kode_teks|' || pg_temp.a2b_coba(${baris("PLANNED", "'RUTIN'", "Teks bebas apa saja")});
@@ -736,7 +737,7 @@ select 'a6_tempat|' || public.maintenance_affects_place('${d.kA}', clock_timesta
 ${sebagai(d.adminXUid)}
 select 'akhiri|' || pg_temp.a2b_tetap($q$select public.change_maintenance('${W1}', 'AKHIRI', 'Pembaruan selesai lebih cepat')$q$);
 ${tanpaOrang}
-select 'a7_audit|' || coalesce((select (a.summary ->> 'ends_at')::timestamptz = w.ends_at and a.at = w.ended_at
+select 'a7_audit|' || coalesce((select (a.summary ->> 'ends_at')::timestamptz = w.ends_at and (a.summary ->> 'ended_at')::timestamptz = w.ended_at
     and a.summary ->> 'reason' = 'Pembaruan selesai lebih cepat' and a.actor_person_id = '${d.adminX}' and a.summary ->> 'to_state' = 'BERAKHIR'
   from public.audit_log a, public.maintenance_windows w
  where a.action = 'maintenance.ended_now' and a.target_id = '${W1}' and w.id = '${W1}' order by a.id desc limit 1)::text, 'tidak ada');
@@ -826,8 +827,18 @@ rollback;`);
  *  early end stamps ended_at a second off the audit row's instant. */
 const A06_SAAT = "update public.broadcast_notices set expires_at = p_ends_at";
 const A06_TANAM = "update public.broadcast_notices set expires_at = expires_at";
-const A07_SAAT = "set ended_at = now(), t_lift = v_lift";
-const A07_TANAM = "set ended_at = now() - interval '1 second', t_lift = v_lift";
+// RESTATED (the Chief Architect, 16 Nov 09:59: change_maintenance reads one v_kini; audit_write takes no time, so the
+// summary carries the instant): the plant moves to the stamp
+const A07_SAAT = "set ended_at = v_kini, t_lift = v_lift";
+const A07_TANAM = "set ended_at = v_kini - interval '1 second', t_lift = v_lift";
+/** Sharon's plants for E04 and E06 (11eca8bb): the extend accepting an equal end; the early end closing the window's
+ *  running sittings (their deadline set to now). */
+const E04_SAAT = "p_ends_at <= w.ends_at or p_ends_at <= v_kini";
+const E04_TANAM = "p_ends_at < w.ends_at or p_ends_at <= v_kini";
+const E06_SAAT = "    v_to := 'BERAKHIR';";
+const E06_TANAM = `    update public.assessment_sessions set authoritative_deadline = now()
+     where class_node_id = any (w.node_ids) and status in ('CREATED', 'IN_PROGRESS', 'PAUSED');
+    v_to := 'BERAKHIR';`;
 const K16_SAAT = "and public.maintenance_jendela_atas(w, n))";
 const K16_TANAM = `and public.maintenance_jendela_atas(w, n)
        and w.ends_at = (select min(x.ends_at) from public.maintenance_windows x where (x.ended_at is null or x.ended_at > p_at)
@@ -839,12 +850,18 @@ const K16_TANAM = `and public.maintenance_jendela_atas(w, n)
  *  to_jsonb minus the new column), with no code. */
 export const R04_MULAI = "-- A2B-R04 maintenance_windows: begin";
 export const R04_SELESAI = "-- A2B-R04 maintenance_windows: end";
-export function bagianR04(repoRoot: string): { berkas: string; sql: string } | null {
+export function bagianR04(repoRoot: string): { berkas: string; sql: string; luar: string[] } | null {
   const dir = join(repoRoot, "supabase/migrations");
   for (const f of readdirSync(dir).sort()) {
     const s = readFileSync(join(dir, f), "utf8");
     const a = s.indexOf(R04_MULAI), b = s.indexOf(R04_SELESAI);
-    if (a >= 0 && b > a) return { berkas: f, sql: s.slice(a + R04_MULAI.length, b) };
+    if (a >= 0 && b > a) {
+      // Sharon (11eca8bb): the section is the migration's only change to maintenance_windows' table or rows; a
+      // function body that writes the table (the scheduler's insert) is code, not a change here
+      const tanpaFungsi = (s.slice(0, a) + "\n" + s.slice(b + R04_SELESAI.length)).replace(/--[^\n]*/g, " ").replace(/\$(\w*)\$[\s\S]*?\$\1\$/g, " ");
+      const luar = [...tanpaFungsi.matchAll(/\b(?:alter\s+table|insert\s+into|update|delete\s+from|truncate|comment\s+on\s+(?:column|table))\s+(?:only\s+)?(?:public\.)?maintenance_windows\b[^;]*/gi)].map((m) => m[0].slice(0, 80));
+      return { berkas: f, sql: s.slice(a + R04_MULAI.length, b), luar };
+    }
   }
   return null;
 }
@@ -977,6 +994,7 @@ ${duniaSql(d)}
 ${jendela(d, W1, { nodes: [d.kA], mulai: "now() - interval '10 minutes'", akhir: "clock_timestamp() + interval '1.5 seconds'" })}
 ${jendela(d, W2, { nodes: [d.kB], mulai: "now() - interval '10 minutes'", akhir: "now() + interval '1 hour'" })}
 ${jendela(d, W3, { nodes: [d.kA], mulai: "clock_timestamp() + interval '1.5 seconds'", akhir: "now() + interval '1 hour'", aktifDicatat: null })}
+${jendela(d, W4, { kind: "EMERGENCY", inst: d.Y, nodes: [d.kY], mulai: "now() - interval '10 minutes'" })}
 set local session_replication_role = origin;
 ${ALAT}
 select pg_sleep(2);
@@ -989,6 +1007,12 @@ ${tanpaOrang}
 select 'w1_tetap|' || (ended_at is null)::text from public.maintenance_windows where id = '${W1}';
 select 'cap_jam|' || (w.ended_at >= j.sebelum)::text from public.maintenance_windows w, jam j where w.id = '${W2}';
 select 'tempat|' || public.maintenance_affects_place('${d.kB}', clock_timestamp())::text;
+-- the EMERGENCY branch is A2a's fenced lift, pinned unchanged: ended_at the transaction's now(), T_lift the clock
+create temp table jam2 as select clock_timestamp() as sebelum;
+${sebagai(d.sysUid)}
+select 'darurat|' || pg_temp.a2b_tetap($q$select public.change_maintenance('${W4}', 'AKHIRI', '${ALASAN}E5 lift')$q$);
+${tanpaOrang}
+select 'darurat_cap|' || (w.ended_at = now() and w.t_lift >= j.sebelum)::text from public.maintenance_windows w, jam2 j where w.id = '${W4}';
 rollback;`);
 }
 /** Point 4, D-100(b): a sitting running in a class when its planned window is ended early is left to finish: its
@@ -1638,7 +1662,8 @@ rollback;`);
       c.expect(salinan.length === 0, `no function may carry a copy of the place predicate (node_ids && n.jalur): ${salinan.join(", ")}`);
       const pakai = psqlBaris(db, `select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace
         and p.prosrc ~ 'maintenance_jendela_atas[[:space:]]*[(]' and p.proname <> 'maintenance_jendela_atas' order by 1`).map(([f]) => f);
-      c.expect(JSON.stringify(pakai) === JSON.stringify(["maintenance_affects_place", "maintenance_draining_di", "maintenance_mulai_tolak"]),
+      // Sharon (11eca8bb): maintenance_collisions with p_nodes decides "the chosen classes and those under them" through it too
+      c.expect(JSON.stringify(pakai) === JSON.stringify(["maintenance_affects_place", "maintenance_collisions", "maintenance_draining_di", "maintenance_mulai_tolak"]),
         `the place readers must all call maintenance_jendela_atas: ${pakai.join(", ")}`);
       // grants equal to maintenance_draining's, for the reader and the helper; read only
       // who may execute it, role by role, and whether PUBLIC holds it (its ACL's '=X' entry)
@@ -1651,7 +1676,7 @@ rollback;`);
       const bacaSaja = psqlBaris(db, `select p.provolatile::text || ':' || (regexp_replace(p.prosrc, '--[^' || chr(10) || ']*', '', 'g') ~* 'for[[:space:]]+(share|update|no key update|key share)')::text
         from pg_proc p where p.oid = 'public.maintenance_draining_di(uuid,public.maintenance_windows)'::regprocedure`)[0]?.[0];
       c.expect(bacaSaja === "s:false", `maintenance_draining_di must be STABLE and take no row lock: ${bacaSaja}`);
-      return "the person-wide drain, maintenance_draining(person), has one caller, maintenance_block_for_me, which reads it only after skipping class and school windows (pin: a later caller cannot reuse the person-level reading); the place predicate exists once, maintenance_jendela_atas, called by maintenance_affects_place, maintenance_mulai_tolak and maintenance_draining_di, with no copy left; the reader and the helper carry maintenance_draining's grants; the reader is STABLE and takes no row lock";
+      return "the person-wide drain, maintenance_draining(person), has one caller, maintenance_block_for_me, which reads it only after skipping class and school windows (pin: a later caller cannot reuse the person-level reading); the place predicate exists once, maintenance_jendela_atas, called by maintenance_affects_place, maintenance_collisions, maintenance_mulai_tolak and maintenance_draining_di, with no copy left; the reader and the helper carry maintenance_draining's grants; the reader is STABLE and takes no row lock";
     }),
   },
   {
@@ -1700,6 +1725,7 @@ rollback;`);
       // stores the code as its reason), T3 (the CHECK validated, never NOT VALID), T4 (120 characters, not bytes)
       c.expect(h.baris_kode_teks?.startsWith("23514") && h.jadwal_kode_teks === "PR110:MAINTENANCE_INPUT_INVALID",
         `T1: a code other than LAINNYA with free text must be refused (CHECK 23514; schedule_maintenance PR110 MAINTENANCE_INPUT_INVALID), never kept as alasan: ${h.baris_kode_teks}, ${h.jadwal_kode_teks}`);
+      c.expect(h.baris_lainnya_spasi?.startsWith("23514"), `LAINNYA with text that is only spaces must be refused at the row (char_length(btrim(reason))): ${h.baris_lainnya_spasi}`);
       c.expect(h.rutin_tersimpan === "RUTIN=RUTIN", `T1: a coded window stores its code as its reason: ${h.rutin_tersimpan}`);
       c.expect(/^[1-9]\d*:true$/.test(h.sah ?? ""), `T3: the reason CHECK must exist and be validated (convalidated): ${h.sah}`);
       c.expect(h.baris_e120 === "OK" && h.baris_e121?.startsWith("23514") && h.jadwal_e120 === "OK" && h.jadwal_e121 === "PR110:MAINTENANCE_INPUT_INVALID",
@@ -1751,7 +1777,7 @@ rollback;`);
     run: jalan(async (c, db, d) => {
       const r = a67(db, d); const h = r.hasil;
       c.expect(!r.err, `A6/A7 failed to run: ${r.err}`);
-      c.expect(h.akhiri === "OK" && h.a7_audit === "true", `A7: the early end's audit row must hold the planned end (before), the moment it ended (after, its own time), reason and actor: ${h.akhiri}, ${h.a7_audit}`);
+      c.expect(h.akhiri === "OK" && h.a7_audit === "true", `A7: the early end's audit row must hold the planned end (before), the moment it ended (its summary's ended_at, the window's own), reason and actor: ${h.akhiri}, ${h.a7_audit}`);
       c.expect(h.a7_tempat === "false", `A7: work must resume at once after the early end: ${h.a7_tempat}`);
       // Sharon's T5: the plant (ended_at not the audit's instant) must be caught
       const { gantiFungsi } = await import("./balapan");
@@ -1953,6 +1979,7 @@ rollback;`);
       const b = bagianR04(repoRoot);
       c.expect(b !== null, `a migration must mark its maintenance_windows section with «${R04_MULAI}» and «${R04_SELESAI}»`);
       if (!b) return "no migration carries the marked section";
+      c.expect(b.luar.length === 0, `${b.berkas} must change maintenance_windows (its table or rows) only inside the marked section: also ${b.luar.join(" | ")}`);
       const r = r04(db, d, b.sql); const h = r.hasil;
       c.expect(!r.err, `R04 failed to run ${b.berkas}'s section over existing rows: ${r.err}`);
       c.expect(Number(h.sebelum) >= 5 && h.hilang === "0" && h.berubah === "0", `every existing PLANNED and EMERGENCY row must come through unchanged: ${h.sebelum} rows, ${h.hilang} missing, ${h.berubah} changed`);
@@ -1997,7 +2024,7 @@ rollback;`);
   {
     id: "A2B-E04",
     requires: ["db"],
-    run: jalan((c, db, d, repoRoot) => {
+    run: jalan(async (c, db, d, repoRoot) => {
       // Sharon's batch 2 checklist, point 4: an extension cannot shorten or move the start
       const r = e04(db, d); const h = r.hasil;
       c.expect(!r.err, `E04 failed to run: ${r.err}`);
@@ -2005,11 +2032,17 @@ rollback;`);
       c.expect(h.guru === "PR110:MAINTENANCE_NOT_ALLOWED", `a teacher's extend refused: ${h.guru}`);
       c.expect(h.baik === "OK" && h.tetap === "true", `a later end is accepted and moves the end alone (start, place and kind unchanged): ${h.baik}, ${h.tetap}`);
       c.expect(h.tanda === "p_window uuid, p_ends_at timestamp with time zone, p_reason text", `the extend takes no start: ${h.tanda}`);
+      // Sharon (11eca8bb): the plant (an equal end accepted) must be caught
+      const { gantiFungsi } = await import("./balapan");
+      const balik = gantiFungsi("public.perpanjang_pemeliharaan(uuid,timestamptz,text)", E04_SAAT, E04_TANAM);
+      let tanam: ReturnType<typeof e04>;
+      try { tanam = e04(db, d); } finally { balik(); }
+      c.expect(!tanam.err && tanam.hasil.sama === "OK", `with the plant (an equal end accepted) E04 must see the equal end go through: ${tanam.err || tanam.hasil.sama}`);
       // the lock order: A2A-L01 reads every function from the catalogue; both writers stand in its committed report
       const lap = readFileSync(join(repoRoot, "selftest/a2a-l01-laporan.txt"), "utf8");
       c.expect(/^perpanjang_pemeliharaan: persons\(0\) maintenance_windows/m.test(lap) && /^change_maintenance: persons\(0\) FENCE/m.test(lap),
         "perpanjang_pemeliharaan and change_maintenance must stand in A2A-L01's report, the actor first");
-      return "an extension refuses a shorter end, the same end, a past end and no reason (INPUT_INVALID) and a teacher (NOT_ALLOWED); a later end moves the end alone; it takes no start; its lock order and «Akhiri»'s are A2A-L01's (the actor first, then the window)";
+      return "an extension refuses a shorter end, the same end, a past end and no reason (INPUT_INVALID) and a teacher (NOT_ALLOWED); a later end moves the end alone; it takes no start; its lock order and «Akhiri»'s are A2A-L01's (the actor first, then the window); with the plant (an equal end accepted) red";
     }),
   },
   {
@@ -2022,6 +2055,7 @@ rollback;`);
       c.expect(h.sudah_berakhir === "PR110:MAINTENANCE_NOT_OPEN" && h.w1_tetap === "true", `a planned window that ended on the clock after the transaction began must be refused MAINTENANCE_NOT_OPEN and keep no ended_at: ${h.sudah_berakhir}, ${h.w1_tetap}`);
       c.expect(h.akhiri === "OK" && h.cap_jam === "true", `an early end must be stamped with the clock's instant, never the transaction's start: ${h.akhiri}, ${h.cap_jam}`);
       c.expect(h.tempat === "false", `the class's work resumes at once: ${h.tempat}`);
+      c.expect(h.darurat === "OK" && h.darurat_cap === "true", `the EMERGENCY lift is unchanged: ended_at the transaction's now(), T_lift the clock: ${h.darurat}, ${h.darurat_cap}`);
       c.expect(h.mulai_lewat === "PR110:MAINTENANCE_INPUT_INVALID", `«Mulai sekarang» on a window whose start passed on the clock is refused as under way: ${h.mulai_lewat}`);
       return "«Akhiri sekarang» on a planned window reads the clock: a window ended after the transaction began is refused NOT_OPEN and keeps no ended_at; an early end is stamped with the clock's instant; «Mulai sekarang» on a window already under way on the clock is refused";
     }),
@@ -2029,14 +2063,20 @@ rollback;`);
   {
     id: "A2B-E06",
     requires: ["db"],
-    run: jalan((c, db, d) => {
+    run: jalan(async (c, db, d) => {
       // Sharon's batch 2 checklist, point 4: ending a window lets draining sittings finish (D-100(b))
       const r = e06(db, d); const h = r.hasil;
       c.expect(!r.err, `E06 failed to run: ${r.err}`);
       c.expect(h.lain === "0", `the learner's other open sittings are removed first: ${h.lain}`);
       c.expect(h.akhiri === "OK" && h.sitting === "true", `the early end leaves the running sitting as it was (status, its own deadline, not ended): ${h.akhiri}, ${h.sitting}`);
       c.expect(h.jawab === "OK", `its answer is taken after the early end: ${h.jawab}`);
-      return "ending a planned class window early leaves a running sitting to finish under D-100(b): its status and deadline unchanged, not ended, its answer taken";
+      // Sharon (11eca8bb): the plant (the early end closes the window's running sittings) must be caught
+      const { gantiFungsi } = await import("./balapan");
+      const balik = gantiFungsi("public.change_maintenance(uuid,text,text)", E06_SAAT, E06_TANAM);
+      let tanam: ReturnType<typeof e06>;
+      try { tanam = e06(db, d); } finally { balik(); }
+      c.expect(!tanam.err && tanam.hasil.sitting === "false", `with the plant (running sittings closed by the early end) E06 must see the sitting changed: ${tanam.err || tanam.hasil.sitting}`);
+      return "ending a planned class window early leaves a running sitting to finish under D-100(b): its status and deadline unchanged, not ended, its answer taken; with the plant (the early end closes running sittings) red";
     }),
   },
   {
