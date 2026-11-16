@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { kelas as kelasKonteks } from "@/lib/pengajar";
 import { kodeGalatPenugasan } from "@/lib/penugasan-kontrak";
+import { catatPenolakanHenti } from "@/lib/henti-catat";
 import { batasHari } from "@/lib/hle";
 import { zonaSekolah } from "@/lib/zona-sekolah";
 import { alamatTolakUjiCepat, kodeUjiCepat } from "@/lib/ujicepat-kontrak";
@@ -139,6 +140,7 @@ export async function akhiriPenugasanAction(formData: FormData): Promise<void> {
   if (error) {
     const kode = kodeGalatPenugasan(error);
     if (kode === "ASSIGN_FAILED") console.error("[akhiri] akhiri_penugasan failed", error?.code, error?.message);
+    await catatPenolakanHenti(db, penugasan, kode, "akhiri");
     ke(kelasId, `?${new URLSearchParams({ akhiri: penugasan, kode }).toString()}#akhiri`);
   }
   // Daisy (TINJAUAN-6faef690 §1): the result line follows the choice

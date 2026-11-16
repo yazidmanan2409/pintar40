@@ -97,7 +97,10 @@ export function scheduledJobCheck() {
       (select 'B1|' || (select count(*) from public.pintar_jadwal_daftar()) || '|' || coalesce(h -> 'hilang', '[]'::jsonb)::text || '|' || coalesce(h -> 'berbeda', '[]'::jsonb)::text
          from (select public.pintar_periksa_kesehatan() h) x)
     when to_regprocedure('public.pengerjaan_jadwal_pasang()') is null then 'none'
-    else (select 'A1|' || count(*) || '|' || count(*) filter (where schedule = '*/5 * * * *' and command = 'select public.pengerjaan_tutup_terjadwal()' and active and database = current_database())
+    -- a bundle from before B1's health read (A1 alone): its job is A1's command; a schema from A2a change C on calls the
+    -- closer's procedure (Sharon's C15-1, A2A-C-15-22-c3e88873.md). Either is the declared job of its own schema.
+    else (select 'A1|' || count(*) || '|' || count(*) filter (where schedule = '*/5 * * * *'
+            and command in ('select public.pengerjaan_tutup_terjadwal()', 'call public.pengerjaan_tutup_berkala()') and active and database = current_database())
             from cron.job where jobname = '${SCHEDULED_JOB}') end`;
 }
 /** The problems the check's answer names (none for a bundle with no scheduler). */

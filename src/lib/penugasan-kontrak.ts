@@ -54,6 +54,8 @@ export const KODE_AKHIRI_DB = [
   "ASSIGN_KIND_INVALID",
   "ASSIGN_REASON_REQUIRED",
   "ASSIGN_IN_PROGRESS",
+  // A2a (THE PLAN item 4): an emergency stop holds one of its sittings
+  "ASSIGN_CLASS_STOPPED",
 ] as const;
 
 /**

@@ -2197,7 +2197,29 @@ export const experienceTests: SelfTest[] = [
       // takes the learner first). Read against §3: the order of locks, not a mark, a logo, a crest or a theme.
       // MOVED 248 -> 249, RESTATED, A2A-L01 row 4 (Sharon, A2A-CHANGE-A-ROW4-33a97fa4.md): 20270118140000 (a recomputation
       // takes the learner, then the sitting). Read against §3: the order of locks, not a mark, a logo, a crest or a theme.
-      c.expect(migrations.length === 249, `${migrations.length} migrations; the frozen baseline has 249`);
+      // MOVED 249 -> 250, RESTATED, A2a change C: 20270119100000 (the emergency fence is taken only inside the database).
+      // Read against §3: a lock, not a mark, a logo, a crest or a theme.
+      // MOVED 250 -> 251, RESTATED, A2a change C: 20270119110000 (an emergency window is changed under the fence, B1).
+      // Read against §3: a lock, not a mark, a logo, a crest or a theme.
+      // MOVED 251 -> 252, RESTATED, A2a change C: 20270119120000 (an emergency stop can cover one class).
+      // Read against §3: a scope, not a mark, a logo, a crest or a theme.
+      // MOVED 252 -> 253, RESTATED, A2a change C: 20270119130000 (a stopped class's sittings are held with their time).
+      // Read against §3: a sitting's time, not a mark, a logo, a crest or a theme.
+      // MOVED 253 -> 254, RESTATED, A2a change C: 20270119140000 (a stopped class's sitting is not ended, scored or re-timed).
+      // Read against §3: a sitting's protection, not a mark, a logo, a crest or a theme.
+      // MOVED 254 -> 255, RESTATED, A2a change C: 20270119150000 (the closer commits in small batches under the fence).
+      // MOVED 255 -> 256, RESTATED, A2a change C: 20270119160000 (an unmarked sitting is credited once, C18-1).
+      // MOVED 256 -> 257, RESTATED, A2a change C: 20270119170000 (a class stop says which class).
+      // MOVED 257 -> 258, RESTATED, A2a change C: 20270119180000 (C30-2: a held sitting keeps its time through a stop).
+      // MOVED 258 -> 260, RESTATED, A2a change C: 20270119190000 and 20270119200000 (Daisy's A1, A4, THE PLAN items 2-4, DITUTUP §2-§3).
+      // MOVED 260 -> 261, RESTATED, A2a change C: 20270119210000 (the three committing procedures, an enforced exception).
+      // MOVED 261 -> 262, RESTATED, A2a change C: 20270119220000 (O1 after the lift).
+      // MOVED 262 -> 263, RESTATED, A2a change C: 20270119230000 (D6.9's rows).
+      // MOVED 263 -> 264, RESTATED, A2a change C: 20270119240000 (C39-1, the departure at first touch).
+      // MOVED 264 -> 265, RESTATED, A2a change C: 20270119250000 (the O1 refusal audit).
+      // MOVED 265 -> 266, RESTATED, A2a change C: 20270119260000 (C41-2, D6.9's count, N42-1).
+      // MOVED 266 -> 267, RESTATED, A2a change C: 20270119270000 (the O1 refusal recorded once per stop).
+      c.expect(migrations.length === 267, `${migrations.length} migrations; the frozen baseline has 267`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -4070,7 +4092,24 @@ export const experienceTests: SelfTest[] = [
       // MOVED 246 -> 247, RESTATED, A2A-L01 C1, for 20270118120000 (an enrolment is ended after its learner): no tour RPC.
       // MOVED 247 -> 248, RESTATED, A2A-L01 row 3, for 20270118130000 (a key correction takes the learner first): no tour RPC.
       // MOVED 248 -> 249, RESTATED, A2A-L01 row 4, for 20270118140000 (a recomputation takes the learner first): no tour RPC.
-      c.expect(migs.length === 249, `${migs.length} migrations; the baseline has 249`);
+      // MOVED 249 -> 250, RESTATED, A2a change C, for 20270119100000 (the emergency fence): no tour RPC.
+      // MOVED 250 -> 251, RESTATED, A2a change C, for 20270119110000 (B1): no tour RPC.
+      // MOVED 251 -> 252, RESTATED, A2a change C, for 20270119120000 (the class-scope stop): no tour RPC.
+      // MOVED 252 -> 253, RESTATED, A2a change C, for 20270119130000 (held sittings): no tour RPC.
+      // MOVED 253 -> 254, RESTATED, A2a change C, for 20270119140000 (D6.2 at sitting level): no tour RPC.
+      // MOVED 254 -> 255, RESTATED, A2a change C, for 20270119150000 (D6.6, the closer's procedure): no tour RPC.
+      // MOVED 255 -> 256, RESTATED, A2a change C, for 20270119160000 (C18-1, the credit): no tour RPC.
+      // MOVED 256 -> 257, RESTATED, A2a change C, for 20270119170000 (the status read names the class): no tour RPC.
+      // MOVED 257 -> 258, RESTATED, A2a change C, for 20270119180000 (C30-2, the hold and the stop): no tour RPC.
+      // MOVED 258 -> 260, RESTATED, A2a change C, for 20270119190000 and 20270119200000 (Daisy's words and reads): no tour RPC.
+      // MOVED 260 -> 261, RESTATED, A2a change C, for 20270119210000 (the search_path exception): no tour RPC.
+      // MOVED 261 -> 262, RESTATED, A2a change C, for 20270119220000 (O1 after the lift): no tour RPC.
+      // MOVED 262 -> 263, RESTATED, A2a change C, for 20270119230000 (D6.9's rows): no tour RPC.
+      // MOVED 263 -> 264, RESTATED, A2a change C, for 20270119240000 (C39-1): no tour RPC.
+      // MOVED 264 -> 265, RESTATED, A2a change C, for 20270119250000 (the O1 refusal audit): no tour RPC.
+      // MOVED 265 -> 266, RESTATED, A2a change C, for 20270119260000 (C41-2, D6.9's count, N42-1): no tour RPC.
+      // MOVED 266 -> 267, RESTATED, A2a change C, for 20270119270000 (the refusal dedupe): no tour RPC.
+      c.expect(migs.length === 267, `${migs.length} migrations; the baseline has 267`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

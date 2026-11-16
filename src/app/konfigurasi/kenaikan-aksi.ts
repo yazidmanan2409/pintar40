@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { wajibDalamKonteks } from "@/lib/konteks-server";
 import { kodeGalat, rujukan } from "@/lib/galat-kontrak";
+import { catatPenolakanHenti } from "@/lib/henti-catat";
 import { adalahUuid, dariForm, kodekan, urai } from "@/lib/kenaikan";
 
 /**
@@ -26,8 +27,10 @@ async function sekolahKelas(kelas: string): Promise<string | null> {
   return (data as { institution_id?: string } | null)?.institution_id ?? null;
 }
 
-function kodeDari(error: { code?: string | null; message?: string | null; details?: string | null } | null, fn: string): Record<string, string> {
+function kodeDari(error: { code?: string | null; message?: string | null; details?: string | null; hint?: string | null } | null, fn: string): Record<string, string> {
   const kode = kodeGalat(error);
+  // A2a M-1: the refusal during a stop says how many learners are held (its HINT, digits only)
+  if (kode === "PROMO_STOPPED") return { kn_kode: kode, kn_n: /^\d+$/.test(error?.hint ?? "") ? error!.hint! : "" };
   if (kode !== "ACTION_FAILED") return { kn_kode: kode };
   const ref = rujukan();
   console.error(`[kenaikan ${ref}] ${fn} failed`, error?.code, error?.message);
@@ -60,6 +63,10 @@ export async function terapkanKenaikanAksi(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc("kenaikan_tetapkan", {
     p_kelas: kelas, p_tahun_baru: tahun, p_keputusan: keputusan, p_guru_ditinjau: fd.get("guru_ditinjau") === "ya", p_terapkan: true,
   });
-  if (error) ke(kelas, tahun, "tinjau", { kn_d: kodekan(keputusan), ...kodeDari(error, "kenaikan_tetapkan") });
+  if (error) {
+    // A2a D6.9: a refusal during a stop is recorded afterwards (the preview is a review, not an act: not recorded)
+    await catatPenolakanHenti(supabase as unknown as Parameters<typeof catatPenolakanHenti>[0], kelas, kodeGalat(error), "kenaikan");
+    ke(kelas, tahun, "tinjau", { kn_d: kodekan(keputusan), ...kodeDari(error, "kenaikan_tetapkan") });
+  }
   ke(kelas, tahun, "selesai");
 }

@@ -6159,6 +6159,116 @@
       "id": "A2A-L06",
       "runner": "static",
       "proves": "Sharon's ruling on the 76 (rows 7 to 9 in C1's commit; migration 20270118120000): on two real connections, connection A takes a learner FOR UPDATE and then, 1.5 s later, that learner's live enrolment FOR UPDATE (akhiri_pendaftaran's order after C1), while connection B runs the real transfer_minta of that enrolment to another school as its school's admin (both rolled back); B waits for A and then finishes, with no deadlock, because transfer_minta takes the person FOR KEY SHARE before the transfer's foreign keys check the enrolment; with the plant (that line removed) B still waits for A and nothing deadlocks, because the transfer's attachment guard (orang_lampiran_jaga, BEFORE INSERT) already takes the person FOR SHARE before the foreign keys: the race showed row 7 was not real, and the line is redundant but compatible."
+    },
+    {
+      "id": "A2A-T01",
+      "runner": "static",
+      "proves": "A2a's page, D6.3 (the single most likely thing to go wrong in change C; the owner's condition 1 for the order A → C → B): every reader of a sitting's closing time — every function in public whose source names closure_deadline, closes_at, authoritative_deadline, late_sync_grace_seconds, late_sync_until or pengerjaan_tenggat_efektif, read from the catalogue, and every file under src/ that names one — is classed in selftest/a2a-c-pembaca.test.ts as HARUS (it reads a live sitting's closing time, so D6.3 makes it shift-aware) or TIDAK (it reads an assignment's window, a definition's setting, the initial deadline, or a type), each with its reason; it fails on a reader not classed and on a classed name that no longer reads; a planted function and a planted app file are each reported first."
+    },
+    {
+      "id": "A2A-F01",
+      "runner": "static",
+      "proves": "A2a's page §2 (Sharon's ruling, Part 2 row 5; her note, early read §6; migration 20270119100000): from the catalogue, exactly two functions take an advisory lock on the fence key, pagar_darurat_eksklusif (SET lock_timeout 1500ms) and pagar_darurat_bersama (SET lock_timeout 2s), and every function or procedure that calls one is an RPC granted to authenticated, the closer procedure, or a trigger function, none granted to anon; from the repository, nothing under src/ or supabase/functions/ imports a database driver, names the transaction pooler or calls pg_advisory, and no migration names the fence key outside the fence's own; a planted second taker of the key and a planted advisory-lock call under src/ are each reported first."
+    },
+    {
+      "id": "A2A-K01",
+      "runner": "static",
+      "proves": "Sharon's A2A-K01 (C10-1, A2A-C-BEFORE-FREEZE-8bc74097.md with her 04:50 addendum; migration 20270119130000; was A2A-C701): for an EMERGENCY window, the hook, protection and marking judge \"affected\" at the window's T_stop (maintenance_affects answers as maintenance_affects_pada at t_stop; PLANNED windows keep the current reading). In the exact ordering the stop takes effect (T_stop), then the change (the learner moved to another class; transferred out; or a teacher of the class whose role ends), then the marking batch runs late, then the lift 45 minutes after T_stop and the release: the person is still stopped after the change, the sitting is marked, and its deadline moves by exactly T_lift − T_stop = 2700 s, in all three; a learner moved INTO the stopped class after T_stop is neither stopped nor held and their deadline is unchanged; with marking in batches of one (p_batas = 1) and the second of two learners moved to another class between the batches, both are marked and both move by exactly the stop, red with the marking-judged-now plant (Sharon's K2); with the marking batch interrupted half-way (a second connection holds one of two sittings, SKIP LOCKED) and then the real lift (change_maintenance AKHIRI, which records t_lift = clock_timestamp() under the exclusive fence and no longer marks, C18-1) and the release batch (which releases the marked sitting and credits the unmarked one once), both sittings move by exactly t_lift − t_stop, and with that plant (the release batch not crediting) they do not; with the plant (marking judged by the current placement) the moved learner is not marked and the deadline does not move."
+    },
+    {
+      "id": "A2A-C702",
+      "runner": "static",
+      "proves": "Sharon's C7-2 (first-touch release; migration 20270119140000): from the catalogue, every function in public that updates assessment_sessions takes pengerjaan_pagar (which, on a sitting no longer protected but still marked from a lifted stop, applies the release with its shift) before its first update, directly or through a function that does, or is on a short declared list with its reason (the release, the marking, the attempt mark, and akhiri_penugasan, not yet built, named as such); a stale declaration and a planted writer without the helper are reported. Then Sharon's test, in one rolled-back transaction: a class stop holds the learner's sitting, the stop is lifted 45 minutes after T_stop, no release batch runs, and the school's admin ends the learner's enrolment: it succeeds, the sitting is released with exactly 2700 s first and ended unscored as INSTITUTIONAL_REVOCATION on its shifted deadline; with the plant (the helper's release removed) it does not come out that way."
+    },
+    {
+      "id": "A2A-C703",
+      "runner": "static",
+      "proves": "Sharon's C7-3 (D6.3's shift test against A2A-T01; migration 20270119130000): every database reader A2A-T01 classes HARUS that reads an assignment's closes_at as a sitting's closing time also adds darurat_geser_detik (a sitting's own authoritative_deadline is moved in place at release); and, in one rolled-back transaction, a window-timed sitting whose assignment closed 10 minutes ago, released from a 45-minute stop: pengerjaan_tenggat_efektif and the teacher's list (daftar_pengerjaan, from which AturPengerjaan computes) give closes_at + 2700 s and OPEN, and the decider and the scheduled closer leave it IN_PROGRESS; with the plants (the decider reading closes_at raw; the teacher's list reading closes_at raw) the decider ends it (and scores it) and the list is reported."
+    },
+    {
+      "id": "A2A-C704",
+      "runner": "static",
+      "proves": "The owner's ruling M-1 (THE PLAN §5.3 D6.2; migration 20270119140000): in one rolled-back transaction, a class with a learner holding an open sitting and a later school year is stopped by a class-scoped emergency window; as the school's admin, kenaikan_tetapkan's preview and its application are each refused PR070 with DETAIL PROMO_STOPPED and the number of held learners in HINT (every non-final sitting, protected or marked, so a protected EXPIRED one inside its grace counts: Sharon's note on commit 14) (the application after the population and the shared fence); after the lift the preview goes on to its own checks; with the plant (the refusal removed) the application is not refused for the stop. The app shows Daisy's sentence with {n} from HINT (galat.promo_stopped). C41-2 (migration 20270119260000): after the lift, with the stop's mark not yet released (no batch), the application is not refused PROMO_STOPPED; plant: the stale mark counted again refuses it."
+    },
+    {
+      "id": "A2A-C705",
+      "runner": "static",
+      "proves": "THE PLAN §5.3 D6.6 (Sharon's R1, R2; migration 20270119150000): the closer's job is `call public.pengerjaan_tutup_berkala()`, a procedure that commits (in batches of 20, so the shared fence each candidate takes is held for one batch at most; its timing is change B's measurement) and that neither a client nor the server key may call; and R1, rolled back: with two held sittings and one protected (an active class stop, not yet marked) created first, the closer's selection asked for three names the unaffected overdue sitting and none of the three; with the plant (the exclusion removed) the three fill the limit and the unaffected one waits."
+    },
+    {
+      "id": "A2A-C706",
+      "runner": "static",
+      "proves": "Sharon's C9-2 (A2A-C-BEFORE-FREEZE-8bc74097.md; migration 20270119140000): ubah_jadwal_penugasan re-times sittings through the assignments' closes_at, which the sitting guard cannot see, so after its two assignment rows it takes the shared fence and, under it, refuses SITTING_CLASS_STOPPED while any open sitting of the assignment is protected or held. Rolled back: during a class stop the class's teacher reschedules its assignment and is refused PR170 SITTING_CLASS_STOPPED, with the assignments' closing times and the window-timed sitting's effective deadline unchanged; after the lift the same change goes through; with the plant (the refusal removed) it goes through during the stop."
+    },
+    {
+      "id": "A2A-C707",
+      "runner": "static",
+      "proves": "Sharon's C7-2 in full (A2A-C-BEFORE-FREEZE-8bc74097.md, section 3): a class stop lifted 45 minutes after T_stop, no release batch run; on its own sitting still marked by the stop, its unshifted deadline already passed, each act as its own actor (added time, the teacher's end and extend as the class's teacher; terminate for an integrity cause as the school admin; the hand-in through the learner's gate and resume as the learner) succeeds, with the sitting released and its deadline moved by at least the stop's 2700 s first; none raises SITTING_EMERGENCY_HELD. The enrolment's end is A2A-C702's. With the plant (the helper's release removed) the acts are refused SITTING_EMERGENCY_HELD. One transaction, each act in a subtransaction, rolled back (on the database: the functions' prosrc, and the migration's fixtures)."
+    },
+    {
+      "id": "A2A-C708",
+      "runner": "static",
+      "proves": "Sharon's C7-3, D6.3's shift test (A2A-C-BEFORE-FREEZE-8bc74097.md, section 3), taking its list from A2A-T01's tables: every HARUS and KLIEN reader has a case, or the test fails (a planted uncovered reader is reported). Value readers (the effective deadline, the teacher's list, the learner's own read, and session_state with the player through it (an own-deadline sitting shows its moved deadline; a window-timed one shows none, as before A2a, never the unshifted closing time)) and decisions (the decider, the closer's selection, may_continue_session, the maintenance drain) are probed after a lift, for a window-timed sitting whose assignment closed 10 minutes ago and an own-deadline sitting, each released from a 45-minute stop: each agrees with the effective deadline (the window-timed one at closes_at + 2700 s), and AturPengerjaan's client formula (the list's tenggat + n minutes) equals the server's added time. The rest are consistent by construction (they read only authoritative_deadline, the effective deadline or a stored remaining time), checked on their source: none reads closes_at. Plant: the teacher's list reading closes_at raw disagrees."
+    },
+    {
+      "id": "A2A-C709",
+      "runner": "static",
+      "proves": "Sharon's C17-1 (A2A-C-15-22-c3e88873.md): \"EXPIRED inside its grace\" is one helper, pengerjaan_dalam_tenggang_pada, used by protection and both markings (the batch and the lift's), on the grace readers' own basis (authoritative_deadline plus the definition's grace; a window-timed sitting has no grace under A1). Committed and removed: a class stop; an own-deadline EXPIRED sitting a minute past its deadline (inside its 300 s grace) is protected and marked; a window-timed EXPIRED sitting is neither; after the lift 45 minutes after T_stop and the release, the decider leaves the first unscored, inside its moved grace. Plant: protection judged on closure_deadline makes the window-timed sitting protected but never marked (on the database: migration 20270119140000's helper, read in prosrc)."
+    },
+    {
+      "id": "A2A-C710",
+      "runner": "static",
+      "proves": "Sharon's addendum on (a) (A2A-C-15-22-c3e88873.md at 80abe68b): the exclusive side's audit exception rests on no evaluation persona being able to stop or lift. Rolled back: as a school admin of the class's school, stop_pintar_now on that class is refused, and change_maintenance AKHIRI on an EMERGENCY window there is refused with the stop still in force; and the CHECK evaluation_personas_never_system_admin exists. A2A-L01 asserts it too, with C19-1's structural condition (the shared fence takes the open evaluation session's evaluator FOR KEY SHARE before its lock) (on the database: the shared fence's prosrc, migration 20270119140000)."
+    },
+    {
+      "id": "A2A-C711",
+      "runner": "static",
+      "proves": "Sharon's ruling on C18-1 (A2A-C-C18-1-AND-23-28.md at 50dab36f; migration 20270119160000): the lift does not mark; a lifted stop gives an unmarked sitting its time once, recorded by a watermark (darurat_dikredit_sampai). With no marking batch ever run, on committed fixtures removed after: a read before any touch (pengerjaan_tenggat_efektif, D1) already shows the deadline moved by the stop; the first touch (the decider, through pengerjaan_pagar) credits exactly T_lift − T_stop and a second touch nothing; two concurrent credits on two connections give it once (the sitting's lock, the watermark re-read under it); two overlapping stops are credited as their union, once; the release batch alone credits once. Plant: the credit not writing its watermark, so a second touch credits again."
+    },
+    {
+      "id": "A2A-C712",
+      "runner": "static",
+      "proves": "Sharon's C30-1 (A2A-C-30-8cbda9cc.md at 88d8ffec): after a 45-minute class stop lifted with no batch and no other touch, the learner's answer is judged on the credited deadline: inside the credited time it is LIVE, inside the credited grace LATE_SYNC and scored, because record_answer reaches pengerjaan_pagar (through pengerjaan_gerbang) before it reads the deadline. Each case in one transaction, rolled back. Plant: record_answer without the helper before its read (the credit then comes in the response's trigger, after the decision) (on the database: record_answer's prosrc and migration 20270119180000)."
+    },
+    {
+      "id": "A2A-C713",
+      "runner": "static",
+      "proves": "Sharon's C30-2 (A2A-C-30-8cbda9cc.md at 88d8ffec; migration 20270119180000): a sitting's time runs only while it is neither stopped nor held by A1. Stop, then suspension, then lift, then reinstatement and resume: the time left equals the time left at T_stop (unmarked, and marked at T_stop), and a touch after adds nothing. Suspension, then a stop inside the hold, then lift, then reinstatement and resume: the time left equals the time left at the suspension, and a touch after adds nothing. A held sitting touched after a lift: the act succeeds and nothing is credited. Each in one transaction, rolled back. Plants: the hold measured at the hold; no watermark at the resume; the credit not skipped while held."
+    },
+    {
+      "id": "A2A-C714",
+      "runner": "static",
+      "proves": "Bob's ruling on the search_path question (option 1) with Sharon's yes and her additions: on the database's catalogue, platform_schema_lint and docs/audit/launch-readiness.sql count every unpinned public function and procedure through jalur_tanpa_pin() (migration 20270119210000). Exactly three committing procedures are excused, each only while all hold: a procedure; not SECURITY DEFINER; no EXECUTE for PUBLIC, anon, authenticated or service_role; set_config('search_path', 'public, pg_temp', false) its first statement, before any commit; every public name schema-qualified; owned by the cron job's user. Nine plants in rolled-back transactions (another unpinned procedure, a function of the same name, SECURITY DEFINER, EXECUTE for authenticated, EXECUTE for PUBLIC, no first act, the first act after the first commit, a bare name, another owner) each count again with their cause."
+    },
+    {
+      "id": "A2A-C715",
+      "runner": "static",
+      "proves": "THE PLAN §5.3 D6.2, O1 after the lift (migration 20270119220000), on the database with committed fixtures put back after: during a class stop the school's admin ends a learner's enrolment (akhiri_pendaftaran); both protected sittings are preserved unscored, with the departure's actor and reason recorded once and audited. After the lift the release batch (pengerjaan_lepas_darurat_semua) applies the ordinary departure rule on the shifted deadline: a sitting inside it is terminated INSTITUTIONAL_REVOCATION by the departure's actor with its reason, unscored, answers kept; one past it and its grace is judged by the deadline rule, never terminated; each audited after the lift, naming the stop. Plant: the release batch without the departure pass leaves the preserved sitting open."
+    },
+    {
+      "id": "A2A-C716",
+      "runner": "static",
+      "proves": "THE PLAN §5.3 D6.9's remaining rows and scenario 9's once-only (migration 20270119230000), on the database's audit log with committed fixtures put back after: a class stop holds a learner's open sitting and one held for a suspension; the marking batch, run twice, writes one maintenance.marking_completed row naming T_stop and how many it holds (the open sitting marked, the suspended one not); after the lift the release batch, run twice, writes one maintenance.release_completed row naming T_lift, the released count and the one left held for a suspension. Plant: the once-only guard removed, a second marking row is written. D6.9's count (migration 20270119260000): released counts the sittings whose credit watermark reaches the chain's end, including one credited at first touch and finished before the batch (2, not 1); plant: counting only the sittings still open at the batch."
+    },
+    {
+      "id": "A2A-C717",
+      "runner": "static",
+      "proves": "THE PLAN §5.3 H, scenarios 3 to 6, on the database in rolled-back transactions on a class stop with no batch run: B3 a sitting EXPIRED inside its grace at T_stop: an answer inside the restored grace is LATE_SYNC and scored while the decider leaves the scoring waiting, one after it is kept unscored, and a manifest-complete hand-in after the lift closes it early; B4 a window-timed sitting whose closes_at passes during the stop has the effective deadline ended_at + (closes_at − starts_at) and is not ended; B5 a re-stop's final deadline is W3.ended_at + (W1's restored deadline − W3.starts_at); B6 a sitting suspended during the stop stays held as ACCOUNT_SUSPENDED after the lift with the time left at T_stop, and the scheduler neither ends nor selects it. One plant each (an EXPIRED sitting given no time back; the effective deadline without the stop; only the last stop counted; the decider not skipping a held sitting), each caught. C41-1: B4 and B5 run on stops whose starts_at and ended_at differ from T_stop and T_lift (as hosted records them), with B4 = closes_at + (T_lift − T_stop) and B5 = W3.T_lift + (W1's restored deadline − W3.T_stop); plant: the shift from ended_at − starts_at turns both red."
+    },
+    {
+      "id": "A2A-C718",
+      "runner": "static",
+      "proves": "A2a's required change 1 (migration 20270119120000's class scope), executes on the database in one rolled-back transaction: a class stop names its school, and every reader narrows it to the class: maintenance_affects reaches the class's learner and teacher and not a learner of another class of the same school; maintenance_block_for_me and pintar_status_saya stop the class's people only; the sitting-start trigger refuses the class and lets the other class start; maintenance_controls gives an emergency to Admin PINTAR, not the school's admin. Plant: the class branch matching on the school reaches the other class's learner."
+    },
+    {
+      "id": "A2A-C719",
+      "runner": "static",
+      "proves": "Sharon's C39-1 (migration 20270119240000), executes on the database in one rolled-back transaction: during a class stop the school's admin ends a learner's enrolment and the protected sitting is preserved; after the lift, before any batch run, the learner's answer and hand-in are refused because the first touch (pengerjaan_pagar) applies the departure before the act, and nothing is scored; the next committing touch (the decider) ends it TERMINATED INSTITUTIONAL_REVOCATION by the departure's actor with its reason, unscored, departure_applied audited once naming the stop. Plant: no first-touch application lets the hand-in score it. N42-1 (migration 20270119260000): the departed learner's open sittings (pengerjaan_terbuka_saya) do not offer the preserved sitting after the lift; plant: the list without its departure clause offers it."
+    },
+    {
+      "id": "A2A-C720",
+      "runner": "static",
+      "proves": "Sharon's answer to question 3 (migration 20270119250000), executes on the database in one rolled-back transaction and reads the screens' source: each O1 refusal is recorded afterwards by catat_penolakan_henti, only while it stands for the caller. With a class stop in force the class's teacher records SITTING_CLASS_STOPPED on the sitting and on the assignment («Ubah jadwal») and ASSIGN_CLASS_STOPPED, and the school's admin PROMO_STOPPED on the Kelas: one row per call, each naming the stop. Refused STOP_REFUSAL_NOT_FOUND: the learner, SITTING_FENCE_BUSY, another code, a teacher's PROMO_STOPPED, and the teacher's call after the lift. The teacher's sitting acts, «Ubah jadwal», ending an assignment and applying a promotion call it after the refusal. Plant: a forged record after the lift. C41-2's siblings (migration 20270119260000): after the lift, with the stop's mark not yet released, the record refuses, «Ubah jadwal» goes on to its own checks and the teacher's list (daftar_pengerjaan) no longer says HELD_STOP; plants: the stale mark counted in each. Sharon's note on commit 43 (migration 20270119270000): a refusal is recorded once per caller, target, code and stops in force (a second identical call returns the first row); plant: no dedupe writes a second."
     }
   ]
 }

@@ -650,12 +650,19 @@ export async function ubahPemeliharaanAction(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc("change_maintenance", { p_window: jendela, p_action: aksi, p_reason: str(fd, "alasan") });
   if (error) kembaliPemeliharaan(ditolak("change_maintenance", error), fd);
   revalidatePath("/konfigurasi");
+  // A2a (Daisy A4): an emergency stop's lift says how many held assessments can be reopened, read after the lift
+  if (aksi === "AKHIRI" && str(fd, "darurat") === "1") {
+    const { data: n } = await supabase.rpc("penghentian_ditahan_jendela", { p_window: jendela });
+    kembaliPemeliharaan({ ok: true, kode: "MAINTENANCE_STOP_ENDED", n: typeof n === "number" ? n : 0 }, fd);
+  }
   kembaliPemeliharaan({ ok: true, kode: aksi === "MULAI" ? "MAINTENANCE_STARTED" : "MAINTENANCE_ENDED" }, fd);
 }
 
 /** «Hentikan sekarang» (D-094(h), D-100(c)): Admin platform only, a reason and the typed phrase. */
 export async function hentikanSekarangAction(fd: FormData): Promise<void> {
   const { platform, sekolah } = cakupan(fd);
+  // A2a (Daisy A1): one or more classes of one school; the database refuses any other shape (MAINTENANCE_NODE_INVALID)
+  const kelas = Array.from(new Set(fd.getAll("kelas").map((v) => uuidOrNull(String(v))).filter((v): v is string => Boolean(v))));
   if ((!platform && sekolah.length === 0) || !str(fd, "alasan") || str(fd, "konfirmasi") !== KONFIRMASI_HENTIKAN) {
     kembaliPemeliharaan({ ok: false, kode: "MAINTENANCE_CONFIRMATION" }, fd);
   }
@@ -663,6 +670,7 @@ export async function hentikanSekarangAction(fd: FormData): Promise<void> {
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("stop_pintar_now", {
     p_platform: platform, p_institutions: platform ? [] : sekolah, p_reason: str(fd, "alasan"), p_confirmation: str(fd, "konfirmasi"),
+    p_nodes: kelas,
   });
   if (error) kembaliPemeliharaan(ditolak("stop_pintar_now", error), fd);
   revalidatePath("/konfigurasi");

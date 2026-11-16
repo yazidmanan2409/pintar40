@@ -1022,7 +1022,8 @@ rollback;
         c.expect(!/^COPY "cron"\./m.test(dataSql) && /^COPY "public"\."assessment_sessions"/m.test(dataSql) && /^COPY "public"\."accountability_events"/m.test(dataSql),
           "the bundle carries pg_cron's own tables, or not the sittings or the sign-in record");
         c.expect(/scheduled jobs: done/.test(a.text) && /scheduled jobs: 2 declared, each installed once/.test(a.text)
-          && jobs(target) === `1|*/5 * * * * select public.pengerjaan_tutup_terjadwal() true ${target.PGDATABASE}`
+          // RESTATED, A2a change C, D6.6 (migration 20270119150000): the closer's job calls its procedure
+          && jobs(target) === `1|*/5 * * * * call public.pengerjaan_tutup_berkala() true ${target.PGDATABASE}`
           && jobsB1(target) === `1|17 19 * * * select public.akuntabilitas_buang_lama() true ${target.PGDATABASE}`,
           `the jobs on the restored copy: ${jobs(target)}; ${jobsB1(target)}; ${a.text.split("\n").filter((l) => /scheduled job/.test(l)).join(" | ")}`);
         // the health read on the restored copy, as restored: no declared job missing or different
@@ -1039,22 +1040,23 @@ rollback;
         c.expect(pasang.ok && pasang.out.trim() === "true\ntrue" && jobs(target).startsWith("1|") && jobsB1(target).startsWith("1|") && i.code === 0 && /SAFE TO REOPEN/.test(i.text),
           `the one installer run twice on the copy: ${pasang.out.trim().replace(/\n/g, ",")} ${pasang.err}; jobs ${jobs(target)} / ${jobsB1(target)}; verification exit ${i.code}`);
         // (last, because it changes the copy: a finished sitting of the copy is made open and overdue again, past the triggers)
-        const jalan = psql(target, `begin; set local session_replication_role = replica;
-          create temp table dr_d02_s on commit drop as select s.id from public.assessment_sessions s
+        // RESTATED, A2a change C, D6.6 (migration 20270119150000): the job's command is a procedure that commits, so it is
+        // executed as pg_cron executes it, at the top level (psql's \gexec), after the sitting is prepared and committed;
+        // the temporary table lives for the session, not the transaction. Was: one transaction, the command in a DO block.
+        const jalan = psql(target, `create temp table dr_d02_s as select s.id from public.assessment_sessions s
             where s.status = 'FINALIZED' and exists (select 1 from public.assessment_results r where r.session_id = s.id) order by s.created_at, s.id limit 1;
+          begin; set local session_replication_role = replica;
           delete from public.result_views where session_id in (select id from dr_d02_s);
           delete from public.certificates where session_id in (select id from dr_d02_s);
           delete from public.assessment_results where session_id in (select id from dr_d02_s);
           delete from public.audit_log where action = 'assessment_session.ended_by_deadline' and target_id in (select id::text from dr_d02_s);
           update public.assessment_sessions set status = 'IN_PROGRESS', submitted_at = null, finalized_at = null, closure_kind = null, closure_at = null,
                  authoritative_deadline = now() - interval '1 hour' where id in (select id from dr_d02_s);
-          set local session_replication_role = origin;
-          select set_config('dr.cmd', (select command from cron.job where jobname = '${JOB}'), true);
-          do $j$ begin execute current_setting('dr.cmd'); end $j$;
+          commit;
+          select command from cron.job where jobname = '${JOB}' \\gexec
           select 'S|' || count(*) || '|' || coalesce(max(s.status || '/' || s.closure_kind || '/' || (select count(*) from public.assessment_results r where r.session_id = s.id)
                  || '/' || (select count(*) from public.audit_log l where l.target_id = s.id::text and l.action = 'assessment_session.ended_by_deadline')), '-')
-            from public.assessment_sessions s where s.id in (select id from dr_d02_s);
-          commit;`);
+            from public.assessment_sessions s where s.id in (select id from dr_d02_s);`);
         const hasilJalan = jalan.out.split("\n").find((l) => l.startsWith("S|")) ?? "";
         c.expect(jalan.ok && hasilJalan === "S|1|FINALIZED/DEADLINE/1/1", `the job's command on the restored copy (sittings|status/closure/results/audit rows): ${hasilJalan} ${jalan.err}`);
       } finally {

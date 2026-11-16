@@ -77,7 +77,9 @@ export const KODE_PINDAH_KELAS = ["MOVE_NOT_CURRENT", "MOVE_NOT_A_KELAS", "MOVE_
   "PROMO_CHANGED", "PROMO_UNDECIDED", "PROMO_TEACHERS_UNREVIEWED", "PROMO_YEAR_INVALID", "PROMO_DECISION_INVALID",
   "PROMO_TARGET_INVALID", "PROMO_NO_TRANSFER", "PROMO_ALREADY_IN_YEAR",
   // Sharon's follow-up (10 Nov): the run's own record was not complete, so nothing of it was applied
-  "PROMO_RUN_INCOMPLETE"] as const;
+  "PROMO_RUN_INCOMPLETE",
+  // A2a M-1 (owner ruling, 11 Nov): refused during an emergency stop; the number of learners held is in HINT
+  "PROMO_STOPPED"] as const;
 
 /**
  * D-088(b), BOB-49: a lesson whose pass mark the school has not set cannot be given to a class or launched as an Uji
@@ -138,6 +140,8 @@ export const KODE_PESERTA = [
 export const KODE_PEMELIHARAAN = [
   "MAINTENANCE_NOT_ALLOWED", "MAINTENANCE_INPUT_INVALID", "MAINTENANCE_NOT_OPEN", "MAINTENANCE_CONFIRMATION",
   "MAINTENANCE_NO_NEW_START", "NOTICE_INPUT_INVALID", "NOTICE_NOT_OPEN", "MAINTENANCE_ACTIVE",
+  // A2a: a class that is not one school's; the stop not taken effect (Daisy's line); the lift not done (Daisy's line)
+  "MAINTENANCE_NODE_INVALID", "MAINTENANCE_STOP_NOT_IN_FORCE", "MAINTENANCE_LIFT_NOT_DONE",
 ] as const;
 
 /**
@@ -211,6 +215,8 @@ export const KODE_SUKSES = [
   "PD_ENROLLED",
   // #148: maintenance scheduled, started now, ended (or cancelled), stopped at once; a notice published or withdrawn
   "MAINTENANCE_SCHEDULED", "MAINTENANCE_STARTED", "MAINTENANCE_ENDED", "MAINTENANCE_STOPPED", "NOTICE_PUBLISHED", "NOTICE_WITHDRAWN",
+  // A2a (Daisy A4): an emergency stop lifted, with the held assessments that can be reopened
+  "MAINTENANCE_STOP_ENDED",
   // W1.6: a package sent back to its author, with the reviewer's reason
   "SENT_BACK",
 ] as const;
@@ -486,7 +492,11 @@ export function kalimatHasil(
   const bagian = [s(h.ok ? awal.ok : awal.gagal)];
   // L3: a code whose words are still Dr Gladys's says nothing of its own (src/lib/istilah-menunggu.ts)
   const menunggu = h.kode === "CONTEXT_OTHER_PLACE" ? istilah("context.other_school") : undefined;
-  if (h.kode && menunggu !== null) bagian.push((menunggu ?? s(kunciKode(h.kode))) + (h.n !== null ? ` ${h.n}.` : ""));
+  if (h.kode && menunggu !== null) {
+    const kalimat = menunggu ?? s(kunciKode(h.kode));
+    // A2a: a sentence that places its count ({n}) says it there; any other still ends with it
+    bagian.push(h.n !== null && kalimat.includes("{n}") ? kalimat.replace("{n}", String(h.n)) : kalimat + (h.n !== null ? ` ${h.n}.` : ""));
+  }
   for (const m of h.masalah) {
     bagian.push(s(kunciMasalahPaket(m.code)) + (m.sheet ? ` (${m.sheet}${m.row ? ` ${m.row}` : ""})` : ""));
   }

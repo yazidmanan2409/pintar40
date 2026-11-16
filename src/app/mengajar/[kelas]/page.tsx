@@ -303,7 +303,7 @@ export default async function Kelas({
           ) : null}
         </div>
 
-        {dijadwal ? <UbahJadwal kelasId={id} tugas={dijadwal} zona={zona} kode={kodePengerjaanDari(sp.kode)} locale={locale} /> : null}
+        {dijadwal ? <UbahJadwal kelasId={id} kelasNama={ctx.ini.nama} tugas={dijadwal} zona={zona} kode={kodePengerjaanDari(sp.kode)} locale={locale} /> : null}
 
         {diakhiri && pratinjau ? (
           <AkhiriPenugasan kelasId={id} tugas={diakhiri} pratinjau={pratinjau} kode={kodePenugasanDari(sp.kode)} locale={locale} />

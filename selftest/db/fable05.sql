@@ -699,18 +699,26 @@ begin
   select i.id into v_a from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
   select i.id into v_b from public.institutions i where i.slug like 'synth-beta-%' limit 1;
   select i.id into v_c from public.institutions i where i.slug like 'synth-siklus-%' limit 1;
+  -- REPEATABLE (A2a, Bob's item 3): the class of the school's learner who acts below, never "a class with a member":
+  -- a reused database holds other runs' committed classes (C1w's «Kelas C1W …»), and limit 1 picked one of them
   select m.node_id into v_node_a from public.memberships m
     join public.org_nodes n on n.id = m.node_id
     join public.enrollments e on e.id = m.enrollment_id
-   where e.institution_id = v_a and n.kind = 'CLASS' and m.valid_to is null limit 1;
+    join public.accounts ac on ac.person_id = e.person_id join auth.users u on u.id = ac.auth_user_id
+   where e.institution_id = v_a and n.kind = 'CLASS' and m.valid_to is null and u.email = 'alpha-siswa-1@synthetic.pintar.test'
+   order by m.valid_from, m.id limit 1;
   select m.node_id into v_node_b from public.memberships m
     join public.org_nodes n on n.id = m.node_id
     join public.enrollments e on e.id = m.enrollment_id
-   where e.institution_id = v_b and n.kind = 'CLASS' and m.valid_to is null limit 1;
+    join public.accounts ac on ac.person_id = e.person_id join auth.users u on u.id = ac.auth_user_id
+   where e.institution_id = v_b and n.kind = 'CLASS' and m.valid_to is null and u.email = 'beta-siswa-1@synthetic.pintar.test'
+   order by m.valid_from, m.id limit 1;
   select m.node_id into v_node_c from public.memberships m
     join public.org_nodes n on n.id = m.node_id
     join public.enrollments e on e.id = m.enrollment_id
-   where e.institution_id = v_c and n.kind = 'CLASS' and m.valid_to is null limit 1;
+    join public.accounts ac on ac.person_id = e.person_id join auth.users u on u.id = ac.auth_user_id
+   where e.institution_id = v_c and n.kind = 'CLASS' and m.valid_to is null and u.email = 'siklus-email@synthetic.pintar.test'
+   order by m.valid_from, m.id limit 1;
 
   -- =========================================================================
   -- F05-T01 tenant_kind is a third, independent fact

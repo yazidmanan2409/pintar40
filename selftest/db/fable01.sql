@@ -299,6 +299,15 @@ begin
       insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
       values (p_as2, alpha, alpha_p2, a_prog, 'ACTIVE') returning id into e_as2;
     end if;
+    -- repeatable runs, the other half: a prior run's transfer left the learner enrolled at beta in beta_p1, which the
+    -- transfer below would meet ("already enrolled at the receiving school in that year"); ended first, by beta's
+    -- own act (akhiri_pendaftaran, as beta's admin), never written directly
+    for v_id in select e.id from public.enrollments e where e.person_id = p_as2 and e.institution_id = beta
+                   and e.academic_period_id = beta_p1 and e.status in ('PENDING', 'ACTIVE') order by e.id loop
+      perform selftest.as_user('beta-admin@synthetic.pintar.test');
+      perform public.akhiri_pendaftaran(v_id, 'WITHDRAWN', 'F01-T10: a prior run''s transfer, ended to repeat it', null);
+      perform selftest.as_owner();
+    end loop;
     select count(*) into n2 from public.portable_visibility where person_id = p_as2 and institution_id = beta;  -- prior runs
     perform selftest.as_user('alpha-admin@synthetic.pintar.test');
     v_t := public.transfer_request(e_as2, beta, beta_p1, b_prog, 'pindah sekolah', '{"guardian_consent":"recorded-by-policy-hook"}'::jsonb);

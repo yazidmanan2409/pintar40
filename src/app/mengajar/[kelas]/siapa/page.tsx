@@ -230,7 +230,7 @@ export default async function Siapa({
         </section>
 
         {dipilih ? (
-          <AturPengerjaan kelasId={id} penugasan={tugasId} baris={dipilih} instrumen={namaInstrumen} sertifikat={modeIni === "POST_TEST"}
+          <AturPengerjaan kelasId={id} kelasNama={ctx.ini.nama} penugasan={tugasId} baris={dipilih} instrumen={namaInstrumen} sertifikat={modeIni === "POST_TEST"}
             zona={zona} locale={locale} kode={kodePengerjaanDari(sp.kode)} tindakan={sp.tindakan ?? null} kembali={`${dasar}#pin-siapa-daftar`} />
         ) : null}
 

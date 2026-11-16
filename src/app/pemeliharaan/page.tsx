@@ -42,8 +42,20 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
   if (status.terhenti === "EMERGENCY") {
     isi = (
       <>
-        <h1 className="pin-mh1">{s("pemeliharaan.darurat.judul")}</h1>
-        <p className="pin-lede-m">{s("pemeliharaan.darurat.arti")}</p>
+        {/* A2a, Daisy (A2-KATA-DESAIN.md A3): a class stop names its classes; a person with another class or school is
+            told the stop reaches them there too, only where true */}
+        {w?.jenis === "EMERGENCY" && w.kelas ? (
+          <>
+            <h1 className="pin-mh1">{s("pemeliharaan.darurat.judul_kelas").replace("{kelas}", w.kelas.join(", "))}</h1>
+            <p className="pin-lede-m">{s("pemeliharaan.darurat.arti_kelas")}</p>
+            {w.kelasLain ? <p className="pin-lede-m">{s("pemeliharaan.darurat.kelas_lain")}</p> : null}
+          </>
+        ) : (
+          <>
+            <h1 className="pin-mh1">{s("pemeliharaan.darurat.judul")}</h1>
+            <p className="pin-lede-m">{s("pemeliharaan.darurat.arti")}</p>
+          </>
+        )}
         <p className="pin-msg pin-msg-note">{s("pemeliharaan.darurat.aman")}</p>
         <p className="pin-lede-m">{s("pemeliharaan.darurat.asesmen")}</p>
         <p className="pin-lede-m"><strong>{s("pemeliharaan.darurat.langkah")}</strong></p>
@@ -85,10 +97,13 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
       </>
     );
   } else {
+    // A2a, THE PLAN item 2: after the lift, a person whose sitting was held is told it can be opened again
+    const { data: dilepas } = await supabase.rpc("pengerjaan_dilepas_saya");
     isi = (
       <>
         <h1 className="pin-mh1">{s("pemeliharaan.kembali.judul")}</h1>
         <p className="pin-lede-m" role="status">{s("pemeliharaan.kembali.arti")}</p>
+        {typeof dilepas === "number" && dilepas > 0 ? <p className="pin-lede-m" data-kembali-ditahan="">{s("pemeliharaan.kembali.ditahan")}</p> : null}
         <Link className="pin-mbtn pin-mbtn-1" href="/">{s("pemeliharaan.kembali.tautan")}</Link>
       </>
     );

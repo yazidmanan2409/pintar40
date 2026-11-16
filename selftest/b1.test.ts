@@ -419,6 +419,9 @@ export const b1Tests: SelfTest[] = [
 ${DUNIA}
   -- 1. a successful and a failed sign-in each leave exactly one row
   n := (select count(*) from public.accountability_events);
+  -- the store before this test writes: committed rows of other runs (the app tests' real sign-ins, at the Siklus school
+  -- among them) are not this test's; the readers are judged on the rows written here, all of them after this id
+  v := v || jsonb_build_object('awal', (select coalesce(max(id), 0) from public.accountability_events));
   i := pg_temp.b1_catat('SIGN_IN_OK', 'PASSWORD', 'OK', ${G("u_dua")}, null, null, '203.0.113.0/24', null);
   j := pg_temp.b1_catat('SIGN_IN_FAILED', 'PASSWORD', 'MASUK_TIDAK_COCOK', null, 'b1-dua-' || current_setting('b1.tag') || '@local.invalid', repeat('a', 64), '2001:db8:a::/48', null);
   k := pg_temp.b1_catat('SIGN_IN_FAILED', 'CARD', 'CARD_NOT_MATCHED', null, null, repeat('b', 64), null, null);
@@ -493,8 +496,11 @@ ${DUNIA}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the database's own JSON
       const v = r.v as Record<string, any>;
       const A = String(v.A), B = String(v.B);
-      const ids = (s: unknown) => String(s ?? "").replace(/^ok:/, "").split(",").filter(Boolean).map((x) => x.split("/")[0]);
-      const origins = (s: unknown) => String(s ?? "").replace(/^ok:/, "").split(",").filter(Boolean).map((x) => x.split("/").slice(1).join("/"));
+      // only the rows this test wrote (ids above the store's highest before it): a reused database holds other runs' rows
+      const awal = Number(v.awal ?? 0);
+      const milikIni = (x: string) => Number(x.split("/")[0]) > awal;
+      const ids = (s: unknown) => String(s ?? "").replace(/^ok:/, "").split(",").filter(Boolean).filter(milikIni).map((x) => x.split("/")[0]);
+      const origins = (s: unknown) => String(s ?? "").replace(/^ok:/, "").split(",").filter(Boolean).filter(milikIni).map((x) => x.split("/").slice(1).join("/"));
       const [eOk, eGagal, eTiada] = [String(v.e_ok), String(v.e_gagal), String(v.e_tiada)];
       // 1.
       c.expect(v.baru === 4, `four writes left ${v.baru} row(s)`);
@@ -716,7 +722,8 @@ ${DUNIA}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the database's own JSON
       const v = r.v as Record<string, any>;
       const DUA = [["pintar-akuntabilitas-buang-lama", "17 19 * * *", "select public.akuntabilitas_buang_lama()"],
-        ["pintar-pengerjaan-tutup-terjadwal", "*/5 * * * *", "select public.pengerjaan_tutup_terjadwal()"]];
+        // RESTATED, A2a change C, D6.6 (migration 20270119150000): the closer's job calls its procedure. Was: select public.pengerjaan_tutup_terjadwal()
+        ["pintar-pengerjaan-tutup-terjadwal", "*/5 * * * *", "call public.pengerjaan_tutup_berkala()"]];
       c.expect(JSON.stringify(v.daftar) === JSON.stringify(DUA), `the declaration: ${JSON.stringify(v.daftar)}`);
       c.expect(JSON.stringify(v.cron) === JSON.stringify(DUA.map((d) => [...d, true, true])), `cron.job holds ${JSON.stringify(v.cron)}`);
       c.expect(v.sehat0?.ok === true || (v.sehat0?.hilang?.length === 0 && v.sehat0?.berbeda?.length === 0), `the health read as installed: ${JSON.stringify(v.sehat0)}`);
@@ -751,6 +758,8 @@ ${DUNIA}
         `pg_temp.b1(${G(`u_${siapa}`)}, format(${q("select coalesce(string_agg(id::text || '=' || institution_ids::text || '/' || coalesce(nama, '-') || '/' || coalesce(network_origin, '-') || '/' || coalesce(resource::text, '-'), ';' order by id), '') from public.akuntabilitas_baca(%L::uuid)")}, ${sekolah ? `current_setting('b1.${sekolah}')` : "null"}))`;
       const r = jalankan(`
 ${DUNIA}
+  -- the store before this test writes (B1-S01's sibling: a reused database holds other runs' committed rows)
+  v := v || jsonb_build_object('awal', (select coalesce(max(id), 0) from public.accountability_events));
   i := pg_temp.b1_catat('SIGN_IN_OK', 'PASSWORD', 'OK', ${G("u_dua")}, null, null, '203.0.113.0/24', null);
   perform set_config('b1.e', i::text, true);
   -- a print at A by the same person, and one at B
@@ -765,7 +774,9 @@ ${DUNIA}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the database's own JSON
       const v = r.v as Record<string, any>;
       const A = String(v.A), B = String(v.B), id = String(v.e);
-      const baris = (s: unknown) => String(s ?? "").replace(/^ok:/, "").split(";").filter(Boolean).map((x) => { const [k, rest] = x.split("="); const [ids, nama, asal, res] = rest.split("/"); return { k, ids, nama, asal, res }; });
+      const awal = Number(v.awal ?? 0);
+      const baris = (s: unknown) => String(s ?? "").replace(/^ok:/, "").split(";").filter(Boolean).map((x) => { const [k, rest] = x.split("="); const [ids, nama, asal, res] = rest.split("/"); return { k, ids, nama, asal, res }; })
+        .filter((b) => Number(b.k) > awal);   // only the rows this test wrote
       const satu = (s: unknown) => baris(s).find((b) => b.k === id);
       const dua = `{${[A, B].sort().join(",")}}`;
       c.expect(v.disimpan === dua, `the stored snapshot is not kept whole: ${v.disimpan}`);

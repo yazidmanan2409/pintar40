@@ -17,7 +17,9 @@ import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
  * the database changes the lesson's dates and its assessments' together and records before and after
  * (ubah_jadwal_penugasan). A student already working keeps their own deadline, and the panel says so before the act.
  */
-export default function UbahJadwal({ kelasId, tugas, zona, kode, locale }: {
+export default function UbahJadwal({ kelasId, kelasNama, tugas, zona, kode, locale }: {
+  /** A2a: the class's name, for the stopped-class refusal («Kelas {kelas} …») */
+  kelasNama?: string;
   kelasId: string;
   tugas: Penugasan;
   zona: string | null;
@@ -41,7 +43,7 @@ export default function UbahJadwal({ kelasId, tugas, zona, kode, locale }: {
       <input type="hidden" name="penugasan" value={tugas.id} />
       <h2 id="pin-jadwal-judul">{isi(s("jadwal.judul"), { kursus })}</h2>
       <p className="pin-sub">{s("jadwal.catatan")}</p>
-      {kode ? <BarisHasil nada="gagal">{s(kunciKodePengerjaan(kode))}</BarisHasil> : null}
+      {kode ? <BarisHasil nada="gagal">{s(kunciKodePengerjaan(kode)).replace("{kelas}", kelasNama ?? "")}</BarisHasil> : null}
       <div className="pin-isian">
         <label htmlFor="jadwal-mulai">{isi(s("jadwal.mulai"), { zona: kata })}</label>
         <TanggalDenganGema jenis="datetime-local" id="jadwal-mulai" name="mulai" required defaultValue={waktu(tugas.mulai) || kini} locale={locale} untuk="educator" zona={zona} />

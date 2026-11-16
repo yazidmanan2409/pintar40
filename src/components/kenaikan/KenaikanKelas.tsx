@@ -46,7 +46,7 @@ type Rencana = {
 type Hasil = { person_id: string; nama: string; sumber?: string | null; keputusan: KeputusanMurid["keputusan"]; kelas_tujuan?: string | null; kelas_tujuan_nama: string | null; alasan: string | null; asesmen_diakhiri?: number };
 type HasilAkhir = Hasil & { kelas_sekarang: string | null; akhir: string | null; akhir_pada: string | null; akhir_alasan: string | null; tahun_tujuan: string | null; sesuai: boolean };
 
-export type ParamKenaikan = { kn_kelas?: string; kn_tahun?: string; kn_semua?: string; kn_langkah?: string; kn_d?: string; kn_kode?: string; kn_ref?: string };
+export type ParamKenaikan = { kn_kelas?: string; kn_tahun?: string; kn_semua?: string; kn_langkah?: string; kn_d?: string; kn_kode?: string; kn_ref?: string; kn_n?: string };
 
 const label = "pin-kenaikan-label";
 const field = "pin-input"; // the v3 Field, as Konfigurasi's own forms
@@ -60,7 +60,7 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
   const kelas = adalahUuid(sp.kn_kelas) ? sp.kn_kelas : null;
   const langkah = sp.kn_langkah === "tinjau" || sp.kn_langkah === "selesai" ? sp.kn_langkah : "keputusan";
   const tolak = sp.kn_kode ? (
-    <BarisHasil nada="gagal">{s(kunciKode(sp.kn_kode))}{sp.kn_ref ? ` ${s("galat.rujukan")}: ${sp.kn_ref}.` : ""}</BarisHasil>
+    <BarisHasil nada="gagal">{s(kunciKode(sp.kn_kode)).replace("{n}", /^\d+$/.test(sp.kn_n ?? "") ? sp.kn_n! : "")}{sp.kn_ref ? ` ${s("galat.rujukan")}: ${sp.kn_ref}.` : ""}</BarisHasil>
   ) : null;
   const ulang = (extra: Record<string, string>) => `/konfigurasi/rollover?${new URLSearchParams(extra).toString()}#rollover`;
   const langkahKe = (n: 1 | 2 | 3, nama: HleEvent) => (
@@ -212,7 +212,7 @@ export default async function KenaikanKelas({ sekolah, sp, locale }: { sekolah: 
     });
     if (error) {
       return (
-        <div className="pin-kenaikan">{judulKelas}<BarisHasil nada="gagal">{s(kunciKode(error.code === "PR070" && error.details ? error.details : "ACTION_FAILED"))}</BarisHasil>
+        <div className="pin-kenaikan">{judulKelas}<BarisHasil nada="gagal">{s(kunciKode(error.code === "PR070" && error.details ? error.details : "ACTION_FAILED")).replace("{n}", /^\d+$/.test(error.hint ?? "") ? error.hint! : "")}</BarisHasil>
           <p><Link className="pin-tautan" href={ulang({ kn_kelas: kelas, kn_tahun: tahun.id, kn_d: sp.kn_d ?? "" })}>{s("kenaikan.tinjau.ubah")}</Link></p></div>
       );
     }
