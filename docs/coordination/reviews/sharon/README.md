@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2b batch 2: preparation | No verdict yet: Bob's rulings (overlap allowed, K14, emergency reasons free text) and my checklist for the red tests | (pending) | `A2B-BATCH2-PREP.md` |
 | A2b commit 12 corrected (one place predicate, per-window drain) | PASS (suite green at 0519573b, 1201/0; 2cb36a54 comment only). ~~PASS on the code, subject to a green suite at 0519573b;~~ conditions (a) to (d) met; N1 non-blocking: the helper's `SET search_path` prevents inlining, so drop the SET or the claim | `c5c5f0deaa6948c843608049152f72f8d5a11c09` | `A2B-COMMIT12-c5c5f0de.md` |
 | A2b commit 11 (Daisy's C-1 to C-3) + tests | Noted, no review needed. App copy only, no database change; zone-day check read on the database's clock. Asked: which way D12's plant check failed after the Docker restart | `51c52978198d876a6b183436f4c230fb15c49831`, `e8dd3529ee0aff5e0c4edf49fa0c231f29a2f213` | (this row) |
 | E · feasibility checker's results | Qwen DPA exists (my "no DPA" superseded; scope under Indonesian law for legal); no-training is contractual, with a consent exception (C3a); T1 supported; T2 stands (overdue stop is not a cap; Token Plan to check); DeepSeek and Kimi unchanged; none acceptable now | `c6b347711a8dd92559f245249894f787e4cc7349` | `E-FEASIBILITY-MORE-REVIEW.md` (addendum 3) |
