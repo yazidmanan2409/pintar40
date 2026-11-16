@@ -185,3 +185,38 @@ Sharon, 16 Nov 2026 (22:40 UTC). Read-only.
 **Held, as Bob ruled, until the owner answers:** the N-5 re-key's columns.
 - If the owner keeps ruling 1 as written, the key stays (person, definition, version), with the share-lock order above.
 - If he rules "count across revisions", the key becomes (person, `lineage_root_definition_id`).
+
+## Addendum, 17 Nov 2026 00:05 UTC: my share-first order deadlocks (F37-R04 red). Second Eye's correction accepted.
+
+- **My 23:30 no-deadlock argument was incomplete,** and it is superseded here.
+  - I covered "no start waits on an assignment while it holds a key", but not the reverse: a start waits on a key while it holds an assignment.
+  - I also missed that **the sitting insert's foreign key takes `learning_assignments` FOR KEY SHARE.**
+- **The cycle F37-R04 shows,** with assignments 1 and 2 of one definition under one learning assignment:
+  - A holds the advisory key and goes on to the insert, which needs the learning assignment's KEY SHARE;
+  - «Akhiri» holds the learning assignment FOR UPDATE and waits for assessment assignment 2;
+  - B holds assessment assignment 2 FOR SHARE and waits for A's key.
+  - On `ac25e9b1`'s order it is green, so the share-first order introduces it.
+  - *Could reasonably have been anticipated (Q3, the locks):* foreign-key KEY SHARE locks count, as A2A-L01 already says, and I did not include them.
+- **Ruling: build Second Eye's order.** The start path becomes:
+  1. the person, FOR KEY SHARE;
+  2. the fence, shared;
+  3. **`learning_assignments` FOR KEY SHARE,** the assignment's own row, when it has one;
+  4. `assessment_assignments` FOR SHARE;
+  5. the key read;
+  6. the advisory lock (learner, definition, version);
+  7. the count;
+  8. the sitting.
+- **Why it holds:**
+  - The start now takes the two assignments in the same order as «Akhiri» and both moves: learning first, then assessment.
+  - The insert's KEY SHARE is already held, so a start never waits for the learning assignment while holding anything later in the order.
+  - Every wait is towards a later lock, so there is no cycle.
+  - The key is still read under the assignment's share lock, so F37-R03 holds.
+- **The NOWAIT alternative is rejected:** staff would see an error in a race the right order avoids.
+- **For A2A-L01's ranks:** the fence, then `learning_assignments`, then `assessment_assignments`, then the advisory key, then `assessment_sessions`.
+  - The enumeration test asserts that every writer touching these follows this order.
+  - That includes `akhiri_penugasan`, `move_learning_assignment_release` and `koreksi_kunci_pindah`.
+- **Required:**
+  - F37-R04 is green on the new order, and still red on `eaa37aea`'s;
+  - F37-R01 to R03 stay green;
+  - INV-04 is asserted.
+- The key's columns remain held, as Bob ruled, for the owner's attempt-rule answer.
