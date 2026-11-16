@@ -76,7 +76,8 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
         <p className="pin-lede-m"><strong>{s("pemeliharaan.langkah")}</strong></p>
       </>
     );
-  } else if (mulai === "ditolak" && w && w.jenis === "PLANNED" && w.keadaan !== "AKTIF") {
+  } else if (mulai === "ditolak" && w && w.jenis === "PLANNED" && w.keadaan !== "AKTIF" && w.cakupan === "ORANG") {
+    // R-A: only a platform window's T−15 is sent here; a work-scoped refusal is said on the start screen
     isi = (
       <>
         <h1 className="pin-mh1">{s("pemeliharaan.menjelang.judul")}</h1>
@@ -85,6 +86,23 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
           {w.selesai ? <>{s("pemeliharaan.pita.selesai_kira")} {jam(w.selesai)}.</> : null}
         </p>
         <p className="pin-lede-m">{s("pemeliharaan.menjelang.arti")}</p>
+        <Link className="pin-mbtn pin-mbtn-1" href="/">{s("pemeliharaan.kembali.tautan")}</Link>
+      </>
+    );
+  } else if (w && w.jenis === "PLANNED" && w.keadaan === "AKTIF" && w.cakupan === "TEMPAT") {
+    // A2b (R-1; Daisy, A2B-C2W-KATA.md D8-2): a class or school window under way stops only that place's work, never
+    // the person: the page names the place and says the rest of PINTAR stays usable (the banner's own approved keys)
+    const untuk = w.kelas ? s("pemeliharaan.tempat.kelas").replace("{kelas}", w.kelas.join(", "))
+      : s("pemeliharaan.tempat.sekolah").replace("{sekolah}", w.sekolah ?? "");
+    isi = (
+      <>
+        <h1 className="pin-mh1" data-cakupan="TEMPAT">{s("pemeliharaan.tempat.berlangsung").replace("{untuk}", untuk)}</h1>
+        <p className="pin-lede-m">{s("pemeliharaan.tempat.arti")}</p>
+        <p className="pin-lede-m">
+          {s("pemeliharaan.sejak")} {jam(w.mulai)}.{" "}
+          {w.selesai ? <>{s("pemeliharaan.kira")} {jam(w.selesai)}.</> : s("pemeliharaan.kira_belum")}
+        </p>
+        {w.pesan ? <p className="pin-msg pin-msg-note"><strong>{s("pemeliharaan.pesan")}</strong> {w.pesan}</p> : null}
         <Link className="pin-mbtn pin-mbtn-1" href="/">{s("pemeliharaan.kembali.tautan")}</Link>
       </>
     );
