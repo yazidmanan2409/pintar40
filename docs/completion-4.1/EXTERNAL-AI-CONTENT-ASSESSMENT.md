@@ -58,3 +58,18 @@ instructions, written for the existing workbook.
 - X-3 a 4.2 candidate;
 - X-4's field a 4.2 candidate; its provenance boundary goes into C3w's design;
 - the import-parity guardrail recorded on C3w.
+
+## 5 · Accepted by the owner, 16 Nov, without changes
+
+All four placements are agreed. X-1 is prepared after A2b's freeze, with Daisy's and Sharon's reviews.
+
+**An observation for the educator walkthrough** (evidence for X-2, not a scope change). The external route has five
+steps:
+1. download the workbook and copy its prompt;
+2. generate with the external AI;
+3. move the AI's output into the workbook;
+4. upload it and resolve any validation messages;
+5. submit for review and publication.
+
+Record how much help educators need, particularly from step 2 to step 4. Repeated trouble moving AI tables into Excel
+is the evidence that would make X-2 a 4.2 item.
