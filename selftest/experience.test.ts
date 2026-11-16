@@ -2815,6 +2815,9 @@ export const experienceTests: SelfTest[] = [
         && !/id="mulai-tolak"[^>]*(sr-only|hidden|aria-hidden)/.test(surface)
         && /const kalimatTolak = !dimatikan \? null\s*: tolak === "MAINTENANCE_PLACE" \? s\("pemeliharaan\.pita\.asesmen_baru"\)/.test(surface),
         "a disabled «Mulai» must carry its sentence as visible text, tied by aria-describedby, and never be disabled without one");
+      // Daisy (16 Nov 05:26): «after» is acceptable, with the sentence next in reading order and nothing focusable between
+      c.expect(/disabled aria-describedby="mulai-tolak">[^<]*(\{[^}]*\}[^<]*)*<\/button>\s*<p id="mulai-tolak"/.test(surface),
+        "the disabled «Mulai»'s sentence must follow it directly, with nothing (and nothing focusable) between them");
       // No second eligibility opinion in this process: may_start_assessment is
       // the database's answer and the RPCs ask it themselves.
       c.expect(!/\bmayStart\b/.test(surface),
