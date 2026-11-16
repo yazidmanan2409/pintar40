@@ -1,5 +1,11 @@
 # Additional AI providers: feasibility matrix and recommendation
 
+> **Ruling 44 (owner, 16 Nov) supersedes the "Age clause" row's conditions.** Each provider gets one check: does it
+> permit the educator-only authoring workflow, in which learners never interact with the provider? Yes closes the
+> question; no excludes the provider. On the evidence above, **Qwen's answer reads yes,** and DeepSeek's and Kimi's
+> stay unread. The other rows (training, DPA, C4) are unchanged and still decide whether any of the three is
+> evaluated later.
+
 Bob, 16 November 2026. **Exploratory only.** It does not change E (providers, scoring rules, budget) and authorises
 nothing. **Facts:** `E-FEASIBILITY-ADDITIONAL-PROVIDERS.md` on `claude/e-feasibility-more` (`b608c6e0`), read from
 official pages in the `pintar40` environment.

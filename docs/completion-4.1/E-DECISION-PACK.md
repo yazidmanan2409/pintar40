@@ -36,7 +36,7 @@ egress to a provider API, call, transmission of material or spending.
 | **Zero retention** | By arrangement with sales | Prior approval by OpenAI | — |
 | **Location** | Global by default; US-only option (+10%). No EU or Asia option | US or EU residency for eligible organisations (+10%) | — |
 | **Subprocessors** | List not read (**G2**) | List not read (**G1**) | — |
-| **Minors** | Guidelines for organisations whose minors "directly interact": age checks, moderation, child-safety prompt, disclosure. Sharon: arguably not triggered by an educator-only feature, but PINTAR serves minors, so follow them | **Not read (G1)** | **Not eligible.** Cloud terms §20(d) forbid use "as part of" a service "likely to be accessed by individuals under the age of 18" (A). Sharon agrees |
+| **Eligibility (ruling 44): does the provider permit the educator-only authoring workflow?** | **YES, closed.** The Commercial Terms (effective 17 Jun 2025) contain no age or minors restriction, and A.1 permits use "to power products and services Customer makes available to its own customers and end users". The Usage Policy (effective 12 Nov 2026) "do[es] not categorically prohibit use by any particular industry"; its minors provisions concern minors who "directly interact" with products that incorporate the API, which learners never do here | **Open: the one check (G1),** on the Services Agreement and the Usage Policies. Not readable from this environment | **NO, excluded.** Cloud terms §20(d) forbid use "as part of" a service "likely to be accessed by individuals under the age of 18" (A) |
 | **Synthetic educational text** | No restriction found (B) | Not checked: terms not read | — |
 
 **Google stays out,** under ruling 36. Eligibility would need Google's written clarification and a structurally
@@ -67,9 +67,14 @@ comparison schools later see.
 - [Data Processing Addendum](https://openai.com/policies/data-processing-addendum/)
 - [Sub-processor list](https://openai.com/policies/sub-processor-list/)
 
-For each document, record its date and check: the minimum-age and minors provisions; education use; data use and
-retention; the DPA; the sub-processors (Sharon's condition). **Until you do, OpenAI's terms are "not found", not
-"no restriction".**
+**Ruling 44 replaces the minors checklist with one question:** *Does the provider permit this educator-only
+authoring workflow, in which AI drafts questions, educators review and approve them, and learners never interact with
+the provider?*
+- If yes, the issue is closed. If no, the provider is excluded.
+- No child-facing AI feature, and no extra age or moderation machinery, is added.
+- Data use, retention, the DPA and sub-processors are still read before the paid run, as ordinary contract checks.
+  They are separate from this question.
+- **Until OpenAI's answer is read, it is "open", not "yes".**
 
 **Nothing here is treated as accepted.** The team cannot accept terms for PINTAR.
 
