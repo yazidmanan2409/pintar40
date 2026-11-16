@@ -1,0 +1,49 @@
+{
+  "_note": "Price table for runner.mjs. USD per 1,000,000 tokens. Every value stays \"UNVERIFIED\" until it is pinned from the provider's official pricing page, with that page's URL and the date read in source/read_on. A real (non-dry) run refuses to start while any price, the model id or the model date of an enabled provider is UNVERIFIED. The dry run ignores these values and uses dry_run_assumed.",
+  "currency": "USD",
+  "unit": "per 1M tokens",
+  "caps_usd": { "per_provider": 8.0, "total": 25.0 },
+  "dry_run_assumed": {
+    "input": 15,
+    "output": 75,
+    "_note": "Deliberately high worst-case assumption for the dry run only. Not a price of any provider."
+  },
+  "providers": {
+    "anthropic": {
+      "enabled": true,
+      "model": "UNVERIFIED",
+      "model_hint": "the provider's mid-tier general model (plan: Claude Sonnet 5.5); exact API model id to be pinned",
+      "model_date": "UNVERIFIED",
+      "input": "UNVERIFIED",
+      "output": "UNVERIFIED",
+      "price_hint": "C3-EVALUATION-PLAN.md P1 records $2 input / $10 output per MTok read on the official page on 9 Nov; pin it here with source and read_on to verify",
+      "source": null,
+      "read_on": null,
+      "key_env": "ANTHROPIC_API_KEY"
+    },
+    "openai": {
+      "enabled": true,
+      "model": "UNVERIFIED",
+      "model_hint": "the provider's mid-tier general model; to be chosen and pinned before the run",
+      "model_date": "UNVERIFIED",
+      "input": "UNVERIFIED",
+      "output": "UNVERIFIED",
+      "price_hint": "P2 blocked: official pricing page not yet read",
+      "source": null,
+      "read_on": null,
+      "key_env": "OPENAI_API_KEY"
+    },
+    "google": {
+      "enabled": true,
+      "model": "UNVERIFIED",
+      "model_hint": "the provider's mid-tier general model; to be chosen and pinned before the run",
+      "model_date": "UNVERIFIED",
+      "input": "UNVERIFIED",
+      "output": "UNVERIFIED",
+      "price_hint": "P3 blocked: official pricing page not yet read",
+      "source": null,
+      "read_on": null,
+      "key_env": "GEMINI_API_KEY"
+    }
+  }
+}

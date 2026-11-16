@@ -48,3 +48,7 @@ supabase/.branches/
 
 # agent worktrees (local only, never committed)
 /.claude/worktrees/
+
+# C3 evaluation runner output (ledger, drafts, summaries): never committed
+/docs/completion-4.1/c3-eval/out/
+/docs/completion-4.1/c3-eval/out-dry-run*/
