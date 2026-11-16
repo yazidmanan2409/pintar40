@@ -10,9 +10,10 @@ and credentials follow only once the providers' actual terms and access are read
 | `prompt-v2.md` | The one request, in Indonesian, sent byte-identical to every provider as a single user message. v2 has Daisy's 9 Nov review applied; v1 (`prompt-v1.md`) is kept for the record. Any change makes a new version |
 | `item-schema.json` | The output contract (stem, A–D options, key, a misconception per wrong option, objective code, one-line rationale). It is kept to the schema subset every provider's structured output accepts; counts and cross-field rules are checked by the kit |
 | `material/bab1.md`, `material/bab2.md` | The frozen material: the synthetic SD Kelas 5 Matematika chapters (F-4), with their objectives (coded B1-T1…B2-T4), known misconceptions and lessons. **No question, option or key from the chapters is sent** |
-| `material/MANIFEST.json` | The SHA-256 of each source, material, request, prompt and schema, and of `kit.mjs` and `score.mjs` (the frozen set). These are recorded with every draft for provenance |
+| `material/MANIFEST.json` | The SHA-256 of each source, material, request, prompt and schema, and of `kit.mjs`, `score.mjs` and `report.mjs` (the frozen set). These are recorded with every draft for provenance |
 | `kit.mjs` | `material`, `request`, `validate`, `blind`, `seal-key` and `selftest`. `score` is retired and refuses (use `score.mjs`). Dependency-free; no network |
 | `score.mjs` | Scoring under E-DECISION-PACK §4.1–§4.3a (16 Nov): one provider code's judge sheets plus Sharon's flags, checked against the flags file's committed SHA-256. Output: the resolved table, critical count, Q1, Q2 per criterion (Q1 and Q2 PROPOSED, awaiting owner approval), the verdict and flag counts. Input formats are in its header. `node score.mjs --self-test` |
+| `report.mjs` | The §4.5 evidence per provider code: cost per attempt, per valid and per accepted draft; tokens, retry and failure rates, response times, rate limits met, cost variability; provenance completeness, including `pack_sha`. Reported **beside** the scores, never inside them. It refuses unless the sealed map matches its committed hash and every code has its final `score.mjs` output. `node report.mjs --self-test` |
 
 `node docs/completion-4.1/c3-eval/kit.mjs selftest` runs the whole pipeline offline, on planted cases:
 - material and requests regenerate byte-identical;
@@ -84,7 +85,9 @@ node kit.mjs blind runs out                                       # out/reviewer
 # Sharon solves out/kunci/lembar-kunci-tanpa-kunci.md and seals her answers BEFORE any full sheet is opened:
 node kit.mjs seal-key out jawaban-k.csv                           # one seal only; the kit compares answers with keys
 # Sharon commits the SHA-256 of her flags file before she sees any score; educators score J1, J2 (and J3 where sent)
-node score.mjs sheets-<code>.json flags.json --flags-sha256 <hex> # per provider code; slots from out/SEALED/map.json
+node score.mjs sheets-<code>.json flags.json --flags-sha256 <hex> --json > score-<code>.json   # per code; slots from out/SEALED/map.json
+# only once every score is final: open the map against its committed hash (the unblinding step)
+node report.mjs --runs runs --map out/SEALED/map.json --map-sha256 <hex> --scores score-A.json,score-B.json
 ```
 
 **Under the 16 Nov pack (E-DECISION-PACK §4):**
@@ -110,8 +113,8 @@ folder) until the owner has reviewed them. The results document is then committe
 - **Provenance per run** (`usage.json`): `model`, `model_date`, `endpoint`, `api_version`, `run_at`, `run_by`,
   `generation` (temperature, maximum tokens, system prompt), `data_retention`, `price_per_mtok`, and a `request_id` per
   call.
-  - The retired `kit.mjs score` marked a run whose record was incomplete. No tool reports this, or the §4.5 cost
-    figures, until one is ruled on.
+  - `report.mjs` marks a run whose record is incomplete (including `pack_sha`) and a judged response changed since
+    blinding, beside the §4.5 cost figures.
   - Each raw response file is hashed into the sealed map at blind time.
 - **Equal schema instructions:** v2 lists the fields in the prompt text itself, so a provider without structured output
   receives the same conditions. Sharon checks that the list matches `item-schema.json` exactly.
@@ -119,6 +122,6 @@ folder) until the owner has reviewed them. The results document is then committe
 ## Freeze
 
 The kit is frozen at the commit that adds this line. `material/MANIFEST.json` holds the SHA-256 of the v2 prompt, the
-schema, both materials and both requests, and (since 16 Nov, ruling 8) of `kit.mjs` and `score.mjs`. A real run is
-refused while either file differs from its hash, and Sharon re-confirms the freeze on the head that records them. Any change after this needs a new version and a new freeze, and no external
+schema, both materials and both requests, and (since 16 Nov, rulings 8 and b) of `kit.mjs`, `score.mjs` and `report.mjs`. A real
+run is refused while any of them differs from its hash, and Sharon re-confirms the freeze on the head that records them. Any change after this needs a new version and a new freeze, and no external
 evaluation runs on an unfrozen kit.

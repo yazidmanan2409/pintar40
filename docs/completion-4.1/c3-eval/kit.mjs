@@ -56,9 +56,9 @@ const requestText = (b) => promptTemplate().replace('{{MATERIAL}}', readFileSync
 
 function cmdMaterial() {
   mkdirSync(join(HERE, 'material'), { recursive: true });
-  // the frozen set (ruling 8, 16 Nov) also covers the kit itself and the scoring script
+  // the frozen set (rulings 8 and b, 16 Nov) also covers the kit itself, the scoring script and the evidence report
   const manifest = { prompt_version: PROMPT_VERSION, prompt_sha256: sha(promptTemplate()), schema_sha256: sha(readFileSync(join(HERE, 'item-schema.json'))),
-    kit_sha256: sha(readFileSync(fileURLToPath(import.meta.url))), score_sha256: sha(readFileSync(join(HERE, 'score.mjs'))), chapters: {} };
+    kit_sha256: sha(readFileSync(fileURLToPath(import.meta.url))), score_sha256: sha(readFileSync(join(HERE, 'score.mjs'))), report_sha256: sha(readFileSync(join(HERE, 'report.mjs'))), chapters: {} };
   for (const b of [1, 2]) {
     const text = materialText(b);
     writeFileSync(join(HERE, 'material', `bab${b}.md`), text);
@@ -392,7 +392,8 @@ async function cmdSelftest() {
   try { execFileSync(process.execPath, [fileURLToPath(import.meta.url), 'score', out, join(t, 'j.csv'), runs], { encoding: 'utf8', stdio: 'pipe' }); } catch (x) { code = x.status; err = String(x.stderr); }
   check(code === 1 && /retired/.test(err) && /score\.mjs/.test(err) && /16 Nov/.test(err) && !existsSync(join(out, 'C3-EVALUATION-RESULTS.draft.md')), 'kit.mjs score is retired: it refuses, points to score.mjs and the 16 Nov amendment, and writes nothing');
   // ruling 8: the frozen set covers kit.mjs and score.mjs
-  check(m.kit_sha256 === sha(readFileSync(fileURLToPath(import.meta.url))) && m.score_sha256 === sha(readFileSync(join(HERE, 'score.mjs'))), 'MANIFEST.json holds the SHA-256 of kit.mjs and score.mjs, and both match the files (frozen set)');
+  check(m.kit_sha256 === sha(readFileSync(fileURLToPath(import.meta.url))) && m.score_sha256 === sha(readFileSync(join(HERE, 'score.mjs'))) && m.report_sha256 === sha(readFileSync(join(HERE, 'report.mjs'))),
+    'MANIFEST.json holds the SHA-256 of kit.mjs, score.mjs and report.mjs, and each matches its file (frozen set)');
   blindStripTest(t, check);
   console.log(`\n${fails.length ? fails.length + ' FAILED' : 'all passed'} (scratch: ${t})`);
   process.exit(fails.length ? 1 : 0);

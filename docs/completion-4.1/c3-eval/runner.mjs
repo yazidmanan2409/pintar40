@@ -493,10 +493,10 @@ function capsFrom(table, args) {
   if (!(perProvider > 0 && total > 0)) throw new Fatal('caps must be positive numbers');
   return { perProvider, total };
 }
-// The frozen set (ruling 8, 16 Nov): kit.mjs and score.mjs must match their SHA-256 in MANIFEST.json
+// The frozen set (rulings 8 and b, 16 Nov): kit.mjs, score.mjs and report.mjs must match their SHA-256 in MANIFEST.json
 export function frozenSetProblems(m = manifest()) {
   const out = [];
-  for (const [k, file] of [['kit_sha256', 'kit.mjs'], ['score_sha256', 'score.mjs']]) {
+  for (const [k, file] of [['kit_sha256', 'kit.mjs'], ['score_sha256', 'score.mjs'], ['report_sha256', 'report.mjs']]) {
     if (!/^[0-9a-f]{64}$/.test(m[k] ?? '')) out.push(`frozen set: MANIFEST.json has no ${k} (node kit.mjs material)`);
     else if (sha(readFileSync(join(HERE, file))) !== m[k]) out.push(`frozen set: ${file} differs from its SHA-256 in MANIFEST.json (a new freeze is needed)`);
   }
@@ -867,10 +867,11 @@ async function selfTest() {
   const dummyKeys = Object.fromEntries(providers.map((p) => [table.providers[p].key_env, 'DUMMY-KEY-PLACEHOLDER']));
   const g2 = liveGate(table, providers, dummyKeys); const unverified = providers.filter((p) => !ADAPTERS[p].verified);
   check(unverified.every((p) => g2.some((x) => x.startsWith(`${p}: API adapter not verified`))) && (g2.length > 0) === (unverified.length > 0), `with keys present, a real run still refuses while an adapter is unverified (${unverified.join(', ') || 'none'})`);
-  check(frozenSetProblems().length === 0, 'frozen set: kit.mjs and score.mjs match their SHA-256 in MANIFEST.json');
+  check(frozenSetProblems().length === 0, 'frozen set: kit.mjs, score.mjs and report.mjs match their SHA-256 in MANIFEST.json');
   const mf = manifest();
-  check(frozenSetProblems({ ...mf, kit_sha256: '0'.repeat(64) }).some((x) => /kit\.mjs differs/.test(x)) && frozenSetProblems({ ...mf, score_sha256: undefined }).some((x) => /no score_sha256/.test(x)),
-    'frozen set: a real run is refused while kit.mjs or score.mjs differs from MANIFEST.json, or a hash is absent');
+  check(frozenSetProblems({ ...mf, kit_sha256: '0'.repeat(64) }).some((x) => /kit\.mjs differs/.test(x)) && frozenSetProblems({ ...mf, score_sha256: undefined }).some((x) => /no score_sha256/.test(x))
+    && frozenSetProblems({ ...mf, report_sha256: 'f'.repeat(64) }).some((x) => /report\.mjs differs/.test(x)),
+    'frozen set: a real run is refused while kit.mjs, score.mjs or report.mjs differs from MANIFEST.json, or a hash is absent');
   const gg = liveGate(table, ['google'], {});
   check(!('google' in ADAPTERS) && !PROVIDERS.includes('google') && gg.length === 1 && /^google: excluded: Not eligible .*§20\(d\)/.test(gg[0]), 'google: no adapter; refused with the §20(d) reason from prices.json');
   // the --live flag: required in addition to the gate

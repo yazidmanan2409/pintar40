@@ -2,8 +2,9 @@
   "prompt_version": "v2",
   "prompt_sha256": "f82c0f736c0a5edbb9900c667a94b9add30c231be1fb9fd96250db093fbfff34",
   "schema_sha256": "8662c79bb9636a043f4d93b662d3e759b330811606c4ca119e695dea075c95ee",
-  "kit_sha256": "1467360fcfc499a8f4a32cab61dd314f03111b646808bb7fe18989eeaa073f91",
+  "kit_sha256": "c4ab4863ea1a48bdcd44e3c294cfeda91fc4829a96506ea1afce34c6e68f1e15",
   "score_sha256": "b4718fd7f50af205bdf082942490b10904760e600a2c8bb77bb088241dd48a2b",
+  "report_sha256": "95aaa17502029068c532cbd9fe4b68cfe23db177327454c9e399b57b109d80df",
   "chapters": {
     "bab1": {
       "source": "docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.paket.json",

@@ -572,3 +572,34 @@ real run refused:
   - score: **44 PASS, 0 FAIL**.
 - **Offline dry run** (`--dry-run --pack-sha <40-hex>`): exit 0. `kit.mjs blind` on its output gives 60 items, with
   30 valid slots per code.
+
+**Addition, 16 Nov (coordinator's rulings a and b):**
+- **(a) More than 15 items in a response:** the interim choice stands. Only the first 15 positions are slots; the
+  excess is not shown and is recorded as `excess_items_not_shown`.
+- **(b) `report.mjs`, the §4.5 evidence.** It reads the runner's ledger, `usage.json` and provenance files and
+  `score.mjs`'s resolved output. Per provider code it reports:
+  - cost per attempt, per valid draft and per accepted draft (accepted as `score.mjs` defines it);
+  - tokens, retry and failure rates, response times, rate limits met, and cost variability;
+  - whether each run's provenance record is complete (including `pack_sha`), and whether each judged response is
+    unchanged since blinding.
+
+  It is the unblinding step. It refuses unless the sealed map matches its committed SHA-256 and every code has its
+  final `score.mjs` output, whose slots are the map's. It reads the score files and never writes them.
+- **The frozen set now also covers `report.mjs`** (`report_sha256` in `MANIFEST.json`). The runner's gate checks it.
+  **Sharon re-confirms the freeze on this head before any live run.**
+- **Self-tests, all offline and exit 0:**
+  - kit: **33 PASS, 0 FAIL**;
+  - runner: **125 PASS, 0 FAIL**;
+  - score: **44 PASS, 0 FAIL**;
+  - report: **21 PASS, 0 FAIL**. It runs an offline dry run, blinds it, scores both codes, opens the map against its
+    hash, and reports.
+- **Offline dry run** (`--dry-run --pack-sha <40-hex>`), blinded, scored and reported with a test-opened map:
+  exit 0 at every step. Codes are shuffled per run; at the mock's assumed prices:
+
+  | Provider | Attempts | Retry rate | Failure rate | Cost | Per attempt | Per valid draft (30) | Per accepted draft | 429s | Provenance |
+  |---|---|---|---|---|---|---|---|---|---|
+  | anthropic | 4 | 50.0% | 50.0% | $1.628370 | $0.407093 | $0.054279 | $0.054279 (30) | 1 | complete |
+  | openai | 3 | 33.3% | 33.3% | $2.137935 | $0.712645 | $0.071265 | $0.089081 (24) | 0 | complete |
+
+  The test scores set 6 of openai's items to review burden 0, so it has 24 accepted drafts. Openai's two attempts
+  without usage kept their reservation as cost, which is why its total is higher.
