@@ -38,7 +38,7 @@ Every one of them is captured **twice**: once in a **WIB** school, and once in a
 | D8-2 | **The planned pause page** (`/pemeliharaan`) | Started, with the reason (D2), the expected end ~~, and «diperpanjang sampai …»~~ (next batch: `A2B-PERPANJANG-KATA.md`); class-scoped title |
 | D8-3 | **The learner's start refusal (D4)**, the disabled «Mulai» with its sentence, on the chapter start (`/belajar/[tugas]/…`) and on a standalone assessment's orientation | The four variants of `A2-KATA-DESAIN.md` B2 (with an end; with no end; class-scoped; the end on another day) |
 | D8-4 | **The player** during a planned window, for a learner whose sitting is running | The quiet line that they can finish and that the time does not change |
-| D8-5 | **Konfigurasi › «Pemeliharaan dan pengumuman»**, the planned form | The labels with {zona}; the reason list (D2) with «Lainnya»; «Periksa waktu ini» with the collision lines («Asesmen terakhir diperkirakan selesai …», «Pertimbangkan memulai pemeliharaan setelah …») |
+| D8-5 | **Konfigurasi › «Pemeliharaan dan pengumuman»**, the planned form | *(Amended 16 Nov: also the class choice, «Satu kelas» with its work-scoped hint, by keyboard; `A2B-PILIH-KELAS-KATA.md` §2.)* The labels with {zona}; the reason list (D2) with «Lainnya»; «Periksa waktu ini» with the collision lines («Asesmen terakhir diperkirakan selesai …», «Pertimbangkan memulai pemeliharaan setelah …») |
 | D8-6 | **The same page's lists** | A planned row with scope and «Dijadwalkan oleh {nama}»; «Perpanjang» with its new end; «Akhiri sekarang»; an announcement's «Terbit» and «Sampai»; A2a's emergency row «sejak {jam} {zona}» |
 
 - **Batch 1:** D8-1 to D8-4, the learner's and the teacher's surfaces.
