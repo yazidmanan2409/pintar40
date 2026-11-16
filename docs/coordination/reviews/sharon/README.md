@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2b batch 2 D2 database commit (reason codes) | PASS: VALID CHECK as ruled, DROP+CREATE with commit 1's grants, preservation pinned; accepted limit: audit_log.at is the transaction start (A07 compares the summary) | `1c1b8d1c6459d121ff39f68febad8d94e0c6922c` (head `ef1c6a7b05f1f1a9fe40324db3bc1f596b104589`) | `A2B-D2-DB-1c1b8d1c.md` |
 | A2b batch 2 red tests (D2, Perpanjang, Akhiri, D8-5/6) | GO for the DB commit; p_reason_code defaulting to NULL accepted; before its PASS: T1 free text with a non-LAINNYA code, T2 unaffected status read, T3 CHECK validated, T4 120 characters not bytes, T5 plants for A06/A07 | `d837181d455612346f9fd9f90d468d38a5fb754b` | `A2B-BATCH2-TESTS-d837181d.md` |
 | A2b batch 2: preparation | No verdict yet: Bob's rulings (overlap allowed, K14, emergency reasons free text) and my checklist for the red tests | (pending) | `A2B-BATCH2-PREP.md` |
 | A2b commit 12 corrected (one place predicate, per-window drain) | PASS (suite green at 0519573b, 1201/0; 2cb36a54 comment only). ~~PASS on the code, subject to a green suite at 0519573b;~~ conditions (a) to (d) met; N1 non-blocking: the helper's `SET search_path` prevents inlining, so drop the SET or the claim | `c5c5f0deaa6948c843608049152f72f8d5a11c09` | `A2B-COMMIT12-c5c5f0de.md` |
