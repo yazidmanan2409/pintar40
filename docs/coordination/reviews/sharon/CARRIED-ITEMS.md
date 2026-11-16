@@ -7,7 +7,9 @@ This list is updated as items arrive. Each line names where it is due.
 - Staging is marked PENDING OWNER AUTHORISATION, never complete.
 - The registered person-level start-trigger branch on `now()`.
 
-**C2w entry:** F-3's and F-4's evidence.
+**C2w entry:**
+- F-3's and F-4's evidence.
+- **A2B-R2,** C2w's first item: the Studio fail-open, in `withdrawDistributionAction` and the Kanonik page reading `release_distributions`. On entry, check that the static rule's named exception is removed with the fix.
 
 **A3 pre-build review (ruling 42, `f942eb97` on `claude/bob-41-master-plan`, PLAN-A3-C3W-Z.md):**
 - My agreement or disagreement on the proposed rule.
@@ -20,3 +22,12 @@ This list is updated as items arrive. Each line names where it is due.
 - R-3's matching rule, with Daisy.
 - C3w-1, the local stub, comes after A3 and is not acceptance.
 - C3w-2 comes only after E, the owner's qualification and limits, and access and credentials.
+
+**A2b freeze:** A2b's static rule may carry exactly one named exception, for A2B-R2.
+- It must name the exact file and function, not a directory or a pattern.
+- It must name its register id, and must fail when the code it names changes or no longer exists.
+
+**Z register triage:** A2B-R3, the root of the fail-open.
+- `sasaranDalamKonteks` treats an empty read as "in context", across about 38 `sekolahDari` callers.
+- To assess: can any caller be fed an empty read in practice? Is a fail-closed default safe for all of them?
+- Recorded in TEAM-INSTRUCTIONS at `71ed6196`.
