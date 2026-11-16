@@ -6524,6 +6524,16 @@
       "id": "A2B-K12",
       "runner": "static",
       "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K12, a planned and an emergency window over one class: the emergency governs (the teacher's act refused PR170 SITTING_CLASS_STOPPED; the learner stopped as a person); after the lift, with the planned window still on, the planned guard refuses nothing A2a allows (the learner's answer, the first-touch release, a departure) and refuses the teacher's act by place. Emergency windows in the hosted shape (K12-1)."
+    },
+    {
+      "id": "A2B-SP1",
+      "runner": "static",
+      "proves": "A2b reopened for the start path (the Chief Architect, 16 Nov 16:21; Sharon f1e969a1, a promotion blocker): start_learning_session, executed in rolled-back transactions as the Siklus learner on a never-started copy of the class's Pemetaan Awal (a named journey fixture): with no window it starts (the control); inside a planned school window under way it raises PR040 with DETAIL MAINTENANCE_PLACE; with a planned school window, and a platform-wide one, starting in 10 minutes it raises PR110 with DETAIL MAINTENANCE_NO_NEW_START, as the sitting-insert trigger does. The plant, the fix's marked lines removed (the generic P0001 'cannot start this assessment' raise back), is caught. Red on 3c58620e (P0001 for every case)."
+    },
+    {
+      "id": "A2B-SP2",
+      "runner": "app",
+      "proves": "A2b reopened for the start path: mulaiAsesmen against the running build, «Mulai» posted as a browser without script posts it with its id from the build's manifest, as the Siklus learner on a never-started copy of the class's Pemetaan Awal: inside a planned school window under way the learner is sent back to the start screen (R-A); at a platform-wide T−15 to /pemeliharaan?mulai=ditolak (4.0's designed path); at a school-wide T−15 back to the start screen; never an error page, and no sitting is made. Red on 3c58620e (the generic P0001 was rethrown: an error page)."
     }
   ]
 }
