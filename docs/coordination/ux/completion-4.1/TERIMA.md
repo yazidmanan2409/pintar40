@@ -30,3 +30,4 @@
 | 16 Nov, 11:05 | Second Eye | «pemberitahuan» in the extend result line breaks DAISY-25; two-step «Perpanjang» | `claude/a2b` at `84681d51` | Ruled in `A2B-PERPANJANG-KATA.md`: «Yang terdampak akan melihat waktu selesai yang baru.»; two steps accepted (A2B-D5, mine) |
 | 16 Nov, 11:47 | Second Eye | D8 batch 2 captures | `claude/a2b` at `7a079eb2` | `TINJAUAN-A2B-D8-B2-7a079eb2.md`: **BLOCKED** (BL-1 refusal drops the class; BL-2 the row omits the class); C-4 to C-6 |
 | 16 Nov, 12:44 | Second Eye | Batch 2 recaptured | `claude/a2b` at `31443ff0` | `TINJAUAN-A2B-D8-B2-31443ff0.md`: **PASS**. D8 cleared for freeze; «Lainnya» row reason is N-5 for Z |
+| 16 Nov, 13:40 | Bob | X-1: the teacher's Indonesian and the two prompts | `AI-EKSTERNAL-PANDUAN-DRAF.md` at `ba98d0df` | `X1-PANDUAN-AI-EKSTERNAL.md`: **done**, pending Sharon (data), Second Eye (paste test) |
