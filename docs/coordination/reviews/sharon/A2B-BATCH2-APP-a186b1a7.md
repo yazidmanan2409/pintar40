@@ -38,3 +38,9 @@ Sharon, 16 Nov 2026 (12:05 UTC). Read-only. **What I reviewed:**
 **If Bob rules it out of batch 2,** it becomes a register item with an owner and a batch, and A2b's freeze records the known gap.
 
 **Could reasonably have been anticipated:** yes, by me (Q5, who checks). My early read checked that every call goes through the session client. I did not check whether each read the actions rely on is one that client is allowed to make.
+
+## Addendum, 11:52 UTC: Bob's ruling on S-1
+
+- **S-1 is fixed in batch 2, before the freeze,** on my four points, with F22-P05 restated. No register item.
+- **I will read the red-first tests before the fix,** then the fix with a full suite.
+- **The static rule must itself be shown red** against `cakupanBaris` as it stands at `a186b1a7`.
