@@ -857,11 +857,11 @@ values ('${id}', '${kind}', false, array['${d.X}'::uuid], ${nodes}, ${awal}, ${a
   return barisKunci(db, `begin;
 ${duniaSql(d)}
 alter table public.maintenance_windows drop column if exists reason_code cascade;
-${baris(ID("r1"), "PLANNED", "'{}'::uuid[]", "now() + interval '1 day'", "now() + interval '2 days'", "null", "null", "null")}
-${baris(ID("r2"), "PLANNED", `array['${d.kA}'::uuid]`, "now() - interval '10 minutes'", "now() + interval '1 hour'", "null", "null", "null")}
-${baris(ID("r3"), "PLANNED", "'{}'::uuid[]", "now() - interval '2 days'", "now() - interval '1 day'", "now() - interval '1 day'", "null", "null")}
-${baris(ID("r4"), "EMERGENCY", `array['${d.kA}'::uuid]`, "now() - interval '50 minutes'", "null", "now() - interval '5 minutes'", "now() - interval '50 minutes'", "now() - interval '5 minutes'")}
-${baris(ID("r5"), "EMERGENCY", "'{}'::uuid[]", "now() - interval '5 minutes'", "null", "null", "now() - interval '5 minutes'", "null")}
+${baris(ID("f1"), "PLANNED", "'{}'::uuid[]", "now() + interval '1 day'", "now() + interval '2 days'", "null", "null", "null")}
+${baris(ID("f2"), "PLANNED", `array['${d.kA}'::uuid]`, "now() - interval '10 minutes'", "now() + interval '1 hour'", "null", "null", "null")}
+${baris(ID("f3"), "PLANNED", "'{}'::uuid[]", "now() - interval '2 days'", "now() - interval '1 day'", "now() - interval '1 day'", "null", "null")}
+${baris(ID("f4"), "EMERGENCY", `array['${d.kA}'::uuid]`, "now() - interval '50 minutes'", "null", "now() - interval '5 minutes'", "now() - interval '50 minutes'", "now() - interval '5 minutes'")}
+${baris(ID("f5"), "EMERGENCY", "'{}'::uuid[]", "now() - interval '5 minutes'", "null", "null", "now() - interval '5 minutes'", "null")}
 create temp table sebelum as select w.id, to_jsonb(w) as j from public.maintenance_windows w;
 select 'sebelum|' || count(*) from sebelum;
 ${bagian}
