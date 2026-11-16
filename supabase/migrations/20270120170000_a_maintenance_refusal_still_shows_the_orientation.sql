@@ -27,8 +27,9 @@ create function public.maintenance_mulai_tolak(p_person uuid, p_node uuid, p_ten
 language plpgsql stable security definer set search_path = public, pg_temp as $$
 declare v_kini timestamptz := clock_timestamp(); w public.maintenance_windows;
 begin
-  -- an active work-scoped window over the place
-  if p_node is not null then
+  -- an active work-scoped window over the place: the one place question first (maintenance_affects_place, the guard
+  -- every refused writer asks), then which window it is
+  if p_node is not null and public.maintenance_affects_place(p_node, v_kini) then
     select x.* into w from public.maintenance_windows x join public.org_nodes n on n.id = p_node
      where (x.ended_at is null or x.ended_at > v_kini) and x.kind = 'PLANNED' and not x.platform
        and x.starts_at <= v_kini and (x.ends_at is null or x.ends_at > v_kini)

@@ -2802,8 +2802,12 @@ export const experienceTests: SelfTest[] = [
       c.expect(/if \(!orientasi\)/.test(surface), "the surface does not branch on a missing orientation");
       const nullBranch = /if \(!orientasi\) \{\s*return <HalamanPenolakan/.test(surface);
       c.expect(nullBranch, "a missing orientation does not render the one refusal page");
-      c.expect(!/disabled/.test(surface),
-        "the assessment surface renders a disabled control, which is how a refused orientation comes back as a greyed-out page");
+      // RESTATED, A2b commit 7 (the Chief Architect's R-A; Daisy, A2-KATA-DESAIN.md B2): one disabled control is ruled,
+      // «Mulai» under a MAINTENANCE refusal, where the learner is still eligible and the pause is temporary, tied to its
+      // sentence. A refused orientation still never comes back greyed out: any other disabled control fails.
+      c.expect((surface.match(/disabled/g) ?? []).length === 1 && /<button type="button" className="pin-btn pin-primary" disabled aria-describedby="mulai-tolak">/.test(surface)
+        && /const dimatikan = tolak !== null && arahTolakMulai\(tolak, orientasi\.tolak_cakupan\) === "LAYAR";/.test(surface),
+        "the assessment surface renders a disabled control other than R-A's maintenance «Mulai», which is how a refused orientation comes back as a greyed-out page");
       // No second eligibility opinion in this process: may_start_assessment is
       // the database's answer and the RPCs ask it themselves.
       c.expect(!/\bmayStart\b/.test(surface),

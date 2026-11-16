@@ -124,8 +124,8 @@ export default async function PermukaanAsesmen({
       : (() => {
           const menit = orientasi.closes_at ? String(menitTersisa(orientasi.closes_at)) : "—";
           const kelas = orientasi.tolak_kelas && orientasi.tolak_kelas.length > 0 ? orientasi.tolak_kelas.join(", ") : null;
-          const kunci: HleEvent = kelas ? (orientasi.tolak_selesai ? "siklus.d4.kelas_akhir" : "siklus.d4.kelas_tanpa_akhir")
-            : orientasi.tolak_selesai ? "siklus.d4.akhir" : "siklus.d4.tanpa_akhir";
+          const kunci: HleEvent = kelas ? (orientasi.tolak_selesai ? "pemeliharaan.d4.kelas_akhir" : "pemeliharaan.d4.kelas_tanpa_akhir")
+            : orientasi.tolak_selesai ? "pemeliharaan.d4.akhir" : "pemeliharaan.d4.tanpa_akhir";
           return s(kunci).replace("{d}", menit).replace("{kelas}", kelas ?? "")
             .replace("{jam}", orientasi.tolak_mulai ? jamJendela(orientasi.tolak_mulai, zonaTolak) : "—")
             .replace("{jam_selesai}", orientasi.tolak_selesai ? jamJendela(orientasi.tolak_selesai, zonaTolak) : "—");
