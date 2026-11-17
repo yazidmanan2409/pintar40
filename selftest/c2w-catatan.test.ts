@@ -100,7 +100,7 @@ function skenario(repoRoot: string): Promise<Record<string, string> | null> {
       simpanKoreksi("k1", G("x"), "B"),
       langkah("b4_tegas", "kadep2", `select (x ->> 'ok') from public.tegaskan_koreksi_kunci(${G("k1")}) x`),
       `perform set_config('c1.x2', public.soal_ujung(${G("x")})::text, true);`,
-      langkah("b4_sesudah", "kadep", tulisSimpan("n3", G("x2"), "C", "Catatan setelah koreksi kunci.")),
+      langkah("b4_sesudah", "kadep", tulisSimpan("n3", G("x2"), "A", "Catatan setelah koreksi kunci: pilihan A kini keliru.")),
       langkah("b4_studio", "kadep", `select string_agg(concat_ws(',', e ->> 'opsi', e ->> 'versi', e ->> 'sebelum_koreksi', e ->> 'kunci_saat_itu',
              e ->> 'kunci_kini', e ->> 'digantikan', (e ->> 'id' = ${S("n2")})::text, (e ->> 'id' = ${S("n3")})::text), ';' order by e ->> 'pada', e ->> 'id')
            from jsonb_array_elements(public.catatan_peninjau_studio(${G("x2")})) e`),
@@ -145,7 +145,7 @@ function skenario(repoRoot: string): Promise<Record<string, string> | null> {
            select i.id, 'B', i.institution_id, 'langsung', ${G("p_kadep")} from public.items i where i.id = ${item("d1", "Pertanyaan awal nomor 1")} returning 'INSERTED'`),
       // the control: a direct insert for the item's own owner, on a sealed item, stands (the trigger does not refuse all)
       langkah("d2_benar", null, `insert into public.catatan_peninjau (item_id, opsi_label, institution_id, isi, ditulis_oleh)
-           select i.id, 'C', i.institution_id, 'langsung, pemilik yang benar', ${G("p_kadep")} from public.items i where i.id = ${G("x2")} returning 'INSERTED'`),
+           select i.id, 'B', i.institution_id, 'langsung, pemilik yang benar', ${G("p_kadep")} from public.items i where i.id = ${G("x2")} returning 'INSERTED'`),
       // ---- B2's projection proof: no learner surface of the sitting carries the note's text
       langkah("b2_proyeksi", "m1", `select (position('${ISI.slice(0, 40)}' in coalesce((select string_agg(x::text, '|') from public.session_review(${G("s1")}) x), '')) = 0)::text`),
     ];
@@ -198,18 +198,19 @@ export const c2wCatatanTests: SelfTest[] = [
   uji("C2W-B4", (c, m) => {
     c.expect(m.b4_tegas === "ok:true", `the key correction must be confirmed (the case cannot be set up): ${m.b4_tegas}`);
     c.expect(m.b4_sesudah === "ok:true", `a note on the corrected revision must be written: ${m.b4_sesudah}`);
-    // the two notes on B (n1 replaced by n2) and the note after the correction (n3, option C), read against version 2
-    const harap = "B,1,true,A,B,true,false,false;B,1,true,A,B,false,true,false;C,2,false,B,B,false,false,true";
+    // the two notes on B of version 1 (n1 replaced by n2) and the note after the correction (n3, option A of version 2), read against version 2
+    const harap = "B,1,true,A,B,true,false,false;B,1,true,A,B,false,true,false;A,2,false,B,B,false,false,true";
     c.expect(m.b4_studio === `ok:${harap}`, `Studio, against the corrected revision: ${m.b4_studio}; expected ${harap} (option, version, before the correction, key then, key now, replaced, is n2, is n3)`);
-    c.expect(m.b4_studio_v1 === "ok:B,1,false;B,1,false;C,2,false", `Studio, against version 1 (its own key): no note predates a correction of the revision read: ${m.b4_studio_v1}`);
+    c.expect(m.b4_studio_v1 === "ok:B,1,false;B,1,false;A,2,false", `Studio, against version 1 (its own key): no note predates a correction of the revision read: ${m.b4_studio_v1}`);
     c.expect(m.b4_guru_studio === "ok:3", `a teacher with CAN_DRAFT reads the question's notes in Studio, as riwayat_soal's readers do: ${m.b4_guru_studio}`);
     c.expect(ditolak(m.b4_lain_studio) && m.b4_lain_studio === m.b4_tak_dikenal_studio, `another school's administrator and an unknown item must be refused alike in Studio: ${m.b4_lain_studio} / ${m.b4_tak_dikenal_studio}`);
     return "I-5 in Studio: a note on option B of version 1 (key A), replaced once, read against version 2 after the key was corrected to B: both say they predate the correction, with the key then (A), the key now (B) and version 1, the replaced one marked; a note written on version 2 carries no such line; read against version 1, nothing predates; another school and an unknown item refused alike; rolled back";
   }),
   uji("C2W-B5", (c, m) => {
-    c.expect(m.b5_guru === "ok:B,true,A,B,true", `the class's teacher, beside the class report: the current note only, with the key then and the key in force: ${m.b5_guru}`);
+    // the current note on each revision of the line (§3.3: a note is shown for every revision): n2 on version 1, n3 on version 2
+    c.expect(m.b5_guru === "ok:B,true,A,B,true;A,false,B,B,false", `the class's teacher, beside the class report: the current notes only, on every revision, with the key then and the key in force: ${m.b5_guru}`);
     c.expect(ditolak(m.b5_guru_lain_kelas) && m.b5_guru_lain_kelas === m.b5_tak_dikenal, `the teacher on a class the assignment was not set for, and an unknown assignment, must be refused alike: ${m.b5_guru_lain_kelas} / ${m.b5_tak_dikenal}`);
-    return "I-5 beside the class report: the class's teacher reads the current note on B through the per-question evidence's own gate, saying it predates the correction with the key then (A) and the key in force (B); a class the assignment was not set for and an unknown assignment are refused alike; rolled back";
+    return "I-5 beside the class report: the class's teacher reads, through the per-question evidence's own gate, the current note on each revision of the line: on B of version 1, saying it predates the correction with the key then (A) and the key in force (B); on A of version 2, with no such line; a class the assignment was not set for and an unknown assignment are refused alike; rolled back";
   }),
   uji("C2W-B6", (c, m) => {
     c.expect(tolak(m.b6_sekolah, "NOTE_LIBRARY_CONTENT") && tolak(m.b6_admin_sekolah, "NOTE_LIBRARY_CONTENT"), `a school's reviewer and a school's administrator writing on a library question: ${m.b6_sekolah} / ${m.b6_admin_sekolah}`);
