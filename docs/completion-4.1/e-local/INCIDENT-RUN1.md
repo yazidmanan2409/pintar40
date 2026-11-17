@@ -157,3 +157,29 @@ It does **not** give the token counts or `finish`. Those are in `runs/ledger.jso
   frozen before the run. §4 is unaffected.
 - **Timing:** streaming adds the facts, the adapter work and Sharon's re-review. Thursday's judging is now **at risk**.
   Friday 20 Nov is the realistic date if the facts arrive tonight.
+
+## Sharon, 17 Nov: v2 PASS (`efa02dd8`), then its timeout item withdrawn (`6eb93a51`)
+
+**Package v2 must not be run until streaming passes.** The rest of v2 stands: the bound, the overrun-keeps fix, the
+real-sized checks, the source-commit pin, the void-ledger check and the caps.
+
+**The research brief is extended,** and the additions were sent to the research session:
+- where final usage sits in each stream, and whether a stream that ends early carries any;
+- mid-stream error events, and which of them are retryable;
+- billing on a cut stream, grade A or "unknown";
+- batches for both providers: price, turnaround against Thursday, and output limits. These are recorded for the owner,
+  not chosen by us;
+- the effort controls, and whether a given level means the same intent on both (T-2).
+
+**Conditions on the streaming fix:**
+- **S-1:** only a completed stream is a response, meaning a final event with a stop reason and usage. Partial text is
+  never assembled, validated or judged, and its reservation is kept. **A cut stream keeps its full reservation** while
+  billing on a cut stream is unknown.
+- **S-2:** the attempt file holds the assembled final output text, as before. Thinking content never goes into it, or
+  into any untuk-* file, and the rehearsal asserts this.
+- **S-3:** a robust SSE parser: it handles multi-line data and pings, has a byte cap, refuses unknown final events, and
+  has self-tests on real-shaped sequences.
+- **S-4:** a streaming mock covering a slow success, a mid-stream error, a cut stream with no usage, and an overrun that
+  keeps the response.
+- **S-5:** only the adapters and the transport change. Key handling and the procedure are unchanged. The package is
+  rebuilt with a new SOURCE-COMMIT, and the rehearsal is re-run.
