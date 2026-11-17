@@ -417,7 +417,10 @@ begin
   -- revision 1's in the same learning assignment (school and year)
   set local session_replication_role = replica;
   update public.assessment_definitions set attempt_limit = 1 where id = v_d1;
-  insert into public.assessment_definitions select (jsonb_populate_record(d, jsonb_build_object('id', v_d2, 'version', d.version + 1))).*
+  -- revision 2's paper is one question with no mix: the fixture's bank is small and a learner is not shown again what
+  -- they were shown in this learning assignment (the exclusion is the product's, not this case's)
+  insert into public.assessment_definitions select (jsonb_populate_record(d, jsonb_build_object('id', v_d2, 'version', d.version + 1,
+      'item_count', 1, 'difficulty_mix', '{}'::jsonb, 'safety_critical_minimum', 0))).*
     from public.assessment_definitions d where d.id = v_d1;
   insert into public.assessment_assignments select (jsonb_populate_record(a, jsonb_build_object('id', v_aa2, 'assessment_definition_id', v_d2))).*
     from public.assessment_assignments a where a.id = f.aa_pre;
