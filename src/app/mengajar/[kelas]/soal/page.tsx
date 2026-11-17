@@ -12,6 +12,10 @@ import { adaBuktiSoal } from "@/lib/mengajar";
 import { BarisLingkup } from "@/components/bukti";
 import { TeksBaris } from "@/components/teks/Teks";
 import { judulHalaman } from "@/lib/judul-halaman";
+import CatatanPeninjau from "@/components/studio/CatatanPeninjau";
+import { bacaCatatan, tanggalUtuh } from "@/lib/catatan-kontrak";
+import { tanggal } from "@/lib/tanggal";
+import { zonaSekolah } from "@/lib/zona-sekolah";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/soal");
 
@@ -58,11 +62,20 @@ export default async function SoalKelas({
   }
   const semua = await ajar.berjalan([id], ["OPEN", "CLOSED"]);
   const ini = semua.find((b) => b.id === tugasId);
-  const bukti = ini ? await buktiSoal(await supabaseServer(), tugasId, id) : null;
+  const db = await supabaseServer();
+  const bukti = ini ? await buktiSoal(db, tugasId, id) : null;
   if (!ini || !bukti) {
     return <HalamanPenolakan locale={locale} persona="educator" backHref={`/mengajar/${id}`} backLabel={ctx.ini.nama} />;
   }
   const soal = susunBuktiSoal(bukti);
+  // C2w «Catatan peninjau» beside the evidence: the current notes, under teacher_question_evidence's own gate
+  // (catatan_peninjau_kelas); a read refused or failed shows none, as with no note
+  const [{ data: cd, error: ce }, zona] = await Promise.all([
+    db.rpc("catatan_peninjau_kelas", { p_assignment: tugasId, p_class: id }),
+    zonaSekolah(db, ctx.ini.institusi),
+  ]);
+  const catatan = ce ? [] : bacaCatatan(cd);
+  const hari = (iso: string | null | undefined) => (iso ? tanggalUtuh(tanggal(iso, "baca", locale, zona)) : "—");
 
   return (
     <>
@@ -107,6 +120,9 @@ export default async function SoalKelas({
                 ) : null}
                 {/* F1-R1b (Sharon §3a.1; Daisy §6a, refined §1c): an answer in this view landed on a wrong option not linked to a misunderstanding */}
                 {q.ada_tak_terkait ? <p className="pin-meta" data-tak-terkait="">{s("soal.tak_terkait")}</p> : null}
+                {/* C2w (Daisy §5): under the question's evidence, after the distribution it explains */}
+                <CatatanPeninjau s={s} mode="guru" item={q.item_id} label={q.options.map((o) => o.label)}
+                  catatan={catatan.filter((c) => c.soal === q.item_id)} day={hari} />
                 {perluBantuan.length === 0 ? (
                   <p className="pin-meta">{s("mengajar.soal.semua_tepat")}</p>
                 ) : (
