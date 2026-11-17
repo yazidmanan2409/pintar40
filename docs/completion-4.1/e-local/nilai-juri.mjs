@@ -4,24 +4,32 @@
 //        → lembar-nilai-J1.csv, lembar-nilai-J2.csv: one row per item ID, with the five criteria and alasan blank.
 //   node nilai-juri.mjs slot <SEALED/map.json> <slots.json>
 //        → the map's "slots" only (code → item IDs and status). It carries no provider name. The owner runs it on his Mac.
-//   node nilai-juri.mjs j3 <J1.csv> <J2.csv> <flags.json> <out-dir>
+//   node nilai-juri.mjs j3 <J1.csv> <J2.csv> <flags.json> <out-dir> --flags-sha256 <h> --j1-sha256 <h> --j2-sha256 <h>
 //        → lembar-nilai-J3.csv: only the items J3 must decide, with what is asked, both judges' reasons, and the
 //          key-checker's flag reason as a reviewer's note (Sharon A5).
-//   node nilai-juri.mjs json <J1.csv> <J2.csv> <J3.csv> <slots.json> <out-dir>
+//   node nilai-juri.mjs json <J1.csv> <J2.csv> <J3.csv> <slots.json> <out-dir> --j1-sha256 <h> --j2-sha256 <h> --j3-sha256 <h>
 //        → sheets-<code>.json in score.mjs's format "c3-judge-sheets/1", one file per provider code.
 //   node nilai-juri.mjs --self-test
 //
+// Sharon J3-H: j3 and json refuse unless every input matches the SHA-256 committed for it (the flags before any score;
+// J1's and J2's sheets before J3 is routed; J3's before scoring), so the audit order holds by construction.
 // It reads CSV with "," or ";" as the separator (Excel in an Indonesian locale writes ";"), quoted fields included.
 // Nothing in the frozen set (kit.mjs, score.mjs, report.mjs) is changed: this only prepares score.mjs's input.
 
 import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 
 const COLS = ['item_id', 'juri', 'benar', 'keselarasan', 'pengecoh', 'bahasa', 'beban_tinjau', 'alasan'];
 const MAP02 = { keselarasan: 'alignment', pengecoh: 'distractors', bahasa: 'language', beban_tinjau: 'review_burden' };
 const C02 = Object.keys(MAP02);
 class Fatal extends Error {}
+const sha256 = (path) => createHash('sha256').update(readFileSync(path)).digest('hex');
+function verify(path, expected, what) {
+  if (!/^[0-9a-f]{64}$/.test(expected ?? '')) throw new Fatal(`${what}: the committed SHA-256 is required (64 lowercase hex)`);
+  const got = sha256(path); if (got !== expected) throw new Fatal(`${what}: ${path} is ${got}, not the committed ${expected}`);
+}
 
 // ── CSV ─────────────────────────────────────────────────────────────────────
 function parseCsv(text) {
@@ -95,7 +103,8 @@ function j3Needs(r1, r2, flagged) {
   }
   return need;
 }
-function j3(j1p, j2p, flagsPath, out) {
+function j3(j1p, j2p, flagsPath, out, h = {}) {
+  verify(flagsPath, h.flags, 'flags'); verify(j1p, h.j1, 'J1 sheet'); verify(j2p, h.j2, 'J2 sheet');
   const s1 = readSheet(j1p, 'J1'), s2 = readSheet(j2p, 'J2');
   const flags = JSON.parse(readFileSync(flagsPath, 'utf8'));
   if (flags.format !== 'c3-key-flags/1') throw new Fatal('flags: not c3-key-flags/1');
@@ -121,7 +130,8 @@ function score(row, judge, only) {
   if (!only) for (const k of ['correctness', ...Object.values(MAP02)]) if (!(k in o)) throw new Fatal(`${judge} ${row.item_id}: ${k} is blank`);
   return o;
 }
-function json(j1p, j2p, j3p, slotsPath, out) {
+function json(j1p, j2p, j3p, slotsPath, out, h = {}) {
+  verify(j1p, h.j1, 'J1 sheet'); verify(j2p, h.j2, 'J2 sheet'); verify(j3p, h.j3, 'J3 sheet');
   const s1 = readSheet(j1p, 'J1'), s2 = readSheet(j2p, 'J2'), s3 = readSheet(j3p, 'J3');
   const { format, slots } = JSON.parse(readFileSync(slotsPath, 'utf8'));
   if (format !== 'c3-slots/1') throw new Fatal('slots: not c3-slots/1');
@@ -164,13 +174,21 @@ function selfTest() {
     writeFileSync(join(d, 'J1.csv'), fill('J1', (r) => r));
     writeFileSync(join(d, 'J2.csv'), fill('J2', (r) => (r.item_id === 'B1-002' ? { ...r, benar: '0', alasan: 'kunci "B" salah' } : r.item_id === 'B1-003' ? { ...r, pengecoh: '0' } : r)).replace(/,/g, ';'));
     writeFileSync(join(d, 'flags.json'), JSON.stringify({ format: 'c3-key-flags/1', flags: [{ item_id: 'B2-004', reason: 'kunci seharusnya C' }] }));
-    check(j3(join(d, 'J1.csv'), join(d, 'J2.csv'), join(d, 'flags.json'), join(d, 'j3')) === 3, 'j3: three items routed (benar differs, pengecoh 2 apart, flagged)');
+    const H = { flags: sha256(join(d, 'flags.json')), j1: sha256(join(d, 'J1.csv')), j2: sha256(join(d, 'J2.csv')) };
+    let r1 = false; try { j3(join(d, 'J1.csv'), join(d, 'J2.csv'), join(d, 'flags.json'), join(d, 'j3'), { ...H, j2: H.j1 }); } catch (e) { r1 = e instanceof Fatal; }
+    check(r1, 'J3-H: j3 refuses a J2 sheet that does not match its committed hash');
+    let r2 = false; try { j3(join(d, 'J1.csv'), join(d, 'J2.csv'), join(d, 'flags.json'), join(d, 'j3'), { j1: H.j1, j2: H.j2 }); } catch (e) { r2 = e instanceof Fatal; }
+    check(r2, 'J3-H: j3 refuses without the flags hash');
+    check(j3(join(d, 'J1.csv'), join(d, 'J2.csv'), join(d, 'flags.json'), join(d, 'j3'), H) === 3, 'j3: three items routed (benar differs, pengecoh 2 apart, flagged)');
     const j3rows = parseCsv(readFileSync(join(d, 'j3', 'lembar-nilai-J3.csv'), 'utf8'));
     check(j3rows.find((r) => r.item_id === 'B1-003').perlu_dinilai === 'pengecoh' && j3rows.find((r) => r.item_id === 'B2-004').catatan_pemeriksa_kunci === 'kunci seharusnya C', 'j3: asks only what is needed; the flag reason reaches J3 as a note');
     check(j3rows.find((r) => r.item_id === 'B1-002').alasan_j2 === 'kunci "B" salah', 'j3: quoted reasons survive the ";" sheet');
     const j3f = toCsv(COLS, [{ item_id: 'B1-002', juri: 'J3', benar: '0', alasan: 'kunci salah' }, { item_id: 'B1-003', juri: 'J3', pengecoh: '1', alasan: 'sedang' }, { item_id: 'B2-004', juri: 'J3', benar: '1', alasan: 'kunci benar' }]);
     writeFileSync(join(d, 'J3.csv'), j3f);
-    const w = json(join(d, 'J1.csv'), join(d, 'J2.csv'), join(d, 'J3.csv'), join(d, 'slots.json'), join(d, 'out'));
+    const HJ = { j1: H.j1, j2: H.j2, j3: sha256(join(d, 'J3.csv')) };
+    let r3 = false; try { json(join(d, 'J1.csv'), join(d, 'J2.csv'), join(d, 'J3.csv'), join(d, 'slots.json'), join(d, 'out'), { ...HJ, j3: H.j1 }); } catch (e) { r3 = e instanceof Fatal; }
+    check(r3, 'J3-H: json refuses a J3 sheet that does not match its committed hash');
+    const w = json(join(d, 'J1.csv'), join(d, 'J2.csv'), join(d, 'J3.csv'), join(d, 'slots.json'), join(d, 'out'), HJ);
     const sh = JSON.parse(readFileSync(w[0], 'utf8'));
     check(sh.format === 'c3-judge-sheets/1' && sh.items.length === 30 && sh.scores.filter((x) => x.judge === 'J3').length === 3, 'json: 30 slots, J1+J2 on every valid item, J3 only where routed');
     check(sh.scores.every((x) => x.judge !== 'J1' || ['correctness', 'alignment', 'distractors', 'language', 'review_burden'].every((k) => k in x)), 'json: every J1 row carries all five criteria, review_burden included');
@@ -182,11 +200,13 @@ function selfTest() {
 
 function main(a) {
   if (a[0] === '--self-test') { const r = selfTest(); console.log(`\n${r.pass} passed, ${r.fail} failed`); process.exit(r.fail ? 1 : 0); }
-  const [cmd, ...p] = a;
+  const opt = {}; const p = [];
+  for (let i = 1; i < a.length; i++) { const m = a[i].match(/^--(flags|j1|j2|j3)-sha256$/); if (m) opt[m[1]] = a[++i]; else p.push(a[i]); }
+  const cmd = a[0];
   if (cmd === 'lembar' && p.length === 2) return console.log(`${lembar(...p)} rows per sheet`);
   if (cmd === 'slot' && p.length === 2) return console.log(`slots for codes ${slot(...p).join(', ')}`);
-  if (cmd === 'j3' && p.length === 4) return console.log(`${j3(...p)} items for J3`);
-  if (cmd === 'json' && p.length === 5) return console.log(json(...p).join('\n'));
+  if (cmd === 'j3' && p.length === 4) return console.log(`${j3(...p, opt)} items for J3`);
+  if (cmd === 'json' && p.length === 5) return console.log(json(...p, opt).join('\n'));
   console.error('usage: see the header of nilai-juri.mjs'); process.exit(2);
 }
 try { main(process.argv.slice(2)); } catch (e) { if (e instanceof Fatal) { console.error('REFUSED  ' + e.message); process.exit(1); } throw e; }
