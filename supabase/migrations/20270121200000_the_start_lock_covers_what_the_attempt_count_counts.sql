@@ -200,8 +200,7 @@ begin
   perform public.percobaan_tandai(v_session);   -- A1 (O41-16): a granted attempt is marked
   perform public.assemble_session(v_session);
   return v_session;
-end $function$
-;
+end $function$;
 
 -- ADR-0021 (F06-S01): a function created in a migration has EXECUTE revoked from PUBLIC in the same migration. The grants
 -- are exactly those it held on ac25e9b1: authenticated (the learner's start) and service_role; never PUBLIC or anon.

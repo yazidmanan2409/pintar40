@@ -239,8 +239,7 @@ begin
                        'items', n_item, 'item_options', n_opt, 'assessment_definitions', n_def,
                        'empirical_values_copied', 0));
   return v_new_course;
-end $function$
-;
+end $function$;
 
 CREATE OR REPLACE FUNCTION public.save_assessment_definition(p_definition uuid, p_payload jsonb)
  RETURNS TABLE(assessment_definition_id uuid, created_new_version boolean)
@@ -443,8 +442,7 @@ begin
   assessment_definition_id := v_new;
   created_new_version := v_changed;
   return next;
-end $function$
-;
+end $function$;
 
 CREATE OR REPLACE FUNCTION public.may_start_assessment(p_assessment_assignment uuid)
  RETURNS TABLE(ok boolean, reason text)
@@ -526,8 +524,7 @@ begin
                         v_aa.node_id))).kode;
   if reason is not null then ok := false; return next; return; end if;
   ok := true; reason := 'OK'; return next;
-end $function$
-;
+end $function$;
 
 CREATE OR REPLACE FUNCTION public.start_learning_session(p_assessment_assignment uuid)
  RETURNS uuid
@@ -704,8 +701,7 @@ begin
   perform public.percobaan_tandai(v_session);   -- A1 (O41-16): a granted attempt is marked
   perform public.assemble_session(v_session);
   return v_session;
-end $function$
-;
+end $function$;
 
 -- ADR-0021: each function this migration (re)defines has EXECUTE revoked from PUBLIC here, and keeps exactly its grants
 revoke all on function public.salin_kursus_revisi(uuid, uuid, uuid, boolean) from public, anon, authenticated;
