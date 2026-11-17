@@ -383,3 +383,46 @@ The owner ran `zsh jalankan-e.sh --latihan` on the package `b29996e6…030c`. Ex
 - **So the Mac's own tools ran every step:** the checksums, the hidden prompt, the key check, the scan and the zip. That closes the Mac-execution concern.
 
 **Every requirement of Ruling 50 (6) and Ruling 51 for the run is now met.** What remains is the owner's authorisation of the paid run.
+
+## E run 2, Anthropic (live, 17 Nov, 23:46–23:49 UTC): completed, verified by Bob
+
+The owner ran package v3 (`b29996e6…030c`) live, then revoked the key. Bob checked `untuk-bob.zip`:
+- **It holds only `ledger.json`, `summary.json` and `ringkasan.txt`.** There is no key-like text and no thinking text in it.
+- **The run:**
+  - mode `live`, exit 0, no abort;
+  - pack `ecb0d3c4`;
+  - Anthropic only, max_output 48,000;
+  - caps 4.87 / 9.87;
+  - never more than one call in flight; no open reservation left.
+- **The void run 1 ledger is unchanged:** `58f03b89…`, the same as at the practice run.
+
+| | bab1, attempt 1 | bab2, attempt 1 |
+|---|---|---|
+| Status | ok, 15 of 15 items schema-valid | ok, 15 of 15 items schema-valid |
+| Model (as reported) | `claude-sonnet-5-5` | `claude-sonnet-5-5` |
+| Request id | `req_011Ch9PeLYw4LJjgUQn5GrUo` | `req_011Ch9PoBLnrwRi6dP8NjrJN` |
+| Stop reason | `end_turn` (stream complete) | `end_turn` (stream complete) |
+| Input tokens (bound) | 4,993 (21,865) | 4,256 (20,404) |
+| Output tokens, of which thinking | 18,355, of which 11,929 | 15,022, of which 8,202 |
+| Cost (reserved) | US$0.193536 (0.523730) | US$0.158732 (0.520808) |
+| Duration | 120 s | 97 s |
+| Stream | 922 events, 156,732 bytes, 3 pings, 0 unknown | 982 events, 156,085 bytes, 3 pings, 0 unknown |
+
+- **The costs check out** at US$2 / US$10 per million tokens:
+  - bab1: 4,993 × 2 + 18,355 × 10 = 193,536 micro-dollars, or US$0.193536;
+  - bab2: 4,256 × 2 + 15,022 × 10 = 158,732 micro-dollars, or US$0.158732;
+  - run 2 in all: **US$0.352268**, as the owner reported.
+- **Spending to date:**
+  - with void run 1's US$0.129986, Anthropic has cost **US$0.482254**;
+  - US$4.517746 of the US$5 limit is left;
+  - OpenAI: US$0;
+  - total: US$0.482254 of US$10.
+- **The two fixes held:**
+  - each call cost under 40% of its reservation;
+  - the output limit was ample: 38% of 48,000 at most, with thinking at most 11,929 tokens (run 1 was cut off at 12,000);
+  - streaming carried calls of up to 2 minutes with no fault.
+- **Recorded for the results:** the model version as reported, the execution date (17 Nov 2026), and both request ids. The usage also reports `inference_geo: global` and `service_tier: standard`.
+- **Ruling 51:** the 30 drafts stay sealed in the PRIVAT folder on the owner's Mac. Nobody has read a question. What Bob saw is metadata only: token counts, costs, schema validity and stop reasons. Schema validity is not a quality result.
+- **Under Ruling 50 (6)(c):** nothing from this run changes OpenAI's prompts, settings, judging instructions or thresholds, all of which are frozen.
+
+**E is now waiting on OpenAI.** Under Ruling 50 (7), OpenAI's integration needs its own technical verification before its paid run. Nothing is authorised.
