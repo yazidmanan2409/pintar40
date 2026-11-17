@@ -61,6 +61,7 @@
 |---|---|---|---|---|---|
 | C2W-D1 | No words for two reviewers writing the **first** note at once (NOTE_EXISTS) | **mine** | **Yes** | **2** | I wrote the "replaced first" neighbour, but not the "first note" one |
 | C2W-D2 | §1 assumed one current note per option, but notes belong to a version | **mine** | **Yes** | **1** | What else holds this state: the revision chain |
+| C2W-D3 | «Ganti catatan» renders under the older note, not the one it replaces | build, and my §8.3 left the place unsaid | **Yes** | **5** | Where it renders in a two-version block |
 
 ## My own verification error, recorded with the defects
 
