@@ -147,7 +147,9 @@ function skenario(repoRoot: string): Promise<Record<string, string> | null> {
       langkah("d2_benar", null, `insert into public.catatan_peninjau (item_id, opsi_label, institution_id, isi, ditulis_oleh)
            select i.id, 'B', i.institution_id, 'langsung, pemilik yang benar', ${G("p_kadep")} from public.items i where i.id = ${G("x2")} returning 'INSERTED'`),
       // ---- B2's projection proof: no learner surface of the sitting carries the note's text
-      langkah("b2_proyeksi", "m1", `select (position('${ISI.slice(0, 40)}' in coalesce((select string_agg(x::text, '|') from public.session_review(${G("s1")}) x), '')) = 0)::text`),
+      // (a pre-test's review is refused outright, so the learner's own outcome and their assignment list are read)
+      langkah("b2_proyeksi", "m1", `select (position('${ISI.slice(0, 40)}' in public.session_outcome(${G("s1")})::text
+           || coalesce((select string_agg(to_jsonb(x)::text, '|') from public.my_learning_assignments() x), '')) = 0)::text`),
     ];
     const m = jalankan(c, repoRoot, L);
     if (!m) galat = c.verdict("").detail;
@@ -192,8 +194,8 @@ export const c2wCatatanTests: SelfTest[] = [
     c.expect(ditolak(m.b2_ubah) && ditolak(m.b2_hapus), `an UPDATE and a DELETE of a note, even as the owner, must be refused: ${m.b2_ubah} / ${m.b2_hapus}`);
     c.expect(tolak(m.b2_sumber, "NOT_A_SOURCE"), `declaring catatan_peninjau a metric source must be refused: ${m.b2_sumber}`);
     c.expect(ditolak(m.b2_murid_studio) && ditolak(m.b2_murid_kelas), `a learner reading notes by either read must be refused: ${m.b2_murid_studio} / ${m.b2_murid_kelas}`);
-    c.expect(m.b2_proyeksi === "ok:true", `the learner's own review of the sitting must not carry the note's text: ${m.b2_proyeksi}`);
-    return "a teacher with CAN_DRAFT only, a learner, another school's administrator and an unknown item are refused alike (PR210 NOTE_NOT_ALLOWED); a missing option, an empty and an over-long text and an unsealed draft are refused by name; the head of department writes and the administrator replaces; no UPDATE or DELETE stands, even as the owner; the metric-source declaration is refused; a learner reads no note and their review carries none; rolled back";
+    c.expect(m.b2_proyeksi === "ok:true", `the learner's own outcome of the sitting and their assignment list must not carry the note's text: ${m.b2_proyeksi}`);
+    return "a teacher with CAN_DRAFT only, a learner, another school's administrator and an unknown item are refused alike (PR210 NOTE_NOT_ALLOWED); a missing option, an empty and an over-long text and an unsealed draft are refused by name; the head of department writes and the administrator replaces; no UPDATE or DELETE stands, even as the owner; the metric-source declaration is refused; a learner reads no note, and neither their outcome nor their assignment list carries one; rolled back";
   }),
   uji("C2W-B4", (c, m) => {
     c.expect(m.b4_tegas === "ok:true", `the key correction must be confirmed (the case cannot be set up): ${m.b4_tegas}`);
@@ -230,12 +232,11 @@ export const c2wCatatanTests: SelfTest[] = [
     requires: ["db"],
     run: async () => {
       const c = new Checks();
-      const sql = `select coalesce((select prosrc from pg_proc where proname = 'catatan_peninjau_garis'), '') || '#SEP#'
-        || coalesce((select string_agg(prosrc, '#SEP#') from pg_proc where proname in ('catatan_peninjau_studio', 'catatan_peninjau_kelas')), '') || '#SEP#'
-        || (select count(*)::text from pg_index x join pg_attribute a on a.attrelid = x.indrelid and a.attnum = x.indkey[0]
-             where x.indrelid = 'public.items'::regclass and a.attname = 'supersedes_item_id')`;
-      const r = spawnSync("psql", ["-qAt", "-c", sql, db()], { encoding: "utf8" });
-      const [garis, baca, indeks] = r.stdout.trim().split("#SEP#");
+      const satu = (q: string) => spawnSync("psql", ["-qAt", "-c", q, db()], { encoding: "utf8" }).stdout.trim();
+      const garis = satu("select coalesce((select prosrc from pg_proc where proname = 'catatan_peninjau_garis'), '')");
+      const baca = satu("select coalesce((select string_agg(prosrc, ' ') from pg_proc where proname in ('catatan_peninjau_studio', 'catatan_peninjau_kelas')), '')");
+      const indeks = satu(`select count(*) from pg_index x join pg_attribute a on a.attrelid = x.indrelid and a.attnum = x.indkey[0]
+             where x.indrelid = 'public.items'::regclass and a.attname = 'supersedes_item_id'`);
       c.expect(!!garis, "the chain walk catatan_peninjau_garis does not exist");
       c.expect(/\bkedalaman\b[\s\S]*<\s*\d+/.test(garis ?? "") || /depth/i.test(garis ?? ""), "the chain walk has no depth cap");
       c.expect(/not\s*\([^)]*=\s*any\s*\(/i.test(garis ?? "") || /\bjalur\b[\s\S]*any/i.test(garis ?? ""), "the chain walk has no cycle guard");

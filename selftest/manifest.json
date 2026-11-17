@@ -6573,7 +6573,7 @@
     {
       "id": "C2W-B2",
       "runner": "static",
-      "proves": "PLAN-A2B-C2W.md §3.4 B2, red first: executes against the migrations, in one rolled-back transaction. A teacher with CAN_DRAFT only, a learner, another school's administrator and an unknown item are refused alike (PR210 NOTE_NOT_ALLOWED). A missing option, an empty or over-long text and an unsealed draft are refused by name. A school's CAN_REVIEW writes and replaces. No UPDATE or DELETE of catatan_peninjau stands, even as the owner. Declaring it a metric source is refused. A learner reads no note, and their own sitting review carries none."
+      "proves": "PLAN-A2B-C2W.md §3.4 B2, red first: executes against the migrations, in one rolled-back transaction. A teacher with CAN_DRAFT only, a learner, another school's administrator and an unknown item are refused alike (PR210 NOTE_NOT_ALLOWED). A missing option, an empty or over-long text and an unsealed draft are refused by name. A school's CAN_REVIEW writes and replaces. No UPDATE or DELETE of catatan_peninjau stands, even as the owner. Declaring it a metric source is refused. A learner reads no note, and neither their own sitting outcome nor their assignment list carries one."
     },
     {
       "id": "C2W-B4",
