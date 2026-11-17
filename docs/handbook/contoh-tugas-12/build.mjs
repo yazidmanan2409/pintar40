@@ -16,8 +16,9 @@ const page = await browser.newPage();
 await page.goto(pathToFileURL(join(here, "tugas-12.html")).href, { waitUntil: "networkidle" });
 await page.evaluate(() => document.fonts.ready);
 const over = await page.$$eval(".halaman", (hs) => hs.map((h, i) => {
-  const isi = h.querySelector(".isi"); const kaki = h.querySelector(".kaki");
-  const bawahIsi = Math.max(...[...isi.querySelectorAll("*")].map((e) => e.getBoundingClientRect().bottom));
+  const kaki = h.querySelector(".kaki");
+  const isi = [...h.children].filter((e) => !e.matches(".kaki, .kepala, .tab-peran"));
+  const bawahIsi = Math.max(...isi.flatMap((e) => [e, ...e.querySelectorAll("*")]).map((e) => e.getBoundingClientRect().bottom));
   return { halaman: i + 1, lebihMm: Math.round((bawahIsi - kaki.getBoundingClientRect().top) / 3.78) };
 }).filter((x) => x.lebihMm > -2));
 if (over.length) console.warn("TERLALU PENUH (mm melewati kaki halaman):", JSON.stringify(over));
