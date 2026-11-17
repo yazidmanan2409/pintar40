@@ -1,0 +1,162 @@
+# Production upgrade rehearsal, synthetic (owner, 17 Nov 2026: "Agree with your assessment and recommendations. Do it!!")
+#
+# WHAT IT PROVES, AND WHAT IT DOES NOT.
+#   Production is at migration 111 (app 5b5b68d, September). Staging and main are at 282. Nothing has yet rehearsed
+#   the whole 111 -> 282 jump from production's own starting point. This job does, on a throw-away local stack on the
+#   runner:
+#     1. it builds the database exactly as production's release commit defines it (5b5b68d: migrations 1 to 111) with
+#        that commit's own synthetic seed (September-era rows, the shapes 4.1's migrations must transform);
+#     2. it fingerprints every existing table, over the columns that exist at 111 only;
+#     3. it applies every later migration of the target commit (112 to 282), timed, one transaction per migration;
+#     4. it fingerprints again over the same columns, and lists every table whose pre-existing rows changed;
+#     5. it checks the applied versions equal the target's, and runs the db contract (fable01) on the result.
+#   NEVER PRODUCTION, NEVER STAGING: no secret is read, no remote database is reached. Synthetic data only.
+#   It does NOT prove the upgrade on production's real rows or volume. That needs the owner's separate authorisation
+#   (a read-only schema fingerprint and row counts of production), recorded in PRODUCTION-UPGRADE-REHEARSAL.md.
+#
+# A changed table is a FINDING to read, not automatically a failure: some 4.1 migrations rewrite existing values on
+# purpose (each must be named and justified in the rehearsal record). The job fails only if a migration fails to apply,
+# the applied versions differ from the target's, or the db contract fails.
+name: rehearsal · production upgrade 111 -> HEAD (synthetic, local only)
+
+on:
+  push:
+    branches: [claude/bob-41-master-plan]
+    paths:
+      - .github/workflows/rehearse-production-upgrade.yml
+      - docs/completion-4.1/rehearsal/RUN
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Commit whose migrations are rehearsed (default: main)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "22"
+  PRODUCTION_SHA: 5b5b68d4c77700976904fdee5a2fb52e46f8221e
+  PRODUCTION_MIGRATIONS: "111"
+
+jobs:
+  rehearse:
+    name: production 111 -> target, synthetic
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Resolve the target and production's release commit
+        id: refs
+        run: |
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          TARGET="${{ github.event.inputs.target }}"
+          if [ -z "$TARGET" ] && [ -f docs/completion-4.1/rehearsal/RUN ]; then TARGET="$(grep -E '^target=' docs/completion-4.1/rehearsal/RUN | cut -d= -f2 | tr -d '[:space:]')"; fi
+          [ -n "$TARGET" ] || TARGET="$(git rev-parse refs/remotes/origin/main)"
+          TARGET="$(git rev-parse "$TARGET^{commit}")"
+          git cat-file -e "$PRODUCTION_SHA^{commit}"
+          git worktree add --detach base "$PRODUCTION_SHA"
+          git worktree add --detach target "$TARGET"
+          nb=$(ls base/supabase/migrations/*.sql | wc -l); nt=$(ls target/supabase/migrations/*.sql | wc -l)
+          echo "production release $PRODUCTION_SHA: $nb migrations; target $TARGET: $nt migrations"
+          [ "$nb" = "$PRODUCTION_MIGRATIONS" ] || { echo "::error::production's release commit has $nb migrations, not $PRODUCTION_MIGRATIONS"; exit 1; }
+          echo "target=$TARGET" >> "$GITHUB_OUTPUT"
+          echo "nt=$nt" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Forward-only, from production — every one of the 111 is byte-identical in the target
+        run: |
+          status=0
+          for f in base/supabase/migrations/*.sql; do
+            n=$(basename "$f")
+            [ -f "target/supabase/migrations/$n" ] || { echo "::error::production migration $n is missing from the target"; status=1; continue; }
+            cmp -s "$f" "target/supabase/migrations/$n" || { echo "::error::production migration $n was edited in the target"; status=1; }
+          done
+          exit $status
+      - name: Build production's database (5b5b68d, 111 migrations, its own synthetic seed)
+        id: stack
+        uses: ./.github/actions/local-stack
+        with:
+          working-directory: base
+      - name: The fingerprint, written against 111's own columns
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          mkdir -p out
+          # every base table in public and auth, with its columns as they exist at 111
+          psql -At -F $'\t' -v ON_ERROR_STOP=1 "$DB_URL" -c "
+            select c.table_schema, c.table_name, string_agg(quote_ident(c.column_name), ',' order by c.ordinal_position)
+              from information_schema.columns c
+              join information_schema.tables t on t.table_schema = c.table_schema and t.table_name = c.table_name
+             where c.table_schema in ('public', 'auth') and t.table_type = 'BASE TABLE'
+             group by 1, 2 order by 1, 2" > out/columns-at-111.tsv
+          {
+            echo "select x.k, x.v from ("
+            first=1
+            while IFS=$'\t' read -r s t cols; do
+              [ $first = 1 ] || echo "union all"; first=0
+              echo "select '$s.$t' as k, (select count(*) || ' ' || md5(coalesce(string_agg(r, chr(10) order by r), '')) from (select row($cols)::text as r from $s.\"$t\") z) as v"
+            done < out/columns-at-111.tsv
+            echo ") x order by 1;"
+          } > out/fingerprint.sql
+          echo "$(wc -l < out/columns-at-111.tsv) tables fingerprinted over their 111 columns"
+      - name: BEFORE — production's database at 111
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          psql -1 -At -F ' ' -v ON_ERROR_STOP=1 -c "set transaction read only" -f out/fingerprint.sql "$DB_URL" > out/before.txt
+          psql -At -v ON_ERROR_STOP=1 -c "select count(*) || ' / ' || max(version) from supabase_migrations.schema_migrations" "$DB_URL" | tee out/before-version.txt
+      - name: UPGRADE — apply the target's migrations 112 onward, timed
+        working-directory: base
+        run: |
+          for f in ../target/supabase/migrations/*.sql; do n=$(basename "$f"); [ -f "supabase/migrations/$n" ] || cp "$f" supabase/migrations/; done
+          echo "pending: $(( $(ls supabase/migrations/*.sql | wc -l) - ${PRODUCTION_MIGRATIONS} ))"
+          start=$(date +%s)
+          set -o pipefail
+          npx --no-install supabase migration up --local 2>&1 | tee ../out/upgrade.log
+          end=$(date +%s)
+          echo "upgrade took $(( end - start )) s" | tee ../out/upgrade-seconds.txt
+      - name: AFTER — the same fingerprint over the same columns, and the comparison
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          psql -1 -At -F ' ' -v ON_ERROR_STOP=1 -c "set transaction read only" -f out/fingerprint.sql "$DB_URL" > out/after.txt
+          psql -At -v ON_ERROR_STOP=1 -c "select count(*) || ' / ' || max(version) from supabase_migrations.schema_migrations" "$DB_URL" | tee out/after-version.txt
+          join -j1 <(sort out/before.txt) <(sort out/after.txt) | awk '$2!=$4 || $3!=$5 {print $1": before "$2" "$3" -> after "$4" "$5}' > out/changed-tables.txt || true
+          echo "tables whose pre-existing rows changed: $(wc -l < out/changed-tables.txt) of $(wc -l < out/before.txt)"
+          cat out/changed-tables.txt
+          {
+            echo "## Production upgrade rehearsal (synthetic)"
+            echo "- production release: \`$PRODUCTION_SHA\` ($(cat out/before-version.txt))"
+            echo "- target: \`${{ steps.refs.outputs.target }}\` ($(cat out/after-version.txt))"
+            echo "- $(cat out/upgrade-seconds.txt)"
+            echo "- tables whose pre-existing rows changed (over 111's columns): $(wc -l < out/changed-tables.txt) of $(wc -l < out/before.txt)"
+            echo '```'; cat out/changed-tables.txt; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: The applied versions equal the target's
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          psql -At -c "select version from supabase_migrations.schema_migrations order by version" "$DB_URL" > out/applied.txt
+          ls target/supabase/migrations | sed -E 's/^([0-9]{14})_.*/\1/' | sort > out/target.txt
+          diff -u out/target.txt out/applied.txt
+      - name: The db contract holds on the upgraded database
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          psql -v ON_ERROR_STOP=1 -q -1 -f target/selftest/db/fable01.sql "$DB_URL"
+          psql -v ON_ERROR_STOP=1 -At -F ' | ' -c "select test_id, ok, detail from selftest.run_fable01()" "$DB_URL" | tee out/contract.txt
+          ! grep -E '\| f \|' out/contract.txt
+      - name: Keep the evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-upgrade-rehearsal
+          path: out/
+          retention-days: 30
