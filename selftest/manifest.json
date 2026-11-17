@@ -6619,6 +6619,11 @@
       "id": "A3-PG2",
       "runner": "static",
       "proves": "Sharon's condition for keeping attempt_requests_one_pending per assignment (17 Nov): read from the function catalogue (pg_proc's source) and the table grants, in a rolled-back transaction. minta_percobaan is the only function that inserts into attempt_requests, so its lineage-root advisory lock serialises every request. putuskan_percobaan is the only one that updates it. None deletes from it, and none names it in dynamic SQL. anon and authenticated hold no INSERT, UPDATE, DELETE or TRUNCATE on it. A plant that inserts a request from a second function is reported."
+    },
+    {
+      "id": "A3-R04X",
+      "runner": "static",
+      "proves": "Sharon's A3-P2 item 3 (4d5cd5f6), the pair that fits the last-administrator guard's removal branch: executes against the migrations on two real connections, each rolled back, on the seeded Alpha school. The harness makes Alpha's head of department a second administrator with no number there and gives Alpha a namespace, both committed and removed afterwards. akhiri_tugas_staf and revoke_role are each raced against issue_institutional_id for that person and school, in both orders: the removal holding the person first, and the issue holding the school first. No connection is aborted as a deadlock. This is recorded as the reason item 3 is a named exception."
     }
   ]
 }

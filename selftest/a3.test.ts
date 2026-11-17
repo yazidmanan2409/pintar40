@@ -212,6 +212,37 @@ const TANAM_P2 = `create function public._a3_p2_tanam(p uuid) returns void langu
 begin perform 1 from public.assessment_sessions s where s.id = p for update;
       perform 1 from public.persons pr where pr.id = p for update; end $t$;`;
 
+/** Two real connections (Sharon's rule, 4d5cd5f6: a lock-cycle change needs a red race). The first runs `tahan` (the
+ * lock its function takes first), holds it across a pause, then runs `sisa`; the second starts once the first is paused.
+ * Both end with ROLLBACK. Returns whether either was aborted as a deadlock, and both outputs. */
+async function balapanTahan(tahan: string, sisa: string, kedua: string): Promise<{ deadlock: boolean; menunggu: boolean; a: string; b: string; ok: boolean }> {
+  const jalan = (sql: string) => new Promise<{ code: number; out: string }>((done) => {
+    const p = spawn("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { stdio: ["ignore", "pipe", "pipe"] });
+    let buf = "";
+    p.stdout.setEncoding("utf8"); p.stderr.setEncoding("utf8");
+    p.stdout.on("data", (d: string) => (buf += d)); p.stderr.on("data", (d: string) => (buf += d));
+    p.on("close", (code: number | null) => done({ code: code ?? 1, out: buf.trim() }));
+  });
+  const lihat = (sql: string) => spawnSync("psql", ["-qAt", "-c", sql, db()], { encoding: "utf8" }).stdout.trim();
+  const tunggu = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
+  const t1 = `a3-bt-1-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`, t2 = t1.replace("-1-", "-2-");
+  const a = jalan(`set statement_timeout = '30s'; begin; ${tahan}; select pg_sleep(2.5) /*${t1}*/; ${sisa}; rollback;`);
+  let siap = false;
+  for (let i = 0; i < 100 && !siap; i++) {
+    siap = lihat(`select count(*) from pg_stat_activity where query like '%${t1}%' and wait_event = 'PgSleep' and pid <> pg_backend_pid()`) === "1";
+    if (!siap) await tunggu(50);
+  }
+  if (!siap) { const x = await a; return { deadlock: false, menunggu: false, a: `the first connection never paused: ${x.out}`, b: "", ok: false }; }
+  const b = jalan(`set statement_timeout = '30s'; begin; ${kedua} /*${t2}*/; rollback;`);
+  let menunggu = false;
+  for (let i = 0; i < 30 && !menunggu; i++) {
+    await tunggu(50);
+    menunggu = lihat(`select coalesce(wait_event_type, '') from pg_stat_activity where query like '%${t2}%' and pid <> pg_backend_pid()`) === "Lock";
+  }
+  const [ra, rb] = await Promise.all([a, b]);
+  return { deadlock: /deadlock detected/i.test(ra.out + rb.out), menunggu, a: ra.out, b: rb.out, ok: ra.code === 0 && rb.code === 0 };
+}
+
 export const a3DbTests: SelfTest[] = [
   {
     id: "A3-L1P",
@@ -519,6 +550,57 @@ rollback;`;
   select institution_id, person_id, assessment_assignment_id, id, person_id, 'tanaman uji' from public.assessment_sessions where id = p $t$;`);
       c.expect((t.v.ins ?? "").includes("_a3_pg2_tanam"), "the plant (a second function inserting a request) was not reported");
       return c.verdict("the function catalogue (pg_proc) and the table grants: minta_percobaan is the only function that inserts into attempt_requests and putuskan_percobaan the only one that updates it; none deletes; none names it in dynamic SQL; anon and authenticated hold no INSERT, UPDATE, DELETE or TRUNCATE on it; a plant inserting from a second function is reported; rolled back");
+    },
+  },
+  {
+    // Sharon's A3-P2 item 3 (4d5cd5f6): the pair that fits the guard's removal branch, raced in both orders. The guard
+    // (peran_terakhir_kode) takes the school FOR UPDATE only under p_kunci, a removal of an administrator. A is the
+    // Alpha head of department, made a second administrator by the harness (committed, removed below), with no number
+    // at Alpha, and Alpha is given a namespace (restored below). Every race connection rolls back. Not red on 671175e4:
+    // this records the races that make item 3 a named exception (A3-P2's list), and fails if a change makes them cycle.
+    id: "A3-R04X",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const psql = (sql: string) => spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { encoding: "utf8" });
+      spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-q", "-1", "-f", join(process.cwd(), "selftest", "db", "fable01.sql"), db()], { encoding: "utf8" });
+      const orang = (e: string) => `(select ac.person_id from public.accounts ac join auth.users u on u.id = ac.auth_user_id where u.email = '${e}')`;
+      const SYS = "sysadmin@synthetic.pintar.test";
+      const dunia = psql(`select ${orang("alpha-hod@synthetic.pintar.test")} || '|' || (select ra.institution_id from public.role_assignments ra
+          where ra.person_id = ${orang("alpha-admin@synthetic.pintar.test")} and ra.role = 'INSTITUTION_ADMIN' and ra.revoked_at is null and ra.scope_node_id = ra.institution_id limit 1)`).stdout.trim();
+      const [h, sekolah] = dunia.split("|");
+      if (!c.expect(!!h && !!sekolah, `the synthetic world has no Alpha head of department or school: ${dunia}`)) return c.verdict("");
+      const ada = psql(`select (select count(*) from public.institutional_identities where person_id = '${h}' and institution_id = '${sekolah}') || '|' || coalesce((select namespace from public.institutions where id = '${sekolah}'), '')`).stdout.trim();
+      if (!c.expect(ada === "0|", `the race needs Alpha's head of department without a number and Alpha without a namespace: ${ada}`)) return c.verdict("");
+      const ra = /ID=([0-9a-f-]{36})/.exec(psql(`begin; select selftest.as_user('${SYS}'); select 'ID=' || public.grant_role('${h}', 'INSTITUTION_ADMIN', '${sekolah}', now() + interval '30 days'); commit;`).stdout)?.[1] ?? "";
+      psql(`begin; set local session_replication_role = replica; update public.institutions set namespace = 'R4X' where id = '${sekolah}' and namespace is null; commit;`);
+      try {
+        if (!c.expect(!!ra, "the harness could not make Alpha's head of department a second administrator")) return c.verdict("");
+        const terbit = `select public.issue_institutional_id('${h}', '${sekolah}') is not null`;
+        const pelaku = [
+          { nama: "akhiri_tugas_staf", sql: `select selftest.as_user('${SYS}'); select public.akhiri_tugas_staf('${h}', '${sekolah}', 'RESIGNATION', 'uji A3-R04X: balapan dua koneksi', null) ->> 'ok'` },
+          { nama: "revoke_role", sql: `select selftest.as_user('${SYS}'); select public.revoke_role('${ra}', 'uji A3-R04X: balapan dua koneksi') is null` },
+        ];
+        const ringkas: string[] = [];
+        for (const p of pelaku) {
+          // the removal holds the person (akhiri_tugas_staf's own first lock), then the issue takes the school
+          const r1 = await balapanTahan(`select 1 from public.persons where id = '${h}' for update`, p.sql, terbit);
+          // the issue holds the school (its own first lock), then the removal takes the person and reaches the guard
+          const r2 = await balapanTahan(`select 1 from public.institutions where id = '${sekolah}' for no key update`, terbit, p.sql);
+          for (const [urutan, r] of [["person first", r1], ["school first", r2]] as const) {
+            c.expect(!r.deadlock, `${p.nama} against issue_institutional_id, ${urutan}: deadlock detected (${(r.a + " / " + r.b).split("\n").find((l) => /deadlock/i.test(l))})`);
+            c.expect(r.ok, `${p.nama} against issue_institutional_id, ${urutan}: a connection failed: ${r.a.split("\n").pop()} / ${r.b.split("\n").pop()}`);
+            ringkas.push(`${p.nama}, ${urutan}: ${r.menunggu ? "the second waited" : "no wait"}, no deadlock`);
+          }
+        }
+        return c.verdict(`two real connections on the seeded Alpha school, each rolled back: ${ringkas.join("; ")}. Recorded as the reason A3-P2's item 3 (issue_institutional_id against the last-administrator guard) is a named exception`);
+      } finally {
+        const r = psql(`begin; set local session_replication_role = replica;
+          delete from public.role_assignments where id = '${ra || "00000000-0000-0000-0000-000000000000"}';
+          update public.institutions set namespace = null where id = '${sekolah}' and namespace = 'R4X';
+          commit; select (select count(*) from public.role_assignments where id = '${ra || "00000000-0000-0000-0000-000000000000"}') + (select count(*) from public.institutions where namespace = 'R4X');`);
+        c.expect(r.status === 0 && r.stdout.trim().split("\n").pop() === "0", `the test's rows could not be removed afterwards: ${(r.stderr || r.stdout).trim().slice(0, 160)}`);
+      }
     },
   },
   {
