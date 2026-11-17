@@ -6609,6 +6609,11 @@
       "id": "A3-P2",
       "runner": "static",
       "proves": "Sharon's pin 2 as she restated it (561bcf9d), red first: read by A2A-L01's own lock reader over the migrations' catalogue (foreign keys included: an insert's or update's foreign key is read as KEY SHARE on the table it names). Every function that takes persons FOR UPDATE in its own body either takes the person as its first lock, or holds before it only locks that no person-first function requests at a conflicting strength. A plant that locks a sitting and then its person FOR UPDATE, inside the reader's rolled-back transaction, is reported."
+    },
+    {
+      "id": "A3-PG1",
+      "runner": "static",
+      "proves": "Sharon's answer to Q2 (17 Nov): an approved further attempt spans the lineage, school and year, as the count does. Red first; executes against the migrations, as a learner of its own, in one rolled-back transaction. The learner is at a limit of one through revision 1 (handed in). An approved request is on revision 1's assignment, and an OPEN assignment of revision 2 is on the same line. percobaan_izin_jumlah counts the grant on revision 2's assignment. percobaan_saya tells the learner it waits. start_learning_session gives exactly one start through revision 2, which percobaan_tandai marks with the grant. Then nothing waits, a further start is refused ATTEMPT_LIMIT_REACHED, and the learner holds two sittings."
     }
   ]
 }

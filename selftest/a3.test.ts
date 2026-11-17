@@ -364,6 +364,121 @@ end $r$; select current_setting('a3.r2i');`);
     },
   },
   {
+    // A3, ruling 46, Sharon's Q2 answer (17 Nov, after 561bcf9d): an approved further attempt spans the lineage, as the
+    // count does. Today it is a dead end: a learner at the limit through revision 1 is at the limit on revision 2 and
+    // a grant on revision 1's assignment does not lift it. Red first: used on revision 1, a grant gives exactly one
+    // start through revision 2, the sitting is marked with it, and the learner is told it waits (percobaan_saya).
+    id: "A3-PG1",
+    requires: ["db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const gagalMuat = siapkan(ctx.repoRoot);
+      if (!c.expect(gagalMuat === null, gagalMuat ?? "")) return c.verdict("");
+      const sql = `begin;
+create function pg_temp.murid(p_sql text)
+returns text language plpgsql as $f$
+declare v_out text; v_state text; v_msg text; v_val text; v_u uuid := current_setting('pg1.u')::uuid;
+begin
+  begin
+    reset role;
+    perform set_config('request.jwt.claims', json_build_object('sub', v_u, 'role', 'authenticated',
+      'session_id', current_setting('pg1.sesi'))::text, true);
+    perform set_config('request.jwt.claim.sub', v_u::text, true);
+    set local role authenticated;
+    execute p_sql into v_val;
+    v_out := 'ok:' || coalesce(v_val, '');
+  exception when others then
+    get stacked diagnostics v_state = returned_sqlstate, v_msg = message_text;
+    v_out := v_state || ':' || left(v_msg, 90);
+  end;
+  perform selftest.as_owner();
+  return v_out;
+end $f$;
+do $pg1$
+declare f record; v_k uuid; v_u uuid; v_p uuid; v_e uuid; v_d1 uuid; v_d2 uuid := 'a3a1e000-0000-4000-8000-a30100000012';
+        v_aa2 uuid := 'a3a1e000-0000-4000-8000-a30100000013';
+begin
+  perform selftest.as_owner();
+  perform set_config('pg1.sesi', gen_random_uuid()::text, true);
+  select * into f from selftest.cycle_fixture();
+  if f.aa_pre is null then raise exception 'the learning-cycle fixture is absent'; end if;
+  select la.node_id into v_k from public.learning_assignments la where la.id = f.la;
+  v_u := selftest.f06p10_person('a3-pg1-' || to_char(clock_timestamp(), 'HH24MISSUS'));
+  select a.person_id into v_p from public.accounts a where a.auth_user_id = v_u;
+  insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+  select v_p, e.institution_id, e.academic_period_id, e.programme_id, 'ACTIVE'
+    from public.memberships mm join public.enrollments e on e.id = mm.enrollment_id
+   where mm.node_id = v_k and mm.valid_to is null limit 1
+  returning id into v_e;
+  insert into public.memberships (enrollment_id, node_id, academic_period_id)
+  select v_e, v_k, e.academic_period_id from public.enrollments e where e.id = v_e;
+  select a.assessment_definition_id into v_d1 from public.assessment_assignments a where a.id = f.aa_pre;
+  -- the harness's hand: a limit of one, revision 2 of the definition on its line, and an OPEN assignment of it beside
+  -- revision 1's in the same learning assignment (school and year)
+  set local session_replication_role = replica;
+  update public.assessment_definitions set attempt_limit = 1 where id = v_d1;
+  insert into public.assessment_definitions select (jsonb_populate_record(d, jsonb_build_object('id', v_d2, 'version', d.version + 1))).*
+    from public.assessment_definitions d where d.id = v_d1;
+  insert into public.assessment_assignments select (jsonb_populate_record(a, jsonb_build_object('id', v_aa2, 'assessment_definition_id', v_d2))).*
+    from public.assessment_assignments a where a.id = f.aa_pre;
+  set local session_replication_role = origin;
+  perform set_config('pg1.u', v_u::text, true);
+  perform set_config('pg1.p', v_p::text, true);
+  perform set_config('pg1.aa1', f.aa_pre::text, true);
+  perform set_config('pg1.aa2', v_aa2::text, true);
+end $pg1$;
+select 'satu|' || pg_temp.murid($s$select public.start_learning_session(current_setting('pg1.aa1')::uuid)::text$s$);
+-- the harness's hand: revision 1's sitting handed in, and an approved request on revision 1's assignment
+do $pg1$
+declare v_s uuid; v_a uuid; v_b uuid;
+begin
+  perform selftest.as_owner();
+  select s.id into v_s from public.assessment_sessions s where s.person_id = current_setting('pg1.p')::uuid
+     and s.assessment_assignment_id = current_setting('pg1.aa1')::uuid;
+  select (array_agg(x.id))[1], (array_agg(x.id))[2] into v_a, v_b from (select p.id from public.persons p
+     where p.id <> current_setting('pg1.p')::uuid order by p.id limit 2) x;
+  set local session_replication_role = replica;
+  update public.assessment_sessions set status = 'FINALIZED', submitted_at = now(), finalized_at = now() where id = v_s;
+  insert into public.attempt_requests (id, institution_id, person_id, assessment_assignment_id, session_id, requested_by_person_id,
+      reason, status, decided_by_person_id, decided_at)
+  select 'a3a1e000-0000-4000-8000-a30100000014', s.institution_id, s.person_id, s.assessment_assignment_id, s.id, v_a,
+         'uji A3-PG1: satu percobaan lagi', 'APPROVED', v_b, now()
+    from public.assessment_sessions s where s.id = v_s;
+  set local session_replication_role = origin;
+end $pg1$;
+select 'izin|' || public.percobaan_izin_jumlah(current_setting('pg1.p')::uuid, current_setting('pg1.aa2')::uuid);
+select 'saya_sebelum|' || pg_temp.murid($s$select public.percobaan_saya(current_setting('pg1.aa2')::uuid)::text$s$);
+select 'dua|' || pg_temp.murid($s$select public.start_learning_session(current_setting('pg1.aa2')::uuid)::text$s$);
+select 'tanda|' || coalesce((select (s.attempt_request_id = 'a3a1e000-0000-4000-8000-a30100000014')::text from public.assessment_sessions s
+   where s.person_id = current_setting('pg1.p')::uuid and s.assessment_assignment_id = current_setting('pg1.aa2')::uuid), 'no sitting');
+do $pg1$ begin
+  perform selftest.as_owner();
+  set local session_replication_role = replica;
+  update public.assessment_sessions set status = 'FINALIZED', submitted_at = now(), finalized_at = now()
+   where person_id = current_setting('pg1.p')::uuid and assessment_assignment_id = current_setting('pg1.aa2')::uuid;
+  set local session_replication_role = origin;
+end $pg1$;
+select 'saya_sesudah|' || pg_temp.murid($s$select public.percobaan_saya(current_setting('pg1.aa2')::uuid)::text$s$);
+select 'tiga|' || pg_temp.murid($s$select public.start_learning_session(current_setting('pg1.aa2')::uuid)::text$s$);
+select 'sitting|' || count(*) from public.assessment_sessions s where s.person_id = current_setting('pg1.p')::uuid;
+rollback;`;
+      const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { encoding: "utf8" });
+      const v: Record<string, string> = {};
+      for (const l of r.stdout.split("\n")) { const i = l.indexOf("|"); if (i > 0) v[l.slice(0, i)] = l.slice(i + 1); }
+      const galat = (r.stderr || "").trim().split("\n").find((l) => /ERROR/.test(l));
+      if (!c.expect(!!v.satu?.startsWith("ok:"), `the case cannot be set up (revision 1's start): ${v.satu ?? galat ?? "no answer"}`)) return c.verdict("");
+      if (!c.expect(r.status === 0, `the scenario could not run to its end: ${galat ?? "no answer"}`)) return c.verdict("");
+      c.expect(v.izin === "1", `the grant on revision 1's assignment must count on revision 2's (percobaan_izin_jumlah): ${v.izin ?? "no answer"}`);
+      c.expect(v.saya_sebelum === "ok:true", `the learner must be told an approved attempt waits on revision 2 (percobaan_saya): ${v.saya_sebelum ?? "no answer"}`);
+      c.expect(!!v.dua?.startsWith("ok:"), `the grant must give a start through revision 2: ${v.dua ?? "no answer"}`);
+      c.expect(v.tanda === "true", `revision 2's sitting must be marked with the grant it spent (percobaan_tandai): ${v.tanda ?? "no answer"}`);
+      c.expect(v.saya_sesudah === "ok:false", `once spent, no approved attempt waits: ${v.saya_sesudah ?? "no answer"}`);
+      c.expect(!!v.tiga && !v.tiga.startsWith("ok:") && /ATTEMPT_LIMIT_REACHED/.test(v.tiga), `a second start through revision 2 must be refused ATTEMPT_LIMIT_REACHED (the grant gives exactly one): ${v.tiga ?? "no answer"}`);
+      c.expect(v.sitting === "2", `the learner must hold exactly two sittings across the line: ${v.sitting ?? "no answer"}`);
+      return c.verdict("a learner of our own at a limit of one through revision 1 (handed in), with an approved further attempt on revision 1's assignment and an OPEN assignment of revision 2 on the same line: the grant counts on revision 2 (percobaan_izin_jumlah = 1), the learner is told it waits, it gives one start through revision 2, that sitting is marked with it, then nothing waits and a further start is refused ATTEMPT_LIMIT_REACHED; two sittings in all; rolled back");
+    },
+  },
+  {
     id: "A3-R01",
     requires: ["db"],
     run: async (ctx) => {
