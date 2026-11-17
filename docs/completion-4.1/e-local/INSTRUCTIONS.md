@@ -90,3 +90,7 @@ straight after.
 - If it stopped **before** step 5, nothing was spent. Delete the `hasil` folder (or rename it) and run step 4 again.
 - If it stopped **during or after** step 5, do not run it again. Send Bob the file
   `hasil/PRIVAT-simpan-jangan-dikirim/run-log.txt`. It holds no key.
+- The script was rehearsed with Linux tools, not the Mac's own. If a step **after** the run fails because of that
+  (the blinding, the zip or the scan), your results are safe in the PRIVAT folder, the keys are already cleared, and
+  nothing has been sent. Bob recovers it with you by hand, with no security impact. Every step before the key prompt
+  runs on your Mac, and stops safely before any spend.

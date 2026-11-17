@@ -1,19 +1,19 @@
-happy (zsh): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (10373 ps lines) | == Done
-happy-bash (bash): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (10325 ps lines) | == Done
-no-go (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (9551 ps lines) | STOPPED: you did not type RUN.
-swapped (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (9164 ps lines) | STOPPED: the first key does not look like an Anthropic key (it should start sk-ant-). Were they swapped?
-empty (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (9258 ps lines) | STOPPED: a key was empty.
-key-denied (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (9943 ps lines) | STOPPED: a key or model was not confirmed. Nothing was spent.
-tampered (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1806 ps lines) | STOPPED: the package does not match its checksums. Download it again.
-old-hasil (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1820 ps lines) | STOPPED: a folder 'hasil' already exists. Move it somewhere safe first; this script never overwrites results.
-dotenv (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1819 ps lines) | STOPPED: a .env file is inside this folder. Use a fresh copy of the package.
+happy (zsh): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (11679 ps lines) | == Done
+happy-bash (bash): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (11802 ps lines) | == Done
+no-go (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (9926 ps lines) | STOPPED: you did not type RUN.
+swapped (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (9929 ps lines) | STOPPED: the first key does not look like an Anthropic key (it should start sk-ant-). Were they swapped?
+empty (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (10030 ps lines) | STOPPED: a key was empty.
+key-denied (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (9741 ps lines) | STOPPED: a key or model was not confirmed. Nothing was spent.
+tampered (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1787 ps lines) | STOPPED: the package does not match its checksums. Download it again.
+old-hasil (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1801 ps lines) | STOPPED: a folder 'hasil' already exists. Move it somewhere safe first; this script never overwrites results.
+dotenv (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1799 ps lines) | STOPPED: a .env file is inside this folder. Use a fresh copy of the package.
 stray-rehearsal-vars (zsh): variables left after the live-mode unset = 0 (expect 0)
 --- happy path (zsh) ringkasan:
 mode: rehearse
-run window (this command): 2026-11-17T11:39:13.368Z to 2026-11-17T11:39:13.918Z
-ledger first request: 2026-11-17T11:39:13.535Z
-ledger last settlement: 2026-11-17T11:39:13.882Z
-sealed map sha256: b4d2e3d38ac27177a3e45130bd7062b4b2b1d8e219d0b988a7e1165ce1ec38f9
+run window (this command): 2026-11-17T11:43:31.619Z to 2026-11-17T11:43:32.243Z
+ledger first request: 2026-11-17T11:43:31.840Z
+ledger last settlement: 2026-11-17T11:43:32.212Z
+sealed map sha256: 0e4d88cc12b25db56f9fad911f48cfcde8d02d43a5b13280fcff9b3913c82eab
 anthropic: 4 attempts, US$0.217116, {"invalid_output":1,"ok":2,"http_429":1}
 openai: 3 attempts, US$0.285058, {"transport_error":1,"ok":2}
 --- happy path: provider or model names in the Sharon and judge files:
