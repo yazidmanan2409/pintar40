@@ -58,7 +58,11 @@ It does **not** hold C2w itself. C2w is reviewer notes on sealed questions: `PLA
   - Sharon's PASS on `a9d303b2` stands as a review of those commits. It is not a C2w acceptance.
   - Second Eye's pre-flight on `a9d303b2` was green, but it is not C2w's one full pre-flight.
 - **[PR #25](https://github.com/yazidmanan2409/pintar40/pull/25) becomes a draft, kept open for CI only.** Its CI and the journeys run on `a9d303b2` are rehearsals, not evidence.
-- **Paused:** Daisy's Kanonik capture and the preservation dry run. Both are taken on the real C2w candidate.
+- **Daisy's Kanonik capture PASSED at 07:05, before the hold reached her** (`3174b6c1` on `ux-1/daisy-experience`, from a local build of `a9d303b2`, at 390 px, 0 px overflow).
+  - It carries forward to the real candidate if `studio/kanonik/page.tsx` and `studio/actions.ts` are unchanged; otherwise it is re-taken.
+  - Her notes N-6 (the confirmation's consequence line) and N-7 (the grant select's label) are 4.0 strings this fix newly exposes. They are not blockers; they go into the next batch.
+  - The on-screen action is «Tarik dari peredaran». «Tarik izin» is team shorthand only.
+- **Paused:** the preservation dry run. Both are taken on the real C2w candidate.
   - `preservation-C2w.sql` (Sharon's PASS at `1d5428ca`) is restated when the reviewer-notes migrations are known. Its pair will be 282 → 283+n.
 - **Next:**
   - Second Eye builds the reviewer notes on `claude/c2w` per §3, red first.

@@ -40,9 +40,11 @@ My recommendations on Pete's decisions:
   - «Catatan peninjau»;
   - «belum dikaitkan dengan pemahaman keliru»;
   - «anotasi» never appears on a screen.
-- **Row 7 (Studio), «Tarik izin»:**
-  - On the current build, the Kanonik page cannot offer «Tarik izin» (withdrawing a school's access to a release). Its list of open grants is always empty.
-  - C2w's first item fixes this. Until it is accepted, do not mark the «Tarik izin» steps as verified.
+- **Row 7 (Studio), withdrawing a school's access to a release:**
+  - The on-screen action is «Tarik dari peredaran» (`studio.paket.tarik`). "«Tarik izin»" is only the team's shorthand and appears on no screen.
+  - On the current build, the Kanonik page cannot offer it, because its list of open grants is always empty.
+  - C2w's first item fixes this. Until it is accepted, do not mark those steps as verified.
+  - Daisy has passed the fixed screen on a local build. Her two wording notes (N-6, N-7) may still change it.
 
 ### 2.4 Attempt counts per assessment type (row 9, Draft 9.4 and 11.7, §5 item 5)
 - **The platform does not fix "Pemetaan Awal 1, Uji Penguasaan 2".** The author sets the attempt limit for each assessment, within platform bounds:
