@@ -8,6 +8,7 @@ an exact 40-character commit, and is named for that commit. Hub: `docs/completio
 
 | Work | Verdict | Commit | File |
 |---|---|---|---|
+| A2b staging promotion | PASS, accepted on staging: the merge tree equals the candidate; staging's digest equals md5 of the repository's 282 versions (recomputed); in the preservation pair only line 10 moved | `1b1cada8ba7b93b28eaaeb8c854f5a5252927cde` | `A2B-PROMOTION-1b1cada8.md` |
 | C2w A2B-R2 (diff after push) and entry evidence F-3, F-4 | A2B-R2 PASS (c9d9ae4e matches the text; 74732b61 is the on-conflict clause only); F-4 race accepted (redundant locks noted); F-3 PD review authority accepted | `74732b6139acfbbb26d653ca813aea0b1a949159` | `C2W-R2-c9d9ae4e.md` (addendum) |
 | A3 pre-build (N-4, N-5, lock order, ruling 42, D12 codes) | N-5 BLOCKER for A3's start path: the attempt lock is per (person, assignment) but the count spans the definition and version across assignments, so re-key the lock and add a red case. Lock order accepted with two conditions; ruling 42 agreed with three; D12 codes accepted with no oracle; N-4 restated as ten red cases | `ac25e9b14d51928f6991f8932b3bb572a262c096` | `A3-PREBUILD-ac25e9b1.md` |
 | A2b candidate after R-SP2 | PASS; freeze checks hold. SP2 covers the cycle and standalone routes, red without the fix, the no-sitting check runs before cleanup; refreeze after CI and journeys are green | `ac25e9b14d51928f6991f8932b3bb572a262c096` | `A2B-START-PATH-3c58620e.md` (addendum) |
