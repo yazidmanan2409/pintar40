@@ -84,6 +84,7 @@ type Ct = { id: string; item: string; versi: number; pada: string; soal?: string
 type Kontrak = {
   blokCatatan: (label: string[], c: Ct[], semua: boolean, kiniItem?: string) => Array<{ label: string; kini: Ct[] }>;
   catatanGuru: (c: Ct[]) => Ct[];
+  URUTAN_BLOK: readonly string[];
 };
 /** A note as the reads return it, for the pure rules. */
 const cat = (id: string, item: string, versi: number, pada: string, x: Record<string, unknown> = {}) => ({
@@ -127,6 +128,13 @@ export const c2wCatatanLayarTests: SelfTest[] = [
           cat("m3", "q1", 1, "2026-11-10T10:00:00Z", { soal: "r" })]);
         c.expect(lama.map((x) => x.id).sort().join(",") === "m2,m3", `one note per question and option: ${lama.map((x) => x.id).join(",")}; expected m2 (the newer version) and m3 (another question)`);
       }
+      // Daisy C-7 (TINJAUAN-C2W-CATATAN-53a31d91.md): «Ganti catatan» and its form sit directly under the on-screen
+      // version's note, before the other versions' notes; C-8: space above «Catatan sebelumnya (n)»
+      c.expect(JSON.stringify(kt.URUTAN_BLOK) === JSON.stringify(["kini_layar", "tindakan", "kini_lain", "sebelumnya"]),
+        `an option's block reads ${JSON.stringify(kt.URUTAN_BLOK)}; Daisy C-7: the on-screen version's note, its act, the other versions' notes, the replaced notes`);
+      c.expect(/URUTAN_BLOK\.map\(/.test(komponen), "the component does not draw an option's block in URUTAN_BLOK's order");
+      c.expect(/\.pin-catatan-pilihan > details\s*\{[^}]*margin-top:\s*var\(--space-3\)/.test(baca(repoRoot, "src/app/experience.css")),
+        "no space above «Catatan sebelumnya (n)» (Daisy C-8, about 0.75rem)");
       // the captures (B7, 18 Nov): the panel took the integrity note's own class (.pin-catatan, Q-15), and the notes ran together
       c.expect(!/className="[^"]*\bpin-catatan(?![-\w])/.test(komponen), "the notes' panel uses .pin-catatan, the integrity note's class (Q-15), and takes its look");
       const css = baca(repoRoot, "src/app/experience.css");
