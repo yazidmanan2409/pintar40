@@ -46,7 +46,29 @@ E's three owner decisions (providers, scoring rules, judges) stay visible in sta
 
 **Principles:** no silent scope expansion; no bypassed security or deployment gates; no false completion claims.
 
-## C2w FROZEN at `a9d303b20294cf9fee9279944f66a3be6f1300fc` (17 Nov 2026, about 07:00 UTC)
+## C2w UNFROZEN: the 06:45 freeze of `a9d303b2` was premature (Chief Architect, 17 Nov 2026, about 07:20 UTC)
+
+**My error.** `a9d303b2` holds only:
+- C2w's first item, A2B-R2 («Tarik izin» fails closed; the Kanonik list shows open grants);
+- the F-3 and F-4 entry evidence.
+
+It does **not** hold C2w itself. C2w is reviewer notes on sealed questions: `PLAN-A2B-C2W.md` §3, «Catatan peninjau» (ruling 30), with I-5 tested in both places and B4–B6. That feature is not built on any branch. `STATUS-2026-11-16.md` row C2w gave the order: "A2B-R2 first, then F-3/F-4 evidence, then reviewer notes". A partial batch is not a freeze candidate (freeze sequence, step 2).
+
+- **The freeze is withdrawn.**
+  - Sharon's PASS on `a9d303b2` stands as a review of those commits. It is not a C2w acceptance.
+  - Second Eye's pre-flight on `a9d303b2` was green, but it is not C2w's one full pre-flight.
+- **[PR #25](https://github.com/yazidmanan2409/pintar40/pull/25) becomes a draft, kept open for CI only.** Its CI and the journeys run on `a9d303b2` are rehearsals, not evidence.
+- **Paused:** Daisy's Kanonik capture and the preservation dry run. Both are taken on the real C2w candidate.
+  - `preservation-C2w.sql` (Sharon's PASS at `1d5428ca`) is restated when the reviewer-notes migrations are known. Its pair will be 282 → 283+n.
+- **Next:**
+  - Second Eye builds the reviewer notes on `claude/c2w` per §3, red first.
+  - Then the one candidate, the full pre-flight, Sharon's and Daisy's reviews, and the freeze.
+  - A3 continues in parallel, as the owner allowed.
+- **No staging read was requested, and none was made.**
+
+### Withdrawn record (kept for the audit trail)
+
+#### (withdrawn) C2w FROZEN at `a9d303b20294cf9fee9279944f66a3be6f1300fc` (17 Nov 2026, about 07:00 UTC)
 
 - **The gates for the freeze are met.**
   - Second Eye ran the one full pre-flight on `a9d303b2` and it is green: suite 1232 passed and 0 failed, plants 175/175, red cases 11/11, and lint, typecheck and build identity clean.
