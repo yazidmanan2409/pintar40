@@ -129,3 +129,73 @@ A reply in these words, or your own, covering each item:
 > runner's caps (US$5 per provider, US$10 total)."
 
 You can authorise the purchases, limits and keys first, and give the "go" for step 7 separately.
+
+---
+
+## 6 · State on 17 Nov (owner's report), and the final authorisation
+
+No account names, organisation names, key names or values are recorded here.
+
+### 6a · What is done (the owner, in the consoles)
+
+| | Anthropic | OpenAI |
+|---|---|---|
+| Separate place for the evaluation | A dedicated workspace | A dedicated project |
+| Credit | **Promotional API credit** (no purchase was needed, so P2 = US$0) | **US$5 prepaid** (P1), auto-reload **off** |
+| Provider-side limit | **Workspace monthly spend limit US$5,** as read back by the owner | Not reported yet: the prepaid US$5, with auto-reload off, is a hard ceiling (`credit_balance_exhausted`). See 6b, item 2 |
+| Key | Temporary, created in that workspace, held by the owner | Temporary, created in that project, 30-day expiry, restricted to **Responses API write**, held by the owner |
+| Price, re-verified | **US$2 / US$10** for Claude Sonnet 5.5, read on platform.claude.com on 17 Nov (Bob) | Not readable from here (developers.openai.com is outside the network). See 6b, item 4 |
+
+**Money now.** Cash paid is **US$5** (OpenAI) plus any tax. Usage is capped at US$5 per provider and US$10 in total by
+the runner. Anthropic's ceilings are the runner's US$5 and the workspace's US$5; its promotional balance is larger, so it
+is not a ceiling. OpenAI's ceilings are the runner's US$5 and the US$5 balance. Worst-case usage is US$1.53 in all.
+
+### 6b · What is still needed from the owner, before the "go"
+
+1. **Terms.** State that you accept each provider's terms for this run. That includes Anthropic's **full**
+   sub-processor list (the Subprocessors tab) and the terms of the promotional credit, if it carries any.
+2. **OpenAI hard limit.** If the project offers "Enforce a hard limit", set it to US$5 and read it back. This is
+   Sharon's backstop in both consoles. If it is not offered while prepaid credit is in use, say so, and the US$5
+   balance with auto-reload off is recorded as that backstop.
+3. **OpenAI key permission.** The key is restricted to Responses API write. **The no-cost authentication proof (A3) lists
+   models, which needs read access to Models.** Add **Models: Read** to the key, and nothing else. Without it, the
+   proof fails with a permission error before any paid call, and the run stops there.
+4. **OpenAI price.** Confirm on OpenAI's pricing or model page that `gpt-6.1-sol` is still **US$2 / US$10** per
+   million tokens, standard tier.
+
+### 6c · Where the keys are saved, and for how long
+
+- This session runs on your **Default environment**. Every one of your cloud sessions can use it, including Second Eye,
+  Sharon, Daisy and Pete if they are on it.
+- A key saved through the secure form is injected into every request to its host **from every session on that
+  environment**. So another session could call the API with your key while it is saved.
+- The provider limits and the balances still bound any such spend, but outside the runner's ledger.
+- **Recommendation:** at the go, create **a dedicated personal environment for E only,** and move only this session onto
+  it (network only). Save the two keys there, not on Default. That environment allows:
+  - the two API hosts (through the saved keys);
+  - package registries;
+  - the MCP servers, so GitHub still works.
+
+  You approve its creation in the tool's prompt.
+- **After the run:** you revoke both keys in the consoles, which makes the saved secrets useless at once. You can then
+  delete the secrets, or the whole E environment, in Settings, and this session moves back to Default.
+- The keys are entered **only at the go**, not before, so the window in A4 stays as short as possible.
+
+### 6d · The final authorisation (reply when 6b is done)
+
+> "E paid run: GO.
+> - Terms accepted for both providers, including Anthropic's full sub-processor list.
+> - OpenAI hard limit US$5 read back [or: not offered; prepaid US$5, auto-reload off].
+> - OpenAI key has Models: Read added.
+> - gpt-6.1-sol confirmed at US$2 / US$10.
+> - Create the dedicated E environment and move this session onto it. I will enter both keys in the secure form.
+> - Calls up to the runner's caps: US$5 per provider, US$10 total."
+
+**After the go, in order:**
+1. Create and move to the E environment (your approval prompt).
+2. The two secure key forms (you enter each key).
+3. The no-cost listing proof on both hosts. Both must succeed.
+4. The second offline dry run and the self-tests.
+5. The paid run: at most 6 calls per provider.
+6. You revoke both keys; I record the ledger window (A4).
+7. The blinding, then Sharon's sealed key check, then the judges' files to you.
