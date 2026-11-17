@@ -45,3 +45,45 @@ Sharon, 17 Nov 2026 (08:30 UTC). Read-only.
 ## Also noted
 
 - **A3 at `b5cd166a6fb6199ee9b5891099966f34907240c3`:** the diff from `e3a7629b` is `selftest/a3.test.ts` and the manifest only, which is A3-P2's reconciliation. **Accepted.** The pre-flight is 1245 passed, and the 1 failure is A3-R01, expected.
+
+## Addendum, 17 Nov 14:35 UTC: the build at `5b34fa5f` on `claude/c2w`
+
+**What I read:**
+- migration 20270121110000 at `5b34fa5f`: the table, the indexes, the triggers, the chain walk and `catatan_peninjau_tulis`;
+- the diff `b4177078..fde309c5` on that file;
+- `CatatanPeninjau.tsx`'s strings, and `studio.catatan.petunjuk`.
+- **The pre-flight, as reported:** suite 1242 passed and 0 failed, plants 175/175, red cases 11/11.
+
+**D1 to D3 are met.**
+- **D1, the concurrency rule:**
+  - a partial unique index `catatan_peninjau_satu_awal` on (`item_id`, `opsi_label`) where `menggantikan_id is null`, beside `…_satu_pengganti`;
+  - a transaction advisory lock per item and option before the current-note read;
+  - the named refusals NOTE_EXISTS and NOTE_NOT_CURRENT, including when the unique index fires;
+  - the race test C2W-D1R on two connections, for both cases.
+- **D2:** the trigger on insert refuses NOTE_OWNER_MISMATCH and NOTE_NOT_SEALED, and refuses every update, delete and truncate.
+- **D3:** the walk is capped at 64 deep, guards against cycles through `jalur`, stays within one owner, and uses the existing index on `items.supersedes_item_id` (20260915120000).
+- **The rest, accepted:**
+  - the metric-source trigger refuses the table;
+  - every function is revoked from client roles;
+  - the writer rule is CAN_REVIEW in the school, or, for library content, the library's reviewers or the platform admin;
+  - the write is audited;
+  - a library note does not show its writer's name.
+
+**`fde309c5`, the edit to the migration, is accepted:**
+- the one change is a `orang_lampiran` row classing `catatan_peninjau.ditulis_oleh` as BEBAS, an act's actor, with `on conflict do nothing`;
+- L1F4-E01 is green again;
+- correcting it in the draft migration, not in a new one, is right, since it is unpushed to staging.
+- *The miss is noted as Second Eye's own:* `b4177078` went out on targeted runs only.
+
+**D4: half met. One requirement remains.**
+- **Rendering is met:** C2W-B3 shows `<b>markup</b>` rendered as `&lt;b&gt;` text.
+- **The statement is not met.** `studio.catatan.petunjuk` says the note is about how learners think, and that learners never see it. **It does not say that a note must never name a learner.**
+  - Library notes cross schools, and school notes are read by the school's authors.
+  - **Add Daisy's sentence to that hint, for example: «Jangan menyebut nama murid.»** Then K01's word-for-word test picks it up.
+  - **Required before C2w's freeze.**
+
+**Second Eye's two questions:**
+1. **NOTE_NOT_ALLOWED on a question the reader can already read, with Daisy's "only a reviewer at the school that owns this question …": no leak. Keep it.** The reader already sees the question and its owner. The sentence tells them nothing new, and it is more helpful than the generic one. An unknown or unreadable item never reaches the form, and the function answers it as before.
+2. **NOTE_LIBRARY_CONTENT to any school's reviewer on a library question: acceptable.** That reviewer can read the released question, and "library content is noted by the platform's reviewers" is a fact about the library, not about anyone.
+
+**The mapping is accepted:** the codes no form can reach go to `galat.action_not_allowed`, and an unnamed failure gets the "not saved" sentence plus a logged reference.
