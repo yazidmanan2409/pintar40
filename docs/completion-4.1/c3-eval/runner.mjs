@@ -215,16 +215,20 @@ function parseOrThrow(adapter, resp) {
 const STREAM_MAX_BYTES = 32 * 1024 * 1024;   // a 48,000-token answer with thinking is a few MB of events
 const STREAM_IDLE_MS = 300_000;              // 5 min with no byte at all aborts the call (pings come far more often)
 const ANTHROPIC_STOP_REASONS = ['end_turn', 'max_tokens', 'stop_sequence', 'tool_use', 'pause_turn', 'refusal', 'model_context_window_exceeded'];
+const ANTHROPIC_STREAM_RETRY = ['overloaded_error', 'api_error', 'timeout_error'];
+// OpenAI: server_error only, the analogue of the documented retryable HTTP 500. Every other code, a spend or quota
+// code included, stops the provider (fail-closed; to be confirmed against grade-A facts).
+const OPENAI_STREAM_RETRY = ['server_error'];
 class StreamIncomplete extends Error {
   constructor(reason, msg, evidence = null) { super(`stream incomplete (${reason}): ${msg}`); this.reason = reason; this.evidence = evidence; }
 }
 class StreamError extends Error {
-  constructor(error, evidence = null) {
+  constructor(error, evidence = null, retryable = ANTHROPIC_STREAM_RETRY) {
     const type = typeof error?.type === 'string' ? error.type : null;
     super(`stream error event: ${type ?? 'unknown type'}${error?.message ? ' ' + String(error.message).slice(0, 80) : ''}`);
-    // fail-closed, as for HTTP errors: only the documented retryable types (500 api_error, 504 timeout_error,
-    // 529 overloaded_error) are retried; every other error event stops the provider
-    const retry = ['overloaded_error', 'api_error', 'timeout_error'].includes(type);
+    // fail-closed, as for HTTP errors: only the provider's retryable types are retried (Anthropic: the documented
+    // 500 api_error, 504 timeout_error and 529 overloaded_error); every other error event stops the provider
+    const retry = retryable.includes(type);
     this.cls = { status: 'stream_error', type, code: null, retry, stop: !retry, noResponse: true };
     this.evidence = evidence;
   }
@@ -347,6 +351,103 @@ export function anthropicAssembler() {
     },
   };
 }
+// v4: assembles one OpenAI Responses stream (the same S-1 to S-3 as Anthropic). feed() takes parsed events in order;
+// finish() returns the response or throws. Only output_text deltas in a message item's output_text parts are kept.
+// Reasoning items and their summaries are counted, never kept (S-2). A refusal is recorded by its length only.
+// The stream must end with exactly one terminal event:
+//   response.completed (status completed)                 a response;
+//   response.incomplete (status incomplete, with usage)   a finished, billed response: kit.mjs validate decides;
+//   response.failed, or an `error` event                  a stream_error;
+//   anything else, or nothing                             stream_incomplete.
+export function openaiAssembler({ maxOutput } = {}) {
+  const st = { events: 0, unknown: 0, pings: 0, thinking: 0, started: false, terminal: null, model: null, seq: null, items: new Map(), parts: new Map(), refusal: 0, resp: null };
+  const textNow = () => [...st.parts.entries()].sort((x, y) => (x[1].o - y[1].o) || (x[1].c - y[1].c)).filter(([, q]) => q.type === 'output_text').map(([, q]) => q.text.join('')).join('');
+  const evidence = () => { const t = textNow(); return { events: st.events, pings: 0, unknown_events: st.unknown, thinking_blocks: st.thinking, blocks: st.parts.size,
+    started: st.started, stopped: !!st.terminal, stop_reason: st.terminal, final_usage_seen: !!st.resp?.usage, text_chars: t.length, text_sha256: sha(t) }; };
+  const fail = (reason, msg) => { const x = new StreamIncomplete(reason, msg, evidence()); x.partial = textNow(); return x; };
+  const err = (e) => { const x = new StreamError({ type: e?.code ?? null, message: e?.message }, evidence(), OPENAI_STREAM_RETRY); x.partial = textNow(); return x; };
+  const part = (j) => { const q = st.parts.get(`${j.output_index}:${j.content_index}`); if (!q || !q.open) throw fail('bad_order', `${j.type} for part ${j.output_index}:${j.content_index}, which is not open`); return q; };
+  const INFO = ['response.created', 'response.in_progress', 'response.queued'];
+  const KNOWN = ['response.output_item.added', 'response.output_item.done', 'response.content_part.added', 'response.content_part.done',
+    'response.output_text.delta', 'response.output_text.done', 'response.refusal.delta', 'response.refusal.done',
+    'response.completed', 'response.incomplete', 'response.failed'];
+  return {
+    evidence, partial: textNow,
+    feed({ event, data }) {
+      st.events++;
+      if (st.terminal) throw fail('after_stop', `event "${event}" after ${st.terminal}`);
+      let j; try { j = JSON.parse(data); } catch { throw fail('bad_json', `event "${event}": its data is not JSON`); }
+      const type = j?.type;
+      if (typeof type !== 'string' || (event !== 'message' && event !== type)) throw fail('bad_event', `event "${event}" carries data of type ${JSON.stringify(type)}`);
+      if (j.sequence_number !== undefined) {
+        if (!Number.isInteger(j.sequence_number) || (st.seq !== null && j.sequence_number <= st.seq)) throw fail('bad_order', `sequence_number ${j.sequence_number} after ${st.seq}`);
+        st.seq = j.sequence_number;
+      }
+      if (type === 'error') throw err(j);
+      if (INFO.includes(type)) {
+        if (type === 'response.created') { if (st.started) throw fail('bad_order', 'a second response.created'); st.started = true; st.model = j.response?.model ?? null; }
+        else if (!st.started && type === 'response.in_progress') throw fail('bad_order', 'response.in_progress before response.created');
+        return;
+      }
+      if (!KNOWN.includes(type)) {
+        if (/reasoning/.test(type) && /\.added$/.test(type) && !/part/.test(type)) st.thinking++;
+        st.unknown += /reasoning/.test(type) ? 0 : 1;   // reasoning events: counted as reasoning, never kept (S-2)
+        return;
+      }
+      if (!st.started) throw fail('bad_order', `${type} before response.created`);
+      if (type === 'response.output_item.added') {
+        if (!Number.isInteger(j.output_index) || st.items.has(j.output_index)) throw fail('bad_order', `output_item.added for item ${j.output_index}`);
+        const t = j.item?.type ?? null; st.items.set(j.output_index, { type: t, open: true }); if (t === 'reasoning') st.thinking++; return;
+      }
+      if (type === 'response.output_item.done') { const it = st.items.get(j.output_index); if (!it || !it.open) throw fail('bad_order', `output_item.done for item ${j.output_index}`); it.open = false; return; }
+      if (type === 'response.content_part.added') {
+        const it = st.items.get(j.output_index); const k = `${j.output_index}:${j.content_index}`;
+        if (!it || !it.open || it.type !== 'message' || !Number.isInteger(j.content_index) || st.parts.has(k)) throw fail('bad_order', `content_part.added for part ${k}`);
+        st.parts.set(k, { type: j.part?.type ?? null, open: true, text: [], o: j.output_index, c: j.content_index }); return;
+      }
+      if (type === 'response.content_part.done') { part(j).open = false; return; }
+      if (type === 'response.output_text.delta') {
+        const q = part(j); if (q.type !== 'output_text' || typeof j.delta !== 'string') throw fail('bad_delta', `an output_text delta in a part of type ${q.type}`);
+        q.text.push(j.delta); return;
+      }
+      if (type === 'response.output_text.done') { const q = part(j); if (q.type !== 'output_text' || j.text !== q.text.join('')) throw fail('bad_text', 'output_text.done disagrees with the deltas'); return; }
+      if (type === 'response.refusal.delta') { const q = part(j); if (q.type !== 'refusal' || typeof j.delta !== 'string') throw fail('bad_delta', 'a refusal delta outside a refusal part'); st.refusal += j.delta.length; return; }
+      if (type === 'response.refusal.done') { part(j); return; }
+      // the terminal events
+      st.resp = j.response ?? null;
+      if (type === 'response.failed') { st.terminal = type; throw err(st.resp?.error ?? {}); }
+      st.terminal = type;
+    },
+    finish() {
+      if (!st.started) throw fail('no_start', 'no response.created');
+      if (!st.terminal) throw fail('no_stop', 'the stream ended before a terminal event');
+      const r = st.resp ?? {};
+      const want = st.terminal === 'response.completed' ? 'completed' : 'incomplete';
+      if (r.status !== want) throw fail('stop_reason', `${st.terminal} with status ${JSON.stringify(r.status)}`);
+      if ([...st.parts.values()].some((q) => q.open) || [...st.items.values()].some((it) => it.open)) {
+        if (want === 'completed') throw fail('open_block', 'an output item or content part was never closed');
+      }
+      const u = r.usage;
+      if (!u || typeof u !== 'object' || !Number.isFinite(u.output_tokens)) throw fail('no_usage', `no usage on ${st.terminal}`);
+      const reasoning = u.output_tokens_details?.reasoning_tokens ?? 0;
+      for (const [k, v] of [['input_tokens', u.input_tokens], ['output_tokens', u.output_tokens], ['reasoning_tokens', reasoning], ['cached_tokens', u.input_tokens_details?.cached_tokens ?? 0]])
+        if (!(Number.isInteger(v) && v >= 0)) throw fail('bad_usage', `${k} ${JSON.stringify(v)} is not a whole number of tokens`);
+      const raw = textNow();
+      // cross-check against the final response's own output, when it carries one
+      if (Array.isArray(r.output)) {
+        const fin = r.output.filter((o) => o.type === 'message').flatMap((o) => o.content ?? []).filter((c) => c.type === 'output_text').map((c) => c.text).join('');
+        const hasText = r.output.some((o) => o.type === 'message' && (o.content ?? []).some((c) => c.type === 'output_text'));
+        if (hasText && fin !== raw) throw fail('bad_text', 'the final response\'s output disagrees with the streamed text');
+      }
+      // usage as the non-streamed adapter settles it (§6c): input_tokens includes cached tokens; output settled at a bound
+      // that holds whether or not output_tokens includes reasoning, never above max_output_tokens
+      const outBound = Number.isFinite(maxOutput) ? Math.max(u.output_tokens, Math.min(maxOutput, u.output_tokens + reasoning)) : u.output_tokens + reasoning;
+      return { raw, model: r.model ?? st.model, usage: { input: u.input_tokens, output: outBound }, usage_raw: u,
+        finish: { status: r.status, reason: r.incomplete_details?.reason ?? null, refusal: st.refusal > 0, refusal_chars: st.refusal }, stop_reason: r.status, evidence: evidence() };
+    },
+  };
+}
+
 // The streaming transport. Before the stream starts, an HTTP error is read and classified exactly as before. Once it
 // has started, any failure (a dropped connection, the idle limit, the 25-minute call limit, a bad event) is
 // stream_incomplete, and an `error` event is stream_error; both carry the request id and the stream evidence.
@@ -359,7 +460,7 @@ async function streamCall(adapter, args, fetchImpl = globalThis.fetch, opt = {})
   arm();
   try {
     const r = await fetchImpl(q.url, { method: q.method, headers: q.headers, body: JSON.stringify(q.body), signal });
-    const h = new Headers(r.headers ?? {}); const requestId = h.get('request-id');
+    const h = new Headers(r.headers ?? {}); const requestId = h.get(adapter.request_id_header ?? 'request-id');
     if (!r.ok) {
       const bodyText = await r.text(); const cls = adapter.classifyError({ status: r.status, headers: r.headers, bodyText });
       throw new HttpError(r.status, bodyText, { cls, request_id: cls.request_id, rate_limit: cls.rate_limit });
@@ -368,7 +469,7 @@ async function streamCall(adapter, args, fetchImpl = globalThis.fetch, opt = {})
       try { await r.body?.cancel(); } catch { /* nothing to cancel */ }
       const e = new Error(`unparsable ${r.status} response: not an event stream (${String(h.get('content-type')).slice(0, 40)})`); e.unparsable = true; e.request_id = requestId; throw e;
     }
-    const parser = new SseParser({ maxBytes: opt.maxBytes ?? STREAM_MAX_BYTES }); const asm = adapter.assembler(); let bytes = 0;
+    const parser = new SseParser({ maxBytes: opt.maxBytes ?? STREAM_MAX_BYTES }); const asm = adapter.assembler({ maxOutput: args.maxOutput }); let bytes = 0;
     const reader = r.body.getReader();
     const tag = (x) => { x.request_id = requestId; if (x.evidence) x.evidence.bytes = bytes; return x; };
     try {
@@ -387,8 +488,8 @@ async function streamCall(adapter, args, fetchImpl = globalThis.fetch, opt = {})
     }
     let out; try { out = asm.finish(); } catch (x) { throw tag(x); }
     out.evidence.bytes = bytes;
-    return { raw: out.raw, request_id: requestId, model_version: out.model, finish: { stop_reason: out.stop_reason },
-      usage: out.usage, usage_raw: out.usage_raw, rate_limit: pickHeaders(h, ANTHROPIC_RL), stream: out.evidence };
+    return { raw: out.raw, request_id: requestId, model_version: out.model, finish: out.finish ?? { stop_reason: out.stop_reason },
+      usage: out.usage, usage_raw: out.usage_raw, rate_limit: pickHeaders(h, adapter.rl_headers ?? ANTHROPIC_RL), stream: out.evidence };
   } finally { clearTimeout(timer); }
 }
 
@@ -446,8 +547,11 @@ const ADAPTERS = {
     // Every relied-on field is grade A (§6b, §6c). Content-Type: A as documented in every reference example (whether it
     // is required is B, but it is always sent). Output usage: whether output_tokens includes reasoning_tokens is B, so
     // the adapter does not rely on it: it settles on a bound that holds either way (below).
-    verified: true,
-    unverified_fields: [],
+    // v4: streams (openaiAssembler). The streaming event shapes are not yet grade A in this repository, so the adapter is
+    // unverified and a real run refuses it until E-PROVIDER-FACTS-OPENAI-STREAM.md confirms them.
+    verified: false,
+    unverified_fields: ['streaming: the Responses API event names, payload fields, terminal events, usage placement, error event and sequence_number (to be quoted, grade A)'],
+    streaming: true, assembler: openaiAssembler, request_id_header: 'x-request-id', rl_headers: OPENAI_RL,
     endpoint: 'https://api.openai.com/v1/responses', api_version: 'v1',
     build({ model, text, schema, maxOutput, key, clientRequestId }) {
       const headers = { 'content-type': 'application/json', authorization: `Bearer ${key}` };
@@ -455,7 +559,7 @@ const ADAPTERS = {
       if (clientRequestId) { if (!/^[\x20-\x7e]{1,512}$/.test(clientRequestId)) throw new Fatal('X-Client-Request-Id must be ASCII, ≤512 chars'); headers['x-client-request-id'] = clientRequestId; }
       return { url: this.endpoint, method: 'POST', headers,
         body: { model, input: text, max_output_tokens: maxOutput, store: false,
-          text: { format: { type: 'json_schema', name: 'c3_items', schema: wireSchema(schema), strict: true } } } };
+          text: { format: { type: 'json_schema', name: 'c3_items', schema: wireSchema(schema), strict: true } }, stream: true } };
     },
     parse({ headers, bodyText, maxOutput }) {
       const h = new Headers(headers ?? {}); const j = JSON.parse(bodyText); const u = j.usage;
@@ -494,7 +598,7 @@ const ADAPTERS = {
       if (status === 429) st = code === 'credit_balance_exhausted' ? 'billing_stop' : 'spend_stop';
       return { ...base, status: st, retry: false, stop: true };
     },
-    async call(args) { return httpCall(this, args); },
+    async call(args) { return streamCall(this, args); },
   },
 };
 
@@ -527,6 +631,7 @@ function mockProvider(faults = {}) {
       if (f) used.push(`${provider}:bab${b}:${attempt}:${f}`);
       if (f === 'transport') { const e = new Error('mock transport error: connection reset'); e.transport = true; throw e; }
       if (provider === 'anthropic') return mockAnthropicStream(args, f, items(b, provider, attempt), streams);
+      if (provider === 'openai') return mockOpenaiStream(args, f, items(b, provider, attempt), streams);
       if (f === 'unparsable') parseOrThrow(ADAPTERS[provider], { status: 200, headers: {}, bodyText: '<html>truncated (mock)', maxOutput });
       // every HTTP fault is a canned response, classified by the provider's real classifyError
       if (CANNED[f]) { const c = CANNED[f][provider]; const cls = ADAPTERS[provider].classifyError(c); throw new HttpError(c.status, c.bodyText, { cls, request_id: cls.request_id, rate_limit: cls.rate_limit }); }
@@ -585,7 +690,7 @@ const noThinkingIn = (d) => filesUnder(d).every((f) => !readFileSync(f, 'utf8').
 async function mockAnthropicStream(args, f, itemList, streams) {
   const { model, text, schema, maxOutput, seq } = args;
   const A = ADAPTERS.anthropic;
-  const fetchLog = (inner) => async (url, init) => { streams.push({ url, stream: JSON.parse(init.body).stream === true }); return inner(url, init); };
+  const fetchLog = (inner) => async (url, init) => { streams.push({ provider: 'anthropic', url, stream: JSON.parse(init.body).stream === true }); return inner(url, init); };
   const ids = { 'content-type': 'text/event-stream; charset=utf-8', 'request-id': `mock-anthropic-${seq}` };
   if (CANNED[f]) { const c = CANNED[f].anthropic; return streamCall(A, args, fetchLog(fakeStream(enc(c.bodyText), { status: c.status, headers: { 'content-type': 'application/json', ...c.headers } }))); }
   if (f === 'unparsable') return streamCall(A, args, fetchLog(fakeStream(enc('<html>truncated (mock)'), { headers: { 'content-type': 'text/html', 'request-id': ids['request-id'] } })));
@@ -618,6 +723,54 @@ async function mockAnthropicStream(args, f, itemList, streams) {
   if (f === 'stream_error' || f === 'stream_error_fatal') evs = [...ev.slice(0, half), ['error', { type: 'error', error: { type: f === 'stream_error' ? 'overloaded_error' : 'invalid_request_error', message: 'mock' } }]];
   if (f === 'stream_slow') opts = { headers: ids, chunk: 31, delayMs: 1 };
   return streamCall(A, args, fetchLog(fakeStream(enc(sseOf(evs, f === 'stream_slow' ? '\r\n' : '\n')), opts)), { idleMs: 5000 });
+}
+
+// v4: the mock's openai answers go through the real streaming adapter and openaiAssembler (S-4). Each stream is shaped
+// as OAI_STREAM: response.created, a reasoning item whose summary carries THINK_CANARY, a message item with its
+// output_text in 64-character deltas, then response.completed with the final usage and output.
+// Faults: stream_cut | stream_error | stream_error_fatal | stream_failed_fatal | stream_max_output | stream_slow |
+// stream_unknown_event | no_usage | overrun | malformed | unparsable | the canned HTTP errors.
+async function mockOpenaiStream(args, f, itemList, streams) {
+  const { model, text, schema, maxOutput, seq } = args;
+  const A = ADAPTERS.openai;
+  const fetchLog = (inner) => async (url, init) => { streams.push({ provider: 'openai', url, stream: JSON.parse(init.body).stream === true }); return inner(url, init); };
+  const ids = { 'content-type': 'text/event-stream; charset=utf-8', 'x-request-id': `mock-openai-${seq}` };
+  if (CANNED[f]) { const c = CANNED[f].openai; return streamCall(A, args, fetchLog(fakeStream(enc(c.bodyText), { status: c.status, headers: { 'content-type': 'application/json', ...c.headers } }))); }
+  if (f === 'unparsable') return streamCall(A, args, fetchLog(fakeStream(enc('<html>truncated (mock)'), { headers: { 'content-type': 'text/html', 'x-request-id': ids['x-request-id'] } })));
+  let raw = JSON.stringify({ items: itemList });
+  if (f === 'malformed') raw = '```json\n' + raw.slice(0, raw.length - 40) + '\n```';
+  if (f === 'stream_max_output') raw = raw.slice(0, Math.floor(raw.length / 2));   // cut off at the output limit
+  const reasoning = 300;
+  let out = Math.ceil(raw.length / 4);
+  if (out + reasoning > maxOutput) throw new Error(`mock: output ${out + reasoning} would exceed the cap ${maxOutput}`);
+  let input = Math.ceil((text.length + schema.length) / 4);
+  if (f === 'overrun') { input *= 40; out = maxOutput; }
+  const resp = { id: `resp_mock_${seq}`, object: 'response', model: `${model}@mock`, status: 'in_progress', output: [], usage: null };
+  const usage = { input_tokens: input, input_tokens_details: { cached_tokens: 0 }, output_tokens: out, output_tokens_details: { reasoning_tokens: reasoning }, total_tokens: input + out };
+  const pieces = raw.match(/[\s\S]{1,64}/g) ?? [];
+  const ev = [oe2('response.created', { response: resp }), oe2('response.in_progress', { response: resp }),
+    oe2('response.output_item.added', { output_index: 0, item: { id: 'rs_m', type: 'reasoning', summary: [] } }),
+    oe2('response.reasoning_summary_text.delta', { item_id: 'rs_m', output_index: 0, summary_index: 0, delta: `${THINK_CANARY} ringkasan (tiruan)` }),
+    oe2('response.output_item.done', { output_index: 0, item: { id: 'rs_m', type: 'reasoning', summary: [] } }),
+    oe2('response.output_item.added', { output_index: 1, item: { id: 'msg_m', type: 'message', role: 'assistant', content: [] } }),
+    oe2('response.content_part.added', { item_id: 'msg_m', output_index: 1, content_index: 0, part: { type: 'output_text', text: '' } })];
+  pieces.forEach((t, k) => {
+    ev.push(oe2('response.output_text.delta', { item_id: 'msg_m', output_index: 1, content_index: 0, delta: t }));
+    if (f === 'stream_unknown_event' && k === Math.floor(pieces.length / 2)) ev.push(oe2('response.output_text.annotation.added', { item_id: 'msg_m', output_index: 1, content_index: 0, annotation: {} }));
+  });
+  const half = 7 + Math.floor(pieces.length / 2);
+  const message = { id: 'msg_m', type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'output_text', text: raw }] };
+  ev.push(oe2('response.output_text.done', { item_id: 'msg_m', output_index: 1, content_index: 0, text: raw }),
+    oe2('response.content_part.done', { item_id: 'msg_m', output_index: 1, content_index: 0, part: { type: 'output_text', text: raw } }),
+    oe2('response.output_item.done', { output_index: 1, item: message }));
+  if (f === 'stream_max_output') ev.push(oe2('response.incomplete', { response: { ...resp, status: 'incomplete', incomplete_details: { reason: 'max_output_tokens' }, usage, output: [message] } }));
+  else ev.push(oe2('response.completed', { response: { ...resp, status: 'completed', usage: f === 'no_usage' ? null : usage, output: [message] } }));
+  let evs = ev, opts = { headers: ids };
+  if (f === 'stream_cut') evs = ev.slice(0, half);
+  if (f === 'stream_error' || f === 'stream_error_fatal') evs = [...ev.slice(0, half), oe2('error', { code: f === 'stream_error' ? 'server_error' : 'invalid_request_error', message: 'mock', param: null })];
+  if (f === 'stream_failed_fatal') evs = [...ev.slice(0, half), oe2('response.failed', { response: { ...resp, status: 'failed', error: { code: 'invalid_prompt', message: 'mock' } } })];
+  if (f === 'stream_slow') opts = { headers: ids, chunk: 31, delayMs: 1 };
+  return streamCall(A, args, fetchLog(fakeStream(enc(sseOf(oaiSeq(evs), f === 'stream_slow' ? '\r\n' : '\n')), opts)), { idleMs: 5000 });
 }
 
 // canned HTTP errors: the documented ones shaped as E-PROVIDER-FACTS.md §6 shows them, and three undocumented ones
