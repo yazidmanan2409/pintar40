@@ -3586,7 +3586,7 @@
     {
       "id": "F22-P05",
       "runner": "static",
-      "proves": "L3 §2.11 (D-132(k)), read from the source files: every exported server action of the six context-bound files (Studio, Konfigurasi, Pendataan, Pimpinan, umpan balik, Mengajar) checks its target against the active context before its first database act (the one re-read exempt by name), and the four context-bound API routes (activation, class-card re-issue, PIN recovery reset, media upload) before their act, each saying CONTEXT_OTHER_PLACE; every other server-action file and API route is exempt by name with its reason (signing in, the chooser, Belajar's own work, a person's own account, personas, public pages, and the explicitly platform-scoped test email and its history); the checker catches a removed check and a check moved after its act; the check uses no service key and makes no device session."
+      "proves": "L3 §2.11 (D-132(k)), read from the source files: every exported server action of the six context-bound files (Studio, Konfigurasi, Pendataan, Pimpinan, umpan balik, Mengajar) checks its target against the active context before its first database act (the one re-read exempt by name), and the four context-bound API routes (activation, class-card re-issue, PIN recovery reset, media upload) before their act, each saying CONTEXT_OTHER_PLACE; every other server-action file and API route is exempt by name with its reason (signing in, the chooser, Belajar's own work, a person's own account, personas, public pages, and the explicitly platform-scoped test email and its history); the checker catches a removed check and a check moved after its act; the check uses no service key and makes no device session. RESTATED (A2b S-1; the Chief Architect, 16 Nov 11:51), part 6: the check reads what it checks: no app read names a table the session role cannot select (TAK_TERBACA, held equal to the catalogue by A2B-S1G) unless through the service client, named with its reason; every .from names its table literally (SUMBER_SEKOLAH's values are each checked); the plants (S-1's variable read of two unreadable tables, a literal read of maintenance_windows) are each caught. A2B-R2 (the Chief Architect, 16 Nov 11:59, option (b), placed as C2w's first item): Studio's three reads of release_distributions (studio/actions.ts:328, studio/kanonik/page.tsx:91, konteks-server.ts:160 SUMBER_SEKOLAH.distribusi) are named exceptions by file, line and table, each held to its line, removed in C2w."
     },
     {
       "id": "BOB50-A01",
@@ -6269,6 +6269,281 @@
       "id": "A2A-C720",
       "runner": "static",
       "proves": "Sharon's answer to question 3 (migration 20270119250000), executes on the database in one rolled-back transaction and reads the screens' source: each O1 refusal is recorded afterwards by catat_penolakan_henti, only while it stands for the caller. With a class stop in force the class's teacher records SITTING_CLASS_STOPPED on the sitting and on the assignment («Ubah jadwal») and ASSIGN_CLASS_STOPPED, and the school's admin PROMO_STOPPED on the Kelas: one row per call, each naming the stop. Refused STOP_REFUSAL_NOT_FOUND: the learner, SITTING_FENCE_BUSY, another code, a teacher's PROMO_STOPPED, and the teacher's call after the lift. The teacher's sitting acts, «Ubah jadwal», ending an assignment and applying a promotion call it after the refusal. Plant: a forged record after the lift. C41-2's siblings (migration 20270119260000): after the lift, with the stop's mark not yet released, the record refuses, «Ubah jadwal» goes on to its own checks and the teacher's list (daftar_pengerjaan) no longer says HELD_STOP; plants: the stale mark counted in each. Sharon's note on commit 43 (migration 20270119270000): a refusal is recorded once per caller, target, code and stops in force (a second identical call returns the first row); plant: no dedupe writes a second."
+    },
+    {
+      "id": "A2B-I01",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. Every writer of a class's work (a function that writes assessment_sessions, learning_assignments, assessment_assignments, lesson_progress or attempt_requests, or a client entry point that reaches one) is classed REFUSED, REFUSED_QUIETLY, REFUSED_GRANT, ALLOWED, SYSTEM or INNER, from Sharon's classing (A2B-COMPLETION.md); every refused one asks the place question (maintenance_affects_place), directly, through a function it calls, or (a start) through the sitting-insert trigger; no system closure does; a stale class is reported; plant: an unclassed writer is reported."
+    },
+    {
+      "id": "A2B-I02",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3 and §2.5; Bob's dispatch of 16 Nov), written before any product code, red first on main eff99f98 for what A2b adds. Reads the catalogue (pg_proc's source and signatures): every function that names maintenance_windows, or takes or returns its row, is classed WRITER, PERSON, PLACE, EMERGENCY or ADMIN by what A2b asks of it; A2b's two new functions (perpanjang_pemeliharaan, maintenance_affects_place) are named and must exist; every EMERGENCY reader reads only emergency windows or delegates to one that does, so a PLANNED class window never reaches A2a's machinery; every schema but the system's is read (Sharon's I02-1); a stale class is reported; plants: an unclassed reader in public and one in a schema of its own are reported."
+    },
+    {
+      "id": "A2B-K01",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K1, the window starts: read on the clock. The teacher's act (A1's extend) before a planned window's start succeeds; in the same transaction after it (its now() still before) it is refused PR040 MAINTENANCE_PLACE; a start whose transaction began before T−15 and inserts after it is refused MAINTENANCE_NO_NEW_START; on two connections, a transaction that waits on the sitting's row across the start and reaches its write after it is refused."
+    },
+    {
+      "id": "A2B-K02",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K2, the window ends: an act refused before a planned window's end succeeds after it, in the same transaction (its now() before the end), read on the clock at the moment of writing."
+    },
+    {
+      "id": "A2B-K03",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K3, re-specified by the Chief Architect's D4 ruling (16 Nov 05:16; THE PLAN §5.3 D4: the deadline is \"start plus its duration\", and a sitting with no duration is refused only inside T−15): PINTAR has no per-assessment duration and an assignment's close is not one, so a start 30 min before a planned class window succeeds whether the work closes after the window's start (60 min) or before it (20 min); inside T−15 MAINTENANCE_NO_NEW_START stays; may_start_assessment, the screen's answer, gives the trigger's for both (true, OK)."
+    },
+    {
+      "id": "A2B-K04",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K4, D4 for an untimed sitting: T−15 only, as today (allowed 30 min before a planned class window, refused 10 min before with MAINTENANCE_NO_NEW_START)."
+    },
+    {
+      "id": "A2B-K05",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K5, a running sitting when a planned class window starts: not cut off. Its effective deadline (pengerjaan_tenggat_efektif, with a lifted stop's credited shift) is honoured; before any touch (D1-2) the learner is stopped as no person (maintenance_block_for_me none) while maintenance_draining says the sitting runs; the learner's answer is taken; the decider leaves it open before that deadline and A1's closer ends it after its grace. The stop is in the hosted shape (Sharon's K12-1: starts_at 3 s before T_stop, ended_at 2 s before T_lift) and the effective deadline is exactly T_lift − T_stop on; plant: the shift read from starts_at and ended_at moves it."
+    },
+    {
+      "id": "A2B-D12",
+      "runner": "static",
+      "proves": "A2a's D1 gap, D1-2, fixed in A2b (Sharon's ruling at a7d0b378; migration 20270120130000); executes on the database in one rolled-back transaction: a sitting marked by a class stop of 45 min lifted 5 min ago, its own deadline 30 min past, with no release batch and no touch. pengerjaan_tenggat_efektif, session_state, pengerjaan_saya and daftar_pengerjaan read its deadline exactly 900 s ahead; may_continue_session lets it continue and maintenance_draining says it runs; pengerjaan_lepas_darurat then changes nothing they read. Plant: the effective deadline without the marked case."
+    },
+    {
+      "id": "A2B-S01",
+      "runner": "static",
+      "proves": "A2b commit 4 (migration 20270120140000), D8 and R-1; executes on the database in one rolled-back transaction: pintar_status_saya says per window whether it stops the reader as a person (cakupan ORANG: an EMERGENCY, or a platform-wide PLANNED window) or only their work in a place (TEMPAT: a class or school PLANNED window), names the class and the school, and gives the zone its times are shown in: the window's school's (WITA in the fixture), or for a platform-wide window the reader's own school's. A class's planned window is not listed for another class's learner."
+    },
+    {
+      "id": "A2B-D13",
+      "runner": "static",
+      "proves": "A2a's D1 gap, its sibling D1-3, fixed in A2b (Sharon's ruling at 8e33dd32; migration 20270120150000); executes on the database in D12's rolled-back fixture and reads the catalogue: before any touch, pengerjaan_saya says a marked sitting of a lifted stop is not held and released from the stop, and pengerjaan_terbuka_saya offers it; no stable function calls pengerjaan_ditahan (which counts a stale mark as held) any more. Plant: pengerjaan_saya reading the mark again."
+    },
+    {
+      "id": "A2B-B01",
+      "runner": "static",
+      "proves": "The Chief Architect's R-B (PLAN-A2B-C2W.md at e15fe966), the banner's re-read: reads the source of PengingatPemeliharaan and runs the pure planner of pemeliharaan-kontrak.ts. At most one read of the status per stage boundary still ahead (T−60, T−30, T−15, T=0), at most four per window per open page, only while a planned window is announced and has not begun; a failed read keeps the stage on screen; an early end shows no further stage; an extension shows the new one. In the source the one read (bacaUlangStatusSaya) is the boundary timeout's first act, counted against the cap, and a read the browser cannot complete (the call throws) counts as a failed read (commit 10); the interval that moves the minutes reads nothing; no other file calls the read."
+    },
+    {
+      "id": "A2B-H01",
+      "runner": "static",
+      "proves": "A2b commit 8 (Daisy, A2-KATA-DESAIN.md B2; A2B-RA-KALIMAT.md §4); runs the pure helper hariLain and reads source: a window's time on another day than the reader's today, both read in the window's zone, carries «, {hari} {tanggal}» («, Selasa 17 Nov»; EN « on Tuesday 17 Nov», Daisy's C-3 form), and nothing on the same day; an hour after 22.30 WIB is the same day in WIB and the next in WITA. the banner's last-check line dates the window's start (D4's sentence, which also did, is removed by the Chief Architect's D4 ruling)."
+    },
+    {
+      "id": "A2B-P01",
+      "runner": "static",
+      "proves": "A2b commit 9 (D8-2, R-1); reads the maintenance page's source: a class or school window under way has its own branch, judged before the generic one, naming the place (pemeliharaan.tempat.berlangsung) and saying the rest of PINTAR stays usable (pemeliharaan.tempat.arti), and none of the copy that says PINTAR cannot be used; the ?mulai=ditolak copy (a platform window's T−15) is limited to platform-wide windows."
+    },
+    {
+      "id": "A2B-D4X",
+      "runner": "static",
+      "proves": "The Chief Architect's D4 ruling (16 Nov 05:16; THE PLAN §5.3 D4: no duration, T−15 only), the calculation gone and not hidden; executes one catalogue query on the database in a rolled-back transaction and reads source: no public function's body carries MAINTENANCE_CANNOT_FINISH, maintenance_mulai_tolak takes two arguments (person, node: no deadline), no file under src/ carries CANNOT_FINISH or the pemeliharaan.d4.* sentences, and the start screen computes no {d} from the assignment's close. Plant: a function carrying the code, created in the same transaction, is found by the same query."
+    },
+    {
+      "id": "A2B-C01",
+      "runner": "static",
+      "proves": "Daisy's review of D8 batch 1 (TINJAUAN-A2B-D8-B1-679987cb), C-1 to C-3; reads source and the copy: C-1, pemeliharaan.tempat.arti and .biasa name the work's owner ({untuk}: kelas {kelas} or the school), filled at every use on the banner and the pause page, never «pekerjaannya» or «its work»; C-2, while the failed-read line shows, the stage's own start sentence is dropped; C-3, every window time on the banner (except the read's own time) and on the pause page is shown through jamPenuh, which adds «, {hari} {tanggal}» on another day."
+    },
+    {
+      "id": "A2B-D14",
+      "runner": "static",
+      "proves": "The Chief Architect's ruling on Sharon's question (16 Nov 08:03): draining is per window; executes on the database in rolled-back transactions: a learner also enrolled at a second school, their 7A sitting handed in and an open sitting at the second school, reads 'berjalan' false for 7A's class window in pintar_status_saya; with their 7A sitting running and none elsewhere, true; neither is stopped as a person (R-1). Each fixture removes the learner's other open sittings first."
+    },
+    {
+      "id": "A2B-D15",
+      "runner": "static",
+      "proves": "The pin for the same ruling and Sharon's conditions; reads the catalogue: the person-wide drain, maintenance_draining(person), has exactly one caller, maintenance_block_for_me, which reads it only after skipping class and school PLANNED windows; the place predicate exists once, maintenance_jendela_atas, called by maintenance_affects_place, maintenance_mulai_tolak and maintenance_draining_di, and no function carries a copy; the reader and the helper carry maintenance_draining's grants; the reader is STABLE and takes no row lock. maintenance_collisions with p_nodes calls the one place predicate too (Sharon, 11eca8bb)."
+    },
+    {
+      "id": "A2B-D16",
+      "runner": "static",
+      "proves": "Sharon's condition (a) on the one place predicate (16 Nov 08:21); executes on the database: maintenance_jendela_atas(window, node) answers exactly as the old copied expression did, for a class window on its class and on another, a school window (empty classes) on its school and on another, NULL classes and a NULL node (NULL, never 'covered')."
+    },
+    {
+      "id": "A2B-R01",
+      "runner": "static",
+      "proves": "Batch 2, D2 in the database (THE PLAN §5.3 D2; Daisy A2-KATA-DESAIN B1; the Chief Architect, 16 Nov 09:16); executes in a rolled-back transaction: maintenance_windows.reason_code accepts the five planned codes (RUTIN, PEMBARUAN, GANGGUAN, JARINGAN_LISTRIK, LAINNYA), refuses a foreign code, refuses any code on an EMERGENCY row, and LAINNYA's text over 120 characters; rows with no code (existing rows, every emergency) stay valid; schedule_maintenance(..., p_reason_code) refuses a foreign code and LAINNYA without text with MAINTENANCE_INPUT_INVALID and accepts the old call with no code; stop_pintar_now's signature is unchanged. Sharon's additions (A2B-BATCH2-TESTS-d837181d.md): T1, a code other than LAINNYA with free text is refused (the CHECK, and schedule_maintenance with MAINTENANCE_INPUT_INVALID) and a coded window stores its code as its reason; T3, the reason CHECK exists and is validated (pg_constraint.convalidated); T4, LAINNYA's limit counts characters (120 × é accepted, 121 refused, at the row and at schedule_maintenance). LAINNYA with text that is only spaces is refused at the row (Sharon, char_length(btrim(reason)))."
+    },
+    {
+      "id": "A2B-R02",
+      "runner": "static",
+      "proves": "Batch 2, D2 for the affected; executes in a rolled-back transaction: pintar_status_saya gives a PLANNED window's reason code (alasan_kode) and text (alasan); an old row with no code gives its own text. Sharon's T2: a learner of an untouched class (7B) gets no entry for the windows and no reason text."
+    },
+    {
+      "id": "A2B-A06",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §2.4 A6, extend end to end; executes in a rolled-back transaction as the school's admin: perpanjang_pemeliharaan writes an audit row (maintenance.extended) holding before, after, reason and actor; the window's notice moves with the new end; the place guard follows the new end at once. Plant (Sharon's T5): the extend leaves the notice's expires_at unmoved; A6 sees the old end (red)."
+    },
+    {
+      "id": "A2B-A07",
+      "runner": "static",
+      "proves": "PLAN-A2B-C2W.md §2.4 A7, resume early end to end; executes in a rolled-back transaction as the school's admin: change_maintenance AKHIRI writes an audit row (maintenance.ended_now) holding the planned end, the moment it ended (the row's own time equals ended_at), the reason and the actor; the class's work resumes at once. Plant (Sharon's T5): the early end stamps ended_at a second before the audit row's instant; A7 sees the mismatch (red). RESTATED (the Chief Architect, 16 Nov 09:59; audit_write takes no time): the moment it ended is the audit summary's ended_at, equal to the window's; the plant moves to the stamp (ended_at = v_kini - 1 s)."
+    },
+    {
+      "id": "A2B-R03",
+      "runner": "static",
+      "proves": "Batch 2, D2 in the app (Daisy, A2-KATA-DESAIN B1); reads source and the copy: Daisy's words; the planned form's required radio group of the five reasons with «Lainnya»'s text at most 120; the scheduling action refuses no choice before the call and passes p_reason_code; the banner and the pause page say «Alasan: {alasan}»; bacaStatusSaya carries the code."
+    },
+    {
+      "id": "A2B-E01",
+      "runner": "static",
+      "proves": "Batch 2, «Perpanjang» (Daisy, A2B-PERPANJANG-KATA §1; D3; A6's screen half); runs the pure rule and reads source and copy: bolehPerpanjang offers it only on a planned window with an end, scheduled or under way, controlled by the reader (never an emergency); Daisy's words; the action checks no reason and not-later before calling perpanjang_pemeliharaan (the database stays the gate); the form shows the advisory count of assessments for the added period, refusing nothing; its «Batal» apart from the row's «Batalkan»."
+    },
+    {
+      "id": "A2B-E02",
+      "runner": "static",
+      "proves": "Batch 2, «Akhiri sekarang» on a planned window (Daisy, A2B-PERPANJANG-KATA §2; A7's screen half); runs the pure rule and reads source and copy: kunciAkhiriTanya picks the confirmation by scope (class, school, platform) in Daisy's words, and the planned row uses it."
+    },
+    {
+      "id": "A2B-E03",
+      "runner": "static",
+      "proves": "Batch 2, A8's screen half; reads source and copy: an emergency row keeps A2a's lift and its confirmation; the scope confirmation is a planned window's only; the refusal of a direct call (MAINTENANCE_EMERGENCY_LIFT_ONLY) says Daisy's sentence."
+    },
+    {
+      "id": "A2B-K14",
+      "runner": "static",
+      "proves": "The class picker on the planned form (the Chief Architect, 16 Nov 09:33; THE PLAN §5.3 D1); executes in a rolled-back transaction as the school's admin: maintenance_collisions(…, p_nodes), the advisory count (it refuses nothing; overlap between windows is allowed, the Chief Architect 16 Nov 09:44), counts the assessments that reach the chosen classes: their own, those under them, and those set above them (school-wide or the cohort); the school-wide check still the whole school; pemeliharaan_kelas_sekolah offers a school's admin that school's classes and refuses another school's with MAINTENANCE_NOT_ALLOWED; it is a STAFF read closed to anon. Another school's class at scheduling is K10's (MAINTENANCE_NODE_INVALID)."
+    },
+    {
+      "id": "A2B-C10",
+      "runner": "static",
+      "proves": "The class picker in the app; reads source: once one school is chosen the planned form offers its classes (pm_kelas) from pemeliharaan_kelas_sekolah; the collision check is asked for them (p_nodes); the scheduling form carries them (kelas) and jadwalkanPemeliharaanAction passes them as p_nodes, the database staying the gate."
+    },
+    {
+      "id": "A2B-K16",
+      "runner": "static",
+      "proves": "The owner's combined scenario (the Chief Architect, 16 Nov 09:41; named K16 because K13 is R-A's); executes in a rolled-back transaction: a school admin schedules a planned window on class 7A and an overlapping school-wide planned window, both through schedule_maintenance (step 2 is not refused: maintenance_collisions counts assessments, never windows); 7A's is extended with perpanjang_pemeliharaan; on the clock after the school window's end and before 7A's extended end, 7A's work is refused and 7B's resumes; with the school window ended early the same holds now, and the status read tells a 7A learner 7A's window alone and a 7B learner nothing. Plant: the place guard reading only the earliest-ending window releases 7A."
+    },
+    {
+      "id": "A2B-R04",
+      "runner": "static",
+      "proves": "Sharon's batch 2 checklist, point 1 (A2B-BATCH2-PREP.md at 7fb0bc39): the maintenance_windows preservation line; executes in a rolled-back transaction: the table taken back to before D2 (reason_code dropped), PLANNED and EMERGENCY rows of every existing shape written (a school and a class window, an ended one, a lifted and a running emergency), then the migration's section marked «-- A2B-R04 maintenance_windows: begin/end» run over them: none missing, none changed outside reason_code (to_jsonb compared), none given a code; the column exists after. Reads the migration: it changes maintenance_windows (its table or rows) only inside the marked section (Sharon, 11eca8bb)."
+    },
+    {
+      "id": "A2B-K17",
+      "runner": "static",
+      "proves": "Sharon's batch 2 checklist, point 2: p_nodes from the form, the database the gate; executes in a rolled-back transaction as the school's admin: a class named twice is stored once; an empty list is a school window; an inactive (archived) class is refused MAINTENANCE_NODE_INVALID; more than 500 entries are refused MAINTENANCE_INPUT_INVALID before any lookup (500 accepted; the bound is PROPOSED); pemeliharaan_kelas_sekolah lists the school's active classes only, nothing of another school and no non-class, and is refused to a teacher. Another school's class, a non-class and an unknown node are K10's."
+    },
+    {
+      "id": "A2B-K18",
+      "runner": "static",
+      "proves": "Sharon's batch 2 checklist, point 3: maintenance_collisions with the class choice has schedule_maintenance's authority checks and returns counts only; executes in a rolled-back transaction: the school's admin's own class runs and returns exactly asesmen and terakhir_selesai; another school's class, a non-class, an archived class, two schools with classes, and a platform check with classes are refused MAINTENANCE_NODE_INVALID; another school's check and a teacher's are refused MAINTENANCE_NOT_ALLOWED; more than 500 entries MAINTENANCE_INPUT_INVALID; closed to anon."
+    },
+    {
+      "id": "A2B-E04",
+      "runner": "static",
+      "proves": "Sharon's batch 2 checklist, point 4, «Perpanjang»; executes in a rolled-back transaction: a shorter end, the same end, a past end and a blank reason are refused MAINTENANCE_INPUT_INVALID, a teacher MAINTENANCE_NOT_ALLOWED; a later end moves the end alone (start, classes, schools, platform and kind unchanged); perpanjang_pemeliharaan takes no start (its signature pinned); reads the committed A2A-L01 report: it and change_maintenance take the actor first, then the window, under A2A-L01's catalogue test. Plant (Sharon, 11eca8bb): the extend accepting an equal end; E04 sees it go through (red)."
+    },
+    {
+      "id": "A2B-E05",
+      "runner": "static",
+      "proves": "Sharon's batch 2 checklist, point 4, «Akhiri sekarang» on the database clock (the K8 rule swept from perpanjang_pemeliharaan to change_maintenance); executes in a rolled-back transaction 2 s old: a planned class window that ended on the clock after the transaction began is refused MAINTENANCE_NOT_OPEN and keeps no ended_at; an early end of one under way is stamped with the clock's instant, not the transaction's start, and its class's work resumes; «Mulai sekarang» on a window whose start passed on the clock is refused MAINTENANCE_INPUT_INVALID (under way). The Chief Architect (16 Nov 09:59): fixed in batch 2, PLANNED branch only; the EMERGENCY branch (A2a's fenced lift) pinned unchanged: lifted as Admin PINTAR in the same 2 s old transaction, its ended_at is the transaction's now() and its T_lift the clock."
+    },
+    {
+      "id": "A2B-E06",
+      "runner": "static",
+      "proves": "Sharon's batch 2 checklist, point 4, D-100(b); executes in a rolled-back transaction, the learner's other open sittings removed: a sitting running in 7A when 7A's planned window is ended early keeps its status and its own deadline, is not ended, and its answer is taken after the end. Plant (Sharon, 11eca8bb): the early end closing the window's running sittings; E06 sees the sitting changed (red)."
+    },
+    {
+      "id": "A2B-K19",
+      "runner": "static",
+      "proves": "Found capturing D8-6 (a staff client reads no row of maintenance_windows, so «Perpanjang»'s screen read nothing and its action read a typed end in WIB); executes in a rolled-back transaction: pemeliharaan_jendela_tempat(p_window) gives the window's controller (its school's admin) its platform flag, schools, classes, end and the zone its times are typed in (its one school's, here WITA); a teacher is refused MAINTENANCE_NOT_ALLOWED; a STAFF read closed to anon; the control: a direct read of the table returns no row. E01 adds that the extend action and form read through it, never the table."
+    },
+    {
+      "id": "A2B-K20",
+      "runner": "static",
+      "proves": "S-1 (Sharon, A2B-BATCH2-APP-a186b1a7.md; the Chief Architect, 16 Nov 11:51); executes in a rolled-back transaction: pemeliharaan_pengumuman_tempat(p_notice) gives a notice's controller (withdraw_notice's maintenance_may_act over the notice's platform flag and schools) its place; another school's admin and an unknown id are refused MAINTENANCE_NOT_ALLOWED alike (no existence oracle); STAFF, closed to anon; the control: authenticated holds no select on broadcast_notices."
+    },
+    {
+      "id": "A2B-S1G",
+      "runner": "static",
+      "proves": "S-1: F22-P05 part 6's TAK_TERBACA is held equal to the catalogue: every table src names in a .from(…) (and SUMBER_SEKOLAH's values) that the session cannot select (has_any_column_privilege('authenticated', …, 'select')) is listed, and every listed table is one the session cannot select. Reads the source and the database."
+    },
+    {
+      "id": "A2B-S1A",
+      "runner": "app",
+      "proves": "S-1 (Sharon, A2B-BATCH2-APP-a186b1a7.md; the Chief Architect, 16 Nov 11:51); executed against the running build, each server action posted as a browser without script posts it, with its id from the build's manifest: a controller of Alpha and Beta (Alpha's Admin sekolah, given Beta's for the test), working in Alpha, is refused for the context (the chooser) on Beta's «Akhiri sekarang», «Mulai sekarang» and «Tarik pengumuman», with nothing written; an unknown window and an unknown notice are refused MAINTENANCE_NOT_ALLOWED before any write; working in Beta, the same «Akhiri sekarang» ends Beta's window. The plant is the build before the fix (the direct read), shown red."
+    },
+    {
+      "id": "A2B-B2K",
+      "runner": "app",
+      "proves": "Daisy's batch 2 review (TINJAUAN-A2B-D8-B2-7a079eb2.md at f9ffc948; the Chief Architect: in this batch), against the running build with the actions posted as a browser without script posts them: a refused schedule comes back with every entered value (school, class, times, message, reason, announcement box), step two redrawn with them and the refusal an alert that takes focus (BL-1); the extend's refusal keeps its new end and reason with its form open, and the announcement's its scope and message (the sweep); the list row names its class and «Dijadwalkan oleh {nama}» (BL-2); a coded reason reads «Alasan: …» and an old free text «Alasan (dicatat): …» (C-5); «Akhiri sekarang» opens with the reason field inside its confirmation and one «Batal» (C-6)."
+    },
+    {
+      "id": "A2B-B2W",
+      "runner": "static",
+      "proves": "Daisy's batch 2 words (f9ffc948); reads the copy table: config.pemeliharaan.arti says what a school or class window holds and what a platform window stops (C-4), and config.pemeliharaan.dijadwalkan_oleh «Dijadwalkan oleh {nama}» / «Scheduled by {nama}» (BL-2), in both languages."
+    },
+    {
+      "id": "A2B-K13",
+      "runner": "static",
+      "proves": "The Chief Architect's R-A (PLAN-A2B-C2W.md at e15fe966); executes on the database in rolled-back transactions: one minute before a planned class window's start a start in the class is refused PR110 MAINTENANCE_NO_NEW_START, and one second after it PR040 MAINTENANCE_PLACE; another class's start proceeds on both sides; the class's learner passes the request hook on both sides (never PT503, no redirect)."
+    },
+    {
+      "id": "A2B-O01",
+      "runner": "static",
+      "proves": "A2b commit 7 (migration 20270120170000), the defect commit 3 brought and the Chief Architect's condition 4; executes on the database in rolled-back transactions: assessment_orientation is shown under a maintenance refusal, with its code and the refusing window's scope from one call: inside a platform window's T−15 (NO_NEW_START, ORANG), a class window's T−15 (NO_NEW_START, TEMPAT), and during it (PLACE, TEMPAT), each with the window's start, end and class; 30 min before it, on work closing after it, no refusal (the Chief Architect's D4 ruling); with no window, no refusal. Plant: the old condition (shown only when may_start is ok) shows nothing inside the platform window's T−15."
+    },
+    {
+      "id": "A2B-A01",
+      "runner": "static",
+      "proves": "The Chief Architect's R-A in the app; reads source and runs the pure rule arahTolakMulai: a platform window's T−15 keeps 4.0's redirect to /pemeliharaan?mulai=ditolak; a work-scoped window's T−15, a work-scoped window under way and D4 stay on the start screen; the start action redirects to the maintenance page only on that platform branch; MAINTENANCE_PLACE is read as its own refusal (PR040), never as PT503's MAINTENANCE_ACTIVE; the start screen disables «Mulai» and ties its sentence by aria-describedby."
+    },
+    {
+      "id": "A2B-K06",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K6, extend during a window and end it early: perpanjang_pemeliharaan by the school's admin moves the end the guard reads at once (still refused after the old end); resume early (change_maintenance AKHIRI) lifts the refusal at once; one maintenance.extended audit row with before, after and reason."
+    },
+    {
+      "id": "A2B-K07",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K7 and A8, an emergency window: extend refuses it (PR110 MAINTENANCE_EMERGENCY_LIFT_ONLY, Admin PINTAR; refused for the school's admin); the school's admin's AKHIRI is refused; Admin PINTAR's AKHIRI is A2a's fenced lift (T_lift recorded); the functions that write maintenance_windows.ends_at are exactly perpanjang_pemeliharaan and schedule_maintenance."
+    },
+    {
+      "id": "A2B-K08",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K8, extend after the window has ended: refused PR110 MAINTENANCE_NOT_OPEN, read on the clock against ends_at, whether or not the recorder marked the end, including a window that ended after the transaction began; a started window with no activation recorded is extendable (activation_recorded_at decides nothing)."
+    },
+    {
+      "id": "A2B-K09",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K9, extend against the edge recorder, both orders on two connections: the recorder first (it marks the end and holds the row), the extend waits and is refused; extend first (it holds the row past the old end), the recorder skips it and its next run reads the new end. Either way one activation row and at most one deactivation row per window."
+    },
+    {
+      "id": "A2B-K10",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K10, lifting A2a's emergency-only CHECK: maintenance_windows_class_is_emergency is gone; a PLANNED class window is scheduled through schedule_maintenance(…, p_nodes) by the school's admin; another school's class, a node that is not a class and an unknown node are refused PR110 MAINTENANCE_NODE_INVALID before any constraint; A2a's node trigger covers a PLANNED window."
+    },
+    {
+      "id": "A2B-K11",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K11, work scope (R-1): a planned window on 7A refuses the teacher of 7A and 7B only on 7A's work; a school-wide planned window at X refuses the same teacher at X and not at school Y; neither stops the teacher as a person (the request hook passes; maintenance_block_for_me is none: no PT503, no redirect); PLANNED reads current placement (a learner moved out of 7A after the window began starts in 7B; one moved in is refused there with MAINTENANCE_PLACE, Sharon's ruling: an active work-scoped window refuses a start by place, T−15 keeps MAINTENANCE_NO_NEW_START)."
+    },
+    {
+      "id": "A2B-K12",
+      "runner": "static",
+      "proves": "A2b step 1 (PLAN-A2B-C2W.md §2.3; Sharon's A2B-K-TESTS-43ce13bf.md), written before any product code, red first on main eff99f98 for the behaviour A2b adds; executes on the database in rolled-back transactions (K1's lock-wait leg and K9 on two real connections, their committed rows removed after), each first checking its own fixture with no window open. K12, a planned and an emergency window over one class: the emergency governs (the teacher's act refused PR170 SITTING_CLASS_STOPPED; the learner stopped as a person); after the lift, with the planned window still on, the planned guard refuses nothing A2a allows (the learner's answer, the first-touch release, a departure) and refuses the teacher's act by place. Emergency windows in the hosted shape (K12-1)."
+    },
+    {
+      "id": "A2B-SP1",
+      "runner": "static",
+      "proves": "A2b reopened for the start path (the Chief Architect, 16 Nov 16:21; Sharon f1e969a1): executes start_learning_session against migration 20270120240000, in rolled-back transactions, as the Siklus learner on the journey fixture (a standalone copy of the class's Pemetaan Awal whose definition is marked ad-hoc, so its attempts are its own and no sitting another test leaves refuses it first): with no window it starts (the control); inside a planned school window under way it raises PR040 with DETAIL MAINTENANCE_PLACE; with a planned school window, and a platform-wide one, starting in 10 minutes it raises PR110 with DETAIL MAINTENANCE_NO_NEW_START, as the sitting-insert trigger does. The plant, the fix's marked lines removed from the function (the generic P0001 'cannot start this assessment' raise back), is caught. Red on 3c58620e (P0001 for every maintenance case)."
+    },
+    {
+      "id": "A2B-SP2",
+      "runner": "app",
+      "proves": "A2b reopened for the start path: mulaiAsesmen against the running build (the rendered app; the action posted as a browser without script posts it, with its id from the build's manifest), as the Siklus learner, on both routes, each posted to the rendered page that draws its own form: the cycle route, /belajar/<tugas>/pemetaan returning to /belajar/<tugas>, for a fresh learning assignment of the Siklus class with a copy of its Pemetaan Awal on its own copy of the definition (may_start counts one definition's attempts under any assignment in the school and year, so its attempts are its own); and the standalone route, /belajar/asesmen/<penugasan>, for the journey fixture (a standalone copy of the class's Pemetaan Awal, its definition marked ad-hoc). On each: inside a planned school window under way the learner is sent back to that route's start screen (R-A); at a platform-wide T−15 to /pemeliharaan?mulai=ditolak (4.0's designed path); at a school-wide T−15 back to the start screen; never an error page, and no sitting is made. Red on 3c58620e (the generic P0001 was rethrown: HTTP 500)."
+    },
+    {
+      "id": "A2B-Q12",
+      "runner": "static",
+      "proves": "Daisy's ruling (A2B-DAFTAR-Q12-PUTUSAN.md at ab730614; the Chief Architect, 16 Nov 16:27: in this fix): executes my_open_assessments, /belajar's standalone (Q-12) list, against migration 20270120240000, in rolled-back transactions on the journey fixture (a standalone copy of the Siklus class's Pemetaan Awal whose definition is marked ad-hoc): the Siklus learner's row stays inside a planned school window under way, at a school-wide T−15 and at a platform-wide T−15, as with no window; another school's learner (alpha-siswa-1) never sees it; a refusal that is not maintenance (not yet open) still drops it, inside a window too; a running sitting stays reachable through its own read (pengerjaan_saya) inside the window. Red on b2f6a552 (the row dropped for MAINTENANCE_PLACE and MAINTENANCE_NO_NEW_START)."
+    },
+    {
+      "id": "A2B-SP3",
+      "runner": "static",
+      "proves": "The Chief Architect (16 Nov 16:27) and Sharon (9b68fcad, T-SP): across every server-action file under src/app (\"use server\"), no exported action starts a sitting (engine.startSession, start_learning_session, open_assessment_session) except src/app/belajar/actions.ts's mulaiAsesmen, which maps PR110 MAINTENANCE_NO_NEW_START and PR040 MAINTENANCE_PLACE; the unused, postable startSession action (3c58620e) is gone; two plants, startSession restored and a start in another server file, are each caught."
     }
   ]
 }

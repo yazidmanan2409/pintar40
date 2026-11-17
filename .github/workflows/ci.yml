@@ -1103,13 +1103,15 @@ jobs:
           # 3g. Q-12: the learner doorway must add no authority. It returns what
           #     may_start_assessment() accepts; stop deferring to that predicate
           #     and a learner of another tenant sees someone else's class work.
+          #     A2b reopened (20270120240000, Daisy's Q-12 ruling): the delegation is one predicate now, may_start's answer is ok
+          #     or its refusal is one of the two maintenance codes; the plant removes it, which is the same defect.
           cat > /tmp/f06-3g.sql <<'SQL'
           begin;
           do $d$
           declare orig text; src text;
           begin
             orig := pg_get_functiondef('public.my_open_assessments()'::regprocedure);
-            src := replace(orig, 'and (select s.ok from public.may_start_assessment(aa.id) s)', '');
+            src := replace(orig, 'and (select s.ok or s.reason in (''MAINTENANCE_PLACE'', ''MAINTENANCE_NO_NEW_START'') from public.may_start_assessment(aa.id) s)', '');
             if src = orig then raise exception 'the plant did not reach my_open_assessments'; end if;
             execute src;
           end $d$;
@@ -1121,13 +1123,16 @@ jobs:
           # 3h. UX-1 Slice 2: the orientation window must not become a doorway.
           #     Authorization boundary -- stop delegating to may_start_assessment
           #     and a learner of another tenant reads someone else's assignment.
+          #     A2b commit 7 (20270120170000) moved the boundary into one predicate: may_start's answer is ok, or its
+          #     refusal is one of the two maintenance codes (judged last, so every other check has passed). The
+          #     plant removes that predicate, which is the delegation.
           cat > /tmp/f06-3h.sql <<'SQL'
           begin;
           do $d$
           declare orig text; src text;
           begin
             orig := pg_get_functiondef('public.assessment_orientation(uuid)'::regprocedure);
-            src := replace(orig, 'and (select e.ok from public.may_start_assessment(aa.id) e)', '');
+            src := replace(orig, 'and (m.ok or m.reason in (''MAINTENANCE_PLACE'', ''MAINTENANCE_NO_NEW_START''))', '');
             if src = orig then raise exception 'the plant did not reach assessment_orientation'; end if;
             execute src;
           end $d$;
@@ -1144,14 +1149,18 @@ jobs:
           create or replace function public.assessment_orientation(p_assessment_assignment uuid)
           returns table (mode public.assessment_mode, title text, item_count smallint, allows_pause boolean,
                          hesitation_window_seconds integer, opens_at timestamptz, closes_at timestamptz,
-                         attempt_limit smallint, attempts_used integer)
+                         attempt_limit smallint, attempts_used integer,
+                         -- A2b commit 7 (20270120170000) added the maintenance refusal's five columns; the plant keeps
+                         -- the function's shape and leaves them null, so the defect is still only "looking starts"
+                         tolak_pemeliharaan text, tolak_cakupan text, tolak_mulai timestamptz, tolak_selesai timestamptz,
+                         tolak_kelas text[])
           language plpgsql security definer set search_path = public, pg_temp as $f$
           declare v_s uuid;
           begin
             v_s := public.start_learning_session(p_assessment_assignment);
             return query select st.mode, 'x'::text, st.item_count::smallint, st.allows_pause,
                                 st.hesitation_window_seconds, null::timestamptz, st.authoritative_deadline,
-                                1::smallint, 1
+                                1::smallint, 1, null::text, null::text, null::timestamptz, null::timestamptz, null::text[]
                            from public.session_state(v_s) st;
           end $f$;
           select id, case when ok then 't' else 'f' end, detail from selftest.run_fable06() where id = 'UX1-S2-ORIENT-01';

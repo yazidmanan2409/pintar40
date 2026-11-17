@@ -15,7 +15,7 @@ import TombolKirim from "@/components/TombolKirim";
  * decides the act; this only makes the screen ask before it.
  */
 export default function KonfirmasiBahaya({
-  tombol, tanya, akibat, ya, batal, sibuk, id, nama, nilai,
+  tombol, tanya, akibat, ya, batal, sibuk, id, nama, nilai, terbuka, batalKe,
 }: {
   /** the first button's words: the act's name */
   tombol: string;
@@ -33,11 +33,16 @@ export default function KonfirmasiBahaya({
   /** where the form tells its act by the submit button (name="aksi" value="AKHIRI") */
   nama?: string;
   nilai?: string;
+  /** A2b (Daisy, C-6): the confirmation is the act's whole panel, open at once, with its required field inside it
+   *  (`akibat`); its one «Batal» then closes the panel (`batalKe`, the address without it), never a second cancel */
+  terbuka?: boolean;
+  batalKe?: string;
 }) {
-  const [yakin, setYakin] = useState(false);
+  const [yakin, setYakin] = useState(terbuka === true);
   const lanjut = useRef<HTMLButtonElement>(null);
-  const tidak = useRef<HTMLButtonElement>(null);
-  useEffect(() => { if (yakin) tidak.current?.focus(); }, [yakin]);
+  const tidak = useRef<HTMLButtonElement & HTMLAnchorElement>(null);
+  // opened by a press, focus goes to «Batal», the safe choice; opened at once (terbuka), its own field takes focus
+  useEffect(() => { if (yakin && !terbuka) tidak.current?.focus(); }, [yakin, terbuka]);
   const judul = `${id}-tanya`;
 
   if (!yakin) {
@@ -54,10 +59,14 @@ export default function KonfirmasiBahaya({
       {akibat ? <div>{akibat}</div> : null}
       <div className="pin-actions">
         <TombolKirim className="pin-btn pin-bahaya-pasti" sibuk={sibuk} name={nama} value={nilai}>{ya}</TombolKirim>
-        <button ref={tidak} type="button" className="pin-btn pin-quiet"
-          onClick={() => { setYakin(false); requestAnimationFrame(() => lanjut.current?.focus()); }}>
-          {batal}
-        </button>
+        {batalKe ? (
+          <a ref={tidak} href={batalKe} className="pin-btn pin-quiet">{batal}</a>
+        ) : (
+          <button ref={tidak} type="button" className="pin-btn pin-quiet"
+            onClick={() => { setYakin(false); requestAnimationFrame(() => lanjut.current?.focus()); }}>
+            {batal}
+          </button>
+        )}
       </div>
     </div>
   );

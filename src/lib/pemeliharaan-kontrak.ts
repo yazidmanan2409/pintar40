@@ -10,7 +10,7 @@
  * browser times T-60/30/15 itself, with no polling (D-094(d)).
  */
 
-import { geserZona, jam } from "./tanggal";
+import { bagianJakarta, geserZona, jam, kataZona, tanggal } from "./tanggal";
 
 export const HALAMAN_PEMELIHARAAN = "/pemeliharaan";
 
@@ -34,11 +34,43 @@ export type JendelaSaya = {
   berjalan: boolean;
   /** the reader handed in an assessment since the window began */
   terkumpul: string | null;
-  /** A2a: the classes an EMERGENCY class stop holds (null for a school or platform stop) */
+  /** A2a: the classes a class window names (A2b: an EMERGENCY class stop or a PLANNED class window; null otherwise) */
   kelas: string[] | null;
+  /** A2b: those classes' ids, which a class's own pages carry in their route (/mengajar/{kelas}) */
+  kelasId: string[] | null;
+  /** A2b (R-1): ORANG, the window stops the reader as a person (an emergency, or platform-wide planned maintenance:
+   *  the only kind that redirects); TEMPAT, it pauses only the work of its class or school (the banner, never a redirect) */
+  cakupan: "ORANG" | "TEMPAT";
+  /** A2b: the school a school or class window is for */
+  sekolah: string | null;
+  /** A2b (D8): the zone its times are shown in, the window's school's (for a platform window, the reader's own) */
+  zona: string | null;
   /** A2a: the reader also has another class or school, so the stop reaches them there too (Daisy's line) */
   kelasLain: boolean;
+  /** A2b D2: a planned window's reason code (one of KODE_ALASAN), null for an old row or an emergency */
+  alasanKode?: KodeAlasan | null;
+  /** A2b D2: a planned window's reason as stored: the code itself, or an old row's own text; null for an emergency */
+  alasan?: string | null;
 };
+
+/** A2b D2 (Daisy, A2-KATA-DESAIN B1): the planned reasons, in the form's order. */
+export const KODE_ALASAN = ["RUTIN", "PEMBARUAN", "GANGGUAN", "JARINGAN_LISTRIK", "LAINNYA"] as const;
+export type KodeAlasan = (typeof KODE_ALASAN)[number];
+export const ALASAN_LAINNYA_MAKS = 120;
+export function kodeAlasan(v: unknown): KodeAlasan | null {
+  return typeof v === "string" && (KODE_ALASAN as readonly string[]).includes(v) ? (v as KodeAlasan) : null;
+}
+/** The reason line shown to the affected (Daisy, B1: «Alasan: {alasan}»): a code's own words, else the stored text
+ *  (LAINNYA's, or an old row's); null when the window gives none (an emergency). `s` is the caller's copy reader. */
+export function barisAlasan(j: Pick<JendelaSaya, "alasanKode" | "alasan">, s: (k: "pemeliharaan.alasan.baris" | `pemeliharaan.alasan.${KodeAlasan}`) => string): string | null {
+  const k = kunciAlasan(j.alasanKode ?? null);
+  const isi = k ? s(k) : j.alasan ?? null;
+  return isi ? s("pemeliharaan.alasan.baris").replace("{alasan}", isi) : null;
+}
+/** The copy key of a coded reason, or null for free text (an old row's, or LAINNYA's own words). */
+export function kunciAlasan(kode: KodeAlasan | null | undefined): `pemeliharaan.alasan.${KodeAlasan}` | null {
+  return kode && kode !== "LAINNYA" ? `pemeliharaan.alasan.${kode}` : null;
+}
 
 export type PengumumanSaya = { id: string; pesan: string; sampai: string };
 
@@ -71,6 +103,13 @@ export function bacaStatusSaya(data: unknown): StatusSaya {
       pesan: teks(x.pesan), menguasai: x.menguasai === true, berjalan: x.berjalan === true, terkumpul: waktu(x.terkumpul),
       kelas: Array.isArray(x.kelas) && x.kelas.length > 0 && x.kelas.every((k) => typeof k === "string" && k.length > 0) ? (x.kelas as string[]) : null,
       kelasLain: x.kelas_lain === true,
+      kelasId: Array.isArray(x.kelas_id) && x.kelas_id.length > 0 && x.kelas_id.every((k) => typeof k === "string" && k.length > 0) ? (x.kelas_id as string[]) : null,
+      // a window of unknown scope is read as person-level: the safe side (it may redirect; it never hides a stop)
+      cakupan: x.cakupan === "TEMPAT" && x.jenis === "PLANNED" ? "TEMPAT" : "ORANG",
+      sekolah: teks(x.sekolah),
+      zona: teks(x.zona),
+      alasanKode: x.jenis === "PLANNED" ? kodeAlasan(x.alasan_kode) : null,
+      alasan: x.jenis === "PLANNED" ? teks(x.alasan) : null,
     });
   }
   const pengumuman: PengumumanSaya[] = [];
@@ -138,6 +177,80 @@ export function jamWib(iso: string, zona?: string | null): string {
   return jam(iso, zona);
 }
 
+/**
+ * A2b (the Chief Architect's R-B, PLAN-A2B-C2W.md at e15fe966; Daisy, A2B-C2W-KATA.md §1): the banner re-reads the
+ * status at a stage boundary before it shows that stage: at most one read per boundary, so at most four per window per
+ * open page (T−60, T−30, T−15, T=0); only while a planned window is announced (not yet begun, within the hour); never on
+ * an interval; a failed read shows nothing new. These are the boundaries still ahead, in ms from now.
+ */
+export const BACA_ULANG_MAKS = 4;
+export function batasTahap(mulai: string, sekarangMs: number, selisihMs = 0): number[] {
+  const sisa = Date.parse(mulai) - (sekarangMs + selisihMs);
+  if (!Number.isFinite(sisa) || sisa <= 0 || sisa > 60 * 60_000) return [];
+  return [60, 30, 15, 0].map((b) => sisa - b * 60_000).filter((t) => t > 0);
+}
+/** R-B: whether the banner may re-read for this window at all: a planned window announced and not yet begun. */
+export function jendelaDiumumkan(j: JendelaSaya | null, sekarangMs: number, selisihMs = 0): j is JendelaSaya {
+  return Boolean(j && j.jenis === "PLANNED" && j.keadaan !== "AKTIF" && batasTahap(j.mulai, sekarangMs, selisihMs).length > 0);
+}
+/** R-B: the stage to show after a boundary's read: the new read's stage, or, when the read failed, the stage already shown. */
+export function tahapSetelahBaca(sebelum: 60 | 30 | 15 | 0 | null, hasil: StatusSaya | null, sekarangMs: number, selisihMs = 0): 60 | 30 | 15 | 0 | null {
+  if (!hasil) return sebelum;
+  const j = jendelaUtama(hasil);
+  if (!j || j.jenis !== "PLANNED") return null;
+  return j.keadaan === "AKTIF" ? 0 : tahapPeringatan(j.mulai, sekarangMs, selisihMs);
+}
+
+/**
+ * A2b (the Chief Architect's R-A, PLAN-A2B-C2W.md): where a maintenance refusal of a start is said. A platform-wide
+ * window's T−15 keeps 4.0's #148 page exactly (JEDA: the redirect to /pemeliharaan?mulai=ditolak); every work-scoped
+ * refusal, and D4's for any window, stays on the start screen (LAYAR: «Mulai» disabled with its sentence), never
+ * redirected. The scope comes from the same database call as the refusal (assessment_orientation's tolak_cakupan).
+ */
+export type ArahTolakMulai = "JEDA" | "LAYAR";
+export function arahTolakMulai(kode: string, cakupan: string | null | undefined): ArahTolakMulai {
+  return kode === "MAINTENANCE_NO_NEW_START" && cakupan === "ORANG" ? "JEDA" : "LAYAR";
+}
+
+/** A2b (D8): a time of a window as its reader reads it: «22.00 WITA», in the window's zone; a non-breaking space keeps
+ *  the time and its zone word together (Daisy, 16 Nov). */
+export function jamJendela(iso: string, j: Pick<JendelaSaya, "zona">): string {
+  return `${jam(iso, j.zona)}\u00a0${kataZona(j.zona)}`;
+}
+
+/** Daisy (16 Nov, C-1's EN): a sentence that opens with its place («{untuk}'s work …») starts with a capital. */
+export function kapitalAwal(s: string): string {
+  return s.charAt(0).toLocaleUpperCase("id-ID") + s.slice(1);
+}
+
+/**
+ * A2b (Daisy, TINJAUAN-A2B-D8-B1 C-3): a window's time that falls on another day than the reader's today, both read
+ * in the window's zone, carries its day after the zone word: «pukul 01.00 WITA, Selasa 17 Nov» (ID), «at 01.00 WITA on
+ * Tuesday 17 Nov» (EN). Nothing when it is the same day.
+ */
+export function hariLain(iso: string, j: Pick<JendelaSaya, "zona">, kiniMs: number, locale: string = "id"): string {
+  const geser = geserZona(j.zona);
+  const a = bagianJakarta(iso, geser), b = bagianJakarta(new Date(kiniMs), geser);
+  if (!a || !b || (a.tahun === b.tahun && a.bulan === b.bulan && a.hari === b.hari)) return "";
+  return locale === "en" ? ` on ${tanggal(iso, "hariSingkat", "en", j.zona)}` : `, ${tanggal(iso, "hariSingkat", "id", j.zona)}`;
+}
+
+/** A2b (C-3): every shown time of a window, with its zone word and, on another day, its day: one helper for all. */
+export function jamPenuh(iso: string, j: Pick<JendelaSaya, "zona">, kiniMs: number | null, locale: string = "id"): string {
+  return jamJendela(iso, j) + (kiniMs === null ? "" : hariLain(iso, j, kiniMs, locale));
+}
+
+/**
+ * A2b (R-1; Daisy, A2B-C2W-KATA.md D8-1): whether a work-scoped window is told on this page. A class window is told on
+ * the reader's pages but not on another class's own pages (/mengajar/{kelas}); a school window everywhere. A
+ * person-level window is always told.
+ */
+export function jendelaDiHalaman(j: JendelaSaya, path: string): boolean {
+  if (j.cakupan !== "TEMPAT" || !j.kelasId) return true;
+  const m = /^\/mengajar\/([^/]+)/.exec(path);
+  return !m || j.kelasId.includes(decodeURIComponent(m[1]));
+}
+
 /** The window that matters most to this reader now: an emergency, else an active window, else the nearest. */
 export function jendelaUtama(s: StatusSaya): JendelaSaya | null {
   const urut = [...s.pemeliharaan].sort((a, b) =>
@@ -150,6 +263,19 @@ export function jendelaUtama(s: StatusSaya): JendelaSaya | null {
 // ------------------------------------------------------------------ the administrator's side
 
 /* The controls' refusals (PR110) are the action contract's: KODE_PEMELIHARAAN in galat-kontrak.ts. */
+
+/** A2b D3 (Daisy, A2B-PERPANJANG-KATA §1): «Perpanjang» is offered on a planned window with an end, scheduled or under
+ *  way, that the reader controls. An emergency is never extended (A8); a window with no end has nothing to extend. */
+export function bolehPerpanjang(w: { jenis: string; keadaan: string; selesai: string | null; menguasai: boolean }): boolean {
+  return w.jenis === "PLANNED" && w.selesai !== null && w.menguasai && ["TERJADWAL", "MENJELANG", "AKTIF"].includes(w.keadaan);
+}
+
+/** A2b (Daisy, A2B-PERPANJANG-KATA §2): the early end's confirmation says what follows, in the window's own scope. */
+export function kunciAkhiriTanya(w: { platform: boolean; kelas: readonly string[] | null }):
+  "config.pemeliharaan.akhiri.tanya_kelas" | "config.pemeliharaan.akhiri.tanya_sekolah" | "config.pemeliharaan.akhiri.tanya_platform" {
+  if (w.platform) return "config.pemeliharaan.akhiri.tanya_platform";
+  return w.kelas && w.kelas.length > 0 ? "config.pemeliharaan.akhiri.tanya_kelas" : "config.pemeliharaan.akhiri.tanya_sekolah";
+}
 
 /** A window as the administrator's list returns it. */
 export type JendelaKelola = {

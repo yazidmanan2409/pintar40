@@ -10,15 +10,11 @@ import { tujuanInternal } from "@/lib/tujuan";
 import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
 import type { LearnerAnswer } from "@/lib/assessment-engine";
-import { galatPemeliharaan, HALAMAN_PEMELIHARAAN } from "@/lib/pemeliharaan-kontrak";
+import { galatPemeliharaan, HALAMAN_PEMELIHARAAN, arahTolakMulai } from "@/lib/pemeliharaan-kontrak";
 import type { PengerjaanSaya } from "@/lib/pengerjaan-kontrak";
 
 async function db() {
   return (await supabaseServer()) as unknown as engine.EngineClient;
-}
-
-export async function startSession(assessmentAssignmentId: string) {
-  return engine.startSession(await db(), assessmentAssignmentId);
 }
 
 export async function submitAnswer(
@@ -199,7 +195,18 @@ export async function mulaiAsesmen(formData: FormData) {
     await engine.startSession(await db(), penugasan);
   } catch (e) {
     const err = e as Partial<engine.EngineError>;
-    if (err.code === "PR110" && err.detail === "MAINTENANCE_NO_NEW_START") redirect(`${HALAMAN_PEMELIHARAAN}?mulai=ditolak`);
+    // A2b (the Chief Architect's R-A): a maintenance refusal is said where its scope puts it. Only a platform-wide
+    // window's T−15 keeps 4.0's page; every other one returns to the start screen, whose orientation now shows «Mulai»
+    // disabled with its sentence. The scope is the database's own, read with the refusal (assessment_orientation).
+    const kodeTolak = (err.code === "PR110" && err.detail === "MAINTENANCE_NO_NEW_START")
+      || (err.code === "PR040" && err.detail === "MAINTENANCE_PLACE") ? err.detail as string : null;
+    if (kodeTolak) {
+      const o = await engine.orientation(await db(), penugasan).catch(() => null);
+      // unknown scope: the safe default is 4.0's for T−15 (its page), and the start screen for the rest
+      const cakupan = o?.tolak_cakupan ?? (kodeTolak === "MAINTENANCE_NO_NEW_START" ? "ORANG" : "TEMPAT");
+      if (arahTolakMulai(kodeTolak, cakupan) === "JEDA") redirect(`${HALAMAN_PEMELIHARAAN}?mulai=ditolak`);
+      redirect(kembali);
+    }
     if (galatPemeliharaan({ code: err.code ?? null, message: (e as Error).message })) redirect(HALAMAN_PEMELIHARAAN);
     throw e;
   }

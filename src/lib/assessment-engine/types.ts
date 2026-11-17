@@ -160,4 +160,12 @@ export type Orientation = {
   closes_at: string | null;
   attempt_limit: number | null;
   attempts_used: number;
+  /** A2b (R-A): a maintenance refusal of the start (MAINTENANCE_PLACE or _NO_NEW_START), or null */
+  tolak_pemeliharaan?: string | null;
+  /** its window's scope, read in the same call: ORANG (platform-wide) or TEMPAT (a class or school) */
+  tolak_cakupan?: "ORANG" | "TEMPAT" | null;
+  /** its window's start and expected end, and its classes for a class window */
+  tolak_mulai?: string | null;
+  tolak_selesai?: string | null;
+  tolak_kelas?: string[] | null;
 };

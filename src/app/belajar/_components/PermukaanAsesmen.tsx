@@ -16,6 +16,7 @@ import { personaPembelajaran } from "@/lib/pembelajaran";
 import { zonaSimpulBanyak } from "@/lib/zona-sekolah";
 import ItemPlayer from "./ItemPlayer";
 import { pengerjaanSaya } from "@/lib/pengerjaan";
+import { arahTolakMulai } from "@/lib/pemeliharaan-kontrak";
 
 /**
  * ONE ASSESSMENT EXPERIENCE, THREE WAYS IN.
@@ -111,6 +112,16 @@ export default async function PermukaanAsesmen({
     // kind with no product name shows its own title.
     const namaKunci = kunciNamaAsesmen(orientasi.mode);
     const nama = namaKunci ? s(namaKunci) : orientasi.title;
+    // A2b (R-A; Daisy, A2-KATA-DESAIN.md B2 and A2B-RA-KALIMAT.md): a maintenance refusal said on this screen disables
+    // «Mulai» and ties its sentence to it; a platform-wide window's T−15 keeps 4.0's button (pressing it leads to the
+    // maintenance page, as before)
+    const tolak = orientasi.tolak_pemeliharaan ?? null;
+    const dimatikan = tolak !== null && arahTolakMulai(tolak, orientasi.tolak_cakupan) === "LAYAR";
+    // the Chief Architect's D4 ruling (THE PLAN §5.3 D4): PINTAR has no per-assessment duration, so the database refuses
+    // only a place under maintenance or inside T−15, and this screen says no duration
+    const kalimatTolak = !dimatikan ? null
+      : tolak === "MAINTENANCE_PLACE" ? s("pemeliharaan.pita.asesmen_baru")
+      : s("galat.maintenance_no_new_start");
     return (
       <>
         <CangkangPengalaman locale={locale} current="belajar" />
@@ -125,7 +136,14 @@ export default async function PermukaanAsesmen({
             mode={mode}
             eyebrow={eyebrow}
             judul={nama}
-            mulai={
+            mulai={dimatikan ? (
+              <div className="pin-stack" data-mulai-ditolak={tolak}>
+                <button type="button" className="pin-btn pin-primary" disabled aria-describedby="mulai-tolak">
+                  {s("cycle.open")} {nama}
+                </button>
+                <p id="mulai-tolak" className="pin-mm" role="status">{kalimatTolak}</p>
+              </div>
+            ) : (
               <form action={mulaiAsesmen}>
                 <input type="hidden" name="penugasan" value={penugasan} />
                 <input type="hidden" name="kembali" value={diriHref} />
@@ -133,7 +151,7 @@ export default async function PermukaanAsesmen({
                   {s("cycle.open")} {nama}
                 </TombolKirim>
               </form>
-            }
+            )}
             kembali={{ href: kembali.href, label: s("siklus.nanti") }}
           />
           <KakiPintar />

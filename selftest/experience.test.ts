@@ -2219,7 +2219,32 @@ export const experienceTests: SelfTest[] = [
       // MOVED 264 -> 265, RESTATED, A2a change C: 20270119250000 (the O1 refusal audit).
       // MOVED 265 -> 266, RESTATED, A2a change C: 20270119260000 (C41-2, D6.9's count, N42-1).
       // MOVED 266 -> 267, RESTATED, A2a change C: 20270119270000 (the O1 refusal recorded once per stop).
-      c.expect(migrations.length === 267, `${migrations.length} migrations; the frozen baseline has 267`);
+      // MOVED 267 -> 268, RESTATED, A2b commit 1: 20270120100000 (a planned window can cover a class and be extended).
+      // Read against §3: a scope and an end, not a mark, a logo, a crest or a theme.
+      // MOVED 268 -> 269, RESTATED, A2b commit 2: 20270120110000 (a planned window refuses its place's work).
+      // Read against §3: a place, not a mark, a logo, a crest or a theme.
+      // MOVED 269 -> 270, RESTATED, A2b commit 3: 20270120120000 (a start that cannot finish before a window is refused).
+      // Read against §3: a deadline, not a mark, a logo, a crest or a theme.
+      // MOVED 270 -> 271, RESTATED, A2b's D1-2: 20270120130000 (a marked sitting reads its pending release).
+      // Read against §3: a deadline, not a mark, a logo, a crest or a theme.
+      // MOVED 271 -> 272, RESTATED, A2b commit 4: 20270120140000 (the status read says who a window stops).
+      // Read against §3: a scope and a zone, not a mark, a logo, a crest or a theme.
+      // MOVED 272 -> 273, RESTATED, A2b's D1-3: 20270120150000 (a learner's reads do not count a stale mark as held).
+      // Read against §3: a sitting's hold, not a mark, a logo, a crest or a theme.
+      // MOVED 273 -> 274, RESTATED, A2b commit 5: 20270120160000 (the status read gives a class window's classes).
+      // Read against §3: a class, not a mark, a logo, a crest or a theme.
+      // MOVED 274 -> 275, RESTATED, A2b commit 7: 20270120170000 (a maintenance refusal still shows the orientation).
+      // Read against §3: a refusal, not a mark, a logo, a crest or a theme.
+      // MOVED 275 -> 276, RESTATED, A2b commit 12: 20270120180000 (draining is per window).
+      // Read against §3: a sitting's drain, not a mark, a logo, a crest or a theme.
+      // MOVED 276 -> 277, RESTATED, A2b batch 2 (D2): 20270120190000 (a planned window gives its reason).
+      // MOVED 277 -> 278, RESTATED, A2b batch 2: 20270120200000 (an early end reads the clock).
+      // MOVED 278 -> 279, RESTATED, A2b batch 2: 20270120210000 (the planned form chooses classes).
+      // MOVED 279 -> 280, RESTATED, A2b batch 2: 20270120220000 (a window's place for its controller).
+      // MOVED 280 -> 281, RESTATED, A2b batch 2: 20270120230000 (a notice's place for its controller, S-1).
+      // MOVED 281 -> 282, RESTATED, A2b reopened: 20270120240000 (a start refused for maintenance says its code): a
+      // replaced function body; no table, no column.
+      c.expect(migrations.length === 282, `${migrations.length} migrations; the frozen baseline has 282`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -2786,8 +2811,22 @@ export const experienceTests: SelfTest[] = [
       c.expect(/if \(!orientasi\)/.test(surface), "the surface does not branch on a missing orientation");
       const nullBranch = /if \(!orientasi\) \{\s*return <HalamanPenolakan/.test(surface);
       c.expect(nullBranch, "a missing orientation does not render the one refusal page");
-      c.expect(!/disabled/.test(surface),
-        "the assessment surface renders a disabled control, which is how a refused orientation comes back as a greyed-out page");
+      // RESTATED, A2b commit 7 (the Chief Architect's R-A; Daisy, A2-KATA-DESAIN.md B2): one disabled control is ruled,
+      // «Mulai» under a MAINTENANCE refusal, where the learner is still eligible and the pause is temporary, tied to its
+      // sentence. A refused orientation still never comes back greyed out: any other disabled control fails.
+      c.expect((surface.match(/disabled/g) ?? []).length === 1 && /<button type="button" className="pin-btn pin-primary" disabled aria-describedby="mulai-tolak">/.test(surface)
+        && /const dimatikan = tolak !== null && arahTolakMulai\(tolak, orientasi\.tolak_cakupan\) === "LAYAR";/.test(surface),
+        "the assessment surface renders a disabled control other than R-A's maintenance «Mulai», which is how a refused orientation comes back as a greyed-out page");
+      // Daisy's condition (a) (A2B-SLICE2-PUTUSAN.md; the owner, 16 Nov: before or after, so long as it is clear): whenever
+      // that «Mulai» is disabled, its sentence is VISIBLE text beside it, not only reachable through aria-describedby (a
+      // disabled control leaves the tab order), and it always has one
+      c.expect(/<p id="mulai-tolak" className="pin-mm" role="status">\{kalimatTolak\}<\/p>/.test(surface)
+        && !/id="mulai-tolak"[^>]*(sr-only|hidden|aria-hidden)/.test(surface)
+        && /const kalimatTolak = !dimatikan \? null\s*: tolak === "MAINTENANCE_PLACE" \? s\("pemeliharaan\.pita\.asesmen_baru"\)/.test(surface),
+        "a disabled «Mulai» must carry its sentence as visible text, tied by aria-describedby, and never be disabled without one");
+      // Daisy (16 Nov 05:26): «after» is acceptable, with the sentence next in reading order and nothing focusable between
+      c.expect(/disabled aria-describedby="mulai-tolak">[^<]*(\{[^}]*\}[^<]*)*<\/button>\s*<p id="mulai-tolak"/.test(surface),
+        "the disabled «Mulai»'s sentence must follow it directly, with nothing (and nothing focusable) between them");
       // No second eligibility opinion in this process: may_start_assessment is
       // the database's answer and the RPCs ask it themselves.
       c.expect(!/\bmayStart\b/.test(surface),
@@ -4109,7 +4148,22 @@ export const experienceTests: SelfTest[] = [
       // MOVED 264 -> 265, RESTATED, A2a change C, for 20270119250000 (the O1 refusal audit): no tour RPC.
       // MOVED 265 -> 266, RESTATED, A2a change C, for 20270119260000 (C41-2, D6.9's count, N42-1): no tour RPC.
       // MOVED 266 -> 267, RESTATED, A2a change C, for 20270119270000 (the refusal dedupe): no tour RPC.
-      c.expect(migs.length === 267, `${migs.length} migrations; the baseline has 267`);
+      // MOVED 267 -> 268, RESTATED, A2b commit 1, for 20270120100000 (the class window and the extend): no tour RPC.
+      // MOVED 268 -> 269, RESTATED, A2b commit 2, for 20270120110000 (the place guard): no tour RPC.
+      // MOVED 269 -> 270, RESTATED, A2b commit 3, for 20270120120000 (D4): no tour RPC.
+      // MOVED 270 -> 271, RESTATED, A2b's D1-2, for 20270120130000: no tour RPC.
+      // MOVED 271 -> 272, RESTATED, A2b commit 4, for 20270120140000 (the status read): no tour RPC.
+      // MOVED 272 -> 273, RESTATED, A2b's D1-3, for 20270120150000: no tour RPC.
+      // MOVED 273 -> 274, RESTATED, A2b commit 5, for 20270120160000: no tour RPC.
+      // MOVED 274 -> 275, RESTATED, A2b commit 7, for 20270120170000: no tour RPC.
+      // MOVED 275 -> 276, RESTATED, A2b commit 12, for 20270120180000: no tour RPC.
+      // MOVED 276 -> 277, RESTATED, A2b batch 2 (D2), for 20270120190000 (a planned window gives its reason): no tour RPC.
+      // MOVED 277 -> 278, RESTATED, A2b batch 2, for 20270120200000 (an early end reads the clock): no tour RPC.
+      // MOVED 278 -> 279, RESTATED, A2b batch 2, for 20270120210000 (the planned form chooses classes): no tour RPC.
+      // MOVED 279 -> 280, RESTATED, A2b batch 2, for 20270120220000 (a window's place for its controller): no tour RPC.
+      // MOVED 280 -> 281, RESTATED, A2b batch 2, for 20270120230000 (a notice's place for its controller, S-1): no tour RPC.
+      // MOVED 281 -> 282, RESTATED, A2b reopened, for 20270120240000 (a start refused for maintenance says its code): no tour RPC.
+      c.expect(migs.length === 282, `${migs.length} migrations; the baseline has 282`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

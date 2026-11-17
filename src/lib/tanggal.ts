@@ -26,7 +26,7 @@
  * already, and is read as written, never shifted.
  */
 
-export type BentukTanggal = "baca" | "hari" | "hariJam" | "cap" | "ringkas" | "resmi" | "resmiJam";
+export type BentukTanggal = "baca" | "hari" | "hariJam" | "cap" | "ringkas" | "resmi" | "resmiJam" | "hariSingkat";
 export type BahasaTanggal = "id" | "en";
 
 const BULAN: Record<BahasaTanggal, readonly string[]> = {
@@ -147,6 +147,9 @@ export function tanggal(nilai: string | Date | null | undefined, bentuk: BentukT
   const pukul = p.jam !== null ? `${dua(p.jam)}.${dua(p.menit ?? 0)} ${z.kata}` : "";
   switch (bentuk) {
     case "hari": return denganHari;
+    // A2b (Daisy, TINJAUAN-A2B-D8-B1 C-3): a day beside a time, «Selasa 17 Nov», no year and no comma
+    // Daisy (16 Nov): a non-breaking space keeps the day and its month together («17\u00a0Nov»)
+    case "hariSingkat": return `${HARI[bhs][p.hariPekan]} ${p.hari}\u00a0${BULAN[bhs][p.bulan - 1]}`;
     case "hariJam": return pukul ? `${denganHari}, ${pukul}` : denganHari;
     case "cap": return pukul ? `${baca}, ${pukul}` : baca;
     case "ringkas": return `${dua(p.hari)}/${dua(p.bulan)}/${p.tahun}`;

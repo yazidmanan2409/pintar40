@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
-import { jamWib, jendelaUtama, statusSaya } from "@/lib/pemeliharaan";
+import { barisAlasan, jamPenuh, jendelaUtama, kapitalAwal, statusSaya } from "@/lib/pemeliharaan";
 import MerekPintar from "@/components/MerekPintar";
 import PengalihBahasa from "@/components/PengalihBahasa";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -36,7 +36,10 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
   const status = await statusSaya();
   const w = jendelaUtama(status);
   const s = (k: HleEvent) => t(k, "learner", { locale });
-  const jam = (iso: string) => `${jamWib(iso)} ${s("pemeliharaan.zona")}`;
+  // A2b (D8): every time in the window's school's zone (for a platform window, the reader's own), never a fixed «WIB»
+  // a time on another day than today, in the same zone, carries its day (Daisy, C-3); today is the database's clock
+  const kini = status.sekarang ? Date.parse(status.sekarang) : null;
+  const jam = (iso: string) => jamPenuh(iso, w ?? { zona: null }, kini, locale);
 
   let isi: React.ReactNode;
   if (status.terhenti === "EMERGENCY") {
@@ -70,12 +73,15 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
           {w.selesai ? <>{s("pemeliharaan.kira")} {jam(w.selesai)}.</> : s("pemeliharaan.kira_belum")}
         </p>
         {w.pesan ? <p className="pin-msg pin-msg-note"><strong>{s("pemeliharaan.pesan")}</strong> {w.pesan}</p> : null}
+        {/* A2b D2 (Daisy, B1): the planned window's reason, «Alasan: {alasan}» (pemeliharaan.alasan.baris) */}
+        {barisAlasan(w, s) ? <p className="pin-lede-m">{barisAlasan(w, s)}</p> : null}
         {w.terkumpul ? <p className="pin-lede-m" role="status">{s("pemeliharaan.terkumpul")} {jam(w.terkumpul)}.</p> : null}
         <p className="pin-lede-m">{s("pemeliharaan.aman")}</p>
         <p className="pin-lede-m"><strong>{s("pemeliharaan.langkah")}</strong></p>
       </>
     );
-  } else if (mulai === "ditolak" && w && w.jenis === "PLANNED" && w.keadaan !== "AKTIF") {
+  } else if (mulai === "ditolak" && w && w.jenis === "PLANNED" && w.keadaan !== "AKTIF" && w.cakupan === "ORANG") {
+    // R-A: only a platform window's T−15 is sent here; a work-scoped refusal is said on the start screen
     isi = (
       <>
         <h1 className="pin-mh1">{s("pemeliharaan.menjelang.judul")}</h1>
@@ -84,6 +90,25 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
           {w.selesai ? <>{s("pemeliharaan.pita.selesai_kira")} {jam(w.selesai)}.</> : null}
         </p>
         <p className="pin-lede-m">{s("pemeliharaan.menjelang.arti")}</p>
+        <Link className="pin-mbtn pin-mbtn-1" href="/">{s("pemeliharaan.kembali.tautan")}</Link>
+      </>
+    );
+  } else if (w && w.jenis === "PLANNED" && w.keadaan === "AKTIF" && w.cakupan === "TEMPAT") {
+    // A2b (R-1; Daisy, A2B-C2W-KATA.md D8-2): a class or school window under way stops only that place's work, never
+    // the person: the page names the place and says the rest of PINTAR stays usable (the banner's own approved keys)
+    const untuk = w.kelas ? s("pemeliharaan.tempat.kelas").replace("{kelas}", w.kelas.join(", "))
+      : s("pemeliharaan.tempat.sekolah").replace("{sekolah}", w.sekolah ?? "");
+    isi = (
+      <>
+        <h1 className="pin-mh1" data-cakupan="TEMPAT">{s("pemeliharaan.tempat.berlangsung").replace("{untuk}", untuk)}</h1>
+        <p className="pin-lede-m">{kapitalAwal(s("pemeliharaan.tempat.arti").replace("{untuk}", untuk))}</p>
+        <p className="pin-lede-m">
+          {s("pemeliharaan.sejak")} {jam(w.mulai)}.{" "}
+          {w.selesai ? <>{s("pemeliharaan.kira")} {jam(w.selesai)}.</> : s("pemeliharaan.kira_belum")}
+        </p>
+        {w.pesan ? <p className="pin-msg pin-msg-note"><strong>{s("pemeliharaan.pesan")}</strong> {w.pesan}</p> : null}
+        {/* A2b D2 (Daisy, B1): the planned window's reason, «Alasan: {alasan}» (pemeliharaan.alasan.baris) */}
+        {barisAlasan(w, s) ? <p className="pin-lede-m">{barisAlasan(w, s)}</p> : null}
         <Link className="pin-mbtn pin-mbtn-1" href="/">{s("pemeliharaan.kembali.tautan")}</Link>
       </>
     );

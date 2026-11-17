@@ -1,0 +1,37 @@
+# A2b step 1: the inventory test and K1 to K12, run on main's code (eff99f98), 16 Nov 2026, before any product code.
+# Each FAIL is the behaviour A2b adds, not yet built; each test first checked its own fixture with no window open.
+# K4 and K5 PASS on main by design: they guard what A2b must keep (T−15 for an untimed start; the drain).
+# Regenerate: SUPABASE_DB_URL=… npm run -s selftest:only -- --only=A2B-I01,A2B-I02,A2B-K01,…,A2B-K12 (on a freshly reset local stack).
+A2B-I01     FAIL    the writers of a class's work (Sharon's classing):
+  akhiri_pengerjaan is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  akhiri_penugasan is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  assign_release is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  extend_session_deadline is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  kenaikan_tetapkan is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  lanjutkan_pengerjaan is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  launch_quick_assessment is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  launch_selected_quick_assessment is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  minta_percobaan is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  move_learning_assignment_release is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  putuskan_percobaan is classed REFUSED_GRANT and does not ask the place question (maintenance_affects_place)
+  record_lesson_progress is classed REFUSED_QUIETLY and does not ask the place question (maintenance_affects_place)
+  start_learning_session is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  tambah_waktu_pengerjaan is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  terminate_session is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  tutup_pengerjaan_ditahan is classed REFUSED and does not ask the place question (maintenance_affects_place)
+  ubah_jadwal_penugasan is classed REFUSED and does not ask the place question (maintenance_affects_place)
+A2B-I02     FAIL    the readers and writers of maintenance_windows:
+  perpanjang_pemeliharaan (A2b's, WRITER) does not exist yet
+  maintenance_affects_place (A2b's, PLACE) does not exist yet
+A2B-K01     FAIL    K1: a transaction that began before the start and writes after it must be refused PR040:MAINTENANCE_PLACE: OK; K1: a start whose transaction began before T−15 and inserts after it must be refused PR110:MAINTENANCE_NO_NEW_START: OK; K1: a transaction that waited on a lock before the start and reached its write after it must be refused PR040:MAINTENANCE_PLACE: OK
+A2B-K02     FAIL    K2: before the end the act must be refused PR040:MAINTENANCE_PLACE: OK
+A2B-K03     FAIL    K3: a start whose deadline (60 min) falls after a planned class window's start (30 min) must be refused PR110:MAINTENANCE_CANNOT_FINISH: OK
+A2B-K04     PASS    D4, an untimed start: T−15 only, as today (allowed 30 min before the window, refused 10 min before)
+A2B-K05     PASS    a running sitting when a planned class window starts drains: the answer is taken; open to its effective deadline (exactly 900 s ahead: T_lift − T_stop credited, the window in the hosted shape); the closer ends it after its grace (EXPIRED); with the plant (the shift from starts_at and ended_at) 901 s
+A2B-K06     FAIL    K6: during the window the act must be refused PR040:MAINTENANCE_PLACE: OK; K6: the school's admin's extend (perpanjang_pemeliharaan) must succeed: 42883:; K6: after the old end, the guard must follow the new end: OK; K6: one maintenance.extended audit row with before, after and reason: 0
+A2B-K07     FAIL    K7: extend on an EMERGENCY window must be refused PR110:MAINTENANCE_EMERGENCY_LIFT_ONLY (Admin PINTAR): 42883:; K7: extend on an EMERGENCY window by the school's admin must be refused: 42883:; K7: the writers of maintenance_windows.ends_at must be exactly perpanjang_pemeliharaan, schedule_maintenance: also none; missing perpanjang_pemeliharaan
+A2B-K08     FAIL    K8: extending a window ended by its time, its end not yet recorded, must be refused PR110:MAINTENANCE_NOT_OPEN: 42883:; K8: the same with its end recorded: 42883:; K8: a window that ended after the transaction began (its now() before the end) must be refused, read on the clock: 42883:; K8: a window that started with no activation recorded must be extendable (the state is never read from activation_recorded_at): 42883:
+A2B-K09     FAIL    K9 order 1: the extend did not wait for the recorder (34 ms): the race was not made; K9 order 1 (the recorder first): the extend must then be refused PR110:MAINTENANCE_NOT_OPEN: 42883:; K9 order 2 (extend first): the extend must succeed: ERROR:  function public.perpanjang_pemeliharaan(unknown, timestamp with time zone, unknown) does not exist; K9 order 2: the recorder skipped the held row and its next run read the new end: one activation, no deactivation, extended: 1, 1, false
+A2B-K10     FAIL    K10: A2a's CHECK maintenance_windows_class_is_emergency must be dropped: 1 found; K10: a PLANNED class window scheduled by the school's admin through schedule_maintenance(…, p_nodes) must be accepted: 42883:; K10: another school's class must be refused by schedule_maintenance with PR110:MAINTENANCE_NODE_INVALID before any constraint: 42883:; K10: a node that is not a class must be refused by schedule_maintenance with PR110:MAINTENANCE_NODE_INVALID before any constraint: 42883:; K10: an unknown node must be refused by schedule_maintenance with PR110:MAINTENANCE_NODE_INVALID before any constraint: 42883:
+A2B-K11     FAIL    K11: a planned window on 7A: the teacher's act on 7A's work must be refused PR040:MAINTENANCE_PLACE: OK; K11: a work-scoped window never stops the teacher as a person (no PT503, no redirect): hook OK, block PLANNED; K11: a learner moved into 7A after the window began is refused there PR040:MAINTENANCE_PLACE: PR110:MAINTENANCE_NO_NEW_START; K11: a school-wide planned window at X: the teacher's acts at X must be refused PR040:MAINTENANCE_PLACE: 7A OK, 7B OK; K11: a school-wide planned window is work-scoped too: hook OK, block PLANNED
+A2B-K12     FAIL    K12: after the lift the teacher's act is refused by the planned window's place: OK

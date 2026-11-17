@@ -90,7 +90,11 @@ declare v jsonb := '{}'::jsonb; c record; j jsonb; w1 uuid; w2 uuid; n1 uuid; ja
         lain_u uuid; lain uuid; inst2 uuid; s text;
 begin
   perform selftest.as_owner();
-  v := v || jsonb_build_object('ada', to_regprocedure('public.schedule_maintenance(boolean,uuid[],timestamptz,timestamptz,text,text,boolean)') is not null);
+  -- RESTATED, A2b commit 1 (20270120100000): the signature gains p_nodes (a class window), defaulted, so every
+  -- seven-argument call below still reaches it
+  -- RESTATED, A2b batch 2 (D2, 20270120190000): it gains p_reason_code after p_nodes, defaulted to null (Sharon,
+  -- A2B-BATCH2-TESTS-d837181d.md: accepted), so every call below still reaches it unchanged
+  v := v || jsonb_build_object('ada', to_regprocedure('public.schedule_maintenance(boolean,uuid[],timestamptz,timestamptz,text,text,boolean,uuid[],text)') is not null);
   select * into c from selftest.wp2_school();
   lain_u := selftest.f06p10_person('m148-murid-lain');
   select a.person_id into lain from public.accounts a where a.auth_user_id = lain_u;
@@ -386,16 +390,22 @@ export const m148Tests: SelfTest[] = [
         "the proxy does not send a stopped page to /pemeliharaan and refuse the rest 503");
       c.expect(/<PitaPemeliharaan locale=\{locale\} \/>/.test(baca("src", "app", "layout.tsx")), "the root layout does not carry the maintenance line");
       const pita = baca("src", "components", "pemeliharaan", "PengingatPemeliharaan.tsx");
+      // RESTATED, A2b commit 6 (the owner's bounded D8 amendment, R-B, PLAN-A2B-C2W.md): the banner asks the server again
+      // only through its one stage-boundary re-read (bacaUlangStatusSaya, at most four per window, A2B-B01), never by a
+      // client of its own; it still times the stages itself and never sends a draining learner or the window's admin away
       c.expect(!/fetch\(|\.rpc\(|supabase/i.test(pita.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, "")) && /tahapBerikutMs\(/.test(pita)
-        && /window\.location\.replace\(HALAMAN_PEMELIHARAAN\)/.test(pita) && /!jendela\.berjalan && !jendela\.menguasai/.test(pita)
-        && /permukaanAsesmen\(path\)/.test(pita), "the browser asks the server again, does not time the notices itself, or sends a draining learner away at T=0");
+        && /window\.location\.replace\(HALAMAN_PEMELIHARAAN\)/.test(pita) && /!j\.berjalan && !j\.menguasai/.test(pita)
+        && (pita.match(/bacaUlangStatusSaya\(/g) ?? []).length === 1
+        && /permukaanAsesmen\(path\)/.test(pita), "the browser asks the server outside its one boundary re-read, does not time the notices itself, or sends a draining learner away at T=0");
       const lib = baca("src", "lib", "pemeliharaan.ts");
       c.expect(/rpc\("pintar_status_saya"\)/.test(lib) && /adalahCookieSesi/.test(lib), "the status is not one read, or is asked of nobody signed in");
       // a locked or ended session's refusal of the read is expected, not a failure to log (audit walk 37260826024)
       c.expect(/error\.code !== "PT423" && error\.code !== "PT401"/.test(lib), "a locked session's status read is logged as a failure");
       const aksiBelajar = baca("src", "app", "belajar", "actions.ts");
-      c.expect(/err\.code === "PR110" && err\.detail === "MAINTENANCE_NO_NEW_START"\) redirect\(`\$\{HALAMAN_PEMELIHARAAN\}\?mulai=ditolak`\)/.test(aksiBelajar),
-        "a start refused before maintenance is shown as an error rather than explained");
+      // RESTATED, A2b commit 7 (the Chief Architect's R-A): a platform window's T−15 keeps this page exactly; a work-scoped
+      // refusal stays on the start screen (A2B-A01)
+      c.expect(/if \(arahTolakMulai\(kodeTolak, cakupan\) === "JEDA"\) redirect\(`\$\{HALAMAN_PEMELIHARAAN\}\?mulai=ditolak`\)/.test(aksiBelajar),
+        "a start refused before a platform window's maintenance is shown as an error rather than explained");
       const halaman = baca("src", "app", "pemeliharaan", "page.tsx");
       c.expect(/status\.terhenti === "EMERGENCY"/.test(halaman) && /pemeliharaan\.darurat\.asesmen/.test(halaman) && /w\.terkumpul/.test(halaman)
         && /mulai === "ditolak"/.test(halaman) && /action="\/keluar" method="post"/.test(halaman),
@@ -449,13 +459,18 @@ export const m148Tests: SelfTest[] = [
         `T-20: ${JSON.stringify(x.t20)}`);
       c.expect(x.t10?.keadaan === "MENJELANG" && x.t10?.mulai_baru === "PR110:MAINTENANCE_NO_NEW_START" && x.t10?.pintu === "LEWAT", `T-10: ${JSON.stringify(x.t10)}`);
       const n = x.t0 ?? {};
-      c.expect(n.murid_b === "PT503:PINTAR_PEMELIHARAAN" && n.guru === "PT503:PINTAR_PEMELIHARAAN" && n.murid_b_periksa === "PT503:PINTAR_PEMELIHARAAN"
-        && n.murid_b_status === "LEWAT" && n.murid_b_keluar === "LEWAT" && n.terhenti === "PLANNED" && n.keadaan === "AKTIF",
+      // RESTATED, A2b commit 2 (20270120110000), the owner's R-1: a school's PLANNED window is work-scoped. It stops no
+      // one as a person (the request hook and the session check pass; the status read's person-level stop is null),
+      // and a new start during it is refused by the place (Sharon's ruling 1, A2B-STEP1-b95bfe9c.md). Was: PT503
+      // PINTAR_PEMELIHARAAN for the school's people, terhenti PLANNED, and the start refused MAINTENANCE_NO_NEW_START.
+      c.expect(n.murid_b === "LEWAT" && n.guru === "LEWAT" && n.murid_b_periksa === "LEWAT"
+        && n.murid_b_status === "LEWAT" && n.murid_b_keluar === "LEWAT" && n.terhenti === null && n.keadaan === "AKTIF",
         `T=0, the school's people: ${JSON.stringify(n)}`);
-      c.expect(n.murid_a === "LEWAT" && n.murid_a_berjalan === "true" && n.murid_a_baru === "PR110:MAINTENANCE_NO_NEW_START",
+      c.expect(n.murid_a === "LEWAT" && n.murid_a_berjalan === "true" && n.murid_a_baru === "PR040:MAINTENANCE_PLACE",
         `T=0, the learner whose sitting is running: ${JSON.stringify([n.murid_a, n.murid_a_berjalan, n.murid_a_baru])}`);
       c.expect(n.admin === "LEWAT" && n.admin_menguasai === "true" && n.sekolah_lain === "LEWAT", `T=0, its admin and another school: ${JSON.stringify([n.admin, n.admin_menguasai, n.sekolah_lain])}`);
-      c.expect(x.kumpul === "SUBMITTED" && x.sesi === "SUBMITTED" && x.setelah_kumpul === "PT503:PINTAR_PEMELIHARAAN" && x.terkumpul === true,
+      // RESTATED, A2b commit 2 (R-1): after handing in, the learner is not stopped as a person either (was PT503)
+      c.expect(x.kumpul === "SUBMITTED" && x.sesi === "SUBMITTED" && x.setelah_kumpul === "LEWAT" && x.terkumpul === true,
         `the drain: handed in ${x.kumpul} (${x.sesi}), then ${x.setelah_kumpul}, acknowledged ${x.terkumpul}`);
       c.expect(x.akhiri_guru === "PR110:MAINTENANCE_NOT_ALLOWED" && x.akhiri_tanpa_alasan === "PR110:MAINTENANCE_INPUT_INVALID" && x.akhiri === "BERAKHIR"
         && x.akhiri_lagi === "PR110:MAINTENANCE_NOT_OPEN" && x.setelah_akhir === "LEWAT" && x.pengumuman_akhir === 0,
@@ -470,9 +485,9 @@ export const m148Tests: SelfTest[] = [
       return c.verdict("migration 20261120100000, planned maintenance, against the database and rolled back: a Guru, a school admin for the " +
         "platform or another school are refused, as are a start in the past and no reason, and no client reads the windows; the school's " +
         "admin schedules it with its notice and is told what it would meet; at T-20 the school is told and may still start a sitting; from " +
-        "T-15 a new sitting is refused (PR110 MAINTENANCE_NO_NEW_START) while requests pass; at T=0 the school's learners, Guru and the " +
-        "session check are refused PT503 PINTAR_PEMELIHARAAN, the status read and leaving pass; the learner already sitting drains (their " +
-        "requests pass, no new sitting) and hands in (SUBMITTED), after which they too are stopped and told it was received; the window's " +
+        "T-15 a new sitting is refused (PR110 MAINTENANCE_NO_NEW_START) while requests pass; at T=0 (R-1, A2b: work-scoped) the school's " +
+        "learners, Guru and the session check pass and no one is stopped as a person, a new sitting is refused by the place (PR040 " +
+        "MAINTENANCE_PLACE); the learner already sitting drains and hands in (SUBMITTED), told it was received; the window's " +
         "admin and another school's people pass; a Guru cannot end it, its admin ends it with a reason (BERAKHIR, notice withdrawn) and " +
         "everyone passes; a window ended by the clock stops nobody; a notice reaches its school only and goes when withdrawn; audit_log holds " +
         "each step with from and to states, the automatic start and end as SYSTEM with no person");

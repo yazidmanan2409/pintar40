@@ -1,0 +1,32 @@
+d8-5-wib-kelas-alasan-390	/konfigurasi/pemeliharaan	overflow 0px	Perhatian. 3 asesmen dijadwalkan berlangsung selama periode ini. Asesmen terakhir diperkirakan selesai 15 Mei 2027, 19.24 WIB. Pertimbangkan memulai pemeliharaan setelah 15 Mei 2027, 19.24 WIB.
+d8-5-wib-kelas-alasan-320	/konfigurasi/pemeliharaan	overflow 0px	Perhatian. 3 asesmen dijadwalkan berlangsung selama periode ini. Asesmen terakhir diperkirakan selesai 15 Mei 2027, 19.24 WIB. Pertimbangkan memulai pemeliharaan setelah 15 Mei 2027, 19.24 WIB.
+d8-5-wib-kunci-kelas-390	/konfigurasi/pemeliharaan	overflow 0px	Perhatian. 3 asesmen dijadwalkan berlangsung selama periode ini. Asesmen terakhir diperkirakan selesai 15 Mei 2027, 19.24 WIB. Pertimbangkan memulai pemeliharaan setelah 15 Mei 2027, 19.24 WIB.
+d8-5 radio after two ArrowDown: GANGGUAN, checked GANGGUAN
+d8-5-wib-kunci-alasan-390	/konfigurasi/pemeliharaan	overflow 0px	Perhatian. 3 asesmen dijadwalkan berlangsung selama periode ini. Asesmen terakhir diperkirakan selesai 15 Mei 2027, 19.24 WIB. Pertimbangkan memulai pemeliharaan setelah 15 Mei 2027, 19.24 WIB.
+d8-5-wib-alasan-ditolak-390	/konfigurasi/pemeliharaan	overflow 0px	Perhatian. 3 asesmen dijadwalkan berlangsung selama periode ini. Asesmen terakhir diperkirakan selesai 15 Mei 2027, 19.24 WIB. Pertimbangkan memulai pemeliharaan setelah 15 Mei 2027, 19.24 WIB.
+d8-5-wib-alasan-pita-murid-390	/belajar	overflow 0px	Pemeliharaan dalam 30 menit. | Tur tidak akan muncul otomatis lagi. Bisa dibuka dari Bantuan kapan saja.Mengerti
+d8-5-wib-alasan-jeda-murid-390	/pemeliharaan	overflow 0px	
+d8-6-wib-baris-390	/konfigurasi/pemeliharaan	overflow 0px	
+d8-6-wib-baris-320	/konfigurasi/pemeliharaan	overflow 0px	
+d8-6-wib-perpanjang-buka-390	/konfigurasi/pemeliharaan	overflow 0px	
+d8-6-wib-perpanjang-buka-320	/konfigurasi/pemeliharaan	overflow 0px	
+d8-6-wib-perpanjang-kunci-390	/konfigurasi/pemeliharaan	overflow 0px	
+d8-6-wib-perpanjang-periksa-390	/konfigurasi/pemeliharaan	overflow 0px	Perhatian. 3 asesmen dijadwalkan berlangsung selama periode ini.
+d8-6-wib-perpanjang-periksa-320	/konfigurasi/pemeliharaan	overflow 0px	Perhatian. 3 asesmen dijadwalkan berlangsung selama periode ini.
+d8-6-wib-perpanjang-tidak-lebih-lambat-390	/konfigurasi/pemeliharaan	overflow 0px	
+d8-6-wib-perpanjang-hasil-390	/konfigurasi/pemeliharaan	overflow 0px	✓Selesai. Pemeliharaan diperpanjang sampai pukul 22.37 WIB. Yang terdampak akan melihat waktu selesai yang baru.
+d8-6-wib-akhiri-tanya-390	/konfigurasi/pemeliharaan	overflow 0px	
+d8-6-wib-akhiri-tanya-320	/konfigurasi/pemeliharaan	overflow 0px	
+d8-6-wib-akhiri-hasil-390	/konfigurasi/pemeliharaan	overflow 0px	✓Selesai. Pemeliharaan diakhiri.
+wib: ended_at 2026-11-16 12:37:38.815964+00
+d8-5-wita-kelas-alasan-390	/konfigurasi/pemeliharaan	overflow 0px	Perhatian. 3 asesmen dijadwalkan berlangsung selama periode ini. Asesmen terakhir diperkirakan selesai 15 Mei 2027, 20.24 WITA. Pertimbangkan memulai pemeliharaan setelah 15 Mei 2027, 20.24 WITA.
+d8-5-wita-alasan-pita-murid-390	/belajar	overflow 0px	Pemeliharaan dalam 30 menit.
+d8-5-wita-alasan-jeda-murid-390	/pemeliharaan	overflow 0px	
+d8-6-wita-baris-390	/konfigurasi/pemeliharaan	overflow 0px	
+d8-6-wita-perpanjang-buka-390	/konfigurasi/pemeliharaan	overflow 0px	
+d8-6-wita-perpanjang-periksa-390	/konfigurasi/pemeliharaan	overflow 0px	Perhatian. 3 asesmen dijadwalkan berlangsung selama periode ini.
+d8-6-wita-perpanjang-tidak-lebih-lambat-390	/konfigurasi/pemeliharaan	overflow 0px	
+d8-6-wita-perpanjang-hasil-390	/konfigurasi/pemeliharaan	overflow 0px	✓Selesai. Pemeliharaan diperpanjang sampai pukul 23.38 WITA. Yang terdampak akan melihat waktu selesai yang baru.
+d8-6-wita-akhiri-tanya-390	/konfigurasi/pemeliharaan	overflow 0px	
+d8-6-wita-akhiri-hasil-390	/konfigurasi/pemeliharaan	overflow 0px	✓Selesai. Pemeliharaan diakhiri.
+wita: ended_at 2026-11-16 12:38:35.131988+00
