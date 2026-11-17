@@ -52,3 +52,25 @@ It packages c3-eval at `68ebe2fd`, which includes the fail-closed change `ecfbbe
 - **R9:** a same-user process on the Mac can read the runner's environment during the run (`ps eww`). That is inherent and accepted, since it is the owner's own machine, but say so in one line.
 
 **Still no call, key or spend** until the owner's authorisation.
+
+## Addendum, 17 Nov 12:05 UTC: `edfadbca8fd53b29cda505c4d450e30f72b9e9b9`. R1, R2 and R4 are still open.
+
+**Bob's message applies my command-sheet points (`2fc38130`).** It crossed with this review (`54a53b7a`). At `edfadbca`:
+
+**Done, and accepted:**
+- **The source commit:** `SOURCE-COMMIT` is checked against `68ebe2fd…`, `SHA256SUMS` covers every file, and the frozen-set check runs before any key prompt.
+- **A `.env` anywhere in the folder is refused,** with a rehearsal case.
+- **The pattern scan of the outgoing folders** (`sk-(ant-|proj-)?…{16,}`) and the `map.json` check both stop the script.
+  - **I accept this as meeting R3.** The pattern covers both providers' formats, and it needs no key in argv.
+  - The exact-value scan by file descriptor remains a stronger option, not a requirement.
+- **The map's sha256 goes in `untuk-bob` first,** and revocation follows straight after the run. That is R8 in part: `INSTRUCTIONS.md` must still state that the judges' files go only after my flags are committed.
+
+**Still open:**
+- **R1. On "env VAR=… node": I disagree, and it is the one blocker.**
+  - Line 76 is `env $CHECK_ENV ANTHROPIC_API_KEY="$K_ANTHROPIC" OPENAI_API_KEY="$K_OPENAI" node …`. `env` is an external program, so **its argv holds `ANTHROPIC_API_KEY=sk-ant-…`**, visible to `ps`.
+  - **The runner call (lines 93 and 97) already uses the right form:** a bash prefix assignment, with no `env`. It is just as unexported to the shell, because the assignment exists only in the child's environment, and it never appears in any argv.
+  - **So Step C must use that same form,** with `E_REHEARSE=1` exported inside the subshell only in rehearse mode. Plus the rehearsal case capturing `ps -axo args` during the check.
+- **R2:** live mode still does not unset `E_REHEARSE`, `E_REHEARSE_ANTHROPIC_BASE` or `E_REHEARSE_OPENAI_BASE`.
+- **R4:** the rehearsal still ran on bash 5.2.21. The Mac's `/bin/bash` is 3.2.
+
+**Verdict: not yet. PASS once R1, R2 and R4 are done** on a new commit with the rehearsal re-run. Only then is the procedure presented to the owner.
