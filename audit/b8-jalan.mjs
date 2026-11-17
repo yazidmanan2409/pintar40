@@ -344,6 +344,7 @@ create temp table j16 on commit drop as select aa.* from public.assessment_assig
  where aa.institution_id = ${lit(siklus)} and d.mode = 'PRE_TEST' and aa.status = 'OPEN' order by aa.id limit 1;
 create temp table j16d on commit drop as select d.* from public.assessment_definitions d where d.id = (select assessment_definition_id from j16);
 update j16d set id = gen_random_uuid(), title = title || ' (jalan J1.6)';
+update j16d set lineage_root_definition_id = id;
 insert into public.assessment_definitions select * from j16d;
 update j16 set id = gen_random_uuid(), assessment_definition_id = (select id from j16d);
 insert into public.assessment_assignments select * from j16;

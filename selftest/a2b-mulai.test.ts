@@ -147,7 +147,7 @@ update sp_la set id = ${lit(LA_SIKLUS)};
 insert into public.learning_assignments select * from sp_la;
 create temp table sp_d on commit drop as select d.* from public.assessment_definitions d
   join public.assessment_assignments aa on aa.assessment_definition_id = d.id where aa.id = ${lit(asli)};
-update sp_d set id = ${lit(D_SIKLUS)}, title = title || ' (uji SP2, siklus)';
+update sp_d set id = ${lit(D_SIKLUS)}, lineage_root_definition_id = ${lit(D_SIKLUS)}, title = title || ' (uji SP2, siklus)';
 insert into public.assessment_definitions select * from sp_d;
 create temp table sp_aa on commit drop as select * from public.assessment_assignments where id = ${lit(asli)};
 update sp_aa set id = ${lit(AA_SIKLUS)}, learning_assignment_id = ${lit(LA_SIKLUS)}, assessment_definition_id = ${lit(D_SIKLUS)};
@@ -253,7 +253,7 @@ const D_ADHOC = ID("d02"), AA_ADHOC = ID("c02");
 const adhocSql = (inst: string, buka: string) => `set local session_replication_role = replica;
 create temp table q12d on commit drop as select d.* from public.assessment_definitions d join public.assessment_assignments aa on aa.assessment_definition_id = d.id
  where aa.institution_id = ${lit(inst)} and d.mode = 'PRE_TEST' and aa.status = 'OPEN' order by aa.id limit 1;
-update q12d set id = ${lit(D_ADHOC)}, is_ad_hoc = true, title = title || ' (uji Q-12)';
+update q12d set id = ${lit(D_ADHOC)}, lineage_root_definition_id = ${lit(D_ADHOC)}, is_ad_hoc = true, title = title || ' (uji Q-12)';
 insert into public.assessment_definitions select * from q12d;
 create temp table q12a on commit drop as select aa.* from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
  where aa.institution_id = ${lit(inst)} and d.mode = 'PRE_TEST' and aa.status = 'OPEN' order by aa.id limit 1;
