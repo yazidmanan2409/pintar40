@@ -8,7 +8,7 @@
   - `X1-PANDUAN-AI-EKSTERNAL.md` and `DESAIN-AWAL-4.1.md` (branch `ux-1/daisy-experience`).
 - Planning reference: *PINTAR Consolidated Roadmap 4.0–5.0, Revision 3*, 16 Nov 2026 ("RM"). For 4.2 the handbook now follows the copy on the 4.1 master-plan branch (`docs/roadmap/`, document control 3.3), which carries the **Rev 3.1 correction of the 4.2 inventory** (owner-approved 16 Nov).
 - `docs/roadmap/DECISIONS-TO-TRACK.md` (4.1 master-plan branch): version assignments still open (retention enforcement unassigned; external-AI import X-2/X-3/X-4 as 4.2 candidates; billing screens unassigned; R-2 before production data).
-- Account set-up after the upgrade: migration `20261021100000_an_identity_foundation.sql` (`account_setup` REQUIRED for every existing EMAIL account; class cards have none) and `src/app/aktifkan/page.tsx` (a REQUIRED account is held on the page until set-up finishes). Confirmed by Bob from the upgrade rehearsal.
+- Account set-up after the upgrade: migration `20261021100000_an_identity_foundation.sql` (`account_setup` REQUIRED for every existing EMAIL account; class cards have none) and `src/app/aktifkan/page.tsx` (a REQUIRED account is held on the page until set-up finishes). Confirmed by the production-upgrade rehearsal (`docs/completion-4.1/rehearsal/PRODUCTION-UPGRADE-REHEARSAL.md`, 4.1 master-plan branch): one REQUIRED row for every EMAIL account that is not an evaluation persona, **staff and learners alike**; the rehearsal recommends a release note.
 - Product sources consulted on `origin/main`:
   - Terminology v1 freeze package, decision D-068
   - UI strings in `src/lib/hle.ts`

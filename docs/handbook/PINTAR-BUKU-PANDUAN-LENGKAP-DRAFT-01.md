@@ -355,7 +355,7 @@ Untuk staf, misalnya guru, pimpinan, dan Admin sekolah, aktivasi dilakukan sendi
 
 Anda dapat berhenti di tengah dengan «Keluar dan lanjutkan nanti».
 
-**Sudah memakai PINTAR dengan email sebelum pembaruan?** Setelah sekolah Anda menerima PINTAR versi baru, setiap akun email yang sudah ada perlu menyelesaikan penyiapan akun ini satu kali. Masuklah seperti biasa. PINTAR lalu membuka halaman aktivasi dan menahan Anda di sana sampai langkahnya selesai. Jika Anda memilih «Keluar dan lanjutkan nanti», halaman yang sama akan muncul lagi saat Anda masuk berikutnya. Murid yang masuk dengan kartu kelas tidak mengalami langkah ini. [Perlu konfirmasi: langkah mana yang ditampilkan bagi akun lama, misalnya apakah username yang sudah ada tetap dipakai.]
+**Sudah memakai PINTAR dengan email sebelum pembaruan?** Setelah sekolah Anda menerima PINTAR versi baru, setiap akun email yang sudah ada, milik staf maupun murid, perlu menyelesaikan penyiapan akun ini satu kali. Masuklah seperti biasa. PINTAR lalu membuka halaman aktivasi dan menahan Anda di sana sampai langkahnya selesai. Jika Anda memilih «Keluar dan lanjutkan nanti», halaman yang sama akan muncul lagi saat Anda masuk berikutnya. Murid yang masuk dengan kartu kelas tidak mengalami langkah ini. [Perlu konfirmasi: langkah mana yang ditampilkan bagi akun lama, misalnya apakah username yang sudah ada tetap dipakai.]
 
 [Ilustrasi: halaman aktivasi yang muncul setelah masuk, dengan langkah yang tersisa]
 
