@@ -218,3 +218,48 @@ is not a ceiling. OpenAI's ceilings are the runner's US$5 and the US$5 balance. 
 - **Still open, at the go:** the owner confirms `gpt-6.1-sol` at US$2 / US$10 (its page is unreadable from both sessions).
 - **The private folder:** the run session sends the owner `runs/` and `out/SEALED` as one archive, and the judges' files
   separately. The owner keeps them. Only Sharon's key-check sheet is committed, on `claude/e-run-kunci` (A1).
+
+---
+
+## 7 · The Anthropic key blocker: cause and options (Bob, 17 Nov, about 11:10 UTC)
+
+### 7a · The cause
+
+The cloud sessions' network proxy lists **`api.anthropic.com` in its bypass list** (`noProxy`), so traffic to that host
+never passes through the proxy. A key saved through the secure form, or under the environment's Network secrets, is
+injected by the proxy. For this host it can never be applied, so the platform refuses the form before it appears.
+`api.openai.com` is not bypassed, and its form would work.
+
+**So, inside a cloud session, the only way to give the runner an Anthropic key is a real key in the process
+environment.** That breaks Sharon's A3 ("never a real key in the env") and your rule that the agents never handle a key.
+
+### 7b · The live command, verified (`runner.mjs` at `68ebe2fd`)
+
+- **Prices:** `--live` reads the pinned prices from `prices.json`: US$2 / US$10 for both, grade A, read 16 Nov. Anthropic's
+  were re-read on 17 Nov. These are the same figures `--real-prices` uses in the dry run. `--real-prices` together with
+  `--live` is **refused** by the runner (line 956), so removing it is correct, not merely allowed.
+- **Pack:** `--live` refuses to start without a valid `--pack-sha`, and records it in every ledger and provenance entry.
+- **Caps:** `--cap-provider 5 --cap-total 10` can only lower the caps in `prices.json` (8 / 25). The caps are checked
+  before every attempt.
+- **Frozen set:** `kit.mjs`, `score.mjs` and `report.mjs` must match their SHA-256 in `MANIFEST.json`, or the run refuses.
+
+### 7c · The options
+
+| | Option | Keys | Spending controls | Your effort | Verdict |
+|---|---|---|---|---|---|
+| **1** | **Both providers run on your own computer** | Typed by you into your own terminal for that one command. Never in any cloud session, file or commit | One ledger with both caps real (US$5 per provider, US$10 total), plus the US$5 workspace limit and the US$5 OpenAI balance | Install Node 22 if needed; about 15 minutes of commands, which I give you exactly | **Recommended** |
+| 2 | Anthropic on your computer, OpenAI in the cloud run session | Anthropic: as in 1. OpenAI: the secure form | Two ledgers; the per-provider caps of 5 each still bound the total at 10 | As in 1, plus the cloud key form | Workable, but two runs to reconcile |
+| 3 | The Anthropic key as an environment variable in the E environment | Stored in plain text in the environment settings, and readable by the cloud session | Unchanged | Low | **Not recommended:** breaks A3 and your credential rule |
+| 4 | Anthropic through another cloud gateway (Bedrock or Vertex) | — | — | — | **No:** different terms, unchecked, and Google is excluded |
+
+### 7d · Why option 1
+
+- **The keys never reach any agent.** You type each key into your own terminal, for one command, and nothing stores it.
+- **One run and one ledger** carry both caps. The A4 window is just that command's run time.
+- **The sealed map never leaves your computer.** You run the blinding step there too, then send:
+  - Sharon only her key-check sheet;
+  - the judges their files;
+  - the cloud run session (or me) only the blinded folders for scoring.
+
+  The un-blinding stays with you, which is stronger than the plan required.
+- The cloud run session is still useful: it rehearses each command offline first, and reads your outputs afterwards.
