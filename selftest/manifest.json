@@ -6599,6 +6599,11 @@
       "id": "A3-L2P",
       "runner": "static",
       "proves": "Sharon's sweep acceptance (7cd65cba), pin 1: read by A2A-L01's own lock reader over the migrations' catalogue, akhiri_penugasan takes a person lock of its own before its first sitting lock, and its source shows that lock as one ordered statement (FOR KEY SHARE, by id) over the persons of all its open sittings, before its sitting loop. A plant that locks a sitting and then its person, inside the reader's rolled-back transaction, is reported."
+    },
+    {
+      "id": "A3-R02I",
+      "runner": "static",
+      "proves": "Sharon's ruling (b) on pin 2 (561bcf9d), red first: executes against the migrations on two real connections, with committed rows of the harness's own removed afterwards (a learner of its own in the cycle's Kelas with no number at its school, and a namespace on that school). The start's transaction holds the person FOR KEY SHARE across a pause; issue_institutional_id takes the school and waits on the person; then start_learning_session inserts its sitting, whose foreign key takes FOR KEY SHARE on the school. Neither connection is aborted as a deadlock; both commit, and the learner holds one sitting and one number at the school."
     }
   ]
 }

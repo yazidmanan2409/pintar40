@@ -22,7 +22,7 @@
  *           definition has a NOT NULL, immutable lineage root that is a root of its own school; a new one is its own root.
  *   A3-LN2  the line check refuses a revision with two predecessors (the backfill's strictness).
  */
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { URUTAN, bacaUrutan, type Kunci } from "./a2a-l01.test";
@@ -219,6 +219,105 @@ export const a3DbTests: SelfTest[] = [
       const t = orangSebelumPengerjaan(db(), "_a3_l2p_tanam", TANAM_L2P);
       c.expect(t.pengerjaan >= 0 && !(t.orang >= 0 && t.orang < t.pengerjaan), "the plant (a sitting, then its person) was not reported");
       return c.verdict(`A2A-L01's reader: akhiri_penugasan takes its own person lock (lock ${a.orang + 1}) before its first sitting lock (lock ${a.pengerjaan + 1}), and that lock is one ordered statement over the persons of all its open sittings (penugasan_sesi, CREATED, IN_PROGRESS or PAUSED), before the sitting loop; a plant locking a sitting and then its person is reported`);
+    },
+  },
+  {
+    // Sharon's ruling (b) on pin 2 (17 Nov, 561bcf9d): issue_institutional_id takes its school FOR UPDATE and then the
+    // person FOR UPDATE. A start holds the person FOR KEY SHARE (its first lock) and then inserts a sitting, whose
+    // foreign key takes FOR KEY SHARE on the same school, which FOR UPDATE blocks: a deadlock on two real connections.
+    // The start's transaction holds the person, as its own first lock does, across a pause, so the interleaving is
+    // fixed: the issue takes the school and waits on the person; then the start reaches its insert.
+    id: "A3-R02I",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const psql = (sql: string) => spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { encoding: "utf8" });
+      const race = (sql: string) => new Promise<{ code: number; out: string }>((done) => {
+        const p = spawn("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { stdio: ["ignore", "pipe", "pipe"] });
+        let buf = "";
+        p.stdout.setEncoding("utf8"); p.stderr.setEncoding("utf8");
+        p.stdout.on("data", (d: string) => (buf += d)); p.stderr.on("data", (d: string) => (buf += d));
+        p.on("close", (code: number | null) => done({ code: code ?? 1, out: buf.trim() }));
+      });
+      const tunggu = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
+      // the harness's hand, committed and removed below: a learner of our own in the cycle's Kelas, with no number at
+      // its school, and a namespace on that school so the number can be issued
+      const siap = psql(`do $r$
+declare f record; v_k uuid; v_u uuid; v_p uuid; v_e uuid;
+begin
+  select * into f from selftest.cycle_fixture();
+  if f.aa_pre is null then raise exception 'the learning-cycle fixture is absent'; end if;
+  select la.node_id into v_k from public.learning_assignments la where la.id = f.la;
+  v_u := selftest.f06p10_person('a3-r02i-murid');
+  select a.person_id into v_p from public.accounts a where a.auth_user_id = v_u;
+  insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+  select v_p, e.institution_id, e.academic_period_id, e.programme_id, 'ACTIVE'
+    from public.memberships mm join public.enrollments e on e.id = mm.enrollment_id
+   where mm.node_id = v_k and mm.valid_to is null and e.person_id <> v_p limit 1
+  returning id into v_e;
+  insert into public.memberships (enrollment_id, node_id, academic_period_id)
+  select v_e, v_k, e.academic_period_id from public.enrollments e where e.id = v_e;
+  set local session_replication_role = replica;
+  update public.institutions set namespace = 'R2I' where id = f.inst and namespace is null;
+  perform set_config('a3.r2i', v_u || '|' || v_p || '|' || f.inst || '|' || f.aa_pre || '|' || v_e, false);
+end $r$; select current_setting('a3.r2i');`);
+      const baris = siap.stdout.trim().split("\n").pop() ?? "";
+      const [uid, orang, sekolah, aa, enrol] = baris.split("|");
+      const bersihkan = () => {
+        if (!orang) return;
+        const ids = `(select id from public.assessment_sessions where person_id = '${orang}')`;
+        const r = psql(`begin; set local session_replication_role = replica;
+          delete from public.presented_item_views where session_id in ${ids};
+          delete from public.responses where session_id in ${ids};
+          delete from public.presented_items where session_id in ${ids};
+          delete from telemetry.hesitation_events where session_id in ${ids};
+          delete from telemetry.assistance_events where session_id in ${ids};
+          delete from public.assistance_grants where session_id in ${ids};
+          delete from public.integrity_signals where session_id in ${ids};
+          delete from public.assessment_results where session_id in ${ids};
+          delete from public.assessment_sessions where id in ${ids};
+          delete from public.institutional_identities where person_id = '${orang}';
+          delete from public.memberships where enrollment_id in (select id from public.enrollments where person_id = '${orang}');
+          delete from public.enrollments where person_id = '${orang}';
+          update public.institutions set namespace = null where id = '${sekolah}' and namespace = 'R2I';
+          commit;
+          select (select count(*) from public.assessment_sessions where person_id = '${orang}') + (select count(*) from public.enrollments where person_id = '${orang}')
+               + (select count(*) from public.institutions where id = '${sekolah}' and namespace = 'R2I');`);
+        c.expect(r.status === 0 && r.stdout.trim().split("\n").pop() === "0", `the test's rows could not be removed afterwards: ${(r.stderr || r.stdout).trim().slice(0, 160)}`);
+      };
+      if (!c.expect(siap.status === 0 && !!aa && !!enrol, `the race cannot be set up: ${(siap.stderr || baris).trim().split("\n").find((l) => /ERROR/.test(l)) ?? baris}`)) { bersihkan(); return c.verdict(""); }
+      try {
+        const sebagai = `select set_config('request.jwt.claims', json_build_object('sub','${uid}','role','authenticated')::text, true), set_config('request.jwt.claim.sub','${uid}',true); set local role authenticated;`;
+        const boleh = psql(`begin; ${sebagai} select ok::text || ':' || coalesce(reason, '') from public.may_start_assessment('${aa}'); rollback;`).stdout.trim().split("\n").pop();
+        if (!c.expect(boleh === "true:OK" || boleh === "true:", `the learner cannot start the cycle's Pemetaan Awal (the race cannot be set up): ${boleh}`)) return c.verdict("");
+        const tanda = `a3-r2i-s-${Date.now().toString(36)}`;
+        const mulai = race(`set statement_timeout = '30s'; begin; select 1 from public.persons where id = '${orang}' for key share;
+          select pg_sleep(2.5) /*${tanda}*/; ${sebagai} select public.start_learning_session('${aa}') is not null; commit;`);
+        let tahan = false;
+        for (let i = 0; i < 100 && !tahan; i++) {
+          tahan = psql(`select count(*) from pg_stat_activity where query like '%${tanda}%' and wait_event = 'PgSleep' and pid <> pg_backend_pid()`).stdout.trim() === "1";
+          if (!tahan) await tunggu(50);
+        }
+        if (!c.expect(tahan, "the start never held its person open")) { await mulai; return c.verdict(""); }
+        const tandaI = `a3-r2i-i-${Date.now().toString(36)}`;
+        const terbit = race(`set statement_timeout = '30s'; begin; select public.issue_institutional_id('${orang}', '${sekolah}') is not null /*${tandaI}*/; commit;`);
+        let menunggu = false;
+        for (let i = 0; i < 40 && !menunggu; i++) {
+          await tunggu(50);
+          menunggu = psql(`select coalesce(wait_event_type, '') from pg_stat_activity where query like '%${tandaI}%' and pid <> pg_backend_pid()`).stdout.trim() === "Lock";
+        }
+        const [rs, ri] = await Promise.all([mulai, terbit]);
+        c.expect(menunggu, "the issue did not wait on the person the start holds (the interleaving was not reached)");
+        c.expect(!/deadlock detected/i.test(rs.out + ri.out), `a start and a number issued for one learner and school deadlocked: ${[rs.out, ri.out].filter((x) => /deadlock/i.test(x)).join(" / ").split("\n").find((l) => /deadlock/i.test(l))}`);
+        c.expect(rs.code === 0, `the start failed: ${rs.out.split("\n").pop()}`);
+        c.expect(ri.code === 0, `the issue failed: ${ri.out.split("\n").pop()}`);
+        const hasil = psql(`select (select count(*) from public.assessment_sessions where person_id = '${orang}' and assessment_assignment_id = '${aa}')
+            || '|' || (select count(*) from public.institutional_identities where person_id = '${orang}' and institution_id = '${sekolah}')`).stdout.trim();
+        c.expect(hasil === "1|1", `after both committed the learner must hold one sitting and one number at the school: ${hasil}`);
+        return c.verdict("two real connections, one learner of our own and one school: the start's transaction holds the person FOR KEY SHARE (its own first lock) across a pause, issue_institutional_id takes the school and waits on the person, then the start inserts its sitting (its foreign key takes FOR KEY SHARE on the school). No deadlock: both commit, with one sitting and one number; the test's rows removed afterwards");
+      } finally {
+        bersihkan();
+      }
     },
   },
   {
