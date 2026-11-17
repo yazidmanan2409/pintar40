@@ -127,8 +127,13 @@ export const c2wCatatanLayarTests: SelfTest[] = [
           cat("m3", "q1", 1, "2026-11-10T10:00:00Z", { soal: "r" })]);
         c.expect(lama.map((x) => x.id).sort().join(",") === "m2,m3", `one note per question and option: ${lama.map((x) => x.id).join(",")}; expected m2 (the newer version) and m3 (another question)`);
       }
+      // the captures (B7, 18 Nov): the panel took the integrity note's own class (.pin-catatan, Q-15), and the notes ran together
+      c.expect(!/className="[^"]*\bpin-catatan(?![-\w])/.test(komponen), "the notes' panel uses .pin-catatan, the integrity note's class (Q-15), and takes its look");
+      const css = baca(repoRoot, "src/app/experience.css");
+      c.expect(/\.pin-catatan-isi \+ \.pin-catatan-isi\s*\{[^}]*border-top/.test(css) && /\.pin-catatan-pilihan \+ \.pin-catatan-pilihan\s*\{[^}]*border-top/.test(css),
+        "experience.css does not set one note apart from the next, or one option's block from the next");
       c.expect(/data-catatan-ganti/.test(komponen) && /catatanKiniDi\(semua, item, b\.label\)/.test(komponen), "«Ganti catatan» is not tied to the note on the version on screen");
-      return c.verdict("every code catatan_tolak (PR210) raises is the contract's and the reverse; Daisy's words (with §8's additions at 1fca435c: the hint's no-learner sentence and NOTE_EXISTS) are in the copy table word for word, each with her English; no notes string says «anotasi»; the notes' disclosures never print; executes blokCatatan and catatanGuru: in Studio the version on screen's note first, then newest version first, «Ganti catatan» only for the version on screen; beside the class report one note per question and option, the newest version's");
+      return c.verdict("every code catatan_tolak (PR210) raises is the contract's and the reverse; Daisy's words (with §8's additions at 1fca435c: the hint's no-learner sentence and NOTE_EXISTS) are in the copy table word for word, each with her English; no notes string says «anotasi»; the notes' disclosures never print, take no other surface's class and set each note and option apart (experience.css); executes blokCatatan and catatanGuru: in Studio the version on screen's note first, then newest version first, «Ganti catatan» only for the version on screen; beside the class report one note per question and option, the newest version's");
     },
   },
   {
