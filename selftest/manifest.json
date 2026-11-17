@@ -6614,6 +6614,11 @@
       "id": "A3-PG1",
       "runner": "static",
       "proves": "Sharon's answer to Q2 (17 Nov): an approved further attempt spans the lineage, school and year, as the count does. Red first; executes against the migrations, as a learner of its own, in one rolled-back transaction. The learner is at a limit of one through revision 1 (handed in). An approved request is on revision 1's assignment, and an OPEN assignment of revision 2 is on the same line. percobaan_izin_jumlah counts the grant on revision 2's assignment. percobaan_saya tells the learner it waits. start_learning_session gives exactly one start through revision 2, which percobaan_tandai marks with the grant. Then nothing waits, a further start is refused ATTEMPT_LIMIT_REACHED, and the learner holds two sittings."
+    },
+    {
+      "id": "A3-PG2",
+      "runner": "static",
+      "proves": "Sharon's condition for keeping attempt_requests_one_pending per assignment (17 Nov): read from the function catalogue (pg_proc's source) and the table grants, in a rolled-back transaction. minta_percobaan is the only function that inserts into attempt_requests, so its lineage-root advisory lock serialises every request. putuskan_percobaan is the only one that updates it. None deletes from it, and none names it in dynamic SQL. anon and authenticated hold no INSERT, UPDATE, DELETE or TRUNCATE on it. A plant that inserts a request from a second function is reported."
     }
   ]
 }

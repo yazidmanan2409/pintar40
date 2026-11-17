@@ -482,6 +482,46 @@ rollback;`;
     },
   },
   {
+    // Sharon's condition for keeping attempt_requests_one_pending per assignment (17 Nov, after 561bcf9d): minta_percobaan
+    // is the only function that inserts a request (so its lineage-root lock is the serialiser), putuskan_percobaan the only
+    // one that updates one, and no client role writes the table. Read from the function catalogue and the grants, in a
+    // rolled-back transaction whose plant (a second inserting function) must be reported.
+    id: "A3-PG2",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      const baca = (tanam: string) => {
+        const sql = `begin; ${tanam}
+select 'ins|' || coalesce(string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text), '') from pg_proc p
+ where p.prokind in ('f', 'p') and p.prosrc ~* '\\minsert\\s+into\\s+(public\\.)?attempt_requests\\M';
+select 'upd|' || coalesce(string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text), '') from pg_proc p
+ where p.prokind in ('f', 'p') and p.prosrc ~* '\\mupdate\\s+(public\\.)?attempt_requests\\M';
+select 'del|' || coalesce(string_agg(p.oid::regprocedure::text, ',' order by p.oid::regprocedure::text), '') from pg_proc p
+ where p.prokind in ('f', 'p') and p.prosrc ~* '\\mdelete\\s+from\\s+(public\\.)?attempt_requests\\M';
+select 'dyn|' || count(*) from pg_proc p where p.prokind in ('f', 'p') and p.prosrc ~* 'attempt_requests' and p.prosrc ~* '\\mexecute\\M\\s+(format|''|\\$)';
+select 'hak|' || coalesce(string_agg(r || ':' || x, ',' order by r, x), '') from unnest(array['anon', 'authenticated']) r, unnest(array['INSERT', 'UPDATE', 'DELETE', 'TRUNCATE']) x
+ where has_table_privilege(r, 'public.attempt_requests', x);
+rollback;`;
+        const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-qAt", "-c", sql, db()], { encoding: "utf8" });
+        const v: Record<string, string> = {};
+        for (const l of r.stdout.split("\n")) { const i = l.indexOf("|"); if (i > 0) v[l.slice(0, i)] = l.slice(i + 1); }
+        return { r, v };
+      };
+      const { r, v } = baca("");
+      if (!c.expect(r.status === 0, `the catalogue could not be read: ${(r.stderr || "").trim().split("\n").find((l) => /ERROR/.test(l))}`)) return c.verdict("");
+      c.expect(v.ins === "minta_percobaan(uuid,text)", `only minta_percobaan may insert into attempt_requests: ${v.ins || "none"}`);
+      c.expect(v.upd === "putuskan_percobaan(uuid,boolean,text)", `only putuskan_percobaan may update attempt_requests: ${v.upd || "none"}`);
+      c.expect(v.del === "", `no function may delete from attempt_requests: ${v.del}`);
+      c.expect(v.dyn === "0", `a function names attempt_requests in dynamic SQL, which this reading cannot see: ${v.dyn}`);
+      c.expect(v.hak === "", `a client role may write attempt_requests directly: ${v.hak}`);
+      const t = baca(`create function public._a3_pg2_tanam(p uuid) returns void language sql as $t$
+  insert into public.attempt_requests (institution_id, person_id, assessment_assignment_id, session_id, requested_by_person_id, reason)
+  select institution_id, person_id, assessment_assignment_id, id, person_id, 'tanaman uji' from public.assessment_sessions where id = p $t$;`);
+      c.expect((t.v.ins ?? "").includes("_a3_pg2_tanam"), "the plant (a second function inserting a request) was not reported");
+      return c.verdict("the function catalogue (pg_proc) and the table grants: minta_percobaan is the only function that inserts into attempt_requests and putuskan_percobaan the only one that updates it; none deletes; none names it in dynamic SQL; anon and authenticated hold no INSERT, UPDATE, DELETE or TRUNCATE on it; a plant inserting from a second function is reported; rolled back");
+    },
+  },
+  {
     id: "A3-R01",
     requires: ["db"],
     run: async (ctx) => {
