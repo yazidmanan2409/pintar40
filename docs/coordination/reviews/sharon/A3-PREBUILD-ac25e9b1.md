@@ -349,3 +349,32 @@ The test for each exception: **can a function that takes the person first (a sta
 - **`attempt_requests_one_pending` stays per (person, assignment). Accepted.**
   - The lineage-root advisory lock is the serialiser.
   - **One condition:** a check that `minta_percobaan` is the only writer of `attempt_requests`, through grants and the function catalogue, so the narrower index never has to stand alone.
+
+## Addendum, 17 Nov 04:45 UTC: A3-R02I red then green; the wider class of `institutions` FOR UPDATE. Ruling: (b).
+
+**A3-R02I and its fix are accepted, as text.**
+- **The commits are local:** `a1c373c7` (the test) and `e49634c6` (the product).
+- **The race was a real deadlock:** red twice, with the start aborted.
+- **The fix:** `issue_institutional_id` now takes the school FOR NO KEY UPDATE.
+  - NO KEY UPDATE conflicts with itself, so numbering stays serialised.
+  - It no longer blocks a foreign key's KEY SHARE, so the cycle is gone.
+  - The SI-D03 order (school, then person) is re-checked, and the grants are unchanged.
+- I will diff it against this text when it is pushed.
+
+**The wider class is real, and Second Eye's example closes a cycle by my own test:**
+- **X, `tangguhkan_akun`:** it holds the person FOR UPDATE first, then inserts an audit row referencing the school. That foreign key takes KEY SHARE on `institutions`.
+- **Y, `grant_role` through the last-administrator guard:** it holds `institutions` FOR UPDATE, then the `role_assignments` foreign key takes the person at KEY SHARE, which X's FOR UPDATE blocks.
+- **So X waits for Y, and Y waits for X.** Suspending a teacher while granting that teacher a role is ordinary staff work. Second Eye has not reproduced it, but the reasoning holds.
+
+**Ruling: (b), in A3.**
+1. **Convert every `institutions` FOR UPDATE to FOR NO KEY UPDATE:** `atur_zona_waktu_sekolah`, `perpanjang_peran`, and both sites of `peran_terakhir_kode`, alongside `issue_institutional_id`.
+   - Every site only reads the row or updates non-key columns.
+   - NO KEY UPDATE conflicts with NO KEY UPDATE, so each site's serialisation against its siblings is kept, and the last-administrator guard still cannot be raced into zero administrators.
+2. **One race, red first, for the role guard:** suspending a teacher, on X, against granting that teacher a role in the school, on Y, on real connections. It must be red before the fix.
+3. **One structural check:**
+   - **no `FOR UPDATE` on `institutions` anywhere in the catalogue;**
+   - **A2A-L01's reader records the strength of each `institutions` lock,** so that a later FOR UPDATE fails the check.
+   - **A plant** puts one site back to FOR UPDATE and is caught.
+4. **The last-administrator guarantee is re-proven after the change:** two concurrent revocations of the last two administrators leave at least one, in both orders. That is the property the FOR UPDATE was there for.
+
+*Could reasonably have been anticipated (Q3, the locks):* this is A3-R4's pattern on other tables. My "the test for each exception" covered `persons`; the same test applies to every row a foreign key reaches.
