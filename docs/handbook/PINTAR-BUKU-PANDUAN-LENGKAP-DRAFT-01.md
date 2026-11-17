@@ -3,10 +3,10 @@
 
 ### Memahami, memakai, dan bertumbuh bersama PINTAR — dari 4.0 hingga 5.0
 
-**Draf 01 · 17 November 2026**
+**Draf 01a · 17 November 2026**
 **Untuk ditinjau pemilik. Belum disetujui, belum untuk dibagikan ke sekolah.**
 
-Disusun berdasarkan *PINTAR Consolidated Roadmap 4.0–5.0, Revisi 3 (16 November 2026)*, Terminologi PINTAR v1, dan teks layar PINTAR yang berlaku saat penyusunan.
+Disusun berdasarkan *PINTAR Consolidated Roadmap 4.0–5.0, Revisi 3 (16 November 2026), termasuk koreksi daftar 4.2 pada Revisi 3.1*, Terminologi PINTAR v1, dan teks layar PINTAR yang berlaku saat penyusunan.
 
 PT ZAYD PINTAR SELALU (ZPS)
 
@@ -21,6 +21,7 @@ Bagian ini akan dihapus sebelum buku diterbitkan.
 3. **Teks layar.** Kata dalam tanda «…» adalah teks layar PINTAR 4.0/4.1 sebagaimana tercatat saat penyusunan. Sebagian teks masih dapat berubah sebelum rilis.
 4. **Tanda [Perlu konfirmasi: …]** menandai hal yang belum dapat dipastikan dari sumber. Daftar lengkapnya ada di berkas *PINTAR-HANDBOOK-FEATURE-COVERAGE.md*.
 5. **[Ilustrasi: …]** menandai tempat gambar atau diagram yang akan dibuat kemudian. Tidak ada tangkapan layar yang dibuat-buat.
+6. **Perubahan di Draf 01a.** Langkah penyiapan akun bagi pengguna email lama setelah pembaruan (5.2); daftar 4.2 disesuaikan dengan koreksi Revisi 3.1 (7.18, Lampiran A); penegakan masa simpan data kini bertanda «versi belum ditetapkan» (6.10); kemudahan jalur AI sendiri dicatat sebagai usulan 4.2 (10.10). Rinciannya ada di berkas cakupan, bagian 7.
 
 ---
 
@@ -155,7 +156,7 @@ PINTAR dibangun bertahap. Setiap versi berdiri di atas versi sebelumnya.
 |---|---|---|
 | **4.0** | Fondasi | Sekolah, akun, peran, kelas, tahun ajaran, perpindahan, Studio, pelajaran, asesmen, hasil, laporan, sertifikat, dan pengembangan profesi guru. Bukti belajar dapat dipercaya. |
 | **4.1** | Integritas, kesinambungan, dan pemulihan | Guru dapat mengatur sesi asesmen seorang murid, kunci jawaban yang keliru dapat dikoreksi dengan benar, pemeliharaan dapat dijadwalkan, penghentian darurat melindungi pekerjaan murid, tindakan penting tercatat, catatan peninjau, dan pemulihan antarperangkat. AI terpadu untuk menyusun draf soal sedang dikembangkan sebagai tambahan berbayar yang opsional, dan belum pasti. |
-| **4.2** | Kematangan operasional | Mode Ujian, jabatan dan penugasan di dua sekolah, ekspor data sekolah, laporan periode lalu, beberapa perbaikan akun dan catatan, statistik Kesehatan soal terjadwal, dan penegakan masa simpan data. |
+| **4.2** | Kematangan operasional | Mode Ujian, jabatan dan penugasan di dua sekolah, ekspor data sekolah, laporan periode lalu, beberapa perbaikan akun, catatan, dan struktur sekolah, tampilan kelas tanpa guru dan serah terima kelas, serta statistik Kesehatan soal terjadwal. |
 | **4.5** | Memahami | PINTAR membantu guru memahami apa yang sebenarnya didukung oleh bukti: mutu soal, sebaran hasil, penjelasan yang tenang dan relevan, sejarah yang dapat dijelaskan, serta evaluasi guru yang diatur institusi dengan perlindungan bagi guru. |
 | **5.0** | Bertindak dan bertumbuh | Guru memilih tujuan pertumbuhannya sendiri, mencatat tindakan perbaikan (intervensi), mengamati apa yang terjadi, dan merenungkan hasilnya. Sekolah dapat menjalankan siklus perbaikan di tingkat bagian atau sekolah. |
 
@@ -353,6 +354,10 @@ Untuk staf, misalnya guru, pimpinan, dan Admin sekolah, aktivasi dilakukan sendi
 7. Selesai: «Akun Anda sudah aktif.»
 
 Anda dapat berhenti di tengah dengan «Keluar dan lanjutkan nanti».
+
+**Sudah memakai PINTAR dengan email sebelum pembaruan?** Setelah sekolah Anda menerima PINTAR versi baru, setiap akun email yang sudah ada perlu menyelesaikan penyiapan akun ini satu kali. Masuklah seperti biasa. PINTAR lalu membuka halaman aktivasi dan menahan Anda di sana sampai langkahnya selesai. Jika Anda memilih «Keluar dan lanjutkan nanti», halaman yang sama akan muncul lagi saat Anda masuk berikutnya. Murid yang masuk dengan kartu kelas tidak mengalami langkah ini. [Perlu konfirmasi: langkah mana yang ditampilkan bagi akun lama, misalnya apakah username yang sudah ada tetap dipakai.]
+
+[Ilustrasi: halaman aktivasi yang muncul setelah masuk, dengan langkah yang tersisa]
 
 Setelah aktif, staf mendapat **PINTAR ID** dan **Kartu PINTAR**, yaitu kartu identitas digital yang dapat dilihat di **Akun saya**. PINTAR ID adalah tanda pengenal, bukan kunci untuk masuk. Di halaman kartu tertulis: «PINTAR ID bukan kunci…»
 
@@ -576,7 +581,7 @@ Admin PINTAR dapat membaca **Jejak audit** di seluruh platform: siapa melakukan 
 
 ## 6.10 Admin PINTAR di versi berikutnya
 
-- **Penegakan masa simpan data** 〔4.2 · direncanakan〕. Admin PINTAR dan pengurus data sekolah yang berwenang akan dapat menegakkan masa simpan data sesuai kebijakan yang berlaku. Catatan mana yang tercakup, pengecualiannya, dan cara menjaga keutuhan sejarah masih harus ditetapkan. Kebijakan masa simpan bukti pendidikan diputuskan tersendiri oleh pemilik PINTAR sebelum data sekolah sungguhan dipakai (Bab 18 dan Lampiran B).
+- **Penegakan masa simpan data** 〔belum ditetapkan〕. Pekerjaan ini tidak termasuk daftar 4.2, dan versinya belum ditetapkan. Kelak, Admin PINTAR dan pengurus data sekolah yang berwenang akan dapat menegakkan masa simpan data sesuai kebijakan yang berlaku. Catatan mana yang tercakup, pengecualiannya, dan cara menjaga keutuhan sejarah masih harus ditetapkan. Kebijakan masa simpan bukti pendidikan diputuskan tersendiri oleh pemilik PINTAR sebelum data sekolah sungguhan dipakai (Bab 18 dan Lampiran B).
 - **Penutupan sekolah dan fondasi banyak sekolah** 〔belum ditetapkan〕. Ditunda ke setelah 4.2.
 - **Pemeriksaan akses tidak biasa untuk staf** dan **masuk dengan WhatsApp** 〔4.5 · arah〕 (Bab 5.12).
 
@@ -739,7 +744,7 @@ Status perpindahan tampil sebagai Diajukan, Disetujui, Selesai, Ditolak, atau Di
 
 **Sesi yang masih terbuka.** Mulai 4.1, sesi asesmen yang ditinggalkan murid ditutup secara terjadwal ketika batas waktunya lewat, dan guru dapat mengakhiri sesi satu murid (Bab 9.8). Dengan begitu, sesi yang terbuka tidak menghalangi pengakhiran pendaftaran.
 
-**Tampilan serah terima kelas** setelah seorang guru pergi, misalnya "kelas yang belum memiliki guru", direncanakan untuk 4.2 〔4.2 · direncanakan〕.
+Dua tampilan direncanakan untuk 4.2 〔4.2 · direncanakan〕: daftar **kelas yang belum memiliki guru** bagi Admin sekolah, dan **tampilan serah terima** bagi guru yang mengambil alih kelas, berisi pekerjaan rekannya yang masih terbuka (Bab 7.18).
 
 ## 7.12 Menjadwalkan pemeliharaan 〔4.1〕
 
@@ -829,18 +834,23 @@ Halaman «Catatan masuk dan cetak» menampilkan «Siapa yang masuk, gagal masuk,
 
 ## 7.18 Admin sekolah di versi berikutnya
 
-**PINTAR 4.2 · Kematangan operasional** 〔4.2 · direncanakan〕. Rencana 4.2 mencatat delapan pekerjaan yang dipindahkan dari 4.1. Banyak di antaranya menyangkut pekerjaan Admin sekolah:
+**PINTAR 4.2 · Kematangan operasional** 〔4.2 · direncanakan〕. Rencana 4.2 memuat pekerjaan yang ditunda pemilik PINTAR dari 4.1, ditambah dua pekerjaan yang ditetapkan oleh rencana pelaksanaan. Banyak di antaranya menyangkut pekerjaan Admin sekolah:
 
-- **Jabatan resmi, penugasan pelaksana tugas, dan peran di dua sekolah.** Admin sekolah mencatat tanggung jawab resmi, dan pemegang peran bekerja di sekolah yang tepat (Bab 4.5).
+- **Jabatan resmi, riwayat jabatan, pelaksana tugas, peran yang mulai pada tanggal tertentu, dan peran di dua sekolah.** Admin sekolah mencatat tanggung jawab resmi, dan pemegang peran bekerja di sekolah yang tepat (Bab 4.5).
 - **Ekspor data sekolah.** Staf yang berwenang dapat mengambil data sekolah sesuai mandatnya. Setiap ekspor disertai catatan akuntabilitasnya sendiri. Jenis data, formatnya, siapa yang boleh menerimanya, dan penanganan data sensitif akan ditetapkan dalam rencana.
 - **Membuka laporan periode lalu.** Pembaca laporan yang berwenang dapat membuka laporan periode sebelumnya dengan pemilih periode. Makna laporan lama dan batas aksesnya tetap dijaga. Pernah mencetak sebuah laporan tidak dengan sendirinya memberi hak membukanya kembali.
 - **Menolak permintaan akun dan mengganti password saat masuk.** Admin dapat menyelesaikan permintaan akun dengan penolakan yang jelas, dan pengguna dapat mengganti password-nya sendiri ketika sedang masuk.
-- **Koreksi catatan pengembangan profesi dan struktur sekolah.** Admin dan peninjau yang berwenang dapat membetulkan catatan operasional, dengan tetap menjaga izin, jejak audit, dan bukti sejarahnya.
-- **Penegakan masa simpan data** (Bab 6.10).
+- **Koreksi catatan pengembangan profesi** (mengakhiri program, mengeluarkan peserta, sekolah mengakhiri sesi pengembangan profesinya sendiri) **dan koreksi struktur sekolah** (mengaktifkan kembali atau memindahkan kelas, mengganti nama sekolah, membatalkan satu putaran kenaikan kelas sekaligus). Izin, jejak audit, dan bukti sejarahnya tetap dijaga.
+- **Menambahkan satu orang di luar pendataan berkas, dan membetulkan nama setelah aktivasi.** Satu orang tetap satu identitas. Siapa yang boleh membetulkan nama, dan bagaimana nama itu tampil pada catatan yang sudah terbit, akan ditetapkan dalam rencana.
+- **Daftar kelas yang belum memiliki guru.** Tampilan baca saja, dalam lingkup sekolah Anda.
+- **Tampilan serah terima kelas** *(dari rencana pelaksanaan)*. Guru yang mengambil alih kelas melihat pekerjaan rekannya yang masih terbuka. Nama penyusun aslinya tetap tercatat, dan guru baru tidak mendapat akses di luar kelas itu.
+- **Statistik Kesehatan soal terjadwal** *(dari rencana pelaksanaan)* (Bab 10.11).
 
-Catatan keputusan juga menyebut beberapa perbaikan lain yang dipindahkan ke 4.2, misalnya mengganti nama sekolah, menambahkan satu orang di luar pendataan berkas, mengaktifkan kembali atau memindahkan kelas, membatalkan satu putaran kenaikan kelas, dan tampilan serah terima kelas. [Perlu konfirmasi: daftar lengkap 4.2 dalam rencana 4.2 yang resmi.]
+Rincian, layar, dan urutannya ditetapkan dalam rencana 4.2.
 
-**Setelah 4.2** 〔belum ditetapkan〕: penutupan sekolah, fondasi banyak sekolah yang lebih luas, penghapusan data atas permintaan keluarga, dan penyesuaian materi platform oleh sekolah.
+**Bukan bagian dari 4.2.** Penegakan masa simpan data tidak termasuk daftar 4.2; versinya belum ditetapkan (Bab 6.10).
+
+**Setelah 4.2, kecuali diputuskan lain** 〔belum ditetapkan〕: menutup atau mengarsipkan sekolah; fondasi di atas beberapa sekolah; tanggal tahun ajaran dan semester yang dapat diubah; membatalkan pencabutan sertifikat; memulihkan rilis materi yang sudah ditarik; penyesuaian materi platform oleh sekolah; pengarahan (*briefing*); serta penghapusan data murid dan keluarga, yang memerlukan kajian hukum. Versi pastinya belum ditetapkan. [Perlu konfirmasi: maksud "pengarahan" dalam catatan keputusan.]
 
 ---
 
@@ -1346,6 +1356,8 @@ Apa pun yang Anda tempel ke layanan AI di luar PINTAR diolah oleh perusahaan AI 
 
 Satu buku kerja berisi satu kursus utuh. Untuk menambah beberapa soal ke pelajaran yang sudah ada, tulis langsung di Studio. PINTAR tidak menangani layanan AI di luar PINTAR, akunnya, atau biayanya.
 
+**Ke depan** 〔4.2 · usulan〕. Beberapa kemudahan untuk jalur ini diusulkan untuk rencana 4.2: cara menempel hasil AI yang lebih mudah, mengunggah soal saja tanpa satu kursus utuh, dan kolom tempat guru menyatakan sendiri bahwa sebuah draf disusun dengan bantuan AI. Usulan ini belum disetujui.
+
 [Perlu konfirmasi: tempat terbit panduan dan perintah contoh untuk sekolah.]
 
 ### AI terpadu PINTAR 〔4.1 · dalam pengembangan, belum pasti〕
@@ -1595,7 +1607,7 @@ Peserta belajar dan mengerjakan asesmen seperti murid, dengan bahasa yang sesuai
 ## 12.6 Pengembangan profesi di versi berikutnya
 
 - **Koreksi catatan pengembangan profesi** 〔4.2 · direncanakan〕: Admin dan peninjau yang berwenang dapat membetulkan catatan operasional, dengan tetap menjaga izin, jejak audit, dan bukti sejarahnya. Jenis koreksi dan pelakunya akan ditetapkan dalam rencana.
-- **Mengakhiri program, mengeluarkan peserta, dan sekolah mengakhiri sesi pengembangan profesinya sendiri** dicatat untuk 4.2 〔4.2 · direncanakan〕. [Perlu konfirmasi: termasuk dalam daftar resmi 4.2.]
+- **Mengakhiri program, mengeluarkan peserta, dan sekolah mengakhiri sesi pengembangan profesinya sendiri** termasuk daftar 4.2 〔4.2 · direncanakan〕.
 - **Batas dengan evaluasi resmi** 〔4.5 · arah〕: ketika evaluasi guru resmi tersedia (Bab 8.9), keikutsertaan pengembangan profesi tetap terpisah. Bukti pengembangan profesi tidak otomatis mengalir ke evaluasi resmi.
 - **Perjalanan pertumbuhan guru** 〔5.0 · arah〕: berbeda dengan keikutsertaan dalam program, guru di 5.0 dapat memilih tujuan pertumbuhannya sendiri yang dikaitkan dengan bukti (Bab 15.5).
 
@@ -2087,6 +2099,7 @@ Bab ini mengumpulkan situasi khusus di satu tempat. Setiap situasi dijelaskan de
 |---|---|---|---|
 | Murid lupa PIN atau kehilangan kartu | Admin sekolah menerbitkan kartu baru | Semua hasil belajar | 7.7 |
 | Staf lupa password | Staf sendiri, dengan «Lupa password?» | Akun dan semua pekerjaannya | 5.6 |
+| Setelah pembaruan, PINTAR membuka halaman aktivasi saat masuk | Staf sendiri menyelesaikan langkahnya | Akun yang sama; murid dengan kartu kelas tidak terdampak | 5.2 |
 | Pemulihan dengan PIN tertutup | Staf melalui email, atau Admin sekolah atau Admin PINTAR mengatur ulang | Akunnya tidak terkunci | 5.6, 7.7 |
 | Internet putus saat asesmen | Murid melanjutkan setelah tersambung | Jawaban yang sudah diterima | 11.7 |
 | Perangkat mati saat asesmen | Murid masuk di perangkat lain; untuk Uji Penguasaan dengan izin guru 〔4.1〕 | Jawaban yang sudah diterima; satu penulis | 9.11 |
@@ -2221,11 +2234,16 @@ Status per 17 November 2026. **Layanan yang dipakai sekolah (produksi) masih mem
 | Batas waktu per asesmen | Usulan, belum disetujui | 9.12 |
 | Jabatan resmi, pelaksana tugas, peran di dua sekolah | Ditunda ke 4.2 | 4.5, 16.4 |
 | Koreksi catatan pengembangan profesi dan struktur sekolah | Ditunda ke 4.2 | 7.18, 12.6 |
+| Menambahkan satu orang di luar pendataan berkas; membetulkan nama setelah aktivasi | Ditunda ke 4.2 | 7.5, 7.18 |
+| Daftar kelas yang belum memiliki guru | Ditunda ke 4.2 | 7.11, 7.18 |
+| Tampilan serah terima kelas | Ke 4.2 melalui rencana pelaksanaan | 7.11, 7.18 |
 | Ekspor data sekolah | Ditunda ke 4.2 | 7.18 |
 | Membuka laporan periode lalu | Ditunda ke 4.2 | 7.18 |
 | Menolak permintaan akun; mengganti password saat masuk | Ditunda ke 4.2 | 5.6, 7.18 |
-| Statistik Kesehatan soal terjadwal | Ditunda ke 4.2 | 10.11 |
-| Penegakan masa simpan data | Ditunda ke 4.2; menunggu kebijakan | 6.10 |
+| Statistik Kesehatan soal terjadwal | Ke 4.2 melalui rencana pelaksanaan | 10.11 |
+| Kemudahan jalur AI sendiri (menempel hasil, unggah soal saja, pernyataan bantuan AI) | Usulan, belum disetujui | 10.10 |
+
+Penegakan masa simpan data **tidak** termasuk 4.2. Versinya belum ditetapkan, dan memerlukan kebijakan pemilik PINTAR lebih dulu (6.10).
 
 ### PINTAR 4.5 · Memahami 〔arah yang disetujui〕
 
@@ -2409,4 +2427,4 @@ Tangkapan layar asli dari PINTAR, dengan data contoh, dapat ditambahkan setelah 
 
 ---
 
-*Akhir Draf 01. Draf ini disusun untuk ditinjau pemilik PINTAR dan belum disetujui.*
+*Akhir Draf 01a. Draf ini disusun untuk ditinjau pemilik PINTAR dan belum disetujui.*

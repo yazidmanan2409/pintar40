@@ -2,11 +2,13 @@
 
 **Working file for editorial checking. Not part of the reader-facing handbook.**
 
-- Handbook: `PINTAR-BUKU-PANDUAN-LENGKAP-DRAFT-01.md` (Draft 01, revised 17 Nov 2026 after Bob's companion note; about 25,000 words)
+- Handbook: `PINTAR-BUKU-PANDUAN-LENGKAP-DRAFT-01.md` (Draft 01a, 17 Nov 2026: Draft 01 revised after Bob's companion note and his follow-up answers; about 25,600 words)
 - Additional sources after Bob's note:
   - `OWNER-RULINGS-4.1.md` rulings 38–46 (4.1 master-plan branch);
   - `X1-PANDUAN-AI-EKSTERNAL.md` and `DESAIN-AWAL-4.1.md` (branch `ux-1/daisy-experience`).
-- Planning reference: *PINTAR Consolidated Roadmap 4.0–5.0, Revision 3*, 16 Nov 2026 ("RM")
+- Planning reference: *PINTAR Consolidated Roadmap 4.0–5.0, Revision 3*, 16 Nov 2026 ("RM"). For 4.2 the handbook now follows the copy on the 4.1 master-plan branch (`docs/roadmap/`, document control 3.3), which carries the **Rev 3.1 correction of the 4.2 inventory** (owner-approved 16 Nov).
+- `docs/roadmap/DECISIONS-TO-TRACK.md` (4.1 master-plan branch): version assignments still open (retention enforcement unassigned; external-AI import X-2/X-3/X-4 as 4.2 candidates; billing screens unassigned; R-2 before production data).
+- Account set-up after the upgrade: migration `20261021100000_an_identity_foundation.sql` (`account_setup` REQUIRED for every existing EMAIL account; class cards have none) and `src/app/aktifkan/page.tsx` (a REQUIRED account is held on the page until set-up finishes). Confirmed by Bob from the upgrade rehearsal.
 - Product sources consulted on `origin/main`:
   - Terminology v1 freeze package, decision D-068
   - UI strings in `src/lib/hle.ts`
@@ -49,7 +51,7 @@ Production is still on the September 2026 version and has received neither 4.0 n
 |---|---|---|---|---|---|---|---|
 | 1 | Platform operation and school provisioning | 4.0 · Operational lifecycle | ON STAGING | operator workflow; `konfigurasi` | hle, T1 | 6.2, 16.1 | needs confirmation: the production school-founding path awaits an owner decision (OWR W2.20). |
 | 2 | School structure, year and class administration | 4.0 | ON STAGING | `konfigurasi/[bagian]` | hle, T1 | 7.3, 7.14 | verified |
-| 3 | Staff provision, activation and sign-in | 4.0 | ON STAGING | `pendataan`, `aktivasi`, `aktifkan`, `masuk` | hle | 5.2–5.3, 7.5–7.6 | needs confirmation: Bob's note mentions an account-setup step at next sign-in after the 4.1 upgrade. Source not yet identified (asked of Bob). |
+| 3 | Staff provision, activation and sign-in | 4.0 | ON STAGING | `pendataan`, `aktivasi`, `aktifkan`, `masuk` | hle | 5.2–5.3, 7.5–7.6 | verified: every existing email account completes set-up once at next sign-in after the upgrade and is held on «Aktifkan» until done (migration `20261021100000`, `aktifkan/page.tsx`, Bob's rehearsal). Written into 5.2 and the Bab 18 table. Still open: which wizard steps an existing account sees (e.g. whether an existing username is kept). |
 | 4 | Learner enrolment, class cards and access | 4.0 | ON STAGING | `aktivasi`, `masuk` (card), `terkunci`, `perangkat` | hle | 7.5–7.7, 11.2–11.3 | verified (thresholds deliberately omitted). |
 | 5 | Account leave, return, suspension, closure, credential recovery and admin continuity | 4.0 / 4.1 B0 | ON STAGING | `akun`, `masuk/lupa`, `masuk/buka-kembali`, `konfigurasi/keamanan`, `konfigurasi/staf` | hle | 5.6–5.7, 6.4–6.6, 7.11 | needs confirmation: learner access to «Akun saya» (ALI §9 vs OWR W2.25). |
 | 6 | Teacher membership, class move and school transfer | 4.0 | ON STAGING | `konfigurasi` (Pindah kelas, Perpindahan murid) | hle | 7.9–7.11, 16.7 | needs confirmation: post-transfer visibility; the transfer-offer defect. |
@@ -72,9 +74,12 @@ Production is still on the September 2026 version and has received neither 4.0 n
 | 22 | School data export | 4.2 | PLANNED | no screen yet | RM | 7.18, 17 | needs confirmation: 4.2 plan. |
 | 23 | Past reports and period selector | 4.2 | PLANNED | no screen yet | RM | 7.18, 14.7 | needs confirmation: 4.2 plan. |
 | 24 | Account-request decline and signed-in password change | 4.2 | PLANNED | no screen yet | RM | 5.6, 7.18 | needs confirmation: 4.2 plan. |
-| 25 | Professional-development and school-structure corrections | 4.2 | PLANNED | no screen yet | RM | 7.18, 12.6 | needs confirmation: 4.2 plan. |
-| 26 | Scheduled Question Health statistics | 4.2 | PLANNED | `studio/bank` (existing Kesehatan soal) | hle | 10.11 | needs confirmation: 4.2 plan. |
-| 27 | Retention enforcement | 4.2 | PLANNED (policy-dependent, R-2) | no screen yet | RM | 6.10, 16.8 | open policy |
+| 25 | Professional-development and school-structure corrections | 4.2 | PLANNED | no screen yet | RM | 7.18, 12.6 | RM Rev 3.1 item 6 names the sub-items (end a programme, remove a participant, school ending its own PD sittings; reactivate or move a class, rename a school, undo a promotion run). Handbook lists them; [Perlu konfirmasi] removed. Steps await the 4.2 plan. |
+| 25a | Add one person outside an import; correct a name after activation | 4.2 | PLANNED (Rev 3.1 item 9) | no screen yet | RM | 7.5, 7.18 | Steps await the 4.2 plan. |
+| 25b | "Classes without a teacher" view | 4.2 | PLANNED (Rev 3.1 item 10) | no screen yet | RM | 7.11, 7.18 | Steps await the 4.2 plan. |
+| 25c | Teacher's handover view after a colleague leaves | 4.2 | PLANNED (Rev 3.1 item 11, execution plan) | no screen yet | RM | 7.11, 7.18 | Draft 01 merged this with 25b; now separate. |
+| 26 | Scheduled Question Health statistics | 4.2 | PLANNED (Rev 3.1 item 7, execution plan) | `studio/bank` (existing Kesehatan soal) | hle | 10.11 | needs confirmation: 4.2 plan. |
+| 27 | Retention enforcement | **Unassigned** (Rev 3.1) | OPEN (not in the owner's 4.2 record; R-2 separate) | no screen yet | RM, DECISIONS-TO-TRACK | 6.10, 7.18, 16.8, App. A | Draft 01 marked it 4.2; corrected to 〔belum ditetapkan〕 everywhere. |
 | 28 | Question Intelligence and comparability | 4.5 | APPROVED DIRECTION | no screen yet | RM (working translation) | 10.12, 14.3, 14.6 | needs confirmation: Indonesian name. |
 | 29 | Competency identity and prerequisite hypotheses | 4.5 | APPROVED DIRECTION | no screen yet | RM | 9.13, 14.4 | open: R-5 |
 | 30 | Evidence classification, Performance Distribution and Quiet Intelligence | 4.5 | APPROVED DIRECTION | no screen yet | RM (working names) | 3.1, 9.13, 14.2, 14.5 | needs confirmation: Indonesian names. |
@@ -105,8 +110,9 @@ Production is still on the September 2026 version and has received neither 4.0 n
 
 | Item | Version · status | Handbook | Notes |
 |---|---|---|---|
-| Deferred past 4.2: school closure, broader multi-school foundations, family deletion, school adaptation of platform content | Deferred, version open | 6.2, 6.3, 7.18, App. B | — |
-| Extra 4.2 deferrals in OD §4 and EP §4, not in RM's eight: rename school, add one person outside import, name correction after activation, reactivate or move class, undo rollover, end a PD programme or remove a participant, school ending its own PD sittings, handover view | 4.2 per OD/EP | 6.2, 7.3, 7.5, 7.11, 7.14, 12.6 | **Verify against the official 4.2 plan.** RM lists eight groups; OD §4 lists more granular items. The handbook marks them "[Perlu konfirmasi]" in 7.18 and 12.6. |
+| Later than 4.2 unless ruled in (Rev 3.1 restores all eight): closing or archiving a school; a foundation above several schools; editable year dates and semesters; un-revoking a certificate; restoring a withdrawn release; schools adapting platform content; briefings; learner and family deletion (with counsel) | Deferred, version open | 6.2, 6.3, 7.3, 7.15, 7.18, App. B | "Briefings" is rendered «pengarahan (*briefing*)» with [Perlu konfirmasi] on its meaning. |
+| The granular items Draft 01 flagged (rename school, add one person, name correction, reactivate or move class, undo a promotion run, PD corrections, classes without a teacher, handover view) | 4.2 · PLANNED, **resolved by Rev 3.1** (items 6, 9, 10, 11) | 6.2, 7.3, 7.5, 7.11, 7.14, 7.18, 12.6 | 7.18 now lists them firmly; [Perlu konfirmasi] removed from 7.18 and 12.6. Items 7 and 11 are marked *(dari rencana pelaksanaan)*. |
+| External-AI import improvements: X-2 paste-friendly route, X-3 question-only import, X-4 self-declared AI field | 4.2 · CANDIDATE (DECISIONS-TO-TRACK; X-2 decided after the walkthrough) | 10.10, App. A | Written as 〔4.2 · usulan〕, not approved. |
 | Institutional Architecture Dependency | Open decision | 8.10, App. B | — |
 
 ### 2.3 From the 4.5 section
@@ -136,7 +142,7 @@ Production is still on the September 2026 version and has received neither 4.0 n
 
 All 19 rows are covered in App. B, 4.5, 7.18, 9.12, 10.12, 14.5 and 15.6. Covered rows:
 
-- eight operational deferrals;
+- the 4.2 operational deferrals (owner record items plus two execution-plan items, per Rev 3.1);
 - time limits;
 - WhatsApp;
 - Question Intelligence;
@@ -188,12 +194,12 @@ All 19 rows are covered in App. B, 4.5, 7.18, 9.12, 10.12, 14.5 and 15.6. Covere
 |---|---|---|---|---|
 | STUDENT | «Murid» | Siswa / Peserta Didik | Murid | T1 replaces «siswa» and «peserta didik» with «Murid». |
 | EDUCATOR | «Guru» | Guru / Pendidik | Guru | — |
-| HEAD_OF_DEPARTMENT | «Kepala departemen» | Kepala Program Studi / Kaprodi | Kepala departemen | **Conflict.** Ask Daisy via the owner. |
+| HEAD_OF_DEPARTMENT | «Kepala departemen» | Kepala Program Studi / Kaprodi | Kepala departemen | **Resolved:** frozen term (Bob, 17 Nov). |
 | DEAN | «Dekan» | Dekan | Dekan | No editing capabilities (role_capabilities). |
-| INSTITUTION_ADMIN | «Admin sekolah» | Administrator Sekolah | Admin sekolah | **Conflict.** T1 explicitly rejects "administrator sekolah". |
-| SYSTEM_ADMIN | «Admin platform» / «Admin PINTAR» | Administrator Platform | Admin PINTAR | **Conflict** (minor). |
+| INSTITUTION_ADMIN | «Admin sekolah» | Administrator Sekolah | Admin sekolah | **Resolved:** frozen term; T1 rejects "administrator sekolah" (Bob, 17 Nov). |
+| SYSTEM_ADMIN | «Admin platform» / «Admin PINTAR» | Administrator Platform | Admin PINTAR | **Resolved:** frozen term (Bob, 17 Nov). |
 
-**Pimpinan.** In the code, «Pimpinan» is the umbrella term and the `/pimpinan` home for both HEAD_OF_DEPARTMENT and DEAN (`pimpinan.ditolak`: «Halaman ini untuk Kepala departemen dan Dekan, dalam lingkup yang mereka pimpin.»). The `/dekan/ringkasan` screen is DEAN's school summary. Bob's note asks which one "Pimpinan Sekolah" maps to. The handbook maps it to **both**, scoped by lingkup, and asks Bob which role to recommend for a principal.
+**Pimpinan.** In the code, «Pimpinan» is the umbrella term and the `/pimpinan` home for both HEAD_OF_DEPARTMENT and DEAN (`pimpinan.ditolak`: «Halaman ini untuk Kepala departemen dan Dekan, dalam lingkup yang mereka pimpin.»). The `/dekan/ringkasan` screen is DEAN's school summary. Bob's note asks which one "Pimpinan Sekolah" maps to. The handbook maps it to **both**, scoped by lingkup. Which role to recommend for a principal is still open (item 0(b) below).
 
 **Capabilities, not roles.**
 - Reviewing content in Studio is CAN_REVIEW, held by HoD, Admin sekolah and SYSTEM_ADMIN. The author can never approve their own work.
@@ -201,7 +207,13 @@ All 19 rows are covered in App. B, 4.5, 7.18, 9.12, 10.12, 14.5 and 15.6. Covere
 
 ## 5. Items to verify before Draft 02
 
-0. **Answers awaited from Bob (17 Nov):** (a) role names, (b) principal's role, (c) the 4.1 account-setup step, (d) the ruling on the integrated AI leaving the roadmap if no provider qualifies, (e) commit attribution trailer.
+0. **Bob's answers (17 Nov, relayed by the owner).**
+   - (a) Role names: **answered.** Use the frozen terms exactly; no ruling needed. The handbook already did.
+   - (b) Recommended role for a principal: **open.** Asked again.
+   - (c) Account set-up after the upgrade: **answered and verified** (row 3). In 5.2 and Bab 18.
+   - (d) The ruling text on the integrated AI leaving the roadmap if no provider qualifies: **open.** Asked again; 10.10 keeps its [Perlu konfirmasi].
+   - (e) Commit attribution: **answered.** Trailers are fine; the rule covers file contents only.
+   - File location `docs/handbook/` on this branch: **confirmed.**
 1. **Roles for a principal.** PINTAR has no «Kepala sekolah» role. Decide the recommended role for a principal (Dekan at school scope? Admin sekolah?) and the handbook wording (4.3).
 2. **Brief's role list vs product roles.** The assignment named seven user categories. The product has six roles. The handbook explains "Pimpinan Sekolah", "Peninjau" and "Fasilitator" as responsibilities within existing roles (4.2–4.3, 10.2, 12.3). Owner to confirm this treatment.
 3. **Terminology choice.**
@@ -217,7 +229,7 @@ All 19 rows are covered in App. B, 4.5, 7.18, 9.12, 10.12, 14.5 and 15.6. Covere
 10. **Learner "Belum mengerjakan Uji Penguasaan" state.** Ruled BUILD (D-121(c)); no completion evidence found. Not mentioned in the handbook.
 11. **A2b final evidence.** Maintenance wording is taken from merged code (A2b merged 17 Nov). Daisy's screen review and exact-candidate acceptance are pending. Re-check the wording at Z.
 12. **C2w, A3 and C3w screens.** Not built. Sections 9.11, 10.9, 10.10 and 11.11 describe intended experience only. Rewrite with verified steps after the build.
-13. **4.2 granular list** (Section 2.2 above). Reconcile with the official 4.2 plan.
+13. **4.2 granular list.** Reconciled with RM Rev 3.1 (Section 2.2). Screens and steps still await the 4.2 plan itself.
 14. **Production school-founding path** (6.2). Pending owner decision.
 15. **Strings marked "pending Dr Gladys" or "Daisy's draft" in `hle.ts`** may still change. Re-run a wording check against `hle.ts` before Draft 02.
 16. **Existing internal FAQ.** `docs/product/handbook/PERTANYAAN-SEKOLAH-DRAF-1.md` (100 school questions; at least one passage known to be stale) was not reused. Reconcile it with this handbook's Chapter 17.
@@ -237,7 +249,7 @@ All 19 rows are covered in App. B, 4.5, 7.18, 9.12, 10.12, 14.5 and 15.6. Covere
 | Management assigning training; teachers creating Uji Cepat questions | CAT MGT-J07 and EDU-J19 vs OR T3 and T2 | Rulings T3 and T2. |
 | Security notices to school admins | SI J2.13 vs C1w key-correction notice | The handbook calls it a notice in «Yang menunggu», not a security notice. |
 | GAP-4.0 items (withdraw assignment, certificate reissue) | ACI (9 Nov) vs OWR W2.21–25 and WPA §2 | Later records: implemented. |
-| 4.2 operational list location | RM notes that the completion-folder owner record is unavailable | Uses RM's eight groups plus OD/EP granular items, flagged. |
+| 4.2 operational list | Rev 3 (summary of 13 Nov) vs the completion-folder owner record §4 | **Resolved by Rev 3.1:** the owner record governs. Retention enforcement left 4.2 (unassigned); items 9 and 10 added; items 7 and 11 come from the execution plan. |
 
 ## 7. Self-review summary
 
@@ -249,6 +261,12 @@ All 19 rows are covered in App. B, 4.5, 7.18, 9.12, 10.12, 14.5 and 15.6. Covere
   - Production status stated.
   - Tour added.
   - Files moved to `docs/handbook/`.
+- **Revisions in Draft 01a (17 Nov, after Bob's follow-up).**
+  - 5.2: one-time account set-up for existing email accounts after the upgrade; new Bab 18 row; illustration placeholder.
+  - 4.2 inventory aligned to Rev 3.1 in the version table (1.6), 7.11, 7.18, 12.6 and Lampiran A; the full later-than-4.2 list of eight.
+  - Retention enforcement re-marked 〔belum ditetapkan〕 (6.10, 7.18, Lampiran A).
+  - 10.10: external-AI import improvements added as 〔4.2 · usulan〕.
+  - Role-name conflicts closed in favour of the frozen terms.
 - **Status discipline.** Each feature carries a version and status tag (〔4.0〕, 〔4.1〕, 〔4.2 · direncanakan/usulan〕, 〔4.5 · arah〕, 〔5.0 · arah〕, 〔belum ditetapkan〕). 4.2–5.0 sections describe the intended experience with no invented screens. Unbuilt 4.1 items (C2w, A3, C3w) are marked "[Perlu konfirmasi]".
 - **Cross-references.** Every in-text and table reference was checked mechanically against the existing section headings.
 - **Internal identifiers.** No batch IDs, migration numbers or commit hashes appear in reader-facing text. They appear only in this file.
