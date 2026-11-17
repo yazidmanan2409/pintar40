@@ -14,11 +14,20 @@
 -- WHAT C2w CHANGES:
 --   * 20270121100000: two functions (distribusi_tempat, distribusi_berlaku), their grants, and two new
 --     client_rpc_registry rows.
---   * 20270121110000_a_reviewer_notes_what_a_wrong_option_reveals.sql (by design, Second Eye 08:12; confirm against the
---     built file): a new table catatan_peninjau (immutable, RLS on, revoked from client roles), its guard trigger, three
---     functions (catatan_peninjau_tulis, _studio, _kelas) with grants and registry rows, and one more table name in the
---     existing metric-source refusal trigger function. That last item is a function body, not data, so no fingerprint
---     moves.
+--   * 20270121110000_a_reviewer_notes_what_a_wrong_option_reveals.sql, as BUILT at the candidate 53a31d91 (sha256
+--     54b6569df6d08535c6c44fcb180ea3bdf78cc15db81ae10d06a32fbc3e585196; Bob's header check, 17 Nov 23:20):
+--     - a NEW table, catatan_peninjau: three indexes, RLS on, revoked from public, anon and authenticated;
+--     - NEW functions: catatan_tolak, catatan_peninjau_jaga and _jaga_kosongkan (guard triggers on the new table),
+--       catatan_peninjau_bukan_sumber_metrik, _garis, _kunci, _baris, _tulis, _studio, _kelas, and
+--       assert_reviewer_notes_are_not_evidence. Grants go to authenticated on _tulis, _studio and _kelas only;
+--     - a NEW trigger, catatan_peninjau_bukan_sumber_metrik, on the existing table metric_sources. It is a new object
+--       (no existing function body is edited, unlike the design's wording), and it writes no row;
+--     - NEW rows in three existing registries: record_class_registry (catatan_peninjau), orang_lampiran (L1-F4:
+--       catatan_peninjau.ditulis_oleh, fde309c5), and client_rpc_registry (_tulis, _studio, _kelas). The upsert's
+--       conflict clause can only meet rows with these three new function names;
+--     - a check block that raises if the notes are read as evidence or a reader takes a row lock. It writes nothing.
+--     None of the query's lines reads metric_sources, record_class_registry, orang_lampiran or client_rpc_registry, so
+--     none of these moves a preserved line.
 --   Every new row is created after the cutoff, so it falls outside every fingerprint. The new table holds no row at the
 --   BEFORE read. C2w adds no column to an existing table, alters no column, changes no column's type and changes no
 --   existing row. If the built migration does otherwise, this header and the exclusions are restated first.
