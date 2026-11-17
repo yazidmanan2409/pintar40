@@ -65,6 +65,7 @@ const CONCURRENCY = 1;             // the in-flight bound: one reservation at a 
 const CHARS_PER_TOKEN = 3;
 const INPUT_MARGIN = 1.2;
 const INPUT_ALLOWANCE = 10000;   // v2: see the budget rules above
+const CALL_TIMEOUT_MS = 1_500_000; // v2: 25 min per call. At 48,000 output tokens a call can take ~5.5 min at the speed seen on 17 Nov (12,000 in 83 s); a timeout is charged and retried, so leave ample room
 const DEFAULT_MAX_OUTPUT = 12000;  // hard output cap per call: 15 items of JSON in Indonesian
 const LABELS = ['A', 'B', 'C', 'D'];
 const UNVERIFIED = 'UNVERIFIED';
@@ -179,7 +180,7 @@ const OPENAI_SPEND_CODES = ['organization_spend_limit_exceeded', 'project_spend_
 
 async function httpCall(adapter, args, fetchImpl = globalThis.fetch) {
   const q = adapter.build(args);
-  const r = await fetchImpl(q.url, { method: q.method, headers: q.headers, body: JSON.stringify(q.body), signal: AbortSignal.timeout(600_000) });
+  const r = await fetchImpl(q.url, { method: q.method, headers: q.headers, body: JSON.stringify(q.body), signal: AbortSignal.timeout(CALL_TIMEOUT_MS) });
   const bodyText = await r.text();
   if (!r.ok) { const cls = adapter.classifyError({ status: r.status, headers: r.headers, bodyText }); throw new HttpError(r.status, bodyText, { cls, request_id: cls.request_id, rate_limit: cls.rate_limit }); }
   return parseOrThrow(adapter, { status: r.status, headers: r.headers, bodyText, maxOutput: args.maxOutput });
