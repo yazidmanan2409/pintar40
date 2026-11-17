@@ -5,6 +5,7 @@
 - Prepared by: Pete, 17 November 2026
 - Responds to: "PINTAR 5.0 Handbook: Usability Improvements"
 - Builds on: `PINTAR-BUKU-PANDUAN-LENGKAP-DRAFT-01.md` (Draft 01a) and `PINTAR-HANDBOOK-FEATURE-COVERAGE.md`
+- **Revised after Bob's review** (17 Nov, `docs/completion-4.1/handbook/BOB-REVIEW-HANDBOOK-2026-11-17.md`, 4.1 master-plan branch): screenshot data rules (§5.1), the scope of Lampiran C (O-4), a publication gate (§7.1), «Lihat per soal» (SS-33), the brand-colour source (§6.1), and the facts for O-7 (§10).
 
 The handbook stays in Bahasa Indonesia. This proposal is in English so that we can discuss it, but every title it proposes for the handbook is given in Indonesian.
 
@@ -235,7 +236,7 @@ Gathering these into one chapter answers your task 15. It also makes the separat
 ### Lampiran
 - A · Glosarium *(old Lampiran C, expanded)*
 - B · Yang belum ada di PINTAR *(if you choose option (b) for O-3)*
-- C · Untuk sekolah yang memperbarui dari versi sebelumnya *(**Decision O-4**: a short "what changed when you upgraded" note, for example the one-time account set-up and the username. I recommend including it.)*
+- C · Untuk sekolah yang memperbarui dari versi sebelumnya *(**Decision O-4**: only what an upgrade **to the version this book describes** changes. The one-time account set-up happens at the 4.1 production upgrade, long before this book, so its guidance belongs in the **4.1 release note**; the book's 6.2 still explains it for anyone who meets it later.)*
 - D · Daftar tangkapan layar, diagram, dan infografik
 
 ### Indeks *(new; see §7)*
@@ -285,7 +286,7 @@ I checked each proposed task against the feature register in the coverage file a
 | 6 | Meninjau dan menyetujui materi atau soal | **Extend: "Meninjau, menyetujui, dan menerbitkan materi"** | Approving and publishing are different permissions (a Kepala departemen cannot publish), and the author never approves their own work. One task should show the whole boundary. | Reviewers, publishers | Verified (4.0) |
 | 7 | Menyediakan materi pembelajaran untuk kelas | **Keep.** | Uses the frozen verb «Sediakan». | Guru | Verified (4.0) |
 | 8 | Mengikuti Pemetaan Awal dan melihat arahan belajar | **Keep, and name «Peta Bacaan Personal».** | Uses the product's own term instead of "arahan". | Murid | Verified (4.0) |
-| 9 | Mempelajari materi dan mengerjakan latihan | **Keep, and add the step-by-step help.** | "Latihan" exists in the product as a question purpose; **verify** that learners see it under that word. | Murid | Verified (4.0); term to check |
+| 9 | Mempelajari materi dan mengerjakan latihan | **Keep, and add the step-by-step help.** | "Latihan" exists in the product, but in more than one place. **Ask Daisy** which label learners actually see before writing this task. | Murid | Verified (4.0); label to confirm with Daisy |
 | 10 | Mengadakan Uji Cepat atau Uji Penguasaan | **Keep, with two clearly separate branches.** | They work differently: the teacher runs a Uji Cepat live in class with a duration, while a Uji Penguasaan comes with the material made available («Sediakan»). Mode Ujian joins this task once it is built. | Guru | Uji Cepat and Uji Penguasaan verified; Mode Ujian planned (4.2) |
 | 11 | Melihat hasil belajar seorang murid | **Keep.** | — | Guru, Pimpinan | Verified (4.0); past periods planned (4.2) |
 | 12 | Membaca ringkasan hasil belajar seluruh kelas | **Keep.** Include "how not to over-read the numbers". | Honest reading is a core principle (old 8.5). | Guru, Pimpinan | Verified (4.0); fuller explanations are approved direction (4.5) |
@@ -331,7 +332,12 @@ The sample uses only screen text already verified in the code. It is a layout sa
 ### 5.1 Capture rules
 
 1. **Source.** Capture only from the completed and accepted 5.0 build, on the acceptance environment, never production. Earlier trial captures may be used for layout work, but are replaced before publication.
-2. **Data.** Use only an **approved demonstration school and personas**. The code already has evaluation personas, which are excluded from account set-up. **Decision O-5:** approve one demonstration dataset (school name, class names, people), with names that clearly cannot belong to real people. No real person's data ever appears, not even blurred.
+2. **Data.** Fictional data only; no real person's data ever appears, not even blurred.
+   - **Drafts:** capture from a **local build with seeded fictional data**, as Daisy does for her product reviews (390 px and 1280 px). This needs no staging access. Reuse Daisy's capture tooling where possible, so that product reviews and the handbook share one set of captures.
+   - **Final 5.0 set:** capture on an **acceptance fixture school that the owner approves**, with Sharon's agreement. Signing in and acting on staging writes to staging, so each capture run is bounded and stays on that verified fixture.
+   - **Never** use `sekolah-demo-pintar` unless the owner authorises it.
+   - **Use ordinary fixture accounts, never the evaluation personas.** Personas run inside an evaluation session and do not show what a normal user sees.
+   - **Decision O-5:** approve the fixture school and its fictional names.
 3. **What the screen must show.** Indonesian interface, light theme, the default text size, and the same demonstration date throughout the book.
 4. **Sizes.**
    - Staff screens: 1280 px wide.
@@ -391,7 +397,7 @@ The sample uses only screen text already verified in the code. It is a layout sa
 | SS-30 | 12.7, T10 | Uji Penguasaan, with the connection message (phone) | answer saved | recovery | ✓ |
 | SS-31 | 12.8 | Learner's result (phone) | official result | first time | ✓ |
 | SS-32 | 10.7, T12 | «Lihat bukti»: class summary | the class conclusion | decision | ✓ |
-| SS-33 | 10.7, T12 | «Per soal»: how many answered correctly and which answer was chosen | most-chosen wrong answer | decision | ✓ |
+| SS-33 | 10.7, T12 | «Lihat per soal»: how many answered correctly and which answer was chosen | most-chosen wrong answer | decision | ✓ |
 | SS-34 | 10.8, T11 | One learner's official result | the attempt, the rules used | — | ✓ |
 | SS-35 | 10.10 | One learner's session: «Tambah waktu», «Akhiri tanpa menghitung» | the two actions, the reason field | decision | ◐ |
 | SS-36 | 8.14 | Extra attempt: requested by one person, approved by another | the two people | decision | ◐ |
@@ -424,7 +430,7 @@ Planned 4.2 screens without slots yet (data export, past-period reports, two-sch
 ### 6.1 Visual grammar (one system for the whole book)
 
 - **Colour.**
-  - Deep teal `#075056` (the PINTAR brand colour, D-192) for PINTAR's own records and steps; deep teal `#05393D` for headings; pale teal `#DCE6E3` for grouping areas.
+  - Deep teal `#075056` (the PINTAR brand colour, D-192/D-193: `--merek-warna` in `src/app/globals.css` on `main`) for PINTAR's own records and steps; deep teal `#05393D` for headings; pale teal `#DCE6E3` for grouping areas.
   - Charcoal and neutral greys for text and lines.
   - One amber accent, used only for exceptions and interruptions.
   - Meaning is never carried by colour alone: shape and label always carry it too, which also keeps diagrams readable when printed in black and white.
@@ -484,6 +490,12 @@ The source file avoids four lists drifting apart, and lets a check script confir
 
 This extends the cross-reference check already run on Draft 01a.
 
+**Publication gate.** The same script blocks publication if it finds any of these:
+- a `⟦DRAF` marker;
+- a `[Perlu konfirmasi` or `[Ilustrasi` / `[Tangkapan layar` placeholder;
+- an internal identifier: batch IDs, migration numbers, commit hashes, PR or decision codes;
+- a quoted «…» string that no longer exists in the product's screen text (`src/lib/hle.ts`).
+
 - **Digital edition:** every reference is a link (`#bab-8-10`, `#tugas-04`).
 - **Print edition:** page numbers are filled in by the layout tool only once pagination is final. Until then, the index shows section numbers.
 
@@ -517,7 +529,7 @@ Organised by **what the reader sees or experiences**, quoting the screen message
 | Gejala | Kemungkinan penyebab | Lakukan | Baca |
 |---|---|---|---|
 | «Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi.» | card number or PIN mistyped (the message is the same whatever the cause, by design) | check the card; ask the teacher | 6.3, Tugas 2 |
-| The activation page appears every time I sign in | account set-up not yet finished after the upgrade | finish the remaining steps | 6.2, Lampiran C |
+| The activation page appears every time I sign in | account set-up not yet finished after the upgrade | finish the remaining steps | 6.2 |
 | The activation code has not arrived | spam folder, or the registered address is wrong | check spam, resend, contact the school | 6.2 |
 | «Masih ada murid di sini. Pindahkan mereka dulu.» when deactivating a class | the class still has learners | move them first | 8.3, 8.9 |
 
@@ -580,10 +592,10 @@ Security thresholds, counts and check order are never given; entries say "setela
 
 | # | Decision | My recommendation |
 |---|---|---|
-| O-1 | Approve the unified structure (§3), including folding 4.5 and 5.0 into the role chapters and two thematic chapters. | Approve. |
-| O-2 | The quick-task list (§4.2): accept the four title changes, and choose whether the five frequent tasks become "Tugas lain yang sering dilakukan" or replace any of the 15. | Accept the changes; add the five as "Tugas lain". |
-| O-3 | Features not in the accepted 5.0: leave them out, or list them in one short appendix. | A short appendix. |
-| O-4 | Include Lampiran C, a short note for schools upgrading from the earlier version. | Include it. |
-| O-5 | Approve one demonstration school and dataset for all screenshots. | Reuse or extend the existing evaluation personas, with clearly fictional names. |
+| O-1 | Approve the unified structure (§3), including folding 4.5 and 5.0 into the role chapters and two thematic chapters. | Approve (Bob agrees). |
+| O-2 | The quick-task list (§4.2): accept the four title changes, and choose whether the five frequent tasks become "Tugas lain yang sering dilakukan" or replace any of the 15. | Accept the changes; add the five as "Tugas lain" (Bob agrees). |
+| O-3 | Features not in the accepted 5.0: leave them out, or list them in one short appendix. | A short appendix (Bob agrees). |
+| O-4 | Include Lampiran C, limited to what an upgrade to the version the book describes changes. | Include it (Bob agrees). The 4.1 account set-up goes in the 4.1 release note. |
+| O-5 | Approve the screenshot data rules (§5.1) and the acceptance fixture school for the final set. | Fictional data only; local builds for drafts; an owner-approved fixture school for the final set; never the demo school or the evaluation personas (Bob agrees). |
 | O-6 | Print and digital formats, and the layout tool (this decides how page references are produced). | Decide before step 7. |
-| O-7 | Role for a school principal (still open; Bob has raised it). | Until a ruling, the book recommends none. |
+| O-7 | Role for a school principal. | The owner's decision. From the role rules: **Dekan** sees the learner list and school summary only and cannot read individual results or act on anything, which suits a principal who oversees. **Kepala departemen** reviews content, assigns learning, reads results and manages assessments but cannot publish, which suits a principal who works on academic matters. Until a ruling, the book states these consequences and recommends neither. |

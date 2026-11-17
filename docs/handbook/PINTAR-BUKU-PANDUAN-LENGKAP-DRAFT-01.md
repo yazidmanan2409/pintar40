@@ -291,7 +291,7 @@ PINTAR memiliki enam peran:
 | **Murid** | Siswa sekolah, mahasiswa, atau peserta pelatihan akademik | Belajar dan mengerjakan asesmen di halaman **Belajar**. |
 | **Guru** | Guru, dosen, fasilitator | Menyediakan materi untuk kelas, mengadakan Uji Cepat, melihat bukti kelas, mengatur sesi asesmen murid, dan menyusun materi di Studio. |
 | **Kepala departemen** | Kepala jurusan, koordinator mata pelajaran, wakil kepala bidang kurikulum | Semua yang dapat dilakukan Guru dalam lingkupnya, ditambah meninjau dan menyetujui materi, memeriksa mutu soal, meninjau catatan integritas, menyetujui kesempatan tambahan, dan memutuskan hal yang menunggu di halaman **Pimpinan**. |
-| **Dekan** | Pimpinan yang perlu melihat gambaran lingkup yang ia pimpin | Melihat daftar murid dan ringkasan dalam lingkupnya, serta memutuskan hal yang menunggu di halaman **Pimpinan**. Dekan tidak mengubah materi atau data. |
+| **Dekan** | Pimpinan yang perlu melihat gambaran lingkup yang ia pimpin | Melihat daftar murid dan ringkasan dalam lingkupnya. Dekan tidak membaca hasil murid perorangan dan tidak mengubah materi atau data. |
 | **Admin sekolah** | Operator sekolah, staf tata usaha, admin institusi | Mengurus PINTAR di sekolahnya: struktur sekolah dan tahun ajaran, pendataan, aktivasi dan kartu kelas, peran staf, kenaikan kelas, perpindahan, sertifikat sekolah, pemeliharaan terjadwal, dan menerbitkan materi sekolah. |
 | **Admin PINTAR** | Tim PINTAR | Mengurus platform: membuka sekolah baru, materi standar PINTAR, akun di tingkat platform, penangguhan, dan penghentian darurat. Di layar juga disebut «Admin platform». |
 
@@ -303,7 +303,11 @@ PINTAR memiliki enam peran:
 
 Beberapa tanggung jawab penting di PINTAR tidak memiliki peran sendiri. Tanggung jawab itu dipegang oleh peran yang sudah ada:
 
-- **Kepala sekolah.** PINTAR tidak memiliki peran bernama «Kepala sekolah». Sekolah memberikan peran sesuai tanggung jawab orangnya. Sebelum memilih, perhatikan batas setiap peran: Kepala departemen dapat meninjau dan menyetujui materi di lingkupnya, tetapi tidak menerbitkan; Dekan melihat gambaran lingkupnya dan memutuskan hal yang menunggu, tetapi sengaja tidak dapat mengubah materi atau data; Admin sekolah mengurus struktur dan orang, tetapi tidak membaca hasil belajar murid (Bab 7 dan 8). [Perlu konfirmasi: peran untuk kepala sekolah.]
+- **Kepala sekolah.** PINTAR tidak memiliki peran bernama «Kepala sekolah». Sekolah memberikan peran sesuai tanggung jawab orangnya, dan pilihannya membawa akibat yang perlu dipahami:
+  - Dengan peran **Dekan** dalam lingkup seluruh sekolah, kepala sekolah melihat daftar murid dan ringkasan sekolah. Ia tidak membaca hasil murid perorangan, tidak meninjau atau menyediakan materi, dan tidak mengatur sesi asesmen. Peran ini cocok untuk pengawasan.
+  - Dengan peran **Kepala departemen** dalam lingkup seluruh sekolah, kepala sekolah dapat menyusun dan meninjau materi, menyediakan materi, mengadakan Uji Cepat, membaca hasil murid, mengatur sesi asesmen, memutuskan permintaan integritas, dan membaca Kesehatan soal. Ia tidak dapat menerbitkan materi dan tidak mendata orang. Peran ini cocok bila kepala sekolah juga menangani urusan akademik.
+  - **Admin sekolah** mengurus struktur, pendataan, dan penerbitan, tetapi tidak membaca hasil murid perorangan.
+  [Perlu konfirmasi: peran untuk kepala sekolah. Keputusan pemilik PINTAR.]
 - **Peninjau materi.** Meninjau dan menyetujui materi adalah kewenangan yang dipegang Kepala departemen, Admin sekolah, dan Admin PINTAR. Aturan pentingnya adalah *dua orang*: penyusun tidak dapat menyetujui materinya sendiri. Di layar tertulis: «Persetujuannya harus dari orang lain, bukan dari penyusun.» (Bab 10)
 - **Fasilitator pengembangan profesi.** Fasilitator adalah seorang Guru yang ditugaskan di kelas pengembangan profesi. Guru yang mengikuti pengembangan profesi disebut **Peserta**, bukan murid. (Bab 12)
 - **Yang mengurus PINTAR di sekolah Anda.** Di layar bantuan dan pemulihan, PINTAR sering memakai ungkapan ini alih-alih nama peran. Biasanya yang dimaksud adalah Admin sekolah.
@@ -355,7 +359,7 @@ Untuk staf, misalnya guru, pimpinan, dan Admin sekolah, aktivasi dilakukan sendi
 
 Anda dapat berhenti di tengah dengan «Keluar dan lanjutkan nanti».
 
-**Sudah memakai PINTAR dengan email sebelum pembaruan?** Setelah sekolah Anda menerima PINTAR versi baru, setiap akun email yang sudah ada, milik staf maupun murid, perlu menyelesaikan penyiapan akun ini satu kali. Masuklah seperti biasa. PINTAR lalu membuka halaman aktivasi dan menahan Anda di sana sampai langkahnya selesai. Jika Anda memilih «Keluar dan lanjutkan nanti», halaman yang sama akan muncul lagi saat Anda masuk berikutnya. Murid yang masuk dengan kartu kelas tidak mengalami langkah ini. PINTAR hanya menampilkan langkah yang belum lengkap untuk akun Anda; langkah yang sudah lengkap tidak ditampilkan lagi. Karena username baru ada di versi ini, akun lama akan diminta memilih username. Pilih dengan teliti: «username tidak bisa diganti». Akun lama juga diminta membuat password («Buat password»), selain langkah nama dan PIN yang belum selesai. Di akhir, staf melihat PINTAR ID dan Kartu PINTAR-nya; akun murid tidak memilikinya.
+**Sudah memakai PINTAR dengan email sebelum pembaruan?** Setelah sekolah Anda menerima PINTAR versi baru, setiap akun email yang sudah ada, milik staf maupun murid, perlu menyelesaikan penyiapan akun ini satu kali. Masuklah seperti biasa. PINTAR lalu membuka halaman aktivasi dan menahan Anda di sana sampai langkahnya selesai. Jika Anda memilih «Keluar dan lanjutkan nanti», halaman yang sama akan muncul lagi saat Anda masuk berikutnya. Murid yang masuk dengan kartu kelas tidak mengalami langkah ini. PINTAR hanya menampilkan langkah yang belum lengkap untuk akun Anda; langkah yang sudah lengkap tidak ditampilkan lagi. Karena username dan PIN baru ada di versi ini, akun lama melewati keempat langkah: «Pilih username» (pilih dengan teliti: «username tidak bisa diganti»), «Buat password», «Buat PIN pribadi», lalu «Periksa nama Anda». Di akhir, staf melihat PINTAR ID dan Kartu PINTAR-nya; akun murid tidak memilikinya.
 
 [Ilustrasi: halaman aktivasi yang muncul setelah masuk, dengan langkah yang tersisa]
 
@@ -869,9 +873,9 @@ Bab ini untuk orang yang memimpin sebagian atau seluruh sekolah: kepala jurusan,
 - menyetujui permintaan kesempatan tambahan untuk murid;
 - memutuskan hal yang menunggu di **Pimpinan**.
 
-**Dekan** melihat gambaran lingkup yang ia pimpin: daftar murid dan ringkasan, serta memutuskan hal yang menunggu di **Pimpinan**. Dekan tidak mengubah materi atau data. Senioritas tidak menambah hak mengubah.
+**Dekan** melihat gambaran lingkup yang ia pimpin: daftar murid dan ringkasan. Dekan tidak membaca hasil murid perorangan, tidak meninjau atau menyediakan materi, tidak mengatur sesi asesmen, dan tidak mengubah data. Senioritas tidak menambah hak mengubah. [Perlu konfirmasi: apa yang ditampilkan «Apa yang menunggu Anda» bagi Dekan.]
 
-> **Mengapa begini?** Memimpin berarti memahami dan memutuskan, bukan mengubah catatan orang lain. Karena itu, peran Dekan sengaja terbatas pada melihat dan memutuskan.
+> **Mengapa begini?** Memimpin berarti memahami dan memutuskan, bukan mengubah catatan orang lain. Karena itu, peran Dekan sengaja terbatas pada melihat. Keputusan tentang materi, hasil, dan sesi asesmen diambil oleh pemegang peran yang menanganinya.
 
 Untuk kepala sekolah, lihat Bab 4.3.
 
@@ -1045,9 +1049,8 @@ Pekerjaan murid yang sudah selesai tetap tersimpan.
 
 ## 9.4 Apa yang dialami murid 〔4.0〕
 
-Setelah materi disediakan, murid melihatnya di halaman **Belajar**. Murid mengerjakan **Pemetaan Awal** (satu kali), membaca pelajaran menurut **Peta Bacaan Personal**, lalu mengerjakan **Uji Penguasaan** (dua kesempatan). Rinciannya ada di Bab 11. Pahamilah alurnya dari sisi murid, karena laporan Anda bersumber dari langkah-langkah ini.
+Setelah materi disediakan, murid melihatnya di halaman **Belajar**. Murid mengerjakan **Pemetaan Awal**, membaca pelajaran menurut **Peta Bacaan Personal**, lalu mengerjakan **Uji Penguasaan**. Jumlah kesempatan untuk setiap asesmen ditetapkan penyusunnya dalam **Aturan Asesmen**, dalam batas yang ditetapkan PINTAR. Uji Cepat hanya dapat dikerjakan sekali. Rinciannya ada di Bab 11. Pahamilah alurnya dari sisi murid, karena laporan Anda bersumber dari langkah-langkah ini.
 
-[Perlu konfirmasi: jumlah kesempatan per jenis asesmen, yaitu Pemetaan Awal 1 kali dan Uji Penguasaan 2 kali.]
 
 ## 9.5 Uji Cepat 〔4.0〕
 
@@ -1073,7 +1076,7 @@ Setelah murid bekerja, PINTAR membantu Anda menjawab pertanyaan yang paling pent
 
 - **«Apa yang sudah bisa disimpulkan»**, yaitu **Ringkasan Kelas**. Isinya pita kesiapan (Mantap, Berkembang, Perlu penguatan), nama murid yang perlu penguatan, topik terlemah, dan kenaikan dari Pemetaan Awal. Jika data belum cukup: «Belum cukup bukan berarti buruk — artinya belum.»
 - **«Siapa yang sudah mengumpulkan»**.
-- **«Soal mana yang sulit bagi kelas ini»**, yaitu **Per soal**. Halaman ini menampilkan berapa yang menjawab benar dan pilihan mana yang dipilih. Per soal hanya terbuka setelah asesmen dikumpulkan atau ditutup, bukan selama murid sedang mengerjakan. Untuk Uji Cepat, Per soal terbuka segera setelah ditutup.
+- **«Soal mana yang sulit bagi kelas ini»**, yaitu «Lihat per soal». Halaman ini menampilkan berapa yang menjawab benar dan pilihan mana yang dipilih. Halaman ini hanya terbuka setelah asesmen dikumpulkan atau ditutup, bukan selama murid sedang mengerjakan. Untuk Uji Cepat, Per soal terbuka segera setelah ditutup.
 - **«Catatan murid»**, yaitu halaman satu murid: kemajuan, hasil, penguasaan, dan tujuan pembelajaran yang belum tercapai. Halaman ini tampilan pendidikan, bukan berkas pribadi, dan tidak memuat catatan integritas.
 
 Guru tidak melihat catatan integritas dan statistik Kesehatan soal. Keduanya ditangani pimpinan dan peninjau.
@@ -1131,7 +1134,7 @@ Selama pemeliharaan terjadwal untuk kelas itu, menambah waktu, melanjutkan, dan 
 
 Jika ternyata kunci jawaban sebuah soal keliru, kuncinya dikoreksi melalui proses dua orang di Studio (Bab 10.8). Bagi guru:
 
-- «Per soal» menandai kunci yang berlaku dan memberi catatan bahwa kunci soal ini sudah diperbaiki, beserta kunci aslinya.
+- «Lihat per soal» menandai kunci yang berlaku dan memberi catatan bahwa kunci soal ini sudah diperbaiki, beserta kunci aslinya.
 - Hasil murid yang terdampak dihitung ulang dari jawaban aslinya. Murid melihat tanda «Dihitung ulang».
 - Pola pemahaman keliru dan Peta Bacaan mengikuti kunci yang sudah diperbaiki.
 - Penjelasan yang sudah tidak cocok karena koreksi itu ditarik.
@@ -1272,7 +1275,7 @@ Materi yang sudah dipakai tidak pernah diubah. Untuk mengoreksinya, terbitkan **
 
 - Murid tetap terikat pada versi yang benar-benar ia lihat. Tidak ada yang diganti di tengah sesi yang sedang berjalan.
 - Revisi menggantikan versi lama untuk **penugasan baru**.
-- Revisi tidak memberi kesempatan baru. Batas kesempatan berlaku untuk semua versi asesmen yang sama. Jalan yang wajar untuk kesempatan tambahan adalah permintaan guru yang disetujui orang lain (Bab 9.8).
+- Revisi tidak memberi kesempatan baru: batas kesempatan berlaku untuk semua versi asesmen yang sama 〔4.1 · dalam pengembangan; saat ini masih per versi〕. Jalan yang wajar untuk kesempatan tambahan adalah permintaan guru yang disetujui orang lain (Bab 9.8).
 - Riwayat revisi dapat dibaca orang.
 
 **Menarik terbitan** («Tarik») memerlukan alasan. Mulai 4.1, terbitan yang ditarik tidak dapat dimulai lagi. Guru dan murid melihat «Dihentikan penerbit · tidak dapat dimulai lagi; hasil tetap dihitung». Kata «Ditarik» hanya dipakai di dalam Studio.
@@ -1305,9 +1308,9 @@ Lalu **orang yang berbeda**, yang berwenang menerbitkan atau meninjau, menekan �
 
 > **Mengapa begini?** Murid berhak dinilai dengan kunci yang benar. Tetapi sekolah juga berhak tahu apa yang dulu tercatat. Karena itu, koreksi tidak menghapus apa pun. Koreksi menambahkan hasil baru yang berlaku, dan semua yang lama tetap dapat ditelusuri.
 
-## 10.9 Catatan peninjau di samping soal 〔4.1〕
+## 10.9 Catatan peninjau di samping soal 〔4.1 · dalam pengembangan〕
 
-PINTAR 4.1 merencanakan **catatan peninjau** di samping soal yang sudah tersegel:
+PINTAR 4.1 merencanakan «Catatan peninjau» di samping soal yang sudah tersegel:
 
 - Catatan diberi nama penulis dan tanggal, dan tidak dapat diubah. Penggantinya adalah catatan baru.
 - Catatan menunjukkan revisi soal yang dirujuknya, dan memberi peringatan jika catatan itu ditulis sebelum kunci jawaban dikoreksi.
@@ -1452,7 +1455,7 @@ Membuka sebuah bab hanya untuk melihat isinya tidak berarti Anda mulai mengerjak
 
 ## 11.5 Pemetaan Awal 〔4.0〕
 
-**Pemetaan Awal** dikerjakan sekali di awal bab. Untuk murid SD, layar menjelaskan: «Ini bukan ulangan. Jawaban Anda dipakai untuk memilih bacaan yang pas.» Kalimat itu berlaku untuk semua murid: Pemetaan Awal tidak menentukan hasil Anda. Pemetaan Awal membantu memilih dari mana Anda mulai membaca.
+**Pemetaan Awal** dikerjakan di awal bab. Untuk murid SD, layar menjelaskan: «Ini bukan ulangan. Jawaban Anda dipakai untuk memilih bacaan yang pas.» Kalimat itu berlaku untuk semua murid: Pemetaan Awal tidak menentukan hasil Anda. Pemetaan Awal membantu memilih dari mana Anda mulai membaca.
 
 Gunakan «Berikutnya» dan «Kembali» untuk berpindah soal, lalu «Selesaikan pemetaan». Setelah itu: «Pemetaan selesai. Peta bacaan Anda sudah siap.»
 
@@ -1485,7 +1488,7 @@ Tombol yang tersedia:
 
 Sebelum mengumpulkan, PINTAR bertanya: «Kumpulkan sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah.» PINTAR menunggu sampai semua jawaban tersimpan sebelum mengumpulkannya.
 
-Uji Penguasaan memiliki dua kesempatan. Jumlah kesempatan tidak bertambah kembali walaupun guru mengakhiri lalu memberikan asesmen yang sama lagi, dan tidak bertambah walaupun asesmennya direvisi: kesempatan dihitung untuk semua versi asesmen yang sama. Kesempatan tambahan hanya dapat diberikan melalui permintaan guru yang disetujui orang lain (Bab 9.8).
+Jumlah kesempatan Uji Penguasaan tertulis di Aturan Asesmen-nya, sesuai yang ditetapkan penyusun. Jumlah kesempatan tidak bertambah kembali walaupun guru mengakhiri lalu memberikan asesmen yang sama lagi. Kesempatan juga akan dihitung untuk semua versi asesmen yang sama, sehingga revisi tidak menambah kesempatan 〔4.1 · dalam pengembangan〕; sampai aturan ini selesai dibangun, kesempatan masih dihitung per versi. Kesempatan tambahan hanya dapat diberikan melalui permintaan guru yang disetujui orang lain (Bab 9.8).
 
 > **Jika terjadi kendala** Internet putus di tengah Uji Penguasaan? Jawaban yang sudah tersimpan tidak hilang. Setelah tersambung kembali, lanjutkan.
 
@@ -1598,7 +1601,7 @@ Peserta belajar dan mengerjakan asesmen seperti murid, dengan bahasa yang sesuai
 
 ## 12.5 Batas yang dijaga 〔4.0〕
 
-- Kelas pengembangan profesi tidak muncul di tampilan guru tentang murid dan ditolak di halaman Per soal.
+- Kelas pengembangan profesi tidak muncul di tampilan guru tentang murid dan ditolak di halaman «Lihat per soal».
 - Hasil pengembangan profesi tidak muncul di layar keputusan manajemen.
 - Pengaturan sesi oleh guru di 4.1 (Bab 9.8) tidak berlaku untuk sesi pengembangan profesi. Hanya Admin PINTAR yang dapat mengakhiri penugasan dan sesi pengembangan profesi.
 
@@ -2053,7 +2056,7 @@ Datanya belum cukup. Angka kelas memerlukan sedikitnya lima murid. Layar menunju
 Tidak. Jawaban yang sudah tercatat dan hasil yang sudah selesai tidak dapat diubah. Jika kunci jawaban keliru, gunakan perbaikan kunci jawaban (Bab 10.8). Jika keadaan murid perlu ditangani khusus, gunakan pengaturan sesi (Bab 9.8).
 
 **Mengapa saya tidak melihat Kesehatan soal atau catatan integritas?**
-Keduanya ditangani oleh peninjau dan pimpinan. Guru melihat «Per soal» untuk kelasnya sendiri (Bab 9.6).
+Keduanya ditangani oleh peninjau dan pimpinan. Guru melihat «Lihat per soal» untuk kelasnya sendiri (Bab 9.6).
 
 **Apakah hasil pengembangan profesi saya dilihat kepala sekolah?**
 Hasil pengembangan profesi tidak muncul di layar keputusan manajemen. Anda dapat melihat siapa yang dapat melihat hasil Anda (Bab 12.4).
@@ -2199,7 +2202,7 @@ Status per 17 November 2026. **Layanan yang dipakai sekolah (produksi) masih mem
 | Studio | Kesehatan soal | 10.11 |
 | Mengajar | Menyediakan materi; mengakhiri atau menarik penugasan | 9.3 |
 | Mengajar | Uji Cepat | 9.5 |
-| Mengajar | Ringkasan Kelas; Per soal; Catatan murid; minta membaca lagi | 9.6–9.7 |
+| Mengajar | Ringkasan Kelas; «Lihat per soal»; Catatan murid; minta membaca lagi | 9.6–9.7 |
 | Belajar | Pemetaan Awal; Peta Bacaan Personal; pelajaran; bantuan bertahap; Uji Penguasaan; Hasil | 11.4–11.8 |
 | Belajar | Sertifikat Penguasaan dengan predikat | 11.9 |
 | Pimpinan | Halaman Pimpinan; lingkup; Murid dalam lingkup | 8.2–8.3 |
@@ -2323,7 +2326,7 @@ Hal-hal berikut **bukan** janji PINTAR 5.0. Hal-hal ini dicatat agar pembaca tah
 | **Bukti** | Catatan dari pembelajaran dan asesmen yang menjadi dasar laporan. |
 | **Buku kerja** | Berkas Excel (.xlsx) untuk menyusun Paket Pembelajaran. |
 | **Catatan masuk dan cetak** | 〔4.1〕 Catatan akuntabilitas 12 bulan tentang siapa yang masuk, keluar, atau mencetak laporan resmi. |
-| **Dekan** | Peran pimpinan yang melihat gambaran lingkupnya dan memutuskan hal yang menunggu. |
+| **Dekan** | Peran pimpinan yang melihat gambaran lingkupnya (daftar murid dan ringkasan) tanpa mengubah apa pun. |
 | **Dihitung ulang** | 〔4.1〕 Tanda pada hasil yang dihitung ulang setelah koreksi kunci jawaban. |
 | **Ditahan** | 〔4.1〕 Keadaan sesi asesmen selama penghentian darurat atau penangguhan, dengan jawaban dan sisa waktu tersimpan. |
 | **Guru** | Peran untuk mengajar: menyediakan materi, Uji Cepat, membaca bukti, mengatur sesi. |
