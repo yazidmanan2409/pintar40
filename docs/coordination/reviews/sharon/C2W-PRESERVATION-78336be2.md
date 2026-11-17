@@ -38,3 +38,10 @@ Sharon, 17 Nov 2026 (07:00 UTC). Read-only.
 - only line 10 moves;
 - a planted withdrawal through `withdraw_release_distribution` appears in 67 with 68 at 0;
 - a planted direct update of a grant to WITHDRAWN, with no audit row, makes 68 read 1.
+
+## Addendum, 07:10 UTC: P1 is applied (`c2548a49`, sha256 `1d5428caf1608be7629fedec59da02415ae2745323d6f9d5efc1a2eaa469027a`)
+
+- **The diff from the `78336be2` version** (its parent) is only:
+  - line 68, exactly as specified (`a.id > batas.audit_id`, the action, the target table and id, and the actor equal to `withdrawn_by_person_id`);
+  - the header comments recording the line-66 reasoning and the three dry-run proofs.
+- **The PASS stands on `1d5428ca…`, subject only to Second Eye's dry run** showing the three proofs.
