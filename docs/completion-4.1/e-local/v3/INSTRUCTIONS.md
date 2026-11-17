@@ -20,6 +20,24 @@ About 20–40 minutes, most of it waiting. You need **one new** temporary Anthro
 **Typing `RUN` at step 5 is the only thing that makes paid calls.** Everything before it is free. You can stop at any
 point by closing the Terminal window or pressing Control-C.
 
+## Before anything else: the free practice run on your Mac (no key, no cost)
+
+This runs the whole procedure on your Mac with its own tools: the checks, the key prompt, the key check, the run, the
+scan and the zip. It uses a dummy key and a local stand-in on your Mac. Nothing is sent anywhere and nothing is spent.
+Do it as soon as Bob sends the package, before any key exists.
+
+1. Do steps 1 to 3 below. **Skip step 0: you need no key for this.**
+2. In Terminal, inside `pintar-e-local-v3`, type:
+   ```
+   zsh jalankan-e.sh --latihan
+   ```
+3. At the key prompt, type exactly `sk-ant-latihan` and press Return. **Never paste a real key here;** the practice
+   run refuses anything else.
+4. At the RUN prompt, type `RUN`. The run is the offline practice one: no provider is called.
+5. Send Bob `hasil-latihan/untuk-bob.zip`. Leave the `hasil-latihan` folder where it is. The real run writes to
+   `hasil`, in the same folder.
+6. If anything stops, send Bob what the screen shows. Nothing was spent and no key was involved.
+
 ## 0 · Make one new temporary key
 
 **Anthropic Console:** in the same evaluation workspace, keep the workspace limit at US$5 and create a new temporary key.

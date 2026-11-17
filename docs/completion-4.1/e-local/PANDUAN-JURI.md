@@ -15,7 +15,7 @@ Setiap soal mencantumkan:
 - kunci jawaban, dengan alasan singkat;
 - untuk setiap pengecoh (pilihan yang salah), pemahaman keliru yang diwakilinya.
 
-Soal-soal ini disusun dengan bantuan AI. **Anda tidak diberi tahu sumbernya, dan tidak perlu menebaknya.** Nilailah setiap soal seperti Anda menilai soal yang diajukan rekan guru: apakah soal ini layak dipakai untuk murid Anda?
+**Sumber soal tidak disebutkan, dan Anda tidak perlu menebaknya.** Nilailah setiap soal seperti Anda menilai soal yang diajukan rekan guru: apakah soal ini layak dipakai untuk murid Anda?
 
 ## 2 · Lima hal yang dinilai untuk setiap soal
 
@@ -51,11 +51,11 @@ Nilai 0 di kolom ini dianggap kesalahan serius, jadi periksalah dengan teliti. B
   - Jangan memakai alat AI untuk membantu menilai.
 - **J3** tidak menilai semua soal. Setelah lembar J1 dan J2 dicatat, J3 menerima daftar soal yang perlu diputuskan, bersama alasan kedua juri:
   - soal yang nilai **benar**-nya berbeda antara J1 dan J2;
-  - soal yang ditandai oleh pemeriksa kunci, dengan catatan alasannya. Pemeriksa kunci adalah peninjau AI di tim PINTAR. Ia menjawab setiap soal tanpa melihat kuncinya dan tanpa tahu sumber soal, lalu soal ditandai bila jawabannya berbeda dari kunci. Catatan itu hanya bahan pertimbangan, sama bobotnya dengan alasan seorang juri;
+  - soal yang ditandai oleh pemeriksa kunci, dengan catatan alasannya. Pemeriksa kunci adalah pemeriksaan terpisah di tim PINTAR: setiap soal dijawab tanpa melihat kuncinya dan tanpa mengetahui sumber soal, lalu soal ditandai bila jawabannya berbeda dari kunci. Catatan itu hanya bahan pertimbangan, sama bobotnya dengan alasan seorang juri;
   - soal yang, di salah satu kolom 0–2, nilainya dari J1 dan J2 berbeda **dua** angka (misalnya 0 dan 2).
 
   Untuk soal-soal itu saja, J3 mengisi kolom yang diminta. **Keputusan J3 untuk kolom benar bersifat final.**
-- **Waktu:** kira-kira 2–3 jam untuk J1 dan J2 (Kamis, 19 November 2026, 09.00–12.00 WIB), dan kira-kira satu jam untuk J3 (hari yang sama, mulai 13.00 WIB).
+- **Waktu:** kira-kira 2–3 jam untuk J1 dan J2, dan kira-kira satu jam untuk J3, setelah lembar J1 dan J2 dicatat. Pak Yazid memberi tahu tanggal dan jamnya.
 
 ## 4 · Mengisi lembar nilai
 

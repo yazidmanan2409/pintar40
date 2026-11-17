@@ -249,3 +249,80 @@ At the package settings (Anthropic only, max_output 48,000, pinned US$2 / US$10,
   - Then blind the 60 questions together and judge them in one session.
 - **Why:** judging Anthropic alone first would tell the judges that every question in that batch, and later every question in the second batch, came from one provider. That weakens the blinding the comparison rests on.
 - **The cost:** **Friday 20 November is possible only if OpenAI's run is also done by then.** Otherwise judging moves to when it is.
+
+## Owner review of the v3 report (17 Nov): five points, and corrections
+
+### 1 · Structured output with streaming: confirmed (grade A, read 17 Nov)
+Source: Anthropic's structured-outputs page (platform.claude.com, build-with-claude/structured-outputs).
+- **"Feature compatibility. Works with: … Streaming: Stream structured outputs like normal responses."** Also: "Structured outputs also work with streaming. As responses arrive in stream events, you need to accumulate the full response before deserializing the JSON." The runner does this: only the completed text is assembled and validated.
+- **Thinking:** "Grammars apply only to Claude's direct output, not to … thinking … Grammar state resets between sections, allowing Claude to think freely while still producing structured output in the final response."
+- **Model:** "Structured outputs are available on every model". The page's supported-model list includes `claude-sonnet-5-5`.
+- **Incompatible features:** citations and message prefilling. We use neither.
+- **Complexity limits:** at most 24 optional parameters (ours: 0), at most 16 union types (ours: 0), and a 180-second compilation limit. Our schema has no optional parameters, no unions, and four objects.
+- **Answers that may not match the schema:**
+  - `refusal`: a 200, billed, and the output may not match the schema;
+  - `max_tokens`: the output may be incomplete.
+
+  Both are completed streams. `kit.mjs validate` measures them invalid, and they are retried within the caps. The page warns that a schema property asking for step-by-step reasoning can trigger a refusal. Ours asks for "satu kalimat alasan" (one sentence), the short explanation the page recommends.
+- **Enum capitalisation may vary.** This affects values with spaces. Our enums are the single letters A–D, so it is a low risk, and `kit.mjs validate` decides in any case.
+- **Output limit:** 48,000 is within the model's 128K maximum (models overview, read 17 Nov).
+- **Still unproven against the live API:** this is documentation. The first paid call is the first live proof, and S-1 keeps a malformed stream from ever counting as an answer.
+
+### 2 · Allowance, reservation and interrupted streams
+- **Allowance:** US$5 less run 1's US$0.129986 = **US$4.87**. The runner's per-provider cap is 4.87, and the console's workspace limit of US$5 sits behind it.
+- **Reservation:** unchanged by streaming. US$0.523730 (bab1) and US$0.520808 (bab2) per call; **US$3.133614 for all 6 calls.**
+- **An interrupted stream is counted at its full reservation.** It has no trustworthy final usage, so its reservation stands as its cost: scenarios (h) and (h4). The cap check before the next call counts it.
+
+### 3 · Incomplete paid answers are now preserved (`ccc0a285` red, `f9e38d69` fix)
+- **Where they go:** a cut or errored stream's partial answer text goes to `<provider>/incomplete/bab<n>.a<k>.partial.txt`, inside PRIVAT on the Mac. Only text-block content is kept; thinking is never kept.
+- **The ledger** records the file name, with the text's SHA-256 and length.
+- **It never reaches scoring.** It is never an attempt file and never validated. The frozen `kit.mjs blind` reads only the judged files: a self-test runs `blind` on such a run and checks that no partial text reaches what the judges or the key checker see.
+- **This changes Sharon's S-1** ("partial text is never assembled"). The owner's instruction overrides it, and Sharon is asked to confirm.
+
+### 4 · Retry rules and untrustworthy usage (`c6cf0fd7` red, `f9e38d69` fix)
+- **Retried:** a transport error, a cut stream, a retryable 429, the documented 5xx errors, a mid-stream `overloaded_error`, `api_error` or `timeout_error`, an unparsable 2xx, and an invalid answer.
+- **Never retried; the provider stops:** any other error event or HTTP error, and every spend or billing stop.
+- **No usable response three times on one request:** the provider stops (N4).
+- **A stream is refused as an answer** unless its final usage is trustworthy. Each of these is refused:
+  - no final output count;
+  - a count that is negative, fractional or not a number;
+  - a cumulative count that goes down between `message_delta` events;
+  - a final output count below `message_start`'s.
+- **Self-test: 204 checks, all passed.**
+
+### 5 · The blinding question: a correction, and for Sharon to resolve
+- **My correction.** Ruling 50 (2) says "the weaker one-provider blinding is noted in the results". That plans for Anthropic to be judged on its own, with the weaker blinding disclosed. My v3 report instead said judging must wait for OpenAI. That changed the owner-approved sequence without saying so. **It should have been raised as a conflict, not settled in the package.**
+- **The conflict:**
+  - Ruling 50 (5) keeps the frozen evaluation unchanged;
+  - the frozen `kit.mjs blind` refuses fewer than two providers ("need 2–26 provider folders");
+  - so independent Anthropic judging cannot run on the frozen kit as it stands.
+- **The options, for Sharon to rule on and the owner to decide:**
+  - **A.** Judge Anthropic on its own, with the weaker blinding disclosed, as in Ruling 50. This needs a separate one-provider blinding step outside the frozen kit, built from the same allowlists. That is a change to the evaluation tooling, so it needs Sharon's review and the owner's authorisation.
+  - **B.** The owner's fallback: generate Anthropic's questions now, preserve them securely, and **distribute nothing to the judges** until OpenAI's are ready. Then blind both together with the frozen kit, unchanged.
+- **v3 fits either.** It generates and preserves only, and sends the judges nothing, so the choice can be made after the run. Today it ends at preservation, which is option B's first half.
+
+### 6 · The judges' introduction (owner clarification, 17 Nov)
+- **What the teachers know:** only that they will check some questions. They were not told the questions are AI-generated, nor that two providers are compared.
+- **`PANDUAN-JURI.md` had told them both.** It said «disusun dengan bantuan AI», and called the key checker «peninjau AI».
+- **Now:**
+  - the guide names no source;
+  - it describes the key checker only by what it does;
+  - the fixed date «Kamis, 19 November» is gone, because judging is not yet scheduled.
+- **The rest is unchanged,** including the rule «Jangan memakai alat AI untuk membantu menilai», which says nothing about where the questions come from.
+- **The frozen kit's judge sheets were checked:** a blinded dry run's reviewer and key-checker files name no AI, model or provider.
+- **`JAWABAN-BILA-DITANYA.md`** is for the owner only. It gives a truthful answer, naming no provider, in case a teacher asks where the questions come from.
+- **Daisy wrote the guide's text,** and she reviews these three edits before the guide is used.
+
+### 7 · Mac-specific execution: a free practice run on the owner's Mac
+- `zsh jalankan-e.sh --latihan` runs the whole procedure on the Mac itself, with its own tools: the checks, the hidden key prompt (with the dummy text `sk-ant-latihan`), the key check, the run, the scan and the zip.
+  - The key check is answered by `latihan-mock.mjs` on 127.0.0.1, which the script starts and stops itself.
+  - The run is the offline dry run, through the real streaming code.
+  - Results go to `hasil-latihan`.
+- **It refuses anything but the dummy text,** so a real key cannot be used by mistake.
+- **Rehearsed here:**
+  - the practice run;
+  - the practice run with a real-looking key, which stopped;
+  - a practice run followed by the real procedure in the same folder, which completed;
+  - the full rehearsal again: 14 paths, all as expected.
+- **The owner runs it before any key exists,** and sends `hasil-latihan/untuk-bob.zip`. Only after that is the paid run requested.
+- **Package:** v3, rebuilt on runner `f9e38d69`. SHA-256: `1404befb4da8df59315854c10a123a7f4f6e4e93ff009d5d28285bc9daed66ba`. It replaces `79226145…`, which must not be used.

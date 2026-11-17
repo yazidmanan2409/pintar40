@@ -16,15 +16,17 @@ case_run() { # name, shell, mock behaviour, input, extra-setup
   ( while :; do ps -eo args; sleep 0.05; done ) > "$R/ps-samples.txt" 2>/dev/null & local PS=$!
   sleep 1
   printf "$input" | E_REHEARSE_ANTHROPIC_BASE=http://127.0.0.1:47111 E_REHEARSE_OPENAI_BASE=http://127.0.0.1:47112 \
-    $sh "$R/pintar-e-local-v3/jalankan-e.sh" --rehearse > "$R/out.txt" 2>&1; local rc=$?
+    $sh "$R/pintar-e-local-v3/jalankan-e.sh" "${FLAG:---rehearse}" > "$R/out.txt" 2>&1; local rc=$?
+  [ -n "${AFTER:-}" ] && ( cd "$R/pintar-e-local-v3" && eval "$AFTER" ) > "$R/out-after.txt" 2>&1
   kill $PA $PO $PS 2>/dev/null; wait $PA $PO $PS 2>/dev/null
-  local runs=no; [ -d "$R/pintar-e-local-v3/hasil/PRIVAT-simpan-jangan-dikirim/runs" ] && runs=yes
-  local leak=none; grep -rlq "REHEARSALKEY" "$R/pintar-e-local-v3/hasil" "$R/out.txt" 2>/dev/null && leak=FOUND
+  local HD="$R/pintar-e-local-v3/${HDIR:-hasil}"
+  local runs=no; [ -d "$HD/PRIVAT-simpan-jangan-dikirim/runs" ] && runs=yes
+  local leak=none; grep -rlq "REHEARSALKEY" "$HD" "$R/out.txt" 2>/dev/null && leak=FOUND
   local psleak=none; grep -q "REHEARSALKEY" "$R/ps-samples.txt" && psleak=FOUND
-  local think=none; grep -rlq "THINKING-CANARY" "$R/pintar-e-local-v3/hasil" "$R/out.txt" 2>/dev/null && think=FOUND
+  local think=none; grep -rlq "THINKING-CANARY" "$HD" "$R/out.txt" 2>/dev/null && think=FOUND
   local oai=none; [ -s "$R/seenO.json" ] && oai=CONTACTED
   local n=$(grep -c '^' "$R/ps-samples.txt")
-  echo "$name ($sh): exit=$rc runs_dir=$runs key_in_outputs=$leak key_in_process_list=$psleak ($n ps lines) thinking_in_outputs=$think openai_mock=$oai | $(grep -E 'STOPPED|== Done' "$R/out.txt" | head -1)" | tee -a "$OUT"
+  echo "$name ($sh): exit=$rc runs_dir=$runs key_in_outputs=$leak key_in_process_list=$psleak ($n ps lines) thinking_in_outputs=$think openai_mock=$oai harness_anthropic_mock=$([ -s "$R/seenA.json" ] && echo contacted || echo none) | $(grep -E 'STOPPED|== Done' "$R/out.txt" | head -1)$([ -f "$R/out-after.txt" ] && echo " | then the real procedure: $(grep -E 'STOPPED|== Done' "$R/out-after.txt" | head -1)")" | tee -a "$OUT"
 }
 K='sk-ant-REHEARSALKEYAAA\n'
 case_run happy        zsh  ok   "${K}RUN\n"
@@ -38,6 +40,11 @@ case_run old-hasil    zsh  ok   "${K}RUN\n" 'mkdir hasil'
 case_run dotenv       zsh  ok   "${K}RUN\n" 'touch .env'
 case_run void-missing zsh  ok   "${K}RUN\n" 'rm -r ../pintar-e-local'
 case_run void-altered zsh  ok   "${K}RUN\n" 'sed -i "s/0.129986/0.000000/" ../pintar-e-local/hasil/PRIVAT-simpan-jangan-dikirim/runs/ledger.json'
+# The owner's practice run on the Mac (--latihan): its own local stand-in, the dummy key, results in hasil-latihan.
+FLAG=--latihan HDIR=hasil-latihan case_run latihan          zsh ok 'sk-ant-latihan\nRUN\n'
+FLAG=--latihan HDIR=hasil-latihan case_run latihan-realkey  zsh ok "${K}RUN\n"
+# after a practice run, the real procedure still starts in the same folder (here in rehearse mode) and writes to hasil
+FLAG=--latihan HDIR=hasil AFTER="printf '${K}RUN\\n' | E_REHEARSE_ANTHROPIC_BASE=http://127.0.0.1:47111 zsh jalankan-e.sh --rehearse" case_run latihan-then-real zsh ok 'sk-ant-latihan\nRUN\n'
 # R2, without contacting a provider: run the script's own live-mode unset line, with stray rehearsal variables set.
 L="$(grep -E '^if \[ "\$MODE" = live \]; then unset E_REHEARSE' "$H/../jalankan-e.sh")"
 left="$(E_REHEARSE=1 E_REHEARSE_ANTHROPIC_BASE=x E_REHEARSE_OPENAI_BASE=y zsh -c "MODE=live; $L; env | grep -c '^E_REHEARSE' || true")"

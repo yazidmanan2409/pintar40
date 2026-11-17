@@ -9,6 +9,10 @@
 # the PRIVAT folder until OpenAI's run (Ruling 50: sequencing, not selection).
 #
 #   zsh jalankan-e.sh              the real procedure. It makes paid calls ONLY after you type RUN.
+#   zsh jalankan-e.sh --latihan    the owner's practice run on the Mac itself, at no cost and with no key: the same
+#                                  script, with the dummy text sk-ant-latihan at the key prompt, the key check
+#                                  answered by latihan-mock.mjs on 127.0.0.1, and the offline dry run in place of
+#                                  the paid run. Results go to hasil-latihan, so the real run can follow in the same folder.
 #   zsh jalankan-e.sh --rehearse   Bob's offline rehearsal: the same script, with the paid run replaced by the offline
 #                                  dry run and the key check pointed at a local mock. It never contacts a provider.
 #
@@ -28,11 +32,14 @@ umask 077
 
 MODE=live
 if [ "${1:-}" = "--rehearse" ]; then MODE=rehearse; fi
+if [ "${1:-}" = "--latihan" ]; then MODE=latihan; fi
+MOCK_PID=''
 if [ "$MODE" = live ]; then unset E_REHEARSE E_REHEARSE_ANTHROPIC_BASE E_REHEARSE_OPENAI_BASE 2>/dev/null || true; fi
 
 K_ANTHROPIC=''; K_OPENAI=''
 clear_keys() { K_ANTHROPIC=''; K_OPENAI=''; unset K_ANTHROPIC K_OPENAI 2>/dev/null || true; }
-trap clear_keys EXIT
+on_exit() { clear_keys; if [ -n "$MOCK_PID" ]; then kill "$MOCK_PID" 2>/dev/null || true; fi; }
+trap on_exit EXIT
 
 cd "$(dirname "$0")"
 ROOT="$(pwd)"
@@ -41,6 +48,7 @@ PACK_SHA=ecb0d3c48b3a1ec0623253f3a32097ea5c7b38f4
 MAX_OUT=48000
 CAPS=(--providers anthropic --cap-provider 4.87 --cap-total 9.87 --max-output 48000)
 HASIL="$ROOT/hasil"
+if [ "$MODE" = latihan ]; then HASIL="$ROOT/hasil-latihan"; fi
 PRIVAT="$HASIL/PRIVAT-simpan-jangan-dikirim"
 
 judul()    { printf '\n== %s\n' "$1"; }
@@ -56,7 +64,7 @@ echo "Node $(node --version): OK"
 if command -v shasum >/dev/null 2>&1; then shasum -a 256 -c -s SHA256SUMS || berhenti "the package does not match its checksums. Download it again."
 else sha256sum -c --quiet SHA256SUMS || berhenti "the package does not match its checksums. Download it again."; fi
 echo "Package checksums: OK"
-[ "$(cat SOURCE-COMMIT)" = "301b91a68b66949e246e1b654ec8dcad665cb60d" ] || berhenti "the package is not from the v3 (streaming) runner commit."
+[ "$(cat SOURCE-COMMIT)" = "f9e38d696a9b7ffb3883dbbb1807c13eb2371e01" ] || berhenti "the package is not from the v3 (streaming) runner commit."
 echo "Package built from the v3 (streaming) runner commit $(cat SOURCE-COMMIT)"
 VOID="$ROOT/../pintar-e-local/hasil/PRIVAT-simpan-jangan-dikirim/runs/ledger.json"
 [ -f "$VOID" ] || berhenti "the first (void) run's folder was not found next to this one (../pintar-e-local/hasil). Keep it in Downloads, unchanged."
@@ -85,21 +93,32 @@ echo "Offline practice run, at the real prices and caps: OK"
 
 # ── Step B · the keys, at hidden prompts ─────────────────────────────────────
 judul "Step B: your Anthropic key (nothing you type or paste will show)"
+if [ "$MODE" = latihan ]; then echo "PRACTICE RUN: do not paste a real key. Type  sk-ant-latihan  instead, then press Return."; fi
 printf 'Paste the ANTHROPIC key (evaluation workspace), then press Return: '
 IFS= read -rs K_ANTHROPIC; echo
 if command -v pbcopy >/dev/null 2>&1; then printf '' | pbcopy; echo "Clipboard cleared."; fi
 [ -n "$K_ANTHROPIC" ] || berhenti "the key was empty."
 case "$K_ANTHROPIC" in sk-ant-*) ;; *) berhenti "this does not look like an Anthropic key (it should start sk-ant-). Was it the OpenAI one?";; esac
+if [ "$MODE" = latihan ] && [ "$K_ANTHROPIC" != "sk-ant-latihan" ]; then
+  berhenti "this is the practice run: type sk-ant-latihan at the prompt, never a real key."; fi
 echo "Key received (not shown, not saved)."
 
 # ── Step C · the key check, at no cost ───────────────────────────────────────
 judul "Step C: checking the key at no cost (no tokens are used)"
-( if [ "$MODE" = rehearse ]; then export E_REHEARSE=1; fi
+if [ "$MODE" = latihan ]; then
+  rm -f "$HASIL/latihan/mock-port"
+  node "$ROOT/latihan-mock.mjs" "$HASIL/latihan/mock-port" & MOCK_PID=$!
+  for _ in 1 2 3 4 5 6 7 8 9 10; do [ -s "$HASIL/latihan/mock-port" ] && break; sleep 0.5; done
+  [ -s "$HASIL/latihan/mock-port" ] || berhenti "the practice stand-in did not start."
+  export E_REHEARSE_ANTHROPIC_BASE="http://127.0.0.1:$(cat "$HASIL/latihan/mock-port")"
+fi
+( if [ "$MODE" != live ]; then export E_REHEARSE=1; fi
   ANTHROPIC_API_KEY="$K_ANTHROPIC" node "$ROOT/periksa-kunci.mjs" anthropic ) \
   | tee "$HASIL/latihan/key-check.txt" || berhenti "the key or the model was not confirmed. Nothing was spent."
 
 # ── Step D · your go ─────────────────────────────────────────────────────────
 judul "Step D: the paid run"
+if [ "$MODE" = latihan ]; then echo "PRACTICE RUN: typing RUN starts the offline practice run. No provider is called and nothing is spent."; fi
 echo "Ready. The run calls Anthropic only: at most 6 calls (normally 2), each streamed and allowed up to $MAX_OUT output tokens, with these limits:"
 echo "  - this program stops before any call that could take Anthropic past US\$4.87 (US\$5 less the US\$0.13 of run 1);"
 echo "  - your Anthropic workspace limit is US\$5;"
@@ -166,6 +185,11 @@ echo "Checked: no key-like text in the folder to send, and it holds only the led
 ( cd "$HASIL" && zip -qr untuk-bob.zip untuk-bob )
 
 judul "Done"
+if [ "$MODE" = latihan ]; then
+  echo "PRACTICE RUN complete. Nothing was sent anywhere and nothing was spent."
+  echo "Send Bob hasil-latihan/untuk-bob.zip. Leave the folder hasil-latihan where it is; the real run writes to hasil."
+  exit 0
+fi
 echo "In the folder hasil:"
 echo "  untuk-bob.zip     -> send to Bob (costs, token counts, times and statuses; no questions, no key)"
 echo "  PRIVAT-simpan-jangan-dikirim  -> KEEP SAFE, SEND TO NO ONE. It holds Anthropic's raw answers. They are"

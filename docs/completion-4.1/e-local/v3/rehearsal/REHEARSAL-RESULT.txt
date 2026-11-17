@@ -1,21 +1,24 @@
-happy (zsh): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (15551 ps lines) thinking_in_outputs=none openai_mock=none | == Done
-happy-bash (bash): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (15934 ps lines) thinking_in_outputs=none openai_mock=none | == Done
-no-go (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (14571 ps lines) thinking_in_outputs=none openai_mock=none | STOPPED: you did not type RUN.
-openai-key (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (14600 ps lines) thinking_in_outputs=none openai_mock=none | STOPPED: this does not look like an Anthropic key (it should start sk-ant-). Was it the OpenAI one?
-empty (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (15164 ps lines) thinking_in_outputs=none openai_mock=none | STOPPED: the key was empty.
-key-denied (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (15267 ps lines) thinking_in_outputs=none openai_mock=none | STOPPED: the key or the model was not confirmed. Nothing was spent.
-tampered (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1844 ps lines) thinking_in_outputs=none openai_mock=none | STOPPED: the package does not match its checksums. Download it again.
-old-hasil (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1942 ps lines) thinking_in_outputs=none openai_mock=none | STOPPED: a folder 'hasil' already exists. Move it somewhere safe first; this script never overwrites results.
-dotenv (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1957 ps lines) thinking_in_outputs=none openai_mock=none | STOPPED: a .env file is inside this folder. Use a fresh copy of the package.
-void-missing (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1954 ps lines) thinking_in_outputs=none openai_mock=none | STOPPED: the first (void) run's folder was not found next to this one (../pintar-e-local/hasil). Keep it in Downloads, unchanged.
-void-altered (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1953 ps lines) thinking_in_outputs=none openai_mock=none | STOPPED: the first (void) run's ledger is not the one recorded (one Anthropic attempt, US$0.129986). Tell Bob.
+happy (zsh): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (15705 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=contacted | == Done
+happy-bash (bash): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (15428 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=contacted | == Done
+no-go (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (14833 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=contacted | STOPPED: you did not type RUN.
+openai-key (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (14993 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=none | STOPPED: this does not look like an Anthropic key (it should start sk-ant-). Was it the OpenAI one?
+empty (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (15176 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=none | STOPPED: the key was empty.
+key-denied (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (15548 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=contacted | STOPPED: the key or the model was not confirmed. Nothing was spent.
+tampered (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1844 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=none | STOPPED: the package does not match its checksums. Download it again.
+old-hasil (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1943 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=none | STOPPED: a folder 'hasil' already exists. Move it somewhere safe first; this script never overwrites results.
+dotenv (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1941 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=none | STOPPED: a .env file is inside this folder. Use a fresh copy of the package.
+void-missing (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1858 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=none | STOPPED: the first (void) run's folder was not found next to this one (../pintar-e-local/hasil). Keep it in Downloads, unchanged.
+void-altered (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (1954 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=none | STOPPED: the first (void) run's ledger is not the one recorded (one Anthropic attempt, US$0.129986). Tell Bob.
+latihan (zsh): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (17240 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=none | == Done
+latihan-realkey (zsh): exit=1 runs_dir=no key_in_outputs=none key_in_process_list=none (15193 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=none | STOPPED: this is the practice run: type sk-ant-latihan at the prompt, never a real key.
+latihan-then-real (zsh): exit=0 runs_dir=yes key_in_outputs=none key_in_process_list=none (31877 ps lines) thinking_in_outputs=none openai_mock=none harness_anthropic_mock=contacted | == Done | then the real procedure: == Done
 stray-rehearsal-vars (zsh): variables left after the live-mode unset = 0 (expect 0)
 --- happy path (zsh) ringkasan:
 void run 1 ledger sha256: 93d763f39a6a0d83a63efa6d027045a1402da0bda0bc885bfb270359d1b99ba7
 mode: rehearse
-run window (this command): 2026-11-17T22:26:28.916Z to 2026-11-17T22:26:29.371Z
-ledger first request: 2026-11-17T22:26:29.098Z
-ledger last settlement: 2026-11-17T22:26:29.348Z
+run window (this command): 2026-11-17T22:41:05.241Z to 2026-11-17T22:41:05.650Z
+ledger first request: 2026-11-17T22:41:05.408Z
+ledger last settlement: 2026-11-17T22:41:05.622Z
 drafts: sealed in the PRIVAT folder, not blinded (v3)
 anthropic: 4 attempts, US$0.620018, {"invalid_output":1,"ok":2,"http_429":1}
 --- happy path: files in hasil (untuk-bob must hold only ledger.json, ringkasan.txt, summary.json):
